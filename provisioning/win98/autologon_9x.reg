@@ -1,0 +1,11 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run]
+"RetroAgent"="C:\\RETRO_AGENT\\retro_agent.exe -l C:\\RETRO_AGENT\\agent.log"
+
+[HKEY_LOCAL_MACHINE\Network\Logon]
+"PrimaryProvider"="MSNP32"
+"username"="admin"
+"AutoLogon"=dword:00000001
+"MustBeValidated"=dword:00000000
+

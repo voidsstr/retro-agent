@@ -1,0 +1,23 @@
+# C build output
+*.o
+*.obj
+*.map
+agent/obj/
+agent-linux/obj/
+
+# Agent binaries
+agent/retro_agent.exe
+agent-linux/retro_agent_linux
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

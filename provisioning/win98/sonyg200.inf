@@ -1,0 +1,44 @@
+; Sony Multiscan CPD-G200 Trinitron Monitor INF
+; Horizontal: 30-96 kHz, Vertical: 48-120 Hz
+; Max resolution: 1600x1200 @ 75Hz
+
+[Version]
+Signature="$CHICAGO$"
+Class=Monitor
+Provider=%Provider%
+
+[DestinationDirs]
+DefaultDestDir=11
+
+[Manufacturer]
+%Sony%=Sony
+
+[Sony]
+%G200%=G200.Install, Monitor\SonyG200
+
+[G200.Install]
+DelReg=DEL_CURRENT_REG
+AddReg=G200.AddReg, G200.Modes
+
+[DEL_CURRENT_REG]
+HKR,MODES
+
+[G200.AddReg]
+HKR,,MaxResolution,,"1600,1200"
+HKR,,DPMS,,1
+HKR,,MfgName,,"Sony"
+HKR,,DriverDesc,,"Sony CPD-G200 Trinitron"
+
+[G200.Modes]
+HKR,"MODES\640,480",,,"30.0-96.0,48.0-120.0,+,+"
+HKR,"MODES\800,600",,,"30.0-96.0,48.0-120.0,+,+"
+HKR,"MODES\1024,768",,,"30.0-96.0,48.0-120.0,+,+"
+HKR,"MODES\1152,864",,,"30.0-96.0,48.0-120.0,+,+"
+HKR,"MODES\1280,960",,,"30.0-96.0,48.0-120.0,+,+"
+HKR,"MODES\1280,1024",,,"30.0-96.0,48.0-120.0,+,+"
+HKR,"MODES\1600,1200",,,"30.0-96.0,48.0-120.0,+,+"
+
+[Strings]
+Provider="Sony"
+Sony="Sony"
+G200="Sony Multiscan CPD-G200 Trinitron"

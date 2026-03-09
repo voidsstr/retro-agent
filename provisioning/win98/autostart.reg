@@ -1,0 +1,10 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run]
+"RetroAgent"="C:\\RETRO_AGENT\\retro_agent.exe -l C:\\RETRO_AGENT\\agent.log"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon]
+"AutoAdminLogon"="1"
+"DefaultUserName"="admin"
+"DefaultPassword"="password"
+
