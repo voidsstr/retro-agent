@@ -274,11 +274,30 @@ General pattern:
 5. Post-install registry cleanup (broken Run keys, CPL extensions)
 6. `REBOOT` and verify with `VIDEODIAG`
 
+### 3dfx Driver Installation (Voodoo 3/4/5) — Critical Notes
+
+**DO NOT manually create Display class registry entries for 3dfx drivers.** Unlike NVIDIA, the 3dfx VxD (`3dfxvs.vxd`) requires full Win98 PnP context to initialize the hardware. Manually creating `Display\0000` entries results in VIDEODIAG showing `status: OK` but the display stays at 640x480 4-bit VGA — the VxD never actually initializes and the driver silently falls back.
+
+**DO NOT add `device=3dfxvs.vxd` to `[386Enh]` in SYSTEM.INI.** It's a minivdd (miniport) loaded by `*vdd` during PnP, not a standalone VxD. Loading it via `device=` causes a Windows Protection Error.
+
+**The Amigamerlin `Driver Install.exe` only copies files and INFs** — it does NOT create registry entries or configure PnP.
+
+**What actually works:**
+1. `SYSFIX apply`, clean ghost PCI entries from old cards
+2. Copy Amigamerlin package to machine from SMB share
+3. Run `Driver Install.exe` via `LAUNCH DRIVER~1.EXE` (use short name — spaces in filenames break LAUNCH on Win98)
+4. Delete competing old INFs from `C:\WINDOWS\INF\OTHER\` (keep only the Amigamerlin `Voodoo.inf`)
+5. Reboot → Win98 PnP detects card → prompts "Insert disk labeled 3dfx Voodoo driver installer disk"
+6. Point the disk prompt to the `driver9x\` directory (e.g., `C:\WINDOWS\Desktop\am29win9x\driver9x`) which has `Voodoo.inf` and all driver files
+7. Let PnP complete → reboot again → driver activates at correct resolution
+
+**Best driver:** Amigamerlin 2.9 for all Voodoo 3/4/5 cards. INF section `Driver.InstallV3` for Voodoo3, `Driver.InstallV5` for Voodoo4/5.
+
 ## Known Machines
 
 | IP | Hostname | OS | Hardware Notes |
 |----|----------|----|----|
-| 192.168.1.124 | Q0Q1G8 | Win98 4.10 | Voodoo3 AGP, AWE64 PnP |
+| 192.168.1.124 | Q0Q1G8 | Win98 4.10 | Voodoo5 5500 AGP, AWE64 PnP |
 | 192.168.1.133 | VOIDSSTR-YOR7S5 | Win2K 5.0 | GeForce 2 GTS, SB Live |
 | 192.168.1.123 | 2004-XP | Windows XP | 2047MB RAM |
 
