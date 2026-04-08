@@ -1,6 +1,71 @@
-# Retro Agent
+# Retro Agent — Claude Code on a Windows 98 machine
 
-Remote management agent for retro PCs (Windows 98 SE, Windows 2000, Windows XP) and Linux machines. A lightweight C binary runs on target machines, exposing system information, file operations, process control, UI automation, and hardware diagnostics over a simple TCP protocol.
+**Your Pentium II now has a smarter assistant than most developers did in 2003.**
+
+This is a ~200KB C binary that runs on Windows 98 SE, 2000, and XP. It gives each retro PC a TCP control surface — system info, registry, file IO, UI automation, hardware diagnostics — plus a built‑in chat proxy that turns the machine into a **Claude Code terminal**.
+
+You type on the Voodoo5. The retro agent forwards your prompt over the LAN to a tiny daemon on your dev box. The daemon hands it to a Claude Code subagent running on your normal Max subscription, which processes the prompt with *the full Claude toolbox*. The response streams back through the same pipe and renders in a 16‑color Win98 console — and while Claude is working, you see *exactly* what it's doing live above the input line: `[subagent: EXEC VIDEODIAG on 192.168.1.124]`.
+
+**Yes, really.** Claude Opus 4.6 with 1M tokens of context can read your registry, patch a driver, take a screenshot, and tell you why your Sound Blaster isn't working — from inside a text console on a 25‑year‑old operating system.
+
+## Retro Chat — the fun part
+
+| Welcome screen | Claude is working | Response rendered |
+|---|---|---|
+| ![welcome](docs/images/retro-chat-welcome.png) | ![working](docs/images/retro-chat-working.png) | ![completed](docs/images/retro-chat-completed.png) |
+| *Run `retro_chat.exe` on the retro PC.* | *Cyan = history, **green** = what Claude is doing right now, **yellow** = spinner while waiting for the first token.* | *Response streams in line‑by‑line like a real CLI.* |
+
+### How the chat pipe works
+
+```
+   Win98 / Win2K / XP retro PC                        Your dev box (Linux / macOS)
+ ┌─────────────────────────────────┐      LAN      ┌────────────────────────────────┐
+ │  retro_chat.exe  ──localhost──►  │               │  retro_chat_daemon.py          │
+ │                                  │               │  (pure network multiplexer)    │
+ │  retro_agent.exe ◄───── TCP ─────┤───────────────┤         │                      │
+ │   (chatproxy + status bus +      │    :9898      │         ▼ /tmp/retro-chat/     │
+ │    long‑polling events)          │               │  inbox/*.json  outbox/*.json   │
+ └─────────────────────────────────┘               │   status_outbox/*.json         │
+                                                    │         │                      │
+                                                    │         ▼                      │
+                                                    │  Claude Code background agent  │
+                                                    │  (runs on your Max sub, uses   │
+                                                    │   full tools — Read, Bash,     │
+                                                    │   RetroConnection, Grep, etc.) │
+                                                    └────────────────────────────────┘
+```
+
+Three threads run inside `retro_chat.exe`, each on its own socket parked in a kernel `recv()`:
+- **`LOG_WAIT`** long‑poller — streams response chunks from Claude with sub‑100ms latency
+- **`STATUS_WAIT`** long‑poller — shows the `[subagent: ...]` activity line in green, updated any time Claude starts a new tool call
+- A local spinner thread that animates `* Working... |/-\` with zero network traffic
+
+Zero polling. Zero CPU when idle. The kernel just sleeps the sockets until there's something to show.
+
+### Why it's fun
+
+- **The vibes.** A 16‑color console on Windows 98 talking to a frontier‑class LLM feels like the future as imagined by someone in 1998, and somehow it actually works.
+- **The full Claude toolbox.** Claude can read files on the retro PC *while* answering, then tell you what it found — through the same chat window you typed the question into.
+- **Auto‑update baked in.** Push a new binary to the SMB share, and every retro PC in your fleet picks it up on its next boot. The installer registers both `retro_agent.exe` and `retro_chat.exe` for autostart.
+- **Fast.** Prompt → subagent wakes → first status update → first response token: all under a second on a healthy LAN, bottlenecked by Claude's first token and nothing else.
+
+### Try it
+
+```cmd
+:: On the retro PC, run the installer from the SMB share
+\\192.168.1.122\files\Utility\Retro Automation\install_agent.bat
+```
+
+That's it. Agent + chat client install, autostart registers, auto‑update paths get written to the registry, both start running. Reboot and you'll land at a chat prompt.
+
+On your dev box, start the daemon once:
+```bash
+python3 agent/tools/retro_chat_daemon.py &
+```
+
+Then spawn a Claude Code background subagent (see [`nsc-assistant/CLAUDE.md`](https://github.com/voidsstr/nsc-assistant) → "Retro Chat Proxy") that loops on `/tmp/retro-chat/inbox` and writes responses to `/tmp/retro-chat/outbox`. The daemon does the network multiplexing so Claude never has to think about sockets.
+
+---
 
 ## Architecture
 
