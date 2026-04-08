@@ -310,6 +310,96 @@ Removed hardware leaves registry entries under `HKLM\Enum\PCI` that claim resour
 
 Abrupt TCP disconnects (RST packets) can crash Win98's Winsock implementation, taking down the entire machine. Avoid forcefully closing connections to Win98 agents.
 
+## Retro Chat — Claude Code on retro PCs
+
+Each retro machine can run `retro_chat.exe`, a small console UI that turns the machine into a Claude Code-style chat terminal. The user types prompts on the retro PC; a Claude Code subagent on the dev box (running on the user's normal Max subscription) processes them with full tools and streams the response back. Operations the subagent performs on the retro PC are surfaced live as `[subagent: ...]` activity above the input line, so the user always knows what's happening.
+
+```
+┌──────────────────┐  TCP localhost  ┌──────────────────┐  TCP LAN  ┌──────────────────────┐  files  ┌─────────────────┐
+│  retro_chat.exe  │ ◄─────────────► │  retro_agent.exe │ ◄───────► │  retro_chat_daemon   │ ◄─────► │ Claude Code     │
+│  (user types)    │                 │  (chatproxy +    │           │  (network multiplexer│         │ subagent on Max │
+│                  │                 │   status bus)    │           │   on dev box)        │         │ subscription    │
+└──────────────────┘                 └──────────────────┘           └──────────────────────┘         └─────────────────┘
+       ▲                                       ▲                              │                              │
+       │ STATUS_WAIT (long-poll)               │ STATUS_SET (push)            │ writes status_outbox/*.json  │
+       │ LOG_WAIT    (long-poll)               │ LOG_APPEND  (push)           │ writes outbox/*.json         │
+       └───────────────────────────────────────┴──────────────────────────────┴──────────────────────────────┘
+```
+
+### Components
+
+- **`agent/tools/retro_chat.c`** — the console client. Connects to `127.0.0.1:9898` (the local agent), runs three threads: input loop, `LOG_WAIT` long-poller for response chunks, and `STATUS_WAIT` long-poller for subagent activity. Sub-100ms latency, zero polling traffic.
+- **`agent/src/chatproxy.c`** — the agent-side message bus. Stores a single in-flight prompt slot, a 256KB log ring buffer, and a 512-byte status slot, all signaled via Windows events for instant wake-up of waiters.
+- **`provisioning/win98/install_agent.bat`** — installs both `retro_agent.exe` and `retro_chat.exe`, registers each for autostart on boot, and configures the auto-update paths.
+- **Auto-update** (`agent/src/autoupdate.c`) — runs ~15 seconds after the agent starts. Checks the SMB share for newer binaries and updates both `retro_agent.exe` (via batch-restart) and `retro_chat.exe` (in-place: kill, copy, relaunch) without user intervention.
+
+### Chat Proxy Commands
+
+| Command | Direction | Purpose |
+|---------|-----------|---------|
+| `PROMPT_PUSH <text>` | client → agent | User submits a prompt (called by `retro_chat.exe`). |
+| `PROMPT_POP` | subagent → agent | Subagent pulls next pending prompt (returns empty if none). |
+| `PROMPT_WAIT [timeout_ms]` | subagent → agent | Long-polling variant — blocks up to `timeout_ms` for a new prompt. |
+| `LOG_APPEND <text>` | subagent → agent | Append a chunk of response text to the log ring buffer. |
+| `LOG_READ [offset]` | client → agent | Read log content starting at byte offset. Returns `<total_size>\n<bytes>`. |
+| `LOG_WAIT <offset> [timeout_ms]` | client → agent | Long-polling variant of `LOG_READ` — blocks until new content past `offset`. |
+| `LOG_CLEAR` | either | Reset prompt slot, log buffer, and status. |
+| `STATUS_SET <text>` | subagent → agent | Set the current subagent activity (e.g. `EXEC dir C:\WINDOWS`). Increments a sequence counter and signals all `STATUS_WAIT` waiters. |
+| `STATUS_GET` | client → agent | Read current status. Returns `<seq>\n<status_text>`. |
+| `STATUS_WAIT <last_seq> [timeout_ms]` | client → agent | Long-polling variant — blocks until `seq` advances. |
+| `PROXY_GET` / `PROXY_SET <host>` | either | Read/write the dev box that owns this agent (persisted in `HKLM\Software\RetroAgent\ProxyHost`). |
+
+All long-polling commands cap at 60s server-side, use Windows events for sub-100ms wake-up latency, and consume zero CPU/network when idle (the kernel parks the recv()).
+
+### Subagent Status Channel
+
+The status channel is what the user actually sees as "[subagent: doing X]" above the input line. It's separate from the response log so it can update independently of streaming output — ideal for surfacing what's happening during slow operations (file copies, screenshots, registry walks).
+
+The Claude Code subagent writes one tiny JSON file per tool invocation to `/tmp/retro-chat/status_outbox/<host>-<counter>.json`:
+
+```json
+{"host": "192.168.1.124", "text": "EXEC dir C:\\WINDOWS"}
+```
+
+The daemon (`retro_chat_daemon.py`) picks it up within ~20ms and forwards it via `STATUS_SET` on the agent's send connection. The retro_chat client's `STATUS_WAIT` long-poll wakes immediately and redraws the input area. End-to-end latency from "subagent decides to run a tool" to "user sees the activity on the retro PC" is well under 100ms on a healthy LAN.
+
+When the subagent finishes its response, it writes one final status with empty `text` to clear the line.
+
+### Installation
+
+The installer batch on the SMB share installs everything in one shot:
+
+```cmd
+\\192.168.1.122\files\Utility\Retro Automation\install_agent.bat
+```
+
+It will:
+1. Copy `retro_agent.exe` and `retro_chat.exe` to `C:\RETRO_AGENT\`
+2. Register both for autostart on boot (`HKLM\...\Run\RetroAgent` and `RetroChat`)
+3. Apply OS-specific autologon registry (so the agent gets a session immediately on boot)
+4. Set the auto-update paths in `HKLM\Software\RetroAgent\{UpdatePath, ChatUpdatePath}`
+5. Start both processes
+
+After the initial install, both binaries auto-update from the share on every reboot — push a new release to the share with `make release` and every retro PC picks it up the next time it boots.
+
+### Releasing New Versions
+
+```bash
+# Agent (retro_agent.exe)
+cd retro-agent/agent
+make release                  # 1.4.0 -> 1.4.1
+make release BUMP=minor       # 1.4.1 -> 1.5.0
+
+# Chat client (retro_chat.exe)
+cd retro-agent/agent/tools
+make release                  # 0.10.2 -> 0.10.3
+make release BUMP=minor       # 0.10.3 -> 0.11.0
+```
+
+Each `make release` tags the build, compiles, and uploads to:
+- The versioned filename (e.g. `retro_agent/retro_agent_v1.5.0.exe`) — preserved forever for rollback
+- The latest pointer at the share root (e.g. `retro_agent.exe`) — what installers and the auto-update use
+
 ## Project Structure
 
 ```

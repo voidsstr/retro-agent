@@ -537,8 +537,8 @@ static DWORD WINAPI automap_thread_proc(LPVOID param)
 void agent_run(void)
 {
     WSADATA wsa;
-    SOCKET listen_sock;
-    struct sockaddr_in server_addr, client_addr;
+    SOCKET listen_sock, listen_sock_alt;
+    struct sockaddr_in server_addr, server_addr_alt, client_addr;
     int client_len;
     HANDLE disc_thread;
 
@@ -617,15 +617,39 @@ void agent_run(void)
         return;
     }
 
+    /* Create secondary TCP listening socket (for direct script access) */
+    listen_sock_alt = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (listen_sock_alt != INVALID_SOCKET) {
+        BOOL reuse = TRUE;
+        setsockopt(listen_sock_alt, SOL_SOCKET, SO_REUSEADDR,
+                   (const char *)&reuse, sizeof(reuse));
+        memset(&server_addr_alt, 0, sizeof(server_addr_alt));
+        server_addr_alt.sin_family = AF_INET;
+        server_addr_alt.sin_addr.s_addr = INADDR_ANY;
+        server_addr_alt.sin_port = htons(AGENT_TCP_PORT_ALT);
+        if (bind(listen_sock_alt, (struct sockaddr *)&server_addr_alt,
+                 sizeof(server_addr_alt)) == SOCKET_ERROR ||
+            listen(listen_sock_alt, 4) == SOCKET_ERROR) {
+            log_msg(LOG_MAIN, "Alt port %d bind/listen failed: %d",
+                    AGENT_TCP_PORT_ALT, WSAGetLastError());
+            closesocket(listen_sock_alt);
+            listen_sock_alt = INVALID_SOCKET;
+        }
+    }
+
     {
         const char *mode_str = "multiplex";
         if (g_client_mode == MODE_SINGLE) mode_str = "single";
         else if (g_client_mode == MODE_THREADED) mode_str = "threaded";
-        log_msg(LOG_MAIN, "Listening on TCP :%d, discovery on UDP :%d, client_mode=%s",
-                AGENT_TCP_PORT, AGENT_UDP_PORT, mode_str);
+        log_msg(LOG_MAIN, "Listening on TCP :%d%s, discovery on UDP :%d, client_mode=%s",
+                AGENT_TCP_PORT,
+                listen_sock_alt != INVALID_SOCKET ? "+:9897" : "",
+                AGENT_UDP_PORT, mode_str);
         if (!g_service_mode)
-            printf("Listening on TCP :%d, discovery on UDP :%d (%s)\n",
-                   AGENT_TCP_PORT, AGENT_UDP_PORT, mode_str);
+            printf("Listening on TCP :%d%s, discovery on UDP :%d (%s)\n",
+                   AGENT_TCP_PORT,
+                   listen_sock_alt != INVALID_SOCKET ? "+:9897" : "",
+                   AGENT_UDP_PORT, mode_str);
     }
 
     /* Signal service manager that we're fully initialized */
@@ -650,6 +674,8 @@ void agent_run(void)
 
         FD_ZERO(&readfds);
         FD_SET(listen_sock, &readfds);
+        if (listen_sock_alt != INVALID_SOCKET)
+            FD_SET(listen_sock_alt, &readfds);
 
         if (g_client_mode == MODE_MULTIPLEX) {
             /* Also select on all connected client sockets */
@@ -665,10 +691,12 @@ void agent_run(void)
         if (select(0, &readfds, NULL, NULL, &tv) <= 0)
             continue;
 
-        /* ---- Accept new connections ---- */
-        if (FD_ISSET(listen_sock, &readfds)) {
+        /* ---- Accept new connections (primary or alt port) ---- */
+        if (FD_ISSET(listen_sock, &readfds) ||
+            (listen_sock_alt != INVALID_SOCKET && FD_ISSET(listen_sock_alt, &readfds))) {
+            SOCKET accept_sock = FD_ISSET(listen_sock, &readfds) ? listen_sock : listen_sock_alt;
             client_len = sizeof(client_addr);
-            client = accept(listen_sock, (struct sockaddr *)&client_addr,
+            client = accept(accept_sock, (struct sockaddr *)&client_addr,
                             &client_len);
             if (client != INVALID_SOCKET) {
                 /* Disable Nagle — critical for low-latency small commands */

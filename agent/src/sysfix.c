@@ -451,7 +451,10 @@ static void fix_autologon(json_t *j, int apply)
         }
 
         /* Apply: set AutoAdminLogon + DefaultUserName + DefaultPassword.
-         * Use "Administrator" as default username if none is set. */
+         * Use "Administrator" as default username on NT (not "admin" —
+         * XP's built-in account is "Administrator". Using "admin" causes
+         * Winlogon to hang at "Windows is starting up" trying to log in
+         * as a non-existent user). */
         if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
                           "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon",
                           0, KEY_WRITE, &hKey) == ERROR_SUCCESS) {
@@ -459,9 +462,9 @@ static void fix_autologon(json_t *j, int apply)
                            (BYTE *)"1", 2);
             if (!def_user[0]) {
                 RegSetValueExA(hKey, "DefaultUserName", 0, REG_SZ,
-                               (BYTE *)"admin",
-                               (DWORD)strlen("admin") + 1);
-                log_msg(LOG_SYSFIX, "Set DefaultUserName=admin");
+                               (BYTE *)"Administrator",
+                               (DWORD)strlen("Administrator") + 1);
+                log_msg(LOG_SYSFIX, "Set DefaultUserName=Administrator");
             }
             if (!def_pass[0]) {
                 RegSetValueExA(hKey, "DefaultPassword", 0, REG_SZ,

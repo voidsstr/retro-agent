@@ -10,7 +10,11 @@ TARGET = retro_agent.exe
 
 # Version from highest git tag (e.g. v1.1.0 -> 1.1.0)
 VERSION = $(shell git tag -l 'v*' --sort=-v:refname 2>/dev/null | head -1 | sed 's/^v//' || echo "0.0.0")
-SMB_SHARE = smb://192.168.1.122/files/Utility/Retro%20Automation/retro_agent.exe
+# Versioned upload: each build goes to its own filename in the retro_agent folder
+SMB_BASE = smb://192.168.1.122/files/Utility/Retro%20Automation/retro_agent
+SMB_VERSIONED = $(SMB_BASE)/retro_agent_v$(VERSION).exe
+# Latest pointer (overwritten on every release for backward compat with old installers)
+SMB_LATEST = smb://192.168.1.122/files/Utility/Retro%20Automation/retro_agent.exe
 SMB_CREDS = admin:password
 
 # compat.c MUST be first - provides CRT stubs for Win98SE
@@ -33,6 +37,8 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/display.c \
           $(SRCDIR)/audio.c \
           $(SRCDIR)/sysfix.c \
+          $(SRCDIR)/xpactivate.c \
+          $(SRCDIR)/chatproxy.c \
           $(SRCDIR)/autoupdate.c \
           $(SRCDIR)/log.c \
           $(SRCDIR)/util.c
@@ -109,7 +115,12 @@ release:
 	git tag $$NEWTAG; \
 	$(MAKE) clean; \
 	$(MAKE); \
-	echo "Uploading to share..."; \
-	curl --upload-file $(TARGET) -u $(SMB_CREDS) "$(SMB_SHARE)"; \
+	NEWVER="$$MAJOR.$$MINOR.$$PATCH"; \
+	VERSIONED_URL="$(SMB_BASE)/retro_agent_v$$NEWVER.exe"; \
+	echo "Uploading versioned: retro_agent/retro_agent_v$$NEWVER.exe"; \
+	curl --upload-file $(TARGET) -u $(SMB_CREDS) "$$VERSIONED_URL"; \
 	echo ""; \
-	echo "Released $$NEWTAG"
+	echo "Updating latest pointer at root"; \
+	curl --upload-file $(TARGET) -u $(SMB_CREDS) "$(SMB_LATEST)"; \
+	echo ""; \
+	echo "Released $$NEWTAG to retro_agent/retro_agent_v$$NEWVER.exe"

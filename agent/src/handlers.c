@@ -54,7 +54,20 @@ static const cmd_entry_t commands[] = {
     { "DISPLAYCFG", 1, NULL,             handle_displaycfg },
     { "AUDIOINFO",  0, handle_audioinfo,  NULL },
     { "SYSFIX",     1, NULL,             handle_sysfix },
+    { "XPACTIVATE", 1, NULL,            handle_xpactivate },
     { "AUTOMAP",    1, NULL,             handle_automap },
+    { "PROMPT_PUSH",1, NULL,            handle_prompt_push },
+    { "PROMPT_POP", 0, handle_prompt_pop, NULL },
+    { "PROMPT_WAIT",1, NULL,            handle_prompt_wait },
+    { "LOG_APPEND", 1, NULL,            handle_log_append },
+    { "LOG_READ",   1, NULL,            handle_log_read },
+    { "LOG_WAIT",   1, NULL,            handle_log_wait },
+    { "LOG_CLEAR",  0, handle_log_clear, NULL },
+    { "PROXY_GET",  0, handle_proxy_get,  NULL },
+    { "PROXY_SET",  1, NULL,            handle_proxy_set },
+    { "STATUS_SET", 1, NULL,            handle_status_set },
+    { "STATUS_GET", 0, handle_status_get, NULL },
+    { "STATUS_WAIT",1, NULL,            handle_status_wait },
     { NULL,         0, NULL,              NULL }
 };
 

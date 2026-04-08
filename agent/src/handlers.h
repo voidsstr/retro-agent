@@ -44,7 +44,20 @@ void handle_smartinfo(SOCKET sock);
 void handle_displaycfg(SOCKET sock, const char *args);
 void handle_audioinfo(SOCKET sock);
 void handle_sysfix(SOCKET sock, const char *args);
+void handle_xpactivate(SOCKET sock, const char *args);
 void handle_automap(SOCKET sock, const char *args);
+void handle_prompt_push(SOCKET sock, const char *args);
+void handle_prompt_pop(SOCKET sock);
+void handle_prompt_wait(SOCKET sock, const char *args);
+void handle_log_append(SOCKET sock, const char *args);
+void handle_log_read(SOCKET sock, const char *args);
+void handle_log_wait(SOCKET sock, const char *args);
+void handle_log_clear(SOCKET sock);
+void handle_proxy_get(SOCKET sock);
+void handle_proxy_set(SOCKET sock, const char *args);
+void handle_status_set(SOCKET sock, const char *args);
+void handle_status_get(SOCKET sock);
+void handle_status_wait(SOCKET sock, const char *args);
 
 /* Auto-map network drives at startup (no socket needed) */
 void automap_run_all(void);
