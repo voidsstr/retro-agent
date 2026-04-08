@@ -1,5 +1,35 @@
 # Retro Agent — Claude Code Instructions
 
+## Session Startup — Chat Proxy Status Check (REQUIRED)
+
+**On every Claude Code session start in this directory, IMMEDIATELY run the chat status check and echo a status message to the user.** Do this as your first action, before responding to any user message:
+
+```bash
+bash /home/voidsstr/development/retro-agent/scripts/chat_status.sh
+```
+
+The output will tell you and the user:
+- Whether the `retro_chat_daemon.py` is running (✓ or ✗)
+- How many retro agents are claimed
+- Whether there are pending prompts in the inbox
+- Whether a chat processor subagent appears to be active (based on heartbeat)
+
+Echo a friendly status block to the user, e.g.:
+
+```
+Retro chat status:
+  ✓ daemon running (pid 12345, claimed: .124, .143)
+  ✗ processor subagent: NOT RUNNING (or stale, last heartbeat 12 minutes ago)
+  ✓ inbox: 0 pending prompts
+
+To start the chat processor subagent, ask: "start the chat processor"
+To restart the daemon: bash /home/voidsstr/development/retro-agent/scripts/restart_daemon.sh
+```
+
+If the daemon is NOT running, offer to start it. If a processor is needed, **prompt the user to ask for one** rather than auto-spawning (so they can decide).
+
+When the user asks "start the chat processor" or similar, spawn a fresh background subagent using the Agent tool with `run_in_background=true` and the prompt template documented in `nsc-assistant/CLAUDE.md` "Retro Chat Proxy" section.
+
 ## Repository Context
 
 This repo was extracted from the `nsc-assistant` monorepo. The dashboard, MCP server, and OpenClaw agents remain in `nsc-assistant`. This repo contains only the agent binaries, Python client library, provisioning scripts, and documentation.
