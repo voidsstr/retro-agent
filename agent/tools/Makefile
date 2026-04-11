@@ -29,7 +29,7 @@ LDFLAGS = -lws2_32 -lkernel32 -luser32 -static
 
 SMB_BASE = smb://192.168.1.122/files/Utility/Retro%20Automation/retro_chat
 SMB_LATEST = smb://192.168.1.122/files/Utility/Retro%20Automation/retro_chat.exe
-SMB_CREDS = admin:password
+SMB_CREDS = user:password  # EDIT: your SMB share credentials
 
 .PHONY: all clean release
 

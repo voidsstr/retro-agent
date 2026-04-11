@@ -2,22 +2,22 @@
 
 ## Problem Statement
 
-A Windows 98 SE machine at 192.168.1.133 needed NVIDIA GeForce 2 GTS drivers installed. The machine had 1021MB RAM and a history of video card swaps (TNT2 Ultra, GeForce4 Ti 4600 ghosts in registry). What appeared to be a straightforward driver install turned into a multi-hour debugging session as every driver version caused "Windows Protection Error" on boot — ultimately traced to a Win98 memory management bug completely unrelated to the video drivers.
+A Windows 98 SE machine at 10.0.0.51 needed NVIDIA GeForce 2 GTS drivers installed. The machine had 1021MB RAM and a history of video card swaps (TNT2 Ultra, GeForce4 Ti 4600 ghosts in registry). What appeared to be a straightforward driver install turned into a multi-hour debugging session as every driver version caused "Windows Protection Error" on boot — ultimately traced to a Win98 memory management bug completely unrelated to the video drivers.
 
 ## Environment
 
 - **Machine**: hostname "2000", 1021MB RAM, drives A/C/D/E/F
 - **OS**: Windows 98 SE (4.10.2222)
 - **Video Card**: NVIDIA GeForce 2 GTS (PCI ID 10DE:0150, SUBSYS_002E10DE REV_A4 — NVIDIA reference board)
-- **Network**: IP 192.168.1.133, agent on port 9898
-- **File Share**: SMB at 192.168.1.122 with driver repository on E:\Drivers
+- **Network**: IP 10.0.0.51, agent on port 9898
+- **File Share**: SMB at 10.0.0.1 with driver repository on E:\Drivers
 - **Dashboard**: Docker container running on the Linux workstation, holding persistent agent connections
 
 ## Phase 1: Initial Diagnosis
 
 ### System State
 
-Connected to agent via `RetroConnection('192.168.1.133', 9898)`:
+Connected to agent via `RetroConnection('10.0.0.51', 9898)`:
 
 - **SYSINFO**: Win98 4.10.2222, 1021MB RAM
 - **PCISCAN**: Two ghost devices (TNT2 Ultra 10DE:0029, GeForce4 Ti 4600 10DE:0250), no active display adapter

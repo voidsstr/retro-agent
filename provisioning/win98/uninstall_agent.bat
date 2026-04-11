@@ -1,7 +1,7 @@
 @echo off
 rem ============================================================
 rem  Retro Agent Uninstaller for Windows 98SE / XP
-rem  Run from: \\192.168.1.122\files\Utility\Retro Automation
+rem  Run from: \\YOUR-SERVER\files\Utility\Retro Automation
 rem  or locally from any directory
 rem ============================================================
 
@@ -85,7 +85,7 @@ goto disconnect
 :disconnect
 rem -- Disconnect network share --
 echo  Disconnecting network share...
-net use \\192.168.1.122\files /delete >nul 2>&1
+net use \\YOUR-SERVER\files /delete >nul 2>&1
 echo  [OK] Network share disconnected
 echo.
 echo  Uninstall complete!
