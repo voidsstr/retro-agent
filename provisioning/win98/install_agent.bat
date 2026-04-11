@@ -10,7 +10,7 @@ rem  Both autostart on boot. The agent self-updates from the share
 rem  on every startup; it also updates retro_chat.exe in place when
 rem  a newer version is available.
 rem
-rem  Run from: \\192.168.1.122\files\Utility\Retro Automation
+rem  EDIT THE SRCDIR BELOW to point to your SMB share before running.
 rem ============================================================
 
 echo.
@@ -18,7 +18,8 @@ echo  Retro Agent + Chat Installer
 echo  ============================
 echo.
 
-set SRCDIR=\\192.168.1.122\files\Utility\Retro Automation
+rem --- EDIT THIS: point to your SMB share containing the binaries ---
+set SRCDIR=\\YOUR-SERVER\share\Retro Automation
 set INSTALLDIR=C:\RETRO_AGENT
 
 echo  Source:  %SRCDIR%

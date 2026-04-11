@@ -16,8 +16,8 @@ Multiple attempts had been made to install 3dfx drivers manually, including offi
 - **Machine**: Intel 440BX chipset, Pentium III, 383MB RAM
 - **OS**: Windows 98 SE (4.10.2222 A)
 - **Video Card**: 3dfx Voodoo 3 AGP (VEN_121A&DEV_0005&SUBSYS_1037121A&REV_01)
-- **Network**: Intel Pro/100 Ethernet, IP 192.168.1.124
-- **File Share**: SMB share at 192.168.1.122 with driver repository
+- **Network**: Intel Pro/100 Ethernet, IP 10.0.0.50
+- **File Share**: SMB share at 10.0.0.1 with driver repository
 - **Agent**: `retro_agent.exe` running on the Win98 machine
 - **Controller**: Claude Code on a Linux workstation, communicating via `test_agent.py` / `retro_protocol.py`
 
@@ -28,8 +28,8 @@ Multiple attempts had been made to install 3dfx drivers manually, including offi
 Connected to the agent and ran baseline diagnostics:
 
 ```
-$ python3 test_agent.py 192.168.1.124 SYSINFO
-$ python3 test_agent.py 192.168.1.124 VIDEODIAG
+$ python3 test_agent.py 10.0.0.50 SYSINFO
+$ python3 test_agent.py 10.0.0.50 VIDEODIAG
 ```
 
 **SYSINFO** confirmed the system specs. **VIDEODIAG** revealed:
@@ -41,7 +41,7 @@ $ python3 test_agent.py 192.168.1.124 VIDEODIAG
 ### Step 2: PCI Bus Enumeration
 
 ```
-$ python3 test_agent.py 192.168.1.124 'REGREAD HKLM Enum\PCI'
+$ python3 test_agent.py 10.0.0.50 'REGREAD HKLM Enum\PCI'
 ```
 
 Found all PCI devices on the bus:
@@ -66,7 +66,7 @@ Found all PCI devices on the bus:
 Drilled into the Voodoo 2 entries:
 
 ```
-$ python3 test_agent.py 192.168.1.124 \
+$ python3 test_agent.py 10.0.0.50 \
     'REGREAD HKLM Enum\PCI\VEN_121A&DEV_0002&SUBSYS_00000000&REV_02\BUS_00&DEV_0F&FUNC_00'
 ```
 
@@ -94,7 +94,7 @@ The INF files targeted the Voodoo 3 (DEV_0005), Voodoo 4/5 (DEV_0009), and Voodo
 ### Step 5: SYSTEM.INI Confirmation
 
 ```
-$ python3 test_agent.py 192.168.1.124 'DOWNLOAD C:\WINDOWS\SYSTEM.INI'
+$ python3 test_agent.py 10.0.0.50 'DOWNLOAD C:\WINDOWS\SYSTEM.INI'
 ```
 
 ```ini
@@ -141,7 +141,7 @@ Uploaded and applied via the agent:
 
 ```
 $ python3 -c "..." # Upload cleanup_ghosts.reg via UPLOAD command
-$ python3 test_agent.py 192.168.1.124 \
+$ python3 test_agent.py 10.0.0.50 \
     'EXEC regedit.exe /s C:\WINDOWS\TEMP\cleanup_ghosts.reg'
 ```
 
@@ -150,10 +150,10 @@ $ python3 test_agent.py 192.168.1.124 \
 Deleted driver artifacts from failed previous install attempts:
 
 ```
-$ python3 test_agent.py 192.168.1.124 'EXEC attrib -r C:\WINDOWS\INF\Voodoo3.inf'
-$ python3 test_agent.py 192.168.1.124 'DELETE C:\WINDOWS\INF\Voodoo3.inf'
-$ python3 test_agent.py 192.168.1.124 'DELETE C:\WINDOWS\INF\Voodoo.inf'
-$ python3 test_agent.py 192.168.1.124 'DELETE C:\WINDOWS\INF\DXMM3DFX.PNF'
+$ python3 test_agent.py 10.0.0.50 'EXEC attrib -r C:\WINDOWS\INF\Voodoo3.inf'
+$ python3 test_agent.py 10.0.0.50 'DELETE C:\WINDOWS\INF\Voodoo3.inf'
+$ python3 test_agent.py 10.0.0.50 'DELETE C:\WINDOWS\INF\Voodoo.inf'
+$ python3 test_agent.py 10.0.0.50 'DELETE C:\WINDOWS\INF\DXMM3DFX.PNF'
 ```
 
 ### Step 3: Reboot
@@ -192,9 +192,9 @@ Read the INF's `[DestinationDirs]` to determine correct file placement:
 Copied all files from the network share via FILECOPY:
 
 ```
-$ python3 test_agent.py 192.168.1.124 \
+$ python3 test_agent.py 10.0.0.50 \
     'FILECOPY G:\Drivers\3DFX\...\3dfx16v3.drv|C:\WINDOWS\SYSTEM\3dfx16v3.drv'
-$ python3 test_agent.py 192.168.1.124 \
+$ python3 test_agent.py 10.0.0.50 \
     'FILECOPY G:\Drivers\3DFX\...\3dfxv3.vxd|C:\WINDOWS\SYSTEM\3dfxv3.vxd'
 # ... (10 files total)
 ```
@@ -225,7 +225,7 @@ After reboot, the Add New Hardware wizard detected "3dfx Voodoo3" (matching our 
 After driver installation, VIDEODIAG showed the Voodoo 3 at 1024x768 32-bit color was supported in the driver's MODES registry, but Display Properties only offered 640x480. Investigation revealed the monitor driver was the bottleneck:
 
 ```
-$ python3 test_agent.py 192.168.1.124 \
+$ python3 test_agent.py 10.0.0.50 \
     'REGREAD HKLM System\CurrentControlSet\Services\Class\Monitor\0000'
 ```
 
@@ -272,7 +272,7 @@ During cleanup, the Display class entries were inadvertently renumbered. The PCI
 Found the mismatch by inspecting the PCI device instance:
 
 ```
-$ python3 test_agent.py 192.168.1.124 \
+$ python3 test_agent.py 10.0.0.50 \
     'REGREAD HKLM Enum\PCI\VEN_121A&DEV_0005&SUBSYS_1037121A&REV_01\000800'
 ```
 
@@ -287,7 +287,7 @@ $ python3 test_agent.py 192.168.1.124 \
 Fixed by updating the Driver binding:
 
 ```
-$ python3 test_agent.py 192.168.1.124 \
+$ python3 test_agent.py 10.0.0.50 \
     'REGWRITE HKLM Enum\PCI\VEN_121A&DEV_0005&SUBSYS_1037121A&REV_01\000800 Driver REG_SZ DISPLAY\0000'
 ```
 
@@ -371,7 +371,7 @@ start C:\RETRO_AGENT\retro_agent.exe -l C:\RETRO_AGENT\agent.log
 Registered in `HKLM\Software\Microsoft\Windows\CurrentVersion\Run` as `RetroAgent`:
 
 ```
-$ python3 test_agent.py 192.168.1.124 \
+$ python3 test_agent.py 10.0.0.50 \
     'REGWRITE HKLM Software\Microsoft\Windows\CurrentVersion\Run RetroAgent REG_SZ C:\RETRO_AGENT\startup.bat'
 ```
 
@@ -379,7 +379,7 @@ On boot, the script launches the agent with file logging. Network share mapping 
 
 ### Network Share Mapping: Win98 Limitations
 
-The initial plan was to automate `net use G: \\192.168.1.122\FILES` in the startup script, but this proved unreliable on Win98 SE due to several compounding issues:
+The initial plan was to automate `net use G: \\10.0.0.1\FILES` in the startup script, but this proved unreliable on Win98 SE due to several compounding issues:
 
 **1. Win98 `net use` syntax differs from NT/2000/XP:**
 - `/user:admin` — **not supported** on Win98 (only `/SAVEPW:NO`, `/YES`, `/NO`, `/DELETE`, `/HOME`)
@@ -390,7 +390,7 @@ The initial plan was to automate `net use G: \\192.168.1.122\FILES` in the start
 Any SMB call (`net use`, `WNetAddConnection2A` via NETMAP, even `CopyFileA` with UNC paths) goes through the Win98 networking stack and blocks the calling thread. Since the agent is single-threaded (required for Win98 Winsock compatibility), a blocking SMB call hangs the entire agent until the call completes or times out.
 
 **3. SMB1 protocol requirement:**
-Win98 can only speak SMB1/CIFS. The file share (a Buffalo NAS at 192.168.1.122) works when accessed manually through Windows Explorer but automated `net use` calls blocked indefinitely, likely due to SMB protocol negotiation issues in non-interactive contexts.
+Win98 can only speak SMB1/CIFS. The file share (a Buffalo NAS at 10.0.0.1) works when accessed manually through Windows Explorer but automated `net use` calls blocked indefinitely, likely due to SMB protocol negotiation issues in non-interactive contexts.
 
 **4. Resource exhaustion from hung SMB calls:**
 When `net use` or `wscript` processes hung waiting on SMB, they consumed system resources. After several hung attempts, Win98 could no longer create new processes (`CreateProcessA` returning error 0), requiring a reboot to recover.

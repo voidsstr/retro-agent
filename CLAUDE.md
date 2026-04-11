@@ -45,8 +45,8 @@ cd agent && make clean && make
 # Output: agent/retro_agent.exe
 
 # Upload to SMB share (distribution point for all retro machines)
-curl --upload-file agent/retro_agent.exe -u admin:password \
-  "smb://192.168.1.122/files/Utility/Retro%20Automation/retro_agent.exe"
+curl --upload-file agent/retro_agent.exe -u YOUR-CREDS \
+  "smb://YOUR-SERVER/files/Utility/Retro%20Automation/retro_agent.exe"
 ```
 
 `make release` — bumps patch version, tags, builds, uploads to share in one step. `make release BUMP=minor|major` for minor/major bumps.
@@ -60,8 +60,8 @@ cd /home/voidsstr/development/nsc-assistant && docker compose up -d --build dash
 
 ```bash
 cd agent-linux && make clean && make
-curl --upload-file agent-linux/retro_agent_linux -u admin:password \
-  "smb://192.168.1.122/files/Utility/Retro%20Automation/retro_agent_linux"
+curl --upload-file agent-linux/retro_agent_linux -u YOUR-CREDS \
+  "smb://YOUR-SERVER/files/Utility/Retro%20Automation/retro_agent_linux"
 ```
 
 ## Using the Agent from an LLM
@@ -75,7 +75,7 @@ import asyncio
 from client.retro_protocol import RetroConnection
 
 async def run():
-    conn = RetroConnection('192.168.1.124', 9898)
+    conn = RetroConnection('10.0.0.50', 9898)
     await conn.connect('retro-agent-secret', timeout=15.0)
     # ... send commands ...
     await conn.close()
@@ -276,7 +276,7 @@ asyncio.run(run())
 async def scan_subnet():
     tasks = []
     for i in range(1, 255):
-        tasks.append(try_host(f'192.168.1.{i}'))
+        tasks.append(try_host(f'10.0.0.{i}'))
     await asyncio.gather(*tasks)
 
 async def try_host(ip):
@@ -327,12 +327,12 @@ General pattern:
 
 | IP | Hostname | OS | Hardware Notes |
 |----|----------|----|----|
-| 192.168.1.124 | Q0Q1G8 | Win98 4.10 | Voodoo5 5500 AGP, AWE64 PnP |
-| 192.168.1.133 | VOIDSSTR-YOR7S5 | Win2K 5.0 | GeForce 2 GTS, SB Live |
-| 192.168.1.123 | 2004-XP | Windows XP | 2047MB RAM |
+| 10.0.0.50 | Q0Q1G8 | Win98 4.10 | Voodoo5 5500 AGP, AWE64 PnP |
+| 10.0.0.51 | VOIDSSTR-YOR7S5 | Win2K 5.0 | GeForce 2 GTS, SB Live |
+| 10.0.0.52 | 2004-XP | Windows XP | 2047MB RAM |
 
 ## SMB File Share
 
-`smb://192.168.1.122/files/Utility/Retro Automation/` — distribution point for agent binaries.
+`smb://YOUR-SERVER/files/Utility/Retro Automation/` — distribution point for agent binaries.
 
-Upload: `curl --upload-file file -u admin:password "smb://192.168.1.122/files/Utility/Retro%20Automation/file"`
+Upload: `curl --upload-file file -u YOUR-CREDS "smb://YOUR-SERVER/files/Utility/Retro%20Automation/file"`

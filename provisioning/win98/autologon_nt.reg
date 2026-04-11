@@ -1,11 +1,12 @@
 REGEDIT4
 
+; Retro Agent autostart
 [HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run]
 "RetroAgent"="C:\\RETRO_AGENT\\retro_agent.exe -l C:\\RETRO_AGENT\\agent.log"
-"MapShare"="net use \\\\192.168.1.122\\files /user:admin password"
 
+; Auto-logon — EDIT these values for your environment
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon]
 "AutoAdminLogon"="1"
-"DefaultUserName"="admin"
-"DefaultPassword"="password"
+"DefaultUserName"="Administrator"
+"DefaultPassword"="CHANGE-ME"
 
