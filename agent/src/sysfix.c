@@ -450,33 +450,30 @@ static void fix_autologon(json_t *j, int apply)
             return;
         }
 
-        /* Apply: set AutoAdminLogon + DefaultUserName + DefaultPassword.
-         * Use "Administrator" as default username on NT (not "admin" —
-         * XP's built-in account is "Administrator". Using "admin" causes
-         * Winlogon to hang at "Windows is starting up" trying to log in
-         * as a non-existent user). */
+        /* Apply: set AutoAdminLogon=1 only. Do NOT set DefaultUserName
+         * or DefaultPassword — those must be configured by the user.
+         * Previous versions hardcoded username="admin" (wrong — XP uses
+         * "Administrator") and password="password" (security risk).
+         * SYSFIX now only enables the autologon flag; credentials are
+         * the user's responsibility. */
         if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
                           "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon",
                           0, KEY_WRITE, &hKey) == ERROR_SUCCESS) {
             RegSetValueExA(hKey, "AutoAdminLogon", 0, REG_SZ,
                            (BYTE *)"1", 2);
-            if (!def_user[0]) {
-                RegSetValueExA(hKey, "DefaultUserName", 0, REG_SZ,
-                               (BYTE *)"Administrator",
-                               (DWORD)strlen("Administrator") + 1);
-                log_msg(LOG_SYSFIX, "Set DefaultUserName=Administrator");
-            }
-            if (!def_pass[0]) {
-                RegSetValueExA(hKey, "DefaultPassword", 0, REG_SZ,
-                               (BYTE *)"password",
-                               (DWORD)strlen("password") + 1);
-                log_msg(LOG_SYSFIX, "Set DefaultPassword");
-            }
             RegCloseKey(hKey);
-            log_msg(LOG_SYSFIX, "Applied autologon fix (NT)");
+            log_msg(LOG_SYSFIX, "Applied autologon fix (NT): AutoAdminLogon=1");
             json_kv_str(j, "status", FIX_APPLIED);
-            json_kv_str(j, "detail",
-                "Set AutoAdminLogon=1 with credentials (effective next boot)");
+            if (def_user[0] && def_pass[0]) {
+                json_kv_str(j, "detail",
+                    "Set AutoAdminLogon=1 (credentials already configured)");
+            } else {
+                json_kv_str(j, "status", FIX_APPLIED);
+                json_kv_str(j, "detail",
+                    "Set AutoAdminLogon=1 — NOTE: you must also set "
+                    "DefaultUserName and DefaultPassword in Winlogon "
+                    "registry for autologon to work");
+            }
         } else {
             json_kv_str(j, "status", FIX_FAILED);
             _snprintf(detail, sizeof(detail), "RegOpenKeyEx write failed: %lu",
