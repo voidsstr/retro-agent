@@ -105,23 +105,6 @@ for pc in pcs:
     await conn.close()
 ```
 
-### Configure Game Settings Remotely
-
-```python
-# Read the current Quake 3 config
-text = await conn.command_text(
-    r'EXEC type "C:\Quake III Arena\baseq3\q3config.cfg"'
-)
-
-# Upload a patched config with optimal settings
-with open('q3config_optimized.cfg', 'rb') as f:
-    payload = f.read()
-await conn.send_command(
-    r'UPLOAD C:\Quake III Arena\baseq3\q3config.cfg',
-    binary_payload=payload
-)
-```
-
 ### Monitor System Health
 
 ```python
@@ -487,6 +470,77 @@ Abrupt TCP disconnects (RST packets) can crash Win98's Winsock implementation. A
 ### EXEC and Paths with Spaces
 
 On Win98, `EXEC` wraps commands with `COMMAND.COM /C` which breaks on paths with spaces, even when quoted. Use 8.3 short names (`C:\PROGRA~1` instead of `C:\Program Files`) or the `DIRLIST` command (which handles spaces correctly).
+
+## Game Compatibility & Configuration
+
+Findings and recipes from deploying retro titles across the fleet. Everything in this section can be applied remotely through the agent — no physical access required.
+
+### Reading and writing game configs
+
+```python
+# Read an existing config
+text = await conn.command_text(
+    r'EXEC type "C:\Quake III Arena\baseq3\q3config.cfg"'
+)
+
+# Upload a replacement config
+with open('q3config_optimized.cfg', 'rb') as f:
+    payload = f.read()
+await conn.send_command(
+    r'UPLOAD C:\Quake III Arena\baseq3\q3config.cfg',
+    binary_payload=payload
+)
+```
+
+### Quake 3 Arena as a reference config
+
+When a Q3-engine game (MoHAA, RTCW, SoF II, etc.) misbehaves, a known-working Q3A install on the same box is the fastest reference. Copy the relevant cvars from `baseq3/q3config.cfg`. The ones that matter for renderer init:
+
+- `r_glDriver "opengl32"`
+- `r_colorbits "0"`, `r_depthbits "0"`, `r_stencilbits "0"` — `0` means "match the desktop", which sidesteps a lot of ChoosePixelFormat failures
+- `r_fullscreen "1"`
+- `r_ext_compressed_textures "0"` — S3TC on Q3 engine is buggy on Voodoo5 and on some NVIDIA NV4x driver combinations
+
+### MoHAA on GeForce 6 series — requires ForceWare ≤ 71.89
+
+**Symptom:** `GLW_ChoosePFD failed / failed to find an appropriate PIXELFORMAT / could not load OpenGL subsystem` when launching Medal of Honor: Allied Assault. Quake 3 Arena on the *same card and driver* works — the failure is MoHAA-specific.
+
+**Cause:** MoHAA's Q3-engine retry path asks for a 16-bit color PFD. ForceWare 75.19+ on NV4x does not expose any 16-bit PFDs when the desktop is in 32-bit color. The engine walks 35 enumerated PFDs, matches none, falls back to the 3dfx Glide wrapper (`3dfxvgl.dll`) which isn't present, and aborts.
+
+**Remediation:** Install NVIDIA ForceWare **71.89** (last driver that still exposes 16-bit PFDs on NV4x while still supporting GeForce 6 series). Confirmed on a GeForce 6800. GeForce 6800 support starts at ForceWare 61.72 — don't go below that.
+
+```python
+# Stage driver from SMB share and install silently (no auto-reboot)
+await conn.send_command('NETMAP \\\\server\\share X: user pass')
+await conn.send_command(
+    'EXEC cmd /c copy /Y "X:\\Drivers\\Nvidia\\Win2K-XP\\71.89_forceware_winxp2k.exe" '
+    '"C:\\WINDOWS\\TEMP\\nv71.exe"'
+)
+await conn.send_command('NETUNMAP X:')
+await conn.send_command('LAUNCH C:\\WINDOWS\\TEMP\\nv71.exe -s -y -noreboot')
+# Wait for install to complete (poll for setup.exe absence), then REBOOT via the agent.
+```
+
+**Related quirk — `sm.*` safe-mode markers:** MoHAA creates zero-byte files named `sm.000`, `sm.001`, ... in the install dir on each launch, and deletes them on clean exit. Any stale marker triggers a "last time crashed" dialog and a progressively stricter safe-mode config that overrides your cvars *and* `+set` CLI args. After the driver fix, delete any leftover `sm.*` once; from then on MoHAA keeps its own accounting. The launcher dialog's button order is Safe Mode / Restart Windows / Normal Mode / Exit — the default focus is Safe Mode so TAB, TAB, SPACE selects Normal Mode.
+
+### Descent 3 retail — skip the CD check
+
+Retail `main.exe` refuses to launch without the CD (physical or DaemonTools-mounted). SafeDisc is **not** involved — it's a plain conditional jump around a `MessageBox("Invalid CDROM!")`. Two versions seen in the fleet:
+
+| Version     | `main.exe` size | Patch offset | Pre-patch MD5                      | Post-patch MD5                     |
+|-------------|----------------:|:------------:|------------------------------------|------------------------------------|
+| v1.4 retail |       1,728,512 | `0x52af5`    | `6be4be25542d7d59bcc7a3d58d5de971` | `3ab25545a3511c9c7661eada1ec4e1e6` |
+| v1.5 retail |       1,724,416 | `0x52b05`    | `c38ddd1e2cd3709c681dba494cf43124` | `8fd5b2cf4a16ae9c08e25b31f494f857` |
+
+Flip the byte at the patch offset from `0x75` (JNZ) to `0xeb` (unconditional JMP). This converts the "CD not found → error" branch into an unconditional "skip error" in the engine's `CheckCD("d3.hog")` loop.
+
+The launcher (`Descent 3.exe`, 1,150,976 bytes on both v1.4 and v1.5) performs its own CD volume-label probe and must be patched separately: at file offset `0x7c50` replace the function prologue `81 ec 08 02 00 00` with `33 c0 c2 04 00 90` (`xor eax, eax; ret 4; nop`). That stubs the drive-scan function to return `0` ("CD found at drive A:"), which the caller treats as success via its `jge` check.
+
+General technique for any pre-SafeDisc 90s CD check: grep for the error string (`strings game.exe | grep -iE "cdrom|insert.*cd|disc"`), locate its VA via the PE section table, search the code for `0x68 <VA-LE>` (x86 `PUSH imm32` — the argument to `MessageBoxA`), walk backward to the guarding `74`/`75` short conditional, flip to `0xeb`. Keep a backup (`FILECOPY src|src.orig`) before writing.
+
+### Older games and paths with spaces
+
+`LAUNCH` breaks on paths containing spaces on Win98. Use 8.3 short names (`C:\PROGRA~1\EAGAME~1\MOHAA` for `C:\Program Files\EA GAMES\MOHAA`) or launch a batch file via `LAUNCH` and put the quoted path inside the batch. On XP this is fine.
 
 ## LLM Integration Patterns
 
