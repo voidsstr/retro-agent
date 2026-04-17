@@ -105,23 +105,6 @@ for pc in pcs:
     await conn.close()
 ```
 
-### Configure Game Settings Remotely
-
-```python
-# Read the current Quake 3 config
-text = await conn.command_text(
-    r'EXEC type "C:\Quake III Arena\baseq3\q3config.cfg"'
-)
-
-# Upload a patched config with optimal settings
-with open('q3config_optimized.cfg', 'rb') as f:
-    payload = f.read()
-await conn.send_command(
-    r'UPLOAD C:\Quake III Arena\baseq3\q3config.cfg',
-    binary_payload=payload
-)
-```
-
 ### Monitor System Health
 
 ```python
@@ -487,6 +470,63 @@ Abrupt TCP disconnects (RST packets) can crash Win98's Winsock implementation. A
 ### EXEC and Paths with Spaces
 
 On Win98, `EXEC` wraps commands with `COMMAND.COM /C` which breaks on paths with spaces, even when quoted. Use 8.3 short names (`C:\PROGRA~1` instead of `C:\Program Files`) or the `DIRLIST` command (which handles spaces correctly).
+
+## Game Compatibility & Configuration
+
+Findings and recipes from deploying retro titles across the fleet. Everything in this section can be applied remotely through the agent — no physical access required.
+
+### Reading and writing game configs
+
+```python
+# Read an existing config
+text = await conn.command_text(
+    r'EXEC type "C:\Quake III Arena\baseq3\q3config.cfg"'
+)
+
+# Upload a replacement config
+with open('q3config_optimized.cfg', 'rb') as f:
+    payload = f.read()
+await conn.send_command(
+    r'UPLOAD C:\Quake III Arena\baseq3\q3config.cfg',
+    binary_payload=payload
+)
+```
+
+### Quake 3 Arena as a reference config
+
+When a Q3-engine game (MoHAA, RTCW, SoF II, etc.) misbehaves, a known-working Q3A install on the same box is the fastest reference. Copy the relevant cvars from `baseq3/q3config.cfg`. The ones that matter for renderer init:
+
+- `r_glDriver "opengl32"`
+- `r_colorbits "0"`, `r_depthbits "0"`, `r_stencilbits "0"` — `0` means "match the desktop", which sidesteps a lot of ChoosePixelFormat failures
+- `r_fullscreen "1"`
+- `r_ext_compressed_textures "0"` — S3TC on Q3 engine is buggy on Voodoo5 and on some NVIDIA NV4x driver combinations
+
+### MoHAA on GeForce 6 series — requires ForceWare ≤ 71.89
+
+**Symptom:** `GLW_ChoosePFD failed / failed to find an appropriate PIXELFORMAT / could not load OpenGL subsystem` when launching Medal of Honor: Allied Assault. Quake 3 Arena on the *same card and driver* works — the failure is MoHAA-specific.
+
+**Cause:** MoHAA's Q3-engine retry path asks for a 16-bit color PFD. ForceWare 75.19+ on NV4x does not expose any 16-bit PFDs when the desktop is in 32-bit color. The engine walks 35 enumerated PFDs, matches none, falls back to the 3dfx Glide wrapper (`3dfxvgl.dll`) which isn't present, and aborts.
+
+**Remediation:** Install NVIDIA ForceWare **71.89** (last driver that still exposes 16-bit PFDs on NV4x while still supporting GeForce 6 series). Confirmed on a GeForce 6800. GeForce 6800 support starts at ForceWare 61.72 — don't go below that.
+
+```python
+# Stage driver from SMB share and install silently (no auto-reboot)
+await conn.send_command('NETMAP \\\\server\\share X: user pass')
+await conn.send_command(
+    'EXEC cmd /c copy /Y "X:\\Drivers\\Nvidia\\Win2K-XP\\71.89_forceware_winxp2k.exe" '
+    '"C:\\WINDOWS\\TEMP\\nv71.exe"'
+)
+await conn.send_command('NETUNMAP X:')
+await conn.send_command('LAUNCH C:\\WINDOWS\\TEMP\\nv71.exe -s -y -noreboot')
+# Wait for install to complete (poll for setup.exe absence), then REBOOT via the agent.
+```
+
+**Related quirk — `sm.*` safe-mode markers:** MoHAA creates zero-byte files named `sm.000`, `sm.001`, ... in the install dir on each launch, and deletes them on clean exit. Any stale marker triggers a "last time crashed" dialog and a progressively stricter safe-mode config that overrides your cvars *and* `+set` CLI args. After the driver fix, delete any leftover `sm.*` once; from then on MoHAA keeps its own accounting. The launcher dialog's button order is Safe Mode / Restart Windows / Normal Mode / Exit — the default focus is Safe Mode so TAB, TAB, SPACE selects Normal Mode.
+
+### (section removed from history)
+### Older games and paths with spaces
+
+`LAUNCH` breaks on paths containing spaces on Win98. Use 8.3 short names (`C:\PROGRA~1\EAGAME~1\MOHAA` for `C:\Program Files\EA GAMES\MOHAA`) or launch a batch file via `LAUNCH` and put the quoted path inside the batch. On XP this is fine.
 
 ## LLM Integration Patterns
 
