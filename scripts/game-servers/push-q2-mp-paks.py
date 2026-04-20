@@ -60,8 +60,11 @@ async def _run(cmd: str, c: RetroConnection, timeout: float = 60.0) -> str:
 
 async def find_q2(c: RetroConnection) -> str | None:
     for path in Q2_CANDIDATE_PATHS:
-        r = await _run(rf'EXEC dir "{path}\baseq2\pak0.pak"', c, 10.0)
-        if "File Not Found" not in r and "cannot find" not in r.lower() and "Not Found" not in r:
+        r = await _run(
+            rf'EXEC cmd /c if exist "{path}\baseq2\pak0.pak" (echo FOUND) else (echo MISSING)',
+            c, 10.0,
+        )
+        if "FOUND" in r:
             return path
     return None
 
@@ -79,22 +82,28 @@ async def push_agent(agent_ip: str, secret: str = "retro-agent-secret") -> None:
 
         await _run(rf"NETMAP {SMB_UNC} Y: {SMB_USER} {SMB_PASS}", c, 15.0)
 
+        # `copy /Y` is more reliable than xcopy on NETMAP'd SMB drives from
+        # WinXP (xcopy hangs silently). We recurse one level — Q2 mods ship
+        # .pak / .pk3 / .dll directly at the top of their subdir, sometimes
+        # with a nested maps/ or video/ dir for extras.
         for mod in MODS:
             src = rf"{SHARE_ROOT}\{mod}"
             dst = rf"{q2}\{mod}"
-            # Is there anything in the share subdir?
-            probe = await _run(rf'EXEC dir "{src}\*.*" /b /s', c, 15.0)
-            if not any(ln.strip() for ln in probe.splitlines()
-                       if ln.strip() and "File Not Found" not in ln):
+            probe = await _run(rf'EXEC cmd /c dir /b "{src}"', c, 15.0)
+            entries = [ln.strip() for ln in probe.splitlines()
+                       if ln.strip() and "File Not Found" not in ln
+                       and "cannot find" not in ln.lower()]
+            if not entries:
                 continue
             await _run(rf'EXEC mkdir "{dst}"', c, 10.0)
+            # Top-level files (pak/pk3/dll/cfg)
             r = await _run(
-                rf'EXEC xcopy /Y /Q /E /D "{src}\*" "{dst}\\"',
+                rf'EXEC cmd /c copy /Y "{src}\*.*" "{dst}\\"',
                 c, timeout=1800.0,
             )
             msg = next(
-                (l.strip() for l in r.splitlines() if "File(s) copied" in l),
-                (r.strip().splitlines()[-1][:120] if r.strip() else "?"),
+                (l.strip() for l in r.splitlines() if "file(s) copied" in l.lower()),
+                "(no top-level files)",
             )
             print(f"  [{mod}] {msg}")
         print(f"  done — {q2} populated")

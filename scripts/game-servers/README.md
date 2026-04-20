@@ -135,9 +135,24 @@ Share layout (mirrors on-disk game layout so staging new content is trivial):
 ```
 
 Each push script looks up the game install on the agent, maps the share as
-drive `Y:`, and `xcopy /D` (date-only updates) each subdir onto the matching
-local path. The `/D` switch makes re-running a no-op on already-synced
-agents — safe to re-run whenever the share is extended.
+drive `Y:`, and uses `cmd /c copy /Y` to mirror each subdir onto the matching
+local path. **Why `copy` not `xcopy`:** xcopy hangs silently when the source
+is on a NETMAP'd SMB drive on WinXP — you get no output, no error, and no
+files copied. `copy /Y` with a wildcard (`*.pk3`, `*.*`) is verbose, overwrites
+without prompting, and is reliable on the SMB path.
+
+**Q3 install path on the NSC fleet:** `C:\Quake III Arena\Quake3\` (note the
+extra `\Quake3\` subdir the installer creates). `pak0.pk3` lives at
+`C:\Quake III Arena\Quake3\baseq3\pak0.pk3`; mod paks go into sibling subdirs
+(`\Quake3\cpma\`, `\Quake3\osp\`, etc). The push script's candidate-path list
+has this double-nested path first.
+
+**CPMA zip extraction** uses a small JScript Shell.Application shim
+(`q3_unzip.js`) staged at `C:\WINDOWS\TEMP\` on each agent. Shell.Application's
+`CopyHere` is asynchronous — the shim busy-waits for the destination's
+`Items.Count` to stabilize before returning. Without that wait, the script
+deletes the staging zip mid-extract and you end up with a half-populated
+`cpma/` dir.
 
 ```bash
 cd /path/to/retro-agent/scripts/game-servers

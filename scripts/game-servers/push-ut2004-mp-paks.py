@@ -77,8 +77,11 @@ async def _run(cmd: str, c: RetroConnection, timeout: float = 60.0) -> str:
 
 async def find_ut2004(c: RetroConnection) -> str | None:
     for path in UT_CANDIDATE_PATHS:
-        r = await _run(rf'EXEC dir "{path}\System\UT2004.exe"', c, 10.0)
-        if "File Not Found" not in r and "cannot find" not in r.lower() and "Not Found" not in r:
+        r = await _run(
+            rf'EXEC cmd /c if exist "{path}\System\UT2004.exe" (echo FOUND) else (echo MISSING)',
+            c, 10.0,
+        )
+        if "FOUND" in r:
             return path
     return None
 
@@ -99,19 +102,22 @@ async def push_agent(agent_ip: str, secret: str = "retro-agent-secret") -> None:
         for sub in SUBDIRS:
             src = rf"{SHARE_ROOT}\{sub}"
             dst = rf"{ut}\{sub}"
-            # Check if share subdir has any files to copy (skip noise from empties)
-            probe = await _run(rf'EXEC dir "{src}\*.*" /b', c, 15.0)
+            # Check if share subdir has any files to copy
+            probe = await _run(rf'EXEC cmd /c dir /b "{src}\*.*"', c, 15.0)
             if not any(ln.strip() for ln in probe.splitlines()
-                       if ln.strip() and "File Not Found" not in ln):
+                       if ln.strip() and "File Not Found" not in ln
+                       and "cannot find" not in ln.lower()):
                 continue
             await _run(rf'EXEC mkdir "{dst}"', c, 10.0)
+            # `copy /Y` is more reliable than xcopy on NETMAP'd SMB drives
+            # from WinXP (xcopy hangs silently).
             r = await _run(
-                rf'EXEC xcopy /Y /Q /D "{src}\*.*" "{dst}\\"',
+                rf'EXEC cmd /c copy /Y "{src}\*.*" "{dst}\\"',
                 c, timeout=1800.0,
             )
             msg = next(
-                (l.strip() for l in r.splitlines() if "File(s) copied" in l),
-                (r.strip().splitlines()[-1][:120] if r.strip() else "?"),
+                (l.strip() for l in r.splitlines() if "file(s) copied" in l.lower()),
+                (r.strip().splitlines()[-1][:120] if r.strip() else "(no files)"),
             )
             print(f"  [{sub}] {msg}")
         print(f"  done — {ut} populated")

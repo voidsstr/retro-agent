@@ -72,8 +72,11 @@ async def _run(cmd: str, c: RetroConnection, timeout: float = 60.0) -> str:
 
 async def find_ut(c: RetroConnection) -> str | None:
     for path in UT_CANDIDATE_PATHS:
-        r = await _run(rf'EXEC dir "{path}\System\UnrealTournament.exe"', c, 10.0)
-        if "File Not Found" not in r and "cannot find" not in r.lower() and "Not Found" not in r:
+        r = await _run(
+            rf'EXEC cmd /c if exist "{path}\System\UnrealTournament.exe" (echo FOUND) else (echo MISSING)',
+            c, 10.0,
+        )
+        if "FOUND" in r:
             return path
     return None
 
@@ -91,42 +94,55 @@ async def push_agent(agent_ip: str, secret: str = "retro-agent-secret") -> None:
 
         await _run(rf"NETMAP {SMB_UNC} Y: {SMB_USER} {SMB_PASS}", c, 15.0)
 
+        # `copy /Y` is more reliable than xcopy on NETMAP'd SMB drives from
+        # WinXP (xcopy hangs silently). For the mod subtrees we recurse
+        # over each top-level dir inside the share subdir.
         for sub in SUBDIRS:
             src = rf"{SHARE_ROOT}\{sub}"
             dst = rf"{ut}\{sub}"
-            probe = await _run(rf'EXEC dir "{src}\*.*" /b', c, 15.0)
+            probe = await _run(rf'EXEC cmd /c dir /b "{src}\*.*"', c, 15.0)
             if not any(ln.strip() for ln in probe.splitlines()
-                       if ln.strip() and "File Not Found" not in ln):
+                       if ln.strip() and "File Not Found" not in ln
+                       and "cannot find" not in ln.lower()):
                 continue
             await _run(rf'EXEC mkdir "{dst}"', c, 10.0)
             r = await _run(
-                rf'EXEC xcopy /Y /Q /D "{src}\*.*" "{dst}\\"',
+                rf'EXEC cmd /c copy /Y "{src}\*.*" "{dst}\\"',
                 c, timeout=1200.0,
             )
             msg = next(
-                (l.strip() for l in r.splitlines() if "File(s) copied" in l),
-                (r.strip().splitlines()[-1][:120] if r.strip() else "?"),
+                (l.strip() for l in r.splitlines() if "file(s) copied" in l.lower()),
+                (r.strip().splitlines()[-1][:120] if r.strip() else "(no files)"),
             )
             print(f"  [{sub}] {msg}")
 
-        # Mod-specific subdirs (some 1999-era mods used their own subtree)
+        # Mod-specific subdirs (some 1999-era mods used their own subtree).
+        # Walk each inner dir (Maps/, System/, Textures/, ...) and copy.
         for mod_sub in ("MonsterHunt", "ChaosUT", "Jailbreak"):
-            src = rf"{SHARE_ROOT}\{mod_sub}"
-            probe = await _run(rf'EXEC dir "{src}\*.*" /b', c, 15.0)
-            if not any(ln.strip() for ln in probe.splitlines()
-                       if ln.strip() and "File Not Found" not in ln):
+            src_root = rf"{SHARE_ROOT}\{mod_sub}"
+            probe = await _run(rf'EXEC cmd /c dir /b "{src_root}"', c, 15.0)
+            inner_dirs = [ln.strip() for ln in probe.splitlines()
+                          if ln.strip() and "File Not Found" not in ln
+                          and "cannot find" not in ln.lower()]
+            if not inner_dirs:
                 continue
-            # UT99 mods extract to the UT root (they have their own
-            # System/Maps/Textures/Sounds inside the archive)
-            r = await _run(
-                rf'EXEC xcopy /Y /Q /E /D "{src}\*" "{ut}\\"',
-                c, timeout=1200.0,
-            )
-            msg = next(
-                (l.strip() for l in r.splitlines() if "File(s) copied" in l),
-                "?",
-            )
-            print(f"  [{mod_sub}] {msg}")
+            total = 0
+            for inner in inner_dirs:
+                inner_src = rf"{src_root}\{inner}"
+                inner_dst = rf"{ut}\{inner}"
+                # Only recurse if it's a dir — if it's a file, copy to UT root
+                await _run(rf'EXEC mkdir "{inner_dst}"', c, 5.0)
+                r = await _run(
+                    rf'EXEC cmd /c copy /Y "{inner_src}\*.*" "{inner_dst}\\"',
+                    c, timeout=1200.0,
+                )
+                for l in r.splitlines():
+                    if "file(s) copied" in l.lower():
+                        try:
+                            total += int(l.strip().split()[0])
+                        except Exception:
+                            pass
+            print(f"  [{mod_sub}] {total} files across {len(inner_dirs)} subdirs")
 
         print(f"  done — {ut} populated")
     finally:

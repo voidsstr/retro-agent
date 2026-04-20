@@ -352,7 +352,14 @@ python3 scripts/game-servers/push-ut99-xp-patch.py 192.168.1.143 192.168.1.133 .
 ```bash
 ./scripts/game-servers/push-all-mp-paks.sh 192.168.1.143 192.168.1.133 ...
 ```
-Share layout: `\\192.168.1.122\files\Game Updates\{Q3,UT99,UT2004,Q2}-Multiplayer\` with subdirs matching each game's on-disk structure. Push scripts xcopy with `/D` (date-only) so re-runs are no-ops.
+Share layout: `\\192.168.1.122\files\Game Updates\{Q3,UT99,UT2004,Q2}-Multiplayer\` with subdirs matching each game's on-disk structure. Push scripts use `cmd /c copy /Y` (NOT `xcopy` — xcopy hangs silently when the source is on a NETMAP'd SMB drive on WinXP).
+
+### Fleet install paths — game-specific gotchas
+
+- **Quake 3:** the NSC fleet convention is `C:\Quake III Arena\Quake3\` — note the extra `\Quake3\` subdir. `pak0.pk3` lives at `C:\Quake III Arena\Quake3\baseq3\pak0.pk3`, mod paks go into sibling subdirs (`\Quake3\cpma\`, `\Quake3\osp\`, etc.). The `push-q3-mp-paks.py` candidate-path list has the double-nested path first so it always wins over a hypothetical `C:\Quake III Arena\baseq3\` layout.
+- **UT99:** installs can be either `C:\UT\` or `C:\UnrealTournament\`. The push script checks both.
+- **Install detection:** don't use `DIRLIST` to probe for a game install — it returns status=0 (failure) for paths containing spaces on some XP agents. Use `EXEC cmd /c if exist "..." (echo FOUND) else (echo MISSING)` instead — that works reliably regardless of spaces.
+- **ZIP extraction on XP:** PowerShell is 2.0 so `Expand-Archive` isn't available. The Q3 push script ships a JScript Shell.Application shim (`q3_unzip.js`) and **busy-waits for the destination Items.Count to stabilize** — `CopyHere` is asynchronous and returns before the extract finishes. Forgetting to wait causes the caller to `del` the staging zip mid-extract.
 
 **Known gotchas** (all documented in the scripts themselves):
 

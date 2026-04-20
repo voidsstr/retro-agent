@@ -66,9 +66,15 @@ SHARE_ROOT = r"Y:\Game Updates\Q3-Multiplayer"
 
 # Where on the retro PC does Q3 live? Checked in order; first hit wins.
 Q3_CANDIDATE_PATHS = [
+    # NSC retro fleet convention: the installer creates an extra "Quake3"
+    # subdir under "Quake III Arena", so the real baseq3 lives two levels deep.
+    r"C:\Quake III Arena\Quake3",
     r"C:\Quake III Arena",
+    r"C:\Program Files\Quake III Arena\Quake3",
     r"C:\Program Files\Quake III Arena",
+    r"C:\Games\Quake III Arena\Quake3",
     r"C:\Games\Quake III Arena",
+    r"D:\Quake III Arena\Quake3",
     r"D:\Quake III Arena",
     r"C:\Q3",
 ]
@@ -92,12 +98,26 @@ CPMA_ZIPS = [
     ("cpma-mappack-full.zip",          "baseq3"),
 ]
 
+# Shell.Application's CopyHere is ASYNCHRONOUS — it kicks off extraction
+# and returns immediately. We have to busy-wait for the destination's item
+# count to stabilize, otherwise the caller proceeds (and e.g. deletes the
+# staging zip) while the extract is still in flight.
 UNZIP_JS = (
     b"var sh=new ActiveXObject('Shell.Application');"
     b"var src=sh.NameSpace(WScript.Arguments(0));"
     b"var dst=sh.NameSpace(WScript.Arguments(1));"
-    b"if(!src || !dst){WScript.Echo('src/dst missing'); WScript.Quit(1);}"
-    b"dst.CopyHere(src.Items(), 4|16);\r\n"
+    b"if(!src||!dst){WScript.Echo('src/dst missing');WScript.Quit(1);}"
+    b"var wanted=src.Items().Count;"
+    b"WScript.Echo('extracting '+wanted+' entries');"
+    b"dst.CopyHere(src.Items(),4|16);"
+    b"var stable=0,last=-1,poll=0;"
+    b"while(poll<1800){"
+    b"  var cur=dst.Items().Count;"
+    b"  if(cur>=wanted){WScript.Echo('done '+cur);break;}"
+    b"  if(cur==last){stable++;}else{stable=0;last=cur;}"
+    b"  if(stable>25){WScript.Echo('stalled at '+cur+'/'+wanted);break;}"
+    b"  WScript.Sleep(200);poll++;"
+    b"}\r\n"
 )
 
 
@@ -109,9 +129,15 @@ async def _run(cmd: str, c: RetroConnection, timeout: float = 60.0) -> str:
 
 
 async def find_q3(c: RetroConnection) -> str | None:
+    # `cmd /c if exist "...\pak0.pk3" ...` is the robust probe — DIRLIST
+    # returns status=0 for paths containing spaces on some XP agents, and
+    # `EXEC dir` prints the directory listing even when the file is missing.
     for path in Q3_CANDIDATE_PATHS:
-        r = await _run(rf'EXEC dir "{path}\baseq3\pak0.pk3"', c, 10.0)
-        if "File Not Found" not in r and "cannot find" not in r.lower() and "Not Found" not in r:
+        r = await _run(
+            rf'EXEC cmd /c if exist "{path}\baseq3\pak0.pk3" (echo FOUND) else (echo MISSING)',
+            c, 10.0,
+        )
+        if "FOUND" in r:
             return path
     return None
 
@@ -134,38 +160,49 @@ async def push_agent(agent_ip: str, secret: str = "retro-agent-secret") -> None:
         await c.send_command(r"UPLOAD C:\WINDOWS\TEMP\q3_unzip.js",
                              binary_payload=UNZIP_JS)
 
-        # Copy pk3 files per mod
+        # Copy pk3 files per mod. `copy` (not xcopy) is the reliable choice:
+        # xcopy hangs silently when the source is on a NETMAP'd SMB drive
+        # from WinXP. `copy /Y` handles wildcards, overwrites, and prints a
+        # summary line like "5 file(s) copied."
         for share_sub, q3_sub, kind in MOD_LAYOUT:
             src = rf'{SHARE_ROOT}\{share_sub}'
             dst = rf'{q3}\{q3_sub}'
             await _run(rf'EXEC mkdir "{dst}"', c, 10.0)
-            # xcopy with overwrite, quiet, keep subdirs
             r = await _run(
-                rf'EXEC xcopy /Y /Q "{src}\*.pk3" "{dst}\\"',
+                rf'EXEC cmd /c copy /Y "{src}\*.pk3" "{dst}\\"',
                 c, timeout=900.0,
             )
-            # Parse "N File(s) copied" line
             msg = next(
-                (l.strip() for l in r.splitlines() if "File(s) copied" in l),
-                r.strip().splitlines()[-1][:120] if r.strip() else "?",
+                (l.strip() for l in r.splitlines() if "file(s) copied" in l.lower()),
+                (r.strip().splitlines()[-1][:120] if r.strip() else "(no files)"),
             )
             print(f"  [{share_sub} -> {q3_sub}] {msg}")
 
-        # Extract CPMA zips
+        # Extract CPMA zips. The CPMA nomaps zip contains a top-level cpma/
+        # directory, so we extract INTO the Q3 root (one level above cpma/)
+        # to end up with q3/cpma/*.pk3. Map pack is flat — extract into baseq3/.
         for zip_name, target_sub in CPMA_ZIPS:
             src_zip = rf'{SHARE_ROOT}\cpma\{zip_name}'
             tmp_zip = rf'C:\WINDOWS\TEMP\{zip_name}'
-            dst = rf'{q3}\{target_sub}'
-            print(f"  staging + extracting {zip_name} -> {target_sub}\\")
-            await _run(rf'EXEC copy /Y "{src_zip}" "{tmp_zip}"', c, timeout=180.0)
+            # Nomaps zip already has a cpma/ folder inside, so unpack into the
+            # game root. Mappack has loose pk3s — unpack into target_sub (baseq3).
+            if target_sub == "cpma":
+                dst = q3
+            else:
+                dst = rf'{q3}\{target_sub}'
+            print(f"  staging + extracting {zip_name} -> {dst}\\")
+            r = await _run(rf'EXEC cmd /c copy /Y "{src_zip}" "{tmp_zip}"', c, timeout=180.0)
+            if "file(s) copied" not in r.lower():
+                print(f"    stage failed: {r.strip().splitlines()[-1][:120]}")
+                continue
             await _run(rf'EXEC mkdir "{dst}"', c, 10.0)
             r = await _run(
                 rf'EXEC cscript //Nologo //E:JScript '
                 rf'"C:\WINDOWS\TEMP\q3_unzip.js" "{tmp_zip}" "{dst}"',
-                c, timeout=600.0,
+                c, timeout=1800.0,
             )
-            if r.strip():
-                print(f"    {r.strip().splitlines()[-1][:120]}")
+            for line in r.strip().splitlines():
+                print(f"    {line[:120]}")
             await _run(rf'EXEC del "{tmp_zip}"', c, 10.0)
 
         print(f"  done — {q3} populated with Q3 MP paks")
