@@ -339,20 +339,29 @@ Upload: `curl --upload-file file -u YOUR-CREDS "smb://YOUR-SERVER/files/Utility/
 
 ## Linux Game Servers (`scripts/game-servers/`)
 
-Idempotent installers for UT2004 3369.3, Yamagi Quake 2, and OpenArena (Q3-compatible) dedicated servers. All three run as `systemctl --user` units with `loginctl enable-linger`. See [`scripts/game-servers/README.md`](scripts/game-servers/README.md) for the full walkthrough.
+Idempotent installers for UT2004 3369.3, UT99 (OldUnreal 469e), Yamagi Quake 2, and OpenArena (Q3-compatible) dedicated servers. All four run as `systemctl --user` units with `loginctl enable-linger`. See [`scripts/game-servers/README.md`](scripts/game-servers/README.md) for the full walkthrough.
 
 **Quick install:** `cd scripts/game-servers && ./install-all.sh`
+
+Updating the retro XP fleet to the matching **UT99 469e client**:
+```bash
+python3 scripts/game-servers/push-ut99-xp-patch.py 192.168.1.143 192.168.1.133 ...
+```
 
 **Known gotchas** (all documented in the scripts themselves):
 
 - **Stock UT2004.ini has `0x1B` (ESC) bytes** embedded in 4 maplist section headers (`[DefaultDM MaplistRecord]`, `[DefaultTDM MaplistRecord]`, `[1on1Deathmatch MaplistRecord]`, `[1on1TeamDeathmatch MaplistRecord]`). Any section-header string comparison fails until those are stripped.
 - **Archive.org's UT2004 zip uses LZMA (method 14)** inside ZIP; Info-Zip's `unzip` fails silently ("1660 files skipped because of unsupported compression"). Use Python's `zipfile` or `7z`.
-- **Epic's master servers are dead since 2023.** Use the MasterServerMirror mod for multi-master uplink to the community replacements (333networks, OpenSpy, errorist.eu).
+- **Epic's master servers are dead since 2023.** For UT2004, use the MasterServerMirror mod for multi-master uplink to community replacements (333networks, OpenSpy, errorist.eu). UT99's OldUnreal 469e ships with 8 community masters pre-configured — no extra mod needed.
 - **Yamagi Quake 2 rejects the `serverinfo` flag suffix** that stock Q2 accepted. `set x "val" serverinfo` → error "flags can only be 'u' or 's'". Use plain `set x "val"`.
 - **`openarena-server` Debian package auto-enables a system-wide service** that grabs UDP 27960 with a default-config `noname` instance. Symptom: your user-unit's `sv_hostname` appears in the log but the external status query shows `noname` / `fraglimit 20` / `maxclients 8`. Fix: `sudo systemctl disable --now openarena-server.service`.
+- **UT99 OldUnreal 469e ServerPackages references missing skin packs** (`TCowMeshSkins`, `TNaliMeshSkins`, `TSkMSkins`) from the Epic bonus pack. Stock UT99 installs don't include them. Leaving them in `UnrealTournament.ini` aborts server startup with `Failed to load TCowMeshSkins`. Install script removes these lines.
+- **UT99 default port (7777) collides with UT2004's.** Shift UT99 to `-port=7797` on the command line; query port auto-shifts to 7798.
 - **AT&T BGW gateways bind NAT rules by MAC, not IP.** If your server host has both Wi-Fi and Ethernet, the "2026-5090" device list shows **two** entries — one per NIC — with the same hostname. Picking the Wi-Fi MAC creates asymmetric routing (inbound → .129, outbound from .132) and masters silently drop the listing. Always pick the wired-adapter MAC explicitly in Firewall → NAT/Gaming.
+- **AT&T BGW NAT rules can spontaneously re-bind** to whatever device currently holds the IP in the router's DHCP table. If game-server rules suddenly show a different device (e.g. "HP Inc."), `/cgi-bin/apphosting.ha` needs the rules deleted and re-added against the wired MAC. `/tmp/att-router/` has the session scripts used for this.
 
 **Ports to forward (UDP, to the wired LAN IP):**
 - `7777-7787` — UT2004 (game, browser, gamespy query)
+- `7797-7798` — UT99 (game, query — shifted to avoid UT2004 collision)
 - `27910` — Quake 2
 - `27960` — OpenArena / Q3
