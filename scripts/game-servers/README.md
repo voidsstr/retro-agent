@@ -15,6 +15,157 @@ All four run as **systemd user units** owned by the installing user, with
 `Restart=always`. `loginctl enable-linger` keeps them running through logout
 and reboots.
 
+## End-to-end walkthrough
+
+The full setup is four independent pieces that snap together. Do them in
+this order and a fresh Linux box plus a fleet of retro PCs ends up with
+four public servers and retro machines that connect and drop into a game
+without any download delay.
+
+### 1. Install the dedicated servers on the Linux host
+
+Run the installers from this directory. They're idempotent — safe to
+re-run. Each emits "installed & started" and the expected listen ports.
+
+```bash
+./install-all.sh
+```
+
+Installs: UT2004 3369.3 + MasterServerMirror mod; UT99 (OldUnreal 469e +
+stock UT99 game data pulled from the SMB share); Yamagi Quake 2 + pak
+files from the share; OpenArena (disables the conflicting Debian system
+unit). Writes four `systemctl --user` units, enables `loginctl linger`,
+opens UFW UDP ports if UFW is active.
+
+### 2. Open the router
+
+All four games need **UDP** forwarded from the WAN to the Linux host's
+**wired** LAN IP. The full set:
+
+| Port(s) | Game | Protocol |
+|---|---|---|
+| 7777 / 7778 / 7787 | UT2004 (game, server browser, gamespy query) | UDP |
+| 7797 / 7798 | UT99 (game, query — shifted from 7777 to avoid UT2004) | UDP |
+| 27910 | Quake 2 | UDP |
+| 27960 | OpenArena / Q3 | UDP |
+
+**AT&T BGW caveat (learned the hard way):** the NAT/Gaming rules bind by
+MAC, not IP. If the Linux host has both Wi-Fi and Ethernet, the device
+list shows **two entries with the same hostname** — one per NIC. Always
+pick the *wired* MAC in `Firewall → NAT/Gaming → Custom Services`. The
+Wi-Fi MAC creates asymmetric routing (inbound goes to Wi-Fi IP, reply goes
+out the wired IP with a different NAT source port) and master servers
+silently drop the listing.
+
+Also: rules can spontaneously re-bind to an unrelated device when DHCP
+state shifts. If servers suddenly drop off public listings, check
+`/cgi-bin/apphosting.ha` — you may see the rules owned by e.g. "HP Inc."
+instead of your Linux host. Delete + re-add against the wired MAC.
+
+### 3. Verify the servers are listed on the public masters
+
+Each game uplinks to community master servers automatically (Epic's
+original master has been dead since 2023). Listings refresh every 15–30
+minutes after the server starts uplinking:
+
+```bash
+# Confirm external reachability from a source that isn't on your LAN
+# (a docker container egresses through your NAT, but its hairpin behavior
+# depends on your router — the master-server web listings are the ground
+# truth test):
+docker run --rm python:3-alpine python3 -c "
+import socket
+for name, port, payload in [
+    ('UT2004', 7787, b'\\\\status\\\\'),
+    ('UT99',   7798, b'\\\\status\\\\'),
+    ('Q2',    27910, b'\xff\xff\xff\xffstatus\n'),
+    ('OA',    27960, b'\xff\xff\xff\xffgetstatus'),
+]:
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.settimeout(4)
+    s.sendto(payload, ('YOUR.PUBLIC.IP', port))
+    try:
+        d,_ = s.recvfrom(8192)
+        print(f'{name}: {len(d)}B')
+    except:
+        print(f'{name}: timeout')
+    s.close()
+"
+```
+
+Web listings where the server appears after uplink + probe cycle:
+
+* UT2004: https://ut2004master.333networks.com/s/ut2004?q=YOUR.IP
+* UT99: https://master.333networks.com/s/ut?q=YOUR.IP
+* OpenArena: https://dpmaster.deathmask.net/?server=YOUR.IP:27960
+* Q2: https://www.quakeservers.net/quake2/ (paginate, filter by IP)
+
+### 4. Upgrade the retro fleet's UT99 clients
+
+Only UT99 needs a client-side patch (to match the 469e server). The XP
+client patch is staged on the SMB share at
+`\\192.168.1.122\files\Game Updates\UT99-Multiplayer\OldUnreal-UTPatch469e-WindowsXP-x86.zip`:
+
+```bash
+python3 scripts/game-servers/push-ut99-xp-patch.py 192.168.1.143 192.168.1.133 ...
+```
+
+469e is cross-compatible with legacy Epic 436/451 servers, so the upgrade
+is non-disruptive for other servers the fleet connects to.
+
+UT2004, Q2, and OpenArena don't need client patches — the clients you
+already have on the retro fleet work with the versions of the servers
+this repo runs.
+
+### 5. Pre-install multiplayer download packs on the retro fleet
+
+Public game servers auto-serve missing maps/mods to connecting clients
+over HTTP (Q3 `sv_dlURL`, UT2004/UT99 redirect URLs, Q2 in-band). On
+retro hardware with slow NICs, "downloading 120 MB of maps..." is a
+minute or two of unpleasant first-join wait. The `push-*-mp-paks`
+scripts pre-stage the packs so players connect and drop straight into
+a game.
+
+```bash
+./push-all-mp-paks.sh 192.168.1.143 192.168.1.133 192.168.1.123 192.168.1.124
+```
+
+The packs live on the SMB share under
+`\\192.168.1.122\files\Game Updates\<Game>-Multiplayer\`:
+
+```
+Q3-Multiplayer\
+    baseq3/  cpma/  osp/  defrag/  ufreeze/  threewave/
+    arena/   edawn/ excessiveplus/
+UT99-Multiplayer\
+    Maps/  System/  Textures/  Sounds/  Music/
+    MonsterHunt/  ChaosUT/  Jailbreak/
+UT2004-Multiplayer\
+    Maps/  Textures/  StaticMeshes/  Animations/
+    Sounds/  Music/  Speech/  System/
+Q2-Multiplayer\
+    baseq2/  ctf/  rogue/  xatrix/  aq2/  rocketarena/
+```
+
+Each push script mirrors the share subdirs into the matching local game
+subdirs. Subdirs use the same layout as the game install on disk, so
+adding content is just "drop the file into the right share subdir and
+re-run".
+
+### 6. Add to fleet server browser favorites
+
+For the in-game browser to show these servers without typing the IP,
+add them to each retro machine's UT99 / UT2004 favorites file:
+
+```bash
+# UT2004 (runs from nsc-assistant, uses the shared favorites list)
+cd /home/voidsstr/development/nsc-assistant
+python3 agent/tools/ut2004_favorites.py 192.168.1.143 192.168.1.133 ...
+```
+
+The favorites list includes the in-house `192.168.1.132:7777` server
+alongside the top-populated public servers sampled from the 333networks
+master.
+
 ## Quick start
 
 ```bash

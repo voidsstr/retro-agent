@@ -743,6 +743,15 @@ the SMB share:
 
 Expand the bundle by dropping content into `\\server\files\Game Updates\<Game>-Multiplayer\` — the push scripts mirror the share subdirectories onto the matching `C:\<game>\` subtrees.
 
+### Full walkthrough
+
+The end-to-end setup — Linux servers → router port-forwards → master-
+server registration → retro fleet UT99 client patch → retro fleet MP-pak
+pre-install → in-game server browser favorites — is documented in
+[`scripts/game-servers/README.md`](scripts/game-servers/README.md#end-to-end-walkthrough).
+That's the starting point for anyone standing this up on a new Linux
+host or after a hardware change.
+
 ### Patch level (as of 2026-04-19)
 
 | Server | Current version | Notes |
