@@ -348,6 +348,12 @@ Updating the retro XP fleet to the matching **UT99 469e client**:
 python3 scripts/game-servers/push-ut99-xp-patch.py 192.168.1.143 192.168.1.133 ...
 ```
 
+**Pre-install multiplayer download packs** (Q3 mod paks, UT99 custom maps, UT2004 bonus-pack maps, Q2 mod content) so retro machines skip the auto-download phase when joining public servers:
+```bash
+./scripts/game-servers/push-all-mp-paks.sh 192.168.1.143 192.168.1.133 ...
+```
+Share layout: `\\192.168.1.122\files\Game Updates\{Q3,UT99,UT2004,Q2}-Multiplayer\` with subdirs matching each game's on-disk structure. Push scripts xcopy with `/D` (date-only) so re-runs are no-ops.
+
 **Known gotchas** (all documented in the scripts themselves):
 
 - **Stock UT2004.ini has `0x1B` (ESC) bytes** embedded in 4 maplist section headers (`[DefaultDM MaplistRecord]`, `[DefaultTDM MaplistRecord]`, `[1on1Deathmatch MaplistRecord]`, `[1on1TeamDeathmatch MaplistRecord]`). Any section-header string comparison fails until those are stripped.

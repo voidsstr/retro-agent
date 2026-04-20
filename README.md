@@ -731,6 +731,18 @@ fleet's XP clients to the matching 469e client:
 python3 scripts/game-servers/push-ut99-xp-patch.py 192.168.1.143 192.168.1.133 ...
 ```
 
+**Pre-install the multiplayer download packs** so the retro fleet drops
+straight into a game on first join instead of spending minutes auto-
+downloading maps/mods over the wire. One script per game, staged from
+the SMB share:
+
+```bash
+# All four games across the fleet:
+./scripts/game-servers/push-all-mp-paks.sh 192.168.1.143 192.168.1.133 192.168.1.123 192.168.1.124
+```
+
+Expand the bundle by dropping content into `\\server\files\Game Updates\<Game>-Multiplayer\` — the push scripts mirror the share subdirectories onto the matching `C:\<game>\` subtrees.
+
 ### Patch level (as of 2026-04-19)
 
 | Server | Current version | Notes |

@@ -107,6 +107,68 @@ hostname, and the expected listen ports.
    `.openarena/baseoa/server.cfg` automatically.
 4. UFW allow UDP 27960, systemd user unit `openarena-server.service`.
 
+## Pre-installing multiplayer download packs on the retro fleet
+
+Public game servers for these four games auto-serve the maps / mods / texture
+packages a client is missing over HTTP (Q3 `sv_dlURL`, UT2004/UT99 redirect
+URLs, Q2 file-transfer-over-UDP). On retro hardware this "auto-download on
+first join" can mean 100+ MB over the wire on a 10 Mbps NIC, which is a
+bad first impression. The `push-*-mp-paks` scripts pre-stage those paks so
+players connect and drop directly into a game.
+
+Share layout (mirrors on-disk game layout so staging new content is trivial):
+
+```
+\\192.168.1.122\files\Game Updates\
+    Q3-Multiplayer\
+        baseq3/   cpma/    osp/        defrag/
+        ufreeze/  threewave/  arena/   edawn/   excessiveplus/
+    UT99-Multiplayer\
+        Maps/  System/  Textures/  Sounds/  Music/
+        MonsterHunt/  ChaosUT/  Jailbreak/    (legacy per-mod subtrees)
+    UT2004-Multiplayer\
+        Maps/  Textures/  StaticMeshes/  Animations/
+        Sounds/  Music/  Speech/  System/
+    Q2-Multiplayer\
+        baseq2/  ctf/  rogue/  xatrix/
+        aq2/     rocketarena/
+```
+
+Each push script looks up the game install on the agent, maps the share as
+drive `Y:`, and `xcopy /D` (date-only updates) each subdir onto the matching
+local path. The `/D` switch makes re-running a no-op on already-synced
+agents — safe to re-run whenever the share is extended.
+
+```bash
+cd /path/to/retro-agent/scripts/game-servers
+
+# All four games on one agent (or a list of agents):
+./push-all-mp-paks.sh 192.168.1.143 192.168.1.133 192.168.1.123 192.168.1.124
+
+# Or per-game:
+python3 push-q3-mp-paks.py      192.168.1.143
+python3 push-ut99-mp-paks.py    192.168.1.143
+python3 push-ut2004-mp-paks.py  192.168.1.143
+python3 push-q2-mp-paks.py      192.168.1.143
+```
+
+Each script is a no-op on agents where the matching game isn't installed.
+
+Initial bundle contents (April 2026), sourced by scraping the fast-download
+URLs of active public servers on each game's community master:
+
+| Game | Included | Source |
+|---|---|---|
+| Q3 | CPMA 1.53 (client + full map pack), OSP pak0-3, Defrag 1.91, Unfreeze 2.2, Threewave CTF, Rocket Arena 3 models/icons/first 3 maps, eDawn 1.6.2, Excessive Plus 2.3, 13 custom baseq3 maps seen in server rotations (xcm_tricks2, jaxdm8, ztn3tourney1, ospdm5, hub3tourney1, seamsandbolts, ctctf4, etc.) | `cdn.playmorepromode.com`, `dl.warserver.net`, `games.square-r00t.net` |
+| UT99 | (empty — drop mods/maps into the share subdirs as needed) | See [UnrealArchive](https://unrealarchive.org/) |
+| UT2004 | Epic Bonus Pack 2 maps (AS/CTF/DM-BP2-*) + their Plutonic_BP2 texture/staticmesh packages | Pulled from our own UT2004 Linux dedicated server install |
+| Q2 | (empty — drop mod subtrees into the share subdirs as needed) | See [q2servers.com](https://q2servers.com/) |
+
+To add more content: drop the file into the matching share subdir and re-run
+the push script. Content organization is discoverable — if your mod ships
+as a `.u` script package it goes into `System/`; custom maps go into `Maps/`
+(UT99/UT2004) or `baseq3/` (Q3); texture packages into `Textures/` (UT99/UT2004).
+
 ## Pushing the UT99 XP patch to the retro fleet
 
 When you install the Linux UT99 server (469e), the retro XP machines should
