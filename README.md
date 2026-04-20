@@ -501,6 +501,37 @@ When a Q3-engine game (MoHAA, RTCW, SoF II, etc.) misbehaves, a known-working Q3
 - `r_fullscreen "1"`
 - `r_ext_compressed_textures "0"` — S3TC on Q3 engine is buggy on Voodoo5 and on some NVIDIA NV4x driver combinations
 
+### Quake 3 Arena — swap to Quake3e for protocol-71 servers
+
+**Symptom:** `Server uses protocol version 71 and yours is 66` (or `68`) when trying to join a community server. Stock `quake3.exe` is locked to the protocol it shipped with (66 for 1.30, 68 for 1.32), so it can't reach any ioquake3-era server (protocol 71).
+
+**Fix:** drop Quake3e next to the existing `quake3.exe`. Quake3e is the actively-maintained 32-bit Windows fork that speaks protocols 66/68/71, runs on XP SP3 without a redistributable, and preserves the original pak-file layout (original `quake3.exe` stays put for rollback).
+
+**Prerequisites.** Quake3e refuses to launch with *"Point Release files are missing. Please re-install the 1.32 point release"* unless `baseq3` contains `pak7.pk3` (0x4E4A9 bytes) and `pak8.pk3` (0x6EF4E bytes) from the 1.32 point release. Stock 1.30 installs only ship pak0–pak6.
+
+```python
+# One-time staging on the SMB share — pull from upstream:
+#   https://github.com/ec-/Quake3e/releases/download/latest/quake3e-windows-mingw-x86.zip
+#   https://files.ioquake3.org/quake3-latest-pk3s.zip  (extract baseq3/pak7.pk3, pak8.pk3)
+
+# Per-machine deploy (baseq3 path differs between installs — check each):
+await conn.send_command(
+    f'UPLOAD {q3_dir}\\quake3e.exe', binary_payload=open('quake3e.exe','rb').read()
+)
+await conn.send_command(
+    f'UPLOAD {baseq3}\\pak7.pk3',    binary_payload=open('pak7.pk3','rb').read()
+)
+await conn.send_command(
+    f'UPLOAD {baseq3}\\pak8.pk3',    binary_payload=open('pak8.pk3','rb').read()
+)
+# Launch via batch so cwd is the game dir (Q3E looks for baseq3 relative to cwd):
+#   cd /d "<q3_dir>" && quake3e.exe
+```
+
+**Version interop.** Quake3e is a drop-in replacement for client-side play and can connect to any mix of stock-1.30, stock-1.32, and ioquake3/protocol-71 servers. Your existing `q3config.cfg` carries over untouched. Keep the old `quake3.exe` in place — users can still launch it for single-player or LAN games against an unpatched client.
+
+**Do not use the official `ioquake3` Windows zip** from `ioquake3.org/get-it/` on retro XP machines — it is x86_64 only and will refuse to launch on 32-bit Windows. The `ec-/Quake3e` fork publishes `quake3e-windows-mingw-x86.zip` which is the correct 32-bit build for this fleet.
+
 ### MoHAA on GeForce 6 series — requires ForceWare ≤ 71.89
 
 **Symptom:** `GLW_ChoosePFD failed / failed to find an appropriate PIXELFORMAT / could not load OpenGL subsystem` when launching Medal of Honor: Allied Assault. Quake 3 Arena on the *same card and driver* works — the failure is MoHAA-specific.
