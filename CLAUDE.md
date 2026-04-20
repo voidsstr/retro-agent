@@ -336,3 +336,23 @@ General pattern:
 `smb://YOUR-SERVER/files/Utility/Retro Automation/` — distribution point for agent binaries.
 
 Upload: `curl --upload-file file -u YOUR-CREDS "smb://YOUR-SERVER/files/Utility/Retro%20Automation/file"`
+
+## Linux Game Servers (`scripts/game-servers/`)
+
+Idempotent installers for UT2004 3369.3, Yamagi Quake 2, and OpenArena (Q3-compatible) dedicated servers. All three run as `systemctl --user` units with `loginctl enable-linger`. See [`scripts/game-servers/README.md`](scripts/game-servers/README.md) for the full walkthrough.
+
+**Quick install:** `cd scripts/game-servers && ./install-all.sh`
+
+**Known gotchas** (all documented in the scripts themselves):
+
+- **Stock UT2004.ini has `0x1B` (ESC) bytes** embedded in 4 maplist section headers (`[DefaultDM MaplistRecord]`, `[DefaultTDM MaplistRecord]`, `[1on1Deathmatch MaplistRecord]`, `[1on1TeamDeathmatch MaplistRecord]`). Any section-header string comparison fails until those are stripped.
+- **Archive.org's UT2004 zip uses LZMA (method 14)** inside ZIP; Info-Zip's `unzip` fails silently ("1660 files skipped because of unsupported compression"). Use Python's `zipfile` or `7z`.
+- **Epic's master servers are dead since 2023.** Use the MasterServerMirror mod for multi-master uplink to the community replacements (333networks, OpenSpy, errorist.eu).
+- **Yamagi Quake 2 rejects the `serverinfo` flag suffix** that stock Q2 accepted. `set x "val" serverinfo` → error "flags can only be 'u' or 's'". Use plain `set x "val"`.
+- **`openarena-server` Debian package auto-enables a system-wide service** that grabs UDP 27960 with a default-config `noname` instance. Symptom: your user-unit's `sv_hostname` appears in the log but the external status query shows `noname` / `fraglimit 20` / `maxclients 8`. Fix: `sudo systemctl disable --now openarena-server.service`.
+- **AT&T BGW gateways bind NAT rules by MAC, not IP.** If your server host has both Wi-Fi and Ethernet, the "2026-5090" device list shows **two** entries — one per NIC — with the same hostname. Picking the Wi-Fi MAC creates asymmetric routing (inbound → .129, outbound from .132) and masters silently drop the listing. Always pick the wired-adapter MAC explicitly in Firewall → NAT/Gaming.
+
+**Ports to forward (UDP, to the wired LAN IP):**
+- `7777-7787` — UT2004 (game, browser, gamespy query)
+- `27910` — Quake 2
+- `27960` — OpenArena / Q3

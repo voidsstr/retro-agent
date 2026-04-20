@@ -605,6 +605,31 @@ retro-agent/
     +-- case-studies/       # Real-world diagnostic walkthroughs
 ```
 
+## Linux Game Servers for the Fleet
+
+The retro fleet spends most of its time waking up and playing 2000s-era
+multiplayer games. `scripts/game-servers/` contains idempotent installers
+that turn any modern Linux box into a public dedicated server for three of
+them, so the Win98/XP machines have something to connect to without hunting
+for a live internet server.
+
+| Game | Install script | UDP ports | Masters listed on |
+|---|---|---|---|
+| Unreal Tournament 2004 | [`install-ut2004-server.sh`](scripts/game-servers/install-ut2004-server.sh) | 7777 / 7778 / 7787 | 333networks, errorist.eu, OpenSpy |
+| Quake 2 (Yamagi) | [`install-quake2-server.sh`](scripts/game-servers/install-quake2-server.sh) | 27910 | master.yamagi.org, master.quakeservers.net |
+| OpenArena (Q3-compatible) | [`install-openarena-server.sh`](scripts/game-servers/install-openarena-server.sh) | 27960 | dpmaster.deathmask.net, master.ioquake3.org |
+
+```bash
+cd scripts/game-servers
+./install-all.sh    # ~5 min, a few sudo prompts, 800 MB of downloads
+```
+
+Each script writes a systemd **user** unit (no root service), opens UFW if
+active, and enables `loginctl linger` so the servers come back on their own
+after a reboot. See [`scripts/game-servers/README.md`](scripts/game-servers/README.md)
+for full details, environment variable overrides, router port-forward notes
+(including the AT&T BGW MAC-collision gotcha), and external reachability tests.
+
 ## Contributing
 
 The agent is designed to be extended with new commands. Each command is a C function that receives a socket and arguments, dispatched via the command table in `handlers.c`. Add your handler, register it in the table, and rebuild.
