@@ -573,6 +573,67 @@ General technique for any pre-SafeDisc 90s CD check: grep for the error string (
 
 `LAUNCH` breaks on paths containing spaces on Win98. Use 8.3 short names (`C:\PROGRA~1\EAGAME~1\MOHAA` for `C:\Program Files\EA GAMES\MOHAA`) or launch a batch file via `LAUNCH` and put the quoted path inside the batch. On XP this is fine.
 
+### UT2004 Linux dedicated — OldUnreal 3374-preview-17 masterserver crash
+
+**Symptom:** `UCC server DM-Rankin?game=XGame.xDeathMatch -nohomedir` on the Linux server binary from `OldUnreal-UT2004Patch3374-Linux.tar.bz2` segfaults during startup in `AMasterServerLink::eventGetMasterServer` → `AMasterServerUplink::execReconnect`. Happens whether or not `[IpDrv.MasterServerLink]` uses the `Group=` field; the crash is in the OldUnreal code itself, not the config.
+
+```
+[ 7]  .../IpDrv.so(_ZN17AMasterServerLink20eventGetMasterServerER7FStringRi+0x94)
+[ 8]  .../IpDrv.so(_ZN19AMasterServerUplink13execReconnectER6FFramePvm+0xf1)
+```
+
+**Cause:** The 3374 **preview** release is flagged by OldUnreal themselves as "may not work in online play." The masterserver advertise code is the specific preview-only regression we're hitting.
+
+**Workaround (use for dedicated servers on 3374-preview):**
+
+```ini
+; UT2004.ini
+[Engine.GameEngine]
+;ServerActors=IpDrv.MasterServerUplink   ; disabled — eventGetMasterServer segfaults on 3374-P17
+
+[IpDrv.MasterServerUplink]
+DoUplink=False                            ; belt and suspenders
+```
+
+Server starts cleanly, listens on game port 7777, accepts direct-IP connections. The query port (7778) and master advertisement are gone. If your fleet connects via direct-IP favorites (the NSC retro fleet uses this pattern via `agent/tools/ut2004_favorites.py`) this is fine. If you need the server to be discoverable through the in-game browser, stay on Epic 3369.3 instead.
+
+**Alternative** — downgrade to Epic's stock 3369.3 dedicated tarball and use `ucc-bin-linux-amd64` from that. The OldUnreal .u files will not work with the 3369 binary (version mismatch), so a clean re-install of the Epic server is required to rollback.
+
+### Yamagi Quake 2 — build 8.60 from source on modern Ubuntu
+
+**Why build from source:** Ubuntu 24.04 APT ships `yamagi-quake2 8.30+dfsg-1` (Feb 2024). Yamagi released 8.60 (Sep 2025) with material fixes; there is no PPA yet.
+
+**Build + install to a private prefix** (no sudo needed if you install to `$HOME/local/yamagi-8.60`):
+
+```bash
+sudo apt install build-essential libsdl2-dev libopenal-dev \
+    libcurl4-openssl-dev zlib1g-dev libvorbis-dev libogg-dev
+
+curl -fSL -o /tmp/q2-8.60.tar.xz https://deponie.yamagi.org/quake2/quake2-8.60.tar.xz
+cd /tmp && tar xf q2-8.60.tar.xz && cd quake2-8.60
+make -j$(nproc)
+
+mkdir -p ~/local/yamagi-8.60/baseq2
+install -m 755 release/q2ded        ~/local/yamagi-8.60/q2ded
+install -m 755 release/baseq2/game.so ~/local/yamagi-8.60/baseq2/game.so
+```
+
+`q2ded` is the dedicated-only binary (no SDL2/video linkage); use it in the systemd unit instead of the full `quake2` client.
+
+**Line-buffered logs via systemd** — q2ded (and the original stock binary) fully-buffer stdout when no TTY is attached, so `StandardOutput=append:...log` captures nothing until buffer flush. Wrap with `stdbuf -oL`:
+
+```ini
+[Service]
+ExecStart=/usr/bin/stdbuf -oL -eL %h/local/yamagi-8.60/q2ded \
+    -datadir %h/q2-server +set dedicated 1 +exec server.cfg
+StandardOutput=append:%h/q2-server/server.log
+StandardError=append:%h/q2-server/server.log
+```
+
+Line-buffering gives the dashboard log watcher real-time events instead of 30-minute buffer delays. Same technique applies to any other cvar-console engine (Q3 engines, UT2004's UCC) that writes to stdout.
+
+**game.so placement.** Yamagi searches for `baseq2/game.so` in (1) datadir, (2) binary-adjacent dir, (3) `/usr/lib/yamagi-quake2/baseq2/`. Drop the new `game.so` into both the install prefix AND `~/q2-server/baseq2/` to avoid accidentally loading the 8.30 APT version if the install prefix gets wiped.
+
 ## LLM Integration Patterns
 
 ### Diagnostic Workflow
@@ -640,19 +701,20 @@ retro-agent/
 
 The retro fleet spends most of its time waking up and playing 2000s-era
 multiplayer games. `scripts/game-servers/` contains idempotent installers
-that turn any modern Linux box into a public dedicated server for three of
+that turn any modern Linux box into a public dedicated server for four of
 them, so the Win98/XP machines have something to connect to without hunting
 for a live internet server.
 
 | Game | Install script | UDP ports | Masters listed on |
 |---|---|---|---|
 | Unreal Tournament 2004 | [`install-ut2004-server.sh`](scripts/game-servers/install-ut2004-server.sh) | 7777 / 7778 / 7787 | 333networks, errorist.eu, OpenSpy |
+| Unreal Tournament 99 | [`install-ut99-server.sh`](scripts/game-servers/install-ut99-server.sh) | 7797 / 7798 | 333networks, OldUnreal ×2, errorist.eu, OpenSpy, qtracker, hypercoop, telefragged |
 | Quake 2 (Yamagi) | [`install-quake2-server.sh`](scripts/game-servers/install-quake2-server.sh) | 27910 | master.yamagi.org, master.quakeservers.net |
 | OpenArena (Q3-compatible) | [`install-openarena-server.sh`](scripts/game-servers/install-openarena-server.sh) | 27960 | dpmaster.deathmask.net, master.ioquake3.org |
 
 ```bash
 cd scripts/game-servers
-./install-all.sh    # ~5 min, a few sudo prompts, 800 MB of downloads
+./install-all.sh    # ~10 min, a few sudo prompts, 1.6 GB of downloads
 ```
 
 Each script writes a systemd **user** unit (no root service), opens UFW if
@@ -660,6 +722,35 @@ active, and enables `loginctl linger` so the servers come back on their own
 after a reboot. See [`scripts/game-servers/README.md`](scripts/game-servers/README.md)
 for full details, environment variable overrides, router port-forward notes
 (including the AT&T BGW MAC-collision gotcha), and external reachability tests.
+
+The UT99 installer uses OldUnreal **v469e** (Nov 2025, actively maintained,
+cross-compatible with legacy Epic 436/451 clients). To upgrade the retro
+fleet's XP clients to the matching 469e client:
+
+```bash
+python3 scripts/game-servers/push-ut99-xp-patch.py 192.168.1.143 192.168.1.133 ...
+```
+
+### Patch level (as of 2026-04-19)
+
+| Server | Current version | Notes |
+|---|---|---|
+| OpenArena (`openarena-server.service`) | OA 0.8.8 · ioq3 1.36+u20240217 (APT) | Current. Both upstreams dormant; Ubuntu package is latest available. |
+| Yamagi Q2 (`quake2-server.service`) | **8.60** built from source · `~/local/yamagi-8.60/q2ded` | Upgraded from APT's 8.30. Unit uses `stdbuf -oL` for real-time log capture. See "Yamagi Quake 2 — build 8.60 from source" above. |
+| UT99 (`ut99-server.service`) | **OldUnreal 469e** (Linux amd64) | Stable, Nov 2025. Cross-compatible with Epic 436/451 clients AND with the 469e WindowsXP client patch. Ships with 8 community masters pre-configured — no master-mirror mod needed. |
+| UT2004 (`ut2004-server.service`) | **Epic 3369.3** (Linux amd64 static binary from archive.org) | Reverted from the earlier OldUnreal 3374-preview-17 experiment because the preview build segfaults in `eventGetMasterServer` with community master lists, preventing public listing. 3369.3 + MasterServerMirror mod uplinks to 3 community masters cleanly; 3374-preview binaries/`.so` files are staged in `System/_overlay-backup/` if you want to re-enable direct-IP play. |
+
+Upgrade a single service via its install script, or manually per the per-game recipe in **Game Compatibility & Configuration** above. After upgrading, `systemctl --user daemon-reload && systemctl --user restart <svc>` and verify:
+
+```bash
+for svc in openarena-server quake2-server ut2004-server; do
+  systemctl --user is-active "$svc"
+done
+# Quick version probes:
+python3 -c "import socket; s=socket.socket(2,2); s.settimeout(3); \
+  s.sendto(b'\\xff\\xff\\xff\\xffstatus\\n',('127.0.0.1',27910)); \
+  print(s.recvfrom(4096)[0][:400])"   # Yamagi: look for version\8.60
+```
 
 ## Contributing
 

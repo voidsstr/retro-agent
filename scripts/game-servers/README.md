@@ -1,16 +1,17 @@
 # Linux Game Servers
 
-Install scripts for the three retro-era dedicated game servers we run on the
+Install scripts for four retro-era dedicated game servers that run on the
 NSC dev box so the Win98/XP retro fleet (and anyone on the public internet)
 can connect to them.
 
 | Game | Engine | UDP ports | Masters |
 |---|---|---|---|
 | Unreal Tournament 2004 | Epic dedicated server 3369.3 (amd64 Linux binary) | 7777 / 7778 / 7787 | `utmaster.openspy.net`, `ut2004master.333networks.com`, `ut2004master.errorist.eu` (via MasterServerMirror mod) |
+| Unreal Tournament 99 | OldUnreal 469e (amd64 Linux) | 7797 / 7798 (shifted from 7777 to avoid UT2004 collision) | `master.333networks.com`, `master.oldunreal.com` ×2, `master.errorist.eu`, `master.openspy.net`, `master.qtracker.com`, `master.hypercoop.tk`, `master.telefragged.com` — all shipped in 469e default ini |
 | Quake 2 | Yamagi Quake 2 (apt) | 27910 | `master.yamagi.org`, `master.quakeservers.net`, `master.q2servers.com` |
 | Quake 3-compatible | OpenArena (ioq3 engine, apt) | 27960 | `dpmaster.deathmask.net`, `master.ioquake3.org`, `master3.idsoftware.com` |
 
-All three run as **systemd user units** owned by the installing user, with
+All four run as **systemd user units** owned by the installing user, with
 `Restart=always`. `loginctl enable-linger` keeps them running through logout
 and reboots.
 
@@ -19,12 +20,13 @@ and reboots.
 ```bash
 cd /path/to/retro-agent/scripts/game-servers
 
-# One of these requires ~800 MB of download and a few sudo prompts
+# One of these requires ~1.5 GB of download and a few sudo prompts
 # (apt install, ufw allow, enable-linger, disable conflicting system unit)
 ./install-all.sh
 
 # …or install individually:
 ./install-ut2004-server.sh
+./install-ut99-server.sh
 ./install-quake2-server.sh
 ./install-openarena-server.sh
 ```
@@ -56,6 +58,28 @@ hostname, and the expected listen ports.
 6. Enables `loginctl linger` if not already on.
 7. Installs and starts `ut2004-server.service` as a user unit.
 
+### `install-ut99-server.sh`
+
+1. Pulls base UT99 game data (Maps, Textures, Music, Sounds, System — ~830 MB)
+   from the configured SMB share, using `share-inventory.json` from the
+   nsc-assistant repo as the file manifest.
+2. Overlays the [OldUnreal 469e Linux amd64 patch](https://github.com/OldUnreal/UnrealTournamentPatches/releases)
+   on top. 469e (released Nov 2025) is actively maintained, still supports
+   WinXP clients via the separate `OldUnreal-UTPatch469e-WindowsXP-x86.zip`,
+   and is cross-compatible with legacy Epic 436/451 clients.
+3. Runs `ucc-bin-amd64 help` once to initialize `~/.utpg/System/` with the
+   default `UnrealTournament.ini` (which already lists 8 community master
+   servers — 333networks, OldUnreal ×2, errorist.eu, OpenSpy, qtracker,
+   hypercoop, telefragged — so no master-mirror mod is needed).
+4. Patches `UnrealTournament.ini`: `ServerName`, `AdminPassword`,
+   `Port=7797` (shifted from 7777 to coexist with the UT2004 server),
+   `FragLimit=25`, `TimeLimit=15`, `MinPlayers=6`, `MaxPlayers=12`. Also
+   **removes `ServerPackages=TCowMeshSkins / TNaliMeshSkins / TSkMSkins`**
+   from the default list because those Epic bonus-pack mesh skins aren't
+   shipped with the stock install — leaving them in aborts startup with
+   `"Failed to load TCowMeshSkins"`.
+5. UFW allow UDP 7797–7798, systemd user unit `ut99-server.service`.
+
 ### `install-quake2-server.sh`
 
 1. `apt install yamagi-quake2` (amd64 engine — no 32-bit libs needed).
@@ -82,6 +106,26 @@ hostname, and the expected listen ports.
    from the `WorkingDirectory=~/q3-server` systemd sets, it finds
    `.openarena/baseoa/server.cfg` automatically.
 4. UFW allow UDP 27960, systemd user unit `openarena-server.service`.
+
+## Pushing the UT99 XP patch to the retro fleet
+
+When you install the Linux UT99 server (469e), the retro XP machines should
+be upgraded to the matching WinXP 469e client so they can connect to both this
+server *and* other community servers. The XP-specific client patch is staged
+on the SMB share at
+`\\192.168.1.122\files\Game Updates\UT99-Multiplayer\OldUnreal-UTPatch469e-WindowsXP-x86.zip`.
+
+```bash
+cd /path/to/retro-agent
+python3 scripts/game-servers/push-ut99-xp-patch.py 192.168.1.143 192.168.1.133 192.168.1.123 192.168.1.124
+```
+
+The script pulls the zip from the share to each agent's `C:\WINDOWS\TEMP\`,
+extracts it via a small JScript shim (XP's PowerShell is 2.0 so no
+`Expand-Archive`), then either runs the setup.exe silently (`/S`) or
+xcopies the unpacked tree onto `C:\UT\`. 469e is cross-compatible with
+legacy 436/451 clients, so the upgrade is non-disruptive — existing UT99
+installs just get newer `.u` and renderer DLLs.
 
 ## Why OpenArena and not real Quake 3?
 
