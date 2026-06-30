@@ -12,23 +12,39 @@ The output will tell you and the user:
 - Whether the `retro_chat_daemon.py` is running (✓ or ✗)
 - How many retro agents are claimed
 - Whether there are pending prompts in the inbox
-- Whether a chat processor subagent appears to be active (based on heartbeat)
+- Whether the chat **brain** (processor) is alive (based on `processor.heartbeat`)
 
 Echo a friendly status block to the user, e.g.:
 
 ```
 Retro chat status:
   ✓ daemon running (pid 12345, claimed: .124, .143)
-  ✗ processor subagent: NOT RUNNING (or stale, last heartbeat 12 minutes ago)
+  ✗ chat brain: NOT RUNNING (or stale, last heartbeat 12 minutes ago)
   ✓ inbox: 0 pending prompts
 
-To start the chat processor subagent, ask: "start the chat processor"
-To restart the daemon: bash /home/voidsstr/development/retro-agent/scripts/restart_daemon.sh
+To start the chat brain:  systemctl --user start retro-chat-brain
+To restart the daemon:    bash /home/voidsstr/development/retro-agent/scripts/restart_daemon.sh
 ```
 
-If the daemon is NOT running, offer to start it. If a processor is needed, **prompt the user to ask for one** rather than auto-spawning (so they can decide).
+If the daemon is NOT running, offer to start it. If the brain is down, offer to start the service.
 
-When the user asks "start the chat processor" or similar, spawn a fresh background subagent using the Agent tool with `run_in_background=true` and the prompt template documented in `nsc-assistant/CLAUDE.md` "Retro Chat Proxy" section.
+### The chat processor is now a standalone service (the "brain")
+
+The processor that answers chat prompts is **`scripts/retro_chat_brain.py`** — a
+long-running service built on the **Claude Agent SDK** (the same engine Claude
+Code runs on). It replaces the old "spawn a Claude Code subagent" approach, so
+the retro chat works **even when no Claude Code session is open**. It has the full
+Claude Code tool suite on this host plus `mcp__retro__*` tools that operate the
+fleet. Full docs: [`scripts/README-chat-brain.md`](scripts/README-chat-brain.md).
+
+When the user asks "start the chat processor"/"start the chat brain":
+```bash
+systemctl --user start retro-chat-brain     # if the unit is installed
+# or, without systemd:
+nohup bash /home/voidsstr/development/retro-agent/scripts/retro_chat_brain_supervisor.sh \
+  > /tmp/retro-chat/brain-sup.log 2>&1 &
+```
+Do **not** spawn an Agent-tool subagent for this anymore — the service is the processor.
 
 ## Repository Context
 
@@ -330,6 +346,25 @@ General pattern:
 | 10.0.0.50 | Q0Q1G8 | Win98 4.10 | Voodoo5 5500 AGP, AWE64 PnP |
 | 10.0.0.51 | VOIDSSTR-YOR7S5 | Win2K 5.0 | GeForce 2 GTS, SB Live |
 | 10.0.0.52 | 2004-XP | Windows XP | 2047MB RAM |
+
+## Windows XP / 2003 Offline Activation (`scripts/xp-activation/`)
+
+Microsoft's XP activation servers (internet + automated phone) are dead, so XP
+boxes that fall out of activation can't reach Microsoft. `scripts/xp-activation/`
+generates a valid **Confirmation ID** from the on-screen **Installation ID**
+completely offline — reproducing what the phone system used to return (not a
+crack; patches nothing on the target).
+
+```bash
+cd scripts/xp-activation && ./build.sh                  # builds ./xpcid (first run)
+./xpcid <9 groups of 6 digits from the activation wizard>   # prints Confirmation ID
+```
+
+Get the Installation ID on the XP machine via the lockout screen's **telephone
+activation** option (no login needed; Safe Mode works if normal login is blocked),
+or `msoobe.exe /a` from a desktop. The same screen accepts the Confirmation ID
+back. The `/xp-activation` skill walks the whole flow; see
+[`scripts/xp-activation/README.md`](scripts/xp-activation/README.md) for details.
 
 ## SMB File Share
 

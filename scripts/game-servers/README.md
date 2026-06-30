@@ -1,6 +1,6 @@
 # Linux Game Servers
 
-Install scripts for four retro-era dedicated game servers that run on the
+Install scripts for retro-era dedicated game servers that run on the
 NSC dev box so the Win98/XP retro fleet (and anyone on the public internet)
 can connect to them.
 
@@ -10,10 +10,13 @@ can connect to them.
 | Unreal Tournament 99 | OldUnreal 469e (amd64 Linux) | 7797 / 7798 (shifted from 7777 to avoid UT2004 collision) | `master.333networks.com`, `master.oldunreal.com` ×2, `master.errorist.eu`, `master.openspy.net`, `master.qtracker.com`, `master.hypercoop.tk`, `master.telefragged.com` — all shipped in 469e default ini |
 | Quake 2 | Yamagi Quake 2 (apt) | 27910 | `master.yamagi.org`, `master.quakeservers.net`, `master.q2servers.com` |
 | Quake 3-compatible | OpenArena (ioq3 engine, apt) | 27960 | `dpmaster.deathmask.net`, `master.ioquake3.org`, `master3.idsoftware.com` |
+| Counter-Strike 1.6 | HLDS / GoldSrc (Steam app 90, i386 via SteamCMD) | 27015 | LAN-only by default (`sv_lan 1`); public listing needs a Steam GSLT + `sv_lan 0` |
 
-All four run as **systemd user units** owned by the installing user, with
-`Restart=always`. `loginctl enable-linger` keeps them running through logout
-and reboots.
+They all run as **systemd user units** owned by the installing user, with
+`Restart` on failure. `loginctl enable-linger` keeps them running through
+logout and reboots. The four UT/Quake servers list on public masters; CS 1.6
+is configured for **LAN play** so the fleet's non-Steam clients can join
+without Steam authentication.
 
 ## End-to-end walkthrough
 
@@ -48,6 +51,10 @@ All four games need **UDP** forwarded from the WAN to the Linux host's
 | 7797 / 7798 | UT99 (game, query — shifted from 7777 to avoid UT2004) | UDP |
 | 27910 | Quake 2 | UDP |
 | 27960 | OpenArena / Q3 | UDP |
+
+Counter-Strike 1.6 (UDP 27015) is **LAN-only** out of the box (`sv_lan 1`) and
+needs **no** port-forward for the retro fleet — they connect by LAN IP. Only
+forward 27015 if you switch it to a public server (`sv_lan 0` + Steam GSLT).
 
 **AT&T BGW caveat (learned the hard way):** the NAT/Gaming rules bind by
 MAC, not IP. If the Linux host has both Wi-Fi and Ethernet, the device
@@ -257,6 +264,27 @@ hostname, and the expected listen ports.
    from the `WorkingDirectory=~/q3-server` systemd sets, it finds
    `.openarena/baseoa/server.cfg` automatically.
 4. UFW allow UDP 27960, systemd user unit `openarena-server.service`.
+
+### `install-cs16-server.sh`
+
+1. Enables the **i386** dpkg architecture and installs 32-bit runtime libs
+   (`lib32gcc-s1`, `lib32stdc++6`, `libc6:i386`) — HLDS and SteamCMD are
+   32-bit GoldSrc binaries and won't run without them. **This step needs
+   sudo**, so run the script interactively (e.g. `! ./install-cs16-server.sh`).
+2. Installs **SteamCMD** to `~/steamcmd` and uses it to install HLDS +
+   Counter-Strike (`app_update 90` with `app_set_config 90 mod cstrike`).
+   The GoldSrc depot drops mid-download constantly, so the install loops up
+   to 6 times until `hlds_run` and `cstrike/dlls/mp.so` both exist.
+3. Writes `~/hlds-cs16/cstrike/server.cfg` (hostname, rcon, `sv_lan 1`,
+   round/timelimits).
+4. systemd user unit `cs16-server.service` runs
+   `hlds_run -game cstrike -port 27015 +map de_dust2 +maxplayers 16`.
+5. **`sv_lan 1`** is deliberate: the retro fleet runs non-Steam CS 1.6
+   clients, which a public (`sv_lan 0`) HLDS would reject without a Steam
+   GSLT. LAN mode skips Steam auth, so the fleet connects by IP
+   (`connect 192.168.1.132:27015`) or via the in-game LAN browser. For a
+   public internet server, obtain a GSLT, set `sv_lan 0`, and forward
+   UDP 27015.
 
 ## Pre-installing multiplayer download packs on the retro fleet
 

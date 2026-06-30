@@ -44,14 +44,14 @@ fi
 if [ -f "$PROCESSOR_HEARTBEAT" ]; then
     HB_AGE=$(( $(date +%s) - $(stat -c%Y "$PROCESSOR_HEARTBEAT" 2>/dev/null || stat -f%m "$PROCESSOR_HEARTBEAT") ))
     if [ "$HB_AGE" -lt 120 ]; then
-        echo "  processor: ALIVE (last heartbeat ${HB_AGE}s ago)"
+        echo "  brain: ALIVE (last heartbeat ${HB_AGE}s ago)"
     else
-        echo "  processor: STALE (last heartbeat ${HB_AGE}s ago, likely dead)"
-        echo "  start:    ask 'start the chat processor'"
+        echo "  brain: STALE (last heartbeat ${HB_AGE}s ago, likely dead)"
+        echo "  start:  systemctl --user restart retro-chat-brain"
     fi
 else
-    echo "  processor: NOT RUNNING (no heartbeat file)"
-    echo "  start:     ask 'start the chat processor'"
+    echo "  brain: NOT RUNNING (no heartbeat file)"
+    echo "  start:  systemctl --user start retro-chat-brain  (see scripts/README-chat-brain.md)"
 fi
 
 # 3. Inbox / outbox state
