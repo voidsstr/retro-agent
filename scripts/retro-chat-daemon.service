@@ -1,0 +1,25 @@
+# Retro Chat Daemon — systemd --user unit.
+# Network bridge: discovers/claims retro agents on the LAN and shuttles prompts
+# to /tmp/retro-chat/inbox and responses from /tmp/retro-chat/outbox.
+#
+# Install (done together with retro-chat-brain by scripts/install-chat-services.sh):
+#   cp scripts/retro-chat-daemon.service ~/.config/systemd/user/
+#   loginctl enable-linger "$USER"
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now retro-chat-daemon
+#   journalctl --user -u retro-chat-daemon -f
+
+[Unit]
+Description=Retro Chat Daemon (LAN bridge for retro agents)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/development/nsc-assistant
+ExecStart=/usr/bin/python3 /home/voidsstr/development/nsc-assistant/agent/tools/retro_chat_daemon.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

@@ -2,11 +2,25 @@
 
 **Give your Pentium II a smarter assistant than most developers had in 2003.**
 
+> ### 🖥️ New: the Retro Chat **brain** — a full Claude agent, on a 25‑year‑old OS
+>
+> A standalone Claude agent (built on the [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview) — the same engine behind Claude Code) runs as an **auto‑starting service** on your modern box. Type a prompt on the retro PC's console and it answers with the **full Claude toolset** (read/edit files, run commands, search the web) and can **operate the rest of the fleet** — no Claude Code window open anywhere.
+
+![A Windows XP machine asks the on-prem Claude agent to re-theme its desktop, live](docs/images/retro-chat-brain-hero.png)
+
+*Real usage on a Windows XP box (`192.168.1.133`): the user types **"change my desktop background themed for geforce 4"** and the agent goes to work — reading files and running tools on the machine — with live status (`[subagent: running: Read]`) and a spinner streaming back to the 16‑color console.*
+
+![The Retro Chat client running on the Windows XP desktop](docs/images/retro-chat-brain-desktop.png)
+
+*`retro_chat.exe` running natively on the XP desktop, driving a real task on the very machine it runs on.*
+
+---
+
 A ~200KB C binary that runs on Windows 98 SE, 2000, and XP (plus Linux). It exposes system info, file IO, registry, process control, UI automation, and hardware diagnostics over a simple TCP protocol — designed from the ground up to be operated by LLMs.
 
 Connect from Python, pipe it to Claude or GPT, and suddenly your vintage hardware has a state-of-the-art AI that can diagnose why your Sound Blaster isn't working, install NVIDIA drivers via GUI automation, or configure your Voodoo 5500 for optimal Glide performance.
 
-The built-in **Retro Chat** client takes it further: type a prompt directly on the retro PC's console, and a Claude Code subagent on your modern dev box processes it with the *full Claude toolbox* — then streams the response back to your 16-color Win98 terminal.
+The built-in **Retro Chat** client takes it further: type a prompt directly on the retro PC's console, and the **Retro Chat brain** — a standalone Claude agent on your modern dev box — processes it with the *full Claude toolbox*, then streams the response back to your 16-color Win98 terminal. The brain runs as an auto‑starting service and needs no Claude Code session open; see [`scripts/README-chat-brain.md`](scripts/README-chat-brain.md).
 
 ## Retro Chat — AI on a 25-year-old OS
 
@@ -28,11 +42,16 @@ The built-in **Retro Chat** client takes it further: type a prompt directly on t
  └─────────────────────────────────┘               │   status_outbox/*.json         │
                                                    │         │                      │
                                                    │         ▼                      │
-                                                   │  Claude Code background agent  │
-                                                   │  (full tools: Read, Bash,      │
-                                                   │   Grep, RetroConnection, etc.) │
+                                                   │  retro_chat_brain.py           │
+                                                   │  (Claude Agent SDK service)    │
+                                                   │  full tools: Read, Bash, Grep, │
+                                                   │  WebSearch + mcp__retro__* fleet│
                                                    └────────────────────────────────┘
 ```
+
+The **brain** (`scripts/retro_chat_brain.py`) and the **daemon** both run as
+`systemctl --user` services that auto‑start on boot — install once with
+`bash scripts/install-chat-services.sh`. Full details: [`scripts/README-chat-brain.md`](scripts/README-chat-brain.md).
 
 Three threads run inside `retro_chat.exe`, each on its own socket:
 - **`LOG_WAIT`** long-poller — streams response chunks with sub-100ms latency
