@@ -31,7 +31,29 @@ import os
 import shutil
 import sys
 import time
+import unicodedata
 from pathlib import Path
+
+# The retro console renders ASCII only (the client strips high-bit bytes, and
+# the daemon's send path is ASCII). Fold the model's Unicode down to ASCII so
+# replies actually deliver instead of failing on a stray smart-quote or check.
+_ASCII_MAP = {
+    "–": "-", "—": "-", "−": "-",          # dashes / minus
+    "‘": "'", "’": "'", "‚": "'",            # single quotes
+    "“": '"', "”": '"', "„": '"',            # double quotes
+    "•": "-", "·": "-", "●": "-", "▪": "-",  # bullets
+    "…": "...", " ": " ", " ": " ", " ": " ",
+    "✓": "[ok]", "✔": "[ok]", "✗": "x", "✘": "x",
+    "→": "->", "←": "<-", "⇒": "=>",
+    "≥": ">=", "≤": "<=", "×": "x", "°": " deg",
+}
+
+
+def ascii_clean(s):
+    for k, v in _ASCII_MAP.items():
+        s = s.replace(k, v)
+    s = unicodedata.normalize("NFKD", s)
+    return s.encode("ascii", "ignore").decode("ascii")
 
 _REPO = Path(__file__).resolve().parent.parent
 if str(_REPO) not in sys.path:
@@ -76,6 +98,9 @@ SYSTEM_APPEND = """
 You are operating as the brain of the **Retro Chat** bridge. A user is chatting
 with you from a retro PC (Win98 / Win2K / WinXP) through a text relay, so:
 
+- Output PLAIN ASCII ONLY — the retro console cannot render Unicode. No emoji,
+  smart quotes, em-dashes, box-drawing, bullets, or check/cross marks. Use -, ',
+  ", ... and plain words instead.
 - Keep answers concise and readable on a small CRT — lead with the outcome.
 - You are autonomous: the user cannot click approval dialogs, so just act.
 - You have the full toolset on THIS Linux host (Bash/Read/Edit/Web/...) AND the
@@ -117,7 +142,7 @@ def write_status(host, text):
     """Tiny one-shot the daemon forwards as '[subagent: <text>]' instantly."""
     try:
         p = STATUS_OUTBOX / f"{host}-{int(time.time()*1000)}.json"
-        p.write_text(json.dumps({"host": host, "text": text}))
+        p.write_text(json.dumps({"host": host, "text": ascii_clean(text)}))
     except Exception:  # noqa: BLE001
         pass
 
@@ -187,7 +212,7 @@ async def run_prompt(host, seq, prompt, sessions):
     except Exception as e:  # noqa: BLE001
         log.exception("query failed for %s seq=%s", host, seq)
         return f"[brain error: {e}]"
-    text = "\n".join(collected).strip()
+    text = ascii_clean("\n".join(collected).strip())
     return text or "(no response generated)"
 
 
