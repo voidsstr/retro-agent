@@ -44,8 +44,18 @@ static HANDLE g_hIn;
 static CRITICAL_SECTION g_console_cs;
 static char g_input_buf[INPUT_MAX];
 static int  g_input_len = 0;
+static int  g_input_cursor = 0;   /* caret position within g_input_buf [0..len] */
 static volatile int g_running = 1;
 static DWORD g_log_offset = 0;
+
+/* ---- command history (Up/Down recall) ----
+ * Ring of recently committed prompts. g_hist_nav walks [0..count]; count means
+ * "the live line being typed", which we stash in g_hist_live while browsing. */
+#define HIST_MAX 64
+static char g_hist[HIST_MAX][INPUT_MAX];
+static int  g_hist_count = 0;            /* number of stored entries */
+static int  g_hist_nav = 0;             /* current browse index (== count = live) */
+static char g_hist_live[INPUT_MAX];     /* the in-progress line saved while browsing */
 
 /* Subagent status — short string describing what the dev-box subagent
  * is currently doing (e.g. "EXEC dir C:\WINDOWS"). The status thread
@@ -326,11 +336,26 @@ static void draw_input_area(void)
     WriteConsoleA(g_hOut, "> ", 2, &written, NULL);
 
     set_color(COLOR_DEFAULT);
+    /* Horizontal scroll so the caret stays visible within the window. */
     max_show = g_screen_w - 3;
-    if (g_input_len > max_show) start = g_input_len - max_show;
-    if (g_input_len > 0) {
+    if (max_show < 1) max_show = 1;
+    if (g_input_cursor < start) start = g_input_cursor;
+    if (g_input_cursor > start + max_show) start = g_input_cursor - max_show;
+    if (start < 0) start = 0;
+    if (g_input_len - start > 0) {
         WriteConsoleA(g_hOut, g_input_buf + start,
                       g_input_len - start, &written, NULL);
+    }
+
+    /* Place the console caret at the edit position (column = "> " + offset). */
+    {
+        CONSOLE_SCREEN_BUFFER_INFO ci;
+        if (GetConsoleScreenBufferInfo(g_hOut, &ci)) {
+            COORD c;
+            c.X = (SHORT)(2 + (g_input_cursor - start));
+            c.Y = ci.dwCursorPosition.Y;  /* the input line we just wrote */
+            SetConsoleCursorPosition(g_hOut, c);
+        }
     }
 }
 
@@ -625,21 +650,107 @@ static DWORD WINAPI spinner_thread(LPVOID param)
     return 0;
 }
 
+/* ---- input helpers (line editing + history) ---- */
+
+static void safe_history_copy(char *dst, const char *src)
+{
+    strncpy(dst, src, INPUT_MAX - 1);
+    dst[INPUT_MAX - 1] = '\0';
+}
+
+/* Replace the current input line with `s` and put the caret at its end. */
+static void load_input(const char *s)
+{
+    int n = (int)strlen(s);
+    if (n > INPUT_MAX - 1) n = INPUT_MAX - 1;
+    memcpy(g_input_buf, s, n);
+    g_input_buf[n] = '\0';
+    g_input_len = n;
+    g_input_cursor = n;
+}
+
+/* Push a committed prompt onto the history ring (dedup vs the most recent). */
+static void history_push(const char *s)
+{
+    if (!s[0]) return;
+    if (g_hist_count > 0 && strcmp(g_hist[g_hist_count - 1], s) == 0) {
+        g_hist_nav = g_hist_count;
+        return;
+    }
+    if (g_hist_count == HIST_MAX) {
+        /* drop the oldest */
+        int i;
+        for (i = 1; i < HIST_MAX; i++)
+            memcpy(g_hist[i - 1], g_hist[i], INPUT_MAX);
+        g_hist_count--;
+    }
+    safe_history_copy(g_hist[g_hist_count], s);
+    g_hist_count++;
+    g_hist_nav = g_hist_count;  /* reset browse cursor to the live line */
+}
+
+/* Browse history: dir -1 = older (Up), +1 = newer (Down). */
+static void history_browse(int dir)
+{
+    if (dir < 0) {
+        if (g_hist_nav <= 0) return;
+        if (g_hist_nav == g_hist_count) {
+            /* leaving the live line — stash it so Down can restore it */
+            safe_history_copy(g_hist_live, g_input_buf);
+        }
+        g_hist_nav--;
+        load_input(g_hist[g_hist_nav]);
+    } else {
+        if (g_hist_nav >= g_hist_count) return;
+        g_hist_nav++;
+        if (g_hist_nav == g_hist_count)
+            load_input(g_hist_live);
+        else
+            load_input(g_hist[g_hist_nav]);
+    }
+}
+
 /* ---- main ---- */
 
 static void print_banner(void)
 {
     DWORD written;
-    char banner[512];
+    char banner[640];
     set_color(COLOR_BANNER);
     _snprintf(banner, sizeof(banner),
-        "Retro Chat v%s - Claude Code-style interface\n"
-        "Connected to local retro agent. Type a prompt and press Enter.\n"
-        "Type :quit to exit, :clear to clear the log.\n"
+        "Retro Chat v%s - talk to a full Claude coding/ops agent\n"
+        "Connected to the local retro agent. Type a prompt and press Enter.\n"
+        "Arrows move the caret; Up/Down recall history; Home/End jump.\n"
+        "Commands: :help  :clear  :quit\n"
         "----------------------------------------\n",
         RETRO_CHAT_VERSION);
     WriteConsoleA(g_hOut, banner, (DWORD)strlen(banner), &written, NULL);
     set_color(COLOR_DEFAULT);
+}
+
+static void print_help(void)
+{
+    DWORD written;
+    static const char *help =
+        "Retro Chat help:\n"
+        "  Enter        send your prompt to the agent\n"
+        "  Up / Down    recall previous / next prompt\n"
+        "  Left / Right move the caret within the line\n"
+        "  Home / End   jump to start / end of the line\n"
+        "  Backspace    delete the char before the caret\n"
+        "  Delete       delete the char at the caret\n"
+        "  :help        show this help\n"
+        "  :clear       clear the conversation log\n"
+        "  :quit        exit the chat\n"
+        "The agent can read/edit files, run commands, search the web, and\n"
+        "operate the retro fleet (screenshots, diagnostics, fixes).\n";
+    EnterCriticalSection(&g_console_cs);
+    erase_input_area();
+    set_color(COLOR_BANNER);
+    WriteConsoleA(g_hOut, help, (DWORD)strlen(help), &written, NULL);
+    set_color(COLOR_DEFAULT);
+    draw_input_area();
+    LeaveCriticalSection(&g_console_cs);
 }
 
 int main(void)
@@ -729,12 +840,20 @@ int main(void)
             if (vk == VK_RETURN) {
                 if (g_input_len > 0) {
                     char cmd[INPUT_MAX + 64];
+                    char saved_prompt[INPUT_MAX];
                     g_input_buf[g_input_len] = '\0';
 
                     /* Local commands */
                     if (strcmp(g_input_buf, ":quit") == 0) {
                         g_running = 0;
                         break;
+                    }
+                    if (strcmp(g_input_buf, ":help") == 0) {
+                        g_input_len = 0;
+                        g_input_cursor = 0;
+                        print_help();
+                        g_hist_nav = g_hist_count;
+                        continue;
                     }
                     if (strcmp(g_input_buf, ":clear") == 0) {
                         agent_command(s, "LOG_CLEAR", NULL, NULL);
@@ -748,10 +867,12 @@ int main(void)
                                 g_screen_w * g_screen_h, home, &w);
                             SetConsoleCursorPosition(g_hOut, home);
                         }
+                        g_input_len = 0;
+                        g_input_cursor = 0;
                         print_banner();
                         draw_input_area();
                         LeaveCriticalSection(&g_console_cs);
-                        g_input_len = 0;
+                        g_hist_nav = g_hist_count;
                         continue;
                     }
 
@@ -763,36 +884,65 @@ int main(void)
                      * transition to the waiting state which redraws the
                      * input area with the spinner above a new empty
                      * input line. */
+                    memcpy(saved_prompt, g_input_buf, g_input_len + 1);
+                    history_push(saved_prompt);
+
+                    EnterCriticalSection(&g_console_cs);
                     {
-                        char saved_prompt[INPUT_MAX];
-                        memcpy(saved_prompt, g_input_buf, g_input_len + 1);
-
-                        EnterCriticalSection(&g_console_cs);
-                        {
-                            DWORD w;
-                            g_input_area_height = 1;
-                            WriteConsoleA(g_hOut, "\n", 1, &w, NULL);
-                            g_input_len = 0;
-                            g_waiting = 1;
-                            g_spinner_idx = 0;
-                            draw_input_area();
-                        }
-                        LeaveCriticalSection(&g_console_cs);
-
-                        /* Send the prompt to the proxy via the local agent */
-                        _snprintf(cmd, sizeof(cmd), "PROMPT_PUSH %s",
-                                  saved_prompt);
-                        agent_command(s, cmd, NULL, NULL);
+                        DWORD w;
+                        g_input_area_height = 1;
+                        WriteConsoleA(g_hOut, "\n", 1, &w, NULL);
+                        g_input_len = 0;
+                        g_input_cursor = 0;
+                        g_waiting = 1;
+                        g_spinner_idx = 0;
+                        draw_input_area();
                     }
+                    LeaveCriticalSection(&g_console_cs);
+
+                    /* Send the prompt to the proxy via the local agent */
+                    _snprintf(cmd, sizeof(cmd), "PROMPT_PUSH %s", saved_prompt);
+                    agent_command(s, cmd, NULL, NULL);
+                }
+            } else if (vk == VK_UP) {
+                history_browse(-1);
+                refresh_input();
+            } else if (vk == VK_DOWN) {
+                history_browse(1);
+                refresh_input();
+            } else if (vk == VK_LEFT) {
+                if (g_input_cursor > 0) { g_input_cursor--; refresh_input(); }
+            } else if (vk == VK_RIGHT) {
+                if (g_input_cursor < g_input_len) { g_input_cursor++; refresh_input(); }
+            } else if (vk == VK_HOME) {
+                if (g_input_cursor != 0) { g_input_cursor = 0; refresh_input(); }
+            } else if (vk == VK_END) {
+                if (g_input_cursor != g_input_len) { g_input_cursor = g_input_len; refresh_input(); }
+            } else if (vk == VK_DELETE) {
+                if (g_input_cursor < g_input_len) {
+                    memmove(g_input_buf + g_input_cursor,
+                            g_input_buf + g_input_cursor + 1,
+                            g_input_len - g_input_cursor - 1);
+                    g_input_len--;
+                    refresh_input();
                 }
             } else if (vk == VK_BACK) {
-                if (g_input_len > 0) {
+                if (g_input_cursor > 0) {
+                    memmove(g_input_buf + g_input_cursor - 1,
+                            g_input_buf + g_input_cursor,
+                            g_input_len - g_input_cursor);
+                    g_input_cursor--;
                     g_input_len--;
                     refresh_input();
                 }
             } else if (ch >= 32 && ch < 127) {
                 if (g_input_len < INPUT_MAX - 1) {
-                    g_input_buf[g_input_len++] = ch;
+                    memmove(g_input_buf + g_input_cursor + 1,
+                            g_input_buf + g_input_cursor,
+                            g_input_len - g_input_cursor);
+                    g_input_buf[g_input_cursor] = ch;
+                    g_input_cursor++;
+                    g_input_len++;
                     refresh_input();
                 }
             }
