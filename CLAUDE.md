@@ -54,6 +54,38 @@ The `nsc-assistant` dashboard still imports the Python client (`shared/retro_pro
 
 ## Build & Deploy
 
+### Publishing builds to the share (REQUIRED)
+
+**Any time you build a new `retro_chat.exe` or `retro_agent.exe`, immediately
+publish it to the SMB share so the fleet auto-updates.** A build that isn't on
+the share reaches no machine — the agents self-update by comparing file **size**
+against the share copy on startup, so the new binary must (a) differ in size from
+the old one (it will, if code changed) and (b) actually land on the share.
+
+Publish **both**:
+- the **latest pointer** — `…/Retro Automation/retro_chat.exe` (what every agent's
+  auto-update reads), and
+- a **versioned archive** copy — `…/Retro Automation/retro_chat/retro_chat_vX.Y.Z.exe`
+  (for rollback).
+
+Two ways to publish:
+1. **`make release`** (in `agent/tools/` for the chat client, `agent/` for the
+   agent) — bumps the version tag, builds, and uploads both. Needs `SMB_CREDS`
+   set in the Makefile.
+2. **Via an online fleet agent** when SMB creds aren't handy locally: build, then
+   `UPLOAD` the binary to a machine (e.g. `C:\RETRO_AGENT\retro_chat.exe`) and
+   `EXEC cmd /c copy /Y` it to the share's latest pointer **and** the versioned
+   path. The fleet machines have the share mapped with write access (the `Z:`
+   drive), so the copy succeeds from there.
+
+Also commit the rebuilt binary to git (`agent/tools/retro_chat.exe` is tracked).
+The fleet picks up the new build on each machine's next agent restart/reboot.
+
+> The Retro Chat **brain/daemon** (`scripts/retro_chat_brain.py`,
+> `retro_chat_daemon.py`) are server-side Python — they do **not** ship to the
+> fleet, so changing them needs no share publish (just restart the systemd
+> services: `systemctl --user restart retro-chat-brain retro-chat-daemon`).
+
 ### Windows Agent
 
 ```bash

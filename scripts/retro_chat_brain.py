@@ -63,6 +63,7 @@ from claude_agent_sdk import (  # noqa: E402
     AssistantMessage,
     ClaudeAgentOptions,
     ResultMessage,
+    StreamEvent,
     SystemMessage,
     TextBlock,
     ToolUseBlock,
@@ -81,11 +82,13 @@ STATUS_OUTBOX = ROOT / "status_outbox"
 HEARTBEAT = ROOT / "processor.heartbeat"
 BRAIN_LOG = ROOT / "brain.log"
 
-POLL_INTERVAL = 0.5       # inbox poll cadence (prompts are human-paced)
+POLL_INTERVAL = 0.05      # tight inbox poll for low prompt-pickup latency
 HEARTBEAT_INTERVAL = 20   # chat_status.sh flags the processor stale after 120s
 
 MODEL = os.environ.get("RETRO_BRAIN_MODEL", "claude-opus-4-8")
-EFFORT = os.environ.get("RETRO_BRAIN_EFFORT", "high")
+# 'medium' keeps chat snappy (less pre-output thinking) while staying capable
+# enough for fleet ops; bump to high/xhigh via env for heavier tasks.
+EFFORT = os.environ.get("RETRO_BRAIN_EFFORT", "medium")
 MAX_TURNS = int(os.environ.get("RETRO_BRAIN_MAX_TURNS", "60"))
 
 BUILTIN_TOOLS = [
@@ -177,43 +180,114 @@ def options_for(host, resume):
         cwd=str(_REPO),                        # loads this repo's CLAUDE.md
         resume=resume,
         max_turns=MAX_TURNS,
+        include_partial_messages=True,         # token-level deltas -> live streaming
     )
     if _CLI_PATH:
         opts["cli_path"] = _CLI_PATH
     return ClaudeAgentOptions(**opts)
 
 
+def tool_status(name, tool_input):
+    """One-line 'what the brain is doing' summary for the live status feed."""
+    ti = tool_input or {}
+    base = os.path.basename
+    if name == "Bash":
+        return "bash: " + (ti.get("command") or "").replace("\n", " ")[:48]
+    if name == "Read":
+        return "read: " + base(ti.get("file_path", ""))
+    if name in ("Edit", "Write"):
+        return name.lower() + ": " + base(ti.get("file_path", ""))
+    if name == "Grep":
+        return "search: " + str(ti.get("pattern", ""))[:32]
+    if name == "Glob":
+        return "glob: " + str(ti.get("pattern", ""))[:32]
+    if name == "WebSearch":
+        return "web search: " + str(ti.get("query", ""))[:40]
+    if name == "WebFetch":
+        return "fetch: " + str(ti.get("url", ""))[:40]
+    if name == "Agent":
+        return "subagent: " + str(ti.get("description", ""))[:40]
+    if "retro_command" in name:
+        return "retro: " + str(ti.get("command", ""))[:40]
+    if "retro_screenshot" in name:
+        return "retro: screenshot " + str(ti.get("host", "") or "")
+    if "retro_list" in name:
+        return "retro: list machines"
+    return "running: " + name
+
+
 async def run_prompt(host, seq, prompt, sessions):
-    """Run one prompt through the agent loop; stream status; return final text."""
+    """Stream one prompt through the agent loop, emitting the answer line-by-line
+    and a live status feed of what the brain is doing/thinking."""
     fleet.set_origin_host(host)
-    write_status(host, "thinking…")
-    collected = []
-    session_id = sessions.get(host)
+    write_status(host, "thinking...")
+
+    state = {"buf": "", "idx": 0, "any": False, "think": "", "shown": 0}
+
+    def emit(text):
+        if not text:
+            return
+        state["idx"] += 1
+        p = OUTBOX / f"{host}-{seq}-{state['idx']:06d}.json"
+        # stream=True => daemon concatenates chunks without per-chunk newlines
+        p.write_text(json.dumps(
+            {"host": host, "seq": seq, "chunks": [ascii_clean(text)], "stream": True}))
+        state["any"] = True
+
+    def feed(delta):
+        # Flush only on line boundaries so the console renders clean lines.
+        state["buf"] += delta
+        if "\n" in state["buf"]:
+            cut = state["buf"].rfind("\n") + 1
+            emit(state["buf"][:cut])
+            state["buf"] = state["buf"][cut:]
+
     try:
-        async for msg in query(prompt=prompt, options=options_for(host, session_id)):
-            beat()
-            if isinstance(msg, SystemMessage):
-                sid = getattr(msg, "data", {}) or {}
-                if sid.get("session_id"):
-                    sessions[host] = sid["session_id"]
+        async for msg in query(prompt=prompt, options=options_for(host, sessions.get(host))):
+            if isinstance(msg, StreamEvent):
+                if msg.parent_tool_use_id:      # subagent's internal stream — skip
+                    continue
+                ev = msg.event or {}
+                etype = ev.get("type")
+                if etype == "content_block_delta":
+                    d = ev.get("delta") or {}
+                    if d.get("type") == "text_delta":
+                        feed(d.get("text", ""))
+                    elif d.get("type") == "thinking_delta":
+                        t = d.get("thinking", "")
+                        if t:
+                            state["think"] += t
+                            # throttle thinking->status to ~every 30 new chars
+                            if len(state["think"]) - state["shown"] >= 30:
+                                state["shown"] = len(state["think"])
+                                snip = state["think"].replace("\n", " ").strip()
+                                if snip:
+                                    write_status(host, "thinking: " + snip[-70:])
+                elif etype == "content_block_start":
+                    if (ev.get("content_block") or {}).get("type") == "thinking":
+                        write_status(host, "thinking...")
             elif isinstance(msg, AssistantMessage):
                 for block in getattr(msg, "content", []) or []:
-                    if isinstance(block, TextBlock) and block.text.strip():
-                        collected.append(block.text)
-                    elif isinstance(block, ToolUseBlock):
-                        write_status(host, f"running: {block.name}")
+                    if isinstance(block, ToolUseBlock):
+                        write_status(host, tool_status(block.name, block.input))
+            elif isinstance(msg, SystemMessage):
+                data = getattr(msg, "data", {}) or {}
+                if data.get("session_id"):
+                    sessions[host] = data["session_id"]
             elif isinstance(msg, ResultMessage):
                 sid = getattr(msg, "session_id", None)
                 if sid:
                     sessions[host] = sid
                 result = getattr(msg, "result", None)
-                if result and not collected:
-                    collected.append(result)
+                if result and not state["any"]:
+                    feed(result if result.endswith("\n") else result + "\n")
+        if state["buf"]:
+            emit(state["buf"])               # final partial line
+        if not state["any"]:
+            emit("(no response generated)\n")
     except Exception as e:  # noqa: BLE001
         log.exception("query failed for %s seq=%s", host, seq)
-        return f"[brain error: {e}]"
-    text = ascii_clean("\n".join(collected).strip())
-    return text or "(no response generated)"
+        emit(f"[brain error: {e}]\n")
 
 
 async def heartbeat_loop():
@@ -249,10 +323,9 @@ async def main():
                 f.unlink(missing_ok=True)
                 continue
             log.info("prompt host=%s seq=%s: %.80s", host, seq, prompt.replace("\n", " "))
-            answer = await run_prompt(host, seq, prompt, sessions)
-            write_response(host, seq, answer)
-            f.unlink(missing_ok=True)  # mark consumed (clears 'pending' count)
-            log.info("answered host=%s seq=%s (%d chars)", host, seq, len(answer))
+            f.unlink(missing_ok=True)  # consume now so it isn't reprocessed mid-stream
+            await run_prompt(host, seq, prompt, sessions)  # streams its own output
+            log.info("answered host=%s seq=%s", host, seq)
         await asyncio.sleep(POLL_INTERVAL)
 
 
