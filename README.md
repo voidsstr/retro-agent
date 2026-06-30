@@ -470,6 +470,14 @@ make release BUMP=minor       # minor bump
 
 Each release tags the build, compiles, and uploads both a versioned binary (for rollback) and a "latest" pointer (for auto-update).
 
+> **Always publish a new build to the share.** The agents only pick up a new
+> `retro_chat.exe` / `retro_agent.exe` from the share's "latest" pointer — a build
+> that stays on your dev box reaches no machine. If you can't run `make release`
+> with share creds, push the binary to the share's latest pointer **and** the
+> versioned folder via an online agent's `copy /Y` (the fleet has the share mapped
+> with write access). *(The chat **brain/daemon** are server-side Python and don't
+> ship to the fleet — restart their systemd services instead.)*
+
 **Note:** Edit `SMB_CREDS` and `SMB_BASE` in the Makefiles to match your network share.
 
 ## Win98 Known Issues
