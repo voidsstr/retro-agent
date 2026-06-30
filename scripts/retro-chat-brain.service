@@ -1,0 +1,31 @@
+# Retro Chat Brain — systemd --user unit (matches the game-server convention).
+#
+# Install:
+#   mkdir -p ~/.config/systemd/user
+#   cp scripts/retro-chat-brain.service ~/.config/systemd/user/
+#   loginctl enable-linger "$USER"          # survive logout, start at boot
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now retro-chat-brain
+#   systemctl --user status retro-chat-brain
+#   journalctl --user -u retro-chat-brain -f
+#
+# Auth: the brain uses the already-logged-in `claude` CLI. For a fully
+# unattended box, uncomment Environment=ANTHROPIC_API_KEY=... below instead.
+
+[Unit]
+Description=Retro Chat Brain (Claude Agent SDK processor for the retro fleet)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/development/retro-agent
+ExecStart=/home/voidsstr/development/retro-agent/scripts/.brain-venv/bin/python /home/voidsstr/development/retro-agent/scripts/retro_chat_brain.py
+Restart=always
+RestartSec=3
+# Make sure the bundled `claude` CLI is reachable when launched headless:
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+# Environment=ANTHROPIC_API_KEY=sk-ant-...
+
+[Install]
+WantedBy=default.target
