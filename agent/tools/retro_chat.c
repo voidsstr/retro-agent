@@ -545,12 +545,28 @@ static void print_log_chunk(const char *text, DWORD len)
 
 /* ---- polling thread ---- */
 
+/* Close a dead socket and reopen a fresh authenticated connection in its
+ * place. Returns 0 on success (*ps updated to the new socket), -1 on failure
+ * (*ps left as INVALID_SOCKET so the caller's next attempt retries).
+ *
+ * This is what makes the chat resilient: a socket that dies during a long
+ * idle period, an agent restart, or a network blip is transparently
+ * re-established instead of silently dropping prompts/responses forever.
+ */
+static int agent_reconnect(SOCKET *ps)
+{
+    if (*ps != INVALID_SOCKET) closesocket(*ps);
+    *ps = agent_connect();
+    return (*ps == INVALID_SOCKET) ? -1 : 0;
+}
+
 /* Long-polling thread: blocks on LOG_WAIT until new content arrives or
  * the server-side timeout expires (30s). Re-issues immediately. Zero
  * polling traffic — only sends a request when the previous one returns.
  *
  * Sub-100ms latency for new content; idle CPU/network is essentially
- * zero (the socket is parked in recv() kernel-side).
+ * zero (the socket is parked in recv() kernel-side). On any failure the
+ * socket is reconnected so a dropped connection self-heals.
  */
 static DWORD WINAPI wait_thread(LPVOID param)
 {
@@ -581,8 +597,12 @@ static DWORD WINAPI wait_thread(LPVOID param)
             }
             free(resp);
         } else {
-            /* Connection lost — small backoff before retrying */
+            /* Connection lost — reconnect the wait socket so responses
+             * keep flowing after an agent restart or network blip. The
+             * LOG_WAIT total_size check resyncs g_log_offset if the log
+             * was reset on the agent. */
             Sleep(1000);
+            agent_reconnect(&s);
         }
     }
     return 0;
@@ -625,7 +645,9 @@ static DWORD WINAPI status_thread(LPVOID param)
             }
             free(resp);
         } else {
+            /* Reconnect the status socket on failure (self-heal). */
             Sleep(1000);
+            agent_reconnect(&s);
         }
     }
     return 0;
@@ -900,9 +922,16 @@ int main(void)
                     }
                     LeaveCriticalSection(&g_console_cs);
 
-                    /* Send the prompt to the proxy via the local agent */
+                    /* Send the prompt to the proxy via the local agent. The
+                     * main socket sits idle between prompts and can be dropped
+                     * (idle timeout, agent restart, NAT). If the push fails,
+                     * reconnect and retry once so the prompt is never silently
+                     * lost. */
                     _snprintf(cmd, sizeof(cmd), "PROMPT_PUSH %s", saved_prompt);
-                    agent_command(s, cmd, NULL, NULL);
+                    if (agent_command(s, cmd, NULL, NULL) != 0
+                        && agent_reconnect(&s) == 0) {
+                        agent_command(s, cmd, NULL, NULL);
+                    }
                 }
             } else if (vk == VK_UP) {
                 history_browse(-1);
