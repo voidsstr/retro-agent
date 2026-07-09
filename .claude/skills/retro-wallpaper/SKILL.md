@@ -132,6 +132,15 @@ without re-uploading the BMPs.
   `FFlags`-clear + explorer reload; after the reload `arrange_icons.exe` can move
   it normally. `arrange_icons.exe` also positions a few indices past the reported
   count in case `LVM_GETITEMCOUNT` under-reports by one.
+- **Snap-to-grid stuck ON (nonstandard registry).** Some machines keep their
+  desktop view under `ShellNoRoam\Bags\<N>\Desktop` (N discovered via `BagMRU`),
+  not `Shell\Bags\1\Desktop`, so the `FFlags`-clear can't find it. There, snap
+  forces a ~75-78px grid and the icons spread wider than the tight 70px machines
+  (still inside the well, just less dense). `set_metrics.exe` shrinks the desktop
+  icon spacing live (`SPI_SETICONMETRICS`) to line the snap grid up with the
+  arranger - but XP clamps horizontal spacing to ~75px, so on a snap-locked box
+  that's the tightest achievable without a logoff. `run_exe.py <ip> <exe>` pushes
+  and runs any of these helper exes.
 
 ### 5. Verify
 
