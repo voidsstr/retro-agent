@@ -115,28 +115,28 @@
   ],
   "events": [
     {
-      "caption": "Apple's iPad 2 accelerates the tablet boom.",
-      "date": "Mar 2011",
-      "credit": "Dancingpolishcow, CC BY-SA 4.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/IPad_2_showing_iCloud_Activation_lock_on_iOS_9.3.5.jpg/1280px-IPad_2_showing_iCloud_Activation_lock_on_iOS_9.3.5.jpg"
-    },
-    {
-      "caption": "CERN's Large Hadron Collider closes in on the Higgs.",
+      "caption": "Kepler confirms its first habitable-zone planet.",
       "date": "Dec 2011",
-      "credit": "SimonWaldherr, CC BY-SA 4.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/CERN_LHC_CMS_11.jpg/1280px-CERN_LHC_CMS_11.jpg"
+      "credit": "NASA/JPL-CalTech, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Kepler-186f_39x27_CMYK-1.png/1280px-Kepler-186f_39x27_CMYK-1.png"
     },
     {
-      "caption": "The world says goodbye to Steve Jobs.",
-      "date": "Oct 2011",
-      "credit": "Photo: Bernard Gotfryd - Edited from tif, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Steve_Jobs_and_Macintosh_computer%2C_January_1984%2C_by_Bernard_Gotfryd_-_edited.jpg/1280px-Steve_Jobs_and_Macintosh_computer%2C_January_1984%2C_by_Bernard_Gotfryd_-_edited.jpg"
+      "caption": "Game of Thrones premieres on television.",
+      "date": "Apr 2011",
+      "credit": "Harald Krichel, CC BY-SA 3.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Peter_Dinklage-32.jpg/1280px-Peter_Dinklage-32.jpg"
     },
     {
-      "caption": "Ultrabooks reboot the thin-and-light laptop.",
+      "caption": "The Raspberry Pi promises a 25-dollar computer.",
       "date": "2011",
-      "credit": "Tim Malabuyo from Santa Cruz, CC BY 2.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/MacBook_Air_black.png/1280px-MacBook_Air_black.png"
+      "credit": "Laserlicht, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Raspberry_Pi_4_Model_B_-_Side.jpg/1280px-Raspberry_Pi_4_Model_B_-_Side.jpg"
+    },
+    {
+      "caption": "A tsunami devastates Japan's Tohoku coast.",
+      "date": "Mar 2011",
+      "credit": "kirakirayuji, CC0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Great_East_Japan_Earthquake_Tsunami_Machimae%2C_Tagajo_city%2C_Miyagi_Prefecture%2C_Japan_3.png/1280px-Great_East_Japan_Earthquake_Tsunami_Machimae%2C_Tagajo_city%2C_Miyagi_Prefecture%2C_Japan_3.png"
     },
     {
       "caption": "IBM's Watson beats the champions at Jeopardy!",
@@ -145,10 +145,10 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/IBMWatson.jpg/1280px-IBMWatson.jpg"
     },
     {
-      "caption": "NASA launches Curiosity on its way to Mars.",
-      "date": "Nov 2011",
-      "credit": "NASA/JPL-Caltech, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Curiosity_-_Robot_Geologist_and_Chemist_in_One%21.jpg/1280px-Curiosity_-_Robot_Geologist_and_Chemist_in_One%21.jpg"
+      "caption": "Adele's 21 becomes the album of the year.",
+      "date": "2011",
+      "credit": "Kristopher Harris from Charlotte, NC, CC BY 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Adele_%27Adele_Live_2016%27_-_Nashville_DSC04804_%2830114379680%29_%28cropped%29.jpg/1280px-Adele_%27Adele_Live_2016%27_-_Nashville_DSC04804_%2830114379680%29_%28cropped%29.jpg"
     }
   ]
 }

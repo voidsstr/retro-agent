@@ -115,10 +115,22 @@
   ],
   "events": [
     {
+      "caption": "Adele's 21 becomes the album of the year.",
+      "date": "2011",
+      "credit": "Kristopher Harris from Charlotte, NC, CC BY 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Adele_%27Adele_Live_2016%27_-_Nashville_DSC04804_%2830114379680%29_%28cropped%29.jpg/1280px-Adele_%27Adele_Live_2016%27_-_Nashville_DSC04804_%2830114379680%29_%28cropped%29.jpg"
+    },
+    {
       "caption": "NASA launches Curiosity on its way to Mars.",
       "date": "Nov 2011",
       "credit": "NASA/JPL-Caltech, Public domain",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Curiosity_-_Robot_Geologist_and_Chemist_in_One%21.jpg/1280px-Curiosity_-_Robot_Geologist_and_Chemist_in_One%21.jpg"
+    },
+    {
+      "caption": "Tahrir Square erupts in the Arab Spring.",
+      "date": "Feb 2011",
+      "credit": "Jonathan Rashad, CC BY 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/09/Tahrir_Square_-_February_10%2C_2011.png"
     },
     {
       "caption": "Apple's iPhone 4S introduces the Siri assistant.",
@@ -127,28 +139,16 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/IPhone_4s_Rear_Side.jpg/1280px-IPhone_4s_Rear_Side.jpg"
     },
     {
+      "caption": "Harry Potter's final film breaks records.",
+      "date": "Jul 2011",
+      "credit": "Joella Marano, CC BY-SA 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Daniel_Radcliffe%2C_2011.jpg/1280px-Daniel_Radcliffe%2C_2011.jpg"
+    },
+    {
       "caption": "Intel's Sandy Bridge Core chips define the era.",
       "date": "Jan 2011",
       "credit": "Martijn Boer, Public domain",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Intel_Sandy_Bridge_2C-GT2_die_shot.jpg/1280px-Intel_Sandy_Bridge_2C-GT2_die_shot.jpg"
-    },
-    {
-      "caption": "Kepler confirms its first habitable-zone planet.",
-      "date": "Dec 2011",
-      "credit": "NASA/JPL-CalTech, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Kepler-186f_39x27_CMYK-1.png/1280px-Kepler-186f_39x27_CMYK-1.png"
-    },
-    {
-      "caption": "The Raspberry Pi promises a 25-dollar computer.",
-      "date": "2011",
-      "credit": "Laserlicht, CC BY-SA 4.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Raspberry_Pi_4_Model_B_-_Side.jpg/1280px-Raspberry_Pi_4_Model_B_-_Side.jpg"
-    },
-    {
-      "caption": "Nintendo's 3DS brings glasses-free 3D gaming.",
-      "date": "Feb 2011",
-      "credit": "Evan-Amos, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Nintendo-3DS-AquaOpen.jpg/1280px-Nintendo-3DS-AquaOpen.jpg"
     }
   ]
 }

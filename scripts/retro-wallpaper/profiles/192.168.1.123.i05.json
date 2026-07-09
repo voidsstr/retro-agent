@@ -115,10 +115,22 @@
   ],
   "events": [
     {
+      "caption": "Batman Begins reboots the Dark Knight.",
+      "date": "Jun 2005",
+      "credit": "Harald Krichel, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Christian_Bale-7837.jpg/1280px-Christian_Bale-7837.jpg"
+    },
+    {
       "caption": "YouTube uploads its first video and remakes media.",
       "date": "Apr 2005",
       "credit": "YouTube, Public domain",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Logo_of_YouTube_%282006-2011%29.svg/1280px-Logo_of_YouTube_%282006-2011%29.svg.png"
+    },
+    {
+      "caption": "Hurricane Katrina devastates New Orleans.",
+      "date": "Aug 2005",
+      "credit": "Jeff Schmaltz, MODIS Rapid Response Team, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Katrina_2005-08-28_1702Z.jpg/1280px-Katrina_2005-08-28_1702Z.jpg"
     },
     {
       "caption": "Huygens becomes the first probe to land on Titan.",
@@ -127,28 +139,16 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Huygens_probe_model.jpg/1280px-Huygens_probe_model.jpg"
     },
     {
+      "caption": "Harry Potter and the Goblet of Fire enchants cinemas.",
+      "date": "Nov 2005",
+      "credit": "Gage Skidmore from Peoria, AZ, United St, CC BY-SA 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Daniel_Radcliffe_in_July_2015.jpg/1280px-Daniel_Radcliffe_in_July_2015.jpg"
+    },
+    {
       "caption": "Apple's iPod nano reinvents the music player.",
       "date": "Sep 2005",
       "credit": "Wiki-user-30001, CC0",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/IPod_Nano_1st_Gen_Dimensions.png"
-    },
-    {
-      "caption": "Sony's PSP puts console gaming in your pocket.",
-      "date": "Mar 2005",
-      "credit": "Evan-Amos, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Psp-1000.jpg/1280px-Psp-1000.jpg"
-    },
-    {
-      "caption": "Google Earth puts the whole planet on your screen.",
-      "date": "Jun 2005",
-      "credit": "Google Inc., Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Google_Earth_icon.svg/1280px-Google_Earth_icon.svg.png"
-    },
-    {
-      "caption": "NASA launches the Mars Reconnaissance Orbiter.",
-      "date": "Aug 2005",
-      "credit": "NASA/JPL/Corby Waste, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Mars_Reconnaissance_Orbiter.jpg/1280px-Mars_Reconnaissance_Orbiter.jpg"
     }
   ]
 }

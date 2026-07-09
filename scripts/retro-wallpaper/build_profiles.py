@@ -23,6 +23,8 @@ OVERRIDE = {
     "Mars Reconnaissance Orbiter": "Mars Reconnaissance Orbiter.jpg",
     "YouTube": "Logo of YouTube (2005-2011).svg",
     "Power Mac G4 Cube": "Power Mac G4 Cube.jpg",
+    "Pope Benedict XVI 2005": "BentoXVI-30-10052007.jpg",
+    "Tiger Woods 2000": "Tiger Woods drives by Allison.jpg",
 }
 
 
@@ -163,6 +165,53 @@ TECH = {
     ],
 }
 
+# Pop-culture milestones (music/film/celebrity) for each era.
+POP = {
+    2000: [
+        ("Gladiator rules the box office.", "May 2000", "Russell Crowe"),
+        ("Eminem's Marshall Mathers LP rewrites rap.", "May 2000", "Eminem 2000"),
+        ("Tiger Woods dominates a historic golf season.", "2000", "Tiger Woods 2000"),
+    ],
+    2005: [
+        ("Batman Begins reboots the Dark Knight.", "Jun 2005", "Christian Bale"),
+        ("Harry Potter and the Goblet of Fire enchants cinemas.", "Nov 2005",
+         "Daniel Radcliffe"),
+        ("Coldplay's X&Y tops charts worldwide.", "Jun 2005", "Coldplay band"),
+    ],
+    2011: [
+        ("Adele's 21 becomes the album of the year.", "2011", "Adele singer"),
+        ("Harry Potter's final film breaks records.", "Jul 2011", "Daniel Radcliffe 2011"),
+        ("Game of Thrones premieres on television.", "Apr 2011", "Peter Dinklage"),
+    ],
+}
+
+# World-news milestones for each era.
+NEWS = {
+    2000: [
+        ("Sydney dazzles at the 2000 Summer Olympics.", "Sep 2000",
+         "Sydney 2000 Olympic Games opening ceremony"),
+        ("Concorde crashes outside Paris.", "Jul 2000", "Air France Concorde aircraft"),
+        ("Vladimir Putin is sworn in as Russia's president.", "May 2000",
+         "Vladimir Putin 2000 inauguration"),
+    ],
+    2005: [
+        ("Hurricane Katrina devastates New Orleans.", "Aug 2005",
+         "Hurricane Katrina 2005 satellite"),
+        ("Cardinal Ratzinger becomes Pope Benedict XVI.", "Apr 2005",
+         "Pope Benedict XVI 2005"),
+        ("Angela Merkel becomes Germany's first woman Chancellor.", "Nov 2005",
+         "Angela Merkel 2005"),
+    ],
+    2011: [
+        ("Tahrir Square erupts in the Arab Spring.", "Feb 2011",
+         "Tahrir Square February 2011"),
+        ("A Navy SEAL raid ends the hunt for Osama bin Laden.", "May 2011",
+         "Obama Situation Room bin Laden"),
+        ("A tsunami devastates Japan's Tohoku coast.", "Mar 2011",
+         "2011 Tohoku earthquake tsunami"),
+    ],
+}
+
 # ------------------------------------------------------------ games by year
 GAMES = {
     2000: [
@@ -236,29 +285,40 @@ ITERATIONS = 10   # wallpaper variants per machine
 WINDOW = 6        # events shown per wallpaper
 
 
-def tech_pool(year, cache):
-    """Resolve the full 12-item tech/research pool for a year (cached)."""
+def _resolve(item):
+    caption, date, query = item
+    try:
+        img, credit = commons_image(query)
+        sys.stderr.write("  [ok]  %s -> %s\n" % (query, img.split("/")[-1][:50]))
+    except Exception as e:
+        img, credit = None, ""
+        sys.stderr.write("  [MISS] %s: %s\n" % (query, e))
+    ev = {"caption": caption, "date": date, "credit": credit}
+    if img:
+        ev["image_url"] = img
+    return ev
+
+
+def build_pool(year, cache):
+    """Resolve a 12-item pool interleaving 6 tech, 3 pop-culture, 3 world-news
+    milestones as T,P,T,N,... so every 6-item rotation window shows a blend."""
     if year in cache:
         return cache[year]
-    out = []
-    for caption, date, query in TECH[year]:
-        try:
-            img, credit = commons_image(query)
-            sys.stderr.write("  [ok]  %s -> %s\n" % (query, img.split("/")[-1][:50]))
-        except Exception as e:
-            img, credit = None, ""
-            sys.stderr.write("  [MISS] %s: %s\n" % (query, e))
-        ev = {"caption": caption, "date": date, "credit": credit}
-        if img:
-            ev["image_url"] = img
-        out.append(ev)
-    cache[year] = out
-    return out
+    tech = [_resolve(x) for x in TECH[year][:6]]
+    pop = [_resolve(x) for x in POP[year]]
+    news = [_resolve(x) for x in NEWS[year]]
+    # interleave: T P T N T P T N T P T N  (6 tech, 3 pop, 3 news)
+    order = [tech[0], pop[0], tech[1], news[0], tech[2], pop[1],
+             tech[3], news[1], tech[4], pop[2], tech[5], news[2]]
+    cache[year] = order
+    return order
 
 
 def iteration_events(pool, k):
     """The k-th rotating 6-item window over the pool. Step of 5 (coprime to 12)
-    so consecutive iterations share only one item -> each looks distinct."""
+    so consecutive iterations share only one item -> each looks distinct. The
+    T/P/N interleave (period 4 < 6) guarantees every window has >=1 pop + >=1
+    news alongside the tech items."""
     n = len(pool)
     start = (k * 5) % n
     return [pool[(start + j) % n] for j in range(WINDOW)]
@@ -363,7 +423,7 @@ def main():
     pool_cache = {}
     for m in MACHINES:
         sys.stderr.write("Building %s (%s)...\n" % (m["host"], m["hostname"]))
-        pool = tech_pool(m["cpu_year"], pool_cache)
+        pool = build_pool(m["cpu_year"], pool_cache)
         for k in range(ITERATIONS):
             prof = dict(m)
             prof["iteration"] = k

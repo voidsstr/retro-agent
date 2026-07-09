@@ -115,16 +115,16 @@
   ],
   "events": [
     {
-      "caption": "Windows 2000 targets the enterprise desktop.",
-      "date": "Feb 2000",
-      "credit": "OS: Microsoft Corporation Screenshot: Pa, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/57/VirtualBox_Windows_2000_DE_20230707_07_07_2023_19_53_08.png"
+      "caption": "The Nokia 3310 becomes a mobile-phone legend.",
+      "date": "Sep 2000",
+      "credit": "Multicherry, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Nokia_3310_grey_front_%28tidied_and_enhanced%29.jpg/1280px-Nokia_3310_grey_front_%28tidied_and_enhanced%29.jpg"
     },
     {
-      "caption": "Toyota's Prius brings hybrid cars to the world.",
-      "date": "2000",
-      "credit": "DontCallMeLateForDinner, CC BY-SA 4.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Toyota_Prius_on_display_at_the_Henry_Ford_Museum.jpg/1280px-Toyota_Prius_on_display_at_the_Henry_Ford_Museum.jpg"
+      "caption": "Vladimir Putin is sworn in as Russia's president.",
+      "date": "May 2000",
+      "credit": "Presidential Press and Information Offic, CC BY 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Vladimir_Putin_taking_the_Presidential_Oath%2C_7_May_2000.jpg/1280px-Vladimir_Putin_taking_the_Presidential_Oath%2C_7_May_2000.jpg"
     },
     {
       "caption": "Sony's PlayStation 2 redraws the console landscape.",
@@ -133,22 +133,22 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sony-PlayStation-2-30001-wController-L.jpg/1280px-Sony-PlayStation-2-30001-wController-L.jpg"
     },
     {
+      "caption": "Gladiator rules the box office.",
+      "date": "May 2000",
+      "credit": "Eva Rinaldi from Sydney Australia, CC BY-SA 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Russell_Crowe_%2833994020424%29.jpg/1280px-Russell_Crowe_%2833994020424%29.jpg"
+    },
+    {
       "caption": "The Human Genome Project unveils its first draft.",
       "date": "Jun 2000",
       "credit": "Jerome Walker, Public domain",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/DNA_double_helix_horizontal.png"
     },
     {
-      "caption": "AMD's Athlon is the first CPU to reach 1 GHz.",
-      "date": "Mar 2000",
-      "credit": "\u201cJonathan Zander (Digon3)\u201d, CC BY-SA 3.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/MicroATX_Motherboard_with_AMD_Athlon_Processor_Digon3.jpg/1280px-MicroATX_Motherboard_with_AMD_Athlon_Processor_Digon3.jpg"
-    },
-    {
-      "caption": "Intel answers with the Pentium 4 and NetBurst.",
-      "date": "Nov 2000",
-      "credit": "Konstantin Lanzet, CC BY-SA 3.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/KL_Intel_Pentium_4_Northwood.jpg"
+      "caption": "Sydney dazzles at the 2000 Summer Olympics.",
+      "date": "Sep 2000",
+      "credit": "Barry Thomas from Beacon Hill, Australia, CC BY 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/26/Sydney_Olympics_Opening_Ceremony.jpg"
     }
   ]
 }

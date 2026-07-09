@@ -115,22 +115,22 @@
   ],
   "events": [
     {
-      "caption": "Deep Impact slams a probe into comet Tempel 1.",
-      "date": "Jul 2005",
-      "credit": "NASA/JPL-Caltech/UMD, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Deep_Impact_HRI.jpeg"
-    },
-    {
-      "caption": "Astronomers announce the dwarf planet Eris.",
-      "date": "2005",
-      "credit": "NASA, ESA, and M. Brown (California Inst, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/Eris_and_dysnomia.jpg"
-    },
-    {
-      "caption": "Steve Jobs tells Stanford to stay hungry.",
+      "caption": "Coldplay's X&Y tops charts worldwide.",
       "date": "Jun 2005",
-      "credit": "ken.gz, CC BY 2.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Steve_Jobs_Presentation_1.jpg"
+      "credit": "Raph_PH, CC BY 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/ColdplayBBC071221_%28cropped%29.jpg/1280px-ColdplayBBC071221_%28cropped%29.jpg"
+    },
+    {
+      "caption": "Google Earth puts the whole planet on your screen.",
+      "date": "Jun 2005",
+      "credit": "Google Inc., Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Google_Earth_icon.svg/1280px-Google_Earth_icon.svg.png"
+    },
+    {
+      "caption": "Angela Merkel becomes Germany's first woman Chancellor.",
+      "date": "Nov 2005",
+      "credit": "\u05d0 (Aleph), CC BY-SA 2.5",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Angela_Merkel_%282008%29.jpg/1280px-Angela_Merkel_%282008%29.jpg"
     },
     {
       "caption": "Microsoft's Xbox 360 opens the HD-console era.",
@@ -139,16 +139,16 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Xbox-360-Pro-wController.jpg/1280px-Xbox-360-Pro-wController.jpg"
     },
     {
+      "caption": "Batman Begins reboots the Dark Knight.",
+      "date": "Jun 2005",
+      "credit": "Harald Krichel, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Christian_Bale-7837.jpg/1280px-Christian_Bale-7837.jpg"
+    },
+    {
       "caption": "YouTube uploads its first video and remakes media.",
       "date": "Apr 2005",
       "credit": "YouTube, Public domain",
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Logo_of_YouTube_%282006-2011%29.svg/1280px-Logo_of_YouTube_%282006-2011%29.svg.png"
-    },
-    {
-      "caption": "Huygens becomes the first probe to land on Titan.",
-      "date": "Jan 2005",
-      "credit": "David Monniaux, CC BY-SA 3.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Huygens_probe_model.jpg/1280px-Huygens_probe_model.jpg"
     }
   ]
 }
