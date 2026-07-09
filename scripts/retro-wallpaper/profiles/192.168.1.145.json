@@ -1,0 +1,49 @@
+{
+  "host": "192.168.1.145",
+  "hostname": "DELL",
+  "width": 1920,
+  "height": 1080,
+  "accent": [90, 170, 255],
+  "accent2": [130, 200, 90],
+  "title": "Sandy Bridge Workstation - Windows XP",
+  "cpu_year": 2011,
+  "gpu_year": 2011,
+  "cpu_label": "Intel Core i5-2400 - launched 2011",
+  "gpu_label": "Intel HD Graphics 2000 - launched 2011",
+  "specs": [
+    ["CPU", "Intel Core i5-2400 @ 3.10GHz (Sandy Bridge, 4C)"],
+    ["GPU", "Intel HD Graphics 2000"],
+    ["RAM", "2048 MB"],
+    ["OS", "Windows XP Pro SP3"],
+    ["DISPLAY", "1920 x 1080 @ 60Hz 32bpp"],
+    ["STORAGE", "224 GB fixed"]
+  ],
+  "games_cpu": [
+    {"title": "The Elder Scrolls V: Skyrim", "note": "open-world RPG landmark"},
+    {"title": "Portal 2", "note": "acclaimed puzzle sequel"},
+    {"title": "Batman: Arkham City", "note": "open-world superhero action"},
+    {"title": "Deus Ex: Human Revolution", "note": "cyberpunk stealth RPG"},
+    {"title": "Dark Souls", "note": "brutal action-RPG milestone"},
+    {"title": "Battlefield 3", "note": "Frostbite military shooter"},
+    {"title": "The Witcher 2", "note": "dark PC fantasy RPG"},
+    {"title": "Minecraft 1.0", "note": "sandbox phenomenon released"}
+  ],
+  "games_gpu": [
+    {"title": "Terraria", "note": "2D sandbox crafting hit"},
+    {"title": "Zelda: Skyward Sword", "note": "motion-control adventure"},
+    {"title": "Portal 2", "note": "co-op physics puzzler"},
+    {"title": "Skyrim", "note": "best-selling RPG of the year"},
+    {"title": "Dark Souls", "note": "prepare to die"},
+    {"title": "Deus Ex: Human Revolution", "note": "augmented cyberpunk"},
+    {"title": "Battlefield 3", "note": "64-player warfare"},
+    {"title": "Arkham City", "note": "Gotham unleashed"}
+  ],
+  "events": [
+    {"caption": "Tahrir Square erupts as Egypt's revolution topples Mubarak.", "date": "Feb 2011", "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/09/Tahrir_Square_-_February_10%2C_2011.png", "credit": "J. Rashad, CC BY 2.0"},
+    {"caption": "A monster tsunami engulfs Japan's Tohoku coast.", "date": "Mar 2011", "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/2011_T%C5%8Dhoku_earthquake_and_tsunami_damage_Matsushima%2C_Miyagi.JPG/960px-2011_T%C5%8Dhoku_earthquake_and_tsunami_damage_Matsushima%2C_Miyagi.JPG", "credit": "U.S. Navy, Public Domain"},
+    {"caption": "A billion watch William and Kate's royal kiss.", "date": "Apr 2011", "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/83/Kiss_Wedding_Prince_William_of_Wales_Kate_Middleton.jpg", "credit": "Magnus D, CC BY 2.0"},
+    {"caption": "The Situation Room watches as bin Laden falls.", "date": "May 2011", "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Obama_and_Biden_await_updates_on_bin_Laden.jpg/960px-Obama_and_Biden_await_updates_on_bin_Laden.jpg", "credit": "P. Souza / White House, PD"},
+    {"caption": "Atlantis roars up, closing the Space Shuttle era.", "date": "Jul 2011", "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Last_Space_Shuttle_Launch_-_Atlantis_on_Mission_STS-135.jpg/960px-Last_Space_Shuttle_Launch_-_Atlantis_on_Mission_STS-135.jpg", "credit": "NASA / B. Ingalls, PD"},
+    {"caption": "The world mourns Steve Jobs, Apple's visionary founder.", "date": "Oct 2011", "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Steve_Jobs_Headshot_2010-CROP.jpg/960px-Steve_Jobs_Headshot_2010-CROP.jpg", "credit": "M. Yohe, CC BY-SA 3.0"}
+  ]
+}
