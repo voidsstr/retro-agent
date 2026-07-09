@@ -1,0 +1,154 @@
+{
+  "host": "192.168.1.123",
+  "hostname": "2004-XP",
+  "title": "Athlon 64 Gaming Rig - Windows XP",
+  "width": 1280,
+  "height": 1024,
+  "accent": [
+    90,
+    170,
+    255
+  ],
+  "accent2": [
+    235,
+    70,
+    70
+  ],
+  "cpu_year": 2005,
+  "gpu_year": 2007,
+  "cpu_label": "AMD Athlon 64 4000+ - launched 2005",
+  "gpu_label": "ATI Radeon HD 3850 AGP - launched 2007",
+  "specs": [
+    [
+      "CPU",
+      "Athlon 64 4000+ 2.4GHz"
+    ],
+    [
+      "GPU",
+      "Radeon HD 3850 AGP"
+    ],
+    [
+      "RAM",
+      "2048 MB"
+    ],
+    [
+      "OS",
+      "Windows XP Pro SP3"
+    ],
+    [
+      "DISPLAY",
+      "1280 x 1024 @ 85Hz 32bpp"
+    ],
+    [
+      "STORAGE",
+      "238 GB fixed"
+    ]
+  ],
+  "iteration": 3,
+  "games_cpu": [
+    {
+      "title": "F.E.A.R.",
+      "note": "horror FPS with smart AI"
+    },
+    {
+      "title": "Civilization IV",
+      "note": "definitive 4X strategy"
+    },
+    {
+      "title": "Battlefield 2",
+      "note": "modern warfare online"
+    },
+    {
+      "title": "Guild Wars",
+      "note": "no-subscription MMO"
+    },
+    {
+      "title": "Quake 4",
+      "note": "id's shooter sequel"
+    },
+    {
+      "title": "Age of Empires III",
+      "note": "gunpowder-era RTS"
+    },
+    {
+      "title": "Resident Evil 4",
+      "note": "reinvented survival horror"
+    },
+    {
+      "title": "Call of Duty 2",
+      "note": "WWII shooter benchmark"
+    }
+  ],
+  "games_gpu": [
+    {
+      "title": "Crysis",
+      "note": "the GPU-melting benchmark"
+    },
+    {
+      "title": "BioShock",
+      "note": "Rapture's atmospheric FPS"
+    },
+    {
+      "title": "Portal",
+      "note": "physics puzzle icon"
+    },
+    {
+      "title": "Call of Duty 4",
+      "note": "Modern Warfare arrives"
+    },
+    {
+      "title": "Team Fortress 2",
+      "note": "class-based multiplayer"
+    },
+    {
+      "title": "S.T.A.L.K.E.R.",
+      "note": "open-world survival FPS"
+    },
+    {
+      "title": "The Witcher",
+      "note": "dark choice-driven RPG"
+    },
+    {
+      "title": "Mass Effect",
+      "note": "cinematic space RPG"
+    }
+  ],
+  "events": [
+    {
+      "caption": "Apple's iPod nano reinvents the music player.",
+      "date": "Sep 2005",
+      "credit": "Wiki-user-30001, CC0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/IPod_Nano_1st_Gen_Dimensions.png"
+    },
+    {
+      "caption": "Sony's PSP puts console gaming in your pocket.",
+      "date": "Mar 2005",
+      "credit": "Evan-Amos, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Psp-1000.jpg/1280px-Psp-1000.jpg"
+    },
+    {
+      "caption": "Google Earth puts the whole planet on your screen.",
+      "date": "Jun 2005",
+      "credit": "Google Inc., Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Google_Earth_icon.svg/1280px-Google_Earth_icon.svg.png"
+    },
+    {
+      "caption": "NASA launches the Mars Reconnaissance Orbiter.",
+      "date": "Aug 2005",
+      "credit": "NASA/JPL/Corby Waste, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Mars_Reconnaissance_Orbiter.jpg/1280px-Mars_Reconnaissance_Orbiter.jpg"
+    },
+    {
+      "caption": "AMD ships the dual-core Athlon 64 X2.",
+      "date": "May 2005",
+      "credit": "Dezwaver, CC0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/AMD_Athlon_64_x2_5200.jpg/1280px-AMD_Athlon_64_x2_5200.jpg"
+    },
+    {
+      "caption": "NVIDIA's GeForce 7800 GTX raises the GPU bar.",
+      "date": "Jun 2005",
+      "credit": "Stefan Ledwina, CC BY-SA 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/7800_GTX_GPU.jpg/1280px-7800_GTX_GPU.jpg"
+    }
+  ]
+}

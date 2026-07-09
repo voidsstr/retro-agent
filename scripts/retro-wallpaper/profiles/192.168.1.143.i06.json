@@ -1,0 +1,154 @@
+{
+  "host": "192.168.1.143",
+  "hostname": "1GHZ",
+  "title": "Athlon 1GHz Rig - Windows XP",
+  "width": 1024,
+  "height": 768,
+  "accent": [
+    255,
+    120,
+    40
+  ],
+  "accent2": [
+    120,
+    200,
+    90
+  ],
+  "cpu_year": 2000,
+  "gpu_year": 2004,
+  "cpu_label": "AMD Athlon 1GHz - launched 2000",
+  "gpu_label": "NVIDIA GeForce 6800 - launched 2004",
+  "specs": [
+    [
+      "CPU",
+      "Athlon 1.0GHz (K7)"
+    ],
+    [
+      "GPU",
+      "GeForce 6800"
+    ],
+    [
+      "RAM",
+      "512 MB"
+    ],
+    [
+      "OS",
+      "Windows XP Pro SP3"
+    ],
+    [
+      "DISPLAY",
+      "1024 x 768 @ 85Hz 32bpp"
+    ],
+    [
+      "STORAGE",
+      "224 GB fixed"
+    ]
+  ],
+  "iteration": 6,
+  "games_cpu": [
+    {
+      "title": "Diablo II",
+      "note": "loot-driven action-RPG"
+    },
+    {
+      "title": "The Sims",
+      "note": "life-sim phenomenon"
+    },
+    {
+      "title": "Counter-Strike",
+      "note": "the mod that ate LAN parties"
+    },
+    {
+      "title": "Deus Ex",
+      "note": "genre-blending cyberpunk"
+    },
+    {
+      "title": "Baldur's Gate II",
+      "note": "landmark D&D RPG"
+    },
+    {
+      "title": "Hitman: Codename 47",
+      "note": "stealth assassin debut"
+    },
+    {
+      "title": "Final Fantasy IX",
+      "note": "return to fantasy roots"
+    },
+    {
+      "title": "Tony Hawk's Pro Skater 2",
+      "note": "arcade skating perfected"
+    }
+  ],
+  "games_gpu": [
+    {
+      "title": "Half-Life 2",
+      "note": "physics-driven FPS classic"
+    },
+    {
+      "title": "World of Warcraft",
+      "note": "the MMO juggernaut"
+    },
+    {
+      "title": "Doom 3",
+      "note": "survival-horror shooter"
+    },
+    {
+      "title": "Halo 2",
+      "note": "console FPS + Xbox Live"
+    },
+    {
+      "title": "Far Cry",
+      "note": "open tropical shooter"
+    },
+    {
+      "title": "Rome: Total War",
+      "note": "epic real-time battles"
+    },
+    {
+      "title": "The Sims 2",
+      "note": "life-sim sequel hit"
+    },
+    {
+      "title": "GTA: San Andreas",
+      "note": "sprawling gang epic"
+    }
+  ],
+  "events": [
+    {
+      "caption": "USB flash drives start replacing the floppy disk.",
+      "date": "2000",
+      "credit": "Jacek Halicki, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/2023_Pendrive%27y_Verbatim_Store_%E2%80%98n%E2%80%99_Click_16_GB_%281%29.jpg/1280px-2023_Pendrive%27y_Verbatim_Store_%E2%80%98n%E2%80%99_Click_16_GB_%281%29.jpg"
+    },
+    {
+      "caption": "Sony's AIBO robotic dog learns new tricks.",
+      "date": "2000",
+      "credit": "Algebar, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Aibo_ichigo_03.jpg/1280px-Aibo_ichigo_03.jpg"
+    },
+    {
+      "caption": "The Space Station takes in its first resident crew.",
+      "date": "Nov 2000",
+      "credit": "NASA, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/STS-97_ISS.jpg/1280px-STS-97_ISS.jpg"
+    },
+    {
+      "caption": "Apple's striking Power Mac G4 Cube goes on sale.",
+      "date": "Jul 2000",
+      "credit": "Patrick Kuhl, CC BY 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Power_Mac_G4_Cube.jpg/1280px-Power_Mac_G4_Cube.jpg"
+    },
+    {
+      "caption": "Windows 2000 targets the enterprise desktop.",
+      "date": "Feb 2000",
+      "credit": "OS: Microsoft Corporation Screenshot: Pa, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/57/VirtualBox_Windows_2000_DE_20230707_07_07_2023_19_53_08.png"
+    },
+    {
+      "caption": "Toyota's Prius brings hybrid cars to the world.",
+      "date": "2000",
+      "credit": "DontCallMeLateForDinner, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Toyota_Prius_on_display_at_the_Henry_Ford_Museum.jpg/1280px-Toyota_Prius_on_display_at_the_Henry_Ford_Museum.jpg"
+    }
+  ]
+}

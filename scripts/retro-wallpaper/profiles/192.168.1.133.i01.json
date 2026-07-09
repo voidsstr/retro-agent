@@ -1,0 +1,154 @@
+{
+  "host": "192.168.1.133",
+  "hostname": "P3-DUAL",
+  "title": "Dual Pentium III - Windows XP",
+  "width": 1024,
+  "height": 768,
+  "accent": [
+    80,
+    200,
+    255
+  ],
+  "accent2": [
+    130,
+    200,
+    90
+  ],
+  "cpu_year": 2000,
+  "gpu_year": 2002,
+  "cpu_label": "Dual Intel Pentium III - launched 2000",
+  "gpu_label": "NVIDIA GeForce4 Ti 4600 - launched 2002",
+  "specs": [
+    [
+      "CPU",
+      "2x Pentium III 700MHz"
+    ],
+    [
+      "GPU",
+      "GeForce4 Ti 4600"
+    ],
+    [
+      "RAM",
+      "1024 MB"
+    ],
+    [
+      "OS",
+      "Windows XP Pro SP3"
+    ],
+    [
+      "DISPLAY",
+      "1024 x 768 @ 100Hz"
+    ],
+    [
+      "STORAGE",
+      "931 GB fixed"
+    ]
+  ],
+  "iteration": 1,
+  "games_cpu": [
+    {
+      "title": "Diablo II",
+      "note": "loot-driven action-RPG"
+    },
+    {
+      "title": "The Sims",
+      "note": "life-sim phenomenon"
+    },
+    {
+      "title": "Counter-Strike",
+      "note": "the mod that ate LAN parties"
+    },
+    {
+      "title": "Deus Ex",
+      "note": "genre-blending cyberpunk"
+    },
+    {
+      "title": "Baldur's Gate II",
+      "note": "landmark D&D RPG"
+    },
+    {
+      "title": "Hitman: Codename 47",
+      "note": "stealth assassin debut"
+    },
+    {
+      "title": "Final Fantasy IX",
+      "note": "return to fantasy roots"
+    },
+    {
+      "title": "Tony Hawk's Pro Skater 2",
+      "note": "arcade skating perfected"
+    }
+  ],
+  "games_gpu": [
+    {
+      "title": "GTA: Vice City",
+      "note": "neon-soaked 80s crime"
+    },
+    {
+      "title": "Warcraft III",
+      "note": "RTS with hero units"
+    },
+    {
+      "title": "TES III: Morrowind",
+      "note": "vast open-world RPG"
+    },
+    {
+      "title": "Battlefield 1942",
+      "note": "32-player online war"
+    },
+    {
+      "title": "Neverwinter Nights",
+      "note": "D&D toolset RPG"
+    },
+    {
+      "title": "Age of Mythology",
+      "note": "myth-powered RTS"
+    },
+    {
+      "title": "Hitman 2",
+      "note": "silent assassin returns"
+    },
+    {
+      "title": "Metroid Prime",
+      "note": "first-person Metroid"
+    }
+  ],
+  "events": [
+    {
+      "caption": "The Nokia 3310 becomes a mobile-phone legend.",
+      "date": "Sep 2000",
+      "credit": "Multicherry, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Nokia_3310_grey_front_%28tidied_and_enhanced%29.jpg/1280px-Nokia_3310_grey_front_%28tidied_and_enhanced%29.jpg"
+    },
+    {
+      "caption": "USB flash drives start replacing the floppy disk.",
+      "date": "2000",
+      "credit": "Jacek Halicki, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/2023_Pendrive%27y_Verbatim_Store_%E2%80%98n%E2%80%99_Click_16_GB_%281%29.jpg/1280px-2023_Pendrive%27y_Verbatim_Store_%E2%80%98n%E2%80%99_Click_16_GB_%281%29.jpg"
+    },
+    {
+      "caption": "Sony's AIBO robotic dog learns new tricks.",
+      "date": "2000",
+      "credit": "Algebar, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Aibo_ichigo_03.jpg/1280px-Aibo_ichigo_03.jpg"
+    },
+    {
+      "caption": "The Space Station takes in its first resident crew.",
+      "date": "Nov 2000",
+      "credit": "NASA, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/STS-97_ISS.jpg/1280px-STS-97_ISS.jpg"
+    },
+    {
+      "caption": "Apple's striking Power Mac G4 Cube goes on sale.",
+      "date": "Jul 2000",
+      "credit": "Patrick Kuhl, CC BY 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Power_Mac_G4_Cube.jpg/1280px-Power_Mac_G4_Cube.jpg"
+    },
+    {
+      "caption": "Windows 2000 targets the enterprise desktop.",
+      "date": "Feb 2000",
+      "credit": "OS: Microsoft Corporation Screenshot: Pa, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/57/VirtualBox_Windows_2000_DE_20230707_07_07_2023_19_53_08.png"
+    }
+  ]
+}

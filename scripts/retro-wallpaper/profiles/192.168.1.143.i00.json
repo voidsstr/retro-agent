@@ -1,0 +1,154 @@
+{
+  "host": "192.168.1.143",
+  "hostname": "1GHZ",
+  "title": "Athlon 1GHz Rig - Windows XP",
+  "width": 1024,
+  "height": 768,
+  "accent": [
+    255,
+    120,
+    40
+  ],
+  "accent2": [
+    120,
+    200,
+    90
+  ],
+  "cpu_year": 2000,
+  "gpu_year": 2004,
+  "cpu_label": "AMD Athlon 1GHz - launched 2000",
+  "gpu_label": "NVIDIA GeForce 6800 - launched 2004",
+  "specs": [
+    [
+      "CPU",
+      "Athlon 1.0GHz (K7)"
+    ],
+    [
+      "GPU",
+      "GeForce 6800"
+    ],
+    [
+      "RAM",
+      "512 MB"
+    ],
+    [
+      "OS",
+      "Windows XP Pro SP3"
+    ],
+    [
+      "DISPLAY",
+      "1024 x 768 @ 85Hz 32bpp"
+    ],
+    [
+      "STORAGE",
+      "224 GB fixed"
+    ]
+  ],
+  "iteration": 0,
+  "games_cpu": [
+    {
+      "title": "Diablo II",
+      "note": "loot-driven action-RPG"
+    },
+    {
+      "title": "The Sims",
+      "note": "life-sim phenomenon"
+    },
+    {
+      "title": "Counter-Strike",
+      "note": "the mod that ate LAN parties"
+    },
+    {
+      "title": "Deus Ex",
+      "note": "genre-blending cyberpunk"
+    },
+    {
+      "title": "Baldur's Gate II",
+      "note": "landmark D&D RPG"
+    },
+    {
+      "title": "Hitman: Codename 47",
+      "note": "stealth assassin debut"
+    },
+    {
+      "title": "Final Fantasy IX",
+      "note": "return to fantasy roots"
+    },
+    {
+      "title": "Tony Hawk's Pro Skater 2",
+      "note": "arcade skating perfected"
+    }
+  ],
+  "games_gpu": [
+    {
+      "title": "Half-Life 2",
+      "note": "physics-driven FPS classic"
+    },
+    {
+      "title": "World of Warcraft",
+      "note": "the MMO juggernaut"
+    },
+    {
+      "title": "Doom 3",
+      "note": "survival-horror shooter"
+    },
+    {
+      "title": "Halo 2",
+      "note": "console FPS + Xbox Live"
+    },
+    {
+      "title": "Far Cry",
+      "note": "open tropical shooter"
+    },
+    {
+      "title": "Rome: Total War",
+      "note": "epic real-time battles"
+    },
+    {
+      "title": "The Sims 2",
+      "note": "life-sim sequel hit"
+    },
+    {
+      "title": "GTA: San Andreas",
+      "note": "sprawling gang epic"
+    }
+  ],
+  "events": [
+    {
+      "caption": "Sony's PlayStation 2 redraws the console landscape.",
+      "date": "Mar 2000",
+      "credit": "Evan-Amos, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sony-PlayStation-2-30001-wController-L.jpg/1280px-Sony-PlayStation-2-30001-wController-L.jpg"
+    },
+    {
+      "caption": "The Human Genome Project unveils its first draft.",
+      "date": "Jun 2000",
+      "credit": "Jerome Walker, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/DNA_double_helix_horizontal.png"
+    },
+    {
+      "caption": "AMD's Athlon is the first CPU to reach 1 GHz.",
+      "date": "Mar 2000",
+      "credit": "\u201cJonathan Zander (Digon3)\u201d, CC BY-SA 3.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/MicroATX_Motherboard_with_AMD_Athlon_Processor_Digon3.jpg/1280px-MicroATX_Motherboard_with_AMD_Athlon_Processor_Digon3.jpg"
+    },
+    {
+      "caption": "Intel answers with the Pentium 4 and NetBurst.",
+      "date": "Nov 2000",
+      "credit": "Konstantin Lanzet, CC BY-SA 3.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/KL_Intel_Pentium_4_Northwood.jpg"
+    },
+    {
+      "caption": "NVIDIA ships the GeForce2 GTS graphics chip.",
+      "date": "Apr 2000",
+      "credit": "Winhistory at German Wikipedia, CC BY-SA 3.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/93/Geforce2gts.jpg"
+    },
+    {
+      "caption": "The Nokia 3310 becomes a mobile-phone legend.",
+      "date": "Sep 2000",
+      "credit": "Multicherry, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Nokia_3310_grey_front_%28tidied_and_enhanced%29.jpg/1280px-Nokia_3310_grey_front_%28tidied_and_enhanced%29.jpg"
+    }
+  ]
+}
