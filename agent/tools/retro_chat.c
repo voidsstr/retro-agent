@@ -600,8 +600,10 @@ static DWORD WINAPI wait_thread(LPVOID param)
             /* Connection lost — reconnect the wait socket so responses
              * keep flowing after an agent restart or network blip. The
              * LOG_WAIT total_size check resyncs g_log_offset if the log
-             * was reset on the agent. */
-            Sleep(1000);
+             * was reset on the agent. Fast retry (300ms) keeps the chat
+             * feeling live across the brief idle-TCP drops some retro NICs
+             * and consumer routers inflict. */
+            Sleep(300);
             agent_reconnect(&s);
         }
     }
@@ -645,8 +647,8 @@ static DWORD WINAPI status_thread(LPVOID param)
             }
             free(resp);
         } else {
-            /* Reconnect the status socket on failure (self-heal). */
-            Sleep(1000);
+            /* Reconnect the status socket on failure (self-heal, fast). */
+            Sleep(300);
             agent_reconnect(&s);
         }
     }
@@ -742,6 +744,7 @@ static void print_banner(void)
     _snprintf(banner, sizeof(banner),
         "Retro Chat v%s - talk to a full Claude coding/ops agent\n"
         "Connected to the local retro agent. Type a prompt and press Enter.\n"
+        "Replies stream live; the status line shows what the agent is doing.\n"
         "Arrows move the caret; Up/Down recall history; Home/End jump.\n"
         "Commands: :help  :clear  :quit\n"
         "----------------------------------------\n",
