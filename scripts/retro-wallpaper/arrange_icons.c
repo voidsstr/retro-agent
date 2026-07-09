@@ -22,6 +22,11 @@
 #ifndef LVS_AUTOARRANGE
 #define LVS_AUTOARRANGE 0x0100
 #endif
+/* shell view context-menu command IDs (FCIDM_SHVIEW_*) */
+#define FCIDM_SHVIEW_AUTOARRANGE 0x7031
+#define FCIDM_SHVIEW_SNAPTOGRID  0x7032
+
+static HWND g_defview;
 
 static HWND find_desktop_listview(void) {
     HWND prog = FindWindowA("Progman", NULL);
@@ -33,16 +38,35 @@ static HWND find_desktop_listview(void) {
             if (defview) break;
         }
     }
+    g_defview = defview;
     if (!defview) return NULL;
     return FindWindowExA(defview, NULL, "SysListView32", NULL);
 }
 
-int main(void) {
+int main(int argc, char **argv) {
     HWND lv = find_desktop_listview();
     if (!lv) { printf("desktop listview not found\n"); return 1; }
 
-    /* free placement: drop auto-arrange so our positions stick */
+    /* Optional: turn OFF "Align to Grid" (snap-to-grid). With it on, a displaced
+       icon re-snaps to a grid cell - and an immovable item (a folder whose saved
+       position won't persist) can bump another icon to a top cell on every
+       refresh. It's a toggle, so only pass "nogrid" when it's currently on. */
+    if (argc > 1 && strcmp(argv[1], "nogrid") == 0 && g_defview) {
+        /* PostMessage (not Send) - a synchronous send to the shell can block */
+        PostMessageA(g_defview, WM_COMMAND, FCIDM_SHVIEW_SNAPTOGRID, 0);
+        Sleep(500);
+    }
+
+    /* "Auto Arrange" must be OFF or the shell re-snaps icons to the top-left
+       grid (and every wallpaper-rotation refresh re-snaps them). Toggle it off
+       via the shell view's own menu command so the change persists, not just
+       the window style. It's a toggle, so only send it when currently on. */
     LONG style = GetWindowLongA(lv, GWL_STYLE);
+    if ((style & LVS_AUTOARRANGE) && g_defview) {
+        SendMessageA(g_defview, WM_COMMAND, FCIDM_SHVIEW_AUTOARRANGE, 0);
+        Sleep(200);
+        style = GetWindowLongA(lv, GWL_STYLE);
+    }
     SetWindowLongA(lv, GWL_STYLE, style & ~LVS_AUTOARRANGE);
 
     int n = (int)SendMessageA(lv, LVM_GETITEMCOUNT, 0, 0);
@@ -71,7 +95,12 @@ int main(void) {
     if (startX < 0) startX = 0;
     if (startY < 0) startY = 0;
 
-    for (int i = 0; i < n; i++) {
+    /* LVM_GETITEMCOUNT occasionally under-reports by one (a freshly created
+       folder can escape the count and sit wherever it was, e.g. overlapping the
+       header). Position a few indices past the reported count too - out-of-range
+       indices just no-op, but a real stray gets pulled into the well. */
+    int limit = n + 8;
+    for (int i = 0; i < limit; i++) {
         int c = i % cols, r = i / cols;
         int x = startX + c * sx;
         int y = startY + r * sy;

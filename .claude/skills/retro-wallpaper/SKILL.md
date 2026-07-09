@@ -107,9 +107,31 @@ Both helpers are mingw cross-builds (rebuild only if changed):
 ```bash
 i686-w64-mingw32-gcc -O2 -mwindows -o rotate_wall.exe  rotate_wall.c  -luser32
 i686-w64-mingw32-gcc -O2          -o arrange_icons.exe arrange_icons.c -luser32 -lgdi32
+i686-w64-mingw32-gcc -O2          -o drag_icon.exe     drag_icon.c     -luser32
 ```
 
 `deploy_wallpaper.py` still exists for a single static wallpaper (no rotation).
+`run_arrange.py <ip>` / `run_drag.py <ip> fx fy tx ty` push+run those helpers
+without re-uploading the BMPs.
+
+**Desktop-icon gotchas (why they overlap / drift back):**
+- **Auto Arrange must be OFF** or the shell re-snaps icons to the top-left grid
+  and every wallpaper-rotation refresh undoes the placement. `arrange_icons.exe`
+  toggles it off via the shell menu command `FCIDM_SHVIEW_AUTOARRANGE` (0x7031)
+  when the `LVS_AUTOARRANGE` style is set - a plain `SetWindowLong` isn't enough.
+- **Snap-to-grid vs. dragging.** `LVM_SETITEMPOSITION` sets exact pixels, but a
+  *drag* obeys snap-to-grid on a ~75px screen grid that won't match the well grid,
+  so dragging one icon can bump a neighbor to a top cell. Disable snap-to-grid
+  before dragging: set `FFlags` in
+  `HKCU\...\Shell\Bags\1\Desktop` (clear bit `0x4`, e.g. `0x224`->`0x220`) then
+  reload the shell (`taskkill /f /im explorer.exe` + `LAUNCH explorer.exe`; XP
+  auto-restarts it). Do NOT use command 0x7032 for snap-to-grid - on the desktop
+  it's "Customize This Folder" and pops a modal that hangs a `SendMessage`.
+- **A stuck icon** (a folder/shortcut whose saved `ItemPos` the shell keeps
+  reasserting, e.g. a game folder pinned over the header) is cleared by the same
+  `FFlags`-clear + explorer reload; after the reload `arrange_icons.exe` can move
+  it normally. `arrange_icons.exe` also positions a few indices past the reported
+  count in case `LVM_GETITEMCOUNT` under-reports by one.
 
 ### 5. Verify
 
