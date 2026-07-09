@@ -306,7 +306,10 @@ def options_for(host, resume, account_home=None):
         mcp_servers={"retro": fleet.build_retro_server(host)},  # origin baked per-query
         permission_mode="bypassPermissions",  # autonomous — no one to approve
         cwd=str(_REPO),                        # loads this repo's CLAUDE.md
-        setting_sources=["project"],           # load .claude/skills (retro-wallpaper, xp-activation)
+        skills="all",                          # enable filesystem skills (injects the
+                                               # Skill tool + discovers installed skills)
+        setting_sources=["project"],           # discover .claude/skills from the repo
+                                               # (retro-wallpaper, xp-activation) + CLAUDE.md
         resume=resume,
         max_turns=MAX_TURNS,
         include_partial_messages=True,         # token-level deltas -> live streaming
