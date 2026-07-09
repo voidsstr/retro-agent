@@ -26,6 +26,12 @@ All tooling lives in `scripts/retro-wallpaper/`.
 - **Scale.** `gen_wallpaper.py` scales by `min(W/1024, H/768)` so a widescreen
   target doesn't let the fixed-height blocks starve the events grid (a width-only
   scale squashes the collage on 16:9 - already fixed, keep it).
+- **Icon well.** The right `ICON_WELL_FRAC` (~0.36) of the content width is left
+  as bare dark background for the whole game+events band (bottom-right). The game
+  panels and events collage keep to the left `content_w`; desktop icons get moved
+  into that well so they stay clearly readable over a plain backdrop instead of
+  colliding with busy artwork. Some machines have 25-35 desktop icons, so the well
+  spans the full height of that band (not just the events row).
 
 ## Workflow
 
@@ -79,8 +85,14 @@ python3 deploy_wallpaper.py 192.168.1.XXX out/192.168.1.XXX.bmp
 ```
 
 It uploads the BMP to `C:\retro-dossier.bmp`, writes the HKCU wallpaper registry
-values via a `.reg` (regedit /s), and refreshes with
-`RUNDLL32 USER32.DLL,UpdatePerUserSystemParameters` (no logoff needed).
+values via a `.reg` (regedit /s), refreshes with
+`RUNDLL32 USER32.DLL,UpdatePerUserSystemParameters` (no logoff needed), then
+uploads and runs **`arrange_icons.exe`** to move every desktop icon into the
+blank bottom-right well. `arrange_icons.exe` finds the desktop `SysListView32`,
+drops `LVS_AUTOARRANGE`, and `LVM_SETITEMPOSITION`s each icon into a packed grid
+anchored bottom-right (spacing/well kept in sync with `ICON_WELL_FRAC`). It's
+cross-built with mingw: `i686-w64-mingw32-gcc -O2 -o arrange_icons.exe
+arrange_icons.c -luser32 -lgdi32` (rebuild only if you change it).
 
 ### 5. Verify
 

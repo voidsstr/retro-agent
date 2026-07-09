@@ -28,6 +28,10 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, "cache")
 OUT = os.path.join(HERE, "out")
+
+# Fraction of the content width reserved (bottom-right) as a blank icon well.
+# Kept in sync with arrange_icons.exe, which moves the desktop icons into it.
+ICON_WELL_FRAC = 0.36
 os.makedirs(CACHE, exist_ok=True)
 os.makedirs(OUT, exist_ok=True)
 
@@ -204,6 +208,11 @@ def build(profile):
     n = len(specs)
     card_h = sp(74)
     total_w = W - 2 * M
+    # Reserve the right column (bottom-right) as a blank icon well. Spec cards +
+    # header stay full width (they sit above the well); the game panels and the
+    # events collage keep to content_w on the left, leaving the well clear.
+    icon_w = int(round(ICON_WELL_FRAC * total_w))
+    content_w = total_w - icon_w - gap
     cw = (total_w - (n - 1) * gap) // n
     f_sk = font(F_COND_B, sp(15))
     f_sv = font(F_COND_B, sp(19))
@@ -229,7 +238,7 @@ def build(profile):
 
     # ==================================================== GAMES PANELS
     games_h = sp(196)
-    panel_w = (total_w - gap) // 2
+    panel_w = (content_w - gap) // 2
     panels = [
         ("GAMES OF " + str(profile["cpu_year"]) + "  -  CPU ERA",
          profile.get("cpu_label", ""), profile["games_cpu"], accent),
@@ -268,8 +277,12 @@ def build(profile):
             note = g.get("note", "")
             if note:
                 nx = col_x + sp(14) + tw + sp(8)
-                if nx < px + panel_w - sp(30):
-                    draw.text((nx, gy + sp(1)), "- " + note, font=f_gn, fill=dim)
+                note_txt = "- " + note
+                nw = measure(draw, note_txt, f_gn)[0]
+                # only draw the note if it fits fully inside the panel (no overflow
+                # into the icon well on narrow panels)
+                if nx + nw <= px + panel_w - sp(10):
+                    draw.text((nx, gy + sp(1)), note_txt, font=f_gn, fill=dim)
             gy += line_h
         px += panel_w + gap
     y += games_h + gap
@@ -281,7 +294,11 @@ def build(profile):
     sec = "  THIS IS THE WORLD OF " + str(profile["cpu_year"]) + "  "
     draw.text((M, y), sec.strip(), font=f_sech, fill=ink)
     shw = measure(draw, sec.strip(), f_sech)[0]
-    draw.line([(M + shw + sp(12), y + sp(12)), (W - M, y + sp(12))],
+
+    # events keep to content_w (left); the reserved right column stays blank so
+    # the desktop icons parked there (arrange_icons.exe) read cleanly.
+    ev_w = content_w
+    draw.line([(M + shw + sp(12), y + sp(12)), (M + ev_w, y + sp(12))],
               fill=(255, 255, 255, 30), width=1)
     y += sp(28)
 
@@ -289,7 +306,7 @@ def build(profile):
     cols = 3
     rows = 2
     tgap = sp(12)
-    tw = (total_w - (cols - 1) * tgap) // cols
+    tw = (ev_w - (cols - 1) * tgap) // cols
     th = (grid_h - (rows - 1) * tgap) // rows
     f_cap = font(F_COND_B, sp(15))
     f_cap_sm = font(F_COND_B, sp(13))

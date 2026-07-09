@@ -15,6 +15,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 from client.retro_protocol import RetroConnection  # noqa: E402
 
 SECRET = os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret")
+HERE = os.path.dirname(os.path.abspath(__file__))
+ARRANGER = os.path.join(HERE, "arrange_icons.exe")
+ARRANGER_DST = "C:\\WINDOWS\\TEMP\\arrange_icons.exe"
 DST = "C:\\retro-dossier.bmp"
 REG = (
     b"REGEDIT4\r\n\r\n"
@@ -40,6 +43,12 @@ async def deploy(host, bmp_path):
         await c.command_text(
             "EXEC RUNDLL32.EXE USER32.DLL,UpdatePerUserSystemParameters ,1 ,True")
         print("%s: desktop refreshed -> wallpaper set" % host)
+        # move desktop icons into the blank bottom-right well the wallpaper reserves
+        with open(ARRANGER, "rb") as f:
+            exe = f.read()
+        await c.send_command("UPLOAD " + ARRANGER_DST, binary_payload=exe)
+        out = await c.command_text("EXEC " + ARRANGER_DST)
+        print("%s: %s" % (host, out.strip()))
     finally:
         await c.close()
 
