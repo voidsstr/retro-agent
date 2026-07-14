@@ -112,6 +112,24 @@ curl --upload-file agent-linux/retro_agent_linux -u YOUR-CREDS \
   "smb://YOUR-SERVER/files/Utility/Retro%20Automation/retro_agent_linux"
 ```
 
+## Fleet Onboarding (first-run bootstrap)
+
+On a machine's **first** agent run, `agent/src/onboard.c` (`onboard_thread`)
+bootstraps it into the fleet: prints an `ONBOARDING` banner to the console, maps
+the share, then runs a **data-driven batch staged on the share** that installs a
+core game set (CS 1.6 BC Romania, Unreal Tournament, Red Alert 2, Quake II,
+Quake III) and applies the dark "hacker" XP theme + parks icons. It is guarded by
+`HKLM\Software\RetroAgent\Onboarded` and is a **no-op until the payload is
+published**, so shipping the new agent doesn't touch already-set-up machines.
+
+- Edit the game list in `provisioning/onboard.json`, regenerate with
+  `python3 provisioning/gen_onboard.py`, publish control files via
+  `provisioning/push_onboard.py <online-agent-ip>`, and drop per-game ZIPs into
+  the share's `…\Games\` dir. Full docs: [`provisioning/README.md`](provisioning/README.md).
+- Uses the `copy /Y` + JScript `retro_unzip.js` extract pattern (NOT `xcopy` -
+  it hangs on NETMAP'd SMB on XP); sets the marker via `regedit /s` (no `reg.exe`
+  on Win98). Idempotent - reruns skip already-installed games.
+
 ## Using the Agent from an LLM
 
 The retro agent is operated by LLMs through the Python client library in `client/`. An LLM connects to agents over TCP, sends commands, and processes responses — enabling autonomous diagnostics, software installation, hardware configuration, and GUI automation on retro PCs.

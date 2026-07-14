@@ -41,6 +41,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/chatproxy.c \
           $(SRCDIR)/autoupdate.c \
           $(SRCDIR)/retrowall.c \
+          $(SRCDIR)/onboard.c \
           $(SRCDIR)/log.c \
           $(SRCDIR)/util.c
 

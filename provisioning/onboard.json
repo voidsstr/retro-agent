@@ -1,0 +1,58 @@
+{
+  "_comment": "Fleet onboarding manifest. The agent's first-run onboard_thread maps the share and runs onboard.cmd (generated from THIS file by gen_onboard.py). Edit the game list here, regenerate, then publish to the share. Each game is a single ZIP on the share, extracted with the JScript Shell.Application shim (NOT xcopy - xcopy hangs on NETMAP'd SMB on XP; see CLAUDE.md). Paths marked NEEDS-VERIFY are best-effort until confirmed on a live machine.",
+
+  "share_games_dir": "Games",
+  "onboard_dir": "Utility\\Retro Automation\\Onboard",
+  "stage_dir": "C:\\RETRO_AGENT\\stage",
+  "unzip_js_local": "C:\\WINDOWS\\TEMP\\retro_unzip.js",
+
+  "marker": { "root": "HKLM", "key": "Software\\RetroAgent", "value": "Onboarded" },
+
+  "games": [
+    {
+      "id": "cs16",
+      "name": "Counter-Strike 1.6 (BC Romania)",
+      "zip": "cs16-bc-romania.zip",
+      "dest": "C:\\Program Files\\Counter-Strike 1.6",
+      "sentinel": "hl.exe",
+      "notes": "BC Romania build; earlier confirmed under Program Files. NEEDS-VERIFY dest."
+    },
+    {
+      "id": "ut",
+      "name": "Unreal Tournament (GOTY / OldUnreal 469)",
+      "zip": "unreal-tournament.zip",
+      "dest": "C:\\UnrealTournament",
+      "sentinel": "System\\UnrealTournament.exe",
+      "notes": "install may be C:\\UT or C:\\UnrealTournament; keep the benchmark manifest in sync."
+    },
+    {
+      "id": "ra2",
+      "name": "Command and Conquer: Red Alert 2 (fleet build)",
+      "zip": "red-alert-2.zip",
+      "dest": "C:\\Westwood\\RA2",
+      "sentinel": "ra2.exe",
+      "notes": "the RA2 build used on the retro fleet (.133). NEEDS-VERIFY dest/sentinel."
+    },
+    {
+      "id": "quake2",
+      "name": "Quake II",
+      "zip": "quake2.zip",
+      "dest": "C:\\Quake2",
+      "sentinel": "quake2.exe"
+    },
+    {
+      "id": "quake3",
+      "name": "Quake III Arena",
+      "zip": "quake3.zip",
+      "dest": "C:\\Quake III Arena",
+      "sentinel": "Quake3\\quake3.exe",
+      "notes": "NSC convention: double-nested C:\\Quake III Arena\\Quake3\\ (matches the benchmark manifest)."
+    }
+  ],
+
+  "desktop": {
+    "theme_reg": "retro_theme.reg",
+    "arrange_icons_exe": "C:\\retro-wall\\arrange_icons.exe",
+    "notes": "Wallpaper rotation + icon parking are (re)applied on every boot by the agent's retrowall thread; onboarding additionally imports the dark 'hacker' XP theme (retro_theme.reg, produced by scripts/retro-wallpaper/apply_hacker_theme.py --dump-reg) if it has been staged, and re-parks icons."
+  }
+}

@@ -669,6 +669,11 @@ void agent_run(void)
      * No-op if nothing has been staged into C:\retro-wall\. */
     CreateThread(NULL, 0, retrowall_thread, NULL, 0, NULL);
 
+    /* First-run onboarding: map the share, stage the core game set, and apply
+     * the retro desktop/theme. No-op once the machine is marked Onboarded or if
+     * no onboarding payload has been published to the share. */
+    CreateThread(NULL, 0, onboard_thread, NULL, 0, NULL);
+
     clients_init();
 
     /* Accept loop */
