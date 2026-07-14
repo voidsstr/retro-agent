@@ -68,6 +68,11 @@ void sysfix_apply_startup(void);
 /* Self-update from network share (runs as background thread) */
 DWORD WINAPI autoupdate_thread(LPVOID param);
 
+/* Apply staged retro wallpaper rotation + park desktop icons at startup.
+ * retrowall_thread waits briefly for the shell then calls retrowall_apply_startup. */
+void retrowall_apply_startup(void);
+DWORD WINAPI retrowall_thread(LPVOID param);
+
 /* Shared flag for graceful shutdown */
 extern volatile int g_running;
 

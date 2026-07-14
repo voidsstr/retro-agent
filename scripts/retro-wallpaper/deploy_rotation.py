@@ -49,7 +49,11 @@ async def deploy(host, interval=60):
                              '/v WallpaperStyle /t REG_SZ /d 2 /f')
         await c.command_text('EXEC cmd /c reg add "HKCU\\Control Panel\\Desktop" '
                              '/v TileWallpaper /t REG_SZ /d 0 /f')
-        # park icons in the bottom-right well
+        # park icons in the bottom-right well. Stage arrange_icons.exe into
+        # C:\retro-wall\ (persistent) as well as TEMP so the agent can re-run it
+        # on every startup (see agent/src/retrowall.c).
+        await upload_file(c, os.path.join(HERE, "arrange_icons.exe"),
+                          WALLDIR + "\\arrange_icons.exe")
         await upload_file(c, os.path.join(HERE, "arrange_icons.exe"),
                           "C:\\WINDOWS\\TEMP\\arrange_icons.exe")
         print("%s: %s" % (host, (await c.command_text(

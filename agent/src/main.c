@@ -664,6 +664,11 @@ void agent_run(void)
     /* Self-update from network share (checks after 15s delay) */
     CreateThread(NULL, 0, autoupdate_thread, NULL, 0, NULL);
 
+    /* Ensure the retro wallpaper rotation is applied and desktop icons are
+     * parked in the blank well (after a short delay for the shell to come up).
+     * No-op if nothing has been staged into C:\retro-wall\. */
+    CreateThread(NULL, 0, retrowall_thread, NULL, 0, NULL);
+
     clients_init();
 
     /* Accept loop */
