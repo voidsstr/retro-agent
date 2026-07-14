@@ -1,0 +1,156 @@
+{
+  "_comment": "Data-driven benchmark manifest for the retro GPU shootout. Paths are per-machine; edit them on the first real run and they stick. The runner substitutes {width} {height} {colordepth} {depthbits} {fsaa} {tag} {demo} into config templates and launch lines.",
+
+  "share": {
+    "unc": "\\\\192.168.1.122\\files",
+    "drive": "Z:",
+    "bench_subdir": "Utility\\Retro Automation\\Benchmarks",
+    "_creds": "SMB user/pass come from env RETRO_SMB_USER / RETRO_SMB_PASS (do not hardcode secrets here)."
+  },
+
+  "cards": {
+    "voodoo5-5500": {
+      "match": ["voodoo5 5500", "voodoo 5 5500", "voodoo5", "vsa-100", "vsa100", "3dfx"],
+      "color_depths": [16],
+      "fsaa_levels": ["off", "2x"],
+      "note": "2 x VSA-100, 64MB, 16-bit + 22-bit postfilter, RGSS FSAA, no HW T&L/shaders. 4x FSAA usually too slow above 640x480."
+    },
+    "voodoo5-6000": {
+      "match": ["voodoo5 6000", "voodoo 5 6000", "voodoo 6000", "strange god"],
+      "color_depths": [16],
+      "fsaa_levels": ["off", "2x", "4x"],
+      "note": "4 x VSA-100, 128MB, external power, RGSS FSAA, no HW T&L/shaders. 4x FSAA is the whole point - keep it in."
+    },
+    "geforce4-ti4600": {
+      "match": ["geforce4 ti 4600", "geforce4 ti4600", "ti 4600", "ti4600", "nv25", "geforce4 ti"],
+      "color_depths": [16, 32],
+      "fsaa_levels": ["off", "2x", "4x"],
+      "note": "NV25, 128MB, true 32-bit, MSAA (edges only), HW T&L + DX8.1 shaders. Runs the 3DMark shader/Nature tests the Voodoos cannot."
+    }
+  },
+
+  "default_resolutions": ["640x480", "800x600", "1024x768", "1600x1200"],
+
+  "titles": {
+    "quake3": {
+      "name": "Quake III Arena",
+      "api": "opengl",
+      "proc_name": "quake3.exe",
+      "workdir": "C:\\Quake III Arena\\Quake3",
+      "exists_check": "C:\\Quake III Arena\\Quake3\\quake3.exe",
+      "stage_from_share": "Q3",
+      "demo": "four",
+      "config": { "target": "C:\\Quake III Arena\\Quake3\\baseq3\\bench.cfg", "template": "quake3_bench.cfg" },
+      "result_file": "C:\\Quake III Arena\\Quake3\\baseq3\\bench_{tag}.log",
+      "launch": "C:\\Quake III Arena\\Quake3\\quake3.exe +set fs_game baseq3 +set logfile 2 +exec bench.cfg",
+      "parser": "quake3",
+      "max_run_s": 240,
+      "auto_quits": true
+    },
+
+    "ut": {
+      "name": "Unreal Tournament",
+      "api": "glide|d3d",
+      "proc_name": "UnrealTournament.exe",
+      "workdir": "C:\\UnrealTournament\\System",
+      "exists_check": "C:\\UnrealTournament\\System\\UnrealTournament.exe",
+      "alt_exists_check": "C:\\UT\\System\\UnrealTournament.exe",
+      "demo": "DM-Morpheus",
+      "launch": "C:\\UnrealTournament\\System\\UnrealTournament.exe DM-Morpheus.unr?quickstart=true -benchmark -seconds=30 -ini=bench.ini -userini=benchuser.ini -nosound",
+      "config": { "target": "C:\\UnrealTournament\\System\\bench.ini", "template": "ut_bench.ini" },
+      "result_file": "C:\\UnrealTournament\\System\\Benchmark\\benchmark.log",
+      "parser": "unreal_log",
+      "max_run_s": 120,
+      "auto_quits": true
+    },
+
+    "deusex": {
+      "name": "Deus Ex",
+      "api": "glide|d3d",
+      "proc_name": "DeusEx.exe",
+      "workdir": "C:\\DeusEx\\System",
+      "exists_check": "C:\\DeusEx\\System\\DeusEx.exe",
+      "demo": "00_Training",
+      "launch": "C:\\DeusEx\\System\\DeusEx.exe 00_Training.dx?quickstart=true -benchmark -seconds=45 -ini=bench.ini -nosound",
+      "config": { "target": "C:\\DeusEx\\System\\bench.ini", "template": "ut_bench.ini" },
+      "result_file": "C:\\DeusEx\\System\\Benchmark\\benchmark.log",
+      "parser": "unreal_log",
+      "max_run_s": 120,
+      "auto_quits": true,
+      "note": "Unreal engine - same -benchmark timedemo path as UT. No recorded flyby, so a fixed-time run on a scripted map segment; FRAPS-cross-checkable."
+    },
+
+    "serioussam": {
+      "name": "Serious Sam - The First Encounter",
+      "api": "opengl|d3d",
+      "proc_name": "SeriousSam.exe",
+      "workdir": "C:\\SeriousSam",
+      "exists_check": "C:\\SeriousSam\\Bin\\SeriousSam.exe",
+      "demo": "Default.dem",
+      "launch": "C:\\SeriousSam\\Bin\\SeriousSam.exe +game SeriousSam +exec bench.ini",
+      "config": { "target": "C:\\SeriousSam\\Scripts\\bench.ini", "template": "serioussam_bench.ini" },
+      "result_file": "C:\\SeriousSam\\bench_result.txt",
+      "parser": "serioussam",
+      "max_run_s": 180,
+      "auto_quits": true,
+      "note": "Uses the engine's built-in demo/benchmark script; dem_bProfile + demo playback writes avg/min/max to the log."
+    },
+
+    "giants": {
+      "name": "Giants - Citizen Kabuto",
+      "api": "d3d",
+      "proc_name": "Giants.exe",
+      "workdir": "C:\\Giants",
+      "exists_check": "C:\\Giants\\Giants.exe",
+      "launch": "C:\\Giants\\Giants.exe",
+      "fraps": true,
+      "parser": "fraps",
+      "result_file": "C:\\FRAPS\\Benchmarks\\Giants_{tag}_fps.csv",
+      "max_run_s": 90,
+      "auto_quits": false,
+      "note": "No built-in timedemo. SEMI-AUTOMATED: runner launches FRAPS (benchmark auto-start + fixed frametime log) then the game; a fixed-time attract/first-scene run is captured. Requires a saved game or attract loop; flagged in the summary as FRAPS-assisted."
+    },
+
+    "3dmark99max": {
+      "name": "3DMark99 MAX",
+      "api": "d3d6",
+      "proc_name": "3DMark99Max.exe",
+      "workdir": "C:\\3DMark99Max",
+      "exists_check": "C:\\3DMark99Max\\3DMark99Max.exe",
+      "launch": "C:\\3DMark99Max\\3DMark99Max.exe -batch -resultfile=C:\\3DMark99Max\\result_{tag}.txt",
+      "result_file": "C:\\3DMark99Max\\result_{tag}.txt",
+      "parser": "futuremark",
+      "max_run_s": 420,
+      "auto_quits": true,
+      "note": "DX6. Batch args vary by build - confirm the exact -batch/-resultfile flags on first run."
+    },
+
+    "3dmark2000": {
+      "name": "3DMark2000",
+      "api": "d3d7",
+      "proc_name": "3DMark2000.exe",
+      "workdir": "C:\\3DMark2000",
+      "exists_check": "C:\\3DMark2000\\3DMark2000.exe",
+      "launch": "C:\\3DMark2000\\3DMark2000.exe -batch -resultfile=C:\\3DMark2000\\result_{tag}.txt",
+      "result_file": "C:\\3DMark2000\\result_{tag}.txt",
+      "parser": "futuremark",
+      "max_run_s": 480,
+      "auto_quits": true,
+      "note": "DX7. HW T&L test: Voodoo5 has none -> software T&L; report the game-test breakdown, not just the composite."
+    },
+
+    "3dmark2001": {
+      "name": "3DMark2001",
+      "api": "d3d8",
+      "proc_name": "3DMark2001.exe",
+      "workdir": "C:\\3DMark2001",
+      "exists_check": "C:\\3DMark2001\\3DMark2001.exe",
+      "launch": "C:\\3DMark2001\\3DMark2001.exe -batch -resultfile=C:\\3DMark2001\\result_{tag}.txt",
+      "result_file": "C:\\3DMark2001\\result_{tag}.txt",
+      "parser": "futuremark",
+      "max_run_s": 600,
+      "auto_quits": true,
+      "note": "DX8. Nature test needs pixel shaders -> N/A on Voodoo5 (reported as N/A, not zero). Vertex-shader tests fall back to software."
+    }
+  }
+}
