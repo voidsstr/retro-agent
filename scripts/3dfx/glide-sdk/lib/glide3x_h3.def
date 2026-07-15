@@ -1,0 +1,197 @@
+EXPORTS
+    grAADrawTriangle = grAADrawTriangle@24 @1
+    grAADrawTriangle@24 @2
+    grAlphaBlendFunction = grAlphaBlendFunction@16 @3
+    grAlphaBlendFunction@16 @4
+    grAlphaCombine = grAlphaCombine@20 @5
+    grAlphaCombine@20 @6
+    grAlphaControlsITRGBLighting = grAlphaControlsITRGBLighting@4 @7
+    grAlphaControlsITRGBLighting@4 @8
+    grAlphaTestFunction = grAlphaTestFunction@4 @9
+    grAlphaTestFunction@4 @10
+    grAlphaTestReferenceValue = grAlphaTestReferenceValue@4 @11
+    grAlphaTestReferenceValue@4 @12
+    grBufferClear = grBufferClear@12 @13
+    grBufferClear@12 @14
+    grBufferSwap = grBufferSwap@4 @15
+    grBufferSwap@4 @16
+    grCheckForRoom = grCheckForRoom@4 @17
+    grCheckForRoom@4 @18
+    grChromakeyMode = grChromakeyMode@4 @19
+    grChromakeyMode@4 @20
+    grChromakeyValue = grChromakeyValue@4 @21
+    grChromakeyValue@4 @22
+    grClipWindow = grClipWindow@16 @23
+    grClipWindow@16 @24
+    grColorCombine = grColorCombine@20 @25
+    grColorCombine@20 @26
+    grColorMask = grColorMask@8 @27
+    grColorMask@8 @28
+    grConstantColorValue = grConstantColorValue@4 @29
+    grConstantColorValue@4 @30
+    grCoordinateSpace = grCoordinateSpace@4 @31
+    grCoordinateSpace@4 @32
+    grCullMode = grCullMode@4 @33
+    grCullMode@4 @34
+    grDepthBiasLevel = grDepthBiasLevel@4 @35
+    grDepthBiasLevel@4 @36
+    grDepthBufferFunction = grDepthBufferFunction@4 @37
+    grDepthBufferFunction@4 @38
+    grDepthBufferMode = grDepthBufferMode@4 @39
+    grDepthBufferMode@4 @40
+    grDepthMask = grDepthMask@4 @41
+    grDepthMask@4 @42
+    grDepthRange = grDepthRange@8 @43
+    grDepthRange@8 @44
+    grDisable = grDisable@4 @45
+    grDisable@4 @46
+    grDisableAllEffects = grDisableAllEffects@0 @47
+    grDisableAllEffects@0 @48
+    grDitherMode = grDitherMode@4 @49
+    grDitherMode@4 @50
+    grDrawLine = grDrawLine@8 @51
+    grDrawLine@8 @52
+    grDrawPoint = grDrawPoint@4 @53
+    grDrawPoint@4 @54
+    grDrawTriangle = grDrawTriangle@12 @55
+    grDrawTriangle@12 @56
+    grDrawVertexArray = grDrawVertexArray@12 @57
+    grDrawVertexArray@12 @58
+    grDrawVertexArrayContiguous = grDrawVertexArrayContiguous@16 @59
+    grDrawVertexArrayContiguous@16 @60
+    grEnable = grEnable@4 @61
+    grEnable@4 @62
+    grErrorSetCallback = grErrorSetCallback@4 @63
+    grErrorSetCallback@4 @64
+    grFinish = grFinish@0 @65
+    grFinish@0 @66
+    grFlush = grFlush@0 @67
+    grFlush@0 @68
+    grFogColorValue = grFogColorValue@4 @69
+    grFogColorValue@4 @70
+    grFogMode = grFogMode@4 @71
+    grFogMode@4 @72
+    grFogTable = grFogTable@4 @73
+    grFogTable@4 @74
+    grGet = grGet@12 @75
+    grGet@12 @76
+    grGetProcAddress = grGetProcAddress@4 @77
+    grGetProcAddress@4 @78
+    grGetString = grGetString@4 @79
+    grGetString@4 @80
+    grGlideGetState = grGlideGetState@4 @81
+    grGlideGetState@4 @82
+    grGlideGetVertexLayout = grGlideGetVertexLayout@4 @83
+    grGlideGetVertexLayout@4 @84
+    grGlideInit = grGlideInit@0 @85
+    grGlideInit@0 @86
+    grGlideSetState = grGlideSetState@4 @87
+    grGlideSetState@4 @88
+    grGlideSetVertexLayout = grGlideSetVertexLayout@4 @89
+    grGlideSetVertexLayout@4 @90
+    grGlideShutdown = grGlideShutdown@0 @91
+    grGlideShutdown@0 @92
+    grLfbConstantAlpha = grLfbConstantAlpha@4 @93
+    grLfbConstantAlpha@4 @94
+    grLfbConstantDepth = grLfbConstantDepth@4 @95
+    grLfbConstantDepth@4 @96
+    grLfbLock = grLfbLock@24 @97
+    grLfbLock@24 @98
+    grLfbReadRegion = grLfbReadRegion@28 @99
+    grLfbReadRegion@28 @100
+    grLfbUnlock = grLfbUnlock@8 @101
+    grLfbUnlock@8 @102
+    grLfbWriteColorFormat = grLfbWriteColorFormat@4 @103
+    grLfbWriteColorFormat@4 @104
+    grLfbWriteColorSwizzle = grLfbWriteColorSwizzle@8 @105
+    grLfbWriteColorSwizzle@8 @106
+    grLfbWriteRegion = grLfbWriteRegion@36 @107
+    grLfbWriteRegion@36 @108
+    grLoadGammaTable = grLoadGammaTable@16 @109
+    grLoadGammaTable@16 @110
+    grQueryResolutions = grQueryResolutions@8 @111
+    grQueryResolutions@8 @112
+    grRenderBuffer = grRenderBuffer@4 @113
+    grRenderBuffer@4 @114
+    grReset = grReset@4 @115
+    grReset@4 @116
+    grSelectContext = grSelectContext@4 @117
+    grSelectContext@4 @118
+    grSetNumPendingBuffers = grSetNumPendingBuffers@4 @119
+    grSetNumPendingBuffers@4 @120
+    grSplash = grSplash@20 @121
+    grSplash@20 @122
+    grSstConfigPipeline = grSstConfigPipeline@12 @123
+    grSstConfigPipeline@12 @124
+    grSstOrigin = grSstOrigin@4 @125
+    grSstOrigin@4 @126
+    grSstSelect = grSstSelect@4 @127
+    grSstSelect@4 @128
+    grSstVidMode = grSstVidMode@8 @129
+    grSstVidMode@8 @130
+    grSstWinClose = grSstWinClose@4 @131
+    grSstWinClose@4 @132
+    grSstWinOpen = grSstWinOpen@28 @133
+    grSstWinOpen@28 @134
+    grStippleMode = grStippleMode@4 @135
+    grStippleMode@4 @136
+    grStipplePattern = grStipplePattern@4 @137
+    grStipplePattern@4 @138
+    grTexCalcMemRequired = grTexCalcMemRequired@16 @139
+    grTexCalcMemRequired@16 @140
+    grTexClampMode = grTexClampMode@12 @141
+    grTexClampMode@12 @142
+    grTexCombine = grTexCombine@28 @143
+    grTexCombine@28 @144
+    grTexDetailControl = grTexDetailControl@16 @145
+    grTexDetailControl@16 @146
+    grTexDownloadMipMap = grTexDownloadMipMap@16 @147
+    grTexDownloadMipMap@16 @148
+    grTexDownloadMipMapLevel = grTexDownloadMipMapLevel@32 @149
+    grTexDownloadMipMapLevel@32 @150
+    grTexDownloadMipMapLevelPartial = grTexDownloadMipMapLevelPartial@40 @151
+    grTexDownloadMipMapLevelPartial@40 @152
+    grTexDownloadTable = grTexDownloadTable@8 @153
+    grTexDownloadTable@8 @154
+    grTexDownloadTablePartial = grTexDownloadTablePartial@16 @155
+    grTexDownloadTablePartial@16 @156
+    grTexFilterMode = grTexFilterMode@12 @157
+    grTexFilterMode@12 @158
+    grTexLodBiasValue = grTexLodBiasValue@8 @159
+    grTexLodBiasValue@8 @160
+    grTexMaxAddress = grTexMaxAddress@4 @161
+    grTexMaxAddress@4 @162
+    grTexMinAddress = grTexMinAddress@4 @163
+    grTexMinAddress@4 @164
+    grTexMipMapMode = grTexMipMapMode@12 @165
+    grTexMipMapMode@12 @166
+    grTexMultibase = grTexMultibase@8 @167
+    grTexMultibase@8 @168
+    grTexMultibaseAddress = grTexMultibaseAddress@20 @169
+    grTexMultibaseAddress@20 @170
+    grTexNCCTable = grTexNCCTable@4 @171
+    grTexNCCTable@4 @172
+    grTexSource = grTexSource@16 @173
+    grTexSource@16 @174
+    grTexTextureMemRequired = grTexTextureMemRequired@8 @175
+    grTexTextureMemRequired@8 @176
+    grVertexLayout = grVertexLayout@12 @177
+    grVertexLayout@12 @178
+    grViewport = grViewport@16 @179
+    grViewport@16 @180
+    gu3dfGetInfo = gu3dfGetInfo@8 @181
+    gu3dfGetInfo@8 @182
+    gu3dfLoad = gu3dfLoad@8 @183
+    gu3dfLoad@8 @184
+    guEncodeRLE16 = guEncodeRLE16@16 @185
+    guEncodeRLE16@16 @186
+    guFogGenerateExp = guFogGenerateExp@8 @187
+    guFogGenerateExp2 = guFogGenerateExp2@8 @188
+    guFogGenerateExp2@8 @189
+    guFogGenerateExp@8 @190
+    guFogGenerateLinear = guFogGenerateLinear@12 @191
+    guFogGenerateLinear@12 @192
+    guFogTableIndexToW = guFogTableIndexToW@4 @193
+    guFogTableIndexToW@4 @194
+    guGammaCorrectionRGB = guGammaCorrectionRGB@12 @195
+    guGammaCorrectionRGB@12 @196

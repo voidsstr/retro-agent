@@ -87,20 +87,41 @@ EOF
 # HOST_CFLAGS: same filter the makefile uses, minus -m32 (host tools only)
 HOSTFIX='HOST_CFLAGS=$(filter-out -m32 -mcpu=% -mtune=% -DFX_DLL_ENABLE -DHWC_EXT_INIT=% -march=%,$(CFLAGS))'
 
+# ABI FIX (validated on a real Voodoo3, 2026-07-15): the stock Makefile produces
+# a glide3x.dll that DOES NOT match how real Glide callers link, so apps fail to
+# load with STATUS_ENTRYPOINT_NOT_FOUND (0xC0000139):
+#   1. exports are decorated `grFoo@N` only -> real games import undecorated
+#      `grFoo`. `-Wl,--add-stdcall-alias` makes the DLL export BOTH forms, so it
+#      is a true drop-in replacement.
+#   2. the stock DLLTOOL_FLAGS include `-U` (add-underscore), which puts a bogus
+#      leading underscore on the DLL-lookup name in the import lib (`_grFoo`) that
+#      no PE export ever has. Drop `-U` so the import lib looks up `grFoo`.
+# Both must be set for the DLL + its import lib to agree with callers.
+LDFIX='LDFLAGS=-shared -m32 -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias'
+DTFIX='DLLTOOL_FLAGS=--as-flags=--32 -m i386'
+
+mkdir -p "$OUT/lib"
+# copy a fresh DLL + its import lib + def into out/ (import lib feeds glide-sdk/lib)
+emit(){ # $1 = tree lib dir, $2 = out dll name, $3 = card tag
+    cp "$1/glide3x.dll" "$OUT/$2"
+    cp "$1/libglide3x.dll.a" "$OUT/lib/libglide3x_$3.dll.a"
+    cp "$1/glide3x.def" "$OUT/lib/glide3x_$3.def" 2>/dev/null || true
+}
+
 # --- glide3x h5 (VSA-100: Voodoo4/5, incl. 6000 4-way SLI) --------------------
 echo "== building glide3x (h5 / VSA-100 = Voodoo4/5) =="
-make -C glide/glide3x -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h5 "$HOSTFIX" >/dev/null
-cp glide/glide3x/h5/lib/glide3x.dll "$OUT/glide3x_h5_voodoo5.dll"
+make -C glide/glide3x -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h5 "$HOSTFIX" "$LDFIX" "$DTFIX" >/dev/null
+emit glide/glide3x/h5/lib glide3x_h5_voodoo5.dll h5
 cp "$OUT/glide3x_h5_voodoo5.dll" "$OUT/glide3x.dll"   # default = VSA-100
 
 # --- glide3x h3 (Voodoo3 / Avenger) ------------------------------------------
 echo "== building glide3x (h3 / Voodoo3) =="
-make -C glide/glide3x -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 "$HOSTFIX" >/dev/null
-cp glide/glide3x/h3/lib/glide3x.dll "$OUT/glide3x_h3_voodoo3.dll"
+make -C glide/glide3x -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 "$HOSTFIX" "$LDFIX" "$DTFIX" >/dev/null
+emit glide/glide3x/h3/lib glide3x_h3_voodoo3.dll h3
 
 # --- glide2x (h3 tree + H4=1 = Napalm-capable Glide2 for Win98 games) ---------
 echo "== building glide2x (h3 + H4=1 / Napalm) =="
-make -C glide/glide2x -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 H4=1 "$HOSTFIX" >/dev/null
+make -C glide/glide2x -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 H4=1 "$HOSTFIX" "$LDFIX" "$DTFIX" >/dev/null
 cp glide/glide2x/h3/lib/glide2x.dll "$OUT/glide2x.dll"
 
 echo

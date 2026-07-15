@@ -34,7 +34,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdarg.h>
 #include "glidebackend.h"
+
+/* ---- diagnostics: log to a file, flushed per line, so nothing is lost when
+ * Glide takes the screen fullscreen (stdout to a pipe gets swallowed). ------ */
+static FILE *g_log;
+static void LOG(const char *fmt, ...){
+    va_list ap;
+    if(g_log){ va_start(ap,fmt); vfprintf(g_log,fmt,ap); va_end(ap);
+               fputc('\n',g_log); fflush(g_log); }
+    va_start(ap,fmt); vprintf(fmt,ap); va_end(ap); printf("\n"); fflush(stdout);
+}
 
 /* ---- diagnostic scene ---------------------------------------------------- */
 
@@ -44,18 +55,22 @@ typedef struct {
 } opts_t;
 
 static gb_tex_t *g_checker;
+static unsigned short g_checker_px[64*64];
 
-static gb_tex_t *make_checker(void){
+static void fill_checker_pixels(void){
     /* 64x64 RGB565 checker: makes filtering + FSAA texture-smoothing visible. */
-    static unsigned short px[64*64];
     int x,y;
     for(y=0;y<64;y++) for(x=0;x<64;x++){
         int c = ((x>>3)^(y>>3))&1;
-        px[y*64+x] = c ? 0xFFFF : 0xF800; /* white / red */
+        g_checker_px[y*64+x] = c ? 0xFFFF : 0xF800; /* white / red */
     }
-    gb_tex_t *t = gb_tex_create(64,64,GB_TF_RGB565);
-    gb_tex_upload(t, px);
-    return t;
+}
+/* Textures live in per-context TMU memory, so (re)create + upload AFTER each
+ * gb_open. Calling grTexDownload before a context is open is illegal. */
+static void checker_upload(void){
+    if(g_checker) gb_tex_destroy(g_checker);
+    g_checker = gb_tex_create(64,64,GB_TF_RGB565);
+    gb_tex_upload(g_checker, g_checker_px);
 }
 
 static void apply_opts(const opts_t *o){
@@ -110,14 +125,15 @@ static void bench_sweep(int frames, const char *csv){
     FILE *f = fopen(csv?csv:"gfxbench.csv","w");
     if(f) fprintf(f,"width,height,depth,fsaa,frames,ms,fps\n");
     opts_t o = {1,1,1,0,0,0,1,1,0,0,-1}; /* textured+bilinear+depth, gouraud   */
-    printf("gfxbench sweep: %d modes x %d frames\n", n, frames);
+    LOG("gfxbench sweep: %d modes x %d frames", n, frames);
     for(i=0;i<n;i++){
         double t0,t1; int fr;
         if(gb_open(&modes[i])!=0){
-            printf("  %dx%d %dbpp fsaa%d : OPEN FAILED (skipped)\n",
+            LOG("  %dx%d %dbpp fsaa%d : OPEN FAILED (skipped)",
                    modes[i].width,modes[i].height,modes[i].depth,modes[i].fsaa);
             continue;
         }
+        checker_upload();   /* textures are per-context */
         apply_opts(&o);
         t0=now_ms();
         for(fr=0;fr<frames;fr++){ draw_scene(&modes[i],&o,fr*0.05f); gb_swap(0); }
@@ -125,7 +141,7 @@ static void bench_sweep(int frames, const char *csv){
         t1=now_ms();
         {
             double ms=t1-t0, fps=frames*1000.0/(ms>0?ms:1);
-            printf("  %4dx%-4d %2dbpp fsaa%d : %6.1f fps (%.0f ms)\n",
+            LOG("  %4dx%-4d %2dbpp fsaa%d : %6.1f fps (%.0f ms)",
                    modes[i].width,modes[i].height,modes[i].depth,modes[i].fsaa,fps,ms);
             if(f) fprintf(f,"%d,%d,%d,%d,%d,%.1f,%.1f\n",
                           modes[i].width,modes[i].height,modes[i].depth,
@@ -143,7 +159,8 @@ static void interactive(void){
     gb_mode_t modes[32]; int n=gb_enum_modes(modes,32), cur=0;
     opts_t o = {1,1,1,0,0,0,1,1,0,0,-1};
     int running=1;
-    if(gb_open(&modes[cur])!=0){ printf("open failed\n"); return; }
+    if(gb_open(&modes[cur])!=0){ LOG("open failed"); return; }
+    checker_upload();
     apply_opts(&o);
     printf("interactive: [ ]=mode f=fsaa t=tex b=bilinear g=shade l=blend\n"
            "             a=atest o=fog z=depth d=dither k=ckey c=cull SPACE=bench ESC=quit\n");
@@ -168,7 +185,7 @@ static void interactive(void){
                         case 'F': /* cycle fsaa: pick next mode with same res */
                             cur=(cur+1)%n; reopen=1; break;
                     }
-                    if(reopen){ gb_close(); gb_open(&modes[cur]); }
+                    if(reopen){ gb_close(); gb_open(&modes[cur]); checker_upload(); }
                     apply_opts(&o);
                 }
             }
@@ -181,18 +198,30 @@ static void interactive(void){
 
 int main(int argc,char**argv){
     char name[128]="?"; int chips=1, i, bench=0, frames=300;
-    const char *csv="gfxbench.csv";
+    const char *csv="C:\\RETRO_AGENT\\gfxbench.csv";
+    char exedir[MAX_PATH], logpath[MAX_PATH], *sl;
+    setvbuf(stdout, NULL, _IONBF, 0);         /* don't lose output to the pipe */
     for(i=1;i<argc;i++){
         if(!strcmp(argv[i],"-bench")) bench=1;
         else if(!strcmp(argv[i],"-frames")&&i+1<argc) frames=atoi(argv[++i]);
         else if(!strcmp(argv[i],"-csv")&&i+1<argc) csv=argv[++i];
     }
-    if(gb_startup(name,sizeof(name),&chips)!=0){ printf("Glide init failed\n"); return 2; }
-    printf("gfxbench - board: %s (%d fb/chip units)\n", name, chips);
-    g_checker = make_checker();
+    /* log next to the exe (survives the fullscreen switch); this is how we see
+     * what happened on the card since stdout is swallowed by Glide fullscreen. */
+    GetModuleFileNameA(NULL, exedir, sizeof(exedir));
+    sl = strrchr(exedir,'\\'); if(sl) *sl=0; else strcpy(exedir,"C:\\RETRO_AGENT");
+    _snprintf(logpath,sizeof(logpath),"%s\\gfxbench.log",exedir);
+    g_log = fopen(logpath,"w");
+
+    LOG("gfxbench start: bench=%d frames=%d csv=%s", bench, frames, csv);
+    if(gb_startup(name,sizeof(name),&chips)!=0){ LOG("FATAL: Glide init failed"); return 2; }
+    LOG("board: %s (%d fb/chip units)", name, chips);
+    fill_checker_pixels();
     if(bench) bench_sweep(frames,csv);
     else      interactive();
-    gb_tex_destroy(g_checker);
+    if(g_checker) gb_tex_destroy(g_checker);
     gb_shutdown();
+    LOG("gfxbench done.");
+    if(g_log) fclose(g_log);
     return 0;
 }

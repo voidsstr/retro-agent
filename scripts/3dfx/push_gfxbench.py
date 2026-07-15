@@ -71,11 +71,26 @@ async def amain(args):
 
         csv = f"{dest}\\gfxbench.csv"
         print(f"running benchmark sweep ({args.frames} frames/mode)...")
-        out = await conn.command_text(
-            f'EXEC cmd /c "{dest}\\gfxbench.exe" -bench -frames {args.frames} -csv "{csv}"',
-            timeout=600)
-        print("---- gfxbench output ----")
-        print(out)
+        # LAUNCH (not EXEC): the sweep takes longer than the agent's 60s EXEC
+        # cap and goes fullscreen. Poll PROCLIST until gfxbench.exe exits, then
+        # collect the CSV it wrote.
+        await conn.command_text(f'EXEC cmd /c del /q "{csv}" 2>nul', timeout=30)
+        await conn.command_text(
+            f'LAUNCH {dest}\\gfxbench.exe -bench -frames {args.frames} -csv "{csv}"',
+            timeout=30)
+        import time as _t
+        waited, maxwait = 0, 600
+        while waited < maxwait:
+            await asyncio.sleep(6); waited += 6
+            try:
+                pl = await conn.command_text("PROCLIST", timeout=30)
+            except Exception:  # noqa: BLE001
+                pl = ""
+            if "gfxbench" not in pl.lower():
+                print(f"  sweep finished (~{waited}s)")
+                break
+        else:
+            print("  max wait reached; collecting whatever was written")
         # pull the CSV back
         try:
             data = await conn.command_binary(f"DOWNLOAD {csv}", timeout=60)
