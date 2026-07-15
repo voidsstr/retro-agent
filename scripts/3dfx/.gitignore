@@ -1,2 +1,6 @@
 build/
 out/
+*.o
+*.win.o
+*.exe
+d3dhal/test_dp2
