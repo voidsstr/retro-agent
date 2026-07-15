@@ -4,10 +4,12 @@
 # Produces Windows i386 DLLs from the open (2000, "Napalm release") Glide source
 # using the SAME mingw toolchain that builds retro_agent.exe:
 #
-#   out/glide3x.dll  - Glide3, h5 tree  = VSA-100 (Voodoo4/5), incl. Voodoo5 6000
-#                      4-way SLI + "V5 6000 DAC workaround for 4x/8x FSAA" paths
+#   out/glide3x_h5_voodoo5.dll (= glide3x.dll) - Glide3, h5 tree = VSA-100
+#                      (Voodoo4/5), incl. Voodoo5 6000 4-way SLI + "V5 6000 DAC
+#                      workaround for 4x/8x FSAA" paths
+#   out/glide3x_h3_voodoo3.dll - Glide3, h3 tree = Voodoo3 (Avenger)
 #   out/glide2x.dll  - Glide2, h3 tree with H4=1 ("high speed Avenger/Napalm"),
-#                      what Win98 Glide2 games use on Voodoo4/5
+#                      what Win98 Glide2 games use on Voodoo3/4/5
 #
 # Upstream: https://github.com/sezero/glide (fork of the SourceForge CVS).
 # See docs/3dfx-drivers.md for the full driver-landscape research.
@@ -85,10 +87,16 @@ EOF
 # HOST_CFLAGS: same filter the makefile uses, minus -m32 (host tools only)
 HOSTFIX='HOST_CFLAGS=$(filter-out -m32 -mcpu=% -mtune=% -DFX_DLL_ENABLE -DHWC_EXT_INIT=% -march=%,$(CFLAGS))'
 
-# --- glide3x (h5 = VSA-100: Voodoo4/5, incl. 6000 4-way SLI) ------------------
-echo "== building glide3x (h5 / VSA-100) =="
+# --- glide3x h5 (VSA-100: Voodoo4/5, incl. 6000 4-way SLI) --------------------
+echo "== building glide3x (h5 / VSA-100 = Voodoo4/5) =="
 make -C glide/glide3x -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h5 "$HOSTFIX" >/dev/null
-cp glide/glide3x/h5/lib/glide3x.dll "$OUT/glide3x.dll"
+cp glide/glide3x/h5/lib/glide3x.dll "$OUT/glide3x_h5_voodoo5.dll"
+cp "$OUT/glide3x_h5_voodoo5.dll" "$OUT/glide3x.dll"   # default = VSA-100
+
+# --- glide3x h3 (Voodoo3 / Avenger) ------------------------------------------
+echo "== building glide3x (h3 / Voodoo3) =="
+make -C glide/glide3x -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 "$HOSTFIX" >/dev/null
+cp glide/glide3x/h3/lib/glide3x.dll "$OUT/glide3x_h3_voodoo3.dll"
 
 # --- glide2x (h3 tree + H4=1 = Napalm-capable Glide2 for Win98 games) ---------
 echo "== building glide2x (h3 + H4=1 / Napalm) =="
