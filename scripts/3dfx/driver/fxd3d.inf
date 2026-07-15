@@ -1,0 +1,77 @@
+; fxd3d.inf - install the fxD3D display-driver host and bind it to 3dfx VSA-100
+; (Voodoo4/5) and Avenger (Voodoo3) cards.
+;
+; The INF is how a Windows display driver is REGISTERED: PnP matches the PCI
+; hardware ID, copies the driver files, and writes the Display-class registry
+; entries that tell Windows which DLL/VxD to load for the adapter. Once bound,
+; the runtime discovers fxD3D's Direct3D callbacks through the driver (see
+; driver/README.md).
+;
+; 3dfx PCI IDs (vendor 121A):
+;   0003 Voodoo Banshee   0005 Voodoo3   0009 Voodoo4/5 (VSA-100)
+;
+; NOTE: apply via PnP ("Update Driver" / have-disk), NOT by hand-writing
+; Display\0000 - the VSA-100 VxD needs full PnP context (see CLAUDE.md 3dfx).
+
+[Version]
+Signature="$CHICAGO$"        ; also valid for $Windows NT$ targets below
+Class=Display
+ClassGUID={4D36E968-E325-11CE-BFC1-08002BE10318}
+Provider=%MFG%
+DriverVer=07/15/2026,1.0.0.0
+
+[Manufacturer]
+%MFG%=FXD3D,NT.5.1
+
+; ---------- Win9x (Voodoo3 / Voodoo4-5) ----------
+[FXD3D]
+%V3.DeviceDesc%  = FXD3D_9x_V3,  PCI\VEN_121A&DEV_0005
+%V45.DeviceDesc% = FXD3D_9x_V45, PCI\VEN_121A&DEV_0009
+
+; ---------- Windows XP (NT 5.1) ----------
+[FXD3D.NT.5.1]
+%V3.DeviceDesc%  = FXD3D_NT_V3,  PCI\VEN_121A&DEV_0005
+%V45.DeviceDesc% = FXD3D_NT_V45, PCI\VEN_121A&DEV_0009
+
+; ---- 9x install: minivdd + display minidriver + our D3D callbacks ----
+[FXD3D_9x_V45]
+CopyFiles=FXD3D.9x.Copy
+AddReg=FXD3D.9x.AddReg
+[FXD3D_9x_V3]
+CopyFiles=FXD3D.9x.Copy
+AddReg=FXD3D.9x.AddReg
+
+[FXD3D.9x.Copy]
+fxd3dvdd.vxd        ; host minivdd (vmdisp9x-derived, 3dfx hw layer)
+fxd3ddisp.drv       ; 2D display minidriver
+fxd3dcb.dll         ; our D3D callbacks (d3dcb.c)
+glide3x.dll         ; Glide backend
+
+[FXD3D.9x.AddReg]
+HKR,DEFAULT,drv,,fxd3ddisp.drv
+HKR,DEFAULT,minivdd,,fxd3dvdd.vxd
+HKR,"DEFAULT\D3D",InprocServer32,,fxd3dcb.dll
+
+; ---- XP install: miniport .sys + display DLL (hosts the D3D DDI) ----
+[FXD3D_NT_V45]
+CopyFiles=FXD3D.NT.Copy
+[FXD3D_NT_V3]
+CopyFiles=FXD3D.NT.Copy
+
+[FXD3D.NT.Copy]
+fxd3dmp.sys         ; videoprt miniport
+fxd3ddd.dll         ; GDI display driver DLL (hosts fxD3D D3D DDI)
+
+[FXD3D.NT.Services]
+AddService=fxd3dmp,0x00000002,FXD3D.NT.Service
+
+[FXD3D.NT.Service]
+ServiceType=0x1
+StartType=0x1
+ErrorControl=0x0
+ServiceBinary=%12%\fxd3dmp.sys
+
+[Strings]
+MFG="Retro Agent (clean-room fxD3D)"
+V3.DeviceDesc="3dfx Voodoo3 (fxD3D)"
+V45.DeviceDesc="3dfx Voodoo4/5 (fxD3D)"

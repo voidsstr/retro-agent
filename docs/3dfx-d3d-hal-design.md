@@ -186,6 +186,19 @@ since the Voodoo has no hardware T&L and the runtime already did it.
 5. **Conformance + speed** — walk DX6/7 test apps; regression via
    `scripts/benchmarks/` (swap driver, re-run, diff CSV).
 
+### Milestone status (2026-07-15)
+
+- **M1 — done.** `scripts/3dfx/gfxbench/` builds `gfxbench.exe` (imports
+  `glide3x.dll`); `push_gfxbench.py` deploys+runs it over the agent.
+- **M2 — done.** `scripts/3dfx/d3dhal/` cross-compiles for Win32 and passes the
+  host DP2/state unit test.
+- **M3 — in progress.** `scripts/3dfx/driver/`: the **DDI glue is built + host
+  glue test passes**; the **INF** (`fxd3d.inf`) and the **NT + 9x host
+  skeletons** (real DDK entry points, D3D-callback registration) are written.
+  Remaining: build the host driver in the platform DDK (2D/modeset/DDraw + the
+  `-DHAVE_DDK` paths).
+- **M4/M5 — pending** the DDK host build; bring-up in 86Box then real cards.
+
 ## 8. Testing
 
 - **gfxbench** (§ milestone 1) is the primary hardware bring-up + regression

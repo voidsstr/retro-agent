@@ -1,0 +1,32 @@
+# NT/2000/XP DDK build file for the fxD3D display-driver host.
+# Build inside the NT DDK "build" environment (or on a provisioned XP box via
+# the agent - see ../README.md). Produces fxd3ddd.dll (the GDI display driver).
+#
+# This is the M3 host "chassis": it links the portable fxD3D core + glue and
+# exposes the D3D DDI (DrawPrimitives2 -> fxd_dp2_execute).
+
+TARGETNAME=fxd3ddd
+TARGETTYPE=GDI_DRIVER
+TARGETPATH=obj
+
+# Pull in fxD3D core + glue from the sibling trees.
+INCLUDES=..;..\..\d3dhal\include;..\..\d3dhal;..\..\glide-sdk\include
+
+C_DEFINES=$(C_DEFINES) -DHAVE_DDK -DWIN32 -D_X86_
+
+# Display drivers link the DDI + a def of exported Drv* entry points.
+DLLDEF=dispdrv.def
+DLLENTRY=DrvEnableDriver
+TARGETLIBS=$(DDK_LIB_PATH)\win32k.lib
+
+SOURCES= \
+    enable.c            \
+    ..\ddi_glue.c       \
+    ..\..\d3dhal\d3dhal_state.c \
+    ..\..\d3dhal\d3dhal_tex.c   \
+    ..\..\d3dhal\d3dhal_prim.c  \
+    ..\..\d3dhal\d3dhal_ddi.c
+
+# The Glide backend on the driver side is Glide's minihwc/cinit init compiled in
+# (not the glide3x.dll). For bring-up in 86Box the standalone glidebackend.c +
+# glide3x.dll is used instead; see ../README.md "backend on the driver side".

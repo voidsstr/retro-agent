@@ -1,0 +1,7 @@
+; Exports for the NT/2000/XP GDI display driver DLL (fxd3ddd.dll).
+; GDI discovers the driver through DrvEnableDriver, which returns a table of
+; the Drv* callbacks it implements (incl. DrvGetDirectDrawInfo, which is where
+; the D3D DDI - and thus fxD3D - is advertised).
+LIBRARY fxd3ddd
+EXPORTS
+    DrvEnableDriver

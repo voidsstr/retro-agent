@@ -24,7 +24,10 @@
 #  include <d3dhal.h>
 #else
 /* ---- minimal public DDI mirrors (documented MS shapes) ------------------- */
-typedef unsigned long  DWORD;
+/* Match the Windows ABI exactly: DWORD is 32-bit on Win32 (LLP64), NOT the
+ * host's 64-bit `long`. Using fixed-width here keeps the packed DP2 layout
+ * identical on the 64-bit build host (unit tests) and the 32-bit target. */
+typedef unsigned int   DWORD;   /* 32-bit on both host and Win32             */
 typedef unsigned short WORD;
 typedef unsigned char  BYTE;
 typedef float          D3DVALUE;

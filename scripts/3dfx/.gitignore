@@ -4,3 +4,5 @@ out/
 *.win.o
 *.exe
 d3dhal/test_dp2
+driver/test_glue
+driver/test_glue.exe
