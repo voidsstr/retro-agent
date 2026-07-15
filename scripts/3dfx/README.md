@@ -33,7 +33,13 @@ make clean
 ```
 
 The **full loadable display driver** (`driver/nt`, `driver/win9x`) needs the
-platform DDK — see `driver/README.md`.
+platform DDK — see `driver/README.md`. The DDK toolchain is deployable to any
+fleet box over the agent so the box builds the driver itself:
+```bash
+python3 ../../provisioning/ddk/provision_ddk.py <box-ip>   # deploy the DDK (one-time)
+python3 ../../provisioning/ddk/build_driver.py  <box-ip>   # build fxd3ddd.dll on the box
+```
+See [`provisioning/ddk/README.md`](../../provisioning/ddk/README.md).
 
 ## The pieces, and how they fit
 

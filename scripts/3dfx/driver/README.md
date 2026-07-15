@@ -46,10 +46,14 @@ The `nt/` and `win9x/` sources use real DDK types (`winddi.h`, `ddrawint.h`,
 1. **DDK VM / toolchain** — open the NT DDK `build` environment and run `build`
    in `nt/` (uses `SOURCES`) → `fxd3ddd.dll`. For 9x, the Win98 DDK + the
    vmdisp9x host build.
-2. **On a provisioned fleet box** — the era DDK can be staged onto an XP machine
-   and driven over the agent (`UPLOAD` sources, `EXEC build`/`nmake`,
-   `DOWNLOAD` the binary) — i.e. the fleet builds its own driver. Same pattern
-   the repo already uses for other toolchains.
+2. **On a provisioned fleet box** — the era DDK is staged onto an XP machine and
+   driven over the agent (`UPLOAD` sources, `EXEC build`, `DOWNLOAD` the binary)
+   — i.e. the fleet builds its own driver. **This is fully automated:**
+   ```bash
+   python3 ../../../provisioning/ddk/provision_ddk.py <box-ip>   # one-time: deploy the DDK
+   python3 ../../../provisioning/ddk/build_driver.py  <box-ip>   # build fxd3ddd.dll on the box
+   ```
+   See [`provisioning/ddk/README.md`](../../../provisioning/ddk/README.md).
 
 ## Backend on the driver side
 
