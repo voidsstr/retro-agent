@@ -34,6 +34,37 @@ retro_chat.exe ─ retro_agent.exe ─ retro_chat_daemon.py ─┬─ inbox/  �
 - Live status: each tool call writes a `status_outbox` one-shot the daemon shows
   as `[subagent: running: Bash]` on the retro screen; the full answer follows.
 
+## Deferred task queue (run-on-next-connect)
+
+The daemon also drains a **per-host task queue** whenever it (re)connects to a
+machine and on each idle poll cycle — so you can queue agent commands for a
+machine that's **offline right now** and they run automatically the moment it
+comes back online. Pure file storage under the daemon runtime dir:
+
+```
+/tmp/retro-chat/tasks/<ip>/<ts>-<slug>.json   pending  (oldest name runs first)
+/tmp/retro-chat/tasks/<ip>/done/<name>        completed (with captured output)
+/tmp/retro-chat/tasks/<ip>/failed/<name>      gave up after 3 unreachable tries
+```
+
+A pending file is JSON: `{"cmds": ["EXEC ...", "UICLICK 10 20"], "label": "...",
+"attempts": 0}` (`"cmd": "single"` also accepted). A command that reaches the
+agent but errors is recorded and the task still completes; only a network
+failure is retried (up to 3 connects, then `failed/`).
+
+Queue tasks with either front-end (both just write the same file — no daemon
+restart needed):
+
+```bash
+# from this repo (self-contained, no imports)
+scripts/retro_enqueue.py 192.168.1.123 "EXEC C:\\retro-wall\\arrange_icons.exe" --label "park icons"
+scripts/retro_enqueue.py --list                       # show everything pending
+
+# or via the daemon's own CLI
+python3 ../nsc-assistant/agent/tools/retro_chat_daemon.py \
+    --enqueue 192.168.1.123 --cmd "SYSINFO" --label "inventory"
+```
+
 ## Files
 
 | File | Purpose |

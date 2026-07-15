@@ -46,6 +46,19 @@ nohup bash /home/voidsstr/development/retro-agent/scripts/retro_chat_brain_super
 ```
 Do **not** spawn an Agent-tool subagent for this anymore — the service is the processor.
 
+### Deferred task queue (run-on-next-connect)
+
+The daemon drains a **per-host task queue** whenever it (re)connects to a machine
+(and on each idle cycle), so you can queue agent commands for a box that's
+**offline now** and they run automatically when it next comes online. Plain file
+storage under the daemon runtime dir: `/tmp/retro-chat/tasks/<ip>/*.json`
+(pending) → `done/` (with captured output) or `failed/` (after 3 unreachable
+tries). Queue with `scripts/retro_enqueue.py <ip> "<agent cmd>" [--label ...]`
+(or the daemon's `--enqueue`/`--list-tasks` CLI); `retro_enqueue.py --list` shows
+what's pending. A command that reaches the agent but errors still completes the
+task; only network failures are retried. Full docs:
+[`scripts/README-chat-brain.md`](scripts/README-chat-brain.md).
+
 ## Repository Context
 
 This repo was extracted from the `nsc-assistant` monorepo. The dashboard, MCP server, and OpenClaw agents remain in `nsc-assistant`. This repo contains only the agent binaries, Python client library, provisioning scripts, and documentation.
