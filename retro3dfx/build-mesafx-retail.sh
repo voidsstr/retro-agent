@@ -44,6 +44,25 @@ mkdir -p "$GLTREE/glide3/include" "$GLTREE/glide3/lib"
 cp "$OUT/sdk/include/"*.h "$GLTREE/glide3/include/"
 # KEY: retail (underscore) import lib instead of our own
 cp "$RETAIL_LIB" "$GLTREE/glide3/lib/libglide3x.a"
+
+# --- retro3dfx driver versioning -------------------------------------------
+# MAJOR.MINOR comes from retro3dfx/VERSION; BUILD auto-increments every build
+# (.buildnum). The full version is embedded in GL_RENDERER so every game log /
+# benchmark self-documents which driver build produced it:
+#   "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.7]"
+VER_MM="$(cat "$HERE/VERSION" 2>/dev/null || echo 0.1)"
+BUILD=$(( $(cat "$HERE/.buildnum" 2>/dev/null || echo 0) + 1 ))
+echo "$BUILD" > "$HERE/.buildnum"
+DRVVER="$VER_MM.$BUILD"
+FXAPI="$GLTREE/src/mesa/drivers/glide/fxapi.c"
+FXDRV="$GLTREE/src/mesa/drivers/glide/fxdrv.h"
+# widen rendererString (stock 64B is too tight with the version marker) - idempotent
+sed -i 's/char rendererString\[64\];/char rendererString[96];/' "$FXDRV"
+# inject/refresh the version marker in the renderer string - idempotent
+sed -i 's/ \[retro3dfx [0-9.]*\]//' "$FXAPI"
+sed -i "s/\"Mesa %s v0\.62 %s%s\"/\"Mesa %s v0.62 %s%s [retro3dfx $DRVVER]\"/" "$FXAPI"
+grep -q "retro3dfx $DRVVER" "$FXAPI" || { echo "FATAL: version inject failed"; exit 1; }
+echo "== driver version: $DRVVER =="
 # gcc-13 portability (idempotent)
 sed -i 's/CFLAGS = -Wall -Werror/CFLAGS = -Wall -Wno-array-bounds -Wno-stringop-overflow -fcommon/' "$GLTREE/Makefile.mgw" || true
 make -C "$GLTREE" -f Makefile.mgw clean >/dev/null 2>&1 || true
@@ -56,7 +75,9 @@ make -C "$GLTREE" -f Makefile.mgw FX=1 X86=1 CPU="$CPU" GLIDE="$GLTREE/glide3" \
 DLL="$(find "$GLTREE" -iname '*mesa32.dll' -o -iname 'opengl32.dll' 2>/dev/null | head -1)"
 [ -n "$DLL" ] || { echo "no output dll"; exit 1; }
 cp "$DLL" "$OUT/opengl32_retail.dll"
-echo "output: $OUT/opengl32_retail.dll ($(stat -c%s "$OUT/opengl32_retail.dll") bytes)"
+cp "$DLL" "$OUT/opengl32_retail_v$DRVVER.dll"           # versioned archive
+printf '%s\n' "$DRVVER" > "$OUT/opengl32_retail.dll.ver"  # sidecar
+echo "output: $OUT/opengl32_retail.dll v$DRVVER ($(stat -c%s "$OUT/opengl32_retail.dll") bytes)"
 # sanity: must import underscore-decorated glide3x names
 if ${CROSS}objdump -p "$OUT/opengl32_retail.dll" | grep -q '_grBufferSwap@4'; then
     echo "OK: imports _grFoo@N (binds retail/AmigaMerlin glide3x)"
