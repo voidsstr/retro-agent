@@ -9,12 +9,17 @@
 #include "log.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-#define EXEC_TIMEOUT_MS  60000  /* 60 second timeout */
+#define EXEC_TIMEOUT_MS  60000  /* default EXEC timeout (60s) */
+#define EXEC_MAX_MS     900000  /* EXECW clamp (15 min) - fast debug turnaround */
 #define EXEC_POLL_MS       200  /* poll interval for pipe/process check */
 #define EXEC_BUF_SIZE    65536
 
-void handle_exec(SOCKET sock, const char *args)
+/* Shared exec-with-capture core. timeout_ms bounds the run; on timeout the child
+ * tree is killed. If mark_timeout, a marker is appended so the caller can tell a
+ * timeout from a clean exit. Used by EXEC (60s) and EXECW (<seconds>). */
+static void do_exec(SOCKET sock, const char *args, DWORD timeout_ms, int mark_timeout)
 {
     SECURITY_ATTRIBUTES sa;
     HANDLE hReadPipe = NULL, hWritePipe = NULL;
@@ -26,6 +31,7 @@ void handle_exec(SOCKET sock, const char *args)
     DWORD output_cap = EXEC_BUF_SIZE;
     DWORD bytes_read, exit_code;
     BOOL success;
+    int did_timeout = 0;
 
     if (!args || !args[0]) {
         send_error_response(sock, "EXEC requires a command");
@@ -116,12 +122,29 @@ void handle_exec(SOCKET sock, const char *args)
 
         while (1) {
             /* Check timeout */
-            if (GetTickCount() - start_tick >= (DWORD)EXEC_TIMEOUT_MS) {
-                log_msg(LOG_EXEC, "EXEC timeout (%ds), killing PID %lu",
-                        EXEC_TIMEOUT_MS / 1000,
+            if (GetTickCount() - start_tick >= timeout_ms) {
+                log_msg(LOG_EXEC, "EXEC timeout (%lums), killing PID %lu",
+                        (unsigned long)timeout_ms,
                         (unsigned long)pi.dwProcessId);
+                /* kill the whole tree (child may have spawned the real app) */
+                {
+                    char kc[64];
+                    _snprintf(kc, sizeof(kc), "taskkill /f /t /pid %lu",
+                              (unsigned long)pi.dwProcessId);
+                    /* best-effort tree kill via a detached helper (NT only) */
+                    { STARTUPINFOA ksi; PROCESS_INFORMATION kpi;
+                      memset(&ksi,0,sizeof(ksi)); ksi.cb=sizeof(ksi);
+                      ksi.dwFlags=STARTF_USESHOWWINDOW; ksi.wShowWindow=SW_HIDE;
+                      memset(&kpi,0,sizeof(kpi));
+                      if (CreateProcessA(NULL, kc, NULL, NULL, FALSE,
+                                         CREATE_NO_WINDOW, NULL, NULL, &ksi, &kpi)) {
+                          CloseHandle(kpi.hProcess); CloseHandle(kpi.hThread);
+                      }
+                    }
+                }
                 TerminateProcess(pi.hProcess, 1);
                 timed_out = 1;
+                did_timeout = 1;
                 break;
             }
 
@@ -183,8 +206,18 @@ void handle_exec(SOCKET sock, const char *args)
     CloseHandle(hReadPipe);
 
     if (output) {
+        /* Optional timeout marker (EXECW) so a killed run is distinguishable. */
+        if (mark_timeout && did_timeout) {
+            const char *mk = "\n[EXECW: timed out, process tree killed]\n";
+            DWORD mklen = (DWORD)strlen(mk);
+            if (output_len + mklen + 1 > output_cap) {
+                output = (char *)HeapReAlloc(GetProcessHeap(), 0,
+                                             output, output_len + mklen + 1);
+            }
+            if (output) { memcpy(output + output_len, mk, mklen); output_len += mklen; }
+        }
         /* Null-terminate for safety */
-        if (output_len + 1 > output_cap) {
+        if (output && output_len + 1 > output_cap) {
             output = (char *)HeapReAlloc(GetProcessHeap(), 0,
                                          output, output_len + 1);
         }
@@ -192,10 +225,44 @@ void handle_exec(SOCKET sock, const char *args)
             output[output_len] = '\0';
             send_text_response(sock, output);
         }
-        HeapFree(GetProcessHeap(), 0, output);
+        if (output) HeapFree(GetProcessHeap(), 0, output);
     } else {
         send_text_response(sock, "(no output)");
     }
+}
+
+/* EXEC - default 60s timeout (unchanged behavior). */
+void handle_exec(SOCKET sock, const char *args)
+{
+    do_exec(sock, args, EXEC_TIMEOUT_MS, 0);
+}
+
+/* EXECW <seconds> <command> - configurable long timeout + capture, for fast
+ * debug turnaround (run a benchmark/game/timedemo and get its output in ONE
+ * round-trip instead of LAUNCH + sleep + reconnect + read). */
+void handle_execw(SOCKET sock, const char *args)
+{
+    long secs;
+    char *end;
+    const char *cmd;
+
+    if (!args || !args[0]) {
+        send_error_response(sock, "EXECW requires: <seconds> <command>");
+        return;
+    }
+    secs = strtol(args, &end, 10);
+    if (end == args || secs < 1) {
+        send_error_response(sock, "EXECW: first arg must be timeout seconds");
+        return;
+    }
+    if (secs * 1000L > EXEC_MAX_MS) secs = EXEC_MAX_MS / 1000;
+    cmd = end;
+    while (*cmd == ' ' || *cmd == '\t') cmd++;
+    if (!*cmd) {
+        send_error_response(sock, "EXECW: missing command after seconds");
+        return;
+    }
+    do_exec(sock, cmd, (DWORD)secs * 1000, 1);
 }
 
 /*

@@ -67,19 +67,52 @@ The `nsc-assistant` dashboard still imports the Python client (`shared/retro_pro
 
 ## Build & Deploy
 
+### Versioning (REQUIRED)
+
+**ALWAYS bump the version when you build a new `retro_agent.exe` or
+`retro_chat.exe`.** The version comes from the **highest git tag matching `v*`**;
+the Makefile injects it into the binary via `-DAGENT_VERSION`. A build that
+carries the *previous* version's tag is a broken build — never ship one.
+
+- **Preferred:** `make release` — bumps the tag, builds, and uploads (binary +
+  `.ver` sidecar) in one step. Patch bump by default; `make release BUMP=minor|major`.
+- **Manual build:** `git tag vX.Y.Z` **before** `make` (the tag must exist at
+  build time so it's compiled in). Verify with `SYSINFO` (`agent_version`) or by
+  reading the sidecar `.ver` after publish.
+
+Bump rule: **new command or feature = minor bump; bug fix = patch bump.** Major
+is reserved for protocol-breaking changes.
+
 ### Publishing builds to the share (REQUIRED)
 
 **Any time you build a new `retro_chat.exe` or `retro_agent.exe`, immediately
 publish it to the SMB share so the fleet auto-updates.** A build that isn't on
-the share reaches no machine — the agents self-update by comparing file **size**
-against the share copy on startup, so the new binary must (a) differ in size from
-the old one (it will, if code changed) and (b) actually land on the share.
+the share reaches no machine.
 
-Publish **both**:
-- the **latest pointer** — `…/Retro Automation/retro_chat.exe` (what every agent's
-  auto-update reads), and
-- a **versioned archive** copy — `…/Retro Automation/retro_chat/retro_chat_vX.Y.Z.exe`
-  (for rollback).
+**Canonical deploy location** — the **latest pointer**
+`\\192.168.1.122\files\Utility\Retro Automation\retro_agent.exe` is exactly what
+every agent's auto-update reads. (Chat client: `…\retro_chat.exe`.)
+
+Publish **three** things for each build:
+- the **latest pointer** — `…/Retro Automation/retro_agent.exe` (what auto-update
+  reads),
+- a **versioned archive** copy — `…/Retro Automation/retro_agent/retro_agent_vX.Y.Z.exe`
+  (for rollback), and
+- a **`.ver` sidecar** — `…/Retro Automation/retro_agent.exe.ver`, a plain-text
+  file containing just the **bare** version string that matches `AGENT_VERSION`
+  (e.g. `1.6.0`, no `v` prefix). Auto-update reads this to decide whether to pull
+  (see below), so it **must** be updated in lockstep with the latest pointer.
+  (Chat client sidecar: `…\retro_chat.exe.ver`.)
+
+**Auto-update decides by VERSION, not size.** On startup the agent compares its
+compiled `AGENT_VERSION` against the share's `retro_agent.exe.ver`; a mismatch
+triggers a pull. It falls back to the old **file-size** comparison only when no
+`.ver` sidecar is present. So a version bump **always** propagates — even when the
+rebuilt binary is byte-for-byte the same size. (Previously the agent compared size
+only, so a same-size bump silently failed to propagate — this is why the `.ver`
+sidecar and the "always bump" rule are mandatory.) A distinct remote version is
+attempted at most once (`HKLM\Software\RetroAgent\LastUpdateVer` guard), so a
+mispublished `.ver`/`.exe` mismatch can't loop the fleet — but keep them in sync.
 
 Two ways to publish:
 1. **`make release`** (in `agent/tools/` for the chat client, `agent/` for the
@@ -116,6 +149,31 @@ After building the agent, also rebuild the `nsc-assistant` dashboard (it embeds 
 ```bash
 cd /home/voidsstr/development/nsc-assistant && docker compose up -d --build dashboard
 ```
+
+#### Dual-boot swap gotcha (discovered on .124)
+
+Some fleet boxes are **Win98/XP dual-boot**, and the running XP agent binary can
+live on the **C: (Win98) volume** even though `%SystemDrive%` is **D:**. Do not
+assume the exe is under `%SystemDrive%`.
+
+- Confirm the running exe path before swapping:
+  `EXEC wmic process where "name='retro_agent.exe'" get ExecutablePath`.
+- **You cannot overwrite a running exe on Windows.** Either move-aside then copy
+  (`EXEC cmd /c move /Y retro_agent.exe retro_agent.exe.old & copy /Y new.exe retro_agent.exe`),
+  or just let auto-update do the swap on next restart.
+- **To restart the running agent, use `EXEC` + a detached batch, not `LAUNCH`**
+  (on .124 `LAUNCH` returns a PID but does not actually execute the child): EXEC a
+  `.bat` that does `taskkill /f /im retro_agent.exe` then `start "" …\retro_agent.exe`
+  — the orphaned batch survives the agent's death and relaunches it. Same trick
+  runs GUI games (`EXEC cmd /c cd /d "<dir>" ^&^& start "" game.exe …`).
+
+### EXECW — bounded long-running commands
+
+`EXEC` has a fixed 60s timeout. **`EXECW <seconds> <command>`** runs the same
+hidden-capture exec with a caller-chosen timeout (clamped to 15 min) and
+tree-kills the child on timeout (marker: `[EXECW: timed out, process tree killed]`).
+Use it for slow steps (game/benchmark launches, installers) instead of the
+`LAUNCH`+sleep+reconnect+kill dance. Added in v1.6.0.
 
 ### Linux Agent
 

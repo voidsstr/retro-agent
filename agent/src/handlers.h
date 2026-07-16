@@ -15,6 +15,7 @@ void handle_drivers(SOCKET sock, const char *args);
 void handle_screenshot(SOCKET sock, const char *args);
 void handle_screendiff(SOCKET sock, const char *args);
 void handle_exec(SOCKET sock, const char *args);
+void handle_execw(SOCKET sock, const char *args);
 void handle_upload(SOCKET sock, const char *args);
 void handle_download(SOCKET sock, const char *args);
 void handle_dirlist(SOCKET sock, const char *args);

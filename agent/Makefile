@@ -113,11 +113,11 @@ release:
 		patch) PATCH=$$((PATCH+1));; \
 	esac; \
 	NEWTAG="v$$MAJOR.$$MINOR.$$PATCH"; \
+	NEWVER="$$MAJOR.$$MINOR.$$PATCH"; \
 	echo "Version: $$CURTAG -> $$NEWTAG"; \
 	git tag $$NEWTAG; \
 	$(MAKE) clean; \
-	$(MAKE); \
-	NEWVER="$$MAJOR.$$MINOR.$$PATCH"; \
+	$(MAKE) VERSION=$$NEWVER; \
 	VERSIONED_URL="$(SMB_BASE)/retro_agent_v$$NEWVER.exe"; \
 	echo "Uploading versioned: retro_agent/retro_agent_v$$NEWVER.exe"; \
 	curl --upload-file $(TARGET) -u $(SMB_CREDS) "$$VERSIONED_URL"; \
@@ -125,4 +125,9 @@ release:
 	echo "Updating latest pointer at root"; \
 	curl --upload-file $(TARGET) -u $(SMB_CREDS) "$(SMB_LATEST)"; \
 	echo ""; \
-	echo "Released $$NEWTAG to retro_agent/retro_agent_v$$NEWVER.exe"
+	echo "Publishing version sidecar retro_agent.exe.ver = $$NEWVER"; \
+	printf '%s\n' "$$NEWVER" > /tmp/retro_agent.ver; \
+	curl --upload-file /tmp/retro_agent.ver -u $(SMB_CREDS) "$(SMB_LATEST).ver"; \
+	rm -f /tmp/retro_agent.ver; \
+	echo ""; \
+	echo "Released $$NEWTAG to retro_agent/retro_agent_v$$NEWVER.exe (+ .ver sidecar)"

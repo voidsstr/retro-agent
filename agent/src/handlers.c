@@ -25,6 +25,7 @@ static const cmd_entry_t commands[] = {
     { "SCREENSHOT", 1, NULL,              handle_screenshot },
     { "SCREENDIFF", 1, NULL,              handle_screendiff },
     { "EXEC",       1, NULL,              handle_exec },
+    { "EXECW",      1, NULL,              handle_execw },
     { "UPLOAD",     1, NULL,              handle_upload },
     { "DOWNLOAD",   1, NULL,              handle_download },
     { "DIRLIST",    1, NULL,              handle_dirlist },

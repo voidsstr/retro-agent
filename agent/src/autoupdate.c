@@ -80,6 +80,79 @@ static DWORD get_file_size(const char *path)
     return fd.nFileSizeLow;
 }
 
+#ifndef AGENT_VERSION
+#define AGENT_VERSION "0.0.0"
+#endif
+#define LAST_UPDATE_VALUE "LastUpdateVer"  /* loop-guard: version we last tried */
+
+/*
+ * Read a published version string from a sidecar text file ("<update>.ver").
+ * Plain stdio only (Win98-safe: no version-resource APIs). Takes the first
+ * line, trims surrounding whitespace. Returns 1 + fills out[] if non-empty,
+ * else 0 (caller falls back to size comparison).
+ */
+static int read_version_file(const char *ver_path, char *out, int outsize)
+{
+    FILE *f;
+    char raw[64];
+    size_t n;
+    char *start, *end;
+
+    if (outsize <= 0) return 0;
+    out[0] = '\0';
+
+    f = fopen(ver_path, "rb");
+    if (!f) return 0;
+    n = fread(raw, 1, sizeof(raw) - 1, f);
+    fclose(f);
+    if (n == 0) return 0;
+    raw[n] = '\0';
+
+    start = raw;
+    while (*start == ' ' || *start == '\t' || *start == '\r' || *start == '\n')
+        start++;
+    end = start;
+    while (*end && *end != '\r' && *end != '\n')
+        end++;
+    *end = '\0';
+    while (end > start && (end[-1] == ' ' || end[-1] == '\t')) {
+        end--; *end = '\0';
+    }
+    if (start[0] == '\0') return 0;
+    safe_strncpy(out, start, outsize);
+    return 1;
+}
+
+/* Read a REG_SZ under HKLM\Software\RetroAgent. Returns 1 on success. */
+static int read_reg_str(const char *value_name, char *buf, int bufsize)
+{
+    HKEY hKey;
+    DWORD size = bufsize, type;
+    int ok = 0;
+    buf[0] = '\0';
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, UPDATE_KEY, 0, KEY_READ, &hKey)
+        == ERROR_SUCCESS) {
+        if (RegQueryValueExA(hKey, value_name, NULL, &type,
+                             (BYTE *)buf, &size) == ERROR_SUCCESS
+            && type == REG_SZ)
+            ok = 1;
+        RegCloseKey(hKey);
+    }
+    return ok;
+}
+
+/* Write a REG_SZ under HKLM\Software\RetroAgent (creates the key if needed). */
+static void write_reg_str(const char *value_name, const char *val)
+{
+    HKEY hKey;
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, UPDATE_KEY, 0, NULL, 0,
+                        KEY_SET_VALUE, NULL, &hKey, NULL) == ERROR_SUCCESS) {
+        RegSetValueExA(hKey, value_name, 0, REG_SZ,
+                       (const BYTE *)val, (DWORD)(strlen(val) + 1));
+        RegCloseKey(hKey);
+    }
+}
+
 /*
  * Kill any running retro_chat.exe process so we can overwrite its
  * binary. Safe to call even if no chat process is running.
@@ -228,6 +301,9 @@ DWORD WINAPI autoupdate_thread(LPVOID param)
     char install_dir[MAX_PATH];
     char temp_exe[MAX_PATH];
     char bat_path[MAX_PATH];
+    char ver_path[520];        /* update_path[512] + ".ver" */
+    char remote_ver[64];
+    char last_ver[64];
     DWORD local_size, remote_size;
     char *last_slash;
 
@@ -265,14 +341,49 @@ DWORD WINAPI autoupdate_thread(LPVOID param)
         return 0;
     }
 
-    if (local_size == remote_size) {
-        log_msg(LOG_UPDATE, "Binary is current (%lu bytes), no update needed",
-                (unsigned long)local_size);
-        return 0;
-    }
+    /*
+     * Version-file check (primary): read "<update_path>.ver" from the share.
+     * If present and it differs from our compiled AGENT_VERSION, update
+     * regardless of byte size — so same-length version bumps (1.5.1 -> 1.6.0)
+     * propagate even though the binary is the same size. If the .ver is
+     * absent/unreadable, fall back to size comparison (older shares still work).
+     *
+     * Loop guard: a distinct remote version is attempted AT MOST ONCE. Before
+     * updating we stamp HKLM\...\LastUpdateVer = remote_ver; if we boot and find
+     * we already stamped this exact version (e.g. a mispublished .ver whose
+     * version never matches the shipped binary), we skip instead of looping the
+     * whole fleet. A genuinely newer published version has a different string
+     * and is still honored.
+     */
+    _snprintf(ver_path, sizeof(ver_path), "%s.ver", update_path);
+    ver_path[sizeof(ver_path) - 1] = '\0';
 
-    log_msg(LOG_UPDATE, "Update available: local=%lu remote=%lu bytes",
-            (unsigned long)local_size, (unsigned long)remote_size);
+    if (read_version_file(ver_path, remote_ver, sizeof(remote_ver))) {
+        if (_stricmp(remote_ver, AGENT_VERSION) == 0) {
+            log_msg(LOG_UPDATE, "Binary is current (version %s), no update needed",
+                    AGENT_VERSION);
+            return 0;
+        }
+        if (read_reg_str(LAST_UPDATE_VALUE, last_ver, sizeof(last_ver))
+            && _stricmp(last_ver, remote_ver) == 0) {
+            log_msg(LOG_UPDATE,
+                    "Already attempted version %s (running %s); not retrying "
+                    "(check that share .exe/.ver match)", remote_ver, AGENT_VERSION);
+            return 0;
+        }
+        log_msg(LOG_UPDATE, "Update available: version local=%s remote=%s",
+                AGENT_VERSION, remote_ver);
+        write_reg_str(LAST_UPDATE_VALUE, remote_ver);
+    } else {
+        /* No .ver on share — legacy behavior: compare sizes. */
+        if (local_size == remote_size) {
+            log_msg(LOG_UPDATE, "Binary is current (%lu bytes), no update needed",
+                    (unsigned long)local_size);
+            return 0;
+        }
+        log_msg(LOG_UPDATE, "Update available: local=%lu remote=%lu bytes",
+                (unsigned long)local_size, (unsigned long)remote_size);
+    }
 
     /* Copy new binary from share to temp location */
     _snprintf(temp_exe, sizeof(temp_exe), "%s\\retro_update.tmp", install_dir);
