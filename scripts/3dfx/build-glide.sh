@@ -31,11 +31,22 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-WORK="${1:-$HERE/build}"
-OUT="$HERE/out"
 CROSS=i686-w64-mingw32-
 JOBS="$(nproc 2>/dev/null || echo 4)"
 NASM_VER=2.16.03
+
+# --debug -> build DEBUG=1 DLLs (GDBG_INFO verbose logging) as *_debug.dll, for
+# tracing hardware-init issues (see docs/3dfx-glide-hardware-init.md).
+DEBUGBUILD=""
+ARGS=()
+for a in "$@"; do
+    case "$a" in
+        --debug) DEBUGBUILD="DEBUG=1" ;;
+        *) ARGS+=("$a") ;;
+    esac
+done
+WORK="${ARGS[0]:-$HERE/build}"
+OUT="$HERE/out"
 
 command -v ${CROSS}gcc >/dev/null || { echo "FATAL: ${CROSS}gcc not found (apt install gcc-mingw-w64-i686)"; exit 1; }
 
@@ -116,8 +127,9 @@ cp "$OUT/glide3x_h5_voodoo5.dll" "$OUT/glide3x.dll"   # default = VSA-100
 
 # --- glide3x h3 (Voodoo3 / Avenger) ------------------------------------------
 echo "== building glide3x (h3 / Voodoo3) =="
-make -C glide/glide3x -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 "$HOSTFIX" "$LDFIX" "$DTFIX" >/dev/null
+make -C glide/glide3x -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" >/dev/null
 emit glide/glide3x/h3/lib glide3x_h3_voodoo3.dll h3
+[ -n "$DEBUGBUILD" ] && cp "$OUT/glide3x_h3_voodoo3.dll" "$OUT/glide3x_h3_debug.dll" && echo "   (+ debug copy: glide3x_h3_debug.dll)"
 
 # --- glide2x (h3 tree + H4=1 = Napalm-capable Glide2 for Win98 games) ---------
 echo "== building glide2x (h3 + H4=1 / Napalm) =="

@@ -5,9 +5,53 @@
  * against the open Glide3 headers/lib. Compiles for Win32 (mingw) and links
  * the glide3x import lib from scripts/3dfx/build-glide.sh.
  */
+#include <windows.h>
 #include "glidebackend.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+
+/* The open Glide DirectDraw layer (dxdrvr.c) needs a REAL window handle: with
+ * hWnd=0 it falls back to GetActiveWindow(), which is NULL under a headless /
+ * agent launch -> it pops a "NULL window handle" MessageBox and hangs. So we
+ * create a fullscreen popup window and pass its HWND to grSstWinOpen. */
+static HWND g_hwnd = NULL;
+
+static LRESULT CALLBACK gb_wndproc(HWND h, UINT m, WPARAM w, LPARAM l){
+    return DefWindowProcA(h, m, w, l);
+}
+static HWND gb_make_window(int w, int h){
+    WNDCLASSA wc;
+    HINSTANCE hi = GetModuleHandleA(NULL);
+    HWND wnd;
+    if (g_hwnd) return g_hwnd;
+    memset(&wc, 0, sizeof(wc));
+    wc.lpfnWndProc   = gb_wndproc;
+    wc.hInstance     = hi;
+    wc.hCursor       = LoadCursorA(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    wc.lpszClassName = "gfxbenchGlideWnd";
+    RegisterClassA(&wc);
+    wnd = CreateWindowExA(WS_EX_TOPMOST, "gfxbenchGlideWnd", "gfxbench",
+                          WS_POPUP, 0, 0, w, h, NULL, NULL, hi, NULL);
+    if (wnd) { ShowWindow(wnd, SW_SHOW); SetForegroundWindow(wnd);
+               SetFocus(wnd); UpdateWindow(wnd); }
+    g_hwnd = wnd;
+    return wnd;
+}
+
+/* Capture Glide's own error strings. Without a callback, a fatal Glide error on
+ * WIN32 pops a MessageBox and exit(1)s - invisible under a headless/fullscreen
+ * launch, so the app just vanishes. This logs the exact message to a file so we
+ * can trace hardware-init failures. Appends (multiple errors), flushes each. */
+static void gb_glide_error(const char *s, FxBool fatal)
+{
+    FILE *f = fopen("C:\\RETRO_AGENT\\glide_err.log", "a");
+    if (f) {
+        fprintf(f, "GLIDE %s: %s\n", fatal ? "FATAL" : "warn", s ? s : "(null)");
+        fclose(f);
+    }
+}
 
 /* GR_PARAM offsets for our gb_vtx_t (must match the layout installed below). */
 #define VTX_XY_OFF     0                          /* x,y                     */
@@ -62,6 +106,10 @@ static GrScreenRefresh_t refresh_token(int hz){
 /* ---- lifecycle ----------------------------------------------------------- */
 
 int gb_startup(char *name_out,int name_len,int *num_chips_out){
+    /* Register BEFORE grGlideInit: grGlideInit itself can raise a fatal error,
+     * and grGlideInit never resets GrErrorCallback, so ours sticks. This both
+     * captures the exact message AND avoids the default MessageBox hang. */
+    grErrorSetCallback(gb_glide_error);
     grGlideInit();
     grSstSelect(0);
     if(name_out&&name_len){
@@ -76,13 +124,17 @@ int gb_startup(char *name_out,int name_len,int *num_chips_out){
     return 0;
 }
 
-void gb_shutdown(void){ grGlideShutdown(); }
+void gb_shutdown(void){
+    grGlideShutdown();
+    if (g_hwnd) { DestroyWindow(g_hwnd); g_hwnd = NULL; }
+}
 
 int gb_open(const gb_mode_t *m){
     GrColorFormat_t fmt = GR_COLORFORMAT_ABGR;
     int naux = m->z_buffer ? 1 : 0;
     int ncol = (m->double_buffer>=2)?3:2;
-    GrContext_t gc = grSstWinOpen(0 /*fullscreen*/,
+    HWND hw = gb_make_window(m->width, m->height);
+    GrContext_t gc = grSstWinOpen((FxU32)(size_t)hw,
                                   res_token(m->width,m->height),
                                   refresh_token(m->refresh_hz),
                                   fmt, GR_ORIGIN_UPPER_LEFT, ncol, naux);
