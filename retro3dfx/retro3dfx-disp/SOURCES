@@ -1,0 +1,18 @@
+# NT/2000/XP DDK build for retro3dfx-disp - the cooperative Voodoo display driver
+# that serves the HWCEXT escape our Glide needs. Build in the DDK `build` env, or
+# via the fleet DDK (provisioning/ddk/). See README.md.
+
+TARGETNAME=retro3dfx-disp
+TARGETTYPE=GDI_DRIVER
+TARGETPATH=obj
+DLLDEF=disp.def
+DLLENTRY=DrvEnableDriver
+
+C_DEFINES=$(C_DEFINES) -DHAVE_DDK -DWIN32 -D_X86_
+TARGETLIBS=$(DDK_LIB_PATH)\win32k.lib
+
+SOURCES= \
+    disp_enable.c    \
+    disp_escape.c    \
+    disp_hw.c        \
+    disp_modeset.c

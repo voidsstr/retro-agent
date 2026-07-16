@@ -1,0 +1,21 @@
+; retro3dfx.inf - install retro3dfx-disp for Voodoo3 / Voodoo4-5, bind under Display class.
+[Version]
+Signature="$Windows NT$"
+Class=Display
+ClassGUID={4D36E968-E325-11CE-BFC1-08002BE10318}
+Provider=%MFG%
+DriverVer=07/16/2026,1.0.0.0
+[Manufacturer]
+%MFG%=R3DFX,NT.5.1
+[R3DFX.NT.5.1]
+%V3.Desc%  = R3DFX_Inst, PCI\VEN_121A&DEV_0005
+%V45.Desc% = R3DFX_Inst, PCI\VEN_121A&DEV_0009
+[R3DFX_Inst]
+CopyFiles=R3DFX.Copy
+[R3DFX.Copy]
+retro3dfx-disp.dll
+retro3dfx-mp.sys
+[Strings]
+MFG="retro3dfx (open, ours)"
+V3.Desc="3dfx Voodoo3 (retro3dfx)"
+V45.Desc="3dfx Voodoo4/5 (retro3dfx)"

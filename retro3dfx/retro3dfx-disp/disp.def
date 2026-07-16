@@ -1,0 +1,3 @@
+LIBRARY retro3dfx-disp
+EXPORTS
+    DrvEnableDriver
