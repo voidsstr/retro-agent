@@ -1,0 +1,49 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-16T18:06:04",
+ "driver_version": "0.1.5",
+ "env": "none (0.1.4 in-driver defaults active)",
+ "q3_timedemo": [
+  {
+   "mode": 3,
+   "resolution": "640x480",
+   "run": 1,
+   "demo": "four.dm_66",
+   "env": "none",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.5]",
+   "fps": 54.9
+  },
+  {
+   "mode": 3,
+   "resolution": "640x480",
+   "run": 2,
+   "demo": "four.dm_66",
+   "env": "none",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.5]",
+   "fps": 54.7
+  },
+  {
+   "mode": 6,
+   "resolution": "1024x768",
+   "run": 1,
+   "demo": "four.dm_66",
+   "env": "none",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.5]",
+   "fps": 38.7
+  },
+  {
+   "mode": 6,
+   "resolution": "1024x768",
+   "run": 2,
+   "demo": "four.dm_66",
+   "env": "none",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.5]",
+   "fps": 38.7
+  }
+ ],
+ "screenshot": {
+  "file": "/tmp/claude-1000/-home-voidsstr-development-retro-agent/ddb70287-5d2a-4ae3-bb05-4f1e8943ec9b/scratchpad/quality_0.1.5_q3dm1.tga",
+  "bytes": 921618,
+  "map": "q3dm1"
+ }
+}
