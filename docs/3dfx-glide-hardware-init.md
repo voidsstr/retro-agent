@@ -76,3 +76,34 @@ Windows/NT hardware layer targets the 3dfx *reference* driver, not the retail
   MessageBox. Note: `gdbg_init` doesn't parse `GDBG_LEVEL` early enough to expose
   the level‑80 traces on this build, so only level‑0 (banner + error) shows on
   stdout; the source trace above closed the gap.
+
+## Update: definitive on-hardware trace (2026-07-15, patched diag build)
+
+Patched our Glide to log instead of MessageBox (`_grErrorDefaultCallback`) and to
+force verbose GDBG to a file (`gdbg_init`), built a diagnostic debug DLL, and ran
+on `.124`. The verbose trace is conclusive:
+
+```
+grGlideInit() -> _grSstDetectResources() -> hwcInit
+hwcInit: Finding Glide compatible devices
+hwcInit: multi-monitor capable OS (NT5/W98)
+monitorEnum: ExtEscape:HWCEXT_GETDEVICECONFIG   <- probe display driver
+hwcInit                                          <- retry (Banshee 0x3)
+monitorEnum: ExtEscape:HWCEXT_GETDEVICECONFIG
+gd error (glide):  /  GLIDE FATAL: []            <- no board, fatal (empty msg)
+```
+
+Our Glide loads, reads its settings from the (now-created) reg path
+`SYSTEM\CurrentControlSet\Services\3Dfx\Device0\glide`, and probes for the card
+via `ExtEscape(HWCEXT_GETDEVICECONFIG)` with all three escape codes
+(EXT_HWC 0x3df3 / EXT_HWC_OLD 0xfd3 / EXT_HWC_WXP 0x13df3). **The installed 2001
+`3dfxvs` driver answers none of them**, so `monitorEnum` finds no Glide-capable
+device, `hwcInit` returns NULL, and init fails.
+
+Conclusion: **the failure is entirely in the display-driver layer.** A user-mode
+glide3x (ours OR retail) cannot detect/map the Voodoo3 unless the installed
+display driver implements the HWCEXT escape interface. The 2001 driver on `.124`
+does not; the 2004 AmigaMerlin `driver2k` (reference-lineage) does. To run OUR
+glide3x on real hardware, a driver that answers the escape must be installed
+underneath it. (The diagnostic source patches are NOT committed to build-glide.sh;
+rebuild the diag DLL by applying the gdbg_init/gerror.c log patches described here.)
