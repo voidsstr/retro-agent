@@ -20,9 +20,10 @@ retro3dfx_hwcext.h  the escape ABI (opcodes + structs) - shared contract, mirror
 disp_escape.c       THE escape server: DrvEscape -> r3dfx_escape_dispatch(),
                     answers GETDEVICECONFIG / GETLINEARADDR / ALLOCCONTEXT /
                     exclusive. Host-tested (the dispatch logic is DDK-independent).
-disp_hw.c           device bring-up: find the Voodoo, map its PCI BARs into the
-                    caller (the r3dfx_hw_map_linear the escape server calls).
-                    Modeled on the open Device3Dfx logic. [needs DDK]
+disp_hw.c           device bring-up + THE BAR MAPPER (written): reads BAR0/BAR1,
+                    maps them into the Glide process via ZwMapViewOfSection over
+                    \Device\PhysicalMemory (the retail HWCEXT_GETLINEARADDR technique).
+                    Modeled on the open Device3Dfx. [DDK build]
 disp_modeset.c      CRTC / video mode-set for fullscreen. [needs DDK]
 disp_enable.c       DrvEnableDriver + the GDI driver table (2D/DDraw chassis,
                     from the vmdisp9x / RISCyVoodoo skeleton). [needs DDK]
@@ -34,8 +35,9 @@ retro3dfx.inf       registration (binds PCI VEN_121A DEV 0005/0009 under Display
 - **Escape server (`disp_escape.c`) — written + host-tested + cross-compiles.**
   It correctly answers `GETDEVICECONFIG` (reports Voodoo3/5) and `GETLINEARADDR`
   (returns the mapped BARs) — the two probes that fail today.
-- **`disp_hw.c` / `disp_modeset.c` / `disp_enable.c` — to write against the DDK**
-  (BAR mapping, CRTC, the GDI chassis). These are the parts that need real
+- **`disp_hw.c` — written** (BAR mapper: maps BAR0 registers + BAR1 framebuffer
+  into the Glide process; the core `GETLINEARADDR` needs). Compile in the DDK.
+- **`disp_modeset.c` / `disp_enable.c` — to write** (CRTC, the GDI chassis). These are the parts that need real
   hardware iteration; the Device3Dfx model + RISCyVoodoo/vmdisp9x skeletons give
   the templates.
 

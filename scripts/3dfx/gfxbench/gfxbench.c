@@ -128,16 +128,25 @@ static void bench_sweep(int frames, const char *csv){
     LOG("gfxbench sweep: %d modes x %d frames", n, frames);
     for(i=0;i<n;i++){
         double t0,t1; int fr;
+        /* Voodoo3 is 16-bit only and has no FSAA; skip modes it can't do (they
+         * can hang a mismatched driver instead of failing cleanly). */
+        if(getenv("GFX_V3") && (modes[i].depth!=16 || modes[i].fsaa!=0)){
+            LOG("  %dx%d %dbpp fsaa%d : skipped (V3-invalid)",
+                modes[i].width,modes[i].height,modes[i].depth,modes[i].fsaa);
+            continue;
+        }
+        LOG("mode %d: opening %dx%d %dbpp fsaa%d ...",i,modes[i].width,modes[i].height,modes[i].depth,modes[i].fsaa);
         if(gb_open(&modes[i])!=0){
             LOG("  %dx%d %dbpp fsaa%d : OPEN FAILED (skipped)",
                    modes[i].width,modes[i].height,modes[i].depth,modes[i].fsaa);
             continue;
         }
-        checker_upload();   /* textures are per-context */
-        apply_opts(&o);
+        LOG("  opened; uploading texture..."); checker_upload();
+        LOG("  applying opts..."); apply_opts(&o);
+        LOG("  drawing %d frames...",frames);
         t0=now_ms();
         for(fr=0;fr<frames;fr++){ draw_scene(&modes[i],&o,fr*0.05f); gb_swap(0); }
-        gb_finish();
+        LOG("  gb_finish..."); gb_finish();
         t1=now_ms();
         {
             double ms=t1-t0, fps=frames*1000.0/(ms>0?ms:1);
