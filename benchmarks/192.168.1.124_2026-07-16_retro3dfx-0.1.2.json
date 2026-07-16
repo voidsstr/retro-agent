@@ -1,0 +1,47 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-16T17:47:55",
+ "env": "none (baseline conditions)",
+ "q3_timedemo": [
+  {
+   "mode": 3,
+   "resolution": "640x480",
+   "run": 1,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.2]",
+   "fps": 54.2,
+   "frames": 1260,
+   "seconds": 23.2
+  },
+  {
+   "mode": 3,
+   "resolution": "640x480",
+   "run": 2,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.2]",
+   "fps": 54.2,
+   "frames": 1260,
+   "seconds": 23.2
+  },
+  {
+   "mode": 6,
+   "resolution": "1024x768",
+   "run": 1,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.2]",
+   "fps": 38.7,
+   "frames": 1260,
+   "seconds": 32.5
+  },
+  {
+   "mode": 6,
+   "resolution": "1024x768",
+   "run": 2,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.2]",
+   "fps": 38.6,
+   "frames": 1260,
+   "seconds": 32.6
+  }
+ ]
+}
