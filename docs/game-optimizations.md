@@ -140,5 +140,82 @@ Applied 2026-07-09. Per-machine notes:
   then have black borders. On the 1080p LCD box (.145) RA2 is inherently soft
   (a low-res game upscaled by the panel); a hardware cnc-ddraw renderer
   (`renderer=opengl`, windowed fullscreen) would look crisper there if desired.
+
+---
+
+## OPT-002 — Red Alert 2 / Yuri's Revenge: LAN "Network" play via IPX
+
+**Symptom:** the in-game **Network** (LAN) button is dead — the lobby won't
+connect, no games can be hosted or seen.
+
+**Root cause:** retail RA2's "Network" mode is an **IPX/SPX** LAN, *not*
+winsock/TCP. The CnCNet repack normally tunnels networking over TCP/IP via its
+SSE2 `wsock32.dll` spawner, but on no-SSE2 boxes that spawner is removed (see
+OPT-001), and **IPX is not installed by default on XP**. With no IPX transport,
+the Network lobby has nothing to run on. This is *independent* of the wsock32
+swap — even the stock repack "Network" needs IPX; the repack expected you to play
+online through the (SSE2) CnCNet client instead.
+
+**Fix:** install the **NWLink IPX/SPX/NetBIOS Compatible Transport Protocol** on
+every machine that will join a LAN match. XP already ships the driver + INF
+(`nwlnkipx.sys`, `nwlnknb.sys`, `%windir%\inf\netnwlnk.inf`), so no install CD is
+needed. Stock installs have **no headless net-config tool** (`snetcfg`/`netcfg`
+absent), so install through the GUI:
+
+  Network Connections (`control ncpa.cpl`) -> right-click the LAN adapter ->
+  Properties -> **Install...** -> **Protocol** -> Add... ->
+  **NWLink IPX/SPX/NetBIOS Compatible Transport Protocol** -> OK -> Close.
+
+Verify with `ipxroute config` — the LAN adapter should appear bound with a frame
+type. Then RA2 -> **Network** loads the IPX lobby: **New** hosts a game, **Join**
+joins one.
+
+**Frame-type gotcha:** the default frame type is **802.2 (auto)**. Every machine
+in a match must use the **same** IPX frame type or they won't see each other's
+games. Keep them all on the default (or force one common type on all).
+
+### Fleet rollout status (IPX for LAN)
+
+| IP | Host | IPX installed | Notes |
+|----|------|---------------|-------|
+| 192.168.1.133 | P3-DUAL | YES (802.2) | verified — Network lobby loads, host/join available |
+| 192.168.1.123 | 2004-XP | YES (802.2) | installed, `ipxroute` confirms 802.2 — matches .133 |
+| 192.168.1.145 | DELL | no | agent offline; needs IPX + 802.2 when back up |
+| 192.168.1.124 | ADMIN | no | agent offline; needs IPX + 802.2 when back up |
+
+A LAN game needs at least two IPX-enabled machines, so the opponents must get the
+same protocol before an actual match can run. **Why "not seeing anyone" happens:**
+the opponent machine has no IPX (only .133 had it initially), OR the two machines
+are on different IPX frame types. Auto-detect on a quiet LAN lands on 802.2 for
+everyone, so leaving all machines on the default (802.2) is the simplest way to
+keep them matched; if `ipxroute config` ever shows a machine on a different frame,
+pin it to 802.2. Frame type is stored at
+`HKLM\SYSTEM\CurrentControlSet\Services\NwlnkIpx\Parameters\Adapters\{nic-guid}\PktType`
+(`FF`=auto; a pinned value only takes effect after a reboot / adapter re-enable).
+
+**Agent-stability caveat:** launching RA2 in the OPT-001 exclusive-fullscreen mode
+makes the `retro_agent` remote control **unreachable on the non-GeForce4 boxes**
+(.123 Radeon HD 3850, .124 GeForce2, .145 Intel HD all dropped off on RA2 launch;
+only .133's GeForce4 Ti survives it). The game and Windows keep running — it's the
+remote agent that stops responding — but it means these machines can't be
+remote-driven while RA2 is up.
+
+Root cause (from reading `agent/src/main.c` + `screen.c`): it is **not** the agent
+looping on the display — the accept loop only does `select()`/`accept()` and never
+touches GDI, and screenshots run on demand in per-connection threads. The port
+dies with **no command sent**, right on RA2's `ChangeDisplaySettings` to the
+exclusive 800x600 primary. So the OPT-001 exclusive mode-set is stalling the
+box/driver externally on the non-GeForce4 GPUs (errno 111 = port momentarily
+closed, then recovers — a driver stall or an agent crash the service auto-restarts;
+.133's GeForce4 Ti driver is immune). `.124` instead went errno 113 (no route =
+powered off / hung), a separate matter.
+
+**Mitigation:** on capable GPUs (Radeon HD, Intel HD) use **non-exclusive
+windowed-fullscreen** instead of exclusive — `windowed=true, fullscreen=true,
+nonexclusive=true` (upscales to fill; trivial cost on a P4/Core). It does **no**
+exclusive mode-set, so the agent stays reachable while RA2 runs, and the display
+stays screenshot-able. Keep true exclusive (OPT-001) only where native-res speed
+matters on a weak GPU (the GeForce2/GeForce4 P3 boxes), accepting that the agent
+goes dark while the game is up there.
 </content>
 </invoke>

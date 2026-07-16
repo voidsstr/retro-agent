@@ -21,3 +21,16 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# 3dfx driver build toolchain — large, fully reconstructable from public downloads
+# (see toolchain-3dfx/README.md for how each piece is obtained/rebuilt)
+toolchain-3dfx/bin/
+toolchain-3dfx/wine/
+toolchain-3dfx/prefix/
+toolchain-3dfx/devtools/
+toolchain-3dfx/downloads/
+toolchain-3dfx/extract/
+
+# The vintage 3dfx source drop is archived verbatim — nothing inside it is
+# ignored (overrides the *.obj/*.map rules above for that tree)
+!3dfx Driver Code/**
