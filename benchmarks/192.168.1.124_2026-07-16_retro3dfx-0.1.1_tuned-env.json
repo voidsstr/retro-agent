@@ -1,0 +1,47 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-16T17:39:22",
+ "env": "FX_GLIDE_SWAPINTERVAL=0 SST_SWAP_EN_WAIT_ON_VIDSYNC=0 FX_GLIDE_SWAPPENDINGCOUNT=2",
+ "q3_timedemo": [
+  {
+   "mode": 3,
+   "resolution": "640x480",
+   "run": 1,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]",
+   "fps": 57.3,
+   "frames": 1260,
+   "seconds": 22.0
+  },
+  {
+   "mode": 3,
+   "resolution": "640x480",
+   "run": 2,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]",
+   "fps": 57.6,
+   "frames": 1260,
+   "seconds": 21.9
+  },
+  {
+   "mode": 6,
+   "resolution": "1024x768",
+   "run": 1,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]",
+   "fps": 51.0,
+   "frames": 1260,
+   "seconds": 24.7
+  },
+  {
+   "mode": 6,
+   "resolution": "1024x768",
+   "run": 2,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]",
+   "fps": 50.8,
+   "frames": 1260,
+   "seconds": 24.8
+  }
+ ]
+}

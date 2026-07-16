@@ -79,7 +79,8 @@ cp "$DLL" "$OUT/opengl32_retail_v$DRVVER.dll"           # versioned archive
 printf '%s\n' "$DRVVER" > "$OUT/opengl32_retail.dll.ver"  # sidecar
 echo "output: $OUT/opengl32_retail.dll v$DRVVER ($(stat -c%s "$OUT/opengl32_retail.dll") bytes)"
 # sanity: must import underscore-decorated glide3x names
-if ${CROSS}objdump -p "$OUT/opengl32_retail.dll" | grep -q '_grBufferSwap@4'; then
+# (no `grep -q`: with pipefail, -q's early exit SIGPIPEs objdump -> false negative)
+if ${CROSS}objdump -p "$OUT/opengl32_retail.dll" | grep '_grBufferSwap@4' >/dev/null; then
     echo "OK: imports _grFoo@N (binds retail/AmigaMerlin glide3x)"
 else
     echo "WARN: expected underscore glide3x imports not found"
