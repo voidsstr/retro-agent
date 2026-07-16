@@ -1,0 +1,163 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-16T17:28:21",
+ "q3_timedemo": [
+  {
+   "mode": 3,
+   "resolution": "640x480",
+   "run": 1,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]",
+   "frames": 1260,
+   "seconds": 23.5,
+   "fps": 53.7
+  },
+  {
+   "mode": 3,
+   "resolution": "640x480",
+   "run": 2,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]",
+   "frames": 1260,
+   "seconds": 23.5,
+   "fps": 53.6
+  },
+  {
+   "mode": 4,
+   "resolution": "800x600",
+   "run": 1,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]",
+   "frames": 1260,
+   "seconds": 25.0,
+   "fps": 50.4
+  },
+  {
+   "mode": 4,
+   "resolution": "800x600",
+   "run": 2,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]",
+   "frames": 1260,
+   "seconds": 25.1,
+   "fps": 50.2
+  },
+  {
+   "mode": 6,
+   "resolution": "1024x768",
+   "run": 1,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]",
+   "frames": 1260,
+   "seconds": 32.6,
+   "fps": 38.7
+  },
+  {
+   "mode": 6,
+   "resolution": "1024x768",
+   "run": 2,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]",
+   "frames": 1260,
+   "seconds": 32.5,
+   "fps": 38.7
+  }
+ ],
+ "gfxbench": {
+  "csv": "width,height,depth,fsaa,frames,ms,fps\r\n640,480,16,0,300,5120.7,58.6\r\n800,600,16,0,300,5014.0,59.8\r\n1024,768,16,0,300,5030.6,59.6\r\n1600,1200,16,0,300,5042.8,59.5",
+  "exit": "gfxbench start: bench=1 frames=300 csv=C:\\RETRO_AGENT\\gfxbench.csv\r\nboard: Voodoo3 (tm) (1 fb/chip units)\r\ngfxbench sweep: 14 modes x 300 frames\r\nmode 0: opening 640x480 16bpp fsaa0 ...\r\n  opened; upl"
+ },
+ "specs": {
+  "sysinfo": {
+   "hostname": "ADMIN",
+   "agent_version": "1.6.0",
+   "uptime_seconds": 27402,
+   "cpu": {
+    "architecture": "x86",
+    "processors": 1,
+    "processor_type": 586,
+    "processor_level": 6,
+    "processor_revision": 2051
+   },
+   "memory": {
+    "total_mb": 383,
+    "avail_mb": 250,
+    "load_percent": 34,
+    "total_page_mb": 922,
+    "avail_page_mb": 827
+   },
+   "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "platform_id": 2,
+    "csd_version": "Service Pack 3"
+   },
+   "drives": [
+    {
+     "root": "C:\\",
+     "type": "fixed",
+     "free_mb": 16171,
+     "total_mb": 32749
+    },
+    {
+     "root": "D:\\",
+     "type": "fixed",
+     "free_mb": 89937,
+     "total_mb": 98303
+    },
+    {
+     "root": "E:\\",
+     "type": "fixed"
+    },
+    {
+     "root": "F:\\",
+     "type": "cdrom"
+    },
+    {
+     "root": "G:\\",
+     "type": "cdrom"
+    },
+    {
+     "root": "Z:\\",
+     "type": "network",
+     "free_mb": 1082513,
+     "total_mb": 3798248
+    }
+   ],
+   "cpu_mhz": 845,
+   "cpu_name": "Intel Pentium III ~845MHz (no SSE2)"
+  },
+  "videodiag": {
+   "adapters": [
+    {
+     "name": "3dfx Voodoo3",
+     "manufacturer": "Microsoft",
+     "pci_vendor_id": "0x121a",
+     "pci_device_id": "0x0005",
+     "driver_version": "5.1.2001.0",
+     "driver_date": "6-6-2001",
+     "inf_path": "3dfxvs2k.inf",
+     "hardware_id": "pci\\ven_121a&dev_0005",
+     "registry_path": "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000",
+     "status": "OK",
+     "error_code": 0
+    }
+   ],
+   "display": {
+    "resolution": "1024x768",
+    "color_depth": 32,
+    "refresh_rate": 75,
+    "driver_desc": "3dfx Voodoo3"
+   },
+   "directx": {
+    "version": "4.09.00.0904",
+    "registry_path": "HKLM\\SOFTWARE\\Microsoft\\DirectX"
+   }
+  },
+  "pciscan": "{\"pci_display_devices\":[],\"display_drivers\":[{\"class_index\":\"0000\",\"driver_desc\":\"3dfx Voodoo3\",\"matching_device_id\":\"pci\\\\ven_121a&dev_0005\",\"inf_path\":\"3dfxvs2k.inf\",\"referenced_by\":\"\"}],\"summary\":{\"active\":[],\"ghost\":[],\"new_hardware\":[],\"stale_drivers\":[\"0000\"]}}",
+  "gpu_from_pciscan": "3dfx Voodoo3 AGP"
+ },
+ "driver": {
+  "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.1]"
+ }
+}
