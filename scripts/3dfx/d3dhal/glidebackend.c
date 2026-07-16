@@ -258,11 +258,19 @@ static GrTextureFormat_t tmu_fmt(gb_texfmt_t f){
     }
 }
 gb_tex_t *gb_tex_create(int w,int h,gb_texfmt_t fmt){
+    int big, small_, aspect;
     gb_tex_t *t=calloc(1,sizeof(*t));
     t->w=w; t->h=h; t->fmt=fmt; t->log2w=ilog2(w); t->log2h=ilog2(h);
-    t->info.smallLodLog2 = GR_LOD_LOG2_256;    /* set from dims below */
-    t->info.largeLodLog2 = GR_LOD_LOG2_256;
-    t->info.aspectRatioLog2 = GR_ASPECT_LOG2_1x1;
+    /* GR_LOD_LOG2_<n> == log2(n), so the LOD is just log2 of the dimension.
+     * Using the actual size (not a hardcoded 256) is essential: an oversized LOD
+     * makes grTexDownloadMipMap read past the texel buffer and hang the card. */
+    big    = (t->log2w > t->log2h) ? t->log2w : t->log2h;   /* largest side    */
+    small_ = big;                                           /* single mip level */
+    aspect = t->log2w - t->log2h;                           /* 0 = 1x1 square   */
+    if(aspect < 0) aspect = -aspect;   /* GR_ASPECT_LOG2_1x1==0, ..._2x1==1 ... */
+    t->info.smallLodLog2 = small_;
+    t->info.largeLodLog2 = big;
+    t->info.aspectRatioLog2 = aspect;
     t->info.format = tmu_fmt(fmt);
     t->bytes = w*h*((fmt==GB_TF_P8)?1:2);
     t->pixels = malloc(t->bytes);
