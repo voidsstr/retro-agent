@@ -53,6 +53,13 @@ static void gb_glide_error(const char *s, FxBool fatal)
     }
 }
 
+/* Step trace so we can see exactly which Glide call crashes (flushed per line). */
+static void gb_trace(const char *msg)
+{
+    FILE *f = fopen("C:\\RETRO_AGENT\\gb_trace.log", "a");
+    if (f) { fprintf(f, "%s\n", msg); fclose(f); }
+}
+
 /* GR_PARAM offsets for our gb_vtx_t (must match the layout installed below). */
 #define VTX_XY_OFF     0                          /* x,y                     */
 #define VTX_Z_OFF      (2*sizeof(float))          /* ooz                     */
@@ -106,21 +113,27 @@ static GrScreenRefresh_t refresh_token(int hz){
 /* ---- lifecycle ----------------------------------------------------------- */
 
 int gb_startup(char *name_out,int name_len,int *num_chips_out){
+    const char *n;
     /* Register BEFORE grGlideInit: grGlideInit itself can raise a fatal error,
      * and grGlideInit never resets GrErrorCallback, so ours sticks. This both
      * captures the exact message AND avoids the default MessageBox hang. */
+    gb_trace("gb_startup: set error callback");
     grErrorSetCallback(gb_glide_error);
+    gb_trace("gb_startup: grGlideInit()...");
     grGlideInit();
+    gb_trace("gb_startup: grGlideInit OK; grSstSelect(0)...");
     grSstSelect(0);
+    gb_trace("gb_startup: grSstSelect OK; grGetString(GR_HARDWARE)...");
+    n = grGetString(GR_HARDWARE);
     if(name_out&&name_len){
-        const char *n = grGetString(GR_HARDWARE);
         strncpy(name_out, n?n:"3dfx", name_len-1);
         name_out[name_len-1]=0;
     }
-    if(num_chips_out){
-        FxI32 nc=1; grGet(GR_NUM_FB, sizeof(nc), &nc); /* fb == chip count-ish */
-        *num_chips_out = (int)nc;
-    }
+    gb_trace("gb_startup: got hardware name; skipping GR_NUM_FB (needs a context)");
+    /* grGet(GR_NUM_FB) before grSstWinOpen is undefined/crashes on some builds;
+     * default to 1 and query later if needed. */
+    if(num_chips_out) *num_chips_out = 1;
+    gb_trace("gb_startup: done");
     return 0;
 }
 
