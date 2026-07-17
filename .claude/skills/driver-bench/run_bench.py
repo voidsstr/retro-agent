@@ -35,6 +35,17 @@ CS16_EXE = "hl.exe"
 CS16_DEMO = "bench"                            # cstrike\bench.dem
 CS16_RES = "640x480"
 
+# Quake II (idTech2 GL) benchmark defaults. Q2 has `timedemo 1` + `demomap
+# <demo>`; with `logfile 2` it mirrors the console (incl. the "<n> frames,
+# <s> seconds: <fps> fps" line + GL_RENDERER) to baseq2\qconsole.log. It loads
+# our ICD via the `gl_driver` cvar (the deployed retrogl.dll). Needs ref_gl.dll
+# present (stock GL renderer) and demo1.dm2 in baseq2\.
+Q2_DIR = r"C:\Quake2"                          # override with --q2dir
+Q2_EXE = "quake2.exe"
+Q2_DEMO = "demo1.dm2"
+Q2_GLDRIVER = "retrogl"                        # gl_driver -> our ICD DLL
+Q2_MODES = {3: "640x480", 4: "800x600", 5: "960x720", 6: "1024x768"}
+
 # ---------------------------------------------------------------------------
 # Quality / video-card settings — recorded IN FULL on every run, and swept
 # ---------------------------------------------------------------------------
@@ -274,6 +285,41 @@ async def cs16_timedemo(ip, cs16dir, demo, env):
     return fps, gl
 
 
+async def quake2_timedemo(ip, q2dir, demo, gl_mode, gl_driver, env):
+    """One Quake II (idTech2 GL) timedemo run. Returns (fps, gl_renderer).
+
+    Launches quake2.exe with vid_ref gl + our ICD via gl_driver, plays `demo`
+    under timedemo, and scrapes baseq2\\qconsole.log (logfile 2) for the fps
+    line (same "frames, ... seconds: ... fps" shape as Q3) and GL_RENDERER
+    (carries the [retro3dfx 0.1.N] stamp)."""
+    envcmd = "".join("set %s^& " % kv for kv in env.split()) if env else ""
+    log = r"%s\baseq2\qconsole.log" % q2dir
+    c = await connect(ip)
+    await kill_wait(c, Q2_EXE)
+    await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 12)
+    await asyncio.sleep(2)
+    await exw(c, r'cmd /c cd /d "%s" ^&^& %sstart "" %s +set vid_ref gl +set gl_driver %s '
+                 r'+set gl_mode %d +set vid_fullscreen 1 +set logfile 2 +set s_initsound 0 '
+                 r'+set timedemo 1 +demomap %s'
+              % (q2dir, envcmd, Q2_EXE, gl_driver, gl_mode, demo), 15)
+    await c.close()
+    await asyncio.sleep(60)
+    c = await connect(ip)
+    fps = gl = None
+    for _ in range(4):
+        txt = await exw(c, r'cmd /c type "%s" 2>nul' % log, 20)
+        m = re.search(r"frames,?\s+[\d.]+ seconds:?\s+([\d.]+) fps", txt) \
+            or re.search(r"([\d.]+) frames\s+[\d.]+ seconds\s+([\d.]+) fps", txt)
+        gl = next((l.split("GL_RENDERER:", 1)[1].strip() for l in txt.splitlines() if "GL_RENDERER" in l), gl)
+        if m:
+            fps = float(m.group(m.lastindex))
+            break
+        await asyncio.sleep(10)
+    await kill_wait(c, Q2_EXE)
+    await c.close()
+    return fps, gl
+
+
 async def screenshot(ip, q3dir, outdir, gldriver="retrogl"):
     """In-engine glReadPixels capture on q3dm1. Returns local png path or None."""
     c = await connect(ip)
@@ -385,7 +431,10 @@ async def main():
     ap.add_argument("--runs", type=int, default=2, help="runs per mode (2nd is official)")
     ap.add_argument("--env", default="", help='launcher env, e.g. "FX_GLIDE_SWAPINTERVAL=0"')
     ap.add_argument("--q3dir", default=r"C:\Quake III Arena\Quake3")
-    ap.add_argument("--game", default="q3", choices=["q3", "cs16", "both"],
+    ap.add_argument("--q2dir", default=Q2_DIR)
+    ap.add_argument("--q2demo", default=Q2_DEMO, help="baseq2 demo, e.g. demo1.dm2")
+    ap.add_argument("--q2modes", default="3,6", help="Q2 gl_mode list (3=640x480,6=1024x768)")
+    ap.add_argument("--game", default="q3", choices=["q3", "cs16", "q2", "both", "all"],
                     help="which benchmark(s) to run (default q3)")
     ap.add_argument("--cs16dir", default=CS16_DIR)
     ap.add_argument("--cs16demo", default=CS16_DEMO, help="cstrike\\<name>.dem to timedemo")
@@ -450,7 +499,7 @@ async def main():
                   else [p.strip() for p in args.quality_sweep.split(",") if p.strip()]
                   or [args.quality])
     runs = []
-    if args.game in ("q3", "both"):
+    if args.game in ("q3", "both", "all"):
         for mode in (int(m) for m in args.modes.split(",")):
             label = MODE_RES.get(mode, "mode%d" % mode)
             for qp in q_profiles:
@@ -469,7 +518,7 @@ async def main():
                     runs.append(rec)
                     print("q3 %s [%s] run %d: %s fps [driver %s]%s"
                           % (label, qp, run, fps, ver, "  CRASH(logs captured)" if crash else ""))
-    if args.game in ("cs16", "both"):
+    if args.game in ("cs16", "both", "all"):
         for run in range(1, args.runs + 1):
             fps, gl = await cs16_timedemo(args.ip, args.cs16dir, args.cs16demo, args.env)
             ver = ver_of(gl)
@@ -484,6 +533,22 @@ async def main():
                                       "r_mmx": "1", "fps_max": "0",
                                       "fsaa": "none (Voodoo3 has no T-buffer)"}})
             print("cs16 run %d: %s fps [driver %s]" % (run, fps, ver))
+    if args.game in ("q2", "all"):
+        for mode in (int(m) for m in args.q2modes.split(",")):
+            label = Q2_MODES.get(mode, "mode%d" % mode)
+            for run in range(1, args.runs + 1):
+                fps, gl = await quake2_timedemo(args.ip, args.q2dir, args.q2demo,
+                                                mode, Q2_GLDRIVER, args.env)
+                ver = ver_of(gl)
+                runs.append({"benchmark": "q2-timedemo", "resolution": label, "mode": mode,
+                             "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
+                             "settings": {"resolution": label, "gl_mode": mode,
+                                          "engine": "idTech2/quake2.exe", "demo": args.q2demo,
+                                          "renderer": "OpenGL (our ICD via gl_driver)",
+                                          "gl_driver": Q2_GLDRIVER, "colorbits": "16",
+                                          "vid_fullscreen": "1",
+                                          "fsaa": "none (Voodoo3 has no T-buffer)"}})
+                print("q2 %s run %d: %s fps [driver %s]" % (label, run, fps, ver))
 
     outdir = os.path.join(REPO, "benchmarks")
     shot = await screenshot(args.ip, args.q3dir, outdir, args.gldriver) if args.screenshot else None

@@ -34,11 +34,23 @@ benchmarking a new driver build — this is the metadata that makes A/Bs
 attributable), `--lever performance|quality`, `--screenshot` (adds the
 in-engine capture + quality DB row), `--notes`.
 
-### Games: Quake III + Counter-Strike 1.6
+### Games: Quake III + Counter-Strike 1.6 + Quake II
 
-`--game q3` (default) | `cs16` | `both`. Both run through the Voodoo's OpenGL
-path (our MesaFX `retrogl.dll`), so a single ICD build is measured on two
-engines — Q3 (idTech3) and CS 1.6 (GoldSrc, an idTech2/QW descendant). CS 1.6
+`--game q3` (default) | `cs16` | `q2` | `both` (q3+cs16) | `all` (q3+cs16+q2).
+All run through the Voodoo's OpenGL path (our ICD), so one ICD build is measured
+across three engines — Q3 (idTech3), CS 1.6 (GoldSrc), and Q2 (idTech2). DB
+benchmark names: `q3-timedemo-four`, `cs16-timedemo`, `q2-timedemo`.
+
+**Quake II** (`--game q2`, `--q2dir`, `--q2demo demo1.dm2`, `--q2modes 3,6`):
+launches `quake2.exe +set vid_ref gl +set gl_driver retrogl +set gl_mode <m>
++set timedemo 1 +demomap <demo>`; with `logfile 2` it mirrors the "frames …
+seconds: … fps" line + `GL_RENDERER` (the `[retro3dfx 0.1.N]` stamp) to
+`baseq2\qconsole.log`. Prereqs: a Q2 install with `ref_gl.dll` (stock GL
+renderer), `demo1.dm2` in `baseq2\`, and our ICD reachable as `retrogl.dll`
+(the `gl_driver`). If Q2 falls back to software or won't load our ICD, fix the
+`gl_driver`/`ref_gl` wiring (the same OpenGL-ICD path Q3 uses).
+
+CS 1.6
 uses GoldSrc's `timedemo <demo>` console command; `-condebug` mirrors the fps
 line to `cstrike\qconsole.log` (same `... frames ... seconds ... fps` shape as
 Q3), and `GL_RENDERER` still carries the `[retro3dfx 0.1.N]` stamp so the run
