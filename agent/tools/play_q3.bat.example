@@ -1,0 +1,7 @@
+@echo off
+rem play_q3.bat - launch Quake III on the 3dfx driver and ALWAYS restore the
+rem desktop mode when it exits (Glide fullscreen exit, incl. a crash, leaves the
+rem Voodoo stuck at 640x480 otherwise).
+cd /d "C:\Quake III Arena\Quake3"
+start "Quake3" /wait quake3.exe +set fs_homepath C:\q3home +set r_glDriver 3dfxogl +set r_mode 3 +set r_colorbits 16 %*
+C:\RETRO_AGENT\3dfx-driver\setmode.exe 1024 768 32 85
