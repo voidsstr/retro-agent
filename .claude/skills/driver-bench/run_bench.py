@@ -43,7 +43,7 @@ CS16_RES = "640x480"
 Q2_DIR = r"C:\Games\Quake2"                    # override with --q2dir (found on .124)
 Q2_EXE = "quake2.exe"
 Q2_DEMO = "demo1.dm2"
-Q2_GLDRIVER = "retrogl"                        # gl_driver -> our ICD DLL
+Q2_GLDRIVER = "3dfxgl"                         # gl_driver: 3dfxgl (works) | retrogl (our ICD, hangs in ref_gl - see fxwgl task)
 Q2_MODES = {3: "640x480", 4: "800x600", 5: "960x720", 6: "1024x768"}
 
 # ---------------------------------------------------------------------------
@@ -448,6 +448,7 @@ async def main():
     ap.add_argument("--q2dir", default=Q2_DIR)
     ap.add_argument("--q2demo", default=Q2_DEMO, help="baseq2 demo, e.g. demo1.dm2")
     ap.add_argument("--q2modes", default="3,6", help="Q2 gl_mode list (3=640x480,6=1024x768)")
+    ap.add_argument("--q2driver", default=Q2_GLDRIVER, help="Q2 gl_driver (3dfxgl works; retrogl=our ICD)")
     ap.add_argument("--game", default="q3", choices=["q3", "cs16", "q2", "both", "all"],
                     help="which benchmark(s) to run (default q3)")
     ap.add_argument("--cs16dir", default=CS16_DIR)
