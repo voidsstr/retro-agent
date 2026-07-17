@@ -21,6 +21,7 @@
 #include "train/train_nn.h"
 #include "train/gbdt.h"
 #include "serve.h"
+#include "gpu/glide_mac.h"
 
 static void print_selfcheck(void)
 {
@@ -272,6 +273,11 @@ int main(int argc, char **argv)
     /* default 9896: the agent itself owns 9897 (AGENT_TCP_PORT_ALT) */
     if (argc >= 2 && strcmp(argv[1], "--serve") == 0)
         return serve_run(argc >= 3 ? atoi(argv[2]) : 9896);
+    if (argc >= 2 && strcmp(argv[1], "--glide-check") == 0)
+        return glide_check(argc >= 3 ? atoi(argv[2]) : 64,
+                           argc >= 4 ? atoi(argv[3]) : 64,
+                           argc >= 5 ? atoi(argv[4]) : 128,
+                           argc >= 6 ? (unsigned)atoi(argv[5]) : 42);
     if (argc >= 15 && strcmp(argv[1], "--train-mlp") == 0) {
         train_nn_cfg_t c;
         memset(&c, 0, sizeof(c));

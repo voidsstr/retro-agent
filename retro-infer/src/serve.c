@@ -227,6 +227,9 @@ static void handle_client(SOCKET c, int *shutdown_flag)
                     return;
                 continue;
             }
+            /* serve returns pre-softmax logits (parity with --eval dumps;
+             * consumers softmax client-side if they need probabilities) */
+            model_set_skip_softmax(m, 1);
             for (i = 0; i < MAX_MODELS; i++) {
                 if (!g_models[i].m) {
                     strncpy(g_models[i].name, arg1,
