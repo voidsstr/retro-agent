@@ -73,10 +73,30 @@ class RetroConnection:
                 self.os_family = "mac_classic"
         return greeting
 
-    async def close(self):
-        """Close the connection."""
+    async def close(self, graceful: bool = True):
+        """Close the connection.
+
+        When *graceful* is True (default) we first try to send a TCP FIN via
+        ``socket.shutdown(SHUT_WR)`` before closing.  This is critical for
+        Win98 agents: an abrupt close causes the OS to send a TCP RST which
+        crashes Win98 Winsock, killing the agent.  A FIN-initiated teardown
+        lets the remote Winsock close cleanly.
+        """
         if self._writer:
             try:
+                if graceful:
+                    sock = self._writer.get_extra_info("socket")
+                    if sock is not None:
+                        try:
+                            # Send FIN — tells the remote side we're done
+                            # writing.  This starts a clean 4-way TCP close
+                            # instead of an RST.
+                            sock.shutdown(socket.SHUT_WR)
+                            # Give the remote side a moment to process FIN
+                            # before we tear down the socket completely.
+                            await asyncio.sleep(0.1)
+                        except OSError:
+                            pass  # Socket already broken
                 self._writer.close()
                 await self._writer.wait_closed()
             except Exception:
