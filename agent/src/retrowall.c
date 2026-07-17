@@ -40,6 +40,8 @@
 #define WALLDIR        "C:\\retro-wall"
 #define ROTATE_EXE     WALLDIR "\\rotate_wall.exe"
 #define ARRANGE_EXE    WALLDIR "\\arrange_icons.exe"
+#define THEME_REG      WALLDIR "\\retro_theme.reg"
+#define SETCOLORS_EXE  WALLDIR "\\setsyscolors.exe"
 #define WALL0_BMP      WALLDIR "\\wall00.bmp"
 #define RUN_KEY        "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
 #define RUN_VALUE      "RetroWallRotate"
@@ -169,6 +171,27 @@ void retrowall_apply_startup(void)
         log_msg(LOG_MAIN, "retrowall: arranged desktop icons");
     } else {
         log_msg(LOG_MAIN, "retrowall: %s missing, icons not arranged", ARRANGE_EXE);
+    }
+
+    /* 6. Apply the dark "hacker" system-color theme (the fleet-wide look) on
+     *    every startup, the same way the wallpaper + icons are. Staged as
+     *    retro_theme.reg (writes HKCU\Control Panel\Colors) + setsyscolors.exe
+     *    (pushes those colors live via SetSysColors so it takes effect without a
+     *    re-logon). Both are staged by the retro-wallpaper skill's
+     *    deploy_rotation.py; a no-op here if not present. */
+    if (file_exists(THEME_REG)) {
+        char themecmd[512];
+        _snprintf(themecmd, sizeof(themecmd), "regedit /s \"%s\"", THEME_REG);
+        run_process(themecmd, 8000);          /* HKCU\Control Panel\Colors */
+        if (file_exists(SETCOLORS_EXE)) {
+            run_process(SETCOLORS_EXE, 8000); /* apply live via SetSysColors */
+            log_msg(LOG_MAIN, "retrowall: applied dark theme (colors + live SetSysColors)");
+        } else {
+            log_msg(LOG_MAIN, "retrowall: theme colors set; %s missing "
+                    "(live on next logon)", SETCOLORS_EXE);
+        }
+    } else {
+        log_msg(LOG_MAIN, "retrowall: %s missing, dark theme not applied", THEME_REG);
     }
 }
 

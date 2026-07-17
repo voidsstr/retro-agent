@@ -200,6 +200,31 @@ published**, so shipping the new agent doesn't touch already-set-up machines.
 - Uses the `copy /Y` + JScript `retro_unzip.js` extract pattern (NOT `xcopy` -
   it hangs on NETMAP'd SMB on XP); sets the marker via `regedit /s` (no `reg.exe`
   on Win98). Idempotent - reruns skip already-installed games.
+- **`onboard.cmd` gotcha (fixed):** game NAMEs contain parentheses (e.g.
+  `(BC Romania)`, `(fleet build)`), so the `:game` routine must NOT echo `%NAME%`
+  inside a `( ... )` block — the `)` in the expanded name closes the block early
+  and cmd aborts with `- was unexpected at this time.` (onboarding then never
+  completes: no theme, no Onboarded flag). `gen_onboard.py` emits goto-based flow
+  with plain-line echoes instead. If you edit the generator, keep it paren-safe.
+
+### Desktop theme + icons are (re)applied on EVERY startup (not just onboarding)
+
+The dark "hacker" system-color theme, the dossier wallpaper, and the parked-icon
+layout are applied by the agent's **`retrowall` thread on every startup** (v1.8.0+,
+`agent/src/retrowall.c`) — not only on first-run onboarding — so a box keeps the
+fleet look across reboots. It applies whatever the **retro-wallpaper skill** has
+staged into `C:\retro-wall\`:
+- `wall00..NN.bmp` + `rotate_wall.exe` → wallpaper rotation
+- `arrange_icons.exe` → icons parked in the bottom-right well
+- `retro_theme.reg` + `setsyscolors.exe` → dark green-on-black system colors
+  (regedit writes `HKCU\Control Panel\Colors`, then `setsyscolors.exe` pushes
+  them live via `SetSysColors` so it takes effect without a re-logon)
+
+Each step is a **no-op if its asset isn't staged**. Stage/refresh all of them
+with `python3 scripts/retro-wallpaper/deploy_rotation.py <ip>` (it now also stages
+`retro_theme.reg` + `setsyscolors.exe`). To fix a single box's theme immediately
+without a restart: `python3 scripts/retro-wallpaper/apply_hacker_theme.py <ip>`
+(`--revert` restores Luna).
 
 ## Using the Agent from an LLM
 

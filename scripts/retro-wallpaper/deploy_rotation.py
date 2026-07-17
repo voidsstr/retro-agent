@@ -58,6 +58,17 @@ async def deploy(host, interval=60):
                           "C:\\WINDOWS\\TEMP\\arrange_icons.exe")
         print("%s: %s" % (host, (await c.command_text(
             "EXEC C:\\WINDOWS\\TEMP\\arrange_icons.exe")).strip()))
+        # dark "hacker" system-color theme. Stage retro_theme.reg (the fleet-wide
+        # green-on-black scheme) + setsyscolors.exe into C:\retro-wall\ so the
+        # agent re-applies the theme on EVERY startup (agent/src/retrowall.c
+        # step 6), then apply it live now.
+        await upload_file(c, os.path.join(HERE, "retro_theme.reg"),
+                          WALLDIR + "\\retro_theme.reg")
+        await upload_file(c, os.path.join(HERE, "setsyscolors.exe"),
+                          WALLDIR + "\\setsyscolors.exe")
+        await c.command_text('EXEC regedit /s %s\\retro_theme.reg' % WALLDIR)
+        print("%s: %s" % (host, (await c.command_text(
+            "EXEC %s\\setsyscolors.exe" % WALLDIR)).strip()))
         # persist rotator across logon
         cmd = '%s\\rotate_wall.exe %d' % (WALLDIR, interval)
         await c.command_text('EXEC cmd /c reg add "%s" /v RetroWallRotate '

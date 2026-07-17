@@ -42,17 +42,31 @@ echo ONBOARDING COMPLETE
 goto :eof
 
 REM --- :game NAME ZIP DEST SENTINEL ---
+REM NOTE: game NAMEs contain parentheses (e.g. "(BC Romania)"), so this
+REM       routine must NOT echo %NAME% inside a ( ... ) block - the ')' in
+REM       the expanded name closes the block early ("- was unexpected at
+REM       this time."). Use goto-based flow with plain-line echoes instead.
 :game
 set "NAME=%~1"
 set "ZIP=%~2"
 set "DST=%~3"
 set "SENT=%~4"
-if exist "%DST%\%SENT%" ( echo [skip] %NAME% - already installed & goto :eof )
-if not exist "%GAMES%\%ZIP%" ( echo [MISS] %NAME% - %ZIP% not on share & goto :eof )
+if exist "%DST%\%SENT%" goto :game_skip
+if not exist "%GAMES%\%ZIP%" goto :game_miss
 echo [stage] %NAME%
 copy /Y "%GAMES%\%ZIP%" "%STAGE%\%ZIP%" >nul
 if not exist "%DST%" md "%DST%"
 cscript //nologo "%UNZIP%" "%STAGE%\%ZIP%" "%DST%"
 del /q "%STAGE%\%ZIP%" >nul 2>&1
-if exist "%DST%\%SENT%" ( echo [ok]   %NAME% ) else ( echo [WARN] %NAME% - sentinel missing after extract )
+if not exist "%DST%\%SENT%" goto :game_warn
+echo [ok]   %NAME%
+goto :eof
+:game_skip
+echo [skip] %NAME% - already installed
+goto :eof
+:game_miss
+echo [MISS] %NAME% - %ZIP% not on share
+goto :eof
+:game_warn
+echo [WARN] %NAME% - sentinel missing after extract
 goto :eof
