@@ -30,7 +30,7 @@ MODE_RES = {3: "640x480", 4: "800x600", 6: "1024x768"}
 # install at CS16_DIR with a benchmark demo at cstrike\<CS16_DEMO>.dem, and the
 # 3dfx GL renderer selected (hl.exe -gl -gldrv, or opengl32/retrogl in the CS
 # dir). The Voodoo runs CS in OpenGL via our MesaFX ICD, same as Q3.
-CS16_DIR = r"C:\Counter-Strike 1.6"          # override with --cs16dir
+CS16_DIR = r"C:\Program Files\Counter-strike" # override with --cs16dir (found on .124)
 CS16_EXE = "hl.exe"
 CS16_DEMO = "bench"                            # cstrike\bench.dem
 CS16_RES = "640x480"
@@ -40,7 +40,7 @@ CS16_RES = "640x480"
 # <s> seconds: <fps> fps" line + GL_RENDERER) to baseq2\qconsole.log. It loads
 # our ICD via the `gl_driver` cvar (the deployed retrogl.dll). Needs ref_gl.dll
 # present (stock GL renderer) and demo1.dm2 in baseq2\.
-Q2_DIR = r"C:\Quake2"                          # override with --q2dir
+Q2_DIR = r"C:\Games\Quake2"                    # override with --q2dir (found on .124)
 Q2_EXE = "quake2.exe"
 Q2_DEMO = "demo1.dm2"
 Q2_GLDRIVER = "retrogl"                        # gl_driver -> our ICD DLL
@@ -299,7 +299,7 @@ async def quake2_timedemo(ip, q2dir, demo, gl_mode, gl_driver, env):
     await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 12)
     await asyncio.sleep(2)
     await exw(c, r'cmd /c cd /d "%s" ^&^& %sstart "" %s +set vid_ref gl +set gl_driver %s '
-                 r'+set gl_mode %d +set vid_fullscreen 1 +set logfile 2 +set s_initsound 0 '
+                 r'+set gl_bitdepth 16 +set gl_mode %d +set vid_fullscreen 1 +set logfile 2 +set s_initsound 0 '
                  r'+set timedemo 1 +demomap %s'
               % (q2dir, envcmd, Q2_EXE, gl_driver, gl_mode, demo), 15)
     await c.close()
