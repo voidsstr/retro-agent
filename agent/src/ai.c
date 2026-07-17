@@ -24,6 +24,29 @@
 
 static SOCKET g_infer_sock = INVALID_SOCKET;
 
+/* The agent is threaded per client (main.c); the engine socket is shared
+ * state, so AI commands serialize through one critical section. */
+static CRITICAL_SECTION g_ai_cs;
+static volatile LONG g_ai_cs_state = 0;   /* 0=uninit 1=initing 2=ready */
+
+static void ai_lock(void)
+{
+    LONG s = InterlockedCompareExchange(&g_ai_cs_state, 1, 0);
+    if (s == 0) {
+        InitializeCriticalSection(&g_ai_cs);
+        InterlockedExchange(&g_ai_cs_state, 2);
+    } else {
+        while (g_ai_cs_state != 2)
+            Sleep(1);
+    }
+    EnterCriticalSection(&g_ai_cs);
+}
+
+static void ai_unlock(void)
+{
+    LeaveCriticalSection(&g_ai_cs);
+}
+
 static void infer_disconnect(void)
 {
     if (g_infer_sock != INVALID_SOCKET) {
@@ -111,12 +134,14 @@ static int infer_ensure(void)
     return 1;
 }
 
-/* Round-trip: send cmd (+ optional payload frame), forward reply verbatim.
- * Retries once through a respawn if the engine connection is dead. */
-static void infer_proxy(SOCKET sock, const char *cmd,
-                        const char *payload, DWORD payload_len)
+/* Round-trip under the AI lock. Returns 0 and the raw reply (caller frees)
+ * on success. */
+static int infer_roundtrip(const char *cmd, const char *payload,
+                           DWORD payload_len, char **reply_out,
+                           DWORD *reply_len_out)
 {
     int attempt;
+    ai_lock();
     for (attempt = 0; attempt < 2; attempt++) {
         char *reply = NULL;
         DWORD reply_len = 0;
@@ -129,16 +154,136 @@ static void infer_proxy(SOCKET sock, const char *cmd,
             infer_disconnect();
             continue;   /* respawn + retry once */
         }
-        frame_send(sock, reply, reply_len);
-        HeapFree(GetProcessHeap(), 0, reply);
+        ai_unlock();
+        *reply_out = reply;
+        *reply_len_out = reply_len;
+        return 0;
+    }
+    ai_unlock();
+    return 1;
+}
+
+/* Round-trip: send cmd (+ optional payload frame), forward reply verbatim. */
+static void infer_proxy(SOCKET sock, const char *cmd,
+                        const char *payload, DWORD payload_len)
+{
+    char *reply = NULL;
+    DWORD reply_len = 0;
+    if (infer_roundtrip(cmd, payload, payload_len, &reply, &reply_len) != 0) {
+        send_error_response(sock, "AI engine unavailable");
         return;
     }
-    send_error_response(sock, "AI engine unavailable");
+    frame_send(sock, reply, reply_len);
+    HeapFree(GetProcessHeap(), 0, reply);
+}
+
+/* ---- host GPU detection + driver advice (for AI_HELLO augmentation) ---- */
+
+static void host_gpu_json(char *buf, int cap)
+{
+    DISPLAY_DEVICEA dd;
+    char name[128] = "", devid[128] = "";
+    int is_3dfx = 0, is_nvidia = 0, glide_ok = 0;
+    HMODULE h;
+    const char *flag;
+
+    memset(&dd, 0, sizeof(dd));
+    dd.cb = sizeof(dd);
+    if (EnumDisplayDevicesA(NULL, 0, &dd, 0)) {
+        safe_strncpy(name, dd.DeviceString, sizeof(name));
+        safe_strncpy(devid, dd.DeviceID, sizeof(devid));
+    }
+    is_3dfx = strstr(devid, "VEN_121A") != NULL ||
+              strstr(name, "3dfx") != NULL || strstr(name, "Voodoo") != NULL;
+    is_nvidia = strstr(devid, "VEN_10DE") != NULL ||
+                strstr(name, "NVIDIA") != NULL ||
+                strstr(name, "GeForce") != NULL;
+    h = LoadLibraryA("glide3x.dll");
+    if (h) {
+        glide_ok = 1;
+        FreeLibrary(h);
+    }
+
+    if (is_3dfx && !glide_ok)
+        flag = "3dfx GPU present but glide3x.dll is NOT loadable - stage "
+               "glide3x.dll next to the agent to enable the glide-mac AI "
+               "backend";
+    else if (is_3dfx && glide_ok)
+        flag = "ok: 3dfx GPU with loadable glide3x (glide-mac available)";
+    else if (is_nvidia)
+        flag = "NVIDIA GPU: nv-gl AI backend is code-ready but not yet "
+               "hardware-validated (roadmap M6)";
+    else
+        flag = "no known AI-capable GPU detected - CPU backends only";
+
+    _snprintf(buf, cap,
+              ",\"host_gpu\":{\"name\":\"%s\",\"is_3dfx\":%d,"
+              "\"is_nvidia\":%d,\"glide3x_loadable\":%d,"
+              "\"driver_flag\":\"%s\"}",
+              name, is_3dfx, is_nvidia, glide_ok, flag);
+    buf[cap - 1] = '\0';
 }
 
 void handle_ai_hello(SOCKET sock)
 {
-    infer_proxy(sock, "HELLO", NULL, 0);
+    char *reply = NULL;
+    DWORD reply_len = 0;
+    char gpu[512];
+    char *merged;
+    DWORD i, jend = 0;
+
+    if (infer_roundtrip("HELLO", NULL, 0, &reply, &reply_len) != 0) {
+        send_error_response(sock, "AI engine unavailable");
+        return;
+    }
+    /* splice host GPU info + driver advice before the JSON's final '}' */
+    host_gpu_json(gpu, sizeof(gpu));
+    for (i = reply_len; i > 1; i--) {
+        if (reply[i - 1] == '}') {
+            jend = i - 1;
+            break;
+        }
+    }
+    merged = (char *)HeapAlloc(GetProcessHeap(), 0,
+                               reply_len + strlen(gpu) + 4);
+    if (jend > 0 && merged) {
+        memcpy(merged, reply, jend);
+        memcpy(merged + jend, gpu, strlen(gpu));
+        merged[jend + strlen(gpu)] = '}';
+        frame_send(sock, merged, (DWORD)(jend + strlen(gpu) + 1));
+    } else {
+        frame_send(sock, reply, reply_len);
+    }
+    if (merged)
+        HeapFree(GetProcessHeap(), 0, merged);
+    HeapFree(GetProcessHeap(), 0, reply);
+}
+
+/* Startup status: probe (spawning if staged) and report AI readiness on the
+ * agent console + log, so the box itself shows when it can take AI work. */
+DWORD WINAPI ai_status_thread(LPVOID param)
+{
+    char *reply = NULL;
+    DWORD reply_len = 0;
+    char gpu[512];
+    (void)param;
+    Sleep(3000);   /* let listeners + shell settle */
+    host_gpu_json(gpu, sizeof(gpu));
+    if (infer_roundtrip("HELLO", NULL, 0, &reply, &reply_len) == 0) {
+        /* reply[0] is the status byte; the rest is the caps JSON */
+        printf("AI: READY for fleet AI requests\n");
+        if (reply_len > 1)
+            printf("AI: engine %.*s\n", (int)(reply_len - 1 > 300 ? 300 :
+                                              reply_len - 1), reply + 1);
+        printf("AI: host%s\n", gpu + 1);   /* skip leading comma */
+        log_msg(LOG_MAIN, "AI: engine ready%s", gpu);
+        HeapFree(GetProcessHeap(), 0, reply);
+    } else {
+        printf("AI: engine NOT available (retro-infer.exe not staged next "
+               "to the agent?) - AI commands will fail\n");
+        log_msg(LOG_MAIN, "AI: engine not available at startup");
+    }
+    return 0;
 }
 
 void handle_model_list(SOCKET sock)

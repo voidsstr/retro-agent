@@ -70,6 +70,8 @@ void handle_infer_run(SOCKET sock, const char *args);
 void handle_tensor(SOCKET sock, const char *args);
 void handle_ai_raw(SOCKET sock, const char *args);
 void handle_ai_rawp(SOCKET sock, const char *args);
+/* Startup AI readiness status (console + log) */
+DWORD WINAPI ai_status_thread(LPVOID param);
 
 /* Auto-map network drives at startup (no socket needed) */
 void automap_run_all(void);

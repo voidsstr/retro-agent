@@ -690,6 +690,11 @@ void agent_run(void)
      * kill the game + restore the display so the agent stays responsive. */
     CreateThread(NULL, 0, watchdog_thread, NULL, 0, NULL);
 
+    /* AI readiness: probe/spawn the retro-infer engine and report on the
+     * console + log whether this box can take fleet AI requests, with the
+     * detected GPU + driver advice. */
+    CreateThread(NULL, 0, ai_status_thread, NULL, 0, NULL);
+
     clients_init();
 
     /* Accept loop */

@@ -45,6 +45,7 @@ typedef int SOCKET;
 #include "serve.h"
 #include "train/nn_session.h"
 #include "train/gb_dist.h"
+#include "gpu/glide_mac.h"
 
 #define MAX_MODELS 8
 #define MAX_SLOTS 32
@@ -170,7 +171,7 @@ static tslot_t *find_slot(const char *name, int create)
 static void hello_json(char *buf, size_t cap)
 {
     cpu_caps_t caps;
-    int i, n = 0;
+    int i, n = 0, glide = glide_available();
     size_t off;
     cpu_detect(&caps);
     for (i = 0; i < MAX_MODELS; i++)
@@ -178,13 +179,23 @@ static void hello_json(char *buf, size_t cap)
             n++;
     off = (size_t)snprintf(buf, cap,
         "{\"engine\":\"retro-infer\",\"version\":\"%s\","
-        "\"backends\":[\"cpu-%s\"],\"precisions\":[\"f32\",\"i8\"],"
+        "\"backends\":[\"cpu-%s\"%s],"
+        "\"precisions\":[\"f32\",\"i8\",\"bin\"],"
         "\"kernel_f32\":\"%s\",\"kernel_i8\":\"%s\","
-        "\"isa\":{\"mmx\":%d,\"sse\":%d,\"sse2\":%d,\"3dnow\":%d},"
-        "\"resident_models\":%d}",
-        INFER_VERSION, g_kernels.gemm_f32_name, g_kernels.gemm_f32_name,
-        g_kernels.gemm_i8_name, caps.mmx, caps.sse, caps.sse2, caps.amd3dnow,
-        n);
+        "\"kernel_f32_nt\":\"%s\",\"kernel_f32_tn\":\"%s\","
+        "\"isa\":{\"mmx\":%d,\"sse\":%d,\"sse2\":%d,\"3dnow\":%d,"
+        "\"3dnowext\":%d},"
+        "\"gpu\":{\"glide3x_loadable\":%d},"
+        "\"resident_models\":%d,\"ready\":1}",
+        INFER_VERSION, g_kernels.gemm_f32_name,
+        glide ? ",\"glide-mac\"" : "",
+        g_kernels.gemm_f32_name, g_kernels.gemm_i8_name,
+        g_kernels.gemm_f32_nt == gemm_f32_nt_scalar ? "scalar"
+                                                    : g_kernels.gemm_f32_name,
+        g_kernels.gemm_f32_tn == gemm_f32_tn_scalar ? "scalar"
+                                                    : g_kernels.gemm_f32_name,
+        caps.mmx, caps.sse, caps.sse2, caps.amd3dnow, caps.amd3dnowext,
+        glide, n);
     (void)off;
 }
 
