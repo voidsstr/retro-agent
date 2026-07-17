@@ -51,19 +51,32 @@ renderer), `demo1.dm2` in `baseq2\`, and our ICD reachable as `retrogl.dll`
 `gl_driver`/`ref_gl` wiring (the same OpenGL-ICD path Q3 uses).
 
 CS 1.6
-uses GoldSrc's `timedemo <demo>` console command; `-condebug` mirrors the fps
-line to `cstrike\qconsole.log` (same `... frames ... seconds ... fps` shape as
-Q3), and `GL_RENDERER` still carries the `[retro3dfx 0.1.N]` stamp so the run
-self-documents. DB benchmark name: **`cs16-timedemo`**.
+plays a PRE-RECORDED demo via GoldSrc's `+timedemo <demo>` (fullscreen OpenGL,
+our ICD); the fps line (`... frames ... seconds ... fps`, same shape as Q3) goes
+to `qconsole.log`. DB benchmark name: **`cs16-timedemo`**. On .143 the tracked
+result is **~68 fps** (de_dust, 640x480, driver 0.1.3).
 
-**CS 1.6 prereqs (stage once per box):** a CS install at `--cs16dir`
-(default `C:\Counter-Strike 1.6`), a benchmark demo at `cstrike\<--cs16demo>.dem`
-(default `bench.dem`), and the OpenGL renderer selected so it uses our ICD
-(`hl.exe -gl`, with `opengl32.dll` = our ICD resolvable from the CS dir). If
-the demo file is absent the run records `None` fps (flagged, not silently
-averaged). Record any CS-specific demo/map in `--notes`. The `cs16-timedemo`
-row records the GoldSrc video knobs (`gl_texturemode`, `gl_max_size`, `gl_picmip`,
-`gl_overbright`, …) in `settings`.
+**Use the no-Steam Romania install.** The steam-emu build won't launch. The
+working target is `--cs16dir "C:\Program Files\Bcs16 Romania\Counter-Strike 1.6"`
+(BCShield 2.5 anti-cheat, build 4554; engine = `hl.exe`). It runs our ICD fine
+(`hl.exe -gl -full` → grSstWinOpen OK, "Multitexture extensions found").
+
+**BCShield gotchas (baked into `cs16_timedemo`):**
+- `-condebug` writes `qconsole.log` to the **CS ROOT / working dir**, NOT
+  `cstrike\` — the runner reads root first, then `cstrike\` as a fallback.
+- `timerefresh` is **BLOCKED** by BCShield (halts the cfg buffer) — do NOT use;
+  a pre-recorded demo + `+timedemo` is the only automatable fps path.
+- Fullscreen Glide blocks injected input (UIKEY) AND WM_CLOSE, so `taskkill /f`
+  is the only stop; the demo route needs no in-game input.
+
+**Record the demo ONCE per box** (`quit`/`record`/`stop` are NOT blocked). Listen
+servers exec `cstrike\listenserver.cfg` after map load — put in it: `chooseteam`;
+~20 `wait`; `menuselect 5`; ~20 `wait`; `menuselect 5`; ~220 `wait` (SPAWN);
+`record <demo>`; ~350 `wait`; `stop`; **~150 `wait` (flush — ESSENTIAL, else the
+.dem truncates → "Corrupt demo file")**; `quit`. Launch with
+`+sv_lan 1 +maxplayers 4 +map de_dust`. Clean demo ≈ 234 KB. Then benchmark with
+`--cs16demo <demo>` (a missing/corrupt demo records `None` fps, flagged not
+averaged). The `cs16-timedemo` row records the GoldSrc video knobs in `settings`.
 
 ### Quality / video-card settings — record EVERYTHING, cover permutations
 

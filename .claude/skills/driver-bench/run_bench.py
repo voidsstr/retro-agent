@@ -251,33 +251,47 @@ async def timedemo(ip, q3dir, mode, env, gldriver="retrogl", extra="", capture=F
 async def cs16_timedemo(ip, cs16dir, demo, env):
     """One CS 1.6 (GoldSrc) timedemo run. Returns (fps, gl_renderer).
 
-    Launches hl.exe in OpenGL with -condebug, autoexec'ing `timedemo <demo>`,
-    then scrapes cstrike\\qconsole.log for the fps line (GoldSrc prints
-    "<n> frames <s> seconds <fps> fps" just like the Q3 engine it descends from)
-    and the GL_RENDERER (carries our [retro3dfx 0.1.N] driver stamp).
+    Plays a PRE-RECORDED demo (cstrike\\<demo>.dem) via `+timedemo <demo>` in
+    fullscreen OpenGL (our 3dfx ICD) and scrapes qconsole.log for the fps line
+    ("<n> frames <s> seconds <fps> fps", same shape as Q3 — GoldSrc descends
+    from it). -condebug writes qconsole.log to the *working dir* (the CS root),
+    NOT cstrike\\ — we read root first, then cstrike\\ as a fallback for other
+    builds.
+
+    Method note (BCShield): the Romania/BC no-Steam build is anti-cheat-protected;
+    `timerefresh` is BLOCKED (halts the cfg command buffer), so a pre-recorded
+    demo + `+timedemo` is the only automatable fps path. Record the demo ONCE
+    (spawn via chooseteam/menuselect, `record <demo>`, wait, `stop` + flush waits,
+    `quit`) — see the driver-bench SKILL. `quit`/`record`/`stop` are NOT blocked.
     """
     envcmd = "".join("set %s^& " % kv for kv in env.split()) if env else ""
-    log = r"%s\cstrike\qconsole.log" % cs16dir
+    logs = (r"%s\qconsole.log" % cs16dir, r"%s\cstrike\qconsole.log" % cs16dir)
     c = await connect(ip)
     await kill_wait(c, CS16_EXE)
-    await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 12)
+    for lg in logs:
+        await exw(c, r'cmd /c del /f /q "%s" 2>nul' % lg, 12)
     await asyncio.sleep(2)
-    # -condebug -> qconsole.log ; -gl forces OpenGL ; +timedemo runs and prints fps.
-    # +sv_cheats/+fps_max 0 keep the demo from being frame-capped.
-    await exw(c, r'cmd /c cd /d "%s" ^&^& %sstart "" %s -steam -game cstrike -condebug -gl '
-                 r'-w 640 -h 480 +fps_max 0 +sv_cheats 1 +timedemo %s'
+    # -gl forces OpenGL (our ICD) ; -full = our fullscreen Glide ; +timedemo plays
+    # the demo (loads its own map) and prints the fps line. No -steam (non-Steam
+    # build) / no +sv_cheats (demo playback needs neither).
+    await exw(c, r'cmd /c cd /d "%s" ^&^& %sstart "" %s -game cstrike -gl -w 640 -h 480 -full '
+                 r'-condebug -console -noipx -nojoy +timedemo %s'
               % (cs16dir, envcmd, CS16_EXE, demo), 15)
     await c.close()
-    await asyncio.sleep(70)
+    await asyncio.sleep(45)
     c = await connect(ip)
     fps = gl = None
     for _ in range(4):
-        txt = await exw(c, r'cmd /c type "%s" 2>nul' % log, 20)
-        m = re.search(r"([\d.]+) frames\s+[\d.]+ seconds\s+([\d.]+) fps", txt) \
-            or re.search(r"frames, [\d.]+ seconds: ([\d.]+) fps", txt)
+        txt = ""
+        for lg in logs:
+            txt += await exw(c, r'cmd /c type "%s" 2>nul' % lg, 20)
+        # ignore the "-1 frames 1.000 seconds -1.000 fps" demo-load priming lines
+        cand = [mm for mm in re.finditer(r"(-?[\d.]+) frames\s+[\d.]+ seconds\s+(-?[\d.]+) fps", txt)
+                if float(mm.group(2)) > 0] \
+            or [mm for mm in re.finditer(r"frames, [\d.]+ seconds: ([\d.]+) fps", txt)]
         gl = next((l.split("GL_RENDERER:", 1)[1].strip() for l in txt.splitlines() if "GL_RENDERER" in l), gl)
-        if m:
-            fps = float(m.group(m.lastindex))
+        if cand:
+            fps = float(cand[-1].group(cand[-1].lastindex))
             break
         await asyncio.sleep(10)
     await kill_wait(c, CS16_EXE)
