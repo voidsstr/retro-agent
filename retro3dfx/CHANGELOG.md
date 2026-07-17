@@ -120,3 +120,26 @@ reference by ~16%.
 Remaining CPU-side gap at 640x480 (~ -30%) is the target of the queued deep
 work: SSE intrinsics vertex emit, SSE 4-wide cliptest (rcpps + Newton-Raphson
 replacing serial x87 fdiv), end-to-end ubyte colors.
+
+## Optimization campaign 2026-07-17 (0.1.7–0.1.11) — the "queued deep work", answered
+
+The queued CPU-side work above was attempted as one fork branch per idea, each
+A/B'd on `.124` (P3-845 Voodoo3) against the 58.8/51.3 baseline across the
+resolution × quality grid, every run in specpicks. **Result: the vertex path is
+already near-optimal — none of the fps optimizations merged.** This is a real,
+useful finding, not a failure: the stack that already beat AmigaMerlin and the
+era 3dfx ICD has little vertex headroom left on this card.
+
+| Ver / branch | Change | 640x480 | Verdict |
+|---|---|---|---|
+| 0.1.7 `opt/lto` | `-O3 -funroll-loops` (was `-O2`) | 58.7 | **INERT** — the hot path is already SSE; `-O` can't remove the algorithmic cost. Not merged. |
+| 0.1.8/0.1.9 `opt/sse-cliptest` | SSE 4-wide cliptest + `rcpps`+Newton perspective divide (transpose-load in 0.1.9) | 38.7 | **REGRESSION** — Josh Vanderhoof's hand-tuned x86-asm cliptest beats C intrinsics at the CPU-bound res. Renders correctly (4.5/255). Confirms the cliptest *is* a real hot-path lever — just already optimal. Dropped. |
+| 0.1.10 `opt/sse-emit` | SSE `movaps` viewport emit (vs 3 scalar MACs) | 58.7 | **INERT** — emit is a negligible fraction of the frame. Renders identically (0.60/255). Not merged. |
+| **0.1.11 `opt/lod-bias`** | **QUALITY: default `-0.5` texture LOD bias** | (quality) | **MERGE candidate** — sharpens textures on the V3 bilinear+nearest-mip path (classic 3dfx trick); `FX_LOD_BIAS` env-tunable. |
+
+**Conclusion for the MesaFX/V3 lane:** the transform is SSE (`sse.c`), the
+cliptest is tuned asm, the emit is small, and the V3 is single-TMU (no
+multitexture single-pass lever, unlike the Voodoo5 lane). The remaining wins on
+this card are **quality** (LOD bias) and higher-res/quality coverage, not vertex
+fps. The 640x480 gap to the era P3-850/933 references is CPU-clock (845 MHz) +
+engine, not driver inefficiency.
