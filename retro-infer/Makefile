@@ -25,8 +25,11 @@ LDFLAGS = -lkernel32 -luser32 -lws2_32 -static
 
 OBJDIR = build
 BASE_SRCS = src/main.c src/cpuid.c src/tensor.c src/kernels.c src/bench.c \
-            src/rim.c src/json.c src/exec.c src/port.c \
-            src/ops/gemm_scalar.c src/ops/nn.c
+            src/rim.c src/rim_save.c src/json.c src/exec.c src/port.c \
+            src/serve.c \
+            src/ops/gemm_scalar.c src/ops/nn.c \
+            src/train/tutil.c src/train/trees.c src/train/train_nn.c \
+            src/train/gbdt.c src/train/forest.c src/train/svm.c
 SSE_SRCS  = src/ops/gemm_sse.c
 MMX_SRCS  = src/ops/gemm_mmx.c
 DNOW_SRCS = src/ops/gemm_3dnow.c
@@ -36,7 +39,9 @@ SSE_OBJS  = $(patsubst src/%.c,$(OBJDIR)/%.sse.o,$(SSE_SRCS))
 MMX_OBJS  = $(patsubst src/%.c,$(OBJDIR)/%.mmx.o,$(MMX_SRCS))
 DNOW_OBJS = $(patsubst src/%.c,$(OBJDIR)/%.3dnow.o,$(DNOW_SRCS))
 
-HDRS = src/infer.h src/json.h src/exec.h src/ops/nn.h
+HDRS = src/infer.h src/json.h src/exec.h src/port.h src/ops/nn.h \
+       src/train/tutil.h src/train/trees.h src/train/train_nn.h \
+       src/train/gbdt.h
 
 .PHONY: all clean release
 

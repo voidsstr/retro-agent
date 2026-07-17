@@ -69,6 +69,13 @@ static const cmd_entry_t commands[] = {
     { "STATUS_SET", 1, NULL,            handle_status_set },
     { "STATUS_GET", 0, handle_status_get, NULL },
     { "STATUS_WAIT",1, NULL,            handle_status_wait },
+    { "AI_HELLO",   0, handle_ai_hello,   NULL },
+    { "AI_RESTART", 0, handle_ai_restart, NULL },
+    { "MODEL_LOAD", 1, NULL,            handle_model_load },
+    { "MODEL_UNLOAD",1, NULL,           handle_model_unload },
+    { "MODEL_LIST", 0, handle_model_list, NULL },
+    { "INFER_RUN",  1, NULL,            handle_infer_run },
+    { "TENSOR",     1, NULL,            handle_tensor },
     { NULL,         0, NULL,              NULL }
 };
 

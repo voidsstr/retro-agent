@@ -2,7 +2,7 @@
 retro_discovery.py - UDP discovery for retro_agent instances on the LAN.
 
 Agents broadcast on UDP port 9899 every 30s:
-    RETRO|<hostname>|<ip>|<port>|<os>|<cpu>|<ram_mb>[|<os_family>]
+    RETRO|<hostname>|<ip>|<port>|<os>|<cpu>|<ram_mb>[|<os_family>][|ai=0/1]
 
 We can also send "DISCOVER" to trigger immediate responses.
 """
@@ -21,7 +21,7 @@ class RetroPC:
     """Represents a discovered retro PC."""
 
     def __init__(self, hostname: str, ip: str, port: int, os: str, cpu: str,
-                 ram_mb: int, os_family: str = ""):
+                 ram_mb: int, os_family: str = "", ai: bool = False):
         self.hostname = hostname
         self.ip = ip
         self.port = port
@@ -29,6 +29,7 @@ class RetroPC:
         self.cpu = cpu
         self.ram_mb = ram_mb
         self.os_family = os_family or self._infer_os_family(os)
+        self.ai = ai  # retro-infer engine staged (AI_HELLO for capability detail)
         self.last_seen = time.time()
 
     @staticmethod
@@ -52,6 +53,7 @@ class RetroPC:
             "cpu": self.cpu,
             "ram_mb": self.ram_mb,
             "os_family": self.os_family,
+            "ai": self.ai,
             "last_seen_ago": f"{time.time() - self.last_seen:.0f}s",
         }
 
@@ -63,6 +65,7 @@ class RetroPC:
             return None
         try:
             os_family = parts[7] if len(parts) >= 8 else ""
+            ai = any(p == "ai=1" for p in parts[8:])
             return RetroPC(
                 hostname=parts[1],
                 ip=parts[2],
@@ -71,6 +74,7 @@ class RetroPC:
                 cpu=parts[5],
                 ram_mb=int(parts[6]),
                 os_family=os_family,
+                ai=ai,
             )
         except (ValueError, IndexError):
             return None

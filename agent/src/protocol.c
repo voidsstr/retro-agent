@@ -208,7 +208,18 @@ void discovery_build_packet(char *buf, int bufsize, const char *hostname,
                             const char *ip, int port, const char *os_str,
                             const char *cpu_str, DWORD ram_mb)
 {
-    _snprintf(buf, bufsize, "RETRO|%s|%s|%d|%s|%s|%lu|windows",
-              hostname, ip, port, os_str, cpu_str, (unsigned long)ram_mb);
+    /* Field 8 ("ai=0/1") is optional for parsers; advertises that the
+     * retro-infer engine is staged next to the agent (AI_HELLO for detail) */
+    char exe[MAX_PATH + 32];
+    char *p;
+    int ai = 0;
+    GetModuleFileNameA(NULL, exe, MAX_PATH);
+    p = strrchr(exe, '\\');
+    if (p) {
+        strcpy(p + 1, "retro-infer.exe");
+        ai = GetFileAttributesA(exe) != 0xFFFFFFFF;
+    }
+    _snprintf(buf, bufsize, "RETRO|%s|%s|%d|%s|%s|%lu|windows|ai=%d",
+              hostname, ip, port, os_str, cpu_str, (unsigned long)ram_mb, ai);
     buf[bufsize - 1] = '\0';
 }

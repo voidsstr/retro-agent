@@ -119,6 +119,9 @@ TOOL_NAMES = [
     "mcp__retro__retro_list_machines",
     "mcp__retro__retro_command",
     "mcp__retro__retro_screenshot",
+    "mcp__retro__ai_list",
+    "mcp__retro__ai_load",
+    "mcp__retro__ai_infer",
 ]
 
 
@@ -268,8 +271,158 @@ def build_retro_server(origin_host=None):
 
         return await _with_conn(host, run)
 
+    @tool(
+        "ai_list",
+        "Fleet AI: list which retro machines can run ML (retro-infer engine), with "
+        "backend/precision/kernel detail and resident models. Answers 'which "
+        "machines can do AI?'. Checks the known fleet + discovery beacon ai flag, "
+        "then queries AI_HELLO + MODEL_LIST on each AI-capable box.",
+        {"type": "object", "properties": {}},
+    )
+    async def ai_list(args):
+        del args
+        hosts = []
+        if get_known_pcs is not None:
+            try:
+                for pc in get_known_pcs() or []:
+                    ip = getattr(pc, "ip", None) or str(pc)
+                    hosts.append(ip)
+            except Exception:  # noqa: BLE001
+                pass
+        if discover_retro_pcs is not None:
+            try:
+                for pc in await discover_retro_pcs(timeout=3.0) or []:
+                    ip = getattr(pc, "ip", None)
+                    if ip and ip not in hosts:
+                        hosts.append(ip)
+            except Exception:  # noqa: BLE001
+                pass
+        if origin_host and origin_host not in hosts:
+            hosts.append(origin_host)
+        if not hosts:
+            return _text("no machines found")
+
+        lines = []
+        for ip in hosts:
+            async def probe(conn):
+                import json as _json
+                try:
+                    hello = _json.loads(await conn.command_text("AI_HELLO", timeout=30))
+                except Exception as e:  # noqa: BLE001
+                    return f"{ip}: no AI engine ({e})"
+                try:
+                    models = _json.loads(await conn.command_text("MODEL_LIST", timeout=15))
+                    names = [m["name"] for m in models.get("models", [])]
+                except Exception:  # noqa: BLE001
+                    names = []
+                return (f"{ip}: AI READY engine v{hello.get('version')} "
+                        f"backends={hello.get('backends')} "
+                        f"kernels={hello.get('kernel_f32')}/{hello.get('kernel_i8')} "
+                        f"models={names or '(none)'}")
+
+            try:
+                res = await _with_conn(ip, probe)
+                lines.append(res if isinstance(res, str) else
+                             res["content"][0]["text"])
+            except Exception as e:  # noqa: BLE001
+                lines.append(f"{ip}: unreachable ({e})")
+        return _text("\n".join(lines))
+
+    @tool(
+        "ai_load",
+        "Fleet AI: push a .rim model file from this server's disk to a retro "
+        "machine and make it resident for INFER_RUN. model_path is a local path "
+        "(e.g. under tools/rim/out/); name is the resident model name.",
+        {
+            "type": "object",
+            "properties": {
+                "host": {"type": "string", "description": "Target IP (default: origin)"},
+                "name": {"type": "string", "description": "Resident model name (alnum/-/_)"},
+                "model_path": {"type": "string", "description": "Local .rim file path"},
+            },
+            "required": ["name", "model_path"],
+        },
+    )
+    async def ai_load(args):
+        try:
+            host = _resolve_host(args)
+        except ValueError as e:
+            return _err(str(e))
+        name = (args.get("name") or "").strip()
+        path = (args.get("model_path") or "").strip()
+        try:
+            rim = open(path, "rb").read()
+        except OSError as e:
+            return _err(f"cannot read {path}: {e}")
+
+        async def run(conn):
+            status, data = await conn.send_command(
+                f"MODEL_LOAD {name}", binary_payload=rim, timeout=120)
+            text = data.decode("ascii", errors="replace")
+            if status == 0xFF:
+                return _err(f"MODEL_LOAD failed: {text}")
+            return _text(f"loaded '{name}' ({len(rim)} bytes) on {host}: {text}")
+
+        return await _with_conn(host, run)
+
+    @tool(
+        "ai_infer",
+        "Fleet AI: run inference on a resident model on a retro machine. Input is "
+        "a local file of raw input bytes (e.g. one 784-byte MNIST image), or omit "
+        "input_path and pass sample_index to slice one sample from a local eval "
+        "images.bin whose sample size matches the model. Returns the logits and "
+        "argmax class.",
+        {
+            "type": "object",
+            "properties": {
+                "host": {"type": "string", "description": "Target IP (default: origin)"},
+                "name": {"type": "string", "description": "Resident model name"},
+                "input_path": {"type": "string", "description": "Local raw input file"},
+                "sample_index": {"type": "integer",
+                                  "description": "Sample # when input_path holds many"},
+                "sample_bytes": {"type": "integer",
+                                  "description": "Bytes per sample (with sample_index)"},
+            },
+            "required": ["name", "input_path"],
+        },
+    )
+    async def ai_infer(args):
+        try:
+            host = _resolve_host(args)
+        except ValueError as e:
+            return _err(str(e))
+        name = (args.get("name") or "").strip()
+        path = (args.get("input_path") or "").strip()
+        try:
+            blob = open(path, "rb").read()
+        except OSError as e:
+            return _err(f"cannot read {path}: {e}")
+        idx = args.get("sample_index")
+        if idx is not None:
+            sb = int(args.get("sample_bytes") or 784)
+            blob = blob[int(idx) * sb:(int(idx) + 1) * sb]
+        if not blob:
+            return _err("empty input")
+
+        async def run(conn):
+            import struct as _struct
+            status, data = await conn.send_command(
+                f"INFER_RUN {name}", binary_payload=blob, timeout=120)
+            if status == 0xFF:
+                return _err(
+                    f"INFER_RUN failed: {data.decode('ascii', errors='replace')}")
+            n = len(data) // 4
+            logits = _struct.unpack(f"<{n}f", data[: n * 4])
+            best = max(range(n), key=lambda i: logits[i])
+            return _text(
+                f"{host} model={name} argmax={best} logits=" +
+                "[" + ", ".join(f"{v:.5f}" for v in logits) + "]")
+
+        return await _with_conn(host, run)
+
     return create_sdk_mcp_server(
         "retro",
         version="1.0.0",
-        tools=[retro_list_machines, retro_command, retro_screenshot],
+        tools=[retro_list_machines, retro_command, retro_screenshot,
+               ai_list, ai_load, ai_infer],
     )

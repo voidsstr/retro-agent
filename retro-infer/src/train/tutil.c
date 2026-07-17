@@ -154,3 +154,17 @@ double metric_rmse(const float *pred, const float *target, int n)
     }
     return sqrt(s / (double)n);
 }
+
+double metric_logloss_binary(const float *scores, const unsigned char *labels,
+                             int n)
+{
+    double s = 0.0;
+    int i;
+    for (i = 0; i < n; i++) {
+        double p = labels[i] ? (double)scores[i] : 1.0 - (double)scores[i];
+        if (p < 1e-12)
+            p = 1e-12;
+        s -= log(p);
+    }
+    return s / (double)n;
+}

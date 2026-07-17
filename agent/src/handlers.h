@@ -60,6 +60,15 @@ void handle_status_set(SOCKET sock, const char *args);
 void handle_status_get(SOCKET sock);
 void handle_status_wait(SOCKET sock, const char *args);
 
+/* Fleet AI transport (ai.c) - proxies to retro-infer --serve on :9896 */
+void handle_ai_hello(SOCKET sock);
+void handle_ai_restart(SOCKET sock);
+void handle_model_load(SOCKET sock, const char *args);
+void handle_model_unload(SOCKET sock, const char *args);
+void handle_model_list(SOCKET sock);
+void handle_infer_run(SOCKET sock, const char *args);
+void handle_tensor(SOCKET sock, const char *args);
+
 /* Auto-map network drives at startup (no socket needed) */
 void automap_run_all(void);
 

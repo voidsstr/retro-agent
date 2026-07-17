@@ -38,6 +38,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/audio.c \
           $(SRCDIR)/sysfix.c \
           $(SRCDIR)/licstatus.c \
+          $(SRCDIR)/ai.c \
           $(SRCDIR)/chatproxy.c \
           $(SRCDIR)/autoupdate.c \
           $(SRCDIR)/retrowall.c \

@@ -18,6 +18,9 @@
 #include "infer.h"
 #include "exec.h"
 #include "port.h"
+#include "train/train_nn.h"
+#include "train/gbdt.h"
+#include "serve.h"
 
 static void print_selfcheck(void)
 {
@@ -227,7 +230,7 @@ static int do_eval(const char *mpath, const char *ipath, const char *lpath,
 int main(int argc, char **argv)
 {
     cpu_caps_t caps;
-    int i, force_scalar = 0;
+    int i, force_scalar = 0, regress = 0;
     const char *logits_out = NULL;
 
     cpu_detect(&caps);
@@ -237,6 +240,10 @@ int main(int argc, char **argv)
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--scalar") == 0) {
             force_scalar = 1;
+            memmove(&argv[i], &argv[i + 1], (size_t)(argc - i - 1) * sizeof(char *));
+            argc--; i--;
+        } else if (strcmp(argv[i], "--regress") == 0) {
+            regress = 1;
             memmove(&argv[i], &argv[i + 1], (size_t)(argc - i - 1) * sizeof(char *));
             argc--; i--;
         } else if (strcmp(argv[i], "--logits") == 0 && i + 1 < argc) {
@@ -262,11 +269,72 @@ int main(int argc, char **argv)
         return do_infer(argv[2], argv[3]);
     if (argc >= 6 && strcmp(argv[1], "--eval") == 0)
         return do_eval(argv[2], argv[3], argv[4], atoi(argv[5]), logits_out);
+    /* default 9896: the agent itself owns 9897 (AGENT_TCP_PORT_ALT) */
+    if (argc >= 2 && strcmp(argv[1], "--serve") == 0)
+        return serve_run(argc >= 3 ? atoi(argv[2]) : 9896);
+    if (argc >= 15 && strcmp(argv[1], "--train-mlp") == 0) {
+        train_nn_cfg_t c;
+        memset(&c, 0, sizeof(c));
+        c.train_x = argv[2]; c.train_y = argv[3]; c.n_train = atoi(argv[4]);
+        c.test_x = argv[5]; c.test_y = argv[6]; c.n_test = atoi(argv[7]);
+        c.arch = argv[8]; c.epochs = atoi(argv[9]);
+        c.lr = (float)atof(argv[10]); c.momentum = (float)atof(argv[11]);
+        c.batch = atoi(argv[12]); c.seed = atoi(argv[13]);
+        c.out_rim = argv[14];
+        c.input_u8_div255 = 1;
+        if (c.batch < 1 || c.batch > 1024) {
+            printf("train: FAIL: batch must be 1..1024\n");
+            return 1;
+        }
+        return train_nn_run(&c);
+    }
+    if (argc >= 12 && strcmp(argv[1], "--train-gbdt") == 0) {
+        gbdt_cfg_t c;
+        memset(&c, 0, sizeof(c));
+        c.features = argv[2]; c.labels = argv[3];
+        c.n = atoi(argv[4]); c.f = atoi(argv[5]);
+        c.val_frac = (float)atof(argv[6]);
+        c.rounds = atoi(argv[7]); c.depth = atoi(argv[8]);
+        c.min_child = atoi(argv[9]);
+        c.lr = (float)atof(argv[10]); c.lambda = (float)atof(argv[11]);
+        c.regress = regress;
+        return gbdt_run(&c);
+    }
+    if (argc >= 10 && strcmp(argv[1], "--train-rf") == 0) {
+        forest_cfg_t c;
+        memset(&c, 0, sizeof(c));
+        c.features = argv[2]; c.labels = argv[3];
+        c.n = atoi(argv[4]); c.f = atoi(argv[5]);
+        c.val_frac = (float)atof(argv[6]);
+        c.n_trees = atoi(argv[7]); c.depth = atoi(argv[8]);
+        c.min_child = 1;
+        c.seed = atoi(argv[9]);
+        return forest_run(&c);
+    }
+    if (argc >= 10 && strcmp(argv[1], "--train-svm") == 0) {
+        svm_cfg_t c;
+        memset(&c, 0, sizeof(c));
+        c.features = argv[2]; c.labels = argv[3];
+        c.n = atoi(argv[4]); c.f = atoi(argv[5]);
+        c.val_frac = (float)atof(argv[6]);
+        c.epochs = atoi(argv[7]);
+        c.lr = (float)atof(argv[8]); c.reg = (float)atof(argv[9]);
+        c.seed = argc >= 11 ? atoi(argv[10]) : 42;
+        return svm_run(&c);
+    }
 
     printf("retro-infer v%s\n", INFER_VERSION);
     printf("usage: retro-infer --selfcheck | --version | --riminfo <m.rim>\n");
     printf("       retro-infer --infer <m.rim> <input.bin>\n");
     printf("       retro-infer --eval <m.rim> <imgs.bin> <lbls.bin> <N> "
            "[--logits <out.bin>] [--scalar]\n");
+    printf("       retro-infer --train-mlp <trX> <trY> <Ntr> <teX> <teY> <Nte>"
+           " <arch> <epochs> <lr> <mom> <batch> <seed> <out.rim|->\n");
+    printf("       retro-infer --train-gbdt <feat> <lab> <N> <F> <valfrac>"
+           " <rounds> <depth> <minchild> <lr> <lambda> [--regress]\n");
+    printf("       retro-infer --train-rf <feat> <lab> <N> <F> <valfrac>"
+           " <ntrees> <depth> <seed>\n");
+    printf("       retro-infer --train-svm <feat> <lab> <N> <F> <valfrac>"
+           " <epochs> <lr> <reg> [seed]\n");
     return 1;
 }

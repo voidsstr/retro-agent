@@ -26,5 +26,7 @@ double metric_auc(const float *scores, const unsigned char *labels, int n);
 void metric_prf(const float *scores, const unsigned char *labels, int n,
                 double *precision, double *recall, double *f1);
 double metric_rmse(const float *pred, const float *target, int n);
+double metric_logloss_binary(const float *scores, const unsigned char *labels,
+                             int n);
 
 #endif
