@@ -24,8 +24,11 @@ recover — be deliberate, back up first, and follow the fleet rules in CLAUDE.m
 - **Target IP** — the XP Voodoo box. Known fit: `.124` ("ADMIN", XP SP3,
   Voodoo3 AGP). If the user doesn't name a machine and more than one candidate
   exists, ask.
-- **Package dir** — newest `toolchain-3dfx/dist/3dfx-napalm-xp-*/` (glob, sort,
-  take latest). If `dist/` has no package yet, build one first (next section).
+- **Package dir** — newest
+  `/home/voidsstr/development/retro-3dfx/toolchain-3dfx/dist/3dfx-napalm-xp-*/`
+  (glob, sort, take latest — the 3dfx source + toolchain live in the sibling
+  **retro-3dfx** repo, not here). If `dist/` has no package yet, build one
+  first (next section).
 
 ## Package layout (build it if missing)
 
@@ -34,7 +37,7 @@ more, or the INF copy step fails on missing files:
 
 ```
 3dfx-napalm-xp-<ver>/
-  3dfxvsm.sys      # miniport  — toolchain-3dfx/prefix/drive_c/3dfx/H5/W2K/Src/Video/Miniport/H5/objfre/i386/3dfxvsm.sys (195812 B)
+  3dfxvsm.sys      # miniport  — <retro-3dfx>/toolchain-3dfx/prefix/drive_c/3dfx/H5/W2K/Src/Video/Miniport/H5/objfre/i386/3dfxvsm.sys (195812 B)
   3dfxvs.dll       # display   — .../W2K/Src/Video/Displays/H5/objfre/i386/3dfxvs.dll (595180 B)
   glide3x.dll      # Glide3    — .../H5/BIN/glide3x.dll (335872 B, 96 exports)
   fxoem2x.dll      # OEM lib   — .../H5/BIN/fxoem2x.dll
