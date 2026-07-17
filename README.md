@@ -339,6 +339,21 @@ Discovery: agents broadcast `RETRO|hostname|ip|port|os|cpu|ram_mb|os_family` on 
 | `LOG_CLEAR` | any | Reset prompt, log, and status |
 | `PROXY_GET` / `PROXY_SET <host>` | any | Read/write the owning dev box IP |
 
+### Fleet AI (agent v1.9.0+)
+The agent proxies these to a supervised `retro-infer.exe --serve` engine on
+`127.0.0.1:9896` (crash-isolated). See the
+[Fleet AI docs](retro-infer/README.md#documentation).
+
+| Command | Description | Response |
+|---------|-------------|----------|
+| `AI_HELLO` | Advertise ML capability: CPU/GPU backends, kernels, ISA, resident models, `ready`, and a host-GPU **`driver_flag`** | JSON |
+| `MODEL_LOAD <name>` | Push a `.rim` model (two-frame, like UPLOAD) and make it resident | text |
+| `MODEL_LIST` / `MODEL_UNLOAD <name>` | Enumerate / evict resident models | JSON / text |
+| `INFER_RUN <name>` | Run inference (two-frame: input bytes → fp32 logits) | binary |
+| `TENSOR PUT/GET/DEL <slot>` | Typed tensor store (activations, gradients) | binary/text |
+| `AI_RAW` / `AI_RAWP <cmd>` | Pass any engine verb through (NT\*/GB\* training, etc.) | passthrough |
+| `AI_RESTART` | Hard-restart the engine (hung GPU backend recovery) | text |
+
 ### Linux-Only
 | Command | Description |
 |---------|-------------|
