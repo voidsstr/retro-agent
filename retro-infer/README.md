@@ -5,6 +5,28 @@ a single ~130KB static Win32 binary (same MinGW i586 toolchain as the agent,
 runs on Win98SE+) that trains and runs ML models on 1998–2004 hardware, plus
 a native Linux build (`make host`) for fast parity iteration.
 
+## Documentation
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — the 5-layer system
+  (engine / GPU backends / agent transport / brain / metrics), data-flow
+  walkthroughs, process + threading model
+- [`docs/ALGORITHMS.md`](docs/ALGORITHMS.md) — the math per file: GEMM
+  kernels + ISA dispatch, int8 quantization, BNN/XNOR, the Glide GEMM
+  method, GBDT/RF/MLP/SVM, allreduce, determinism rules
+- [`docs/MODELS.md`](docs/MODELS.md) — the model zoo: artifacts, trainers,
+  datasets, achieved numbers
+- [`docs/TRAINING-AND-INFERENCE.md`](docs/TRAINING-AND-INFERENCE.md) —
+  runbook: build, dataset/zoo export, parity tests, deploy, remote
+  inference, on-device + fleet training, GPU acceptance, ai_runs logging
+- [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md) — deploy/version story,
+  fleet gotchas, how to add ops/kernels/models, security notes
+
+Specs: [`tools/rim/FORMAT.md`](../tools/rim/FORMAT.md) (.rim container),
+[`tools/rim/bnn/BNN-SPEC.md`](../tools/rim/bnn/BNN-SPEC.md) (integer XNOR).
+Plan + acceptance: [`docs/roadmap-fleet-ai.md`](../docs/roadmap-fleet-ai.md).
+Per-machine record:
+[`docs/machines/ai-capability-profiles.md`](../docs/machines/ai-capability-profiles.md).
+
 ## Build
 
 ```bash
