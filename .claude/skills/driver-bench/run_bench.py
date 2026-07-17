@@ -538,14 +538,14 @@ async def main():
             label = Q2_MODES.get(mode, "mode%d" % mode)
             for run in range(1, args.runs + 1):
                 fps, gl = await quake2_timedemo(args.ip, args.q2dir, args.q2demo,
-                                                mode, Q2_GLDRIVER, args.env)
+                                                mode, args.gldriver, args.env)
                 ver = ver_of(gl)
                 runs.append({"benchmark": "q2-timedemo", "resolution": label, "mode": mode,
                              "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
                              "settings": {"resolution": label, "gl_mode": mode,
                                           "engine": "idTech2/quake2.exe", "demo": args.q2demo,
                                           "renderer": "OpenGL (our ICD via gl_driver)",
-                                          "gl_driver": Q2_GLDRIVER, "colorbits": "16",
+                                          "gl_driver": args.gldriver, "colorbits": "16",
                                           "vid_fullscreen": "1",
                                           "fsaa": "none (Voodoo3 has no T-buffer)"}})
                 print("q2 %s run %d: %s fps [driver %s]" % (label, run, fps, ver))
