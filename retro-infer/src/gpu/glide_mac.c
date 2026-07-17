@@ -190,6 +190,40 @@ static struct {
     p_grDitherMode DitherMode;
 } G;
 
+static HWND g_hwnd;
+
+static LRESULT CALLBACK glide_wndproc(HWND h, UINT m, WPARAM w, LPARAM l)
+{
+    return DefWindowProcA(h, m, w, l);
+}
+
+/* Our glide3x requires a real window handle for grSstWinOpen. */
+static HWND make_window(void)
+{
+    WNDCLASSA wc;
+    HWND hwnd;
+    MSG msg;
+    memset(&wc, 0, sizeof(wc));
+    wc.lpfnWndProc = glide_wndproc;
+    wc.hInstance = GetModuleHandleA(NULL);
+    wc.lpszClassName = "retro-infer-glide";
+    wc.hCursor = LoadCursorA(NULL, (const char *)32512 /* IDC_ARROW */);
+    RegisterClassA(&wc);
+    hwnd = CreateWindowExA(0, "retro-infer-glide", "retro-infer glide-mac",
+                           WS_POPUP, 0, 0, 640, 480, NULL, NULL,
+                           wc.hInstance, NULL);
+    if (!hwnd)
+        return NULL;
+    ShowWindow(hwnd, SW_SHOWNORMAL);
+    SetForegroundWindow(hwnd);
+    UpdateWindow(hwnd);
+    while (PeekMessageA(&msg, NULL, 0, 0, 1 /* PM_REMOVE */)) {
+        TranslateMessage(&msg);
+        DispatchMessageA(&msg);
+    }
+    return hwnd;
+}
+
 static FARPROC bind1(const char *plain, const char *decorated)
 {
     FARPROC p = GetProcAddress(G.dll, plain);
@@ -261,10 +295,19 @@ int glide_init(char *err, size_t errlen)
     G.Finish = (p_grFinish)bind1("grFinish", "_grFinish@0"); /* optional */
     G.DitherMode = (p_grDitherMode)bind1("grDitherMode", "_grDitherMode@4");
 
+    g_hwnd = make_window();
+    if (!g_hwnd) {
+        if (err && errlen)
+            strncpy(err, "CreateWindow failed", errlen - 1);
+        FreeLibrary(G.dll);
+        G.dll = NULL;
+        return 1;
+    }
     G.GlideInit();
     G.SstSelect(0);
-    G.ctx = G.SstWinOpen(0, GR_RESOLUTION_640x480, GR_REFRESH_60Hz,
-                         GR_COLORFORMAT_ARGB, GR_ORIGIN_UPPER_LEFT, 2, 0);
+    G.ctx = G.SstWinOpen((FxU32)(ULONG_PTR)g_hwnd, GR_RESOLUTION_640x480,
+                         GR_REFRESH_60Hz, GR_COLORFORMAT_ARGB,
+                         GR_ORIGIN_UPPER_LEFT, 2, 0);
     if (!G.ctx) {
         if (err && errlen)
             strncpy(err, "grSstWinOpen failed (no Voodoo?)", errlen - 1);
@@ -306,6 +349,10 @@ void glide_shutdown(void)
     G.GlideShutdown();
     FreeLibrary(G.dll);
     memset(&G, 0, sizeof(G));
+    if (g_hwnd) {
+        DestroyWindow(g_hwnd);
+        g_hwnd = NULL;
+    }
 }
 
 /* Download a 256x256 ALPHA_8 texture; slot 0..3 within a TMU. */
@@ -317,7 +364,8 @@ static void tex_download(int tmu, int slot, const unsigned char *texels)
     info.aspectRatioLog2 = GR_ASPECT_LOG2_1x1;
     info.format = GR_TEXFMT_ALPHA_8;
     info.data = (void *)texels;
-    G.TexDownloadMipMap(tmu, G.tex_base[tmu] + (FxU32)slot * 65536, 0, &info);
+    /* evenOdd = BOTH (0x3): with 0 no mipmap level is written at all */
+    G.TexDownloadMipMap(tmu, G.tex_base[tmu] + (FxU32)slot * 65536, 3, &info);
 }
 
 static void tex_use(int tmu, int slot)
@@ -328,7 +376,7 @@ static void tex_use(int tmu, int slot)
     info.aspectRatioLog2 = GR_ASPECT_LOG2_1x1;
     info.format = GR_TEXFMT_ALPHA_8;
     info.data = NULL;
-    G.TexSource(tmu, G.tex_base[tmu] + (FxU32)slot * 65536, 0, &info);
+    G.TexSource(tmu, G.tex_base[tmu] + (FxU32)slot * 65536, 3, &info);
 }
 
 /* draw a wxh quad at origin sampling t=trow of TMU0 (s along y => i) and

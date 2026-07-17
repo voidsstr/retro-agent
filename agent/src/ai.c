@@ -276,6 +276,35 @@ void handle_tensor(SOCKET sock, const char *args)
     }
 }
 
+/* AI_RAW <engine cmd...>: forward any serve command with no payload frame.
+ * AI_RAWP <engine cmd...>: same but a payload frame follows (two-frame).
+ * Generic pass-through so new engine verbs (NTINIT/NTSTEP/...) need no
+ * agent release. */
+void handle_ai_raw(SOCKET sock, const char *args)
+{
+    if (!args || !args[0]) {
+        send_error_response(sock, "AI_RAW requires an engine command");
+        return;
+    }
+    infer_proxy(sock, args, NULL, 0);
+}
+
+void handle_ai_rawp(SOCKET sock, const char *args)
+{
+    char *data = NULL;
+    DWORD data_len = 0;
+    if (!args || !args[0]) {
+        send_error_response(sock, "AI_RAWP requires an engine command");
+        return;
+    }
+    if (frame_recv(sock, &data, &data_len) != 0) {
+        send_error_response(sock, "Failed to receive payload");
+        return;
+    }
+    infer_proxy(sock, args, data, data_len);
+    HeapFree(GetProcessHeap(), 0, data);
+}
+
 /* AI_RESTART: hard-restart the engine (hung GPU backend recovery) */
 void handle_ai_restart(SOCKET sock)
 {

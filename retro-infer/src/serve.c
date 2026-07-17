@@ -43,6 +43,7 @@ typedef int SOCKET;
 #include "infer.h"
 #include "exec.h"
 #include "serve.h"
+#include "train/nn_session.h"
 
 #define MAX_MODELS 8
 #define MAX_SLOTS 32
@@ -61,6 +62,7 @@ typedef struct {
 
 static res_model_t g_models[MAX_MODELS];
 static tslot_t g_slots[MAX_SLOTS];
+static nn_session_t *g_nns;   /* one training session per node (M7) */
 
 /* ---- framing ---- */
 
@@ -343,6 +345,149 @@ static void handle_client(SOCKET c, int *shutdown_flag)
                 slot->name[0] = '\0';
                 slot->len = 0;
             }
+            if (reply_text(c, "OK"))
+                return;
+        } else if (strcmp(cmd, "NTINIT") == 0 && arg1 && arg2) {
+            /* NTINIT <arch> <seed> [lr] [mom]  (lr/mom in arg2 tail) */
+            char *a3 = strchr(arg2, ' ');
+            float lr = 0.1f, mom = 0.9f;
+            unsigned seed;
+            if (a3) {
+                *a3++ = '\0';
+                lr = (float)atof(a3);
+                a3 = strchr(a3, ' ');
+                if (a3)
+                    mom = (float)atof(a3 + 1);
+            }
+            seed = (unsigned)atoi(arg2);
+            nns_free(g_nns);
+            g_nns = nns_create(arg1, seed, lr, mom);
+            if (!g_nns) {
+                if (reply_err(c, "NTINIT failed"))
+                    return;
+            } else {
+                char msg[96];
+                sprintf(msg, "OK n_params=%lu",
+                        (unsigned long)nns_n_params(g_nns));
+                if (reply_text(c, msg))
+                    return;
+            }
+        } else if (strcmp(cmd, "NTSTEP") == 0) {
+            /* payload: [u32 B][X u8 B*in][y u8 B]; reply: f32 loss + grads */
+            unsigned char *blob = frame_recv_srv(c, &plen);
+            if (!blob)
+                return;
+            if (!g_nns || plen < 4) {
+                free(blob);
+                if (reply_err(c, "no session / bad payload"))
+                    return;
+                continue;
+            }
+            {
+                unsigned B = (unsigned)blob[0] | ((unsigned)blob[1] << 8) |
+                             ((unsigned)blob[2] << 16) |
+                             ((unsigned)blob[3] << 24);
+                int in0 = nns_input_dim(g_nns);
+                size_t need = 4 + (size_t)B * in0 + B;
+                float *out;
+                double loss;
+                if (B == 0 || B > 1024 || plen < need) {
+                    free(blob);
+                    if (reply_err(c, "bad batch"))
+                        return;
+                    continue;
+                }
+                out = (float *)malloc((1 + nns_n_params(g_nns)) *
+                                      sizeof(float));
+                if (!out) {
+                    free(blob);
+                    if (reply_err(c, "oom"))
+                        return;
+                    continue;
+                }
+                loss = nns_step(g_nns, blob + 4,
+                                blob + 4 + (size_t)B * in0, (int)B, out + 1);
+                free(blob);
+                if (loss < 0.0) {
+                    free(out);
+                    if (reply_err(c, "step failed"))
+                        return;
+                    continue;
+                }
+                out[0] = (float)loss;
+                if (frame_send_srv(c, 0x01, out,
+                                   (1 + nns_n_params(g_nns)) *
+                                       sizeof(float))) {
+                    free(out);
+                    return;
+                }
+                free(out);
+            }
+        } else if (strcmp(cmd, "NTAPPLY") == 0) {
+            unsigned char *blob = frame_recv_srv(c, &plen);
+            if (!blob)
+                return;
+            if (!g_nns || plen != nns_n_params(g_nns) * sizeof(float)) {
+                free(blob);
+                if (reply_err(c, "no session / grad size mismatch"))
+                    return;
+                continue;
+            }
+            nns_apply(g_nns, (const float *)blob);
+            free(blob);
+            if (reply_text(c, "OK"))
+                return;
+        } else if (strcmp(cmd, "NTEVAL") == 0) {
+            /* payload: [u32 n][X][y]; reply text acc/loss */
+            unsigned char *blob = frame_recv_srv(c, &plen);
+            if (!blob)
+                return;
+            if (!g_nns || plen < 4) {
+                free(blob);
+                if (reply_err(c, "no session"))
+                    return;
+                continue;
+            }
+            {
+                unsigned n = (unsigned)blob[0] | ((unsigned)blob[1] << 8) |
+                             ((unsigned)blob[2] << 16) |
+                             ((unsigned)blob[3] << 24);
+                int in0 = nns_input_dim(g_nns);
+                double loss;
+                int correct;
+                char msg[96];
+                if (n == 0 || plen < 4 + (size_t)n * in0 + n) {
+                    free(blob);
+                    if (reply_err(c, "bad eval payload"))
+                        return;
+                    continue;
+                }
+                correct = nns_eval(g_nns, blob + 4,
+                                   blob + 4 + (size_t)n * in0, (int)n, &loss);
+                free(blob);
+                if (correct < 0) {
+                    if (reply_err(c, "eval failed"))
+                        return;
+                    continue;
+                }
+                sprintf(msg, "acc=%.6f loss=%.6f n=%u",
+                        (double)correct / (double)n, loss, n);
+                if (reply_text(c, msg))
+                    return;
+            }
+        } else if (strcmp(cmd, "NTEXPORT") == 0 && arg1) {
+            if (!g_nns) {
+                if (reply_err(c, "no session"))
+                    return;
+            } else if (nns_export(g_nns, arg1) != 0) {
+                if (reply_err(c, "export failed"))
+                    return;
+            } else if (reply_text(c, "OK")) {
+                return;
+            }
+        } else if (strcmp(cmd, "NTFREE") == 0) {
+            nns_free(g_nns);
+            g_nns = NULL;
             if (reply_text(c, "OK"))
                 return;
         } else if (strcmp(cmd, "SHUTDOWN") == 0) {

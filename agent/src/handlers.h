@@ -68,6 +68,8 @@ void handle_model_unload(SOCKET sock, const char *args);
 void handle_model_list(SOCKET sock);
 void handle_infer_run(SOCKET sock, const char *args);
 void handle_tensor(SOCKET sock, const char *args);
+void handle_ai_raw(SOCKET sock, const char *args);
+void handle_ai_rawp(SOCKET sock, const char *args);
 
 /* Auto-map network drives at startup (no socket needed) */
 void automap_run_all(void);

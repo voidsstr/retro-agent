@@ -76,6 +76,8 @@ static const cmd_entry_t commands[] = {
     { "MODEL_LIST", 0, handle_model_list, NULL },
     { "INFER_RUN",  1, NULL,            handle_infer_run },
     { "TENSOR",     1, NULL,            handle_tensor },
+    { "AI_RAW",     1, NULL,            handle_ai_raw },
+    { "AI_RAWP",    1, NULL,            handle_ai_rawp },
     { NULL,         0, NULL,              NULL }
 };
 

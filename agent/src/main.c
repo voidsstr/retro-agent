@@ -591,6 +591,10 @@ void agent_run(void)
         BOOL reuse = TRUE;
         setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR,
                    (const char *)&reuse, sizeof(reuse));
+        /* keep the listener out of child processes: an orphaned restart/
+         * update batch inheriting this handle blocks the next agent's bind
+         * (seen on .143 during the v1.9.0 rollout) */
+        SetHandleInformation((HANDLE)listen_sock, HANDLE_FLAG_INHERIT, 0);
     }
 
     memset(&server_addr, 0, sizeof(server_addr));
@@ -623,6 +627,7 @@ void agent_run(void)
         BOOL reuse = TRUE;
         setsockopt(listen_sock_alt, SOL_SOCKET, SO_REUSEADDR,
                    (const char *)&reuse, sizeof(reuse));
+        SetHandleInformation((HANDLE)listen_sock_alt, HANDLE_FLAG_INHERIT, 0);
         memset(&server_addr_alt, 0, sizeof(server_addr_alt));
         server_addr_alt.sin_family = AF_INET;
         server_addr_alt.sin_addr.s_addr = INADDR_ANY;

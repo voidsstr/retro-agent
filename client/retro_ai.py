@@ -132,3 +132,18 @@ class RetroAI:
 
     async def tensor_del(self, slot: str) -> str:
         return await self.conn.command_text(f"TENSOR DEL {slot}")
+
+    # -- generic engine pass-through (agent v1.9.1+) --
+
+    async def raw(self, engine_cmd: str, timeout: float = 120):
+        """AI_RAW: forward an engine command with no payload. Returns
+        (status, bytes)."""
+        return await self.conn.send_command(f"AI_RAW {engine_cmd}",
+                                            timeout=timeout)
+
+    async def rawp(self, engine_cmd: str, payload: bytes,
+                   timeout: float = 120):
+        """AI_RAWP: forward an engine command with a payload frame."""
+        return await self.conn.send_command(f"AI_RAWP {engine_cmd}",
+                                            binary_payload=payload,
+                                            timeout=timeout)
