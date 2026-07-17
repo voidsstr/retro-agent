@@ -39,6 +39,8 @@ CS16_RES = "640x480"
 FPRINT = {
     "3dfxvs.dll": {595180: "retro3dfx (H5-source)", 624896: "AmigaMerlin 2.9"},
     "glide3x.dll": {335872: "retro3dfx (H5-source)", 344064: "AmigaMerlin retail"},
+    # pure-3dfx lane (3dfx-driver-optimized): our renamed, WFP-safe display driver
+    "3dfxv5d.dll": {595180: "3dfx-driver-optimized (H5-source, WFP-safe rename)"},
 }
 
 
@@ -114,19 +116,42 @@ async def detect_stack(c, q3dir):
     return out
 
 
-async def timedemo(ip, q3dir, mode, env):
-    """One timedemo run. Returns (fps, gl_renderer)."""
+DRWAT = (r'C:\Documents and Settings\All Users\Application Data'
+         r'\Microsoft\Dr Watson\drwtsn32.log')
+
+
+async def capture_crash_logs(c):
+    """When a run yields no fps, grab the driver diagnostic logs so a failed
+    benchmark still produces actionable output (pure-3dfx lane: our glide3x /
+    3dfxogl write C:\\glide3x.log / C:\\3dfxogl.log; Dr Watson names the module
+    + fault address). Returns a dict (empty strings if absent)."""
+    out = {}
+    out["glide3x_log"] = (await exw(c, r'cmd /c type C:\glide3x.log 2>nul', 20))[-2500:]
+    out["ogl_log"] = (await exw(c, r'cmd /c type C:\3dfxogl.log 2>nul', 20))[-2000:]
+    dw = await exw(c, r'cmd /c type "%s" 2>nul | findstr /i '
+                      r'"function fault-> glide3x 3dfxogl grSstWinOpen ->0"' % DRWAT, 25)
+    out["drwatson"] = dw[-1500:]
+    return {k: v for k, v in out.items() if v and "__ERR__" not in v}
+
+
+async def timedemo(ip, q3dir, mode, env, gldriver="retrogl", extra="", capture=False):
+    """One timedemo run. Returns (fps, gl_renderer, crash_logs).
+
+    gldriver: r_glDriver value ("retrogl" = MesaFX lane; "3dfxogl" = pure-3dfx
+    ICD lane). extra: extra +set cvars appended. capture: on no-fps, pull the
+    driver crash logs (for the pure-3dfx debug cycle)."""
     envcmd = ""
     if env:
         envcmd = "".join("set %s^& " % kv for kv in env.split())
     c = await connect(ip)
     await kill_wait(c)
-    await exw(c, r'cmd /c del /f /q C:\q3home\baseq3\qconsole.log 2>nul', 12)
+    await exw(c, r'cmd /c del /f /q C:\q3home\baseq3\qconsole.log C:\glide3x.log C:\3dfxogl.log 2>nul', 12)
     await asyncio.sleep(2)
-    await exw(c, r'cmd /c cd /d "%s" ^&^& %sstart "" quake3.exe +set r_glDriver retrogl '
+    await exw(c, r'cmd /c cd /d "%s" ^&^& %sstart "" quake3.exe +set r_glDriver %s '
                  r'+set r_mode %d +set r_fullscreen 1 +set r_colorbits 16 +set fs_homepath C:\q3home '
-                 r'+set logfile 2 +set s_initsound 0 +set sv_pure 0 +set timedemo 1 +demo four'
-              % (q3dir, envcmd, mode), 15)
+                 r'+set logfile 2 +set s_initsound 0 +set com_introPlayed 1 +set sv_pure 0 %s'
+                 r'+set timedemo 1 +demo four'
+              % (q3dir, envcmd, gldriver, mode, (extra + " " if extra else "")), 15)
     await c.close()
     await asyncio.sleep(78)
     c = await connect(ip)
@@ -139,9 +164,10 @@ async def timedemo(ip, q3dir, mode, env):
             fps = float(m.group(1))
             break
         await asyncio.sleep(10)
+    crash = await capture_crash_logs(c) if (capture and fps is None) else None
     await kill_wait(c)
     await c.close()
-    return fps, gl
+    return fps, gl, crash
 
 
 async def cs16_timedemo(ip, cs16dir, demo, env):
@@ -181,15 +207,15 @@ async def cs16_timedemo(ip, cs16dir, demo, env):
     return fps, gl
 
 
-async def screenshot(ip, q3dir, outdir):
+async def screenshot(ip, q3dir, outdir, gldriver="retrogl"):
     """In-engine glReadPixels capture on q3dm1. Returns local png path or None."""
     c = await connect(ip)
     await kill_wait(c)
     await exw(c, r'cmd /c del /f /q C:\q3home\baseq3\screenshots\*.tga 2>nul', 12)
-    await exw(c, r'cmd /c cd /d "%s" ^&^& start "" quake3.exe +set r_glDriver retrogl +set r_mode 3 '
+    await exw(c, (r'cmd /c cd /d "%s" ^&^& start "" quake3.exe +set r_glDriver %s +set r_mode 3 '
                  r'+set r_fullscreen 1 +set r_colorbits 16 +set fs_homepath C:\q3home +set logfile 2 '
                  r'+set s_initsound 0 +set sv_pure 0 +set bot_enable 0 +set com_introplayed 1 '
-                 r'+devmap q3dm1 +bind F12 screenshot' % q3dir, 15)
+                 r'+devmap q3dm1 +bind F12 screenshot') % (q3dir, gldriver), 15)
     await c.close()
     await asyncio.sleep(40)
     c = await connect(ip)
@@ -214,6 +240,30 @@ async def screenshot(ip, q3dir, outdir):
     await kill_wait(c)
     await c.close()
     return path
+
+
+async def deploy_dlls(ip, files, q3dir):
+    """Deploy user-mode driver DLLs (glide3x.dll / 3dfxogl.dll) with NO reboot:
+    kill the game, upload each, copy to system32 AND the game dir. Display
+    driver / miniport are NOT handled here (they need the WFP-safe reboot flow
+    in deploy-3dfx-driver). Returns list of (name, bytes)."""
+    stage = r"C:\RETRO_AGENT\3dfx-driver"
+    c = await connect(ip)
+    out = []
+    try:
+        await kill_wait(c)
+        await exw(c, r'cmd /c if not exist %s mkdir %s' % (stage, stage), 12)
+        for f in files:
+            name = os.path.basename(f)
+            data = open(f, "rb").read()
+            await c.send_command(r'UPLOAD %s\%s' % (stage, name), binary_payload=data, timeout=60)
+            await exw(c, r'cmd /c copy /Y %s\%s C:\WINDOWS\system32\%s ^& copy /Y %s\%s "%s\%s"'
+                      % (stage, name, name, stage, name, q3dir, name), 20)
+            out.append((name, len(data)))
+            print("deployed %s (%d B)" % (name, len(data)))
+    finally:
+        await c.close()
+    return out
 
 
 def track(machine_specs, cpu, ip, stack, runs, args, shot_path):
@@ -275,35 +325,61 @@ async def main():
     ap.add_argument("--changes", default="", help="fork SHA + description of the driver change under test")
     ap.add_argument("--lever", default="performance", choices=["performance", "quality"])
     ap.add_argument("--notes", default="")
+    # pure-3dfx lane (3dfx-driver-optimized on .143): our own OpenGL ICD, not MesaFX
+    ap.add_argument("--gldriver", default="retrogl",
+                    help="r_glDriver value: retrogl (MesaFX lane) | 3dfxogl (pure-3dfx ICD lane)")
+    ap.add_argument("--driver-version", default="", dest="driver_version",
+                    help="explicit driver version when GL_RENDERER carries no [retro3dfx X.Y] stamp "
+                         "(pure-3dfx lane, e.g. 3dfxopt-0.1.0)")
+    ap.add_argument("--stack-name", default="", dest="stack_name",
+                    help="override stack name (e.g. 3dfx-driver-optimized); also captures driver crash "
+                         "logs on a no-fps run")
     ap.add_argument("--screenshot", action="store_true", help="also capture the in-engine quality artifact")
     ap.add_argument("--no-db", action="store_true", help="skip specpicks tracking (local JSON only)")
+    ap.add_argument("--deploy", nargs="*", default=[],
+                    help="local paths of user-mode DLLs (glide3x.dll/3dfxogl.dll) to deploy "
+                         "(no reboot) BEFORE benchmarking")
     args = ap.parse_args()
+
+    if args.deploy:
+        await deploy_dlls(args.ip, args.deploy, args.q3dir)
 
     c = await connect(args.ip)
     specs, cpu = await preflight(c)
     stack = await detect_stack(c, args.q3dir)
+    if args.stack_name:                       # pure-3dfx lane: override classification
+        stack["stack_composition"] = args.stack_name
+        stack["icd"] = "3dfxogl (H5-source OpenGL ICD)" if args.gldriver == "3dfxogl" else stack["icd"]
     await c.close()
     print("machine: %s | %s" % (cpu, stack["stack_composition"]))
 
     def ver_of(gl):
+        if args.driver_version:               # explicit (pure-3dfx ICD has no retro3dfx stamp)
+            return args.driver_version
         if gl:
             m = re.search(r"\[retro3dfx ([0-9.]+)\]", gl)
             if m:
                 return m.group(1)
         return "unknown"
 
+    capture = bool(args.stack_name)           # pull driver crash logs on no-fps in the debug lane
     runs = []
     if args.game in ("q3", "both"):
         for mode in (int(m) for m in args.modes.split(",")):
             label = MODE_RES.get(mode, "mode%d" % mode)
             for run in range(1, args.runs + 1):
-                fps, gl = await timedemo(args.ip, args.q3dir, mode, args.env)
+                fps, gl, crash = await timedemo(args.ip, args.q3dir, mode, args.env,
+                                                gldriver=args.gldriver, capture=capture)
                 ver = ver_of(gl)
-                runs.append({"benchmark": "q3-timedemo-four", "resolution": label, "mode": mode,
-                             "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
-                             "settings": {"resolution": label, "r_mode": mode, "colorbits": 16,
-                                          "demo": "four.dm_66", "q3_version": "1.32"}})
-                print("q3 %s run %d: %s fps [driver %s]" % (label, run, fps, ver))
+                rec = {"benchmark": "q3-timedemo-four", "resolution": label, "mode": mode,
+                       "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
+                       "settings": {"resolution": label, "r_mode": mode, "colorbits": 16,
+                                    "demo": "four.dm_66", "q3_version": "1.32"}}
+                if crash:
+                    rec["crash_logs"] = crash
+                runs.append(rec)
+                print("q3 %s run %d: %s fps [driver %s]%s"
+                      % (label, run, fps, ver, "  CRASH(logs captured)" if crash else ""))
     if args.game in ("cs16", "both"):
         for run in range(1, args.runs + 1):
             fps, gl = await cs16_timedemo(args.ip, args.cs16dir, args.cs16demo, args.env)
@@ -315,7 +391,7 @@ async def main():
             print("cs16 run %d: %s fps [driver %s]" % (run, fps, ver))
 
     outdir = os.path.join(REPO, "benchmarks")
-    shot = await screenshot(args.ip, args.q3dir, outdir) if args.screenshot else None
+    shot = await screenshot(args.ip, args.q3dir, outdir, args.gldriver) if args.screenshot else None
     if shot:
         print("quality artifact:", shot)
 

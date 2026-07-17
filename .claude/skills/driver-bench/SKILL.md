@@ -86,6 +86,55 @@ averaged). Record any CS-specific demo/map in `--notes`.
      SHA in `--changes` and the CHANGELOG so the tag here points to the tracked
      result and the fork SHA points to the code.
 
+## Pure-3dfx lane — `3dfx-driver-optimized` (.143 Voodoo5)
+
+A second driver stack, separate from the MesaFX lane above: **our own H5-source
+OpenGL ICD `3dfxogl.dll`** (not MesaFX) on top of our `glide3x.dll` + the renamed
+WFP-safe display driver `3dfxv5d.dll` + miniport `3dfxv5m.sys`. Built in the
+private **retro-3dfx** repo; per-commit history in `retro-3dfx/optimized/CHANGELOG.md`.
+Tracked in specpicks as `driver_stack.name = 3dfx-driver-optimized`, machine .143
+(id 3). First rendering build **0.1.0 = 74.2 fps** Q3 four @640x480x16.
+
+Run it via the same runner, with the lane flags:
+```bash
+python3 run_bench.py --ip 192.168.1.143 --gldriver 3dfxogl \
+  --stack-name 3dfx-driver-optimized --driver-version 3dfxopt-0.1.N \
+  --modes 3 --runs 2 --changes "<commit>: <what changed>"
+```
+- `--gldriver 3dfxogl` — Q3 `r_glDriver` loads our ICD (not `retrogl`).
+- `--driver-version` — explicit; our ICD's `GL_RENDERER` is just `3Dfx`, no
+  `[retro3dfx X.Y]` stamp to scrape. Bump `3dfxopt-0.1.N` per optimization.
+- `--stack-name` also **captures driver crash logs on a no-fps run**
+  (`C:\glide3x.log`, `C:\3dfxogl.log`, Dr Watson) into the run's `crash_logs` —
+  essential for the debug loop.
+
+### Deploying a new build in this lane
+- **glide3x.dll / 3dfxogl.dll are user-mode** — Q3 loads them, nothing else
+  holds them. Swap with **NO reboot**: kill quake3, `copy /Y` the new DLL to
+  BOTH `system32\` and the Q3 dir. This is why iteration is fast (~90 s/run).
+- **Display driver `3dfxv5d.dll` / miniport `3dfxv5m.sys` need a reboot** and go
+  through the WFP-safe rename (see `deploy-3dfx-driver`); avoid churning these.
+
+### Lane gotchas (hard-won on .143 — do not relearn)
+- **Corrupt RTC crashes Q3 pre-GL.** .143's clock read year 8326; Q3 NULL-derefs
+  in early init (before any GL) on a bad clock. Fix once:
+  `date MM-DD-YYYY` + `time HH:MM:SS`. (Symptom: quake3 exits instantly, empty
+  qconsole.log, Dr Watson fault in `quake3.exe` not a driver DLL.)
+- **q3config.cfg resets `logfile 0`** — force logging via an `autoexec.cfg`
+  (execs last) in `C:\q3home\baseq3`, or `+set logfile 2` won't produce a log.
+- **Disable WER** so a driver crash exits cleanly instead of hanging a modal
+  dialog: `PCHealth\ErrorReporting DoReport/ShowUI=0` + `Control\Windows ErrorMode=2`.
+  Install Dr Watson as postmortem (`drwtsn32 -i`, `AeDebug Auto=1`) — it names
+  the faulting module+address, the fastest way to localize a driver crash.
+- **`+set s_initsound 0 +set com_introPlayed 1`** (the runner sets these) —
+  avoids sound/intro-cinematic paths during the timedemo.
+- **A failed `grSstWinOpen` garbles the screen** (bad fullscreen mode-set, no
+  restore) and may need a power-cycle. Minimize speculative crash-runs: use the
+  driver logs (`C:\glide3x.log` phase trace) to localize, FIX, then test — don't
+  spam Q3 launches into a known crash.
+- The pure-3dfx `glide3x` has verbose startup logging (grSstWinOpen phases); it's
+  one-time at mode-set, **no per-frame cost**, so it doesn't skew fps.
+
 ## Tracking schema (specpicks production DB)
 
 DSN: env `SPECPICKS_DATABASE_URL`, else the default in `run_bench.py` (same as
@@ -145,5 +194,6 @@ Benchmarks", VOGONS t=54517. Our ALL-RETRO3DFX standing (P3-845): 58.8 / 51.3.
 
 | IP | Card | OS | Stack (last known) |
 |---|---|---|---|
-| 192.168.1.124 | Voodoo3 AGP | XP | ALL-RETRO3DFX (since 2026-07-17) |
+| 192.168.1.124 | Voodoo3 AGP | XP | ALL-RETRO3DFX / MesaFX (since 2026-07-17) |
+| 192.168.1.143 | Voodoo5 5500 AGP | XP | 3dfx-driver-optimized (pure-3dfx ICD; 0.1.0 renders, 74.2 fps @640) |
 | 10.0.0.50 | Voodoo5 5500 AGP | Win98 | retail (Win98 = out of scope for the XP kernel driver; ICD/glide benches only) |
