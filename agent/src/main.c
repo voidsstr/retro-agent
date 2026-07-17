@@ -482,6 +482,12 @@ static void handle_client(SOCKET client)
                     (unsigned long)cmd_len);
         }
 
+        /* Watchdog instrumentation: mark a command in-flight so watchdog_thread
+         * can recover the agent if a handler wedges behind a hung fullscreen
+         * game (Glide display lock). Incremented before setjmp so a handler that
+         * longjmps out still reaches the matching decrement below. */
+        g_cmd_start = GetTickCount();
+        InterlockedIncrement(&g_cmd_inflight);
         if (setjmp(g_handler_jmp) == 0) {
             g_in_handler = 1;
             handle_command(client, cmd_buf, cmd_len);
@@ -492,6 +498,7 @@ static void handle_client(SOCKET client)
                     (unsigned long)g_exception_code);
             send_error_response(client, "Internal error: exception in handler");
         }
+        InterlockedDecrement(&g_cmd_inflight);
         HeapFree(GetProcessHeap(), 0, cmd_buf);
 
         if (!g_running) break;
@@ -678,6 +685,10 @@ void agent_run(void)
      * the retro desktop/theme. No-op once the machine is marked Onboarded or if
      * no onboarding payload has been published to the share. */
     CreateThread(NULL, 0, onboard_thread, NULL, 0, NULL);
+
+    /* Watchdog: if a command wedges behind a hung fullscreen game (Glide lock),
+     * kill the game + restore the display so the agent stays responsive. */
+    CreateThread(NULL, 0, watchdog_thread, NULL, 0, NULL);
 
     clients_init();
 

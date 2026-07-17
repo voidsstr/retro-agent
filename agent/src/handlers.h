@@ -102,4 +102,11 @@ void service_report_running(void);
 /* Core agent loop (main.c) - called from main() or ServiceMain */
 void agent_run(void);
 
+/* Watchdog (watchdog.c): recovers the agent when a command wedges behind a
+ * hung fullscreen game (Glide lock). main.c sets g_cmd_inflight/g_cmd_start
+ * around each handle_command call. */
+DWORD WINAPI watchdog_thread(LPVOID param);
+extern volatile LONG  g_cmd_inflight;
+extern volatile DWORD g_cmd_start;
+
 #endif /* HANDLERS_H */
