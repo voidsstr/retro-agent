@@ -2,6 +2,10 @@
 
 **Give your Pentium II a smarter assistant than most developers had in 2003.**
 
+> ### 🚀 retro3dfx: an open-source 3dfx Voodoo driver stack, optimized past what 3dfx shipped
+>
+> Using this agent as the remote harness, we built and tuned a **complete Voodoo 3/4/5 driver stack** — XP kernel display driver, Glide, and a Mesa-based OpenGL ICD — **based on genuinely open source code** (3dfx's 2000 Glide open release and the MIT-licensed Mesa), and iterated on it with a fully tracked benchmark→optimize→measure loop until it **beat the community-standard AmigaMerlin driver on real hardware** (and the era 3dfx official ICD at 1024x768). See [retro3dfx — An Open-Source Driver Stack for 3dfx Voodoo Cards](#retro3dfx--an-open-source-driver-stack-for-3dfx-voodoo-cards) and [The Driver Optimization Process](#the-driver-optimization-process).
+
 > ### 🖥️ New: the Retro Chat **brain** — a full Claude agent, on a 25‑year‑old OS
 >
 > A standalone Claude agent (built on the [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview) — the same engine behind Claude Code) runs as an **auto‑starting service** on your modern box. Type a prompt on the retro PC's console and it answers with the **full Claude toolset** (read/edit files, run commands, search the web) and can **operate the rest of the fleet** — no Claude Code window open anywhere.
@@ -146,7 +150,7 @@ print(f"Resolution: {video['display']['resolution']}")
 ```python
 # Copy installer from a network share
 await conn.command_text(
-    r'EXEC copy "\\server\share\game_setup.exe" C:\TEMP\setup.exe'
+    r'EXEC copy "\\server\share\app_setup.exe" C:\TEMP\setup.exe'
 )
 
 # Launch the installer (LAUNCH for GUI, never EXEC)
@@ -498,155 +502,6 @@ Abrupt TCP disconnects (RST packets) can crash Win98's Winsock implementation. A
 
 On Win98, `EXEC` wraps commands with `COMMAND.COM /C` which breaks on paths with spaces, even when quoted. Use 8.3 short names (`C:\PROGRA~1` instead of `C:\Program Files`) or the `DIRLIST` command (which handles spaces correctly).
 
-## Game Compatibility & Configuration
-
-Findings and recipes from deploying retro titles across the fleet. Everything in this section can be applied remotely through the agent — no physical access required.
-
-### Reading and writing game configs
-
-```python
-# Read an existing config
-text = await conn.command_text(
-    r'EXEC type "C:\Quake III Arena\baseq3\q3config.cfg"'
-)
-
-# Upload a replacement config
-with open('q3config_optimized.cfg', 'rb') as f:
-    payload = f.read()
-await conn.send_command(
-    r'UPLOAD C:\Quake III Arena\baseq3\q3config.cfg',
-    binary_payload=payload
-)
-```
-
-### Quake 3 Arena as a reference config
-
-When a Q3-engine game (MoHAA, RTCW, SoF II, etc.) misbehaves, a known-working Q3A install on the same box is the fastest reference. Copy the relevant cvars from `baseq3/q3config.cfg`. The ones that matter for renderer init:
-
-- `r_glDriver "opengl32"`
-- `r_colorbits "0"`, `r_depthbits "0"`, `r_stencilbits "0"` — `0` means "match the desktop", which sidesteps a lot of ChoosePixelFormat failures
-- `r_fullscreen "1"`
-- `r_ext_compressed_textures "0"` — S3TC on Q3 engine is buggy on Voodoo5 and on some NVIDIA NV4x driver combinations
-
-### Quake 3 Arena — swap to Quake3e for protocol-71 servers
-
-**Symptom:** `Server uses protocol version 71 and yours is 66` (or `68`) when trying to join a community server. Stock `quake3.exe` is locked to the protocol it shipped with (66 for 1.30, 68 for 1.32), so it can't reach any ioquake3-era server (protocol 71).
-
-**Fix:** drop Quake3e next to the existing `quake3.exe`. Quake3e is the actively-maintained 32-bit Windows fork that speaks protocols 66/68/71, runs on XP SP3 without a redistributable, and preserves the original pak-file layout (original `quake3.exe` stays put for rollback).
-
-**Prerequisites.** Quake3e refuses to launch with *"Point Release files are missing. Please re-install the 1.32 point release"* unless `baseq3` contains `pak7.pk3` (0x4E4A9 bytes) and `pak8.pk3` (0x6EF4E bytes) from the 1.32 point release. Stock 1.30 installs only ship pak0–pak6.
-
-```python
-# One-time staging on the SMB share — pull from upstream:
-#   https://github.com/ec-/Quake3e/releases/download/latest/quake3e-windows-mingw-x86.zip
-#   https://files.ioquake3.org/quake3-latest-pk3s.zip  (extract baseq3/pak7.pk3, pak8.pk3)
-
-# Per-machine deploy (baseq3 path differs between installs — check each):
-await conn.send_command(
-    f'UPLOAD {q3_dir}\\quake3e.exe', binary_payload=open('quake3e.exe','rb').read()
-)
-await conn.send_command(
-    f'UPLOAD {baseq3}\\pak7.pk3',    binary_payload=open('pak7.pk3','rb').read()
-)
-await conn.send_command(
-    f'UPLOAD {baseq3}\\pak8.pk3',    binary_payload=open('pak8.pk3','rb').read()
-)
-# Launch via batch so cwd is the game dir (Q3E looks for baseq3 relative to cwd):
-#   cd /d "<q3_dir>" && quake3e.exe
-```
-
-**Version interop.** Quake3e is a drop-in replacement for client-side play and can connect to any mix of stock-1.30, stock-1.32, and ioquake3/protocol-71 servers. Your existing `q3config.cfg` carries over untouched. Keep the old `quake3.exe` in place — users can still launch it for single-player or LAN games against an unpatched client.
-
-**Do not use the official `ioquake3` Windows zip** from `ioquake3.org/get-it/` on retro XP machines — it is x86_64 only and will refuse to launch on 32-bit Windows. The `ec-/Quake3e` fork publishes `quake3e-windows-mingw-x86.zip` which is the correct 32-bit build for this fleet.
-
-### MoHAA on GeForce 6 series — requires ForceWare ≤ 71.89
-
-**Symptom:** `GLW_ChoosePFD failed / failed to find an appropriate PIXELFORMAT / could not load OpenGL subsystem` when launching Medal of Honor: Allied Assault. Quake 3 Arena on the *same card and driver* works — the failure is MoHAA-specific.
-
-**Cause:** MoHAA's Q3-engine retry path asks for a 16-bit color PFD. ForceWare 75.19+ on NV4x does not expose any 16-bit PFDs when the desktop is in 32-bit color. The engine walks 35 enumerated PFDs, matches none, falls back to the 3dfx Glide wrapper (`3dfxvgl.dll`) which isn't present, and aborts.
-
-**Remediation:** Install NVIDIA ForceWare **71.89** (last driver that still exposes 16-bit PFDs on NV4x while still supporting GeForce 6 series). Confirmed on a GeForce 6800. GeForce 6800 support starts at ForceWare 61.72 — don't go below that.
-
-```python
-# Stage driver from SMB share and install silently (no auto-reboot)
-await conn.send_command('NETMAP \\\\server\\share X: user pass')
-await conn.send_command(
-    'EXEC cmd /c copy /Y "X:\\Drivers\\Nvidia\\Win2K-XP\\71.89_forceware_winxp2k.exe" '
-    '"C:\\WINDOWS\\TEMP\\nv71.exe"'
-)
-await conn.send_command('NETUNMAP X:')
-await conn.send_command('LAUNCH C:\\WINDOWS\\TEMP\\nv71.exe -s -y -noreboot')
-# Wait for install to complete (poll for setup.exe absence), then REBOOT via the agent.
-```
-
-**Related quirk — `sm.*` safe-mode markers:** MoHAA creates zero-byte files named `sm.000`, `sm.001`, ... in the install dir on each launch, and deletes them on clean exit. Any stale marker triggers a "last time crashed" dialog and a progressively stricter safe-mode config that overrides your cvars *and* `+set` CLI args. After the driver fix, delete any leftover `sm.*` once; from then on MoHAA keeps its own accounting. The launcher dialog's button order is Safe Mode / Restart Windows / Normal Mode / Exit — the default focus is Safe Mode so TAB, TAB, SPACE selects Normal Mode.
-
-### (section removed from history)
-### Older games and paths with spaces
-
-`LAUNCH` breaks on paths containing spaces on Win98. Use 8.3 short names (`C:\PROGRA~1\EAGAME~1\MOHAA` for `C:\Program Files\EA GAMES\MOHAA`) or launch a batch file via `LAUNCH` and put the quoted path inside the batch. On XP this is fine.
-
-### UT2004 Linux dedicated — OldUnreal 3374-preview-17 masterserver crash
-
-**Symptom:** `UCC server DM-Rankin?game=XGame.xDeathMatch -nohomedir` on the Linux server binary from `OldUnreal-UT2004Patch3374-Linux.tar.bz2` segfaults during startup in `AMasterServerLink::eventGetMasterServer` → `AMasterServerUplink::execReconnect`. Happens whether or not `[IpDrv.MasterServerLink]` uses the `Group=` field; the crash is in the OldUnreal code itself, not the config.
-
-```
-[ 7]  .../IpDrv.so(_ZN17AMasterServerLink20eventGetMasterServerER7FStringRi+0x94)
-[ 8]  .../IpDrv.so(_ZN19AMasterServerUplink13execReconnectER6FFramePvm+0xf1)
-```
-
-**Cause:** The 3374 **preview** release is flagged by OldUnreal themselves as "may not work in online play." The masterserver advertise code is the specific preview-only regression we're hitting.
-
-**Workaround (use for dedicated servers on 3374-preview):**
-
-```ini
-; UT2004.ini
-[Engine.GameEngine]
-;ServerActors=IpDrv.MasterServerUplink   ; disabled — eventGetMasterServer segfaults on 3374-P17
-
-[IpDrv.MasterServerUplink]
-DoUplink=False                            ; belt and suspenders
-```
-
-Server starts cleanly, listens on game port 7777, accepts direct-IP connections. The query port (7778) and master advertisement are gone. If your fleet connects via direct-IP favorites (the NSC retro fleet uses this pattern via `agent/tools/ut2004_favorites.py`) this is fine. If you need the server to be discoverable through the in-game browser, stay on Epic 3369.3 instead.
-
-**Alternative** — downgrade to Epic's stock 3369.3 dedicated tarball and use `ucc-bin-linux-amd64` from that. The OldUnreal .u files will not work with the 3369 binary (version mismatch), so a clean re-install of the Epic server is required to rollback.
-
-### Yamagi Quake 2 — build 8.60 from source on modern Ubuntu
-
-**Why build from source:** Ubuntu 24.04 APT ships `yamagi-quake2 8.30+dfsg-1` (Feb 2024). Yamagi released 8.60 (Sep 2025) with material fixes; there is no PPA yet.
-
-**Build + install to a private prefix** (no sudo needed if you install to `$HOME/local/yamagi-8.60`):
-
-```bash
-sudo apt install build-essential libsdl2-dev libopenal-dev \
-    libcurl4-openssl-dev zlib1g-dev libvorbis-dev libogg-dev
-
-curl -fSL -o /tmp/q2-8.60.tar.xz https://deponie.yamagi.org/quake2/quake2-8.60.tar.xz
-cd /tmp && tar xf q2-8.60.tar.xz && cd quake2-8.60
-make -j$(nproc)
-
-mkdir -p ~/local/yamagi-8.60/baseq2
-install -m 755 release/q2ded        ~/local/yamagi-8.60/q2ded
-install -m 755 release/baseq2/game.so ~/local/yamagi-8.60/baseq2/game.so
-```
-
-`q2ded` is the dedicated-only binary (no SDL2/video linkage); use it in the systemd unit instead of the full `quake2` client.
-
-**Line-buffered logs via systemd** — q2ded (and the original stock binary) fully-buffer stdout when no TTY is attached, so `StandardOutput=append:...log` captures nothing until buffer flush. Wrap with `stdbuf -oL`:
-
-```ini
-[Service]
-ExecStart=/usr/bin/stdbuf -oL -eL %h/local/yamagi-8.60/q2ded \
-    -datadir %h/q2-server +set dedicated 1 +exec server.cfg
-StandardOutput=append:%h/q2-server/server.log
-StandardError=append:%h/q2-server/server.log
-```
-
-Line-buffering gives the dashboard log watcher real-time events instead of 30-minute buffer delays. Same technique applies to any other cvar-console engine (Q3 engines, UT2004's UCC) that writes to stdout.
-
-**game.so placement.** Yamagi searches for `baseq2/game.so` in (1) datadir, (2) binary-adjacent dir, (3) `/usr/lib/yamagi-quake2/baseq2/`. Drop the new `game.so` into both the install prefix AND `~/q2-server/baseq2/` to avoid accidentally loading the 8.30 APT version if the install prefix gets wiped.
-
 ## LLM Integration Patterns
 
 ### Diagnostic Workflow
@@ -703,88 +558,213 @@ retro-agent/
 +-- client/                 # Python async client library
 |   +-- retro_protocol.py   # TCP protocol client (RetroConnection)
 |   +-- retro_discovery.py  # UDP LAN discovery
++-- retro3dfx/              # Open-source 3dfx Voodoo driver stack (see below)
++-- benchmarks/             # Driver benchmark results (JSON per run + conventions)
 +-- provisioning/           # Installation scripts and registry templates
 |   +-- win98/
++-- scripts/                # Chat brain/daemon, XP activation, benchmark tooling
++-- .claude/skills/         # Claude Code skills for fleet operations (see below)
 +-- docs/
     +-- images/             # Screenshots for this README
     +-- case-studies/       # Real-world diagnostic walkthroughs
 ```
 
-## Linux Game Servers for the Fleet
+## retro3dfx — An Open-Source Driver Stack for 3dfx Voodoo Cards
 
-The retro fleet spends most of its time waking up and playing 2000s-era
-multiplayer games. `scripts/game-servers/` contains idempotent installers
-that turn any modern Linux box into a public dedicated server for four of
-them, so the Win98/XP machines have something to connect to without hunting
-for a live internet server.
+3dfx died in 2000 and its Windows drivers froze with it. [`retro3dfx/`](retro3dfx/README.md)
+is our answer: run **Quake 3** (OpenGL) and **Unreal Tournament** (Glide) on real
+Voodoo 3/4/5 hardware with **every layer — from the XP kernel display driver up
+to the OpenGL ICD — built by us from source**, so the whole stack can be
+optimized past what 3dfx ever shipped.
 
-| Game | Install script | UDP ports | Masters listed on |
-|---|---|---|---|
-| Unreal Tournament 2004 | [`install-ut2004-server.sh`](scripts/game-servers/install-ut2004-server.sh) | 7777 / 7778 / 7787 | 333networks, errorist.eu, OpenSpy |
-| Unreal Tournament 99 | [`install-ut99-server.sh`](scripts/game-servers/install-ut99-server.sh) | 7797 / 7798 | 333networks, OldUnreal ×2, errorist.eu, OpenSpy, qtracker, hypercoop, telefragged |
-| Quake 2 (Yamagi) | [`install-quake2-server.sh`](scripts/game-servers/install-quake2-server.sh) | 27910 | master.yamagi.org, master.quakeservers.net |
-| OpenArena (Q3-compatible) | [`install-openarena-server.sh`](scripts/game-servers/install-openarena-server.sh) | 27960 | dpmaster.deathmask.net, master.ioquake3.org |
-
-```bash
-cd scripts/game-servers
-./install-all.sh    # ~10 min, a few sudo prompts, 1.6 GB of downloads
+```
+   Quake 3 (OpenGL)              Unreal Tournament (Glide)
+        │                             │
+   [3] OpenGL ICD ────────────────┐  │    retro3dfx-gl (MesaFX 6.2 fork)
+        │  gr* calls              │  │    → opengl32.dll / retrogl.dll
+        ▼                         ▼  ▼
+   [2] glide3x.dll                        H5-source build or retro3dfx-glide fork
+        │  register / FIFO writes
+        ▼
+   [1] XP kernel display driver           3dfxvsm.sys + 3dfxvs.dll (H5 source);
+        │                                 retro3dfx-disp = clean-room alternative
+        ▼
+   Voodoo 3 / Voodoo 5 hardware
 ```
 
-Each script writes a systemd **user** unit (no root service), opens UFW if
-active, and enables `loginctl linger` so the servers come back on their own
-after a reboot. See [`scripts/game-servers/README.md`](scripts/game-servers/README.md)
-for full details, environment variable overrides, router port-forward notes
-(including the AT&T BGW MAC-collision gotcha), and external reachability tests.
+The three layers:
 
-The UT99 installer uses OldUnreal **v469e** (Nov 2025, actively maintained,
-cross-compatible with legacy Epic 436/451 clients). To upgrade the retro
-fleet's XP clients to the matching 469e client:
-
-```bash
-python3 scripts/game-servers/push-ut99-xp-patch.py 192.168.1.143 192.168.1.133 ...
-```
-
-**Pre-install the multiplayer download packs** so the retro fleet drops
-straight into a game on first join instead of spending minutes auto-
-downloading maps/mods over the wire. One script per game, staged from
-the SMB share:
-
-```bash
-# All four games across the fleet:
-./scripts/game-servers/push-all-mp-paks.sh 192.168.1.143 192.168.1.133 192.168.1.123 192.168.1.124
-```
-
-Expand the bundle by dropping content into `\\server\files\Game Updates\<Game>-Multiplayer\` — the push scripts mirror the share subdirectories onto the matching `C:\<game>\` subtrees.
-
-### Full walkthrough
-
-The end-to-end setup — Linux servers → router port-forwards → master-
-server registration → retro fleet UT99 client patch → retro fleet MP-pak
-pre-install → in-game server browser favorites — is documented in
-[`scripts/game-servers/README.md`](scripts/game-servers/README.md#end-to-end-walkthrough).
-That's the starting point for anyone standing this up on a new Linux
-host or after a hardware change.
-
-### Patch level (as of 2026-04-19)
-
-| Server | Current version | Notes |
+| Layer | What we build | Source base |
 |---|---|---|
-| OpenArena (`openarena-server.service`) | OA 0.8.8 · ioq3 1.36+u20240217 (APT) | Current. Both upstreams dormant; Ubuntu package is latest available. |
-| Yamagi Q2 (`quake2-server.service`) | **8.60** built from source · `~/local/yamagi-8.60/q2ded` | Upgraded from APT's 8.30. Unit uses `stdbuf -oL` for real-time log capture. See "Yamagi Quake 2 — build 8.60 from source" above. |
-| UT99 (`ut99-server.service`) | **OldUnreal 469e** (Linux amd64) | Stable, Nov 2025. Cross-compatible with Epic 436/451 clients AND with the 469e WindowsXP client patch. Ships with 8 community masters pre-configured — no master-mirror mod needed. |
-| UT2004 (`ut2004-server.service`) | **Epic 3369.3** (Linux amd64 static binary from archive.org) | Reverted from the earlier OldUnreal 3374-preview-17 experiment because the preview build segfaults in `eventGetMasterServer` with community master lists, preventing public listing. 3369.3 + MasterServerMirror mod uplinks to 3 community masters cleanly; 3374-preview binaries/`.so` files are staged in `System/_overlay-backup/` if you want to re-enable direct-IP play. |
+| **[1] Kernel display driver** | `3dfxvsm.sys` (miniport) + `3dfxvs.dll` (XPDM display driver incl. D3D HAL) | Leaked 3dfx H5/Napalm source, compiled with a Wine-hosted VC6 + W2K-DDK toolchain (sibling `retro-3dfx` repo). A clean-room track, `retro3dfx-disp/`, is in progress. |
+| **[2] Glide (glide3x.dll)** | Retail-ABI Glide3 (96 exports, byte-compatible export list with the vintage Nov-2000 DLL) | H5 source (deployed build), plus [voidsstr/retro3dfx-glide](https://github.com/voidsstr/retro3dfx-glide) (fork of sezero/glide) as the gcc-13 cross-built optimization vehicle |
+| **[3] OpenGL ICD** | `retrogl.dll` — Mesa 6.2.2 OpenGL-over-Glide3, where the performance work lives | [voidsstr/retro3dfx-gl](https://github.com/voidsstr/retro3dfx-gl) (fork of sezero/MesaFX-6.2) |
 
-Upgrade a single service via its install script, or manually per the per-game recipe in **Game Compatibility & Configuration** above. After upgrading, `systemctl --user daemon-reload && systemctl --user restart <svc>` and verify:
+**Result (2026-07-17):** the full self-built stack (**ALL-RETRO3DFX**) replaced
+the community-standard AmigaMerlin driver on a real Voodoo3 AGP / XP SP3 box and
+**beat it** — Quake 3 `timedemo four`, 16bpp, P3-845:
 
-```bash
-for svc in openarena-server quake2-server ut2004-server; do
-  systemctl --user is-active "$svc"
-done
-# Quick version probes:
-python3 -c "import socket; s=socket.socket(2,2); s.settimeout(3); \
-  s.sendto(b'\\xff\\xff\\xff\\xffstatus\\n',('127.0.0.1',27910)); \
-  print(s.recvfrom(4096)[0][:400])"   # Yamagi: look for version\8.60
-```
+| Stack | 640x480 | 1024x768 |
+|---|---|---|
+| **ALL-RETRO3DFX** (self-built, all 3 layers) | **58.8 fps** | **51.3 fps** |
+| AmigaMerlin hybrid, untuned (baseline) | 53.7 | 38.7 |
+| Era reference: 3dfx official ICD on a V3 3000 | 75–91 | 44.3 |
+
+The 1024x768 (fillrate-bound) number beats both AmigaMerlin and the era 3dfx
+official ICD reference. The remaining 640x480 gap is CPU-side T&L in the ICD —
+the queued deep work (SSE vertex emit, SSE 4-wide cliptest, end-to-end ubyte
+colors).
+
+**Open source based, licenses preserved.** The optimization work lives in real
+GitHub forks of genuinely open upstreams: Glide under the **3dfx Glide Source
+Code General Public License** (3dfx's authentic 2000 open release, open and
+redistributable) and MesaFX under the **MIT/Mesa license** (Brian Paul et al.).
+Both forks preserve the upstream license files; provenance is documented in
+[`retro3dfx/FORKS.md`](retro3dfx/FORKS.md). The clean-room `retro3dfx-disp`
+display driver is original code, *modeled on* open references (Device3Dfx,
+RISCyVoodoo, vmdisp9x) — read for structure, not copied. The one non-open
+lineage — the ***REMOVED*** used for the deployed kernel-driver
+build — is **not in this repository**; it lives in a private sibling repo and
+is not distributed, and `retro3dfx-disp` is the open replacement track for it.
+
+Everything is documented in [`retro3dfx/README.md`](retro3dfx/README.md)
+(architecture, ABI gotchas, build system), [`retro3dfx/CHANGELOG.md`](retro3dfx/CHANGELOG.md)
+(per-version changes and rationale), [`retro3dfx/FORKS.md`](retro3dfx/FORKS.md)
+(fork provenance and licenses), and [`docs/3dfx-drivers.md`](docs/3dfx-drivers.md)
+(the driver-landscape research that kicked this off).
+
+### The Driver Optimization Process
+
+The stack didn't get fast by accident — it went through a disciplined
+benchmark → change → measure → track loop, run entirely **remotely through the
+retro agent** against a live fleet machine. Conventions and hard-won harness
+rules live in [`benchmarks/README.md`](benchmarks/README.md); the full loop is
+packaged as the [`driver-bench` skill](.claude/skills/driver-bench/SKILL.md).
+
+**1. Every build self-identifies.** The ICD build injects an auto-incrementing
+version into the `GL_RENDERER` string
+(`Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.N]`), so every game log and
+benchmark run records exactly which driver build produced it. No "which DLL was
+that?" ambiguity, ever.
+
+**2. One change per version, benchmarked before and after.** Each optimization
+lands as its own version, is deployed to the test box over the agent, and gets
+the same Quake 3 `timedemo four` matrix (640x480 + 1024x768, 16bpp, two runs
+per resolution — the first warms the texture cache, the second is official).
+The full per-version log is below; negative results are tracked as
+deliberately as wins, because a documented dead end is knowledge that never
+has to be re-litigated.
+
+**3. Every result lands in a database, keyed by the exact stack.** Each run is
+saved as JSON in [`benchmarks/`](benchmarks/) *and* inserted into a production
+Postgres with a `driver_stack` JSONB naming the exact binary at all three
+layers (plus fork commit SHAs) and a `stack_composition` tag — **`HYBRID`**
+(our ICD over the retail AmigaMerlin kernel driver + glide3x) vs
+**`ALL-RETRO3DFX`** (every layer self-built) — so rows are only ever compared
+like-for-like.
+
+**4. Environment discipline.** `FX_GLIDE_SWAPINTERVAL` alone moves 1024x768
+results by ~30%, so the env state is recorded in every result row, and any
+cross-run comparison states its tuning (see the swap-interval saga in
+`retro3dfx/CHANGELOG.md` before touching vsync behavior).
+
+**5. Quality is a tracked lever, not an afterthought.** Alongside the fps runs,
+an in-engine screenshot of q3dm1 (real `glReadPixels` output, not a GDI capture
+of a Glide fullscreen buffer — which is always dark/interlaced garbage) is
+diffed against a pristine baseline so a "faster" driver that breaks rendering
+can't slip through.
+
+**6. The loop is one command.** `python3 .claude/skills/driver-bench/run_bench.py
+--ip <target>` runs preflight (agent version, 3dfx card check), detects the
+stack composition from system32 fingerprints + `GL_RENDERER`, runs the timedemo
+matrix, optionally captures the quality screenshot, and writes both the JSON
+drop and the DB rows.
+
+### Optimization Log — What Changed in Each Driver Version
+
+Every run below is Quake 3 1.32 `timedemo four`, 16bpp, on the test box
+(P3-845 no-SSE2, 384 MB, Voodoo3 AGP, XP SP3). "Tuned" means
+`FX_GLIDE_SWAPINTERVAL=0` in the process environment. Full rationale in
+[`retro3dfx/CHANGELOG.md`](retro3dfx/CHANGELOG.md); raw per-run JSON in
+[`benchmarks/`](benchmarks/).
+
+**0.1.1 — baseline (versioning introduced).** No functional change — the
+version stamp was added to `GL_RENDERER` so every subsequent log
+self-documents. Benchmarks: **53.7** @640x480, 50.4 @800x600, **38.7**
+@1024x768; tuned env: 57.6 / 51.0.
+
+**0.1.2 — modern compiler codegen.** Build flags `-march=<cpu> -mfpmath=sse
+-DNDEBUG` (gcc had been emitting pentiumpro **x87** for every C hot loop) plus
+a branchless SSE color pack replacing a store-forwarding-stall float→ubyte
+conversion at 7 call sites. The audit had found **zero** SSE instructions in
+the vertex-buffer object file — on a CPU with SSE1. After: 2,729 SSE scalar
+ops. Result: 54.2 @640x480 (**+0.9%**). Honest read: most of the 640x480 frame
+is Q3 engine + Glide time, not the ICD's C loops.
+
+**0.1.3 — batched triangle submission.** One `grDrawVertexArrayContiguous`
+call (and 768-vertex chunked pointer arrays on the indexed path) instead of
+one `grDrawTriangle` **DLL call per triangle** on Q3 world geometry. Result:
+58.1 @640x480 tuned (**+0.9%**), 1024x768 flat. Lesson learned: retail glide3x
+loops per-triangle internally, so only the call-boundary overhead was saved.
+
+**0.1.4 — swap-default env injection — INERT.** Tried setting
+`FX_GLIDE_SWAPINTERVAL=0` from inside the ICD before `grGlideInit`. No effect:
+retail glide3x is static-CRT and snapshots the environment at **DLL load**,
+before any ICD code can run. Kept as a documented dead end.
+
+**0.1.5 — Glide state shadow cache.** Shadow copies of the texture
+clamp/filter/mipmap/source and color/alpha combine state; identical Glide
+calls are skipped. Q3 rebinds a texture per surface, and every bind had been
+re-issuing the full 8–10-call register set. Result: 54.9 @640x480 (**+0.7%**).
+The q3dm1 quality screenshot after 0.1.2–0.1.5: pristine, no regressions.
+
+**0.1.6 — swap-interval env-read fix.** A bisect proved
+`FX_GLIDE_SWAPINTERVAL=0` *alone* was the entire +32% @1024x768 tuning — and
+that a system-wide `=1` (planted years ago by a 3dfx tools install) was
+reaching the driver. The ICD now reads the variable with its own CRT and
+defaults to 0. Result @1024x768 on the hybrid stack: still 38.7 — retail
+glide3x reads the env from its own load-time snapshot and **ignores the
+`grBufferSwap(interval)` argument entirely**; no ICD-side code can override
+it. The real fix was owning the Glide layer ourselves (next entry).
+
+**2026-07-17 — ALL-RETRO3DFX milestone.** Our H5-source kernel display driver
+and glide3x replaced AmigaMerlin entirely (SetupAPI install via the
+`deploy-3dfx-driver` skill). Result: **58.8 / 51.3 with no environment tuning
+at all** — our Glide's swap defaults are sane in code. Rendering verified
+pristine: mean pixel diff vs the hybrid baseline screenshot is 4.1/255, i.e.
+animation noise.
+
+Cumulative scoreboard:
+
+| Config | 640x480 | 1024x768 |
+|---|---|---|
+| HYBRID 0.1.1, env untouched (`SWAPINTERVAL=1` system-wide) | 53.7 | 38.7 |
+| HYBRID 0.1.6, env untouched | 54.2 (+0.9%) | 38.7 |
+| HYBRID 0.1.6 + `FX_GLIDE_SWAPINTERVAL=0` | ~58 (+8%) | ~51 (+32%) |
+| **ALL-RETRO3DFX 0.1.6, no env tuning** | **58.8 (+9.5%)** | **51.3 (+32.6%)** |
+| Era references (P3-850/933 + V3 3000, 3dfx official ICD) | 75–91 | **44.3 — we beat this** |
+
+## Claude Code Skills
+
+The repo ships [Claude Code skills](.claude/skills/) — packaged, battle-tested
+operational workflows that Claude Code (or the Retro Chat brain) invokes by
+name. Each `SKILL.md` encodes the tribal knowledge a task needs: preflight
+checks, fleet gotchas, rollback paths, and the exact commands that work on
+25-year-old Windows.
+
+| Skill | What it does |
+|---|---|
+| [`driver-bench`](.claude/skills/driver-bench/SKILL.md) | One-command 3dfx driver benchmark/optimize/track loop: preflight → stack detection (ALL-RETRO3DFX / HYBRID / RETAIL) → Q3 timedemo matrix → quality screenshot → results to JSON + production DB, keyed by driver version and exact stack composition. |
+| [`deploy-3dfx-driver`](.claude/skills/deploy-3dfx-driver/SKILL.md) | Deploy the self-built 3dfx H5/Napalm XP driver package to a fleet Voodoo 3/4/5 box: HWID preflight, staged upload, backup, SetupAPI install (never raw-copy into `system32` — Windows File Protection reverts it), verify, rollback plan. Never reboots without explicit approval. |
+| [`retro-benchmark`](.claude/skills/retro-benchmark/SKILL.md) | Run the full automated retro GPU benchmark suite (Quake III, Unreal Tournament, Deus Ex, Serious Sam, Giants, 3DMark 99/2000/2001) on a fleet machine unattended and collect FPS/scores into a results folder + ASCII summary. |
+| [`retro-wallpaper`](.claude/skills/retro-wallpaper/SKILL.md) | Generate and deploy rotating "system dossier" wallpapers per machine — spec cards, games from the CPU- and GPU-release years, and a tech-milestone collage for the CPU year, cycled through 10 variants by an on-device rotator. |
+| [`xp-activation`](.claude/skills/xp-activation/SKILL.md) | Generate a Windows XP / Server 2003 Confirmation ID from an Installation ID, fully offline — Microsoft's activation servers are dead; this reproduces what the phone system used to return. Not a crack; patches nothing. |
+
+Skills are how one-off fleet victories become repeatable: once a workflow has
+been debugged against real hardware (which agent commands hang on Win98, which
+launch pattern actually executes on a given box, which install step needs a
+backup first), it gets written down as a skill so the next invocation starts
+from the answer instead of the archaeology.
 
 ## Contributing
 
@@ -794,4 +774,15 @@ The chat proxy protocol is intentionally simple (JSON files in directories) so y
 
 ## License
 
-MIT
+The code in this repository is **open source based**:
+
+- **This repository** (agent, chat client, Python client library, scripts,
+  retro3dfx build system): **MIT** — see [`LICENSE`](LICENSE).
+- **retro3dfx driver forks** preserve their upstream open licenses: Glide is
+  under the **3dfx Glide Source Code General Public License** (3dfx's genuine
+  2000 open release), MesaFX under the **MIT/Mesa license**. Provenance:
+  [`retro3dfx/FORKS.md`](retro3dfx/FORKS.md).
+- The ***REMOVED*** used for the deployed XP kernel-driver build is
+  **not open source and is not part of this repository** — it is neither
+  included nor distributed here. `retro3dfx-disp/` is the clean-room,
+  MIT-licensed replacement track.
