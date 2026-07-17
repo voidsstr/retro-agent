@@ -1,0 +1,24 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-17T01:15:11",
+ "cpu": "x86 ~845MHz",
+ "stack": {
+  "display_driver": "unrecognized (None B)",
+  "glide3x": "unrecognized (None B)",
+  "icd": "retro3dfx-gl (MesaFX 6.2 fork)",
+  "stack_composition": "HYBRID: retail display+glide (unrecognized (None B) / unrecognized (None B)) + our MesaFX ICD"
+ },
+ "env": "none",
+ "changes": "",
+ "q3_timedemo": [
+  {
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 1,
+   "fps": 58.7,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.6]",
+   "driver_version": "0.1.6"
+  }
+ ],
+ "screenshot": null
+}
