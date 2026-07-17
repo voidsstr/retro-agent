@@ -61,12 +61,23 @@ typedef struct {
     /* int8 GEMM with int32 accumulate: C[M,N](i32) = A[M,K](i8) * B[K,N](i8) */
     void (*gemm_i8)(int M, int N, int K, const signed char *A,
                     const signed char *B, int *C, int beta0);
-    const char *gemm_f32_name;   /* "scalar" / "sse" */
-    const char *gemm_i8_name;    /* "scalar" / "mmx" / "sse2" */
+    /* training variants: NT (B is [N,K]) and TN (A is [K,M], B is [K,N]) */
+    void (*gemm_f32_nt)(int M, int N, int K, const float *A, const float *B,
+                        float *C, int beta0);
+    void (*gemm_f32_tn)(int M, int N, int K, const float *A, const float *B,
+                        float *C, int beta0);
+    const char *gemm_f32_name;   /* "scalar" / "sse" / "3dnow" */
+    const char *gemm_i8_name;    /* "scalar" / "mmx" */
 } kernels_t;
+
+void gemm_f32_nt_scalar(int M, int N, int K, const float *A, const float *B,
+                        float *C, int beta0);
+void gemm_f32_tn_scalar(int M, int N, int K, const float *A, const float *B,
+                        float *C, int beta0);
 
 extern kernels_t g_kernels;
 void kernels_init(const cpu_caps_t *caps);
+void kernels_force_scalar(void);
 
 /* Reference scalar kernels (always available; parity oracle) */
 void gemm_f32_scalar(int M, int N, int K, const float *A, const float *B,

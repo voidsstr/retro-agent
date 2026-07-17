@@ -9,6 +9,19 @@
 #include <string.h>
 #include "infer.h"
 
+#if !defined(__i386__)
+/* Host (x86_64) build: capability set for local parity testing only.
+ * 3DNow! doesn't exist on x86_64, so that path is never host-tested. */
+void cpu_detect(cpu_caps_t *caps)
+{
+    memset(caps, 0, sizeof(*caps));
+    caps->has_cpuid = 1;
+    caps->mmx = caps->sse = caps->sse2 = 1;
+    strcpy(caps->vendor, "HostBuild");
+    strcpy(caps->brand, "linux host build (parity testing)");
+}
+#else
+
 static void cpuid_raw(unsigned leaf, unsigned *a, unsigned *b, unsigned *c,
                       unsigned *d)
 {
@@ -82,3 +95,4 @@ void cpu_detect(cpu_caps_t *caps)
         caps->brand[48] = '\0';
     }
 }
+#endif /* __i386__ */

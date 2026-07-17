@@ -2,13 +2,13 @@
  * GFLOP/s microbench for --selfcheck and the AI_HELLO capability estimate.
  * Uses whatever gemm_f32 the dispatcher selected.
  */
-#include <windows.h>
 #include <stdlib.h>
 #include "infer.h"
+#include "port.h"
 
 double bench_gemm_gflops(int size, int iters)
 {
-    LARGE_INTEGER freq, t0, t1;
+    double t0, t1;
     float *A, *B, *C;
     size_t n = (size_t)size * size;
     double secs, flops;
@@ -30,13 +30,12 @@ double bench_gemm_gflops(int size, int iters)
     /* Warmup pass so the first-touch page faults don't count */
     g_kernels.gemm_f32(size, size, size, A, B, C, 1);
 
-    QueryPerformanceFrequency(&freq);
-    QueryPerformanceCounter(&t0);
+    t0 = ri_now();
     for (i = 0; i < iters; i++)
         g_kernels.gemm_f32(size, size, size, A, B, C, 1);
-    QueryPerformanceCounter(&t1);
+    t1 = ri_now();
 
-    secs = (double)(t1.QuadPart - t0.QuadPart) / (double)freq.QuadPart;
+    secs = t1 - t0;
     flops = 2.0 * (double)size * size * size * iters;
     free(A); free(B); free(C);
     if (secs <= 0.0)

@@ -37,3 +37,41 @@ void gemm_i8_scalar(int M, int N, int K, const signed char *A,
         }
     }
 }
+
+/* C[M,N] += A[M,K] * B^T, where B is [N,K] row-major (dot-product form) */
+void gemm_f32_nt_scalar(int M, int N, int K, const float *A, const float *B,
+                        float *C, int beta0)
+{
+    int i, j, k;
+    if (beta0)
+        memset(C, 0, (size_t)M * N * sizeof(float));
+    for (i = 0; i < M; i++) {
+        for (j = 0; j < N; j++) {
+            float acc = C[i * N + j];
+            const float *Ai = A + (size_t)i * K;
+            const float *Bj = B + (size_t)j * K;
+            for (k = 0; k < K; k++)
+                acc += Ai[k] * Bj[k];
+            C[i * N + j] = acc;
+        }
+    }
+}
+
+/* C[M,N] += A^T * B, where A is [K,M], B is [K,N] (both row-major) */
+void gemm_f32_tn_scalar(int M, int N, int K, const float *A, const float *B,
+                        float *C, int beta0)
+{
+    int i, j, k;
+    if (beta0)
+        memset(C, 0, (size_t)M * N * sizeof(float));
+    for (k = 0; k < K; k++) {
+        const float *Ak = A + (size_t)k * M;
+        const float *Bk = B + (size_t)k * N;
+        for (i = 0; i < M; i++) {
+            float a = Ak[i];
+            float *Ci = C + (size_t)i * N;
+            for (j = 0; j < N; j++)
+                Ci[j] += a * Bk[j];
+        }
+    }
+}
