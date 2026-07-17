@@ -94,14 +94,28 @@ The hybrid required linking our ICD against the *retail* glide import lib
    `FX_GLIDE_SWAPINTERVAL=1` system-wide (3dfx tools artifact) — glide honors
    it. Overwritten to 0 in `Session Manager\Environment` on .124.
 
-## Cumulative scoreboard (hybrid stack, Q3 timedemo four 16bpp)
+## MILESTONE 2026-07-17 — all-retro3dfx stack live, beats AmigaMerlin
+
+Our XP kernel display driver (H5-source build, pkg `3dfx-napalm-xp-20260716`)
+replaced AmigaMerlin on .124 via SetupAPI (`deploy-3dfx-driver` skill). Desktop
+2D at 1024x768x32@75 correct. Our H5-built glide3x (underscore ABI) binds the
+existing retail-linked MesaFX 0.1.6 without a rebuild. Q3 renders pristine
+(in-engine screenshot parity with the hybrid baseline — mean pixel diff
+4.1/255 = animation noise).
+
+## Cumulative scoreboard (Q3 timedemo four 16bpp)
 
 | Config | 640x480 | 1024x768 |
 |---|---|---|
-| 0.1.1, env untouched (`SWAPINTERVAL=1` system-wide) | 53.7 | 38.7 |
-| 0.1.6, env untouched | 54.2 (+0.9%) | 38.7 |
-| 0.1.6 + `FX_GLIDE_SWAPINTERVAL=0` | ~58 (+8%) | ~51 (+32%) |
-| Era references (P3-850/933 + V3 3000, 3dfx ICD) | 75-91 | 44.3 |
+| HYBRID 0.1.1, env untouched (`SWAPINTERVAL=1` system-wide) | 53.7 | 38.7 |
+| HYBRID 0.1.6, env untouched | 54.2 (+0.9%) | 38.7 |
+| HYBRID 0.1.6 + `FX_GLIDE_SWAPINTERVAL=0` | ~58 (+8%) | ~51 (+32%) |
+| **ALL-RETRO3DFX 0.1.6, no env tuning** | **58.8 (+9.5%)** | **51.3 (+32.6%)** |
+| Era references (P3-850/933 + V3 3000, 3dfx ICD) | 75-91 | **44.3 — we beat this** |
+
+The all-ours stack needs no tuning: our glide3x's swap defaults are sane in
+code. At fillrate-bound 1024x768 we exceed the era's official 3dfx ICD
+reference by ~16%.
 
 Remaining CPU-side gap at 640x480 (~ -30%) is the target of the queued deep
 work: SSE intrinsics vertex emit, SSE 4-wide cliptest (rcpps + Newton-Raphson

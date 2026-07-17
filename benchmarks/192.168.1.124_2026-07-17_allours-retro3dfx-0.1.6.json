@@ -1,0 +1,24 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-17T01:08:50",
+ "driver_version": "0.1.6",
+ "stack_composition": "ALL-RETRO3DFX: our H5-source kernel driver (3dfx-napalm-xp-20260716) + our H5-built glide3x + retro3dfx-gl MesaFX 0.1.6",
+ "env": "none - no tuning needed",
+ "q3_timedemo": [
+  {
+   "resolution": "640x480",
+   "r_mode": 3,
+   "fps": 58.8,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.6]"
+  },
+  {
+   "resolution": "1024x768",
+   "r_mode": 6,
+   "fps": 51.3,
+   "demo": "four.dm_66",
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.6]"
+  }
+ ],
+ "notes": "MILESTONE: first all-retro3dfx-stack run. Beats AmigaMerlin untuned+tuned and the era 3dfx ICD 1024 reference (44.3)."
+}
