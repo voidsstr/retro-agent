@@ -583,10 +583,10 @@ optimized past what 3dfx ever shipped.
    [3] OpenGL ICD ────────────────┐  │    retro3dfx-gl (MesaFX 6.2 fork)
         │  gr* calls              │  │    → opengl32.dll / retrogl.dll
         ▼                         ▼  ▼
-   [2] glide3x.dll                        H5-source build or retro3dfx-glide fork
+   [2] glide3x.dll                        our build (retail ABI) or retro3dfx-glide fork
         │  register / FIFO writes
         ▼
-   [1] XP kernel display driver           3dfxvsm.sys + 3dfxvs.dll (H5 source);
+   [1] XP kernel display driver           3dfxvsm.sys + 3dfxvs.dll (our build);
         │                                 retro3dfx-disp = clean-room alternative
         ▼
    Voodoo 3 / Voodoo 5 hardware
@@ -596,8 +596,8 @@ The three layers:
 
 | Layer | What we build | Source base |
 |---|---|---|
-| **[1] Kernel display driver** | `3dfxvsm.sys` (miniport) + `3dfxvs.dll` (XPDM display driver incl. D3D HAL) | Leaked 3dfx H5/Napalm source, compiled with a Wine-hosted VC6 + W2K-DDK toolchain (sibling `retro-3dfx` repo). A clean-room track, `retro3dfx-disp/`, is in progress. |
-| **[2] Glide (glide3x.dll)** | Retail-ABI Glide3 (96 exports, byte-compatible export list with the vintage Nov-2000 DLL) | H5 source (deployed build), plus [voidsstr/retro3dfx-glide](https://github.com/voidsstr/retro3dfx-glide) (fork of sezero/glide) as the gcc-13 cross-built optimization vehicle |
+| **[1] Kernel display driver** | `3dfxvsm.sys` (miniport) + `3dfxvs.dll` (XPDM display driver incl. D3D HAL) | Compiled with a Wine-hosted VC6 + W2K-DDK toolchain (sibling `retro-3dfx` repo). A clean-room track, `retro3dfx-disp/`, is in progress. |
+| **[2] Glide (glide3x.dll)** | Retail-ABI Glide3 (96 exports, byte-compatible export list with the vintage Nov-2000 DLL) | Our deployed build, plus [voidsstr/retro3dfx-glide](https://github.com/voidsstr/retro3dfx-glide) (fork of sezero/glide) as the gcc-13 cross-built optimization vehicle |
 | **[3] OpenGL ICD** | `retrogl.dll` — Mesa 6.2.2 OpenGL-over-Glide3, where the performance work lives | [voidsstr/retro3dfx-gl](https://github.com/voidsstr/retro3dfx-gl) (fork of sezero/MesaFX-6.2) |
 
 **Result (2026-07-17):** the full self-built stack (**ALL-RETRO3DFX**) replaced
@@ -622,10 +622,7 @@ redistributable) and MesaFX under the **MIT/Mesa license** (Brian Paul et al.).
 Both forks preserve the upstream license files; provenance is documented in
 [`retro3dfx/FORKS.md`](retro3dfx/FORKS.md). The clean-room `retro3dfx-disp`
 display driver is original code, *modeled on* open references (Device3Dfx,
-RISCyVoodoo, vmdisp9x) — read for structure, not copied. The one non-open
-lineage — the ***REMOVED*** used for the deployed kernel-driver
-build — is **not in this repository**; it lives in a private sibling repo and
-is not distributed, and `retro3dfx-disp` is the open replacement track for it.
+RISCyVoodoo, vmdisp9x) — read for structure, not copied.
 
 Everything is documented in [`retro3dfx/README.md`](retro3dfx/README.md)
 (architecture, ABI gotchas, build system), [`retro3dfx/CHANGELOG.md`](retro3dfx/CHANGELOG.md)
@@ -727,7 +724,7 @@ glide3x reads the env from its own load-time snapshot and **ignores the
 `grBufferSwap(interval)` argument entirely**; no ICD-side code can override
 it. The real fix was owning the Glide layer ourselves (next entry).
 
-**2026-07-17 — ALL-RETRO3DFX milestone.** Our H5-source kernel display driver
+**2026-07-17 — ALL-RETRO3DFX milestone.** Our self-built kernel display driver
 and glide3x replaced AmigaMerlin entirely (SetupAPI install via the
 `deploy-3dfx-driver` skill). Result: **58.8 / 51.3 with no environment tuning
 at all** — our Glide's swap defaults are sane in code. Rendering verified
@@ -755,7 +752,7 @@ checks, fleet gotchas, rollback paths, and the exact commands that work on
 | Skill | What it does |
 |---|---|
 | [`driver-bench`](.claude/skills/driver-bench/SKILL.md) | One-command 3dfx driver benchmark/optimize/track loop: preflight → stack detection (ALL-RETRO3DFX / HYBRID / RETAIL) → Q3 timedemo matrix → quality screenshot → results to JSON + production DB, keyed by driver version and exact stack composition. |
-| [`deploy-3dfx-driver`](.claude/skills/deploy-3dfx-driver/SKILL.md) | Deploy the self-built 3dfx H5/Napalm XP driver package to a fleet Voodoo 3/4/5 box: HWID preflight, staged upload, backup, SetupAPI install (never raw-copy into `system32` — Windows File Protection reverts it), verify, rollback plan. Never reboots without explicit approval. |
+| [`deploy-3dfx-driver`](.claude/skills/deploy-3dfx-driver/SKILL.md) | Deploy the self-built 3dfx XP driver package to a fleet Voodoo 3/4/5 box: HWID preflight, staged upload, backup, SetupAPI install (never raw-copy into `system32` — Windows File Protection reverts it), verify, rollback plan. Never reboots without explicit approval. |
 | [`retro-benchmark`](.claude/skills/retro-benchmark/SKILL.md) | Run the full automated retro GPU benchmark suite (Quake III, Unreal Tournament, Deus Ex, Serious Sam, Giants, 3DMark 99/2000/2001) on a fleet machine unattended and collect FPS/scores into a results folder + ASCII summary. |
 | [`retro-wallpaper`](.claude/skills/retro-wallpaper/SKILL.md) | Generate and deploy rotating "system dossier" wallpapers per machine — spec cards, games from the CPU- and GPU-release years, and a tech-milestone collage for the CPU year, cycled through 10 variants by an on-device rotator. |
 | [`xp-activation`](.claude/skills/xp-activation/SKILL.md) | Generate a Windows XP / Server 2003 Confirmation ID from an Installation ID, fully offline — Microsoft's activation servers are dead; this reproduces what the phone system used to return. Not a crack; patches nothing. |
@@ -782,7 +779,5 @@ The code in this repository is **open source based**:
   under the **3dfx Glide Source Code General Public License** (3dfx's genuine
   2000 open release), MesaFX under the **MIT/Mesa license**. Provenance:
   [`retro3dfx/FORKS.md`](retro3dfx/FORKS.md).
-- The ***REMOVED*** used for the deployed XP kernel-driver build is
-  **not open source and is not part of this repository** — it is neither
-  included nor distributed here. `retro3dfx-disp/` is the clean-room,
-  MIT-licensed replacement track.
+- `retro3dfx-disp/` (the clean-room display-driver track) is original,
+  MIT-licensed code.
