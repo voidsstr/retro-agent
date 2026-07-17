@@ -36,6 +36,9 @@
 #ifndef INSTALLFLAG_FORCE
 #define INSTALLFLAG_FORCE 0x00000001
 #endif
+#ifndef INSTALLFLAG_NONINTERACTIVE
+#define INSTALLFLAG_NONINTERACTIVE 0x00000002
+#endif
 
 typedef BOOL (WINAPI *UpdateDriverForPnPDevsA_t)(
     HWND hwndParent,
@@ -158,7 +161,10 @@ void __cdecl mainCRTStartup(void)
     }
 
     SetLastError(0);
-    ok = pUpdate(NULL, hwid, full, INSTALLFLAG_FORCE, &reboot);
+    /* NONINTERACTIVE so a hidden-desktop unsigned/logo dialog can't hang the
+       call forever; with driver-signing policy=Ignore it proceeds silently. */
+    ok = pUpdate(NULL, hwid, full,
+                 INSTALLFLAG_FORCE | INSTALLFLAG_NONINTERACTIVE, &reboot);
 
     if (ok) {
         if (reboot) {
