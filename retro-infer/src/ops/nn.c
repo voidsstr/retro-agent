@@ -217,3 +217,54 @@ void bias_add_f32(float *x, int out_ch, int n, const float *bias)
         for (j = 0; j < n; j++)
             x[(size_t)c * n + j] += bias[c];
 }
+
+/* ---- binary (XNOR) dense support: 16-bit popcount LUT ---- */
+
+static unsigned char g_pop16_init = 0;
+static unsigned char g_pop16[65536];
+
+static void pop16_init(void)
+{
+    unsigned i;
+    if (g_pop16_init)
+        return;
+    for (i = 0; i < 65536; i++) {
+        unsigned v = i, c = 0;
+        while (v) {
+            c += v & 1;
+            v >>= 1;
+        }
+        g_pop16[i] = (unsigned char)c;
+    }
+    g_pop16_init = 1;
+}
+
+unsigned bnn_popcount(const unsigned char *a, size_t nbytes)
+{
+    size_t i;
+    unsigned c = 0;
+    pop16_init();
+    for (i = 0; i + 1 < nbytes; i += 2)
+        c += g_pop16[(unsigned)a[i] | ((unsigned)a[i + 1] << 8)];
+    if (i < nbytes)
+        c += g_pop16[a[i]];
+    return c;
+}
+
+/* matches m = popcount(XNOR(w_row, act)) over n bits (n % 8 == 0 assumed;
+ * trailing pad bits in both vectors must be zero) */
+unsigned bnn_xnor_matches(const unsigned char *wrow, const unsigned char *act,
+                          int nbits)
+{
+    int nbytes = nbits / 8, i;
+    unsigned c = 0;
+    pop16_init();
+    for (i = 0; i + 1 < nbytes; i += 2) {
+        unsigned x = ((unsigned)(wrow[i] ^ act[i]) |
+                      ((unsigned)(wrow[i + 1] ^ act[i + 1]) << 8)) ^ 0xFFFFu;
+        c += g_pop16[x];
+    }
+    if (i < nbytes)
+        c += g_pop16[(unsigned)(wrow[i] ^ act[i]) ^ 0xFFu];
+    return c;
+}

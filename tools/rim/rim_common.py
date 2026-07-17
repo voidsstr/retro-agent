@@ -7,6 +7,9 @@ DTYPES = {
     "i8": np.dtype("i1"),
     "i32": np.dtype("<i4"),
     "u8": np.dtype("u1"),
+    # packed bits (BNN): manifest shape is the PACKED byte shape
+    # [n_out, ceil(n_in/8)], LSB-first, bit 1 <=> +1 (see bnn/BNN-SPEC.md)
+    "bin": np.dtype("u1"),
 }
 
 MAGIC = b"RIM1"

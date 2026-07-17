@@ -22,6 +22,7 @@
 #include "train/gbdt.h"
 #include "serve.h"
 #include "gpu/glide_mac.h"
+#include "bnn_eval.h"
 
 static void print_selfcheck(void)
 {
@@ -273,6 +274,9 @@ int main(int argc, char **argv)
     /* default 9896: the agent itself owns 9897 (AGENT_TCP_PORT_ALT) */
     if (argc >= 2 && strcmp(argv[1], "--serve") == 0)
         return serve_run(argc >= 3 ? atoi(argv[2]) : 9896);
+    if (argc >= 6 && strcmp(argv[1], "--bnn-eval") == 0)
+        return bnn_eval(argv[2], argv[3], argv[4], atoi(argv[5]),
+                        argc >= 7 ? argv[6] : "cpu");
     if (argc >= 2 && strcmp(argv[1], "--glide-check") == 0)
         return glide_check(argc >= 3 ? atoi(argv[2]) : 64,
                            argc >= 4 ? atoi(argv[3]) : 64,

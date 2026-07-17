@@ -15,7 +15,8 @@
 #define MAX_LAYERS 64
 
 typedef enum {
-    OP_CONV2D, OP_DENSE, OP_RELU, OP_MAXPOOL, OP_FLATTEN, OP_SOFTMAX, OP_KNN
+    OP_CONV2D, OP_DENSE, OP_RELU, OP_MAXPOOL, OP_FLATTEN, OP_SOFTMAX, OP_KNN,
+    OP_BDENSE
 } lop_t;
 
 typedef struct {
@@ -29,6 +30,10 @@ typedef struct {
     int knn_k, n_train, n_feat;
     const unsigned char *train;
     const unsigned char *train_labels;
+    /* bdense (BNN): packed-bit weights + i32 thresholds */
+    const unsigned char *bw;
+    const int *bthresh;          /* NULL on the output layer */
+    int first_u8;                /* layer consumes raw u8 input */
 } layer_t;
 
 struct model {
@@ -161,6 +166,19 @@ int model_open(const char *path, model_t **out, char *errbuf, size_t errlen)
             L->op = OP_FLATTEN;
         } else if (strcmp(op, "softmax") == 0) {
             L->op = OP_SOFTMAX;
+        } else if (strcmp(op, "bdense") == 0) {
+            L->op = OP_BDENSE;
+            L->in_n = (int)json_num(jl, "n_in", 0);
+            L->out_n = (int)json_num(jl, "n_out", 0);
+            L->bw = (const unsigned char *)tref(m, jl, "w", NULL);
+            L->bthresh = (const int *)tref(m, jl, "thresh", NULL);
+            L->first_u8 = json_num(jl, "first_layer_u8", 0) != 0.0;
+            m->n_classes = L->out_n;
+            if (!L->bw || L->in_n <= 0 || L->out_n <= 0) {
+                set_err(errbuf, errlen, "bdense missing weights/dims");
+                model_close(m);
+                return 1;
+            }
         } else if (strcmp(op, "knn") == 0) {
             L->op = OP_KNN;
             L->knn_k = (int)json_num(jl, "k", 3);
@@ -217,6 +235,13 @@ int model_open(const char *path, model_t **out, char *errbuf, size_t errlen)
                 C = C * H * W; H = 1; W = 1;
             } else if (L->op == OP_KNN) {
                 C = m->n_classes; H = 1; W = 1;
+            } else if (L->op == OP_BDENSE) {
+                if (!L->first_u8 && C * H * W != L->in_n) {
+                    set_err(errbuf, errlen, "bdense in-dim mismatch");
+                    model_close(m);
+                    return 1;
+                }
+                C = L->out_n; H = 1; W = 1;
             }
             if (C <= 0 || H <= 0 || W <= 0) {
                 set_err(errbuf, errlen, "bad layer geometry");
@@ -294,6 +319,7 @@ int model_infer(model_t *m, const void *input, float *logits)
     /* activation state */
     float *af = NULL;
     signed char *ai = NULL;
+    unsigned char *abit = NULL;   /* packed BNN bits (bit=1 <=> +1) */
     float a_scale = 0.0f;
     int C = m->in_c, H = m->in_h, W = m->in_w;
     int li, n_elem = C * H * W;
@@ -302,6 +328,59 @@ int model_infer(model_t *m, const void *input, float *logits)
     if (m->layers[0].op == OP_KNN)
         return knn_predict(&m->layers[0], (const unsigned char *)input,
                            logits, m->n_classes);
+
+    /* pure-BNN model: chain of bdense layers on raw u8 input */
+    if (m->layers[0].op == OP_BDENSE && m->layers[0].first_u8) {
+        const unsigned char *u = (const unsigned char *)input;
+        int li2;
+        for (li2 = 0; li2 < m->n_layers; li2++) {
+            layer_t *L = &m->layers[li2];
+            int nb, j2, k2;
+            unsigned char *nbits;
+            if (L->op != OP_BDENSE) {
+                free(abit);
+                return 1;      /* mixed BNN models unsupported for now */
+            }
+            nb = (L->out_n + 7) / 8;
+            nbits = (unsigned char *)calloc((size_t)nb, 1);
+            if (!nbits) {
+                free(abit);
+                return 1;
+            }
+            for (j2 = 0; j2 < L->out_n; j2++) {
+                long sum;
+                if (L->first_u8) {
+                    const unsigned char *wrow =
+                        L->bw + (size_t)j2 * ((L->in_n + 7) / 8);
+                    sum = 0;
+                    for (k2 = 0; k2 < L->in_n; k2++) {
+                        int bit = (wrow[k2 >> 3] >> (k2 & 7)) & 1;
+                        sum += bit ? (long)u[k2] : -(long)u[k2];
+                    }
+                } else {
+                    const unsigned char *wrow =
+                        L->bw + (size_t)j2 * ((L->in_n + 7) / 8);
+                    unsigned mm = bnn_xnor_matches(wrow, abit, L->in_n);
+                    sum = 2L * (long)mm - (long)L->in_n;
+                }
+                if (L->bthresh) {
+                    if (sum >= (long)L->bthresh[j2])
+                        nbits[j2 >> 3] |= (unsigned char)(1 << (j2 & 7));
+                } else if (j2 < m->n_classes) {
+                    logits[j2] = (float)sum;
+                }
+            }
+            free(abit);
+            if (L->bthresh) {
+                abit = nbits;
+            } else {
+                free(nbits);
+                abit = NULL;
+            }
+        }
+        free(abit);
+        return 0;
+    }
 
     /* input -> f32 */
     af = (float *)malloc((size_t)n_elem * sizeof(float));

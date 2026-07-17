@@ -12,6 +12,7 @@
 #include <string.h>
 #include "../infer.h"
 #include "../port.h"
+#include "../ops/nn.h"
 #include "glide_mac.h"
 
 void bgemm_cpu(int M, int N, int K, const unsigned char *A,
@@ -71,6 +72,42 @@ int glide_check(int M, int N, int K, unsigned seed)
     t0 = ri_now();
     bgemm_cpu(M, N, K, A, B, Cc);
     t_cpu = ri_now() - t0;
+
+    /* bit-packed CPU reference (the honest speed comparator) */
+    {
+        int kb = (K + 7) / 8;
+        unsigned char *Ap = (unsigned char *)calloc((size_t)M * kb, 1);
+        unsigned char *Bp = (unsigned char *)calloc((size_t)N * kb, 1);
+        int *Cp = (int *)calloc((size_t)M * N, sizeof(int));
+        double t_pack;
+        if (Ap && Bp && Cp) {
+            int ii, jj, kk2, bad = 0;
+            for (ii = 0; ii < M; ii++)
+                for (kk2 = 0; kk2 < K; kk2++)
+                    if (A[ii * K + kk2])
+                        Ap[ii * kb + (kk2 >> 3)] |=
+                            (unsigned char)(1 << (kk2 & 7));
+            for (jj = 0; jj < N; jj++)
+                for (kk2 = 0; kk2 < K; kk2++)
+                    if (B[kk2 * N + jj])
+                        Bp[jj * kb + (kk2 >> 3)] |=
+                            (unsigned char)(1 << (kk2 & 7));
+            t0 = ri_now();
+            for (ii = 0; ii < M; ii++)
+                for (jj = 0; jj < N; jj++)
+                    Cp[ii * N + jj] =
+                        (int)bnn_xnor_matches(Ap + (size_t)ii * kb,
+                                              Bp + (size_t)jj * kb, K)
+                        - (K % 8 ? (8 - K % 8) : 0);
+            t_pack = ri_now() - t0;
+            for (ii = 0; ii < M * N && K % 8 == 0; ii++)
+                if (Cp[ii] != Cc[ii])
+                    bad++;
+            printf("glide.cpu_bitpacked_mmacs=%.2f (parity_bad=%d)\n",
+                   (double)M * N * K / t_pack / 1e6, bad);
+        }
+        free(Ap); free(Bp); free(Cp);
+    }
 
     if (glide_init(err, sizeof(err)) != 0) {
         printf("glide.init=FAIL %s\n", err);

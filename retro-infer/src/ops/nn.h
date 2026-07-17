@@ -28,4 +28,8 @@ void bias_dequant_f32(const int *acc, int out_ch, int n, const int *bias,
                       float scale, float *out);
 void bias_add_f32(float *x, int out_ch, int n, const float *bias);
 
+unsigned bnn_popcount(const unsigned char *a, size_t nbytes);
+unsigned bnn_xnor_matches(const unsigned char *wrow, const unsigned char *act,
+                          int nbits);
+
 #endif
