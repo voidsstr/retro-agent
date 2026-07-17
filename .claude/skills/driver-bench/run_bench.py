@@ -311,10 +311,20 @@ async def quake2_timedemo(ip, q2dir, demo, gl_mode, gl_driver, env):
     c = await connect(ip)
     await kill_wait(c, Q2_EXE)
     await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 12)
-    await asyncio.sleep(2)
+    # Q2's ref_gl can ONLY create a GL context on the Voodoo3 when the DESKTOP is
+    # 16-bit (a 32bpp desktop -> qwglCreateContext failed; Q3 works at 32bpp
+    # because it uses its own GL init, not ref_gl's). Switch to 16bpp, restore after.
+    desk = None
+    try:
+        cur = json.loads(await c.command_text("DISPLAYCFG get", timeout=15))
+        desk = (cur.get("width") or 1024, cur.get("height") or 768, cur.get("refresh") or 75)
+        await c.command_text("DISPLAYCFG set %d %d 16 %d" % desk, timeout=20)
+        await asyncio.sleep(3)
+    except Exception:
+        pass
     await exw(c, r'cmd /c cd /d "%s" ^&^& %sstart "" %s +set vid_ref gl +set gl_driver %s '
                  r'+set gl_bitdepth 16 +set gl_mode %d +set vid_fullscreen 1 +set logfile 2 +set s_initsound 0 '
-                 r'+set timedemo 1 +demomap %s'
+                 r'+set timedemo 1 +map %s'
               % (q2dir, envcmd, Q2_EXE, gl_driver, gl_mode, demo), 15)
     await c.close()
     await asyncio.sleep(60)
@@ -330,6 +340,12 @@ async def quake2_timedemo(ip, q2dir, demo, gl_mode, gl_driver, env):
             break
         await asyncio.sleep(10)
     await kill_wait(c, Q2_EXE)
+    # restore the desktop to 32-bit (kill Q2 FIRST so the Glide surface is gone)
+    if desk:
+        try:
+            await c.command_text("DISPLAYCFG set %d %d 32 %d" % desk, timeout=20)
+        except Exception:
+            pass
     await c.close()
     return fps, gl
 
