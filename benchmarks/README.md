@@ -9,9 +9,18 @@ memory for the DSN pointer and conventions.
 Naming: `<ip>_<YYYY-MM-DD>_<driver-version>.json` (e.g.
 `192.168.1.124_2026-07-16_retro3dfx-0.1.1.json`).
 
+**Re-benchmarking a past optimization:** each driver version is git-tagged
+`bench-<ver>` (`bench-0.1.1` … `bench-0.1.6`, `bench-all-retro3dfx`) on the
+commit that landed it, so you can `git checkout bench-<ver>` to recover the exact
+tracked state and re-run. Every new optimization must add its own `bench-<ver>`
+tag (see the driver-bench SKILL, step 7).
+
 Benchmarks:
 - `q3-timedemo-four` — Quake III 1.32, `timedemo 1; demo four` (four.dm_66),
   16bpp, 2 runs/resolution (2nd run = official; 1st warms texture cache).
+- `cs16-timedemo` — Counter-Strike 1.6 (GoldSrc, `hl.exe -gl`), `timedemo
+  <demo>` via `-condebug` → `cstrike\qconsole.log`. Second engine on the same
+  OpenGL/MesaFX ICD path as Q3. Run with `run_bench.py --game cs16` (or `both`).
 - `gfxbench-sweep` — our Glide micro-benchmark (`scripts/3dfx/gfxbench/`),
   fillrate/mode sweep, 300 frames/mode.
 - `q3-screenshot-q3dm1` — quality lever: in-engine screenshot of q3dm1,

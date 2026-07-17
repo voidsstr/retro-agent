@@ -23,6 +23,18 @@ DSN = os.environ.get(
 SECRET = os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret")
 MODE_RES = {3: "640x480", 4: "800x600", 6: "1024x768"}
 
+# Counter-Strike 1.6 (GoldSrc/HLDS client) benchmark defaults. GoldSrc has a
+# `timedemo <demo>` console command that plays a .dem and prints the fps line to
+# the console; `-condebug` mirrors the console to <mod>\qconsole.log so we can
+# scrape it exactly like Q3. Prereqs (stage once, see driver-bench SKILL): a CS
+# install at CS16_DIR with a benchmark demo at cstrike\<CS16_DEMO>.dem, and the
+# 3dfx GL renderer selected (hl.exe -gl -gldrv, or opengl32/retrogl in the CS
+# dir). The Voodoo runs CS in OpenGL via our MesaFX ICD, same as Q3.
+CS16_DIR = r"C:\Counter-Strike 1.6"          # override with --cs16dir
+CS16_EXE = "hl.exe"
+CS16_DEMO = "bench"                            # cstrike\bench.dem
+CS16_RES = "640x480"
+
 # system32 file fingerprints -> stack classification (size in bytes)
 FPRINT = {
     "3dfxvs.dll": {595180: "retro3dfx (H5-source)", 624896: "AmigaMerlin 2.9"},
@@ -132,6 +144,43 @@ async def timedemo(ip, q3dir, mode, env):
     return fps, gl
 
 
+async def cs16_timedemo(ip, cs16dir, demo, env):
+    """One CS 1.6 (GoldSrc) timedemo run. Returns (fps, gl_renderer).
+
+    Launches hl.exe in OpenGL with -condebug, autoexec'ing `timedemo <demo>`,
+    then scrapes cstrike\\qconsole.log for the fps line (GoldSrc prints
+    "<n> frames <s> seconds <fps> fps" just like the Q3 engine it descends from)
+    and the GL_RENDERER (carries our [retro3dfx 0.1.N] driver stamp).
+    """
+    envcmd = "".join("set %s^& " % kv for kv in env.split()) if env else ""
+    log = r"%s\cstrike\qconsole.log" % cs16dir
+    c = await connect(ip)
+    await kill_wait(c, CS16_EXE)
+    await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 12)
+    await asyncio.sleep(2)
+    # -condebug -> qconsole.log ; -gl forces OpenGL ; +timedemo runs and prints fps.
+    # +sv_cheats/+fps_max 0 keep the demo from being frame-capped.
+    await exw(c, r'cmd /c cd /d "%s" ^&^& %sstart "" %s -steam -game cstrike -condebug -gl '
+                 r'-w 640 -h 480 +fps_max 0 +sv_cheats 1 +timedemo %s'
+              % (cs16dir, envcmd, CS16_EXE, demo), 15)
+    await c.close()
+    await asyncio.sleep(70)
+    c = await connect(ip)
+    fps = gl = None
+    for _ in range(4):
+        txt = await exw(c, r'cmd /c type "%s" 2>nul' % log, 20)
+        m = re.search(r"([\d.]+) frames\s+[\d.]+ seconds\s+([\d.]+) fps", txt) \
+            or re.search(r"frames, [\d.]+ seconds: ([\d.]+) fps", txt)
+        gl = next((l.split("GL_RENDERER:", 1)[1].strip() for l in txt.splitlines() if "GL_RENDERER" in l), gl)
+        if m:
+            fps = float(m.group(m.lastindex))
+            break
+        await asyncio.sleep(10)
+    await kill_wait(c, CS16_EXE)
+    await c.close()
+    return fps, gl
+
+
 async def screenshot(ip, q3dir, outdir):
     """In-engine glReadPixels capture on q3dm1. Returns local png path or None."""
     c = await connect(ip)
@@ -191,10 +240,8 @@ def track(machine_specs, cpu, ip, stack, runs, args, shot_path):
             """INSERT INTO retro_benchmark_runs
                (machine_id, benchmark, settings, driver_stack, driver_version, result_fps, result, lever, notes, source)
                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,'driver-bench-skill')""",
-            (mid, "q3-timedemo-four",
-             json.dumps({"resolution": r["resolution"], "r_mode": r["mode"], "colorbits": 16,
-                         "demo": "four.dm_66", "run_index": r["run"], "q3_version": "1.32",
-                         "env": args.env or "none"}),
+            (mid, r.get("benchmark", "q3-timedemo-four"),
+             json.dumps({**r.get("settings", {}), "run_index": r["run"], "env": args.env or "none"}),
              json.dumps({**stack, "icd_version": r["driver_version"], "gl_renderer": r.get("gl_renderer"),
                          "changes": args.changes or None}),
              r["driver_version"], r.get("fps"), json.dumps(r), args.lever, args.notes))
@@ -221,6 +268,10 @@ async def main():
     ap.add_argument("--runs", type=int, default=2, help="runs per mode (2nd is official)")
     ap.add_argument("--env", default="", help='launcher env, e.g. "FX_GLIDE_SWAPINTERVAL=0"')
     ap.add_argument("--q3dir", default=r"C:\Quake III Arena\Quake3")
+    ap.add_argument("--game", default="q3", choices=["q3", "cs16", "both"],
+                    help="which benchmark(s) to run (default q3)")
+    ap.add_argument("--cs16dir", default=CS16_DIR)
+    ap.add_argument("--cs16demo", default=CS16_DEMO, help="cstrike\\<name>.dem to timedemo")
     ap.add_argument("--changes", default="", help="fork SHA + description of the driver change under test")
     ap.add_argument("--lever", default="performance", choices=["performance", "quality"])
     ap.add_argument("--notes", default="")
@@ -234,19 +285,34 @@ async def main():
     await c.close()
     print("machine: %s | %s" % (cpu, stack["stack_composition"]))
 
+    def ver_of(gl):
+        if gl:
+            m = re.search(r"\[retro3dfx ([0-9.]+)\]", gl)
+            if m:
+                return m.group(1)
+        return "unknown"
+
     runs = []
-    for mode in (int(m) for m in args.modes.split(",")):
-        label = MODE_RES.get(mode, "mode%d" % mode)
+    if args.game in ("q3", "both"):
+        for mode in (int(m) for m in args.modes.split(",")):
+            label = MODE_RES.get(mode, "mode%d" % mode)
+            for run in range(1, args.runs + 1):
+                fps, gl = await timedemo(args.ip, args.q3dir, mode, args.env)
+                ver = ver_of(gl)
+                runs.append({"benchmark": "q3-timedemo-four", "resolution": label, "mode": mode,
+                             "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
+                             "settings": {"resolution": label, "r_mode": mode, "colorbits": 16,
+                                          "demo": "four.dm_66", "q3_version": "1.32"}})
+                print("q3 %s run %d: %s fps [driver %s]" % (label, run, fps, ver))
+    if args.game in ("cs16", "both"):
         for run in range(1, args.runs + 1):
-            fps, gl = await timedemo(args.ip, args.q3dir, mode, args.env)
-            ver = "unknown"
-            if gl:
-                m = re.search(r"\[retro3dfx ([0-9.]+)\]", gl)
-                if m:
-                    ver = m.group(1)
-            runs.append({"resolution": label, "mode": mode, "run": run, "fps": fps,
-                         "gl_renderer": gl, "driver_version": ver})
-            print("%s run %d: %s fps [driver %s]" % (label, run, fps, ver))
+            fps, gl = await cs16_timedemo(args.ip, args.cs16dir, args.cs16demo, args.env)
+            ver = ver_of(gl)
+            runs.append({"benchmark": "cs16-timedemo", "resolution": CS16_RES, "mode": None,
+                         "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
+                         "settings": {"resolution": CS16_RES, "engine": "GoldSrc/hl.exe",
+                                      "demo": args.cs16demo + ".dem", "renderer": "OpenGL (retrogl)"}})
+            print("cs16 run %d: %s fps [driver %s]" % (run, fps, ver))
 
     outdir = os.path.join(REPO, "benchmarks")
     shot = await screenshot(args.ip, args.q3dir, outdir) if args.screenshot else None

@@ -34,6 +34,23 @@ benchmarking a new driver build — this is the metadata that makes A/Bs
 attributable), `--lever performance|quality`, `--screenshot` (adds the
 in-engine capture + quality DB row), `--notes`.
 
+### Games: Quake III + Counter-Strike 1.6
+
+`--game q3` (default) | `cs16` | `both`. Both run through the Voodoo's OpenGL
+path (our MesaFX `retrogl.dll`), so a single ICD build is measured on two
+engines — Q3 (idTech3) and CS 1.6 (GoldSrc, an idTech2/QW descendant). CS 1.6
+uses GoldSrc's `timedemo <demo>` console command; `-condebug` mirrors the fps
+line to `cstrike\qconsole.log` (same `... frames ... seconds ... fps` shape as
+Q3), and `GL_RENDERER` still carries the `[retro3dfx 0.1.N]` stamp so the run
+self-documents. DB benchmark name: **`cs16-timedemo`**.
+
+**CS 1.6 prereqs (stage once per box):** a CS install at `--cs16dir`
+(default `C:\Counter-Strike 1.6`), a benchmark demo at `cstrike\<--cs16demo>.dem`
+(default `bench.dem`), and the OpenGL renderer selected so it uses our ICD
+(`hl.exe -gl`, with `retrogl.dll`/`opengl32.dll` resolvable from the CS dir). If
+the demo file is absent the run records `None` fps (flagged, not silently
+averaged). Record any CS-specific demo/map in `--notes`.
+
 ## The optimization loop (one change per version)
 
 1. **Change exactly one thing** in the driver source (fork repos:
@@ -57,6 +74,17 @@ in-engine capture + quality DB row), `--notes`.
    `--screenshot` and pixel-diff vs the machine's baseline artifact
    (`benchmarks/quality_*` — mean diff ≲5/255 is animation noise; structural
    differences mean a rendering regression: STOP and investigate).
+7. **Commit + tag the optimization (REQUIRED, one per version).** Every
+   optimization gets **its own commit** and a **`bench-<ver>` tag** so it can be
+   re-benchmarked later:
+   - In this repo, commit the CHANGELOG entry + the `benchmarks/*.json` drop for
+     the version, message `retro3dfx <ver>: <one-line change> (<fps A/B>)`.
+   - `git tag -a bench-<ver> -m "<change> — <result>" <commit>` and
+     `git push origin bench-<ver>`. (Existing 0.1.1–0.1.6 + `bench-all-retro3dfx`
+     are already tagged; continue the sequence: `bench-0.1.7`, …)
+   - The fork commit (retro3dfx-gl) holds the actual code change; reference its
+     SHA in `--changes` and the CHANGELOG so the tag here points to the tracked
+     result and the fork SHA points to the code.
 
 ## Tracking schema (specpicks production DB)
 
@@ -67,7 +95,7 @@ DSN: env `SPECPICKS_DATABASE_URL`, else the default in `run_bench.py` (same as
   hostname, os, cpu (incl. MHz), ram_mb, gpu, specs jsonb (full
   SYSINFO/VIDEODIAG/PCISCAN).
 - `retro_benchmark_runs` — one row per measurement:
-  - `benchmark` — `q3-timedemo-four` | `q3-screenshot-q3dm1` | `gfxbench-sweep`
+  - `benchmark` — `q3-timedemo-four` | `cs16-timedemo` | `q3-screenshot-q3dm1` | `gfxbench-sweep`
   - `settings` jsonb — resolution, r_mode, colorbits, demo, run_index,
     q3_version, env
   - `driver_stack` jsonb — **mandatory**: display_driver, glide3x, icd,
