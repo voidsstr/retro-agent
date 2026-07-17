@@ -57,13 +57,26 @@ async def connect(ip):
     return c
 
 
+# pure-3dfx lane: after killing a Glide game the Voodoo is left in its fullscreen
+# Glide mode; restoring the desktop mode IMMEDIATELY (before GDI repaints over the
+# stale Glide framebuffer) avoids the garble. Set by --restore-mode; None = off.
+RESTORE_DESKTOP = None
+SETMODE_EXE = r'C:\RETRO_AGENT\3dfx-driver\setmode.exe'
+
+
 async def kill_wait(c, image="quake3.exe"):
     await exw(c, r'cmd /c taskkill /f /im %s 2>nul' % image, 15)
+    gone = False
     for _ in range(6):
         r = await exw(c, r'cmd /c tasklist /fi "imagename eq %s" /nh' % image, 12)
         if image.split(".")[0] not in r:
-            return
+            gone = True
+            break
         await asyncio.sleep(3)
+    # restore the desktop mode immediately after the game is gone (3dfx lane)
+    if RESTORE_DESKTOP:
+        await exw(c, r'cmd /c %s %s' % (SETMODE_EXE, RESTORE_DESKTOP), 15)
+    return gone
 
 
 async def preflight(c):
@@ -339,7 +352,16 @@ async def main():
     ap.add_argument("--deploy", nargs="*", default=[],
                     help="local paths of user-mode DLLs (glide3x.dll/3dfxogl.dll) to deploy "
                          "(no reboot) BEFORE benchmarking")
+    ap.add_argument("--restore-mode", dest="restore_mode", default="",
+                    help="desktop mode to restore after each Glide game exits, e.g. '1024 768 32 85' "
+                         "(3dfx lane; avoids the stuck-Glide-mode garble). Default on for --stack-name.")
     args = ap.parse_args()
+
+    global RESTORE_DESKTOP
+    if args.restore_mode:
+        RESTORE_DESKTOP = args.restore_mode
+    elif args.stack_name:                      # pure-3dfx lane default
+        RESTORE_DESKTOP = "1024 768 32 85"
 
     if args.deploy:
         await deploy_dlls(args.ip, args.deploy, args.q3dir)
