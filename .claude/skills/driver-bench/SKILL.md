@@ -47,9 +47,39 @@ self-documents. DB benchmark name: **`cs16-timedemo`**.
 **CS 1.6 prereqs (stage once per box):** a CS install at `--cs16dir`
 (default `C:\Counter-Strike 1.6`), a benchmark demo at `cstrike\<--cs16demo>.dem`
 (default `bench.dem`), and the OpenGL renderer selected so it uses our ICD
-(`hl.exe -gl`, with `retrogl.dll`/`opengl32.dll` resolvable from the CS dir). If
+(`hl.exe -gl`, with `opengl32.dll` = our ICD resolvable from the CS dir). If
 the demo file is absent the run records `None` fps (flagged, not silently
-averaged). Record any CS-specific demo/map in `--notes`.
+averaged). Record any CS-specific demo/map in `--notes`. The `cs16-timedemo`
+row records the GoldSrc video knobs (`gl_texturemode`, `gl_max_size`, `gl_picmip`,
+`gl_overbright`, …) in `settings`.
+
+### Quality / video-card settings — record EVERYTHING, cover permutations
+
+**Rule: every run's `settings` jsonb records the full resolved set of quality /
+video-card knobs** (not just resolution), so the DB always says exactly which
+knobs were on/off for a given fps. The knobs (`QUALITY_DEFAULT` in `run_bench.py`)
+cover: `r_colorbits`/`r_texturebits` (V3 = 16bpp), `r_textureMode`
+(bilinear `GL_LINEAR_MIPMAP_NEAREST` vs trilinear `GL_LINEAR_MIPMAP_LINEAR`),
+`r_picmip` (texture detail), `r_ext_compressed_textures`, `r_overBrightBits`/
+`r_mapOverBrightBits`, `r_vertexLight`, `r_dynamiclight`, `r_subdivisions`
+(patch tessellation), `r_lodBias`, `r_lodCurveError`, `r_detailtextures`,
+`r_flares`, `r_fastsky` — plus the fixed facts `fsaa: none` / `anisotropic: none`
+(the Voodoo3 has no T-buffer, recorded explicitly so "off" is distinguishable
+from "impossible").
+
+**Named profiles** (`--quality default|fast|high|max`) set these explicitly:
+- `default` — stock Q3 (bilinear, picmip 1, lightmaps, dynamic lights)
+- `fast` — picmip 3, vertex light, no dynamic lights, coarse patches, fastsky
+- `high` — picmip 0, **trilinear**, uncompressed textures, fine patches
+- `max` — high + `r_lodBias -0.5` (3dfx sharpening), detail textures, finest patches
+
+**Permutation coverage (required when optimizing):** benchmark a driver change at
+**every** quality level, not one — a change can help at `fast` and hurt at `max`.
+Use `--quality-sweep all` (every profile) or `--quality-sweep default,high,max`,
+and combine with `--modes 3,6` so you cover the resolution × quality grid. Each
+cell is its own DB row with the full knob set, so A/Bs are attributable to an
+exact (driver, resolution, quality) point. Add new knobs to `QUALITY_DEFAULT` /
+`QUALITY_PROFILES` as you find ones worth sweeping.
 
 ## The optimization loop (one change per version)
 

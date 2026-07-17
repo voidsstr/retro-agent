@@ -35,6 +35,60 @@ CS16_EXE = "hl.exe"
 CS16_DEMO = "bench"                            # cstrike\bench.dem
 CS16_RES = "640x480"
 
+# ---------------------------------------------------------------------------
+# Quality / video-card settings — recorded IN FULL on every run, and swept
+# ---------------------------------------------------------------------------
+# Every Q3 renderer knob that changes what the GPU/driver does, with the value
+# the run uses. The full resolved set is written into each run's `settings`
+# jsonb, so the DB always states exactly which quality knobs were on/off for a
+# given fps. Named PROFILES set them explicitly on the launch line; a run can
+# sweep several profiles (--quality-sweep) to cover permutations. When you
+# optimize, benchmark across the profiles so a change is judged at every quality
+# level, not just one.
+QUALITY_DEFAULT = {
+    "r_colorbits": "16",           # Voodoo3 framebuffer is 16bpp (no 32-bit render)
+    "r_texturebits": "16",
+    "r_textureMode": "GL_LINEAR_MIPMAP_NEAREST",  # bilinear + nearest-mip (Q3 default)
+    "r_picmip": "1",               # texture detail reduction (0 = full detail)
+    "r_ext_compressed_textures": "0",
+    "r_overBrightBits": "1",
+    "r_mapOverBrightBits": "2",
+    "r_vertexLight": "0",          # 0 = lightmaps, 1 = vertex lighting (cheaper)
+    "r_dynamiclight": "1",
+    "r_subdivisions": "4",         # bezier-patch tessellation (lower = finer/heavier)
+    "r_lodCurveError": "250",
+    "r_lodBias": "0",              # mipmap LOD bias (negative = sharper, 3dfx trick)
+    "r_detailtextures": "1",
+    "r_flares": "0",
+    "r_fastsky": "0",
+    "r_finish": "0",
+}
+# Voodoo3 has no T-buffer, so no FSAA / motion blur / anisotropic — recorded as a
+# constant so the DB is explicit about what the card cannot do (vs left off).
+QUALITY_FIXED = {"fsaa": "none (Voodoo3 has no T-buffer)", "anisotropic": "none"}
+# Named quality profiles = overrides on QUALITY_DEFAULT.
+QUALITY_PROFILES = {
+    "default": {},                 # stock Q3 defaults (above)
+    "fast": {"r_picmip": "3", "r_vertexLight": "1", "r_dynamiclight": "0",
+             "r_subdivisions": "20", "r_ext_compressed_textures": "1",
+             "r_fastsky": "1", "r_detailtextures": "0", "r_lodCurveError": "10000"},
+    "high": {"r_picmip": "0", "r_textureMode": "GL_LINEAR_MIPMAP_LINEAR",  # trilinear
+             "r_ext_compressed_textures": "0", "r_dynamiclight": "1",
+             "r_subdivisions": "4"},
+    "max": {"r_picmip": "0", "r_textureMode": "GL_LINEAR_MIPMAP_LINEAR",
+            "r_ext_compressed_textures": "0", "r_dynamiclight": "1",
+            "r_subdivisions": "2", "r_lodBias": "-0.5", "r_detailtextures": "1",
+            "r_lodCurveError": "10000"},
+}
+
+
+def resolve_quality(profile):
+    """Return (launch_cvar_string, full_settings_dict) for a named quality profile."""
+    cv = dict(QUALITY_DEFAULT)
+    cv.update(QUALITY_PROFILES.get(profile, {}))
+    extra = " ".join("+set %s %s" % (k, v) for k, v in cv.items())
+    return extra, {**cv, **QUALITY_FIXED, "quality_profile": profile}
+
 # system32 file fingerprints -> stack classification (size in bytes)
 FPRINT = {
     "3dfxvs.dll": {595180: "retro3dfx (H5-source)", 624896: "AmigaMerlin 2.9"},
@@ -337,6 +391,11 @@ async def main():
     ap.add_argument("--cs16demo", default=CS16_DEMO, help="cstrike\\<name>.dem to timedemo")
     ap.add_argument("--changes", default="", help="fork SHA + description of the driver change under test")
     ap.add_argument("--lever", default="performance", choices=["performance", "quality"])
+    ap.add_argument("--quality", default="default", choices=list(QUALITY_PROFILES),
+                    help="quality profile applied + recorded per run (default/fast/high/max)")
+    ap.add_argument("--quality-sweep", default="", dest="quality_sweep",
+                    help='comma list of quality profiles to permute (or "all"); '
+                         "overrides --quality. Every run records the full resolved cvar set.")
     ap.add_argument("--notes", default="")
     # pure-3dfx lane (3dfx-driver-optimized on .143): our own OpenGL ICD, not MesaFX
     ap.add_argument("--gldriver", default="retrogl",
@@ -385,23 +444,31 @@ async def main():
         return "unknown"
 
     capture = bool(args.stack_name)           # pull driver crash logs on no-fps in the debug lane
+    # quality profiles to run (permutation coverage): --quality-sweep wins,
+    # "all" = every named profile, else the single --quality.
+    q_profiles = (list(QUALITY_PROFILES) if args.quality_sweep.strip() == "all"
+                  else [p.strip() for p in args.quality_sweep.split(",") if p.strip()]
+                  or [args.quality])
     runs = []
     if args.game in ("q3", "both"):
         for mode in (int(m) for m in args.modes.split(",")):
             label = MODE_RES.get(mode, "mode%d" % mode)
-            for run in range(1, args.runs + 1):
-                fps, gl, crash = await timedemo(args.ip, args.q3dir, mode, args.env,
-                                                gldriver=args.gldriver, capture=capture)
-                ver = ver_of(gl)
-                rec = {"benchmark": "q3-timedemo-four", "resolution": label, "mode": mode,
-                       "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
-                       "settings": {"resolution": label, "r_mode": mode, "colorbits": 16,
-                                    "demo": "four.dm_66", "q3_version": "1.32"}}
-                if crash:
-                    rec["crash_logs"] = crash
-                runs.append(rec)
-                print("q3 %s run %d: %s fps [driver %s]%s"
-                      % (label, run, fps, ver, "  CRASH(logs captured)" if crash else ""))
+            for qp in q_profiles:
+                qextra, qsettings = resolve_quality(qp)
+                for run in range(1, args.runs + 1):
+                    fps, gl, crash = await timedemo(args.ip, args.q3dir, mode, args.env,
+                                                    gldriver=args.gldriver, extra=qextra,
+                                                    capture=capture)
+                    ver = ver_of(gl)
+                    rec = {"benchmark": "q3-timedemo-four", "resolution": label, "mode": mode,
+                           "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
+                           "settings": {"resolution": label, "r_mode": mode,
+                                        "demo": "four.dm_66", "q3_version": "1.32", **qsettings}}
+                    if crash:
+                        rec["crash_logs"] = crash
+                    runs.append(rec)
+                    print("q3 %s [%s] run %d: %s fps [driver %s]%s"
+                          % (label, qp, run, fps, ver, "  CRASH(logs captured)" if crash else ""))
     if args.game in ("cs16", "both"):
         for run in range(1, args.runs + 1):
             fps, gl = await cs16_timedemo(args.ip, args.cs16dir, args.cs16demo, args.env)
@@ -409,7 +476,13 @@ async def main():
             runs.append({"benchmark": "cs16-timedemo", "resolution": CS16_RES, "mode": None,
                          "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
                          "settings": {"resolution": CS16_RES, "engine": "GoldSrc/hl.exe",
-                                      "demo": args.cs16demo + ".dem", "renderer": "OpenGL (retrogl)"}})
+                                      "demo": args.cs16demo + ".dem",
+                                      "renderer": "OpenGL (our ICD)", "colorbits": "16",
+                                      "gl_texturemode": "GL_LINEAR_MIPMAP_LINEAR",
+                                      "gl_max_size": "256", "gl_picmip": "0",
+                                      "gl_round_down": "0", "gl_overbright": "1",
+                                      "r_mmx": "1", "fps_max": "0",
+                                      "fsaa": "none (Voodoo3 has no T-buffer)"}})
             print("cs16 run %d: %s fps [driver %s]" % (run, fps, ver))
 
     outdir = os.path.join(REPO, "benchmarks")
