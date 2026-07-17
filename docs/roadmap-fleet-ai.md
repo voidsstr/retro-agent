@@ -2,9 +2,33 @@
 
 This is the detailed build plan behind the **Fleet AI** roadmap in the top-level
 [`README.md`](../README.md#roadmap--fleet-ai-train-infer-and-benchmark-ml-on-vintage-hardware-contributors-welcome).
-It is a design document and work breakdown, **not shipped code** — every section
-is an invitation to contribute. Each milestone lists concrete **deliverables** and
-the **acceptance tests** to run once it is implemented, so "done" is measurable.
+Each milestone lists concrete **deliverables** and the **acceptance tests** to
+run once it is implemented, so "done" is measurable.
+
+## Implementation status (2026-07-17)
+
+Most of this roadmap is now **implemented and fleet-verified** (engine:
+[`retro-infer/`](../retro-infer), Python tooling: [`tools/rim/`](../tools/rim),
+fleet coordinators: `scripts/retro_ai_*.py`, metrics: `scripts/ai_metrics.py`
+→ `ai_runs` in the specpicks DB):
+
+| Milestone | Status |
+|---|---|
+| M0 scaffold + selfcheck | ✅ fleet-verified (.124 P3/SSE, .143 Athlon/3DNow!) |
+| M1 CPU kernels | ✅ int8 LeNet-5 logits **bit-exact** vs numpy ref on both boxes; SSE/MMX/3DNow! all beat scalar |
+| M2 on-device training | ✅ MLP ≥96% MNIST trained on both boxes; GBDT val AUC 0.9216 (sklearn ref 0.9205); RF, SVM; bit-for-bit determinism |
+| M3 `.rim` + converter | ✅ (round-trip verified; 3-machine test ran on the 2 boxes online) |
+| M4 agent ML transport | ✅ agent v1.9.1: AI_HELLO/MODEL_LOAD/MODEL_LIST/INFER_RUN/TENSOR (+AI_RAW pass-through); remote inference bit-exact |
+| M5 Glide GPU backend | ✅ **exact** binary/XNOR GEMM on a real Voodoo5 (0 error, hash-stable); BNN CIFAR-10 on-GPU = 1000/1000 label agreement vs CPU |
+| M6 NVIDIA backend | 🚧 code complete (`src/gpu/nv_gl.c`), blocked on a GeForce box coming online |
+| M7 fleet training | ✅ data-parallel SGD (2-node result **bit-identical** to single-node; failover verified); distributed GBDT (histogram aggregation); pipeline parallelism (layer-per-machine, label-identical). Char-transformer pipeline flagship still open (needs attention ops). |
+| M8 metrics + console | ✅ `ai_runs` table + leaderboards live (all milestone results logged); `scripts/retro_infer_console.py` TUI |
+
+Honest numbers, as promised: on binary GEMM the Voodoo5 is exact at 61 MMAC/s,
+but the Athlon's bit-packed XNOR does 695 MMAC/s — the GPU backend's win is
+*that it works at all, exactly*. Remaining invitations: the transformer
+pipeline flagship, int8-via-bitplanes on Glide, the GeForce hardware pass, and
+RNN/VAE/keyword-spotting from the model zoo.
 
 ## Goals & non-goals
 

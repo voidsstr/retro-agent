@@ -44,6 +44,7 @@ typedef int SOCKET;
 #include "exec.h"
 #include "serve.h"
 #include "train/nn_session.h"
+#include "train/gb_dist.h"
 
 #define MAX_MODELS 8
 #define MAX_SLOTS 32
@@ -488,6 +489,109 @@ static void handle_client(SOCKET c, int *shutdown_flag)
         } else if (strcmp(cmd, "NTFREE") == 0) {
             nns_free(g_nns);
             g_nns = NULL;
+            if (reply_text(c, "OK"))
+                return;
+        } else if (strcmp(cmd, "GBINIT") == 0 && arg1 && arg2) {
+            unsigned char *blob = frame_recv_srv(c, &plen);
+            if (!blob)
+                return;
+            if (gbd_init(atoi(arg1), atoi(arg2), blob, plen)) {
+                free(blob);
+                if (reply_err(c, "GBINIT failed"))
+                    return;
+                continue;
+            }
+            free(blob);
+            if (reply_text(c, "OK"))
+                return;
+        } else if (strcmp(cmd, "GBSUMY") == 0) {
+            char msg[64];
+            int nn2 = 0;
+            long s = gbd_ready() ? gbd_sumy(&nn2) : -1;
+            sprintf(msg, "sum=%ld n=%d", s, nn2);
+            if (reply_text(c, msg))
+                return;
+        } else if (strcmp(cmd, "GBSTART") == 0 && arg1) {
+            if (gbd_start((float)atof(arg1))) {
+                if (reply_err(c, "no gb data"))
+                    return;
+            } else if (reply_text(c, "OK"))
+                return;
+        } else if (strcmp(cmd, "GBNEWTREE") == 0) {
+            if (gbd_newtree()) {
+                if (reply_err(c, "no gb data"))
+                    return;
+            } else if (reply_text(c, "OK"))
+                return;
+        } else if (strcmp(cmd, "GBHIST") == 0) {
+            unsigned char *blob = frame_recv_srv(c, &plen);
+            unsigned nf;
+            if (!blob)
+                return;
+            if (!gbd_ready() || plen < 4) {
+                free(blob);
+                if (reply_err(c, "no gb data"))
+                    return;
+                continue;
+            }
+            memcpy(&nf, blob, 4);
+            if (nf == 0 || nf > 64 || plen < 4 + (size_t)nf * 4) {
+                free(blob);
+                if (reply_err(c, "bad frontier"))
+                    return;
+                continue;
+            }
+            {
+                size_t outlen = (size_t)nf * gbd_nfeat() * 256 * 12;
+                unsigned char *out = (unsigned char *)malloc(outlen);
+                if (!out) {
+                    free(blob);
+                    if (reply_err(c, "oom"))
+                        return;
+                    continue;
+                }
+                gbd_hist((const int *)(blob + 4), (int)nf, out);
+                free(blob);
+                if (frame_send_srv(c, 0x01, out, outlen)) {
+                    free(out);
+                    return;
+                }
+                free(out);
+            }
+        } else if (strcmp(cmd, "GBSPLIT") == 0) {
+            unsigned char *blob = frame_recv_srv(c, &plen);
+            unsigned nd;
+            if (!blob)
+                return;
+            memcpy(&nd, blob, 4);
+            if (!gbd_ready() || plen < 4 + (size_t)nd * 20) {
+                free(blob);
+                if (reply_err(c, "bad split payload"))
+                    return;
+                continue;
+            }
+            gbd_split((const int *)(blob + 4), (int)nd);
+            free(blob);
+            if (reply_text(c, "OK"))
+                return;
+        } else if (strcmp(cmd, "GBLEAF") == 0 && arg1) {
+            unsigned char *blob = frame_recv_srv(c, &plen);
+            unsigned nl;
+            if (!blob)
+                return;
+            memcpy(&nl, blob, 4);
+            if (!gbd_ready() || plen < 4 + (size_t)nl * 8) {
+                free(blob);
+                if (reply_err(c, "bad leaf payload"))
+                    return;
+                continue;
+            }
+            gbd_leaf(blob + 4, (int)nl, (float)atof(arg1));
+            free(blob);
+            if (reply_text(c, "OK"))
+                return;
+        } else if (strcmp(cmd, "GBFREE") == 0) {
+            gbd_free();
             if (reply_text(c, "OK"))
                 return;
         } else if (strcmp(cmd, "SHUTDOWN") == 0) {

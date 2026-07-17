@@ -819,10 +819,14 @@ a Voodoo doing the matrix math — trained on the whole fleet at once."*
 
 Everything here is **custom code** — none of these machines can run PyTorch,
 CUDA, scikit-learn, or even a modern libc. That constraint is the point: it's an
-interesting systems problem and every layer stays hackable. **This is a plan, not
-shipped code.** The full milestone-by-milestone build order, with the acceptance
-tests to run at each step, is in
-[`docs/roadmap-fleet-ai.md`](docs/roadmap-fleet-ai.md); the overview is below.
+interesting systems problem and every layer stays hackable. **Most of this is
+now implemented and fleet-verified** — the engine lives in
+[`retro-infer/`](retro-infer), highlights include bit-exact int8 LeNet-5
+inference on real P3/Athlon boxes, on-device MNIST training to ≥96%, exact
+XNOR GEMM + BNN CIFAR-10 inference on a real Voodoo5, bit-identical 2-node
+data-parallel training, and distributed GBDT — see the status table in
+[`docs/roadmap-fleet-ai.md`](docs/roadmap-fleet-ai.md) for the
+milestone-by-milestone acceptance results and what's still open.
 
 ### What it looks like — `retro-infer` fleet console
 

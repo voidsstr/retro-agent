@@ -29,7 +29,7 @@ BASE_SRCS = src/main.c src/cpuid.c src/tensor.c src/kernels.c src/bench.c \
             src/serve.c src/bnn_eval.c src/gpu/glide_mac.c src/gpu/glide_check.c src/gpu/nv_gl.c \
             src/ops/gemm_scalar.c src/ops/nn.c \
             src/train/tutil.c src/train/trees.c src/train/train_nn.c \
-            src/train/gbdt.c src/train/forest.c src/train/svm.c src/train/nn_session.c
+            src/train/gbdt.c src/train/forest.c src/train/svm.c src/train/nn_session.c src/train/gb_dist.c
 SSE_SRCS  = src/ops/gemm_sse.c
 MMX_SRCS  = src/ops/gemm_mmx.c
 DNOW_SRCS = src/ops/gemm_3dnow.c
