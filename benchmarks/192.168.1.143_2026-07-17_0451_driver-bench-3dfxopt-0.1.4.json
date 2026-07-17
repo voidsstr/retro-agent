@@ -1,0 +1,48 @@
+{
+ "machine_ip": "192.168.1.143",
+ "ts": "2026-07-17T04:51:40",
+ "cpu": "x86 ~1000MHz",
+ "stack": {
+  "display_driver": "unrecognized (689216 B)",
+  "glide3x": "3dfx-driver-optimized (H5-source, WFP-safe rename)",
+  "icd": "3dfxogl (H5-source OpenGL ICD)",
+  "stack_composition": "3dfx-driver-optimized"
+ },
+ "env": "none",
+ "changes": "0.1.4: GL_ARB_multitexture single-pass world rendering (2 TMU); also fixed DrvGetProcAddress returning NULL (blocked all extensions under XP opengl32)",
+ "q3_timedemo": [
+  {
+   "benchmark": "q3-timedemo-four",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 1,
+   "fps": 85.0,
+   "gl_renderer": "3Dfx",
+   "driver_version": "3dfxopt-0.1.4",
+   "settings": {
+    "resolution": "640x480",
+    "r_mode": 3,
+    "colorbits": 16,
+    "demo": "four.dm_66",
+    "q3_version": "1.32"
+   }
+  },
+  {
+   "benchmark": "q3-timedemo-four",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 2,
+   "fps": 85.0,
+   "gl_renderer": "3Dfx",
+   "driver_version": "3dfxopt-0.1.4",
+   "settings": {
+    "resolution": "640x480",
+    "r_mode": 3,
+    "colorbits": 16,
+    "demo": "four.dm_66",
+    "q3_version": "1.32"
+   }
+  }
+ ],
+ "screenshot": "/home/voidsstr/development/retro-agent/benchmarks/quality_shot.png"
+}
