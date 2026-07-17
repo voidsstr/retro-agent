@@ -2,10 +2,9 @@
 
 Everything for optimizing/extending 3dfx Voodoo drivers for the fleet (the
 Voodoo5 5500, the incoming Voodoo5 6000, Voodoo3), built with the same mingw
-toolchain as `retro_agent.exe`. **Clean-room throughout** — open Glide release,
-public DDK/DDI, public register docs. ***REMOVED*** is not used.
+toolchain as `retro_agent.exe`. **Clean-room throughout** — built only from the
+open Glide source release, public DDK/DDI, and public register documentation.
 
-Landscape + rationale: [`docs/3dfx-drivers.md`](../../docs/3dfx-drivers.md).
 D3D driver design: [`docs/3dfx-d3d-hal-design.md`](../../docs/3dfx-d3d-hal-design.md).
 
 ## What's here

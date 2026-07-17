@@ -45,7 +45,7 @@ void handle_smartinfo(SOCKET sock);
 void handle_displaycfg(SOCKET sock, const char *args);
 void handle_audioinfo(SOCKET sock);
 void handle_sysfix(SOCKET sock, const char *args);
-void handle_xpactivate(SOCKET sock, const char *args);
+void handle_licstatus(SOCKET sock, const char *args);
 void handle_automap(SOCKET sock, const char *args);
 void handle_prompt_push(SOCKET sock, const char *args);
 void handle_prompt_pop(SOCKET sock);

@@ -55,7 +55,7 @@ static const cmd_entry_t commands[] = {
     { "DISPLAYCFG", 1, NULL,             handle_displaycfg },
     { "AUDIOINFO",  0, handle_audioinfo,  NULL },
     { "SYSFIX",     1, NULL,             handle_sysfix },
-    { "XPACTIVATE", 1, NULL,            handle_xpactivate },
+    { "LICSTATUS",  1, NULL,            handle_licstatus },
     { "AUTOMAP",    1, NULL,             handle_automap },
     { "PROMPT_PUSH",1, NULL,            handle_prompt_push },
     { "PROMPT_POP", 0, handle_prompt_pop, NULL },

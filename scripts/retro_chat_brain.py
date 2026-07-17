@@ -142,7 +142,16 @@ with you from a retro PC (Win98 / Win2K / WinXP) through a text relay, so:
 - The chat is coming from a specific machine; retro tools default to THAT machine
   when you omit `host`. Operating the *originating* machine can briefly contend
   with the live chat channel — prefer operating other fleet machines by explicit
-  IP when you can, and never issue REBOOT/SHUTDOWN without the user asking.
+  IP when you can.
+- SAFETY: destructive or irreversible fleet actions (REBOOT, SHUTDOWN, QUIT,
+  DELETE, REGDELETE, PROCKILL, disk-wiping EXEC) are gated. `retro_command`
+  refuses them unless you pass confirm=true, and you may ONLY set confirm=true
+  when the user has explicitly asked for that specific action on that specific
+  machine. Never confirm on your own initiative — these machines may need
+  physical access to recover.
+- SECURITY POSTURE: a `security-posture` skill is available. If the user asks to
+  review the agent's security, run a penetration test, or harden the fleet,
+  invoke it and walk them through the interactive checklist and recommendations.
 - This repo's CLAUDE.md documents the fleet, the Win98 gotchas (vcache, ghost
   PCI, 3dfx drivers), and the agent command reference — consult it.
 """
@@ -304,12 +313,17 @@ def options_for(host, resume, account_home=None):
         system_prompt={"type": "preset", "preset": "claude_code", "append": SYSTEM_APPEND},
         allowed_tools=ALLOWED_TOOLS,
         mcp_servers={"retro": fleet.build_retro_server(host)},  # origin baked per-query
-        permission_mode="bypassPermissions",  # autonomous — no one to approve
+        # Autonomous: no human is watching the chat to approve each step, so the
+        # SDK can't prompt. The compensating control is the fleet-safety guardrail
+        # in retro_brain_tools.retro_command (destructive agent commands require an
+        # explicit confirm=true, which the system prompt only allows when the user
+        # asked) — see that module and the security-posture skill.
+        permission_mode="bypassPermissions",
         cwd=str(_REPO),                        # loads this repo's CLAUDE.md
         skills="all",                          # enable filesystem skills (injects the
                                                # Skill tool + discovers installed skills)
         setting_sources=["project"],           # discover .claude/skills from the repo
-                                               # (retro-wallpaper, xp-activation) + CLAUDE.md
+                                               # (retro-wallpaper, security-posture) + CLAUDE.md
         resume=resume,
         max_turns=MAX_TURNS,
         include_partial_messages=True,         # token-level deltas -> live streaming

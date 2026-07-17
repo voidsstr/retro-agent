@@ -468,24 +468,14 @@ General pattern:
 | 10.0.0.51 | VOIDSSTR-YOR7S5 | Win2K 5.0 | GeForce 2 GTS, SB Live |
 | 10.0.0.52 | 2004-XP | Windows XP | 2047MB RAM |
 
-## Windows XP / 2003 Offline Activation (`scripts/xp-activation/`)
+## Windows activation / license status
 
-Microsoft's XP activation servers (internet + automated phone) are dead, so XP
-boxes that fall out of activation can't reach Microsoft. `scripts/xp-activation/`
-generates a valid **Confirmation ID** from the on-screen **Installation ID**
-completely offline — reproducing what the phone system used to return (not a
-crack; patches nothing on the target).
-
-```bash
-cd scripts/xp-activation && ./build.sh                  # builds ./***REMOVED*** (first run)
-./***REMOVED*** <9 groups of 6 digits from the activation wizard>   # prints Confirmation ID
-```
-
-Get the Installation ID on the XP machine via the lockout screen's **telephone
-activation** option (no login needed; Safe Mode works if normal login is blocked),
-or `msoobe.exe /a` from a desktop. The same screen accepts the Confirmation ID
-back. The `/xp-activation` skill walks the whole flow; see
-[`scripts/xp-activation/README.md`](scripts/xp-activation/README.md) for details.
+To read a machine's Windows activation/license status (read-only, like
+`slmgr /xpr`), use the agent's `LICSTATUS` command. It only *reports* status; it
+does not modify activation state. Restoring activation on a licensed machine is
+done through Microsoft's normal path (product-key entry / telephone activation)
+by the operator — the offline confirmation-ID helper for that lives in the
+private `retro-agent-private` repo, not here.
 
 ## SMB File Share
 
@@ -493,44 +483,9 @@ back. The `/xp-activation` skill walks the whole flow; see
 
 Upload: `curl --upload-file file -u YOUR-CREDS "smb://YOUR-SERVER/files/Utility/Retro%20Automation/file"`
 
-## Linux Game Servers (`scripts/game-servers/`)
+## Linux game/dedicated-server tooling (moved)
 
-Idempotent installers for UT2004 3369.3, UT99 (OldUnreal 469e), Yamagi Quake 2, and OpenArena (Q3-compatible) dedicated servers. All four run as `systemctl --user` units with `loginctl enable-linger`. See [`scripts/game-servers/README.md`](scripts/game-servers/README.md) for the full walkthrough.
-
-**Quick install:** `cd scripts/game-servers && ./install-all.sh`
-
-Updating the retro XP fleet to the matching **UT99 469e client**:
-```bash
-python3 scripts/game-servers/push-ut99-xp-patch.py 192.168.1.143 192.168.1.133 ...
-```
-
-**Pre-install multiplayer download packs** (Q3 mod paks, UT99 custom maps, UT2004 bonus-pack maps, Q2 mod content) so retro machines skip the auto-download phase when joining public servers:
-```bash
-./scripts/game-servers/push-all-mp-paks.sh 192.168.1.143 192.168.1.133 ...
-```
-Share layout: `\\192.168.1.122\files\Game Updates\{Q3,UT99,UT2004,Q2}-Multiplayer\` with subdirs matching each game's on-disk structure. Push scripts use `cmd /c copy /Y` (NOT `xcopy` — xcopy hangs silently when the source is on a NETMAP'd SMB drive on WinXP).
-
-### Fleet install paths — game-specific gotchas
-
-- **Quake 3:** the NSC fleet convention is `C:\Quake III Arena\Quake3\` — note the extra `\Quake3\` subdir. `pak0.pk3` lives at `C:\Quake III Arena\Quake3\baseq3\pak0.pk3`, mod paks go into sibling subdirs (`\Quake3\cpma\`, `\Quake3\osp\`, etc.). The `push-q3-mp-paks.py` candidate-path list has the double-nested path first so it always wins over a hypothetical `C:\Quake III Arena\baseq3\` layout.
-- **UT99:** installs can be either `C:\UT\` or `C:\UnrealTournament\`. The push script checks both.
-- **Install detection:** don't use `DIRLIST` to probe for a game install — it returns status=0 (failure) for paths containing spaces on some XP agents. Use `EXEC cmd /c if exist "..." (echo FOUND) else (echo MISSING)` instead — that works reliably regardless of spaces.
-- **ZIP extraction on XP:** PowerShell is 2.0 so `Expand-Archive` isn't available. The Q3 push script ships a JScript Shell.Application shim (`q3_unzip.js`) and **busy-waits for the destination Items.Count to stabilize** — `CopyHere` is asynchronous and returns before the extract finishes. Forgetting to wait causes the caller to `del` the staging zip mid-extract.
-
-**Known gotchas** (all documented in the scripts themselves):
-
-- **Stock UT2004.ini has `0x1B` (ESC) bytes** embedded in 4 maplist section headers (`[DefaultDM MaplistRecord]`, `[DefaultTDM MaplistRecord]`, `[1on1Deathmatch MaplistRecord]`, `[1on1TeamDeathmatch MaplistRecord]`). Any section-header string comparison fails until those are stripped.
-- **Archive.org's UT2004 zip uses LZMA (method 14)** inside ZIP; Info-Zip's `unzip` fails silently ("1660 files skipped because of unsupported compression"). Use Python's `zipfile` or `7z`.
-- **Epic's master servers are dead since 2023.** For UT2004, use the MasterServerMirror mod for multi-master uplink to community replacements (333networks, OpenSpy, errorist.eu). UT99's OldUnreal 469e ships with 8 community masters pre-configured — no extra mod needed.
-- **Yamagi Quake 2 rejects the `serverinfo` flag suffix** that stock Q2 accepted. `set x "val" serverinfo` → error "flags can only be 'u' or 's'". Use plain `set x "val"`.
-- **`openarena-server` Debian package auto-enables a system-wide service** that grabs UDP 27960 with a default-config `noname` instance. Symptom: your user-unit's `sv_hostname` appears in the log but the external status query shows `noname` / `fraglimit 20` / `maxclients 8`. Fix: `sudo systemctl disable --now openarena-server.service`.
-- **UT99 OldUnreal 469e ServerPackages references missing skin packs** (`TCowMeshSkins`, `TNaliMeshSkins`, `TSkMSkins`) from the Epic bonus pack. Stock UT99 installs don't include them. Leaving them in `UnrealTournament.ini` aborts server startup with `Failed to load TCowMeshSkins`. Install script removes these lines.
-- **UT99 default port (7777) collides with UT2004's.** Shift UT99 to `-port=7797` on the command line; query port auto-shifts to 7798.
-- **AT&T BGW gateways bind NAT rules by MAC, not IP.** If your server host has both Wi-Fi and Ethernet, the "2026-5090" device list shows **two** entries — one per NIC — with the same hostname. Picking the Wi-Fi MAC creates asymmetric routing (inbound → .129, outbound from .132) and masters silently drop the listing. Always pick the wired-adapter MAC explicitly in Firewall → NAT/Gaming.
-- **AT&T BGW NAT rules can spontaneously re-bind** to whatever device currently holds the IP in the router's DHCP table. If game-server rules suddenly show a different device (e.g. "HP Inc."), `/cgi-bin/apphosting.ha` needs the rules deleted and re-added against the wired MAC. `/tmp/att-router/` has the session scripts used for this.
-
-**Ports to forward (UDP, to the wired LAN IP):**
-- `7777-7787` — UT2004 (game, browser, gamespy query)
-- `7797-7798` — UT99 (game, query — shifted to avoid UT2004 collision)
-- `27910` — Quake 2
-- `27960` — OpenArena / Q3
+The Linux dedicated-server installers and the CS 1.6 server ops skill now
+live in the private **retro-agent-private** repo (`scripts/game-servers/`,
+`.claude/skills/cs16-servers/`, `docs/game-compat-and-servers.md`). They are
+not part of the public agent project.

@@ -37,7 +37,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/display.c \
           $(SRCDIR)/audio.c \
           $(SRCDIR)/sysfix.c \
-          $(SRCDIR)/xpactivate.c \
+          $(SRCDIR)/licstatus.c \
           $(SRCDIR)/chatproxy.c \
           $(SRCDIR)/autoupdate.c \
           $(SRCDIR)/retrowall.c \

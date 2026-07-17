@@ -7,7 +7,7 @@
  * building without the DDK). See the mapping table in
  * docs/3dfx-d3d-hal-design.md sec.5.
  *
- * Clean-room: maps public D3D semantics onto open Glide calls. ***REMOVED***.
+ * Clean-room: maps public D3D semantics onto open Glide calls.
  */
 #include "fxd3d.h"
 #include <string.h>

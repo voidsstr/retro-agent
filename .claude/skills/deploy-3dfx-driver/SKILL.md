@@ -1,12 +1,13 @@
 ---
 name: deploy-3dfx-driver
-description: Deploy the self-built 3dfx H5/Napalm XP driver package (3dfxvsm.sys + 3dfxvs.dll + glide3x.dll) to a fleet Windows XP machine with a Voodoo 3/4/5 via the retro agent — preflight HWID check, staged upload, backup, SetupAPI install, verify, rollback. Use when the user says to install/deploy/update the 3dfx driver, "put our driver on .124", replace the in-box XP Voodoo driver, or test the freshly built Voodoo3/Voodoo5 driver on a fleet box.
+description: Deploy the self-built 3dfx XP driver package (3dfxvsm.sys + 3dfxvs.dll + glide3x.dll) to a fleet Windows XP machine with a Voodoo 3/4/5 via the retro agent — preflight HWID check, staged upload, backup, SetupAPI install, verify, rollback. Use when the user says to install/deploy/update the 3dfx driver, "put our driver on .124", replace the in-box XP Voodoo driver, or test the freshly built Voodoo3/Voodoo5 driver on a fleet box.
 ---
 
 # Deploy 3dfx XP Driver to a Fleet Machine
 
-Installs the driver we built from the ***REMOVED*** (see memory:
-`3dfx-driver-build-project`) onto a fleet **XP/W2K** box over the retro agent.
+Installs the 3dfx display driver we build in the private **retro-3dfx** repo
+(see memory: `3dfx-driver-build-project`) onto a fleet **XP/W2K** box over the
+retro agent.
 This is a display driver swap on a remote machine that needs physical access to
 recover — be deliberate, back up first, and follow the fleet rules in CLAUDE.md.
 

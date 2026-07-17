@@ -10,7 +10,7 @@
  * the dispatcher is unit-testable against synthetic buffers on the build host;
  * with -DHAVE_DDK the real D3DHAL_DP2COMMAND layout is used.
  *
- * Clean-room: implements the public DP2 contract; ***REMOVED***.
+ * Clean-room: implements the public DP2 contract from the Microsoft DDK.
  */
 #include "fxd3d.h"
 #include <string.h>

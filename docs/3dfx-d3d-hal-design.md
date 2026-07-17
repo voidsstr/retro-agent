@@ -3,9 +3,9 @@
 Design document for a **clean-room Direct3D HAL** for the 3dfx VSA-100
 (Voodoo4/5) and Avenger (Voodoo3) chips, implemented as a translation layer on
 top of the **open-source Glide3** we already cross-compile
-(`scripts/3dfx/build-glide.sh`). ***REMOVED*** is used or consulted — every
-reference is either 3dfx's genuinely open Glide release, the Microsoft DDK, or
-public register documentation.
+(`scripts/3dfx/build-glide.sh`). Built only from open sources — every reference
+is either 3dfx's genuinely open Glide release, the Microsoft DDK, or public
+register documentation.
 
 Status: **active build.** This doc is the spec; code lives in
 `scripts/3dfx/d3dhal/` (the HAL translation core + a Glide backend) and
@@ -214,14 +214,14 @@ since the Voodoo has no hardware T&L and the runtime already did it.
 
 Clean-room. Inputs: the open **Glide** release (3dfx Glide GPL), the **Microsoft
 DDK** D3D DDI headers/docs, public **VSA-100/Avenger register** references, and
-the open **vmdisp9x / RISCyVoodoo / triatomic** drivers. ***REMOVED*** is **not**
-used, opened, or referenced. Everything here is buildable, committable, and
-shippable to the fleet — which ***REMOVED***.
+the open **vmdisp9x / RISCyVoodoo / triatomic** drivers. Everything here is built
+only from those open/public sources — buildable, committable, and shippable to
+the fleet.
 
 ## 10. References
 
 - Open Glide: [sezero/glide](https://github.com/sezero/glide) · our build:
-  `scripts/3dfx/build-glide.sh`, landscape: `docs/3dfx-drivers.md`
+  `scripts/3dfx/build-glide.sh`
 - Host-driver templates: [vmdisp9x](https://github.com/JHRobotics/vmdisp9x) ·
   [RISCyVoodoo](https://github.com/Eeveelution/RISCyVoodoo) ·
   [triatomic](https://github.com/AmrikSadhra/triatomic) (public V3 reg docs)

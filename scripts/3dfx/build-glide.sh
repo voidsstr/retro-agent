@@ -12,7 +12,7 @@
 #                      what Win98 Glide2 games use on Voodoo3/4/5
 #
 # Upstream: https://github.com/sezero/glide (fork of the SourceForge CVS).
-# See docs/3dfx-drivers.md for the full driver-landscape research.
+# Built from the open Glide source release (see FORKS.md for provenance).
 #
 # Host quirks handled here (all discovered/validated 2026-07-15 on this repo's
 # build host - see the doc):

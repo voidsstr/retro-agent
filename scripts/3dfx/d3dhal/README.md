@@ -5,8 +5,8 @@ open-source Glide3 we build in `../build-glide.sh`. Design +rationale:
 [`docs/3dfx-d3d-hal-design.md`](../../../docs/3dfx-d3d-hal-design.md).
 
 **Clean-room.** Built only from the open Glide release, the Microsoft DDK's
-public D3D DDI, and public VSA-100/Avenger register docs. ***REMOVED*** is not
-used. Everything here is buildable, committable, and shippable.
+public D3D DDI, and public VSA-100/Avenger register docs. Everything here is
+buildable, committable, and shippable.
 
 ## Layout
 

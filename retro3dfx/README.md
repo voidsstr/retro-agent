@@ -19,32 +19,39 @@ ICD result on a Voodoo3 3000 (44.3).
    [3] OpenGL ICD ────────────────┐  │    retro3dfx-gl (MesaFX 6.2 fork)
         │  gr* calls              │  │    → opengl32.dll / retrogl.dll
         ▼                         ▼  ▼
-   [2] glide3x.dll                        H5-source build (ships in the XP
+   [2] glide3x.dll                        private-repo build (ships in the XP
         │  register / FIFO writes         package) or retro3dfx-glide fork
         ▼
-   [1] XP kernel display driver           3dfxvsm.sys + 3dfxvs.dll (H5 source
-        │                                 via toolchain-3dfx); retro3dfx-disp
-        ▼                                 is the clean-room alternative track
+   [1] XP kernel display driver           3dfxvsm.sys + 3dfxvs.dll (built in the
+        │                                 private retro-3dfx repo); retro3dfx-disp
+        ▼                                 is the clean-room track in THIS repo
    Voodoo 3 / Voodoo 5 hardware
 ```
 
+The two lower layers have two implementations each: a **deployed build produced
+in the private `retro-3dfx` repo** (kept separate from this public repo), and an
+**open fork we optimize here**. The optimization work in this repo — the OpenGL
+ICD and the Glide fork — is built entirely from **open upstreams** (see
+`FORKS.md`).
+
 **[1] Kernel display driver** — two implementations:
 
-- **H5-source build** (the one deployed and benchmarked): `3dfxvsm.sys`
-  (miniport) + `3dfxvs.dll` (XPDM display driver incl. D3D HAL), built from the
-  ***REMOVED*** with the Wine-hosted VC6/W2K-DDK toolchain
-  in the sibling **retro-3dfx** repo (`~/development/retro-3dfx/toolchain-3dfx/`).
-  The W2K free build is the XP path (same as AmigaMerlin/SFFT did).
-- **retro3dfx-disp** (`retro3dfx-disp/`): our original "cooperative" display
-  driver whose job is to answer the HWCEXT escape protocol our Glide fork uses
-  for hardware init. Escape server + BAR mapper written and host-tested;
-  modeset/GDI chassis still to write. See its README.
+- **Deployed build** (the one benchmarked): `3dfxvsm.sys` (miniport) +
+  `3dfxvs.dll` (XPDM display driver incl. D3D HAL), produced in the sibling
+  **private** `retro-3dfx` repo with its Wine-hosted VC6/W2K-DDK toolchain. The
+  W2K free build is the XP path (same as AmigaMerlin/SFFT did). Its source and
+  toolchain are not part of this public repo.
+- **retro3dfx-disp** (`retro3dfx-disp/`) — **the open track in this repo**: our
+  original clean-room "cooperative" display driver whose job is to answer the
+  HWCEXT escape protocol our Glide fork uses for hardware init. Escape server +
+  BAR mapper written and host-tested; modeset/GDI chassis still to write. See its
+  README.
 
 **[2] glide3x.dll** — two builds:
 
-- **H5-source glide3x** (deployed on `.124` as part of the XP package): built
-  with era MSVC in toolchain-3dfx; 96 exports, export list identical to the
-  vintage Nov-2000 DLL, retail `_grFoo@N` ABI.
+- **Deployed glide3x** (on `.124` as part of the XP package): produced in the
+  private `retro-3dfx` repo with era MSVC; 96 exports, export list identical to
+  the vintage Nov-2000 DLL, retail `_grFoo@N` ABI.
 - **retro3dfx-glide** ([voidsstr/retro3dfx-glide](https://github.com/voidsstr/retro3dfx-glide),
   fork of sezero/glide): our gcc-13 cross-built Glide2x/Glide3x for h3 (Voodoo3)
   and h5 (Voodoo4/5) — the optimization vehicle. Its NT hardware init needs a
@@ -66,11 +73,11 @@ to Microsoft's "Direct3D GL 1.1" software wrapper.
 | glide3x.dll | Exports | ICD build that binds it |
 |---|---|---|
 | retro3dfx-glide (our fork) | `grFoo` **and** `grFoo@N` (no underscore) | `out/opengl32.dll` — default `build-stack.sh` link |
-| H5-source build (XP package) | `_grFoo@N` (retail MSVC decoration) | `out/opengl32_retail.dll` — `build-mesafx-retail.sh` |
+| deployed build (XP package) | `_grFoo@N` (retail MSVC decoration) | `out/opengl32_retail.dll` — `build-mesafx-retail.sh` |
 | AmigaMerlin / other retail packs | `_grFoo@N` | `out/opengl32_retail.dll` |
 
 The deployed stack on `.124` runs the **retail-ABI** ICD build on top of the
-H5-source glide3x. `build-mesafx-retail.sh` sanity-checks the output imports
+deployed glide3x. `build-mesafx-retail.sh` sanity-checks the output imports
 `_grBufferSwap@4` before declaring success.
 
 ## Build system
@@ -118,9 +125,9 @@ recipe and the agent gotchas (`EXEC`+`start`, not `LAUNCH`; trust
 
 | Layer | Live binary | Built from | Self-built? |
 |---|---|---|---|
-| Kernel display driver | `3dfxvsm.sys` + `3dfxvs.dll` (pkg 3dfx-napalm-xp-20260716) | H5 source, toolchain-3dfx | **yes** |
-| glide3x.dll | H5-source build (96 exports, retail ABI) | H5 source, toolchain-3dfx | **yes** |
-| OpenGL ICD (`retrogl.dll`) | `opengl32_retail.dll`, retro3dfx 0.1.6 | retro3dfx-gl fork | **yes** |
+| Kernel display driver | `3dfxvsm.sys` + `3dfxvs.dll` (XP package) | private retro-3dfx repo | **yes** |
+| glide3x.dll | deployed build (96 exports, retail ABI) | private retro-3dfx repo | **yes** |
+| OpenGL ICD (`retrogl.dll`) | `opengl32_retail.dll`, retro3dfx 0.1.6 | retro3dfx-gl fork (open) | **yes** |
 
 Benchmark standing (Q3 1.32 `timedemo four`, 16bpp, P3-845):
 
@@ -143,7 +150,6 @@ deep work (SSE vertex emit, SSE 4-wide cliptest, end-to-end ubyte colors).
 - `FORKS.md` — fork provenance and licenses.
 - `retro3dfx-disp/README.md` — the clean-room display-driver track.
 - `../benchmarks/README.md` — benchmarking process, result format, DB schema.
-- `../docs/3dfx-drivers.md` — the 2026-07-15 landscape research (what's open
-  source, community packs, era references).
-- `~/development/retro-3dfx/` — private sibling repo: H5 source tree +
-  `toolchain-3dfx/` (kernel-driver builds + dist packages).
+- `~/development/retro-3dfx/` — private sibling repo: the kernel-driver source
+  tree + `toolchain-3dfx/` (kernel-driver builds + dist packages), kept out of
+  this public repo.

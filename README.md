@@ -325,7 +325,7 @@ Discovery: agents broadcast `RETRO|hostname|ip|port|os|cpu|ram_mb|os_family` on 
 |---------|-------------|
 | `DRVSNAPSHOT` | Capture driver configuration state |
 | `SYSFIX [check\|apply]` | Check/apply Win98 system fixes (vcache, swap, DMA, autologon) |
-| `XPACTIVATE [check\|apply]` | Check/apply Windows XP ***REMOVED*** |
+| `LICSTATUS` | Report Windows activation/license status (read-only; like `slmgr /xpr`) |
 
 ### Chat Proxy (Claude Code interface)
 | Command | Direction | Purpose |
@@ -431,11 +431,54 @@ Then run a Claude Code background subagent to process prompts from `/tmp/retro-c
 | `-m` | Force multiplex mode (required for Win98) |
 | `-t` | Force threaded mode (NT only) |
 
+## Purpose & Scope
+
+**What this is:** a remote systems-management and diagnostics agent for a
+homelab of the maintainer's **own** vintage PCs on an **isolated LAN**. It is the
+retro-hardware equivalent of the tools every IT department runs — think an
+open-source cousin of an RMM agent, PsExec/PDQ, VNC, or Ansible for machines too
+old to run any of them. The whole point of the project is to operate 25-year-old
+Windows boxes that can't be managed any modern way, and to let an LLM diagnose
+and fix them (drivers, boot errors, hardware faults) instead of walking to each
+machine.
+
+**Why it has broad capabilities:** remote administration inherently needs to run
+commands, move files, read hardware/registry state, and see the screen — that is
+the job, not a side effect. The same capability set describes every legitimate
+management agent. What distinguishes this from malware is **how it is built and
+operated**, and the project is deliberate about that:
+
+- **Consent & ownership.** It runs only on machines the operator owns and
+  installs it on. There is no self-propagation, no spreading, no exploitation of
+  a vulnerability to gain access — installation is a deliberate copy + run by the
+  owner.
+- **No stealth.** It is not hidden or disguised: it runs under its own name,
+  logs to a file (`-l`), announces itself on the LAN via UDP discovery, and its
+  full source is in this repo. It does not hide processes, evade AV, tamper with
+  security controls, or persist covertly. (The optional `AUTH_ENC` XOR layer is
+  documented as *transport scrambling on a trusted LAN, not a security
+  boundary* — see `agent/src/crypto.c`; tunnel over TLS/SSH for anything beyond
+  the LAN.)
+- **Authenticated & authorization-gated.** Every connection authenticates with a
+  shared secret. The autonomous chat brain adds a **fleet-safety guardrail**
+  (`scripts/retro_brain_tools.py`): destructive/irreversible commands (REBOOT,
+  SHUTDOWN, DELETE, REGDELETE, PROCKILL, disk-wiping EXEC) are refused unless
+  explicitly confirmed, and the brain may only confirm when the user asked.
+- **Auditable & defensive.** A built-in [`security-posture`](.claude/skills/security-posture/SKILL.md)
+  skill runs an authorized self-assessment of the fleet (secret strength, network
+  exposure, update integrity) and proposes hardening — the project actively tests
+  its own posture.
+
+**Do not** deploy this on machines you don't own/administer, on untrusted or
+internet-exposed networks, or without a strong secret. Used that way it would be
+misuse — the same as any admin tool.
+
 ## Security
 
-- **Always set a custom secret** with `-s <secret>`. The default is intentionally weak and meant only for initial testing.
-- The agent listens on **all interfaces**. In production, restrict access via firewall rules or run on an isolated LAN.
-- The agent can execute arbitrary commands, read/write files, and modify the registry. **Only deploy on machines you trust the connecting client to fully control.**
+- **Always set a custom secret** with `-s <secret>`. The default is intentionally weak and meant only for initial testing; the `security-posture` skill flags any agent still accepting it.
+- The agent listens on **all interfaces**. Restrict access via firewall rules or run on an isolated LAN — do not expose port 9898/9899 to the internet.
+- The agent can execute commands, read/write files, and modify the registry. **Only deploy on machines you own and trust the connecting client to fully control.**
+- Auto-update pulls binaries from an SMB share — **write-restrict that share to trusted admins** (a writable share means fleet-wide code execution).
 - SMB share credentials in the provisioning scripts are placeholders. Edit them for your environment before deploying.
 - The chat proxy (`PROMPT_PUSH`, `LOG_APPEND`, etc.) has no additional authentication beyond the agent secret. Anyone who can connect to the agent can read and write chat messages.
 
@@ -627,8 +670,7 @@ RISCyVoodoo, vmdisp9x) — read for structure, not copied.
 Everything is documented in [`retro3dfx/README.md`](retro3dfx/README.md)
 (architecture, ABI gotchas, build system), [`retro3dfx/CHANGELOG.md`](retro3dfx/CHANGELOG.md)
 (per-version changes and rationale), [`retro3dfx/FORKS.md`](retro3dfx/FORKS.md)
-(fork provenance and licenses), and [`docs/3dfx-drivers.md`](docs/3dfx-drivers.md)
-(the driver-landscape research that kicked this off).
+(fork provenance and licenses).
 
 ### The Driver Optimization Process
 
@@ -755,13 +797,157 @@ checks, fleet gotchas, rollback paths, and the exact commands that work on
 | [`deploy-3dfx-driver`](.claude/skills/deploy-3dfx-driver/SKILL.md) | Deploy the self-built 3dfx XP driver package to a fleet Voodoo 3/4/5 box: HWID preflight, staged upload, backup, SetupAPI install (never raw-copy into `system32` — Windows File Protection reverts it), verify, rollback plan. Never reboots without explicit approval. |
 | [`retro-benchmark`](.claude/skills/retro-benchmark/SKILL.md) | Run the full automated retro GPU benchmark suite (Quake III, Unreal Tournament, Deus Ex, Serious Sam, Giants, 3DMark 99/2000/2001) on a fleet machine unattended and collect FPS/scores into a results folder + ASCII summary. |
 | [`retro-wallpaper`](.claude/skills/retro-wallpaper/SKILL.md) | Generate and deploy rotating "system dossier" wallpapers per machine — spec cards, games from the CPU- and GPU-release years, and a tech-milestone collage for the CPU year, cycled through 10 variants by an on-device rotator. |
-| [`xp-activation`](.claude/skills/xp-activation/SKILL.md) | Generate a Windows XP / Server 2003 Confirmation ID from an Installation ID, fully offline — Microsoft's activation servers are dead; this reproduces what the phone system used to return. Not a crack; patches nothing. |
+| [`security-posture`](.claude/skills/security-posture/SKILL.md) | Interactive, authorized security self-assessment and penetration test of the agent and the fleet — auth strength, network exposure, transport, update integrity, brain autonomy controls — with ranked hardening recommendations the user replies to and applies. Scoped to the user's own isolated LAN. |
 
 Skills are how one-off fleet victories become repeatable: once a workflow has
 been debugged against real hardware (which agent commands hang on Win98, which
 launch pattern actually executes on a given box, which install step needs a
 backup first), it gets written down as a skill so the next invocation starts
 from the answer instead of the archaeology.
+
+## Roadmap — Fleet AI: train, infer, and benchmark ML on vintage hardware (contributors welcome)
+
+The fleet is a rack of 1998–2004 machines with real period accelerators (3dfx
+Voodoo 3/4/5, GeForce 2/3/4) already wired for remote control and already
+carrying an **open, self-built graphics stack** we can bend to non-graphics ends.
+The next arc for this project: **train and run real machine-learning models on
+that hardware** — a spread from gradient-boosted trees to CNNs to a tiny
+transformer — using the period GPUs as compute units and the **retro agent as
+the cross-machine transport**, turning the fleet into a tiny distributed ML
+cluster. *"A language model, generated one token at a time, on a Pentium II with
+a Voodoo doing the matrix math — trained on the whole fleet at once."*
+
+Everything here is **custom code** — none of these machines can run PyTorch,
+CUDA, scikit-learn, or even a modern libc. That constraint is the point: it's an
+interesting systems problem and every layer stays hackable. **This is a plan, not
+shipped code.** The full milestone-by-milestone build order, with the acceptance
+tests to run at each step, is in
+[`docs/roadmap-fleet-ai.md`](docs/roadmap-fleet-ai.md); the overview is below.
+
+### What it looks like — `retro-infer` fleet console
+
+A single ASCII TUI (readable on a 16-color CRT, and mirrorable into the Retro
+Chat) drives discovery, training, and inference, streaming live ML metrics:
+
+```
++= RETRO-INFER  fleet ML console ===================== transport: retro-agent =+
+| [d] DISCOVER   ai-capable agents advertised on the LAN                       |
+|   .124  Voodoo3 AGP      glide-mac    int8   ~0.9 GFLOP/s   READY  models:2  |
+|   .143  GeForce4 Ti4600  nv-shader    fp16   ~4.2 GFLOP/s   READY  models:5  |
+|   .51   GeForce2 GTS     nv-combiner  int8   ~1.1 GFLOP/s   TRAIN  models:2  |
+|   .50   Voodoo5 5500     glide-mac    int8   ~1.6 GFLOP/s   TRAIN  models:1  |
+|   .52   Pentium4 (CPU)   sse2         fp32   ~0.6 GFLOP/s   READY  models:8  |
++------------------------------------------------------------------------------+
+| [t] TRAIN  (fleet data-parallel, 4 GPUs)                                     |
+|   lenet5-mnist        epoch  7/20  [##########..........] 52%  1.9k img/s    |
+|     loss 0.184  acc 94.1%  val_acc 92.7%  err 7.3%  F1 0.93  ce 0.21         |
+|   bnn-cifar10 (XNOR)  epoch  3/40  [####................] 11%   340 img/s    |
+|     loss 0.71   acc 61.2%  val_acc 58.9%  err 41.1%  top5 92.0%              |
+|   gbdt-tabular        tree 128/500 [#####...............] 25%                |
+|     train_logloss 0.42  val_logloss 0.47  val_auc 0.883  rmse 0.19          |
+|   allreduce 38 ms/step   sync via retro-agent TENSOR frames   eta 6m 12s     |
++------------------------------------------------------------------------------+
+| [i] INFER   char-transformer-6L  (pipeline: .124>.51>.143>.50)              |
+|   > the voodoo card slept for twenty years and woke up_                      |
+|   38 tok/s  ppl 24.6  p50 21ms  p99 44ms   fleet power ~610W                 |
++============================ [t]rain [i]nfer [d]iscover [b]ench [q]uit ========+
+```
+
+### The plan (phased overview)
+
+**Phase 1 — a dependency-free ML runtime (`retro-infer`, C, i586).** A
+single-binary engine cross-compiled with the same MinGW toolchain as the agent
+(no CRT beyond system DLLs), supporting both **inference and on-device
+training**. Ops: dense/GEMM, conv2d, pooling, activations, softmax, plus the
+tree/histogram primitives for gradient boosting; float32 with **int8/int4/binary**
+quantized paths (the vintage sweet spot). A compact model format (`.rim` —
+quantized weights + manifest) and an offline Python converter (ONNX / a small
+trainer → `.rim`). Era-vectorized CPU kernels: **SSE** (P3), **3DNow!**
+(K6-2/Athlon), **MMX** integer — reusing the SSE work from the 3dfx ICD.
+
+**Phase 2 — GPU compute backends.**
+- **3dfx Voodoo / Glide backend.** No shaders, but the multitexture units and
+  color-combine/blend hardware are fixed-function **multiply-accumulate** engines.
+  Implement GEMM as render-to-texture accumulation: weights/activations encoded
+  as textures, combiners as MACs, framebuffer as the accumulator. 8-bit/channel →
+  **binarized/int8 nets** map best. Built on our open `retro3dfx` Glide stack —
+  the flagship "impossible" backend.
+- **NVIDIA combiner / shader backend.** GeForce 2 `NV_register_combiners`;
+  GeForce 3/4 DX8 shaders + `NV_texture_shader`; GeForce FX float textures.
+  Multi-pass GEMM/conv via render-to-texture — int8 on GF2–4, float16-ish on GF-FX.
+- **Shared GPGPU core.** A common "tensor-over-textures" tiling layer both
+  backends specialize, so a kernel is written once against an abstract MAC.
+
+**Phase 3 — the retro agent as ML transport + AI-agent discovery.** The agent's
+existing length-prefixed TCP protocol becomes the fleet ML fabric. New frames:
+`AI_HELLO` (an agent advertises its inference capability — backend, precision,
+GFLOP/s, resident models — extending the UDP discovery beacon), `MODEL_LOAD` /
+`MODEL_LIST` (push/enumerate `.rim` models), `TENSOR` (typed tensor in/out for
+activations and gradients), and `INFER_RUN`. A brain-side **registry** discovers
+which boxes are AI-capable and which models live where, exposed as
+`mcp__retro__ai_*` tools so the chat can list, load, train, and infer by asking.
+All cross-machine movement — activations between pipeline stages, gradient
+allreduce during training — rides the agent, so the whole fleet coordinates over
+one transport with no extra daemons.
+
+**Phase 4 — fleet training mode (all GPUs at once).** A "train on the whole
+fleet" mode with two strategies coordinated by the brain over the agent:
+- **Data-parallel SGD** — each GPU trains on a batch shard; gradients are
+  averaged (ring/tree **allreduce** over `TENSOR` frames) each step. Straggler
+  handling reuses the brain's failover: a dropped node's shard is reassigned.
+- **Distributed gradient boosting** — histogram/split-finding for each tree
+  distributed across nodes, aggregated per boosting round.
+- **Pipeline parallelism** for models too big for one box — one layer/block per
+  machine, activations streamed stage→stage (the Pentium II runs layer 3 while
+  the Athlon runs layer 7). Checkpoints (`.rim`) land on the SMB share.
+
+**Phase 5 — tracked metrics + benchmark harness.** Mirror the
+[`driver-bench`](.claude/skills/driver-bench/SKILL.md) pattern: every training
+run and inference run keyed by model, machine, GPU/CPU backend, and precision,
+landing in the specpicks DB with the **full ML metric set** — training/val
+**loss & error rate**, **accuracy / top-5**, **precision / recall / F1**,
+**AUC-ROC**, **confusion matrix**, **log-loss**, **RMSE/MAE** (regression),
+**perplexity** (LM), **PSNR** (autoencoders), plus systems metrics
+**throughput** (img/tok/sec), **latency p50/p99**, and **energy per inference**.
+Leaderboards per model × backend × precision.
+
+### Model zoo to build, train, and benchmark
+
+A deliberate spread of model *families* (classical → boosted → neural → their
+variations), chosen to fit the envelope (KBs–low MBs, integer-friendly):
+
+| Family | Model | Task | Key metrics |
+|---|---|---|---|
+| Linear | logistic regression, perceptron | MNIST / tabular | accuracy, log-loss, error rate |
+| Instance | k-NN | MNIST | accuracy, inferences/sec (calibration baseline) |
+| **Boosting** | **gradient-boosted trees (GBDT)** | tabular classify/regress | log-loss, AUC-ROC, RMSE, trees/sec |
+| Bagging | random forest | tabular | accuracy, F1, OOB error |
+| Margin | linear SVM | binary classify | accuracy, precision/recall, hinge loss |
+| MLP | 2–3 layer dense | MNIST | accuracy, loss curve, err% |
+| **CNN** | **LeNet-5** (int8) | MNIST digits | img/sec on Voodoo-GEMM vs GeForce vs SSE |
+| CNN variant | **binarized CNN (BNN, XNOR)** | CIFAR-10 (small) | accuracy, top-5, img/sec — best Voodoo showcase |
+| Recurrent | char-RNN / **GRU / LSTM** | text gen | perplexity, chars/sec |
+| **Transformer** | **nanoGPT-class** (1–6 layers, tiny vocab, int8) | token generation | **tokens/sec**, perplexity, single-box vs fleet pipeline |
+| Generative | small VAE / autoencoder | image denoise | reconstruction PSNR, frames/sec |
+| Audio | tiny keyword spotting | wake-word off a real SB16 | detection F1, detections/sec |
+
+The GBDT-on-tabular result is the "ML actually works here" proof; the
+fleet-pipelined transformer is the "wow" — an end-to-end language model whose
+layers each live on a different 25-year-old computer, talking over the agent.
+
+### Good first contributions
+
+- A Glide render-to-texture **GEMM kernel** (Phase 2) against `retro3dfx`.
+- An `NV_register_combiners` GEMM pass for GeForce 2 (Phase 2).
+- The **int4/int8 weight packer** + ONNX→`.rim` converter (Phase 1).
+- A **distributed GBDT** split-finder over `TENSOR` frames (Phases 1, 4).
+- The **allreduce** primitive and pipeline scheduler in the brain (Phases 3, 4).
+- The **`retro-infer` ASCII console** + live metric stream (Phase 5).
+
+See [`docs/roadmap-fleet-ai.md`](docs/roadmap-fleet-ai.md) for the full milestone
+list (M0–M8), each with its deliverables and the acceptance tests to run when
+it's implemented. Open an issue with the piece you want to take — custom code,
+weird hardware, real numbers.
 
 ## Contributing
 

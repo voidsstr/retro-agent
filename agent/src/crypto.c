@@ -1,7 +1,16 @@
 /*
- * crypto.c - Simple XOR cipher for transport obfuscation.
- * Negotiated via AUTH_ENC handshake. Key derived from shared secret.
- * NOT a secure encryption - provides obfuscation only.
+ * crypto.c - Optional lightweight transport scrambling for the LAN link.
+ *
+ * A keystream XOR keyed from the shared AUTH secret, negotiated via the
+ * AUTH_ENC handshake. Its ONLY purpose is to keep management commands from
+ * appearing as plaintext in a casual packet capture on the local network.
+ *
+ * This is deliberately NOT presented as a security boundary and must not be
+ * relied on as one: a stream XOR is trivially breakable. The actual trust
+ * boundary for this tool is (1) network isolation (run it on a trusted/
+ * isolated LAN or behind a firewall) and (2) the AUTH shared secret. For any
+ * exposure beyond a trusted LAN, tunnel the connection over TLS/SSH instead
+ * of relying on this layer.
  */
 
 #include <windows.h>

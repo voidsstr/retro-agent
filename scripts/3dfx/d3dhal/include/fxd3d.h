@@ -11,8 +11,8 @@
  * (the real driver build) its headers win; otherwise these minimal mirrors let
  * the translation logic compile and be unit-tested against synthetic buffers.
  *
- * Clean-room: ***REMOVED***. The DDI shapes below are the public, documented
- * Microsoft interface (the same any DDK driver implements).
+ * Clean-room: the DDI shapes below are the public, documented Microsoft
+ * interface (the same any DDK driver implements).
  */
 #ifndef FXD3D_H
 #define FXD3D_H

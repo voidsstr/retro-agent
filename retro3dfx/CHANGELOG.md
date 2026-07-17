@@ -13,7 +13,7 @@ Until 0.1.6 every benchmark ran on a **hybrid** stack:
 
 | Layer | 0.1.1–0.1.6 benchmarks | target (top-to-bottom ours) |
 |---|---|---|
-| XP display driver (kernel) | **AmigaMerlin 2.9** (retail) | retro3dfx-disp (`3dfxvsm.sys`+`3dfxvs.dll`, built from H5 source) |
+| XP display driver (kernel) | **AmigaMerlin 2.9** (retail) | our `3dfxvsm.sys`+`3dfxvs.dll` (deployed build from the private retro-3dfx repo) |
 | glide3x.dll (3D HAL) | **AmigaMerlin retail** (`_grFoo@N` underscore ABI) | retro3dfx-glide (our sezero/glide fork) |
 | OpenGL ICD (`retrogl.dll`) | **ours** — retro3dfx-gl vN | ours |
 
@@ -96,9 +96,9 @@ The hybrid required linking our ICD against the *retail* glide import lib
 
 ## MILESTONE 2026-07-17 — all-retro3dfx stack live, beats AmigaMerlin
 
-Our XP kernel display driver (H5-source build, pkg `3dfx-napalm-xp-20260716`)
+Our XP kernel display driver (deployed build from the private retro-3dfx repo)
 replaced AmigaMerlin on .124 via SetupAPI (`deploy-3dfx-driver` skill). Desktop
-2D at 1024x768x32@75 correct. Our H5-built glide3x (underscore ABI) binds the
+2D at 1024x768x32@75 correct. Our glide3x build (underscore ABI) binds the
 existing retail-linked MesaFX 0.1.6 without a rebuild. Q3 renders pristine
 (in-engine screenshot parity with the hybrid baseline — mean pixel diff
 4.1/255 = animation noise).

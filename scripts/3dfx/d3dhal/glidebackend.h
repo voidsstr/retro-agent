@@ -11,7 +11,7 @@
  *     backend) behind a stable API.
  *
  * Clean-room: this file expresses fixed-function pipeline state in Glide terms
- * only. ***REMOVED*** is used. See docs/3dfx-d3d-hal-design.md.
+ * only, from public documentation. See docs/3dfx-d3d-hal-design.md.
  */
 #ifndef FXD3D_GLIDEBACKEND_H
 #define FXD3D_GLIDEBACKEND_H

@@ -67,7 +67,7 @@ for f in glob.glob(sys.argv[1]+"/glide2x/*/glide/src/fxglide.h"):
 EOF
 
 HOSTFIX='HOST_CFLAGS=$(filter-out -m32 -mcpu=% -mtune=% -DFX_DLL_ENABLE -DHWC_EXT_INIT=% -march=%,$(CFLAGS))'
-# ABI fix (see docs/3dfx-drivers.md): export both grFoo and grFoo@N; import lib w/o -U
+# ABI fix: export both grFoo and grFoo@N; import lib w/o -U
 LDFIX='LDFLAGS=-shared -m32 -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias'
 DTFIX='DLLTOOL_FLAGS=--as-flags=--32 -m i386'
 

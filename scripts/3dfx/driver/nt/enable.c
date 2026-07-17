@@ -14,7 +14,7 @@
  * code is bracketed by HAVE_DDK so this tree stays greppable/reviewable on the
  * Linux host; the portable render reduction lives in ../ddi_glue.c.
  *
- * Clean-room: implements the public NT display-DDI contract. ***REMOVED***.
+ * Clean-room: implements the public NT display-DDI contract from the DDK.
  */
 #include "../ddi_glue.h"
 

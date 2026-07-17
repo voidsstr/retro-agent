@@ -1,8 +1,8 @@
 # Why the rebuilt open Glide can't bring up the card on retail Windows XP
 
 Traced 2026-07-15 on `.124` (real Voodoo3, WinXP, retail `3dfxvsm.sys`). After
-fixing the DLL ABI so `glide3x.dll` actually loads (see `docs/3dfx-drivers.md`
-and `build-glide.sh`), `gfxbench` runs, calls `grGlideInit()`, prints the debug
+fixing the DLL ABI so `glide3x.dll` actually loads (see `build-glide.sh`),
+`gfxbench` runs, calls `grGlideInit()`, prints the debug
 banner, then dies with a fatal `gd error (glide):` during hardware detection.
 Root cause is **not** in our build — it's an open-Glide vs retail-driver
 interface mismatch.

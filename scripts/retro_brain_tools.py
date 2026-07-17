@@ -49,6 +49,43 @@ AGENT_PORT = int(os.environ.get("RETRO_AGENT_PORT", "9898"))
 CONNECT_TIMEOUT = 15.0
 COMMAND_TIMEOUT = 90.0
 
+# ---------------------------------------------------------------------------
+# Fleet-safety guardrail (compensating control for the brain's autonomy)
+# ---------------------------------------------------------------------------
+# The brain runs unattended — there is no human to approve each action — so the
+# most damaging, hard-to-reverse agent commands are gated HERE at the tool
+# boundary instead of being trusted to prompt discipline alone. A gated command
+# is refused unless the caller passes confirm=true, and the system prompt only
+# permits confirm=true when the USER has explicitly asked for that action. This
+# gives defense in depth: even if the model misjudges, the destructive verb does
+# not execute without an explicit, logged confirmation.
+#
+# Set RETRO_BRAIN_REQUIRE_CONFIRM=0 to disable (not recommended).
+_REQUIRE_CONFIRM = os.environ.get("RETRO_BRAIN_REQUIRE_CONFIRM", "1") != "0"
+
+# Agent verbs that are irreversible or need physical access to recover from.
+_GATED_VERBS = {"REBOOT", "SHUTDOWN", "QUIT", "PROCKILL", "DELETE", "REGDELETE"}
+
+# Destructive shell substrings inside EXEC/EXECW/LAUNCH payloads.
+_GATED_SHELL_PATTERNS = (
+    "format ", "fdisk", "diskpart", "deltree", "rd /s", "rmdir /s",
+    "del /f /s", "del /s /f", "cipher /w", "reg delete", "rd/s",
+)
+
+
+def _gate_reason(command):
+    """Return a human reason if `command` is a gated destructive action, else None."""
+    if not command:
+        return None
+    verb = command.split(None, 1)[0].upper()
+    if verb in _GATED_VERBS:
+        return f"{verb} is irreversible or needs physical access to recover"
+    low = " " + command.lower()
+    for pat in _GATED_SHELL_PATTERNS:
+        if pat in low:
+            return f"command contains a destructive pattern ('{pat.strip()}')"
+    return None
+
 
 def _text(s):
     return {"content": [{"type": "text", "text": s}]}
@@ -138,6 +175,12 @@ def build_retro_server(origin_host=None):
             "properties": {
                 "command": {"type": "string", "description": "Full agent command line"},
                 "host": {"type": "string", "description": "Target IP (default: origin)"},
+                "confirm": {
+                    "type": "boolean",
+                    "description": "Set true ONLY when the user has explicitly asked for a "
+                    "destructive/irreversible action (REBOOT, SHUTDOWN, DELETE, REGDELETE, "
+                    "PROCKILL, disk-wiping EXEC). Non-destructive commands ignore this.",
+                },
             },
             "required": ["command"],
         },
@@ -150,6 +193,17 @@ def build_retro_server(origin_host=None):
         command = (args.get("command") or "").strip()
         if not command:
             return _err("empty command")
+
+        # Fleet-safety guardrail: destructive actions require explicit confirmation.
+        if _REQUIRE_CONFIRM and not bool((args or {}).get("confirm")):
+            reason = _gate_reason(command)
+            if reason:
+                return _err(
+                    f"BLOCKED by fleet-safety guardrail: {reason}. "
+                    "This is not run automatically. Confirm with the user that they want "
+                    f"this exact action on {host}, then retry the SAME command with "
+                    "confirm=true. (REBOOT/SHUTDOWN may need physical access to recover.)"
+                )
 
         async def run(conn):
             try:
