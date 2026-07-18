@@ -65,6 +65,93 @@ static void agent_dir(char *buf, int cap)
         p[1] = '\0';
 }
 
+/* Share path to the engine binary (registry-overridable, same convention as
+ * the agent/chat auto-update in autoupdate.c). */
+#define ENGINE_SHARE_DEFAULT \
+    "\\\\192.168.1.122\\files\\Utility\\Retro Automation\\retro-infer.exe"
+
+static DWORD file_size_of(const char *path)
+{
+    WIN32_FILE_ATTRIBUTE_DATA fad;
+    if (!GetFileAttributesExA(path, GetFileExInfoStandard, &fad))
+        return 0;
+    return fad.nFileSizeLow;
+}
+
+/* Ensure retro-infer.exe is present next to the agent, pulling it from the
+ * share if missing or a different size. Fixes "AI engine not available -
+ * files not staged": a box that auto-updated the agent from the share but
+ * never had the engine binary staged. Best-effort + quick; returns 1 if the
+ * engine exists locally afterwards. */
+static int stage_engine_from_share(void)
+{
+    char local[MAX_PATH + 32];
+    char share[512];
+    DWORD lsz, rsz;
+    HKEY hk;
+
+    agent_dir(local, MAX_PATH);
+    strcat(local, "retro-infer.exe");
+
+    /* registry override HKLM\Software\RetroAgent\EnginePath, else default */
+    share[0] = '\0';
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0,
+                      KEY_QUERY_VALUE, &hk) == ERROR_SUCCESS) {
+        DWORD n = sizeof(share), ty = REG_SZ;
+        RegQueryValueExA(hk, "EnginePath", NULL, &ty,
+                         (LPBYTE)share, &n);
+        RegCloseKey(hk);
+    }
+    if (!share[0]) {
+        strncpy(share, ENGINE_SHARE_DEFAULT, sizeof(share) - 1);
+        share[sizeof(share) - 1] = '\0';
+    }
+
+    lsz = file_size_of(local);
+    rsz = file_size_of(share);
+
+    if (rsz == 0) {
+        /* share unreachable — nothing we can do; caller reports status */
+        log_msg(LOG_FILE, "AI: engine share not reachable (%s)", share);
+        return lsz != 0;
+    }
+    if (lsz == rsz)
+        return 1;   /* already staged + current */
+
+    log_msg(LOG_FILE, "AI: staging engine from share (local=%lu remote=%lu)",
+            (unsigned long)lsz, (unsigned long)rsz);
+
+    /* stop a running engine so the file can be overwritten */
+    if (g_infer_sock != INVALID_SOCKET) {
+        frame_send(g_infer_sock, "SHUTDOWN", 8);
+        infer_disconnect();
+    }
+    {
+        /* taskkill any stray engine (best-effort; ignore result) */
+        STARTUPINFOA si;
+        PROCESS_INFORMATION pi;
+        char cmd[] = "taskkill /f /im retro-infer.exe";
+        memset(&si, 0, sizeof(si));
+        si.cb = sizeof(si);
+        memset(&pi, 0, sizeof(pi));
+        if (CreateProcessA(NULL, cmd, NULL, NULL, FALSE, CREATE_NO_WINDOW,
+                           NULL, NULL, &si, &pi)) {
+            WaitForSingleObject(pi.hProcess, 3000);
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        }
+        Sleep(300);
+    }
+
+    if (!CopyFileA(share, local, FALSE)) {
+        log_msg(LOG_FILE, "AI: engine CopyFile failed: %lu",
+                (unsigned long)GetLastError());
+        return lsz != 0;   /* keep whatever we had */
+    }
+    log_msg(LOG_FILE, "AI: engine staged (%lu bytes)", (unsigned long)rsz);
+    return 1;
+}
+
 static int infer_try_connect(void)
 {
     struct sockaddr_in addr;
@@ -97,8 +184,12 @@ static int infer_spawn(void)
     agent_dir(exe, MAX_PATH);
     strcat(exe, "retro-infer.exe");
     if (GetFileAttributesA(exe) == 0xFFFFFFFF) {
-        log_msg(LOG_FILE, "AI: %s not found", exe);
-        return 1;
+        /* not staged — try pulling it from the share before giving up */
+        stage_engine_from_share();
+        if (GetFileAttributesA(exe) == 0xFFFFFFFF) {
+            log_msg(LOG_FILE, "AI: %s not found (share staging failed)", exe);
+            return 1;
+        }
     }
     _snprintf(cmdline, sizeof(cmdline), "\"%s\" --serve %d", exe, INFER_PORT);
     memset(&si, 0, sizeof(si));
@@ -268,6 +359,8 @@ DWORD WINAPI ai_status_thread(LPVOID param)
     char gpu[512];
     (void)param;
     Sleep(3000);   /* let listeners + shell settle */
+    /* self-heal: pull the engine binary from the share if it isn't staged */
+    stage_engine_from_share();
     host_gpu_json(gpu, sizeof(gpu));
     if (infer_roundtrip("HELLO", NULL, 0, &reply, &reply_len) == 0) {
         /* reply[0] is the status byte; the rest is the caps JSON */
