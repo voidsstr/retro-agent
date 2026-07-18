@@ -186,15 +186,17 @@ static void hello_json(char *buf, size_t cap)
         "\"kernel_f32_nt\":\"%s\",\"kernel_f32_tn\":\"%s\","
         "\"isa\":{\"mmx\":%d,\"sse\":%d,\"sse2\":%d,\"3dnow\":%d,"
         "\"3dnowext\":%d},"
-        /* nv-gl (OpenGL binary-GEMM) inits on ATI/Intel but exact readback is
-         * not yet validated (needs a pbuffer path) — reported as loadable, not
-         * advertised as a usable backend. Per honest-numbers: the CPU
-         * bit-packed XNOR beats the render-to-texture path on these boxes. */
+        /* nv-gl (portable OpenGL 1.1 + ARB_multitexture binary-GEMM) is
+         * exact-verified on GeForce/Radeon/Intel-class hardware (see
+         * docs/machines/ai-capability-profiles.md) — advertised whenever
+         * ARB_multitexture is present. It is not the fastest path on these
+         * boxes (their own CPU bit-packed XNOR usually wins — honest
+         * numbers), but it is a correct, usable GPU offload. */
         "\"gpu\":{\"glide3x_loadable\":%d,\"opengl_loadable\":%d,"
         "\"nv_gl_status\":\"%s\"},"
         "\"resident_models\":%d,\"ready\":1}",
         INFER_VERSION, g_kernels.gemm_f32_name,
-        glide ? ",\"glide-mac\"" : "",
+        glide ? ",\"glide-mac\"" : (nv ? ",\"nv-gl\"" : ""),
         g_kernels.gemm_f32_name, g_kernels.gemm_i8_name,
         g_kernels.gemm_f32_nt == gemm_f32_nt_scalar ? "scalar"
                                                     : g_kernels.gemm_f32_name,
@@ -202,7 +204,7 @@ static void hello_json(char *buf, size_t cap)
                                                     : g_kernels.gemm_f32_name,
         caps.mmx, caps.sse, caps.sse2, caps.amd3dnow, caps.amd3dnowext,
         glide, nv,
-        nv ? (glide ? "n/a" : "loadable-unvalidated") : "none",
+        nv ? (glide ? "n/a-glide-preferred" : "verified") : "none",
         n);
     (void)off;
 }

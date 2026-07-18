@@ -157,12 +157,13 @@ static int gpu_check(const gpu_backend_t *gb, int M, int N, int K,
         }
     }
     printf("%s.check.m=%d n=%d k=%d seed=%u\n", gb->tag, M, N, K, seed);
-    printf("%s.mismatches=%d %s.max_abs_err_steps=%d\n", gb->tag, gb->tag, mismatches,
-           max_abs);
+    printf("%s.mismatches=%d %s.max_abs_err_steps=%d\n", gb->tag, mismatches,
+           gb->tag, max_abs);
     printf("%s.result_hash=%08x\n", gb->tag, fnv1a(Cg, (size_t)M * N * sizeof(int)));
-    printf("%s.gpu_secs=%.4f %s.cpu_secs=%.4f\n", gb->tag, gb->tag, t_gpu, t_cpu);
-    printf("%s.gpu_mmacs=%.2f %s.cpu_mmacs=%.2f\n", gb->tag, gb->tag,
-           (double)M * N * K / t_gpu / 1e6, (double)M * N * K / t_cpu / 1e6);
+    printf("%s.gpu_secs=%.4f %s.cpu_secs=%.4f\n", gb->tag, t_gpu, gb->tag, t_cpu);
+    printf("%s.gpu_mmacs=%.2f %s.cpu_mmacs=%.2f\n", gb->tag,
+           (double)M * N * K / t_gpu / 1e6, gb->tag,
+           (double)M * N * K / t_cpu / 1e6);
 
     /* second run for intra-process stability */
     memset(Cg, 0, (size_t)M * N * sizeof(int));
@@ -184,4 +185,79 @@ int glide_check(int M, int N, int K, unsigned seed)
 int nv_check(int M, int N, int K, unsigned seed)
 {
     return gpu_check(&GB_NVGL, M, N, K, seed);
+}
+
+/* --nv-check-multi: bisect a "single big call is exact, many varying-size
+ * calls in one session are wrong" symptom (seen on the BNN eval path).
+ * Repeats a sequence of (M,N,K) shapes mimicking real tiling patterns
+ * WITHOUT reinitializing the GL context between them, verifying each
+ * against a fresh CPU computation, and reports the first shape/position
+ * that diverges. */
+static int one_shape(const gpu_backend_t *gb, int idx, int M, int N, int K,
+                     unsigned seed)
+{
+    unsigned char *A, *B;
+    int *Cg, *Cc;
+    char err[128] = "";
+    unsigned s = seed;
+    int i, bad = 0;
+
+    A = (unsigned char *)malloc((size_t)M * K);
+    B = (unsigned char *)malloc((size_t)K * N);
+    Cg = (int *)calloc((size_t)M * N, sizeof(int));
+    Cc = (int *)calloc((size_t)M * N, sizeof(int));
+    if (!A || !B || !Cg || !Cc) {
+        printf("%s.multi[%d] m=%d n=%d k=%d FAIL: oom\n", gb->tag, idx, M, N, K);
+        free(A); free(B); free(Cg); free(Cc);
+        return 1;
+    }
+    for (i = 0; i < M * K; i++) {
+        s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+        A[i] = s & 1;
+    }
+    for (i = 0; i < K * N; i++) {
+        s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+        B[i] = s & 1;
+    }
+    bgemm_cpu(M, N, K, A, B, Cc);
+    if (gb->bgemm(M, N, K, A, B, Cg, err, sizeof(err)) != 0) {
+        printf("%s.multi[%d] m=%d n=%d k=%d FAIL: %s\n", gb->tag, idx, M, N,
+               K, err);
+        free(A); free(B); free(Cg); free(Cc);
+        return 1;
+    }
+    for (i = 0; i < M * N; i++)
+        if (Cg[i] != Cc[i])
+            bad++;
+    printf("%s.multi[%d] m=%d n=%d k=%d mismatches=%d %s\n", gb->tag, idx, M,
+           N, K, bad, bad == 0 ? "OK" : "FAIL");
+    free(A); free(B); free(Cg); free(Cc);
+    return bad != 0;
+}
+
+int nv_check_multi(unsigned seed)
+{
+    /* mirrors the BNN tiling pattern: batch=256 hidden-layer tiles (4x),
+     * a batch=256 output-layer tile (N=10, small), then a partial final
+     * batch (M=232) doing the same, all in ONE init/shutdown session. */
+    static const int shapes[][3] = {
+        {256, 256, 256}, {256, 256, 256}, {256, 256, 256}, {256, 256, 256},
+        {256, 10, 256},
+        {232, 256, 256}, {232, 256, 256}, {232, 256, 256}, {232, 256, 256},
+        {232, 10, 256},
+    };
+    int n = (int)(sizeof(shapes) / sizeof(shapes[0]));
+    int i, fails = 0;
+    char err[128];
+    if (nvgl_init(err, sizeof(err)) != 0) {
+        printf("nvgl.multi.init=FAIL %s\n", err);
+        return 1;
+    }
+    for (i = 0; i < n; i++)
+        fails += one_shape(&GB_NVGL, i, shapes[i][0], shapes[i][1],
+                           shapes[i][2], seed + (unsigned)i * 7919u);
+    nvgl_shutdown();
+    printf("nv-check-multi: %s (%d/%d shapes failed)\n",
+           fails == 0 ? "OK" : "FAIL", fails, n);
+    return fails != 0;
 }

@@ -288,6 +288,8 @@ int main(int argc, char **argv)
                         argc >= 4 ? atoi(argv[3]) : 64,
                         argc >= 5 ? atoi(argv[4]) : 128,
                         argc >= 6 ? (unsigned)atoi(argv[5]) : 42);
+    if (argc >= 2 && strcmp(argv[1], "--nv-check-multi") == 0)
+        return nv_check_multi(argc >= 3 ? (unsigned)atoi(argv[2]) : 42);
     if (argc >= 15 && strcmp(argv[1], "--train-mlp") == 0) {
         train_nn_cfg_t c;
         memset(&c, 0, sizeof(c));

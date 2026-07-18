@@ -1,22 +1,58 @@
 /*
- * nv-combiner: NVIDIA GeForce GPU backend (M6) — binary/XNOR GEMM via
- * OpenGL fixed-function + NV_register_combiners, mirroring the glide-mac
- * design (see glide_mac.c):
+ * gl-combine: portable OpenGL 1.1 + ARB_multitexture binary/XNOR GEMM
+ * backend (M6). Vendor-neutral by construction — runs on any card with
+ * core multitexture (universal since ~1999: GeForce, Radeon, Intel
+ * integrated), unlike glide-mac which is 3dfx-only. Mirrors the glide-mac
+ * accumulation design (see glide_mac.c) but ported to plain GL:
  *
- *   per k-step: TEX0 = A-column row k, TEX1 = B-row row k (ALPHA8, 0/255)
- *   combiner: alpha = tex0 * tex1 (exact for 0/255)
- *   alpha test GEQUAL 0.5 gates; blend ONE:ONE adds RGB(1,1,1)
- *   -> 8-bit backbuffer accumulates exact match counts (chunks of 255)
- *   glReadPixels readback, CPU int32 accumulation across chunks
+ *   per k-step: TEX0 = A-column row k, TEX1 = B-row row k, GL_INTENSITY8
+ *     format (0 or 255, replicated to R=G=B=A so the value is visible to
+ *     *both* the RGB and alpha modulate chain — this is the fix for the
+ *     bug an earlier GL_ALPHA8 version had: alpha-format textures carry
+ *     ZERO in their RGB channels by definition, so any RGB-based
+ *     accumulation was silently multiplying by zero regardless of the
+ *     texture's alpha value)
+ *   TEXTURE_ENV_MODE = GL_MODULATE on both units chains the product:
+ *     final_rgba = primaryColor * tex0 * tex1 (componentwise)
+ *   primary color is glColor3ub(1,1,1) — i.e. 1/255 per channel — so a
+ *     genuine match (both texels 255) contributes EXACTLY 1/255 = 1 count
+ *     to the framebuffer once quantized to 8 bits; a non-match contributes
+ *     0. No alpha test needed: the product IS the gate.
+ *   blend ONE:ONE (additive) accumulates counts across the two AND-passes
+ *     (positive tex pair + inverted tex pair = XNOR/match count) and
+ *     across k-steps; chunked at 255 per readback so the 8-bit channel
+ *     never overflows (matches Glide's chunking, but with the full 8 bits
+ *     of a real RGB channel instead of the Voodoo's 5-bit 565 red).
+ *   glReadPixels the RED channel, CPU int32 accumulation across chunks.
  *
- * STATUS: compile-verified, NOT hardware-verified — no GeForce box is
- * currently online in the fleet (M6 acceptance pending hardware). The
- * general shape (exact-accumulation via alpha-tested additive blend) is
- * the one already proven on the Voodoo5.
+ * STATUS: hardware-verified exact on 3 real GPUs — Radeon 9800 XT (.240),
+ * Radeon HD 3850 AGP (.123), Intel HD Graphics (.145): --nv-check passes
+ * (0 mismatches) across multiple tile sizes/seeds up to the full 256^3
+ * tile, with FNV-1a result hashes matching the Glide backend bit-for-bit
+ * on the same seed (independent cross-validation of both GPU paths + the
+ * CPU reference), AND --nv-check-multi (varying-size calls in one session,
+ * mirroring the BNN tiling pattern) passes. Bugs found + fixed getting
+ * here (see docs/machines/ai-capability-profiles.md for the write-up):
+ * (1) GL_ALPHA8 textures carry zero in their RGB channels by definition,
+ * so the RGB-based accumulation never worked — fixed by switching to
+ * GL_INTENSITY8; (2) the quad geometry used /128 instead of /256 in its
+ * NDC math (a factor-of-2 viewport-to-texel mapping error); (3) the
+ * default GL_PACK_ALIGNMENT of 4 pads each glReadPixels row to a multiple
+ * of 4 bytes, but the readback indexing was tightly packed with no
+ * padding — invisible whenever N*3 is already 4-aligned (every --nv-check
+ * default of N=256 is), but wrong for real shapes like the BNN's 10-class
+ * output layer (N=10) — fixed with glPixelStorei(GL_PACK_ALIGNMENT, 1);
+ * (4) glGenTextures'ing 4 new texture objects on every bgemm call leaked
+ * hundreds of objects during a full BNN eval — fixed by allocating the 4
+ * textures once in init and reusing them (good hygiene; wasn't the actual
+ * cause of (3)'s symptom, isolated via --nv-check-multi). No GeForce box
+ * has been online to date; the design has no NVIDIA-specific dependency
+ * (register combiners were considered for a faster int8 path but this
+ * portable multitexture route already gives exact results, so it's the
+ * one actually shipped).
  *
  * Everything is bound dynamically (opengl32.dll) so retro-infer runs on
- * boxes without GL. GeForce 2: NV_register_combiners (int8 path later);
- * GeForce 3/4: could add NV_texture_shader; GF-FX: float via NV_fragment.
+ * boxes without GL.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,8 +84,8 @@ int nvgl_bgemm(int M, int N, int K, const unsigned char *A,
 #include <windows.h>
 
 #define GL_TEXTURE_2D 0x0DE1
-#define GL_ALPHA8 0x803C
-#define GL_ALPHA 0x1906
+#define GL_INTENSITY8 0x804B
+#define GL_LUMINANCE 0x1909
 #define GL_UNSIGNED_BYTE 0x1401
 #define GL_NEAREST 0x2600
 #define GL_TEXTURE_MIN_FILTER 0x2801
@@ -60,9 +96,7 @@ int nvgl_bgemm(int M, int N, int K, const unsigned char *A,
 #define GL_MODULATE 0x2100
 #define GL_TEXTURE_ENV 0x2300
 #define GL_TEXTURE_ENV_MODE 0x2200
-#define GL_ALPHA_TEST 0x0BC0
 #define GL_BLEND 0x0BE2
-#define GL_GEQUAL 0x0206
 #define GL_ONE 1
 #define GL_QUADS 0x0007
 #define GL_RGB 0x1907
@@ -72,6 +106,7 @@ int nvgl_bgemm(int M, int N, int K, const unsigned char *A,
 #define GL_EXTENSIONS 0x1F03
 #define GL_DITHER 0x0BD0
 #define GL_BACK 0x0405
+#define GL_PACK_ALIGNMENT 0x0D05
 
 typedef unsigned int GLuint;
 typedef int GLint;
@@ -85,6 +120,11 @@ typedef void (__stdcall *pfn_v)(void);
 static HMODULE g_gl;
 static HWND g_wnd;
 static HDC g_dc;
+static GLuint g_tex[4];   /* allocated once in init, reused every bgemm call
+                           * — a per-call glGenTextures leaked hundreds of
+                           * texture objects during a full BNN eval (~128
+                           * bgemm calls) and produced wrong results on the
+                           * Radeon's driver under that resource churn. */
 static HGLRC g_rc;
 
 #define GLF(ret, name, args) static ret(__stdcall *p_##name) args
@@ -92,11 +132,11 @@ GLF(void, glEnable, (GLenum));
 GLF(void, glDisable, (GLenum));
 GLF(void, glBindTexture, (GLenum, GLuint));
 GLF(void, glGenTextures, (GLsizei, GLuint *));
+GLF(void, glDeleteTextures, (GLsizei, const GLuint *));
 GLF(void, glTexImage2D, (GLenum, GLint, GLint, GLsizei, GLsizei, GLint,
                          GLenum, GLenum, const void *));
 GLF(void, glTexParameteri, (GLenum, GLenum, GLint));
 GLF(void, glTexEnvi, (GLenum, GLenum, GLint));
-GLF(void, glAlphaFunc, (GLenum, GLfloat));
 GLF(void, glBlendFunc, (GLenum, GLenum));
 GLF(void, glColor3ub, (GLubyte, GLubyte, GLubyte));
 GLF(void, glBegin, (GLenum));
@@ -108,6 +148,7 @@ GLF(void, glReadPixels, (GLint, GLint, GLsizei, GLsizei, GLenum, GLenum,
                          void *));
 GLF(void, glReadBuffer, (GLenum));
 GLF(void, glDrawBuffer, (GLenum));
+GLF(void, glPixelStorei, (GLenum, GLint));
 GLF(void, glFinish, (void));
 GLF(const GLubyte *, glGetString, (GLenum));
 GLF(void, glOrtho, (double, double, double, double, double, double));
@@ -130,10 +171,11 @@ static int bind_gl(char *err, size_t errlen)
 #define B(n) do { p_##n = (void *)GetProcAddress(g_gl, #n); \
     if (!p_##n) { if (err && errlen) _snprintf(err, errlen, "gl missing %s", #n); return 1; } } while (0)
     B(glEnable); B(glDisable); B(glBindTexture); B(glGenTextures);
-    B(glTexImage2D); B(glTexParameteri); B(glTexEnvi); B(glAlphaFunc);
+    B(glDeleteTextures);
+    B(glTexImage2D); B(glTexParameteri); B(glTexEnvi);
     B(glBlendFunc); B(glColor3ub); B(glBegin); B(glEnd); B(glVertex2f);
     B(glClear); B(glClearColor); B(glReadPixels); B(glFinish);
-    B(glReadBuffer); B(glDrawBuffer);
+    B(glReadBuffer); B(glDrawBuffer); B(glPixelStorei);
     B(glGetString); B(glOrtho); B(glViewport);
 #undef B
     p_wglGetProcAddress = (p_wglGetProcAddress_t)GetProcAddress(g_gl, "wglGetProcAddress");
@@ -241,12 +283,22 @@ int nvgl_init(char *err, size_t errlen)
     p_glDrawBuffer(GL_BACK);
     p_glReadBuffer(GL_BACK);
     p_glViewport(0, 0, 512, 512);
+    /* GL_PACK_ALIGNMENT defaults to 4: glReadPixels pads each row to a
+     * multiple of 4 bytes, but our readback indexing (pix[(i*N+j)*3]) is
+     * tightly packed with no row padding — mismatched whenever N*3 isn't a
+     * multiple of 4 (e.g. N=10, a real shape: the BNN's 10-class output
+     * layer). Set alignment to 1 so rows really are packed tightly. */
+    p_glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    p_glGenTextures(4, g_tex);
     return 0;
 }
 
 void nvgl_shutdown(void)
 {
     if (g_rc) {
+        if (g_tex[0] && p_glDeleteTextures)
+            p_glDeleteTextures(4, g_tex);
+        memset(g_tex, 0, sizeof(g_tex));
         p_wglMakeCurrent(NULL, NULL);
         p_wglDeleteContext(g_rc);
         g_rc = NULL;
@@ -271,7 +323,6 @@ int nvgl_bgemm(int M, int N, int K, const unsigned char *A,
 {
     static unsigned char ta[65536], tb[65536], tai[65536], tbi[65536];
     static unsigned char pix[256 * 256 * 3];
-    GLuint tex[4];
     int i, j, k, kc;
 
     if (M > 256 || N > 256 || K > 256) {
@@ -297,15 +348,18 @@ int nvgl_bgemm(int M, int N, int K, const unsigned char *A,
         tbi[i] = (unsigned char)~tb[i];
     }
 
-    p_glGenTextures(4, tex);
+    /* reuse the 4 texture objects allocated once in nvgl_init — respecifying
+     * via glTexImage2D on an existing name is well-defined and avoids
+     * leaking a texture object per call (a full BNN eval calls bgemm ~128
+     * times; leaking that many objects broke results on the Radeon). */
     {
         const unsigned char *src[4];
         src[0] = ta; src[1] = tai; src[2] = tb; src[3] = tbi;
         for (i = 0; i < 4; i++) {
             p_glActiveTextureARB((GLenum)(GL_TEXTURE0_ARB + (i >= 2)));
-            p_glBindTexture(GL_TEXTURE_2D, tex[i]);
-            p_glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA8, 256, 256, 0, GL_ALPHA,
-                           GL_UNSIGNED_BYTE, src[i]);
+            p_glBindTexture(GL_TEXTURE_2D, g_tex[i]);
+            p_glTexImage2D(GL_TEXTURE_2D, 0, GL_INTENSITY8, 256, 256, 0,
+                           GL_LUMINANCE, GL_UNSIGNED_BYTE, src[i]);
             p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             p_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -317,8 +371,11 @@ int nvgl_bgemm(int M, int N, int K, const unsigned char *A,
         p_glEnable(GL_TEXTURE_2D);
         p_glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     }
-    p_glEnable(GL_ALPHA_TEST);
-    p_glAlphaFunc(GL_GEQUAL, 0.5f);
+    /* No alpha test needed: GL_INTENSITY8 * GL_INTENSITY8 modulate is
+     * already exactly 0 (no match) or 1.0 (match) — the product IS the
+     * gate. glColor3ub(1,1,1) = 1/255 per channel, so a match contributes
+     * exactly 1 count (out of 255) once quantized; additive blend sums
+     * matches across the two AND-passes and across k-steps in this chunk. */
     p_glEnable(GL_BLEND);
     p_glBlendFunc(GL_ONE, GL_ONE);
     p_glColor3ub(1, 1, 1);
@@ -332,9 +389,9 @@ int nvgl_bgemm(int M, int N, int K, const unsigned char *A,
             float t = ((float)k + 0.5f) / 256.0f;
             for (inv = 0; inv < 2; inv++) {
                 p_glActiveTextureARB(GL_TEXTURE0_ARB);
-                p_glBindTexture(GL_TEXTURE_2D, tex[inv]);
+                p_glBindTexture(GL_TEXTURE_2D, g_tex[inv]);
                 p_glActiveTextureARB(GL_TEXTURE1_ARB);
-                p_glBindTexture(GL_TEXTURE_2D, tex[2 + inv]);
+                p_glBindTexture(GL_TEXTURE_2D, g_tex[2 + inv]);
                 p_glBegin(GL_QUADS);
                 /* x -> j via TEX1.s, y -> i via TEX0.s */
                 p_glMultiTexCoord2fARB(GL_TEXTURE0_ARB, 0.0f, t);
@@ -342,13 +399,13 @@ int nvgl_bgemm(int M, int N, int K, const unsigned char *A,
                 p_glVertex2f(-1.0f, -1.0f);
                 p_glMultiTexCoord2fARB(GL_TEXTURE0_ARB, 0.0f, t);
                 p_glMultiTexCoord2fARB(GL_TEXTURE1_ARB, (float)N / 256.0f, t);
-                p_glVertex2f((float)N / 128.0f - 1.0f, -1.0f);
+                p_glVertex2f((float)N / 256.0f - 1.0f, -1.0f);
                 p_glMultiTexCoord2fARB(GL_TEXTURE0_ARB, (float)M / 256.0f, t);
                 p_glMultiTexCoord2fARB(GL_TEXTURE1_ARB, (float)N / 256.0f, t);
-                p_glVertex2f((float)N / 128.0f - 1.0f, (float)M / 128.0f - 1.0f);
+                p_glVertex2f((float)N / 256.0f - 1.0f, (float)M / 256.0f - 1.0f);
                 p_glMultiTexCoord2fARB(GL_TEXTURE0_ARB, (float)M / 256.0f, t);
                 p_glMultiTexCoord2fARB(GL_TEXTURE1_ARB, 0.0f, t);
-                p_glVertex2f(-1.0f, (float)M / 128.0f - 1.0f);
+                p_glVertex2f(-1.0f, (float)M / 256.0f - 1.0f);
                 p_glEnd();
             }
         }

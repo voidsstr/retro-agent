@@ -1,15 +1,17 @@
 /*
  * --bnn-eval: batched BNN evaluation with a pluggable binary-GEMM backend
- * (M5 model-level acceptance). Runs an all-bdense .rim over an eval set:
+ * (M5/M6 model-level acceptance). Runs an all-bdense .rim over an eval set:
  *
  *   cpu   — per-image exec path (bit ops, exact reference)
  *   glide — hidden/output XNOR layers on the Voodoo via glide_bgemm tiles
- *           (layer 1 consumes raw u8 pixels and stays on the CPU; the GPU
- *           accelerates the binary layers, batch 256 images per pass)
+ *   nvgl  — same, via the portable OpenGL multitexture backend (any GPU
+ *           with ARB_multitexture: GeForce, Radeon, Intel integrated)
+ *   (layer 1 consumes raw u8 pixels and stays on the CPU either way; the
+ *   GPU accelerates the binary layers, batch 256 images per pass)
  *
  * Prints label agreement between the two paths + throughput. The GPU path
- * uses the exact-match-count primitive proven by --glide-check, so labels
- * must agree 100% — anything else is a real bug.
+ * uses the exact-match-count primitive proven by --glide-check/--nv-check,
+ * so labels must agree 100% — anything else is a real bug.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +21,21 @@
 #include "port.h"
 #include "ops/nn.h"
 #include "gpu/glide_mac.h"
+#include "gpu/nv_gl.h"
 #include "bnn_eval.h"
+
+typedef struct {
+    const char *tag;
+    int (*init)(char *, size_t);
+    void (*shutdown)(void);
+    int (*bgemm)(int, int, int, const unsigned char *, const unsigned char *,
+                 int *, char *, size_t);
+} bnn_gpu_t;
+
+static const bnn_gpu_t BNN_GLIDE = {
+    "glide", glide_init, glide_shutdown, glide_bgemm};
+static const bnn_gpu_t BNN_NVGL = {
+    "nvgl", nvgl_init, nvgl_shutdown, nvgl_bgemm};
 
 /* raw manifest access: we re-parse the model as a bdense chain */
 #include "json.h"
@@ -78,7 +94,7 @@ static int parse_bnn(model_t *m, const char *path, blayer_t *bl, int *n_bl,
 }
 
 /* GPU path for one batch: images[B][3072] u8 -> labels[B] */
-static int bnn_gpu_batch(const blayer_t *bl, int n_bl,
+static int bnn_gpu_batch(const bnn_gpu_t *gb, const blayer_t *bl, int n_bl,
                          const unsigned char *imgs, int B,
                          unsigned char *labels, char *err, size_t errlen)
 {
@@ -130,7 +146,7 @@ static int bnn_gpu_batch(const blayer_t *bl, int n_bl,
                             (wrow[(k + kx) >> 3] >> ((k + kx) & 7)) & 1;
                     }
                 memset(Mtile, 0, (size_t)B * jj * sizeof(int));
-                if (glide_bgemm(B, jj, kk, At, Wt, Mtile, err, errlen))
+                if (gb->bgemm(B, jj, kk, At, Wt, Mtile, err, errlen))
                     return 1;
                 for (bi = 0; bi < B; bi++)
                     for (jx = 0; jx < jj; jx++)
@@ -229,41 +245,48 @@ int bnn_eval(const char *mpath, const char *ipath, const char *lpath, int N,
     printf("bnn.cpu.top1=%.4f bnn.cpu.img_per_sec=%.2f\n",
            (double)correct_cpu / N, N / t_cpu);
 
-    use_gpu = backend && strcmp(backend, "glide") == 0;
-    if (use_gpu) {
-        int agree = 0, correct_gpu = 0, b0;
-        if (glide_init(err, sizeof(err))) {
-            printf("bnn.glide.init=FAIL %s\n", err);
-            printf("bnn-eval: FAIL\n");
-            return 1;
-        }
-        t0 = ri_now();
-        for (b0 = 0; b0 < N; b0 += GPU_BATCH) {
-            int B = N - b0 < GPU_BATCH ? N - b0 : GPU_BATCH;
-            if (bnn_gpu_batch(bl, n_bl, imgs + (size_t)b0 * in_bytes, B,
-                              gpu_pred + b0, err, sizeof(err))) {
-                printf("bnn.glide=FAIL %s\n", err);
-                glide_shutdown();
+    {
+        const bnn_gpu_t *gb = NULL;
+        if (backend && strcmp(backend, "glide") == 0)
+            gb = &BNN_GLIDE;
+        else if (backend && strcmp(backend, "nvgl") == 0)
+            gb = &BNN_NVGL;
+        use_gpu = gb != NULL;
+        if (use_gpu) {
+            int agree = 0, correct_gpu = 0, b0;
+            if (gb->init(err, sizeof(err))) {
+                printf("bnn.%s.init=FAIL %s\n", gb->tag, err);
                 printf("bnn-eval: FAIL\n");
                 return 1;
             }
+            t0 = ri_now();
+            for (b0 = 0; b0 < N; b0 += GPU_BATCH) {
+                int B = N - b0 < GPU_BATCH ? N - b0 : GPU_BATCH;
+                if (bnn_gpu_batch(gb, bl, n_bl, imgs + (size_t)b0 * in_bytes,
+                                  B, gpu_pred + b0, err, sizeof(err))) {
+                    printf("bnn.%s=FAIL %s\n", gb->tag, err);
+                    gb->shutdown();
+                    printf("bnn-eval: FAIL\n");
+                    return 1;
+                }
+            }
+            t_gpu = ri_now() - t0;
+            gb->shutdown();
+            for (i = 0; i < N; i++) {
+                if (gpu_pred[i] == cpu_pred[i])
+                    agree++;
+                if (gpu_pred[i] == labels[i])
+                    correct_gpu++;
+            }
+            printf("bnn.%s.top1=%.4f bnn.%s.img_per_sec=%.2f\n", gb->tag,
+                   (double)correct_gpu / N, gb->tag, N / t_gpu);
+            printf("bnn.label_agreement=%d/%d %s\n", agree, N,
+                   agree == N ? "EXACT" : "MISMATCH");
+            printf("bnn-eval: %s\n", agree == N ? "OK" : "MISMATCH");
+            model_close(m);
+            rim_free(&rim2);
+            return agree != N;
         }
-        t_gpu = ri_now() - t0;
-        glide_shutdown();
-        for (i = 0; i < N; i++) {
-            if (gpu_pred[i] == cpu_pred[i])
-                agree++;
-            if (gpu_pred[i] == labels[i])
-                correct_gpu++;
-        }
-        printf("bnn.glide.top1=%.4f bnn.glide.img_per_sec=%.2f\n",
-               (double)correct_gpu / N, N / t_gpu);
-        printf("bnn.label_agreement=%d/%d %s\n", agree, N,
-               agree == N ? "EXACT" : "MISMATCH");
-        printf("bnn-eval: %s\n", agree == N ? "OK" : "MISMATCH");
-        model_close(m);
-        rim_free(&rim2);
-        return agree != N;
     }
     printf("bnn-eval: OK\n");
     model_close(m);

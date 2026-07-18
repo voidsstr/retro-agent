@@ -16,5 +16,7 @@ int nvgl_bgemm(int M, int N, int K, const unsigned char *A,
 
 /* --nv-check acceptance driver (in glide_check.c) */
 int nv_check(int M, int N, int K, unsigned seed);
+/* --nv-check-multi: repeated varying-size calls in one session (debug) */
+int nv_check_multi(unsigned seed);
 
 #endif
