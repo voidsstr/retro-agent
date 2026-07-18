@@ -29,10 +29,9 @@ call :game "Quake II" "quake2.zip" "C:\Quake2" "quake2.exe"
 call :game "Quake III Arena" "quake3.zip" "C:\Quake III Arena" "Quake3\quake3.exe"
 
 REM ======================= desktop / theme =======================
-if exist "%OB%\retro_theme.reg" (
-  echo [theme] applying dark hacker XP theme
-  regedit /s "%OB%\retro_theme.reg"
-) else ( echo [theme] no retro_theme.reg staged - skipping )
+REM Theme is owned by the agent's retrowall thread (applies the Windows
+REM Classic theme on every startup) - onboarding no longer sets a theme,
+REM so it can't fight the agent. (staged retro_theme.reg is now ignored.)
 
 REM --- stage wallpaper rotation bundle from the share if present and the
 REM     box has none yet (per-host first, then a generic _default set), so
