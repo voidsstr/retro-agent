@@ -14,6 +14,22 @@
 #include "../port.h"
 #include "../ops/nn.h"
 #include "glide_mac.h"
+#include "nv_gl.h"
+
+/* Backend vtable so one acceptance driver serves both GPU backends. */
+typedef struct {
+    const char *tag;      /* output prefix, e.g. "glide" / "nvgl" */
+    int (*available)(void);
+    int (*init)(char *, size_t);
+    void (*shutdown)(void);
+    int (*bgemm)(int, int, int, const unsigned char *, const unsigned char *,
+                 int *, char *, size_t);
+} gpu_backend_t;
+
+static const gpu_backend_t GB_GLIDE = {
+    "glide", glide_available, glide_init, glide_shutdown, glide_bgemm};
+static const gpu_backend_t GB_NVGL = {
+    "nvgl", nvgl_available, nvgl_init, nvgl_shutdown, nvgl_bgemm};
 
 void bgemm_cpu(int M, int N, int K, const unsigned char *A,
                const unsigned char *B, int *C_matches)
@@ -42,7 +58,8 @@ static unsigned fnv1a(const void *data, size_t len)
     return h;
 }
 
-int glide_check(int M, int N, int K, unsigned seed)
+static int gpu_check(const gpu_backend_t *gb, int M, int N, int K,
+                     unsigned seed)
 {
     unsigned char *A, *B;
     int *Cg, *Cc;
@@ -51,13 +68,13 @@ int glide_check(int M, int N, int K, unsigned seed)
     int i, rc, mismatches = 0, max_abs = 0;
     double t0, t_gpu, t_cpu;
 
-    printf("glide.available=%d\n", glide_available());
+    printf("%s.available=%d\n", gb->tag, gb->available());
     A = (unsigned char *)malloc((size_t)M * K);
     B = (unsigned char *)malloc((size_t)K * N);
     Cg = (int *)calloc((size_t)M * N, sizeof(int));
     Cc = (int *)calloc((size_t)M * N, sizeof(int));
     if (!A || !B || !Cg || !Cc) {
-        printf("glide-check: FAIL: oom\n");
+        printf("%s-check: FAIL: oom\n", gb->tag);
         return 1;
     }
     for (i = 0; i < M * K; i++) {
@@ -103,29 +120,29 @@ int glide_check(int M, int N, int K, unsigned seed)
             for (ii = 0; ii < M * N && K % 8 == 0; ii++)
                 if (Cp[ii] != Cc[ii])
                     bad++;
-            printf("glide.cpu_bitpacked_mmacs=%.2f (parity_bad=%d)\n",
+            printf("%s.cpu_bitpacked_mmacs=%.2f (parity_bad=%d)\n", gb->tag,
                    (double)M * N * K / t_pack / 1e6, bad);
         }
         free(Ap); free(Bp); free(Cp);
     }
 
-    if (glide_init(err, sizeof(err)) != 0) {
-        printf("glide.init=FAIL %s\n", err);
-        printf("glide-check: FAIL\n");
+    if (gb->init(err, sizeof(err)) != 0) {
+        printf("%s.init=FAIL %s\n", gb->tag, err);
+        printf("%s-check: FAIL\n", gb->tag);
         free(A); free(B); free(Cg); free(Cc);
         return 1;
     }
-    printf("glide.init=OK\n");
+    printf("%s.init=OK\n", gb->tag);
     fflush(stdout);
 
     t0 = ri_now();
-    rc = glide_bgemm(M, N, K, A, B, Cg, err, sizeof(err));
+    rc = gb->bgemm(M, N, K, A, B, Cg, err, sizeof(err));
     t_gpu = ri_now() - t0;
     if (rc != 0) {
-        printf("glide.bgemm=FAIL %s\n", err);
-        glide_shutdown();
+        printf("%s.bgemm=FAIL %s\n", gb->tag, err);
+        gb->shutdown();
         free(A); free(B); free(Cg); free(Cc);
-        printf("glide-check: FAIL\n");
+        printf("%s-check: FAIL\n", gb->tag);
         return 1;
     }
 
@@ -139,22 +156,32 @@ int glide_check(int M, int N, int K, unsigned seed)
                 max_abs = d;
         }
     }
-    printf("glide.check.m=%d n=%d k=%d seed=%u\n", M, N, K, seed);
-    printf("glide.mismatches=%d glide.max_abs_err_steps=%d\n", mismatches,
+    printf("%s.check.m=%d n=%d k=%d seed=%u\n", gb->tag, M, N, K, seed);
+    printf("%s.mismatches=%d %s.max_abs_err_steps=%d\n", gb->tag, gb->tag, mismatches,
            max_abs);
-    printf("glide.result_hash=%08x\n", fnv1a(Cg, (size_t)M * N * sizeof(int)));
-    printf("glide.gpu_secs=%.4f glide.cpu_secs=%.4f\n", t_gpu, t_cpu);
-    printf("glide.gpu_mmacs=%.2f glide.cpu_mmacs=%.2f\n",
+    printf("%s.result_hash=%08x\n", gb->tag, fnv1a(Cg, (size_t)M * N * sizeof(int)));
+    printf("%s.gpu_secs=%.4f %s.cpu_secs=%.4f\n", gb->tag, gb->tag, t_gpu, t_cpu);
+    printf("%s.gpu_mmacs=%.2f %s.cpu_mmacs=%.2f\n", gb->tag, gb->tag,
            (double)M * N * K / t_gpu / 1e6, (double)M * N * K / t_cpu / 1e6);
 
     /* second run for intra-process stability */
     memset(Cg, 0, (size_t)M * N * sizeof(int));
-    rc = glide_bgemm(M, N, K, A, B, Cg, err, sizeof(err));
-    printf("glide.rerun_hash=%08x\n",
+    rc = gb->bgemm(M, N, K, A, B, Cg, err, sizeof(err));
+    printf("%s.rerun_hash=%08x\n", gb->tag,
            rc == 0 ? fnv1a(Cg, (size_t)M * N * sizeof(int)) : 0);
 
-    glide_shutdown();
+    gb->shutdown();
     free(A); free(B); free(Cg); free(Cc);
-    printf("glide-check: %s\n", mismatches == 0 ? "OK" : "MISMATCH");
+    printf("%s-check: %s\n", gb->tag, mismatches == 0 ? "OK" : "MISMATCH");
     return mismatches != 0;
+}
+
+int glide_check(int M, int N, int K, unsigned seed)
+{
+    return gpu_check(&GB_GLIDE, M, N, K, seed);
+}
+
+int nv_check(int M, int N, int K, unsigned seed)
+{
+    return gpu_check(&GB_NVGL, M, N, K, seed);
 }

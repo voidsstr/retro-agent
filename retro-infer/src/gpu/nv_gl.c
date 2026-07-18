@@ -71,6 +71,7 @@ int nvgl_bgemm(int M, int N, int K, const unsigned char *A,
 #define GL_TEXTURE1_ARB 0x84C1
 #define GL_EXTENSIONS 0x1F03
 #define GL_DITHER 0x0BD0
+#define GL_BACK 0x0405
 
 typedef unsigned int GLuint;
 typedef int GLint;
@@ -105,6 +106,8 @@ GLF(void, glClear, (unsigned));
 GLF(void, glClearColor, (GLfloat, GLfloat, GLfloat, GLfloat));
 GLF(void, glReadPixels, (GLint, GLint, GLsizei, GLsizei, GLenum, GLenum,
                          void *));
+GLF(void, glReadBuffer, (GLenum));
+GLF(void, glDrawBuffer, (GLenum));
 GLF(void, glFinish, (void));
 GLF(const GLubyte *, glGetString, (GLenum));
 GLF(void, glOrtho, (double, double, double, double, double, double));
@@ -130,6 +133,7 @@ static int bind_gl(char *err, size_t errlen)
     B(glTexImage2D); B(glTexParameteri); B(glTexEnvi); B(glAlphaFunc);
     B(glBlendFunc); B(glColor3ub); B(glBegin); B(glEnd); B(glVertex2f);
     B(glClear); B(glClearColor); B(glReadPixels); B(glFinish);
+    B(glReadBuffer); B(glDrawBuffer);
     B(glGetString); B(glOrtho); B(glViewport);
 #undef B
     p_wglGetProcAddress = (p_wglGetProcAddress_t)GetProcAddress(g_gl, "wglGetProcAddress");
@@ -176,13 +180,32 @@ int nvgl_init(char *err, size_t errlen)
     wc.hInstance = GetModuleHandleA(NULL);
     wc.lpszClassName = "retro-infer-nvgl";
     RegisterClassA(&wc);
-    g_wnd = CreateWindowExA(0, "retro-infer-nvgl", "retro-infer nv", WS_POPUP,
-                            0, 0, 512, 512, NULL, NULL, wc.hInstance, NULL);
+    /* Topmost, foreground, on-screen: glReadPixels from a window's back
+     * buffer is undefined if the window is occluded/offscreen (pixel-
+     * ownership test). This isn't a pbuffer, so the window must genuinely be
+     * the frontmost visible surface while we compute. Callers restore the
+     * desktop afterwards. */
+    g_wnd = CreateWindowExA(WS_EX_TOPMOST, "retro-infer-nvgl", "retro-infer nv",
+                            WS_POPUP, 0, 0, 512, 512, NULL, NULL,
+                            wc.hInstance, NULL);
+    {
+        MSG msg;
+        ShowWindow(g_wnd, SW_SHOW);
+        SetWindowPos(g_wnd, HWND_TOPMOST, 0, 0, 512, 512,
+                     SWP_SHOWWINDOW | SWP_NOACTIVATE);
+        BringWindowToTop(g_wnd);
+        SetForegroundWindow(g_wnd);
+        UpdateWindow(g_wnd);
+        while (PeekMessageA(&msg, NULL, 0, 0, 1)) {
+            TranslateMessage(&msg);
+            DispatchMessageA(&msg);
+        }
+    }
     g_dc = GetDC(g_wnd);
     memset(&pfd, 0, sizeof(pfd));
     pfd.nSize = sizeof(pfd);
     pfd.nVersion = 1;
-    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
     pfd.iPixelType = PFD_TYPE_RGBA;
     pfd.cColorBits = 24;
     pf = ChoosePixelFormat(g_dc, &pfd);
@@ -215,6 +238,8 @@ int nvgl_init(char *err, size_t errlen)
         return 1;
     }
     p_glDisable(GL_DITHER);
+    p_glDrawBuffer(GL_BACK);
+    p_glReadBuffer(GL_BACK);
     p_glViewport(0, 0, 512, 512);
     return 0;
 }

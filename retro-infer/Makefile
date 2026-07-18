@@ -32,11 +32,13 @@ BASE_SRCS = src/main.c src/cpuid.c src/tensor.c src/kernels.c src/bench.c \
             src/train/gbdt.c src/train/forest.c src/train/svm.c src/train/nn_session.c src/train/gb_dist.c
 SSE_SRCS  = src/ops/gemm_sse.c
 MMX_SRCS  = src/ops/gemm_mmx.c
+SSE2_SRCS = src/ops/gemm_sse2.c
 DNOW_SRCS = src/ops/gemm_3dnow.c
 
 BASE_OBJS = $(patsubst src/%.c,$(OBJDIR)/%.o,$(BASE_SRCS))
 SSE_OBJS  = $(patsubst src/%.c,$(OBJDIR)/%.sse.o,$(SSE_SRCS))
 MMX_OBJS  = $(patsubst src/%.c,$(OBJDIR)/%.mmx.o,$(MMX_SRCS))
+SSE2_OBJS = $(patsubst src/%.c,$(OBJDIR)/%.sse2.o,$(SSE2_SRCS))
 DNOW_OBJS = $(patsubst src/%.c,$(OBJDIR)/%.3dnow.o,$(DNOW_SRCS))
 
 HDRS = src/infer.h src/json.h src/exec.h src/port.h src/ops/nn.h \
@@ -47,7 +49,7 @@ HDRS = src/infer.h src/json.h src/exec.h src/port.h src/ops/nn.h \
 
 all: $(TARGET)
 
-$(TARGET): $(BASE_OBJS) $(SSE_OBJS) $(MMX_OBJS) $(DNOW_OBJS)
+$(TARGET): $(BASE_OBJS) $(SSE_OBJS) $(MMX_OBJS) $(SSE2_OBJS) $(DNOW_OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 	@echo "Built $(TARGET) v$(VERSION) - $$(stat -c%s $(TARGET)) bytes"
 
@@ -64,6 +66,10 @@ $(OBJDIR)/%.mmx.o: src/%.c $(HDRS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -mmmx -c -o $@ $<
 
+$(OBJDIR)/%.sse2.o: src/%.c $(HDRS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -msse2 -c -o $@ $<
+
 $(OBJDIR)/%.3dnow.o: src/%.c $(HDRS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -m3dnow -c -o $@ $<
@@ -73,7 +79,7 @@ clean:
 
 # Native Linux build for fast local parity testing (no 3DNow! on x86_64)
 HOSTCC = gcc
-HOST_SRCS = $(BASE_SRCS) $(SSE_SRCS) $(MMX_SRCS)
+HOST_SRCS = $(BASE_SRCS) $(SSE_SRCS) $(MMX_SRCS) $(SSE2_SRCS)
 host:
 	$(HOSTCC) -Wall -Wextra -O2 -DRI_NO_3DNOW -DINFER_VERSION='"$(VERSION)-host"' \
 	  -o retro-infer-host $(HOST_SRCS) -lm

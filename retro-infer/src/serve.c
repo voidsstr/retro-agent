@@ -46,6 +46,7 @@ typedef int SOCKET;
 #include "train/nn_session.h"
 #include "train/gb_dist.h"
 #include "gpu/glide_mac.h"
+#include "gpu/nv_gl.h"
 
 #define MAX_MODELS 8
 #define MAX_SLOTS 32
@@ -171,7 +172,7 @@ static tslot_t *find_slot(const char *name, int create)
 static void hello_json(char *buf, size_t cap)
 {
     cpu_caps_t caps;
-    int i, n = 0, glide = glide_available();
+    int i, n = 0, glide = glide_available(), nv = nvgl_available();
     size_t off;
     cpu_detect(&caps);
     for (i = 0; i < MAX_MODELS; i++)
@@ -185,7 +186,12 @@ static void hello_json(char *buf, size_t cap)
         "\"kernel_f32_nt\":\"%s\",\"kernel_f32_tn\":\"%s\","
         "\"isa\":{\"mmx\":%d,\"sse\":%d,\"sse2\":%d,\"3dnow\":%d,"
         "\"3dnowext\":%d},"
-        "\"gpu\":{\"glide3x_loadable\":%d},"
+        /* nv-gl (OpenGL binary-GEMM) inits on ATI/Intel but exact readback is
+         * not yet validated (needs a pbuffer path) — reported as loadable, not
+         * advertised as a usable backend. Per honest-numbers: the CPU
+         * bit-packed XNOR beats the render-to-texture path on these boxes. */
+        "\"gpu\":{\"glide3x_loadable\":%d,\"opengl_loadable\":%d,"
+        "\"nv_gl_status\":\"%s\"},"
         "\"resident_models\":%d,\"ready\":1}",
         INFER_VERSION, g_kernels.gemm_f32_name,
         glide ? ",\"glide-mac\"" : "",
@@ -195,7 +201,9 @@ static void hello_json(char *buf, size_t cap)
         g_kernels.gemm_f32_tn == gemm_f32_tn_scalar ? "scalar"
                                                     : g_kernels.gemm_f32_name,
         caps.mmx, caps.sse, caps.sse2, caps.amd3dnow, caps.amd3dnowext,
-        glide, n);
+        glide, nv,
+        nv ? (glide ? "n/a" : "loadable-unvalidated") : "none",
+        n);
     (void)off;
 }
 

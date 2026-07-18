@@ -25,6 +25,9 @@ void gemm_f32_tn_3dnow(int M, int N, int K, const float *A, const float *B,
 /* ops/gemm_mmx.c (-mmmx) */
 void gemm_i8_mmx(int M, int N, int K, const signed char *A,
                  const signed char *B, int *C, int beta0);
+/* ops/gemm_sse2.c (-msse2) */
+void gemm_i8_sse2(int M, int N, int K, const signed char *A,
+                  const signed char *B, int *C, int beta0);
 
 kernels_t g_kernels;
 
@@ -54,6 +57,10 @@ void kernels_init(const cpu_caps_t *caps)
     if (caps->mmx) {
         g_kernels.gemm_i8 = gemm_i8_mmx;
         g_kernels.gemm_i8_name = "mmx";
+    }
+    if (caps->sse2) {              /* 128-bit int8, 2x the MMX path */
+        g_kernels.gemm_i8 = gemm_i8_sse2;
+        g_kernels.gemm_i8_name = "sse2";
     }
 }
 
