@@ -149,9 +149,10 @@ asyncio.run(run('192.168.1.143'))
 
 From chat, the same three steps are `mcp__retro__ai_list` / `ai_load` /
 `ai_infer` ([`scripts/retro_brain_tools.py:275-421`](../../scripts/retro_brain_tools.py#L275)).
-Interactive TUI: `python3 scripts/retro_infer_console.py`
-(`[d]iscover [t]rain [i]nfer [b]ench`,
-[`scripts/retro_infer_console.py`](../../scripts/retro_infer_console.py)).
+Live console: `python3 scripts/retro_infer_console.py` — a menu-driven,
+continuously-repainting dashboard (discover/train/dist-infer/infer/bench/
+pipeline/leaderboard), not a run-once CLI; full walkthrough in
+[`OPERATIONS.md`](OPERATIONS.md).
 
 ## On-device training
 
@@ -257,8 +258,10 @@ python3 scripts/ai_metrics.py log --ip 192.168.1.143 --model lenet5-mnist-int8 \
 python3 scripts/ai_metrics.py board --model lenet5-mnist-int8 --metric img_per_sec
 ```
 
-The console's `[b]`ench logs automatically
-([`scripts/retro_infer_console.py:160-166`](../../scripts/retro_infer_console.py#L160)).
+The console logs every action automatically now — single infer/bench as
+before, plus `dp-train`/`dp-infer`/pipeline runs (previously `dp-train`
+logged nothing at all). See
+[`OPERATIONS.md`](OPERATIONS.md#end-to-end-workflows-through-the-console).
 
 ## Milestone acceptance tests (M0–M8)
 
@@ -274,6 +277,6 @@ except M6 have passed on real hardware (status table there):
 | M3 | `.rim` round-trip within quant bound; same model infers identically on multiple fleet machines | `rim_dump.py` + remote `INFER_RUN` on ≥2 boxes |
 | M4 | ai_list shows capabilities; `MODEL_LOAD`/`MODEL_LIST`/remote `INFER_RUN` = local label; `TENSOR` round-trips intact; no Win98 RST | remote-inference section + `mcp__retro__ai_list` |
 | M5 | Glide GEMM exact vs CPU (≤1 step; achieved 0), BNN GPU=CPU labels on 1000 images, stable hash across runs | GPU acceptance section above |
-| M6 | nv-combiner int8 GEMM within tolerance on a GeForce 2; LeNet top-1 within 0.5% | blocked on hardware ([`src/gpu/nv_gl.c:12-15`](../src/gpu/nv_gl.c#L12)) |
+| M6 | nv-gl binary GEMM exact vs CPU on real Radeon/Intel/NVIDIA hardware; BNN CIFAR-10 label agreement | GPU acceptance section above, `--nv-check`/`--nv-check-multi`; ✅ closed on all 4 non-3dfx fleet boxes incl. a real GeForce RTX 4080 SUPER |
 | M7 | data-parallel = single-node within 1% (achieved bit-identical); failover completes; distributed GBDT within 0.01 AUC; pipeline label-identical | fleet-training section (incl. `--kill-node`) |
-| M8 | every run rows into ai_runs with the full metric set; console works on 80×25; leaderboards stable | ai_runs section + `retro_infer_console.py` |
+| M8 | every run rows into ai_runs with the full metric set; console works on 80×25 with live status; leaderboards stable | ai_runs section + [`OPERATIONS.md`](OPERATIONS.md) |

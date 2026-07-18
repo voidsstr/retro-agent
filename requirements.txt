@@ -1,0 +1,7 @@
+# Python dependencies for the Linux-side orchestration scripts (scripts/,
+# client/, tools/rim/). The retro-infer C engine and the Windows agent are
+# dependency-free by design; this manifest only covers the Python tooling
+# that drives them.
+numpy
+psycopg2-binary
+rich>=13

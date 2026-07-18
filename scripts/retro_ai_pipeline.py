@@ -14,6 +14,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np  # noqa: E402
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
@@ -22,6 +23,8 @@ from client.retro_protocol import RetroConnection  # noqa: E402
 from client.retro_ai import RetroAI  # noqa: E402
 import rim_pack  # noqa: E402
 import rim_dump  # noqa: E402
+import ai_status_bus as bus  # noqa: E402
+import ai_metrics  # noqa: E402
 
 SECRET = os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret")
 OUT = os.path.join(os.path.dirname(__file__), "..", "tools", "rim", "out")
@@ -110,6 +113,17 @@ async def main():
                   capture_output=True, text=True)
         ref_labels = np.fromfile(lp, dtype="<f4").reshape(-1, 10).argmax(1)
 
+    model_name = os.path.basename(args.model)
+    run_id = bus.new_run(
+        "pipeline-2stage", model=model_name, phase="pipeline",
+        precision="f32", command=" ".join(sys.argv), nodes=[args.a, args.b])
+    bus.publish(run_id, status="running", progress={"total_steps": args.n},
+                fleet={"nodes_total": 2, "nodes_alive": 2},
+                nodes={args.a: {"role": "stage1", "alive": True, "backend": "?",
+                                "precision": "f32", "last_error": None},
+                      args.b: {"role": "stage2", "alive": True, "backend": "?",
+                                "precision": "f32", "last_error": None}})
+
     correct = 0
     match = 0
     lat = []
@@ -124,16 +138,52 @@ async def main():
             correct += 1
         if ref_labels is not None and pred == ref_labels[i]:
             match += 1
+        if (i + 1) % 10 == 0 or i + 1 == args.n:
+            elapsed = time.time() - t0
+            sps = (i + 1) / elapsed if elapsed > 0 else None
+            bus.publish(
+                run_id,
+                progress={"step": i + 1,
+                          "percent": round(100.0 * (i + 1) / args.n, 1)},
+                metrics={"top1_running": round(correct / (i + 1), 4),
+                         "p50_ms": round(float(np.percentile(lat, 50)), 1),
+                         "p99_ms": round(float(np.percentile(lat, 99)), 1)},
+                fleet={"samples_per_sec": round(sps, 1) if sps else None,
+                       "eta_seconds": round((args.n - i - 1) / sps, 1) if sps else None},
+                nodes={args.a: {"samples_per_sec": round(sps, 1) if sps else None,
+                                "last_step_ms": round(lat[-1], 1)},
+                      args.b: {"samples_per_sec": round(sps, 1) if sps else None,
+                                "last_step_ms": round(lat[-1], 1)}})
     secs = time.time() - t0
     lat = np.array(lat)
+    ips_total = args.n / secs if secs > 0 else 0.0
     print(f"pipeline[{args.a} -> {args.b}] n={args.n} "
-          f"top1={correct/args.n:.4f} tok/s={args.n/secs:.1f} "
+          f"top1={correct/args.n:.4f} tok/s={ips_total:.1f} "
           f"p50={np.percentile(lat, 50):.0f}ms p99={np.percentile(lat, 99):.0f}ms")
+    identical = ref_labels is not None and match == args.n
     if ref_labels is not None:
         print(f"label match vs single-box: {match}/{args.n} "
-              f"{'IDENTICAL' if match == args.n else 'MISMATCH'}")
+              f"{'IDENTICAL' if identical else 'MISMATCH'}")
+
+    bus.mark_done(run_id, status="completed")
+    try:
+        ai_metrics.log_run(
+            args.a, model_name, "infer", "pipeline-2stage", "f32",
+            {"top1": round(correct / args.n, 4), "n": args.n,
+             "img_per_sec_total": round(ips_total, 2),
+             "p50_ms": round(float(np.percentile(lat, 50)), 1),
+             "p99_ms": round(float(np.percentile(lat, 99)), 1),
+             "label_match_vs_singlebox": match if ref_labels is not None else None,
+             "identical_vs_singlebox": identical if ref_labels is not None else None},
+            settings={"mode": "pipeline", "stage1": args.a, "stage2": args.b},
+            dataset="mnist-test",
+            notes="2-stage layer-split pipeline-parallel demo")
+    except Exception as e:
+        print(f"(DB log failed: {e})")
+
     await ca.close()
     await cb.close()
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

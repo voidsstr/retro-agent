@@ -22,7 +22,7 @@ fleet coordinators: `scripts/retro_ai_*.py`, metrics: `scripts/ai_metrics.py`
 | M5 Glide GPU backend | ✅ **exact** binary/XNOR GEMM on a real Voodoo5 (0 error, hash-stable); BNN CIFAR-10 on-GPU = 1000/1000 label agreement vs CPU |
 | M6 GPU backend (`nv-gl`) | ✅ **exact** binary/XNOR GEMM on real Radeon 9800 XT, Radeon HD 3850, Intel HD Graphics, *and* a real NVIDIA GeForce RTX 4080 SUPER (`src/gpu/nv_gl.c` — portable OpenGL 1.1 + ARB_multitexture, vendor-neutral despite the filename); BNN CIFAR-10 on-GPU = 1000/1000 vs CPU on every one of them. The original "no GeForce box online" gap is closed. |
 | M7 fleet training | ✅ data-parallel SGD (2-node result **bit-identical** to single-node; failover verified); distributed GBDT (histogram aggregation); pipeline parallelism (layer-per-machine, label-identical). Char-transformer pipeline flagship still open (needs attention ops). |
-| M8 metrics + console | ✅ `ai_runs` table + leaderboards live (all milestone results logged); `scripts/retro_infer_console.py` TUI |
+| M8 metrics + console | ✅ `ai_runs` table + leaderboards live (all milestone results logged, now incl. dp-train/dp-infer/pipeline); `scripts/retro_infer_console.py` — a live, menu-driven `rich` dashboard (status-bus telemetry, real NVIDIA GPU util + honest CPU ops/sec elsewhere) replacing the earlier static-per-action TUI |
 
 Honest numbers, as promised: on binary GEMM the Voodoo5 is exact at 61 MMAC/s
 but the Athlon's bit-packed XNOR does 695 MMAC/s, and the same pattern holds
@@ -234,19 +234,40 @@ over `TENSOR`), **distributed GBDT** (per-round histogram aggregation), and
   token sequence (greedy, fixed seed) as the single-box run; per-stage activation
   `TENSOR` checksums match.
 
-### M8 — Metrics harness + ASCII console
-**Deliverables:** the `retro-infer` ASCII TUI (discover/train/infer/bench,
-mirrorable into Retro Chat); full metric logging to `ai_runs` in the specpicks DB;
-leaderboards; energy-per-inference capture.
+### M8 — Metrics harness + live console
+**Deliverables:** the `retro-infer` console (`scripts/retro_infer_console.py`)
+— a menu-driven, continuously-repainting terminal dashboard (`rich`-based,
+not a classic run-once CLI) fed by a synthesized status bus
+(`scripts/ai_status_bus.py`, since the agent/engine protocol has no native
+telemetry channel — see that module's docstring); full metric logging to
+`ai_runs` in the specpicks DB (now including `dp-train`, `dp-infer`, and the
+pipeline demo, which previously logged nothing); leaderboards; a real
+`nvidia-smi`-sourced GPU utilization readout on the one NVIDIA box, honest
+CPU ops/sec everywhere else (no fabricated GPU% where nothing GPU-side is
+running — today's dp-train/dp-infer/pipeline paths only exercise the CPU
+kernels, not the GPU binary-GEMM backend; see
+[`OPERATIONS.md`](../retro-infer/docs/OPERATIONS.md#honesty-notes)).
 **Tests:**
-- Every train/infer run writes one DB row keyed by model × machine × backend ×
-  precision with the full metric set (below) populated.
-- Console renders correctly on a 16-color 80×25 console and streams live loss/acc
-  without flicker; `[d]/[t]/[i]/[b]` actions work end-to-end.
+- Every train/infer/bench/pipeline run writes one DB row keyed by model ×
+  machine × backend × precision with `settings.mode` distinguishing
+  single-node/distributed/pipeline runs. Verified fleet-wide 2026-07-18/19:
+  `dp-train` (2 nodes, incl. injected failover), `dp-infer` (3-node shard),
+  and the pipeline demo all land rows.
+- Console renders correctly at the 80×25 floor (chrome sizes and table row
+  counts are dynamically capped to the measured terminal height so nothing
+  silently clips mid-row) and keeps repainting while an action runs in the
+  background — verified against real hardware for discover/infer/bench/
+  train/dist-infer/pipeline; the keyboard-driven overlay/menu loop itself
+  needs a live terminal to fully exercise (couldn't be driven headlessly).
+- `dp-train`'s per-node `alive` flag flips to `false` in the live status
+  bus the moment its existing failover handler drops a node (verified: a
+  `--kill-node` run reflected the dead node within one status publish).
 - Leaderboard query returns a stable ranking; a re-run of a fixed config
   reproduces its metrics within noise.
 - Energy: fleet wattage sampled during a run and stored (even if via a manual
-  meter reading entered into the row) so energy-per-inference is comparable.
+  meter reading entered into the row) so energy-per-inference is comparable —
+  still open; `nvidia-smi`'s `power.draw` field is captured live for the
+  NVIDIA box but not yet persisted into a run's logged metrics.
 
 ## Metrics reference (logged per run)
 

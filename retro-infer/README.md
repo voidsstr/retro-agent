@@ -20,6 +20,9 @@ a native Linux build (`make host`) for fast parity iteration.
   inference, on-device + fleet training, GPU acceptance, ai_runs logging
 - [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md) — deploy/version story,
   fleet gotchas, how to add ops/kernels/models, security notes
+- [`docs/OPERATIONS.md`](docs/OPERATIONS.md) — the live console: launch,
+  keybindings, the status-bus telemetry model and its honesty rules,
+  end-to-end fleet train/dist-infer/pipeline workflows
 
 Specs: [`tools/rim/FORMAT.md`](../tools/rim/FORMAT.md) (.rim container),
 [`tools/rim/bnn/BNN-SPEC.md`](../tools/rim/bnn/BNN-SPEC.md) (integer XNOR).
@@ -49,6 +52,8 @@ retro-infer --train-rf <feat lab N F valfrac ntrees depth seed>
 retro-infer --train-svm <feat lab N F valfrac epochs lr reg [seed]>
 retro-infer --bnn-eval <m.rim imgs lbls N> [cpu|glide]   batched BNN (GPU on Voodoo)
 retro-infer --glide-check [M N K seed]               Voodoo GEMM acceptance
+retro-infer --nv-check [M N K seed]                  nv-gl GEMM acceptance (Radeon/Intel/NVIDIA)
+retro-infer --nv-check-multi [seed]                  nv-gl varying-size stress test (mirrors real BNN tiling)
 retro-infer --serve [port]                           engine server (agent proxies to :9896)
 ```
 
@@ -62,7 +67,9 @@ retro-infer --serve [port]                           engine server (agent proxie
   step-wise NT* sessions (fleet data-parallel), GB* distributed-GBDT node side
 - `src/gpu/glide_mac.c` — 3dfx Voodoo binary-GEMM backend (exact
   alpha-test accumulation; see file header for the method)
-- `src/gpu/nv_gl.c` — GeForce backend (compile-verified, awaiting hardware)
+- `src/gpu/nv_gl.c` — vendor-neutral OpenGL 1.1 binary-GEMM backend
+  (despite the filename: hardware-verified exact on Radeon, Intel, and
+  NVIDIA GeForce — see the file header for the debugging history)
 - `src/serve.c` — loopback server the agent's AI_* commands proxy to
 
 ## Rules that keep parity exact

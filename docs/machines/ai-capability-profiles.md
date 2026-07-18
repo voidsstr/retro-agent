@@ -212,10 +212,11 @@ freshly-added machine reaches `ready=1` without manual staging:
    `AI: host <gpu + driver_flag>`. So the box itself shows, on its own
    screen, when it can take AI work. Verified in `agent.log`:
    `AI: engine ready … "driver_flag":"ok: 3dfx GPU with loadable glide3x …"`.
-4. **Fleet view** — `mcp__retro__ai_list` (chat) and
-   `scripts/retro_infer_console.py` [d]iscover surface the same data
-   fleet-wide; the UDP beacon carries an `ai=1` flag so AI-capable boxes are
-   findable without a full handshake.
+4. **Fleet view** — `mcp__retro__ai_list` (chat) and the live console's `d`
+   discover action (`scripts/retro_infer_console.py`, see
+   [`retro-infer/docs/OPERATIONS.md`](../../retro-infer/docs/OPERATIONS.md))
+   surface the same data fleet-wide; the UDP beacon carries an `ai=1` flag so
+   AI-capable boxes are findable without a full handshake.
 
 ## Re-running the inspection
 

@@ -845,32 +845,33 @@ milestone-by-milestone acceptance results and what's still open.
 
 ### What it looks like — `retro-infer` fleet console
 
-A single ASCII TUI (readable on a 16-color CRT, and mirrorable into the Retro
-Chat) drives discovery, training, and inference, streaming live ML metrics:
+`scripts/retro_infer_console.py` is a live, menu-driven terminal dashboard
+(`rich`-based — full color, progress bars, a real-time GPU/throughput gauge),
+not a run-once CLI: it keeps repainting while discover/train/dist-infer/
+infer/bench/pipeline actions run in the background, fed by a synthesized
+status bus (the agent/engine protocol has no native telemetry channel, so
+every "live" figure here is timing the orchestration scripts already
+capture — see [`retro-infer/docs/OPERATIONS.md`](retro-infer/docs/OPERATIONS.md)
+for exactly what's real vs. honestly-labeled-as-estimated). Actual captured
+output from a real `dp-train` run sharded across a Pentium III/Voodoo3 and an
+Athlon/Voodoo5:
 
 ```
-+= RETRO-INFER  fleet ML console ===================== transport: retro-agent =+
-| [d] DISCOVER   ai-capable agents advertised on the LAN                       |
-|   .124  Voodoo3 AGP      glide-mac    int8   ~0.9 GFLOP/s   READY  models:2  |
-|   .143  GeForce4 Ti4600  nv-shader    fp16   ~4.2 GFLOP/s   READY  models:5  |
-|   .51   GeForce2 GTS     nv-combiner  int8   ~1.1 GFLOP/s   TRAIN  models:2  |
-|   .50   Voodoo5 5500     glide-mac    int8   ~1.6 GFLOP/s   TRAIN  models:1  |
-|   .52   Pentium4 (CPU)   sse2         fp32   ~0.6 GFLOP/s   READY  models:8  |
-+------------------------------------------------------------------------------+
-| [t] TRAIN  (fleet data-parallel, 4 GPUs)                                     |
-|   lenet5-mnist        epoch  7/20  [##########..........] 52%  1.9k img/s    |
-|     loss 0.184  acc 94.1%  val_acc 92.7%  err 7.3%  F1 0.93  ce 0.21         |
-|   bnn-cifar10 (XNOR)  epoch  3/40  [####................] 11%   340 img/s    |
-|     loss 0.71   acc 61.2%  val_acc 58.9%  err 41.1%  top5 92.0%              |
-|   gbdt-tabular        tree 128/500 [#####...............] 25%                |
-|     train_logloss 0.42  val_logloss 0.47  val_auc 0.883  rmse 0.19          |
-|   allreduce 38 ms/step   sync via retro-agent TENSOR frames   eta 6m 12s     |
-+------------------------------------------------------------------------------+
-| [i] INFER   char-transformer-6L  (pipeline: .124>.51>.143>.50)              |
-|   > the voodoo card slept for twenty years and woke up_                      |
-|   38 tok/s  ppl 24.6  p50 21ms  p99 44ms   fleet power ~610W                 |
-+============================ [t]rain [i]nfer [d]iscover [b]ench [q]uit ========+
+ RETRO-INFER FLEET   12:02:48  db:ok  bus:1 active
+╭───────────────── fleet ──────────────────╮╭────────── active runs ───────────╮
+│  ▶ 192.168.1.124  ADMIN   cpu-sse   READY ││ dp-train-40aa3d  train  ████░ 90%│
+│    192.168.1.143  1GHZ    cpu-3dnow READY ││                                  │
+╰──────────────────────────────────────────╯╰──────────────────────────────────╯
+ gpu / throughput: 192.168.1.124 — no vendor GPU-utilization tool, showing
+ measured CPU ops/sec instead (honest > guessed)
+ ops/sec (last 60 samples): ▃▄▅▅▅▅▅▅▅▅▅▅▅▅▅▅
+ log: epoch=1 step=18 loss=0.19 allreduce_ms=63 nodes=2 elapsed=3s
+ [d]iscover [t]rain [n]dist-infer [i]nfer [b]ench [p]ipeline [l]eaderboard [q]uit
 ```
+
+On the one real NVIDIA box in the fleet (WHITEBEAST, RTX 4080 SUPER), the
+gauge instead polls actual `nvidia-smi` utilization/memory/temperature/power
+live — the only box with a reliable always-present vendor tool.
 
 ### The plan (phased overview)
 
