@@ -9,13 +9,13 @@ any driver actions flagged. The agent re-derives all of this at runtime — see
 
 ## Summary (5 connected machines)
 
-| Box | Host | CPU | ISA used | GPU | Glide AI backend | f32 / int8 / NT-TN kernels |
+| Box | Host | CPU | ISA used | GPU | GPU AI backend | f32 / int8 / NT-TN kernels |
 |---|---|---|---|---|---|---|
 | **.124** | ADMIN | Pentium III 850MHz (fam6/m8) | **SSE** + MMX (no SSE2) | Voodoo3 (PCI 121a:0005) | ✅ glide-mac | sse / mmx / sse |
 | **.143** | 1GHZ | Athlon 1GHz classic (fam6/m2) | **3DNow!** + MMX (no SSE) | Voodoo5 5500 (PCI 121a:0009) | ✅ glide-mac | 3dnow / mmx / 3dnow |
-| **.240** | USER-41EA3B3330 | Athlon 64 3300+ (fam15/m12) | **SSE + SSE2** + MMX + 3DNow! | Radeon 9800 XT | ✗ (not 3dfx) | sse / **sse2** / sse |
-| **.123** | 2004-XP | Athlon 64 4000+ | **SSE + SSE2** + MMX + 3DNow! | Radeon HD 3850 AGP | ✗ (not 3dfx) | sse / **sse2** / sse |
-| **.145** | DELL | Core i5-2400 (Sandy Bridge) | **SSE + SSE2** + MMX | Intel HD Graphics | ✗ (not 3dfx) | sse / **sse2** / sse |
+| **.240** | USER-41EA3B3330 | Athlon 64 3300+ (fam15/m12) | **SSE + SSE2** + MMX + 3DNow! | Radeon 9800 XT | ✅ nv-gl | sse / **sse2** / sse |
+| **.123** | 2004-XP | Athlon 64 4000+ | **SSE + SSE2** + MMX + 3DNow! | Radeon HD 3850 AGP | ✅ nv-gl | sse / **sse2** / sse |
+| **.145** | DELL | Core i5-2400 (Sandy Bridge) | **SSE + SSE2** + MMX | Intel HD Graphics | ✅ nv-gl | sse / **sse2** / sse |
 
 int8 kernel dispatch: **SSE2** (128-bit, 8-wide) on the three Athlon 64 /
 Core i5 boxes, **MMX** (64-bit, 4-wide) on the P3/Athlon-classic (no SSE2),
@@ -23,22 +23,33 @@ scalar fallback otherwise — all bit-identical (integer-exact). On .240 the
 SSE2 int8 path runs LeNet-5 at 843 img/s vs 536 scalar (1.57×).
 
 All: Windows XP, `ready=1` for AI requests, `retro-infer` engine staged next
-to the agent (auto-staged from the share since agent **v1.11.0**). The two
-Voodoo boxes (.124/.143) run the **glide-mac** GPU backend; the three
-non-3dfx boxes (.240/.123/.145) run CPU backends only. On the Radeon 9800 XT
-(.240) the `nv-gl` OpenGL backend loads (`opengl_loadable:1`,
-ARB_multitexture present, context inits) but its render-to-texture readback
-is not yet exact — reported as `nv_gl_status: loadable-unvalidated` and not
-advertised as usable. It needs a pbuffer/FBO path; and per the project's
-honest-numbers rule, these strong K8/Core CPUs' bit-packed XNOR beats the
-GPU render-to-texture path anyway, so the CPU is the right AI role for them.
-Agents are on **v1.11.0** (self-heal engine staging + startup AI banner);
-.123/.145 rolled from v1.9.1.
+to the agent (auto-staged from the share since agent **v1.11.0**). **All
+five boxes now have a working GPU AI backend**: the two Voodoo boxes
+(.124/.143) run **glide-mac** (3dfx Glide fixed-function); the three
+non-3dfx boxes (.240/.123/.145) run **nv-gl**, a portable OpenGL 1.1 +
+ARB_multitexture backend (despite the filename, it's vendor-neutral —
+verified on Radeon *and* Intel integrated graphics, not just NVIDIA).
+`AI_HELLO` reports `nv_gl_status: verified` and lists `nv-gl` in
+`backends` on all three. Getting there took a real debugging pass: an
+`--nv-check` acceptance run (exact binary GEMM, mirrors `--glide-check`)
+first surfaced garbage output from a printf argument-order bug, then a
+real render bug (`GL_ALPHA8` textures carry zero RGB, so the accumulation
+never worked), then a 2× geometry error, then — isolated by a new
+`--nv-check-multi` stress mode once the raw GEMM checked out exact but the
+BNN model-level eval didn't — a `GL_PACK_ALIGNMENT` row-padding bug that
+only bites at odd output widths (the BNN's 10-class layer). All four are
+fixed; full write-up in the code comment at the top of
+`retro-infer/src/gpu/nv_gl.c`. BNN CIFAR-10 (the M5 flagship test) now
+also passes 1000/1000 on both Radeon boxes.
+Per the project's honest-numbers rule: these strong K8/Core CPUs' own
+bit-packed XNOR still beats the GPU render-to-texture path on raw
+throughput (e.g. .240: CPU 1826 MMAC/s vs GPU 368 MMAC/s) — the GPU
+backend is exact and usable, not the fastest option on this hardware.
+Agents are on **v1.11.0** (self-heal engine staging + startup AI banner).
 
 > The three newer boxes (Athlon 64 / Core i5) have SSE2 and are the fastest
-> CPU-inference nodes in the fleet — but the *interesting* GPU-compute
-> showcase stays on the two Voodoos, which are the only cards the exact
-> Glide XNOR-GEMM backend targets.
+> CPU-inference nodes in the fleet, *and* now have a working exact GPU
+> backend too — full AI capability parity with the Voodoo boxes.
 
 ## .124 — Pentium III / Voodoo3
 
@@ -136,8 +147,7 @@ freshly-added machine reaches `ready=1` without manual staging:
    adapter (`EnumDisplayDevices`) and probes `glide3x.dll` itself
    (`agent/src/ai.c:host_gpu_json`), then splices a `host_gpu` object into
    the `AI_HELLO` reply with a **`driver_flag`** string that calls out
-   mismatches (3dfx present but no loadable Glide; NVIDIA present but M6 not
-   hardware-validated; no AI GPU → CPU only).
+   mismatches (3dfx present but no loadable Glide; no AI GPU → CPU only).
 3. **Startup readiness banner** — `agent/src/ai.c:ai_status_thread` runs a
    few seconds after boot, spawns/probes the engine, and prints to the agent
    console + `agent.log`:

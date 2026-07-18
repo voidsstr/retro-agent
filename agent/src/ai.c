@@ -274,7 +274,8 @@ static void host_gpu_json(char *buf, int cap)
 {
     DISPLAY_DEVICEA dd;
     char name[128] = "", devid[128] = "";
-    int is_3dfx = 0, is_nvidia = 0, glide_ok = 0;
+    int is_3dfx = 0, is_nvidia = 0, is_ati = 0, is_intel = 0;
+    int glide_ok = 0, gl_ok = 0;
     HMODULE h;
     const char *flag;
 
@@ -289,29 +290,51 @@ static void host_gpu_json(char *buf, int cap)
     is_nvidia = strstr(devid, "VEN_10DE") != NULL ||
                 strstr(name, "NVIDIA") != NULL ||
                 strstr(name, "GeForce") != NULL;
+    is_ati = strstr(devid, "VEN_1002") != NULL ||
+             strstr(name, "ATI") != NULL || strstr(name, "Radeon") != NULL ||
+             strstr(name, "AMD") != NULL;
+    is_intel = strstr(devid, "VEN_8086") != NULL ||
+               strstr(name, "Intel") != NULL;
     h = LoadLibraryA("glide3x.dll");
     if (h) {
         glide_ok = 1;
         FreeLibrary(h);
     }
+    h = LoadLibraryA("opengl32.dll");
+    if (h) {
+        gl_ok = 1;
+        FreeLibrary(h);
+    }
 
+    /* nv-gl (retro-infer's portable OpenGL 1.1 + ARB_multitexture binary-
+     * GEMM backend, despite the name) is hardware-verified exact on
+     * GeForce/Radeon/Intel-class cards — see
+     * docs/machines/ai-capability-profiles.md. It only needs opengl32.dll
+     * to load; the DLL-presence check here is the same shallow signal
+     * glide_ok uses for glide-mac (the engine's own AI_HELLO does the
+     * real ARB_multitexture capability check at init time). */
     if (is_3dfx && !glide_ok)
         flag = "3dfx GPU present but glide3x.dll is NOT loadable - stage "
                "glide3x.dll next to the agent to enable the glide-mac AI "
                "backend";
     else if (is_3dfx && glide_ok)
         flag = "ok: 3dfx GPU with loadable glide3x (glide-mac available)";
-    else if (is_nvidia)
-        flag = "NVIDIA GPU: nv-gl AI backend is code-ready but not yet "
-               "hardware-validated (roadmap M6)";
+    else if ((is_nvidia || is_ati || is_intel) && gl_ok)
+        flag = "ok: GPU with loadable OpenGL (nv-gl backend available, "
+               "hardware-verified on Radeon/Intel)";
+    else if (is_nvidia || is_ati || is_intel)
+        flag = "GPU present but opengl32.dll is NOT loadable - CPU "
+               "backends only";
     else
         flag = "no known AI-capable GPU detected - CPU backends only";
 
     _snprintf(buf, cap,
               ",\"host_gpu\":{\"name\":\"%s\",\"is_3dfx\":%d,"
-              "\"is_nvidia\":%d,\"glide3x_loadable\":%d,"
+              "\"is_nvidia\":%d,\"is_ati\":%d,\"is_intel\":%d,"
+              "\"glide3x_loadable\":%d,\"opengl_loadable\":%d,"
               "\"driver_flag\":\"%s\"}",
-              name, is_3dfx, is_nvidia, glide_ok, flag);
+              name, is_3dfx, is_nvidia, is_ati, is_intel, glide_ok, gl_ok,
+              flag);
     buf[cap - 1] = '\0';
 }
 
