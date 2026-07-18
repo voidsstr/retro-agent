@@ -20,7 +20,7 @@ fleet coordinators: `scripts/retro_ai_*.py`, metrics: `scripts/ai_metrics.py`
 | M3 `.rim` + converter | ✅ (round-trip verified; 3-machine test ran on the 2 boxes online) |
 | M4 agent ML transport | ✅ agent v1.9.1: AI_HELLO/MODEL_LOAD/MODEL_LIST/INFER_RUN/TENSOR (+AI_RAW pass-through); remote inference bit-exact |
 | M5 Glide GPU backend | ✅ **exact** binary/XNOR GEMM on a real Voodoo5 (0 error, hash-stable); BNN CIFAR-10 on-GPU = 1000/1000 label agreement vs CPU |
-| M6 GPU backend (`nv-gl`) | ✅ **exact** binary/XNOR GEMM on real Radeon 9800 XT, Radeon HD 3850, and Intel HD Graphics (`src/gpu/nv_gl.c` — portable OpenGL 1.1 + ARB_multitexture, vendor-neutral despite the filename); BNN CIFAR-10 on-GPU = 1000/1000 vs CPU on both Radeon boxes. No GeForce has been online to confirm on actual NVIDIA silicon, but the design has no NVIDIA-specific dependency. |
+| M6 GPU backend (`nv-gl`) | ✅ **exact** binary/XNOR GEMM on real Radeon 9800 XT, Radeon HD 3850, Intel HD Graphics, *and* a real NVIDIA GeForce RTX 4080 SUPER (`src/gpu/nv_gl.c` — portable OpenGL 1.1 + ARB_multitexture, vendor-neutral despite the filename); BNN CIFAR-10 on-GPU = 1000/1000 vs CPU on every one of them. The original "no GeForce box online" gap is closed. |
 | M7 fleet training | ✅ data-parallel SGD (2-node result **bit-identical** to single-node; failover verified); distributed GBDT (histogram aggregation); pipeline parallelism (layer-per-machine, label-identical). Char-transformer pipeline flagship still open (needs attention ops). |
 | M8 metrics + console | ✅ `ai_runs` table + leaderboards live (all milestone results logged); `scripts/retro_infer_console.py` TUI |
 
@@ -195,20 +195,26 @@ shaders, and gets exact results without needing either.
 **Tests (adapted to available hardware):**
 - ✅ `--nv-check` (mirrors `--glide-check`): exact binary GEMM, 0
   mismatches, hash-stable across reruns, matching Glide's FNV-1a hash on
-  the same seed — verified on Radeon 9800 XT, Radeon HD 3850 AGP, and
-  Intel HD Graphics up to the full 256³ tile.
+  the same seed — verified on Radeon 9800 XT, Radeon HD 3850 AGP, Intel HD
+  Graphics, and a real **NVIDIA GeForce RTX 4080 SUPER** up to the full
+  256³ tile. GPU throughput on the RTX 4080 (3720 MMAC/s) is ~10× the
+  older Radeon cards and closes to within 2.2× of that box's own CPU
+  bit-packed reference — the sharpest GPU/CPU ratio seen anywhere in the
+  fleet.
 - ✅ `--nv-check-multi`: varying-size calls within one GL session (the
-  real usage pattern, not just fixed-size repeats) — 10/10 shapes exact,
-  including the odd output width (N=10) that exposed a real
-  `GL_PACK_ALIGNMENT` readback bug.
+  real usage pattern, not just fixed-size repeats) — 10/10 shapes exact
+  on every box tested, including the odd output width (N=10) that exposed
+  a real `GL_PACK_ALIGNMENT` readback bug.
 - ✅ BNN CIFAR-10 (the M5 flagship test, run again here): 1000/1000 label
-  agreement vs CPU on both Radeon boxes, top-1 matching exactly.
+  agreement vs CPU on both Radeon boxes *and* the RTX 4080, top-1 matching
+  exactly everywhere.
 - ✅ Backend selection: `AI_HELLO` reports `nv-gl` in `backends` with
   `nv_gl_status: verified` whenever `ARB_multitexture` is present;
   `--bnn-eval ... nvgl` forces it explicitly.
-- ⬜ Not yet run on actual GeForce silicon (none has come online) — the
-  design has no NVIDIA-specific dependency, so this is an availability
-  gap, not a known risk.
+- ✅ Run on actual GeForce silicon — closed. A Ryzen 9950X / RTX 4080
+  SUPER box (`WHITEBEAST`, 192.168.1.82) joined the fleet and
+  self-onboarded via the agent's existing self-heal machinery with zero
+  manual staging, then passed every acceptance test above.
 - ⬜ GF-FX float path / int8 error comparison — not pursued; the exact
   binary path already meets the accuracy bar the milestone wanted.
 

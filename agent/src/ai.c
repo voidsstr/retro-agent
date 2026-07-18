@@ -321,7 +321,7 @@ static void host_gpu_json(char *buf, int cap)
         flag = "ok: 3dfx GPU with loadable glide3x (glide-mac available)";
     else if ((is_nvidia || is_ati || is_intel) && gl_ok)
         flag = "ok: GPU with loadable OpenGL (nv-gl backend available, "
-               "hardware-verified on Radeon/Intel)";
+               "hardware-verified on NVIDIA/Radeon/Intel)";
     else if (is_nvidia || is_ati || is_intel)
         flag = "GPU present but opengl32.dll is NOT loadable - CPU "
                "backends only";
