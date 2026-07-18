@@ -13,8 +13,10 @@
  *   color combine emits constant RGB(1,1,1); blend ONE:ONE accumulates +1
  *   draw 1: (A, B) textures     -> +1 where both bits are 1
  *   draw 2: (~A, ~B) textures   -> +1 where both bits are 0
- * After <=255 k-steps the 8-bit framebuffer holds exact match counts; we
- * grLfbReadRegion them out and continue accumulating in CPU int32.
+ * The 565 framebuffer's 5-bit red channel holds exact match counts per pass;
+ * K is split into chunks of CHUNK_K (31) so the count never overflows 5 bits.
+ * After each chunk we grLfbReadRegion the region out and continue accumulating
+ * in CPU int32.
  *
  * Texture geometry: TA[t=k][s=i] = A[i,k] (A transposed), TB[t=k][s=j] =
  * B[k,j]; one quad per k-step sources row k of both textures via t=k, with
@@ -414,7 +416,8 @@ static void set_accum_state(void)
     /* color = constant (1,1,1); alpha = texture product */
     /* +8 in 8-bit = exactly +1 in the stored 5-bit red per pass (see
      * readback_accum): replicate(n)+8 >> 3 == n+1 for n in 0..30 under
-     * truncating 888->565 conversion. glide_selftest() verifies this rule
+     * truncating 888->565 conversion. glide_check() (glide_check.c) verifies
+     * this rule
      * on the actual hardware before any real GEMM runs. */
     G.ConstantColorValue(0xFF080808UL);
     G.ColorCombine(GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_NONE,
