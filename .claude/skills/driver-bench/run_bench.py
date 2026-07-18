@@ -20,7 +20,10 @@ from specpicks_dsn import resolve_dsn  # noqa: E402
 
 DSN = resolve_dsn()
 SECRET = os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret")
-MODE_RES = {3: "640x480", 4: "800x600", 6: "1024x768"}
+# Q3 r_mode table, up to the Voodoo3's max 3D resolution (1600x1200x16 fits the
+# 16MB framebuffer: ~11.5MB for triple 16-bit buffers, rest for textures).
+MODE_RES = {3: "640x480", 4: "800x600", 6: "1024x768", 7: "1152x864",
+            8: "1280x1024", 9: "1600x1200"}
 
 # Counter-Strike 1.6 (GoldSrc/HLDS client) benchmark defaults. GoldSrc has a
 # `timedemo <demo>` console command that plays a .dem and prints the fps line to
@@ -48,7 +51,8 @@ Q2_GLDRIVER = "retrogl"                        # gl_driver: retrogl (our ICD, 95
 # from Q3's dir at launch. Unlike stock ref_gl, our ICD owns Glide fullscreen and
 # does NOT need a 16-bit desktop switch (runs fine from a 32bpp desktop).
 Q2_GLIDE3X_SRC = r"C:\Quake III Arena\Quake3\glide3x.dll"
-Q2_MODES = {3: "640x480", 4: "800x600", 5: "960x720", 6: "1024x768"}
+Q2_MODES = {3: "640x480", 4: "800x600", 5: "960x720", 6: "1024x768",
+            7: "1152x864", 8: "1280x960", 9: "1600x1200"}
 
 # ---------------------------------------------------------------------------
 # Quality / video-card settings — recorded IN FULL on every run, and swept
