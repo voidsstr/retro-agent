@@ -1,21 +1,44 @@
 # Fleet AI capability profiles — per-machine hardware, kernels, drivers
 
-Generated from live inspection of the fleet on 2026-07-17 (`AI_HELLO` +
+Generated from live inspection of the fleet on 2026-07-17/18 (`AI_HELLO` +
 `VIDEODIAG` + `retro-infer --selfcheck` + `--glide-check`). This is the
 authoritative record of what each box is, which AI code path it uses, and
 any driver actions flagged. The agent re-derives all of this at runtime — see
 ["How the agent detects and reports capability"](#how-the-agent-detects-and-reports-capability)
 — this doc is the human-readable snapshot + rationale.
 
-## Summary
+## Summary (5 connected machines)
 
-| Box | CPU | ISA used | GPU | Glide AI backend | f32 kernel | int8 | GEMM-NT/TN (training) |
-|---|---|---|---|---|---|---|---|
-| **.124** | Pentium III 850MHz (fam6/m8) | **SSE** + MMX | Voodoo3 (PCI 121a:0005) | ✅ glide-mac | sse | mmx | sse |
-| **.143** | Athlon 1GHz classic (fam6/m2) | **3DNow!** + MMX (no SSE) | Voodoo5 5500 (PCI 121a:0009) | ✅ glide-mac | 3dnow | mmx | 3dnow |
+| Box | Host | CPU | ISA used | GPU | Glide AI backend | f32 / int8 / NT-TN kernels |
+|---|---|---|---|---|---|---|
+| **.124** | ADMIN | Pentium III 850MHz (fam6/m8) | **SSE** + MMX (no SSE2) | Voodoo3 (PCI 121a:0005) | ✅ glide-mac | sse / mmx / sse |
+| **.143** | 1GHZ | Athlon 1GHz classic (fam6/m2) | **3DNow!** + MMX (no SSE) | Voodoo5 5500 (PCI 121a:0009) | ✅ glide-mac | 3dnow / mmx / 3dnow |
+| **.240** | USER-41EA3B3330 | Athlon 64 3300+ (fam15/m12) | **SSE + SSE2** + MMX + 3DNow! | Radeon 9800 XT | ✗ (not 3dfx) | sse / **sse2** / sse |
+| **.123** | 2004-XP | Athlon 64 4000+ | **SSE + SSE2** + MMX + 3DNow! | Radeon HD 3850 AGP | ✗ (not 3dfx) | sse / **sse2** / sse |
+| **.145** | DELL | Core i5-2400 (Sandy Bridge) | **SSE + SSE2** + MMX | Intel HD Graphics | ✗ (not 3dfx) | sse / **sse2** / sse |
 
-Both boxes: Windows XP SP3, agent **v1.10.0**, `ready=1` for AI requests,
-`retro-infer` engine staged next to the agent, `glide3x.dll` loadable.
+int8 kernel dispatch: **SSE2** (128-bit, 8-wide) on the three Athlon 64 /
+Core i5 boxes, **MMX** (64-bit, 4-wide) on the P3/Athlon-classic (no SSE2),
+scalar fallback otherwise — all bit-identical (integer-exact). On .240 the
+SSE2 int8 path runs LeNet-5 at 843 img/s vs 536 scalar (1.57×).
+
+All: Windows XP, `ready=1` for AI requests, `retro-infer` engine staged next
+to the agent (auto-staged from the share since agent **v1.11.0**). The two
+Voodoo boxes (.124/.143) run the **glide-mac** GPU backend; the three
+non-3dfx boxes (.240/.123/.145) run CPU backends only. On the Radeon 9800 XT
+(.240) the `nv-gl` OpenGL backend loads (`opengl_loadable:1`,
+ARB_multitexture present, context inits) but its render-to-texture readback
+is not yet exact — reported as `nv_gl_status: loadable-unvalidated` and not
+advertised as usable. It needs a pbuffer/FBO path; and per the project's
+honest-numbers rule, these strong K8/Core CPUs' bit-packed XNOR beats the
+GPU render-to-texture path anyway, so the CPU is the right AI role for them.
+Agents are on **v1.11.0** (self-heal engine staging + startup AI banner);
+.123/.145 rolled from v1.9.1.
+
+> The three newer boxes (Athlon 64 / Core i5) have SSE2 and are the fastest
+> CPU-inference nodes in the fleet — but the *interesting* GPU-compute
+> showcase stays on the two Voodoos, which are the only cards the exact
+> Glide XNOR-GEMM backend targets.
 
 ## .124 — Pentium III / Voodoo3
 
@@ -79,6 +102,27 @@ assumption (`retro-infer/src/kernels.c:kernels_init`). Preference order:
   scalar. Critical 3DNow! detail: no x87 float op may run while an MMX/3DNow!
   register is live — the kernels extract accumulators as integer bits and
   `femms` before any scalar tail (a mixed-state bug we hit and fixed).
+
+## Self-heal at startup (agent v1.11.0)
+
+Three failure modes seen while bringing new boxes online, each now fixed so a
+freshly-added machine reaches `ready=1` without manual staging:
+
+- **Engine not staged** — a box that auto-updated the agent from the share but
+  never got `retro-infer.exe` reported *"AI engine not available - files not
+  staged"* and every AI command failed. The agent now **auto-stages the engine
+  from the share** (`agent/src/ai.c:stage_engine_from_share` — `CopyFileA` from
+  `\\192.168.1.122\files\...\retro-infer.exe`, registry-overridable
+  `EnginePath`) at startup and on-demand.
+- **Wallpaper not staged** — the retrowall thread no-ops when `C:\retro-wall\`
+  is empty. Onboarding now stages the wallpaper/theme bundle from the share if
+  the box has none (`provisioning/gen_onboard.py`), and the per-box wallpaper is
+  deployed with `scripts/retro-wallpaper/deploy_rotation.py <ip>`.
+- **Onboarding marked done despite a partial install** — onboard.cmd used to set
+  the `Onboarded` flag even when game ZIPs were missing from the share, so the
+  box never retried. It now leaves the flag unset when anything is missing and
+  retries on the next boot. (The game ZIPs themselves are an operational
+  publish step, separate from AI.)
 
 ## How the agent detects and reports capability
 
