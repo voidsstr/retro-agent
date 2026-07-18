@@ -252,3 +252,14 @@ Benchmarks", VOGONS t=54517. Our ALL-RETRO3DFX standing (P3-845): 58.8 / 51.3.
 | 192.168.1.124 | Voodoo3 AGP | XP | ALL-RETRO3DFX / MesaFX (since 2026-07-17) |
 | 192.168.1.143 | Voodoo5 5500 AGP | XP | 3dfx-driver-optimized (pure-3dfx ICD; 0.1.0 renders, 74.2 fps @640) |
 | 10.0.0.50 | Voodoo5 5500 AGP | Win98 | retail (Win98 = out of scope for the XP kernel driver; ICD/glide benches only) |
+
+## Quality capture (screenshots)
+
+`--screenshot` grabs glReadPixels quality artifacts via Q3's command-line
+`+screenshot` (works headless/fullscreen; NOT UIKEY). `--shots menu,q3dm1`
+(default) captures the **menu** (2D proportional-font path = text/font-quality
+probe — this is where the font garble shows) and a **3D world** scene. PNGs land
+in `benchmarks/quality_<scene>.png`; read them to judge font/texture quality on
+a driver change, not just fps. Add any map name as a scene. NOTE: glReadPixels
+captures the framebuffer, so it shows ICD-side quality; a scanout/postfilter
+(display-driver) issue may look better in the capture than on the monitor.

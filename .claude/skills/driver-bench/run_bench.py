@@ -350,37 +350,47 @@ async def quake2_timedemo(ip, q2dir, demo, gl_mode, gl_driver, env):
     return fps, gl
 
 
-async def screenshot(ip, q3dir, outdir, gldriver="retrogl"):
-    """In-engine glReadPixels capture on q3dm1. Returns local png path or None."""
+# scenes for quality capture: (label, extra-cvars). "menu" exercises the 2D
+# proportional-font path (text/menu quality); "q3dm1" a textured 3D world.
+QUALITY_SCENES = {
+    "menu":  "",                     # main menu (proportional font = text-quality probe)
+    "q3dm1": "+devmap q3dm1",        # in-game 3D world + HUD
+}
+
+
+async def screenshot(ip, q3dir, outdir, gldriver="retrogl", scene="q3dm1", extra=""):
+    """glReadPixels quality capture. Uses Q3's command-line `+screenshot` (NOT
+    UIKEY, which can't reach fullscreen Glide) so it works headless: load the
+    scene, wait for it to settle, capture a TGA, quit. Returns local PNG path or
+    None. `scene` in QUALITY_SCENES ("menu" for the text/font-quality probe,
+    "q3dm1" for a 3D scene); `extra` appends cvars (e.g. a quality profile)."""
+    sc = QUALITY_SCENES.get(scene, "+devmap " + scene)
     c = await connect(ip)
     await kill_wait(c)
     await exw(c, r'cmd /c del /f /q C:\q3home\baseq3\screenshots\*.tga 2>nul', 12)
-    await exw(c, (r'cmd /c cd /d "%s" ^&^& start "" quake3.exe +set r_glDriver %s +set r_mode 3 '
+    # start /wait + explicit +screenshot +quit -> deterministic, no input injection
+    await exw(c, (r'cmd /c cd /d "%s" ^&^& start /wait "" quake3.exe +set r_glDriver %s +set r_mode 3 '
                  r'+set r_fullscreen 1 +set r_colorbits 16 +set fs_homepath C:\q3home +set logfile 2 '
-                 r'+set s_initsound 0 +set sv_pure 0 +set bot_enable 0 +set com_introplayed 1 '
-                 r'+devmap q3dm1 +bind F12 screenshot') % (q3dir, gldriver), 15)
+                 r'+set s_initsound 0 +set sv_pure 0 +set bot_enable 0 +set com_introPlayed 1 %s %s '
+                 r'+wait 200 +screenshot +wait 60 +quit') % (q3dir, gldriver, sc, extra), 130)
     await c.close()
-    await asyncio.sleep(40)
+    await asyncio.sleep(3)
     c = await connect(ip)
-    try:
-        await c.command_text("UIKEY f12", timeout=10)
-        await asyncio.sleep(4)
-    except Exception:
-        pass
+    await kill_wait(c)   # also restores desktop mode (3dfx lane)
     lst = await exw(c, r'cmd /c dir /b C:\q3home\baseq3\screenshots\*.tga 2>nul', 15)
     tga = lst.strip().splitlines()[0].strip() if lst.strip() and "__ERR__" not in lst else None
     path = None
     if tga and tga.endswith(".tga"):
         data = await c.command_binary(r'DOWNLOAD C:\q3home\baseq3\screenshots\%s' % tga, timeout=90)
-        raw = os.path.join(outdir, "quality_shot.tga")
+        raw = os.path.join(outdir, "quality_%s.tga" % scene)
         open(raw, "wb").write(data)
         try:
             from PIL import Image
             path = raw.replace(".tga", ".png")
             Image.open(raw).save(path)
+            os.remove(raw)
         except Exception:
             path = raw
-    await kill_wait(c)
     await c.close()
     return path
 
@@ -486,7 +496,10 @@ async def main():
     ap.add_argument("--stack-name", default="", dest="stack_name",
                     help="override stack name (e.g. 3dfx-driver-optimized); also captures driver crash "
                          "logs on a no-fps run")
-    ap.add_argument("--screenshot", action="store_true", help="also capture the in-engine quality artifact")
+    ap.add_argument("--screenshot", action="store_true", help="also capture in-engine quality artifacts")
+    ap.add_argument("--shots", default="q3dm1,menu",
+                    help="comma list of quality scenes to capture with --screenshot "
+                         "(menu = 2D proportional-font/text probe; q3dm1 = 3D world; or any map name)")
     ap.add_argument("--no-db", action="store_true", help="skip specpicks tracking (local JSON only)")
     ap.add_argument("--deploy", nargs="*", default=[],
                     help="local paths of user-mode DLLs (glide3x.dll/3dfxogl.dll) to deploy "
@@ -582,9 +595,20 @@ async def main():
                 print("q2 %s run %d: %s fps [driver %s]" % (label, run, fps, ver))
 
     outdir = os.path.join(REPO, "benchmarks")
-    shot = await screenshot(args.ip, args.q3dir, outdir, args.gldriver) if args.screenshot else None
-    if shot:
-        print("quality artifact:", shot)
+    # Quality capture (--screenshot): grab BOTH a 3D scene AND the menu (the 2D
+    # proportional-font path = text-quality probe), so a driver change is judged
+    # on quality, not just fps. Read the PNGs to eyeball font/texture quality.
+    shots = {}
+    if args.screenshot:
+        for scene in args.shots.split(","):
+            scene = scene.strip()
+            if not scene:
+                continue
+            p = await screenshot(args.ip, args.q3dir, outdir, args.gldriver, scene=scene)
+            if p:
+                shots[scene] = p
+                print("quality artifact [%s]: %s" % (scene, p))
+    shot = shots.get("q3dm1") or (next(iter(shots.values()), None))
 
     ver = next((r["driver_version"] for r in runs if r["driver_version"] != "unknown"), "unknown")
     drop = os.path.join(outdir, "%s_%s_driver-bench-%s.json" % (args.ip, time.strftime("%Y-%m-%d_%H%M"), ver))
