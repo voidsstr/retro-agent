@@ -8,6 +8,44 @@ Newest first.
 
 ---
 
+## 2026-07-18 — Unreal Tournament (UT99) "very low fps" = software-GL fallback
+
+**Symptom.** UT99 (`C:\Games\Unreal Tournament (Installed)`, `GameRenderDevice=
+OpenGLDrv.OpenGLRenderDevice`) ran at very low fps on the Voodoo3.
+
+**Root cause.** There is **no hardware `opengl32.dll` on .124** — no 3dfx OpenGL
+ICD was installed system-wide. UT's `OpenGLDrv.dll` loads `opengl32.dll`, and with
+no hardware GL present it fell back to **Microsoft's software OpenGL** (pure CPU
+rasterization) → single-digit fps. Same class of issue as Q2's stock path: the
+game's GL renderer couldn't find a hardware ICD.
+
+**Fix.** Deploy our MesaFX ICD as `opengl32.dll` into UT's `System\` directory
+(plus the known-good retail `glide3x.dll` next to it — the same in-dir binding
+lesson as Q2). UT's `OpenGLDrv` then loads our hardware ICD and renders on the
+Voodoo3 via Glide:
+```
+UT System\opengl32.dll  <- retrogl.dll (retro3dfx 0.1.22)
+UT System\glide3x.dll   <- C:\Quake III Arena\Quake3\glide3x.dll (344064 B)
+```
+Result — `Init: glGetString(GL_RENDERER): Mesa Glide v0.62 Voodoo3 (tm)
+[retro3dfx 0.1.22]`, DM-Deck16][ at **1024×768×16 ≈ 67 fps in-game** (133 avg incl.
+menu), vs single-digit software GL before. UT's ini already selected `OpenGLDrv`,
+so no config change was needed beyond staging our ICD.
+
+**Screenshot note (same as the sibling Voodoo5 lane).** The agent's GDI
+`SCREENSHOT` cannot capture a fullscreen-Glide surface — it reads the desktop
+framebuffer, which shows garbage while the *monitor* renders correctly (proven by
+the valid on-screen timedemo fps). Match the desktop resolution to the game's, or
+trust the fps counter, rather than the GDI capture. This is a capture limitation,
+not a render bug.
+
+**Optional further gains.** 67 fps @1024×768 is present-bound (see
+PROFILING-FINDINGS on the sibling lane); 640×480 pushes higher fps, and the
+0.1.22 gamma+dither defaults improve UT's 16-bit image for free. The dominant win
+is software→hardware.
+
+---
+
 ## 2026-07-18 — Counter-Strike 1.6 (GoldSrc) exits on our ICD — architecture mismatch
 
 **Symptom.** Launching CS 1.6 (`hl.exe -game cstrike -gl -full`) with our ICD

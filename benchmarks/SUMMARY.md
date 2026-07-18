@@ -52,10 +52,20 @@ regressed). The real levers are (a) **quality** (LOD bias, merged) and
 (b) **fillrate at high res** (hardware-bound, not driver-bound). Optimization
 effort now targets texture/blend state selection and per-game correctness.
 
+### Unreal Tournament (UT99, DM-Deck16][, OpenGLDrv on our ICD)
+| Resolution | fps | Notes |
+|-----------|-----|-------|
+| 1024×768×16 | ~67 in-game (133 avg) | was single-digit **software GL** before; our ICD = hardware. `GL_RENDERER: [retro3dfx 0.1.22]` |
+
+Fix: stage our ICD as `System\opengl32.dll` + `glide3x.dll` (no hardware
+`opengl32.dll` existed → UT fell back to Microsoft software GL). See DEBUGGING-NOTES.
+
 ## Games status on our ICD
 - **Quake III**: ✅ working, benchmarked, quality-verified.
 - **Quake II**: ✅ **now working on our ICD** (was stock 3dfxgl only) — see
   `retro3dfx/DEBUGGING-NOTES.md` for the glide3x-in-dir root cause.
+- **Unreal Tournament (UT99)**: ✅ **now hardware-accelerated on our ICD** (~67 fps
+  @1024×768) — was software GL. Stage our ICD + glide3x into `System\`.
 - **Counter-Strike 1.6**: ❌ **not supported on our ICD** — GoldSrc's fullscreen
   model (GDI `ChangeDisplaySettings` + render into the desktop framebuffer)
   conflicts with our ICD's Glide-exclusive board grab, so hl.exe exits after GL
