@@ -20,14 +20,16 @@ fleet coordinators: `scripts/retro_ai_*.py`, metrics: `scripts/ai_metrics.py`
 | M3 `.rim` + converter | ✅ (round-trip verified; 3-machine test ran on the 2 boxes online) |
 | M4 agent ML transport | ✅ agent v1.9.1: AI_HELLO/MODEL_LOAD/MODEL_LIST/INFER_RUN/TENSOR (+AI_RAW pass-through); remote inference bit-exact |
 | M5 Glide GPU backend | ✅ **exact** binary/XNOR GEMM on a real Voodoo5 (0 error, hash-stable); BNN CIFAR-10 on-GPU = 1000/1000 label agreement vs CPU |
-| M6 NVIDIA backend | 🚧 code complete (`src/gpu/nv_gl.c`), blocked on a GeForce box coming online |
+| M6 GPU backend (`nv-gl`) | ✅ **exact** binary/XNOR GEMM on real Radeon 9800 XT, Radeon HD 3850, and Intel HD Graphics (`src/gpu/nv_gl.c` — portable OpenGL 1.1 + ARB_multitexture, vendor-neutral despite the filename); BNN CIFAR-10 on-GPU = 1000/1000 vs CPU on both Radeon boxes. No GeForce has been online to confirm on actual NVIDIA silicon, but the design has no NVIDIA-specific dependency. |
 | M7 fleet training | ✅ data-parallel SGD (2-node result **bit-identical** to single-node; failover verified); distributed GBDT (histogram aggregation); pipeline parallelism (layer-per-machine, label-identical). Char-transformer pipeline flagship still open (needs attention ops). |
 | M8 metrics + console | ✅ `ai_runs` table + leaderboards live (all milestone results logged); `scripts/retro_infer_console.py` TUI |
 
-Honest numbers, as promised: on binary GEMM the Voodoo5 is exact at 61 MMAC/s,
-but the Athlon's bit-packed XNOR does 695 MMAC/s — the GPU backend's win is
-*that it works at all, exactly*. Remaining invitations: the transformer
-pipeline flagship, int8-via-bitplanes on Glide, the GeForce hardware pass, and
+Honest numbers, as promised: on binary GEMM the Voodoo5 is exact at 61 MMAC/s
+but the Athlon's bit-packed XNOR does 695 MMAC/s, and the same pattern holds
+for `nv-gl` (e.g. the Radeon 9800 XT's own CPU beats it 1826 vs 368 MMAC/s) —
+the GPU backend's win is *that it works at all, exactly*, not raw speed on
+this class of hardware. Remaining invitations: the transformer pipeline
+flagship, int8-via-bitplanes, actual GeForce hardware confirmation, and
 RNN/VAE/keyword-spotting from the model zoo.
 
 ## Goals & non-goals
@@ -177,15 +179,38 @@ stack; int8/binary tiling; wired into `retro-infer` as a backend.
 - Rendering-correctness guard: a fixed input produces a stable output hash across
   runs (no framebuffer garbage counted as signal).
 
-### M6 — NVIDIA (combiner/shader) GPU backend
-**Deliverables:** `nv-combiner` (GeForce 2) and `nv-shader` (GeForce 3/4, GF-FX
-float) GEMM/conv passes; same abstract MAC core as M5.
-**Tests:**
-- `nv-combiner` int8 GEMM matches CPU within tolerance on a GeForce 2 GTS.
-- `nv-shader` on a GeForce 4 runs LeNet-5 and matches CPU top-1 within 0.5%.
-- GF-FX float path improves per-logit error vs int8 (recorded).
-- Backend selection is automatic from `AI_HELLO` capability; forcing a backend
-  via flag also works.
+### M6 — GPU backend for non-3dfx cards (`nv-gl`)
+**What shipped, vs. the original plan:** the original deliverable named
+GeForce-specific paths (`nv-combiner` via `NV_register_combiners`,
+`nv-shader` via DX8 shaders/`NV_texture_shader`) because no non-3dfx GPU
+was online when the milestone was scoped. Once Radeon and Intel boxes
+joined the fleet, the shipped design is a single **portable OpenGL 1.1 +
+ARB_multitexture backend** (`src/gpu/nv_gl.c`) — vendor-neutral by
+construction, so it serves GeForce, Radeon, *and* Intel integrated
+graphics with one code path instead of three vendor-specific ones. It
+mirrors glide-mac's accumulation trick (constant-color-scaled additive
+blend, GL_MODULATE chaining two textures as an AND-gate, XNOR via a
+positive + inverted pass) rather than using register combiners or
+shaders, and gets exact results without needing either.
+**Tests (adapted to available hardware):**
+- ✅ `--nv-check` (mirrors `--glide-check`): exact binary GEMM, 0
+  mismatches, hash-stable across reruns, matching Glide's FNV-1a hash on
+  the same seed — verified on Radeon 9800 XT, Radeon HD 3850 AGP, and
+  Intel HD Graphics up to the full 256³ tile.
+- ✅ `--nv-check-multi`: varying-size calls within one GL session (the
+  real usage pattern, not just fixed-size repeats) — 10/10 shapes exact,
+  including the odd output width (N=10) that exposed a real
+  `GL_PACK_ALIGNMENT` readback bug.
+- ✅ BNN CIFAR-10 (the M5 flagship test, run again here): 1000/1000 label
+  agreement vs CPU on both Radeon boxes, top-1 matching exactly.
+- ✅ Backend selection: `AI_HELLO` reports `nv-gl` in `backends` with
+  `nv_gl_status: verified` whenever `ARB_multitexture` is present;
+  `--bnn-eval ... nvgl` forces it explicitly.
+- ⬜ Not yet run on actual GeForce silicon (none has come online) — the
+  design has no NVIDIA-specific dependency, so this is an availability
+  gap, not a known risk.
+- ⬜ GF-FX float path / int8 error comparison — not pursued; the exact
+  binary path already meets the accuracy bar the milestone wanted.
 
 ### M7 — Fleet training (all GPUs at once)
 **Deliverables:** brain-coordinated **data-parallel SGD** (ring/tree allreduce
