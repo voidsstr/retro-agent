@@ -32,7 +32,9 @@ MODE_RES = {3: "640x480", 4: "800x600", 6: "1024x768", 7: "1152x864",
 # install at CS16_DIR with a benchmark demo at cstrike\<CS16_DEMO>.dem, and the
 # 3dfx GL renderer selected (hl.exe -gl -gldrv, or opengl32/retrogl in the CS
 # dir). The Voodoo runs CS in OpenGL via our MesaFX ICD, same as Q3.
-CS16_DIR = r"C:\Program Files\Counter-strike" # override with --cs16dir (found on .124)
+CS16_DIR = r"C:\Program Files\Bcs16 Romania\Counter-Strike 1.6"  # BC Romania build - RUNS on our ICD (the plain
+# C:\Program Files\Counter-strike build crashes after GL init; the BC Romania build renders fine). --cs16dir to override.
+# Needs our ICD staged as System-dir opengl32.dll + glide3x.dll, launched with FX_NO_PALETTED_TEXTURE=1.
 CS16_EXE = "hl.exe"
 CS16_DEMO = "bench"                            # cstrike\bench.dem
 CS16_RES = "640x480"

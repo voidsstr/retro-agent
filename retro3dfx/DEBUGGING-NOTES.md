@@ -8,6 +8,38 @@ Newest first.
 
 ---
 
+## 2026-07-18 — Counter-Strike 1.6 RUNS on our ICD: it was the wrong build
+
+**Resolution.** CS 1.6 works on our MesaFX ICD — the blocker was the *build*, not
+the driver. The `C:\Program Files\Counter-strike` build crashes right after GL
+extension init (dies before its first texture; see the earlier windowed-conflict
+analysis). The **BC Romania build** at
+`C:\Program Files\Bcs16 Romania\Counter-Strike 1.6` renders fine on the same ICD:
+launched with our ICD staged as `System\opengl32.dll` + `glide3x.dll` and
+`FX_NO_PALETTED_TEXTURE=1`, it reaches the menu (BCShield 2.5 banner, server/world
+modules initialized) AND loads maps — `+map de_dust` loads the world, bots, and
+tutor with hl.exe stable in-game. `GL_RENDERER` is our `[retro3dfx]` ICD.
+
+**Gotchas found:** launch with a plain `+map <name>` — combining
+`+net_graph 3 +maxplayers 6 +map` made hl.exe exit during load (a startup-cvar/
+listen-server quirk, not rendering). As with UT/Q2, the GDI `SCREENSHOT` can't
+capture the fullscreen-Glide surface (shows the desktop); trust the console
+log + stable process.
+
+**Windowed-Glide path (`fxwindow.c`) — built, opt-in, not needed for CS.** While
+chasing the wrong build I implemented real windowed-Glide rendering (DDraw
+`DDSCL_NORMAL` offscreen surface + Blt-to-window via `grSurface*Ext`), env-gated
+`FX_WINDOWED=1`, falling back to fullscreen. It gets through DDraw surface
+creation + `grSurfaceCreateContext` + `grSurfaceSetRenderingSurface`, but two
+issues remain for a full windowed context: (1) creating a DDraw surface *after*
+`grSurfaceSetRendering` faults — fixed by allocating all surfaces first; (2)
+`grSurfaceSetAux` still faults in Glide's `_grGetSurfaceInfo`/alignment path, and
+without a depth surface GoldSrc exits post-create. Kept in-tree, opt-in (zero
+effect unless `FX_WINDOWED` is set), for a future engine that genuinely needs
+windowed GL. Not required now that CS runs fullscreen on the right build.
+
+---
+
 ## 2026-07-18 — Unreal Tournament (UT99) "very low fps" = software-GL fallback
 
 **Symptom.** UT99 (`C:\Games\Unreal Tournament (Installed)`, `GameRenderDevice=

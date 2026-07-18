@@ -66,8 +66,10 @@ Fix: stage our ICD as `System\opengl32.dll` + `glide3x.dll` (no hardware
   `retro3dfx/DEBUGGING-NOTES.md` for the glide3x-in-dir root cause.
 - **Unreal Tournament (UT99)**: ✅ **now hardware-accelerated on our ICD** (~67 fps
   @1024×768) — was software GL. Stage our ICD + glide3x into `System\`.
-- **Counter-Strike 1.6**: ❌ **not supported on our ICD** — GoldSrc's fullscreen
-  model (GDI `ChangeDisplaySettings` + render into the desktop framebuffer)
-  conflicts with our ICD's Glide-exclusive board grab, so hl.exe exits after GL
-  init. Runs on the stock `gldrv\3dfxgl.dll` MiniGL instead. Full analysis in
-  `retro3dfx/DEBUGGING-NOTES.md` (2026-07-18). Q2/Q3 are the ICD benchmark games.
+- **Counter-Strike 1.6 (BC Romania build)**: ✅ **runs on our ICD** — loads maps
+  (de_dust) and renders in-game, BCShield 2.5 + world module init all fine. Use the
+  `C:\Program Files\Bcs16 Romania\Counter-Strike 1.6` build (the plain
+  `C:\Program Files\Counter-strike` build crashes after GL init — a build issue,
+  not our driver). Stage our ICD as `System\opengl32.dll` + `glide3x.dll`, launch
+  with `FX_NO_PALETTED_TEXTURE=1`. Windowed-Glide path (`fxwindow.c`, opt-in
+  `FX_WINDOWED`) exists for engines that truly need it but isn't required here.
