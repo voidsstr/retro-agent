@@ -13,6 +13,11 @@ echo   RETRO AGENT ONBOARDING
 echo   share=%SHARE%
 echo ============================================================
 if not exist "C:\RETRO_AGENT\stage" md "C:\RETRO_AGENT\stage"
+REM FAILED counts games missing-from-share or failed-to-extract. If any,
+REM we do NOT set the Onboarded marker, so a later boot retries once the
+REM share is complete (fixes: a box that got only the theme being marked
+REM fully onboarded and never installing the games).
+set "FAILED=0"
 REM --- stage the unzip shim (idempotent) ---
 if exist "%OB%\retro_unzip.js" copy /Y "%OB%\retro_unzip.js" "%UNZIP%" >nul
 
@@ -28,10 +33,17 @@ if exist "%OB%\retro_theme.reg" (
   echo [theme] applying dark hacker XP theme
   regedit /s "%OB%\retro_theme.reg"
 ) else ( echo [theme] no retro_theme.reg staged - skipping )
+
+REM --- stage wallpaper rotation bundle from the share if present and the
+REM     box has none yet (per-host first, then a generic _default set), so
+REM     the agent's retrowall thread has assets to apply every boot. flat
+REM     copy /Y (NOT xcopy - hangs on NETMAP'd SMB on XP). ---
+if not exist "C:\retro-wall\rotate_wall.exe" call :stagewall
 if exist "C:\retro-wall\arrange_icons.exe" ( echo [icons] parking desktop icons & "C:\retro-wall\arrange_icons.exe" )
 REM (wallpaper rotation + icon parking also run every boot via the agent)
 
 REM ======================= mark complete =======================
+if not "%FAILED%"=="0" goto :incomplete
 set "DONE=%TEMP%\ob_done.reg"
 > "%DONE%" echo REGEDIT4
 >> "%DONE%" echo.
@@ -39,6 +51,23 @@ set "DONE=%TEMP%\ob_done.reg"
 >> "%DONE%" echo "Onboarded"=dword:00000001
 regedit /s "%DONE%"
 echo ONBOARDING COMPLETE
+goto :eof
+:incomplete
+echo ONBOARDING INCOMPLETE - %FAILED% item(s) missing from share; not marking Onboarded, will retry on next boot
+goto :eof
+
+REM --- :stagewall - copy the wallpaper/theme bundle off the share ---
+:stagewall
+if not exist "C:\retro-wall" md "C:\retro-wall"
+if exist "%OB%\retro-wall\%COMPUTERNAME%\rotate_wall.exe" (
+  echo [wall] staging per-host wallpaper bundle
+  copy /Y "%OB%\retro-wall\%COMPUTERNAME%\*" "C:\retro-wall\" >nul
+  goto :eof
+)
+if exist "%OB%\retro-wall\_default\rotate_wall.exe" (
+  echo [wall] staging generic wallpaper bundle
+  copy /Y "%OB%\retro-wall\_default\*" "C:\retro-wall\" >nul
+)
 goto :eof
 
 REM --- :game NAME ZIP DEST SENTINEL ---
@@ -66,7 +95,9 @@ echo [skip] %NAME% - already installed
 goto :eof
 :game_miss
 echo [MISS] %NAME% - %ZIP% not on share
+set /a FAILED+=1
 goto :eof
 :game_warn
 echo [WARN] %NAME% - sentinel missing after extract
+set /a FAILED+=1
 goto :eof
