@@ -8,6 +8,62 @@ Newest first.
 
 ---
 
+## 2026-07-18 — Counter-Strike 1.6 (GoldSrc) exits on our ICD — architecture mismatch
+
+**Symptom.** Launching CS 1.6 (`hl.exe -game cstrike -gl -full`) with our ICD
+staged as `opengl32.dll` in the CS root: the process reaches GL init, logs the
+extension banner, then **exits** before drawing anything. Never reaches the menu.
+
+**Isolation.**
+- Our ICD **loads and creates its Glide context successfully** — `MESA.LOG`
+  (under `MESA_FX_INFO=r`) shows `post grSstWinOpen ctx=...` +
+  `Voodoo Screen: 640x480:16 RGB` exactly like Q2/Q3. So the ICD/context is fine.
+- `qconsole.log` (`-condebug`) shows GoldSrc getting as far as
+  `Found paletted texture extension` → `ARB Multitexture extensions found`, then
+  nothing — it dies right after extension enumeration, before the first frame.
+- **Not paletted textures**: `FX_NO_PALETTED_TEXTURE=1` (hides
+  `GL_EXT_paletted_texture` / `GL_EXT_shared_texture_palette`, forcing GoldSrc to
+  the RGBA path) removed that banner line but hl.exe still exited.
+- **Not multitexture**: `FX_NO_MULTITEXTURE=1` (hides `GL_ARB_multitexture`)
+  produced `NO Multitexture extensions found` and hl.exe **still** exited.
+- **Not our driver at all, at the video-mode layer**: with our ICD *removed*
+  (GoldSrc falling back to the stock `gldrv\3dfxgl.dll` MiniGL), CS popped a
+  **"Video mode change failure — the specified video mode is not supported. The
+  game will now run in software mode"** dialog. So GoldSrc's *own*
+  `ChangeDisplaySettings` to 640×480 fullscreen fails on this box independent of
+  the GL driver.
+- Pre-setting the desktop to 640×480×16 (so GoldSrc's mode switch is a no-op)
+  did **not** stop our-ICD hl.exe from exiting.
+
+**Root cause (architecture mismatch).** GoldSrc's fullscreen OpenGL model is:
+*do a GDI `ChangeDisplaySettings` fullscreen mode switch, then render GL into that
+desktop-owned framebuffer* — the model a normal desktop ICD or 3dfx's purpose-
+built GoldSrc **MiniGL** (`gldrv\3dfxgl.dll`) is written for. Our MesaFX ICD
+instead takes the Voodoo board via **Glide `grSstWinOpen` in exclusive fullscreen
+mode**, which owns the display outside GDI. GoldSrc's concurrent GDI mode switch
+and its post-switch state checks conflict with Glide's exclusive ownership, and
+GoldSrc aborts. Q2 and Q3 work on our ICD precisely because they use *standard GL
+fullscreen* and let the GL driver own the mode — they never do a competing GDI
+`ChangeDisplaySettings`. This is the same reason 3dfx shipped a dedicated GoldSrc
+MiniGL rather than expecting the full ICD to work.
+
+**Status / options.**
+- CS 1.6 on our full MesaFX ICD is **not currently supported** — it's a deeper
+  engine-integration effort (windowed-GL path, or coordinating the Glide board
+  grab with GoldSrc's GDI mode switch), not a quick fix.
+- CS *does* run via the stock `gldrv\3dfxgl.dll` MiniGL once the box's 640×480
+  fullscreen mode-change issue is resolved (that dialog is separate and about the
+  primary display mode list / refresh, not our driver).
+- Q2 and Q3 remain the driver-optimization benchmark games on our ICD.
+
+**Useful driver knobs added while isolating this** (both default OFF = old
+behavior, gated on env at `fxDDInitExtensions`):
+- `FX_NO_PALETTED_TEXTURE=1` — hide the paletted-texture extensions; makes an
+  engine that uploads 8-bit paletted textures use the solid RGBA path instead.
+- `FX_NO_MULTITEXTURE=1` — hide `GL_ARB_multitexture` (single-texture fallback).
+
+---
+
 ## 2026-07-18 — Quake II (`ref_gl`) `wglCreateContext` crash/hang on our ICD
 
 **Symptom.** Launching Quake II with `gl_driver retrogl` (our ICD) produced a

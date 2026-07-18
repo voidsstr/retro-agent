@@ -143,3 +143,27 @@ multitexture single-pass lever, unlike the Voodoo5 lane). The remaining wins on
 this card are **quality** (LOD bias) and higher-res/quality coverage, not vertex
 fps. The 640x480 gap to the era P3-850/933 references is CPU-clock (845 MHz) +
 engine, not driver inefficiency.
+
+## Q2 support + game-integration findings 2026-07-18 (0.1.12–0.1.19)
+
+**Quake II now runs on our MesaFX ICD** (was stock `3dfxgl` only). Root cause of
+the prior green-screen / "driver stopped working" crash: `retrogl.dll` binds
+`glide3x.dll`, and the Q2 dir shipped none, so the loader resolved an incompatible
+build and `grSstWinOpen` faulted. Fix = stage the known-good retail `glide3x.dll`
+(344064 B, AmigaMerlin) next to `quake2.exe`. Also added a window message-pump
+before `grSstWinOpen` in `fxwgl.c` (harmless; a freshly-shown ref_gl window's
+activation messages were queued). Full diagnosis: `retro3dfx/DEBUGGING-NOTES.md`.
+- Q2 @640×480×16: **93.6 fps** on our ICD vs **75.7** stock 3dfxgl (+23%),
+  and stable. Res sweep to Voodoo3 max: 640=93, 800=69, 960=51, 1024=47,
+  1152=38, 1280=32, 1600×1200=20.8 fps.
+- New env knobs (default OFF): `FX_NO_PALETTED_TEXTURE`, `FX_NO_MULTITEXTURE`
+  (hide those extensions to force an engine onto the RGBA / single-texture path).
+
+**Counter-Strike 1.6 (GoldSrc): not supported on our ICD** — architecture
+mismatch (GoldSrc GDI-fullscreen-mode + render-into-desktop vs our Glide-exclusive
+board grab). hl.exe exits after GL init. Runs on the stock `gldrv\3dfxgl.dll`
+MiniGL. Not an extension issue (ruled out paletted + multitexture). Details in
+DEBUGGING-NOTES.md.
+
+**Q3 unchanged**: 57.9 fps @640 (tied with the 0.1.11 best); high-res sweep added
+to 1600×1200 (22.9 fps). The V3 vertex/transform path remains near-optimal for fps.
