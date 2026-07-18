@@ -42,7 +42,12 @@ CS16_RES = "640x480"
 Q2_DIR = r"C:\Games\Quake2"                    # override with --q2dir (found on .124)
 Q2_EXE = "quake2.exe"
 Q2_DEMO = "demo1.dm2"
-Q2_GLDRIVER = "3dfxgl"                         # gl_driver: 3dfxgl (works) | retrogl (our ICD, hangs in ref_gl - see fxwgl task)
+Q2_GLDRIVER = "retrogl"                        # gl_driver: retrogl (our ICD, 95.5 fps @640 - FIXED) | 3dfxgl (stock, 75.7, unstable)
+# Q2's retrogl.dll binds glide3x.dll; the game dir must ship the known-good retail
+# glide3x (else grSstWinOpen faults - see retro3dfx/DEBUGGING-NOTES.md). Staged
+# from Q3's dir at launch. Unlike stock ref_gl, our ICD owns Glide fullscreen and
+# does NOT need a 16-bit desktop switch (runs fine from a 32bpp desktop).
+Q2_GLIDE3X_SRC = r"C:\Quake III Arena\Quake3\glide3x.dll"
 Q2_MODES = {3: "640x480", 4: "800x600", 5: "960x720", 6: "1024x768"}
 
 # ---------------------------------------------------------------------------
@@ -310,17 +315,24 @@ async def quake2_timedemo(ip, q2dir, demo, gl_mode, gl_driver, env):
     c = await connect(ip)
     await kill_wait(c, Q2_EXE)
     await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 12)
-    # Q2's ref_gl can ONLY create a GL context on the Voodoo3 when the DESKTOP is
-    # 16-bit (a 32bpp desktop -> qwglCreateContext failed; Q3 works at 32bpp
-    # because it uses its own GL init, not ref_gl's). Switch to 16bpp, restore after.
+    # retrogl.dll binds glide3x.dll from the game dir; stage the known-good retail
+    # build there or grSstWinOpen faults (green screen / "driver stopped working").
+    # See retro3dfx/DEBUGGING-NOTES.md 2026-07-18.
+    if gl_driver == "retrogl":
+        await exw(c, r'cmd /c if not exist "%s\glide3x.dll" copy /Y "%s" "%s\glide3x.dll"'
+                  % (q2dir, Q2_GLIDE3X_SRC, q2dir), 15)
+    # Stock ref_gl (3dfxgl/opengl32) can only make a GL context on the Voodoo3 from
+    # a 16-bit desktop; our ICD (retrogl) owns Glide fullscreen and runs from 32bpp,
+    # so only switch the desktop for the non-retrogl paths.
     desk = None
-    try:
-        cur = json.loads(await c.command_text("DISPLAYCFG get", timeout=15))
-        desk = (cur.get("width") or 1024, cur.get("height") or 768, cur.get("refresh") or 75)
-        await c.command_text("DISPLAYCFG set %d %d 16 %d" % desk, timeout=20)
-        await asyncio.sleep(3)
-    except Exception:
-        pass
+    if gl_driver != "retrogl":
+        try:
+            cur = json.loads(await c.command_text("DISPLAYCFG get", timeout=15))
+            desk = (cur.get("width") or 1024, cur.get("height") or 768, cur.get("refresh") or 75)
+            await c.command_text("DISPLAYCFG set %d %d 16 %d" % desk, timeout=20)
+            await asyncio.sleep(3)
+        except Exception:
+            pass
     await exw(c, r'cmd /c cd /d "%s" ^&^& %sstart "" %s +set vid_ref gl +set gl_driver %s '
                  r'+set gl_bitdepth 16 +set gl_mode %d +set vid_fullscreen 1 +set logfile 2 +set s_initsound 0 '
                  r'+set timedemo 1 +map %s'
