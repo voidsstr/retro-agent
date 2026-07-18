@@ -66,8 +66,13 @@ Q2_MODES = {3: "640x480", 4: "800x600", 5: "960x720", 6: "1024x768",
 # sweep several profiles (--quality-sweep) to cover permutations. When you
 # optimize, benchmark across the profiles so a change is judged at every quality
 # level, not just one.
+# Framebuffer color depth for the Q3 launch. Default 16 (Voodoo3 has no 32-bit
+# render). The Voodoo5/VSA-100 lane can set --colorbits 32 for true 32-bit
+# rendering (no 16-bit dither banding) — set from the CLI in main().
+COLORBITS = "16"
+
 QUALITY_DEFAULT = {
-    "r_colorbits": "16",           # Voodoo3 framebuffer is 16bpp (no 32-bit render)
+    "r_colorbits": "16",           # overridden from --colorbits in main() (V5 = 32)
     "r_texturebits": "16",
     "r_textureMode": "GL_LINEAR_MIPMAP_NEAREST",  # bilinear + nearest-mip (Q3 default)
     "r_picmip": "1",               # texture detail reduction (0 = full detail)
@@ -236,10 +241,10 @@ async def timedemo(ip, q3dir, mode, env, gldriver="retrogl", extra="", capture=F
     await exw(c, r'cmd /c del /f /q C:\q3home\baseq3\qconsole.log C:\glide3x.log C:\3dfxogl.log 2>nul', 12)
     await asyncio.sleep(2)
     await exw(c, r'cmd /c cd /d "%s" ^&^& %sstart "" quake3.exe +set r_glDriver %s '
-                 r'+set r_mode %d +set r_fullscreen 1 +set r_colorbits 16 +set fs_homepath C:\q3home '
+                 r'+set r_mode %d +set r_fullscreen 1 +set r_colorbits %s +set fs_homepath C:\q3home '
                  r'+set logfile 2 +set s_initsound 0 +set com_introPlayed 1 +set sv_pure 0 %s'
                  r'+set timedemo 1 +demo four'
-              % (q3dir, envcmd, gldriver, mode, (extra + " " if extra else "")), 15)
+              % (q3dir, envcmd, gldriver, mode, COLORBITS, (extra + " " if extra else "")), 15)
     await c.close()
     await asyncio.sleep(78)
     c = await connect(ip)
@@ -387,9 +392,9 @@ async def screenshot(ip, q3dir, outdir, gldriver="retrogl", scene="q3dm1", extra
     await exw(c, r'cmd /c del /f /q C:\q3home\baseq3\screenshots\*.tga 2>nul', 12)
     # start /wait + explicit +screenshot +quit -> deterministic, no input injection
     await exw(c, (r'cmd /c cd /d "%s" ^&^& start /wait "" quake3.exe +set r_glDriver %s +set r_mode 3 '
-                 r'+set r_fullscreen 1 +set r_colorbits 16 +set fs_homepath C:\q3home +set logfile 2 '
+                 r'+set r_fullscreen 1 +set r_colorbits %s +set fs_homepath C:\q3home +set logfile 2 '
                  r'+set s_initsound 0 +set sv_pure 0 +set bot_enable 0 +set com_introPlayed 1 %s %s '
-                 r'+wait 200 +screenshot +wait 60 +quit') % (q3dir, gldriver, sc, extra), 130)
+                 r'+wait 200 +screenshot +wait 60 +quit') % (q3dir, gldriver, COLORBITS, sc, extra), 130)
     await c.close()
     await asyncio.sleep(3)
     c = await connect(ip)
@@ -498,6 +503,8 @@ async def main():
     ap.add_argument("--cs16demo", default=CS16_DEMO, help="cstrike\\<name>.dem to timedemo")
     ap.add_argument("--changes", default="", help="fork SHA + description of the driver change under test")
     ap.add_argument("--lever", default="performance", choices=["performance", "quality"])
+    ap.add_argument("--colorbits", default="16", choices=["16", "32"],
+                    help="Q3 framebuffer depth. 16 = Voodoo3; 32 = Voodoo5 true-color (no 16-bit banding)")
     ap.add_argument("--quality", default="default", choices=list(QUALITY_PROFILES),
                     help="quality profile applied + recorded per run (default/fast/high/max)")
     ap.add_argument("--quality-sweep", default="", dest="quality_sweep",
@@ -525,6 +532,10 @@ async def main():
                     help="desktop mode to restore after each Glide game exits, e.g. '1024 768 32 85' "
                          "(3dfx lane; avoids the stuck-Glide-mode garble). Default on for --stack-name.")
     args = ap.parse_args()
+
+    global COLORBITS
+    COLORBITS = args.colorbits
+    QUALITY_DEFAULT["r_colorbits"] = args.colorbits   # so recorded settings match
 
     global RESTORE_DESKTOP
     if args.restore_mode:
