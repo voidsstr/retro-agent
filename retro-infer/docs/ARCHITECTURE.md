@@ -56,9 +56,9 @@ acceptance criteria: [`docs/roadmap-fleet-ai.md`](../../docs/roadmap-fleet-ai.md
 4. **Brain orchestration** — Python coordinators speak the agent protocol via
    [`client/retro_ai.py:79`](../../client/retro_ai.py#L79) `RetroAI` (typed
    wrappers + the `TNSR` tensor codec at
-   [`client/retro_ai.py:33`](../../client/retro_ai.py#L33)). The chat brain
+   [`client/retro_ai.py:34`](../../client/retro_ai.py#L34)). The chat brain
    gets `mcp__retro__ai_list/ai_load/ai_infer` from
-   [`scripts/retro_brain_tools.py:274`](../../scripts/retro_brain_tools.py#L274).
+   [`scripts/retro_brain_tools.py:275`](../../scripts/retro_brain_tools.py#L275).
 5. **Metrics** — every run lands in the `ai_runs` table
    ([`scripts/ai_metrics.py:28`](../../scripts/ai_metrics.py#L28) DDL,
    [`scripts/ai_metrics.py:73`](../../scripts/ai_metrics.py#L73) `log_run`,

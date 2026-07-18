@@ -309,7 +309,17 @@ void nvgl_shutdown(void)
         g_wnd = NULL;
     }
     if (g_gl) {
-        FreeLibrary(g_gl);
+        /* Deliberately NOT calling FreeLibrary(g_gl) here: some GPU driver
+         * stacks (seen: NVIDIA's on a modern Windows box) load their real
+         * ICD implementation underneath opengl32.dll and can hang a
+         * worker/cleanup thread if that loader DLL is explicitly unloaded
+         * mid-process rather than left for normal process teardown to
+         * reclaim — every --nv-check/--bnn-eval one-shot invocation was
+         * leaving a zombie retro-infer.exe process behind on WHITEBEAST
+         * (RTX 4080) until this was removed. Leaking one DLL module
+         * reference for the life of a short process is harmless and is
+         * standard practice for GL applications; the OS unloads it at
+         * real process exit either way. */
         g_gl = NULL;
     }
 }

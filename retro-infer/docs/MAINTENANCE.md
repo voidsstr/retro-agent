@@ -190,6 +190,6 @@ The pattern that keeps a `-march=i586` binary safe on a plain Pentium:
   ([`agent/src/ai.c:305-315`](../../agent/src/ai.c#L305)) to keep path
   traversal out of `models\`.
 - The chat brain's destructive-command guardrail
-  ([`scripts/retro_brain_tools.py:52-87`](../../scripts/retro_brain_tools.py#L52))
+  ([`scripts/retro_brain_tools.py:53-87`](../../scripts/retro_brain_tools.py#L53))
   gates `REBOOT`/`SHUTDOWN`/`PROCKILL`/… behind an explicit `confirm=true`;
   don't weaken it when adding AI tools.

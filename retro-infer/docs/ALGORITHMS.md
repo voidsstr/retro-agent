@@ -85,7 +85,7 @@ against the `[out_ch, C·k·k]` weight matrix.
   (softmax always computed in f64 exp/f32 out,
   [`src/ops/nn.c:112`](../src/ops/nn.c#L112)).
 - The numpy reference implements the same unroll
-  ([`tools/rim/eval_ref.py:26`](../../tools/rim/eval_ref.py#L26)).
+  ([`tools/rim/eval_ref.py:27`](../../tools/rim/eval_ref.py#L27)).
 
 ## int8 symmetric quantization (per FORMAT.md)
 
@@ -99,7 +99,7 @@ everywhere.
 - Weights `w_q = clamp(round(w/scale_w), ±127)`, `scale_w = maxabs/127`
   ([`tools/rim/quantize.py:26-32`](../../tools/rim/quantize.py#L26)).
 - Bias is **i32**: `b_q = round(b / (act_scale_in · scale_w))`
-  ([`tools/rim/quantize.py:36-38`](../../tools/rim/quantize.py#L36)).
+  ([`tools/rim/quantize.py:34-36`](../../tools/rim/quantize.py#L34)).
 - Layer math on device: `acc_i32 = Σ a_q·w_q + b_q`, then requant
   `out_q = clamp(round(acc · m), ±127)` with the **fp32 multiplier**
   `m = act_scale_in·scale_w/act_scale_out` —

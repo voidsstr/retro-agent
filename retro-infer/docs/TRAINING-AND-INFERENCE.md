@@ -148,7 +148,7 @@ asyncio.run(run('192.168.1.143'))
 ```
 
 From chat, the same three steps are `mcp__retro__ai_list` / `ai_load` /
-`ai_infer` ([`scripts/retro_brain_tools.py:274-421`](../../scripts/retro_brain_tools.py#L274)).
+`ai_infer` ([`scripts/retro_brain_tools.py:275-421`](../../scripts/retro_brain_tools.py#L275)).
 Interactive TUI: `python3 scripts/retro_infer_console.py`
 (`[d]iscover [t]rain [i]nfer [b]ench`,
 [`scripts/retro_infer_console.py`](../../scripts/retro_infer_console.py)).
@@ -258,7 +258,7 @@ python3 scripts/ai_metrics.py board --model lenet5-mnist-int8 --metric img_per_s
 ```
 
 The console's `[b]`ench logs automatically
-([`scripts/retro_infer_console.py:158-167`](../../scripts/retro_infer_console.py#L158)).
+([`scripts/retro_infer_console.py:160-166`](../../scripts/retro_infer_console.py#L160)).
 
 ## Milestone acceptance tests (M0–M8)
 
