@@ -14,12 +14,11 @@ import argparse, asyncio, json, os, re, sys, time
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, REPO)
+sys.path.insert(0, os.path.join(REPO, "scripts"))
 from client.retro_protocol import RetroConnection  # noqa: E402
+from specpicks_dsn import resolve_dsn  # noqa: E402
 
-DSN = os.environ.get(
-    "SPECPICKS_DATABASE_URL",
-    "postgresql://nscadmin:NscP0stgr3s!2026@nscappsdb.postgres.database.azure.com:5432/specpicks?sslmode=require",
-)
+DSN = resolve_dsn()
 SECRET = os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret")
 MODE_RES = {3: "640x480", 4: "800x600", 6: "1024x768"}
 

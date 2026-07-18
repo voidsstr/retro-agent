@@ -20,10 +20,10 @@ import sys
 
 import psycopg2
 
-DSN = os.environ.get(
-    "SPECPICKS_DATABASE_URL",
-    "postgresql://nscadmin:NscP0stgr3s!2026@nscappsdb.postgres.database.azure.com:5432/specpicks?sslmode=require",
-)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from specpicks_dsn import resolve_dsn  # noqa: E402
+
+DSN = resolve_dsn()
 
 DDL = """
 CREATE TABLE IF NOT EXISTS ai_runs (

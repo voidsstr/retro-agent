@@ -10,11 +10,11 @@ import json, os, re, sys, shutil, datetime
 
 import psycopg2
 
-DSN = os.environ.get(
-    "SPECPICKS_DATABASE_URL",
-    "postgresql://nscadmin:NscP0stgr3s!2026@nscappsdb.postgres.database.azure.com:5432/specpicks?sslmode=require",
-)
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "scripts"))
+from specpicks_dsn import resolve_dsn  # noqa: E402
+
+DSN = resolve_dsn()
 
 
 def main():
