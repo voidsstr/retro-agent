@@ -8,6 +8,30 @@ Newest first.
 
 ---
 
+## 2026-07-19 — Q2 "crashes when run normally" = launcher used the stock 3dfxgl path
+
+**Symptom.** User launched Quake II normally and it crashed.
+
+**Root cause.** The Q2 launcher `play_q2.bat` (and it alone) used
+`gl_driver 3dfxgl` — the STOCK 3dfx MiniGL path, which is unstable (documented to
+crash intermittently / green-screen the display) and needs a 16-bit desktop
+switch. The other `Quake_II_<res>.bat` launchers passed *Quake III* cvars
+(`r_mode -1 r_customwidth ...`) that Q2 ignores, so they fell back to the config's
+`gl_driver` (already `retrogl`) — those were fine, but confusingly wrong.
+
+**Fix.** Rewrote all 5 Q2 launchers (`play_q2.bat` + the four
+`Quake_II_<res>_*Hz.bat`) to use OUR stable `retrogl` ICD with the correct Q2
+`gl_mode` per resolution (3=640, 4=800, 6=1024, 8=1280) and no desktop switch
+(retrogl owns Glide fullscreen from a 32-bit desktop). retrogl is both stable and
+faster (96 vs 75.7 fps @640). Verified: all 5 launchers launch+render+exit with no
+crash across 640/800/1024/1280. A plain `quake2.exe` (config `gl_driver retrogl`)
+was already fine.
+
+**Takeaway.** Keep every Q2 launch path on `retrogl`; never ship the stock
+`3dfxgl` path as a default — it is the one unstable Q2 GL path on this box.
+
+---
+
 ## 2026-07-18 — Counter-Strike 1.6 RUNS on our ICD: it was the wrong build
 
 **Resolution.** CS 1.6 works on our MesaFX ICD — the blocker was the *build*, not
