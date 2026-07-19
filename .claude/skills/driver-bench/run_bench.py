@@ -35,6 +35,10 @@ MODE_RES = {3: "640x480", 4: "800x600", 6: "1024x768", 7: "1152x864",
 CS16_DIR = r"C:\Program Files\Bcs16 Romania\Counter-Strike 1.6"  # BC Romania build - RUNS on our ICD (the plain
 # C:\Program Files\Counter-strike build crashes after GL init; the BC Romania build renders fine). --cs16dir to override.
 # Needs our ICD staged as System-dir opengl32.dll + glide3x.dll, launched with FX_NO_PALETTED_TEXTURE=1.
+# AUTOMATION CAVEAT (2026-07-19): CS16 timedemo needs a pre-recorded cstrike\bench.dem, but this BC Romania build's
+# BCShield anti-cheat blocks scripted demo recording on .124 (custom-cfg exec + menu-select + `record` via keybinds
+# produced no .dem). CS is VALIDATED-RUNNING on our ICD (menu, maps, in-game); the automated fps benchmark is blocked
+# by the anti-cheat, not the driver. Drop a bench.dem in cstrike\ (recorded interactively) to enable --game cs16.
 CS16_EXE = "hl.exe"
 CS16_DEMO = "bench"                            # cstrike\bench.dem
 CS16_RES = "640x480"
