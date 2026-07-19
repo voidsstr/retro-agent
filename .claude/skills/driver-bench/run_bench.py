@@ -79,6 +79,20 @@ UT_DIR_SHORT = r"C:\GAMES\UNREAL~1\System"     # LAUNCH is broken on .124; EXEC+
 UT_DEMO = "UTbench.dem"
 UT_RECOVERY_BTN = (512, 280)                   # "Run Unreal Tournament" @640x480
 
+# Return to Castle Wolfenstein (WolfMP, idTech3) — automated, same shape as Q3.
+# Prereqs: our ICD staged as gl\openglv5.dll (RtCW's wolfconfig sets
+# `r_glDriver "gl/openglv5.dll"`, which OVERRIDES a +set r_glDriver, so we must
+# replace that exact file, not opengl32.dll) + glide3x.dll; and a recorded demo
+# main\demos\wolfbench.dm_60 (benchmarks/demos_wolfbench.dm_60; record once via
+# +bind F9 "record wolfbench" in a devmap, UIKEY F9, wait, F10 "stoprecord;quit").
+# `+set timedemo 1 +demo wolfbench` prints "N frames, S seconds: F fps" to
+# main\rtcwconsole.log (NOT wolfconsole.log). GOG build at RT_DIR.
+RT_DIR = r"D:\GOG Games\Return to Castle Wolfenstein"
+RT_DIR_SHORT = r"D:\GOGGAM~1\RETURN~1"
+RT_EXE = "WolfMP.exe"
+RT_DEMO = "wolfbench"
+RT_GLDRIVER_FILE = r"gl\openglv5.dll"           # the file RtCW's r_glDriver loads
+
 # ---------------------------------------------------------------------------
 # Quality / video-card settings — recorded IN FULL on every run, and swept
 # ---------------------------------------------------------------------------
@@ -455,6 +469,44 @@ async def ut_timedemo(ip):
     return fps, gl
 
 
+async def rtcw_timedemo(ip):
+    """One RtCW WolfMP wolfbench timedemo run. Returns (fps, gl). Needs our ICD at
+    RT_DIR\\gl\\openglv5.dll + main\\demos\\wolfbench.dm_60 staged."""
+    log = r"%s\Main\rtcwconsole.log" % RT_DIR
+    rcopy = r"%s\Main\rtcw_r.log" % RT_DIR
+    c = await connect(ip)
+    await kill_wait(c, RT_EXE)
+    await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 12)
+    try:
+        await c.command_text("DISPLAYCFG set 640 480 16 75", timeout=20)
+        await asyncio.sleep(2)
+    except Exception:
+        pass
+    await exw(c, r'cmd /c cd /d "%s" ^&^& start "" %s +set r_mode 3 +set r_fullscreen 1 '
+                 r'+set r_colorbits 16 +set sv_pure 0 +set s_initsound 0 +set logfile 2 '
+                 r'+set timedemo 1 +demo %s' % (RT_DIR_SHORT, RT_EXE, RT_DEMO), 15)
+    await c.close()
+    await asyncio.sleep(55)
+    c = await connect(ip)
+    fps = gl = None
+    for _ in range(4):
+        await exw(c, r'cmd /c copy /Y "%s" "%s" >nul 2>nul' % (log, rcopy), 12)
+        txt = await exw(c, r'cmd /c type "%s" 2>nul' % rcopy, 20)
+        m = re.search(r"\d+ frames,?\s+[\d.]+ seconds:?\s+([\d.]+) fps", txt)
+        gl = next((l.split("GL_RENDERER:", 1)[1].strip() for l in txt.splitlines() if "GL_RENDERER" in l), gl)
+        if m:
+            fps = float(m.group(1))
+            break
+        await asyncio.sleep(10)
+    await kill_wait(c, RT_EXE)
+    try:
+        await c.command_text("DISPLAYCFG set 1024 768 32 75", timeout=20)
+    except Exception:
+        pass
+    await c.close()
+    return fps, gl
+
+
 # scenes for quality capture: (label, extra-cvars). "menu" exercises the 2D
 # proportional-font path (text/menu quality); "q3dm1" a textured 3D world.
 QUALITY_SCENES = {
@@ -580,7 +632,7 @@ async def main():
     ap.add_argument("--q2demo", default=Q2_DEMO, help="baseq2 demo, e.g. demo1.dm2")
     ap.add_argument("--q2modes", default="3,6", help="Q2 gl_mode list (3=640x480,6=1024x768)")
     ap.add_argument("--q2driver", default=Q2_GLDRIVER, help="Q2 gl_driver (3dfxgl works; retrogl=our ICD)")
-    ap.add_argument("--game", default="q3", choices=["q3", "cs16", "q2", "ut", "both", "all"],
+    ap.add_argument("--game", default="q3", choices=["q3", "cs16", "q2", "ut", "rtcw", "both", "all"],
                     help="which benchmark(s) to run (default q3)")
     ap.add_argument("--cs16dir", default=CS16_DIR)
     ap.add_argument("--cs16demo", default=CS16_DEMO, help="cstrike\\<name>.dem to timedemo")
@@ -716,6 +768,18 @@ async def main():
                                       "renderer": "OpenGL (our ICD)",
                                       "fsaa": "none (Voodoo3 has no T-buffer)"}})
             print("ut UTbench run %d: %s fps [driver %s]" % (run, fps, ver))
+
+    if args.game in ("rtcw", "all"):
+        for run in range(1, args.runs + 1):
+            fps, gl = await rtcw_timedemo(args.ip)
+            ver = ver_of(gl)
+            runs.append({"benchmark": "rtcw-wolfbench", "resolution": "640x480", "run": run,
+                         "fps": fps, "gl_renderer": gl, "driver_version": ver,
+                         "settings": {"resolution": "640x480", "engine": "idTech3/RtCW WolfMP",
+                                      "demo": "wolfbench.dm_60", "map": "mp_beach", "colorbits": "16",
+                                      "renderer": "OpenGL (our ICD via gl/openglv5.dll)",
+                                      "fsaa": "none (Voodoo3 has no T-buffer)"}})
+            print("rtcw wolfbench run %d: %s fps [driver %s]" % (run, fps, ver))
 
     outdir = os.path.join(REPO, "benchmarks")
     # Quality capture (--screenshot): grab BOTH a 3D scene AND the menu (the 2D
