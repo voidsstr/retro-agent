@@ -1,0 +1,56 @@
+{
+ "machine_ip": "192.168.1.143",
+ "ts": "2026-07-18T15:30:38",
+ "cpu": "x86 ~1000MHz",
+ "stack": {
+  "display_driver": "unrecognized (689216 B)",
+  "glide3x": "unrecognized (595644 B)",
+  "icd": "3dfxogl (H5-source OpenGL ICD)",
+  "stack_composition": "3dfx-driver-optimized"
+ },
+ "env": "none",
+ "changes": "0.2.2 regression: Q2",
+ "q3_timedemo": [
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 1,
+   "fps": 183.3,
+   "gl_renderer": "3Dfx",
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "gl_mode": 3,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "3dfxogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 2,
+   "fps": 178.1,
+   "gl_renderer": "3Dfx",
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "gl_mode": 3,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "3dfxogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  }
+ ],
+ "screenshot": null
+}

@@ -1,0 +1,64 @@
+{
+ "machine_ip": "192.168.1.143",
+ "ts": "2026-07-18T15:32:42",
+ "cpu": "x86 ~1000MHz",
+ "stack": {
+  "display_driver": "unrecognized (689216 B)",
+  "glide3x": "unrecognized (595644 B)",
+  "icd": "3dfxogl (H5-source OpenGL ICD)",
+  "stack_composition": "3dfx-driver-optimized"
+ },
+ "env": "none",
+ "changes": "0.2.2 regression: CS 1.6 Romania",
+ "q3_timedemo": [
+  {
+   "benchmark": "cs16-timedemo",
+   "resolution": "640x480",
+   "mode": null,
+   "run": 1,
+   "fps": 52.45,
+   "gl_renderer": null,
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "engine": "GoldSrc/hl.exe",
+    "demo": "benchdemo.dem",
+    "renderer": "OpenGL (our ICD)",
+    "colorbits": "16",
+    "gl_texturemode": "GL_LINEAR_MIPMAP_LINEAR",
+    "gl_max_size": "256",
+    "gl_picmip": "0",
+    "gl_round_down": "0",
+    "gl_overbright": "1",
+    "r_mmx": "1",
+    "fps_max": "0",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "cs16-timedemo",
+   "resolution": "640x480",
+   "mode": null,
+   "run": 2,
+   "fps": 67.686,
+   "gl_renderer": null,
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "engine": "GoldSrc/hl.exe",
+    "demo": "benchdemo.dem",
+    "renderer": "OpenGL (our ICD)",
+    "colorbits": "16",
+    "gl_texturemode": "GL_LINEAR_MIPMAP_LINEAR",
+    "gl_max_size": "256",
+    "gl_picmip": "0",
+    "gl_round_down": "0",
+    "gl_overbright": "1",
+    "r_mmx": "1",
+    "fps_max": "0",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  }
+ ],
+ "screenshot": null
+}

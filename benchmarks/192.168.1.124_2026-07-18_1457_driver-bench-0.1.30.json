@@ -1,0 +1,156 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-18T14:57:44",
+ "cpu": "x86 ~845MHz",
+ "stack": {
+  "display_driver": "retro3dfx (H5-source)",
+  "glide3x": "unrecognized (None B)",
+  "icd": "retro3dfx-gl (MesaFX 6.2 fork)",
+  "stack_composition": "retro3dfx MesaFX (our ICD)"
+ },
+ "env": "none",
+ "changes": "full resolution stability sweep - all supported res",
+ "q3_timedemo": [
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 1,
+   "fps": 96.2,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.30]",
+   "driver_version": "0.1.30",
+   "settings": {
+    "resolution": "640x480",
+    "gl_mode": 3,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "retrogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "800x600",
+   "mode": 4,
+   "run": 1,
+   "fps": 69.5,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.30]",
+   "driver_version": "0.1.30",
+   "settings": {
+    "resolution": "800x600",
+    "gl_mode": 4,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "retrogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "960x720",
+   "mode": 5,
+   "run": 1,
+   "fps": 51.1,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.30]",
+   "driver_version": "0.1.30",
+   "settings": {
+    "resolution": "960x720",
+    "gl_mode": 5,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "retrogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "1024x768",
+   "mode": 6,
+   "run": 1,
+   "fps": 47.1,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.30]",
+   "driver_version": "0.1.30",
+   "settings": {
+    "resolution": "1024x768",
+    "gl_mode": 6,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "retrogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "1152x864",
+   "mode": 7,
+   "run": 1,
+   "fps": 38.3,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.30]",
+   "driver_version": "0.1.30",
+   "settings": {
+    "resolution": "1152x864",
+    "gl_mode": 7,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "retrogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "1280x960",
+   "mode": 8,
+   "run": 1,
+   "fps": 31.6,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.30]",
+   "driver_version": "0.1.30",
+   "settings": {
+    "resolution": "1280x960",
+    "gl_mode": 8,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "retrogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "1600x1200",
+   "mode": 9,
+   "run": 1,
+   "fps": 20.8,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.30]",
+   "driver_version": "0.1.30",
+   "settings": {
+    "resolution": "1600x1200",
+    "gl_mode": 9,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "retrogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  }
+ ],
+ "screenshot": null
+}

@@ -56,6 +56,29 @@ Q2_GLIDE3X_SRC = r"C:\Quake III Arena\Quake3\glide3x.dll"
 Q2_MODES = {3: "640x480", 4: "800x600", 5: "960x720", 6: "1024x768",
             7: "1152x864", 8: "1280x960", 9: "1600x1200"}
 
+# Unreal Tournament (UT99 v436, OpenGLDrv) — FULLY AUTOMATED via keybinds + the
+# community-standard UTbench.dem demo. Fully-automated flow (main hurdle: UT's
+# "Recovery Mode" dialog after any force-kill blocks launch until you click "Run
+# Unreal Tournament"; the timedemo result renders on the fullscreen HUD and UT
+# holds its log locked until a CLEAN exit):
+#   1. Stage our ICD as System\opengl32.dll + glide3x.dll + UTbench.dem (from the
+#      share / benchmarks/demos_UTbench.dem), and bind in User.ini [Engine.Input]:
+#        F9 = timedemo 1|demoplay UTbench.dem     (run the timedemo)
+#        F10 = Exit                                (clean shutdown -> flush log,
+#                                                   and NO recovery dialog next run)
+#   2. Launch `UnrealTournament.exe -log=bench.log -nosound` (to menu).
+#   3. Auto-dismiss the recovery dialog: UICLICK 512 280 (the "Run Unreal
+#      Tournament" button on a 640x480 desktop).
+#   4. UIKEY F9 -> timedemo plays UTbench.dem (DM-Gothic).
+#   5. UIKEY F10 -> clean exit -> read System\bench.log for
+#      "N frames rendered in S seconds. Min .. Max .. Avg X.XX fps."
+# NOTE: launching `UnrealTournament.exe UTbench.dem?timedemo=1` does NOT work —
+# UT treats the .dem as a network HOST (WSAHOST_NOT_FOUND); must use `demoplay`.
+UT_DIR = r"C:\Games\Unreal Tournament (Installed)\System"
+UT_DIR_SHORT = r"C:\GAMES\UNREAL~1\System"     # LAUNCH is broken on .124; EXEC+start needs 8.3
+UT_DEMO = "UTbench.dem"
+UT_RECOVERY_BTN = (512, 280)                   # "Run Unreal Tournament" @640x480
+
 # ---------------------------------------------------------------------------
 # Quality / video-card settings — recorded IN FULL on every run, and swept
 # ---------------------------------------------------------------------------
@@ -372,6 +395,66 @@ async def quake2_timedemo(ip, q2dir, demo, gl_mode, gl_driver, env):
     return fps, gl
 
 
+async def ut_ensure_binds(c):
+    """Ensure UT User.ini has F9=run-timedemo and F10=Exit (idempotent). These make
+    UT scriptable: F9 plays UTbench.dem under timedemo, F10 exits cleanly (flushes
+    the locked log AND prevents the next-run recovery dialog)."""
+    try:
+        data = await c.command_binary("DOWNLOAD %s\\User.ini" % UT_DIR)
+        txt = data.decode("latin-1")
+    except Exception:
+        return
+    orig = txt
+    txt = re.sub(r'\bF9=[^\r\n]*', 'F9=timedemo 1|demoplay %s' % UT_DEMO, txt, count=1)
+    txt = re.sub(r'\bF10=[^\r\n]*', 'F10=Exit', txt, count=1)
+    if txt != orig:
+        await c.send_command("UPLOAD %s\\User.ini" % UT_DIR, binary_payload=txt.encode("latin-1"))
+
+
+async def ut_timedemo(ip):
+    """One UT99 UTbench.dem timedemo run, FULLY AUTOMATED. Returns (fps, gl).
+    Needs our ICD staged as UT System\\opengl32.dll + glide3x.dll + UTbench.dem
+    (see the module docstring for the flow / why command-line demo play fails)."""
+    log = r"%s\bench.log" % UT_DIR
+    c = await connect(ip)
+    await kill_wait(c, "UnrealTournament.exe")
+    await ut_ensure_binds(c)
+    await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 12)
+    # 640x480x16 desktop so the recovery-dialog button is at UT_RECOVERY_BTN
+    try:
+        await c.command_text("DISPLAYCFG set 640 480 16 75", timeout=20)
+        await asyncio.sleep(2)
+    except Exception:
+        pass
+    await exw(c, r'cmd /c cd /d "%s" ^&^& start "" UnrealTournament.exe -log=bench.log -nosound'
+              % UT_DIR_SHORT, 12)
+    await c.close()
+    await asyncio.sleep(9)
+    c = await connect(ip)
+    # auto-dismiss the "Recovery Mode" dialog (click "Run Unreal Tournament")
+    await c.command_text("UICLICK %d %d" % UT_RECOVERY_BTN, timeout=10)
+    await asyncio.sleep(18)                          # intro flyby -> main menu
+    await c.command_text("UIKEY F9", timeout=10)     # timedemo 1 | demoplay UTbench.dem
+    await c.close()
+    await asyncio.sleep(95)                           # demo plays through
+    c = await connect(ip)
+    await c.command_text("UIKEY F10", timeout=10)    # clean Exit -> flush + release log
+    await asyncio.sleep(5)
+    await kill_wait(c, "UnrealTournament.exe")
+    fps = gl = None
+    txt = await exw(c, r'cmd /c type "%s" 2>nul' % log, 25)
+    m = re.search(r"frames rendered in [\d.]+ seconds\.\s*Min [\d.]+ Max [\d.]+ Avg ([\d.]+) fps", txt)
+    if m:
+        fps = float(m.group(1))
+    gl = next((l.split("GL_RENDERER):", 1)[1].strip() for l in txt.splitlines() if "GL_RENDERER" in l), gl)
+    try:
+        await c.command_text("DISPLAYCFG set 1024 768 32 75", timeout=20)
+    except Exception:
+        pass
+    await c.close()
+    return fps, gl
+
+
 # scenes for quality capture: (label, extra-cvars). "menu" exercises the 2D
 # proportional-font path (text/menu quality); "q3dm1" a textured 3D world.
 QUALITY_SCENES = {
@@ -497,7 +580,7 @@ async def main():
     ap.add_argument("--q2demo", default=Q2_DEMO, help="baseq2 demo, e.g. demo1.dm2")
     ap.add_argument("--q2modes", default="3,6", help="Q2 gl_mode list (3=640x480,6=1024x768)")
     ap.add_argument("--q2driver", default=Q2_GLDRIVER, help="Q2 gl_driver (3dfxgl works; retrogl=our ICD)")
-    ap.add_argument("--game", default="q3", choices=["q3", "cs16", "q2", "both", "all"],
+    ap.add_argument("--game", default="q3", choices=["q3", "cs16", "q2", "ut", "both", "all"],
                     help="which benchmark(s) to run (default q3)")
     ap.add_argument("--cs16dir", default=CS16_DIR)
     ap.add_argument("--cs16demo", default=CS16_DEMO, help="cstrike\\<name>.dem to timedemo")
@@ -621,6 +704,18 @@ async def main():
                                           "vid_fullscreen": "1",
                                           "fsaa": "none (Voodoo3 has no T-buffer)"}})
                 print("q2 %s run %d: %s fps [driver %s]" % (label, run, fps, ver))
+
+    if args.game in ("ut", "all"):
+        for run in range(1, args.runs + 1):
+            fps, gl = await ut_timedemo(args.ip)
+            ver = ver_of(gl)
+            runs.append({"benchmark": "ut99-utbench", "resolution": "640x480", "run": run,
+                         "fps": fps, "gl_renderer": gl, "driver_version": ver,
+                         "settings": {"resolution": "640x480", "engine": "UT99 v436/OpenGLDrv",
+                                      "demo": UT_DEMO, "map": "DM-Gothic", "colorbits": "16",
+                                      "renderer": "OpenGL (our ICD)",
+                                      "fsaa": "none (Voodoo3 has no T-buffer)"}})
+            print("ut UTbench run %d: %s fps [driver %s]" % (run, fps, ver))
 
     outdir = os.path.join(REPO, "benchmarks")
     # Quality capture (--screenshot): grab BOTH a 3D scene AND the menu (the 2D
