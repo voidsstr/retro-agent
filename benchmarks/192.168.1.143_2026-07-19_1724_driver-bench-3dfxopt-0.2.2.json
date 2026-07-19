@@ -1,0 +1,280 @@
+{
+ "machine_ip": "192.168.1.143",
+ "ts": "2026-07-19T17:24:47",
+ "cpu": "x86 ~1000MHz",
+ "stack": {
+  "display_driver": "unrecognized (689216 B)",
+  "glide3x": "unrecognized (595644 B)",
+  "icd": "3dfxogl (H5-source OpenGL ICD)",
+  "stack_composition": "3dfx-driver-optimized"
+ },
+ "env": "none",
+ "changes": "full-suite quality verification run (user request)",
+ "q3_timedemo": [
+  {
+   "benchmark": "q3-timedemo-four",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 1,
+   "fps": 72.2,
+   "gl_renderer": "3Dfx [retro3dfx 0.2.2]",
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "r_mode": 3,
+    "demo": "four.dm_66",
+    "q3_version": "1.32",
+    "r_colorbits": "16",
+    "r_texturebits": "16",
+    "r_textureMode": "GL_LINEAR_MIPMAP_LINEAR",
+    "r_picmip": "0",
+    "r_ext_compressed_textures": "0",
+    "r_overBrightBits": "1",
+    "r_mapOverBrightBits": "2",
+    "r_vertexLight": "0",
+    "r_dynamiclight": "1",
+    "r_subdivisions": "2",
+    "r_lodCurveError": "10000",
+    "r_lodBias": "-0.5",
+    "r_detailtextures": "1",
+    "r_flares": "0",
+    "r_fastsky": "0",
+    "r_finish": "0",
+    "fsaa": "none (Voodoo3 has no T-buffer)",
+    "anisotropic": "none",
+    "quality_profile": "max"
+   }
+  },
+  {
+   "benchmark": "q3-timedemo-four",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 2,
+   "fps": 71.7,
+   "gl_renderer": "3Dfx [retro3dfx 0.2.2]",
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "r_mode": 3,
+    "demo": "four.dm_66",
+    "q3_version": "1.32",
+    "r_colorbits": "16",
+    "r_texturebits": "16",
+    "r_textureMode": "GL_LINEAR_MIPMAP_LINEAR",
+    "r_picmip": "0",
+    "r_ext_compressed_textures": "0",
+    "r_overBrightBits": "1",
+    "r_mapOverBrightBits": "2",
+    "r_vertexLight": "0",
+    "r_dynamiclight": "1",
+    "r_subdivisions": "2",
+    "r_lodCurveError": "10000",
+    "r_lodBias": "-0.5",
+    "r_detailtextures": "1",
+    "r_flares": "0",
+    "r_fastsky": "0",
+    "r_finish": "0",
+    "fsaa": "none (Voodoo3 has no T-buffer)",
+    "anisotropic": "none",
+    "quality_profile": "max"
+   }
+  },
+  {
+   "benchmark": "cs16-timedemo",
+   "resolution": "640x480",
+   "mode": null,
+   "run": 1,
+   "fps": null,
+   "gl_renderer": null,
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "engine": "GoldSrc/hl.exe",
+    "demo": "bench.dem",
+    "renderer": "OpenGL (our ICD)",
+    "colorbits": "16",
+    "gl_texturemode": "GL_LINEAR_MIPMAP_LINEAR",
+    "gl_max_size": "256",
+    "gl_picmip": "0",
+    "gl_round_down": "0",
+    "gl_overbright": "1",
+    "r_mmx": "1",
+    "fps_max": "0",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "cs16-timedemo",
+   "resolution": "640x480",
+   "mode": null,
+   "run": 2,
+   "fps": null,
+   "gl_renderer": null,
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "engine": "GoldSrc/hl.exe",
+    "demo": "bench.dem",
+    "renderer": "OpenGL (our ICD)",
+    "colorbits": "16",
+    "gl_texturemode": "GL_LINEAR_MIPMAP_LINEAR",
+    "gl_max_size": "256",
+    "gl_picmip": "0",
+    "gl_round_down": "0",
+    "gl_overbright": "1",
+    "r_mmx": "1",
+    "fps_max": "0",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 1,
+   "fps": 179.8,
+   "gl_renderer": "3Dfx",
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "gl_mode": 3,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "3dfxogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 2,
+   "fps": 179.4,
+   "gl_renderer": "3Dfx",
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "gl_mode": 3,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "3dfxogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "1024x768",
+   "mode": 6,
+   "run": 1,
+   "fps": 168.4,
+   "gl_renderer": "3Dfx",
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "1024x768",
+    "gl_mode": 6,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "3dfxogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "1024x768",
+   "mode": 6,
+   "run": 2,
+   "fps": 168.5,
+   "gl_renderer": "3Dfx",
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "1024x768",
+    "gl_mode": 6,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "3dfxogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "ut99-utbench",
+   "resolution": "640x480",
+   "run": 1,
+   "fps": null,
+   "gl_renderer": null,
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "engine": "UT99 v436/OpenGLDrv",
+    "demo": "UTbench.dem",
+    "map": "DM-Gothic",
+    "colorbits": "16",
+    "renderer": "OpenGL (our ICD)",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "ut99-utbench",
+   "resolution": "640x480",
+   "run": 2,
+   "fps": null,
+   "gl_renderer": null,
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "engine": "UT99 v436/OpenGLDrv",
+    "demo": "UTbench.dem",
+    "map": "DM-Gothic",
+    "colorbits": "16",
+    "renderer": "OpenGL (our ICD)",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "rtcw-wolfbench",
+   "resolution": "640x480",
+   "run": 1,
+   "fps": null,
+   "gl_renderer": null,
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "engine": "idTech3/RtCW WolfMP",
+    "demo": "wolfbench.dm_60",
+    "map": "mp_beach",
+    "colorbits": "16",
+    "renderer": "OpenGL (our ICD via gl/openglv5.dll)",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "rtcw-wolfbench",
+   "resolution": "640x480",
+   "run": 2,
+   "fps": null,
+   "gl_renderer": null,
+   "driver_version": "3dfxopt-0.2.2",
+   "settings": {
+    "resolution": "640x480",
+    "engine": "idTech3/RtCW WolfMP",
+    "demo": "wolfbench.dm_60",
+    "map": "mp_beach",
+    "colorbits": "16",
+    "renderer": "OpenGL (our ICD via gl/openglv5.dll)",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  }
+ ],
+ "screenshot": "/home/voidsstr/development/retro-agent/benchmarks/quality_q3dm1.png"
+}

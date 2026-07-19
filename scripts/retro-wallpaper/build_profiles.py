@@ -395,6 +395,23 @@ MACHINES = [
         ],
     },
     {
+        "host": "192.168.1.240", "hostname": "USER-41EA3B3330",
+        "title": "Athlon 64 / Radeon 9800 XT Rig - Windows XP",
+        "width": 1024, "height": 768,
+        "accent": [235, 70, 70], "accent2": [120, 200, 90],
+        "cpu_year": 2005, "gpu_year": 2004,
+        "cpu_label": "AMD Athlon 64 3300+ - launched 2004",
+        "gpu_label": "ATI Radeon 9800 XT - launched 2003",
+        "specs": [
+            ["CPU", "Athlon 64 3300+ 2.4GHz"],
+            ["GPU", "Radeon 9800 XT (dual)"],
+            ["RAM", "1536 MB"],
+            ["OS", "Windows XP Pro SP3"],
+            ["DISPLAY", "1024 x 768 @ 100Hz 32bpp"],
+            ["STORAGE", "76 GB fixed"],
+        ],
+    },
+    {
         "host": "192.168.1.145", "hostname": "DELL",
         "title": "Sandy Bridge Workstation - Windows XP",
         "width": 1920, "height": 1080,
