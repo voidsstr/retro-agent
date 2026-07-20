@@ -8,7 +8,7 @@ Newest first.
 
 ---
 
-## 2026-07-20 — In-game resolution switch (vid_restart) hard-crashes the box — DO NOT
+## 2026-07-20 — In-game resolution switch (vid_restart) wedge — FIXED (0.1.31)
 
 **Symptom.** Changing resolution IN-GAME (e.g. Q2 video menu 640->1024x768, which
 runs `vid_restart`) hard-crashes the whole box: quake2.exe dies AND the Voodoo3
