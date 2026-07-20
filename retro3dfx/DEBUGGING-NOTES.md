@@ -8,6 +8,35 @@ Newest first.
 
 ---
 
+## 2026-07-20 — In-game resolution switch (vid_restart) hard-crashes the box — DO NOT
+
+**Symptom.** Changing resolution IN-GAME (e.g. Q2 video menu 640->1024x768, which
+runs `vid_restart`) hard-crashes the whole box: quake2.exe dies AND the Voodoo3
+board is left wedged, so the agent's next GDI call hangs and the machine goes
+unreachable. The watchdog can't recover it (the game already exited, so there's no
+hung game to kill). Requires a manual power-cycle.
+
+**Root cause.** `vid_restart` destroys and recreates the GL context in-process:
+`grSstWinClose` -> (last context) `grGlideShutdown` -> `grGlideInit` -> `grSstWinOpen`
+at the NEW resolution. That is a full Glide teardown+reinit with a hardware
+mode-change mid-flight. On the Voodoo3 (Avenger) this in-process mode change is
+fragile and wedges the board/display. This is a known 3dfx limitation — many Glide
+games required a RESTART to change resolution for exactly this reason. (Launching
+fresh at ANY resolution is rock-solid — the full 640..1600x1200 sweeps prove it;
+it's only the in-process switch that wedges.)
+
+**Guidance / workaround (per user decision 2026-07-20 — document, don't fix).**
+Change resolution by RESTARTING the game at the new resolution, not via the
+in-game menu. The Q2 resolution launchers do exactly this and are all stable:
+`Quake_II_640x480_120Hz.bat` / `_800x600_` / `_1024x768_` / `_1280x1024_` (all use
+the stable `retrogl` ICD + the right `gl_mode`). Same rule for the other idTech
+games: pick a resolution at launch. A driver-side fix would be possible (keep Glide
+initialized across the recreate instead of shutdown+reinit; reset the display mode
+cleanly between close/open) but every test attempt crashes the box, so it needs a
+supervised session — deferred by choice.
+
+---
+
 ## 2026-07-19 — Q2 "crashes when run normally" = launcher used the stock 3dfxgl path
 
 **Symptom.** User launched Quake II normally and it crashed.
