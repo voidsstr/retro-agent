@@ -16,6 +16,27 @@ recover — be deliberate, back up first, and follow the fleet rules in CLAUDE.m
 - **Never raw-copy over `system32\` / `system32\drivers\` files** — XP WFP
   silently reverts them. Install must go through SetupAPI/PnP (the package's
   `updrv.exe`/`INSTALL.bat`), never `FILECOPY` into system32.
+
+**WFP (Windows File Protection) — why files revert, and how to stop it:**
+- WFP guards only files that have a **`C:\WINDOWS\system32\dllcache\` twin**
+  (its restore-from set). Check with `dir dllcache\<file>`: if it's there, WFP
+  tracks it and will revert a raw overwrite to the cached version.
+- **Two durable escapes (both proven on .143):**
+  1. **WFP-renamed driver files** — ship the display driver under a name the
+     inbox catalog doesn't list (we use `3dfxv5d.dll`/`3dfxv5m.sys`, not the
+     inbox `3dfxvs.dll`/`3dfxvsm.sys`). A non-cataloged name is never tracked.
+     `dir dllcache` confirms ours are absent → WFP can't touch them.
+  2. **Seed dllcache with your version** — for any file that MUST keep the
+     inbox name, `copy /Y yourfile C:\WINDOWS\system32\dllcache\<name>` first;
+     then a WFP "restore" restores *your* file. (Do this before the system32
+     copy.)
+- **Our ICD test files are game-local** (`<game>\opengl32.dll` / `3dfxogl.dll`)
+  and are **never WFP-tracked** — ICD iteration needs no WFP handling at all.
+- **Registry disable** (`Winlogon\SFCDisable=0xffffff9d`, `SFCScan=0`): set it
+  if asked, but on **XP SP2/SP3 it needs a reboot and strictly an `sfc_os.dll`
+  patch to fully take** — do NOT rely on it alone. Prefer the rename / dllcache
+  escapes above, which work immediately with no reboot. (.143 has the registry
+  values set, 2026-07-20, as belt-and-suspenders.)
 - **Confirm with the user before touching the machine** — after preflight,
   present the plan (target, card, HWID, package version) and wait for a go.
 - Do not deploy to Win98 boxes. This driver pair is the W2K/XP build only.
