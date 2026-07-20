@@ -162,6 +162,31 @@ Parse the output for the `UPDRV:` result line:
 5. Optional: offer the **retro-benchmark** skill for before/after A/B numbers
    against the in-box driver.
 
+## Step 7 — OpenGL ICD: update EVERY game-local copy (CRITICAL)
+
+The display-driver install above does NOT get a new `3dfxogl.dll` into games.
+Windows' LoadLibrary checks the **game's own directory before system32**, and
+fleet games carry app-local GL DLLs — they silently keep running an old ICD
+if you only update system32 (this cost a full day on .143: the "fixed" driver
+wasn't the one CS/Q3 loaded).
+
+1. Inventory every copy: `EXECW 180 cmd /c dir /s /b C:\opengl32.dll C:\3dfxogl.dll`
+   (known on .143: Q3 dir has BOTH `opengl32.dll` and `3dfxogl.dll` — which one
+   loads is decided by `r_glDriver` in q3config.cfg, keep them identical; both
+   CS installs, Quake2, and UT GOTY System each have `opengl32.dll`).
+2. **Kill every GL game first** (`taskkill /f /im quake3.exe`, `hl.exe`, …) — a
+   loaded DLL is locked and `copy /Y` fails; check each copy's output for
+   `1 file(s) copied`, don't assume.
+3. Stage the new ICD once, `copy /Y` it over every inventoried path (keep a
+   `.preNNN` backup on first replacement). NEVER touch
+   `system32\opengl32.dll`/`dllcache\opengl32.dll` (Microsoft's, WFP).
+4. Verify by renderer string, not file size (builds are often same-size):
+   the GL console of any game shows `3Dfx [retro3dfx X.Y.Z]`.
+5. Never launch a second fullscreen GL game while one runs — Glide surface
+   collision can wedge the box for minutes.
+
+Full write-up ships in the driver package: `dist/<pkg>/DEPLOYMENT.txt`.
+
 ## Rollback (three ways, in order of preference)
 
 1. **XP Driver Roll Back (remote, no console needed):** screenshot-click loop —
