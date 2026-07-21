@@ -76,7 +76,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 (The vintage SGL/H5 fixes — garble 0.3.1, mip-download 08fd889 — are tested in
 `retro-3dfx/tests/`, the other lane's harness, not here.)
 
-**Backlog for OUR stack** (from `retro3dfx/CHANGELOG.md`, 0.1.x): swap-interval
+**Backlog for OUR stack** (from `voodoo-cleanroom/CHANGELOG.md`, 0.1.x): swap-interval
 env default (0.1.6), LOD-bias default (0.1.11), alpha-PFD matcher +
 paletted-default-off (0.1.30), vertex cache (0.1.3), Q2 glide3x-binding (0.1.19);
 agent-C — `handle_execw` timeout clamp, `discovery_build_packet` ⇄ Python

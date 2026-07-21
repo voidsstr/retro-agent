@@ -69,31 +69,31 @@ Do this proactively, the same way you keep `FINDINGS.md` current.
 There are **two different 3dfx codebases** in play. Do not conflate them — the
 fixes, files, build tools, versions, and even the OpenGL renderer string differ.
 
-### 1. OUR open-source stack = `retro-agent/retro3dfx/` (this is "the driver we build")
+### 1. OUR open-source stack = `retro-agent/voodoo-cleanroom/` (this is "the driver we build")
 
 A complete, self-built Voodoo stack from genuinely open source (3dfx's 2000 Glide
 GPL release + MIT Mesa). Three components, all our forks/code — provenance in
-`retro3dfx/FORKS.md`:
+`voodoo-cleanroom/FORKS.md`:
 
 | Component | Fork / repo | Upstream | Source (local, gitignored clone) | Builds to |
 |---|---|---|---|---|
-| **OpenGL ICD (MesaFX)** | `voidsstr/retro3dfx-gl` | `sezero/MesaFX-6.2` (Brian Paul) | `retro3dfx/build/retro3dfx-gl/src/mesa/drivers/glide/fx*.c` | `retro3dfx/out/opengl32_retail.dll` (~2.7 MB) |
-| **Glide** | `voidsstr/retro3dfx-glide` | `sezero/glide` | `retro3dfx/build/retro3dfx-glide/` | `retro3dfx/out/glide3x.dll` |
-| **Display driver** | `retro3dfx/retro3dfx-disp/` (OUR original code, GDI_DRIVER) | modeled on Device3Dfx/RISCyVoodoo/vmdisp9x | `retro3dfx/retro3dfx-disp/*.c` | `retro3dfx-disp.dll` |
+| **OpenGL ICD (MesaFX)** | `voidsstr/retro3dfx-gl` | `sezero/MesaFX-6.2` (Brian Paul) | `voodoo-cleanroom/build/retro3dfx-gl/src/mesa/drivers/glide/fx*.c` | `voodoo-cleanroom/out/opengl32_retail.dll` (~2.7 MB) |
+| **Glide** | `voidsstr/retro3dfx-glide` | `sezero/glide` | `voodoo-cleanroom/build/retro3dfx-glide/` | `voodoo-cleanroom/out/glide3x.dll` |
+| **Display driver** | `voodoo-cleanroom/vcr-disp/` (OUR original code, GDI_DRIVER) | modeled on Device3Dfx/RISCyVoodoo/vmdisp9x | `voodoo-cleanroom/vcr-disp/*.c` | `vcr-disp.dll` |
 
-- **Build:** `bash retro3dfx/build-stack.sh` once (builds glide + the gl SDK/headers),
-  then `bash retro3dfx/build-mesafx-retail.sh` → `out/opengl32_retail.dll`.
+- **Build:** `bash voodoo-cleanroom/build-stack.sh` once (builds glide + the gl SDK/headers),
+  then `bash voodoo-cleanroom/build-mesafx-retail.sh` → `out/opengl32_retail.dll`.
   Toolchain: **mingw `i686-w64-mingw32-gcc` (gcc-13)**; flags
   `-O2 -ffast-math -march=pentium3 -mtune=pentium3 -mfpmath=sse`. ("retail" =
   links the retail AmigaMerlin glide import lib; the non-retail path links our
   `retro3dfx-glide`.)
-- **Version:** `retro3dfx/VERSION` (0.1) + `.buildnum` → **0.1.N**;
-  `GL_RENDERER = "Mesa Glide v0.62 ... [retro3dfx 0.1.N]"`.
+- **Version:** `voodoo-cleanroom/VERSION` (0.1) + `.buildnum` → **0.1.N**;
+  `GL_RENDERER = "Mesa Glide v0.62 ... [voodoo-cleanroom 0.1.N]"`.
 - **Deploy:** to **.124** as game-local `opengl32.dll` / system32 `retrogl.dll`
   (**game-local shadows system32** — deploy to both or neutralize game-local when
   A/B-ing). See the `deploy-3dfx-driver` skill.
 - **Tests:** `bash tests/run_all.sh` (Python client + agent-C + MesaFX ICD logic).
-- **Fix versions live in `retro3dfx/CHANGELOG.md`** (0.1.x): fx_pack_ub SSE clamp
+- **Fix versions live in `voodoo-cleanroom/CHANGELOG.md`** (0.1.x): fx_pack_ub SSE clamp
   (0.1.2), vertex cache (0.1.3), swap-interval (0.1.6), LOD-bias (0.1.11), Q2
   glide3x (0.1.19), gamma/dither/alpha-PFD (0.1.30), etc.
 
@@ -104,7 +104,7 @@ but it is a *different* codebase from our open stack:
 
 - **Display driver + full D3D/DDraw HAL:** `retro-3dfx/3dfx Driver Code/H5/W2K/Src/Video/Displays/H5/`
   → `3dfxvs.dll` (Wine/**MSVC DDK**), WFP-renamed `3dfxv3d.dll` (.124) / `3dfxv5d.dll` (.143).
-  **This is what currently provides the D3D HAL + 2D on .124** (our `retro3dfx-disp`
+  **This is what currently provides the D3D HAL + 2D on .124** (our `vcr-disp`
   is the minimal cooperative driver, no full D3D HAL yet).
 - **Vintage SGI/3dfx SGL OpenGL ICD:** `retro-3dfx/3dfx Driver Code/SWLIBS/OPENGL/GLIDE3X/`
   ("Copyright 1991-1997, Silicon Graphics, Inc.", `__glSST*` naming) → `opengl.dll`
@@ -121,12 +121,12 @@ but it is a *different* codebase from our open stack:
 | files | `src/mesa/drivers/glide/fx*.c` | `SST_*.c`, `sst_export.c`, `__glSST*` |
 | build | mingw gcc-13 | Wine/MSVC |
 | size / version | ~2.7 MB / **0.1.x** | ~704 KB / **0.2.x–0.3.x** |
-| renderer | `Mesa Glide v0.62 [retro3dfx 0.1.N]` | `[retro3dfx 0.2.x]` |
+| renderer | `Mesa Glide v0.62 [voodoo-cleanroom 0.1.N]` | `[retro3dfx 0.2.x]` (the vintage lane's own brand) |
 | lane | **.124 (ours)** | .143 (other agent) |
 
 **Current .124 deployment is a HYBRID:** OUR MesaFX ICD (open) + retail AmigaMerlin
 glide + vintage H5 display/D3D driver — converging toward the all-open stack
-(retro3dfx-gl + retro3dfx-glide + retro3dfx-disp).
+(retro3dfx-gl + retro3dfx-glide + vcr-disp).
 
 **Before writing a driver test or "fixing" an ICD bug, confirm which ICD it's in**
 (renderer string / file path / version number above). A 0.3.x fix in `SWLIBS`

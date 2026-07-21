@@ -1,5 +1,5 @@
 /*
- * disp_hw.c - retro3dfx-disp hardware layer: find the Voodoo, read its PCI BARs,
+ * disp_hw.c - vcr-disp hardware layer: find the Voodoo, read its PCI BARs,
  * and map them into the Glide process (what HWCEXT_GETLINEARADDR hands back).
  *
  * This is the Windows equivalent of the open Linux Device3Dfx driver: Device3Dfx
@@ -19,7 +19,7 @@
  * REQUIRES the DDK (winddi.h / wdm.h / video.h). Structure + logic are written
  * against the Device3Dfx model; compile/validate in the DDK env (fleet DDK).
  */
-#include "retro3dfx_hwcext.h"
+#include "vcr_hwcext.h"
 
 /* mirror of the adapter struct disp_escape.c uses (kept in sync there). */
 typedef struct {

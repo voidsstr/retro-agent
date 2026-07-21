@@ -4,7 +4,7 @@
 
 > ### 🚀 retro3dfx: an open-source 3dfx Voodoo driver stack, optimized past what 3dfx shipped
 >
-> Using this agent as the remote harness, we built and tuned a **complete Voodoo 3/4/5 driver stack** — XP kernel display driver, Glide, and a Mesa-based OpenGL ICD — **based on genuinely open source code** (3dfx's 2000 Glide open release and the MIT-licensed Mesa), and iterated on it with a fully tracked benchmark→optimize→measure loop until it **beat the community-standard AmigaMerlin driver on real hardware** (and the era 3dfx official ICD at 1024x768). See [retro3dfx — An Open-Source Driver Stack for 3dfx Voodoo Cards](#retro3dfx--an-open-source-driver-stack-for-3dfx-voodoo-cards) and [The Driver Optimization Process](#the-driver-optimization-process).
+> Using this agent as the remote harness, we built and tuned a **complete Voodoo 3/4/5 driver stack** — XP kernel display driver, Glide, and a Mesa-based OpenGL ICD — **based on genuinely open source code** (3dfx's 2000 Glide open release and the MIT-licensed Mesa), and iterated on it with a fully tracked benchmark→optimize→measure loop until it **beat the community-standard AmigaMerlin driver on real hardware** (and the era 3dfx official ICD at 1024x768). See [voodoo-cleanroom — An Open-Source Driver Stack for 3dfx Voodoo Cards](#retro3dfx--an-open-source-driver-stack-for-3dfx-voodoo-cards) and [The Driver Optimization Process](#the-driver-optimization-process).
 
 > ### 🖥️ New: the Retro Chat **brain** — a full Claude agent, on a 25‑year‑old OS
 >
@@ -617,7 +617,7 @@ retro-agent/
 +-- client/                 # Python async client library
 |   +-- retro_protocol.py   # TCP protocol client (RetroConnection)
 |   +-- retro_discovery.py  # UDP LAN discovery
-+-- retro3dfx/              # Open-source 3dfx Voodoo driver stack (see below)
++-- voodoo-cleanroom/              # Open-source 3dfx Voodoo driver stack (see below)
 +-- benchmarks/             # Driver benchmark results (JSON per run + conventions)
 +-- provisioning/           # Installation scripts and registry templates
 |   +-- win98/
@@ -630,7 +630,7 @@ retro-agent/
 
 ## retro3dfx — An Open-Source Driver Stack for 3dfx Voodoo Cards
 
-3dfx died in 2000 and its Windows drivers froze with it. [`retro3dfx/`](retro3dfx/README.md)
+3dfx died in 2000 and its Windows drivers froze with it. [`voodoo-cleanroom/`](voodoo-cleanroom/README.md)
 is our answer: run **Quake 3** (OpenGL) and **Unreal Tournament** (Glide) on real
 Voodoo 3/4/5 hardware with **every layer — from the XP kernel display driver up
 to the OpenGL ICD — built by us from source**, so the whole stack can be
@@ -646,7 +646,7 @@ optimized past what 3dfx ever shipped.
         │  register / FIFO writes
         ▼
    [1] XP kernel display driver           3dfxvsm.sys + 3dfxvs.dll (our build);
-        │                                 retro3dfx-disp = clean-room alternative
+        │                                 vcr-disp = clean-room alternative
         ▼
    Voodoo 3 / Voodoo 5 hardware
 ```
@@ -655,7 +655,7 @@ The three layers:
 
 | Layer | What we build | Source base |
 |---|---|---|
-| **[1] Kernel display driver** | `3dfxvsm.sys` (miniport) + `3dfxvs.dll` (XPDM display driver incl. D3D HAL) | Compiled with a Wine-hosted VC6 + W2K-DDK toolchain (sibling `retro-3dfx` repo). A clean-room track, `retro3dfx-disp/`, is in progress. |
+| **[1] Kernel display driver** | `3dfxvsm.sys` (miniport) + `3dfxvs.dll` (XPDM display driver incl. D3D HAL) | Compiled with a Wine-hosted VC6 + W2K-DDK toolchain (sibling `retro-3dfx` repo). A clean-room track, `vcr-disp/`, is in progress. |
 | **[2] Glide (glide3x.dll)** | Retail-ABI Glide3 (96 exports, byte-compatible export list with the vintage Nov-2000 DLL) | Our deployed build, plus [voidsstr/retro3dfx-glide](https://github.com/voidsstr/retro3dfx-glide) (fork of sezero/glide) as the gcc-13 cross-built optimization vehicle |
 | **[3] OpenGL ICD** | `retrogl.dll` — Mesa 6.2.2 OpenGL-over-Glide3, where the performance work lives | [voidsstr/retro3dfx-gl](https://github.com/voidsstr/retro3dfx-gl) (fork of sezero/MesaFX-6.2) |
 
@@ -679,36 +679,36 @@ GitHub forks of genuinely open upstreams: Glide under the **3dfx Glide Source
 Code General Public License** (3dfx's authentic 2000 open release, open and
 redistributable) and MesaFX under the **MIT/Mesa license** (Brian Paul et al.).
 Both forks preserve the upstream license files; provenance is documented in
-[`retro3dfx/FORKS.md`](retro3dfx/FORKS.md). The clean-room `retro3dfx-disp`
+[`voodoo-cleanroom/FORKS.md`](voodoo-cleanroom/FORKS.md). The clean-room `vcr-disp`
 display driver is original code, *modeled on* open references (Device3Dfx,
 RISCyVoodoo, vmdisp9x) — read for structure, not copied.
 
-Everything is documented in [`retro3dfx/README.md`](retro3dfx/README.md)
-(architecture, ABI gotchas, build system), [`retro3dfx/CHANGELOG.md`](retro3dfx/CHANGELOG.md)
-(per-version changes and rationale), [`retro3dfx/FORKS.md`](retro3dfx/FORKS.md)
+Everything is documented in [`voodoo-cleanroom/README.md`](voodoo-cleanroom/README.md)
+(architecture, ABI gotchas, build system), [`voodoo-cleanroom/CHANGELOG.md`](voodoo-cleanroom/CHANGELOG.md)
+(per-version changes and rationale), [`voodoo-cleanroom/FORKS.md`](voodoo-cleanroom/FORKS.md)
 (fork provenance and licenses).
 
 ### Stack layout — where the files live, build & test
 
-Our open-source stack lives under [`retro3dfx/`](retro3dfx/); the vintage 3dfx
+Our open-source stack lives under [`voodoo-cleanroom/`](voodoo-cleanroom/); the vintage 3dfx
 H5 source it's contrasted with lives in the sibling `retro-3dfx` repo. Full
 orientation (and the two-ICD gotcha) is in `CLAUDE.md` → "Driver Stack Map".
 
 | | Source | Build | Output / deploy |
 |---|---|---|---|
-| **OpenGL ICD (MesaFX, ours)** | `retro3dfx/build/retro3dfx-gl/src/mesa/drivers/glide/fx*.c` (fork of sezero/MesaFX-6.2) | `retro3dfx/build-stack.sh` once, then `retro3dfx/build-mesafx-retail.sh` (mingw gcc-13, `-march=pentium3 -mfpmath=sse -ffast-math`) | `retro3dfx/out/opengl32_retail.dll` (~2.7 MB) → `retrogl.dll` on .124 |
-| **Glide (ours)** | `retro3dfx/build/retro3dfx-glide/` (fork of sezero/glide) | `retro3dfx/build-stack.sh` | `retro3dfx/out/glide3x.dll` |
-| **Display driver (ours)** | `retro3dfx/retro3dfx-disp/*.c` (original, GDI_DRIVER) | W2K-DDK | `retro3dfx-disp.dll` (clean-room track) |
+| **OpenGL ICD (MesaFX, ours)** | `voodoo-cleanroom/build/retro3dfx-gl/src/mesa/drivers/glide/fx*.c` (fork of sezero/MesaFX-6.2) | `voodoo-cleanroom/build-stack.sh` once, then `voodoo-cleanroom/build-mesafx-retail.sh` (mingw gcc-13, `-march=pentium3 -mfpmath=sse -ffast-math`) | `voodoo-cleanroom/out/opengl32_retail.dll` (~2.7 MB) → `retrogl.dll` on .124 |
+| **Glide (ours)** | `voodoo-cleanroom/build/retro3dfx-glide/` (fork of sezero/glide) | `voodoo-cleanroom/build-stack.sh` | `voodoo-cleanroom/out/glide3x.dll` |
+| **Display driver (ours)** | `voodoo-cleanroom/vcr-disp/*.c` (original, GDI_DRIVER) | W2K-DDK | `vcr-disp.dll` (clean-room track) |
 | **Vintage H5 display + D3D HAL** | `retro-3dfx/3dfx Driver Code/H5/W2K/.../Displays/H5/` | Wine/VC6 DDK | `3dfxvs.dll` → `3dfxv3d.dll` (currently provides D3D HAL on .124) |
 | **Vintage SGL ICD** (SGI 1991-97; **not** ours) | `retro-3dfx/3dfx Driver Code/SWLIBS/OPENGL/GLIDE3X/` | Wine/VC6 | `opengl.dll` (~704 KB) — the **.143 pure-3dfx lane** |
 
-- **Version:** `retro3dfx/VERSION` + `.buildnum` → **0.1.N**; renderer string
-  `Mesa Glide v0.62 [retro3dfx 0.1.N]`. Per-version fixes in `retro3dfx/CHANGELOG.md`.
+- **Version:** `voodoo-cleanroom/VERSION` + `.buildnum` → **0.1.N**; renderer string
+  `Mesa Glide v0.62 [voodoo-cleanroom 0.1.N]`. Per-version fixes in `voodoo-cleanroom/CHANGELOG.md`.
 - **Tests:** `bash tests/run_all.sh` (Python client + agent-C + MesaFX ICD logic);
   see [`tests/README.md`](tests/README.md). Vintage H5/SGL tests are in
   `retro-3dfx/tests/`.
 - **Which OpenGL ICD is this?** MesaFX (ours) = `fx*.c`, mingw, ~2.7 MB, **0.1.x**,
-  `[retro3dfx 0.1.N]`. Vintage SGL = `__glSST*`/`SST_*.c`, MSVC, ~704 KB, **0.3.x**.
+  `[voodoo-cleanroom 0.1.N]`. Vintage SGL = `__glSST*`/`SST_*.c`, MSVC, ~704 KB, **0.3.x**.
   Check before "fixing" or testing an ICD bug.
 
 ### The Driver Optimization Process
@@ -721,7 +721,7 @@ packaged as the [`driver-bench` skill](.claude/skills/driver-bench/SKILL.md).
 
 **1. Every build self-identifies.** The ICD build injects an auto-incrementing
 version into the `GL_RENDERER` string
-(`Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.N]`), so every game log and
+(`Mesa Glide v0.62 Voodoo3 (tm) [voodoo-cleanroom 0.1.N]`), so every game log and
 benchmark run records exactly which driver build produced it. No "which DLL was
 that?" ambiguity, ever.
 
@@ -744,7 +744,7 @@ like-for-like.
 **4. Environment discipline.** `FX_GLIDE_SWAPINTERVAL` alone moves 1024x768
 results by ~30%, so the env state is recorded in every result row, and any
 cross-run comparison states its tuning (see the swap-interval saga in
-`retro3dfx/CHANGELOG.md` before touching vsync behavior).
+`voodoo-cleanroom/CHANGELOG.md` before touching vsync behavior).
 
 **5. Quality is a tracked lever, not an afterthought.** Alongside the fps runs,
 an in-engine screenshot of q3dm1 (real `glReadPixels` output, not a GDI capture
@@ -763,7 +763,7 @@ drop and the DB rows.
 Every run below is Quake 3 1.32 `timedemo four`, 16bpp, on the test box
 (P3-845 no-SSE2, 384 MB, Voodoo3 AGP, XP SP3). "Tuned" means
 `FX_GLIDE_SWAPINTERVAL=0` in the process environment. Full rationale in
-[`retro3dfx/CHANGELOG.md`](retro3dfx/CHANGELOG.md); raw per-run JSON in
+[`voodoo-cleanroom/CHANGELOG.md`](voodoo-cleanroom/CHANGELOG.md); raw per-run JSON in
 [`benchmarks/`](benchmarks/).
 
 **0.1.1 — baseline (versioning introduced).** No functional change — the
@@ -1008,6 +1008,6 @@ The code in this repository is **open source based**:
 - **retro3dfx driver forks** preserve their upstream open licenses: Glide is
   under the **3dfx Glide Source Code General Public License** (3dfx's genuine
   2000 open release), MesaFX under the **MIT/Mesa license**. Provenance:
-  [`retro3dfx/FORKS.md`](retro3dfx/FORKS.md).
-- `retro3dfx-disp/` (the clean-room display-driver track) is original,
+  [`voodoo-cleanroom/FORKS.md`](voodoo-cleanroom/FORKS.md).
+- `vcr-disp/` (the clean-room display-driver track) is original,
   MIT-licensed code.

@@ -1,8 +1,8 @@
-# NT/2000/XP DDK build for retro3dfx-disp - the cooperative Voodoo display driver
+# NT/2000/XP DDK build for vcr-disp - the cooperative Voodoo display driver
 # that serves the HWCEXT escape our Glide needs. Build in the DDK `build` env, or
 # via the fleet DDK (provisioning/ddk/). See README.md.
 
-TARGETNAME=retro3dfx-disp
+TARGETNAME=vcr-disp
 TARGETTYPE=GDI_DRIVER
 TARGETPATH=obj
 DLLDEF=disp.def

@@ -1,4 +1,4 @@
-; retro3dfx.inf - install retro3dfx-disp for Voodoo3 / Voodoo4-5, bind under Display class.
+; retro3dfx.inf - install vcr-disp for Voodoo3 / Voodoo4-5, bind under Display class.
 [Version]
 Signature="$Windows NT$"
 Class=Display
@@ -13,7 +13,7 @@ DriverVer=07/16/2026,1.0.0.0
 [R3DFX_Inst]
 CopyFiles=R3DFX.Copy
 [R3DFX.Copy]
-retro3dfx-disp.dll
+vcr-disp.dll
 retro3dfx-mp.sys
 [Strings]
 MFG="retro3dfx (open, ours)"

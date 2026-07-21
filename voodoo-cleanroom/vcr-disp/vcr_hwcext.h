@@ -1,14 +1,14 @@
 /*
- * retro3dfx_hwcext.h - the HWCEXT escape contract between retro3dfx-glide and
- * retro3dfx-disp.
+ * vcr_hwcext.h - the HWCEXT escape contract between retro3dfx-glide and
+ * vcr-disp.
  *
  * This mirrors the escape opcodes + request/response structs that our Glide
- * (retro3dfx-glide, minihwc/hwcext.h) SENDS via ExtEscape. retro3dfx-disp is
+ * (retro3dfx-glide, minihwc/hwcext.h) SENDS via ExtEscape. vcr-disp is
  * the SERVER: its DrvEscape answers exactly these. Because we own both sides,
  * this header is the single source of truth for the ABI.
  *
  * The installed retail 2001 3dfx driver on .124 answers NONE of these escapes
- * (verified on-hardware) -> our Glide's hwcInit finds no board. retro3dfx-disp
+ * (verified on-hardware) -> our Glide's hwcInit finds no board. vcr-disp
  * closes that gap while cooperating with Windows (unlike a direct PCI grab).
  */
 #ifndef RETRO3DFX_HWCEXT_H

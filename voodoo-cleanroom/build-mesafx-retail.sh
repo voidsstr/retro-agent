@@ -7,7 +7,7 @@
 # build-stack.sh links MesaFX against our OWN glide3x import lib (libglide3x.dll.a),
 # which imports the Glide entry points as `grFoo@N` (no leading underscore) — the
 # naming our retro3dfx-glide fork exports. That is correct only when the machine
-# also runs OUR display driver (retro3dfx-disp) + OUR glide3x.dll.
+# also runs OUR display driver (vcr-disp) + OUR glide3x.dll.
 #
 # On a fleet box that instead has a retail/AmigaMerlin 3dfx driver installed, the
 # system glide3x.dll exports `_grFoo@N` (retail MSVC decoration, WITH leading
@@ -45,11 +45,11 @@ cp "$OUT/sdk/include/"*.h "$GLTREE/glide3/include/"
 # KEY: retail (underscore) import lib instead of our own
 cp "$RETAIL_LIB" "$GLTREE/glide3/lib/libglide3x.a"
 
-# --- retro3dfx driver versioning -------------------------------------------
-# MAJOR.MINOR comes from retro3dfx/VERSION; BUILD auto-increments every build
+# --- voodoo-cleanroom driver versioning -------------------------------------------
+# MAJOR.MINOR comes from voodoo-cleanroom/VERSION; BUILD auto-increments every build
 # (.buildnum). The full version is embedded in GL_RENDERER so every game log /
 # benchmark self-documents which driver build produced it:
-#   "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.7]"
+#   "Mesa Glide v0.62 Voodoo3 (tm) [voodoo-cleanroom 0.1.7]"
 VER_MM="$(cat "$HERE/VERSION" 2>/dev/null || echo 0.1)"
 BUILD=$(( $(cat "$HERE/.buildnum" 2>/dev/null || echo 0) + 1 ))
 echo "$BUILD" > "$HERE/.buildnum"
@@ -59,9 +59,9 @@ FXDRV="$GLTREE/src/mesa/drivers/glide/fxdrv.h"
 # widen rendererString (stock 64B is too tight with the version marker) - idempotent
 sed -i 's/char rendererString\[64\];/char rendererString[96];/' "$FXDRV"
 # inject/refresh the version marker in the renderer string - idempotent
-sed -i 's/ \[retro3dfx [0-9.]*\]//' "$FXAPI"
-sed -i "s/\"Mesa %s v0\.62 %s%s\"/\"Mesa %s v0.62 %s%s [retro3dfx $DRVVER]\"/" "$FXAPI"
-grep -q "retro3dfx $DRVVER" "$FXAPI" || { echo "FATAL: version inject failed"; exit 1; }
+sed -i 's/ \[voodoo-cleanroom [0-9.]*\]//' "$FXAPI"
+sed -i "s/\"Mesa %s v0\.62 %s%s\"/\"Mesa %s v0.62 %s%s [voodoo-cleanroom $DRVVER]\"/" "$FXAPI"
+grep -q "voodoo-cleanroom $DRVVER" "$FXAPI" || { echo "FATAL: version inject failed"; exit 1; }
 echo "== driver version: $DRVVER =="
 # gcc-13 portability (idempotent)
 sed -i 's/CFLAGS = -Wall -Werror/CFLAGS = -Wall -Wno-array-bounds -Wno-stringop-overflow -fcommon/' "$GLTREE/Makefile.mgw" || true

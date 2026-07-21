@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# build-stack.sh - build the retro3dfx user-mode stack from OUR forks.
+# build-stack.sh - build the voodoo-cleanroom user-mode stack from OUR forks.
 #
 # Produces, from source we own and can optimize:
 #   out/glide3x.dll   <- retro3dfx-glide  (our fork of sezero/glide)   [Voodoo4/5 h5]
@@ -8,7 +8,7 @@
 #   out/opengl32.dll  <- retro3dfx-gl     (our MesaFX fork -> Q3 OpenGL ICD)
 #   out/sdk/          <- Glide3 SDK (headers + import libs) both DLLs share
 #
-# The kernel/display layer (retro3dfx-disp) needs the DDK and builds separately
+# The kernel/display layer (vcr-disp) needs the DDK and builds separately
 # (disp/, via the fleet DDK). This script builds everything DDK-independent.
 #
 # Forks (created under github.com/voidsstr):
@@ -113,5 +113,5 @@ make -C "$GLTREE" -f Makefile.mgw FX=1 X86=1 CPU="$CPU" GLIDE="$GLTREE/glide3" \
        echo "   opengl32.dll (MesaFX over our Glide) built"; } \
   || { echo "   MesaFX build needs iteration - see /tmp/mesa_build.log (tail):"; tail -12 /tmp/mesa_build.log; }
 
-echo; echo "== retro3dfx user-mode stack artifacts =="
+echo; echo "== voodoo-cleanroom user-mode stack artifacts =="
 ls -la "$OUT"/*.dll 2>/dev/null

@@ -1,5 +1,5 @@
 /*
- * disp_escape.c - retro3dfx-disp: the HWCEXT escape SERVER.
+ * disp_escape.c - vcr-disp: the HWCEXT escape SERVER.
  *
  * This is the core of "even more code we own": a Windows display driver that
  * answers the exact ExtEscape protocol retro3dfx-glide sends, so our (unmodified)
@@ -15,7 +15,7 @@
  * DDK-independent in structure so the dispatch logic is reviewable/testable;
  * the DrvEscape entry + PDEV access are behind HAVE_DDK.
  */
-#include "retro3dfx_hwcext.h"
+#include "vcr_hwcext.h"
 #include <string.h>
 
 /* Per-adapter state the chassis fills at StartDevice (disp_hw.c). */

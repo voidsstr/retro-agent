@@ -21,3 +21,6 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.dbtests/.obj/
+
+# vendored vintage H5 source (authoritative copy in retro-3dfx; reproduce via its README)
+voodoo-cleanroom/vcr-disp-h5/src/

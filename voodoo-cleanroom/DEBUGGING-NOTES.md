@@ -261,3 +261,21 @@ branch history around 0.1.12–0.1.16), deploy `retrogl.dll` to the game dir +
 `system32`, `set MESA_FX_INFO=r`, launch, and read `<gamedir>\MESA.LOG`. Absence
 of a `post grSstWinOpen` line = fault inside Glide → check the `glide3x.dll` the
 process actually loaded.
+
+## ALL-OPEN deploy blocked: ICD↔glide underscore-ABI mismatch (2026-07-21)
+Attempting the full-open stack on .124 (our glide + our-glide-linked MesaFX):
+Q3 fails at `LoadLibrary('retrogl.dll')`. Root cause (objdump): the CURRENT
+`build-stack.sh` output `out/opengl32.dll` (0.1.31) IMPORTS glide symbols
+**underscore-decorated** (`_grBufferSwap@4`, 65 imports) but our `out/glide3x*.dll`
+EXPORT them **non-underscore** (`grBufferSwap@4`, per FORKS.md "export both grFoo
+and grFoo@N"). Import-by-name must match exactly → unresolved imports → the ICD
+won't load. The **Jul-16** build was internally consistent (ICD imported
+NON-underscore, matched the glide exports) and the 2026-07-17 ALL-RETRO3DFX
+milestone worked — so the current build-stack.sh MesaFX link step regressed to the
+retail/underscore import convention. ALSO unresolved: h3 (V3) vs h5 (V5) glide
+export sets differ — the V3 needs the ICD linked against the h3 import lib.
+FIX (TODO, build-stack.sh): make the MesaFX ICD link against our glide's
+import lib with matching decoration (or have our glide export `_grFoo@N` too), and
+build a V3 (h3-linked) ICD variant. Until then .124 stays HYBRID: our MesaFX
+(retail-linked retrogl 0.1.31) + retail AmigaMerlin glide + vendored-H5 display —
+which works (Q3 57.7). Box rolled back + verified after each failed attempt.
