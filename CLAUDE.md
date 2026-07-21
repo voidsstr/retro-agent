@@ -22,6 +22,24 @@ plan/design doc). **After every key milestone**, also update the affected
 documentation (e.g. `retro-3dfx/D3D-DRIVER-PLAN.md`, skill `SKILL.md` files, the
 memory files) so they reflect reality. Do this proactively, not only when asked.
 
+## Driver Regression Tests (REQUIRED for every driver fix and deploy)
+
+The 3dfx driver stack has a regression suite at
+`/home/voidsstr/development/retro-3dfx/tests/` that encodes every
+hardware-verified fix (source assertions, built-artifact/stale-obj checks, and
+an on-target D3D matrix via the windowed `d3dlab.exe` lab).
+
+- **Before deploying any driver binary** to a box, run
+  `retro-3dfx/tests/predeploy.sh` — non-zero exit means do NOT deploy.
+- **After deploy + reboot**, run `retro-3dfx/tests/run_target_tests.py` plus
+  the OpenGL golden gate.
+- **When a fix is verified on hardware, update the test suite in the same
+  commit as the fix**: add a source assertion to `test_source_invariants.sh`,
+  a binary marker to `test_built_artifact.sh` if applicable, and a target test
+  (new `d3dlab` mode + golden in `tests/golden/d3dlab_golden.json`, or
+  equivalent) so the fix can never silently regress. A fix without a
+  regression test is not done.
+
 ## Session Startup — Chat Proxy Status Check (REQUIRED)
 
 **On every Claude Code session start in this directory, IMMEDIATELY run the chat status check and echo a status message to the user.** Do this as your first action, before responding to any user message:
