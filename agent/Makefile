@@ -50,10 +50,27 @@ SOURCES = $(SRCDIR)/compat.c \
 
 OBJECTS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SOURCES))
 
-# Win98SE compatible flags
+# Win98SE compatible flags.
+#
+# GENUINE-PENTIUM-1 SAFETY (no CMOV): -march=i586 keeps OUR code CMOV-free,
+# but two things still pulled i686-only CMOV in:
+#   1. MinGW's ANSI stdio (__mingw_printf/vsnprintf in libmingwex) is built
+#      for the i686 baseline and uses CMOV (e.g. the "(null)" %s fallback).
+#      A genuine Pentium (P5) has no CMOV -> STATUS_ILLEGAL_INSTRUCTION
+#      (0xc000001d) on the first printf. -D__USE_MINGW_ANSI_STDIO=0 routes
+#      printf/snprintf/etc to the box's own msvcrt.dll instead (P5-safe).
+#   2. MinGW compiles __thread to EMULATED TLS (___emutls_get_address), which
+#      also has CMOV and sits on the exception-recovery path -> fixed in
+#      main.c by using native Win32 TLS (TlsAlloc) instead of __thread.
+# Two CMOV-bearing pseudo-relocator helpers (_mark_section_writable,
+# __GetPEImageBase) remain in the image but are DEAD: this agent has zero
+# runtime pseudo-relocs (LIST == LIST_END) so they are never called. This all
+# surfaced on a Compaq Deskpro 2000 (Pentium 1); the fleet's XP boxes are
+# i686+ and never hit CMOV.
 CFLAGS = -Wall -Wextra -Os -s \
          -DWINVER=0x0410 -D_WIN32_WINNT=0x0410 \
          -DWIN32_LEAN_AND_MEAN \
+         -D__USE_MINGW_ANSI_STDIO=0 \
          -DAGENT_VERSION='"$(VERSION)"' \
          -march=i586 -mtune=pentium3 \
          -fno-stack-protector \

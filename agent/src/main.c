@@ -59,17 +59,43 @@ static DWORD g_ram_mb        = 0;
 
 volatile int g_running = 1;
 
-/* Exception recovery for command handlers — per-thread state via TLS.
- * __thread (GCC TLS) gives each client thread its own jmp_buf,
- * avoiding corruption when commands run concurrently in threaded mode. */
-static __thread jmp_buf g_handler_jmp;
-static __thread int g_in_handler = 0;
-static __thread DWORD g_exception_code = 0;
+/* Exception recovery for command handlers — per-thread state via NATIVE
+ * Windows TLS. Deliberately NOT __thread: MinGW compiles __thread to EMULATED
+ * TLS (___emutls_get_address), which contains a CMOV instruction — illegal on
+ * a genuine Pentium 1 (STATUS_ILLEGAL_INSTRUCTION 0xc000001d). TlsAlloc/
+ * TlsGetValue/TlsSetValue exist on Win95+ and are CMOV-free. Each client
+ * thread gets its own jmp_buf so concurrent commands (NT threaded mode) don't
+ * corrupt each other. */
+typedef struct {
+    jmp_buf handler_jmp;
+    int     in_handler;
+    DWORD   exception_code;
+} handler_state_t;
+
+static DWORD g_hs_tls = TLS_OUT_OF_INDEXES;
+
+/* Return this thread's handler state, lazily allocating it on first use.
+ * Returns NULL only if TLS wasn't initialized or the allocation failed. */
+static handler_state_t *handler_state(void)
+{
+    handler_state_t *hs;
+    if (g_hs_tls == TLS_OUT_OF_INDEXES)
+        return NULL;
+    hs = (handler_state_t *)TlsGetValue(g_hs_tls);
+    if (!hs) {
+        hs = (handler_state_t *)HeapAlloc(GetProcessHeap(),
+                                          HEAP_ZERO_MEMORY, sizeof(*hs));
+        if (hs)
+            TlsSetValue(g_hs_tls, hs);
+    }
+    return hs;
+}
 
 static LONG WINAPI command_exception_filter(PEXCEPTION_POINTERS info)
 {
     DWORD code = info->ExceptionRecord->ExceptionCode;
     void *addr = (void *)info->ExceptionRecord->ExceptionAddress;
+    handler_state_t *hs = handler_state();
 
     /* Record the fault straight to disk (lock-free) — the whole point of the
      * crash logger: a fault in a startup/background thread (not inside a
@@ -78,11 +104,12 @@ static LONG WINAPI command_exception_filter(PEXCEPTION_POINTERS info)
      * invoked; on Win9x it may not be, which is why main()/agent_run() also
      * emit dense breadcrumbs so the last logged line locates the crash. */
     log_crash(LOG_MAIN, "*** UNHANDLED EXCEPTION code=0x%08lx addr=%p "
-              "in_handler=%d ***", (unsigned long)code, addr, g_in_handler);
+              "in_handler=%d ***", (unsigned long)code, addr,
+              hs ? hs->in_handler : -1);
 
-    if (g_in_handler) {
-        g_exception_code = code;
-        longjmp(g_handler_jmp, 1);
+    if (hs && hs->in_handler) {
+        hs->exception_code = code;
+        longjmp(hs->handler_jmp, 1);
     }
     log_crash(LOG_MAIN, "*** fatal exception outside a handler; process "
               "terminating ***");
@@ -428,15 +455,21 @@ static int client_process(int slot)
                 (unsigned long)len);
     }
 
-    if (setjmp(g_handler_jmp) == 0) {
-        g_in_handler = 1;
-        handle_command(cl->sock, buf, len);
-        g_in_handler = 0;
-    } else {
-        g_in_handler = 0;
-        log_msg(LOG_MAIN, "[%d] Exception 0x%08lX processing command",
-                slot, (unsigned long)g_exception_code);
-        send_error_response(cl->sock, "Internal error: exception in handler");
+    {
+        handler_state_t *hs = handler_state();
+        if (!hs) {
+            /* TLS unavailable (extremely unlikely) — run without SEH recovery */
+            handle_command(cl->sock, buf, len);
+        } else if (setjmp(hs->handler_jmp) == 0) {
+            hs->in_handler = 1;
+            handle_command(cl->sock, buf, len);
+            hs->in_handler = 0;
+        } else {
+            hs->in_handler = 0;
+            log_msg(LOG_MAIN, "[%d] Exception 0x%08lX processing command",
+                    slot, (unsigned long)hs->exception_code);
+            send_error_response(cl->sock, "Internal error: exception in handler");
+        }
     }
 
     HeapFree(GetProcessHeap(), 0, buf);
@@ -503,15 +536,20 @@ static void handle_client(SOCKET client)
          * longjmps out still reaches the matching decrement below. */
         g_cmd_start = GetTickCount();
         InterlockedIncrement(&g_cmd_inflight);
-        if (setjmp(g_handler_jmp) == 0) {
-            g_in_handler = 1;
-            handle_command(client, cmd_buf, cmd_len);
-            g_in_handler = 0;
-        } else {
-            g_in_handler = 0;
-            log_msg(LOG_MAIN, "Exception 0x%08lX processing command, continuing",
-                    (unsigned long)g_exception_code);
-            send_error_response(client, "Internal error: exception in handler");
+        {
+            handler_state_t *hs = handler_state();
+            if (!hs) {
+                handle_command(client, cmd_buf, cmd_len);
+            } else if (setjmp(hs->handler_jmp) == 0) {
+                hs->in_handler = 1;
+                handle_command(client, cmd_buf, cmd_len);
+                hs->in_handler = 0;
+            } else {
+                hs->in_handler = 0;
+                log_msg(LOG_MAIN, "Exception 0x%08lX processing command, "
+                        "continuing", (unsigned long)hs->exception_code);
+                send_error_response(client, "Internal error: exception in handler");
+            }
         }
         InterlockedDecrement(&g_cmd_inflight);
         HeapFree(GetProcessHeap(), 0, cmd_buf);
@@ -530,6 +568,15 @@ static DWORD WINAPI client_thread(LPVOID param)
 {
     SOCKET client = (SOCKET)(UINT_PTR)param;
     handle_client(client);
+    /* Free this thread's lazily-allocated handler state (native TLS isn't
+     * auto-reclaimed on thread exit the way __thread was). */
+    if (g_hs_tls != TLS_OUT_OF_INDEXES) {
+        void *hs = TlsGetValue(g_hs_tls);
+        if (hs) {
+            HeapFree(GetProcessHeap(), 0, hs);
+            TlsSetValue(g_hs_tls, NULL);
+        }
+    }
     return 0;
 }
 
@@ -540,6 +587,107 @@ static BOOL WINAPI console_handler(DWORD ctrl_type)
         return TRUE;
     }
     return FALSE;
+}
+
+/* Dump the full hardware/OS metadata to the log — everything needed to
+ * analyze an issue off the box (this is what the share-copied log carries).
+ * Uses only direct APIs (no dependency on cache_system_info), so it can run
+ * very early. Note the CPU family line: `family=5` is a plain Pentium (no
+ * CMOV) — exactly the fact behind the Deskpro 2000 illegal-instruction saga. */
+static void log_system_metadata(void)
+{
+    SYSTEM_INFO si;
+    OSVERSIONINFOA osvi;
+    MEMORYSTATUS ms;
+    DISPLAY_DEVICEA dd;
+    char host[128];
+    DWORD hlen = sizeof(host);
+
+    GetSystemInfo(&si);
+    osvi.dwOSVersionInfoSize = sizeof(osvi);
+    GetVersionExA(&osvi);
+    ms.dwLength = sizeof(ms);
+    GlobalMemoryStatus(&ms);
+    if (!GetComputerNameA(host, &hlen))
+        safe_strncpy(host, "?", sizeof(host));
+
+    log_msg(LOG_MAIN, "META agent=%s host=%s", AGENT_VERSION, host);
+    log_msg(LOG_MAIN, "META os=%lu.%lu.%lu platformId=%lu (%s) csd=\"%s\"",
+            (unsigned long)osvi.dwMajorVersion,
+            (unsigned long)osvi.dwMinorVersion,
+            (unsigned long)osvi.dwBuildNumber,
+            (unsigned long)osvi.dwPlatformId,
+            osvi.dwPlatformId == VER_PLATFORM_WIN32_NT ? "NT" : "9x",
+            osvi.szCSDVersion);
+    log_msg(LOG_MAIN, "META cpu arch=%u family=%u model=%u stepping=%u "
+            "ncpu=%lu type=%lu%s",
+            si.wProcessorArchitecture, si.wProcessorLevel,
+            (unsigned)((si.wProcessorRevision >> 8) & 0xff),
+            (unsigned)(si.wProcessorRevision & 0xff),
+            (unsigned long)si.dwNumberOfProcessors,
+            (unsigned long)si.dwProcessorType,
+            si.wProcessorLevel < 6 ? " (pre-i686: NO CMOV)" : "");
+    log_msg(LOG_MAIN, "META ram_total=%luMB ram_avail=%luMB",
+            (unsigned long)(ms.dwTotalPhys / (1024 * 1024)),
+            (unsigned long)(ms.dwAvailPhys / (1024 * 1024)));
+    memset(&dd, 0, sizeof(dd));
+    dd.cb = sizeof(dd);
+    if (EnumDisplayDevicesA(NULL, 0, &dd, 0))
+        log_msg(LOG_MAIN, "META gpu=\"%s\" id=\"%s\"",
+                dd.DeviceString, dd.DeviceID);
+}
+
+/* Best-effort mirror of the local agent.log to the file share, so logs from a
+ * box that can't be reached interactively (or that crashed) can be pulled from
+ * one place. Copies to <share>\agent logs\<host>-agent.log (+ .1 backup) if the
+ * share is reachable; silently no-ops when it isn't ("if the network is
+ * accessible"). Per-host filename so boxes don't collide. Runs the FIRST copy
+ * soon after boot (so the PREVIOUS run's log, incl. any crash that persisted
+ * to the local file, gets uploaded), then periodically. */
+#define SHARELOG_DIR_DEFAULT \
+    "\\\\192.168.1.122\\files\\Utility\\Retro Automation\\agent logs"
+#define SHARELOG_FIRST_MS   10000
+#define SHARELOG_PERIOD_MS  60000
+
+static DWORD WINAPI sharelog_thread(LPVOID param)
+{
+    char dir[512], dest[640], srcbak[MAX_PATH + 8], destbak[680];
+    char host[128];
+    DWORD hlen = sizeof(host);
+    HKEY hk;
+    int i;
+    (void)param;
+
+    if (!GetComputerNameA(host, &hlen))
+        safe_strncpy(host, "agent", sizeof(host));
+
+    /* Destination dir: registry override HKLM\Software\RetroAgent\ShareLogDir,
+     * else the default UNC. */
+    safe_strncpy(dir, SHARELOG_DIR_DEFAULT, sizeof(dir));
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0,
+                      KEY_QUERY_VALUE, &hk) == ERROR_SUCCESS) {
+        DWORD ty = REG_SZ, n = sizeof(dir);
+        RegQueryValueExA(hk, "ShareLogDir", NULL, &ty, (BYTE *)dir, &n);
+        RegCloseKey(hk);
+    }
+    _snprintf(dest, sizeof(dest), "%s\\%s-agent.log", dir, host);
+    dest[sizeof(dest) - 1] = '\0';
+    _snprintf(destbak, sizeof(destbak), "%s\\%s-agent.log.1", dir, host);
+    destbak[sizeof(destbak) - 1] = '\0';
+    _snprintf(srcbak, sizeof(srcbak), "%s.1", log_path());
+    srcbak[sizeof(srcbak) - 1] = '\0';
+
+    Sleep(SHARELOG_FIRST_MS);
+    while (g_running) {
+        /* CopyFileA fails fast + harmlessly if the share isn't reachable. */
+        if (CopyFileA(log_path(), dest, FALSE))
+            log_msg(LOG_MAIN, "sharelog: mirrored to %s", dest);
+        if (GetFileAttributesA(srcbak) != INVALID_FILE_ATTRIBUTES)
+            CopyFileA(srcbak, destbak, FALSE);
+        for (i = 0; i < SHARELOG_PERIOD_MS / 1000 && g_running; i++)
+            Sleep(1000);
+    }
+    return 0;
 }
 
 /*
@@ -723,6 +871,9 @@ void agent_run(void)
     log_msg(LOG_MAIN, "startup: spawning ai_status thread");
     CreateThread(NULL, 0, ai_status_thread, NULL, 0, NULL);
 
+    log_msg(LOG_MAIN, "startup: spawning sharelog thread");
+    CreateThread(NULL, 0, sharelog_thread, NULL, 0, NULL);
+
     log_msg(LOG_MAIN, "startup: helper threads spawned; entering accept loop");
     clients_init();
 
@@ -830,6 +981,10 @@ int main(int argc, char *argv[])
 {
     int i;
 
+    /* Allocate the per-thread handler-state TLS slot before the exception
+     * filter (which reads it) can ever run. */
+    g_hs_tls = TlsAlloc();
+
     /* Install the crash filter + suppress fault dialogs as the FIRST thing,
      * before any other startup work, so a fault anywhere in startup is caught
      * and logged rather than silently killing the process. */
@@ -881,6 +1036,10 @@ int main(int argc, char *argv[])
                     "(threaded TLS unsafe on 9x)");
         }
     }
+
+    /* Full hardware/OS metadata up front (also what the share-copied log
+     * carries), logged early so it's captured even if startup fails later. */
+    log_system_metadata();
 
     /* (crash filter + error mode were installed at the very top of main) */
 
