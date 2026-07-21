@@ -105,23 +105,23 @@ goto is9x
 
 :is9x
 echo  Detected: Windows 9x
-if not exist "%SRCDIR%\autologon_9x.reg" goto chat_autostart_9x
+if not exist "%SRCDIR%\autologon_9x.reg" goto chat9x_reg
 regedit /s "%SRCDIR%\autologon_9x.reg"
 echo  [OK] Registry keys installed (Win9x)
-goto chat_autostart_9x
+goto chat9x_reg
 
 :isnt
 echo  Detected: Windows NT/XP
-if not exist "%SRCDIR%\autologon_nt.reg" goto chat_autostart_nt
+if not exist "%SRCDIR%\autologon_nt.reg" goto chatnt_reg
 regedit /s "%SRCDIR%\autologon_nt.reg"
 echo  [OK] Registry keys installed (WinNT/XP)
-goto chat_autostart_nt
+goto chatnt_reg
 
 rem -- Register retro_chat.exe to autostart on boot --
 rem    Win9x: HKLM\Software\Microsoft\Windows\CurrentVersion\Run
 rem    NT/XP: same key, REG.EXE handles it directly
-:chat_autostart_9x
-if not exist "%INSTALLDIR%\retro_chat.exe" goto chat_autostart_done
+:chat9x_reg
+if not exist "%INSTALLDIR%\retro_chat.exe" goto chat_done
 rem INSTALLDIR has no space in it, so these targets are deliberately
 rem UNQUOTED: some Win9x COMMAND.COM builds mishandle a quoted string
 rem after a redirection operator (the quote characters can end up
@@ -133,25 +133,25 @@ echo REGEDIT4 > %INSTALLDIR%\chat_run.reg
 echo. >> %INSTALLDIR%\chat_run.reg
 echo [HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run] >> %INSTALLDIR%\chat_run.reg
 echo "RetroChat"="C:\\RETRO_AGENT\\retro_chat.exe" >> %INSTALLDIR%\chat_run.reg
-if not exist %INSTALLDIR%\chat_run.reg goto chat_autostart_9x_writefail
+if not exist %INSTALLDIR%\chat_run.reg goto chat9x_writefail
 regedit /s %INSTALLDIR%\chat_run.reg
 del %INSTALLDIR%\chat_run.reg > nul 2>&1
 echo  [OK] Chat client autostart registered (Win9x)
-goto chat_autostart_done
+goto chat_done
 
-:chat_autostart_9x_writefail
+:chat9x_writefail
 echo  [..] Could not write chat_run.reg, skipping autostart registration
 echo       (chat client will still work, just won't auto-start on boot)
-goto chat_autostart_done
+goto chat_done
 
-:chat_autostart_nt
-if not exist "%INSTALLDIR%\retro_chat.exe" goto chat_autostart_done
+:chatnt_reg
+if not exist "%INSTALLDIR%\retro_chat.exe" goto chat_done
 reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v RetroChat /t REG_SZ /d "%INSTALLDIR%\retro_chat.exe" /f > nul 2>&1
-if errorlevel 1 goto chat_autostart_done
+if errorlevel 1 goto chat_done
 echo  [OK] Chat client autostart registered (NT/XP)
-goto chat_autostart_done
+goto chat_done
 
-:chat_autostart_done
+:chat_done
 rem -- Configure auto-update paths in registry (idempotent) --
 if "%OS%"=="Windows_NT" reg add "HKLM\Software\RetroAgent" /v UpdatePath /t REG_SZ /d "%SRCDIR%\retro_agent.exe" /f > nul 2>&1
 if "%OS%"=="Windows_NT" reg add "HKLM\Software\RetroAgent" /v ChatUpdatePath /t REG_SZ /d "%SRCDIR%\retro_chat.exe" /f > nul 2>&1
