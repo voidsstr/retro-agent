@@ -52,6 +52,7 @@ async def amain(args):
         await conn.command_text(f'EXEC cmd /c md "{STAGE}"', timeout=30)
         await conn.command_text(f'EXEC cmd /c md "{SHARE_ONBOARD}"', timeout=30)
         files = [(HERE / "onboard.cmd", "onboard.cmd"),
+                 (HERE / "onboard_9x.bat", "onboard_9x.bat"),
                  (HERE / "retro_unzip.js", "retro_unzip.js")]
         if args.theme_reg:
             files.append((Path(args.theme_reg), "retro_theme.reg"))

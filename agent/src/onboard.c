@@ -49,10 +49,14 @@
 #define DEFAULT_DRIVE   "Z:"
 
 /* onboarding payload, relative to the share root; staged by
- * provisioning/push_onboard.py */
-#define ONBOARD_SUBPATH "Utility\\Retro Automation\\Onboard\\onboard.cmd"
-#define LOCAL_DIR       "C:\\RETRO_AGENT"
-#define LOCAL_ONBOARD   LOCAL_DIR "\\onboard.cmd"
+ * provisioning/push_onboard.py. TWO dialects: onboard.cmd runs under NT/XP
+ * cmd.exe; onboard_9x.bat runs under Win98 COMMAND.COM (which has no cmd.exe
+ * and rejects cmd.exe-only batch syntax). onboard_apply_startup picks the
+ * right one for this OS. */
+#define ONBOARD_SUBDIR   "Utility\\Retro Automation\\Onboard"
+#define ONBOARD_NAME_NT  "onboard.cmd"
+#define ONBOARD_NAME_9X  "onboard_9x.bat"
+#define LOCAL_DIR        "C:\\RETRO_AGENT"
 #define LOCAL_ONBOARD_LOG LOCAL_DIR "\\onboard.log"
 
 /* Run after retrowall (20s) so the shell/desktop is fully up. */
@@ -61,6 +65,63 @@
 static int file_exists(const char *path)
 {
     return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES;
+}
+
+static int onboard_is_nt(void)
+{
+    OSVERSIONINFOA osvi;
+    osvi.dwOSVersionInfoSize = sizeof(osvi);
+    GetVersionExA(&osvi);
+    return osvi.dwPlatformId == VER_PLATFORM_WIN32_NT;
+}
+
+/* Detect this box's game-relevant hardware and export it as ONB_<FLAG>
+ * environment variables the onboarding batch reads to gate which games get
+ * copied. The batch is launched via CreateProcessA with a NULL environment,
+ * so it inherits this process's env — setting the vars here is enough. Flags
+ * mirror onboard.json "capabilities":
+ *   ONB_GPU3D   - a 3D display adapter (3dfx/NVIDIA/ATI/Intel)
+ *   ONB_CPUFAST - CPU family >= 6 (Pentium Pro/II/III/4+, i.e. not a plain P1)
+ *   ONB_RAM64   - >= 64 MB, ONB_RAM128 - >= 128 MB
+ * A Pentium-1 + 2D box (e.g. a Compaq Deskpro 2000) meets neither gpu3d nor
+ * cpufast, so every current game is [HWSKIP]'d and it onboards with no games. */
+static void set_capability_env(void)
+{
+    SYSTEM_INFO si;
+    MEMORYSTATUS ms;
+    DISPLAY_DEVICEA dd;
+    DWORD ram_mb;
+    int cpufast, gpu3d = 0;
+
+    GetSystemInfo(&si);
+    cpufast = (si.wProcessorLevel >= 6);
+
+    ms.dwLength = sizeof(ms);
+    GlobalMemoryStatus(&ms);
+    ram_mb = (DWORD)(ms.dwTotalPhys / (1024 * 1024));
+
+    memset(&dd, 0, sizeof(dd));
+    dd.cb = sizeof(dd);
+    if (EnumDisplayDevicesA(NULL, 0, &dd, 0)) {
+        const char *s = dd.DeviceString, *id = dd.DeviceID;
+        if (strstr(s, "3dfx") || strstr(s, "Voodoo") ||
+            strstr(s, "NVIDIA") || strstr(s, "GeForce") || strstr(s, "RIVA") ||
+            strstr(s, "ATI") || strstr(s, "Radeon") ||
+            strstr(s, "RAGE") || strstr(s, "Rage") || strstr(s, "Intel") ||
+            strstr(id, "VEN_121A") || strstr(id, "VEN_10DE") ||
+            strstr(id, "VEN_1002") || strstr(id, "VEN_8086"))
+            gpu3d = 1;
+    }
+
+    SetEnvironmentVariableA("ONB_GPU3D",   gpu3d ? "1" : "0");
+    SetEnvironmentVariableA("ONB_CPUFAST", cpufast ? "1" : "0");
+    SetEnvironmentVariableA("ONB_RAM64",   ram_mb >= 64 ? "1" : "0");
+    SetEnvironmentVariableA("ONB_RAM128",  ram_mb >= 128 ? "1" : "0");
+
+    log_msg(LOG_ONBOARD, "capability: cpu_family=%u cpufast=%d gpu3d=%d "
+            "ram=%luMB adapter=\"%s\"",
+            si.wProcessorLevel, cpufast, gpu3d,
+            (unsigned long)ram_mb, dd.DeviceString);
 }
 
 /* Read a REG_DWORD from HKLM\Software\RetroAgent. Returns the value, or `def`. */
@@ -153,11 +214,23 @@ void onboard_apply_startup(void)
     char share[MAX_PATH], drive[16], user[128], pass[128];
     char share_cmd[MAX_PATH + 128];
     char local_cmd[512];
+    char local_onboard[MAX_PATH];
+    const char *payload_name;
+    int is_nt;
 
     if (hklm_get_dword(FLAG_VALUE, 0) == 1) {
         log_msg(LOG_ONBOARD, "machine already onboarded, skipping");
         return;
     }
+
+    /* Pick the batch dialect for this OS: Win98 has no cmd.exe and rejects
+     * cmd.exe-only batch syntax, so it runs onboard_9x.bat under COMMAND.COM;
+     * NT/XP runs onboard.cmd under cmd.exe. */
+    is_nt = onboard_is_nt();
+    payload_name = is_nt ? ONBOARD_NAME_NT : ONBOARD_NAME_9X;
+    _snprintf(local_onboard, sizeof(local_onboard), "%s\\%s",
+              LOCAL_DIR, payload_name);
+    local_onboard[sizeof(local_onboard) - 1] = '\0';
 
     printf("\n");
     printf("========================================================\n");
@@ -176,42 +249,57 @@ void onboard_apply_startup(void)
 
     /* Locate the onboarding payload on the share (prefer the mapped drive,
      * fall back to the raw UNC in case the mapping is slow to settle). */
-    _snprintf(share_cmd, sizeof(share_cmd), "%s\\%s", drive, ONBOARD_SUBPATH);
+    _snprintf(share_cmd, sizeof(share_cmd), "%s\\%s\\%s",
+              drive, ONBOARD_SUBDIR, payload_name);
     if (!file_exists(share_cmd)) {
-        _snprintf(share_cmd, sizeof(share_cmd), "%s\\%s", share, ONBOARD_SUBPATH);
+        _snprintf(share_cmd, sizeof(share_cmd), "%s\\%s\\%s",
+                  share, ONBOARD_SUBDIR, payload_name);
     }
     if (!file_exists(share_cmd)) {
-        printf("  onboarding payload not on the share yet - skipping.\n");
-        printf("  (publish provisioning/onboard.cmd to the share; will retry.)\n");
+        printf("  onboarding payload (%s) not on the share yet - skipping.\n",
+               payload_name);
         fflush(stdout);
         log_msg(LOG_ONBOARD, "no payload at %s, skipping (will retry next start)",
                 share_cmd);
         return;  /* do NOT set the flag - retry once the payload is published */
     }
 
+    /* Export detected hardware capability so the batch can gate games. */
+    set_capability_env();
+
     CreateDirectoryA(LOCAL_DIR, NULL);
-    if (!CopyFileA(share_cmd, LOCAL_ONBOARD, FALSE)) {
+    if (!CopyFileA(share_cmd, local_onboard, FALSE)) {
         log_msg(LOG_ONBOARD, "could not copy payload %s -> %s (%lu)",
-                share_cmd, LOCAL_ONBOARD, (unsigned long)GetLastError());
+                share_cmd, local_onboard, (unsigned long)GetLastError());
         /* try running it straight off the share as a fallback */
         safe_strncpy(local_cmd, share_cmd, sizeof(local_cmd));
     } else {
-        safe_strncpy(local_cmd, LOCAL_ONBOARD, sizeof(local_cmd));
+        safe_strncpy(local_cmd, local_onboard, sizeof(local_cmd));
     }
 
     printf("  running onboarding job (games + theme); this can take a while.\n");
     printf("  progress log: %s\n", LOCAL_ONBOARD_LOG);
     fflush(stdout);
-    log_msg(LOG_ONBOARD, "launching onboarding batch: %s", local_cmd);
+    log_msg(LOG_ONBOARD, "launching onboarding batch (%s): %s",
+            is_nt ? "NT" : "Win9x", local_cmd);
 
     /* Run the (idempotent) batch. It owns the Onboarded flag: it sets it when
      * it completes cleanly, so an interruption just resumes next start. We give
-     * it a generous window but don't block the agent indefinitely. */
+     * it a generous window but don't block the agent indefinitely.
+     *
+     * Shell + redirection differ by OS: NT has cmd.exe and supports 2>&1;
+     * Win98 has only COMMAND.COM and no 2>&1. */
     {
         char full[768];
-        _snprintf(full, sizeof(full),
-                  "cmd /c \"\"%s\" \"%s\" > \"%s\" 2>&1\"",
-                  local_cmd, drive, LOCAL_ONBOARD_LOG);
+        if (is_nt) {
+            _snprintf(full, sizeof(full),
+                      "cmd /c \"\"%s\" \"%s\" > \"%s\" 2>&1\"",
+                      local_cmd, drive, LOCAL_ONBOARD_LOG);
+        } else {
+            _snprintf(full, sizeof(full),
+                      "command.com /c %s %s > %s",
+                      local_cmd, drive, LOCAL_ONBOARD_LOG);
+        }
         run_process(full, 0);  /* detached; batch marks completion itself */
     }
     log_msg(LOG_ONBOARD, "onboarding batch launched");
