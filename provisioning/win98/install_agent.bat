@@ -5,10 +5,14 @@ rem
 rem  Installs:
 rem    - retro_agent.exe  (background TCP agent on ports 9897/9898)
 rem    - retro_chat.exe   (Claude Code-style chat client)
+rem    - retro-infer.exe  (Fleet AI engine, supervised by the agent)
 rem
-rem  Both autostart on boot. The agent self-updates from the share
-rem  on every startup; it also updates retro_chat.exe in place when
-rem  a newer version is available.
+rem  All three autostart/self-heal on boot. The agent self-updates from
+rem  the share on every startup; it also updates retro_chat.exe in place
+rem  when a newer version is available, and will pull retro-infer.exe on
+rem  its own the first time an AI command is used if it's missing --
+rem  this installer just gets a fresh install current on day one instead
+rem  of waiting for that lazy first-use pull.
 rem
 rem  EDIT THE SRCDIR BELOW to point to your SMB share before running.
 rem ============================================================
@@ -46,10 +50,24 @@ if not exist "%SRCDIR%\retro_chat.exe" goto chat_skip
 copy /Y "%SRCDIR%\retro_chat.exe" "%INSTALLDIR%\retro_chat.exe"
 if errorlevel 1 goto chat_skip
 echo  [OK] Chat client copied
-goto detectos
+goto copy_infer
 
 :chat_skip
 echo  [..] Chat client not found on share, skipping
+goto copy_infer
+
+rem -- Copy the Fleet AI engine (optional: agent self-heals this on first
+rem    AI command anyway, but a fresh install shouldn't have to wait for
+rem    that -- get it current now like everything else). --
+:copy_infer
+if not exist "%SRCDIR%\retro-infer.exe" goto infer_skip
+copy /Y "%SRCDIR%\retro-infer.exe" "%INSTALLDIR%\retro-infer.exe"
+if errorlevel 1 goto infer_skip
+echo  [OK] AI engine (retro-infer.exe) copied
+goto detectos
+
+:infer_skip
+echo  [..] AI engine not found on share, skipping (agent will self-heal it later)
 goto detectos
 
 :err_copy_agent
@@ -105,6 +123,7 @@ goto chat_autostart_done
 rem -- Configure auto-update paths in registry (idempotent) --
 if "%OS%"=="Windows_NT" reg add "HKLM\Software\RetroAgent" /v UpdatePath /t REG_SZ /d "%SRCDIR%\retro_agent.exe" /f > nul 2>&1
 if "%OS%"=="Windows_NT" reg add "HKLM\Software\RetroAgent" /v ChatUpdatePath /t REG_SZ /d "%SRCDIR%\retro_chat.exe" /f > nul 2>&1
+if "%OS%"=="Windows_NT" reg add "HKLM\Software\RetroAgent" /v EnginePath /t REG_SZ /d "%SRCDIR%\retro-infer.exe" /f > nul 2>&1
 goto startagent
 
 :startagent
@@ -125,7 +144,9 @@ echo.
 echo  Installation complete!
 echo  - Agent will auto-start on boot
 echo  - Chat client will auto-start on boot
-echo  - Both will auto-update from the share on every startup
+echo  - Agent + chat client auto-update from the share on every startup
+echo  - AI engine (if present on the share) is staged and self-heals if
+echo    ever missing or replaced by a newer build
 echo.
 
 :done

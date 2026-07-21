@@ -806,6 +806,24 @@ int try_service_start(void)
 {
     SERVICE_TABLE_ENTRYA table[2];
 
+    /* Every other service-management function in this file gates on
+     * is_nt() before touching the dynamically-loaded SCM API (see
+     * install/uninstall/query below) — this entry point didn't, even
+     * though it's the one called unconditionally on every single agent
+     * launch. That's not just a style gap: it was relying entirely on
+     * GetProcAddress failing to resolve StartServiceCtrlDispatcherA on
+     * Win9x to skip service mode. Some OEM Windows 98 images (seen: a
+     * Compaq Deskpro 2000 build) ship an advapi32.dll with extended
+     * exports from later IE/Desktop Update rollups, so that assumption
+     * doesn't always hold — if the symbol resolves to anything that
+     * returns nonzero (or crashes) when actually called, this silently
+     * exits (or crashes) before agent_run() ever logs a single line,
+     * which is exactly what a genuinely non-NT box should never risk
+     * hitting in the first place. Never attempt SCM dispatch on non-NT
+     * platforms, full stop, regardless of what the DLL happens to export. */
+    if (!is_nt())
+        return 0;
+
     if (!load_svc_api() || !svc.pStartSCDispatcher)
         return 0;
 
