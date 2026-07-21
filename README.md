@@ -306,6 +306,7 @@ Discovery: agents broadcast `RETRO|hostname|ip|port|os|cpu|ram_mb|os_family` on 
 | `UIDRAG <x1> <y1> <x2> <y2>` | Drag from one point to another |
 | `UIKEY <keyname>` | Send keystroke (e.g. `TAB`, `ENTER`, `ALT SPACE`) |
 | `WINLIST` | JSON list of visible windows (hwnd, title, class, rect) |
+| `MONITOR <ms> <ticks> [proc]` | v1.15+: stream one status frame per tick (foreground title, window count, watched-process alive, display mode) over one connection — real-time benchmark supervision without reconnect-polling. Client: `RetroConnection.monitor_stream()`. Ends with `END ticks=N`. |
 
 ### Registry (Windows)
 | Command | Description |

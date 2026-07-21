@@ -38,6 +38,7 @@ void handle_winlist(SOCKET sock);
 void handle_uiclick(SOCKET sock, const char *args);
 void handle_uidrag(SOCKET sock, const char *args);
 void handle_uikey(SOCKET sock, const char *args);
+void handle_monitor(SOCKET sock, const char *args);
 void handle_drvsnapshot(SOCKET sock, const char *args);
 void handle_autologin(SOCKET sock, const char *args);
 void handle_service(SOCKET sock, const char *args);

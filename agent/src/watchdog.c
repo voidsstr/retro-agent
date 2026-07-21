@@ -35,7 +35,8 @@ volatile DWORD g_cmd_start    = 0;   /* GetTickCount() when the last one began *
 
 /* Fullscreen games whose crash/hang can lock the display. */
 static const char *const GAME_EXES[] = {
-    "quake3.exe", "quake2.exe", "hl.exe", "glquake.exe", "quake.exe", NULL
+    "quake3.exe", "quake2.exe", "hl.exe", "glquake.exe", "quake.exe",
+    "3dmark2001se.exe", "3dmark2000.exe", NULL
 };
 
 static int game_running(void)

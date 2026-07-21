@@ -553,6 +553,18 @@ void agent_run(void)
             AGENT_VERSION,
             g_service_mode ? "service" : "console",
             g_logfile[0] ? ", logfile=" : "", g_logfile);
+
+    /* Real-time responsiveness: a fullscreen D3D/Glide benchmark at normal
+     * priority starves the agent for 30-60s stretches, making the box look
+     * frozen to the controller exactly when diagnostics matter most.  HIGH
+     * class keeps command handling live during tests; the agent is idle
+     * (select() with 1s timeout) whenever nothing is asked of it, so this
+     * costs the foreground app nothing measurable. */
+    if (SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS))
+        log_msg(LOG_MAIN, "Process priority raised to HIGH");
+    else
+        log_msg(LOG_MAIN, "SetPriorityClass(HIGH) failed: %lu",
+                (unsigned long)GetLastError());
     if (!g_service_mode) {
         char title[128];
         _snprintf(title, sizeof(title),

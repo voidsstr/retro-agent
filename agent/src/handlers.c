@@ -48,6 +48,7 @@ static const cmd_entry_t commands[] = {
     { "UICLICK",    1, NULL,              handle_uiclick },
     { "UIDRAG",     1, NULL,              handle_uidrag },
     { "UIKEY",      1, NULL,              handle_uikey },
+    { "MONITOR",    1, NULL,              handle_monitor },
     { "DRVSNAPSHOT",1, NULL,              handle_drvsnapshot },
     { "AUTOLOGIN", 1, NULL,              handle_autologin },
     { "SERVICE",   1, NULL,              handle_service },

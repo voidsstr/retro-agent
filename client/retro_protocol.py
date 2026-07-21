@@ -137,6 +137,28 @@ class RetroConnection:
             raise RetroProtocolError(data.decode("ascii", errors="replace"))
         return data
 
+    async def monitor_stream(self, interval_ms: int = 1000, ticks: int = 60,
+                             procname: str = "", frame_timeout: float | None = None):
+        """MONITOR streaming (agent v1.15+): async-yields one status line per
+        tick until the agent sends the final 'END ticks=N' line (yielded too).
+        Holds the connection lock for the whole stream — use a dedicated
+        connection for monitoring."""
+        if frame_timeout is None:
+            frame_timeout = max(10.0, interval_ms / 1000.0 * 5)
+        cmd = f"MONITOR {interval_ms} {ticks}"
+        if procname:
+            cmd += f" {procname}"
+        async with self._lock:
+            await self._send_frame(cmd.encode("ascii"))
+            while True:
+                status, data = await self._recv_response(timeout=frame_timeout)
+                text = data.decode("ascii", errors="replace")
+                if status == RESP_ERROR:
+                    raise RetroProtocolError(text)
+                yield text
+                if text.startswith("END "):
+                    return
+
     async def _send_frame(self, payload: bytes):
         """Send a length-prefixed frame."""
         header = struct.pack("<I", len(payload))

@@ -44,6 +44,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/retrowall.c \
           $(SRCDIR)/onboard.c \
           $(SRCDIR)/watchdog.c \
+          $(SRCDIR)/monitor.c \
           $(SRCDIR)/log.c \
           $(SRCDIR)/util.c
 
