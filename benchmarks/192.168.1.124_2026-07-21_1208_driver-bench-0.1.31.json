@@ -1,0 +1,34 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-21T12:08:58",
+ "cpu": "x86 ~845MHz",
+ "stack": {
+  "display_driver": "unrecognized (689216 B)",
+  "glide3x": "unrecognized (None B)",
+  "icd": "retro3dfx-gl (MesaFX 6.2 fork)",
+  "stack_composition": "retro3dfx-WFP-0.1.31"
+ },
+ "env": "none",
+ "changes": "",
+ "q3_timedemo": [
+  {
+   "benchmark": "ut99-utbench",
+   "resolution": "1024x768",
+   "mode": 6,
+   "run": 1,
+   "fps": 27.37,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.31]",
+   "driver_version": "0.1.31",
+   "settings": {
+    "resolution": "1024x768",
+    "engine": "UT99 v436/OpenGLDrv",
+    "demo": "UTbench.dem",
+    "map": "DM-Gothic",
+    "colorbits": "16",
+    "renderer": "OpenGL (our ICD)",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  }
+ ],
+ "screenshot": null
+}

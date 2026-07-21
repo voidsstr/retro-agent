@@ -34,12 +34,49 @@ benchmarking a new driver build — this is the metadata that makes A/Bs
 attributable), `--lever performance|quality`, `--screenshot` (adds the
 in-engine capture + quality DB row), `--notes`.
 
-### Games: Quake III + Counter-Strike 1.6 + Quake II
+### Game benchmark rotation (Glide/OpenGL titles on .124)
 
-`--game q3` (default) | `cs16` | `q2` | `both` (q3+cs16) | `all` (q3+cs16+q2).
-All run through the Voodoo's OpenGL path (our ICD), so one ICD build is measured
-across three engines — Q3 (idTech3), CS 1.6 (GoldSrc), and Q2 (idTech2). DB
-benchmark names: `q3-timedemo-four`, `cs16-timedemo`, `q2-timedemo`.
+`--game q3` (default) | `q2` | `ut` | `rtcw` | `cs16` | `both` (q3+rtcw) | `all`.
+All run through the Voodoo3 OpenGL path (our MesaFX ICD, `retrogl`/`opengl32`
+game-local), so one ICD build is measured across several engines. Resolutions via
+`--modes 3,4,6` (640/800/1024) and `--q2modes`.
+
+**Prerequisite: OUR display driver must be loaded** (not the in-box MS driver) or
+the ICD's Glide fullscreen context hangs at GL init. Install via **voodoo3-wfp.inf**
+(WFP-safe rename PnP install — see `retro-3dfx/FINDINGS.md`). VIDEODIAG should show
+`driver_version` = `unknown` (ours), not `5.1.2001.0` (in-box). On our driver the
+verified numbers (0.1.31): Q2 96.6@640 / 47.1@1024, Q3 58.6@640 / 50.8@1024,
+RtCW ~55 (wolfbench).
+
+| game | `--game` | engine | benchmark method | DB name | status |
+|---|---|---|---|---|---|
+| Quake III Arena | `q3` | idTech3 | `+set timedemo 1` four-map demo | `q3-timedemo-four` | ✅ automated |
+| Quake II | `q2` | idTech2 | `+timedemo 1 +demomap demo1.dm2` | `q2-timedemo` | ✅ automated |
+| Unreal Tournament | `ut` | Unreal | UTbench.dem, F9 timedemo | `ut-timedemo` | ✅ automated |
+| Return to Castle Wolfenstein | `rtcw` | idTech3 | `+set timedemo 1 +demo wolfbench` | `rtcw-wolfbench` | ✅ automated |
+| Counter-Strike 1.6 | `cs16` | GoldSrc | pre-recorded demo `+timedemo` | `cs16-timedemo` | ✅ automated (BC Romania build) |
+| Medal of Honor: Allied Assault | `mohaa` | idTech3 (Ritual) | see MOHAA note | `mohaa-timedemo` | renders (CD1 ISO mount req'd); fps needs demo |
+
+**Additional installed Glide titles on .124** (not yet in the harness — candidates
+to add): **Carmageddon 2** (native Glide, `D:\GOG Games`), **Descent 3** (Glide),
+**Half-Life GOTY / Opposing Force** (GoldSrc like CS), **Doom 2** (GL source port),
+Descent 1/2. Add via the same engine mechanisms (GoldSrc→cs16-style,
+idTech→q2/q3-style). Grab more legally-free Glide games via the
+[[legit-game-library-pipe]] (Unreal/Kingpin/Heretic II/Sin/Shogo demos are
+Glide-native and freely distributable).
+
+**MOHAA note:** loads our ICD as game-local `opengl32.dll`/`3dfxvgl.dll` (2742298)
++ AmigaMerlin `glide3x.dll` (344064). **Requires the CD1 ISO mounted** (DaemonTools
+is installed on .124) or a no-CD exe patch, else it aborts. Renders fine on our
+driver on a clean launch (DO NOT pass `+set logfile 2`/`r_mode`/`r_gldriver` on the
+command line — MOHAA's Ritual build mishandles them and crashes at GL context
+create). Uses **DirectInput** (injected keys don't reach it) + has **no bundled
+demo**, so an fps timedemo needs a `.dm_` demo staged in `main\` first
+(`+set timedemo 1 +demo <name>`); menu-navigation recording is blocked by
+DirectInput.
+
+DB benchmark names: `q3-timedemo-four`, `q2-timedemo`, `ut-timedemo`,
+`rtcw-wolfbench`, `cs16-timedemo`, `mohaa-timedemo`.
 
 **Quake II** (`--game q2`, `--q2dir`, `--q2demo demo1.dm2`, `--q2modes 3,6`):
 launches `quake2.exe +set vid_ref gl +set gl_driver retrogl +set gl_mode <m>

@@ -1,5 +1,27 @@
 # Retro Agent — Claude Code Instructions
 
+## Don't Stop With Unfinished Work (REQUIRED)
+
+**Do not stop or hand back while there is unfinished work in scope.** If a task is
+blocked, find another route to complete it (a different mechanism, a workaround, a
+prerequisite fix) rather than declaring it blocked and stopping. Keep working
+through the task list until everything the user asked for is actually done and
+verified — only pause when genuinely blocked on something that requires the user
+(a decision only they can make, a physical action, missing credentials). When a box
+reboot or long operation is in flight, wait for it and continue; don't end the turn
+early. Persist through multi-step, multi-reboot efforts to completion.
+
+## Findings Log & Documentation Upkeep (REQUIRED)
+
+**Keep a running findings log and keep docs current.** As you uncover any important,
+hard-won finding (a gotcha, a root cause, a working method, a dead end that cost
+time), immediately append it to the findings log
+`/home/voidsstr/development/retro-3dfx/FINDINGS.md` (newest-first within its section;
+this is the quick "don't forget this" index — detailed narratives go in the relevant
+plan/design doc). **After every key milestone**, also update the affected
+documentation (e.g. `retro-3dfx/D3D-DRIVER-PLAN.md`, skill `SKILL.md` files, the
+memory files) so they reflect reality. Do this proactively, not only when asked.
+
 ## Session Startup — Chat Proxy Status Check (REQUIRED)
 
 **On every Claude Code session start in this directory, IMMEDIATELY run the chat status check and echo a status message to the user.** Do this as your first action, before responding to any user message:

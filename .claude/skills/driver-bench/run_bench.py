@@ -97,6 +97,25 @@ RT_EXE = "WolfMP.exe"
 RT_DEMO = "wolfbench"
 RT_GLDRIVER_FILE = r"gl\openglv5.dll"           # the file RtCW's r_glDriver loads
 
+# Medal of Honor: Allied Assault (idTech3 / Ritual). Loads our ICD as game-local
+# opengl32.dll / 3dfxvgl.dll (2742298) + AmigaMerlin glide3x.dll (344064).
+# REQUIRES the CD1 ISO mounted (DaemonTools on .124) or a no-CD exe. MOHAA's Ritual
+# build CRASHES if you pass +set logfile/r_mode/r_gldriver on the command line, so
+# the runner uses a startup cfg (uiconsole/exec) instead. Uses DirectInput (no
+# injected keys) + ships no demo -> an fps timedemo needs a .dm_ staged in main\.
+MOHAA_DIR = r"D:\Program Files\EA GAMES\MOHAA"
+MOHAA_DIR_SHORT = r"D:\PROGRA~1\EAGAMES\MOHAA"
+MOHAA_EXE = "MOHAA.exe"
+MOHAA_DEMO = "mohbench"      # main\<name>.dm_ (stage first; DirectInput blocks recording)
+MOHAA_DT_DIR = r"D:\Program Files\D-Tools"   # DaemonTools 3.47 install on the ACTIVE
+                                             # (D:) volume — the registered one
+# Space-free ISO path (DaemonTools 3.47 CLI can't handle spaces). Source ISO lives
+# on the share at Z:\Games\Windows XP\Medal of Honor Allied Assault (2002) - Disc 1.iso;
+# staged once to this space-free local path for mounting. Override via --mohaa-cd.
+MOHAA_CD_IMAGE = r"D:\ISO\MOHAA_CD1.iso"
+MOHAA_CD_SHARE = r"Z:\Games\Windows XP\Medal of Honor Allied Assault (2002) - Disc 1.iso"
+MOHAA_PLAY_NORMAL_BTN = (512, 489)   # "Play in Normal Mode" on MOHAA's crash-recovery dialog @1024x768
+
 # ---------------------------------------------------------------------------
 # Quality / video-card settings — recorded IN FULL on every run, and swept
 # ---------------------------------------------------------------------------
@@ -187,6 +206,11 @@ SETMODE_EXE = r'C:\RETRO_AGENT\3dfx-driver\setmode.exe'
 
 async def kill_wait(c, image="quake3.exe"):
     await exw(c, r'cmd /c taskkill /f /im %s 2>nul' % image, 15)
+    # Also clear any Windows Error Reporting / Dr Watson crash dialogs a prior
+    # force-kill may have spawned — across a multi-game sweep these otherwise
+    # ACCUMULATE and block later games' launch dialogs (e.g. UT's Recovery Mode) ->
+    # silent None fps. (Belt-and-suspenders with preflight's error-reporting disable.)
+    await exw(c, r'cmd /c taskkill /f /im dwwin.exe /im dumprep.exe 2>nul', 10)
     gone = False
     for _ in range(6):
         r = await exw(c, r'cmd /c tasklist /fi "imagename eq %s" /nh' % image, 12)
@@ -202,6 +226,19 @@ async def kill_wait(c, image="quake3.exe"):
 
 async def preflight(c):
     """Return (specs, gpu_ok, cpu_str). Aborts caller if not 3dfx / agent too old."""
+    # Disable Windows Error Reporting / Dr Watson so the per-run taskkill /f of a
+    # fullscreen game does NOT spawn a "X has encountered a problem" dialog. These
+    # accumulate across a multi-game sweep and BLOCK later games' launch dialogs
+    # (e.g. UT's Recovery-Mode dialog) -> silent None fps. Idempotent; cheap.
+    for cmd in (
+        r'reg add "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v DoReport /t REG_DWORD /d 0 /f',
+        r'reg add "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v ShowUI /t REG_DWORD /d 0 /f',
+        r'reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AeDebug" /v Auto /t REG_SZ /d 0 /f',
+    ):
+        try:
+            await c.command_text("EXEC cmd /c " + cmd, timeout=15)
+        except Exception:
+            pass
     specs = {}
     si = json.loads(await c.command_text("SYSINFO", timeout=20))
     specs["sysinfo"] = si
@@ -427,16 +464,43 @@ async def ut_ensure_binds(c):
     txt = re.sub(r'\bF10=[^\r\n]*', 'F10=Exit', txt, count=1)
     if txt != orig:
         await c.send_command("UPLOAD %s\\User.ini" % UT_DIR, binary_payload=txt.encode("latin-1"))
+    # auto-stage UTbench.dem (UT plays it from System\) if missing — prevents the
+    # silent "None fps" when the demo isn't present.
+    chk = await exw(c, r'cmd /c if exist "%s\%s" echo Y' % (UT_DIR, UT_DEMO), 10)
+    if "Y" not in chk:
+        local = os.path.join(REPO, "benchmarks", "demos_UTbench.dem")
+        if os.path.exists(local):
+            await c.send_command(r"UPLOAD %s\%s" % (UT_DIR, UT_DEMO),
+                                 binary_payload=open(local, "rb").read())
 
 
-async def ut_timedemo(ip):
-    """One UT99 UTbench.dem timedemo run, FULLY AUTOMATED. Returns (fps, gl).
-    Needs our ICD staged as UT System\\opengl32.dll + glide3x.dll + UTbench.dem
-    (see the module docstring for the flow / why command-line demo play fails)."""
+async def ut_set_res(c, mode):
+    """Set UT's fullscreen resolution in UnrealTournament.ini to `mode`'s WxH
+    (FullscreenViewportX/Y under [WinDrv.WindowsClient])."""
+    res = MODE_RES.get(mode, "640x480")
+    w, h = res.split("x")
+    try:
+        data = await c.command_binary("DOWNLOAD %s\\UnrealTournament.ini" % UT_DIR)
+        txt = data.decode("latin-1")
+    except Exception:
+        return
+    orig = txt
+    txt = re.sub(r'\bFullscreenViewportX=\d+', 'FullscreenViewportX=%s' % w, txt)
+    txt = re.sub(r'\bFullscreenViewportY=\d+', 'FullscreenViewportY=%s' % h, txt)
+    if txt != orig:
+        await c.send_command("UPLOAD %s\\UnrealTournament.ini" % UT_DIR,
+                             binary_payload=txt.encode("latin-1"))
+
+
+async def ut_timedemo(ip, mode=3):
+    """One UT99 UTbench.dem timedemo run at `mode`'s resolution, FULLY AUTOMATED.
+    Returns (fps, gl). Needs our ICD staged as UT System\\opengl32.dll + glide3x.dll
+    + UTbench.dem (auto-staged by ut_ensure_binds)."""
     log = r"%s\bench.log" % UT_DIR
     c = await connect(ip)
     await kill_wait(c, "UnrealTournament.exe")
     await ut_ensure_binds(c)
+    await ut_set_res(c, mode)
     await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 12)
     # 640x480x16 desktop so the recovery-dialog button is at UT_RECOVERY_BTN
     try:
@@ -473,22 +537,24 @@ async def ut_timedemo(ip):
     return fps, gl
 
 
-async def rtcw_timedemo(ip):
-    """One RtCW WolfMP wolfbench timedemo run. Returns (fps, gl). Needs our ICD at
-    RT_DIR\\gl\\openglv5.dll + main\\demos\\wolfbench.dm_60 staged."""
+async def rtcw_timedemo(ip, mode=3):
+    """One RtCW WolfMP wolfbench timedemo run at r_mode `mode`. Returns (fps, gl).
+    Needs our ICD at RT_DIR\\gl\\openglv5.dll + main\\demos\\wolfbench.dm_60 staged."""
     log = r"%s\Main\rtcwconsole.log" % RT_DIR
     rcopy = r"%s\Main\rtcw_r.log" % RT_DIR
+    res = MODE_RES.get(mode, "640x480")
+    w, h = res.split("x")
     c = await connect(ip)
     await kill_wait(c, RT_EXE)
     await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 12)
     try:
-        await c.command_text("DISPLAYCFG set 640 480 16 75", timeout=20)
+        await c.command_text("DISPLAYCFG set %s %s 16 75" % (w, h), timeout=20)
         await asyncio.sleep(2)
     except Exception:
         pass
-    await exw(c, r'cmd /c cd /d "%s" ^&^& start "" %s +set r_mode 3 +set r_fullscreen 1 '
+    await exw(c, r'cmd /c cd /d "%s" ^&^& start "" %s +set r_mode %d +set r_fullscreen 1 '
                  r'+set r_colorbits 16 +set sv_pure 0 +set s_initsound 0 +set logfile 2 '
-                 r'+set timedemo 1 +demo %s' % (RT_DIR_SHORT, RT_EXE, RT_DEMO), 15)
+                 r'+set timedemo 1 +demo %s' % (RT_DIR_SHORT, RT_EXE, mode, RT_DEMO), 15)
     await c.close()
     await asyncio.sleep(55)
     c = await connect(ip)
@@ -507,6 +573,94 @@ async def rtcw_timedemo(ip):
         await c.command_text("DISPLAYCFG set 1024 768 32 75", timeout=20)
     except Exception:
         pass
+    await c.close()
+    return fps, gl
+
+
+async def mount_iso(c, image, dtdir=MOHAA_DT_DIR):
+    """Mount an ISO via DaemonTools 3.47 (classic daemon.exe) and return the drive
+    letter it mounted at, or None. Reusable ISO-mount automation.
+
+    Hard-won specifics on .124: (1) there are two D-Tools installs (C: and D:);
+    only the one on the ACTIVE Windows volume (D:) is registered — the C: daemon.exe
+    throws "Product not installed!". (2) daemon.exe stays resident (tray), so launch
+    it DETACHED (`start ""`) from its own dir; EXECW would tree-kill it and undo the
+    mount. (3) It mounts to the FIRST DT virtual CD drive (created by the d347bus
+    driver, already running). Path must be space-free (use a short 8.3 path or a
+    no-space location). Verifies by scanning CD-ROM drive letters for a volume."""
+    short = dtdir.replace(r"D:\Program Files", r"D:\PROGRA~1")
+    # start the tray (idempotent) then issue the mount, both detached from the DT dir
+    await exw(c, r'cmd /c start "" /d "%s" %s\daemon.exe' % (dtdir, short), 12)
+    await asyncio.sleep(5)
+    await exw(c, r'cmd /c start "" /d "%s" %s\daemon.exe -mount 0,%s' % (dtdir, short, image), 12)
+    await asyncio.sleep(8)
+    # find the CD-ROM drive that now has a volume mounted
+    dl = await exw(c, r'cmd /c wmic logicaldisk where drivetype=5 get deviceid,volumename', 20)
+    for line in dl.splitlines():
+        m = re.match(r'\s*([E-Z]):\s+(\S.*\S)\s*$', line)
+        if m and m.group(2).lower() not in ("volumename",):
+            return m.group(1)
+    return None
+
+
+async def mohaa_mount_cd(c, image=MOHAA_CD_IMAGE):
+    """Mount the MOHAA CD1 ISO so MOHAA's CD-verification check passes. Returns the
+    mounted drive letter or None. (MOHAA only reads the CD for the check, not during
+    play, so mounting the share ISO directly is fine — no local copy needed.)"""
+    return await mount_iso(c, image)
+
+
+async def mohaa_timedemo(ip, cd_image=MOHAA_CD_IMAGE):
+    """One MOHAA timedemo run. Returns (fps, gl). Prereqs: CD1 ISO mountable via
+    DaemonTools (or a no-CD MOHAA.exe), our ICD as MOHAA\\opengl32.dll +
+    MOHAA-local glide3x.dll (344064), and a demo staged at main\\<MOHAA_DEMO>.dm_.
+    MOHAA crashes on command-line +set of logfile/r_mode/r_gldriver, so the timedemo
+    is driven by a staged startup cfg exec'd via +exec (safe)."""
+    log = r"%s\main\moh_bench.log" % MOHAA_DIR
+    c = await connect(ip)
+    await kill_wait(c, MOHAA_EXE)
+    await mohaa_mount_cd(c, cd_image)
+    # verify a demo is present; if not, we can only validate render (no fps)
+    dchk = await exw(c, r'cmd /c if exist "%s\main\%s.dm_" echo Y' % (MOHAA_DIR, MOHAA_DEMO), 10)
+    have_demo = "Y" in dchk and "__ERR__" not in dchk
+    # startup cfg: force logging + run the timedemo + quit (no injected input needed)
+    cfg = ("seta logfile 2\r\n"
+           "seta timescale 1\r\n"
+           "timedemo 1\r\n"
+           "demo %s\r\n" % MOHAA_DEMO +
+           "wait 3000\r\n"
+           "quit\r\n") if have_demo else "seta logfile 2\r\n"
+    await c.send_command(r'UPLOAD %s\main\moh_bench.cfg' % MOHAA_DIR, binary_payload=cfg.encode("latin-1"))
+    await exw(c, r'cmd /c del /f /q "%s" 2>nul' % log, 10)
+    # clean launch (NO +set r_mode/logfile/gldriver on cmdline — MOHAA's Ritual build
+    # crashes on those) + exec our cfg
+    await exw(c, r'cmd /c cd /d "%s" ^&^& start "" %s +exec moh_bench.cfg'
+                 % (MOHAA_DIR_SHORT, MOHAA_EXE), 15)
+    await c.close()
+    await asyncio.sleep(12)
+    # MOHAA.exe is a launcher front-end; after a prior force-kill it shows a
+    # crash-recovery dialog ("Play in Safe Mode / Play in Normal Mode"). Click
+    # "Play in Normal Mode" to reach the game (harmless no-op if absent).
+    c = await connect(ip)
+    await c.command_text("UICLICK %d %d" % MOHAA_PLAY_NORMAL_BTN, timeout=10)
+    await c.close()
+    await asyncio.sleep(48 if have_demo else 20)
+    c = await connect(ip)
+    fps = gl = None
+    if have_demo:
+        for _ in range(4):
+            txt = await exw(c, r'cmd /c type "%s\main\qconsole.log" 2>nul' % MOHAA_DIR, 20)
+            m = re.search(r"(\d+) frames,?\s+([\d.]+) seconds:?\s+([\d.]+) fps", txt) \
+                or re.search(r"([\d.]+)\s*fps", txt)
+            gl = next((l.split("GL_RENDERER:", 1)[1].strip() for l in txt.splitlines()
+                       if "GL_RENDERER" in l), gl)
+            if m:
+                fps = float(m.groups()[-1]); break
+            await asyncio.sleep(10)
+    else:
+        # no demo: at least confirm it rendered (process was alive / GL init reached)
+        gl = "render-only (no demo staged; stage main\\%s.dm_ for fps)" % MOHAA_DEMO
+    await kill_wait(c, MOHAA_EXE)
     await c.close()
     return fps, gl
 
@@ -636,7 +790,9 @@ async def main():
     ap.add_argument("--q2demo", default=Q2_DEMO, help="baseq2 demo, e.g. demo1.dm2")
     ap.add_argument("--q2modes", default="3,6", help="Q2 gl_mode list (3=640x480,6=1024x768)")
     ap.add_argument("--q2driver", default=Q2_GLDRIVER, help="Q2 gl_driver (3dfxgl works; retrogl=our ICD)")
-    ap.add_argument("--game", default="q3", choices=["q3", "cs16", "q2", "ut", "rtcw", "both", "all"],
+    ap.add_argument("--mohaa-cd", default=MOHAA_CD_IMAGE, dest="mohaa_cd",
+                    help="MOHAA CD1 ISO path to mount via DaemonTools")
+    ap.add_argument("--game", default="q3", choices=["q3", "cs16", "q2", "ut", "rtcw", "mohaa", "both", "all"],
                     help="which benchmark(s) to run (default q3)")
     ap.add_argument("--cs16dir", default=CS16_DIR)
     ap.add_argument("--cs16demo", default=CS16_DEMO, help="cstrike\\<name>.dem to timedemo")
@@ -762,28 +918,46 @@ async def main():
                 print("q2 %s run %d: %s fps [driver %s]" % (label, run, fps, ver))
 
     if args.game in ("ut", "all"):
-        for run in range(1, args.runs + 1):
-            fps, gl = await ut_timedemo(args.ip)
-            ver = ver_of(gl)
-            runs.append({"benchmark": "ut99-utbench", "resolution": "640x480", "run": run,
-                         "fps": fps, "gl_renderer": gl, "driver_version": ver,
-                         "settings": {"resolution": "640x480", "engine": "UT99 v436/OpenGLDrv",
-                                      "demo": UT_DEMO, "map": "DM-Gothic", "colorbits": "16",
-                                      "renderer": "OpenGL (our ICD)",
-                                      "fsaa": "none (Voodoo3 has no T-buffer)"}})
-            print("ut UTbench run %d: %s fps [driver %s]" % (run, fps, ver))
+        for mode in (int(m) for m in args.modes.split(",")):
+            label = MODE_RES.get(mode, "mode%d" % mode)
+            for run in range(1, args.runs + 1):
+                fps, gl = await ut_timedemo(args.ip, mode)
+                ver = ver_of(gl)
+                runs.append({"benchmark": "ut99-utbench", "resolution": label, "mode": mode,
+                             "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
+                             "settings": {"resolution": label, "engine": "UT99 v436/OpenGLDrv",
+                                          "demo": UT_DEMO, "map": "DM-Gothic", "colorbits": "16",
+                                          "renderer": "OpenGL (our ICD)",
+                                          "fsaa": "none (Voodoo3 has no T-buffer)"}})
+                print("ut UTbench %s run %d: %s fps [driver %s]" % (label, run, fps, ver))
 
     if args.game in ("rtcw", "all"):
+        for mode in (int(m) for m in args.modes.split(",")):
+            label = MODE_RES.get(mode, "mode%d" % mode)
+            for run in range(1, args.runs + 1):
+                fps, gl = await rtcw_timedemo(args.ip, mode)
+                ver = ver_of(gl)
+                runs.append({"benchmark": "rtcw-wolfbench", "resolution": label, "mode": mode,
+                             "run": run, "fps": fps, "gl_renderer": gl, "driver_version": ver,
+                             "settings": {"resolution": label, "r_mode": mode,
+                                          "engine": "idTech3/RtCW WolfMP",
+                                          "demo": "wolfbench.dm_60", "map": "mp_beach", "colorbits": "16",
+                                          "renderer": "OpenGL (our ICD via gl/openglv5.dll)",
+                                          "fsaa": "none (Voodoo3 has no T-buffer)"}})
+                print("rtcw wolfbench %s run %d: %s fps [driver %s]" % (label, run, fps, ver))
+
+    if args.game in ("mohaa", "all"):
         for run in range(1, args.runs + 1):
-            fps, gl = await rtcw_timedemo(args.ip)
+            fps, gl = await mohaa_timedemo(args.ip, args.mohaa_cd)
             ver = ver_of(gl)
-            runs.append({"benchmark": "rtcw-wolfbench", "resolution": "640x480", "run": run,
+            runs.append({"benchmark": "mohaa-timedemo", "resolution": "unknown", "run": run,
                          "fps": fps, "gl_renderer": gl, "driver_version": ver,
-                         "settings": {"resolution": "640x480", "engine": "idTech3/RtCW WolfMP",
-                                      "demo": "wolfbench.dm_60", "map": "mp_beach", "colorbits": "16",
-                                      "renderer": "OpenGL (our ICD via gl/openglv5.dll)",
-                                      "fsaa": "none (Voodoo3 has no T-buffer)"}})
-            print("rtcw wolfbench run %d: %s fps [driver %s]" % (run, fps, ver))
+                         "settings": {"engine": "idTech3/MOHAA (Ritual)",
+                                      "demo": "%s.dm_" % MOHAA_DEMO,
+                                      "renderer": "OpenGL (our ICD via MOHAA opengl32/3dfxvgl)",
+                                      "cd": "CD1 ISO mounted via DaemonTools",
+                                      "note": "DirectInput; no bundled demo; fps needs a staged .dm_"}})
+            print("mohaa timedemo run %d: %s fps [driver %s]" % (run, fps, ver))
 
     outdir = os.path.join(REPO, "benchmarks")
     # Quality capture (--screenshot): grab BOTH a 3D scene AND the menu (the 2D

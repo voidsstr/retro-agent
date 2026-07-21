@@ -1,0 +1,50 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-21T10:20:35",
+ "cpu": "x86 ~845MHz",
+ "stack": {
+  "display_driver": "unrecognized (689216 B)",
+  "glide3x": "unrecognized (None B)",
+  "icd": "retro3dfx-gl (MesaFX 6.2 fork)",
+  "stack_composition": "retro3dfx-WFP-0.1.31"
+ },
+ "env": "none",
+ "changes": "",
+ "q3_timedemo": [
+  {
+   "benchmark": "ut99-utbench",
+   "resolution": "640x480",
+   "run": 1,
+   "fps": null,
+   "gl_renderer": null,
+   "driver_version": "unknown",
+   "settings": {
+    "resolution": "640x480",
+    "engine": "UT99 v436/OpenGLDrv",
+    "demo": "UTbench.dem",
+    "map": "DM-Gothic",
+    "colorbits": "16",
+    "renderer": "OpenGL (our ICD)",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "ut99-utbench",
+   "resolution": "640x480",
+   "run": 2,
+   "fps": null,
+   "gl_renderer": null,
+   "driver_version": "unknown",
+   "settings": {
+    "resolution": "640x480",
+    "engine": "UT99 v436/OpenGLDrv",
+    "demo": "UTbench.dem",
+    "map": "DM-Gothic",
+    "colorbits": "16",
+    "renderer": "OpenGL (our ICD)",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  }
+ ],
+ "screenshot": null
+}

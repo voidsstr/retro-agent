@@ -1,0 +1,36 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-20T22:48:36",
+ "cpu": "x86 ~845MHz",
+ "stack": {
+  "display_driver": "unrecognized (689216 B)",
+  "glide3x": "unrecognized (None B)",
+  "icd": "retro3dfx-gl (MesaFX 6.2 fork)",
+  "stack_composition": "HYBRID: retail display+glide (unrecognized (689216 B) / unrecognized (None B)) + our MesaFX ICD"
+ },
+ "env": "FX_GAMMA=1.6 FX_DITHER=1",
+ "changes": "",
+ "q3_timedemo": [
+  {
+   "benchmark": "q2-timedemo",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 1,
+   "fps": null,
+   "gl_renderer": null,
+   "driver_version": "unknown",
+   "settings": {
+    "resolution": "640x480",
+    "gl_mode": 3,
+    "engine": "idTech2/quake2.exe",
+    "demo": "demo1.dm2",
+    "renderer": "OpenGL (our ICD via gl_driver)",
+    "gl_driver": "retrogl",
+    "colorbits": "16",
+    "vid_fullscreen": "1",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  }
+ ],
+ "screenshot": null
+}

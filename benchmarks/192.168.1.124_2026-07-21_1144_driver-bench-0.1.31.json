@@ -1,0 +1,54 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-21T11:44:31",
+ "cpu": "x86 ~845MHz",
+ "stack": {
+  "display_driver": "unrecognized (689216 B)",
+  "glide3x": "unrecognized (None B)",
+  "icd": "retro3dfx-gl (MesaFX 6.2 fork)",
+  "stack_composition": "retro3dfx-WFP-0.1.31"
+ },
+ "env": "none",
+ "changes": "",
+ "q3_timedemo": [
+  {
+   "benchmark": "rtcw-wolfbench",
+   "resolution": "1024x768",
+   "mode": 6,
+   "run": 1,
+   "fps": 31.8,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.31]",
+   "driver_version": "0.1.31",
+   "settings": {
+    "resolution": "1024x768",
+    "r_mode": 6,
+    "engine": "idTech3/RtCW WolfMP",
+    "demo": "wolfbench.dm_60",
+    "map": "mp_beach",
+    "colorbits": "16",
+    "renderer": "OpenGL (our ICD via gl/openglv5.dll)",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  },
+  {
+   "benchmark": "rtcw-wolfbench",
+   "resolution": "1024x768",
+   "mode": 6,
+   "run": 2,
+   "fps": 31.9,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.31]",
+   "driver_version": "0.1.31",
+   "settings": {
+    "resolution": "1024x768",
+    "r_mode": 6,
+    "engine": "idTech3/RtCW WolfMP",
+    "demo": "wolfbench.dm_60",
+    "map": "mp_beach",
+    "colorbits": "16",
+    "renderer": "OpenGL (our ICD via gl/openglv5.dll)",
+    "fsaa": "none (Voodoo3 has no T-buffer)"
+   }
+  }
+ ],
+ "screenshot": null
+}
