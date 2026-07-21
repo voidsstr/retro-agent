@@ -73,8 +73,37 @@ DTFIX='DLLTOOL_FLAGS=--as-flags=--32 -m i386'
 
 emit(){ cp "$1/glide3x.dll" "$OUT/$2"; cp "$1/libglide3x.dll.a" "$OUT/sdk/lib/$3"; }
 
+# dual_abi_relink <glide-build-dir> — relink a freshly-built glide DLL so it
+# exports BOTH `grFoo@N` (mingw) AND `_grFoo@N` (MSVC-style, underscore). Our
+# MesaFX ICD (and the retail-linked build) IMPORT the underscore-decorated glide
+# names (same as retail 3dfx glide exports); a pure-mingw glide exports only the
+# non-underscore names, so the ICD fails LoadLibrary. Exporting both makes our
+# glide a drop-in for either ICD. (Root cause proven 2026-07-21 by objdump: ICD
+# imports _grBufferSwap@4, mingw glide exported grBufferSwap@4.)
+dual_abi_relink(){
+  local D="$1" def us objs
+  def="$D/lib/glide3x.def"; us="$D/lib/glide3x_us.def"
+  [ -f "$def" ] || { echo "  dual_abi: no def in $D, skipping"; return 0; }
+  # augment the auto-generated def with `_NAME = NAME` underscore aliases
+  python3 - "$def" "$us" <<'PY'
+import re,sys
+src=open(sys.argv[1]).read().splitlines(); out=list(src); al=[]
+for line in src:
+    m=re.match(r'\s*(\w+@\d+)\s+@\d+\s*$', line)
+    if m: al.append("    _%s = %s"%(m.group(1), m.group(1)))
+open(sys.argv[2],"w").write("\n".join(out+al)+"\n")
+PY
+  objs=$(find "$D" -name "*.o" | tr '\n' ' ')
+  ${CROSS}gcc -shared -m32 -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias \
+    -o "$D/lib/glide3x.dll" "$us" $objs \
+    -luser32 -lkernel32 -lddraw -lgdi32 -ldxguid -ladvapi32 2>/dev/null \
+    && echo "  dual_abi: $D/lib/glide3x.dll now exports grFoo@N + _grFoo@N" \
+    || echo "  dual_abi: relink FAILED for $D (keeping single-ABI dll)"
+}
+
 echo "== retro3dfx-glide: glide3x h5 (Voodoo4/5) =="
 make -C "$GTREE/glide3x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h5 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" >/dev/null
+dual_abi_relink "$GTREE/glide3x/h5"
 emit "$GTREE/glide3x/h5/lib" glide3x.dll libglide3x.dll.a
 cp "$GTREE"/glide3x/h5/glide3/src/{glide,g3ext,glidesys,glideutl}.h "$OUT/sdk/include/" 2>/dev/null || true
 cp "$GTREE"/glide3x/h5/incsrc/sst1vid.h "$OUT/sdk/include/" 2>/dev/null || true
@@ -82,6 +111,7 @@ cp "$GTREE"/swlibs/fxmisc/3dfx.h "$OUT/sdk/include/" 2>/dev/null || true
 
 echo "== retro3dfx-glide: glide3x h3 (Voodoo3) =="
 make -C "$GTREE/glide3x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" >/dev/null
+dual_abi_relink "$GTREE/glide3x/h3"
 cp "$GTREE/glide3x/h3/lib/glide3x.dll" "$OUT/glide3x_h3.dll"
 
 echo "== retro3dfx-glide: glide2x (Napalm) =="

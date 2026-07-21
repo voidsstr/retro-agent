@@ -279,3 +279,27 @@ import lib with matching decoration (or have our glide export `_grFoo@N` too), a
 build a V3 (h3-linked) ICD variant. Until then .124 stays HYBRID: our MesaFX
 (retail-linked retrogl 0.1.31) + retail AmigaMerlin glide + vendored-H5 display —
 which works (Q3 57.7). Box rolled back + verified after each failed attempt.
+
+## ABI blocker SOLVED; grSstWinOpen is the next (separate) blocker (2026-07-21)
+**Stage 1 (SOLVED): ICD↔glide underscore ABI.** Our MesaFX ICD IMPORTS glide
+symbols underscore-decorated (`_grBufferSwap@4`) — same as retail 3dfx glide
+EXPORTS — but our pure-mingw glide exported only `grBufferSwap@4` ⇒ `LoadLibrary`
+fail. FIX (baked into build-stack.sh `dual_abi_relink`): relink each glide DLL with
+an augmented def so it exports BOTH `grFoo@N` and `_grFoo@N`. Proven on .124: with
+the dual-ABI glide, `LoadLibrary('retrogl.dll'): succeeded` and Q3 initialized
+through mode-set to `GLW_ChoosePFD`. All 65 ICD imports satisfied (objdump).
+**Stage 2 (OPEN): grSstWinOpen hardware-init hang.** With the ABI fixed, Q3 now
+reaches `GLW_ChoosePFD(16,16,0)` then STALLS in our glide's `grSstWinOpen`
+(Glide context / board bring-up). Retail AmigaMerlin glide does NOT stall here on
+the same box+display driver (renders 58 fps), so it's specific to OUR glide's
+hardware-init path talking to the current H5 `3dfxv3d` display driver. Leading
+suspect (per vcr-disp/README): our glide's HWCEXT `GETLINEARADDR` probe — the H5
+`3dfxvs`-derived driver answers HWCSETEXCLUSIVE/CONTEXT_DWORD_NT (seen in the reg
+ring) but may not answer GETDEVICECONFIG/GETLINEARADDR, so our glide's hwcInit
+finds no board → grSstWinOpen wedges. (The 2026-07-17 "ALL-RETRO3DFX" milestone
+DID render with our glide + an H5 build, so a working combo exists — the current
+H5 build/config or glide build diverged.) NEXT: enable glide/MESA_FX_INFO logging,
+capture where grSstWinOpen fails, compare the HWCEXT handshake our glide needs vs
+what our H5 3dfxv3d answers; fix on whichever side (add GETLINEARADDR to the H5
+build, or align our glide's init path). Box stays on the working retail-glide
+hybrid meanwhile (Q3 57.7).
