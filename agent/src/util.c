@@ -203,6 +203,37 @@ int str_starts_with(const char *str, const char *prefix)
     return strncmp(str, prefix, strlen(prefix)) == 0;
 }
 
+/* SetHandleInformation requires Windows 2000+ (confirmed via MSDN's own
+ * "Minimum supported client" — it does not exist on Windows 95/98/ME at
+ * all). Calling it as a plain static import meant every genuine Win9x
+ * box could never even LOAD retro_agent.exe: the loader can't resolve
+ * the symbol at process-creation time, before main() or any logging
+ * runs — this is what actually caused the totally silent, zero-log
+ * startup failure on a real Windows 98 box (a Compaq Deskpro 2000),
+ * not (only) the is_nt()-guard gap fixed earlier in service.c. Resolve
+ * it dynamically instead, matching the same LoadLibrary+GetProcAddress
+ * pattern already used elsewhere in this codebase (netshare.c's
+ * mpr.dll, retrowall.c's uxtheme.dll, service.c's advapi32.dll) — a
+ * no-op on Win9x rather than an unresolvable import. kernel32.dll is
+ * always already loaded in every Win32 process, so GetModuleHandleA
+ * (not LoadLibraryA) is enough to get a handle to look the symbol up in. */
+void set_handle_noinherit(HANDLE h)
+{
+    typedef BOOL (WINAPI *pfn_SetHandleInformation)(HANDLE, DWORD, DWORD);
+    static pfn_SetHandleInformation p = NULL;
+    static int resolved = 0;
+
+    if (!resolved) {
+        HMODULE k32 = GetModuleHandleA("kernel32.dll");
+        if (k32)
+            p = (pfn_SetHandleInformation)
+                GetProcAddress(k32, "SetHandleInformation");
+        resolved = 1;
+    }
+    if (p)
+        p(h, 1 /* HANDLE_FLAG_INHERIT */, 0);
+}
+
 const char *str_skip_spaces(const char *s)
 {
     while (*s == ' ' || *s == '\t') s++;

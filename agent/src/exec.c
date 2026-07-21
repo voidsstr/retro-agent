@@ -60,8 +60,9 @@ static void do_exec(SOCKET sock, const char *args, DWORD timeout_ms, int mark_ti
         return;
     }
 
-    /* Don't let child inherit the read end */
-    SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0);
+    /* Don't let child inherit the read end. Resolved dynamically —
+     * SetHandleInformation is Win2000+ only, see util.c. */
+    set_handle_noinherit(hReadPipe);
 
     memset(&si, 0, sizeof(si));
     si.cb = sizeof(si);

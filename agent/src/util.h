@@ -41,6 +41,12 @@ void  json_kv_bool(json_t *j, const char *key, int val);
 /* String helpers */
 void  safe_strncpy(char *dst, const char *src, int maxlen);
 int   str_starts_with(const char *str, const char *prefix);
+
+/* SetHandleInformation is Windows 2000+ only (absent from Win95/98/ME) —
+ * this resolves it dynamically via GetProcAddress and no-ops if it isn't
+ * present, instead of a static import that fails the whole process's
+ * load on genuine Win9x. Pass any HANDLE; always clears inherit-handle. */
+void  set_handle_noinherit(HANDLE h);
 const char *str_skip_spaces(const char *s);
 
 /* Hex formatting */
