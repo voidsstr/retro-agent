@@ -18,6 +18,11 @@ const char *log_path(void);
 /* Log a message with tag and printf-style format. */
 void log_msg(const char *tag, const char *fmt, ...);
 
+/* Lock-free crash logger for use from the unhandled-exception filter — writes
+ * straight to disk without taking the log lock (which a crashing thread may
+ * already hold). Do not use on hot paths. */
+void log_crash(const char *tag, const char *fmt, ...);
+
 /* Standard tags */
 #define LOG_MAIN  "MAIN"
 #define LOG_NET   "NET"

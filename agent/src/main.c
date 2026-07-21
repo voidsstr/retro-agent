@@ -71,17 +71,21 @@ static LONG WINAPI command_exception_filter(PEXCEPTION_POINTERS info)
     DWORD code = info->ExceptionRecord->ExceptionCode;
     void *addr = (void *)info->ExceptionRecord->ExceptionAddress;
 
-    /* Always record the fault to the log first — this is the whole point of
-     * default-on file logging: a crash in a startup/background thread (which
-     * isn't inside a command handler, so we can't longjmp out of it) would
-     * otherwise take the process down leaving no trace. */
-    log_msg(LOG_MAIN, "EXCEPTION code=0x%08lx addr=%p in_handler=%d",
-            (unsigned long)code, addr, g_in_handler);
+    /* Record the fault straight to disk (lock-free) — the whole point of the
+     * crash logger: a fault in a startup/background thread (not inside a
+     * command handler, so we can't longjmp out of it) would otherwise take
+     * the process down leaving no trace. On NT this filter is reliably
+     * invoked; on Win9x it may not be, which is why main()/agent_run() also
+     * emit dense breadcrumbs so the last logged line locates the crash. */
+    log_crash(LOG_MAIN, "*** UNHANDLED EXCEPTION code=0x%08lx addr=%p "
+              "in_handler=%d ***", (unsigned long)code, addr, g_in_handler);
 
     if (g_in_handler) {
         g_exception_code = code;
         longjmp(g_handler_jmp, 1);
     }
+    log_crash(LOG_MAIN, "*** fatal exception outside a handler; process "
+              "terminating ***");
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
@@ -241,6 +245,7 @@ static DWORD WINAPI discovery_thread(LPVOID param)
     unsigned long subnet_bcast;
 
     (void)param;
+    log_msg(LOG_NET, "discovery thread started");
 
     udp_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (udp_sock == INVALID_SOCKET) {
@@ -594,7 +599,9 @@ void agent_run(void)
     if (!g_service_mode)
         SetConsoleCtrlHandler(console_handler, TRUE);
 
+    log_msg(LOG_MAIN, "startup: cache_system_info()");
     cache_system_info();
+    log_msg(LOG_MAIN, "startup: ensure_firewall_exception()");
     ensure_firewall_exception();
 
     log_msg(LOG_MAIN, "Hostname=%s IP=%s OS=%s RAM=%luMB",
@@ -691,33 +698,32 @@ void agent_run(void)
     service_report_running();
 
     /* Apply system fixes (vcache, autologon, DMA, etc.) */
+    log_msg(LOG_MAIN, "startup: sysfix_apply_startup()");
     sysfix_apply_startup();
 
-    /* Auto-map stored network drives (in background — may block on retry) */
+    /* Background helper threads. Each is logged as it's spawned so that if the
+     * crash is in one of them (or in spawning it), the last breadcrumb names
+     * it — important on Win9x where the unhandled-exception filter is not
+     * reliably called. */
+    log_msg(LOG_MAIN, "startup: spawning automap thread");
     CreateThread(NULL, 0, automap_thread_proc, NULL, 0, NULL);
 
-    /* Self-update from network share (checks after 15s delay) */
+    log_msg(LOG_MAIN, "startup: spawning autoupdate thread");
     CreateThread(NULL, 0, autoupdate_thread, NULL, 0, NULL);
 
-    /* Ensure the retro wallpaper rotation is applied and desktop icons are
-     * parked in the blank well (after a short delay for the shell to come up).
-     * No-op if nothing has been staged into C:\retro-wall\. */
+    log_msg(LOG_MAIN, "startup: spawning retrowall thread");
     CreateThread(NULL, 0, retrowall_thread, NULL, 0, NULL);
 
-    /* First-run onboarding: map the share, stage the core game set, and apply
-     * the retro desktop/theme. No-op once the machine is marked Onboarded or if
-     * no onboarding payload has been published to the share. */
+    log_msg(LOG_MAIN, "startup: spawning onboard thread");
     CreateThread(NULL, 0, onboard_thread, NULL, 0, NULL);
 
-    /* Watchdog: if a command wedges behind a hung fullscreen game (Glide lock),
-     * kill the game + restore the display so the agent stays responsive. */
+    log_msg(LOG_MAIN, "startup: spawning watchdog thread");
     CreateThread(NULL, 0, watchdog_thread, NULL, 0, NULL);
 
-    /* AI readiness: probe/spawn the retro-infer engine and report on the
-     * console + log whether this box can take fleet AI requests, with the
-     * detected GPU + driver advice. */
+    log_msg(LOG_MAIN, "startup: spawning ai_status thread");
     CreateThread(NULL, 0, ai_status_thread, NULL, 0, NULL);
 
+    log_msg(LOG_MAIN, "startup: helper threads spawned; entering accept loop");
     clients_init();
 
     /* Accept loop */
@@ -824,6 +830,12 @@ int main(int argc, char *argv[])
 {
     int i;
 
+    /* Install the crash filter + suppress fault dialogs as the FIRST thing,
+     * before any other startup work, so a fault anywhere in startup is caught
+     * and logged rather than silently killing the process. */
+    SetErrorMode(SEM_NOGPFAULTERRORBOX | SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
+    SetUnhandledExceptionFilter(command_exception_filter);
+
     /* Parse command line */
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-s") == 0 && i + 1 < argc) {
@@ -870,10 +882,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* Suppress crash dialog popups — log and recover instead */
-    SetErrorMode(SEM_NOGPFAULTERRORBOX | SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
-    SetUnhandledExceptionFilter(command_exception_filter);
-    log_msg(LOG_MAIN, "startup: error mode + exception filter installed");
+    /* (crash filter + error mode were installed at the very top of main) */
 
     /*
      * Try to run as an NT service. If started by the SCM, this call
