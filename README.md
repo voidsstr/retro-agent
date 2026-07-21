@@ -688,6 +688,29 @@ Everything is documented in [`retro3dfx/README.md`](retro3dfx/README.md)
 (per-version changes and rationale), [`retro3dfx/FORKS.md`](retro3dfx/FORKS.md)
 (fork provenance and licenses).
 
+### Stack layout — where the files live, build & test
+
+Our open-source stack lives under [`retro3dfx/`](retro3dfx/); the vintage 3dfx
+H5 source it's contrasted with lives in the sibling `retro-3dfx` repo. Full
+orientation (and the two-ICD gotcha) is in `CLAUDE.md` → "Driver Stack Map".
+
+| | Source | Build | Output / deploy |
+|---|---|---|---|
+| **OpenGL ICD (MesaFX, ours)** | `retro3dfx/build/retro3dfx-gl/src/mesa/drivers/glide/fx*.c` (fork of sezero/MesaFX-6.2) | `retro3dfx/build-stack.sh` once, then `retro3dfx/build-mesafx-retail.sh` (mingw gcc-13, `-march=pentium3 -mfpmath=sse -ffast-math`) | `retro3dfx/out/opengl32_retail.dll` (~2.7 MB) → `retrogl.dll` on .124 |
+| **Glide (ours)** | `retro3dfx/build/retro3dfx-glide/` (fork of sezero/glide) | `retro3dfx/build-stack.sh` | `retro3dfx/out/glide3x.dll` |
+| **Display driver (ours)** | `retro3dfx/retro3dfx-disp/*.c` (original, GDI_DRIVER) | W2K-DDK | `retro3dfx-disp.dll` (clean-room track) |
+| **Vintage H5 display + D3D HAL** | `retro-3dfx/3dfx Driver Code/H5/W2K/.../Displays/H5/` | Wine/VC6 DDK | `3dfxvs.dll` → `3dfxv3d.dll` (currently provides D3D HAL on .124) |
+| **Vintage SGL ICD** (SGI 1991-97; **not** ours) | `retro-3dfx/3dfx Driver Code/SWLIBS/OPENGL/GLIDE3X/` | Wine/VC6 | `opengl.dll` (~704 KB) — the **.143 pure-3dfx lane** |
+
+- **Version:** `retro3dfx/VERSION` + `.buildnum` → **0.1.N**; renderer string
+  `Mesa Glide v0.62 [retro3dfx 0.1.N]`. Per-version fixes in `retro3dfx/CHANGELOG.md`.
+- **Tests:** `bash tests/run_all.sh` (Python client + agent-C + MesaFX ICD logic);
+  see [`tests/README.md`](tests/README.md). Vintage H5/SGL tests are in
+  `retro-3dfx/tests/`.
+- **Which OpenGL ICD is this?** MesaFX (ours) = `fx*.c`, mingw, ~2.7 MB, **0.1.x**,
+  `[retro3dfx 0.1.N]`. Vintage SGL = `__glSST*`/`SST_*.c`, MSVC, ~704 KB, **0.3.x**.
+  Check before "fixing" or testing an ICD bug.
+
 ### The Driver Optimization Process
 
 The stack didn't get fast by accident — it went through a disciplined

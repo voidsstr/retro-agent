@@ -26,23 +26,19 @@ retro-agent/tests/
   python/
     test_protocol.py      length-prefixed frame codec (client/retro_protocol.py)
     test_discovery.py     discovery packet parser (client/retro_discovery.py)
-  native/
+  native/                 OUR-stack native C logic tests (see CLAUDE.md "Driver Stack Map")
     munit.h               tiny single-header C test framework
     stubs/windows.h       lets agent C compile natively (funcs use no Win32 API)
     test_crypto.c         TRUE-SOURCE: compiles agent/src/crypto.c, XOR keystream
-retro-3dfx/tests/         (display-driver harness — see its own README)
-  run_native.sh           builds + runs every native/test_*.c
-  native/
-    test_texheap_align.c  garble fix 0.3.1  (16-byte texture-heap alignment)
-    test_palette_stride.c CS palette fix 0.3.2 (RGBA stride-4)
-    test_cook_subtexture.c subtexture OOB fix 0.2.1 (full-width row stride, *bpp skip)
-    test_res_cap.c        black-world fix 0.3.6 (modern-platform -1 cap-gate bypass)
-  test_source_invariants.sh  grep-presence checks for display-driver/HAL fixes
-  predeploy.sh            pre-deploy gate (invariants + native + built-artifact)
+    test_fx_pack_ub.c     MesaFX ICD 0.1.2: SSE float->ubyte color clamp (fxvbtmp.h)
+../retro-3dfx/tests/      VINTAGE H5 / SGL harness — the .143 pure-3dfx lane, NOT our stack
+  native/test_texheap_align.c, test_mip_download_addr.c ; test_source_invariants.sh ; predeploy.sh
 ```
 
-`run_all.sh` also invokes the retro-3dfx driver harness, so one command covers
-the whole stack.
+`run_all.sh` also invokes the retro-3dfx harness (vintage H5 display driver +
+SGL ICD) for a whole-machine view, but **the tests we own are the ones above** —
+our MesaFX ICD (`retro3dfx-gl`, 0.1.x), the agent, and the client. The vintage
+0.2.x–0.3.x SGL/H5 fixes belong to the other lane.
 
 ## What kind of tests these are
 
@@ -68,23 +64,24 @@ failure mode, so the test doubles as executable documentation of the bug.
 
 ## Fix → test coverage
 
+Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
+
 | Fix | Component | Test |
 |-----|-----------|------|
-| 0.3.1 2D text garble (16-byte tex-heap alignment) | MesaFX ICD | `retro-3dfx native/test_texheap_align.c` |
-| 0.3.2 CS palette colors (RGBA stride-4) | MesaFX ICD | `retro-3dfx native/test_palette_stride.c` |
-| 0.2.1 glTexSubImage2D OOB (full-width stride, *bpp skip) | MesaFX ICD (GLCORE) | `retro-3dfx native/test_cook_subtexture.c` |
-| 0.3.6 black world at 800/1024 (platform-classify -1 sentinel) | MesaFX ICD | `retro-3dfx native/test_res_cap.c` |
+| 0.1.2 SSE float→ubyte color clamp (`fx_pack_ub`) | MesaFX ICD | `native/test_fx_pack_ub.c` |
 | transport XOR keystream (involution + derivation) | agent C (crypto.c) | `native/test_crypto.c` |
 | discovery packet wire format | Python client | `test_discovery.py` |
 | length-prefixed frame codec + status contract | Python client | `test_protocol.py` |
 
-**Backlog** (catalogued, not yet wired — see retro-3dfx `FINDINGS.md` /
-`optimized/CHANGELOG.md` and the fix catalog): ICD pure-logic — 0.2.2 NULL-cache
-guard, element_size default, 0.1.2 SSE float→ubyte clamp, 0.1.6 swap-interval env
-default, 0.1.30 alpha-PFD matcher; agent-C — `handle_execw` timeout clamp,
-`discovery_build_packet` ⇄ Python `from_packet` round-trip, `util.c` json/hex
-helpers; render (CSIM track) — green-world 2PPC, filters, mip offset; provisioning
-— P3 no-SSE2 opcode scan of staged DLLs.
+(The vintage SGL/H5 fixes — garble 0.3.1, mip-download 08fd889 — are tested in
+`retro-3dfx/tests/`, the other lane's harness, not here.)
+
+**Backlog for OUR stack** (from `retro3dfx/CHANGELOG.md`, 0.1.x): swap-interval
+env default (0.1.6), LOD-bias default (0.1.11), alpha-PFD matcher +
+paletted-default-off (0.1.30), vertex cache (0.1.3), Q2 glide3x-binding (0.1.19);
+agent-C — `handle_execw` timeout clamp, `discovery_build_packet` ⇄ Python
+`from_packet` round-trip, `util.c` json/hex helpers; render (CSIM track) — filters,
+green-world; provisioning — P3 no-SSE2 opcode scan of staged DLLs.
 
 ## Adding a test when a fix is verified
 

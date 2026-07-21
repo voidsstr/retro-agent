@@ -42,11 +42,14 @@ an on-target D3D matrix via the windowed `d3dlab.exe` lab).
 
 ## Regression Tests — Add One When a Fix Is Verified (REQUIRED)
 
-**The driver stack has a regression suite at `tests/` — keep it green and grow it
-as fixes are verified.** Run it with `bash tests/run_all.sh` (Python client
-protocol/discovery tests + native C driver-logic tests in
-`../retro-3dfx/tests/native/`); everything runs natively on the dev host in under
-a second — no hardware, no Wine.
+**Our stack has a regression suite at `tests/` — keep it green and grow it as
+fixes are verified.** Run it with `bash tests/run_all.sh`. It covers OUR stack:
+Python client protocol/discovery tests, agent-C true-source tests, and MesaFX ICD
+logic tests in `tests/native/`. It also invokes the sibling `retro-3dfx/tests/`
+harness (the VINTAGE H5/SGL lane — see the Driver Stack Map) for a whole-machine
+view, but the tests we own live under `tests/`. Everything runs natively on the
+dev host in under a second — no hardware, no Wine. **Test the ICD your fix is
+actually in** (MesaFX 0.1.x vs vintage SGL 0.3.x — see the Stack Map).
 
 **When you verify a fix anywhere in the stack** (ICD, glide3x, display/D3D HAL,
 agent, client, provisioning), immediately:
@@ -60,6 +63,74 @@ agent, client, provisioning), immediately:
 
 This is how we show reliability and catch a fix breaking under a later change.
 Do this proactively, the same way you keep `FINDINGS.md` current.
+
+## Driver Stack Map — KNOW WHICH STACK YOU'RE TOUCHING (READ FIRST)
+
+There are **two different 3dfx codebases** in play. Do not conflate them — the
+fixes, files, build tools, versions, and even the OpenGL renderer string differ.
+
+### 1. OUR open-source stack = `retro-agent/retro3dfx/` (this is "the driver we build")
+
+A complete, self-built Voodoo stack from genuinely open source (3dfx's 2000 Glide
+GPL release + MIT Mesa). Three components, all our forks/code — provenance in
+`retro3dfx/FORKS.md`:
+
+| Component | Fork / repo | Upstream | Source (local, gitignored clone) | Builds to |
+|---|---|---|---|---|
+| **OpenGL ICD (MesaFX)** | `voidsstr/retro3dfx-gl` | `sezero/MesaFX-6.2` (Brian Paul) | `retro3dfx/build/retro3dfx-gl/src/mesa/drivers/glide/fx*.c` | `retro3dfx/out/opengl32_retail.dll` (~2.7 MB) |
+| **Glide** | `voidsstr/retro3dfx-glide` | `sezero/glide` | `retro3dfx/build/retro3dfx-glide/` | `retro3dfx/out/glide3x.dll` |
+| **Display driver** | `retro3dfx/retro3dfx-disp/` (OUR original code, GDI_DRIVER) | modeled on Device3Dfx/RISCyVoodoo/vmdisp9x | `retro3dfx/retro3dfx-disp/*.c` | `retro3dfx-disp.dll` |
+
+- **Build:** `bash retro3dfx/build-stack.sh` once (builds glide + the gl SDK/headers),
+  then `bash retro3dfx/build-mesafx-retail.sh` → `out/opengl32_retail.dll`.
+  Toolchain: **mingw `i686-w64-mingw32-gcc` (gcc-13)**; flags
+  `-O2 -ffast-math -march=pentium3 -mtune=pentium3 -mfpmath=sse`. ("retail" =
+  links the retail AmigaMerlin glide import lib; the non-retail path links our
+  `retro3dfx-glide`.)
+- **Version:** `retro3dfx/VERSION` (0.1) + `.buildnum` → **0.1.N**;
+  `GL_RENDERER = "Mesa Glide v0.62 ... [retro3dfx 0.1.N]"`.
+- **Deploy:** to **.124** as game-local `opengl32.dll` / system32 `retrogl.dll`
+  (**game-local shadows system32** — deploy to both or neutralize game-local when
+  A/B-ing). See the `deploy-3dfx-driver` skill.
+- **Tests:** `bash tests/run_all.sh` (Python client + agent-C + MesaFX ICD logic).
+- **Fix versions live in `retro3dfx/CHANGELOG.md`** (0.1.x): fx_pack_ub SSE clamp
+  (0.1.2), vertex cache (0.1.3), swap-interval (0.1.6), LOD-bias (0.1.11), Q2
+  glide3x (0.1.19), gamma/dither/alpha-PFD (0.1.30), etc.
+
+### 2. Vintage 3dfx source = the `retro-3dfx/` repo (reference + the .143 lane, NOT our open stack)
+
+3dfx's own leaked/released **H5/Napalm** driver source. We build + harden it too,
+but it is a *different* codebase from our open stack:
+
+- **Display driver + full D3D/DDraw HAL:** `retro-3dfx/3dfx Driver Code/H5/W2K/Src/Video/Displays/H5/`
+  → `3dfxvs.dll` (Wine/**MSVC DDK**), WFP-renamed `3dfxv3d.dll` (.124) / `3dfxv5d.dll` (.143).
+  **This is what currently provides the D3D HAL + 2D on .124** (our `retro3dfx-disp`
+  is the minimal cooperative driver, no full D3D HAL yet).
+- **Vintage SGI/3dfx SGL OpenGL ICD:** `retro-3dfx/3dfx Driver Code/SWLIBS/OPENGL/GLIDE3X/`
+  ("Copyright 1991-1997, Silicon Graphics, Inc.", `__glSST*` naming) → `opengl.dll`
+  (MSVC, ~704 KB) / `3dfxogl.dll`. **Versions 0.2.x–0.3.x**; this is the **.143
+  Voodoo5 "pure-3dfx" lane (the OTHER agent)** — NOT our MesaFX.
+- **Tests:** `retro-3dfx/tests/` (source-invariants, `d3dlab` pixel goldens,
+  predeploy gate) — for the H5 HAL + SGL ICD.
+
+### Telling the two OpenGL ICDs apart (this is what tripped us up)
+
+| | OUR MesaFX (retro3dfx-gl) | Vintage SGL (SWLIBS) |
+|---|---|---|
+| origin | Mesa 6.2.2 (Brian Paul) | SGI 1991-97 / 3dfx |
+| files | `src/mesa/drivers/glide/fx*.c` | `SST_*.c`, `sst_export.c`, `__glSST*` |
+| build | mingw gcc-13 | Wine/MSVC |
+| size / version | ~2.7 MB / **0.1.x** | ~704 KB / **0.2.x–0.3.x** |
+| renderer | `Mesa Glide v0.62 [retro3dfx 0.1.N]` | `[retro3dfx 0.2.x]` |
+| lane | **.124 (ours)** | .143 (other agent) |
+
+**Current .124 deployment is a HYBRID:** OUR MesaFX ICD (open) + retail AmigaMerlin
+glide + vintage H5 display/D3D driver — converging toward the all-open stack
+(retro3dfx-gl + retro3dfx-glide + retro3dfx-disp).
+
+**Before writing a driver test or "fixing" an ICD bug, confirm which ICD it's in**
+(renderer string / file path / version number above). A 0.3.x fix in `SWLIBS`
+is the vintage SGL lane, not our MesaFX.
 
 ## Session Startup — Chat Proxy Status Check (REQUIRED)
 
