@@ -40,6 +40,27 @@ an on-target D3D matrix via the windowed `d3dlab.exe` lab).
   equivalent) so the fix can never silently regress. A fix without a
   regression test is not done.
 
+## Regression Tests — Add One When a Fix Is Verified (REQUIRED)
+
+**The driver stack has a regression suite at `tests/` — keep it green and grow it
+as fixes are verified.** Run it with `bash tests/run_all.sh` (Python client
+protocol/discovery tests + native C driver-logic tests in
+`../retro-3dfx/tests/native/`); everything runs natively on the dev host in under
+a second — no hardware, no Wine.
+
+**When you verify a fix anywhere in the stack** (ICD, glide3x, display/D3D HAL,
+agent, client, provisioning), immediately:
+1. Add a test that encodes the fix's invariant — a `native/test_<fix>.c`
+   (pure-logic/arithmetic invariant, citing the source file:function + fix
+   version, asserting BOTH the fixed and the old-buggy value) or a
+   `tests/python/test_*.py` case. See `tests/README.md` for the pattern.
+2. Confirm `bash tests/run_all.sh` stays green.
+3. Update `tests/README.md`'s fix→test table, and add a line here in CLAUDE.md
+   if it's a milestone fix.
+
+This is how we show reliability and catch a fix breaking under a later change.
+Do this proactively, the same way you keep `FINDINGS.md` current.
+
 ## Session Startup — Chat Proxy Status Check (REQUIRED)
 
 **On every Claude Code session start in this directory, IMMEDIATELY run the chat status check and echo a status message to the user.** Do this as your first action, before responding to any user message:
