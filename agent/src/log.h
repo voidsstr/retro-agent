@@ -7,8 +7,13 @@
  * Format: [HH:MM:SS][TAG] message
  */
 
-/* Initialize logger. logfile=NULL for console only. */
+/* Initialize logger. File logging is ON BY DEFAULT: logfile=NULL selects the
+ * default rotating file (<exe dir>\agent.log, size-capped with one .1 backup);
+ * a non-empty logfile overrides the path. */
 void log_init(const char *logfile);
+
+/* The resolved active log-file path (for printing to the console). */
+const char *log_path(void);
 
 /* Log a message with tag and printf-style format. */
 void log_msg(const char *tag, const char *fmt, ...);

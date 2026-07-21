@@ -68,8 +68,18 @@ static __thread DWORD g_exception_code = 0;
 
 static LONG WINAPI command_exception_filter(PEXCEPTION_POINTERS info)
 {
+    DWORD code = info->ExceptionRecord->ExceptionCode;
+    void *addr = (void *)info->ExceptionRecord->ExceptionAddress;
+
+    /* Always record the fault to the log first — this is the whole point of
+     * default-on file logging: a crash in a startup/background thread (which
+     * isn't inside a command handler, so we can't longjmp out of it) would
+     * otherwise take the process down leaving no trace. */
+    log_msg(LOG_MAIN, "EXCEPTION code=0x%08lx addr=%p in_handler=%d",
+            (unsigned long)code, addr, g_in_handler);
+
     if (g_in_handler) {
-        g_exception_code = info->ExceptionRecord->ExceptionCode;
+        g_exception_code = code;
         longjmp(g_handler_jmp, 1);
     }
     return EXCEPTION_CONTINUE_SEARCH;
@@ -827,7 +837,17 @@ int main(int argc, char *argv[])
         }
     }
 
+    /* Bring logging up as the very first thing (file logging is on by
+     * default now) so even a failure in the earliest startup steps below
+     * leaves an on-disk breadcrumb. If the log has NO "main() entered" line
+     * after a failed run, the failure was at EXE load (a missing/Win2000+
+     * import the loader couldn't resolve) — before any of our code ran. */
     log_init(g_logfile[0] ? g_logfile : NULL);
+    log_msg(LOG_MAIN, "==================================================");
+    log_msg(LOG_MAIN, "retro_agent v%s: main() entered", AGENT_VERSION);
+    log_msg(LOG_MAIN, "log file: %s (rotating, ~512KB x2)", log_path());
+    if (!g_service_mode)
+        printf("Logging to %s\n", log_path());
 
     /* Win9x: GCC __thread TLS may not initialize properly in CreateThread
      * threads, causing handler threads to crash silently.  Fall back to
@@ -836,25 +856,39 @@ int main(int argc, char *argv[])
         OSVERSIONINFOA osvi;
         osvi.dwOSVersionInfoSize = sizeof(osvi);
         GetVersionExA(&osvi);
+        log_msg(LOG_MAIN, "platform: %lu.%lu build %lu, platformId=%lu (%s)",
+                (unsigned long)osvi.dwMajorVersion,
+                (unsigned long)osvi.dwMinorVersion,
+                (unsigned long)osvi.dwBuildNumber,
+                (unsigned long)osvi.dwPlatformId,
+                osvi.dwPlatformId == VER_PLATFORM_WIN32_NT ? "NT" : "9x");
         if (osvi.dwPlatformId != VER_PLATFORM_WIN32_NT
             && g_client_mode == MODE_THREADED) {
             g_client_mode = MODE_MULTIPLEX;
+            log_msg(LOG_MAIN, "Win9x: client mode forced to multiplex "
+                    "(threaded TLS unsafe on 9x)");
         }
     }
 
     /* Suppress crash dialog popups — log and recover instead */
     SetErrorMode(SEM_NOGPFAULTERRORBOX | SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
     SetUnhandledExceptionFilter(command_exception_filter);
+    log_msg(LOG_MAIN, "startup: error mode + exception filter installed");
 
     /*
      * Try to run as an NT service. If started by the SCM, this call
      * blocks until the service stops. On Win9x or when started from
      * a console, it returns 0 immediately and we fall through.
      */
-    if (try_service_start())
+    log_msg(LOG_MAIN, "startup: calling try_service_start()");
+    if (try_service_start()) {
+        log_msg(LOG_MAIN, "ran as NT service; shutting down");
         return 0;
+    }
+    log_msg(LOG_MAIN, "startup: console mode, entering agent_run()");
 
     /* Console mode */
     agent_run();
+    log_msg(LOG_MAIN, "agent_run() returned; process exiting");
     return 0;
 }

@@ -15,27 +15,16 @@ rem  this installer just gets a fresh install current on day one instead
 rem  of waiting for that lazy first-use pull.
 rem
 rem  EDIT THE SRCDIR BELOW to point to your SMB share before running.
+rem
+rem  WIN98 NOTE: this runs under COMMAND.COM on Win98, which is much stricter
+rem  than XP's cmd.exe. Keep it to the common subset: no "goto :eof", no
+rem  "setlocal", no "%~1"/"set /a", no "2>&1", and only quote a path when it
+rem  actually contains a space (COMMAND.COM can leave the quotes IN the value).
+rem  The earlier "looping" was an 8-char label-name collision (COMMAND.COM
+rem  only compares the first 8 characters of a label) -- all labels below are
+rem  now distinct within 8 chars.
 rem ============================================================
 
-rem -- Relaunch from a local copy before doing anything else.
-rem    Windows 9x's COMMAND.COM resolves every goto/label by re-scanning
-rem    the WHOLE batch file from the start each time -- reliable off a
-rem    local disk, but flaky enough over SMB (this script is documented
-rem    to be run straight off the share) to show up as skipped or
-rem    repeated ("looping") execution of later sections. cmd.exe (XP)
-rem    doesn't have that specific issue, but relaunching locally there
-rem    too is harmless, so this isn't OS-gated.
-if "%RETRO_INSTALLER_LOCAL%"=="1" goto after_relaunch
-set RETRO_INSTALLER_LOCAL=1
-set LOCALCOPY=C:\RIAGENT.BAT
-if "%OS%"=="Windows_NT" set LOCALCOPY=%TEMP%\retro_install_agent.bat
-copy /Y "%0" "%LOCALCOPY%" > nul 2>&1
-if not exist "%LOCALCOPY%" goto after_relaunch
-call "%LOCALCOPY%"
-del "%LOCALCOPY%" > nul 2>&1
-goto :eof
-
-:after_relaunch
 echo.
 echo  Retro Agent + Chat Installer
 echo  ============================
@@ -135,7 +124,7 @@ echo [HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run] >> %INST
 echo "RetroChat"="C:\\RETRO_AGENT\\retro_chat.exe" >> %INSTALLDIR%\chat_run.reg
 if not exist %INSTALLDIR%\chat_run.reg goto chat9x_writefail
 regedit /s %INSTALLDIR%\chat_run.reg
-del %INSTALLDIR%\chat_run.reg > nul 2>&1
+del %INSTALLDIR%\chat_run.reg >nul
 echo  [OK] Chat client autostart registered (Win9x)
 goto chat_done
 
