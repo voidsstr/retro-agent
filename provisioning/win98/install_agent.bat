@@ -29,7 +29,7 @@ if "%RETRO_INSTALLER_LOCAL%"=="1" goto after_relaunch
 set RETRO_INSTALLER_LOCAL=1
 set LOCALCOPY=C:\RIAGENT.BAT
 if "%OS%"=="Windows_NT" set LOCALCOPY=%TEMP%\retro_install_agent.bat
-copy /Y %0 "%LOCALCOPY%" > nul 2>&1
+copy /Y "%0" "%LOCALCOPY%" > nul 2>&1
 if not exist "%LOCALCOPY%" goto after_relaunch
 call "%LOCALCOPY%"
 del "%LOCALCOPY%" > nul 2>&1
