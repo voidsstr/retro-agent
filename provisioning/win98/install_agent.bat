@@ -17,6 +17,25 @@ rem
 rem  EDIT THE SRCDIR BELOW to point to your SMB share before running.
 rem ============================================================
 
+rem -- Relaunch from a local copy before doing anything else.
+rem    Windows 9x's COMMAND.COM resolves every goto/label by re-scanning
+rem    the WHOLE batch file from the start each time -- reliable off a
+rem    local disk, but flaky enough over SMB (this script is documented
+rem    to be run straight off the share) to show up as skipped or
+rem    repeated ("looping") execution of later sections. cmd.exe (XP)
+rem    doesn't have that specific issue, but relaunching locally there
+rem    too is harmless, so this isn't OS-gated.
+if "%RETRO_INSTALLER_LOCAL%"=="1" goto after_relaunch
+set RETRO_INSTALLER_LOCAL=1
+set LOCALCOPY=C:\RIAGENT.BAT
+if "%OS%"=="Windows_NT" set LOCALCOPY=%TEMP%\retro_install_agent.bat
+copy /Y %0 "%LOCALCOPY%" > nul 2>&1
+if not exist "%LOCALCOPY%" goto after_relaunch
+call "%LOCALCOPY%"
+del "%LOCALCOPY%" > nul 2>&1
+goto :eof
+
+:after_relaunch
 echo.
 echo  Retro Agent + Chat Installer
 echo  ============================
@@ -103,13 +122,26 @@ rem    Win9x: HKLM\Software\Microsoft\Windows\CurrentVersion\Run
 rem    NT/XP: same key, REG.EXE handles it directly
 :chat_autostart_9x
 if not exist "%INSTALLDIR%\retro_chat.exe" goto chat_autostart_done
-echo REGEDIT4 > "%INSTALLDIR%\chat_run.reg"
-echo. >> "%INSTALLDIR%\chat_run.reg"
-echo [HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run] >> "%INSTALLDIR%\chat_run.reg"
-echo "RetroChat"="C:\\RETRO_AGENT\\retro_chat.exe" >> "%INSTALLDIR%\chat_run.reg"
-regedit /s "%INSTALLDIR%\chat_run.reg"
-del "%INSTALLDIR%\chat_run.reg"
+rem INSTALLDIR has no space in it, so these targets are deliberately
+rem UNQUOTED: some Win9x COMMAND.COM builds mishandle a quoted string
+rem after a redirection operator (the quote characters can end up
+rem literally part of the resulting filename instead of being stripped),
+rem which is exactly what broke this on a real Windows 98 box -- regedit
+rem then fails with "cannot import" because the file it's told to open
+rem was never actually created at that path.
+echo REGEDIT4 > %INSTALLDIR%\chat_run.reg
+echo. >> %INSTALLDIR%\chat_run.reg
+echo [HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run] >> %INSTALLDIR%\chat_run.reg
+echo "RetroChat"="C:\\RETRO_AGENT\\retro_chat.exe" >> %INSTALLDIR%\chat_run.reg
+if not exist %INSTALLDIR%\chat_run.reg goto chat_autostart_9x_writefail
+regedit /s %INSTALLDIR%\chat_run.reg
+del %INSTALLDIR%\chat_run.reg > nul 2>&1
 echo  [OK] Chat client autostart registered (Win9x)
+goto chat_autostart_done
+
+:chat_autostart_9x_writefail
+echo  [..] Could not write chat_run.reg, skipping autostart registration
+echo       (chat client will still work, just won't auto-start on boot)
 goto chat_autostart_done
 
 :chat_autostart_nt
