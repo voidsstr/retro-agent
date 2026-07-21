@@ -1,0 +1,33 @@
+{
+ "machine_ip": "192.168.1.143",
+ "ts": "2026-07-21T09:27:41",
+ "cpu": "x86 ~1000MHz (P3)",
+ "stack": {
+  "icd": "3dfxogl (H5 ICD retro3dfx 0.3.7)",
+  "stack_composition": "3dfx-driver-optimized"
+ },
+ "changes": "0.3.6 res-cap fix (run on 0.3.7): FIRST real >640 baselines (all prior 800/1024 labels were 640)",
+ "q3_timedemo": [
+  {
+   "benchmark": "q3-timedemo-four",
+   "resolution": "640x480",
+   "fps": 72.8,
+   "glide_opened": "640x480",
+   "driver_version": "3dfxopt-0.3.7"
+  },
+  {
+   "benchmark": "q3-timedemo-four",
+   "resolution": "800x600",
+   "fps": 73.0,
+   "glide_opened": "800x600",
+   "driver_version": "3dfxopt-0.3.7"
+  },
+  {
+   "benchmark": "q3-timedemo-four",
+   "resolution": "1024x768",
+   "fps": 71.7,
+   "glide_opened": "1024x768",
+   "driver_version": "3dfxopt-0.3.7"
+  }
+ ]
+}
