@@ -303,3 +303,36 @@ capture where grSstWinOpen fails, compare the HWCEXT handshake our glide needs v
 what our H5 3dfxv3d answers; fix on whichever side (add GETLINEARADDR to the H5
 build, or align our glide's init path). Box stays on the working retail-glide
 hybrid meanwhile (Q3 57.7).
+
+## Stability campaign results across all 3 APIs (2026-07-21, working hybrid stack)
+Stack under test: our MesaFX ICD (retrogl 0.1.31) + retail AmigaMerlin glide +
+vintage H5 3dfxv3d display driver, on .124 (P3-845, Voodoo3).
+
+**OpenGL + Glide: ROCK SOLID.** Full game×resolution sweep, ZERO crashes
+(PING-after OK on every run), recorded to specpicks:
+| game | 640 | 800 | 1024 |
+|---|---|---|---|
+| Quake II | 96.5 | 69.5 | 47.1 |
+| Quake III | ~58 | ~58 | 50.9 |
+| RtCW wolfbench | 56.0 | 48.1 | 31.8 |
+| Unreal Tournament | 35.6 | 24.4 | 23.0 |
+(Q2/Q3 idTech2/3, RtCW idTech3, UT Unreal engine — all four engines stable.)
+
+**Direct3D: UNSTABLE (but recovers).** 3DMark2000 Default Benchmark @1024×768
+16-bit color / 16-bit textures / 16-bit Z (V3-class config): INCONSISTENT — first
+attempt (weeks-stale driver load path) hard-TDR'd ("3dfxv3d stopped responding");
+this attempt (clean reboot) "Benchmark Aborted!" GRACEFULLY (reg-ring shows only
+clean mode-set transitions + a HWCEXT_UNMAP_MEMORY, NO H3MakeRoom stall, NO wedge;
+driver restored the desktop and OpenGL still ran — Q3 57.1 after). So the D3D HAL
+sometimes aborts cleanly, sometimes wedges under sustained texture load.
+**Diagnostic gap:** the .124 reg-ring instruments DDraw/mode/FIFO/HWCEXT but NOT
+the D3D primitive/texture path (D6DP2/D3TXTR) — the .143 lane added
+`DP2-PARSE-ERR`/`D3TXTR` ring logging that is NOT in .124's deployed 3dfxv3d. To
+pin the exact failing D3D op, rebuild+deploy the H5 display driver from the
+current shared source (which has that instrumentation + the mipmap fix + the
+50M spin-breaker) and re-run. D3D hardening is the .143 lane's active area
+(shared H5 source) — coordinate via [[driver-lane-division]].
+
+**Glide all-open blocker:** unchanged — dual-ABI export fixed (ICD loads), but
+grSstWinOpen hardware-init still hangs (see prior note). During testing our glide
+faulted at 0x6e40cfd7 (bad memory read) — consistent with hwcInit finding no board.
