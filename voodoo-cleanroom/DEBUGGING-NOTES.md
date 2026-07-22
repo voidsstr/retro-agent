@@ -336,3 +336,38 @@ current shared source (which has that instrumentation + the mipmap fix + the
 **Glide all-open blocker:** unchanged — dual-ABI export fixed (ICD loads), but
 grSstWinOpen hardware-init still hangs (see prior note). During testing our glide
 faulted at 0x6e40cfd7 (bad memory read) — consistent with hwcInit finding no board.
+
+## Instrumented display driver deployed + glide grSstWinOpen ROOT-CAUSED (2026-07-22)
+**Rebuild/redeploy DONE:** built the current shared H5 source → 3dfxvs.dll 957456
+(has DP2-PARSE-ERR + D3TXTR mipmap fix + 50M spin-breaker + reg-ring, all confirmed
+in the binary), packaged WFP-rename (dist/3dfx-voodoo3-wfp-20260722), deployed to
+.124 as 3dfxv3d.dll (move-aside the loaded file + copy + reboot). Loads clean:
+957456, driver bound, ring active, OpenGL still 54.9 fps. .124 now has the D3D
+primitive/texture instrumentation the old 942668 build lacked.
+
+**Glide grSstWinOpen ROOT CAUSE (precise):** With the instrumented driver, captured
+our glide's WinOpen escape handshake vs retail glide's:
+- Both send the same visible escapes: ALLOCCONTEXT(0x1), HWCSETEXCLUSIVE(0x8),
+  CONTEXT_DWORD_NT(0x17); driver handles all. GETLINEARADDR is opcode **0x03**
+  (HWCEXT.C:292) — handled but NOT in the ring's annotated set, so its absence was
+  a red herring.
+- Our h3 glide IS built with `HWC_EXT_INIT=1` (Makefile.mingw:99) → `hwcMapBoard`
+  (minihwc.c:1121) sends GETLINEARADDR(0x03) and uses `res.baseAddresses[0]` as the
+  board register base.
+- The Q3 fault is a READ at **0x00014717** = a register offset (~0x14717) added to a
+  **NULL base** ⇒ the driver returned `baseAddresses[0] = 0` to OUR glide. The
+  driver's `hwcGetLinearAddr` returns the mapping *allocated for the curPID*
+  (HWCEXT.C:56); if our glide's per-process memory MAP wasn't registered (or the
+  hwcExtResult_t struct layout diverged so we read the wrong offset), it reads 0.
+  Retail glide gets a valid base on the same driver+handler ⇒ the gap is our fork's
+  map-before-GETLINEARADDR sequence OR the `hwcExtResult_t`/`linearAddressRes`
+  struct ABI in glide3x/h3/minihwc/hwcext.h vs the driver's.
+- **FIX TARGET (next):** add a ring log of the returned baseAddresses in the driver's
+  GETLINEARADDR handler (one build) to confirm it returns 0 for our glide; then fix
+  on the glide side — ensure the memory-map escape precedes GETLINEARADDR and the
+  result struct matches the driver's exactly. This is a bounded fork source fix.
+
+**D3D:** the driver is now instrumented (DP2-PARSE-ERR); the .143 lane earlier
+RESOLVED the "warm-rerun degradation" as a 3DMark2001 APP issue, driver provably
+clean (FINDINGS.md:518). Next D3D step: reproduce 3DMark's texture test on the
+instrumented driver and read DP2-PARSE-ERR/D3TXTR for any real driver-side wedge.
