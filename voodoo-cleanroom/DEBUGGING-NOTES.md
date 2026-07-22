@@ -371,3 +371,16 @@ our glide's WinOpen escape handshake vs retail glide's:
 RESOLVED the "warm-rerun degradation" as a 3DMark2001 APP issue, driver provably
 clean (FINDINGS.md:518). Next D3D step: reproduce 3DMark's texture test on the
 instrumented driver and read DP2-PARSE-ERR/D3TXTR for any real driver-side wedge.
+
+### Glide grSstWinOpen — struct ABI RULED OUT; it's the per-PID map (2026-07-22)
+Compared our fork's `hwcExtResult_t` (glide3x/h3/minihwc/hwcext.h) to the driver's
+(H5 .../Displays/H5/HWCEXT.H): IDENTICAL union member order (resStatus@0,
+linearAddressRes is the 4th union member). So it is NOT a struct-layout mismatch.
+⇒ Confirmed: the driver's `hwcGetLinearAddr` returns baseAddresses[0]=0 because
+there is no linear-memory mapping registered for our glide's PID at GETLINEARADDR
+time. Retail glide registers the mapping (a MAP escape / LINEAR_MAP_OFFSET 0x11)
+before GETLINEARADDR; our fork's minihwc sequence does not (or its map call fails
+on this driver). **THE fix is in glide3x/h3/minihwc: ensure the per-process linear
+memory MAP precedes hwcMapBoard's GETLINEARADDR.** Confirm by adding a one-line
+ring log of (PID, mappingFound, baseAddresses[0]) to the driver's GETLINEARADDR
+handler, redeploy, run our glide → expect base=0/mappingFound=0.
