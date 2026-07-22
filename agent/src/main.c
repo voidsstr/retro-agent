@@ -12,6 +12,39 @@
  * Supports two run modes:
  *   Console mode - started manually or via Run key (default)
  *   Service mode - started by NT Service Control Manager (XP/2000)
+ *
+ * ---------------------------------------------------------------------------
+ * WHAT HAS CRASHED / HUNG THIS AGENT ON OLD HARDWARE (and how it's handled now
+ * — all fixed as of the current build; do NOT regress these):
+ *
+ * Genuine Pentium-1 / Windows 98 box (Compaq Deskpro 2000). The rest of the
+ * fleet is XP on i686+ CPUs, so none of these bit until a real P5/Win98 box
+ * joined:
+ *
+ *  1. try_service_start() called StartServiceCtrlDispatcherA without an
+ *     is_nt() guard -> silent exit before any logging on Win9x. FIX: gate on
+ *     is_nt() in service.c (never attempt SCM dispatch on 9x).
+ *  2. SetHandleInformation is a Windows-2000+ import -> the Win98 loader
+ *     couldn't resolve it and refused to load the EXE (silent, pre-main).
+ *     FIX: resolve it dynamically (util.c set_handle_noinherit); no-op on 9x.
+ *  3. CMOV (i686) instructions from the MinGW runtime -> STATUS_ILLEGAL_
+ *     INSTRUCTION (0xc000001d) on the classic Pentium (P5, no CMOV). Two
+ *     sources: MinGW ANSI stdio (fixed via -D__USE_MINGW_ANSI_STDIO=0 ->
+ *     msvcrt) and __thread emulated-TLS (fixed by using native Win32 TLS
+ *     here instead of __thread). Our own code is -march=i586 (CMOV-free).
+ *  4. Not a crash but a hang: auto-onboarding at startup saturated the P1 for
+ *     minutes (SMB wallpaper/game copy) and made the agent look dead. FIX:
+ *     onboarding is on demand now (ONBOARD command), not spawned at startup;
+ *     the boot path is kept lightweight.
+ *  5. Silent failures were invisible because logging was stderr-only and via
+ *     msvcrt stdio (which can fault on 9x). FIX: default-on RAW-Win32 rotating
+ *     file log (log.c) with startup breadcrumbs + a lock-free crash logger, so
+ *     any future crash leaves an on-disk trail (and is mirrored to the share).
+ *
+ * Also load-bearing on Win9x: __thread -> native TLS (above); Toolhelp32 is
+ * fine on 9x (it originated there) but is NOT on NT4 — a non-issue for the
+ * 98/XP fleet. Keep new startup work off the hot path and OS-gated.
+ * ---------------------------------------------------------------------------
  */
 
 #include <winsock2.h>
@@ -862,8 +895,12 @@ void agent_run(void)
     log_msg(LOG_MAIN, "startup: spawning retrowall thread");
     CreateThread(NULL, 0, retrowall_thread, NULL, 0, NULL);
 
-    log_msg(LOG_MAIN, "startup: spawning onboard thread");
-    CreateThread(NULL, 0, onboard_thread, NULL, 0, NULL);
+    /* Onboarding is deliberately NOT auto-spawned. On old, slow hardware
+     * (Compaq Deskpro 2000, Pentium 1) the first-boot onboarding job — mapping
+     * the share and copying the wallpaper bundle / extracting games over SMB —
+     * saturated the box for minutes and made the agent look hung. Onboarding is
+     * now on demand via the ONBOARD command (chat / onboard-machine skill), so
+     * a fresh boot stays lightweight. */
 
     log_msg(LOG_MAIN, "startup: spawning watchdog thread");
     CreateThread(NULL, 0, watchdog_thread, NULL, 0, NULL);

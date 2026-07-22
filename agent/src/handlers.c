@@ -58,6 +58,7 @@ static const cmd_entry_t commands[] = {
     { "SYSFIX",     1, NULL,             handle_sysfix },
     { "LICSTATUS",  1, NULL,            handle_licstatus },
     { "AUTOMAP",    1, NULL,             handle_automap },
+    { "ONBOARD",    1, NULL,             handle_onboard },
     { "PROMPT_PUSH",1, NULL,            handle_prompt_push },
     { "PROMPT_POP", 0, handle_prompt_pop, NULL },
     { "PROMPT_WAIT",1, NULL,            handle_prompt_wait },

@@ -315,16 +315,29 @@ curl --upload-file agent-linux/retro_agent_linux -u YOUR-CREDS \
   "smb://YOUR-SERVER/files/Utility/Retro%20Automation/retro_agent_linux"
 ```
 
-## Fleet Onboarding (first-run bootstrap)
+## Fleet Onboarding (on demand, via chat/skill — NOT at startup)
 
-On a machine's **first** agent run, `agent/src/onboard.c` (`onboard_thread`)
-bootstraps it into the fleet: prints an `ONBOARDING` banner to the console, maps
-the share, then runs a **data-driven batch staged on the share** that installs a
-core game set (CS 1.6 BC Romania, Unreal Tournament, Red Alert 2, Quake II,
-Quake III) and applies the dark "hacker" XP theme + parks icons. It is guarded by
-`HKLM\Software\RetroAgent\Onboarded` and is a **no-op until the payload is
-published**, so shipping the new agent doesn't touch already-set-up machines.
+Onboarding maps the share, installs a **hardware-appropriate** game set (games
+the box can't run are skipped), applies the desktop/wallpaper, and marks
+`HKLM\Software\RetroAgent\Onboarded`. As of **agent v1.16.0 it is triggered on
+demand, not at agent startup** — on old, slow hardware (a Pentium-1 Compaq
+Deskpro 2000) the first-boot SMB copy/extract saturated the box for minutes and
+made the agent look hung, so the boot path is now kept lightweight. Trigger it
+with the **`ONBOARD`** agent command (`ONBOARD force` to re-run an
+already-onboarded box); over chat that's `mcp__retro__retro_command` with
+`command=ONBOARD`. Full workflow: the **`onboard-machine` skill**
+(`.claude/skills/onboard-machine/`). `agent/src/onboard.c:onboard_run()` does
+the work in a background thread; it's a no-op until the payload is published.
 
+- **Dual dialect + hardware gating:** `provisioning/gen_onboard.py` emits BOTH
+  `onboard.cmd` (NT/XP cmd.exe) and `onboard_9x.bat` (Win98 COMMAND.COM — no
+  cmd.exe on 98); the agent picks the right one per OS and runs it with the
+  right shell (`command.com /c`, no `2>&1`, on 9x). Each game in
+  `onboard.json` declares `requires` capability flags (gpu3d/cpufast/ram64/
+  ram128); the agent detects the box's hardware (`onboard.c:set_capability_env`,
+  via GetSystemInfo wProcessorLevel / EnumDisplayDevices / GlobalMemoryStatus)
+  and sets `ONB_*` env vars the batch gates on. A P1+2D box (Deskpro 2000) gets
+  no games (all `[HWSKIP]`), just wallpaper.
 - Edit the game list in `provisioning/onboard.json`, regenerate with
   `python3 provisioning/gen_onboard.py`, publish control files via
   `provisioning/push_onboard.py <online-agent-ip>`, and drop per-game ZIPs into

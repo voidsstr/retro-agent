@@ -91,8 +91,10 @@ DWORD WINAPI retrowall_thread(LPVOID param);
 /* First-run onboarding: map share, stage core games, apply desktop/theme.
  * No-op once HKLM\Software\RetroAgent\Onboarded is set (or if no payload is
  * staged on the share). Runs as a background thread after the shell settles. */
-void onboard_apply_startup(void);
-DWORD WINAPI onboard_thread(LPVOID param);
+/* Onboarding is on-demand now (not run at startup). onboard_run(force)
+ * performs it; the ONBOARD command triggers it in the background. */
+void onboard_run(int force);
+void handle_onboard(SOCKET sock, const char *args);
 
 /* Shared flag for graceful shutdown */
 extern volatile int g_running;

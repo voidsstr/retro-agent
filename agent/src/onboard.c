@@ -1,31 +1,32 @@
 /*
- * onboard.c - First-run onboarding for a freshly-provisioned retro PC.
+ * onboard.c - Onboarding for a freshly-provisioned retro PC.
  *
- * When a machine runs the agent for the first time we want it to bootstrap
- * itself into the fleet: map the file share, pull down a core set of games,
- * and make sure the retro desktop (wallpaper rotation, parked icons, the dark
- * "hacker" XP theme) is in place. This module is the TRIGGER for that; the
- * actual per-game install steps live in a data-driven batch staged on the
- * share (provisioning/onboard.cmd), so the game list can grow without
- * recompiling the fleet binary.
+ * ON DEMAND, NOT AT STARTUP (v1.16.0+): this used to run automatically a few
+ * seconds after boot, but on old/slow hardware (a Pentium-1 Compaq Deskpro
+ * 2000) the first-boot share-copy/extract saturated the box for minutes and
+ * made the agent look hung. Onboarding is now triggered by the ONBOARD command
+ * (from the chat / the onboard-machine skill); the boot path stays lightweight.
  *
- * Flow (onboard_thread, background, after the shell has settled):
+ * onboard_run(force) does the work: map the file share, pick the OS-appropriate
+ * batch dialect (onboard.cmd on NT/XP, onboard_9x.bat on Win98 COMMAND.COM),
+ * export detected hardware capability as ONB_* env vars so the batch can GATE
+ * which games install (a box that can't run a game skips it), then launch the
+ * batch. The actual per-game install steps live in the data-driven batch staged
+ * on the share, so the game list grows without recompiling the fleet binary.
+ * handle_onboard() runs onboard_run() in a background thread so the command
+ * returns immediately.
  *
- *   1. If HKLM\Software\RetroAgent\Onboarded == 1, do nothing (already done).
- *   2. Print an ONBOARDING banner to the console + log.
- *   3. Map the file share (net use <drive> <unc>), reading path/creds/drive
+ * Flow (onboard_run):
+ *   1. Unless force, if HKLM\Software\RetroAgent\Onboarded == 1, do nothing.
+ *   2. Map the file share (net use <drive> <unc>), reading path/creds/drive
  *      from HKLM\Software\RetroAgent (sensible defaults if unset).
- *   4. If the onboarding payload (onboard.cmd) is present on the share, copy it
- *      local and run it. The batch is idempotent (it skips games already
- *      installed) and sets the Onboarded flag itself when it finishes cleanly.
- *   5. If no payload is staged yet, log and skip WITHOUT setting the flag, so a
- *      later start retries once the payload has been published to the share.
+ *   3. If the OS-appropriate payload is on the share, export capability env
+ *      vars, copy the payload local, and launch it. The batch is idempotent
+ *      (skips installed games, [HWSKIP]s ones the hardware can't run) and sets
+ *      the Onboarded flag itself when it finishes cleanly with nothing missing.
+ *   4. If no payload is staged yet, log and return WITHOUT setting the flag.
  *
- * Safe-by-default: with no payload on the share this module is a complete
- * no-op, exactly like retrowall when nothing is staged. The new binary is
- * therefore inert on the existing fleet until the payload is deliberately
- * published. The Onboarded marker is owned by the batch (not set here) so an
- * interrupted onboarding simply resumes on the next start.
+ * Safe-by-default: with no payload on the share this is a complete no-op.
  */
 
 #include <windows.h>
@@ -33,6 +34,7 @@
 #include <string.h>
 
 #include "handlers.h"
+#include "protocol.h"
 #include "util.h"
 #include "log.h"
 
@@ -209,7 +211,14 @@ static void map_share(const char *unc, const char *drive,
     run_process(cmd, 20000);
 }
 
-void onboard_apply_startup(void)
+/* Run onboarding now. `force` != 0 re-runs even if the box is already marked
+ * Onboarded (used by the on-demand ONBOARD command; the batch itself is
+ * idempotent — installed games are skipped, wallpaper is re-staged). This is
+ * NO LONGER called automatically at agent startup: on old hardware the share
+ * copy + game extraction saturates the box for minutes and made it look hung.
+ * Onboarding is now triggered on demand over the chat (see the onboard-machine
+ * skill), so a fresh agent boot stays lightweight. */
+void onboard_run(int force)
 {
     char share[MAX_PATH], drive[16], user[128], pass[128];
     char share_cmd[MAX_PATH + 128];
@@ -218,7 +227,7 @@ void onboard_apply_startup(void)
     const char *payload_name;
     int is_nt;
 
-    if (hklm_get_dword(FLAG_VALUE, 0) == 1) {
+    if (!force && hklm_get_dword(FLAG_VALUE, 0) == 1) {
         log_msg(LOG_ONBOARD, "machine already onboarded, skipping");
         return;
     }
@@ -305,12 +314,27 @@ void onboard_apply_startup(void)
     log_msg(LOG_ONBOARD, "onboarding batch launched");
 }
 
-DWORD WINAPI onboard_thread(LPVOID param)
+/* Background thread wrapper so the ONBOARD command can return immediately
+ * while the (share-mapping + batch-launching) work happens off the client
+ * connection. param != 0 => force. */
+static DWORD WINAPI onboard_run_thread(LPVOID param)
 {
-    (void)param;
-    Sleep(ONBOARD_DELAY_SEC * 1000);
-    if (!g_running)
-        return 0;
-    onboard_apply_startup();
+    onboard_run(param ? 1 : 0);
     return 0;
+}
+
+/* ONBOARD [force] — trigger onboarding on demand (from the chat / a skill),
+ * instead of automatically at startup. Runs in the background and replies
+ * right away; watch C:\RETRO_AGENT\onboard.log for progress. */
+void handle_onboard(SOCKET sock, const char *args)
+{
+    int force = (args && (str_starts_with(args, "force") ||
+                          str_starts_with(args, "FORCE")));
+    HANDLE h = CreateThread(NULL, 0, onboard_run_thread,
+                            (LPVOID)(UINT_PTR)force, 0, NULL);
+    if (h)
+        CloseHandle(h);
+    log_msg(LOG_ONBOARD, "ONBOARD command received (force=%d)", force);
+    send_text_response(sock, force ? "onboarding started (forced)"
+                                   : "onboarding started");
 }
