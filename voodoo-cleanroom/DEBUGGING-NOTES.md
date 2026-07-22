@@ -384,3 +384,27 @@ on this driver). **THE fix is in glide3x/h3/minihwc: ensure the per-process line
 memory MAP precedes hwcMapBoard's GETLINEARADDR.** Confirm by adding a one-line
 ring log of (PID, mappingFound, baseAddresses[0]) to the driver's GETLINEARADDR
 handler, redeploy, run our glide → expect base=0/mappingFound=0.
+
+## GLIDE grSstWinOpen — VERIFIED ROOT CAUSE via glide instrumentation (2026-07-22)
+Instrumented our glide's hwcMapBoard (minihwc.c) to log the GETLINEARADDR escape
+result. Ran Q3 on the instrumented dual-ABI glide → `C:\GLIDEHWC.LOG`:
+  GETLINEARADDR esc=0x3df3 rv=1 resStatus=1 numBase=3 base0=0 base1=0 base2=0
+DEFINITIVE: the escape SUCCEEDS (rv=1, resStatus=1) but the driver returns
+**all-zero base addresses**. Chain: hwcMapBoard uses baseAddresses[0]=0 as the
+board register base → grSstWinOpen adds a register offset → READ at ~0x00014717 →
+Application Error. Driver side (HWCEXT.C hwcGetLinearAddr → MISC.C
+miscGlideMapMemoryBases): `EngDeviceIoControl(IOCTL_VIDEO_QUERY_GLIDE_ACCESS_RANGES)`
+returns SUCCESS but `VideoAccessRange[0..2].VirtualAddress == 0`, so
+glideRegBase/glideScreenBase/glideIOBase are all 0. Retail AmigaMerlin glide
+tolerates this (HWC_ACCESS_DDRAW path — it takes the board address from a DDraw
+surface lock, not GETLINEARADDR); OUR glide relies on the GETLINEARADDR result and
+faults. Also ruled out (with proof): NOT the LINEAR-primary warm-rerun degradation
+(first-launch ring showed PRIMARY-TILED 640x480x16 and it still crashed), NOT a
+struct-ABI mismatch (hwcExtLinearAddrRes_t identical incl. numBaseAddrs).
+**Applied guards (glide, minihwc.c):** memset(res) before the escape; treat rv<=0
+as failure; treat baseAddresses[0]==0 as failure → grSstWinOpen now returns an
+error instead of crashing (STABILITY: no more Application Error). **FULL FIX (two
+options):** (a) miniport/driver — make IOCTL_VIDEO_QUERY_GLIDE_ACCESS_RANGES return
+non-zero VirtualAddresses for the V3 (needs the DDK build; likely a V3-vs-Napalm
+mapping path), or (b) glide — take the register base from the DDraw path
+(HWC_ACCESS_DDRAW / dxdrvr.c) when GETLINEARADDR yields 0, as retail glide does.
