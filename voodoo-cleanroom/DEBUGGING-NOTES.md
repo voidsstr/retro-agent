@@ -448,3 +448,26 @@ ALLOCCONTEXT allocates an unmapped state — i.e. our fork's minihwc init ORDER.
 NEXT: (1) read the driver's ALLOCCONTEXT handler — does it hwcAllocateGlideState
 without mapping? (2) trace our glide's init order (hwcInit/hwcMapBoard vs where
 ALLOCCONTEXT is sent). (3) fix the order in glide (my lane) OR force a re-map.
+
+## GLIDE RENDER FIX — layer 1 SOLVED (base mapping), layer 2 open (2026-07-22)
+**LAYER 1 (SOLVED + committed to fork `glide-devel-sezero`):** the grSstWinOpen
+NULL-base crash. ROOT CAUSE (source-confirmed): the H5 driver's hwcAllocContext
+(ALLOCCONTEXT) allocates a GLIDESTATE **without mapping memory**; hwcGetLinearAddr
+only maps on the *new-state* path and returns an existing state's base otherwise.
+Our glide's hwcInit sent ALLOCCONTEXT BEFORE GETLINEARADDR, so the state existed
+unmapped → GETLINEARADDR returned glideRegBase=0 → fault at ~0x14717. FIX
+(minihwc.c hwcInit): send `HWCEXT_GETLINEARADDR` ONCE before ALLOCCONTEXT so the
+driver allocates+maps first; ALLOCCONTEXT then reuses the mapped state
+(hwcAllocateGlideStateStructureForProcess returns the existing struct, verified).
+**VERIFIED on .124: base0 00000000 -> 07090000** (base1=09090000=base0+SST_LFB_OFFSET,
+base2=00009000 IO). The 0x14717 fault is gone.
+**LAYER 2 (OPEN):** with valid bases, Q3 still hangs at GLW_ChoosePFD. Traced the
+grSstWinOpen post-map sequence (hwcInitRegisters -> hwcAllocBuffers -> hwcInitVideo)
+with C:\GRSST.LOG breadcrumbs: **the log stayed EMPTY** — grSstWinOpen does NOT reach
+even trace-point 1 (before hwcInitRegisters). ⇒ the hang is EARLIER: in hwcMapBoard's
+continuation after GETLINEARADDR, or a glide/ICD board-query call before the hwInitP
+block. NEXT: breadcrumb the ENTRY of grSstWinOpen + hwcMapBoard entry/exit + the
+glide calls the retrogl ICD makes at ChoosePFD/SetPixelFormat, to find the exact
+call that wedges (likely a register read/spin against the freshly-mapped MMIO —
+confirm the base is not just non-zero but CORRECT for the V3 BAR layout).
+This is a multi-layer hardware bring-up; layer 1 (the original blocker) is done.
