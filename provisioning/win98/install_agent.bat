@@ -38,10 +38,24 @@ echo  Source:  %SRCDIR%
 echo  Target:  %INSTALLDIR%
 echo.
 
-rem -- Kill any old processes (XP has taskkill, Win9x doesn't) --
+rem -- Was the agent already installed? (decides start vs. reboot below) --
+set WASINST=
+if exist "%INSTALLDIR%\retro_agent.exe" set WASINST=1
+
+rem -- Stop / move aside the old agent so its .exe can be replaced. --
+rem    NT/XP: taskkill it (a stopped exe is overwritable).
+rem    Win9x: NO taskkill exists, and Windows won't overwrite a RUNNING exe,
+rem    which is why re-running this installer on Win98 failed with "Could not
+rem    copy agent binary". A running exe CAN be renamed, though, so we move it
+rem    aside to free the name for the new copy; the old process keeps running
+rem    until reboot (handled at :startagent -- we don't launch a 2nd copy).
 if "%OS%"=="Windows_NT" taskkill /F /IM retro_agent.exe > nul 2>&1
 if "%OS%"=="Windows_NT" taskkill /F /IM retro_chat.exe > nul 2>&1
 if "%OS%"=="Windows_NT" ping -n 2 127.0.0.1 > nul
+if "%OS%"=="Windows_NT" goto moved
+if exist "%INSTALLDIR%\retro_agent.exe.old" del "%INSTALLDIR%\retro_agent.exe.old" >nul
+if exist "%INSTALLDIR%\retro_agent.exe" ren "%INSTALLDIR%\retro_agent.exe" retro_agent.exe.old
+:moved
 
 rem -- Create install directory --
 if not exist "%INSTALLDIR%\nul" mkdir "%INSTALLDIR%"
@@ -148,8 +162,17 @@ if "%OS%"=="Windows_NT" reg add "HKLM\Software\RetroAgent" /v EnginePath /t REG_
 goto startagent
 
 :startagent
-rem -- Start the agent (which will also launch retro_chat after the
-rem    auto-update check on the next reboot, or you can start chat now). --
+rem -- On a Win9x RE-install the previous agent is still running (we could
+rem    only move its .exe aside, not kill it), so launching a 2nd copy would
+rem    just fight it for port 9898. Tell the user to reboot instead; the Run
+rem    key launches the new build on boot. NT already taskkilled the old one,
+rem    and a fresh install has nothing running, so those start normally. --
+set REBOOTMSG=
+if not "%WASINST%"=="1" goto do_start
+if "%OS%"=="Windows_NT" goto do_start
+set REBOOTMSG=1
+:do_start
+if "%REBOOTMSG%"=="1" goto reinstall_9x
 echo.
 echo  Starting agent...
 start %INSTALLDIR%\retro_agent.exe
@@ -159,6 +182,15 @@ if not exist "%INSTALLDIR%\retro_chat.exe" goto install_done
 echo  Starting chat client...
 start %INSTALLDIR%\retro_chat.exe
 echo  [OK] Chat client started
+goto install_done
+
+:reinstall_9x
+echo.
+echo  [OK] Agent binary UPDATED to the new build.
+echo  ==> The OLD agent is still running. REBOOT this machine to activate the
+echo      new version (or close the old agent window, then run
+echo      C:\RETRO_AGENT\retro_agent.exe).
+echo.
 
 :install_done
 echo.
