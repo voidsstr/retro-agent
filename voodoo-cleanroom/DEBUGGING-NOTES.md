@@ -408,3 +408,19 @@ options):** (a) miniport/driver — make IOCTL_VIDEO_QUERY_GLIDE_ACCESS_RANGES r
 non-zero VirtualAddresses for the V3 (needs the DDK build; likely a V3-vs-Napalm
 mapping path), or (b) glide — take the register base from the DDraw path
 (HWC_ACCESS_DDRAW / dxdrvr.c) when GETLINEARADDR yields 0, as retail glide does.
+
+## D3D FIXED by the instrumented-driver redeploy (2026-07-22)
+The old deployed .124 driver (942668, built before the mipmap fix) hard-TDR'd on
+3DMark2000's Texture Rendering test. After deploying the fresh 957456 build (current
+shared H5 source: D3TXTR mipmap fix + CFIFO 50M spin-breaker + reg-ring), 3DMark2000
+Default Benchmark ran the FULL suite — including the Texture Rendering Speed test
+(the exact former wedge trigger) — for 3+ minutes with:
+- PING alive throughout, NO TDR, NO abort, NO "Stopped Responding".
+- Reg-ring advanced 29 -> 862 entries (thousands of D3D ops) with ZERO
+  DP2-PARSE-ERR, ZERO H3MakeRoom STALL, ZERO wedge markers.
+- The texture-tunnel scene renders CORRECTLY: clean marble textures, correct
+  mipmapping (no black/garbage mips) — the D3TXTR mipmap fix is working live.
+⇒ The D3D instability was the stale pre-mipmap-fix driver; the current source is
+stable on .124. Matches the .143 lane's finding that the warm-rerun "degradation"
+was a 3DMark2001 APP issue, driver provably clean. The .124 D3D HAL is now stable
+for the 3DMark2000 D3D suite.
