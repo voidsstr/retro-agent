@@ -424,3 +424,27 @@ Default Benchmark ran the FULL suite — including the Texture Rendering Speed t
 stable on .124. Matches the .143 lane's finding that the warm-rerun "degradation"
 was a 3DMark2001 APP issue, driver provably clean. The .124 D3D HAL is now stable
 for the 3DMark2000 D3D suite.
+
+## CURRENT STATE + render-fix plan (2026-07-22, checkpoint)
+**Box .124:** stable. Instrumented H5 display driver 3dfxv3d.dll **957456** deployed
+(D3D 3DMark2000 = **3045 3DMarks**, OpenGL Q3 ~55, all clean). Glide = retail
+(working). Our open glide = ABI-fixed + crash-guarded but does NOT yet render
+(grSstWinOpen returns error on the zero-base guard instead of crashing).
+**DDK build:** VALIDATED runnable — `wine cmd /c c:\3dfx\bldw2k.bat H5\W2K\Src\Video\Displays\H5`
+via toolchain-3dfx/prefix (WINEPREFIX + wine/bin on PATH, ulimit -f guard). GOTCHA:
+`BUILD: Done` is NOT success; judge by build.err + artifact. And the incremental
+build can SKIP a changed file / not relink after you delete the target — purge the
+specific `objfre/i386/<FILE>.obj` AND keep the DLL present, or it produces nothing.
+**Render-fix LEADING HYPOTHESIS (to verify next):** the driver's hwcGetLinearAddr
+(HWCEXT.C) returns an EXISTING GLIDESTATE's glideRegBase without re-mapping:
+`pGS=hwcGetGlideStateStructureForProcess(curPID); if(pGS) return pGS->glideRegBase (maybe 0)`.
+If our glide's **HWCEXT_ALLOCCONTEXT (0x1)** — which the ring shows we send BEFORE
+hwcMapBoard's GETLINEARADDR — allocates the GLIDESTATE WITHOUT calling
+miscGlideMapMemoryBases, then GETLINEARADDR finds that unmapped state (glideRegBase=0)
+and returns 0 (never mapping). Retail glide's ring order was HWCSETEXCLUSIVE +
+CONTEXT_DWORD first, ALLOCCONTEXT later — a DIFFERENT sequence. ⇒ candidate GLIDE-side
+fix: ensure hwcMapBoard/GETLINEARADDR runs (and establishes the mapping) BEFORE
+ALLOCCONTEXT allocates an unmapped state — i.e. our fork's minihwc init ORDER.
+NEXT: (1) read the driver's ALLOCCONTEXT handler — does it hwcAllocateGlideState
+without mapping? (2) trace our glide's init order (hwcInit/hwcMapBoard vs where
+ALLOCCONTEXT is sent). (3) fix the order in glide (my lane) OR force a re-map.

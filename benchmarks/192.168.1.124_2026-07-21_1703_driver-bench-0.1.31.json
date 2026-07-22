@@ -1,0 +1,50 @@
+{
+ "machine_ip": "192.168.1.124",
+ "ts": "2026-07-21T17:03:51",
+ "cpu": "x86 ~845MHz",
+ "stack": {
+  "display_driver": "unrecognized (689216 B)",
+  "glide3x": "unrecognized (None B)",
+  "icd": "retro3dfx-gl (MesaFX 6.2 fork)",
+  "stack_composition": "rollback2"
+ },
+ "env": "none",
+ "changes": "",
+ "q3_timedemo": [
+  {
+   "benchmark": "q3-timedemo-four",
+   "resolution": "640x480",
+   "mode": 3,
+   "run": 1,
+   "fps": 57.7,
+   "gl_renderer": "Mesa Glide v0.62 Voodoo3 (tm) [retro3dfx 0.1.31]",
+   "driver_version": "0.1.31",
+   "settings": {
+    "resolution": "640x480",
+    "r_mode": 3,
+    "demo": "four.dm_66",
+    "q3_version": "1.32",
+    "r_colorbits": "16",
+    "r_texturebits": "16",
+    "r_textureMode": "GL_LINEAR_MIPMAP_NEAREST",
+    "r_picmip": "1",
+    "r_ext_compressed_textures": "0",
+    "r_overBrightBits": "1",
+    "r_mapOverBrightBits": "2",
+    "r_vertexLight": "0",
+    "r_dynamiclight": "1",
+    "r_subdivisions": "4",
+    "r_lodCurveError": "250",
+    "r_lodBias": "0",
+    "r_detailtextures": "1",
+    "r_flares": "0",
+    "r_fastsky": "0",
+    "r_finish": "0",
+    "fsaa": "none (Voodoo3 has no T-buffer)",
+    "anisotropic": "none",
+    "quality_profile": "default"
+   }
+  }
+ ],
+ "screenshot": null
+}
