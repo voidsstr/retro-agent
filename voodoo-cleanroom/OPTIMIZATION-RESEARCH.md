@@ -85,3 +85,33 @@ Key files: glide `distrip.c` (448/549), `gdraw.c` (`_grDrawTriangles_Default`,
 `_grDrawTrianglesCull`), `gxdraw.c` (`_grTriCull` 198), `fxcmd.h`/`fxhal.h`
 (store macros), `fifo.c`. ICD `fxvbtmp.h` (emit), `x86/x86_cliptest.S`,
 `x86/sse.c`. Display: H5 miniport `H3.C` `VideoPortMapMemory` (WC attribute).
+
+## Results — all candidates implemented + A/B'd on hardware (2026-07-23)
+
+Every researched lever was built, gated, and A/B'd on .124 (sound off, box
+quiesced, clean baseline ~67 fps). **All three were INERT or worse:**
+
+1. **Cull-aware GR_TRIANGLES de-batch (glide):** correct (bit-identical cull) but
+   **INERT** — 67.0/67.5 (on) vs 67.5/67.2 (off). Per-triangle fixed overhead is
+   negligible vs per-vertex work. Reverted.
+2. **Intel MMX/movq wide-texture download (glide):** correct (textures render
+   clean) but **INERT** — "msec to draw all images" 27/27/28 both ways. Texture
+   upload is bottlenecked by **AGP/PCI bus bandwidth** (the WC buffers drain to
+   the card at the bus rate regardless of 32- vs 64-bit CPU stores), not CPU
+   store-issue rate. Reverted.
+3. **SSE cliptest (ICD):** the C-SSE (`divss`) path vs the tuned x87-asm
+   (`FDIV_S`) — **regressed / did not complete**, and its crash wedged the
+   Voodoo3 fullscreen surface. The perspective divide is only ~1% of the frame,
+   so even a perfect `rcpps`+NR version can't move the needle — consistent with
+   the earlier campaign's SSE-cliptest regression. Reverted.
+
+### Definitive conclusion
+The clean-room stack is at the **P3 + Voodoo3 hardware's near-optimal ceiling**
+and at parity with retail. The limiters are **system-level** — AGP/PCI bus
+bandwidth (texture), game-logic + sound CPU (single core), and an already-SSE
+near-optimal vertex pipeline — **not driver CPU code**. That is exactly why the
+clean-room glide matches retail and cannot easily beat it: retail hits the same
+ceilings. Driver-code micro-optimization has no meaningful headroom for Q3 on
+this hardware. (Genuine wins would require a faster bus/CPU, or a fundamentally
+different workload — e.g. texture-thrash games where the movq download's 2x
+store width could matter once the transfer is not bus-saturated.)
