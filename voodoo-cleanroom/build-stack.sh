@@ -67,6 +67,12 @@ for f in glob.glob(sys.argv[1]+"/glide2x/*/glide/src/fxglide.h"):
 EOF
 
 HOSTFIX='HOST_CFLAGS=$(filter-out -m32 -mcpu=% -mtune=% -DFX_DLL_ENABLE -DHWC_EXT_INIT=% -march=%,$(CFLAGS))'
+# [retro3dfx] Glide render/FIFO/LFB path optimization: the stock Makefile.mingw
+# default is `-O2 -ffast-math -mtune=pentium` (original P5, x87 FPU, no SSE). Our
+# fleet Voodoo3 box (.124) is a Pentium III, and the MesaFX ICD already builds
+# with P3+SSE. Match the glide to it so triangle setup / FIFO packing / LFB math
+# use SSE + P3 scheduling instead of x87. (A/B-measured on .124; 2026-07-23.)
+GLIDEOPT='OPTFLAGS=-O2 -ffast-math -march=pentium3 -mtune=pentium3 -mfpmath=sse'
 # ABI fix: export both grFoo and grFoo@N; import lib w/o -U
 LDFIX='LDFLAGS=-shared -m32 -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias'
 DTFIX='DLLTOOL_FLAGS=--as-flags=--32 -m i386'
@@ -102,7 +108,7 @@ PY
 }
 
 echo "== retro3dfx-glide: glide3x h5 (Voodoo4/5) =="
-make -C "$GTREE/glide3x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h5 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" >/dev/null
+make -C "$GTREE/glide3x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h5 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT" >/dev/null
 dual_abi_relink "$GTREE/glide3x/h5"
 emit "$GTREE/glide3x/h5/lib" glide3x.dll libglide3x.dll.a
 cp "$GTREE"/glide3x/h5/glide3/src/{glide,g3ext,glidesys,glideutl}.h "$OUT/sdk/include/" 2>/dev/null || true
@@ -110,12 +116,12 @@ cp "$GTREE"/glide3x/h5/incsrc/sst1vid.h "$OUT/sdk/include/" 2>/dev/null || true
 cp "$GTREE"/swlibs/fxmisc/3dfx.h "$OUT/sdk/include/" 2>/dev/null || true
 
 echo "== retro3dfx-glide: glide3x h3 (Voodoo3) =="
-make -C "$GTREE/glide3x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" >/dev/null
+make -C "$GTREE/glide3x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT" >/dev/null
 dual_abi_relink "$GTREE/glide3x/h3"
 cp "$GTREE/glide3x/h3/lib/glide3x.dll" "$OUT/glide3x_h3.dll"
 
 echo "== retro3dfx-glide: glide2x (Napalm) =="
-make -C "$GTREE/glide2x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 H4=1 "$HOSTFIX" "$LDFIX" "$DTFIX" >/dev/null
+make -C "$GTREE/glide2x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 H4=1 "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT" >/dev/null
 cp "$GTREE/glide2x/h3/lib/glide2x.dll" "$OUT/glide2x.dll"
 
 # ============================================================================
