@@ -216,3 +216,36 @@ split). Net: you would be **re-implementing 3dfx SLI externally in the video
 domain** for cards that lack the internal bridge — sound in principle, a real
 multi-month FPGA+PCB+driver project, and the *only* path that actually scales a
 single game across independent Voodoo boards.
+
+### Hardware the video-combiner would require (BOM sketch)
+
+Signal chain, per design:
+`each card VGA out → [digitize] → FPGA (genlock + scanline mux) → [output DAC] → monitor`
+plus a `USB/serial` control link to the host driver.
+
+Two build options trade hardware for sync difficulty:
+- **Digitize + FPGA-reclock (robust, tolerates unsynced cards):**
+  - Per card: a **triple high-speed VGA ADC** with PLL sync/pixel-clock recovery
+    (e.g. AD9888/AD9984 class, ~140–170 MHz — the chip inside VGA KVMs/scan
+    converters). Digital pixel-bus tap before the RAMDAC would skip the ADC but
+    is card-model-specific/invasive.
+  - **Mid-range FPGA** (Lattice ECP5 / Xilinx Spartan-6/7 / Altera Cyclone
+    IV/V): block RAM for per-input **line-buffer FIFOs** (absorb CRTC skew,
+    reclock to a common output clock), the scanline-position mux, PLLs.
+  - **Output video DAC** (ADV7123 triple 10-bit → analog VGA) + sync gen; or a
+    DVI/HDMI transmitter (TFP410 / FPGA TMDS) for a digital display.
+- **Analog mux + true genlock (minimal hardware, hardest sync):** a fast analog
+  **video crosspoint/mux** (ADV3200/MAX4315 class) switched at the split
+  scanline by a small **CPLD/FPGA + scanline counter** — no ADC/DAC — **but the
+  cards must be frame-locked** (common pixel clock → external-clock RAMDAC feed
+  or card mod), because raw analog passthrough has no buffer to hide skew.
+- Common to both: a **microcontroller + USB/serial** (FT2232 / small MCU) for
+  mode setup and the driver load-balance feedback loop; a **custom mixed-signal
+  PCB** (2× HD-15 in, 1× HD-15 out, USB, 5V/3.3V power); and the GPUs — **1× AGP
+  + N× PCI Voodoo3** (AGP has one slot; extra cards must be PCI). N>2 just adds
+  ADC front-ends, FPGA line buffers, and split bands.
+
+Hard/expensive parts: genlock, the high-speed **mixed analog+digital PCB
+layout**, and the Windows driver split/feedback mode. Prototype path: an
+off-the-shelf FPGA dev board + VGA-capture mezzanine + soft-core to de-risk
+before spinning a custom PCB.
