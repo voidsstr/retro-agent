@@ -101,5 +101,40 @@ code); Q2 is +23% vs stock `3dfxgl`.
 - `movntq`/streaming FIFO packer + write-combining verification of the LFB BAR
   (miniport `VideoPortMapMemory` cache attribute) — only helps if the transfer
   is not already bus-saturated.
-- **Multi-board / SLI** (Voodoo3 or Voodoo5) — under investigation; see the
-  multi-card analysis section/doc.
+- **Multi-board / SLI** (Voodoo3 or Voodoo5) — analyzed 2026-07-23, see below.
+
+## Multi-card (multiple Voodoo3 / Voodoo5 boards) — analysis
+
+**Question:** can the drivers use multiple V3/V5 cards on one machine, and would
+it speed up rendering? **Answer: no single-game performance benefit.**
+
+Code facts (grounded in the clean-room glide source):
+- Glide already **detects up to 4 boards** (`minihwc.h HWC_MAX_BOARDS=4`,
+  `fxglide.h MAX_NUM_SST=4`); `grGet(GR_NUM_BOARDS)` (`diget.c:425`) reports the
+  count. So multiple cards are *seen*.
+- But a rendering context binds **exactly one** board: `grSstSelect` sets
+  `current_sst` and the thread GC to `GCs[current_sst]` (`disst.c:186`). There is
+  **no cross-board frame combining** in Glide3 — one game renders on one board.
+- The SLI code in the **h3 (Voodoo3)** tree is dormant **Voodoo1/2 legacy** —
+  `sliDetect` is only consulted for the `VoodooConfig` union (`gpci.c:792`,
+  `GR_SSTTYPE_VOODOO/Voodoo2`), never for the Voodoo3 `SST96Config`. The Voodoo3
+  is a single-chip, single-board part with **no SLI bridge**: 3dfx moved SLI
+  on-board starting with Voodoo4/5, so there is no hardware to link two V3 cards.
+- The **h5 (Voodoo5)** tree *does* have active multi-chip SLI (`_grChipMask`,
+  `gc->chipmask`, `realNumChips` 2/4 — `gsfc.c:520`, `diget.c:912`). But that is
+  the **on-board** VSA-100 SLI (2 chips on a 5500, 4 on a 6000) — it is how a
+  single V5 card already achieves its speed, handled by the driver. Two separate
+  V5 *cards* is not a 3dfx-supported configuration and would not combine.
+
+Why it wouldn't optimize performance even if built from scratch (SFR/AFR across
+two independent boards): (1) .124 is **CPU-bound** on its single P3 at ≤640 —
+one CPU feeds both boards, so a second GPU can't lift a CPU-limited frame; (2)
+compositing (read board-1's framebuffer over PCI, blit to board-0's display)
+is bus-bandwidth-limited and would likely cost more than it saves; (3) only
+fill-bound 1024+ could theoretically gain, and the composite + CPU ceiling
+negate it. The only 3dfx **multi-card** SLI ever shipped is the **Voodoo2**
+(two cards + SLI ribbon, hardware scanline interleave) — not V3/V5.
+
+**What multiple boards *could* usefully enable** (not single-game speed):
+multi-monitor (one display per board), or running independent games/contexts on
+separate boards. Neither is a rendering-performance optimization.
