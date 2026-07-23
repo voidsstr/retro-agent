@@ -174,3 +174,45 @@ contrived win is an extreme fill-bound case where fill savings exceed the
 readback cost, and even that carries added latency (AFR = 2 frames), tearing, and
 micro-stutter. Where independent boards *do* scale is **throughput** (multiple
 simultaneous games/instances or displays), not single-game latency.
+
+### "…a custom hardware device to link the cards?" — two architectures
+
+**(a) A bus-domain interconnect** (custom PCI card / DMA hub / faster link
+between the slots to move framebuffer data between cards): **dead end.** The
+bottleneck is reading pixels *out of* a Voodoo, and that is fixed in the Voodoo
+silicon's bus interface — the chip only emits its framebuffer via slow
+CPU-initiated LFB reads and cannot peer-to-peer bus-master its framebuffer to a
+neighbor. A hub can't make the Voodoo's own read path faster, so "more bandwidth
+between the cards" doesn't help — the cards can't *emit* fast regardless of the
+wire. This is why raw interconnect upgrades fail here.
+
+**(b) A scanout-domain video combiner** (an FPGA box that takes each card's
+**video output** and stitches them): **this is the right architecture, and it's
+conceivable.** It sidesteps the bus entirely by combining at the *display* stage,
+which is exactly what 3dfx's own SLI does — the Voodoo2 SLI ribbon literally
+carries video + sync and interleaves at scanout. Generalize that into an active
+FPGA:
+- **Driver mode:** open a Glide context per board; set each board's **scissor**
+  (`grClipWindow`, standard Glide — no special hw needed) to its screen region
+  (e.g. top half / bottom half); submit the full scene to both. Each card
+  rasterizes all triangles but **only fills its region → ~half the fill work per
+  card** (textures are simply duplicated in each card's own VRAM). The duplicated
+  geometry/setup is CPU cost — which the "fast CPU" premise covers.
+- **The box:** takes both cards' VGA (or digital) outputs, **genlocks/resyncs**
+  them (per-card line-buffer FIFOs to absorb CRTC timing skew), and switches the
+  active source by scanline position (vertical split) or interleaves scanlines
+  (V2-style). No framebuffer ever crosses the bus → **no composite tax.**
+- **Payoff:** up to ~2× fill rate at the fill-bound high resolutions (1024+ on a
+  V3) — the regime where the software approach failed. At ≤640 (CPU-bound) it
+  does nothing, but the fast-CPU premise moves the wall to fill anyway.
+
+Why V3-specific detail matters: the V3 lacks the on-chip **scanline mask** the V2
+used for interleave, so you use a **vertical scissor split** (which the V3 does
+support) combined by a vertical scanout stitch. The genuinely hard engineering is
+**genlocking two independent Voodoo CRTCs** (pixel-clock alignment / timing skew)
+— solvable with an FPGA + line buffers, but that's the real work, plus dynamic
+split-line load balancing (driver feeds per-region render times back to move the
+split). Net: you would be **re-implementing 3dfx SLI externally in the video
+domain** for cards that lack the internal bridge — sound in principle, a real
+multi-month FPGA+PCB+driver project, and the *only* path that actually scales a
+single game across independent Voodoo boards.
