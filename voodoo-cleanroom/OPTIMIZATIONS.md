@@ -138,3 +138,39 @@ negate it. The only 3dfx **multi-card** SLI ever shipped is the **Voodoo2**
 **What multiple boards *could* usefully enable** (not single-game speed):
 multi-monitor (one display per board), or running independent games/contexts on
 separate boards. Neither is a rendering-performance optimization.
+
+### "…but with a faster CPU?" — could a software multi-board mode scale?
+
+Removing the CPU bottleneck is the right instinct, and the pieces to *build* it
+exist: glide keeps a GC **per board** (`fxglide.h GCs[MAX_NUM_SST]`) with
+`grSstSelect` to switch, so the ICD could open a Glide context on each board,
+duplicate the geometry with per-board scissor/viewport (SFR) or alternate whole
+frames (AFR), and a faster CPU makes that geometry-duplication cost affordable.
+
+**But a faster CPU does not fix the actual blocker: the cross-card composite.**
+Independent cards have **separate framebuffers** and **only one board scans out
+to the monitor**. So every frame the other board(s)' pixels must be pulled out of
+their VRAM and pushed into the display board's framebuffer — `grLfbReadRegion`
+then `grLfbWriteRegion` across the period **AGP/PCI bus**. Two facts make this
+fatal on Voodoo hardware: LFB **reads** from the card are far slower than writes
+(the cards are write-optimized; the h3 source itself flags "fixing lfb read"),
+and the transfer **scales with resolution** — i.e. it is most expensive at
+exactly the high-res, fill-bound settings where you'd want the second GPU. A
+1024×768×16 half-frame is ~0.75 MB of slow VRAM read *per frame*; the composite
+cost cancels the fill-rate gain. This is GPU-memory/bus bound, not CPU bound, so
+a faster CPU leaves it untouched.
+
+This is precisely **why 3dfx implemented SLI in hardware** (shared/interleaved
+framebuffer + a physical bridge, so the chips co-write one framebuffer with
+*zero* composite) rather than in software — and why real multi-*card* scaling
+only ever existed on cards with that bridge (Voodoo2 dual-card; Voodoo5 on-board).
+There is no peer-to-peer VRAM DMA between independent Voodoo3/5 boards to route
+around it.
+
+**Verdict:** conceivable to build, but it would not reliably speed up a single
+game even with unlimited CPU — the per-frame cross-card composite over the slow
+period bus negates the parallelism, worst exactly where you'd want it. The one
+contrived win is an extreme fill-bound case where fill savings exceed the
+readback cost, and even that carries added latency (AFR = 2 frames), tearing, and
+micro-stutter. Where independent boards *do* scale is **throughput** (multiple
+simultaneous games/instances or displays), not single-game latency.
