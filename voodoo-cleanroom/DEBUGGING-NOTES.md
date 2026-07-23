@@ -471,3 +471,47 @@ glide calls the retrogl ICD makes at ChoosePFD/SetPixelFormat, to find the exact
 call that wedges (likely a register read/spin against the freshly-mapped MMIO —
 confirm the base is not just non-zero but CORRECT for the V3 BAR layout).
 This is a multi-layer hardware bring-up; layer 1 (the original blocker) is done.
+
+---
+
+## 2026-07-22 — RESOLVED: clean-room glide RENDERS Q3 (all layers through render)
+
+Layer 2 ("hang at GLW_ChoosePFD") turned out to be a **crash**, not a hang, and
+resolved into a chain of distinct bugs, each found with C:\GTRACE.LOG breadcrumbs
+(single-line `fopen("C:\\GTRACE.LOG","a")` markers threaded through the init path)
++ mapping the Application-Error EIP against the DLL's runtime base (logged hInst in
+DllMain). Layer-by-layer:
+
+- **Base map (layer 1, prior):** GETLINEARADDR-before-ALLOCCONTEXT. base0=0x07090000.
+- **MMIO read (layer 2):** first `HWC_IO_LOAD` in hwcInitRegisters returned
+  dramInit1=0x40530031 — a REAL hardware register value, so the mapping is genuine
+  (not bus-float). Bases correct for the V3 BAR layout.
+- **Detect + bInfo:** `_grSstDetectResources` completes, GCs[0].bInfo=0x070329c4.
+- **TLS accessor (the big one):** crash at `grGetString`'s `GR_DCL_GC`. Root cause:
+  `getThreadValueFast()` (fxglide.h) reads TLS via raw `%fs:`+tlsOffset; faulted
+  NULL+0x1c under mingw/gcc-13. Fixed → `TlsGetValue(tlsIndex)`. This is the FIRST
+  glide entry that *reads* TLS (detect/select only write it), which is why it hid
+  until grSstWinOpen. tlsIndex=18, OSWin95=0 (not a high-index/OS bug — the raw
+  read itself).
+- **lost-context NULL deref:** `hwcShareContextData` NT branch lacked the
+  `&dummyContextDWORD` fallback the other branches have; gc->lostContext=NULL →
+  crash at `*gc->lostContext=FXFALSE`. Fixed (mirror the guard).
+- **hwcInitVideo:** completes; gamma + FIFO (autoBump=1) set up fine.
+- **RENDER:** Q3 reports "N PFDs found / hardware acceleration found / PIXELFORMAT
+  selected / CL_InitCGame / N msec to draw all images" and plays the demo. Windowed
+  LFB->GDI capture shows a correct Q3 frame (HUD, textures, lighting, in-world text,
+  player models). Fullscreen Glide output is NOT GDI-capturable on 3dfx (expected).
+
+**GOTCHA — stale objects on header edits:** the era Makefiles don't track header
+deps. Editing fxglide.h did NOT recompile diget.o (kept old `%fs:` asm) and the
+"fixed" DLL still crashed. ALWAYS `find glide3 minihwc -name '*.o' -delete` before
+rebuilding after a HEADER change.
+
+**GOTCHA — staging race:** rebuild_glide.sh's tail cp and build-stack.sh both stage
+out/glide3x_h3.dll; verify `strings ... | grep -c <marker>` on the STAGED file, not
+just lib/, after each build.
+
+Fixes committed to the fork: voidsstr/retro3dfx-glide @ glide-devel-sezero, a71eb3f.
+
+**OPEN:** fullscreen (r_fullscreen 1) intermittent crash; broader game/resolution
+sweep; then optimization.
