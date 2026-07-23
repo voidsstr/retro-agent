@@ -191,6 +191,29 @@ what's pending. A command that reaches the agent but errors still completes the
 task; only network failures are retried. Full docs:
 [`scripts/README-chat-brain.md`](scripts/README-chat-brain.md).
 
+## Fleet AI engine (retro-infer) — OPT-IN ONLY (agent v1.17.0+)
+
+**The AI engine `retro-infer.exe` must NOT run by default.** On the single-core
+vintage fleet boxes it steals CPU from games and skews benchmarks. As of agent
+**v1.17.0** it is gated behind a persisted registry flag and is **off unless
+explicitly enabled through the retro chat interaction**:
+
+- **Flag:** `HKLM\Software\RetroAgent\AIEngine` (REG_DWORD). Absent/0 = disabled
+  (default). The agent's boot `ai_status_thread` and `infer_ensure()` both refuse
+  to spawn the engine when it's 0 (`agent/src/ai.c:ai_engine_enabled()`).
+- **Enable:** agent command **`AI_ENABLE`** (sets the flag + starts the engine).
+  Over chat that's `mcp__retro__retro_command` with `command=AI_ENABLE` — this is
+  the intended "enable via retro chat" path.
+- **Disable:** **`AI_DISABLE`** (clears the flag + taskkills `retro-infer.exe`).
+- Any AI command (`AI_HELLO`, `INFER_RUN`, …) still returns an error while the
+  engine is disabled — enable it first.
+
+**Benchmarking quiesces background CPU thieves.** The `driver-bench` skill's
+`preflight()` now issues `AI_DISABLE` and taskkills `retro-infer.exe`,
+`rotate_wall.exe`, `wuauclt.exe` (Windows Update), `3dfxMan.exe`, `daemon.exe`,
+`wmiprvse.exe`, and stray `dwwin/dumprep` before running — a bench with any of
+these live reads several fps low. If you bench by hand, do the same quiesce.
+
 ## Repository Context
 
 This repo was extracted from the `nsc-assistant` monorepo. The dashboard, MCP server, and OpenClaw agents remain in `nsc-assistant`. This repo contains only the agent binaries, Python client library, provisioning scripts, and documentation.

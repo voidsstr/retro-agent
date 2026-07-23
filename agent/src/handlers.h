@@ -64,6 +64,9 @@ void handle_status_wait(SOCKET sock, const char *args);
 /* Fleet AI transport (ai.c) - proxies to retro-infer --serve on :9896 */
 void handle_ai_hello(SOCKET sock);
 void handle_ai_restart(SOCKET sock);
+void handle_ai_enable(SOCKET sock);
+void handle_ai_disable(SOCKET sock);
+int  ai_engine_enabled(void);
 void handle_model_load(SOCKET sock, const char *args);
 void handle_model_unload(SOCKET sock, const char *args);
 void handle_model_list(SOCKET sock);

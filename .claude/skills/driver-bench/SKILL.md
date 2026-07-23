@@ -21,11 +21,22 @@ and `benchmarks/README.md` for the conventions).
 python3 .claude/skills/driver-bench/run_bench.py --ip <target> [options]
 ```
 
-Does, in order: preflight (agent ≥1.6.0, 3dfx card, CPU MHz) → **stack
-detection** (classifies ALL-RETRO3DFX / HYBRID / RETAIL from system32 file
-fingerprints + GL_RENDERER) → Q3 timedemo matrix (default 640x480 + 1024x768,
-2 runs each) → optional in-engine quality screenshot → **machine upsert + one
-DB row per run** in specpicks → JSON drop in `benchmarks/`.
+Does, in order: preflight (agent ≥1.6.0, 3dfx card, CPU MHz; **disable WER +
+quiesce background CPU thieves**) → **stack detection** (classifies
+ALL-RETRO3DFX / HYBRID / RETAIL from system32 file fingerprints + GL_RENDERER)
+→ Q3 timedemo matrix (default 640x480 + 1024x768, 2 runs each) → optional
+in-engine quality screenshot → **machine upsert + one DB row per run** in
+specpicks → JSON drop in `benchmarks/`.
+
+**Preflight quiesce (REQUIRED for fair numbers):** these boxes are single-core;
+any background process depresses fps and skews A/Bs. `preflight()` opts the AI
+engine OUT (`AI_DISABLE`; the Fleet AI `retro-infer.exe` is opt-in as of agent
+v1.17.0 and must NOT run during a bench) and taskkills `retro-infer.exe`,
+`rotate_wall.exe`, `wuauclt.exe` (Windows Update), `3dfxMan.exe`, `daemon.exe`,
+`wmiprvse.exe`, plus stray `dwwin/dumprep`. If you bench by hand instead of via
+this runner, do the same quiesce first — a bench with `retro-infer.exe` running
+reads several fps low (measured on .124: it was the reason clean-room glide first
+looked ~46 vs a lighter-quality 58 baseline).
 
 Key options (see `--help` for all): `--modes 3,6` (r_mode list: 3=640x480,
 4=800x600, 6=1024x768), `--runs 2`, `--env "FX_GLIDE_SWAPINTERVAL=0"` (launcher

@@ -172,6 +172,9 @@ def build_retro_server(origin_host=None):
         "'AUDIOINFO', 'PROCLIST', 'EXEC dir C:\\\\WINDOWS', 'REGREAD HKLM "
         "Software\\\\...', 'UICLICK 320 240', 'UIKEY enter', 'DIRLIST C:\\\\'. "
         "EXEC = hidden CLI (blocks, captures output); LAUNCH = visible GUI app. "
+        "The Fleet AI engine (retro-infer) is OFF by default; turn it on with "
+        "command 'AI_ENABLE' and off with 'AI_DISABLE' (this is how the user "
+        "enables/disables AI on a box through chat). "
         "Omit 'host' to target the machine this chat is coming from.",
         {
             "type": "object",

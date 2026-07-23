@@ -22,7 +22,44 @@
 #define INFER_SPAWN_WAIT_MS 400
 #define INFER_SPAWN_TRIES 8
 
+/* Opt-in gate (2026-07-23): the AI engine (retro-infer.exe) must NOT run by
+ * default — on the single-core vintage fleet boxes it steals cycles from games/
+ * benchmarks. It is enabled explicitly via the AI_ENABLE command (which the
+ * retro chat interaction issues) and persisted in the registry so it survives
+ * reboots. Absent/0 => disabled; infer_ensure() refuses to spawn. */
+#define AI_ENABLE_KEY   "Software\\RetroAgent"
+#define AI_ENABLE_VALUE "AIEngine"
+
 static SOCKET g_infer_sock = INVALID_SOCKET;
+
+/* Is the AI engine enabled? Reads HKLM\Software\RetroAgent\AIEngine (REG_DWORD);
+ * default 0 (disabled) when the value is absent. */
+int ai_engine_enabled(void)
+{
+    HKEY h;
+    DWORD type, val = 0, size = sizeof(val);
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, AI_ENABLE_KEY, 0, KEY_QUERY_VALUE, &h)
+            == ERROR_SUCCESS) {
+        if (RegQueryValueExA(h, AI_ENABLE_VALUE, NULL, &type, (BYTE *)&val, &size)
+                != ERROR_SUCCESS || type != REG_DWORD)
+            val = 0;
+        RegCloseKey(h);
+    }
+    return val != 0;
+}
+
+/* Persist the enable flag. */
+static void ai_engine_set_flag(int on)
+{
+    HKEY h;
+    DWORD val = on ? 1 : 0;
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, AI_ENABLE_KEY, 0, NULL, 0,
+                        KEY_SET_VALUE, NULL, &h, NULL) == ERROR_SUCCESS) {
+        RegSetValueExA(h, AI_ENABLE_VALUE, 0, REG_DWORD,
+                       (const BYTE *)&val, sizeof(val));
+        RegCloseKey(h);
+    }
+}
 
 /* The agent is threaded per client (main.c); the engine socket is shared
  * state, so AI commands serialize through one critical section. */
@@ -215,6 +252,11 @@ static int infer_ensure(void)
         return 0;
     if (infer_try_connect() == 0)
         return 0;
+    /* Opt-in gate: never auto-spawn the engine unless explicitly enabled. */
+    if (!ai_engine_enabled()) {
+        log_msg(LOG_FILE, "AI: engine disabled (enable via AI_ENABLE) - not spawning");
+        return 1;
+    }
     if (infer_spawn() != 0)
         return 1;
     for (i = 0; i < INFER_SPAWN_TRIES; i++) {
@@ -382,6 +424,14 @@ DWORD WINAPI ai_status_thread(LPVOID param)
     char gpu[512];
     (void)param;
     Sleep(3000);   /* let listeners + shell settle */
+    /* Opt-in gate: do NOT stage or probe (which would spawn) the engine at boot
+     * unless it has been explicitly enabled. Keeps the vintage boxes idle. */
+    if (!ai_engine_enabled()) {
+        printf("AI: engine disabled by default - enable via AI_ENABLE "
+               "(retro chat)\n");
+        log_msg(LOG_MAIN, "AI: engine disabled by default (AIEngine reg flag 0)");
+        return 0;
+    }
     /* self-heal: pull the engine binary from the share if it isn't staged */
     stage_engine_from_share();
     host_gpu_json(gpu, sizeof(gpu));
@@ -583,4 +633,45 @@ void handle_ai_restart(SOCKET sock)
         send_text_response(sock, "OK restarted");
     else
         send_error_response(sock, "AI engine did not come back");
+}
+
+/* AI_ENABLE: opt the AI engine in (persisted). Spawns it so it's ready. Issued
+ * by the retro chat interaction; the engine is OFF until this is called. */
+void handle_ai_enable(SOCKET sock)
+{
+    ai_engine_set_flag(1);
+    log_msg(LOG_FILE, "AI: engine ENABLED via AI_ENABLE");
+    if (infer_ensure() == 0)
+        send_text_response(sock, "OK AI engine enabled and running");
+    else
+        send_text_response(sock, "OK AI engine enabled (will start on next "
+                                 "AI request; binary may need staging)");
+}
+
+/* AI_DISABLE: opt the AI engine out (persisted) and stop any running instance.
+ * The default state; call this to reclaim CPU on the vintage boxes. */
+void handle_ai_disable(SOCKET sock)
+{
+    ai_engine_set_flag(0);
+    if (g_infer_sock != INVALID_SOCKET) {
+        frame_send(g_infer_sock, "SHUTDOWN", 8);
+        infer_disconnect();
+    }
+    {
+        /* best-effort taskkill of any stray engine (ignore result) */
+        STARTUPINFOA si;
+        PROCESS_INFORMATION pi;
+        char cmd[] = "taskkill /f /im retro-infer.exe";
+        memset(&si, 0, sizeof(si));
+        si.cb = sizeof(si);
+        memset(&pi, 0, sizeof(pi));
+        if (CreateProcessA(NULL, cmd, NULL, NULL, FALSE, CREATE_NO_WINDOW,
+                           NULL, NULL, &si, &pi)) {
+            WaitForSingleObject(pi.hProcess, 3000);
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        }
+    }
+    log_msg(LOG_FILE, "AI: engine DISABLED via AI_DISABLE");
+    send_text_response(sock, "OK AI engine disabled and stopped");
 }

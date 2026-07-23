@@ -239,6 +239,24 @@ async def preflight(c):
             await c.command_text("EXEC cmd /c " + cmd, timeout=15)
         except Exception:
             pass
+    # Quiesce background CPU thieves before benchmarking. On the single-core
+    # vintage fleet boxes, ANY of these steals cycles from the game and depresses
+    # fps, skewing A/B numbers (e.g. retro-infer.exe, the Fleet AI engine, cost
+    # measurable fps on .124 until it was made opt-in in agent v1.17.0). Opt the
+    # AI engine OUT via AI_DISABLE (agent >=1.17.0; harmless error on older) and
+    # taskkill the rest. Idempotent; cheap.
+    try:
+        await c.command_text("AI_DISABLE", timeout=15)
+    except Exception:
+        pass
+    for _img in ("retro-infer.exe", "rotate_wall.exe", "wuauclt.exe",
+                 "3dfxMan.exe", "daemon.exe", "wmiprvse.exe",
+                 "dwwin.exe", "dumprep.exe"):
+        try:
+            await c.command_text(r'EXEC cmd /c taskkill /f /im %s 2>nul' % _img,
+                                 timeout=12)
+        except Exception:
+            pass
     specs = {}
     si = json.loads(await c.command_text("SYSINFO", timeout=20))
     specs["sysinfo"] = si
