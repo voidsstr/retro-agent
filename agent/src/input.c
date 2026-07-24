@@ -109,13 +109,31 @@ void handle_winlist(SOCKET sock)
 
 /* ---------- UICLICK ---------- */
 
+/*
+ * ui_click_at - perform a mouse click at (x,y). Shared by UICLICK and CLICKSHOT.
+ * right=1 -> right button; dbl=1 -> double click.
+ */
+void ui_click_at(int x, int y, int right, int dbl)
+{
+    DWORD down_flag = right ? MOUSEEVENTF_RIGHTDOWN : MOUSEEVENTF_LEFTDOWN;
+    DWORD up_flag   = right ? MOUSEEVENTF_RIGHTUP   : MOUSEEVENTF_LEFTUP;
+
+    SetCursorPos(x, y);
+    mouse_event(down_flag, 0, 0, 0, 0);
+    mouse_event(up_flag, 0, 0, 0, 0);
+
+    if (dbl) {
+        mouse_event(down_flag, 0, 0, 0, 0);
+        mouse_event(up_flag, 0, 0, 0, 0);
+    }
+}
+
 void handle_uiclick(SOCKET sock, const char *args)
 {
     int x, y;
     int right_click = 0;
     int double_click = 0;
     char buf[256];
-    DWORD down_flag, up_flag;
 
     if (!args || !args[0]) {
         send_error_response(sock, "UICLICK requires: <x> <y> [right] [dblclick]");
@@ -156,17 +174,7 @@ void handle_uiclick(SOCKET sock, const char *args)
 
     log_msg(LOG_INPUT, "UICLICK: x=%d y=%d right=%d dbl=%d", x, y, right_click, double_click);
 
-    down_flag = right_click ? MOUSEEVENTF_RIGHTDOWN : MOUSEEVENTF_LEFTDOWN;
-    up_flag   = right_click ? MOUSEEVENTF_RIGHTUP   : MOUSEEVENTF_LEFTUP;
-
-    SetCursorPos(x, y);
-    mouse_event(down_flag, 0, 0, 0, 0);
-    mouse_event(up_flag, 0, 0, 0, 0);
-
-    if (double_click) {
-        mouse_event(down_flag, 0, 0, 0, 0);
-        mouse_event(up_flag, 0, 0, 0, 0);
-    }
+    ui_click_at(x, y, right_click, double_click);
 
     send_text_response(sock, "OK");
 }

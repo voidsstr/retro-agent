@@ -24,6 +24,7 @@ static const cmd_entry_t commands[] = {
     { "DRIVERS",    1, NULL,              handle_drivers },
     { "SCREENSHOT", 1, NULL,              handle_screenshot },
     { "SCREENDIFF", 1, NULL,              handle_screendiff },
+    { "CLICKSHOT",  1, NULL,              handle_clickshot },
     { "EXEC",       1, NULL,              handle_exec },
     { "EXECW",      1, NULL,              handle_execw },
     { "UPLOAD",     1, NULL,              handle_upload },

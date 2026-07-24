@@ -11,6 +11,41 @@ verified — only pause when genuinely blocked on something that requires the us
 reboot or long operation is in flight, wait for it and continue; don't end the turn
 early. Persist through multi-step, multi-reboot efforts to completion.
 
+## Fleet Auto-Login (agent must survive reboots) (REQUIRED)
+
+Every connected fleet box is configured for **Windows XP auto-login** so that after
+any reboot it logs straight into the console session and the retro agent (an
+`HKLM\...\Run` value `RetroAgent`) restarts automatically — no keyboard needed.
+Keep this intact on every box; when you add or re-image a machine, apply the same.
+Full doc: [`docs/fleet-auto-login.md`](docs/fleet-auto-login.md).
+
+**Config (per box), in `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon`:**
+- `AutoAdminLogon` = `1`
+- `ForceAutoLogon` = `1` (re-applies auto-login even after a manual logoff — the "fully enabled" bit)
+- `DefaultUserName` = the box's **real console account** (MUST match an existing local account)
+- `DefaultDomainName` = the box **hostname** (local account)
+- `DefaultPassword` = `password` (fleet convention; plaintext, as XP auto-login requires)
+- plus `HKLM\Software\Microsoft\Windows\CurrentVersion\Run\RetroAgent` = the agent exe.
+
+**Convention:** the console account's Windows password is **`password`** on every box.
+(Re)apply with `net user <account> password` **and** the five Winlogon values together
+so the account password and `DefaultPassword` always match — that's what prevents a lockout.
+
+**Per-box console accounts (2026-07):** .124/ADMIN=voidsstr (Voodoo3 ref, leave as-is) ·
+.143/1GHZ (Voodoo5, untouched during driver session) · .123/2004-XP=Administrator ·
+.240/USER-41EA3B3330=User · .145/DELL=voidsstr.
+
+**Gotchas (hard-won):**
+- `DefaultUserName` MUST be a real local account — set it from `echo %USERNAME%` (the
+  actual console user), never an assumed name. Several boxes had a stale
+  `DefaultUserName=admin` that doesn't exist → auto-login silently fails and the box
+  won't come back after reboot.
+- **Never set `DefaultPassword` without also `net user`-ing the account to the same
+  value**, or the next reboot locks the box out (agent won't start → unreachable).
+- The loopback test (`net use \\127.0.0.1\IPC$ /user:host\user password`) gives **false
+  negatives** on XP (network-access policy) — a failure there does NOT mean the console
+  password is wrong.
+
 ## Findings Log & Documentation Upkeep (REQUIRED)
 
 **Keep a running findings log and keep docs current.** As you uncover any important,
@@ -509,9 +544,18 @@ for pc in pcs:
 
 ### UI Automation (Windows)
 - **SCREENSHOT quality** — raw 24-bit BMP (0=full, 1=half, 2=quarter)
+- **SCREENDIFF [FULL]** — dirty-tile delta vs the agent's previous frame (only
+  changed 64×64 tiles; `FULL` forces a baseline). Real-time screenshots.
+- **CLICKSHOT x y [right|dbl] [settle_ms]** — click, settle, and return a
+  `SCREENDIFF` delta in ONE round trip (agent **v1.18.0+**). The real-time
+  click→result primitive.
 - **UICLICK x y [button]** — click at coordinates (left/right/middle)
 - **UIKEY keyname** — send keystroke (uses MapVirtualKey scan codes)
 - **WINLIST** — JSON list of visible windows
+
+For fast, real-time button-clicking installs (single box or many in parallel),
+use the **`gui-install` skill** (`.claude/skills/gui-install/`): `FastUI` holds one
+persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
 
 ### Registry (Windows)
 - **REGREAD root path** — read value or enumerate keys

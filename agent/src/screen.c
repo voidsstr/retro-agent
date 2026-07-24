@@ -9,6 +9,7 @@
 #include "util.h"
 #include "log.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define DIFF_TILE_SIZE 64
@@ -162,7 +163,23 @@ static int tile_changed(const char *prev, const char *curr,
  *     uint16 LE  h  (actual tile height)
  *     w * h * 3 bytes of top-down BGR pixel data
  */
-void handle_screendiff(SOCKET sock, const char *args)
+/* Reset the previous-frame cache so the next diff sends all tiles. */
+static void screendiff_reset(void)
+{
+    if (g_prev_pixels) {
+        HeapFree(GetProcessHeap(), 0, g_prev_pixels);
+        g_prev_pixels = NULL;
+        g_prev_w = 0;
+        g_prev_h = 0;
+    }
+}
+
+/*
+ * screendiff_core - capture the screen, diff against the previous frame, and
+ * send only changed tiles. Shared by SCREENDIFF and CLICKSHOT so a click and
+ * its resulting visual delta come back in a single round trip.
+ */
+static void screendiff_core(SOCKET sock)
 {
     int screen_w, screen_h;
     HDC hScreenDC, hMemDC;
@@ -172,16 +189,6 @@ void handle_screendiff(SOCKET sock, const char *args)
     char *curr_pixels;
     int tiles_x, tiles_y;
     int send_all = 0;
-
-    /* "SCREENDIFF FULL" forces all tiles dirty (new client session) */
-    if (args && _stricmp(args, "FULL") == 0) {
-        if (g_prev_pixels) {
-            HeapFree(GetProcessHeap(), 0, g_prev_pixels);
-            g_prev_pixels = NULL;
-            g_prev_w = 0;
-            g_prev_h = 0;
-        }
-    }
     int dirty_count = 0;
     char *resp_buf;
     DWORD resp_pos;
@@ -314,4 +321,65 @@ void handle_screendiff(SOCKET sock, const char *args)
     g_prev_pixels = curr_pixels;
     g_prev_w = screen_w;
     g_prev_h = screen_h;
+}
+
+/*
+ * SCREENDIFF [FULL] — send changed 64x64 tiles vs the previous frame.
+ * "FULL" resets the cache so every tile is sent (new client session).
+ */
+void handle_screendiff(SOCKET sock, const char *args)
+{
+    if (args && _stricmp(args, "FULL") == 0)
+        screendiff_reset();
+    screendiff_core(sock);
+}
+
+/*
+ * CLICKSHOT <x> <y> [right|dbl] [settle_ms] — real-time click primitive.
+ * Clicks at (x,y), waits settle_ms (default 60, max 2000) for the UI to
+ * repaint, then returns a SCREENDIFF payload (only changed tiles). One round
+ * trip gives the click AND its visual result, so an LLM can drive a wizard in
+ * a tight loop: SCREENDIFF FULL once for a baseline, then CLICKSHOT repeatedly.
+ */
+void handle_clickshot(SOCKET sock, const char *args)
+{
+    int x = 0, y = 0, right = 0, dbl = 0, settle = 60;
+    char buf[256];
+
+    if (!args || !args[0]) {
+        send_error_response(sock, "CLICKSHOT requires: <x> <y> [right|dbl] [settle_ms]");
+        return;
+    }
+
+    safe_strncpy(buf, args, sizeof(buf));
+    {
+        char *p = buf, *tok;
+
+        tok = p; while (*p && *p != ' ') p++; if (*p) *p++ = '\0';
+        x = atoi(tok);
+        while (*p == ' ') p++;
+        tok = p; while (*p && *p != ' ') p++; if (*p) *p++ = '\0';
+        y = atoi(tok);
+
+        /* optional flags + trailing settle_ms (any bare integer) */
+        while (*p) {
+            while (*p == ' ') p++;
+            if (!*p) break;
+            if (_strnicmp(p, "right", 5) == 0)      { right = 1; p += 5; }
+            else if (_strnicmp(p, "dbl", 3) == 0)   { dbl = 1;   p += 3; }
+            else if (*p >= '0' && *p <= '9')        { settle = atoi(p);
+                                                      while (*p && *p != ' ') p++; }
+            else { while (*p && *p != ' ') p++; }
+        }
+    }
+
+    if (settle < 0) settle = 0;
+    if (settle > 2000) settle = 2000;
+
+    log_msg(LOG_SCREEN, "CLICKSHOT: x=%d y=%d right=%d dbl=%d settle=%d",
+            x, y, right, dbl, settle);
+
+    ui_click_at(x, y, right, dbl);
+    Sleep((DWORD)settle);
+    screendiff_core(sock);
 }
