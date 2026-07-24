@@ -126,6 +126,23 @@ servers exec `cstrike\listenserver.cfg` after map load — put in it: `choosetea
 `--cs16demo <demo>` (a missing/corrupt demo records `None` fps, flagged not
 averaged). The `cs16-timedemo` row records the GoldSrc video knobs in `settings`.
 
+**Issue-diagnosis variant (vintage stack, no pre-recorded demo)** —
+`retro-3dfx/optimized/gltest/goldsrc_bench.py [cs|cs2|hl] [W H secs] [nofb] [real]`.
+For *finding rendering/stutter bugs* rather than a tracked fps number. It needs
+no recorded demo: a generated `listenserver.cfg` runs a deterministic `noclip`
+fly-through on map load, and it reads the **ICD's own** `C:\icd_perf.log`
+(`retro3dfx >= 0.3.9`) so it works under BCShield (which blocks `-condebug`).
+Each perf window logs fps + **`maxFrame`** (worst single frame — catches a
+periodic stutter) + **`texDl`** (texture-download count — `texDl=0` steady-state
+DISPROVES texture streaming) + the front buffer to `C:\fbdump_NN.raw` for
+render-correctness (the CS green-world class of bug). `nofb` = perf-only
+(fbdump readback injects its own hitch, so use it for truthful stutter timing);
+`real` = fps_max 100 + HUD on to mimic actual play. The cfg auto-deletes after
+each run so normal play is never hijacked. Diagnosis finding on .143: a scripted
+noclip sweep is smooth at 60Hz (10-11 ms/window) — the ~1s walking stutter needs
+real player movement (collision/footstep-sound/view-bob) and/or a CRT-refresh
+beat, NOT texture streaming and NOT the glide/render pipeline.
+
 ### Quality / video-card settings — record EVERYTHING, cover permutations
 
 **Rule: every run's `settings` jsonb records the full resolved set of quality /
