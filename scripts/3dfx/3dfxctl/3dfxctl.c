@@ -73,7 +73,7 @@ static const CHOICE cVsyncD3D[] = {
     {"On - every vblank (recommended)", "1"}, {"Off", "0"},
     {"On - every 2nd vblank", "2"}, {NULL,NULL} };
 static const CHOICE cRefresh[] = {
-    {"Auto (mode default)", "0"}, {"60 Hz", "60"}, {"70 Hz", "70"},
+    {"Auto (driver picks highest safe)", "__AUTO__"}, {"60 Hz", "60"}, {"70 Hz", "70"},
     {"72 Hz", "72"}, {"75 Hz", "75"}, {"85 Hz", "85"}, {NULL,NULL} };
 static const CHOICE cSliAa[] = {
     {"Single chip (no SLI/AA)",  "0"},
@@ -98,7 +98,7 @@ static SETTING gSettings[] = {
 
   {"Display & Sync","Vertical sync (Glide / OpenGL)", SUB_GLIDE, "FX_GLIDE_SWAPINTERVAL",       T_COMBO, 0, cVsyncGlide, "1",    "Wait for vblank on buffer swap. Fixes tearing and the swap/scanout beat (stutter).", 1},
   {"Display & Sync","Vertical sync (Direct3D)",       SUB_D3D,   "SSTH3_SWAPINTERVAL",          T_COMBO, 0, cVsyncD3D,   "1",    "D3D flip waits for N vblanks.", 1},
-  {"Display & Sync","Full-screen refresh override",   SUB_GLIDE, "FX_GLIDE_REFRESH",            T_COMBO, 0, cRefresh,    "0",    "Force the CRT refresh in Glide/GL full-screen. Keep <=75 Hz at 1280x1024 on a 21\" CRT.", 1},
+  {"Display & Sync","Full-screen refresh override",   SUB_GLIDE, "FX_GLIDE_REFRESH",            T_COMBO, 0, cRefresh,    "__AUTO__", "Auto = the driver picks the highest CRT-safe refresh per resolution (85Hz <=1024x768, 75Hz@1280x1024). Only override if you know the mode is safe.", 1},
 
   {"Gamma",       "Desktop gamma",                    SUB_ROOT,  "GammaTable",                  T_GAMMA, 0, NULL,        "1.00", "2D desktop brightness (1.00 = neutral). Clamped so it can't wash out the desktop.", 1},
   {"Gamma",       "3D / Glide gamma",                 SUB_ROOT,  "GlideGammaTable",             T_GAMMA, 0, NULL,        "1.30", "In-game brightness for Glide/OpenGL (1.30 = 3dfx default, brighter than 1.0).", 1},
@@ -154,6 +154,18 @@ static int regSetSz(int sub, const char *name, const char *val)
     r = RegSetValueExA(h, name, 0, REG_SZ, (const BYTE*)val, (DWORD)strlen(val)+1);
     RegCloseKey(h);
     return r == ERROR_SUCCESS;
+}
+/* Delete a value (used for "Auto" choices whose absence is what the driver
+ * wants). e.g. FX_GLIDE_REFRESH: any present value (even "0") OVERRIDES the
+ * ICD's per-resolution safe refresh, so "Auto" must remove it entirely. */
+static int regDelete(int sub, const char *name)
+{
+    char path[512]; HKEY h; LONG r;
+    keyPath(sub, path, sizeof(path));
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, path, 0, KEY_SET_VALUE, &h) != ERROR_SUCCESS) return 1;
+    r = RegDeleteValueA(h, name);
+    RegCloseKey(h);
+    return (r == ERROR_SUCCESS || r == ERROR_FILE_NOT_FOUND);
 }
 static int regGetDword(int sub, const char *name, DWORD *out)
 {
@@ -260,8 +272,11 @@ static int applyAll(int *anyReboot, int *rejected)
             } else {
                 GetWindowTextA(s->hCtl, buf, sizeof(buf)); val = buf;
             }
-            if (val) ok = s->dword ? regSetDword(s->sub, s->name, (DWORD)strtoul(val,0,10))
-                                   : regSetSz(s->sub, s->name, val);
+            if (val && strcmp(val, "__AUTO__") == 0)
+                ok = regDelete(s->sub, s->name);   /* "Auto" = remove the override */
+            else if (val)
+                ok = s->dword ? regSetDword(s->sub, s->name, (DWORD)strtoul(val,0,10))
+                              : regSetSz(s->sub, s->name, val);
         }
         if (ok) { n++; if (s->reboot) *anyReboot = 1; }
     }
