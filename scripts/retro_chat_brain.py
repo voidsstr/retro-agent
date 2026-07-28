@@ -103,7 +103,11 @@ MODEL = os.environ.get("RETRO_BRAIN_MODEL", "claude-opus-4-8")
 # 'medium' keeps chat snappy (less pre-output thinking) while staying capable
 # enough for fleet ops; bump to high/xhigh via env for heavier tasks.
 EFFORT = os.environ.get("RETRO_BRAIN_EFFORT", "medium")
-MAX_TURNS = int(os.environ.get("RETRO_BRAIN_MAX_TURNS", "60"))
+# 0 (or any value <= 0) means UNBOUNDED — no agentic-loop cap per prompt. A
+# fleet op can be arbitrarily many steps (screenshot->click loops, multi-reboot
+# driver work), and there's no human watching to bump a limit, so don't cap by
+# default. Set a positive RETRO_BRAIN_MAX_TURNS to re-impose a ceiling.
+MAX_TURNS = int(os.environ.get("RETRO_BRAIN_MAX_TURNS", "0"))
 
 # The SDK reads whole JSON messages from the `claude` CLI's stdout into one
 # buffer and FATALLY aborts the message reader if a single message exceeds this
@@ -325,10 +329,11 @@ def options_for(host, resume, account_home=None):
         setting_sources=["project"],           # discover .claude/skills from the repo
                                                # (retro-wallpaper, security-posture) + CLAUDE.md
         resume=resume,
-        max_turns=MAX_TURNS,
         include_partial_messages=True,         # token-level deltas -> live streaming
         max_buffer_size=MAX_BUFFER_SIZE,       # don't die on big screenshot results
     )
+    if MAX_TURNS > 0:                          # 0/negative => unbounded (omit the cap)
+        opts["max_turns"] = MAX_TURNS
     if _CLI_PATH:
         opts["cli_path"] = _CLI_PATH
     if account_home:

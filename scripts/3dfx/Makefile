@@ -23,11 +23,15 @@ core:
 test:
 	$(MAKE) -C d3dhal test
 	$(MAKE) -C driver test
+	$(MAKE) -C driver/nt/gbkernel-test
+	$(MAKE) -C driver/nt/fxdbg
 
 clean:
 	-$(MAKE) -C gfxbench clean
 	-$(MAKE) -C d3dhal clean
 	-$(MAKE) -C driver clean
+	-$(MAKE) -C driver/nt/gbkernel-test clean
+	-$(MAKE) -C driver/nt/fxdbg clean
 	rm -rf out build
 
 .PHONY: all glide bench core test clean

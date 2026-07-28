@@ -21,12 +21,33 @@ TARGETLIBS=$(DDK_LIB_PATH)\win32k.lib
 
 SOURCES= \
     enable.c            \
+    chassis.c           \
+    gbkdebug.c          \
+    gbkernel.c          \
+    gbk\gbk_packet.c    \
+    gbk\gbk_layout.c    \
+    gbk\gbk_state.c     \
+    gbk\gbk_fifo.c      \
+    gbk\gbk_surf.c      \
+    crtshim.c           \
     ..\ddi_glue.c       \
     ..\..\d3dhal\d3dhal_state.c \
     ..\..\d3dhal\d3dhal_tex.c   \
     ..\..\d3dhal\d3dhal_prim.c  \
-    ..\..\d3dhal\d3dhal_ddi.c
+    ..\..\d3dhal\d3dhal_ddi.c   \
+    ..\..\d3dhal\d3dhal_dp2real.c
 
-# The Glide backend on the driver side is Glide's minihwc/cinit init compiled in
-# (not the glide3x.dll). For bring-up in 86Box the standalone glidebackend.c +
-# glide3x.dll is used instead; see ../README.md "backend on the driver side".
+# gbkdebug.c is the DrvEscape handler for the on-card BRING-UP LADDER (M4c-1):
+# private escapes (FXDBG_PROBE/CLEAR/TRI/TEX/READBACK, see gbkdebug.h) the agent
+# drives to validate the kernel Glide backend on real hardware before D3D does.
+#
+# The Glide backend on the driver side is the REAL kernel-mode MMIO transport
+# (M4b-2): gbkernel.c drives the Voodoo3 directly through driver-mapped BAR0/
+# BAR1, built on the host-verified pure-logic core gbk\gbk_{packet,layout,
+# state,fifo}.c (see docs/3dfx-gbkernel-design.md). gbstub.c is kept in the
+# tree as the NO-hardware link fallback but is OUT of the default build; swap
+# it back in (for gbkernel.c + the four gbk\*.c) only for a no-hw smoke link
+# (it now also stubs gbkernel_attach/detach + the gbkernel_dbg_* ladder that
+# chassis.c/gbkdebug.c reference).
+# For user-mode bring-up in 86Box the standalone glidebackend.c + glide3x.dll
+# is used instead; see ../README.md "backend on the driver side".

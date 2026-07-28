@@ -15,16 +15,123 @@
 #include "fxd3d.h"
 #include <string.h>
 
+#ifdef HAVE_DDK
+
+/* One D3DPRIMCAPS (line and triangle caps are identical - both run the same
+ * PKT3 setup path). Only what the executor + gbkernel actually honor
+ * (d3dhal_state.c cmp2gr/blend2gr maps, gb_set_* seam); the bit pattern
+ * follows the hardware-verified vintage Voodoo3 driver's D3DDEVICEDESC fill
+ * for the same hardware class, trimmed of what this HAL does not implement
+ * (no w-buffer, no z-bias, no specular, no mipmap filters yet). */
+static void fxd_fill_primcaps(D3DPRIMCAPS *p){
+    memset(p, 0, sizeof(*p));
+    p->dwSize     = sizeof(D3DPRIMCAPS);
+    p->dwMiscCaps = D3DPMISCCAPS_MASKZ
+                  | D3DPMISCCAPS_CULLNONE
+                  | D3DPMISCCAPS_CULLCW
+                  | D3DPMISCCAPS_CULLCCW;
+    p->dwRasterCaps = D3DPRASTERCAPS_DITHER
+                    | D3DPRASTERCAPS_SUBPIXEL
+                    | D3DPRASTERCAPS_FOGVERTEX
+                    | D3DPRASTERCAPS_FOGTABLE;
+    p->dwZCmpCaps = D3DPCMPCAPS_NEVER        | D3DPCMPCAPS_LESS
+                  | D3DPCMPCAPS_EQUAL        | D3DPCMPCAPS_LESSEQUAL
+                  | D3DPCMPCAPS_GREATER      | D3DPCMPCAPS_NOTEQUAL
+                  | D3DPCMPCAPS_GREATEREQUAL | D3DPCMPCAPS_ALWAYS;
+    p->dwSrcBlendCaps = D3DPBLENDCAPS_ZERO
+                      | D3DPBLENDCAPS_ONE
+                      | D3DPBLENDCAPS_SRCALPHA
+                      | D3DPBLENDCAPS_INVSRCALPHA;
+    p->dwDestBlendCaps = D3DPBLENDCAPS_ZERO
+                       | D3DPBLENDCAPS_ONE
+                       | D3DPBLENDCAPS_SRCCOLOR
+                       | D3DPBLENDCAPS_INVSRCCOLOR
+                       | D3DPBLENDCAPS_SRCALPHA
+                       | D3DPBLENDCAPS_INVSRCALPHA;
+    p->dwAlphaCmpCaps = p->dwZCmpCaps;
+    p->dwShadeCaps = D3DPSHADECAPS_COLORFLATRGB
+                   | D3DPSHADECAPS_COLORGOURAUDRGB
+                   | D3DPSHADECAPS_ALPHAFLATBLEND
+                   | D3DPSHADECAPS_ALPHAGOURAUDBLEND
+                   | D3DPSHADECAPS_FOGFLAT
+                   | D3DPSHADECAPS_FOGGOURAUD;
+    p->dwTextureCaps = D3DPTEXTURECAPS_PERSPECTIVE
+                     | D3DPTEXTURECAPS_POW2
+                     | D3DPTEXTURECAPS_ALPHA
+                     | D3DPTEXTURECAPS_TRANSPARENCY;
+    p->dwTextureFilterCaps = D3DPTFILTERCAPS_NEAREST
+                           | D3DPTFILTERCAPS_LINEAR
+                           | D3DPTFILTERCAPS_MINFPOINT
+                           | D3DPTFILTERCAPS_MINFLINEAR
+                           | D3DPTFILTERCAPS_MAGFPOINT
+                           | D3DPTFILTERCAPS_MAGFLINEAR;
+    p->dwTextureBlendCaps = D3DPTBLENDCAPS_DECAL
+                          | D3DPTBLENDCAPS_MODULATE
+                          | D3DPTBLENDCAPS_MODULATEALPHA
+                          | D3DPTBLENDCAPS_COPY;
+    p->dwTextureAddressCaps = D3DPTADDRESSCAPS_WRAP
+                            | D3DPTADDRESSCAPS_CLAMP
+                            | D3DPTADDRESSCAPS_INDEPENDENTUV;
+}
+
 int fxd_fill_caps(void *desc){
-    /* When HAVE_DDK, `desc` is a D3DDEVICEDESC to populate. Here we record the
-     * capability decisions the VSA-100 supports; the DDK build copies these
-     * into the real struct fields. Advertised: DX6/7 fixed-function, 1-2 TMU,
-     * gouraud, z/w-buffer, per-pixel fog, alpha blend/test, chroma key,
-     * bilinear + mipmap, texture formats 565/1555/4444/P8. No T&L (runtime
-     * does it), no shaders. */
+    /* `desc` is the D3DDEVICEDESC_V1 published as
+     * D3DHAL_GLOBALDRIVERDATA.hwCaps - the ONLY device description DX5+
+     * runtimes see ("stitches a D3DDEVICEDESC together using the
+     * D3DDEVICEDESC_V1 embedded in the GLOBALDRIVERDATA", d3dhal.h). It was
+     * a no-op stub (M4c-2 review #2): dwSize 0, no D3DDD_* validity bits, no
+     * color model, dwDevCaps 0, empty tri caps - the runtime then enumerated
+     * no usable HAL device at all. Fill the real thing: the Voodoo3-via-DP2
+     * software-transform device. Depths are the core's native truth (16bpp
+     * render, 16-bit Z ONLY - review #9: Dd_CanCreateSurface rejects any
+     * other Z); the NT chassis ORs in the design-5a DDBD_32 render bit on
+     * top, where the 32bpp RT-proxy present path actually lives. */
+    D3DDEVICEDESC_V1 *d = (D3DDEVICEDESC_V1 *)desc;
+
+    memset(d, 0, sizeof(*d));
+    d->dwSize  = sizeof(D3DDEVICEDESC_V1);
+    d->dwFlags = D3DDD_COLORMODEL
+               | D3DDD_DEVCAPS
+               | D3DDD_DEVICERENDERBITDEPTH
+               | D3DDD_DEVICEZBUFFERBITDEPTH
+               | D3DDD_LINECAPS
+               | D3DDD_TRICAPS;
+    d->dcmColorModel = D3DCOLOR_RGB;
+    d->dwDevCaps = D3DDEVCAPS_FLOATTLVERTEX
+                 | D3DDEVCAPS_EXECUTESYSTEMMEMORY
+                 | D3DDEVCAPS_DRAWPRIMTLVERTEX
+                 | D3DDEVCAPS_CANRENDERAFTERFLIP
+                 | D3DDEVCAPS_TEXTUREVIDEOMEMORY
+                 | D3DDEVCAPS_DRAWPRIMITIVES2
+                 | D3DDEVCAPS_DRAWPRIMITIVES2EX;
+    d->dtcTransformCaps.dwSize = sizeof(D3DTRANSFORMCAPS);
+    d->dtcTransformCaps.dwCaps = 0;              /* runtime transforms       */
+    d->bClipping = 0;                            /* runtime clips            */
+    d->dlcLightingCaps.dwSize = sizeof(D3DLIGHTINGCAPS);
+    d->dlcLightingCaps.dwCaps = 0;               /* runtime lights           */
+    fxd_fill_primcaps(&d->dpcLineCaps);
+    fxd_fill_primcaps(&d->dpcTriCaps);
+    d->dwDeviceRenderBitDepth  = DDBD_16;
+    d->dwDeviceZBufferBitDepth = DDBD_16;
+    d->dwMaxBufferSize  = 0;
+    d->dwMaxVertexCount = 0;
+    return 1; /* one device (the hardware) */
+}
+
+#else  /* !HAVE_DDK */
+
+int fxd_fill_caps(void *desc){
+    /* Host build: no DDK caps structures exist. The capability decisions the
+     * DDK fill above encodes: DX6/7 fixed-function DP2 sw-transform device,
+     * RGB color model, gouraud, 16-bit Z (full compare set), alpha blend/
+     * test, chroma key, vertex+table fog, bilinear, pow2 textures 565/1555/
+     * 4444, 16bpp render (the chassis adds the 5a 32bpp proxy). No T&L
+     * (runtime does it), no shaders. */
     (void)desc;
     return 1; /* one device (the hardware) */
 }
+
+#endif /* HAVE_DDK */
 
 /* Read a little-endian DWORD (DP2 buffers are packed). */
 static DWORD rd32(const unsigned char *p){

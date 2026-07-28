@@ -20,7 +20,7 @@ INC      = -I$(SDK)/include -Iinclude -I.
 WINCFLAGS  = -Os -Wall -Wextra -DWIN32 -D__WIN32__ $(INC)
 HOSTCFLAGS = -Os -Wall -Wextra -Iinclude -I. -Itest -I$(SDK)/include
 
-HALSRC = d3dhal_state.c d3dhal_tex.c d3dhal_prim.c d3dhal_ddi.c
+HALSRC = d3dhal_state.c d3dhal_tex.c d3dhal_prim.c d3dhal_ddi.c d3dhal_dp2real.c
 WINOBJ = $(HALSRC:.c=.win.o)
 
 all: winobj test
@@ -29,16 +29,20 @@ all: winobj test
 winobj: $(WINOBJ)
 	@echo "fxD3D core cross-compiled for Win32: $(WINOBJ)"
 
-%.win.o: %.c include/fxd3d.h glidebackend.h
+%.win.o: %.c include/fxd3d.h include/fxd3d_dp2.h glidebackend.h
 	$(WINCC) $(WINCFLAGS) -c -o $@ $<
 
-# --- host unit test (runs on the build machine) ----------------------------
-test: test_dp2
-	@echo "== running host unit test =="
+# --- host unit tests (run on the build machine) ----------------------------
+test: test_dp2 test_dp2real
+	@echo "== running host unit tests =="
 	./test_dp2
+	./test_dp2real
 
 test_dp2: $(HALSRC) test/test_dp2.c test/stub_backend.c include/fxd3d.h glidebackend.h
 	$(HOSTCC) $(HOSTCFLAGS) -o $@ $(HALSRC) test/test_dp2.c test/stub_backend.c -lm
 
+test_dp2real: $(HALSRC) test/test_dp2real.c test/stub_backend.c include/fxd3d.h include/fxd3d_dp2.h glidebackend.h
+	$(HOSTCC) $(HOSTCFLAGS) -o $@ $(HALSRC) test/test_dp2real.c test/stub_backend.c -lm
+
 clean:
-	rm -f *.win.o test_dp2 test_dp2.exe
+	rm -f *.win.o test_dp2 test_dp2.exe test_dp2real test_dp2real.exe

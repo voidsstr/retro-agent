@@ -22,6 +22,9 @@ enum { /* D3DRENDERSTATETYPE */
     D3DRS_SPECULARENABLE=29, D3DRS_FOGCOLOR=34, D3DRS_FOGTABLEMODE=35,
     D3DRS_FOGDENSITY=38, D3DRS_COLORKEYENABLE=41, D3DRS_TEXTUREFACTOR=60
 };
+/* Under HAVE_DDK these come from the DX7 DDK's d3dtypes.h; define them only for
+ * the DDK-less host build (unit tests). Guarding avoids C2371 redefinitions. */
+#ifndef HAVE_DDK
 enum { /* D3DCMPFUNC */
     D3DCMP_NEVER=1,D3DCMP_LESS=2,D3DCMP_EQUAL=3,D3DCMP_LESSEQUAL=4,
     D3DCMP_GREATER=5,D3DCMP_NOTEQUAL=6,D3DCMP_GREATEREQUAL=7,D3DCMP_ALWAYS=8
@@ -40,6 +43,11 @@ enum { /* D3DTEXTURESTAGESTATETYPE (subset) */
 };
 enum { D3DTADDRESS_WRAP=1, D3DTADDRESS_CLAMP=3 };
 enum { D3DTFN_POINT=1, D3DTFN_LINEAR=2 };
+#else
+/* The DX7 DDK spells the LOD-bias texture-stage state D3DTSS_MIPMAPLODBIAS;
+ * fxD3D uses the DX6-era name. Map it for the driver build. */
+#  define D3DTSS_TEXTURELODBIAS D3DTSS_MIPMAPLODBIAS
+#endif /* !HAVE_DDK */
 
 /* --- helpers: D3D enum -> Glide enum -------------------------------------- */
 

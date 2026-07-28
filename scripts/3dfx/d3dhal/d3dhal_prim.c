@@ -22,11 +22,14 @@ static void tl_to_gb(gb_vtx_t *o, const fxd_tlvertex *i){
     o->s=i->tu; o->t=i->tv;
 }
 
+/* defined in d3dhal_tex.c; declared here at file scope (MSVC C rejects a
+ * declaration after statements inside a block). */
+extern void fxd__tex_bind(fxd_tex*);
+
 void fxd_draw(fxd_device *dev, int prim, const fxd_tlvertex *v, int count){
     gb_vtx_t g[3];
     int i;
     fxd_flush(dev);
-    extern void fxd__tex_bind(fxd_tex*);
     fxd__tex_bind(dev->bound_tex);
 
     switch(prim){

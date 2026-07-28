@@ -98,6 +98,9 @@ What's live, what's estimated, and what's never shown:
 - **Never a fabricated number.** A box with no recorded peak throughput and
   no live vendor tool shows raw ops/sec only, never a guessed percentage.
 
+See also: measured idle CPU/memory footprint (near-zero by design) in
+[ARCHITECTURE.md's Idle resource footprint](ARCHITECTURE.md#idle-resource-footprint).
+
 ## End-to-end workflows through the console
 
 All of these are also directly runnable as standalone scripts (see

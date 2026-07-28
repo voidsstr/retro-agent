@@ -116,6 +116,23 @@ working target is `--cs16dir "C:\Program Files\Bcs16 Romania\Counter-Strike 1.6"
   a pre-recorded demo + `+timedemo` is the only automatable fps path.
 - Fullscreen Glide blocks injected input (UIKEY) AND WM_CLOSE, so `taskkill /f`
   is the only stop; the demo route needs no in-game input.
+- **Self-capture of the fullscreen menu** (2026-07-25): a `wait`-chain +
+  `snapshot` in **`cstrike\userconfig.cfg`** (this build execs userconfig.cfg,
+  NOT autoexec.cfg) fires ~300 frames in → `cstrike\Snapshot0000.bmp` of the
+  live GL frame via glReadPixels. The only remote screenshot path that works
+  under BCShield fullscreen.
+- **Menu cursor**: GoldSrc's menu cursor is the OS cursor → invisible in
+  exclusive fullscreen GL. `vgui_emulatemouse "1"` in userconfig.cfg = engine
+  draws a software cursor in-frame (also what makes it appear in snapshots).
+- **NEVER launch `-d3d` fullscreen without a self-killing bounded batch** and a
+  queued `retro_enqueue.py <ip> "EXEC cmd /c taskkill /f /im hl.exe"` safety
+  net: a SUCCESSFUL fullscreen D3D mode-set (needs 16bpp desktop first —
+  `setmode W H 16`) can wedge .124's network for minutes and nothing on the box
+  will kill hl.exe. On a 32bpp desktop `-d3d` fails fast ("video mode not
+  supported") and is harmless — the danger case is exactly when it works.
+  CS -d3d 1024×768×16 verified WORKING (2026-07-25) when the 16bpp setmode
+  settles before launch — sequence the setmode and the hl launch in ONE on-box
+  batch; from separate connections the race produces a false sw.dll revert.
 
 **Record the demo ONCE per box** (`quit`/`record`/`stop` are NOT blocked). Listen
 servers exec `cstrike\listenserver.cfg` after map load — put in it: `chooseteam`;

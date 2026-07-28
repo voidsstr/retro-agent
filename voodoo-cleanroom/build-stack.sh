@@ -2,8 +2,17 @@
 # build-stack.sh - build the voodoo-cleanroom user-mode stack from OUR forks.
 #
 # Produces, from source we own and can optimize:
-#   out/glide3x.dll   <- retro3dfx-glide  (our fork of sezero/glide)   [Voodoo4/5 h5]
+#   out/glide3x_h5.dll<- retro3dfx-glide  (our fork of sezero/glide)   [Voodoo4/5 h5]
 #   out/glide3x_h3.dll<- retro3dfx-glide  (Voodoo3)
+#   out/glide3x.dll   <- COPY of the h3 build (deploy artifact for .124/Voodoo3)
+#
+# NAMING TRAP (root-caused 2026-07-25, see retro-3dfx/FINDINGS.md): this script
+# used to give the H5 build the deploy name out/glide3x.dll. The h5 tree lacks
+# the four h3 bring-up fixes (TlsGetValue accessor, GETLINEARADDR prime, zero-
+# base guard, lost-context fallback), so that DLL FAULTS at grGlideInit on the
+# Voodoo3 — and it silently drop-in replaced the good build (identical exports).
+# The deploy name now always carries the h3 (Voodoo3) build. Do NOT ship the h5
+# artifact to .124; port the h3 fixes to the h5 tree before using it anywhere.
 #   out/glide2x.dll   <- retro3dfx-glide  (Glide2, Win98 games)
 #   out/opengl32.dll  <- retro3dfx-gl     (our MesaFX fork -> Q3 OpenGL ICD)
 #   out/sdk/          <- Glide3 SDK (headers + import libs) both DLLs share
@@ -110,7 +119,7 @@ PY
 echo "== retro3dfx-glide: glide3x h5 (Voodoo4/5) =="
 make -C "$GTREE/glide3x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h5 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT" >/dev/null
 dual_abi_relink "$GTREE/glide3x/h5"
-emit "$GTREE/glide3x/h5/lib" glide3x.dll libglide3x.dll.a
+emit "$GTREE/glide3x/h5/lib" glide3x_h5.dll libglide3x.dll.a
 cp "$GTREE"/glide3x/h5/glide3/src/{glide,g3ext,glidesys,glideutl}.h "$OUT/sdk/include/" 2>/dev/null || true
 cp "$GTREE"/glide3x/h5/incsrc/sst1vid.h "$OUT/sdk/include/" 2>/dev/null || true
 cp "$GTREE"/swlibs/fxmisc/3dfx.h "$OUT/sdk/include/" 2>/dev/null || true
@@ -119,6 +128,8 @@ echo "== retro3dfx-glide: glide3x h3 (Voodoo3) =="
 make -C "$GTREE/glide3x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT" >/dev/null
 dual_abi_relink "$GTREE/glide3x/h3"
 cp "$GTREE/glide3x/h3/lib/glide3x.dll" "$OUT/glide3x_h3.dll"
+# deploy name = the Voodoo3-safe h3 build (see NAMING TRAP note in the header)
+cp "$OUT/glide3x_h3.dll" "$OUT/glide3x.dll"
 
 echo "== retro3dfx-glide: glide2x (Napalm) =="
 make -C "$GTREE/glide2x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 H4=1 "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT" >/dev/null

@@ -20,7 +20,7 @@ INC      = -I. -I$(HAL)/include -I$(HAL) -I$(SDK)/include
 WINCFLAGS  = -Os -Wall -Wextra -DWIN32 -D__WIN32__ $(INC)
 HOSTCFLAGS = -Os -Wall -Wextra $(INC) -Itest
 
-HALSRC = $(HAL)/d3dhal_state.c $(HAL)/d3dhal_tex.c $(HAL)/d3dhal_prim.c $(HAL)/d3dhal_ddi.c
+HALSRC = $(HAL)/d3dhal_state.c $(HAL)/d3dhal_tex.c $(HAL)/d3dhal_prim.c $(HAL)/d3dhal_ddi.c $(HAL)/d3dhal_dp2real.c
 
 all: winobj test
 

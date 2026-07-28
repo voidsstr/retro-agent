@@ -20,6 +20,13 @@
 #include "glidebackend.h"
 
 #ifdef HAVE_DDK
+/* The real DDK supplies DWORD/WORD/BYTE/D3DVALUE and the true DP2 structures
+ * (D3DHAL_DP2COMMAND, D3DHAL_DP2OPERATION, D3DTLVERTEX). NOTE: the fxd2_* mirror
+ * types below are fxD3D's SIMPLIFIED host-test shapes and do NOT match the real
+ * D3DHAL_DP2COMMAND (4-byte header) / D3DDP2OP_* opcodes. They remain defined so
+ * the core compiles into the driver; the driver's DrawPrimitives2 path must
+ * translate the real DP2 stream into these before calling fxd_dp2_execute (see
+ * the "real DP2 parsing" work item in docs/3dfx-d3d-hal-design.md). */
 #  include <ddrawi.h>
 #  include <d3dhal.h>
 #else
@@ -31,8 +38,15 @@ typedef unsigned int   DWORD;   /* 32-bit on both host and Win32             */
 typedef unsigned short WORD;
 typedef unsigned char  BYTE;
 typedef float          D3DVALUE;
+#endif /* HAVE_DDK */
 
-/* DP2 command opcodes we handle (subset of D3DHAL_DP2OPERATION). */
+/* ---- fxD3D internal command/vertex types (needed in BOTH configs) --------
+ * These are fxD3D's own simplified representation, fed to fxd_dp2_execute. On
+ * the host build they ARE the buffer format the unit test synthesizes; in the
+ * driver build the DrawPrimitives2 glue reshapes the real DP2 stream into them.
+ * fxd-prefixed, so no clash with the DDK's D3DHAL_DP2* names. */
+
+/* DP2 command opcodes we handle (fxD3D-internal; NOT the raw D3DDP2OP_ values). */
 enum {
     FXD2_RENDERSTATE      = 8,
     FXD2_TEXTURESTAGESTATE= 28,
@@ -57,7 +71,6 @@ typedef struct {
 
 /* render-state / tss operand pair */
 typedef struct { DWORD state; DWORD value; } fxd_statepair;
-#endif /* HAVE_DDK */
 
 /* ---- HAL device state ---------------------------------------------------- */
 

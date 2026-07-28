@@ -16,7 +16,48 @@
 #ifndef FXD3D_GLIDEBACKEND_H
 #define FXD3D_GLIDEBACKEND_H
 
+#ifdef HAVE_DDK
+/*
+ * Kernel/DDK build (fxd3ddd.dll, GDI_DRIVER): do NOT pull the full user-mode
+ * Glide3 SDK header into a native kernel translation unit. <glide.h> drops the
+ * entire user-mode gr* prototype surface (grSstWinOpen/grDrawTriangles/...),
+ * the floating-point LOD-bias macros, and (via glidesys.h) auto-selects the
+ * __WIN32__ user-mode branch - none of which belong in a subsystem:native,
+ * -nodefaultlib driver, and any stray gr* call would compile clean here and
+ * then demand user-mode glide3x.dll at link time.
+ *
+ * The clean-room fxD3D core drives the board ONLY through the gb_* seam
+ * declared below; the ONLY glide.h symbols any HAVE_DDK translation unit
+ * actually references are the GR_CMP_ and GR_BLEND_ argument codes that
+ * d3dhal_state.c maps D3D render state onto (these are the seam's numeric
+ * convention, also documented in driver/nt/gbk/gbk.h and re-defined glide-free
+ * as GBK_GR_* inside gbk_state.c). Provide exactly those, as plain integer
+ * constants matching glide.h:214-221 (GR_CMP_*) and :160-169 (GR_BLEND_*), so
+ * the core still builds without ever seeing glide.h.
+ */
+#ifndef GR_CMP_NEVER
+#define GR_CMP_NEVER    0x0
+#define GR_CMP_LESS     0x1
+#define GR_CMP_EQUAL    0x2
+#define GR_CMP_LEQUAL   0x3
+#define GR_CMP_GREATER  0x4
+#define GR_CMP_NOTEQUAL 0x5
+#define GR_CMP_GEQUAL   0x6
+#define GR_CMP_ALWAYS   0x7
+#endif
+#ifndef GR_BLEND_ZERO
+#define GR_BLEND_ZERO                0x0
+#define GR_BLEND_SRC_ALPHA           0x1
+#define GR_BLEND_SRC_COLOR           0x2
+#define GR_BLEND_DST_ALPHA           0x3
+#define GR_BLEND_ONE                 0x4
+#define GR_BLEND_ONE_MINUS_SRC_ALPHA 0x5
+#define GR_BLEND_ONE_MINUS_SRC_COLOR 0x6
+#define GR_BLEND_ONE_MINUS_DST_ALPHA 0x7
+#endif
+#else
 #include <glide.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

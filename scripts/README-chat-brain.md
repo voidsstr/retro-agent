@@ -138,6 +138,6 @@ route origin-host tool calls through the daemon's existing connection.)
 |-----|---------|--|
 | `RETRO_BRAIN_MODEL` | `claude-opus-4-8` | drop to `claude-haiku-4-5` for cheap/fast |
 | `RETRO_BRAIN_EFFORT` | `high` | `low`/`medium`/`high`/`xhigh`/`max` |
-| `RETRO_BRAIN_MAX_TURNS` | `60` | agentic-loop cap per prompt |
+| `RETRO_BRAIN_MAX_TURNS` | `0` | agentic-loop cap per prompt; `0` (default) = unbounded |
 | `RETRO_CHAT_ROOT` | `/tmp/retro-chat` | must match the daemon |
 | `ANTHROPIC_API_KEY` | (unset) | uses `claude` CLI login if absent |

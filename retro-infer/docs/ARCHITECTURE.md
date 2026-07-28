@@ -203,6 +203,57 @@ The agent **never runs inference in-process**
   engine to `LOAD` from disk — the engine memory-maps nothing; it owns a heap
   copy per resident model ([`src/rim.c:34`](../src/rim.c#L34)).
 
+## Idle resource footprint
+
+Measured directly against the live fleet (2026-07-18), not modeled or estimated.
+
+- **Why it's near-zero by design, not luck.** The agent's only proactive
+  engine touch is `ai_status_thread`
+  ([`agent/src/ai.c:378-402`](../../agent/src/ai.c#L378)): it fires once,
+  `Sleep(3000)` ms after boot ([`:384`](../../agent/src/ai.c#L384)), makes one
+  `infer_roundtrip("HELLO", …)` call ([`:388`](../../agent/src/ai.c#L388)),
+  and returns ([`:402`](../../agent/src/ai.c#L402)) — there is no periodic
+  timer or re-poll loop anywhere in `ai.c`. Once spawned, the engine's own
+  main loop ([`src/serve.c:669`](../src/serve.c#L669)) sits in a blocking
+  `accept()`/`recv()` between connections
+  ([`:672`](../src/serve.c#L672), [`:680`](../src/serve.c#L680)
+  `handle_client`) — no busy-wait, no periodic wakeup.
+- **CPU: rounds to zero.** WHITEBEAST (`.82`, Ryzen 9950X / RTX 4080 SUPER,
+  the fastest box in the fleet) ran 72 minutes idle (started 11:08:44,
+  checked 12:20:49) and accumulated `<1s` of CPU time per `tasklist`
+  (`CPU Time: 0:00:00`). Every other idle box (.124, .123, .145, .240) showed
+  the same `0:00:00` regardless of uptime. `.143` is the one exception — 7s
+  accumulated that session — attributable to the dp-train/dp-infer/pipeline
+  work actively driven against it, not idle overhead.
+- **Memory: 1.6–7 MB resident**, driven more by box RAM headroom than by
+  whether a model is loaded:
+
+  | Box | Idle resident memory | Models loaded |
+  |---|---|---|
+  | .124 (383 MB total RAM) | 1.6 MB | lenet5-int8 |
+  | .143 (511 MB total RAM) | 2.9 MB | lenet5-int8 |
+  | .240 | 2.0 MB | lenet5-int8 |
+  | .123 | 1.66 MB | none |
+  | .145 | 1.64 MB | none |
+  | .82 (WHITEBEAST) | 6.9 MB | none |
+
+  On the tightest box (.124), 1.6 MB is ~0.4% of total RAM. The agent process
+  itself is separately ~1.9 MB resident on .124, for scale — comparable
+  overhead (its own 18s of accumulated CPU time there reflects the whole
+  session's protocol traffic, not AI-specific cost, so don't read it as an
+  AI number).
+- **Model residency caveat.** A model staged via `MODEL_LOAD`
+  ([`agent/src/ai.c:335-338`](../../agent/src/ai.c#L335)) stays resident in
+  the engine's heap until `MODEL_UNLOAD`/`AI_RESTART` — but the table above
+  shows this barely moves the needle for a small model like lenet5-int8:
+  boxes with a model loaded aren't meaningfully bigger than the zero-model
+  boxes (.123/.145), within measurement noise.
+- **GPU: zero idle cost.** No Glide/OpenGL context exists until a GPU-backed
+  engine command actually runs — and today's live orchestration paths don't
+  even reach the GPU backend in the first place; see
+  [OPERATIONS.md's Honesty notes](OPERATIONS.md#honesty-notes) for that
+  finding.
+
 ## Threading & locking
 
 - **Agent side**: the agent is threaded per client, but the engine socket is
