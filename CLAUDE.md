@@ -249,6 +249,38 @@ explicitly enabled through the retro chat interaction**:
 `wmiprvse.exe`, and stray `dwwin/dumprep` before running — a bench with any of
 these live reads several fps low. If you bench by hand, do the same quiesce.
 
+## DOS lane — DOSGAME (game manager) + DOSCHAT (agent+chat in one exe)
+
+There is a **DOS lane** alongside the Windows fleet, for Win98's DOS 7.1, real
+MS-DOS boxes, and DOSBox:
+
+- **`scripts/dosgames/`** — `DOSGAME.EXE`, a 16-bit TUI that scans the drive
+  for installed games, typeahead-searches the share's ~3,000-title DOS catalog,
+  installs games with scripted steps over the LAN (mTCP `HTGET` → `UNZIP` →
+  optional `INSTALL.EXE`), and shows VGA mode-13h gameplay preview tiles.
+  Host side: share survey, catalog generator, tile renderer, and an HTTP bridge
+  (`serve_dosgames.py`, systemd user unit `retro-dosgames-http` on :8181)
+  because DOS can't read the SMB share's long filenames.
+- **`agent/doschat/`** — `DOSCHAT.EXE`, the retro **agent and chat in a single
+  real-mode exe**: the same framed protocol on 9898 + discovery on 9899, so
+  `retro_chat_daemon.py` claims a DOS box like any other, with the chat UI in
+  the same process.
+
+**Shared code lives in `agent/shared/`** — `frameproto.h` (wire constants, also
+included by `src/protocol.h`), `chatcore.[ch]` (prompt slot / log ring / status
+sequence; `src/chatproxy.c` wraps this same engine in its NT locks and events),
+`chattext.h` (sanitize + word wrap, shared with `tools/retro_chat.c`). **Change
+the shared module, not one copy** — `tests/native/test_chatcore.c` and
+`tests/python/test_doschat_shared.py` enforce this.
+
+Toolchain (Open Watcom + mTCP + DOSBox-X under Wine) lives outside the repo in
+`~/development/toolchain-dos/`; the traps that cost real time (case-sensitive
+quoted includes, the 64K DGROUP/socket-malloc ceilings, the mandatory
+`$(TCPOBJS): doschat.cfg` dependency) are documented in
+[`scripts/dosgames/README.md`](scripts/dosgames/README.md) and
+[`agent/doschat/README.md`](agent/doschat/README.md). Read those before
+touching a DOS build.
+
 ## Repository Context
 
 This repo was extracted from the `nsc-assistant` monorepo. The dashboard, MCP server, and OpenClaw agents remain in `nsc-assistant`. This repo contains only the agent binaries, Python client library, provisioning scripts, and documentation.
