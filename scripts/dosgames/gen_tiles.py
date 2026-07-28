@@ -79,6 +79,14 @@ def render_tile(zip_path, exe, out_prv, wait, keep_root=None):
         if img.size[0] < 100:
             return False
         img = img.resize((320, 200), Image.LANCZOS)
+        # Quality gate: a game that never reached a visible screen within
+        # --wait produces an all-black (or near-flat) capture. Writing that
+        # would put a black tile in the catalog forever, and the file's
+        # existence makes reruns skip it — so reject it here instead.
+        gray = img.convert("L")
+        lo, hi = gray.getextrema()
+        if hi < 30 or len(gray.getcolors(maxcolors=65536) or [1]) < 6:
+            return False
         q = img.quantize(colors=256)
         pal = q.getpalette()[:768] + [0] * (768 - len(q.getpalette()[:768]))
         with open(out_prv, "wb") as f:

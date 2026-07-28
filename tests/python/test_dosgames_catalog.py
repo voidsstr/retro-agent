@@ -60,3 +60,27 @@ def test_prv_tile_format():
         assert size == 768 + 64000, "%s wrong size %d" % (f, size)
         base = os.path.splitext(f)[0]
         assert len(base) <= 8, "tile name must be 8.3: %s" % f
+
+
+def test_no_blank_tiles_shipped():
+    """A game that never drew within the render wait yields an all-black
+    capture; gen_tiles.py rejects those (a written blank tile would also
+    make reruns skip the game forever)."""
+    tiles = os.path.join(DG, "data", "tiles")
+    if not os.path.isdir(tiles):
+        return
+    blank = []
+    for f in os.listdir(tiles):
+        if not f.upper().endswith(".PRV"):
+            continue
+        raw = open(os.path.join(tiles, f), "rb").read()
+        pixels = raw[768:]
+        if len(set(pixels)) < 6:
+            blank.append(f)
+    assert not blank, "blank preview tiles shipped: %s" % blank
+
+
+def test_gen_tiles_has_the_blank_gate():
+    src = open(os.path.join(DG, "gen_tiles.py"), encoding="utf-8").read()
+    assert "getextrema" in src and "return False" in src, (
+        "gen_tiles.py must reject all-black captures before writing a tile")
