@@ -44,6 +44,36 @@ Notes:
   PreferredRenderer. OpenGL renderer LoadLibrary's `opengl32.dll` by name.
 - Q2-engine trio (Q2/Heretic2/SiN): stage our ICD as `3dfxgl.dll` + 787KB
   `glide3x.dll` in the game dir; `ref_gl.dll` must be present.
+## UT texture/polygon flicker — FIXED by using native Glide (2026-07-28)
+
+**Symptom:** in UT's **OpenGL** renderer, polygons flicker (Z-fighting-like). Q3,
+Q2, RtCW, MOHAA all use the SAME retrogl ICD with zero flicker, so the bug is in
+**UT's own retail `OpenGLDrv.dll`** (the notoriously buggy old Mesa-based UT
+renderer) mishandling the depth buffer — NOT our driver. Confirmed the context
+is fine (retrogl log: colDepth 16, RGB565, aux/depth buffer present), so it's
+UT-side depth handling. `UseZTrick=False` + `DetailTextures=False` +
+`UsePrecache=True` did NOT resolve it.
+
+**FIX: use UT's native Glide renderer** — set in `System\UnrealTournament.ini`:
+```
+[Engine.Engine]
+GameRenderDevice=GlideDrv.GlideRenderDevice
+RenderDevice=GlideDrv.GlideRenderDevice
+```
+Glide (`GlideDrv.dll` + native `glide2x/glide3x`) is the path UT was designed for
+on 3dfx — no OpenGL layer, no depth-negotiation bug — and is typically the
+FASTEST renderer on a Voodoo3. User-confirmed clean (no flicker). This is UT's
+default renderer going forward on .124.
+
+**Alternate (if OpenGL is ever required):** replace UT's retail `OpenGLDrv.dll`
+with the community **UTGLR** renderer (Chris Dohnal) — the modern, correct one.
+
+**Benchmark note:** UT fullscreen (Glide OR our OpenGL) WEDGES .124's network
+while running, so the live-interactive timedemo harness (F9) can't drive it;
+needs a self-contained on-box timedemo. UT is heavily CPU-bound on the P3 (the
+earlier OpenGL ref was ~25 fps @640/1024 — resolution barely matters); Glide is
+comparable-or-faster and, more importantly, renders correctly.
+
 ## Verification results (2026-07-27 sweep)
 
 **VERIFIED WORKING + STABLE** (sustained in-game run, no crash dialog, on our stack):
