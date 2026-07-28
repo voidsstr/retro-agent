@@ -62,9 +62,16 @@ class H(http.server.BaseHTTPRequestHandler):
     def log_message(self, fmt, *a):
         sys.stderr.write("%s %s\n" % (self.address_string(), fmt % a))
 
+class Server(socketserver.ThreadingTCPServer):
+    # Must be set on the CLASS: the base __init__ binds immediately, so
+    # assigning it on the instance is too late and a restart hits
+    # "Address already in use" while the old socket is in TIME_WAIT.
+    allow_reuse_address = True
+    daemon_threads = True
+
+
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8181
-    with socketserver.ThreadingTCPServer(("", port), H) as srv:
-        srv.allow_reuse_address = True
+    with Server(("", port), H) as srv:
         print("serving DOS games on port %d" % port)
         srv.serve_forever()

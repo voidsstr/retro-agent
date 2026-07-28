@@ -16,6 +16,7 @@ preview tiles in VGA mode 13h.
 | `survey_share.py` | dev host | Reads every share zip's central directory (no downloads), classifies install patterns |
 | `gen_catalog.py` | dev host | Survey JSON → `GAMES.CAT` (`title\|zip\|kind\|exe\|size\|tile`) |
 | `serve_dosgames.py` | dev host | HTTP bridge (default :8181): `/GAMES.CAT`, `/dos/<zip>` (from the SMB share), `/tiles/<prv>` |
+| `retro-dosgames-http.service` | dev host | systemd **user** unit for the bridge — `systemctl --user enable --now retro-dosgames-http` (copy to `~/.config/systemd/user/`) |
 | `gen_tiles.py` | dev host | Auto-renders games in DOSBox-X, saves 320x200x256 `.PRV` tiles |
 
 ## Install patterns (from the 3,795-archive survey, 2026-07-28)
@@ -77,3 +78,7 @@ UNZIP → playable dir); tile rendering pipeline.
 - DJGPP-built UNZIP needs a 386+ (fine for the fleet; not a real 286).
 - DOSBox-X AUTOTYPE: `enter`/`tab` and plain chars deliver; `esc`/function-key
   names do not — end automated runs by timeout + file assertions instead.
+- `allow_reuse_address` must be set on the **server class**, not the instance:
+  `ThreadingTCPServer.__init__` binds immediately, so an instance assignment
+  comes too late and a restart dies on "Address already in use" while the old
+  socket sits in TIME_WAIT.

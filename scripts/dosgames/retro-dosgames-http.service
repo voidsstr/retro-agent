@@ -1,0 +1,11 @@
+[Unit]
+Description=Retro fleet DOS games HTTP bridge (GAMES.CAT + share zips + tiles)
+
+[Service]
+ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent/scripts/dosgames/serve_dosgames.py 8181
+Restart=on-failure
+RestartSec=3
+StartLimitIntervalSec=0
+
+[Install]
+WantedBy=default.target
