@@ -1,0 +1,79 @@
+# DOS Game Manager (`DOSGAME.EXE`) — fleet DOS games from one menu
+
+A 16-bit real-mode DOS TUI for the fleet's DOS-capable boxes (Win98 DOS 7.1,
+the Deskpro 2000, DOSBox): scan the hard drive for installed games, browse the
+share's ~3,000-title DOS catalog with typeahead search, install games with
+scripted (non-interactive) steps over the LAN, and show per-game gameplay
+preview tiles in VGA mode 13h.
+
+## Components
+
+| File | Runs on | Purpose |
+|---|---|---|
+| `dosgame.c` → `DOSGAME.EXE` | DOS 8086+ | The TUI menu (Open Watcom, large model) |
+| `DOSGAME.BAT` | DOS | Wrapper loop: menu writes `RUN.BAT`, exits 42, batch runs it with all conventional memory free, loops back |
+| `dosbox_run.sh` | dev host | Headless DOS test loop: DOSBox-X (mingw build) under Wine on private Xvfb `:77` |
+| `survey_share.py` | dev host | Reads every share zip's central directory (no downloads), classifies install patterns |
+| `gen_catalog.py` | dev host | Survey JSON → `GAMES.CAT` (`title\|zip\|kind\|exe\|size\|tile`) |
+| `serve_dosgames.py` | dev host | HTTP bridge (default :8181): `/GAMES.CAT`, `/dos/<zip>` (from the SMB share), `/tiles/<prv>` |
+| `gen_tiles.py` | dev host | Auto-renders games in DOSBox-X, saves 320x200x256 `.PRV` tiles |
+
+## Install patterns (from the 3,795-archive survey, 2026-07-28)
+
+- 2,893 zips are flat-root; ready-to-run main exe at depth 0 in 1,683.
+- Installer names are near-universal: `INSTALL.EXE` (963), `SETUP.EXE` (523),
+  `INSTALL.BAT` (341) — at the zip root in 96% of installer archives.
+  `SETSOUND.EXE` is sound config, not install.
+- So the scripted install is: fetch zip → `UNZIP -qq -o` into
+  `C:\GAMES\<stem8>` → (kind `I` + F9 only) run `INSTALL.EXE`/`SETUP.EXE`.
+- CD-image titles (iso/bin+cue) and rar/7z need host-side prep; they're
+  cataloged as kind `C` and not auto-installable yet.
+
+## On-box layout (deployed to `…\Retro Automation\dosgame\` on the share)
+
+```
+C:\DOSGAME\DOSGAME.EXE      the menu (run via C:\DOSGAME.BAT)
+C:\DOSGAME\DOSGAME.CFG      gamedir=C:\GAMES + url=http://<devhost>:8181/dos
+C:\DOSGAME\GAMES.CAT        catalog (refresh via HTGET from the server)
+C:\DOSGAME\UNZIP.EXE        Info-ZIP (FreeDOS build, 386+/DPMI)
+C:\DOSGAME\NET\NE2000.COM   packet driver (swap per NIC)
+C:\DOSGAME\NET\DHCP.EXE     mTCP DHCP
+C:\DOSGAME\NET\HTGET.EXE    mTCP HTTP fetch (handles long names in URLs —
+                            SMB drive-mode copy can't: 8.3 mangling)
+C:\DOSGAME\NET\MTCP.CFG     mTCP config (SET MTCPCFG=C:\DOSGAME\NET\MTCP.CFG)
+C:\DOSGAME\TILES\*.PRV      preview tiles (768-byte pal + 64000 px)
+```
+
+AUTOEXEC lines for a networked box:
+```
+SET MTCPCFG=C:\DOSGAME\NET\MTCP.CFG
+LH C:\DOSGAME\NET\NE2000.COM 0x60 <irq> <iobase>
+C:\DOSGAME\NET\DHCP
+```
+
+## Dev-host test loop
+
+```
+make                                   # Open Watcom (toolchain-dos/watcom)
+bash dosbox_run.sh <Croot> "<cmd>"     # headless DOSBox-X run
+DOSGAME.EXE /selftest                  # writes DGSELF.TXT (scan+catalog dump)
+```
+
+Verified end-to-end in DOSBox-X (2026-07-28): drive scan → menu → launch via
+RUN.BAT swap; typeahead search over 2,982 catalog entries; **full LAN install**
+(NE2000+slirp: packet driver → DHCP → HTGET zip from serve_dosgames.py →
+UNZIP → playable dir); tile rendering pipeline.
+
+## Hard-won gotchas
+
+- **A >64K static array silently wraps the data segment** in the large model
+  (Watcom, no warning) — entries past ~#420 came back corrupted. `games[]`
+  must stay well under 64K (MAX_GAMES 256 + disk-backed typeahead filter).
+- **Share zip names are long filenames** — DOS sees `KEEN4_~1.ZIP`, so a
+  drive-letter copy by catalog name fails. HTTP fetch (HTGET) is the primary
+  install path; `drive=` mode only works for 8.3-named archives.
+- **dosbox-staging's Linux build hard-requires GLX** (absent on Xvfb/Xvnc) —
+  that's why the loop runs the DOSBox-X mingw build under the repo Wine.
+- DJGPP-built UNZIP needs a 386+ (fine for the fleet; not a real 286).
+- DOSBox-X AUTOTYPE: `enter`/`tab` and plain chars deliver; `esc`/function-key
+  names do not — end automated runs by timeout + file assertions instead.
