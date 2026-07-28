@@ -36,7 +36,12 @@
 #define AGENT_PORT   9898
 #define AGENT_SECRET "retro-agent-secret"
 #define WAIT_TIMEOUT_MS 30000   /* server-side LOG_WAIT timeout */
-#define SPINNER_TICK_MS  150    /* local animation tick (no network) */
+#define SPINNER_TICK_MS  500    /* local animation tick (no network) —
+                                 * kept slow: fleet boxes go down to
+                                 * Pentium-1 class and every console
+                                 * repaint costs real CPU there */
+#define RECONNECT_SLEEP_MS 1000 /* pause between reconnect attempts */
+#define CONNECT_RETRY_MS  2000  /* startup wait-for-agent retry pace */
 #define INPUT_MAX 1024
 
 static HANDLE g_hOut;
@@ -230,6 +235,45 @@ static const char SPINNER_CHARS[] = "|/-\\";
 static void set_color(WORD attrs)
 {
     SetConsoleTextAttribute(g_hOut, attrs);
+}
+
+/* Connect to the local agent, waiting for it to come up if it isn't
+ * running yet. On boot the chat shortcut can launch before the agent's
+ * Run-key process has opened its listen socket; the old behavior was to
+ * print an error and exit (the console window just vanished — looked
+ * like a crash). Instead: announce that we're waiting, retry every
+ * CONNECT_RETRY_MS, and append a dot per attempt so the user can see
+ * we're alive. Returns a connected socket, or INVALID_SOCKET only if
+ * g_running is cleared while waiting.
+ */
+static SOCKET agent_connect_wait(void)
+{
+    SOCKET s;
+    int announced = 0;
+    DWORD written;
+
+    for (;;) {
+        s = agent_connect();
+        if (s != INVALID_SOCKET) {
+            if (announced) {
+                set_color(COLOR_SPINNER);
+                WriteConsoleA(g_hOut, " up!\n", 5, &written, NULL);
+                set_color(COLOR_DEFAULT);
+            }
+            return s;
+        }
+        if (!g_running) return INVALID_SOCKET;
+        if (!announced) {
+            set_color(COLOR_SPINNER);
+            WriteConsoleA(g_hOut,
+                "Waiting for the retro agent to start...",
+                39, &written, NULL);
+            announced = 1;
+        } else {
+            WriteConsoleA(g_hOut, ".", 1, &written, NULL);
+        }
+        Sleep(CONNECT_RETRY_MS);
+    }
 }
 
 static void get_console_size(void)
@@ -600,10 +644,11 @@ static DWORD WINAPI wait_thread(LPVOID param)
             /* Connection lost — reconnect the wait socket so responses
              * keep flowing after an agent restart or network blip. The
              * LOG_WAIT total_size check resyncs g_log_offset if the log
-             * was reset on the agent. Fast retry (300ms) keeps the chat
-             * feeling live across the brief idle-TCP drops some retro NICs
-             * and consumer routers inflict. */
-            Sleep(300);
+             * was reset on the agent. Retry pace is a balance: quick
+             * enough to feel live across brief idle-TCP drops, slow
+             * enough not to churn a Pentium-1 box while the agent is
+             * down. */
+            Sleep(RECONNECT_SLEEP_MS);
             agent_reconnect(&s);
         }
     }
@@ -647,8 +692,8 @@ static DWORD WINAPI status_thread(LPVOID param)
             }
             free(resp);
         } else {
-            /* Reconnect the status socket on failure (self-heal, fast). */
-            Sleep(300);
+            /* Reconnect the status socket on failure (self-heal). */
+            Sleep(RECONNECT_SLEEP_MS);
             agent_reconnect(&s);
         }
     }
@@ -658,6 +703,16 @@ static DWORD WINAPI status_thread(LPVOID param)
 /* Spinner thread: animates the "* Working... X" status line every
  * SPINNER_TICK_MS while g_waiting is set. No network traffic — purely
  * local console updates. Sleeps when not waiting.
+ *
+ * CPU note (Pentium-1 fleet boxes): the old implementation called
+ * refresh_input() per tick — a full erase (FillConsoleOutputCharacter
+ * per row) + redraw of the whole input area, ~7x/sec, which visibly
+ * dragged the box while the chat said "Working". Now each tick rewrites
+ * ONLY the single spinner character cell in place. The spinner line is
+ * always directly above the input line (status, if any, sits above it),
+ * and the console caret rests on the input line between keystrokes, so
+ * the cell is (col 13, caret row - 1). One WriteConsoleOutputCharacter
+ * per tick, no erase, no scroll.
  */
 static DWORD WINAPI spinner_thread(LPVOID param)
 {
@@ -665,10 +720,27 @@ static DWORD WINAPI spinner_thread(LPVOID param)
     while (g_running) {
         if (g_waiting) {
             g_spinner_idx = (g_spinner_idx + 1) & 3;
-            refresh_input();
+            EnterCriticalSection(&g_console_cs);
+            /* Only touch the cell if the spinner line is actually drawn
+             * (input area height includes it) and we're still waiting —
+             * print_log_chunk may have cleared g_waiting meanwhile. */
+            if (g_waiting && g_input_area_height >= 2) {
+                CONSOLE_SCREEN_BUFFER_INFO ci;
+                if (GetConsoleScreenBufferInfo(g_hOut, &ci)
+                    && ci.dwCursorPosition.Y >= 1) {
+                    COORD cell;
+                    DWORD written;
+                    char c = SPINNER_CHARS[g_spinner_idx & 3];
+                    cell.X = 13;  /* "* Working... " is 13 cols */
+                    cell.Y = (SHORT)(ci.dwCursorPosition.Y - 1);
+                    WriteConsoleOutputCharacterA(g_hOut, &c, 1,
+                                                 cell, &written);
+                }
+            }
+            LeaveCriticalSection(&g_console_cs);
             Sleep(SPINNER_TICK_MS);
         } else {
-            Sleep(100);  /* light idle */
+            Sleep(250);  /* light idle */
         }
     }
     return 0;
@@ -801,10 +873,10 @@ int main(void)
     /* Set raw input mode */
     SetConsoleMode(g_hIn, ENABLE_WINDOW_INPUT);
 
-    s = agent_connect();
+    /* Wait for the agent instead of exiting — at boot the chat can come
+     * up before the agent's listen socket is open. */
+    s = agent_connect_wait();
     if (s == INVALID_SOCKET) {
-        fprintf(stderr, "Cannot connect to retro agent at %s:%d\n",
-                AGENT_HOST, AGENT_PORT);
         WSACleanup();
         return 1;
     }
@@ -827,18 +899,19 @@ int main(void)
      *   - spinner_thread: animates the spinner locally (no socket)
      */
     {
-        SOCKET wait_sock = agent_connect();
+        /* The agent just accepted the main connection, so these normally
+         * succeed instantly; if it restarted in between, wait for it
+         * rather than dying. */
+        SOCKET wait_sock = agent_connect_wait();
         SOCKET status_sock;
         HANDLE status_h;
         if (wait_sock == INVALID_SOCKET) {
-            fprintf(stderr, "Failed to open wait connection\n");
             closesocket(s);
             WSACleanup();
             return 1;
         }
-        status_sock = agent_connect();
+        status_sock = agent_connect_wait();
         if (status_sock == INVALID_SOCKET) {
-            fprintf(stderr, "Failed to open status connection\n");
             closesocket(wait_sock);
             closesocket(s);
             WSACleanup();
@@ -847,6 +920,9 @@ int main(void)
         wait_h = CreateThread(NULL, 0, wait_thread, (LPVOID)wait_sock, 0, &tid);
         status_h = CreateThread(NULL, 0, status_thread, (LPVOID)status_sock, 0, &tid);
         spin_h = CreateThread(NULL, 0, spinner_thread, NULL, 0, &tid);
+        /* The spinner only paints; keep it out of the way of games and
+         * the agent itself on single-core boxes. */
+        SetThreadPriority(spin_h, THREAD_PRIORITY_BELOW_NORMAL);
         /* status_h handle is leaked deliberately — it's a daemon thread.
          * On exit we just close the underlying socket via WSACleanup. */
         (void)status_h;

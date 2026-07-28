@@ -26,6 +26,9 @@ retro-agent/tests/
   python/
     test_protocol.py      length-prefixed frame codec (client/retro_protocol.py)
     test_discovery.py     discovery packet parser (client/retro_discovery.py)
+    test_glide_artifact_naming.py  build-stack.sh must not give h5 the glide3x.dll deploy name
+    test_retro_chat_p1_behavior.py retro-chat 0.14.0: P1 CPU (single-cell spinner, >=500ms tick,
+                          below-normal priority, 1s reconnect pace) + wait-for-agent startup
   native/                 OUR-stack native C logic tests (see CLAUDE.md "Driver Stack Map")
     munit.h               tiny single-header C test framework
     stubs/windows.h       lets agent C compile natively (funcs use no Win32 API)
