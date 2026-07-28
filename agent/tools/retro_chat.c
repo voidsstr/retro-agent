@@ -412,114 +412,11 @@ static void refresh_input(void)
     LeaveCriticalSection(&g_console_cs);
 }
 
-/* Sanitize a chunk of log content into a print-safe buffer.
- *
- * Strips:
- *   - \x01 (USER_MARKER from old proxy versions — defensive)
- *   - other ASCII control bytes except \n, \r, \t
- *   - high-bit bytes that the Win98 console may render as garbage
- *
- * Returns the number of bytes written to `out` (always <= len).
- */
-static DWORD sanitize_chunk(const char *in, DWORD len, char *out)
-{
-    DWORD i, j = 0;
-    for (i = 0; i < len; i++) {
-        unsigned char c = (unsigned char)in[i];
-        if (c == '\n' || c == '\r' || c == '\t') {
-            out[j++] = (char)c;
-        } else if (c < 32) {
-            /* skip other control bytes (incl. \x01 marker) */
-            continue;
-        } else if (c < 127) {
-            out[j++] = (char)c;
-        } else {
-            /* skip high-bit bytes — would render as garbage on Win98 console */
-            continue;
-        }
-    }
-    return j;
-}
-
-/* Word-wrap text to a maximum column width.
- *
- * Wraps at word boundaries (spaces). Existing newlines are preserved.
- * Words longer than the max are hard-wrapped (split mid-word).
- *
- * Assumes the cursor is at column 0 when this output starts. The output
- * buffer must be at least 2 * len + 16 bytes to accommodate inserted
- * newlines.
- *
- * Returns the number of bytes written to `out`.
- */
-static DWORD wrap_text(const char *in, DWORD len, char *out, int max_col)
-{
-    DWORD i = 0, j = 0;
-    int col = 0;
-
-    if (max_col < 10) max_col = 10;
-
-    while (i < len) {
-        unsigned char c = (unsigned char)in[i];
-
-        if (c == '\n') {
-            out[j++] = '\n';
-            col = 0;
-            i++;
-            continue;
-        }
-        if (c == '\r') {
-            i++;
-            continue;
-        }
-        if (c == ' ') {
-            /* Standalone space — only emit if not at start of line */
-            if (col > 0 && col < max_col) {
-                out[j++] = ' ';
-                col++;
-            }
-            i++;
-            continue;
-        }
-
-        /* Find the end of the current word */
-        DWORD word_start = i;
-        while (i < len) {
-            unsigned char w = (unsigned char)in[i];
-            if (w == ' ' || w == '\n' || w == '\r') break;
-            i++;
-        }
-        DWORD word_len = i - word_start;
-        if (word_len == 0) continue;
-
-        /* If the word doesn't fit on this line, wrap first */
-        if (col + (int)word_len > max_col && col > 0) {
-            out[j++] = '\n';
-            col = 0;
-        }
-
-        /* Emit the word — hard-wrap if longer than the whole line */
-        if ((int)word_len > max_col) {
-            DWORD k;
-            for (k = 0; k < word_len; k++) {
-                if (col >= max_col) {
-                    out[j++] = '\n';
-                    col = 0;
-                }
-                out[j++] = in[word_start + k];
-                col++;
-            }
-        } else {
-            DWORD k;
-            for (k = 0; k < word_len; k++) {
-                out[j++] = in[word_start + k];
-            }
-            col += word_len;
-        }
-    }
-
-    return j;
-}
+/* Sanitize + word-wrap are shared with the DOS combined agent+chat —
+ * see agent/shared/chattext.h (extracted verbatim from this file). */
+#include "../shared/chattext.h"
+#define sanitize_chunk(in, len, out)      chat_sanitize_chunk(in, len, out)
+#define wrap_text(in, len, out, max_col)  chat_wrap_text(in, len, out, max_col)
 
 /* Print log content (a chunk of assistant response) above the input area.
  *

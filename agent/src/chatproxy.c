@@ -34,24 +34,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* The prompt-slot / log-ring / status-seq state machine is SHARED with the
+ * DOS combined agent+chat: agent/shared/chatcore.[ch]. This file keeps the
+ * NT-specific parts — locking, auto/manual-reset events for the long-poll
+ * waiters, and the socket handlers. */
+#include "../shared/chatcore.h"
+#include "../shared/chatcore.c"
+
 #define LOG_CHATPROXY "CHATPROXY"
 
-#define PROMPT_MAX_SIZE   8192       /* max prompt length */
+#define PROMPT_MAX_SIZE   CHATCORE_PROMPT_MAX
 #define LOG_MAX_SIZE      (256*1024) /* max log buffer (256KB) */
-#define WAIT_MAX_TIMEOUT  60000      /* cap LOG_WAIT/PROMPT_WAIT at 60s */
-#define STATUS_MAX_SIZE   512        /* max status string */
+#define WAIT_MAX_TIMEOUT  CHAT_WAIT_MAX_TIMEOUT_MS
+#define STATUS_MAX_SIZE   CHATCORE_STATUS_MAX
 
 static CRITICAL_SECTION g_lock;
 static int g_lock_initialized = 0;
 
-/* Pending prompt slot — empty when not set */
-static char g_prompt[PROMPT_MAX_SIZE] = {0};
-static int  g_prompt_pending = 0;
-
-/* Log buffer — grows as the subagent streams response chunks */
-static char *g_log = NULL;
-static DWORD g_log_size = 0;
-static DWORD g_log_capacity = 0;
+/* All chat state (prompt slot, log buffer, status) lives here */
+static chatcore_t g_core;
 
 /* Manual-reset events used by long-polling waiters.
  *
@@ -73,61 +74,22 @@ static HANDLE g_prompt_event = NULL;
  * displays this above its input area so the user knows what's happening
  * even when no log output has streamed yet.
  *
- * g_status_seq increments on every STATUS_SET so STATUS_WAIT can detect
+ * g_core.status_seq increments on every STATUS_SET so STATUS_WAIT can detect
  * any change (including "set to same value as before") via cheap
  * sequence comparison instead of string comparison.
  */
-static char  g_status[STATUS_MAX_SIZE] = {0};
-static DWORD g_status_seq = 0;
 static HANDLE g_status_event = NULL;
 
 static void ensure_init(void)
 {
     if (!g_lock_initialized) {
         InitializeCriticalSection(&g_lock);
+        chatcore_init(&g_core, LOG_MAX_SIZE);
         g_log_event = CreateEvent(NULL, FALSE, FALSE, NULL);   /* auto-reset */
         g_prompt_event = CreateEvent(NULL, FALSE, FALSE, NULL); /* auto-reset */
         g_status_event = CreateEvent(NULL, TRUE, FALSE, NULL); /* manual-reset, broadcast */
         g_lock_initialized = 1;
     }
-}
-
-static void log_append_locked(const char *text, DWORD len)
-{
-    DWORD new_size;
-
-    if (len == 0) return;
-
-    new_size = g_log_size + len;
-    if (new_size > LOG_MAX_SIZE) {
-        /* Drop oldest half when full */
-        DWORD keep = LOG_MAX_SIZE / 2;
-        if (g_log_size > keep) {
-            memmove(g_log, g_log + (g_log_size - keep), keep);
-            g_log_size = keep;
-        }
-        new_size = g_log_size + len;
-        if (new_size > LOG_MAX_SIZE) {
-            /* Truncate the new chunk if it's still too big */
-            len = LOG_MAX_SIZE - g_log_size;
-            new_size = LOG_MAX_SIZE;
-        }
-    }
-
-    /* Grow buffer if needed */
-    if (new_size > g_log_capacity) {
-        DWORD new_cap = g_log_capacity ? g_log_capacity * 2 : 4096;
-        char *new_buf;
-        while (new_cap < new_size) new_cap *= 2;
-        if (new_cap > LOG_MAX_SIZE) new_cap = LOG_MAX_SIZE;
-        new_buf = (char *)realloc(g_log, new_cap);
-        if (!new_buf) return;
-        g_log = new_buf;
-        g_log_capacity = new_cap;
-    }
-
-    memcpy(g_log + g_log_size, text, len);
-    g_log_size = new_size;
 }
 
 /* ---- handlers ---- */
@@ -150,9 +112,7 @@ void handle_prompt_push(SOCKET sock, const char *args)
     }
 
     EnterCriticalSection(&g_lock);
-    memcpy(g_prompt, args, len);
-    g_prompt[len] = '\0';
-    g_prompt_pending = 1;
+    chatcore_prompt_push(&g_core, args);
     LeaveCriticalSection(&g_lock);
 
     /* Wake any PROMPT_WAIT waiter */
@@ -170,13 +130,7 @@ void handle_prompt_pop(SOCKET sock)
     ensure_init();
 
     EnterCriticalSection(&g_lock);
-    if (g_prompt_pending) {
-        strncpy(buf, g_prompt, sizeof(buf) - 1);
-        buf[sizeof(buf) - 1] = '\0';
-        g_prompt_pending = 0;
-        g_prompt[0] = '\0';
-        has_prompt = 1;
-    }
+    has_prompt = chatcore_prompt_pop(&g_core, buf, sizeof(buf));
     LeaveCriticalSection(&g_lock);
 
     if (has_prompt) {
@@ -198,7 +152,7 @@ void handle_log_append(SOCKET sock, const char *args)
     len = (DWORD)strlen(args);
 
     EnterCriticalSection(&g_lock);
-    log_append_locked(args, len);
+    chatcore_log_append(&g_core, args, len);
     LeaveCriticalSection(&g_lock);
 
     /* Wake any LOG_WAIT waiter */
@@ -222,12 +176,12 @@ void handle_log_read(SOCKET sock, const char *args)
     }
 
     EnterCriticalSection(&g_lock);
-    if (offset > g_log_size) offset = g_log_size;
+    if (offset > g_core.log_size) offset = g_core.log_size;
 
     /* Format: "<total_size>\n<bytes_starting_at_offset>" */
     header_len = _snprintf(header, sizeof(header), "%lu\n",
-                           (unsigned long)g_log_size);
-    response_size = header_len + (g_log_size - offset);
+                           (unsigned long)g_core.log_size);
+    response_size = header_len + (g_core.log_size - offset);
     response = (char *)malloc(response_size + 1);
     if (!response) {
         LeaveCriticalSection(&g_lock);
@@ -236,8 +190,8 @@ void handle_log_read(SOCKET sock, const char *args)
     }
 
     memcpy(response, header, header_len);
-    if (g_log_size > offset) {
-        memcpy(response + header_len, g_log + offset, g_log_size - offset);
+    if (g_core.log_size > offset) {
+        memcpy(response + header_len, g_core.log + offset, g_core.log_size - offset);
     }
     response[response_size] = '\0';
     LeaveCriticalSection(&g_lock);
@@ -251,11 +205,7 @@ void handle_log_clear(SOCKET sock)
     ensure_init();
 
     EnterCriticalSection(&g_lock);
-    g_log_size = 0;
-    g_prompt_pending = 0;
-    g_prompt[0] = '\0';
-    g_status[0] = '\0';
-    g_status_seq++;
+    chatcore_log_clear(&g_core);
     LeaveCriticalSection(&g_lock);
 
     if (g_status_event) SetEvent(g_status_event);
@@ -303,7 +253,7 @@ void handle_log_wait(SOCKET sock, const char *args)
 
     /* Fast path: if there's already content past the offset, return now */
     EnterCriticalSection(&g_lock);
-    if (g_log_size > offset || (offset > 0 && g_log_size < offset)) {
+    if (g_core.log_size > offset || (offset > 0 && g_core.log_size < offset)) {
         /* Has new content, OR client is past the end of a cleared buffer */
         LeaveCriticalSection(&g_lock);
     } else {
@@ -319,11 +269,11 @@ void handle_log_wait(SOCKET sock, const char *args)
 
     /* Now read the (possibly new) state and respond like LOG_READ */
     EnterCriticalSection(&g_lock);
-    if (offset > g_log_size) offset = g_log_size;
+    if (offset > g_core.log_size) offset = g_core.log_size;
 
     header_len = _snprintf(header, sizeof(header), "%lu\n",
-                           (unsigned long)g_log_size);
-    response_size = header_len + (g_log_size - offset);
+                           (unsigned long)g_core.log_size);
+    response_size = header_len + (g_core.log_size - offset);
     response = (char *)malloc(response_size + 1);
     if (!response) {
         LeaveCriticalSection(&g_lock);
@@ -331,8 +281,8 @@ void handle_log_wait(SOCKET sock, const char *args)
         return;
     }
     memcpy(response, header, header_len);
-    if (g_log_size > offset) {
-        memcpy(response + header_len, g_log + offset, g_log_size - offset);
+    if (g_core.log_size > offset) {
+        memcpy(response + header_len, g_core.log + offset, g_core.log_size - offset);
     }
     response[response_size] = '\0';
     LeaveCriticalSection(&g_lock);
@@ -370,13 +320,7 @@ void handle_prompt_wait(SOCKET sock, const char *args)
 
     /* Fast path: if a prompt is already pending, return it now */
     EnterCriticalSection(&g_lock);
-    if (g_prompt_pending) {
-        strncpy(buf, g_prompt, sizeof(buf) - 1);
-        buf[sizeof(buf) - 1] = '\0';
-        g_prompt_pending = 0;
-        g_prompt[0] = '\0';
-        has_prompt = 1;
-    }
+    has_prompt = chatcore_prompt_pop(&g_core, buf, sizeof(buf));
     LeaveCriticalSection(&g_lock);
 
     if (has_prompt) {
@@ -394,13 +338,7 @@ void handle_prompt_wait(SOCKET sock, const char *args)
 
     /* Recheck after wake */
     EnterCriticalSection(&g_lock);
-    if (g_prompt_pending) {
-        strncpy(buf, g_prompt, sizeof(buf) - 1);
-        buf[sizeof(buf) - 1] = '\0';
-        g_prompt_pending = 0;
-        g_prompt[0] = '\0';
-        has_prompt = 1;
-    }
+    has_prompt = chatcore_prompt_pop(&g_core, buf, sizeof(buf));
     LeaveCriticalSection(&g_lock);
 
     if (has_prompt) {
@@ -423,7 +361,7 @@ void handle_prompt_wait(SOCKET sock, const char *args)
  *   STATUS_SET EXEC dir C:\WINDOWS
  *   STATUS_SET idle
  *
- * Each call increments g_status_seq and signals g_status_event so any
+ * Each call increments g_core.status_seq and signals g_status_event so any
  * STATUS_WAIT waiters wake immediately. Empty/missing arg clears the
  * status (reported as empty string by STATUS_GET).
  */
@@ -438,9 +376,7 @@ void handle_status_set(SOCKET sock, const char *args)
     if (len >= STATUS_MAX_SIZE) len = STATUS_MAX_SIZE - 1;
 
     EnterCriticalSection(&g_lock);
-    memcpy(g_status, args, len);
-    g_status[len] = '\0';
-    g_status_seq++;
+    chatcore_status_set(&g_core, args);
     LeaveCriticalSection(&g_lock);
 
     /* Wake all STATUS_WAIT waiters (manual-reset event, broadcast) */
@@ -465,7 +401,7 @@ void handle_status_get(SOCKET sock)
 
     EnterCriticalSection(&g_lock);
     header_len = _snprintf(buf, sizeof(buf), "%lu\n%s",
-                           (unsigned long)g_status_seq, g_status);
+                           (unsigned long)g_core.status_seq, g_core.status);
     LeaveCriticalSection(&g_lock);
 
     if (header_len < 0) header_len = 0;
@@ -478,7 +414,7 @@ void handle_status_get(SOCKET sock)
  * STATUS_WAIT <last_seq> [timeout_ms]
  *
  * Long-polls until either:
- *   - g_status_seq advances past last_seq, OR
+ *   - g_core.status_seq advances past last_seq, OR
  *   - the timeout expires (default 30000ms, capped at WAIT_MAX_TIMEOUT)
  *
  * Returns the same format as STATUS_GET: "<seq>\n<status_text>".
@@ -512,9 +448,9 @@ void handle_status_wait(SOCKET sock, const char *args)
 
     /* Fast path: status already advanced */
     EnterCriticalSection(&g_lock);
-    if (g_status_seq != last_seq) {
+    if (g_core.status_seq != last_seq) {
         header_len = _snprintf(buf, sizeof(buf), "%lu\n%s",
-                               (unsigned long)g_status_seq, g_status);
+                               (unsigned long)g_core.status_seq, g_core.status);
         LeaveCriticalSection(&g_lock);
         if (header_len < 0) header_len = 0;
         if ((DWORD)header_len >= sizeof(buf)) header_len = sizeof(buf) - 1;
@@ -540,7 +476,7 @@ void handle_status_wait(SOCKET sock, const char *args)
                                               remaining ? remaining : 1);
 
             EnterCriticalSection(&g_lock);
-            cur_seq = g_status_seq;
+            cur_seq = g_core.status_seq;
             LeaveCriticalSection(&g_lock);
 
             if (cur_seq != last_seq) break;
@@ -557,7 +493,7 @@ void handle_status_wait(SOCKET sock, const char *args)
 
     EnterCriticalSection(&g_lock);
     header_len = _snprintf(buf, sizeof(buf), "%lu\n%s",
-                           (unsigned long)g_status_seq, g_status);
+                           (unsigned long)g_core.status_seq, g_core.status);
     LeaveCriticalSection(&g_lock);
     if (header_len < 0) header_len = 0;
     if ((DWORD)header_len >= sizeof(buf)) header_len = sizeof(buf) - 1;

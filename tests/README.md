@@ -29,11 +29,17 @@ retro-agent/tests/
     test_glide_artifact_naming.py  build-stack.sh must not give h5 the glide3x.dll deploy name
     test_retro_chat_p1_behavior.py retro-chat 0.14.0: P1 CPU (single-cell spinner, >=500ms tick,
                           below-normal priority, 1s reconnect pace) + wait-for-agent startup
+    test_dosgames_catalog.py       DOS Game Manager host tooling: survey classification,
+                          catalog generation, .PRV preview-tile format
+    test_doschat_shared.py         DOSCHAT (DOS agent+chat): shared-module invariants +
+                          DOS memory limits (mTCP 64K socket malloc, DGROUP, cfg rebuild dep)
   native/                 OUR-stack native C logic tests (see CLAUDE.md "Driver Stack Map")
     munit.h               tiny single-header C test framework
     stubs/windows.h       lets agent C compile natively (funcs use no Win32 API)
     test_crypto.c         TRUE-SOURCE: compiles agent/src/crypto.c, XOR keystream
     test_fx_pack_ub.c     MesaFX ICD 0.1.2: SSE float->ubyte color clamp (fxvbtmp.h)
+    test_chatcore.c       TRUE-SOURCE: agent/shared/chatcore.c — the chat-proxy state
+                          engine shared by the Windows agent and the DOS DOSCHAT build
 ../retro-3dfx/tests/      VINTAGE H5 / SGL harness — the .143 pure-3dfx lane, NOT our stack
   native/test_texheap_align.c, test_mip_download_addr.c ; test_source_invariants.sh ; predeploy.sh
 ```

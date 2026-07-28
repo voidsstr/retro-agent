@@ -1,0 +1,94 @@
+"""Regression: the DOS combined agent+chat (agent/doschat) must keep sharing
+code with the Windows build, and keep the DOS-specific memory limits that
+were emulator-verified on 2026-07-28.
+
+Why these are source invariants: the DOS binary can only be built with the
+Open Watcom + mTCP toolchain, so the suite can't compile it here. These
+assertions guard the properties whose violation cost real debugging time.
+"""
+
+import os
+import re
+
+REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+DC = os.path.join(REPO, "agent", "doschat", "doschat.cpp")
+CFG = os.path.join(REPO, "agent", "doschat", "doschat.cfg")
+MK = os.path.join(REPO, "agent", "doschat", "Makefile")
+CHATPROXY = os.path.join(REPO, "agent", "src", "chatproxy.c")
+RETRO_CHAT = os.path.join(REPO, "agent", "tools", "retro_chat.c")
+PROTO_H = os.path.join(REPO, "agent", "src", "protocol.h")
+
+
+def _read(p):
+    assert os.path.isfile(p), "%s missing" % p
+    return open(p, encoding="utf-8", errors="replace").read()
+
+
+def test_all_three_binaries_share_the_same_modules():
+    """chatcore + chattext + frameproto must be included, not re-implemented."""
+    dc = _read(DC)
+    assert '#include "../shared/chatcore.c"' in dc
+    assert '#include "../shared/chattext.h"' in dc
+    assert '#include "../shared/frameproto.h"' in dc
+
+    cp = _read(CHATPROXY)
+    assert '#include "../shared/chatcore.c"' in cp
+    assert "chatcore_prompt_push" in cp and "chatcore_log_append" in cp
+    assert '#include "../shared/frameproto.h"' in _read(PROTO_H)
+
+    rc = _read(RETRO_CHAT)
+    assert '#include "../shared/chattext.h"' in rc
+    assert "chat_sanitize_chunk" in rc and "chat_wrap_text" in rc
+
+
+def test_no_duplicate_wire_constants():
+    """Ports/status bytes must come from frameproto.h only."""
+    for path in (PROTO_H, DC):
+        text = _read(path)
+        body = text.split("frameproto.h", 1)[1]
+        assert not re.search(r"#define\s+AGENT_TCP_PORT\s", body), path
+        assert not re.search(r"#define\s+RESP_OK_TEXT\s", body), path
+
+
+def test_dos_memory_limits_are_pinned():
+    """Verified in DOSBox-X: more than 5 sockets overflows mTCP's 64K socket
+    malloc unless TCP_SOCKET_RING_SIZE stays at the default 4; DGROUP also
+    has to leave room, hence the far-heap scratch buffer."""
+    dc, cfg = _read(DC), _read(CFG)
+    m = re.search(r"#define\s+MAX_CLIENTS\s+(\d+)", dc)
+    assert m, "MAX_CLIENTS missing"
+    clients = int(m.group(1))
+    assert clients >= 5, (
+        "the chat daemon alone holds 3 long-poll connections; fewer than 5 "
+        "slots starves normal clients")
+
+    m = re.search(r"#define\s+TCP_MAX_SOCKETS\s+\((\d+)\)", cfg)
+    assert m, "TCP_MAX_SOCKETS missing from doschat.cfg"
+    assert int(m.group(1)) >= clients + 1, (
+        "TCP_MAX_SOCKETS must cover every client plus the listener")
+
+    m = re.search(r"#define\s+TCP_SOCKET_RING_SIZE\s+\((\d+)\)", cfg)
+    assert m and int(m.group(1)) <= 4, (
+        "a bigger socket ring doubles sizeof(TcpSocket); mTCP's socket table "
+        "is a single malloc capped at 64K and initStack then fails")
+
+    assert "_fmalloc" in dc and "far *scratch" in dc, (
+        "response scratch must live on the far heap, not in DGROUP")
+
+
+def test_cfg_change_forces_library_rebuild():
+    """Every mTCP object bakes in doschat.cfg — a stale library silently
+    fails initStack with a misleading 'packet driver?' message."""
+    mk = _read(MK)
+    assert re.search(r"\$\(TCPOBJS\):\s*doschat\.cfg", mk), (
+        "Makefile must rebuild the mTCP objects when doschat.cfg changes")
+
+
+def test_dos_agent_speaks_the_chat_bus_and_discovery():
+    dc = _read(DC)
+    for cmd in ("PROMPT_PUSH", "PROMPT_POP", "PROMPT_WAIT", "LOG_APPEND",
+                "LOG_READ", "LOG_WAIT", "LOG_CLEAR", "STATUS_SET",
+                "STATUS_GET", "STATUS_WAIT", "PING", "SYSINFO", "EXEC"):
+        assert '"%s"' % cmd in dc, "DOS agent must handle %s" % cmd
+    assert "RETRO|%s|" in dc, "must broadcast the standard discovery packet"
+    assert "AGENT_UDP_PORT" in dc
