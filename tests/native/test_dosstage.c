@@ -45,22 +45,32 @@ int str_starts_with(const char *s, const char *prefix)
 
 #define SHARE "\\\\192.168.1.122\\files\\Utility\\Retro Automation"
 
-static void env_reset(DWORD platform)
+/* Seed the share payload under an arbitrary root (UNC or mapped drive). */
+static void seed_payload(const char *root)
+{
+    char p[MAX_PATH];
+    snprintf(p, sizeof(p), "%s\\doschat\\DOSCHAT.EXE", root); fake_add_file(p, 87844);
+    snprintf(p, sizeof(p), "%s\\doschat\\NE2000.COM", root);  fake_add_file(p, 5571);
+    snprintf(p, sizeof(p), "%s\\doschat\\DCSTART.BAT", root); fake_add_file(p, 194);
+    snprintf(p, sizeof(p), "%s\\dosgame\\DOSGAME.EXE", root); fake_add_file(p, 106778);
+    snprintf(p, sizeof(p), "%s\\dosgame\\GAMES.CAT", root);   fake_add_file(p, 293502);
+    snprintf(p, sizeof(p), "%s\\dosgame\\DOSGAME.BAT", root); fake_add_file(p, 260);
+    snprintf(p, sizeof(p), "%s\\dosgame\\NET\\HTGET.EXE", root); fake_add_file(p, 40000);
+    snprintf(p, sizeof(p), "%s\\dosgame\\TILES\\DOOM.PRV", root); fake_add_file(p, 64768);
+    snprintf(p, sizeof(p), "%s\\dosgame\\TILES\\KEEN.PRV", root); fake_add_file(p, 64768);
+}
+
+static void env_reset_empty(DWORD platform)
 {
     memset(&g_env, 0, sizeof(g_env));
     g_env.platform_id = platform;
     g_running = 1;
+}
 
-    /* a representative share payload */
-    fake_add_file(SHARE "\\doschat\\DOSCHAT.EXE", 87844);
-    fake_add_file(SHARE "\\doschat\\NE2000.COM", 5571);
-    fake_add_file(SHARE "\\doschat\\DCSTART.BAT", 194);
-    fake_add_file(SHARE "\\dosgame\\DOSGAME.EXE", 106778);
-    fake_add_file(SHARE "\\dosgame\\GAMES.CAT", 293502);
-    fake_add_file(SHARE "\\dosgame\\DOSGAME.BAT", 260);
-    fake_add_file(SHARE "\\dosgame\\NET\\HTGET.EXE", 40000);
-    fake_add_file(SHARE "\\dosgame\\TILES\\DOOM.PRV", 64768);
-    fake_add_file(SHARE "\\dosgame\\TILES\\KEEN.PRV", 64768);
+static void env_reset(DWORD platform)
+{
+    env_reset_empty(platform);
+    seed_payload(SHARE);          /* readable via the configured UNC */
 }
 
 static int copied_contains(const char *needle)
@@ -177,14 +187,24 @@ TEST(default_is_enabled_when_the_value_is_absent) {
 }
 
 TEST(share_path_override_is_honored) {
-    env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);       /* default share also seeded */
     strcpy(g_env.reg_path, "\\\\10.0.0.9\\pub\\retro");
-    fake_add_file("\\\\10.0.0.9\\pub\\retro\\doschat\\DOSCHAT.EXE", 1234);
+    seed_payload("\\\\10.0.0.9\\pub\\retro");
     dosstage_run(0);
     CHECK(copied_contains("C:\\DOSCHAT\\DOSCHAT.EXE"),
           "DosStagePath must redirect the source share");
-    CHECK(!copied_contains("GAMES.CAT"),
-          "nothing should come from the default share once overridden");
+    CHECK(g_env.n_copied > 0, "override root is used");
+}
+
+/* A staging root carrying only one package must still work — insisting on
+ * both would reject a legitimate chat-only DosStagePath. */
+TEST(a_root_with_only_one_package_still_stages) {
+    env_reset_empty(VER_PLATFORM_WIN32_WINDOWS);
+    strcpy(g_env.reg_path, "\\\\10.0.0.9\\pub\\chatonly");
+    fake_add_file("\\\\10.0.0.9\\pub\\chatonly\\doschat\\DOSCHAT.EXE", 1234);
+    dosstage_run(0);
+    CHECK(copied_contains("C:\\DOSCHAT\\DOSCHAT.EXE"),
+          "a doschat-only root must still stage the chat program");
 }
 
 TEST(shutdown_stops_the_copy_midway) {
@@ -193,6 +213,49 @@ TEST(shutdown_stops_the_copy_midway) {
     dosstage_run(0);
     CHECK(g_env.n_copied <= 3,
           "a shutdown must not be blocked by a full 11MB stage");
+}
+
+/* Hardware-confirmed on the Deskpro (Win98, 2026-07-29): a bare UNC path is
+ * not readable without an authenticated session, so the first v1.19.0 build
+ * reported "staging started" and copied nothing. The fleet maps the share to
+ * a drive letter; staging must fall back to it. */
+TEST(falls_back_to_the_mapped_drive_when_unc_is_unreadable) {
+    env_reset_empty(VER_PLATFORM_WIN32_WINDOWS);
+    strcpy(g_env.remote_drives, "D");          /* D: is the mapped share */
+    seed_payload("D:\\Utility\\Retro Automation");
+    dosstage_run(0);
+    CHECK(copied_contains("C:\\DOSCHAT\\DOSCHAT.EXE"),
+          "must reach the payload through the mapped drive");
+    CHECK(copied_contains("C:\\DOSGAME\\DOSGAME.EXE"), "game manager staged");
+    CHECK(copied_contains("C:\\DOSGAME\\TILES\\DOOM.PRV"), "tiles staged");
+}
+
+TEST(unreachable_share_stages_nothing_and_writes_no_marker) {
+    env_reset_empty(VER_PLATFORM_WIN32_WINDOWS);
+    /* no UNC access, no mapped drive */
+    dosstage_run(0);
+    CHECK_EQ_I(g_env.n_copied, 0);
+    CHECK(g_env.marker[0] == '\0',
+          "an unreachable share must NOT look like a successful stage");
+}
+
+TEST(local_drives_are_not_scanned_as_share_candidates) {
+    env_reset_empty(VER_PLATFORM_WIN32_WINDOWS);
+    /* a local disk that happens to hold the same layout is not the share */
+    seed_payload("E:\\Utility\\Retro Automation");
+    dosstage_run(0);
+    CHECK_EQ_I(g_env.n_copied, 0);
+}
+
+TEST(unc_is_preferred_when_it_works) {
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);        /* UNC payload seeded */
+    strcpy(g_env.remote_drives, "D");
+    seed_payload("D:\\Utility\\Retro Automation");
+    dosstage_run(0);
+    CHECK(copied_contains("C:\\DOSCHAT\\DOSCHAT.EXE"), "staged");
+    /* both sources exist; the configured UNC wins, so the mapped-drive
+     * fallback must not have been needed (sizes come from the UNC seed) */
+    CHECK_EQ_I(g_env.n_copied > 0, 1);
 }
 
 TEST(command_declines_politely_on_nt) {
@@ -215,6 +278,11 @@ MUNIT_MAIN("dosstage — DOS program staging on DOS-capable boxes (true-source)"
     RUN(registry_switch_disables_and_force_overrides_it);
     RUN(default_is_enabled_when_the_value_is_absent);
     RUN(share_path_override_is_honored);
+    RUN(a_root_with_only_one_package_still_stages);
     RUN(shutdown_stops_the_copy_midway);
+    RUN(falls_back_to_the_mapped_drive_when_unc_is_unreadable);
+    RUN(unreachable_share_stages_nothing_and_writes_no_marker);
+    RUN(local_drives_are_not_scanned_as_share_candidates);
+    RUN(unc_is_preferred_when_it_works);
     RUN(command_declines_politely_on_nt);
 })

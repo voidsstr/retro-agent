@@ -49,6 +49,9 @@ typedef DWORD (*LPTHREAD_START_ROUTINE)(LPVOID);
 #define VER_PLATFORM_WIN32_NT      2
 
 #define INVALID_HANDLE_VALUE      ((HANDLE)-1)
+#define DRIVE_UNKNOWN   0
+#define DRIVE_FIXED     3
+#define DRIVE_REMOTE    4
 #define FILE_ATTRIBUTE_DIRECTORY  0x10
 #define THREAD_PRIORITY_BELOW_NORMAL (-1)
 
@@ -98,6 +101,9 @@ typedef struct {
     int   n_sleeps;
     int   dirs_created;
     int   thread_priority;
+    /* Which drive letters report as network drives ("D" -> D: is remote).
+     * Everything else answers DRIVE_FIXED, like a local disk. */
+    char  remote_drives[27];
 } fake_env_t;
 
 extern fake_env_t g_env;
@@ -278,6 +284,13 @@ static BOOL CreateDirectoryA(LPCSTR path, void *sa)
 static void Sleep(DWORD ms)
 {
     if (g_env.n_sleeps < FAKE_MAX_FILES) g_env.sleeps[g_env.n_sleeps++] = (int)ms;
+}
+
+static DWORD GetDriveTypeA(LPCSTR root)
+{
+    if (root && root[0] && strchr(g_env.remote_drives, root[0]))
+        return DRIVE_REMOTE;
+    return DRIVE_FIXED;
 }
 
 static DWORD GetLastError(void) { return 0; }

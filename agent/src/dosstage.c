@@ -29,6 +29,13 @@
  * Everything uses CopyFileA / FindFirstFileA rather than shelling out:
  * Win98 has no cmd.exe and xcopy hangs over a NETMAP'd share on XP.
  *
+ * Reaching the share is the part that bites: on Windows 9x a bare UNC path
+ * is NOT readable without an authenticated session, so CopyFileA/FindFirstFile
+ * against \\server\share\... silently finds nothing (hardware-confirmed on
+ * the Deskpro, which staged 0 files while reporting success). The fleet
+ * already maps the share to a drive letter, so resolve_share_root() falls
+ * back to that mapping before giving up.
+ *
  * Registry (HKLM\Software\RetroAgent):
  *   DosStage      REG_DWORD  0 = disabled; absent/1 = enabled (default)
  *   DosStagePath  REG_SZ     share dir holding doschat\ and dosgame\
@@ -130,6 +137,101 @@ static void write_marker(const char *text)
     RegCloseKey(hKey);
 }
 
+/* ---- share reachability ---- */
+
+/* Does this root hold our payload? Either package is enough — a share may
+ * legitimately carry only one (e.g. a DosStagePath pointing at a chat-only
+ * staging area), and refusing that would be a surprise. */
+static int dir_is_readable(const char *dir);
+
+static int root_has_payload(const char *root)
+{
+    char probe[MAX_PATH];
+
+    _snprintf(probe, sizeof(probe), "%s\\dosgame", root);
+    probe[sizeof(probe) - 1] = '\0';
+    if (dir_is_readable(probe)) return 1;
+
+    _snprintf(probe, sizeof(probe), "%s\\doschat", root);
+    probe[sizeof(probe) - 1] = '\0';
+    return dir_is_readable(probe);
+}
+
+/* Can we enumerate this directory? (The cheap "is the share readable" test.) */
+static int dir_is_readable(const char *dir)
+{
+    char pattern[MAX_PATH];
+    WIN32_FIND_DATAA fd;
+    HANDLE h;
+
+    _snprintf(pattern, sizeof(pattern), "%s\\*.*", dir);
+    pattern[sizeof(pattern) - 1] = '\0';
+    h = FindFirstFileA(pattern, &fd);
+    if (h == INVALID_HANDLE_VALUE) return 0;
+    FindClose(h);
+    return 1;
+}
+
+/*
+ * Turn the configured share root into something this box can actually read.
+ *
+ * Order:
+ *   1. the configured path as-is (works on NT, and on 9x once a session
+ *      exists for that server),
+ *   2. the same share reached through a mapped network drive — the fleet maps
+ *      \\192.168.1.122\files with credentials, and on Win98 that mapping is
+ *      the ONLY authenticated way in.
+ *
+ * For (2) we take the part of the UNC after \\server\share (e.g.
+ * "Utility\Retro Automation") and look for a remote drive that has our
+ * payload under it. Matching on the payload rather than on the remote name
+ * keeps this free of mpr.dll, which 9x loads inconsistently.
+ *
+ * Returns 1 and fills `out` on success, 0 if the payload is unreachable.
+ */
+static int resolve_share_root(const char *configured, char *out, int outsize)
+{
+    char probe[MAX_PATH];
+    const char *sub;
+    char letter;
+
+    /* (1) as configured */
+    if (root_has_payload(configured)) {
+        safe_strncpy(out, configured, outsize);
+        return 1;
+    }
+
+    /* Not a UNC path? Then there's no drive-letter fallback to try. */
+    if (!(configured[0] == '\\' && configured[1] == '\\')) return 0;
+
+    /* Skip past \\server\share to the subpath ("Utility\Retro Automation"). */
+    sub = configured + 2;
+    while (*sub && *sub != '\\') sub++;          /* end of server */
+    if (*sub) sub++;
+    while (*sub && *sub != '\\') sub++;          /* end of share name */
+    if (*sub) sub++;
+    if (!*sub) return 0;
+
+    /* (2) any mapped network drive that holds our payload */
+    for (letter = 'C'; letter <= 'Z'; letter++) {
+        char root[8];
+        _snprintf(root, sizeof(root), "%c:\\", letter);
+        if (GetDriveTypeA(root) != DRIVE_REMOTE) continue;
+
+        _snprintf(probe, sizeof(probe), "%c:\\%s", letter, sub);
+        probe[sizeof(probe) - 1] = '\0';
+        if (root_has_payload(probe)) {
+            _snprintf(out, outsize, "%c:\\%s", letter, sub);
+            out[outsize - 1] = '\0';
+            log_msg(LOG_DOSSTAGE,
+                    "share reached via mapped drive %c: (UNC not readable)",
+                    letter);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* ---- copy helpers ---- */
 
 static DWORD file_size_of(const char *path)
@@ -180,7 +282,10 @@ static int copy_dir(const char *src_dir, const char *dst_dir, int pause_ms)
     pattern[sizeof(pattern) - 1] = '\0';
 
     h = FindFirstFileA(pattern, &fd);
-    if (h == INVALID_HANDLE_VALUE) return 0;
+    if (h == INVALID_HANDLE_VALUE) {
+        log_msg(LOG_DOSSTAGE, "source not readable: %s", src_dir);
+        return 0;
+    }
 
     do {
         if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) continue;
@@ -209,6 +314,7 @@ static int copy_dir(const char *src_dir, const char *dst_dir, int pause_ms)
  */
 void dosstage_run(int force)
 {
+    char configured[512];
     char share[512];
     char src_dir[MAX_PATH], dst_dir[MAX_PATH];
     char src[MAX_PATH];
@@ -226,7 +332,15 @@ void dosstage_run(int force)
         return;
     }
 
-    read_share_root(share, sizeof(share));
+    read_share_root(configured, sizeof(configured));
+    if (!resolve_share_root(configured, share, sizeof(share))) {
+        /* Nothing was copied and nothing will be — say so loudly rather than
+         * reporting a successful stage of zero files. */
+        log_msg(LOG_DOSSTAGE,
+                "share not reachable (%s) - is it mapped? no files staged",
+                configured);
+        return;
+    }
     log_msg(LOG_DOSSTAGE, "staging DOS programs from %s", share);
 
     /* --- DOSCHAT: agent + chat in one exe --- */
