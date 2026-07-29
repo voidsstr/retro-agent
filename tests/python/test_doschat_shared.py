@@ -124,3 +124,26 @@ def test_restart_command_exists_and_relaunches_before_stopping():
         "spawn strands the box")
     assert "ping -n" in body, (
         "use ping as the sleep — Win9x COMMAND.COM has no timeout command")
+
+
+AUTOUPDATE_C = os.path.join(REPO, "agent", "src", "autoupdate.c")
+
+
+def test_update_batch_is_bounded_and_always_starts_an_agent():
+    """The retry loop used to be unbounded (`if errorlevel 1 goto wait`).
+    You cannot overwrite a running exe, so if the old agent failed to exit
+    the batch spun forever and the box was left with NO agent — physical
+    access required. Stranded the Deskpro on 2026-07-29."""
+    s = _read(AUTOUPDATE_C)
+    body = s.split("static int build_restart_bat(", 1)[1].split("\nstatic ", 1)[0]
+    # Look only at the lines that EMIT batch content, not at commentary.
+    emitted = [ln for ln in body.splitlines() if "fprintf(f," in ln]
+    emitted_text = "\n".join(emitted)
+    assert "goto wait" not in emitted_text, (
+        "the unbounded retry loop must not come back")
+    assert "UPDATE_SWAP_TRIES" in body, "the retry count must be bounded"
+    # after giving up it must still relaunch something
+    give_up = emitted_text.split("goto swapped", 1)[1]
+    assert "start %s" in give_up, (
+        "after exhausting retries the batch must relaunch the existing agent "
+        "— an old-version agent beats no agent")

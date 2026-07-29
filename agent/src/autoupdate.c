@@ -43,6 +43,10 @@
 /* Delay before checking (seconds).  Gives network time to initialize. */
 #define UPDATE_DELAY_SEC  15
 
+/* Bounded attempts to swap the binary (~3s apart) before giving up and
+ * relaunching whatever is already installed. */
+#define UPDATE_SWAP_TRIES 10
+
 static void get_local_exe_path(char *buf, int bufsize)
 {
     GetModuleFileNameA(NULL, buf, bufsize);
@@ -275,19 +279,38 @@ static int build_restart_bat(const char *bat_path, const char *install_dir,
                              const char *temp_exe)
 {
     FILE *f = fopen(bat_path, "wb");
+    int i;
     if (!f) return 0;
 
     /* Win98 COMMAND.COM: no 2>&1, don't redirect copy output
-     * (suppresses errorlevel).  Paths have no spaces so no quotes needed. */
+     * (suppresses errorlevel).  Paths have no spaces so no quotes needed.
+     *
+     * The retry loop is BOUNDED and always ends by starting an agent. It used
+     * to be `:wait ... if errorlevel 1 goto wait` — an unbounded spin, because
+     * a running exe cannot be overwritten. When the old agent failed to exit
+     * (pre-1.20.0 shutdown could leave the process lingering with its ports
+     * bound), the batch looped forever and the box was left with NO agent,
+     * which needs physical access to fix. Hardware-confirmed on the Deskpro,
+     * 2026-07-29. Now: after UPDATE_SWAP_TRIES attempts, relaunch the existing
+     * binary — an agent on the old version beats no agent at all.
+     *
+     * COMMAND.COM has no SET /A, so the counter is unrolled. */
     fprintf(f, "@echo off\r\n");
     fprintf(f, "echo Auto-update: waiting for old agent to exit...\r\n");
-    fprintf(f, ":wait\r\n");
-    fprintf(f, "ping -n 3 127.0.0.1 > nul\r\n");
-    fprintf(f, "copy /Y %s %s\\retro_agent.exe\r\n", temp_exe, install_dir);
-    fprintf(f, "if errorlevel 1 goto wait\r\n");
+    for (i = 1; i <= UPDATE_SWAP_TRIES; i++) {
+        fprintf(f, "ping -n 3 127.0.0.1 > nul\r\n");
+        fprintf(f, "copy /Y %s %s\\retro_agent.exe\r\n", temp_exe, install_dir);
+        fprintf(f, "if not errorlevel 1 goto swapped\r\n");
+    }
+    fprintf(f, "echo Auto-update: could not replace binary; "
+               "restarting the existing agent\r\n");
+    fprintf(f, "start %s\\retro_agent.exe\r\n", install_dir);
+    fprintf(f, "goto done\r\n");
+    fprintf(f, ":swapped\r\n");
     fprintf(f, "del %s\r\n", temp_exe);
     fprintf(f, "echo Auto-update: starting new agent...\r\n");
     fprintf(f, "start %s\\retro_agent.exe\r\n", install_dir);
+    fprintf(f, ":done\r\n");
     fprintf(f, "del %s\\autoupdate.bat\r\n", install_dir);
 
     fclose(f);
