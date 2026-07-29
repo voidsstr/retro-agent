@@ -266,6 +266,20 @@ MS-DOS boxes, and DOSBox:
   `retro_chat_daemon.py` claims a DOS box like any other, with the chat UI in
   the same process.
 
+**The agent auto-stages both DOS programs on DOS-capable boxes** (agent
+**v1.19.0+**, `agent/src/dosstage.c`). On a Windows 9x/ME machine — the ones
+that actually boot DOS 7.x — a startup thread copies `doschat\` and `dosgame\`
+from the share into `C:\DOSCHAT` and `C:\DOSGAME` (plus `C:\DOSGAME.BAT`), so
+the DOS side is ready without a manual copy. It is a **no-op on the NT family**
+(XP has no DOS to boot into, and the tile payload is ~11 MB). It's idempotent
+(same-size files are skipped, so a reboot costs one directory scan), runs at
+below-normal priority after a 45s delay, and paces the preview-tile stream —
+all because the slowest DOS-capable box is the Pentium-1 Deskpro, where a
+flat-out SMB copy makes the agent look hung. On demand: **`DOSSTAGE`**
+(`DOSSTAGE force` ignores the off-switch, never the OS gate).
+Registry (`HKLM\Software\RetroAgent`): `DosStage` DWORD 0 disables,
+`DosStagePath` overrides the source share, `DosStaged` records the last run.
+
 **Shared code lives in `agent/shared/`** — `frameproto.h` (wire constants, also
 included by `src/protocol.h`), `chatcore.[ch]` (prompt slot / log ring / status
 sequence; `src/chatproxy.c` wraps this same engine in its NT locks and events),

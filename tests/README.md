@@ -40,6 +40,9 @@ retro-agent/tests/
     test_fx_pack_ub.c     MesaFX ICD 0.1.2: SSE float->ubyte color clamp (fxvbtmp.h)
     test_chatcore.c       TRUE-SOURCE: agent/shared/chatcore.c — the chat-proxy state
                           engine shared by the Windows agent and the DOS DOSCHAT build
+    test_dosstage.c       TRUE-SOURCE: agent/src/dosstage.c against a fake Win32
+                          (stubs/dosstage_env.h) — OS gate (never stage on NT),
+                          idempotence, ordering/pacing, registry switches
 ../retro-3dfx/tests/      VINTAGE H5 / SGL harness — the .143 pure-3dfx lane, NOT our stack
   native/test_texheap_align.c, test_mip_download_addr.c ; test_source_invariants.sh ; predeploy.sh
 ```

@@ -43,6 +43,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/autoupdate.c \
           $(SRCDIR)/retrowall.c \
           $(SRCDIR)/onboard.c \
+          $(SRCDIR)/dosstage.c \
           $(SRCDIR)/watchdog.c \
           $(SRCDIR)/monitor.c \
           $(SRCDIR)/log.c \

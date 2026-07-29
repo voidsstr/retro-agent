@@ -60,6 +60,7 @@ static const cmd_entry_t commands[] = {
     { "LICSTATUS",  1, NULL,            handle_licstatus },
     { "AUTOMAP",    1, NULL,             handle_automap },
     { "ONBOARD",    1, NULL,             handle_onboard },
+    { "DOSSTAGE",   1, NULL,            handle_dosstage },
     { "PROMPT_PUSH",1, NULL,            handle_prompt_push },
     { "PROMPT_POP", 0, handle_prompt_pop, NULL },
     { "PROMPT_WAIT",1, NULL,            handle_prompt_wait },

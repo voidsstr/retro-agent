@@ -895,6 +895,12 @@ void agent_run(void)
     log_msg(LOG_MAIN, "startup: spawning retrowall thread");
     CreateThread(NULL, 0, retrowall_thread, NULL, 0, NULL);
 
+    /* DOS-capable boxes (Win9x/ME) get the DOS programs staged to C:\ so
+     * they're already there when the user boots to DOS. Exits immediately
+     * on the NT family. */
+    log_msg(LOG_MAIN, "startup: spawning dosstage thread");
+    CreateThread(NULL, 0, dosstage_thread, NULL, 0, NULL);
+
     /* Onboarding is deliberately NOT auto-spawned. On old, slow hardware
      * (Compaq Deskpro 2000, Pentium 1) the first-boot onboarding job — mapping
      * the share and copying the wallpaper bundle / extracting games over SMB —

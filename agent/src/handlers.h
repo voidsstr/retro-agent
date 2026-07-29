@@ -101,6 +101,14 @@ DWORD WINAPI retrowall_thread(LPVOID param);
 void onboard_run(int force);
 void handle_onboard(SOCKET sock, const char *args);
 
+/* DOS program staging: on a DOS-capable OS (Windows 9x/ME, which boot DOS
+ * 7.x), pull DOSCHAT.EXE + DOSGAME.EXE and their payloads from the share
+ * into C:\DOSCHAT and C:\DOSGAME. No-op on the NT family. */
+int  dosstage_os_is_dos_capable(void);
+void dosstage_run(int force);
+DWORD WINAPI dosstage_thread(LPVOID param);
+void handle_dosstage(SOCKET sock, const char *args);
+
 /* Shared flag for graceful shutdown */
 extern volatile int g_running;
 
