@@ -113,6 +113,17 @@ void dosstage_run(int force);
 DWORD WINAPI dosstage_thread(LPVOID param);
 void handle_dosstage(SOCKET sock, const char *args);
 
+/* Long-poll ceiling, in ms. 0 = no extra cap (thread-per-client mode).
+ *
+ * On Win9x the agent is forced into MULTIPLEX mode — ONE thread serves every
+ * client, because threaded TLS is unsafe there. A blocking 30s LOG_WAIT then
+ * stalls EVERY other client: the local chat client's long-polls made the
+ * Deskpro unreachable to the whole network while it happily served localhost
+ * (hardware-diagnosed 2026-07-29: a remote AUTH sat unprocessed for 90s).
+ * So in multiplex mode we clamp the wait; clients simply re-issue, which the
+ * protocol already expects. */
+extern int g_longpoll_max_ms;
+
 /* Shared flag for graceful shutdown */
 extern volatile int g_running;
 

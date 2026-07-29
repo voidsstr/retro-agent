@@ -147,3 +147,32 @@ def test_update_batch_is_bounded_and_always_starts_an_agent():
     assert "start %s" in give_up, (
         "after exhausting retries the batch must relaunch the existing agent "
         "— an old-version agent beats no agent")
+
+
+CHATPROXY_C = os.path.join(REPO, "agent", "src", "chatproxy.c")
+
+
+def test_multiplex_longpolls_are_clamped():
+    """Win9x forces MULTIPLEX mode: one thread serves every client. A blocking
+    30s LOG_WAIT there stalls all other clients — the Deskpro served localhost
+    happily while a remote AUTH sat unprocessed for 90 seconds (2026-07-29)."""
+    m = _read(MAIN_C)
+    assert "g_longpoll_max_ms" in m, "the clamp knob must exist"
+    assert re.search(r"MODE_MULTIPLEX\)\s*\{\s*\n\s*g_longpoll_max_ms\s*=\s*[1-9]",
+                     m), "multiplex mode must set a non-zero clamp"
+
+    cp = _read(CHATPROXY_C)
+    # every long-poll handler must honour the clamp
+    for fn in ("handle_log_wait", "handle_prompt_wait", "handle_status_wait"):
+        body = cp.split("void %s(" % fn, 1)[1].split("\nvoid ", 1)[0]
+        assert "g_longpoll_max_ms" in body, (
+            "%s must clamp its wait or it can stall every other client" % fn)
+
+
+def test_helper_thread_failures_are_logged():
+    """A CreateThread failure used to be silent, so a feature that never ran
+    left no trace — exactly what hid dosstage on a 0MB-free box."""
+    m = _read(MAIN_C)
+    assert re.search(r"if\s*\(!CreateThread\([^)]*dosstage_thread", m), (
+        "dosstage thread creation must be checked")
+    assert "FAILED to start" in m

@@ -91,6 +91,7 @@ static char g_cpu_str[128]   = "";
 static DWORD g_ram_mb        = 0;
 
 volatile int g_running = 1;
+int g_longpoll_max_ms = 0;   /* set below once the client mode is known */
 
 /* Exception recovery for command handlers — per-thread state via NATIVE
  * Windows TLS. Deliberately NOT __thread: MinGW compiles __thread to EMULATED
@@ -879,6 +880,15 @@ void agent_run(void)
     service_report_running();
 
     /* Apply system fixes (vcache, autologon, DMA, etc.) */
+    /* Multiplex (Win9x): one thread serves all clients, so a long-poll must
+     * never hold it for its full timeout. */
+    if (g_client_mode == MODE_MULTIPLEX) {
+        g_longpoll_max_ms = 1000;
+        log_msg(LOG_MAIN, "multiplex mode: long-polls clamped to %dms "
+                          "so one client cannot stall the others",
+                g_longpoll_max_ms);
+    }
+
     log_msg(LOG_MAIN, "startup: sysfix_apply_startup()");
     sysfix_apply_startup();
 
@@ -899,7 +909,13 @@ void agent_run(void)
      * they're already there when the user boots to DOS. Exits immediately
      * on the NT family. */
     log_msg(LOG_MAIN, "startup: spawning dosstage thread");
-    CreateThread(NULL, 0, dosstage_thread, NULL, 0, NULL);
+    /* CreateThread failures were silent. On a 31MB Win98 box reporting 0MB
+     * available, a helper thread can simply fail to start — and then the
+     * feature "does nothing" with no trace at all, which is what sent us
+     * hunting on the Deskpro. Say so. */
+    if (!CreateThread(NULL, 0, dosstage_thread, NULL, 0, NULL))
+        log_msg(LOG_MAIN, "dosstage thread FAILED to start: %lu "
+                          "(low memory?)", (unsigned long)GetLastError());
 
     /* Onboarding is deliberately NOT auto-spawned. On old, slow hardware
      * (Compaq Deskpro 2000, Pentium 1) the first-boot onboarding job — mapping

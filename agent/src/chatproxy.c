@@ -250,6 +250,10 @@ void handle_log_wait(SOCKET sock, const char *args)
     }
     if (timeout_ms == 0 || timeout_ms > WAIT_MAX_TIMEOUT)
         timeout_ms = WAIT_MAX_TIMEOUT;
+    /* Multiplex mode (Win9x) shares ONE thread across all clients — see
+     * g_longpoll_max_ms in handlers.h. Clamp so this wait cannot stall them. */
+    if (g_longpoll_max_ms > 0 && timeout_ms > (DWORD)g_longpoll_max_ms)
+        timeout_ms = (DWORD)g_longpoll_max_ms;
 
     /* Fast path: if there's already content past the offset, return now */
     EnterCriticalSection(&g_lock);
@@ -317,6 +321,10 @@ void handle_prompt_wait(SOCKET sock, const char *args)
     }
     if (timeout_ms == 0 || timeout_ms > WAIT_MAX_TIMEOUT)
         timeout_ms = WAIT_MAX_TIMEOUT;
+    /* Multiplex mode (Win9x) shares ONE thread across all clients — see
+     * g_longpoll_max_ms in handlers.h. Clamp so this wait cannot stall them. */
+    if (g_longpoll_max_ms > 0 && timeout_ms > (DWORD)g_longpoll_max_ms)
+        timeout_ms = (DWORD)g_longpoll_max_ms;
 
     /* Fast path: if a prompt is already pending, return it now */
     EnterCriticalSection(&g_lock);
@@ -445,6 +453,10 @@ void handle_status_wait(SOCKET sock, const char *args)
     }
     if (timeout_ms == 0 || timeout_ms > WAIT_MAX_TIMEOUT)
         timeout_ms = WAIT_MAX_TIMEOUT;
+    /* Multiplex mode (Win9x) shares ONE thread across all clients — see
+     * g_longpoll_max_ms in handlers.h. Clamp so this wait cannot stall them. */
+    if (g_longpoll_max_ms > 0 && timeout_ms > (DWORD)g_longpoll_max_ms)
+        timeout_ms = (DWORD)g_longpoll_max_ms;
 
     /* Fast path: status already advanced */
     EnterCriticalSection(&g_lock);
