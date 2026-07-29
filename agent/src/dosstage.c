@@ -53,6 +53,7 @@
 
 #define DOSSTAGE_KEY      "Software\\RetroAgent"
 #define DOSSTAGE_ENABLE   "DosStage"
+#define DOSSTAGE_TILES    "DosStageTiles"   /* opt-in: the bulk tile payload */
 #define DOSSTAGE_PATH     "DosStagePath"
 #define DOSSTAGE_MARKER   "DosStaged"
 
@@ -63,6 +64,16 @@
 #define DOSSTAGE_DELAY_SEC   45
 /* Breather between bulk (tile) copies so a Pentium 1 stays responsive. */
 #define DOSSTAGE_TILE_PAUSE_MS 120
+
+/* Below this much free RAM we do not stage at all.
+ *
+ * The preview tiles are ~11MB across 163 files. On the Deskpro (31MB total,
+ * reporting 0MB available) staging that stream killed the agent outright and
+ * took the box off the network — repeatedly, ~45s after every start, which is
+ * what made it look like a startup crash (2026-07-29). A cosmetic feature
+ * must never cost a box its agent, so: tiles are opt-in, and on a machine
+ * this tight we skip staging entirely and say why. */
+#define DOSSTAGE_MIN_FREE_MB 6
 
 static int g_stage_running = 0;
 
@@ -86,6 +97,37 @@ int dosstage_os_is_dos_capable(void)
 }
 
 /* ---- registry helpers ---- */
+
+/* Free physical memory, in MB. */
+static DWORD free_mb(void)
+{
+    MEMORYSTATUS ms;
+    memset(&ms, 0, sizeof(ms));
+    ms.dwLength = sizeof(ms);
+    GlobalMemoryStatus(&ms);
+    return (DWORD)(ms.dwAvailPhys / (1024UL * 1024UL));
+}
+
+/* The bulk preview-tile payload is opt-in (DosStageTiles=1). DOSCHAT and
+ * DOSGAME themselves are only ~600KB together; the tiles are 11MB and are
+ * pure decoration for the game menu. */
+static int dosstage_tiles_enabled(void)
+{
+    HKEY hKey;
+    DWORD value = 0, size = sizeof(value), type = 0;
+    int enabled = 0;                 /* default OFF */
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, DOSSTAGE_KEY, 0,
+                      KEY_READ, &hKey) == ERROR_SUCCESS) {
+        if (RegQueryValueExA(hKey, DOSSTAGE_TILES, NULL, &type,
+                             (BYTE *)&value, &size) == ERROR_SUCCESS
+            && type == REG_DWORD) {
+            enabled = (value != 0);
+        }
+        RegCloseKey(hKey);
+    }
+    return enabled;
+}
 
 static int dosstage_enabled(void)
 {
@@ -332,6 +374,18 @@ void dosstage_run(int force)
         return;
     }
 
+    /* Memory guard: never trade the agent for a file copy. */
+    {
+        DWORD avail = free_mb();
+        if (avail < DOSSTAGE_MIN_FREE_MB) {
+            log_msg(LOG_DOSSTAGE,
+                    "skipped: only %luMB free (need %dMB) - staging would "
+                    "put the agent at risk on this box",
+                    (unsigned long)avail, DOSSTAGE_MIN_FREE_MB);
+            return;
+        }
+    }
+
     read_share_root(configured, sizeof(configured));
     if (!resolve_share_root(configured, share, sizeof(share))) {
         /* Nothing was copied and nothing will be — say so loudly rather than
@@ -369,10 +423,16 @@ void dosstage_run(int force)
 
     if (!g_running) return;
 
-    /* --- preview tiles (the bulk payload, paced) --- */
-    _snprintf(src_dir, sizeof(src_dir), "%s\\dosgame\\TILES", share);
-    copied += copy_dir(src_dir, "C:\\DOSGAME\\TILES",
-                       DOSSTAGE_TILE_PAUSE_MS);
+    /* --- preview tiles: opt-in only (11MB across 163 files) --- */
+    if (dosstage_tiles_enabled()) {
+        _snprintf(src_dir, sizeof(src_dir), "%s\\dosgame\\TILES", share);
+        copied += copy_dir(src_dir, "C:\\DOSGAME\\TILES",
+                           DOSSTAGE_TILE_PAUSE_MS);
+    } else {
+        log_msg(LOG_DOSSTAGE,
+                "preview tiles skipped (set %s=1 to stage them)",
+                DOSSTAGE_TILES);
+    }
 
     GetLocalTime(&st);
     _snprintf(marker, sizeof(marker), "%04d-%02d-%02d %02d:%02d (%d files)",

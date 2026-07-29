@@ -65,6 +65,17 @@ typedef struct {
 } OSVERSIONINFOA;
 
 typedef struct {
+    DWORD dwLength;
+    DWORD dwMemoryLoad;
+    DWORD dwTotalPhys;
+    DWORD dwAvailPhys;
+    DWORD dwTotalPageFile;
+    DWORD dwAvailPageFile;
+    DWORD dwTotalVirtual;
+    DWORD dwAvailVirtual;
+} MEMORYSTATUS;
+
+typedef struct {
     WORD wYear, wMonth, wDayOfWeek, wDay, wHour, wMinute, wSecond, wMilliseconds;
 } SYSTEMTIME;
 
@@ -88,6 +99,9 @@ typedef struct {
     DWORD platform_id;          /* VER_PLATFORM_WIN32_* */
     int   reg_enable_present;   /* is DosStage present? */
     DWORD reg_enable_value;
+    int   reg_tiles_present;    /* is DosStageTiles present? */
+    DWORD reg_tiles_value;
+    DWORD avail_mb;             /* free physical memory the box reports */
     char  reg_path[512];        /* DosStagePath ("" = absent) */
     char  marker[128];          /* DosStaged written back */
 
@@ -160,6 +174,13 @@ static DWORD RegQueryValueExA(HKEY k, LPCSTR name, void *res, DWORD *type,
         if (!g_env.reg_enable_present) return 2;   /* ERROR_FILE_NOT_FOUND */
         *type = REG_DWORD;
         memcpy(data, &g_env.reg_enable_value, sizeof(DWORD));
+        *size = sizeof(DWORD);
+        return ERROR_SUCCESS;
+    }
+    if (strcmp(name, "DosStageTiles") == 0) {
+        if (!g_env.reg_tiles_present) return 2;
+        *type = REG_DWORD;
+        memcpy(data, &g_env.reg_tiles_value, sizeof(DWORD));
         *size = sizeof(DWORD);
         return ERROR_SUCCESS;
     }
@@ -284,6 +305,12 @@ static BOOL CreateDirectoryA(LPCSTR path, void *sa)
 static void Sleep(DWORD ms)
 {
     if (g_env.n_sleeps < FAKE_MAX_FILES) g_env.sleeps[g_env.n_sleeps++] = (int)ms;
+}
+
+static void GlobalMemoryStatus(MEMORYSTATUS *ms)
+{
+    ms->dwAvailPhys = g_env.avail_mb * 1024UL * 1024UL;
+    ms->dwTotalPhys = 32UL * 1024UL * 1024UL;
 }
 
 static DWORD GetDriveTypeA(LPCSTR root)

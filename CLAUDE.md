@@ -272,13 +272,24 @@ that actually boot DOS 7.x — a startup thread copies `doschat\` and `dosgame\`
 from the share into `C:\DOSCHAT` and `C:\DOSGAME` (plus `C:\DOSGAME.BAT`), so
 the DOS side is ready without a manual copy. It is a **no-op on the NT family**
 (XP has no DOS to boot into, and the tile payload is ~11 MB). It's idempotent
-(same-size files are skipped, so a reboot costs one directory scan), runs at
-below-normal priority after a 45s delay, and paces the preview-tile stream —
-all because the slowest DOS-capable box is the Pentium-1 Deskpro, where a
-flat-out SMB copy makes the agent look hung. On demand: **`DOSSTAGE`**
+(same-size files are skipped, so a reboot costs one directory scan) and runs at
+below-normal priority after a 45s delay. **The ~11MB preview-tile payload is
+opt-in** (`DosStageTiles`=1) and staging is **skipped entirely below 6MB free
+RAM**: on the Pentium-1 Deskpro (31MB, 0MB free) copying the tiles killed the
+agent outright, ~45s after every start, which looked for hours like a startup
+crash. A cosmetic feature must never cost a box its agent. On demand: **`DOSSTAGE`**
 (`DOSSTAGE force` ignores the off-switch, never the OS gate).
 Registry (`HKLM\Software\RetroAgent`): `DosStage` DWORD 0 disables,
-`DosStagePath` overrides the source share, `DosStaged` records the last run.
+`DosStageTiles` DWORD 1 opts into the preview tiles, `DosStagePath` overrides
+the source share, `DosStaged` records the last run.
+
+**Win9x agents are single-threaded (multiplex mode)** — one thread serves every
+client. Long-polls are therefore clamped to 1s there (`g_longpoll_max_ms`);
+without that, the local chat client's 30s `LOG_WAIT`/`STATUS_WAIT` starved every
+other client and the box was unreachable from the network while happily serving
+localhost. If a 9x box "accepts but never answers", suspect starvation, and get
+its log via `retro_agent.exe -l <path on the share>` rather than inferring from
+port behaviour.
 
 **Shared code lives in `agent/shared/`** — `frameproto.h` (wire constants, also
 included by `src/protocol.h`), `chatcore.[ch]` (prompt slot / log ring / status

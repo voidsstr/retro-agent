@@ -64,6 +64,7 @@ static void env_reset_empty(DWORD platform)
 {
     memset(&g_env, 0, sizeof(g_env));
     g_env.platform_id = platform;
+    g_env.avail_mb = 64;          /* a healthy box unless a test says otherwise */
     g_running = 1;
 }
 
@@ -114,7 +115,7 @@ TEST(win9x_stages_both_programs) {
     CHECK(copied_contains("C:\\DOSGAME\\DOSGAME.EXE"), "DOSGAME staged");
     CHECK(copied_contains("C:\\DOSGAME\\GAMES.CAT"), "catalog staged");
     CHECK(copied_contains("C:\\DOSGAME\\NET\\HTGET.EXE"), "mTCP tools staged");
-    CHECK(copied_contains("C:\\DOSGAME\\TILES\\DOOM.PRV"), "preview tiles staged");
+    /* tiles are opt-in now — see tiles_are_opt_in_but_programs_always_stage */
     CHECK(copied_contains("C:\\DOSGAME.BAT"),
           "the launcher wrapper must land at the root of C: (the exit-42 "
           "relaunch is what frees conventional memory for the game)");
@@ -123,6 +124,7 @@ TEST(win9x_stages_both_programs) {
 
 TEST(programs_come_before_the_bulk_tile_payload) {
     env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    g_env.reg_tiles_present = 1; g_env.reg_tiles_value = 1;
     dosstage_run(0);
     CHECK(copied_index("DOSCHAT.EXE") < copied_index("TILES\\DOOM.PRV"),
           "the exes must be on disk before the 11MB tile stream");
@@ -134,6 +136,7 @@ TEST(programs_come_before_the_bulk_tile_payload) {
 
 TEST(tile_copies_are_paced_and_others_are_not) {
     env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    g_env.reg_tiles_present = 1; g_env.reg_tiles_value = 1;
     dosstage_run(0);
     /* exactly one pause per tile, none for the programs */
     CHECK_EQ_I(g_env.n_sleeps, 2);          /* two tiles seeded */
@@ -227,7 +230,7 @@ TEST(falls_back_to_the_mapped_drive_when_unc_is_unreadable) {
     CHECK(copied_contains("C:\\DOSCHAT\\DOSCHAT.EXE"),
           "must reach the payload through the mapped drive");
     CHECK(copied_contains("C:\\DOSGAME\\DOSGAME.EXE"), "game manager staged");
-    CHECK(copied_contains("C:\\DOSGAME\\TILES\\DOOM.PRV"), "tiles staged");
+    CHECK(copied_contains("C:\\DOSCHAT\\NE2000.COM"), "net payload staged");
 }
 
 TEST(unreachable_share_stages_nothing_and_writes_no_marker) {
@@ -258,6 +261,39 @@ TEST(unc_is_preferred_when_it_works) {
     CHECK_EQ_I(g_env.n_copied > 0, 1);
 }
 
+/* The Deskpro (31MB, 0MB free) lost its agent outright while staging the
+ * 11MB tile payload — repeatedly, ~45s after every start. A cosmetic feature
+ * must never cost a box its agent. */
+TEST(low_memory_box_is_not_staged_at_all) {
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    g_env.avail_mb = 0;
+    dosstage_run(0);
+    CHECK_EQ_I(g_env.n_copied, 0);
+    CHECK(g_env.marker[0] == '\0', "no marker when staging was skipped");
+
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    g_env.avail_mb = 2;                     /* still under the floor */
+    dosstage_run(1);                        /* force must not override memory */
+    CHECK_EQ_I(g_env.n_copied, 0);
+}
+
+TEST(tiles_are_opt_in_but_programs_always_stage) {
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    dosstage_run(0);
+    CHECK(copied_contains("C:\\DOSCHAT\\DOSCHAT.EXE"), "programs stage");
+    CHECK(copied_contains("C:\\DOSGAME\\DOSGAME.EXE"), "game manager stages");
+    CHECK(copied_contains("C:\\DOSGAME\\NET\\HTGET.EXE"), "net tools stage");
+    CHECK(!copied_contains("TILES"),
+          "the 11MB tile payload must NOT be staged by default");
+
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    g_env.reg_tiles_present = 1;
+    g_env.reg_tiles_value = 1;              /* explicitly opted in */
+    dosstage_run(0);
+    CHECK(copied_contains("C:\\DOSGAME\\TILES\\DOOM.PRV"),
+          "tiles stage when explicitly enabled");
+}
+
 TEST(command_declines_politely_on_nt) {
     env_reset(VER_PLATFORM_WIN32_NT);
     g_last_response[0] = '\0';
@@ -284,5 +320,7 @@ MUNIT_MAIN("dosstage — DOS program staging on DOS-capable boxes (true-source)"
     RUN(unreachable_share_stages_nothing_and_writes_no_marker);
     RUN(local_drives_are_not_scanned_as_share_candidates);
     RUN(unc_is_preferred_when_it_works);
+    RUN(low_memory_box_is_not_staged_at_all);
+    RUN(tiles_are_opt_in_but_programs_always_stage);
     RUN(command_declines_politely_on_nt);
 })
