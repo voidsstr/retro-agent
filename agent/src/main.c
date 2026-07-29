@@ -1016,8 +1016,24 @@ void agent_run(void)
         printf("Shutting down...\n");
     log_msg(LOG_MAIN, "Shutting down");
     closesocket(listen_sock);
+    /* The alt listener used to be left bound. A QUIT then produced a
+     * half-dead agent: the process lingered (a helper thread still running),
+     * :9897 kept ACCEPTING connections, and nothing ever serviced them — so
+     * the box looked reachable but answered nothing, and there was no way
+     * back in remotely. Hardware-confirmed on the Deskpro, 2026-07-29. */
+    if (listen_sock_alt != INVALID_SOCKET)
+        closesocket(listen_sock_alt);
     WaitForSingleObject(disc_thread, 3000);
     WSACleanup();
+
+    /*
+     * Guarantee the process actually dies. Helper threads (retrowall,
+     * dosstage, watchdog) and a wedged handler must never be able to keep a
+     * quit agent alive holding its ports — an unreachable-but-listening
+     * agent on a Win9x box needs physical access to fix.
+     */
+    log_msg(LOG_MAIN, "shutdown complete; exiting process");
+    ExitProcess(0);
 }
 
 int main(int argc, char *argv[])

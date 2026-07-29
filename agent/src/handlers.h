@@ -101,6 +101,10 @@ DWORD WINAPI retrowall_thread(LPVOID param);
 void onboard_run(int force);
 void handle_onboard(SOCKET sock, const char *args);
 
+/* RESTART: relaunch via a detached batch, then stop. Use this instead of
+ * QUIT for remote restarts — nothing supervises the agent on Win9x. */
+void handle_restart(SOCKET sock);
+
 /* DOS program staging: on a DOS-capable OS (Windows 9x/ME, which boot DOS
  * 7.x), pull DOSCHAT.EXE + DOSGAME.EXE and their payloads from the share
  * into C:\DOSCHAT and C:\DOSGAME. No-op on the NT family. */

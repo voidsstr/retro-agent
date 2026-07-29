@@ -92,3 +92,35 @@ def test_dos_agent_speaks_the_chat_bus_and_discovery():
         assert '"%s"' % cmd in dc, "DOS agent must handle %s" % cmd
     assert "RETRO|%s|" in dc, "must broadcast the standard discovery packet"
     assert "AGENT_UDP_PORT" in dc
+
+
+# --- agent shutdown safety (hardware-found on the Deskpro, 2026-07-29) ---
+
+MAIN_C = os.path.join(REPO, "agent", "src", "main.c")
+HANDLERS_C = os.path.join(REPO, "agent", "src", "handlers.c")
+
+
+def test_shutdown_closes_the_alt_listener_and_exits():
+    """A QUIT left :9897 bound with nothing servicing it, so the box looked
+    reachable, answered nothing, and needed physical access to recover."""
+    s = _read(MAIN_C)
+    tail = s.split("clients_cleanup();", 1)[1]
+    assert "closesocket(listen_sock_alt)" in tail, (
+        "shutdown must close the ALT listener too, not just listen_sock")
+    assert "ExitProcess(0)" in tail, (
+        "the process must be guaranteed to die; a lingering helper thread "
+        "must not be able to keep a quit agent holding its ports")
+
+
+def test_restart_command_exists_and_relaunches_before_stopping():
+    """RESTART is the safe remote restart: QUIT alone strands a Win9x box
+    because nothing supervises the agent there."""
+    h = _read(HANDLERS_C)
+    assert '{ "RESTART"' in h, "RESTART must be registered in the command table"
+    body = h.split("void handle_restart(", 1)[1].split("\nvoid ", 1)[0]
+    assert "CreateProcessA" in body, "must spawn the relaunch batch"
+    assert body.index("CreateProcessA") < body.index("g_running = 0"), (
+        "the relauncher must be started BEFORE the agent stops, or a failed "
+        "spawn strands the box")
+    assert "ping -n" in body, (
+        "use ping as the sleep — Win9x COMMAND.COM has no timeout command")

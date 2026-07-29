@@ -397,6 +397,13 @@ assume the exe is under `%SystemDrive%`.
 - **You cannot overwrite a running exe on Windows.** Either move-aside then copy
   (`EXEC cmd /c move /Y retro_agent.exe retro_agent.exe.old & copy /Y new.exe retro_agent.exe`),
   or just let auto-update do the swap on next restart.
+- **Use `RESTART` (agent v1.20.0+) for a remote agent restart, never `QUIT`.**
+  Nothing supervises the agent on Win9x — the `RetroAgent` Run key only fires
+  at logon — so a bare `QUIT` takes the box off the network until someone
+  walks over to it. `RESTART` writes and spawns a detached relaunch batch
+  *before* stopping. (Pre-1.20.0 shutdown also left the alt listener `:9897`
+  bound, so a quit agent kept ACCEPTING connections while answering nothing —
+  the box looked reachable but was unusable. Both fixed in 1.20.0.)
 - **To restart the running agent, use `EXEC` + a detached batch, not `LAUNCH`**
   (on .124 `LAUNCH` returns a PID but does not actually execute the child): EXEC a
   `.bat` that does `taskkill /f /im retro_agent.exe` then `start "" …\retro_agent.exe`

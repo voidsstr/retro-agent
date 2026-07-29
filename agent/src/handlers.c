@@ -41,6 +41,7 @@ static const cmd_entry_t commands[] = {
     { "SHUTDOWN",   0, handle_shutdown,   NULL },
     { "REBOOT",     0, handle_reboot,     NULL },
     { "QUIT",       0, handle_quit,       NULL },
+    { "RESTART",    0, handle_restart,    NULL },
     { "NETMAP",     1, NULL,              handle_netmap },
     { "NETUNMAP",   1, NULL,              handle_netunmap },
     { "FILECOPY",   1, NULL,              handle_filecopy },
@@ -292,6 +293,72 @@ static void do_system_power(SOCKET sock, const char *label, UINT ewx_flags)
 void handle_quit(SOCKET sock)
 {
     send_text_response(sock, "OK");
+    g_running = 0;
+}
+
+/*
+ * RESTART - stop the agent and bring it back up.
+ *
+ * QUIT alone is a footgun on Win9x: nothing supervises the agent there (the
+ * RetroAgent Run key only fires at logon), so a remote QUIT takes the box off
+ * the network until someone walks over to it. Learned the hard way on the
+ * Deskpro, 2026-07-29.
+ *
+ * So: write a detached batch that waits for this process to exit and then
+ * relaunches the exe, start it, and only then stop. The orphaned batch
+ * survives the agent's death and brings it back — the same trick used to
+ * restart games and the agent on .124.
+ */
+void handle_restart(SOCKET sock)
+{
+    char exe[MAX_PATH];
+    char dir[MAX_PATH];
+    char bat[MAX_PATH];
+    char cmd[MAX_PATH * 2];
+    char *slash;
+    FILE *f;
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+
+    GetModuleFileNameA(NULL, exe, sizeof(exe));
+    exe[sizeof(exe) - 1] = '\0';
+
+    safe_strncpy(dir, exe, sizeof(dir));
+    slash = strrchr(dir, '\\');
+    if (slash) *slash = '\0';
+
+    _snprintf(bat, sizeof(bat), "%s\\restart.bat", dir);
+    bat[sizeof(bat) - 1] = '\0';
+
+    f = fopen(bat, "wb");
+    if (!f) {
+        send_error_response(sock, "cannot write restart batch");
+        return;
+    }
+    /* Win9x COMMAND.COM dialect: no 2>&1, ping as the sleep. */
+    fprintf(f, "@echo off\r\n");
+    fprintf(f, "ping -n 4 127.0.0.1 > nul\r\n");
+    fprintf(f, "start \"\" \"%s\"\r\n", exe);
+    fclose(f);
+
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    memset(&pi, 0, sizeof(pi));
+
+    _snprintf(cmd, sizeof(cmd), "%s", bat);
+    cmd[sizeof(cmd) - 1] = '\0';
+
+    if (!CreateProcessA(NULL, cmd, NULL, NULL, FALSE,
+                        CREATE_NEW_CONSOLE, NULL, dir, &si, &pi)) {
+        send_error_response(sock, "cannot launch restart batch");
+        return;
+    }
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    send_text_response(sock, "OK restarting");
     g_running = 0;
 }
 
