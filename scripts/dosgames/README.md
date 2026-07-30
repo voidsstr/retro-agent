@@ -30,6 +30,21 @@ preview tiles in VGA mode 13h.
 - CD-image titles (iso/bin+cue) and rar/7z need host-side prep; they're
   cataloged as kind `C` and not auto-installable yet.
 
+## Installing it on a real box (one double-click)
+
+`…\Retro Automation\dos-setup\` on the share holds a ready bundle: run
+**`SETUPDOS.BAT`** from Windows and it copies ~870KB into place (`C:\DOSGAME`,
+`C:\DOSCHAT`, `PLAY.BAT`/`CHAT.BAT`/`DOSGAME.BAT` at the root). Then reboot to
+MS-DOS mode and type **`PLAY`** — that brings up the network and opens the menu.
+
+`PLAY.BAT` auto-detects the network card by trying each packet driver **on its
+own interrupt**: a Crynwr driver that fails to find its card still disturbs the
+vector it was handed, and a later driver loading on that same vector comes up
+half-broken (DHCP then just times out with no clue why). Order matters too —
+3C509 and NE2000 detect cleanly, while the ancient 3C50x drivers probe hard
+enough to claim a card that isn't theirs, so they go last. Whichever wins, its
+interrupt is written into `MTCP.CFG` for DHCP/HTGET.
+
 ## On-box layout (deployed to `…\Retro Automation\dosgame\` on the share)
 
 ```
@@ -67,6 +82,14 @@ UNZIP → playable dir); tile rendering pipeline.
 
 ## Hard-won gotchas
 
+- **Games are rarely all in one folder.** `scan=` takes a semicolon-separated
+  list and defaults to `C:\GAMES;C:\`, because a real box keeps games at the
+  drive root (`C:\DOOM`, `C:\ROTT`, …). Scanning the root means excluding the
+  system folders by name, and joining paths without doubling the separator —
+  `C:\` + `DOOM` must not become `C:\\DOOM`, which breaks the launch batch.
+- **Enter runs the installer for installer-type archives.** Most of the
+  catalogue is `INSTALL.EXE` + a packed payload; extracting and stopping there
+  leaves a directory the menu won't even list as a game.
 - **A >64K static array silently wraps the data segment** in the large model
   (Watcom, no warning) — entries past ~#420 came back corrupted. `games[]`
   must stay well under 64K (MAX_GAMES 256 + disk-backed typeahead filter).

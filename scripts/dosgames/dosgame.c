@@ -72,7 +72,11 @@ static int tab = 0;             /* 0 = Installed, 1 = Available */
 static int sel = 0, top = 0;
 
 static char cfg_home[MAX_PATH_L]   = "C:\\DOSGAME";
-static char cfg_gamedir[MAX_PATH_L] = "C:\\GAMES";
+static char cfg_gamedir[MAX_PATH_L] = "C:\\GAMES";   /* where installs land */
+/* Where to LOOK for already-installed games. Semicolon-separated; games on a
+ * real box are rarely all in one place (the Deskpro has C:\DOOM, C:\ROTT,
+ * C:\DUKE ... beside C:\GAMES), so scan the drive root too. */
+static char cfg_scan[MAX_PATH_L * 2] = "C:\\GAMES;C:\\";
 static char cfg_url[MAX_PATH_L]    = "";   /* http://host:port/dos */
 static char cfg_drive[MAX_PATH_L]  = "";   /* e.g. Z:\Games\DOS */
 
@@ -169,6 +173,7 @@ static void load_cfg(void)
             continue;
         *eq++ = '\0';
         if (!stricmp(line, "gamedir")) strncpy(cfg_gamedir, eq, MAX_PATH_L);
+        else if (!stricmp(line, "scan")) strncpy(cfg_scan, eq, sizeof(cfg_scan) - 1);
         else if (!stricmp(line, "url")) strncpy(cfg_url, eq, MAX_PATH_L);
         else if (!stricmp(line, "drive")) strncpy(cfg_drive, eq, MAX_PATH_L);
     }
@@ -243,6 +248,22 @@ static void load_catalog(void)
  *   3. the first .EXE that is not a known installer/config tool
  */
 
+/* Directories that are never games. Scanning C:\ means walking into the
+ * system's own folders otherwise. */
+static const char *skip_dirs[] = {
+    "windows","winnt","program files","progra~1","recycled","recycler",
+    "temp","tmp","my documents","mydocu~1","dos","retro_agent","retro_~1",
+    "dosgame","doschat","net","tiles","drivers","system","spool", NULL
+};
+
+static int is_skip_dir(const char *n)
+{
+    int i;
+    for (i = 0; skip_dirs[i]; i++)
+        if (!stricmp(n, skip_dirs[i])) return 1;
+    return 0;
+}
+
 static const char *skip_exes[] = {
     "install.exe","setup.exe","setsound.exe","sound.exe","uvconfig.exe",
     "config.exe","setmain.exe","readme.exe","catalog.exe","order.exe",
@@ -257,6 +278,17 @@ static int is_skip_exe(const char *n)
     return 0;
 }
 
+/* Join a root and a subdirectory without doubling the separator: the drive
+ * root "C:\\" already ends in one, and "C:\\\\DOOM" breaks the launch batch. */
+static void path_join(char *out, const char *root, const char *leaf)
+{
+    int n = (int)strlen(root);
+    if (n > 0 && root[n - 1] == '\\')
+        sprintf(out, "%s%s", root, leaf);
+    else
+        sprintf(out, "%s\\%s", root, leaf);
+}
+
 static void scan_game_dir(const char *root, const char *dir)
 {
     char pat[MAX_PATH_L * 2];
@@ -267,7 +299,8 @@ static void scan_game_dir(const char *root, const char *dir)
 
     sprintf(want, "%.8s.EXE", dir);
 
-    sprintf(pat, "%s\\%s\\*.*", root, dir);
+    path_join(pat, root, dir);
+    strcat(pat, "\\*.*");
     if (_dos_findfirst(pat, _A_NORMAL, &ft) != 0) return;
     do {
         char *dot = strrchr(ft.name, '.');
@@ -287,7 +320,7 @@ static void scan_game_dir(const char *root, const char *dir)
     g = &games[n_games++];
     memset(g, 0, sizeof(*g));
     strncpy(g->title, dir, MAX_TITLE);
-    sprintf(g->path, "%s\\%s", root, dir);
+    path_join(g->path, root, dir);
     strcpy(g->exe, best);
     g->kind = 'R';
     g->installed = 1;
@@ -295,16 +328,56 @@ static void scan_game_dir(const char *root, const char *dir)
     sprintf(g->tile, "%.8s.PRV", dir);
 }
 
-static void scan_local(void)
+static void scan_root(const char *root)
 {
     char pat[MAX_PATH_L + 8];
     struct find_t ft;
-    sprintf(pat, "%s\\*.*", cfg_gamedir);
+
+    path_join(pat, root, "*.*");
     if (_dos_findfirst(pat, _A_SUBDIR, &ft) != 0) return;
     do {
-        if ((ft.attrib & _A_SUBDIR) && ft.name[0] != '.')
-            scan_game_dir(cfg_gamedir, ft.name);
-    } while (_dos_findnext(&ft) == 0);
+        if ((ft.attrib & _A_SUBDIR) && ft.name[0] != '.'
+            && !is_skip_dir(ft.name))
+            scan_game_dir(root, ft.name);
+    } while (_dos_findnext(&ft) == 0 && n_games < MAX_GAMES);
+}
+
+/* Walk every root in cfg_scan (semicolon-separated). A directory already
+ * picked up from an earlier root is skipped, so overlapping roots (the common
+ * "C:\GAMES;C:\" case) don't list a game twice. */
+static void scan_local(void)
+{
+    char roots[MAX_PATH_L * 2];
+    char *p, *next;
+
+    strncpy(roots, cfg_scan, sizeof(roots) - 1);
+    roots[sizeof(roots) - 1] = '\0';
+
+    p = roots;
+    while (p && *p) {
+        int before = n_games, i, j;
+        next = strchr(p, ';');
+        if (next) *next++ = '\0';
+        while (*p == ' ') p++;
+        if (*p) {
+            /* strip a trailing backslash except on a bare drive root */
+            int len = (int)strlen(p);
+            if (len > 3 && p[len - 1] == '\\') p[len - 1] = '\0';
+            scan_root(p);
+            /* drop duplicates introduced by this root */
+            for (i = before; i < n_games; i++) {
+                for (j = 0; j < before; j++) {
+                    if (!stricmp(games[i].title, games[j].title)) {
+                        memmove(&games[i], &games[i + 1],
+                                (n_games - i - 1) * sizeof(game_t));
+                        n_games--; i--;
+                        break;
+                    }
+                }
+            }
+        }
+        p = next;
+    }
 }
 
 static void rebuild_view(void);
@@ -544,7 +617,7 @@ static void draw_footer(const char *msg)
               "Enter=Play  F3=Preview  Tab=Catalog  F5=Rescan  Esc=Quit");
     else {
         char buf[81];
-        sprintf(buf, "Search[%s]  Enter=Install  F9=Inst+Setup  F3=Preview  Tab=Back  Esc=Quit",
+        sprintf(buf, "Search[%s]  Enter=Install+Setup  F9=Setup too  F3=Preview  Tab=Back  Esc=Quit",
                 cat_filter);
         vputs(1, SCREEN_H - 1, buf);
     }
@@ -637,8 +710,15 @@ int main(int argc, char **argv)
             if (!n_view) break;
             {
                 game_t *g = &games[view[sel]];
+                /* Enter does the RIGHT thing for the kind of archive:
+                 * a ready-to-run zip just needs extracting, but an
+                 * installer archive (INSTALL.EXE + packed payload — the
+                 * majority of the share's catalogue) is not playable until
+                 * its installer has run. Extracting and stopping there
+                 * leaves the user with a directory that the menu then
+                 * won't even list. */
                 int ok = g->installed == 1 ? write_launch(g)
-                                           : write_install(g, 0);
+                                           : write_install(g, g->kind == 'I');
                 if (ok) {
                     cursor_show();
                     {
