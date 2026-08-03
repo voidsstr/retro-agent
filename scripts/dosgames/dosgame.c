@@ -267,8 +267,29 @@ static int is_skip_dir(const char *n)
 static const char *skip_exes[] = {
     "install.exe","setup.exe","setsound.exe","sound.exe","uvconfig.exe",
     "config.exe","setmain.exe","readme.exe","catalog.exe","order.exe",
-    "helpme.exe","dos4gw.exe","univbe.exe", NULL
+    "helpme.exe","dos4gw.exe","univbe.exe",
+    /* archive + system tools that sit beside a game but are not it. Seen on
+     * the fleet's Deskpro: TYRIAN listed as "UNZIP32.EXE", KEENDRMS as
+     * "PKUNZJR.COM", and C:\GAMES itself as "CACHE.COM". */
+    "unzip.exe","unzip32.exe","pkunzip.exe","pkunzjr.com","pkzip.exe",
+    "arj.exe","lha.exe","cache.com","cwsdpmi.exe","deice.exe",
+    "install.bat","setup.bat", NULL
 };
+
+/* Self-extractors / installers: not the game, but running one is exactly
+ * what an un-unpacked game directory needs. Used as a last resort, and the
+ * entry is then flagged as needing setup. */
+static const char *setup_exes[] = {
+    "install.bat","install.exe","deice.exe","setup.exe","setup.bat", NULL
+};
+
+static int is_setup_exe(const char *n)
+{
+    int i;
+    for (i = 0; setup_exes[i]; i++)
+        if (!stricmp(n, setup_exes[i])) return 1;
+    return 0;
+}
 
 static int is_skip_exe(const char *n)
 {
@@ -293,11 +314,17 @@ static void scan_game_dir(const char *root, const char *dir)
 {
     char pat[MAX_PATH_L * 2];
     struct find_t ft;
-    char best[13] = "", firstexe[13] = "", firstbat[13] = "";
-    char want[13];
+    char best[13] = "", firstexe[13] = "", firstbat[13] = "", setup[13] = "";
+    char archive[13] = "";
+    char want_exe[13], want_com[13], want_bat[13];
+    int needs_setup = 0;
     game_t *g;
 
-    sprintf(want, "%.8s.EXE", dir);
+    /* A launcher named after its directory is the strongest signal, and it
+     * is often a .BAT (TYRIAN ships TYRIAN.BAT next to UNZIP32.EXE). */
+    sprintf(want_exe, "%.8s.EXE", dir);
+    sprintf(want_com, "%.8s.COM", dir);
+    sprintf(want_bat, "%.8s.BAT", dir);
 
     path_join(pat, root, dir);
     strcat(pat, "\\*.*");
@@ -305,8 +332,14 @@ static void scan_game_dir(const char *root, const char *dir)
     do {
         char *dot = strrchr(ft.name, '.');
         if (!dot) continue;
+        if (!stricmp(ft.name, want_exe) || !stricmp(ft.name, want_com)
+            || !stricmp(ft.name, want_bat))
+            strcpy(best, ft.name);
+
+        if (is_setup_exe(ft.name) && !setup[0]) strcpy(setup, ft.name);
+        if (!archive[0] && !stricmp(dot, ".ZIP")) strcpy(archive, ft.name);
+
         if (!stricmp(dot, ".EXE") || !stricmp(dot, ".COM")) {
-            if (!stricmp(ft.name, want)) strcpy(best, ft.name);
             if (!firstexe[0] && !is_skip_exe(ft.name)) strcpy(firstexe, ft.name);
         } else if (!stricmp(dot, ".BAT")) {
             if (!firstbat[0] && !is_skip_exe(ft.name)) strcpy(firstbat, ft.name);
@@ -315,17 +348,53 @@ static void scan_game_dir(const char *root, const char *dir)
 
     if (!best[0]) strcpy(best, firstexe);
     if (!best[0]) strcpy(best, firstbat);
+    /* Nothing runnable: a downloaded-but-not-unpacked game (DEICE.EXE plus
+     * packed data is the classic Apogee/id shareware layout). Offer its
+     * installer — running that is what makes it playable. */
+    if (!best[0] && setup[0]) { strcpy(best, setup); needs_setup = 1; }
+    /* Only an archive in there (a download that was never unpacked, like
+     * KEENDRMS = PKUNZJR.COM + a ZIP). Offer it: launching unpacks it with
+     * our own UNZIP and then runs whatever installer it contained. */
+    if (!best[0] && archive[0]) { strcpy(best, archive); needs_setup = 2; }
     if (!best[0] || n_games >= MAX_GAMES) return;
 
-    g = &games[n_games++];
-    memset(g, 0, sizeof(*g));
-    strncpy(g->title, dir, MAX_TITLE);
-    path_join(g->path, root, dir);
+    {
+        char full[MAX_PATH_L + 1];
+        path_join(full, root, dir);
+        if (is_scan_root(full)) return;      /* a root is not a game */
+        g = &games[n_games++];
+        memset(g, 0, sizeof(*g));
+        strncpy(g->title, dir, MAX_TITLE);
+        strncpy(g->path, full, MAX_PATH_L);
+    }
     strcpy(g->exe, best);
-    g->kind = 'R';
+    g->kind = (needs_setup == 2) ? 'Z' : (needs_setup ? 'I' : 'R');
     g->installed = 1;
     /* tile name = dir name + .PRV */
     sprintf(g->tile, "%.8s.PRV", dir);
+}
+
+/* Is this path one of the configured scan roots? C:\GAMES is a root AND a
+ * subdirectory of C:\, so without this it gets listed as a game of its own
+ * (it happened to contain CACHE.COM). */
+static int is_scan_root(const char *path)
+{
+    char roots[MAX_PATH_L * 2];
+    char *p, *next;
+    strncpy(roots, cfg_scan, sizeof(roots) - 1);
+    roots[sizeof(roots) - 1] = '\0';
+    p = roots;
+    while (p && *p) {
+        int len;
+        next = strchr(p, ';');
+        if (next) *next++ = '\0';
+        while (*p == ' ') p++;
+        len = (int)strlen(p);
+        if (len > 3 && p[len - 1] == '\\') p[len - 1] = '\0';
+        if (*p && !stricmp(p, path)) return 1;
+        p = next;
+    }
+    return 0;
 }
 
 static void scan_root(const char *root)
@@ -472,7 +541,26 @@ static int write_launch(const game_t *g)
 {
     FILE *f = open_runbat();
     if (!f) return 0;
-    fprintf(f, "%c:\ncd %s\n%s\n", g->path[0], g->path + 2, g->exe);
+    fprintf(f, "%c:\ncd %s\n", g->path[0], g->path + 2);
+
+    if (g->kind == 'Z') {
+        /* Unpack in place, then run whatever installer it contained, so one
+         * keypress takes a downloaded archive all the way to playable. */
+        fprintf(f, "echo Unpacking %s ...\n", g->exe);
+        fprintf(f, "%s\\UNZIP -qq -o %s\n", cfg_home, g->exe);
+        fprintf(f, "if exist INSTALL.EXE INSTALL.EXE\n");
+        fprintf(f, "if exist INSTALL.BAT if not exist INSTALL.EXE call INSTALL.BAT\n");
+        fprintf(f, "if exist SETUP.EXE if not exist INSTALL.EXE if not exist INSTALL.BAT SETUP.EXE\n");
+        fprintf(f, "echo Done - press a key, then pick it again to play.\n");
+        fprintf(f, "pause > nul\n");
+    } else if (g->kind == 'I') {
+        fprintf(f, "echo Running setup for %s ...\n", g->title);
+        fprintf(f, "%s\n", g->exe);
+        fprintf(f, "echo Done - press a key, then pick it again to play.\n");
+        fprintf(f, "pause > nul\n");
+    } else {
+        fprintf(f, "%s\n", g->exe);
+    }
     fclose(f);
     return 1;
 }
@@ -570,7 +658,7 @@ static void draw_header(void)
     vfill(0, 2, SCREEN_W, '-');
     cur_attr = 0x07;
     vfill(0, 3, SCREEN_W, ' ');
-    vputs(0, 3, tab == 0 ? "  Title                                    Run"
+    vputs(0, 3, tab == 0 ? "  Title                                    Action"
                          : "  Title                                Size  Type");
 }
 
@@ -585,8 +673,12 @@ static void draw_list(void)
         if (idx >= n_view) continue;
         {
             game_t *g = &games[view[idx]];
-            if (tab == 0)
-                sprintf(line, "  %-40.40s %-12.12s", g->title, g->exe);
+            if (tab == 0) {
+                const char *what = g->kind == 'Z' ? "unpack + setup"
+                                 : g->kind == 'I' ? "run setup"
+                                 : g->exe;
+                sprintf(line, "  %-40.40s %-14.14s", g->title, what);
+            }
             else {
                 const char *k = g->kind == 'R' ? "ready" :
                                 g->kind == 'I' ? "installer" : "cd";

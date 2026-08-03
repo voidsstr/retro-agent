@@ -87,6 +87,15 @@ UNZIP → playable dir); tile rendering pipeline.
   drive root (`C:\DOOM`, `C:\ROTT`, …). Scanning the root means excluding the
   system folders by name, and joining paths without doubling the separator —
   `C:\` + `DOOM` must not become `C:\\DOOM`, which breaks the launch batch.
+- **A game folder is often not "installed" yet.** Real boxes are full of
+  half-unpacked downloads, so the Installed tab classifies what it finds:
+  `play` (a runnable exe, preferring one named after its folder — TYRIAN ships
+  `TYRIAN.BAT` next to `UNZIP32.EXE`), `run setup` (only a self-extractor like
+  `DEICE.EXE` + packed data — the Apogee/id shareware layout), or
+  `unpack + setup` (only a `.ZIP`). Archive and system tools
+  (`UNZIP32.EXE`, `PKUNZJR.COM`, `CACHE.COM`, `CWSDPMI.EXE`) are never picked
+  as the game, and a scan root is never listed as a game of its own —
+  `C:\GAMES` showed up as a game called "CACHE.COM" before that.
 - **Enter runs the installer for installer-type archives.** Most of the
   catalogue is `INSTALL.EXE` + a packed payload; extracting and stopping there
   leaves a directory the menu won't even list as a game.
