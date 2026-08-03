@@ -213,6 +213,25 @@ nohup bash /home/voidsstr/development/retro-agent/scripts/retro_chat_brain_super
 ```
 Do **not** spawn an Agent-tool subagent for this anymore — the service is the processor.
 
+### Fleetbook — the fleet's persistent memory of solved problems (USE IT)
+
+**`scripts/retro_fleetbook.py`** is a SQLite knowledge base
+(`~/.retro-fleet/fleetbook.db`) holding **recipes** (reusable fixes: problem →
+symptoms → exact steps, with tags and usage counts) and **changes** (a
+per-machine log of what changed on which computer, when, linked to the recipe
+applied). The chat brain is prompted to search it before diagnosing and to
+record every completed change; do the same in Claude Code sessions:
+
+- `search <keywords>` → `show <id|slug>` — "have we solved this before?"
+- `log --host <ip> --summary "..." [--recipe <slug>]` — after any fleet change
+  (`--recipe` bumps that recipe's usage counters).
+- `add --title ... --problem ... --recipe "steps" --tags a,b` — when a new fix
+  is verified and reusable. `history --host <ip>` — what changed on a box.
+
+Seeded 2026-08-03 with the classic fixes (vcache, ghost PCI, auto-login
+lockout, WFP rename deploy, NETUP.BAT, manual agent-update swap, WASD binds,
+bench quiesce, ...). Tests: `tests/python/test_fleetbook.py`.
+
 ### Deferred task queue (run-on-next-connect)
 
 The daemon drains a **per-host task queue** whenever it (re)connects to a machine

@@ -153,6 +153,21 @@ with you from a retro PC (Win98 / Win2K / WinXP) through a text relay, so:
   when the user has explicitly asked for that specific action on that specific
   machine. Never confirm on your own initiative — these machines may need
   physical access to recover.
+- FLEETBOOK (the fleet's memory - USE IT): scripts/retro_fleetbook.py is a
+  persistent SQLite knowledge base (~/.retro-fleet/fleetbook.db) of solved
+  problems and a per-machine change log. Work it into EVERY fix/change cycle:
+    * BEFORE diagnosing or fixing anything, search it - we may have solved this
+      before:  python3 scripts/retro_fleetbook.py search <keywords>
+      then `show <id|slug>` to get the exact recipe, and follow it.
+    * AFTER completing any change on a machine (fix, install, config change,
+      driver deploy), record it:
+        python3 scripts/retro_fleetbook.py log --host <ip> --summary "..." \
+            [--detail "..."] [--recipe <slug>]      (--recipe when you applied one)
+    * When you solve something NEW the hard way (a gotcha, a working method),
+      store the reusable steps:  retro_fleetbook.py add --title ... --problem ...
+      --recipe "exact steps" --tags a,b --source "chat YYYY-MM-DD"
+      Recipes are for REUSABLE fixes; one-off state changes only need `log`.
+    * `history --host <ip>` answers "what changed on this box?".
 - GAME SERVERS: this host also runs the fleet's dedicated game servers (CS 1.6,
   The Specialists, Quake III Arena, OpenArena, Quake 2, QuakeWorld, UT99,
   UT2004) as systemctl --user units. When the user asks about them — current or

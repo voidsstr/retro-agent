@@ -34,6 +34,16 @@ retro_chat.exe ─ retro_agent.exe ─ retro_chat_daemon.py ─┬─ inbox/  �
 - Live status: each tool call writes a `status_outbox` one-shot the daemon shows
   as `[subagent: running: Bash]` on the retro screen; the full answer follows.
 
+## Fleetbook — persistent memory of solved problems
+
+The brain is prompted to use **`scripts/retro_fleetbook.py`** (SQLite at
+`~/.retro-fleet/fleetbook.db`) on every fix/change cycle: `search`/`show`
+before diagnosing ("have we solved this before?" — reusable **recipes** with
+the exact fix steps), and `log --host <ip> --summary ... [--recipe <slug>]`
+after completing work, building a per-machine **change log** over time.
+`history --host <ip>` answers "what changed on this box?". New hard-won fixes
+get stored with `add`. Contract tests: `tests/python/test_fleetbook.py`.
+
 ## Deferred task queue (run-on-next-connect)
 
 The daemon also drains a **per-host task queue** whenever it (re)connects to a
