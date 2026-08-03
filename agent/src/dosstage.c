@@ -415,6 +415,14 @@ void dosstage_run(int force)
     _snprintf(src, sizeof(src), "%s\\dosgame\\DOSGAME.BAT", share);
     copied += copy_if_different(src, "C:\\DOSGAME.BAT");
 
+    /* PLAY.BAT / CHAT.BAT are the user-facing entry points ("type PLAY") and
+     * belong at the root next to DOSGAME.BAT; both call C:\DOSGAME\NETUP.BAT
+     * so networking comes up without any manual setup. */
+    _snprintf(src, sizeof(src), "%s\\dosgame\\PLAY.BAT", share);
+    copied += copy_if_different(src, "C:\\PLAY.BAT");
+    _snprintf(src, sizeof(src), "%s\\dosgame\\CHAT.BAT", share);
+    copied += copy_if_different(src, "C:\\CHAT.BAT");
+
     if (!g_running) return;
 
     /* --- DOSGAME network tools --- */

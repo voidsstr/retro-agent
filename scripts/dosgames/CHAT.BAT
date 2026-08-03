@@ -1,11 +1,13 @@
 @echo off
-rem CHAT.BAT - run the DOS retro agent + chat (needs networking).
-rem PLAY.BAT already brings the network up; run that first, or this
-rem will bring it up the same way.
-SET MTCPCFG=C:\DOSGAME\NET\MTCP.CFG
+rem CHAT.BAT - run the DOS retro agent + chat.
+rem NETUP.BAT handles every dependency itself (packet driver, MTCPCFG,
+rem DHCP) and is safe to re-run, so chat works on the first try with no
+rem manual network setup - no need to run PLAY first.
+call C:\DOSGAME\NETUP.BAT
 if exist C:\DOSGAME\NET\PKT.OK goto run
-echo Network not up yet - run PLAY first (it loads the packet driver),
-echo or load a packet driver and DHCP by hand.
+echo.
+echo Network did not come up - chat needs it. Fix the card/cable and
+echo run CHAT again (see C:\DOSGAME\NET\README.TXT).
 goto end
 :run
 C:\DOSCHAT\DOSCHAT.EXE

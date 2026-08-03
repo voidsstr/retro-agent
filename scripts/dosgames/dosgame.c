@@ -463,19 +463,53 @@ static void reload_catalog(void)
     rebuild_view();
 }
 
-/* mark catalog entries already installed (dir stem match) */
+/* Stem of a catalog zip name, EXACTLY as write_install() names the target
+ * directory: first 12 chars, extension stripped, truncated to 8, spaces and
+ * dots replaced with '_' (neither is usable in a DOS dir name). One shared
+ * transform — mark_installed() once skipped the '_' replacement, so any
+ * title with a space in its first 8 chars was never shown as installed. */
+static void zip_stem(const char *zipname, char *stem)
+{
+    char *dot;
+    strncpy(stem, zipname, 12); stem[12] = '\0';
+    dot = strrchr(stem, '.'); if (dot) *dot = '\0';
+    stem[8] = '\0';
+    for (dot = stem; *dot; dot++)
+        if (*dot == ' ' || *dot == '.') *dot = '_';
+}
+
+#define MAX_INSTLD 128
+
+/* mark catalog entries already installed: dir stem match against the local
+ * scan, plus the INSTLD.LST receipt written by the install batch. The
+ * receipt is what tracks installer-run games (kind 'I') whose INSTALL.EXE
+ * put the playable files in a directory the stem match can't correlate. */
 static void mark_installed(void)
 {
     int i, j;
+    static char lst[MAX_INSTLD][9];
+    int n_lst = 0;
+    char path[MAX_PATH_L + 16], line[32];
+    FILE *f;
+
+    sprintf(path, "%s\\INSTLD.LST", cfg_home);
+    f = fopen(path, "r");
+    if (f) {
+        while (n_lst < MAX_INSTLD && fgets(line, sizeof(line), f)) {
+            chomp(line);
+            if (line[0]) {
+                strncpy(lst[n_lst], line, 8);
+                lst[n_lst][8] = '\0';
+                n_lst++;
+            }
+        }
+        fclose(f);
+    }
+
     for (i = 0; i < n_games; i++) {
         char stem[13];
-        char *dot;
         if (games[i].installed) continue;
-        /* stem of zip name, truncated to 8 chars like the install dir */
-        strncpy(stem, games[i].path, 12); stem[12] = '\0';
-        dot = strrchr(stem, '.');
-        if (dot) *dot = '\0';
-        stem[8] = '\0';
+        zip_stem(games[i].path, stem);
         for (j = 0; j < n_games; j++) {
             if (!games[j].installed) continue;
             if (!strnicmp(stem, games[j].title, 8)) {
@@ -483,6 +517,9 @@ static void mark_installed(void)
                 break;
             }
         }
+        for (j = 0; !games[i].installed && j < n_lst; j++)
+            if (!stricmp(stem, lst[j]))
+                games[i].installed = 2;
     }
 }
 
@@ -547,7 +584,10 @@ static int write_launch(const game_t *g)
         /* Unpack in place, then run whatever installer it contained, so one
          * keypress takes a downloaded archive all the way to playable. */
         fprintf(f, "echo Unpacking %s ...\n", g->exe);
-        fprintf(f, "%s\\UNZIP -qq -o %s\n", cfg_home, g->exe);
+        fprintf(f, "if not exist %s\\UNZIP.EXE echo UNZIP.EXE missing under %s - re-stage the DOS tools.\n",
+                cfg_home, cfg_home);
+        fprintf(f, "if exist %s\\UNZIP.EXE %s\\UNZIP -qq -o %s\n",
+                cfg_home, cfg_home, g->exe);
         fprintf(f, "if exist INSTALL.EXE INSTALL.EXE\n");
         fprintf(f, "if exist INSTALL.BAT if not exist INSTALL.EXE call INSTALL.BAT\n");
         fprintf(f, "if exist SETUP.EXE if not exist INSTALL.EXE if not exist INSTALL.BAT SETUP.EXE\n");
@@ -574,16 +614,16 @@ static int write_install(const game_t *g, int run_installer)
 {
     FILE *f = open_runbat();
     char stem[13];
-    char *dot;
     if (!f) return 0;
 
-    strncpy(stem, g->path, 12); stem[12] = '\0';
-    dot = strrchr(stem, '.'); if (dot) *dot = '\0';
-    stem[8] = '\0';
-    for (dot = stem; *dot; dot++)
-        if (*dot == ' ' || *dot == '.') *dot = '_';
+    zip_stem(g->path, stem);
 
     fprintf(f, "echo Installing %s...\n", g->title);
+    /* Missing tools must fail loudly, not as COMMAND.COM's "Bad command or
+     * file name" followed by a broken half-install. */
+    fprintf(f, "if not exist %s\\UNZIP.EXE goto notool\n", cfg_home);
+    if (cfg_url[0])
+        fprintf(f, "if not exist %s\\NET\\HTGET.EXE goto notool\n", cfg_home);
     fprintf(f, "if not exist %s\\nul mkdir %s\n", cfg_gamedir, cfg_gamedir);
     fprintf(f, "if not exist %s\\%s\\nul mkdir %s\\%s\n",
             cfg_gamedir, stem, cfg_gamedir, stem);
@@ -609,8 +649,14 @@ static int write_install(const game_t *g, int run_installer)
         fclose(f);
         return 1;
     }
+    /* No zip -> the fetch failed; bail with a real message instead of
+     * unzipping nothing and "installing" an empty directory. */
+    fprintf(f, "if not exist %s\\%s.ZIP goto nofetch\n", cfg_home, stem);
     fprintf(f, "%s\\UNZIP -qq -o %s\\%s.ZIP -d %s\\%s\n",
             cfg_home, cfg_home, stem, cfg_gamedir, stem);
+    /* Receipt for mark_installed(): survives an installer that puts the
+     * playable files somewhere the directory scan can't correlate. */
+    fprintf(f, "echo %s >> %s\\INSTLD.LST\n", stem, cfg_home);
     fprintf(f, "del %s\\%s.ZIP\n", cfg_home, stem);
     if (g->kind == 'I' && run_installer) {
         fprintf(f, "%c:\ncd %s\\%s\n", cfg_gamedir[0], cfg_gamedir + 2, stem);
@@ -619,6 +665,15 @@ static int write_install(const game_t *g, int run_installer)
         fprintf(f, "if exist SETUP.EXE if not exist INSTALL.EXE if not exist INSTALL.BAT SETUP.EXE\n");
     }
     fprintf(f, "echo Done. Press a key.\npause > nul\n");
+    fprintf(f, "goto end\n");
+    fprintf(f, ":notool\n");
+    fprintf(f, "echo UNZIP.EXE or NET\\HTGET.EXE missing under %s - re-stage the DOS tools.\n",
+            cfg_home);
+    fprintf(f, "pause > nul\ngoto end\n");
+    fprintf(f, ":nofetch\n");
+    fprintf(f, "echo Download failed - check the network and try again.\n");
+    fprintf(f, "pause > nul\n");
+    fprintf(f, ":end\n");
     fclose(f);
     return 1;
 }
