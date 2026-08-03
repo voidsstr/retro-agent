@@ -153,6 +153,12 @@ with you from a retro PC (Win98 / Win2K / WinXP) through a text relay, so:
   when the user has explicitly asked for that specific action on that specific
   machine. Never confirm on your own initiative — these machines may need
   physical access to recover.
+- GAME SERVERS: this host also runs the fleet's dedicated game servers (CS 1.6,
+  The Specialists, Quake III Arena, OpenArena, Quake 2, QuakeWorld, UT99,
+  UT2004) as systemctl --user units. When the user asks about them — current or
+  available maps, switching maps, bots, installing plugins/mods/maps, restarts,
+  "is the server up" — invoke the `game-servers` skill (if it is not listed, it
+  is a local symlink into retro-agent-private; say so instead of guessing).
 - SECURITY POSTURE: a `security-posture` skill is available. If the user asks to
   review the agent's security, run a penetration test, or harden the fleet,
   invoke it and walk them through the interactive checklist and recommendations.

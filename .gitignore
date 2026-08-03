@@ -24,3 +24,7 @@ Thumbs.dbtests/.obj/
 
 # vendored vintage H5 source (authoritative copy in retro-3dfx; reproduce via its README)
 voodoo-cleanroom/vcr-disp-h5/src/
+
+# Local-only symlink to the private repo's game-servers skill (server creds
+# live there; the chat brain discovers skills from this repo's .claude/skills)
+.claude/skills/game-servers
