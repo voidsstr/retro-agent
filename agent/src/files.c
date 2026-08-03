@@ -97,8 +97,12 @@ void handle_download(SOCKET sock, const char *args)
         return;
     }
 
-    hFile = CreateFileA(args, GENERIC_READ, FILE_SHARE_READ, NULL,
-                        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    /* FILE_SHARE_WRITE too: the live agent.log is held open GENERIC_WRITE by the
+     * logger, so a READ|SHARE_READ open collides (error 32). Sharing write lets us
+     * DOWNLOAD the running log (and any file another process is writing) directly,
+     * instead of the copy-aside dance. */
+    hFile = CreateFileA(args, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                        NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
         char err[256];
         DWORD gle = GetLastError();

@@ -14,6 +14,7 @@
 #define EXEC_TIMEOUT_MS  60000  /* default EXEC timeout (60s) */
 #define EXEC_MAX_MS     900000  /* EXECW clamp (15 min) - fast debug turnaround */
 #define EXEC_POLL_MS       200  /* poll interval for pipe/process check */
+#define EXEC_HEARTBEAT_MS 10000  /* log a "still running" line this often */
 #define EXEC_BUF_SIZE    65536
 
 /* Shared exec-with-capture core. timeout_ms bounds the run; on timeout the child
@@ -30,6 +31,7 @@ static void do_exec(SOCKET sock, const char *args, DWORD timeout_ms, int mark_ti
     DWORD output_len = 0;
     DWORD output_cap = EXEC_BUF_SIZE;
     DWORD bytes_read, exit_code;
+    DWORD elapsed_ms = 0;
     BOOL success;
     int did_timeout = 0;
 
@@ -118,13 +120,28 @@ static void do_exec(SOCKET sock, const char *args, DWORD timeout_ms, int mark_ti
 
     {
         DWORD start_tick = GetTickCount();
+        DWORD last_beat = start_tick;
         DWORD avail;
         int timed_out = 0;
 
         while (1) {
+            DWORD now = GetTickCount();
+            /* Heartbeat: a hung child would otherwise be silent between launch
+             * and the timeout kill (the ~60s "dead agent" window we hit on the
+             * Win9x WINOA386 console). Log elapsed so a stall is visible live. */
+            if (now - last_beat >= EXEC_HEARTBEAT_MS) {
+                last_beat = now;
+                log_msg(LOG_EXEC, "EXEC still running: PID %lu, %lus elapsed "
+                        "(timeout %lus), %lu bytes so far",
+                        (unsigned long)pi.dwProcessId,
+                        (unsigned long)((now - start_tick) / 1000),
+                        (unsigned long)(timeout_ms / 1000),
+                        (unsigned long)output_len);
+            }
             /* Check timeout */
-            if (GetTickCount() - start_tick >= timeout_ms) {
-                log_msg(LOG_EXEC, "EXEC timeout (%lums), killing PID %lu",
+            if (now - start_tick >= timeout_ms) {
+                log_msg(LOG_EXEC, "EXEC timeout (%lums), killing PID %lu "
+                        "(taskkill tree-kill is NT-only; TerminateProcess on 9x)",
                         (unsigned long)timeout_ms,
                         (unsigned long)pi.dwProcessId);
                 /* kill the whole tree (child may have spawned the real app) */
@@ -191,6 +208,7 @@ static void do_exec(SOCKET sock, const char *args, DWORD timeout_ms, int mark_ti
             /* Process still running, no data yet - loop back and re-check */
         }
 
+        elapsed_ms = GetTickCount() - start_tick;
         if (timed_out) {
             WaitForSingleObject(pi.hProcess, 2000);  /* Let it die */
         }
@@ -198,9 +216,11 @@ static void do_exec(SOCKET sock, const char *args, DWORD timeout_ms, int mark_ti
 
     GetExitCodeProcess(pi.hProcess, &exit_code);
 
-    log_msg(LOG_EXEC, "Process %lu exited, code=%lu, output=%lu bytes",
-            (unsigned long)pi.dwProcessId, (unsigned long)exit_code,
-            (unsigned long)output_len);
+    log_msg(LOG_EXEC, "Process %lu %s: code=%lu, output=%lu bytes, %lums elapsed",
+            (unsigned long)pi.dwProcessId,
+            did_timeout ? "KILLED (timeout)" : "exited",
+            (unsigned long)exit_code,
+            (unsigned long)output_len, (unsigned long)elapsed_ms);
 
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
