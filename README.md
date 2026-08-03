@@ -26,6 +26,14 @@ Connect from Python, pipe it to Claude or GPT, and suddenly your vintage hardwar
 
 The built-in **Retro Chat** client takes it further: type a prompt directly on the retro PC's console, and the **Retro Chat brain** — a standalone Claude agent on your modern dev box — processes it with the *full Claude toolbox*, then streams the response back to your 16-color Win98 terminal. The brain runs as an auto‑starting service and needs no Claude Code session open; see [`scripts/README-chat-brain.md`](scripts/README-chat-brain.md).
 
+Three things are built on top of the agent, each documented below:
+
+| | What it is |
+|---|---|
+| [**Retro Chat**](#retro-chat--ai-on-a-25-year-old-os) | A Claude agent answering on the retro PC's own console, with live status and streamed output |
+| [**Retro DOS**](#retro-dos--a-game-manager-and-the-agentchat-running-on-real-dos) | A 16-bit game manager (browse ~3,000 titles, install over the LAN, play) and the agent+chat as a single real-mode exe |
+| [**Fleet AI**](#fleet-ai--training-and-inference-on-vintage-hardware-contributors-welcome) | A dependency-free ML engine: int8 CNN inference, on-device training, distributed data-parallel runs across period hardware |
+
 ## Retro Chat — AI on a 25-year-old OS
 
 | Welcome screen | Claude is working | Response rendered |
@@ -63,6 +71,170 @@ Three threads run inside `retro_chat.exe`, each on its own socket:
 - A local spinner thread that animates `* Working... |/-\` with zero network traffic
 
 Zero polling overhead. Zero CPU when idle. The kernel parks each socket in `recv()` until there's something to show.
+
+### Running it, and what breaks
+
+The chat spans three processes on two machines, so when "nothing comes back" it
+helps to know where to look. Everything below was learned the hard way on the
+fleet's slowest box (a 31 MB Pentium-1 running Win98).
+
+```bash
+bash scripts/chat_status.sh          # daemon? brain? claimed agents? pending prompts?
+systemctl --user restart retro-chat-brain retro-chat-daemon
+```
+
+- **The box must be *claimed* by the daemon.** `chat_status.sh` lists claimed
+  agents; if yours isn't there, nothing is polling its prompts and typing
+  produces silence. Discovery probes the whole `/24` concurrently with an 8s
+  per-host timeout — it used to be 1.5s, which quietly excluded the slow Win98
+  box entirely.
+- **Client slots.** `retro_chat.exe` holds **three** connections (command, log
+  long-poll, status long-poll) and the daemon needs **two** more. The agent
+  allows 10 (`MAX_CLIENTS`, raised from 4 in v1.22.0 — at 4 the daemon simply
+  could not attach to a box running the chat locally, and operators got
+  `ERR max connections reached`).
+- **Win9x agents are single-threaded.** They're forced into multiplex mode
+  (threaded TLS is unsafe there), so one thread serves every client and a
+  blocking 30s long-poll would stall everyone else. Long-polls are clamped to
+  1s in that mode; clients just re-issue.
+- **Use `RESTART`, never `QUIT`.** Nothing supervises the agent on Win9x — the
+  Run key only fires at logon — so a bare `QUIT` takes the box off the network
+  until someone walks over to it. `RESTART` spawns a detached relaunch batch
+  *before* stopping.
+- **Queued tasks expire after 24h.** `scripts/retro_enqueue.py` queues work for
+  a machine that's offline now; it runs when the box next appears. A stale
+  `QUIT` once fired days later and killed an agent on reconnect.
+- **Getting a log off a wedged box.** `retro_agent.exe -l <path>` redirects the
+  agent log; point it at the share and you can read it from your dev box even
+  when the agent is too busy to answer commands.
+
+
+---
+
+## Retro DOS — a game manager and the agent/chat, running on real DOS
+
+The fleet isn't only Windows. Win98 boxes boot DOS 7.1 underneath, some machines
+run real MS-DOS, and DOSBox is a first-class target — so there is a **DOS lane**
+with two 16-bit real-mode programs and the host-side tooling that feeds them.
+
+### `DOSGAME.EXE` — browse, install and play, from DOS
+
+A TUI that turns a DOS box into something like a console games menu:
+
+- **Finds what you already have.** It scans several roots (`C:\GAMES;C:\` by
+  default — real machines keep games at the drive root) and classifies each
+  folder by what it actually needs: **play** (a runnable entry, preferring one
+  named after its folder and accepting `.BAT`/`.COM`), **run setup** (only a
+  self-extractor like `DEICE.EXE` beside packed data — the classic Apogee/id
+  shareware layout), or **unpack + setup** (only a `.ZIP`). One keypress takes
+  an untouched download all the way to playable.
+- **Installs from the LAN.** Tab switches to a catalogue of **~3,000 DOS titles**
+  from the file share. Start typing to filter; Enter downloads the archive,
+  extracts it, and runs its installer when the archive is an installer type
+  (which most are). The game then appears on the Installed tab.
+- **Shows gameplay previews.** F3 displays a 320x200 256-colour tile of the game
+  in VGA mode 13h, auto-rendered by booting each game in DOSBox and screenshotting it.
+- **Gives games all of conventional memory.** The menu writes `RUN.BAT` and exits
+  with code 42; `DOSGAME.BAT` runs it and loops back, so the menu isn't resident
+  while a game plays.
+
+### `DOSCHAT.EXE` — the agent *and* the chat in one real-mode exe
+
+One 88 KB program that is both halves of the retro chat system: it serves the
+same framed TCP protocol on port 9898 and broadcasts discovery on 9899, so
+`retro_chat_daemon.py` claims a DOS box exactly like a Windows one — and it
+renders the chat UI in the same process (there is no loopback socket on DOS, so
+the UI talks straight to the shared chat state).
+
+**Code is shared with the Windows build rather than duplicated** — see
+`agent/shared/`:
+
+| Module | Also used by | What it is |
+|---|---|---|
+| `frameproto.h` | Windows agent (`src/protocol.h`) | ports, frame limits, response status bytes |
+| `chatcore.[ch]` | Windows agent (`src/chatproxy.c`) | prompt slot, log ring, status sequence |
+| `chattext.h` | Windows chat (`tools/retro_chat.c`) | control-byte sanitize + word wrap |
+
+The Windows agent keeps only its NT-specific parts (critical section, the events
+behind the long polls). `tests/native/test_chatcore.c` compiles the shared engine
+natively and `tests/python/test_doschat_shared.py` asserts the sharing can't
+silently regress.
+
+### Installing it on a machine
+
+The share carries a ready bundle at `…\Retro Automation\dos-setup\`: run
+**`SETUPDOS.BAT`** from Windows and it copies ~870 KB into place. Then reboot
+into MS-DOS mode and type:
+
+```
+PLAY          the network comes up and the game menu opens
+CHAT          the DOS agent + chat
+```
+
+On Windows 9x/ME the agent also **stages these automatically at startup**
+(`agent/src/dosstage.c`, v1.19.0+), pulling them from the share into
+`C:\DOSGAME` and `C:\DOSCHAT` so the DOS side is ready without anyone copying
+files. It is a no-op on the NT family, which has no DOS to boot into.
+
+Registry knobs under `HKLM\Software\RetroAgent`:
+
+| Value | Meaning |
+|---|---|
+| `DosStage` (DWORD) | `0` disables staging; absent/1 = on for DOS-capable boxes |
+| `DosStageTiles` (DWORD) | `1` opts into the ~11 MB preview-tile payload (off by default) |
+| `DosStagePath` (SZ) | override the source share |
+| `DosStaged` (SZ) | timestamp of the last successful stage |
+
+Staging is **skipped entirely below 6 MB free RAM**, and `DOSSTAGE force` does
+not override that: on a 31 MB Pentium-1 the tile stream killed the agent
+outright, and a cosmetic feature must never cost a box its agent.
+
+### Networking in real DOS
+
+`PLAY.BAT` auto-detects the network card, trying each packet driver **on its own
+interrupt** — a Crynwr driver that fails to find its card still disturbs the
+vector it was handed, and a later driver on that vector comes up half-broken
+with DHCP timing out for no visible reason. Clean-detecting drivers (3C509,
+NE2000) go first, because the ancient 3C50x drivers probe hard enough to claim a
+card that isn't theirs. Whichever wins, its interrupt is written into `MTCP.CFG`
+for DHCP and HTGET. No card found is never fatal — installed games still play.
+
+Downloads go over **HTTP**, not SMB: the share's archives have long filenames
+that DOS mangles to 8.3, so `serve_dosgames.py` (a systemd user unit on port
+8181) bridges the share and the DOS client URL-encodes the name.
+
+### Host-side tooling (`scripts/dosgames/`)
+
+| File | Purpose |
+|---|---|
+| `dosgame.c` → `DOSGAME.EXE` | the menu (Open Watcom, 16-bit large model) |
+| `survey_share.py` | reads every share archive's zip directory (no downloads) and classifies install patterns |
+| `gen_catalog.py` | survey JSON → `GAMES.CAT` |
+| `serve_dosgames.py` | HTTP bridge for catalog, archives and tiles |
+| `gen_tiles.py` | boots each game in DOSBox-X and saves a `.PRV` preview tile |
+| `dosbox_run.sh` | headless DOS test loop (DOSBox-X under Wine on a private Xvfb) |
+
+A survey of all **3,795** archives on the share is what the install scripting is
+built on: `INSTALL.EXE` / `SETUP.EXE` / `INSTALL.BAT` at the archive root covers
+96% of the ones that need an installer, and 2,893 archives are flat-root.
+
+### Traps worth knowing before touching a DOS build
+
+- Open Watcom's `wpp` on Linux is **case-sensitive for quoted includes and
+  silently skips misses** — you get a blizzard of bogus "incorrectly spelled type
+  name" errors. The mTCP tree needs lowercase symlinks.
+- In the 16-bit large model a **>64 KB static array silently wraps the data
+  segment** — no warning, just corrupted entries past a point.
+- mTCP's socket table is **one `malloc` capped at 64 KB**, so raising
+  `TCP_SOCKET_RING_SIZE` halves the usable socket count and `initStack` then
+  fails with a misleading "packet driver?" message.
+- Every mTCP object bakes in the app `.cfg`, so the Makefile must declare
+  `$(TCPOBJS): <app>.cfg` or a stale library fails for no visible reason.
+- DOSBox-X's `AUTOTYPE` delivers `enter`/`tab`/plain characters but not
+  `esc`/function keys — automate tests with timeouts and file assertions.
+
+Full detail: [`scripts/dosgames/README.md`](scripts/dosgames/README.md) and
+[`agent/doschat/README.md`](agent/doschat/README.md).
 
 ---
 
@@ -340,6 +512,13 @@ Discovery: agents broadcast `RETRO|hostname|ip|port|os|cpu|ram_mb|os_family` on 
 | `LOG_CLEAR` | any | Reset prompt, log, and status |
 | `PROXY_GET` / `PROXY_SET <host>` | any | Read/write the owning dev box IP |
 
+### DOS staging & lifecycle
+| Command | Description |
+|---------|-------------|
+| `DOSSTAGE [force]` | Stage `DOSGAME`/`DOSCHAT` from the share to `C:` (Windows 9x/ME only; refuses below 6 MB free, and `force` does not override that). Runs automatically at startup on DOS-capable boxes. |
+| `RESTART` | Relaunch the agent via a detached batch, then stop. **Use this instead of `QUIT`** for a remote restart — nothing supervises the agent on Win9x. |
+| `QUIT` | Stop the agent (no relaunch). |
+
 ### Fleet AI (agent v1.9.0+)
 The agent proxies these to a supervised `retro-infer.exe --serve` engine on
 `127.0.0.1:9896` (crash-isolated). See the
@@ -608,6 +787,9 @@ retro-agent/
 +-- agent/                  # Windows agent (C, MinGW cross-compiled)
 |   +-- Makefile
 |   +-- src/                # C source files
+|   +-- shared/             # code shared with the DOS build (frameproto,
+|   |                       #   chatcore, chattext) - change here, not a copy
+|   +-- doschat/            # DOSCHAT.EXE: agent + chat in one real-mode exe
 |   +-- tools/              # retro_chat client (C) + daemon (Python)
 |   +-- lib/
 |       +-- libmsvcrt.a     # Patched import lib (Win98 compatible)
@@ -622,6 +804,9 @@ retro-agent/
 +-- provisioning/           # Installation scripts and registry templates
 |   +-- win98/
 +-- scripts/                # Chat brain/daemon, XP activation, benchmark tooling
+|   +-- dosgames/           # DOSGAME.EXE + share survey, catalog, tiles, HTTP bridge
++-- retro-infer/            # Dependency-free ML engine for the fleet (Fleet AI)
++-- tests/                  # Regression suite: run_all.sh (Python + native C)
 +-- .claude/skills/         # Claude Code skills for fleet operations (see below)
 +-- docs/
     +-- images/             # Screenshots for this README
@@ -844,7 +1029,7 @@ launch pattern actually executes on a given box, which install step needs a
 backup first), it gets written down as a skill so the next invocation starts
 from the answer instead of the archaeology.
 
-## Roadmap — Fleet AI: train, infer, and benchmark ML on vintage hardware (contributors welcome)
+## Fleet AI — training and inference on vintage hardware (contributors welcome)
 
 The fleet is a rack of 1998–2004 machines with real period accelerators (3dfx
 Voodoo 3/4/5, GeForce 2/3/4) already wired for remote control and already
@@ -866,6 +1051,27 @@ XNOR GEMM + BNN CIFAR-10 inference on a real Voodoo5, bit-identical 2-node
 data-parallel training, and distributed GBDT — see the status table in
 [`docs/roadmap-fleet-ai.md`](docs/roadmap-fleet-ai.md) for the
 milestone-by-milestone acceptance results and what's still open.
+
+
+### Operating it — the engine is **opt-in**
+
+`retro-infer.exe` must **not** run by default: on single-core vintage boxes it
+steals CPU from games and skews benchmarks. Since agent **v1.17.0** it is gated
+behind a persisted flag and stays off until you ask for it:
+
+| Action | How |
+|---|---|
+| Enable (sets the flag + starts the engine) | `AI_ENABLE` — over chat, `mcp__retro__retro_command` with `command=AI_ENABLE` |
+| Disable (clears the flag + kills the engine) | `AI_DISABLE` |
+| Health-check the fleet's AI stack | the `fleet-ai-diagnose` skill |
+| Live dashboard (ops/sec, loss, per-node state) | `scripts/retro_infer_console.py`, or the `fleet-ai-monitor` skill |
+| Run distributed training / inference | the `fleet-ai-train` skill |
+
+The flag lives at `HKLM\Software\RetroAgent\AIEngine` (REG_DWORD; absent or 0
+means disabled). Any AI command returns an error while the engine is off.
+Benchmarking quiesces it automatically — the `driver-bench` skill issues
+`AI_DISABLE` and kills background CPU thieves first, because a benchmark with
+any of them live reads several fps low.
 
 ### What it looks like — `retro-infer` fleet console
 
