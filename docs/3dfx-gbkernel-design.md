@@ -400,8 +400,10 @@ ladder BUILT.** The full driver links with attach live (`build_fxd3d.sh`: all
   write-combining, `GBK_WMB` must grow an `sfence`.
 - **Desktop-stride threaded** (`gbkernel_attach` gained a `desktopStride`
   param): `gb_swap`'s blit-present **dst** now uses the desktop pitch, not the
-  16bpp 3D color-buffer stride (M4b-2 minor #2). 32bpp desktop dst-pixfmt
-  convert stays a `TODO(fxd3d M4c-2)` (design §5a 16→32).
+  16bpp 3D color-buffer stride (M4b-2 minor #2). The 32bpp desktop dst-pixfmt
+  convert was **done in M4c-2** (`gbk_present_dstformat()` in `gbk/gbk_surf.c`:
+  16bpp = plain 565 copy, 32bpp = `SSTG_PIXFMT_32BPP` dst so the 2D engine expands
+  565→8888 during the present blit — design §5a 16→32).
 - **Bring-up ladder — `driver/nt/gbkdebug.c` + `gbkdebug.h` + `gbkernel_dbg_*`
   in gbkernel.c.** A `DrvEscape` handler (wired `INDEX_DrvEscape` in the DRVFN
   table) with a private opcode namespace `0x3DF0..`, each rung returning a small

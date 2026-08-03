@@ -35,23 +35,31 @@ textured triangle) through `fxd_dp2_execute` against a recording stub backend
 and asserts the resulting Glide call sequence — validating the DDI dispatch and
 the D3D→Glide state mapping with **no Glide DLL and no card**.
 
-## Status (per the design doc milestones)
+## Status (per the design doc milestones — current 2026-08)
 
 - [x] **M1** on-card Glide validation harness (`../gfxbench`, builds to a real
       `.exe` that imports `glide3x.dll`)
 - [x] **M2** HAL translation core: state/tex/prim/DDI — compiles for Win32 and
       **passes the host unit test**
-- [ ] **M3** host display driver (adopt vmdisp9x on 9x / RISCyVoodoo on NT and
-      wire 3dfx modeset from Glide `minihwc`, publish the DDHAL)
-- [ ] **M4** register fxD3D as the D3D callbacks; bring up in 86Box then on
-      real Voodoo 3/5
-- [ ] **M5** conformance + speed via `scripts/benchmarks/`
+- [x] **M3** host display driver — `driver/nt/chassis.c` + `enable.c`: native PE
+      `fxd3ddd.dll` that exports `DrvEnableDriver`, publishes the DDraw/D3D
+      callbacks, and **links** against the W2K/DX7 DDK
+- [x] **M4a** real `D3DHAL_DP2COMMAND` parsing (`d3dhal_dp2real.c`, fuzz-clean)
+- [x] **M4b** kernel-mode Glide raw-register FIFO backend (`driver/nt/gbkernel*`;
+      design in `../../../docs/3dfx-gbkernel-design.md`)
+- [x] **M4c** attach/bring-up ladder + DDraw surface/present bodies + 16→32
+      convert (`enable.c`, `gbk/gbk_surf.c`) — code-complete + host-tested
+- [ ] **M4d** miniport-paired **on-card bring-up on real Voodoo3** (`.124`):
+      first desktop → a DP2 triangle → a DX6/7 game. **Never yet run on silicon —
+      this is the one remaining step.**
+- [ ] **M5** conformance + speed via `scripts/benchmarks/` (pends M4d)
 
 ## What "done" is, honestly
 
 At M5 this yields roughly what SFFT already gives as a binary — DX6/7-class D3D
 on the Voodoo — but **as source we own, tune, and ship to the fleet**. The value
 is ownership + instrumentation (per-game fixes, FSAA behavior, benchmark
-hooks), not new capability over SFFT. M3 (the loadable display-driver host) is
-the remaining heavy lift; M1–M2 (here) are the parts that are provably correct
-without it.
+hooks), not new capability over SFFT. Everything up to and including M4c is done
+and provably correct off-hardware; **M4d — actually loading it on the card — is
+the remaining lift**, and it needs supervised on-box iteration (deploy +
+`fxdbg` escape ladder + rollback net), not more host work.

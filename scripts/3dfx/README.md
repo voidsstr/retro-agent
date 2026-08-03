@@ -6,6 +6,21 @@ toolchain as `retro_agent.exe`. **Clean-room throughout** — built only from th
 open Glide source release, public DDK/DDI, and public register documentation.
 
 D3D driver design: [`docs/3dfx-d3d-hal-design.md`](../../docs/3dfx-d3d-hal-design.md).
+This is layer [1] of the clean-room stack — see the whole-stack overview in
+[`voodoo-cleanroom/README.md`](../../voodoo-cleanroom/README.md).
+
+**Status (2026-08):** the D3D driver `fxd3ddd.dll` is **code-complete through
+M4c-2 and links** (real DP2 parsing, a kernel-mode Glide FIFO backend, DDraw
+surface/present bodies, host-tested logic all green). The one remaining step is
+**M4d** — pairing it with the stock miniport and bringing it up on real Voodoo3
+hardware (`.124`), never yet done. Until then `.124`'s layer [1] is the vintage
+H5 driver; our ICD + Glide (layers [2]/[3]) are already the clean-room ones.
+
+> **Two Glide builds, don't confuse them:** the `build-glide.sh` here produces the
+> fxD3D-local Glide inputs (`out/glide3x_h3_voodoo3.dll` etc.) for gfxbench/backend
+> validation. The Glide that actually **ships in the deployed stack** is built by
+> [`voodoo-cleanroom/build-stack.sh`](../../voodoo-cleanroom/build-stack.sh)
+> (the 787 KB h3 `glide3x.dll`) — that's the canonical one.
 
 ## What's here
 
@@ -49,7 +64,7 @@ See [`provisioning/ddk/README.md`](../../provisioning/ddk/README.md).
 | On-card validator + benchmark | `gfxbench/` | **built** → `gfxbench.exe` imports `glide3x.dll` |
 | fxD3D D3D→Glide core (DP2 dispatch, state/tex/prim) | `d3dhal/` | **built + host unit test PASS** |
 | DDI glue (Windows callback → fxD3D) | `driver/ddi_glue.*` | **built + host glue test PASS** |
-| Host display driver + INF (loads/registers fxD3D) | `driver/nt`, `driver/win9x` | skeleton + INF; **DDK build pending** |
+| Host display driver + kernel-Glide backend (loads/registers fxD3D) | `driver/nt` | **built** — `fxd3ddd.dll` links (native PE, ~45 KB), M4a→M4c-2 code-complete + host-tested; **M4d on-card bring-up is the only remainder** |
 
 Full data flow on a card:
 `D3D game → DirectX runtime → fxD3D (DrawPrimitives2 → fxd_dp2_execute) → Glide → 3dfx silicon`,

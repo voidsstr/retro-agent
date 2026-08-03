@@ -215,7 +215,13 @@ themselves skip the convert entirely (render == present == 16).
 5. **Conformance + speed** — walk DX6/7 test apps; regression via
    `scripts/benchmarks/` (swap driver, re-run, diff CSV).
 
-### Milestone status (2026-07-23)
+### Milestone status (current: 2026-08-03 — **M1–M4c-2 done, M4d is the only remainder**)
+
+> **Headline:** the whole clean-room D3D driver is code-complete and links
+> (`fxd3ddd.dll`, native PE, host-tested logic all green). What is left is **M4d** —
+> pairing it with the stock miniport and bringing it up on real Voodoo3 silicon
+> (`.124`), which has never been done. The per-milestone trail below is kept as the
+> build history.
 
 - **M1 — done.** `scripts/3dfx/gfxbench/` builds `gfxbench.exe` (imports
   `glide3x.dll`); `push_gfxbench.py` deploys+runs it over the agent.
@@ -348,10 +354,11 @@ themselves skip the convert entirely (render == present == 16).
   - **M4d miniport-paired bring-up on .124** — pair fxd3ddd.dll with the MS inbox
     Voodoo3 miniport; deploy via deploy-3dfx-driver (rollback net); first desktop,
     then a DP2 triangle, then a DX6/7 game.
-- **M4/M5 — pending** the M3 driver: bring-up on .124 (no 86Box available → use
-  the deploy-3dfx-driver rollback net: in-box driver stays in the store, remote
-  Driver Roll Back via devmgmt), first DP2 triangle, then textured/blended scene,
-  then a real DX6/7 game; regression via `scripts/benchmarks/`.
+- **M5 conformance + speed — pending M4d:** once fxd3ddd is live on `.124`, walk
+  DX6/7 test apps (first a DP2 triangle, then a textured/blended scene, then a real
+  DX6/7 game) and regress via `scripts/benchmarks/` (swap driver, re-run, diff).
+  No 86Box available → the deploy-3dfx-driver rollback net (in-box driver stays in
+  the store, remote Driver Roll Back via devmgmt) is the safety path.
 
 ### Bring-up architecture decisions (2026-07-23)
 

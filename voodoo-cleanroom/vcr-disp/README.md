@@ -1,4 +1,13 @@
-# retro3dfx-disp — the cooperative Voodoo display driver (the bottom of our stack)
+# vcr-disp — the cooperative Voodoo display driver (a minimal layer-1 track)
+
+> Directory renamed `retro3dfx-disp` → `vcr-disp` (the source calls it VCR/GDI_DRIVER).
+> **Relationship to fxD3D:** there are two clean-room tracks for layer [1] of the
+> stack. **`scripts/3dfx/` (fxD3D / `fxd3ddd.dll`) is the primary, fuller one** — a
+> real DX6/7 D3D + DDraw HAL with a kernel-Glide backend, code-complete through
+> M4c-2. **This `vcr-disp` track is the minimal alternative:** it does only enough
+> to be the display adapter and answer the HWCEXT escape our Glide needs for hw
+> init — no D3D HAL. It's a lighter fallback; fxD3D is further along. See the
+> whole-stack overview in [`../README.md`](../README.md).
 
 The layer that lets **our unmodified Glide** drive a real Voodoo on Windows XP.
 It's a display driver we own that (a) does the minimum to be the display adapter
