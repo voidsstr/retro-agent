@@ -43,7 +43,7 @@ COLORS = {
     "Background": "0 0 0",
     "ButtonAlternateFace": "0 0 0",
     "ButtonDkShadow": "0 24 0",
-    "ButtonFace": "18 22 18",
+    "ButtonFace": "0 0 0",
     "ButtonHilight": "0 90 0",
     "ButtonLight": "0 52 0",
     "ButtonShadow": "0 40 0",
@@ -60,10 +60,10 @@ COLORS = {
     "InfoText": "0 224 0",
     "InfoWindow": "0 0 0",
     "Menu": "0 0 0",
-    "MenuBar": "10 14 10",
+    "MenuBar": "0 0 0",
     "MenuHilight": "0 112 0",
     "MenuText": "0 224 0",
-    "Scrollbar": "18 22 18",
+    "Scrollbar": "0 0 0",
     "TitleText": "0 255 0",
     "Window": "0 0 0",
     "WindowFrame": "0 80 0",
@@ -118,7 +118,13 @@ async def run(host, revert=False):
         await c.command_text("EXEC regedit /s C:\\WINDOWS\\TEMP\\theme.reg")
         # 3. apply live via SetSysColors helper
         info = await push_and_apply_colors(c)
-        print("%s: dark hacker theme applied (%s)" % (host, info))
+        # 4. stage into C:\retro-wall so the agent's retrowall thread re-applies
+        #    the SAME palette on every boot (persistence; else a reboot reverts).
+        await c.command_text("EXEC cmd /c if not exist C:\\retro-wall md C:\\retro-wall")
+        await c.send_command("UPLOAD C:\\retro-wall\\retro_theme.reg", binary_payload=reg)
+        with open(HELPER, "rb") as f:
+            await c.send_command("UPLOAD C:\\retro-wall\\setsyscolors.exe", binary_payload=f.read())
+        print("%s: dark hacker theme applied + staged to C:\\retro-wall (%s)" % (host, info))
     finally:
         await c.close()
 

@@ -73,7 +73,15 @@ char g_logfile[256] = "";
 static int g_client_mode = MODE_THREADED;
 
 /* Multiplexed client slots */
-#define MAX_CLIENTS 4
+/* Concurrent client slots. Four was not enough for a box that runs the chat
+ * client locally: retro_chat holds THREE connections of its own (command,
+ * log long-poll, status long-poll) and the fleet daemon needs TWO more
+ * (wait + send) — so the daemon could not attach, nobody polled that box's
+ * prompts, and typing into its chat produced no reply at all. Any further
+ * client (an operator, a skill) then got "max connections reached".
+ * A slot is a socket handle, a flag and a 24-byte string, so the cost of
+ * headroom is trivial even on the 31MB Win98 box. */
+#define MAX_CLIENTS 10
 
 typedef struct {
     SOCKET sock;

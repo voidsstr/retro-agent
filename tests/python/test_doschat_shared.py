@@ -176,3 +176,16 @@ def test_helper_thread_failures_are_logged():
     assert re.search(r"if\s*\(!CreateThread\([^)]*dosstage_thread", m), (
         "dosstage thread creation must be checked")
     assert "FAILED to start" in m
+
+
+def test_enough_client_slots_for_local_chat_plus_daemon():
+    """retro_chat holds 3 connections (command + log poll + status poll) and
+    the fleet daemon needs 2 (wait + send). With only 4 slots the daemon could
+    not attach to a box running the chat locally, so nobody polled its prompts
+    and typing into that machine's chat produced no reply (2026-08-03)."""
+    m = _read(MAIN_C)
+    mm = re.search(r"#define\s+MAX_CLIENTS\s+(\d+)", m)
+    assert mm, "MAX_CLIENTS missing"
+    assert int(mm.group(1)) >= 6, (
+        "need room for the local chat client (3) + daemon (2) + an operator; "
+        "got %s" % mm.group(1))

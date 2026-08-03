@@ -1,0 +1,154 @@
+{
+  "host": "192.168.1.246",
+  "hostname": "ADMIN-PC",
+  "title": "Sandy Bridge Workstation - Windows 7",
+  "width": 1920,
+  "height": 1080,
+  "accent": [
+    90,
+    200,
+    130
+  ],
+  "accent2": [
+    90,
+    170,
+    255
+  ],
+  "cpu_year": 2011,
+  "gpu_year": 2010,
+  "cpu_label": "Intel Core i5-2400 - launched 2011",
+  "gpu_label": "AMD Radeon HD 5450 - launched 2010",
+  "specs": [
+    [
+      "CPU",
+      "Core i5-2400 @ 3.10GHz"
+    ],
+    [
+      "GPU",
+      "AMD Radeon HD 5450"
+    ],
+    [
+      "RAM",
+      "2048 MB"
+    ],
+    [
+      "OS",
+      "Windows 7"
+    ],
+    [
+      "DISPLAY",
+      "1920 x 1080 @ 60Hz 32bpp"
+    ],
+    [
+      "STORAGE",
+      "224 GB fixed"
+    ]
+  ],
+  "iteration": 9,
+  "games_cpu": [
+    {
+      "title": "The Elder Scrolls V: Skyrim",
+      "note": "open-world RPG landmark"
+    },
+    {
+      "title": "Portal 2",
+      "note": "acclaimed puzzle sequel"
+    },
+    {
+      "title": "Batman: Arkham City",
+      "note": "open-world superhero action"
+    },
+    {
+      "title": "Deus Ex: Human Revolution",
+      "note": "cyberpunk stealth RPG"
+    },
+    {
+      "title": "Dark Souls",
+      "note": "brutal action-RPG milestone"
+    },
+    {
+      "title": "Battlefield 3",
+      "note": "Frostbite military shooter"
+    },
+    {
+      "title": "The Witcher 2",
+      "note": "dark PC fantasy RPG"
+    },
+    {
+      "title": "Minecraft 1.0",
+      "note": "sandbox phenomenon"
+    }
+  ],
+  "games_gpu": [
+    {
+      "title": "Mass Effect 2",
+      "note": "acclaimed sci-fi RPG"
+    },
+    {
+      "title": "StarCraft II: Wings of Liberty",
+      "note": "RTS esports landmark"
+    },
+    {
+      "title": "Red Dead Redemption",
+      "note": "open-world western epic"
+    },
+    {
+      "title": "Sid Meier's Civilization V",
+      "note": "definitive 4X strategy"
+    },
+    {
+      "title": "Fallout: New Vegas",
+      "note": "open-world RPG milestone"
+    },
+    {
+      "title": "BioShock 2",
+      "note": "atmospheric FPS sequel"
+    },
+    {
+      "title": "Battlefield: Bad Company 2",
+      "note": "destructible warfare"
+    },
+    {
+      "title": "Amnesia: The Dark Descent",
+      "note": "survival-horror landmark"
+    }
+  ],
+  "events": [
+    {
+      "caption": "Game of Thrones premieres on television.",
+      "date": "Apr 2011",
+      "credit": "Harald Krichel, CC BY-SA 3.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Peter_Dinklage-32.jpg/1280px-Peter_Dinklage-32.jpg"
+    },
+    {
+      "caption": "The Raspberry Pi promises a 25-dollar computer.",
+      "date": "2011",
+      "credit": "Laserlicht, CC BY-SA 4.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Raspberry_Pi_4_Model_B_-_Side.jpg/1280px-Raspberry_Pi_4_Model_B_-_Side.jpg"
+    },
+    {
+      "caption": "A tsunami devastates Japan's Tohoku coast.",
+      "date": "Mar 2011",
+      "credit": "kirakirayuji, CC0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Great_East_Japan_Earthquake_Tsunami_Machimae%2C_Tagajo_city%2C_Miyagi_Prefecture%2C_Japan_3.png/1280px-Great_East_Japan_Earthquake_Tsunami_Machimae%2C_Tagajo_city%2C_Miyagi_Prefecture%2C_Japan_3.png"
+    },
+    {
+      "caption": "IBM's Watson beats the champions at Jeopardy!",
+      "date": "Feb 2011",
+      "credit": "Raysonho @ Open Grid Scheduler / Grid En, CC BY 3.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/IBMWatson.jpg/1280px-IBMWatson.jpg"
+    },
+    {
+      "caption": "Adele's 21 becomes the album of the year.",
+      "date": "2011",
+      "credit": "Kristopher Harris from Charlotte, NC, CC BY 2.0",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Adele_%27Adele_Live_2016%27_-_Nashville_DSC04804_%2830114379680%29_%28cropped%29.jpg/1280px-Adele_%27Adele_Live_2016%27_-_Nashville_DSC04804_%2830114379680%29_%28cropped%29.jpg"
+    },
+    {
+      "caption": "NASA launches Curiosity on its way to Mars.",
+      "date": "Nov 2011",
+      "credit": "NASA/JPL-Caltech, Public domain",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Curiosity_-_Robot_Geologist_and_Chemist_in_One%21.jpg/1280px-Curiosity_-_Robot_Geologist_and_Chemist_in_One%21.jpg"
+    }
+  ]
+}

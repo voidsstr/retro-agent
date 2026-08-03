@@ -283,6 +283,23 @@ Registry (`HKLM\Software\RetroAgent`): `DosStage` DWORD 0 disables,
 `DosStageTiles` DWORD 1 opts into the preview tiles, `DosStagePath` overrides
 the source share, `DosStaged` records the last run.
 
+**A box running the chat client locally needs client slots for BOTH.**
+`retro_chat` holds three connections (command + log poll + status poll) and the
+daemon needs two (wait + send). `MAX_CLIENTS` was 4, so on the Win98 box the
+daemon could not attach — nobody polled its prompts and typing into its chat
+produced no reply, while any operator got `ERR max connections reached`. Raised
+to 10 in agent **v1.22.0**; a slot is ~32 bytes.
+
+**Discovery must tolerate a slow box.** The daemon probed each host with
+1.5–2s timeouts, fine for XP but not for the single-threaded Pentium-1, which
+therefore never got claimed. Now 8s (the whole /24 is probed concurrently, so
+it costs wall-clock only on the slowest host).
+
+**Queued tasks expire after 24h.** A `QUIT` enqueued on 2026-07-29 fired the
+moment that box was re-claimed on 08-03 and took its agent straight down.
+Queued work means "run when the box next appears", not "run forever" — and use
+`RESTART`, never `QUIT`.
+
 **Win9x agents are single-threaded (multiplex mode)** — one thread serves every
 client. Long-polls are therefore clamped to 1s there (`g_longpoll_max_ms`);
 without that, the local chat client's 30s `LOG_WAIT`/`STATUS_WAIT` starved every
