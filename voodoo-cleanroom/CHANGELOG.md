@@ -167,3 +167,35 @@ DEBUGGING-NOTES.md.
 
 **Q3 unchanged**: 57.9 fps @640 (tied with the 0.1.11 best); high-res sweep added
 to 1600×1200 (22.9 fps). The V3 vertex/transform path remains near-optimal for fps.
+
+## Refresh + cursor session 2026-08-03 (0.1.34–0.1.35)
+
+### 0.1.34 — fullscreen refresh: monitor-max instead of hardcoded 60Hz
+- **Change:** `fxapi.c fxMesaCreateBestContext()` no longer hardcodes
+  `GR_REFRESH_60Hz`. New `fxBestRefresh(w,h)`: env override
+  (`FX_GLIDE_REFRESH_RATE` / `SSTV2_REFRESH_RATE` / `MESA_FX_REFRESH`, Hz), else
+  the monitor's max refresh for that WxH from `EnumDisplaySettings`
+  (EDID-filtered — can't exceed monitor caps), snapped DOWN to the nearest
+  `GR_REFRESH_*` Glide has a timing for. If `grSstWinOpen` still rejects the
+  rate, one retry at 60Hz (a bad rate degrades, never fails the context).
+  `FX_GLIDE_REFRESH_RATE=60` restores the old behaviour.
+- **Why:** Glide programs the video timing itself in fullscreen — GoldSrc's
+  `-freq`, GDI mode sets, and XP's refresh dialogs are all bypassed, so every
+  GL game ran at 60Hz on a 100Hz-capable monitor (.124 CS 1.6 verified 60→100Hz
+  via retrogl.log: `grSstWinOpen ref=6`, open OK).
+- **Test:** `tests/native/test_fx_best_refresh.c` (snap table mirror).
+
+### 0.1.35 — fullscreen software cursor overlay (+ FX_DUMP_FRONT debug dump)
+- **Change:** `fxapi.c fxDrawCursorOverlay()` — when `GetCursorInfo` says the
+  cursor is showing, stamp a classic 11×19 arrow (black outline / white fill,
+  transparent elsewhere) into the back buffer via `grLfbLock` right before
+  `grBufferSwap`. Desktop→Glide coordinate scaling, full edge clipping,
+  565/1555/8888 paths. `FX_CURSOR=0` disables. Gameplay hides the OS cursor, so
+  the overlay costs nothing in-game. Also `fxDumpFrontBuffer()`:
+  `FX_DUMP_FRONT=<path>` dumps the front buffer raw every 64th swap (GDI
+  screenshots can't see Glide scanout; this is the remote verification path).
+- **Why:** fullscreen Glide scanout never composites the GDI/hardware cursor
+  plane — CS 1.6's GL menu pointer was invisible (D3D mode showed it). Verified
+  on .124: front-buffer dump shows the arrow at the clicked position in the CS
+  menu.
+- **Test:** `tests/native/test_fx_cursor_overlay.c` (bitmap + stamp/clip mirror).
