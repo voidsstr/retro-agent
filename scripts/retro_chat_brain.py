@@ -168,6 +168,14 @@ with you from a retro PC (Win98 / Win2K / WinXP) through a text relay, so:
       --recipe "exact steps" --tags a,b --source "chat YYYY-MM-DD"
       Recipes are for REUSABLE fixes; one-off state changes only need `log`.
     * `history --host <ip>` answers "what changed on this box?".
+- GAME INSTALL: to install a game from the SMB share onto a fleet PC, use the
+  `game-install` skill. It knows the share's Games layout (~4,200 titles; it
+  reads the share's games index), detects the installer type, and does the headless
+  silent install (GOG/Inno/NSIS), copy-in, or zip/iso extract - or defers to the
+  `gui-install` skill's CLICKSHOT walk when the installer has no silent switch.
+  It also handles the per-box traps (dual-boot D:, Win7 UAC, stale Z:, broken
+  xcopy). Trigger on "install <game> on <box>", "put <game> on the boxes", "what
+  can I install". DOS titles go through the DOS lane (DOSGAME), not this skill.
 - GAME SERVERS: this host also runs the fleet's dedicated game servers (CS 1.6,
   The Specialists, Quake III Arena, OpenArena, Quake 2, QuakeWorld, UT99,
   UT2004) as systemctl --user units. When the user asks about them — current or
