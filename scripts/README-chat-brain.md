@@ -80,7 +80,7 @@ python3 ../nsc-assistant/agent/tools/retro_chat_daemon.py \
 | File | Purpose |
 |------|---------|
 | `retro_chat_brain.py` | The processor service: inbox → Agent SDK loop → outbox. |
-| `retro_brain_tools.py` | In-process MCP server exposing the fleet as tools (`retro_list_machines`, `retro_command`, `retro_screenshot`). |
+| `retro_brain_tools.py` | In-process MCP server exposing the fleet as tools (`retro_list_machines`, `retro_command`, `retro_screenshot`, `retro_upload`, `retro_download`, `ai_*`). |
 | `retro-chat-brain.service` | `systemctl --user` unit (matches the game-server convention). |
 | `retro_chat_brain_supervisor.sh` | Bash auto-restart fallback if you don't use systemd. |
 | `.brain-venv/` | Dedicated virtualenv (git-ignored). |
@@ -128,9 +128,26 @@ The brain can operate the retro PCs through `client/retro_protocol.py`:
   `REGREAD ...`, `UICLICK x y`, ...) on a fleet machine
 - `retro_screenshot` — capture a machine's screen as a PNG the model can **see**
   (drives a screenshot→UICLICK GUI-automation loop)
+- `retro_upload` — push a file from this host's disk to a machine (two-frame
+  `UPLOAD` protocol; how driver DLLs, `.reg` files, and tools get onto a box)
+- `retro_download` — pull a file off a machine (logs, `setupapi.log` tails,
+  backups) for local analysis
 
 A user sitting at one machine can say "the GeForce2 box is stuck at 640×480" and
 the brain screenshots that machine, reasons over the image, and fixes it.
+
+### 3dfx driver development over chat
+
+The brain has the full driver-dev capability of the interactive sessions: both
+3dfx driver codebases live on this host with their toolchains and regression
+suites, and two skills encode the complete workflows —
+`voodoo3-driver-dev` (our clean-room MesaFX/Glide stack in
+`voodoo-cleanroom/`, box .124) and `voodoo5-driver-dev` (the vintage H5 stack
+in `../retro-3dfx/`, box .143). Each covers build, test gates, diagnosis
+(renderer strings, the registry-ring flight recorder, d3dlab), fix policy, and
+deploy (via `retro_upload` + the deploy-3dfx-driver / driver-install /
+driver-bench skills). So "CS looks washed out on the Voodoo5" typed into retro
+chat can end in a built, tested, deployed driver fix.
 
 ### ⚠️ Single-connection caveat
 

@@ -119,6 +119,8 @@ TOOL_NAMES = [
     "mcp__retro__retro_list_machines",
     "mcp__retro__retro_command",
     "mcp__retro__retro_screenshot",
+    "mcp__retro__retro_upload",
+    "mcp__retro__retro_download",
     "mcp__retro__ai_list",
     "mcp__retro__ai_load",
     "mcp__retro__ai_infer",
@@ -275,6 +277,98 @@ def build_retro_server(origin_host=None):
         return await _with_conn(host, run)
 
     @tool(
+        "retro_upload",
+        "Upload a file from THIS server's disk to a fleet machine (two-frame UPLOAD "
+        "protocol — the only correct way to push binaries like driver DLLs, .reg "
+        "files, or tools; do NOT try to echo bytes via EXEC). local_path is a file "
+        "on this Linux host (e.g. a freshly built driver in "
+        "voodoo-cleanroom/out/ or a retro-3dfx package); remote_path is the full "
+        "Windows destination path. Create the destination dir first with MKDIR. "
+        "Verify afterwards with 'EXEC cmd /c dir <dir>' and compare byte sizes.",
+        {
+            "type": "object",
+            "properties": {
+                "host": {"type": "string", "description": "Target IP (default: origin)"},
+                "local_path": {"type": "string", "description": "Source file on this server"},
+                "remote_path": {"type": "string",
+                                 "description": "Full destination path on the machine"},
+            },
+            "required": ["local_path", "remote_path"],
+        },
+    )
+    async def retro_upload(args):
+        try:
+            host = _resolve_host(args)
+        except ValueError as e:
+            return _err(str(e))
+        local = (args.get("local_path") or "").strip()
+        remote = (args.get("remote_path") or "").strip()
+        if not local or not remote:
+            return _err("local_path and remote_path are both required")
+        try:
+            payload = open(local, "rb").read()
+        except OSError as e:
+            return _err(f"cannot read {local}: {e}")
+        if len(payload) > 64 * 1024 * 1024:
+            return _err(f"{local} is {len(payload)} bytes — refusing >64MB upload")
+
+        async def run(conn):
+            try:
+                status, data = await conn.send_command(
+                    f"UPLOAD {remote}", binary_payload=payload, timeout=300)
+            except Exception as e:  # noqa: BLE001
+                return _err(f"UPLOAD failed: {e}")
+            text = data.decode("ascii", errors="replace")
+            if status == 0xFF:
+                return _err(f"UPLOAD rejected: {text}")
+            return _text(
+                f"uploaded {local} -> {host}:{remote} ({len(payload)} bytes) {text}")
+
+        return await _with_conn(host, run)
+
+    @tool(
+        "retro_download",
+        "Download a file from a fleet machine to THIS server's disk (binary "
+        "DOWNLOAD protocol). Use it to pull logs, configs, screenshots-on-disk, "
+        "setupapi.log tails, or driver backups for local analysis. remote_path is "
+        "the full Windows path; local_path is where to save it here.",
+        {
+            "type": "object",
+            "properties": {
+                "host": {"type": "string", "description": "Target IP (default: origin)"},
+                "remote_path": {"type": "string", "description": "Full source path on the machine"},
+                "local_path": {"type": "string", "description": "Destination file on this server"},
+            },
+            "required": ["remote_path", "local_path"],
+        },
+    )
+    async def retro_download(args):
+        try:
+            host = _resolve_host(args)
+        except ValueError as e:
+            return _err(str(e))
+        remote = (args.get("remote_path") or "").strip()
+        local = (args.get("local_path") or "").strip()
+        if not remote or not local:
+            return _err("remote_path and local_path are both required")
+
+        async def run(conn):
+            try:
+                data = await conn.command_binary(f"DOWNLOAD {remote}", timeout=300)
+            except Exception as e:  # noqa: BLE001
+                return _err(f"DOWNLOAD failed: {e}")
+            try:
+                os.makedirs(os.path.dirname(os.path.abspath(local)), exist_ok=True)
+                with open(local, "wb") as f:
+                    f.write(data)
+            except OSError as e:
+                return _err(f"cannot write {local}: {e}")
+            return _text(
+                f"downloaded {host}:{remote} -> {local} ({len(data)} bytes)")
+
+        return await _with_conn(host, run)
+
+    @tool(
         "ai_list",
         "Fleet AI: list which retro machines can run ML (retro-infer engine), with "
         "backend/precision/kernel detail and resident models. Answers 'which "
@@ -427,5 +521,6 @@ def build_retro_server(origin_host=None):
         "retro",
         version="1.0.0",
         tools=[retro_list_machines, retro_command, retro_screenshot,
+               retro_upload, retro_download,
                ai_list, ai_load, ai_infer],
     )

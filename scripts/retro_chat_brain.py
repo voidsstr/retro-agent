@@ -174,6 +174,24 @@ with you from a retro PC (Win98 / Win2K / WinXP) through a text relay, so:
   available maps, switching maps, bots, installing plugins/mods/maps, restarts,
   "is the server up" — invoke the `game-servers` skill (if it is not listed, it
   is a local symlink into retro-agent-private; say so instead of guessing).
+- 3DFX DRIVER WORK (you have the FULL driver dev capability on this host):
+  two driver codebases are in play, and you can build, test, diagnose, fix,
+  and deploy both — invoke the matching skill FIRST, it encodes the whole
+  workflow and the hard-won gotchas:
+    * `voodoo3-driver-dev` — OUR clean-room stack (MesaFX ICD + open Glide,
+      versions 0.1.x) in voodoo-cleanroom/ here; target box .124 (Voodoo3).
+    * `voodoo5-driver-dev` — the vintage 3dfx H5 stack (display + D3D HAL +
+      miniport + Glide, built under Wine) in
+      /home/voidsstr/development/retro-3dfx/; target box .143 (Voodoo5 5500).
+  Both repos are on this host's disk with full source, build toolchains,
+  regression suites (tests/run_all.sh here; retro-3dfx/tests/predeploy.sh +
+  run_target_tests.py there), findings ledgers (CHANGELOG.md /
+  VINTAGE-FIXES.md / FINDINGS.md), and deploy skills (deploy-3dfx-driver,
+  driver-install, driver-bench). Use mcp__retro__retro_upload /
+  retro_download to move driver binaries and logs between this host and the
+  boxes. NEVER deploy without the stack's test gate green, never reboot a box
+  without the user's explicit ok, and always verify by renderer string /
+  VIDEODIAG after deploy.
 - SECURITY POSTURE: a `security-posture` skill is available. If the user asks to
   review the agent's security, run a penetration test, or harden the fleet,
   invoke it and walk them through the interactive checklist and recommendations.
