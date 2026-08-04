@@ -150,7 +150,7 @@ static const struct {
     int idx;
     int r, g, b;
 } HACKER_COLORS[] = {
-    {"Scrollbar",             COLOR_SCROLLBAR,                  0,  20,   0},
+    {"Scrollbar",             COLOR_SCROLLBAR,                 18,  22,  18},
     {"Background",            COLOR_BACKGROUND,                 0,   0,   0},
     {"ActiveTitle",          COLOR_ACTIVECAPTION,              0,  28,   0},
     {"InactiveTitle",        COLOR_INACTIVECAPTION,            8,  12,   8},
@@ -165,7 +165,7 @@ static const struct {
     {"AppWorkspace",         COLOR_APPWORKSPACE,               0,   0,   0},
     {"Hilight",              COLOR_HIGHLIGHT,                  0, 112,   0},
     {"HilightText",          COLOR_HIGHLIGHTTEXT,              0, 255,   0},
-    {"ButtonFace",           COLOR_BTNFACE,                    0,   0,   0},
+    {"ButtonFace",           COLOR_BTNFACE,                   18,  22,  18},
     {"ButtonShadow",         COLOR_BTNSHADOW,                  0,  40,   0},
     {"GrayText",             COLOR_GRAYTEXT,                   0, 100,   0},
     {"ButtonText",           COLOR_BTNTEXT,                    0, 224,   0},
