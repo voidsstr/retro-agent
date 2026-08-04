@@ -199,3 +199,31 @@ to 1600×1200 (22.9 fps). The V3 vertex/transform path remains near-optimal for 
   on .124: front-buffer dump shows the arrow at the clicked position in the CS
   menu.
 - **Test:** `tests/native/test_fx_cursor_overlay.c` (bitmap + stamp/clip mirror).
+
+## glide2x bring-up session 2026-08-04 (Unreal Gold 3dfx renderer)
+
+### glide2x: XP bring-up fixes + dual-ABI exports (fork 79ee51e)
+- **Problem:** selecting the 3dfx renderer in Unreal Gold (GOG) hard-wedged
+  .124 — the GOG install ships **nGlide** as game-local `glide2x.dll`, whose
+  failing grSstOpen attempts froze the chip (physical power cycle needed).
+  Our own glide2x had never worked either: no `_grFoo@N` (MSVC) exports, and
+  a GPF inside `grGlideInit`.
+- **Fixes:**
+  1. `build-stack.sh`: dual-ABI relink for glide2x (same as glide3x's) — the
+     Glide2-era games are MSVC-linked and import `_grFoo@N`.
+  2. `glide2x/h3/minihwc/minihwc.c` (fork 79ee51e): port of the verified
+     glide3x XP fixes — GETLINEARADDR prime before ALLOCCONTEXT, zero-base /
+     failed-escape guards in hwcMapBoard, plus clearing
+     `linearInfo.initialized` on failure (Unreal's error callback doesn't
+     exit; hwcInitRegisters' only defense is that flag).
+- **Deployed:** game-local `Unreal Gold\System\glide2x.dll` (nGlide kept as
+  `.nglide` backup), `system32\glide2x.dll` (2003-era copy kept as
+  `.old2003`).
+- **Verified on .124:** standalone Glide2 exerciser full pass (init → query →
+  WinOpen → 60 swaps → close, desktop restored); Unreal Gold fullscreen Glide
+  640x480x16 **@100Hz**, stable.
+- **Operational rule (hard-won): NEVER `taskkill /f` a fullscreen Glide2
+  game** — killing mid-FIFO-packet wedges the chip beyond the display
+  driver's bounded waits (bus-level hang, physical power cycle). Exit via the
+  game's own quit path.
+- **Test:** `tests/native/test_glide2x_mapboard_guards.c`.
