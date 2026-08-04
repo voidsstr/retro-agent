@@ -4,7 +4,7 @@
 
 > ### 🚀 retro3dfx: an open-source 3dfx Voodoo driver stack, optimized past what 3dfx shipped
 >
-> Using this agent as the remote harness, we built and tuned a **complete Voodoo 3/4/5 driver stack** — XP kernel display driver, Glide, and a Mesa-based OpenGL ICD — **based on genuinely open source code** (3dfx's 2000 Glide open release and the MIT-licensed Mesa), and iterated on it with a fully tracked benchmark→optimize→measure loop until it **beat the community-standard AmigaMerlin driver on real hardware** (and the era 3dfx official ICD at 1024x768). See [voodoo-cleanroom — An Open-Source Driver Stack for 3dfx Voodoo Cards](#retro3dfx--an-open-source-driver-stack-for-3dfx-voodoo-cards) and [The Driver Optimization Process](#the-driver-optimization-process).
+> Using this agent as the remote harness, we built and tuned a **Voodoo 3/4/5 driver stack** — Glide 2/3 and a Mesa-based OpenGL ICD — **from genuinely open source code** (3dfx's 2000 Glide open release and the MIT-licensed Mesa), and iterated on it with a fully tracked benchmark→optimize→measure loop until it **beat the community-standard AmigaMerlin driver on real hardware** (and the era 3dfx official ICD at 1024x768). Games verified on real silicon: Quake III, Quake II, Counter-Strike 1.6, Half-Life, RtCW, UT99 and more — see the [compatibility table](#game-compatibility-on-the-voodoo-3-verified-on-hardware). Our clean-room **kernel display driver (`vcr-disp`) is still in progress**; that layer is honestly accounted for in the [Driver lane policy](#driver-lane-policy--what-this-repo-owns). Start at [voodoo-cleanroom — An Open-Source Driver Stack for 3dfx Voodoo Cards](#retro3dfx--an-open-source-driver-stack-for-3dfx-voodoo-cards) and [The Driver Optimization Process](#the-driver-optimization-process).
 
 > ### 🖥️ New: the Retro Chat **brain** — a full Claude agent, on a 25‑year‑old OS
 >
@@ -840,7 +840,7 @@ The three layers:
 
 | Layer | What we build | Source base |
 |---|---|---|
-| **[1] Kernel display driver** | `3dfxvsm.sys` (miniport) + `3dfxvs.dll` (XPDM display driver incl. D3D HAL) | Compiled with a Wine-hosted VC6 + W2K-DDK toolchain (sibling `retro-3dfx` repo). A clean-room track, `vcr-disp/`, is in progress. |
+| **[1] Kernel display driver** | `vcr-disp.dll` — our clean-room XPDM driver (**in progress**; 2D/D3D HAL not complete). The box currently still boots a vintage-source build (`3dfxv3d.dll`) as a **frozen legacy dependency** | `voodoo-cleanroom/vcr-disp/*.c` (original code). ⚠️ The vintage H5 display/D3D source lives in the sibling `retro-3dfx` repo, which is the **Voodoo 5 lane and is off-limits for edits from this repo** — see [Driver lane policy](#driver-lane-policy--what-this-repo-owns) |
 | **[2] Glide (glide3x.dll)** | Retail-ABI Glide3 (96 exports, byte-compatible export list with the vintage Nov-2000 DLL) | Our deployed build, plus [voidsstr/retro3dfx-glide](https://github.com/voidsstr/retro3dfx-glide) (fork of sezero/glide) as the gcc-13 cross-built optimization vehicle |
 | **[3] OpenGL ICD** | `retrogl.dll` — Mesa 6.2.2 OpenGL-over-Glide3, where the performance work lives | [voidsstr/retro3dfx-gl](https://github.com/voidsstr/retro3dfx-gl) (fork of sezero/MesaFX-6.2) |
 
@@ -884,8 +884,8 @@ orientation (and the two-ICD gotcha) is in `CLAUDE.md` → "Driver Stack Map".
 | **OpenGL ICD (MesaFX, ours)** | `voodoo-cleanroom/build/retro3dfx-gl/src/mesa/drivers/glide/fx*.c` (fork of sezero/MesaFX-6.2) | `voodoo-cleanroom/build-stack.sh` once, then `voodoo-cleanroom/build-mesafx-retail.sh` (mingw gcc-13, `-march=pentium3 -mfpmath=sse -ffast-math`) | `voodoo-cleanroom/out/opengl32_retail.dll` (~2.7 MB) → `retrogl.dll` on .124 |
 | **Glide (ours)** | `voodoo-cleanroom/build/retro3dfx-glide/` (fork of sezero/glide) | `voodoo-cleanroom/build-stack.sh` | `voodoo-cleanroom/out/glide3x.dll` |
 | **Display driver (ours)** | `voodoo-cleanroom/vcr-disp/*.c` (original, GDI_DRIVER) | W2K-DDK | `vcr-disp.dll` (clean-room track) |
-| **Vintage H5 display + D3D HAL** | `retro-3dfx/3dfx Driver Code/H5/W2K/.../Displays/H5/` | Wine/VC6 DDK | `3dfxvs.dll` → `3dfxv3d.dll` (currently provides D3D HAL on .124) |
-| **Vintage SGL ICD** (SGI 1991-97; **not** ours) | `retro-3dfx/3dfx Driver Code/SWLIBS/OPENGL/GLIDE3X/` | Wine/VC6 | `opengl.dll` (~704 KB) — the **.143 pure-3dfx lane** |
+| **Glide2 (ours)** | `voodoo-cleanroom/build/retro3dfx-glide/glide2x/h3/` | `voodoo-cleanroom/build-stack.sh` (incl. the dual-ABI `_grFoo@N` relink Glide2 games need) | `voodoo-cleanroom/out/glide2x.dll` — see limitations |
+| ⛔ **Vintage H5 display + D3D HAL / SGL ICD** — the **Voodoo 5 lane, NOT ours** | `retro-3dfx/3dfx Driver Code/**` | *(don't build from this repo)* | Read-only reference. `3dfxv3d.dll` on the V3 box is a frozen legacy dependency until `vcr-disp` lands |
 
 - **Version:** `voodoo-cleanroom/VERSION` + `.buildnum` → **0.1.N**; renderer string
   `Mesa Glide v0.62 [voodoo-cleanroom 0.1.N]`. Per-version fixes in `voodoo-cleanroom/CHANGELOG.md`.
@@ -990,12 +990,16 @@ glide3x reads the env from its own load-time snapshot and **ignores the
 `grBufferSwap(interval)` argument entirely**; no ICD-side code can override
 it. The real fix was owning the Glide layer ourselves (next entry).
 
-**2026-07-17 — ALL-RETRO3DFX milestone.** Our self-built kernel display driver
-and glide3x replaced AmigaMerlin entirely (SetupAPI install via the
+**2026-07-17 — ALL-RETRO3DFX milestone.** A self-built kernel display driver
+and our glide3x replaced AmigaMerlin entirely (SetupAPI install via the
 `deploy-3dfx-driver` skill). Result: **58.8 / 51.3 with no environment tuning
 at all** — our Glide's swap defaults are sane in code. Rendering verified
 pristine: mean pixel diff vs the hybrid baseline screenshot is 4.1/255, i.e.
-animation noise.
+animation noise. *(Caveat, added later: the kernel driver in that run was
+compiled from the vintage H5 source in the sibling Voodoo 5 repo — we built it,
+but it is not clean-room code and is now frozen. Layers [2] and [3] are ours;
+our own display driver, `vcr-disp`, is still in progress. See
+[Driver lane policy](#driver-lane-policy--what-this-repo-owns).)*
 
 Cumulative scoreboard:
 
@@ -1006,6 +1010,109 @@ Cumulative scoreboard:
 | HYBRID 0.1.6 + `FX_GLIDE_SWAPINTERVAL=0` | ~58 (+8%) | ~51 (+32%) |
 | **ALL-RETRO3DFX 0.1.6, no env tuning** | **58.8 (+9.5%)** | **51.3 (+32.6%)** |
 | Era references (P3-850/933 + V3 3000, 3dfx official ICD) | 75–91 | **44.3 — we beat this** |
+
+### Driver lane policy — what this repo owns
+
+**This repo builds and ships only its own drivers**, from
+[`voodoo-cleanroom/`](voodoo-cleanroom/): the MesaFX OpenGL ICD, our Glide2 and
+Glide3, and the clean-room `vcr-disp` display driver. That is the entire
+supported surface for the **Voodoo 3** box.
+
+The sibling `retro-3dfx` repo (3dfx's own vintage H5/Napalm source — display
+driver, D3D/DDraw HAL, miniport, SGL ICD) is the **Voodoo 5 lane**. From this
+repo it is **read-only reference**: fine to read to understand the hardware or
+to port a *concept* into clean-room code, never to edit, build, or deploy.
+
+One honest exception exists and is frozen: the Voodoo 3 box still boots the
+vintage-source `3dfxv3d.dll` because `vcr-disp` cannot yet drive 2D + D3D. That
+binary is a legacy dependency, not a development target — new work goes into
+`voodoo-cleanroom/`, and a capability gap in our stack is never a reason to
+patch the vintage tree. Finishing `vcr-disp` is the open task that retires it.
+
+### Fixes since the 0.1.6 milestone
+
+The optimization log above ends at the 2026-07-17 ALL-RETRO3DFX milestone.
+What landed after it (full detail in
+[`voodoo-cleanroom/CHANGELOG.md`](voodoo-cleanroom/CHANGELOG.md)):
+
+| Version(s) | Change | Result |
+|---|---|---|
+| **0.1.7–0.1.10** | CPU-side vertex work: `-O3`/unroll, SSE 4-wide cliptest + `rcpps` perspective divide, SSE viewport emit | **None merged** — the vertex path was already near-optimal; the hand-tuned x86-asm cliptest *beat* C intrinsics. A documented dead end, not a failure |
+| **0.1.11** | Quality: default texture LOD bias `-0.5` (`FX_LOD_BIAS`) | Sharper textures on the V3 bilinear + nearest-mip path (the classic 3dfx trick) |
+| **0.1.12–0.1.19** | **Quake II support** on our ICD (root cause: a missing/incompatible game-local `glide3x.dll`), plus a window message-pump before `grSstWinOpen`; new `FX_NO_PALETTED_TEXTURE` / `FX_NO_MULTITEXTURE` escape hatches | Q2 **93.6 fps** @640×480×16 vs 75.7 on the stock 3dfx MiniGL (**+23%**) |
+| **0.1.30** | Quality defaults: gamma ramp, 4×4 dither, alpha-PFD matcher | 16-bit output no longer renders dark/banded |
+| **0.1.34** | **Fullscreen refresh rate**: `fxBestRefresh()` picks the monitor's maximum for the mode (env-overridable) instead of a hardcoded 60 Hz | Games run at the monitor's real rate — verified 60 → **100 Hz**. In fullscreen, Glide programs the video timing itself, so nothing outside the ICD (game `-freq` flags, Windows display settings) could fix this |
+| **0.1.35** | **Fullscreen mouse cursor**: a software cursor is composited into the back buffer while the OS says the pointer is visible (`FX_CURSOR=0` disables). Adds `FX_DUMP_FRONT` — dumps the real scanout buffer, the only way to verify fullscreen output remotely | Menu cursors are visible again in fullscreen OpenGL games; free during gameplay (the pointer is hidden there) |
+| **Glide2 (2026-08-04)** | **glide2x brought up on XP**: ported the proven Glide3 hardware-mapping fixes (prime the per-process linear map before allocating a context; reject a zero register base instead of faulting) and added the MSVC-style `_grFoo@N` exports that Glide2-era games link against | Glide2 games now **initialize and render** (Unreal Gold verified). ⚠️ Not yet stable under load — see limitations below |
+
+### Game compatibility on the Voodoo 3 (verified on hardware)
+
+Every game below was checked on the live box; fps figures are our own
+benchmark runs, not estimates.
+
+| Game | Renderer | Status | Notes |
+|---|---|---|---|
+| **Quake III Arena** | OpenGL (our ICD) | ✅ Verified | 58.6 fps @640, 50.8 @1024 — beats the era 3dfx official ICD at 1024 |
+| **Quake II** | OpenGL (our ICD) | ✅ Verified | 96.6 @640, 47.1 @1024 (+23% vs stock MiniGL) |
+| **Counter-Strike 1.6** (GoldSrc) | OpenGL (our ICD) | ✅ Verified | ~41 fps @1024×768×16 @100 Hz. Also runs on D3D (~34 fps). Earlier "GoldSrc unsupported" note is obsolete |
+| **Half-Life** | OpenGL (our ICD) | ✅ Verified | Same engine/config as CS |
+| **Return to Castle Wolfenstein** | OpenGL (our ICD) | ✅ Verified | ~55 fps (`wolfbench`) |
+| **Unreal Tournament 99** | OpenGL (our ICD) | ✅ Verified | ~30 fps (`UTbench`) |
+| **Medal of Honor: Allied Assault** | OpenGL (our ICD) | ✅ Renders | Needs its CD image mounted; no bundled demo for an fps number |
+| **Heretic II** | OpenGL (our ICD) | ✅ Installed/verified ICD | Uses the retail Glide3 alongside our ICD (documented hybrid) |
+| **Descent 3** | OpenGL (our ICD) | ✅ Installed/verified ICD | |
+| **SiN** | OpenGL (**bundled 3dfx MiniGL**) | ⚠️ Deliberate exception | Our ICD can't play SiN's demos; the game keeps its original MiniGL on purpose |
+| **Unreal Gold** | **Direct3D** | ⚠️ D3D only | Verified stable at 1024×768×16. Its 3dfx/Glide renderer initializes and draws with our Glide2 but wedges the chip under load |
+| **Carmageddon 2** | fallback (non-Glide) | ⚠️ Glide disabled | Shipped the nGlide wrapper; neutralized (see below). Verified it still launches |
+| **Battlezone, 3DMark2000** | Direct3D | ✅ Runs | Exercise the D3D path, not our ICD |
+| **Incoming** | Glide2 | ❌ Skip | Crashes the driver; a Glide2-era title, blocked by the same limitation |
+
+**nGlide warning.** GOG re-releases (Unreal Gold, Carmageddon 2) bundle
+**nGlide**, a Glide→Direct3D wrapper built for modern GPUs. On *real* 3dfx
+hardware it detects a card it cannot open and retries until the chip hangs —
+requiring a physical power cycle. Any `glide*.dll` over ~1 MB in a game folder
+is a wrapper, not a driver; ours are ~730 KB (Glide2) and ~787 KB (Glide3).
+Both were renamed to `.nglide-disabled` on the fleet box.
+
+### Keeping every game on the verified driver
+
+Windows loads a DLL from the **game's own folder before the system folder**, so
+games silently accumulate old driver copies and keep running them long after a
+system-wide update. A 2026-08-04 audit of the Voodoo 3 box found **19 stale
+copies across five different driver versions** — several games were months
+behind while the system copy was current.
+
+The audit is now a standard procedure (fleetbook recipe *"Fleet-wide driver
+audit"*):
+
+1. Scan **both volumes** for `opengl32.dll`, `3dfxgl.dll`, `3dfxogl.dll`,
+   `retrogl.dll`, `3dfxvgl.dll`, `glide2x.dll`, `glide3x.dll`.
+2. Classify each by **exact byte size** against `voodoo-cleanroom/out/` — every
+   shipped version has a distinct size.
+3. Update stale copies from one staged upload, keeping a `.preNNNN` backup.
+   **Never** touch `system32\opengl32.dll` or `dllcache` (Microsoft's, and
+   Windows File Protection reverts them).
+4. **Verify by renderer string, never by file size** — launch a game with
+   logging and confirm
+   `GL_RENDERER: Mesa Glide v0.62 Voodoo3 (tm) [voodoo-cleanroom 0.1.N]`.
+
+### Known limitations
+
+- **Glide2 (`glide2x.dll`) is not production-ready.** It initializes and
+  renders correctly, but wedges the graphics chip under sustained load at any
+  resolution — a hard hang needing a power cycle. Glide2-era games (Unreal
+  Gold, Carmageddon 2, Incoming) should use Direct3D or software rendering
+  until this is fixed. Suspects and a safe reproduction harness (a standalone
+  exerciser that exits cleanly — never a game) are documented in the repo.
+- **`vcr-disp`, our clean-room display driver, is incomplete** — no full 2D +
+  D3D HAL yet, which is why the fleet box still boots a vintage-source display
+  driver.
+- **SiN** needs its bundled 3dfx MiniGL; our ICD can't play its demos.
+- **The 640×480 gap to era references is CPU-bound**, not driver inefficiency —
+  0.1.7–0.1.10 proved the vertex path has no headroom left on this card.
+- **Never force-kill a fullscreen Glide2 game.** Terminating one mid-frame
+  leaves the command FIFO mid-packet and hangs the hardware. Direct3D and
+  OpenGL games exit safely (their waits are bounded).
 
 ## Claude Code Skills
 
