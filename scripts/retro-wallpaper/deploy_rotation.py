@@ -69,6 +69,22 @@ async def deploy(host, interval=60):
         await c.command_text('EXEC regedit /s %s\\retro_theme.reg' % WALLDIR)
         print("%s: %s" % (host, (await c.command_text(
             "EXEC %s\\setsyscolors.exe" % WALLDIR)).strip()))
+        # Starfield screensaver (part of the fleet theme). Stage ssstars.scr into
+        # C:\retro-wall\ (works on Win7, which ships none, and needs no system32
+        # write), then point the screensaver at it + enable it (10 min).
+        scr_local = os.path.join(HERE, "ssstars.scr")
+        scr_path = WALLDIR + "\\ssstars.scr"
+        if os.path.exists(scr_local):
+            await upload_file(c, scr_local, scr_path)
+        else:
+            scr_path = "%SystemRoot%\\system32\\ssstars.scr"
+        await c.command_text('EXEC cmd /c reg add "HKCU\\Control Panel\\Desktop" '
+                             '/v "SCRNSAVE.EXE" /t REG_SZ /d "%s" /f' % scr_path)
+        await c.command_text('EXEC cmd /c reg add "HKCU\\Control Panel\\Desktop" '
+                             '/v ScreenSaveActive /t REG_SZ /d 1 /f')
+        await c.command_text('EXEC cmd /c reg add "HKCU\\Control Panel\\Desktop" '
+                             '/v ScreenSaveTimeOut /t REG_SZ /d 600 /f')
+        print("%s: screensaver -> Starfield (%s)" % (host, scr_path))
         # persist rotator across logon
         cmd = '%s\\rotate_wall.exe %d' % (WALLDIR, interval)
         await c.command_text('EXEC cmd /c reg add "%s" /v RetroWallRotate '

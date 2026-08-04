@@ -117,14 +117,21 @@ static void run_process(const char *cmdline, DWORD wait_ms)
 }
 
 /*
- * Apply the Windows Classic theme (the fleet-wide look): switch off the XP
- * "Luna" visual style and reset the system colors to the classic "Windows
- * Standard" gray scheme. Done directly with Win32 (no staged assets needed),
- * both live (SetSysColors + a best-effort uxtheme visual-style switch) and
- * persisted (HKCU registry) so it survives the next logon.
+ * Apply the fleet-wide "hacker" theme: switch off the XP "Luna" visual style
+ * (-> Windows Classic, so windows honor the system colors, incl. the black
+ * folder-view/Window background) and set a green-on-black system color scheme.
+ * Done directly with Win32 (no staged assets needed), both live (SetSysColors +
+ * a best-effort uxtheme visual-style switch) and persisted (HKCU) so it survives
+ * the next logon. This is the DEFACTO retro-fleet desktop theme.
  */
 #ifndef WM_THEMECHANGED
 #define WM_THEMECHANGED 0x031A
+#endif
+#ifndef COLOR_HOTLIGHT
+#define COLOR_HOTLIGHT 26
+#endif
+#ifndef COLOR_MENUHILIGHT
+#define COLOR_MENUHILIGHT 29
 #endif
 
 /* uxtheme.dll (XP+) SetSystemVisualStyle, private ordinal 65: an empty style
@@ -134,59 +141,63 @@ static void run_process(const char *cmdline, DWORD wait_ms)
 typedef HRESULT (WINAPI *SetSystemVisualStyle_t)(LPCWSTR, LPCWSTR, LPCWSTR,
                                                  DWORD);
 
-/* Classic "Windows Standard" scheme: {registry name, COLOR_ index, R,G,B}. */
+/* Green-on-black "hacker" scheme: {registry name, COLOR_ index, R,G,B}.
+ * Matches scripts/retro-wallpaper/retro_theme.reg so the agent-applied theme
+ * and the server-side deploy_rotation theme are identical. Window=0,0,0 makes
+ * Explorer's folder-view background black in Classic mode. */
 static const struct {
     const char *reg_name;
     int idx;
     int r, g, b;
-} CLASSIC_COLORS[] = {
-    {"Scrollbar",             COLOR_SCROLLBAR,                212, 208, 200},
-    {"Background",            COLOR_BACKGROUND,                58, 110, 165},
-    {"ActiveTitle",          COLOR_ACTIVECAPTION,             10,  36, 106},
-    {"InactiveTitle",        COLOR_INACTIVECAPTION,          128, 128, 128},
-    {"Menu",                 COLOR_MENU,                     212, 208, 200},
-    {"Window",               COLOR_WINDOW,                   255, 255, 255},
-    {"WindowFrame",          COLOR_WINDOWFRAME,                0,   0,   0},
-    {"MenuText",             COLOR_MENUTEXT,                   0,   0,   0},
-    {"WindowText",           COLOR_WINDOWTEXT,                 0,   0,   0},
-    {"TitleText",            COLOR_CAPTIONTEXT,              255, 255, 255},
-    {"ActiveBorder",         COLOR_ACTIVEBORDER,             212, 208, 200},
-    {"InactiveBorder",       COLOR_INACTIVEBORDER,           212, 208, 200},
-    {"AppWorkspace",         COLOR_APPWORKSPACE,             128, 128, 128},
-    {"Hilight",              COLOR_HIGHLIGHT,                 10,  36, 106},
-    {"HilightText",          COLOR_HIGHLIGHTTEXT,            255, 255, 255},
-    {"ButtonFace",           COLOR_BTNFACE,                  212, 208, 200},
-    {"ButtonShadow",         COLOR_BTNSHADOW,                128, 128, 128},
-    {"GrayText",             COLOR_GRAYTEXT,                 128, 128, 128},
-    {"ButtonText",           COLOR_BTNTEXT,                    0,   0,   0},
-    {"InactiveTitleText",    COLOR_INACTIVECAPTIONTEXT,      212, 208, 200},
-    {"ButtonHilight",        COLOR_BTNHIGHLIGHT,             255, 255, 255},
-    {"ButtonDkShadow",       COLOR_3DDKSHADOW,                64,  64,  64},
-    {"ButtonLight",          COLOR_3DLIGHT,                  212, 208, 200},
-    {"InfoText",             COLOR_INFOTEXT,                   0,   0,   0},
-    {"InfoWindow",           COLOR_INFOBK,                   255, 255, 225},
-    {"GradientActiveTitle",  COLOR_GRADIENTACTIVECAPTION,    166, 202, 240},
-    {"GradientInactiveTitle",COLOR_GRADIENTINACTIVECAPTION,  192, 192, 192},
+} HACKER_COLORS[] = {
+    {"Scrollbar",             COLOR_SCROLLBAR,                  0,  20,   0},
+    {"Background",            COLOR_BACKGROUND,                 0,   0,   0},
+    {"ActiveTitle",          COLOR_ACTIVECAPTION,              0,  28,   0},
+    {"InactiveTitle",        COLOR_INACTIVECAPTION,            8,  12,   8},
+    {"Menu",                 COLOR_MENU,                       0,   0,   0},
+    {"Window",               COLOR_WINDOW,                     0,   0,   0},
+    {"WindowFrame",          COLOR_WINDOWFRAME,                0,  80,   0},
+    {"MenuText",             COLOR_MENUTEXT,                   0, 224,   0},
+    {"WindowText",           COLOR_WINDOWTEXT,                 0, 230,   0},
+    {"TitleText",            COLOR_CAPTIONTEXT,                0, 255,   0},
+    {"ActiveBorder",         COLOR_ACTIVEBORDER,               0,  60,   0},
+    {"InactiveBorder",       COLOR_INACTIVEBORDER,            10,  14,  10},
+    {"AppWorkspace",         COLOR_APPWORKSPACE,               0,   0,   0},
+    {"Hilight",              COLOR_HIGHLIGHT,                  0, 112,   0},
+    {"HilightText",          COLOR_HIGHLIGHTTEXT,              0, 255,   0},
+    {"ButtonFace",           COLOR_BTNFACE,                    0,   0,   0},
+    {"ButtonShadow",         COLOR_BTNSHADOW,                  0,  40,   0},
+    {"GrayText",             COLOR_GRAYTEXT,                   0, 100,   0},
+    {"ButtonText",           COLOR_BTNTEXT,                    0, 224,   0},
+    {"InactiveTitleText",    COLOR_INACTIVECAPTIONTEXT,        0, 120,   0},
+    {"ButtonHilight",        COLOR_BTNHIGHLIGHT,               0,  90,   0},
+    {"ButtonDkShadow",       COLOR_3DDKSHADOW,                 0,  24,   0},
+    {"ButtonLight",          COLOR_3DLIGHT,                    0,  52,   0},
+    {"InfoText",             COLOR_INFOTEXT,                   0, 224,   0},
+    {"InfoWindow",           COLOR_INFOBK,                     0,   0,   0},
+    {"GradientActiveTitle",  COLOR_GRADIENTACTIVECAPTION,      0,  52,   0},
+    {"GradientInactiveTitle",COLOR_GRADIENTINACTIVECAPTION,   10,  14,  10},
+    {"HotTrackingColor",     COLOR_HOTLIGHT,                   0, 200,   0},
+    {"MenuHilight",          COLOR_MENUHILIGHT,                0, 112,   0},
 };
 
-static void apply_windows_classic(void)
+static void apply_hacker_theme(void)
 {
-    int n = (int)(sizeof(CLASSIC_COLORS) / sizeof(CLASSIC_COLORS[0]));
+    int n = (int)(sizeof(HACKER_COLORS) / sizeof(HACKER_COLORS[0]));
     int idx[64];
     COLORREF rgb[64];
     int i;
 
-    /* 1. Persist the classic color scheme to HKCU\Control Panel\Colors and
-     *    build the live SetSysColors arrays. */
+    /* 1. Persist the green scheme to HKCU\Control Panel\Colors and build the
+     *    live SetSysColors arrays. */
     for (i = 0; i < n && i < 64; i++) {
         char val[32];
         _snprintf(val, sizeof(val), "%d %d %d",
-                  CLASSIC_COLORS[i].r, CLASSIC_COLORS[i].g,
-                  CLASSIC_COLORS[i].b);
-        hkcu_set_sz("Control Panel\\Colors", CLASSIC_COLORS[i].reg_name, val);
-        idx[i] = CLASSIC_COLORS[i].idx;
-        rgb[i] = RGB(CLASSIC_COLORS[i].r, CLASSIC_COLORS[i].g,
-                     CLASSIC_COLORS[i].b);
+                  HACKER_COLORS[i].r, HACKER_COLORS[i].g, HACKER_COLORS[i].b);
+        hkcu_set_sz("Control Panel\\Colors", HACKER_COLORS[i].reg_name, val);
+        idx[i] = HACKER_COLORS[i].idx;
+        rgb[i] = RGB(HACKER_COLORS[i].r, HACKER_COLORS[i].g,
+                     HACKER_COLORS[i].b);
     }
     /* 2. Apply the colors live (SetSysColors broadcasts WM_SYSCOLORCHANGE). */
     SetSysColors(n < 64 ? n : 64, idx, rgb);
@@ -213,8 +224,51 @@ static void apply_windows_classic(void)
                         SMTO_ABORTIFHUNG, 2000, NULL);
     SendMessageTimeoutA(HWND_BROADCAST, WM_SYSCOLORCHANGE, 0, 0,
                         SMTO_ABORTIFHUNG, 2000, NULL);
-    log_msg(LOG_MAIN, "retrowall: applied Windows Classic theme "
-                      "(Luna off + classic colors)");
+    log_msg(LOG_MAIN, "retrowall: applied green-on-black hacker theme "
+                      "(Luna off + green colors)");
+}
+
+/*
+ * Set the desktop screensaver to Starfield (the fleet look). Prefer a copy
+ * staged at C:\retro-wall\ssstars.scr (so it works on Win7, which ships no
+ * ssstars.scr, and needs no system32 write), else the in-box XP one. Persisted
+ * to HKCU + applied live via SPI. No-op if neither .scr is present.
+ */
+#ifndef SPI_SETSCREENSAVEACTIVE
+#define SPI_SETSCREENSAVEACTIVE 0x0011
+#endif
+#ifndef SPI_SETSCREENSAVETIMEOUT
+#define SPI_SETSCREENSAVETIMEOUT 0x000F
+#endif
+
+static void set_starfield_screensaver(void)
+{
+    char scr[MAX_PATH];
+    char sys[MAX_PATH];
+
+    scr[0] = '\0';
+    if (file_exists(WALLDIR "\\ssstars.scr")) {
+        safe_strncpy(scr, WALLDIR "\\ssstars.scr", sizeof(scr));
+    } else {
+        UINT len = GetSystemDirectoryA(sys, sizeof(sys));
+        if (len > 0 && len < sizeof(sys)) {
+            _snprintf(scr, sizeof(scr), "%s\\ssstars.scr", sys);
+            if (!file_exists(scr))
+                scr[0] = '\0';
+        }
+    }
+    if (!scr[0]) {
+        log_msg(LOG_MAIN, "retrowall: no ssstars.scr found, screensaver unset");
+        return;
+    }
+    hkcu_set_sz(DESKTOP_KEY, "SCRNSAVE.EXE", scr);
+    hkcu_set_sz(DESKTOP_KEY, "ScreenSaveActive", "1");
+    hkcu_set_sz(DESKTOP_KEY, "ScreenSaveTimeOut", "600");     /* 10 minutes */
+    SystemParametersInfoA(SPI_SETSCREENSAVEACTIVE, TRUE, NULL,
+                          SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+    SystemParametersInfoA(SPI_SETSCREENSAVETIMEOUT, 600, NULL,
+                          SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+    log_msg(LOG_MAIN, "retrowall: screensaver set to Starfield (%s)", scr);
 }
 
 /*
@@ -274,11 +328,14 @@ void retrowall_apply_startup(void)
         log_msg(LOG_MAIN, "retrowall: %s missing, icons not arranged", ARRANGE_EXE);
     }
 
-    /* 6. Apply the Windows Classic theme on every startup (the fleet-wide
-     *    look). Self-contained Win32 — no staged assets needed — so it works
-     *    on any box. Replaces the earlier dark "hacker" color theme; the
-     *    staged retro_theme.reg / setsyscolors.exe (if any) are now ignored. */
-    apply_windows_classic();
+    /* 6. Apply the green-on-black "hacker" theme on every startup (the fleet's
+     *    defacto look): Luna off -> Classic + green system colors. Self-contained
+     *    Win32 — no staged assets needed — so it works on any box, and it now
+     *    matches the staged retro_theme.reg exactly. */
+    apply_hacker_theme();
+
+    /* 7. Set the Starfield screensaver (part of the fleet theme). */
+    set_starfield_screensaver();
 }
 
 DWORD WINAPI retrowall_thread(LPVOID param)

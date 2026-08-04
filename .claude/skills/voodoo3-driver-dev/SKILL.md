@@ -14,8 +14,15 @@ in CLAUDE.md first** — there are two 3dfx codebases; a `0.3.x` / `SST_*.c` /
 
 **Target box:** `.124` (192.168.1.124) — XP SP3 "ADMIN", Voodoo3 AGP, Windows
 on **D:** (dual-boot). Deployed stack is a HYBRID: our ICD + our glide3x on
-top of the vintage H5 display/D3D driver (`3dfxv3d.dll`, owned by the
-retro-3dfx repo lane).
+top of the vintage H5 display/D3D driver (`3dfxv3d.dll`).
+
+**HARD RULE (user directive 2026-08-04): never edit/build/deploy `retro-3dfx/`
+driver code — that repo is the Voodoo 5 (`.143`) lane.** Everything you ship
+comes from `voodoo-cleanroom/`. The vintage `3dfxv3d.dll` on .124 is a legacy
+dependency (our `vcr-disp` can't drive 2D+D3D yet), not an invitation to patch
+it. If a fix seems to belong in the display/D3D HAL, that is **out of scope** —
+implement it in our stack or tell the user it needs the vcr-disp work; ask
+before touching the deployed vintage binary. See CLAUDE.md → Driver Stack Map.
 
 **Key files/docs (read before deep work):**
 - Source: `voodoo-cleanroom/build/retro3dfx-gl/src/mesa/drivers/glide/fx*.c`
@@ -101,14 +108,18 @@ Never REBOOT without explicit user approval (fleet rule).
 
 ## Fix workflow
 
-1. Reproduce + localize (which layer: ICD `fx*.c`, glide3x, or the vintage
-   display HAL → if display/D3D, that's the retro-3dfx lane, not here).
+1. Reproduce + localize (which layer: ICD `fx*.c`, glide2x/glide3x, or the
+   display/D3D HAL). **If it localizes to the display/D3D HAL, STOP** — that
+   code lives in `retro-3dfx/` (Voodoo 5 lane) and is off-limits. Report it as
+   a gap in our stack (`vcr-disp`) and let the user decide; do not patch or
+   rebuild the vintage tree.
 2. Edit the source in `voodoo-cleanroom/build/retro3dfx-gl/` (or
    `retro3dfx-glide/`), rebuild, bump 0.1.N, CHANGELOG entry.
 3. `bash tests/run_all.sh` green → deploy (above) → verify on hardware by
    renderer string + the visual/perf symptom.
 4. Same commit: regression test + CHANGELOG + (if milestone) CLAUDE.md line.
-   Append hard-won findings to `retro-3dfx/FINDINGS.md`; record in fleetbook.
+   Record findings in fleetbook and in `voodoo-cleanroom/DEBUGGING-NOTES.md`
+   (our own docs — `retro-3dfx/FINDINGS.md` belongs to the other lane).
 5. **Never regress a shipped fix** — the driver-change policy (memory:
    driver-change-policy) requires gated, default-safe behavior for anything
    risky.

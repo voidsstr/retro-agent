@@ -104,6 +104,30 @@ Do this proactively, the same way you keep `FINDINGS.md` current.
 There are **two different 3dfx codebases** in play. Do not conflate them — the
 fixes, files, build tools, versions, and even the OpenGL renderer string differ.
 
+### NEVER EDIT THE `retro-3dfx/` DRIVER CODE (REQUIRED, user directive 2026-08-04)
+
+**`retro-3dfx/` is the Voodoo 5 / `.143` lane and is NOT ours to modify.** In
+this repo's work — and on **.124 (Voodoo 3)** specifically — write and ship
+**only our own drivers in `retro-agent/voodoo-cleanroom/`** (MesaFX ICD, our
+Glide, `vcr-disp`).
+
+- **Do not edit** anything under `retro-3dfx/3dfx Driver Code/**` (H5 display
+  driver, D3D/DDraw HAL, miniport, vintage SGL ICD, vintage Glide), do not
+  build it, and do not deploy artifacts built from it.
+- Treat that tree as **read-only reference** only: reading it to understand
+  hardware behaviour or to port a *concept* into our clean-room code is fine;
+  copying/patching its source is not.
+- **A missing capability is not a licence to patch the vintage tree.** If our
+  stack lacks something (e.g. `vcr-disp` has no full D3D HAL yet), the answer
+  is to build it in `voodoo-cleanroom/`, or to tell the user it's missing —
+  never to "just fix it in retro-3dfx".
+- **Known outstanding conflict:** `.124` currently boots the vintage
+  `3dfxv3d.dll` (H5 display driver) because our `vcr-disp` cannot yet drive 2D
+  + D3D, and a 2026-08-03 D3D flip-present optimization was (wrongly) made in
+  that tree and deployed there. Do not extend that work. Migrating `.124` onto
+  an all-ours display driver is the open task; ask the user before touching the
+  deployed vintage binary either way.
+
 ### 1. OUR open-source stack = `retro-agent/voodoo-cleanroom/` (this is "the driver we build")
 
 A complete, self-built Voodoo stack from genuinely open source (3dfx's 2000 Glide
@@ -132,10 +156,12 @@ GPL release + MIT Mesa). Three components, all our forks/code — provenance in
   (0.1.2), vertex cache (0.1.3), swap-interval (0.1.6), LOD-bias (0.1.11), Q2
   glide3x (0.1.19), gamma/dither/alpha-PFD (0.1.30), etc.
 
-### 2. Vintage 3dfx source = the `retro-3dfx/` repo (reference + the .143 lane, NOT our open stack)
+### 2. Vintage 3dfx source = the `retro-3dfx/` repo — VOODOO 5 / `.143` ONLY, READ-ONLY HERE
 
-3dfx's own leaked/released **H5/Napalm** driver source. We build + harden it too,
-but it is a *different* codebase from our open stack:
+3dfx's own leaked/released **H5/Napalm** driver source. It is a *different*
+codebase from our open stack and, per the directive above, **off-limits for
+editing/building/deploying from this repo** — listed here so you can recognise
+its files and stay out of them:
 
 - **Display driver + full D3D/DDraw HAL:** `retro-3dfx/3dfx Driver Code/H5/W2K/Src/Video/Displays/H5/`
   → `3dfxvs.dll` (Wine/**MSVC DDK**), WFP-renamed `3dfxv3d.dll` (.124) / `3dfxv5d.dll` (.143).
@@ -161,7 +187,9 @@ but it is a *different* codebase from our open stack:
 
 **Current .124 deployment is a HYBRID:** OUR MesaFX ICD (open) + retail AmigaMerlin
 glide + vintage H5 display/D3D driver — converging toward the all-open stack
-(retro3dfx-gl + retro3dfx-glide + vcr-disp).
+(retro3dfx-gl + retro3dfx-glide + vcr-disp). The vintage display driver is there
+only because `vcr-disp` can't drive the box yet; **all NEW driver work goes into
+`voodoo-cleanroom/`** (see the never-edit rule above).
 
 **Before writing a driver test or "fixing" an ICD bug, confirm which ICD it's in**
 (renderer string / file path / version number above). A 0.3.x fix in `SWLIBS`
