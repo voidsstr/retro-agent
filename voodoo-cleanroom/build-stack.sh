@@ -133,6 +133,30 @@ cp "$OUT/glide3x_h3.dll" "$OUT/glide3x.dll"
 
 echo "== retro3dfx-glide: glide2x (Napalm) =="
 make -C "$GTREE/glide2x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 H4=1 "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT" >/dev/null
+# dual-ABI relink for glide2x too: Glide2-era games (Unreal GlideDrv, Carma2)
+# are MSVC-linked and import _grFoo@N; without the underscore aliases
+# LoadLibrary binds nothing and the 3dfx renderer fails (found 2026-08-04 via
+# Unreal Gold on .124 — the GOG nGlide glide2x it shipped instead wedged the box).
+dual_abi_relink2(){
+  local D="$1" def us objs
+  def="$D/lib/glide2x.def"; us="$D/lib/glide2x_us.def"
+  [ -f "$def" ] || { echo "  dual_abi2: no def in $D, skipping"; return 0; }
+  python3 - "$def" "$us" <<'PY'
+import re,sys
+src=open(sys.argv[1]).read().splitlines(); out=list(src); al=[]
+for line in src:
+    m=re.match(r'\s*(\w+@\d+)\s+@\d+\s*$', line)
+    if m: al.append("    _%s = %s"%(m.group(1), m.group(1)))
+open(sys.argv[2],"w").write("\n".join(out+al)+"\n")
+PY
+  objs=$(find "$D" -name "*.o" | tr '\n' ' ')
+  ${CROSS}gcc -shared -m32 -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias \
+    -o "$D/lib/glide2x.dll" "$us" $objs \
+    -luser32 -lkernel32 -lddraw -lgdi32 -ldxguid -ladvapi32 2>/dev/null \
+    && echo "  dual_abi2: $D/lib/glide2x.dll now exports grFoo@N + _grFoo@N" \
+    || echo "  dual_abi2: relink FAILED for $D (keeping single-ABI dll)"
+}
+dual_abi_relink2 "$GTREE/glide2x/h3"
 cp "$GTREE/glide2x/h3/lib/glide2x.dll" "$OUT/glide2x.dll"
 
 # ============================================================================
