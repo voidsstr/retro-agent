@@ -22,16 +22,39 @@ Keep it running on the dev host; DOSGAME.CFG points url= at it.
 """
 import http.server, os, socketserver, sys, urllib.parse
 
-SHARE = "/run/user/1000/gvfs/smb-share:server=192.168.1.122,share=files/Games/DOS"
+# Where the DOS archives live. Override with DOSGAMES_SHARE - the path differs
+# per host: a gvfs mount on the Linux dev box, but "Z:\Files\Games\DOS" when
+# this runs on the Windows side (which is what the fleet actually reaches,
+# since WSL is NAT'd and a server bound inside it is invisible to the LAN).
+SHARE = os.environ.get(
+    "DOSGAMES_SHARE",
+    "/run/user/1000/gvfs/smb-share:server=192.168.1.122,share=files/Games/DOS")
 HERE = os.path.dirname(os.path.abspath(__file__))
-DATA = os.path.join(HERE, "data")          # GAMES.CAT + tiles/ live here
+DATA = os.environ.get("DOSGAMES_DATA", os.path.join(HERE, "data"))
 
-SEARCH_DIRS = [SHARE,
-               os.path.join(SHARE, "DOS Games Collection", "1-C"),
-               os.path.join(SHARE, "DOS Games Collection", "D-L"),
-               os.path.join(SHARE, "DOS Games Collection", "M-R"),
-               os.path.join(SHARE, "DOS Games Collection", "S-Z"),
-               os.path.join(SHARE, "More Dos Games")]
+
+def _search_dirs(root):
+    """The archive directories: the root itself plus every subdirectory one
+    and two levels down. Discovered rather than hard-coded, because the
+    collection's layout ("DOS Games Collection/1-C", "More Dos Games", ...)
+    varies between shares and a missing hard-coded name silently serves 404s.
+    """
+    dirs = [root]
+    for depth1 in sorted(_subdirs(root)):
+        dirs.append(depth1)
+        dirs.extend(sorted(_subdirs(depth1)))
+    return dirs
+
+
+def _subdirs(path):
+    try:
+        return [os.path.join(path, n) for n in os.listdir(path)
+                if os.path.isdir(os.path.join(path, n))]
+    except OSError:
+        return []
+
+
+SEARCH_DIRS = _search_dirs(SHARE)
 
 B36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -97,9 +120,17 @@ class H(http.server.BaseHTTPRequestHandler):
         p = urllib.parse.unquote(self.path)
         if ".." in p:
             self.send_error(400); return
+        # DOSGAME.CFG's url= conventionally ends in "/dos", and the client
+        # appends its own "/z/<STEM>" or "/GAMES.CAT" to it - so requests
+        # arrive as "/dos/z/FOO" just as often as "/z/FOO". Accept either
+        # rather than 404 on a trailing-path detail.
+        if p.lower().startswith("/dos/") and "/z/" in p.lower():
+            p = p[4:]
+        if p.lower() in ("/dos/games.cat", "/games.cat"):
+            p = "/GAMES.CAT"
         if p in ("/GAMES.CAT", "/games.cat"):
             self._send_file(os.path.join(DATA, "GAMES.CAT")); return
-        if p.lower().startswith("/tiles/"):
+        if p.lower().startswith("/tiles/") or p.lower().startswith("/dos/tiles/"):
             self._send_file(os.path.join(DATA, "tiles",
                                          os.path.basename(p))); return
         if p.lower().startswith("/z/"):
