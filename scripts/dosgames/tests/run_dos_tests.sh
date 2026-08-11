@@ -255,6 +255,68 @@ else
     bad "the good scan root was lost"
 fi
 
+# ========================================================= TEST 4b =========
+# The diagnostic log. This is the only evidence anyone can collect after a
+# failure in MS-DOS mode, so it has to actually contain the decisions -
+# and the batch half of the story has to land in the same file.
+echo "== diagnostic log =="
+LOG="$C/DOSGAME/DOSGAME.LOG"
+if [ -f "$LOG" ]; then
+    ok "DOSGAME.LOG is written"
+else
+    bad "no DOSGAME.LOG produced"
+fi
+log_has() {   # log_has <what> <grep -E pattern>
+    if grep -qiE "$2" "$LOG" 2>/dev/null; then ok "log records $1"
+    else bad "log is missing $1"; fi
+}
+log_has "the config it loaded"            'config: (home|scan)='
+log_has "the install decision + stem"     'install: stem='
+log_has "which launcher the scan picked"  '^.*pick: '
+log_has "the post-install reconciliation" 'post: +(OK|FAILED)'
+log_has "what it wrote to the registry"   'registry: RECORD'
+log_has "the batch steps (run: lines)"    '^run: '
+# every helper pass must identify itself, or the narrative cannot be followed
+for tag in menu snap post; do
+    if grep -qE "^[0-9:]+ $tag " "$LOG" 2>/dev/null; then
+        ok "log distinguishes the '$tag' pass"
+    else
+        bad "log has no '$tag' entries"
+    fi
+done
+
+# ========================================================= TEST 4c =========
+# The url= fetch path, using the real catalog. The generated command line must
+# stay inside the DOS command tail, and the log must say how close it came -
+# a silently truncated URL is what made 845 of 2,982 titles "fail to download".
+echo "== url= install script (command-tail budget) =="
+C5="$WORK/urlcfg"
+rm -rf "$C5"; mkdir -p "$C5/DOSGAME" "$C5/GAMES"
+cp "$WORK/DOSGAME.EXE" "$C5/DOSGAME/DOSGAME.EXE"
+: > "$C5/DOSGAME/QUIET.FLG"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES\nurl=http://192.168.1.82:8181\n' \
+    > "$C5/DOSGAME/DOSGAME.CFG"
+head -200 "$SRCDIR/data/GAMES.CAT" > "$C5/DOSGAME/GAMES.CAT"
+run_dos "$C5" 'C:\DOSGAME\DOSGAME.EXE /install:Air'
+URLLOG="$C5/DOSGAME/DOSGAME.LOG"
+if grep -qiE 'command tail is [0-9]+ bytes' "$URLLOG" 2>/dev/null; then
+    ok "log records the fetch command-tail length"
+else
+    bad "log does not record the command-tail length"
+fi
+if [ -f "$C5/DOSGAME/RUN.BAT" ] && grep -qi 'HTGET .*/z/' "$C5/DOSGAME/RUN.BAT"; then
+    ok "url= install fetches the short /z/<STEM> form"
+else
+    bad "url= install did not emit a /z/<STEM> fetch"
+fi
+# the emitted HTGET argument tail must fit; DOS truncates it silently at 126
+TAIL=$(grep -i 'HTGET ' "$C5/DOSGAME/RUN.BAT" 2>/dev/null | head -1 | sed 's/^[^ ]* //' | tr -d '\r')
+if [ -n "$TAIL" ] && [ "${#TAIL}" -le 126 ]; then
+    ok "HTGET argument tail is ${#TAIL} bytes (DOS limit 126)"
+else
+    bad "HTGET argument tail is ${#TAIL:-0} bytes - over the DOS limit"
+fi
+
 # ============================================================ TEST 5 =======
 # A stale RUN.BAT must never be re-run: DOSGAME.BAT deletes it each pass, so a
 # menu that exits any other way cannot replay whatever the user last did.

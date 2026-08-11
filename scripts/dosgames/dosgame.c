@@ -48,6 +48,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
 #include <conio.h>
@@ -132,6 +133,77 @@ static char cfg_gamedir[MAX_PATH_L] = "C:\\GAMES";   /* where installs land */
 static char cfg_scan[MAX_PATH_L * 2] = "C:\\GAMES;C:\\";
 static char cfg_url[MAX_PATH_L]    = "";   /* http://host:port/dos */
 static char cfg_drive[MAX_PATH_L]  = "";   /* e.g. Z:\Games\DOS */
+
+/* ---- diagnostic log ----
+ *
+ * This program runs where nothing can watch it: a real-mode DOS session with
+ * the screen taken over, on a box that is rebooted into MS-DOS mode to use it.
+ * When something goes wrong there, the only evidence anyone can collect
+ * afterwards is a file. So every decision the menu makes — which directories
+ * it scanned and why it rejected them, which launcher it picked, the exact
+ * RUN.BAT it wrote, what the post-install pass concluded — is written to
+ * C:\DOSGAME\DOSGAME.LOG, and the generated RUN.BAT appends to the same file
+ * so the batch half of the story lines up with the program half.
+ *
+ * Every line is flushed: a log that is still in a buffer when the machine
+ * wedges tells you nothing, and wedging is exactly the case worth diagnosing.
+ * Off with log=0 in DOSGAME.CFG.
+ */
+#define LOG_MAX_BYTES 262144L       /* recycle rather than fill a 1.2GB disk */
+
+static void copy_str(char *dst, const char *src, size_t dstsz);
+
+static FILE *g_log = NULL;
+static int  g_log_enabled = 1;
+static char cfg_log[MAX_PATH_L + 16] = "";
+static unsigned g_log_seq = 0;
+
+static void log_path(char *out, size_t cap)
+{
+    if (cfg_log[0]) copy_str(out, cfg_log, cap);
+    else            sprintf(out, "%s\\DOSGAME.LOG", cfg_home);
+}
+
+/* tag identifies the process writing: the menu and its /snapdirs and
+ * /postinst helper passes all append to one file. */
+static char g_log_tag[10] = "menu";
+
+static void log_open(const char *tag)
+{
+    char path[MAX_PATH_L + 24];
+    struct find_t ft;
+
+    copy_str(g_log_tag, tag, sizeof(g_log_tag));
+    if (!g_log_enabled) return;
+    log_path(path, sizeof(path));
+
+    if (_dos_findfirst(path, _A_NORMAL, &ft) == 0 && ft.size > LOG_MAX_BYTES)
+        remove(path);
+
+    g_log = fopen(path, "a");
+}
+
+static void log_close(void)
+{
+    if (g_log) { fclose(g_log); g_log = NULL; }
+}
+
+static void logf(const char *fmt, ...)
+{
+    va_list ap;
+    struct dostime_t t;
+    if (!g_log) return;
+    _dos_gettime(&t);
+    /* The fleet's DOS boxes have no reliable date (this one reports 1980),
+     * so log the time of day plus a sequence number instead. */
+    fprintf(g_log, "%02d:%02d:%02d %-7s %4u  ", t.hour, t.minute, t.second,
+            g_log_tag, ++g_log_seq);
+    va_start(ap, fmt);
+    vfprintf(g_log, fmt, ap);
+    va_end(ap);
+    fputc('\n', g_log);
+    fflush(g_log);
+}
 
 /* INT 24h critical-error handler: always FAIL. Without one, a scan root on a
  * drive with no disk in it prints DOS's "Abort, Retry, Fail?" over the TUI —
@@ -291,6 +363,8 @@ static void load_cfg(void)
         else if (!stricmp(line, "scan")) copy_str(cfg_scan, eq, sizeof(cfg_scan));
         else if (!stricmp(line, "url")) copy_str(cfg_url, eq, sizeof(cfg_url));
         else if (!stricmp(line, "drive")) copy_str(cfg_drive, eq, sizeof(cfg_drive));
+        else if (!stricmp(line, "log")) g_log_enabled = atoi(eq) ? 1 : 0;
+        else if (!stricmp(line, "logfile")) copy_str(cfg_log, eq, sizeof(cfg_log));
     }
     fclose(f);
 
@@ -342,7 +416,7 @@ static void load_catalog(void)
     cat_total = 0;
     sprintf(path, "%s\\GAMES.CAT", cfg_home);
     f = fopen(path, "r");
-    if (!f) return;
+    if (!f) { logf("catalog: CANNOT OPEN %s - the Available tab will be empty", path); return; }
     while (fgets(line, sizeof(line), f)) {
         char *fld[6];
         game_t *g;
@@ -365,6 +439,8 @@ static void load_catalog(void)
         n_games++;
     }
     fclose(f);
+    logf("catalog: %ld lines in GAMES.CAT, %d loaded into memory, filter=\"%s\"",
+         cat_total, n_games - n_local, cat_filter);
 }
 
 /* ---- local drive scan ----
@@ -486,17 +562,21 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
         }
     } while (_dos_findnext(&ft) == 0);
 
-    if (best[0]) return 0;
-    if (firstexe[0]) { strcpy(best, firstexe); return 0; }
-    if (firstbat[0]) { strcpy(best, firstbat); return 0; }
+    if (best[0]) { logf("pick:   %s -> %s (named after its directory)", fulldir, best); return 0; }
+    if (firstexe[0]) { strcpy(best, firstexe);
+        logf("pick:   %s -> %s (first non-tool .EXE/.COM)", fulldir, best); return 0; }
+    if (firstbat[0]) { strcpy(best, firstbat);
+        logf("pick:   %s -> %s (first .BAT)", fulldir, best); return 0; }
     /* Nothing runnable: a downloaded-but-not-unpacked game (DEICE.EXE plus
      * packed data is the classic Apogee/id shareware layout). Offer its
      * installer — running that is what makes it playable. */
-    if (setup[0]) { strcpy(best, setup); return 1; }
+    if (setup[0]) { strcpy(best, setup);
+        logf("pick:   %s -> %s (installer only; needs setup run)", fulldir, best); return 1; }
     /* Only an archive in there (a download that was never unpacked, like
      * KEENDRMS = PKUNZJR.COM + a ZIP). Offer it: launching unpacks it with
      * our own UNZIP and then runs whatever installer it contained. */
-    if (archive[0]) { strcpy(best, archive); return 2; }
+    if (archive[0]) { strcpy(best, archive);
+        logf("pick:   %s -> %s (archive only; needs unpacking)", fulldir, best); return 2; }
     return -1;
 }
 
@@ -509,9 +589,12 @@ static void scan_game_dir(const char *root, const char *dir)
     game_t *g;
 
     path_join(full, root, dir);
-    if (!full[0]) return;                    /* path too long to represent */
-    if (is_scan_root(full)) return;          /* a root is not a game */
-    if (reg_covers_dir(full)) return;        /* registry already owns it */
+    if (!full[0]) {
+        logf("scan:   SKIP %s\\%s (path too long for an 80-char buffer)", root, dir);
+        return;
+    }
+    if (is_scan_root(full)) { logf("scan:   skip %s (it is a scan root)", full); return; }
+    if (reg_covers_dir(full)) { logf("scan:   skip %s (registry owns it)", full); return; }
 
     needs_setup = pick_launcher(full, dir, best);
 
@@ -536,10 +619,18 @@ static void scan_game_dir(const char *root, const char *dir)
                 break;
             }
         } while (_dos_findnext(&ft) == 0);
-        if (needs_setup < 0) return;
+        if (needs_setup < 0) {
+            logf("scan:   skip %s (nothing runnable at either level)", full);
+            return;
+        }
+        logf("scan:   %s -> game is one level down in \\%s", full, sub);
     }
 
-    if (n_games >= MAX_LOCAL) return;
+    if (n_games >= MAX_LOCAL) {
+        logf("scan:   STOP at %s - hit the %d local-game limit; the rest of "
+             "this drive was not scanned", full, MAX_LOCAL);
+        return;
+    }
     g = &games[n_games++];
     memset(g, 0, sizeof(*g));
     copy_str(g->title, dir, sizeof(g->title));
@@ -556,6 +647,8 @@ static void scan_game_dir(const char *root, const char *dir)
     g->installed = 1;
     /* tile name = dir name + .PRV */
     sprintf(g->tile, "%.8s.PRV", dir);
+    logf("scan:   FOUND \"%s\" kind=%c exe=%s dir=%s", g->title, g->kind,
+         g->exe, g->path);
 }
 
 /* Is this path one of the configured scan roots? C:\GAMES is a root AND a
@@ -602,6 +695,7 @@ static void scan_local(void)
 {
     char roots[MAX_PATH_L * 2];
     char *p, *next;
+    logf("scan:   begin, roots=%s", cfg_scan);
 
     strncpy(roots, cfg_scan, sizeof(roots) - 1);
     roots[sizeof(roots) - 1] = '\0';
@@ -616,6 +710,7 @@ static void scan_local(void)
             /* strip a trailing backslash except on a bare drive root */
             int len = (int)strlen(p);
             if (len > 3 && p[len - 1] == '\\') p[len - 1] = '\0';
+            logf("scan:   root %s", p);
             scan_root(p);
             /* drop duplicates introduced by this root */
             for (i = before; i < n_games; i++) {
@@ -738,9 +833,15 @@ static void load_registry(void)
         /* Drop rows whose directory (or launcher) has gone away — a game the
          * user deleted by hand must not linger in the menu offering to
          * launch nothing. */
-        if (!dir_exists(r->dir)) continue;
-        if (r->flag == 'G' && (!r->exe[0] || !file_exists(r->dir, r->exe)))
+        if (!dir_exists(r->dir)) {
+            logf("registry: DROP %s (directory gone) - stale row", r->dir);
             continue;
+        }
+        if (r->flag == 'G' && (!r->exe[0] || !file_exists(r->dir, r->exe))) {
+            logf("registry: DROP %s (launcher \"%s\" not found) - stale row",
+                 r->dir, r->exe);
+            continue;
+        }
         /* The file is append-only (a batch step cannot rewrite it), so
          * re-installing a game leaves several rows for the same directory.
          * Last one wins; without this the menu shows the game twice and
@@ -752,8 +853,13 @@ static void load_registry(void)
             }
         }
         if (i == n_reg) n_reg++;
+        else logf("registry: row for %s superseded by a later one", r->dir);
     }
     fclose(f);
+    for (i = 0; i < n_reg; i++)
+        logf("registry: %c \"%s\" dir=%s exe=%s", reg[i].flag, reg[i].title,
+             reg[i].dir, reg[i].exe);
+    logf("registry: %d usable rows", n_reg);
 }
 
 static void reg_append(char flag, const char *title, const char *dir,
@@ -767,6 +873,8 @@ static void reg_append(char flag, const char *title, const char *dir,
     fprintf(f, "%c|%s|%s|%s|%s\n", flag, title, dir, exe ? exe : "",
             tile ? tile : "");
     fclose(f);
+    logf("registry: RECORD %c \"%s\" dir=%s exe=%s", flag, title, dir,
+         exe ? exe : "");
 }
 
 /* Is this directory spoken for by the registry? The scan must not list a
@@ -910,10 +1018,11 @@ static void snap_dirs(void)
     char roots[MAX_PATH_L * 2], path[MAX_PATH_L + 16];
     char *p, *next;
     FILE *out;
+    int n = 0;
 
     presnap_path(path);
     out = fopen(path, "w");
-    if (!out) return;
+    if (!out) { logf("snap:   CANNOT WRITE %s", path); return; }
 
     copy_str(roots, cfg_scan, sizeof(roots));
     p = roots;
@@ -931,13 +1040,14 @@ static void snap_dirs(void)
                 do {
                     if (!(ft.attrib & _A_SUBDIR) || ft.name[0] == '.') continue;
                     path_join(full, p, ft.name);
-                    if (full[0]) fprintf(out, "%s\n", full);
+                    if (full[0]) { fprintf(out, "%s\n", full); n++; }
                 } while (_dos_findnext(&ft) == 0);
             }
         }
         p = next;
     }
     fclose(out);
+    logf("snap:   recorded %d directories before the installer runs", n);
 }
 
 static int in_snapshot(const char *dir)
@@ -1002,14 +1112,19 @@ static int post_install(void)
 
     pending_path(path);
     f = fopen(path, "r");
-    if (!f) return 1;
+    if (!f) { logf("post:   no PENDING.TXT - nothing to reconcile"); return 1; }
     if (fgets(title, sizeof(title), f)) chomp(title);
     if (fgets(unpack, sizeof(unpack), f)) chomp(unpack);
     if (fgets(want, sizeof(want), f)) chomp(want);
     if (fgets(tile, sizeof(tile), f)) chomp(tile);
     fclose(f);
     remove(path);
-    if (!title[0] || !unpack[0]) return 1;
+    logf("post:   reconciling \"%s\" unpacked into %s, catalog exe=\"%s\"",
+         title, unpack, want);
+    if (!title[0] || !unpack[0]) {
+        logf("post:   PENDING.TXT incomplete - giving up");
+        return 1;
+    }
 
     load_registry();
 
@@ -1019,17 +1134,22 @@ static int post_install(void)
     if (want[0] && file_exists(unpack, want)) {
         copy_str(gamedir, unpack, sizeof(gamedir));
         copy_str(best, want, sizeof(best));
+        logf("post:   the catalog's launcher %s is right there in %s", want, unpack);
     } else {
         const char *leaf = strrchr(unpack, '\\');
         if (pick_launcher(unpack, leaf ? leaf + 1 : unpack, best) == 0)
             copy_str(gamedir, unpack, sizeof(gamedir));
+        else
+            logf("post:   nothing runnable in the unpack dir itself");
     }
 
     /* 1b. Non-flat archive: the game is one level down. */
     if (!gamedir[0]) {
         char deep[MAX_PATH_L + 1];
-        if (find_deep_launcher(unpack, want, deep, best))
+        if (find_deep_launcher(unpack, want, deep, best)) {
             copy_str(gamedir, deep, sizeof(gamedir));
+            logf("post:   found it one level down: %s (%s)", gamedir, best);
+        }
     }
 
     /* 2. Otherwise look for a directory the installer created. */
@@ -1054,9 +1174,11 @@ static int post_install(void)
                         if (!full[0] || in_snapshot(full)) continue;   /* was already there */
                         if (!stricmp(full, unpack)) continue;
                         if (is_skip_dir(ft.name)) continue;
+                        logf("post:   installer created %s - checking it", full);
                         if (want[0] && file_exists(full, want)) {
                             copy_str(gamedir, full, sizeof(gamedir));
                             copy_str(best, want, sizeof(best));
+                            logf("post:   it has the catalog's launcher %s", want);
                             break;
                         }
                         if (!gamedir[0] && pick_launcher(full, ft.name, best) == 0)
@@ -1073,7 +1195,13 @@ static int post_install(void)
      *    menu stops offering "run setup" on a pile of installer leftovers. */
     presnap_path(path);
     remove(path);
-    if (!gamedir[0]) return 1;
+    if (!gamedir[0]) {
+        logf("post:   FAILED - no playable directory found. The install "
+             "produced nothing runnable (bad download, or an installer that "
+             "was cancelled).");
+        return 1;
+    }
+    logf("post:   OK - \"%s\" is playable: %s\\%s", title, gamedir, best);
 
     reg_append('G', title, gamedir, best, tile);
     if (stricmp(gamedir, unpack) && dir_exists(unpack))
@@ -1113,6 +1241,26 @@ static void emit_run(FILE *f, const char *exe)
  * install path can run unattended: touch C:\DOSGAME\QUIET.FLG and the pauses
  * skip themselves. A marker file rather than an environment variable because
  * COMMAND.COM's IF "%VAR%"=="x" quoting is a trap not worth stepping in. */
+/* Make the generated script narrate itself into the same log the program
+ * writes, so a failed install reads as one story: what the menu decided, then
+ * what the batch actually did and what each tool returned. */
+static void emit_log(FILE *f, const char *text)
+{
+    char path[MAX_PATH_L + 24];
+    log_path(path, sizeof(path));
+    fprintf(f, "echo run:    %s >> %s\n", text, path);
+}
+
+/* Redirect a tool's own output into the log. HTGET and UNZIP explain their
+ * failures on stdout, and on a box booted into MS-DOS mode nobody is going to
+ * be reading the screen when it scrolls past. */
+static void emit_redirect(FILE *f)
+{
+    char path[MAX_PATH_L + 24];
+    log_path(path, sizeof(path));
+    fprintf(f, " >> %s\n", path);
+}
+
 static void emit_pause(FILE *f)
 {
     fprintf(f, "if not exist %s\\QUIET.FLG pause > nul\n", cfg_home);
@@ -1121,7 +1269,10 @@ static void emit_pause(FILE *f)
 static int write_launch(const game_t *g)
 {
     FILE *f = open_runbat();
-    if (!f) return 0;
+    if (!f) { logf("launch: CANNOT WRITE RUN.BAT"); return 0; }
+    logf("launch: \"%s\" kind=%c exe=%s dir=%s", g->title, g->kind, g->exe,
+         g->path);
+    emit_log(f, "RUN.BAT starting");
     fprintf(f, "%c:\ncd %s\n", g->path[0], g->path + 2);
 
     if (g->kind == 'Z') {
@@ -1142,9 +1293,11 @@ static int write_launch(const game_t *g)
          * the drive first and reconcile afterwards, so that wherever this
          * installer decides to put the game, the menu learns about it. */
         write_pending(g->title, g->path, "", g->tile);
+        emit_log(f, "snapshotting directories before the installer runs");
         fprintf(f, "%s\\DOSGAME /snapdirs\n", cfg_home);
         fprintf(f, "echo Running setup for %s ...\n", g->title);
         emit_run(f, g->exe);
+        emit_log(f, "installer finished; working out where the game went");
         fprintf(f, "%s\\DOSGAME /postinst\n", cfg_home);
         fprintf(f, "if errorlevel 1 goto nogame\n");
         fprintf(f, "echo Setup finished - it is on the menu now. Press a key.\n");
@@ -1155,7 +1308,9 @@ static int write_launch(const game_t *g)
         emit_pause(f);
         fprintf(f, ":end\n");
     } else {
+        emit_log(f, "launching the game");
         emit_run(f, g->exe);
+        emit_log(f, "back from the game");
     }
     fclose(f);
     return 1;
@@ -1175,11 +1330,19 @@ static int write_install(const game_t *g, int run_installer)
 
     /* A cd-image row is an ISO/BIN set up to 648 MB; fetching one over mTCP
      * onto a Win98 box is not an install, it is an accident. */
-    if (g->kind == 'C') return -2;
+    if (g->kind == 'C') {
+        logf("install: REFUSED \"%s\" - cd-image rows are far too big to fetch",
+             g->title);
+        return -2;
+    }
     /* Nothing to fetch from: answer before a single `goto notool` is written,
      * because the early return below never writes the :notool label and
      * COMMAND.COM aborts the script with "Label not found". */
-    if (!cfg_url[0] && !cfg_drive[0]) return -3;
+    if (!cfg_url[0] && !cfg_drive[0]) {
+        logf("install: REFUSED \"%s\" - no url= or drive= in DOSGAME.CFG",
+             g->title);
+        return -3;
+    }
 
     zip_stem(g->path, stem);
     sprintf(dir, "%s\\%s", cfg_gamedir, stem);
@@ -1193,12 +1356,21 @@ static int write_install(const game_t *g, int run_installer)
      * anyway and refuse to write a script that cannot work. */
     taillen = 3 + (int)strlen(cfg_home) + 6 + 4      /* -o <home>\<stem>.ZIP */
               + 1 + (int)strlen(cfg_url) + 3 + 8;    /*  <url>/z/<stem>      */
-    if (cfg_url[0] && taillen > DOS_TAIL_MAX)
+    logf("install: \"%s\" kind=%c zip=%s", g->title, g->kind, g->path);
+    logf("install: stem=%s dir=%s exe(catalog)=%s", stem, dir, g->exe);
+    if (cfg_url[0])
+        logf("install: fetch command tail is %d bytes (DOS truncates above %d)",
+             taillen, DOS_TAIL_MAX);
+    if (cfg_url[0] && taillen > DOS_TAIL_MAX) {
+        logf("install: REFUSED - url= is too long; DOS would silently chop the "
+             "URL and the download would 404");
         return -1;
+    }
 
     f = open_runbat();
     if (!f) return 0;
 
+    emit_log(f, "RUN.BAT starting (install)");
     fprintf(f, "echo Installing %s...\n", g->title);
     /* The staged UNZIP.EXE is a DJGPP build, so its go32 stub needs a DPMI
      * host — which "Restart in MS-DOS mode" does NOT provide (EMM386 supplies
@@ -1213,23 +1385,39 @@ static int write_install(const game_t *g, int run_installer)
     fprintf(f, "if not exist %s\\nul mkdir %s\n", cfg_gamedir, cfg_gamedir);
     fprintf(f, "if not exist %s\\nul mkdir %s\n", dir, dir);
     if (cfg_url[0]) {
-        fprintf(f, "%s\\NET\\HTGET -o %s\\%s.ZIP %s/z/%s\n",
+        emit_log(f, "fetching the archive with HTGET");
+        fprintf(f, "%s\\NET\\HTGET -o %s\\%s.ZIP %s/z/%s",
                 cfg_home, cfg_home, stem, cfg_url, stem);
+        emit_redirect(f);
+        fprintf(f, "if errorlevel 1 ");
+        emit_log(f, "HTGET reported an error (no packet driver, no DHCP lease, "
+                    "server down, or the stem is not on the share)");
     } else {
-        fprintf(f, "copy \"%s\\%s\" %s\\%s.ZIP\n",
+        emit_log(f, "copying the archive from the mapped drive");
+        fprintf(f, "copy \"%s\\%s\" %s\\%s.ZIP",
                 cfg_drive, g->path, cfg_home, stem);
+        emit_redirect(f);
+        fprintf(f, "if errorlevel 1 ");
+        emit_log(f, "the copy failed (drive not mapped, or the share uses a "
+                    "long filename DOS cannot see)");
     }
     /* No zip -> the fetch failed; bail with a real message instead of
      * unzipping nothing and "installing" an empty directory. */
     fprintf(f, "if not exist %s\\%s.ZIP goto nofetch\n", cfg_home, stem);
-    fprintf(f, "%s\\UNZIP -qq -o %s\\%s.ZIP -d %s\n",
+    emit_log(f, "archive downloaded; unpacking");
+    fprintf(f, "%s\\UNZIP -qq -o %s\\%s.ZIP -d %s",
             cfg_home, cfg_home, stem, dir);
+    emit_redirect(f);
+    fprintf(f, "if errorlevel 1 ");
+    emit_log(f, "UNZIP reported an error (corrupt archive, disk full, or no "
+                "DPMI host - see CWSDPMI.EXE)");
 
     /* Hand the reconciliation pass the facts it needs (title, where we
      * unpacked, and the launcher the catalogue named for this game). */
     write_pending(g->title, dir, g->exe, g->tile);
     fprintf(f, "%s\\DOSGAME /snapdirs\n", cfg_home);
     if (g->kind == 'I' && run_installer) {
+        emit_log(f, "running the game's own installer");
         fprintf(f, "%c:\ncd %s\n", dir[0], dir + 2);
         fprintf(f, "if exist INSTALL.EXE INSTALL.EXE\n");
         fprintf(f, "if exist INSTALL.BAT if not exist INSTALL.EXE call INSTALL.BAT\n");
@@ -1240,13 +1428,16 @@ static int write_install(const game_t *g, int run_installer)
      * question batch cannot: "did anything runnable come out of this?"
      * ("if exist DIR\*.*" is TRUE even for an empty directory, so a corrupt
      * download used to be indistinguishable from a good one.) */
+    emit_log(f, "reconciling what the install produced");
     fprintf(f, "%s\\DOSGAME /postinst\n", cfg_home);
     fprintf(f, "if errorlevel 1 goto nogame\n");
     fprintf(f, "del %s\\%s.ZIP\n", cfg_home, stem);
+    emit_log(f, "install finished OK");
     fprintf(f, "echo Installed. Press a key to play it from the menu.\n");
     emit_pause(f);
     fprintf(f, "goto end\n");
     fprintf(f, ":nogame\n");
+    emit_log(f, "FAILED - nothing runnable came out of this install");
     fprintf(f, "if exist %s\\%s.ZIP del %s\\%s.ZIP\n",
             cfg_home, stem, cfg_home, stem);
     fprintf(f, "echo Nothing runnable was found for this game.\n");
@@ -1260,11 +1451,13 @@ static int write_install(const game_t *g, int run_installer)
     emit_pause(f);
     fprintf(f, "goto end\n");
     fprintf(f, ":notool\n");
+    emit_log(f, "FAILED - UNZIP.EXE or HTGET.EXE is not staged");
     fprintf(f, "echo UNZIP.EXE or NET\\HTGET.EXE missing under %s - re-stage the DOS tools.\n",
             cfg_home);
     emit_pause(f);
     fprintf(f, "goto end\n");
     fprintf(f, ":nofetch\n");
+    emit_log(f, "FAILED - no archive arrived; the fetch did not work");
     fprintf(f, "echo Could not download %s\n", stem);
     fprintf(f, "echo Check that the game server is running and the network is up.\n");
     emit_pause(f);
@@ -1455,26 +1648,46 @@ int main(int argc, char **argv)
     _harderr(hard_error_handler);
 
     load_cfg();
+    log_open(mode_snap ? "snap" : mode_post ? "post" : "menu");
+    logf("---- DOSGAME %s starting ----", VER);
+    for (i = 1; i < argc; i++) logf("argv[%d] = %s", i, argv[i]);
+    logf("config: home=%s gamedir=%s", cfg_home, cfg_gamedir);
+    logf("config: scan=%s", cfg_scan);
+    logf("config: url=%s drive=%s", cfg_url[0] ? cfg_url : "(none)",
+         cfg_drive[0] ? cfg_drive : "(none)");
 
     /* Headless helper passes, run from RUN.BAT. They must not touch video. */
-    if (mode_snap) { snap_dirs(); return 0; }
-    if (mode_post) return post_install();
+    if (mode_snap) { snap_dirs(); log_close(); return 0; }
+    if (mode_post) {
+        int rc = post_install();
+        logf("post:   exit code %d (%s)", rc,
+             rc ? "nothing playable found" : "recorded");
+        log_close();
+        return rc;
+    }
 
     load_everything();
+    logf("loaded: %d installed, %d rows in memory, %ld in the catalog",
+         n_local, n_games, cat_total);
 
     if (want_play || want_inst) {
         int idx = want_play ? find_by_title(want_play, 1)
                             : find_by_title(want_inst, 0);
         if (idx < 0) {
+            logf("cli:    no match for \"%s\"", want_play ? want_play : want_inst);
             printf("No match for \"%s\"\n", want_play ? want_play : want_inst);
+            log_close();
             return 1;
         }
         if (want_play) {
-            if (write_launch(&games[idx]) != 1) return 1;
+            if (write_launch(&games[idx]) != 1) { log_close(); return 1; }
         } else {
-            if (write_install(&games[idx], games[idx].kind == 'I') != 1)
+            if (write_install(&games[idx], games[idx].kind == 'I') != 1) {
+                log_close();
                 return 1;
+            }
         }
+        log_close();
         return EXIT_RUNBAT;      /* DOSGAME.BAT runs RUN.BAT, as for Enter */
     }
 
@@ -1497,6 +1710,8 @@ int main(int argc, char **argv)
                     games[i].path, stem);
         }
         fclose(f);
+        logf("selftest: wrote %s", path);
+        log_close();
         return 0;
     }
 
@@ -1513,6 +1728,8 @@ int main(int argc, char **argv)
         switch (k) {
         case K_ESC:
             leave_ui();
+            logf("ui:     quit");
+            log_close();
             return EXIT_QUIT;
         case K_TAB:
         case K_LEFT:
@@ -1527,6 +1744,8 @@ int main(int argc, char **argv)
         case K_END:  sel = n_view ? n_view - 1 : 0; break;
         case K_F3:
             if (n_view) {
+                logf("ui:     preview for \"%s\" (tile %s)",
+                     games[view[sel]].title, games[view[sel]].tile);
                 if (!show_tile(&games[view[sel]]))
                     draw_all("No preview tile for this game.");
                 else
@@ -1535,6 +1754,7 @@ int main(int argc, char **argv)
             dirty = 0;
             break;
         case K_F5:
+            logf("ui:     rescan requested");
             load_everything();
             sel = top = 0; rebuild_view();
             break;
@@ -1553,8 +1773,11 @@ int main(int argc, char **argv)
                                            : write_install(g, g->kind == 'I');
                 if (ok == 1) {
                     leave_ui();
+                    log_close();
                     return EXIT_RUNBAT;
                 }
+                logf("ui:     could not act on \"%s\" (rc=%d): %s",
+                     g->title, ok, install_error(ok));
                 draw_all(install_error(ok));
                 dirty = 0;
             }
@@ -1564,6 +1787,7 @@ int main(int argc, char **argv)
                 int ok = write_install(&games[view[sel]], 1);
                 if (ok == 1) {
                     leave_ui();
+                    log_close();
                     return EXIT_RUNBAT;
                 }
                 draw_all(install_error(ok));

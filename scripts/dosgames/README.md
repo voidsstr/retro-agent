@@ -115,6 +115,49 @@ The disk scan still runs, for games that predate this program; the registry
 simply wins where both have an opinion, and stale rows (directory or launcher
 gone) are dropped on load.
 
+## The diagnostic log — `C:\DOSGAME\DOSGAME.LOG`
+
+This program runs where nothing can watch it: a real-mode DOS session with the
+screen taken over, on a box that was rebooted out of Windows to use it. When
+something goes wrong there the only evidence anyone can collect afterwards is a
+file, so **every decision is logged**, and the generated `RUN.BAT` appends to
+the *same* file — so the batch half of the story lines up with the program half:
+
+```
+17:19:02 menu     14  install: "Wolfenstein 3D" kind=I zip=WOLF3D.ZIP
+17:19:02 menu     15  install: stem=WOLF39NA dir=C:\GAMES\WOLF39NA exe(catalog)=WOLF3D.EXE
+17:19:02 menu     16  install: fetch command tail is 65 bytes (DOS truncates above 126)
+run:    fetching the archive with HTGET
+run:    archive downloaded; unpacking
+17:19:02 snap      6  snap:   recorded 4 directories before the installer runs
+run:    running the game's own installer
+17:19:02 post      7  pick:   C:\GAMES\WOLF39NA -> INSTALL.EXE (installer only; needs setup run)
+17:19:02 post      8  post:   nothing runnable in the unpack dir itself
+17:19:02 post      9  post:   installer created C:\WOLF3D - checking it
+17:19:02 post     10  post:   it has the catalog's launcher WOLF3D.EXE
+17:19:02 post     11  post:   OK - "Wolfenstein 3D" is playable: C:\WOLF3D\WOLF3D.EXE
+17:19:02 post     12  registry: RECORD G "Wolfenstein 3D" dir=C:\WOLF3D exe=WOLF3D.EXE
+run:    install finished OK
+```
+
+What it captures: the config actually loaded; every registry row and why a
+stale one was dropped; every directory the scan considered and *why* it was
+skipped (system dir, scan root, registry-owned, path too long, nothing
+runnable); which launcher was picked and on what evidence; catalog rows loaded
+vs. total; the install decision with its stem, target directory and
+command-tail budget; each batch step with `HTGET`/`UNZIP` output and
+errorlevels redirected in; and the full post-install reconciliation.
+
+- Each line is **flushed immediately** — a log still sitting in a buffer when
+  the machine wedges tells you nothing, and wedging is the case worth
+  diagnosing.
+- The tag column (`menu` / `snap` / `post`) identifies which process wrote the
+  line; the helper passes are separate program runs appending to one file.
+- Timestamps are time-of-day only plus a sequence number: these boxes have no
+  reliable date (this one reports 1980).
+- The file is recycled past 256 KB rather than filling a 1.2 GB disk.
+- Turn it off with `log=0` in `DOSGAME.CFG`; move it with `logfile=`.
+
 ### Headless modes (also how it is tested)
 
 | Command | Does |
