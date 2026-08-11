@@ -1,5 +1,24 @@
 # Game × render-mode matrix on .124 (Voodoo3, XP)
 
+> ## ⚠️ .124 IS A GeForce2 GTS NOW (2026-08-11) — most of this page is historical
+>
+> The Voodoo 3 was removed and an **NVIDIA GeForce2 GTS** fitted, running
+> **ForceWare 71.89**. That invalidates the premises this whole page was written
+> on:
+> - **Every "Glide" column is dead.** No Voodoo, no `glide2x`/`glide3x`, and the
+>   3dfx OpenGL ICD (`retrogl`/`3dfxgl`/`3dfxvgl`) has been purged from system32
+>   and from all 35 game-local copies. Any instruction below that says
+>   `gl_driver 3dfxgl` or `r_glDriver retrogl` now means **plain `opengl32`**,
+>   which resolves to NVIDIA's `nvoglnt.dll`.
+> - **The "D3D wedges the box network for minutes" warning was a vintage-H5-HAL
+>   trait and no longer applies** — that HAL is gone with the 3dfx driver.
+> - **16-bit-only is no longer true.** The GeForce2 does 32-bit colour and 32-bit
+>   Z; the desktop runs 1024×768×32 @100Hz.
+>
+> Only UT99 has been re-verified on the new card (see the UT99 section below).
+> **Every other row is unverified on NVIDIA** — treat it as a starting point, not
+> a result, and re-test before trusting it.
+
 How to select each rendering mode for every installed game, and the verified
 status of each on the Voodoo3. Our stack: retrogl (Mesa OpenGL ICD, deployed as
 a game-local `opengl32.dll`/`3dfxgl.dll` — `opengl32` is NOT a KnownDLL here, so
@@ -44,6 +63,46 @@ Notes:
   PreferredRenderer. OpenGL renderer LoadLibrary's `opengl32.dll` by name.
 - Q2-engine trio (Q2/Heretic2/SiN): stage our ICD as `3dfxgl.dll` + 787KB
   `glide3x.dll` in the game dir; `ref_gl.dll` must be present.
+## UT99 on the GeForce2 — use OpenGL; D3D crashes, Glide is gone (2026-08-11) ✅
+
+Re-verified end to end after the GPU swap. **Both** UT99 installs are now set to
+`OpenGLDrv.OpenGLRenderDevice` in all three keys (`GameRenderDevice`,
+`WindowedRenderDevice`, `RenderDevice`):
+
+| Install | Path | State |
+|---|---|---|
+| **#1 — the desktop shortcut's target** | `C:\Games\Unreal Tournament (Installed)` | ✅ works: loads DM-Codex, clean textures/lighting/depth |
+| #2 — copy on the Win98 volume's desktop | `C:\WINDOWS\Desktop\Unreal Tournament` | config fixed, but **blocked by a "Cd Required At Startup" dialog** — it's a retail CD-check copy and there is no UT ISO on the box (only `D:\ISO\MOHAA_CD1.iso`) |
+
+- **Do NOT use `D3DDrv.D3DRenderDevice`.** UT's stock D3D (internal revision
+  1.9c, DirectX 7 era) binds fine and detects the card correctly
+  (`szDescription=NVIDIA GeForce2 GTS/GeForce2 Pro`, `dwVendorId=4318`,
+  `dwDeviceId=336`, 29504K vram) — and then **hard-crashes immediately after
+  `Log: Video memory fill is complete` / `VidMem Disposition: 141 1`**, with the
+  log truncating mid-word because nothing gets flushed. That trailing pair of
+  lines in `System\UnrealTournament.log` is the signature.
+- **`GlideDrv` is dead** — no Voodoo in the box. A config left on Glide is the
+  other way UT silently fails now; install #2 was still on it.
+- **The 2026-07-28 OpenGL polygon-flicker below does NOT reproduce on NVIDIA.**
+  That was UT's `OpenGLDrv.dll` mishandling depth against *our retrogl ICD*;
+  against `nvoglnt.dll` DM-Codex renders clean — no Z-fighting on floors, walls
+  or pickups. So the "use native Glide instead" fix is now both impossible and
+  unnecessary; OpenGL is simply correct.
+- Renderer proof in the log: `Log: Bound to OpenGLDrv.dll`. The renderer is
+  registered by `OpenGlDrv.int`, and `OpenGlDrv.dll` (102,400 B, stock v436) is
+  present in both installs — **note install #1 has no `D3DDrv.dll` sibling
+  problem; it does ship D3DDrv, so a bad config change will "work" right up
+  until it crashes.**
+- **Automation gotcha:** UT captures the mouse and uses relative motion, so
+  `UICLICK` **cannot drive its in-game menus** — the pointer moves but UT never
+  updates its hover, and clicks land on nothing. Drive UT from the command line
+  instead (`UnrealTournament.exe DM-Codex.unr?game=BotPack.DeathMatchPlus`) and
+  use `UIKEY ESCAPE` for the menu bar. `UICLICK` *does* work on UT's Win32
+  dialogs (Recovery Mode, CD-check) because those are real windows.
+- Recovery-Mode dialog: still appears after any `taskkill` exit; click
+  "Run Unreal Tournament" at **(514, 424)** @1024×768. It clears itself after one
+  clean in-game quit.
+
 ## UT texture/polygon flicker — FIXED by using native Glide (2026-07-28)
 
 **Symptom:** in UT's **OpenGL** renderer, polygons flicker (Z-fighting-like). Q3,

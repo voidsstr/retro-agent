@@ -162,6 +162,19 @@ Seven things the procedure above did **not** cover. Fold these in every time.
      restore `gl/openglv5.stock` over the swapped-in MesaFX copy.
    Rename to `*.3dfxbak` rather than deleting — reversible, and proves the sweep.
    Leave a dual-boot Win98 volume's own `C:\WINDOWS\SYSTEM` alone (separate OS).
+
+   **Sweep by EXECUTABLE name, not by where you found DLLs.** A DLL sweep only
+   finds installs that were given a game-local ICD. On .124 a second UT99 lived
+   in `C:\WINDOWS\Desktop\Unreal Tournament\` (the Win98 volume's desktop folder,
+   invisible from the XP desktop) with no game-local DLLs at all — so the DLL
+   sweep missed it entirely and it stayed configured for Glide. Do
+   `dir /s /b C:\<game>.exe D:\<game>.exe` for each game you are fixing.
+
+   **Verify the renderer you switch TO, don't just switch away from the old one.**
+   Setting UT99 to `D3DDrv.D3DRenderDevice` looked right and even initialised
+   correctly against the new card — then hard-crashed every launch. Launch the
+   game once and confirm it reaches a map. A config that names a renderer which
+   loads but dies is indistinguishable from the original breakage to the user.
 7. **Never echo a path inside a `( ... )` block in a generated batch.** A game dir
    called `Unreal Tournament (Installed)` closed the block early and aborted the
    whole script with `\System\glide3x.dll was unexpected at this time` — mid-run,
