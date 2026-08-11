@@ -43,6 +43,15 @@ else
   echo "  (skipped: retro-3dfx/tests/run_native.sh not found)"
 fi
 
+# DOS lane. Needs Open Watcom + a dosbox that runs headless; both are optional
+# on a given dev host, and the script skips (exit 0) when they are missing.
+echo; echo "### [4] DOS game manager tests (DOSBox) ###"
+if [ -x "$REPO/scripts/dosgames/tests/run_dos_tests.sh" ]; then
+  bash "$REPO/scripts/dosgames/tests/run_dos_tests.sh" || rc=1
+else
+  echo "  (skipped: scripts/dosgames/tests/run_dos_tests.sh not found)"
+fi
+
 echo; echo "=================================================================="
 [ $rc -eq 0 ] && echo " ALL SUITES PASSED" || echo " SOME SUITES FAILED (rc=$rc)"
 echo "=================================================================="

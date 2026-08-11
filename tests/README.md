@@ -33,6 +33,11 @@ retro-agent/tests/
                           catalog generation, .PRV preview-tile format
     test_doschat_shared.py         DOSCHAT (DOS agent+chat): shared-module invariants +
                           DOS memory limits (mTCP 64K socket malloc, DGROUP, cfg rebuild dep)
+    test_dosgame_stem.py           DOSGAME install-directory stem: uniqueness across the real
+                          catalog, DOS-legal 8.3 shape, and the /z/<STEM> server lookup
+    test_dosgame_stability.py      DOSGAME 0.2 source invariants: bounded path_join, footer
+                          buffer, split() init, CALLed .BAT, batch label reachability,
+                          8K stack, keyboard drain, video-mode reset
   native/                 OUR-stack native C logic tests (see CLAUDE.md "Driver Stack Map")
     munit.h               tiny single-header C test framework
     stubs/windows.h       lets agent C compile natively (funcs use no Win32 API)
@@ -84,7 +89,13 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | transport XOR keystream (involution + derivation) | agent C (crypto.c) | `native/test_crypto.c` |
 | discovery packet wire format | Python client | `test_discovery.py` |
 | length-prefixed frame codec + status contract | Python client | `test_protocol.py` |
-| DOSGAME installed-detection stem match + INSTLD.LST receipts (2026-08-03) | DOS lane (dosgame.c) | `python/test_dosgame_install_detect.py` |
+| DOSGAME installed-detection stem match + install receipts (2026-08-03) | DOS lane (dosgame.c) | `python/test_dosgame_install_detect.py` |
+| **DOSGAME 0.2 install→play: registry records the installer's OWN target dir** (2026-08-11) | DOS lane (dosgame.c) | `python/test_dosgame_install_detect.py`, `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 collision-free install stem (1,268/2,982 rows shared a directory) | DOS lane + serve_dosgames.py | `python/test_dosgame_stem.py`, `run_dos_tests.sh` |
+| 0.2 fetch line fits the measured 126-byte DOS command tail (was 845 rows over) | DOS lane (dosgame.c) | `python/test_dosgame_stem.py` |
+| 0.2 crash fixes: path_join bound, draw_footer buf[81], split() NULL init | DOS lane (dosgame.c) | `python/test_dosgame_stability.py`, `run_dos_tests.sh` |
+| 0.2 depth-2 scan for non-flat archives (~24% of the share) | DOS lane (dosgame.c) | `run_dos_tests.sh` |
+| 0.2 real-mode hardening: 8K stack, kflush, vinit mode reset, INT 24h handler | DOS lane (dosgame.c + Makefile) | `python/test_dosgame_stability.py` |
 | DOS net bring-up: guarded drivers, PKT.OK written, CHAT auto-calls NETUP | DOS lane (NETUP/PLAY/CHAT.BAT) | `python/test_dosgame_install_detect.py` |
 | fleetbook add/search/log contract (brain's solved-problems DB) | scripts/retro_fleetbook.py | `python/test_fleetbook.py` |
 | agent default desktop theme = green hacker + Starfield (was gray classic) | agent retrowall.c | `python/test_retrowall_theme.py` |

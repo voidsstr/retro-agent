@@ -8,8 +8,16 @@ Encodes the 2026-08-03 fixes:
    title with a space in its first 8 chars ("1 To Nil ...") was never shown
    as installed after a successful install. Both sides now share zip_stem().
 
-2. Install receipts (INSTLD.LST) so installer-run (kind 'I') games whose
-   INSTALL.EXE picks its own destination directory still get the star.
+2. Install receipts so installer-run (kind 'I') games whose INSTALL.EXE picks
+   its own destination directory still get the star.
+
+   SUPERSEDED 2026-08-11 (v0.2): a receipt could only ever set installed=2,
+   which annotates the *catalog* row — it never put the game on the Installed
+   tab, so the user could see the star and still had no way to play it. The
+   flat INSTLD.LST stem list is replaced by INSTALL.LST, a real registry that
+   records the directory the installer actually used and the launcher to run
+   there (see the header comment in dosgame.c). The stem-shape tests below
+   still apply, and now live alongside test_dosgame_stem.py.
 
 3. "Bad command or file name" spam: every packet-driver/tool invocation in
    NETUP.BAT and the generated RUN.BAT is guarded with `if exist` —
@@ -32,9 +40,21 @@ def _read(name):
         return f.read()
 
 
-# --- the stem transform, mirrored from dosgame.c:zip_stem() ---
+# --- the stem transform lives in serve_dosgames.py and is mirrored, byte for
+# --- byte, by dosgame.c:zip_stem(). test_dosgame_stem.py pins its contract;
+# --- scripts/dosgames/tests/run_dos_tests.sh diffs the two implementations.
 
 def zip_stem(zipname):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "serve_dosgames", os.path.join(DG, "serve_dosgames.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.zip_stem(zipname)
+
+
+def old_buggy_stem(zipname):
+    """v0.1: first 12 chars, extension stripped, truncated to 8."""
     stem = zipname[:12]
     dot = stem.rfind(".")
     if dot >= 0:
@@ -43,30 +63,24 @@ def zip_stem(zipname):
     return "".join("_" if c in " ." else c for c in stem)
 
 
-def old_buggy_stem(zipname):
-    """pre-fix mark_installed(): no ' '/'.'->'_' replacement"""
-    stem = zipname[:12]
-    dot = stem.rfind(".")
-    if dot >= 0:
-        stem = stem[:dot]
-    return stem[:8]
+def test_stem_is_a_legal_dos_directory_name():
+    """','  '+' ';' '=' '[' ']' are FAT 8.3 separators, and ',' is also an
+    argument separator to COMMAND.COM. v0.1 only replaced ' ' and '.', so
+    "Clue, The (1994)...zip" made `mkdir C:\\GAMES\\Clue,_Th` create
+    C:\\GAMES\\Clue while UNZIP was handed the full name — the install
+    half-landed in the wrong directory and the game never appeared."""
+    for zipname in ["Clue, The (1994)(Neo Software).zip",
+                    "Scroll, The (1995)(Psygnosis).zip"]:
+        stem = zip_stem(zipname)
+        for bad in ",+;=[] ":
+            assert bad not in stem, (zipname, stem, bad)
+
+    assert "," in old_buggy_stem("Clue, The (1994)(Neo Software).zip")  # the bug
 
 
-def test_stem_matches_install_dir_for_spaced_titles():
-    # write_install() creates C:\GAMES\1_To_Nil for this zip; DOS reports the
-    # directory back in upper case. The fixed stem matches, the old one can't.
-    zipname = "1 To Nil Soccer Manager (1992).zip"
-    installed_dir_title = "1_TO_NIL"
-    assert zip_stem(zipname).upper() == installed_dir_title
-    assert old_buggy_stem(zipname).upper() != installed_dir_title  # the bug
-
-
-def test_stem_replaces_dots_too():
-    # strrchr on the 12-char truncation treats the first '.' as the extension
-    # separator, so "Dr. ..." stems to "Dr" — the important invariant is that
-    # write_install() and mark_installed() agree (both use zip_stem).
-    assert zip_stem("Dr. Riptide (1994).zip") == "Dr"
-    assert zip_stem("Alley Cat (1984).zip") == "Alley_Ca"
+def test_stem_keeps_a_readable_prefix():
+    assert zip_stem("Alley Cat (1984).zip").startswith("ALLEY")
+    assert zip_stem("DOOM.ZIP").startswith("DOOM_")
 
 
 def test_dosgame_c_shares_one_stem_transform():
@@ -79,8 +93,28 @@ def test_dosgame_c_shares_one_stem_transform():
     inst = src[src.index("static int write_install("):]
     inst = inst[:inst.index("\n}")]
     assert "zip_stem(" in inst
-    # write_install writes the INSTLD.LST receipt, mark_installed reads it
-    assert "INSTLD.LST" in mark and "INSTLD.LST" in inst
+
+
+def test_install_records_a_registry_entry_not_a_bare_receipt():
+    """The v0.1 receipt could only set installed=2, which stars the CATALOG
+    row; rebuild_view() puts only installed==1 on the Installed tab, so a
+    receipt never made anything playable. The registry records the real
+    directory and launcher instead."""
+    src = _read("dosgame.c")
+    assert "INSTALL.LST" in src, "registry file must exist"
+    assert "INSTLD.LST" not in src, "the flat receipt list is superseded"
+
+    inst = src[src.index("static int write_install("):]
+    inst = inst[:inst.index("\n:end")] if "\n:end" in inst else inst
+    # the install script must hand off to the reconciliation pass...
+    assert "/snapdirs" in inst and "/postinst" in inst
+    # ...and branch on whether it found anything runnable
+    assert "if errorlevel 1 goto nogame" in inst
+
+    post = src[src.index("static int post_install(void)"):]
+    post = post[:post.index("\n}\n")]
+    assert "reg_append('G'" in post, "must record the playable game"
+    assert "reg_append('X'" in post, "must retire the spent unpack dir"
 
 
 def test_run_bat_guards_tools_and_fetch():

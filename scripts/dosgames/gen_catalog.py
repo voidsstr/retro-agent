@@ -33,12 +33,32 @@ def title_of(name):
     t = t.replace("_", " ").strip()
     return re.sub(r"\s+", " ", t)[:40]
 
+def dos83(name):
+    """Truncate to a real 8.3 name, not to 12 characters.
+
+    `name.upper()[:12]` looks right (8 + '.' + 3 = 12) but chops the EXTENSION
+    off anything with a stem longer than eight: "SUPERGAME1.EXE" became
+    "SUPERGAME1.E". The shipped catalog carries 7 such rows, and DOS cannot
+    launch any of them.
+    """
+    base = name.split("/")[-1].split("\\")[-1].upper()
+    stem, dot, ext = base.partition(".")
+    return stem[:8] + ("." + ext[:3] if dot else "")
+
+
 def main_exe(rec):
-    for lst in (rec.get("exes_shallow") or [], rec.get("bats_shallow") or []):
+    # .COM matters: survey_share.py collects COM files and even uses them to
+    # classify an archive as ready-to-run, but never exported them, so
+    # main_exe() returned "" and gen dropped the row. The result was 0 COM-
+    # launched games in a 3,000-title DOS catalog — every one of them
+    # invisible from the DOS box.
+    for lst in (rec.get("exes_shallow") or [],
+                rec.get("coms_shallow") or [],
+                rec.get("bats_shallow") or []):
         for p in lst:
             base = p.split("/")[-1]
-            if base not in SKIP:
-                return base.upper()[:12]
+            if base.lower() not in SKIP:
+                return dos83(base)
     return ""
 
 def kind_of(rec):

@@ -58,6 +58,11 @@ def classify(names):
         "top_dirs": sorted(d for d in top if d)[:5],
         "installers": installers[:5],
         "exes_shallow": [n for d, n in sorted(exes)[:8]],
+        # COM files are already used to classify an archive as ready-to-run
+        # (above), so leaving them out of the record made gen_catalog drop
+        # every COM-launched game: 0 of 2,982 catalog rows had a .COM main
+        # program, which is impossible for a pre-1990 DOS library.
+        "coms_shallow": [n for d, n in sorted(coms)[:5]],
         "bats_shallow": [n for d, n in sorted(bats)[:5]],
         "images": images[:4],
         "nested": nested[:3],

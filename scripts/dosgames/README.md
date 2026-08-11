@@ -80,6 +80,55 @@ RUN.BAT swap; typeahead search over 2,982 catalog entries; **full LAN install**
 (NE2000+slirp: packet driver → DHCP → HTGET zip from serve_dosgames.py →
 UNZIP → playable dir); tile rendering pipeline.
 
+## The registry: how "installed" is actually known (v0.2)
+
+Up to v0.1 the menu re-derived *what is installed and how do I run it* on every
+start, purely by scanning the disk. That inference is lossy, and it broke the
+program's whole purpose on real hardware: install a game whose `INSTALL.EXE`
+copies the files into **its own** directory (`C:\WOLF3D`) rather than the
+`C:\GAMES\<stem>` we unpacked into, and the menu would list only the leftover
+unpack directory — whose one executable is `INSTALL.EXE` — as *"run setup"*.
+Pressing Enter re-ran the installer, forever, and the game was never offered
+as playable.
+
+So an install now **records what it produced**, in `C:\DOSGAME\INSTALL.LST`:
+
+```
+G|<title>|<dir>|<exe>     a playable game: run <exe> in <dir>
+X|<title>|<dir>|          a spent unpack dir: hide it from the menu
+```
+
+The record is written by a **post-install pass** (`DOSGAME /postinst`) that the
+generated `RUN.BAT` invokes after the installer. It finds the game by
+difference: `DOSGAME /snapdirs` lists the top-level directories of every scan
+root *before* the installer runs, and the post pass compares that snapshot with
+what is there afterwards. Whatever appeared is where the game went. It prefers
+the launcher the catalogue named (`exe`, field 4) over the scan's
+"first `.EXE` in directory order" guess — which happily picks `SETSOUND.EXE`.
+
+`/postinst` also answers a question batch cannot: *did anything runnable come
+out of this?* It exits non-zero when not, and `RUN.BAT` branches on that to
+tell the user. (`if exist DIR\*.*` is **true for an empty directory**, so a
+corrupt download used to be indistinguishable from a good one.)
+
+The disk scan still runs, for games that predate this program; the registry
+simply wins where both have an opinion, and stale rows (directory or launcher
+gone) are dropped on load.
+
+### Headless modes (also how it is tested)
+
+| Command | Does |
+|---|---|
+| `DOSGAME /selftest` | dump the scan+catalog state to `DGSELF.TXT`, no video |
+| `DOSGAME /play:<substr>` | write a launch script for the first matching installed game, exit 42 |
+| `DOSGAME /install:<substr>` | write an install script for the first matching catalog game, exit 42 |
+| `DOSGAME /snapdirs` | snapshot directories (used inside `RUN.BAT`) |
+| `DOSGAME /postinst` | reconcile + record (used inside `RUN.BAT`); non-zero = nothing runnable |
+
+Create `C:\DOSGAME\QUIET.FLG` to make generated scripts skip their
+"press a key" prompts — that is what lets the whole install→play path run
+unattended in `tests/run_dos_tests.sh`.
+
 ## Hard-won gotchas
 
 - **Games are rarely all in one folder.** `scan=` takes a semicolon-separated
@@ -99,6 +148,41 @@ UNZIP → playable dir); tile rendering pipeline.
 - **Enter runs the installer for installer-type archives.** Most of the
   catalogue is `INSTALL.EXE` + a packed payload; extracting and stopping there
   leaves a directory the menu won't even list as a game.
+- **DOS silently truncates a command tail at 126 bytes.** Measured, not
+  assumed: batch lines of 160, 200 and 215 characters all delivered exactly
+  126 bytes of arguments in DOSBox — no error, no warning. The install script
+  used to paste the URL-encoded zip name (61 chars on average, **137** at
+  worst) onto the server URL, so **845 of the 2,982 catalogue entries** fetched
+  a chopped-off URL, 404'd, and reported *"Download failed — check the
+  network"*, sending everyone hunting a networking problem that did not exist.
+  Fixed by fetching `/z/<STEM>` — a fixed-length name — and the client refuses
+  to write a script whose command line cannot fit.
+- **An 8-character truncation is not a unique directory name.** The old install
+  stem collided for **1,268 of 2,982** catalogue rows: all eleven Duke Nukem
+  titles installed into `C:\GAMES\DUKE_NUK`, unzipping over each other, and
+  installing any one of them marked the other ten as installed. The stem is now
+  5 readable characters + 3 base-36 characters of a 16-bit FNV-1a hash of the
+  full name — zero collisions across the catalogue. **`serve_dosgames.py`
+  computes the identical stem** to resolve `/z/<STEM>`; change one and you must
+  change the other (`tests/run_dos_tests.sh` diffs the two implementations).
+- **`if exist DIR\*.*` is TRUE for an empty directory** (`.` and `..` match), so
+  batch cannot tell "unzipped nothing" from "unzipped fine". `if not exist
+  DIR\nul` *does* correctly distinguish a missing directory. Judgements about
+  content belong in the exe, reported back through `errorlevel`.
+- **A `.BAT` launcher must be `CALL`ed.** Chaining to one (a bare `TYRIAN.BAT`)
+  silently abandons the rest of `RUN.BAT` — verified in DOSBox: the line after
+  a bare `.BAT` never runs, the line after `call GAME.BAT` does. The outer
+  menu loop does still resume, so it looks harmless until you add post-launch
+  bookkeeping.
+- **Watcom's default DOS stack is 2K.** The scan call chain
+  (`main → scan_local → scan_root → scan_game_dir → pick_launcher`, each with
+  its own `MAX_PATH_L` buffers and a `find_t`) plus Watcom's `sprintf` came
+  close enough to that to be a hazard, and a blown stack on a real box is a
+  hung machine. Build with `-k8192`.
+- **Roughly a quarter of the share's archives are not flat-root**, so the game
+  sits one directory below where UNZIP put it. The scan only ever looked at
+  depth 1, so those games were listed *nowhere at all*. It now descends one
+  level when the top level has nothing runnable.
 - **A >64K static array silently wraps the data segment** in the large model
   (Watcom, no warning) — entries past ~#420 came back corrupted. `games[]`
   must stay well under 64K (MAX_GAMES 256 + disk-backed typeahead filter).
