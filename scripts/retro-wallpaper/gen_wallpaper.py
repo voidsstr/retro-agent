@@ -37,12 +37,34 @@ os.makedirs(OUT, exist_ok=True)
 
 DEJAVU = "/usr/share/fonts/truetype/dejavu"
 LIB = "/usr/share/fonts/truetype/liberation"
-F_BOLD = os.path.join(DEJAVU, "DejaVuSans-Bold.ttf")
-F_REG = os.path.join(DEJAVU, "DejaVuSans.ttf")
-F_COND = os.path.join(DEJAVU, "DejaVuSansCondensed.ttf")
-F_COND_B = os.path.join(DEJAVU, "DejaVuSansCondensed-Bold.ttf")
-F_MONO = os.path.join(DEJAVU, "DejaVuSansMono.ttf")
-F_MONO_B = os.path.join(DEJAVU, "DejaVuSansMono-Bold.ttf")
+
+
+def _pick(*candidates):
+    """First font file that exists. The Condensed DejaVu faces ship in a
+    separate package (fonts-dejavu-extra) that is absent on plain Ubuntu, and
+    PIL fails with a bare 'cannot open resource' when one is missing."""
+    for p in candidates:
+        if p and os.path.exists(p):
+            return p
+    raise SystemExit(
+        "no usable font found; tried: %s\n"
+        "install with: sudo apt-get install fonts-dejavu-core fonts-dejavu-extra"
+        % ", ".join(str(c) for c in candidates))
+
+
+F_BOLD = _pick(os.path.join(DEJAVU, "DejaVuSans-Bold.ttf"),
+               os.path.join(LIB, "LiberationSans-Bold.ttf"))
+F_REG = _pick(os.path.join(DEJAVU, "DejaVuSans.ttf"),
+              os.path.join(LIB, "LiberationSans-Regular.ttf"))
+# Condensed falls back to the regular face - slightly wider text, same layout.
+F_COND = _pick(os.path.join(DEJAVU, "DejaVuSansCondensed.ttf"),
+               os.path.join(LIB, "LiberationSansNarrow-Regular.ttf"), F_REG)
+F_COND_B = _pick(os.path.join(DEJAVU, "DejaVuSansCondensed-Bold.ttf"),
+                 os.path.join(LIB, "LiberationSansNarrow-Bold.ttf"), F_BOLD)
+F_MONO = _pick(os.path.join(DEJAVU, "DejaVuSansMono.ttf"),
+               os.path.join(LIB, "LiberationMono-Regular.ttf"))
+F_MONO_B = _pick(os.path.join(DEJAVU, "DejaVuSansMono-Bold.ttf"),
+                 os.path.join(LIB, "LiberationMono-Bold.ttf"))
 
 _font_cache = {}
 def font(path, size):
