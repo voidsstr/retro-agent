@@ -103,6 +103,37 @@ Re-verified end to end after the GPU swap. **Both** UT99 installs are now set to
   "Run Unreal Tournament" at **(514, 424)** @1024×768. It clears itself after one
   clean in-game quit.
 
+### Optional upgrade: UTGLR (not installed — stock OpenGLDrv works today)
+
+Desk research, **not yet tested on the box**. Stock v436 `OpenGLDrv.dll` is a
+second-class renderer — Epic built UT for Glide and S3 MeTaL first, and OpenGL
+gets exactly one line across the whole 402→436 changelog. Two reasons to consider
+Chris Dohnal's **UTGLR** replacement here specifically:
+
+- Vogel's 2002 fix (`ut436-opengldrv-090602.zip`) "fixes extension detection with
+  **very large extension strings**" — a parsing bug in the stock 436 renderer.
+  ForceWare 71.89 advertises a long GL extension string, so this box is exactly
+  the shape that trips it. It has **not** bitten us (DM-Codex renders fine), but
+  it is a live risk on stock. UTGLR carries the fix.
+- Stock UT/Unreal OpenGL never supported S3TC/DXT at all; only UTGLR does.
+
+**Hard prerequisite: UTGLR is build-locked to v436.** Renderer DLLs from another
+build do not error — the game **silently falls back to software rendering**,
+which looks like "it works but it's slow and ugly". Both installs here are
+already `Init: Version: 436` (checked in the log), so a drop-in is safe.
+
+**Do NOT go past 436 on this box:**
+- **451b** is UTPG, not Epic. It permanently breaks the UnrealEd camera and its
+  content is dedicated-server hardening — no client benefit.
+- **469 will not start at all**: it requires SSE2, and this is a Pentium III.
+  (OldUnreal issue #587 — an Athlon XP dies on a `movsd` `Illegal instruction`;
+  closed "as not planned", fix PR rejected.)
+
+Also noted: `UseAlphaPalette=True` is a workaround for *very old buggy GeForce
+drivers*; on 71.89 you want it **False**. The key is currently absent from
+`[OpenGLDrv.OpenGLRenderDevice]` (so it takes the compiled default) and rendering
+is clean, so it has been left alone rather than perturb a working config.
+
 ## UT texture/polygon flicker — FIXED by using native Glide (2026-07-28)
 
 **Symptom:** in UT's **OpenGL** renderer, polygons flicker (Z-fighting-like). Q3,
