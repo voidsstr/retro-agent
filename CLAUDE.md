@@ -1,38 +1,55 @@
 # Retro Agent — Claude Code Instructions
 
-## Commit and Push at Every Stable Checkpoint (REQUIRED)
+## Work in a Worktree, Land on `master` at Every Checkpoint (REQUIRED)
 
-**Commit and push to `master` by default — do not ask first.** Verified work left
-sitting in the working tree helps nobody and is one lost machine away from gone.
+**Do the work in a worktree; when it is stable and tested, commit and push it to
+`master`. Do not ask first.** Several sessions run against this repo at once
+(the DOS game-launcher session lives in `.claude/worktrees/dosgame-stability`),
+so the worktree is what keeps you from fighting over one working tree — and the
+push to `master` is what stops verified work rotting on a branch nobody merges.
 
-- **When:** at every checkpoint where the codebase is stable — the change is
-  complete *and* tested at some level. "Tested at some level" is the bar:
-  `bash tests/run_all.sh` green, or the fix verified on the hardware, or at
-  minimum the thing you changed was exercised once and did what it should. A
-  perfect suite isn't required; an untested guess is not a checkpoint. Batch
-  trivial follow-ups into the next checkpoint rather than committing every keystroke,
-  but **never end a session with verified work uncommitted.**
-- **Where:** the main branch (`master` in this repo) unless the session says
-  otherwise — the user asked for a branch/PR, or the repo is already checked out
-  on a feature branch belonging to work in flight (then commit there and say so).
-  **Never switch a branch someone else has checked out** just to satisfy this rule.
-- **What:** only the paths belonging to the change you just made. If the working
-  tree already holds unrelated modifications you did not make, `git add <paths>`
-  explicitly. **Never `git add -A` over someone else's in-progress work**, and
-  never commit a whole-file line-ending (CRLF) churn — check with
+**1. Take a worktree before you start.**
+```bash
+git worktree list                                        # who else is live?
+git worktree add .claude/worktrees/<topic> -b worktree-<topic> origin/master
+```
+Do all editing, building and testing there. It leaves the main tree alone, lets
+another session keep working, and makes a bad experiment trivial to throw away.
+*Exception:* a trivial one-file edit (a doc line, a typo) can go straight in the
+main tree if it is free — don't build ceremony around a one-liner.
+
+**2. Test in the worktree before you call it a checkpoint.** `bash tests/run_all.sh`
+green, or the fix verified on the hardware, or at minimum the thing you changed
+exercised once doing what it should. A perfect suite isn't required; an untested
+guess is not a checkpoint.
+
+**3. At each checkpoint, land it on `master` and push:**
+```bash
+git fetch origin
+git rebase origin/master        # keep it a fast-forward
+bash tests/run_all.sh           # re-verify AFTER the rebase
+git push origin HEAD:master     # land it - do not leave it on the topic branch
+```
+Then when the topic is finished: `git worktree remove .claude/worktrees/<topic>`
+and `git branch -d worktree-<topic>`. Batch trivial follow-ups into the next
+checkpoint rather than committing every keystroke, but **never end a session with
+verified work uncommitted or unpushed** — a commit that isn't pushed is still
+only on one machine.
+
+**Guardrails, all of which have bitten here:**
+- **Stage explicit paths.** `git add <paths>`, never `git add -A` — it sweeps up
+  another session's in-progress work.
+- **Never commit a whole-file line-ending (CRLF) churn.** Check
   `git diff --ignore-cr-at-eol --stat` before staging a file you didn't rewrite.
-- **Then push.** A commit that isn't pushed is still only on one machine.
-- **Check for other live sessions before you touch shared files.**
-  `git worktree list` shows them — e.g. the DOS game-launcher session sits in
-  `.claude/worktrees/dosgame-stability` on its own branch. Their worktree keeps
-  the *main* tree free for you, but you can still collide **in the files you both
-  edit**: shared indexes like `tests/README.md`, `tests/run_all.sh` and this file
-  are the usual casualties. Before editing one, `git -C <their-worktree> status
-  --short` to see if it's already modified there, and if so append in a distinct
-  region and say so in the commit message so the merge is obvious. If your own
-  change is large or long-running, take a worktree too
-  (`git worktree add .claude/worktrees/<topic> -b worktree-<topic>`) rather than
-  holding master.
+- **Never switch a branch another session has checked out** to satisfy this rule.
+- **Shared index files still collide even across worktrees** — `tests/README.md`,
+  `tests/run_all.sh` and this file are the usual casualties. Before editing one,
+  `git -C <their-worktree> status --short` to see if it's already modified there;
+  if it is, append in a distinct region and say so in the commit message.
+- **If the push is rejected** as non-fast-forward, `git fetch && git rebase
+  origin/master` and re-run the tests. If the *main* tree is too dirty to rebase,
+  build the commit in a throwaway worktree off `origin/master` and push from
+  there — never stash hundreds of someone else's files to land a small change.
 
 The sibling repos (`retro-3dfx`, `nsc-assistant`) carry the same rule.
 
