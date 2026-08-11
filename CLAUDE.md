@@ -940,9 +940,25 @@ private `retro-agent-private` repo, not here.
 
 Upload: `curl --upload-file file -u YOUR-CREDS "smb://YOUR-SERVER/files/Utility/Retro%20Automation/file"`
 
-## Linux game/dedicated-server tooling (moved)
+## Game/dedicated-server tooling
 
-The Linux dedicated-server installers and the CS 1.6 server ops skill now
-live in the private **retro-agent-private** repo (`scripts/game-servers/`,
-`.claude/skills/cs16-servers/`, `docs/game-compat-and-servers.md`). They are
-not part of the public agent project.
+**The fleet's game servers now run on `whitebeast` (192.168.1.82, Windows 11)**,
+which has taken over from the old server box. Configs, the no-blood CS mod and
+the host notes live here in [`scripts/game-servers/`](scripts/game-servers/).
+
+Two hard-won rules from standing that up (full detail in
+[`scripts/game-servers/README.md`](scripts/game-servers/README.md)):
+
+- **Game servers run natively on Windows, never in WSL.** WSL2 here is in NAT
+  mode, so a server bound inside WSL is unreachable from the 192.168.1.0/24
+  fleet, and `netsh portproxy` cannot bridge it because portproxy is **TCP-only**
+  while GoldSrc is UDP.
+- **Never redirect `hlds.exe -console`'s stdout.** It needs a real console;
+  `hlds.exe ... > log 2>&1` aborts it into a "Microsoft Visual C++ Runtime
+  Library" dialog at `BreakpadMiniDumpSystemInit` and hangs it there — which
+  looks exactly like a corrupt install and is a long detour to diagnose. The
+  hung process also keeps its UDP port bound after exiting.
+
+The older *Linux* dedicated-server installers and the `cs16-servers` ops skill
+remain in the private **retro-agent-private** repo
+(`.claude/skills/cs16-servers/`, `docs/game-compat-and-servers.md`).
