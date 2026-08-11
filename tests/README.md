@@ -33,6 +33,8 @@ retro-agent/tests/
                           catalog generation, .PRV preview-tile format
     test_doschat_shared.py         DOSCHAT (DOS agent+chat): shared-module invariants +
                           DOS memory limits (mTCP 64K socket malloc, DGROUP, cfg rebuild dep)
+    test_agent_version.py          agent/Makefile's git-tag-derived VERSION must not be
+                          older than the newest version claimed in agent/ commits
   native/                 OUR-stack native C logic tests (see CLAUDE.md "Driver Stack Map")
     munit.h               tiny single-header C test framework
     stubs/windows.h       lets agent C compile natively (funcs use no Win32 API)
@@ -91,6 +93,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | 0.1.34 fullscreen refresh snap-down (`fxBestRefresh`, was hardcoded 60Hz) | MesaFX ICD | `native/test_fx_best_refresh.c` |
 | 0.1.35 fullscreen cursor overlay stamp/clip (`fxDrawCursorOverlay`) | MesaFX ICD | `native/test_fx_cursor_overlay.c` |
 | glide2x XP bring-up: linear-base guards + prime-before-ALLOCCONTEXT (79ee51e) | open Glide (glide2x/h3 minihwc) | `native/test_glide2x_mapboard_guards.c` |
+| missing v-tags made `make` stamp 1.9.2 on v1.25.1 source (2026-08-11) | agent/Makefile versioning | `python/test_agent_version.py` |
 
 (The vintage SGL/H5 fixes — garble 0.3.1, mip-download 08fd889 — are tested in
 `retro-3dfx/tests/`, the other lane's harness, not here.)

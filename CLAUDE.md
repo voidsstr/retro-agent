@@ -1,5 +1,30 @@
 # Retro Agent — Claude Code Instructions
 
+## Commit and Push at Every Stable Checkpoint (REQUIRED)
+
+**Commit and push to `master` by default — do not ask first.** Verified work left
+sitting in the working tree helps nobody and is one lost machine away from gone.
+
+- **When:** at every checkpoint where the codebase is stable — the change is
+  complete *and* tested at some level. "Tested at some level" is the bar:
+  `bash tests/run_all.sh` green, or the fix verified on the hardware, or at
+  minimum the thing you changed was exercised once and did what it should. A
+  perfect suite isn't required; an untested guess is not a checkpoint. Batch
+  trivial follow-ups into the next checkpoint rather than committing every keystroke,
+  but **never end a session with verified work uncommitted.**
+- **Where:** the main branch (`master` in this repo) unless the session says
+  otherwise — the user asked for a branch/PR, or the repo is already checked out
+  on a feature branch belonging to work in flight (then commit there and say so).
+  **Never switch a branch someone else has checked out** just to satisfy this rule.
+- **What:** only the paths belonging to the change you just made. If the working
+  tree already holds unrelated modifications you did not make, `git add <paths>`
+  explicitly. **Never `git add -A` over someone else's in-progress work**, and
+  never commit a whole-file line-ending (CRLF) churn — check with
+  `git diff --ignore-cr-at-eol --stat` before staging a file you didn't rewrite.
+- **Then push.** A commit that isn't pushed is still only on one machine.
+
+The sibling repos (`retro-3dfx`, `nsc-assistant`) carry the same rule.
+
 ## Don't Stop With Unfinished Work (REQUIRED)
 
 **Do not stop or hand back while there is unfinished work in scope.** If a task is
@@ -100,6 +125,18 @@ This is how we show reliability and catch a fix breaking under a later change.
 Do this proactively, the same way you keep `FINDINGS.md` current.
 
 ## Driver Stack Map — KNOW WHICH STACK YOU'RE TOUCHING (READ FIRST)
+
+> ### ⚠️ `.124` NO LONGER HAS A VOODOO 3 (hardware change 2026-08-11)
+> The user pulled the Voodoo 3 out of **.124** and fitted an **NVIDIA GeForce2
+> GTS** (`PCI\VEN_10DE&DEV_0150`, NV15), now running **ForceWare 71.89**. The
+> entire 3dfx stack was purged from that box — display-class instances,
+> `3dfxvs`/`3Dfx` services, the `OpenGLdrivers\3dfx` ICD registration, the OEM
+> INFs, every `system32` 3dfx/glide DLL, the ghost `VEN_121A` devnodes, and 35
+> game-local ICD copies. **Our clean-room stack (`voodoo-cleanroom/`) and the
+> `voodoo3-driver-dev` skill therefore have no hardware behind them** until a
+> Voodoo card goes back into a box. Everything below still describes the code
+> lanes correctly; only the "`.124` = Voodoo 3" hardware claim is stale.
+> Details + the driver-choice trap: `retro-3dfx/FINDINGS.md` (top entry).
 
 There are **two different 3dfx codebases** in play. Do not conflate them — the
 fixes, files, build tools, versions, and even the OpenGL renderer string differ.
@@ -394,6 +431,15 @@ carries the *previous* version's tag is a broken build — never ship one.
 Bump rule: **new command or feature = minor bump; bug fix = patch bump.** Major
 is reserved for protocol-breaking changes.
 
+> **Check `git tag -l 'v*'` before you build.** The Makefile takes the *highest
+> existing tag*, so a clone with missing tags compiles an **older** version
+> number onto newer source. On 2026-08-11 this clone's tags stopped at `v1.9.2`
+> while the source was `v1.25.1` — a bare `make` would have stamped 1.9.2, and
+> because auto-update pulls on version **inequality** (not "remote is newer"),
+> publishing it would have downgraded every box on the fleet. Guarded by
+> `tests/python/test_agent_version.py`; if that test fails, create the missing
+> tag rather than editing the test.
+
 ### Publishing builds to the share (REQUIRED)
 
 **Any time you build a new `retro_chat.exe` or `retro_agent.exe`, immediately
@@ -403,6 +449,15 @@ the share reaches no machine.
 **Canonical deploy location** — the **latest pointer**
 `\\192.168.1.122\files\Utility\Retro Automation\retro_agent.exe` is exactly what
 every agent's auto-update reads. (Chat client: `…\retro_chat.exe`.)
+
+> **This path is hardcoded in the agent (`agent/src/autoupdate.c:39`) and a share
+> rebuild WILL silently kill fleet-wide auto-update.** It happened on 2026-08-11:
+> the rebuilt share had no `Utility\Retro Automation\` at all, so every box was
+> stranded on whatever binary it already had, with no error anywhere. **After any
+> share rebuild, recreate this directory first** (latest pointer + `.ver` sidecar
+> + `retro_agent/` archive + the chat pair) and confirm with a `dir`. A box with
+> the share mapped can restore it: `copy` from `C:\RETRO_AGENT\retro_agent.exe`
+> and `UPLOAD` the `.ver` files.
 
 Publish **three** things for each build:
 - the **latest pointer** — `…/Retro Automation/retro_agent.exe` (what auto-update
@@ -826,6 +881,15 @@ General pattern:
 **Best driver:** Amigamerlin 2.9 for all Voodoo 3/4/5 cards. INF section `Driver.InstallV3` for Voodoo3, `Driver.InstallV5` for Voodoo4/5.
 
 ## Known Machines
+
+Current fleet is on **192.168.1.0/24** (see "Per-box console accounts" above for
+the full list). Verified boxes:
+
+| IP | Hostname | OS | Hardware Notes |
+|----|----------|----|----|
+| 192.168.1.124 | ADMIN | Windows XP SP3 | **NVIDIA GeForce2 GTS** (`10DE:0150`, NV15) on **ForceWare 71.89** — the Voodoo 3 was removed 2026-08-11 and the whole 3dfx stack purged. 383MB RAM, single CPU (440BX/PIII class), dual-boot: **XP on D:**, Win98 on C: (games live on both volumes). |
+
+Legacy rows below are from an older 10.0.0.0/24 network and are **not** current:
 
 | IP | Hostname | OS | Hardware Notes |
 |----|----------|----|----|

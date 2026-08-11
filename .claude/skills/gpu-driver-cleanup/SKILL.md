@@ -122,9 +122,70 @@ reboot).
   driver you removed, it shows as "Standard VGA" until a driver is installed.
 - Confirm the driver files and oemN.inf are gone (`dir` → File Not Found).
 
+## Learned removing a Voodoo3/Voodoo5 stack from .124 (2026-08-11)
+
+Seven things the procedure above did **not** cover. Fold these in every time.
+
+1. **The global OpenGL ICD registration is the leftover that actually breaks the
+   new card.** `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLdrivers\<vendor>`
+   (3dfx's `oem9.inf` writes `3dfx` → `DLL=3dfxOGL.dll`) makes **every** OpenGL
+   app try to load the old vendor's ICD no matter which GPU is fitted. Delete the
+   vendor's subkey. A correct NVIDIA install leaves `RIVATNT → nvoglnt` there.
+2. **Ghost vs live devnode: a live one has a `Control` subkey; a ghost does not.**
+   Cheapest reliable discriminator — `reg query "<devnode>\<instance>" /s` and look
+   for `...\Control`. Do this before deleting anything.
+3. **Delete the card's companion bridge ghost too.** A Voodoo5 6000 sits behind a
+   HiNT PCI-PCI bridge, so pulling it strands **`PCI\VEN_3388&DEV_0021&...`** on the
+   AGP slot's instance path — the very path the replacement card now claims.
+   Sweeping only the GPU's `VEN_xxxx` leaves it. Check every non-Intel/non-obvious
+   `Enum\PCI` key for a missing `Control` subkey.
+4. **Find the OEM INFs by content, never by guessing:**
+   `findstr /i "Provider=" %windir%\inf\oem*.inf` → take every `Provider=%3dfx%`.
+   On .124 the display class named only `oem13`/`oem14`, but **four** INFs were
+   3dfx (`oem9`, `oem12`, `oem13`, `oem14`). Delete each `.inf` **and** its `.PNF`.
+5. **Safe Mode changes the plan.** Confirm it with `net start Schedule` — the reply
+   *"This service cannot be started in Safe Mode"* is the only reliable test
+   (screenshots, running `Run`-key programs, WMI and the screensaver all lie, and
+   `SafeBoot\Option\OptionValue` persists after a normal boot). Safe Mode is
+   *ideal* for the file/registry purge (nothing is loaded), but **Task Scheduler
+   cannot run, and a task created there is silently not persisted** — so do the
+   SYSTEM-privileged `Enum\PCI` deletes after rebooting to normal mode, and
+   recreate the task then.
+6. **Game-local cleanup is two jobs, not one.** Sweep the DLLs *and* fix the
+   configs that name them:
+   - DLL sweep must include **`retrogl*.dll`** and `3dfxvgl.dll`/`3dfxOGL.dll`, not
+     just `opengl32/glide2x/glide3x/3dfxgl`.
+   - Then fix the settings: Quake3 `q3config.cfg` `seta r_glDriver "retrogl"` →
+     `"opengl32"`; UT99 `UnrealTournament.ini` `RenderDevice=`/`GameRenderDevice=`/
+     `WindowedRenderDevice=GlideDrv.GlideRenderDevice` → `D3DDrv.D3DRenderDevice`;
+     RtCW `wolfconfig.cfg` `r_glDriver "gl/openglv5.dll"` → `"opengl32"` **and**
+     restore `gl/openglv5.stock` over the swapped-in MesaFX copy.
+   Rename to `*.3dfxbak` rather than deleting — reversible, and proves the sweep.
+   Leave a dual-boot Win98 volume's own `C:\WINDOWS\SYSTEM` alone (separate OS).
+7. **Never echo a path inside a `( ... )` block in a generated batch.** A game dir
+   called `Unreal Tournament (Installed)` closed the block early and aborted the
+   whole script with `\System\glide3x.dll was unexpected at this time` — mid-run,
+   after partial work. Emit bare `if exist "X" ren "X" "Y"` lines and verify with a
+   separate re-listing sweep.
+
+**Verify OpenGL for real**, not just by registry state: run Quake III with
+`+set r_glDriver opengl32 +set logfile 2 +timedemo 1 +demo four +quit` and grep
+`qconsole.log` for `GL_RENDERER`. Expect the new card (`GeForce2 GTS/AGP/SSE`),
+never a `Mesa Glide ... [voodoo-cleanroom]` or `[retro3dfx]` string.
+
 ## Notes
 - If the removed card is being **replaced**, do cleanup first, then install the
   new driver with `deploy-3dfx-driver` (or the vendor's installer).
+- **Installing an NVIDIA card afterwards: pick the driver by checking the INF, not
+  by version number.** A GeForce2 **GTS/Pro/Ti/Ultra** is NV15 (`10DE:0150`);
+  ForceWare **81.98 and 93.71 do not contain `DEV_0150`** (they carry only the
+  GeForce2 **MX**, NV11) and will refuse to bind. Last supporting branch is
+  Release 70 → use **71.89** (71.84's English package ships no `nv4_disp.cat`).
+  The package is an InstallShield PackageForTheWeb stub: `-s` extracts and starts
+  `setup.exe`, but the wizard still needs clicking — and **kill `wuauclt.exe` and
+  `net stop wscsvc` + `sc config wscsvc start= disabled` first**, or the Automatic
+  Updates / Security Center popups steal focus mid-wizard. `agent/tools/updrv.exe`
+  binds an INF headlessly if you can get a flat extract.
 - If the card is still physically present and you only want to *reset* its
   driver, uninstalling via Device Manager (screenshot-click `LAUNCH devmgmt.msc`)
   is gentler; this skill is for **full removal**, especially ghost devices.
