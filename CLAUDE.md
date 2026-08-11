@@ -22,6 +22,17 @@ sitting in the working tree helps nobody and is one lost machine away from gone.
   never commit a whole-file line-ending (CRLF) churn — check with
   `git diff --ignore-cr-at-eol --stat` before staging a file you didn't rewrite.
 - **Then push.** A commit that isn't pushed is still only on one machine.
+- **Check for other live sessions before you touch shared files.**
+  `git worktree list` shows them — e.g. the DOS game-launcher session sits in
+  `.claude/worktrees/dosgame-stability` on its own branch. Their worktree keeps
+  the *main* tree free for you, but you can still collide **in the files you both
+  edit**: shared indexes like `tests/README.md`, `tests/run_all.sh` and this file
+  are the usual casualties. Before editing one, `git -C <their-worktree> status
+  --short` to see if it's already modified there, and if so append in a distinct
+  region and say so in the commit message so the merge is obvious. If your own
+  change is large or long-running, take a worktree too
+  (`git worktree add .claude/worktrees/<topic> -b worktree-<topic>`) rather than
+  holding master.
 
 The sibling repos (`retro-3dfx`, `nsc-assistant`) carry the same rule.
 
