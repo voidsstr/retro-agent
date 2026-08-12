@@ -7,9 +7,13 @@
  * Format: [HH:MM:SS][TAG] message
  */
 
-/* Initialize logger. File logging is ON BY DEFAULT: logfile=NULL selects the
- * default rotating file (<exe dir>\agent.log, size-capped with one .1 backup);
- * a non-empty logfile overrides the path. */
+/* Initialize logger. File logging is ON BY DEFAULT and needs no argument:
+ * logfile=NULL selects the ONE known location, C:\RETRO_AGENT\agent.log
+ * (rotating, size-capped with one .1 backup), falling back to the exe's own
+ * directory and then the temp dir if that is not writable. Starting the agent
+ * by hand should never require remembering -l to get a log, and every fleet
+ * tool should find one in the same place on every box. A non-empty logfile
+ * still overrides the path. */
 void log_init(const char *logfile);
 
 /* The resolved active log-file path (for printing to the console). */

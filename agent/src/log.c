@@ -89,20 +89,57 @@ static void log_strcpy(char *dst, const char *src, int cap)
     dst[i] = '\0';
 }
 
-/* Default log path: <dir of the running exe>\agent.log. */
+/*
+ * Where the log goes when nobody says otherwise.
+ *
+ * There is ONE known location - C:\RETRO_AGENT\agent.log - and the agent uses
+ * it whether or not it was told to. Nobody starting this by hand should have
+ * to remember a -l argument to get a log, and every fleet tool that goes
+ * looking for one should find it in the same place on every box.
+ *
+ * Order: the fleet's fixed path, then the directory the exe actually runs
+ * from (for a copy running somewhere else), then the temp dir. -l still
+ * overrides everything.
+ */
+#define AGENT_LOG_DIR   "C:\\RETRO_AGENT"
+#define AGENT_LOG_FILE  AGENT_LOG_DIR "\\agent.log"
+
+/* Can we create/append a file here? Cheap and non-destructive. */
+static int path_writable(const char *path)
+{
+    HANDLE h = CreateFileA(path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                           NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) return 0;
+    CloseHandle(h);
+    return 1;
+}
+
 static void default_log_path(char *buf, DWORD cap)
 {
     char mod[MAX_PATH];
     char *slash;
-    DWORD n = GetModuleFileNameA(NULL, mod, sizeof(mod));
-    if (n == 0 || n >= sizeof(mod)) {
-        log_strcpy(buf, "C:\\retro_agent.log", cap);
+    DWORD n;
+
+    /* 1. The known fleet location. Create the directory if this is a fresh
+     *    box - CreateDirectory on an existing one is a harmless no-op. */
+    CreateDirectoryA(AGENT_LOG_DIR, NULL);
+    if (path_writable(AGENT_LOG_FILE)) {
+        log_strcpy(buf, AGENT_LOG_FILE, cap);
         return;
     }
-    slash = strrchr(mod, '\\');
-    if (slash) *slash = '\0'; else mod[0] = '\0';
-    _snprintf(buf, cap, "%s%sagent.log", mod, mod[0] ? "\\" : "");
-    buf[cap - 1] = '\0';
+
+    /* 2. Wherever this exe actually lives. */
+    n = GetModuleFileNameA(NULL, mod, sizeof(mod));
+    if (n > 0 && n < sizeof(mod)) {
+        slash = strrchr(mod, '\\');
+        if (slash) *slash = '\0'; else mod[0] = '\0';
+        _snprintf(buf, cap, "%s%sagent.log", mod, mod[0] ? "\\" : "");
+        buf[cap - 1] = '\0';
+        if (path_writable(buf)) return;
+    }
+
+    /* 3. Last resort. */
+    log_strcpy(buf, "C:\\retro_agent.log", cap);
 }
 
 /* Append bytes to the log handle and (optionally) echo to a valid console

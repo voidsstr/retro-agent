@@ -188,6 +188,29 @@ def test_buffer_full_and_oversized_lines_are_not_dropped():
         "a line larger than the buffer must still reach the disk"
 
 
+def test_log_location_needs_no_argument():
+    """Starting the agent by hand must not require remembering -l to get a
+    log, and every fleet tool should find one in the same place on every box.
+    The default resolves to a single known path, with fallbacks."""
+    log_c = read("log.c")
+    assert '#define AGENT_LOG_FILE' in log_c, "no fixed default log path"
+    assert 'AGENT_LOG_DIR "\\\\agent.log"' in log_c or \
+           'AGENT_LOG_DIR "\\agent.log"' in log_c, \
+        "the default file must live under the known directory"
+
+    body = func_body(log_c, "static void default_log_path(")
+    assert "CreateDirectoryA(AGENT_LOG_DIR" in body, \
+        "a fresh box has no C:\\RETRO_AGENT yet"
+    assert "path_writable" in body, \
+        "must fall back rather than log nowhere if the path is not writable"
+    assert "GetModuleFileNameA" in body, "exe-dir fallback must remain"
+
+    # -l must still win
+    main = read("main.c")
+    assert "g_logfile[0] ? g_logfile : NULL" in main, \
+        "an explicit -l must still override the default"
+
+
 def test_flush_interval_is_bounded():
     """Batching trades a window of routine logging against disk wear; that
     window has to be small enough to state."""
