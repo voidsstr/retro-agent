@@ -139,13 +139,24 @@ def test_console_handler_does_not_cancel_our_own_reboot():
         "do_system_power must announce the pending power operation"
 
 
-def test_flusher_thread_failure_falls_back_to_unbuffered():
-    """CreateThread genuinely fails on the 31MB Deskpro. With no flusher and
-    g_buffered left on, nothing drains the buffer and lines sit in RAM."""
-    body = func_body(read("log.c"), "void log_set_buffered(")
-    assert "if (!g_flush_thread)" in body, "CreateThread result must be checked"
-    tail = body[body.index("if (!g_flush_thread)"):]
-    assert "g_buffered = 0" in tail, "must fall back to unbuffered"
+def test_batching_does_not_depend_on_a_thread():
+    """CreateThread genuinely fails on this box (main.c logs exactly that for
+    dosstage). An earlier version responded by falling back to unbuffered -
+    which put the per-line platter write straight back, on the one machine
+    batching was written for, and the operator heard the drive clicking per
+    line. Losing the thread must NOT stop batching; log_msg ages the buffer
+    out itself."""
+    log_c = read("log.c")
+
+    msg = func_body(log_c, "void log_msg(")
+    assert "GetTickCount() - g_last_flush" in msg, \
+        "log_msg must age the buffer out without relying on the flusher"
+    assert "LOG_FLUSH_MS" in msg
+
+    setb = func_body(log_c, "void log_set_buffered(")
+    tail = setb[setb.index("if (!g_flush_thread)"):]
+    assert "g_buffered = 0" not in tail, \
+        "a missing flusher thread must not turn batching off"
 
 
 def test_buffering_starts_after_the_work_that_actually_crashes_this_box():
