@@ -322,6 +322,7 @@ static void kflush(void)
 #define K_END   0x4F00
 #define K_LEFT  0x4B00
 #define K_RIGHT 0x4D00
+#define K_F2    0x3C00
 #define K_F3    0x3D00
 #define K_F5    0x3F00
 #define K_F9    0x4300
@@ -477,7 +478,15 @@ static const char *skip_exes[] = {
      * "PKUNZJR.COM", and C:\GAMES itself as "CACHE.COM". */
     "unzip.exe","unzip32.exe","pkunzip.exe","pkunzjr.com","pkzip.exe",
     "arj.exe","lha.exe","cache.com","cwsdpmi.exe","deice.exe",
-    "install.bat","setup.bat", NULL
+    "install.bat","setup.bat",
+    /* Loaders, crack/no-CD stubs and support tools that sit beside a game and
+     * die on their own. CB-RUN.COM is what the scan picked for Jagged
+     * Alliance on the fleet's Win98 box - it is a loader, not the game, and
+     * running it gave "abnormal exit". */
+    "cb-run.com","cb-run.exe","loader.exe","loadgame.exe","crack.exe",
+    "patch.exe","readme.bat","read.exe","vendor.exe","modem.exe",
+    "uninstal.exe","uninst.exe","setsound.com","setup.com","install.com",
+    "config.bat","sound.bat","mouse.com","mouse.exe","smartdrv.exe", NULL
 };
 
 /* Self-extractors / installers: not the game, but running one is exactly
@@ -578,6 +587,36 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
     if (archive[0]) { strcpy(best, archive);
         logf("pick:   %s -> %s (archive only; needs unpacking)", fulldir, best); return 2; }
     return -1;
+}
+
+/* Next runnable file in `dir` after `current`, wrapping around. Used by F2 so
+ * the operator can correct a wrong launcher guess without editing anything. */
+static int next_launcher(const char *dir, const char *current, char *out)
+{
+    char pat[MAX_PATH_L * 2];
+    struct find_t ft;
+    char first[13] = "";
+    int seen_current = 0;
+
+    out[0] = '\0';
+    path_join(pat, dir, "*.*");
+    if (!pat[0] || _dos_findfirst(pat, _A_NORMAL, &ft) != 0) return 0;
+    do {
+        char *dot = strrchr(ft.name, '.');
+        if (!dot) continue;
+        if (stricmp(dot, ".EXE") && stricmp(dot, ".COM") && stricmp(dot, ".BAT"))
+            continue;
+        if (!first[0]) copy_str(first, ft.name, 13);
+        if (seen_current) { copy_str(out, ft.name, 13); return 1; }
+        if (!stricmp(ft.name, current)) seen_current = 1;
+    } while (_dos_findnext(&ft) == 0);
+
+    /* Wrapped past the end, or the current one is not in the directory. */
+    if (first[0] && stricmp(first, current)) {
+        copy_str(out, first, 13);
+        return 1;
+    }
+    return 0;
 }
 
 static void scan_game_dir(const char *root, const char *dir)
@@ -996,6 +1035,49 @@ static int show_tile(const game_t *g)
  * only 126 bytes), so putting them in a file avoids both quoting and
  * truncation. */
 
+/* DOS packed date+time as one comparable number. The fleet's DOS boxes have
+ * no reliable clock (this one still says 1980), but it is CONSISTENT - a file
+ * written now gets "now" by the box's own reckoning - so comparing stamps to
+ * each other works even though the absolute date is nonsense. */
+static unsigned long dos_stamp_now(void)
+{
+    struct dosdate_t d;
+    struct dostime_t t;
+    _dos_getdate(&d);
+    _dos_gettime(&t);
+    return ((unsigned long)d.year << 26) | ((unsigned long)d.month << 22)
+         | ((unsigned long)d.day << 17)   | ((unsigned long)t.hour << 12)
+         | ((unsigned long)t.minute << 6) | (unsigned long)t.second;
+}
+
+/* Same packing, from a directory entry's write time. */
+static unsigned long dos_stamp_of(const struct find_t *ft)
+{
+    unsigned y = 1980 + ((ft->wr_date >> 9) & 0x7F);
+    unsigned mo = (ft->wr_date >> 5) & 0x0F;
+    unsigned da = ft->wr_date & 0x1F;
+    unsigned h = (ft->wr_time >> 11) & 0x1F;
+    unsigned mi = (ft->wr_time >> 5) & 0x3F;
+    unsigned se = (ft->wr_time & 0x1F) * 2;
+    return ((unsigned long)y << 26) | ((unsigned long)mo << 22)
+         | ((unsigned long)da << 17) | ((unsigned long)h << 12)
+         | ((unsigned long)mi << 6) | (unsigned long)se;
+}
+
+/* Does this directory contain a file written at or after `since`? That is how
+ * an install into an ALREADY EXISTING directory is detected. */
+static int dir_touched_since(const char *dir, unsigned long since)
+{
+    char pat[MAX_PATH_L * 2];
+    struct find_t ft;
+    path_join(pat, dir, "*.*");
+    if (!pat[0] || _dos_findfirst(pat, _A_NORMAL, &ft) != 0) return 0;
+    do {
+        if (dos_stamp_of(&ft) >= since) return 1;
+    } while (_dos_findnext(&ft) == 0);
+    return 0;
+}
+
 static void pending_path(char *out) { sprintf(out, "%s\\PENDING.TXT", cfg_home); }
 static void presnap_path(char *out) { sprintf(out, "%s\\PREINST.LST", cfg_home); }
 
@@ -1023,6 +1105,9 @@ static void snap_dirs(void)
     presnap_path(path);
     out = fopen(path, "w");
     if (!out) { logf("snap:   CANNOT WRITE %s", path); return; }
+    /* First line is the moment of the snapshot; post_install compares file
+     * write times against it to spot an install into an existing directory. */
+    fprintf(out, "@%lu\n", dos_stamp_now());
 
     copy_str(roots, cfg_scan, sizeof(roots));
     p = roots;
@@ -1060,6 +1145,7 @@ static int in_snapshot(const char *dir)
     if (!f) return 0;
     while (fgets(line, sizeof(line), f)) {
         chomp(line);
+        if (line[0] == '@') continue;                 /* the timestamp line */
         if (line[0] && !stricmp(line, dir)) { hit = 1; break; }
     }
     fclose(f);
@@ -1100,6 +1186,21 @@ static int find_deep_launcher(const char *parent, const char *want,
  * be found — RUN.BAT branches on that errorlevel to tell the user, because
  * batch cannot make the judgement itself ("if exist DIR\*.*" is TRUE even for
  * an empty directory, so an unzip that produced nothing looks like success). */
+/* The instant the pre-install snapshot was taken, or 0 if unknown. */
+static unsigned long snapshot_stamp(void)
+{
+    char path[MAX_PATH_L + 16], line[64];
+    FILE *f;
+    unsigned long v = 0;
+    presnap_path(path);
+    f = fopen(path, "r");
+    if (!f) return 0;
+    if (fgets(line, sizeof(line), f) && line[0] == '@')
+        v = strtoul(line + 1, NULL, 10);
+    fclose(f);
+    return v;
+}
+
 static int post_install(void)
 {
     char path[MAX_PATH_L + 16];
@@ -1187,6 +1288,56 @@ static int post_install(void)
                 }
             }
             p = next;
+        }
+    }
+
+    /* 2b. Still nothing. The installer may have written into a directory that
+     *     ALREADY EXISTED - which is the common case once a game has been
+     *     installed here before, and it is invisible to a "what is new?"
+     *     diff. Verified on the fleet's Win98 box: installing Blake Stone,
+     *     Duke 1 and Duke 2 all reported "nothing runnable" because their
+     *     installers targeted C:\BSTONE, C:\DUKE and C:\DUKE2, every one of
+     *     which was already there. So look for a directory that was WRITTEN
+     *     TO during the install instead of one that appeared. */
+    if (!gamedir[0]) {
+        unsigned long since = snapshot_stamp();
+        if (since) {
+            copy_str(roots, cfg_scan, sizeof(roots));
+            p = roots;
+            while (p && *p && !gamedir[0]) {
+                next = strchr(p, ';');
+                if (next) *next++ = '\0';
+                while (*p == ' ') p++;
+                if (*p) {
+                    char pat[MAX_PATH_L + 8], full[MAX_PATH_L + 1];
+                    struct find_t ft;
+                    int len = (int)strlen(p);
+                    if (len > 3 && p[len - 1] == '\\') p[len - 1] = '\0';
+                    path_join(pat, p, "*.*");
+                    if (pat[0] && _dos_findfirst(pat, _A_SUBDIR, &ft) == 0) {
+                        do {
+                            if (!(ft.attrib & _A_SUBDIR) || ft.name[0] == '.')
+                                continue;
+                            path_join(full, p, ft.name);
+                            if (!full[0] || !stricmp(full, unpack)) continue;
+                            if (is_skip_dir(ft.name)) continue;
+                            if (!dir_touched_since(full, since)) continue;
+                            logf("post:   %s was written to during the install",
+                                 full);
+                            if (want[0] && file_exists(full, want)) {
+                                copy_str(gamedir, full, sizeof(gamedir));
+                                copy_str(best, want, sizeof(best));
+                                break;
+                            }
+                            if (pick_launcher(full, ft.name, best) == 0) {
+                                copy_str(gamedir, full, sizeof(gamedir));
+                                break;
+                            }
+                        } while (_dos_findnext(&ft) == 0);
+                    }
+                }
+                p = next;
+            }
         }
     }
 
@@ -1563,7 +1714,7 @@ static void draw_footer(const char *msg)
         vputs(1, SCREEN_H - 1, msg);
     else if (tab == 0)
         vputs(1, SCREEN_H - 1,
-              "Enter=Play  F3=Preview  Tab=Catalog  F5=Rescan  Esc=Quit");
+              "Enter=Play  F2=Change program  F3=Preview  Tab=Catalog  F5=Rescan  Esc=Quit");
     else {
         /* 74 chars of literal plus a filter of up to 23 overflowed the old
          * char[81] and smashed the stack — on a real box that is a hung
@@ -1752,6 +1903,37 @@ int main(int argc, char **argv)
                     draw_all(NULL);
             }
             dirty = 0;
+            break;
+        case K_F2:
+            /* Pick a different program for this game.
+             *
+             * No heuristic gets this right every time: a game directory can
+             * hold a loader, a setup tool, a level editor and the game, and
+             * "first non-tool .EXE" picked CB-RUN.COM for Jagged Alliance on
+             * the fleet's Win98 box - which exits abnormally on its own. So
+             * cycle through what is actually runnable in the directory and
+             * remember the choice in the registry, where it outlives a
+             * rescan. */
+            if (tab == 0 && n_view) {
+                game_t *g = &games[view[sel]];
+                char next[13];
+                if (next_launcher(g->path, g->exe, next)) {
+                    copy_str(g->exe, next, sizeof(g->exe));
+                    g->kind = 'R';
+                    reg_append('G', g->title, g->path, g->exe, g->tile);
+                    logf("ui:     launcher for \"%s\" set to %s",
+                         g->title, g->exe);
+                    {
+                        char msg[81];
+                        sprintf(msg, "%.30s will now run %.12s  (F2 for the next one)",
+                                g->title, g->exe);
+                        draw_all(msg);
+                    }
+                } else {
+                    draw_all("Nothing else runnable in that folder.");
+                }
+                dirty = 0;
+            }
             break;
         case K_F5:
             logf("ui:     rescan requested");

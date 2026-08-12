@@ -630,7 +630,7 @@ static DWORD WINAPI client_thread(LPVOID param)
  * - and those lines have to be on disk per-line to be any use afterwards.
  * After that the agent is idle chatter, which is what batching is for.
  */
-#define LOG_BUFFER_AFTER_MS  180000
+#define LOG_BUFFER_AFTER_MS  120000
 
 static DWORD WINAPI delayed_buffering_thread(LPVOID unused)
 {

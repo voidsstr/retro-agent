@@ -76,6 +76,7 @@ static long   g_log_bytes = 0;
 static char  g_buf[LOG_BUF_BYTES];
 static int   g_buf_len = 0;
 static int   g_buffered = 0;          /* 0 until the agent is up: see header */
+static DWORD g_last_flush = 0;        /* GetTickCount of the last write-out */
 static HANDLE g_flush_thread = NULL;
 static volatile int g_flush_stop = 0;
 
@@ -164,6 +165,7 @@ static int disk_out(const char *s, DWORD len)
  * path, which deliberately runs lock-free). */
 static void flush_locked(void)
 {
+    g_last_flush = GetTickCount();
     if (g_buf_len > 0) {
         /* Only drop the pending lines once they are actually on disk. A full
          * disk or a yanked network path would otherwise discard up to 8KB of
@@ -307,6 +309,17 @@ void log_msg(const char *tag, const char *fmt, ...)
 
     EnterCriticalSection(&g_log_cs);
     raw_out(line, (DWORD)n);
+
+    /* Age out the buffer HERE rather than relying on the flusher thread.
+     * CreateThread genuinely fails on the 31MB Deskpro (main.c logs exactly
+     * that for dosstage), and an earlier version responded by falling back to
+     * unbuffered - which put the per-line platter write straight back, the
+     * very thing batching exists to stop. Checking the clock on the path that
+     * is already holding the lock costs nothing and needs no thread. */
+    if (g_buffered && g_buf_len > 0 &&
+        (DWORD)(GetTickCount() - g_last_flush) >= (DWORD)LOG_FLUSH_MS)
+        flush_locked();
+
     if (g_log_bytes >= LOG_MAX_BYTES && g_log_path[0]) {
         /* Get pending lines into the OLD file before it is rolled aside;
          * otherwise they reappear at the top of the new one, out of order. */
@@ -359,6 +372,7 @@ void log_set_buffered(int on)
     EnterCriticalSection(&g_log_cs);
     if (!on) flush_locked();          /* never strand lines in the buffer */
     g_buffered = on ? 1 : 0;
+    g_last_flush = GetTickCount();
     LeaveCriticalSection(&g_log_cs);
 
     if (on && !g_flush_thread) {
@@ -366,17 +380,14 @@ void log_set_buffered(int on)
         g_flush_stop = 0;
         g_flush_thread = CreateThread(NULL, 0, log_flush_thread, NULL, 0, &tid);
         if (!g_flush_thread) {
-            /* No flusher means nothing drains the buffer and LOG_FLUSH_MS
-             * bounds nothing - lines would sit in RAM indefinitely on an idle
-             * agent. Thread creation genuinely fails on the 31MB Deskpro
-             * (main.c logs exactly that for dosstage), so fall back rather
-             * than assume. */
-            EnterCriticalSection(&g_log_cs);
-            g_buffered = 0;
-            flush_locked();
-            LeaveCriticalSection(&g_log_cs);
-            log_msg(LOG_MAIN, "log: flusher thread failed to start (%lu) - "
-                    "staying unbuffered", (unsigned long)GetLastError());
+            /* Stay batched. The thread is only an optimisation for an IDLE
+             * agent - the age check in log_msg() already bounds staleness
+             * whenever anything is actually being logged, and an agent with
+             * nothing to log has nothing to lose. Falling back to unbuffered
+             * here (as an earlier version did) restored the per-line platter
+             * write on the one machine batching was written for. */
+            log_msg(LOG_MAIN, "log: no flusher thread (%lu) - batching on the "
+                    "logging path only", (unsigned long)GetLastError());
         }
     }
 }
