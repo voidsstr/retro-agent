@@ -97,6 +97,8 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | 0.2 depth-2 scan for non-flat archives (~24% of the share) | DOS lane (dosgame.c) | `run_dos_tests.sh` |
 | 0.2 real-mode hardening: 8K stack, kflush, vinit mode reset, INT 24h handler | DOS lane (dosgame.c + Makefile) | `python/test_dosgame_stability.py` |
 | 0.2 diagnostic log (DOSGAME.LOG): decisions + batch steps, flushed per line | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| **agent 1.26.0 Win9x REBOOT: don't kill the agent mid-shutdown-negotiation** | agent handlers.c | `python/test_agent_log_and_reboot.py` |
+| agent 1.26.0 batched logging: unbuffered startup, flush on every exit path | agent log.c / main.c | `python/test_agent_log_and_reboot.py` |
 | DOS net bring-up: guarded drivers, PKT.OK written, CHAT auto-calls NETUP | DOS lane (NETUP/PLAY/CHAT.BAT) | `python/test_dosgame_install_detect.py` |
 | fleetbook add/search/log contract (brain's solved-problems DB) | scripts/retro_fleetbook.py | `python/test_fleetbook.py` |
 | agent default desktop theme = green hacker + Starfield (was gray classic) | agent retrowall.c | `python/test_retrowall_theme.py` |

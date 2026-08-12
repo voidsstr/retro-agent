@@ -138,7 +138,45 @@ void handle_ping(SOCKET sock)
  * boxes, and the only cost of waiting is a later log line. */
 #define WIN9X_SHUTDOWN_WAIT_MS  60000
 
-static void kill_console_processes(void)
+/* See handlers.h: keeps the console control handler from stopping the agent
+ * while Win9x is tearing the session down at our own request. */
+volatile int g_power_pending = 0;
+
+/* Is this a Win9x box? (Shutdown behaviour differs completely from NT.) */
+static int is_win9x(void)
+{
+    OSVERSIONINFOA o;
+    o.dwOSVersionInfoSize = sizeof(o);
+    GetVersionExA(&o);
+    return o.dwPlatformId != VER_PLATFORM_WIN32_NT;
+}
+
+/* Relaunch the chat client we killed to clear its shutdown veto. Only used
+ * when the reboot did NOT take - otherwise the machine is going down anyway
+ * and the Run key starts it again at the next logon. */
+static void restart_retro_chat(void)
+{
+    char path[MAX_PATH];
+    char *slash;
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+
+    if (!GetModuleFileNameA(NULL, path, sizeof(path))) return;
+    slash = strrchr(path, '\\');
+    if (!slash) return;
+    safe_strncpy(slash + 1, "retro_chat.exe",
+                 (int)(sizeof(path) - (slash + 1 - path)));
+
+    memset(&si, 0, sizeof(si)); si.cb = sizeof(si);
+    memset(&pi, 0, sizeof(pi));
+    if (CreateProcessA(path, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        log_msg(LOG_MAIN, "Shutdown: reboot did not take - restarted %s", path);
+    }
+}
+
+static void kill_console_processes(int kill_chat)
 {
     HANDLE snap;
     PROCESSENTRY32 pe;
@@ -159,7 +197,8 @@ static void kill_console_processes(void)
             if (_stricmp(pe.szExeFile, "COMMAND.COM") == 0 ||
                 _stricmp(pe.szExeFile, "CMD.EXE") == 0 ||
                 _stricmp(pe.szExeFile, "CONAGENT.EXE") == 0 ||
-                _stricmp(pe.szExeFile, "RETRO_CHAT.EXE") == 0) {
+                (kill_chat &&
+                 _stricmp(pe.szExeFile, "RETRO_CHAT.EXE") == 0)) {
                 h = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
                 if (h) {
                     log_msg(LOG_MAIN, "Shutdown: killing %s (PID %lu)",
@@ -276,17 +315,21 @@ static DWORD WINAPI system_shutdown_thread(LPVOID param)
         result = ExitWindowsEx(flags, 0);
         log_msg(LOG_MAIN, "Shutdown: ExitWindowsEx = %d, err=%lu",
                 result, (unsigned long)GetLastError());
+        /* From here the machine may go at any moment; this verdict is the
+         * whole record of whether the call was accepted. */
+        log_flush();
 
         if (!result) {
             /* EWX_FORCE can be refused while a DOS box is still closing.
              * Give the kills a moment, then try again without FORCE, which
              * some Win9x builds accept when the forced form did not. */
             Sleep(1000);
-            kill_console_processes();
+            kill_console_processes(1);
             Sleep(500);
             result = ExitWindowsEx(flags & ~EWX_FORCE, 0);
             log_msg(LOG_MAIN, "Shutdown: retry without FORCE = %d, err=%lu",
                     result, (unsigned long)GetLastError());
+            log_flush();
         }
 
         /* Pump until the OS tears us down. The bound is a backstop only: if
@@ -304,6 +347,11 @@ static DWORD WINAPI system_shutdown_thread(LPVOID param)
         log_msg(LOG_MAIN, "Shutdown: STILL RUNNING after %lu ms - the reboot "
                 "did not take; the machine needs a manual restart",
                 (unsigned long)WIN9X_SHUTDOWN_WAIT_MS);
+        /* We killed the chat client to clear its veto and the machine is
+         * still here, so put it back rather than leaving the box without it
+         * until somebody logs on again. */
+        restart_retro_chat();
+        g_power_pending = 0;      /* allow another attempt */
         log_flush();
 
         if (hwnd) DestroyWindow(hwnd);
@@ -321,6 +369,15 @@ static void do_system_power(SOCKET sock, const char *label, UINT ewx_flags)
 {
     OSVERSIONINFOA osvi;
 
+    if (g_power_pending) {
+        /* Now that the agent survives a Win9x shutdown attempt, a repeated
+         * REBOOT would stack another 60-second pumping thread and re-kill the
+         * consoles each time. One at a time. */
+        send_text_response(sock, "OK (a power operation is already in flight)");
+        log_msg(LOG_MAIN, "%s: ignored - one is already in flight", label);
+        return;
+    }
+
     send_text_response(sock, "OK");
     log_msg(LOG_MAIN, "%s: initiating", label);
     /* Commit the log now: everything after this point races the machine
@@ -328,11 +385,26 @@ static void do_system_power(SOCKET sock, const char *label, UINT ewx_flags)
      * for if it does not come back. */
     log_flush();
 
-    kill_console_processes();
+    /* Only clear the chat client's shutdown veto on Win9x: on NT it has no
+     * vote, and killing it there is pure collateral damage. */
+    kill_console_processes(is_win9x());
     Sleep(200);
 
-    CreateThread(NULL, 0, system_shutdown_thread,
-                 (LPVOID)(UINT_PTR)ewx_flags, 0, NULL);
+    /* Announce the pending power operation BEFORE anything can start tearing
+     * the session down, so the console control handler never mistakes a
+     * shutdown we asked for for a reason to stop the agent. */
+    g_power_pending = 1;
+
+    {
+        HANDLE th = CreateThread(NULL, 0, system_shutdown_thread,
+                                 (LPVOID)(UINT_PTR)ewx_flags, 0, NULL);
+        if (th) CloseHandle(th);        /* fire-and-forget: don't leak it */
+        else {
+            log_msg(LOG_MAIN, "%s: FAILED to start the shutdown thread", label);
+            log_flush();
+            g_power_pending = 0;
+        }
+    }
 
     osvi.dwOSVersionInfoSize = sizeof(osvi);
     GetVersionExA(&osvi);

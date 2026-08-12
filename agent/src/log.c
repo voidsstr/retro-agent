@@ -110,15 +110,17 @@ static void default_log_path(char *buf, DWORD cap)
  * lock -- callers manage that (the crash logger deliberately runs lock-free). */
 /* Write straight to the file and commit. No locking, no buffering -- this is
  * the bottom of the stack, used by the flusher and by the crash logger. */
-static void disk_out(const char *s, DWORD len)
+static int disk_out(const char *s, DWORD len)
 {
     DWORD wr;
-    if (g_log_h == INVALID_HANDLE_VALUE || len == 0) return;
+    if (g_log_h == INVALID_HANDLE_VALUE || len == 0) return 0;
     SetFilePointer(g_log_h, 0, NULL, FILE_END);
     if (WriteFile(g_log_h, s, len, &wr, NULL)) {
         FlushFileBuffers(g_log_h);   /* durability: on disk before we return */
         g_log_bytes += (long)len;
+        return 1;
     }
+    return 0;
 }
 
 /* Push whatever is pending to disk. Caller holds the lock (or is the crash
@@ -126,8 +128,13 @@ static void disk_out(const char *s, DWORD len)
 static void flush_locked(void)
 {
     if (g_buf_len > 0) {
-        disk_out(g_buf, (DWORD)g_buf_len);
-        g_buf_len = 0;
+        /* Only drop the pending lines once they are actually on disk. A full
+         * disk or a yanked network path would otherwise discard up to 8KB of
+         * log silently, every interval, with nothing to show it happened. */
+        if (disk_out(g_buf, (DWORD)g_buf_len))
+            g_buf_len = 0;
+        else if (g_buf_len >= LOG_BUF_BYTES)
+            g_buf_len = 0;   /* wedged and full: drop rather than stop logging */
     }
 }
 
@@ -264,6 +271,9 @@ void log_msg(const char *tag, const char *fmt, ...)
     EnterCriticalSection(&g_log_cs);
     raw_out(line, (DWORD)n);
     if (g_log_bytes >= LOG_MAX_BYTES && g_log_path[0]) {
+        /* Get pending lines into the OLD file before it is rolled aside;
+         * otherwise they reappear at the top of the new one, out of order. */
+        flush_locked();
         if (g_log_h != INVALID_HANDLE_VALUE) {
             CloseHandle(g_log_h);
             g_log_h = INVALID_HANDLE_VALUE;
@@ -318,6 +328,19 @@ void log_set_buffered(int on)
         DWORD tid;
         g_flush_stop = 0;
         g_flush_thread = CreateThread(NULL, 0, log_flush_thread, NULL, 0, &tid);
+        if (!g_flush_thread) {
+            /* No flusher means nothing drains the buffer and LOG_FLUSH_MS
+             * bounds nothing - lines would sit in RAM indefinitely on an idle
+             * agent. Thread creation genuinely fails on the 31MB Deskpro
+             * (main.c logs exactly that for dosstage), so fall back rather
+             * than assume. */
+            EnterCriticalSection(&g_log_cs);
+            g_buffered = 0;
+            flush_locked();
+            LeaveCriticalSection(&g_log_cs);
+            log_msg(LOG_MAIN, "log: flusher thread failed to start (%lu) - "
+                    "staying unbuffered", (unsigned long)GetLastError());
+        }
     }
 }
 
@@ -337,9 +360,14 @@ void log_shutdown(void)
     g_buffered = 0;
     flush_locked();
     if (g_log_h != INVALID_HANDLE_VALUE) {
+        /* Mark the close while the handle is still open, so a log that ends
+         * here is visibly a CLEAN exit. Without it the file just stops, which
+         * reads identically to the agent being killed. */
+        disk_out("--- log closed (clean shutdown) ---\r\n", 38);
         CloseHandle(g_log_h);
         g_log_h = INVALID_HANDLE_VALUE;
     }
+    g_log_bytes = 0;      /* no stale count to trigger a post-close rotate */
     LeaveCriticalSection(&g_log_cs);
 }
 
@@ -348,18 +376,35 @@ void log_shutdown(void)
  * and writes straight to disk. Never call this on a hot path. */
 void log_crash(const char *tag, const char *fmt, ...)
 {
+    static char snap[LOG_BUF_BYTES + 1024];
     char line[1024];
-    int n;
+    int n, pend;
     va_list ap;
 
-    /* Whatever was batched is part of the story of this crash, and it is the
-     * part that says what the agent was doing beforehand. Get it out first,
-     * lock-free: the thread that died may have been holding the lock. */
-    flush_locked();
+    /* Whatever was batched is part of the story of this crash - it is the
+     * part that says what the agent was doing beforehand. But this runs
+     * LOCK-FREE (the thread that died may hold the lock), so it must not
+     * mutate g_buf/g_buf_len the way flush_locked() would: another thread
+     * legitimately holding the lock could be appending to them right now,
+     * and two writers each doing SetFilePointer(FILE_END)+WriteFile on the
+     * same handle can interleave and lose the crash record itself.
+     *
+     * So: SNAPSHOT the pending bytes, append the crash line to the copy, and
+     * emit the whole thing in ONE write. Nothing shared is written to, and
+     * the crash line cannot be torn. Worst case the pending part is a
+     * slightly stale or duplicated tail - a fine price during a crash. */
+    pend = g_buf_len;
+    if (pend < 0 || pend > LOG_BUF_BYTES) pend = 0;
+    if (pend > 0) memcpy(snap, g_buf, (size_t)pend);
 
     va_start(ap, fmt);
     n = format_line(line, (int)sizeof(line), tag, fmt, ap);
     va_end(ap);
 
-    disk_out(line, (DWORD)n);  /* straight to disk: durability over ordering */
+    if (n > 0 && n < (int)sizeof(line)) {
+        memcpy(snap + pend, line, (size_t)n);
+        disk_out(snap, (DWORD)(pend + n));
+    } else {
+        disk_out(snap, (DWORD)pend);
+    }
 }

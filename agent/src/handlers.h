@@ -127,6 +127,12 @@ extern int g_longpoll_max_ms;
 /* Shared flag for graceful shutdown */
 extern volatile int g_running;
 
+/* Set while a REBOOT/SHUTDOWN is being negotiated. On Win9x the agent must
+ * NOT exit during that window - the process that asked for the shutdown
+ * dying mid-negotiation cancels it - so the console control handler checks
+ * this before honouring a LOGOFF/SHUTDOWN event by stopping the agent. */
+extern volatile int g_power_pending;
+
 /* Service mode support (service.c) */
 extern int g_service_mode;
 int  try_service_start(void);

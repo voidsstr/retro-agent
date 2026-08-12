@@ -622,6 +622,31 @@ static DWORD WINAPI client_thread(LPVOID param)
     return 0;
 }
 
+/*
+ * Turn on batched logging once the startup danger has passed.
+ *
+ * Everything the agent does that has historically killed it happens in the
+ * first couple of minutes - the dosstage payload copy at ~45s being the worst
+ * - and those lines have to be on disk per-line to be any use afterwards.
+ * After that the agent is idle chatter, which is what batching is for.
+ */
+#define LOG_BUFFER_AFTER_MS  180000
+
+static DWORD WINAPI delayed_buffering_thread(LPVOID unused)
+{
+    int slept = 0;
+    (void)unused;
+    while (slept < LOG_BUFFER_AFTER_MS && g_running) {
+        Sleep(1000);
+        slept += 1000;
+    }
+    if (!g_running) return 0;
+    log_set_buffered(1);
+    log_msg(LOG_MAIN, "log: batched writes on (flush when full or every 15s) "
+            "- startup window is past");
+    return 0;
+}
+
 static BOOL WINAPI console_handler(DWORD ctrl_type)
 {
     /* On Win9x this agent is a console window and closing that window IS how
@@ -630,10 +655,23 @@ static BOOL WINAPI console_handler(DWORD ctrl_type)
      * where a reboot's final lines would otherwise be lost. */
     if (ctrl_type == CTRL_C_EVENT || ctrl_type == CTRL_CLOSE_EVENT ||
         ctrl_type == CTRL_LOGOFF_EVENT || ctrl_type == CTRL_SHUTDOWN_EVENT) {
-        log_msg(LOG_MAIN, "console control event %lu - stopping",
-                (unsigned long)ctrl_type);
+        log_msg(LOG_MAIN, "console control event %lu (power_pending=%d)",
+                (unsigned long)ctrl_type, g_power_pending);
         log_flush();
-        g_running = 0;
+
+        /*
+         * Getting the log out is always right. STOPPING is not.
+         *
+         * LOGOFF and SHUTDOWN are exactly the events Win9x raises while it is
+         * tearing the session down - including the teardown WE asked for via
+         * REBOOT. Exiting here would kill the agent mid-negotiation and
+         * cancel that shutdown, which is precisely the bug do_system_power()
+         * was just fixed to avoid; honouring these events would quietly
+         * re-arm it from a second direction. During a power operation we stay
+         * alive and let the OS terminate us.
+         */
+        if (!g_power_pending)
+            g_running = 0;
         return TRUE;
     }
     return FALSE;
@@ -729,6 +767,10 @@ static DWORD WINAPI sharelog_thread(LPVOID param)
 
     Sleep(SHARELOG_FIRST_MS);
     while (g_running) {
+        /* Commit the batch first: the whole point of mirroring is that the
+         * copy on the share is what gets read when the box is unreachable,
+         * and a copy missing the newest lines is worse than useless. */
+        log_flush();
         /* CopyFileA fails fast + harmlessly if the share isn't reachable. */
         if (CopyFileA(log_path(), dest, FALSE))
             log_msg(LOG_MAIN, "sharelog: mirrored to %s", dest);
@@ -950,12 +992,21 @@ void agent_run(void)
     CreateThread(NULL, 0, sharelog_thread, NULL, 0, NULL);
 
     log_msg(LOG_MAIN, "startup: helper threads spawned; entering accept loop");
-    /* Startup - the window where a silent crash has to be reconstructed from
-     * the log - is over. Switch to batched writes so a 24/7 agent stops
-     * seeking the drive once per log line. */
-    log_set_buffered(1);
-    log_msg(LOG_MAIN, "log: batched writes on (flush every %d s or when full)",
-            15);
+    /* Batching starts LATER, not here. "Helper threads spawned" is not the
+     * end of the risky window: the threads just started are the ones that
+     * have actually killed this agent - dosstage copying an 11MB payload
+     * ~45s in took the Deskpro down outright, and that looked for hours like
+     * a startup crash. Those minutes must stay on-disk-per-line. A tiny
+     * thread flips the switch once they are safely past. */
+    {
+        DWORD tid;
+        HANDLE h = CreateThread(NULL, 0, delayed_buffering_thread, NULL, 0, &tid);
+        if (h) CloseHandle(h);
+        else {
+            log_msg(LOG_MAIN, "log: could not start the buffering timer - "
+                    "staying unbuffered");
+        }
+    }
     clients_init();
 
     /* Accept loop */
@@ -1064,9 +1115,13 @@ void agent_run(void)
     WaitForSingleObject(disc_thread, 3000);
     WSACleanup();
 
-    /* Flush and close the log before the hard exit below: that exit path
-     * deliberately does not unwind, so nothing else would get the batched
-     * lines out. */
+    /* Log the clean-exit marker BEFORE closing: log_shutdown() invalidates
+     * the file handle, and anything logged after it reaches the console but
+     * never the file - so a clean QUIT would end at "Shutting down" and read
+     * exactly like an agent that was killed. */
+    log_msg(LOG_MAIN, "shutdown complete; exiting process");
+    /* Flush and close: the hard exit below deliberately does not unwind, so
+     * nothing else would get the batched lines out. */
     log_shutdown();
 
     /*
@@ -1074,8 +1129,9 @@ void agent_run(void)
      * dosstage, watchdog) and a wedged handler must never be able to keep a
      * quit agent alive holding its ports — an unreachable-but-listening
      * agent on a Win9x box needs physical access to fix.
+     * (The exit marker is logged above, before log_shutdown() closes the
+     * file — logging it here would only reach the console.)
      */
-    log_msg(LOG_MAIN, "shutdown complete; exiting process");
     ExitProcess(0);
 }
 
