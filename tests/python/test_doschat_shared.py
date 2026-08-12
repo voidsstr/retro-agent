@@ -171,11 +171,17 @@ def test_multiplex_longpolls_are_clamped():
 
 def test_helper_thread_failures_are_logged():
     """A CreateThread failure used to be silent, so a feature that never ran
-    left no trace — exactly what hid dosstage on a 0MB-free box."""
+    left no trace — exactly what hid dosstage on a 0MB-free box.
+
+    The check moved rather than went away: every helper now starts through
+    spawn_helper(), which reports the failure AND closes the handle on success
+    (discarding it leaked a kernel object per thread started)."""
     m = _read(MAIN_C)
-    assert re.search(r"if\s*\(!CreateThread\([^)]*dosstage_thread", m), (
-        "dosstage thread creation must be checked")
-    assert "FAILED to start" in m
+    assert re.search(r"spawn_helper\(dosstage_thread", m), (
+        "dosstage must be started through the checked spawner")
+    assert re.search(r"static int spawn_helper\(", m), (
+        "the checked spawner must exist")
+    assert "thread FAILED to start" in m
 
 
 def test_enough_client_slots_for_local_chat_plus_daemon():
