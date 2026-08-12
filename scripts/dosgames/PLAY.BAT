@@ -22,6 +22,17 @@ echo play:   FAILED - C:\DOSGAME\DOSGAME.EXE is missing >> %DGLOG%
 goto done
 
 :haveexe
+rem Record the memory picture once per run. In MS-DOS mode the box has no
+rem Windows underneath it and whatever is resident (packet driver, mTCP,
+rem CD/mouse drivers) comes straight out of the 640K the menu and the game
+rem then have to fit in - and "not enough memory to load a program" is
+rem reported by COMMAND.COM as "Bad command or file name", which reads like
+rem a missing file and sends you looking in the wrong place entirely.
+if not exist C:\WINDOWS\COMMAND\MEM.EXE goto nomem
+echo play:   --- free memory --- >> %DGLOG%
+C:\WINDOWS\COMMAND\MEM.EXE >> %DGLOG%
+
+:nomem
 if exist C:\DOSGAME\NETUP.BAT goto havenet
 echo play:   NETUP.BAT missing - skipping network bring-up >> %DGLOG%
 goto menu

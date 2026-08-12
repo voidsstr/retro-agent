@@ -624,7 +624,15 @@ static DWORD WINAPI client_thread(LPVOID param)
 
 static BOOL WINAPI console_handler(DWORD ctrl_type)
 {
-    if (ctrl_type == CTRL_C_EVENT || ctrl_type == CTRL_CLOSE_EVENT) {
+    /* On Win9x this agent is a console window and closing that window IS how
+     * it usually stops - so this is the last code that runs. Get the batched
+     * log out before the process goes. Also covers logoff/shutdown, which is
+     * where a reboot's final lines would otherwise be lost. */
+    if (ctrl_type == CTRL_C_EVENT || ctrl_type == CTRL_CLOSE_EVENT ||
+        ctrl_type == CTRL_LOGOFF_EVENT || ctrl_type == CTRL_SHUTDOWN_EVENT) {
+        log_msg(LOG_MAIN, "console control event %lu - stopping",
+                (unsigned long)ctrl_type);
+        log_flush();
         g_running = 0;
         return TRUE;
     }
@@ -942,6 +950,12 @@ void agent_run(void)
     CreateThread(NULL, 0, sharelog_thread, NULL, 0, NULL);
 
     log_msg(LOG_MAIN, "startup: helper threads spawned; entering accept loop");
+    /* Startup - the window where a silent crash has to be reconstructed from
+     * the log - is over. Switch to batched writes so a 24/7 agent stops
+     * seeking the drive once per log line. */
+    log_set_buffered(1);
+    log_msg(LOG_MAIN, "log: batched writes on (flush every %d s or when full)",
+            15);
     clients_init();
 
     /* Accept loop */
@@ -1049,6 +1063,11 @@ void agent_run(void)
         closesocket(listen_sock_alt);
     WaitForSingleObject(disc_thread, 3000);
     WSACleanup();
+
+    /* Flush and close the log before the hard exit below: that exit path
+     * deliberately does not unwind, so nothing else would get the batched
+     * lines out. */
+    log_shutdown();
 
     /*
      * Guarantee the process actually dies. Helper threads (retrowall,

@@ -20,6 +20,34 @@
  * with one rolled backup (agent.log.1). -l overrides the path.
  *
  * Format: [HH:MM:SS][TAG] message
+ *
+ * BATCHING (added for the Win98 box's 1997 IDE drive)
+ * ---------------------------------------------------
+ * Writing + FlushFileBuffers on EVERY line means a physical seek and platter
+ * write per log entry, forever, on a machine that runs 24/7. That is a lot of
+ * head movement and wear for a log nobody reads most days. So lines are
+ * accumulated in memory and written in batches.
+ *
+ * The startup-crash property above is NOT given up to get it. Instead:
+ *
+ *   - Startup is UNBUFFERED. Every line goes straight to disk until the agent
+ *     declares itself up (log_set_buffered(1) once the helper threads are
+ *     spawned). That is the window the original comment is about - the silent
+ *     Deskpro startup crash - and it still behaves exactly as before.
+ *   - After that, lines batch until the buffer fills or the flush interval
+ *     passes, whichever comes first.
+ *   - Every path that can end the process flushes first: the unhandled
+ *     exception filter (log_crash), the console control handler (which is how
+ *     this agent usually dies on Win9x - somebody closes its window), and the
+ *     clean shutdown path (log_shutdown).
+ *   - Anything logged at "important" severity flushes immediately, so the
+ *     record of a reboot, an update or a fatal error is on disk before the
+ *     thing it describes happens.
+ *
+ * What that leaves at risk is the last few seconds of routine chatter if the
+ * MACHINE dies (power loss, hard hang) - which no amount of buffering
+ * discipline can protect, short of the per-line flush we are deliberately
+ * removing. LOG_FLUSH_MS bounds that window.
  */
 
 #include <windows.h>
@@ -37,6 +65,19 @@ static long   g_log_bytes = 0;
 
 /* Roll at this size, keeping one .1 backup (footprint bounded at ~2x). */
 #define LOG_MAX_BYTES  (512L * 1024L)
+
+/* Pending-line buffer. 8K is ~80 typical lines: big enough that idle chatter
+ * costs one write every flush interval instead of one per line, small enough
+ * that it is never a meaningful chunk of a 31MB machine's RAM. */
+#define LOG_BUF_BYTES  8192
+/* Upper bound on how much routine logging a power cut can cost. */
+#define LOG_FLUSH_MS   15000
+
+static char  g_buf[LOG_BUF_BYTES];
+static int   g_buf_len = 0;
+static int   g_buffered = 0;          /* 0 until the agent is up: see header */
+static HANDLE g_flush_thread = NULL;
+static volatile int g_flush_stop = 0;
 
 /* Local strcpy (no util.h dependency, safe from the crash logger). */
 static void log_strcpy(char *dst, const char *src, int cap)
@@ -67,17 +108,50 @@ static void default_log_path(char *buf, DWORD cap)
 /* Append bytes to the log handle and (optionally) echo to a valid console
  * stderr. Commits to disk immediately for crash-durability. Does NOT take the
  * lock -- callers manage that (the crash logger deliberately runs lock-free). */
+/* Write straight to the file and commit. No locking, no buffering -- this is
+ * the bottom of the stack, used by the flusher and by the crash logger. */
+static void disk_out(const char *s, DWORD len)
+{
+    DWORD wr;
+    if (g_log_h == INVALID_HANDLE_VALUE || len == 0) return;
+    SetFilePointer(g_log_h, 0, NULL, FILE_END);
+    if (WriteFile(g_log_h, s, len, &wr, NULL)) {
+        FlushFileBuffers(g_log_h);   /* durability: on disk before we return */
+        g_log_bytes += (long)len;
+    }
+}
+
+/* Push whatever is pending to disk. Caller holds the lock (or is the crash
+ * path, which deliberately runs lock-free). */
+static void flush_locked(void)
+{
+    if (g_buf_len > 0) {
+        disk_out(g_buf, (DWORD)g_buf_len);
+        g_buf_len = 0;
+    }
+}
+
+/* Append a formatted line: into the pending buffer when buffered, straight to
+ * disk when not. Always echoes to the console immediately -- the console is
+ * free, and somebody watching the agent's window should see it live. */
 static void raw_out(const char *s, DWORD len)
 {
     DWORD wr;
     HANDLE e;
-    if (g_log_h != INVALID_HANDLE_VALUE) {
-        SetFilePointer(g_log_h, 0, NULL, FILE_END);
-        if (WriteFile(g_log_h, s, len, &wr, NULL)) {
-            FlushFileBuffers(g_log_h);   /* durability: on disk before we return */
-            g_log_bytes += (long)len;
+
+    if (g_buffered && g_log_h != INVALID_HANDLE_VALUE) {
+        if (g_buf_len + (int)len > LOG_BUF_BYTES)
+            flush_locked();
+        if ((int)len <= LOG_BUF_BYTES) {
+            memcpy(g_buf + g_buf_len, s, len);
+            g_buf_len += (int)len;
+        } else {
+            disk_out(s, len);        /* a line too big to buffer: write it */
         }
+    } else {
+        disk_out(s, len);
     }
+
     /* Best-effort console echo; guarded so an invalid handle (GUI launch)
      * can never fault us. */
     e = GetStdHandle(STD_ERROR_HANDLE);
@@ -200,6 +274,75 @@ void log_msg(const char *tag, const char *fmt, ...)
     LeaveCriticalSection(&g_log_cs);
 }
 
+/* Force everything pending to disk. Safe to call from anywhere. */
+void log_flush(void)
+{
+    if (!g_log_initialized) return;
+    EnterCriticalSection(&g_log_cs);
+    flush_locked();
+    LeaveCriticalSection(&g_log_cs);
+}
+
+/* Periodic flusher: bounds how much routine logging a power cut can cost. */
+static DWORD WINAPI log_flush_thread(LPVOID unused)
+{
+    (void)unused;
+    while (!g_flush_stop) {
+        int slept = 0;
+        /* Wake often enough to stop promptly on shutdown, flush rarely. */
+        while (slept < LOG_FLUSH_MS && !g_flush_stop) {
+            Sleep(250);
+            slept += 250;
+        }
+        log_flush();
+    }
+    return 0;
+}
+
+/*
+ * Switch to batched writes. Called once the agent is up and the startup
+ * window - where a silent crash has to be reconstructed from the log - has
+ * passed. Before this, every line goes straight to the platter as it always
+ * did; after it, lines batch and a background thread flushes them.
+ */
+void log_set_buffered(int on)
+{
+    if (!g_log_initialized) return;
+
+    EnterCriticalSection(&g_log_cs);
+    if (!on) flush_locked();          /* never strand lines in the buffer */
+    g_buffered = on ? 1 : 0;
+    LeaveCriticalSection(&g_log_cs);
+
+    if (on && !g_flush_thread) {
+        DWORD tid;
+        g_flush_stop = 0;
+        g_flush_thread = CreateThread(NULL, 0, log_flush_thread, NULL, 0, &tid);
+    }
+}
+
+/* Clean shutdown: stop batching, flush, close. */
+void log_shutdown(void)
+{
+    if (!g_log_initialized) return;
+
+    g_flush_stop = 1;
+    if (g_flush_thread) {
+        WaitForSingleObject(g_flush_thread, 2000);
+        CloseHandle(g_flush_thread);
+        g_flush_thread = NULL;
+    }
+
+    EnterCriticalSection(&g_log_cs);
+    g_buffered = 0;
+    flush_locked();
+    if (g_log_h != INVALID_HANDLE_VALUE) {
+        CloseHandle(g_log_h);
+        g_log_h = INVALID_HANDLE_VALUE;
+    }
+    LeaveCriticalSection(&g_log_cs);
+}
+
 /* Crash logger for the unhandled-exception filter: runs LOCK-FREE (the crash
  * may have happened while a thread held g_log_cs, so taking it could deadlock)
  * and writes straight to disk. Never call this on a hot path. */
@@ -209,9 +352,14 @@ void log_crash(const char *tag, const char *fmt, ...)
     int n;
     va_list ap;
 
+    /* Whatever was batched is part of the story of this crash, and it is the
+     * part that says what the agent was doing beforehand. Get it out first,
+     * lock-free: the thread that died may have been holding the lock. */
+    flush_locked();
+
     va_start(ap, fmt);
     n = format_line(line, (int)sizeof(line), tag, fmt, ap);
     va_end(ap);
 
-    raw_out(line, (DWORD)n);   /* no CS: durability over ordering during a crash */
+    disk_out(line, (DWORD)n);  /* straight to disk: durability over ordering */
 }
