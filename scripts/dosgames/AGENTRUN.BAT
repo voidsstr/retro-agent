@@ -2,35 +2,70 @@
 rem ---------------------------------------------------------------
 rem AGENTRUN.BAT - the Win9x agent launcher, run from the Run key.
 rem
-rem Why this exists: Windows 9x cannot rename a RUNNING exe (NT can),
-rem so a self-update can never swap the agent binary from inside the
-rem agent. Every in-session attempt fails with "Duplicate file name
-rem or file in use" and quietly leaves the old build in place.
+rem WHY THIS EXISTS
+rem Windows 9x cannot rename or overwrite a RUNNING exe (NT can), so
+rem the agent can never swap its own binary from inside itself. Every
+rem in-session attempt fails with "Duplicate file name or file in
+rem use" and silently leaves the old build running - which is why
+rem auto-update quietly did nothing on this box for four versions,
+rem and why RESTART did not help either.
 rem
-rem At logon, though, nothing holds the file yet. So the update is
-rem applied HERE, before the agent starts: drop a new build next to
-rem it as retro_agent_new.exe and the next boot installs it.
+rem At logon nothing holds the file yet. So the update happens HERE,
+rem before the agent starts. Two sources, in order:
 rem
-rem Fail-safe by construction - if the rename does not work we still
-rem start whatever retro_agent.exe is present, so the box can never
-rem end up with no agent. On this machine that means a walk to the
-rem keyboard.
+rem   1. the share - the same latest-pointer + .ver sidecar every
+rem      other box auto-updates from, so publishing a build reaches
+rem      this machine too, on its next boot
+rem   2. a hand-staged retro_agent_new.exe dropped next to the agent
+rem
+rem Fail-safe by construction: every step is skipped if its input is
+rem missing, and whatever happens we start whatever retro_agent.exe
+rem is present. The box can never be left with no agent - on this
+rem machine that means a walk to the keyboard.
 rem
 rem The previous build is kept as retro_agent_old.exe for rollback.
 rem ---------------------------------------------------------------
-if not exist C:\RETRO_AGENT\retro_agent_new.exe goto runit
+SET AGDIR=C:\RETRO_AGENT
+SET AGSHARE=\\192.168.1.122\files\Utility\Retro Automation
+SET AGLOG=C:\RETRO_AGENT\agent.log
 
-echo swap:   installing staged build >> C:\RETRO_AGENT\agent.log
-if exist C:\RETRO_AGENT\retro_agent_old.exe del C:\RETRO_AGENT\retro_agent_old.exe
-ren C:\RETRO_AGENT\retro_agent.exe retro_agent_old.exe
-if exist C:\RETRO_AGENT\retro_agent.exe goto locked
-ren C:\RETRO_AGENT\retro_agent_new.exe retro_agent.exe
-echo swap:   staged build installed >> C:\RETRO_AGENT\agent.log
+echo boot:   AGENTRUN.BAT starting >> %AGLOG%
+
+rem --- 1. the share. The network may not be up yet at logon (the drive
+rem     mapping races it too), so this is best-effort: if the sidecar is
+rem     not readable we simply run what we have and try again next boot.
+if not exist "%AGSHARE%\retro_agent.exe.ver" goto trystaged
+copy "%AGSHARE%\retro_agent.exe.ver" %AGDIR%\share.ver > nul
+if not exist %AGDIR%\share.ver goto trystaged
+if not exist %AGDIR%\agent.ver goto pullit
+fc %AGDIR%\agent.ver %AGDIR%\share.ver > nul
+if not errorlevel 1 goto uptodate
+
+:pullit
+echo boot:   share has a different version - pulling it >> %AGLOG%
+copy "%AGSHARE%\retro_agent.exe" %AGDIR%\retro_agent_new.exe > nul
+if not exist %AGDIR%\retro_agent_new.exe goto trystaged
+copy %AGDIR%\share.ver %AGDIR%\agent.ver > nul
+goto trystaged
+
+:uptodate
+echo boot:   already on the share's version >> %AGLOG%
+
+rem --- 2. install a staged build (from the share above, or dropped by hand)
+:trystaged
+if not exist %AGDIR%\retro_agent_new.exe goto runit
+echo boot:   installing staged build >> %AGLOG%
+if exist %AGDIR%\retro_agent_old.exe del %AGDIR%\retro_agent_old.exe
+ren %AGDIR%\retro_agent.exe retro_agent_old.exe
+if exist %AGDIR%\retro_agent.exe goto locked
+ren %AGDIR%\retro_agent_new.exe retro_agent.exe
+echo boot:   staged build installed >> %AGLOG%
 goto runit
 
 :locked
-echo swap:   retro_agent.exe was still locked - keeping the old build >> C:\RETRO_AGENT\agent.log
+echo boot:   retro_agent.exe still locked - keeping the old build >> %AGLOG%
 
 :runit
 rem No -l: the agent defaults to C:\RETRO_AGENT\agent.log on its own.
-start C:\RETRO_AGENT\retro_agent.exe
+echo boot:   starting the agent >> %AGLOG%
+start %AGDIR%\retro_agent.exe
