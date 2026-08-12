@@ -41,6 +41,17 @@
  *     file log (log.c) with startup breadcrumbs + a lock-free crash logger, so
  *     any future crash leaves an on-disk trail (and is mirrored to the share).
  *
+ *  6. CreateThread with lpThreadId = NULL. Legal on NT, REJECTED on Win95/98
+ *     with ERROR_INVALID_PARAMETER (87). Every fire-and-forget helper passed
+ *     NULL, so on the Win98 box automap, autoupdate, retrowall, watchdog,
+ *     ai_status, sharelog and dosstage ALL silently never started - for
+ *     years. Only dosstage checked its return value, and its message blamed
+ *     memory, so the real cause hid behind a wrong guess on a box that had
+ *     87MB free. That is why auto-update never worked there, why the log was
+ *     never mirrored to the share, and why the share needed mapping by hand.
+ *     FIX: spawn_helper() passes &tid, checks the result, and names the
+ *     actual error. Do not pass NULL.
+ *
  * Also load-bearing on Win9x: __thread -> native TLS (above); Toolhelp32 is
  * fine on 9x (it originated there) but is NOT on NT4 — a non-issue for the
  * 98/XP fleet. Keep new startup work off the hot path and OS-gated.
@@ -764,10 +775,30 @@ static void log_system_metadata(void)
 static int spawn_helper(LPTHREAD_START_ROUTINE fn, const char *what)
 {
     DWORD tid;
+    /*
+     * &tid IS NOT OPTIONAL. On Windows 95/98 CreateThread REQUIRES a non-NULL
+     * lpThreadId; only NT allows NULL. Every helper here used to pass NULL,
+     * so on the Win98 box every one of them failed with ERROR_INVALID_PARAMETER
+     * (87) and simply never ran - automap, autoupdate, retrowall, watchdog,
+     * ai_status, sharelog and dosstage alike. Only dosstage checked its return
+     * value, so only dosstage ever said so, and its message guessed
+     * "(low memory?)" - which sent us looking at RAM on a box that had 87MB
+     * free. It is why auto-update did nothing on that machine for four
+     * versions, why its log was never mirrored to the share, and why the share
+     * had to be mapped by hand.
+     *
+     * Do not "simplify" this back to NULL.
+     */
     HANDLE h = CreateThread(NULL, 0, fn, NULL, 0, &tid);
     if (!h) {
-        log_msg(LOG_MAIN, "%s thread FAILED to start: %lu (low memory?)",
-                what, (unsigned long)GetLastError());
+        DWORD err = GetLastError();
+        log_msg(LOG_MAIN, "%s thread FAILED to start: %lu%s", what,
+                (unsigned long)err,
+                err == ERROR_INVALID_PARAMETER
+                    ? " (ERROR_INVALID_PARAMETER - on Win9x lpThreadId must "
+                      "not be NULL)"
+                    : err == ERROR_NOT_ENOUGH_MEMORY || err == ERROR_OUTOFMEMORY
+                    ? " (out of memory)" : "");
         return 0;
     }
     CloseHandle(h);
@@ -888,7 +919,16 @@ void agent_run(void)
                g_hostname, g_local_ip, g_os_str, (unsigned long)g_ram_mb);
 
     /* Start discovery broadcaster */
-    disc_thread = CreateThread(NULL, 0, discovery_thread, NULL, 0, NULL);
+    {
+        /* &disc_tid, not NULL: Win9x rejects a NULL lpThreadId, which is why
+         * UDP discovery never came up on the Win98 box - :9899 refused
+         * connections on every probe because this thread never started. */
+        DWORD disc_tid;
+        disc_thread = CreateThread(NULL, 0, discovery_thread, NULL, 0, &disc_tid);
+        if (!disc_thread)
+            log_msg(LOG_MAIN, "discovery thread FAILED to start: %lu",
+                    (unsigned long)GetLastError());
+    }
 
     /* Create TCP listening socket */
     listen_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -1098,8 +1138,9 @@ void agent_run(void)
                     /* Close the handle immediately - it is the HANDLE that
                      * leaks, not the thread, and this path runs once per
                      * connection for the life of the agent. */
+                    DWORD ctid;
                     HANDLE th = CreateThread(NULL, 0, client_thread,
-                                             (LPVOID)(UINT_PTR)client, 0, NULL);
+                                             (LPVOID)(UINT_PTR)client, 0, &ctid);
                     if (th) CloseHandle(th);
                     else {
                         log_msg(LOG_MAIN, "could not start a client thread - "

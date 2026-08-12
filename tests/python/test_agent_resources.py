@@ -111,3 +111,31 @@ def test_idle_client_slots_are_reaped():
     assert "last_active" in main, "slots must track when they last spoke"
     assert re.search(r"GetTickCount\(\) - g_clients\[i\]\.last_active", main), \
         "nothing actually compares slot activity against the timeout"
+
+
+# ------------------------------------------------- the Win9x CreateThread trap
+
+def test_createthread_passes_a_thread_id_pointer():
+    """On Windows 95/98 CreateThread REQUIRES a non-NULL lpThreadId; only NT
+    allows NULL. Every fire-and-forget helper passed NULL, so on the Win98 box
+    automap, autoupdate, retrowall, watchdog, ai_status, sharelog and dosstage
+    all failed with ERROR_INVALID_PARAMETER (87) and silently never ran.
+
+    That single line is why auto-update did nothing on that machine for four
+    versions, why its log was never mirrored to the share, and why the share
+    had to be mapped by a batch file. Only dosstage checked its return value,
+    and its message blamed memory - on a box with 87MB free.
+    """
+    main = read("main.c")
+
+    # every CreateThread must hand over a thread-id pointer
+    bad = re.findall(r"CreateThread\([^;]*?,\s*NULL\s*\)\s*;", main, re.S)
+    assert not bad, (
+        "%d CreateThread call(s) still pass NULL for lpThreadId - illegal on "
+        "Win9x: %r" % (len(bad), bad[:2]))
+
+    body = func_body(main, "static int spawn_helper(")
+    assert "&tid" in body, "spawn_helper must pass a thread-id pointer"
+    assert "ERROR_INVALID_PARAMETER" in body, (
+        "the failure message must name the real cause rather than guess at "
+        "memory - that guess cost days")
