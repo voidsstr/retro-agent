@@ -579,7 +579,19 @@ static const char *skip_exes[] = {
     "cb-run.com","cb-run.exe","loader.exe","loadgame.exe","crack.exe",
     "patch.exe","readme.bat","read.exe","vendor.exe","modem.exe",
     "uninstal.exe","uninst.exe","setsound.com","setup.com","install.com",
-    "config.bat","sound.bat","mouse.com","mouse.exe","smartdrv.exe", NULL
+    "config.bat","sound.bat","mouse.com","mouse.exe","smartdrv.exe",
+    /* Apogee/3D Realms shipped an advertising bundle in EVERY shareware
+     * directory - an ordering catalogue, a dealer list, a BBS advert and a
+     * launcher menu. On the fleet's Win98 box these outnumber the game itself
+     * in C:\ROTT (10 runnable programs), C:\RAPTOR and C:\WACKY, and the
+     * "first non-tool .EXE" fallback picks whichever the directory happens to
+     * return first. Note the SHARE CATALOGUE cannot be trusted to rule these
+     * out - it has rows that name DEALERS.EXE (3x), RAP-HELP.EXE and
+     * 3DRCAT.EXE as the game's launcher. */
+    "apogee.bat","dealers.exe","swcbbs.exe","3drcat.exe","vendor.bat",
+    "cbytes4.com","get.com","micpatch.bat","autoexec.bat",
+    /* Network setup stubs, not the game: DOOM/HEXEN/ROTT ship these beside it. */
+    "sersetup.exe","ipxsetup.exe","modem.bat","serial.exe", NULL
 };
 
 /* Self-extractors / installers: not the game, but running one is exactly
@@ -623,8 +635,14 @@ static int is_util_suffix(const char *suffix)
 static int is_skip_exe(const char *n)
 {
     int i;
+    size_t len = strlen(n);
     for (i = 0; skip_exes[i]; i++)
         if (!stricmp(n, skip_exes[i])) return 1;
+    /* Every Apogee title ships its own help viewer named after the game:
+     * RAP-HELP.EXE, WW-HELP.EXE, DN2-HELP.EXE, BS-HELP.EXE, DN3DHELP.EXE.
+     * They cannot be listed by name, and two of them ARE named as launchers
+     * by catalogue rows, so match the shape instead. */
+    if (len > 8 && !stricmp(n + len - 8, "help.exe")) return 1;
     return 0;
 }
 
@@ -663,6 +681,8 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
     int nrun = 0;
     int ndata = 0;
     unsigned long firstexe_size = 0;
+    char cands[8][13];
+    int ncand = 0;
     size_t dlen = strlen(dirname);
 
     best[0] = '\0';
@@ -714,6 +734,8 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
         if ((!stricmp(dot, ".EXE") || !stricmp(dot, ".COM") ||
              !stricmp(dot, ".BAT")) && !is_skip_exe(ft.name)) {
             nrun++;
+            if (ncand < (int)(sizeof(cands) / sizeof(cands[0])))
+                strcpy(cands[ncand++], ft.name);
             if (nrun <= 4 && strlen(runlist) + 14 < sizeof(runlist)) {
                 if (runlist[0]) strcat(runlist, ", ");
                 strcat(runlist, ft.name);
@@ -771,6 +793,31 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
         logf("pick:   %s -> %s (named after its directory)%s", fulldir, best,
              nrun > 1 ? " - F2 in the menu picks a different one" : "");
         return 0;
+    }
+    /* Nothing is named after the directory, so "first non-tool .EXE" decides —
+     * and "first" means whatever order DOS happened to return, which is not a
+     * decision at all. It gave C:\GAMES\JAGGED~1 -> CBYTES4.COM and
+     * C:\GAMES\KEENDRMS -> KEENDWEB.BAT on the box, when the catalogue names
+     * DOXVIEW.EXE and KEENDR.BAT for those titles.
+     *
+     * Consult the catalogue, but only accept an UNAMBIGUOUS answer: exactly
+     * one surviving candidate listed. The catalogue is not a clean oracle —
+     * it has rows naming DEALERS.EXE, RAP-HELP.EXE and 3DRCAT.EXE as
+     * launchers — so "two or more listed" must stay a fallback, not a guess. */
+    if (ncand > 1) {
+        int i, hits = 0, which = -1;
+        if (!cat_bits_ready) cat_bits_build();
+        for (i = 0; i < ncand; i++)
+            if (cat_bits_test(cands[i])) { hits++; which = i; }
+        if (hits == 1) {
+            strcpy(best, cands[which]);
+            logf("pick:   %s -> %s (the only one of %d programs the catalogue "
+                 "names)", fulldir, best, ncand);
+            return 0;
+        }
+        if (hits > 1)
+            logf("pick:   %s - the catalogue names %d of these, so it cannot "
+                 "choose; falling back to first-found", fulldir, hits);
     }
     if (firstexe[0]) { strcpy(best, firstexe);
         logf("pick:   %s -> %s (first non-tool .EXE/.COM)", fulldir, best); return 0; }

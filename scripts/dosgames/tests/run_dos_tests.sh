@@ -421,6 +421,27 @@ grep -q 'return 0;                           /\* both or neither: caller decides
   && ok "an ambiguous catalogue answer defers to the caller" \
   || bad "an ambiguous catalogue answer defers to the caller"
 
+# "first non-tool .EXE" means "whatever order DOS returned", which is not a
+# decision: it gave JAGGED~1 -> CBYTES4.COM and KEENDRMS -> KEENDWEB.BAT on the
+# box, where the catalogue names DOXVIEW.EXE and KEENDR.BAT.
+grep -q 'the only one of %d programs the catalogue' "$SRCDIR/dosgame.c" \
+  && ok "an unambiguous catalogue name beats first-found" \
+  || bad "an unambiguous catalogue name beats first-found"
+grep -q 'hits > 1' "$SRCDIR/dosgame.c" \
+  && ok "two catalogue matches stay a fallback, never a guess" \
+  || bad "two catalogue matches stay a fallback, never a guess"
+# The Apogee advertising bundle ships in every shareware directory and the
+# catalogue itself names DEALERS.EXE/RAP-HELP.EXE/3DRCAT.EXE as launchers, so
+# these have to be excluded by name and by shape.
+for t in apogee.bat dealers.exe swcbbs.exe 3drcat.exe cbytes4.com sersetup.exe; do
+  grep -q "\"$t\"" "$SRCDIR/dosgame.c" \
+    && ok "$t is not treated as a game" \
+    || bad "$t is not treated as a game"
+done
+grep -q 'help.exe' "$SRCDIR/dosgame.c" \
+  && ok "per-game help viewers (RAP-HELP.EXE, DN3DHELP.EXE) are excluded by shape" \
+  || bad "per-game help viewers are excluded by shape"
+
 echo "== DHCP is not aborted by a stray keystroke =="
 # mTCP's DHCP takes ANY buffered key as its advertised "[ESC] to abort"; the
 # box logged "attempt 1: Aborting" instantly, which reads like a dead NIC.
