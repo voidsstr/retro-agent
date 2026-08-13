@@ -634,6 +634,41 @@ else
     ok "the overflowing year shift is gone"
 fi
 
+echo "== an orphaned X row stops hiding its directory =="
+# An X row means "this unpack dir is spent, the game it produced is recorded
+# elsewhere". When that game row goes, the X row is left hiding a directory
+# whose install never finished - the user cannot even see it to retry. That is
+# exactly the state .243 was left in after two games were recorded against the
+# wrong directory and those rows were removed.
+CA="$WORK/orphan"
+rm -rf "$CA"; mkdir -p "$CA/DOSGAME" "$CA/GAMES/BLAKE" "$CA/GAMES/KEEN1" "$CA/KEEN"
+cp "$WORK/DOSGAME.EXE" "$CA/DOSGAME/DOSGAME.EXE"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES;C:\\\n' > "$CA/DOSGAME/DOSGAME.CFG"
+printf 'MZ' > "$CA/GAMES/BLAKE/INSTALL.EXE"
+printf 'x'  > "$CA/GAMES/BLAKE/BS_1BBS._1"
+printf 'MZ' > "$CA/GAMES/KEEN1/DEICE.EXE"
+printf 'MZ' > "$CA/KEEN/KEEN4E.EXE"
+printf 'x'  > "$CA/KEEN/AUDIO.CK4"
+printf 'X|BLAKE|C:\\GAMES\\BLAKE||\r\nG|KEEN1|C:\\KEEN|KEEN4E.EXE|\r\nX|KEEN1|C:\\GAMES\\KEEN1||\r\n' \
+    > "$CA/DOSGAME/INSTALL.LST"
+run_dos "$CA" "C:\\DOSGAME\\DOSGAME.EXE /selftest"
+
+if grep -q 'DROP X C:\\GAMES\\BLAKE' "$CA/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    ok "an X row with no game row is dropped"
+else
+    bad "an orphaned X row still hides its directory"
+fi
+if grep -qi '|BLAKE|' "$CA/DOSGAME/DGSELF.TXT" 2>/dev/null; then
+    ok "the unfinished install is visible again, so it can be retried"
+else
+    bad "the unfinished install is still hidden: $(cat "$CA/DOSGAME/DGSELF.TXT" 2>/dev/null)"
+fi
+if grep -q 'X "KEEN1"' "$CA/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    ok "an X row that IS paired with a game row is kept"
+else
+    bad "a legitimate X row was dropped too"
+fi
+
 echo "== DHCP is not aborted by a stray keystroke =="
 # mTCP's DHCP takes ANY buffered key as its advertised "[ESC] to abort"; the
 # box logged "attempt 1: Aborting" instantly, which reads like a dead NIC.

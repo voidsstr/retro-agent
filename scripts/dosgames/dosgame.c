@@ -1202,6 +1202,27 @@ static void load_registry(void)
         else logf("registry: row for %s superseded by a later one", r->dir);
     }
     fclose(f);
+
+    /* An 'X' row only ever means "this unpack directory is spent, because the
+     * game it produced is recorded elsewhere". If that 'G'/'S' row is gone,
+     * the X row is now hiding a directory whose install never finished — the
+     * user cannot even see it to retry the installer. That happened for real:
+     * two games were recorded against the wrong directory, and removing those
+     * rows left their unpack directories invisible. Self-heal instead. */
+    for (i = 0; i < n_reg; i++) {
+        int j, paired = 0;
+        if (reg[i].flag != 'X') continue;
+        for (j = 0; j < n_reg; j++)
+            if (j != i && reg[j].flag != 'X'
+                && !stricmp(reg[j].title, reg[i].title)) { paired = 1; break; }
+        if (paired) continue;
+        logf("registry: DROP X %s - no game row for \"%s\", so its install "
+             "never finished and the directory must stay visible",
+             reg[i].dir, reg[i].title);
+        memmove(&reg[i], &reg[i + 1], (n_reg - i - 1) * sizeof(reg_t));
+        n_reg--; i--;
+    }
+
     for (i = 0; i < n_reg; i++)
         logf("registry: %c \"%s\" dir=%s exe=%s", reg[i].flag, reg[i].title,
              reg[i].dir, reg[i].exe);
