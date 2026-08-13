@@ -31,10 +31,30 @@ SET AGLOG=C:\RETRO_AGENT\agent.log
 
 echo boot:   AGENTRUN.BAT starting >> %AGLOG%
 
+rem --- 0. get an authenticated session to the share.
+rem
+rem     A bare UNC path is NOT readable on Windows 9x without one: FindFirstFile
+rem     and copy against \\server\share\... simply find nothing, silently. That
+rem     is hardware-confirmed (the Deskpro staged 0 files while reporting
+rem     success) and is why dosstage.c resolves a drive letter instead.
+rem
+rem     This script used to rely on MAPSHARE.BAT, a SIBLING Run-key entry, to
+rem     have created that session already. Run-key order is undefined and
+rem     MAPSHARE itself spends up to ~53s retrying because the network is not
+rem     up at logon - so on a cold boot the check below was simply false and
+rem     the entire share half of the updater was skipped, with nothing logged
+rem     to say so. Map it here rather than depend on winning a race.
+net use E: \\192.168.1.122\files password /YES > nul
+if exist E:\Utility\RETRO_~1\retro_agent.exe.ver SET AGSHARE=E:\Utility\RETRO_~1
+if exist E:\Utility\RETRO_~1\retro_agent.exe.ver echo boot:   share via E: >> %AGLOG%
+
 rem --- 1. the share. The network may not be up yet at logon (the drive
 rem     mapping races it too), so this is best-effort: if the sidecar is
 rem     not readable we simply run what we have and try again next boot.
-if not exist "%AGSHARE%\retro_agent.exe.ver" goto trystaged
+if exist "%AGSHARE%\retro_agent.exe.ver" goto haveshare
+echo boot:   share not readable - skipping the update this boot >> %AGLOG%
+goto trystaged
+:haveshare
 copy "%AGSHARE%\retro_agent.exe.ver" %AGDIR%\share.ver > nul
 if not exist %AGDIR%\share.ver goto trystaged
 if not exist %AGDIR%\agent.ver goto pullit

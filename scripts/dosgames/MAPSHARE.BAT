@@ -15,7 +15,10 @@ rem ADMIN.PWL is no longer what the NAS accepts.
 rem
 rem Win9x dialect only: no "call :label", no "goto :eof", no
 rem setlocal, and labels must be unique within 8 characters.
-rem COMMAND.COM has no sleep either; "ping -n <count> 127.0.0.1" is
+rem COMMAND.COM has no sleep either; "ping -n COUNT 127.0.0.1" is
+rem (no angle brackets anywhere in this file, not even in a comment:
+rem  parses redirection on every line, rem included, and this one used to
+rem  redirect stdin from a nonexistent file at every single logon.)
 rem the standard stand-in (roughly one second per count).
 rem ---------------------------------------------------------------
 SET DGLOG=C:\DOSGAME\DOSGAME.LOG

@@ -442,6 +442,60 @@ grep -q 'help.exe' "$SRCDIR/dosgame.c" \
   && ok "per-game help viewers (RAP-HELP.EXE, DN3DHELP.EXE) are excluded by shape" \
   || bad "per-game help viewers are excluded by shape"
 
+echo "== COMMAND.COM parses redirection inside rem, too =="
+# The box grew 0-byte files named 43 in C:\, C:\KEEN, C:\DUKE and
+# C:\GAMES\HERETIC. DOSGAME.BAT's own comment was the cause: COMMAND.COM saw
+# the angle bracket, skipped the = (an argument delimiter), and created a file
+# named 43 in whatever directory the menu loop was standing in - RUN.BAT cd's
+# into the game's directory and a batch cd persists into its caller.
+bad_rem=0
+for f in "$SRCDIR"/*.BAT; do
+  if grep -nE '^[[:space:]]*rem .*[<>]' "$f" >/dev/null 2>&1; then
+    bad_rem=1
+  fi
+done
+if [ "$bad_rem" = "0" ]; then
+  ok "no shipped .BAT has an angle bracket in a rem comment"
+else
+  bad "a rem comment contains an angle bracket (COMMAND.COM will redirect)"
+fi
+
+echo "== a game installed under two scan roots is not silently deleted =="
+# scan=C:\GAMES;C:\ made the de-dup drop C:\ROTT (playable) in favour of
+# C:\GAMES\ROTT (an installer stub) - five games at once, with no log line.
+grep -q 'same_path' "$SRCDIR/dosgame.c" \
+  && ok "de-dup keys on the path, not the 8.3 directory name" \
+  || bad "de-dup keys on the path, not the 8.3 directory name"
+grep -q 'is playable - it replaces' "$SRCDIR/dosgame.c" \
+  && ok "a playable install outranks a run-setup stub of the same name" \
+  || bad "a playable install outranks a run-setup stub of the same name"
+grep -q 'keeping ' "$SRCDIR/dosgame.c" \
+  && ok "two equally playable copies are both kept, not guessed between" \
+  || bad "two equally playable copies are both kept"
+grep -q 'scan:   dropped' "$SRCDIR/dosgame.c" \
+  && ok "every dropped entry is logged" \
+  || bad "every dropped entry is logged"
+
+echo "== generated RUN.BAT lines fit COMMAND.COM's line buffer =="
+grep -q 'BAT_LINE_MAX' "$SRCDIR/dosgame.c" \
+  && ok "the batch line limit is a named constant" \
+  || bad "the batch line limit is a named constant"
+grep -q 'emit_log_p' "$SRCDIR/dosgame.c" \
+  && ok "a line's existing prefix counts against the limit" \
+  || bad "a line's existing prefix counts against the limit"
+
+echo "== install directory join is bounded =="
+# cfg_gamedir is 79 operator-supplied chars and dir[] is 81 bytes; the old
+# sprintf smashed write_install's own frame, and real mode has no guard rail.
+grep -q 'path_join(dir, cfg_gamedir, stem)' "$SRCDIR/dosgame.c" \
+  && ok "write_install joins through the bounded helper" \
+  || bad "write_install joins through the bounded helper"
+if grep -q 'sprintf(dir, "%s' "$SRCDIR/dosgame.c"; then
+  bad "the unbounded sprintf into dir[] is still there"
+else
+  ok "the unbounded sprintf into dir[] is gone"
+fi
+
 echo "== DHCP is not aborted by a stray keystroke =="
 # mTCP's DHCP takes ANY buffered key as its advertised "[ESC] to abort"; the
 # box logged "attempt 1: Aborting" instantly, which reads like a dead NIC.

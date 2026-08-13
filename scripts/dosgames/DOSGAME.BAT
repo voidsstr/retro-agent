@@ -8,7 +8,16 @@ rem ends any other way than "write RUN.BAT and exit 42" could still find the
 rem PREVIOUS script sitting there - and a stray errorlevel 42 would then
 rem re-run whatever the user did last time.
 rem
-rem "if errorlevel N" means ">= N", so the tests must run high to low.
+rem "if errorlevel N" means N or higher, so the tests must run high to low.
+rem
+rem NOTHING in this file may contain an angle bracket - not even a comment.
+rem COMMAND.COM parses redirection on EVERY line, rem included: this line and
+rem the "code 43 or higher" one below used to spell those words with angle
+rem brackets, and each pass through :menu created a stray 0-byte file named 43 in
+rem whatever directory the loop was standing in (C:\43, C:\KEEN\43, C:\DUKE\43
+rem and C:\GAMES\HERETIC\43 were all found on the Win98 box). RUN.BAT cd's
+rem into the game's directory and a batch cd persists into its caller, which
+rem is why they landed all over the disk. tests/run_dos_tests.sh enforces this.
 rem
 rem This file logs like the rest of the chain. It was the ONE step with no
 rem logging, and that is exactly where PLAY died on the Win98 box: the log
@@ -26,7 +35,7 @@ if exist C:\DOSGAME\RUN.BAT del C:\DOSGAME\RUN.BAT
 if not exist C:\DOSGAME\DOSGAME.EXE goto nomenu
 echo menubat: launching DOSGAME.EXE >> %DGLOG%
 C:\DOSGAME\DOSGAME.EXE >> %DGLOG%
-rem >=43 means the menu died in a way it does not define (a DOS abort sets a
+rem code 43 or higher means the menu died in a way it does not define (a DOS abort sets a
 rem code of its own). Leaving that as "goto menu" turned any such crash into
 rem an unattended relaunch loop nobody could break into.
 if errorlevel 43 goto crashed

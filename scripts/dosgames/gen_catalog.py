@@ -8,7 +8,7 @@ catalog the DOS utility loads:
 
 - kind: R (ready-to-run), I (installer at zip root), C (cd-image) — survey key
 - mainexe: best guess = shallowest non-installer exe from the survey record
-- tile: <stem8>.PRV (present or not; the DOS side shows it only if the file
+- tile: <zip_stem>.PRV (present or not; the DOS side shows it only if the file
   exists in C:\\DOSGAME\\TILES)
 
 Only plain zips are cataloged (rar/7z/iso need host-side prep first — they get
@@ -20,6 +20,20 @@ import json, os, re, sys
 
 SKIP = {"install.exe","setup.exe","setsound.exe","dos4gw.exe","univbe.exe",
         "readme.exe","catalog.exe","order.exe","helpme.exe","config.exe"}
+
+# The TILE name must use the collision-free stem too. stem8() is the plain
+# 8-char truncation that put 1,268 of the 2,982 catalogue rows on a shared
+# name: 411 tile names were claimed by more than one game, so gen_tiles.py's
+# "skip if it already exists" meant the second game of every colliding pair
+# could never get a preview, and DOSGAME.EXE showed the first game's
+# screenshot for the second. zip_stem() is the same hashed stem the install
+# path already uses, and it is pinned against dosgame.c by
+# tests/python/test_dosgame_stem.py.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from serve_dosgames import zip_stem
+
 
 def stem8(name):
     s = os.path.splitext(os.path.basename(name))[0]
@@ -86,7 +100,7 @@ def main():
         if key in seen: continue
         seen.add(key)
         rows.append((t, r["name"], k, exe or "INSTALL.EXE", r.get("size", 0),
-                     stem8(r["name"]) + ".PRV"))
+                     zip_stem(r["name"]) + ".PRV"))
     rows.sort(key=lambda x: x[0].lower())
     if limit: rows = rows[:limit]
     with open(out, "w", newline="") as f:

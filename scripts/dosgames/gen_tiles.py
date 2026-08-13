@@ -25,6 +25,20 @@ SEARCH_DIRS = [SHARE,
                os.path.join(SHARE, "DOS Games Collection", "S-Z"),
                os.path.join(SHARE, "More Dos Games")]
 
+# The TILE name must use the collision-free stem too. stem8() is the plain
+# 8-char truncation that put 1,268 of the 2,982 catalogue rows on a shared
+# name: 411 tile names were claimed by more than one game, so gen_tiles.py's
+# "skip if it already exists" meant the second game of every colliding pair
+# could never get a preview, and DOSGAME.EXE showed the first game's
+# screenshot for the second. zip_stem() is the same hashed stem the install
+# path already uses, and it is pinned against dosgame.c by
+# tests/python/test_dosgame_stem.py.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from serve_dosgames import zip_stem
+
+
 def stem8(name):
     s = os.path.splitext(os.path.basename(name))[0]
     return (re.sub(r"[^A-Za-z0-9_]", "_", s)[:8].upper()) or "GAME"
@@ -125,7 +139,7 @@ def main():
     done = 0
     for title, zipn, kind, exe in rows:
         if done >= a.limit: break
-        prv = os.path.join(a.out, stem8(zipn) + ".PRV")
+        prv = os.path.join(a.out, zip_stem(zipn) + ".PRV")
         if os.path.exists(prv) and not a.force: continue
         zp = find_zip(zipn)
         if not zp:

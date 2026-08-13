@@ -998,15 +998,61 @@ static void scan_local(void)
             if (len > 3 && p[len - 1] == '\\') p[len - 1] = '\0';
             logf("scan:   root %s", p);
             scan_root(p);
-            /* drop duplicates introduced by this root */
+            /* Drop duplicates introduced by this root.
+             *
+             * This used to key on the TITLE, which for a scanned directory is
+             * just its 8.3 name — and then always discarded the entry from the
+             * LATER root. On the fleet's Win98 box, whose scan list is
+             * "C:\GAMES;C:\", that silently deleted five games that were
+             * installed and playable:
+             *
+             *   C:\ROTT   kind=R ROTT.EXE   lost to  C:\GAMES\ROTT   kind=I INSTALL.EXE
+             *   C:\DOOM, C:\DUKE2, C:\RAPTOR, C:\WACKY  the same way
+             *
+             * Same 8.3 name under two roots is the NORMAL shape here, not a
+             * duplicate: C:\GAMES\ROTT is the unpacked disk set and C:\ROTT is
+             * what its installer produced. Keeping the C:\GAMES one meant the
+             * menu offered "run setup", so pressing Enter on a game that was
+             * already installed re-ran its installer — the exact complaint
+             * from the box. The log said nothing, because this loop had no
+             * logf and the count only showed up in the "loaded:" total.
+             *
+             * So: identity is the PATH; a title clash is resolved in favour of
+             * whatever is actually playable; and every drop is logged. */
             for (i = before; i < n_games; i++) {
                 for (j = 0; j < before; j++) {
-                    if (!stricmp(games[i].title, games[j].title)) {
-                        memmove(&games[i], &games[i + 1],
-                                (n_games - i - 1) * sizeof(game_t));
-                        n_games--; i--;
-                        break;
+                    int same_path = !stricmp(games[i].path, games[j].path);
+                    if (!same_path && stricmp(games[i].title, games[j].title))
+                        continue;
+                    if (!same_path) {
+                        int new_ready = (games[i].kind == 'R');
+                        int old_ready = (games[j].kind == 'R');
+                        if (new_ready && !old_ready) {
+                            logf("scan:   \"%s\" %s is playable - it replaces "
+                                 "%s (%c, needs setup)", games[i].title,
+                                 games[i].path, games[j].path, games[j].kind);
+                            games[j] = games[i];
+                        } else if (new_ready == old_ready) {
+                            /* Both equally playable and in different places:
+                             * dropping either one hides a real game, so keep
+                             * both rather than guess. */
+                            logf("scan:   \"%s\" exists at %s AND %s - keeping "
+                                 "both", games[i].title, games[j].path,
+                                 games[i].path);
+                            continue;
+                        } else {
+                            logf("scan:   dropped \"%s\" %s (%c) - %s is "
+                                 "playable", games[i].title, games[i].path,
+                                 games[i].kind, games[j].path);
+                        }
+                    } else {
+                        logf("scan:   dropped \"%s\" %s (already listed)",
+                             games[i].title, games[i].path);
                     }
+                    memmove(&games[i], &games[i + 1],
+                            (n_games - i - 1) * sizeof(game_t));
+                    n_games--; i--;
+                    break;
                 }
             }
         }
@@ -1713,11 +1759,41 @@ static void emit_installer_hint(FILE *f, const char *dir)
 /* Make the generated script narrate itself into the same log the program
  * writes, so a failed install reads as one story: what the menu decided, then
  * what the batch actually did and what each tool returned. */
-static void emit_log(FILE *f, const char *text)
+/* Longest line COMMAND.COM will read from a .BAT. It loads one into a 128-byte
+ * buffer and silently CHOPS the rest — which for a logging line means the
+ * ">> C:\DOSGAME\DOSGAME.LOG" tail is cut, so the redirect either lands in a
+ * stray file or fails outright, and the one message explaining a failed
+ * install never reaches the log at all. */
+#define BAT_LINE_MAX 126
+
+/* `prefix` is anything already written on this line (e.g. "if errorlevel 1 ")
+ * and must be counted against the limit. Over-long text is truncated HERE,
+ * where the result is still a well-formed command, instead of by COMMAND.COM
+ * in the middle of the redirect. */
+static void emit_log_p(FILE *f, const char *prefix, const char *text)
 {
     char path[MAX_PATH_L + 24];
+    char buf[BAT_LINE_MAX + 1];
+    int room;
+
     log_path(path, sizeof(path));
-    fprintf(f, "echo run:    %s >> %s\n", text, path);
+    /* "echo run:    " = 13, " >> " = 4 */
+    room = BAT_LINE_MAX - (int)strlen(prefix) - 13 - 4 - (int)strlen(path);
+    if (room < 8) room = 8;                  /* pathological log path */
+    if ((int)strlen(text) <= room) {
+        fprintf(f, "echo run:    %s >> %s\n", text, path);
+        return;
+    }
+    memcpy(buf, text, (size_t)room);
+    buf[room] = '\0';
+    fprintf(f, "echo run:    %s >> %s\n", buf, path);
+    logf("run:    NOTE - shortened a RUN.BAT message to fit DOS's %d-byte "
+         "line limit: \"%s\"", BAT_LINE_MAX, text);
+}
+
+static void emit_log(FILE *f, const char *text)
+{
+    emit_log_p(f, "", text);
 }
 
 /* Redirect a tool's own output into the log. HTGET and UNZIP explain their
@@ -1815,7 +1891,18 @@ static int write_install(const game_t *g, int run_installer)
     }
 
     zip_stem(g->path, stem);
-    sprintf(dir, "%s\\%s", cfg_gamedir, stem);
+    /* Bounded join, NOT sprintf. cfg_gamedir holds up to 79 operator-supplied
+     * characters from DOSGAME.CFG and dir[] is 81 bytes, so a gamedir= of 72
+     * characters or more used to write past the end of this frame — in real
+     * mode that lands on the saved BP and return address, and the box hangs or
+     * reboots somewhere unrelated. path_join_n exists because exactly this bug
+     * was already found once, in the scan path. */
+    path_join(dir, cfg_gamedir, stem);
+    if (!dir[0]) {
+        logf("install: REFUSED \"%s\" - gamedir= in DOSGAME.CFG is too long to "
+             "append an install directory to", g->title);
+        return -3;
+    }
 
     /* The fetch is one command line, and DOS silently truncates a command
      * tail at 126 bytes. The old code pasted the full URL-encoded zip name
@@ -1860,16 +1947,16 @@ static int write_install(const game_t *g, int run_installer)
                 cfg_home, cfg_home, stem, cfg_url, stem);
         emit_redirect(f);
         fprintf(f, "if errorlevel 1 ");
-        emit_log(f, "HTGET reported an error (no packet driver, no DHCP lease, "
-                    "server down, or the stem is not on the share)");
+        emit_log_p(f, "if errorlevel 1 ",
+                   "HTGET failed - no lease, server down, or bad stem");
     } else {
         emit_log(f, "copying the archive from the mapped drive");
         fprintf(f, "copy \"%s\\%s\" %s\\%s.ZIP",
                 cfg_drive, g->path, cfg_home, stem);
         emit_redirect(f);
         fprintf(f, "if errorlevel 1 ");
-        emit_log(f, "the copy failed (drive not mapped, or the share uses a "
-                    "long filename DOS cannot see)");
+        emit_log_p(f, "if errorlevel 1 ",
+                   "copy failed - drive not mapped, or long filename");
     }
     /* No zip -> the fetch failed; bail with a real message instead of
      * unzipping nothing and "installing" an empty directory. */
@@ -1879,8 +1966,8 @@ static int write_install(const game_t *g, int run_installer)
             cfg_home, cfg_home, stem, dir);
     emit_redirect(f);
     fprintf(f, "if errorlevel 1 ");
-    emit_log(f, "UNZIP reported an error (corrupt archive, disk full, or no "
-                "DPMI host - see CWSDPMI.EXE)");
+    emit_log_p(f, "if errorlevel 1 ",
+               "UNZIP failed - corrupt zip, disk full, or no DPMI");
 
     /* Hand the reconciliation pass the facts it needs (title, where we
      * unpacked, and the launcher the catalogue named for this game). */
