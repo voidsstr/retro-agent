@@ -1180,6 +1180,43 @@ static int find_deep_launcher(const char *parent, const char *want,
     return 0;
 }
 
+/*
+ * Log a directory's contents (bounded), and report how many Apogee-style
+ * disk-set files it holds.
+ *
+ * The shareware BBS sets are INSTALL.EXE plus <NAME>._1, <NAME>._2 ... - the
+ * game data, meant to arrive on separate floppies. When the installer is run
+ * from a hard-disk directory it still asks you to "insert" the next disk, and
+ * a failed install leaves those files sitting there. Knowing that is the
+ * difference between "the download was bad" and "the installer needs
+ * answering", so the log says which it is instead of guessing.
+ */
+static int log_dir_contents(const char *dir, const char *why)
+{
+    char pat[MAX_PATH_L * 2];
+    struct find_t ft;
+    int shown = 0, disks = 0;
+
+    path_join(pat, dir, "*.*");
+    if (!pat[0] || _dos_findfirst(pat, _A_NORMAL, &ft) != 0) {
+        logf("post:   %s: %s is EMPTY", why, dir);
+        return 0;
+    }
+    logf("post:   %s: contents of %s", why, dir);
+    do {
+        const char *dot = strrchr(ft.name, '.');
+        if (dot && dot[1] == '_' && dot[2] >= '0' && dot[2] <= '9') disks++;
+        if (shown < 20) {
+            logf("post:     %-14s %8ld", ft.name, ft.size);
+            shown++;
+        }
+    } while (_dos_findnext(&ft) == 0);
+    if (disks)
+        logf("post:   %d disk-set file(s) still present - the installer did "
+             "not consume them", disks);
+    return disks;
+}
+
 /* Reconcile after an install/installer run and record the result in the
  * registry. Runs headlessly from RUN.BAT (/postinst), never touches video.
  * Returns 0 when a playable game was recorded, 1 when nothing runnable could
@@ -1347,9 +1384,19 @@ static int post_install(void)
     presnap_path(path);
     remove(path);
     if (!gamedir[0]) {
-        logf("post:   FAILED - no playable directory found. The install "
-             "produced nothing runnable (bad download, or an installer that "
-             "was cancelled).");
+        int disks = log_dir_contents(unpack, "nothing playable was found");
+        if (disks) {
+            /* This is the multi-floppy shareware layout, not a bad download:
+             * the data is right there, the installer just never used it. */
+            logf("post:   FAILED - this is a multi-disk installer and it did "
+                 "not finish. Run setup again and answer %s if it asks where "
+                 "to install FROM; press ENTER at any \"insert disk\" prompt.",
+                 unpack);
+        } else {
+            logf("post:   FAILED - no playable directory found and no disk "
+                 "files left behind, so the installer wrote nothing at all "
+                 "(cancelled, or the download is bad).");
+        }
         return 1;
     }
     logf("post:   OK - \"%s\" is playable: %s\\%s", title, gamedir, best);
@@ -1386,6 +1433,28 @@ static int is_bat(const char *name)
 static void emit_run(FILE *f, const char *exe)
 {
     fprintf(f, "%s%s\n", is_bat(exe) ? "call " : "", exe);
+}
+
+static void emit_pause(FILE *f);
+
+/*
+ * Print what the game's own installer is about to ask, before it asks.
+ *
+ * The shareware installers are floppy-era: they want to know which drive to
+ * install FROM, and they say "insert disk 2" even when every disk file is
+ * already sitting in one directory on the hard disk. Someone meeting that
+ * prompt with no context reasonably concludes a disk is missing and stops -
+ * which is exactly what happened with Blake Stone and Keen 4.
+ */
+static void emit_installer_hint(FILE *f, const char *dir)
+{
+    fprintf(f, "echo.\n");
+    fprintf(f, "echo   This game has its own installer, from the floppy era.\n");
+    fprintf(f, "echo   If it asks where to install FROM, answer:  %s\n", dir);
+    fprintf(f, "echo   If it asks you to insert a disk, the files are already\n");
+    fprintf(f, "echo   there - just press ENTER.\n");
+    fprintf(f, "echo.\n");
+    emit_pause(f);
 }
 
 /* Every "press a key" in a generated script goes through here so the whole
@@ -1446,6 +1515,7 @@ static int write_launch(const game_t *g)
         write_pending(g->title, g->path, "", g->tile);
         emit_log(f, "snapshotting directories before the installer runs");
         fprintf(f, "%s\\DOSGAME /snapdirs\n", cfg_home);
+        emit_installer_hint(f, g->path);
         fprintf(f, "echo Running setup for %s ...\n", g->title);
         emit_run(f, g->exe);
         emit_log(f, "installer finished; working out where the game went");
@@ -1570,6 +1640,7 @@ static int write_install(const game_t *g, int run_installer)
     if (g->kind == 'I' && run_installer) {
         emit_log(f, "running the game's own installer");
         fprintf(f, "%c:\ncd %s\n", dir[0], dir + 2);
+        emit_installer_hint(f, dir);
         fprintf(f, "if exist INSTALL.EXE INSTALL.EXE\n");
         fprintf(f, "if exist INSTALL.BAT if not exist INSTALL.EXE call INSTALL.BAT\n");
         fprintf(f, "if exist SETUP.EXE if not exist INSTALL.EXE if not exist INSTALL.BAT SETUP.EXE\n");

@@ -317,6 +317,58 @@ else
     bad "HTGET argument tail is ${#TAIL:-0} bytes - over the DOS limit"
 fi
 
+# ========================================================= TEST 4d =========
+# The Apogee multi-disk case. INSTALL.EXE plus <NAME>._1/._2 is the floppy-era
+# shareware layout; when the installer is not answered it leaves those files
+# behind. Blake Stone and Keen 4 failed this way on the Win98 box and the
+# reconciliation blamed a "bad download", which sent the operator looking in
+# entirely the wrong place. It must name what actually happened.
+echo "== multi-disk installer diagnosis =="
+C6="$WORK/diskset"
+rm -rf "$C6"; mkdir -p "$C6/DOSGAME" "$C6/GAMES/BLAKE"
+cp "$WORK/DOSGAME.EXE" "$C6/DOSGAME/DOSGAME.EXE"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES;C:\\\n' > "$C6/DOSGAME/DOSGAME.CFG"
+: > "$C6/DOSGAME/QUIET.FLG"
+printf 'MZ' > "$C6/GAMES/BLAKE/INSTALL.EXE"
+head -c 2048 /dev/zero > "$C6/GAMES/BLAKE/BS_1BBS._1"
+head -c 2048 /dev/zero > "$C6/GAMES/BLAKE/BS_1BBS._2"
+printf 'BLAKE\r\nC:\\GAMES\\BLAKE\r\n\r\n\r\n' > "$C6/DOSGAME/PEND.SAV"
+cat > "$C6/T.BAT" <<'EOF'
+@echo off
+C:\DOSGAME\DOSGAME.EXE /snapdirs
+copy C:\DOSGAME\PEND.SAV C:\DOSGAME\PENDING.TXT > nul
+C:\DOSGAME\DOSGAME.EXE /postinst
+if errorlevel 1 echo FAILED > C:\RC.TXT
+EOF
+run_dos "$C6" 'C:\T.BAT'
+DSLOG="$C6/DOSGAME/DOSGAME.LOG"
+if [ -f "$C6/RC.TXT" ]; then
+    ok "an unfinished multi-disk install is reported as a failure"
+else
+    bad "an unfinished multi-disk install was reported as success"
+fi
+if grep -qi "disk-set file(s) still present" "$DSLOG" 2>/dev/null; then
+    ok "the leftover disk files are recognised"
+else
+    bad "leftover ._1/._2 disk files were not recognised"
+fi
+if grep -qi "multi-disk installer and it did not finish" "$DSLOG" 2>/dev/null; then
+    ok "the message names the real cause, not a bad download"
+else
+    bad "the failure message still misdiagnoses this as a bad download"
+fi
+if grep -qiF 'answer C:\GAMES\BLAKE' "$DSLOG" 2>/dev/null; then
+    ok "the message says what to answer the installer"
+else
+    bad "the message does not say what to answer"
+fi
+# and the directory listing must be in the log for remote diagnosis
+if grep -qi "BS_1BBS._1" "$DSLOG" 2>/dev/null; then
+    ok "the unpack directory contents are logged for diagnosis"
+else
+    bad "the unpack directory contents were not logged"
+fi
+
 # ============================================================ TEST 5 =======
 # A stale RUN.BAT must never be re-run: DOSGAME.BAT deletes it each pass, so a
 # menu that exits any other way cannot replay whatever the user last did.
