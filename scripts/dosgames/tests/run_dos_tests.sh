@@ -669,6 +669,59 @@ else
     bad "a legitimate X row was dropped too"
 fi
 
+echo "== a rewound clock does not hand the install to an old game =="
+# .243's CMOS battery is dead: its clock reads 1980 while the game files
+# restored from the archives keep their original dates (C:\DUKE is 66 files
+# stamped 11-01-91, C:\KEEN's are 02-01-92). Against a 1980 "since" every one
+# of those vintage files counts as just-written, so C:\DUKE scored 66 and was
+# handed EVERY install - the same "it launches the wrong game" symptom, one
+# directory over. Neither the 3-file floor nor busiest-wins helps: the noise is
+# in the tens. Only an upper bound does.
+#
+# DOSBox has no -date option, but future host mtimes reproduce the SAME
+# relationship: existing files stamped later than the clock the box is running.
+CB="$WORK/rtc"
+rm -rf "$CB"; mkdir -p "$CB/DOSGAME" "$CB/GAMES/BLAKE" "$CB/DUKE" "$CB/BSTONE"
+cp "$WORK/DOSGAME.EXE" "$CB/DOSGAME/DOSGAME.EXE"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES;C:\\\n' > "$CB/DOSGAME/DOSGAME.CFG"
+printf 'MZ' > "$CB/GAMES/BLAKE/INSTALL.EXE"
+printf 'x'  > "$CB/GAMES/BLAKE/BS_1BBS._1"
+i=1
+while [ $i -le 66 ]; do printf 'x' > "$CB/DUKE/DUKE$i.DAT"; i=$((i+1)); done
+printf 'MZ' > "$CB/DUKE/DUKE.EXE"
+touch -d "2030-01-01 12:00" "$CB/DUKE"/*
+printf 'Blake Stone\r\nC:\\GAMES\\BLAKE\r\n\r\n\r\n' > "$CB/DOSGAME/PENDING.TXT"
+{ echo "@echo off"
+  echo "C:\\DOSGAME\\DOSGAME.EXE /snapdirs"
+  for f in BSTONE.EXE AUDIOHED.BS1 MAPHEAD.BS1 VSWAP.BS1; do
+      echo "echo x > C:\\BSTONE\\$f"
+  done
+  echo "C:\\DOSGAME\\DOSGAME.EXE /postinst"
+} > "$CB/T.BAT"
+run_dos "$CB" "C:\\T.BAT"
+
+if grep -qi '^G|Blake Stone|C:\\BSTONE|' "$CB/DOSGAME/INSTALL.LST" 2>/dev/null; then
+    ok "the directory the installer actually wrote to is chosen"
+else
+    bad "wrong directory chosen: $(cat "$CB/DOSGAME/INSTALL.LST" 2>/dev/null)"
+fi
+if grep -qi 'C:\\DUKE is where' "$CB/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    bad "66 untouched vintage files were counted as this install"
+else
+    ok "files stamped after the install cannot count as part of it"
+fi
+grep -q 'unsigned long until' "$SRCDIR/dosgame.c" \
+  && ok "the install window is bounded at both ends" \
+  || bad "the install window is bounded at both ends"
+
+echo "== the multi-disk diagnosis reaches the SCREEN, not just the log =="
+# logf() only writes DOSGAME.LOG. All the operator saw was RUN.BAT's generic
+# "nothing runnable was found", or worse "the download may be damaged" - which
+# sends them hunting a bad download when every disk is already on disk.
+grep -q 'printf("\\n  This game came as a multi-disk set' "$SRCDIR/dosgame.c" \
+  && ok "the multi-disk explanation is printed to stdout" \
+  || bad "the multi-disk explanation is only logged"
+
 echo "== DHCP is not aborted by a stray keystroke =="
 # mTCP's DHCP takes ANY buffered key as its advertised "[ESC] to abort"; the
 # box logged "attempt 1: Aborting" instantly, which reads like a dead NIC.
@@ -692,6 +745,21 @@ if grep -qi 'del C:\\DOSGAME\\RUN.BAT' "$SRCDIR/DOSGAME.BAT"; then
     ok "DOSGAME.BAT clears a stale RUN.BAT before each menu pass"
 else
     bad "DOSGAME.BAT does not clear a stale RUN.BAT"
+fi
+
+# Launcher OUTCOMES - which exe each directory actually resolves to - live in
+# their own file. Everything above is a source grep, which cannot notice the
+# logic breaking while the strings survive; an adversarial review called that
+# out, so these assert the result of a real run instead.
+echo "== launcher outcomes (tests/test_pick_outcomes.sh) =="
+if bash "$HERE/test_pick_outcomes.sh" > "$WORK/pick.log" 2>&1; then
+    n=$(grep -c '^  PASS' "$WORK/pick.log")
+    pass=$((pass + n))
+    echo "  PASS  $n launcher outcomes asserted against the real catalogue"
+else
+    grep '^  FAIL' "$WORK/pick.log" || cat "$WORK/pick.log"
+    n=$(grep -c '^  FAIL' "$WORK/pick.log")
+    fail=$((fail + (n > 0 ? n : 1)))
 fi
 
 echo

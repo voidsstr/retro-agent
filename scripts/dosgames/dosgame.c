@@ -1411,8 +1411,23 @@ static unsigned long dos_stamp_of(const struct find_t *ft)
  * every game in the menu launched Duke Nukem.
  *
  * An install writes a program plus its data: many files at once. A game that
- * merely ran writes one or two. Counting separates the two cleanly. */
-static int dir_new_files(const char *dir, unsigned long since)
+ * merely ran writes one or two. Counting separates the two cleanly.
+ *
+ * The window is bounded at BOTH ends, and the upper bound is the load-bearing
+ * one on this fleet. .243's CMOS battery is dead, so its clock reads 1980
+ * while the game files restored from the archives keep their original dates —
+ * C:\DUKE holds 66 files stamped 11-01-91 and C:\KEEN's are 02-01-92. Against
+ * a 1980 "since", every one of those vintage files counts as just written, so
+ * C:\DUKE scored 66 and would have been handed EVERY install: the same
+ * "it always launches the wrong game" symptom, one directory over. Neither the
+ * 3-file floor nor busiest-wins helps, because the noise is in the hundreds.
+ *
+ * A file written during the install cannot be stamped later than the moment
+ * the install finished, so `until` throws out anything from the future — which
+ * on a box whose clock has rewound is exactly what the untouched game files
+ * look like. */
+static int dir_new_files(const char *dir, unsigned long since,
+                         unsigned long until)
 {
     char pat[MAX_PATH_L * 2];
     struct find_t ft;
@@ -1420,7 +1435,8 @@ static int dir_new_files(const char *dir, unsigned long since)
     path_join(pat, dir, "*.*");
     if (!pat[0] || _dos_findfirst(pat, _A_NORMAL, &ft) != 0) return 0;
     do {
-        if (dos_stamp_of(&ft) >= since && ++n >= 99) break;
+        unsigned long s = dos_stamp_of(&ft);
+        if (s >= since && s <= until && ++n >= 99) break;
     } while (_dos_findnext(&ft) == 0);
     return n;
 }
@@ -1748,6 +1764,11 @@ static int post_install(void)
      *     whole menu launched Duke Nukem. */
     if (!gamedir[0]) {
         unsigned long since = snapshot_stamp();
+        /* Upper bound: nothing the installer wrote can be stamped after the
+         * moment we are asking. On a box whose RTC has rewound, untouched
+         * vintage game files sit in the "future" and would otherwise all
+         * count as brand new. */
+        unsigned long until = dos_stamp_now();
         if (since) {
             char bestdir[MAX_PATH_L + 1] = "", bestleaf[13] = "";
             int bestcount = 0;
@@ -1775,7 +1796,7 @@ static int post_install(void)
                             /* Somewhere another game already lives is not
                              * where this one was just installed. */
                             if (reg_covers_dir(full)) continue;
-                            n = dir_new_files(full, since);
+                            n = dir_new_files(full, since, until);
                             if (n <= 0) continue;
                             logf("post:   %s gained %d file(s) during the "
                                  "install", full, n);
@@ -1820,10 +1841,23 @@ static int post_install(void)
                  "not finish. Run setup again and answer %s if it asks where "
                  "to install FROM; press ENTER at any \"insert disk\" prompt.",
                  unpack);
+            /* Say it on the SCREEN too. logf() only reaches DOSGAME.LOG, so
+             * all the operator saw was RUN.BAT's generic "nothing runnable was
+             * found" or, worse, "the download may be damaged" - which sent
+             * them looking for a bad download when the disks are right there
+             * and the installer simply never consumed them. /postinst's stdout
+             * is not redirected, so a plain printf lands in front of them. */
+            printf("\n  This game came as a multi-disk set and its installer "
+                   "did not finish.\n");
+            printf("  Run setup again. Answer %s if it asks where to\n", unpack);
+            printf("  install FROM, and press ENTER at any \"insert disk\" "
+                   "prompt - every\n  disk is already in that directory.\n\n");
         } else {
             logf("post:   FAILED - no playable directory found and no disk "
                  "files left behind, so the installer wrote nothing at all "
                  "(cancelled, or the download is bad).");
+            printf("\n  The installer wrote nothing at all - it was cancelled, "
+                   "or the\n  download is bad.\n\n");
         }
         return 1;
     }
