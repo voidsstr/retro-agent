@@ -853,6 +853,14 @@ static int next_launcher(const char *dir, const char *current, char *out)
         if (!dot) continue;
         if (stricmp(dot, ".EXE") && stricmp(dot, ".COM") && stricmp(dot, ".BAT"))
             continue;
+        /* F2 must not be able to offer an installer or a support tool. It used
+         * to accept every program in the directory, so one press on
+         * C:\GAMES\KEEN1 (DEICE.EXE + INSTALL.BAT + a packed disk set) wrote
+         * DEICE.EXE into the registry as the game - permanently, because the
+         * resulting 'G' row hides the directory from the scan and there is no
+         * F2 cycle back. pick_launcher is careful to exclude exactly these;
+         * the manual override has to be at least as careful. */
+        if (is_skip_exe(ft.name) || is_setup_exe(ft.name)) continue;
         if (!first[0]) copy_str(first, ft.name, 13);
         if (seen_current) { copy_str(out, ft.name, 13); return 1; }
         if (!stricmp(ft.name, current)) seen_current = 1;
@@ -1161,7 +1169,12 @@ static void load_registry(void)
         copy_str(r->dir, fld[2], sizeof(r->dir));
         if (fld[3]) copy_str(r->exe, fld[3], sizeof(r->exe));
         if (fld[4]) copy_str(r->tile, fld[4], sizeof(r->tile));
-        if (r->flag != 'G' && r->flag != 'X') continue;
+        /* 'S' is a 'G' row that still needs its installer run: the operator
+          * chose this launcher with F2, but the directory is a disk set, not a
+          * playable game. Without a class in the row, reloading turned every
+          * remembered choice into "ready to run" and threw away the snapshot +
+          * /postinst wrapper that finds where the installer put the game. */
+        if (r->flag != 'G' && r->flag != 'S' && r->flag != 'X') continue;
         /* Drop rows whose directory (or launcher) has gone away — a game the
          * user deleted by hand must not linger in the menu offering to
          * launch nothing. */
@@ -1169,7 +1182,8 @@ static void load_registry(void)
             logf("registry: DROP %s (directory gone) - stale row", r->dir);
             continue;
         }
-        if (r->flag == 'G' && (!r->exe[0] || !file_exists(r->dir, r->exe))) {
+        if ((r->flag == 'G' || r->flag == 'S')
+            && (!r->exe[0] || !file_exists(r->dir, r->exe))) {
             logf("registry: DROP %s (launcher \"%s\" not found) - stale row",
                  r->dir, r->exe);
             continue;
@@ -1227,13 +1241,13 @@ static void add_registry_games(void)
     int i;
     for (i = 0; i < n_reg && n_games < MAX_LOCAL; i++) {
         game_t *g;
-        if (reg[i].flag != 'G') continue;
+        if (reg[i].flag != 'G' && reg[i].flag != 'S') continue;
         g = &games[n_games++];
         memset(g, 0, sizeof(*g));
         copy_str(g->title, reg[i].title, sizeof(g->title));
         copy_str(g->path, reg[i].dir, sizeof(g->path));
         copy_str(g->exe, reg[i].exe, sizeof(g->exe));
-        g->kind = 'R';
+        g->kind = (reg[i].flag == 'S') ? 'I' : 'R';
         g->installed = 1;
         /* The catalog's own tile name. Deriving it from the directory (as the
          * disk scan must) disagreed with the name gen_catalog.py stages for
@@ -1531,6 +1545,26 @@ static unsigned long snapshot_stamp(void)
     return v;
 }
 
+/* Read one newline-terminated record field into out[outsz], consuming the
+ * whole line even when it is longer than the destination. The line buffer is
+ * deliberately larger than any field so fgets always reaches the '\n'; see the
+ * comment in post_install for what happens when it does not. */
+static void read_field(FILE *f, char *out, size_t outsz)
+{
+    char line[MAX_PATH_L + 16];
+    out[0] = '\0';
+    if (!fgets(line, sizeof(line), f)) return;
+    /* Longer than the line buffer: drain to the newline so the next read
+     * starts on the next record rather than mid-line. */
+    while (!strchr(line, '\n') && !feof(f)) {
+        char drain[64];
+        if (!fgets(drain, sizeof(drain), f)) break;
+        if (strchr(drain, '\n')) break;
+    }
+    chomp(line);
+    copy_str(out, line, outsz);
+}
+
 static int post_install(void)
 {
     char path[MAX_PATH_L + 16];
@@ -1544,10 +1578,26 @@ static int post_install(void)
     pending_path(path);
     f = fopen(path, "r");
     if (!f) { logf("post:   no PENDING.TXT - nothing to reconcile"); return 1; }
-    if (fgets(title, sizeof(title), f)) chomp(title);
-    if (fgets(unpack, sizeof(unpack), f)) chomp(unpack);
-    if (fgets(want, sizeof(want), f)) chomp(want);
-    if (fgets(tile, sizeof(tile), f)) chomp(tile);
+    /* Read each record line into a buffer BIGGER than the field it lands in.
+     *
+     * fgets(buf, n, f) stores at most n-1 characters and stops without
+     * consuming the newline when the line is exactly that long. Reading
+     * straight into title[MAX_TITLE + 1] therefore left the '\n' in the
+     * stream for any title of exactly 40 characters — and the shipped
+     * catalogue has 123 of them, because gen_catalog.py truncates titles to
+     * 40. The next fgets then returned just that newline, unpack came out
+     * empty, and post_install reported "PENDING.TXT incomplete" for an
+     * install that had actually succeeded: RUN.BAT printed "Nothing runnable
+     * was found", no 'G' row was written, and the game could never reach the
+     * Installed tab no matter how many times it was installed.
+     *
+     * The same off-by-one hit want[13] for the 459 catalogue rows whose
+     * launcher is a full 12-character 8.3 name (HTIC_V10.EXE), silently
+     * blanking the tile that follows it. */
+    read_field(f, title, sizeof(title));
+    read_field(f, unpack, sizeof(unpack));
+    read_field(f, want, sizeof(want));
+    read_field(f, tile, sizeof(tile));
     fclose(f);
     remove(path);
     logf("post:   reconciling \"%s\" unpacked into %s, catalog exe=\"%s\"",
@@ -1562,6 +1612,21 @@ static int post_install(void)
     /* 1. Did the unpack directory itself end up playable? Prefer the exe the
      *    catalog told us about — the scan's "first .EXE in directory order"
      *    guess picks things like SETSOUND.EXE or a level editor. */
+    /* An installer is never the answer to "what plays this game".
+     *
+     * gen_catalog.py emits `exe or "INSTALL.EXE"`, so every kind-'I' archive
+     * that holds nothing but an installer and a packed disk set — the classic
+     * Apogee/id layout — carries INSTALL.EXE in the catalogue's exe field.
+     * Taking it at face value here recorded a 'G' row pointing AT the
+     * installer, and because a 'G' row makes reg_covers_dir() hide that
+     * directory from the scan for good, Enter on the game then re-ran the
+     * installer forever with no snapshot and no reconciliation — precisely the
+     * loop the registry exists to end. */
+    if (want[0] && (is_setup_exe(want) || is_skip_exe(want))) {
+        logf("post:   ignoring the catalog's exe \"%s\" - that is an installer, "
+             "not the game", want);
+        want[0] = '\0';
+    }
     if (want[0] && file_exists(unpack, want)) {
         copy_str(gamedir, unpack, sizeof(gamedir));
         copy_str(best, want, sizeof(best));
@@ -2336,8 +2401,15 @@ int main(int argc, char **argv)
                 char next[13];
                 if (next_launcher(g->path, g->exe, next)) {
                     copy_str(g->exe, next, sizeof(g->exe));
-                    g->kind = 'R';
-                    reg_append('G', g->title, g->path, g->exe, g->tile);
+                    /* Do NOT force 'R'. A row that still needs its installer
+                     * run is launched through the snapshot + /postinst wrapper
+                     * that works out where the game landed; hardcoding 'R'
+                     * threw that away and, since the 'G' row written below
+                     * hides the directory from every later scan, there was no
+                     * way back to it. Keep the class the scan decided on. */
+                    if (g->kind != 'I' && g->kind != 'Z') g->kind = 'R';
+                    reg_append(g->kind == 'R' ? 'G' : 'S',
+                               g->title, g->path, g->exe, g->tile);
                     logf("ui:     launcher for \"%s\" set to %s",
                          g->title, g->exe);
                     {

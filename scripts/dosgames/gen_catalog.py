@@ -99,7 +99,13 @@ def main():
         key = t.lower()
         if key in seen: continue
         seen.add(key)
-        rows.append((t, r["name"], k, exe or "INSTALL.EXE", r.get("size", 0),
+        # An installer is not a launcher. Defaulting to INSTALL.EXE made the
+        # DOS side record a 'G' registry row pointing AT the installer, and a
+        # 'G' row hides its directory from every later scan - so Enter on the
+        # game re-ran the installer forever. An empty field means "work it out
+        # after the install", which is what post_install is for.
+        rows.append((t, r["name"], k, exe if exe else ("" if k == "I" else "INSTALL.EXE"),
+                     r.get("size", 0),
                      zip_stem(r["name"]) + ".PRV"))
     rows.sort(key=lambda x: x[0].lower())
     if limit: rows = rows[:limit]

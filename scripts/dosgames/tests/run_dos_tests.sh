@@ -496,6 +496,78 @@ else
   ok "the unbounded sprintf into dir[] is gone"
 fi
 
+echo "== a maximum-length PENDING.TXT field does not break reconciliation =="
+# fgets(buf, n) stores n-1 chars and stops WITHOUT consuming the newline, so a
+# title of exactly MAX_TITLE (40) left the '\n' in the stream: the next read
+# returned just that newline, unpack came out empty, and post_install reported
+# "PENDING.TXT incomplete" for an install that had succeeded. 123 of the
+# shipped catalogue's 2,982 titles are exactly 40 characters. The same
+# off-by-one on want[13] blanked the tile for the 459 rows whose launcher is a
+# full 12-character 8.3 name.
+C6="$WORK/pending"
+rm -rf "$C6"; mkdir -p "$C6/DOSGAME" "$C6/GAMES/BATTLE01"
+cp "$WORK/DOSGAME.EXE" "$C6/DOSGAME/DOSGAME.EXE"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES;C:\\\n' > "$C6/DOSGAME/DOSGAME.CFG"
+printf 'MZ' > "$C6/GAMES/BATTLE01/BOB.EXE"
+printf 'x'  > "$C6/GAMES/BATTLE01/BOB.DAT"
+T40="Battle Of Britain 1940 Their Finest Hour"
+[ ${#T40} -eq 40 ] || bad "the fixture title is not 40 characters (${#T40})"
+printf '%s\r\nC:\\GAMES\\BATTLE01\r\nHTIC_V10.EXE\r\nBATTLE01.PRV\r\n' "$T40" \
+    > "$C6/DOSGAME/PENDING.TXT"
+run_dos "$C6" "C:\\DOSGAME\\DOSGAME.EXE /postinst"
+
+if grep -q "incomplete" "$C6/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    bad "a 40-char title still reports PENDING.TXT incomplete"
+else
+    ok "a maximum-length title is read without losing the next field"
+fi
+if grep -qi '^G|.*|C:\\GAMES\\BATTLE01|BOB.EXE' "$C6/DOSGAME/INSTALL.LST" 2>/dev/null; then
+    ok "the install is recorded as playable, not as a failure"
+else
+    bad "no G row: $(cat "$C6/DOSGAME/INSTALL.LST" 2>/dev/null)"
+fi
+if grep -qi 'BATTLE01.PRV' "$C6/DOSGAME/INSTALL.LST" 2>/dev/null; then
+    ok "the tile survives a 12-character launcher field"
+else
+    bad "the tile was lost after a 12-character launcher field"
+fi
+
+echo "== an installer is never recorded as the game =="
+# gen_catalog emitted `exe or "INSTALL.EXE"`, and a 'G' row hides its directory
+# from every later scan - so recording the installer meant Enter re-ran it
+# forever, with no snapshot and no reconciliation.
+C7="$WORK/instexe"
+rm -rf "$C7"; mkdir -p "$C7/DOSGAME" "$C7/GAMES/WOLF01"
+cp "$WORK/DOSGAME.EXE" "$C7/DOSGAME/DOSGAME.EXE"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES;C:\\\n' > "$C7/DOSGAME/DOSGAME.CFG"
+printf 'MZ' > "$C7/GAMES/WOLF01/INSTALL.EXE"
+printf 'MZ' > "$C7/GAMES/WOLF01/WOLF3D.EXE"
+printf 'x'  > "$C7/GAMES/WOLF01/WOLF3D.WL1"
+printf 'Wolfenstein 3D\r\nC:\\GAMES\\WOLF01\r\nINSTALL.EXE\r\nWOLF01.PRV\r\n' \
+    > "$C7/DOSGAME/PENDING.TXT"
+run_dos "$C7" "C:\\DOSGAME\\DOSGAME.EXE /postinst"
+if grep -qi '^G|Wolfenstein 3D|C:\\GAMES\\WOLF01|INSTALL.EXE' "$C7/DOSGAME/INSTALL.LST" 2>/dev/null; then
+    bad "the installer was recorded as the game's launcher"
+else
+    ok "the catalogue's INSTALL.EXE is rejected as a launcher"
+fi
+if grep -qi '^G|Wolfenstein 3D|C:\\GAMES\\WOLF01|WOLF3D.EXE' "$C7/DOSGAME/INSTALL.LST" 2>/dev/null; then
+    ok "the real game beside it is recorded instead"
+else
+    bad "the real game was not found: $(cat "$C7/DOSGAME/INSTALL.LST" 2>/dev/null)"
+fi
+
+echo "== F2 cannot lock an installer in as the game =="
+grep -q 'is_skip_exe(ft.name) || is_setup_exe(ft.name)) continue' "$SRCDIR/dosgame.c" \
+  && ok "F2's cycle skips installers and support tools" \
+  || bad "F2's cycle skips installers and support tools"
+grep -q "reg_append(g->kind == 'R' ? 'G' : 'S'" "$SRCDIR/dosgame.c" \
+  && ok "an F2 choice on a needs-setup row keeps its class ('S')" \
+  || bad "an F2 choice on a needs-setup row keeps its class"
+grep -q "flag == 'S') ? 'I' : 'R'" "$SRCDIR/dosgame.c" \
+  && ok "an 'S' row reloads as needs-setup, not ready-to-run" \
+  || bad "an 'S' row reloads as needs-setup"
+
 echo "== DHCP is not aborted by a stray keystroke =="
 # mTCP's DHCP takes ANY buffered key as its advertised "[ESC] to abort"; the
 # box logged "attempt 1: Aborting" instantly, which reads like a dead NIC.
