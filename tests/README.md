@@ -100,6 +100,13 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | **agent 1.26.0 Win9x REBOOT: don't kill the agent mid-shutdown-negotiation** | agent handlers.c | `python/test_agent_log_and_reboot.py` |
 | agent 1.26.0 batched logging: unbuffered startup, flush on every exit path | agent log.c / main.c | `python/test_agent_log_and_reboot.py` |
 | DOS net bring-up: guarded drivers, PKT.OK written, CHAT auto-calls NETUP | DOS lane (NETUP/PLAY/CHAT.BAT) | `python/test_dosgame_install_detect.py` |
+| **0.2 CRITICAL: scan de-dup hid 5 installed games behind their installers** (2026-08-13) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 write_install bounded path join (81-byte frame smash on a long gamedir=) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 generated RUN.BAT lines fit COMMAND.COM's 128-byte line buffer | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| no angle bracket in a `rem` (COMMAND.COM redirects there too - the stray `43` files) | DOS lane (*.BAT) | `python/test_dosstage_and_batch.py`, `run_dos_tests.sh` |
+| agent 1.28.0 dosstage compares mtime, not size alone; DOSSTAGE force re-stages | agent dosstage.c | `python/test_dosstage_and_batch.py` |
+| AGENTRUN.BAT maps its own share session (bare UNC is unreadable on Win9x) | DOS lane (AGENTRUN.BAT) | `python/test_dosstage_and_batch.py` |
+| collision-free tile stem (1,268 rows shared 411 .PRV names) + catalogue staleness gate | host-side Python | `scripts/dosgames/tests/check_catalog.py` |
 | **0.2 catalogue tie-break for launcher picks (ROTT.EXE not ROTTIPX.EXE)** (2026-08-13) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
 | 0.2 Apogee ad bundle + `*HELP.EXE` excluded; unambiguous catalogue name beats first-found | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
 | **0.2 series shell vs episode binary: `KEEN4E.EXE` beats `KEEN.EXE`** (2026-08-13) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
