@@ -62,7 +62,7 @@ if not exist C:\DOSGAME\NET\3C509.COM goto try2
 echo net:    trying 3C509 on int 0x60 >> %DGLOG%
 C:\DOSGAME\NET\3C509.COM 0x60 > nul
 if errorlevel 1 goto try2
-echo PACKETINT 0x60 > C:\DOSGAME\NET\MTCP.CFG
+echo PACKETINT 0x60> C:\DOSGAME\NET\MTCP.CFG
 echo net:    3C509 loaded on int 0x60 >> %DGLOG%
 goto gotpkt
 
@@ -71,7 +71,7 @@ if not exist C:\DOSGAME\NET\NE2000.COM goto try5
 echo net:    trying NE2000 int 0x61 irq 10 io 0x300 >> %DGLOG%
 C:\DOSGAME\NET\NE2000.COM 0x61 10 0x300 > nul
 if errorlevel 1 goto try3
-echo PACKETINT 0x61 > C:\DOSGAME\NET\MTCP.CFG
+echo PACKETINT 0x61> C:\DOSGAME\NET\MTCP.CFG
 echo net:    NE2000 loaded on int 0x61 >> %DGLOG%
 goto gotpkt
 
@@ -79,7 +79,7 @@ goto gotpkt
 echo net:    trying NE2000 int 0x62 irq 3 io 0x300 >> %DGLOG%
 C:\DOSGAME\NET\NE2000.COM 0x62 3 0x300 > nul
 if errorlevel 1 goto try4
-echo PACKETINT 0x62 > C:\DOSGAME\NET\MTCP.CFG
+echo PACKETINT 0x62> C:\DOSGAME\NET\MTCP.CFG
 echo net:    NE2000 loaded on int 0x62 >> %DGLOG%
 goto gotpkt
 
@@ -87,7 +87,7 @@ goto gotpkt
 echo net:    trying NE2000 int 0x63 irq 5 io 0x280 >> %DGLOG%
 C:\DOSGAME\NET\NE2000.COM 0x63 5 0x280 > nul
 if errorlevel 1 goto try5
-echo PACKETINT 0x63 > C:\DOSGAME\NET\MTCP.CFG
+echo PACKETINT 0x63> C:\DOSGAME\NET\MTCP.CFG
 echo net:    NE2000 loaded on int 0x63 >> %DGLOG%
 goto gotpkt
 
@@ -96,7 +96,7 @@ if not exist C:\DOSGAME\NET\3C503.COM goto try6
 echo net:    trying 3C503 on int 0x64 >> %DGLOG%
 C:\DOSGAME\NET\3C503.COM 0x64 > nul
 if errorlevel 1 goto try6
-echo PACKETINT 0x64 > C:\DOSGAME\NET\MTCP.CFG
+echo PACKETINT 0x64> C:\DOSGAME\NET\MTCP.CFG
 echo net:    3C503 loaded on int 0x64 >> %DGLOG%
 goto gotpkt
 
@@ -105,7 +105,7 @@ if not exist C:\DOSGAME\NET\3C505.COM goto try7
 echo net:    trying 3C505 on int 0x65 >> %DGLOG%
 C:\DOSGAME\NET\3C505.COM 0x65 > nul
 if errorlevel 1 goto try7
-echo PACKETINT 0x65 > C:\DOSGAME\NET\MTCP.CFG
+echo PACKETINT 0x65> C:\DOSGAME\NET\MTCP.CFG
 echo net:    3C505 loaded on int 0x65 >> %DGLOG%
 goto gotpkt
 
@@ -114,7 +114,7 @@ if not exist C:\DOSGAME\NET\3C507.COM goto try8
 echo net:    trying 3C507 on int 0x66 >> %DGLOG%
 C:\DOSGAME\NET\3C507.COM 0x66 > nul
 if errorlevel 1 goto try8
-echo PACKETINT 0x66 > C:\DOSGAME\NET\MTCP.CFG
+echo PACKETINT 0x66> C:\DOSGAME\NET\MTCP.CFG
 echo net:    3C507 loaded on int 0x66 >> %DGLOG%
 goto gotpkt
 
@@ -123,7 +123,7 @@ if not exist C:\DOSGAME\NET\3C501.COM goto nopkt
 echo net:    trying 3C501 on int 0x67 >> %DGLOG%
 C:\DOSGAME\NET\3C501.COM 0x67 > nul
 if errorlevel 1 goto nopkt
-echo PACKETINT 0x67 > C:\DOSGAME\NET\MTCP.CFG
+echo PACKETINT 0x67> C:\DOSGAME\NET\MTCP.CFG
 echo net:    3C501 loaded on int 0x67 >> %DGLOG%
 goto gotpkt
 
@@ -134,7 +134,7 @@ echo net:    NO packet driver loaded - downloads unavailable >> %DGLOG%
 goto netdone
 
 :gotpkt
-echo HOSTNAME DOSBOX >> C:\DOSGAME\NET\MTCP.CFG
+echo HOSTNAME DOSBOX>> C:\DOSGAME\NET\MTCP.CFG
 echo Network card found. Getting an IP address...
 echo net:    requesting a DHCP lease >> %DGLOG%
 if not exist C:\DOSGAME\NET\DHCP.EXE goto nodhcpe
