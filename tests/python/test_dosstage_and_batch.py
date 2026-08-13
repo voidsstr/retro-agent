@@ -124,3 +124,37 @@ def test_batch_files_have_crlf_and_no_long_lines():
             assert len(line) <= 126, (
                 "%s:%d is %d bytes; COMMAND.COM truncates past 126"
                 % (os.path.basename(path), n, len(line)))
+
+
+# ----------------------------------------------------------- MS-DOS mode ----
+
+def test_msdos_mode_has_its_own_startup_file():
+    """Windows runs DOSSTART.BAT, not AUTOEXEC.BAT, for "Restart in MS-DOS mode".
+
+    A box can therefore be perfectly configured at the boot prompt and bare in
+    MS-DOS mode - which is what .243 was: the file did not exist at all, so
+    MS-DOS mode came up with no path to the DOS tools.
+    """
+    path = os.path.join(DG, "DOSSTART.BAT")
+    assert os.path.exists(path), "no DOSSTART.BAT to deploy"
+    src = _read(path)
+    assert "C:\\DOSGAME" in src, "DOSSTART.BAT does not put the DOS tools on PATH"
+    assert re.search(r"^PATH=", src, re.M), "DOSSTART.BAT sets no PATH"
+
+
+def test_reference_config_sys_sizes_the_environment():
+    """Without SHELL=, real-mode DOS gives COMMAND.COM a 256-byte master
+    environment; this box needs ~286 and SET fails SILENTLY past the limit,
+    so %DGLOG% expands to nothing and mTCP loses MTCPCFG."""
+    src = _read(os.path.join(DG, "CONFIG.SYS.dosbox"))
+    m = re.search(r"^SHELL=(\S+)\s+(\S+)\s+.*?/E:(\d+)", src, re.M | re.I)
+    assert m, "the reference CONFIG.SYS has no SHELL= line with /E:"
+    interp, comspec_dir, envsize = m.groups()
+    assert int(envsize) >= 512, "environment is still too small (%s)" % envsize
+    # A SHELL= naming an interpreter that is not there is an unbootable machine.
+    assert interp.upper().endswith("COMMAND.COM"), interp
+    assert comspec_dir, "SHELL= needs the COMSPEC directory as its 2nd argument"
+    assert "/P" in src.upper(), "SHELL= without /P does not make the shell permanent"
+    # EMM386 is a known cause of a hang on the way into MS-DOS mode.
+    assert not re.search(r"^DEVICE.*EMM386", src, re.M | re.I)
+    assert re.search(r"^DEVICE=.*HIMEM\.SYS", src, re.M | re.I), "no XMS driver"

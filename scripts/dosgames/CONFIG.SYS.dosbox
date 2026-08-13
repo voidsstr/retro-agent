@@ -1,0 +1,30 @@
+REM CONFIG.SYS - reference copy of what a fleet DOS-game box should boot with.
+REM Deploys to C:\CONFIG.SYS. Boot-critical: back up the existing file and read
+REM the result back before trusting it, and remember that a SHELL= line naming
+REM a missing interpreter makes the machine unbootable. Recovery is F8 at boot
+REM -> "Safe mode command prompt only" (which bypasses CONFIG.SYS) followed by
+REM COPY C:\CONFIG.BAK C:\CONFIG.SYS.
+REM
+REM This file was 0 bytes on .243, so MS-DOS mode came up with no XMS at all
+REM and DOS itself sitting in conventional memory. HIMEM plus DOS=HIGH is the
+REM minimum a DOS game box wants; it is also what lets the loader put DOS in
+REM the HMA and leave the 640K for the game.
+REM
+REM EMM386 is deliberately NOT loaded: it is the classic cause of a Win98 box
+REM that hangs on the way into MS-DOS mode, and nothing here needs EMS. Games
+REM that want EMS can get it from a per-game setup later.
+REM
+REM SHELL= is what sets the MASTER ENVIRONMENT SIZE. Without it DOS uses 256
+REM bytes, and .243 already needs ~286: the boot variables (~165) plus
+REM AUTOEXEC's BLASTER/MIDI (~47) plus PLAY.BAT's MTCPCFG/DGLOG (~62) plus
+REM RUN.BAT's PATH prepend. Past the limit SET fails SILENTLY - %DGLOG%
+REM expands to nothing, so the logging that diagnoses everything else turns
+REM into "echo ... >>" with no target, and mTCP loses MTCPCFG, which is how
+REM DHCP and HTGET find their configuration. 1024 leaves generous headroom.
+REM The second argument is the COMSPEC directory; /P makes it permanent.
+SHELL=C:\COMMAND.COM C:\ /P /E:1024
+DEVICE=C:\WINDOWS\HIMEM.SYS
+DOS=HIGH
+FILES=40
+BUFFERS=20
+STACKS=9,256
