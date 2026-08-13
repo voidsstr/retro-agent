@@ -95,7 +95,6 @@ expect() {
 }
 
 echo "== launchers the box got wrong =="
-expect JAGGED1  DOXVIEW.EXE "was CBYTES4.COM, a checksum utility"
 expect KEENDRMS KEENDR.BAT  "was KEENDWEB.BAT, a web-download stub"
 expect ROTT     ROTT.EXE    "was ROTTIPX.EXE, the IPX multiplayer launcher"
 expect KEEN     KEEN4E.EXE  "was KEEN.EXE, an Apogee front-end shell"
@@ -112,6 +111,21 @@ expect SW       SW.EXE      "dir-named and catalogued"
 expect DUKE3D   DUKE3D.EXE  "dir-named"
 expect JAGGED2  DG.EXE      "catalogue names it"
 expect TINY     TINY.EXE    "small lone exe is a game, not a self-extractor"
+
+echo "== known limitation: Jagged Alliance =="
+# The real game is JA.EXE. NOTHING here can find it: no program is named after
+# the directory (JAGGED~1), and the catalogue - which is the tie-breaker
+# everywhere else - names DOXVIEW.EXE (2 rows) and EXECUTOR.EXE (5) but NOT
+# JA.EXE, because gen_catalog.py picks "the shallowest non-installer exe" out
+# of the archive and got a documentation viewer. So do not assert a launcher
+# here; assert only what IS true - the obvious junk is excluded - and leave F2
+# as the answer. Asserting DOXVIEW.EXE would enshrine a mis-pick as correct.
+got=$(awk -F'|' -v d='C:\\JAGGED1' '$5==d {print $4}' "$SELF" | head -1)
+case "$got" in
+    CBYTES4.COM|GET.COM|"")
+        bad "JAGGED1 -> ${got:-<missing>} , a tool rather than a program" ;;
+    *)  ok "JAGGED1 -> $got   (not the junk; JA.EXE needs F2 - see comment)" ;;
+esac
 
 echo
 echo "pick outcomes: $pass passed, $fail failed"
