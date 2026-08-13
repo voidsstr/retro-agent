@@ -372,6 +372,57 @@ fi
 # ============================================================ TEST 5 =======
 # A stale RUN.BAT must never be re-run: DOSGAME.BAT deletes it each pass, so a
 # menu that exits any other way cannot replay whatever the user last did.
+echo "== series shell vs episode binary (KEEN.EXE / KEEN4E.EXE) =="
+# C:\KEEN on the Win98 box held a 642K KEEN.EXE (an Apogee front-end) beside the
+# 105K KEEN4E.EXE that is actually Commander Keen 4. "Named after its directory"
+# picked the shell, so launching an installed game re-ran something
+# installer-shaped instead of playing it.
+grep -q 'is_util_suffix' "$SRCDIR/dosgame.c" \
+  && ok "a util-looking suffix cannot outrank the game" \
+  || bad "a util-looking suffix cannot outrank the game"
+grep -q 'extends the directory name' "$SRCDIR/dosgame.c" \
+  && ok "an exe extending the directory name beats the bare one" \
+  || bad "an exe extending the directory name beats the bare one"
+grep -q 'stricmp(bdot, ".BAT") != 0' "$SRCDIR/dosgame.c" \
+  && ok "a .BAT named for its directory still wins (TYRIAN.BAT)" \
+  || bad "a .BAT named for its directory still wins (TYRIAN.BAT)"
+grep -q 'runnable programs' "$SRCDIR/dosgame.c" \
+  && ok "every runnable candidate is logged, not just the winner" \
+  || bad "every runnable candidate is logged, not just the winner"
+
+# C:\HERETIC on the box held ONE 1.4MB HTIC_V10.EXE and no data at all - a
+# download that was never extracted. It registered as ready-to-play, so Enter
+# ran the installer instead of the game.
+grep -q 'lone program, no data files' "$SRCDIR/dosgame.c" \
+  && ok "a lone program with no data is treated as an unextracted download" \
+  || bad "a lone program with no data is treated as an unextracted download"
+grep -q 'nrun == 1 && ndata == 0' "$SRCDIR/dosgame.c" \
+  && ok "the unextracted-download test needs both no data and one program" \
+  || bad "the unextracted-download test needs both no data and one program"
+# The size floor keeps a small lone exe (a tiny complete game, and the nested
+# fixture below) from being misread as a download that needs extracting.
+grep -q 'SELFEXTRACT_MIN_BYTES' "$SRCDIR/dosgame.c" \
+  && ok "a lone exe must also be LARGE to count as a self-extractor" \
+  || bad "a lone exe must also be LARGE to count as a self-extractor"
+
+echo "== DHCP is not aborted by a stray keystroke =="
+# mTCP's DHCP takes ANY buffered key as its advertised "[ESC] to abort"; the
+# box logged "attempt 1: Aborting" instantly, which reads like a dead NIC.
+grep -q '/kflush' "$SRCDIR/dosgame.c" \
+  && ok "DOSGAME.EXE has a headless /kflush mode" \
+  || bad "DOSGAME.EXE has a headless /kflush mode"
+grep -q 'mode_kflush' "$SRCDIR/dosgame.c" \
+  && ok "/kflush runs before any video setup" \
+  || bad "/kflush runs before any video setup"
+[ "$(grep -c "DOSGAME.EXE /kflush" "$SRCDIR/NETUP.BAT")" = "2" ] \
+  && ok "both DHCP call sites drain the keyboard first" \
+  || bad "both DHCP call sites drain the keyboard first"
+for n in $(grep -n 'DHCP.EXE >>'  "$SRCDIR/NETUP.BAT" | cut -d: -f1); do
+  sed -n "$((n-1))p"  "$SRCDIR/NETUP.BAT" | grep -q '/kflush' \
+    || bad "the drain is on the line immediately before DHCP (line $n)"
+done
+ok "the drain is on the line immediately before DHCP"
+
 echo "== shipped DOSGAME.BAT hygiene =="
 if grep -qi 'del C:\\DOSGAME\\RUN.BAT' "$SRCDIR/DOSGAME.BAT"; then
     ok "DOSGAME.BAT clears a stale RUN.BAT before each menu pass"

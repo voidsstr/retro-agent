@@ -38,6 +38,12 @@ rem settles it: instant failure if the packet driver is gone, and a
 rem harmless lease refresh if it is still resident.
 if not exist C:\DOSGAME\NET\DHCP.EXE goto detect
 echo net:    PKT.OK present, probing with DHCP >> %DGLOG%
+rem mTCP's DHCP advertises "Press [ESC] to abort" and takes ANY pending
+rem keystroke as that ESC. A key left in the BIOS buffer by the menu or by a
+rem "press a key" prompt therefore kills the lease request the instant it
+rem starts - the log showed "attempt 1: Aborting" immediately, which reads
+rem like a dead network but is nothing of the sort. Drain the buffer first.
+if exist C:\DOSGAME\DOSGAME.EXE C:\DOSGAME\DOSGAME.EXE /kflush
 C:\DOSGAME\NET\DHCP.EXE >> %DGLOG%
 if errorlevel 1 goto stale
 echo net:    existing packet driver still good >> %DGLOG%
@@ -132,6 +138,12 @@ echo HOSTNAME DOSBOX >> C:\DOSGAME\NET\MTCP.CFG
 echo Network card found. Getting an IP address...
 echo net:    requesting a DHCP lease >> %DGLOG%
 if not exist C:\DOSGAME\NET\DHCP.EXE goto nodhcpe
+rem mTCP's DHCP advertises "Press [ESC] to abort" and takes ANY pending
+rem keystroke as that ESC. A key left in the BIOS buffer by the menu or by a
+rem "press a key" prompt therefore kills the lease request the instant it
+rem starts - the log showed "attempt 1: Aborting" immediately, which reads
+rem like a dead network but is nothing of the sort. Drain the buffer first.
+if exist C:\DOSGAME\DOSGAME.EXE C:\DOSGAME\DOSGAME.EXE /kflush
 C:\DOSGAME\NET\DHCP.EXE >> %DGLOG%
 if errorlevel 1 goto nodhcp
 echo ok > C:\DOSGAME\NET\PKT.OK

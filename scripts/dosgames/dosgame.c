@@ -469,6 +469,12 @@ static int is_skip_dir(const char *n)
     return 0;
 }
 
+/* How big a lone .EXE must be before it is read as a self-extracting download
+ * rather than a small complete game. HTIC_V10.EXE (shareware Heretic) is
+ * 1.4 MB; the DOS-era games that ship as a single bare executable with no data
+ * beside them are a fraction of this. */
+#define SELFEXTRACT_MIN_BYTES 262144UL
+
 static const char *skip_exes[] = {
     "install.exe","setup.exe","setsound.exe","sound.exe","uvconfig.exe",
     "config.exe","setmain.exe","readme.exe","catalog.exe","order.exe",
@@ -504,6 +510,29 @@ static int is_setup_exe(const char *n)
     return 0;
 }
 
+/* Does the part of a filename AFTER the directory name look like a support
+ * tool rather than an episode? ROTT ships ROTTSND.EXE beside ROTT.EXE, and
+ * that must never outrank the game. Compared against the stem only, so the
+ * trailing ".EXE"/".COM" is ignored. */
+static int is_util_suffix(const char *suffix)
+{
+    static const char *utils[] = {
+        "snd","sound","cfg","config","set","setup","setmain","util","utl",
+        "ins","install","ord","order","hlp","help","doc","read","readme",
+        "un","uninst","tst","test","dm","demo","edit","ed","pat","patch", NULL
+    };
+    char stem[16];
+    int i;
+    const char *dot = strchr(suffix, '.');
+    size_t n = dot ? (size_t)(dot - suffix) : strlen(suffix);
+
+    if (n == 0 || n >= sizeof(stem)) return 0;
+    memcpy(stem, suffix, n);
+    stem[n] = '\0';
+    for (i = 0; utils[i]; i++)
+        if (!stricmp(stem, utils[i])) return 1;
+    return 0;
+}
 static int is_skip_exe(const char *n)
 {
     int i;
@@ -542,6 +571,12 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
     struct find_t ft;
     char firstexe[13] = "", firstbat[13] = "", setup[13] = "", archive[13] = "";
     char want_exe[13], want_com[13], want_bat[13];
+    char runlist[80] = "";
+    char sibling[13] = "";
+    int nrun = 0;
+    int ndata = 0;
+    unsigned long firstexe_size = 0;
+    size_t dlen = strlen(dirname);
 
     best[0] = '\0';
 
@@ -565,13 +600,81 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
         if (!archive[0] && !stricmp(dot, ".ZIP")) strcpy(archive, ft.name);
 
         if (!stricmp(dot, ".EXE") || !stricmp(dot, ".COM")) {
-            if (!firstexe[0] && !is_skip_exe(ft.name)) strcpy(firstexe, ft.name);
+            if (!firstexe[0] && !is_skip_exe(ft.name)) {
+                strcpy(firstexe, ft.name);
+                firstexe_size = ft.size;
+            }
         } else if (!stricmp(dot, ".BAT")) {
             if (!firstbat[0] && !is_skip_exe(ft.name)) strcpy(firstbat, ft.name);
         }
+        /* Series shell vs. episode binary. Apogee/id shareware often ships a
+         * front-end named for the SERIES beside the binary that is actually
+         * the game, distinguished by an episode suffix: C:\KEEN holds a 642K
+         * KEEN.EXE (an Apogee menu/ad shell) next to the 105K KEEN4E.EXE that
+         * is Commander Keen 4. The rule below ("named after its directory")
+         * picked the shell, so a game that reported itself installed re-ran
+         * something installer-shaped when launched — exactly the symptom
+         * reported from the Win98 box. A sibling whose name EXTENDS the
+         * directory name is the game; the bare one is the wrapper. */
+        if ((!stricmp(dot, ".EXE") || !stricmp(dot, ".COM")) && !sibling[0]
+            && !is_skip_exe(ft.name) && dlen >= 3
+            && !strnicmp(ft.name, dirname, dlen)
+            && (size_t)(dot - ft.name) > dlen
+            && !is_util_suffix(ft.name + dlen))
+            strcpy(sibling, ft.name);
+
+        /* Remember the alternatives so a wrong pick is visible in the log. */
+        if ((!stricmp(dot, ".EXE") || !stricmp(dot, ".COM") ||
+             !stricmp(dot, ".BAT")) && !is_skip_exe(ft.name)) {
+            nrun++;
+            if (nrun <= 4 && strlen(runlist) + 14 < sizeof(runlist)) {
+                if (runlist[0]) strcat(runlist, ", ");
+                strcat(runlist, ft.name);
+            }
+        } else {
+            ndata++;                    /* anything that isn't a program */
+        }
     } while (_dos_findnext(&ft) == 0);
 
-    if (best[0]) { logf("pick:   %s -> %s (named after its directory)", fulldir, best); return 0; }
+    if (nrun > 1)
+        logf("pick:   %s has %d runnable programs: %s%s", fulldir, nrun,
+             runlist, nrun > 4 ? " ..." : "");
+
+    /* One lone program and NO data files at all is not a game — it is a
+     * self-extracting download that was never unpacked. C:\HERETIC on the
+     * Win98 box held nothing but a 1.4 MB HTIC_V10.EXE, and because that name
+     * is in no installer table it was registered as ready to play; pressing
+     * Enter therefore ran the installer instead of the game, which is exactly
+     * what was reported. Classify it as "needs setup run" so launching it
+     * extracts, and the post-install pass then re-picks the real binary.
+     * A genuine game directory always carries data beside its executable.
+     *
+     * The size floor matters: a self-extracting archive carries a whole game
+     * inside it and is always large, whereas a lone SMALL exe with no data
+     * really can be a tiny complete game. Without it this also swallowed a
+     * legitimate game sitting one level below its unpack directory. */
+    if (nrun == 1 && ndata == 0 && firstexe[0]
+        && firstexe_size >= SELFEXTRACT_MIN_BYTES) {
+        strcpy(best, firstexe);
+        logf("pick:   %s -> %s (lone program, no data files: an unextracted "
+             "self-extracting download; needs setup run)", fulldir, best);
+        return 1;
+    }
+    if (best[0]) {
+        char *bdot = strrchr(best, '.');
+        /* A .BAT named for the directory is a deliberate launcher (TYRIAN.BAT)
+         * and always wins. Only a bare .EXE/.COM gets second-guessed. */
+        if (sibling[0] && bdot && stricmp(bdot, ".BAT") != 0
+            && stricmp(best, sibling) != 0) {
+            logf("pick:   %s -> %s (extends the directory name; %s looks like "
+                 "a series shell)", fulldir, sibling, best);
+            strcpy(best, sibling);
+            return 0;
+        }
+        logf("pick:   %s -> %s (named after its directory)%s", fulldir, best,
+             nrun > 1 ? " - F2 in the menu picks a different one" : "");
+        return 0;
+    }
     if (firstexe[0]) { strcpy(best, firstexe);
         logf("pick:   %s -> %s (first non-tool .EXE/.COM)", fulldir, best); return 0; }
     if (firstbat[0]) { strcpy(best, firstbat);
@@ -1402,6 +1505,8 @@ static int post_install(void)
     logf("post:   OK - \"%s\" is playable: %s\\%s", title, gamedir, best);
 
     reg_append('G', title, gamedir, best, tile);
+    logf("post:   if %s turns out to be the wrong program, press F2 on this "
+         "game in the menu to pick another - the choice is remembered", best);
     if (stricmp(gamedir, unpack) && dir_exists(unpack))
         reg_append('X', title, unpack, "", "");
     return 0;
@@ -1848,12 +1953,13 @@ static int find_by_title(const char *want, int want_installed)
 
 int main(int argc, char **argv)
 {
-    int i, selftest = 0, mode_snap = 0, mode_post = 0;
+    int i, selftest = 0, mode_snap = 0, mode_post = 0, mode_kflush = 0;
     const char *want_play = NULL, *want_inst = NULL;
     for (i = 1; i < argc; i++) {
         if (!strnicmp(argv[i], "/home:", 6))
             copy_str(cfg_home, argv[i] + 6, sizeof(cfg_home));
         if (!stricmp(argv[i], "/selftest")) selftest = 1;
+        if (!stricmp(argv[i], "/kflush")) mode_kflush = 1;
         if (!stricmp(argv[i], "/snapdirs")) mode_snap = 1;
         if (!stricmp(argv[i], "/postinst")) mode_post = 1;
         /* Headless equivalents of pressing Enter on a row. They make the
@@ -1879,6 +1985,15 @@ int main(int argc, char **argv)
          cfg_drive[0] ? cfg_drive : "(none)");
 
     /* Headless helper passes, run from RUN.BAT. They must not touch video. */
+    if (mode_kflush) {
+        /* Nothing else - just empty the keyboard buffer. mTCP's DHCP treats
+         * ANY pending keystroke as the advertised "[ESC] to abort", so a key
+         * left over from the menu kills the lease request before it starts. */
+        kflush();
+        logf("kflush: keyboard buffer drained");
+        log_close();
+        return 0;
+    }
     if (mode_snap) { snap_dirs(); log_close(); return 0; }
     if (mode_post) {
         int rc = post_install();
