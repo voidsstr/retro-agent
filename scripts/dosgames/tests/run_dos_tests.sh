@@ -568,6 +568,72 @@ grep -q "flag == 'S') ? 'I' : 'R'" "$SRCDIR/dosgame.c" \
   && ok "an 'S' row reloads as needs-setup, not ready-to-run" \
   || bad "an 'S' row reloads as needs-setup"
 
+echo "== a game that merely RAN is not mistaken for where an install went =="
+# Playing Duke Nukem 3D leaves DUKE3D.CFG and DD.CFG behind. Step 2b took the
+# first directory touched since the snapshot, so C:\GAMES\DUKE3D answered yes to
+# every later install: Blake Stone AND Shadow Warrior were both recorded as
+# C:\GAMES\DUKE3D\DUKE3D.EXE and every game in the menu launched Duke Nukem.
+mk_d3() {   # mk_d3 <croot> <new files...>
+    local c="$1"; shift
+    rm -rf "$c"; mkdir -p "$c/DOSGAME" "$c/GAMES/BLAKE" "$c/GAMES/DUKE3D"
+    cp "$WORK/DOSGAME.EXE" "$c/DOSGAME/DOSGAME.EXE"
+    printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES;C:\\\n' > "$c/DOSGAME/DOSGAME.CFG"
+    printf 'MZ' > "$c/GAMES/BLAKE/INSTALL.EXE"
+    printf 'x'  > "$c/GAMES/BLAKE/BS_1BBS._1"
+    printf 'x'  > "$c/GAMES/BLAKE/BS_1BBS._2"
+    for f in DUKE3D.EXE COMMIT.EXE SETUP.EXE DUKE3D.GRP GAME.CON USER.CON; do
+        printf 'MZ' > "$c/GAMES/DUKE3D/$f"
+    done
+    printf 'Blake Stone\r\nC:\\GAMES\\BLAKE\r\n\r\n\r\n' > "$c/DOSGAME/PENDING.TXT"
+    # DOS stamps have 2-second granularity: leave a gap the snapshot lands in.
+    sleep 3
+    { echo "@echo off"
+      echo "C:\\DOSGAME\\DOSGAME.EXE /snapdirs"
+      for f in "$@"; do echo "echo x > C:\\GAMES\\DUKE3D\\$f"; done
+      echo "C:\\DOSGAME\\DOSGAME.EXE /postinst"
+    } > "$c/T.BAT"
+}
+
+C8="$WORK/played"
+mk_d3 "$C8" DUKE3D.CFG DD.CFG
+run_dos "$C8" "C:\\T.BAT"
+if grep -q "too few to be an install" "$C8/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    ok "two config files are not enough to claim a directory"
+else
+    bad "a played game's config files were taken as an install"
+fi
+if grep -qi 'DUKE3D' "$C8/DOSGAME/INSTALL.LST" 2>/dev/null; then
+    bad "the played game was recorded as this game's launcher"
+else
+    ok "nothing was recorded, so the menu cannot launch the wrong game"
+fi
+
+C9="$WORK/installed"
+mk_d3 "$C9" BSTONE.EXE AUDIOHED.BS1 MAPHEAD.BS1 VGAGRAPH.BS1 VSWAP.BS1
+run_dos "$C9" "C:\\T.BAT"
+if grep -q "is where the installer wrote" "$C9/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    ok "a real install into an existing directory is still found"
+else
+    bad "a real install into an existing directory was missed"
+fi
+
+echo "== DOS timestamps pack into 32 bits without wrapping =="
+# The old packing shifted the FULL year left by 26; 1980 << 26 needs 37 bits,
+# so on a 16-bit compiler the year wrapped modulo 64 and a 1980 file compared
+# as NEWER than a 2026 one. It never bit on the fleet box only because its CMOS
+# battery is dead and every stamp there is 1980.
+grep -q 'ft->wr_date << 16' "$SRCDIR/dosgame.c" \
+  && ok "file stamps use DOS's own packed date/time words" \
+  || bad "file stamps use DOS's own packed date/time words"
+grep -q 'd.year - 1980' "$SRCDIR/dosgame.c" \
+  && ok "the clock stamp stores years since 1980, so it cannot overflow" \
+  || bad "the clock stamp stores years since 1980"
+if grep -qE 'year << 26|d\.year << 26' "$SRCDIR/dosgame.c"; then
+    bad "the overflowing year shift is still there"
+else
+    ok "the overflowing year shift is gone"
+fi
+
 echo "== DHCP is not aborted by a stray keystroke =="
 # mTCP's DHCP takes ANY buffered key as its advertised "[ESC] to abort"; the
 # box logged "attempt 1: Aborting" instantly, which reads like a dead NIC.

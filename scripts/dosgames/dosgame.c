@@ -1346,44 +1346,67 @@ static int show_tile(const game_t *g)
  * no reliable clock (this one still says 1980), but it is CONSISTENT - a file
  * written now gets "now" by the box's own reckoning - so comparing stamps to
  * each other works even though the absolute date is nonsense. */
+/* Both stamp helpers produce the SAME 32-bit value: DOS's own packed
+ * date word in the high half, packed time word in the low half. That layout
+ * is already monotonic and, crucially, it FITS.
+ *
+ * The previous packing shifted the full year left by 26, and 1980 << 26 needs
+ * 37 bits — on a 16-bit compiler where unsigned long is 32, the year silently
+ * wrapped modulo 64. 1980 % 64 = 60 while 2026 % 64 = 42, so a 1980 file
+ * compared as NEWER than a 2026 one and every "was this written recently?"
+ * answer inverted across a year boundary. It never showed on the fleet's Win98
+ * box only because its CMOS battery is dead and every stamp there is 1980. */
 static unsigned long dos_stamp_now(void)
 {
     struct dosdate_t d;
     struct dostime_t t;
+    unsigned date, time;
     _dos_getdate(&d);
     _dos_gettime(&t);
-    return ((unsigned long)d.year << 26) | ((unsigned long)d.month << 22)
-         | ((unsigned long)d.day << 17)   | ((unsigned long)t.hour << 12)
-         | ((unsigned long)t.minute << 6) | (unsigned long)t.second;
+    date = (unsigned)(((d.year - 1980) & 0x7F) << 9)
+         | (unsigned)((d.month & 0x0F) << 5) | (unsigned)(d.day & 0x1F);
+    time = (unsigned)((t.hour & 0x1F) << 11) | (unsigned)((t.minute & 0x3F) << 5)
+         | (unsigned)((t.second / 2) & 0x1F);
+    return ((unsigned long)date << 16) | (unsigned long)time;
 }
 
 /* Same packing, from a directory entry's write time. */
+/* find_t already carries exactly those two words, so no unpacking is needed —
+ * and none of it can overflow. */
 static unsigned long dos_stamp_of(const struct find_t *ft)
 {
-    unsigned y = 1980 + ((ft->wr_date >> 9) & 0x7F);
-    unsigned mo = (ft->wr_date >> 5) & 0x0F;
-    unsigned da = ft->wr_date & 0x1F;
-    unsigned h = (ft->wr_time >> 11) & 0x1F;
-    unsigned mi = (ft->wr_time >> 5) & 0x3F;
-    unsigned se = (ft->wr_time & 0x1F) * 2;
-    return ((unsigned long)y << 26) | ((unsigned long)mo << 22)
-         | ((unsigned long)da << 17) | ((unsigned long)h << 12)
-         | ((unsigned long)mi << 6) | (unsigned long)se;
+    return ((unsigned long)ft->wr_date << 16) | (unsigned long)ft->wr_time;
 }
 
 /* Does this directory contain a file written at or after `since`? That is how
  * an install into an ALREADY EXISTING directory is detected. */
-static int dir_touched_since(const char *dir, unsigned long since)
+/* How many files in `dir` were written at or after `since`?
+ *
+ * This used to answer a yes/no question ("was anything written here?") and the
+ * first directory that said yes won. One file is not evidence of an install:
+ * on the fleet's Win98 box, PLAYING Duke Nukem 3D left DUKE3D.CFG and DD.CFG
+ * behind, so C:\GAMES\DUKE3D answered yes to every later install and Blake
+ * Stone AND Shadow Warrior were both recorded as C:\GAMES\DUKE3D\DUKE3D.EXE —
+ * every game in the menu launched Duke Nukem.
+ *
+ * An install writes a program plus its data: many files at once. A game that
+ * merely ran writes one or two. Counting separates the two cleanly. */
+static int dir_new_files(const char *dir, unsigned long since)
 {
     char pat[MAX_PATH_L * 2];
     struct find_t ft;
+    int n = 0;
     path_join(pat, dir, "*.*");
     if (!pat[0] || _dos_findfirst(pat, _A_NORMAL, &ft) != 0) return 0;
     do {
-        if (dos_stamp_of(&ft) >= since) return 1;
+        if (dos_stamp_of(&ft) >= since && ++n >= 99) break;
     } while (_dos_findnext(&ft) == 0);
-    return 0;
+    return n;
 }
+
+/* Below this many new files, a directory is something a game wrote to, not
+ * somewhere an installer installed to. */
+#define INSTALL_MIN_NEW_FILES 3
 
 static void pending_path(char *out) { sprintf(out, "%s\\PENDING.TXT", cfg_home); }
 static void presnap_path(char *out) { sprintf(out, "%s\\PREINST.LST", cfg_home); }
@@ -1694,12 +1717,23 @@ static int post_install(void)
      *     installers targeted C:\BSTONE, C:\DUKE and C:\DUKE2, every one of
      *     which was already there. So look for a directory that was WRITTEN
      *     TO during the install instead of one that appeared. */
+    /*     Evidence, not first-match. Every candidate is scored by HOW MANY
+     *     files it gained, and the busiest one wins — an installer writes a
+     *     program and its data, while a game that merely ran writes a config
+     *     file or a save. Taking the first directory that had been touched at
+     *     all made C:\GAMES\DUKE3D (left with DUKE3D.CFG and DD.CFG after
+     *     someone played it) the answer for every subsequent install, so Blake
+     *     Stone and Shadow Warrior were both recorded as DUKE3D.EXE and the
+     *     whole menu launched Duke Nukem. */
     if (!gamedir[0]) {
         unsigned long since = snapshot_stamp();
         if (since) {
+            char bestdir[MAX_PATH_L + 1] = "", bestleaf[13] = "";
+            int bestcount = 0;
+
             copy_str(roots, cfg_scan, sizeof(roots));
             p = roots;
-            while (p && *p && !gamedir[0]) {
+            while (p && *p) {
                 next = strchr(p, ';');
                 if (next) *next++ = '\0';
                 while (*p == ' ') p++;
@@ -1711,27 +1745,42 @@ static int post_install(void)
                     path_join(pat, p, "*.*");
                     if (pat[0] && _dos_findfirst(pat, _A_SUBDIR, &ft) == 0) {
                         do {
+                            int n;
                             if (!(ft.attrib & _A_SUBDIR) || ft.name[0] == '.')
                                 continue;
                             path_join(full, p, ft.name);
                             if (!full[0] || !stricmp(full, unpack)) continue;
                             if (is_skip_dir(ft.name)) continue;
-                            if (!dir_touched_since(full, since)) continue;
-                            logf("post:   %s was written to during the install",
-                                 full);
-                            if (want[0] && file_exists(full, want)) {
-                                copy_str(gamedir, full, sizeof(gamedir));
-                                copy_str(best, want, sizeof(best));
-                                break;
-                            }
-                            if (pick_launcher(full, ft.name, best) == 0) {
-                                copy_str(gamedir, full, sizeof(gamedir));
-                                break;
+                            /* Somewhere another game already lives is not
+                             * where this one was just installed. */
+                            if (reg_covers_dir(full)) continue;
+                            n = dir_new_files(full, since);
+                            if (n <= 0) continue;
+                            logf("post:   %s gained %d file(s) during the "
+                                 "install", full, n);
+                            if (n > bestcount) {
+                                bestcount = n;
+                                copy_str(bestdir, full, sizeof(bestdir));
+                                copy_str(bestleaf, ft.name, sizeof(bestleaf));
                             }
                         } while (_dos_findnext(&ft) == 0);
                     }
                 }
                 p = next;
+            }
+
+            if (bestcount && bestcount < INSTALL_MIN_NEW_FILES) {
+                logf("post:   %s gained only %d file(s) - too few to be an "
+                     "install, ignoring it", bestdir, bestcount);
+            } else if (bestcount) {
+                logf("post:   %s is where the installer wrote (%d files)",
+                     bestdir, bestcount);
+                if (want[0] && file_exists(bestdir, want)) {
+                    copy_str(gamedir, bestdir, sizeof(gamedir));
+                    copy_str(best, want, sizeof(best));
+                } else if (pick_launcher(bestdir, bestleaf, best) == 0) {
+                    copy_str(gamedir, bestdir, sizeof(gamedir));
+                }
             }
         }
     }
@@ -2012,8 +2061,17 @@ static int write_install(const game_t *g, int run_installer)
                 cfg_home, cfg_home, stem, cfg_url, stem);
         emit_redirect(f);
         fprintf(f, "if errorlevel 1 ");
-        emit_log_p(f, "if errorlevel 1 ",
-                   "HTGET failed - no lease, server down, or bad stem");
+        {
+            /* Name the server. "no lease, server down, or bad stem" sent the
+             * operator looking at the DOS box's networking when the box had a
+             * perfectly good DHCP lease and it was the host-side bridge that
+             * was not running. NETUP already logged whether the lease came, so
+             * the one fact missing from the log was WHICH host we failed to
+             * reach. Budgeted by emit_log_p against the 126-byte line limit. */
+            char msg[80];
+            sprintf(msg, "HTGET failed - is %.40s serving?", cfg_url);
+            emit_log_p(f, "if errorlevel 1 ", msg);
+        }
     } else {
         emit_log(f, "copying the archive from the mapped drive");
         fprintf(f, "copy \"%s\\%s\" %s\\%s.ZIP",
