@@ -405,6 +405,22 @@ grep -q 'SELFEXTRACT_MIN_BYTES' "$SRCDIR/dosgame.c" \
   && ok "a lone exe must also be LARGE to count as a self-extractor" \
   || bad "a lone exe must also be LARGE to count as a self-extractor"
 
+# The name-shape rule alone gets ROTT exactly BACKWARDS: it promoted
+# ROTTIPX.EXE (the IPX multiplayer launcher) over ROTT.EXE (the game) on the
+# real box. The catalogue lists ROTT.EXE and KEEN4E.EXE, and neither
+# ROTTIPX.EXE nor KEEN.EXE, so it settles both cases correctly.
+grep -q 'catalog_prefers' "$SRCDIR/dosgame.c" \
+  && ok "the catalogue breaks the tie before the name-shape guess" \
+  || bad "the catalogue breaks the tie before the name-shape guess"
+grep -q 'cat_bits_build' "$SRCDIR/dosgame.c" \
+  && ok "the catalogue is indexed ONCE, not re-read per directory" \
+  || bad "the catalogue is indexed ONCE, not re-read per directory"
+# A hash hit is probabilistic, so a false positive must only ever fall back to
+# the old heuristic - never pick a launcher on its own.
+grep -q 'return 0;                           /\* both or neither: caller decides \*/' "$SRCDIR/dosgame.c" \
+  && ok "an ambiguous catalogue answer defers to the caller" \
+  || bad "an ambiguous catalogue answer defers to the caller"
+
 echo "== DHCP is not aborted by a stray keystroke =="
 # mTCP's DHCP takes ANY buffered key as its advertised "[ESC] to abort"; the
 # box logged "attempt 1: Aborting" instantly, which reads like a dead NIC.

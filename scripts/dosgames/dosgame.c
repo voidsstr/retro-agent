@@ -444,6 +444,93 @@ static void load_catalog(void)
          cat_total, n_games - n_local, cat_filter);
 }
 
+/* Which of two candidate launchers does the share catalogue actually name as a
+ * game's main program? Returns 1 for `a`, 2 for `b`, 0 for "can't tell".
+ *
+ * This is the tiebreak for the one case heuristics cannot settle: a directory
+ * holding both an exe named after it and an exe whose name EXTENDS that name.
+ * Guessing either way is wrong somewhere -
+ *
+ *   C:\KEEN  KEEN.EXE (an Apogee shell)  vs  KEEN4E.EXE (Commander Keen 4)
+ *   C:\ROTT  ROTT.EXE (the game)         vs  ROTTIPX.EXE (its IPX launcher)
+ *
+ * - so ask the catalogue, which lists the real main exe for ~3,000 titles: it
+ * has KEEN4E.EXE and ROTT.EXE, and neither KEEN.EXE nor ROTTIPX.EXE. Both
+ * names are resolved in ONE pass, and the caller falls back to its own
+ * heuristic when the answer is 0, so a catalogue that is missing, stale or
+ * ambiguous can only leave behaviour as it was. */
+/* The catalogue is 293K / ~3,000 rows and re-reading it per ambiguous
+ * directory cost 6-7 s EACH in DOSBox — far worse on the Pentium-1 this runs
+ * on. So it is read once into a 4K bit set (two hashes per name), which every
+ * later query answers from memory. A hash hit is "probably listed" (~1% false
+ * positive at this fill); a miss is definite. That asymmetry is safe here
+ * because a false positive only makes catalog_prefers() return 0 and hand the
+ * decision back to the name-shape heuristic — the behaviour we had before. */
+#define CAT_BITS  32768u
+static unsigned char cat_bits[CAT_BITS / 8];
+static int cat_bits_ready = 0;
+
+static unsigned cat_hash1(const char *s)
+{
+    unsigned h = 0x811CU;                       /* 16-bit FNV-1a */
+    for (; *s; s++) { h ^= (unsigned char)toupper(*s); h *= 0x0193U; }
+    return h;
+}
+static unsigned cat_hash2(const char *s)
+{
+    unsigned h = 0x1234U;                       /* independent of hash1 */
+    for (; *s; s++) h = (unsigned)(h * 31U + (unsigned char)toupper(*s));
+    return h;
+}
+static void cat_bits_set(const char *name)
+{
+    unsigned i;
+    i = cat_hash1(name) % CAT_BITS; cat_bits[i >> 3] |= (unsigned char)(1 << (i & 7));
+    i = cat_hash2(name) % CAT_BITS; cat_bits[i >> 3] |= (unsigned char)(1 << (i & 7));
+}
+static int cat_bits_test(const char *name)
+{
+    unsigned i;
+    i = cat_hash1(name) % CAT_BITS;
+    if (!(cat_bits[i >> 3] & (1 << (i & 7)))) return 0;
+    i = cat_hash2(name) % CAT_BITS;
+    return (cat_bits[i >> 3] & (1 << (i & 7))) ? 1 : 0;
+}
+
+static void cat_bits_build(void)
+{
+    char path[MAX_PATH_L + 16], line[320];
+    FILE *f;
+    long n = 0;
+
+    cat_bits_ready = 1;                 /* set first: one attempt, even if it fails */
+    sprintf(path, "%s\\GAMES.CAT", cfg_home);
+    f = fopen(path, "r");
+    if (!f) { logf("pick:   no GAMES.CAT - launcher ties fall back to name shape"); return; }
+    while (fgets(line, sizeof(line), f)) {
+        char *fld[6];
+        chomp(line);
+        if (line[0] == '#' || !line[0]) continue;
+        if (split(line, fld, 6) < 4) continue;
+        if (!fld[3] || !fld[3][0]) continue;
+        cat_bits_set(fld[3]);
+        n++;
+    }
+    fclose(f);
+    logf("pick:   indexed %ld catalogue launcher names for tie-breaking", n);
+}
+
+static int catalog_prefers(const char *a, const char *b)
+{
+    int found_a, found_b;
+    if (!cat_bits_ready) cat_bits_build();
+    found_a = cat_bits_test(a);
+    found_b = cat_bits_test(b);
+    if (found_a && !found_b) return 1;
+    if (found_b && !found_a) return 2;
+    return 0;                           /* both or neither: caller decides */
+}
+
 /* ---- local drive scan ----
  *
  * A game dir = a subdirectory of a scan root that contains at least one
@@ -666,8 +753,18 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
          * and always wins. Only a bare .EXE/.COM gets second-guessed. */
         if (sibling[0] && bdot && stricmp(bdot, ".BAT") != 0
             && stricmp(best, sibling) != 0) {
-            logf("pick:   %s -> %s (extends the directory name; %s looks like "
-                 "a series shell)", fulldir, sibling, best);
+            /* Ask the catalogue first — it names the real main exe, and the
+             * name-shape heuristic alone gets ROTT exactly backwards. */
+            int pref = catalog_prefers(best, sibling);
+            if (pref == 1) {
+                logf("pick:   %s -> %s (the catalogue names it, not %s)",
+                     fulldir, best, sibling);
+                return 0;
+            }
+            logf("pick:   %s -> %s (%s)", fulldir, sibling,
+                 pref == 2 ? "the catalogue names it, not the directory-named exe"
+                           : "extends the directory name; the bare name looks "
+                             "like a series shell");
             strcpy(best, sibling);
             return 0;
         }
