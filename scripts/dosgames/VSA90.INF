@@ -11,6 +11,20 @@
 ; are set conservatively for the A90 (30-95 kHz / 50-160 Hz, 1600x1200 max)
 ; rather than to the most optimistic figure in the brochure.
 ;
+;
+; NOT NEEDED ON .243 (checked 2026-08-13). That monitor reports a valid EDID,
+; so Windows bound it itself as a Plug and Play Monitor:
+;   Enum\Monitor\VSC504E\...  Driver=Monitor\0001  ConfigFlags=00000000
+;   FriendlyName=A90  MonitorRanges=30-86,50-180,+,+  MaxResolution=1600,1200
+; Those EDID ranges are BETTER than the conservative ones below, so installing
+; this file there would be a downgrade. Keep it for a unit whose EDID is dead
+; or whose cable has no DDC line, where Windows falls back to Default Monitor.
+;
+; The model lines carry the PnP hardware ID (Monitor\VSC504E, from the EDID's
+; "VSC" vendor code plus product 504E). Without it Windows can only reach this
+; INF through Have Disk - it can never match the detected monitor on its own,
+; which is why an INF sitting in C:\WINDOWS\INF alone changes nothing.
+;
 ; Install: Display Properties > Settings > Advanced > Monitor > Change >
 ;          Have Disk > C:\WINDOWS\INF\VSA90.INF
 
@@ -24,8 +38,8 @@ Provider=%MFG%
 %MFG%=ViewSonic
 
 [ViewSonic]
-%A90%=A90.Install
-%A90F%=A90.Install
+%A90%=A90.Install,Monitor\VSC504E
+%A90F%=A90.Install,Monitor\VSC504E
 
 [A90.Install]
 DelReg=Monitor.Del
