@@ -906,7 +906,19 @@ General pattern:
 6. Point the disk prompt to the `driver9x\` directory (e.g., `C:\WINDOWS\Desktop\am29win9x\driver9x`) which has `Voodoo.inf` and all driver files
 7. Let PnP complete → reboot again → driver activates at correct resolution
 
-**Best driver:** Amigamerlin 2.9 for all Voodoo 3/4/5 cards. INF section `Driver.InstallV3` for Voodoo3, `Driver.InstallV5` for Voodoo4/5.
+**Amigamerlin 2.9 — the Win9x reference baseline.** Covers Banshee/Voodoo3/4/5;
+INF section `Driver.InstallV3` for Voodoo3, `Driver.InstallV5` for Voodoo4/5.
+**It is Win9x-only** (`am29win9x.exe`) — on Win2000/XP use **Amigamerlin 2.5 SE**,
+which ships the `driver2K\` set.
+
+Treat Amigamerlin as the **stable third-party yardstick to measure our two
+in-house stacks against**, not as "the best driver": both source stacks (the
+vintage H5 tree in `retro-3dfx` and the clean-room stack here) are under active
+improvement, so any ranking goes stale. Note also that we have **never
+benchmarked Amigamerlin as a complete stack** — every Amigamerlin row in the
+benchmark DB is a *hybrid* running under our own ICD, so its own OpenGL path is
+unmeasured and "Amigamerlin is slower/faster" is not a supported claim.
+Comparison write-up: `retro-3dfx/DRIVER-STACK-ASSESSMENT.md` (commit `1768c53`).
 
 ## Known Machines
 
