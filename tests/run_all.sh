@@ -46,6 +46,12 @@ if [ -z "$CC" ]; then
     break
   done
 fi
+# Hand the compiler down. The sibling retro-3dfx harness in section [3] takes
+# CC="${CC:-gcc}", so exporting ours makes it work there too without editing
+# another lane's repo — and without it, section [3] fails with the same
+# "gcc: command not found" this block exists to solve.
+[ -n "$CC" ] && export CC
+
 if [ -z "$CC" ]; then
   echo "  [SKIP] no host C compiler found (tried gcc/cc/clang, \$CC," \
        "\$DOSGAME_TOOLCHAIN, ~/toolchain-mingw)"
@@ -66,10 +72,27 @@ else
 fi
 
 echo; echo "### [3] Native C driver-logic tests (retro-3dfx/tests) ###"
+# Discover the sibling repo instead of requiring $DFX. It was gated on that
+# variable alone, which nobody exports, so this section never ran — and then
+# reported "not found" for a harness that was sitting right next to us. A skip
+# reason that names the wrong cause is worse than no message: it sends you
+# looking for a missing file instead of an unset variable.
+# This one is a genuinely OPTIONAL sibling (a host may legitimately not have
+# the driver repo), so an honest skip is fine — unlike section [2], which is
+# ours and must fail when it cannot run.
+if [ -z "${DFX:-}" ]; then
+  for cand in "$(dirname "$(dirname "$HERE")")/../retro-3dfx" \
+              /mnt/c/development/retro-3dfx "$HOME/development/retro-3dfx"; do
+    [ -x "$cand/tests/run_native.sh" ] && { DFX="$cand"; break; }
+  done
+fi
 if [ -n "${DFX:-}" ] && [ -x "$DFX/tests/run_native.sh" ]; then
+  echo "  repo: $DFX"
   bash "$DFX/tests/run_native.sh" || rc=1
+elif [ -n "${DFX:-}" ]; then
+  echo "  (skipped: DFX=$DFX has no executable tests/run_native.sh)"
 else
-  echo "  (skipped: retro-3dfx/tests/run_native.sh not found)"
+  echo "  (skipped: no retro-3dfx checkout found; set DFX=/path/to/retro-3dfx)"
 fi
 
 # DOS lane. Needs Open Watcom + a dosbox that runs headless; both are optional
