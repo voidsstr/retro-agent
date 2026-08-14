@@ -23,10 +23,39 @@ fi
 
 echo; echo "### [2] Native C agent-logic tests (true-source) ###"
 NAT="$HERE/native"; OBJ="$HERE/.obj"; mkdir -p "$OBJ"
-if ls "$NAT"/test_*.c >/dev/null 2>&1; then
+
+# Find a host compiler. This used to invoke bare "gcc", which is NOT on PATH on
+# the dev box — so every native test failed to BUILD rather than to pass, and
+# the whole suite was silently unrunnable for a full working session while
+# reporting only "[BUILD FAIL] gcc: command not found". That hid a real
+# regression: dosstage.c gained FILETIME/CompareFileTime and its true-source
+# test stopped compiling, which nobody could see.
+# Override with CC=... ; DOSGAME_TOOLCHAIN points at an unpacked toolchain tree.
+: "${CC:=}"
+if [ -z "$CC" ]; then
+  for cand in gcc cc clang; do
+    command -v "$cand" >/dev/null 2>&1 && { CC="$cand"; break; }
+  done
+fi
+if [ -z "$CC" ]; then
+  for tc in "${DOSGAME_TOOLCHAIN:-}" "$HOME/toolchain-mingw"; do
+    [ -n "$tc" ] && [ -x "$tc/hostbin/gcc" ] || continue
+    CC="$tc/hostbin/gcc"
+    # cc1 needs the toolchain's own libisl/libmpc, which the host lacks
+    export LD_LIBRARY_PATH="$tc/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH:-}"
+    break
+  done
+fi
+if [ -z "$CC" ]; then
+  echo "  [SKIP] no host C compiler found (tried gcc/cc/clang, \$CC," \
+       "\$DOSGAME_TOOLCHAIN, ~/toolchain-mingw)"
+  echo "         the native suites did NOT run - this is not a pass"
+  rc=1
+elif ls "$NAT"/test_*.c >/dev/null 2>&1; then
+  echo "  cc: $CC"
   for src in "$NAT"/test_*.c; do
     name="$(basename "$src" .c)"
-    if gcc -std=c11 -O0 -g -Wall -I"$NAT" -I"$NAT/stubs" "$src" -lm -o "$OBJ/$name" 2>"$OBJ/$name.log"; then
+    if "$CC" -std=c11 -O0 -g -Wall -I"$NAT" -I"$NAT/stubs" "$src" -lm -o "$OBJ/$name" 2>"$OBJ/$name.log"; then
       "$OBJ/$name" || rc=1
     else
       echo "  [BUILD FAIL] $name"; cat "$OBJ/$name.log"; rc=1
