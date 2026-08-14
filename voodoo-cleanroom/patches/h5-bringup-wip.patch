@@ -1,0 +1,71 @@
+diff --git a/glide3x/h5/glide3/src/diget.c b/glide3x/h5/glide3/src/diget.c
+index 9eb564e..ebd8bca 100644
+--- a/glide3x/h5/glide3/src/diget.c
++++ b/glide3x/h5/glide3/src/diget.c
+@@ -884,7 +884,10 @@ GR_DIENTRY(grGetString, const char *, (FxU32 pname))
+     {
+       GR_DCL_GC;
+       
+-      if (!gc)  /* workaround null gc bug */
++      /* [retro3dfx] h3 commit a71eb3f also guards gc->bInfo: GR_DCL_GC can hand
++         back a gc whose bInfo is not yet wired up during bring-up, and the
++         deviceID read below then derefs NULL. */
++      if (!gc || !gc->bInfo)  /* workaround null gc bug */
+         return rv;
+       if (!IS_NAPALM(gc->bInfo->pciInfo.deviceID))
+         rv = " " BASE_EXT_STR QUERY_EXT_STR POINTCAST_EXT_STR;
+diff --git a/glide3x/h5/glide3/src/fxglide.h b/glide3x/h5/glide3/src/fxglide.h
+index bea1169..4740474 100644
+--- a/glide3x/h5/glide3/src/fxglide.h
++++ b/glide3x/h5/glide3/src/fxglide.h
+@@ -2759,13 +2759,16 @@ getThreadValueFast() {
+ 
+ static __inline unsigned long getThreadValueFast (void)
+ {
+- unsigned long t;
+- __asm __volatile (" \
+-       mov %%fs:(%0), %%eax; \
+-       add %1, %%eax; \
+-       mov (%%eax), %%eax; \
+- ":"=a"(t):"i"(WNT_TEB_PTR), "g"(_GlideRoot.tlsOffset));
+- return t;
++ /* [retro3dfx] Ported from the h3 tree (commit a71eb3f, verified on .124).
++  * The original fast path read the TLS slot straight out of the TEB via
++  * `%fs:` + a hardcoded slot offset. That only works when TlsAlloc() returns
++  * an index < 64 (the inline TlsSlots array) AND the OSWin95/NT offset
++  * selection is right. Under our mingw/gcc-13 toolchain the CRT/loader consume
++  * the low TLS slots first, so TlsAlloc() hands back a high index whose slot
++  * lives in ExpansionSlots - NOT at TEB+tlsOffset - and the raw read faulted
++  * (NULL+0x1c) in grGetString's GR_DCL_GC. TlsGetValue is the ABI-correct
++  * accessor for any index/OS. */
++ return (unsigned long) TlsGetValue(_GlideRoot.tlsIndex);
+ }
+ 
+ #else  /* __GNUC__ */
+diff --git a/glide3x/h5/minihwc/minihwc.c b/glide3x/h5/minihwc/minihwc.c
+index 4df64eb..2f3d1be 100644
+--- a/glide3x/h5/minihwc/minihwc.c
++++ b/glide3x/h5/minihwc/minihwc.c
+@@ -1868,7 +1868,21 @@ hwcMapBoard(hwcBoardInfo *bInfo, FxU32 bAddrMask)
+     ctxReq.optData.linearAddrReq.pHandle = bInfo->procHandle;
+     GDBG_INFO(80, FN_NAME ":  ExtEscape:HWCEXT_GETLINEARADDR\n");
+ 
+-    ExtEscape((HDC)bInfo->hdc, HWCEXT_ESCAPE(bInfo->boardNum), sizeof(ctxReq), (LPSTR) &ctxReq, sizeof(ctxRes), (LPSTR) &ctxRes);
++    /* [retro3dfx] Ported from the h3 tree (commit 2387787, verified on .124).
++       The original ignored the ExtEscape return value and only checked
++       resStatus, so a failed escape left ctxRes uninitialized and base0 =
++       garbage -> grSstWinOpen faulted. Worse, the H5 XP driver can return
++       resStatus=1 numBaseAddrs=3 with ALL baseAddresses==0 (the miniport's
++       IOCTL_VIDEO_QUERY_GLIDE_ACCESS_RANGES reports success with
++       VirtualAddress=0); a zero register base + a register offset faulted at
++       ~0x14717. Guard: memset first, treat rv<=0 as failure, and treat a zero
++       base0 as failure so we return an error instead of crashing. */
++    memset(&ctxRes, 0, sizeof(ctxRes));
++    {
++      int _rv = ExtEscape((HDC)bInfo->hdc, HWCEXT_ESCAPE(bInfo->boardNum), sizeof(ctxReq), (LPSTR) &ctxReq, sizeof(ctxRes), (LPSTR) &ctxRes);
++      if (_rv <= 0) ctxRes.resStatus = 0;
++      if (ctxRes.optData.linearAddressRes.baseAddresses[0] == 0) ctxRes.resStatus = 0;
++    }
+ 
+     if (ctxRes.resStatus != 1) {
+       hwc_errncpy(errorString, "HWCEXT_GETLINEARADDR Failed\n");
