@@ -21,8 +21,9 @@
  * flat-out SMB copy saturates the machine and makes the agent look hung. So:
  *   - the thread runs at below-normal priority,
  *   - it starts after a delay (network + shell settle first),
- *   - files already present at the same size are skipped (idempotent, so a
- *     reboot costs one directory scan, not a re-copy),
+ *   - files already present at the same size AND timestamp are skipped
+ *     (idempotent, so a reboot costs one directory scan, not a re-copy;
+ *     size alone is not enough — see copy_if_different),
  *   - the bulk payload (preview tiles) is copied last, with a breather
  *     between files so the box stays usable while it streams.
  *
@@ -276,26 +277,51 @@ static int resolve_share_root(const char *configured, char *out, int outsize)
 
 /* ---- copy helpers ---- */
 
-static DWORD file_size_of(const char *path)
+/* Set for the duration of a DOSSTAGE force run. Without this, "force" only
+ * bypassed the DosStage=0 enable flag, so an operator who could SEE a stale
+ * file on a box had no way to replace it short of deleting it by hand. */
+static int g_stage_force = 0;
+
+/* Returns 0 on success and fills size + last-write time; 1 if the file is
+ * missing. Both facts come from the one FindFirstFileA the old size-only
+ * helper was already paying for. */
+static int file_stat_of(const char *path, DWORD *size, FILETIME *mtime)
 {
     WIN32_FIND_DATAA fd;
     HANDLE h = FindFirstFileA(path, &fd);
-    DWORD size;
-    if (h == INVALID_HANDLE_VALUE) return 0xFFFFFFFF;   /* missing */
-    size = fd.nFileSizeLow;
+    if (h == INVALID_HANDLE_VALUE) return 1;
+    *size = fd.nFileSizeLow;
+    *mtime = fd.ftLastWriteTime;
     FindClose(h);
-    return size;
+    return 0;
 }
 
-/* Copy src -> dst unless dst already exists at the same size.
+/* Copy src -> dst unless dst is already identical.
+ *
+ * "Same size" is NOT identical, and this payload is mostly batch scripts where
+ * the ordinary edit preserves length exactly: changing NETUP.BAT's probe from
+ * io 0x300 to 0x320, swapping "goto try4" for "goto try5", or correcting
+ * PACKETINT 0x62 to 0x63. Publishing such a fix to the share left every
+ * already-staged box on the broken file forever, while dosstage_run logged
+ * "staged 0 file(s)" and wrote the DosStaged marker as if it had worked. The
+ * agent's own updater learned this exact lesson once already - that is why it
+ * carries a .ver sidecar instead of comparing sizes - and the DOS staging path
+ * never got the same treatment.
+ *
+ * So compare the last-write time as well, and copy whenever the share's copy
+ * is NEWER. CopyFileA preserves the timestamp, so a staged file matches its
+ * source exactly and a re-run is still a no-op.
+ *
  * Returns 1 if copied, 0 if skipped/failed. */
 static int copy_if_different(const char *src, const char *dst)
 {
-    DWORD s = file_size_of(src);
-    DWORD d = file_size_of(dst);
+    DWORD s = 0, d = 0;
+    FILETIME smt, dmt;
 
-    if (s == 0xFFFFFFFF) return 0;          /* nothing on the share */
-    if (d == s) return 0;                   /* already current */
+    if (file_stat_of(src, &s, &smt)) return 0;      /* nothing on the share */
+    if (!g_stage_force && !file_stat_of(dst, &d, &dmt)
+        && d == s && CompareFileTime(&smt, &dmt) <= 0)
+        return 0;                                   /* already current */
 
     if (!CopyFileA(src, dst, FALSE)) {
         log_msg(LOG_DOSSTAGE, "copy failed (%lu): %s",
@@ -356,6 +382,7 @@ static int copy_dir(const char *src_dir, const char *dst_dir, int pause_ms)
  */
 void dosstage_run(int force)
 {
+    g_stage_force = force;
     char configured[512];
     char share[512];
     char src_dir[MAX_PATH], dst_dir[MAX_PATH];

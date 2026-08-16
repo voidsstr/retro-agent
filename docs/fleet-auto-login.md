@@ -1,5 +1,13 @@
 # Fleet Auto-Login (agent survives reboots)
 
+> ## ⚠️ THIS PAGE IS THE **WINDOWS XP / NT** RECIPE. IT DOES NOT APPLY TO WIN9x.
+>
+> Everything below — `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon`,
+> `AutoAdminLogon`, `ForceAutoLogon`, `net user`, `reg.exe` — **does not exist on
+> Windows 98**. Applying it there silently does nothing. See
+> [Windows 9x auto-login](#windows-9x-auto-login-9498me) below, which is a
+> different mechanism with a different trade-off.
+
 Every connected fleet machine is set up for **Windows XP auto-login** so that after a
 reboot it logs directly into the console session and the retro agent restarts on its
 own. This is what lets us reboot a headless box (driver install, `SYSFIX`, etc.) and
@@ -89,3 +97,63 @@ reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v RetroAgent /t RE
   password being set to the same value as `DefaultPassword`.
 - **`ForceAutoLogon=1`** is what makes auto-login robust against a stray manual logoff;
   plain `AutoAdminLogon=1` alone can drop out of auto-login in some states.
+
+---
+
+# Windows 9x auto-login (95/98/ME)
+
+Win9x is **not** NT. There is no `Windows NT\CurrentVersion\Winlogon` key, no
+`net user`, and no `reg.exe`; the logon dialog comes from the *network* logon
+provider. Tried and measured on **.243 (N5R5L9, Win98 SE)**, 2026-08-11:
+
+| Approach | Result |
+|---|---|
+| `HKLM\Network\Logon` → `AutoLogon=1`, `username=admin`, `MustBeValidated=0` | **not enough on its own** — still stops at the logon dialog while the account has a password |
+| `HKLM\Software\Microsoft\Windows\CurrentVersion\Winlogon` → `AutoAdminLogon` / `DefaultUserName` / `DefaultPassword` (the TweakUI values) | **no effect** — verified by reboot, still prompted |
+| Agent moved to `...\CurrentVersion\RunServices` (runs before logon) | agent did not come up; and if it ever does fire alongside `Run`, it starts a **second instance** — see the port-race note below |
+| **Blank the account's Windows password**, keep `AutoLogon=1` | **this is the one that works** — no dialog at all |
+
+## The trade-off: a blank password costs you the share
+
+The account's password is what encrypts `C:\WINDOWS\<user>.PWL`, and that cache
+is what the box presents to an SMB server. Blanking the password on .243 turned
+`\\192.168.1.122\files\Utility` from readable into **"Access denied"** on the
+next connection.
+
+So the two changes go together — never do the first without the second:
+
+1. Blank the Windows password via **Control Panel → Passwords → Change Windows
+   Password** (old password in, new + confirm left empty). Use the applet, not
+   a `.PWL` deletion: the applet re-encrypts the cache instead of discarding it,
+   and does not leave Windows prompting to create a new password at next logon.
+   Remotely that is `LAUNCH rundll32.exe shell32.dll,Control_RunDLL password.cpl`
+   plus a screenshot-click pass.
+2. **Re-map the share with explicit credentials at every logon**, so nothing
+   depends on the `.PWL` any more:
+
+```
+HKLM\Software\Microsoft\Windows\CurrentVersion\Run
+  RetroShare = C:\WINDOWS\COMMAND\NET.EXE USE E: \\192.168.1.122\files password /SAVEPW:NO /YES
+```
+
+Back up the `.PWL` first (`copy C:\WINDOWS\ADMIN.PWL C:\WINDOWS\ADMIN.PW0`).
+
+## Other Win9x gotchas that cost real time on .243
+
+- **The agent's `REBOOT` command does not reboot a Win9x box.** It stops the
+  agent and the machine stays up — observed directly at the keyboard. Neither
+  does `rundll32.exe shell32.dll,SHExitWindowsEx 2` (uptime unchanged after).
+  Until that is fixed in the agent, a Win9x reboot needs a human. **Do not
+  treat "the agent went away after REBOOT" as evidence that a reboot happened**
+  — it invalidates any auto-login test built on it.
+- **The agent runs as a visible console window; closing that window kills it.**
+  It is not a service — Win9x has no service manager.
+- **"9898 refused + 9897 open" means two agent instances**, not a dead agent.
+  Each start logs `Listening on TCP :9898+:9897` but the second only gets the
+  port the first did not take. `PROCLIST` + `PROCKILL`; the survivor does not
+  re-bind the free port, so a clean single instance needs a restart.
+- **Use 90–180 s connect timeouts.** On the 31 MB Pentium-1 the auth handshake
+  takes 40–150 s; a 10 s timeout reports a perfectly healthy agent as hung.
+- **Keep the agent in `Run` while testing any alternative.** Removing it to try
+  `RunServices` meant a failed test left the box with no agent at all and cost
+  the operator a manual start.

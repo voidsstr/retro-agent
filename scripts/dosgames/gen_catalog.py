@@ -8,7 +8,7 @@ catalog the DOS utility loads:
 
 - kind: R (ready-to-run), I (installer at zip root), C (cd-image) — survey key
 - mainexe: best guess = shallowest non-installer exe from the survey record
-- tile: <stem8>.PRV (present or not; the DOS side shows it only if the file
+- tile: <zip_stem>.PRV (present or not; the DOS side shows it only if the file
   exists in C:\\DOSGAME\\TILES)
 
 Only plain zips are cataloged (rar/7z/iso need host-side prep first — they get
@@ -20,6 +20,20 @@ import json, os, re, sys
 
 SKIP = {"install.exe","setup.exe","setsound.exe","dos4gw.exe","univbe.exe",
         "readme.exe","catalog.exe","order.exe","helpme.exe","config.exe"}
+
+# The TILE name must use the collision-free stem too. stem8() is the plain
+# 8-char truncation that put 1,268 of the 2,982 catalogue rows on a shared
+# name: 411 tile names were claimed by more than one game, so gen_tiles.py's
+# "skip if it already exists" meant the second game of every colliding pair
+# could never get a preview, and DOSGAME.EXE showed the first game's
+# screenshot for the second. zip_stem() is the same hashed stem the install
+# path already uses, and it is pinned against dosgame.c by
+# tests/python/test_dosgame_stem.py.
+import os as _os
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from serve_dosgames import zip_stem
+
 
 def stem8(name):
     s = os.path.splitext(os.path.basename(name))[0]
@@ -33,12 +47,32 @@ def title_of(name):
     t = t.replace("_", " ").strip()
     return re.sub(r"\s+", " ", t)[:40]
 
+def dos83(name):
+    """Truncate to a real 8.3 name, not to 12 characters.
+
+    `name.upper()[:12]` looks right (8 + '.' + 3 = 12) but chops the EXTENSION
+    off anything with a stem longer than eight: "SUPERGAME1.EXE" became
+    "SUPERGAME1.E". The shipped catalog carries 7 such rows, and DOS cannot
+    launch any of them.
+    """
+    base = name.split("/")[-1].split("\\")[-1].upper()
+    stem, dot, ext = base.partition(".")
+    return stem[:8] + ("." + ext[:3] if dot else "")
+
+
 def main_exe(rec):
-    for lst in (rec.get("exes_shallow") or [], rec.get("bats_shallow") or []):
+    # .COM matters: survey_share.py collects COM files and even uses them to
+    # classify an archive as ready-to-run, but never exported them, so
+    # main_exe() returned "" and gen dropped the row. The result was 0 COM-
+    # launched games in a 3,000-title DOS catalog — every one of them
+    # invisible from the DOS box.
+    for lst in (rec.get("exes_shallow") or [],
+                rec.get("coms_shallow") or [],
+                rec.get("bats_shallow") or []):
         for p in lst:
             base = p.split("/")[-1]
-            if base not in SKIP:
-                return base.upper()[:12]
+            if base.lower() not in SKIP:
+                return dos83(base)
     return ""
 
 def kind_of(rec):
@@ -65,8 +99,14 @@ def main():
         key = t.lower()
         if key in seen: continue
         seen.add(key)
-        rows.append((t, r["name"], k, exe or "INSTALL.EXE", r.get("size", 0),
-                     stem8(r["name"]) + ".PRV"))
+        # An installer is not a launcher. Defaulting to INSTALL.EXE made the
+        # DOS side record a 'G' registry row pointing AT the installer, and a
+        # 'G' row hides its directory from every later scan - so Enter on the
+        # game re-ran the installer forever. An empty field means "work it out
+        # after the install", which is what post_install is for.
+        rows.append((t, r["name"], k, exe if exe else ("" if k == "I" else "INSTALL.EXE"),
+                     r.get("size", 0),
+                     zip_stem(r["name"]) + ".PRV"))
     rows.sort(key=lambda x: x[0].lower())
     if limit: rows = rows[:limit]
     with open(out, "w", newline="") as f:

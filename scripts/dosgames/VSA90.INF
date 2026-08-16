@@ -1,0 +1,66 @@
+; VSA90.INF - ViewSonic A90 (19" CRT) monitor description for Windows 9x.
+;
+; Windows 98 SE's in-box monitor database is dated April 1999 and stops short
+; of this model: ViewSonic is present in MONITOR7.INF (43 entries) but the A90
+; is not in any of the six stock INFs, so the Add New Hardware wizard asks for
+; a driver on every boot and the display stays bound to "Default Monitor".
+;
+; A CRT "driver" is only a description: the model name, its horizontal and
+; vertical sync ranges, and the largest mode it can take. Those ranges are
+; what stop Windows offering a refresh rate the tube cannot display, so they
+; are set conservatively for the A90 (30-95 kHz / 50-160 Hz, 1600x1200 max)
+; rather than to the most optimistic figure in the brochure.
+;
+;
+; NOT NEEDED ON .243 (checked 2026-08-13). That monitor reports a valid EDID,
+; so Windows bound it itself as a Plug and Play Monitor:
+;   Enum\Monitor\VSC504E\...  Driver=Monitor\0001  ConfigFlags=00000000
+;   FriendlyName=A90  MonitorRanges=30-86,50-180,+,+  MaxResolution=1600,1200
+; Those EDID ranges are BETTER than the conservative ones below, so installing
+; this file there would be a downgrade. Keep it for a unit whose EDID is dead
+; or whose cable has no DDC line, where Windows falls back to Default Monitor.
+;
+; The model lines carry the PnP hardware ID (Monitor\VSC504E, from the EDID's
+; "VSC" vendor code plus product 504E). Without it Windows can only reach this
+; INF through Have Disk - it can never match the detected monitor on its own,
+; which is why an INF sitting in C:\WINDOWS\INF alone changes nothing.
+;
+; Install: Display Properties > Settings > Advanced > Monitor > Change >
+;          Have Disk > C:\WINDOWS\INF\VSA90.INF
+
+[Version]
+Signature="$CHICAGO$"
+Class=Monitor
+ClassGUID={4D36E96E-E325-11CE-BFC1-08002BE10318}
+Provider=%MFG%
+
+[Manufacturer]
+%MFG%=ViewSonic
+
+[ViewSonic]
+%A90%=A90.Install,Monitor\VSC504E
+%A90F%=A90.Install,Monitor\VSC504E
+
+[A90.Install]
+DelReg=Monitor.Del
+AddReg=A90.AddReg, Monitor.Max, Monitor.DPMS
+
+[Monitor.Del]
+HKR,MODES
+HKR,,MaxResolution
+HKR,,DPMS
+
+; "min-max horizontal kHz, min-max vertical Hz, sync polarities"
+[A90.AddReg]
+HKR,"MODES\1600,1200",Mode1,,"30.0-95.0,50.0-160.0,+,+"
+
+[Monitor.Max]
+HKR,,MaxResolution,,"1600,1200"
+
+[Monitor.DPMS]
+HKR,,DPMS,,1
+
+[Strings]
+MFG="ViewSonic"
+A90="ViewSonic A90"
+A90F="ViewSonic A90f"

@@ -171,6 +171,54 @@ TEST(changed_share_file_is_restaged) {
     CHECK_EQ_I(g_env.n_copied, 1);
 }
 
+/* The bug this pins: copy_if_different compared SIZE only, so a same-size edit
+ * to a staged file could never reach a box while dosstage_run logged
+ * "staged 0 file(s)" and wrote the success marker. The DOS payload is mostly
+ * batch scripts, where the ordinary fix preserves length exactly -- NETUP.BAT's
+ * probe io 0x300 -> 0x320, "goto try4" -> "goto try5", PACKETINT 0x62 -> 0x63.
+ * The agent's own updater carries a .ver sidecar because it learned this once;
+ * the DOS staging path never got the same treatment. */
+TEST(same_size_but_newer_share_file_is_restaged) {
+    fake_file_t *f;
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    dosstage_run(0);
+    g_env.n_copied = 0;
+
+    /* a one-character fix to a batch file: identical length, newer mtime */
+    f = fake_find(SHARE "\\dosgame\\DOSGAME.BAT");
+    CHECK(f != NULL, "fixture must have the batch file");
+    f->mtime = 5000;                      /* staged copy is still at 0 */
+    dosstage_run(0);
+    CHECK(copied_contains("C:\\DOSGAME\\DOSGAME.BAT"),
+          "a same-size but newer share file must re-copy");
+}
+
+TEST(an_older_share_file_does_not_overwrite_a_newer_local_one) {
+    fake_file_t *f;
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    dosstage_run(0);
+    g_env.n_copied = 0;
+
+    /* Nothing changed on the share, so a second pass must stay a no-op --
+     * CopyFileA preserves the timestamp, so the staged copy matches its
+     * source and re-running costs one directory scan, not a re-copy. */
+    f = fake_find(SHARE "\\dosgame\\DOSGAME.BAT");
+    f->mtime = 0;
+    dosstage_run(0);
+    CHECK_EQ_I(g_env.n_copied, 0);
+}
+
+TEST(force_restages_even_when_nothing_changed) {
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    dosstage_run(0);
+    g_env.n_copied = 0;
+    /* DOSSTAGE force used to only bypass the DosStage=0 enable flag, so an
+     * operator looking at a stale file on a box had no way to replace it
+     * short of deleting it by hand. */
+    dosstage_run(1);
+    CHECK(g_env.n_copied > 0, "force must re-copy an unchanged file");
+}
+
 TEST(registry_switch_disables_and_force_overrides_it) {
     env_reset(VER_PLATFORM_WIN32_WINDOWS);
     g_env.reg_enable_present = 1;
@@ -311,6 +359,9 @@ MUNIT_MAIN("dosstage — DOS program staging on DOS-capable boxes (true-source)"
     RUN(tile_copies_are_paced_and_others_are_not);
     RUN(second_run_copies_nothing_new);
     RUN(changed_share_file_is_restaged);
+    RUN(same_size_but_newer_share_file_is_restaged);
+    RUN(an_older_share_file_does_not_overwrite_a_newer_local_one);
+    RUN(force_restages_even_when_nothing_changed);
     RUN(registry_switch_disables_and_force_overrides_it);
     RUN(default_is_enabled_when_the_value_is_absent);
     RUN(share_path_override_is_honored);

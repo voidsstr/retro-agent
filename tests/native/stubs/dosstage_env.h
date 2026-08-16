@@ -79,9 +79,27 @@ typedef struct {
     WORD wYear, wMonth, wDayOfWeek, wDay, wHour, wMinute, wSecond, wMilliseconds;
 } SYSTEMTIME;
 
+/* dosstage.c compares last-write times, because a same-size edit to a staged
+ * batch file could otherwise never reach a box. Modelled as a plain 64-bit
+ * counter split the way Win32 splits it; only ordering matters here. */
+typedef struct {
+    DWORD dwLowDateTime;
+    DWORD dwHighDateTime;
+} FILETIME;
+
+static LONG CompareFileTime(const FILETIME *a, const FILETIME *b)
+{
+    if (a->dwHighDateTime != b->dwHighDateTime)
+        return a->dwHighDateTime < b->dwHighDateTime ? -1 : 1;
+    if (a->dwLowDateTime != b->dwLowDateTime)
+        return a->dwLowDateTime < b->dwLowDateTime ? -1 : 1;
+    return 0;
+}
+
 typedef struct {
     DWORD dwFileAttributes;
     DWORD nFileSizeLow;
+    FILETIME ftLastWriteTime;
     char  cFileName[MAX_PATH];
 } WIN32_FIND_DATAA;
 
@@ -92,6 +110,7 @@ typedef struct {
 typedef struct {
     char  path[MAX_PATH];       /* full path, backslash separated */
     DWORD size;
+    DWORD mtime;                /* monotonic tick; 0 = "ancient" */
     int   is_dir;
 } fake_file_t;
 
@@ -123,13 +142,19 @@ typedef struct {
 extern fake_env_t g_env;
 
 /* Seed a file that "exists" (on the share or locally). */
-static void fake_add_file(const char *path, DWORD size)
+static void fake_add_file_at(const char *path, DWORD size, DWORD mtime)
 {
     fake_file_t *f = &g_env.files[g_env.n_files++];
     strncpy(f->path, path, MAX_PATH - 1);
     f->path[MAX_PATH - 1] = '\0';
     f->size = size;
+    f->mtime = mtime;
     f->is_dir = 0;
+}
+
+static void fake_add_file(const char *path, DWORD size)
+{
+    fake_add_file_at(path, size, 0);
 }
 
 static fake_file_t *fake_find(const char *path)
@@ -238,6 +263,8 @@ static BOOL FindNextFileA(HANDLE h, WIN32_FIND_DATAA *fd)
             memset(fd, 0, sizeof(*fd));
             strncpy(fd->cFileName, name, MAX_PATH - 1);
             fd->nFileSizeLow = ff->size;
+            fd->ftLastWriteTime.dwLowDateTime = ff->mtime;
+            fd->ftLastWriteTime.dwHighDateTime = 0;
             fd->dwFileAttributes = ff->is_dir ? FILE_ATTRIBUTE_DIRECTORY : 0;
             return TRUE;
         }
@@ -256,11 +283,16 @@ static HANDLE FindFirstFileA(LPCSTR pattern, WIN32_FIND_DATAA *fd)
 
     star = strstr(p, "\\*.*");
     if (!star) {
-        /* single-file query (file_size_of) */
+        /* single-file query (file_stat_of). This branch must fill the write
+         * time as well: it is the ONLY path dosstage's freshness check uses,
+         * so leaving it zero made every file look identically ancient and the
+         * timestamp comparison silently degenerate back into size-only. */
         fake_file_t *ff = fake_find(p);
         if (!ff) return INVALID_HANDLE_VALUE;
         memset(fd, 0, sizeof(*fd));
         fd->nFileSizeLow = ff->size;
+        fd->ftLastWriteTime.dwLowDateTime = ff->mtime;
+        fd->ftLastWriteTime.dwHighDateTime = 0;
         strncpy(fd->cFileName, p, MAX_PATH - 1);
         /* one-shot handle: a subsequent FindNextFileA must return FALSE */
         f = &g_finds[g_n_finds++ % 8];

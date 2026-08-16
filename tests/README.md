@@ -35,6 +35,11 @@ retro-agent/tests/
                           DOS memory limits (mTCP 64K socket malloc, DGROUP, cfg rebuild dep)
     test_agent_version.py          agent/Makefile's git-tag-derived VERSION must not be
                           older than the newest version claimed in agent/ commits
+    test_dosgame_stem.py           DOSGAME install-directory stem: uniqueness across the real
+                          catalog, DOS-legal 8.3 shape, and the /z/<STEM> server lookup
+    test_dosgame_stability.py      DOSGAME 0.2 source invariants: bounded path_join, footer
+                          buffer, split() init, CALLed .BAT, batch label reachability,
+                          8K stack, keyboard drain, video-mode reset
   native/                 OUR-stack native C logic tests (see CLAUDE.md "Driver Stack Map")
     munit.h               tiny single-header C test framework
     stubs/windows.h       lets agent C compile natively (funcs use no Win32 API)
@@ -86,8 +91,36 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | transport XOR keystream (involution + derivation) | agent C (crypto.c) | `native/test_crypto.c` |
 | discovery packet wire format | Python client | `test_discovery.py` |
 | length-prefixed frame codec + status contract | Python client | `test_protocol.py` |
-| DOSGAME installed-detection stem match + INSTLD.LST receipts (2026-08-03) | DOS lane (dosgame.c) | `python/test_dosgame_install_detect.py` |
+| DOSGAME installed-detection stem match + install receipts (2026-08-03) | DOS lane (dosgame.c) | `python/test_dosgame_install_detect.py` |
+| **DOSGAME 0.2 install→play: registry records the installer's OWN target dir** (2026-08-11) | DOS lane (dosgame.c) | `python/test_dosgame_install_detect.py`, `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 collision-free install stem (1,268/2,982 rows shared a directory) | DOS lane + serve_dosgames.py | `python/test_dosgame_stem.py`, `run_dos_tests.sh` |
+| 0.2 fetch line fits the measured 126-byte DOS command tail (was 845 rows over) | DOS lane (dosgame.c) | `python/test_dosgame_stem.py` |
+| 0.2 crash fixes: path_join bound, draw_footer buf[81], split() NULL init | DOS lane (dosgame.c) | `python/test_dosgame_stability.py`, `run_dos_tests.sh` |
+| 0.2 depth-2 scan for non-flat archives (~24% of the share) | DOS lane (dosgame.c) | `run_dos_tests.sh` |
+| 0.2 real-mode hardening: 8K stack, kflush, vinit mode reset, INT 24h handler | DOS lane (dosgame.c + Makefile) | `python/test_dosgame_stability.py` |
+| 0.2 diagnostic log (DOSGAME.LOG): decisions + batch steps, flushed per line | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| **agent 1.26.0 Win9x REBOOT: don't kill the agent mid-shutdown-negotiation** | agent handlers.c | `python/test_agent_log_and_reboot.py` |
+| agent 1.26.0 batched logging: unbuffered startup, flush on every exit path | agent log.c / main.c | `python/test_agent_log_and_reboot.py` |
 | DOS net bring-up: guarded drivers, PKT.OK written, CHAT auto-calls NETUP | DOS lane (NETUP/PLAY/CHAT.BAT) | `python/test_dosgame_install_detect.py` |
+| **0.2 a game you PLAYED is not where the next install went (Duke 3D)** (2026-08-13) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 DOS timestamps pack into 32 bits (`year << 26` overflowed and inverted) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 an orphaned `X` row stops hiding its unpack directory | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| MS-DOS mode gets its own DOSSTART.BAT + a SHELL= sized environment | DOS lane (DOSSTART.BAT, CONFIG.SYS.dosbox) | `python/test_dosstage_and_batch.py` |
+| **0.2 fgets off-by-one: a 40-char title reported every install as a failure** (2026-08-13) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 an installer is never recorded as the launcher (post_install + F2 + gen_catalog) | DOS lane + host Python | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 an F2 choice keeps its class (new `S` registry row reloads as kind `I`) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| **0.2 CRITICAL: scan de-dup hid 5 installed games behind their installers** (2026-08-13) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 write_install bounded path join (81-byte frame smash on a long gamedir=) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 generated RUN.BAT lines fit COMMAND.COM's 128-byte line buffer | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| no angle bracket in a `rem` (COMMAND.COM redirects there too - the stray `43` files) | DOS lane (*.BAT) | `python/test_dosstage_and_batch.py`, `run_dos_tests.sh` |
+| agent 1.28.0 dosstage compares mtime, not size alone; DOSSTAGE force re-stages | agent dosstage.c | `python/test_dosstage_and_batch.py` |
+| AGENTRUN.BAT maps its own share session (bare UNC is unreadable on Win9x) | DOS lane (AGENTRUN.BAT) | `python/test_dosstage_and_batch.py` |
+| collision-free tile stem (1,268 rows shared 411 .PRV names) + catalogue staleness gate | host-side Python | `scripts/dosgames/tests/check_catalog.py` |
+| **0.2 catalogue tie-break for launcher picks (ROTT.EXE not ROTTIPX.EXE)** (2026-08-13) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 Apogee ad bundle + `*HELP.EXE` excluded; unambiguous catalogue name beats first-found | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| **0.2 series shell vs episode binary: `KEEN4E.EXE` beats `KEEN.EXE`** (2026-08-13) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 lone LARGE exe + no data = unextracted self-extractor, not a game (`HTIC_V10.EXE`) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| 0.2 DHCP keyboard drain (`/kflush`) - a buffered key aborted mTCP's lease request | DOS lane (dosgame.c + NETUP.BAT) | `scripts/dosgames/tests/run_dos_tests.sh` |
 | fleetbook add/search/log contract (brain's solved-problems DB) | scripts/retro_fleetbook.py | `python/test_fleetbook.py` |
 | agent default desktop theme = green hacker + Starfield (was gray classic) | agent retrowall.c | `python/test_retrowall_theme.py` |
 | 0.1.34 fullscreen refresh snap-down (`fxBestRefresh`, was hardcoded 60Hz) | MesaFX ICD | `native/test_fx_best_refresh.c` |

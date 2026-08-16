@@ -41,6 +41,17 @@
  *     file log (log.c) with startup breadcrumbs + a lock-free crash logger, so
  *     any future crash leaves an on-disk trail (and is mirrored to the share).
  *
+ *  6. CreateThread with lpThreadId = NULL. Legal on NT, REJECTED on Win95/98
+ *     with ERROR_INVALID_PARAMETER (87). Every fire-and-forget helper passed
+ *     NULL, so on the Win98 box automap, autoupdate, retrowall, watchdog,
+ *     ai_status, sharelog and dosstage ALL silently never started - for
+ *     years. Only dosstage checked its return value, and its message blamed
+ *     memory, so the real cause hid behind a wrong guess on a box that had
+ *     87MB free. That is why auto-update never worked there, why the log was
+ *     never mirrored to the share, and why the share needed mapping by hand.
+ *     FIX: spawn_helper() passes &tid, checks the result, and names the
+ *     actual error. Do not pass NULL.
+ *
  * Also load-bearing on Win9x: __thread -> native TLS (above); Toolhelp32 is
  * fine on 9x (it originated there) but is NOT on NT4 — a non-issue for the
  * 98/XP fleet. Keep new startup work off the hot path and OS-gated.
@@ -86,8 +97,28 @@ static int g_client_mode = MODE_THREADED;
 typedef struct {
     SOCKET sock;
     int    authed;
+    DWORD  last_active;   /* GetTickCount of the last byte from this client */
     char   addr_str[24];  /* "x.x.x.x:port" for logging */
 } client_slot_t;
+
+/*
+ * Drop a connection that has gone quiet for this long.
+ *
+ * Slots were held until the peer disconnected, which a half-open TCP
+ * connection never does - a client whose machine went away, or a probe that
+ * connected and vanished, kept its slot forever. Ten of those and the agent
+ * is unreachable while looking perfectly healthy.
+ *
+ * Comfortably longer than any legitimate quiet period: the longest thing a
+ * client does without speaking is a LOG_WAIT/STATUS_WAIT long-poll, capped at
+ * 30s (1s on Win9x), so anything silent for five minutes is gone.
+ */
+#define CLIENT_IDLE_MS  300000
+
+/* Held for the process lifetime so a second copy of the agent refuses to
+ * start rather than racing this one for the ports. */
+static HANDLE g_instance_mutex = NULL;
+#define AGENT_INSTANCE_MUTEX "RetroAgentSingleInstance"
 
 static client_slot_t g_clients[MAX_CLIENTS];
 
@@ -622,10 +653,56 @@ static DWORD WINAPI client_thread(LPVOID param)
     return 0;
 }
 
+/*
+ * Turn on batched logging once the startup danger has passed.
+ *
+ * Everything the agent does that has historically killed it happens in the
+ * first couple of minutes - the dosstage payload copy at ~45s being the worst
+ * - and those lines have to be on disk per-line to be any use afterwards.
+ * After that the agent is idle chatter, which is what batching is for.
+ */
+#define LOG_BUFFER_AFTER_MS  120000
+
+static DWORD WINAPI delayed_buffering_thread(LPVOID unused)
+{
+    int slept = 0;
+    (void)unused;
+    while (slept < LOG_BUFFER_AFTER_MS && g_running) {
+        Sleep(1000);
+        slept += 1000;
+    }
+    if (!g_running) return 0;
+    log_set_buffered(1);
+    log_msg(LOG_MAIN, "log: batched writes on (flush when full or every 15s) "
+            "- startup window is past");
+    return 0;
+}
+
 static BOOL WINAPI console_handler(DWORD ctrl_type)
 {
-    if (ctrl_type == CTRL_C_EVENT || ctrl_type == CTRL_CLOSE_EVENT) {
-        g_running = 0;
+    /* On Win9x this agent is a console window and closing that window IS how
+     * it usually stops - so this is the last code that runs. Get the batched
+     * log out before the process goes. Also covers logoff/shutdown, which is
+     * where a reboot's final lines would otherwise be lost. */
+    if (ctrl_type == CTRL_C_EVENT || ctrl_type == CTRL_CLOSE_EVENT ||
+        ctrl_type == CTRL_LOGOFF_EVENT || ctrl_type == CTRL_SHUTDOWN_EVENT) {
+        log_msg(LOG_MAIN, "console control event %lu (power_pending=%d)",
+                (unsigned long)ctrl_type, g_power_pending);
+        log_flush();
+
+        /*
+         * Getting the log out is always right. STOPPING is not.
+         *
+         * LOGOFF and SHUTDOWN are exactly the events Win9x raises while it is
+         * tearing the session down - including the teardown WE asked for via
+         * REBOOT. Exiting here would kill the agent mid-negotiation and
+         * cancel that shutdown, which is precisely the bug do_system_power()
+         * was just fixed to avoid; honouring these events would quietly
+         * re-arm it from a second direction. During a power operation we stay
+         * alive and let the OS terminate us.
+         */
+        if (!g_power_pending)
+            g_running = 0;
         return TRUE;
     }
     return FALSE;
@@ -691,6 +768,43 @@ static void log_system_metadata(void)
 #define SHARELOG_FIRST_MS   10000
 #define SHARELOG_PERIOD_MS  60000
 
+/* Start a fire-and-forget helper thread WITHOUT leaking its handle.
+ * CreateThread's handle is a kernel object in its own right: discarding it
+ * (as every call here used to) leaks one per thread started, and on Win9x
+ * those are not free. Closing the handle does not stop the thread. */
+static int spawn_helper(LPTHREAD_START_ROUTINE fn, const char *what)
+{
+    DWORD tid;
+    /*
+     * &tid IS NOT OPTIONAL. On Windows 95/98 CreateThread REQUIRES a non-NULL
+     * lpThreadId; only NT allows NULL. Every helper here used to pass NULL,
+     * so on the Win98 box every one of them failed with ERROR_INVALID_PARAMETER
+     * (87) and simply never ran - automap, autoupdate, retrowall, watchdog,
+     * ai_status, sharelog and dosstage alike. Only dosstage checked its return
+     * value, so only dosstage ever said so, and its message guessed
+     * "(low memory?)" - which sent us looking at RAM on a box that had 87MB
+     * free. It is why auto-update did nothing on that machine for four
+     * versions, why its log was never mirrored to the share, and why the share
+     * had to be mapped by hand.
+     *
+     * Do not "simplify" this back to NULL.
+     */
+    HANDLE h = CreateThread(NULL, 0, fn, NULL, 0, &tid);
+    if (!h) {
+        DWORD err = GetLastError();
+        log_msg(LOG_MAIN, "%s thread FAILED to start: %lu%s", what,
+                (unsigned long)err,
+                err == ERROR_INVALID_PARAMETER
+                    ? " (ERROR_INVALID_PARAMETER - on Win9x lpThreadId must "
+                      "not be NULL)"
+                    : err == ERROR_NOT_ENOUGH_MEMORY || err == ERROR_OUTOFMEMORY
+                    ? " (out of memory)" : "");
+        return 0;
+    }
+    CloseHandle(h);
+    return 1;
+}
+
 static DWORD WINAPI sharelog_thread(LPVOID param)
 {
     char dir[512], dest[640], srcbak[MAX_PATH + 8], destbak[680];
@@ -721,6 +835,10 @@ static DWORD WINAPI sharelog_thread(LPVOID param)
 
     Sleep(SHARELOG_FIRST_MS);
     while (g_running) {
+        /* Commit the batch first: the whole point of mirroring is that the
+         * copy on the share is what gets read when the box is unreachable,
+         * and a copy missing the newest lines is worse than useless. */
+        log_flush();
         /* CopyFileA fails fast + harmlessly if the share isn't reachable. */
         if (CopyFileA(log_path(), dest, FALSE))
             log_msg(LOG_MAIN, "sharelog: mirrored to %s", dest);
@@ -801,7 +919,16 @@ void agent_run(void)
                g_hostname, g_local_ip, g_os_str, (unsigned long)g_ram_mb);
 
     /* Start discovery broadcaster */
-    disc_thread = CreateThread(NULL, 0, discovery_thread, NULL, 0, NULL);
+    {
+        /* &disc_tid, not NULL: Win9x rejects a NULL lpThreadId, which is why
+         * UDP discovery never came up on the Win98 box - :9899 refused
+         * connections on every probe because this thread never started. */
+        DWORD disc_tid;
+        disc_thread = CreateThread(NULL, 0, discovery_thread, NULL, 0, &disc_tid);
+        if (!disc_thread)
+            log_msg(LOG_MAIN, "discovery thread FAILED to start: %lu",
+                    (unsigned long)GetLastError());
+    }
 
     /* Create TCP listening socket */
     listen_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -905,13 +1032,13 @@ void agent_run(void)
      * it — important on Win9x where the unhandled-exception filter is not
      * reliably called. */
     log_msg(LOG_MAIN, "startup: spawning automap thread");
-    CreateThread(NULL, 0, automap_thread_proc, NULL, 0, NULL);
+    spawn_helper(automap_thread_proc, "automap");
 
     log_msg(LOG_MAIN, "startup: spawning autoupdate thread");
-    CreateThread(NULL, 0, autoupdate_thread, NULL, 0, NULL);
+    spawn_helper(autoupdate_thread, "autoupdate");
 
     log_msg(LOG_MAIN, "startup: spawning retrowall thread");
-    CreateThread(NULL, 0, retrowall_thread, NULL, 0, NULL);
+    spawn_helper(retrowall_thread, "retrowall");
 
     /* DOS-capable boxes (Win9x/ME) get the DOS programs staged to C:\ so
      * they're already there when the user boots to DOS. Exits immediately
@@ -921,9 +1048,8 @@ void agent_run(void)
      * available, a helper thread can simply fail to start — and then the
      * feature "does nothing" with no trace at all, which is what sent us
      * hunting on the Deskpro. Say so. */
-    if (!CreateThread(NULL, 0, dosstage_thread, NULL, 0, NULL))
-        log_msg(LOG_MAIN, "dosstage thread FAILED to start: %lu "
-                          "(low memory?)", (unsigned long)GetLastError());
+    /* spawn_helper() already logs the failure with the error code. */
+    spawn_helper(dosstage_thread, "dosstage");
 
     /* Onboarding is deliberately NOT auto-spawned. On old, slow hardware
      * (Compaq Deskpro 2000, Pentium 1) the first-boot onboarding job — mapping
@@ -933,15 +1059,30 @@ void agent_run(void)
      * a fresh boot stays lightweight. */
 
     log_msg(LOG_MAIN, "startup: spawning watchdog thread");
-    CreateThread(NULL, 0, watchdog_thread, NULL, 0, NULL);
+    spawn_helper(watchdog_thread, "watchdog");
 
     log_msg(LOG_MAIN, "startup: spawning ai_status thread");
-    CreateThread(NULL, 0, ai_status_thread, NULL, 0, NULL);
+    spawn_helper(ai_status_thread, "ai_status");
 
     log_msg(LOG_MAIN, "startup: spawning sharelog thread");
-    CreateThread(NULL, 0, sharelog_thread, NULL, 0, NULL);
+    spawn_helper(sharelog_thread, "sharelog");
 
     log_msg(LOG_MAIN, "startup: helper threads spawned; entering accept loop");
+    /* Batching starts LATER, not here. "Helper threads spawned" is not the
+     * end of the risky window: the threads just started are the ones that
+     * have actually killed this agent - dosstage copying an 11MB payload
+     * ~45s in took the Deskpro down outright, and that looked for hours like
+     * a startup crash. Those minutes must stay on-disk-per-line. A tiny
+     * thread flips the switch once they are safely past. */
+    {
+        DWORD tid;
+        HANDLE h = CreateThread(NULL, 0, delayed_buffering_thread, NULL, 0, &tid);
+        if (h) CloseHandle(h);
+        else {
+            log_msg(LOG_MAIN, "log: could not start the buffering timer - "
+                    "staying unbuffered");
+        }
+    }
     clients_init();
 
     /* Accept loop */
@@ -994,14 +1135,25 @@ void agent_run(void)
                 if (g_client_mode == MODE_SINGLE) {
                     handle_client(client);
                 } else if (g_client_mode == MODE_THREADED) {
-                    CreateThread(NULL, 0, client_thread,
-                                 (LPVOID)(UINT_PTR)client, 0, NULL);
+                    /* Close the handle immediately - it is the HANDLE that
+                     * leaks, not the thread, and this path runs once per
+                     * connection for the life of the agent. */
+                    DWORD ctid;
+                    HANDLE th = CreateThread(NULL, 0, client_thread,
+                                             (LPVOID)(UINT_PTR)client, 0, &ctid);
+                    if (th) CloseHandle(th);
+                    else {
+                        log_msg(LOG_MAIN, "could not start a client thread - "
+                                "dropping the connection");
+                        closesocket(client);
+                    }
                 } else {
                     /* MODE_MULTIPLEX: add to client array */
                     int slot = clients_find_free();
                     if (slot >= 0) {
                         g_clients[slot].sock = client;
                         g_clients[slot].authed = 0;
+                        g_clients[slot].last_active = GetTickCount();
                         _snprintf(g_clients[slot].addr_str,
                                   sizeof(g_clients[slot].addr_str),
                                   "%s:%d",
@@ -1028,8 +1180,21 @@ void agent_run(void)
                 if (!FD_ISSET(g_clients[i].sock, &readfds))
                     continue;
 
+                g_clients[i].last_active = GetTickCount();
                 if (client_process(i) != 0)
                     client_drop(i);
+            }
+
+            /* Reap the silent ones. A half-open connection never reports
+             * itself closed, so without this a slot is held for good. */
+            for (i = 0; i < MAX_CLIENTS; i++) {
+                if (g_clients[i].sock == INVALID_SOCKET) continue;
+                if ((DWORD)(GetTickCount() - g_clients[i].last_active)
+                        < (DWORD)CLIENT_IDLE_MS)
+                    continue;
+                log_msg(LOG_MAIN, "slot %d (%s) idle %d s - dropping it",
+                        i, g_clients[i].addr_str, CLIENT_IDLE_MS / 1000);
+                client_drop(i);
             }
         }
     }
@@ -1048,15 +1213,34 @@ void agent_run(void)
     if (listen_sock_alt != INVALID_SOCKET)
         closesocket(listen_sock_alt);
     WaitForSingleObject(disc_thread, 3000);
+    if (disc_thread) CloseHandle(disc_thread);   /* the last handle we hold */
     WSACleanup();
+
+    /* Log the clean-exit marker BEFORE closing: log_shutdown() invalidates
+     * the file handle, and anything logged after it reaches the console but
+     * never the file - so a clean QUIT would end at "Shutting down" and read
+     * exactly like an agent that was killed. */
+    log_msg(LOG_MAIN, "shutdown complete; exiting process");
+    /* Flush and close: the hard exit below deliberately does not unwind, so
+     * nothing else would get the batched lines out. */
+    log_shutdown();
+
+    /* Let a replacement start immediately rather than waiting for the OS to
+     * notice we are gone. */
+    if (g_instance_mutex) {
+        ReleaseMutex(g_instance_mutex);
+        CloseHandle(g_instance_mutex);
+        g_instance_mutex = NULL;
+    }
 
     /*
      * Guarantee the process actually dies. Helper threads (retrowall,
      * dosstage, watchdog) and a wedged handler must never be able to keep a
      * quit agent alive holding its ports — an unreachable-but-listening
      * agent on a Win9x box needs physical access to fix.
+     * (The exit marker is logged above, before log_shutdown() closes the
+     * file — logging it here would only reach the console.)
      */
-    log_msg(LOG_MAIN, "shutdown complete; exiting process");
     ExitProcess(0);
 }
 
@@ -1093,6 +1277,33 @@ int main(int argc, char *argv[])
      * after a failed run, the failure was at EXE load (a missing/Win2000+
      * import the loader couldn't resolve) — before any of our code ran. */
     log_init(g_logfile[0] ? g_logfile : NULL);
+
+    /*
+     * Refuse to be the second instance.
+     *
+     * Nothing stopped two agents running at once, and that is what produced
+     * the two worst symptoms on the Win98 box. Each start logs
+     * "Listening on TCP :9898+:9897", but the second only gets whichever port
+     * the first did not take - so the fleet's port answers nothing while an
+     * agent is demonstrably running. And killing "the" agent then leaves
+     * retro_agent.exe locked by the copy that is still alive, which is
+     * exactly what the operator hit trying to replace it.
+     *
+     * The mutex is released by the OS the moment the holder dies, however it
+     * dies, so this cannot lock us out of our own box.
+     */
+    g_instance_mutex = CreateMutexA(NULL, FALSE, AGENT_INSTANCE_MUTEX);
+    if (g_instance_mutex && GetLastError() == ERROR_ALREADY_EXISTS) {
+        log_msg(LOG_MAIN, "another retro_agent is already running - exiting "
+                "rather than fighting it for the ports");
+        log_flush();
+        if (!g_service_mode)
+            printf("A retro_agent is already running on this machine.\n");
+        CloseHandle(g_instance_mutex);
+        g_instance_mutex = NULL;
+        log_shutdown();
+        return 1;
+    }
     log_msg(LOG_MAIN, "==================================================");
     log_msg(LOG_MAIN, "retro_agent v%s: main() entered", AGENT_VERSION);
     log_msg(LOG_MAIN, "log file: %s (rotating, ~512KB x2)", log_path());
