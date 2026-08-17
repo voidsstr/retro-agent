@@ -2,8 +2,8 @@
   "host": "192.168.1.133",
   "hostname": "P3-DUAL",
   "title": "Dual Pentium III - Windows XP",
-  "width": 1024,
-  "height": 768,
+  "width": 1280,
+  "height": 1024,
   "accent": [
     80,
     200,
@@ -29,7 +29,7 @@
     ],
     [
       "RAM",
-      "1024 MB"
+      "256 MB"
     ],
     [
       "OS",
@@ -37,7 +37,7 @@
     ],
     [
       "DISPLAY",
-      "1024 x 768 @ 100Hz"
+      "1280 x 1024 @ 85Hz"
     ],
     [
       "STORAGE",
@@ -118,37 +118,37 @@
       "caption": "AMD's Athlon is the first CPU to reach 1 GHz.",
       "date": "Mar 2000",
       "credit": "\u201cJonathan Zander (Digon3)\u201d, CC BY-SA 3.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/MicroATX_Motherboard_with_AMD_Athlon_Processor_Digon3.jpg/1280px-MicroATX_Motherboard_with_AMD_Athlon_Processor_Digon3.jpg"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/MicroATX_Motherboard_with_AMD_Athlon_Processor_Digon3.jpg/1280px-MicroATX_Motherboard_with_AMD_Athlon_Processor_Digon3.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
     },
     {
       "caption": "Eminem's Marshall Mathers LP rewrites rap.",
       "date": "May 2000",
       "credit": "Nicholastbroussard, CC BY-SA 3.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Eminem_at_Voodoo_2000_%28cropped%29.jpg"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Eminem_at_Voodoo_2000_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
     },
     {
       "caption": "Intel answers with the Pentium 4 and NetBurst.",
       "date": "Nov 2000",
       "credit": "Konstantin Lanzet, CC BY-SA 3.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/KL_Intel_Pentium_4_Northwood.jpg"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/KL_Intel_Pentium_4_Northwood.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
     },
     {
       "caption": "Concorde crashes outside Paris.",
       "date": "Jul 2000",
-      "credit": "Pedro Arag\u00e3o, CC BY-SA 3.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Aerospatiale-British_Aircraft_Corporation_Concorde%2C_Air_France_JP5829905.jpg"
+      "credit": "Sunil Gupta, GFDL 1.2",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Aerospatiale-British_Aircraft_Corporation_Concorde%2C_Air_France_JP71122.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
     },
     {
       "caption": "NVIDIA ships the GeForce2 GTS graphics chip.",
       "date": "Apr 2000",
       "credit": "Winhistory at German Wikipedia, CC BY-SA 3.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/93/Geforce2gts.jpg"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/93/Geforce2gts.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
     },
     {
       "caption": "Tiger Woods dominates a historic golf season.",
       "date": "2000",
       "credit": "Keith Allison, CC BY-SA 2.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Tiger_Woods_drives_by_Allison.jpg/1280px-Tiger_Woods_drives_by_Allison.jpg"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Tiger_Woods_drives_by_Allison.jpg/1280px-Tiger_Woods_drives_by_Allison.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
     }
   ]
 }

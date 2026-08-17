@@ -2,8 +2,8 @@
   "host": "192.168.1.133",
   "hostname": "P3-DUAL",
   "title": "Dual Pentium III - Windows XP",
-  "width": 1024,
-  "height": 768,
+  "width": 1280,
+  "height": 1024,
   "accent": [
     80,
     200,
@@ -29,7 +29,7 @@
     ],
     [
       "RAM",
-      "1024 MB"
+      "256 MB"
     ],
     [
       "OS",
@@ -37,7 +37,7 @@
     ],
     [
       "DISPLAY",
-      "1024 x 768 @ 100Hz"
+      "1280 x 1024 @ 85Hz"
     ],
     [
       "STORAGE",
@@ -118,37 +118,37 @@
       "caption": "Tiger Woods dominates a historic golf season.",
       "date": "2000",
       "credit": "Keith Allison, CC BY-SA 2.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Tiger_Woods_drives_by_Allison.jpg/1280px-Tiger_Woods_drives_by_Allison.jpg"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Tiger_Woods_drives_by_Allison.jpg/1280px-Tiger_Woods_drives_by_Allison.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
     },
     {
       "caption": "The Nokia 3310 becomes a mobile-phone legend.",
       "date": "Sep 2000",
       "credit": "Multicherry, CC BY-SA 4.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Nokia_3310_grey_front_%28tidied_and_enhanced%29.jpg/1280px-Nokia_3310_grey_front_%28tidied_and_enhanced%29.jpg"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Nokia_3310_grey_front_%28tidied_and_enhanced%29.jpg/1280px-Nokia_3310_grey_front_%28tidied_and_enhanced%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
     },
     {
       "caption": "Vladimir Putin is sworn in as Russia's president.",
       "date": "May 2000",
       "credit": "Presidential Press and Information Offic, CC BY 4.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Vladimir_Putin_taking_the_Presidential_Oath%2C_7_May_2000.jpg/1280px-Vladimir_Putin_taking_the_Presidential_Oath%2C_7_May_2000.jpg"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Vladimir_Putin_taking_the_Presidential_Oath%2C_7_May_2000.jpg/1280px-Vladimir_Putin_taking_the_Presidential_Oath%2C_7_May_2000.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
     },
     {
       "caption": "Sony's PlayStation 2 redraws the console landscape.",
       "date": "Mar 2000",
       "credit": "Evan-Amos, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sony-PlayStation-2-30001-wController-L.jpg/1280px-Sony-PlayStation-2-30001-wController-L.jpg"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sony-PlayStation-2-30001-wController-L.jpg/1280px-Sony-PlayStation-2-30001-wController-L.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
     },
     {
       "caption": "Gladiator rules the box office.",
       "date": "May 2000",
       "credit": "Eva Rinaldi from Sydney Australia, CC BY-SA 2.0",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Russell_Crowe_%2833994020424%29.jpg/1280px-Russell_Crowe_%2833994020424%29.jpg"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Russell_Crowe_%2833994020424%29.jpg/1280px-Russell_Crowe_%2833994020424%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
     },
     {
       "caption": "The Human Genome Project unveils its first draft.",
       "date": "Jun 2000",
       "credit": "Jerome Walker, Public domain",
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/DNA_double_helix_horizontal.png"
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/DNA_double_helix_horizontal.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
     }
   ]
 }
