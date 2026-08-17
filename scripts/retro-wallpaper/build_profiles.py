@@ -373,7 +373,7 @@ MACHINES = [
     {
         "host": "192.168.1.133", "hostname": "P3-DUAL",
         "title": "Dual Pentium III - Windows XP",
-        "width": 1024, "height": 768,
+        "width": 1280, "height": 1024,
         "accent": [80, 200, 255], "accent2": [130, 200, 90],
         "cpu_year": 2000, "gpu_year": 2002,
         "cpu_label": "Dual Intel Pentium III - launched 2000",
@@ -381,9 +381,9 @@ MACHINES = [
         "specs": [
             ["CPU", "2x Pentium III 700MHz"],
             ["GPU", "GeForce4 Ti 4600"],
-            ["RAM", "1024 MB"],
+            ["RAM", "256 MB"],
             ["OS", "Windows XP Pro SP3"],
-            ["DISPLAY", "1024 x 768 @ 100Hz"],
+            ["DISPLAY", "1280 x 1024 @ 85Hz"],
             ["STORAGE", "931 GB fixed"],
         ],
     },
