@@ -10,7 +10,41 @@ runs there.
 > **TCP-only** while GoldSrc is UDP. Windows has the LAN address; the servers
 > belong there.
 
-## What runs
+## What runs (2026-08-20 rebuild — F: died, everything on C: now)
+
+The F: volume no longer exists; both CS trees were rebuilt from SteamCMD at
+`C:\gameservers\` and a UT99 dedicated server was added (469e, from the
+share's `Unreal Tournament (Installed)` tree + OldUnreal 469e patch).
+
+| Server | Port | Install root | Config in this repo |
+|---|---|---|---|
+| CS 1.6 vanilla | UDP **27018** | `C:\gameservers\cs16-vanilla` | [`cs16-vanilla/cfg/server.cfg`](cs16-vanilla/cfg/server.cfg) |
+| CS 1.6 no blood | UDP **27017** | `C:\gameservers\cs16-noblood` | [`cs16-noblood/`](cs16-noblood/) |
+| UT99 (469e) | UDP **7777** game / 7778 query / 8777 LAN beacon | `C:\gameservers\ut99` | ini configured in place |
+
+**Why 27018 and not 27016**: launching hlds via WSL interop or schtasks on
+this box produces *unkillable zombie processes* (`taskkill /F` reports "no
+running instance", children die, parent survives) that pin their UDP port
+until reboot. 27015/27016/27019 are pinned by such corpses as of 2026-08-20.
+We standardized on 27018/27017 permanently — do not move back after a reboot,
+the fleet's favorites now point here.
+
+**The only safe launch contexts**: (a) an elevated interactive PowerShell run
+by the logged-in user — i.e. `start-game-servers.ps1`; (b) `EXEC cmd /c start
+"" /min /D <dir> ...` through the Windows retro_agent (it executes in the
+interactive session). Both verified working 2026-08-20.
+
+**noblood tree must be its own SteamCMD install** (or validate-passed): a
+file-copy of the vanilla tree carries its Steam identity and the second
+instance dies with `FATAL ERROR ... Unable to initialize Steam`. After ANY
+`app_update`/validate, re-point `liblist.gam` `gamedll` at metamod (the
+validate reverts it silently) — see cs16-noblood/README.md.
+
+Run everything with **`start-game-servers.ps1`** in this directory (elevated,
+idempotent, verifies via A2S/\status\ loopback queries).
+
+## What ran historically (F: era)
+
 
 | Server | Port | Install root | Config in this repo |
 |---|---|---|---|
