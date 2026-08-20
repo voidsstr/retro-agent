@@ -1,0 +1,7 @@
+{
+  "server_ip": "192.168.1.249",
+  "tftp_root": "C:\\development\\pxe\\tftp",
+  "bootfile": "startrom.n12",
+  "bootfile_by_arch": {},
+  "logfile": "C:\\development\\pxe\\pxe_server.log"
+}

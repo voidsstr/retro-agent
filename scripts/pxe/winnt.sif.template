@@ -1,0 +1,10 @@
+[Data]
+    floppyless = "1"
+    msdosinitiated = "1"
+    OriSrc = "\\192.168.1.122\files\Files\OS\XPSP3-PXE\I386"
+    OriTyp = "4"
+    LocalSourceOnCD = 1
+
+[SetupData]
+    OsLoadOptions = "/fastdetect"
+    SetupSourceDevice = "\Device\LanmanRedirector\192.168.1.122\files\Files\OS\XPSP3-PXE"
