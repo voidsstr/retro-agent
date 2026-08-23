@@ -922,6 +922,27 @@ Comparison write-up: `retro-3dfx/DRIVER-STACK-ASSESSMENT.md` (commit `1768c53`).
 
 ## Known Machines
 
+> ### The fleet is powered ON DEMAND — an empty sweep is NOT an outage
+>
+> The retro machines are **deliberately kept powered off**. They are switched on
+> only when we are **making configuration changes to them** or when we are
+> **gaming**. Most of the time a discovery sweep of `192.168.1.1-254:9898`
+> correctly finds **zero agents**.
+>
+> - **Never report the fleet as down without first asking whether it is simply
+>   off.** On 2026-08-18 eight agents answered; on 2026-08-23 none did, and
+>   nothing had broken. (They also drop ICMP — `ping` fails on a box whose agent
+>   is answering fine, so probe **TCP 9898**, never ping.)
+> - **This makes the chat daemon's "cold-boot crash loop" the steady state, not
+>   an edge case.** `retro_chat_daemon.py` returns from `main_async()` when
+>   discovery finds no agents, and its unit is `Restart=always` / `RestartSec=3`
+>   — so on a host with the fleet off it rescans all 254 IPs every 3 seconds
+>   forever. Do **not** enable `retro-chat-daemon` as a boot-time unit on the
+>   fleet host; start it alongside the retro machines, or give it a zero-agent
+>   backoff first.
+> - Judge host health by the **brain's heartbeat** and the daemon's *ability* to
+>   claim — never by a live agent count.
+
 Current fleet is on **192.168.1.0/24** (see "Per-box console accounts" above for
 the full list). Verified boxes:
 
