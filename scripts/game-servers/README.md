@@ -1,4 +1,94 @@
-# Game servers on whitebeast
+# Game servers — they run on the DEV HOST (192.168.1.132)
+
+> ### 2026-08-24: the game servers moved OFF whitebeast, back onto the dev host
+>
+> **All fleet game servers are hosted on the Linux dev host `192.168.1.132`**, as
+> `systemctl --user` units (user lingering is on, so they start at boot without a
+> login). **whitebeast (192.168.1.82) hosts nothing** — its `C:\gameservers`
+> trees are still on disk but no process is running, and it has **no autostart**
+> for them (no Run key, no scheduled task, no Startup shortcut), so they do not
+> come back on their own.
+>
+> Everything whitebeast used to serve now runs here: CS 1.6 vanilla, CS 1.6
+> no-blood, and UT99. The whitebeast section below is kept as **history** — do
+> not use it as the current layout.
+
+## What runs here (verify with `healthcheck.py`)
+
+| Server | Unit | Port (UDP) | Install root |
+|---|---|---|---|
+| CS 1.6 vanilla | `cs16-server` | **27018** (browser via proxy **27015**) | `~/hlds-cs16` |
+| CS 1.6 no blood | `cs16-noblood` | **27019** (browser via proxy **27016**) | `~/hlds-cs16-noblood` |
+| The Specialists | `specialists-server` | **27017** | `~/hlds-ts` |
+| Quake III Arena | `quake3-server` | **27961** | `~/q3a-server` |
+| OpenArena | `openarena-server` | **27960** | `~/q3-server` |
+| Quake 2 | `quake2-server` | **27910** | `~/q2-server` |
+| QuakeWorld | `quakeworld-server` | **27502** | `~/qw-server` |
+| UT99 (469e) | `ut99-server` | **7797** (query 7798) | `~/ut99-server` |
+| UT2004 | `ut2004-server` | **7777** (query 7787) | `~/ut2004-server` |
+| Tribes 2 | `tribes2-server` (docker) | **28000** | `retro-agent-private/.../tribes2-docker` |
+
+`bash`-free one-shot health check of every server, each with the query packet its
+own engine actually answers:
+
+```bash
+python3 scripts/game-servers/healthcheck.py     # exit 0 = all up
+```
+
+**Probe each engine with its own query — a single protocol gives false "down".**
+Quake 2 answers `status`, not `getstatus`; UT answers GameSpy `\status\` on
+**game port + 1**; Tribes 2 answers only the Torque binary query
+(`0E 00 00 00 00 00`). `healthcheck.py` encodes all of this.
+
+### The CS servers sit behind an A2S proxy — that is deliberate
+
+Modern HLDS answers the browser query with an anti-reflection challenge that old
+CS 1.6 clients (the fleet's "BCS Romania" build) never echo back, so the server
+shows as *Not Responding* in the LAN tab. `a2s_oldquery_proxy.py` takes the
+canonical port and does the challenge dance on the client's behalf:
+**27015 → 27018** (vanilla) and **27016 → 27019** (no blood).
+
+> The proxy must target the address HLDS actually **bound**. Both CS units run
+> `-ip 192.168.1.132` (never `0.0.0.0`) on this multi-homed host, so a proxy
+> pointed at `127.0.0.1` comes up fine and then never answers. The shipped
+> `a2s-proxy-cs16-public.service` had exactly that bug and was fixed 2026-08-24.
+
+### Gotcha: 2007-era Half-Life mod `.so` files need their exec-stack flag cleared
+
+`specialists-server` crash-looped with:
+
+```
+LoadLibrary failed on ts/dlls/ts_i386.so: cannot enable executable stack
+  as shared object requires: Invalid argument
+Host_Error: Couldn't get DLL API from ts_i386.so!
+```
+
+`ts_i386.so` (built 2007) has **no `PT_GNU_STACK` program header at all**, so the
+kernel assumes it wants an executable stack — and current kernels refuse to grant
+one at `dlopen` time. It is not a corrupt install and not a Steam problem. Fix,
+once, per `.so`:
+
+```bash
+patchelf --clear-execstack ~/hlds-ts/ts/dlls/ts_i386.so    # adds PT_GNU_STACK RW
+patchelf --clear-execstack ~/hlds-ts/ts/dlls/ts_i686.so
+```
+
+Originals are kept beside them as `*.so.orig`. Expect the same failure on any
+other pre-2008 HL mod game DLL.
+
+### Not installed on this host
+
+`rtcw-server` and `mohaa-server` appear in the game-servers skill's table but
+have **never existed here** — no install directory, no install script, and no
+retail game data staged. Treat those rows as a wish list, not as something that
+regressed.
+
+---
+
+# History — the whitebeast (F:/C:) era
+
+*Everything below describes the old whitebeast layout and is retained only so the
+2026-08 notes stay readable. It is NOT the current setup.*
 
 `whitebeast` (**192.168.1.82**, Windows 11) has taken over from the old box that
 ran the game servers. This directory holds the configs, mods and notes for what
