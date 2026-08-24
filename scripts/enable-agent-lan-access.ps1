@@ -1,19 +1,19 @@
-# enable-agent-lan-access.ps1 — open Windows Firewall so OTHER hosts can
+# enable-agent-lan-access.ps1 - open Windows Firewall so OTHER hosts can
 # reach whitebeast's retro_agent (C:\RETRO_AGENT\retro_agent.exe).
 # RUN ELEVATED once (self-elevates). Idempotent.
 #
 # Why: the agent binds 0.0.0.0:9898 (TCP protocol) + 0.0.0.0:9899 (UDP
 # discovery), but Windows Firewall has no inbound allow rule, so only WSL
 # on this machine (via the vEthernet adapter's built-in allowance) can
-# connect. The new fleet host on the LAN — or over Tailscale — gets
+# connect. The new fleet host on the LAN - or over Tailscale - gets
 # silently refused until these rules exist.
 #
 # Scope: LocalSubnet (192.168.1.0/24 fleet + new host) plus the Tailscale
 # CGNAT range 100.64.0.0/10 so a tailnet host can drive the agent too.
 #
-# NO AGENT RESTART NEEDED — it already listens on 0.0.0.0; firewall rules
+# NO AGENT RESTART NEEDED - it already listens on 0.0.0.0; firewall rules
 # apply immediately. (If the agent is ever down, start it by double-clicking
-# C:\RETRO_AGENT\retro_agent.exe in the interactive session — never via WSL
+# C:\RETRO_AGENT\retro_agent.exe in the interactive session - never via WSL
 # interop or schtasks.)
 
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
@@ -42,7 +42,7 @@ if ($tcp) {
   $p = Get-Process -Id $tcp[0].OwningProcess -ErrorAction SilentlyContinue
   Write-Host "  agent UP: pid $($tcp[0].OwningProcess) ($($p.ProcessName)) on 0.0.0.0:9898"
 } else {
-  Write-Host "  agent NOT listening — start C:\RETRO_AGENT\retro_agent.exe (double-click, interactive session)"
+  Write-Host "  agent NOT listening - start C:\RETRO_AGENT\retro_agent.exe (double-click, interactive session)"
 }
 Write-Host ""
 Write-Host "Done. From the new host test:  nc -vz 192.168.1.82 9898   (or Tailscale IP)"
