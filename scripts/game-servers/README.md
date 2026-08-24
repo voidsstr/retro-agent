@@ -28,6 +28,11 @@
 | UT2004 | `ut2004-server` | **7777** (query 7787) | `~/ut2004-server` |
 | Tribes 2 | `tribes2-server` (docker) | **28000** | `retro-agent-private/.../tribes2-docker` |
 
+**Tribes 2 must be built with the legacy builder**: `docker build --network=host
+-t nsc-tribes2-tribesnext:latest .` then `docker compose up -d --no-build`. Under
+buildkit its apt step hangs indefinitely with zero bytes fetched — see that
+directory's README.
+
 `bash`-free one-shot health check of every server, each with the query packet its
 own engine actually answers:
 
