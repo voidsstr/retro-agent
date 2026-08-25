@@ -90,6 +90,106 @@ regressed.
 
 ---
 
+## Publishing to the internet so public players can find the servers
+
+**Status as of 2026-08-25: zero servers are publicly visible.** Every server is
+healthy on the LAN and every master uplink is configured correctly — the gateway
+simply is not forwarding inbound UDP, so the masters cannot probe us back and
+therefore will not list us. Check any time with:
+
+```bash
+python3 scripts/game-servers/publish_status.py     # exit 0 = at least one listed
+```
+
+That asks each game's real master whether our public IP is in its list — a
+different question from `healthcheck.py`, which only proves the server is up on
+the LAN.
+
+### Cloudflare Tunnel CANNOT publish these servers — do not try again
+
+**cloudflared does not carry UDP, and every one of these servers is UDP-only.**
+Its ingress types are `http`, `https`, `tcp`, `ssh`, `rdp`, `smb`, `unix` and
+`http_status` — there is no `udp` service type. Cloudflare's UDP story is
+WARP-to-Tunnel private networking, which requires the **WARP client on the
+player's machine**; a stranger running a stock Quake 3 or CS 1.6 binary has no
+way to reach a tunnel. Cloudflare Spectrum does UDP only on **Enterprise**.
+
+The `~/.cloudflared/` credential on this host belongs to
+`config-ollama.yml` → `ollama-failover.aisleprompt.com` → `http://localhost:11434`.
+That is the **Ollama HTTP failover tunnel and has nothing to do with the game
+servers.** It is almost certainly the "cloudflare tunnel we configured" being
+remembered — there has never been a game-server tunnel, and there cannot be a
+useful one.
+
+### What actually works: UDP port-forwards on the gateway
+
+The gateway is an **AT&T BGW at 192.168.1.254**; its admin UI needs the **Access
+Code printed on the router label**. **UPnP is disabled** on it (verified by SSDP
+M-SEARCH — no IGD responds), so the forwards cannot be added programmatically;
+someone has to enter them in `Firewall → NAT/Gaming → Custom Services`.
+
+Forward **UDP** from the WAN to **192.168.1.132** (the wired NIC, `enp129s0`):
+
+| Port(s) | Server | Needed for |
+|---|---|---|
+| 7777, 7778, 7787 | UT2004 | game, browser, GameSpy query |
+| 7797, 7798 | UT99 | game, query |
+| 27910 | Quake 2 | game + master probe |
+| 27960 | OpenArena | game + master probe |
+| **27961** | **Quake III Arena** | game + master probe |
+| **27502** | **QuakeWorld** | game + master probe |
+| **28000** | **Tribes 2** | game + master probe |
+
+> The last three were **missing from the old forward table** — Q3A, QuakeWorld
+> and Tribes 2 were never forwarded, so they could never have listed even when
+> the rest worked.
+
+CS 1.6 (27015–27019) and The Specialists (27017) are deliberately **not** in the
+list — see below.
+
+**MAC-binding trap (this has bitten before):** BGW NAT rules bind by **MAC, not
+IP**. Pick the *wired* MAC. If the host ever shows twice in the device list,
+the Wi-Fi entry creates asymmetric routing — inbound to the Wi-Fi IP, replies out
+the wired IP with a different NAT source port — and masters silently drop the
+listing. Rules can also spontaneously re-bind to an unrelated device when DHCP
+state shifts; if listings vanish, re-check `/cgi-bin/apphosting.ha`.
+
+### Where each server publishes itself (already configured, verified 2026-08-25)
+
+| Server | Masters / listing | Configured |
+|---|---|---|
+| Quake III Arena | `dpmaster.deathmask.net`, `master.ioquake3.org`, `master3.idsoftware.com` | ✅ 4 masters + `dedicated 2` |
+| OpenArena | `dpmaster.deathmask.net`, `master.ioquake3.org` | ✅ + `dedicated 2` |
+| Quake 2 | `master.quakeservers.net`, `master.q2servers.com` | ✅ + `public 1` |
+| QuakeWorld | `master.quakeworld.nu`, `master.quakeservers.net`, `qwmaster.ocrana.de` | ✅ `setmaster` |
+| UT99 | `master.333networks.com`, `master.oldunreal.com`, `master.errorist.eu`, … | ✅ `DoUplink=True` |
+| UT2004 | `ut2004master.333networks.com`, `utmaster.openspy.net` | ✅ + `ServerBehindNAT=True`, MasterServerMirror |
+| Tribes 2 | `master.tribesnext.com` (outbound HTTP heartbeat) | ✅ |
+
+Nothing here needs changing. These community masters are what the public server
+browsers and the tracker websites (333networks, deathmask.net, quakeservers.net,
+tribesnext) scrape, so a correct forward is the *only* missing piece.
+
+### CS 1.6 and The Specialists are LAN-only on purpose
+
+Both run `sv_lan 1`, which disables Steam authentication — that is precisely what
+lets the fleet's non-Steam **"BCS Romania"** clients join. Going public means
+`sv_lan 0` **plus a Steam Game Server Login Token (GSLT)**, and that **breaks
+every non-Steam client on the retro fleet**. It is a real either/or, not an
+oversight. Decide deliberately before changing it; if you do want a public CS
+server, run it as a *third* instance on its own port rather than converting one
+the fleet depends on.
+
+### If the router genuinely cannot be used
+
+A UDP relay (a cheap VPS running WireGuard + `iptables` DNAT, or a service like
+playit.gg) makes the servers *connectable by address*, but public **master
+listing usually still breaks**: the master records the source IP of the heartbeat
+(your real WAN IP) and probes that, not the relay. So a relay is a fallback for
+"friends connect by address", not a substitute for a port-forward if the goal is
+strangers discovering you in a server browser.
+
+
 # History — the whitebeast (F:/C:) era
 
 *Everything below describes the old whitebeast layout and is retained only so the
