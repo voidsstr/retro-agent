@@ -1,0 +1,344 @@
+"""masters.py — find live internet servers, per engine.
+
+Two steps for every engine: ask a master server for a list of addresses, then
+probe each address directly to find out whether it is actually alive and who
+is on it. The probe is not optional. Master lists are mostly stale -- of ~940
+Q3 addresses roughly 605 answer -- so a favorites list built from the master
+alone is mostly dead entries, which is exactly the complaint that started
+this.
+
+Every engine here declares whether it HAS a working discovery path. Ones that
+do not are reported as unsupported rather than silently returning an empty
+list: "0 servers" and "we never looked" must not look the same to the caller.
+
+Query packets follow scripts/game-servers/healthcheck.py, which already had
+the per-engine formats right (Q2 uses `status`, not `getstatus`; UT answers
+GameSpy on port+1; GoldSrc needs the A2S challenge echo).
+"""
+import concurrent.futures as cf
+import re
+import socket
+import struct
+import time
+
+DEFAULT_TIMEOUT = 2.5
+PROBE_WORKERS = 96
+
+
+# --- low-level UDP -----------------------------------------------------------
+
+def _udp(host, port, payload, timeout=DEFAULT_TIMEOUT, reads=1):
+    """Send one datagram, collect up to `reads` replies. Returns (data, rtt_ms)."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(timeout)
+    t0 = time.time()
+    chunks = []
+    try:
+        s.sendto(payload, (host, port))
+        for _ in range(reads):
+            chunks.append(s.recv(65535))
+    except (socket.timeout, OSError):
+        pass
+    finally:
+        s.close()
+    rtt = int((time.time() - t0) * 1000)
+    return b"".join(chunks), rtt
+
+
+def _infostring(text):
+    """Parse Quake's \\key\\value\\key\\value info string."""
+    parts = text.split("\\")
+    out = {}
+    for i in range(1, len(parts) - 1, 2):
+        out[parts[i].lower()] = parts[i + 1]
+    return out
+
+
+def _split_status(data):
+    """Return (info dict, player-line count) from any Quake-family status reply.
+
+    The infostring is NOT reliably the first line. Q3 answers
+    "\xff\xff\xff\xffstatusResponse\n\\key\\value...\n<players>", so taking
+    line 0 yields the header and an empty dict -- which silently turned every
+    single Q3 server into "no reply" (0 alive of 400) even though they all
+    answered. Find the first line that actually carries a backslash instead,
+    and count the non-empty lines after it as players.
+    """
+    text = data[4:].decode("latin-1", "replace") if len(data) > 4 else ""
+    lines = text.split("\n")
+    for idx, line in enumerate(lines):
+        if "\\" in line:
+            info = _infostring(line)
+            if info:
+                players = len([l for l in lines[idx + 1:] if l.strip()])
+                return info, players
+    return {}, 0
+
+
+# --- Quake III family (q3, rtcw, et, mohaa, openarena) -----------------------
+
+Q3_MASTERS = [
+    ("master.ioquake3.org", 27950, b"\xff\xff\xff\xffgetservers 68 empty full"),
+    ("master.quake3arena.com", 27950, b"\xff\xff\xff\xffgetservers 68 empty full"),
+    ("dpmaster.deathmask.net", 27950,
+     b"\xff\xff\xff\xffgetservers Quake3Arena 68 empty full"),
+]
+OA_MASTERS = [
+    ("dpmaster.deathmask.net", 27950,
+     b"\xff\xff\xff\xffgetservers OpenArena 71 empty full"),
+]
+
+
+def _parse_getservers(data):
+    """getserversResponse: repeating '\\' + 4-byte IP + 2-byte BE port, ends '\\EOT'."""
+    out = []
+    i = data.find(b"getserversResponse")
+    if i < 0:
+        return out
+    body = data[i + len(b"getserversResponse"):]
+    j = 0
+    while j < len(body) - 6:
+        if body[j] != 0x5C:  # '\'
+            j += 1
+            continue
+        if body[j + 1:j + 4] == b"EOT":
+            break
+        ip = ".".join(str(b) for b in body[j + 1:j + 5])
+        port = struct.unpack(">H", body[j + 5:j + 7])[0]
+        if port and not ip.startswith("0."):
+            out.append(f"{ip}:{port}")
+        j += 7
+    return out
+
+
+def _q3_probe(addr):
+    host, port = addr.rsplit(":", 1)
+    data, rtt = _udp(host, int(port), b"\xff\xff\xff\xffgetstatus\n")
+    if not data:
+        return None
+    # Count player LINES rather than trusting a cvar: several builds publish
+    # no player count at all, and the whole point is "servers with people on".
+    info, players = _split_status(data)
+    if not info:
+        return None
+    return {
+        "addr": addr,
+        "hostname": re.sub(r"\^.", "", info.get("sv_hostname", ""))[:120],
+        "map": info.get("mapname", ""),
+        "players": players,
+        "maxplayers": int(info.get("sv_maxclients", "0") or 0),
+        "ping_ms": rtt,
+        "gamename": info.get("gamename", ""),
+        "passworded": 1 if info.get("g_needpass", "0") not in ("0", "") else 0,
+        "source": "q3master",
+    }
+
+
+# --- Quake II ----------------------------------------------------------------
+# master.q2servers.com wants a plain "query" on 27900 and often does not answer
+# from a residential IP. Kept, but treated as best-effort.
+Q2_MASTERS = [("master.q2servers.com", 27900, b"query"),
+              ("q2master.hardcore.rocks", 27900, b"query")]
+
+
+def _parse_q2_master(data):
+    out = []
+    # Reply is a header then packed 6-byte ip:port records.
+    body = data.split(b"\n", 1)[-1] if b"\n" in data else data
+    for i in range(0, len(body) - 5, 6):
+        ip = ".".join(str(b) for b in body[i:i + 4])
+        port = struct.unpack(">H", body[i + 4:i + 6])[0]
+        if port and not ip.startswith("0."):
+            out.append(f"{ip}:{port}")
+    return out
+
+
+def _q2_probe(addr):
+    host, port = addr.rsplit(":", 1)
+    data, rtt = _udp(host, int(port), b"\xff\xff\xff\xffstatus\n")
+    if not data:
+        return None
+    info, players = _split_status(data)
+    if not info:
+        return None
+    return {
+        "addr": addr,
+        "hostname": info.get("hostname", "")[:120],
+        "map": info.get("mapname", ""),
+        "players": players,
+        "maxplayers": int(info.get("maxclients", "0") or 0),
+        "ping_ms": rtt,
+        "gamename": info.get("gamename", "baseq2"),
+        "passworded": 1 if info.get("needpass", "0") not in ("0", "") else 0,
+        "source": "q2master",
+    }
+
+
+# --- QuakeWorld --------------------------------------------------------------
+
+QW_MASTERS = [("master.quakeworld.nu", 27000, b"c\n"),
+              ("master.quakeservers.net", 27000, b"c\n")]
+
+
+def _parse_qw_master(data):
+    out = []
+    i = data.find(b"\xff\xff\xff\xffd\n")
+    body = data[i + 6:] if i >= 0 else data
+    for j in range(0, len(body) - 5, 6):
+        ip = ".".join(str(b) for b in body[j:j + 4])
+        port = struct.unpack(">H", body[j + 4:j + 6])[0]
+        if port and not ip.startswith("0."):
+            out.append(f"{ip}:{port}")
+    return out
+
+
+def _qw_probe(addr):
+    host, port = addr.rsplit(":", 1)
+    data, rtt = _udp(host, int(port), b"\xff\xff\xff\xffstatus\n")
+    if not data:
+        return None
+    info, players = _split_status(data)
+    if not info:
+        return None
+    return {
+        "addr": addr,
+        "hostname": info.get("hostname", "")[:120],
+        "map": info.get("map", ""),
+        "players": players,
+        "maxplayers": int(info.get("maxclients", "0") or 0),
+        "ping_ms": rtt,
+        "gamename": "qw",
+        "passworded": 1 if info.get("needpass", "0") not in ("0", "") else 0,
+        "source": "qwmaster",
+    }
+
+
+# --- GoldSrc (CS 1.6, HL, TFC, DoD, TS) --------------------------------------
+# The Steam master speaks a request/continue protocol on 27011.
+
+GOLDSRC_MASTER = ("hl2master.steampowered.com", 27011)
+
+
+def _goldsrc_master_list(region=0xFF, filt=br"\gamedir\cstrike", limit=1500):
+    out, last = [], "0.0.0.0:0"
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(DEFAULT_TIMEOUT)
+    try:
+        for _ in range(12):
+            req = b"1" + bytes([region]) + last.encode() + b"\x00" + filt + b"\x00"
+            s.sendto(req, GOLDSRC_MASTER)
+            try:
+                data = s.recv(65535)
+            except (socket.timeout, OSError):
+                break
+            if len(data) < 6:
+                break
+            body = data[6:]
+            batch = []
+            for i in range(0, len(body) - 5, 6):
+                ip = ".".join(str(b) for b in body[i:i + 4])
+                port = struct.unpack(">H", body[i + 4:i + 6])[0]
+                batch.append(f"{ip}:{port}")
+            if not batch:
+                break
+            if batch[-1] == "0.0.0.0:0":
+                out.extend(batch[:-1])
+                break
+            out.extend(batch)
+            last = batch[-1]
+            if len(out) >= limit:
+                break
+    finally:
+        s.close()
+    return out
+
+
+def _a2s_probe(addr):
+    host, port = addr.rsplit(":", 1)
+    port = int(port)
+    payload = b"\xff\xff\xff\xffTSource Engine Query\x00"
+    data, rtt = _udp(host, port, payload)
+    if data[4:5] == b"A":              # challenge -- echo it back
+        data, rtt2 = _udp(host, port, payload + data[5:9])
+        rtt += rtt2
+    if not data or data[4:5] not in (b"I", b"m"):
+        return None
+    try:
+        body = data[6:]
+        parts = body.split(b"\x00")
+        name, mapname, folder, game = (p.decode("latin-1", "replace")
+                                       for p in parts[:4])
+        rest = body.split(b"\x00", 4)[4]
+        players, maxplayers = rest[2], rest[3]
+    except (IndexError, ValueError):
+        return None
+    return {
+        "addr": addr, "hostname": name[:120], "map": mapname,
+        "players": players, "maxplayers": maxplayers, "ping_ms": rtt,
+        "gamename": folder, "passworded": 0, "source": "steammaster",
+    }
+
+
+# --- engine registry ---------------------------------------------------------
+
+def _collect(masters, parser):
+    seen = []
+    for host, port, payload in masters:
+        data, _ = _udp(host, port, payload, timeout=4.0, reads=8)
+        if data:
+            seen.extend(parser(data))
+    return list(dict.fromkeys(seen))          # de-dup, keep order
+
+
+ENGINES = {
+    "q3":      dict(list=lambda: _collect(Q3_MASTERS, _parse_getservers),
+                    probe=_q3_probe, supported=True),
+    "q2":      dict(list=lambda: _collect(Q2_MASTERS, _parse_q2_master),
+                    probe=_q2_probe, supported=True),
+    "qw":      dict(list=lambda: _collect(QW_MASTERS, _parse_qw_master),
+                    probe=_qw_probe, supported=True),
+    # The Steam master is listed but NOT usable from here: every
+    # *.steampowered.com master hostname fails DNS on this host (verified
+    # 2026-08-25, while the Q3 and QuakeWorld masters resolve fine). Rather
+    # than ship a discovery path that silently yields nothing, declare it
+    # unsupported -- the LOCAL CS 1.6 / TS / DoD servers on .132 are still
+    # pinned into favorites by the sync pass, which is the part that matters
+    # on this LAN. _goldsrc_master_list/_a2s_probe are kept and tested so
+    # this flips back on the day a reachable master exists.
+    "goldsrc": dict(list=None, probe=None, supported=False,
+                    why="Steam master hostnames do not resolve from this host"),
+    # No working public master any more, or none we have verified. Declared
+    # here on purpose so the caller can say "unsupported" instead of "none
+    # found" -- they are very different facts.
+    "unreal":  dict(list=None, probe=None, supported=False,
+                    why="the 333networks/GameSpy master is unverified here"),
+    "ut2k4":   dict(list=None, probe=None, supported=False,
+                    why="the 333networks/GameSpy master is unverified here"),
+    "t2":      dict(list=None, probe=None, supported=False,
+                    why="TribesNext master not implemented"),
+    "rtcw":    dict(list=None, probe=None, supported=False,
+                    why="wolfmaster.idsoftware.com is long dead"),
+    "nq":      dict(list=None, probe=None, supported=False,
+                    why="NetQuake has no live master"),
+}
+
+
+def discover(engine, max_probe=900, workers=PROBE_WORKERS):
+    """Return (rows, note). rows may be empty; note explains why if it is."""
+    spec = ENGINES.get(engine)
+    if spec is None:
+        return [], f"unknown engine '{engine}'"
+    if not spec["supported"]:
+        return [], f"unsupported: {spec.get('why', 'no discovery path')}"
+
+    addrs = spec["list"]()
+    if not addrs:
+        return [], "master returned no addresses (master down or filtered)"
+    addrs = addrs[:max_probe]
+
+    rows = []
+    with cf.ThreadPoolExecutor(workers) as ex:
+        for r in ex.map(spec["probe"], addrs):
+            if r:
+                rows.append(r)
+    return rows, f"{len(rows)} alive of {len(addrs)} listed"

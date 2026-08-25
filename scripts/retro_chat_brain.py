@@ -74,6 +74,7 @@ if str(_REPO) not in sys.path:
 from claude_agent_sdk import (  # noqa: E402
     AssistantMessage,
     ClaudeAgentOptions,
+    HookMatcher,
     ResultMessage,
     StreamEvent,
     SystemMessage,
@@ -83,6 +84,7 @@ from claude_agent_sdk import (  # noqa: E402
 )
 
 import scripts.retro_brain_tools as fleet  # noqa: E402
+import scripts.retro_brain_guard as guard  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Daemon contract (must match retro_chat_daemon.py)
@@ -127,6 +129,14 @@ BUILTIN_TOOLS = [
     "WebSearch", "WebFetch", "Agent",
 ]
 ALLOWED_TOOLS = BUILTIN_TOOLS + fleet.TOOL_NAMES
+
+# Fleet applications the brain maintains live in sibling repos, so cwd alone
+# (retro-agent) is not enough reach. Only directories that actually exist are
+# passed -- add_dirs with a missing path makes the CLI refuse to start, and a
+# brain that will not boot is a worse failure than one that cannot see a repo.
+_SIBLING_REPOS = ["retro-agent-private", "nsc-assistant", "retro-3dfx"]
+EXTRA_DIRS = [str(_REPO.parent / name) for name in _SIBLING_REPOS
+              if (_REPO.parent / name).is_dir()]
 
 SYSTEM_APPEND = """
 You are operating as the brain of the **Retro Chat** bridge. A user is chatting
@@ -200,6 +210,41 @@ with you from a retro PC (Win98 / Win2K / WinXP) through a text relay, so:
   boxes. NEVER deploy without the stack's test gate green, never reboot a box
   without the user's explicit ok, and always verify by renderer string /
   VIDEODIAG after deploy.
+- BUILDING AND FIXING THE FLEET'S OWN SOFTWARE (you are a full dev session):
+  You are not limited to running commands on boxes. You have Read/Write/Edit/
+  Bash on this host and you are expected to work on the fleet's applications
+  the same way any Claude Code session would: read the debug logs, find the
+  bug, change the code, build it, deploy it to a retro machine, and verify.
+  Repos in reach: this one (the agent, DOSGAME, DOSCHAT, voodoo-cleanroom),
+  retro-agent-private, nsc-assistant, and retro-3dfx (READ-ONLY - CLAUDE.md
+  forbids editing that driver tree).
+    * DOS PLAYER LOOP (the common one): DOSGAME.EXE is at scripts/dosgames/
+      and DOSCHAT.EXE at agent/doschat/. Pull the box's debug log with
+      retro_command DOWNLOAD (or EXEC type), read it here, fix the C, rebuild
+      with the Open Watcom toolchain in ~/development/toolchain-dos/, and
+      redeploy. On a Win9x box the agent auto-stages C:\\DOSGAME and C:\\DOSCHAT
+      from the share, so publishing there reaches the machine; DOSSTAGE force
+      re-stages immediately. Read scripts/dosgames/README.md and
+      agent/doschat/README.md BEFORE touching a DOS build - the quoted-include
+      case sensitivity and the 64K DGROUP ceiling will cost you an hour each.
+    * Write deploy scripts when a repeatable one does not exist yet, and keep
+      it in the repo rather than as a one-off in /tmp.
+    * Follow this repo's CLAUDE.md rules for real: work in a worktree, bump the
+      version tag BEFORE building the agent or chat client, keep
+      `bash tests/run_all.sh` green, publish to the share, and log the change
+      to the fleetbook.
+- TWO HARD LIMITS ON THAT (enforced, not advisory - a PreToolUse hook denies
+  them before the tool runs, so do not waste turns trying to route around it):
+    * NO CLOUD DEPLOYMENT. You ship to the retro fleet over the LAN. az, aws,
+      gcloud, kubectl, terraform, docker push, npm publish and the site repos'
+      azure/deploy.sh are all blocked.
+    * NO CHANGES TO THE SPECPICKS OR AISLEPROMPT SYSTEMS. You may READ them
+      (they are often the reference for how something is done), but any write,
+      edit or mutating shell command against those trees is refused. They are
+      live sites with their own agents; a plausible-looking fix from here is
+      worse than none.
+  If a request needs either, say plainly that it is out of scope for the retro
+  brain and stop - do not improvise a workaround.
 - SECURITY POSTURE: a `security-posture` skill is available. If the user asks to
   review the agent's security, run a penetration test, or harden the fleet,
   invoke it and walk them through the interactive checklist and recommendations.
@@ -370,6 +415,13 @@ def options_for(host, resume, account_home=None):
         # explicit confirm=true, which the system prompt only allows when the user
         # asked) — see that module and the security-posture skill.
         permission_mode="bypassPermissions",
+        # The fleet-scope policy. PreToolUse is the load-bearing one: under
+        # bypassPermissions the permission callback can legitimately never be
+        # consulted, but hooks fire either way. can_use_tool is a second layer.
+        hooks={"PreToolUse": [HookMatcher(
+            matcher="*", hooks=[guard.build_pretooluse_hook(str(_REPO), log)])]},
+        can_use_tool=guard.build_can_use_tool(str(_REPO), log),
+        add_dirs=EXTRA_DIRS,                   # sibling fleet repos
         cwd=str(_REPO),                        # loads this repo's CLAUDE.md
         skills="all",                          # enable filesystem skills (injects the
                                                # Skill tool + discovers installed skills)

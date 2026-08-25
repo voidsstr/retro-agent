@@ -1,0 +1,23 @@
+# Retro game/server index — one sync pass.
+#
+# Driven by retro-gameindex.timer every 5 minutes, which is the freshness
+# guarantee: the host's index is never more than one interval stale, and each
+# pass pushes favourites to a box ONLY when the content hash changed.
+#
+# Install:
+#   cp scripts/gameindex/retro-gameindex.{service,timer} ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now retro-gameindex.timer
+[Unit]
+Description=Retro fleet game + server index (one pass)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/voidsstr/development/retro-agent
+ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent/scripts/gameindex/sync.py
+# A pass probes ~900 addresses per engine plus every live box. It should never
+# run long enough to overlap the next tick; if it somehow does, kill it rather
+# than stacking passes that fight over the same SQLite file and the same agents.
+TimeoutStartSec=240
