@@ -26,9 +26,24 @@ import http.server, os, socketserver, sys, urllib.parse
 # per host: a gvfs mount on the Linux dev box, but "Z:\Files\Games\DOS" when
 # this runs on the Windows side (which is what the fleet actually reaches,
 # since WSL is NAT'd and a server bound inside it is invisible to the LAN).
-SHARE = os.environ.get(
-    "DOSGAMES_SHARE",
-    "/run/user/1000/gvfs/smb-share:server=192.168.1.122,share=files/Games/DOS")
+def _first_existing(paths):
+    for p in paths:
+        if os.path.isdir(p):
+            return p
+    return paths[0]          # nothing there: keep the first for the error text
+
+
+# The 2026-08-11 NAS rebuild moved everything under a new top-level "Files/"
+# directory, which silently turned the old path into 404s for every archive -
+# and a 404 here reads on the DOS box as "HTGET failed", i.e. as a networking
+# fault on the box rather than a wrong path on the host. Try the candidates in
+# order rather than hard-coding one, so a host that mounts the share
+# differently (cifs at /mnt vs a gvfs mount vs the Windows side) just works.
+SHARE = os.environ.get("DOSGAMES_SHARE") or _first_existing([
+    "/mnt/retro-share/Files/Games/DOS",
+    "/run/user/1000/gvfs/smb-share:server=192.168.1.122,share=files/Files/Games/DOS",
+    "/run/user/1000/gvfs/smb-share:server=192.168.1.122,share=files/Games/DOS",
+])
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.environ.get("DOSGAMES_DATA", os.path.join(HERE, "data"))
 
