@@ -35,7 +35,11 @@ WIN98_ABSENT = ("__imp___strtoi64", "__imp___strtoui64",
                 "__imp___strtoi64_l", "__imp___strtoui64_l")
 
 # Referenced by the MinGW-w64 startup object; without them nothing links.
-CRT_REQUIRED = ("_initterm_e",)
+# NOTE these are the *nm* spellings. ld reports the C-level name in its error
+# ("undefined reference to `_initterm_e'") but the symbol carries the leading
+# underscore on top of that, so nm prints __initterm_e. Matching ld's spelling
+# here silently never matches and the test fails on a perfectly good library.
+CRT_REQUIRED = ("__initterm_e", "__crt_atexit")
 
 pytestmark = pytest.mark.skipif(
     shutil.which(NM) is None, reason="mingw-w64 binutils not installed")
@@ -72,12 +76,11 @@ def test_modern_crt_startup_symbols_are_present():
 def test_regeneration_script_exists_and_is_runnable():
     script = REPO / "agent" / "lib" / "make-libmsvcrt.sh"
     assert script.is_file(), "the shim must stay reproducible, not hand-carved"
-    body = script.read_text()
-    # The script's own bug: `ar t | grep -q` makes grep exit early, ar dies of
-    # SIGPIPE, and under pipefail the pipeline reports failure even though the
-    # member WAS found -- so the removal silently did not happen AND the
-    # verification passed for the same reason. Keep pipefail out of it.
-    assert "set -o pipefail" not in body and "set -euo pipefail" not in body, (
+    # Strip comments before checking: the script explains WHY it avoids
+    # pipefail, so a naive substring search matches its own warning comment.
+    body = "\n".join(line for line in script.read_text().splitlines()
+                     if not line.lstrip().startswith("#"))
+    assert "pipefail" not in body, (
         "make-libmsvcrt.sh must not use pipefail: `ar t | grep -q` and "
         "`nm | grep -q` both SIGPIPE their producer on an early match, which "
         "silently inverted both the removal and its verification.")
