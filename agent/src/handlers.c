@@ -55,6 +55,7 @@ static const cmd_entry_t commands[] = {
     { "AUTOLOGIN", 1, NULL,              handle_autologin },
     { "SERVICE",   1, NULL,              handle_service },
     { "SMARTINFO",  0, handle_smartinfo,  NULL },
+    { "GAMEINDEX",  1, NULL,              handle_gameindex },
     { "DISPLAYCFG", 1, NULL,             handle_displaycfg },
     { "AUDIOINFO",  0, handle_audioinfo,  NULL },
     { "SYSFIX",     1, NULL,             handle_sysfix },

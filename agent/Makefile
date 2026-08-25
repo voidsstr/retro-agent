@@ -34,6 +34,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/snapshot.c \
           $(SRCDIR)/service.c \
           $(SRCDIR)/smart.c \
+          $(SRCDIR)/gameindex.c \
           $(SRCDIR)/display.c \
           $(SRCDIR)/audio.c \
           $(SRCDIR)/sysfix.c \

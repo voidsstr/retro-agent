@@ -1058,6 +1058,14 @@ void agent_run(void)
      * now on demand via the ONBOARD command (chat / onboard-machine skill), so
      * a fresh boot stays lightweight. */
 
+    /* Game index: the host's server-favorites pipeline polls this every few
+     * minutes, so the scan has to have already happened by the time it asks.
+     * gameindex_init() must run on this thread — the handler and the scanner
+     * share a critical section and both may touch it first. */
+    log_msg(LOG_MAIN, "startup: spawning gameindex thread");
+    gameindex_init();
+    spawn_helper(gameindex_thread, "gameindex");
+
     log_msg(LOG_MAIN, "startup: spawning watchdog thread");
     spawn_helper(watchdog_thread, "watchdog");
 
