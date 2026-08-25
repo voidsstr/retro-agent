@@ -243,13 +243,34 @@ static void join(char *out, int outlen, const char *dir, const char *leaf)
     out[outlen - 1] = 0;
 }
 
+/* Strip trailing separators so the same directory reached by different
+ * sources compares equal. The registry's InstallLocation usually ends in a
+ * backslash and the shortcut target's directory never does, so without this
+ * every registry-detected game is stored a SECOND time -- verified on .240,
+ * which reported Counter-Strike, Half-Life, HL2 and Unreal twice each. */
+static void norm_dir(char *dir)
+{
+    int n = lstrlenA(dir);
+    /* Keep "C:\" intact: a bare drive root is a real path, not a stray sep. */
+    while (n > 1 && (dir[n - 1] == '\\' || dir[n - 1] == '/')
+           && !(n == 3 && dir[1] == ':')) {
+        dir[n - 1] = 0;
+        n--;
+    }
+}
+
 /* Record one hit, unless (key, dir) is already present. When it is already
  * present but this hit carries a launcher and the stored one does not, keep
  * the launcher: the shortcut pass and the walk pass find the same install. */
 static void add_entry(const game_sig_t *sig, const char *dir, const char *exe,
                       const char *launcher, const char *source)
 {
+    char norm[MAX_PATH];
     int i;
+
+    safe_strncpy(norm, dir, MAX_PATH);
+    norm_dir(norm);
+    dir = norm;
 
     for (i = 0; i < g_ent_count; i++) {
         if (ieq(g_ents[i].key, sig->key) && ieq(g_ents[i].dir, dir)) {
@@ -277,7 +298,8 @@ static void add_entry(const game_sig_t *sig, const char *dir, const char *exe,
 /* Test one directory against every signature. A signature with a moddir only
  * matches when that subdirectory is present, which is what separates the
  * GoldSrc mods from each other and from plain Half-Life. */
-static void match_dir(const char *dir, const char *launcher, const char *source)
+static void match_dir(const char *dir, const char *launcher,
+                      const char *launcher_exe, const char *source)
 {
     char path[MAX_PATH];
     char mod[MAX_PATH];
@@ -292,7 +314,15 @@ static void match_dir(const char *dir, const char *launcher, const char *source)
             if (!dir_exists(mod))
                 continue;
         }
-        add_entry(&g_sigs[i], dir, path, launcher, source);
+        /* Only claim the shortcut for the game it actually launches. One
+         * directory can satisfy several signatures -- C:\UT2004\System holds
+         * UT2004 plus every mod's shortcut -- and attributing the first .lnk
+         * found to all of them told us "Play AirBuccaneers.lnk" launches
+         * UT2004, which would then be the config we edited. */
+        if (launcher && launcher_exe && ieq(launcher_exe, g_sigs[i].exe))
+            add_entry(&g_sigs[i], dir, path, launcher, source);
+        else
+            add_entry(&g_sigs[i], dir, path, NULL, source);
     }
 }
 
@@ -336,6 +366,17 @@ static int resolve_lnk(const char *lnk, char *target, int tlen)
     return ok;
 }
 
+/* Filename portion of a path, without copying. */
+static const char *leaf_of(const char *path)
+{
+    const char *p = path;
+    const char *leaf = path;
+    for (; *p; p++)
+        if (*p == '\\' || *p == '/')
+            leaf = p + 1;
+    return leaf;
+}
+
 static void strip_leaf(char *path)
 {
     int n = lstrlenA(path);
@@ -372,7 +413,7 @@ static void scan_shortcut_dir(const char *dir)
             continue;
         safe_strncpy(tdir, target, MAX_PATH);
         strip_leaf(tdir);
-        match_dir(tdir, lnk, "shortcut");
+        match_dir(tdir, lnk, leaf_of(target), "shortcut");
     } while (FindNextFileA(h, &fd));
 
     FindClose(h);
@@ -446,7 +487,7 @@ static void scan_uninstall(void)
             && (type == REG_SZ || type == REG_EXPAND_SZ) && loc[0]) {
             loc[sizeof(loc) - 1] = 0;
             if (dir_exists(loc))
-                match_dir(loc, NULL, "registry");
+                match_dir(loc, NULL, NULL, "registry");
         }
         RegCloseKey(sub);
     }
@@ -464,7 +505,7 @@ static void walk(const char *dir, int depth)
     char             pat[MAX_PATH];
     char             child[MAX_PATH];
 
-    match_dir(dir, NULL, "scan");
+    match_dir(dir, NULL, NULL, "scan");
     if (depth >= GI_MAX_DEPTH || g_ent_count >= GI_MAX_GAMES)
         return;
 

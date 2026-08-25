@@ -102,7 +102,15 @@ static void json_write_escaped(json_t *j, const char *s)
         case '\r': json_append(j, "\\r", 2); break;
         case '\t': json_append(j, "\\t", 2); break;
         default:
-            if ((unsigned char)*s < 0x20) {
+            /* Escape BOTH control bytes and anything >= 0x80. A raw high byte
+             * comes straight from the box's ANSI codepage, so emitting it
+             * verbatim produces a document that is not valid UTF-8 and blows
+             * up json.loads on the host. Real case: a fleet box with a game
+             * directory named "Battlefield.1942.PC.Game(djDEVASTATE\x92)".
+             * \u00XX keeps the exact byte value (a consumer that wants the
+             * original bytes can re-encode latin-1) and keeps the document
+             * pure ASCII, which every existing consumer already handles. */
+            if ((unsigned char)*s < 0x20 || (unsigned char)*s >= 0x80) {
                 char esc[8];
                 _snprintf(esc, sizeof(esc), "\\u%04x", (unsigned char)*s);
                 json_append_str(j, esc);
