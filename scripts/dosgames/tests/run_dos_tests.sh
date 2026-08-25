@@ -77,11 +77,22 @@ run_dos() {   # run_dos <croot> <cmd...>
         printf '[speaker]\npcspeaker=false\ntandy=off\ndisney=false\n'
         printf '[autoexec]\n'
         printf 'MOUNT C "%s"\nC:\n' "$croot"
-        for c in "$@"; do printf '%s\n' "$c"; done
+        # A .BAT must be CALLed. Chaining to one from [autoexec] abandons the
+        # rest of it - the same gotcha the program itself works around - so the
+        # trailing "exit" never ran and every fixture that used a T.BAT sat at
+        # the DOS prompt until the timeout killed it. That is 90 s per test,
+        # and it also meant SIGTERM (which DOSBox ignores here) decided when
+        # the run ended rather than the test doing so.
+        for c in "$@"; do
+            case "$c" in
+                *.BAT|*.bat) printf 'call %s\n' "$c" ;;
+                *)           printf '%s\n' "$c" ;;
+            esac
+        done
         printf 'exit\n'
     } > "$conf"
     SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy HOME="$WORK" \
-        timeout 90 "$DOSBOX" -conf "$conf" -userconf-skip >"$WORK/dosbox.log" 2>&1
+        timeout -s KILL 90 "$DOSBOX" -conf "$conf" -userconf-skip >"$WORK/dosbox.log" 2>&1
     return 0
 }
 
@@ -746,6 +757,201 @@ if grep -qi 'del C:\\DOSGAME\\RUN.BAT' "$SRCDIR/DOSGAME.BAT"; then
 else
     bad "DOSGAME.BAT does not clear a stale RUN.BAT"
 fi
+
+# ======================================================= TEST 12 ===========
+# Commander Keen 1 "would not install" on .243 (2026-08-25).
+#
+# keen1_shareware.zip is the Apogee BBS layout - DEICE.EXE, KEEN.1, KEEN.DAT
+# and INSTALL.BAT - and the scan kept whichever installer-shaped file DOS
+# happened to return FIRST, which was DEICE.EXE. DEICE on its own only rebuilds
+# the packed KEEN.EXE self-extractor; the vendor's INSTALL.BAT is what then
+# RUNS it. Enter therefore produced one file, /postinst called that "too few to
+# be an install", and the game was never playable.
+echo "== a DEICE set is entered through INSTALL.BAT, not DEICE.EXE =="
+CD1="$WORK/deice"
+rm -rf "$CD1"; mkdir -p "$CD1/DOSGAME" "$CD1/GAMES/KEEN1"
+cp "$WORK/DOSGAME.EXE" "$CD1/DOSGAME/DOSGAME.EXE"
+: > "$CD1/DOSGAME/QUIET.FLG"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES\n' > "$CD1/DOSGAME/DOSGAME.CFG"
+printf 'MZ' > "$CD1/GAMES/KEEN1/DEICE.EXE"
+printf '@echo off\r\nDEICE\r\n' > "$CD1/GAMES/KEEN1/INSTALL.BAT"
+# a COMPLETE set: the parts add up to the SIZE the .DAT declares
+head -c 4096 /dev/zero > "$CD1/GAMES/KEEN1/KEEN.1"
+printf 'PATH=\\KEEN\r\nSIZE=4096\r\nEXPSIZE=350000\r\n' > "$CD1/GAMES/KEEN1/KEEN.DAT"
+run_dos "$CD1" 'C:\DOSGAME\DOSGAME.EXE /selftest' 'C:\DOSGAME\DOSGAME.EXE /play:KEEN1'
+if grep -qi '^1|I|KEEN1|INSTALL.BAT|' "$CD1/DOSGAME/DGSELF.TXT" 2>/dev/null; then
+    ok "INSTALL.BAT is chosen over DEICE.EXE as the entry point"
+else
+    bad "the DEICE set still enters through: $(cat "$CD1/DOSGAME/DGSELF.TXT" 2>/dev/null)"
+fi
+if grep -qi '^call INSTALL.BAT' "$CD1/DOSGAME/RUN.BAT" 2>/dev/null; then
+    ok "the generated script CALLs the vendor's INSTALL.BAT"
+else
+    bad "RUN.BAT does not call INSTALL.BAT: $(cat "$CD1/DOSGAME/RUN.BAT" 2>/dev/null)"
+fi
+grep -q 'static int setup_rank' "$SRCDIR/dosgame.c" \
+  && ok "installer candidates are RANKED, not taken in directory order" \
+  || bad "installer candidates are ranked, not taken in directory order"
+
+# ======================================================= TEST 13 ===========
+# "another game asked for disk 2 and would not install" - heretic_shareware1.zip
+# on the share is 1.4 MB against the 2,863,638-byte set its own .DAT declares.
+# It is disk 1 of two and disk 2 is not in the archive at all, so its installer
+# stops at a floppy prompt no answer can satisfy. Refuse before starting it.
+echo "== an incomplete multi-disk download is refused up front =="
+CD2="$WORK/shortset"
+rm -rf "$CD2"; mkdir -p "$CD2/DOSGAME" "$CD2/GAMES/HERETIC"
+cp "$WORK/DOSGAME.EXE" "$CD2/DOSGAME/DOSGAME.EXE"
+: > "$CD2/DOSGAME/QUIET.FLG"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES\n' > "$CD2/DOSGAME/DOSGAME.CFG"
+printf 'MZ' > "$CD2/GAMES/HERETIC/DEICE.EXE"
+printf '@echo off\r\nDEICE.EXE\r\n' > "$CD2/GAMES/HERETIC/INSTALL.BAT"
+head -c 8192 /dev/zero > "$CD2/GAMES/HERETIC/HTIC_V10.1"
+printf 'PATH=\\HERETIC\r\nSIZE=2863638\r\nEXPSIZE=6090000\r\n' \
+    > "$CD2/GAMES/HERETIC/HTIC_V10.DAT"
+# The branch must be a GOTO, not "if errorlevel 42 echo x > file": the shell
+# sets up the redirection BEFORE evaluating the IF, so the file is created
+# (0 bytes) even when the condition is false - the same parse-order trap that
+# scattered stray "43" files over the box from a rem comment.
+cat > "$CD2/T.BAT" <<'EOF'
+@echo off
+C:\DOSGAME\DOSGAME.EXE /play:HERETIC
+if errorlevel 42 goto launched
+goto done
+:launched
+echo LAUNCHED > C:\LAUNCH.TXT
+:done
+EOF
+run_dos "$CD2" 'C:\T.BAT'
+if [ -s "$CD2/LAUNCH.TXT" ]; then
+    bad "an installer that can never finish was started anyway"
+else
+    ok "an installer whose disks are not all there is not started"
+fi
+if grep -qi 'launch: REFUSED' "$CD2/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    ok "the log says it refused, and why"
+else
+    bad "the refusal is not in the log: $(cat "$CD2/DOSGAME/DOSGAME.LOG" 2>/dev/null | tail -3)"
+fi
+# and a COMPLETE set must still be launchable - the check must not fire on
+# every DEICE game, only on a genuinely short one.
+if grep -qi 'launch: REFUSED' "$CD1/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    bad "a complete disk set was refused too"
+else
+    ok "a complete disk set is still launched"
+fi
+
+# ======================================================= TEST 14 ===========
+# The disk-set counter only recognised "._<digit>". Every id/Apogee set on the
+# share numbers its parts as the bare extension - KEEN.1, HTIC_V10.1 - so it
+# counted ZERO disks and reported a stalled install as "the installer wrote
+# nothing at all (cancelled, or the download is bad)".
+echo "== NAME.1 is a disk-set part, not just NAME._1 =="
+CD3="$WORK/dotone"
+rm -rf "$CD3"; mkdir -p "$CD3/DOSGAME" "$CD3/GAMES/KEEN1"
+cp "$WORK/DOSGAME.EXE" "$CD3/DOSGAME/DOSGAME.EXE"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES;C:\\\n' > "$CD3/DOSGAME/DOSGAME.CFG"
+printf 'MZ' > "$CD3/GAMES/KEEN1/DEICE.EXE"
+head -c 4096 /dev/zero > "$CD3/GAMES/KEEN1/KEEN.1"
+printf 'KEEN1\r\nC:\\GAMES\\KEEN1\r\n\r\n\r\n' > "$CD3/DOSGAME/PENDING.TXT"
+run_dos "$CD3" 'C:\DOSGAME\DOSGAME.EXE /snapdirs' 'C:\DOSGAME\DOSGAME.EXE /postinst'
+if grep -qi 'disk-set file(s) still present' "$CD3/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    ok "a KEEN.1 style part counts as a disk-set file"
+else
+    bad "KEEN.1 was not recognised as a disk-set part"
+fi
+if grep -qi 'the download is bad' "$CD3/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    bad "a stalled multi-disk install is still blamed on a bad download"
+else
+    ok "a stalled multi-disk install is no longer blamed on a bad download"
+fi
+
+# ======================================================= TEST 15 ===========
+# The network install "did not work correctly": on .243 a LAN install that
+# succeeded end to end still logged "HTGET failed - is ... serving?" and
+# "UNZIP failed - corrupt zip, disk full, or no DPMI" immediately above
+# "install finished OK". ERRORLEVEL is not reliable in a COMMAND.COM chain
+# (DOSGAME itself exits 42 to hand over to RUN.BAT); test the artifact.
+echo "== install script judges the artifact, not ERRORLEVEL =="
+RB="$C5/DOSGAME/RUN.BAT"
+if grep -qiE '^if not exist .*\.ZIP echo run: +HTGET failed' "$RB" 2>/dev/null; then
+    ok "the HTGET verdict is 'is the zip there?'"
+else
+    bad "the HTGET verdict is not an artifact test: $(grep -i htget "$RB" 2>/dev/null | tr -d '\r')"
+fi
+if grep -qiE '^if errorlevel 1 echo run:' "$RB" 2>/dev/null; then
+    bad "a tool verdict is still taken from ERRORLEVEL"
+else
+    ok "no tool verdict is taken from ERRORLEVEL"
+fi
+# /postinst's exit code IS a real errorlevel and must still be branched on.
+if grep -qi 'if errorlevel 1 goto nogame' "$RB" 2>/dev/null; then
+    ok "/postinst's own exit code is still the install's verdict"
+else
+    bad "/postinst's verdict branch was lost"
+fi
+
+# ======================================================= TEST 16 ===========
+# "game names should be the full name of the game in the list": a game found by
+# the disk scan was listed by its DIRECTORY (KEEN1, STARCR~1, JAGGED~1) while
+# the Available tab beside it listed the same game as "keen1 shareware".
+echo "== an installed game is named after the catalogue =="
+CD4="$WORK/titles"
+rm -rf "$CD4"; mkdir -p "$CD4/DOSGAME" "$CD4/GAMES/KEEN1" "$CD4/GAMES/HEXEN"
+cp "$WORK/DOSGAME.EXE" "$CD4/DOSGAME/DOSGAME.EXE"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES\n' > "$CD4/DOSGAME/DOSGAME.CFG"
+printf 'MZ' > "$CD4/GAMES/KEEN1/DEICE.EXE"
+printf '@echo off\r\n' > "$CD4/GAMES/KEEN1/INSTALL.BAT"
+printf 'x' > "$CD4/GAMES/KEEN1/KEEN.1"
+printf 'MZ' > "$CD4/GAMES/HEXEN/HEXEN.EXE"
+printf 'x'  > "$CD4/GAMES/HEXEN/HEXEN.WAD"
+{ printf 'keen1 shareware|keen1_shareware.zip|I|DEICE.EXE|209754|KEEN1_SH.PRV\n'
+  printf 'Hexen Beyond Heretic|Hexen Beyond Heretic (1995).zip|I|D202.EXE|997769|HEXEN_BE.PRV\n'
+  printf 'Hexen Deathkings Of The Dark Citadel|Hexen DK (1996).zip|I|D202.EXE|997769|HEXEN_DK.PRV\n'
+} > "$CD4/DOSGAME/GAMES.CAT"
+run_dos "$CD4" 'C:\DOSGAME\DOSGAME.EXE /selftest'
+if grep -qi '^1|I|keen1 shareware|' "$CD4/DOSGAME/DGSELF.TXT" 2>/dev/null; then
+    ok "the folder KEEN1 is listed under the catalogue's full title"
+else
+    bad "KEEN1 kept its folder name: $(cat "$CD4/DOSGAME/DGSELF.TXT" 2>/dev/null)"
+fi
+# Two Hexen rows could both be C:\HEXEN. A confidently wrong name is worse than
+# a dull correct one, so a tie must keep the folder name.
+if grep -qi '^1|R|HEXEN|' "$CD4/DOSGAME/DGSELF.TXT" 2>/dev/null; then
+    ok "an ambiguous match keeps the folder name instead of guessing"
+else
+    bad "an ambiguous match was resolved anyway: $(grep -i hexen "$CD4/DOSGAME/DGSELF.TXT" 2>/dev/null)"
+fi
+if grep -qi 'title:  KEEN1 ->' "$CD4/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    ok "the log records what each folder was renamed to"
+else
+    bad "renames are not in the log"
+fi
+
+# ======================================================= TEST 17 ===========
+# Both tabs must draw the same grid and the same green. They used to disagree:
+# 40-column title with no marker and no colour on one, 36-column title with a
+# marker and green on the other, so tabbing shifted and recoloured everything.
+echo "== both tabs share one column grid and one colour rule =="
+grep -q '#define TITLE_W' "$SRCDIR/dosgame.c" \
+  && ok "the title column width is one named constant" \
+  || bad "the title column width is one named constant"
+grep -q '#define ATTR_INSTALLED' "$SRCDIR/dosgame.c" \
+  && ok "the installed-game colour is one named constant" \
+  || bad "the installed-game colour is one named constant"
+if grep -qE 'sprintf\(line, "  %-40\.40s' "$SRCDIR/dosgame.c"; then
+    bad "the Installed tab still hardcodes its own column layout"
+else
+    ok "neither tab hardcodes its own column layout"
+fi
+if [ "$(grep -c 'TITLE_W, TITLE_W, g->title' "$SRCDIR/dosgame.c")" = "2" ]; then
+    ok "both tabs format the title through the same grid"
+else
+    bad "the two tabs do not format the title the same way"
+fi
+grep -q 'here ? ATTR_INSTALLED : ATTR_AVAILABLE' "$SRCDIR/dosgame.c" \
+  && ok "one colour rule decides both tabs" \
+  || bad "one colour rule decides both tabs"
 
 # Launcher OUTCOMES - which exe each directory actually resolves to - live in
 # their own file. Everything above is a source grep, which cannot notice the

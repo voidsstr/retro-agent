@@ -410,6 +410,92 @@ static const char *stristr(const char *h, const char *n)
     return NULL;
 }
 
+/* ---- folder name -> the game's real name ----
+ *
+ * A game the disk scan finds is only known by its DIRECTORY, so the Installed
+ * tab listed "KEEN1", "STARCR~1", "JAGGED~1" while the Available tab beside
+ * it listed "keen1 shareware" and "StarCraft" - two tabs naming the same
+ * games two different ways, and the 8.3-mangled ones naming nothing at all.
+ * Games installed THROUGH this program already carry their catalogue title in
+ * the registry; this gives the pre-existing ones the same treatment.
+ *
+ * Matched against the catalogue on name shape plus the launcher, and only an
+ * UNAMBIGUOUS best match is taken - a tie leaves the folder name alone. That
+ * matters: C:\HEXEN could be any of half a dozen Hexen rows, and a confidently
+ * wrong name is worse than a dull correct one.
+ */
+static char dir_orig[MAX_LOCAL][13];    /* the directory name as found */
+static char dir_key[MAX_LOCAL][13];     /* squashed, for comparing */
+static unsigned char t_best[MAX_LOCAL]; /* best score so far */
+static unsigned char t_tie[MAX_LOCAL];  /* something else scored the same */
+static int need_titles = 0;             /* one resolving pass is pending */
+
+/* Uppercase alphanumerics only, stopping at the '~' of an 8.3 mangled name
+ * ("STARCR~1" -> "STARCR"), so a directory can be compared with a title that
+ * has spaces and punctuation in it. */
+static void squash(const char *in, char *out, size_t cap)
+{
+    size_t n = 0;
+    for (; *in && n + 1 < cap; in++) {
+        if (*in == '~') break;
+        if (isalnum((unsigned char)*in)) out[n++] = (char)toupper(*in);
+    }
+    out[n] = '\0';
+}
+
+/* Score one catalogue row against every unresolved local game. Called from
+ * inside load_catalog's existing pass, so it costs no extra file I/O. */
+static void title_try(const char *title, const char *exe)
+{
+    char T[MAX_TITLE * 2 + 1];
+    int i;
+
+    squash(title, T, sizeof(T));
+    if (!T[0]) return;
+    for (i = 0; i < n_local && i < MAX_LOCAL; i++) {
+        size_t dl;
+        int sc;
+        if (!dir_key[i][0]) continue;
+        dl = strlen(dir_key[i]);
+        if (dl < 3) continue;
+        /* The name must relate, or this is not our game: an exe match on its
+         * own would hand C:\DOOM to whichever row happens to name DOOM.EXE. */
+        if (!strcmp(T, dir_key[i]))            sc = 8;
+        else if (!strncmp(T, dir_key[i], dl))  sc = 4;
+        else                                   continue;
+        if (exe && exe[0] && !stricmp(exe, games[i].exe)) sc += 2;
+
+        if (sc > (int)t_best[i]) {
+            t_best[i] = (unsigned char)sc;
+            t_tie[i] = 0;
+            copy_str(games[i].title, title, sizeof(games[i].title));
+        } else if (sc == (int)t_best[i]) {
+            t_tie[i] = 1;
+        }
+    }
+}
+
+/* End of the pass: put back the folder name wherever the catalogue could not
+ * make up its mind, and say in the log what was renamed and what was not. */
+static void title_finish(void)
+{
+    int i, named = 0;
+    for (i = 0; i < n_local && i < MAX_LOCAL; i++) {
+        if (!dir_key[i][0]) continue;
+        if (t_tie[i] || !t_best[i]) {
+            if (t_tie[i])
+                logf("title:  %s - the catalogue names more than one game "
+                     "that could be it; keeping the folder name", dir_orig[i]);
+            copy_str(games[i].title, dir_orig[i], sizeof(games[i].title));
+        } else {
+            logf("title:  %s -> \"%s\"", dir_orig[i], games[i].title);
+            named++;
+        }
+    }
+    if (named) logf("title:  named %d game(s) from the catalogue", named);
+    need_titles = 0;
+}
+
 static void load_catalog(void)
 {
     char path[MAX_PATH_L + 16], line[320];
@@ -425,6 +511,9 @@ static void load_catalog(void)
         if (line[0] == '#' || !line[0]) continue;
         if (split(line, fld, 6) < 4) continue;
         cat_total++;
+        /* Before the tab filter: a game is named after the catalogue whether
+         * or not the operator happens to be typing a search right now. */
+        if (need_titles) title_try(fld[0], fld[3]);
         if (n_games >= MAX_GAMES) continue;   /* keep counting for header */
         if (cat_filter[0] && !stristr(fld[0], cat_filter)) continue;
         g = &games[n_games];
@@ -440,6 +529,7 @@ static void load_catalog(void)
         n_games++;
     }
     fclose(f);
+    if (need_titles) title_finish();
     logf("catalog: %ld lines in GAMES.CAT, %d loaded into memory, filter=\"%s\"",
          cat_total, n_games - n_local, cat_filter);
 }
@@ -596,17 +686,46 @@ static const char *skip_exes[] = {
 
 /* Self-extractors / installers: not the game, but running one is exactly
  * what an un-unpacked game directory needs. Used as a last resort, and the
- * entry is then flagged as needing setup. */
+ * entry is then flagged as needing setup.
+ *
+ * ORDER IS THE PREFERENCE ORDER, lowest index wins, and it is load-bearing.
+ * The scan used to keep whichever of these DOS happened to return FIRST from
+ * the directory, which is not a decision at all - and it is what stopped
+ * Commander Keen 1 installing on the fleet's Win98 box. keen1_shareware.zip
+ * is the Apogee BBS layout: DEICE.EXE + KEEN.1 + KEEN.DAT + INSTALL.BAT, and
+ * the directory handed back DEICE.EXE first. DEICE on its own only rebuilds
+ * the packed KEEN.EXE self-extractor and stops; the vendor's own INSTALL.BAT
+ * is the entry point that carries the install to the end:
+ *
+ *     @ECHO OFF
+ *     DEICE                 <- rebuild KEEN.EXE into \KEEN
+ *     IF ERRORLEVEL == 1 GOTO END
+ *     KEEN.EXE              <- self-extract the actual game   <-- never ran
+ *     DEL KEEN.EXE
+ *
+ * So the install produced one file, /postinst called that "too few to be an
+ * install", and the game was never playable no matter how often it was run.
+ *
+ * INSTALL.EXE still outranks INSTALL.BAT (the .BAT is usually just a wrapper
+ * around it, and that is the order the generated RUN.BAT has always used);
+ * DEICE.EXE goes LAST, because whenever it is present something else in the
+ * directory knows how to drive it. */
 static const char *setup_exes[] = {
-    "install.bat","install.exe","deice.exe","setup.exe","setup.bat", NULL
+    "install.exe","setup.exe","install.bat","setup.bat","deice.exe", NULL
 };
 
-static int is_setup_exe(const char *n)
+/* 0 = not an installer, else its 1-based rank (lower is a better entry point). */
+static int setup_rank(const char *n)
 {
     int i;
     for (i = 0; setup_exes[i]; i++)
-        if (!stricmp(n, setup_exes[i])) return 1;
+        if (!stricmp(n, setup_exes[i])) return i + 1;
     return 0;
+}
+
+static int is_setup_exe(const char *n)
+{
+    return setup_rank(n) != 0;
 }
 
 /* Does the part of a filename AFTER the directory name look like a support
@@ -675,6 +794,7 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
     char pat[MAX_PATH_L * 2];
     struct find_t ft;
     char firstexe[13] = "", firstbat[13] = "", setup[13] = "", archive[13] = "";
+    int setup_best = 99;                 /* rank of what `setup` holds */
     char want_exe[13], want_com[13], want_bat[13];
     char runlist[80] = "";
     char sibling[13] = "";
@@ -703,7 +823,13 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
             || !stricmp(ft.name, want_bat))
             strcpy(best, ft.name);
 
-        if (is_setup_exe(ft.name) && !setup[0]) strcpy(setup, ft.name);
+        {   /* Best-ranked installer, not first-found - see setup_exes[]. */
+            int rank = setup_rank(ft.name);
+            if (rank && (!setup[0] || rank < setup_best)) {
+                strcpy(setup, ft.name);
+                setup_best = rank;
+            }
+        }
         if (!archive[0] && !stricmp(dot, ".ZIP")) strcpy(archive, ft.name);
 
         if (!stricmp(dot, ".EXE") || !stricmp(dot, ".COM")) {
@@ -939,6 +1065,14 @@ static void scan_game_dir(const char *root, const char *dir)
     copy_str(g->exe, best, sizeof(g->exe));
     g->kind = (needs_setup == 2) ? 'Z' : (needs_setup == 1 ? 'I' : 'R');
     g->installed = 1;
+    /* Remember what this row is called on disk. The catalogue pass may
+     * replace the title with the game's real name, and a tie has to be able
+     * to put the folder name back. Registry rows are deliberately left out -
+     * they already carry the title the install recorded. */
+    if (n_games - 1 < MAX_LOCAL) {
+        copy_str(dir_orig[n_games - 1], dir, sizeof(dir_orig[0]));
+        squash(dir, dir_key[n_games - 1], sizeof(dir_key[0]));
+    }
     /* tile name = dir name + .PRV */
     sprintf(g->tile, "%.8s.PRV", dir);
     logf("scan:   FOUND \"%s\" kind=%c exe=%s dir=%s", g->title, g->kind,
@@ -1294,7 +1428,14 @@ static void mark_installed(void)
 
         for (j = 0; j < n_games; j++) {
             if (!games[j].installed) continue;
+            /* Match on the DIRECTORY name as well as the title: a scan row's
+             * title is now the catalogue's, so the stem-vs-folder test that
+             * used to work by accident needs the folder name kept explicitly.
+             * (dir_orig is empty for registry rows, which carry a real
+             * title and match on it.) */
             if (!strnicmp(stem, games[j].title, 8)
+                || (j < MAX_LOCAL && dir_orig[j][0]
+                    && !strnicmp(stem, dir_orig[j], 8))
                 || !stricmp(games[i].title, games[j].title)) {
                 games[i].installed = 2;   /* in catalog AND installed */
                 break;
@@ -1547,6 +1688,84 @@ static int find_deep_launcher(const char *parent, const char *want,
     return 0;
 }
 
+/* ---- Apogee/id DEICE disk sets ----
+ *
+ * The BBS shareware sets are DEICE.EXE + <NAME>.DAT + the packed data split
+ * across floppy-sized parts numbered IN THE EXTENSION: KEEN.1, HTIC_V10.1,
+ * HTIC_V10.2 ... (a few sets use NAME._1 instead).
+ */
+
+/* Is this extension a disk-set part? Only "._<digit>" was recognised, so
+ * KEEN.1 - by far the commoner shape - counted as ZERO disks. That is why a
+ * stalled Commander Keen install was reported to the operator as "the
+ * installer wrote nothing at all (cancelled, or the download is bad)" when
+ * every byte of the game was sitting right there in the directory. */
+static int is_disk_ext(const char *dot)
+{
+    if (!dot || dot[0] != '.') return 0;
+    if (dot[1] == '_') return dot[2] >= '0' && dot[2] <= '9' && dot[3] == '\0';
+    if (dot[1] < '0' || dot[1] > '9') return 0;
+    if (dot[2] == '\0') return 1;
+    return dot[2] >= '0' && dot[2] <= '9' && dot[3] == '\0';
+}
+
+/*
+ * Is a DEICE set COMPLETE, or is only some of it on the share?
+ *
+ * The .DAT that ships beside DEICE.EXE declares the total packed size of the
+ * set:
+ *     PATH=\HERETIC
+ *     SIZE=2863638
+ *     EXPSIZE=6090000
+ * heretic_shareware1.zip on the share carries a single 1,439,232-byte
+ * HTIC_V10.1 against that SIZE - it is disk 1 of a two-disk set and disk 2 is
+ * not in the archive at all. Run its installer and DEICE stops and asks for
+ * the next floppy, which is exactly what was reported from the box, and no
+ * answer at that prompt can rescue it. (The complete set is on the share
+ * under a different title - "Heretic Shadow Of The Serpent Riders", 2.88 MB.)
+ *
+ * Returns 1 when the set is short, filling *have and *need. 0 means complete,
+ * or not a DEICE set at all - never guess a failure from a missing .DAT.
+ */
+static int deice_short(const char *dir, unsigned long *have,
+                       unsigned long *need)
+{
+    char pat[MAX_PATH_L * 2], datpath[MAX_PATH_L * 2], line[80];
+    struct find_t ft;
+    FILE *f;
+    unsigned long total = 0, want = 0;
+    int parts = 0;
+
+    *have = *need = 0;
+
+    path_join(pat, dir, "*.DAT");
+    if (!pat[0] || _dos_findfirst(pat, _A_NORMAL, &ft) != 0) return 0;
+    path_join(datpath, dir, ft.name);
+    if (!datpath[0]) return 0;
+    f = fopen(datpath, "r");
+    if (!f) return 0;
+    while (fgets(line, sizeof(line), f)) {
+        /* "SIZE=" at the START of the line only: EXPSIZE= is the UNPACKED
+         * size and matching it would call every complete set short. */
+        if (!strnicmp(line, "SIZE=", 5)) { want = strtoul(line + 5, NULL, 10); break; }
+    }
+    fclose(f);
+    if (!want) return 0;
+
+    path_join(pat, dir, "*.*");
+    if (!pat[0] || _dos_findfirst(pat, _A_NORMAL, &ft) != 0) return 0;
+    do {
+        if (is_disk_ext(strrchr(ft.name, '.'))) { total += ft.size; parts++; }
+    } while (_dos_findnext(&ft) == 0);
+    if (!parts) return 0;
+
+    *have = total;
+    *need = want;
+    /* Slack: the .DAT figure is the packed payload and the parts carry a
+     * little per-disk header, so only a real shortfall counts. */
+    return total + 4096UL < want;
+}
+
 /*
  * Log a directory's contents (bounded), and report how many Apogee-style
  * disk-set files it holds.
@@ -1572,7 +1791,7 @@ static int log_dir_contents(const char *dir, const char *why)
     logf("post:   %s: contents of %s", why, dir);
     do {
         const char *dot = strrchr(ft.name, '.');
-        if (dot && dot[1] == '_' && dot[2] >= '0' && dot[2] <= '9') disks++;
+        if (is_disk_ext(dot)) disks++;
         if (shown < 20) {
             logf("post:     %-14s %8ld", ft.name, ft.size);
             shown++;
@@ -1811,7 +2030,23 @@ static int post_install(void)
                 p = next;
             }
 
-            if (bestcount && bestcount < INSTALL_MIN_NEW_FILES) {
+            if (bestcount && bestcount < INSTALL_MIN_NEW_FILES
+                && pick_launcher(bestdir, bestleaf, best) == 1) {
+                /* The half-done DEICE case: the installer rebuilt the packed
+                 * self-extractor (C:\GAMES\KEEN\KEEN.EXE) and stopped before
+                 * running it, so the directory holds exactly one file. That is
+                 * a partly-finished install, NOT "the download is bad" - and
+                 * the difference decides what the operator should do next.
+                 * Leave the directory unrecorded so the next scan lists it as
+                 * "run setup" and one more Enter finishes the job. */
+                logf("post:   %s holds only %s - the installer rebuilt the "
+                     "self-extracting archive but never ran it; the game is "
+                     "half installed", bestdir, best);
+                printf("\n  Setup got half way: it rebuilt %s in\n", best);
+                printf("  %s but did not unpack it.\n", bestdir);
+                printf("  That folder is on the menu as \"run setup\" - pick "
+                       "it once more\n  to finish.\n\n");
+            } else if (bestcount && bestcount < INSTALL_MIN_NEW_FILES) {
                 logf("post:   %s gained only %d file(s) - too few to be an "
                      "install, ignoring it", bestdir, bestcount);
             } else if (bestcount) {
@@ -1833,7 +2068,27 @@ static int post_install(void)
     presnap_path(path);
     remove(path);
     if (!gamedir[0]) {
+        unsigned long have = 0, need = 0;
         int disks = log_dir_contents(unpack, "nothing playable was found");
+        if (deice_short(unpack, &have, &need)) {
+            /* Not a failed install: an incomplete DOWNLOAD. The set says how
+             * big it is and only part of it is in the archive on the share,
+             * so the installer asked for the next floppy and stopped. Saying
+             * "run setup again and press ENTER at the disk prompt" here would
+             * send the operator round the same loop for ever. */
+            logf("post:   FAILED - this is disk 1 of a multi-disk set: %s has "
+                 "%luKB of the %luKB the set declares. The rest is NOT in the "
+                 "archive on the share, so its installer can never finish.",
+                 unpack, have / 1024UL, need / 1024UL);
+            printf("\n  This download is INCOMPLETE - it is only part of a "
+                   "multi-disk set.\n");
+            printf("  It has %luKB of the %luKB the set needs, so the "
+                   "installer\n", have / 1024UL, need / 1024UL);
+            printf("  stops and asks for a disk that is not there.\n");
+            printf("  Look for the same game under its full title in the "
+                   "catalog.\n\n");
+            return 1;
+        }
         if (disks) {
             /* This is the multi-floppy shareware layout, not a bad download:
              * the data is right there, the installer just never used it. */
@@ -1980,9 +2235,31 @@ static void emit_pause(FILE *f)
     fprintf(f, "if not exist %s\\QUIET.FLG pause > nul\n", cfg_home);
 }
 
+/* Filled in by write_launch when it refuses; shown by install_error(-4). */
+static char short_set_msg[81] = "";
+
 static int write_launch(const game_t *g)
 {
-    FILE *f = open_runbat();
+    FILE *f;
+    /* An installer that is going to stop and ask for a floppy that does not
+     * exist should never be started. Catch it here, where the answer can be
+     * a sentence on the footer, instead of after a reboot into a disk prompt
+     * with no way out. */
+    if (g->kind == 'I') {
+        unsigned long have = 0, need = 0;
+        if (deice_short(g->path, &have, &need)) {
+            logf("launch: REFUSED \"%s\" - %s holds %luKB of the %luKB its "
+                 "disk set declares; the rest is not in the archive on the "
+                 "share, so its installer would stop at an \"insert disk\" "
+                 "prompt that can never be answered", g->title, g->path,
+                 have / 1024UL, need / 1024UL);
+            sprintf(short_set_msg,
+                    "Incomplete download: %luKB of %luKB. Get the full title "
+                    "from the catalog.", have / 1024UL, need / 1024UL);
+            return -4;
+        }
+    }
+    f = open_runbat();
     if (!f) { logf("launch: CANNOT WRITE RUN.BAT"); return 0; }
     logf("launch: \"%s\" kind=%c exe=%s dir=%s", g->title, g->kind, g->exe,
          g->path);
@@ -2110,12 +2387,32 @@ static int write_install(const game_t *g, int run_installer)
         fprintf(f, "if not exist %s\\NET\\HTGET.EXE goto notool\n", cfg_home);
     fprintf(f, "if not exist %s\\nul mkdir %s\n", cfg_gamedir, cfg_gamedir);
     fprintf(f, "if not exist %s\\nul mkdir %s\n", dir, dir);
+    /* Judge every step by the ARTIFACT it was supposed to produce, never by
+     * ERRORLEVEL.
+     *
+     * These lines used to read "if errorlevel 1 echo ... failed", and on the
+     * fleet's Win98 box a network install that WORKED - the zip arrived, the
+     * unpack produced C:\GAMES\100002IY\BO_TITLE.EXE and /postinst recorded
+     * the game - still logged both "HTGET failed - is ... serving?" and
+     * "UNZIP failed - corrupt zip, disk full, or no DPMI", one after the
+     * other, immediately above "install finished OK". Anyone reading that log
+     * concludes the network install is broken when it is not, and goes
+     * hunting a fault in the LAN.
+     *
+     * ERRORLEVEL is simply not reliable here: COMMAND.COM keeps the last
+     * value set by anything that exited with one, and DOSGAME.EXE itself
+     * exits 42 to hand control to RUN.BAT, so any tool in the chain that
+     * terminates without setting a return code leaves 42 standing and every
+     * "if errorlevel 1" downstream of it fires. "Is the file I asked for
+     * there?" has no such failure mode. */
     if (cfg_url[0]) {
+        char guard[MAX_PATH_L + 24];
+        sprintf(guard, "if not exist %s\\%s.ZIP ", cfg_home, stem);
         emit_log(f, "fetching the archive with HTGET");
         fprintf(f, "%s\\NET\\HTGET -o %s\\%s.ZIP %s/z/%s",
                 cfg_home, cfg_home, stem, cfg_url, stem);
         emit_redirect(f);
-        fprintf(f, "if errorlevel 1 ");
+        fprintf(f, "%s", guard);
         {
             /* Name the server. "no lease, server down, or bad stem" sent the
              * operator looking at the DOS box's networking when the box had a
@@ -2125,15 +2422,17 @@ static int write_install(const game_t *g, int run_installer)
              * reach. Budgeted by emit_log_p against the 126-byte line limit. */
             char msg[80];
             sprintf(msg, "HTGET failed - is %.40s serving?", cfg_url);
-            emit_log_p(f, "if errorlevel 1 ", msg);
+            emit_log_p(f, guard, msg);
         }
     } else {
+        char guard[MAX_PATH_L + 24];
+        sprintf(guard, "if not exist %s\\%s.ZIP ", cfg_home, stem);
         emit_log(f, "copying the archive from the mapped drive");
         fprintf(f, "copy \"%s\\%s\" %s\\%s.ZIP",
                 cfg_drive, g->path, cfg_home, stem);
         emit_redirect(f);
-        fprintf(f, "if errorlevel 1 ");
-        emit_log_p(f, "if errorlevel 1 ",
+        fprintf(f, "%s", guard);
+        emit_log_p(f, guard,
                    "copy failed - drive not mapped, or long filename");
     }
     /* No zip -> the fetch failed; bail with a real message instead of
@@ -2143,9 +2442,12 @@ static int write_install(const game_t *g, int run_installer)
     fprintf(f, "%s\\UNZIP -qq -o %s\\%s.ZIP -d %s",
             cfg_home, cfg_home, stem, dir);
     emit_redirect(f);
-    fprintf(f, "if errorlevel 1 ");
-    emit_log_p(f, "if errorlevel 1 ",
-               "UNZIP failed - corrupt zip, disk full, or no DPMI");
+    /* No verdict on the unpack here. Batch cannot tell an empty directory
+     * from a full one ("if exist DIR\\*.*" matches "." and ".."), and the
+     * errorlevel test that used to sit here cried wolf on every successful
+     * install - see the artifact-not-errorlevel note above. UNZIP's own
+     * output is already redirected into the log, and /postinst below makes
+     * the real judgement and lists the directory when it comes up empty. */
 
     /* Hand the reconciliation pass the facts it needs (title, where we
      * unpacked, and the launcher the catalogue named for this game). */
@@ -2211,11 +2513,28 @@ static const char *install_error(int rc)
     case -1: return "Cannot install: the url= in DOSGAME.CFG is too long for DOS.";
     case -2: return "This is a CD image - too big to install over the network.";
     case -3: return "No game server configured: set url= in DOSGAME.CFG.";
+    case -4: return short_set_msg;
     default: return "Could not write RUN.BAT!";
     }
 }
 
-/* ---- UI drawing ---- */
+/* ---- UI drawing ----
+ *
+ * ONE column grid and ONE colour rule for both tabs. They used to disagree:
+ * the Installed tab put a 40-column title at x=2 with no marker and drew
+ * every row in plain grey, while the Available tab put a 36-column title at
+ * x=2 WITH a marker in front of it and drew installed games green. Tabbing
+ * between them therefore shifted every title sideways, truncated four more
+ * characters off it, and changed the colour of games that had not changed at
+ * all. Same grid, same marker, same green, both tabs.
+ */
+#define COL_MARK     0
+#define COL_TITLE    2
+#define TITLE_W      40          /* gen_catalog.py truncates titles to 40, so
+                                  * this shows the full name, never an ellipsis */
+#define ATTR_INSTALLED 0x02      /* green: this game is on this machine */
+#define ATTR_AVAILABLE 0x07
+#define ATTR_SELECTED  0x70
 
 static void rebuild_view(void)
 {
@@ -2251,8 +2570,12 @@ static void draw_header(void)
     vfill(0, 2, SCREEN_W, '-');
     cur_attr = 0x07;
     vfill(0, 3, SCREEN_W, ' ');
-    vputs(0, 3, tab == 0 ? "  Title                                    Action"
-                         : "  Title                                Size  Type");
+    if (tab == 0)
+        sprintf(buf, "  %-*.*s %s", TITLE_W, TITLE_W, "Title", "Action");
+    else
+        sprintf(buf, "  %-*.*s %6s  %-9s", TITLE_W, TITLE_W, "Title",
+                "Size", "Type");
+    vputs(0, 3, buf);
 }
 
 static void draw_list(void)
@@ -2266,11 +2589,16 @@ static void draw_list(void)
         if (idx >= n_view) continue;
         {
             game_t *g = &games[view[idx]];
+            /* Installed is installed, on whichever tab you are looking at:
+             * same '*' and the same green. On the Installed tab that is every
+             * row; on the Available tab it is the ones already on the disk. */
+            int here = (tab == 0) || (g->installed == 2);
             if (tab == 0) {
                 const char *what = g->kind == 'Z' ? "unpack + setup"
                                  : g->kind == 'I' ? "run setup"
                                  : g->exe;
-                sprintf(line, "  %-40.40s %-14.14s", g->title, what);
+                sprintf(line, "%c %-*.*s %-14.14s", '*',
+                        TITLE_W, TITLE_W, g->title, what);
             }
             else {
                 const char *k = g->kind == 'R' ? "ready" :
@@ -2280,10 +2608,11 @@ static void draw_list(void)
                     sprintf(sz, "%ldM", g->size / 1048576L);
                 else
                     sprintf(sz, "%ldK", g->size / 1024L);
-                sprintf(line, "%c %-36.36s %6s  %-9s",
-                        g->installed == 2 ? '*' : ' ', g->title, sz, k);
+                sprintf(line, "%c %-*.*s %6s  %-9s", here ? '*' : ' ',
+                        TITLE_W, TITLE_W, g->title, sz, k);
             }
-            cur_attr = (idx == sel) ? 0x70 : (g->installed == 2 ? 0x02 : 0x07);
+            cur_attr = (idx == sel) ? ATTR_SELECTED
+                     : here ? ATTR_INSTALLED : ATTR_AVAILABLE;
             vputs(0, LIST_TOP + r, line);
         }
     }
@@ -2340,10 +2669,15 @@ static void leave_ui(void)
 static void load_everything(void)
 {
     n_games = 0;
+    memset(dir_orig, 0, sizeof(dir_orig));
+    memset(dir_key, 0, sizeof(dir_key));
+    memset(t_best, 0, sizeof(t_best));
+    memset(t_tie, 0, sizeof(t_tie));
     load_registry();
     add_registry_games();
     scan_local();
     n_local = n_games;
+    need_titles = 1;
     load_catalog();
     mark_installed();
 }

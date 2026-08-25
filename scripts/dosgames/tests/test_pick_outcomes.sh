@@ -78,7 +78,7 @@ conf="$WORK/dosbox.conf"
     printf 'DOSGAME.EXE /selftest\nexit\n'
 } > "$conf"
 SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy HOME="$WORK" \
-    timeout 180 "$DOSBOX" -conf "$conf" -userconf-skip >"$WORK/dosbox.log" 2>&1
+    timeout -s KILL 180 "$DOSBOX" -conf "$conf" -userconf-skip >"$WORK/dosbox.log" 2>&1
 
 SELF="$C/DOSGAME/DGSELF.TXT"
 [ -f "$SELF" ] || { echo "  FAIL  no /selftest output"; exit 1; }

@@ -174,6 +174,60 @@ unattended in `tests/run_dos_tests.sh`.
 
 ## Hard-won gotchas
 
+- **An Apogee/id DEICE set must be entered through its own `INSTALL.BAT`.**
+  `keen1_shareware.zip` is `DEICE.EXE` + `KEEN.1` + `KEEN.DAT` + `INSTALL.BAT`,
+  and the scan kept whichever installer-shaped file DOS returned *first* -
+  `DEICE.EXE`. DEICE on its own only rebuilds the packed self-extractor and
+  stops; the vendor's batch is what carries the install to the end:
+
+  ```
+  @ECHO OFF
+  DEICE                      <- rebuilds KEEN.EXE into \KEEN
+  IF ERRORLEVEL == 1 GOTO END
+  KEEN.EXE                   <- self-extracts the actual game  <-- never ran
+  DEL KEEN.EXE
+  ```
+
+  So the install produced exactly one file, `/postinst` called that "too few to
+  be an install", and Commander Keen 1 could never be played. `setup_exes[]` is
+  now a **preference order** (`INSTALL.EXE` > `SETUP.EXE` > `INSTALL.BAT` >
+  `SETUP.BAT` > `DEICE.EXE`), not a membership test - whenever `DEICE.EXE` is
+  present, something else in the directory knows how to drive it.
+- **Some sets on the share are only disk 1.** `heretic_shareware1.zip` is
+  1,439,232 bytes against the `SIZE=2863638` its own `HTIC_V10.DAT` declares -
+  disk 2 is not in the archive at all, so the installer stops at an "insert
+  disk 2" prompt that no answer can satisfy. `deice_short()` compares the
+  `.DAT`'s `SIZE=` with the `NAME.<n>` parts actually present and refuses the
+  launch up front, naming the shortfall. (The complete set is on the share as
+  *Heretic Shadow Of The Serpent Riders*, 2.88 MB.) Match `SIZE=` at the START
+  of the line - `EXPSIZE=` is the *unpacked* size and would call every complete
+  set short.
+- **Disk-set parts are numbered in the EXTENSION**: `KEEN.1`, `HTIC_V10.1`,
+  `HTIC_V10.2`. Only `NAME._1` was recognised, so the commoner shape counted as
+  zero disks and a stalled multi-disk install was reported to the operator as
+  *"the installer wrote nothing at all (cancelled, or the download is bad)"* -
+  with every byte of the game sitting in the directory.
+- **Never take a step's verdict from `ERRORLEVEL` in a generated script.** A
+  LAN install on .243 that succeeded end to end - zip fetched, unpacked,
+  `/postinst` recorded the game - still logged `HTGET failed - is ... serving?`
+  and `UNZIP failed - corrupt zip, disk full, or no DPMI` immediately above
+  `install finished OK`, which reads as a broken network install and sends
+  anyone reading the log after the LAN. COMMAND.COM keeps the last value
+  anything set, and `DOSGAME.EXE` itself exits **42** to hand control to
+  `RUN.BAT`, so a tool that terminates without setting a return code leaves 42
+  standing and every `if errorlevel 1` below it fires. Test the artifact
+  (`if not exist <zip> ...`) instead. `/postinst`'s exit code is a real
+  verdict the exe sets deliberately, and is still branched on.
+- **A game found by the disk scan is only known by its DIRECTORY.** That put
+  `KEEN1`, `STARCR~1` and `JAGGED~1` on the Installed tab while the Available
+  tab beside it listed the same games as *keen1 shareware* and *StarCraft*.
+  `title_try()` now scores every catalogue row against the unresolved folders
+  during `load_catalog`'s existing pass (so it costs no extra file I/O), on
+  squashed-name shape plus the launcher, and takes only an **unambiguous** best
+  match - a tie keeps the folder name, because `C:\HEXEN` could be any of half
+  a dozen Hexen rows and a confidently wrong name is worse than a dull correct
+  one.
+
 - **Games are rarely all in one folder.** `scan=` takes a semicolon-separated
   list and defaults to `C:\GAMES;C:\`, because a real box keeps games at the
   drive root (`C:\DOOM`, `C:\ROTT`, …). Scanning the root means excluding the
