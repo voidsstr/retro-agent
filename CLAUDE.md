@@ -171,7 +171,7 @@ fixes, files, build tools, versions, and even the OpenGL renderer string differ.
 
 ### NEVER EDIT THE `retro-3dfx/` DRIVER CODE (REQUIRED, user directive 2026-08-04)
 
-**`retro-3dfx/` is the Voodoo 5 / `.143` lane and is NOT ours to modify.** In
+**`retro-3dfx/` is the Voodoo 5 lane (`.143` V5 5500 and `.133` V5 6000) and is NOT ours to modify.** In
 this repo's work — and on **.124 (Voodoo 3)** specifically — write and ship
 **only our own drivers in `retro-agent/voodoo-cleanroom/`** (MesaFX ICD, our
 Glide, `vcr-disp`).
@@ -221,7 +221,7 @@ GPL release + MIT Mesa). Three components, all our forks/code — provenance in
   (0.1.2), vertex cache (0.1.3), swap-interval (0.1.6), LOD-bias (0.1.11), Q2
   glide3x (0.1.19), gamma/dither/alpha-PFD (0.1.30), etc.
 
-### 2. Vintage 3dfx source = the `retro-3dfx/` repo — VOODOO 5 / `.143` ONLY, READ-ONLY HERE
+### 2. Vintage 3dfx source = the `retro-3dfx/` repo — VOODOO 5 (`.143` 5500 / `.133` 6000) ONLY, READ-ONLY HERE
 
 3dfx's own leaked/released **H5/Napalm** driver source. It is a *different*
 codebase from our open stack and, per the directive above, **off-limits for
@@ -229,13 +229,15 @@ editing/building/deploying from this repo** — listed here so you can recognise
 its files and stay out of them:
 
 - **Display driver + full D3D/DDraw HAL:** `retro-3dfx/3dfx Driver Code/H5/W2K/Src/Video/Displays/H5/`
-  → `3dfxvs.dll` (Wine/**MSVC DDK**), WFP-renamed `3dfxv3d.dll` (.124) / `3dfxv5d.dll` (.143).
+  → `3dfxvs.dll` (Wine/**MSVC DDK**), WFP-renamed `3dfxv3d.dll` (.124) / `3dfxv5d.dll` (.143 and .133).
   **This is what currently provides the D3D HAL + 2D on .124** (our `vcr-disp`
   is the minimal cooperative driver, no full D3D HAL yet).
 - **Vintage SGI/3dfx SGL OpenGL ICD:** `retro-3dfx/3dfx Driver Code/SWLIBS/OPENGL/GLIDE3X/`
   ("Copyright 1991-1997, Silicon Graphics, Inc.", `__glSST*` naming) → `opengl.dll`
-  (MSVC, ~704 KB) / `3dfxogl.dll`. **Versions 0.2.x–0.3.x**; this is the **.143
-  Voodoo5 "pure-3dfx" lane (the OTHER agent)** — NOT our MesaFX.
+  (MSVC, ~704 KB) / `3dfxogl.dll`. **Versions 0.2.x+** (0.4.x on .143, 0.5.x on
+  .133); this is the **Voodoo5 "pure-3dfx" lane (the OTHER agent)** — .143 is the
+  V5 5500, .133 "P3-DUAL" is the **V5 6000** (4-chip, 256MB mode verified;
+  see `retro-3dfx/V56K-SLI-FINDINGS.md`) — NOT our MesaFX.
 - **Tests:** `retro-3dfx/tests/` (source-invariants, `d3dlab` pixel goldens,
   predeploy gate) — for the H5 HAL + SGL ICD.
 

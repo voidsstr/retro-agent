@@ -113,7 +113,11 @@ do NOT link `-lnewdev`/`-lsetupapi`. Build exactly as its header says:
    `VEN_121A`, then read the device subkey to get the full
    `VEN_121A&DEV_xxxx&SUBSYS_xxxxxxxx&REV_xx` string.
 4. Map device → INF: `DEV_0005` → `voodoo3.inf`; `DEV_0009`/`DEV_000B` →
-   `voodoo5.inf`. Anything else: stop, wrong card.
+   `voodoo5.inf`. Anything else: stop, wrong card. **Caveat: the Voodoo5
+   6000 (.133) also enumerates as `DEV_0009`** — it does NOT use plain
+   `voodoo5.inf`; it installs via `voodoo5-6k.inf` (WFP-safe
+   `3dfxv5m.sys`/`3dfxv5d.dll` names; deployed on the box as `oem15.inf`,
+   snapshot in `retro-3dfx/optimized/deployed-133-v56k-20260811/`).
 5. **Grep the package INF for the exact SUBSYS.** If it's not in `[3dfx.Mfg]`,
    **STOP** — add the model line to the INF in the build tree, repackage, and
    only then continue. Never install an INF that doesn't match the HWID (PnP

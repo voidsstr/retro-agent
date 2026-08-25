@@ -40,9 +40,11 @@ recipe if the title needed a non-obvious step.
 | `Installed` | pre-extracted game folders | **copy-in** (no installer) |
 
 Fleet GPU tiers (from the index — match the game to the box): `.124` Voodoo3
-(Glide/DX6), `.143` Voodoo5 (Glide/DX6+FSAA), `.133` GeForce4 (DX8), `.240`
-GeForce 6800 (DX9), `.123` Radeon HD (DX9), `.145` Intel HD. Don't put a
-DX9-only title on a Voodoo box.
+(Glide/DX6), `.143` Voodoo5 5500 (Glide/DX6+FSAA), `.133` **Voodoo5 6000**
+(4-chip, 256MB; Glide/DX6-7+FSAA, no shaders — was GeForce4 before the
+2026-08 card swap), `.240` GeForce 6800 (DX9), `.123` Radeon HD (DX9),
+`.145` Intel HD. Don't put a DX9-only (or shader-requiring DX8) title on a
+Voodoo box — that now includes `.133`.
 
 ## Workflow
 

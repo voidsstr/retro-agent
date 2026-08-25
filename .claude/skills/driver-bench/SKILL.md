@@ -223,7 +223,14 @@ exact (driver, resolution, quality) point. Add new knobs to `QUALITY_DEFAULT` /
      SHA in `--changes` and the CHANGELOG so the tag here points to the tracked
      result and the fork SHA points to the code.
 
-## Pure-3dfx lane — `3dfx-driver-optimized` (.143 Voodoo5)
+## Pure-3dfx lane — `3dfx-driver-optimized` (.143 Voodoo5 5500)
+
+> The **Voodoo5 6000 is a different box: .133 "P3-DUAL"** (4-chip, 256MB).
+> Bench it with `bench-safe.py` from the retro-3dfx repo (enforced cooldowns,
+> no-stomp preflight) — NOT with a naive loop; flat-out back-to-back timedemos
+> reset that board (`retro-3dfx/V56K-SLI-FINDINGS.md` §11, §13, §22). The
+> retro-benchmark skill's card auto-detect mislabels the 6000 as a 5500 —
+> always force `--card voodoo5-6000`.
 
 A second driver stack, separate from the MesaFX lane above: **our own H5-source
 OpenGL ICD `3dfxogl.dll`** (not MesaFX) on top of our `glide3x.dll` + the renamed

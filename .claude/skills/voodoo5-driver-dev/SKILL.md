@@ -1,9 +1,9 @@
 ---
 name: voodoo5-driver-dev
-description: Build, test, diagnose, fix, and deploy the VINTAGE-source 3dfx H5/Napalm driver stack (retro-3dfx repo — display driver + D3D HAL + miniport + Glide + vintage SGL OpenGL ICD) for the Voodoo 5 box .143. Use when the user reports a D3D/DirectDraw/2D/mode-set problem, a Voodoo5 rendering or crash issue, asks to rebuild 3dfxv5d/3dfxv5m/the vintage driver, wants the flight-recorder ring read, or wants a driver fix verified/deployed on .143. NOT for the clean-room MesaFX stack on .124 (use voodoo3-driver-dev).
+description: Build, test, diagnose, fix, and deploy the VINTAGE-source 3dfx H5/Napalm driver stack (retro-3dfx repo — display driver + D3D HAL + miniport + Glide + vintage SGL OpenGL ICD) for the Voodoo 5 boxes .143 (V5 5500) and .133 (V5 6000, 4-chip). Use when the user reports a D3D/DirectDraw/2D/mode-set problem, a Voodoo5 rendering or crash issue, asks to rebuild 3dfxv5d/3dfxv5m/the vintage driver, wants the flight-recorder ring read, or wants a driver fix verified/deployed on .143 or .133. NOT for the clean-room MesaFX stack on .124 (use voodoo3-driver-dev).
 ---
 
-# Voodoo 5 driver work — the vintage H5 stack (retro-3dfx repo, box .143)
+# Voodoo 5 driver work — the vintage H5 stack (retro-3dfx repo, boxes .143 & .133)
 
 You are working on the **VINTAGE-SOURCE stack**: 3dfx's leaked H5/Napalm tree,
 built for XP under Wine, in the sibling repo
@@ -12,10 +12,18 @@ SGI/3dfx SGL (`SST_*.c`, versions **0.2.x–0.3.x**) — NOT our MesaFX. Read
 `retro-3dfx/CLAUDE.md` and the **Driver Stack Map in this repo's CLAUDE.md**
 before touching anything; conflating the two stacks wastes hours.
 
-**Target box:** `.143` (192.168.1.143) — Athlon 1GHz "1GHZ", Voodoo5 5500 AGP,
-XP SP3. Hard freeze = NIC dead = needs a physical power cycle (tell the user).
+**Target boxes:**
+- `.143` (192.168.1.143) — Athlon 1GHz "1GHZ", **Voodoo5 5500** AGP, XP SP3.
+- `.133` (192.168.1.133) — dual P3-700 "P3-DUAL", **Voodoo5 6000** (4× VSA-100
+  behind a HiNT bridge, 256MB mode = 64MB/chip, 4-way SLI verified), XP SP3.
+  V56K-specific rules: cooldowns between flat-out timedemos, ONE fullscreen 3D
+  app at a time, bench via `bench-safe.py` only, keep `FX_GLIDE_NUM_CHIPS`/
+  `FX_GLIDE_FBRAM` unset — see `retro-3dfx/V56K-SLI-FINDINGS.md` and the
+  outcome banner atop `retro-3dfx/V56K-256MB-READINESS.md`.
+
+Hard freeze = NIC dead = needs a physical power cycle (tell the user).
 This stack's display/D3D HAL also runs on `.124` as `3dfxv3d.dll` (Voodoo3
-build) under the hybrid stack — HAL fixes can apply to both boxes.
+build) under the hybrid stack — HAL fixes can apply to all three boxes.
 
 **What ships:** `3dfxv5d.dll` (display + DDraw + D3D6/7/8 HAL, WFP-safe
 renamed from `3dfxvs.dll`), `3dfxv5m.sys` (miniport, renamed from
@@ -23,8 +31,9 @@ renamed from `3dfxvs.dll`), `3dfxv5m.sys` (miniport, renamed from
 
 **Key docs (read before deep work):** `retro-3dfx/CLAUDE.md` (build/test
 process), `VINTAGE-FIXES.md` (definitive fix ledger), `FINDINGS.md`
-(investigation matrices), `D3D-DRIVER-PLAN.md`, `V56K-PLAN.md` (Voodoo5 6000
-prep), `tests/README.md`, `optimized/README.md` (change policy). Fleetbook:
+(investigation matrices), `D3D-DRIVER-PLAN.md`, `V56K-PLAN.md` (Voodoo5 6000 —
+Phases 0–3 done, see its status header) + `V56K-SLI-FINDINGS.md` (6000
+hardware results), `tests/README.md`, `optimized/README.md` (change policy). Fleetbook:
 search before diagnosing, `log --host 192.168.1.143` after every change.
 
 ## Build (Wine-hosted VC6 + W2K DDK)
