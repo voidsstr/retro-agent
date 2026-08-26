@@ -174,6 +174,18 @@ unattended in `tests/run_dos_tests.sh`.
 
 ## Hard-won gotchas
 
+- **Never index a parallel array by a `games[]` index.** `scan_local()` moves
+  rows: it OVERWRITES one (`games[j] = games[i]`, when a playable copy replaces
+  a run-setup stub of the same 8.3 name) and MEMMOVEs the tail down when it
+  drops a duplicate. The first cut of the title resolver kept each folder name
+  in an array indexed alongside `games[]` and filled it *during* the scan, so
+  after five replacements on .243 (`scan=C:\GAMES;C:\`) every key sat against
+  the wrong row. On that box the result was that nothing at all got a title -
+  which reads as "the feature silently does nothing" - but on a fixture with
+  the same shape it did something worse and titled `C:\STARCR~1` **"Doom"**. A
+  per-row fact belongs IN the row (`game_t.dir`); anything genuinely parallel
+  must be built AFTER the scan has finished moving things (`title_begin()`).
+
 - **An Apogee/id DEICE set must be entered through its own `INSTALL.BAT`.**
   `keen1_shareware.zip` is `DEICE.EXE` + `KEEN.1` + `KEEN.DAT` + `INSTALL.BAT`,
   and the scan kept whichever installer-shaped file DOS returned *first* -

@@ -928,6 +928,109 @@ else
     bad "renames are not in the log"
 fi
 
+# ====================================================== TEST 16b ===========
+# The catalogue title must follow its own row when scan_local SHUFFLES games[].
+#
+# Shipped in the previous fix and broken on the first real box. The folder name
+# was kept in an array indexed alongside games[], but scan_local both
+# OVERWRITES rows (games[j] = games[i], when a playable copy replaces a
+# run-setup stub of the same 8.3 name) and MEMMOVEs the tail down when it drops
+# a duplicate. On .243 - five such replacements under scan=C:\GAMES;C:\ - every
+# key ended up against the wrong row and NOT ONE game got its title. On this
+# fixture the same misalignment does something worse than nothing: it titled
+# C:\STARCR~1 "Doom".
+echo "== a catalogue title follows its own row when the scan shuffles rows =="
+CD5="$WORK/shuffle"
+rm -rf "$CD5"
+mkdir -p "$CD5/DOSGAME" "$CD5/GAMES/ROTT" "$CD5/ROTT" \
+         "$CD5/GAMES/DOOM" "$CD5/DOOM" "$CD5/GAMES/KEEN1" "$CD5/ZZUNIQ"
+cp "$WORK/DOSGAME.EXE" "$CD5/DOSGAME/DOSGAME.EXE"
+cp "$SRCDIR/data/GAMES.CAT" "$CD5/DOSGAME/GAMES.CAT"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES;C:\\\n' > "$CD5/DOSGAME/DOSGAME.CFG"
+# C:\GAMES\<name> is the unpacked disk set, C:\<name> is what its installer
+# produced - the shape that makes scan_local replace a row in place.
+printf 'MZ' > "$CD5/GAMES/ROTT/INSTALL.EXE";  printf 'x' > "$CD5/GAMES/ROTT/ROTT.1"
+printf 'MZ' > "$CD5/ROTT/ROTT.EXE";           printf 'x' > "$CD5/ROTT/ROTT.WAD"
+printf 'MZ' > "$CD5/GAMES/DOOM/INSTALL.EXE";  printf 'x' > "$CD5/GAMES/DOOM/DOOM.1"
+printf 'MZ' > "$CD5/DOOM/DOOM.EXE";           printf 'x' > "$CD5/DOOM/DOOM1.WAD"
+printf 'MZ' > "$CD5/GAMES/KEEN1/DEICE.EXE"
+printf '@echo off\r\n' > "$CD5/GAMES/KEEN1/INSTALL.BAT"
+printf 'x'  > "$CD5/GAMES/KEEN1/KEEN.1"
+# a folder the catalogue cannot possibly name, scanned AFTER the replacements
+printf 'MZ' > "$CD5/ZZUNIQ/ZZUNIQ.EXE";       printf 'x' > "$CD5/ZZUNIQ/ZZUNIQ.DAT"
+run_dos "$CD5" 'C:\DOSGAME\DOSGAME.EXE /selftest'
+SH="$CD5/DOSGAME/DGSELF.TXT"
+if grep -qi 'replaces' "$CD5/DOSGAME/DOSGAME.LOG" 2>/dev/null; then
+    ok "the fixture really does make the scan replace a row"
+else
+    bad "the fixture no longer exercises row replacement - the test is hollow"
+fi
+if grep -qiE '^1\|R\|Doom\|DOOM\.EXE\|C:\\DOOM\|' "$SH" 2>/dev/null; then
+    ok "C:\\DOOM keeps its own title after the row was replaced"
+else
+    bad "C:\\DOOM: $(grep -i 'C:.DOOM' "$SH" 2>/dev/null | tr -d '\r')"
+fi
+if grep -qiE '^1\|R\|rott shareware\|ROTT\.EXE\|C:\\ROTT\|' "$SH" 2>/dev/null; then
+    ok "C:\\ROTT keeps its own title after the row was replaced"
+else
+    bad "C:\\ROTT: $(grep -i 'C:.ROTT' "$SH" 2>/dev/null | tr -d '\r')"
+fi
+if grep -qiE '^1\|I\|keen1 shareware\|INSTALL\.BAT\|C:\\GAMES\\KEEN1\|' "$SH" 2>/dev/null; then
+    ok "a row AFTER the shuffled ones is still named correctly"
+else
+    bad "KEEN1: $(grep -i KEEN1 "$SH" 2>/dev/null | tr -d '\r')"
+fi
+# The regression itself, and the reason it matters: a stale key does not just
+# fail to match, it matches the WRONG row and puts another game's name on it.
+if grep -qiE '^1\|R\|ZZUNIQ\|ZZUNIQ\.EXE\|C:\\ZZUNIQ\|' "$SH" 2>/dev/null; then
+    ok "a folder the catalogue cannot name keeps its folder name"
+else
+    bad "an unnamable folder was given another game's title: $(grep -i ZZUNIQ "$SH" 2>/dev/null | tr -d '\r')"
+fi
+grep -q 'char dir\[13\];' "$SRCDIR/dosgame.c" \
+  && ok "the folder name travels IN the row, not in a parallel array" \
+  || bad "the folder name travels IN the row, not in a parallel array"
+grep -q 'static void title_begin' "$SRCDIR/dosgame.c" \
+  && ok "the comparison keys are built AFTER the scan finishes moving rows" \
+  || bad "the comparison keys are built after the scan finishes moving rows"
+
+# ====================================================== TEST 16c ===========
+# A set whose disks are not all present can never install, and the list should
+# say so up front rather than the operator finding out by pressing Enter.
+echo "== an incomplete disk set is labelled in the list =="
+CD6="$WORK/shortlabel"
+rm -rf "$CD6"; mkdir -p "$CD6/DOSGAME" "$CD6/GAMES/HERETIC" "$CD6/GAMES/DOOM"
+cp "$WORK/DOSGAME.EXE" "$CD6/DOSGAME/DOSGAME.EXE"
+printf 'gamedir=C:\\GAMES\nscan=C:\\GAMES\n' > "$CD6/DOSGAME/DOSGAME.CFG"
+# short: one part against a SIZE that needs two
+printf 'MZ' > "$CD6/GAMES/HERETIC/DEICE.EXE"
+printf '@echo off\r\n' > "$CD6/GAMES/HERETIC/INSTALL.BAT"
+head -c 8192 /dev/zero > "$CD6/GAMES/HERETIC/HTIC_V10.1"
+printf 'PATH=\\HERETIC\r\nSIZE=2863638\r\nEXPSIZE=6090000\r\n' \
+    > "$CD6/GAMES/HERETIC/HTIC_V10.DAT"
+# complete: the parts add up, exactly as C:\GAMES\DOOM does on .243
+printf 'MZ' > "$CD6/GAMES/DOOM/DEICE.EXE"
+printf '@echo off\r\n' > "$CD6/GAMES/DOOM/INSTALL.BAT"
+head -c 6144 /dev/zero > "$CD6/GAMES/DOOM/DOOMS_19.1"
+head -c 2048 /dev/zero > "$CD6/GAMES/DOOM/DOOMS_19.2"
+printf 'PATH=\\DOOMS\r\nSIZE=8192\r\nEXPSIZE=5516000\r\n' \
+    > "$CD6/GAMES/DOOM/DOOMS_19.DAT"
+run_dos "$CD6" 'C:\DOSGAME\DOSGAME.EXE /selftest'
+SLOG="$CD6/DOSGAME/DOSGAME.LOG"
+if grep -qi '"HERETIC" is INCOMPLETE' "$SLOG" 2>/dev/null; then
+    ok "a short disk set is spotted by the scan, not only on Enter"
+else
+    bad "the scan did not spot the short disk set"
+fi
+if grep -qi '"DOOM" is INCOMPLETE' "$SLOG" 2>/dev/null; then
+    bad "a COMPLETE two-part set was called incomplete"
+else
+    ok "a complete two-part set is not called incomplete"
+fi
+grep -q '"INCOMPLETE"' "$SRCDIR/dosgame.c" \
+  && ok "the Installed tab shows INCOMPLETE in the action column" \
+  || bad "the Installed tab shows INCOMPLETE in the action column"
+
 # ======================================================= TEST 17 ===========
 # Both tabs must draw the same grid and the same green. They used to disagree:
 # 40-column title with no marker and no colour on one, 36-column title with a

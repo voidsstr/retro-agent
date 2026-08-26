@@ -99,6 +99,19 @@ typedef struct {
     char tile[13];               /* preview tile file name, "" if none */
     long size;                   /* avail: archive bytes */
     int  installed;              /* 1 = local, 0 = share catalog */
+    /* The directory this row was found in, as it is spelled on disk. Empty
+     * for catalog rows and for registry rows (which carry a real title).
+     *
+     * It lives IN the row rather than in an array indexed alongside games[],
+     * because scan_local() both OVERWRITES rows (games[j] = games[i], when a
+     * playable copy replaces a run-setup stub of the same name) and MEMMOVEs
+     * the tail down when it drops a duplicate. A parallel array survives
+     * neither, and on the fleet's .243 - which does five such replacements
+     * under scan=C:\GAMES;C:\ - every folder name ended up against the wrong
+     * row, so not one game got its catalogue title. Silently: a mismatch just
+     * fails to compare equal. */
+    char dir[13];
+    char shortset;               /* 1 = a multi-disk set with disks missing */
 } game_t;
 
 /* Registry (INSTALL.LST) entries. Kept in a separate small array rather than
@@ -228,6 +241,8 @@ static int  file_exists(const char *dir, const char *name);
 static const char *stristr(const char *h, const char *n);
 static void path_join_n(char *out, size_t cap, const char *root,
                         const char *leaf);
+static int  deice_short(const char *dir, unsigned long *have,
+                        unsigned long *need);
 /* Callers always join into a local array, so the capacity comes for free.
  * An overlong join yields "" — treat that as "skip this path". */
 #define path_join(out, root, leaf) path_join_n((out), sizeof(out), (root), (leaf))
@@ -424,8 +439,7 @@ static const char *stristr(const char *h, const char *n)
  * matters: C:\HEXEN could be any of half a dozen Hexen rows, and a confidently
  * wrong name is worse than a dull correct one.
  */
-static char dir_orig[MAX_LOCAL][13];    /* the directory name as found */
-static char dir_key[MAX_LOCAL][13];     /* squashed, for comparing */
+static char dir_key[MAX_LOCAL][13];     /* squashed folder name, for comparing */
 static unsigned char t_best[MAX_LOCAL]; /* best score so far */
 static unsigned char t_tie[MAX_LOCAL];  /* something else scored the same */
 static int need_titles = 0;             /* one resolving pass is pending */
@@ -441,6 +455,22 @@ static void squash(const char *in, char *out, size_t cap)
         if (isalnum((unsigned char)*in)) out[n++] = (char)toupper(*in);
     }
     out[n] = '\0';
+}
+
+/* Build the comparison keys. Called AFTER scan_local has finished shuffling
+ * games[] around, so index i means the same row here as it will during the
+ * catalogue pass - which is exactly what filling these during the scan got
+ * wrong. */
+static void title_begin(void)
+{
+    int i;
+    memset(dir_key, 0, sizeof(dir_key));
+    memset(t_best, 0, sizeof(t_best));
+    memset(t_tie, 0, sizeof(t_tie));
+    for (i = 0; i < n_local && i < MAX_LOCAL; i++)
+        if (games[i].dir[0])
+            squash(games[i].dir, dir_key[i], sizeof(dir_key[0]));
+    need_titles = 1;
 }
 
 /* Score one catalogue row against every unresolved local game. Called from
@@ -485,10 +515,11 @@ static void title_finish(void)
         if (t_tie[i] || !t_best[i]) {
             if (t_tie[i])
                 logf("title:  %s - the catalogue names more than one game "
-                     "that could be it; keeping the folder name", dir_orig[i]);
-            copy_str(games[i].title, dir_orig[i], sizeof(games[i].title));
+                     "that could be it; keeping the folder name",
+                     games[i].dir);
+            copy_str(games[i].title, games[i].dir, sizeof(games[i].title));
         } else {
-            logf("title:  %s -> \"%s\"", dir_orig[i], games[i].title);
+            logf("title:  %s -> \"%s\"", games[i].dir, games[i].title);
             named++;
         }
     }
@@ -1065,13 +1096,22 @@ static void scan_game_dir(const char *root, const char *dir)
     copy_str(g->exe, best, sizeof(g->exe));
     g->kind = (needs_setup == 2) ? 'Z' : (needs_setup == 1 ? 'I' : 'R');
     g->installed = 1;
-    /* Remember what this row is called on disk. The catalogue pass may
-     * replace the title with the game's real name, and a tie has to be able
-     * to put the folder name back. Registry rows are deliberately left out -
-     * they already carry the title the install recorded. */
-    if (n_games - 1 < MAX_LOCAL) {
-        copy_str(dir_orig[n_games - 1], dir, sizeof(dir_orig[0]));
-        squash(dir, dir_key[n_games - 1], sizeof(dir_key[0]));
+    /* Remember what this row is called on disk. The catalogue pass may replace
+     * the title with the game's real name, and a tie has to be able to put the
+     * folder name back. Registry rows deliberately leave this empty - they
+     * already carry the title the install recorded. */
+    copy_str(g->dir, dir, sizeof(g->dir));
+    /* A multi-disk set with disks missing can never install. Work that out
+     * once, here, so the list can SAY so instead of the operator finding out
+     * by pressing Enter. Cheap: a directory with no .DAT costs one findfirst. */
+    if (g->kind == 'I') {
+        unsigned long have = 0, need = 0;
+        if (deice_short(g->path, &have, &need)) {
+            g->shortset = 1;
+            logf("scan:   \"%s\" is INCOMPLETE - %luKB of the %luKB its disk "
+                 "set declares; the rest is not in the archive on the share",
+                 g->title, have / 1024UL, need / 1024UL);
+        }
     }
     /* tile name = dir name + .PRV */
     sprintf(g->tile, "%.8s.PRV", dir);
@@ -1431,11 +1471,10 @@ static void mark_installed(void)
             /* Match on the DIRECTORY name as well as the title: a scan row's
              * title is now the catalogue's, so the stem-vs-folder test that
              * used to work by accident needs the folder name kept explicitly.
-             * (dir_orig is empty for registry rows, which carry a real
+             * (games[].dir is empty for registry rows, which carry a real
              * title and match on it.) */
             if (!strnicmp(stem, games[j].title, 8)
-                || (j < MAX_LOCAL && dir_orig[j][0]
-                    && !strnicmp(stem, dir_orig[j], 8))
+                || (games[j].dir[0] && !strnicmp(stem, games[j].dir, 8))
                 || !stricmp(games[i].title, games[j].title)) {
                 games[i].installed = 2;   /* in catalog AND installed */
                 break;
@@ -2594,7 +2633,8 @@ static void draw_list(void)
              * row; on the Available tab it is the ones already on the disk. */
             int here = (tab == 0) || (g->installed == 2);
             if (tab == 0) {
-                const char *what = g->kind == 'Z' ? "unpack + setup"
+                const char *what = g->shortset     ? "INCOMPLETE"
+                                 : g->kind == 'Z' ? "unpack + setup"
                                  : g->kind == 'I' ? "run setup"
                                  : g->exe;
                 sprintf(line, "%c %-*.*s %-14.14s", '*',
@@ -2669,15 +2709,11 @@ static void leave_ui(void)
 static void load_everything(void)
 {
     n_games = 0;
-    memset(dir_orig, 0, sizeof(dir_orig));
-    memset(dir_key, 0, sizeof(dir_key));
-    memset(t_best, 0, sizeof(t_best));
-    memset(t_tie, 0, sizeof(t_tie));
     load_registry();
     add_registry_games();
     scan_local();
     n_local = n_games;
-    need_titles = 1;
+    title_begin();              /* AFTER the scan: it moves rows around */
     load_catalog();
     mark_installed();
 }
