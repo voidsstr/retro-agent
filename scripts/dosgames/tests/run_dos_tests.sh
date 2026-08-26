@@ -751,6 +751,67 @@ for n in $(grep -n 'DHCP.EXE >>'  "$SRCDIR/NETUP.BAT" | cut -d: -f1); do
 done
 ok "the drain is on the line immediately before DHCP"
 
+echo "== every shipped DOS batch file has CRLF line terminators =="
+# COMMAND.COM does not reliably parse an LF-only .BAT. On .243 an LF-only file
+# answered "Bad command or file name" and, with "@echo off" as its first line,
+# printed "OFF" and stopped. These files were LF in git and worked on the fleet
+# only because someone had once published them from a Windows machine, which
+# converted them by accident: the share's PLAY.BAT was 2274 bytes against
+# git's 2217 - exactly one CR per line - and nothing recorded why. Publishing
+# from a Linux host (retro_upload copies byte for byte) would have put the LF
+# versions on every DOS box and broken PLAY, NETUP and DOSSTART at once.
+crlf_bad=0
+for f in "$SRCDIR"/*.BAT "$SRCDIR"/*.TPL; do
+    [ -e "$f" ] || continue
+    total=$(wc -l < "$f")
+    crlf=$(grep -c $'\r$' "$f" || true)
+    if [ "$total" -ne "$crlf" ]; then
+        bad "$(basename "$f") has $((total - crlf)) LF-only line(s) - MS-DOS needs CRLF"
+        crlf_bad=1
+    fi
+done
+[ "$crlf_bad" = "0" ] && ok "every shipped .BAT/.TPL is CRLF throughout"
+if [ -f "$SRCDIR/../../.gitattributes" ] && grep -q 'BAT.*eol=crlf' "$SRCDIR/../../.gitattributes"; then
+    ok ".gitattributes pins *.BAT to CRLF so a checkout cannot undo it"
+else
+    bad ".gitattributes does not pin *.BAT to CRLF"
+fi
+
+echo "== the MS-DOS mode startup file logs that it was reached =="
+# "Restart in MS-DOS mode" stuck at a bare cursor on .243 and left NO evidence:
+# nothing on the box logged anything between the Shut Down dialog and the
+# operator typing PLAY, so a hang in the Windows-to-DOS transition could not be
+# told apart from a hang once DOS was already up.
+if grep -q 'dosstart: ---- reached MS-DOS mode ----' "$SRCDIR/DOSSTART.BAT"; then
+    ok "DOSSTART.BAT writes a marker as its first action"
+else
+    bad "DOSSTART.BAT does not mark that MS-DOS mode was reached"
+fi
+# The ECHO line, not the rem that explains it - both contain the phrase.
+mk_line=$(grep -n '^echo dosstart: ---- reached' "$SRCDIR/DOSSTART.BAT" | head -1 | cut -d: -f1)
+pt_line=$(grep -n '^PATH=' "$SRCDIR/DOSSTART.BAT" | head -1 | cut -d: -f1)
+if [ -n "$mk_line" ] && [ -n "$pt_line" ] && [ "$mk_line" -lt "$pt_line" ]; then
+    ok "the marker is written BEFORE anything that could itself fail"
+else
+    bad "the marker is not the first thing DOSSTART.BAT does"
+fi
+# A redirect into a directory that does not exist prints an error on every
+# single boot, so both files must guard it.
+for f in DOSSTART.BAT AUTOEXEC.TPL; do
+    if grep -q 'if not exist C:\\DOSGAME\\NUL goto' "$SRCDIR/$f"; then
+        ok "$f guards its log redirect on C:\\DOSGAME existing"
+    else
+        bad "$f writes to the log without checking C:\\DOSGAME exists"
+    fi
+done
+# AUTOEXEC.TPL is the SECOND way into DOS (boot menu, "Command prompt only"),
+# which never starts Windows and so cannot be broken by the shutdown path.
+if grep -q 'C:\\DOSGAME' "$SRCDIR/AUTOEXEC.TPL" && grep -q '^PATH=' "$SRCDIR/AUTOEXEC.TPL"; then
+    ok "AUTOEXEC.TPL puts the DOS tools on the PATH for a command-prompt boot"
+else
+    bad "AUTOEXEC.TPL does not set up the DOS tools"
+fi
+
 echo "== shipped DOSGAME.BAT hygiene =="
 if grep -qi 'del C:\\DOSGAME\\RUN.BAT' "$SRCDIR/DOSGAME.BAT"; then
     ok "DOSGAME.BAT clears a stale RUN.BAT before each menu pass"

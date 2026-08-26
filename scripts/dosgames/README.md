@@ -172,7 +172,60 @@ Create `C:\DOSGAME\QUIET.FLG` to make generated scripts skip their
 "press a key" prompts — that is what lets the whole install→play path run
 unattended in `tests/run_dos_tests.sh`.
 
+## Two ways into real-mode DOS, and they run DIFFERENT files
+
+A Win98 box has two routes, and knowing which one you took is half of any
+diagnosis:
+
+| Route | Runs | Starts Windows first? |
+|---|---|---|
+| Shut Down -> **"Restart in MS-DOS mode"** | `C:\WINDOWS\DOSSTART.BAT` | yes - then shuts it down |
+| Hold **CTRL/F8** at boot -> **"Command prompt only"** | `C:\AUTOEXEC.BAT` | **no** |
+
+**`DOSSTART.BAT` is the MS-DOS mode file, NOT `AUTOEXEC.BAT`.** A box can be
+perfectly set up at the boot prompt and completely bare in MS-DOS mode. Both
+are staged/templated here: `DOSSTART.BAT` is ours and the agent stages it
+(v1.30.0+); `AUTOEXEC.TPL` is a **template only** - the agent never writes a
+box's own `AUTOEXEC.BAT`, because that file carries ITS drivers (CD-ROM,
+mouse, sound) and staging over it would silently disarm hardware.
+
+Route 2 is the fallback worth knowing: it never starts Windows, so it cannot
+be broken by anything in the Windows-to-DOS transition - no video mode to
+restore, no redirector to tear down, no driver to quiesce. It is the same code
+path the box survives on every boot. It was useless here until `AUTOEXEC.BAT`
+learned to set `PATH` and print the `PLAY` hint, because it landed on a bare
+`C:\>` that looked like the same failure.
+
+**Both files write a marker to `C:\DOSGAME\DOSGAME.LOG` as their first
+action, and that is the point.** "Restart in MS-DOS mode" stuck at a bare
+cursor on .243 and left *nothing* behind: nothing on the box logged anything
+between the Shut Down dialog and the operator typing `PLAY`. Now:
+
+- `dosstart: ---- reached MS-DOS mode ----` present -> DOS came up; the hang is
+  after that, or the screen never came back to text mode.
+- marker **absent** -> the machine never got out of the Windows shutdown, and
+  nothing in DOS is involved at all.
+
 ## Hard-won gotchas
+
+- **Every DOS batch file we ship MUST be CRLF, and git must be told so.**
+  `COMMAND.COM` does not reliably parse an LF-only `.BAT`: on .243 one answered
+  `Bad command or file name`, and with `@echo off` as its first line it printed
+  `OFF` and stopped. These files had been **LF in git the whole time** and
+  worked on the fleet only because somebody had once published them from a
+  Windows machine, which converted them by accident - the share's `PLAY.BAT`
+  was 2,274 bytes against git's 2,217, exactly one CR per line, and nothing
+  recorded why. `retro_upload` and `copy` are byte-for-byte, so publishing
+  straight from the Linux dev host would have put the LF versions on every DOS
+  box and broken `PLAY`, `NETUP` and `DOSSTART` in one go. Pinned by
+  `.gitattributes` (`*.BAT text eol=crlf`) and asserted by `run_dos_tests.sh`.
+- **The share can be STALE relative to this repo, silently.** After the CRLF
+  conversion five of the six shipped batch files were byte-identical to the
+  copies running on .243 - and `NETUP.BAT` was not. The share is still carrying
+  the pre-`93ecdbc` version, which writes `echo PACKETINT 0x60 > MTCP.CFG` with
+  a space before the `>` and therefore a **trailing space** in every value it
+  writes. Comparing sizes against the share after a conversion like this is a
+  cheap way to find out what else never got published.
 
 - **Never index a parallel array by a `games[]` index.** `scan_local()` moves
   rows: it OVERWRITES one (`games[j] = games[i]`, when a playable copy replaces

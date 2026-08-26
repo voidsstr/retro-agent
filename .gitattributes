@@ -1,0 +1,15 @@
+# DOS batch files ship to real MS-DOS and MUST have CRLF line terminators.
+#
+# COMMAND.COM does not reliably parse an LF-only .BAT: on the fleet's Win98
+# box an LF-only file gave "Bad command or file name" and, with `@echo off`
+# as its first line, printed "OFF" and stopped. These files had been LF in
+# git the whole time and worked on the fleet only because somebody had once
+# published them from a Windows machine, which converted them by accident -
+# so the copies on the share were 57 bytes larger than the copies in git and
+# nothing recorded why. Publishing straight from a Linux dev host (which is
+# what retro_upload does, byte for byte) would have pushed the LF versions
+# onto every DOS box and broken PLAY, NETUP and the MS-DOS mode startup file
+# in one go.
+*.BAT   text eol=crlf
+*.TPL   text eol=crlf
+CONFIG.SYS.dosbox text eol=crlf

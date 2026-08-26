@@ -128,6 +128,9 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | 0.2 an installed game is named after the catalogue, not its folder (`KEEN1` -> `keen1 shareware`) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
 | **0.2 that title must follow its OWN row - scan_local shuffles `games[]`, and a stale parallel key titled `C:\STARCR~1` "Doom"** (2026-08-25) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
 | 0.2 a disk set with parts missing is labelled INCOMPLETE by the scan, not only on Enter | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| **every shipped DOS `.BAT` is CRLF (an LF-only one gives `Bad command or file name`)** (2026-08-26) | DOS lane (*.BAT + .gitattributes) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| MS-DOS mode leaves evidence: `DOSSTART.BAT`/`AUTOEXEC.TPL` log a marker before anything that can fail | DOS lane (*.BAT) | `scripts/dosgames/tests/run_dos_tests.sh` |
+| agent 1.30.0 stages `DOSSTART.BAT`, and never stages over a box's `AUTOEXEC.BAT`/`CONFIG.SYS` | agent dosstage.c | `native/test_dosstage.c` |
 | 0.2 both tabs share one column grid, one `*` marker and one green | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
 | fleetbook add/search/log contract (brain's solved-problems DB) | scripts/retro_fleetbook.py | `python/test_fleetbook.py` |
 | agent default desktop theme = green hacker + Starfield (was gray classic) | agent retrowall.c | `python/test_retrowall_theme.py` |

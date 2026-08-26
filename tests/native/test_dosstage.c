@@ -55,6 +55,7 @@ static void seed_payload(const char *root)
     snprintf(p, sizeof(p), "%s\\dosgame\\DOSGAME.EXE", root); fake_add_file(p, 106778);
     snprintf(p, sizeof(p), "%s\\dosgame\\GAMES.CAT", root);   fake_add_file(p, 293502);
     snprintf(p, sizeof(p), "%s\\dosgame\\DOSGAME.BAT", root); fake_add_file(p, 260);
+    snprintf(p, sizeof(p), "%s\\dosgame\\DOSSTART.BAT", root); fake_add_file(p, 2252);
     snprintf(p, sizeof(p), "%s\\dosgame\\NET\\HTGET.EXE", root); fake_add_file(p, 40000);
     snprintf(p, sizeof(p), "%s\\dosgame\\TILES\\DOOM.PRV", root); fake_add_file(p, 64768);
     snprintf(p, sizeof(p), "%s\\dosgame\\TILES\\KEEN.PRV", root); fake_add_file(p, 64768);
@@ -120,6 +121,33 @@ TEST(win9x_stages_both_programs) {
           "the launcher wrapper must land at the root of C: (the exit-42 "
           "relaunch is what frees conventional memory for the game)");
     CHECK(g_env.marker[0] != '\0', "marker records the stage");
+}
+
+TEST(msdos_mode_startup_file_is_staged) {
+    /* DOSSTART.BAT is what Windows runs for "Restart in MS-DOS mode" - NOT
+     * AUTOEXEC.BAT, which is the real-mode BOOT file. A box can be perfectly
+     * set up at the boot prompt and completely bare in MS-DOS mode, and that
+     * is how .243 was: no PATH to the DOS tools and, worse, nothing logging
+     * anything between the Shut Down dialog and the operator typing PLAY, so
+     * a hang at a bare cursor left no evidence at all. It was hand-placed on
+     * that one box and staged nowhere. */
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    dosstage_run(0);
+    CHECK(copied_contains("C:\\WINDOWS\\DOSSTART.BAT"),
+          "the MS-DOS mode startup file must be staged, into C:\\WINDOWS "
+          "(DOSSTART.BAT is the MS-DOS mode entry point, not AUTOEXEC.BAT)");
+}
+
+TEST(autoexec_bat_is_never_overwritten) {
+    /* The box's own AUTOEXEC.BAT carries ITS drivers - CD-ROM, mouse, sound.
+     * Staging over it would silently disarm hardware on a machine we have
+     * never looked at. It ships as a template to merge by hand instead. */
+    env_reset(VER_PLATFORM_WIN32_WINDOWS);
+    dosstage_run(0);
+    CHECK(!copied_contains("C:\\AUTOEXEC.BAT"),
+          "a box's own AUTOEXEC.BAT must never be staged over");
+    CHECK(!copied_contains("C:\\CONFIG.SYS"),
+          "a box's own CONFIG.SYS must never be staged over");
 }
 
 TEST(programs_come_before_the_bulk_tile_payload) {
@@ -355,6 +383,8 @@ MUNIT_MAIN("dosstage — DOS program staging on DOS-capable boxes (true-source)"
     RUN(nt_family_never_stages);
     RUN(force_does_not_override_the_os_gate);
     RUN(win9x_stages_both_programs);
+    RUN(msdos_mode_startup_file_is_staged);
+    RUN(autoexec_bat_is_never_overwritten);
     RUN(programs_come_before_the_bulk_tile_payload);
     RUN(tile_copies_are_paced_and_others_are_not);
     RUN(second_run_copies_nothing_new);

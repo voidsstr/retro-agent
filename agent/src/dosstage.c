@@ -450,6 +450,21 @@ void dosstage_run(int force)
     _snprintf(src, sizeof(src), "%s\\dosgame\\CHAT.BAT", share);
     copied += copy_if_different(src, "C:\\CHAT.BAT");
 
+    /* DOSSTART.BAT is what Windows runs when the operator picks "Restart in
+     * MS-DOS mode" - NOT AUTOEXEC.BAT, which is the real-mode BOOT file. A
+     * box can therefore be perfectly set up at the boot prompt and completely
+     * bare in MS-DOS mode, which is exactly how .243 behaved: no PATH to the
+     * DOS tools, nothing saying PLAY exists, and - because nothing on the box
+     * logged anything between the Shut Down dialog and the operator typing
+     * PLAY - no evidence at all when it stuck at a bare cursor.
+     *
+     * It was hand-placed on .243 and staged nowhere, so every other DOS box
+     * had none. Staging it puts the log marker on all of them: if the marker
+     * reaches DOSGAME.LOG the transition completed and DOS is up; if it does
+     * not, the machine never got out of the Windows shutdown. */
+    _snprintf(src, sizeof(src), "%s\\dosgame\\DOSSTART.BAT", share);
+    copied += copy_if_different(src, "C:\\WINDOWS\\DOSSTART.BAT");
+
     if (!g_running) return;
 
     /* --- DOSGAME network tools --- */
