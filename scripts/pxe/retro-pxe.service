@@ -1,0 +1,42 @@
+# Retro fleet PXE server - proxyDHCP (UDP 67 + 4011) + TFTP (UDP 69).
+#
+# A SYSTEM unit, not a --user one, and that is forced: those are privileged
+# ports and a user manager cannot bind them. It still does not run as root -
+# CAP_NET_BIND_SERVICE is the only capability granted, and the process drops to
+# the fleet user.
+#
+# Install:
+#   sudo cp scripts/pxe/retro-pxe.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now retro-pxe
+#
+# It answers ONLY DHCP packets carrying vendor class "PXEClient", with
+# yiaddr 0.0.0.0 - it never hands out an address, so the router keeps doing all
+# real DHCP and this is safe to leave running permanently.
+[Unit]
+Description=Retro fleet PXE server (proxyDHCP + TFTP)
+After=network-online.target
+Wants=network-online.target
+# The TFTP payload is local, but the install SOURCE lives on the NAS mount, and
+# a target that PXE-boots into a setup it cannot reach is worse than one that
+# does not boot at all.
+After=mnt-retro\x2dshare.mount
+
+[Service]
+Type=simple
+User=voidsstr
+Group=voidsstr
+ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent/scripts/pxe/pxe_server.py
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+Restart=on-failure
+RestartSec=5
+# The log and TFTP root live here; nothing else on the box needs writing to.
+ReadWritePaths=/srv/retro-pxe
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

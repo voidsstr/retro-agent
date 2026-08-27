@@ -336,12 +336,41 @@ class TFTPServer(threading.Thread):
 
 # --------------------------------------------------------------------------
 
+def detect_lan_ip():
+    """This host's address on the route out to the fleet.
+
+    Auto-detected rather than configured, because a hardcoded fleet IP is a
+    thing that has already gone stale here more than once - and getting it
+    wrong is silent: the PXE client is handed a next-server it cannot reach and
+    just sits at "TFTP." until it times out. No traffic is sent; connect() on a
+    UDP socket only picks the route.
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(('192.168.1.1', 9))
+        return s.getsockname()[0]
+    except OSError:
+        return '127.0.0.1'
+    finally:
+        s.close()
+
+
+if os.name == 'nt':
+    _ROOT = r'C:\development\pxe'
+else:
+    # /srv is where a served payload belongs on a Linux host, and it keeps the
+    # TFTP root off the repo tree - the XP boot files are licensed content and
+    # are deliberately not in git.
+    _ROOT = '/srv/retro-pxe'
+
 DEFAULT_CONFIG = {
-    'server_ip': '192.168.1.249',
-    'tftp_root': r'C:\development\pxe\tftp',
+    # 'auto' resolves through detect_lan_ip() at startup. An explicit address
+    # still wins, for a host with several interfaces on the fleet LAN.
+    'server_ip': 'auto',
+    'tftp_root': os.path.join(_ROOT, 'tftp'),
     'bootfile': 'startrom.n12',
     'bootfile_by_arch': {},
-    'logfile': r'C:\development\pxe\pxe_server.log',
+    'logfile': os.path.join(_ROOT, 'pxe_server.log'),
 }
 
 
@@ -357,6 +386,8 @@ def main():
         with open(args.config, encoding='ascii') as fh:
             cfg.update(json.load(fh))
     LOGFILE = cfg.get('logfile')
+    if str(cfg.get('server_ip', '')).lower() in ('', 'auto'):
+        cfg['server_ip'] = detect_lan_ip()
 
     log('=' * 60)
     log(f'PXE server starting: proxyDHCP + TFTP on {cfg["server_ip"]}')

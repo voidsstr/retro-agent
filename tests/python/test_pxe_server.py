@@ -103,5 +103,44 @@ class TestTFTPPaths(unittest.TestCase):
         self.assertIsNone(self.srv.resolve('nope.0'))
 
 
+class HostPortabilityTests(unittest.TestCase):
+    """The server moved from the Windows host to the Linux fleet host.
+
+    The 2026-08-24 cutover left whitebeast paused, so the PXE host is now
+    192.168.1.132 - a different OS with different paths. These pin the parts
+    that made it portable, because both failure modes are SILENT: a wrong
+    next-server means the client sits at "TFTP." until it times out, and a
+    tftp_root that does not exist means every GET is a file-not-found with the
+    boot dying at a blank screen.
+    """
+
+    def test_defaults_follow_the_platform(self):
+        root = pxe_server.DEFAULT_CONFIG['tftp_root']
+        log = pxe_server.DEFAULT_CONFIG['logfile']
+        if os.name == 'nt':
+            self.assertTrue(root.lower().startswith('c:\\'), root)
+        else:
+            self.assertTrue(root.startswith('/srv/retro-pxe'), root)
+            self.assertTrue(log.startswith('/srv/retro-pxe'), log)
+        # Same parent either way - the log sits beside the payload it explains.
+        self.assertEqual(os.path.dirname(root), os.path.dirname(log))
+
+    def test_server_ip_defaults_to_auto_not_a_hardcoded_host(self):
+        # A hardcoded fleet address has gone stale here before, and a PXE
+        # client handed an unreachable next-server reports nothing useful.
+        self.assertEqual(pxe_server.DEFAULT_CONFIG['server_ip'], 'auto')
+
+    def test_detect_lan_ip_returns_a_dotted_quad(self):
+        ip = pxe_server.detect_lan_ip()
+        parts = ip.split('.')
+        self.assertEqual(len(parts), 4, ip)
+        self.assertTrue(all(p.isdigit() and 0 <= int(p) <= 255 for p in parts), ip)
+
+    def test_detect_lan_ip_never_raises_without_a_route(self):
+        # It must degrade, not explode: the server still has to start and log
+        # so the operator can see WHY it is not answering.
+        self.assertIsInstance(pxe_server.detect_lan_ip(), str)
+
+
 if __name__ == '__main__':
     unittest.main()
