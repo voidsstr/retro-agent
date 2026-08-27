@@ -95,9 +95,18 @@ fi
     # Windows decrements it and, at zero, deletes AutoAdminLogon and
     # DefaultPassword - so leaving it turns permanent auto-login into
     # exactly-one auto-login, and the agent never starts again.
-    printf '"AutoLogonCount"=-\r\n'
+    printf '"AutoLogonCount"=-\r\n\r\n'
+    # XP SP3 installs with the firewall ON, which drops inbound 9898 - the
+    # agent starts, logs happily, and is simply unreachable, which looks
+    # exactly like it failing to start. Open the one port rather than turning
+    # the firewall off: these boxes are old and unpatched, and the agent needs
+    # nothing else inbound.
+    printf '[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\StandardProfile\\GloballyOpenPorts\\List]\r\n'
+    printf '"9898:TCP"="9898:TCP:*:Enabled:Retro Agent"\r\n\r\n'
+    printf '[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\DomainProfile\\GloballyOpenPorts\\List]\r\n'
+    printf '"9898:TCP"="9898:TCP:*:Enabled:Retro Agent"\r\n'
 } > "$OEM/retroagent.reg"
-echo "   retroagent.reg: auto-login (no count) + RetroAgent Run key"
+echo "   retroagent.reg: auto-login (no count) + Run key + firewall port 9898"
 
 # ---- 4. cmdlines.txt ------------------------------------------------------
 printf '[Commands]\r\n"regedit /s retroagent.reg"\r\n' > "$OEM/cmdlines.txt"
