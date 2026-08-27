@@ -52,6 +52,8 @@ echo "== text-mode NIC drivers -> I386 =="
 # ranked by how many device IDs their INFs cover, then copied best-first with
 # first-wins - so every file a driver needs comes from one consistent build.
 kept=0; skipped=0
+MANIFEST="$(mktemp)"
+trap 'rm -f "$MANIFEST"' EXIT
 ranked=$(for d in $(find "$PACKS/ris/D/LR" -type d | sort); do
     case "$d" in
         *64|*[Vv][Ii][Ss][Tt][Aa]*|*Win2003*|*/2000) continue ;;
@@ -75,14 +77,35 @@ while IFS='|' read -r n d; do
         case "$(basename "$f")" in *64.sys|*64.SYS|*64.inf|*64.INF) continue ;; esac
         target="$IMAGE/I386/$(basename "$f")"
         if [ -e "$target" ]; then
-            cmp -s "$f" "$target" || skipped=$((skipped+1))
+            # Already placed - possibly by an earlier run of this script, whose
+            # registration may not have happened. Record it anyway so the
+            # registrar is idempotent rather than a one-shot.
+            if cmp -s "$f" "$target"; then
+                basename "$f" >> "$MANIFEST"
+            else
+                skipped=$((skipped+1))
+            fi
             continue
         fi
         cp -f "$f" "$target"
+        basename "$f" >> "$MANIFEST"
         kept=$((kept+1))
     done
 done <<< "$ranked"
 echo "   $kept driver files placed in I386, $skipped superseded by a higher-ranked build"
+
+# Placing the files is only half of it. Text-mode setup does NOT enumerate
+# I386 - it only knows what txtsetup.sif lists, so an unregistered driver is
+# invisible no matter that it is physically present. That is exactly how the
+# Gateway 550 kept reporting "does not have the required drivers" against an
+# image containing its driver: 52 of the 54 injected files were unlisted.
+# NICs are matched through these INF listings and not through
+# [HardwareIdsDatabase], which in retail XP SP3 holds 224 entries of which not
+# one is a network adapter.
+if [ "$kept" -gt 0 ] || [ -s "$MANIFEST" ]; then
+    python3 "$HERE/register-txtsetup.py" "$IMAGE/I386/txtsetup.sif" \
+            --from-file "$MANIFEST" | sed 's/^/   /'
+fi
 
 # ---- tier 2: PnP drivers under $OEM$ -------------------------------------
 echo
