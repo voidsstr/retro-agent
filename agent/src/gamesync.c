@@ -236,7 +236,16 @@ static __int64 gs_dir_size(const char *dir, int *files)
     return total;
 }
 
-static void gs_note_progress(__int64 added)
+/* added        - bytes now accounted for, whether transferred or skipped
+ * transferred  - of those, how many actually crossed the wire
+ *
+ * The two differ because resume counts a file that is already present at the
+ * right size as complete without reading it. Feeding those bytes into the rate
+ * window produced readings like 760 MB/s over SMB1 - obvious nonsense on its
+ * own, but the real cost is that a burst of skips inflates the average and can
+ * hide a genuinely stalled transfer for the next few samples. Percentage counts
+ * both; throughput counts only what moved. */
+static void gs_note_progress2(__int64 added, __int64 transferred)
 {
     DWORD now = GetTickCount();
     DWORD dt;
@@ -253,7 +262,7 @@ static void gs_note_progress(__int64 added)
     lstrcpynA(file,  g_gs.file,  sizeof(file));
     LeaveCriticalSection(&g_gs_lock);
 
-    g_win_bytes += added;
+    g_win_bytes += transferred;
     dt = now - g_win_tick;
     /* Recompute the rate about once a second. A cumulative average would let
      * a fast first minute mask a stall for a long time. */
@@ -277,6 +286,11 @@ static void gs_note_progress(__int64 added)
     }
 }
 
+static void gs_note_progress(__int64 added)
+{
+    gs_note_progress2(added, added);
+}
+
 static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
 {
     HANDLE hs, hd;
@@ -290,7 +304,7 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
      * hashing 6 GB over SMB1 on a P3, costs more than it could ever save. */
     already = gs_file_size(dst);
     if (already >= 0 && already == src_size) {
-        gs_note_progress(src_size);
+        gs_note_progress2(src_size, 0);   /* counted, but nothing crossed the wire */
         return 1;
     }
 
