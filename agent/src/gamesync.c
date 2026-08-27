@@ -37,6 +37,7 @@
 #include <windows.h>
 #include <string.h>
 #include <stdio.h>
+#include <shlobj.h>
 
 #define LOG_GS "GAMESYNC"
 
@@ -402,6 +403,311 @@ static int gs_copy_tree(const char *src, const char *dst)
 }
 
 /* ---------------------------------------------------------------------- */
+/* desktop shortcuts                                                       */
+/* ---------------------------------------------------------------------- */
+
+/* A game copied to C:\Games is not much use if nobody can find it. Each title
+ * ships launch.txt at its root - one line, the executable relative to the title
+ * directory, optionally followed by a tab and a display name - and we turn that
+ * into a desktop shortcut as soon as the title lands.
+ *
+ * Why a shipped file rather than guessing: the right executable is genuinely
+ * not guessable. Red Alert 2's launcher is game.exe and NOT the ra2.exe sitting
+ * beside it; Jedi Knight MotS is JKM.EXE, not the GOGLauncher.exe that looks
+ * more like a launcher; Shogo's Shogo.exe is a front end for Client.exe. A
+ * heuristic gets these wrong quietly, and the failure only shows up when
+ * someone double-clicks and nothing happens.
+ *
+ * ole32 is bound at run time, like gameindex.c does, so a box where COM is
+ * unavailable degrades to "no shortcut" rather than failing to start. */
+
+static const GUID GS_CLSID_ShellLink =
+    { 0x00021401, 0x0000, 0x0000, { 0xC0,0,0,0,0,0,0,0x46 } };
+static const GUID GS_IID_IShellLinkA =
+    { 0x000214EE, 0x0000, 0x0000, { 0xC0,0,0,0,0,0,0,0x46 } };
+static const GUID GS_IID_IPersistFile =
+    { 0x0000010B, 0x0000, 0x0000, { 0xC0,0,0,0,0,0,0,0x46 } };
+
+typedef HRESULT (WINAPI *gs_coinit_t)(LPVOID);
+typedef void    (WINAPI *gs_councoinit_t)(void);
+typedef HRESULT (WINAPI *gs_cocreate_t)(REFCLSID, LPUNKNOWN, DWORD, REFIID, LPVOID *);
+typedef HRESULT (WINAPI *gs_shgetfolder_t)(HWND, int, HANDLE, DWORD, LPSTR);
+
+static HMODULE          g_gs_ole32;
+static HMODULE          g_gs_shell32;
+static gs_coinit_t      g_gs_CoInitialize;
+static gs_councoinit_t  g_gs_CoUninitialize;
+static gs_cocreate_t    g_gs_CoCreateInstance;
+static gs_shgetfolder_t g_gs_SHGetFolderPathA;
+
+#define GS_CSIDL_DESKTOPDIRECTORY 0x0010
+#define GS_CSIDL_COMMON_DESKTOPDIRECTORY 0x0019
+
+static int gs_ole_load(void)
+{
+    if (g_gs_ole32)
+        return g_gs_CoCreateInstance != NULL;
+    g_gs_ole32 = LoadLibraryA("ole32.dll");
+    if (!g_gs_ole32)
+        return 0;
+    g_gs_CoInitialize     = (gs_coinit_t)GetProcAddress(g_gs_ole32, "CoInitialize");
+    g_gs_CoUninitialize   = (gs_councoinit_t)GetProcAddress(g_gs_ole32, "CoUninitialize");
+    g_gs_CoCreateInstance = (gs_cocreate_t)GetProcAddress(g_gs_ole32, "CoCreateInstance");
+    g_gs_shell32 = LoadLibraryA("shell32.dll");
+    if (g_gs_shell32)
+        g_gs_SHGetFolderPathA =
+            (gs_shgetfolder_t)GetProcAddress(g_gs_shell32, "SHGetFolderPathA");
+    return g_gs_CoCreateInstance != NULL;
+}
+
+/* Where shortcuts go. Prefer the ALL USERS desktop so the icons survive a
+ * different account logging in - these boxes autologon as Administrator today,
+ * but that is a setting, not a law. Falls back to the per-user desktop, then to
+ * the 9x-era fixed path. */
+static int gs_desktop_dir(char *out, DWORD cch)
+{
+    if (g_gs_SHGetFolderPathA) {
+        if (SUCCEEDED(g_gs_SHGetFolderPathA(NULL, GS_CSIDL_COMMON_DESKTOPDIRECTORY,
+                                            NULL, 0, out)) && out[0])
+            return 1;
+        if (SUCCEEDED(g_gs_SHGetFolderPathA(NULL, GS_CSIDL_DESKTOPDIRECTORY,
+                                            NULL, 0, out)) && out[0])
+            return 1;
+    }
+    {
+        char win[MAX_PATH];
+        if (GetWindowsDirectoryA(win, sizeof(win))) {
+            _snprintf(out, cch - 1, "%s\\Desktop", win);
+            out[cch - 1] = 0;
+            if (gs_file_exists(out))
+                return 1;
+        }
+    }
+    return 0;
+}
+
+static int gs_make_shortcut(const char *target, const char *workdir,
+                            const char *lnk_path, const char *desc)
+{
+    IShellLinkA  *sl = NULL;
+    IPersistFile *pf = NULL;
+    WCHAR         wpath[MAX_PATH];
+    HRESULT       hr;
+    int           ok = 0;
+
+    if (!g_gs_CoCreateInstance)
+        return 0;
+    hr = g_gs_CoCreateInstance(&GS_CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+                               &GS_IID_IShellLinkA, (void **)&sl);
+    if (FAILED(hr) || !sl)
+        return 0;
+
+    sl->lpVtbl->SetPath(sl, target);
+    sl->lpVtbl->SetWorkingDirectory(sl, workdir);
+    /* The icon comes from the game's own exe, so the desktop shows the game's
+     * artwork rather than a row of identical generic icons. */
+    sl->lpVtbl->SetIconLocation(sl, target, 0);
+    if (desc && desc[0])
+        sl->lpVtbl->SetDescription(sl, desc);
+
+    hr = sl->lpVtbl->QueryInterface(sl, &GS_IID_IPersistFile, (void **)&pf);
+    if (SUCCEEDED(hr) && pf) {
+        MultiByteToWideChar(CP_ACP, 0, lnk_path, -1, wpath, MAX_PATH);
+        if (SUCCEEDED(pf->lpVtbl->Save(pf, wpath, TRUE)))
+            ok = 1;
+        pf->lpVtbl->Release(pf);
+    }
+    sl->lpVtbl->Release(sl);
+    return ok;
+}
+
+/* Read launch.txt: "<relative exe>[<TAB><display name>]" on the first line. */
+static int gs_read_launch(const char *dir, char *exe, DWORD exe_cch,
+                          char *name, DWORD name_cch)
+{
+    char   path[MAX_PATH];
+    HANDLE h;
+    char   buf[512];
+    DWORD  got = 0;
+    char  *tab, *end;
+
+    exe[0] = name[0] = 0;
+    _snprintf(path, sizeof(path) - 1, "%s\\launch.txt", dir);
+    path[sizeof(path) - 1] = 0;
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                    0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    if (!ReadFile(h, buf, sizeof(buf) - 1, &got, NULL) || !got) {
+        CloseHandle(h);
+        return 0;
+    }
+    CloseHandle(h);
+    buf[got] = 0;
+    for (end = buf; *end && *end != '\r' && *end != '\n'; end++)
+        ;
+    *end = 0;
+    tab = buf;
+    while (*tab && *tab != '\t')
+        tab++;
+    if (*tab == '\t') {
+        *tab = 0;
+        lstrcpynA(name, tab + 1, name_cch);
+    }
+    lstrcpynA(exe, buf, exe_cch);
+    return exe[0] != 0;
+}
+
+static void gs_make_game_shortcut(const char *dst_dir, const char *title)
+{
+    char exe_rel[MAX_PATH], disp[128], target[MAX_PATH];
+    char desktop[MAX_PATH], lnk[MAX_PATH], workdir[MAX_PATH];
+    char *slash;
+
+    if (!gs_read_launch(dst_dir, exe_rel, sizeof(exe_rel), disp, sizeof(disp)))
+        return;                       /* no launch.txt - nothing to point at */
+    if (!disp[0])
+        lstrcpynA(disp, title, sizeof(disp));
+
+    _snprintf(target, sizeof(target) - 1, "%s\\%s", dst_dir, exe_rel);
+    target[sizeof(target) - 1] = 0;
+    if (!gs_file_exists(target)) {
+        log_msg(LOG_GS, "%s: launch.txt names %s but it is not there - "
+                        "no shortcut", title, exe_rel);
+        return;
+    }
+    /* Working directory is the exe's own folder: many of these games look for
+     * their data relative to the current directory and start in a broken state
+     * if launched from elsewhere. */
+    lstrcpynA(workdir, target, sizeof(workdir));
+    slash = workdir + lstrlenA(workdir);
+    while (slash > workdir && *slash != '\\')
+        slash--;
+    *slash = 0;
+
+    if (!gs_ole_load() || !gs_desktop_dir(desktop, sizeof(desktop)))
+        return;
+    _snprintf(lnk, sizeof(lnk) - 1, "%s\\%s.lnk", desktop, disp);
+    lnk[sizeof(lnk) - 1] = 0;
+
+    if (gs_make_shortcut(target, workdir, lnk, disp))
+        log_msg(LOG_GS, "%s: desktop shortcut -> %s", title, exe_rel);
+    else
+        log_msg(LOG_GS, "%s: could not create desktop shortcut", title);
+}
+
+/* ---------------------------------------------------------------------- */
+/* desktop icon arrangement                                                */
+/* ---------------------------------------------------------------------- */
+
+/* Park the desktop icons in the wallpaper's icon bay.
+ *
+ * The wallpaper (scripts/retro-wallpaper/gen_retro_wall.py) draws a visible
+ * slot for every icon position. THE GEOMETRY BELOW MUST MATCH ITS icon_bay()
+ * EXACTLY - if the two drift, icons land between slots and the whole point of
+ * the design is lost. tests/native/test_icon_bay.c pins them together.
+ *
+ * That drift is not hypothetical: the previous wallpaper reserved a well in the
+ * bottom-LEFT while arrange_icons.exe parked icons in the bottom-RIGHT, so the
+ * art and the icons sat on top of each other.
+ *
+ * Doing this in the agent rather than a staged helper exe matters on a fresh
+ * image, where C:\retro-wall does not exist yet - a machine gets a tidy desktop
+ * on its first boot rather than after someone remembers to stage a tool. */
+
+#define LVM_FIRST_           0x1000
+#define LVM_GETITEMCOUNT_    (LVM_FIRST_ + 4)
+#define LVM_SETITEMPOSITION_ (LVM_FIRST_ + 15)
+#define FCIDM_SHVIEW_AUTOARRANGE_ 0x7031
+
+typedef struct { int x, y, cell_w, cell_h, cols, rows; } gs_bay_t;
+
+/* Mirror of icon_bay() in gen_retro_wall.py. Keep the arithmetic identical. */
+static void gs_icon_bay(int w, int h, gs_bay_t *b)
+{
+    int margin_x = (int)(w * 0.018);
+    int margin_y = (int)(h * 0.030);
+    const int header_h = 34;
+
+    b->cell_w = 76;
+    b->cell_h = 80;
+    if (margin_x < 18) margin_x = 18;
+    if (margin_y < 18) margin_y = 18;
+    b->cols = (int)((w * 0.34) / b->cell_w);
+    if (b->cols < 2) b->cols = 2;
+    b->rows = (h - margin_y - header_h - 24) / b->cell_h;
+    if (b->rows < 3) b->rows = 3;
+    b->x = margin_x;
+    b->y = margin_y + header_h;
+}
+
+static HWND gs_desktop_listview(HWND *defview_out)
+{
+    HWND prog = FindWindowA("Progman", NULL);
+    HWND defview = FindWindowExA(prog, NULL, "SHELLDLL_DefView", NULL);
+    if (!defview) {
+        HWND worker = NULL;
+        while ((worker = FindWindowExA(NULL, worker, "WorkerW", NULL)) != NULL) {
+            defview = FindWindowExA(worker, NULL, "SHELLDLL_DefView", NULL);
+            if (defview)
+                break;
+        }
+    }
+    if (defview_out)
+        *defview_out = defview;
+    if (!defview)
+        return NULL;
+    return FindWindowExA(defview, NULL, "SysListView32", NULL);
+}
+
+static void gs_arrange_icons(void)
+{
+    HWND     defview = NULL;
+    HWND     lv = gs_desktop_listview(&defview);
+    gs_bay_t bay;
+    int      count, i, col, row;
+    int      sw, sh;
+
+    if (!lv) {
+        log_msg(LOG_GS, "desktop listview not found - icons left as they are");
+        return;
+    }
+    sw = GetSystemMetrics(SM_CXSCREEN);
+    sh = GetSystemMetrics(SM_CYSCREEN);
+    gs_icon_bay(sw, sh, &bay);
+
+    /* Auto Arrange must be off or the shell snaps everything back to the
+     * top-left grid, including on every later wallpaper refresh. It is a
+     * TOGGLE, and PostMessage rather than SendMessage because a synchronous
+     * send into the shell can block us indefinitely. */
+    if (defview) {
+        PostMessageA(defview, WM_COMMAND, FCIDM_SHVIEW_AUTOARRANGE_, 0);
+        Sleep(400);
+    }
+
+    count = (int)SendMessageA(lv, LVM_GETITEMCOUNT_, 0, 0);
+    if (count <= 0)
+        return;
+
+    for (i = 0; i < count; i++) {
+        col = i % bay.cols;
+        row = i / bay.cols;
+        /* More icons than slots: keep packing downward rather than refusing.
+         * A machine with a small screen and every game installed should still
+         * get a tidy column, even if it runs past the drawn cells. */
+        if (row >= bay.rows)
+            row = bay.rows - 1 + (i / bay.cols - bay.rows + 1);
+        /* +6 centres the icon in its drawn cell (cells are inset by 3 and the
+         * icon's own bitmap is smaller than the cell). */
+        SendMessageA(lv, LVM_SETITEMPOSITION_, (WPARAM)i,
+                     MAKELPARAM(bay.x + col * bay.cell_w + 6,
+                                bay.y + row * bay.cell_h + 6));
+    }
+    log_msg(LOG_GS, "arranged %d desktop icon(s) into the %dx%d icon bay",
+            count, bay.cols, bay.rows);
+}
+
+/* ---------------------------------------------------------------------- */
 /* per-title registry merge                                                */
 /* ---------------------------------------------------------------------- */
 
@@ -587,6 +893,7 @@ static void gs_run(const char *library)
         if (gs_copy_tree(src, dst)) {
             ok_titles++;
             gs_merge_reg(dst, titles[i]);
+            gs_make_game_shortcut(dst, titles[i]);
         } else {
             log_msg(LOG_GS, "%s finished with errors", titles[i]);
         }
@@ -600,6 +907,12 @@ static void gs_run(const char *library)
     g_gs.state = g_gs_abort ? GS_FAILED : GS_DONE;
     i = g_gs.failed_files;
     LeaveCriticalSection(&g_gs_lock);
+
+    /* Arrange AFTER every shortcut exists: the shell creates a listview item
+     * per .lnk asynchronously, so arranging per title would keep re-sorting a
+     * list that is still growing. */
+    Sleep(2000);
+    gs_arrange_icons();
 
     log_msg(LOG_GS, "done: %d/%d title(s) copied, %d skipped, %d file error(s)",
             ok_titles, n, g_gs.skipped_titles, i);
@@ -625,7 +938,14 @@ static DWORD WINAPI gs_worker(LPVOID param)
     lstrcpynA(lib, a->library, sizeof(lib));
     HeapFree(GetProcessHeap(), 0, a);
 
+    /* COM must be initialised on the thread that uses it. Do it around the
+     * whole run rather than per shortcut - CoInitialize is cheap but the
+     * apartment has to outlive every interface pointer we hold. */
+    if (gs_ole_load() && g_gs_CoInitialize)
+        g_gs_CoInitialize(NULL);
     gs_run(lib);
+    if (g_gs_CoUninitialize)
+        g_gs_CoUninitialize();
     InterlockedExchange((LONG *)&g_gs_running, 0);
     return 0;
 }
