@@ -122,16 +122,58 @@ for pack in lan chipset massstorage; do
     # OemPnPDriversPath is relative to %SystemDrive% and is a SEMICOLON list.
     # Every directory holding an INF has to be named explicitly - PnP does not
     # recurse, which is the usual reason a staged driver is never used.
+    # Two things are wrong with the obvious approach here, and both were.
+    #
+    # 1. `ls "$d"/*.inf "$d"/*.INF` returns non-zero when EITHER glob fails,
+    #    even though the other matched - the identical trap fixed 60 lines
+    #    above. It selected only directories holding BOTH cases, which was 19
+    #    of 200. The other 181 were staged but unreachable, and PnP does not
+    #    recurse, so most of the drivers could never be found. Use find -iname.
+    #
+    # 2. OemPnPDriversPath is one semicolon-separated line that ends up in a
+    #    single registry value. The DriverPacks tree is deep
+    #    (Drivers\lan\D\L\3\...), so 200 of those paths is roughly 6 KB -
+    #    past what XP handles. Each driver directory is therefore re-staged
+    #    under a SHORT flat name (Drivers\L001, Drivers\C001, Drivers\M001).
+    #    Copying whole directories rather than flattening files keeps every
+    #    driver's INF and .sys from one consistent build - mixing them produces
+    #    something that looks installed and cannot bind.
+    case "$pack" in
+        lan)         initial=L ;;
+        chipset)     initial=C ;;
+        massstorage) initial=M ;;
+        *)           initial=X ;;
+    esac
+    idx=0
     while IFS= read -r d; do
-        rel="Drivers/$pack/${d#"$OEM/$pack/"}"
-        [ "$d" = "$OEM/$pack" ] && rel="Drivers/$pack"
-        paths="$paths;$(echo "$rel" | tr '/' '\\')"
-    done < <(find "$OEM/$pack" -type d -exec sh -c 'ls "$1"/*.inf "$1"/*.INF >/dev/null 2>&1' _ {} \; -print)
-    echo "   $pack: $n INFs"
+        [ -n "$d" ] || continue
+        idx=$((idx+1))
+        short=$(printf '%s%03d' "$initial" "$idx")
+        rm -rf "${OEM:?}/$short"
+        mkdir -p "$OEM/$short"
+        # Copy the directory's own files only; a nested driver directory gets
+        # its own short name from its own iteration of this loop.
+        find "$d" -maxdepth 1 -type f -exec cp -f {} "$OEM/$short/" \;
+        paths="$paths;Drivers\\$short"
+    done < <(find "$OEM/$pack" -type d | sort | while IFS= read -r cand; do
+                 [ -n "$(find "$cand" -maxdepth 1 -iname '*.inf' 2>/dev/null)" ] \
+                     && echo "$cand"
+             done)
+    # The deep tree was only ever a staging area for the short copies.
+    rm -rf "${OEM:?}/$pack"
+    echo "   $pack: $n INFs in $idx directories -> ${initial}001..$(printf '%s%03d' "$initial" "$idx")"
 done
 paths="${paths#;}"
 printf '%s' "$paths" > "$IMAGE/OemPnPDriversPath.txt"
-echo "   OemPnPDriversPath written to $IMAGE/OemPnPDriversPath.txt ($(printf '%s' "$paths" | tr ';' '\n' | wc -l) dirs)"
+ndirs=$(printf '%s' "$paths" | tr ';' '\n' | wc -l)
+nchars=${#paths}
+echo "   OemPnPDriversPath: $ndirs dirs, $nchars chars -> $IMAGE/OemPnPDriversPath.txt"
+# The value lands in one registry string. Past roughly 4 KB XP starts truncating
+# it, and a truncated list fails silently - the drivers are simply never found.
+if [ "$nchars" -gt 4000 ]; then
+    echo "   WARNING: $nchars chars exceeds the ~4096 XP handles reliably;" >&2
+    echo "            trailing directories will be ignored at install time." >&2
+fi
 
 echo
 echo "Done. Rebuild the payload so winnt.sif picks up the new path:"

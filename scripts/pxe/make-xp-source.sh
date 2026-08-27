@@ -191,7 +191,14 @@ install -m 0644 "$SRC/I386/NTDETECT.COM" "$TFTP_ROOT/ntdetect.com"
     printf '    AdminPassword = "password"\r\n'
     printf '    EncryptedAdminPassword = No\r\n'
     printf '    AutoLogon = Yes\r\n'
-    printf '    AutoLogonCount = 1\r\n'
+    # DELIBERATELY NO AutoLogonCount. When that value exists Windows decrements
+    # it at each logon and, on reaching zero, DELETES AutoAdminLogon and
+    # DefaultPassword. With the count at 1 the machine auto-logs in exactly once
+    # and every boot after that stops at the logon screen - which on this fleet
+    # means the agent never starts and the box is off the network for good, from
+    # a setting that looked like it was doing the right thing. Auto-login is
+    # made permanent instead by retroagent.reg (see stage-oem.sh), which sets
+    # AutoAdminLogon with no count.
     printf '    OEMSkipRegional = 1\r\n'
     printf '    OemSkipWelcome = 1\r\n'
     printf '    TimeZone = %s\r\n' "$TIMEZONE"
