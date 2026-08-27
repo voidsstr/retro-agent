@@ -98,6 +98,112 @@ class Request:
 
 
 # --------------------------------------------------------------------------
+# serve-once hold
+# --------------------------------------------------------------------------
+
+def mac_for_ip(ip):
+    """MAC of a same-segment host, from the kernel ARP cache.
+
+    TFTP only ever learns the client's IP, but the hold has to be keyed on
+    something stable across the reboot - and the whole point is that the IP may
+    change. The client has just DHCPed and talked to us, so it is in the cache.
+    """
+    try:
+        with open('/proc/net/arp', encoding='ascii') as fh:
+            next(fh, None)
+            for line in fh:
+                f = line.split()
+                if len(f) >= 4 and f[0] == ip and f[3] != '00:00:00:00:00:00':
+                    return f[3].lower()
+    except OSError:
+        pass
+    return None
+
+
+class BootHold:
+    """Serve a machine once, then stand aside until released.
+
+    WHY THIS EXISTS. A proxyDHCP server cannot tell a bare machine from one
+    that has just finished installing - both send the same DISCOVER. So if
+    network boot stays ahead of the disk in the BIOS order, the machine PXE
+    boots again the moment text-mode setup reboots it, setup starts over, and
+    with AutoPartition/Repartition in winnt.sif it REPARTITIONS AND REFORMATS
+    the disk it was halfway through installing. The install can never finish,
+    and nothing in the log looks like an error: it reads as a tidy, identical
+    boot sequence every few minutes. Observed on the Gateway 550
+    (00:d0:b7:40:96:a9) on 2026-08-27, looping every 5.5 minutes.
+
+    A hold is armed when the machine successfully DOWNLOADS the boot file, not
+    when it is offered one. Offers get retried several times within a single
+    boot - the Intel Boot Agent here sends three - so arming on the offer would
+    block the very boot it was meant to allow. A completed download means the
+    ROM is committed and setup is starting.
+
+    Retries inside one boot are unaffected: by the time the download finishes,
+    the ROM already has the offer it needs.
+    """
+
+    def __init__(self, path, hold_seconds):
+        self.path = path
+        self.hold = int(hold_seconds or 0)
+        self.lock = threading.Lock()
+        self.served = {}
+        if self.hold:
+            self._load()
+
+    def _load(self):
+        try:
+            with open(self.path, encoding='ascii') as fh:
+                data = json.load(fh)
+            if isinstance(data, dict):
+                self.served = {k.lower(): float(v) for k, v in data.items()}
+        except (OSError, ValueError):
+            self.served = {}
+
+    def _save(self):
+        try:
+            tmp = self.path + '.tmp'
+            with open(tmp, 'w', encoding='ascii') as fh:
+                json.dump(self.served, fh)
+            os.replace(tmp, self.path)
+        except OSError as exc:
+            log(f'boot-hold: cannot write {self.path}: {exc}')
+
+    def held(self, mac):
+        """True if this MAC should NOT be offered a boot file right now."""
+        if not self.hold or not mac:
+            return False
+        with self.lock:
+            ts = self.served.get(mac.lower())
+        return ts is not None and (time.time() - ts) < self.hold
+
+    def arm(self, mac):
+        if not self.hold or not mac:
+            return
+        with self.lock:
+            self.served[mac.lower()] = time.time()
+            self._save()
+        log(f'boot-hold: armed for {mac} - not offering again for {self.hold}s '
+            f'(release with --release {mac})')
+
+    def release(self, mac):
+        with self.lock:
+            if mac == 'all':
+                n = len(self.served)
+                self.served = {}
+            else:
+                n = 1 if self.served.pop(mac.lower(), None) is not None else 0
+            self._save()
+        return n
+
+    def listing(self):
+        now = time.time()
+        with self.lock:
+            return sorted((m, max(0, int(self.hold - (now - t))))
+                          for m, t in self.served.items())
+
+
+# --------------------------------------------------------------------------
 # proxyDHCP
 # --------------------------------------------------------------------------
 
@@ -206,6 +312,13 @@ class ProxyDHCP(threading.Thread):
                     continue
                 reply_type = DHCP_ACK
             else:
+                continue
+            hold = self.cfg.get('_hold')
+            if hold is not None and hold.held(req.mac):
+                # Already installed from us once. Staying quiet is what lets the
+                # machine fall through to its own disk instead of reinstalling.
+                log(f'proxyDHCP HOLD -> {req.mac} (already served; '
+                    f'--release {req.mac} to reinstall)')
                 continue
             bootfile = self.bootfile(req)
             reply = self.build_reply(req, reply_type, bootfile)
@@ -338,6 +451,13 @@ class TFTPServer(threading.Thread):
                         break
                     block += 1
             log(f'tftp {addr[0]} DONE {filename}')
+            # Arm only on the boot file itself. Setup fetches a dozen other
+            # files over TFTP; any of them would be the wrong trigger.
+            hold = self.cfg.get('_hold')
+            if hold is not None and os.path.basename(
+                    filename.replace('\\', '/')).lower() == str(
+                    self.cfg.get('bootfile', '')).lower():
+                hold.arm(mac_for_ip(addr[0]))
         except OSError as exc:
             log(f'tftp {addr[0]} error on {filename}: {exc}')
         finally:
@@ -400,6 +520,11 @@ DEFAULT_CONFIG = {
     'bootfile': 'startrom.n12',
     'bootfile_by_arch': {},
     'logfile': os.path.join(_ROOT, 'pxe_server.log'),
+    # Once a machine has taken the boot file, stand aside for this long so
+    # it can boot the disk it just installed. 0 disables the hold and
+    # restores the old always-offer behaviour. See BootHold.
+    'boot_hold_seconds': 3600,
+    'state_file': os.path.join(_ROOT, 'pxe_state.json'),
 }
 
 
@@ -408,6 +533,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--config', default=os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                      'pxe_config.json'))
+    ap.add_argument('--release', metavar='MAC',
+                    help="drop the serve-once hold on a MAC (or 'all') so it "
+                         "can install again, then exit")
+    ap.add_argument('--list-holds', action='store_true',
+                    help='show which machines are being held, and for how long')
     args = ap.parse_args()
 
     cfg = dict(DEFAULT_CONFIG)
@@ -415,6 +545,21 @@ def main():
         with open(args.config, encoding='ascii') as fh:
             cfg.update(json.load(fh))
     LOGFILE = cfg.get('logfile')
+    hold = BootHold(cfg.get('state_file'), cfg.get('boot_hold_seconds', 0))
+    cfg['_hold'] = hold
+
+    if args.release:
+        n = hold.release(args.release)
+        print(f'released {n} hold(s)')
+        return 0
+    if args.list_holds:
+        rows = hold.listing()
+        if not rows:
+            print('no machines held')
+        for mac, left in rows:
+            print(f'{mac}  {left}s remaining' if left else f'{mac}  expired')
+        return 0
+
     if str(cfg.get('server_ip', '')).lower() in ('', 'auto'):
         cfg['server_ip'] = detect_lan_ip()
 
