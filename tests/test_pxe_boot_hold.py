@@ -66,6 +66,23 @@ def main():
     check('--release all drops every hold',
           fresh.release('all') == 2 and not fresh.held(mac))
 
+    print('== an external --release reaches the RUNNING server ==')
+    # --release runs as a separate process and can only rewrite the state file.
+    # If the running server keeps its stale in-memory copy, the release does
+    # nothing and then gets overwritten on the next arm - indistinguishable
+    # from the hold being broken, and it cost a test cycle to spot.
+    running = pxe.BootHold(state, 3600)
+    running.arm(mac)
+    external = pxe.BootHold(state, 3600)
+    external.release(mac)
+    check('the running server sees a release made by another process',
+          not running.held(mac))
+    # ...and must not resurrect it when it next writes.
+    running.arm(other)
+    check('arming after an external release does not revive the old hold',
+          not running.held(mac) and running.held(other))
+    running.release('all')
+
     print('== the guard fails open, never closed ==')
     disabled = pxe.BootHold(os.path.join(tmp, 'd.json'), 0)
     disabled.arm(mac)

@@ -153,6 +153,7 @@ class BootHold:
         self.hold = int(hold_seconds or 0)
         self.lock = threading.Lock()
         self.served = {}
+        self.mtime = None
         if self.hold:
             self._load()
 
@@ -164,6 +165,37 @@ class BootHold:
                 self.served = {k.lower(): float(v) for k, v in data.items()}
         except (OSError, ValueError):
             self.served = {}
+        self._stamp()
+
+    def _stamp(self):
+        try:
+            self.mtime = os.stat(self.path).st_mtime
+        except OSError:
+            self.mtime = None
+
+    def _refresh(self):
+        """Re-read the state file if something else changed it.
+
+        `--release` runs as a SEPARATE process: it can only rewrite the file,
+        it cannot reach into the running server. Without this the running
+        server keeps its stale in-memory copy, happily overwrites the file on
+        its next arm, and the release silently does nothing - which looks
+        exactly like the hold being broken. Caller must hold the lock.
+        """
+        try:
+            cur = os.stat(self.path).st_mtime
+        except OSError:
+            return
+        if cur != self.mtime:
+            try:
+                with open(self.path, encoding='ascii') as fh:
+                    data = json.load(fh)
+                self.served = ({k.lower(): float(v) for k, v in data.items()}
+                               if isinstance(data, dict) else {})
+                log('boot-hold: reloaded state changed by another process')
+            except (OSError, ValueError):
+                pass
+            self.mtime = cur
 
     def _save(self):
         try:
@@ -173,12 +205,14 @@ class BootHold:
             os.replace(tmp, self.path)
         except OSError as exc:
             log(f'boot-hold: cannot write {self.path}: {exc}')
+        self._stamp()
 
     def held(self, mac):
         """True if this MAC should NOT be offered a boot file right now."""
         if not self.hold or not mac:
             return False
         with self.lock:
+            self._refresh()
             ts = self.served.get(mac.lower())
         return ts is not None and (time.time() - ts) < self.hold
 
@@ -186,6 +220,7 @@ class BootHold:
         if not self.hold or not mac:
             return
         with self.lock:
+            self._refresh()
             self.served[mac.lower()] = time.time()
             self._save()
         log(f'boot-hold: armed for {mac} - not offering again for {self.hold}s '
