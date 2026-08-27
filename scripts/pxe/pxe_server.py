@@ -274,6 +274,7 @@ class ProxyDHCP(threading.Thread):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        bind_to_device(sock, self.cfg.get('bind_device', ''))
         sock.bind(('', self.port))
         log(f'proxyDHCP listening on UDP {self.port}')
         while True:
@@ -390,6 +391,7 @@ class TFTPServer(threading.Thread):
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        bind_to_device(sock, self.cfg.get('bind_device', ''))
         sock.bind(('', 69))
         log(f'TFTP listening on UDP 69, root={self.root}')
         while True:
@@ -485,6 +487,24 @@ class TFTPServer(threading.Thread):
 
 # --------------------------------------------------------------------------
 
+def bind_to_device(sock, dev):
+    """Pin a socket to one interface.
+
+    SO_BINDTODEVICE needs CAP_NET_RAW, which we already have - the DHCP ports
+    require root anyway. Failure is logged and tolerated rather than fatal: a
+    server answering on every interface is still useful, whereas refusing to
+    start is not.
+    """
+    if not dev:
+        return True
+    try:
+        sock.setsockopt(socket.SOL_SOCKET, 25, dev.encode() + b'\0')  # SO_BINDTODEVICE
+        return True
+    except OSError as exc:
+        log(f'bind_device: cannot pin socket to {dev}: {exc}')
+        return False
+
+
 def detect_lan_ip():
     """This host's address on the route out to the fleet.
 
@@ -534,6 +554,13 @@ DEFAULT_CONFIG = {
     # reinstall whenever you actually want one) and a too-short hold costs the
     # entire install.
     'boot_hold_seconds': 21600,
+    # Pin every socket to one interface. Normally empty, meaning 'all'.
+    # Needed when the host has more than one link on the fleet LAN,
+    # because the proxyDHCP OFFER is a broadcast to 255.255.255.255 and
+    # the kernel picks its egress interface from the route table - which
+    # sends it out the default route no matter which link the DISCOVER
+    # arrived on. That silently loses every client on the other link.
+    'bind_device': '',
     'state_file': os.path.join(_ROOT, 'pxe_state.json'),
 }
 
