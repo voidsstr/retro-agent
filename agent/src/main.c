@@ -1066,6 +1066,13 @@ void agent_run(void)
     gameindex_init();
     spawn_helper(gameindex_thread, "gameindex");
 
+    /* gamesync provisions the game library onto a freshly installed box.
+     * Its thread exits immediately when the marker file says this machine
+     * has already been done, so it costs nothing on an established box. */
+    log_msg(LOG_MAIN, "startup: spawning gamesync thread");
+    gamesync_init();
+    spawn_helper(gamesync_thread, "gamesync");
+
     log_msg(LOG_MAIN, "startup: spawning watchdog thread");
     spawn_helper(watchdog_thread, "watchdog");
 
