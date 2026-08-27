@@ -61,6 +61,53 @@ vendor class `PXEClient`, with `yiaddr = 0.0.0.0`, `siaddr = <this host>`, the
 boot file name, and PXE option 43 (discovery control 0x07). The LAN's real DHCP
 server keeps doing addressing, so this is safe to leave running.
 
+## The product key lives in Key Vault, not in this repo
+
+The XP media is RETAIL (`I386\SETUPP.INI` reads `Pid=76487000`; the trailing
+`000` is the retail channel), so an unattended install needs a product key and
+`FullUnattended` stops dead without one.
+
+The key is in **`nsc-secrets-kv`** as **`fleet-winxp-pro-sp3-product-key`** -
+the same vault and the same `fleet-*` naming `install/recover-credentials.sh`
+uses for everything else, so a host rebuild recovers it with the rest.
+
+```bash
+PRODUCT_KEY="$(az keyvault secret show --vault-name nsc-secrets-kv \
+    --name fleet-winxp-pro-sp3-product-key --query value -o tsv)" \
+    WIPE=1 bash scripts/pxe/make-xp-source.sh
+```
+
+Never write the key into `pxe_config.json`, the template, or a commit. It is
+passed in at build time and lands only in the generated `winnt.sif`.
+
+**And know what that means: `winnt.sif` is served over TFTP with no
+authentication.** Anyone on the fleet LAN can fetch it and read the key. That is
+an accepted trade on an isolated LAN, but it is a real exposure and it is the
+reason the key is not baked into the payload permanently - rebuild without
+`PRODUCT_KEY` when you are done imaging and the file goes back to
+`ProvideDefault` with no key in it.
+
+### Failing over to another host
+
+Everything needed is either in git or in Key Vault, so a rebuild is:
+
+1. `git clone` this repo; the PXE server, builder, unit and self-test come with it.
+2. Mount the NAS at `/mnt/retro-share` (the fstab entry uses
+   `credentials=/etc/cifs-retro-share.creds`, `vers=2.0`, `nofail`,
+   `x-systemd.automount`).
+3. `apt-get install cabextract` - the boot files are CABs, not SZDD.
+4. Pull the key from the vault and run `make-xp-source.sh` as above.
+5. `sudo cp scripts/pxe/retro-pxe.service /etc/systemd/system/ && sudo systemctl enable --now retro-pxe`
+6. `sudo python3 scripts/pxe/pxe_selftest.py` - 13/13 before you trust it.
+
+Nothing is pinned to this machine: `server_ip` is `auto`, and the TFTP payload
+is rebuilt from the NAS rather than copied. The one thing NOT recoverable from
+the vault is the XP media itself, which lives on the NAS at
+`Files/OS/XPSP3-PXE`.
+
+**Do not run two PXE hosts on one LAN.** Two proxyDHCP servers answering one
+DISCOVER is a race and which boot file wins is down to timing.
+
 ## Rebuilding the XP payload
 
 On the Linux host:
