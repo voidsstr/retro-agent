@@ -385,6 +385,59 @@ static int gs_copy_tree(const char *src, const char *dst)
 }
 
 /* ---------------------------------------------------------------------- */
+/* per-title registry merge                                                */
+/* ---------------------------------------------------------------------- */
+
+/* Some games will not launch from a copied directory alone. Jedi Knight and
+ * Mysteries of the Sith each open "<CD Path>\jk_.cd" as a disc-presence check
+ * and refuse to start without the registry value pointing at the marker file
+ * that ships in their tree; Red Alert 2 and others want an install path. A
+ * title that needs this carries install.reg at its root, written against
+ * C:\Games\<Title>, and we merge it here - immediately after that title's
+ * files land, so a failure is attributable to the title rather than showing up
+ * as a mysteriously broken game weeks later.
+ *
+ * Merging is best-effort by design: a game that fails to register is still
+ * worth having on disk, and refusing to continue would cost the other twenty. */
+static void gs_merge_reg(const char *dst_dir, const char *title)
+{
+    char reg_path[MAX_PATH];
+    char cmd[MAX_PATH + 64];
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+    DWORD code = 0;
+
+    _snprintf(reg_path, sizeof(reg_path) - 1, "%s\\install.reg", dst_dir);
+    reg_path[sizeof(reg_path) - 1] = 0;
+    if (!gs_file_exists(reg_path))
+        return;
+
+    _snprintf(cmd, sizeof(cmd) - 1, "regedit /s \"%s\"", reg_path);
+    cmd[sizeof(cmd) - 1] = 0;
+
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    memset(&pi, 0, sizeof(pi));
+
+    if (!CreateProcessA(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        log_msg(LOG_GS, "%s: cannot run regedit (%lu) - game may not launch",
+                title, GetLastError());
+        return;
+    }
+    /* regedit /s is quick, but never wait forever on it. */
+    if (WaitForSingleObject(pi.hProcess, 60000) == WAIT_TIMEOUT)
+        log_msg(LOG_GS, "%s: regedit still running after 60s, leaving it", title);
+    else if (GetExitCodeProcess(pi.hProcess, &code) && code != 0)
+        log_msg(LOG_GS, "%s: regedit exited %lu", title, code);
+    else
+        log_msg(LOG_GS, "%s: merged install.reg", title);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+}
+
+/* ---------------------------------------------------------------------- */
 /* the run                                                                 */
 /* ---------------------------------------------------------------------- */
 
@@ -514,10 +567,12 @@ static void gs_run(const char *library)
         src[sizeof(src) - 1] = 0;
         dst[sizeof(dst) - 1] = 0;
 
-        if (gs_copy_tree(src, dst))
+        if (gs_copy_tree(src, dst)) {
             ok_titles++;
-        else
+            gs_merge_reg(dst, titles[i]);
+        } else {
             log_msg(LOG_GS, "%s finished with errors", titles[i]);
+        }
 
         EnterCriticalSection(&g_gs_lock);
         g_gs.done_titles++;
