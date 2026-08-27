@@ -135,9 +135,22 @@ class ProxyDHCP(threading.Thread):
         pkt[108:108 + len(bf)] = bf
         pkt[236:240] = MAGIC_COOKIE
 
-        # PXE vendor options: tell the client to just use the boot file we gave
-        # it (discovery control = 0x07: no multicast, no broadcast, no prompt).
-        pxe = opt(6, b'\x07') + b'\xff'
+        # PXE vendor options - option 6 is PXE_DISCOVERY_CONTROL, a BITFIELD:
+        #   0x01  do not do broadcast boot-server discovery
+        #   0x02  do not do multicast boot-server discovery
+        #   0x04  accept ONLY boot servers named in PXE_BOOT_SERVERS (option 8)
+        #   0x08  the boot file is in this offer - download it, skip discovery
+        #
+        # This used to send 0x07, described in the comment as "no prompt". That
+        # is not what 0x04 means. 0x04 tells the ROM to accept only servers
+        # from a list we never send, so the Gateway 440BX (Intel Boot Agent)
+        # went looking for that list, found nothing, and stopped with
+        # "bad or missing server discovery list" - 2026-08-26.
+        #
+        # 0x0B is what was meant all along: suppress both discovery cycles AND
+        # set bit 3, which is the bit that actually says "just use the boot
+        # file from this offer". No list needed, because no discovery happens.
+        pxe = opt(6, b'\x0b') + b'\xff'
 
         options = b''
         options += opt(53, bytes([msgtype]))
@@ -175,6 +188,22 @@ class ProxyDHCP(threading.Thread):
             if req.msgtype == DHCP_DISCOVER:
                 reply_type = DHCP_OFFER
             elif req.msgtype in (DHCP_REQUEST, DHCP_INFORM):
+                # ONLY on 4011. Answering a DHCPREQUEST on port 67 is what
+                # stalled the Gateway 440BX (Intel Boot Agent, 00:d0:b7:...)
+                # on 2026-08-26: the client broadcasts its REQUEST and gets
+                # TWO acks - the router's, carrying the real lease, and ours,
+                # carrying yiaddr 0.0.0.0 because a proxy never assigns. When
+                # ours is the one it keeps, the machine has NO IP, and a PXE
+                # client with no address cannot open a TFTP session. It waits,
+                # times out, and starts the whole DISCOVER again - which in the
+                # log looks like OFFER, OFFER, ACK, silence, retry, forever,
+                # with the boot side apparently working perfectly.
+                #
+                # The spec puts this exchange on 4011 for exactly this reason:
+                # there it is unicast to the client, cannot race the real DHCP
+                # server, and cannot be mistaken for the address assignment.
+                if self.port != 4011:
+                    continue
                 reply_type = DHCP_ACK
             else:
                 continue

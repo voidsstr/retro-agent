@@ -63,7 +63,11 @@ class TestProxyDHCP(unittest.TestCase):
         self.assertEqual(opts[60], b'PXEClient')
         self.assertEqual(opts[54], bytes([192, 168, 1, 249]))
         self.assertEqual(opts[53], b'\x02')
-        self.assertEqual(opts[43], b'\x06\x01\x07\xff')  # discovery control: use our boot file
+        # sub-option 6 = discovery control. 0x0b = no broadcast discovery
+        # (0x01) + no multicast discovery (0x02) + "the boot file is in this
+        # offer, use it" (0x08). It was 0x07, whose 0x04 bit points the ROM at
+        # a PXE_BOOT_SERVERS list we never send - see DiscoveryControlTests.
+        self.assertEqual(opts[43], b'\x06\x01\x0b\xff')
 
     def test_ack_for_request(self):
         req = pxe_server.Request(discover(msgtype=3), ('0.0.0.0', 68))
@@ -101,6 +105,96 @@ class TestTFTPPaths(unittest.TestCase):
 
     def test_missing_file(self):
         self.assertIsNone(self.srv.resolve('nope.0'))
+
+
+class DiscoveryControlTests(unittest.TestCase):
+    """Option 43 sub-option 6 is a BITFIELD, and the wrong bit stops the boot.
+
+        0x01  no broadcast boot-server discovery
+        0x02  no multicast boot-server discovery
+        0x04  accept ONLY boot servers listed in PXE_BOOT_SERVERS (option 8)
+        0x08  the boot file is in this offer - download it, skip discovery
+
+    It shipped as 0x07 with a comment calling 0x04 "no prompt". It is not. It
+    points the ROM at a boot-server list we never send, and the Gateway 440BX
+    stopped with "bad or missing server discovery list" - the ROM was looking
+    for a list that by construction could not exist.
+    """
+
+    def _disco(self):
+        proxy = pxe_server.ProxyDHCP(CFG, 67)
+        req = pxe_server.Request(discover(), ('0.0.0.0', 68))
+        reply = proxy.build_reply(req, pxe_server.DHCP_OFFER, 'startrom.n12')
+        vendor = pxe_server.parse_options(reply)[43]
+        j = 0
+        while j < len(vendor) and vendor[j] != 0xFF:
+            sub, slen = vendor[j], vendor[j + 1]
+            if sub == 6:
+                return vendor[j + 2]
+            j += 2 + slen
+        return None
+
+    def test_bit3_is_set_so_the_rom_uses_the_offered_boot_file(self):
+        d = self._disco()
+        self.assertIsNotNone(d, 'no discovery-control sub-option in option 43')
+        self.assertTrue(d & 0x08,
+                        f'0x{d:02x}: bit 3 unset, so the ROM runs a boot-server '
+                        f'discovery cycle instead of just fetching the file')
+
+    def test_bit2_is_not_set_while_we_send_no_boot_server_list(self):
+        d = self._disco()
+        self.assertFalse(d & 0x04,
+                         f'0x{d:02x}: bit 2 tells the ROM to accept only servers '
+                         f'from PXE_BOOT_SERVERS, which we never send - that is '
+                         f'"bad or missing server discovery list"')
+
+    def test_both_discovery_cycles_are_suppressed(self):
+        d = self._disco()
+        self.assertTrue(d & 0x01 and d & 0x02, f'0x{d:02x}')
+
+
+class ProxyMustNotAckOnPort67Tests(unittest.TestCase):
+    """Port 67 answers DISCOVER only. Port 4011 is where an ACK belongs.
+
+    A proxyDHCP never assigns an address, so its reply carries yiaddr 0.0.0.0.
+    If it ACKs a broadcast DHCPREQUEST on port 67, the client receives TWO acks
+    - the real server's with the lease, and ours with no address - and when
+    ours is the one it keeps, the machine has no IP. A PXE client with no IP
+    cannot open a TFTP session, so it waits, times out, and restarts DISCOVER.
+
+    That is what stalled the Gateway 440BX (Intel Boot Agent, 00:d0:b7:...) on
+    2026-08-26, and it is a nasty one to read: the server log shows OFFER,
+    OFFER, ACK on a loop and looks like it is working perfectly, while the
+    target never fetches a byte.
+    """
+
+    @staticmethod
+    def _handled(port, msgtype):
+        """Mirror the dispatch decision in ProxyDHCP.run()."""
+        if msgtype == pxe_server.DHCP_DISCOVER:
+            return 'OFFER'
+        if msgtype in (pxe_server.DHCP_REQUEST, pxe_server.DHCP_INFORM):
+            return 'ACK' if port == 4011 else None
+        return None
+
+    def test_discover_is_answered_on_both_ports(self):
+        for port in (67, 4011):
+            self.assertEqual(self._handled(port, pxe_server.DHCP_DISCOVER), 'OFFER')
+
+    def test_request_is_ignored_on_67_and_acked_on_4011(self):
+        for msg in (pxe_server.DHCP_REQUEST, pxe_server.DHCP_INFORM):
+            self.assertIsNone(self._handled(67, msg),
+                              'an ACK on 67 races the real DHCP server and can '
+                              'leave the client with no address')
+            self.assertEqual(self._handled(4011, msg), 'ACK')
+
+    def test_the_source_actually_carries_the_port_guard(self):
+        # The mirror above is only meaningful if the real dispatch has it.
+        src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                '..', '..', 'scripts', 'pxe',
+                                'pxe_server.py')).read()
+        self.assertIn('if self.port != 4011:', src,
+                      'port-67 ACK guard is missing from ProxyDHCP.run()')
 
 
 class HostPortabilityTests(unittest.TestCase):
