@@ -32,6 +32,41 @@ echo dosstart: ---- reached MS-DOS mode ---- >> C:\DOSGAME\DOSGAME.LOG
 
 :nolog
 PATH=C:\WINDOWS;C:\WINDOWS\COMMAND;C:\DOSGAME;C:\DOSCHAT
+rem The DOS environment had NO mouse driver: every mouse game said
+rem "mouse not detected", and Return to Zork hung outright - it polls
+rem INT 33h and on real hardware nothing answers without a driver.
+rem DOSBox installs its own INT 33h handler, which is why no DOSBox
+rem test ever caught it. CuteMouse is FreeDOS's GPL driver, 6K.
+rem THE MOUSE DRIVER IS OPT-OUT NOW, and this is why. The keyboard stopped
+rem working inside games on .243 in the same session CuteMouse was first
+rem staged. That box is PS/2 at both ends - BIOS enum shows *PNP0303
+rem (PS/2 keyboard) and *PNP0F13 (PS/2 mouse) - so both devices sit behind
+rem the SAME 8042 controller, and a mouse driver that probes or programs it
+rem can leave the keyboard side out of sorts for a game that installs its
+rem own INT 9 handler, while BIOS-based input - this prompt, the DOSGAME
+rem menu - keeps working. That matches the report exactly.
+rem
+rem It is a hypothesis, not a proven cause, and it cannot be tested from
+rem off the machine: nobody remote can press a key inside a DOS game. So
+rem make it ONE step to settle. Create C:\DOSGAME\NOMOUSE.FLG and reboot
+rem to MS-DOS mode. Keyboard back in games means the mouse driver is the
+rem cause; unchanged means this is ruled out. Either way the log below
+rem records which way the run went, so the next log answers it.
+rem Delete the flag to restore the mouse.
+rem
+rem Default stays LOADED: with nothing answering INT 33h every mouse game
+rem reports 'mouse not detected' and Return to Zork hangs outright.
+if not exist C:\DOSGAME\CTMOUSE.EXE goto nomouse
+if exist C:\DOSGAME\NOMOUSE.FLG goto mouseoff
+C:\DOSGAME\CTMOUSE.EXE
+if not exist C:\DOSGAME\NUL goto nomouse
+echo dosstart: mouse driver loaded (CuteMouse) >> C:\DOSGAME\DOSGAME.LOG
+goto nomouse
+
+:mouseoff
+if not exist C:\DOSGAME\NUL goto nomouse
+echo dosstart: mouse driver SKIPPED - NOMOUSE.FLG present >> C:\DOSGAME\DOSGAME.LOG
+:nomouse
 SET BLASTER=A220 I5 D1 H5 P330 T6
 SET MIDI=SYNTH:1 MAP:E
 PROMPT=MS-DOS mode $p$g
