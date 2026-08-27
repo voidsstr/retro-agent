@@ -1,0 +1,8 @@
+{
+  "uuid": "retro-fleet-dashboard@voidsstr",
+  "name": "Retro Fleet Dashboard",
+  "description": "Full-bleed status dashboard on the GDM login screen: this machine's vitals, the retro fleet, the chat daemon and brain, and remote-session state. Dismisses on any key or mouse movement to reveal the normal login prompt.",
+  "shell-version": ["50"],
+  "session-modes": ["gdm"],
+  "url": "https://github.com/voidsstr/retro-agent"
+}

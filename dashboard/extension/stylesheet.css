@@ -1,0 +1,116 @@
+/* Retro Fleet Dashboard — login-screen styling.
+ *
+ * The palette is omenfan's: a near-black ground with muted teal/sage/gold
+ * accents, so the wall reads as the same instrument as the TUI. Colour on the
+ * data itself is applied per-cell as Pango markup in render.js; this file only
+ * handles ground, frame and type.
+ *
+ * Everything metric is in monospace — the braille bars and sparklines only
+ * line up into columns if every glyph is the same width.
+ */
+
+.rfd-overlay {
+    background-color: #0b0f14;
+}
+
+.rfd-root {
+    padding: 40px 56px 28px 56px;
+    spacing: 18px;
+}
+
+/* ------------------------------------------------------------- header */
+
+.rfd-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #1d2733;
+}
+
+.rfd-header-title {
+    font-family: monospace;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: #5fd7d7;
+}
+
+.rfd-header-info {
+    font-family: monospace;
+    font-size: 13px;
+}
+
+/* --------------------------------------------------------------- hero */
+
+.rfd-hero {
+    padding: 6px 0 10px 0;
+}
+
+.rfd-clock {
+    font-size: 76px;
+    font-weight: 300;
+    color: #e8eef5;
+}
+
+.rfd-date {
+    font-size: 17px;
+    color: #8a95a5;
+    padding-left: 4px;
+}
+
+.rfd-hero-stats {
+    font-family: monospace;
+    font-size: 20px;
+    padding-top: 34px;
+}
+
+/* ------------------------------------------------------------ columns */
+
+.rfd-columns {
+    spacing: 22px;
+}
+
+.rfd-column {
+    spacing: 16px;
+}
+
+/* Rounded frame, echoing omenfan's ╭─ title ─╮ boxes. Drawn with a real
+ * border rather than box-drawing glyphs so it stays crisp when the panel
+ * grows to fit its content. */
+.rfd-panel {
+    border: 1px solid #22303f;
+    border-radius: 8px;
+    padding: 10px 14px 12px 14px;
+    background-color: rgba(255, 255, 255, 0.016);
+}
+
+.rfd-panel-title {
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #5fd7d7;
+    padding-bottom: 7px;
+}
+
+.rfd-panel-body {
+    font-family: monospace;
+    font-size: 13px;
+    color: #d8dee9;
+}
+
+/* -------------------------------------------------------------- footer */
+
+.rfd-footer {
+    padding-top: 8px;
+    border-top: 1px solid #1d2733;
+}
+
+.rfd-footer-note {
+    font-family: monospace;
+    font-size: 11px;
+}
+
+.rfd-hint {
+    font-size: 13px;
+    color: #6f7d8c;
+    letter-spacing: 2px;
+}

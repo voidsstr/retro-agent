@@ -104,6 +104,21 @@ else
   echo "  (skipped: scripts/dosgames/tests/run_dos_tests.sh not found)"
 fi
 
+# Login-screen fleet dashboard. Pure-logic tests: the collector's publish/merge
+# behaviour under pytest, and the omenfan-derived render primitives under gjs.
+# No GNOME session and no hardware needed. gjs is optional on a headless host.
+echo; echo "### [5] Login-screen dashboard (collector + render) ###"
+if [ -f "$REPO/dashboard/tests/test_dashboard_collector.py" ]; then
+  python3 -m pytest -q "$REPO/dashboard/tests/test_dashboard_collector.py" || rc=1
+else
+  echo "  (skipped: dashboard/tests not found)"
+fi
+if command -v gjs >/dev/null 2>&1; then
+  gjs -m "$REPO/dashboard/tests/test_render.js" || rc=1
+else
+  echo "  (skipped render tests: gjs not installed)"
+fi
+
 echo; echo "=================================================================="
 [ $rc -eq 0 ] && echo " ALL SUITES PASSED" || echo " SOME SUITES FAILED (rc=$rc)"
 echo "=================================================================="

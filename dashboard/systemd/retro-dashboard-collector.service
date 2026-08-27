@@ -1,0 +1,45 @@
+[Unit]
+Description=Retro fleet dashboard collector (feeds the GDM login screen)
+Documentation=https://github.com/voidsstr/retro-agent
+# The state file lives in /run, so nothing to wait for on disk. Network is
+# wanted rather than required: a fleet sweep that fails just marks every box
+# offline, which is the correct display for a fleet that is powered down.
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+# Written by install.sh. Carries RETRO_AGENT_REPO (for the fleet client) and
+# OMENFAN_PATH (for the sensor stack) — only the installer knows where those
+# checkouts actually live, and the collector cannot infer them once it has
+# been copied to /usr/local/lib.
+EnvironmentFile=-/etc/retro-dashboard/collector.env
+ExecStart=/usr/local/lib/retro-dashboard/dashboard_collector.py
+Restart=always
+RestartSec=5
+
+# Runs as root for two reasons: it reads the chat daemon's runtime state under
+# /tmp/retro-chat (owned by the desktop user) and, on hardware where the EC is
+# reachable, omenfan's read-only EC path. It never writes to the EC.
+User=root
+
+RuntimeDirectory=retro-dashboard
+RuntimeDirectoryMode=0755
+
+# Hardening: this process only reads sensors and writes one file.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/run/retro-dashboard
+PrivateTmp=no
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=no
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+[Install]
+WantedBy=multi-user.target
