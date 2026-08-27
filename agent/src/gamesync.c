@@ -46,6 +46,9 @@
 #define GS_DEFAULT_LIBRARY "\\\\192.168.1.122\\files\\Files\\Games-Library"
 #define GS_DEST            "C:\\Games"
 #define GS_MARKER          "C:\\RETRO_AGENT\\gamesync.done"
+/* Written into the image by stage-oem.sh. Its PRESENCE is what says
+ * "this machine was just imaged" - see gs_new_image(). */
+#define GS_NEWIMAGE_FLAG   "C:\\RETRO_AGENT\\newimage.flag"
 #define GS_INI             "C:\\RETRO_AGENT\\gamesync.ini"
 
 #define GS_CHUNK           (64u * 1024u)
@@ -664,18 +667,59 @@ void gamesync_init(void)
     }
 }
 
+/* Report what the image left behind, so the log says which build a box came
+ * from rather than just that it is new. Best-effort: the flag is small and
+ * plain text, and a missing or unreadable one is not an error. */
+static void gs_log_image_flag(void)
+{
+    HANDLE h;
+    char   buf[256];
+    DWORD  got = 0;
+    char  *p;
+
+    h = CreateFileA(GS_NEWIMAGE_FLAG, GENERIC_READ, FILE_SHARE_READ, NULL,
+                    OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return;
+    if (ReadFile(h, buf, sizeof(buf) - 1, &got, NULL) && got) {
+        buf[got] = 0;
+        for (p = buf; *p; p++)
+            if (*p == '\r' || *p == '\n')
+                *p = ' ';
+        log_msg(LOG_GS, "image flag: %s", buf);
+    }
+    CloseHandle(h);
+}
+
 DWORD WINAPI gamesync_thread(LPVOID param)
 {
+    int fresh;
+
     (void)param;
     /* Let the desktop settle and the redirector come up before touching a
      * UNC path; on a fresh XP logon the network is not ready immediately. */
     Sleep(GS_FIRST_DELAY_MS);
 
+    /* Two independent signals, and they answer different questions.
+     *
+     *   newimage.flag  is placed BY THE IMAGE, so its presence is positive
+     *                  evidence that this box was just installed.
+     *   gamesync.done  is written by US once a run completes cleanly.
+     *
+     * Absence of the done-marker alone is a weak signal - it is also absent if
+     * someone deleted it, or on a box that predates this feature entirely. The
+     * flag is what lets the log say 'freshly imaged' and mean it. */
+    fresh = gs_file_exists(GS_NEWIMAGE_FLAG);
+    if (fresh)
+        gs_log_image_flag();
+
     if (gs_file_exists(GS_MARKER)) {
         log_msg(LOG_GS, "already provisioned (%s present) - idle", GS_MARKER);
         return 0;
     }
-    log_msg(LOG_GS, "new install detected - provisioning game library");
+    log_msg(LOG_GS, fresh
+            ? "FRESHLY IMAGED machine - provisioning game library"
+            : "no provisioning marker - provisioning game library");
     for (;;) {
         if (gs_file_exists(GS_MARKER))
             return 0;
@@ -736,13 +780,16 @@ void handle_gamesync(SOCKET sock, const char *args)
         "\"mb_done\":%I64d,\"mb_total\":%I64d,\"mbps\":%.2f,"
         "\"current_title\":\"%s\",\"current_file\":\"%s\","
         "\"failed_files\":%d,\"elapsed_s\":%d,\"provisioned\":%s,"
-        "\"message\":\"%s\"}",
+        "\"new_image\":%s,\"message\":\"%s\"}",
         names[(s.state >= 0 && s.state <= GS_SKIPPED) ? s.state : 0],
         pct, s.done_titles, s.total_titles, s.skipped_titles,
         s.done_bytes / 1048576, s.total_bytes / 1048576, s.mbps,
         s.title, s.file, s.failed_files, elapsed,
         gs_file_exists(GS_MARKER) ? "true" : "false",
+        gs_file_exists(GS_NEWIMAGE_FLAG) ? "true" : "false",
         s.message);
+    /* new_image is deliberately reported alongside provisioned: together they
+     * distinguish "fresh box, not yet done" from "old box someone reset". */
     json[sizeof(json) - 1] = 0;
     send_text_response(sock, json);
 }

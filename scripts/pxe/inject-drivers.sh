@@ -109,70 +109,85 @@ fi
 
 # ---- tier 2: PnP drivers under $OEM$ -------------------------------------
 echo
-echo "== PnP drivers -> \$OEM\$\\\$1\\Drivers =="
-OEM="$IMAGE/\$OEM\$/\$1/Drivers"
+echo "== PnP drivers -> \$OEM\$\\\$1\\D =="
+# The root is "D", not "Drivers", and names are three characters. That is not
+# cosmetic. OemPnPDriversPath is ONE semicolon-separated registry value that XP
+# truncates around 4096 characters - silently, so every driver past the cut is
+# simply never found. "Drivers\L001;" costs 13 characters per entry and 385
+# directories would need 5005; "D\L001;" costs 7 and needs 2695. The short root
+# is what makes shipping graphics and sound possible at all.
+OEM="$IMAGE/\$OEM\$/\$1/D"
 mkdir -p "$OEM"
 paths=""
-for pack in lan chipset massstorage; do
+
+# One letter per pack, so a directory name says where it came from.
+#   L lan   C chipset   M massstorage
+#   G/H/I graphics A/B/C     S/T sound A/B     N monitor
+for spec in "lan:L" "chipset:C" "massstorage:M" \
+            "graphics_a:G" "graphics_b:H" "graphics_c:I" \
+            "sound_a:S" "sound_b:T" "monitor:N"; do
+    pack="${spec%%:*}"; initial="${spec##*:}"
     src="$PACKS/$pack"
     [ -d "$src" ] || { echo "   skip $pack (not extracted)"; continue; }
-    rm -rf "${OEM:?}/$pack"
-    cp -a "$src" "$OEM/$pack"
-    n=$(find "$OEM/$pack" -iname '*.inf' | wc -l)
-    # OemPnPDriversPath is relative to %SystemDrive% and is a SEMICOLON list.
-    # Every directory holding an INF has to be named explicitly - PnP does not
-    # recurse, which is the usual reason a staged driver is never used.
-    # Two things are wrong with the obvious approach here, and both were.
-    #
-    # 1. `ls "$d"/*.inf "$d"/*.INF` returns non-zero when EITHER glob fails,
-    #    even though the other matched - the identical trap fixed 60 lines
-    #    above. It selected only directories holding BOTH cases, which was 19
-    #    of 200. The other 181 were staged but unreachable, and PnP does not
-    #    recurse, so most of the drivers could never be found. Use find -iname.
-    #
-    # 2. OemPnPDriversPath is one semicolon-separated line that ends up in a
-    #    single registry value. The DriverPacks tree is deep
-    #    (Drivers\lan\D\L\3\...), so 200 of those paths is roughly 6 KB -
-    #    past what XP handles. Each driver directory is therefore re-staged
-    #    under a SHORT flat name (Drivers\L001, Drivers\C001, Drivers\M001).
-    #    Copying whole directories rather than flattening files keeps every
-    #    driver's INF and .sys from one consistent build - mixing them produces
-    #    something that looks installed and cannot bind.
-    case "$pack" in
-        lan)         initial=L ;;
-        chipset)     initial=C ;;
-        massstorage) initial=M ;;
-        *)           initial=X ;;
-    esac
+    n=$(find "$src" -iname '*.inf' | wc -l)
     idx=0
+    # Copy whole directories, never individual files: an INF names its .sys by
+    # filename, so mixing two vendor builds yields a driver that looks installed
+    # and cannot bind.
     while IFS= read -r d; do
         [ -n "$d" ] || continue
         idx=$((idx+1))
         short=$(printf '%s%03d' "$initial" "$idx")
         rm -rf "${OEM:?}/$short"
         mkdir -p "$OEM/$short"
-        # Copy the directory's own files only; a nested driver directory gets
-        # its own short name from its own iteration of this loop.
         find "$d" -maxdepth 1 -type f -exec cp -f {} "$OEM/$short/" \;
-        paths="$paths;Drivers\\$short"
-    done < <(find "$OEM/$pack" -type d | sort | while IFS= read -r cand; do
+        paths="$paths;D\\$short"
+    done < <(find "$src" -type d | sort | while IFS= read -r cand; do
                  [ -n "$(find "$cand" -maxdepth 1 -iname '*.inf' 2>/dev/null)" ] \
                      && echo "$cand"
              done)
-    # The deep tree was only ever a staging area for the short copies.
-    rm -rf "${OEM:?}/$pack"
     echo "   $pack: $n INFs in $idx directories -> ${initial}001..$(printf '%s%03d' "$initial" "$idx")"
 done
+
+# 3dfx (Amigamerlin) is staged by hand rather than from a pack, and was
+# previously left OUT of the path list - staged but unreachable, which is the
+# same silent failure as not shipping it at all.
+if [ -d "$IMAGE/\$OEM\$/\$1/Drivers/3dfx" ]; then
+    rm -rf "${OEM:?}/3DFX"
+    cp -a "$IMAGE/\$OEM\$/\$1/Drivers/3dfx" "$OEM/3DFX"
+    rm -rf "$IMAGE/\$OEM\$/\$1/Drivers"
+fi
+if [ -d "$OEM/3DFX" ]; then
+    # The Amigamerlin tree has SPACES in its directory names ("Amigamerlin 3.1
+    # R1"). OemPnPDriversPath is a semicolon-separated list that XP parses
+    # loosely, and a path with spaces in it is asking for trouble - so these get
+    # flattened to short names like every other pack rather than being listed
+    # in place.
+    idx=0
+    while IFS= read -r d; do
+        [ -n "$d" ] || continue
+        idx=$((idx+1))
+        short=$(printf 'V%03d' "$idx")
+        rm -rf "${OEM:?}/$short"
+        mkdir -p "$OEM/$short"
+        find "$d" -maxdepth 1 -type f -exec cp -f {} "$OEM/$short/" \;
+        paths="$paths;D\\$short"
+    done < <(find "$OEM/3DFX" -type d | sort | while IFS= read -r cand; do
+                 [ -n "$(find "$cand" -maxdepth 1 -iname '*.inf' 2>/dev/null)" ] \
+                     && echo "$cand"
+             done)
+    rm -rf "${OEM:?}/3DFX"
+    echo "   3dfx: $idx directory(ies) -> V001..$(printf 'V%03d' "$idx")"
+fi
+
 paths="${paths#;}"
 printf '%s' "$paths" > "$IMAGE/OemPnPDriversPath.txt"
 ndirs=$(printf '%s' "$paths" | tr ';' '\n' | wc -l)
 nchars=${#paths}
 echo "   OemPnPDriversPath: $ndirs dirs, $nchars chars -> $IMAGE/OemPnPDriversPath.txt"
-# The value lands in one registry string. Past roughly 4 KB XP starts truncating
-# it, and a truncated list fails silently - the drivers are simply never found.
 if [ "$nchars" -gt 4000 ]; then
     echo "   WARNING: $nchars chars exceeds the ~4096 XP handles reliably;" >&2
-    echo "            trailing directories will be ignored at install time." >&2
+    echo "            trailing directories will be silently ignored." >&2
 fi
 
 echo

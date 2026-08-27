@@ -280,9 +280,20 @@ void retrowall_apply_startup(void)
     char runcmd[512];
     char curwall[MAX_PATH];
 
+    /* The THEME and the SCREENSAVER need nothing staged - the theme is registry
+     * plus a colour call, and the screensaver falls back to XP's own
+     * system32\ssstars.scr. Only the wallpaper ROTATION needs C:\retro-wall.
+     *
+     * They used to sit behind the same early return, so a freshly imaged
+     * machine - which by definition has no rotation staged yet - got no theme
+     * and no screensaver either, silently. Apply what does not depend on the
+     * staged assets first, then return if the rotation is genuinely absent. */
+    apply_hacker_theme();
+    set_starfield_screensaver();
+
     if (!file_exists(ROTATE_EXE)) {
-        log_msg(LOG_MAIN, "retrowall: no rotation staged (%s missing), skipping",
-                ROTATE_EXE);
+        log_msg(LOG_MAIN, "retrowall: theme + screensaver applied; no wallpaper "
+                          "rotation staged (%s missing)", ROTATE_EXE);
         return;
     }
 
@@ -328,14 +339,9 @@ void retrowall_apply_startup(void)
         log_msg(LOG_MAIN, "retrowall: %s missing, icons not arranged", ARRANGE_EXE);
     }
 
-    /* 6. Apply the green-on-black "hacker" theme on every startup (the fleet's
-     *    defacto look): Luna off -> Classic + green system colors. Self-contained
-     *    Win32 — no staged assets needed — so it works on any box, and it now
-     *    matches the staged retro_theme.reg exactly. */
-    apply_hacker_theme();
-
-    /* 7. Set the Starfield screensaver (part of the fleet theme). */
-    set_starfield_screensaver();
+    /* The theme and screensaver were applied at the top of this function, before
+     * the rotation check, so that a machine with nothing staged still gets them.
+     * Both are idempotent, but calling them twice per startup is just noise. */
 }
 
 DWORD WINAPI retrowall_thread(LPVOID param)

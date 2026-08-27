@@ -79,6 +79,21 @@ else
     echo "   WARNING: no agent at $AGENT_SRC - the box will install without one" >&2
 fi
 
+# ---- 2b. the "this machine was just imaged" flag -------------------------
+# The agent needs to know a box is FRESH so it can provision it - stage the game
+# library, apply the desktop theme and screensaver, and so on. Inferring that
+# from the ABSENCE of a done-marker is weaker than it looks: a marker can also be
+# absent because someone deleted it, or because the file never got written on a
+# box that has been running for months. A flag placed BY THE IMAGE is positive
+# evidence, and it carries the build date so a machine can say which image it
+# came from.
+{
+    printf 'imaged=%s\r\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+    printf 'image=%s\r\n' "$(basename "$IMAGE")"
+    printf 'agent=%s\r\n' "$(stat -c%s "$OEM/\$1/RETRO_AGENT/retro_agent.exe" 2>/dev/null || echo unknown)"
+} > "$OEM/\$1/RETRO_AGENT/newimage.flag"
+echo "   newimage.flag: marks the box as freshly imaged for the agent"
+
 # ---- 3. registry: permanent auto-login + the agent's Run key -------------
 # REGEDIT4, not REGEDIT5: cmdlines.txt runs under XP's regedit at T-12.
 {
