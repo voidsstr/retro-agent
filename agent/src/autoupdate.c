@@ -95,6 +95,37 @@ static DWORD get_file_size(const char *path)
  * line, trims surrounding whitespace. Returns 1 + fills out[] if non-empty,
  * else 0 (caller falls back to size comparison).
  */
+/*
+ * Compare two dotted version strings. Returns <0, 0 or >0 like strcmp, but
+ * numerically per component so 1.9.0 sorts BELOW 1.31.0 rather than above it.
+ *
+ * This exists because the update used to fire on any INEQUALITY, which meant a
+ * share holding an older build would happily downgrade a newer agent. That is
+ * not hypothetical: it silently reverted fleet box .243, a build VM, and a
+ * freshly imaged machine - the last one because the share had been reorganised
+ * under Files\ and the path compiled in here still pointed at the old location,
+ * which still held 1.30.0. A downgrade also strips whatever new command the
+ * fleet was relying on, so the box looks alive and answers "Unknown command".
+ */
+static int version_cmp(const char *a, const char *b)
+{
+    while (*a || *b) {
+        int na = 0, nb = 0;
+        int have_a = 0, have_b = 0;
+
+        while (*a >= '0' && *a <= '9') { na = na * 10 + (*a++ - '0'); have_a = 1; }
+        while (*b >= '0' && *b <= '9') { nb = nb * 10 + (*b++ - '0'); have_b = 1; }
+        if (na != nb) return na < nb ? -1 : 1;
+        /* A missing component counts as zero: 1.31 == 1.31.0. */
+        if (!have_a && !have_b) break;
+        if (*a == '.') a++;
+        if (*b == '.') b++;
+        if (!*a && !*b) break;
+    }
+    return 0;
+}
+
+
 static int read_version_file(const char *ver_path, char *out, int outsize)
 {
     FILE *f;
@@ -382,9 +413,21 @@ DWORD WINAPI autoupdate_thread(LPVOID param)
     ver_path[sizeof(ver_path) - 1] = '\0';
 
     if (read_version_file(ver_path, remote_ver, sizeof(remote_ver))) {
-        if (_stricmp(remote_ver, AGENT_VERSION) == 0) {
+        int cmp = version_cmp(remote_ver, AGENT_VERSION);
+        if (cmp == 0) {
             log_msg(LOG_UPDATE, "Binary is current (version %s), no update needed",
                     AGENT_VERSION);
+            return 0;
+        }
+        if (cmp < 0) {
+            /* Refuse to go backwards. A share that has fallen behind - or a
+             * publish that landed in a path nothing reads - must never strip
+             * features off a running fleet. Rolling back is a deliberate act:
+             * point UpdatePath at the archived build you actually want. */
+            log_msg(LOG_UPDATE,
+                    "Share has OLDER version %s than running %s - refusing to "
+                    "downgrade (check what is published at the update path)",
+                    remote_ver, AGENT_VERSION);
             return 0;
         }
         if (read_reg_str(LAST_UPDATE_VALUE, last_ver, sizeof(last_ver))
