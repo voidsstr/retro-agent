@@ -26,6 +26,11 @@ MAGIC_COOKIE = b'\x63\x82\x53\x63'
 DHCP_DISCOVER, DHCP_OFFER, DHCP_REQUEST, DHCP_ACK, DHCP_INFORM = 1, 2, 3, 5, 8
 
 
+# BINL lives beside us; a PXE-booted setupldr cannot install without it.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import binl                                                   # noqa: E402
+
+
 def log(msg):
     ts = time.strftime('%H:%M:%S')
     line = f'[{ts}] {msg}'
@@ -283,6 +288,12 @@ class ProxyDHCP(threading.Thread):
             except OSError as exc:
                 log(f'proxyDHCP recv error: {exc}')
                 continue
+            # A NetCard Query is 77 bytes beginning 0x81, so it must be
+            # handled BEFORE the DHCP sanity check below - that guard is what
+            # silently swallowed it and made every network install fail.
+            if self.port == 4011 and data[0:4] == binl.NCQ_MAGIC:
+                self.handle_ncq(data, addr, sock)
+                continue
             if len(data) < 240 or data[0] != 1:
                 continue
             try:
@@ -330,6 +341,50 @@ class ProxyDHCP(threading.Thread):
                     f'-> {req.mac} arch={req.arch} via {dest[0]}:{dest[1]} file={bootfile}')
             except OSError as exc:
                 log(f'proxyDHCP send error to {dest}: {exc}')
+
+    def handle_ncq(self, data, addr, sock):
+        """Answer setupldr's NetCard Query with the driver it should load.
+
+        Setup asks us, not the image, which network driver to use. It waits
+        through four timeouts and then aborts with a message blaming the image,
+        so silence here is the most misleading failure in the whole stack -
+        which is why every outcome below is logged, including the ones we
+        cannot satisfy.
+        """
+        q = binl.parse_ncq(data)
+        if q is None:
+            log(f'BINL malformed NCQ from {addr[0]} ({len(data)} bytes)')
+            return
+        db = self.cfg.get('_nicdb')
+        if db is not None:
+            db.reload_if_changed()
+
+        if q.nic_type != 2:
+            # Setup rejects a non-PCI NIC before it ever reaches us, so this
+            # should be unreachable; log it rather than answer nonsense.
+            log(f'BINL {addr[0]} NCQ nic_type={q.nic_type} (expected 2/PCI)')
+
+        entry, how = (db.lookup(q) if db else (None, None))
+        if not entry:
+            log(f'BINL NO DRIVER for {q} from {addr[0]} - '
+                f'add it to the image and re-run build-nicdb.py')
+            try:
+                sock.sendto(binl.build_nce(), addr)
+            except OSError as exc:
+                log(f'BINL send error to {addr}: {exc}')
+            return
+        try:
+            reply = binl.build_ncr(entry['sys'], entry['service'])
+        except ValueError as exc:
+            log(f'BINL cannot answer {q}: {exc}')
+            sock.sendto(binl.build_nce(), addr)
+            return
+        try:
+            sock.sendto(reply, addr)
+            log(f'BINL {q} -> {entry["sys"]} service={entry["service"]} '
+                f'({how} match, {entry.get("inf", "?")}) to {addr[0]}:{addr[1]}')
+        except OSError as exc:
+            log(f'BINL send error to {addr}: {exc}')
 
     def dest_for(self, req, addr):
         if self.port == 4011:                      # unicast follow-up request
@@ -561,6 +616,11 @@ DEFAULT_CONFIG = {
     # sends it out the default route no matter which link the DISCOVER
     # arrived on. That silently loses every client on the other link.
     'bind_device': '',
+    # PCI id -> NIC driver map answered to BINL NetCard Queries, built
+    # from the image's INFs by build-nicdb.py. Without it a PXE-booted
+    # setupldr cannot load a network driver and setup dies claiming the
+    # IMAGE lacks drivers - see binl.py for why that message misleads.
+    'nicdb': os.path.join(_ROOT, 'nicdb.json'),
     'state_file': os.path.join(_ROOT, 'pxe_state.json'),
 }
 
@@ -582,6 +642,12 @@ def main():
         with open(args.config, encoding='ascii') as fh:
             cfg.update(json.load(fh))
     LOGFILE = cfg.get('logfile')
+    nicdb = binl.NicDb(cfg.get('nicdb'))
+    cfg['_nicdb'] = nicdb
+    log(f'BINL nic database: {len(nicdb)} PCI ids from {cfg.get("nicdb")}'
+        if len(nicdb) else
+        f'BINL nic database MISSING or empty at {cfg.get("nicdb")} - '
+        f'network installs will fail; run build-nicdb.py')
     hold = BootHold(cfg.get('state_file'), cfg.get('boot_hold_seconds', 0))
     cfg['_hold'] = hold
 
