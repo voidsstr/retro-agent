@@ -523,7 +523,17 @@ DEFAULT_CONFIG = {
     # Once a machine has taken the boot file, stand aside for this long so
     # it can boot the disk it just installed. 0 disables the hold and
     # restores the old always-offer behaviour. See BootHold.
-    'boot_hold_seconds': 3600,
+    #
+    # This has to comfortably exceed a WHOLE install, not just the first
+    # reboot. The fleet image carries a 7.6 GB $OEM$ payload copied over SMB1
+    # by a Pentium III, so text-mode setup alone can run 60-90 minutes and GUI
+    # setup follows it. An hour was the first value here and it was wrong: the
+    # hold would have expired mid-install, and the reboot that ends text-mode
+    # setup would have been answered with a fresh offer - reformatting the disk
+    # at the worst possible moment. Six hours costs nothing (--release forces a
+    # reinstall whenever you actually want one) and a too-short hold costs the
+    # entire install.
+    'boot_hold_seconds': 21600,
     'state_file': os.path.join(_ROOT, 'pxe_state.json'),
 }
 
