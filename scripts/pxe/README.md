@@ -8,6 +8,7 @@ SMB source), so a machine with no optical drive can be installed over the LAN.
 target PC  --DHCP DISCOVER(PXEClient)-->  router DHCP  (gives the IP)
                                      \->  .132         (gives next-server + boot file)
 target PC  --TFTP-->  startrom.n12, ntldr, ntdetect.com, winnt.sif
+target PC  --TFTP-->  \Files\OS\XPSP3-PXE\i386\txtsetup.sif       (see below)
 target PC  --SMB1-->  \\192.168.1.122\files\Files\OS\XPSP3-PXE   (the CD contents)
 ```
 
@@ -91,6 +92,31 @@ It mounts the XP ISO, expands `STARTROM.N1_` -> `startrom.n12` and
 `SETUPLDR.EX_` -> **`ntldr`** (that name matters: startrom asks TFTP for
 `ntldr`), copies `NTDETECT.COM`, writes `winnt.sif`, and robocopies the whole CD
 to the NAS.
+
+## setupldr does not switch to SMB when you expect
+
+Loading `ntldr` is not the end of the TFTP phase. setupldr then wants
+`txtsetup.sif`, and it fetches that over **TFTP as well** - taking the path out
+of `winnt.sif` and dropping the UNC prefix. So a `winnt.sif` naming
+`\\192.168.1.122\files\Files\OS\XPSP3-PXE` makes it ask TFTP for
+`\Files\OS\XPSP3-PXE\i386\txtsetup.sif`, relative to the TFTP root.
+
+If that path is not there the boot stops at **"txtsetup.sif is corrupt or
+missing"**, which reads like a bad copy of the CD and is nothing of the sort.
+
+`make-xp-source.sh` therefore symlinks the share tree into the TFTP root
+(`/srv/retro-pxe/tftp/Files -> /mnt/retro-share/Files`). A symlink is enough:
+the resolver rejects `..` but does not resolve symlinks against the root, and
+its case-insensitive walk handles `i386` -> `I386` and `txtsetup.sif` ->
+`TXTSETUP.SIF`.
+
+## Two log lines that are NOT faults
+
+- `MISS BOOTFONT.BIN` - only used for East-Asian boot locales. English XP does
+  not need it.
+- `no ACK for OACK, aborting startrom.n12` - the Intel Boot Agent asks first
+  with `tsize`, does not acknowledge that OACK, then immediately retries with
+  `blksize` and succeeds. It costs one round trip and nothing else.
 
 ## The SMB1 trap
 

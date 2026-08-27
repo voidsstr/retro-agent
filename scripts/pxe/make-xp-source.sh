@@ -20,9 +20,11 @@
 # The compressed ones are CABs (MSCF magic), not the SZDD that "expand" implies,
 # so cabextract is the tool - msexpand fails on them.
 #
-# The CD contents themselves are NOT copied here: they stay on the NAS and
-# setup pulls them over SMB1. See the README's SMB1 section for why that host
-# has to be the NAS and not this one.
+# The CD contents themselves are NOT copied here: they stay on the NAS. They are
+# reached two different ways, and both matter - setupldr pulls txtsetup.sif over
+# TFTP through the symlink this script creates, and text-mode setup then reads
+# the rest over SMB1. See the README's SMB1 section for why that host has to be
+# the NAS and not this one.
 set -eu
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -84,10 +86,35 @@ install -m 0644 "$SRC/I386/NTDETECT.COM" "$TFTP_ROOT/ntdetect.com"
     printf '    SetupSourceDevice = "%s"\r\n' "$SOURCE_DEV"
 } > "$TFTP_ROOT/winnt.sif"
 
+# --- the source tree, reachable over TFTP ---------------------------------
+# setupldr does NOT switch to SMB when it loads txtsetup.sif. It keeps using
+# TFTP, taking the path out of winnt.sif and dropping the UNC prefix - so a
+# winnt.sif naming \\192.168.1.122\files\Files\OS\XPSP3-PXE makes it ask TFTP
+# for \Files\OS\XPSP3-PXE\i386\txtsetup.sif, relative to the TFTP root.
+#
+# Without this the boot dies at "txtsetup.sif is corrupt or missing", which
+# reads like a bad copy of the CD and is nothing of the sort. Observed on the
+# Gateway 440BX, 2026-08-26.
+#
+# A symlink is enough: the resolver rejects ".." but does not resolve symlinks
+# against the root, and the case-insensitive walk handles i386 -> I386 and
+# txtsetup.sif -> TXTSETUP.SIF.
+SHARE_ROOT="${SHARE_ROOT:-/mnt/retro-share}"
+LINK_NAME="$(printf '%s' "$SHARE_UNC" | sed 's|.*\\files\\||; s|\\.*||')"
+if [ -d "$SHARE_ROOT/$LINK_NAME" ]; then
+    ln -sfn "$SHARE_ROOT/$LINK_NAME" "$TFTP_ROOT/$LINK_NAME"
+    echo "linked $TFTP_ROOT/$LINK_NAME -> $SHARE_ROOT/$LINK_NAME"
+else
+    echo "WARNING: $SHARE_ROOT/$LINK_NAME not found - setupldr will not be able" >&2
+    echo "         to TFTP txtsetup.sif and the boot will stop there." >&2
+fi
+
 echo
 printf '%-16s %s\n' "file" "bytes"
 for f in startrom.n12 ntldr ntdetect.com winnt.sif; do
     printf '%-16s %s\n' "$f" "$(stat -c%s "$TFTP_ROOT/$f")"
 done
 echo
-echo "Payload ready. The CD itself stays on the NAS; setup fetches it over SMB1."
+echo "Payload ready."
+echo "setupldr TFTPs txtsetup.sif through the link above; text-mode setup then"
+echo "reads the rest of the CD from the NAS over SMB1."
