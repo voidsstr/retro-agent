@@ -54,15 +54,27 @@ WIRE FORMAT (offsets are from the start of the datagram)
     0x08  4  status - MUST be 0; any other value produces the same fatal
              message as no reply, which is worth remembering when debugging
     0x0C  4  0
-    0x10  4  offset of string 1: driver file name, <= 64 wchars
-    0x14  4  offset of string 2: driver file name again, <= 24 wchars. This is
-             the one setup down-converts to ANSI and actually loads, as a bare
-             filename from the boot source - no [SourceDisksFiles] lookup, so
-             the .sys simply has to be present flat in I386.
-    0x18  4  offset of string 3: service name, <= 24 wchars. Setup appends it
-             to \\Registry\\Machine\\System\\CurrentControlSet\\Services\\.
-    0x1C  4  length of the registry blob (0 is fine)
-    0x20  4  offset of that blob
+    0x10  4  offset of string 1: the device's PnP HARDWARE ID, <= 63 wchars.
+             NOT a file name. The kernel wcscmp's this - case-sensitively -
+             against each entry of the adapter's HardwareID and CompatibleID
+             multi-sz. Only on a match does it write Service/ClassGUID/Driver
+             into the card's Enum key, and only then does PnP start the
+             miniport. Get this wrong and everything else still looks right:
+             the driver loads, the stack loads, and twenty seconds later the
+             machine bugchecks 0xBB because the IP device never got an interface.
+    0x14  4  offset of string 2: the driver FILE name, <= 23 wchars. This is
+             the one setup down-converts to ANSI and loads, as a bare filename
+             from the boot source - no [SourceDisksFiles] lookup, so the .sys
+             simply has to be present flat in I386.
+    0x18  4  offset of string 3: service name, <= 23 wchars. Setup appends it
+             to \\Registry\\Machine\\System\\CurrentControlSet\\Services\\ to form
+             the boot driver's RegistryPath.
+    0x1C  4  length of the registry blob (0 is legal and tolerated)
+    0x20  4  offset of that blob. Its values are written to
+             CCS\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\0000,
+             not to the service key. Missing ones fall back to miniport
+             defaults, so the blob is optional - but sending it is closer to
+             what a real RIS server does.
   All three strings are UTF-16LE and NUL-terminated. Offsets are from the start
   of the reply and must be >= 0x24.
 """
@@ -91,6 +103,19 @@ class NicQuery(object):
     @property
     def generic_key(self):
         return '%04X&%04X' % (self.ven, self.dev)
+
+    @property
+    def hardware_id(self):
+        """The PnP id to send in NCR string 1.
+
+        Deliberately the SHORT form. pci.sys always generates
+        PCI\\VEN_xxxx&DEV_xxxx among the device's ids, whereas the
+        subsystem/revision forms depend on what the card's config space
+        actually yields - echoing a subsystem we guessed wrong fails the
+        case-sensitive compare and looks exactly like no reply at all.
+        Uppercase hex is mandatory for the same reason.
+        """
+        return 'PCI\\VEN_%04X&DEV_%04X' % (self.ven, self.dev)
 
     def __str__(self):
         return ('PCI\\VEN_%04X&DEV_%04X&SUBSYS_%04X%04X&REV_%02X'
@@ -121,21 +146,73 @@ def _wstr(s):
     return s.encode('utf-16-le') + b'\x00\x00'
 
 
-def build_ncr(sys_file, service):
-    """Build a successful NetCard Reply naming the driver to load."""
-    s1 = _wstr(sys_file)          # driver file name, <= 64 wchars
-    s2 = _wstr(sys_file)          # what setup loads, <= 24 wchars
-    s3 = _wstr(service)           # service name, <= 24 wchars
-    if len(s2) > 0x30 or len(s3) > 0x30 or len(s1) > 0x80:
+def build_blob(values):
+    """Serialise registry values for the netboot card's class instance key.
+
+    Format, walked byte-by-byte by the kernel:
+
+        <ValueName> NUL <TypeCode> NUL <ValueData> NUL   (repeated)
+        NUL                                              (terminator)
+
+    all ANSI. TypeCode is one character: '1' means REG_DWORD and the data is
+    decimal ASCII, '2' means REG_SZ. Names are capped at 31 characters and data
+    at 127 by the kernel's fixed conversion buffers, so anything longer is
+    silently truncated - refuse instead.
+    """
+    out = bytearray()
+    for name, kind, data in values:
+        if kind not in ('1', '2'):
+            raise ValueError('blob type must be "1" (dword) or "2" (sz)')
+        text = str(data)
+        if len(name) > 31:
+            raise ValueError('blob value name over 31 chars: %r' % name)
+        if len(text) > 127:
+            raise ValueError('blob value data over 127 chars: %r' % text)
+        out += name.encode('latin-1') + b'\x00'
+        out += kind.encode('ascii') + b'\x00'
+        out += text.encode('latin-1') + b'\x00'
+    out += b'\x00'
+    return bytes(out)
+
+
+# What a real RIS server derives from the NIC's INF. These are the values that
+# matter to a miniport being started; everything else falls back to a default.
+DEFAULT_BLOB = build_blob([
+    ('BusType', '1', 5),            # PCI
+    ('Characteristics', '1', 132),  # NCF_PHYSICAL | NCF_HAS_UI
+])
+
+
+def build_ncr(hardware_id, sys_file, service, blob=DEFAULT_BLOB):
+    """Build a successful NetCard Reply.
+
+    hardware_id must be the PnP id the kernel will see for this device, spelled
+    exactly as pci.sys formats it - uppercase, e.g. PCI\\VEN_8086&DEV_100E. The
+    comparison is a case-sensitive wcscmp against the adapter's HardwareID and
+    CompatibleID lists, and a mismatch fails silently twenty seconds later.
+    """
+    s1 = _wstr(hardware_id)       # PnP hardware id, <= 63 wchars
+    s2 = _wstr(sys_file)          # what setup loads, <= 23 wchars
+    s3 = _wstr(service)           # service name, <= 23 wchars
+    if len(s1) > 0x80:
+        raise ValueError('hardware id too long for setupldr: %r' % hardware_id)
+    if len(s2) > 0x30 or len(s3) > 0x30:
         raise ValueError('BINL string too long for setupldr buffers: '
                          '%r / %r' % (sys_file, service))
+    blob = blob or b''
     off1 = HDR_LEN
     off2 = off1 + len(s1)
     off3 = off2 + len(s2)
-    end = off3 + len(s3)
+    off_blob = off3 + len(s3)
+    end = off_blob + len(blob)
+    # setupldr rejects a string-1 offset at or beyond 0xFDC, so the whole reply
+    # has to stay small; the blob is the only part that can grow.
+    if off1 >= 0xFDC or end > 4000:
+        raise ValueError('NCR reply too large (%d bytes)' % end)
     return (NCR_MAGIC
-            + struct.pack('<IIIIIIII', end, 0, 0, off1, off2, off3, 0, 0)
-            + s1 + s2 + s3)
+            + struct.pack('<IIIIIIII', end, 0, 0, off1, off2, off3,
+                          len(blob), off_blob if blob else 0)
+            + s1 + s2 + s3 + blob)
 
 
 def build_nce(status=0xC0000001):

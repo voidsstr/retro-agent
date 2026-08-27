@@ -409,15 +409,16 @@ class ProxyDHCP(threading.Thread):
                 log(f'BINL send error to {addr}: {exc}')
             return
         try:
-            reply = binl.build_ncr(entry['sys'], entry['service'])
+            reply = binl.build_ncr(q.hardware_id, entry['sys'], entry['service'])
         except ValueError as exc:
             log(f'BINL cannot answer {q}: {exc}')
             sock.sendto(binl.build_nce(), addr)
             return
         try:
             sock.sendto(reply, addr)
-            log(f'BINL {q} -> {entry["sys"]} service={entry["service"]} '
-                f'({how} match, {entry.get("inf", "?")}) to {addr[0]}:{addr[1]}')
+            log(f'BINL {q} -> hwid={q.hardware_id} {entry["sys"]} '
+                f'service={entry["service"]} ({how} match, '
+                f'{entry.get("inf", "?")}) to {addr[0]}:{addr[1]}')
         except OSError as exc:
             log(f'BINL send error to {addr}: {exc}')
 

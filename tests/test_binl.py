@@ -91,8 +91,21 @@ def main():
     check('a short packet is rejected', binl.parse_ncq(b'\x81NCQ') is None)
     check('empty input is rejected', binl.parse_ncq(b'') is None)
 
+    print('== the hardware id is spelled the way pci.sys spells it ==')
+    # The kernel wcscmp's string 1 CASE-SENSITIVELY against the adapter's
+    # HardwareID list. Lower case, or a subsystem suffix we guessed, fails the
+    # compare - and the failure is invisible for twenty seconds, after which the
+    # machine bugchecks 0xBB blaming the network. This single assertion is worth
+    # more than the rest of the file.
+    check('the hardware id is the uppercase short PnP form',
+          q.hardware_id == r'PCI\VEN_8086&DEV_100E')
+    check('it contains exactly one backslash',
+          q.hardware_id.count('\\') == 1)
+    check('it carries no subsystem or revision suffix',
+          'SUBSYS' not in q.hardware_id and 'REV' not in q.hardware_id)
+
     print('== the NCR reply matches what setupldr parses ==')
-    r = binl.build_ncr('e1000325.sys', 'E1000')
+    r = binl.build_ncr(q.hardware_id, 'e1000325.sys', 'E1000')
     magic = r[:4]
     total, status, zero, o1, o2, o3, blen, boff = struct.unpack_from('<IIIIIIII', r, 4)
     check('magic is 0x82 NCR', magic == binl.NCR_MAGIC)
@@ -102,7 +115,13 @@ def main():
     check('status is 0 (anything else reads as failure)', status == 0)
     check('the header is at least 0x24 bytes', o1 >= 0x24)
     check('string offsets are inside the packet', max(o1, o2, o3) < len(r))
-    check('string 1 is the driver file', wread(r, o1) == 'e1000325.sys')
+    # String 1 is the PnP hardware id, NOT a file name. Putting the .sys name
+    # here is exactly the bug that cost a day: every other part of the exchange
+    # looked correct, the driver loaded, the whole network stack loaded, and the
+    # machine then bugchecked 0xBB because the kernel could never match the
+    # device and so never started the miniport.
+    check('string 1 is the hardware id, not a file name',
+          wread(r, o1) == r'PCI\VEN_8086&DEV_100E')
     check('string 2 is the driver file (this is the one loaded)',
           wread(r, o2) == 'e1000325.sys')
     check('string 3 is the service name', wread(r, o3) == 'E1000')
@@ -112,16 +131,34 @@ def main():
     # loader rather than failing cleanly, so refuse instead.
     over = False
     try:
-        binl.build_ncr('a' * 40 + '.sys', 'svc')
+        binl.build_ncr(q.hardware_id, 'a' * 40 + '.sys', 'svc')
     except ValueError:
         over = True
     check('an over-long driver name is refused', over)
     over = False
     try:
-        binl.build_ncr('ok.sys', 'S' * 40)
+        binl.build_ncr(q.hardware_id, 'ok.sys', 'S' * 40)
     except ValueError:
         over = True
     check('an over-long service name is refused', over)
+
+    print('== the registry blob is serialised the way the kernel walks it ==')
+    blob = binl.build_blob([('BusType', '1', 5), ('Name', '2', 'hi')])
+    check('a dword value is name NUL 1 NUL decimal NUL',
+          blob.startswith(b'BusType\x001\x005\x00'))
+    check('an sz value uses type code 2', b'Name\x002\x00hi\x00' in blob)
+    check('the stream is double-NUL terminated', blob.endswith(b'\x00\x00'))
+    # The kernel converts names through a 0x40-byte and data through a
+    # 0x100-byte buffer, so anything longer is silently truncated.
+    for bad, why in (([('N' * 40, '1', 1)], 'an over-long value name'),
+                     ([('N', '2', 'x' * 200)], 'over-long value data'),
+                     ([('N', '9', 1)], 'an unknown type code')):
+        raised = False
+        try:
+            binl.build_blob(bad)
+        except ValueError:
+            raised = True
+        check(f'{why} is refused', raised)
 
     print('== the NCE failure reply is well formed ==')
     e = binl.build_nce()
