@@ -73,6 +73,18 @@ else
     FILESYSTEM="LeaveAlone"
 fi
 
+# $OEM$ and the PnP driver path are picked up from the image automatically, so
+# a payload built from an injected image gets them without extra flags.
+if [ -d "$SRC/\$OEM\$" ]; then
+    OEMPREINSTALL="Yes"
+else
+    OEMPREINSTALL="No"
+fi
+OEMPNP="${OEMPNP:-}"
+if [ -z "$OEMPNP" ] && [ -f "$SRC/OemPnPDriversPath.txt" ]; then
+    OEMPNP="$(cat "$SRC/OemPnPDriversPath.txt")"
+fi
+
 command -v cabextract >/dev/null || {
     echo "cabextract not installed: sudo apt-get install cabextract" >&2; exit 1; }
 [ -d "$SRC/I386" ] || {
@@ -157,7 +169,10 @@ install -m 0644 "$SRC/I386/NTDETECT.COM" "$TFTP_ROOT/ntdetect.com"
     printf '\r\n'
     printf '[Unattended]\r\n'
     printf '    UnattendMode = %s\r\n' "$UNATTEND_MODE"
-    printf '    OemPreinstall = No\r\n'
+    # $OEM$ only exists for setup when OemPreinstall is Yes. Without it the
+    # whole tree - drivers, the agent, C:\Games - is silently ignored and you
+    # get a clean install with none of it, and no error saying why.
+    printf '    OemPreinstall = %s\r\n' "$OEMPREINSTALL"
     printf '    OemSkipEula = Yes\r\n'
     printf '    TargetPath = \\WINDOWS\r\n'
     printf '    FileSystem = %s\r\n' "$FILESYSTEM"
@@ -165,6 +180,11 @@ install -m 0644 "$SRC/I386/NTDETECT.COM" "$TFTP_ROOT/ntdetect.com"
     printf '    OverwriteOemFilesOnUpgrade = No\r\n'
     printf '    Repartition = %s\r\n' "$REPARTITION"
     printf '    DriverSigningPolicy = Ignore\r\n'
+    # PnP does NOT recurse: every directory holding an INF must be listed.
+    # inject-drivers.sh writes the list next to the image.
+    if [ -n "${OEMPNP:-}" ]; then
+        printf '    OemPnPDriversPath = "%s"\r\n' "$OEMPNP"
+    fi
     printf '    WaitForReboot = No\r\n'
     printf '\r\n'
     printf '[GuiUnattended]\r\n'
