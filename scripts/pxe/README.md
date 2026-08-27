@@ -6,25 +6,52 @@ SMB source), so a machine with no optical drive can be installed over the LAN.
 
 ```
 target PC  --DHCP DISCOVER(PXEClient)-->  router DHCP  (gives the IP)
-                                     \->  whitebeast   (gives next-server + boot file)
+                                     \->  .132         (gives next-server + boot file)
 target PC  --TFTP-->  startrom.n12, ntldr, ntdetect.com, winnt.sif
 target PC  --SMB1-->  \\192.168.1.122\files\Files\OS\XPSP3-PXE   (the CD contents)
 ```
 
-## Where it runs, and why not in WSL
+## Check it before you walk to the machine
 
-**It runs natively on whitebeast's Windows side (192.168.1.249), NOT in WSL.**
-WSL2 here is NAT'd (172.19.x), so it never sees the fleet's broadcast domain -
-a PXE client's DHCP DISCOVER would never reach it, and `netsh portproxy` cannot
-help because it is TCP-only while DHCP/TFTP are UDP. Same rule as the game
-servers (see `scripts/game-servers/README.md`).
+```bash
+sudo python3 scripts/pxe/pxe_selftest.py      # or --tftp-only, no root needed
+```
 
-- service: scheduled task **`RetroPXE`**, runs `pythonw.exe pxe_server.py` as
-  SYSTEM at startup (`install-task.ps1`)
-- runtime dir: `C:\development\pxe\` (TFTP root + log; the boot binaries come
-  from the XP CD and are deliberately NOT in git)
-- log: `C:\development\pxe\pxe_server.log`
-- firewall: UDP 67 / 69 / 4011 inbound (`setup-firewall.ps1`)
+It performs the same two exchanges a boot ROM does and checks the fields that
+decide whether the target boots. Worth running first every time, because **every
+failure in this path is silent from the client end** - the machine prints
+"DHCP." then "TFTP." and stops, naming nothing. Last full run: 13/13.
+
+## Where it runs
+
+**It runs on the Linux fleet host, 192.168.1.132.** The 2026-08-24 cutover
+paused whitebeast, and this is the one tool that installs an OS on a machine
+whose optical drive is dead, so it moved with everything else.
+
+- service: **`retro-pxe.service`** - a SYSTEM unit, and it has to be: 67, 69 and
+  4011 are privileged ports and a `--user` manager cannot bind them. It still
+  does not run as root. `CAP_NET_BIND_SERVICE` is the only capability granted,
+  `NoNewPrivileges=true`, and `ProtectSystem=strict` leaves `/srv/retro-pxe` as
+  the single writable path.
+- runtime dir: `/srv/retro-pxe/` (TFTP root + log). The boot binaries come off
+  the XP CD and are deliberately **not** in git - `/srv` also keeps them out of
+  the repo tree.
+- log: `/srv/retro-pxe/pxe_server.log` - every OFFER and every TFTP GET.
+- payload: `bash scripts/pxe/make-xp-source.sh`
+- firewall: nothing to do here (ufw inactive, INPUT ACCEPT). On the Windows host
+  it needed `setup-firewall.ps1`.
+
+`server_ip` defaults to **`auto`** and is resolved at startup, rather than
+hardcoded. A stale fleet address has caught this setup before and it fails
+silently: the client is handed a next-server it cannot reach and just waits.
+
+### The Windows host is still supported
+
+`install-task.ps1`, `setup-firewall.ps1` and `make-xp-source.ps1` still work,
+and the defaults follow the platform (`C:\development\pxe` there,
+`/srv/retro-pxe` here), so the same `pxe_config.json` is correct on both. Do not
+run BOTH at once on the same LAN - two proxyDHCP servers answering one DISCOVER
+is a race, and which boot file wins is down to timing.
 
 ## proxyDHCP, not DHCP
 
@@ -34,6 +61,28 @@ boot file name, and PXE option 43 (discovery control 0x07). The LAN's real DHCP
 server keeps doing addressing, so this is safe to leave running.
 
 ## Rebuilding the XP payload
+
+On the Linux host:
+
+```bash
+bash scripts/pxe/make-xp-source.sh
+```
+
+It reads the already-expanded CD tree on the NAS, so no ISO mounting is needed.
+Two traps it encodes:
+
+- the compressed files are **CABs** (`MSCF` magic), not the SZDD that "expand"
+  implies - `cabextract` is the tool and `msexpand` fails on them.
+- `SETUPLDR.EX_` must land as the literal name **`ntldr`**. That is the name
+  startrom asks TFTP for, and what it wants there is setup's loader, not an
+  installed system's ntldr. Copy it under its own name and the boot dies with
+  no useful message.
+
+It generates `winnt.sif` inline from the same two parameters the PowerShell
+sibling takes, so `winnt.sif.template` stays a reference copy of the result
+rather than an input only one builder reads.
+
+On the Windows host:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File make-xp-source.ps1     # elevated
@@ -68,6 +117,9 @@ so a failure tells you exactly how far it got.
 | file | what |
 |---|---|
 | `pxe_server.py` | the server: proxyDHCP (67 + 4011) + TFTP (69), stdlib only |
+| `pxe_selftest.py` | proves the server would boot a machine, from the host |
+| `retro-pxe.service` | systemd system unit for the Linux fleet host |
+| `make-xp-source.sh` | builds the XP payload on Linux |
 | `pxe_config.json` | server IP, TFTP root, boot file, log path |
 | `make-xp-source.ps1` | builds the XP payload from the ISO |
 | `install-task.ps1` | registers the `RetroPXE` startup task |
