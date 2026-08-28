@@ -1430,6 +1430,13 @@ static void gs_run(const char *library)
     do {
         if (fd.cFileName[0] == '.')
             continue;
+        /* Directories beginning with _ are the library's own support folders,
+         * not games: _desktop holds the fleet wallpapers, _patches the record
+         * of what has been patched. Counting them as titles copied 26 MB of
+         * wallpaper onto every box as if it were a game, and reported 30
+         * titles where there were 29. */
+        if (fd.cFileName[0] == '_')
+            continue;
         if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
             continue;
         if (n >= 64)
