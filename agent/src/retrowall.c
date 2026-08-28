@@ -117,6 +117,53 @@ static void run_process(const char *cmdline, DWORD wait_ms)
 }
 
 /*
+ * Stop the Themes service and set it to Disabled.
+ *
+ * XP's visual style ("Luna") is applied by that service. Setting ThemeActive=0
+ * in the registry is necessary but not sufficient - while the service runs it
+ * keeps the style alive, and the result is a machine themed in patches: our
+ * colours in window bodies, XP blue on title bars and Explorer's task panes.
+ *
+ * Failure is tolerated at every step. A machine that keeps Luna is cosmetically
+ * wrong; a machine where the agent aborted trying to change a service setting
+ * is actually broken.
+ */
+static void stop_and_disable_themes(void)
+{
+    SC_HANDLE scm, svc;
+    SERVICE_STATUS st;
+
+    scm = OpenSCManagerA(NULL, NULL, SC_MANAGER_CONNECT);
+    if (!scm)
+        return;
+    svc = OpenServiceA(scm, "Themes",
+                       SERVICE_STOP | SERVICE_QUERY_STATUS | SERVICE_CHANGE_CONFIG);
+    if (!svc) {
+        /* Not present on 9x, and on some XP builds it is called differently.
+         * Nothing to do either way. */
+        CloseServiceHandle(scm);
+        return;
+    }
+    if (QueryServiceStatus(svc, &st) && st.dwCurrentState != SERVICE_STOPPED) {
+        if (ControlService(svc, SERVICE_CONTROL_STOP, &st))
+            log_msg(LOG_MAIN, "retrowall: stopped the Themes service (Luna off)");
+        else
+            log_msg(LOG_MAIN, "retrowall: could not stop Themes (%lu) - the "
+                              "desktop may stay part-themed", GetLastError());
+        Sleep(1500);
+    }
+    /* Disabled, not Manual: on Manual something else can start it again and the
+     * box silently reverts to half-themed after a reboot. */
+    if (ChangeServiceConfigA(svc, SERVICE_NO_CHANGE, SERVICE_DISABLED,
+                             SERVICE_NO_CHANGE, NULL, NULL, NULL, NULL,
+                             NULL, NULL, NULL))
+        log_msg(LOG_MAIN, "retrowall: Themes service set to Disabled");
+    CloseServiceHandle(svc);
+    CloseServiceHandle(scm);
+}
+
+
+/*
  * Apply the fleet-wide "hacker" theme: switch off the XP "Luna" visual style
  * (-> Windows Classic, so windows honor the system colors, incl. the black
  * folder-view/Window background) and set a green-on-black system color scheme.
@@ -205,6 +252,15 @@ static void apply_hacker_theme(void)
     /* 3. Turn off the Luna visual style -> Classic. Persist for next logon. */
     hkcu_set_sz("Software\\Microsoft\\Windows\\CurrentVersion\\ThemeManager",
                 "ThemeActive", "0");
+    /* The registry value alone does NOT switch Luna off. The Themes service
+     * re-applies the visual style, so a machine ends up half-themed: system
+     * colours black-and-green as we asked, but blue XP title bars and blue
+     * Explorer task panes. Seen on the Gateway - the ThemeManager key did not
+     * even exist there, while the service ran happily.
+     *
+     * Stopping the service is what actually drops XP to Classic, and disabling
+     * it is what makes that survive a reboot. */
+    stop_and_disable_themes();
     {
         HMODULE ux = LoadLibraryA("uxtheme.dll");
         if (ux) {

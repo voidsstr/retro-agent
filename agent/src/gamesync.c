@@ -845,6 +845,59 @@ static int gs_make_shortcut(const char *target, const char *workdir,
 #define GS_WALL_DIR     "C:\\retro-wall"
 
 /*
+ * Desktop shortcuts for the agent itself and the chat client.
+ *
+ * The desktop sweep removes everything it does not recognise, and these two are
+ * the things an operator most wants to reach from a fleet box - so they have to
+ * be put back deliberately rather than left to survive by accident.
+ *
+ * Run on EVERY agent start, not only on a fresh image: a box that is swept
+ * today should still have them tomorrow, and a machine that never went through
+ * the imaging process should get them too. Both are cheap no-ops when the
+ * shortcut already exists and points at the same place.
+ *
+ * The chat client is only given an icon if it is actually on the box. A
+ * shortcut to something that is not there is worse than no shortcut: it looks
+ * like a working feature until someone clicks it.
+ */
+static void gs_tool_shortcut(const char *exe, const char *name)
+{
+    char desktop[MAX_PATH], lnk[MAX_PATH], workdir[MAX_PATH];
+    char *slash;
+
+    if (!gs_file_exists(exe))
+        return;
+    if (!gs_ole_load() || !gs_desktop_dir(desktop, sizeof(desktop)))
+        return;
+    _snprintf(lnk, sizeof(lnk) - 1, "%s\\%s.lnk", desktop, name);
+    lnk[sizeof(lnk) - 1] = 0;
+
+    lstrcpynA(workdir, exe, sizeof(workdir));
+    slash = workdir + lstrlenA(workdir);
+    while (slash > workdir && *slash != '\\')
+        slash--;
+    *slash = 0;
+
+    if (gs_make_shortcut(exe, workdir, lnk, name))
+        log_msg(LOG_GS, "desktop shortcut -> %s", name);
+}
+
+void gs_place_tool_shortcuts(void)
+{
+    char exe[MAX_PATH];
+    DWORD n;
+
+    /* The agent's own path, whatever it is - these boxes are not consistent
+     * about where it lives (a dual-boot machine can run it from the OTHER
+     * volume), so asking Windows beats assuming C:\RETRO_AGENT. */
+    n = GetModuleFileNameA(NULL, exe, sizeof(exe));
+    if (n > 0 && n < sizeof(exe))
+        gs_tool_shortcut(exe, "Retro Agent");
+
+    gs_tool_shortcut("C:\\RETRO_AGENT\\retro_chat.exe", "Retro Chat");
+}
+
+/*
  * Clear the desktop of everything that is not one of ours.
  *
  * A provisioned box should show the staged games and nothing else - not the
@@ -1291,6 +1344,9 @@ static void gs_run(const char *library)
      * Both run on every provision, imaged box or not: a hand-built machine is
      * exactly the one that has a cluttered desktop and no C:\retro-wall. */
     gs_sweep_desktop();
+    /* Immediately after the sweep, so the tools the operator needs are never
+     * missing between the sweep and the next agent start. */
+    gs_place_tool_shortcuts();
     gs_stage_wallpapers(library);
 
     EnterCriticalSection(&g_gs_lock);
@@ -1583,6 +1639,13 @@ static void gs_log_image_flag(void)
 
 DWORD WINAPI gamesync_thread(LPVOID param)
 {
+    /* Put the operator's own tools on the desktop on EVERY start, before any
+     * decision about whether provisioning needs to run. A box that has already
+     * been provisioned still needs these - and after a desktop sweep they are
+     * the only way back to the agent and the chat client without a file
+     * browser. Both are no-ops when the shortcut already exists. */
+    gs_place_tool_shortcuts();
+
     int fresh;
 
     (void)param;
@@ -1627,6 +1690,88 @@ DWORD WINAPI gamesync_thread(LPVOID param)
          * trying again rather than hammering a NAS that may still be waking. */
         Sleep(120000);
     }
+}
+
+/*
+ * DRVUPDATE <hardware-id> [inf-path]
+ *
+ * Force a device onto a specific driver, even when it already has a working
+ * one. The automatic repair only touches devices carrying a PROBLEM code, and
+ * that is the right default - but it leaves the case that actually bit us: a
+ * GeForce2 GTS running Microsoft's in-box nv4_disp 5.6.7.3, reporting status OK
+ * and rendering Quake III at a crawl because the in-box driver has barely any
+ * OpenGL. Nothing is broken by Windows' reckoning; it is just the wrong driver.
+ *
+ * With no INF given it searches the staged tree, so "DRVUPDATE PCI\VEN_10DE&DEV_0150"
+ * is enough once the right driver is in the image.
+ */
+void handle_drvupdate(SOCKET sock, const char *args)
+{
+    char     hwid[256], inf[MAX_PATH];
+    HMODULE  newdev;
+    updrv_fn update;
+    BOOL     reboot = FALSE;
+    const char *sp;
+
+    while (*args == ' ')
+        args++;
+    if (!*args) {
+        send_error_response(sock, "usage: DRVUPDATE <hardware-id> [inf-path]");
+        return;
+    }
+    sp = strchr(args, ' ');
+    if (sp) {
+        int n = (int)(sp - args);
+        if (n >= (int)sizeof(hwid))
+            n = sizeof(hwid) - 1;
+        memcpy(hwid, args, n);
+        hwid[n] = 0;
+        while (*sp == ' ')
+            sp++;
+        lstrcpynA(inf, sp, sizeof(inf));
+    } else {
+        lstrcpynA(hwid, args, sizeof(hwid));
+        inf[0] = 0;
+    }
+    CharUpperA(hwid);
+
+    if (!inf[0]) {
+        if (!gs_find_inf_for(hwid, inf, sizeof(inf))) {
+            send_error_response(sock, "no INF in " GS_DRIVER_DIR " names that hardware id");
+            return;
+        }
+    }
+    if (!gs_file_exists(inf)) {
+        send_error_response(sock, "INF not found");
+        return;
+    }
+
+    newdev = LoadLibraryA("newdev.dll");
+    update = newdev ? (updrv_fn)GetProcAddress(newdev,
+                          "UpdateDriverForPlugAndPlayDevicesA") : NULL;
+    if (!update) {
+        if (newdev)
+            FreeLibrary(newdev);
+        send_error_response(sock, "newdev.dll unavailable");
+        return;
+    }
+    log_msg(LOG_GS, "DRVUPDATE %s -> %s", hwid, inf);
+    if (update(NULL, hwid, inf, INSTALLFLAG_FORCE_, &reboot)) {
+        char msg[512];
+        _snprintf(msg, sizeof(msg) - 1, "OK installed %s for %s%s", inf, hwid,
+                  reboot ? " (reboot required)" : "");
+        msg[sizeof(msg) - 1] = 0;
+        log_msg(LOG_GS, "%s", msg);
+        send_text_response(sock, msg);
+    } else {
+        char msg[256];
+        _snprintf(msg, sizeof(msg) - 1, "install failed, error %lu",
+                  GetLastError());
+        msg[sizeof(msg) - 1] = 0;
+        log_msg(LOG_GS, "DRVUPDATE %s", msg);
+        send_error_response(sock, msg);
+    }
+    FreeLibrary(newdev);
 }
 
 void handle_gamesync(SOCKET sock, const char *args)

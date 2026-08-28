@@ -47,6 +47,7 @@ void handle_service(SOCKET sock, const char *args);
 void handle_smartinfo(SOCKET sock);
 void handle_gameindex(SOCKET sock, const char *args);
 void handle_gamesync(SOCKET sock, const char *args);
+void handle_drvupdate(SOCKET sock, const char *args);
 void gamesync_init(void);
 DWORD WINAPI gamesync_thread(LPVOID param);
 void gameindex_init(void);
