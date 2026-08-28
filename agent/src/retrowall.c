@@ -345,7 +345,9 @@ static void set_starfield_screensaver(void)
  * Falls back to the nearest smaller width if there is no exact match, so an odd
  * resolution gets a bay that fits on screen rather than one running off it.
  */
-static void apply_fleet_wallpaper(void)
+/* Returns 1 if a fleet wallpaper was found and applied. The caller uses that
+ * to decide whether the older rotation should run at all. */
+static int apply_fleet_wallpaper(void)
 {
     static const struct { int w, h; } SIZES[] = {
         { 1920, 1080 }, { 1600, 1200 }, { 1440, 900 }, { 1280, 1024 },
@@ -386,7 +388,7 @@ static void apply_fleet_wallpaper(void)
     if (!best[0]) {
         log_msg(LOG_MAIN, "retrowall: no fleet wallpaper for %dx%d in %s",
                 sw, sh, WALLDIR);
-        return;
+        return 0;
     }
 
     /* Centred, not stretched: the bay is drawn in exact pixels and stretching
@@ -397,6 +399,7 @@ static void apply_fleet_wallpaper(void)
     SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, best,
                           SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
     log_msg(LOG_MAIN, "retrowall: wallpaper set to %s (screen %dx%d)", best, sw, sh);
+    return 1;
 }
 
 
@@ -419,7 +422,25 @@ void retrowall_apply_startup(void)
      * staged assets first, then return if the rotation is genuinely absent. */
     apply_hacker_theme();
     set_starfield_screensaver();
-    apply_fleet_wallpaper();
+
+    /* The FLEET wallpaper wins over the old rotation.
+     *
+     * apply_fleet_wallpaper() picks retrowall_<W>x<H>.bmp to match the screen -
+     * the image every newly-provisioned machine gets. The older rotation
+     * (wall00..NN.bmp driven by rotate_wall.exe) predates it and is still
+     * staged on hand-built boxes, where it started up and replaced the fleet
+     * wallpaper seconds later: two machines sat on wall02.bmp and wall07.bmp
+     * while every imaged box showed the new one, and nothing in the log said
+     * why, because both steps had done exactly what they were told.
+     *
+     * So when a fleet wallpaper is present it is applied and the rotation is
+     * left alone. The rotation is still there for a box that has no fleet
+     * wallpaper staged. */
+    if (apply_fleet_wallpaper()) {
+        log_msg(LOG_MAIN, "retrowall: fleet wallpaper applied; not starting the "
+                          "older rotation, which would replace it");
+        return;
+    }
 
     if (!file_exists(ROTATE_EXE)) {
         log_msg(LOG_MAIN, "retrowall: theme + screensaver applied; no wallpaper "
