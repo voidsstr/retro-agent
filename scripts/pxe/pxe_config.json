@@ -1,5 +1,6 @@
 {
-  "server_ip": "auto",
+  "_comment": "server_ip is PINNED, not 'auto'. This host also carries a macvlan (mac0, .133) used for VM testing, and auto-detection picks whichever address it finds first - which pointed real hardware at an interface it could not TFTP from. Pin it.",
+  "server_ip": "192.168.1.132",
   "bootfile": "startrom.n12",
   "bootfile_by_arch": {}
 }
