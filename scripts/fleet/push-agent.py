@@ -38,7 +38,20 @@ TRIES = 10
 
 
 def restart_bat(temp_exe):
-    lines = ['@echo off', 'echo push-agent: waiting for the old agent to exit...']
+    # Ask the running agent to exit BEFORE trying to replace it. Windows will
+    # not let a running executable be overwritten, so without this every copy
+    # attempt fails, the loop exhausts, and the tool correctly-but-uselessly
+    # reports success having changed nothing. That is exactly what happened on
+    # the first real use of this script.
+    #
+    # taskkill is safe here in a way that `move` was not: we still COPY over the
+    # target rather than moving it aside, so if the copy fails the working
+    # binary is untouched and the give-up path restarts it.
+    lines = ['@echo off',
+             'echo push-agent: asking the running agent to exit...',
+             'taskkill /F /IM retro_agent.exe > nul 2>&1',
+             'ping -n 3 127.0.0.1 > nul',
+             'echo push-agent: replacing the binary...']
     for _ in range(TRIES):
         lines.append('ping -n 3 127.0.0.1 > nul')
         lines.append(f'copy /Y {temp_exe} {INSTALL_DIR}\\retro_agent.exe')

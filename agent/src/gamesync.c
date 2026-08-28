@@ -403,6 +403,93 @@ static int gs_copy_tree(const char *src, const char *dst)
 }
 
 /* ---------------------------------------------------------------------- */
+/* reclaim the driver payload                                              */
+/* ---------------------------------------------------------------------- */
+
+/* The image ships ~2.4 GB of PnP drivers to C:\D so GUI setup can find a driver
+ * for whatever hardware it lands on. Once setup has finished, that directory is
+ * dead weight - and on a period disk it is ruinous: the Gateway 550 has a SIX
+ * gigabyte disk, of which C:\D was taking 2.43 GB across 17,886 files, leaving
+ * 308 MB free and room for three games out of twenty-five.
+ *
+ * So a freshly imaged machine deletes it before provisioning, not after: the
+ * space has to be free BEFORE the game copy decides what fits, or the reclaim
+ * buys nothing on the machine that needs it most.
+ *
+ * Safe by construction: the agent runs at first logon, which is after GUI setup
+ * has installed every device it is going to. Nothing references C:\D at run
+ * time - DevicePath points there, but only PnP reads it, and only when new
+ * hardware appears. The full set stays on the share, so adding hardware later
+ * means re-staging from there rather than losing anything.
+ *
+ * Skipped entirely when the newimage flag is absent, so an established machine
+ * someone has customised is never touched. */
+#define GS_DRIVER_DIR      "C:\\D"
+
+static __int64 gs_dir_bytes(const char *dir)
+{
+    int files = 0;
+    return gs_dir_size(dir, &files);
+}
+
+static int gs_rmtree(const char *dir)
+{
+    WIN32_FIND_DATAA fd;
+    HANDLE h;
+    char   pat[MAX_PATH], sub[MAX_PATH];
+    int    ok = 1;
+
+    _snprintf(pat, sizeof(pat) - 1, "%s\\*", dir);
+    pat[sizeof(pat) - 1] = 0;
+    h = FindFirstFileA(pat, &fd);
+    if (h == INVALID_HANDLE_VALUE)
+        return RemoveDirectoryA(dir) ? 1 : 0;
+    do {
+        if (fd.cFileName[0] == '.' &&
+            (fd.cFileName[1] == 0 || (fd.cFileName[1] == '.' && fd.cFileName[2] == 0)))
+            continue;
+        _snprintf(sub, sizeof(sub) - 1, "%s\\%s", dir, fd.cFileName);
+        sub[sizeof(sub) - 1] = 0;
+        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            if (!gs_rmtree(sub))
+                ok = 0;
+        } else {
+            /* Setup marks some staged files read-only; clear it or the delete
+             * silently leaves them and the directory never goes away. */
+            SetFileAttributesA(sub, FILE_ATTRIBUTE_NORMAL);
+            if (!DeleteFileA(sub))
+                ok = 0;
+        }
+    } while (FindNextFileA(h, &fd));
+    FindClose(h);
+    if (!RemoveDirectoryA(dir))
+        ok = 0;
+    return ok;
+}
+
+static void gs_reclaim_drivers(void)
+{
+    __int64 before, bytes;
+
+    if (!gs_file_exists(GS_DRIVER_DIR))
+        return;
+    before = gs_free_bytes("C:\\");
+    bytes  = gs_dir_bytes(GS_DRIVER_DIR);
+    log_msg(LOG_GS, "reclaiming the staged driver payload: %s is %I64d MB",
+            GS_DRIVER_DIR, bytes / 1048576);
+    if (gs_rmtree(GS_DRIVER_DIR)) {
+        __int64 after = gs_free_bytes("C:\\");
+        log_msg(LOG_GS, "driver payload removed - free space %I64d -> %I64d MB",
+                before < 0 ? -1 : before / 1048576,
+                after < 0 ? -1 : after / 1048576);
+    } else {
+        /* Partial removal is not a failure worth stopping for: whatever went is
+         * still space we did not have, and the games copy is what matters. */
+        log_msg(LOG_GS, "driver payload only partly removed - continuing");
+    }
+}
+
+/* ---------------------------------------------------------------------- */
 /* desktop shortcuts                                                       */
 /* ---------------------------------------------------------------------- */
 
@@ -1128,8 +1215,12 @@ DWORD WINAPI gamesync_thread(LPVOID param)
      * someone deleted it, or on a box that predates this feature entirely. The
      * flag is what lets the log say 'freshly imaged' and mean it. */
     fresh = gs_file_exists(GS_NEWIMAGE_FLAG);
-    if (fresh)
+    if (fresh) {
         gs_log_image_flag();
+        /* Before the marker check, and before any copying: on a small disk this
+         * is the difference between three games and a dozen. */
+        gs_reclaim_drivers();
+    }
 
     if (gs_file_exists(GS_MARKER)) {
         log_msg(LOG_GS, "already provisioned (%s present) - idle", GS_MARKER);
