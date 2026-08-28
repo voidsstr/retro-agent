@@ -345,6 +345,34 @@ static void set_starfield_screensaver(void)
  * Falls back to the nearest smaller width if there is no exact match, so an odd
  * resolution gets a bay that fits on screen rather than one running off it.
  */
+/* Stop the legacy wallpaper rotation and stop it coming back.
+ *
+ * Only called once a fleet wallpaper has been applied, so a box that still
+ * depends on the rotation is never touched. */
+static void stop_wallpaper_rotation(void)
+{
+    HKEY  k;
+    DWORD n = 0;
+
+    /* The running instance. taskkill rather than a handle-based kill: it is a
+     * separate GUI process we did not start and may not own. */
+    run_process("cmd.exe /c taskkill /f /im rotate_wall.exe", 10000);
+    n++;
+
+    /* ...and the Run key that would start a fresh one at the next logon. */
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
+                      "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                      0, KEY_SET_VALUE, &k) == ERROR_SUCCESS) {
+        if (RegDeleteValueA(k, "RetroWallRotate") == ERROR_SUCCESS) {
+            log_msg(LOG_MAIN, "retrowall: removed the RetroWallRotate Run key");
+            n++;
+        }
+        RegCloseKey(k);
+    }
+    if (n)
+        log_msg(LOG_MAIN, "retrowall: legacy wallpaper rotation stopped");
+}
+
 /* Returns 1 if a fleet wallpaper was found and applied. The caller uses that
  * to decide whether the older rotation should run at all. */
 static int apply_fleet_wallpaper(void)
@@ -437,8 +465,15 @@ void retrowall_apply_startup(void)
      * left alone. The rotation is still there for a box that has no fleet
      * wallpaper staged. */
     if (apply_fleet_wallpaper()) {
-        log_msg(LOG_MAIN, "retrowall: fleet wallpaper applied; not starting the "
-                          "older rotation, which would replace it");
+        /* Declining to START the rotation is not enough. An instance left over
+         * from a previous boot keeps running and re-sets the wallpaper every
+         * interval, and its Run key starts a fresh one at the next logon - so
+         * the fleet wallpaper was applied, logged as applied, and then quietly
+         * replaced by wall04.bmp seconds later. Stop the process and remove the
+         * Run key, or the change does not survive the minute it was made in. */
+        stop_wallpaper_rotation();
+        log_msg(LOG_MAIN, "retrowall: fleet wallpaper applied; older rotation "
+                          "stopped so it cannot replace it");
         return;
     }
 
