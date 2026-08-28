@@ -921,6 +921,26 @@ void gs_place_tool_shortcuts(void)
 {
     char exe[MAX_PATH];
     DWORD n;
+    int   we_initialised = 0;
+
+    /* COM has to be initialised ON THIS THREAD before CoCreateInstance will
+     * hand back a ShellLink. gs_run() does that around its own shortcut work,
+     * which is why calling this from inside gs_run worked and calling it at
+     * thread start did not: same code, same machine, and the only difference
+     * was whether COM happened to be initialised by someone else first. The
+     * failure was CO_E_NOTINITIALIZED and looked exactly like "the shortcut
+     * could not be created".
+     *
+     * Initialising here makes the function work wherever it is called from. A
+     * second CoInitialize on an already-initialised thread returns S_FALSE and
+     * is harmless - but then we must NOT uninitialise, or we would tear down
+     * the caller's apartment. */
+    if (!gs_ole_load())
+        return;
+    if (g_gs_CoInitialize) {
+        HRESULT hr = g_gs_CoInitialize(NULL);
+        we_initialised = (hr == S_OK);
+    }
 
     /* The agent's own path, whatever it is - these boxes are not consistent
      * about where it lives (a dual-boot machine can run it from the OTHER
@@ -930,6 +950,9 @@ void gs_place_tool_shortcuts(void)
         gs_tool_shortcut(exe, "Retro Agent");
 
     gs_tool_shortcut("C:\\RETRO_AGENT\\retro_chat.exe", "Retro Chat");
+
+    if (we_initialised && g_gs_CoUninitialize)
+        g_gs_CoUninitialize();
 }
 
 /*
