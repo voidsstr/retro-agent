@@ -757,6 +757,29 @@ static int gs_ole_load(void)
  * different account logging in - these boxes autologon as Administrator today,
  * but that is a setting, not a law. Falls back to the per-user desktop, then to
  * the 9x-era fixed path. */
+/* The logged-on user's own Desktop, as opposed to the All Users one. Both hold
+ * shortcuts and a sweep of only one leaves half the clutter behind. */
+static int gs_user_desktop_dir(char *out, DWORD cch)
+{
+    out[0] = 0;
+    if (g_gs_SHGetFolderPathA &&
+        SUCCEEDED(g_gs_SHGetFolderPathA(NULL, GS_CSIDL_DESKTOPDIRECTORY,
+                                        NULL, 0, out)) && out[0])
+        return 1;
+    {
+        char prof[MAX_PATH];
+        DWORD n = GetEnvironmentVariableA("USERPROFILE", prof, sizeof(prof));
+        if (n > 0 && n < sizeof(prof)) {
+            _snprintf(out, cch - 1, "%s\\Desktop", prof);
+            out[cch - 1] = 0;
+            if (gs_file_exists(out))
+                return 1;
+        }
+    }
+    out[0] = 0;
+    return 0;
+}
+
 static int gs_desktop_dir(char *out, DWORD cch)
 {
     if (g_gs_SHGetFolderPathA) {
@@ -812,6 +835,122 @@ static int gs_make_shortcut(const char *target, const char *workdir,
     }
     sl->lpVtbl->Release(sl);
     return ok;
+}
+
+/* ---------------------------------------------------------------------- */
+/* desktop sweep + wallpaper staging                                       */
+/* ---------------------------------------------------------------------- */
+
+#define GS_DESK_BACKUP  "C:\\retro-desktop-backup"
+#define GS_WALL_DIR     "C:\\retro-wall"
+
+/*
+ * Clear the desktop of everything that is not one of ours.
+ *
+ * A provisioned box should show the staged games and nothing else - not the
+ * leftovers of whatever was installed on it before, not vendor advertising, not
+ * a dozen stale shortcuts to games that are no longer there.
+ *
+ * These are MOVED, not deleted. A desktop is where people leave things they
+ * care about, and a shortcut we did not recognise is not automatically
+ * worthless; C:\retro-desktop-backup keeps them, so a wrong judgement here
+ * costs somebody a look in a folder rather than their work. Only .lnk, .pif and
+ * .url go - real files someone left on the desktop are left exactly where they
+ * are.
+ */
+static int gs_sweep_desktop_dir(const char *desk)
+{
+    WIN32_FIND_DATAA fd;
+    HANDLE           h;
+    char             pat[MAX_PATH], src[MAX_PATH], dst[MAX_PATH];
+    int              moved = 0;
+
+    _snprintf(pat, sizeof(pat) - 1, "%s\\*", desk);
+    pat[sizeof(pat) - 1] = 0;
+    h = FindFirstFileA(pat, &fd);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    do {
+        const char *ext;
+        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            continue;
+        ext = fd.cFileName + lstrlenA(fd.cFileName);
+        while (ext > fd.cFileName && *ext != '.')
+            ext--;
+        if (lstrcmpiA(ext, ".lnk") != 0 && lstrcmpiA(ext, ".pif") != 0 &&
+            lstrcmpiA(ext, ".url") != 0)
+            continue;
+
+        _snprintf(src, sizeof(src) - 1, "%s\\%s", desk, fd.cFileName);
+        _snprintf(dst, sizeof(dst) - 1, "%s\\%s", GS_DESK_BACKUP, fd.cFileName);
+        src[sizeof(src) - 1] = dst[sizeof(dst) - 1] = 0;
+        SetFileAttributesA(src, FILE_ATTRIBUTE_NORMAL);
+        DeleteFileA(dst);                      /* MoveFile will not overwrite */
+        if (MoveFileA(src, dst) || DeleteFileA(src))
+            moved++;
+    } while (FindNextFileA(h, &fd));
+    FindClose(h);
+    return moved;
+}
+
+static void gs_sweep_desktop(void)
+{
+    char desk[MAX_PATH], userdesk[MAX_PATH];
+    int  moved = 0;
+
+    CreateDirectoryA(GS_DESK_BACKUP, NULL);
+    /* Both desktops: shortcuts land in All Users or in the logged-on user's
+     * profile depending on who installed what, and a sweep that only does one
+     * leaves half the clutter behind. */
+    if (gs_desktop_dir(desk, sizeof(desk)))
+        moved += gs_sweep_desktop_dir(desk);
+    if (gs_user_desktop_dir(userdesk, sizeof(userdesk)) &&
+        lstrcmpiA(userdesk, desk) != 0)
+        moved += gs_sweep_desktop_dir(userdesk);
+    if (moved)
+        log_msg(LOG_GS, "desktop swept: %d shortcut(s) moved to %s",
+                moved, GS_DESK_BACKUP);
+}
+
+/*
+ * Put the fleet wallpapers on a box that never saw the install image.
+ *
+ * The imaged machines get C:\retro-wall from $OEM$. A machine built by hand
+ * never had that, so retrowall's apply step found nothing and quietly did
+ * nothing - which is why two hand-built boxes sat on the default XP desktop
+ * while every imaged one looked like the fleet. The wallpapers now live beside
+ * the game library on the same share the agent already reads, so any box can
+ * fetch them whether it was imaged or not.
+ */
+static void gs_stage_wallpapers(const char *library)
+{
+    WIN32_FIND_DATAA fd;
+    HANDLE           h;
+    char             pat[MAX_PATH], src[MAX_PATH], dst[MAX_PATH];
+    int              n = 0;
+
+    _snprintf(pat, sizeof(pat) - 1, "%s\\_desktop\\*", library);
+    pat[sizeof(pat) - 1] = 0;
+    h = FindFirstFileA(pat, &fd);
+    if (h == INVALID_HANDLE_VALUE)
+        return;                                /* share has no _desktop - fine */
+    CreateDirectoryA(GS_WALL_DIR, NULL);
+    do {
+        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            continue;
+        _snprintf(src, sizeof(src) - 1, "%s\\_desktop\\%s", library, fd.cFileName);
+        _snprintf(dst, sizeof(dst) - 1, "%s\\%s", GS_WALL_DIR, fd.cFileName);
+        src[sizeof(src) - 1] = dst[sizeof(dst) - 1] = 0;
+        /* Same-size means already there: this runs on every provision and the
+         * wallpapers are 26 MB. */
+        if (gs_file_size(dst) == gs_file_size(src))
+            continue;
+        if (CopyFileA(src, dst, FALSE))
+            n++;
+    } while (FindNextFileA(h, &fd));
+    FindClose(h);
+    if (n)
+        log_msg(LOG_GS, "staged %d wallpaper file(s) into %s", n, GS_WALL_DIR);
 }
 
 /* Make ONE desktop shortcut from a "<relative exe>[<TAB><display name>]" line. */
@@ -1143,6 +1282,16 @@ static void gs_run(const char *library)
     g_win_tick = GetTickCount();
     g_win_bytes = 0;
     g_last_log = 0;
+
+    /* Clear the desktop and make sure the wallpapers are on disk BEFORE any
+     * shortcut is written, so what the sweep removes is only what was already
+     * there. Doing it afterwards would take our own game icons straight back
+     * off again.
+     *
+     * Both run on every provision, imaged box or not: a hand-built machine is
+     * exactly the one that has a cluttered desktop and no C:\retro-wall. */
+    gs_sweep_desktop();
+    gs_stage_wallpapers(library);
 
     EnterCriticalSection(&g_gs_lock);
     memset(&g_gs, 0, sizeof(g_gs));
