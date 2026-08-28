@@ -857,6 +857,84 @@ static void gs_run(const char *library)
     } while (FindNextFileA(h, &fd));
     FindClose(h);
 
+    /* Order the titles before copying any of them.
+     *
+     * WHY THIS MATTERS MORE THAN IT LOOKS. A period disk is small - the Gateway
+     * 550 that prompted this has SIX gigabytes - so on most fleet machines the
+     * library does not fit and the disk-fit check skips most of it. Without an
+     * order, "which games does this machine get" is decided by whatever order
+     * the directory happened to enumerate in. That box ended up with Quake III,
+     * Soldier of Fortune and System Shock: three fine games chosen by accident.
+     *
+     * _priority.txt in the library root fixes that: one title per line, best
+     * first. Anything not listed keeps its existing relative order and follows.
+     * Missing file means unchanged behaviour. */
+    {
+        char  pri_path[MAX_PATH];
+        char *buf;
+        DWORD got = 0;
+        HANDLE ph;
+        int ordered = 0;
+
+        _snprintf(pri_path, sizeof(pri_path) - 1, "%s\\_priority.txt", library);
+        pri_path[sizeof(pri_path) - 1] = 0;
+        ph = CreateFileA(pri_path, GENERIC_READ, FILE_SHARE_READ, NULL,
+                         OPEN_EXISTING, 0, NULL);
+        if (ph != INVALID_HANDLE_VALUE) {
+            buf = (char *)HeapAlloc(GetProcessHeap(), 0, 8192);
+            if (buf && ReadFile(ph, buf, 8191, &got, NULL) && got) {
+                char *line = buf;
+                buf[got] = 0;
+                while (*line && ordered < n) {
+                    char *end = line;
+                    int   j;
+                    while (*end && *end != '\r' && *end != '\n')
+                        end++;
+                    if (*end) {
+                        *end = 0;
+                        end++;
+                    }
+                    /* Skip leading whitespace AND any stray CR/LF. The line
+                     * splitter above NUL-terminates at the first CR of a CRLF
+                     * and steps over it, which leaves the LF at the head of the
+                     * next line - so without this every second line would fail
+                     * to match and the ordering would silently half-work. */
+                    while (*line == ' ' || *line == '\t' || *line == '\r'
+                           || *line == '\n')
+                        line++;
+                    if (*line && *line != '#' && *line != ';') {
+                        /* Move a named title up to the next ordered slot. */
+                        for (j = ordered; j < n; j++) {
+                            if (lstrcmpiA(titles[j], line) != 0)
+                                continue;
+                            if (j != ordered) {
+                                char    tn[128];
+                                __int64 ts;
+                                lstrcpynA(tn, titles[j], sizeof(tn));
+                                ts = sizes[j];
+                                for (; j > ordered; j--) {
+                                    lstrcpynA(titles[j], titles[j - 1], sizeof(titles[0]));
+                                    sizes[j] = sizes[j - 1];
+                                }
+                                lstrcpynA(titles[ordered], tn, sizeof(titles[0]));
+                                sizes[ordered] = ts;
+                            }
+                            ordered++;
+                            break;
+                        }
+                    }
+                    line = end;
+                }
+            }
+            if (buf)
+                HeapFree(GetProcessHeap(), 0, buf);
+            CloseHandle(ph);
+            if (ordered)
+                log_msg(LOG_GS, "_priority.txt ordered the first %d of %d "
+                                "title(s)", ordered, n);
+        }
+    }
+
     if (n == 0) {
         log_msg(LOG_GS, "library is empty - nothing to do");
         EnterCriticalSection(&g_gs_lock);

@@ -198,6 +198,18 @@ install -m 0644 "$SRC/I386/NTDETECT.COM" "$TFTP_ROOT/ntdetect.com"
     if [ -n "${OEMPNP:-}" ]; then
         printf '    OemPnPDriversPath = "%s"\r\n' "$OEMPNP"
     fi
+    # UnattendSwitch skips Windows Welcome / the OOBE mini-setup at first boot.
+    # WITHOUT IT the machine finishes a fully unattended install and then, on
+    # its very first boot, stops on "Who will use this computer?" and demands an
+    # account - which is exactly what happened on the Gateway on 2026-08-28. The
+    # operator created one, and the box ended up with a stray user account
+    # alongside the Administrator autologon we had configured.
+    #
+    # It is easy to think OemSkipWelcome covers this. It does not: that skips
+    # the welcome page during GUI SETUP, whereas the user-creation prompt comes
+    # from msoobe at FIRST BOOT, which is a different stage with a different
+    # switch. UnattendMode=FullUnattended does not suppress it either.
+    printf '    UnattendSwitch = "yes"\r\n'
     printf '    WaitForReboot = No\r\n'
     printf '\r\n'
     printf '[GuiUnattended]\r\n'
