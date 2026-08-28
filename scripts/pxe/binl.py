@@ -229,6 +229,10 @@ class NicDb(object):
         self.path = path
         self.exact = {}
         self.generic = {}
+        # Set here, not only in load(): load() returns early when the database
+        # file is missing, and a lookup against a half-built NicDb must degrade
+        # to "no match" rather than raise.
+        self.override = {}
         self.mtime = 0
         self.load()
 
@@ -244,6 +248,19 @@ class NicDb(object):
             return False
         self.exact = db.get('exact', {})
         self.generic = db.get('generic', {})
+        # Overrides live in their OWN file, so rebuilding the generated database
+        # never silently drops a hard-won per-card decision.
+        self.override = {}
+        ov = os.path.join(os.path.dirname(os.path.abspath(self.path)),
+                          'nicdb-overrides.json')
+        if os.path.isfile(ov):
+            try:
+                with open(ov, encoding='ascii') as fh:
+                    self.override = {k.lower(): v
+                                     for k, v in json.load(fh).items()
+                                     if not k.startswith('_')}
+            except (OSError, ValueError):
+                self.override = {}
         self.mtime = st.st_mtime
         return True
 
@@ -260,6 +277,18 @@ class NicDb(object):
 
     def lookup(self, q):
         """Most specific match first: subsystem, then plain vendor/device."""
+        # An override wins over everything. It exists because a CORRECT answer
+        # is not always a WORKING one: an ASUS board with a Marvell Yukon
+        # 88E8001 gets the right driver by every check available from here -
+        # yk51x86.inf is the only INF claiming its exact subsystem, the .sys is
+        # registered and fetched, and the registry values we send are the ones
+        # that INF asks for - and the machine still bugchecks 0xBB initialising
+        # the network boot. The only way forward is to try a different driver
+        # for that one card, and this is where that survives a db rebuild.
+        e = (self.override.get(q.exact_key.lower())
+             or self.override.get(q.generic_key.lower()))
+        if e:
+            return e, 'override'
         e = self.exact.get(q.exact_key)
         if e:
             return e, 'exact'
