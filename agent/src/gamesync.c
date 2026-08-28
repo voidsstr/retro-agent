@@ -510,6 +510,160 @@ static int gs_devices_unconfigured(void)
     return bad;
 }
 
+/*
+ * Install drivers for devices Windows left unconfigured.
+ *
+ * GUI setup does not always get there. A Dell Dimension 3000 finished a clean
+ * install and sat on the VGA fallback at 640x480 in 16 colours, with the Intel
+ * 865G driver it needed present on its own disk in C:\D the whole time, waiting
+ * for someone to walk over and answer a Found New Hardware wizard. Three
+ * devices were in that state: the display, the audio, and a multimedia
+ * controller.
+ *
+ * So the agent finishes the job. For each device carrying a problem code it
+ * takes the hardware ID, finds an INF in the staged driver tree that mentions
+ * it, and hands both to UpdateDriverForPlugAndPlayDevices - the documented way
+ * to drive a PnP install without a dialog.
+ *
+ * Deliberately quiet about failure. Not every unconfigured device has a driver
+ * in the tree, and one that cannot be matched is not an error worth alarming
+ * anyone about; it just stays as it was, exactly as if we had not tried.
+ */
+#define INSTALLFLAG_FORCE_ 0x00000001
+
+typedef BOOL (WINAPI *updrv_fn)(HWND, LPCSTR, LPCSTR, DWORD, PBOOL);
+
+/* Find an INF under C:\D naming this hardware id. The tree is ~500 directories
+ * and 18,000 files, so this walks INFs only and stops at the first match. */
+static int gs_find_inf_for(const char *hwid, char *out, DWORD out_cch)
+{
+    WIN32_FIND_DATAA fd, ff;
+    HANDLE           hd, hf;
+    char             pat[MAX_PATH], sub[MAX_PATH], infp[MAX_PATH];
+    int              found = 0;
+
+    _snprintf(pat, sizeof(pat) - 1, "%s\\*", GS_DRIVER_DIR);
+    pat[sizeof(pat) - 1] = 0;
+    hd = FindFirstFileA(pat, &fd);
+    if (hd == INVALID_HANDLE_VALUE)
+        return 0;
+    do {
+        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+            continue;
+        if (fd.cFileName[0] == '.')
+            continue;
+        _snprintf(sub, sizeof(sub) - 1, "%s\\%s\\*.inf", GS_DRIVER_DIR,
+                  fd.cFileName);
+        sub[sizeof(sub) - 1] = 0;
+        hf = FindFirstFileA(sub, &ff);
+        if (hf == INVALID_HANDLE_VALUE)
+            continue;
+        do {
+            HANDLE  h;
+            DWORD   got = 0;
+            char   *buf;
+            _snprintf(infp, sizeof(infp) - 1, "%s\\%s\\%s", GS_DRIVER_DIR,
+                      fd.cFileName, ff.cFileName);
+            infp[sizeof(infp) - 1] = 0;
+            h = CreateFileA(infp, GENERIC_READ, FILE_SHARE_READ, NULL,
+                            OPEN_EXISTING, 0, NULL);
+            if (h == INVALID_HANDLE_VALUE)
+                continue;
+            buf = (char *)HeapAlloc(GetProcessHeap(), 0, 262144);
+            if (buf) {
+                if (ReadFile(h, buf, 262143, &got, NULL) && got) {
+                    buf[got] = 0;
+                    /* INFs spell hardware ids in mixed case; compare upper. */
+                    CharUpperA(buf);
+                    if (strstr(buf, hwid)) {
+                        lstrcpynA(out, infp, out_cch);
+                        found = 1;
+                    }
+                }
+                HeapFree(GetProcessHeap(), 0, buf);
+            }
+            CloseHandle(h);
+        } while (!found && FindNextFileA(hf, &ff));
+        FindClose(hf);
+    } while (!found && FindNextFileA(hd, &fd));
+    FindClose(hd);
+    return found;
+}
+
+static void gs_install_missing_drivers(void)
+{
+    HDEVINFO        set;
+    SP_DEVINFO_DATA dev;
+    DWORD           i;
+    HMODULE         newdev;
+    updrv_fn        update;
+    int             fixed = 0, tried = 0;
+
+    if (!gs_file_exists(GS_DRIVER_DIR))
+        return;
+    newdev = LoadLibraryA("newdev.dll");
+    if (!newdev)
+        return;
+    update = (updrv_fn)GetProcAddress(newdev, "UpdateDriverForPlugAndPlayDevicesA");
+    if (!update) {
+        FreeLibrary(newdev);
+        return;
+    }
+
+    set = SetupDiGetClassDevsA(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
+    if (set == INVALID_HANDLE_VALUE) {
+        FreeLibrary(newdev);
+        return;
+    }
+
+    memset(&dev, 0, sizeof(dev));
+    dev.cbSize = sizeof(dev);
+    for (i = 0; SetupDiEnumDeviceInfo(set, i, &dev); i++) {
+        DWORD status = 0, problem = 0;
+        char  ids[1024], desc[256], inf[MAX_PATH];
+        BOOL  reboot = FALSE;
+        char *p;
+
+        if (CM_Get_DevNode_Status(&status, &problem, dev.DevInst, 0) != CR_SUCCESS)
+            continue;
+        if (problem == 0 && !(status & DN_HAS_PROBLEM))
+            continue;
+
+        ids[0] = desc[0] = 0;
+        SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_DEVICEDESC, NULL,
+                                          (PBYTE)desc, sizeof(desc), NULL);
+        if (!SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_HARDWAREID, NULL,
+                                               (PBYTE)ids, sizeof(ids), NULL))
+            continue;
+        /* REG_MULTI_SZ - the first id is the most specific. */
+        for (p = ids; *p; p++)
+            ;
+        CharUpperA(ids);
+        if (!ids[0])
+            continue;
+
+        if (!gs_find_inf_for(ids, inf, sizeof(inf))) {
+            log_msg(LOG_GS, "no driver in %s for %s (%s) - leaving it",
+                    GS_DRIVER_DIR, desc[0] ? desc : "(unnamed)", ids);
+            continue;
+        }
+        tried++;
+        log_msg(LOG_GS, "installing %s for %s", inf, desc[0] ? desc : ids);
+        if (update(NULL, ids, inf, INSTALLFLAG_FORCE_, &reboot)) {
+            fixed++;
+            log_msg(LOG_GS, "  installed%s", reboot ? " (needs a reboot)" : "");
+        } else {
+            log_msg(LOG_GS, "  failed (%lu) - the Found New Hardware wizard can "
+                            "still do it from %s", GetLastError(), GS_DRIVER_DIR);
+        }
+    }
+    SetupDiDestroyDeviceInfoList(set);
+    FreeLibrary(newdev);
+    if (tried)
+        log_msg(LOG_GS, "unconfigured devices: %d of %d now have drivers",
+                fixed, tried);
+}
+
 static void gs_reclaim_drivers(void)
 {
     __int64 before, bytes;
@@ -1299,6 +1453,10 @@ DWORD WINAPI gamesync_thread(LPVOID param)
     fresh = gs_file_exists(GS_NEWIMAGE_FLAG);
     if (fresh) {
         gs_log_image_flag();
+        /* Finish the driver work GUI setup left undone, THEN decide whether the
+         * staged tree is still needed. Order matters: reclaiming first would
+         * delete the drivers this is about to install. */
+        gs_install_missing_drivers();
         /* Before the marker check, and before any copying: on a small disk this
          * is the difference between three games and a dozen. */
         gs_reclaim_drivers();

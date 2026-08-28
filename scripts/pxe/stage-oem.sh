@@ -164,7 +164,20 @@ escaped = value.replace('\\', '\\\\')
 with io.open(sys.argv[2], 'a', encoding='latin1', newline='') as fh:
     fh.write('\r\n')
     fh.write('[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion]\r\n')
-    fh.write('"DevicePath"=hex(2):' + ','.join('%02x,00' % ord(c) for c in value + '\0') + '\r\n')
+    # ANSI, one byte per character - NOT UTF-16.
+    #
+    # This file is REGEDIT4, which is an ANSI format. A hex(2) value in it is
+    # read byte-for-byte as ANSI. Encoding it UTF-16LE (the .reg v5 convention)
+    # writes '%' followed by 00, so regedit reads one character, hits the NUL,
+    # and stores a DevicePath of literally "%". PnP then has no driver search
+    # path at all - which is how a Dell Dimension 3000 came up on the VGA
+    # fallback at 640x480 in 16 colours with its Intel 865G driver sitting
+    # unused in C:\D.
+    #
+    # It is easy to verify this the same wrong way it was written: decode the
+    # hex as UTF-16 and it looks perfect. Decode it as ANSI, the way regedit
+    # does, and the bug is obvious. tests/test_pxe_devicepath.py does the latter.
+    fh.write('"DevicePath"=hex(2):' + ','.join('%02x' % ord(c) for c in value + '\0') + '\r\n')
 print('   DevicePath: %d dirs, %d chars' % (len(abs_paths.split(';')), len(value)))
 PYEOF
 fi
