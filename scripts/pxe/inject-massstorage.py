@@ -207,6 +207,18 @@ def main():
                     break
             if not src:
                 continue                       # INF names a .sys it did not ship
+            # A driver that imports storport.sys cannot work on XP SP3, which
+            # does not ship it. It loads, asks setup for storport, and text mode
+            # dies - turning a machine that would have installed in IDE mode
+            # into one that cannot install at all. 15 of these went in on the
+            # first pass, HpAHCIsr among them, and it claims Intel ICH9/ICH10
+            # AHCI: real consumer hardware, so this was not a theoretical risk.
+            try:
+                with open(src, 'rb') as fh:
+                    if b'storport.sys' in fh.read().lower():
+                        continue
+            except OSError:
+                continue
             # First writer wins: the dirs are sorted, so this is deterministic.
             found.setdefault(service, (sysfile, ids, desc, src))
 

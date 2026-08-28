@@ -84,6 +84,26 @@ def main():
         print(f'        wrong arch: {f}')
     check(f'every boot driver carries a boot-media field ({len(badreg)})',
           not badreg)
+
+    print('== no driver depends on storport.sys ==')
+    # XP SP3 does not ship storport.sys. A driver that imports it loads, asks
+    # setup for storport, and text mode dies - so such a driver turns a machine
+    # that would have installed in IDE mode into one that cannot install at all.
+    # 15 went in on the first pass, HpAHCIsr among them, and that one claims
+    # Intel ICH9/ICH10 AHCI: real consumer hardware, not a corner case.
+    has_storport = any(f.lower().startswith('storport.sy') for f in os.listdir(i386))
+    needs = []
+    for svc, fn in entries:
+        p2 = os.path.join(i386, fn)
+        if not os.path.isfile(p2):
+            continue
+        with open(p2, 'rb') as fh:
+            if b'storport.sys' in fh.read().lower():
+                needs.append((svc, fn))
+    check(f'no [SCSI.Load] driver imports storport.sys ({len(needs)})',
+          not needs or has_storport)
+    for s2, f2 in needs[:6]:
+        print(f'        {s2} ({f2}) needs storport.sys, which is not on the media')
     for f, line in badreg[:5]:
         print(f'        {f} = {line}')
 
