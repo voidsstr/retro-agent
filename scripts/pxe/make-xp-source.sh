@@ -88,7 +88,17 @@ OEMPNP="${OEMPNP:-}"
 # unattended mode and ran the wizard interactively. stage-oem.sh writes the full
 # list to the DevicePath registry value instead, which has no such limit and is
 # where this ends up anyway.
-OEMPNP_MAX=${OEMPNP_MAX:-400}
+OEMPNP_MAX=${OEMPNP_MAX:-1200}
+# Prefer the SHORT early list if inject-drivers.sh made one. It holds just LAN
+# and chipset - what setup needs to get the machine on the network - and it is
+# short enough to live in winnt.sif, where PnP sees it in time. The full list
+# goes to DevicePath via cmdlines.txt, which is too late for the NIC on some
+# machines: two identical installs, one networked and one not.
+if [ -z "$OEMPNP" ] && [ -f "$SRC/OemPnPDriversPathEarly.txt" ]; then
+    OEMPNP="$(cat "$SRC/OemPnPDriversPathEarly.txt")"
+    echo "note: using the LAN+chipset early driver path (${#OEMPNP} chars);"
+    echo "      the full set is applied via DevicePath at T-12."
+fi
 if [ -z "$OEMPNP" ] && [ -f "$SRC/OemPnPDriversPath.txt" ]; then
     OEMPNP="$(cat "$SRC/OemPnPDriversPath.txt")"
     if [ "${#OEMPNP}" -gt "$OEMPNP_MAX" ]; then

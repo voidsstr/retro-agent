@@ -38,6 +38,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <shlobj.h>
+#include <setupapi.h>
+#include <cfgmgr32.h>
 
 #define LOG_GS "GAMESYNC"
 
@@ -467,12 +469,62 @@ static int gs_rmtree(const char *dir)
     return ok;
 }
 
+/* Are there devices Windows has not managed to configure?
+ *
+ * This gates the reclaim, and it matters: the staged drivers in C:\D are
+ * precisely what the Found New Hardware wizard needs. Deleting them while a
+ * device is still unconfigured would take away the only local copy at the exact
+ * moment it is wanted - and on a machine whose NIC is the unconfigured device,
+ * there is no network left to fetch a replacement over. That is the worst
+ * failure this agent could cause, so the check is deliberately conservative:
+ * ANY device with a problem code means keep the drivers.
+ */
+static int gs_devices_unconfigured(void)
+{
+    HDEVINFO         set;
+    SP_DEVINFO_DATA  dev;
+    DWORD            i;
+    int              bad = 0;
+
+    set = SetupDiGetClassDevsA(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
+    if (set == INVALID_HANDLE_VALUE)
+        return 1;                 /* cannot tell -> assume yes, keep drivers */
+
+    memset(&dev, 0, sizeof(dev));
+    dev.cbSize = sizeof(dev);
+    for (i = 0; SetupDiEnumDeviceInfo(set, i, &dev); i++) {
+        DWORD status = 0, problem = 0;
+        if (CM_Get_DevNode_Status(&status, &problem, dev.DevInst, 0) != CR_SUCCESS)
+            continue;
+        if (problem != 0 || (status & DN_HAS_PROBLEM)) {
+            char name[256];
+            name[0] = 0;
+            SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_DEVICEDESC, NULL,
+                                              (PBYTE)name, sizeof(name), NULL);
+            log_msg(LOG_GS, "device not configured (problem %lu): %s",
+                    problem, name[0] ? name : "(unnamed)");
+            bad++;
+        }
+    }
+    SetupDiDestroyDeviceInfoList(set);
+    return bad;
+}
+
 static void gs_reclaim_drivers(void)
 {
     __int64 before, bytes;
+    int     bad;
 
     if (!gs_file_exists(GS_DRIVER_DIR))
         return;
+
+    bad = gs_devices_unconfigured();
+    if (bad) {
+        log_msg(LOG_GS, "%d device(s) still need a driver - KEEPING %s so the "
+                        "Found New Hardware wizard can find them", bad,
+                GS_DRIVER_DIR);
+        return;
+    }
     before = gs_free_bytes("C:\\");
     bytes  = gs_dir_bytes(GS_DRIVER_DIR);
     log_msg(LOG_GS, "reclaiming the staged driver payload: %s is %I64d MB",
@@ -608,51 +660,30 @@ static int gs_make_shortcut(const char *target, const char *workdir,
     return ok;
 }
 
-/* Read launch.txt: "<relative exe>[<TAB><display name>]" on the first line. */
-static int gs_read_launch(const char *dir, char *exe, DWORD exe_cch,
-                          char *name, DWORD name_cch)
+/* Make ONE desktop shortcut from a "<relative exe>[<TAB><display name>]" line. */
+static void gs_shortcut_from_line(const char *dst_dir, const char *title,
+                                  char *line)
 {
-    char   path[MAX_PATH];
-    HANDLE h;
-    char   buf[512];
-    DWORD  got = 0;
-    char  *tab, *end;
+    char exe_rel[MAX_PATH], disp[128], target[MAX_PATH];
+    char desktop[MAX_PATH], lnk[MAX_PATH], workdir[MAX_PATH];
+    char *tab, *slash;
 
-    exe[0] = name[0] = 0;
-    _snprintf(path, sizeof(path) - 1, "%s\\launch.txt", dir);
-    path[sizeof(path) - 1] = 0;
-    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-                    0, NULL);
-    if (h == INVALID_HANDLE_VALUE)
-        return 0;
-    if (!ReadFile(h, buf, sizeof(buf) - 1, &got, NULL) || !got) {
-        CloseHandle(h);
-        return 0;
-    }
-    CloseHandle(h);
-    buf[got] = 0;
-    for (end = buf; *end && *end != '\r' && *end != '\n'; end++)
-        ;
-    *end = 0;
-    tab = buf;
+    while (*line == ' ' || *line == '\t')
+        line++;
+    if (!*line || *line == '#')
+        return;
+
+    disp[0] = 0;
+    tab = line;
     while (*tab && *tab != '\t')
         tab++;
     if (*tab == '\t') {
         *tab = 0;
-        lstrcpynA(name, tab + 1, name_cch);
+        lstrcpynA(disp, tab + 1, sizeof(disp));
     }
-    lstrcpynA(exe, buf, exe_cch);
-    return exe[0] != 0;
-}
-
-static void gs_make_game_shortcut(const char *dst_dir, const char *title)
-{
-    char exe_rel[MAX_PATH], disp[128], target[MAX_PATH];
-    char desktop[MAX_PATH], lnk[MAX_PATH], workdir[MAX_PATH];
-    char *slash;
-
-    if (!gs_read_launch(dst_dir, exe_rel, sizeof(exe_rel), disp, sizeof(disp)))
-        return;                       /* no launch.txt - nothing to point at */
+    lstrcpynA(exe_rel, line, sizeof(exe_rel));
+    if (!exe_rel[0])
+        return;
     if (!disp[0])
         lstrcpynA(disp, title, sizeof(disp));
 
@@ -681,6 +712,57 @@ static void gs_make_game_shortcut(const char *dst_dir, const char *title)
         log_msg(LOG_GS, "%s: desktop shortcut -> %s", title, exe_rel);
     else
         log_msg(LOG_GS, "%s: could not create desktop shortcut", title);
+}
+
+/*
+ * Make a desktop shortcut for EVERY line in launch.txt.
+ *
+ * It used to read only the first line, which quietly cost us the second half of
+ * several titles: Red Alert 2's tree already contains Yuri's Revenge (RA2MD.exe
+ * and the expandmd mixes), and Descent II ships a Glide build alongside the
+ * plain Windows one. All present on disk, none reachable from the desktop.
+ *
+ * Blank lines and lines starting with # are skipped, so a launch.txt can
+ * explain itself. A line naming a missing exe is logged and skipped rather than
+ * aborting the rest - one broken entry must not cost a title its other
+ * shortcuts.
+ */
+static void gs_make_game_shortcut(const char *dst_dir, const char *title)
+{
+    char   path[MAX_PATH];
+    HANDLE h;
+    char   buf[1024];
+    DWORD  got = 0;
+    char  *line, *end;
+
+    _snprintf(path, sizeof(path) - 1, "%s\\launch.txt", dst_dir);
+    path[sizeof(path) - 1] = 0;
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                    0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return;                       /* no launch.txt - nothing to point at */
+    if (!ReadFile(h, buf, sizeof(buf) - 1, &got, NULL) || !got) {
+        CloseHandle(h);
+        return;
+    }
+    CloseHandle(h);
+    buf[got] = 0;
+
+    line = buf;
+    while (*line) {
+        end = line;
+        while (*end && *end != '\r' && *end != '\n')
+            end++;
+        if (*end) {
+            *end = 0;
+            end++;
+            /* step over the LF of a CRLF so the next line does not start on it */
+            while (*end == '\r' || *end == '\n')
+                end++;
+        }
+        gs_shortcut_from_line(dst_dir, title, line);
+        line = end;
+    }
 }
 
 /* ---------------------------------------------------------------------- */

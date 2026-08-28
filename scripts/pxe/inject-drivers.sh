@@ -182,6 +182,26 @@ fi
 
 paths="${paths#;}"
 printf '%s' "$paths" > "$IMAGE/OemPnPDriversPath.txt"
+
+# A SECOND, SHORT list holding only the drivers setup needs DURING GUI setup.
+#
+# DevicePath is written by cmdlines.txt at T-12, but XP installs network devices
+# as part of GUI setup - partly BEFORE that point. So the full list arrives too
+# late for the NIC on some machines and in time on others, which is exactly what
+# happened: of two identical-looking installs, one came up with working
+# networking and the other with an unconfigured network adapter.
+#
+# LAN and chipset alone are ~102 directories and about 713 characters, which
+# fits winnt.sif comfortably (the full 492 needed 3470 and broke the answer
+# file). Everything else - graphics, sound, mass storage, monitor - is not
+# needed to get the machine on the network and can wait for DevicePath.
+early=""
+for d in $(ls "$OEM" 2>/dev/null | grep -E '^[LC][0-9]{3}$' | sort); do
+    early="$early;D\\$d"
+done
+early="${early#;}"
+printf '%s' "$early" > "$IMAGE/OemPnPDriversPathEarly.txt"
+echo "   early path (LAN+chipset for winnt.sif): $(printf '%s' "$early" | tr ';' '\n' | wc -l) dirs, ${#early} chars"
 ndirs=$(printf '%s' "$paths" | tr ';' '\n' | wc -l)
 nchars=${#paths}
 echo "   OemPnPDriversPath: $ndirs dirs, $nchars chars -> $IMAGE/OemPnPDriversPath.txt"

@@ -136,22 +136,32 @@ echo "   retroagent.reg: auto-login (no count) + Run key + firewall port 9898"
 # directly at T-12 instead. A registry string has none of the INF parser's
 # limits, and winnt.sif goes back to being small and boring.
 if [ -f "$IMAGE/OemPnPDriversPath.txt" ]; then
-    DP=$(cat "$IMAGE/OemPnPDriversPath.txt")
-    # DevicePath is absolute and %SystemRoot%\inf must stay first, or Windows
-    # loses its own driver store.
-    ABS=$(printf '%s' "$DP" | sed 's|D\\|C:\\\\D\\\\|g; s|;|;|g')
-    {
-        printf '\r\n'
-        printf '[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion]\r\n'
-        printf '"DevicePath"=hex(2):'
-        # REG_EXPAND_SZ as hex so no escaping of the long value is needed.
-        printf '%%SystemRoot%%\\inf;%s' "$ABS" | python3 -c "
-import sys
-v = sys.stdin.read() + '\0'
-print(','.join('%02x,00' % ord(c) for c in v))
-"
-    } >> "$OEM/retroagent.reg"
-    echo "   DevicePath: $(printf '%s' "$ABS" | tr ';' '\n' | wc -l) dirs written to the registry instead of winnt.sif"
+    # Write DevicePath as a PLAIN REG_EXPAND_SZ string, not hex.
+    #
+    # The first version encoded it as hex(2) through a shell/python pipeline and
+    # produced a value of literally "%" - a single character. PnP therefore had
+    # no driver path at all, the Found New Hardware wizard could not find a NIC
+    # driver that was sitting right there on the disk, and one of two identical
+    # machines came up with no networking. The failure was invisible from the
+    # build side: the .reg looked plausible and regedit merged it without
+    # complaint.
+    #
+    # In .reg syntax every backslash is doubled, so the path separators need
+    # escaping. %SystemRoot%\inf must come first or Windows loses its own
+    # driver store.
+    python3 - "$IMAGE/OemPnPDriversPath.txt" "$OEM/retroagent.reg" <<'PYEOF'
+import io, sys
+paths = io.open(sys.argv[1], encoding='latin1').read().strip()
+# Relative "D\L001" -> absolute "C:\D\L001"; PnP does not resolve relatives.
+abs_paths = ';'.join('C:\\' + p for p in paths.split(';') if p)
+value = '%SystemRoot%\\inf;' + abs_paths
+escaped = value.replace('\\', '\\\\')
+with io.open(sys.argv[2], 'a', encoding='latin1', newline='') as fh:
+    fh.write('\r\n')
+    fh.write('[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion]\r\n')
+    fh.write('"DevicePath"=hex(2):' + ','.join('%02x,00' % ord(c) for c in value + '\0') + '\r\n')
+print('   DevicePath: %d dirs, %d chars' % (len(abs_paths.split(';')), len(value)))
+PYEOF
 fi
 
 # ---- 4. cmdlines.txt ------------------------------------------------------
