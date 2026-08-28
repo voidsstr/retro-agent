@@ -469,6 +469,10 @@ static int gs_rmtree(const char *dir)
     return ok;
 }
 
+/* Defined below, with the driver installer - the reclaim guard needs it to tell
+ * a device we could fix from one we could not. */
+static int gs_find_inf_for(const char *hwid, char *out, DWORD out_cch);
+
 /* Are there devices Windows has not managed to configure?
  *
  * This gates the reclaim, and it matters: the staged drivers in C:\D are
@@ -497,13 +501,32 @@ static int gs_devices_unconfigured(void)
         if (CM_Get_DevNode_Status(&status, &problem, dev.DevInst, 0) != CR_SUCCESS)
             continue;
         if (problem != 0 || (status & DN_HAS_PROBLEM)) {
-            char name[256];
-            name[0] = 0;
+            char name[256], ids[1024], inf[MAX_PATH];
+            name[0] = ids[0] = 0;
             SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_DEVICEDESC, NULL,
                                               (PBYTE)name, sizeof(name), NULL);
-            log_msg(LOG_GS, "device not configured (problem %lu): %s",
-                    problem, name[0] ? name : "(unnamed)");
-            bad++;
+            /* Only devices the STAGED TREE could actually help are worth
+             * keeping it for. The first version counted every unconfigured
+             * device, and two that C:\D can never serve - a phantom PS/2 mouse
+             * on a machine with a USB one, and an in-box WDM audio stub - held
+             * 2.4 GB of drivers on a 6 GB disk indefinitely, which in turn left
+             * no room for the game library. A device we have no driver for is
+             * not a reason to keep drivers. */
+            if (SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_HARDWAREID,
+                                                  NULL, (PBYTE)ids,
+                                                  sizeof(ids), NULL) && ids[0]) {
+                CharUpperA(ids);
+                if (gs_find_inf_for(ids, inf, sizeof(inf))) {
+                    log_msg(LOG_GS, "device not configured (problem %lu): %s "
+                                    "- a driver for it IS staged",
+                            problem, name[0] ? name : "(unnamed)");
+                    bad++;
+                    continue;
+                }
+            }
+            log_msg(LOG_GS, "device not configured (problem %lu): %s - nothing "
+                            "in %s serves it, not a reason to keep the tree",
+                    problem, name[0] ? name : "(unnamed)", GS_DRIVER_DIR);
         }
     }
     SetupDiDestroyDeviceInfoList(set);
