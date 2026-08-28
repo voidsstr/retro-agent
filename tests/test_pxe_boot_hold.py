@@ -112,6 +112,37 @@ def main():
     g0.arm(other)
     check('with grace 0 an immediate return is held', g0.held(other))
 
+    print('== arming without a boot, and the blanket release ==')
+    # A machine that is about to be REBOOTED needs its hold armed before it
+    # goes down, because these boxes boot from the network first: an unheld
+    # machine takes the install offer and repartitions itself. arm() therefore
+    # has to work on a MAC that has never fetched a boot file.
+    pre = pxe.BootHold(os.path.join(tmp, 'pre.json'), 3600, 0)
+    check('a never-seen MAC can be armed ahead of a reboot',
+          not pre.held(mac))
+    pre.arm(mac)
+    check('...and is held once armed', pre.held(mac))
+
+    # '--release all' unprotects every machine at once. That cost an hour of
+    # provisioning on 2026-08-28: it was used to let ONE box reinstall, and a
+    # different box rebooted minutes later took the offer and wiped itself.
+    # release() itself still supports 'all' - the CLI is what demands --yes -
+    # so pin that the blanket release really does clear everything, which is
+    # exactly why the confirmation exists.
+    many = pxe.BootHold(os.path.join(tmp, 'many.json'), 3600, 0)
+    many.arm(mac)
+    many.arm(other)
+    check('two machines held', many.held(mac) and many.held(other))
+    check('release all clears both', many.release('all') == 2)
+    check('...leaving neither held', not many.held(mac) and not many.held(other))
+
+    single = pxe.BootHold(os.path.join(tmp, 'one.json'), 3600, 0)
+    single.arm(mac)
+    single.arm(other)
+    check('releasing ONE mac reports one', single.release(mac) == 1)
+    check('...frees that machine', not single.held(mac))
+    check('...and leaves the other protected', single.held(other))
+
     print('== the guard fails open, never closed ==')
     disabled = pxe.BootHold(os.path.join(tmp, 'd.json'), 0)
     disabled.arm(mac)

@@ -702,8 +702,15 @@ def main():
     ap.add_argument('--config', default=os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                      'pxe_config.json'))
     ap.add_argument('--release', metavar='MAC',
-                    help="drop the serve-once hold on a MAC (or 'all') so it "
-                         "can install again, then exit")
+                    help="drop the serve-once hold on a MAC so it can install "
+                         "again, then exit. 'all' needs --yes as well.")
+    ap.add_argument('--arm', metavar='MAC',
+                    help='arm the serve-once hold for a MAC WITHOUT it having '
+                         'booted - use before rebooting a machine you do not '
+                         'want reimaged, since these boxes boot from the '
+                         'network first')
+    ap.add_argument('--yes', action='store_true',
+                    help="confirm a destructive release ('--release all')")
     ap.add_argument('--list-holds', action='store_true',
                     help='show which machines are being held, and for how long')
     args = ap.parse_args()
@@ -723,7 +730,29 @@ def main():
                     cfg.get('retry_grace_seconds', 900))
     cfg['_hold'] = hold
 
+    if args.arm:
+        hold.arm(args.arm)
+        print(f'armed a hold for {args.arm} - it will not be offered a boot '
+              f'file until released or the hold expires')
+        return 0
     if args.release:
+        # 'all' disarms every machine's protection at once. That is almost never
+        # what is wanted: on 2026-08-28 it was used to let ONE machine reinstall,
+        # and a different box - rebooted minutes later to check an unrelated
+        # setting - PXE booted into a fresh install and repartitioned itself,
+        # losing an hour of provisioning. Releasing one machine must not
+        # unprotect the rest, so the blanket form now has to be asked for.
+        if str(args.release).lower() == 'all' and not args.yes:
+            rows = hold.listing()
+            print(f"'--release all' would unprotect {len(rows)} machine(s):")
+            for mac, left in rows:
+                print(f'   {mac}  {left}s remaining' if left
+                      else f'   {mac}  expired')
+            print("\nThese boxes boot from the network FIRST, so an unprotected "
+                  "machine\nreinstalls itself the next time it reboots for ANY "
+                  "reason.\nRelease one at a time with --release <mac>, or repeat "
+                  "with --yes.")
+            return 1
         n = hold.release(args.release)
         print(f'released {n} hold(s)')
         return 0
