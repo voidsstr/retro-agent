@@ -123,6 +123,37 @@ echo "   newimage.flag: marks the box as freshly imaged for the agent"
 } > "$OEM/retroagent.reg"
 echo "   retroagent.reg: auto-login (no count) + Run key + firewall port 9898"
 
+# ---- 3b. the driver search path, as a registry value ---------------------
+# OemPnPDriversPath in winnt.sif is the documented way to do this, and for a
+# handful of directories it is the right one. It stops being right at our scale:
+# 492 directories is a 3470-character line in an INF that setupldr parses with
+# fixed buffers, which took winnt.sif from 1.6 KB to 4.6 KB. A truncated line
+# loses drivers silently; a line that overruns takes the whole answer file with
+# it, and setup then runs INTERACTIVELY - which is precisely what a fleet
+# machine did on 2026-08-27 after the driver set grew.
+#
+# DevicePath is where OemPnPDriversPath ultimately lands anyway, so write it
+# directly at T-12 instead. A registry string has none of the INF parser's
+# limits, and winnt.sif goes back to being small and boring.
+if [ -f "$IMAGE/OemPnPDriversPath.txt" ]; then
+    DP=$(cat "$IMAGE/OemPnPDriversPath.txt")
+    # DevicePath is absolute and %SystemRoot%\inf must stay first, or Windows
+    # loses its own driver store.
+    ABS=$(printf '%s' "$DP" | sed 's|D\\|C:\\\\D\\\\|g; s|;|;|g')
+    {
+        printf '\r\n'
+        printf '[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion]\r\n'
+        printf '"DevicePath"=hex(2):'
+        # REG_EXPAND_SZ as hex so no escaping of the long value is needed.
+        printf '%%SystemRoot%%\\inf;%s' "$ABS" | python3 -c "
+import sys
+v = sys.stdin.read() + '\0'
+print(','.join('%02x,00' % ord(c) for c in v))
+"
+    } >> "$OEM/retroagent.reg"
+    echo "   DevicePath: $(printf '%s' "$ABS" | tr ';' '\n' | wc -l) dirs written to the registry instead of winnt.sif"
+fi
+
 # ---- 4. cmdlines.txt ------------------------------------------------------
 printf '[Commands]\r\n"regedit /s retroagent.reg"\r\n' > "$OEM/cmdlines.txt"
 echo "   cmdlines.txt: merges retroagent.reg at T-12"

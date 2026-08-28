@@ -81,8 +81,21 @@ else
     OEMPREINSTALL="No"
 fi
 OEMPNP="${OEMPNP:-}"
+# OemPnPDriversPath is only emitted when it is SHORT. Past a few hundred
+# characters it becomes a single enormous line in an INF that setupldr parses
+# with fixed buffers - at 492 driver directories it was 3470 characters and took
+# winnt.sif from 1.6 KB to 4.6 KB, after which a fleet machine dropped out of
+# unattended mode and ran the wizard interactively. stage-oem.sh writes the full
+# list to the DevicePath registry value instead, which has no such limit and is
+# where this ends up anyway.
+OEMPNP_MAX=${OEMPNP_MAX:-400}
 if [ -z "$OEMPNP" ] && [ -f "$SRC/OemPnPDriversPath.txt" ]; then
     OEMPNP="$(cat "$SRC/OemPnPDriversPath.txt")"
+    if [ "${#OEMPNP}" -gt "$OEMPNP_MAX" ]; then
+        echo "note: OemPnPDriversPath is ${#OEMPNP} chars - too long for winnt.sif."
+        echo "      Leaving it out; stage-oem.sh puts it in DevicePath instead."
+        OEMPNP=""
+    fi
 fi
 
 command -v cabextract >/dev/null || {

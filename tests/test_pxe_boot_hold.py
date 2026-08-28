@@ -17,6 +17,7 @@ These assertions pin the two decisions that make the guard correct:
   * it survives a restart, because the reinstall loop outlives the process.
 """
 import importlib.util
+import json
 import os
 import sys
 import tempfile
@@ -46,7 +47,9 @@ def main():
     other = '00:13:20:aa:bb:cc'
 
     print('== a machine is served once, then held ==')
-    hold = pxe.BootHold(state, 3600)
+    # grace=0: these assertions are about the hold itself. The grace window
+    # gets its own section below.
+    hold = pxe.BootHold(state, 3600, 0)
     check('a machine we have never served is not held', not hold.held(mac))
     hold.arm(mac)
     check('a machine is held once it has taken the boot file', hold.held(mac))
@@ -55,10 +58,10 @@ def main():
 
     print('== the hold outlives the process ==')
     check('a restarted server still holds the machine',
-          pxe.BootHold(state, 3600).held(mac))
+          pxe.BootHold(state, 3600, 0).held(mac))
 
     print('== an operator can always force a reinstall ==')
-    fresh = pxe.BootHold(state, 3600)
+    fresh = pxe.BootHold(state, 3600, 0)
     check('--release drops one hold',
           fresh.release(mac) == 1 and not fresh.held(mac))
     fresh.arm(mac)
@@ -71,9 +74,9 @@ def main():
     # If the running server keeps its stale in-memory copy, the release does
     # nothing and then gets overwritten on the next arm - indistinguishable
     # from the hold being broken, and it cost a test cycle to spot.
-    running = pxe.BootHold(state, 3600)
+    running = pxe.BootHold(state, 3600, 0)
     running.arm(mac)
-    external = pxe.BootHold(state, 3600)
+    external = pxe.BootHold(state, 3600, 0)
     external.release(mac)
     check('the running server sees a release made by another process',
           not running.held(mac))
@@ -82,6 +85,32 @@ def main():
     check('arming after an external release does not revive the old hold',
           not running.held(mac) and running.held(other))
     running.release('all')
+
+    print('== a quick retry is NOT locked out ==')
+    # The hold arms when the boot file is DOWNLOADED, so a machine that
+    # downloaded and then failed used to be refused for six hours - and the
+    # operator retrying got "no boot image provided" from a server that was
+    # refusing deliberately and saying so only in its own log. Text-mode setup
+    # takes far longer than the grace window, so a machine back this fast
+    # cannot have finished, and must be allowed to try again.
+    graced = pxe.BootHold(os.path.join(tmp, 'g.json'), 3600, 900)
+    graced.arm(mac)
+    check('a machine returning immediately is re-offered', not graced.held(mac))
+
+    # ...but once past the window it is a finished install booting the wrong
+    # device, and must be left alone or it reinstalls over itself.
+    old_state = os.path.join(tmp, 'old.json')
+    with open(old_state, 'w', encoding='ascii') as fh:
+        json.dump({mac: time.time() - 1800}, fh)      # served 30 minutes ago
+    aged = pxe.BootHold(old_state, 3600, 900)
+    check('a machine returning after the grace window is still held',
+          aged.held(mac))
+
+    check('grace 0 restores the original always-hold behaviour',
+          pxe.BootHold(os.path.join(tmp, 'g0.json'), 3600, 0) is not None)
+    g0 = pxe.BootHold(os.path.join(tmp, 'g0.json'), 3600, 0)
+    g0.arm(other)
+    check('with grace 0 an immediate return is held', g0.held(other))
 
     print('== the guard fails open, never closed ==')
     disabled = pxe.BootHold(os.path.join(tmp, 'd.json'), 0)
@@ -97,7 +126,7 @@ def main():
     with open(state, 'w', encoding='ascii') as fh:
         fh.write('{ this is not json')
     check('a corrupt state file does not stop machines booting',
-          not pxe.BootHold(state, 3600).held(mac))
+          not pxe.BootHold(state, 3600, 0).held(mac))
 
     print('== the trigger is the boot file, not any TFTP transfer ==')
     check('mac_for_ip returns None for an address not in the ARP cache',

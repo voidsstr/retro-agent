@@ -148,9 +148,10 @@ class BootHold:
     the ROM already has the offer it needs.
     """
 
-    def __init__(self, path, hold_seconds):
+    def __init__(self, path, hold_seconds, grace_seconds=900):
         self.path = path
         self.hold = int(hold_seconds or 0)
+        self.grace = int(grace_seconds or 0)
         self.lock = threading.Lock()
         self.served = {}
         self.mtime = None
@@ -208,13 +209,35 @@ class BootHold:
         self._stamp()
 
     def held(self, mac):
-        """True if this MAC should NOT be offered a boot file right now."""
+        """True if this MAC should NOT be offered a boot file right now.
+
+        The hold exists to stop a machine reinstalling itself in a loop. But it
+        armed on the boot-file DOWNLOAD, which means a machine that downloaded
+        and then FAILED was locked out for six hours - and the operator, quite
+        reasonably retrying, got 'no boot image provided' from a server that was
+        refusing on purpose and saying so only in its own log. That happened on
+        2026-08-27 and cost a diagnosis cycle.
+
+        So there is a grace window. Coming back within it means the install did
+        not get far enough to be worth protecting - text-mode setup takes far
+        longer than the grace period, so a machine that reappears this quickly
+        cannot have finished. Past the window, the original logic applies: a
+        returning machine is one that installed and is now booting the wrong
+        device, and must be left alone.
+        """
         if not self.hold or not mac:
             return False
         with self.lock:
             self._refresh()
             ts = self.served.get(mac.lower())
-        return ts is not None and (time.time() - ts) < self.hold
+        if ts is None:
+            return False
+        age = time.time() - ts
+        if age < self.grace:
+            log(f'boot-hold: {mac} returned after {int(age)}s - too soon to be a '
+                f'finished install, re-offering (grace {self.grace}s)')
+            return False
+        return age < self.hold
 
     def arm(self, mac):
         if not self.hold or not mac:
@@ -504,7 +527,14 @@ class TFTPServer(threading.Thread):
             options[rest[i].lower()] = rest[i + 1]
 
         path = self.resolve(filename)
+        # Every TFTP transfer gets its own socket, and it needs pinning just
+        # like the listeners. It did not, and on a host that also carried a
+        # macvlan on the fleet subnet the reply left from the wrong address:
+        # the client sent its request to .132, got an answer from .133, and
+        # discarded it. The log showed a GET and then nothing - which reads as
+        # a slow or missing file rather than a routing problem.
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        bind_to_device(sock, self.cfg.get('bind_device', ''))
         sock.settimeout(5)
         if path is None:
             log(f'tftp {addr[0]} MISS {filename}')
@@ -645,6 +675,11 @@ DEFAULT_CONFIG = {
     # reinstall whenever you actually want one) and a too-short hold costs the
     # entire install.
     'boot_hold_seconds': 21600,
+    # A machine that PXE boots again within this many seconds of being served
+    # is almost certainly RETRYING a failed install, not booting a finished one -
+    # a successful text-mode phase takes far longer than this. Re-offer in that
+    # window instead of locking it out. See BootHold.held().
+    'retry_grace_seconds': 900,
     # Pin every socket to one interface. Normally empty, meaning 'all'.
     # Needed when the host has more than one link on the fleet LAN,
     # because the proxyDHCP OFFER is a broadcast to 255.255.255.255 and
@@ -684,7 +719,8 @@ def main():
         if len(nicdb) else
         f'BINL nic database MISSING or empty at {cfg.get("nicdb")} - '
         f'network installs will fail; run build-nicdb.py')
-    hold = BootHold(cfg.get('state_file'), cfg.get('boot_hold_seconds', 0))
+    hold = BootHold(cfg.get('state_file'), cfg.get('boot_hold_seconds', 0),
+                    cfg.get('retry_grace_seconds', 900))
     cfg['_hold'] = hold
 
     if args.release:
