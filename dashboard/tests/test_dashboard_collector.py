@@ -302,3 +302,275 @@ def test_vitals_degrades_without_omenfan(dc, monkeypatch):
     v = dc.Vitals()
     assert v.ok is False
     assert v.sample() == {}
+
+
+# ------------------------------------------ services, game servers, PXE
+#
+# Everything below reads something written by another process: a status file
+# from a service that may not be running, `systemctl show` output from either
+# manager, or the PXE server's own log. The property that matters throughout
+# is that "we could not look" never comes back looking like "we looked and
+# everything is dead" — on a wall that reports service health, those two
+# rendering the same is the whole failure mode.
+
+
+def test_missing_status_file_reads_as_not_running_not_as_empty(dc, tmp_path):
+    payload, err = dc._read_status_file(str(tmp_path / "nope.json"))
+    assert payload is None
+    assert err == "not running"
+
+
+def test_corrupt_status_file_is_named_as_such(dc, tmp_path):
+    bad = tmp_path / "status.json"
+    bad.write_text("{not json")
+    payload, err = dc._read_status_file(str(bad))
+    assert payload is None
+    assert "unreadable" in err
+
+
+def test_a_stale_status_file_is_flagged_rather_than_trusted(dc, tmp_path):
+    """A watchdog that died an hour ago still leaves a perfectly readable file
+    full of servers marked `up`. Without the age check the wall would show a
+    green board for a host whose game servers had all since crashed."""
+    old = tmp_path / "status.json"
+    old.write_text(json.dumps({"ts": 0, "up": 9, "total": 9}))
+    payload, err = dc._read_status_file(str(old), max_age=60)
+    assert err is None
+    assert payload["stale_sec"] > 60
+
+
+def test_fresh_status_file_is_not_flagged_stale(dc, tmp_path):
+    import time as _t
+    fresh = tmp_path / "status.json"
+    fresh.write_text(json.dumps({"ts": _t.time(), "up": 9, "total": 9}))
+    payload, err = dc._read_status_file(str(fresh), max_age=60)
+    assert err is None
+    assert "stale_sec" not in payload
+
+
+def test_gameservers_passes_the_watchdog_blob_through(dc, tmp_path, monkeypatch):
+    import time as _t
+    status = tmp_path / "status.json"
+    status.write_text(json.dumps({
+        "ts": _t.time(), "up": 9, "total": 9, "players": 4, "humans": 0,
+        "bots": 4, "down": [],
+        "servers": [{"unit": "quake3-server", "up": True, "players": 4}],
+        "watchdog": {"enabled": True, "actions": []},
+    }))
+    monkeypatch.setattr(dc, "GAMESERVERS_STATUS", str(status))
+    out = dc.collect_gameservers()
+    assert out["up"] == 9
+    assert out["humans"] == 0
+    assert out["servers"][0]["unit"] == "quake3-server"
+    assert "error" not in out
+
+
+def test_gameservers_without_a_watchdog_reports_zero_and_a_reason(dc, monkeypatch, tmp_path):
+    monkeypatch.setattr(dc, "GAMESERVERS_STATUS", str(tmp_path / "absent.json"))
+    out = dc.collect_gameservers()
+    assert out["error"] == "not running"
+    assert out["up"] == 0 and out["total"] == 0
+    assert out["servers"] == []
+
+
+def test_gameindex_tolerates_a_longer_silence_than_the_watchdog(dc, tmp_path, monkeypatch):
+    """The favourites agent runs every five minutes and the watchdog every
+    twenty seconds, so one cut-off cannot serve both: a three-minute-old
+    favourites report is perfectly healthy."""
+    import time as _t
+    status = tmp_path / "status.json"
+    status.write_text(json.dumps({
+        "ts": _t.time() - 180, "ok": True, "phase": "idle",
+        "agents": ["192.168.1.124"], "writes": {"wrote": 2},
+        "servers": {"q3": {"servers": 700, "players": 4000},
+                    "q2": {"servers": 3, "players": 0}},
+    }))
+    monkeypatch.setattr(dc, "GAMEINDEX_STATUS", str(status))
+    out = dc.collect_gameindex()
+    assert out.get("stale_sec") is None
+    assert out["servers_known"] == 703
+    assert out["agents"] == ["192.168.1.124"]
+
+
+def test_udp_listening_reads_the_local_column(dc, monkeypatch):
+    """`ss -ulnH` is State/Recv-Q/Send-Q/Local/Peer. The peer column of a
+    listening socket is `0.0.0.0:*`, so parsing it finds no ports at all and
+    reports a healthy PXE server as serving nothing."""
+    monkeypatch.setattr(dc, "_run", lambda *a, **k: (
+        "UNCONN 0 0 0.0.0.0:67 0.0.0.0:*\n"
+        "UNCONN 0 0 0.0.0.0:69 0.0.0.0:*\n"
+        "UNCONN 0 0 [::]:4011 [::]:*\n"
+        "UNCONN 0 0 127.0.0.53%lo:53 0.0.0.0:*\n"))
+    ports = dc._udp_listening()
+    assert {67, 69, 4011, 53} <= ports
+
+
+def test_udp_listening_survives_garbage_lines(dc, monkeypatch):
+    monkeypatch.setattr(dc, "_run", lambda *a, **k: "\nnonsense\nUNCONN 0 0 *:69 *:*\n")
+    assert dc._udp_listening() == {69}
+
+
+def test_pxe_active_without_sockets_is_not_serving(dc, monkeypatch, tmp_path):
+    """An `active` unit that lost its sockets serves nothing while looking
+    perfectly healthy — the exact case `serving` exists to catch."""
+    monkeypatch.setattr(dc, "unit_states",
+                        lambda units, scope: {"retro-pxe": {"state": "active"}})
+    monkeypatch.setattr(dc, "_udp_listening", lambda: {67})
+    monkeypatch.setattr(dc, "PXE_ROOT", str(tmp_path))
+    out = dc.collect_pxe()
+    assert out["ports"]["TFTP"] is False
+    assert out["serving"] is False
+
+
+def test_pxe_reports_serving_when_tftp_is_bound(dc, monkeypatch, tmp_path):
+    monkeypatch.setattr(dc, "unit_states",
+                        lambda units, scope: {"retro-pxe": {"state": "active"}})
+    monkeypatch.setattr(dc, "_udp_listening", lambda: {67, 69, 4011})
+    monkeypatch.setattr(dc, "PXE_ROOT", str(tmp_path))
+    out = dc.collect_pxe()
+    assert out["serving"] is True
+    assert all(out["ports"].values())
+
+
+def test_pxe_reads_boot_holds_newest_first(dc, monkeypatch, tmp_path):
+    import time as _t
+    now = _t.time()
+    (tmp_path / "pxe_state.json").write_text(json.dumps({
+        "00:11:22:33:44:55": now - 10000,
+        "aa:bb:cc:dd:ee:ff": now - 10,
+    }))
+    monkeypatch.setattr(dc, "unit_states",
+                        lambda units, scope: {"retro-pxe": {"state": "active"}})
+    monkeypatch.setattr(dc, "_udp_listening", lambda: {69})
+    monkeypatch.setattr(dc, "PXE_ROOT", str(tmp_path))
+    out = dc.collect_pxe()
+    assert out["hold_count"] == 2
+    assert out["holds"][0]["mac"] == "aa:bb:cc:dd:ee:ff"
+    assert out["holds"][0]["age_sec"] < out["holds"][1]["age_sec"]
+
+
+def test_pxe_without_any_state_or_log_still_returns(dc, monkeypatch, tmp_path):
+    """A freshly installed PXE server has neither file. The panel must render."""
+    monkeypatch.setattr(dc, "unit_states",
+                        lambda units, scope: {"retro-pxe": {"state": "active"}})
+    monkeypatch.setattr(dc, "_udp_listening", lambda: {69})
+    monkeypatch.setattr(dc, "PXE_ROOT", str(tmp_path / "empty"))
+    out = dc.collect_pxe()
+    assert out["hold_count"] == 0
+    assert out["holds"] == []
+
+
+def test_pxe_log_counts_completed_transfers_not_requests(dc, monkeypatch, tmp_path):
+    """A GET may be retried several times for one file; counting GETs makes a
+    slow client look like a fleet-wide install storm."""
+    log = tmp_path / "pxe_server.log"
+    log.write_text(
+        "[19:25:38] tftp 192.168.1.177 GET \\i386\\txtsetup.sif (100 bytes)\n"
+        "[19:25:38] tftp 192.168.1.177 GET \\i386\\txtsetup.sif (100 bytes)\n"
+        "[19:25:39] tftp 192.168.1.177 DONE \\i386\\txtsetup.sif\n"
+        "[19:25:40] tftp 192.168.1.178 DONE \\i386\\HpAHCIsr.sys\n"
+        "[19:26:00] proxyDHCP HOLD -> aa:bb (already served)\n")
+    out = dc._pxe_recent(str(log))
+    assert out["files_served_recent"] == 2
+    assert out["last_file"] == "\\i386\\HpAHCIsr.sys"
+    assert out["recent_clients"][0] == "192.168.1.178"
+    assert "HOLD" in out["last"]
+
+
+def test_pxe_log_that_does_not_exist_is_not_an_error(dc, tmp_path):
+    assert dc._pxe_recent(str(tmp_path / "gone.log")) == {}
+
+
+def test_unit_states_marks_a_missing_unit_absent_not_failed(dc, monkeypatch):
+    """`not-found` means nobody installed it. Rendering that as a failure
+    sends someone chasing a service that was never meant to be there."""
+    class Res:
+        stdout = ("ActiveState=active\nSubState=running\nLoadState=loaded\n"
+                  "UnitFileState=enabled\nResult=success\nNRestarts=2\n"
+                  "ExecMainStartTimestampMonotonic=0\n"
+                  "\n"
+                  "ActiveState=inactive\nSubState=dead\nLoadState=not-found\n"
+                  "UnitFileState=\nResult=success\nNRestarts=0\n"
+                  "ExecMainStartTimestampMonotonic=0\n")
+    monkeypatch.setattr(dc.subprocess, "run", lambda *a, **k: Res())
+    out = dc.unit_states(["there", "missing"], "system")
+    assert out["there"]["state"] == "active"
+    assert out["there"]["restarts"] == 2
+    assert out["missing"] == {"state": "absent"}
+
+
+def test_unit_states_degrades_when_systemctl_cannot_run(dc, monkeypatch):
+    def boom(*a, **k):
+        raise OSError("no systemctl")
+    monkeypatch.setattr(dc.subprocess, "run", boom)
+    out = dc.unit_states(["a", "b"], "user")
+    assert out == {"a": {"state": "unknown"}, "b": {"state": "unknown"}}
+
+
+def test_user_scope_reaches_the_fleet_users_manager_when_root(dc, monkeypatch):
+    """Running as root, a bare `systemctl --user` queries root's own manager,
+    which has none of these units — every fleet service would read absent."""
+    monkeypatch.setattr(dc.os, "geteuid", lambda: 0)
+    monkeypatch.setattr(dc, "_uid_of", lambda user: 1000)
+    prefix = dc._systemctl_prefix("user")
+    assert "XDG_RUNTIME_DIR=/run/user/1000" in prefix
+    assert dc._systemctl_prefix("system") == ["systemctl"]
+
+
+def test_collect_services_counts_and_names_the_degraded(dc, monkeypatch):
+    def fake_states(units, scope):
+        table = {
+            "retro-chat-daemon": {"state": "active", "uptime_sec": 10},
+            "retro-chat-brain": {"state": "active", "uptime_sec": 20},
+            "retro-gameindex": {"state": "failed"},
+            "retro-gameservers-watch": {"state": "absent"},
+            "retro-dosgames-http": {"state": "active"},
+            "retro-pxe": {"state": "active"},
+            "retro-dashboard-collector": {"state": "active"},
+        }
+        return {u: table.get(u, {"state": "unknown"}) for u in units}
+
+    monkeypatch.setattr(dc, "unit_states", fake_states)
+    out = dc.collect_services()
+    assert out["total"] == len(dc.HOST_SERVICES)
+    assert out["up"] == 5
+    assert set(out["degraded"]) == {"retro-gameindex", "retro-gameservers-watch"}
+    # Order is the declared one, so the wall's rows never shuffle between samples.
+    assert [s["unit"] for s in out["services"]] == [u for _, u, _ in dc.HOST_SERVICES]
+
+
+def test_slow_cache_reuses_within_the_ttl_and_swallows_errors(dc):
+    calls = []
+
+    def counted():
+        calls.append(1)
+        return {"n": len(calls)}
+
+    cache = dc.SlowCache(ttl=1000)
+    assert cache.get("k", counted)["n"] == 1
+    assert cache.get("k", counted)["n"] == 1
+    assert len(calls) == 1
+
+    def boom():
+        raise RuntimeError("nope")
+
+    # A panel collector that throws must not take the sample with it.
+    assert "error" in cache.get("bad", boom)
+
+
+def test_build_state_carries_every_new_section(dc, monkeypatch, tmp_path):
+    monkeypatch.setattr(dc, "CHAT_ROOT", str(tmp_path / "none"))
+    monkeypatch.setattr(dc, "collect_services", lambda: {"up": 1, "total": 1,
+                                                         "services": []})
+    monkeypatch.setattr(dc, "collect_pxe", lambda: {"state": "active"})
+    monkeypatch.setattr(dc, "GAMESERVERS_STATUS", str(tmp_path / "a.json"))
+    monkeypatch.setattr(dc, "GAMEINDEX_STATUS", str(tmp_path / "b.json"))
+
+    class FakeVitals:
+        def sample(self):
+            return {}
+
+    state = dc.build_state(FakeVitals(), None)
+    for key in ("gameservers", "gameindex", "pxe", "services"):
+        assert key in state, key
+    json.dumps(state)  # the greeter reads JSON; anything unserialisable is fatal

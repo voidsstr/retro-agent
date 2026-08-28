@@ -13,6 +13,72 @@
 > no-blood, and UT99. The whitebeast section below is kept as **history** — do
 > not use it as the current layout.
 
+
+## Watchdog + status (`gameservers_watch.py`)
+
+`healthcheck.py` answers "is it up" for a human at a terminal. **`gameservers.py`
+answers the same question for a machine** — up/down, players, bots, map, query
+RTT and systemd unit state — and **`gameservers_watch.py`** runs it on a loop as
+a service that both publishes that status and restarts what has died.
+
+```bash
+python3 scripts/game-servers/gameservers.py             # table, like healthcheck.py
+python3 scripts/game-servers/gameservers.py --json      # machine-readable
+python3 scripts/game-servers/gameservers_watch.py --once --stdout   # safe: never restarts
+
+cp scripts/game-servers/retro-gameservers-watch.service ~/.config/systemd/user/
+systemctl --user daemon-reload && systemctl --user enable --now retro-gameservers-watch
+```
+
+The status blob lands in `$XDG_RUNTIME_DIR/retro-gameservers/status.json`, which
+the login-screen dashboard collector reads (`dashboard/README.md`). Per-user
+tmpfs, readable by root, and **not** `/tmp` — the GDM greeter that ultimately
+displays it runs as a systemd `DynamicUser` and cannot see `/tmp` at all.
+
+### Two facts, deliberately kept apart
+
+Per server the watchdog records the **unit** state from systemd *and* the
+**probe** result from the game's own query protocol. A server can be `active`
+and mute (wedged, or mid map-change), and it can be `inactive` for the honest
+reason that it was never installed here. A watchdog that cannot tell those
+apart either restarts healthy servers or ignores dead ones.
+
+### Restart policy
+
+- `failed`/`inactive` → restart immediately (systemd already knows it is gone).
+- `active` but mute for **3 consecutive cycles** → restart. One silent cycle is
+  a map change; restarting on it would kick everyone off a healthy server.
+- **5-minute cooldown** per unit, **4 restarts per hour** maximum. A server
+  broken for a reason a restart cannot fix (missing pak, bad cfg) is left with
+  "needs a human" rather than flapped forever.
+- Never installed → never touched, and not counted in up/total.
+- `--no-restart` (or `RETRO_GAMESERVERS_NO_RESTART=1`) watches without acting;
+  `--once --stdout` never restarts, so it is safe to run from a terminal.
+
+Every decision, **including every decision not to act**, is logged with its
+reason. A silent skip and a successful restart must never look the same.
+
+### Bots are not players
+
+A Quake III server pinned at `bot_minplayers 4` reports four players forever.
+GoldSrc's A2S reply carries a bot count directly; on the Quake family the tell
+is **ping 0** in the player line. Without that separation the dashboard would
+permanently claim someone was playing.
+
+### Reply layouts (all verified against the live servers)
+
+| engine | query | where the numbers are |
+|---|---|---|
+| GoldSrc (CS 1.6, TS) | `TSource Engine Query` | after 4 NUL-terminated strings + u16 appid: `players`, `maxplayers`, `bots`. May first answer `A` + a 4-byte challenge that **must** be echoed back |
+| Quake III | `getstatus` | infostring on **line 1** (line 0 is `statusResponse`); one line per player |
+| Quake 2 | `status` (not `getstatus`) | infostring on **line 1** (line 0 is `print`) |
+| QuakeWorld (mvdsv) | `status` | infostring on **line 0** — the `n` header is glued to the first key. The reply ends `\n\x00`, and `str.strip()` does not remove a NUL, so a naive line count reports one phantom player |
+| UT99 / UT2004 | `\status\` on **game port + 1** | `numplayers` / `maxplayers` given directly |
+| Tribes 2 | Torque binary | liveness only |
+
+Tests: `tests/python/test_gameservers.py` (parsers against captured bytes, and
+every bound of the restart policy).
+
 ## What runs here (verify with `healthcheck.py`)
 
 | Server | Unit | Port (UDP) | Install root |

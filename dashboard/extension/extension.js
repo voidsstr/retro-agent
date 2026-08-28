@@ -251,21 +251,35 @@ export default class RetroFleetDashboard extends Extension {
             thermals: new Panel('TEMPERATURES'),
             net:      new Panel('NETWORK'),
             fleet:    new Panel('FLEET'),
+            games:    new Panel('GAME SERVERS'),
+            favs:     new Panel('FAVOURITES'),
             agents:   new Panel('AGENTS'),
             remote:   new Panel('REMOTE'),
+            pxe:      new Panel('PXE'),
+            services: new Panel('SERVICES'),
         };
 
+        /* Three columns, not four. The physical monitor is 1600x1200, so
+         * width is the scarce dimension — a fourth column would cut each
+         * panel to about 40 monospace characters and start truncating server
+         * names and file paths. Height is not scarce: the original three
+         * columns used barely half of it. So the new panels go on the bottom
+         * of the existing columns rather than beside them. */
         col1.add_child(this._panels.cpu.actor);
         col1.add_child(this._panels.memory.actor);
         col1.add_child(this._panels.disk.actor);
+        col1.add_child(this._panels.remote.actor);
 
         col2.add_child(this._panels.gpu.actor);
         col2.add_child(this._panels.thermals.actor);
         col2.add_child(this._panels.net.actor);
+        col2.add_child(this._panels.pxe.actor);
+        col2.add_child(this._panels.services.actor);
 
         col3.add_child(this._panels.fleet.actor);
+        col3.add_child(this._panels.games.actor);
+        col3.add_child(this._panels.favs.actor);
         col3.add_child(this._panels.agents.actor);
-        col3.add_child(this._panels.remote.actor);
 
         root.add_child(columns);
 
@@ -427,11 +441,16 @@ export default class RetroFleetDashboard extends Extension {
         // wall is actually drawing. Logged only on transitions, never per
         // frame — a 2s heartbeat would flood the journal.
         const fleet = s.fleet ?? {};
-        const beat = `${stale ? 'stale' : 'live'} ${fleet.up ?? 0}/${fleet.total ?? 0}`;
+        const games = s.gameservers ?? {};
+        const svc = s.services ?? {};
+        const beat = `${stale ? 'stale' : 'live'} ${fleet.up ?? 0}/${fleet.total ?? 0} ` +
+            `${games.up ?? 0}/${games.total ?? 0} ${svc.up ?? 0}/${svc.total ?? 0}`;
         if (this._lastBeat !== beat) {
             this._lastBeat = beat;
             log(`retro-fleet-dashboard: rendering (${stale ? 'stale' : 'live'}), ` +
-                `fleet ${fleet.up ?? 0}/${fleet.total ?? 0} up`);
+                `fleet ${fleet.up ?? 0}/${fleet.total ?? 0} up, ` +
+                `game servers ${games.up ?? 0}/${games.total ?? 0}, ` +
+                `services ${svc.up ?? 0}/${svc.total ?? 0}`);
         }
 
         this._renderHeader(s, stale, ageSec);
@@ -443,7 +462,11 @@ export default class RetroFleetDashboard extends Extension {
         this._renderThermals(s);
         this._renderNet(s);
         this._renderFleet(s);
+        this._renderGames(s);
+        this._renderFavourites(s);
         this._renderAgents(s);
+        this._renderPxe(s);
+        this._renderServices(s);
         this._renderRemote(s);
     }
 
@@ -494,6 +517,29 @@ export default class RetroFleetDashboard extends Extension {
             line.push(`${R.span(R.COLORS.dim, 'FLEET ')}${
                 R.span(up > 0 ? R.COLORS.ok : R.COLORS.off,
                     `${up}/${fleet.total}`, {bold: true})}`);
+        }
+
+        /* Game servers and host services are the two counts that should make
+         * someone walk over to the machine, so they sit in the hero line
+         * beside the fleet count rather than only inside their panels. Unlike
+         * the fleet — which is powered on demand and legitimately all-down —
+         * anything less than every server up is a fault worth colouring. */
+        const games = s.gameservers ?? {};
+        if (games.total) {
+            const allUp = games.up === games.total;
+            line.push(`${R.span(R.COLORS.dim, 'GAMES ')}${
+                R.span(allUp ? R.COLORS.ok : R.COLORS.hot,
+                    `${games.up}/${games.total}`, {bold: true})}`);
+            // Same reason as the panel title: bots must not read as company.
+            if (games.humans)
+                line.push(R.span(R.COLORS.warm, `${games.humans}P`, {bold: true}));
+        }
+        const svc = s.services ?? {};
+        if (svc.total) {
+            const allUp = svc.up === svc.total;
+            line.push(`${R.span(R.COLORS.dim, 'SVC ')}${
+                R.span(allUp ? R.COLORS.ok : R.COLORS.hot,
+                    `${svc.up}/${svc.total}`, {bold: true})}`);
         }
         this._heroStats.clutter_text.set_markup(
             line.join(R.span(R.COLORS.off, '   ')));
@@ -719,6 +765,249 @@ export default class RetroFleetDashboard extends Extension {
             rows.push(R.span(R.COLORS.off, '\n  fleet powered down', {dim: true}));
 
         this._panels.fleet.setMarkup(rows.join('\n'));
+    }
+
+    /* ---------------------------------------------------------- games */
+
+    _renderGames(s) {
+        const g = s.gameservers ?? {};
+        const servers = g.servers ?? [];
+
+        if (g.error) {
+            this._panels.games.setTitle('GAME SERVERS');
+            // "the watchdog is not running" and "the servers are down" are
+            // completely different problems; never let one read as the other.
+            return this._panels.games.setMarkup(
+                `${R.span(R.COLORS.warm, `  watchdog ${g.error}`)}\n${
+                    R.span(R.COLORS.off, '  systemctl --user start retro-gameservers-watch',
+                        {dim: true})}`);
+        }
+
+        const allUp = g.total > 0 && g.up === g.total;
+        /* Humans, not players. A Q3 arena sitting at bot_minplayers 4 reports
+         * four players forever; a title that says "4 playing" would have the
+         * wall permanently claiming someone is on the server. */
+        const humans = g.humans ?? 0;
+        const bots = g.bots ?? 0;
+        this._panels.games.setTitle(
+            `GAME SERVERS   ${g.up ?? 0}/${g.total ?? 0} up` +
+            (humans ? `  ·  ${humans} playing` : '') +
+            (!humans && bots ? `  ·  ${bots} bots` : ''));
+
+        if (!servers.length)
+            return this._panels.games.setMarkup(R.span(R.COLORS.off, '  no servers configured'));
+
+        const rows = [];
+        for (const srv of servers) {
+            if (srv.installed === false)
+                continue;   // never installed here — not a fault, not a row
+            const dot = srv.up
+                ? R.span(R.COLORS.ok, '●')
+                : R.span(R.COLORS.hot, '●');
+            const name = R.span(srv.up ? R.COLORS.text : R.COLORS.hot,
+                R.pad(srv.label, 16));
+
+            if (!srv.up) {
+                // Say what systemd thinks, and what the watchdog is doing
+                // about it — a red dot with no reason sends you to a terminal.
+                const why = srv.watchdog || `unit ${srv.unit_state}`;
+                rows.push(`${dot} ${name}${R.span(R.COLORS.hot, R.pad('DOWN', 7))}${
+                    R.span(R.COLORS.warm, why.slice(0, 30), {dim: true})}`);
+                continue;
+            }
+
+            const cap = srv.max_players ? `/${srv.max_players}` : '';
+            const count = `${srv.players ?? 0}${cap}`;
+            // Colour by occupancy: an empty server is normal, a busy one is
+            // the thing you want to notice from across the room.
+            const pcol = (srv.players ?? 0) > (srv.bots ?? 0)
+                ? R.COLORS.warm : R.COLORS.dim;
+            const ping = srv.ping_ms === null || srv.ping_ms === undefined
+                ? '—' : `${Math.round(srv.ping_ms)}ms`;
+            // Build the tail out of finished spans and concatenate. Wrapping
+            // markup in another R.span() escapes it, and the bot count came
+            // out as literal `<span color=...>4b</span>` on the wall.
+            const mapText = srv.map ?? '';
+            const tail = srv.bots
+                ? R.span(R.COLORS.dim, R.pad(mapText, 13), {dim: true}) +
+                  R.span(R.COLORS.off, `${srv.bots} bots`, {dim: true})
+                : R.span(R.COLORS.dim, mapText, {dim: true});
+            rows.push(`${dot} ${name}${R.span(pcol, R.padLeft(count, 6), {bold: true})}${
+                R.span(R.COLORS.dim, R.padLeft(ping, 7), {dim: true})}  ${tail}`);
+        }
+
+        const proxies = (g.proxies ?? []).filter(x => x.installed);
+        if (proxies.length) {
+            rows.push(R.span(R.COLORS.off,
+                `  browser proxies  ${proxies.map(
+                    x => `${x.port} ${x.up ? '✓' : '✗'}`).join('  ')}`, {dim: true}));
+        }
+
+        const wd = g.watchdog ?? {};
+        const acts = wd.actions ?? [];
+        if (acts.length) {
+            const a = acts[0];
+            const ago = R.humanAge(Date.now() / 1000 - (a.ts ?? 0));
+            rows.push(R.span(a.ok ? R.COLORS.warm : R.COLORS.hot,
+                `  watchdog ${a.ok ? 'restarted' : 'FAILED to restart'} ${a.unit} ${ago} ago`));
+        } else if (wd.enabled === false) {
+            rows.push(R.span(R.COLORS.warm, '  watchdog: restarts disabled', {dim: true}));
+        } else if (allUp) {
+            rows.push(R.span(R.COLORS.off, '  all servers up · watchdog armed', {dim: true}));
+        }
+        if (g.stale_sec) {
+            rows.push(R.span(R.COLORS.hot,
+                `  watchdog silent ${R.humanAge(g.stale_sec)}`, {bold: true}));
+        }
+
+        this._panels.games.setMarkup(rows.join('\n'));
+    }
+
+    /* ----------------------------------------------------- favourites */
+
+    _renderFavourites(s) {
+        const f = s.gameindex ?? {};
+        if (f.error) {
+            this._panels.favs.setTitle('FAVOURITES');
+            return this._panels.favs.setMarkup(
+                `${R.span(R.COLORS.warm, `  favourites agent ${f.error}`)}\n${
+                    R.span(R.COLORS.off, '  systemctl --user start retro-gameindex',
+                        {dim: true})}`);
+        }
+
+        const running = f.phase && f.phase !== 'idle' && f.phase !== 'failed';
+        const bad = f.ok === false || f.phase === 'failed' || f.stale_sec;
+        const col = bad ? R.COLORS.hot : (running ? R.COLORS.warm : R.COLORS.ok);
+        this._panels.favs.setTitle('FAVOURITES AGENT');
+
+        const rows = [];
+        rows.push(`${R.span(col, '●')} ${
+            R.span(R.COLORS.text, R.pad('server lists', 14))}${
+            R.span(col, R.pad(running ? f.phase : (bad ? 'failed' : 'idle'), 20))}`);
+
+        const w = f.writes ?? {};
+        const fav = f.favorites ?? {};
+        const ago = f.ts ? R.humanAge(Date.now() / 1000 - f.ts) : '—';
+        const next = f.next_pass_at
+            ? R.humanAge(Math.max(0, f.next_pass_at - Date.now() / 1000))
+            : '—';
+        rows.push(`  ${R.span(R.COLORS.dim, R.pad('last pass', 12), {dim: true})}${
+            R.span(R.COLORS.text, `${ago} ago`)}${
+            f.duration_sec ? R.span(R.COLORS.dim, ` (${f.duration_sec}s)`, {dim: true}) : ''}${
+            R.span(R.COLORS.off, ` · next ${next}`, {dim: true})}`);
+
+        const boxes = (f.agents ?? []).map(ip => ip.split('.').slice(-1)[0]);
+        rows.push(`  ${R.span(R.COLORS.dim, R.pad('boxes', 12), {dim: true})}${
+            R.span(boxes.length ? R.COLORS.ok : R.COLORS.off,
+                `${boxes.length} reached`)}${
+            boxes.length ? R.span(R.COLORS.dim, `  .${boxes.join(' .')}`, {dim: true}) : ''}`);
+
+        rows.push(`  ${R.span(R.COLORS.dim, R.pad('favourites', 12), {dim: true})}${
+            R.span(w.wrote ? R.COLORS.warm : R.COLORS.dim, `${w.wrote ?? 0} written`)}${
+            R.span(R.COLORS.dim, `  ${w.unchanged ?? 0} same`, {dim: true})}${
+            w.failed ? R.span(R.COLORS.hot, `  ${w.failed} failed`, {bold: true}) : ''}`);
+
+        rows.push(`  ${R.span(R.COLORS.dim, R.pad('live servers', 12), {dim: true})}${
+            R.span(R.COLORS.text, `${f.servers_known ?? 0} known`)}${
+            fav.files ? R.span(R.COLORS.dim,
+                `  · ${fav.files} files on ${fav.boxes} boxes`, {dim: true}) : ''}`);
+
+        // Errors are the point of a status wall: show the first, verbatim.
+        for (const err of (f.errors ?? []).slice(0, 2))
+            rows.push(R.span(R.COLORS.hot, `  ${err.slice(0, 52)}`, {dim: true}));
+        if (f.stale_sec) {
+            rows.push(R.span(R.COLORS.hot,
+                `  no pass for ${R.humanAge(f.stale_sec)}`, {bold: true}));
+        }
+
+        this._panels.favs.setMarkup(rows.join('\n'));
+    }
+
+    /* ------------------------------------------------------------- pxe */
+
+    _renderPxe(s) {
+        const p = s.pxe ?? {};
+        const active = p.state === 'active';
+        const serving = !!p.serving;
+        this._panels.pxe.setTitle(
+            `PXE   ${serving ? 'serving' : (active ? 'no sockets' : (p.state ?? '—'))}`);
+
+        const rows = [];
+        const col = serving ? R.COLORS.ok : (active ? R.COLORS.warm : R.COLORS.hot);
+        rows.push(`${R.span(col, serving ? '●' : '○')} ${
+            R.span(R.COLORS.text, R.pad('retro-pxe', 12))}${
+            R.span(col, R.pad(p.state ?? 'unknown', 10))}${
+            p.uptime_sec !== undefined
+                ? R.span(R.COLORS.dim, `up ${R.humanUptime(p.uptime_sec)}`, {dim: true}) : ''}`);
+
+        // An `active` unit that has lost its sockets serves nothing while
+        // looking perfectly healthy, so the bound ports get their own line.
+        const ports = p.ports ?? {};
+        const portBits = Object.keys(ports).map(name =>
+            R.span(ports[name] ? R.COLORS.ok : R.COLORS.hot,
+                `${name} ${ports[name] ? '✓' : '✗'}`));
+        if (portBits.length) {
+            rows.push(`  ${R.span(R.COLORS.dim, R.pad('ports', 12), {dim: true})}${
+                portBits.join(R.span(R.COLORS.off, '  '))}`);
+        }
+
+        rows.push(`  ${R.span(R.COLORS.dim, R.pad('boot holds', 12), {dim: true})}${
+            R.span(p.hold_count ? R.COLORS.text : R.COLORS.off,
+                `${p.hold_count ?? 0} machine${p.hold_count === 1 ? '' : 's'} served`)}${
+            R.span(R.COLORS.off, ' · will not reinstall', {dim: true})}`);
+
+        if (p.last_activity_sec !== undefined) {
+            const clients = (p.recent_clients ?? []).slice(0, 2).join(' ');
+            rows.push(`  ${R.span(R.COLORS.dim, R.pad('last seen', 12), {dim: true})}${
+                R.span(R.COLORS.text, `${R.humanAge(p.last_activity_sec)} ago`)}${
+                clients ? R.span(R.COLORS.dim, `  ${clients}`, {dim: true}) : ''}`);
+        }
+        if (p.last_file) {
+            rows.push(`  ${R.span(R.COLORS.dim, R.pad('last file', 12), {dim: true})}${
+                R.span(R.COLORS.dim, p.last_file.slice(-40), {dim: true})}`);
+        }
+        if (p.files_served_recent) {
+            rows.push(`  ${R.span(R.COLORS.dim, R.pad('served', 12), {dim: true})}${
+                R.span(R.COLORS.dim, `${p.files_served_recent} files recently`, {dim: true})}`);
+        }
+
+        this._panels.pxe.setMarkup(rows.join('\n'));
+    }
+
+    /* -------------------------------------------------------- services */
+
+    _renderServices(s) {
+        const sv = s.services ?? {};
+        const rows = [];
+        const list = sv.services ?? [];
+        this._panels.services.setTitle(
+            `SERVICES   ${sv.up ?? 0}/${sv.total ?? 0} up`);
+
+        if (!list.length)
+            return this._panels.services.setMarkup(R.span(R.COLORS.off, '  no data'));
+
+        for (const svc of list) {
+            const ok = svc.state === 'active';
+            // `absent` means the unit was never installed on this host, which
+            // is a different call to action from a unit that has failed.
+            const missing = svc.state === 'absent';
+            const col = ok ? R.COLORS.ok : (missing ? R.COLORS.off : R.COLORS.hot);
+            const detail = ok && svc.uptime_sec !== undefined
+                ? `up ${R.humanUptime(svc.uptime_sec)}`
+                : (missing ? 'not installed' : (svc.sub || svc.result || ''));
+            rows.push(`${R.span(col, ok ? '●' : '○')} ${
+                R.span(ok ? R.COLORS.text : col, R.pad(svc.label, 15))}${
+                R.span(col, R.pad(svc.state ?? '—', 10))}${
+                R.span(R.COLORS.dim, detail, {dim: true})}${
+                svc.restarts ? R.span(R.COLORS.warm, `  ${svc.restarts}r`, {dim: true}) : ''}`);
+        }
+
+        if ((sv.degraded ?? []).length) {
+            rows.push(R.span(R.COLORS.hot,
+                `  ${sv.degraded.join(', ')} not running`, {bold: true}));
+        }
+
+        this._panels.services.setMarkup(rows.join('\n'));
     }
 
     _renderAgents(s) {

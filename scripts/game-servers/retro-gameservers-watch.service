@@ -1,0 +1,35 @@
+# Game-server watchdog: keeps every fleet game server up, and publishes the
+# status blob the login-screen dashboard reads.
+#
+# A --user unit on purpose. The game servers are themselves --user units, so
+# this is the one manager that can restart them without reaching across a
+# privilege boundary; and $XDG_RUNTIME_DIR gives it a status file that root
+# (the dashboard collector) can read but the world cannot write.
+#
+# Install:
+#   cp scripts/game-servers/retro-gameservers-watch.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now retro-gameservers-watch
+[Unit]
+Description=Retro fleet game-server watchdog (keeps servers up, feeds the status wall)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/development/retro-agent
+ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent/scripts/game-servers/gameservers_watch.py
+# RuntimeDirectory gives us /run/user/<uid>/retro-gameservers with the right
+# ownership before the first pass, so the very first publish cannot race the
+# collector's first read against a directory that does not exist yet.
+RuntimeDirectory=retro-gameservers
+RuntimeDirectoryMode=0755
+Restart=always
+RestartSec=10
+# The watchdog restarting servers is the point; it must not itself be the
+# thing that goes quiet. A pass is ~10 UDP probes and one systemctl call.
+TimeoutStopSec=15
+Nice=5
+
+[Install]
+WantedBy=default.target

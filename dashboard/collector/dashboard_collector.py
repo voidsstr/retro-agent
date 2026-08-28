@@ -36,6 +36,7 @@ import asyncio
 import collections
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -43,7 +44,7 @@ import sys
 import threading
 import time
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 DEFAULT_STATE_PATH = "/run/retro-dashboard/state.json"
 DEFAULT_CONFIG_PATH = "/etc/retro-dashboard/fleet.json"
@@ -104,6 +105,39 @@ _CLAIMED_RE = "claimed "
 
 CHAT_ROOT = os.environ.get("RETRO_CHAT_ROOT", "/tmp/retro-chat")
 AI_STATUS_DIR = os.environ.get("RETRO_AI_STATUS_DIR", "/tmp/retro-ai/status")
+
+# The user whose `systemd --user` manager owns the game servers, the chat
+# services and the favourites agent. This collector runs as root, where
+# `systemctl --user` means *root's* manager -- which has none of those units and
+# would report every one of them missing.
+FLEET_USER = os.environ.get("RETRO_FLEET_USER", "voidsstr")
+
+# Published by scripts/game-servers/gameservers_watch.py and
+# scripts/gameindex/sync.py --daemon respectively. Both live in the owning
+# user's $XDG_RUNTIME_DIR: root can read them, and they are not in /tmp, which
+# the greeter cannot see at all.
+GAMESERVERS_STATUS = os.environ.get("RETRO_GAMESERVERS_STATUS")
+GAMEINDEX_STATUS = os.environ.get("RETRO_GAMEINDEX_STATUS")
+
+PXE_ROOT = os.environ.get("RETRO_PXE_ROOT", "/srv/retro-pxe")
+PXE_PORTS = {67: "proxyDHCP", 69: "TFTP", 4011: "BINL"}
+
+# Every host-side service the wall reports on: (label, unit, scope). "user"
+# units are reached through FLEET_USER's manager, "system" through our own.
+HOST_SERVICES = [
+    ("chat daemon",  "retro-chat-daemon",        "user"),
+    ("chat brain",   "retro-chat-brain",         "user"),
+    ("favourites",   "retro-gameindex",          "user"),
+    ("gamesrv watch", "retro-gameservers-watch", "user"),
+    ("dos games",    "retro-dosgames-http",      "user"),
+    ("pxe server",   "retro-pxe",                "system"),
+    ("dashboard",    "retro-dashboard-collector", "system"),
+]
+
+# Anything that shells out is cached on a slower cadence than the 2s sensor
+# loop -- a `systemctl show` per panel per sample is ~1 fork/second forever for
+# data that changes on the scale of minutes.
+SLOW_TTL_SEC = 10.0
 
 
 # --------------------------------------------------------------------------
@@ -685,10 +719,332 @@ def collect_remote():
 
 
 # --------------------------------------------------------------------------
+# systemd — one place that knows how to ask about a unit in either manager
+# --------------------------------------------------------------------------
+
+_UNIT_PROPS = ("ActiveState", "SubState", "LoadState", "UnitFileState",
+               "Result", "NRestarts", "ExecMainStartTimestampMonotonic")
+
+
+def _uid_of(user):
+    try:
+        import pwd
+        return pwd.getpwnam(user).pw_uid
+    except Exception:
+        return None
+
+
+def _systemctl_prefix(scope):
+    """Argv prefix reaching the right manager.
+
+    A system unit is our own. A `--user` unit belongs to FLEET_USER, and we are
+    root: `systemctl --user` here would query root's own (empty) manager and
+    report every fleet service as not-found, which on the wall is
+    indistinguishable from every fleet service having died.
+    """
+    if scope == "system":
+        return ["systemctl"]
+    uid = _uid_of(FLEET_USER)
+    if uid is None or uid == os.geteuid():
+        return ["systemctl", "--user"]
+    return [
+        "setpriv", "--reuid", str(uid), "--regid", str(uid), "--clear-groups",
+        "env", f"XDG_RUNTIME_DIR=/run/user/{uid}",
+        "systemctl", "--user",
+    ]
+
+
+def _boot_monotonic_usec():
+    try:
+        with open("/proc/uptime") as fh:
+            return int(float(fh.read().split()[0]) * 1_000_000)
+    except Exception:
+        return 0
+
+
+def unit_states(units, scope):
+    """`systemctl show` for a batch of units — one fork for the whole panel."""
+    out = {u: {"state": "unknown"} for u in units}
+    if not units:
+        return out
+    cmd = _systemctl_prefix(scope) + ["show", "--no-pager",
+                                      "-p", ",".join(_UNIT_PROPS)]
+    cmd += [f"{u}.service" for u in units]
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
+    except Exception:
+        return out
+    blocks = [b for b in res.stdout.split("\n\n") if b.strip()]
+    now_mono = _boot_monotonic_usec()
+    for unit, blk in zip(units, blocks):
+        props = {}
+        for line in blk.splitlines():
+            if "=" in line:
+                key, val = line.split("=", 1)
+                props[key] = val
+        if props.get("LoadState") == "not-found":
+            out[unit] = {"state": "absent"}
+            continue
+        rec = {
+            "state": props.get("ActiveState") or "unknown",
+            "sub": props.get("SubState") or None,
+            "enabled": props.get("UnitFileState") or None,
+            "result": props.get("Result") or None,
+        }
+        try:
+            rec["restarts"] = int(props.get("NRestarts") or 0)
+        except ValueError:
+            pass
+        try:
+            started = int(props.get("ExecMainStartTimestampMonotonic") or 0)
+            if started and now_mono:
+                rec["uptime_sec"] = max(0, (now_mono - started) // 1_000_000)
+        except ValueError:
+            pass
+        out[unit] = rec
+    return out
+
+
+def collect_services():
+    """State of every host-side service the fleet depends on."""
+    rows = []
+    for scope in ("user", "system"):
+        units = [u for _, u, sc in HOST_SERVICES if sc == scope]
+        states = unit_states(units, scope)
+        for label, unit, sc in HOST_SERVICES:
+            if sc != scope:
+                continue
+            rec = dict(states.get(unit, {"state": "unknown"}))
+            rec.update({"label": label, "unit": unit, "scope": sc})
+            rows.append(rec)
+    order = [u for _, u, _ in HOST_SERVICES]
+    rows.sort(key=lambda r: order.index(r["unit"]))
+    healthy = sum(1 for r in rows if r["state"] == "active")
+    return {
+        "services": rows,
+        "up": healthy,
+        "total": len(rows),
+        "degraded": [r["unit"] for r in rows if r["state"] != "active"],
+    }
+
+
+# --------------------------------------------------------------------------
+# game servers — read the watchdog's blob, never probe UDP from here
+# --------------------------------------------------------------------------
+
+def _runtime_status_path(explicit, subdir):
+    """Find a service's status file in FLEET_USER's runtime dir."""
+    if explicit:
+        return explicit
+    uid = _uid_of(FLEET_USER)
+    candidates = []
+    if uid is not None:
+        candidates.append(f"/run/user/{uid}/{subdir}/status.json")
+    candidates.append(f"/run/user/{os.geteuid()}/{subdir}/status.json")
+    for cand in candidates:
+        if os.path.exists(cand):
+            return cand
+    return candidates[0]
+
+
+def _read_status_file(path, max_age=120):
+    """(payload, error). A stale file is reported as stale, not as absent —
+    'the watchdog died an hour ago' and 'there is no watchdog' need different
+    answers from whoever is standing at the monitor."""
+    try:
+        with open(path) as fh:
+            data = json.load(fh)
+    except FileNotFoundError:
+        return None, "not running"
+    except Exception as exc:
+        return None, f"unreadable: {type(exc).__name__}"
+    age = time.time() - (data.get("ts") or 0)
+    if age > max_age:
+        data["stale_sec"] = int(age)
+    return data, None
+
+
+def collect_gameservers():
+    """Whatever gameservers_watch.py last published.
+
+    This collector deliberately does NOT send the query packets itself. Ten
+    UDP probes with timeouts belong on the watchdog's 20s loop, not on a 2s
+    loop whose only job is to keep a login screen painting.
+    """
+    path = _runtime_status_path(GAMESERVERS_STATUS, "retro-gameservers")
+    data, err = _read_status_file(path)
+    if err:
+        return {"error": err, "path": path, "servers": [],
+                "up": 0, "total": 0, "players": 0}
+    return {
+        "servers": data.get("servers", []),
+        "proxies": data.get("proxies", []),
+        "up": data.get("up", 0),
+        "total": data.get("total", 0),
+        "players": data.get("players", 0),
+        "humans": data.get("humans", 0),
+        "bots": data.get("bots", 0),
+        "down": data.get("down", []),
+        "watchdog": data.get("watchdog", {}),
+        "polled_at": data.get("ts"),
+        "stale_sec": data.get("stale_sec"),
+    }
+
+
+def collect_gameindex():
+    """The favourites agent's own report of its last pass."""
+    path = _runtime_status_path(GAMEINDEX_STATUS, "retro-gameindex")
+    # Its cadence is five minutes, so a two-minute-old report is perfectly
+    # healthy; only a missed pass and a half counts as stale.
+    data, err = _read_status_file(path, max_age=480)
+    if err:
+        return {"error": err, "path": path}
+    servers = data.get("servers") or {}
+    return {
+        "ok": data.get("ok"),
+        "phase": data.get("phase"),
+        "ts": data.get("ts"),
+        "duration_sec": data.get("duration_sec"),
+        "next_pass_at": data.get("next_pass_at"),
+        "agents": data.get("agents") or [],
+        "machines": data.get("machines") or [],
+        "writes": data.get("writes") or {},
+        "favorites": data.get("favorites") or {},
+        "engines": data.get("engines") or [],
+        "servers_known": sum(v.get("servers", 0) for v in servers.values()),
+        "servers_by_engine": servers,
+        "errors": (data.get("errors") or [])[:3],
+        "stale_sec": data.get("stale_sec"),
+    }
+
+
+# --------------------------------------------------------------------------
+# PXE — is the install server armed, and is anything booting from it
+# --------------------------------------------------------------------------
+
+def _udp_listening():
+    # `ss -ulnH` columns are: State Recv-Q Send-Q Local Peer. The LOCAL address
+    # is column 3; column 4 is the peer, which for a listening UDP socket is
+    # `0.0.0.0:*` — parsing that instead yields no ports at all and reports a
+    # healthy PXE server as serving nothing.
+    ports = set()
+    for line in _run(["ss", "-ulnH"]).splitlines():
+        cols = line.split()
+        if len(cols) < 4:
+            continue
+        try:
+            ports.add(int(cols[3].rsplit(":", 1)[1]))
+        except (ValueError, IndexError):
+            continue
+    return ports
+
+
+_PXE_LOG_RE = re.compile(r"^\[(\d\d:\d\d:\d\d)\]\s+(\S+)\s+(\S+)(.*)$")
+
+
+def _pxe_recent(log_path, limit=60000):
+    """Last activity from the PXE log: who, when, and what file.
+
+    The log's timestamps are wall-clock times with no date, so the file's mtime
+    is what actually dates the activity — parsing "19:25:38" back into a moment
+    would silently be a day out every morning.
+    """
+    out = {}
+    try:
+        size = os.path.getsize(log_path)
+        out["last_activity_sec"] = int(time.time() - os.path.getmtime(log_path))
+        with open(log_path, "rb") as fh:
+            fh.seek(max(0, size - limit))
+            chunk = fh.read().decode("utf-8", errors="replace")
+    except Exception:
+        return out
+    lines = [ln.strip() for ln in chunk.splitlines() if ln.strip()]
+    if lines:
+        out["last"] = lines[-1][:160]
+    clients = []
+    files = 0
+    for line in reversed(lines):
+        match = _PXE_LOG_RE.match(line)
+        if not match:
+            continue
+        _stamp, kind, who, rest = match.groups()
+        if kind == "tftp":
+            if who not in clients:
+                clients.append(who)
+            words = rest.split()
+            # `tftp <ip> DONE <path>` is one completed transfer; GET lines are
+            # the requests, and counting those double-counts every retry.
+            if words and words[0] == "DONE":
+                files += 1
+                if "last_file" not in out and len(words) > 1:
+                    out["last_file"] = words[1][-42:]
+        elif kind == "proxyDHCP" and "last_offer" not in out:
+            out["last_offer"] = rest.strip()[:80]
+    out["recent_clients"] = clients[:4]
+    out["files_served_recent"] = files
+    return out
+
+
+def collect_pxe():
+    state = unit_states(["retro-pxe"], "system")["retro-pxe"]
+    out = dict(state)
+    out["unit"] = "retro-pxe"
+
+    listening = _udp_listening()
+    out["ports"] = {
+        name: (port in listening) for port, name in PXE_PORTS.items()
+    }
+    # Bound ports are the real liveness test. A `retro-pxe` that is `active`
+    # but has lost its sockets serves nothing while looking perfectly healthy.
+    out["serving"] = state.get("state") == "active" and out["ports"].get("TFTP", False)
+
+    # Boot holds: MACs already served, which is what stops a machine that boots
+    # from the network first reinstalling itself in a loop on every reboot.
+    holds = []
+    try:
+        with open(os.path.join(PXE_ROOT, "pxe_state.json")) as fh:
+            data = json.load(fh)
+        now = time.time()
+        for mac, served in sorted(data.items(), key=lambda kv: -kv[1]):
+            holds.append({"mac": mac, "age_sec": int(now - float(served))})
+    except Exception:
+        pass
+    out["holds"] = holds[:6]
+    out["hold_count"] = len(holds)
+
+    out.update(_pxe_recent(os.path.join(PXE_ROOT, "pxe_server.log")))
+    return out
+
+
+class SlowCache:
+    """TTL cache for the panels that fork a subprocess.
+
+    Held on the collector loop rather than a thread: each of these is a few
+    milliseconds, and a thread per panel would need locking around state that
+    is only ever read once every couple of seconds.
+    """
+
+    def __init__(self, ttl=SLOW_TTL_SEC):
+        self.ttl = ttl
+        self._at = {}
+        self._val = {}
+
+    def get(self, key, fn):
+        now = time.monotonic()
+        if key not in self._val or now - self._at.get(key, 0) >= self.ttl:
+            try:
+                self._val[key] = fn()
+            except Exception as exc:
+                self._val[key] = {"error": f"{type(exc).__name__}: {exc}"}
+            self._at[key] = now
+        return self._val[key]
+
+
+# --------------------------------------------------------------------------
 # assembly + atomic publish
 # --------------------------------------------------------------------------
 
-def build_state(vitals, fleet_poller):
+def build_state(vitals, fleet_poller, slow=None):
     state = {
         "schema": SCHEMA_VERSION,
         "ts": time.time(),
@@ -700,6 +1056,16 @@ def build_state(vitals, fleet_poller):
     }
     state["agents"] = collect_agents()
     state["remote"] = collect_remote()
+
+    # These three read files or fork `systemctl`, so they go through the TTL
+    # cache rather than the 2s sensor cadence. Reading the two status files is
+    # cheap, but they are grouped with the rest so a single knob controls how
+    # often the wall's service view refreshes.
+    slow = slow if slow is not None else SlowCache()
+    state["gameservers"] = slow.get("gameservers", collect_gameservers)
+    state["gameindex"] = slow.get("gameindex", collect_gameindex)
+    state["pxe"] = slow.get("pxe", collect_pxe)
+    state["services"] = slow.get("services", collect_services)
     return state
 
 
@@ -738,6 +1104,7 @@ def main():
 
     secret = os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret")
     vitals = Vitals()
+    slow = SlowCache()
 
     poller = None
     if not args.no_fleet:
@@ -753,7 +1120,7 @@ def main():
         # refresh reports zeroes. Prime once, wait, then take the real sample.
         vitals.sample()
         time.sleep(min(1.0, args.interval))
-        state = build_state(vitals, poller)
+        state = build_state(vitals, poller, slow)
         if args.stdout:
             json.dump(state, sys.stdout, indent=2)
             sys.stdout.write("\n")
@@ -764,7 +1131,7 @@ def main():
     while True:
         started = time.monotonic()
         try:
-            state = build_state(vitals, poller)
+            state = build_state(vitals, poller, slow)
             if args.stdout:
                 json.dump(state, sys.stdout)
                 sys.stdout.write("\n")

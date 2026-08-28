@@ -1,23 +1,39 @@
-# Retro game/server index — one sync pass.
+# Retro fleet game/server index — the favourites agent.
 #
-# Driven by retro-gameindex.timer every 5 minutes, which is the freshness
-# guarantee: the host's index is never more than one interval stale, and each
-# pass pushes favourites to a box ONLY when the content hash changed.
+# A long-running service, NOT a oneshot behind a timer. It still does a pass
+# every five minutes (--interval 300), so the freshness contract is unchanged;
+# what changes is that "is the favourites agent running?" now has an honest
+# answer at the moment anyone asks. As a timer-driven oneshot the unit read
+# `inactive (dead)` for 297 of every 300 seconds, which is indistinguishable
+# from a service that has stopped -- and this is a service the login-screen
+# status wall reports on, so that ambiguity was the whole problem.
+#
+# Per-pass detail (boxes reached, favourites rewritten, per-engine live server
+# counts, errors) is published to $XDG_RUNTIME_DIR/retro-gameindex/status.json
+# for the dashboard collector to read.
 #
 # Install:
-#   cp scripts/gameindex/retro-gameindex.{service,timer} ~/.config/systemd/user/
+#   cp scripts/gameindex/retro-gameindex.service ~/.config/systemd/user/
 #   systemctl --user daemon-reload
-#   systemctl --user enable --now retro-gameindex.timer
+#   systemctl --user disable --now retro-gameindex.timer   # superseded
+#   systemctl --user enable --now retro-gameindex
 [Unit]
-Description=Retro fleet game + server index (one pass)
+Description=Retro fleet game + server index (favourites agent)
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-Type=oneshot
+Type=simple
 WorkingDirectory=/home/voidsstr/development/retro-agent
-ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent/scripts/gameindex/sync.py
-# A pass probes ~900 addresses per engine plus every live box. It should never
-# run long enough to overlap the next tick; if it somehow does, kill it rather
-# than stacking passes that fight over the same SQLite file and the same agents.
-TimeoutStartSec=240
+ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent/scripts/gameindex/sync.py --daemon --interval 300
+RuntimeDirectory=retro-gameindex
+RuntimeDirectoryMode=0755
+Restart=always
+RestartSec=15
+# A pass probes ~900 addresses per engine plus every live box, and sleeps the
+# remainder of the interval. It is almost entirely blocked on the network, so
+# it must not compete with a game server for CPU.
+Nice=10
+
+[Install]
+WantedBy=default.target

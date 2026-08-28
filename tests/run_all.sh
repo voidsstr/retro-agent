@@ -118,6 +118,16 @@ if command -v gjs >/dev/null 2>&1; then
 else
   echo "  (skipped render tests: gjs not installed)"
 fi
+# The service panels (game servers, favourites agent, PXE, host services) are
+# driven through node with the GI imports stubbed, because what needs testing
+# is their behaviour on the degenerate inputs a not-yet-started service
+# produces -- not GNOME. See dashboard/tests/stub-gi.mjs.
+if command -v node >/dev/null 2>&1; then
+  ( cd "$REPO" && node --import ./dashboard/tests/stub-gi.mjs \
+      dashboard/tests/test_panels.mjs ) || rc=1
+else
+  echo "  (skipped panel tests: node not installed)"
+fi
 
 echo; echo "=================================================================="
 [ $rc -eq 0 ] && echo " ALL SUITES PASSED" || echo " SOME SUITES FAILED (rc=$rc)"

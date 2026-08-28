@@ -37,6 +37,7 @@ from client.retro_protocol import RetroConnection  # noqa: E402
 import db          # noqa: E402
 import favorites   # noqa: E402
 import masters     # noqa: E402
+import status      # noqa: E402
 
 SECRET = os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret")
 SUBNET = os.environ.get("RETRO_FLEET_SUBNET", "192.168.1")
@@ -250,16 +251,26 @@ async def push_favorites(con, ip, dry_run=False):
 
 # --- one pass ----------------------------------------------------------------
 
-async def run_once(dry_run=False, force=False, only_ip=None):
+async def run_once(dry_run=False, force=False, only_ip=None, report=None):
+    """One pass. `report` is filled in as we go so the service can publish its
+    own health even if a later step raises."""
+    report = report if report is not None else status.new_report()
     con = db.connect()
     t0 = time.time()
 
+    report["phase"] = "discovering agents"
     ips = [only_ip] if only_ip else live_agents()
+    report["agents"] = list(ips)
     log.info("agents up: %s", ", ".join(ips) if ips else
              "none (the fleet is powered on demand - this is normal)")
 
+    report["phase"] = "indexing machines"
     for ip in ips:
         changed, n, note = await refresh_machine(con, ip, force=force)
+        report["machines"].append({"ip": ip, "changed": bool(changed),
+                                   "games": n, "note": note})
+        if note.startswith("ERROR"):
+            report["errors"].append(f"{ip}: {note}")
         log.info("[%s] %s", ip, note)
 
     engines = db.engines_in_use(con)
@@ -273,6 +284,8 @@ async def run_once(dry_run=False, force=False, only_ip=None):
                  ", ".join(engines))
     else:
         log.info("engines installed on the fleet: %s", ", ".join(engines))
+    report["engines"] = list(engines)
+    report["phase"] = "probing servers"
     for engine, note in refresh_servers(con, engines).items():
         log.info("  servers/%-8s %s", engine, note)
     probe_local_servers(con)
@@ -281,12 +294,31 @@ async def run_once(dry_run=False, force=False, only_ip=None):
     if pruned:
         log.info("pruned %d stale servers", pruned)
 
+    report["phase"] = "writing favourites"
     for ip in ips:
         for key, engine, note in await push_favorites(con, ip, dry_run=dry_run):
+            # Bucket by what actually happened. "wrote 0" and "we never looked"
+            # must not collapse into the same number on the wall.
+            if note.startswith("wrote") or note.startswith("WOULD"):
+                report["writes"]["wrote"] += 1
+            elif note.startswith("unchanged"):
+                report["writes"]["unchanged"] += 1
+            elif note.startswith("FAILED") or note.startswith("ERROR"):
+                report["writes"]["failed"] += 1
+                report["errors"].append(f"{ip}/{key}: {note}")
+            else:
+                report["writes"]["skipped"] += 1
             log.info("[%s] %-11s %-8s %s", ip, key, engine, note)
 
+    report["servers"] = status.summarize_servers(con)
+    report["favorites"] = status.summarize_favorites(con)
+    report["duration_sec"] = round(time.time() - t0, 1)
+    report["ts"] = time.time()
+    report["phase"] = "idle"
+    report["ok"] = True
     log.info("pass complete in %.1fs", time.time() - t0)
     con.close()
+    return report
 
 
 def show_status():
@@ -309,6 +341,52 @@ def show_status():
     con.close()
 
 
+# --- daemon ------------------------------------------------------------------
+
+DEFAULT_INTERVAL = 300.0   # the five-minute freshness contract, in seconds
+
+
+def run_forever(interval=DEFAULT_INTERVAL, status_path=None, **kwargs):
+    """Loop passes forever, publishing health after every one.
+
+    This used to be a oneshot behind a .timer, which met the five-minute
+    contract but meant the unit was `inactive (dead)` for 297 of every 300
+    seconds -- so "is the favourites agent running?" had no honest answer at
+    the moment anyone asked. As a long-running service the unit state means
+    what it says, and the status file carries the per-pass detail a timer's
+    exit code never could.
+
+    A pass that throws is caught, published as a failure with its reason, and
+    followed by the next pass on schedule. The agent going quiet because one
+    box refused a connection would defeat the point of watching it.
+    """
+    path = status_path or status.default_status_path()
+    log.info("favourites agent: pass every %.0fs, status -> %s", interval, path)
+    passes = 0
+    while True:
+        started = time.monotonic()
+        report = status.new_report()
+        passes += 1
+        report["passes"] = passes
+        report["interval_sec"] = interval
+        try:
+            status.publish(report, path)          # "running" is visible mid-pass
+            asyncio.run(run_once(report=report, **kwargs))
+        except Exception as exc:  # noqa: BLE001
+            log.exception("pass failed")
+            report["ok"] = False
+            report["phase"] = "failed"
+            report["ts"] = time.time()
+            report["errors"].append(f"{type(exc).__name__}: {exc}")
+        report["next_pass_at"] = time.time() + max(
+            5.0, interval - (time.monotonic() - started))
+        try:
+            status.publish(report, path)
+        except Exception:  # noqa: BLE001
+            log.warning("could not publish status to %s", path)
+        time.sleep(max(5.0, interval - (time.monotonic() - started)))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -317,6 +395,13 @@ def main():
                     help="re-pull each box's index even if the hash matches")
     ap.add_argument("--ip", help="only this machine")
     ap.add_argument("--status", action="store_true")
+    ap.add_argument("--daemon", action="store_true",
+                    help="loop forever, publishing health after each pass "
+                         "(this is how the systemd service runs it)")
+    ap.add_argument("--interval", type=float, default=DEFAULT_INTERVAL,
+                    help="seconds between passes in --daemon mode")
+    ap.add_argument("--status-path", default=os.environ.get(
+        "RETRO_GAMEINDEX_STATUS"), help="where to publish service health")
     args = ap.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s",
@@ -324,7 +409,18 @@ def main():
     if args.status:
         show_status()
         return
-    asyncio.run(run_once(dry_run=args.dry_run, force=args.force, only_ip=args.ip))
+    if args.daemon:
+        run_forever(interval=args.interval, status_path=args.status_path,
+                    dry_run=args.dry_run, force=args.force, only_ip=args.ip)
+        return
+    report = asyncio.run(run_once(dry_run=args.dry_run, force=args.force,
+                                  only_ip=args.ip))
+    # A manual pass publishes too, so running it by hand refreshes the wall
+    # instead of leaving it showing the service's older pass.
+    try:
+        status.publish(report, args.status_path)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 if __name__ == "__main__":

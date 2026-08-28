@@ -15,7 +15,8 @@ Work is split so the slow half happens once, centrally:
 
 ## The five-minute contract
 
-`retro-gameindex.timer` runs `sync.py` every 5 minutes. Each pass:
+`retro-gameindex.service` runs `sync.py --daemon`, which does a pass every 5
+minutes. Each pass:
 
 1. Sweeps the LAN for agents. **Finding none is normal** — the fleet is
    powered on demand.
@@ -68,14 +69,48 @@ joinable on the LAN even when the internet list is empty.
   yields the header and an empty dict, which reported "0 alive of 400" for
   servers that all answered.
 
+## A service, not a timer
+
+It used to be a `oneshot` behind `retro-gameindex.timer`. That met the
+five-minute contract but meant the unit read `inactive (dead)` for 297 of every
+300 seconds — so **"is the favourites agent running?" had no honest answer at
+the moment anyone asked**, which matters now that the login-screen status wall
+reports on it. It is a long-running `Type=simple` service instead; the timer is
+gone (leaving it enabled would start a second pass fighting the daemon over the
+same SQLite file).
+
+```bash
+cp scripts/gameindex/retro-gameindex.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user disable --now retro-gameindex.timer   # if you had the old one
+systemctl --user enable --now retro-gameindex
+```
+
+After every pass it publishes its own health to
+`$XDG_RUNTIME_DIR/retro-gameindex/status.json` — when the pass ran, how long it
+took, which boxes it reached, how many favourites files it rewrote versus left
+alone, per-engine live-server counts, and any errors.
+
+**Why publish at all, when there are logs.** The fleet is powered on demand, so
+a completely healthy pass across zero live boxes writes nothing and logs almost
+nothing. Judged by its output, a healthy agent looks dead every time the retro
+machines are switched off. "Nothing to do" and "did not run" must not look the
+same, so the agent says outright that a pass completed.
+
+A pass that throws is caught, published as a failure with its reason, and
+followed by the next pass on schedule — one box refusing a connection must not
+take the agent down.
+
 ## Use
 
 ```bash
-python3 scripts/gameindex/sync.py             # one pass
+python3 scripts/gameindex/sync.py             # one pass (also refreshes the status file)
 python3 scripts/gameindex/sync.py --dry-run   # decide everything, write nothing
 python3 scripts/gameindex/sync.py --status    # what the DB knows
+python3 scripts/gameindex/sync.py --daemon    # loop forever (this is how the unit runs it)
 python3 scripts/gameindex/sync.py --ip 192.168.1.240 --force
 ```
 
 DB: `~/.retro-fleet/gameservers.db` (override with `RETRO_GAMEINDEX_DB`).
-Tests: `tests/python/test_gameindex.py`.
+Tests: `tests/python/test_gameindex.py`, and
+`tests/python/test_gameindex_status.py` for the health report.
