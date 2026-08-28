@@ -219,7 +219,17 @@ def main():
         if not a.dry_run and not os.path.exists(dst):
             shutil.copy2(src, dst)
             placed += 1
-        src_lines.append('%s = 1,,,,,,,,3,3' % sysfile)
+        # THE BOOT-MEDIA FIELDS ARE NOT OPTIONAL.
+        #
+        # '1,,,,,,,,3,3' is the shape used for ordinary files and it is what
+        # this wrote at first. Retail XP registers every boot-critical storage
+        # miniport as '1,,,,,,4_,4,1,,,1,4' instead - the 4_ and 4 say the file
+        # belongs on the boot media, and the trailing 1,4 is the media
+        # descriptor. Without them setupldr cannot stage the driver, and text
+        # mode dies with "<driver>.sys caused an unexpected error ... at line
+        # 3540 in setup.c" - which reads like a corrupt or missing file and is
+        # neither. Two machines failed to install this way.
+        src_lines.append('%s = 1,,,,,,4_,4,1,,,1,4' % sysfile)
         load_lines.append('%s = %s,4' % (service, sysfile))
         scsi_lines.append('%s = "%s"' % (service, desc[:64]))
         for hw in ids:
