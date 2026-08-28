@@ -619,6 +619,9 @@ static void gs_make_game_shortcut(const char *dst_dir, const char *title)
 #define LVM_GETITEMCOUNT_    (LVM_FIRST_ + 4)
 #define LVM_SETITEMPOSITION_ (LVM_FIRST_ + 15)
 #define FCIDM_SHVIEW_AUTOARRANGE_ 0x7031
+#ifndef LVS_AUTOARRANGE
+#define LVS_AUTOARRANGE 0x0100
+#endif
 
 typedef struct { int x, y, cell_w, cell_h, cols, rows; } gs_bay_t;
 
@@ -676,13 +679,30 @@ static void gs_arrange_icons(void)
     sh = GetSystemMetrics(SM_CYSCREEN);
     gs_icon_bay(sw, sh, &bay);
 
-    /* Auto Arrange must be off or the shell snaps everything back to the
-     * top-left grid, including on every later wallpaper refresh. It is a
-     * TOGGLE, and PostMessage rather than SendMessage because a synchronous
-     * send into the shell can block us indefinitely. */
+    /* Auto Arrange must be OFF or the shell snaps every icon back to the
+     * top-left grid and our positions never stick.
+     *
+     * FCIDM_SHVIEW_AUTOARRANGE is a TOGGLE, not a set - so firing it blindly
+     * turns the setting ON when it was already off, which is worse than doing
+     * nothing and is precisely what happened: the icons ended up in neat rows
+     * across the top of the screen instead of in the bay. Read the listview's
+     * LVS_AUTOARRANGE style first (GetWindowLong works cross-process) and only
+     * toggle when it is actually set.
+     *
+     * PostMessage rather than SendMessage because a synchronous send into the
+     * shell can block us indefinitely. */
     if (defview) {
-        PostMessageA(defview, WM_COMMAND, FCIDM_SHVIEW_AUTOARRANGE_, 0);
-        Sleep(400);
+        LONG style = GetWindowLongA(lv, GWL_STYLE);
+        if (style & LVS_AUTOARRANGE) {
+            log_msg(LOG_GS, "auto-arrange is on - turning it off so icon "
+                            "positions stick");
+            PostMessageA(defview, WM_COMMAND, FCIDM_SHVIEW_AUTOARRANGE_, 0);
+            Sleep(600);
+            style = GetWindowLongA(lv, GWL_STYLE);
+            if (style & LVS_AUTOARRANGE)
+                log_msg(LOG_GS, "auto-arrange still on after the toggle - "
+                                "icons may not stay where they are put");
+        }
     }
 
     count = (int)SendMessageA(lv, LVM_GETITEMCOUNT_, 0, 0);
