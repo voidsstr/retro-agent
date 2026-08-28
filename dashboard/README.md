@@ -182,6 +182,39 @@ The greeter is how you log in at the machine, so:
 - **What works:** `loginctl terminate-session <greeter-session-id>`. GDM notices
   seat0 has no greeter and builds a fresh one.
 
+## The monitor stays awake
+
+`install.sh` also writes these into the greeter's dconf block:
+
+```ini
+[org/gnome/desktop/session]
+idle-delay=uint32 0
+
+[org/gnome/settings-daemon/plugins/power]
+sleep-inactive-ac-timeout=0
+sleep-inactive-ac-type='nothing'
+```
+
+Without them the greeter inherits GNOME's defaults — **blank after 5 minutes
+idle, display to sleep after 20** — and the dashboard renders perfectly into a
+screen that has been dark for hours. That is exactly what happened on the first
+deploy: the extension logged `rendering (live), fleet 2/7 up` all night to a
+monitor that had been asleep for twenty of them. A status wall nobody can see is
+not a status wall.
+
+The trade is that the panel is now lit 24/7. On an OLED, or if you would rather
+it slept, delete those two stanzas from
+`/etc/gdm3/greeter.dconf-defaults` (keep the `[org/gnome/shell]` one) and re-run
+`/usr/share/gdm/generate-config`.
+
+Check what is actually in effect, and whether the panel is powered:
+
+```bash
+sudo -u gdm env DCONF_PROFILE=gdm dconf read /org/gnome/desktop/session/idle-delay
+grep -l connected /sys/class/drm/card*-*/status | xargs -n1 dirname \
+  | xargs -I{} sh -c 'echo "$(basename {}) dpms=$(cat {}/dpms)"'
+```
+
 ## Configuration
 
 Tunables are constants at the top of `extension.js`:

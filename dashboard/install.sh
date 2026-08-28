@@ -206,6 +206,22 @@ $MARK_BEGIN
 # retro-agent/dashboard/install.sh — edit there, not here.
 [org/gnome/shell]
 enabled-extensions=['${UUID}']
+
+# Keep the monitor awake. Without these the greeter takes GNOME's defaults —
+# blank after 5 minutes idle, put the display to sleep after 20 — so the
+# dashboard renders perfectly into a screen that has been dark for hours. A
+# status wall nobody can see is not a status wall.
+#
+# To go back to a screen that sleeps, delete these two stanzas (keep the
+# [org/gnome/shell] one) and re-run /usr/share/gdm/generate-config.
+[org/gnome/desktop/session]
+idle-delay=uint32 0
+
+[org/gnome/settings-daemon/plugins/power]
+sleep-inactive-ac-timeout=0
+sleep-inactive-ac-type='nothing'
+sleep-inactive-battery-timeout=0
+sleep-inactive-battery-type='nothing'
 $MARK_END
 EOF
 note "enabled in $GREETER_DEFAULTS"
