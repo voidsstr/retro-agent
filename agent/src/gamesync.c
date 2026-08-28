@@ -889,9 +889,19 @@ static void gs_tool_shortcut(const char *exe, const char *name)
     char *slash;
 
     if (!gs_file_exists(exe))
+        return;                        /* not installed here - not an error */
+    /* Every other failure gets a line. The first version returned silently on
+     * all of them, so a shortcut that was never placed looked exactly like one
+     * that was placed successfully - and two machines went a full cycle without
+     * their agent and chat icons while the log said nothing at all. */
+    if (!gs_ole_load()) {
+        log_msg(LOG_GS, "%s: no shell link support - no shortcut", name);
         return;
-    if (!gs_ole_load() || !gs_desktop_dir(desktop, sizeof(desktop)))
+    }
+    if (!gs_desktop_dir(desktop, sizeof(desktop))) {
+        log_msg(LOG_GS, "%s: cannot locate the desktop - no shortcut", name);
         return;
+    }
     _snprintf(lnk, sizeof(lnk) - 1, "%s\\%s.lnk", desktop, name);
     lnk[sizeof(lnk) - 1] = 0;
 
@@ -903,6 +913,8 @@ static void gs_tool_shortcut(const char *exe, const char *name)
 
     if (gs_make_shortcut(exe, workdir, lnk, name))
         log_msg(LOG_GS, "desktop shortcut -> %s", name);
+    else
+        log_msg(LOG_GS, "%s: could not create the shortcut", name);
 }
 
 void gs_place_tool_shortcuts(void)
@@ -1662,19 +1674,23 @@ static void gs_log_image_flag(void)
 
 DWORD WINAPI gamesync_thread(LPVOID param)
 {
-    /* Put the operator's own tools on the desktop on EVERY start, before any
-     * decision about whether provisioning needs to run. A box that has already
-     * been provisioned still needs these - and after a desktop sweep they are
-     * the only way back to the agent and the chat client without a file
-     * browser. Both are no-ops when the shortcut already exists. */
-    gs_place_tool_shortcuts();
-
     int fresh;
 
     (void)param;
     /* Let the desktop settle and the redirector come up before touching a
      * UNC path; on a fresh XP logon the network is not ready immediately. */
     Sleep(GS_FIRST_DELAY_MS);
+
+    /* Put the operator's own tools on the desktop on EVERY start, whether or
+     * not provisioning has anything left to do - after a desktop sweep these
+     * are the only way back to the agent and the chat client without a file
+     * browser.
+     *
+     * AFTER the delay, not before: the first attempt ran the moment the thread
+     * started, when the shell has not finished coming up, so SHGetFolderPath
+     * had no desktop to give and the whole thing returned without placing
+     * anything or saying so. */
+    gs_place_tool_shortcuts();
 
     /* Two independent signals, and they answer different questions.
      *
