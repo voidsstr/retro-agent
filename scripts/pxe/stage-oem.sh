@@ -105,7 +105,12 @@ echo "   newimage.flag: marks the box as freshly imaged for the agent"
     printf '"ForceAutoLogon"="1"\r\n'
     printf '"DefaultUserName"="Administrator"\r\n'
     printf '"DefaultPassword"="%s"\r\n' "$ADMIN_PASS"
-    printf '"DefaultDomainName"=""\r\n'
+    # "." means THIS MACHINE. The fleet convention is to put the hostname here,
+    # but the image cannot know a hostname that setup generates at install time,
+    # and an empty value makes Winlogon guess. A literal dot is the documented
+    # way to say "the local account database" and is correct on every box
+    # without templating anything.
+    printf '"DefaultDomainName"="."\r\n'
     # Remove the countdown if setup wrote one. While AutoLogonCount exists
     # Windows decrements it and, at zero, deletes AutoAdminLogon and
     # DefaultPassword - so leaving it turns permanent auto-login into
