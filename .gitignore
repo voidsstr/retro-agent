@@ -30,5 +30,8 @@ voodoo-cleanroom/vcr-disp-h5/src/
 .claude/skills/game-servers
 
 # gamebots: third-party engine source clones and build output (never committed)
+# -- covers scripts/gamebots/adapters/goldsrc/build/ (ValveSoftware/halflife +
+# alliedmodders/metamod-hl1, cloned by its Makefile's `deps` target) and any
+# sibling engine adapter's build/out dir.
 scripts/gamebots/adapters/*/build/
 scripts/gamebots/adapters/*/out/
