@@ -26,7 +26,7 @@ index ffc0047..11c85e3 100644
  
     if (fxMesa->type >= GR_SSTTYPE_Voodoo4) {
 diff --git a/src/mesa/drivers/glide/fxwgl.c b/src/mesa/drivers/glide/fxwgl.c
-index 6ad6fc9..3b64ecd 100644
+index 6ad6fc9..8f21e12 100644
 --- a/src/mesa/drivers/glide/fxwgl.c
 +++ b/src/mesa/drivers/glide/fxwgl.c
 @@ -660,10 +660,46 @@ wglGetExtensionsStringARB (HDC hdc)
@@ -76,6 +76,41 @@ index 6ad6fc9..3b64ecd 100644
         {"wglGetExtensionsStringARB",    (PROC)wglGetExtensionsStringARB},
         {"wglGetExtensionsStringEXT",    (PROC)wglGetExtensionsStringEXT},
         {"wglSwapIntervalEXT",           (PROC)wglSwapIntervalEXT},
+@@ -693,18 +729,29 @@ wglGetProcAddress(LPCSTR lpszProc)
+    int i;
+    PROC p;
+    rgl_first_entry("wglGetProcAddress");
+-   p = (PROC) _glapi_get_proc_address((const char *) lpszProc);
+-
+-   /* we can't BlendColor. work around buggy applications */
+-   if (p && strcmp(lpszProc, "glBlendColor") && strcmp(lpszProc, "glBlendColorEXT"))
+-      return p;
+ 
++   /* [retro3dfx] OUR table MUST be consulted BEFORE Mesa's glapi.
++    *
++    * _glapi_get_proc_address() SYNTHESIZES a dispatch stub for any unrecognised
++    * "gl*" name rather than failing, so it answers for e.g. glSelectTextureSGIS
++    * with a stub that is not wired to anything -- and the loop below, which
++    * holds the real implementation, was never reached. Quake II then called the
++    * synthesized stub the moment multitexture engaged. Found on .171
++    * (Voodoo 2) 2026-08-29: the demo1 timedemo stopped completing at all.
++    * Names we implement ourselves win; everything else still falls through to
++    * glapi exactly as before. */
+    for (i = 0; wgl_ext[i].name; i++) {
+        if (!strcmp(lpszProc, wgl_ext[i].name)) {
+           return wgl_ext[i].func;
+        }
+    }
+ 
++   p = (PROC) _glapi_get_proc_address((const char *) lpszProc);
++
++   /* we can't BlendColor. work around buggy applications */
++   if (p && strcmp(lpszProc, "glBlendColor") && strcmp(lpszProc, "glBlendColorEXT"))
++      return p;
++
+    SetLastError(0);
+    return (NULL);
+ }
 diff --git a/src/mesa/main/extensions.c b/src/mesa/main/extensions.c
 index efdee0c..f943fc5 100644
 --- a/src/mesa/main/extensions.c

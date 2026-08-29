@@ -6,6 +6,34 @@ self-document. One functional change per version. Every benchmark row in the
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.42 — wglGetProcAddress consulted Mesa before us (2026-08-29)
+
+`wglGetProcAddress` called `_glapi_get_proc_address()` **before** searching our
+own `wgl_ext[]` table. Mesa's glapi does not fail on an unknown `gl*` name — it
+**synthesizes a dispatch stub** — so it answered for `glSelectTextureSGIS` with
+a stub wired to nothing, and the real implementation below it was never
+reached. Quake II called that stub the instant multitexture engaged and the
+demo1 timedemo stopped completing at all (>180s). Our table is now searched
+first; everything we do not implement still falls through to glapi unchanged.
+
+This is a correctness fix independent of SGIS: **any** entry point we add to
+`wgl_ext[]` was previously unreachable if its name began with `gl`.
+
+With the shim actually reachable, single-pass multitexture now runs to
+completion — and is **slower**, which is a real result rather than a hang:
+
+| config | fps |
+|---|---|
+| SGIS off (two-pass, shipped default) | **51.0** |
+| SGIS on (single-pass) | **30.9** |
+| stock 3dfx MiniGL | 90.7 (re-verified, was 91.1) |
+
+So the missing extension was never the whole story. The suspected cause is
+texture-bank placement on the split-TMU Voodoo 2: with multitexture engaged the
+base-texture pool is confined to one 4MB bank, and Q2's working set then
+thrashes. That is the next thing to fix; SGIS stays behind
+`FX_SGIS_MULTITEXTURE` until it is a win.
+
 ## 0.1.41 — Voodoo 2 (cvg) lane: the stack runs on a Voodoo 2 (2026-08-29)
 
 First execution of the clean-room stack on **Voodoo 2** silicon (.171, Pentium 4

@@ -96,3 +96,39 @@ def test_voodoo2_tuned_for_the_pentium4_that_runs_it():
     flags = m.group(1)
     assert "-mtune=pentium4" in flags
     assert "-march=pentium3" in flags, "must not require SSE2 — .124 is a PIII"
+
+
+def test_our_proc_table_is_searched_before_mesa_glapi():
+    """Mesa's glapi SYNTHESIZES a stub for any unknown gl* name.
+
+    So if _glapi_get_proc_address() is consulted first, every entry point we add
+    to wgl_ext[] whose name starts with "gl" is unreachable — glapi answers with
+    a stub wired to nothing. Quake II called exactly that for
+    glSelectTextureSGIS and the timedemo stopped completing (2026-08-29).
+
+    Reconstruct the POST-patch text of the hunk (context + added lines, removed
+    lines dropped) and assert the table search precedes the glapi call.
+    """
+    lines = open(PATCH).read().splitlines()
+    after, in_hunk = [], False
+    for ln in lines:
+        if ln.startswith("@@"):
+            in_hunk = True
+            continue
+        if not in_hunk:
+            continue
+        if ln.startswith("diff --git"):
+            in_hunk = False
+            continue
+        if ln.startswith("-"):
+            continue                      # removed: not in the result
+        if ln.startswith("+") or ln.startswith(" "):
+            after.append(ln[1:])
+    body = "\n".join(after)
+    i_tbl = body.find("wgl_ext[i].name")
+    i_api = body.find("_glapi_get_proc_address((const char *)")
+    assert i_tbl != -1, "wgl_ext[] search not present in the patched result"
+    assert i_api != -1, "the glapi call should still be there as a fallback"
+    assert i_tbl < i_api, (
+        "wgl_ext[] must be searched BEFORE _glapi_get_proc_address(), or our "
+        "gl*-named entry points are shadowed by synthesized stubs")
