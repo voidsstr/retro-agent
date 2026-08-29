@@ -1,0 +1,43 @@
+--- ai_main.c	2026-08-29 13:44:55.700482770 -0400
++++ ai_main.c	2026-08-29 13:44:42.913277308 -0400
+@@ -52,6 +52,7 @@
+ 
+ //
+ #include "chars.h"
++#include "gb_adapter.h"		// gamebots: neural bot policy hooks
+ #include "inv.h"
+ #include "syn.h"
+ 
+@@ -1570,6 +1571,10 @@
+ 	}
+ 
+ 
++	// gamebots: pack every bot's observation and ask the policy server once
++	// for the whole frame. Does nothing unless gb_enable is set.
++	GB_FrameBegin(time);
++
+ 	// execute bot user commands every frame
+ 	for( i = 0; i < MAX_CLIENTS; i++ ) {
+ 		if( !botstates[i] || !botstates[i]->inuse ) {
+@@ -1580,6 +1585,13 @@
+ 		}
+ 
+ 		BotUpdateInput(botstates[i], time, elapsed_time);
++		// gamebots: overwrite botlib's usercmd IF the policy answered for this
++		// bot. It runs after BotUpdateInput on purpose -- botlib still
++		// produces a complete command, so "no answer" degrades to the stock
++		// bot rather than to a bot standing still.
++		GB_ApplyAction(i, botstates[i]->viewangles,
++					   botstates[i]->cur_ps.delta_angles,
++					   &botstates[i]->lastucmd);
+ 		trap_BotUserCommand(botstates[i]->client, &botstates[i]->lastucmd);
+ 	}
+ 
+@@ -1661,6 +1673,7 @@
+ ==============
+ */
+ int BotAISetup( int restart ) {
++	GB_Init();		// gamebots
+ 	int			errnum;
+ 
+ 	trap_Cvar_Register(&bot_thinktime, "bot_thinktime", "100", CVAR_CHEAT);

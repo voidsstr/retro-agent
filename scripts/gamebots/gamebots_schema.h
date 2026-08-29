@@ -43,6 +43,23 @@
 #define GB_MAX_PITCH_DELTA_DEG 25.0f
 #define GB_MAX_YAW_DELTA_DEG   40.0f
 
+/* --- entity slots ---
+ * Every slot has the same shape, so an adapter walks them as
+ *     base = GB_OBS_E0_PRESENT + i * GB_ENT_SLOT_STRIDE;
+ *     obs[base + GB_ENT_DIST] = ...;
+ * These are RELATIVE to a slot's start and are derived from the field
+ * table, never hand-counted -- writing `base + 7` is how the Python
+ * side once read `visible` out of the middle of rel_vel.
+ */
+#define GB_ENT_SLOT_STRIDE             10
+#define GB_ENT_PRESENT                  0
+#define GB_ENT_TEAMMATE                 1
+#define GB_ENT_DIR                      2
+#define GB_ENT_DIST                     5
+#define GB_ENT_RELVEL                   6
+#define GB_ENT_HEALTH                   8
+#define GB_ENT_VISIBLE                  9
+
 /* --- observation field offsets --- */
 /* self */
 #define GB_OBS_HEALTH_FRAC              0  /* x1: health / max health, 0..1 */

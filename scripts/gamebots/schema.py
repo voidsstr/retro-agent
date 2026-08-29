@@ -419,6 +419,13 @@ def clamp_actions_inplace(pitch, yaw, fwd, side):
 # C header generation
 # --------------------------------------------------------------------------
 
+def _OFF_OF(name):
+    for _g, fname, off, _count, _doc in FIELD_TABLE:
+        if fname == name:
+            return off
+    raise KeyError(name)
+
+
 def emit_header():
     L = []
     a = L.append
@@ -460,6 +467,24 @@ def emit_header():
     a("/* --- action bounds (enforce on the server, never trust the policy) --- */")
     a(f"#define GB_MAX_PITCH_DELTA_DEG {MAX_PITCH_DELTA_DEG}f")
     a(f"#define GB_MAX_YAW_DELTA_DEG   {MAX_YAW_DELTA_DEG}f")
+    a("")
+    a("/* --- entity slots ---")
+    a(" * Every slot has the same shape, so an adapter walks them as")
+    a(" *     base = GB_OBS_E0_PRESENT + i * GB_ENT_SLOT_STRIDE;")
+    a(" *     obs[base + GB_ENT_DIST] = ...;")
+    a(" * These are RELATIVE to a slot's start and are derived from the field")
+    a(" * table, never hand-counted -- writing `base + 7` is how the Python")
+    a(" * side once read `visible` out of the middle of rel_vel.")
+    a(" */")
+    ent0 = _OFF_OF("e0_present")
+    a(f"#define {'GB_ENT_SLOT_STRIDE':<28} "
+      f"{(_OFF_OF('e1_present') - ent0) if MAX_ENTITIES > 1 else 0:>4}")
+    for sub in ("present", "is_teammate", "dir", "dist_norm", "rel_vel",
+                "health_frac", "visible"):
+        macro = "GB_ENT_" + {"is_teammate": "TEAMMATE", "dist_norm": "DIST",
+                             "rel_vel": "RELVEL",
+                             "health_frac": "HEALTH"}.get(sub, sub.upper())
+        a(f"#define {macro:<28} {_OFF_OF('e0_' + sub) - ent0:>4}")
     a("")
     a("/* --- observation field offsets --- */")
     group = None

@@ -28,3 +28,7 @@ voodoo-cleanroom/vcr-disp-h5/src/
 # Local-only symlink to the private repo's game-servers skill (server creds
 # live there; the chat brain discovers skills from this repo's .claude/skills)
 .claude/skills/game-servers
+
+# gamebots: third-party engine source clones and build output (never committed)
+scripts/gamebots/adapters/*/build/
+scripts/gamebots/adapters/*/out/
