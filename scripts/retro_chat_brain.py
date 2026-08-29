@@ -253,6 +253,40 @@ with you from a retro PC (Win98 / Win2K / WinXP) through a text relay, so:
 """
 
 
+def publish_json(path, payload):
+    """Write one queue file so the daemon can never read it half-finished.
+
+    This is not defensive tidiness, it is the fix for answers vanishing. The
+    daemon watches the outbox with **inotify** and parses on the create event,
+    then `json.loads` whatever is on disk -- and on a JSONDecodeError it
+    DELETES the file. `Path.write_text()` creates the file at its final name
+    and then fills it, so the daemon was routinely woken by a zero-byte or
+    partial file, failed to parse it, and destroyed the reply. The user typed
+    a message, the brain answered, and nothing ever came back.
+
+    Writing to a sibling temp name and `os.replace`-ing it means the final
+    name only ever appears complete -- rename is atomic within a filesystem.
+    The temp suffix goes AFTER `.json` so it cannot match the daemon's
+    `glob('*.json')` while it is being written.
+
+    Same convention as scripts/ai_status_bus.py and the dashboard collector.
+    """
+    path = Path(path)
+    tmp = path.with_name(f"{path.name}.tmp{os.getpid()}")
+    try:
+        with open(tmp, "w") as fh:
+            json.dump(payload, fh)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, path)
+    except Exception:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        raise
+
+
 def setup():
     for d in (ROOT, INBOX, OUTBOX, STATUS_OUTBOX):
         d.mkdir(parents=True, exist_ok=True)
@@ -383,7 +417,7 @@ def write_status(host, text):
     """
     try:
         p = STATUS_OUTBOX / f"{host}-{int(time.time()*1000)}.json"
-        p.write_text(json.dumps({"host": host, "text": ascii_clean(text)}))
+        publish_json(p, {"host": host, "text": ascii_clean(text)})
     except Exception:  # noqa: BLE001
         pass
 
@@ -488,8 +522,8 @@ async def run_prompt(host, seq, prompt, sessions, accounts):
             return
         idx["n"] += 1
         p = OUTBOX / f"{host}-{seq}-{idx['n']:06d}.json"
-        p.write_text(json.dumps(
-            {"host": host, "seq": seq, "chunks": [ascii_clean(text)], "stream": True}))
+        publish_json(p, {"host": host, "seq": seq,
+                         "chunks": [ascii_clean(text)], "stream": True})
 
     def feed(delta, st):
         buf["s"] += delta
