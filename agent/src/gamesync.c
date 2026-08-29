@@ -74,6 +74,14 @@ typedef struct {
     int     done_titles;
     int     skipped_titles;
     int     failed_files;
+    /* The FULL PATH of the first file that failed to copy. `file` above is
+     * merely whatever the walker was last on, which after a failure keeps
+     * advancing - so reading `current_file` to find out what broke points at an
+     * unrelated file in an unrelated title. That really happened: a failure in
+     * CounterStrike16 was reported as UT2004's ONSNewTank-A.ukx, and the only
+     * place the true name appeared was the agent log. Keep the FIRST failure,
+     * not the last: the first is the one that started the trouble. */
+    char    failed_file[260];
     DWORD   started;
     double  mbps;
     char    message[256];
@@ -93,6 +101,38 @@ static DWORD   g_last_log;
 /* ---------------------------------------------------------------------- */
 /* small helpers                                                           */
 /* ---------------------------------------------------------------------- */
+
+/* Escape a string for embedding in the hand-built status JSON below.
+ *
+ * That JSON is assembled with a raw _snprintf, and every other field it emits
+ * is a bare FILENAME (fd.cFileName) or a fixed word, so nothing ever needed
+ * escaping. `failed_file` is the first field carrying a FULL PATH - and a
+ * Windows path is full of backslashes, which are the JSON escape character.
+ * Emitted raw, "C:\Games\..." contains \G and \., neither a valid escape, so
+ * the host's json.loads() raises and the whole status response is lost - a
+ * strictly worse outcome than the missing field it was added to provide.
+ *
+ * Quotes are escaped too, and control characters dropped, since a filename may
+ * legally contain neither but a corrupted directory entry might. */
+static void gs_json_escape(const char *in, char *out, size_t cap)
+{
+    size_t o = 0;
+
+    if (!cap) return;
+    for (; in && *in && o + 2 < cap; in++) {
+        unsigned char c = (unsigned char)*in;
+        if (c == '\\' || c == '"') {
+            out[o++] = '\\';
+            out[o++] = (char)c;
+        } else if (c >= 0x20) {
+            out[o++] = (char)c;
+        }
+        /* control characters are dropped rather than escaped: they cannot
+         * appear in a real path and \uXXXX would need four more bytes */
+    }
+    out[o] = '\0';
+}
+
 
 static void gs_set_msg(const char *fmt, ...)
 {
@@ -321,6 +361,28 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
         log_msg(LOG_GS, "open failed (%lu): %s", GetLastError(), src);
         return 0;
     }
+    /* Clear HIDDEN/READONLY/SYSTEM before opening the destination.
+     *
+     * CREATE_ALWAYS fails with ERROR_ACCESS_DENIED (5) when the file already
+     * exists and carries FILE_ATTRIBUTE_HIDDEN or _READONLY and the call does
+     * not pass the same attribute back. Several staged trees legitimately ship
+     * hidden files (CounterStrike16 alone has BCShield.asi, BCShield.dll,
+     * rev.ini, cstrike\liblist.gam and restart_debug.bat), so this was not an
+     * edge case - it made `failed_files == 0` UNSATISFIABLE on every box in the
+     * fleet, and because gs_write_marker() is skipped when failed_files != 0,
+     * gamesync.done went stale everywhere too.
+     *
+     * It hid for so long because the early-out above returns success for any
+     * file already at the right size: only a hidden file whose size DIFFERS
+     * from the library's copy ever reaches this call. So it surfaced exactly
+     * once a staged hidden file was edited - and then it was permanent, because
+     * the box could never accept the new version.
+     *
+     * SetFileAttributesA is cheap, and failing is fine: if the file does not
+     * exist there is nothing to clear, and CreateFileA reports the real error.
+     * The destination is ours to own - the library's copy defines the tree. */
+    SetFileAttributesA(dst, FILE_ATTRIBUTE_NORMAL);
+
     hd = CreateFileA(dst, GENERIC_WRITE, 0, NULL,
                      CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hd == INVALID_HANDLE_VALUE) {
@@ -395,6 +457,8 @@ static int gs_copy_tree(const char *src, const char *dst)
             sz = ((__int64)fd.nFileSizeHigh << 32) | fd.nFileSizeLow;
             if (!gs_copy_file(s, d, sz)) {
                 EnterCriticalSection(&g_gs_lock);
+                if (g_gs.failed_files == 0)
+                    lstrcpynA(g_gs.failed_file, d, sizeof(g_gs.failed_file));
                 g_gs.failed_files++;
                 LeaveCriticalSection(&g_gs_lock);
                 ok = 0;
@@ -2182,6 +2246,8 @@ void handle_gamesync(SOCKET sock, const char *args)
 {
     const char *a = str_skip_spaces(args ? args : "");
     char   json[1024];
+    /* twice the source plus the terminator: every byte can double */
+    char    esc_failed[sizeof(((gs_state_t *)0)->failed_file) * 2 + 1];
     gs_state_t s;
     const char *names[] = { "idle", "sizing", "copying", "done", "failed", "skipped" };
     int    pct, elapsed;
@@ -2221,17 +2287,20 @@ void handle_gamesync(SOCKET sock, const char *args)
     pct = s.total_bytes > 0 ? (int)((s.done_bytes * 100) / s.total_bytes) : 0;
     elapsed = s.started ? (int)((GetTickCount() - s.started) / 1000) : 0;
 
+    gs_json_escape(s.failed_file, esc_failed, sizeof(esc_failed));
+
     _snprintf(json, sizeof(json) - 1,
         "{\"state\":\"%s\",\"percent\":%d,"
         "\"titles_done\":%d,\"titles_total\":%d,\"titles_skipped\":%d,"
         "\"mb_done\":%I64d,\"mb_total\":%I64d,\"mbps\":%.2f,"
         "\"current_title\":\"%s\",\"current_file\":\"%s\","
-        "\"failed_files\":%d,\"elapsed_s\":%d,\"provisioned\":%s,"
+        "\"failed_files\":%d,\"failed_file\":\"%s\","
+        "\"elapsed_s\":%d,\"provisioned\":%s,"
         "\"new_image\":%s,\"message\":\"%s\"}",
         names[(s.state >= 0 && s.state <= GS_SKIPPED) ? s.state : 0],
         pct, s.done_titles, s.total_titles, s.skipped_titles,
         s.done_bytes / 1048576, s.total_bytes / 1048576, s.mbps,
-        s.title, s.file, s.failed_files, elapsed,
+        s.title, s.file, s.failed_files, esc_failed, elapsed,
         gs_file_exists(GS_MARKER) ? "true" : "false",
         gs_file_exists(GS_NEWIMAGE_FLAG) ? "true" : "false",
         s.message);
