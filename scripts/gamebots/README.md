@@ -297,7 +297,8 @@ observation extraction and action application and nothing else.**
 | GoldSrc | CS 1.6 ×2, The Specialists | Metamod plugin (`FL_FAKECLIENT`, `pfnRunPlayerMove`) — proven by RealBot/Sandbot; **`cs16-noblood` already runs Metamod+AMXX**, vanilla `cs16-server` does not and needs it installed | after Q3 |
 | Quake 2 | 1 | game `.so`; NOT "same shape as Q3" as this table used to say -- see `adapters/quake2/README.md` | **done, tested on a live isolated server** — no built-in bot AI (adapter spawns fake clients itself); needed a second, ENGINE-side patch (`sv_fakeclient_safety.patch`) because a fake client left at `cs_free` overflows a reliable-message buffer and crashes the stock server the first time it picks up an item or dies |
 | QuakeWorld | 1 | mvdsv/KTX — needs investigation | later |
-| UT99 / UT2004 | 1 each | UnrealScript bots, **no native plugin ABI** | deferred |
+| UT99 | 1 | UnrealScript mutator (`adapters/ut99/`) — no native plugin ABI, but the bot AI is itself UnrealScript. Compiles clean, spawns bots, fallback verified live; **TcpLink client connections do not work on this OldUnreal 469e Linux build** (see `adapters/ut99/README.md`'s honest verdict) so the driven side is unverified | **built, blocked on engine networking** |
+| UT2004 | 1 | same UnrealScript-mutator approach as UT99 should apply; not attempted | deferred |
 | Tribes 2 | 1 (docker) | closed Torque binary, TribesNext encrypts even the info reply | **not viable** |
 
 Six of the ten servers are reachable with the two adapters after this one, which
