@@ -147,3 +147,34 @@ def test_point_parameters_is_withdrawn_by_default():
         "point_parameters must be OPT-IN (FX_POINT_PARAMS), not on by default")
     assert 'getenv("FX_NO_POINT_PARAMS")' not in p, (
         "the old opt-out form means it is still advertised by default")
+
+
+def test_icd_links_static_libgcc():
+    """Any libgcc helper (a 64-bit divide is enough) adds an import on
+    libgcc_s_dw2-1.dll, which is NOT on the retro boxes. The ICD then fails
+    LoadLibrary and the game says only 'could not load <driver>' — no hint that
+    a DLL is missing. Cost an hour on .171 (2026-08-29) after adding profiling
+    counters that divided a 64-bit cycle count.
+    """
+    p = open(PATCH).read()
+    assert "-static-libgcc" in p, "the ICD link must use -static-libgcc"
+
+
+def test_march_and_mtune_are_separable():
+    """They were welded to one variable, so the ICD could not be scheduled for
+    the CPU that runs it without also raising the instruction-set floor (which
+    would fault on .124's Pentium III).
+    """
+    p = open(PATCH).read()
+    assert "TUNE ?= $(CPU)" in p
+    assert "-march=$(CPU) -mtune=$(TUNE)" in p
+
+
+def test_grtexcombine_is_shadowed():
+    """grTexCombine was the one texture-state call the 0.1.5 Glide shadow
+    missed; on a 2-TMU part it is issued twice per bind and each call runs
+    Glide's full _grRebuildDataList.
+    """
+    p = open(PATCH).read()
+    assert "fx_sh_grTexCombine" in p
+    assert "sh_tcomb" in p

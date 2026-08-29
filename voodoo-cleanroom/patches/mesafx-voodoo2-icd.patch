@@ -1,3 +1,79 @@
+diff --git a/Makefile.mgw b/Makefile.mgw
+index aca4625..1723e97 100644
+--- a/Makefile.mgw
++++ b/Makefile.mgw
+@@ -71,7 +71,13 @@ endif
+ # though the target has SSE1. -mfpmath=sse moves float math to scalar SSE
+ # (doubles stay x87 - SSE1 has no doubles, fine on P3). -DNDEBUG drops assert()s
+ # from the per-vertex paths. Requires CPU >= pentium3 for SSE codegen.
+-CFLAGS += -O2 -ffast-math -march=$(CPU) -mtune=$(CPU) -mfpmath=sse -DNDEBUG
++# [retro3dfx] -march and -mtune were welded to one variable, so the ICD could
++# never be scheduled for the CPU that actually runs it without also raising the
++# instruction-set floor. TUNE defaults to CPU (old behaviour) and can be raised
++# on its own: .171 is a Pentium 4 but the artifact must still run on .124's
++# Pentium III, so -march stays pentium3 while -mtune becomes pentium4.
++TUNE ?= $(CPU)
++CFLAGS += -O2 -ffast-math -march=$(CPU) -mtune=$(TUNE) -mfpmath=sse -DNDEBUG
+ 
+ export CFLAGS
+ 
+diff --git a/src/mesa/Makefile.mgw b/src/mesa/Makefile.mgw
+index a6c0ab5..d736e73 100644
+--- a/src/mesa/Makefile.mgw
++++ b/src/mesa/Makefile.mgw
+@@ -89,7 +89,11 @@ else
+ endif
+ 
+ LD = $(CC)
+-LDFLAGS = -shared -Wl,--no-undefined -Wl,--enable-auto-image-base -Wl,--kill-at -Wl,-enable-stdcall-fixup
++# [retro3dfx] -static-libgcc: without it any use of a libgcc helper (64-bit
++# divide, etc.) silently adds an import on libgcc_s_dw2-1.dll, which is NOT
++# present on the retro boxes -- the ICD then fails LoadLibrary and the game
++# reports only "could not load <driver>". Cost an hour on .171 2026-08-29.
++LDFLAGS = -shared -static-libgcc -Wl,--no-undefined -Wl,--enable-auto-image-base -Wl,--kill-at -Wl,-enable-stdcall-fixup
+ AR = ar
+ ARFLAGS = rus
+ 
+diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
+index 350f075..4a68356 100644
+--- a/src/mesa/drivers/glide/fxapi.c
++++ b/src/mesa/drivers/glide/fxapi.c
+@@ -828,7 +828,7 @@ fxMesaCreateContext(GLuint win,
+                       fxMesa->snapVertices ? "" : "no ");
+    }
+ 
+-  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.52]",
+           grGetString(GR_RENDERER),
+           grGetString(GR_HARDWARE),
+           ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
+@@ -1106,6 +1106,26 @@ fxMesaMakeCurrent(fxMesaContext fxMesa)
+ void GLAPIENTRY
+ fxMesaSwapBuffers(void)
+ {
++   /* [retro3dfx] FX_PROFILE=1: per-frame cost report, every 100 frames. */
++   {
++      extern unsigned long fxp_setup_calls, fxp_dbl_calls, fxp_single_calls;
++      extern unsigned long fxp_texcomb_issued, fxp_texcomb_skipped, fxp_texsource_issued;
++      extern unsigned long long fxp_setup_cycles;
++      extern int fxp_enabled;
++      static unsigned long frames = 0;
++      if (fxp_enabled < 0) fxp_enabled = getenv("FX_PROFILE") ? 1 : 0;
++      if (fxp_enabled > 0 && ++frames % 100 == 0) {
++         rgl_log("PROF f=%lu setup/f=%lu dbl/f=%lu single/f=%lu "
++                 "texcomb_iss/f=%lu texcomb_skip/f=%lu Mcyc_setup/f=%lu",
++                 frames, fxp_setup_calls/100, fxp_dbl_calls/100,
++                 fxp_single_calls/100, fxp_texcomb_issued/100,
++                 fxp_texcomb_skipped/100,
++                 (unsigned long)(fxp_setup_cycles/100/1000000));
++         fxp_setup_calls = fxp_dbl_calls = fxp_single_calls = 0;
++         fxp_texcomb_issued = fxp_texcomb_skipped = fxp_texsource_issued = 0;
++         fxp_setup_cycles = 0;
++      }
++   }
+    if (TDFX_DEBUG & VERBOSE_DRIVER) {
+       fprintf(stderr, "fxMesaSwapBuffers()\n");
+    }
 diff --git a/src/mesa/drivers/glide/fxdd.c b/src/mesa/drivers/glide/fxdd.c
 index ffc0047..bccfaef 100644
 --- a/src/mesa/drivers/glide/fxdd.c
@@ -50,11 +126,156 @@ index ffc0047..bccfaef 100644
     }
  
     if (fxMesa->type >= GR_SSTTYPE_Voodoo4) {
+diff --git a/src/mesa/drivers/glide/fxsetup.c b/src/mesa/drivers/glide/fxsetup.c
+index 48a8895..66d313f 100644
+--- a/src/mesa/drivers/glide/fxsetup.c
++++ b/src/mesa/drivers/glide/fxsetup.c
+@@ -60,8 +60,33 @@ static struct {
+    struct { FxU32 mode, blend; } sh_mip[2];
+    struct { FxU32 addr, mask, sm, lg, ar, fmt; } sh_src[2];
+    struct { FxU32 f, fac, l, o, inv; } sh_acomb, sh_ccomb;
++   /* [retro3dfx 0.1.48] grTexCombine was NOT shadowed. On a 2-TMU part it
++    * is issued TWICE per texture bind and each call runs Glide's full
++    * _grRebuildDataList. Measured on .171 (Voodoo 2): enabling
++    * multitexture cut per-pixel fill by 65% but added ~22ms of fixed
++    * per-frame CPU, which is where it went. */
++   struct { FxU32 rf, rfac, af, afac, rinv, ainv; } sh_tcomb[2];
+ } fxShadow;
+ 
++/* [retro3dfx] FX_PROFILE=1 per-frame instrumentation.
++ * Enabling multitexture on the Voodoo 2 cut per-pixel fill 65% but added ~22ms
++ * of FIXED per-frame CPU. Four guesses (texture thrashing, the
++ * ClientActiveTexture array flush, per-vertex texcoord submission, redundant
++ * grTexCombine) were each measured and refuted, so: count and time it instead. */
++unsigned long fxp_setup_calls, fxp_dbl_calls, fxp_single_calls;
++unsigned long fxp_texcomb_issued, fxp_texcomb_skipped;
++unsigned long fxp_texsource_issued;
++unsigned long long fxp_setup_cycles;
++int fxp_enabled = -1;
++
++static __inline unsigned long long fxp_rdtsc(void)
++{
++   unsigned long lo, hi;
++   __asm__ __volatile__("rdtsc" : "=a"(lo), "=d"(hi));
++   return ((unsigned long long)hi << 32) | lo;
++}
++
++
+ void fxSetupShadowReset(void)
+ {
+    /* 0xff fill = impossible register values, so first use always issues */
+@@ -98,6 +123,27 @@ static void fx_sh_grTexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode,
+    grTexMipMapMode(tmu, mode, blend);
+ }
+ 
++static void fx_sh_grTexCombine(GrChipID_t tmu,
++                               GrCombineFunction_t rf, GrCombineFactor_t rfac,
++                               GrCombineFunction_t af, GrCombineFactor_t afac,
++                               FxBool rinv, FxBool ainv)
++{
++   if (tmu < 2 && fxShadow.sh_tcomb[tmu].rf   == (FxU32)rf
++               && fxShadow.sh_tcomb[tmu].rfac == (FxU32)rfac
++               && fxShadow.sh_tcomb[tmu].af   == (FxU32)af
++               && fxShadow.sh_tcomb[tmu].afac == (FxU32)afac
++               && fxShadow.sh_tcomb[tmu].rinv == (FxU32)rinv
++               && fxShadow.sh_tcomb[tmu].ainv == (FxU32)ainv)
++   { fxp_texcomb_skipped++; return; }
++   if (tmu < 2) {
++      fxShadow.sh_tcomb[tmu].rf   = rf;   fxShadow.sh_tcomb[tmu].rfac = rfac;
++      fxShadow.sh_tcomb[tmu].af   = af;   fxShadow.sh_tcomb[tmu].afac = afac;
++      fxShadow.sh_tcomb[tmu].rinv = rinv; fxShadow.sh_tcomb[tmu].ainv = ainv;
++   }
++   fxp_texcomb_issued++;
++   grTexCombine(tmu, rf, rfac, af, afac, rinv, ainv);
++}
++
+ static void fx_sh_grTexSource(GrChipID_t tmu, FxU32 startAddress,
+                               FxU32 evenOdd, GrTexInfo *info)
+ {
+@@ -626,7 +672,7 @@ fxSelectSingleTMUSrc_NoLock(fxMesaContext fxMesa, GLint tmu, FxBool LODblend)
+       }
+    }
+ 
+-   grTexCombine(GR_TMU0,
++   fx_sh_grTexCombine(GR_TMU0,
+                 tex0.FunctionRGB,
+                 tex0.FactorRGB,
+                 tex0.FunctionAlpha,
+@@ -634,7 +680,7 @@ fxSelectSingleTMUSrc_NoLock(fxMesaContext fxMesa, GLint tmu, FxBool LODblend)
+                 tex0.InvertRGB,
+                 tex0.InvertAlpha);
+    if (fxMesa->haveTwoTMUs) {
+-      grTexCombine(GR_TMU1,
++      fx_sh_grTexCombine(GR_TMU1,
+                    tex1.FunctionRGB,
+                    tex1.FactorRGB,
+                    tex1.FunctionAlpha,
+@@ -647,6 +693,7 @@ fxSelectSingleTMUSrc_NoLock(fxMesaContext fxMesa, GLint tmu, FxBool LODblend)
+ static void
+ fxSetupTextureSingleTMU_NoLock(GLcontext * ctx, GLuint textureset)
+ {
++   fxp_single_calls++;
+    fxMesaContext fxMesa = FX_CONTEXT(ctx);
+    struct tdfx_combine alphaComb, colorComb;
+    GrCombineLocal_t localc, locala;
+@@ -1024,6 +1071,7 @@ fxSetupDoubleTMU_NoLock(fxMesaContext fxMesa,
+ static void
+ fxSetupTextureDoubleTMU_NoLock(GLcontext * ctx)
+ {
++   fxp_dbl_calls++;
+    fxMesaContext fxMesa = FX_CONTEXT(ctx);
+    struct tdfx_combine alphaComb, colorComb;
+    struct tdfx_texcombine tex0, tex1;
+@@ -1339,14 +1387,14 @@ fxSetupTextureDoubleTMU_NoLock(GLcontext * ctx)
+                   colorComb.Local,
+                   colorComb.Other,
+                   colorComb.Invert);
+-   grTexCombine(GR_TMU0,
++   fx_sh_grTexCombine(GR_TMU0,
+                 tex0.FunctionRGB,
+                 tex0.FactorRGB,
+                 tex0.FunctionAlpha,
+                 tex0.FactorAlpha,
+                 tex0.InvertRGB,
+                 tex0.InvertAlpha);
+-   grTexCombine(GR_TMU1,
++   fx_sh_grTexCombine(GR_TMU1,
+                 tex1.FunctionRGB,
+                 tex1.FactorRGB,
+                 tex1.FunctionAlpha,
+@@ -1447,9 +1495,14 @@ fxSetupTexture_NoLock(GLcontext * ctx)
+ void
+ fxSetupTexture(GLcontext * ctx)
+ {
++   unsigned long long fxp_t0 = fxp_enabled > 0 ? fxp_rdtsc() : 0;
+    BEGIN_BOARD_LOCK();
+    fxSetupTexture_NoLock(ctx);
+    END_BOARD_LOCK();
++   if (fxp_enabled > 0) {
++      fxp_setup_cycles += fxp_rdtsc() - fxp_t0;
++      fxp_setup_calls++;
++   }
+ }
+ 
+ /************************************************************************/
+diff --git a/src/mesa/drivers/glide/fxsetup.h b/src/mesa/drivers/glide/fxsetup.h
+index 9d337d4..c687d45 100644
+--- a/src/mesa/drivers/glide/fxsetup.h
++++ b/src/mesa/drivers/glide/fxsetup.h
+@@ -662,7 +662,7 @@ fxSelectSingleTMUSrcNapalm_NoLock(fxMesaContext fxMesa, GLint tmu, FxBool LODble
+       }
+       else {
+ #if 1
+-         grTexCombine(GR_TMU0,
++         fx_sh_grTexCombine(GR_TMU0,
+                       GR_COMBINE_FUNCTION_BLEND,
+                       GR_COMBINE_FACTOR_ONE,
+                       GR_COMBINE_FUNCTION_BLEND,
 diff --git a/src/mesa/drivers/glide/fxwgl.c b/src/mesa/drivers/glide/fxwgl.c
-index 6ad6fc9..8f21e12 100644
+index 6ad6fc9..86b509b 100644
 --- a/src/mesa/drivers/glide/fxwgl.c
 +++ b/src/mesa/drivers/glide/fxwgl.c
-@@ -660,10 +660,46 @@ wglGetExtensionsStringARB (HDC hdc)
+@@ -660,10 +660,61 @@ wglGetExtensionsStringARB (HDC hdc)
   return wglGetExtensionsStringEXT();
  }
  
@@ -77,11 +298,26 @@ index 6ad6fc9..8f21e12 100644
 +    * pointers land on unit 0 and the multitexture path degenerates. */
 +   GLenum unit = (GLenum)(GL_TEXTURE0_ARB + (target - GL_TEXTURE0_SGIS));
 +   glActiveTextureARB(unit);
-+   glClientActiveTextureARB(unit);
++   /* _mesa_ClientActiveTextureARB has NO early-out and does an unconditional
++    * FLUSH_VERTICES(_NEW_ARRAY) -- unlike _mesa_ActiveTextureARB, which returns
++    * early when the unit is unchanged. An app that selects a unit per surface
++    * therefore eats a vertex flush + full array revalidation per surface even
++    * when it draws in immediate mode and has no arrays bound.
++    * FX_SGIS_NO_CLIENTTEX=1 skips it, to attribute that cost. */
++   if (!getenv("FX_SGIS_NO_CLIENTTEX")) {
++      glClientActiveTextureARB(unit);
++   }
 +}
 +
 +static void APIENTRY fx_glMTexCoord2fSGIS(GLenum target, GLfloat s, GLfloat t)
 +{
++   /* DIAGNOSTIC ONLY: FX_SGIS_NOOP_TEXCOORD=1 drops the per-vertex second
++    * texcoord. Rendering is WRONG with it set -- it exists purely to attribute
++    * how much of the multitexture cost is per-vertex submission versus the
++    * two-unit pipeline itself. Never set it in a shipping configuration. */
++   static int noop = -1;
++   if (noop < 0) noop = getenv("FX_SGIS_NOOP_TEXCOORD") ? 1 : 0;
++   if (noop) return;
 +   glMultiTexCoord2fARB((GLenum)(GL_TEXTURE0_ARB + (target - GL_TEXTURE0_SGIS)), s, t);
 +}
 +
@@ -101,7 +337,7 @@ index 6ad6fc9..8f21e12 100644
         {"wglGetExtensionsStringARB",    (PROC)wglGetExtensionsStringARB},
         {"wglGetExtensionsStringEXT",    (PROC)wglGetExtensionsStringEXT},
         {"wglSwapIntervalEXT",           (PROC)wglSwapIntervalEXT},
-@@ -693,18 +729,29 @@ wglGetProcAddress(LPCSTR lpszProc)
+@@ -693,18 +744,29 @@ wglGetProcAddress(LPCSTR lpszProc)
     int i;
     PROC p;
     rgl_first_entry("wglGetProcAddress");
@@ -166,3 +402,18 @@ index 9da1e58..fe3b2f7 100644
     GLboolean SGIS_pixel_texture;
     GLboolean SGIS_texture_edge_clamp;
     GLboolean SGIS_texture_lod;
+diff --git a/src/mesa/tnl/t_context.c b/src/mesa/tnl/t_context.c
+index e4d0d04..f662936 100644
+--- a/src/mesa/tnl/t_context.c
++++ b/src/mesa/tnl/t_context.c
+@@ -83,6 +83,10 @@ _tnl_CreateContext( GLcontext *ctx )
+    }
+ 
+    if (getenv("MESA_CODEGEN"))
++      /* [retro3dfx] Mesa ships x86 vertex codegen OFF unless MESA_CODEGEN is
++       * set; measured on .171 (Voodoo 2, Q2 demo1) it is worth nothing either
++       * way -- 57.1 vs 57.2 fps single-textured, 30.2 vs 30.5 multitextured.
++       * Left at upstream's default; do not re-litigate without new evidence. */
+       tnl->AllowCodegen = GL_TRUE;
+ 
+    /* Initialize the VB.

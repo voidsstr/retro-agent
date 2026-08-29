@@ -6,6 +6,49 @@ self-document. One functional change per version. Every benchmark row in the
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.52 — robustness, shadowing, and five refuted optimisation theories (2026-08-29)
+
+**`-static-libgcc` on the ICD link.** Any use of a libgcc helper — a 64-bit
+divide is enough — silently adds an import on `libgcc_s_dw2-1.dll`, which is
+not present on the retro boxes. The ICD then fails `LoadLibrary` and the game
+reports only `could not load "retrogl"`, with nothing pointing at a missing
+DLL. Hit while adding profiling counters; worth having permanently.
+
+**`-march` and `-mtune` are separable** (`TUNE ?= $(CPU)`). They were welded to
+one variable, so the ICD could not be scheduled for the CPU that runs it
+without also raising the instruction-set floor and faulting on .124's Pentium
+III. Now `-march=pentium3 -mtune=pentium4`. **Measured: exactly neutral**
+(57.2 either way) — kept for the capability, not for a gain.
+
+**`grTexCombine` is shadowed.** It was the one texture-state call the 0.1.5
+Glide shadow missed, and on a 2-TMU part it is issued twice per bind. No
+regression (57.2), no measurable gain — the profiler then explained why.
+
+**`FX_PROFILE=1`** adds a per-frame counter/cycle dump to `C:\retrogl.log`.
+
+### The 22 ms multitexture cost: five theories, all refuted
+
+Enabling single-pass multitexture cuts per-pixel fill **65%** but adds ~22 ms
+of fixed per-frame CPU. Each of these was implemented or switched and measured
+on hardware, and none of them is the cause:
+
+| theory | test | result |
+|---|---|---|
+| texture thrashing in a 4MB bank | `gl_picmip 0/1/2` (16× less texture RAM) | 34.0 → 34.1 fps. No. |
+| `glClientActiveTextureARB` flush | skipped it | 32.0 → 32.9. No. |
+| per-vertex texcoord submission | dropped the 2nd texcoord | 31.9 → 32.3. No. |
+| redundant `grTexCombine` | shadowed it | profiler shows 0 issued/frame. No. |
+| Mesa x86 vertex codegen | forced on and off | 30.2 vs 30.5. No. |
+
+The profiler settles what it is *not*: **2 texture-setup calls per frame**, not
+thousands, and ~0 cycles in setup. So the cost is not per-surface state at all.
+It is flat against resolution (35.6 / 33.9 / 30.2 fps at 512×384 / 640×480 /
+800×600), so it is per-frame or per-vertex CPU, still unattributed.
+
+Worth continuing: our per-*pass* fill already beats the MiniGL
+(2.55e-5 vs ~3.26e-5 ms/px), so single-pass is the only thing between us and
+overtaking it — the model says ~127 fps if the 22 ms goes.
+
 ## 0.1.44 — stop advertising an extension we do not accelerate (2026-08-29)
 
 `GL_EXT_point_parameters` is now **withdrawn by default** (`FX_POINT_PARAMS=1`

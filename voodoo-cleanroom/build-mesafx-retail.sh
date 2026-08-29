@@ -29,7 +29,8 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 CROSS=i686-w64-mingw32-
-CPU=pentium3
+CPU=pentium3            # -march floor: must stay P3, .124 has no SSE2
+TUNE=pentium4           # -mtune: schedule for the P4 that runs the Voodoo 2 box
 WORK="$HERE/build"; OUT="$HERE/out"
 RETAIL_LIB="$HERE/../scripts/3dfx/glide-sdk/lib/libglide3x_retail.dll.a"
 
@@ -67,7 +68,7 @@ echo "== driver version: $DRVVER =="
 sed -i 's/CFLAGS = -Wall -Werror/CFLAGS = -Wall -Wno-array-bounds -Wno-stringop-overflow -fcommon/' "$GLTREE/Makefile.mgw" || true
 make -C "$GLTREE" -f Makefile.mgw clean >/dev/null 2>&1 || true
 echo "== building MesaFX (retail glide3x link) =="
-make -C "$GLTREE" -f Makefile.mgw FX=1 X86=1 CPU="$CPU" GLIDE="$GLTREE/glide3" \
+make -C "$GLTREE" -f Makefile.mgw FX=1 X86=1 CPU="$CPU" TUNE="$TUNE" GLIDE="$GLTREE/glide3" \
      CC="${CROSS}gcc" AR="${CROSS}ar rcu" RANLIB="${CROSS}ranlib" \
      DLLTOOL="${CROSS}dlltool" AS="${CROSS}gcc -c -x assembler-with-cpp" \
      RC="${CROSS}windres" >/tmp/mesa_retail.log 2>&1 \
