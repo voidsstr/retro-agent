@@ -237,14 +237,25 @@ this architecture is good at.
 
 Each phase is independently useful and independently abandonable.
 
-### Phase 0 — Harness and honest baselines *(small)*
-- `scripts/gamebots/` skeleton; observation/action schema v1 with a version hash.
-- Bench the *real* end-to-end loop, not just the socket: a no-op policy server
-  driving one Q3 bot, measuring added frame time on the game server.
-- Record a baseline: current botlib bots' skill vs a human, so later claims of
-  improvement mean something.
-- **Exit criterion:** a bot that stands still because a Python process told it
-  to, with measured frame-time impact under 1 ms.
+### Phase 0 — Harness and honest baselines — **DONE (2026-08-28)**
+Delivered in `scripts/gamebots/` — see [its README](../scripts/gamebots/README.md)
+for the full result tables.
+
+- Schema v1 with a layout hash on the wire, generating the C header adapters
+  compile against.
+- `policyd` (batching policy server, no-op + scripted policies) and `loadgen`.
+- Measured: **512 bots across 8 servers at 30 Hz costs 681 µs p99 — 6.8% of the
+  tightest frame budget we run, 1.4% of Quake III's.** The dominant cost is
+  Python `struct` serialisation at 2.8 µs/bot, against 0.013–0.067 µs/bot for
+  the `memcpy` a C adapter actually pays; the socket itself is 3.6 µs.
+- Baseline captured: **Quake III botlib bots manage 1.12 frags/min mean, 3.20
+  best** (`scripts/gamebots/baselines/q3-botlib-q3dm17.json`). That is the
+  control group Phase 2 has to beat.
+- **Exit criterion met** on the policy-server side. The remaining half — a bot
+  standing still *inside a game server* — needs the engine adapter, which is
+  Phase 1.
+
+**Phase 0 changed two things in this plan.** See §6.
 
 ### Phase 1 — One engine, end to end *(medium)*
 Start with **Quake III**: fully open source, we control `qagame`, DeepMind Lab
@@ -299,6 +310,8 @@ improving.
 | risk | severity | mitigation |
 |---|---|---|
 | **Demonstration data is too thin** | **High** — this is the real one | Bootstrap from existing bots first; self-play does the heavy lifting. Do not gate Phase 1 on human data |
+| **A stuck game server produces hours of useless "demonstrations"** | **High — observed** | Found in Phase 0: the Q3 server had sat in intermission after "Timelimit hit" for hours with every bot frozen, and a scoreboard from a broken server looks exactly like one from a working server. Fix intermission advance and add stuck-detection to `retro-gameservers-watch` **before** any overnight capture run |
+| Hand-counted offsets into the observation | Medium — **two found in Phase 0** | Derive every offset from the schema by name. A wrong offset in a *trained* policy produces no error at all, just a quietly worse model |
 | Self-play collapses to a degenerate strategy (spawn camping, one weapon) | High | Population/league play, opponent sampling, reward shaping against exploits — the FTW paper's central lesson |
 | Policy server becomes a game-server dependency | Medium | Fall back to built-in AI on any failure; never block a server frame |
 | Server-frame regression under load | Medium | Batch per tick; measured budget is 3 orders of magnitude of headroom, but measure it in Phase 0 and again in Phase 1 |

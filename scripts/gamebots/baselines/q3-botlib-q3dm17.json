@@ -1,0 +1,65 @@
+{
+  "captured_at": 1787973974.4644055,
+  "port": 27961,
+  "host": "192.168.1.132",
+  "duration_min": 2.5,
+  "samples": 15,
+  "maps": [
+    "q3dm17"
+  ],
+  "players": [
+    {
+      "name": "Doom",
+      "is_bot": true,
+      "score_start": 0,
+      "score_end": 8,
+      "score_gained": 8,
+      "frags_per_min": 3.2
+    },
+    {
+      "name": "Hossman",
+      "is_bot": true,
+      "score_start": 3,
+      "score_end": 4,
+      "score_gained": 1,
+      "frags_per_min": 0.4
+    },
+    {
+      "name": "Keel",
+      "is_bot": true,
+      "score_start": 2,
+      "score_end": 3,
+      "score_gained": 1,
+      "frags_per_min": 0.4
+    },
+    {
+      "name": "Razor",
+      "is_bot": true,
+      "score_start": 0,
+      "score_end": 4,
+      "score_gained": 4,
+      "frags_per_min": 1.6
+    },
+    {
+      "name": "UnnamedPlayer",
+      "is_bot": false,
+      "score_start": 0,
+      "score_end": 0,
+      "score_gained": 0,
+      "frags_per_min": 0.0
+    },
+    {
+      "name": "Wrack",
+      "is_bot": true,
+      "score_start": 0,
+      "score_end": 0,
+      "score_gained": 0,
+      "frags_per_min": 0.0
+    }
+  ],
+  "bot_count": 5,
+  "human_count": 1,
+  "bot_frags_per_min_mean": 1.12,
+  "bot_frags_per_min_max": 3.2,
+  "human_frags_per_min_mean": 0.0
+}
