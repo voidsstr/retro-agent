@@ -338,6 +338,56 @@ static void gs_note_progress(__int64 added)
     gs_note_progress2(added, added);
 }
 
+/* gs_same_mtime - do these two files carry the same last-write time?
+ *
+ * WHY THIS EXISTS AT ALL: gs_copy_file used to treat "destination is the same
+ * SIZE" as "destination is already correct". That premise was written down as
+ * "these are immutable release trees" - and it stopped being true the moment we
+ * started PATCHING staged games. A recompiled DLL very often lands on exactly
+ * the same file-alignment boundary as the one it replaces, so a patch is the
+ * normal case for same-size-different-content, not an edge case.
+ *
+ * It cost us a real outage: applying the official Deus Ex 1.112fm patch changed
+ * 38 files, and SEVENTEEN of them kept their exact byte size - including
+ * Core.dll (790,528) and DeusEx.exe (253,952). Every box that already had the
+ * game therefore took the new Core.u (its size changed) and KEPT the retail
+ * Core.dll (its size did not), producing a mixed-version Unreal install that
+ * died at startup with
+ *     Can't find 'intUObjectexecGetConfig' in 'Core.dll'
+ * while GAMESYNC reported state=done, 0 failed - truthfully, because it had
+ * decided those files were already current. Shogo lost 3 files the same way and
+ * Descent 3 lost 1.
+ *
+ * TOLERANCE IS 2 SECONDS ON PURPOSE. FAT32 stores write times with 2-second
+ * granularity, so a time set from an NTFS source is rounded on a FAT volume and
+ * an exact comparison would never match - which would make every sync re-copy
+ * the entire library on the Win9x boxes. This is the same "modify window" rsync
+ * uses, and for the same reason.
+ *
+ * The alternative - hashing the file - was rejected when this code was written
+ * and that judgement still holds: 6 GB over SMB1 on a Pentium III costs far
+ * more than it could ever save.
+ */
+#define GS_MTIME_SLACK_100NS  (2 * 10000000LL)   /* 2 s, in 100ns FILETIME units */
+
+static int gs_get_mtime(const char *path, FILETIME *ft)
+{
+    WIN32_FILE_ATTRIBUTE_DATA ad;
+    if (!GetFileAttributesExA(path, GetFileExInfoStandard, &ad))
+        return 0;
+    *ft = ad.ftLastWriteTime;
+    return 1;
+}
+
+static int gs_same_mtime(const FILETIME *a, const FILETIME *b)
+{
+    __int64 ta = ((__int64)a->dwHighDateTime << 32) | a->dwLowDateTime;
+    __int64 tb = ((__int64)b->dwHighDateTime << 32) | b->dwLowDateTime;
+    __int64 d  = ta - tb;
+    if (d < 0) d = -d;
+    return d <= GS_MTIME_SLACK_100NS;
+}
+
 static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
 {
     HANDLE hs, hd;
@@ -345,12 +395,22 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
     DWORD  rd, wr;
     int    ok = 1;
     __int64 already;
+    FILETIME src_ft, dst_ft;
 
-    /* Resume: an identical-sized file is treated as done. Size alone is a
-     * weak check, but these are immutable release trees - and the alternative,
-     * hashing 6 GB over SMB1 on a P3, costs more than it could ever save. */
+    /* Resume: a destination that matches in BOTH size and last-write time is
+     * treated as done. Size alone is NOT enough - see gs_same_mtime() above for
+     * the Deus Ex 1.112fm outage that proved it. The mtime is preserved by the
+     * copy below, so a file this agent wrote will match on the next pass and
+     * resume still costs nothing.
+     *
+     * The first sync after this change re-copies anything whose mtime was never
+     * set (i.e. everything an older agent copied). That is a one-off cost and it
+     * is also the remedy: it repairs every box already carrying a half-applied
+     * patch. */
     already = gs_file_size(dst);
-    if (already >= 0 && already == src_size) {
+    if (already >= 0 && already == src_size &&
+        gs_get_mtime(src, &src_ft) && gs_get_mtime(dst, &dst_ft) &&
+        gs_same_mtime(&src_ft, &dst_ft)) {
         gs_note_progress2(src_size, 0);   /* counted, but nothing crossed the wire */
         return 1;
     }
@@ -416,6 +476,16 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
         gs_note_progress((__int64)rd);
     }
     HeapFree(GetProcessHeap(), 0, buf);
+    /* Stamp the destination with the SOURCE's last-write time, while both
+     * handles are still open. Without this the skip test above could never
+     * match anything we wrote, and every sync would re-copy the whole library
+     * forever. Failure is not fatal - it only costs one redundant copy next
+     * time - so the result is deliberately not checked. */
+    if (ok) {
+        FILETIME ft;
+        if (GetFileTime(hs, NULL, NULL, &ft))
+            SetFileTime(hd, NULL, NULL, &ft);
+    }
     CloseHandle(hs);
     CloseHandle(hd);
     if (!ok)
