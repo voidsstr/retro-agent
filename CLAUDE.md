@@ -1049,6 +1049,33 @@ for pc in pcs:
   > honest answer is a physical keyboard, not more automation.
 - **WINLIST** — JSON list of visible windows
 
+> ### ⚠️ TRIAGE FIRST: IS THE MENU KEYBOARD-NAVIGABLE?
+> **A menu that moves its own cursor by RELATIVE MOUSE DELTAS cannot be driven
+> by the agent at all.** `UICLICK` sets an *absolute* pointer position, which
+> such a menu simply does not follow — on Deus Ex an absolute click at
+> `(513,508)` moved the in-game cursor to roughly `(10,230)`. `+set in_mouse 0`
+> does not change this; it is not a setting, it is how the menu reads input.
+>
+> This one question predicts the outcome before you spend an hour on it:
+>
+> | | outcome |
+> |---|---|
+> | **Keyboard-navigable menu** | works first time — Descent 1, RA2/Yuri, Quake III, UT99, CS 1.6 |
+> | **Relative-mouse menu** | **not automatable** — SoF2 (menu *and* CDKEY dialog), Descent 3, Deus Ex |
+>
+> So when a title stalls at a menu, ask whether it is keyboard-navigable. If it
+> is not, **the honest answer is that it needs a human once** — to enter a CD
+> key, capture a config, or set an option — after which the resulting file is
+> staged and every box inherits it. More clicking will not get there, and
+> saying so early is worth more than another hour of attempts.
+>
+> **Paired fact for id Tech 3 (Quake III engine and its forks):** those menus
+> **ignore synthetic keyboard input in exclusive fullscreen and accept it
+> windowed.** So for any typing step on that engine, relaunch with
+> `+set r_fullscreen 0`, type, then restore fullscreen. Measured on SoF2:
+> identical `UIKEY TEXT:` landed nothing fullscreen and filled the field
+> immediately windowed.
+
 For fast, real-time button-clicking installs (single box or many in parallel),
 use the **`gui-install` skill** (`.claude/skills/gui-install/`): `FastUI` holds one
 persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
