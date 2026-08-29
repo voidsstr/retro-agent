@@ -582,6 +582,37 @@ quotes, and **without them it silently kills nothing** — after which the
 previous game is still on screen and the next screenshot is attributed to the
 wrong title.
 
+## GAMESYNC's Two Blind Spots — a staged fix that can never arrive (REQUIRED)
+
+`gs_copy_file()` decides what to copy by **file size alone** — not content, not
+mtime, not a hash. That is a deliberate trade (hashing 30 GB over SMB1 on a
+Pentium III costs more than it saves) but it produces **two distinct ways for a
+staged fix to be silently undeployable**, both of which report
+`state: done, failed_files: 0`:
+
+| blind spot | what happens | what to do instead |
+|---|---|---|
+| **it never DELETES** | a file the library stops shipping stays on every box forever | have the title's `Play <Game>.bat` delete it, or remove it on each box by hand |
+| **it skips a SAME-SIZE file** | a staged file edited to the same byte count never reaches a box that already has the old one — **forever** | **change the file's size** when you edit it, and verify it ON THE BOX |
+
+Both have really bitten:
+- A stale `System\Running.ini` survived a full redeploy and kept raising UT's
+  "Recovery Mode" dialog, because the library had *removed* the file and
+  removal is not a thing GAMESYNC can express.
+- A corrected `Descent1\DESCENT.CFG` was **228 bytes** and the broken copy on
+  the box was **also 228 bytes**. Repeated clean syncs never corrected it, and
+  the title went on hanging at `SOUND: (HMI) 'Invalid Driver ID'`.
+- Two boxes ran hand-edited `aqrit.cfg` files (404 bytes either way) that the
+  library could never have put right.
+
+**So, concretely:**
+- **Editing a staged config?** Make the length change — a trailing comment line
+  is enough and costs nothing. A one-character fix that preserves the byte count
+  cannot reach the fleet.
+- **Verifying a small fix?** Check the file **on the box** (its size, or `type`
+  it). A passing sync is not evidence that a one-line change arrived.
+- **Need a file gone?** GAMESYNC cannot do it. Put the deletion in the launcher.
+
 ## LAN / TCP Multiplayer Is Part of a Staged Game (REQUIRED)
 
 **User directive, 2026-08-29:** games that only offer IPX out of the box must be
