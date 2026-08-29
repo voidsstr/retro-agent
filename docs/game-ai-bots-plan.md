@@ -126,7 +126,8 @@ model work, because every later phase consumes it.
 |---|---|---|---|
 | **GoldSrc** | CS 1.6 ×2, The Specialists | Metamod plugin; `pfnRunPlayerMove`, `FL_FAKECLIENT`. Proven by RealBot, Sandbot, HPB template | **Low** — and `cs16-noblood` already runs Metamod+AMXX on this host |
 | **Quake III** | Q3A, OpenArena | Custom `qagame` module; ioq3 fully open source | **Low–medium** |
-| **Quake 2 / QuakeWorld** | 1 each | Open source, same shape as Q3 | Medium |
+| **Quake 2** | 1 | **NOT the same shape as Q3** — Yamagi's baseq2 has no bot AI at all, so the adapter spawns its own fake clients *and* drives them; it also needs an **engine** patch, see below | Medium — **done** |
+| **QuakeWorld** | 1 | Open source; not investigated | Medium |
 | **UT99 / UT2004** | 1 each | UnrealScript bots, no native plugin ABI | **High — defer** |
 | **Tribes 2** | 1 (docker) | Closed Torque binary, TribesNext encrypts even its info response | **Not viable — exclude** |
 
@@ -150,6 +151,29 @@ What exists, and what we take from each:
 **A deliberate finding:** no open-source project drives CS 1.6 or Quake III bots
 from an external neural policy server. The pieces all exist; the assembly does
 not. We are building, not integrating.
+
+### Correction (2026-08-29): "same shape as Q3" was wrong for Quake 2
+
+The table above originally filed Quake 2 as "same shape as Q3, medium". It is
+not, and the difference only showed up in the engine source:
+
+- **Yamagi's `baseq2` has no bot AI whatsoever** — no botlib, no fake-client
+  support. Quake III's adapter overrides an existing bot's `usercmd_t`; there
+  is nothing to override here. The Quake 2 adapter therefore *creates* its own
+  fake clients through the same `ClientConnect()`/`ClientBegin()` path the
+  engine uses for a real connection, and builds their `usercmd_t` from scratch.
+- **It needs an ENGINE patch, not just a game module.** A fake client never
+  leaves `client_t.state == cs_free`, and two stock server functions
+  (`SV_ClientPrintf`, `PF_Unicast`) queue reliable per-player messages —
+  pickups, obituaries, respawn effects, all ordinary gameplay — with no state
+  check, which `SV_SendClientMessages()` then never drains. The server dies
+  within about twenty seconds of the first bot death. The fix is in
+  `src/server/`, so it cannot ship inside `game_ai.so`; deploying Quake 2 bots
+  means deploying a patched `q2ded` as well.
+
+The general lesson for the remaining engines: **do not assume a bot hook
+exists because the engine is open source and looks like a cousin.** Read the
+source for the specific build before estimating.
 
 ---
 
