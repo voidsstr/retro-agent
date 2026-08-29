@@ -301,7 +301,8 @@ def publish_status(state, path):
 # --------------------------------------------------------------------------
 
 class PolicyServer:
-    def __init__(self, policy, sock_path, status_path=None, stats_interval=30.0):
+    def __init__(self, policy, sock_path, status_path=None,
+                 stats_interval=30.0, planner=None):
         self.policy = policy
         self.sock_path = sock_path
         self.status_path = status_path
@@ -312,6 +313,9 @@ class PolicyServer:
         # still works — just slower.
         self._fast = bool(getattr(policy, "act_arrays", None)) and \
             getattr(schema, "HAVE_NUMPY", False)
+        self.planner = planner
+        self._intent_lo = next(f[2] for f in schema.FIELD_TABLE
+                               if f[1] == "intent")
         self.sel = selectors.DefaultSelector()
         self.conns = {}
         self._running = True
@@ -411,6 +415,23 @@ class PolicyServer:
             if not self._serve(conn, frame):
                 return
 
+    def _inject_intent(self, conn_key, ids, obs):
+        """Overwrite the intent slot with whatever the planner last decided.
+
+        Done HERE rather than in the adapter so engine adapters never learn the
+        planner exists — they send zeros and the strategic layer is transparent
+        to them. A bot with no plan keeps zeros, which FiLM treats as the
+        identity, so "no planner" means "behave exactly as trained".
+        """
+        if self.planner is None:
+            return
+        lo = self._intent_lo
+        hi = lo + schema.INTENT_DIM
+        for i, bid in enumerate(ids):
+            vec = self.planner.intent_for(conn_key, bid)
+            if vec is not None:
+                obs[i, lo:hi] = vec
+
     def _serve_fast(self, conn, frame):
         """Array path: bytes -> numpy view -> policy -> bytes.
 
@@ -424,6 +445,9 @@ class PolicyServer:
         except ValueError as exc:
             return self._reject(conn, exc)
         n = len(ids)
+        if self.planner is not None:
+            self.planner.observe(conn.fileno(), ids, obs)
+            self._inject_intent(conn.fileno(), ids, obs)
         try:
             btn, pitch, yaw, fwd, side, wpn = self.policy.act_arrays(
                 tick, flags, ids, obs, conn_key=conn.fileno())
@@ -501,6 +525,8 @@ class PolicyServer:
         snap = self.metrics.snapshot()
         if hasattr(self.policy, "stats"):
             snap.update(self.policy.stats())
+        if self.planner is not None:
+            snap.update(self.planner.stats())
         snap.update({
             "ts": time.time(),
             "policy_desc": self.policy.describe(),
@@ -552,6 +578,11 @@ def main():
     ap.add_argument("--dtype", default="fp16", choices=("fp16", "bf16", "fp32"))
     ap.add_argument("--no-graphs", action="store_true",
                     help="disable CUDA graph capture (debugging)")
+    ap.add_argument("--planner", default="none",
+                    choices=("none", "heuristic", "llm"),
+                    help="strategic layer: assigns intent at ~2Hz per server")
+    ap.add_argument("--planner-model", default=os.environ.get(
+        "GAMEBOTS_PLANNER_MODEL", "Qwen/Qwen2.5-1.5B-Instruct"))
     args = ap.parse_args()
 
     if args.policy == "gpu":
@@ -560,8 +591,17 @@ def main():
                                  use_graphs=not args.no_graphs)
     else:
         policy = POLICIES[args.policy]()
+    planner_svc = None
+    if args.planner != "none":
+        import planner as planner_mod
+        backend = (planner_mod.LlmPlanner(args.planner_model)
+                   if args.planner == "llm" else planner_mod.HeuristicPlanner())
+        planner_svc = planner_mod.PlannerService(backend).start()
+        log(f"policyd: planner={backend.name} at "
+            f"{1.0 / planner_mod.PLAN_PERIOD_SEC:.1f} Hz")
+
     server = PolicyServer(policy, args.socket, args.status_path,
-                          args.stats_interval)
+                          args.stats_interval, planner=planner_svc)
     signal.signal(signal.SIGINT, server.stop)
     signal.signal(signal.SIGTERM, server.stop)
     server.run()
