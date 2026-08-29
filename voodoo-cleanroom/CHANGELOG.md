@@ -6,6 +6,27 @@ self-document. One functional change per version. Every benchmark row in the
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.44 — stop advertising an extension we do not accelerate (2026-08-29)
+
+`GL_EXT_point_parameters` is now **withdrawn by default** (`FX_POINT_PARAMS=1`
+restores it). We advertised it; Mesa implements distance-attenuated points by
+expanding each one into geometry, so an application that takes the extension
+gets a *slower* path than its own fallback. 3dfx's MiniGL never advertised it —
+Quake II logs `...GL_EXT_point_parameters not found` against the MiniGL and
+`...using GL_EXT_point_parameters` against us, then draws its particles the
+expensive way.
+
+Measured on .171 (Q2 demo1, 640x480, vsync off, 4 runs per arm, same binary,
+zero variance in both):
+
+| | fps |
+|---|---|
+| advertised (old default) | 51.0 |
+| **withdrawn (new default)** | **57.2** |
+
+**+12.2%**, and it needs no env var to get it. Standing against the stock
+MiniGL's 90.7: we move from 56% to **63%**.
+
 ## 0.1.42 — wglGetProcAddress consulted Mesa before us (2026-08-29)
 
 `wglGetProcAddress` called `_glapi_get_proc_address()` **before** searching our

@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 VC = os.path.join(ROOT, "voodoo-cleanroom")
 BUILD = os.path.join(VC, "build-stack.sh")
-PATCH = os.path.join(VC, "patches", "mesafx-sgis-multitexture.patch")
+PATCH = os.path.join(VC, "patches", "mesafx-voodoo2-icd.patch")
 
 
 def _build():
@@ -132,3 +132,18 @@ def test_our_proc_table_is_searched_before_mesa_glapi():
     assert i_tbl < i_api, (
         "wgl_ext[] must be searched BEFORE _glapi_get_proc_address(), or our "
         "gl*-named entry points are shadowed by synthesized stubs")
+
+
+def test_point_parameters_is_withdrawn_by_default():
+    """We advertised an extension we do not accelerate.
+
+    Mesa expands distance-attenuated points into geometry, so an app that takes
+    GL_EXT_point_parameters gets a slower path than its own fallback. 3dfx's
+    MiniGL never advertised it. Measured on .171 (Q2 demo1, 640x480, vsync off,
+    4 runs each, zero variance): advertised 51.0 fps, withdrawn 57.2 = +12.2%.
+    """
+    p = open(PATCH).read()
+    assert 'getenv("FX_POINT_PARAMS")' in p, (
+        "point_parameters must be OPT-IN (FX_POINT_PARAMS), not on by default")
+    assert 'getenv("FX_NO_POINT_PARAMS")' not in p, (
+        "the old opt-out form means it is still advertised by default")
