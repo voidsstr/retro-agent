@@ -582,6 +582,36 @@ quotes, and **without them it silently kills nothing** — after which the
 previous game is still on screen and the next screenshot is attributed to the
 wrong title.
 
+## Search Windows Trees CASE-INSENSITIVELY (REQUIRED)
+
+**We are a Linux host reasoning about Windows filesystems, where filenames are
+case-insensitive. A case-sensitive `grep`/`find` will tell you a file is absent
+when it is sitting right there**, and a confident "0 hits" is far more damaging
+than no answer, because it redirects everyone to hunt for something that was
+never missing.
+
+This has cost real time more than once:
+- **Shogo** appeared to be a half-applied patch — the engine wanted `cshell.dll`
+  version 3 and resolved version 1. A case-sensitive grep for `cshell` returned
+  **zero hits in every patch archive**, which read as "the patch did not ship
+  it". LithTech names the file **`CShell.dll`**, and it was staged all along in
+  `SHOGOP3.REZ`. The real fault was simply that the command line never named
+  that archive.
+- The PXE **nicdb** lookups failed three separate times because its keys are
+  uppercase hex, and each time the conclusion was "we have no driver for this
+  NIC" — for drivers we already shipped.
+
+**So:**
+- Use `grep -i`, `find -iname`, and `_stricmp`-equivalent comparisons whenever
+  the subject is a Windows path, filename, registry key or hardware ID.
+- **A negative result about a Windows file is not reportable until it has been
+  re-run case-insensitively.** Say "not found (case-insensitive)" so the reader
+  knows which was done.
+- Prefer asking the binary what it wants over guessing: `Shogo.exe`'s own string
+  table contains the archive chain it builds (`ShogoL, ShogoT, ShogoP9 … P2, P`
+  — highest patch first, first-match-wins), which settles load order without
+  experiment.
+
 ## GAMESYNC's Two Blind Spots — a staged fix that can never arrive (REQUIRED)
 
 `gs_copy_file()` decides what to copy by **file size alone** — not content, not
