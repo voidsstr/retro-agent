@@ -45,7 +45,7 @@ var config float  TickRate;          // policy decisions/sec, NOT the server's
                                       // own tick rate -- see README for why
                                       // 10 Hz is the default
 var config string PolicyHost;        // policyd's --tcp-listen host
-var config int    PolicyPort;        // policyd's --tcp-listen port
+var config int    PolicyPort;        // policyd's --udp-listen port
 var config float  ResponseTimeout;   // seconds to wait for one exchange
 var config bool   bDebug;            // per-bot action logging
 
@@ -108,7 +108,9 @@ function StopGB()
     local int i;
     if (Link != None)
     {
-        Link.Close();
+        // UdpLink has no Close() (that's a TcpLink-only function -- a
+        // connectionless socket has nothing to close); destroying the actor
+        // releases its bound port.
         Link.Destroy();
         Link = None;
     }
@@ -183,8 +185,11 @@ function Mutate(string MutateString, PlayerPawn Sender)
     }
     else if (MutateString == "gb_status")
     {
+        // UDP is connectionless -- there is no IsConnected() to ask.
+        // "addrKnown" reflects whether PolicyHost resolved; "state" reflects
+        // whether a reply has arrived recently enough (see Tick()).
         Log("gamebots(ut99): enabled=" $ bEnabled $ " bots=" $ NumActiveBots
-            $ " connected=" $ (Link != None && Link.IsConnected())
+            $ " addrKnown=" $ (Link != None && Link.HasServerAddr())
             $ " state=" $ ReportedState);
     }
     Super.Mutate(MutateString, Sender);
@@ -199,34 +204,43 @@ event Tick(float DeltaTime)
     if (!bEnabled || Link == None)
         return;
 
-    Link.EnsureConnected();
-
     TickAccum += DeltaTime;
     if (TickAccum < (1.0 / TickRate))
         return;
     TickAccum = 0.0;
     WireTick++;
 
-    if (Link.bAwaitingResponse)
-    {
-        if (Level.TimeSeconds - Link.RequestSentTime > ResponseTimeout)
-        {
-            Log("gamebots(ut99): exchange timed out after "
-                $ ResponseTimeout $ "s, dropping connection");
-            Link.Close();
-            ReportFallback();
-        }
-        return;      // either still in flight, or just dropped -- either way
-                      // do not start a second request on top of the first
-    }
-
-    if (!Link.IsConnected())
+    if (!Link.HasServerAddr())
     {
         ReportFallback();
         return;
     }
 
+    // UDP is connectionless and fire-and-forget: send this tick's batch and
+    // move on. Whether it was answered is judged separately, below, from
+    // how long it has been since the last GOOD reply -- there is no
+    // "in flight" state to track and nothing here can block waiting for one.
     SendObservations();
+
+    if (Level.TimeSeconds - Link.LastGoodReplyTime > ResponseTimeout)
+    {
+        // Stale or never-answered: relinquish control rather than freezing
+        // every bot on its last known action forever. GBBot's Super.Tick()
+        // then drives again, same as if the mutator were never enabled.
+        ClearActions();
+        ReportFallback();
+    }
+    else
+    {
+        ReportDriving();
+    }
+}
+
+function ClearActions()
+{
+    local int i;
+    for (i = 0; i < NumActiveBots; i++)
+        ActHave[i] = 0;
 }
 
 function ReportFallback()
@@ -248,16 +262,10 @@ function ReportDriving()
 }
 
 // ------------------------------------------------------- GBLink callbacks
-
-function OnLinkOpened()
-{
-    Log("gamebots(ut99): connected to policy server");
-}
-
-function OnLinkClosed()
-{
-    ReportFallback();
-}
+//
+// UdpLink has no Opened()/Closed() -- UDP is connectionless, there is
+// nothing to open or close. "Connected" is judged in Tick() from how long
+// it has been since the last good reply (Link.LastGoodReplyTime).
 
 function OnAction(int BotId, int Buttons, float Pitch, float Yaw, float Fwd, float Side, byte Weapon)
 {
@@ -632,6 +640,18 @@ function ApplyAction(GBBot B, int Index, float DeltaTime)
         return;                       // no fresh answer -- Super.Tick()'s own
                                         // AI output stands, untouched
 
+    // Overwriting Acceleration alone is not enough: Botpack's bot AI moves
+    // via native pathfinding toward Pawn.MoveTarget (a NavigationPoint), not
+    // purely by physics integrating Acceleration the way a player-controlled
+    // Pawn does. Left set, the bot's own latent movement code keeps walking
+    // it toward that target every tick regardless of what Acceleration says
+    // -- measured live: with a no-op policy continuously sending zero
+    // actions, one bot settled to a stop but another kept moving across a
+    // full patrol cycle. Clearing MoveTarget every tick we have a fresh
+    // answer removes the native pathing target so Acceleration is what's
+    // left driving movement, which we do control.
+    B.MoveTarget = None;
+
     NewView = B.ViewRotation;
     NewView.Pitch += DegToUnits(ActPitch[Index]);
     NewView.Yaw   += DegToUnits(ActYaw[Index]);
@@ -679,7 +699,7 @@ defaultproperties
     NumBots=4
     TickRate=10.0
     PolicyHost="127.0.0.1"
-    PolicyPort=27200
+    PolicyPort=27300
     ResponseTimeout=0.5
     bDebug=False
 }

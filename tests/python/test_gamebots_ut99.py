@@ -177,18 +177,78 @@ def test_action_values_are_clamped_before_use():
     assert "FClamp(Fwd" in on_action
 
 
-# --- the wire protocol ------------------------------------------------
+# --- the wire protocol -- UdpLink, hex-text framed --------------------
+#
+# History matters here: TcpLink never connects on this build (verified with
+# `ss`), and raw binary over UdpLink sends fine but never delivers real
+# content back through ReceivedBinary (verified with a known byte pattern
+# that never appears in the received buffer). Hex-text over UdpLink is the
+# transport that actually works, end to end, live -- see the README.
 
-def test_wire_constants_match_schema():
+def test_link_extends_udplink_not_tcplink():
     link = _src("GBLink.uc")
-    assert "RECONNECT_COOLDOWN = 2.0" in link
-    # BindPort + always-tick were both real, separate bugs found live -- see
-    # the README. If either regresses, the connection silently never
-    # completes, with no compiler error to catch it.
-    assert "BindPort()" in link
-    init_fn = link[link.index("function Init"):link.index("function bool EnsureConnected")]
+    assert re.search(r"^class GBLink extends UdpLink;", link, re.M), (
+        "GBLink must extend UdpLink -- TcpLink never connects on the build "
+        "this was verified against, see the README's history section")
+
+
+def test_link_uses_text_not_binary_send_receive():
+    """SendBinary/ReceivedBinary are the pair that sends real bytes but never
+    delivers real content back (Count is right, B is garbage) -- this
+    adapter must use SendText/ReceivedText instead."""
+    link = _src("GBLink.uc")
+    assert "SendText(" in link
+    assert "event ReceivedText(" in link
+    assert "SendBinary(" not in link
+    assert "event ReceivedBinary(" not in link
+
+
+def test_link_binds_a_port_before_sending():
+    """UdpLink still needs a local port bound before it can send/receive,
+    the same real requirement TcpLink had."""
+    link = _src("GBLink.uc")
+    init_fn = link[link.index("function Init"):]
+    init_fn = init_fn[:init_fn.index("\nfunction ", 1)]
     assert "BindPort()" in init_fn
-    assert "bAlwaysTick=True" in link
+
+
+def test_hex_codec_exists_in_gbmath():
+    """The wire payload is hex-encoded ASCII text (2 chars/byte) because
+    ReceivedBinary cannot deliver real content on this build -- GBMath must
+    provide both directions of that codec."""
+    math_src = _src("GBMath.uc")
+    assert "static final function int HexChar(" in math_src
+    assert "static final function int HexValue(" in math_src
+
+
+def test_link_has_no_leftover_tcp_connection_state():
+    """UDP is connectionless -- EnsureConnected/IsConnected/Open/Opened/
+    Closed/bAwaitingResponse/reconnect-cooldown all belonged to the TCP
+    design and must not still be here implying a connection that doesn't
+    exist for this transport."""
+    link = _src("GBLink.uc")
+    for leftover in ("EnsureConnected", "bAwaitingResponse",
+                     "RECONNECT_COOLDOWN", "function bool IsConnected",
+                     "event Opened(", "event Closed("):
+        assert leftover not in link, f"GBLink still has TCP-era {leftover!r}"
+
+
+def test_mutator_judges_staleness_from_last_good_reply():
+    """No connection state to ask "are we connected" -- freshness is judged
+    from how long it has been since the last good reply, and a stale link
+    must relinquish control (clear ActHave) rather than freeze bots on their
+    last known action forever."""
+    mutator = _src("GBMutator.uc")
+    assert "LastGoodReplyTime" in mutator
+    assert "ClearActions()" in mutator
+
+
+def test_policy_port_matches_the_udp_endpoint_convention():
+    """27300 is policyd's --udp-listen convention for this adapter (27200
+    was the old, dead, TCP-endpoint default)."""
+    mutator = _src("GBMutator.uc")
+    defaults = mutator[mutator.index("defaultproperties"):]
+    assert re.search(r"PolicyPort\s*=\s*27300", defaults)
 
 
 def test_obs_entry_and_action_sizes_match_schema():

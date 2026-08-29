@@ -511,3 +511,112 @@ def test_a_bad_udp_datagram_does_not_stop_the_server(tmp_path):
         c.close()
     finally:
         server.stop()
+
+
+# ------------------------------------------- the UT99 hex-text encoding
+#
+# UT99's UdpLink genuinely sends real datagrams (confirmed byte-for-byte
+# correct on a receiving Python socket), but ReceivedBinary's B byte-array
+# parameter never carries real payload content back on the OldUnreal 469e
+# Linux build the adapter targets: Count correctly reports the true datagram
+# size every time, B is uninitialised memory regardless of size. SendText/
+# ReceivedText round-trip content correctly, so the adapter hex-encodes the
+# exact same schema bytes instead of sending them raw. This endpoint accepts
+# either encoding and replies in kind.
+
+def test_udp_accepts_hex_encoded_requests(tmp_path):
+    import socket as _s
+    server, port = _udp_server(tmp_path)
+    try:
+        obs = [0.0] * schema.OBS_DIM
+        obs[policyd._HEALTH_OFF] = 1.0
+        req = schema.pack_request(21, [(7, obs)])
+        c = _s.socket(_s.AF_INET, _s.SOCK_DGRAM)
+        c.settimeout(5)
+        c.sendto(req.hex().encode("ascii"), ("127.0.0.1", port))
+        data, _peer = c.recvfrom(65535)
+        # A hex request gets a hex reply back -- matching what it sent, not
+        # what some other client type might expect.
+        decoded = bytes.fromhex(data.decode("ascii"))
+        tick, _f, acts = schema.unpack_response(decoded)
+        assert tick == 21
+        assert acts[0][0] == 7
+        c.close()
+    finally:
+        server.stop()
+
+
+def test_udp_hex_and_raw_clients_are_independent(tmp_path):
+    """A hex client existing must not change how a raw client is served --
+    this is a strictly additive accommodation for one broken engine, not a
+    replacement for the format every other adapter already uses."""
+    import socket as _s
+    server, port = _udp_server(tmp_path)
+    try:
+        obs = [0.0] * schema.OBS_DIM
+        raw_req = schema.pack_request(1, [(1, obs)])
+        hex_req = schema.pack_request(2, [(2, obs)]).hex().encode("ascii")
+
+        c = _s.socket(_s.AF_INET, _s.SOCK_DGRAM)
+        c.settimeout(5)
+        c.sendto(raw_req, ("127.0.0.1", port))
+        raw_reply, _ = c.recvfrom(65535)
+        c.sendto(hex_req, ("127.0.0.1", port))
+        hex_reply, _ = c.recvfrom(65535)
+        c.close()
+
+        assert raw_reply[:4] == schema.RESP_MAGIC, "raw client got a hex reply"
+        tick, _f, acts = schema.unpack_response(raw_reply)
+        assert tick == 1 and acts[0][0] == 1
+
+        decoded = bytes.fromhex(hex_reply.decode("ascii"))
+        tick, _f, acts = schema.unpack_response(decoded)
+        assert tick == 2 and acts[0][0] == 2
+    finally:
+        server.stop()
+
+
+def test_udp_garbage_that_looks_like_hex_is_still_rejected(tmp_path):
+    """Valid hex digits that don't decode to the real magic must be refused
+    the same way a bad raw request is -- not treated as a valid hex payload
+    just because every character happens to be 0-9a-f."""
+    import socket as _s
+    server, port = _udp_server(tmp_path)
+    try:
+        c = _s.socket(_s.AF_INET, _s.SOCK_DGRAM)
+        c.settimeout(3)
+        c.sendto(b"deadbeef" * 4, ("127.0.0.1", port))  # valid hex, wrong magic
+
+        obs = [0.0] * schema.OBS_DIM
+        c.sendto(schema.pack_request(3, [(0, obs)]), ("127.0.0.1", port))
+        data, _peer = c.recvfrom(65535)
+        tick, _f, acts = schema.unpack_response(data)
+        assert tick == 3 and acts[0][0] == 0
+        assert server.metrics.errors >= 1
+        c.close()
+    finally:
+        server.stop()
+
+
+def test_udp_large_hex_batch_fits_one_datagram(tmp_path):
+    """16 bots (this adapter's MAX_BOTS) hex-encoded is exactly double the
+    raw byte count -- still nowhere near the 64 KB datagram limit, but worth
+    pinning the same way the raw case is."""
+    import socket as _s
+    server, port = _udp_server(tmp_path)
+    try:
+        obs = [0.0] * schema.OBS_DIM
+        req = schema.pack_request(1, [(i, obs) for i in range(16)])
+        hexreq = req.hex().encode("ascii")
+        assert len(hexreq) == len(req) * 2
+        assert len(hexreq) < 65507
+        c = _s.socket(_s.AF_INET, _s.SOCK_DGRAM)
+        c.settimeout(5)
+        c.sendto(hexreq, ("127.0.0.1", port))
+        data, _peer = c.recvfrom(65535)
+        decoded = bytes.fromhex(data.decode("ascii"))
+        _t, _f, acts = schema.unpack_response(decoded)
+        assert len(acts) == 16
+        c.close()
+    finally:
+        server.stop()

@@ -1,15 +1,15 @@
 //=============================================================================
 // GBMath -- software IEEE-754 single-precision float <-> bit-pattern
-// conversion, and little-endian byte packing, for the gamebots wire protocol.
+// conversion, and hex nibble<->char encoding, for the gamebots wire protocol.
 //
-// THE reason this class exists: UnrealScript (this OldUnreal 469e build) has
-// no operator that reinterprets a float's bit pattern as an int -- no union,
-// no pointer cast, no native "FloatAsInt" call. `gb_client.c` gets this for
-// free from a single `memcpy`; here it has to be computed. Investigated and
-// confirmed absent (not merely undiscovered): `ucc packagedump Core` lists
-// every native function Core/Engine expose, and none of GetAxes/Normal/VSize/
-// Rotator/Vector -- the ones this adapter DOES use -- is a bit-cast. So this
-// is arithmetic, not a shortcut avoided out of laziness.
+// THE reason the float codec exists: UnrealScript (this OldUnreal 469e build)
+// has no operator that reinterprets a float's bit pattern as an int -- no
+// union, no pointer cast, no native "FloatAsInt" call. `gb_client.c` gets this
+// for free from a single `memcpy`; here it has to be computed. Investigated
+// and confirmed absent (not merely undiscovered): `ucc packagedump Core`
+// lists every native function Core/Engine expose, and none of GetAxes/Normal/
+// VSize/Rotator/Vector -- the ones this adapter DOES use -- is a bit-cast. So
+// this is arithmetic, not a shortcut avoided out of laziness.
 //
 // The algorithm is the textbook software float encoder: normalise the
 // magnitude into [1,2) by repeated multiply/divide by 2 (our values are all
@@ -22,9 +22,15 @@
 // exponent from a half-trained policy decodes to *some* finite float, and the
 // caller clamps immediately after (GBMutator.ApplyAction), exactly the
 // distrust gb_client.c's gb_clamp() applies to every other engine's policy
-// answer. It costs float ops per element, not a memcpy -- for observation
-// building and action decoding at a handful of bots and a ~10 Hz tick this is
-// nowhere near a hot path (see the adapter README's honest verdict).
+// answer.
+//
+// THE reason the hex helpers exist: see GBLink.uc's header comment for the
+// full story, but in short -- `UdpLink.ReceivedBinary`'s `B` byte-array
+// parameter never carries real payload content on this build (`Count` is
+// correct, `B` is uninitialised memory, verified byte-for-byte against a
+// known pattern), while `SendText`/`ReceivedText` deliver content correctly.
+// So the wire payload is hex-encoded ASCII text, and these are the two
+// halves of that codec: a nibble (0-15) to its ASCII hex digit, and back.
 //=============================================================================
 class GBMath extends Object;
 
@@ -109,12 +115,30 @@ static final function float BitsToFloat(int Bits)
     return result;
 }
 
-// Byte-level packing is deliberately NOT here: UnrealScript static arrays are
-// fixed-size TYPES (byte[255] and byte[4096] do not unify), so a buffer
-// helper generic over "whatever array GBLink happens to be using" isn't
-// expressible. GBLink reads/writes its own SendChunk[255] and RecvBuf[]
-// directly and calls FloatToBits/BitsToFloat for the 4 bytes at a time that
-// actually need float<->int conversion.
+// ---- hex nibble <-> ASCII char, for the text-wrapped wire encoding --------
+// Lower-case, matching schema.py's own `f"{x:02x}"` formatting on the
+// policyd side, though case does not actually matter -- HexValue below
+// accepts both.
+
+static final function int HexChar(int Nibble)
+{
+    if (Nibble < 10)
+        return 48 + Nibble;        // '0'..'9'
+    return 87 + Nibble;            // 'a'..'f' (97 + (Nibble-10))
+}
+
+// Returns -1 for a non-hex-digit character, so a corrupt/foreign datagram is
+// detected rather than silently decoded into garbage.
+static final function int HexValue(int Ch)
+{
+    if (Ch >= 48 && Ch <= 57)
+        return Ch - 48;             // '0'-'9'
+    if (Ch >= 97 && Ch <= 102)
+        return Ch - 87;             // 'a'-'f'
+    if (Ch >= 65 && Ch <= 70)
+        return Ch - 55;             // 'A'-'F'
+    return -1;
+}
 
 defaultproperties
 {

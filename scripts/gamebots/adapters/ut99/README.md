@@ -4,12 +4,12 @@
 (Unreal Tournament 1999) that lets the policy server drive bots, the same
 contract every other `scripts/gamebots/adapters/*` engine adapter honours.
 
-**Read the verdict section before building anything on top of this.** The
-adapter compiles clean, spawns bots, and correctly falls back to the built-in
-AI — but the actual network connection to the policy server does not work on
-the OldUnreal 469e Linux dedicated server this was built and tested against,
-and that appears to be a real limitation of this build, not a bug in this
-adapter. See [What works / what doesn't](#what-works--what-doesnt) below.
+**Working end to end, verified live.** The full round trip — build an
+observation, send it, get an action back, apply it, and fall back cleanly
+when nothing answers — runs on a real dedicated server. Two dead ends were
+found and worked around on the way there (TCP, then raw binary over UDP);
+both are kept below as history because the investigation is worth as much as
+the result.
 
 ## Why this adapter looks different from the others
 
@@ -23,9 +23,9 @@ That has two consequences the other adapters don't have to deal with:
 
 - **No C client.** `gb_client.c` (AF_UNIX, `memcpy`-based marshalling) is not
   usable from UnrealScript. This adapter speaks the identical wire protocol
-  over **TCP** instead, to `policyd.py --tcp-listen`, added to policyd for
-  exactly this purpose (commit `66da9b4`) — same header, same per-bot floats,
-  same schema hash. There is no second protocol.
+  over **UDP** instead, to `policyd.py --udp-listen`, hex-text encoded (see
+  below for why) — same header, same per-bot floats, same schema hash. There
+  is no second protocol, only a second *encoding* of the same one.
 - **No bit-cast.** UnrealScript has no union, no pointer cast, no
   `FloatAsInt`-style intrinsic. Marshalling floats to/from the wire's IEEE-754
   bytes is done in software — see [GBMath.uc](#the-float-marshalling-problem)
@@ -36,8 +36,8 @@ That has two consequences the other adapters don't have to deal with:
 | path | what it is |
 |---|---|
 | `GameBots/Classes/GBSchema.uc` | **Generated** by `gen_gbschema.py` from `schema.py`. Never edit. |
-| `GameBots/Classes/GBMath.uc` | Software IEEE-754 float↔int codec (see below) |
-| `GameBots/Classes/GBLink.uc` | The policy-server client — `TcpLink` subclass, chunked framing |
+| `GameBots/Classes/GBMath.uc` | Software IEEE-754 float↔int codec, and hex nibble↔char codec |
+| `GameBots/Classes/GBLink.uc` | The policy-server client — `UdpLink` subclass, hex-text framed |
 | `GameBots/Classes/GBBot.uc` | `Bot` subclass — the fallback/override mechanism |
 | `GameBots/Classes/GBMutator.uc` | The mutator: spawns bots, builds observations, applies actions |
 | `gen_gbschema.py` | Regenerates `GBSchema.uc` from `scripts/gamebots/schema.py` |
@@ -48,7 +48,8 @@ That has two consequences the other adapters don't have to deal with:
 `ucc`'s compiler needs a `UnrealTournament.ini` to already exist under
 `$HOME/.utpg/System/` before it will compile anything (see `build.sh`'s
 header comment for exactly what that path resolution does and why the
-compiled output ends up somewhere other than where you'd expect). The
+compiled output ends up somewhere other than where you'd expect, and why a
+*second* build needs both copies of the old `.u` removed first). The
 simplest way to get one: copy an existing server's, e.g.
 
 ```bash
@@ -76,9 +77,9 @@ Add `EditPackages=GameBots` under `[Editor.EditorEngine]` and
 `UnrealTournament.ini` (both are one-time, not something `build.sh` does for
 you, since it would otherwise have to parse and rewrite an ini it doesn't
 own). Also set `MinPlayers=0` and `bAutoNumBots=False` under
-`[Botpack.DeathMatchPlus]` if you want ONLY this adapter's bots in the match
-(see [Known incompleteness](#known-incompleteness-worth-fixing-next) about
-why that matters).
+`[Botpack.DeathMatchPlus]` so ONLY this adapter's bots are in the match — it
+spawns its own roster and does not touch the server's own `addbot`/
+auto-added bots (see [How it hooks in](#how-it-hooks-in)).
 
 Launch (a **separate** instance, never the live `ut99-server` systemd unit):
 
@@ -87,6 +88,14 @@ cd /path/to/spare-ut99-install/System64
 HOME=<ucc-home-dir> ./ucc-bin-amd64 server \
     "DM-Deck16][.unr?game=Botpack.DeathMatchPlus?mutator=GameBots.GBMutator" \
     -port=7900
+```
+
+Run a policy server with the UDP endpoint (added to `policyd.py` for exactly
+this adapter):
+
+```bash
+~/.venvs/gamebots/bin/python scripts/gamebots/policyd.py \
+    --policy noop --udp-listen 127.0.0.1:27300
 ```
 
 **Off by default.** Loading the mutator changes nothing until you either edit
@@ -109,14 +118,26 @@ bots rather than trying to reclassify the server's `addbot`/auto-added ones:
 - Every `TickRate` Hz (config, default 10 — **not** the server's own tick
   rate; see [Why 10 Hz](#why-10-hz-not-the-servers-own-tick-rate)),
   `GBMutator` builds one observation per bot and sends the batch to
-  `GBLink`, which frames it onto the wire exactly like `gb_client.c` does.
+  `GBLink`, which frames it onto the wire.
 - `GBBot.Tick()` calls `Super.Tick(DeltaTime)` **first** — this runs
   Botpack's own bot AI unconditionally, exactly as it would with no adapter
   at all — then calls back into `GBMutator.ApplyAction()`, which overwrites
   `Acceleration`/`ViewRotation`/`bFire`/`bAltFire`/`bDuck` **only if** a fresh
   policy answer exists for that bot this cycle. No answer (server down,
-  still connecting, exchange timed out, or the mutator disabled) means
-  `Super.Tick()`'s own output stands untouched.
+  reply not yet arrived, or the mutator disabled) means `Super.Tick()`'s own
+  output stands untouched.
+- **`ApplyAction` also clears `Pawn.MoveTarget`** whenever it has a fresh
+  answer to apply. This was not in the first version and had to be added
+  after live testing showed why: Botpack's bot AI does not move a Pawn purely
+  by physics integrating `Acceleration` the way a human-controlled Pawn does
+  — it walks toward `MoveTarget` (a `NavigationPoint`) using its own native
+  pathing, independent of what `Acceleration` says. Overwriting `Acceleration`
+  alone left one bot settling to a stop while another kept walking its patrol
+  route at full speed despite receiving continuous zero actions. Clearing
+  `MoveTarget` every tick removes the thing that pathing was walking toward,
+  after which `Acceleration` is what's actually left driving movement — and
+  it froze cleanly. See [the honest verdict](#the-honest-verdict) for the one
+  side effect this has.
 
 This is the same fallback discipline as `gb_adapter.c`'s "botlib still runs
 and still produces a complete usercmd" — the ordering guarantee comes from
@@ -132,23 +153,22 @@ exposes, and none of `GetAxes`/`Normal`/`VSize`/`Rotator`/`Vector` — the ones
 this adapter *does* use for vector math — is a bit-cast, nor is anything else
 in either package.
 
-**It IS practical, with software arithmetic**, so this adapter does not fall
-back to a text framing (the alternative the task anticipated for this exact
-problem): `GBMath.FloatToBits`/`BitsToFloat` implement the textbook software
-IEEE-754 single-precision codec — normalise the magnitude into `[1,2)` by
-repeated multiply/divide by 2 (at most ~11 iterations for the value ranges
-this schema uses), then assemble sign/exponent/23-bit-mantissa with integer
-bitwise operators, which UnrealScript **does** have (`<<`, `>>>`, `&`, `|` —
-confirmed via `ucc packagedump Core`'s operator table, not assumed). NaN/Inf
-are not specially encoded on the way out (nothing this adapter sends is ever
-non-finite) or specially decoded on the way in (a garbage exponent from a
-half-trained policy decodes to *some* finite float, which `GBMutator.OnAction`
-clamps immediately after — the same distrust `gb_client.c`'s `gb_clamp()`
-applies on every other engine).
+**It IS practical, with software arithmetic.** `GBMath.FloatToBits`/
+`BitsToFloat` implement the textbook software IEEE-754 single-precision codec
+— normalise the magnitude into `[1,2)` by repeated multiply/divide by 2 (at
+most ~11 iterations for the value ranges this schema uses), then assemble
+sign/exponent/23-bit-mantissa with integer bitwise operators, which
+UnrealScript **does** have (`<<`, `>>>`, `&`, `|` — confirmed via `ucc
+packagedump Core`'s operator table, not assumed). NaN/Inf are not specially
+encoded on the way out (nothing this adapter sends is ever non-finite) or
+specially decoded on the way in (a garbage exponent from a half-trained
+policy decodes to *some* finite float, which `GBMutator.OnAction` clamps
+immediately after — the same distrust `gb_client.c`'s `gb_clamp()` applies on
+every other engine).
 
-This compiled and ran correctly in isolation (the codec has no dependency on
-anything network-related), but see the verdict below for why it was never
-exercised against a real round trip end to end.
+This has now been exercised through a real, live, bidirectional round trip
+(see [What's verified](#whats-verified-live)), not just compiled in
+isolation.
 
 ## The cross-class `const` compiler quirk
 
@@ -182,13 +202,152 @@ was rewritten to `if/else` rather than chased individually — cheaper than
 continuing to isolate a second parser bug in a closed-source, 25-year-old
 compiler.
 
+## History: TCP, then raw binary UDP, both dead ends on this build
+
+Kept in full because someone will otherwise repeat the investigation.
+
+### 1. TcpLink never connects
+
+`TcpLink` (the obvious first choice, since the wire protocol was originally
+TCP-only) never completes an outbound connect on this OldUnreal 469e Linux
+dedicated server. `ss -tn` watched continuously across a live server's
+`RECONNECT_COOLDOWN` retry cycle showed **not even a SYN packet** leaving the
+process, toward loopback or the LAN interface, across every documented
+client pattern tried: `StringToIpAddr()`+`Open()`, `Resolve()`+
+`event Resolved()`+`Open()`, with and without `BindPort()` first, with and
+without `bAlwaysTick=True` on the link actor. `Open()` reported success every
+time and `IsConnected()` even transiently returned true long enough to start
+an exchange, but the destination (`policyd.py`, confirmed listening) never
+saw a connection attempt at the OS level.
+
+The decisive counter-evidence that ruled out "UT99 can't do networking" as
+the explanation: **the live `ut99-server` itself answers a 489-byte GameSpy
+query on UDP 7798**, through `IpDrv`'s *other* link class. Real send-and-real
+receive, inside this exact process — so the blocker was `TcpLink`
+specifically, and `UdpLink` was the obvious next thing to try.
+
+### 2. UdpLink sends real datagrams, but `ReceivedBinary` never delivers content
+
+`UdpLink.SendBinary`/`SendText` both genuinely put bytes on the wire —
+confirmed byte-for-byte correct on a receiving Python socket, up to and
+including the exact byte pattern sent. But `UdpLink.ReceivedBinary`'s `B`
+byte-array parameter **never carries real payload content** on this build:
+
+- `Count` correctly reports the true datagram size on every single reply
+  (measured for reply sizes 64, 200, 254, 255, 256, 300, and 500 bytes,
+  clipping to 255 as expected once the payload exceeds the array size — but
+  the size tracking itself is always right).
+- `B` is uninitialised memory regardless of size — verified by having a
+  Python peer reply with a known, easily recognised incrementing byte
+  pattern (`byte[i] = i % 256`) and searching the *entire* 255-byte buffer
+  for that pattern on the UnrealScript side: it never appears, at any offset,
+  for any tested reply size, including ones well under the 255-byte cap
+  where truncation cannot be the explanation. What comes back instead looks
+  like stack/heap addresses (`...fd7f0000...`, a classic x86-64 pointer
+  shape), not payload.
+- Calling `ReadBinary()` **manually, immediately, from inside the
+  `ReceivedBinary` event** — in case the event was only a "data is ready"
+  notification and the real bytes needed a separate pull — also returned
+  nothing (`n=0`, buffer unchanged).
+- Switching `ReceiveMode` to `RMODE_Manual` and polling `ReadBinary()` from
+  `Tick()` instead of relying on the event at all: same result, `n` never
+  became positive even though the Python peer's reply had genuinely arrived
+  (confirmed on the Python side).
+
+`SendText`/`ReceivedText`, tried next, round-trip content **correctly** in
+both directions — this is the one that actually works, and this adapter uses
+it. `SendText` delivered at least 25,000 characters intact in one call
+(measured); `ReceivedText` truncates to exactly **4095** characters no matter
+how much more was sent (also measured, not assumed) — comfortably above this
+adapter's largest reply (a 16-bot action batch is 800 hex characters) and
+irrelevant to the request direction, since `SendText` has no such ceiling
+this adapter would ever reach (its largest request, MAX_BOTS=16, is 18,592
+hex characters).
+
+So the wire is: pack the request exactly as `schema.py`/`gb_client.c` define
+it, hex-encode every byte to two ASCII characters, and send the whole thing
+in one `SendText` call — no chunking, since a datagram is the frame either
+way and this build's practical string-length ceiling for a *reply* (4095
+chars) is what actually constrains batch size, not the schema or the
+transport. `policyd.py --udp-listen` now accepts either raw binary (every
+other UDP client, unaffected) or this hex-text encoding, and replies in
+whichever encoding the request arrived in.
+
+## What's verified live
+
+On a real OldUnreal 469e dedicated server (a separate instance on port 7900,
+never the live `ut99-server` unit), against a real `policyd.py --udp-listen`:
+
+- `GameBots.u` compiles clean (`ucc make`, 0 errors, 0 warnings).
+- **Off by default**, verified with a live control: with `bEnabled=False` the
+  mutator loads (`Add mutator GameBots.GBMutator` in the server log) and does
+  precisely nothing — no `gamebots(ut99):` log line, `\status\` UDP query
+  reports `numplayers\0`.
+- **The full round trip works.** With `bEnabled=True` and a `--policy noop`
+  policyd running, the server log shows the real transition:
+  `gamebots(ut99): spawned 3/3 GBBot(s)` →
+  `gamebots(ut99): policy server answering, driving 3 bot(s)` — and stays in
+  that state, with per-bot debug lines (`bot 0 fwd=0.000000 side=0.000000
+  buttons=0`) showing the exact zero action a no-op policy is supposed to
+  answer with. `policyd.py`'s own periodic stats line shows a **climbing
+  decision count** across the run (14 → 64 → 114 → 135 requests, then a
+  second run climbing again 135 → 178 → 228 → 270) — real, continuous,
+  bidirectional traffic, not a one-off handshake.
+- **The control experiment, both halves, on the same three bots:** a
+  TEST-ONLY harness (not committed — it directly calls
+  `GBMutator.Mutate("gb_enable 0", None)`, the same function the real
+  `mutate` console command dispatches to, so the toggle could be scripted
+  without an attached console) logged each bot's `Location`/`Velocity` once
+  a second, enabled the whole time, and flipped `gb_enable` off partway
+  through:
+    - **Frozen (noop policy driving, `MoveTarget` cleared):** all three bots
+      stopped moving within ~5 seconds of being driven — two settled to an
+      exact fixed point and stayed there (position and velocity essentially
+      unchanged) for the remaining ~10 seconds of that phase; the third
+      stopped instantly (velocity `0.000000` from the first sampled tick
+      onward).
+    - **Moving again (mutator disabled):** two of the three bots resumed
+      active, full-speed (`vel≈400`) patrol movement within one sampled tick
+      of the toggle firing, and kept moving in a normal patrol pattern for
+      the rest of the test.
+    - **The one honest wrinkle:** the third bot did *not* resume moving
+      within the observed window (up to 40+ seconds after being released).
+      Control was genuinely relinquished — `ActHave` was cleared and
+      `Brain` was set to `None`, exactly as disabling does for every bot —
+      but that bot had been walking with no `MoveTarget` for 15 seconds
+      under the freeze and evidently ended up somewhere Botpack's own
+      pathing did not visibly recover a route from in the time observed.
+      This reads as a real, explainable side effect of repeatedly clearing
+      `MoveTarget` — a bot with no target for that long is not guaranteed to
+      end up somewhere convenient for its own AI to resume from — rather
+      than a sign that "disabled" fails to relinquish control. Worth
+      knowing before relying on this for anything beyond that same 5-15
+      second class of test.
+
+This is the bar the Quake III and Quake 2 adapters both met, on the transport
+that turned out to actually work on this build.
+
+## Why 10 Hz, not the server's own tick rate
+
+`UdpLink` is asynchronous — `SendText()` never blocks, and a reply arrives
+later as a `ReceivedText` event whenever the engine's network tick delivers
+it. There is no call in UnrealScript that "sends and waits", so `GBMutator`
+paces itself to a configurable `TickRate` (10 Hz default, matching Quake
+III's `sv_fps 20`-ish order of magnitude) rather than trying to exchange on
+every server frame. UDP being connectionless removes the reconnect/backoff
+question the TCP design needed: there is nothing to reconnect. "Are we being
+answered" is judged purely from how long it has been since
+`GBLink.LastGoodReplyTime` — if that exceeds `ResponseTimeout`, every bot's
+`ActHave` is cleared (relinquishing control back to `Super.Tick()`) and the
+fallback state is reported.
+
 ## Observation — what's filled, what's zero and why
 
 Mirrors the Quake III adapter's honesty table:
 
 | group | status |
 |---|---|
-| health, alive, on-ground, crouching, in-water, velocity (ego frame), speed, pitch, view-relative geometry rays (`Actor.Trace`, `MASK`-free — `bTraceActors=True`) | **filled** |
+| health, alive, on-ground, crouching, in-water, velocity (ego frame), speed, pitch, view-relative geometry rays (`Actor.Trace`, `bTraceActors=True`) | **filled** |
 | entity slots: present, teammate, direction (ego frame), distance, relative velocity, health, visibility, sorted visible-enemies-first then nearest (`Pawn.VisibleCollidingActors`) | **filled** |
 | took damage, killed someone, died (tracked frame-to-frame, same reason as `gb_adapter.c`: the engine hands us no deltas) | **filled** |
 | round time / score diff (only for `Botpack.DeathMatchPlus` and subclasses — `TimeLimit`/`FragLimit` live there, not the more generic `TournamentGameInfo`, confirmed via `ucc packagedump Botpack`) | **filled**, zero for other gametypes |
@@ -211,11 +370,10 @@ estimate**, not a measured engine constant — there is no
   the same heading. Absolute aim is never accepted from the policy, same
   reasoning as every other adapter: a policy that could teleport its
   crosshair would be both unfair and unlearnable-looking.
-- **Movement**: `forward`/`side` combine with the (yaw-only) view basis via
-  `GetAxes()` into a wish direction, scaled by `Pawn.AccelRate` and written to
-  `Pawn.Acceleration` — the same field the built-in AI writes, so whichever
-  wrote it last wins for that tick, which is exactly the override semantics
-  wanted.
+- **Movement**: `Pawn.MoveTarget` is cleared (see
+  [How it hooks in](#how-it-hooks-in) for why), then `forward`/`side` combine
+  with the (yaw-only) view basis via `GetAxes()` into a wish direction,
+  scaled by `Pawn.AccelRate` and written to `Pawn.Acceleration`.
 - **Buttons**: `bFire`/`bAltFire`/`bDuck` are **byte** properties on `Pawn`
   despite the `b`-prefix naming convention (confirmed via packagedump — this
   cost real debugging time, see `GBMutator.HasButton`'s comment), set
@@ -224,107 +382,23 @@ estimate**, not a measured engine constant — there is no
   the schema's bounds, forward/side to ±1) and explicitly tests for NaN
   (`v != v`) before anything else touches it — same distrust
   `gb_client.c`'s `gb_clamp()` applies on every other engine, and the thing
-  that makes `GBMath`'s un-decoded NaN case (see above) safe.
-
-## Why 10 Hz, not the server's own tick rate
-
-`TcpLink` is asynchronous by construction — `Open()`/`SendBinary()` never
-block, and a response arrives later as a `ReceivedBinary` event whenever the
-engine's network tick delivers it. There is no call in UnrealScript that
-"sends and waits", so `GBMutator` cannot poll the policy server every server
-frame the way a synchronous C client can afford to; it paces itself to a
-configurable `TickRate` (10 Hz default, matching Quake III's `sv_fps 20`-ish
-order of magnitude) and, if the previous exchange has not completed by the
-next tick, simply skips sending a new one rather than piling up requests on
-a stream protocol that has no request-ID to disambiguate them.
-
-## What works / what doesn't
-
-**Verified, on a real OldUnreal 469e dedicated server (a separate instance on
-port 7900, never the live `ut99-server` unit):**
-
-- `GameBots.u` compiles clean (`ucc make`, 0 errors, 0 warnings).
-- **Off by default**, verified with a live control: with `bEnabled=False` the
-  mutator loads (`Add mutator GameBots.GBMutator` in the server log) and does
-  precisely nothing — no `gamebots(ut99):` log line, `\status\` UDP query
-  reports `numplayers\0`.
-- With `bEnabled=True`, the mutator spawns its configured bot count
-  (`gamebots(ut99): spawned 3/3 GBBot(s)`), the server keeps running (no
-  crash, no `PlayAnim`/state errors beyond a single cosmetic "No mesh"
-  warning per bot at spawn), and Botpack's own bot AI runs via `GBBot`'s
-  `Super.Tick()` — this is genuinely the same code path a stock `Bot` uses.
-- The fallback path is proven **by construction and by log evidence**: every
-  run above shows `gamebots(ut99): policy server unavailable -- bots are on
-  their own AI` and the server stays healthy. A dead/unreachable policy
-  server degrades cleanly; this was true on every single run, because of the
-  next finding.
-
-**Not verified — the connectivity blocker.** Despite `IpAddr`/port resolving
-correctly (`StringToIpAddr`, and separately `Resolve()`/`Resolved()`, both
-confirmed with the correct `127.0.0.1:27200` and `192.168.1.132:27200`),
-`BindPort()` succeeding, `bAlwaysTick=True` on `GBLink` (its own `Tick()` is
-where TcpLink's native socket polling lives — a real, separate bug found and
-fixed during development, since `GBMutator` being always-ticked does not
-imply `GBLink` is), and `Open()` reporting success every time — **no TCP
-connection to `policyd.py`'s listening socket was ever observed to complete,
-on this build.** Verified with `ss -tn` watched continuously across the
-`RECONNECT_COOLDOWN` retry cycle: not even a SYN packet leaves the process,
-toward loopback or the LAN interface, and `policyd.py`'s own log (which does
-log "adapter connected" on every other engine) never shows an incoming
-connection. Every standard TcpLink client pattern documented for this engine
-family was tried:
-
-| tried | result |
-|---|---|
-| `StringToIpAddr()` + `Open()` | Open() returns true, `err=11` (EAGAIN) from `GetLastError()`, zero packets on the wire |
-| `Resolve()` + `event Resolved(Addr)` + `Open()` | `Resolved()` fires with the correct address, `Open()` again reports true, still zero packets |
-| `BindPort()` before either of the above | No change |
-| `bAlwaysTick=True` on the `TcpLink` subclass itself | No change (this WAS necessary and is kept — it's a real, separate requirement, just not sufficient) |
-| Loopback (`127.0.0.1`) vs the host's LAN IP (`192.168.1.132`) | No difference — rules out a loopback-specific quirk |
-| A long-lived server (45+ seconds, retrying every 2s per `RECONNECT_COOLDOWN`) | No connection ever completes at any point |
-
-One data point that muddies rather than clarifies: at least once, `IsConnected()`
-returned true long enough for `GBMutator` to send a request (visible as
-`gamebots(ut99): exchange timed out after 0.5s`, which only happens after
-`SendObservations()` runs) — meaning the engine's own connection-state
-bookkeeping is, at least transiently, **inconsistent with the OS-level socket
-state** `ss` reports. This is consistent with a genuine bug in this specific
-build's Linux `TcpLink` implementation (an optimistic "connecting" state that
-never resolves to a true completion or a reported failure) rather than a
-missing step on the script side — but without engine source or a debugger
-attached to `Engine.so`/`IpDrv.so`, that could not be confirmed further within
-the time available.
+  that makes `GBMath`'s un-decoded NaN case safe.
 
 ## The honest verdict
 
-**UnrealScript + `TcpLink` is not a dead end as a *design*** — the schema,
-the framing, the software float codec, the observation/action mapping, and
-the fallback discipline are all sound, compile cleanly, and (short of the
-actual network round trip) behave exactly as intended on a live server. If
-this were running on a build where `TcpLink` client connections work, this
-adapter should work with no further changes.
+**UnrealScript is a viable path for UT99 bots, not a dead end** — with the
+right transport. `TcpLink` was a dead end on this build; raw binary over
+`UdpLink` was a dead end on this build for a completely different reason;
+hex-text over `UdpLink` works, verified end to end, live, with a real policy
+server on the other end and a real control experiment on real bots.
 
-**It is a dead end on *this specific build*** — OldUnreal 469e's Linux
-dedicated server — for the TCP transport specifically, and that could not be
-worked around from script. Recommended next steps, in order of effort:
-
-1. **Test on the Windows build of the same OldUnreal 469e**, or an official
-   469b/469c release, before assuming the whole engine generation is
-   affected — this may be a Linux-port-specific regression in `IpDrv.so`'s
-   socket handling rather than something universal to UT99.
-2. **File/search OldUnreal's issue tracker** for known `TcpLink` client-mode
-   problems on Linux dedicated servers; a fix or workaround may already be
-   documented given how long this codebase has existed.
-3. **If TCP genuinely cannot be made to work**, the schema/framing is
-   transport-agnostic, so the honest fallback the task anticipated for a
-   different problem (binary marshalling, which this adapter solved) applies
-   here instead: policyd already supports being taught an additional framing
-   with modest effort (its request/response packing lives in one file,
-   `schema.py`), and `UdpLink` is a sibling class in the same `IpDrv` package
-   this adapter never got to test — worth trying before concluding UDP is
-   affected the same way, since it is a materially different code path
-   (native engine actors already use `UdpLink`-family classes for the master
-   server pings visible in every server's own startup log).
+The one open item is the `MoveTarget`-clearing side effect documented above
+— worth understanding before extending the freeze window much past what was
+tested here, or before relying on "disabled always means every bot resumes
+instantly." A more targeted fix (e.g. handing the bot a fresh, nearby
+`NavigationPoint` on release instead of leaving it to reacquire one on its
+own) is a reasonable next step if that matters for a given use, but wasn't
+needed to prove the design.
 
 ## Known incompleteness worth fixing next
 
@@ -336,18 +410,25 @@ worked around from script. Recommended next steps, in order of effort:
   is, which would also silently zero the `score_diff_norm`/teammate-detection
   paths in `BuildGameContext`/`BuildEntities` for these bots (both already
   guard on `PlayerReplicationInfo != None`, so they fail safe to zero rather
-  than crash, but the *feature* is likely not working). Not chased further
-  given the connectivity blocker made it moot for this pass; worth revisiting
-  if TCP starts working.
+  than crash, but the *feature* is likely not working).
+- **The `MoveTarget` release side effect** described above.
+- **`ammo_frac`** left at zero (see the observation table) — worth another
+  attempt at `FindInventoryType`'s real parameter shape if ammo awareness
+  ever matters for a trained policy.
 
 ## Tests
 
 ```bash
 python3 -m pytest tests/python/test_gamebots_ut99.py
+python3 -m pytest tests/python/test_gamebots_policyd.py -k udp
 ```
 
 Source-level checks only (no `ucc` in CI): schema constants match
 `schema.py` exactly, `GBMutator` defaults to disabled, the fallback call
-(`Super.Tick()` before any override) is present in `GBBot.uc`, and
-`GBSchema.uc` is byte-for-byte what `gen_gbschema.py` would emit right now
-(the same "generated file, diffed" discipline as the C header's test).
+(`Super.Tick()` before any override) is present in `GBBot.uc`, the adapter
+targets a UDP endpoint via `UdpLink`, and `GBSchema.uc` is byte-for-byte what
+`gen_gbschema.py` would emit right now (the same "generated file, diffed"
+discipline as the C header's test). The `policyd.py` side has its own tests
+for the hex-text UDP encoding (`test_gamebots_policyd.py -k udp`), including
+that a raw-binary client and a hex-text client are served independently and
+correctly at the same time.

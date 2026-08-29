@@ -1,259 +1,177 @@
 //=============================================================================
-// GBLink -- the policy-server client. Speaks the identical wire protocol
-// gb_client.c speaks over AF_UNIX, over TCP instead: UnrealScript's only
-// outbound networking is TcpLink, and policyd.py's --tcp-listen endpoint
-// (added for exactly this adapter) accepts the same bytes on a TCP socket.
+// GBLink -- the policy-server client. Speaks the SAME schema (header, magic,
+// per-bot obs entries, per-bot actions) `gb_client.c` speaks over AF_UNIX,
+// wrapped in ASCII hex text and carried over `UdpLink` to policyd's
+// `--udp-listen` endpoint. Not TCP, and not raw binary either -- both were
+// tried first and both failed on this build, for two entirely different
+// reasons. Full account below and in the adapter README's honest-verdict
+// section; this is the design that actually works, verified end to end.
 //
-// Everything here is asynchronous by construction, not by careful discipline:
-// TcpLink's Open/SendBinary never block, and a response arrives later as a
-// ReceivedBinary event whenever the engine's network tick delivers it -- there
-// is no call in UnrealScript that "sends and waits". GBMutator relies on that:
-// it starts an exchange and moves on; if a response has not arrived by the
-// next policy tick, that is read as "no answer yet" and the bots keep running
-// on whatever the built-in AI already set (see GBBot.uc). A dead or slow
-// policy server therefore degrades the bots, it cannot stall the server --
-// there is no code path here that even could block the server's Tick loop.
+// HISTORY, kept because someone will otherwise repeat the first half:
 //
-// Two gotchas that shaped this file:
+//   1. TcpLink never completes an outbound connect on this OldUnreal 469e
+//      Linux dedicated server -- `ss` shows not even a SYN leaving the
+//      process, on loopback and on the LAN interface, across every
+//      documented client pattern (StringToIpAddr+Open, Resolve+Open,
+//      BindPort, bAlwaysTick). But our OWN live ut99-server answers a
+//      489-byte GameSpy query on UDP 7798 through IpDrv's OTHER link class,
+//      which is proof of real send-and-receive UDP traffic inside this exact
+//      process -- so the blocker was TcpLink specifically, not "UT99 can't
+//      do networking", and UdpLink was the next thing to try.
 //
-//   1. SendBinary/ReadBinary/ReceivedBinary all move byte[255] AT MOST per
-//      call (`function int SendBinary(int Count, byte B[255])` -- confirmed
-//      via `ucc packagedump IpDrv`, not assumed). One bot's observation is
-//      580 bytes on its own; a multi-bot batch is much larger. So every send
-//      is chunked through SendChunk[255], and every receive is reassembled in
-//      RecvBuf[] across as many ReceivedBinary events as it takes.
-//   2. There is no bit-cast from float to int in UnrealScript, so every float
-//      in and out goes through GBMath's software IEEE-754 codec. See
-//      GBMath.uc's header comment for why, and the adapter README for the
-//      honest verdict on what that costs.
+//   2. UdpLink CAN send real datagrams -- confirmed byte-for-byte correct on
+//      a receiving Python socket, both via `SendBinary` and `SendText`. But
+//      `UdpLink.ReceivedBinary`'s `B` byte-array parameter never carries real
+//      payload content on THIS build: `Count` correctly reports the true
+//      datagram size every time, but `B` is uninitialised memory (verified by
+//      searching for a known incrementing byte pattern across the full
+//      255-byte buffer and never finding it -- the same stack-address-shaped
+//      garbage came back regardless of the reply's actual size or content).
+//      Calling `ReadBinary()` manually, immediately, from inside the event
+//      -- in case the event was only a "data is ready" notification -- also
+//      returned nothing (`n=0`). `SendText`/`ReceivedText`, tried next, work
+//      correctly in both directions: content round-trips byte-for-byte.
+//
+// So the wire is: pack the request exactly as `schema.py`/`gb_client.c`
+// define it, hex-encode every byte to two ASCII characters (GBMath.HexChar),
+// and send the WHOLE thing in one `SendText` call -- measured intact up to at
+// least 25,000 characters on this build, comfortably above the largest
+// request this adapter ever sends (MAX_BOTS=16 -> 9296 raw bytes -> 18,592
+// hex characters). The reply direction has its own ceiling: `ReceivedText`
+// truncates to exactly 4095 characters no matter how much more was sent --
+// also measured, not assumed -- but a 16-bot action reply is header(16) +
+// 16*24 = 400 raw bytes = 800 hex characters, nowhere near that limit.
+//
+// Because a datagram is the frame (no chunking, no accumulation), and UDP is
+// connectionless (no Open/Opened/Closed/IsConnected), this class is far
+// simpler than the TcpLink version it replaced: resolve the destination once
+// at Init(), and every exchange is "build one hex string, SendText it" /
+// "one ReceivedText call, decode it". A lost or malformed datagram is just a
+// datagram that never updates LastGoodReplyTime -- GBMutator reads that
+// staleness and reports the same fallback state a timeout used to.
 //=============================================================================
-class GBLink extends TcpLink;
-
-const RECV_BUF_SIZE = 2048;   // header + up to ~84 bots' worth of actions --
-                              // comfortably above MAX_BOTS in GBMutator
+class GBLink extends UdpLink;
 
 var GBMutator Brain;
+var IpAddr    ServerAddr;
+var bool      bAddrKnown;
 
-// --- outgoing: a streaming byte writer over one 255-byte TcpLink chunk -----
-var byte SendChunk[255];
-var int  SendFill;
-var int  SendTotal;          // bytes written this request, for logging only
+var float     LastGoodReplyTime;    // Level.TimeSeconds of the last accepted reply
 
-// --- incoming: reassembly buffer across possibly many ReceivedBinary calls -
-var byte RecvBuf[RECV_BUF_SIZE];
-var int  RecvLen;
-var int  ExpectedLen;        // -1 until the header's bot count is known
-
-// --- round-trip bookkeeping --------------------------------------------
-var bool  bAwaitingResponse;
-var float RequestSentTime;
-var float LastConnectAttempt;
-var bool  bResolving;
-
-const RECONNECT_COOLDOWN = 2.0;   // seconds; matches gb_client.c's 2s cooldown
+var string    HexOut;               // accumulates one outgoing request
 
 // ------------------------------------------------------------------ setup
 
 function Init(GBMutator InOwner)
 {
     Brain = InOwner;
-    LinkMode = MODE_Binary;
+    LinkMode = MODE_Text;
     ReceiveMode = RMODE_Event;
-    // The standard TcpLink client pattern binds a local port BEFORE the
-    // first Open() -- the underlying native socket has nothing to connect
-    // *from* otherwise. Omitting this was the actual cause of an early
-    // silent-failure mode during development: Open() returned true, nothing
-    // ever reached policyd, and neither Opened() nor Closed() ever fired.
     BindPort();
+
+    // UDP is connectionless: resolving the destination is a one-time,
+    // synchronous lookup, not a connect() that can hang or fail async the
+    // way TcpLink's did. "127.0.0.1" and a LAN IP both resolved correctly
+    // in testing; DNS names would too, StringToIpAddr handles both.
+    bAddrKnown = StringToIpAddr(Brain.PolicyHost, ServerAddr);
+    if (bAddrKnown)
+        ServerAddr.Port = Brain.PolicyPort;
+    else
+        Brain.Log("GBLink: cannot resolve PolicyHost '" $ Brain.PolicyHost $ "'");
 }
 
-// -------------------------------------------------------------- connect
-
-function bool EnsureConnected()
+function bool HasServerAddr()
 {
-    if (IsConnected())
-        return True;
-    if (bResolving)
-        return False;          // a Resolved()/ResolveFailed() is already due
-
-    if (Level.TimeSeconds - LastConnectAttempt < RECONNECT_COOLDOWN)
-        return False;         // a dead policy server costs one attempt every
-                               // couple of seconds, not one per bot per tick
-    LastConnectAttempt = Level.TimeSeconds;
-
-    RecvLen = 0;
-    ExpectedLen = -1;
-    bAwaitingResponse = False;
-
-    // Resolve() + the Resolved() event, NOT StringToIpAddr()+Open() directly.
-    // The direct form compiled, ran, and Open() returned true every time, but
-    // no SYN packet ever left the box (confirmed with `ss` against the policy
-    // server's listening socket) and neither Opened() nor Closed() ever
-    // fired -- a silent dead end on this build even for a numeric loopback
-    // address. Resolve() is the documented TcpLink client pattern and is
-    // what actually produces a connection; see the README's honest verdict.
-    bResolving = True;
-    Resolve(Brain.PolicyHost);
-    return False;
+    return bAddrKnown;
 }
 
-event Resolved(IpAddr Addr)
-{
-    bResolving = False;
-    Addr.Port = Brain.PolicyPort;
-    if (!Open(Addr))
-        Brain.Log("GBLink: Open() failed, err=" $ GetLastError());
-    // NOTE: on the OldUnreal 469e Linux dedicated server this was developed
-    // and tested against, Open() reports success here but no connection is
-    // ever actually established -- confirmed with `ss` that not even a SYN
-    // packet leaves the process, on loopback OR the LAN interface, and the
-    // destination process never sees an attempt. See the adapter README's
-    // honest-verdict section for the full account and what was ruled out.
-}
-
-event ResolveFailed()
-{
-    bResolving = False;
-    Brain.Log("GBLink: cannot resolve PolicyHost '" $ Brain.PolicyHost $ "'");
-}
-
-event Opened()
-{
-    Brain.OnLinkOpened();
-}
-
-event Closed()
-{
-    RecvLen = 0;
-    ExpectedLen = -1;
-    bAwaitingResponse = False;
-    Brain.OnLinkClosed();
-}
-
-// ------------------------------------------------------------ send path
+// -------------------------------------------------------------- outgoing
 
 function BeginRequest(int NBots, int Tick)
 {
-    SendFill = 0;
-    SendTotal = 0;
-    WriteByte(class'GBSchema'.static.REQ_MAGIC_0());
-    WriteByte(class'GBSchema'.static.REQ_MAGIC_1());
-    WriteByte(class'GBSchema'.static.REQ_MAGIC_2());
-    WriteByte(class'GBSchema'.static.REQ_MAGIC_3());
-    WriteU32(class'GBSchema'.static.SCHEMA_HASH());
-    WriteU16(NBots);
-    WriteU16(class'GBSchema'.static.FLAG_NONE());
-    WriteU32(Tick);
+    HexOut = "";
+    AppendByte(class'GBSchema'.static.REQ_MAGIC_0());
+    AppendByte(class'GBSchema'.static.REQ_MAGIC_1());
+    AppendByte(class'GBSchema'.static.REQ_MAGIC_2());
+    AppendByte(class'GBSchema'.static.REQ_MAGIC_3());
+    AppendU32(class'GBSchema'.static.SCHEMA_HASH());
+    AppendU16(NBots);
+    AppendU16(class'GBSchema'.static.FLAG_NONE());
+    AppendU32(Tick);
 }
 
 function WriteBotObs(int BotId, float Obs[144])
 {
     local int i;
-    WriteU16(BotId);
-    WriteU16(0);                       // pad
+    AppendU16(BotId);
+    AppendU16(0);                       // pad
     for (i = 0; i < class'GBSchema'.static.OBS_DIM(); i++)
-        WriteFloat(Obs[i]);
+        AppendFloat(Obs[i]);
 }
 
 function EndRequest()
 {
-    FlushChunk();
-    bAwaitingResponse = True;
-    RequestSentTime = Level.TimeSeconds;
-    RecvLen = 0;
-    ExpectedLen = -1;
+    if (!bAddrKnown)
+        return;                          // nothing to send to; caller
+                                          // (GBMutator) is on the fallback
+                                          // path already via HasServerAddr()
+    SendText(ServerAddr, HexOut);
 }
 
-function WriteByte(byte B)
+function AppendByte(int V)
 {
-    SendChunk[SendFill] = B;
-    SendFill++;
-    SendTotal++;
-    if (SendFill >= 255)
-        FlushChunk();
+    HexOut = HexOut $ Chr(class'GBMath'.static.HexChar((V >>> 4) & 0xF))
+                    $ Chr(class'GBMath'.static.HexChar(V & 0xF));
 }
 
-function WriteU16(int Value)
+function AppendU16(int V)
 {
-    WriteByte(Value & 0xFF);
-    WriteByte((Value >>> 8) & 0xFF);
+    AppendByte(V & 0xFF);
+    AppendByte((V >>> 8) & 0xFF);
 }
 
-function WriteU32(int Value)
+function AppendU32(int V)
 {
-    WriteByte(Value & 0xFF);
-    WriteByte((Value >>> 8) & 0xFF);
-    WriteByte((Value >>> 16) & 0xFF);
-    WriteByte((Value >>> 24) & 0xFF);
+    AppendByte(V & 0xFF);
+    AppendByte((V >>> 8) & 0xFF);
+    AppendByte((V >>> 16) & 0xFF);
+    AppendByte((V >>> 24) & 0xFF);
 }
 
-function WriteFloat(float F)
+function AppendFloat(float F)
 {
-    WriteU32(class'GBMath'.static.FloatToBits(F));
+    AppendU32(class'GBMath'.static.FloatToBits(F));
 }
 
-function FlushChunk()
-{
-    if (SendFill > 0)
-    {
-        SendBinary(SendFill, SendChunk);
-        SendFill = 0;
-    }
-}
+// -------------------------------------------------------------- incoming
 
-// ----------------------------------------------------------- receive path
-
-event ReceivedBinary(int Count, byte B[255])
-{
-    local int i;
-
-    for (i = 0; i < Count; i++)
-    {
-        if (RecvLen >= RECV_BUF_SIZE)
-        {
-            // A response bigger than we sized for is not a bigger bot count
-            // than we asked about -- it is a desynchronised stream (or a
-            // schema mismatch that changed ACTION_SIZE). Drop it the same way
-            // gb_client.c does rather than guess where the framing resumes.
-            Brain.Log("GBLink: response overflowed RecvBuf, dropping connection");
-            Close();
-            return;
-        }
-        RecvBuf[RecvLen] = B[i];
-        RecvLen++;
-    }
-
-    if (ExpectedLen < 0 && RecvLen >= class'GBSchema'.static.HEADER_SIZE())
-    {
-        if (!CheckHeader())
-        {
-            Close();            // bad magic/hash -- see CheckHeader's log line
-            return;
-        }
-    }
-
-    if (ExpectedLen > 0 && RecvLen >= ExpectedLen)
-    {
-        ParseActions();
-        bAwaitingResponse = False;
-        RecvLen = 0;
-        ExpectedLen = -1;
-    }
-}
-
-function bool CheckHeader()
+event ReceivedText(IpAddr Addr, string Text)
 {
     local int nBots;
     local int hash;
+    local int i, off;
+    local int botId, buttons;
+    local float pitch, yaw, fwd, side;
+    local byte weapon;
+    local int len;
 
-    if (RecvBuf[0] != class'GBSchema'.static.RESP_MAGIC_0() || RecvBuf[1] != class'GBSchema'.static.RESP_MAGIC_1()
-        || RecvBuf[2] != class'GBSchema'.static.RESP_MAGIC_2() || RecvBuf[3] != class'GBSchema'.static.RESP_MAGIC_3())
+    len = Len(Text);
+    if (len < class'GBSchema'.static.HEADER_SIZE() * 2)
     {
-        Brain.Log("GBLink: bad response magic");
-        return False;
+        Brain.Log("GBLink: reply too short (" $ len $ " hex chars)");
+        return;
     }
 
-    hash = RecvBuf[4] | (RecvBuf[5] << 8) | (RecvBuf[6] << 16) | (RecvBuf[7] << 24);
+    if (ByteAt(Text, 0) != class'GBSchema'.static.RESP_MAGIC_0()
+        || ByteAt(Text, 1) != class'GBSchema'.static.RESP_MAGIC_1()
+        || ByteAt(Text, 2) != class'GBSchema'.static.RESP_MAGIC_2()
+        || ByteAt(Text, 3) != class'GBSchema'.static.RESP_MAGIC_3())
+    {
+        Brain.Log("GBLink: bad response magic");
+        return;
+    }
+
+    hash = U32At(Text, 4);
     if (hash != class'GBSchema'.static.SCHEMA_HASH())
     {
         // The single most valuable error message in the system -- see
@@ -262,52 +180,62 @@ function bool CheckHeader()
         Brain.Log("GBLink: schema hash mismatch (policyd sent " $ hash
             $ ", adapter built with " $ class'GBSchema'.static.SCHEMA_HASH()
             $ ") -- rebuild the adapter against the current schema.py");
-        return False;
+        return;
     }
 
-    nBots = RecvBuf[8] | (RecvBuf[9] << 8);
-    ExpectedLen = class'GBSchema'.static.HEADER_SIZE() + nBots * class'GBSchema'.static.ACTION_SIZE();
-    return True;
-}
+    nBots = U16At(Text, 8);
+    if (len < (class'GBSchema'.static.HEADER_SIZE()
+               + nBots * class'GBSchema'.static.ACTION_SIZE()) * 2)
+    {
+        Brain.Log("GBLink: reply truncated for " $ nBots $ " bots ("
+            $ len $ " hex chars)");
+        return;
+    }
 
-function ParseActions()
-{
-    local int nBots;
-    local int i, off;
-    local int botId, buttons;
-    local float pitch, yaw, fwd, side;
-    local byte weapon;
-
-    nBots = RecvBuf[8] | (RecvBuf[9] << 8);
     off = class'GBSchema'.static.HEADER_SIZE();
     for (i = 0; i < nBots; i++)
     {
-        botId   = RecvBuf[off]      | (RecvBuf[off + 1] << 8);
-        buttons = RecvBuf[off + 2]  | (RecvBuf[off + 3] << 8);
-        pitch = class'GBMath'.static.BitsToFloat(RecvBuf[off + 4]  | (RecvBuf[off + 5] << 8)
-                    | (RecvBuf[off + 6] << 16)  | (RecvBuf[off + 7] << 24));
-        yaw   = class'GBMath'.static.BitsToFloat(RecvBuf[off + 8]  | (RecvBuf[off + 9] << 8)
-                    | (RecvBuf[off + 10] << 16) | (RecvBuf[off + 11] << 24));
-        fwd   = class'GBMath'.static.BitsToFloat(RecvBuf[off + 12] | (RecvBuf[off + 13] << 8)
-                    | (RecvBuf[off + 14] << 16) | (RecvBuf[off + 15] << 24));
-        side  = class'GBMath'.static.BitsToFloat(RecvBuf[off + 16] | (RecvBuf[off + 17] << 8)
-                    | (RecvBuf[off + 18] << 16) | (RecvBuf[off + 19] << 24));
-        weapon = RecvBuf[off + 20];
+        botId   = U16At(Text, off);
+        buttons = U16At(Text, off + 2);
+        pitch = class'GBMath'.static.BitsToFloat(U32At(Text, off + 4));
+        yaw   = class'GBMath'.static.BitsToFloat(U32At(Text, off + 8));
+        fwd   = class'GBMath'.static.BitsToFloat(U32At(Text, off + 12));
+        side  = class'GBMath'.static.BitsToFloat(U32At(Text, off + 16));
+        weapon = ByteAt(Text, off + 20);
         // off+21 pad0, off+22..23 reserved -- unused
 
         Brain.OnAction(botId, buttons, pitch, yaw, fwd, side, weapon);
         off += class'GBSchema'.static.ACTION_SIZE();
     }
+
+    LastGoodReplyTime = Level.TimeSeconds;
+}
+
+// Byte offset -> the pair of hex characters at ByteOffset*2. Returns -1 (an
+// impossible byte value cast from a real 0-255 range) if either character
+// is not a hex digit, so a corrupt or foreign datagram is caught rather than
+// decoded into silent garbage.
+function int ByteAt(string S, int ByteOffset)
+{
+    local int hi, lo;
+    hi = class'GBMath'.static.HexValue(Asc(Mid(S, ByteOffset * 2, 1)));
+    lo = class'GBMath'.static.HexValue(Asc(Mid(S, ByteOffset * 2 + 1, 1)));
+    if (hi < 0 || lo < 0)
+        return -1;
+    return (hi << 4) | lo;
+}
+
+function int U16At(string S, int ByteOffset)
+{
+    return ByteAt(S, ByteOffset) | (ByteAt(S, ByteOffset + 1) << 8);
+}
+
+function int U32At(string S, int ByteOffset)
+{
+    return ByteAt(S, ByteOffset) | (ByteAt(S, ByteOffset + 1) << 8)
+         | (ByteAt(S, ByteOffset + 2) << 16) | (ByteAt(S, ByteOffset + 3) << 24);
 }
 
 defaultproperties
 {
-    RecvLen=0
-    ExpectedLen=-1
-    // TcpLink's native socket polling runs from ITS OWN Tick(), same as any
-    // other Actor -- GBMutator being always-ticked does not imply GBLink is.
-    // Without this, Open() completed the local setup but nothing ever
-    // serviced the connect()/read/write afterward: no SYN even appeared on
-    // the wire. Found the hard way; see the README.
-    bAlwaysTick=True
 }

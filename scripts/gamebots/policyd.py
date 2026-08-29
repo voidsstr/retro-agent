@@ -396,7 +396,17 @@ class PolicyServer:
         fixed-size request and one fixed-size reply, so **datagram boundaries
         are the framing** — there is no partial-read state to keep, and a lost
         datagram is a dropped frame, which the adapter already handles by
-        falling back to the engine's own AI. Same wire format either way.
+        falling back to the engine's own AI.
+
+        The wire STRUCTURE is unchanged (same header, same per-bot obs/action
+        layout as every other transport) but this endpoint additionally
+        accepts it ASCII-hex-encoded — see `_udp_readable`'s docstring for
+        why: UT99's `UdpLink.ReceivedBinary` does not deliver real payload
+        bytes on the build this was built against, while `SendText`/
+        `ReceivedText` do. A raw-binary client (loadgen.py, any future
+        engine that can do better) is unaffected and gets a raw-binary reply
+        back; a hex-text client gets a hex-text reply back, matching what it
+        sent.
 
         Loopback default, for the same reason as TCP: unauthenticated.
         """
@@ -415,6 +425,21 @@ class PolicyServer:
     def _udp_readable(self, srv):
         """One datagram in, one datagram out. No connection, no framing.
 
+        Accepts the payload either raw (every other UDP client) or
+        ASCII-hex-encoded (the UT99 adapter). UT99's `UdpLink.SendBinary`
+        genuinely sends real datagrams — confirmed byte-for-byte correct on
+        a receiving Python socket — but `ReceivedBinary`'s `B` byte-array
+        parameter never carries real content back on the OldUnreal 469e
+        Linux build the adapter was built against: `Count` correctly reports
+        the true datagram size every time, `B` is uninitialised memory
+        regardless of size (verified by searching for a known incrementing
+        byte pattern across the whole buffer and never finding it). UT99's
+        `SendText`/`ReceivedText` round-trip content correctly, so that
+        adapter hex-encodes the exact same schema bytes and sends them as
+        text instead — the schema and wire STRUCTURE are unchanged, only the
+        encoding of the bytes that carry them. A hex request gets a hex
+        reply back; a raw request gets a raw reply back.
+
         A malformed datagram is dropped with a counted error rather than
         closing anything — there is nothing to close, and a peer that sends
         rubbish must not be able to stop us serving everyone else.
@@ -424,8 +449,25 @@ class PolicyServer:
         except (BlockingIOError, ConnectionResetError, OSError):
             return
         t0 = time.perf_counter_ns()
+
+        is_hex = False
+        payload = frame
+        if frame[:len(schema.REQ_MAGIC)] != schema.REQ_MAGIC:
+            # Doesn't look like a raw request -- try treating it as the
+            # hex-text encoding an engine with a broken binary receive path
+            # (UT99) sends instead. Not raw and not valid hex text both fall
+            # through to unpack_request() below, which reports its own
+            # (already-good) error for a short/garbled request.
+            try:
+                decoded = bytes.fromhex(frame.decode("ascii"))
+            except (ValueError, UnicodeDecodeError):
+                decoded = None
+            if decoded is not None and decoded[:len(schema.REQ_MAGIC)] == schema.REQ_MAGIC:
+                payload = decoded
+                is_hex = True
+
         try:
-            tick, flags, entries = schema.unpack_request(frame)
+            tick, flags, entries = schema.unpack_request(payload)
         except ValueError as exc:
             self.metrics.errors += 1
             if "schema hash mismatch" in str(exc):
@@ -440,8 +482,11 @@ class PolicyServer:
             self.metrics.errors += 1
             log(f"policyd: policy raised {type(exc).__name__}: {exc}")
             actions = [(bid, 0, 0.0, 0.0, 0.0, 0.0, 0) for bid, _ in entries]
+        reply = schema.pack_response(tick, actions, flags)
+        if is_hex:
+            reply = reply.hex().encode("ascii")
         try:
-            srv.sendto(schema.pack_response(tick, actions, flags), peer)
+            srv.sendto(reply, peer)
         except OSError:
             return
         self.metrics.record(len(entries), (time.perf_counter_ns() - t0) / 1000.0)
