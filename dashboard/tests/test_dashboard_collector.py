@@ -517,7 +517,13 @@ def test_user_scope_reaches_the_fleet_users_manager_when_root(dc, monkeypatch):
     assert dc._systemctl_prefix("system") == ["systemctl"]
 
 
-def test_collect_services_counts_and_names_the_degraded(dc, monkeypatch):
+def test_collect_services_counts_and_names_the_degraded(dc, monkeypatch, tmp_path):
+    # Point the watchdog source at nothing, so this exercises the systemd
+    # fallback deliberately. Without it the test read the REAL status file on
+    # the developer's host and asserted against live service states — it
+    # passed alone and failed in the suite, which is the worst way to find out.
+    monkeypatch.setattr(dc, "GAMESERVERS_STATUS", str(tmp_path / "absent.json"))
+
     def fake_states(units, scope):
         table = {
             "retro-chat-daemon": {"state": "active", "uptime_sec": 10},
