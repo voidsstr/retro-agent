@@ -6,64 +6,145 @@ Specialists servers from the neural-bot policy server. Part of
 [`scripts/gamebots/README.md`](../../README.md) — read those first; this file
 covers only the GoldSrc-specific half.
 
-## Build status — READ THIS BEFORE TRUSTING ANYTHING ELSE HERE
+## Build status
 
-**The engine-independent core (`retrobot_core.c`) is written, built, and
-tested — 66/66 checks pass, no HLSDK, no 32-bit toolchain needed.**
+**It builds, links, and dlopens cleanly as a 32-bit `.so` with no undefined
+symbols, and its Metamod entry points work.** Verified this session:
 
-**The Metamod glue (`retrobot_engine.cpp`) is written but has never been
-compiled, linked, or run.** This dev host has `gcc`/`g++` but not the 32-bit
-multilib package (`libc6-dev-i386` / `gcc-multilib`) GoldSrc needs — it's a
-32-bit-only engine, no exceptions. Confirmed with `apt-cache policy
-libc6-dev-i386`: candidate exists, not installed, and `sudo apt-get install`
-needs interactive auth this session did not have (`sudo: interactive
-authentication is required`). `apt-get download` (no root needed) pulled the
-`.deb`, but the actual blocker is `gcc-multilib`'s 32-bit crt objects and
-`libgcc`, not just the header package, and hand-assembling a multilib sysroot
-from individually downloaded `.deb`s was judged not worth doing in place of
-the honest thing: say so, and leave a `make check-toolchain` target that
-tells the next person exactly what's missing:
-
-```bash
-cd scripts/gamebots/adapters/goldsrc
-make check-toolchain
-#   MISSING: cc -m32 cannot build a 32-bit binary on this host. ...
-#   Fix (Debian/Ubuntu, needs sudo):
-#       sudo apt-get install gcc-multilib g++-multilib libc6-dev-i386
+```
+$ file build/retrobot.so
+build/retrobot.so: ELF 32-bit LSB shared object, Intel i386, ...
+$ nm -D --defined-only build/retrobot.so | grep -E 'Meta_|GiveFnptrs'
+... T GetEntityAPI2_Post
+... T GiveFnptrsToDll
+... T Meta_Attach
+... T Meta_Detach
+... T Meta_Query
+$ ./dlopen_smoke_test build/retrobot.so     # a tiny standalone dlopen()+dlsym() harness
+dlopen OK
+Meta_Query: found
+Meta_Attach: found
+Meta_Detach: found
+GiveFnptrsToDll: found
+GetEntityAPI2_Post: found
+$ ./meta_query_smoke_test build/retrobot.so  # calls the real Meta_Query()
+Meta_Query returned 1
+ifvers=5:13
+name=RetroBot GoldSrc Adapter
+version=0.1
+loadable=1 unloadable=4
 ```
 
-That command's failure output (`cannot find Scrt1.o`, `cannot find crti.o`,
-`cannot find -lgcc`) is captured verbatim in this repo's history — it is the
-exact wall this session hit.
+`retrobot_core.c` (the engine-independent half) was already built and tested
+before this — 66/66 checks, `tests/native/test_gamebots_goldsrc.c`, no HLSDK
+needed. **What's new is that `retrobot_engine.cpp` (the Metamod glue) now
+compiles too**, on a locally-assembled 32-bit toolchain (no root) described
+below, and a real compiler found three genuine bugs the header-matching pass
+alone could not have caught — see "Bugs a compiler found" just below. All
+three are pinned by `tests/python/test_gamebots_goldsrc_hooks.py` (7 checks,
+source-text assertions, no HLSDK/compiler needed to run).
 
-**What that means concretely:**
-- Every HLSDK/Metamod API used in `retrobot_engine.cpp` (struct field names,
-  function signatures, `DLL_FUNCTIONS`/`META_FUNCTIONS` field ORDER) was
-  checked against the actual cloned `build/hlsdk` and `build/metamod-hl1`
-  headers and, where possible, against the reference implementation in
-  `build/hlsdk/dlls/client.cpp` (e.g. `GetWeaponData`/`UpdateClientData`) —
-  not written from memory. Matching the header is necessary, not sufficient.
-- It has not been type-checked by a compiler. There will very likely be
-  small mistakes (a missing cast, an off-by-one in a struct initializer) that
-  only a real build finds. One such mistake (a completely missing
-  `GiveFnptrsToDll`/`g_engfuncs` definition — the plugin would have failed to
-  link) was caught during writing by re-reading against
-  `metamod-hl1/stub_plugin/h_export.cpp`; there may be others like it that
-  weren't.
-- **Do not deploy this to `cs16-server`, `cs16-noblood`, or
-  `specialists-server`** until it has been built and tested against a
-  throwaway HLDS instance on a spare port (see "Testing on a throwaway
-  server" below). This file's job is to make that easy for whoever has (or
-  installs) the 32-bit toolchain.
+**What's still NOT verified:** this was dlopen'd and had `Meta_Query()` called
+in a standalone smoke-test harness, never inside a real HLDS+Metamod process.
+`Meta_Attach`, the `pfnStartFrame` hook, `pfnCreateFakeClient`, and everything
+that touches real engine state (`g_engfuncs`, `gpGlobals`) has not run against
+a live server. **Do not deploy this to `cs16-server`, `cs16-noblood`, or
+`specialists-server`** until it has been tested against a throwaway HLDS
+instance on a spare port (see "Testing on a throwaway server" below).
+
+### Bugs a compiler found (that header-matching alone missed)
+
+Every HLSDK/Metamod API used was checked against the actual cloned headers
+before a compiler ever ran — matching the header turned out to be necessary,
+not sufficient. Three real bugs only showed up once a compiler looked at it:
+
+1. **`clientdata_t` was never declared.** HLSDK's `dlls/extdll.h` (which
+   pulls in `eiface.h`) never includes `common/entity_state.h`, which is the
+   only place `clientdata_t` (and `weapon_data_t`, redundantly, since it's
+   also reachable via `<weaponinfo.h>`) is declared. The compiler's error
+   recovery silently treated the unknown `clientdata_t` as `int`, so
+   `RB_UpdateClientData_Post`'s third parameter became `int *cd` instead of
+   `clientdata_t *cd` — a hook that, had a more permissive/older compiler let
+   it through, would have been registered into metamod's live
+   `DLL_FUNCTIONS` table with the wrong pointer type, read every frame for
+   every connected player. Fixed by `#include <entity_state.h>`.
+2. **`dlls/util.h` has no include guard**, by HLSDK's own design — a `.cpp`
+   is meant to include it exactly once, directly. This file did that AND got
+   it a second time transitively via `<meta_api.h> -> dllapi.h -> sdk_util.h
+   -> <util.h>`, so it was parsed twice in one translation unit, and every
+   default-argument and class declaration in it became a hard "redefinition"
+   error. Fixed by removing the direct `#include <util.h>` (it still arrives,
+   once, via `<meta_api.h>`).
+3. **`UTIL_LogPrintf` mismatch, found only at `dlopen()` time.** `dlls/util.h`
+   declares it `(char *fmt, ...)` (non-const); the only real implementation —
+   `metamod-hl1/metamod/sdk_util.cpp`, which every plugin must compile its own
+   copy of (metamod ships no shared runtime for plugins to link against;
+   `stub_plugin` lists `sdk_util.cpp` as one of its own sources for exactly
+   this reason, and this Makefile now does too) — defines it
+   `(const char *fmt, ...)`. Those are two *different* C++ overloads with two
+   different mangled names. The mismatch is invisible at build/link time (a
+   `.so` is allowed unresolved symbols) and only shows up as `dlopen()`
+   failing at runtime with `undefined symbol: _Z14UTIL_LogPrintfPcz`. Fixed
+   by redeclaring the real (const) signature in `retrobot_engine.cpp` before
+   any call site, so string-literal calls bind to the overload that exists.
+
+All three are exactly the class of mistake the file's original "written, not
+built" disclaimer warned about — caught the moment a real compiler ran,
+consistent with matching a header being necessary but not sufficient.
+
+### No-root 32-bit toolchain (how this was actually built)
+
+The dev host had `gcc`/`g++` but not the 32-bit multilib package
+(`libc6-dev-i386`/`gcc-multilib`), and `sudo apt-get install` needs
+interactive auth a Claude Code session doesn't have. **`apt-get download`
+works without root** (it just fetches `.deb`s, no install step), so the fix
+is to unpack the needed packages into a private prefix and point the
+compiler at it with `-B`/`-L`/`-idirafter` instead of `--sysroot` (`--sysroot`
+hides the *system* C++ headers, which are still needed since this prefix
+only carries the 32-bit halves):
+
+```bash
+# one-time setup into a prefix, e.g. $HOME/.local/m32root:
+M32=/path/to/your/m32/prefix
+mkdir -p "$M32"
+cd /tmp && apt-get download gcc-14-multilib lib32gcc-14-dev libx32gcc-14-dev     libc6-dev-i386 libc6-i386 lib32stdc++-14-dev lib32stdc++6     lib32stdc++-15-dev lib32gcc-15-dev gcc-15-multilib
+for d in *.deb; do dpkg-deb -x "$d" "$M32"; done
+
+# $M32/usr/lib32/libc.so is a linker script with absolute host paths
+# (/usr/lib32/..., /lib/ld-linux.so.2) that don't exist in the prefix --
+# rewrite them to point inside $M32, and symlink the dynamic linker:
+#   $M32/lib/ld-linux.so.2 -> ../usr/lib32/ld-linux.so.2
+
+M32FLAGS="-B$M32/usr/lib/gcc/x86_64-linux-gnu/15/32/ -B$M32/usr/lib32/ \
+  -L$M32/usr/lib32 -L$M32/usr/lib/gcc/x86_64-linux-gnu/15/32 \
+  -idirafter $M32/usr/include/x86_64-linux-gnu/c++/15/32 \
+  -idirafter $M32/usr/include/x86_64-linux-gnu \
+  -idirafter /usr/include/x86_64-linux-gnu"
+
+cd scripts/gamebots/adapters/goldsrc
+make CC="gcc $M32FLAGS" CXX="g++ $M32FLAGS"
+```
+
+This is documented here as the path that actually worked, but **`make
+check-toolchain`'s plain `sudo apt-get install gcc-multilib g++-multilib
+libc6-dev-i386` remains the preferred route** on any host where root is
+available — it's simpler, and it's what every other developer on a normal
+Linux box should just do. The no-root recipe above is for exactly the
+situation this session was in: an automated build session with no
+interactive sudo.
 
 ## What's here
 
 | file | what it is | tested? |
 |---|---|---|
 | `retrobot_core.h` / `.c` | Engine-independent observation packing: world→ego-centric rotation, threat-sorted entity slots, normalisation/clamping, schema packing via the `GB_OBS_*` macros. Zero HLSDK dependency by design. | **Yes** — `tests/native/test_gamebots_goldsrc.c`, 66 checks, plain `gcc -std=c11` |
-| `retrobot_engine.cpp` | The Metamod plugin: `Meta_Query`/`Meta_Attach`, fakeclient creation, the `pfnStartFrame` POST hook that drives the per-tick observe→exchange→act loop, `TraceLine`-based raycasting and visibility, action application via `pfnRunPlayerMove`. | **No** — see "Build status" |
-| `Makefile` | Clones HLSDK + metamod-hl1 into `build/` (gitignored), builds `build/retrobot.so`. `make check-toolchain` first. | N/A |
+| `retrobot_engine.cpp` | The Metamod plugin: `Meta_Query`/`Meta_Attach`, fakeclient creation, the `pfnStartFrame` POST hook that drives the per-tick observe→exchange→act loop, `TraceLine`-based raycasting and visibility, action application via `pfnRunPlayerMove`. | **Builds, links, dlopens; `Meta_Query()` runs correctly. NOT run inside a real HLDS** — see "Build status" |
+| `Makefile` | Clones HLSDK + metamod-hl1 into `build/` (gitignored), builds `build/retrobot.so` (now including metamod's own `sdk_util.cpp`, required — see "Bugs a compiler found"). `make check-toolchain` first. | N/A |
 | `build/` | Gitignored. `hlsdk/` (ValveSoftware/halflife) and `metamod-hl1/` (alliedmodders/metamod-hl1), cloned by `make deps`, plus build output. **Never commit anything in here.** | — |
+
+Plus `tests/python/test_gamebots_goldsrc_hooks.py` (7 checks, source-text
+assertions, no HLSDK/compiler needed) pinning the three bugs above so a later
+refactor can't silently reintroduce any of them.
 
 ## Building
 
@@ -75,9 +156,11 @@ make                     # builds build/retrobot.so
 ```
 
 `make deps` needs network access to GitHub; both repos were reachable and
-cloned successfully during this session (`git ls-remote` and `git clone
---depth 1` both worked, ~48MB for HLSDK). Only the *compile* step is blocked
-here, not the fetch.
+cloned successfully (`git ls-remote` and `git clone --depth 1` both worked,
+~48MB for HLSDK). On a host with `gcc-multilib`/`libc6-dev-i386` already
+installed, that's the whole story. On a host without root, see "No-root
+32-bit toolchain" above for the `CC=`/`CXX=` override that was actually used
+to get this building.
 
 ## What's honestly extracted, and what's zero-filled
 
@@ -175,21 +258,40 @@ disconnect the bot the normal server-admin way (`kick`) and
 
 ## Testing
 
-**What runs today, on this host, no HLSDK/32-bit toolchain needed:**
+**What runs today via `tests/run_all.sh`, no HLSDK/32-bit toolchain needed:**
 
 ```bash
 bash tests/run_all.sh
 # or directly:
 gcc -std=c11 -O0 -g -Wall -I tests/native tests/native/test_gamebots_goldsrc.c -lm \
-    -o /tmp/test_gamebots_goldsrc && /tmp/test_gamebots_goldsrc
+    -o /tmp/test_gamebots_goldsrc && /tmp/test_gamebots_goldsrc   # 66 checks
+pytest tests/python/test_gamebots_goldsrc_hooks.py                # 7 checks
 ```
 
-This exercises `retrobot_core.c`'s NaN-safety, the threat-sort (visibility,
-distance, teammate/enemy grouping, ties, invalid/out-of-range input), the
-frame rotation, and full `rb_build_observation()` round trips including the
-reserved intent slot and alignment padding staying zero. It does **not**
-exercise `retrobot_engine.cpp` — there is no way to unit-test Metamod glue
-without an HLDS process.
+The first exercises `retrobot_core.c`'s NaN-safety, the threat-sort
+(visibility, distance, teammate/enemy grouping, ties, invalid/out-of-range
+input), the frame rotation, and full `rb_build_observation()` round trips
+including the reserved intent slot and alignment padding staying zero. The
+second pins the three real bugs a compiler found in `retrobot_engine.cpp`
+(see "Bugs a compiler found") at the source-text level, so a refactor can't
+silently reintroduce any of them without a compiler to catch it.
+
+**What ran once, by hand, with the no-root 32-bit toolchain (not part of
+`tests/run_all.sh` — needs the toolchain and isn't reproducible on a bare
+clone):** `retrobot.so` built, `file` confirmed `ELF 32-bit ... Intel 80386`,
+`nm -D --defined-only` confirmed all five Metamod entry points export with
+plain (unmangled) C linkage, a standalone `dlopen()`+`dlsym()` harness loaded
+it with zero undefined symbols, and a second harness called the real
+`Meta_Query()` and got back the correct `plugin_info_t` (name, version,
+`ifvers="5:13"` matching `META_INTERFACE_VERSION`, `loadable`/`unloadable`).
+Neither harness is committed — they were disposable ~30-line C files built
+against the same prefix, not test infrastructure this repo can run without
+that prefix.
+
+**What is still NOT verified — everything past `Meta_Query`:** `Meta_Attach`,
+`GiveFnptrsToDll`, the `pfnStartFrame` hook, `pfnCreateFakeClient`, and every
+line that touches `g_engfuncs`/`gpGlobals` has never run against a real
+engine. Those need an actual HLDS+Metamod process, which is the next section.
 
 ### Testing on a throwaway server (required before ANY live deploy)
 
@@ -197,7 +299,8 @@ Per the task brief: **never deploy to `cs16-server`, `cs16-noblood`, or
 `specialists-server`** — people play on those. To test for real:
 
 1. Get the 32-bit toolchain (`sudo apt-get install gcc-multilib g++-multilib
-   libc6-dev-i386`) and run `make` here until `build/retrobot.so` exists.
+   libc6-dev-i386`, or the no-root recipe above) and run `make` here until
+   `build/retrobot.so` exists.
 2. Stand up a **separate** HLDS instance on a spare UDP port (not 27015/27016,
    whatever `cs16-server`/`cs16-noblood` use — check
    `scripts/game-servers/README.md`), with Metamod installed (copy the

@@ -1,16 +1,20 @@
 /* retrobot_engine.cpp — the Metamod plugin half of the GoldSrc adapter.
  *
- * *** STATUS: WRITTEN, NOT BUILT. See README.md before trusting anything
- * *** here. This host has no 32-bit C/C++ toolchain (libc6-dev-i386 /
- * *** gcc-multilib are not installed and installing them needs interactive
- * *** sudo this session does not have), so this file has never been
- * *** compiled, let alone run against a live HLDS. Every engine API used
- * *** below was checked against the actual cloned HLSDK/metamod-hl1 headers
- * *** (build/hlsdk, build/metamod-hl1) at the field/signature level, not
- * *** guessed from memory -- but "matches the header" is not "compiles",
- * *** and "compiles" is not "correct on hardware". Do not deploy this to
- * *** cs16-server / cs16-noblood / specialists-server without building and
- * *** testing it against a throwaway HLDS instance first.
+ * *** STATUS: BUILDS AND DLOPENS; NEVER RUN AGAINST A LIVE HLDS. See
+ * *** README.md "Build status" before trusting anything here. It compiles,
+ * *** links, and loads cleanly as a 32-bit .so (verified: `file` reports
+ * *** ELF 32-bit Intel 80386; a standalone dlopen()/dlsym() harness finds
+ * *** every Metamod entry point with no undefined symbols; a second harness
+ * *** calls the real Meta_Query() and gets back the correct plugin_info_t).
+ * *** Getting this far required a 32-bit toolchain this host didn't have
+ * *** installed and fixing three real bugs a compiler found that
+ * *** header-matching alone had missed -- see README.md "Bugs a compiler
+ * *** found" for what they were and why each one was invisible without a
+ * *** compiler. What has NOT run: Meta_Attach, GiveFnptrsToDll, the
+ * *** pfnStartFrame hook, pfnCreateFakeClient, or anything else that
+ * *** touches g_engfuncs/gpGlobals -- those need a real engine behind them.
+ * *** Do not deploy this to cs16-server / cs16-noblood / specialists-server
+ * *** without testing it against a throwaway HLDS instance first.
  *
  * What this does, once built and loaded as a Metamod plugin:
  *   - a server console command creates fakeclient bots (pfnCreateFakeClient,
@@ -51,9 +55,22 @@
  */
 
 #include <extdll.h>
-#include <util.h>
+/* dlls/util.h has NO include guard (`#ifndef UTIL_H`) -- the real HLSDK
+ * convention is that a .cpp includes it exactly once, directly, and nothing
+ * else redundantly re-includes it. <meta_api.h> below already pulls it in
+ * transitively (meta_api.h -> dllapi.h -> sdk_util.h -> <util.h>), so this
+ * file must NOT also include it directly -- doing so double-parses a header
+ * with no guard and every default-argument / class declaration in it
+ * becomes a hard "redefinition" error. Confirmed by hitting exactly that
+ * error the first time a compiler actually saw this file. */
 #include <in_buttons.h>
-#include <weaponinfo.h>
+/* entity_state.h declares clientdata_t (struct clientdata_s) AND pulls in
+ * weaponinfo.h for weapon_data_t -- neither is reachable through extdll.h's
+ * own include chain (confirmed: extdll.h -> eiface.h never includes
+ * entity_state.h). Missing this was the actual first build failure: the
+ * compiler read "clientdata_t" as an undeclared identifier, not as a
+ * mistyped API call. */
+#include <entity_state.h>
 
 #include <meta_api.h>
 #include "sdk_util.h"
@@ -98,6 +115,22 @@ void *operator new[](size_t size) { return malloc(size); }
 void operator delete(void *ptr)   { free(ptr); }
 void operator delete[](void *ptr) { free(ptr); }
 #endif
+
+/* dlls/util.h declares `UTIL_LogPrintf(char *fmt, ...)` (non-const), but
+ * metamod-hl1/metamod/sdk_util.cpp -- the actual, only implementation any
+ * plugin links against, since metamod ships no shared runtime plugins link
+ * a copy of it (see this Makefile's sdk_util.o rule) -- DEFINES it as
+ * `UTIL_LogPrintf(const char *fmt, ...)`. In C++ those are two DIFFERENT
+ * overloads with two different mangled names, not the same function
+ * redeclared. A call through dlls/util.h's declaration therefore builds and
+ * *links* "successfully" (a .so is allowed unresolved symbols at build
+ * time) but fails to dlopen at runtime: "undefined symbol:
+ * _Z14UTIL_LogPrintfPcz". Confirmed by hitting exactly that with a dlopen
+ * smoke test. Redeclaring the REAL (const) signature here makes every
+ * string-literal call site in this file bind to the overload that exists,
+ * since an exact `const char*` match is preferred over the non-const
+ * overload's deprecated string-literal conversion. */
+extern void UTIL_LogPrintf(const char *fmt, ...);
 
 /* ------------------------------------------------------------------ */
 /* constants                                                           */

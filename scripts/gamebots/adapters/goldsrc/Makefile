@@ -35,7 +35,8 @@ CXX        ?= g++
 CC         ?= gcc
 
 INCLUDES := -I$(HLSDK)/common -I$(HLSDK)/dlls -I$(HLSDK)/engine \
-            -I$(HLSDK)/pm_shared -I$(METAMOD) -I$(HERE) -I$(HERE)/..
+            -I$(HLSDK)/pm_shared -I$(HLSDK)/public -I$(METAMOD) \
+            -I$(HERE) -I$(HERE)/..
 
 # -m32: GoldSrc is a 32-bit engine, full stop.
 # -fPIC -shared: building a loadable .so.
@@ -45,14 +46,22 @@ INCLUDES := -I$(HLSDK)/common -I$(HLSDK)/dlls -I$(HLSDK)/engine \
 # No -Werror: this is 2001-vintage third-party SDK code (deprecated
 #   string-literal-to-char* conversions throughout); matching how every real
 #   metamod plugin build treats it, including metamod-hl1's own Makefile.
-CXXFLAGS := -m32 -fPIC -shared -Wall -O2 $(INCLUDES) \
+# -fpermissive: REQUIRED, not cosmetic. metamod-hl1's own sdk_util.h (not
+#   ours to edit) passes a `const char *` function parameter into APIs
+#   declared `char *` -- valid, sloppy C++98, a hard error under modern
+#   G++'s default strictness. Confirmed by an actual build: without this
+#   flag, sdk_util.h itself fails to compile with "invalid conversion from
+#   'const char*' to 'char*'". This is the standard, widely-documented
+#   requirement for building any 2001-era GoldSrc/Metamod SDK code with a
+#   current compiler, not something specific to this plugin.
+CXXFLAGS := -m32 -fPIC -shared -Wall -O2 -fpermissive $(INCLUDES) \
             -Dlinux -D_LINUX -DPOSIX -fno-exceptions
 CFLAGS   := -m32 -fPIC -Wall -O2 $(INCLUDES) -Dlinux -D_LINUX -DPOSIX
 
 SRCS_CXX := retrobot_engine.cpp
 SRCS_C   := retrobot_core.c ../gb_client.c
 
-OBJS := $(BUILD)/retrobot_engine.o $(BUILD)/retrobot_core.o $(BUILD)/gb_client.o
+OBJS := $(BUILD)/retrobot_engine.o $(BUILD)/sdk_util.o $(BUILD)/retrobot_core.o $(BUILD)/gb_client.o
 
 .PHONY: all deps check-toolchain clean test-core
 
@@ -94,6 +103,17 @@ check-toolchain:
 	fi
 
 $(BUILD)/retrobot_engine.o: retrobot_engine.cpp retrobot_core.h ../../gamebots_schema.h ../gb_client.h | $(BUILD) deps
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# metamod-hl1 does not ship a linkable metamod runtime for plugins to share --
+# every plugin compiles its OWN copy of these SDK utility routines
+# (UTIL_LogPrintf, ENTITY_KEYVALUE, ...) straight from the metamod-hl1
+# checkout. Confirmed necessary by an actual link/dlopen attempt: without
+# this, retrobot.so builds and links (nothing catches it at build time --
+# they're only USED, never redefined, in this TU) but fails to dlopen with
+# "undefined symbol: UTIL_LogPrintf". metamod-hl1's own stub_plugin lists
+# sdk_util.cpp as one of ITS sources for exactly this reason.
+$(BUILD)/sdk_util.o: $(METAMOD)/sdk_util.cpp | $(BUILD) deps
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD)/retrobot_core.o: retrobot_core.c retrobot_core.h ../../gamebots_schema.h | $(BUILD)
