@@ -152,6 +152,10 @@ class BootHold:
         self.path = path
         self.hold = int(hold_seconds or 0)
         self.grace = int(grace_seconds or 0)
+        # How many times a machine may be re-served inside the grace window
+        # before we conclude it is looping rather than retrying.
+        self.max_retries = 2
+        self.retries = {}
         self.lock = threading.Lock()
         self.served = {}
         self.mtime = None
@@ -234,9 +238,24 @@ class BootHold:
             return False
         age = time.time() - ts
         if age < self.grace:
-            log(f'boot-hold: {mac} returned after {int(age)}s - too soon to be a '
-                f'finished install, re-offering (grace {self.grace}s)')
-            return False
+            # The grace exists so a FAILED install can be retried without
+            # waiting six hours. It must not become an unlimited licence: a
+            # machine that reboots every ten minutes lands inside the window
+            # every time and is re-served forever, which is precisely the
+            # reinstall loop the hold was written to prevent. Seen on
+            # 00:13:d4:a4:a4:13 - six cycles in under an hour, each one wiping
+            # the disk and starting again.
+            n = self.retries.get(mac.lower(), 0)
+            if n < self.max_retries:
+                self.retries[mac.lower()] = n + 1
+                log(f'boot-hold: {mac} returned after {int(age)}s - re-offering '
+                    f'(retry {n + 1} of {self.max_retries} inside the '
+                    f'{self.grace}s grace)')
+                return False
+            log(f'boot-hold: {mac} has now been served {n + 1} times inside the '
+                f'grace window - HOLDING. It is looping, not retrying; something '
+                f'is failing during setup. --release {mac} once that is fixed.')
+            return True
         return age < self.hold
 
     def arm(self, mac):
@@ -679,7 +698,20 @@ DEFAULT_CONFIG = {
     # is almost certainly RETRYING a failed install, not booting a finished one -
     # a successful text-mode phase takes far longer than this. Re-offer in that
     # window instead of locking it out. See BootHold.held().
-    'retry_grace_seconds': 900,
+    # ZERO BY DEFAULT, and that is the lesson rather than a tuning choice.
+    #
+    # This was 900s on the theory that a machine returning within fifteen
+    # minutes could not have finished installing, so it must have failed and
+    # deserved another try. The theory is wrong: text-mode setup takes about ten
+    # minutes on a modern machine, so a SUCCESSFUL install returns inside the
+    # window - and got handed a fresh install that wiped the disk it had just
+    # finished writing. One box did that six times in an hour before anyone
+    # noticed, because from the outside it just looks like a long file copy.
+    #
+    # The problem the grace was meant to solve - a failed install locked out for
+    # six hours - has a one-command answer: --release <mac>. Guessing intent
+    # from timing does not.
+    'retry_grace_seconds': 0,
     # Pin every socket to one interface. Normally empty, meaning 'all'.
     # Needed when the host has more than one link on the fleet LAN,
     # because the proxyDHCP OFFER is a broadcast to 255.255.255.255 and

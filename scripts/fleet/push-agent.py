@@ -56,14 +56,39 @@ def restart_bat(temp_exe):
         lines.append('ping -n 3 127.0.0.1 > nul')
         lines.append(f'copy /Y {temp_exe} {INSTALL_DIR}\\retro_agent.exe')
         lines.append('if not errorlevel 1 goto swapped')
+    # STARTING IT IS THE STEP THAT MUST NOT FAIL SILENTLY.
+    #
+    # This batch has already killed the agent, so if `start` does not take, the
+    # box is left with no agent and no way in - the Run key only fires at logon
+    # and the machine is already logged in, so it needs a physical power cycle.
+    # That happened on a fleet box, twice, and a one-shot `start` is why: it
+    # returns immediately whether or not the process actually came up.
+    #
+    # So verify and retry. tasklist/find tells us whether it is really running,
+    # and the batch does not exit until it is or it has genuinely exhausted its
+    # attempts - at which point it says so in a file we can read later rather
+    # than deleting itself and leaving no trace.
     lines += [
         'echo push-agent: could not replace the binary; restarting what is there',
-        f'start {INSTALL_DIR}\\retro_agent.exe',
-        'goto done',
+        'goto launch',
         ':swapped',
         f'del {temp_exe}',
         'echo push-agent: starting the new agent...',
-        f'start {INSTALL_DIR}\\retro_agent.exe',
+        ':launch',
+    ]
+    for attempt in range(1, 6):
+        lines += [
+            f'start "" {INSTALL_DIR}\\retro_agent.exe',
+            'ping -n 6 127.0.0.1 > nul',
+            'tasklist /FI "IMAGENAME eq retro_agent.exe" 2>nul | find /I "retro_agent.exe" > nul',
+            'if not errorlevel 1 goto running',
+            f'echo push-agent: attempt {attempt} did not start the agent',
+        ]
+    lines += [
+        f'echo push-agent: FAILED to start the agent after 5 attempts > {INSTALL_DIR}\\push_agent_failed.txt',
+        'goto done',
+        ':running',
+        'echo push-agent: agent is running',
         ':done',
         f'del {INSTALL_DIR}\\push_agent.bat',
     ]
