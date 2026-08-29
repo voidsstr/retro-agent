@@ -150,9 +150,27 @@ echo "   newimage.flag: marks the box as freshly imaged for the agent"
     printf '[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\StandardProfile\\GloballyOpenPorts\\List]\r\n'
     printf '"9898:TCP"="9898:TCP:*:Enabled:Retro Agent"\r\n\r\n'
     printf '[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\DomainProfile\\GloballyOpenPorts\\List]\r\n'
-    printf '"9898:TCP"="9898:TCP:*:Enabled:Retro Agent"\r\n'
+    printf '"9898:TCP"="9898:TCP:*:Enabled:Retro Agent"\r\n\r\n'
+    # AutoPlay OFF on every drive type.
+    #
+    # The staged disc-gated titles (System Shock 2, Thief, Descent 2, StarCraft,
+    # and the rest as their images land) MOUNT THEIR OWN ISO at launch, and a
+    # mount raises a modal AutoPlay window - on top of a game that is starting,
+    # often fullscreen. It steals focus, it can make the title bail during init,
+    # and it sits on top of every screenshot we take afterwards. On a freshly
+    # imaged box that happens on the FIRST launch of every one of those games.
+    #
+    # 0xFF sets the bit for all drive types (removable, fixed, network, CD-ROM,
+    # RAM), which is the documented way to say "never". Both hives: HKLM is the
+    # machine policy, and HKCU here is the Default User hive at T-12, so every
+    # profile created afterwards inherits it - the same trick the PowerStrip
+    # licence key below relies on.
+    printf '[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer]\r\n'
+    printf '"NoDriveTypeAutoRun"=dword:000000ff\r\n\r\n'
+    printf '[HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer]\r\n'
+    printf '"NoDriveTypeAutoRun"=dword:000000ff\r\n'
 } > "$OEM/retroagent.reg"
-echo "   retroagent.reg: auto-login (no count) + Run key + firewall OFF (+9898 rule)"
+echo "   retroagent.reg: auto-login (no count) + Run key + firewall OFF (+9898 rule) + AutoPlay off"
 
 # ---- 3b. the driver search path, as a registry value ---------------------
 # OemPnPDriversPath in winnt.sif is the documented way to do this, and for a
@@ -206,6 +224,99 @@ with io.open(sys.argv[2], 'a', encoding='latin1', newline='') as fh:
     fh.write('"DevicePath"=hex(2):' + ','.join('%02x' % ord(c) for c in value + '\0') + '\r\n')
 print('   DevicePath: %d dirs, %d chars' % (len(abs_paths.split(';')), len(value)))
 PYEOF
+fi
+
+# ---- 3bb. drivers the agent must FORCE over the one XP picks itself ------
+#
+# A driver in $OEM$ that DevicePath points at is still not a driver that gets
+# installed. Two things stop it and both are silent:
+#
+#  1. winnt.sif carries only the SHORT early path (LAN + chipset). Everything
+#     else waits for DevicePath, which cmdlines.txt writes at T-12 - AFTER GUI
+#     setup has installed the devices. Measured on the freshly imaged .124: its
+#     setupapi.log has six "Found ... in C:\D\" lines and every one is an L or a
+#     C directory. Graphics and sound were copied, indexed, never consulted.
+#  2. Even when visible, an UNTRUSTED node is penalised +0x8000 in the driver
+#     rank ("#I087 Driver node not trusted, rank changed from 0x2000 to 0xa000")
+#     and so loses to any trusted in-box match. DriverSigningPolicy=Ignore
+#     suppresses the dialog, not the rank.
+#
+# The device then sits on Windows' own driver at problem code 0, which is to say
+# it reports itself as fine. Only an explicit FORCED install beats ranking, so
+# the agent does one at first logon from the list written here.
+#
+# Resolved against the tree inject-drivers.sh actually built, because the D\Gnnn
+# numbering is assigned at injection time and a hand-written path would rot the
+# moment the packs change.
+PREFS_SRC="${PREFS_SRC:-$HERE/driver-prefs.txt}"
+if [ -f "$PREFS_SRC" ] && [ -d "$IMAGE/\$OEM\$/\$1/D" ]; then
+    python3 - "$PREFS_SRC" "$IMAGE/\$OEM\$/\$1/D" <<'PYPREF'
+import io, os, re, sys
+
+src, dtree = sys.argv[1], sys.argv[2]
+HWID = re.compile(r'(PCI\\VEN_[0-9A-F]{4}&DEV_[0-9A-F]{4}'
+                  r'(?:&SUBSYS_[0-9A-F]{8})?(?:&REV_[0-9A-F]{2})?)', re.I)
+
+rules = []
+for line in io.open(src, encoding='latin1'):
+    line = line.split('#', 1)[0].strip()
+    if not line:
+        continue
+    parts = [p.strip() for p in line.split('|')]
+    if len(parts) < 3:
+        sys.exit('driver-prefs.txt: need "inf | marker | why", got: ' + line)
+    rules.append(parts[:3])
+
+dirs = sorted(d for d in os.listdir(dtree)
+              if os.path.isdir(os.path.join(dtree, d)))
+out, unmatched = [], []
+for inf_name, marker, why in rules:
+    hit = None
+    for d in dirs:
+        p = os.path.join(dtree, d, inf_name)
+        if not os.path.isfile(p):
+            # INF names are case-insensitive on the media; the share is not.
+            cand = [f for f in os.listdir(os.path.join(dtree, d))
+                    if f.lower() == inf_name.lower()]
+            if not cand:
+                continue
+            p = os.path.join(dtree, d, cand[0])
+        text = io.open(p, encoding='latin1', errors='replace').read()
+        if marker.lower() not in text.lower():
+            continue
+        hit = (d, os.path.basename(p), text)
+        break
+    if not hit:
+        unmatched.append('%s (marker %r)' % (inf_name, marker))
+        continue
+    d, base, text = hit
+    ids = sorted({m.group(1).upper() for m in HWID.finditer(text)})
+    if not ids:
+        unmatched.append('%s in %s declares no PCI hardware id' % (base, d))
+        continue
+    out.append('; %s  ->  D\\%s\\%s  (%d ids)' % (inf_name, d, base, len(ids)))
+    out.append('; %s' % why)
+    for i in ids:
+        out.append('%s\tC:\\D\\%s\\%s' % (i, d, base))
+
+# A rule that has silently stopped matching is exactly how this class of bug
+# survives, so an unmatched rule is fatal, not a warning.
+if unmatched:
+    sys.exit('driver-prefs.txt: no INF in the built image matches: '
+             + '; '.join(unmatched))
+
+dst = os.path.join(dtree, 'PREFER.TXT')
+with io.open(dst, 'w', encoding='latin1', newline='') as fh:
+    fh.write('; Generated by stage-oem.sh from scripts/pxe/driver-prefs.txt.\r\n')
+    fh.write('; <hardware id>\\t<INF to force>. Applied by the agent at first\r\n')
+    fh.write('; logon, BEFORE it reclaims C:\\D. Do not edit by hand.\r\n')
+    for l in out:
+        fh.write(l + '\r\n')
+n = sum(1 for l in out if not l.startswith(';'))
+print('   PREFER.TXT: %d forced-driver entries from %d rule(s)' % (n, len(rules)))
+PYPREF
+else
+    echo "   PREFER.TXT: skipped (no driver-prefs.txt or no \$OEM\$\\\$1\\D yet)"
 fi
 
 # ---- 3c. PowerStrip ------------------------------------------------------

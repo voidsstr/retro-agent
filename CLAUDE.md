@@ -1004,6 +1004,46 @@ async def try_host(ip):
         pass
 ```
 
+## The image can ship a driver and still not install it (XP driver ranking)
+
+**On XP, `DriverSigningPolicy=Ignore` suppresses the signature DIALOG, not the
+driver RANK.** An untrusted driver node is penalised **+0x8000**
+(`#I087 Driver node not trusted, rank changed from 0x00002000 to 0x0000a000`),
+so an unsigned INF in `C:\D` can never beat a trusted in-box match. The device
+then sits on Windows' own driver at **problem code 0** — it reports itself as
+perfect — and nothing anywhere flags it. Found on **.124** 2026-08-29: a
+freshly imaged GeForce2 GTS on Microsoft's nv4 6.14.10.5673 at 800x600x16 with
+ForceWare 71.89 unused on its own disk. Full narrative: `retro-3dfx/FINDINGS.md`.
+
+Compounding it: **`winnt.sif` carries only the SHORT early driver path (LAN +
+chipset)**. Everything else waits for `DevicePath`, which `cmdlines.txt` writes
+at **T-12 — after GUI setup has installed the devices**. So graphics, sound,
+monitor and mass-storage in `C:\D` are copied, indexed, and never consulted.
+
+**The fix, and the rule going forward:** a driver we must have is declared in
+`scripts/pxe/driver-prefs.txt` (`<inf> | <marker in the inf> | why`).
+`stage-oem.sh` expands it against the built tree into
+`$OEM$\$1\D\PREFER.TXT` (`<hardware id>\t<INF>`), and the agent
+**force-installs** those at first logon with
+`UpdateDriverForPlugAndPlayDevices`+`INSTALLFLAG_FORCE`, which ignores ranking.
+Ad hoc, on a live box: **`DRVUPDATE <hardware-id> [inf-path]`**.
+
+- **Never let a heuristic pick the INF.** Three directories in the image name
+  `DEV_0150`; the first one found is `G003\nv4_go.inf` — ForceWare **270.61
+  mobile**, a 2011 driver for a 2000 card. Match on the build (`DriverVer
+  7.1.8.9` = 71.89).
+- **`gs_reclaim_drivers()` must never run before the force-install** (agent
+  **1.59.0**). It used to delete the 2.4 GB `C:\D` payload whenever no device
+  carried a problem code, which left .124 with neither the right driver nor the
+  means to fix itself. It now also refuses while a preference that applies to
+  *this* machine is unsatisfied — preferences for absent hardware never block,
+  or the list would refill the 6 GB Gateway the reclaim exists for.
+- Logic in `agent/shared/drvprefs.h`; tests `tests/native/test_driver_prefs.c`
+  and `tests/test_pxe_drivers.py`.
+- **A device XP leaves UNCONFIGURED does not need a preference** —
+  `gs_install_missing_drivers()` already handles those. This mechanism is only
+  for devices Windows configures *badly* and therefore reports as fine.
+
 ## Remote Driver Installation
 
 See the case studies in `docs/case-studies/` for detailed real-world examples of:

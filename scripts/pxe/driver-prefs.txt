@@ -1,0 +1,60 @@
+# driver-prefs.txt - drivers the image must FORCE over the one XP picks itself.
+#
+# WHY THIS FILE EXISTS.
+#
+# Shipping a driver in $OEM$ and pointing DevicePath at it is NOT enough to get
+# it installed. Two separate things stop it, and both fail silently:
+#
+#  1. winnt.sif's OemPnPDriversPath carries only the SHORT early list (LAN +
+#     chipset), because the full 493-directory list broke the answer file. The
+#     rest waits for DevicePath, which cmdlines.txt writes at T-12 - AFTER GUI
+#     setup has already installed the devices. So graphics, sound, monitor and
+#     mass-storage drivers are copied to C:\D, indexed, and never consulted.
+#     Measured on the freshly imaged .124 (2026-08-29): its setupapi.log has
+#     exactly six "Found ... in C:\D\" lines and every one is an L (LAN) or C
+#     (chipset) directory. Not one G, H, I, M, N, S or T.
+#
+#  2. Even when a C:\D INF IS visible, XP penalises an UNTRUSTED driver node by
+#     +0x8000 in the driver rank:
+#         #I087 Driver node not trusted, rank changed from 0x2000 to 0xa000
+#     so it can never beat a trusted in-box match (XP's own nv4_disp scored
+#     0x2001). DriverSigningPolicy=Ignore suppresses the DIALOG, not the RANK.
+#     Every DriverPacks INF that was edited or renamed has lost its catalog and
+#     is untrusted by construction.
+#
+# The consequence is a whole class of silent failures: a device XP can serve
+# BADLY by itself never sees our better driver, ends at problem code 0, and
+# nothing anywhere flags it. On .124 that meant a GeForce2 GTS running
+# Microsoft's in-box nv4 6.14.10.5673 at 800x600 in 16-bit colour with the real
+# ForceWare sitting unused on its own disk.
+#
+# The only mechanism that beats ranking is an explicit FORCED install
+# (UpdateDriverForPlugAndPlayDevices + INSTALLFLAG_FORCE). stage-oem.sh turns
+# each rule below into a line of $OEM$\$1\D\PREFER.TXT, and the agent applies
+# them at first logon - BEFORE it reclaims C:\D. See agent/src/gamesync.c.
+#
+# FORMAT   <inf basename> | <string the INF must contain> | <why>
+#
+# The marker disambiguates same-named INFs from different packages: three
+# directories in the image ship an INF naming PCI\VEN_10DE&DEV_0150, and the
+# first one found is G003/nv4_go.inf - ForceWare 270.61 MOBILE, a 2011 driver
+# for a 2000 card. Never let a heuristic choose; name the build.
+#
+# Every hardware id the matched INF declares becomes a PREFER.TXT entry, so the
+# shipped file is fully auditable - read it to see exactly which devices will be
+# forced. Rules that match nothing in the built image are a hard error, not a
+# warning: a rule that has silently stopped matching is how this whole class of
+# bug survives.
+#
+# ADDING A RULE. Only add a driver you have verified on real hardware. A device
+# that XP leaves UNCONFIGURED does not need a rule - the agent's
+# gs_install_missing_drivers() already fixes those. This file is only for
+# devices Windows configures BADLY and therefore reports as fine.
+
+# ForceWare 71.89 (04/01/2005), 95 hardware ids, RIVA TNT through GeForce 6800.
+# Verified 2026-08-29 on .124 (Pentium III 845 MHz, GeForce2 GTS,
+# PCI\VEN_10DE&DEV_0150): XP had bound its own nv4 6.14.10.5673 and reported
+# status OK; a forced install of this INF put 6.14.10.7189 on the device.
+# 71.89 is also the newest ForceWare that does NOT require SSE, which is what
+# the SSE-less Athlon K75 on .143 needs - see retro-3dfx/FINDINGS.md.
+nv4_disp.inf | 7.1.8.9 | ForceWare 71.89 - the last branch with full NV1x support, and the newest that runs without SSE

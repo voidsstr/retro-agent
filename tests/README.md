@@ -50,8 +50,31 @@ retro-agent/tests/
     test_dosstage.c       TRUE-SOURCE: agent/src/dosstage.c against a fake Win32
                           (stubs/dosstage_env.h) — OS gate (never stage on NT),
                           idempotence, ordering/pacing, registry switches
+    test_driver_prefs.c   TRUE-SOURCE: agent/shared/drvprefs.h — the PREFER.TXT
+                          parse, the line-anchored hardware-id match, and the
+                          reclaim gate (force-install BEFORE deleting C:\D)
 ../retro-3dfx/tests/      VINTAGE H5 / SGL harness — the .143 pure-3dfx lane, NOT our stack
   native/test_texheap_align.c, test_mip_download_addr.c ; test_source_invariants.sh ; predeploy.sh
+
+  test_pxe_*.py, test_binl.py    PXE / unattended-image invariants. These live at
+                          tests/ rather than tests/python/ because pytest.ini scopes
+                          collection to python/ and these are standalone scripts that
+                          must SKIP (not error) when the SMB share is not mounted.
+                          run_all.sh suite [6] runs them explicitly.
+                          test_pxe_devicepath.py  DevicePath decodes as ANSI, the way
+                                                  REGEDIT4 is read - not UTF-16
+                          test_pxe_drivers.py     the image really INSTALLS a GeForce2
+                                                  GTS driver (PREFER.TXT names the
+                                                  verified 71.89 build, not the first
+                                                  INF that matches), and XP's own
+                                                  wdma_ctl.inf is on the media for the
+                                                  ISA PnP AWE64
+                          test_pxe_autoplay.py    AutoPlay off (0xFF) in both hives, so a
+                                                  game's own ISO mount cannot throw a
+                                                  modal over a fullscreen title
+                          test_pxe_firewall.py    imaged with the firewall OFF
+                          test_pxe_txtsetup.py, test_pxe_bind_device.py,
+                          test_pxe_boot_hold.py, test_binl.py
 ```
 
 `run_all.sh` also invokes the retro-3dfx harness (vintage H5 display driver +
@@ -87,6 +110,8 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 
 | Fix | Component | Test |
 |-----|-----------|------|
+| **agent 1.59.0: force the staged driver over the one XP picks, and never reclaim C:\D before doing it** (2026-08-29, .124) | agent gamesync.c + `agent/shared/drvprefs.h`, `scripts/pxe/{driver-prefs.txt,stage-oem.sh}` | `native/test_driver_prefs.c`, `test_pxe_drivers.py` |
+| **image: AutoPlay off on every drive type, so an ISO mount cannot modal over a fullscreen game** (2026-08-29) | `scripts/pxe/stage-oem.sh` | `test_pxe_autoplay.py` |
 | **GAMEINDEX saw only 10 of the 29 staged library titles** (2026-08-29) | agent C (gameindex.c `g_sigs[]`) | `python/test_gameindex_staged_library.py` |
 | 0.1.2 SSE float→ubyte color clamp (`fx_pack_ub`) | MesaFX ICD | `native/test_fx_pack_ub.c` |
 | transport XOR keystream (involution + derivation) | agent C (crypto.c) | `native/test_crypto.c` |
