@@ -58,6 +58,9 @@ void handle_sysfix(SOCKET sock, const char *args);
 void handle_licstatus(SOCKET sock, const char *args);
 void handle_wpasave(SOCKET sock, const char *args);
 void handle_wpaload(SOCKET sock, const char *args);
+/* Shared with the provisioning path so the command and the automatic restore
+ * cannot drift apart. Returns 1 if a file was restored. */
+int  wpa_restore_from(const char *dir, char *msg, DWORD msg_cch);
 void handle_automap(SOCKET sock, const char *args);
 void handle_prompt_push(SOCKET sock, const char *args);
 void handle_prompt_pop(SOCKET sock);

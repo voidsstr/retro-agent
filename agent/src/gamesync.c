@@ -404,6 +404,27 @@ static int gs_copy_tree(const char *src, const char *dst)
     return ok;
 }
 
+/* Restore a saved activation for THIS machine, if one exists.
+ *
+ * Calls the same code path as the WPALOAD command against the fleet's wpa
+ * directory on the share. Everything about why this is safe - hardware binding,
+ * no generation, first activation still manual - is in licstatus.c beside the
+ * command itself. */
+static void gs_restore_activation(void)
+{
+    char dir[MAX_PATH], msg[512];
+    _snprintf(dir, sizeof(dir) - 1,
+              "\\\\192.168.1.122\\files\\Files\\Utility\\Retro Automation\\wpa");
+    dir[sizeof(dir) - 1] = 0;
+    /* Both outcomes are logged, because "nothing was saved for this box" is
+     * information the operator needs (it means a one-time activation is still
+     * owed) rather than a silence. */
+    if (wpa_restore_from(dir, msg, sizeof(msg)))
+        log_msg(LOG_GS, "activation restored: %s", msg);
+    else
+        log_msg(LOG_GS, "activation not restored: %s", msg);
+}
+
 /* ---------------------------------------------------------------------- */
 /* reclaim the driver payload                                              */
 /* ---------------------------------------------------------------------- */
@@ -1558,6 +1579,26 @@ static void gs_run(const char *library)
         /* Re-measure per title: earlier titles have just consumed space, and
          * on a period disk the difference decides whether this one fits. */
         freeb = gs_free_bytes("C:\\");
+        {
+            /* A title ALREADY INSTALLED is being updated, not added, so what it
+             * needs is the difference - the space its current copy occupies is
+             * about to be reused. Charging it the full size meant an installed
+             * game could never be patched on a full disk: a 6 GB box kept its
+             * OLD Unreal Tournament 436 while the patched 469e sat on the share,
+             * skipped for "needing" a gigabyte it was already using. The server
+             * runs 469e and a 436 client cannot join it, so that skip was the
+             * difference between a working game and an unusable one. */
+            char  have[MAX_PATH];
+            int   nfiles = 0;
+            __int64 existing;
+            _snprintf(have, sizeof(have) - 1, "%s\\%s", GS_DEST, titles[i]);
+            have[sizeof(have) - 1] = 0;
+            if (gs_file_exists(have)) {
+                existing = gs_dir_size(have, &nfiles);
+                if (existing > 0 && freeb >= 0)
+                    freeb += existing;
+            }
+        }
         if (freeb >= 0 && sizes[i] + GS_FREE_MARGIN > freeb) {
             log_msg(LOG_GS, "SKIP %s - needs %I64d MB, only %I64d MB free",
                     titles[i], sizes[i] / 1048576, freeb / 1048576);
@@ -1734,6 +1775,13 @@ DWORD WINAPI gamesync_thread(LPVOID param)
     fresh = gs_file_exists(GS_NEWIMAGE_FLAG);
     if (fresh) {
         gs_log_image_flag();
+        /* Restore this machine's own activation, if it has one saved. A
+         * reinstall of an already-activated box should not need the operator to
+         * activate it again - wpa.dbl is hardware-bound, so this only ever
+         * restores what this same machine earned. Silent no-op when nothing is
+         * saved, because a box that has never been activated is the normal case
+         * on first image and not an error. */
+        gs_restore_activation();
         /* Finish the driver work GUI setup left undone, THEN decide whether the
          * staged tree is still needed. Order matters: reclaiming first would
          * delete the drivers this is about to install. */

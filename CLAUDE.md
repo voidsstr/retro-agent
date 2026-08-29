@@ -505,6 +505,50 @@ A2S reply carries a bot count; on the Quake family a player line with **ping 0**
 is a bot. Tribes 2 reports no count at all (TribesNext encrypts the info
 response) — that is `—`, never `0`.
 
+## "Staged Games" — the term, and what it guarantees (REQUIRED)
+
+**A game is STAGED when it can be moved onto a retro PC by the agent and simply
+work — no installer, no wizard, no operator at the keyboard.** When the user says
+"staged games" they mean exactly this, so do not read it as "copied" or
+"available on the share".
+
+Staging lives in `\\192.168.1.122\files\Files\Games-Library\<Title>\`. A title is
+staged only when ALL of the following are true:
+
+1. **The whole tree is there**, already installed — the state the game is in
+   *after* its installer has run, not the installer itself.
+2. **`launch.txt`** names what to run: `<relative exe or .bat><TAB><display name>`.
+   ONE SHORTCUT PER LINE — Red Alert 2 lists both the game and Yuri's Revenge;
+   `#` comments and blank lines are ignored. The agent makes a desktop shortcut
+   from each line, so a title whose second entry is missing loses half itself
+   silently.
+3. **`install.reg`** carries every registry key the game needs (install paths,
+   CD-check satisfaction, video config). The agent merges it after copying.
+   A game that only works because a registry key happens to exist on the box
+   that built it is NOT staged.
+4. **It runs from any path** — no absolute paths baked into config that assume
+   the machine it was installed on.
+5. **DOS titles carry their own DOSBox** and a `Play <Game>.bat` that `cd`s into
+   `DOSBOX\` first, so the conf's relative `mount C ".."` resolves wherever the
+   tree lands. Carmageddon, System Shock, Descent and Redneck Rampage all follow
+   this one pattern - do not invent a second.
+6. **Multiplayer titles are patched to the version our servers run.** UT99 must
+   be OldUnreal 469e because `ut99-server` is 469e and a 436 client cannot join
+   at all. See `Games-Library/_patches/README.txt` for what is applied and what
+   still needs a Windows box.
+
+**Support directories in the library root start with `_`** and are NOT games:
+`_desktop/` (fleet wallpapers), `_patches/` (the patch record), `_priority.txt`
+(copy order). The agent skips `_`-prefixed directories — before it did, every
+machine copied 26 MB of wallpaper as if it were a title.
+
+**The goal is to keep growing this set.** Every game added to the library should
+be staged to this standard, because the whole point is that a freshly imaged
+machine gets its games with nobody touching it. A title that needs a manual step
+is not finished — record what it needs in `_patches/README.txt` rather than
+leaving it looking done. The two that currently need their disc mounted (System
+Shock 2, Diablo II) say so in their trees.
+
 ## Repository Context
 
 This repo was extracted from the `nsc-assistant` monorepo. The dashboard, MCP server, and OpenClaw agents remain in `nsc-assistant`. This repo contains only the agent binaries, Python client library, provisioning scripts, and documentation.

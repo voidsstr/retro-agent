@@ -6,6 +6,16 @@
 >
 > Using this agent as the remote harness, we built and tuned a **Voodoo 3/4/5 driver stack** — Glide 2/3 and a Mesa-based OpenGL ICD — **from genuinely open source code** (3dfx's 2000 Glide open release and the MIT-licensed Mesa), and iterated on it with a fully tracked benchmark→optimize→measure loop until it **beat the community-standard AmigaMerlin driver on real hardware** (and the era 3dfx official ICD at 1024x768). Games verified on real silicon: Quake III, Quake II, Counter-Strike 1.6, Half-Life, RtCW, UT99 and more — see the [compatibility table](#game-compatibility-on-the-voodoo-3-verified-on-hardware). Our clean-room **kernel display driver (`vcr-disp`) is still in progress**; that layer is honestly accounted for in the [Driver lane policy](#driver-lane-policy--what-this-repo-owns). Start at [voodoo-cleanroom — An Open-Source Driver Stack for 3dfx Voodoo Cards](#retro3dfx--an-open-source-driver-stack-for-3dfx-voodoo-cards) and [The Driver Optimization Process](#the-driver-optimization-process).
 
+> ### 💾 New: bare metal to a playable retro PC, unattended — PXE imaging + staged games
+>
+> Point a machine with an empty disk at the network and walk away. It PXE boots, installs Windows XP with **493 driver directories** already in the image, auto-logs in, starts the agent, and provisions itself: **29 games** copied from the share with desktop shortcuts, registry merged, multiplayer patches applied, and the fleet wallpaper and theme in place. No install media, no keyboard, no wizard.
+>
+> The awkward part was never the copying — it was making a 2001 installer accept a 2010 machine. Start at [**Unattended XP imaging**](#unattended-xp-imaging--bare-metal-to-a-playable-machine) for how the NIC driver is negotiated over BINL before Windows exists, why the driver load list is a *memory budget*, and what "[**staged games**](#staged-games)" guarantees.
+
+![A machine imaged and provisioned entirely over the network](docs/images/imaged-machine-desktop.png)
+
+*A freshly imaged box, untouched by hand: the fleet wallpaper, game shortcuts with their own artwork, and the agent's console. Everything on this screen was put there over the network.*
+
 > ### 🖥️ New: the Retro Chat **brain** — a full Claude agent, on a 25‑year‑old OS
 >
 > A standalone Claude agent (built on the [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview) — the same engine behind Claude Code) runs as an **auto‑starting service** on your modern box. Type a prompt on the retro PC's console and it answers with the **full Claude toolset** (read/edit files, run commands, search the web) and can **operate the rest of the fleet** — no Claude Code window open anywhere.
@@ -33,6 +43,7 @@ Three things are built on top of the agent, each documented below:
 | [**Retro Chat**](#retro-chat--ai-on-a-25-year-old-os) | A Claude agent answering on the retro PC's own console, with live status and streamed output |
 | [**Retro DOS**](#retro-dos--a-game-manager-and-the-agentchat-running-on-real-dos) | A 16-bit game manager (browse ~3,000 titles, install over the LAN, play) and the agent+chat as a single real-mode exe |
 | [**Fleet AI**](#fleet-ai--training-and-inference-on-vintage-hardware-contributors-welcome) | A dependency-free ML engine: int8 CNN inference, on-device training, distributed data-parallel runs across period hardware |
+| [**Unattended imaging**](#unattended-xp-imaging--bare-metal-to-a-playable-machine) | PXE-installs XP on bare metal and provisions the machine with staged games, patches, wallpaper and utilities — no operator |
 
 ## Retro Chat — AI on a 25-year-old OS
 
@@ -110,6 +121,92 @@ systemctl --user restart retro-chat-brain retro-chat-daemon
 
 
 ---
+
+## Unattended XP imaging — bare metal to a playable machine
+
+A machine with an empty disk PXE boots, installs Windows XP, and provisions
+itself. Nobody touches it. The interesting problems were not in the copying.
+
+### Windows does not exist yet, so the server supplies the NIC driver
+
+A PXE-booted `setupldr` cannot read a driver off an image it has not mounted. It
+asks the **server**, over BINL on UDP 4011, and the server answers with the
+driver file and service name for the card it just described. This was found by
+disassembling the TFTP'd `ntldr` — message ID `0x237B`, one call site, the error
+path of the exchange at `0x329DD1` — and it is implemented in
+[`scripts/pxe/binl.py`](scripts/pxe/binl.py).
+
+The reply's first string must be the device's **PnP hardware id**, uppercase
+short form, not the driver filename. The kernel `wcscmp`s it case-sensitively
+against the adapter's own id list, and a mismatch bugchecks
+**`STOP 0x000000BB`** twenty seconds later — long enough to look like something
+else entirely. `nicdb.json` maps **327 generic and 5,908 exact PCI ids** to
+drivers, and `nicdb-overrides.json` records the cases where the
+best-matching driver turns out not to work on real hardware.
+
+### The driver load list is a memory budget, not a coverage list
+
+`txtsetup.sif`'s `[SCSI.Load]` is loaded **unconditionally** into text-mode
+setup's constrained memory. Retail XP lists 32 drivers. Slipstreaming every SATA
+miniport into it took the count to 111 — and a machine then failed with
+**"dmboot.sys is corrupted"**, reproducibly, on media verified byte-perfect
+(valid MSCF, byte-identical over TFTP, extracting to a valid 799 KB PE; a sweep
+of all 6,058 files found zero corrupt). `dmboot.sys` is among the largest
+drivers text mode loads, so it is simply what fails first when the allocation
+budget runs out.
+
+Emptying the list back to retail's 32 then produced the opposite failure — **"no
+hard drive found"** on a box whose SATA controller was no longer being loaded.
+The answer is neither extreme: a **curated 46**, retail's set plus the SATA and
+AHCI controllers this fleet actually has. Coverage itself lives in
+`[HardwareIdsDatabase]` (**607 hardware ids**), which setup consults to load a
+driver on demand for a controller it found.
+
+Three more traps worth knowing, each of which cost a boot:
+
+- **`retroagent.reg` is `REGEDIT4`, an ANSI format.** A `hex(2)` value encoded
+  UTF-16 — the `.reg` v5 convention — reads as one character and stops at the
+  first NUL. `DevicePath` was literally `%` for a while, so PnP had no search
+  path at all and a Dell sat at 640x480 in 16 colours with its driver on its own
+  disk. Decoding the value to check it is the same mistake that writes it wrong;
+  `tests/test_pxe_devicepath.py` decodes it as ANSI, the way regedit does.
+- **A driver's dependencies must be on the media too.** Three Marvell miniports
+  each import a companion memory manager from a *different* pack directory.
+  Setup blames the miniport by name and never mentions the missing file, so the
+  error points at the one thing that is definitely fine.
+- **An over-long `OemPnPDriversPath` silently disables unattended setup.** 492
+  directories is a 3,470-character line; `setupldr` parses `winnt.sif` with fixed
+  buffers and, when it cannot, falls back to **interactive** rather than
+  erroring. The full list goes to `DevicePath`; only LAN and chipset (713
+  characters) stay in `winnt.sif`, because network devices are installed during
+  GUI setup, partly before `cmdlines.txt` runs at T-12.
+
+### Staged games
+
+**A game is *staged* when the agent can move it onto a machine and it simply
+works** — no installer, no wizard, nobody at the keyboard. That is a stronger
+claim than "on the share", and it is the standard every title in
+`Games-Library/` is held to:
+
+| | |
+|---|---|
+| **Installed tree** | the state *after* the installer ran, not the installer |
+| **`launch.txt`** | `<exe or .bat><TAB><display name>`, **one shortcut per line** — Red Alert 2 lists both the game and Yuri's Revenge |
+| **`install.reg`** | every registry key the game needs, merged after copying |
+| **Relocatable** | no absolute paths assuming the machine it was built on |
+| **DOS titles** | carry their own DOSBox and a launcher that `cd`s into it, so the conf's relative `mount C ".."` resolves anywhere |
+| **Multiplayer** | patched to the version our servers run — UT99 is **OldUnreal 469e**, because `ut99-server` is 469e and a 436 client cannot join at all |
+
+Directories starting with `_` are support, not games: `_desktop/` (fleet
+wallpapers), `_patches/` (what is applied and what still needs a Windows box),
+`_priority.txt` (copy order, best first — a 6 GB disk cannot hold 20 GB, so
+*which* titles it gets should be a decision rather than an accident).
+
+The agent copies the library, merges each `install.reg`, writes a desktop
+shortcut per `launch.txt` line, arranges the icons into the wallpaper's bay, and
+reclaims the 2.4 GB of setup drivers once every device is configured — checked
+first, because deleting the drivers a pending Found New Hardware wizard needs
+would be the worst thing it could do.
 
 ## Retro DOS — a game manager and the agent/chat, running on real DOS
 

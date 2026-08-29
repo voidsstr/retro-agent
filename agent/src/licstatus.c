@@ -145,34 +145,27 @@ void handle_wpasave(SOCKET sock, const char *args)
     send_text_response(sock, msg);
 }
 
-void handle_wpaload(SOCKET sock, const char *args)
+/* The restore itself, shared by the WPALOAD command and the provisioning path
+ * so the two can never drift. Writes an explanation into msg either way;
+ * returns 1 if a file was restored, 0 if there was nothing to restore or it
+ * failed. */
+int wpa_restore_from(const char *dir, char *msg, DWORD msg_cch)
 {
     char win[MAX_PATH], live[MAX_PATH], bak[MAX_PATH], key[64], src[MAX_PATH];
-    char msg[512];
-    const char *dir = args;
 
-    while (*dir == ' ')
-        dir++;
-    if (!*dir) {
-        send_error_response(sock, "usage: WPALOAD <directory>");
-        return;
-    }
     if (!GetWindowsDirectoryA(win, sizeof(win))) {
-        send_error_response(sock, "cannot locate the Windows directory");
-        return;
+        lstrcpynA(msg, "cannot locate the Windows directory", msg_cch);
+        return 0;
     }
     wpa_machine_key(key, sizeof(key));
     _snprintf(src, sizeof(src) - 1, "%s\\wpa-%s.dbl", dir, key);
     src[sizeof(src) - 1] = 0;
     if (GetFileAttributesA(src) == INVALID_FILE_ATTRIBUTES) {
-        /* Not an error: this box has simply never been activated and saved. */
-        _snprintf(msg, sizeof(msg) - 1,
+        _snprintf(msg, msg_cch - 1,
                   "no saved activation for machine %s - it needs a one-time "
                   "activation through the wizard first", key);
-        msg[sizeof(msg) - 1] = 0;
-        log_msg(LOG_LIC, "%s", msg);
-        send_text_response(sock, msg);
-        return;
+        msg[msg_cch - 1] = 0;
+        return 0;
     }
     _snprintf(live, sizeof(live) - 1, WPA_LIVE, win);
     _snprintf(bak, sizeof(bak) - 1, WPA_LIVE_BAK, win);
@@ -184,16 +177,30 @@ void handle_wpaload(SOCKET sock, const char *args)
     CopyFileA(live, bak, FALSE);
 
     if (!CopyFileA(src, live, FALSE)) {
-        _snprintf(msg, sizeof(msg) - 1, "could not restore wpa.dbl (error %lu)",
+        _snprintf(msg, msg_cch - 1, "could not restore wpa.dbl (error %lu)",
                   GetLastError());
-        msg[sizeof(msg) - 1] = 0;
-        send_error_response(sock, msg);
+        msg[msg_cch - 1] = 0;
+        return 0;
+    }
+    _snprintf(msg, msg_cch - 1,
+              "restored activation for machine %s from %s (reboot to take "
+              "effect; previous file kept as wpa.bak)", key, src);
+    msg[msg_cch - 1] = 0;
+    return 1;
+}
+
+void handle_wpaload(SOCKET sock, const char *args)
+{
+    char msg[512];
+    const char *dir = args;
+
+    while (*dir == ' ')
+        dir++;
+    if (!*dir) {
+        send_error_response(sock, "usage: WPALOAD <directory>");
         return;
     }
-    _snprintf(msg, sizeof(msg) - 1,
-              "OK restored activation for machine %s from %s (reboot to take "
-              "effect; previous file kept as wpa.bak)", key, src);
-    msg[sizeof(msg) - 1] = 0;
+    wpa_restore_from(dir, msg, sizeof(msg));
     log_msg(LOG_LIC, "%s", msg);
     send_text_response(sock, msg);
 }
