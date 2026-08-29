@@ -214,6 +214,45 @@ The fleet isn't only Windows. Win98 boxes boot DOS 7.1 underneath, some machines
 run real MS-DOS, and DOSBox is a first-class target — so there is a **DOS lane**
 with two 16-bit real-mode programs and the host-side tooling that feeds them.
 
+### LAN multiplayer, proven on two machines
+
+A staged game that renders is only half the promise. **These machines exist to
+be played on together**, so a title is not finished until two boxes are in the
+same game — and the bar is deliberately awkward: **screenshots of both machines**
+showing the host hosting, the joiner listing the host's game, and both players
+in it. A Network menu is not proof. Neither is a `netstat` line.
+
+Nine titles currently meet it — Counter-Strike 1.6, Half-Life, Quake II,
+Quake III, UT99, UT2004, Red Alert 2, Yuri's Revenge, and **Descent 1 over an
+IPX-over-UDP tunnel inside DOSBox**.
+
+Two things make this harder than it sounds, and both are now handled in the
+staged trees rather than per box:
+
+**IPX is not routable on a modern LAN.** Titles that only speak it get
+IPXWrapper beside the exe (tunnelling IPX over UDP, no driver, no protocol
+install); DOSBox titles get `ipx=true` **plus** an `ipxnet` tunnel, because the
+flag alone only enables the emulated adapter and connects nothing. Check first
+whether a TCP/IP-native engine already exists — Descent 2 ships DXX-Rebirth,
+which speaks UDP/IP and removes the problem instead of wrapping it.
+
+**A byte-identical tree cannot carry a per-installation identity.** Red Alert 2
+LAN was impossible on *every* box pair because Westwood reads a per-installation
+serial from `HKLM\SOFTWARE\Westwood\<game>\Serial`, and `install.reg` — which
+is copied identically to every machine — had none. Every box read the same
+absent value, so the second machine to join was always refused with *"There is
+already a player with your serial#"*. Such a value has to be **generated on the
+box at first launch**, so it lives in the launcher, derived from the volume
+serial the filesystem assigned at format time. That is a general rule: content
+can be copied, identity cannot.
+
+Two measurement traps worth stealing, because both silently fake a pass:
+**a player line with ping 0 is a bot** (the Quake III server runs
+`bot_minplayers 4`), and **A2S reported `players=0` while two real clients were
+playing**, since they arrive via a proxy. Use the server log or rcon — and
+better, prove causality: kill one client and watch the other box's scoreboard
+drop from 2 players to 1.
+
 ### `DOSGAME.EXE` — browse, install and play, from DOS
 
 A TUI that turns a DOS box into something like a console games menu:
