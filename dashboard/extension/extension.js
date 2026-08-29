@@ -777,10 +777,14 @@ export default class RetroFleetDashboard extends Extension {
             this._panels.games.setTitle('GAME SERVERS');
             // "the watchdog is not running" and "the servers are down" are
             // completely different problems; never let one read as the other.
+            // And when the collector says the unit is actually up, do not tell
+            // anyone to start it — point at the file it cannot read instead.
+            const fix = g.hint
+                ? `  waiting on ${g.hint}`
+                : '  systemctl --user start retro-gameservers-watch';
             return this._panels.games.setMarkup(
                 `${R.span(R.COLORS.warm, `  watchdog ${g.error}`)}\n${
-                    R.span(R.COLORS.off, '  systemctl --user start retro-gameservers-watch',
-                        {dim: true})}`);
+                    R.span(R.COLORS.off, fix, {dim: true})}`);
         }
 
         const allUp = g.total > 0 && g.up === g.total;
@@ -873,10 +877,12 @@ export default class RetroFleetDashboard extends Extension {
         const f = s.gameindex ?? {};
         if (f.error) {
             this._panels.favs.setTitle('FAVOURITES');
+            const fix = f.hint
+                ? `  waiting on ${f.hint}`
+                : '  systemctl --user start retro-gameindex';
             return this._panels.favs.setMarkup(
                 `${R.span(R.COLORS.warm, `  favourites agent ${f.error}`)}\n${
-                    R.span(R.COLORS.off, '  systemctl --user start retro-gameindex',
-                        {dim: true})}`);
+                    R.span(R.COLORS.off, fix, {dim: true})}`);
         }
 
         const running = f.phase && f.phase !== 'idle' && f.phase !== 'failed';

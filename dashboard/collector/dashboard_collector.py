@@ -1066,7 +1066,41 @@ def build_state(vitals, fleet_poller, slow=None):
     state["gameindex"] = slow.get("gameindex", collect_gameindex)
     state["pxe"] = slow.get("pxe", collect_pxe)
     state["services"] = slow.get("services", collect_services)
+    reconcile_status_sources(state)
     return state
+
+
+# Which status-file section is fed by which unit. Used only to tell two very
+# different failures apart — see reconcile_status_sources().
+_STATUS_OWNERS = {
+    "gameservers": "retro-gameservers-watch",
+    "gameindex": "retro-gameindex",
+}
+
+
+def reconcile_status_sources(state):
+    """Cross-check a missing status file against its unit's actual state.
+
+    `collect_gameservers()` sees only "the file is not there" and reports
+    "not running", which is right almost always — these services are started
+    by hand. But if the unit IS active and the file is still missing, the
+    cause is something else entirely (a sandbox that cannot see
+    /run/user/<uid>, a service that has not completed its first pass, a
+    status path override) and telling someone to start a service that is
+    already running sends them in exactly the wrong direction.
+
+    This collector runs with ProtectHome=read-only, which covers /run/user —
+    the very place both status files live — so that is not a hypothetical.
+    """
+    services = {s.get("unit"): s for s in (state.get("services") or {}).get("services", [])}
+    for section, unit in _STATUS_OWNERS.items():
+        block = state.get(section) or {}
+        if block.get("error") != "not running":
+            continue
+        svc = services.get(unit) or {}
+        if svc.get("state") == "active":
+            block["error"] = "running, but no status file yet"
+            block["hint"] = block.get("path")
 
 
 def publish(state, path):

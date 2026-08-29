@@ -574,3 +574,71 @@ def test_build_state_carries_every_new_section(dc, monkeypatch, tmp_path):
     for key in ("gameservers", "gameindex", "pxe", "services"):
         assert key in state, key
     json.dumps(state)  # the greeter reads JSON; anything unserialisable is fatal
+
+
+# ---------------------------------------------- reconciling the two sources
+#
+# "the status file is missing" and "the service that writes it is dead" are
+# usually the same fact, but not always — and when they diverge, the obvious
+# message sends someone to start a service that is already running.
+
+
+def test_a_missing_file_from_a_dead_service_still_says_not_running(dc):
+    state = {
+        "gameservers": {"error": "not running", "path": "/x"},
+        "services": {"services": [
+            {"unit": "retro-gameservers-watch", "state": "inactive"}]},
+    }
+    dc.reconcile_status_sources(state)
+    assert state["gameservers"]["error"] == "not running"
+
+
+def test_a_missing_file_from_a_LIVE_service_says_something_different(dc):
+    """The collector runs with ProtectHome=read-only, which covers /run/user —
+    exactly where both status files live. If that ever stops resolving, the
+    wall must not tell someone to start a running service."""
+    state = {
+        "gameservers": {"error": "not running", "path": "/run/user/1000/x.json"},
+        "services": {"services": [
+            {"unit": "retro-gameservers-watch", "state": "active"}]},
+    }
+    dc.reconcile_status_sources(state)
+    assert state["gameservers"]["error"] == "running, but no status file yet"
+    assert state["gameservers"]["hint"] == "/run/user/1000/x.json"
+
+
+def test_reconcile_covers_the_favourites_agent_too(dc):
+    state = {
+        "gameindex": {"error": "not running", "path": "/p"},
+        "services": {"services": [
+            {"unit": "retro-gameindex", "state": "active"}]},
+    }
+    dc.reconcile_status_sources(state)
+    assert state["gameindex"]["error"] == "running, but no status file yet"
+
+
+def test_reconcile_leaves_a_healthy_section_alone(dc):
+    state = {
+        "gameservers": {"up": 10, "total": 10},
+        "services": {"services": [
+            {"unit": "retro-gameservers-watch", "state": "active"}]},
+    }
+    dc.reconcile_status_sources(state)
+    assert "error" not in state["gameservers"]
+
+
+def test_reconcile_survives_a_state_with_no_services_section(dc):
+    state = {"gameservers": {"error": "not running"}}
+    dc.reconcile_status_sources(state)          # must not raise
+    assert state["gameservers"]["error"] == "not running"
+
+
+def test_reconcile_ignores_a_different_error(dc):
+    """A corrupt file is a corrupt file whatever the unit is doing."""
+    state = {
+        "gameservers": {"error": "unreadable: JSONDecodeError"},
+        "services": {"services": [
+            {"unit": "retro-gameservers-watch", "state": "active"}]},
+    }
+    dc.reconcile_status_sources(state)
+    assert state["gameservers"]["error"] == "unreadable: JSONDecodeError"

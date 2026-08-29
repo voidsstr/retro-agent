@@ -124,6 +124,27 @@ a status file is **absent**, **stale**, or **current** — and those three
 render differently, because "the watchdog died an hour ago" and "there is no
 watchdog" need different answers from whoever is standing at the monitor.
 
+### Can the collector actually read those status files?
+
+Yes, and it is worth knowing why, because the answer is not obvious. The
+collector is a hardened root service with `ProtectSystem=strict` and
+**`ProtectHome=read-only` — which covers `/run/user`**, the very place both
+status files live. `read-only` means visible-but-unwritable rather than
+hidden, the per-uid tmpfs propagates into the unit's mount namespace
+(`master:` in its `mountinfo`), and root bypasses the `0700` on
+`/run/user/1000`. So reads work, and no unit change was needed:
+
+```bash
+CPID=$(systemctl show retro-dashboard-collector -p MainPID --value)
+grep /run/user "/proc/$CPID/mountinfo"     # /run/user/1000 must be listed
+```
+
+If that ever stops being true, the collector would report "not running" for a
+service that is running — so it **cross-checks**: when a status file is absent
+*and* its unit is `active`, the panel says `running, but no status file yet`
+and names the path it is waiting on, instead of telling you to start something
+that is already started.
+
 ### Reaching two systemd managers
 
 The services split across both: `retro-pxe` and the collector are **system**

@@ -160,6 +160,30 @@ noThrow('renders with a totally empty state object', () => render({}));
         plain(d._panels.favs.markup).includes('retro-gameindex'));
 }
 
+{
+    // The unit is up but the file is missing (a sandbox that cannot reach
+    // /run/user, or a first pass still in flight). Telling someone to start a
+    // running service sends them in exactly the wrong direction.
+    const d = render({
+        ts: Date.now() / 1000,
+        gameservers: {error: 'running, but no status file yet',
+                      hint: '/run/user/1000/retro-gameservers/status.json',
+                      servers: [], up: 0, total: 0},
+        gameindex: {error: 'running, but no status file yet', hint: '/run/user/1000/x'},
+    });
+    const games = plain(d._panels.games.markup);
+    ok('a live-but-silent watchdog is not called "not running"',
+        !games.includes('watchdog not running'), games);
+    ok('it points at the file instead of a start command',
+        games.includes('waiting on /run/user/1000/retro-gameservers/status.json'),
+        games);
+    ok('it does not tell you to start a running service',
+        !games.includes('systemctl --user start'), games);
+    ok('the favourites panel does the same',
+        plain(d._panels.favs.markup).includes('waiting on'),
+        plain(d._panels.favs.markup));
+}
+
 /* -------------------------------------------------------------- healthy */
 
 {
