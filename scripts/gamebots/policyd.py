@@ -212,6 +212,17 @@ def _gpu_policy(**kw):
     return runtime.GpuPolicy(**kw)
 
 
+def _make_recorder(out_dir, policy_name, max_records_per_shard=200_000):
+    """Imported lazily, same reasoning as _gpu_policy: --record is opt-in, so
+    a host with no numpy must still be able to run policyd without it as long
+    as --record is not passed."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "record"))
+    import recorder
+    return recorder.DemoRecorder(out_dir, policy_name=policy_name,
+                                 max_records_per_shard=max_records_per_shard)
+
+
 POLICIES = {
     "noop": NoOpPolicy,
     "scripted": ScriptedPolicy,
@@ -302,7 +313,7 @@ def publish_status(state, path):
 
 class PolicyServer:
     def __init__(self, policy, sock_path, status_path=None,
-                 stats_interval=30.0, planner=None):
+                 stats_interval=30.0, planner=None, recorder=None):
         self.policy = policy
         self.sock_path = sock_path
         self.status_path = status_path
@@ -314,6 +325,12 @@ class PolicyServer:
         self._fast = bool(getattr(policy, "act_arrays", None)) and \
             getattr(schema, "HAVE_NUMPY", False)
         self.planner = planner
+        # Opt-in demonstration recording (--record DIR). Only wired on the
+        # array path: struct-path serving doesn't have the batched numpy
+        # arrays record.recorder.DemoRecorder.record() expects, and numpy is
+        # required to build the shard anyway (see record/shard.py). main()
+        # refuses to hand a recorder here unless self._fast is already true.
+        self.recorder = recorder
         self._intent_lo = next(f[2] for f in schema.FIELD_TABLE
                                if f[1] == "intent")
         self.sel = selectors.DefaultSelector()
@@ -465,6 +482,17 @@ class PolicyServer:
         except (BrokenPipeError, ConnectionResetError, OSError):
             self._close(conn, "write failed")
             return False
+        # Recording happens AFTER the response is on the wire, so it never
+        # delays the answer a game server is blocked on — only the reported
+        # serve_us metric below (which includes it) pays for it, which is the
+        # honest place for that cost to show up.
+        if self.recorder is not None:
+            try:
+                self.recorder.record(tick, conn.fileno(), ids, obs, btn,
+                                     pitch, yaw, fwd, side, wpn)
+            except Exception as exc:
+                log(f"policyd: recorder failed, disabling recording: {exc}")
+                self.recorder = None
         self.metrics.record(n, (time.perf_counter_ns() - t0) / 1000.0)
         return True
 
@@ -527,6 +555,8 @@ class PolicyServer:
             snap.update(self.policy.stats())
         if self.planner is not None:
             snap.update(self.planner.stats())
+        if self.recorder is not None:
+            snap.update(self.recorder.stats())
         snap.update({
             "ts": time.time(),
             "policy_desc": self.policy.describe(),
@@ -553,6 +583,11 @@ class PolicyServer:
         self._emit_stats()
         for fd in list(self.conns):
             pass
+        if self.recorder is not None:
+            try:
+                self.recorder.close()
+            except Exception as exc:
+                log(f"policyd: error closing recorder: {exc}")
         try:
             self.srv.close()
         except Exception:
@@ -583,6 +618,13 @@ def main():
                     help="strategic layer: assigns intent at ~2Hz per server")
     ap.add_argument("--planner-model", default=os.environ.get(
         "GAMEBOTS_PLANNER_MODEL", "Qwen/Qwen2.5-1.5B-Instruct"))
+    ap.add_argument("--record", metavar="DIR", default=None,
+                    help="opt-in: write (observation, action) demonstration "
+                         "shards for every bot served, into DIR "
+                         "(record/shard.py format). Off by default. Needs "
+                         "numpy and a policy with act_arrays() — the same "
+                         "requirements as the fast serving path.")
+    ap.add_argument("--record-max-per-shard", type=int, default=200_000)
     args = ap.parse_args()
 
     if args.policy == "gpu":
@@ -600,8 +642,22 @@ def main():
         log(f"policyd: planner={backend.name} at "
             f"{1.0 / planner_mod.PLAN_PERIOD_SEC:.1f} Hz")
 
+    recorder_svc = None
+    if args.record:
+        fast = bool(getattr(policy, "act_arrays", None)) and \
+            getattr(schema, "HAVE_NUMPY", False)
+        if not fast:
+            log("policyd: --record requires numpy and a policy with "
+               "act_arrays() (the fast serving path) — recording disabled")
+        else:
+            recorder_svc = _make_recorder(
+                args.record, args.policy,
+                max_records_per_shard=args.record_max_per_shard)
+            log(f"policyd: recording demonstrations to {args.record}")
+
     server = PolicyServer(policy, args.socket, args.status_path,
-                          args.stats_interval, planner=planner_svc)
+                          args.stats_interval, planner=planner_svc,
+                          recorder=recorder_svc)
     signal.signal(signal.SIGINT, server.stop)
     signal.signal(signal.SIGTERM, server.stop)
     server.run()
