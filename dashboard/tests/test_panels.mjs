@@ -343,6 +343,39 @@ noThrow('services list that is empty', () => render({
     ts: Date.now() / 1000, services: {services: [], up: 0, total: 0},
 }));
 
+/* ------------------------------------------- columns must not collide */
+
+{
+    // Real fleet hostnames run to 16 characters (NSC-5B996B81319), which
+    // exactly filled the old 15-wide column and ran into the OS field:
+    // "NSC-5B996B81319Win5.1".
+    const d = render({
+        ts: Date.now() / 1000,
+        fleet: {up: 1, total: 1, nodes: [
+            {ip: '192.168.1.171', label: 'x', up: true,
+             name: 'NSC-5B996B81319', os: 'Win5.1', rtt_ms: 5},
+        ]},
+    });
+    const row = plain(d._panels.fleet.markup).split('\n')[0];
+    ok('a 16-char hostname does not touch the OS column',
+        !/[0-9A-Z]Win5\.1/.test(row), row);
+    ok('the hostname is still shown in full',
+        row.includes('NSC-5B996B81319'), row);
+}
+
+{
+    const d = render({
+        ts: Date.now() / 1000,
+        gameindex: {ok: true, phase: 'idle', ts: Date.now() / 1000,
+                    agents: [], writes: {}, favorites: {},
+                    servers_known: 675, errors: []},
+    });
+    const favs = plain(d._panels.favs.markup);
+    ok('the live-server label does not run into its value',
+        !favs.includes('live servers675'), favs);
+    ok('the value is still there', favs.includes('675 known'), favs);
+}
+
 console.log('');
 console.log(`  ${passed} passed, ${failed} failed`);
 if (failed > 0)

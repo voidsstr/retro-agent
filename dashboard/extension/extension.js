@@ -753,7 +753,10 @@ export default class RetroFleetDashboard extends Extension {
                 ? R.span(R.COLORS.ok, '●')
                 : R.span(R.COLORS.off, '○');
             const name = n.up ? (n.name || n.label) : n.label;
-            const nameCol = R.span(n.up ? R.COLORS.text : R.COLORS.off, R.pad(name, 15));
+            // 18, not 15: the fleet's real hostnames run to 16 characters
+            // (NSC-5B996B81319), which filled the column exactly and ran
+            // straight into the OS -- "NSC-5B996B81319Win5.1".
+            const nameCol = R.span(n.up ? R.COLORS.text : R.COLORS.off, R.pad(name, 18));
             const detail = n.up
                 ? R.span(R.COLORS.dim, `${R.pad(n.os ?? '', 8)}${R.padLeft(`${n.rtt_ms}ms`, 6)}`, {dim: true})
                 : R.span(R.COLORS.off, R.pad('offline', 14), {dim: true});
@@ -901,23 +904,25 @@ export default class RetroFleetDashboard extends Extension {
         const next = f.next_pass_at
             ? R.humanAge(Math.max(0, f.next_pass_at - Date.now() / 1000))
             : '—';
-        rows.push(`  ${R.span(R.COLORS.dim, R.pad('last pass', 12), {dim: true})}${
+        rows.push(`  ${R.span(R.COLORS.dim, R.pad('last pass', 13), {dim: true})}${
             R.span(R.COLORS.text, `${ago} ago`)}${
             f.duration_sec ? R.span(R.COLORS.dim, ` (${f.duration_sec}s)`, {dim: true}) : ''}${
             R.span(R.COLORS.off, ` · next ${next}`, {dim: true})}`);
 
         const boxes = (f.agents ?? []).map(ip => ip.split('.').slice(-1)[0]);
-        rows.push(`  ${R.span(R.COLORS.dim, R.pad('boxes', 12), {dim: true})}${
+        rows.push(`  ${R.span(R.COLORS.dim, R.pad('boxes', 13), {dim: true})}${
             R.span(boxes.length ? R.COLORS.ok : R.COLORS.off,
                 `${boxes.length} reached`)}${
             boxes.length ? R.span(R.COLORS.dim, `  .${boxes.join(' .')}`, {dim: true}) : ''}`);
 
-        rows.push(`  ${R.span(R.COLORS.dim, R.pad('favourites', 12), {dim: true})}${
+        rows.push(`  ${R.span(R.COLORS.dim, R.pad('favourites', 13), {dim: true})}${
             R.span(w.wrote ? R.COLORS.warm : R.COLORS.dim, `${w.wrote ?? 0} written`)}${
             R.span(R.COLORS.dim, `  ${w.unchanged ?? 0} same`, {dim: true})}${
             w.failed ? R.span(R.COLORS.hot, `  ${w.failed} failed`, {bold: true}) : ''}`);
 
-        rows.push(`  ${R.span(R.COLORS.dim, R.pad('live servers', 12), {dim: true})}${
+        // 'live servers' is itself 12 characters, so a 12-wide pad left no
+        // gap at all — "live servers675 known".
+        rows.push(`  ${R.span(R.COLORS.dim, R.pad('live servers', 13), {dim: true})}${
             R.span(R.COLORS.text, `${f.servers_known ?? 0} known`)}${
             fav.files ? R.span(R.COLORS.dim,
                 `  · ${fav.files} files on ${fav.boxes} boxes`, {dim: true}) : ''}`);
