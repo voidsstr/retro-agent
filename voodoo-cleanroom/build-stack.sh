@@ -82,6 +82,15 @@ HOSTFIX='HOST_CFLAGS=$(filter-out -m32 -mcpu=% -mtune=% -DFX_DLL_ENABLE -DHWC_EX
 # with P3+SSE. Match the glide to it so triangle setup / FIFO packing / LFB math
 # use SSE + P3 scheduling instead of x87. (A/B-measured on .124; 2026-07-23.)
 GLIDEOPT='OPTFLAGS=-O2 -ffast-math -march=pentium3 -mtune=pentium3 -mfpmath=sse'
+# The Voodoo2 box (.171) is a Pentium 4 2.8GHz, not the P3 the other lanes
+# target. Keep -march=pentium3 (SSE only, no SSE2 dependency) but tune the
+# schedule for the P4 that actually runs it.
+GLIDEOPT_CVG='OPTFLAGS=-O2 -ffast-math -march=pentium3 -mtune=pentium4 -mfpmath=sse'
+# glide2x's makefiles have NO OPTFLAGS variable - they take a FULL FLAG STRING in
+# CPU (glide2x/*/glide/src/Makefile.mingw: `CPU ?= -mtune=pentium`, consumed by
+# `CFLAGS += -DNDEBUG -O2 -ffast-math $(CPU)`). Passing OPTFLAGS= there is a
+# silent no-op. NB: unrelated to the bare `CPU=pentium3` above (a MesaFX arg).
+GLIDEOPT_CVG2='CPU=-march=pentium3 -mtune=pentium4 -mfpmath=sse'
 # ABI fix: export both grFoo and grFoo@N; import lib w/o -U
 LDFIX='LDFLAGS=-shared -m32 -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias'
 DTFIX='DLLTOOL_FLAGS=--as-flags=--32 -m i386'
@@ -96,7 +105,7 @@ emit(){ cp "$1/glide3x.dll" "$OUT/$2"; cp "$1/libglide3x.dll.a" "$OUT/sdk/lib/$3
 # glide a drop-in for either ICD. (Root cause proven 2026-07-21 by objdump: ICD
 # imports _grBufferSwap@4, mingw glide exported grBufferSwap@4.)
 dual_abi_relink(){
-  local D="$1" def us objs
+  local D="$1" EXTRA="${2:-}" def us objs
   def="$D/lib/glide3x.def"; us="$D/lib/glide3x_us.def"
   [ -f "$def" ] || { echo "  dual_abi: no def in $D, skipping"; return 0; }
   # augment the auto-generated def with `_NAME = NAME` underscore aliases
@@ -108,12 +117,12 @@ for line in src:
     if m: al.append("    _%s = %s"%(m.group(1), m.group(1)))
 open(sys.argv[2],"w").write("\n".join(out+al)+"\n")
 PY
-  objs=$(find "$D" -name "*.o" | tr '\n' ' ')
+  objs=$(find -L "$D" ${EXTRA:+"$EXTRA"} -name "*.o" | sort -u | tr '\n' ' ')
   ${CROSS}gcc -shared -m32 -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias \
     -o "$D/lib/glide3x.dll" "$us" $objs \
-    -luser32 -lkernel32 -lddraw -lgdi32 -ldxguid -ladvapi32 2>/dev/null \
+    -luser32 -lkernel32 -lddraw -lgdi32 -ldxguid -ladvapi32 2>/tmp/dual_abi_relink.log \
     && echo "  dual_abi: $D/lib/glide3x.dll now exports grFoo@N + _grFoo@N" \
-    || echo "  dual_abi: relink FAILED for $D (keeping single-ABI dll)"
+    || { echo "  dual_abi: relink FAILED for $D"; tail -20 /tmp/dual_abi_relink.log; exit 1; }
 }
 
 echo "== retro3dfx-glide: glide3x h5 (Voodoo4/5) =="
@@ -131,6 +140,17 @@ cp "$GTREE/glide3x/h3/lib/glide3x.dll" "$OUT/glide3x_h3.dll"
 # deploy name = the Voodoo3-safe h3 build (see NAMING TRAP note in the header)
 cp "$OUT/glide3x_h3.dll" "$OUT/glide3x.dll"
 
+echo "== retro3dfx-glide: glide3x cvg (Voodoo2) =="
+# CVG is 3dfx's codename for the Voodoo 2 (SST-1 family, 2 TMUs). Target box is
+# .171. Unlike h3/h5 there is NO display driver: a Voodoo2 is a 3D-only
+# passthrough card, so this glide reaches the hardware through the stock 3dfx
+# kernel drivers already installed there -- fxgpio.sys (\\.\GpdDev) and
+# fxptl.sys (\\.\MAPMEM) -- via swlibs/newpci/pcilib/fxnt.c.
+make -C "$GTREE/glide3x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=cvg $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT_CVG" >/dev/null
+dual_abi_relink "$GTREE/glide3x/cvg" "$GTREE/swlibs/newpci/pcilib"
+cp "$GTREE/glide3x/cvg/lib/glide3x.dll" "$OUT/glide3x_cvg.dll"
+cp "$GTREE/glide3x/cvg/lib/libglide3x.dll.a" "$OUT/sdk/lib/libglide3x_cvg.dll.a" 2>/dev/null || true
+
 echo "== retro3dfx-glide: glide2x (Napalm) =="
 make -C "$GTREE/glide2x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 H4=1 "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT" >/dev/null
 # dual-ABI relink for glide2x too: Glide2-era games (Unreal GlideDrv, Carma2)
@@ -138,7 +158,7 @@ make -C "$GTREE/glide2x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h3 H4=1 "$
 # LoadLibrary binds nothing and the 3dfx renderer fails (found 2026-08-04 via
 # Unreal Gold on .124 — the GOG nGlide glide2x it shipped instead wedged the box).
 dual_abi_relink2(){
-  local D="$1" def us objs
+  local D="$1" EXTRA="${2:-}" def us objs
   def="$D/lib/glide2x.def"; us="$D/lib/glide2x_us.def"
   [ -f "$def" ] || { echo "  dual_abi2: no def in $D, skipping"; return 0; }
   python3 - "$def" "$us" <<'PY'
@@ -149,20 +169,36 @@ for line in src:
     if m: al.append("    _%s = %s"%(m.group(1), m.group(1)))
 open(sys.argv[2],"w").write("\n".join(out+al)+"\n")
 PY
-  objs=$(find "$D" -name "*.o" | tr '\n' ' ')
+  objs=$(find -L "$D" ${EXTRA:+"$EXTRA"} -name "*.o" | sort -u | tr '\n' ' ')
   ${CROSS}gcc -shared -m32 -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias \
     -o "$D/lib/glide2x.dll" "$us" $objs \
-    -luser32 -lkernel32 -lddraw -lgdi32 -ldxguid -ladvapi32 2>/dev/null \
+    -luser32 -lkernel32 -lddraw -lgdi32 -ldxguid -ladvapi32 2>/tmp/dual_abi_relink2.log \
     && echo "  dual_abi2: $D/lib/glide2x.dll now exports grFoo@N + _grFoo@N" \
-    || echo "  dual_abi2: relink FAILED for $D (keeping single-ABI dll)"
+    || { echo "  dual_abi2: relink FAILED for $D"; tail -20 /tmp/dual_abi_relink2.log; exit 1; }
 }
 dual_abi_relink2 "$GTREE/glide2x/h3"
 cp "$GTREE/glide2x/h3/lib/glide2x.dll" "$OUT/glide2x.dll"
+
+echo "== retro3dfx-glide: glide2x cvg (Voodoo2) =="
+make -C "$GTREE/glide2x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=cvg "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT_CVG2" >/dev/null
+dual_abi_relink2 "$GTREE/glide2x/cvg" "$GTREE/swlibs/newpci/pcilib"
+cp "$GTREE/glide2x/cvg/lib/glide2x.dll" "$OUT/glide2x_cvg.dll"
 
 # ============================================================================
 #  2) retro3dfx-gl (MesaFX)  ->  opengl32.dll  (OpenGL ICD over our Glide)
 # ============================================================================
 GLTREE="$WORK/retro3dfx-gl"
+
+# Our MesaFX source patches, applied idempotently (the fork is a plain clone, so
+# keep local changes here rather than requiring push access to the fork).
+for pf in "$HERE"/patches/mesafx-*.patch; do
+  [ -e "$pf" ] || continue
+  if git -C "$GLTREE" apply --check "$pf" 2>/dev/null; then
+      git -C "$GLTREE" apply "$pf" && echo "   applied $(basename "$pf")"
+  else
+      echo "   $(basename "$pf") already applied (or does not fit) - skipping"
+  fi
+done
 # lay out the Glide3 SDK where MesaFX's Makefile.mgw expects it: $TOP/glide3
 mkdir -p "$GLTREE/glide3/include" "$GLTREE/glide3/lib"
 cp "$OUT/sdk/include/"*.h "$GLTREE/glide3/include/"

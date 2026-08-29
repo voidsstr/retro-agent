@@ -6,6 +6,46 @@ self-document. One functional change per version. Every benchmark row in the
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.41 — Voodoo 2 (cvg) lane: the stack runs on a Voodoo 2 (2026-08-29)
+
+First execution of the clean-room stack on **Voodoo 2** silicon (.171, Pentium 4
+2.8GHz, XP SP3, 12MB card = 4MB FB + 2 TMUs x 4MB). `GL_RENDERER` reports
+`Mesa Glide v0.62 Voodoo2 [voodoo-cleanroom 0.1.41]` — MesaFX detects the chip
+correctly via `GR_SSTTYPE_Voodoo2`.
+
+- **New `cvg` build lanes** (`FX_GLIDE_HW=cvg`) for glide3x and glide2x →
+  `out/glide3x_cvg.dll`, `out/glide2x_cvg.dll`, both dual-ABI. CVG is 3dfx's
+  codename for the Voodoo 2; the vintage `retro-3dfx` tree cannot drive this
+  card at all (its INFs cover DEV_0003/0005/0009/000B — no DEV_0002).
+- **Fixed: the cvg relink emitted no DLL.** `dual_abi_relink` globbed only the
+  chip directory, but glide3x/cvg links the SHARED `swlibs/newpci/pcilib`
+  objects — `fxnt.c`, the NT layer that opens `\\.\GpdDev` (fxgpio.sys) and
+  `\\.\MAPMEM` (fxptl.sys). The relink failed, gcc deleted its output, and the
+  next `cp` aborted the script under `set -euo pipefail`. Both relink helpers
+  now take an extra object dir.
+- **No display driver needed.** A Voodoo 2 is a 3D-only passthrough card
+  (Class=MEDIA), so the Intel 865G keeps 2D and `vcr-disp` is out of scope —
+  this is the first box where the whole 3D stack can be ours without one.
+- **`-mtune=pentium4`** for the cvg lane (`-march=pentium3` retained so one
+  artifact still runs on .124's Pentium III).
+- **GL_SGIS_multitexture: implemented but OPT-IN** (`FX_SGIS_MULTITEXTURE=1`),
+  see `patches/mesafx-sgis-multitexture.patch`. Quake II predates
+  ARB_multitexture and probes only the SGIS name, so the stock MiniGL gets
+  single-pass lightmapping and we do not. Advertising SGIS does flip Q2 over
+  (`...using GL_SGIS_multitexture` in qconsole.log) but the timedemo then never
+  finishes (>180s vs 13.5s). Not root-caused, so it stays off by default.
+
+**Measured** (Quake II demo1, 640x480, vsync OFF, 689 frames, zero variance):
+
+| renderer | fps |
+|---|---|
+| stock 3dfx MiniGL (`3dfxgl`) | **91.1** |
+| our MesaFX ICD (`retrogl`) | **51.0** |
+| Intel 865G onboard (control) | 58.8 |
+
+The MiniGL implements only what Quake needs; part of that gap is structural.
+Closing the rest is the open work — the SGIS path above is the main lead.
+
 ## Stack composition legend
 
 A "driver version" here is OUR OpenGL ICD (`retro3dfx-gl`, MesaFX 6.2 fork).

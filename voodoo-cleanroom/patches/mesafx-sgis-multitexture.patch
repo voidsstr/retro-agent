@@ -1,0 +1,108 @@
+diff --git a/src/mesa/drivers/glide/fxdd.c b/src/mesa/drivers/glide/fxdd.c
+index ffc0047..11c85e3 100644
+--- a/src/mesa/drivers/glide/fxdd.c
++++ b/src/mesa/drivers/glide/fxdd.c
+@@ -1867,6 +1867,22 @@ fxDDInitExtensions(GLcontext * ctx)
+ 
+    if (fxMesa->haveTwoTMUs && !getenv("FX_NO_MULTITEXTURE")) {
+       _mesa_enable_extension(ctx, "GL_ARB_multitexture");
++
++      /* [retro3dfx] GL_SGIS_multitexture is OPT-IN (FX_SGIS_MULTITEXTURE=1).
++       *
++       * Quake II (1997) predates ARB_multitexture and probes ONLY for the SGIS
++       * name, so advertising it makes Q2 switch from two-pass lightmapping to
++       * single-pass -- which SHOULD be a large win on a 2-TMU Voodoo 2.
++       * Measured on .171 (Voodoo 2, 12MB) 2026-08-29 it is not: with SGIS off
++       * the demo1 timedemo runs 51.0 fps; with it on the same timedemo does not
++       * finish inside 180s (vs 13.5s), while fx_check_IsInHardware's Q2
++       * exemption at fxdd.c:2072-2079 says the env-mode pair is NOT falling
++       * back to software. Cause not yet identified, so this stays OFF by
++       * default: shipping it would be a hard regression.
++       * Entry points live in fxwgl.c (fx_glSelectTextureSGIS et al). */
++      if (getenv("FX_SGIS_MULTITEXTURE")) {
++         _mesa_enable_extension(ctx, "GL_SGIS_multitexture");
++      }
+    }
+ 
+    if (fxMesa->type >= GR_SSTTYPE_Voodoo4) {
+diff --git a/src/mesa/drivers/glide/fxwgl.c b/src/mesa/drivers/glide/fxwgl.c
+index 6ad6fc9..3b64ecd 100644
+--- a/src/mesa/drivers/glide/fxwgl.c
++++ b/src/mesa/drivers/glide/fxwgl.c
+@@ -660,10 +660,46 @@ wglGetExtensionsStringARB (HDC hdc)
+  return wglGetExtensionsStringEXT();
+ }
+ 
++/* ---- GL_SGIS_multitexture shim -------------------------------------------
++ * Quake II resolves glSelectTextureSGIS / glMTexCoord2fSGIS through
++ * wglGetProcAddress once it sees GL_SGIS_multitexture in GL_EXTENSIONS.
++ * SGIS_multitexture is a strict subset of ARB_multitexture; the only
++ * difference that matters is the texture-unit enum base, so translate it.
++ *   GL_TEXTURE0_SGIS = 0x835E, GL_TEXTURE0_ARB = 0x84C0
++ */
++#define GL_TEXTURE0_SGIS 0x835E
++
++static void APIENTRY fx_glSelectTextureSGIS(GLenum target)
++{
++   /* SGIS_multitexture has ONE selector: it switches the unit for immediate-mode
++    * state AND for array pointers. ARB split that into glActiveTexture (server)
++    * and glClientActiveTexture (client), so a faithful shim must set BOTH.
++    * Quake II enables GL_EXT_compiled_vertex_array and issues glTexCoordPointer
++    * for unit 1 after selecting it -- with only the server unit switched those
++    * pointers land on unit 0 and the multitexture path degenerates. */
++   GLenum unit = (GLenum)(GL_TEXTURE0_ARB + (target - GL_TEXTURE0_SGIS));
++   glActiveTextureARB(unit);
++   glClientActiveTextureARB(unit);
++}
++
++static void APIENTRY fx_glMTexCoord2fSGIS(GLenum target, GLfloat s, GLfloat t)
++{
++   glMultiTexCoord2fARB((GLenum)(GL_TEXTURE0_ARB + (target - GL_TEXTURE0_SGIS)), s, t);
++}
++
++static void APIENTRY fx_glMTexCoord2fvSGIS(GLenum target, const GLfloat *v)
++{
++   glMultiTexCoord2fvARB((GLenum)(GL_TEXTURE0_ARB + (target - GL_TEXTURE0_SGIS)), v);
++}
++
+ static struct {
+        const char *name;
+        PROC func;
+ } wgl_ext[] = {
++       /* GL_SGIS_multitexture (Quake II and other 1997-era GL apps) */
++       {"glSelectTextureSGIS",          (PROC)fx_glSelectTextureSGIS},
++       {"glMTexCoord2fSGIS",            (PROC)fx_glMTexCoord2fSGIS},
++       {"glMTexCoord2fvSGIS",           (PROC)fx_glMTexCoord2fvSGIS},
+        {"wglGetExtensionsStringARB",    (PROC)wglGetExtensionsStringARB},
+        {"wglGetExtensionsStringEXT",    (PROC)wglGetExtensionsStringEXT},
+        {"wglSwapIntervalEXT",           (PROC)wglSwapIntervalEXT},
+diff --git a/src/mesa/main/extensions.c b/src/mesa/main/extensions.c
+index efdee0c..f943fc5 100644
+--- a/src/mesa/main/extensions.c
++++ b/src/mesa/main/extensions.c
+@@ -50,6 +50,13 @@ static const struct {
+    { OFF, "GL_ARB_imaging",                    F(ARB_imaging) },
+    { OFF, "GL_ARB_multisample",                F(ARB_multisample) },
+    { OFF, "GL_ARB_multitexture",               F(ARB_multitexture) },
++   /* Quake II (1997) predates ARB_multitexture and probes ONLY for the older
++    * SGIS name. Mesa 6.2 dropped SGIS_multitexture, so a Q2 that sees only the
++    * ARB string silently falls back to TWO-PASS lightmapping -- measured on the
++    * Voodoo 2 box .171 as 51.0 fps vs the stock 3dfx MiniGL 91.1 fps. SGIS is a
++    * strict subset of ARB, so gate it on the SAME flag (the GL_ARB_point_parameters
++    * row above already reuses another extension's flag this way). */
++   { OFF, "GL_SGIS_multitexture",              F(SGIS_multitexture) },
+    { OFF, "GL_ARB_occlusion_query",            F(ARB_occlusion_query) },
+    { OFF, "GL_ARB_point_parameters",           F(EXT_point_parameters) },
+    { OFF, "GL_ARB_point_sprite",               F(ARB_point_sprite) },
+diff --git a/src/mesa/main/mtypes.h b/src/mesa/main/mtypes.h
+index 9da1e58..fe3b2f7 100644
+--- a/src/mesa/main/mtypes.h
++++ b/src/mesa/main/mtypes.h
+@@ -1953,6 +1953,7 @@ struct gl_extensions
+    GLboolean SGI_color_table;
+    GLboolean SGI_texture_color_table;
+    GLboolean SGIS_generate_mipmap;
++   GLboolean SGIS_multitexture;	/* [retro3dfx] Quake II-era multitexture, opt-in */
+    GLboolean SGIS_pixel_texture;
+    GLboolean SGIS_texture_edge_clamp;
+    GLboolean SGIS_texture_lod;
