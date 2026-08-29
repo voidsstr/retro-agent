@@ -266,50 +266,96 @@ void handle_uidrag(SOCKET sock, const char *args)
 typedef struct {
     const char *name;
     BYTE vk;
+    int extended;   /* needs KEYEVENTF_EXTENDEDKEY - see send_key_press() */
 } key_map_t;
 
+/* The `extended` column is not cosmetic. The grey navigation cluster, the
+ * arrows and PrintScreen all live on E0-prefixed scan codes; without
+ * KEYEVENTF_EXTENDEDKEY a game reading the keyboard through DirectInput sees
+ * the NUMPAD twin of the key instead (or nothing at all), which looks exactly
+ * like UIKEY being ignored. */
 static const key_map_t named_keys[] = {
-    { "ENTER",     VK_RETURN },
-    { "RETURN",    VK_RETURN },
-    { "TAB",       VK_TAB },
-    { "ESCAPE",    VK_ESCAPE },
-    { "ESC",       VK_ESCAPE },
-    { "SPACE",     VK_SPACE },
-    { "BACKSPACE", VK_BACK },
-    { "DELETE",    VK_DELETE },
-    { "DEL",       VK_DELETE },
-    { "UP",        VK_UP },
-    { "DOWN",      VK_DOWN },
-    { "LEFT",      VK_LEFT },
-    { "RIGHT",     VK_RIGHT },
-    { "HOME",      VK_HOME },
-    { "END",       VK_END },
-    { "PAGEUP",    VK_PRIOR },
-    { "PAGEDOWN",  VK_NEXT },
-    { "INSERT",    VK_INSERT },
-    { "F1",        VK_F1 },
-    { "F2",        VK_F2 },
-    { "F3",        VK_F3 },
-    { "F4",        VK_F4 },
-    { "F5",        VK_F5 },
-    { "F6",        VK_F6 },
-    { "F7",        VK_F7 },
-    { "F8",        VK_F8 },
-    { "F9",        VK_F9 },
-    { "F10",       VK_F10 },
-    { "F11",       VK_F11 },
-    { "F12",       VK_F12 },
-    { NULL, 0 }
+    { "ENTER",       VK_RETURN,   0 },
+    { "RETURN",      VK_RETURN,   0 },
+    { "TAB",         VK_TAB,      0 },
+    { "ESCAPE",      VK_ESCAPE,   0 },
+    { "ESC",         VK_ESCAPE,   0 },
+    { "SPACE",       VK_SPACE,    0 },
+    { "BACKSPACE",   VK_BACK,     0 },
+    { "DELETE",      VK_DELETE,   1 },
+    { "DEL",         VK_DELETE,   1 },
+    { "UP",          VK_UP,       1 },
+    { "DOWN",        VK_DOWN,     1 },
+    { "LEFT",        VK_LEFT,     1 },
+    { "RIGHT",       VK_RIGHT,    1 },
+    { "HOME",        VK_HOME,     1 },
+    { "END",         VK_END,      1 },
+    { "PAGEUP",      VK_PRIOR,    1 },
+    { "PAGEDOWN",    VK_NEXT,     1 },
+    { "INSERT",      VK_INSERT,   1 },
+    { "F1",          VK_F1,       0 },
+    { "F2",          VK_F2,       0 },
+    { "F3",          VK_F3,       0 },
+    { "F4",          VK_F4,       0 },
+    { "F5",          VK_F5,       0 },
+    { "F6",          VK_F6,       0 },
+    { "F7",          VK_F7,       0 },
+    { "F8",          VK_F8,       0 },
+    { "F9",          VK_F9,       0 },
+    { "F10",         VK_F10,      0 },
+    { "F11",         VK_F11,      0 },
+    { "F12",         VK_F12,      0 },
+
+    /* PrintScreen: most games save their own screenshot on this key, which is
+     * the only way to capture a D3D/OpenGL EXCLUSIVE FULLSCREEN frame - the
+     * agent's own SCREENSHOT is a GDI BitBlt and returns pure black for those
+     * surfaces. Its absence here is why fullscreen titles could not be
+     * verified at all. */
+    { "PRINTSCREEN", VK_SNAPSHOT, 1 },
+    { "PRTSC",       VK_SNAPSHOT, 1 },
+    { "PRTSCR",      VK_SNAPSHOT, 1 },
+    { "SYSRQ",       VK_SNAPSHOT, 1 },
+
+    /* The console key. Quake/GoldSrc/Unreal engines all open their console on
+     * it, which is how a screenshot command gets typed at all. */
+    { "TILDE",       VK_OEM_3,    0 },
+    { "BACKQUOTE",   VK_OEM_3,    0 },
+    { "GRAVE",       VK_OEM_3,    0 },
+    { "CONSOLE",     VK_OEM_3,    0 },
+
+    { "PAUSE",       VK_PAUSE,    0 },
+    { "BREAK",       VK_PAUSE,    0 },
+    { "CAPSLOCK",    VK_CAPITAL,  0 },
+    { "NUMLOCK",     VK_NUMLOCK,  1 },
+    { "SCROLLLOCK",  VK_SCROLL,   0 },
+    { "WIN",         VK_LWIN,     1 },
+    { "APPS",        VK_APPS,     1 },
+
+    /* Bare modifiers, so a caller can press one on its own. The ALT+X combo
+     * form is parsed separately in the UIKEY handler. */
+    { "SHIFT",       VK_SHIFT,    0 },
+    { "CTRL",        VK_CONTROL,  0 },
+    { "CONTROL",     VK_CONTROL,  0 },
+    { "ALT",         VK_MENU,     0 },
+
+    { NULL, 0, 0 }
 };
 
-static BYTE lookup_named_key(const char *name)
+static const key_map_t *lookup_named_key_entry(const char *name)
 {
     const key_map_t *k;
 
     for (k = named_keys; k->name; k++) {
         if (_stricmp(name, k->name) == 0)
-            return k->vk;
+            return k;
     }
+    return NULL;
+}
+
+static BYTE lookup_named_key(const char *name)
+{
+    const key_map_t *k = lookup_named_key_entry(name);
+    if (k) return k->vk;
 
     /* Single letter A-Z */
     if (name[0] && !name[1]) {
@@ -322,11 +368,32 @@ static BYTE lookup_named_key(const char *name)
     return 0;
 }
 
-static void send_key_press(BYTE vk)
+static int named_key_is_extended(const char *name)
+{
+    const key_map_t *k = lookup_named_key_entry(name);
+    return k ? k->extended : 0;
+}
+
+static void send_key_press_ex(BYTE vk, int extended)
 {
     BYTE sc = (BYTE)MapVirtualKey(vk, 0);  /* MAPVK_VK_TO_VSC */
-    keybd_event(vk, sc, 0, 0);
-    keybd_event(vk, sc, KEYEVENTF_KEYUP, 0);
+    DWORD flags = extended ? KEYEVENTF_EXTENDEDKEY : 0;
+
+    /* MapVirtualKey returns 0 for VK_SNAPSHOT on some XP keyboard layouts.
+     * A zero scan code makes keybd_event take its documented special path and
+     * copy the SCREEN to the clipboard instead of delivering a keystroke - so
+     * the game never sees the key and never writes its screenshot. Fall back
+     * to the real E0-37 PrintScreen scan code. */
+    if (sc == 0 && vk == VK_SNAPSHOT)
+        sc = 0x37;
+
+    keybd_event(vk, sc, flags, 0);
+    keybd_event(vk, sc, flags | KEYEVENTF_KEYUP, 0);
+}
+
+static void send_key_press(BYTE vk)
+{
+    send_key_press_ex(vk, 0);
 }
 
 static void send_text_input(const char *text)
@@ -412,7 +479,7 @@ void handle_uikey(SOCKET sock, const char *args)
             keybd_event(modifiers[i], (BYTE)MapVirtualKey(modifiers[i], 0), 0, 0);
 
         /* Press and release the key */
-        send_key_press(vk);
+        send_key_press_ex(vk, named_key_is_extended(last_part));
 
         /* Release modifiers in reverse order */
         for (i = mod_count - 1; i >= 0; i--)
