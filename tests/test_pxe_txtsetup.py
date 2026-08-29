@@ -85,6 +85,68 @@ def main():
     check(f'every boot driver carries a boot-media field ({len(badreg)})',
           not badreg)
 
+    print('== every driver import resolves on the media ==')
+    # Checking for the literal string 'storport.sys' caught the first round of
+    # unmet dependencies and MISSED the second: three Marvell miniports each
+    # import a companion memory manager (mv61xx.sys -> mv61xxmm.sys) that lives
+    # in a different pack directory. Text-mode setup then blames the MINIPORT -
+    # "mv61xx.sys caused an unknown error (21)" - naming a file that is present
+    # and perfectly fine, while never mentioning the one actually missing.
+    # Reading the real import table is the only check that catches the class.
+    import struct as _struct
+
+    def _imports(path):
+        with open(path, 'rb') as fh:
+            d = fh.read()
+        pe = d.find(b'PE\0\0')
+        if pe < 0:
+            return []
+        nsec = _struct.unpack_from('<H', d, pe + 6)[0]
+        opt = pe + 24
+        secoff = opt + _struct.unpack_from('<H', d, pe + 20)[0]
+        secs = [(_struct.unpack_from('<I', d, secoff + 40 * i + 12)[0],
+                 _struct.unpack_from('<I', d, secoff + 40 * i + 16)[0],
+                 _struct.unpack_from('<I', d, secoff + 40 * i + 20)[0])
+                for i in range(nsec)]
+
+        def r2o(r):
+            for va, rs, rp in secs:
+                if va <= r < va + max(rs, 1):
+                    return rp + (r - va)
+            return None
+
+        idir = _struct.unpack_from('<I', d, opt + 96 + 8)[0]
+        if not idir:
+            return []
+        o = r2o(idir)
+        out = []
+        while o:
+            e = _struct.unpack_from('<IIIII', d, o)
+            if e[3] == 0:
+                break
+            no = r2o(e[3])
+            if no is None:
+                break
+            out.append(d[no:d.find(b'\0', no)].decode('latin1').lower())
+            o += 20
+        return out
+
+    NATIVE = {'ntoskrnl.exe', 'hal.dll', 'scsiport.sys', 'ndis.sys'}
+    unmet = {}
+    for svc, fn in entries:
+        p2 = os.path.join(i386, fn)
+        if not os.path.isfile(p2):
+            continue
+        miss = {m for m in _imports(p2)
+                if m not in NATIVE and m.lower() not in have
+                and (m[:-1] + '_') not in have}
+        if miss:
+            unmet[fn] = sorted(miss)
+    check(f'every [SCSI.Load] driver has its imports on the media ({len(unmet)})',
+          not unmet)
+    for fn, miss in list(unmet.items())[:6]:
+        print(f'        {fn} needs {", ".join(miss)}')
+
     print('== no driver depends on storport.sys ==')
     # XP SP3 does not ship storport.sys. A driver that imports it loads, asks
     # setup for storport, and text mode dies - so such a driver turns a machine

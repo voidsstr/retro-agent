@@ -29,7 +29,55 @@ import argparse
 import os
 import re
 import shutil
+import struct
 import sys
+
+
+# Modules the text-mode kernel already provides; importing these is always fine.
+NATIVE_MODULES = {'ntoskrnl.exe', 'hal.dll', 'scsiport.sys', 'ndis.sys'}
+
+
+def pe_imports(path):
+    """Every DLL/SYS this PE imports, lowercased. None if unreadable."""
+    try:
+        with open(path, 'rb') as fh:
+            d = fh.read()
+    except OSError:
+        return None
+    pe = d.find(b'PE\0\0')
+    if pe < 0:
+        return []
+    nsec = struct.unpack_from('<H', d, pe + 6)[0]
+    opt = pe + 24
+    secoff = opt + struct.unpack_from('<H', d, pe + 20)[0]
+    secs = []
+    for i in range(nsec):
+        o = secoff + 40 * i
+        secs.append((struct.unpack_from('<I', d, o + 12)[0],
+                     struct.unpack_from('<I', d, o + 16)[0],
+                     struct.unpack_from('<I', d, o + 20)[0]))
+
+    def r2o(rva):
+        for va, rs, rp in secs:
+            if va <= rva < va + max(rs, 1):
+                return rp + (rva - va)
+        return None
+
+    idir = struct.unpack_from('<I', d, opt + 96 + 8)[0]
+    if not idir:
+        return []
+    o = r2o(idir)
+    out = []
+    while o:
+        e = struct.unpack_from('<IIIII', d, o)
+        if e[3] == 0:
+            break
+        no = r2o(e[3])
+        if no is None:
+            break
+        out.append(d[no:d.find(b'\0', no)].decode('latin1').lower())
+        o += 20
+    return out
 
 
 def read_inf(path):
@@ -207,18 +255,37 @@ def main():
                     break
             if not src:
                 continue                       # INF names a .sys it did not ship
-            # A driver that imports storport.sys cannot work on XP SP3, which
-            # does not ship it. It loads, asks setup for storport, and text mode
-            # dies - turning a machine that would have installed in IDE mode
-            # into one that cannot install at all. 15 of these went in on the
-            # first pass, HpAHCIsr among them, and it claims Intel ICH9/ICH10
-            # AHCI: real consumer hardware, so this was not a theoretical risk.
-            try:
-                with open(src, 'rb') as fh:
-                    if b'storport.sys' in fh.read().lower():
-                        continue
-            except OSError:
+            # A driver whose IMPORTS cannot be resolved on the media kills
+            # text-mode setup. Checking for the literal string 'storport.sys'
+            # caught the first round of these; it did not catch the second,
+            # where three Marvell miniports each import a companion memory
+            # manager (mv61xx.sys -> mv61xxmm.sys) that lives in a different
+            # pack directory. The machine reports the MINIPORT as the failure,
+            # naming a file that is present and fine, while the thing actually
+            # missing is never mentioned.
+            #
+            # So read the real import table and require every dependency to be
+            # satisfiable - either already on the media, or shipped in the same
+            # pack directory so it can be copied alongside.
+            deps = pe_imports(src)
+            if deps is None:
                 continue
+            sib = {f.lower() for f in os.listdir(os.path.dirname(src))}
+            unmet = [d for d in deps
+                     if d not in NATIVE_MODULES
+                     and d not in have_i386
+                     and (d[:-1] + '_') not in have_i386
+                     and d not in sib]
+            if unmet:
+                print('  skipping %s: unmet imports %s' % (sysfile, ','.join(unmet)))
+                continue
+            # Pull in any dependency that ships beside it.
+            for d in deps:
+                if d in NATIVE_MODULES or d in have_i386 or (d[:-1] + '_') in have_i386:
+                    continue
+                for cand in os.listdir(os.path.dirname(src)):
+                    if cand.lower() == d:
+                        companions.setdefault(cand, os.path.join(os.path.dirname(src), cand))
             # First writer wins: the dirs are sorted, so this is deterministic.
             found.setdefault(service, (sysfile, ids, desc, src))
 

@@ -179,6 +179,21 @@ class Box:
             await self.text(f"MKDIR {path}")
 
 
+def cvar_name(line: str) -> str:
+    """The cvar a config line sets, for both dialects this script writes.
+
+    Quake-family configs say `seta r_swapInterval "0"`; GoldSrc says
+    `gl_vsync "1"` with no verb. Anything reading or writing these blocks has
+    to agree on which token is the name, so this is the only place that decides.
+    """
+    parts = line.split()
+    if not parts:
+        return ""
+    if parts[0] in ("set", "seta", "sets", "setu") and len(parts) > 1:
+        return parts[1]
+    return parts[0]
+
+
 def merge_block(existing: str, lines: list[str], comment: str) -> str:
     """Replace our managed block, leaving everything else untouched.
 
@@ -199,11 +214,16 @@ def merge_block(existing: str, lines: list[str], comment: str) -> str:
         # Drop stale copies of the cvars we own wherever else they appear -
         # a leftover `seta r_swapInterval "0"` further down the file would
         # otherwise win and silently undo vsync.
-        managed = {ln.split()[1] for ln in lines if len(ln.split()) > 1}
-        first = line.split()
-        name = first[1] if len(first) > 1 and first[0] in ("set", "seta") \
-            else (first[0] if first else "")
-        if name in managed:
+        #
+        # Both sides of this comparison must extract the name the SAME way.
+        # They did not: the managed set used split()[1] unconditionally, which
+        # is the cvar NAME only on a `set`/`seta` line. The GoldSrc block is
+        # written as bare `gl_vsync "1"` / `fps_max "100"`, so split()[1] took
+        # the VALUE and managed became {'"1"', '"100"'} - a set no real cvar
+        # name can match. Nothing was stripped, and a stale gl_vsync further
+        # down the autoexec kept winning: the exact failure this code exists to
+        # prevent.
+        if cvar_name(line) in {cvar_name(ln) for ln in lines}:
             continue
         kept.append(line)
     body = "\n".join(kept).rstrip()
