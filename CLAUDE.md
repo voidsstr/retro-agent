@@ -1010,13 +1010,14 @@ Comparison write-up: `retro-3dfx/DRIVER-STACK-ASSESSMENT.md` (commit `1768c53`).
 >   off.** On 2026-08-18 eight agents answered; on 2026-08-23 none did, and
 >   nothing had broken. (They also drop ICMP — `ping` fails on a box whose agent
 >   is answering fine, so probe **TCP 9898**, never ping.)
-> - **This makes the chat daemon's "cold-boot crash loop" the steady state, not
->   an edge case.** `retro_chat_daemon.py` returns from `main_async()` when
->   discovery finds no agents, and its unit is `Restart=always` / `RestartSec=3`
->   — so on a host with the fleet off it rescans all 254 IPs every 3 seconds
->   forever. Do **not** enable `retro-chat-daemon` as a boot-time unit on the
->   fleet host; start it alongside the retro machines, or give it a zero-agent
->   backoff first.
+> - **The chat daemon used to exit when discovery found no agents** — with
+>   `Restart=always` that made a permanent rescan loop the steady state on a
+>   host with the fleet powered down, and it made `daemon: NOT RUNNING` normal,
+>   so the status check could not tell "fleet is off" from "the daemon is
+>   broken". **Fixed 2026-08-28:** it now stays up with zero hosts and claims
+>   machines as they boot (`rediscover()` already did the adding). It is safe
+>   to leave enabled. If you see it exiting on an empty fleet again, that fix
+>   has regressed — `tests/python/test_chat_daemon_conn_safety.py` guards it.
 > - Judge host health by the **brain's heartbeat** and the daemon's *ability* to
 >   claim — never by a live agent count.
 
