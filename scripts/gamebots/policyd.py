@@ -205,9 +205,17 @@ _E_HEALTH = _OFFSETS["e0_health_frac"] - _ENT_OFF[0]
 _E_VISIBLE = _OFFSETS["e0_visible"] - _ENT_OFF[0]
 
 
+def _gpu_policy(**kw):
+    """Imported lazily so policyd still runs on a host with no torch — the
+    Phase 0 harness and the whole test suite depend on that."""
+    import runtime
+    return runtime.GpuPolicy(**kw)
+
+
 POLICIES = {
     "noop": NoOpPolicy,
     "scripted": ScriptedPolicy,
+    "gpu": _gpu_policy,
 }
 
 
@@ -299,6 +307,11 @@ class PolicyServer:
         self.status_path = status_path
         self.stats_interval = stats_interval
         self.metrics = Metrics()
+        # The array path needs both halves: a policy that can consume arrays,
+        # and numpy to make them. Either missing falls back to struct, which
+        # still works — just slower.
+        self._fast = bool(getattr(policy, "act_arrays", None)) and \
+            getattr(schema, "HAVE_NUMPY", False)
         self.sel = selectors.DefaultSelector()
         self.conns = {}
         self._running = True
@@ -336,7 +349,8 @@ class PolicyServer:
         self.srv = srv
         self.sel.register(srv, selectors.EVENT_READ, self._accept)
         log(f"policyd: policy={self.policy.describe()} "
-            f"schema={schema.SCHEMA_HASH:#010x} obs_dim={schema.OBS_DIM}")
+            f"schema={schema.SCHEMA_HASH:#010x} obs_dim={schema.OBS_DIM} "
+            f"path={'array' if self._fast else 'struct'}")
         log(f"policyd: listening on {self.sock_path}")
 
     def _accept(self, srv):
@@ -397,7 +411,50 @@ class PolicyServer:
             if not self._serve(conn, frame):
                 return
 
+    def _serve_fast(self, conn, frame):
+        """Array path: bytes -> numpy view -> policy -> bytes.
+
+        Used when the policy exposes act_arrays() and numpy is present. Avoids
+        ~2.8 us/bot of Python struct work, which at 512 bots was an order of
+        magnitude more than the GPU forward pass it exists to feed.
+        """
+        t0 = time.perf_counter_ns()
+        try:
+            tick, flags, ids, obs = schema.unpack_request_fast(frame)
+        except ValueError as exc:
+            return self._reject(conn, exc)
+        n = len(ids)
+        try:
+            btn, pitch, yaw, fwd, side, wpn = self.policy.act_arrays(
+                tick, flags, ids, obs, conn_key=conn.fileno())
+        except Exception as exc:
+            self.metrics.errors += 1
+            log(f"policyd: policy raised {type(exc).__name__}: {exc}")
+            import numpy as np
+            z = np.zeros(n, dtype=np.float32)
+            btn = np.zeros(n, dtype=np.uint16)
+            pitch = yaw = fwd = side = z
+            wpn = np.zeros(n, dtype=np.uint8)
+        try:
+            conn.sendall(schema.pack_response_fast(tick, ids, btn, pitch, yaw,
+                                                   fwd, side, wpn, flags))
+        except (BrokenPipeError, ConnectionResetError, OSError):
+            self._close(conn, "write failed")
+            return False
+        self.metrics.record(n, (time.perf_counter_ns() - t0) / 1000.0)
+        return True
+
+    def _reject(self, conn, exc):
+        self.metrics.errors += 1
+        if "schema hash mismatch" in str(exc):
+            self.metrics.rejects_schema += 1
+        log(f"policyd: bad request — {exc}")
+        self._close(conn, "bad request")
+        return False
+
     def _serve(self, conn, frame):
+        if self._fast:
+            return self._serve_fast(conn, frame)
         t0 = time.perf_counter_ns()
         try:
             tick, flags, entries = schema.unpack_request(frame)
@@ -442,9 +499,11 @@ class PolicyServer:
 
     def _emit_stats(self):
         snap = self.metrics.snapshot()
+        if hasattr(self.policy, "stats"):
+            snap.update(self.policy.stats())
         snap.update({
             "ts": time.time(),
-            "policy": self.policy.describe(),
+            "policy_desc": self.policy.describe(),
             "schema_hash": f"{schema.SCHEMA_HASH:#010x}",
             "obs_dim": schema.OBS_DIM,
             "adapters_connected": len(self.conns),
@@ -488,9 +547,19 @@ def main():
     ap.add_argument("--status-path", default=os.environ.get(
         "GAMEBOTS_STATUS", default_status_path()))
     ap.add_argument("--stats-interval", type=float, default=30.0)
+    ap.add_argument("--weights", help="checkpoint for --policy gpu")
+    ap.add_argument("--device", default="cuda")
+    ap.add_argument("--dtype", default="fp16", choices=("fp16", "bf16", "fp32"))
+    ap.add_argument("--no-graphs", action="store_true",
+                    help="disable CUDA graph capture (debugging)")
     args = ap.parse_args()
 
-    policy = POLICIES[args.policy]()
+    if args.policy == "gpu":
+        policy = POLICIES["gpu"](weights=args.weights, device=args.device,
+                                 dtype=args.dtype,
+                                 use_graphs=not args.no_graphs)
+    else:
+        policy = POLICIES[args.policy]()
     server = PolicyServer(policy, args.socket, args.status_path,
                           args.stats_interval)
     signal.signal(signal.SIGINT, server.stop)

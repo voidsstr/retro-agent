@@ -310,6 +310,112 @@ def clamp_action(pitch, yaw, fwd, side):
 
 
 # --------------------------------------------------------------------------
+# numpy fast path
+# --------------------------------------------------------------------------
+#
+# The pure-Python struct path costs ~2.8 us/bot, which at 512 bots is 1.4 ms of
+# a frame -- an order of magnitude more than the GPU forward pass it exists to
+# feed. These read and write the whole batch as one typed memory view instead,
+# which is a memcpy and a reinterpret.
+#
+# numpy is OPTIONAL on purpose: the Phase 0 harness and the tests must keep
+# working on a host with no ML stack at all, so this degrades to the struct
+# path rather than becoming a hard dependency.
+
+try:
+    import numpy as _np
+
+    OBS_ENTRY_DTYPE = _np.dtype([
+        ("bot_id", "<u2"), ("pad", "<u2"), ("obs", "<f4", (OBS_DIM,)),
+    ])
+    ACTION_DTYPE = _np.dtype([
+        ("bot_id", "<u2"), ("buttons", "<u2"),
+        ("pitch", "<f4"), ("yaw", "<f4"), ("fwd", "<f4"), ("side", "<f4"),
+        ("weapon", "u1"), ("pad0", "u1"), ("reserved", "<u2"),
+    ])
+    HAVE_NUMPY = True
+
+    # If these ever disagree with the struct formats the two paths would write
+    # different bytes for the same batch, which is the kind of divergence that
+    # only shows up as a bot behaving oddly on one code path.
+    assert OBS_ENTRY_DTYPE.itemsize == OBS_ENTRY_SIZE, (
+        f"numpy obs entry is {OBS_ENTRY_DTYPE.itemsize} B, "
+        f"struct says {OBS_ENTRY_SIZE} B")
+    assert ACTION_DTYPE.itemsize == ACTION_SIZE, (
+        f"numpy action is {ACTION_DTYPE.itemsize} B, "
+        f"struct says {ACTION_SIZE} B")
+
+except ImportError:  # pragma: no cover - exercised on hosts without numpy
+    _np = None
+    HAVE_NUMPY = False
+    OBS_ENTRY_DTYPE = ACTION_DTYPE = None
+
+
+def unpack_request_fast(buf):
+    """-> (tick, flags, bot_ids ndarray, obs ndarray (n, OBS_DIM) float32).
+
+    Validates exactly what the slow path validates -- magic, schema hash and
+    length -- because a fast path that skips checks is how a stale adapter gets
+    to feed a model silently misaligned floats.
+    """
+    if not HAVE_NUMPY:
+        raise RuntimeError("numpy is not installed")
+    if len(buf) < HEADER_SIZE:
+        raise ValueError(f"short request: {len(buf)} bytes")
+    magic, hsh, n, flags, tick = struct.unpack_from(HEADER_STRUCT, buf, 0)
+    if magic != REQ_MAGIC:
+        raise ValueError(f"bad magic {magic!r}, expected {REQ_MAGIC!r}")
+    if hsh != SCHEMA_HASH:
+        raise ValueError(
+            f"schema hash mismatch: adapter sent {hsh:#010x}, "
+            f"policy server has {SCHEMA_HASH:#010x} — rebuild the adapter "
+            f"against the current gamebots_schema.h")
+    want = HEADER_SIZE + n * OBS_ENTRY_SIZE
+    if len(buf) != want:
+        raise ValueError(f"request is {len(buf)} bytes, expected {want} "
+                         f"for {n} bots")
+    arr = _np.frombuffer(buf, dtype=OBS_ENTRY_DTYPE, count=n,
+                         offset=HEADER_SIZE)
+    # `arr["obs"]` is a strided view over the 580-byte records; make it
+    # contiguous once so the tensor wrapping it is a straight memcpy.
+    return tick, flags, arr["bot_id"], _np.ascontiguousarray(arr["obs"])
+
+
+def pack_response_fast(tick, bot_ids, buttons, pitch, yaw, fwd, side, weapon,
+                       flags=FLAG_NONE):
+    """Build a response from parallel arrays, one buffer, no per-bot Python."""
+    if not HAVE_NUMPY:
+        raise RuntimeError("numpy is not installed")
+    n = len(bot_ids)
+    out = _np.empty(n, dtype=ACTION_DTYPE)
+    out["bot_id"] = bot_ids
+    out["buttons"] = buttons
+    out["pitch"] = pitch
+    out["yaw"] = yaw
+    out["fwd"] = fwd
+    out["side"] = side
+    out["weapon"] = weapon
+    out["pad0"] = 0
+    out["reserved"] = 0
+    return struct.pack(HEADER_STRUCT, RESP_MAGIC, SCHEMA_HASH, n, flags,
+                       tick & 0xFFFFFFFF) + out.tobytes()
+
+
+def clamp_actions_inplace(pitch, yaw, fwd, side):
+    """Vectorised clamp_action, including the NaN handling.
+
+    `np.clip` propagates NaN, so the non-finite values have to be replaced
+    first -- exactly the trap the scalar version documents.
+    """
+    for arr, lo, hi in ((pitch, -MAX_PITCH_DELTA_DEG, MAX_PITCH_DELTA_DEG),
+                        (yaw, -MAX_YAW_DELTA_DEG, MAX_YAW_DELTA_DEG),
+                        (fwd, -1.0, 1.0), (side, -1.0, 1.0)):
+        _np.nan_to_num(arr, copy=False, nan=0.0, posinf=hi, neginf=lo)
+        _np.clip(arr, lo, hi, out=arr)
+    return pitch, yaw, fwd, side
+
+
+# --------------------------------------------------------------------------
 # C header generation
 # --------------------------------------------------------------------------
 
