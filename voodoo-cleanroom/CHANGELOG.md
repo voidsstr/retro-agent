@@ -6,6 +6,45 @@ self-document. One functional change per version. Every benchmark row in the
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.58 — the multitexture cost is NOT in our driver (2026-08-29)
+
+`FX_PROFILE=1` now instruments the whole frame — texture setup, the TNL
+pipeline (cycles + vertex count), texture downloads, `grBufferSwap`, and
+vertex-format fixups — and dumps every 100 frames to `C:\retrogl.log`.
+
+Run against the single-pass multitexture regression, **every metric our driver
+controls is identical between the fast and slow modes**:
+
+| per frame | SGIS off (57.2 fps) | SGIS on (32.0 fps) |
+|---|---|---|
+| texture setup calls | 2 | 2 |
+| pipeline runs | 75 | 75 |
+| vertices | 4728 | 4716 |
+| pipeline cycles | ~15.2 M | ~15.6 M |
+| texture downloads | 0 | 0 |
+| blocking swap cycles | 0 | 0 |
+| vertex fixups / chooses | 5 / 7 | 5 / 7 |
+| **frame time** | **17.5 ms** | **31.2 ms** |
+
+And the penalty is a fixed CPU wall, not fill: multitexture sits at ~30.5 ms
+per frame at **every** resolution (32.9 / 32.7 / 32.1 fps at 320×240 / 512×384 /
+640×480, against 121.0 / 80.6 / 54.3 without it).
+
+So ~14 ms per frame is spent somewhere our driver does not measure and does not
+control — most plausibly in Quake II's own `ref_gl` multitexture path, which
+does more per-frame CPU work than its two-pass path. **This is not our
+optimisation to make**, which is the useful conclusion: it retires the largest
+apparent opportunity in the stack.
+
+**Seven theories, each implemented or switched and measured on hardware, none
+of them the cause:** texture thrashing (`gl_picmip`, 16× less texture RAM),
+`glClientActiveTextureARB`'s unconditional flush, per-vertex texcoord
+submission, redundant `grTexCombine`, Mesa x86 vertex codegen, texture download
+traffic, and vertex-format fixup thrash.
+
+`GL_SGIS_multitexture` therefore stays behind `FX_SGIS_MULTITEXTURE`. Default
+build unchanged at **57.2 fps**.
+
 ## 0.1.52 — robustness, shadowing, and five refuted optimisation theories (2026-08-29)
 
 **`-static-libgcc` on the ICD link.** Any use of a libgcc helper — a 64-bit

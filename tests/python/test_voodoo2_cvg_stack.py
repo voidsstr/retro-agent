@@ -178,3 +178,16 @@ def test_grtexcombine_is_shadowed():
     p = open(PATCH).read()
     assert "fx_sh_grTexCombine" in p
     assert "sh_tcomb" in p
+
+
+def test_profiler_instruments_the_whole_frame():
+    """FX_PROFILE=1 is what turned the multitexture hunt from guessing into
+    measuring — it retired seven theories. Keep the coverage: without the
+    pipeline timer and vertex count in particular you cannot show that the cost
+    is outside our driver.
+    """
+    p = open(PATCH).read()
+    for probe in ("fxp_pipeline_cycles", "fxp_verts", "fxp_setup_cycles",
+                  "fxp_swap_cycles", "fxp_fixup"):
+        assert probe in p, f"profiler lost its {probe} probe"
+    assert 'getenv("FX_PROFILE")' in p, "profiling must stay opt-in"
