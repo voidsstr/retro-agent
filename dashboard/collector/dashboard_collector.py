@@ -747,8 +747,13 @@ def _systemctl_prefix(scope):
     uid = _uid_of(FLEET_USER)
     if uid is None or uid == os.geteuid():
         return ["systemctl", "--user"]
+    # No --clear-groups: setgroups() does not survive this unit's sandbox and
+    # setpriv then exits with "setgroups failed: Operation not permitted",
+    # producing empty output rather than an error anyone would see. This path
+    # is only a fallback now (see user_unit_states_from_watchdog), but a
+    # fallback that cannot work is not one.
     return [
-        "setpriv", "--reuid", str(uid), "--regid", str(uid), "--clear-groups",
+        "setpriv", "--reuid", str(uid), "--regid", str(uid),
         "env", f"XDG_RUNTIME_DIR=/run/user/{uid}",
         "systemctl", "--user",
     ]
@@ -805,12 +810,45 @@ def unit_states(units, scope):
     return out
 
 
+def user_unit_states_from_watchdog(units):
+    """User-unit states as reported by the game-server watchdog, or None.
+
+    Preferred over asking systemd ourselves. We are root inside a hardened
+    unit, so `systemctl --user` means *root's* manager and reaching the fleet
+    user's needs a privilege hop -- which does not survive this sandbox:
+    `setpriv --clear-groups` calls setgroups(), that fails, stdout comes back
+    empty, and every fleet service reads "unknown". On a wall whose whole job
+    is service health, that is indistinguishable from all of them having died,
+    and it is what shipped on the first deploy.
+
+    The watchdog already IS the fleet user and already runs `systemctl --user`
+    for the game servers, so it answers this directly and puts the result in
+    the status file we are reading anyway. No hop, no sandbox interaction.
+    """
+    path = _runtime_status_path(GAMESERVERS_STATUS, "retro-gameservers")
+    data, err = _read_status_file(path)
+    if err or not data:
+        return None
+    reported = data.get("host_services")
+    if not isinstance(reported, dict) or not reported:
+        return None
+    # A stale file means the watchdog stopped; its snapshot of everything else
+    # stopped with it, so do not present old states as current.
+    if data.get("stale_sec"):
+        return None
+    return {u: reported[u] for u in units if u in reported}
+
+
 def collect_services():
     """State of every host-side service the fleet depends on."""
     rows = []
     for scope in ("user", "system"):
         units = [u for _, u, sc in HOST_SERVICES if sc == scope]
-        states = unit_states(units, scope)
+        states = None
+        if scope == "user":
+            states = user_unit_states_from_watchdog(units)
+        if states is None:
+            states = unit_states(units, scope)
         for label, unit, sc in HOST_SERVICES:
             if sc != scope:
                 continue

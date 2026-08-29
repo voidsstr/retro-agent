@@ -50,6 +50,29 @@ COOLDOWN_SEC = 300.0     # minimum gap between restarts of the same unit
 MAX_PER_HOUR = 4         # give up rather than flap a server that cannot start
 
 
+# The host's `systemd --user` services, reported here rather than by the
+# dashboard collector.
+#
+# The collector runs as root inside a hardened unit, where `systemctl --user`
+# means *root's* manager. Reaching the fleet user's manager from there needs a
+# privilege hop (`setpriv --reuid ... systemctl --user`), and inside that
+# sandbox the hop fails -- `--clear-groups` calls setgroups(), which does not
+# survive, so it produced empty output and every fleet service read "unknown":
+# indistinguishable from all of them having died.
+#
+# This process already IS the fleet user and already runs `systemctl --user`
+# for the game servers, so it can answer the question directly and put the
+# result in the status file the collector is reading anyway. No hop, no
+# sandbox interaction, one fewer way for the panel to be wrong.
+HOST_USER_SERVICES = [
+    "retro-chat-daemon",
+    "retro-chat-brain",
+    "retro-gameindex",
+    "retro-gameservers-watch",
+    "retro-dosgames-http",
+]
+
+
 def default_status_path():
     """Where the dashboard collector looks.
 
@@ -157,6 +180,13 @@ class Watch:
 
         for row in snap["servers"]:
             row["restarts_this_hour"] = self._recent_restarts(row["unit"], now)
+
+        # Reported from here because we are the fleet user; see
+        # HOST_USER_SERVICES for why the collector cannot ask for itself.
+        try:
+            snap["host_services"] = gameservers.unit_states(HOST_USER_SERVICES)
+        except Exception as exc:  # never let this sink a game-server pass
+            snap["host_services_error"] = f"{type(exc).__name__}: {exc}"
 
         snap["schema"] = SCHEMA_VERSION
         snap["watchdog"] = {

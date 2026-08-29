@@ -642,3 +642,94 @@ def test_reconcile_ignores_a_different_error(dc):
     }
     dc.reconcile_status_sources(state)
     assert state["gameservers"]["error"] == "unreadable: JSONDecodeError"
+
+
+# --------------------------------- user units come from the watchdog, not us
+#
+# The collector is root inside a hardened unit, so `systemctl --user` is
+# root's own manager and the privilege hop to the fleet user's does not
+# survive the sandbox (`setpriv --clear-groups` -> setgroups() fails -> empty
+# stdout -> every service reads "unknown"). That shipped once and looked
+# exactly like the whole fleet having died. The watchdog already is that user,
+# so it reports them.
+
+
+def _watchdog_file(tmp_path, host_services, ts=None, extra=None):
+    import time as _t
+    payload = {"ts": ts if ts is not None else _t.time(),
+               "up": 10, "total": 10, "servers": []}
+    if host_services is not None:
+        payload["host_services"] = host_services
+    payload.update(extra or {})
+    f = tmp_path / "status.json"
+    f.write_text(json.dumps(payload))
+    return f
+
+
+def test_user_units_are_read_from_the_watchdog(dc, tmp_path, monkeypatch):
+    f = _watchdog_file(tmp_path, {
+        "retro-chat-brain": {"state": "active", "uptime_sec": 5},
+        "retro-gameindex": {"state": "failed"},
+    })
+    monkeypatch.setattr(dc, "GAMESERVERS_STATUS", str(f))
+    out = dc.user_unit_states_from_watchdog(
+        ["retro-chat-brain", "retro-gameindex"])
+    assert out["retro-chat-brain"]["state"] == "active"
+    assert out["retro-gameindex"]["state"] == "failed"
+
+
+def test_collect_services_prefers_the_watchdog_over_systemctl(dc, tmp_path, monkeypatch):
+    """The hop must not even be attempted when the watchdog has the answer."""
+    f = _watchdog_file(tmp_path, {
+        u: {"state": "active"} for _, u, sc in dc.HOST_SERVICES if sc == "user"})
+    monkeypatch.setattr(dc, "GAMESERVERS_STATUS", str(f))
+
+    asked = []
+
+    def spy(units, scope):
+        asked.append(scope)
+        return {u: {"state": "active"} for u in units}
+
+    monkeypatch.setattr(dc, "unit_states", spy)
+    out = dc.collect_services()
+    assert out["up"] == out["total"]
+    assert "user" not in asked, "queried systemd for user units unnecessarily"
+    assert asked == ["system"]
+
+
+def test_a_stale_watchdog_file_is_not_presented_as_current(dc, tmp_path, monkeypatch):
+    """If the watchdog stopped, its snapshot of everything else stopped too —
+    showing hours-old 'active' rows would be worse than saying nothing."""
+    f = _watchdog_file(tmp_path, {"retro-chat-brain": {"state": "active"}}, ts=0)
+    monkeypatch.setattr(dc, "GAMESERVERS_STATUS", str(f))
+    assert dc.user_unit_states_from_watchdog(["retro-chat-brain"]) is None
+
+
+def test_no_watchdog_file_falls_back_rather_than_reporting_nothing(dc, tmp_path, monkeypatch):
+    monkeypatch.setattr(dc, "GAMESERVERS_STATUS", str(tmp_path / "gone.json"))
+    assert dc.user_unit_states_from_watchdog(["retro-chat-brain"]) is None
+
+    called = []
+    monkeypatch.setattr(dc, "unit_states", lambda u, sc: (
+        called.append(sc), {x: {"state": "active"} for x in u})[1])
+    out = dc.collect_services()
+    assert "user" in called, "fallback to systemd did not happen"
+    assert out["up"] == out["total"]
+
+
+def test_an_old_watchdog_without_the_field_falls_back(dc, tmp_path, monkeypatch):
+    """A watchdog predating this feature publishes no host_services key."""
+    f = _watchdog_file(tmp_path, None)
+    monkeypatch.setattr(dc, "GAMESERVERS_STATUS", str(f))
+    assert dc.user_unit_states_from_watchdog(["retro-chat-brain"]) is None
+
+
+def test_the_fallback_hop_does_not_use_clear_groups(dc, monkeypatch):
+    """setgroups() does not survive this unit's sandbox; setpriv then exits
+    with 'setgroups failed' and produces empty output — a fallback that cannot
+    work is not a fallback."""
+    monkeypatch.setattr(dc.os, "geteuid", lambda: 0)
+    monkeypatch.setattr(dc, "_uid_of", lambda user: 1000)
+    prefix = dc._systemctl_prefix("user")
+    assert "--clear-groups" not in prefix
+    assert "--reuid" in prefix and "1000" in prefix
