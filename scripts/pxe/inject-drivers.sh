@@ -194,7 +194,32 @@ printf '%s' "$paths" > "$IMAGE/OemPnPDriversPath.txt"
 # LAN and chipset alone are ~102 directories and about 713 characters, which
 # fits winnt.sif comfortably (the full 492 needed 3470 and broke the answer
 # file). Everything else - graphics, sound, mass storage, monitor - is not
-# needed to get the machine on the network and can wait for DevicePath.
+# needed to get the machine on the network.
+#
+# IT DOES NOT "WAIT FOR DevicePath" - IT IS NEVER USED AT ALL. That is what this
+# comment used to say and it was wrong. cmdlines.txt runs at T-12, which is
+# AFTER GUI setup has installed the devices, so a driver reachable only through
+# DevicePath is copied to C:\D, indexed, and never consulted. Measured on the
+# freshly imaged .124 (2026-08-29): its setupapi.log contains exactly SIX
+# "Found ... in C:\D\" lines for the whole install, and every one names an L
+# (LAN) or a C (chipset) directory. Not one G, H, I, M, N, S or T. Its GeForce2
+# GTS came up on Microsoft's in-box nv4 at 800x600 in 16-bit colour with
+# ForceWare 71.89 sitting unused on its own disk.
+#
+# DO NOT "FIX" THIS BY LENGTHENING THE EARLY LIST. Two reasons:
+#   - It would not work. XP penalises an untrusted driver node by +0x8000
+#     ("#I087 Driver node not trusted, rank changed from 0x2000 to 0xa000"), so
+#     an unsigned INF loses to any trusted in-box match however new it is;
+#     DriverSigningPolicy=Ignore suppresses the dialog, not the rank.
+#   - It is actively dangerous. LAN+chipset+graphics is ~171 directories, about
+#     1197 characters, against make-xp-source.sh's OEMPNP_MAX of 1200 - and when
+#     the list exceeds that, it is dropped ENTIRELY, taking LAN and chipset with
+#     it. Growing this list to gain graphics can therefore cost the machine its
+#     network.
+#
+# The mechanism that DOES work is a forced install after setup: see
+# scripts/pxe/driver-prefs.txt -> $OEM$\$1\D\PREFER.TXT and
+# agent/src/gamesync.c:gs_apply_driver_prefs().
 early=""
 for d in $(ls "$OEM" 2>/dev/null | grep -E '^[LC][0-9]{3}$' | sort); do
     early="$early;D\\$d"
