@@ -62,6 +62,8 @@ static const cmd_entry_t commands[] = {
     { "AUDIOINFO",  0, handle_audioinfo,  NULL },
     { "SYSFIX",     1, NULL,             handle_sysfix },
     { "LICSTATUS",  1, NULL,            handle_licstatus },
+    { "WPASAVE",    1, NULL,              handle_wpasave },
+    { "WPALOAD",    1, NULL,              handle_wpaload },
     { "AUTOMAP",    1, NULL,             handle_automap },
     { "ONBOARD",    1, NULL,             handle_onboard },
     { "DOSSTAGE",   1, NULL,            handle_dosstage },

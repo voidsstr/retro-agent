@@ -239,6 +239,12 @@ def main():
 
     mdirs = sorted(d for d in os.listdir(droot)
                    if d.startswith('M') and os.path.isdir(os.path.join(droot, d)))
+    # What the media already provides, and what we must bring along with a
+    # driver we accept. Both were used by the import guard before they existed,
+    # which made this script raise NameError on its first driver - the media's
+    # current contents came from an earlier run, not from this code.
+    have_i386 = {f.lower() for f in os.listdir(i386)}
+    companions = {}                    # lowercase name -> source path
     found, placed = {}, 0
     for d in mdirs:
         for fn in os.listdir(os.path.join(droot, d)):
@@ -271,21 +277,25 @@ def main():
             if deps is None:
                 continue
             sib = {f.lower() for f in os.listdir(os.path.dirname(src))}
-            unmet = [d for d in deps
-                     if d not in NATIVE_MODULES
-                     and d not in have_i386
-                     and (d[:-1] + '_') not in have_i386
-                     and d not in sib]
+            # `dep`, not `d`: the outer loop already uses `d` for the pack
+            # directory, and reusing it here clobbered it mid-iteration.
+            unmet = [dep for dep in deps
+                     if dep not in NATIVE_MODULES
+                     and dep not in have_i386
+                     and (dep[:-1] + '_') not in have_i386
+                     and dep not in sib]
             if unmet:
                 print('  skipping %s: unmet imports %s' % (sysfile, ','.join(unmet)))
                 continue
             # Pull in any dependency that ships beside it.
-            for d in deps:
-                if d in NATIVE_MODULES or d in have_i386 or (d[:-1] + '_') in have_i386:
+            for dep in deps:
+                if (dep in NATIVE_MODULES or dep in have_i386
+                        or (dep[:-1] + '_') in have_i386):
                     continue
                 for cand in os.listdir(os.path.dirname(src)):
-                    if cand.lower() == d:
-                        companions.setdefault(cand, os.path.join(os.path.dirname(src), cand))
+                    if cand.lower() == dep:
+                        companions.setdefault(
+                            cand, os.path.join(os.path.dirname(src), cand))
             # First writer wins: the dirs are sorted, so this is deterministic.
             found.setdefault(service, (sysfile, ids, desc, src))
 
@@ -308,17 +318,54 @@ def main():
         # mode dies with "<driver>.sys caused an unexpected error ... at line
         # 3540 in setup.c" - which reads like a corrupt or missing file and is
         # neither. Two machines failed to install this way.
+        # An INF that names its service through a token (%SERVICE_NAME%) has
+        # not been resolved, and writing that literal into txtsetup.sif gives
+        # setup a service called "%SERVICE_NAME%". Two of those got in.
+        if service.startswith('%') or service.endswith('%'):
+            print('  skipping %s: unresolved service token %s' % (sysfile, service))
+            continue
         src_lines.append('%s = 1,,,,,,4_,4,1,,,1,4' % sysfile)
         load_lines.append('%s = %s,4' % (service, sysfile))
         scsi_lines.append('%s = "%s"' % (service, desc[:64]))
         for hw in ids:
             hwdb_lines.append('%s = "%s"' % (hw, service))
 
+    # NOTE WHAT IS NOT HERE: [SCSI.Load].
+    #
+    # That section is the set text-mode setup loads UNCONDITIONALLY, into a very
+    # constrained memory environment. Retail XP lists 32 drivers there. Adding
+    # every slipstreamed miniport took it to 111, and a machine then failed with
+    # "dmboot.sys is corrupted" - reproducibly, on the same file, from media
+    # verified byte-perfect (present, valid MSCF, byte-identical over TFTP,
+    # extracting to a valid 799 KB i386 PE). dmboot.sys is among the largest
+    # drivers text mode loads, so it is what fails first when the allocation
+    # budget runs out, and "corrupted" is how that surfaces.
+    #
+    # Coverage does not require force-loading. Retail keeps ~224 entries in
+    # [HardwareIdsDatabase] against those 32: the database maps a detected
+    # controller to a service and setup loads THAT driver on demand. Registering
+    # the file, the hardware ids and the description gives full recognition at
+    # retail's memory cost.
+    # Copy and register the companions. Collecting them into a dict and never
+    # reading it was the other half of a fix that was described but not
+    # implemented: mv61xxmm.sys is on the media because it was placed by hand,
+    # not by this script.
+    for name, csrc in sorted(companions.items()):
+        cdst = os.path.join(i386, name)
+        if not a.dry_run and not os.path.exists(cdst):
+            shutil.copy2(csrc, cdst)
+            placed += 1
+        # A dependency has to be on the BOOT MEDIA too, or the loader cannot
+        # resolve the import and setup blames the driver that needed it.
+        src_lines.append('%s = 1,,,,,,4_,4,1,,,1,4' % name)
+    if companions:
+        print('  companion drivers pulled in: %d (%s)'
+              % (len(companions), ', '.join(sorted(companions))))
+
     counts = {}
     for sec, lines in (('SourceDisksFiles.x86', src_lines),
                        ('SourceDisksFiles', src_lines),
                        ('HardwareIdsDatabase', hwdb_lines),
-                       ('SCSI.Load', load_lines),
                        ('SCSI', scsi_lines)):
         text, n = add_lines(text, sec, lines)
         if n:

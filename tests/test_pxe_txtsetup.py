@@ -85,6 +85,25 @@ def main():
     check(f'every boot driver carries a boot-media field ({len(badreg)})',
           not badreg)
 
+    print('== [SCSI.Load] stays near retail size ==')
+    # This is a MEMORY budget, not a style rule. Text-mode setup loads every
+    # driver in this section unconditionally, in a very constrained environment.
+    # Retail XP lists 32. Slipstreaming every storage miniport into it took the
+    # count to 111, and a machine then failed with "dmboot.sys is corrupted" -
+    # reproducibly, same file, from media verified byte-perfect. dmboot.sys is
+    # among the largest drivers text mode loads, so it is what fails first when
+    # the budget runs out; "corrupted" is how running out of memory surfaces.
+    #
+    # Coverage belongs in [HardwareIdsDatabase], which setup consults to load a
+    # driver ON DEMAND for a controller it actually found.
+    check(f'[SCSI.Load] holds {len(entries)} drivers, not far above retail 32',
+          len(entries) <= 45)
+    tokens = [s2 for s2, _ in entries if s2.startswith('%') or s2.endswith('%')]
+    check(f'no unexpanded INF token used as a service name ({len(tokens)})',
+          not tokens)
+    for t2 in tokens[:4]:
+        print(f'        {t2} is an unresolved INF variable, not a service')
+
     print('== every driver import resolves on the media ==')
     # Checking for the literal string 'storport.sys' caught the first round of
     # unmet dependencies and MISSED the second: three Marvell miniports each
