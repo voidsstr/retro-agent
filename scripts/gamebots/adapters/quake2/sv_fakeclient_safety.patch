@@ -1,0 +1,45 @@
+--- src/server/sv_send.c
++++ src/server/sv_send.c
+@@ -52,6 +52,17 @@
+ 	va_list argptr;
+ 	char string[1024];
+ 
++	// gamebots: a fake client (cs_free forever -- see the matching guard in
++	// PF_Unicast, sv_game.c) has nothing that will ever flush or clear
++	// cl->netchan.message. gi.cprintf() reaches here directly (it does not
++	// go through PF_Unicast), and stock baseq2 calls it for every item
++	// pickup -- so a bot that picks up so much as one shell overflows this
++	// buffer eventually, and SZ_GetSpace() takes the whole server down.
++	if (cl->state == cs_free)
++	{
++		return;
++	}
++
+ 	va_start(argptr, fmt);
+ 	vsnprintf(string, sizeof(string), fmt, argptr);
+ 	va_end(argptr);
+--- src/server/sv_game.c
++++ src/server/sv_game.c
+@@ -55,6 +55,22 @@
+ 
+ 	client = svs.clients + (p - 1);
+ 
++	// gamebots: a fake client (one of our bots, ClientConnect()ed straight
++	// from the game DLL, never through the network handshake) sits at
++	// cs_free forever -- SV_SendClientMessages() already skips cs_free
++	// clients when flushing per-client buffers, so nothing would ever
++	// drain what we queue here. Without this guard, ANY reliable unicast
++	// aimed at a bot (a pickup message, an obituary, the muzzleflash on
++	// respawn -- all stock baseq2 behaviour, not bot-specific) accumulates
++	// in client->netchan.message until SZ_GetSpace hits ERR_FATAL and
++	// takes the whole server down. Verified on a live test server: three
++	// fake clients crashed it in under 20 seconds without this.
++	if (client->state == cs_free)
++	{
++		SZ_Clear(&sv.multicast);
++		return;
++	}
++
+ 	if (reliable)
+ 	{
+ 		SZ_Write(&client->netchan.message, sv.multicast.data,

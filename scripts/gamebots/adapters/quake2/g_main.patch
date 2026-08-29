@@ -1,0 +1,45 @@
+--- g_main.c
++++ g_main.c
+@@ -25,6 +25,7 @@
+  */
+ 
+ #include "header/local.h"
++#include "gb_adapter.h"		// gamebots: neural bot policy hooks
+ 
+ game_locals_t game;
+ level_locals_t level;
+@@ -100,6 +101,8 @@
+ {
+ 	gi.dprintf("==== ShutdownGame ====\n");
+ 
++	GB_Shutdown();		// gamebots
++
+ 	gi.FreeTags(TAG_LEVEL);
+ 	gi.FreeTags(TAG_GAME);
+ }
+@@ -175,6 +178,10 @@
+ 	/* Initalize the PRNG */
+ 	randk_seed();
+ 
++	// gamebots: set up the policy-server client and register our cvars.
++	// Does nothing to the running game until gb_bots/gb_enable are set.
++	GB_Init();
++
+ 	return &globals;
+ }
+ 
+@@ -450,6 +457,14 @@
+ 	int i;
+ 	edict_t *ent;
+ 
++	// gamebots: spawn/despawn fake-client bots to match gb_bots, then drive
++	// every one of them (policy if gb_enable and it answered, our own
++	// fallback wander AI otherwise) by calling ClientThink() directly --
++	// nothing else will ever produce a usercmd_t for a fake client. Mirrors
++	// where a real client's ClientThink() already ran, on the network read
++	// path, before the engine calls G_RunFrame().
++	GB_RunFrame();
++
+ 	level.framenum++;
+ 	level.time = level.framenum * FRAMETIME;
+ 
