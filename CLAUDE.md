@@ -840,7 +840,14 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
 
 ### Registry (Windows)
 - **REGREAD root path** — read value or enumerate keys
-- **REGWRITE root path value type** — write value
+- **REGWRITE root path name type data** — write value. **Five tokens.** The
+  value name is its own argument, *not* part of the path, and the data comes
+  last: `REGWRITE HKLM SYSTEM\CurrentControlSet\Services\fxgpio Start REG_DWORD 1`.
+  Folding the name into the path (`...\fxgpio\Start 1 REG_DWORD`) makes the
+  agent **create a subkey** called `Start`, write a value named `1` into it,
+  and still answer `OK` while the real value is untouched
+  (`agent/src/registry.c:284`). **Always read the value back — never trust the
+  `OK`.** Cost an hour on .171 (2026-08-28).
 - **REGDELETE root path** — delete value or key
 
 ### Network (Windows)

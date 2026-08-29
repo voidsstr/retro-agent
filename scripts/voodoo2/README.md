@@ -46,6 +46,13 @@ HKLM\SYSTEM\CurrentControlSet\Services\{fxgpio,fxptl,Ntremap}\Start = 1
 Symptom if you skip it: the driver reports as installed, and nothing renders.
 `install_voodoo2.py` does this fix-up automatically.
 
+> **`REGWRITE` takes five tokens — `<root> <path> <name> <type> <data>`.**
+> The value name is a separate argument from the path and the data comes last:
+> `REGWRITE HKLM SYSTEM\CurrentControlSet\Services\fxgpio Start REG_DWORD 1`.
+> Writing `...\fxgpio\Start 1 REG_DWORD` instead makes the agent **create a
+> subkey** named `Start`, put a value named `1` in it, and answer `OK` with the
+> real `Start` untouched. It looks like it worked. Always read the value back.
+
 ## SLI
 
 - **The cards must match.** The official 3dfx drivers do **not** support

@@ -141,14 +141,23 @@ async def main():
     print(f"\ndrvupd: {out.strip()[:400]}")
 
     # THE FIX: Win2K core-level driver needs system start on XP, not auto.
+    # REGWRITE is <root> <path> <name> <type> <data> -- five tokens. Folding the
+    # value name into the path makes the agent CREATE A SUBKEY of that name and
+    # still answer OK, leaving Start untouched (agent/src/registry.c:284).
     for svc in SERVICES:
         await cmd(
             conn,
-            rf"REGWRITE HKLM SYSTEM\CurrentControlSet\Services\{svc}\Start 1 REG_DWORD",
+            rf"REGWRITE HKLM SYSTEM\CurrentControlSet\Services\{svc} Start REG_DWORD 1",
         )
     print(f"set {', '.join(SERVICES)} to Start=1 (system)")
 
-    print(f"\npost-install start types: {await service_start_types(conn)}")
+    # Never trust the OK -- a misparsed REGWRITE reports success either way.
+    final = await service_start_types(conn)
+    print(f"\npost-install start types: {final}")
+    bad = [s for s, v in final.items() if str(v) != "1"]
+    if bad:
+        print(f"WARNING: {bad} did not reach Start=1 -- the driver will load but "
+              f"render nothing. Re-check the REGWRITE argument order.")
     print("\nA REBOOT is required for the start-type change to take effect.")
     print("Reboot needs explicit user approval -- not issued by this script.")
     await conn.close()

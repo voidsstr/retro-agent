@@ -84,3 +84,50 @@ def test_hwid_constant_is_the_3dfx_vendor():
     m = _mod()
     assert m.V2_HWID.upper().endswith("VEN_121A&DEV_0002")
     assert "1102" not in m.V2_HWID, "must not be the Creative vendor id"
+
+
+def test_regwrite_uses_the_five_token_form(monkeypatch):
+    """REGWRITE is <root> <path> <name> <type> <data> (agent/src/registry.c:284).
+
+    Folding the value name into the path -- `...\\fxgpio\\Start 1 REG_DWORD` --
+    makes the agent RegCreateKeyExA a subkey literally named `Start`, write a
+    value named `1` into it, and answer OK while the real Start is untouched.
+    Verified the hard way on .171 (2026-08-28): three OK writes, all three
+    services still Start=2.
+    """
+    m = _mod()
+    sent = []
+
+    class RecordingConn(FakeConn):
+        async def send_command(self, text, binary_payload=None):
+            sent.append(text)
+            return await super().send_command(text, binary_payload)
+
+    async def drive():
+        conn = RecordingConn([])
+        for svc in m.SERVICES:
+            await m.cmd(
+                conn,
+                rf"REGWRITE HKLM SYSTEM\CurrentControlSet\Services\{svc} Start REG_DWORD 1",
+            )
+    asyncio.run(drive())
+
+    for line in sent:
+        head, _, rest = line.partition("REGWRITE ")
+        tokens = rest.split()
+        assert len(tokens) == 5, f"REGWRITE needs 5 tokens, got {len(tokens)}: {line}"
+        root, path, name, rtype, data = tokens
+        assert root == "HKLM"
+        assert not path.endswith("\\Start"), \
+            "value name must be its own token, not glued onto the path"
+        assert name == "Start"
+        assert rtype == "REG_DWORD", "type comes BEFORE the data"
+        assert data == "1"
+
+
+def test_install_reads_back_instead_of_trusting_ok():
+    """A misparsed REGWRITE answers OK, so the script must verify by reading."""
+    src = open(MOD_PATH).read()
+    fix = src.split("THE FIX")[1]
+    assert "service_start_types(conn)" in fix, "must re-read the values after writing"
+    assert "WARNING" in fix, "must warn when a service did not reach Start=1"
