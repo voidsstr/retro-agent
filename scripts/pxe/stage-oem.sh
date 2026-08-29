@@ -118,15 +118,41 @@ echo "   newimage.flag: marks the box as freshly imaged for the agent"
     printf '"AutoLogonCount"=-\r\n\r\n'
     # XP SP3 installs with the firewall ON, which drops inbound 9898 - the
     # agent starts, logs happily, and is simply unreachable, which looks
-    # exactly like it failing to start. Open the one port rather than turning
-    # the firewall off: these boxes are old and unpatched, and the agent needs
-    # nothing else inbound.
+    # exactly like it failing to start.
+    #
+    # We used to open just port 9898 and leave the firewall up. That was not
+    # enough, and the reason only showed up once we started launching games:
+    #
+    #   1. Every networked game binds a socket, so on FIRST RUN the firewall
+    #      throws a "Windows Security Alert" modal over the game. On a
+    #      fullscreen title that dialog steals focus and can make the game bail
+    #      during init - which reads as "the game is broken", not as a firewall
+    #      prompt. It also sits on top of any screenshot we take.
+    #   2. Even after dismissing it, the LAN multiplayer these boxes exist for
+    #      is still blocked. Silencing the notification alone would hide the
+    #      symptom while keeping the fault.
+    #
+    # So turn the firewall OFF on both profiles. These are isolated-LAN retro
+    # boxes already running an unauthenticated agent on 9898; the firewall is
+    # not what is protecting them, and it costs us the thing they are for.
+    # DoNotAllowExceptions=0 and DisableNotifications=1 keep it quiet even if
+    # something re-enables the service later.
+    printf '[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\StandardProfile]\r\n'
+    printf '"EnableFirewall"=dword:00000000\r\n'
+    printf '"DoNotAllowExceptions"=dword:00000000\r\n'
+    printf '"DisableNotifications"=dword:00000001\r\n\r\n'
+    printf '[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\DomainProfile]\r\n'
+    printf '"EnableFirewall"=dword:00000000\r\n'
+    printf '"DoNotAllowExceptions"=dword:00000000\r\n'
+    printf '"DisableNotifications"=dword:00000001\r\n\r\n'
+    # Keep the explicit 9898 rule too. It is harmless with the firewall off and
+    # it means the agent is still reachable if anyone turns the firewall back on.
     printf '[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\StandardProfile\\GloballyOpenPorts\\List]\r\n'
     printf '"9898:TCP"="9898:TCP:*:Enabled:Retro Agent"\r\n\r\n'
     printf '[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\DomainProfile\\GloballyOpenPorts\\List]\r\n'
     printf '"9898:TCP"="9898:TCP:*:Enabled:Retro Agent"\r\n'
 } > "$OEM/retroagent.reg"
-echo "   retroagent.reg: auto-login (no count) + Run key + firewall port 9898"
+echo "   retroagent.reg: auto-login (no count) + Run key + firewall OFF (+9898 rule)"
 
 # ---- 3b. the driver search path, as a registry value ---------------------
 # OemPnPDriversPath in winnt.sif is the documented way to do this, and for a

@@ -129,6 +129,22 @@ else
   echo "  (skipped panel tests: node not installed)"
 fi
 
+### [6] PXE / unattended-image invariants ###
+#
+# These live at tests/*.py rather than tests/python/, and pytest.ini sets
+# `testpaths = python`, so until now NOTHING ran them - they were written,
+# committed, and then silently never executed again. Run them explicitly.
+#
+# They are standalone scripts (their own PASS/FAIL + exit code), not pytest
+# modules, because most of them assert against the STAGED IMAGE on the SMB
+# share and must degrade to SKIP when it is not mounted rather than error.
+echo; echo "### [6] PXE / unattended-image invariants ###"
+for t in "$HERE"/test_pxe_*.py "$HERE"/test_binl.py; do
+  [ -f "$t" ] || continue
+  echo "-- $(basename "$t")"
+  python3 "$t" || rc=1
+done
+
 echo; echo "=================================================================="
 [ $rc -eq 0 ] && echo " ALL SUITES PASSED" || echo " SOME SUITES FAILED (rc=$rc)"
 echo "=================================================================="
