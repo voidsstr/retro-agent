@@ -835,6 +835,14 @@ for pc in pcs:
 - **REGREAD format**: `REGREAD HKLM Path\\To\\Key` (root and path space-separated).
 - **Screenshots are raw BMP**: Convert to PNG with Pillow before passing to a vision model or saving.
 - **REBOOT/SHUTDOWN require confirmation**: These machines need physical access to recover. Never issue without explicit user approval.
+- **⚠️ NEVER issue a bare `REBOOT` — use `scripts/fleet/safe-reboot.py <ip>`.** The
+  fleet boxes **PXE boot FIRST**: that is how they get imaged. A plain reboot can
+  be handed a fresh install offer and the machine **repartitions itself**, wiping
+  the disk. `safe-reboot.py` arms the PXE boot hold first and refuses to reboot if
+  it cannot. (`--reinstall` inverts it, to reimage deliberately.) This has really
+  happened twice: a Gateway 550 lost an hour of provisioning on 2026-08-28, and a
+  parallel session caused six reinstalls in an hour on 2026-08-29. The agent's
+  `REBOOT` cannot know any of this — it just reboots.
 - **Win98 RST crash**: Abrupt TCP disconnects crash Win98 Winsock. Always `await conn.close()` gracefully. Never kill connections to Win98 agents.
 
 ## Agent Command Reference
@@ -1071,6 +1079,7 @@ the full list). Verified boxes:
 | IP | Hostname | OS | Hardware Notes |
 |----|----------|----|----|
 | 192.168.1.124 | ADMIN | Windows XP SP3 | **NVIDIA GeForce2 GTS** (`10DE:0150`, NV15) on **ForceWare 71.89** — the Voodoo 3 was removed 2026-08-11 and the whole 3dfx stack purged. 383MB RAM, single CPU (440BX/PIII class), dual-boot: **XP on D:**, Win98 on C: (games live on both volumes). |
+| 192.168.1.171 | NSC-5B996B81319 | Windows XP SP3 | **Pentium 4 2.8GHz**, 509MB, Dell i865G. 2D is the onboard **Intel 865G**; 3D is a **3dfx Voodoo 2** (12MB). ⚠️ **A Voodoo 2 NEVER shows as a display adapter** — its INF is `Class=MEDIA`, so `VIDEODIAG` and every display-class scan report only the Intel chip and the card looks absent. Detect it with `REGREAD HKLM SYSTEM\CurrentControlSet\Enum\PCI` → `VEN_121A&DEV_0002` (NB `VEN_1102&DEV_0002` is a Creative SB Live!, not a Voodoo). Two identical cards share ONE device key with separate instance subkeys, so descend a level to count them. **This box also answers slowly — use ≥8s TCP timeouts or sweeps miss it entirely.** |
 
 Legacy rows below are from an older 10.0.0.0/24 network and are **not** current:
 
