@@ -289,3 +289,117 @@ def test_status_publish_is_atomic_and_world_readable(tmp_path):
     assert json.loads(target.read_text())["requests"] == 3
     assert stat.S_IMODE(os.stat(target).st_mode) & stat.S_IROTH
     assert not list(target.parent.glob("*.tmp*"))
+
+
+# ------------------------------------------------- the TCP endpoint
+#
+# Added for UT99: UnrealScript's only outbound networking is `TcpLink`, which
+# cannot speak to a Unix socket. Same wire format, different transport.
+#
+# The security property matters more than the speed one. This endpoint takes
+# observations and returns actions with no authentication whatsoever — that is
+# fine on loopback and is not fine on a LAN full of retro boxes, so the default
+# bind address is the thing to pin.
+
+def test_tcp_defaults_to_loopback_when_only_a_port_is_given(tmp_path):
+    srv = policyd.PolicyServer(policyd.NoOpPolicy(), str(tmp_path / "p.sock"),
+                               status_path=None, stats_interval=0,
+                               tcp_listen="27201")
+    srv.sel = policyd.selectors.DefaultSelector()
+    srv._listen_tcp("27201")
+    try:
+        host, _port = srv._tcp_srv.getsockname()
+        assert host == "127.0.0.1", \
+            "an unauthenticated endpoint must not default to all interfaces"
+    finally:
+        srv._tcp_srv.close()
+
+
+def test_tcp_is_off_unless_asked_for(tmp_path):
+    srv = policyd.PolicyServer(policyd.NoOpPolicy(), str(tmp_path / "p.sock"))
+    assert srv.tcp_listen is None
+    assert srv._tcp_srv is None
+
+
+def test_tcp_round_trip_matches_the_unix_socket(tmp_path):
+    """Same bytes in, same bytes out — the transport must not change the
+    protocol, or an engine would need a second implementation of it."""
+    import socket as _s
+    import threading
+    import time as _t
+
+    sock_path = str(tmp_path / "p.sock")
+    server = policyd.PolicyServer(policyd.ScriptedPolicy(), sock_path,
+                                  status_path=None, stats_interval=0,
+                                  tcp_listen="127.0.0.1:0")
+    server.start()
+    t = threading.Thread(target=server.run, daemon=True)
+    t.start()
+    try:
+        obs = [0.0] * schema.OBS_DIM
+        obs[policyd._HEALTH_OFF] = 1.0
+        entries = [(0, obs), (1, obs)]
+        req = schema.pack_request(7, entries)
+        want = schema.HEADER_SIZE + 2 * schema.ACTION_SIZE
+
+        def ask(sock):
+            sock.sendall(req)
+            buf = b""
+            while len(buf) < want:
+                chunk = sock.recv(want - len(buf))
+                assert chunk, "server closed mid-response"
+                buf += chunk
+            return schema.unpack_response(buf)
+
+        for _ in range(100):          # wait for run() to bind
+            if server._tcp_srv is not None:
+                break
+            _t.sleep(0.02)
+        assert server._tcp_srv is not None, "TCP listener never came up"
+        port = server._tcp_srv.getsockname()[1]
+        tcp = _s.socket()
+        tcp.settimeout(5)
+        tcp.connect(("127.0.0.1", port))
+        uds = _s.socket(_s.AF_UNIX, _s.SOCK_STREAM)
+        uds.settimeout(5)
+        uds.connect(sock_path)
+
+        tick_a, _fa, acts_a = ask(tcp)
+        tick_b, _fb, acts_b = ask(uds)
+        assert tick_a == tick_b == 7
+        assert [a[0] for a in acts_a] == [a[0] for a in acts_b] == [0, 1]
+        tcp.close()
+        uds.close()
+    finally:
+        server.stop()
+
+
+def test_a_bad_request_over_tcp_is_refused_like_any_other(tmp_path):
+    """The transport must not become a way around the schema check."""
+    import socket as _s
+    import struct as _st
+    import threading
+    import time as _t
+
+    server = policyd.PolicyServer(policyd.NoOpPolicy(), str(tmp_path / "p.sock"),
+                                  status_path=None, stats_interval=0,
+                                  tcp_listen="127.0.0.1:0")
+    server.start()
+    threading.Thread(target=server.run, daemon=True).start()
+    try:
+        buf = bytearray(schema.pack_request(1, [(0, [0.0] * schema.OBS_DIM)]))
+        _st.pack_into("<I", buf, 4, schema.SCHEMA_HASH ^ 0xFFFF)
+        for _ in range(100):
+            if server._tcp_srv is not None:
+                break
+            _t.sleep(0.02)
+        c = _s.socket()
+        c.settimeout(5)
+        c.connect(("127.0.0.1", server._tcp_srv.getsockname()[1]))
+        c.sendall(bytes(buf))
+        c.settimeout(3)
+        assert c.recv(64) == b"", "a stale-schema adapter was not disconnected"
+        assert server.metrics.rejects_schema >= 1
+        c.close()
+    finally:
+        server.stop()

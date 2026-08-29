@@ -313,7 +313,8 @@ def publish_status(state, path):
 
 class PolicyServer:
     def __init__(self, policy, sock_path, status_path=None,
-                 stats_interval=30.0, planner=None, recorder=None):
+                 stats_interval=30.0, planner=None, recorder=None,
+                 tcp_listen=None):
         self.policy = policy
         self.sock_path = sock_path
         self.status_path = status_path
@@ -325,6 +326,8 @@ class PolicyServer:
         self._fast = bool(getattr(policy, "act_arrays", None)) and \
             getattr(schema, "HAVE_NUMPY", False)
         self.planner = planner
+        self.tcp_listen = tcp_listen
+        self._tcp_srv = None
         # Opt-in demonstration recording (--record DIR). Only wired on the
         # array path: struct-path serving doesn't have the batched numpy
         # arrays record.recorder.DemoRecorder.record() expects, and numpy is
@@ -353,6 +356,30 @@ class PolicyServer:
                 f"($XDG_RUNTIME_DIR/{DEFAULT_RUNTIME_SUBDIR}/"
                 f"{DEFAULT_SOCKET_NAME}) is well inside the limit.")
 
+    def _listen_tcp(self, spec):
+        """Also listen on TCP, for engines that cannot use a Unix socket.
+
+        UT99's only outbound networking from UnrealScript is `TcpLink`, so a
+        mutator adapter has no way to reach a UDS. The wire format is identical;
+        the transport is the only difference.
+
+        Binds to **127.0.0.1 by default**. This endpoint takes observations and
+        hands back actions with no authentication -- fine on loopback, not fine
+        on a LAN -- so binding it wider has to be a deliberate act.
+        """
+        host, _, port = spec.rpartition(":")
+        host = host or "127.0.0.1"
+        srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        srv.bind((host, int(port)))
+        srv.listen(32)
+        srv.setblocking(False)
+        self._tcp_srv = srv
+        self.sel.register(srv, selectors.EVENT_READ, self._accept)
+        log(f"policyd: also listening on tcp://{host}:{port}"
+            + ("" if host in ("127.0.0.1", "localhost")
+               else "  -- WARNING: reachable off this host, unauthenticated"))
+
     def start(self):
         self.check_socket_path()
         directory = os.path.dirname(self.sock_path)
@@ -369,14 +396,20 @@ class PolicyServer:
         os.chmod(self.sock_path, 0o666)
         self.srv = srv
         self.sel.register(srv, selectors.EVENT_READ, self._accept)
+        if self.tcp_listen:
+            self._listen_tcp(self.tcp_listen)
         log(f"policyd: policy={self.policy.describe()} "
             f"schema={schema.SCHEMA_HASH:#010x} obs_dim={schema.OBS_DIM} "
             f"path={'array' if self._fast else 'struct'}")
         log(f"policyd: listening on {self.sock_path}")
 
     def _accept(self, srv):
-        conn, _ = srv.accept()
+        conn, _peer = srv.accept()
         conn.setblocking(False)
+        if conn.family == socket.AF_INET:
+            # Small replies against a frame deadline: Nagle would hold them
+            # waiting for more data and add tens of ms to a 10ms budget.
+            conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.conns[conn.fileno()] = bytearray()
         self.sel.register(conn, selectors.EVENT_READ, self._readable)
         log(f"policyd: adapter connected (fd={conn.fileno()})")
@@ -588,10 +621,12 @@ class PolicyServer:
                 self.recorder.close()
             except Exception as exc:
                 log(f"policyd: error closing recorder: {exc}")
-        try:
-            self.srv.close()
-        except Exception:
-            pass
+        for sock in (self.srv, self._tcp_srv):
+            try:
+                if sock is not None:
+                    sock.close()
+            except Exception:
+                pass
         if os.path.exists(self.sock_path):
             try:
                 os.unlink(self.sock_path)
@@ -618,6 +653,11 @@ def main():
                     help="strategic layer: assigns intent at ~2Hz per server")
     ap.add_argument("--planner-model", default=os.environ.get(
         "GAMEBOTS_PLANNER_MODEL", "Qwen/Qwen2.5-1.5B-Instruct"))
+    ap.add_argument("--tcp-listen", default=os.environ.get("GAMEBOTS_TCP"),
+                    metavar="[HOST:]PORT",
+                    help="additionally listen on TCP, for engines that cannot "
+                         "use a Unix socket (UT99's TcpLink). Defaults to "
+                         "127.0.0.1; binding wider is unauthenticated")
     ap.add_argument("--record", metavar="DIR", default=None,
                     help="opt-in: write (observation, action) demonstration "
                          "shards for every bot served, into DIR "
@@ -657,7 +697,7 @@ def main():
 
     server = PolicyServer(policy, args.socket, args.status_path,
                           args.stats_interval, planner=planner_svc,
-                          recorder=recorder_svc)
+                          recorder=recorder_svc, tcp_listen=args.tcp_listen)
     signal.signal(signal.SIGINT, server.stop)
     signal.signal(signal.SIGTERM, server.stop)
     server.run()
