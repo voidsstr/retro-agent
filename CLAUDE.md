@@ -992,7 +992,30 @@ for pc in pcs:
   `SCREENDIFF` delta in ONE round trip (agent **v1.18.0+**). The real-time
   click→result primitive.
 - **UICLICK x y [button]** — click at coordinates (left/right/middle)
-- **UIKEY keyname** — send keystroke (uses MapVirtualKey scan codes)
+- **UIKEY keyname** — send keystroke (uses MapVirtualKey scan codes).
+  Named keys include the function keys, the navigation cluster, `TILDE`
+  (the game console key) and `PRINTSCREEN` — the last is how you get a frame
+  out of a game whose fullscreen surface `SCREENSHOT` cannot capture.
+  Modifier combos work: `UIKEY CTRL+SHIFT+A`.
+- **UIKEY TEXT:&lt;string&gt;** — **type a whole string**, character by character,
+  via `VkKeyScanA` (so it handles shifted characters). This mode is easy to
+  miss — it was in `input.c` for a long time before anyone found it, and was
+  rediscovered only by reading the source while fighting a CD-key dialog.
+  Use it for text fields instead of a chain of single `UIKEY` calls.
+
+  > **⚠️ SYNTHETIC KEYBOARD INPUT DOES NOT REACH AN id TECH 3 MENU IN
+  > EXCLUSIVE FULLSCREEN.** Measured on SoF2: at fullscreen 640x480 both
+  > `UIKEY` per-character and `UIKEY TEXT:` landed *nothing*; relaunched with
+  > `+set r_fullscreen 0`, the identical `UIKEY TEXT:` filled the field
+  > immediately. **If a game ignores your keystrokes, run it windowed to do
+  > the typing, then restore fullscreen** — do not conclude the key is wrong.
+  >
+  > Two further limits in that same menu, so you know when to stop trying:
+  > a field may cap its length and not auto-advance; `TAB` can move a visible
+  > highlight without moving text-entry focus; and **absolute `UICLICK` cannot
+  > reach a menu whose cursor is driven by relative mouse deltas** rather than
+  > the OS pointer (`+set in_mouse 0` does not change this). At that point the
+  > honest answer is a physical keyboard, not more automation.
 - **WINLIST** — JSON list of visible windows
 
 For fast, real-time button-clicking installs (single box or many in parallel),
