@@ -505,6 +505,83 @@ A2S reply carries a bot count; on the Quake family a player line with **ping 0**
 is a bot. Tribes 2 reports no count at all (TribesNext encrypts the info
 response) — that is `—`, never `0`.
 
+## Fixing a Staged Game — FIX THE LIBRARY, REDEPLOY TO TEST, THEN PUSH TO THE WHOLE FLEET (REQUIRED)
+
+**User directive, 2026-08-29:** *"when you are fixing issues with staged games
+you should make the fix on the staged game and redeploy it to test so we know
+the staged game is working correctly for future installs"* and *"always make
+sure all retro agents get the fix as well as the staged game"*.
+
+A fix applied to one machine is not a fix. It dies at the next re-image, it
+never reaches the other boxes, and the next machine imaged from PXE pulls down
+the same broken title. **Every game fix follows this loop, in this order:**
+
+1. **Diagnose on hardware.** Reproduce it on a real box and find the actual
+   cause. Do not guess from the tree alone.
+2. **Fix it in the STAGED TREE** — `\\192.168.1.122\files\Files\Games-Library\<Title>\`
+   — never only on the box. The fix belongs in `launch.txt`, `install.reg`, the
+   game's own config, or the `Play <Game>.bat`, so it deploys with the title.
+3. **PURGE the title from the test box** (`rd /s /q C:\Games\<Title>` plus its
+   desktop `.lnk`, and any per-user state the game keeps — an engine that
+   persists an accepted CD key or a resolution into `%USERPROFILE%` will mask a
+   broken tree).
+4. **Redeploy from the library** via the agent's `GAMESYNC`, and confirm it
+   really landed: `state=done` **AND** `failed_files == 0` **AND**
+   `titles_done == titles_total`. `state` alone hides partial failures, and
+   `gs_write_marker` is skipped when `failed_files != 0`, so `gamesync.done`
+   goes stale after a bad run.
+5. **Retest and SCREENSHOT it.** A process list is not evidence. The title must
+   render, and it must render **fullscreen** (see below).
+6. **THEN PUSH IT TO EVERY OTHER CONNECTED BOX.** Purge + `GAMESYNC` the fixed
+   title on all of them, so the whole fleet carries the fix — not just the
+   machine that happened to test it. This is the step most easily forgotten and
+   the user has called it out explicitly.
+
+**Why the purge matters:** a test that passes because you hand-placed a file
+earlier proves nothing about the library. This has really happened — a Quake 3
+pass was built on a hand-copied `q3key` and had to be redone. If you edited
+anything on the box while diagnosing, purge it before you claim a verification.
+
+**All staged games must run FULLSCREEN** (user requirement). Set it in the
+staged tree, not in an in-game menu on one box: an id engine rewrites
+`config.cfg` on exit, so fullscreen and key binds go in **`autoexec.cfg`**;
+Unreal-engine titles use `[WinDrv.WindowsClient] StartupFullscreen=True`; DOSBox
+titles need `fullscreen=true` in the title's own `dosbox*.conf`.
+
+**Multiplayer is part of "working"** — see the LAN/IPX rules below.
+
+## LAN / TCP Multiplayer Is Part of a Staged Game (REQUIRED)
+
+**User directive, 2026-08-29:** games that only offer IPX out of the box must be
+set up so LAN/TCP play works, **and it must be proven** — *"ra 2 might need you
+to test out creating a game on one computer and joining from another"*. The CS
+1.6 server must also be **visible in the client's LAN browser** on every box.
+
+**The proof standard: two machines, screenshots of BOTH.** Host on box A, join
+from box B, and capture the host hosting, the joiner seeing A's game in its
+browser, and both players in the game together. A Network menu is not proof; a
+`netstat` line is not proof.
+
+- **IPX-only Win32 titles → IPXWrapper** (tunnels IPX over UDP; drop-in DLLs
+  beside the exe, no driver, no protocol install). `Games-Library/Carmageddon2/`
+  already carries a working one — **copy that pattern, do not invent a second**.
+  Beware: `RedAlert2/wsock32.dll` is a *different* file and is NOT IPXWrapper.
+- **DOSBox titles: `ipx=true` ALONE DOES NOTHING.** It only enables the emulated
+  adapter; a tunnel is still required — `ipxnet startserver` on one machine and
+  `ipxnet connect <ip>` on the rest. Pick ONE hosting pattern and use it for
+  every DOSBox title.
+- **Check whether a TCP/IP-native engine already exists** before wrapping IPX —
+  e.g. D2X-Rebirth speaks UDP/IP natively, which removes the problem entirely.
+- The fleet is one flat subnet (192.168.1.0/24) and the **firewall is off
+  fleet-wide and in the image**, so neither is your obstacle.
+
+Fleet servers live on **192.168.1.132** — CS 1.6 `:27015` (no-blood `:27016`),
+Specialists `:27017`, Quake III `:27961`, OpenArena `:27960`, Quake 2 `:27910`,
+QuakeWorld `:27502`, UT99 `:7797`, UT2004 `:7777`. If a client's LAN tab is
+empty, try `connect 192.168.1.132:27015` from the console — that distinguishes
+"server unreachable" from "broadcast discovery failing", which are different
+faults with different fixes.
+
 ## "Staged Games" — the term, and what it guarantees (REQUIRED)
 
 **A game is STAGED when it can be moved onto a retro PC by the agent and simply
