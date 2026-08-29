@@ -54,9 +54,9 @@ INCLUDES := -I$(HLSDK)/common -I$(HLSDK)/dlls -I$(HLSDK)/engine \
 #   'const char*' to 'char*'". This is the standard, widely-documented
 #   requirement for building any 2001-era GoldSrc/Metamod SDK code with a
 #   current compiler, not something specific to this plugin.
-CXXFLAGS := -m32 -fPIC -shared -Wall -O2 -fpermissive $(INCLUDES) \
+CXXFLAGS := -m32 -fPIC -shared -Wall -O2 -g -fpermissive $(INCLUDES) \
             -Dlinux -D_LINUX -DPOSIX -fno-exceptions
-CFLAGS   := -m32 -fPIC -Wall -O2 $(INCLUDES) -Dlinux -D_LINUX -DPOSIX
+CFLAGS   := -m32 -fPIC -Wall -O2 -g $(INCLUDES) -Dlinux -D_LINUX -DPOSIX
 
 SRCS_CXX := retrobot_engine.cpp
 SRCS_C   := retrobot_core.c ../gb_client.c

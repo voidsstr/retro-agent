@@ -197,3 +197,110 @@ def test_makefile_compiles_metamods_own_sdk_util_cpp():
         "in $(OBJS) / the final link -- listing the source without a build "
         "rule feeding the link step does not fix the missing symbol"
     )
+
+
+def test_bot_registration_happens_at_createfakeclient_time():
+    """Live-test finding (48/1.1.2.7/Stdio engine build): pfnClientPutInServer
+    NEVER fired for a pfnCreateFakeClient()-created edict, confirmed by an
+    unconditional entry log on that hook that never printed a single line
+    across multiple bot creations on a live throwaway HLDS -- while the same
+    UTIL_LogPrintf call worked fine from other dllapi hooks in the same run,
+    and the DLL_FUNCTIONS table order was independently re-verified against
+    eiface.h. Net effect before the fix: a bot was created (visible in
+    `status`) but never registered into g_bots[], so RB_StartFrame_Post's
+    loop saw zero bots, gb_exchange() was never called with a nonzero batch,
+    and the policy server logged zero adapter connections -- forever, with
+    no error anywhere. Registering immediately after pfnCreateFakeClient
+    returns (in RB_Cmd_AddBot) does not depend on that callback firing at
+    all; RB_ClientPutInServer_Post still calls the same (idempotent)
+    rb_register_bot() for engine builds where it DOES fire."""
+    src = _source()
+    m = re.search(r"static void RB_Cmd_AddBot\s*\([^)]*\)\s*\{(.*?)\n\}", src, re.S)
+    assert m, "RB_Cmd_AddBot's definition was not found"
+    body = m.group(1)
+    assert "rb_register_bot(" in body, (
+        "RB_Cmd_AddBot must call rb_register_bot() itself, immediately "
+        "after pfnCreateFakeClient() succeeds -- waiting for "
+        "RB_ClientPutInServer_Post to do it is exactly the bug that "
+        "produced zero policy-server connections on a live 48/1.1.2.7/"
+        "Stdio HLDS (see this test's docstring)"
+    )
+    assert re.search(r"rb_register_bot\s*\(\s*pEntity\s*\)", src), (
+        "RB_ClientPutInServer_Post must still call rb_register_bot() too "
+        "(idempotent -- see rb_register_bot's own re-registration guard) "
+        "for engine builds where that hook DOES fire for a fake client"
+    )
+
+
+def test_bot_edict_is_reresolved_by_index_not_cached_across_frames():
+    """Live-test finding: the adapter ran a fake client for 8+ minutes
+    across multiple forced round restarts (mp_restartgame, sv_restartround)
+    plus the natural mp_roundtime expiry with no crash once this was fixed
+    -- but an earlier live run of this adapter crashed HLDS with a
+    segfault roughly 8 seconds after a "Round_End" log line, while a
+    fakeclient that had never successfully joined a team sat in the
+    registry holding a bare cached edict_t* across frames. Re-resolving
+    the edict fresh from its stable index every time it is used (rather
+    than trusting a pointer copied at registration time) is the fix --
+    see rb_resolve_bot_edict()'s own comment for why this matters even
+    though GoldSrc's edict array itself is never reallocated."""
+    src = _source()
+    assert "rb_resolve_bot_edict" in src, (
+        "retrobot_engine.cpp must define rb_resolve_bot_edict() -- see "
+        "this test's docstring for the crash it exists to prevent"
+    )
+    # The specific broken pattern a previous version of this file used:
+    # trusting a bare cached ->ed pointer's ->free field directly, with no
+    # re-resolution and no check that it still belongs to a fake client.
+    broken = re.search(r"!\s*b->ed\s*\|\|\s*b->ed->free", src)
+    assert not broken, (
+        "RB_StartFrame_Post regressed to checking a cached b->ed pointer "
+        "directly instead of calling rb_resolve_bot_edict() -- see this "
+        "test's docstring for the crash this reintroduces"
+    )
+    m = re.search(r"static void RB_StartFrame_Post\s*\(void\)\s*\{(.*?)\n\}", src, re.S)
+    assert m, "RB_StartFrame_Post's definition was not found"
+    assert "rb_resolve_bot_edict(" in m.group(1), (
+        "RB_StartFrame_Post's per-bot loop must resolve each bot's edict "
+        "via rb_resolve_bot_edict() before touching it"
+    )
+    m2 = re.search(r"static void RB_Cmd_Debug\s*\(void\)\s*\{(.*?)\n\}", src, re.S)
+    assert m2, "RB_Cmd_Debug's definition was not found"
+    assert "rb_resolve_bot_edict(" in m2.group(1), (
+        "RB_Cmd_Debug must also resolve via rb_resolve_bot_edict() -- an "
+        "admin diagnostic command dereferencing a stale cached pointer is "
+        "the same bug in a different call site"
+    )
+
+
+def test_silent_failures_are_reported_once_on_transition_not_per_frame():
+    """The literal ask that came out of live testing: "a bot that exists but
+    is skipped every frame should say so once (not per frame) -- the same
+    report-only-on-transition pattern the Quake III adapter uses"
+    (adapters/quake3/gb_adapter.c's gb_reported_state). Pins three
+    latches: the exchange-level policy-server-availability state, the
+    per-bot alive/dead state, and the specific stuck-unassigned warning
+    that would have made the original silent bug (a bot connected but
+    never registered, later: registered but never leaving team 0) visible
+    in the server log the first time, instead of requiring
+    `retrobot_debug` to be run by hand to notice at all."""
+    src = _source()
+    assert "g_gb_reported_state" in src, (
+        "expected a report-on-transition latch for the policy-server "
+        "exchange result, matching adapters/quake3/gb_adapter.c's "
+        "gb_reported_state"
+    )
+    assert "reported_alive" in src, (
+        "expected a per-bot report-on-transition latch for the alive/dead "
+        "skip in RB_StartFrame_Post's loop"
+    )
+    assert "rb_maybe_report_stuck" in src, (
+        "expected the stuck-unassigned-after-a-grace-period warning "
+        "(rb_maybe_report_stuck) -- this is what makes a bot that never "
+        "leaves team 0 (the exact silent failure hit during live testing) "
+        "show up in the server log on its own"
+    )
+    assert "reported_stuck_unassigned" in src, (
+        "rb_maybe_report_stuck must latch so it reports exactly once per "
+        "bot, not every frame"
+    )

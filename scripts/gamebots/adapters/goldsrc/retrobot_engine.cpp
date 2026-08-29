@@ -146,6 +146,8 @@ extern void UTIL_LogPrintf(const char *fmt, ...);
 #define RB_MAX_TRACKED_EDICTS 65     /* 1-based edict index, generous over a 32-slot
                                        * server so a player-slot-count cvar change
                                        * mid-map can't index out of bounds */
+#define RB_STUCK_UNASSIGNED_FRAMES 300  /* ~ a few seconds of server frames --
+                                    * see rb_maybe_report_stuck() */
 #define RB_CACHE_STALE_FRAMES 4      /* a weapon/clientdata cache entry older than
                                        * this many StartFrames reads as "unknown"
                                        * rather than stale data from a player who
@@ -197,13 +199,21 @@ static int g_frame_counter = 0;
 
 struct rb_bot_t {
     int      in_use;
-    edict_t *ed;
+    edict_t *ed;             /* refreshed every frame from edict_idx by
+                               * rb_resolve_bot_edict() -- never trust a
+                               * cross-frame copy of this on its own, see
+                               * that function's comment */
+    int      edict_idx;      /* stable; ed is re-resolved from this each use */
     uint16_t gb_id;          /* stable id sent on the gamebots wire; NOT the
                                * edict index, which is reused across a
                                * disconnect/reconnect */
     float    prev_health;
     int      prev_frags;
     int      prev_deadflag;
+    int      registered_frame;      /* g_frame_counter at registration, for
+                                      * the stuck-unassigned grace period */
+    int      reported_stuck_unassigned;  /* report-on-transition latch */
+    int      reported_alive;             /* report-on-transition latch */
 };
 
 static rb_bot_t g_bots[RB_MAX_BOTS];
@@ -488,6 +498,11 @@ static void rb_apply_fallback_hold_still(rb_bot_t *bot_reg)
 
 static void RB_ServerActivate_Post(edict_t *pEdictList, int edictCount, int clientMax)
 {
+    /* Once per map load, not per frame -- confirms the plugin's hook table
+     * is actually wired up without having to go looking for it, and every
+     * bot registry reset below is worth a line in the server log. */
+    UTIL_LogPrintf("retrobot: ServerActivate edictCount=%d clientMax=%d\n",
+                    edictCount, clientMax);
     memset(g_wdata_cache, 0, sizeof(g_wdata_cache));
     memset(g_cdata_cache, 0, sizeof(g_cdata_cache));
     memset(g_bots, 0, sizeof(g_bots));
@@ -505,26 +520,94 @@ static void RB_ServerDeactivate_Post(void)
     RETURN_META(MRES_IGNORED);
 }
 
+/* Register a fake client and issue its team/class auto-join. Idempotent
+ * (rb_find_bot makes a second call for the same edict a no-op), because
+ * this is now called from TWO places -- see the comment on
+ * RB_Cmd_AddBot below for why pfnClientPutInServer alone is not reliable.
+ *
+ * Live-test finding (48/1.1.2.7/Stdio engine build): pfnClientPutInServer
+ * NEVER fired for a pfnCreateFakeClient()-created edict on this build,
+ * confirmed by an unconditional entry log that never printed a single line
+ * across multiple bot creations, while the exact same UTIL_LogPrintf call
+ * DID work from other dllapi hooks (pfnServerActivate) in the same run --
+ * so this is not a UTIL_LogPrintf/logging problem, and the DLL_FUNCTIONS
+ * table order was re-verified field-by-field against eiface.h and is
+ * correct (pfnServerActivate, three slots later in the same struct, fires
+ * fine). The most plausible explanation is this specific old WON-era
+ * engine build not invoking the game DLL's per-client callbacks for the
+ * synchronous SV_CreateFakeClient path the way later engine builds do --
+ * several other GoldSrc bot codebases carry similar workarounds for old
+ * engine builds. Registering immediately after pfnCreateFakeClient returns
+ * does not depend on that callback firing at all. */
+static void rb_register_bot(edict_t *pEntity)
+{
+    rb_bot_t *slot = rb_find_bot(pEntity);
+    if (slot)
+        return;                     /* already registered -- e.g. this
+                                      * engine DID call ClientPutInServer
+                                      * too, after RB_Cmd_AddBot beat it to it */
+    slot = rb_free_bot_slot();
+    if (!slot) {
+        UTIL_LogPrintf("retrobot: no free bot slot for fake client, ignoring it\n");
+        return;
+    }
+    memset(slot, 0, sizeof(*slot));
+    slot->in_use = 1;
+    slot->ed = pEntity;
+    slot->edict_idx = g_engfuncs.pfnIndexOfEdict(pEntity);
+    slot->gb_id = g_next_gb_id++;
+    slot->prev_health = pEntity->v.health;
+    slot->prev_deadflag = pEntity->v.deadflag;
+    slot->registered_frame = g_frame_counter;
+    UTIL_LogPrintf("retrobot: registered bot gb_id=%u idx=%d, issuing team/class auto-join\n",
+                    (unsigned)slot->gb_id, slot->edict_idx);
+    /* CS 1.6 auto-join convention -- see file header. KNOWN LIVE-TEST
+     * FINDING (48/1.1.2.7/Stdio engine build): this does not currently
+     * work -- pev->team was observed to stay 0 indefinitely after this
+     * call, and an unconditional diagnostic hook on DLL_FUNCTIONS.
+     * pfnClientCommand never fired for this fake client even for a
+     * universally-recognised command ("kill"), which rules out "wrong
+     * command name" and points at this engine build not dispatching
+     * pfnClientCommand through to the game DLL for a fakeclient at all.
+     * Left in place (harmless no-op on this build) because it is still the
+     * documented, standard mechanism and may work on other CS 1.6 engine
+     * builds; RB_StartFrame_Post reports once, per bot, if it is still
+     * unassigned after a grace period -- see rb_maybe_report_stuck(). */
+    g_engfuncs.pfnClientCommand(pEntity, (char *)"jointeam %d\n", RB_CS_AUTO_JOIN);
+    g_engfuncs.pfnClientCommand(pEntity, (char *)"joinclass %d\n", RB_CS_AUTO_JOIN);
+}
+
+/* Re-resolve a bot's edict fresh from its index every time it is needed,
+ * rather than trusting a pointer cached across frames. GoldSrc's edict
+ * array is static (allocated once at ServerActivate, never reallocated),
+ * so this is not the classic heap use-after-free -- but a cached edict_t*
+ * can still describe an edict that no longer belongs to OUR bot (a
+ * disconnect this plugin's ClientDisconnect hook missed, or any other
+ * desync between g_bots[] and engine reality), and touching ->v on the
+ * wrong entity from inside a per-frame server hook is exactly the shape of
+ * bug that took the live test server down eight seconds after a round
+ * ended (see README.md "Live-test findings"). Drops the bot's registration
+ * -- rather than merely skipping this frame -- when the check fails, since
+ * at that point g_bots[] is known to be wrong and re-trusting it later is
+ * how the same bug would resurface. */
+static edict_t *rb_resolve_bot_edict(rb_bot_t *b)
+{
+    edict_t *ed;
+    if (!b->in_use)
+        return NULL;
+    ed = g_engfuncs.pfnPEntityOfEntIndex(b->edict_idx);
+    if (!ed || ed->free || !(ed->v.flags & FL_FAKECLIENT)) {
+        memset(b, 0, sizeof(*b));
+        return NULL;
+    }
+    b->ed = ed;
+    return ed;
+}
+
 static void RB_ClientPutInServer_Post(edict_t *pEntity)
 {
-    if (pEntity->v.flags & FL_FAKECLIENT) {
-        rb_bot_t *slot = rb_find_bot(pEntity);
-        if (!slot)
-            slot = rb_free_bot_slot();
-        if (slot) {
-            memset(slot, 0, sizeof(*slot));
-            slot->in_use = 1;
-            slot->ed = pEntity;
-            slot->gb_id = g_next_gb_id++;
-            slot->prev_health = pEntity->v.health;
-            slot->prev_deadflag = pEntity->v.deadflag;
-            /* CS 1.6 auto-join convention -- see file header. */
-            g_engfuncs.pfnClientCommand(pEntity, (char *)"jointeam %d\n", RB_CS_AUTO_JOIN);
-            g_engfuncs.pfnClientCommand(pEntity, (char *)"joinclass %d\n", RB_CS_AUTO_JOIN);
-        } else {
-            UTIL_LogPrintf("retrobot: no free bot slot for fake client, ignoring it\n");
-        }
-    }
+    if (pEntity->v.flags & FL_FAKECLIENT)
+        rb_register_bot(pEntity);
     RETURN_META(MRES_IGNORED);
 }
 
@@ -565,6 +648,39 @@ static void RB_UpdateClientData_Post(const edict_t *ent, int sendweapons, client
  * itself never waits past its timeout_us (see gb_client.h), and everything
  * else here is O(bots * (rays + players)), no unbounded loops, no
  * allocation. */
+/* Report-on-transition state for the whole exchange, same pattern as the
+ * Quake III adapter's gb_reported_state (adapters/quake3/gb_adapter.c) --
+ * the policy server being unreachable is a normal, expected state (it gets
+ * restarted whenever a model is promoted), so this logs only when the
+ * answer CHANGES, never once per frame. -1 = not yet reported either way. */
+static int g_gb_reported_state = -1;
+
+/* The specific silent failure that cost real debugging time on this
+ * adapter's first live test: a bot that is registered but never leaves
+ * team 0 produces NO error anywhere, forever -- see rb_register_bot()'s
+ * comment for why the auto-join call does not currently work on this
+ * engine build. Reports exactly once per bot, after a grace period (so a
+ * bot mid-join is not flagged before it has had a chance), so the failure
+ * is visible in the server log instead of requiring `retrobot_debug` to be
+ * run by hand to notice it at all. */
+static void rb_maybe_report_stuck(rb_bot_t *b, edict_t *ed)
+{
+    if (b->reported_stuck_unassigned)
+        return;
+    if (ed->v.team != 0)
+        return;                     /* joined -- nothing to report */
+    if (g_frame_counter - b->registered_frame < RB_STUCK_UNASSIGNED_FRAMES)
+        return;                     /* still within the join grace period */
+    b->reported_stuck_unassigned = 1;
+    UTIL_LogPrintf(
+        "retrobot: WARNING bot gb_id=%u idx=%d still has team=0 %d frames "
+        "after registration -- jointeam/joinclass auto-join is not taking "
+        "effect on this engine build (see README.md \"Live-test findings\"); "
+        "the bot will keep participating in the policy loop but cannot "
+        "play normally until this is resolved\n",
+        (unsigned)b->gb_id, b->edict_idx, g_frame_counter - b->registered_frame);
+}
+
 static void RB_StartFrame_Post(void)
 {
     g_frame_counter++;
@@ -583,15 +699,35 @@ static void RB_StartFrame_Post(void)
 
     for (int i = 0; i < RB_MAX_BOTS; i++) {
         rb_bot_t *b = &g_bots[i];
-        if (!b->in_use || !b->ed || b->ed->free)
-            continue;
-        if (b->ed->v.deadflag != DEAD_NO) {
+        edict_t *ed = rb_resolve_bot_edict(b);
+        if (!ed)
+            continue;                /* not registered, or its edict no
+                                       * longer checks out (see
+                                       * rb_resolve_bot_edict) */
+
+        rb_maybe_report_stuck(b, ed);
+
+        if (ed->v.deadflag != DEAD_NO) {
             /* Dead/respawning bots still hold their slot but skip the
              * policy round trip -- pfnRunPlayerMove on a dead player is a
              * no-op in the engine's own player-move code anyway, and this
-             * keeps a round with lots of dead bots cheap. */
+             * keeps a round with lots of dead bots cheap. Report only the
+             * transition, never once per frame -- the same discipline as
+             * g_gb_reported_state below. */
+            if (b->reported_alive) {
+                b->reported_alive = 0;
+                UTIL_LogPrintf("retrobot: bot gb_id=%u idx=%d is now dead/"
+                                "respawning, pausing its policy loop\n",
+                                (unsigned)b->gb_id, b->edict_idx);
+            }
             continue;
         }
+        if (!b->reported_alive) {
+            b->reported_alive = 1;
+            UTIL_LogPrintf("retrobot: bot gb_id=%u idx=%d is alive, driving "
+                            "its policy loop\n", (unsigned)b->gb_id, b->edict_idx);
+        }
+
         rb_raw_obs_t raw;
         rb_build_raw_obs(b, &raw);
         rb_build_observation(&raw, obsbuf);
@@ -602,6 +738,20 @@ static void RB_StartFrame_Post(void)
     }
 
     gb_result_t r = gb_exchange(&g_gb);
+
+    if (n_active > 0) {
+        if (r != GB_OK) {
+            if (g_gb_reported_state != 0) {
+                g_gb_reported_state = 0;
+                UTIL_LogPrintf("retrobot: policy server unavailable (%s) -- "
+                                "%d bot(s) holding still\n", g_gb.last_error, n_active);
+            }
+        } else if (g_gb_reported_state != 1) {
+            g_gb_reported_state = 1;
+            UTIL_LogPrintf("retrobot: policy server answering, driving %d bot(s)\n",
+                            n_active);
+        }
+    }
 
     for (int i = 0; i < n_active; i++) {
         rb_bot_t *b = active[i];
@@ -636,9 +786,54 @@ static void RB_Cmd_AddBot(void)
                            "(server full or engine refused)\n");
             break;
         }
-        /* Registration happens in RB_ClientPutInServer_Post once the
-         * engine finishes spawning it -- do not touch pEntity->v here. */
+        /* Register right here rather than waiting for
+         * RB_ClientPutInServer_Post -- see rb_register_bot()'s comment for
+         * why that hook cannot be relied on for a fake client on every
+         * engine build. rb_register_bot() is idempotent, so this is safe
+         * even on an engine build where ClientPutInServer DOES also fire
+         * for this edict. */
+        rb_register_bot(ed);
     }
+}
+
+/* ------------------------------------------------------------------ */
+/* server command: retrobot_debug -- diagnostic dump of every registered
+ * bot's raw engine state. Investigating exactly the class of question that
+ * bit us on the first live test ("what state is a freshly created
+ * fakeclient actually in?") should never again require guessing: this is
+ * the standing tool for it. Cheap (RB_MAX_BOTS<=32, admin-invoked only). */
+/* ------------------------------------------------------------------ */
+
+static void RB_Cmd_Debug(void)
+{
+    int i, n = 0;
+    for (i = 0; i < RB_MAX_BOTS; i++) {
+        rb_bot_t *b = &g_bots[i];
+        uint16_t gb_id;
+        int edict_idx;
+        edict_t *ed;
+        if (!b->in_use)
+            continue;
+        n++;
+        gb_id = b->gb_id;               /* capture before resolve, which
+                                          * clears the slot on failure */
+        edict_idx = b->edict_idx;
+        ed = rb_resolve_bot_edict(b);
+        if (!ed) {
+            UTIL_LogPrintf("retrobot_debug: slot %d gb_id=%u idx=%d edict no "
+                            "longer checks out -- registration dropped\n",
+                            i, (unsigned)gb_id, edict_idx);
+            continue;
+        }
+        UTIL_LogPrintf(
+            "retrobot_debug: slot %d gb_id=%u idx=%d deadflag=%d team=%d "
+            "flags=0x%x health=%.1f iuser1=%d iuser2=%d origin=(%.0f,%.0f,%.0f)\n",
+            i, (unsigned)gb_id, edict_idx,
+            ed->v.deadflag, ed->v.team, (unsigned)ed->v.flags, ed->v.health,
+            ed->v.iuser1, ed->v.iuser2,
+            ed->v.origin.x, ed->v.origin.y, ed->v.origin.z);
+    }
+    UTIL_LogPrintf("retrobot_debug: %d registered bot(s)\n", n);
 }
 
 /* ------------------------------------------------------------------ */
@@ -772,6 +967,7 @@ C_DLLEXPORT int Meta_Attach(PLUG_LOADTIME /*now*/, META_FUNCTIONS *pFunctionTabl
     gpGamedllFuncs = pGamedllFuncs;
 
     g_engfuncs.pfnAddServerCommand((char *)"retrobot_addbot", RB_Cmd_AddBot);
+    g_engfuncs.pfnAddServerCommand((char *)"retrobot_debug", RB_Cmd_Debug);
     return TRUE;
 }
 

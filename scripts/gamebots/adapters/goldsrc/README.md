@@ -41,16 +41,140 @@ needed. **What's new is that `retrobot_engine.cpp` (the Metamod glue) now
 compiles too**, on a locally-assembled 32-bit toolchain (no root) described
 below, and a real compiler found three genuine bugs the header-matching pass
 alone could not have caught — see "Bugs a compiler found" just below. All
-three are pinned by `tests/python/test_gamebots_goldsrc_hooks.py` (7 checks,
-source-text assertions, no HLSDK/compiler needed to run).
+three -- plus the two live-test bugs found afterward (see "Live-test
+findings" below) -- are pinned by `tests/python/test_gamebots_goldsrc_hooks.py`
+(10 checks, source-text assertions, no HLSDK/compiler needed to run).
 
-**What's still NOT verified:** this was dlopen'd and had `Meta_Query()` called
-in a standalone smoke-test harness, never inside a real HLDS+Metamod process.
-`Meta_Attach`, the `pfnStartFrame` hook, `pfnCreateFakeClient`, and everything
-that touches real engine state (`g_engfuncs`, `gpGlobals`) has not run against
-a live server. **Do not deploy this to `cs16-server`, `cs16-noblood`, or
-`specialists-server`** until it has been tested against a throwaway HLDS
-instance on a spare port (see "Testing on a throwaway server" below).
+**Update: it has now run inside a real HLDS+Metamod process, on a throwaway
+server, for 8+ minutes across multiple round restarts, with the policy server
+receiving live decisions the whole time.** See "Live-test findings" below for
+what that found (two real bugs, both fixed) and what is still open (bots do
+not yet actually join a team and spawn on this engine build). **Still do not
+deploy this to `cs16-server`, `cs16-noblood`, or `specialists-server`** --
+the crash described below happened on exactly this kind of throwaway
+instance, which is the whole reason to have one.
+
+## Live-test findings (throwaway HLDS, engine build 48/1.1.2.7/Stdio)
+
+A real Half-Life dedicated server with Metamod, running on a spare port, with
+one `retrobot_addbot`-created fake client and a real `policyd` instance,
+surfaced three things static analysis and header-matching could not:
+
+### 1. `pfnClientPutInServer` never fires for a fakeclient on this engine build
+
+**Symptom:** `retrobot_addbot` created a bot (`status` showed it connected,
+`pfnCreateFakeClient` clearly worked), but `retrobot_debug` reported "0
+registered bots" indefinitely, and `policyd` logged zero adapter connections
+for over a minute. `RB_ClientPutInServer_Post` had an unconditional entry log
+added specifically to test this; across multiple bot creations, in multiple
+server restarts, it never printed once -- while the identical `UTIL_LogPrintf`
+call worked fine from other dllapi hooks (`pfnServerActivate`) in the same
+run, ruling out a logging problem, and the `DLL_FUNCTIONS` field order was
+re-verified field-by-field against `eiface.h` a second time, ruling out a
+table-wiring bug (a table-order mistake could not explain one specific slot
+never firing while an adjacent one, three slots later in the same struct,
+fires every map load).
+
+**Fix:** register the bot (`rb_register_bot()`) and issue its team/class
+auto-join immediately after `pfnCreateFakeClient()` returns, in
+`RB_Cmd_AddBot`, rather than waiting for `pfnClientPutInServer`.
+`RB_ClientPutInServer_Post` still calls the same function too (it is
+idempotent -- a second call for an already-registered edict is a no-op), so
+this costs nothing on an engine build where that hook DOES fire.
+
+**Verified fixed:** after this change, `policyd`'s own log showed
+`adapter connected` within one second of `retrobot_addbot`, followed by a
+steadily climbing decision count (0 to 100,000+ requests, 20-45
+bot-decisions/s sustained) for the rest of the session, surviving two forced
+round restarts (`mp_restartgame 1`, `sv_restartround 1`) and at least one
+natural `mp_roundtime` expiry with no interruption.
+
+### 2. A stale `edict_t*` is a live crash, not a theoretical one
+
+**Symptom (found by the person who ran the throwaway server, not the author of
+the fix):** a prior version of this plugin, running one fakeclient that had
+never successfully joined a team, crashed the whole HLDS process with a
+segfault roughly eight seconds after a `Round_End` server-log line. The likely
+mechanism: `g_bots[i].ed` was a bare `edict_t*` cached once at registration and
+trusted every frame after (`if (!b->ed || b->ed->free) ...`); GoldSrc's edict
+array is static (allocated once at `pfnServerActivate`, never reallocated), so
+this is not the classic heap-use-after-free, but a cached pointer can still
+describe an edict that no longer belongs to *this* bot if `g_bots[]` and
+engine reality ever desync (a disconnect this plugin's `ClientDisconnect` hook
+missed, for instance) -- and dereferencing `->v` on the wrong entity from
+inside a per-frame server hook is exactly the shape of bug that takes a live
+game server down with it.
+
+**Fix:** `rb_resolve_bot_edict()` re-resolves the edict fresh from its stable
+index (`pfnPEntityOfEntIndex`) every time it is used, validates it is still
+non-free and still `FL_FAKECLIENT`, and drops the bot's registration outright
+(rather than merely skipping one frame) if the check fails -- so a desync
+cannot resurface next frame with the same stale data. Applied everywhere a
+bot's edict is touched: `RB_StartFrame_Post`'s per-bot loop and
+`RB_Cmd_Debug`.
+
+**Verified fixed:** the hardened build ran a fakeclient (still not
+team-joined -- see finding 3) for 8+ minutes across two forced round restarts
+and a natural round-timer expiry with no crash, where an earlier build in the
+same scenario had crashed within eight seconds of a round ending. This is not
+a proof the exact mechanism was this one and no other -- there is no core
+dump analysis backing that claim, only that the hardened build survived
+substantially longer under the same conditions -- but it is the correct
+defensive fix regardless of the precise trigger.
+
+### 3. `pfnClientCommand` does not dispatch to the game DLL for a fakeclient on this engine build (OPEN)
+
+**Symptom:** even after fix #1, a registered bot's `pev->team` stayed `0`
+(unassigned) and its `health` stayed `0.0` indefinitely -- it never actually
+joined a team, spawned, or received a loadout, despite `rb_register_bot()`
+issuing `jointeam 5` / `joinclass 5` via `pfnClientCommand()` right after
+creation. To isolate whether this was "wrong command for this CS build" versus
+"the mechanism doesn't work for a fakeclient at all", a temporary diagnostic
+hook logged every `DLL_FUNCTIONS.pfnClientCommand` call the game DLL received,
+and a temporary console command fired arbitrary `pfnClientCommand()` calls at
+the bot on demand. Sending the universally-recognised `kill` command produced
+**zero** log lines from that hook -- the same result as `jointeam`/`joinclass`.
+This rules out "wrong command name" and points at this specific WON-era engine
+build (`48/1.1.2.7/Stdio`) not dispatching `pfnClientCommand()` through to the
+game DLL's `ClientCommand` callback for a fakeclient at all, whatever the
+command text.
+
+**Status: not fixed, left as a known, documented gap.** The `jointeam`/
+`joinclass` calls remain in `rb_register_bot()` (harmless no-op on this
+engine build, and this is still the standard, documented mechanism that may
+work on other CS 1.6 engine builds -- WON-era HLDS versions are known to
+differ significantly from later Steam-era ones). What IS handled: a bot stuck
+at `team == 0` for more than `RB_STUCK_UNASSIGNED_FRAMES` (~a few seconds)
+after registration now logs a one-time `WARNING` (`rb_maybe_report_stuck()`)
+instead of failing silently forever -- this is the direct fix for "a bot that
+exists but is skipped every frame should say so once", applied to the exact
+failure this investigation hit. **A properly team-joined, spawned bot with
+weapons has never been observed** on this adapter; everything verified above
+(policy connection, decisions, action application, crash survival) was
+observed with the bot in this unassigned/observer-like state. The next
+concrete step for whoever picks this up: try a different (later, Steam-era)
+CS 1.6 engine build, or find the actual mechanism this WON build expects
+(possibly `menuselect N` against a server-sent menu rather than a literal
+`jointeam`/`joinclass` command -- not verified either way here).
+
+### The transition-only reporting this all led to
+
+Per the explicit ask that came out of this investigation ("a bot that exists
+but is skipped every frame should say so once, not per frame -- the same
+pattern the Quake III adapter uses"): `RB_StartFrame_Post` now has three
+report-on-transition latches, all following `adapters/quake3/gb_adapter.c`'s
+`gb_reported_state` pattern exactly (log only on a state CHANGE, never once
+per frame):
+
+- `g_gb_reported_state` -- the policy-server-reachable/unreachable transition
+  for the whole exchange.
+- `reported_alive` (per bot) -- the alive/dead transition that gates
+  participation in the policy loop.
+- `reported_stuck_unassigned` (per bot) -- the one-shot "still team 0 after a
+  grace period" warning from finding #3 above.
+
+All three are pinned in `tests/python/test_gamebots_goldsrc_hooks.py`
+(source-text assertions -- see "Testing" below).
 
 ### Bugs a compiler found (that header-matching alone missed)
 
@@ -142,7 +266,7 @@ interactive sudo.
 | `Makefile` | Clones HLSDK + metamod-hl1 into `build/` (gitignored), builds `build/retrobot.so` (now including metamod's own `sdk_util.cpp`, required — see "Bugs a compiler found"). `make check-toolchain` first. | N/A |
 | `build/` | Gitignored. `hlsdk/` (ValveSoftware/halflife) and `metamod-hl1/` (alliedmodders/metamod-hl1), cloned by `make deps`, plus build output. **Never commit anything in here.** | — |
 
-Plus `tests/python/test_gamebots_goldsrc_hooks.py` (7 checks, source-text
+Plus `tests/python/test_gamebots_goldsrc_hooks.py` (10 checks, source-text
 assertions, no HLSDK/compiler needed) pinning the three bugs above so a later
 refactor can't silently reintroduce any of them.
 
@@ -242,19 +366,24 @@ a documented no-op rather than a guessed table.
 
 ## Bot creation
 
-A server console command, registered in `Meta_Attach`:
+Two server console commands, registered in `Meta_Attach`:
 
 ```
 retrobot_addbot [count]     # default count = 1
+retrobot_debug               # dump every registered bot's raw engine state
 ```
 
-Each call creates one `pfnCreateFakeClient` bot and, once it's fully spawned
-(`pfnClientPutInServer` POST), auto-joins it (`jointeam 5` / `joinclass 5` —
-CS 1.6's "auto-assign" convention, the same client commands a real player's
-menu sends; this is documented public knowledge from how every CS bot plugin
-does it, not from a leaked SDK). Removal isn't wired up to a command yet —
-disconnect the bot the normal server-admin way (`kick`) and
-`RB_ClientDisconnect_Post` frees its registry slot.
+Each `retrobot_addbot` call creates one `pfnCreateFakeClient` bot and
+registers it (`rb_register_bot()`) immediately — **not** waiting for
+`pfnClientPutInServer`, which live testing found never fires for a fakeclient
+on at least one real engine build; see "Live-test findings" above.
+Registration issues the CS 1.6 "auto-assign" team/class join (`jointeam 5` /
+`joinclass 5`, the same client commands a real player's menu sends) — **this
+currently does not take effect** on the engine build this was tested against
+(same section). `retrobot_debug` is the standing tool for checking a bot's
+actual `deadflag`/`team`/`health`/`origin` without guessing. Bot removal isn't
+wired up to a command yet — disconnect the bot the normal server-admin way
+(`kick`) and `RB_ClientDisconnect_Post` frees its registry slot.
 
 ## Testing
 
@@ -265,7 +394,7 @@ bash tests/run_all.sh
 # or directly:
 gcc -std=c11 -O0 -g -Wall -I tests/native tests/native/test_gamebots_goldsrc.c -lm \
     -o /tmp/test_gamebots_goldsrc && /tmp/test_gamebots_goldsrc   # 66 checks
-pytest tests/python/test_gamebots_goldsrc_hooks.py                # 7 checks
+pytest tests/python/test_gamebots_goldsrc_hooks.py                # 10 checks
 ```
 
 The first exercises `retrobot_core.c`'s NaN-safety, the threat-sort
@@ -293,10 +422,13 @@ that prefix.
 line that touches `g_engfuncs`/`gpGlobals` has never run against a real
 engine. Those need an actual HLDS+Metamod process, which is the next section.
 
-### Testing on a throwaway server (required before ANY live deploy)
+### Testing on a throwaway server (this has now been done)
 
 Per the task brief: **never deploy to `cs16-server`, `cs16-noblood`, or
-`specialists-server`** — people play on those. To test for real:
+`specialists-server`** — people play on those. A throwaway `hlds_linux`
+instance on a spare port, with Metamod and this plugin, was stood up and
+torn down again for this session's live testing — see "Live-test findings"
+above for what it found. To repeat or extend that testing:
 
 1. Get the 32-bit toolchain (`sudo apt-get install gcc-multilib g++-multilib
    libc6-dev-i386`, or the no-root recipe above) and run `make` here until
@@ -307,22 +439,39 @@ Per the task brief: **never deploy to `cs16-server`, `cs16-noblood`, or
    pattern `cs16-noblood` already uses, per the task brief).
 3. Drop `retrobot.so` into that instance's `addons/metamod/dlls/`, register
    it in `metamod`'s `plugins.ini`.
-4. Start `policyd.py --policy scripted` (or `noop`) pointed at the default
-   socket, `rcon retrobot_addbot 1`, and watch:
-   - does the bot appear as a connected player (`status`) and join a team?
-   - does `pfnStartFrame`'s loop actually run — add a temporary
-     `UTIL_LogPrintf` if needed to confirm `gb_exchange()` returns `GB_OK` and
-     not `GB_FALLBACK` every frame;
-   - **the weapon-cache question above**: does `weapon_id_norm` read nonzero
-     for the bot, or does it stay 0 forever (meaning the engine never called
-     `pfnUpdateClientData` for a fakeclient)?
-   - does the bot visibly move/aim under a scripted policy, and does
-     `retrobot_addbot`'s jointeam/joinclass sequence actually work on CS 1.6
-     specifically (it's confirmed elsewhere as a "The Specialists" quirk that
-     mods sometimes rename/renumber these — recheck against whichever mod
-     the throwaway instance is running before trusting the constant).
-5. Only after that passes does deploying to a real server make sense, and
-   even then: a separate decision, not implied by this adapter existing.
+4. **If any of the instance's files are symlinked back to a live server's
+   directory tree (as a from-scratch throwaway rig set up by symlinking a
+   vanilla install often is), check `cstrike/logs/` specifically.** It is
+   easy to leave it as a symlink to the live server's own `logs/` dir by
+   omission, and `rcon log on` on the throwaway instance then writes its
+   test session's log lines straight into the live server's log history —
+   this happened once during this session's testing (one stray file,
+   `L0829029.log`, appeared in the live `cs16-server`'s `cstrike/logs/`
+   and was deleted immediately). Fix: `rm` the symlink and `mkdir` a real,
+   private `logs/` directory for the throwaway instance before turning on
+   logging.
+5. Start `policyd.py --policy scripted` (or `noop`) pointed at the default
+   socket, `rcon retrobot_addbot 1`, then `rcon retrobot_debug` and watch
+   `policyd`'s own log for `adapter connected` / a climbing decision count
+   — that combination is the actual bar, not just `status` showing a
+   connected bot (which was true even before the registration fix, while
+   `policyd` saw nothing at all).
+6. **Still open, next step for whoever picks this up:** get a bot to
+   actually leave `team == 0` and spawn. Finding #3 above rules out
+   "wrong jointeam/joinclass id" — the whole `pfnClientCommand()` dispatch
+   path was shown not to reach the game DLL for a fakeclient on this
+   engine build (`48/1.1.2.7/Stdio`). Try: (a) a different, later CS 1.6
+   engine build (WON-era builds are known to differ a lot from Steam-era
+   ones), or (b) whatever mechanism a server-sent team-select MENU
+   actually expects back from a client on this build (possibly
+   `menuselect N` rather than a literal `jointeam`/`joinclass` command —
+   not verified either way here). `retrobot_debug`'s `team=`/`health=`
+   fields are the check for "did it work": a genuinely spawned player
+   reads `team != 0` and `health > 0`.
+7. Only after a bot can actually play does deploying to a real server make
+   sense, and even then: a separate decision, not implied by this adapter
+   existing.
+
 
 ## Provenance
 
