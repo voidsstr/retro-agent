@@ -403,3 +403,111 @@ def test_a_bad_request_over_tcp_is_refused_like_any_other(tmp_path):
         c.close()
     finally:
         server.stop()
+
+
+# ------------------------------------------------- the UDP endpoint
+#
+# Added because UT99's TcpLink does not complete an outbound connect on the
+# OldUnreal 469 Linux dedicated build (verified with `ss`: not even a SYN
+# leaves the process), while UdpLink in the same IpDrv demonstrably works —
+# the live server answers a 489-byte GameSpy query through it.
+#
+# UDP actually suits this protocol better: one fixed-size request, one
+# fixed-size reply, so datagram boundaries ARE the framing and there is no
+# partial-read state to keep.
+
+def _udp_server(tmp_path, policy=None):
+    import threading
+    import time as _t
+    srv = policyd.PolicyServer(policy or policyd.ScriptedPolicy(),
+                               str(tmp_path / "p.sock"), status_path=None,
+                               stats_interval=0, udp_listen="127.0.0.1:0")
+    threading.Thread(target=srv.run, daemon=True).start()
+    for _ in range(100):
+        if srv._udp_srv is not None:
+            return srv, srv._udp_srv.getsockname()[1]
+        _t.sleep(0.02)
+    srv.stop()
+    raise AssertionError("UDP listener never came up")
+
+
+def test_udp_defaults_to_loopback(tmp_path):
+    srv = policyd.PolicyServer(policyd.NoOpPolicy(), str(tmp_path / "p.sock"),
+                               udp_listen="27301")
+    srv.sel = policyd.selectors.DefaultSelector()
+    srv._listen_udp("27301")
+    try:
+        assert srv._udp_srv.getsockname()[0] == "127.0.0.1"
+    finally:
+        srv._udp_srv.close()
+
+
+def test_udp_is_off_unless_asked_for(tmp_path):
+    srv = policyd.PolicyServer(policyd.NoOpPolicy(), str(tmp_path / "p.sock"))
+    assert srv.udp_listen is None and srv._udp_srv is None
+
+
+def test_udp_round_trip(tmp_path):
+    import socket as _s
+    server, port = _udp_server(tmp_path)
+    try:
+        obs = [0.0] * schema.OBS_DIM
+        obs[policyd._HEALTH_OFF] = 1.0
+        c = _s.socket(_s.AF_INET, _s.SOCK_DGRAM)
+        c.settimeout(5)
+        c.sendto(schema.pack_request(11, [(3, obs), (4, obs)]), ("127.0.0.1", port))
+        data, _peer = c.recvfrom(65535)
+        tick, _f, acts = schema.unpack_response(data)
+        assert tick == 11
+        assert [a[0] for a in acts] == [3, 4]
+        c.close()
+    finally:
+        server.stop()
+
+
+def test_a_large_batch_fits_one_datagram(tmp_path):
+    """32 bots is ~18 KB. That is well under the 64 KB datagram limit, but it
+    is worth pinning: if the observation ever grew enough to exceed it, the
+    failure would be a silently truncated batch."""
+    import socket as _s
+    server, port = _udp_server(tmp_path)
+    try:
+        obs = [0.0] * schema.OBS_DIM
+        req = schema.pack_request(1, [(i, obs) for i in range(32)])
+        assert len(req) < 65507, "a full batch no longer fits one datagram"
+        c = _s.socket(_s.AF_INET, _s.SOCK_DGRAM)
+        c.settimeout(5)
+        c.sendto(req, ("127.0.0.1", port))
+        data, _peer = c.recvfrom(65535)
+        _t, _f, acts = schema.unpack_response(data)
+        assert len(acts) == 32
+        c.close()
+    finally:
+        server.stop()
+
+
+def test_a_bad_udp_datagram_does_not_stop_the_server(tmp_path):
+    """There is no connection to drop, and one peer sending rubbish must not
+    be able to stop us serving everyone else."""
+    import socket as _s
+    import struct as _st
+    server, port = _udp_server(tmp_path)
+    try:
+        c = _s.socket(_s.AF_INET, _s.SOCK_DGRAM)
+        c.settimeout(3)
+        bad = bytearray(schema.pack_request(1, [(0, [0.0] * schema.OBS_DIM)]))
+        _st.pack_into("<I", bad, 4, schema.SCHEMA_HASH ^ 0xFFFF)
+        c.sendto(bytes(bad), ("127.0.0.1", port))
+        c.sendto(b"junk", ("127.0.0.1", port))
+
+        # ...and a good one still gets answered.
+        obs = [0.0] * schema.OBS_DIM
+        obs[policyd._HEALTH_OFF] = 1.0
+        c.sendto(schema.pack_request(5, [(9, obs)]), ("127.0.0.1", port))
+        data, _peer = c.recvfrom(65535)
+        tick, _f, acts = schema.unpack_response(data)
+        assert tick == 5 and acts[0][0] == 9
+        assert server.metrics.rejects_schema >= 1
+        c.close()
+    finally:
+        server.stop()

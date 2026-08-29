@@ -314,7 +314,7 @@ def publish_status(state, path):
 class PolicyServer:
     def __init__(self, policy, sock_path, status_path=None,
                  stats_interval=30.0, planner=None, recorder=None,
-                 tcp_listen=None):
+                 tcp_listen=None, udp_listen=None):
         self.policy = policy
         self.sock_path = sock_path
         self.status_path = status_path
@@ -328,6 +328,9 @@ class PolicyServer:
         self.planner = planner
         self.tcp_listen = tcp_listen
         self._tcp_srv = None
+        self.udp_listen = udp_listen
+        self._udp_srv = None
+        self._udp_last_error = None
         # Opt-in demonstration recording (--record DIR). Only wired on the
         # array path: struct-path serving doesn't have the batched numpy
         # arrays record.recorder.DemoRecorder.record() expects, and numpy is
@@ -380,6 +383,69 @@ class PolicyServer:
             + ("" if host in ("127.0.0.1", "localhost")
                else "  -- WARNING: reachable off this host, unauthenticated"))
 
+    def _listen_udp(self, spec):
+        """Also listen on UDP.
+
+        Added because UT99's `TcpLink` does not complete an outbound connect on
+        the OldUnreal 469 Linux dedicated build — verified with `ss` that not
+        even a SYN leaves the process. `UdpLink` in the same IpDrv demonstrably
+        works: the live server answers a 489-byte GameSpy query on 7798 through
+        it, which is proof of both send and receive in that exact process.
+
+        UDP suits this protocol better than TCP anyway. Every exchange is one
+        fixed-size request and one fixed-size reply, so **datagram boundaries
+        are the framing** — there is no partial-read state to keep, and a lost
+        datagram is a dropped frame, which the adapter already handles by
+        falling back to the engine's own AI. Same wire format either way.
+
+        Loopback default, for the same reason as TCP: unauthenticated.
+        """
+        host, _, port = spec.rpartition(":")
+        host = host or "127.0.0.1"
+        srv = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        srv.bind((host, int(port)))
+        srv.setblocking(False)
+        self._udp_srv = srv
+        self.sel.register(srv, selectors.EVENT_READ, self._udp_readable)
+        log(f"policyd: also listening on udp://{host}:{port}"
+            + ("" if host in ("127.0.0.1", "localhost")
+               else "  -- WARNING: reachable off this host, unauthenticated"))
+
+    def _udp_readable(self, srv):
+        """One datagram in, one datagram out. No connection, no framing.
+
+        A malformed datagram is dropped with a counted error rather than
+        closing anything — there is nothing to close, and a peer that sends
+        rubbish must not be able to stop us serving everyone else.
+        """
+        try:
+            frame, peer = srv.recvfrom(1 << 16)
+        except (BlockingIOError, ConnectionResetError, OSError):
+            return
+        t0 = time.perf_counter_ns()
+        try:
+            tick, flags, entries = schema.unpack_request(frame)
+        except ValueError as exc:
+            self.metrics.errors += 1
+            if "schema hash mismatch" in str(exc):
+                self.metrics.rejects_schema += 1
+            if self._udp_last_error != str(exc):
+                self._udp_last_error = str(exc)
+                log(f"policyd: bad UDP request from {peer[0]}:{peer[1]} — {exc}")
+            return
+        try:
+            actions = self.policy.act(tick, flags, entries)
+        except Exception as exc:  # noqa: BLE001
+            self.metrics.errors += 1
+            log(f"policyd: policy raised {type(exc).__name__}: {exc}")
+            actions = [(bid, 0, 0.0, 0.0, 0.0, 0.0, 0) for bid, _ in entries]
+        try:
+            srv.sendto(schema.pack_response(tick, actions, flags), peer)
+        except OSError:
+            return
+        self.metrics.record(len(entries), (time.perf_counter_ns() - t0) / 1000.0)
+
     def start(self):
         self.check_socket_path()
         directory = os.path.dirname(self.sock_path)
@@ -398,6 +464,8 @@ class PolicyServer:
         self.sel.register(srv, selectors.EVENT_READ, self._accept)
         if self.tcp_listen:
             self._listen_tcp(self.tcp_listen)
+        if self.udp_listen:
+            self._listen_udp(self.udp_listen)
         log(f"policyd: policy={self.policy.describe()} "
             f"schema={schema.SCHEMA_HASH:#010x} obs_dim={schema.OBS_DIM} "
             f"path={'array' if self._fast else 'struct'}")
@@ -621,7 +689,7 @@ class PolicyServer:
                 self.recorder.close()
             except Exception as exc:
                 log(f"policyd: error closing recorder: {exc}")
-        for sock in (self.srv, self._tcp_srv):
+        for sock in (self.srv, self._tcp_srv, self._udp_srv):
             try:
                 if sock is not None:
                     sock.close()
@@ -658,6 +726,11 @@ def main():
                     help="additionally listen on TCP, for engines that cannot "
                          "use a Unix socket (UT99's TcpLink). Defaults to "
                          "127.0.0.1; binding wider is unauthenticated")
+    ap.add_argument("--udp-listen", default=os.environ.get("GAMEBOTS_UDP"),
+                    metavar="[HOST:]PORT",
+                    help="additionally listen on UDP. UT99's TcpLink does not "
+                         "connect on the Linux 469 build but UdpLink works; "
+                         "datagram boundaries are the framing")
     ap.add_argument("--record", metavar="DIR", default=None,
                     help="opt-in: write (observation, action) demonstration "
                          "shards for every bot served, into DIR "
@@ -697,7 +770,8 @@ def main():
 
     server = PolicyServer(policy, args.socket, args.status_path,
                           args.stats_interval, planner=planner_svc,
-                          recorder=recorder_svc, tcp_listen=args.tcp_listen)
+                          recorder=recorder_svc, tcp_listen=args.tcp_listen,
+                          udp_listen=args.udp_listen)
     signal.signal(signal.SIGINT, server.stop)
     signal.signal(signal.SIGTERM, server.stop)
     server.run()
