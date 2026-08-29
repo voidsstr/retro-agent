@@ -156,9 +156,27 @@ watchdog and the game servers themselves are **`--user`** units owned by
 The collector runs as root, where a bare `systemctl --user` queries *root's*
 manager — which has none of them, so every fleet service would read "not
 installed", which on the wall is indistinguishable from every fleet service
-having died. `_systemctl_prefix()` therefore drops to the owning uid with its
-`XDG_RUNTIME_DIR` set. One batched `systemctl show` covers each manager, so
-the whole SERVICES panel costs two forks per refresh, not fourteen.
+having died.
+
+**The user units are therefore reported by the watchdog, not asked for here.**
+The obvious fix — drop to the owning uid with `setpriv` and run
+`systemctl --user` — does not survive this unit's sandbox: `--clear-groups`
+calls `setgroups()`, that fails, `setpriv` exits before ever reaching
+systemctl, stdout comes back empty, and all five services read `unknown`. No
+error surfaces, because the failure looks like a normal empty result. That is
+exactly what shipped on the first deploy, and it rendered as `SERVICES 2/7`
+while every one of those services was running fine.
+
+The game-server watchdog already *is* the fleet user and already runs
+`systemctl --user` for the game servers, so it publishes `host_services` into
+the status file the collector reads anyway. No privilege hop, no sandbox
+interaction, and the answer comes from the process best placed to know it.
+
+The `setpriv` path remains as a fallback for when the watchdog is not running
+(minus `--clear-groups`, since a fallback that cannot work is not one), and a
+**stale** watchdog file is refused rather than replayed — if the watchdog
+stopped, its snapshot of everything else stopped with it. System units are
+still one batched `systemctl show`.
 
 `LoadState=not-found` is reported as **`absent`**, distinct from `failed`:
 never installed and crashed are different calls to action.
