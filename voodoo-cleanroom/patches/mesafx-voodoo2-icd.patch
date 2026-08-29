@@ -35,7 +35,7 @@ index a6c0ab5..d736e73 100644
  ARFLAGS = rus
  
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..5ad4746 100644
+index 350f075..00d9a16 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
 @@ -828,7 +828,7 @@ fxMesaCreateContext(GLuint win,
@@ -43,11 +43,11 @@ index 350f075..5ad4746 100644
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.58]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.60]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
-@@ -1106,6 +1106,35 @@ fxMesaMakeCurrent(fxMesaContext fxMesa)
+@@ -1106,6 +1106,37 @@ fxMesaMakeCurrent(fxMesaContext fxMesa)
  void GLAPIENTRY
  fxMesaSwapBuffers(void)
  {
@@ -58,32 +58,34 @@ index 350f075..5ad4746 100644
 +      extern unsigned long long fxp_setup_cycles;
 +      extern unsigned long fxp_pipeline_runs, fxp_verts;
 +      extern unsigned long long fxp_swap_cycles;
-+      extern unsigned long fxp_fixup, fxp_choose;
++      extern unsigned long fxp_fixup, fxp_choose, fxp_begins, fxp_vsize;
++      extern unsigned long long fxp_imm_cycles;
 +      extern unsigned long long fxp_pipeline_cycles;
 +      extern int fxp_enabled;
 +      static unsigned long frames = 0;
 +      if (fxp_enabled < 0) fxp_enabled = getenv("FX_PROFILE") ? 1 : 0;
 +      if (fxp_enabled > 0 && ++frames % 100 == 0) {
 +         rgl_log("PROF f=%lu setup/f=%lu dbl/f=%lu pipe/f=%lu verts/f=%lu "
-+                 "kcyc_pipe/f=%lu kcyc_setup/f=%lu KCYC_SWAP/f=%lu FIXUP/f=%lu CHOOSE/f=%lu",
++                 "kcyc_pipe/f=%lu kcyc_setup/f=%lu KCYC_SWAP/f=%lu FIXUP/f=%lu BEGINS/f=%lu VSZ=%lu KCYC_IMM/f=%lu",
 +                 frames, fxp_setup_calls/100, fxp_dbl_calls/100,
 +                 fxp_pipeline_runs/100, fxp_verts/100,
 +                 (unsigned long)(fxp_pipeline_cycles/100/1000),
 +                 (unsigned long)(fxp_setup_cycles/100/1000),
 +                 (unsigned long)(fxp_swap_cycles/100/1000),
-+                 fxp_fixup/100, fxp_choose/100);
++                 fxp_fixup/100, fxp_begins/100, fxp_vsize,
++                 (unsigned long)(fxp_imm_cycles/100/1000));
 +         fxp_setup_calls = fxp_dbl_calls = fxp_single_calls = 0;
 +         fxp_texcomb_issued = fxp_texcomb_skipped = fxp_texsource_issued = 0;
 +         fxp_setup_cycles = 0;
 +         fxp_pipeline_runs = fxp_verts = 0; fxp_pipeline_cycles = 0;
 +         fxp_swap_cycles = 0;
-+         fxp_fixup = fxp_choose = 0;
++         fxp_fixup = fxp_choose = fxp_begins = 0; fxp_imm_cycles = 0;
 +      }
 +   }
     if (TDFX_DEBUG & VERBOSE_DRIVER) {
        fprintf(stderr, "fxMesaSwapBuffers()\n");
     }
-@@ -1120,7 +1149,21 @@ fxMesaSwapBuffers(void)
+@@ -1120,7 +1151,21 @@ fxMesaSwapBuffers(void)
  	    /* [retro3dfx] present the offscreen surface to the window (no page
  	     * flip in windowed mode). grBufferSwap is completed first inside the
  	     * board so the render is finished before we Blt it out. */
@@ -159,10 +161,10 @@ index ffc0047..bccfaef 100644
  
     if (fxMesa->type >= GR_SSTTYPE_Voodoo4) {
 diff --git a/src/mesa/drivers/glide/fxsetup.c b/src/mesa/drivers/glide/fxsetup.c
-index 48a8895..614d422 100644
+index 48a8895..b8b9c38 100644
 --- a/src/mesa/drivers/glide/fxsetup.c
 +++ b/src/mesa/drivers/glide/fxsetup.c
-@@ -60,8 +60,37 @@ static struct {
+@@ -60,8 +60,38 @@ static struct {
     struct { FxU32 mode, blend; } sh_mip[2];
     struct { FxU32 addr, mask, sm, lg, ar, fmt; } sh_src[2];
     struct { FxU32 f, fac, l, o, inv; } sh_acomb, sh_ccomb;
@@ -186,7 +188,8 @@ index 48a8895..614d422 100644
 +int fxp_enabled = -1;
 +unsigned long fxp_pipeline_runs, fxp_verts;
 +unsigned long long fxp_swap_cycles;
-+unsigned long fxp_fixup, fxp_choose;
++unsigned long fxp_fixup, fxp_choose, fxp_begins, fxp_vsize;
++unsigned long long fxp_imm_cycles;
 +unsigned long long fxp_pipeline_cycles;
 +
 +static __inline unsigned long long fxp_rdtsc(void)
@@ -200,7 +203,7 @@ index 48a8895..614d422 100644
  void fxSetupShadowReset(void)
  {
     /* 0xff fill = impossible register values, so first use always issues */
-@@ -98,6 +127,27 @@ static void fx_sh_grTexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode,
+@@ -98,6 +128,27 @@ static void fx_sh_grTexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode,
     grTexMipMapMode(tmu, mode, blend);
  }
  
@@ -228,7 +231,7 @@ index 48a8895..614d422 100644
  static void fx_sh_grTexSource(GrChipID_t tmu, FxU32 startAddress,
                                FxU32 evenOdd, GrTexInfo *info)
  {
-@@ -626,7 +676,7 @@ fxSelectSingleTMUSrc_NoLock(fxMesaContext fxMesa, GLint tmu, FxBool LODblend)
+@@ -626,7 +677,7 @@ fxSelectSingleTMUSrc_NoLock(fxMesaContext fxMesa, GLint tmu, FxBool LODblend)
        }
     }
  
@@ -237,7 +240,7 @@ index 48a8895..614d422 100644
                  tex0.FunctionRGB,
                  tex0.FactorRGB,
                  tex0.FunctionAlpha,
-@@ -634,7 +684,7 @@ fxSelectSingleTMUSrc_NoLock(fxMesaContext fxMesa, GLint tmu, FxBool LODblend)
+@@ -634,7 +685,7 @@ fxSelectSingleTMUSrc_NoLock(fxMesaContext fxMesa, GLint tmu, FxBool LODblend)
                  tex0.InvertRGB,
                  tex0.InvertAlpha);
     if (fxMesa->haveTwoTMUs) {
@@ -246,7 +249,7 @@ index 48a8895..614d422 100644
                     tex1.FunctionRGB,
                     tex1.FactorRGB,
                     tex1.FunctionAlpha,
-@@ -647,6 +697,7 @@ fxSelectSingleTMUSrc_NoLock(fxMesaContext fxMesa, GLint tmu, FxBool LODblend)
+@@ -647,6 +698,7 @@ fxSelectSingleTMUSrc_NoLock(fxMesaContext fxMesa, GLint tmu, FxBool LODblend)
  static void
  fxSetupTextureSingleTMU_NoLock(GLcontext * ctx, GLuint textureset)
  {
@@ -254,7 +257,7 @@ index 48a8895..614d422 100644
     fxMesaContext fxMesa = FX_CONTEXT(ctx);
     struct tdfx_combine alphaComb, colorComb;
     GrCombineLocal_t localc, locala;
-@@ -1024,6 +1075,7 @@ fxSetupDoubleTMU_NoLock(fxMesaContext fxMesa,
+@@ -1024,6 +1076,7 @@ fxSetupDoubleTMU_NoLock(fxMesaContext fxMesa,
  static void
  fxSetupTextureDoubleTMU_NoLock(GLcontext * ctx)
  {
@@ -262,7 +265,7 @@ index 48a8895..614d422 100644
     fxMesaContext fxMesa = FX_CONTEXT(ctx);
     struct tdfx_combine alphaComb, colorComb;
     struct tdfx_texcombine tex0, tex1;
-@@ -1339,14 +1391,14 @@ fxSetupTextureDoubleTMU_NoLock(GLcontext * ctx)
+@@ -1339,14 +1392,14 @@ fxSetupTextureDoubleTMU_NoLock(GLcontext * ctx)
                    colorComb.Local,
                    colorComb.Other,
                    colorComb.Invert);
@@ -279,7 +282,7 @@ index 48a8895..614d422 100644
                  tex1.FunctionRGB,
                  tex1.FactorRGB,
                  tex1.FunctionAlpha,
-@@ -1447,9 +1499,14 @@ fxSetupTexture_NoLock(GLcontext * ctx)
+@@ -1447,9 +1500,14 @@ fxSetupTexture_NoLock(GLcontext * ctx)
  void
  fxSetupTexture(GLcontext * ctx)
  {
@@ -479,15 +482,18 @@ index e4d0d04..f662936 100644
  
     /* Initialize the VB.
 diff --git a/src/mesa/tnl/t_vtx_api.c b/src/mesa/tnl/t_vtx_api.c
-index 56b1e9f..8f36963 100644
+index 56b1e9f..5e41232 100644
 --- a/src/mesa/tnl/t_vtx_api.c
 +++ b/src/mesa/tnl/t_vtx_api.c
-@@ -1,3 +1,4 @@
-+extern unsigned long fxp_fixup, fxp_choose;
+@@ -1,3 +1,7 @@
++extern unsigned long fxp_fixup, fxp_choose, fxp_begins, fxp_vsize;
++extern unsigned long long fxp_imm_cycles;
++extern int fxp_enabled;
++static unsigned long long fxp_beg_t0;
  /* $XFree86$ */
  /**************************************************************************
  
-@@ -404,6 +405,7 @@ static tnl_attrfv_func do_codegen( GLcontext *ctx, GLuint attr, GLuint sz )
+@@ -404,6 +408,7 @@ static tnl_attrfv_func do_codegen( GLcontext *ctx, GLuint attr, GLuint sz )
  
  static tnl_attrfv_func do_choose( GLuint attr, GLuint sz )
  { 
@@ -495,7 +501,7 @@ index 56b1e9f..8f36963 100644
     GET_CURRENT_CONTEXT( ctx ); 
     TNLcontext *tnl = TNL_CONTEXT(ctx); 
     GLuint oldsz = tnl->vtx.attrsz[attr];
-@@ -416,6 +418,7 @@ static tnl_attrfv_func do_choose( GLuint attr, GLuint sz )
+@@ -416,6 +421,7 @@ static tnl_attrfv_func do_choose( GLuint attr, GLuint sz )
        if (oldsz)
  	 tnl->vtx.tabfv[attr][oldsz-1] = choose[attr][oldsz-1];
     
@@ -503,3 +509,36 @@ index 56b1e9f..8f36963 100644
        _tnl_fixup_vertex( ctx, attr, sz );
   
     }
+@@ -733,6 +739,17 @@ static void GLAPIENTRY _tnl_EvalPoint2( GLint i, GLint j )
+  */
+ static void GLAPIENTRY _tnl_Begin( GLenum mode )
+ {
++   /* [retro3dfx] FX_PROFILE: per-vertex immediate-mode accumulation happens
++    * HERE, before _tnl_run_pipeline, so the pipeline timer never saw it. With
++    * two texture units the vertex is larger and every attribute goes through
++    * the tabfv function-pointer table. This is the only place left that can
++    * hold the multitexture cost. */
++   if (fxp_enabled > 0) {
++      unsigned long _l,_h;
++      __asm__ __volatile__("rdtsc":"=a"(_l),"=d"(_h));
++      fxp_beg_t0 = (((unsigned long long)_h)<<32)|_l;
++      fxp_begins++;
++   }
+    GET_CURRENT_CONTEXT( ctx ); 
+ 
+    if (ctx->Driver.CurrentExecPrimitive == GL_POLYGON+1) {
+@@ -775,6 +792,14 @@ static void GLAPIENTRY _tnl_Begin( GLenum mode )
+ 
+ static void GLAPIENTRY _tnl_End( void )
+ {
++   if (fxp_enabled > 0) {
++      unsigned long _l,_h; unsigned long long _t;
++      GET_CURRENT_CONTEXT( ctx );
++      __asm__ __volatile__("rdtsc":"=a"(_l),"=d"(_h));
++      _t = (((unsigned long long)_h)<<32)|_l;
++      fxp_imm_cycles += _t - fxp_beg_t0;
++      fxp_vsize = TNL_CONTEXT(ctx)->vtx.vertex_size;
++   }
+    GET_CURRENT_CONTEXT( ctx ); 
+ 
+    if (ctx->Driver.CurrentExecPrimitive != GL_POLYGON+1) {

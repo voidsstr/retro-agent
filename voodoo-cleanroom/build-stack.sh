@@ -97,6 +97,11 @@ DTFIX='DLLTOOL_FLAGS=--as-flags=--32 -m i386'
 
 emit(){ cp "$1/glide3x.dll" "$OUT/$2"; cp "$1/libglide3x.dll.a" "$OUT/sdk/lib/$3"; }
 
+# -static-libgcc is REQUIRED: without it any libgcc helper (a 64-bit divide is
+# enough) adds an import on libgcc_s_dw2-1.dll, which is NOT present on the retro
+# boxes. The DLL then fails LoadLibrary with no diagnostic beyond the app saying
+# it could not load the driver. Bit the ICD on 2026-08-29; the cvg glide had it
+# too and would have failed the same way on first use.
 # dual_abi_relink <glide-build-dir> — relink a freshly-built glide DLL so it
 # exports BOTH `grFoo@N` (mingw) AND `_grFoo@N` (MSVC-style, underscore). Our
 # MesaFX ICD (and the retail-linked build) IMPORT the underscore-decorated glide
@@ -118,7 +123,7 @@ for line in src:
 open(sys.argv[2],"w").write("\n".join(out+al)+"\n")
 PY
   objs=$(find -L "$D" ${EXTRA:+"$EXTRA"} -name "*.o" | sort -u | tr '\n' ' ')
-  ${CROSS}gcc -shared -m32 -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias \
+  ${CROSS}gcc -shared -m32 -static-libgcc -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias \
     -o "$D/lib/glide3x.dll" "$us" $objs \
     -luser32 -lkernel32 -lddraw -lgdi32 -ldxguid -ladvapi32 2>/tmp/dual_abi_relink.log \
     && echo "  dual_abi: $D/lib/glide3x.dll now exports grFoo@N + _grFoo@N" \
@@ -170,7 +175,7 @@ for line in src:
 open(sys.argv[2],"w").write("\n".join(out+al)+"\n")
 PY
   objs=$(find -L "$D" ${EXTRA:+"$EXTRA"} -name "*.o" | sort -u | tr '\n' ' ')
-  ${CROSS}gcc -shared -m32 -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias \
+  ${CROSS}gcc -shared -m32 -static-libgcc -Wl,--enable-auto-image-base -Wl,--no-undefined -Wl,--add-stdcall-alias \
     -o "$D/lib/glide2x.dll" "$us" $objs \
     -luser32 -lkernel32 -lddraw -lgdi32 -ldxguid -ladvapi32 2>/tmp/dual_abi_relink2.log \
     && echo "  dual_abi2: $D/lib/glide2x.dll now exports grFoo@N + _grFoo@N" \

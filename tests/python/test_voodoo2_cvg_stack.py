@@ -191,3 +191,21 @@ def test_profiler_instruments_the_whole_frame():
                   "fxp_swap_cycles", "fxp_fixup"):
         assert probe in p, f"profiler lost its {probe} probe"
     assert 'getenv("FX_PROFILE")' in p, "profiling must stay opt-in"
+
+
+def test_glide_lanes_link_static_libgcc_too():
+    """The ICD learned this the hard way; the Glide lanes had the same defect.
+
+    glide3x_cvg.dll imported libgcc_s_dw2-1.dll, absent on the retro boxes, so
+    it would have failed LoadLibrary on first use with no diagnostic beyond the
+    game reporting it could not load the driver. Both dual-ABI relink helpers
+    build the final DLL with an explicit gcc -shared, so both need the flag.
+    """
+    s = open(BUILD).read()
+    # the -o lands on a continuation line, so match the compiler invocation only
+    relink_lines = [l for l in s.splitlines() if "${CROSS}gcc -shared" in l]
+    assert relink_lines, "no explicit glide relink found in build-stack.sh"
+    for l in relink_lines:
+        assert "-static-libgcc" in l, (
+            "every glide relink must use -static-libgcc or the DLL silently "
+            f"gains a libgcc import the retro boxes cannot satisfy: {l.strip()[:80]}")

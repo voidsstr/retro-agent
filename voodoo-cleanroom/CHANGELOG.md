@@ -6,6 +6,47 @@ self-document. One functional change per version. Every benchmark row in the
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.60 — -static-libgcc for the Glide lanes too, and where the hunt stands
+
+`dual_abi_relink` / `dual_abi_relink2` now link with **`-static-libgcc`**. Our
+`glide3x_cvg.dll` had picked up an import on `libgcc_s_dw2-1.dll`, which is not
+present on the retro boxes — it would have failed `LoadLibrary` on first use
+with no diagnostic beyond the game saying it could not load the driver, exactly
+as the ICD did before 0.1.52. Caught by `objdump -p | grep "DLL Name"` while
+staging it, *before* it ever ran.
+
+`FX_PROFILE` also now times the immediate-mode `glBegin..glEnd` span, which the
+pipeline timer never covered.
+
+### The single-pass prize, quantified — and an earlier conclusion retracted
+
+Ceiling tests on real hardware (Q2 demo1, 640×480, vsync off):
+
+| configuration | fps | what it isolates |
+|---|---|---|
+| baseline, two-pass | 57.2 | — |
+| **`r_fullbright 1`** (no lightmap pass) | **92.9** | the lightmap pass costs **6.72 ms = 38% of frame** |
+| `gl_dynamic 0` | 57.6 | lightmap uploads are negligible |
+| `r_drawentities 0` | 66.3 | entities cost 2.40 ms |
+| `r_drawworld 0` | 206.6 | the world costs 12.64 ms |
+
+**Single-pass rendering reaches 92.9 fps, past the stock MiniGL's 90.7.** So the
+second pass is the whole prize — worth about +62%.
+
+**Retraction:** 0.1.58 concluded the multitexture cost was in Quake II's code.
+That is wrong. The stock MiniGL uses the *same* `GL_SGIS_multitexture` path
+(its log says so, and it benchmarks 90.7 fps with multitexture active), so the
+~24 ms is ours. Since then, measurement has eliminated every part of our DLL:
+TNL pipeline 5.4 ms, immediate-mode accumulation 0.26 vs 0.29 ms, texture setup
+~0, texture downloads 0, blocking swap 0, and the immediate-mode vertex size
+identical at 4 floats in both modes.
+
+What is left, and where to resume: **`glide3x.dll` itself, which has never been
+instrumented.** It is a real suspect because the MiniGL links **glide2x**, not
+glide3x — a different library with a different dual-TMU path. Testing that needs
+our own cvg glide deployed, which is what the `-static-libgcc` fix above
+unblocks.
+
 ## 0.1.58 — the multitexture cost is NOT in our driver (2026-08-29)
 
 `FX_PROFILE=1` now instruments the whole frame — texture setup, the TNL
