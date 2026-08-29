@@ -35,6 +35,28 @@ the login-screen dashboard collector reads (`dashboard/README.md`). Per-user
 tmpfs, readable by root, and **not** `/tmp` — the GDM greeter that ultimately
 displays it runs as a systemd `DynamicUser` and cannot see `/tmp` at all.
 
+### Two process managers, declared not assumed
+
+Nine servers are `systemd --user` units; **Tribes 2 is a docker container**
+(it needs a 2001 userland). Asking systemd about `tribes2-server` returns
+`not-found`, which this module reports as "never installed here" — so a
+running game server was being dropped off the board entirely, and an outage on
+it would have been invisible. Each row therefore declares its `manager`, state
+is fetched with one call per manager, and restarts dispatch accordingly
+(`systemctl restart` vs `docker restart`).
+
+The three-way distinction is what makes it safe:
+
+| what we found | means | counted? | restarted? |
+|---|---|---|---|
+| `active` / `failed` / `inactive` | the manager answered | yes | per policy |
+| `absent` | never installed on this host | no | never |
+| `unknown` | we could not ask (no docker binary, daemon down) | no | never |
+
+`unknown` existing separately matters: restarting on the strength of a failed
+*lookup* is how a watchdog starts bouncing healthy services because docker was
+briefly busy.
+
 ### Two facts, deliberately kept apart
 
 Per server the watchdog records the **unit** state from systemd *and* the
@@ -74,7 +96,7 @@ permanently claim someone was playing.
 | Quake 2 | `status` (not `getstatus`) | infostring on **line 1** (line 0 is `print`) |
 | QuakeWorld (mvdsv) | `status` | infostring on **line 0** — the `n` header is glued to the first key. The reply ends `\n\x00`, and `str.strip()` does not remove a NUL, so a naive line count reports one phantom player |
 | UT99 / UT2004 | `\status\` on **game port + 1** | `numplayers` / `maxplayers` given directly |
-| Tribes 2 | Torque binary | liveness only |
+| Tribes 2 | Torque binary `0x0E` → `0x10` | **liveness only, and not by choice** — under TribesNext the info response body is encrypted (`0x12` returns a well-formed `0x14` full of ciphertext). The reply *does* echo the request's four key bytes, so we send a random key and check it comes back: that proves the packet answers *our* query rather than being any UDP traffic that happened to arrive |
 
 Tests: `tests/python/test_gameservers.py` (parsers against captured bytes, and
 every bound of the restart policy).
@@ -153,6 +175,11 @@ other pre-2008 HL mod game DLL.
 have **never existed here** — no install directory, no install script, and no
 retail game data staged. Treat those rows as a wish list, not as something that
 regressed.
+
+They are deliberately **absent from `gameservers.py`'s table** rather than
+listed-and-absent: a row that can never come up would sit permanently on the
+status wall looking like an outage, and "we never built this" is not a fault
+report. Add them there on the day they are actually installed.
 
 ---
 

@@ -91,7 +91,10 @@ class Watch:
         """(should_restart, reason). Reason is recorded either way."""
         unit = row["unit"]
         if not row.get("installed"):
-            return False, "not installed"
+            # Covers both "never installed here" and "could not ask the
+            # manager". Restarting on the strength of a failed lookup is how a
+            # watchdog starts bouncing services because docker was busy.
+            return False, row.get("unavailable") or "not installed"
         if not self.restart_enabled:
             return False, "restarts disabled"
 
@@ -131,12 +134,17 @@ class Watch:
             should, reason = self.decide(row, now)
             row["watchdog"] = reason
             if not should:
-                if reason and reason not in ("not installed", "restarts disabled"):
+                if reason and reason not in ("not installed", "restarts disabled",
+                                             "manager unreachable"):
                     log(f"{row['unit']}: {reason}")
                 continue
 
-            log(f"{row['unit']}: {reason} — restarting")
-            ok, msg = gameservers.restart_unit(row["unit"])
+            log(f"{row['unit']}: {reason} — restarting via {row.get('manager', 'systemd')}")
+            # Restart through whichever manager owns it: Tribes 2 is a docker
+            # container, and `systemctl restart tribes2-server` would fail with
+            # "unit not found" forever while the watchdog logged success-shaped
+            # attempts against a server nobody was fixing.
+            ok, msg = gameservers.restart(row)
             self.last_restart[row["unit"]] = now
             self.restart_log[row["unit"]].append(now)
             self.mute_streak[row["unit"]] = 0

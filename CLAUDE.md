@@ -437,6 +437,74 @@ quoted includes, the 64K DGROUP/socket-malloc ceilings, the mandatory
 [`agent/doschat/README.md`](agent/doschat/README.md). Read those before
 touching a DOS build.
 
+## Host services — what must be running on the dev host (192.168.1.132)
+
+The fleet depends on a handful of long-running services on this host. All of
+them are now reported on the **GDM login-screen status wall**
+([`dashboard/README.md`](dashboard/README.md)), which is the fastest way to see
+whether anything is down — walk past the monitor.
+
+| service | scope | what it does |
+|---|---|---|
+| `retro-chat-daemon` | `--user` | LAN bridge that claims retro agents |
+| `retro-chat-brain` | `--user` | the Claude Agent SDK processor answering chat prompts |
+| `retro-gameindex` | `--user` | **the favourites agent** — keeps every box's in-game server list full of live servers |
+| `retro-gameservers-watch` | `--user` | **game-server watchdog** — probes all 10 servers every 20s and restarts what dies |
+| `retro-dosgames-http` | `--user` | HTTP bridge for the DOS game catalog |
+| `retro-pxe` | system | proxyDHCP + TFTP for network-installing the fleet |
+| `retro-dashboard-collector` | system | gathers everything into `/run/retro-dashboard/state.json` |
+
+```bash
+systemctl --user status retro-gameindex retro-gameservers-watch
+python3 scripts/game-servers/gameservers.py          # every game server, right now
+python3 scripts/gameindex/sync.py --status           # what the favourites DB knows
+```
+
+**`systemctl --user` as root is the wrong manager.** Anything running as root
+(the collector, a sudo shell) that wants to inspect these must drop to
+`voidsstr` with `XDG_RUNTIME_DIR=/run/user/1000` set. A bare `systemctl --user`
+under root queries *root's* manager, which holds none of them, so every service
+reads "not found" — indistinguishable from every service having died.
+
+**"Not installed" and "crashed" must never render the same.** This bit us
+repeatedly while building the wall: `LoadState=not-found` (never installed),
+`unknown` (could not ask the manager) and `failed` (it died) are three
+different calls to action, and only the last is a fault.
+
+### The favourites agent is a service, not a timer
+
+`retro-gameindex` was a `oneshot` behind a 5-minute `.timer`, which meant its
+unit read `inactive (dead)` for 297 of every 300 seconds. It is now a
+long-running `Type=simple` daemon doing the same 5-minute pass. **The timer is
+deleted** — leaving it enabled starts a second pass that fights the daemon over
+the same SQLite file.
+
+It publishes a per-pass report to
+`$XDG_RUNTIME_DIR/retro-gameindex/status.json`, because **the fleet is powered
+on demand**: a healthy pass across zero live boxes writes nothing and logs
+almost nothing, so judged by output volume a healthy agent looks dead every
+time the retro machines are switched off.
+
+### The game servers have two process managers
+
+Nine are `systemd --user` units; **Tribes 2 is a docker container**
+(`tribes2-server`), because it needs a 2001 userland. Anything enumerating the
+game servers must ask the right manager — `systemctl show tribes2-server`
+returns `not-found` and silently drops a running server off the board.
+`scripts/game-servers/gameservers.py` declares each row's `manager` and
+dispatches; use it rather than assuming systemd.
+
+**`rtcw-server` and `mohaa-server` have never existed on this host** — they are
+in the game-servers *skill's* table as a wish list. Do not treat their absence
+as a regression, and do not add them to the status table until they are really
+installed, or the wall shows a permanent outage.
+
+**Bots are not players.** The Q3 server runs `bot_minplayers 4`, so any player
+count that does not separate bots claims someone is playing 24/7. GoldSrc's
+A2S reply carries a bot count; on the Quake family a player line with **ping 0**
+is a bot. Tribes 2 reports no count at all (TribesNext encrypts the info
+response) — that is `—`, never `0`.
+
 ## Repository Context
 
 This repo was extracted from the `nsc-assistant` monorepo. The dashboard, MCP server, and OpenClaw agents remain in `nsc-assistant`. This repo contains only the agent binaries, Python client library, provisioning scripts, and documentation.

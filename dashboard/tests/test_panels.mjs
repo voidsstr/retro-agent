@@ -260,6 +260,32 @@ noThrow('renders with a totally empty state object', () => render({}));
     ok('degraded units are named', svc.includes('retro-gameindex not running'), svc);
 }
 
+/* ------------------------------------- a server with no player count */
+
+{
+    // Tribes 2: alive, but TribesNext encrypts its info response so the count
+    // is unknowable. Rendering that as `0` asserts an empty server we cannot
+    // actually see into.
+    const t2 = structuredClone(HEALTHY);
+    t2.gameservers.servers.push({
+        unit: 'tribes2-server', label: 'Tribes 2', installed: true, up: true,
+        manager: 'docker', players: null, max_players: null, map: null,
+        ping_ms: 0.9, unit_state: 'active',
+    });
+    t2.gameservers.up = 3;
+    t2.gameservers.total = 3;
+    const d = render(t2);
+    const games = plain(d._panels.games.markup);
+    const row = games.split('\n').find(l => l.includes('Tribes 2'));
+    ok('a server with no player count gets a row', !!row, games);
+    ok('an unknown player count is not printed as 0',
+        row && !/\b0\b/.test(row), row);
+    ok('an unknown player count reads as unknown',
+        row && row.includes('—'), row);
+    ok('it still shows its ping', row && row.includes('0.9ms') || row.includes('1ms'),
+        row);
+}
+
 /* --------------------------------------------------------------- stale */
 
 {

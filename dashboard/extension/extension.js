@@ -816,8 +816,12 @@ export default class RetroFleetDashboard extends Extension {
                 continue;
             }
 
-            const cap = srv.max_players ? `/${srv.max_players}` : '';
-            const count = `${srv.players ?? 0}${cap}`;
+            // Null is "this engine will not tell us", not zero. Tribes 2
+            // under TribesNext encrypts its info response, so printing 0
+            // there would assert an empty server we cannot actually see into.
+            const known = srv.players !== null && srv.players !== undefined;
+            const cap = known && srv.max_players ? `/${srv.max_players}` : '';
+            const count = known ? `${srv.players}${cap}` : '—';
             // Colour by occupancy: an empty server is normal, a busy one is
             // the thing you want to notice from across the room.
             const pcol = (srv.players ?? 0) > (srv.bots ?? 0)

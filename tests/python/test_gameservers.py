@@ -368,3 +368,145 @@ def test_a_recovered_server_forgets_its_mute_streak():
     w.mute_streak["cs16-server"] = 2
     w.decide(_row(), 1000.0)
     assert w.mute_streak["cs16-server"] == 0
+
+
+# --- docker, the fleet's second process manager -----------------------------
+#
+# Tribes 2 runs in a container because it needs a 2001 userland. Asking
+# systemd about it returns `not-found`, which this module reports as "never
+# installed here" -- so a running game server was dropped off the wall
+# entirely and an outage on it would have been invisible.
+
+
+class _Res:
+    def __init__(self, stdout="", stderr="", returncode=0):
+        self.stdout = stdout
+        self.stderr = stderr
+        self.returncode = returncode
+
+
+def test_docker_state_maps_running_to_active(monkeypatch):
+    monkeypatch.setattr(gameservers.subprocess, "run", lambda *a, **k: _Res(
+        "/tribes2-server\trunning\t2026-08-28T10:00:00.123456789Z\t2\n"))
+    out = gameservers.docker_states(["tribes2-server"])
+    assert out["tribes2-server"]["state"] == "active"
+    assert out["tribes2-server"]["restarts"] == 2
+    assert out["tribes2-server"]["uptime_sec"] > 0
+
+
+def test_docker_exited_container_is_failed(monkeypatch):
+    monkeypatch.setattr(gameservers.subprocess, "run", lambda *a, **k: _Res(
+        "/tribes2-server\texited\t2026-08-28T10:00:00Z\t0\n"))
+    assert gameservers.docker_states(["tribes2-server"])["tribes2-server"]["state"] \
+        == "failed"
+
+
+def test_docker_container_that_does_not_exist_is_absent(monkeypatch):
+    monkeypatch.setattr(gameservers.subprocess, "run",
+                        lambda *a, **k: _Res("", "No such object", 1))
+    assert gameservers.docker_states(["gone"])["gone"] == {"state": "absent"}
+
+
+def test_no_docker_binary_is_unknown_not_absent(monkeypatch):
+    """'docker is not installed' and 'the container is missing' are different
+    facts. Reporting the first as the second would quietly drop a real server
+    off the board on any host without docker."""
+    def missing(*a, **k):
+        raise FileNotFoundError("docker")
+    monkeypatch.setattr(gameservers.subprocess, "run", missing)
+    out = gameservers.docker_states(["tribes2-server"])
+    assert out["tribes2-server"]["state"] == "unknown"
+    assert "docker not installed" in out["tribes2-server"]["error"]
+
+
+def test_docker_nanosecond_timestamps_parse():
+    """Docker emits RFC3339 with 9 fractional digits, which fromisoformat
+    rejected before 3.11 — and a crash here would take the whole sweep down."""
+    assert gameservers._parse_docker_time("2026-08-28T10:00:00.123456789Z") > 0
+    assert gameservers._parse_docker_time("2026-08-28T10:00:00Z") > 0
+    assert gameservers._parse_docker_time("nonsense") is None
+    assert gameservers._parse_docker_time("") is None
+
+
+def test_states_are_fetched_once_per_manager(monkeypatch):
+    """One call per manager, not one per server — the sweep runs every 20s."""
+    calls = {"systemd": 0, "docker": 0}
+    monkeypatch.setattr(gameservers, "unit_states",
+                        lambda u, *a: (calls.__setitem__("systemd", calls["systemd"] + 1),
+                                       {n: {"state": "active"} for n in u})[1])
+    monkeypatch.setattr(gameservers, "docker_states",
+                        lambda n, *a: (calls.__setitem__("docker", calls["docker"] + 1),
+                                       {c: {"state": "active"} for c in n})[1])
+    gameservers._all_states([
+        {"unit": "a"}, {"unit": "b"},
+        {"unit": "c", "manager": "docker"}, {"unit": "d", "manager": "docker"},
+    ])
+    assert calls == {"systemd": 1, "docker": 1}
+
+
+def test_a_manager_we_cannot_reach_is_not_counted_as_a_down_server(monkeypatch):
+    monkeypatch.setattr(gameservers, "unit_states", lambda u, *a: {})
+    monkeypatch.setattr(gameservers, "docker_states", lambda n, *a: {
+        "tribes2-server": {"state": "unknown", "error": "docker not installed"}})
+    monkeypatch.setattr(gameservers, "PROBES", {"t2": lambda *a, **k: None})
+    snap = gameservers.collect(
+        servers=[{"unit": "tribes2-server", "label": "T2", "engine": "t2",
+                  "probe": "t2", "port": 28000, "manager": "docker"}],
+        proxies=[])
+    row = snap["servers"][0]
+    assert row["installed"] is False
+    assert row["unavailable"] == "docker not installed"
+    assert snap["total"] == 0 and snap["down"] == []
+
+
+def test_restart_dispatches_to_the_owning_manager(monkeypatch):
+    seen = []
+    monkeypatch.setattr(gameservers, "restart_unit",
+                        lambda u, **k: (seen.append(("systemd", u)), (True, "ok"))[1])
+    monkeypatch.setattr(gameservers, "restart_container",
+                        lambda n, **k: (seen.append(("docker", n)), (True, "ok"))[1])
+    gameservers.restart({"unit": "cs16-server"})
+    gameservers.restart({"unit": "tribes2-server", "manager": "docker"})
+    assert seen == [("systemd", "cs16-server"), ("docker", "tribes2-server")]
+
+
+# --- the Tribes 2 probe -----------------------------------------------------
+
+def test_t2_requires_the_reply_to_echo_our_key(monkeypatch):
+    """Any UDP noise arriving at the socket would otherwise read as 'alive'.
+    Tribes 2 answers 0x0E with 0x10 and echoes the four key bytes back."""
+    sent = {}
+
+    def fake(port, payload, timeout=None, host=None):
+        sent["payload"] = payload
+        return bytes([0x10, 0]) + payload[2:6], 0.9
+
+    monkeypatch.setattr(gameservers, "_ask", fake)
+    info = gameservers.probe_t2(28000)
+    assert info is not None
+    assert info["rtt_ms"] == 0.9
+    assert sent["payload"][0] == 0x0E
+
+
+def test_t2_rejects_a_reply_with_the_wrong_key(monkeypatch):
+    monkeypatch.setattr(gameservers, "_ask",
+                        lambda *a, **k: (bytes([0x10, 0, 9, 9, 9, 9]), 1.0))
+    assert gameservers.probe_t2(28000) is None
+
+
+def test_t2_rejects_a_reply_of_the_wrong_type(monkeypatch):
+    def fake(port, payload, timeout=None, host=None):
+        return bytes([0x99, 0]) + payload[2:6], 1.0
+    monkeypatch.setattr(gameservers, "_ask", fake)
+    assert gameservers.probe_t2(28000) is None
+
+
+def test_t2_reports_no_player_count_rather_than_zero(monkeypatch):
+    """TribesNext encrypts the info response, so the count is unknowable from
+    off the box. Reporting 0 would assert an empty server we cannot see into."""
+    def fake(port, payload, timeout=None, host=None):
+        return bytes([0x10, 0]) + payload[2:6], 1.0
+    monkeypatch.setattr(gameservers, "_ask", fake)
+    info = gameservers.probe_t2(28000)
+    assert "players" not in info
+    assert info["map"] is None

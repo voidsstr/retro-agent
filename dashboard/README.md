@@ -185,11 +185,20 @@ Its guardrails matter more than the restarting does:
   (a missing pak, a bad cfg) is left alone with "needs a human" rather than
   flapped forever;
 - a unit that was never installed here is never touched, and does not count
-  against the up/total.
+  against the up/total — and neither does one whose *manager* we could not
+  reach, which is a separate state again.
 
-It is a **`--user`** unit on purpose: the game servers are `--user` units, so
+It is a **`--user`** unit on purpose: most game servers are `--user` units, so
 this is the one manager that can restart them without crossing a privilege
-boundary.
+boundary. **Tribes 2 is the exception** — it is a docker container, so its row
+declares `manager: "docker"` and is inspected and restarted through docker.
+Asking systemd about it returns `not-found`, which would have quietly dropped a
+running game server off the wall.
+
+**An unknown player count is not zero.** Tribes 2 under TribesNext encrypts
+its info response, so the count genuinely cannot be read from off the box. The
+row shows `—` rather than `0`, which would assert an empty server we cannot
+see into.
 
 **Bots are not people.** A Quake III server pinned at `bot_minplayers 4`
 reports four players forever. GoldSrc gives a bot count directly; on the Quake

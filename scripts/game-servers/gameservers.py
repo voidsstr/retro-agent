@@ -27,8 +27,8 @@ mistake this module exists to stop anyone making again.
 import json
 import os
 import re
+import re
 import socket
-import struct
 import subprocess
 import sys
 import time
@@ -195,12 +195,30 @@ def probe_ut(port, timeout=DEFAULT_TIMEOUT, host=None):
     return out
 
 
+# Torque request -> expected response type. Tribes 2 answers a ping (0x0E) with
+# 0x10 and an info request (0x12) with 0x14, echoing the four key bytes back.
+_T2_PING = 0x0E
+_T2_PING_REPLY = 0x10
+
+
 def probe_t2(port, timeout=4.0, host=None):
-    """Tribes 2 speaks the Torque binary query; we only learn that it lives."""
-    data, rtt = _ask(port, bytes([0x0E, 0, 0, 0, 0, 0]), timeout, host)
-    if not data:
+    """Tribes 2 speaks the Torque binary query. Liveness only, and that is not
+    laziness: under TribesNext the info response body is **encrypted**, so the
+    player count and map simply are not readable from off the box. (Verified
+    by hand: 0x12 returns a well-formed 0x14 whose payload is ciphertext.)
+
+    What we can do is make the liveness answer trustworthy. The reply echoes
+    the request's four key bytes, so a random key proves the packet is an
+    answer to OUR query rather than any UDP traffic that happened to arrive —
+    which is all "did some bytes come back" ever established.
+    """
+    key = os.urandom(4)
+    data, rtt = _ask(port, bytes([_T2_PING, 0]) + key, timeout, host)
+    if not data or len(data) < 6:
         return None
-    return {"name": "Tribes 2", "map": "?", "rtt_ms": rtt}
+    if data[0] != _T2_PING_REPLY or data[2:6] != key:
+        return None
+    return {"name": "Tribes 2", "map": None, "rtt_ms": rtt}
 
 
 PROBES = {
@@ -240,8 +258,9 @@ SERVERS = [
      "probe": "ut",  "port": 7798,  "join": 7797},
     {"unit": "ut2004-server",      "label": "UT2004",          "engine": "ut2k4",
      "probe": "ut",  "port": 7787,  "join": 7777},
+    # Docker, not systemd: Tribes 2 needs a 2001 userland. See docker_states().
     {"unit": "tribes2-server",     "label": "Tribes 2",        "engine": "t2",
-     "probe": "t2",  "port": 28000, "join": 28000},
+     "probe": "t2",  "port": 28000, "join": 28000, "manager": "docker"},
 ]
 
 # The a2s proxies are what make the CS servers visible in a 2003 LAN browser.
@@ -336,6 +355,92 @@ def _monotonic_usec():
         return 0
 
 
+# --------------------------------------------------------------------------
+# docker — the fleet's second process manager
+# --------------------------------------------------------------------------
+#
+# Tribes 2 runs in a container, not a systemd unit, because it needs a 2001
+# userland. Looking it up with `systemctl show` returns `not-found`, which this
+# module reports as "never installed here" -- so a running game server was
+# being left off the wall entirely, and an outage on it would have been
+# invisible. A server's manager is therefore declared, not assumed.
+
+_DOCKER_STATE = {
+    "running": "active",
+    "restarting": "activating",
+    "paused": "inactive",
+    "created": "inactive",
+    "exited": "failed",
+    "dead": "failed",
+}
+
+
+def docker_states(names, timeout=8):
+    """`docker inspect` for a batch of containers, in systemd's vocabulary."""
+    out = {n: {"state": "unknown"} for n in names}
+    if not names:
+        return out
+    fmt = "{{.Name}}\t{{.State.Status}}\t{{.State.StartedAt}}\t{{.RestartCount}}"
+    try:
+        res = subprocess.run(["docker", "inspect", "--format", fmt] + list(names),
+                             capture_output=True, text=True, timeout=timeout)
+    except FileNotFoundError:
+        # No docker at all. That is not "the container is missing" -- it is
+        # "we could not look", and the two must not render the same.
+        return {n: {"state": "unknown", "error": "docker not installed"}
+                for n in names}
+    except Exception:
+        return out
+
+    seen = set()
+    for line in res.stdout.splitlines():
+        parts = line.split("\t")
+        if len(parts) < 4:
+            continue
+        name = parts[0].lstrip("/")
+        seen.add(name)
+        rec = {"state": _DOCKER_STATE.get(parts[1], "unknown"), "sub": parts[1]}
+        try:
+            rec["restarts"] = int(parts[3])
+        except ValueError:
+            pass
+        started = _parse_docker_time(parts[2])
+        if started:
+            rec["uptime_sec"] = max(0, int(time.time() - started))
+        out[name] = rec
+
+    # `docker inspect` fails per-name on stderr; anything it did not describe
+    # and did not error on is genuinely absent.
+    for name in names:
+        if name not in seen and out[name]["state"] == "unknown":
+            out[name] = {"state": "absent"}
+    return out
+
+
+def _parse_docker_time(text):
+    """RFC3339 with nanoseconds, which datetime cannot parse before 3.11."""
+    try:
+        import datetime
+        cleaned = re.sub(r"\.(\d{6})\d*", r".\1", (text or "").strip())
+        cleaned = cleaned.replace("Z", "+00:00")
+        return datetime.datetime.fromisoformat(cleaned).timestamp()
+    except Exception:
+        return None
+
+
+def restart_container(name, timeout=60):
+    try:
+        res = subprocess.run(["docker", "restart", name],
+                             capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return False, "restart timed out"
+    except Exception as exc:
+        return False, str(exc)
+    if res.returncode == 0:
+        return True, "restarted"
+    return False, (res.stderr or res.stdout or "").strip()[:200] or "restart failed"
+
+
 def restart_unit(unit, timeout=30):
     """Restart one game server. Returns (ok, message)."""
     cmd = _user_systemctl_prefix() + ["restart", f"{unit}.service"]
@@ -350,6 +455,25 @@ def restart_unit(unit, timeout=30):
     return False, (res.stderr or res.stdout or "").strip()[:200] or "restart failed"
 
 
+def restart(spec):
+    """Restart one server through whichever manager owns it."""
+    if spec.get("manager") == "docker":
+        return restart_container(spec["unit"])
+    return restart_unit(spec["unit"])
+
+
+def _all_states(specs):
+    """Unit states for a mixed list, one call per manager rather than per row."""
+    states = {}
+    systemd = [s["unit"] for s in specs if s.get("manager", "systemd") == "systemd"]
+    docker = [s["unit"] for s in specs if s.get("manager") == "docker"]
+    if systemd:
+        states.update(unit_states(systemd))
+    if docker:
+        states.update(docker_states(docker))
+    return states
+
+
 # --------------------------------------------------------------------------
 # assembly
 # --------------------------------------------------------------------------
@@ -359,7 +483,7 @@ def collect(servers=None, proxies=None, timeout=DEFAULT_TIMEOUT, host=None):
     servers = SERVERS if servers is None else servers
     proxies = PROXIES if proxies is None else proxies
 
-    states = unit_states([s["unit"] for s in servers] + [p["unit"] for p in proxies])
+    states = _all_states(list(servers) + list(proxies))
 
     rows = []
     for spec in servers:
@@ -368,6 +492,7 @@ def collect(servers=None, proxies=None, timeout=DEFAULT_TIMEOUT, host=None):
             "unit": spec["unit"],
             "label": spec["label"],
             "engine": spec["engine"],
+            "manager": spec.get("manager", "systemd"),
             "port": spec.get("join", spec["port"]),
             "query_port": spec["port"],
             "unit_state": unit.get("state", "unknown"),
@@ -384,8 +509,13 @@ def collect(servers=None, proxies=None, timeout=DEFAULT_TIMEOUT, host=None):
         }
         # Not installed is not a fault, and probing a port nothing listens on
         # just spends the timeout.
-        if unit.get("state") == "absent":
+        # `absent` = never installed here. `unknown` = we could not ask the
+        # manager (no docker binary, daemon down). Neither is a game-server
+        # fault, and neither may be counted as one.
+        if unit.get("state") in ("absent", "unknown"):
             rec["installed"] = False
+            rec["unavailable"] = unit.get("error") or (
+                "manager unreachable" if unit.get("state") == "unknown" else None)
             rows.append(rec)
             continue
         rec["installed"] = True
