@@ -81,6 +81,28 @@ HOSTFIX='HOST_CFLAGS=$(filter-out -m32 -mcpu=% -mtune=% -DFX_DLL_ENABLE -DHWC_EX
 # fleet Voodoo3 box (.124) is a Pentium III, and the MesaFX ICD already builds
 # with P3+SSE. Match the glide to it so triangle setup / FIFO packing / LFB math
 # use SSE + P3 scheduling instead of x87. (A/B-measured on .124; 2026-07-23.)
+# ---------------------------------------------------------------------------
+# SSE WARNING. These flags REQUIRE a CPU with SSE. Our shipped opengl32 carries
+# ~54,000 SSE instructions (2,783 of them cvtsi2ss); glide3x_cvg ~2,800. On an
+# SSE-less part (e.g. .143's Athlon K75, 3DNow!+MMX but no SSE) they fault with
+# c000001d ILLEGAL INSTRUCTION and it reads as a broken driver rather than a
+# wrong-CPU build. NVIDIA's ForceWare faults identically on that box.
+#
+# To target an SSE-less CPU, -mfpmath=387 IS NOT ENOUGH -- measured with this
+# toolchain on float-heavy code:
+#     -march=pentium3 -mfpmath=sse   11 SSE instrs
+#     -march=pentium3 -mfpmath=387    4 SSE instrs   <-- still faults
+#     -march=athlon   -mfpmath=387    0
+# -march=pentium3 by itself declares SSE available and gcc keeps emitting it
+# (auto-vectorisation is on at -O2 in gcc 12+). Lower -march TOO; prefer
+# -march=athlon over i686 on a K7 so 3DNow!/MMX survive.
+#
+# VERIFY, do not trust the flags:
+#   i686-w64-mingw32-objdump -d <dll> | grep -cE \
+#     '\b(cvtsi2ss|cvtss2si|movss|mulss|addss|subss|divss|comiss|movaps|movups|shufps)\b'
+# must be 0 before shipping to an SSE-less box.
+# Fleetbook: our-icd-and-glide-need-sse-mfpmath-387-alone-does-not-make-a
+# ---------------------------------------------------------------------------
 GLIDEOPT='OPTFLAGS=-O2 -ffast-math -march=pentium3 -mtune=pentium3 -mfpmath=sse'
 # The Voodoo2 box (.171) is a Pentium 4 2.8GHz, not the P3 the other lanes
 # target. Keep -march=pentium3 (SSE only, no SSE2 dependency) but tune the

@@ -209,3 +209,22 @@ def test_glide_lanes_link_static_libgcc_too():
         assert "-static-libgcc" in l, (
             "every glide relink must use -static-libgcc or the DLL silently "
             f"gains a libgcc import the retro boxes cannot satisfy: {l.strip()[:80]}")
+
+
+def test_build_documents_the_sse_requirement():
+    """Our artifacts require SSE, and the obvious fix for an SSE-less target is
+    wrong. Measured 2026-08-29 with our own toolchain:
+
+        -march=pentium3 -mfpmath=387   ->  4 SSE instructions  (STILL faults)
+        -march=athlon   -mfpmath=387   ->  0
+
+    -march=pentium3 alone declares SSE available and gcc keeps emitting it, so
+    -mfpmath=387 by itself is a trap: the build looks fixed and still faults
+    with c000001d on an SSE-less CPU. The build script must carry that warning
+    so the next person does not "fix" it the half way.
+    """
+    s = open(BUILD).read()
+    assert "-mfpmath=387 IS NOT ENOUGH" in s or "IS NOT ENOUGH" in s, \
+        "build-stack.sh must warn that -mfpmath=387 alone does not remove SSE"
+    assert "cvtsi2ss" in s, "the warning should name the faulting opcode class"
+    assert "objdump" in s, "the warning should give the verification command"
