@@ -184,6 +184,64 @@ def refresh_servers(con, engines, max_probe=900):
 
 # --- step 4: push favourites -------------------------------------------------
 
+async def read_existing(conn, path):
+    """Read the file we are about to merge into.
+
+    Returns (text, state, why) where state is one of:
+
+        "read"        we have the exact bytes; merge into them
+        "missing"     the file genuinely is not there; safe to create
+        "unreadable"  we could not tell; the caller MUST NOT write
+
+    Three things make this fussier than it looks, all learned by getting it
+    wrong:
+
+    * **DOWNLOAD, not `EXEC cmd /c type`.** The shell path went through
+      cmd.exe, so it could truncate on a big file, mangle encodings, and on
+      Win98 it is a different shell entirely. DOWNLOAD returns the exact bytes
+      with a real status code.
+    * **A failed read is not an empty file.** The previous version caught every
+      exception and set `existing = ""`, so a timeout or a busy box turned into
+      "this file is empty" and the merge wrote only our block. That destroyed
+      another session's staged settings on one machine while leaving them
+      intact on another -- the hardest possible shape to debug.
+    * **Existence is decided by a directory listing, not by error prose.** The
+      previous version matched "cannot find" against the *file's own content*.
+      Only a positive listing of the parent directory lets us say "missing"
+      and create the file; anything else is "unreadable" and we leave it alone.
+    """
+    try:
+        raw = await conn.command_binary(f"DOWNLOAD {path}", timeout=60)
+        return raw.decode("ascii", "replace"), "read", ""
+    except Exception as exc:  # noqa: BLE001
+        first_error = f"{type(exc).__name__}: {exc}"[:120]
+
+    # The read failed. It is only safe to create the file if we can positively
+    # confirm it is absent, so ask the directory.
+    parent, _, fname = path.rpartition("\\")
+    try:
+        listing = await conn.command_text(f"DIRLIST {parent}", timeout=30)
+    except Exception as exc:  # noqa: BLE001
+        return "", "unreadable", f"{first_error}; DIRLIST also failed: " \
+                                 f"{type(exc).__name__}"
+    try:
+        entries = json.loads(listing)
+        names = entries.get("entries", entries) if isinstance(entries, dict) \
+            else entries
+        present = any(
+            (e.get("name") if isinstance(e, dict) else str(e)).lower()
+            == fname.lower() for e in names)
+    except Exception:  # noqa: BLE001
+        # A listing we cannot parse is not evidence of absence.
+        return "", "unreadable", f"{first_error}; DIRLIST unparseable"
+
+    if present:
+        # It is there and we still could not read it. Do not touch it.
+        return "", "unreadable", f"{first_error}; the file exists"
+    return "", "missing", ""
+
+
+
 async def push_favorites(con, ip, dry_run=False):
     """Write each installed game's favourites file, but only when it changed."""
     results = []
@@ -205,16 +263,27 @@ async def push_favorites(con, ip, dry_run=False):
                 continue
 
             path = favorites.target_path(engine, gdir)
-            existing = ""
-            try:
-                existing = (await c.command_text(f'EXEC cmd /c type "{path}"',
-                                                 timeout=60))
-                if "cannot find" in existing.lower() or "not find" in existing.lower():
-                    existing = ""
-            except Exception:  # noqa: BLE001
-                existing = ""
+            existing, state, why = await read_existing(c, path)
+            if state == "unreadable":
+                # NEVER write when we could not read. Merging against an empty
+                # string would silently replace whatever is there with only our
+                # block -- which is exactly how another session's r_fullscreen
+                # and r_mode vanished from one box while surviving on another
+                # (2026-08-29). "The file is not there" and "I could not read
+                # the file" mean opposite things and must never collapse.
+                results.append((key, engine,
+                                f"skipped: cannot read {path} ({why}) — "
+                                f"refusing to write, it would clobber the file"))
+                continue
 
-            text, h = favorites.render(engine, servers, existing)
+            try:
+                text, h = favorites.render(engine, servers, existing)
+            except favorites.WouldClobber as exc:
+                # The merge itself found it would lose somebody's settings.
+                # Leave the file alone and make the reason loud.
+                log.error("[%s] %s %s: %s", ip, key, path, exc)
+                results.append((key, engine, f"FAILED would clobber: {exc}"))
+                continue
             if text is None:
                 results.append((key, engine, f"skipped: {h}"))
                 continue

@@ -88,6 +88,11 @@ def q2_favorites(servers, existing="", slots=9):
     return (kept + "\n\n" if kept.strip() else "") + "\n".join(body) + "\n"
 
 
+# The strip patterns, by engine, so the safety check in render() uses exactly
+# the same rule the writer does rather than a second copy that can drift.
+_SETA_RE = {"q3": _Q3_SETA, "q2": _Q2_SETA}
+
+
 # --- registry ----------------------------------------------------------------
 #
 # `subdir` is where the game's autoexec lives relative to the install dir.
@@ -120,12 +125,69 @@ def writer_for(engine):
     return WRITERS.get(engine, {"supported": False, "why": "unknown engine"})
 
 
+class WouldClobber(Exception):
+    """Rendering would drop a line the file already had.
+
+    Raised rather than returned because there is no sensible way to continue:
+    the only safe action is to leave the file alone. A caller that swallowed
+    this and wrote anyway would be doing the exact thing the exception exists
+    to prevent.
+    """
+
+
+def dropped_lines(engine, existing, text):
+    """Lines present in `existing` that our output does not carry.
+
+    Our block and stray `seta serverN` lines are *supposed* to disappear —
+    they are ours to replace. Anything else going missing is a bug.
+
+    This deliberately does NOT call `_strip_block`. Reusing it would make the
+    check agree with the very function it is checking: if the strip rule ever
+    became too greedy, both sides would drop the same lines and the safety net
+    would report nothing. So "ours" is recomputed here from first principles —
+    inside the markers, or matching the engine's favourite-line pattern.
+    """
+    spec = writer_for(engine)
+    if not spec.get("supported"):
+        return []
+    seta_re = _SETA_RE.get(engine)
+    have = set(text.splitlines())
+    lost, inside = [], False
+    for line in existing.splitlines():
+        stripped = line.strip()
+        if stripped == BEGIN:
+            inside = True
+            continue
+        if stripped == END:
+            inside = False
+            continue
+        if inside or not stripped:
+            continue
+        if seta_re and seta_re.match(stripped):
+            continue                      # a favourite line: ours to replace
+        if line not in have:
+            lost.append(line)
+    return lost
+
+
 def render(engine, servers, existing=""):
-    """Return (text, hash) for this engine, or (None, reason) if unsupported."""
+    """Return (text, hash) for this engine, or (None, reason) if unsupported.
+
+    Raises WouldClobber if the merge would lose something the file already
+    had. This is a belt-and-braces check on top of the caller refusing to
+    write when it could not read: the destructive outcome is losing somebody
+    else's settings, and that is worth checking twice rather than trusting the
+    strip regex to stay correct forever.
+    """
     spec = writer_for(engine)
     if not spec.get("supported"):
         return None, spec.get("why", "unsupported")
     text = spec["fn"](servers, existing, spec["slots"])
+    lost = dropped_lines(engine, existing, text)
+    if lost:
+        raise WouldClobber(
+            f"{engine}: merge would drop {len(lost)} line(s) that are not "
+            f"ours, e.g. {lost[0].strip()!r} — refusing to render")
     return text, content_hash(text)
 
 
