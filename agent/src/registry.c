@@ -98,6 +98,88 @@ static void add_reg_value(json_t *j, HKEY hkey, const char *name)
  * If value specified: read single value
  * If no value: enumerate all values and subkeys
  */
+/* ---------- argument parsing ----------
+ *
+ * The registry commands used to parse their arguments with
+ * sscanf("%31s %511s ...").  %s stops at whitespace, so ANY key path with a
+ * space in it was silently truncated at the space:
+ *
+ *   REGREAD HKLM SOFTWARE\Microsoft\Windows NT\CurrentVersion
+ *     -> path = "SOFTWARE\Microsoft\Windows", value = "NT\CurrentVersion"
+ *
+ * which fails with "Cannot open key" - indistinguishable from the key not
+ * existing.  "Windows NT" is one of the most common paths on the system, and
+ * this cost real time: a staged game's install.reg was nearly reported as
+ * never merged because the key it wrote could not be read back.
+ *
+ * A path may now be QUOTED to say exactly where it ends, which is the
+ * unambiguous form and the one to prefer:
+ *
+ *   REGREAD HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" ProductName
+ *
+ * Unquoted input still works, and REGREAD additionally recovers the common
+ * unquoted case by trying the whole remainder as a path first - see
+ * handle_regread().
+ */
+
+/* Copy one argument out of *pp into buf.  A leading '"' takes everything up to
+ * the closing quote (so the argument may contain spaces); otherwise it takes
+ * one whitespace-delimited token.  Advances *pp past it.  Returns 1 if
+ * anything was read, and sets *was_quoted when the quoted form was used. */
+static int reg_next_arg(const char **pp, char *buf, size_t cap, int *was_quoted)
+{
+    const char *p = *pp;
+    size_t n = 0;
+
+    if (was_quoted) *was_quoted = 0;
+    while (*p == ' ' || *p == '\t') p++;
+    if (!*p) { *pp = p; buf[0] = '\0'; return 0; }
+
+    if (*p == '"') {
+        p++;
+        if (was_quoted) *was_quoted = 1;
+        while (*p && *p != '"') {
+            if (n + 1 < cap) buf[n++] = *p;
+            p++;
+        }
+        if (*p == '"') p++;
+    } else {
+        while (*p && *p != ' ' && *p != '\t') {
+            if (n + 1 < cap) buf[n++] = *p;
+            p++;
+        }
+    }
+    buf[n] = '\0';
+    *pp = p;
+    return 1;
+}
+
+/* Everything left, with surrounding whitespace and optional quotes removed. */
+static void reg_rest_arg(const char *p, char *buf, size_t cap)
+{
+    size_t n;
+
+    while (*p == ' ' || *p == '\t') p++;
+    safe_strncpy(buf, p, cap);
+
+    n = strlen(buf);
+    while (n > 0 && (buf[n-1] == ' ' || buf[n-1] == '\t' ||
+                     buf[n-1] == '\r' || buf[n-1] == '\n'))
+        buf[--n] = '\0';
+
+    if (buf[0] == '"' && n >= 2 && buf[n-1] == '"') {
+        memmove(buf, buf + 1, n - 2);
+        buf[n-2] = '\0';
+    }
+}
+
+static void reg_slashes(char *path)
+{
+    char *p;
+    for (p = path; *p; p++)
+        if (*p == '/') *p = '\\';
+}
+
 void handle_regread(SOCKET sock, const char *args)
 {
     char root_str[32], path[512], value_name[256];
@@ -107,24 +189,70 @@ void handle_regread(SOCKET sock, const char *args)
     int nargs;
 
     value_name[0] = '\0';
-    nargs = sscanf(args, "%31s %511s %255s", root_str, path, value_name);
-    if (nargs < 2) {
-        send_error_response(sock, "REGREAD requires <root> <path> [value]");
-        return;
-    }
-
-    /* Convert forward slashes to backslashes in path */
+    path[0] = '\0';
     {
-        char *p;
-        for (p = path; *p; p++)
-            if (*p == '/') *p = '\\';
+        const char *p = args ? args : "";
+        int quoted = 0;
+
+        if (!reg_next_arg(&p, root_str, sizeof(root_str), NULL) ||
+            !reg_next_arg(&p, path, sizeof(path), &quoted)) {
+            send_error_response(sock, "REGREAD requires <root> <path> [value]");
+            return;
+        }
+        nargs = 2;
+
+        root = parse_root_key(root_str);
+        if (!root) {
+            send_error_response(sock, "Invalid registry root");
+            return;
+        }
+
+        if (quoted) {
+            /* The quotes said exactly where the path ended. */
+            reg_next_arg(&p, value_name, sizeof(value_name), NULL);
+        } else {
+            /* Unquoted, and there is more input. It is either a value name or
+             * the rest of a path containing spaces ("Windows NT\..."), and we
+             * cannot tell by looking. Ask the registry: try the WHOLE
+             * remainder as a path first, and only fall back to treating the
+             * last token as a value name. Trying the long form first is what
+             * makes `REGREAD HKLM SOFTWARE\...\Windows NT\CurrentVersion`
+             * work without quotes. */
+            char rest[512];
+            reg_rest_arg(p, rest, sizeof(rest));
+            if (rest[0]) {
+                char joined[512];
+                HKEY probe;
+
+                _snprintf(joined, sizeof(joined), "%s %s", path, rest);
+                joined[sizeof(joined)-1] = '\0';
+                reg_slashes(joined);
+
+                if (RegOpenKeyExA(root, joined, 0, KEY_READ, &probe)
+                        == ERROR_SUCCESS) {
+                    RegCloseKey(probe);
+                    safe_strncpy(path, joined, sizeof(path));
+                    /* whole thing was the path; no value name */
+                } else {
+                    /* Split the remainder at its LAST space: everything before
+                     * belongs to the path, the final token is the value. */
+                    char *sp = strrchr(rest, ' ');
+                    if (sp) {
+                        *sp = '\0';
+                        _snprintf(joined, sizeof(joined), "%s %s", path, rest);
+                        joined[sizeof(joined)-1] = '\0';
+                        safe_strncpy(path, joined, sizeof(path));
+                        safe_strncpy(value_name, sp + 1, sizeof(value_name));
+                    } else {
+                        safe_strncpy(value_name, rest, sizeof(value_name));
+                    }
+                    nargs = 3;
+                }
+            }
+        }
     }
 
-    root = parse_root_key(root_str);
-    if (!root) {
-        send_error_response(sock, "Invalid registry root");
-        return;
-    }
+    reg_slashes(path);
 
     if (RegOpenKeyExA(root, path, 0, KEY_READ, &hkey) != ERROR_SUCCESS) {
         char err[256];
@@ -234,17 +362,23 @@ void handle_regdelete(SOCKET sock, const char *args)
     HKEY root;
     LONG rc;
 
-    if (sscanf(args, "%31s %511s", root_str, path) < 2) {
-        send_error_response(sock, "REGDELETE requires <root> <path>");
-        return;
+    {
+        /* Unlike REGREAD there is nothing after the path, so the whole
+         * remainder IS the path - no ambiguity, spaces and all. */
+        const char *p = args ? args : "";
+
+        if (!reg_next_arg(&p, root_str, sizeof(root_str), NULL)) {
+            send_error_response(sock, "REGDELETE requires <root> <path>");
+            return;
+        }
+        reg_rest_arg(p, path, sizeof(path));
+        if (!path[0]) {
+            send_error_response(sock, "REGDELETE requires <root> <path>");
+            return;
+        }
     }
 
-    /* Convert forward slashes to backslashes */
-    {
-        char *p;
-        for (p = path; *p; p++)
-            if (*p == '/') *p = '\\';
-    }
+    reg_slashes(path);
 
     root = parse_root_key(root_str);
     if (!root) {
@@ -290,33 +424,25 @@ void handle_regwrite(SOCKET sock, const char *args)
     HKEY root, hkey;
     DWORD type, disposition;
 
-    if (sscanf(args, "%31s %511s %255s %31s",
-               root_str, path, name, type_str) < 4) {
-        send_error_response(sock, "REGWRITE requires <root> <path> <name> <type> <data>");
-        return;
-    }
-
-    /* Find start of data (after 4th space-separated token) */
     {
-        const char *p = args;
-        int spaces = 0;
-        while (*p && spaces < 4) {
-            if (*p == ' ') {
-                spaces++;
-                while (*p == ' ') p++;
-            } else {
-                p++;
-            }
+        /* <name> <type> <data> follow the path, so an UNQUOTED path containing
+         * spaces is genuinely ambiguous - quote it:
+         *   REGWRITE HKLM "SOFTWARE\...\Windows NT\CurrentVersion" X REG_SZ v
+         * Unquoted input parses exactly as it always did. */
+        const char *p = args ? args : "";
+
+        if (!reg_next_arg(&p, root_str, sizeof(root_str), NULL) ||
+            !reg_next_arg(&p, path,     sizeof(path),     NULL) ||
+            !reg_next_arg(&p, name,     sizeof(name),     NULL) ||
+            !reg_next_arg(&p, type_str, sizeof(type_str), NULL)) {
+            send_error_response(sock, "REGWRITE requires <root> <path> <name> <type> <data>");
+            return;
         }
+        while (*p == ' ' || *p == '\t') p++;
         data_start = p;
     }
 
-    /* Convert forward slashes */
-    {
-        char *p;
-        for (p = path; *p; p++)
-            if (*p == '/') *p = '\\';
-    }
+    reg_slashes(path);
 
     root = parse_root_key(root_str);
     if (!root) {
