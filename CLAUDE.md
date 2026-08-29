@@ -550,6 +550,38 @@ titles need `fullscreen=true` in the title's own `dosbox*.conf`.
 
 **Multiplayer is part of "working"** — see the LAN/IPX rules below.
 
+## Never Put Parentheses in a Generated Filename (REQUIRED)
+
+**A `.bat` whose filename contains `(` or `)` cannot be launched through the
+agent.** `EXEC cmd /c start "" /D "<dir>" "Host Redneck Rampage (LAN).bat"`
+loses its quoting by the time `cmd` parses it and fails on `'...\Host'`.
+Desktop shortcuts are unaffected, so the file looks perfectly good to a person
+double-clicking it — **it only bites automation**, which is exactly why it
+survives review.
+
+**This is the SECOND time this character has cost us time.** `onboard.cmd` had
+the same problem with game NAMEs containing parentheses — `(BC Romania)`,
+`(fleet build)` — where the `)` in an expanded variable closed a `( ... )` block
+early and cmd aborted with `- was unexpected at this time.`, leaving onboarding
+silently unfinished (no theme, no Onboarded flag). See the onboarding section
+above.
+
+So the rule is now general, not per-script:
+
+- **Any filename this project GENERATES — a launcher `.bat`, a staged shortcut
+  target, a `launch.txt` entry — must avoid `(` and `)` entirely.** Use a dash:
+  `Host Redneck Rampage - LAN.bat`, not `Host Redneck Rampage (LAN).bat`.
+- **Display names in `launch.txt` may still contain parentheses** — that column
+  is a label, not a path. It is the *filename* that must stay clean.
+- Where a name is not ours to choose (a vendor's own exe, an existing game
+  directory), quote defensively and **test the launch through the agent**, not
+  just from a shortcut.
+
+The same applies to `taskkill`: `taskkill /f /im "Descent 3.exe"` needs the
+quotes, and **without them it silently kills nothing** — after which the
+previous game is still on screen and the next screenshot is attributed to the
+wrong title.
+
 ## LAN / TCP Multiplayer Is Part of a Staged Game (REQUIRED)
 
 **User directive, 2026-08-29:** games that only offer IPX out of the box must be
