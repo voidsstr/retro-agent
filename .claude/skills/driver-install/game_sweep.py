@@ -159,7 +159,21 @@ async def act_on(c, item, art, flavor):
 async def fix_ut99(c, sys_dir, apply):
     """switch UT99 to the native Glide renderer (correct + fastest on 3dfx)."""
     ini = sys_dir + r"\UnrealTournament.ini"
-    txt = await rc(c, 'EXEC cmd /c type "%s" 2>nul' % ini, t=30)
+    # DOWNLOAD, not `EXEC cmd /c type`. This function rewrites the WHOLE file
+    # from what it read, so a short read is a truncated ini. The shell path
+    # goes through cmd.exe's captured output and can truncate a large file;
+    # the "RenderDevice=" guard below catches an EMPTY read but happily passes
+    # a truncated one that still contains the string, and then uploads it back
+    # over a complete file. DOWNLOAD returns the exact bytes with a real status
+    # code. (Same failure family as the favourites agent's clobber bug,
+    # 2026-08-29 — see retro-3dfx/FINDINGS.md.)
+    try:
+        raw = await c.command_binary("DOWNLOAD %s" % ini, timeout=60)
+        txt = raw.decode("latin-1", "replace")
+    except Exception:
+        # Could not read it. That is NOT "the file is empty" — bail out rather
+        # than rewrite a file we never saw.
+        return None
     if "RenderDevice=" not in txt:
         return None
     if "RenderDevice=GlideDrv.GlideRenderDevice" in txt and \
