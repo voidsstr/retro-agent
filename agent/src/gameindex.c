@@ -109,6 +109,8 @@ static const game_sig_t g_sigs[] = {
     { "quake3",     "Quake III Arena",        "quake3.exe",           "baseq3",   "q3" },
     { "quake3",     "Quake III Arena",        "quake3.exe",           NULL,       "q3" },
     { "ioquake3",   "ioquake3",               "ioquake3.exe",         NULL,       "q3" },
+    /* the win32 build in the fleet library keeps upstream's .x86 suffix */
+    { "ioquake3",   "ioquake3",               "ioquake3.x86.exe",     NULL,       "q3" },
     { "openarena",  "OpenArena",              "openarena.exe",        NULL,       "q3" },
     { "openarena",  "OpenArena",              "oa_ded.exe",           NULL,       "q3" },
     { "wolfmp",     "Return to Castle Wolfenstein", "WolfMP.exe",     NULL,       "rtcw" },
@@ -163,6 +165,42 @@ static const game_sig_t g_sigs[] = {
     { "sam",        "Serious Sam",            "SeriousSam.exe",       NULL,       "-" },
     { "nfs3",       "Need for Speed III",     "nfs3.exe",             NULL,       "-" },
     { "3dmark2000", "3DMark2000",             "3DMark2000.exe",       NULL,       "-" },
+
+    /*
+     * The fleet's staged library (\\192.168.1.122\files\Files\Games-Library).
+     * Every title there lands at C:\Games\<Title> with a desktop shortcut, and
+     * before these rows only ten of the twenty-nine were recognised - the rest
+     * were invisible to the host, so it could not set favourites or even say
+     * what a box had. None of them has a server browser we can populate, hence
+     * engine "-": being DETECTED is the point.
+     *
+     * The exe chosen for each is the most distinctive one in the title's own
+     * directory, not necessarily the one the shortcut runs. Two rules were
+     * applied: never pick a name generic enough to collide (Tiberian Sun is
+     * matched on SUN.EXE, not GAME.EXE; Red Alert 2 on Ra2.exe/gamemd.exe, not
+     * game.exe; Descent 3 on "Descent 3.exe", not main.exe), and never depend
+     * on a launcher .bat, which is ours and could be renamed.
+     */
+    { "avp",        "Aliens versus Predator", "avp.exe",            NULL,       "-" },
+    { "carmageddon","Carmageddon",            "MAINPROG.EXE",       NULL,       "-" },
+    { "carmageddon2","Carmageddon 2",         "carma2.exe",         NULL,       "-" },
+    { "descent",    "Descent",                "DESCENTR.EXE",       NULL,       "-" },
+    { "descent2",   "Descent II",             "DESCENTW.EXE",       NULL,       "-" },
+    { "descent3",   "Descent 3",              "Descent 3.exe",      NULL,       "-" },
+    { "jk",         "Jedi Knight: Dark Forces II", "JK.EXE",        NULL,       "-" },
+    { "jkmots",     "Jedi Knight: Mysteries of the Sith", "JKM.EXE", NULL,      "-" },
+    { "redfaction", "Red Faction",            "rf.exe",             NULL,       "-" },
+    { "redneck",    "Redneck Rampage",        "RR.EXE",             NULL,       "-" },
+    { "shogo",      "Shogo: Mobile Armor Division", "Shogo.exe",    NULL,       "-" },
+    { "sin",        "SiN Gold",               "sin.exe",            NULL,       "-" },
+    { "sof",        "Soldier of Fortune",     "SoF.exe",            NULL,       "-" },
+    { "sshock",     "System Shock",           "sshock.exe",         NULL,       "-" },
+    { "sshock2",    "System Shock 2",         "shock2.exe",         NULL,       "-" },
+    { "thief",      "Thief: The Dark Project","THIEF.EXE",          NULL,       "-" },
+    { "thief2",     "Thief II: The Metal Age","Thief2.exe",         NULL,       "-" },
+    { "tibsun",     "C&C: Tiberian Sun",      "SUN.EXE",            NULL,       "-" },
+    { "ra2",        "C&C: Red Alert 2",       "Ra2.exe",            NULL,       "-" },
+    { "ra2yr",      "Red Alert 2: Yuri's Revenge", "gamemd.exe",    NULL,       "-" },
     { NULL,         NULL,                     NULL,                   NULL,       NULL }
 };
 

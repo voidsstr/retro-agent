@@ -87,6 +87,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 
 | Fix | Component | Test |
 |-----|-----------|------|
+| **GAMEINDEX saw only 10 of the 29 staged library titles** (2026-08-29) | agent C (gameindex.c `g_sigs[]`) | `python/test_gameindex_staged_library.py` |
 | 0.1.2 SSE float→ubyte color clamp (`fx_pack_ub`) | MesaFX ICD | `native/test_fx_pack_ub.c` |
 | transport XOR keystream (involution + derivation) | agent C (crypto.c) | `native/test_crypto.c` |
 | discovery packet wire format | Python client | `test_discovery.py` |
