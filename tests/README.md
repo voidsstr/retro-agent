@@ -169,6 +169,9 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | Voodoo 2 is `VEN_121A&DEV_0002`; `VEN_1102&DEV_0002` is a Creative SB Live! (2026-08-28) | `scripts/voodoo2/install_voodoo2.py` | `python/test_voodoo2_install.py` |
 | Voodoo 2 on XP: fxgpio/fxptl/Ntremap must end at `Start=1` (system), not the INF's auto (2026-08-28) | `scripts/voodoo2/install_voodoo2.py` | `python/test_voodoo2_install.py` |
 | `REGWRITE` is 5 tokens (`root path name type data`); the 4-token form creates a subkey and answers OK (2026-08-28) | `scripts/voodoo2/install_voodoo2.py` | `python/test_voodoo2_install.py` |
+| Voodoo 2 SLI matches on `fbiBoardID`, NOT RAM size — an 8MB+12MB pair runs as 2x8MB (2026-08-29) | `scripts/voodoo2/README.md` | `python/test_voodoo2_install.py` |
+| `SUBSYS_00000000` is universal to every Voodoo 2 — the chip has no subsystem registers (2026-08-29) | `scripts/voodoo2/README.md` | `python/test_voodoo2_install.py` |
+| `-mfpmath=387` alone does NOT remove SSE; `-march` must drop too (2026-08-29) | `voodoo-cleanroom/build-stack.sh` | `python/test_voodoo2_cvg_stack.py` |
 | cvg relink must glob shared `swlibs/newpci/pcilib` objects or it emits NO dll (2026-08-29) | `voodoo-cleanroom/build-stack.sh` | `python/test_voodoo2_cvg_stack.py` |
 | `GL_SGIS_multitexture` stays opt-in — advertising it hangs the Q2 timedemo on Voodoo 2 (2026-08-29) | `voodoo-cleanroom/patches/mesafx-sgis-multitexture.patch` | `python/test_voodoo2_cvg_stack.py` |
 

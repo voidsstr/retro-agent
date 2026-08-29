@@ -55,15 +55,58 @@ Symptom if you skip it: the driver reports as installed, and nothing renders.
 
 ## SLI
 
-- **The cards must match.** The official 3dfx drivers do **not** support
-  mixed/mismatched SLI — different manufacturers and/or different RAM size
-  (8 MB vs 12 MB) will not run in SLI. Use FastVoodoo2 (9x only) for a
-  mismatched pair, or fit matching cards.
+- **What the driver ACTUALLY checks** (read from 3dfx's own source,
+  `glide3x/cvg/init/sli.c:87-96`) is three things, and RAM size is not one of
+  them:
+
+  | checked | notes |
+  |---|---|
+  | `numberTmus` | both must have 2 — universal on Voodoo 2 |
+  | `fbiBoardID` | the PCB design strap, `(fbiInit5 >> 5) & 0xf` |
+  | `fbiVideoStruct` | video/DAC configuration |
+
+  The `fbiMemSize` and `tmuMemSize` comparisons are **commented out**, in 3dfx's
+  own 1999 initial checkin, with the note that the init code normalises to the
+  smaller board. So **an 8 MB + 12 MB pair does SLI**, running as 2 × 8 MB. The
+  widely-repeated "different RAM blocks SLI" is false.
+
+  "Same brand" is a proxy, not the rule: different vendors usually strap a
+  different `fbiBoardID`, which is what actually fails. Two differently-badged
+  cards on the same reference design will pair fine.
+
+- **A mismatched board ID can be forced — but only with our driver.**
+  `SSTV2_MISMATCHED_SLI` bypasses the `fbiBoardID` check. Verified by `strings`:
+  **present** in `voodoo-cleanroom/out/glide3x_cvg.dll` (it comes from the
+  koolsmoky/sezero lineage), **absent** from the stock 3dfx 3.03.00
+  `glide3x.dll` the fleet installs. `fbiVideoStruct` must still match.
 - **Fit one card first**, install, verify it renders, power off, *then* add the
   second card and the SLI ribbon. Installing both at once makes a driver fault
   indistinguishable from a cabling fault.
 - **Cabling:** 2D card VGA out → Voodoo 2 #1 passthrough **in**; Voodoo 2 #1
   **out** → monitor. The second card gets no VGA connection, only the ribbon.
+- **Identify a board before buying its partner.** Set `SSTV2_INITDEBUG=1` and
+  `SSTV2_INITDEBUG_FILE=C:\\dac.txt`, then run *any* Glide program — the stock
+  retail `glide3x.dll` has this compiled in. It dumps the board's real identity:
+
+  ```
+  sst1DeviceInfo: Board ID: 9
+  sst1DeviceInfo: FbiConfig:0x2, TmuConfig:0xca54
+  sst1DeviceInfo: FBI Revision:4, TMU Revison:4, Num TMUs:2
+  sst1DeviceInfo: FBI Memory:4, TMU[0] Memory:4, TMU[1] Memory:4
+  sst1DeviceInfo: Dac Type: ICS ICS5342
+  sst1DeviceInfo: SLI Detected:0
+  ```
+
+  > **The PCI subsystem ID is useless here.** The Voodoo 2 "Chuck" FBI chip has
+  > no subsystem registers at all (Spec r1.16 §6 marks config `0x14-0x3b`
+  > Reserved), and no expansion ROM, so **every** Voodoo 2 reports
+  > `SUBSYS_00000000&REV_02` — Creative, Diamond, STB, Canopus, reference,
+  > whitebox alike. It identifies nothing. The **brand is not determinable in
+  > software**; read the PCB silkscreen (3dfx reference boards carry a
+  > `111-xxxx-xxx` part number). Known `fbiBoardID` values from 3dfx's source:
+  > `0x2` = 4400 8-layer bringup, `0x3` = early 4-layer 4220, `0x10` =
+  > `CANOPUS_ID`. Everything else, including 9, is unnamed.
+
 - `VoodooControl 1.82b` (`…\3DFX\Utilities\voodoocontrol_v182b\setup.exe`)
   exposes SLI state and per-game tweaks.
 

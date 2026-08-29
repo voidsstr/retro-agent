@@ -131,3 +131,35 @@ def test_install_reads_back_instead_of_trusting_ok():
     fix = src.split("THE FIX")[1]
     assert "service_start_types(conn)" in fix, "must re-read the values after writing"
     assert "WARNING" in fix, "must warn when a service did not reach Start=1"
+
+
+def _doc(name):
+    root = os.path.abspath(os.path.join(HERE, "..", ".."))
+    return open(os.path.join(root, name)).read()
+
+
+def test_sli_doc_does_not_claim_ram_size_blocks_sli():
+    """3dfx's own SLI check does NOT compare memory size.
+
+    glide3x/cvg/init/sli.c:87-96 compares numberTmus, fbiBoardID and
+    fbiVideoStruct; the fbiMemSize/tmuMemSize comparisons are commented out in
+    the 1999 initial checkin, with a note that init normalises to the smaller
+    board. So an 8MB + 12MB pair DOES SLI, as 2x8MB. An earlier revision of this
+    README asserted the opposite and would have sent someone shopping for the
+    wrong thing.
+    """
+    d = _doc("scripts/voodoo2/README.md")
+    assert "fbiBoardID" in d, "the SLI section must name the field actually compared"
+    assert "8 MB + 12 MB pair does SLI" in d or "does SLI" in d, \
+        "the README must state that mismatched RAM still SLIs"
+    assert "different manufacturers and/or different RAM size" not in d, \
+        "the retracted claim must not reappear"
+
+
+def test_subsystem_id_is_documented_as_useless():
+    """SUBSYS_00000000 is universal to every Voodoo 2 — the chip has no
+    subsystem registers. Inferring a brand from it is the expensive mistake."""
+    d = _doc("scripts/voodoo2/README.md")
+    assert "SUBSYS_00000000" in d
+    assert "not determinable in software" in d or "identifies nothing" in d, \
+        "the README must say the brand cannot be read in software"

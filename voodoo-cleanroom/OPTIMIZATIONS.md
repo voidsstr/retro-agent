@@ -7,6 +7,8 @@ SSE2**; Voodoo3 AGP, XP SP3) — what shipped, what was tested-and-rejected, the
 testing method, and the current state.
 
 Companion docs:
+- `OPTIMIZATIONS-VOODOO2.md` — the **Voodoo 2** lane on .171 (P4 + 12MB V2):
+  its own baseline, benchmarks and negatives. Different card, different bar.
 - `CHANGELOG.md` — per-version (0.1.N) narrative of each change.
 - `OPTIMIZATION-RESEARCH.md` — the 2026-07-23 deep-research + profiling write-up.
 - `DEBUGGING-NOTES.md` — the driver bring-up (crash) trail.
