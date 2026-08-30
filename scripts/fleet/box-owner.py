@@ -61,6 +61,9 @@ NOT_A_GAME = {
     "msmsgs.exe", "core.exe", "adeck.exe", "bdaremote.exe", "raid_tool.exe",
     "hde.exe", "dumprep.exe", "dwwin.exe", "ssstars.scr", "logon.scr",
     "3dfxman.exe", "wmiadap.exe", "userinit.exe", "spupdsvc.exe",
+    # Seen misreported as games on the first live fleet sweep:
+    "cmd.exe", "dllhost.exe", "nasnavi.exe", "nassche.exe", "smax4pnp.exe",
+    "wmiprvse.exe", "mdm.exe", "jusched.exe", "issch.exe", "realsched.exe",
 }
 
 
@@ -69,15 +72,45 @@ def _secs(line):
     return None if not m else int(m.group(1)) * 3600 + int(m.group(2)) * 60 + int(m.group(3))
 
 
-async def inspect(ip, window, tail):
+class ConnectFailed(Exception):
+    """Could not reach the agent at all -- distinct from a check that broke."""
+
+
+async def _connect(ip, timeout):
+    """Retry with a rising timeout. A LOADED BOX IS NOT A DEAD BOX.
+
+    .171 has always answered slowly, and on the first live sweep .240 read
+    "unreachable" at 10s while a plain PING succeeded seconds later -- it was
+    simply busy running a game. Reporting a healthy machine as unreachable is
+    worse than reporting nothing: it sends someone to diagnose a box that is
+    fine, and it is exactly the false-negative this project keeps paying for.
+    """
+    last = None
+    for t in (timeout, timeout * 2):
+        try:
+            c = RetroConnection(ip, 9898)
+            await c.connect(SECRET, timeout=t)
+            return c
+        except Exception as e:
+            last = e
+    raise ConnectFailed("no agent on %s:9898" % ip) from last
+
+
+async def inspect(ip, window, tail, timeout):
     out = {"ip": ip, "reachable": False, "games": [], "modals": [],
            "recent": [], "mutating": 0, "verdict": "unknown"}
-    c = RetroConnection(ip, 9898)
-    await c.connect(SECRET, timeout=10.0)
+    c = await _connect(ip, timeout)
     out["reachable"] = True
     try:
-        _, d = await c.send_command('EXEC cmd /c type %s | find /i "CMD"' % LOG)
-        lines = [l.rstrip() for l in d.decode("ascii", "replace").splitlines() if l.strip()]
+        # DOWNLOAD the log and filter HERE, rather than `type ... | find` on the
+        # box. That log is ~400 KB and grows; shelling out to read all of it
+        # through cmd on a machine that is busy running a game routinely
+        # outran the timeout, and because every failure in this function used
+        # to surface as "UNREACHABLE", a slow log read looked exactly like a
+        # dead box. DOWNLOAD is a binary transfer and costs a fraction of it.
+        raw = await c.command_binary("DOWNLOAD %s" % LOG)
+        lines = [l.rstrip() for l in raw.decode("ascii", "replace").splitlines()
+                 if "CMD" in l]
         lines = [l for l in lines if not NOISE.search(l)][-tail:]
 
         newest = next((_secs(l) for l in reversed(lines) if _secs(l) is not None), None)
@@ -121,18 +154,36 @@ def main():
                     help="seconds of log history to consider (default 300)")
     ap.add_argument("--tail", type=int, default=400,
                     help="how many CMD lines to scan back through")
+    ap.add_argument("--timeout", type=float, default=15.0,
+                    help="initial connect timeout; retried at double this "
+                         "before giving up (default 15). A loaded box answers "
+                         "slowly and must not read as a dead one.")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
 
     try:
-        r = asyncio.run(inspect(a.ip, a.window, a.tail))
-    except Exception as e:
+        r = asyncio.run(inspect(a.ip, a.window, a.tail, a.timeout))
+    except ConnectFailed as e:
+        # Only a failure to CONNECT may be reported as unreachable. Anything
+        # else is a check that broke on a box that is answering fine, and
+        # conflating the two sends someone to diagnose a healthy machine.
         if a.json:
             print(json.dumps({"ip": a.ip, "reachable": False,
-                              "error": type(e).__name__, "verdict": "unreachable"}))
+                              "error": type(e.__cause__ or e).__name__,
+                              "verdict": "unreachable"}))
         else:
-            print("%s: UNREACHABLE (%s)" % (a.ip, type(e).__name__))
+            print("%s: UNREACHABLE (%s)" % (a.ip, type(e.__cause__ or e).__name__))
         return 2
+    except Exception as e:
+        if a.json:
+            print(json.dumps({"ip": a.ip, "reachable": True,
+                              "error": "%s: %s" % (type(e).__name__, e),
+                              "verdict": "check-failed"}))
+        else:
+            print("%s: CHECK FAILED (%s: %s)" % (a.ip, type(e).__name__, e))
+            print("  The box ANSWERED -- this is the check breaking, not the "
+                  "machine being down. Do not report it as an outage.")
+        return 3
 
     if a.json:
         print(json.dumps(r, indent=1))
