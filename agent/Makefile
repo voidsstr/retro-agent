@@ -53,6 +53,13 @@ SOURCES = $(SRCDIR)/compat.c \
 
 OBJECTS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SOURCES))
 
+# Icon resource. Without it retro_agent.exe carries NO resource directory, so
+# the desktop shortcut the agent places for itself gets Windows' generic
+# application icon - and on a fully provisioned fleet desktop two of the
+# generic icons were ours rather than a game's. windres is already the MinGW
+# toolchain's resource compiler; the .res object links like any other.
+RESOBJ = $(OBJDIR)/retro_agent_res.o
+
 # Win98SE compatible flags.
 #
 # GENUINE-PENTIUM-1 SAFETY (no CMOV): -march=i586 keeps OUR code CMOV-free,
@@ -102,12 +109,15 @@ all: $(OBJDIR) $(TARGET)
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
-$(TARGET): $(OBJECTS)
+$(TARGET): $(OBJECTS) $(RESOBJ)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 	@echo "Built $(TARGET) - $$(stat -c%s $(TARGET) 2>/dev/null || stat -f%z $(TARGET)) bytes"
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(RESOBJ): res/retro_agent.rc res/retro_agent.ico | $(OBJDIR)
+	$(WINDRES) -I res -i res/retro_agent.rc -O coff -o $@
 
 # Compat object must be linked first to provide stubs before CRT
 $(OBJDIR)/compat.o: $(SRCDIR)/compat.c | $(OBJDIR)

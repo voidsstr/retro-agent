@@ -1888,9 +1888,14 @@ static void gs_make_game_shortcut(const char *dst_dir, const char *title)
 #define LVM_FIRST_           0x1000
 #define LVM_GETITEMCOUNT_    (LVM_FIRST_ + 4)
 #define LVM_SETITEMPOSITION_ (LVM_FIRST_ + 15)
+#define LVM_SETEXSTYLE_      (LVM_FIRST_ + 54)
+#define LVM_GETEXSTYLE_      (LVM_FIRST_ + 55)
 #define FCIDM_SHVIEW_AUTOARRANGE_ 0x7031
 #ifndef LVS_AUTOARRANGE
 #define LVS_AUTOARRANGE 0x0100
+#endif
+#ifndef LVS_EX_SNAPTOGRID
+#define LVS_EX_SNAPTOGRID 0x00080000
 #endif
 
 typedef struct { int x, y, cell_w, cell_h, cols, rows; } gs_bay_t;
@@ -1972,6 +1977,30 @@ static void gs_arrange_icons(void)
             if (style & LVS_AUTOARRANGE)
                 log_msg(LOG_GS, "auto-arrange still on after the toggle - "
                                 "icons may not stay where they are put");
+        }
+    }
+
+    /* "Align icons to grid" is a SECOND, independent setting, and clearing
+     * auto-arrange does nothing about it. While LVS_EX_SNAPTOGRID is set the
+     * shell ROUNDS every position we ask for to its own grid, whose row pitch
+     * is the icon spacing PLUS the label - measured at 103 px on a 1920x1080
+     * box - so a bay drawn with 80 px cells gets icons 103 px apart and they
+     * walk out of their slots down the column. Verified by A/B on .246: the
+     * identical arrange gave 103 px row pitch with the flag set and exactly
+     * 80 px with it cleared.
+     *
+     * Windows enables align-to-grid by default, so this affected every box,
+     * not one. Unlike auto-arrange this is not a toggle: the message takes a
+     * (mask, value) pair, so passing value 0 clears it deterministically and
+     * cannot turn it on. */
+    {
+        DWORD exst = (DWORD)SendMessageA(lv, LVM_GETEXSTYLE_, 0, 0);
+        if (exst & LVS_EX_SNAPTOGRID) {
+            SendMessageA(lv, LVM_SETEXSTYLE_, LVS_EX_SNAPTOGRID, 0);
+            exst = (DWORD)SendMessageA(lv, LVM_GETEXSTYLE_, 0, 0);
+            log_msg(LOG_GS, "align-to-grid was on - cleared it so icons land "
+                            "in the bay's cells (now %s)",
+                    (exst & LVS_EX_SNAPTOGRID) ? "STILL ON" : "off");
         }
     }
 

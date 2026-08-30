@@ -1,0 +1,2 @@
+/* Icon resource for retro_chat.exe - see agent/res/retro_agent.rc. */
+1 ICON "../res/retro_chat.ico"

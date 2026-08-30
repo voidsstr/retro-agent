@@ -139,3 +139,64 @@ def test_createthread_passes_a_thread_id_pointer():
     assert "ERROR_INVALID_PARAMETER" in body, (
         "the failure message must name the real cause rather than guess at "
         "memory - that guess cost days")
+
+
+# --------------------------------------------------------- icon resource ----
+#
+# 2026-08-29 (.246 desktop icon review). retro_agent.exe and retro_chat.exe had
+# NO resource directory at all, so the two desktop shortcuts the agent places
+# for itself - "Retro Agent" and "Retro Chat", from gs_place_tool_shortcuts() -
+# showed Windows' generic application icon. On a fully provisioned fleet desktop
+# two of the generic icons were therefore OURS, not a game's, which sent the
+# icon audit hunting through the staged library for a cause that was never
+# there. An icon costs one windres step and removes that whole false trail.
+
+RES = os.path.abspath(os.path.join(SRC, "..", "res"))
+AGENT_DIR = os.path.abspath(os.path.join(SRC, ".."))
+
+
+def _text(path):
+    with open(path, "r", errors="replace") as f:
+        return f.read()
+
+
+def test_both_icon_files_exist_and_carry_the_small_sizes():
+    for name in ("retro_agent.ico", "retro_chat.ico"):
+        p = os.path.join(RES, name)
+        assert os.path.exists(p), "%s is missing - the shortcut goes generic" % name
+        with open(p, "rb") as f:
+            head = f.read(6)
+        assert head[0:4] == b"\x00\x00\x01\x00", "%s is not an ICO" % name
+        count = head[4] | (head[5] << 8)
+        assert count >= 3, (
+            "%s has only %d image(s); ship at least 16/32/48 so the desktop, "
+            "the taskbar and the alt-tab list all have a crisp size" % (name, count)
+        )
+
+
+def test_the_agent_links_its_icon_resource():
+    mk = _text(os.path.join(AGENT_DIR, "Makefile"))
+    assert "WINDRES" in mk and "retro_agent.rc" in mk, \
+        "the agent Makefile must compile res/retro_agent.rc with windres"
+    assert re.search(r"\$\(TARGET\):[^\n]*\$\(RESOBJ\)", mk), \
+        "the resource object must be a prerequisite of the exe"
+    assert re.search(r"\$\(CC\) \$\(LDFLAGS\) -o \$@ \$\^", mk), \
+        "the link line must use $^ so the resource object is actually linked"
+
+
+def test_the_chat_client_links_its_icon_resource():
+    mk = _text(os.path.join(AGENT_DIR, "tools", "Makefile"))
+    assert "WINDRES" in mk and "retro_chat.rc" in mk, \
+        "the chat Makefile must compile retro_chat.rc with windres"
+    assert "$(RESOBJ)" in mk.split("$(TARGET):")[1].split("\n")[0], \
+        "the resource object must be a prerequisite of retro_chat.exe"
+
+
+def test_the_icon_is_resource_id_1():
+    """Explorer shows the LOWEST-numbered icon group as a file's icon, so the
+    id is not cosmetic - a higher id silently keeps the generic look."""
+    for rc in (os.path.join(RES, "retro_agent.rc"),
+               os.path.join(AGENT_DIR, "tools", "retro_chat.rc")):
+        body = _text(rc)
+        assert re.search(r"^\s*1\s+ICON\s", body, re.M), \
+            "%s must declare its icon as resource id 1" % os.path.basename(rc)

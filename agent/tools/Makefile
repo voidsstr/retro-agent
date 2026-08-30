@@ -12,6 +12,7 @@
 #   smb://192.168.1.122/files/Utility/Retro Automation/retro_chat.exe
 
 CC = i686-w64-mingw32-gcc
+WINDRES = i686-w64-mingw32-windres
 TARGET = retro_chat.exe
 SOURCE = retro_chat.c
 
@@ -35,12 +36,20 @@ SMB_CREDS = user:password  # EDIT: your SMB share credentials
 
 all: $(TARGET)
 
-$(TARGET): $(SOURCE)
-	$(CC) $(CFLAGS) -o $(TARGET) $(SOURCE) $(LDFLAGS)
+# Icon resource. Without it retro_chat.exe has no resource directory and the
+# "Retro Chat" desktop shortcut the agent places (gs_place_tool_shortcuts) shows
+# Windows' generic application icon. Same fix as agent/res/retro_agent.rc.
+RESOBJ = retro_chat_res.o
+
+$(RESOBJ): retro_chat.rc ../res/retro_chat.ico
+	$(WINDRES) -i retro_chat.rc -O coff -o $@
+
+$(TARGET): $(SOURCE) $(RESOBJ)
+	$(CC) $(CFLAGS) -o $(TARGET) $(SOURCE) $(RESOBJ) $(LDFLAGS)
 	@echo "Built $(TARGET) v$(VERSION) - $$(stat -c%s $(TARGET) 2>/dev/null || stat -f%z $(TARGET)) bytes"
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) $(RESOBJ)
 
 # Bump patch version, build, and upload to versioned share folder
 BUMP ?= patch

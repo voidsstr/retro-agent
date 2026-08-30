@@ -1,0 +1,11 @@
+/* Icon resource for retro_agent.exe.
+ *
+ * Without this the exe has no resource directory at all, so every desktop
+ * shortcut the agent makes for ITSELF ("Retro Agent", placed by
+ * gs_place_tool_shortcuts) shows Windows' generic application icon - two of
+ * the generic icons on a fully provisioned desktop were ours, not a game's.
+ *
+ * ID 1 (the lowest numeric id) is what Explorer picks for a file's icon, so
+ * this must stay id 1.
+ */
+1 ICON "retro_agent.ico"
