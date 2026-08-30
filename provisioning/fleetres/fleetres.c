@@ -827,40 +827,56 @@ int main(int argc, char **argv)
     }
 
     /* -cmd : a batch fragment to CALL */
-    printf("set FR_W=%d\n",        tgt_w);
-    printf("set FR_H=%d\n",        tgt_h);
-    printf("set FR_BPP=%d\n",      desk_bpp);
+    /* EVERY line is `set "VAR=value"`, quoted, and it has to be.
+     *
+     * cmd.exe splits an UNQUOTED `set` on & | < > ^, and FR_GLIDEDEV carries a
+     * PCI instance id full of ampersands:
+     *
+     *     set FR_GLIDEDEV=VEN_121A&DEV_0002&SUBSYS_00000000&REV_02
+     *
+     * `call fleetres.cmd` therefore set FR_GLIDEDEV to just "VEN_121A" and
+     * then tried to RUN "DEV_0002" and "SUBSYS_00000000" as commands - three
+     * "is not recognized" lines in the console of every launcher on .171, and
+     * a silently truncated variable that any Glide test would then read wrong.
+     * FR_MON is EDID text straight off the monitor and is equally exposed.
+     *
+     * `set "VAR=value"` does NOT put the quotes into the value, so the numeric
+     * lines are quoted too - uniformity is worth more here than saving two
+     * characters, because the next variable somebody adds will be a string. */
+    printf("set \"FR_W=%d\"\n",        tgt_w);
+    printf("set \"FR_H=%d\"\n",        tgt_h);
+    printf("set \"FR_BPP=%d\"\n",      desk_bpp);
     /* The refresh of the PERSISTED desktop mode, for the engines whose mode
      * switch takes one - Halo's `-vidmode w,h,hz`. A hardcoded 60 there is a
      * staged constant like any other and is simply wrong on the CRT boxes,
      * which run 75-100 Hz. 0 or a nonsense value from a driver is reported as
      * 60 rather than passed on. */
-    printf("set FR_HZ=%d\n",
+    printf("set \"FR_HZ=%d\"\n",
            (reg_hz >= 50 && reg_hz <= 240) ? reg_hz
            : ((desk_hz >= 50 && desk_hz <= 240) ? desk_hz : 60));
-    printf("set FR_ASPECT=%s\n",   asp);
-    printf("set FR_PANEL=%s\n",    lcd ? "LCD" : "CRT");
-    printf("set FR_NATIVE_W=%d\n", native_ok ? p.native_w : desk_w);
-    printf("set FR_NATIVE_H=%d\n", native_ok ? p.native_h : desk_h);
-    printf("set FR_DESK_W=%d\n",   reg_w);
-    printf("set FR_DESK_H=%d\n",   reg_h);
-    printf("set FR_LIVE_W=%d\n",   desk_w);
-    printf("set FR_LIVE_H=%d\n",   desk_h);
-    printf("set FR_FOV=%d\n",      horplus_fov(tgt_w, tgt_h));
-    printf("set FR_W43=%d\n",      t43_w);
-    printf("set FR_H43=%d\n",      t43_h);
-    printf("set FR_Q2MODE=%d\n",   q2_mode_for(t43_w, t43_h));
-    printf("set FR_Q3MODE=%d\n",   q3_mode_for(t43_w, t43_h));
-    printf("set FR_WIDE=%d\n",     (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0);
-    printf("set FR_DOSFULLRES=%s\n", lcd ? "desktop" : "original");
-    printf("set FR_MON=%s\n",      native_ok && p.name[0] ? p.name : "unknown");
+    printf("set \"FR_ASPECT=%s\"\n",   asp);
+    printf("set \"FR_PANEL=%s\"\n",    lcd ? "LCD" : "CRT");
+    printf("set \"FR_NATIVE_W=%d\"\n", native_ok ? p.native_w : desk_w);
+    printf("set \"FR_NATIVE_H=%d\"\n", native_ok ? p.native_h : desk_h);
+    printf("set \"FR_DESK_W=%d\"\n",   reg_w);
+    printf("set \"FR_DESK_H=%d\"\n",   reg_h);
+    printf("set \"FR_LIVE_W=%d\"\n",   desk_w);
+    printf("set \"FR_LIVE_H=%d\"\n",   desk_h);
+    printf("set \"FR_FOV=%d\"\n",      horplus_fov(tgt_w, tgt_h));
+    printf("set \"FR_W43=%d\"\n",      t43_w);
+    printf("set \"FR_H43=%d\"\n",      t43_h);
+    printf("set \"FR_Q2MODE=%d\"\n",   q2_mode_for(t43_w, t43_h));
+    printf("set \"FR_Q3MODE=%d\"\n",   q3_mode_for(t43_w, t43_h));
+    printf("set \"FR_WIDE=%d\"\n",     (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0);
+    printf("set \"FR_DOSFULLRES=%s\"\n", lcd ? "desktop" : "original");
+    printf("set \"FR_MON=%s\"\n",      native_ok && p.name[0] ? p.name : "unknown");
     /* 1 = the panel was MEASURED (EDID present); 0 = every answer above is an
      * inference from the persisted desktop mode plus a 4:3 assumption. Two
      * different confidences should not look identical to a reader. */
-    printf("set FR_EDID=%d\n",    native_ok ? 1 : 0);
-    printf("set FR_GLIDE=%d\n",   glide_n ? 1 : 0);
-    printf("set FR_GLIDEDEV=%s\n", glide_n ? glide_dev : "none");
-    printf("set FR_UE1DEV=%s\n",
+    printf("set \"FR_EDID=%d\"\n",    native_ok ? 1 : 0);
+    printf("set \"FR_GLIDE=%d\"\n",   glide_n ? 1 : 0);
+    printf("set \"FR_GLIDEDEV=%s\"\n", glide_n ? glide_dev : "none");
+    printf("set \"FR_UE1DEV=%s\"\n",
            glide_render ? "GlideDrv.GlideRenderDevice" : "D3DDrv.D3DRenderDevice");
     return 0;
 }
