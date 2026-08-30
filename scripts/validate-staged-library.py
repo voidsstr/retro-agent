@@ -194,6 +194,86 @@ def check_title(lib, title):
             warn("fullscreen", "DOSBox title: no conf sets fullscreen=true "
                                "(all staged games must run fullscreen)")
 
+    # --- per-box resolution: FLEETRES ---------------------------------------
+    #
+    # ONE staged tree deploys to EIGHT monitors — four 1920x1080 LCDs and four
+    # CRTs, two of them 4:3 tubes being driven at 5:4. A resolution written into
+    # a staged config is therefore wrong somewhere BY CONSTRUCTION, and the
+    # whole library used to be pinned at 1024x768 (Tiberian Sun at 640x480).
+    # The fix is FLEETRES.EXE + FLEETRES.BAT staged in the title, called by its
+    # launchers. These checks catch the half-applied version of that fix, which
+    # is silent: the game still starts, just at the wrong size on most boxes.
+    bats = [f for f in os.listdir(tdir) if f.lower().endswith(".bat")]
+    bodies = {b: read_text(os.path.join(tdir, b)) for b in bats}
+    has_exe = os.path.isfile(os.path.join(tdir, "FLEETRES.EXE"))
+    has_bat = os.path.isfile(os.path.join(tdir, "FLEETRES.BAT"))
+
+    if has_exe != has_bat:
+        fail("fleetres", "FLEETRES.%s is staged without FLEETRES.%s — the "
+                         "launchers would call a block that is not there, or "
+                         "measure a panel nothing reads"
+                         % ("EXE" if has_exe else "BAT",
+                            "BAT" if has_exe else "EXE"))
+
+    # A launcher that expands FR_* without calling the block gets empty strings
+    # — i.e. `-w  -h ` on a command line, silently.
+    for b, body in bodies.items():
+        if "%FR_" in body and "FLEETRES.BAT" not in body:
+            fail("fleetres", "%r uses %%FR_*%% but never calls FLEETRES.BAT, so "
+                             "every one of those expands to nothing" % b)
+
+    # DOSBox: `fullresolution=original` changes the WHOLE DESKTOP to the DOS
+    # mode. Measured on .145 with DISPLAYCFG: the desktop really does drop to
+    # 640x480 and a 4:3 signal is handed to a 16:9 panel, and it is left behind
+    # after a crash. `desktop` + `aspect=true` pillarboxes correctly instead —
+    # but only on an LCD, so this cannot be a staged constant either way. The
+    # launcher has to rewrite it per box.
+    sdl_confs = [c for c in confs
+                 if re.search(r"^\s*fullresolution\s*=", read_text(os.path.join(tdir, c)),
+                              re.I | re.M)]
+    if sdl_confs:
+        rewritten = set()
+        rw = re.compile(r"-ini\s+\"([^\"]+)\"\s+sdl\s+fullresolution\s+"
+                        r"%FR_DOSFULLRES%", re.I)
+        for body in bodies.values():
+            for m in rw.finditer(body):
+                # the path is a BATCH EXPRESSION, "%~dp0dosboxD1.conf", which
+                # os.path.basename cannot split (there is no separator in it),
+                # so match on the conf name appearing in it.
+                rewritten.add(m.group(1).lower())
+        for c in sdl_confs:
+            if not any(c.lower() in r for r in rewritten):
+                fail("fleetres-dosbox",
+                     "%s sets [sdl] fullresolution but no launcher rewrites it "
+                     "with FLEETRES (-ini ... sdl fullresolution "
+                     "%%FR_DOSFULLRES%%). Left as a staged constant it is wrong "
+                     "on half the fleet: `original` retargets the whole desktop "
+                     "on an LCD, `desktop` is wrong on a CRT." % c)
+
+    # id Tech 3: r_mode / r_customwidth / r_customheight / r_fullscreen are
+    # CVAR_LATCH — they bite only at renderer init. A `seta r_mode` in the
+    # staged autoexec.cfg runs after Com_StartupVariable and before R_Init, so
+    # it BEATS the command line; that is exactly why passing +set r_mode on the
+    # command line did nothing on .123. The mode has to come from the launcher,
+    # and these two setas have to be gone for it to arrive.
+    for root, dirs, files in os.walk(tdir):
+        dirs[:] = [d for d in dirs if not d.startswith("_")]
+        for fn in files:
+            if fn.lower() != "autoexec.cfg":
+                continue
+            path = os.path.join(root, fn)
+            rel = os.path.relpath(path, tdir)
+            body = read_text(path)
+            for n, line in enumerate(body.splitlines(), 1):
+                m = re.match(r"\s*seta\s+(r_mode|r_fullscreen)\b", line, re.I)
+                if m:
+                    fail("idtech3-latch",
+                         "%s line %d sets %s, a CVAR_LATCH cvar read at renderer "
+                         "init — it silently beats the launcher's +set and pins "
+                         "every monitor on the fleet to one resolution. Delete "
+                         "it and let the launcher supply the mode: %s"
+                         % (rel, n, m.group(1), line.strip()[:60]))
+
     # ---- engine configs: a double quote must not span a newline -----------
     #
     # Quake II's tokenizer (SiN, Quake 2, SoF, Hexen II ...) and LithTech's

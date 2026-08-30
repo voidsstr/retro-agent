@@ -1,0 +1,108 @@
+# FLEETRES.EXE — per-box resolution for the staged library
+
+**Problem.** One staged tree deploys to eight machines with eight different
+monitors. A resolution written into a staged config is therefore wrong
+somewhere *by construction*. Measured panels are at the bottom of this file:
+four boxes are on 1920x1080 16:9 LCDs, four are on 4:3/5:4 CRTs.
+
+**Answer.** Keep the fix inside the staged game, but make it RUNTIME. Every
+title's `Play <Game>.bat` runs a 54 KB helper staged beside it, which reads
+*this* box's panel and writes the game's own config before the game starts.
+
+## Build
+```
+i686-w64-mingw32-gcc -O2 -s -o FLEETRES.EXE fleetres.c -ladvapi32 -luser32 -lm
+```
+54,784 bytes. sha256 bfb588f9d9885af9d1e64d0da908e8442538a60d51b084ac93d24df42ca0c174
+Runs on XP SP3 and Windows 7 (both verified on the fleet). Pure Win32 — no CRT
+redist, no SSE, so it is safe on the pre-SSE2 boxes (.124/.133/.143).
+
+## Modes
+| invocation | what it does |
+|---|---|
+| `FLEETRES.EXE -cmd` | prints `set FR_*=...` lines; `CALL` the output |
+| `FLEETRES.EXE -info` | human-readable panel report |
+| `FLEETRES.EXE -ini <file> <section> <key> <value>` | WritePrivateProfileString — for UE1/UE2 `.ini`, DOSBox `.conf`, `SUN.INI`, `RA2.INI` |
+| `FLEETRES.EXE -setline <file> <key> <line...>` | replaces the line whose first token is `<key>` (append if absent) — for the configs that are not INI-shaped: Dark engine `CAM.CFG`, LithTech `autoexec.cfg`, Quake-family `.cfg`. A backtick in the replacement becomes a double quote, because cmd.exe eats real ones and LithTech's format needs them. |
+
+## Variables from `-cmd`
+| var | meaning |
+|---|---|
+| `FR_W` / `FR_H` | **the resolution to use** for an engine that can do widescreen |
+| `FR_W43` / `FR_H43` | the resolution to use for an engine that is 4:3-only |
+| `FR_Q2MODE` | id Tech 2 `gl_mode` index matching `FR_W43`/`FR_H43` |
+| `FR_FOV` | horizontal FOV that preserves the 4:3 vertical FOV (90 at 4:3, 106 at 16:9) |
+| `FR_ASPECT` `FR_WIDE` | `16:9`/`4:3`/`5:4`; `FR_WIDE=1` on a widescreen panel |
+| `FR_PANEL` | `LCD` or `CRT` |
+| `FR_DOSFULLRES` | `desktop` on an LCD, `original` on a CRT — for DOSBox `[sdl] fullresolution` |
+| `FR_NATIVE_W/H` `FR_DESK_W/H` `FR_LIVE_W/H` | panel native; persisted desktop; live desktop |
+| `FR_MON` | monitor name from EDID |
+
+## The standard launcher block — paste this into every `Play <Game>.bat`
+```bat
+cd /d "%~dp0"
+rem ==== FLEET RESOLUTION BLOCK - identical in every staged title ==========
+set FR_W=
+set FR_H=
+if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -cmd > "%TEMP%\fleetres.cmd"
+if exist "%TEMP%\fleetres.cmd" call "%TEMP%\fleetres.cmd"
+if not defined FR_W set FR_W=1024
+if not defined FR_H set FR_H=768
+if not defined FR_W43 set FR_W43=1024
+if not defined FR_H43 set FR_H43=768
+if not defined FR_FOV set FR_FOV=90
+rem ======================================================================
+```
+Everything after that is one or two engine-specific lines. Both example
+launchers in this directory are the ones actually run on hardware.
+
+## Per-box override, for hardware that cannot drive its monitor
+`HKLM\Software\RetroAgent\ResCapW` / `ResCapH` (REG_DWORD) cap the answer on
+one machine without touching the staged tree. Intended for **.171**, whose 3D
+is a Voodoo 2 (hard 800x600 ceiling) hiding behind an Intel 865G.
+
+## How it decides
+1. Current mode: `EnumDisplaySettings(ENUM_CURRENT_SETTINGS)`.
+   **Not `wmic`** — measured 2026-08-29, XP's
+   `Win32_VideoController.CurrentHorizontalResolution` reported 640x480 on
+   .123 while the box was really at 1024x768. It is not a usable source.
+2. Persisted mode: `EnumDisplaySettings(ENUM_REGISTRY_SETTINGS)`. The target is
+   derived from **this**, never from the live mode — a game that exits without
+   restoring leaves the desktop at 640x480, and .123 and .240 were both sitting
+   at 640x480 during this survey. A launcher trusting the live mode would then
+   pin every later game to 640x480 permanently.
+3. Panel: `EnumDisplayDevices` for the monitor's PnP id, then the EDID blob at
+   `HKLM\SYSTEM\CurrentControlSet\Enum\DISPLAY\<pnp>\<inst>\Device Parameters\EDID`
+   (the instance carrying a `Control` subkey is the live one). Preferred
+   detailed timing = native mode; physical size = tube aspect.
+4. LCD vs CRT: digital-input bit **OR** (EDID vertical-refresh max <= 76 Hz AND
+   preferred timing <= 61 Hz). Correct on all eight fleet panels — every CRT
+   here quotes 85-180 Hz, every LCD quotes <= 76 and 60.
+5. Target: **LCD -> the panel's native mode** (anything else is resampled by
+   the panel's scaler and looks soft, and a 4:3 mode is additionally stretched
+   or pillarboxed). **CRT -> the largest mode matching the TUBE's aspect that
+   does not exceed the persisted desktop mode.** A CRT has no pixel grid, so
+   sharpness is not the issue — geometry is: 1280x1024 (5:4) on a 4:3 tube
+   squashes everything vertically, which is what .133 and .171 were doing.
+
+## Measured fleet panels (2026-08-29)
+| box | monitor | panel | native | aspect | desktop (persisted) | running native? | FLEETRES target | 4:3 target |
+|---|---|---|---|---|---|---|---|---|
+| .123 | DELL P2312H | **LCD** | 1920x1080 | 16:9 | 1920x1080 | yes | **1920x1080** | 1280x960 |
+| .124 | Sony CPD-G200 | CRT | 1024x768@85 | 4:3 | 1024x768 | n/a | 1024x768 | 1024x768 |
+| .133 | ViewSonic G790 | CRT | (pref 1280x1024@85) | 4:3 tube | 1280x1024 | **5:4 on a 4:3 tube** | **1280x960** | 1280x960 |
+| .143 | (no EDID; Default_Monitor) | CRT | unknown | — | 1024x768 | n/a | 1024x768 | 1024x768 |
+| .145 | DELL E2414H | **LCD** | 1920x1080 | 16:9 | 1920x1080 | yes | **1920x1080** | 1280x960 |
+| .171 | Gateway VX1120 | CRT | 1920x1440@75 | 4:3 | 1280x1024 | **5:4 on a 4:3 tube** | **1152x864** | 1152x864 |
+| .240 | DELL E2313H | **LCD** | 1920x1080 | 16:9 | 1920x1080 | yes | **1920x1080** | 1280x960 |
+| .246 | HP 2511 (digital) | **LCD** | 1920x1080 | 16:9 | 1920x1080 | yes | **1920x1080** | 1280x960 |
+
+Every desktop is already correct. **The problem is entirely in the game
+configs**, which are pinned at 1024x768 (or 640x480 for Tiberian Sun) across
+the whole library.
+
+.143's display driver answers `ENUM_CURRENT_SETTINGS` but returns FALSE from
+the indexed mode enumeration, and its active monitor node is `Default_Monitor`
+with no EDID — so on that one box FLEETRES has only the persisted desktop mode
+to go on. It answers 1024x768, which is right, but it is an inference, not a
+measurement. Plugging the monitor into a port that gives DDC would fix it.
