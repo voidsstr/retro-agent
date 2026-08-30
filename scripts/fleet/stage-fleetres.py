@@ -693,7 +693,24 @@ TITLES = {
     "SiNGold": {
         "new": {"Play SiN Gold.bat": ("sin.exe", "base")},
         "launch_txt_line0": ("Play SiN Gold.bat", "SiN", "sin.exe"),
-        "cfg_exec": ["base/autoexec.cfg"],
+        # The mission pack is a SEPARATE mod directory with its own autoexec.cfg
+        # and its own `set gl_mode "6"`, so covering base/ alone left half the
+        # title pinned. ctf/ is only reached by the dedicated-server launcher,
+        # but its autoexec is the same constant and costs nothing to fix.
+        "cfg_exec": ["base/autoexec.cfg", "2015/autoexec.cfg", "ctf/autoexec.cfg"],
+        "launchers": {
+            "Play Wages of SiN.bat": rec(
+                'cd /d "%~dp0"', [CALL] + q2_cfg("2015"),
+                (re.escape('start "" sin.exe +set game 2015'),
+                 'start "" sin.exe +set game 2015 +set gl_mode %FR_Q2MODE%')),
+            # The SOFTWARE renderer indexes the same table with sw_mode. It
+            # exists for a box with no usable 3D, and 1024x768 in software was
+            # still a staged constant - wrong on .171, which is capped at
+            # 800x600 by its Voodoo 2 and would be asked for more.
+            "Play SiN - software renderer.bat": rec(
+                'cd /d "%~dp0"', [CALL],
+                (re.escape('+set sw_mode 6'), '+set sw_mode %FR_Q2MODE%')),
+        },
     },
     "SoldierOfFortune": {
         "new": {"Play Soldier of Fortune.bat": ("SoF.exe", "base")},
