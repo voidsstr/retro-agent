@@ -66,7 +66,7 @@ Requires GNOME Shell 50 on GDM (Ubuntu 26.04). The installer refuses to run if
 | `systemd/retro-dashboard-collector.service` | Runs the collector |
 | `tests/test_render.js` | Unit tests for the render primitives (`gjs -m`) |
 | `tests/test_dashboard_collector.py` | Unit tests for the collector (`pytest`) |
-| `tests/test_panels.mjs` | Unit tests for the four service panels (`node`) |
+| `tests/test_panels.mjs` | Unit tests for the service + site panels (`node`) |
 | `tests/preview_panels.mjs` | Renders the panels to your terminal — the only way to *see* the wall |
 | `tests/stub-gi.mjs`, `tests/stub-gi-hooks.mjs` | Loader hooks that let node import `extension.js` |
 | `install.sh` | Wires all of the above together |
@@ -203,6 +203,94 @@ the agent reports back, with the second address shown as `also_at`.
 powered on demand. The panel says "fleet powered down" rather than looking
 broken, and a genuine inability to reach them (missing repo, missing client
 library) is reported as a distinct error instead of masquerading as "down".
+
+## One status vocabulary
+
+Every panel renders status through `render.js`'s shared `STATUS` table, so a
+glyph means the same thing wherever it appears.
+
+| glyph | state | meaning | red? |
+|---|---|---|---|
+| `●` | `ok` | healthy | |
+| `◐` | `busy` | working right now | |
+| `○` | `off` | switched off on purpose | |
+| `·` | `absent` | never installed / never ran | |
+| `?` | `unknown` | could not find out | |
+| `⋯` | `stale` | last reading is too old to trust | |
+| `▲` | `warn` | degraded but still serving | ● |
+| `‖` | `blocked` | waiting for a person | ● |
+| `✕` | `fail` | ran and failed | ● |
+
+**Only the last three are faults.** This matters more than it looks. Before
+this table existed, each panel invented its own glyphs — some `●`/`○`, some
+`✓`/`✗` — and everything that was not plainly healthy collapsed into "bad".
+But *never installed*, *switched off on purpose*, *ran and failed*, *waiting
+for a person* and *could not find out* are five different calls to action, and
+this project has repeatedly paid for conflating them: a systemd
+`LoadState=not-found` reading as a crash, a failed file read reading as an
+empty file, an unreadable favourites file reading as an empty one.
+
+Each state has its own **glyph as well as its own colour**. The wall is read
+across a room, by people who do not all see red and green the same way, so
+colour alone is never the carrier.
+
+Consequences worth knowing:
+
+- **FLEET**: a box that is off is `off`, never a fault. The fleet is powered on
+  demand and an empty sweep is the normal case.
+- **GAME SERVERS**: a server that is down *is* a fault — those are meant to be
+  up. Same situation, different meaning, and now visibly so.
+- **PXE**: `active` with no bound sockets is `warn`, not a pass. It serves
+  nothing while looking perfectly healthy.
+- `worstStatus()` gives a group its summary glyph: a group is green only when
+  everything in it is green, and an "I could not tell" outranks a healthy
+  sibling.
+- `freshness()` ages every reading, so a panel whose source stopped updating
+  goes `stale` rather than showing its last value as though it were live. **A
+  number that is quietly ten hours old is worse than no number** — it is
+  indistinguishable from a working system.
+
+## The WEB SITES panel
+
+specpicks.com and aisleprompt.com, via the `reusable-agents` framework: agent
+health per site, articles published in the last 7 days, and deploy activity.
+
+Data comes from the framework's local API (`127.0.0.1:8090`, bearer token in
+`~/.reusable-agents/secrets.env`) and from each site's **production** Postgres.
+The whole pass costs ~1.3s, so it sits behind a 120s TTL.
+
+Five things about that source are load-bearing:
+
+1. **Azure blob, with a three-minute worst case.** The framework's storage
+   client carries the SDK's default retry policy (20s connect, 60s read, three
+   exponential retries) and the API sets no request deadline, so one call can
+   block for minutes. Every call here sets its own 8s cap. Never inherit the
+   API's patience.
+2. **Nothing supervises that API.** It is a bare uvicorn process, not a
+   systemd unit. Connection-refused is an ordinary state with a rendering, not
+   an anomaly.
+3. **Group by agent-id prefix, not the `application` field.** At least one
+   agent declares the other site in its metadata and is filed wrongly.
+4. **The Docker Postgres containers on this host are stale dev copies** — 400
+   rows against production's 3029. The `DATABASE_URL_<SITE>` DSNs point at
+   Azure; use those.
+5. **`psycopg2` must be installed system-wide** (`apt install
+   python3-psycopg2`). The collector runs as root and will not see a module in
+   a user site-packages. It says so on the panel rather than showing a blank,
+   because a blank article count is indistinguishable from a site that
+   published nothing all week.
+
+Two numbers are deliberately not what they first appear:
+
+- **aisleprompt future-dates articles** for scheduled publishing. Counting
+  `published_at > now() - 7 days` alone included 22 unpublished pieces — about
+  150% overstatement. They are shown separately as `+N scheduled`.
+- **Deploys are not "deployments in the last 7 days".** The run index keeps
+  only the most recent runs (~13h at current volume), so any count is a floor
+  over whatever window it spans — and that window is printed beside it.
+  specpicks is additionally deployed by hand through a script that records
+  nothing, so the figure under-reports the one site it most looks like it
+  describes. A number that states its own limits beats a round one that lies.
 
 ## The three service panels
 
