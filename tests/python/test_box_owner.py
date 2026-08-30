@@ -73,3 +73,76 @@ def test_a_real_game_is_not_filtered_out():
             "%s is a game we launch; filtering it would hide a live test" % game
         )
         assert bo.GAMEISH.search(game)
+
+
+# ---------------------------------------------------------------------------
+# A refused connect is contention, not a dead box (fix 2026-08-30).
+#
+# Six agents drive this fleet at once.  When a box's listen backlog fills, XP
+# answers RST and ConnectionRefusedError comes back INSTANTLY -- so the old
+# two-attempt loop spent both attempts inside the same millisecond, hit the
+# same full backlog, and reported a healthy machine as UNREACHABLE.  .124 did
+# exactly this: three refusals in a row, then an immediate answer with ten
+# hours of uptime.
+#
+# These assert the FIXED behaviour and the OLD BUGGY behaviour, so the fix
+# cannot silently regress.
+# ---------------------------------------------------------------------------
+
+def test_a_refused_connect_is_retried_more_than_twice():
+    """The old code gave up after 2 attempts; a refusal now earns many more."""
+    total = bo._REFUSAL_RETRIES * 2      # inner retries x rising timeouts
+    assert bo._REFUSAL_RETRIES >= 3, "a refusal must get more than a retry"
+    assert total > 2, (
+        "the old loop made exactly 2 attempts and that is what called a healthy "
+        ".124 unreachable; %d is not enough" % total)
+
+
+def test_a_refusal_backs_off_instead_of_spinning():
+    """A retry with no sleep is not a retry -- a refusal returns instantly."""
+    assert bo._REFUSAL_BACKOFF_S > 0, (
+        "without a real pause every attempt lands inside the same millisecond "
+        "and hits the same full listen backlog -- which is the original bug")
+
+
+def test_refusal_retries_then_still_raises_ConnectFailed():
+    """Exhausting the retries must still be ConnectFailed, not a check error.
+
+    The distinction matters: ConnectFailed means 'could not reach it', any
+    other exception means 'the box ANSWERED and the check broke'.  Collapsing
+    the two is the older bug this module already fixed once.
+    """
+    calls = {"n": 0}
+
+    class _Boom:
+        def __init__(self, ip, port): pass
+        async def connect(self, secret, timeout=None):
+            calls["n"] += 1
+            raise ConnectionRefusedError(111, "refused")
+
+    orig_conn, orig_sleep = bo.RetroConnection, bo.asyncio.sleep
+
+    async def _nosleep(_s):        # keep the test instant
+        return None
+
+    bo.RetroConnection = _Boom
+    bo.asyncio.sleep = _nosleep
+    try:
+        loop = bo.asyncio.new_event_loop()
+        try:
+            raised = None
+            try:
+                loop.run_until_complete(bo._connect("192.0.2.1", 0.01))
+            except BaseException as e:      # noqa: BLE001 - we assert the type
+                raised = e
+        finally:
+            loop.close()
+        assert isinstance(raised, bo.ConnectFailed), (
+            "exhausted retries must raise ConnectFailed (could not REACH it), "
+            "not %r -- any other type means 'the box answered and the check "
+            "broke', which is a different call to action" % (raised,))
+    finally:
+        bo.RetroConnection, bo.asyncio.sleep = orig_conn, orig_sleep
+
+    assert calls["n"] > 2, (
+        "only %d connect attempts -- the refusal retry did not happen" % calls["n"])

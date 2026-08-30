@@ -33,6 +33,11 @@ from client.retro_protocol import RetroConnection  # noqa: E402
 SECRET = os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret")
 LOG = r"C:\RETRO_AGENT\agent.log"
 
+# A refused connect is instant and usually means a full listen backlog, not a
+# dead agent -- so retry it several times with a real pause, not back-to-back.
+_REFUSAL_RETRIES = 4
+_REFUSAL_BACKOFF_S = 1.5
+
 # The chat daemon long-polls forever; these say nothing about who is working.
 NOISE = re.compile(r'CMD: "(PROMPT_WAIT|STATUS_WAIT|LOG_WAIT|PING|GAMESYNC STATUS'
                    r'|SYSINFO|WINLIST|PROCLIST|SCREENSHOT)\b', re.I)
@@ -84,15 +89,34 @@ async def _connect(ip, timeout):
     simply busy running a game. Reporting a healthy machine as unreachable is
     worse than reporting nothing: it sends someone to diagnose a box that is
     fine, and it is exactly the false-negative this project keeps paying for.
+    A REFUSAL AND A TIMEOUT ARE NOT THE SAME FAILURE, and treating them alike
+    produced that same false negative a second time.  With six agents driving
+    the fleet a box's listen backlog fills and XP answers RST, so
+    ConnectionRefusedError comes back INSTANTLY and consumes none of the time
+    budget.  Two back-to-back attempts therefore both landed within the same
+    few milliseconds, hit the same full backlog, and called a healthy machine
+    unreachable: .124 refused three connects in a row and then answered at once
+    with ten hours of uptime.
+
+    So a refusal earns more attempts AND a real sleep between them, while a
+    timeout -- which has already spent its wait -- earns the rising timeout it
+    always had.
     """
     last = None
     for t in (timeout, timeout * 2):
-        try:
-            c = RetroConnection(ip, 9898)
-            await c.connect(SECRET, timeout=t)
-            return c
-        except Exception as e:
-            last = e
+        for refusal in range(_REFUSAL_RETRIES):
+            try:
+                c = RetroConnection(ip, 9898)
+                await c.connect(SECRET, timeout=t)
+                return c
+            except ConnectionRefusedError as e:
+                last = e
+                # Instant failure, so back off deliberately rather than
+                # spinning every attempt away inside one millisecond.
+                await asyncio.sleep(_REFUSAL_BACKOFF_S * (refusal + 1))
+            except Exception as e:
+                last = e
+                break          # a timeout: go straight to the longer one
     raise ConnectFailed("no agent on %s:9898" % ip) from last
 
 
