@@ -386,6 +386,16 @@ TITLES = {
             ],
             "Play Soldier of Fortune II.bat": [
                 ('seta r_mode "-1"', 'seta r_mode "%FR_Q3MODE%"'),
+                # These two are inert once the -1 branch is gone, and leaving
+                # them in the generated cfg says the opposite of what is true.
+                # The replacement is a rem rather than nothing, because an EMPTY
+                # replacement is always "already present" and would make
+                # repair()'s stale-recipe check unfireable.
+                ('>>"%~dp0base\\fleetres.cfg" echo seta r_customwidth "%FR_W%"\r\n'
+                 '>>"%~dp0base\\fleetres.cfg" echo seta r_customheight "%FR_H%"\r\n',
+                 'rem r_customwidth/r_customheight are NOT written: this engine\r\n'
+                 'rem has no r_mode -1 branch, so they would be inert and would\r\n'
+                 'rem say the opposite of what is true. Measured on .145.\r\n'),
                 ('+set r_mode -1 +set r_customwidth %FR_W% '
                  '+set r_customheight %FR_H% +set r_customaspect 1 '
                  '+set r_customPixelAspect 1 +set r_fullscreen 1',
@@ -624,11 +634,14 @@ TITLES = {
         # The quotes are required by the format and cmd.exe eats real ones, so
         # FLEETRES turns a backtick into a double quote.
         "launchers": {
-            "Play Shogo - direct engine.bat": rec(
-                'cd /d "%~dp0"',
-                [CALL] + setline_cfg("autoexec.cfg",
-                                     [("screenwidth", "`screenwidth` `%FR_W%`"),
-                                      ("screenheight", "`screenheight` `%FR_H%`")])),
+            n: rec('cd /d "%~dp0"',
+                   [CALL] + setline_cfg("autoexec.cfg",
+                                        [("screenwidth", "`screenwidth` `%FR_W%`"),
+                                         ("screenheight", "`screenheight` `%FR_H%`")]))
+            # Both launchers, because either can be the one a box actually runs
+            # and autoexec.cfg would otherwise keep whatever the other wrote
+            # last - which on a re-imaged box is the library's 640x480.
+            for n in ("Play Shogo - direct engine.bat", "Play Shogo.bat")
         },
     },
     "DeusEx": {
@@ -757,6 +770,14 @@ TITLES = {
     },
     "Descent1": {
         "launchers": {
+            # The DOSBox launchers get fullresolution; the Rebirth one is a
+            # native Win32 DXX build sharing Descent 2's engine and its bare
+            # key=value DESCENT.CFG, so it takes the panel's full mode.
+            "Play Descent - Rebirth.bat": rec(
+                'cd /d "%~dp0"',
+                [CALL] + kv_cfg("DESCENT.CFG",
+                                [("ResolutionX", "%FR_W%"),
+                                 ("ResolutionY", "%FR_H%")])),
             "Play Descent.bat": rec('cd /d "%~dp0DOSBOX"',
                                     [CALL] + dosbox_conf("dosboxD1.conf")),
             "Host Descent - LAN.bat": rec('cd /d "%~dp0DOSBOX"',
@@ -993,6 +1014,9 @@ class Runner:
         out = body
         did = []
         for old, new in pairs:
+            assert new, ("%s/%s: an empty replacement is always 'already "
+                         "present', which makes the stale-recipe check below "
+                         "unfireable" % (title, name))
             if old in out:
                 if self.check:
                     self.fail("%s/%s: still has %r" % (title, name, old))

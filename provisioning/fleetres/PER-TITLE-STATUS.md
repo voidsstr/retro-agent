@@ -46,7 +46,7 @@ mode 8 (1280x1024) rather than taking the biggest number available.
 | **Carmageddon1** | DOSBox | `[sdl] fullresolution %FR_DOSFULLRES%` — `desktop` on an LCD, `original` on a CRT | a DOS game has no 1080p mode; correct-aspect pillarboxing is the right answer, and `original` retargets the whole desktop |
 | **Carmageddon2** | **incapable** | render device only (nGlide swap) | 1998 Glide title; its mode comes from the Glide device, which offers 512x384/640x480/800x600 |
 | **CounterStrike16** | 1080p | `hl.exe -full -w %FR_W% -h %FR_H%` | GoldSrc; proven earlier |
-| **Descent1** | DOSBox | as Carmageddon 1 | |
+| **Descent1** | DOSBox **+ 1080p** | the three DOSBox launchers get `%FR_DOSFULLRES%`; **`Play Descent - Rebirth.bat`** is a native Win32 DXX build sharing Descent 2's engine and gets `-kv DESCENT.CFG ResolutionX/Y` | one title, two engines, two right answers |
 | **Descent2** | 1080p | `-kv DESCENT.CFG ResolutionX/Y` | DXX-Rebirth; its cfg is bare `key=value` with no `[section]`, which is why `-kv` exists |
 | **Descent3** | 1080p | `main.exe -Width %FR_W% -Height %FR_H%` | switches verified in the binary |
 | **DeusEx** | 1080p | UE1 `[WinDrv.WindowsClient] FullscreenViewportX/Y` + `StartupFullscreen` | |
@@ -64,8 +64,8 @@ mode 8 (1280x1024) rather than taking the biggest number available.
 | **RedAlert2** | 1080p | `-ini RA2.INI / RA2MD.INI [Video] ScreenWidth/Height` | **measured on .145: `Red Alert 2` window 1920x1080**, `.ini` written by the launcher. (The render frame was blocked by another session's installer modal.) |
 | **RedFaction** | 1080p | `-reg HKLM SOFTWARE\Volition\Red Faction` Resolution Width/Height/Bit Depth | value names read out of `rf.exe`; nothing in the tree could set them |
 | **RedneckRampage** | DOSBox | as Carmageddon 1 | |
-| **Shogo** | **1080p** | `-setline autoexec.cfg screenwidth/screenheight` | **measured on .145: window class `LithTech` 1920x1080, rendering.** Backticks in the launcher become the double quotes LithTech's format requires |
-| **SiNGold** | **incapable** | `gl_mode %FR_Q2MODE%` | same fixed id Tech 2 table, verified in `sin.exe` |
+| **Shogo** | **1080p** | `-setline autoexec.cfg screenwidth/screenheight`, in **both** launchers | **measured on .145: window class `LithTech` 1920x1080, rendering.** Backticks in the launcher become the double quotes LithTech's format requires |
+| **SiNGold** | **incapable** | `gl_mode %FR_Q2MODE%` in base **and** the 2015 mission pack; the software launcher gets `sw_mode %FR_Q2MODE%` | same fixed id Tech 2 table, verified in `sin.exe`. Covering `base/` alone left Wages of SiN pinned at 1024x768 on every box |
 | **SoldierOfFortune** | **incapable** | `gl_mode %FR_Q2MODE%` | same table in `SoF.exe` (modes 0–2 marked Unsupported) |
 | **SoldierOfFortune2** | **incapable (1152x864 max)** | `r_mode %FR_Q3MODE%` — **not** `-1`, and **not** `FR_Q2MODE` | **measured on .145: with an identical `-1` + custom-1920x1080 config, `quake3.exe`/`jasp.exe`/`jamp.exe` gave 1920x1080 and `sof2mp.exe` gave 640x480.** SoF2's fork has no `-1` branch (though it *does* carry the `r_customwidth` string, so the symbol table proves nothing). Through the index it reaches 1152x864 — **verified: `SoF2 MP` window 1152x864, `fleetres.cfg` `seta r_mode "7"`** |
 | **StarCraft** | **incapable** | — | 1.16.1 is hard-locked to 640x480 |

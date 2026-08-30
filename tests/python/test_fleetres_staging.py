@@ -68,11 +68,22 @@ def test_every_dosbox_title_rewrites_fullresolution_at_launch():
     for title in DOSBOX_TITLES:
         spec = sf.TITLES[title]
         assert spec['launchers'], title
+        seen = 0
         for name, rec in spec['launchers'].items():
             block = '\n'.join(rec['pre'])
+            # A DOSBox title can also carry a NATIVE launcher — Descent 1 ships
+            # d1x-rebirth.exe beside the emulator — and that one has no [sdl]
+            # section to rewrite. The test is: whoever touches a .conf must use
+            # the variable, and every DOSBox title must have at least one that
+            # does. Asserting it of EVERY launcher would forbid the native one.
+            if '.conf' not in block:
+                continue
+            seen += 1
             assert 'sdl fullresolution %FR_DOSFULLRES%' in block, (
-                '%s/%s does not rewrite fullresolution — on an LCD the staged '
-                '`original` retargets the whole desktop to 640x480' % (title, name))
+                '%s/%s touches a DOSBox conf but does not rewrite '
+                'fullresolution — on an LCD the staged `original` retargets '
+                'the whole desktop to 640x480' % (title, name))
+        assert seen, '%s has no launcher rewriting its DOSBox conf' % title
 
 
 def test_fullresolution_is_never_a_staged_constant():
