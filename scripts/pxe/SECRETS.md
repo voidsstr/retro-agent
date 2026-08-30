@@ -5,11 +5,26 @@ Nothing sensitive is in this repo. Everything lives in Azure Key Vault
 what each secret is, what needs it, and how to recreate it — so a host can be
 rebuilt from nothing without archaeology.
 
-Read one with:
+> **This file is the register for the PXE / Windows-install secrets only.** The
+> general convention — naming, the `verified=` tag, the `aisleprompt-kv`
+> boundary, the per-engine table of where each game keeps its CD key, and the
+> rule that the vault is a *system of record* and never a runtime dependency —
+> lives in the **`fleet-keyvault` skill**
+> (`.claude/skills/fleet-keyvault/SKILL.md`) and is summarised in `CLAUDE.md`.
+> One source of truth: everything below is PXE-specific and is not repeated
+> there.
+
+Read one with the helper, which fails loudly instead of handing back a blank:
 
 ```bash
-az keyvault secret show --vault-name nsc-secrets-kv --name <name> --query value -o tsv
+python3 scripts/fleet/keyvault.py get fleet-winxp-pro-sp3-x14-80428-key
+python3 scripts/fleet/keyvault.py show fleet-winxp-pro-sp3-x14-80428-key   # metadata, no value
 ```
+
+`az keyvault secret show --vault-name nsc-secrets-kv --name <name> --query value
+-o tsv` does the same thing, but **never assign it to a variable** — when `az`
+is not logged in the assignment swallows the error and you get an empty product
+key in `winnt.sif`, which fails hours later at a dialog nobody is watching.
 
 ## Required to install Windows XP
 
@@ -40,6 +55,12 @@ Listed so a rebuild does not go hunting for a relationship that is not there:
 `fleet-ssh-id-ed25519*`, `fleet-cloudflared-tgz`, `fleet-responder-tgz`,
 `fleet-seo-tgz`, `fleet-claude-pool-*`.
 
+The **`fleet-gamekey-*`** entries are the staged library's CD keys and serials
+(Half-Life/GoldSrc, Quake III, SoF2, UT2004, Halo). They are nothing to do with
+installing Windows — they are seeded into the staged trees on the share and are
+documented in the `fleet-keyvault` skill. `python3 scripts/fleet/keyvault.py
+list` shows the current set.
+
 > The `fleet-claude-pool-*` entries have a trap of their own recorded elsewhere:
 > never probe a pool profile with `claude --print`, which blanks the stored
 > tokens if the refresh fails.
@@ -47,14 +68,19 @@ Listed so a rebuild does not go hunting for a relationship that is not there:
 ## Rotating the XP key
 
 ```bash
+umask 077
 printf '%s' 'XXXXX-XXXXX-XXXXX-XXXXX-XXXXX' > /tmp/k.txt
-az keyvault secret set --vault-name nsc-secrets-kv \
-  --name fleet-winxp-pro-sp3-<media-id>-key --file /tmp/k.txt --encoding utf-8 \
+python3 scripts/fleet/keyvault.py set fleet-winxp-pro-sp3-<media-id>-key \
+  --file /tmp/k.txt \
   --content-type "XP Pro SP3 key - verify against <iso name> before use" \
-  --tags image="<iso name>" edition="Windows XP Professional SP3 x86 English" \
-         source="<where it came from>" verified="pending"
+  --tag image="<iso name>" --tag edition="Windows XP Professional SP3 x86 English" \
+  --tag source="<where it came from>" --tag verified="pending"
 shred -u /tmp/k.txt
 ```
+
+(The helper passes the value through a 0600 temp file, never argv, and refuses a
+`--content-type` over 255 chars — Key Vault's limit, which it otherwise rejects
+with an unhelpful `Property  has invalid value`.)
 
 Then rebuild the payload and **prove it in a VM before touching hardware** —
 `scripts/pxe/` has everything needed to boot one. Update the `verified` tag once

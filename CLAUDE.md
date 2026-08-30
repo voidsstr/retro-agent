@@ -2033,3 +2033,105 @@ Source and payload: `provisioning/fleetres/`. Tests:
 `HKLM\Software\RetroAgent` `ResCapW`/`ResCapH` (REG_DWORD). Set to 800x600 on
 `.171`, whose 3D is a **Voodoo 2** with a hard 800x600 limit hiding behind the
 Intel 865G that every display-class scan reports instead.
+
+## Keys and Secrets — Azure Key Vault `nsc-secrets-kv` (REQUIRED)
+
+**Every product key, CD key, serial and credential this project depends on
+lives in Azure Key Vault `nsc-secrets-kv`. The repo carries the *name* of a
+secret and the command that fetches it — never the value.** Full working
+detail, including the per-engine table of where each game keeps its key, is in
+the **`fleet-keyvault` skill** (`.claude/skills/fleet-keyvault/SKILL.md`);
+`scripts/pxe/SECRETS.md` remains the register for the PXE/XP-install secrets.
+
+```bash
+python3 scripts/fleet/keyvault.py list           # every fleet-* secret
+python3 scripts/fleet/keyvault.py show <name>    # metadata + tags, NOT the value
+python3 scripts/fleet/keyvault.py get <name>     # the value, on stdout
+```
+
+- **Naming:** `fleet-gamekey-<title>` for game keys, `fleet-winxp-*-key` for
+  Windows product keys (named after the media they were verified against),
+  `fleet-<service>-*` for host credentials. Currently vaulted game keys:
+  `half-life-goty` (which every GoldSrc title on a box shares — HL, CS 1.6,
+  Opposing Force, Blue Shift), `half-life-opposing-force`, `halo-pc`,
+  `quake3-team-arena`, `sof2`, `ut2004`. **A vaulted key is not a staged
+  title**: `fleet-gamekey-halo-pc` is `verified=pending` because the key has
+  never validated, and Halo is **not** staged.
+- **Every secret carries a `verified=` tag** recording *what proved it works* —
+  `pending`, or a date plus the evidence, or `REJECTED by <media> on <date>`. A
+  rejected key is **kept**, so nobody re-tries it (that is what
+  `fleet-winxp-pro-sp3-product-key` is for). A key that merely exists is not a
+  key that works.
+- **Never pass a secret on the command line.** `keyvault.py set` takes `--file`
+  or `--stdin` only; argv lands in shell history, in `ps`, and in transcripts.
+- **`contentType` is capped at 255 chars** and Key Vault rejects a longer one
+  with `Property  has invalid value`, naming no property. The helper checks first.
+
+### ⚠️ `aisleprompt-kv` is a DIFFERENT vault and is not ours
+
+There is a second vault, `aisleprompt-kv`, belonging to the AislePrompt
+project, which the user has said is not to be changed. **Never read from it,
+write to it, or reference it.** `keyvault.py` refuses it in code and
+`tests/python/test_keyvault.py` asserts that it does. (`nsc-secrets-kv` also
+holds some non-fleet entries — `file-aisleprompt-env`, `amazon-creators-*`.
+Stay inside `fleet-*`.)
+
+### THE VAULT IS THE SYSTEM OF RECORD, NOT A RUNTIME DEPENDENCY
+
+**A staged `install.reg` carries the literal key, and that is correct.** A
+Windows `.reg` has no syntax for indirection — `regedit /s` merges bytes — and a
+retro PC must never need the internet to start a game. `GAMESYNC` copies a tree
+byte-for-byte with no hook where a secret could be substituted, and adding one
+would mean putting Azure credentials on the fleet, which is far worse than a CD
+key sitting in a file on an isolated LAN.
+
+So the vault answers *"what was that key?"* — after a NAS rebuild, when staging
+a title on a second library, when a dialog needs it typed by hand. **Do not
+"improve" a launcher, an `install.reg` or `GAMESYNC` into fetching a key at run
+time.** The right shape is `scripts/pxe/make-xp-source.sh`, which pulls
+`PRODUCT_KEY` from the vault **on the Linux host at image-build time** so what
+reaches the fleet is a finished artifact.
+
+### THREE categories, not two — the third is the one that breaks multiplayer
+
+When you find a key-shaped value, classify it as one of **three** things. The
+expensive mistake is folding the third into the first.
+
+1. **A real per-copy secret** — a product key, a CD key, a credential.
+   **Vault it**, tagged, and keep the literal in the staged tree.
+2. **A deliberately-public fleet convention** — see below. **Document why**,
+   rather than silently leaving it or pretending it is protected.
+3. **Per-installation, machine-local state.** **Leave it alone, and say so.**
+   It is not a secret; it is a value that must be *different* on every box, and
+   centralising it — in `install.reg` or in a vault, identically — is what
+   breaks LAN play.
+
+`HKLM\SOFTWARE\Westwood\<game>\Serial` is category 3. It is generated **on
+the box** by the launcher `.bat` from the system drive's volume serial. One
+value handed to every box makes RA2/Yuri refuse the second machine with *"There
+is already a player with your serial# in that game"*; **Tiberian Sun has the
+same lineage and the same mechanism**, and a two-box LAN test on 2026-08-30
+produced two different eleven-digit serials, exactly as intended. Vaulting
+either would be actively wrong. The whole class is audited in
+`Games-Library/_patches/PER-BOX-VALUES.txt`.
+
+### Deliberately NOT secret — documented, not hidden
+
+`retro-agent-secret` (the agent's shared secret, compiled in as the default and
+assumed by ~20 scripts), `password` (the console account on every box, which XP
+auto-login requires in cleartext), and the game servers' `retroadmin` /
+`retro-vanilla` / `retro-noblood` rcon passwords are **fleet-wide conventions on
+an isolated LAN with no WAN exposure**. Vaulting them would be theatre and would
+break every script that assumes the default. Rotating the agent secret is a
+fleet-wide operation — see the `security-posture` skill, not this one.
+`SMB_CREDS = user:password` in `agent/Makefile` is a placeholder with `# EDIT:`
+beside it.
+
+### Never commit a literal
+
+`tests/python/test_no_committed_secrets.py` greps every tracked text file for
+key-shaped literals, for private-key/connection-string markers, and — the
+catch-all — for the **actual values** of every `fleet-gamekey-*` secret pulled
+live from the vault. It skips **loudly** when `az` is unavailable. **If you find
+a secret in git history, report it and ask the user before rewriting history** —
+many worktrees track this branch. (Swept 2026-08-30: history is clean.)
