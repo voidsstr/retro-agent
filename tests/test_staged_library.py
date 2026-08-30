@@ -54,6 +54,36 @@ def main():
     if r.returncode == 0:
         print("  PASS  every staged title satisfies the contract")
         return 0
+
+    # "THE VALIDATOR DID NOT FINISH" AND "THE LIBRARY IS BROKEN" ARE DIFFERENT
+    # CALLS TO ACTION, AND THEY USED TO RENDER IDENTICALLY.
+    #
+    # This really happened on 2026-08-30. The validator walks every title's
+    # whole tree over CIFS; with two dozen of them running at once from
+    # different fleet agents, one was killed and its captured buffers went with
+    # it - so the wrapper printed the FAIL banner with NOTHING above it and the
+    # suite said "the library would NOT deploy cleanly". Three independent
+    # validator runs either side of it all returned DEPLOYABLE. The library was
+    # never broken; the measurement was.
+    #
+    # A negative returncode is a signal (killed). Empty output on a nonzero
+    # exit means it died before it could report. Neither is a verdict about the
+    # library, and reporting one as if it were is how a phantom bug report
+    # sends everybody chasing something that was never there.
+    if r.returncode < 0:
+        print("  ERROR the validator was KILLED by signal %d - the library was"
+              % -r.returncode)
+        print("        NOT checked. This is not a library failure.")
+        print("        Usual cause: several agents running this at once against")
+        print("        the same SMB share. Re-run when it is quiet, or point it")
+        print("        at the gvfs transport with --library.")
+        return 1
+    if not out.strip():
+        print("  ERROR the validator exited %d without reporting anything - the"
+              % r.returncode)
+        print("        library was NOT checked. This is not a library failure.")
+        return 1
+
     print("  FAIL  the library would NOT deploy cleanly - see above")
     return 1
 
