@@ -739,3 +739,97 @@ def test_the_fallback_hop_does_not_use_clear_groups(dc, monkeypatch):
     prefix = dc._systemctl_prefix("user")
     assert "--clear-groups" not in prefix
     assert "--reuid" in prefix and "1000" in prefix
+
+
+# --------------------------------------------------------------------------
+# the web-site panel (specpicks.com / aisleprompt.com)
+# --------------------------------------------------------------------------
+
+def test_a_disabled_agent_is_off_even_while_carrying_an_old_failure(dc):
+    """`enabled` must be read BEFORE the run state.
+
+    specpicks-scraper-watchdog is disabled and still holds a `failure` from
+    before it was switched off. Reporting that as a fault sends someone to fix
+    something that was turned off on purpose.
+    """
+    assert dc._agent_state({"enabled": False, "last_run_status": "failure"}) == "off"
+
+
+def test_an_agent_that_never_ran_is_absent_not_failed(dc):
+    """No status.json at all is "never installed", which is not a fault.
+
+    One specpicks agent is in exactly this state. Collapsing it into `fail`
+    is the same error as a systemd LoadState=not-found reading as a crash.
+    """
+    assert dc._agent_state({"enabled": True, "last_run_status": "",
+                           "last_run_at": None}) == "absent"
+
+
+def test_an_empty_status_with_a_run_time_is_unknown(dc):
+    """It ran at some point but says nothing about how -- that is not absent,
+    and it is not a failure either. It is the third answer."""
+    assert dc._agent_state({"enabled": True, "last_run_status": "",
+                           "last_run_at": "2026-08-30T03:00:01+00:00"}) == "unknown"
+
+
+def test_the_framework_states_map_onto_the_shared_vocabulary(dc):
+    for framework_state, wall_state in [
+            ("success", "ok"), ("idle", "ok"),
+            ("running", "busy"), ("starting", "busy"),
+            ("failure", "fail"), ("blocked", "blocked"),
+            ("cancelled", "warn")]:
+        got = dc._agent_state({"enabled": True, "last_run_status": framework_state})
+        assert got == wall_state, f"{framework_state} -> {got}"
+
+
+def test_an_unrecognised_framework_state_is_unknown_not_ok(dc):
+    """A state we have never seen must not be optimistically green."""
+    assert dc._agent_state({"enabled": True,
+                           "last_run_status": "reticulating"}) == "unknown"
+
+
+def test_iso_age_parses_the_frameworks_timestamp_format(dc):
+    """The framework writes UTC with a +00:00 offset, never a bare Z."""
+    from datetime import datetime, timedelta, timezone
+    ts = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat(
+        timespec="seconds")
+    age = dc._iso_age(ts)
+    assert age is not None and 280 < age < 320, age
+
+
+def test_iso_age_tolerates_a_z_suffix_and_junk(dc):
+    assert dc._iso_age("2026-08-30T03:00:01Z") is not None
+    assert dc._iso_age("not a timestamp") is None
+    assert dc._iso_age(None) is None
+
+
+def test_agents_are_grouped_by_id_prefix_not_the_application_field(dc, monkeypatch):
+    """At least one agent is filed under the wrong application by the API.
+
+    specpicks-user-growth-strategist declares metadata.site = "aisleprompt",
+    so `application` puts it on the wrong site. The id prefix is the only
+    reliable grouping key.
+    """
+    agents = [
+        {"id": "specpicks-a", "enabled": True, "last_run_status": "success",
+         "application": "specpicks"},
+        {"id": "specpicks-user-growth-strategist", "enabled": True,
+         "last_run_status": "success", "application": "aisleprompt"},
+        {"id": "aisleprompt-b", "enabled": True, "last_run_status": "success",
+         "application": "aisleprompt"},
+    ]
+    monkeypatch.setattr(dc, "_site_api",
+                        lambda path: ({}, "") if path == "/api/health"
+                        else (agents, ""))
+    got = dc.collect_site_agents()
+    assert got["sites"]["specpicks"]["total"] == 2
+    assert got["sites"]["aisleprompt"]["total"] == 1
+
+
+def test_an_unreachable_api_is_a_fault_with_a_reason(dc, monkeypatch):
+    """Nothing supervises that uvicorn process, so refused is expected --
+    but it must never render as an empty, healthy-looking panel."""
+    monkeypatch.setattr(dc, "_site_api", lambda path: (None, "URLError: refused"))
+    got = dc.collect_site_agents()
+    assert got["state"] == "fail"
+    assert "refused" in got["error"]

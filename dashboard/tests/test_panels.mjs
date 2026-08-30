@@ -73,7 +73,7 @@ class CapturePanel {
 }
 
 const PANELS = ['cpu', 'memory', 'disk', 'gpu', 'thermals', 'net',
-                'fleet', 'games', 'favs', 'agents', 'remote', 'pxe', 'services'];
+                'fleet', 'games', 'favs', 'agents', 'remote', 'pxe', 'services', 'sites'];
 
 function render(state) {
     const dash = Object.create(Dashboard.prototype);
@@ -220,7 +220,10 @@ noThrow('renders with a totally empty state object', () => render({}));
     const pxe = plain(d._panels.pxe.markup);
     ok('pxe reports serving', d._panels.pxe.title.includes('serving'),
         d._panels.pxe.title);
-    ok('pxe lists its bound ports', pxe.includes('TFTP ✓'), pxe);
+    // Glyphs come from render.js's shared STATUS vocabulary now, so this
+    // asserts the same '●' that means "healthy" in every other panel rather
+    // than a tick this panel invented for itself.
+    ok('pxe lists its bound ports', pxe.includes('TFTP ●'), pxe);
     ok('pxe reports boot holds', pxe.includes('1 machine served'), pxe);
 
     const hero = plain(d._hero);
@@ -273,7 +276,7 @@ noThrow('renders with a totally empty state object', () => render({}));
     const pxe = plain(d._panels.pxe.markup);
     ok('an active pxe with no TFTP socket is not called serving',
         !d._panels.pxe.title.includes('serving'), d._panels.pxe.title);
-    ok('the missing socket is marked', pxe.includes('TFTP ✗'), pxe);
+    ok('the missing socket is marked', pxe.includes('TFTP ✕'), pxe);
 
     const svc = plain(d._panels.services.markup);
     ok('a failed service is listed', svc.includes('failed'), svc);
@@ -374,6 +377,79 @@ noThrow('services list that is empty', () => render({
     ok('the live-server label does not run into its value',
         !favs.includes('live servers675'), favs);
     ok('the value is still there', favs.includes('675 known'), favs);
+}
+
+/* ---------------------------------------------------------------- sites
+ *
+ * specpicks.com / aisleprompt.com. The numbers here are the shapes the live
+ * framework API and the production Postgres actually return.
+ */
+{
+    const d = render({
+        sites: {
+            collected_at: Date.now() / 1000 - 20,
+            agents: {
+                state: 'ok',
+                sites: {
+                    specpicks: {
+                        total: 33,
+                        counts: {ok: 28, fail: 3, off: 1, absent: 1},
+                        failing: ['search-demand-agent'],
+                        last_ok_age: 580,
+                    },
+                    aisleprompt: {total: 22, counts: {ok: 22}, failing: []},
+                },
+            },
+            articles: {
+                state: 'ok',
+                sites: {
+                    specpicks: {state: 'ok', week: 42, scheduled: 0},
+                    aisleprompt: {state: 'ok', week: 14, scheduled: 22},
+                },
+            },
+            deploys: {state: 'fail', ok: 0, bad: 20,
+                      last_age: 540, window_days: 0.52},
+        },
+    });
+    const t = plain(d._panels.sites.markup);
+
+    ok('the article count is the headline number', t.includes('42'), t);
+    ok('a healthy site is not called broken',
+        t.includes('22/22 agents'), t);
+    ok('failing agents are named, not just counted',
+        t.includes('search-demand-agent'), t);
+
+    /* An agent switched off on purpose and one that never ran are neither
+     * of them failures, and must not be counted as such. */
+    ok('a disabled agent is reported as off', t.includes('1 off'), t);
+    ok('a never-run agent says so', t.includes('1 never ran'), t);
+
+    /* aisleprompt future-dates articles for scheduled publishing. Folding
+     * those into the published count overstates it by about 150%. */
+    ok('scheduled articles are kept separate from published',
+        t.includes('+22 scheduled'), t);
+
+    /* The deploy window is printed because the run index cannot cover 7 days,
+     * so the count is a floor over whatever it does span. */
+    ok('the deploy figure states its own window',
+        t.includes('window'), t);
+
+    ok('the panel says how old its data is',
+        d._panels.sites.title.includes('as of'), d._panels.sites.title);
+}
+
+/* The framework API is a bare uvicorn process that nothing supervises, so it
+ * being unreachable is an ordinary state and must read as such -- not as a
+ * blank panel that looks like "nothing to report". */
+{
+    const d = render({
+        sites: {agents: {state: 'fail', error: 'URLError: Connection refused'},
+                articles: {}, deploys: {}},
+    });
+    const t = plain(d._panels.sites.markup);
+    ok('an unreachable API explains itself',
+        t.includes('Connection refused'), t);
+    ok('an unreachable API is not a blank panel', t.trim().length > 10, t);
 }
 
 console.log('');

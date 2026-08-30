@@ -78,7 +78,7 @@ class CapturePanel {
 }
 
 const PANELS = ['cpu', 'memory', 'disk', 'gpu', 'thermals', 'net',
-                'fleet', 'games', 'favs', 'agents', 'remote', 'pxe', 'services'];
+                'fleet', 'games', 'favs', 'agents', 'remote', 'pxe', 'services', 'sites'];
 
 const state = JSON.parse(readFileSync(process.argv[2] ?? '/dev/stdin', 'utf8'));
 

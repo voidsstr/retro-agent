@@ -44,7 +44,7 @@ import sys
 import threading
 import time
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 DEFAULT_STATE_PATH = "/run/retro-dashboard/state.json"
 DEFAULT_CONFIG_PATH = "/etc/retro-dashboard/fleet.json"
@@ -138,6 +138,8 @@ HOST_SERVICES = [
 # loop -- a `systemctl show` per panel per sample is ~1 fork/second forever for
 # data that changes on the scale of minutes.
 SLOW_TTL_SEC = 10.0
+# Site panel: network + database, and nothing on it moves minute to minute.
+SITES_TTL_SEC = 120.0
 
 
 # --------------------------------------------------------------------------
@@ -1054,6 +1056,256 @@ def collect_pxe():
     return out
 
 
+# --------------------------------------------------------------------------
+# the two web properties (specpicks.com, aisleprompt.com)
+# --------------------------------------------------------------------------
+#
+# Their agents run under the `reusable-agents` framework, which exposes a local
+# FastAPI on 127.0.0.1:8090 and keeps all durable state in AZURE BLOB STORAGE.
+#
+# That last fact governs the whole design of this section. The framework's blob
+# client is built with the SDK's default retry policy -- 20s connect, 60s read,
+# three exponential retries -- and the API sets no request deadline of its own,
+# so a single call CAN block for over three minutes when Azure is unreachable.
+# A wall that freezes for three minutes because a cloud storage account is
+# having a bad day is worse than a wall that says "unreachable" in 8 seconds.
+# So every call here carries its own hard client-side timeout and every failure
+# has a rendering. Never inherit the API's patience.
+#
+# The API is also NOT a systemd unit -- it is a bare uvicorn process that
+# nothing restarts. Connection-refused is an expected state, not an anomaly.
+
+SITES = ("specpicks", "aisleprompt")
+SITE_API = "http://127.0.0.1:8090"
+SITE_SECRETS = os.path.expanduser("~voidsstr/.reusable-agents/secrets.env")
+SITE_API_TIMEOUT = 8.0
+SITE_DB_TIMEOUT = 5
+
+
+def _site_secret(name):
+    """One value out of secrets.env, or None. Never raises, never logs it."""
+    try:
+        with open(SITE_SECRETS, "r", encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, _, v = line.partition("=")
+                if k.strip() == name:
+                    return v.strip().strip("'").strip('"')
+    except OSError:
+        return None
+    return None
+
+
+def _site_api(path):
+    """GET one API path. Returns (payload, error). Hard-capped at 8s."""
+    import urllib.error
+    import urllib.request
+
+    token = _site_secret("FRAMEWORK_API_TOKEN")
+    if not token:
+        return None, "no FRAMEWORK_API_TOKEN in secrets.env"
+    req = urllib.request.Request(
+        f"{SITE_API}{path}", headers={"Authorization": f"Bearer {token}"})
+    try:
+        with urllib.request.urlopen(req, timeout=SITE_API_TIMEOUT) as fh:
+            return json.loads(fh.read().decode("utf-8", "replace")), ""
+    except urllib.error.HTTPError as exc:
+        return None, f"HTTP {exc.code}"
+    except Exception as exc:                       # URLError, timeout, JSON
+        return None, f"{type(exc).__name__}: {exc}"[:120]
+
+
+def _agent_state(agent):
+    """Map one framework agent onto the wall's shared status vocabulary.
+
+    The framework's own states are: idle, starting, running, success, failure,
+    blocked, cancelled -- plus "" when the agent has no status.json at all.
+
+    Two orderings matter here and both were got wrong first time elsewhere:
+
+    * `enabled` is checked BEFORE the run state, because a disabled agent can
+      still be carrying a stale `failure` from before it was switched off.
+      Reporting that as a fault sends someone to fix something deliberately
+      turned off.
+    * "" with no last_run_at is `absent` (never installed / never ran), which
+      is NOT `fail`. One specpicks agent is in exactly that state right now.
+    """
+    if not agent.get("enabled", True):
+        return "off"
+    st = (agent.get("last_run_status") or "").strip()
+    if not st:
+        return "absent" if not agent.get("last_run_at") else "unknown"
+    return {
+        "success": "ok",
+        "running": "busy",
+        "starting": "busy",
+        "idle": "ok",
+        "failure": "fail",
+        "blocked": "blocked",
+        "cancelled": "warn",
+    }.get(st, "unknown")
+
+
+def _iso_age(ts):
+    """Seconds since an ISO-8601 timestamp, or None. The framework always
+    writes UTC with a +00:00 offset (never a bare Z), second precision."""
+    if not ts:
+        return None
+    try:
+        from datetime import datetime, timezone
+        t = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=timezone.utc)
+        return max(0.0, (datetime.now(timezone.utc) - t).total_seconds())
+    except Exception:
+        return None
+
+
+def collect_site_agents():
+    """Agent health per site, from one /api/agents call."""
+    out = {"state": "unknown", "sites": {}, "error": ""}
+    health, err = _site_api("/api/health")
+    if err:
+        # Refused is the common case: nothing supervises that uvicorn process.
+        out["state"] = "fail"
+        out["error"] = f"framework API unreachable ({err})"
+        return out
+    agents, err = _site_api("/api/agents")
+    if err or not isinstance(agents, list):
+        out["state"] = "fail"
+        out["error"] = err or "unexpected /api/agents payload"
+        return out
+
+    out["state"] = "ok"
+    for site in SITES:
+        # Group on the id PREFIX, not the `application` field: at least one
+        # agent (specpicks-user-growth-strategist) declares metadata.site =
+        # "aisleprompt" and so is filed under the wrong application by the API.
+        mine = [a for a in agents if str(a.get("id", "")).startswith(site + "-")]
+        counts, ages = {}, []
+        for a in mine:
+            st = _agent_state(a)
+            counts[st] = counts.get(st, 0) + 1
+            if st == "ok":
+                age = _iso_age(a.get("last_run_at"))
+                if age is not None:
+                    ages.append(age)
+        failing = sorted(str(a.get("id", "")).split("-", 1)[-1]
+                         for a in mine if _agent_state(a) in ("fail", "blocked"))
+        out["sites"][site] = {
+            "total": len(mine),
+            "counts": counts,
+            "failing": failing[:4],
+            "last_ok_age": min(ages) if ages else None,
+        }
+    return out
+
+
+def collect_site_articles():
+    """Published-article counts from each site's PRODUCTION Postgres.
+
+    Two traps, both of which produce a confident wrong number:
+
+    * The Docker containers on this host (specpicks_postgres :5432,
+      aisleprompt-db-1 :5436) are STALE DEV COPIES. Production is Azure
+      Postgres, reached through the DATABASE_URL_<SITE> DSNs. The gap is not
+      subtle -- 400 rows locally against 3029 in production.
+    * aisleprompt FUTURE-DATES articles for scheduled publishing, so
+      `published_at > now() - 7 days` alone counts pieces that have not been
+      published yet and overstates it by about half. Hence the upper bound.
+    """
+    out = {"state": "unknown", "sites": {}, "error": ""}
+    try:
+        import psycopg2
+    except ImportError:
+        out["state"] = "absent"
+        out["error"] = "psycopg2 not installed"
+        return out
+
+    any_ok = False
+    for site in SITES:
+        dsn = _site_secret(f"DATABASE_URL_{site.upper()}")
+        if not dsn:
+            out["sites"][site] = {"state": "absent",
+                                  "why": f"no DATABASE_URL_{site.upper()}"}
+            continue
+        try:
+            con = psycopg2.connect(dsn, connect_timeout=SITE_DB_TIMEOUT)
+            try:
+                cur = con.cursor()
+                cur.execute("SET statement_timeout = 8000")
+                cur.execute(
+                    "SELECT count(*) FROM editorial_articles "
+                    " WHERE status = 'published'"
+                    "   AND published_at >  now() - interval '7 days'"
+                    "   AND published_at <= now()")
+                week = cur.fetchone()[0]
+                cur.execute(
+                    "SELECT count(*) FROM editorial_articles "
+                    " WHERE status = 'published' AND published_at > now()")
+                scheduled = cur.fetchone()[0]
+            finally:
+                con.close()
+            out["sites"][site] = {"state": "ok", "week": int(week),
+                                  "scheduled": int(scheduled)}
+            any_ok = True
+        except Exception as exc:
+            out["sites"][site] = {"state": "fail",
+                                  "why": f"{type(exc).__name__}: {exc}"[:100]}
+    out["state"] = "ok" if any_ok else "fail"
+    return out
+
+
+def collect_site_deploys():
+    """Deploy activity, reported honestly rather than as a round number.
+
+    There is no deployment counter to read. What exists is the seo-deployer
+    agent's run index, and it is capped at the most recent runs -- so it
+    CANNOT answer a 7-day question, and any count taken from it is a floor
+    over whatever window it happens to span. The window is therefore reported
+    alongside the count instead of being quietly assumed to be 7 days.
+
+    Worse, and the reason no per-site deploy count appears on this wall:
+    specpicks' pipeline deploys have been blocked at the test gate, yet the
+    site IS being deployed -- by hand, through specpicks/scripts/deploy-azure.sh,
+    which records nothing anywhere. A "deployments" figure here would
+    under-report the one site it most looks like it is describing.
+    """
+    runs, err = _site_api("/api/agents/seo-deployer/runs")
+    if err:
+        return {"state": "unknown", "why": err}
+    rows = runs if isinstance(runs, list) else (runs or {}).get("runs", [])
+    if not rows:
+        return {"state": "absent", "why": "no runs recorded"}
+    ok = sum(1 for r in rows if r.get("status") == "success")
+    bad = sum(1 for r in rows if r.get("status") in ("failure", "blocked"))
+    ages = [a for a in (_iso_age(r.get("started_at")) for r in rows)
+            if a is not None]
+    newest = rows[0]
+    return {
+        "state": {"success": "ok", "failure": "fail",
+                  "blocked": "blocked"}.get(newest.get("status"), "unknown"),
+        "ok": ok,
+        "bad": bad,
+        "last_age": _iso_age(newest.get("started_at")),
+        # The real window these counts cover, in days. Never assume 7.
+        "window_days": (max(ages) / 86400.0) if ages else None,
+        "partial": True,
+    }
+
+
+def collect_sites():
+    """Everything the wall shows for specpicks.com and aisleprompt.com."""
+    return {
+        "agents": collect_site_agents(),
+        "articles": collect_site_articles(),
+        "deploys": collect_site_deploys(),
+        "collected_at": time.time(),
+    }
+
+
 class SlowCache:
     """TTL cache for the panels that fork a subprocess.
 
@@ -1067,9 +1319,10 @@ class SlowCache:
         self._at = {}
         self._val = {}
 
-    def get(self, key, fn):
+    def get(self, key, fn, ttl=None):
         now = time.monotonic()
-        if key not in self._val or now - self._at.get(key, 0) >= self.ttl:
+        ttl = self.ttl if ttl is None else ttl
+        if key not in self._val or now - self._at.get(key, 0) >= ttl:
             try:
                 self._val[key] = fn()
             except Exception as exc:
@@ -1104,6 +1357,10 @@ def build_state(vitals, fleet_poller, slow=None):
     state["gameindex"] = slow.get("gameindex", collect_gameindex)
     state["pxe"] = slow.get("pxe", collect_pxe)
     state["services"] = slow.get("services", collect_services)
+    # The site panel makes network calls (local API + two Azure Postgres
+    # round-trips), so it gets a much longer TTL than the systemctl panels.
+    # A publishing count does not change meaningfully inside a minute.
+    state["sites"] = slow.get("sites", collect_sites, ttl=SITES_TTL_SEC)
     reconcile_status_sources(state)
     return state
 

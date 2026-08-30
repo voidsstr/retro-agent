@@ -185,3 +185,110 @@ export function padLeft(text, width) {
         return s.slice(-width);
     return ' '.repeat(width - s.length) + s;
 }
+
+/* ------------------------------------------------------------ status
+ *
+ * ONE status vocabulary for every panel on this wall.
+ *
+ * Before this existed each panel invented its own: some drew ● / ○, some
+ * ✓ / ✗, some coloured a dot green-or-red and nothing else. Two problems
+ * followed, and both are the reason this is now shared code.
+ *
+ * 1. A red dot in one panel and a red dot in another did not mean the same
+ *    thing, so the wall could not be read at a glance -- which is the entire
+ *    point of a wall you walk past.
+ *
+ * 2. Everything that was not plainly healthy collapsed into "bad". But
+ *    "nobody ever installed this", "this is switched off on purpose", "this
+ *    ran and failed", "this is waiting for a person" and "I could not find
+ *    out" are five different calls to action, and only two of them are
+ *    faults. Rendering them identically has repeatedly sent us to look at the
+ *    wrong thing -- it is the same mistake as a systemd LoadState=not-found
+ *    reading as a crash, and as a failed file read reading as an empty file.
+ *
+ * So: eight states, each with its own glyph AND its own colour (never colour
+ * alone -- this is displayed across a room, and the glyph survives both a bad
+ * viewing angle and colour-blindness). Faults are the only ones that are red.
+ */
+export const STATUS = {
+    ok:      {glyph: '●', color: COLORS.ok,    rank: 0, label: 'ok'},
+    busy:    {glyph: '◐', color: COLORS.title, rank: 1, label: 'running'},
+    off:     {glyph: '○', color: COLORS.off,   rank: 2, label: 'off'},
+    absent:  {glyph: '·', color: COLORS.off,   rank: 3, label: 'absent'},
+    unknown: {glyph: '?', color: COLORS.dim,   rank: 4, label: 'unknown'},
+    stale:   {glyph: '⋯', color: COLORS.dim,   rank: 5, label: 'stale'},
+    warn:    {glyph: '▲', color: COLORS.warm,  rank: 6, label: 'warn'},
+    blocked: {glyph: '‖', color: COLORS.netTx, rank: 7, label: 'blocked'},
+    fail:    {glyph: '✕', color: COLORS.hot,   rank: 8, label: 'fail'},
+};
+
+/** Only these demand action tonight. Used for the header's fault count. */
+export const FAULT_STATES = ['fail', 'blocked', 'warn'];
+
+export function isFault(state) {
+    return FAULT_STATES.includes(state);
+}
+
+/** The coloured glyph for a state. Unknown names degrade to `unknown`. */
+export function statusMark(state) {
+    const s = STATUS[state] || STATUS.unknown;
+    return `<span color="${s.color}">${escape(s.glyph)}</span>`;
+}
+
+/**
+ * A standard status line: `● name        detail`.
+ *
+ * Every panel builds its rows through this, so a row means the same thing
+ * wherever it appears. `detail` is already-escaped markup when opts.markup is
+ * set, otherwise it is escaped here.
+ */
+export function statusRow(state, name, detail = '', opts = {}) {
+    const s = STATUS[state] || STATUS.unknown;
+    const width = opts.width ?? 18;
+    const nm = span(opts.nameColor || COLORS.text, pad(name, width));
+    const det = opts.markup ? detail : span(s.color, detail);
+    return `${statusMark(state)} ${nm} ${det}`;
+}
+
+/**
+ * Worst state in a list -- what a group's single summary glyph should be.
+ * Ranked so a real fault always wins over an "I could not tell", and an
+ * "I could not tell" always wins over a healthy sibling: a group is only
+ * green when everything in it is actually green.
+ */
+export function worstStatus(states) {
+    let worst = 'ok';
+    for (const st of states || []) {
+        const a = STATUS[st] || STATUS.unknown;
+        if (a.rank > (STATUS[worst] || STATUS.unknown).rank)
+            worst = STATUS[st] ? st : 'unknown';
+    }
+    return worst;
+}
+
+/**
+ * Age a reading and say whether it can still be trusted.
+ *
+ * Returns a state, so a panel whose source stopped updating goes `stale`
+ * rather than continuing to show its last value as though it were live.
+ * A number that is quietly ten hours old is worse than no number, because
+ * it is indistinguishable from a working system.
+ */
+export function freshness(ageSec, softSec, hardSec) {
+    const a = Number(ageSec);
+    if (!Number.isFinite(a))
+        return 'unknown';
+    if (a > (hardSec ?? softSec * 4))
+        return 'fail';
+    if (a > softSec)
+        return 'stale';
+    return 'ok';
+}
+
+/** "as of 4m ago", or an em dash when we have no timestamp at all. */
+export function asOf(ageSec) {
+    const a = Number(ageSec);
+    if (!Number.isFinite(a))
+        return 'as of —';
+    return `as of ${humanAge(a)} ago`;
+}

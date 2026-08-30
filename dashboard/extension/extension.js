@@ -257,6 +257,7 @@ export default class RetroFleetDashboard extends Extension {
             remote:   new Panel('REMOTE'),
             pxe:      new Panel('PXE'),
             services: new Panel('SERVICES'),
+            sites:    new Panel('WEB SITES'),
         };
 
         /* Three columns, not four. The physical monitor is 1600x1200, so
@@ -268,6 +269,7 @@ export default class RetroFleetDashboard extends Extension {
         col1.add_child(this._panels.cpu.actor);
         col1.add_child(this._panels.memory.actor);
         col1.add_child(this._panels.disk.actor);
+        col1.add_child(this._panels.sites.actor);
         col1.add_child(this._panels.remote.actor);
 
         col2.add_child(this._panels.gpu.actor);
@@ -467,6 +469,7 @@ export default class RetroFleetDashboard extends Extension {
         this._renderAgents(s);
         this._renderPxe(s);
         this._renderServices(s);
+        this._renderSites(s);
         this._renderRemote(s);
     }
 
@@ -749,9 +752,9 @@ export default class RetroFleetDashboard extends Extension {
 
         const rows = [];
         for (const n of nodes.slice(0, 10)) {
-            const dot = n.up
-                ? R.span(R.COLORS.ok, '●')
-                : R.span(R.COLORS.off, '○');
+            // A box that is off is `off`, never a fault: this fleet is
+            // powered on demand and an empty sweep is the normal case.
+            const dot = R.statusMark(n.up ? 'ok' : 'off');
             const name = n.up ? (n.name || n.label) : n.label;
             // 18, not 15: the fleet's real hostnames run to 16 characters
             // (NSC-5B996B81319), which filled the column exactly and ran
@@ -808,9 +811,9 @@ export default class RetroFleetDashboard extends Extension {
         for (const srv of servers) {
             if (srv.installed === false)
                 continue;   // never installed here — not a fault, not a row
-            const dot = srv.up
-                ? R.span(R.COLORS.ok, '●')
-                : R.span(R.COLORS.hot, '●');
+            // These are meant to be up, so down IS a fault here -- unlike a
+            // fleet box, which is off by design.
+            const dot = R.statusMark(srv.up ? 'ok' : 'fail');
             const name = R.span(srv.up ? R.COLORS.text : R.COLORS.hot,
                 R.pad(srv.label, 16));
 
@@ -851,7 +854,8 @@ export default class RetroFleetDashboard extends Extension {
         if (proxies.length) {
             rows.push(R.span(R.COLORS.off,
                 `  browser proxies  ${proxies.map(
-                    x => `${x.port} ${x.up ? '✓' : '✗'}`).join('  ')}`, {dim: true}));
+                    x => `${x.port} ${R.STATUS[x.up ? 'ok' : 'fail'].glyph}`)
+                    .join('  ')}`, {dim: true}));
         }
 
         const wd = g.watchdog ?? {};
@@ -890,11 +894,12 @@ export default class RetroFleetDashboard extends Extension {
 
         const running = f.phase && f.phase !== 'idle' && f.phase !== 'failed';
         const bad = f.ok === false || f.phase === 'failed' || f.stale_sec;
-        const col = bad ? R.COLORS.hot : (running ? R.COLORS.warm : R.COLORS.ok);
+        const st = bad ? 'fail' : (running ? 'busy' : 'ok');
+        const col = R.STATUS[st].color;
         this._panels.favs.setTitle('FAVOURITES AGENT');
 
         const rows = [];
-        rows.push(`${R.span(col, '●')} ${
+        rows.push(`${R.statusMark(st)} ${
             R.span(R.COLORS.text, R.pad('server lists', 14))}${
             R.span(col, R.pad(running ? f.phase : (bad ? 'failed' : 'idle'), 20))}`);
 
@@ -948,8 +953,11 @@ export default class RetroFleetDashboard extends Extension {
             `PXE   ${serving ? 'serving' : (active ? 'no sockets' : (p.state ?? '—'))}`);
 
         const rows = [];
-        const col = serving ? R.COLORS.ok : (active ? R.COLORS.warm : R.COLORS.hot);
-        rows.push(`${R.span(col, serving ? '●' : '○')} ${
+        // `active` but serving nothing is a warning, not a pass: the unit
+        // looks perfectly healthy while no machine can boot from it.
+        const pxeSt = serving ? 'ok' : (active ? 'warn' : 'fail');
+        const col = R.STATUS[pxeSt].color;
+        rows.push(`${R.statusMark(pxeSt)} ${
             R.span(R.COLORS.text, R.pad('retro-pxe', 12))}${
             R.span(col, R.pad(p.state ?? 'unknown', 10))}${
             p.uptime_sec !== undefined
@@ -959,8 +967,8 @@ export default class RetroFleetDashboard extends Extension {
         // looking perfectly healthy, so the bound ports get their own line.
         const ports = p.ports ?? {};
         const portBits = Object.keys(ports).map(name =>
-            R.span(ports[name] ? R.COLORS.ok : R.COLORS.hot,
-                `${name} ${ports[name] ? '✓' : '✗'}`));
+            R.span(R.STATUS[ports[name] ? 'ok' : 'fail'].color,
+                `${name} ${R.STATUS[ports[name] ? 'ok' : 'fail'].glyph}`));
         if (portBits.length) {
             rows.push(`  ${R.span(R.COLORS.dim, R.pad('ports', 12), {dim: true})}${
                 portBits.join(R.span(R.COLORS.off, '  '))}`);
@@ -1002,16 +1010,27 @@ export default class RetroFleetDashboard extends Extension {
             return this._panels.services.setMarkup(R.span(R.COLORS.off, '  no data'));
 
         for (const svc of list) {
-            const ok = svc.state === 'active';
-            // `absent` means the unit was never installed on this host, which
-            // is a different call to action from a unit that has failed.
-            const missing = svc.state === 'absent';
-            const col = ok ? R.COLORS.ok : (missing ? R.COLORS.off : R.COLORS.hot);
-            const detail = ok && svc.uptime_sec !== undefined
+            // systemd's own words, mapped onto the wall's shared vocabulary.
+            // `absent` (never installed), `unknown` (could not ask the
+            // manager) and `failed` (it died) are three different calls to
+            // action and only the last is a fault -- rendering them alike is
+            // what made every service read as dead when a `systemctl --user`
+            // was run as the wrong user.
+            const st = ({
+                active: 'ok',
+                activating: 'busy',
+                deactivating: 'busy',
+                absent: 'absent',
+                unknown: 'unknown',
+                inactive: 'off',
+                failed: 'fail',
+            })[svc.state] ?? 'unknown';
+            const col = R.STATUS[st].color;
+            const detail = st === 'ok' && svc.uptime_sec !== undefined
                 ? `up ${R.humanUptime(svc.uptime_sec)}`
-                : (missing ? 'not installed' : (svc.sub || svc.result || ''));
-            rows.push(`${R.span(col, ok ? '●' : '○')} ${
-                R.span(ok ? R.COLORS.text : col, R.pad(svc.label, 15))}${
+                : (st === 'absent' ? 'not installed' : (svc.sub || svc.result || ''));
+            rows.push(`${R.statusMark(st)} ${
+                R.span(st === 'ok' ? R.COLORS.text : col, R.pad(svc.label, 15))}${
                 R.span(col, R.pad(svc.state ?? '—', 10))}${
                 R.span(R.COLORS.dim, detail, {dim: true})}${
                 svc.restarts ? R.span(R.COLORS.warm, `  ${svc.restarts}r`, {dim: true}) : ''}`);
@@ -1029,14 +1048,18 @@ export default class RetroFleetDashboard extends Extension {
         const a = s.agents ?? {};
         const rows = [];
 
-        const stateColor = st => {
-            if (st === 'running' || st === 'alive')
-                return R.COLORS.ok;
-            if (st === 'stale' || st === 'unknown')
-                return R.COLORS.warm;
-            return R.COLORS.off;
-        };
-        const dot = st => (st === 'running' || st === 'alive' ? '●' : '○');
+        // Same vocabulary as every other panel. A heartbeat that has gone
+        // quiet is `stale`, not `off`: "it stopped telling us" and "it is
+        // switched off" are different situations with different fixes.
+        const norm = st => ({
+            running: 'ok', alive: 'ok', ok: 'ok',
+            starting: 'busy',
+            stale: 'stale',
+            unknown: 'unknown',
+            dead: 'fail', failed: 'fail',
+        })[st] ?? 'off';
+        const stateColor = st => R.STATUS[norm(st)].color;
+        const dot = st => R.STATUS[norm(st)].glyph;
 
         const d = a.daemon ?? {};
         rows.push(`${R.span(stateColor(d.state), dot(d.state))} ${
@@ -1098,20 +1121,135 @@ export default class RetroFleetDashboard extends Extension {
         this._panels.agents.setMarkup(rows.join('\n'));
     }
 
+    /* specpicks.com + aisleprompt.com, via the reusable-agents framework.
+     *
+     * Rendered entirely through R.statusRow so a glyph here means exactly what
+     * the same glyph means in SERVICES, FLEET or GAME SERVERS. That is the
+     * whole point of the shared vocabulary: someone walking past should not
+     * have to remember which panel uses ✓ and which uses ●. */
+    _renderSites(s) {
+        const site = s.sites ?? {};
+        const ag = site.agents ?? {};
+        const arts = site.articles ?? {};
+        const dep = site.deploys ?? {};
+        const rows = [];
+
+        const age = site.collected_at
+            ? (Date.now() / 1000) - site.collected_at : NaN;
+        // The collector refreshes this every 120s; call it stale at 5 minutes
+        // and failed at 20, so a wall left showing yesterday's article count
+        // announces itself instead of looking healthy.
+        const fresh = R.freshness(age, 300, 1200);
+
+        if (ag.error) {
+            // The framework API is a bare uvicorn process that nothing
+            // restarts, so "unreachable" is an ordinary state and gets a plain
+            // explanation rather than a blank panel.
+            this._panels.sites.setTitle('WEB SITES   api down');
+            return this._panels.sites.setMarkup(
+                R.statusRow('fail', 'framework API', ag.error));
+        }
+
+        const siteStates = [];
+        for (const name of ['specpicks', 'aisleprompt']) {
+            const a = ag.sites?.[name] ?? {};
+            const c = a.counts ?? {};
+            const art = arts.sites?.[name] ?? {};
+
+            // A site is only green when every agent it owns is green. `off`
+            // and `absent` are deliberate or never-installed, so they hold the
+            // site at "ok" rather than dragging it to a fault -- but a single
+            // failure or a blocked agent colours the whole row.
+            const st = R.worstStatus([
+                ...(c.fail ? ['fail'] : []),
+                ...(c.blocked ? ['blocked'] : []),
+                ...(c.busy ? ['busy'] : []),
+                'ok',
+            ]);
+            siteStates.push(st);
+
+            const bits = [];
+            bits.push(R.span(R.COLORS.dim, `${c.ok ?? 0}/${a.total ?? 0} agents`));
+            if (c.fail)
+                bits.push(R.span(R.COLORS.hot, `${c.fail} failing`, {bold: true}));
+            if (c.blocked)
+                bits.push(R.span(R.COLORS.netTx, `${c.blocked} blocked`));
+            if (c.off)
+                bits.push(R.span(R.COLORS.off, `${c.off} off`));
+            if (c.absent)
+                bits.push(R.span(R.COLORS.off, `${c.absent} never ran`));
+
+            rows.push(R.statusRow(st, name, bits.join(R.span(R.COLORS.off, ' · ')),
+                {markup: true, width: 12}));
+
+            // Articles: the number the site exists to produce.
+            const artState = art.state === 'ok' ? 'ok'
+                : (art.state === 'absent' ? 'absent' : 'fail');
+            let detail;
+            if (art.state === 'ok') {
+                detail = `${R.span(R.COLORS.text, String(art.week), {bold: true})}${
+                    R.span(R.COLORS.dim, ' published, 7d')}`;
+                // aisleprompt future-dates pieces for scheduled publishing.
+                // Counting those as published overstates it by about half, so
+                // they are shown separately rather than folded in.
+                if (art.scheduled) {
+                    detail += R.span(R.COLORS.off,
+                        `  +${art.scheduled} scheduled`);
+                }
+            } else {
+                detail = R.span(R.COLORS.hot, art.why || 'no data');
+            }
+            rows.push(`  ${R.statusRow(artState, 'articles', detail,
+                {markup: true, width: 10})}`);
+
+            if ((a.failing ?? []).length) {
+                rows.push(R.span(R.COLORS.hot,
+                    `    ${a.failing.join(', ')}`, {dim: true}));
+            }
+        }
+
+        // Deploys. Deliberately NOT presented as "deployments in the last 7
+        // days": the run index keeps only the most recent runs, so the count
+        // is a floor over whatever window it actually spans, and that window
+        // is printed next to it. specpicks is additionally deployed by hand
+        // through a script that records nothing, so any figure here
+        // under-reports it -- see the collector for the full note.
+        if (dep.state && dep.state !== 'absent') {
+            const win = Number.isFinite(dep.window_days)
+                ? `${dep.window_days < 1
+                    ? `${Math.round(dep.window_days * 24)}h`
+                    : `${dep.window_days.toFixed(1)}d`}`
+                : '?';
+            const detail = `${R.span(R.COLORS.text, `${dep.ok ?? 0} ok`)}${
+                R.span(R.COLORS.dim, ' / ')}${
+                R.span(dep.bad ? R.COLORS.hot : R.COLORS.dim,
+                    `${dep.bad ?? 0} failed`)}${
+                R.span(R.COLORS.off, `  last ${R.humanAge(dep.last_age)} ago, ${win} window`)}`;
+            rows.push(R.statusRow(dep.state, 'deploys', detail,
+                {markup: true, width: 12}));
+        }
+
+        const worst = R.worstStatus([...siteStates,
+            fresh === 'ok' ? 'ok' : fresh]);
+        this._panels.sites.setTitle(
+            `WEB SITES   ${R.STATUS[worst].label}  ·  ${R.asOf(age)}`);
+        this._panels.sites.setMarkup(rows.join('\n'));
+    }
+
     _renderRemote(s) {
         const r = s.remote ?? {};
         const rows = [];
 
         const crd = r.crd ?? {};
         const crdLive = crd.state === 'connected';
-        rows.push(`${R.span(crdLive ? R.COLORS.ok : R.COLORS.off, crdLive ? '●' : '○')} ${
+        rows.push(`${R.statusMark(crdLive ? 'ok' : 'off')} ${
             R.span(R.COLORS.text, R.pad('Chrome RD', 12))}${
             R.span(crdLive ? R.COLORS.ok : R.COLORS.dim, R.pad(crd.state ?? 'off', 11))}${
             crd.user ? R.span(R.COLORS.dim, crd.user, {dim: true}) : ''}`);
 
         const rdp = r.rdp ?? {};
         const rdpLive = rdp.state === 'connected';
-        rows.push(`${R.span(rdpLive ? R.COLORS.ok : R.COLORS.off, rdpLive ? '●' : '○')} ${
+        rows.push(`${R.statusMark(rdpLive ? 'ok' : 'off')} ${
             R.span(R.COLORS.text, R.pad('RDP', 12))}${
             R.span(rdpLive ? R.COLORS.ok : R.COLORS.dim, R.pad(rdp.state ?? 'off', 11))}${
             (rdp.peers ?? []).length
@@ -1119,7 +1257,7 @@ export default class RetroFleetDashboard extends Extension {
                 : ''}`);
 
         const con = r.console ?? {};
-        rows.push(`${R.span(con.occupied ? R.COLORS.ok : R.COLORS.off, con.occupied ? '●' : '○')} ${
+        rows.push(`${R.statusMark(con.occupied ? 'ok' : 'off')} ${
             R.span(R.COLORS.text, R.pad('console', 12))}${
             R.span(con.occupied ? R.COLORS.ok : R.COLORS.dim,
                 R.pad(con.occupied ? 'logged in' : 'free', 11))}${
