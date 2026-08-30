@@ -893,6 +893,13 @@ TITLES = {
     # later - the same shape of bug that wiped SoF2's GAMEARGS.
     "FarCry": {
         "launchers": {
+            # NO FR_HZ HERE, deliberately. CryEngine 1 exposes no refresh-rate
+            # cvar - XRenderD3D9.dll and CrySystem.dll carry only r_VSync and
+            # r_DisplayInfo, no r_Refreshrate - and it picks the refresh itself
+            # from the mode it selects ("Best-match display mode: 1920x1080x32",
+            # with no Hz component). That is a genuine "no opinion", not an
+            # oversight: do not add a refresh argument this engine cannot read.
+            #
             # NB the BACKTICKS. Far Cry's System.cfg QUOTES EVERY VALUE - its own
             # configurator writes sys_firstlaunch = "1", e_decals = "1" - and a
             # bare `r_Width = 1920` is not parsed at all. Measured on .246: with
