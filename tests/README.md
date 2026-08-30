@@ -180,6 +180,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | `retro_agent.exe`/`retro_chat.exe` had NO resource directory, so their own desktop shortcuts were generic (2026-08-29) | `agent/Makefile`, `agent/res/` | `python/test_agent_resources.py` |
 | 65 shortcuts packed DOWNWARD into a 4x8 bay put 29 icons below the bottom of a 1024x768 screen, unreachable (.143, 2026-08-29) | `agent/src/gamesync.c`, `scripts/retro-wallpaper/arrange_icons.c` | `native/test_icon_arrange_overflow.c`, `python/test_icon_overflow_source.py` |
 | `arrange_icons.exe` still parked icons BOTTOM-RIGHT and `retrowall.c` runs it on every agent start, undoing the bay (2026-08-29) | `scripts/retro-wallpaper/arrange_icons.c` | `python/test_icon_overflow_source.py` |
+| three staged titles drew their desktop icon from the WRONG file — `hl.exe` on Counter-Strike, and two installer stubs that each carry a real but generic icon resource, so no structural check catches it (.143/.145, 2026-08-30) | `\\192.168.1.122\files\Files\Games-Library\<Title>\launch.txt` | `python/test_launch_icon_targets.py` |
 
 (The vintage SGL/H5 fixes — garble 0.3.1, mip-download 08fd889 — are tested in
 `retro-3dfx/tests/`, the other lane's harness, not here.)
