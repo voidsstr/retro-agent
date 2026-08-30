@@ -86,3 +86,70 @@ def test_deploy_stages_screensaver():
     assert "SCRNSAVE.EXE" in d and "ScreenSaveActive" in d
     # ships the .scr next to the deploy script so Win7 (no ssstars.scr) gets it
     assert os.path.exists(os.path.join(ROOT, "scripts", "retro-wallpaper", "ssstars.scr"))
+
+
+# ---------------------------------------------------------------------------
+# 2026-08-29: the Themes service must be left ALONE on Vista and later.
+#
+# On XP the Themes service applies "Luna", and stopping + disabling it is what
+# drops the box to Classic so the green system colours actually show. On Vista
+# and later the SAME service drives the Aero visual style, so the identical call
+# strips the compositor and leaves the machine looking broken.
+#
+# This is not hypothetical. .246 (the fleet's only Windows 7 box) had Aero
+# restored by hand, and agent v1.65.0 - which shipped WITHOUT this gate - turned
+# it straight back off on its very next start:
+#
+#     [22:54:21][MAIN ] retrowall: Themes service set to Disabled
+#
+# leaving HKLM\SYSTEM\CurrentControlSet\services\Themes Start=0x4 (DISABLED) and
+# the box in Windows Classic. Every agent restart re-broke it, so no amount of
+# fixing the box could stick.
+#
+# The invariant is a source assertion because the real call needs Win32: the one
+# call to stop_and_disable_themes() must sit inside an os_is_xp_or_older() test.
+# ---------------------------------------------------------------------------
+
+
+def test_themes_service_is_only_stopped_on_xp_and_older():
+    src = _read(RETROWALL_C)
+
+    assert "os_is_xp_or_older" in src, (
+        "retrowall.c must be able to tell XP from Vista+ before touching the "
+        "Themes service - the same service drives Luna on XP and Aero on Win7"
+    )
+
+    # The version probe must key on the major version being below 6 (Vista).
+    probe = src[src.index("static int os_is_xp_or_older"):]
+    probe = probe[:probe.index("\n}\n")]
+    assert "GetVersionEx" in probe, "the probe must ask Windows for its version"
+    assert "dwMajorVersion < 6" in probe, (
+        "XP/2003 is major version 5; Vista and later are 6+"
+    )
+
+    # Every call to the disabler must be guarded. There is exactly one, and the
+    # gate has to be on the line before it - a call anywhere else re-breaks Win7.
+    calls = [m.start() for m in re.finditer(r"\bstop_and_disable_themes\(\)\s*;", src)]
+    assert len(calls) == 1, (
+        "expected exactly one call to stop_and_disable_themes(), found %d" % len(calls)
+    )
+    before = src[:calls[0]]
+    guard = before.rindex("if (os_is_xp_or_older())")
+    between = before[guard:]
+    # nothing but whitespace/comments may sit between the gate and the call
+    assert len(between.split("\n")) <= 2, (
+        "stop_and_disable_themes() must be the immediate body of the "
+        "os_is_xp_or_older() test, not merely somewhere after it"
+    )
+
+
+def test_vista_and_later_keep_their_own_visual_style():
+    """The non-XP branch must exist and must say so in the log, so a Win7 box
+    that looks wrong can be diagnosed from agent.log alone."""
+    src = _read(RETROWALL_C)
+    theme = src[src.index("static void apply_hacker_theme"):]
+    theme = theme[:theme.index("\n}\n")]
+    assert "else" in theme and "not XP" in theme, (
+        "the Vista+ path must log that it deliberately left the visual style "
+        "alone - silence here reads as 'the theme code never ran'"
+    )

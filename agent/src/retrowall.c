@@ -128,6 +128,19 @@ static void run_process(const char *cmdline, DWORD wait_ms)
  * wrong; a machine where the agent aborted trying to change a service setting
  * is actually broken.
  */
+/* True on Windows XP / 2003 and older. Anything from Vista (6.0) up drives its
+ * desktop compositor from the same Themes service that XP uses for Luna, so the
+ * two need opposite treatment. */
+static int os_is_xp_or_older(void)
+{
+    OSVERSIONINFOA osvi;
+    memset(&osvi, 0, sizeof(osvi));
+    osvi.dwOSVersionInfoSize = sizeof(osvi);
+    if (!GetVersionExA(&osvi))
+        return 1;               /* cannot tell - assume the fleet's XP default */
+    return osvi.dwMajorVersion < 6;
+}
+
 static void stop_and_disable_themes(void)
 {
     SC_HANDLE scm, svc;
@@ -260,7 +273,21 @@ static void apply_hacker_theme(void)
      *
      * Stopping the service is what actually drops XP to Classic, and disabling
      * it is what makes that survive a reboot. */
-    stop_and_disable_themes();
+    /* XP ONLY. On XP the visual style is "Luna", and switching it off is what
+     * gives the fleet its flat Classic look - without it the box ends up themed
+     * in patches: our colours in window bodies, XP blue on title bars and
+     * Explorer's task panes.
+     *
+     * On Vista and later the SAME service drives Aero, and stopping it does not
+     * produce Classic-with-our-colours - it strips the compositor and leaves a
+     * machine looking broken. .246 is a Windows 7 box on this fleet and got
+     * exactly that. The fleet look is an XP-era aesthetic; newer machines keep
+     * their own chrome and take the wallpaper and icons only. */
+    if (os_is_xp_or_older())
+        stop_and_disable_themes();
+    else
+        log_msg(LOG_MAIN, "retrowall: not XP - leaving the visual style alone "
+                          "(stopping Themes strips Aero on Vista and later)");
     {
         HMODULE ux = LoadLibraryA("uxtheme.dll");
         if (ux) {
