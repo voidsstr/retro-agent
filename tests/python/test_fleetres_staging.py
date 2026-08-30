@@ -868,3 +868,27 @@ def test_no_edid_assumes_a_four_three_tube_rather_than_the_current_mode():
         'taken at face value again')
     assert 'set FR_EDID=' in src, (
         'a measured panel and an inferred one must not look identical')
+
+
+def test_every_generated_config_line_has_balanced_quotes():
+    """A quoted string in a Quake-family or LithTech config SPANS A NEWLINE, so
+    a line with an odd number of double quotes silently swallows the next one.
+    validate-staged-library.py has a `config-quotes` check for staged files;
+    this covers the lines the LAUNCHER writes at run time, which that check
+    never sees because they do not exist until the game starts.
+
+    The risky one is Shogo: cmd.exe eats real double quotes out of an argument,
+    so FLEETRES turns a BACKTICK into one — `screenwidth` `1920` becomes
+    "screenwidth" "1920". An odd backtick count there produces an odd quote
+    count in a LithTech autoexec.cfg. Verified on .145 after a launch: Shogo's
+    156-line autoexec.cfg, Quake III's and SoF2's generated fleetres.cfg and
+    Quake II's autoexec.cfg all came back with zero odd-quote lines."""
+    for line in _all_generated_lines():
+        for one in line.split('\n'):
+            # the backtick is what BECOMES a quote on the box
+            effective = one.count('"') + one.count('`')
+            if effective and one.strip().lower().startswith('rem'):
+                continue
+            assert effective % 2 == 0, (
+                'odd quote/backtick count in %r — in a Quake-family or '
+                'LithTech config that swallows the following line' % one)
