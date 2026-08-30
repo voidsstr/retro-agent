@@ -36,6 +36,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "hwextra.h"
 #include "../shared/gamegate.h"
 #include "../shared/edid.h"
 
@@ -842,15 +843,25 @@ static void add_disk(json_t *j)
     json_array_end(j);
 }
 
-void handle_hwprofile(SOCKET sock, const char *args)
+/*
+ * Build the whole HWPROFILE document and hand back the buffer.
+ *
+ * Split out of handle_hwprofile() so that hwpublish.c - which writes this same
+ * record onto the share on every startup, so the fleet documentation is
+ * measured rather than remembered - runs THE SAME PROBE. A second prober
+ * would be a second answer, and the whole problem being solved here is two
+ * descriptions of one machine disagreeing.
+ *
+ * Caller must HeapFree() the result. Returns NULL only if the builder failed.
+ */
+char *hwprofile_json(void)
 {
     gg_profile_t p;
     hw_extra_t   x;
     json_t       j;
     char         hash[17], buf[64];
-    char        *result;
+    SYSTEMTIME   st;
 
-    (void)args;
     hwprofile_collect(&p, &x);
     gg_profile_hash(&p, hash);
 
@@ -863,6 +874,16 @@ void handle_hwprofile(SOCKET sock, const char *args)
 #ifdef AGENT_VERSION
     json_kv_str(&j, "agent_version", AGENT_VERSION);
 #endif
+
+    /* WHEN THE BOX THINKS IT MEASURED ITSELF. Reported, never trusted for
+     * staleness: a retro machine's RTC is frequently years out, so the
+     * renderer judges age by when the record landed on the host and shows a
+     * disagreement as clock skew rather than silently changing the answer. */
+    GetLocalTime(&st);
+    _snprintf(buf, sizeof(buf) - 1, "%04d-%02d-%02d %02d:%02d:%02d",
+              st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+    buf[sizeof(buf) - 1] = 0;
+    json_kv_str(&j, "reported_at", buf);
 
     json_key(&j, "cpu");
     json_object_start(&j);
@@ -942,10 +963,32 @@ void handle_hwprofile(SOCKET sock, const char *args)
 
     add_disk(&j);
 
+    /* The two facts the single ACTIVE-adapter answer above deliberately does
+     * not carry, and which the fleet documentation needs (hwextra.c):
+     *
+     *   video_cards[]   EVERY display-class instance, each marked with whether
+     *                   it is the one attached to the desktop. .143 renders on
+     *                   a GeForce 6800 with its Voodoo5 5500 sitting behind it
+     *                   as a second adapter; reporting only the active one is
+     *                   how a Voodoo5 test matrix got sized at two boxes when
+     *                   only one of them had the card.
+     *   accelerators[]  every VEN_121A device in the PCI enumerator. A VOODOO 2
+     *                   IS NOT A DISPLAY ADAPTER AT ALL - its INF is
+     *                   Class=MEDIA - so .171's card appears in no
+     *                   display-class scan anywhere. Enum\PCI lists a fitted
+     *                   card even with no driver bound to it, which is also
+     *                   what proved .133's V5 6000 is genuinely gone rather
+     *                   than merely undriven.
+     *
+     * Neither is folded into gg_profile_hash: the gate decides on the card
+     * that draws the screen, and a second adapter must not invalidate its
+     * verdict cache.
+     */
+    hwextra_emit_video_cards(&j);
+    hwextra_emit_accelerators(&j);
+    hwextra_emit_network(&j);
+
     json_object_end(&j);
-    result = json_finish(&j);
-    send_text_response(sock, result);
-    json_free(&j);
 
     log_msg(LOG_HW, "hash=%s cpu=\"%s\" %uMHz(%s) x%u ram=%uMB gpu=%04X:%04X "
                     "\"%s\" vram=%uMB level=%s os=%s caps=%u",
@@ -953,4 +996,23 @@ void handle_hwprofile(SOCKET sock, const char *args)
             p.ram_mb, p.gpu_ven, p.gpu_dev, x.gpu.name, p.vram_mb,
             gg_gpu_level_name(p.gpu_level), gg_os_level_name(p.os_level),
             p.caps);
+
+    /* json_finish() hands the buffer itself to the caller, so json_free()
+     * must NOT be called here - it would free the very buffer being returned.
+     * Ownership transfers; the caller HeapFree()s it. */
+    return json_finish(&j);
+}
+
+void handle_hwprofile(SOCKET sock, const char *args)
+{
+    char *result;
+
+    (void)args;
+    result = hwprofile_json();
+    if (!result) {
+        send_error_response(sock, "could not build the hardware profile");
+        return;
+    }
+    send_text_response(sock, result);
+    HeapFree(GetProcessHeap(), 0, result);
 }

@@ -37,6 +37,8 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/gameindex.c \
           $(SRCDIR)/gamesync.c \
           $(SRCDIR)/hwprofile.c \
+          $(SRCDIR)/hwextra.c \
+          $(SRCDIR)/hwpublish.c \
           $(SRCDIR)/display.c \
           $(SRCDIR)/audio.c \
           $(SRCDIR)/sysfix.c \

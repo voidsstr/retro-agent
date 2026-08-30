@@ -55,6 +55,22 @@ void handle_drvupdate(SOCKET sock, const char *args);
 void handle_hwprofile(SOCKET sock, const char *args);
 struct gg_profile_s;
 void hwprofile_build(struct gg_profile_s *p);
+/* The same document HWPROFILE returns, as a heap buffer the caller HeapFree()s.
+ * hwpublish.c writes THIS onto the share, so the record the documentation is
+ * rendered from is the same probe the command reports. */
+char *hwprofile_json(void);
+
+/* hwextra.c's emitters take util.h's json_t, which is an anonymous-struct
+ * typedef and therefore cannot be forward-declared. They live in
+ * agent/src/hwextra.h instead, so handlers.h stays free of that include. */
+
+/* HWPUBLISH (hwpublish.c): put this box's hardware record on the share, so the
+ * fleet documentation is measured rather than remembered. The thread does it on
+ * every startup (retrowall's pattern - once-at-onboarding is how documentation
+ * goes stale); the command does it now and says exactly what happened, so a
+ * publish can be VERIFIED rather than inferred from a log line. */
+DWORD WINAPI hwpublish_thread(LPVOID param);
+void handle_hwpublish(SOCKET sock, const char *args);
 void gamesync_init(void);
 DWORD WINAPI gamesync_thread(LPVOID param);
 void handle_iconarrange(SOCKET sock, const char *args);

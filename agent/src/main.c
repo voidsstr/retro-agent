@@ -1044,6 +1044,16 @@ void agent_run(void)
     /* DOS-capable boxes (Win9x/ME) get the DOS programs staged to C:\ so
      * they're already there when the user boots to DOS. Exits immediately
      * on the NT family. */
+    /* Every box publishes its own hardware record to the share on every
+     * startup, so the fleet documentation is measured rather than remembered -
+     * twice a machine's graphics card was swapped without the docs noticing.
+     * Same reasoning as retrowall above: once-at-onboarding is exactly how
+     * documentation goes stale. The thread yields the boot window first, caps
+     * its work at one small file, and is a clean no-op when the share is
+     * unreachable. */
+    log_msg(LOG_MAIN, "startup: spawning hwpublish thread");
+    spawn_helper(hwpublish_thread, "hwpublish");
+
     log_msg(LOG_MAIN, "startup: spawning dosstage thread");
     /* CreateThread failures were silent. On a 31MB Win98 box reporting 0MB
      * available, a helper thread can simply fail to start — and then the

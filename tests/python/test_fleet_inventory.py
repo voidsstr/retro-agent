@@ -72,7 +72,7 @@ def sample_record(hostname="P3-DUAL", ip="192.168.1.133", **over):
              "driver_version": "6.14.10.9375", "driver_date": "1-1-2005",
              "attached_to_desktop": True},
         ],
-        "glide_cards": [],
+        "accelerators": [],
         "network": {"interfaces": [
             {"description": "3Com EtherLink", "mac": "00-01-02-03-04-05",
              "ipv4": [ip]}], "source": "GetAdaptersInfo"},
@@ -282,7 +282,7 @@ def test_the_second_adapter_and_the_hidden_voodoo_are_rendered(tmp_path):
          "driver_version": "1.04.00", "driver_date": "",
          "attached_to_desktop": False},
     ]
-    rec["glide_cards"] = [
+    rec["accelerators"] = [
         {"device_key": "VEN_121A&DEV_0009&SUBSYS_0002121A",
          "pci_ven": "0x121A", "pci_dev": "0x0009",
          "description": "3dfx Voodoo5 5500", "count": 1},

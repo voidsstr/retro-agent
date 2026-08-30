@@ -39,6 +39,16 @@
 
 #include <string.h>
 
+/* Header-only, and not every includer uses every function - hwpublish.c wants
+ * the name and the schedule, hwextra.c wants the address formatter. Without
+ * this the build grows a -Wunused-function warning per unused helper per
+ * translation unit, and warning noise is how a real warning gets missed. */
+#if defined(__GNUC__)
+#define HWPUB_UNUSED __attribute__((unused))
+#else
+#define HWPUB_UNUSED
+#endif
+
 /* Where each box drops its own record. One file per host - never a shared file
  * two agents append to, because eight boxes publish concurrently and SMB gives
  * us no lock worth trusting. */
@@ -66,7 +76,7 @@
  * rewritten - the caller logs that, so a box whose name needed mangling says
  * so once rather than being quietly filed under a name nobody recognises.
  */
-static int hwpub_safe_name(const char *host, char *out, int outsz)
+HWPUB_UNUSED static int hwpub_safe_name(const char *host, char *out, int outsz)
 {
     int i = 0, changed = 0, dots_only = 1;
     const char *p;
@@ -111,12 +121,54 @@ static int hwpub_safe_name(const char *host, char *out, int outsz)
  * 2 -> 300s
  * 3 -> 900s  last chance, then give up until the periodic refresh.
  */
-static int hwpub_retry_delay_sec(int attempt)
+HWPUB_UNUSED static int hwpub_retry_delay_sec(int attempt)
 {
     static const int schedule[HWPUB_MAX_ATTEMPTS] = { 90, 120, 300, 900 };
     if (attempt < 0 || attempt >= HWPUB_MAX_ATTEMPTS)
         return 0;
     return schedule[attempt];
+}
+
+/*
+ * Format a hardware address as "XX-XX-XX-XX-XX-XX" into out[0..outsz-1].
+ *
+ * Here rather than inline in hwextra.c because the offset arithmetic is the
+ * kind that looks right and is not: the FIRST octet is two characters and
+ * every later one is three, so the offset is k*3-1, NOT k*3.  Written at k*3,
+ * the NUL that the previous octet's snprintf wrote lands in the gap and the
+ * whole address truncates to its first byte - "00" - which is a silent,
+ * entirely plausible-looking wrong answer.  A MAC is one of the two things
+ * that lets a record on the share be matched back to the box that wrote it,
+ * so a wrong one is worse than none.
+ *
+ * Returns the number of octets formatted.
+ */
+HWPUB_UNUSED static int hwpub_format_mac(const unsigned char *addr, unsigned len,
+                            char *out, int outsz)
+{
+    unsigned k;
+    static const char hex[] = "0123456789ABCDEF";
+    int pos = 0;
+
+    if (!out || outsz < 1)
+        return 0;
+    out[0] = 0;
+    if (!addr)
+        return 0;
+    if (len > 6)
+        len = 6;                       /* an IPv4 fleet has 6-byte addresses */
+
+    for (k = 0; k < len; k++) {
+        int need = (k ? 3 : 2);
+        if (pos + need >= outsz)
+            break;
+        if (k)
+            out[pos++] = '-';
+        out[pos++] = hex[(addr[k] >> 4) & 0xF];
+        out[pos++] = hex[addr[k] & 0xF];
+    }
+    out[pos] = 0;
+    return (int)k;
 }
 
 #endif /* RETRO_HWPUB_H */

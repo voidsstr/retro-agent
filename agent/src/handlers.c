@@ -60,6 +60,7 @@ static const cmd_entry_t commands[] = {
     { "ICONARRANGE",1, NULL,           handle_iconarrange },
     { "DRVUPDATE",  1, NULL,             handle_drvupdate },
     { "HWPROFILE",  1, NULL,             handle_hwprofile },
+    { "HWPUBLISH",  1, NULL,             handle_hwpublish },
     { "DISPLAYCFG", 1, NULL,             handle_displaycfg },
     { "AUDIOINFO",  0, handle_audioinfo,  NULL },
     { "SYSFIX",     1, NULL,             handle_sysfix },

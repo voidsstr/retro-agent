@@ -488,7 +488,7 @@ def render(roster, matched, unrostered, now, stale_days, directory):
                     "**yes**" if c.get("attached_to_desktop") else "no"))
             lines.append("")
 
-        glide = data.get("glide_cards") or []
+        glide = data.get("accelerators") or []
         if glide:
             total = sum(int(g.get("count") or 1) for g in glide)
             lines.append("**3dfx silicon: %d card%s.** From the PCI enumerator "
@@ -504,7 +504,7 @@ def render(roster, matched, unrostered, now, stale_days, directory):
                     int(g.get("count") or 1),
                     "" if int(g.get("count") or 1) == 1 else "s"))
             lines.append("")
-        elif "glide_cards" in data:
+        elif "accelerators" in data:
             lines.append("**No 3dfx silicon.** `Enum\\PCI` carries no "
                          "`VEN_121A` key, and a physically fitted card "
                          "enumerates there even with no driver bound - so this "

@@ -180,6 +180,68 @@ TEST(the_record_cap_is_sane)
           "the default directory is the one the renderer reads");
 }
 
+/* ---- 3. the hardware address ---- */
+
+TEST(a_mac_is_formatted_whole_not_truncated_to_its_first_octet)
+{
+    /* THE BUG, found while writing this module. The first octet is TWO
+     * characters and every later one is THREE, so the write offset is k*3-1.
+     * At k*3 - which is what you write first, and which compiles and runs -
+     * the NUL from the previous octet's snprintf lands in the gap and the
+     * whole address terminates after its first byte.
+     *
+     * The result is "00": a short, plausible-looking string that no reader
+     * would flag. A MAC is one of the two things that lets a record on the
+     * share be matched back to the box that wrote it, so a wrong one is worse
+     * than none at all. */
+    static const unsigned char addr[6] = { 0x00, 0x1A, 0x2B, 0x3C, 0x4D, 0x5E };
+    char out[32], buggy[32];
+    unsigned k;
+    int pos;
+
+    CHECK_EQ_I(hwpub_format_mac(addr, 6, out, sizeof(out)), 6);
+    CHECK(strcmp(out, "00-1A-2B-3C-4D-5E") == 0, "the whole address");
+    CHECK_EQ_I((int)strlen(out), 17);
+
+    /* the OLD-BUGGY value, computed here so the test cannot pass by the input
+     * having been harmless */
+    buggy[0] = 0;
+    for (k = 0; k < 6; k++) {
+        pos = (int)(k * 3);
+        sprintf(buggy + pos, k ? "-%02X" : "%02X", addr[k]);
+    }
+    CHECK(strcmp(buggy, "00") == 0, "the k*3 form really does truncate");
+    CHECK(strcmp(out, buggy) != 0, "fixed and buggy differ");
+}
+
+TEST(a_mac_never_runs_past_its_buffer)
+{
+    static const unsigned char addr[6] = { 0xDE, 0xAD, 0xBE, 0xEF, 0x01, 0x02 };
+    char small[8];
+
+    /* Truncation must stop on an octet boundary and stay terminated - a half
+     * written octet would read as a different address. */
+    CHECK(hwpub_format_mac(addr, 6, small, sizeof(small)) < 6,
+          "a short buffer takes fewer octets");
+    CHECK(strlen(small) < sizeof(small), "terminated inside the buffer");
+    CHECK(strcmp(small, "DE-AD") == 0, "stops on an octet boundary");
+
+    /* Degenerate inputs must not scribble. */
+    CHECK_EQ_I(hwpub_format_mac(NULL, 6, small, sizeof(small)), 0);
+    CHECK(small[0] == 0, "NULL address yields an empty string");
+    CHECK_EQ_I(hwpub_format_mac(addr, 0, small, sizeof(small)), 0);
+
+    /* An adapter reporting an over-long address (a token ring or a virtual
+     * NIC) is clamped rather than trusted. */
+    {
+        static const unsigned char longaddr[8] =
+            { 1, 2, 3, 4, 5, 6, 7, 8 };
+        char big[64];
+        CHECK_EQ_I(hwpub_format_mac(longaddr, 8, big, sizeof(big)), 6);
+        CHECK(strcmp(big, "01-02-03-04-05-06") == 0, "clamped to six octets");
+    }
+}
+
 MUNIT_MAIN("fleet inventory publish (agent/shared/hwpub.h)",
     RUN(real_fleet_names_pass_through_untouched);
     RUN(a_separator_can_never_survive_into_the_path);
@@ -189,4 +251,6 @@ MUNIT_MAIN("fleet inventory publish (agent/shared/hwpub.h)",
     RUN(the_first_attempt_yields_the_boot_window);
     RUN(delays_never_shrink);
     RUN(the_record_cap_is_sane);
+    RUN(a_mac_is_formatted_whole_not_truncated_to_its_first_octet);
+    RUN(a_mac_never_runs_past_its_buffer);
 )
