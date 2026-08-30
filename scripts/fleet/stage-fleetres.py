@@ -256,6 +256,39 @@ def glide_swap(rel):
     ]
 
 
+# --------------------------------------------------------------------------
+# Turok 2 keeps its mode as one BOOLEAN PER MODE in Data\config.ned, chosen
+# from a fixed list: 320x240, 512x384, 640x480, 800x600, 1024x768, 1280x1024.
+# There is no width/height pair and no 1080p entry, so the honest best is the
+# largest 4:3 mode on that list the box can drive. 1280x1024 is deliberately
+# NOT on the ladder: it is 5:4, and putting a 5:4 mode on a 4:3 or 16:9 panel
+# squashes the picture - which is the same fault this whole mechanism exists
+# to fix on .133 and .171.
+#
+# The `^` in the key is literal INSIDE double quotes; unquoted, cmd.exe eats it
+# as its own escape character and the key silently becomes "320x240".
+# --------------------------------------------------------------------------
+T2_MODES = ["320^x^240", "512^x^384", "640^x^480", "800^x^600",
+            "1024^x^768", "1280^x^1024"]
+T2_LADDER = [(640, "640^x^480"), (800, "800^x^600"), (1024, "1024^x^768")]
+
+
+def turok2_mode():
+    e = '"%~dp0FLEETRES.EXE"'
+    f = '"%~dp0Data\\config.ned"'
+    k = 'Acclaim\\Turok\\VideoD3D\\'
+    out = ['set T2SEL=640^x^480']
+    for w, m in T2_LADDER[1:]:
+        out.append('if %%FR_W43%% GEQ %d set T2SEL=%s' % (w, m))
+    out.append('if exist "%~dp0FLEETRES.EXE" (')
+    for m in T2_MODES:
+        out.append('  %s -setline %s "%s%s" "%s%s" 0' % (e, f, k, m, k, m))
+    out.append('  %s -setline %s "%s%%T2SEL%%" "%s%%T2SEL%%" 1' % (e, f, k, k))
+    out.append('  %s -setline %s "%sWindowed" "%sWindowed" 0' % (e, f, k, k))
+    out.append(')')
+    return out
+
+
 CALL = 'call "%~dp0FLEETRES.BAT"'
 def call_cap(w, h):
     return 'call "%~dp0FLEETRES.BAT" -cap ' + str(w) + ' ' + str(h)
@@ -436,6 +469,13 @@ TITLES = {
             for n in ("Play Hidden and Dangerous Deluxe.bat",
                       "Host Hidden and Dangerous - LAN.bat",
                       "Join Hidden and Dangerous - LAN.bat")
+        },
+    },
+    "Turok2": {
+        "launchers": {
+            n: rec('cd /d "%~dp0"', [CALL] + turok2_mode())
+            for n in ("Play Turok 2.bat", "Play Turok 2 - Multiplayer.bat",
+                      "Join Turok 2 - LAN.bat")
         },
     },
     "RedAlert2": {

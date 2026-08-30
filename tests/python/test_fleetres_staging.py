@@ -690,3 +690,30 @@ def test_the_registry_only_engines_are_all_covered():
     for title in ('MaxPayne', 'RedFaction', 'HiddenAndDangerous'):
         assert '-reg ' in _pre(title), '%s still inherits a staged constant' % title
         assert '%FR_W%' in _pre(title)
+
+
+def test_turok2_picks_from_its_fixed_boolean_mode_list():
+    """Turok 2 has no width/height pair at all: Data\\config.ned carries one
+    BOOLEAN PER MODE from a fixed list, and the staged file had 800x600=1 on
+    every box. 1280x1024 is deliberately not on the ladder — it is 5:4, and a
+    5:4 mode on a 4:3 tube is the squashed picture this whole mechanism exists
+    to fix (.133 and .171 were both doing it)."""
+    t = _pre('Turok2')
+    assert 'config.ned' in t
+    assert '%T2SEL%' in t and 'set T2SEL=' in t
+    assert '1280^x^1024" 0' in t, '5:4 must be explicitly turned OFF, not left'
+    assert 'set T2SEL=1280' not in t, '5:4 must never be selected'
+    # every mode on the list is cleared before one is set, or two could be 1
+    for m in sf.T2_MODES:
+        assert '%s" 0' % m in t, '%s is never cleared' % m
+
+
+def test_turok2_keys_keep_their_caret():
+    """`^` is cmd.exe's own escape character. Unquoted, the key silently becomes
+    `320x240` and the line does nothing; inside double quotes it is literal."""
+    for line in sf.turok2_mode():
+        if '^x^' in line and '-setline' in line:
+            for frag in line.split('-setline')[1].split():
+                if '^x^' in frag or 'T2SEL' in frag:
+                    assert frag.startswith('"') or frag.endswith('"'), (
+                        'unquoted caret in %r' % line)
