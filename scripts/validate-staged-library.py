@@ -194,6 +194,38 @@ def check_title(lib, title):
             warn("fullscreen", "DOSBox title: no conf sets fullscreen=true "
                                "(all staged games must run fullscreen)")
 
+    # ---- engine configs: a double quote must not span a newline -----------
+    #
+    # Quake II's tokenizer (SiN, Quake 2, SoF, Hexen II ...) and LithTech's
+    # (Shogo) let a QUOTED STRING RUN PAST THE END OF THE LINE. So a config
+    # line holding an odd number of double quotes swallows the NEXT line into
+    # a string. Two ways that bites, both seen in this library:
+    #
+    #   * a `bind`/`rangebind` with a missing closing quote simply does not
+    #     take, and neither does the line after it. Shogo shipped
+    #     `rangebind "##keyboard" "##9 0.0 0.0 "Weapon_7"` -- keys 8 and 9
+    #     were dead in a staged game and nothing reported it.
+    #   * a COMMENT that opens a quote on one line and closes it on the next
+    #     puts the second line's `//` inside a string, so the comment marker
+    #     stops working and the prose is executed as console commands.
+    #
+    # Either way the failure is silent and presents as "the config is not
+    # taking" -- which sends you looking at the engine instead of the file.
+    for root, dirs, files in os.walk(tdir):
+        dirs[:] = [d for d in dirs if not d.startswith("_")]
+        for fn in files:
+            if fn.lower() not in ("autoexec.cfg", "config.cfg", "default.cfg"):
+                continue
+            path = os.path.join(root, fn)
+            rel = os.path.relpath(path, tdir)
+            for n, line in enumerate(read_text(path).splitlines(), 1):
+                if line.count('"') % 2:
+                    fail("config-quotes",
+                         "%s line %d has an unmatched double quote, so the "
+                         "quote spans into the next line and BOTH are "
+                         "silently swallowed: %s"
+                         % (rel, n, line.strip()[:70]))
+
     return out
 
 
