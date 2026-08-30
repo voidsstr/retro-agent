@@ -53,6 +53,15 @@ retro-agent/tests/
     test_driver_prefs.c   TRUE-SOURCE: agent/shared/drvprefs.h — the PREFER.TXT
                           parse, the line-anchored hardware-id match, and the
                           reclaim gate (force-install BEFORE deleting C:\D)
+    test_profile_hash_pin.c  TRUE-SOURCE: agent/shared/gamegate.h - the gate's
+                          cache key PINNED to the eight hashes the fleet's own
+                          agents published on 2026-08-30. test_gamegate.c
+                          asserts the RELATIVE properties (same box stable,
+                          different boxes differ); a change that moves EVERY
+                          hash uniformly passes all of those and is caught only
+                          here. The hash IS the verdict filename, so drifting
+                          it makes all eight boxes lose their LLM verdicts at
+                          once, silently.
     test_hwpublish.c      TRUE-SOURCE: agent/shared/hwpub.h — the fleet-inventory
                           publish. The hostname->filename mapping (a NetBIOS name
                           in a path is not a filename: '\' or ".." writes
@@ -118,6 +127,9 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 
 | Fix | Component | Test |
 |-----|-----------|------|
+| **the gate's cache key is pinned to the fleet's real published hashes** — `test_gamegate.c` only asserts relative stability, so a uniform drift (a field added to the fold, a bucket resized) passes it while every box silently loses the verdict file named by its hash (2026-08-30) | `agent/shared/gamegate.h` | `native/test_profile_hash_pin.c` |
+| **agent 1.77.1: the record was landing stamped with the RETRO BOX's clock** — `CopyFile` propagates the source timestamp, handing the staleness test the one clock it was built not to trust (2026-08-30) | agent `hwpublish.c` | `native/test_hwpublish.c`, `python/test_fleet_inventory.py` |
+| **agent 1.74.1: a graphics card reported as `"A"`** — `DriverDesc` is a REG_BINARY holding UTF-16 and `RegQueryValueExA` hands REG_BINARY back raw (2026-08-30, .246) | agent `hwextra.c` + `hwprofile.c` `reg_str()` | `native/test_hwpublish.c` |
 | **agent 1.74.0: every box publishes its own hardware record on every startup, so the fleet documentation is measured rather than remembered** — the hand-maintained table was wrong about most of the fleet and TWICE missed a graphics card being swapped (2026-08-30) | agent `hwpublish.c` / `hwextra.c` / `hwprofile_json()` + `agent/shared/hwpub.h`, `scripts/fleet/inventory.py` | `native/test_hwpublish.c`, `python/test_fleet_inventory.py` |
 | **the generated inventory must tell `current` / `stale` / `never seen` / `unreadable` apart, and a torn record must degrade rather than crash** — "not installed" and "crashed" must never render the same, and a fleet powered on demand always has boxes reporting old data (2026-08-30) | `scripts/fleet/inventory.py` | `python/test_fleet_inventory.py` |
 | **agent 1.59.0: force the staged driver over the one XP picks, and never reclaim C:\D before doing it** (2026-08-29, .124) | agent gamesync.c + `agent/shared/drvprefs.h`, `scripts/pxe/{driver-prefs.txt,stage-oem.sh}` | `native/test_driver_prefs.c`, `test_pxe_drivers.py` |
