@@ -51,24 +51,29 @@ async def deploy(host, interval=60):
                              '/v TileWallpaper /t REG_SZ /d 0 /f')
         # Desktop icons: DO NOT stage or run arrange_icons.exe.
         #
-        # That tool parks icons in the BOTTOM-RIGHT well. The agent arranges
-        # them itself into a TOP-LEFT bay (agent/src/gamesync.c:gs_arrange_icons,
-        # gs_icon_bay), so the two disagree about where icons belong and the
-        # last one to run wins. Staging it here is what kept putting a fresh
-        # copy back on boxes it had already been removed from, and retrowall
-        # ran it on every agent start until v1.70.0 -- which UNDID a correct
-        # arrangement on every single boot.
+        # The agent owns the desktop icon layout outright
+        # (agent/src/gamesync.c:gs_desktop_icons_apply, applied on EVERY agent
+        # startup from retrowall.c). Since v1.73.0 the fleet default is
+        # Windows' own AUTO ARRANGE, so the shell keeps the icons packed by
+        # itself and nothing here needs to place them.
         #
-        # So this step now REMOVES it instead, renaming it aside (never
-        # deleting) so an agent older than v1.70.0 on the same box cannot
-        # find it and re-park the icons behind our back.
+        # arrange_icons.exe now fights that TWICE over: it parks icons in the
+        # BOTTOM-RIGHT well AND it explicitly clears LVS_AUTOARRANGE, so a
+        # single run of it turns the fleet-wide setting back off. Staging it
+        # here is what kept putting a fresh copy back on boxes it had already
+        # been removed from, and retrowall ran it on every agent start until
+        # v1.70.0 -- which UNDID a correct arrangement on every single boot.
+        #
+        # So this step REMOVES it, renaming it aside (never deleting) so an
+        # older agent on the same box cannot find it and undo the layout
+        # behind our back.
         for stale in (WALLDIR + "\\arrange_icons.exe",
                       "C:\\WINDOWS\\TEMP\\arrange_icons.exe"):
             await c.command_text(
                 'EXEC cmd /c if exist "%s" move /Y "%s" "%s.disabled-bottom-right"'
                 % (stale, stale, stale))
         print("%s: legacy bottom-right arranger removed; the agent owns the "
-              "top-left icon bay" % host)
+              "desktop icon layout (auto-arrange)" % host)
         # dark "hacker" system-color theme. Stage retro_theme.reg (the fleet-wide
         # green-on-black scheme) + setsyscolors.exe into C:\retro-wall\ so the
         # agent re-applies the theme on EVERY startup (agent/src/retrowall.c

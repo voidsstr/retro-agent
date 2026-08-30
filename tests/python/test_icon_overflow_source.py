@@ -59,9 +59,9 @@ def test_the_agent_widens_instead_of_packing_downward():
 
 
 def test_the_agent_places_with_the_widened_column_count():
-    body = _agent_fn("void gs_arrange_icons(")
+    body = _agent_fn("void gs_arrange_bay(")
     assert "cols = gs_arrange_cols(" in body, \
-        "gs_arrange_icons() must ask for the widened column count"
+        "gs_arrange_bay() must ask for the widened column count"
     assert "col = i % cols" in body and "row = i / cols" in body, (
         "the placement loop must use the widened count, not bay.cols - using "
         "bay.cols is what put 29 of .143's 65 icons below the screen"

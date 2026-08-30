@@ -1210,12 +1210,70 @@ layout are applied by the agent's **`retrowall` thread on every startup** (v1.8.
 fleet look across reboots. It applies whatever the **retro-wallpaper skill** has
 staged into `C:\retro-wall\`:
 - `wall00..NN.bmp` + `rotate_wall.exe` → wallpaper rotation
-- `arrange_icons.exe` → icons parked in the bottom-right well
 - `retro_theme.reg` + `setsyscolors.exe` → dark green-on-black system colors
   (regedit writes `HKCU\Control Panel\Colors`, then `setsyscolors.exe` pushes
   them live via `SetSysColors` so it takes effect without a re-logon)
+- ~~`arrange_icons.exe`~~ → **superseded, and must NOT be run** (see below)
 
-Each step is a **no-op if its asset isn't staged**. Stage/refresh all of them
+Each step is a **no-op if its asset isn't staged** — but the icon layout and the
+theme are applied **regardless**, because neither needs a staged asset. Note the
+apply call has to sit **above** `retrowall_apply_startup()`'s early returns:
+both of those returns are the NORMAL path on a fleet box, so anything placed
+after them runs on almost no machine while looking installed. The theme and the
+screensaver were already caught by exactly that once.
+
+### Desktop icons: AUTO ARRANGE is the fleet default (agent v1.73.0+)
+
+**User requirement: "the icons are always auto arranged".** Only Windows' own
+Auto Arrange delivers that, because the shell re-packs the desktop **itself**
+on every event that scatters icons — a resolution change, a fullscreen game
+exiting, a new shortcut, an Explorer restart. No agent pass, however frequent,
+can win that race; it can only tidy up afterwards, which *is* the "the icons
+keep moving" complaint. `gs_desktop_icons_apply()` (`agent/src/gamesync.c`)
+sets it on every agent startup, after a `GAMESYNC`, and on demand.
+
+**This SUPERSEDES the icon bay.** With Auto Arrange on, the shell packs icons
+into its own grid from the top-left and **ignores `LVM_SETITEMPOSITION`
+outright**, so the wallpaper's drawn bay cells are no longer used. The two are
+mutually exclusive; exactly one runs, chosen explicitly:
+
+| `HKLM\Software\RetroAgent\IconAutoArrange` | layout |
+|---|---|
+| **absent, or 1** | **Auto Arrange — the shell owns the layout (DEFAULT)** |
+| `0` | legacy icon bay — the agent places each icon in a drawn cell |
+
+**It is a SET, never a TOGGLE.** `FCIDM_SHVIEW_AUTOARRANGE` is a WM_COMMAND
+**toggle**. Fired blindly it turns Auto Arrange *off* on a box that already had
+it on — the exact inverse of the bug that once left icons in rows across the
+top of the screen. So the toggle is posted **only when `LVS_AUTOARRANGE` is
+clear**, the bit is read back afterwards, and `SetWindowLongA` is the fallback.
+
+> **The fallback is load-bearing, not belt-and-braces.** Measured 2026-08-30:
+> the shell toggle **silently failed on both `.171` and `.143`**. A
+> WM_COMMAND-only implementation would have logged "auto-arrange turned on" and
+> changed nothing on a quarter of the fleet — this project's recurring
+> "reported success and was believed" shape. Always read the bit back.
+
+**Persistence** is `HKCU\Software\Microsoft\Windows\Shell\Bags\1\Desktop`
+→ `FFlags`, a FOLDERFLAGS word: **bit 0 = `FWF_AUTOARRANGE`**, bit 2 =
+`FWF_SNAPTOGRID` ("align to grid"). It must be **read-modify-written**, never
+stamped: the fleet is not uniform — `.143` read `0x220` and `.171` read `0x224`
+— so a constant would silently change align-to-grid on some boxes and not
+others. Verified to survive an Explorer restart and a reboot.
+
+**Align-to-grid is left alone** in auto mode. The agent used to clear
+`LVS_EX_SNAPTOGRID` only because its 103px row pitch walked icons out of the
+bay's 80px cells; with the shell doing the packing that no longer applies.
+
+**`scripts/retro-wallpaper/arrange_icons.exe` must never be staged or run.** It
+parks icons bottom-right **and explicitly clears `LVS_AUTOARRANGE`**, so one
+run turns the fleet-wide setting back off. `deploy_rotation.py` renames any
+stale copy aside; the source carries a `SUPERSEDED` banner.
+
+On demand: **`ICONARRANGE [auto|bay]`** — applies the layout now and returns the
+**post-condition** (live style bit, persisted `FFlags`, icon count, screen mode)
+rather than `OK`, because a log line saying we set auto-arrange is not evidence
+that auto-arrange is set. Stage/refresh all of them
 with `python3 scripts/retro-wallpaper/deploy_rotation.py <ip>` (it now also stages
 `retro_theme.reg` + `setsyscolors.exe`). To fix a single box's theme immediately
 without a restart: `python3 scripts/retro-wallpaper/apply_hacker_theme.py <ip>`
@@ -1381,6 +1439,12 @@ for pc in pcs:
   > the OS pointer (`+set in_mouse 0` does not change this). At that point the
   > honest answer is a physical keyboard, not more automation.
 - **WINLIST** — JSON list of visible windows
+- **ICONARRANGE [auto|bay]** — apply the desktop icon layout now. Defaults to
+  the box's `HKLM\Software\RetroAgent\IconAutoArrange` setting (absent = auto).
+  Returns the **post-condition** as JSON — `autoarrange` (the live
+  `LVS_AUTOARRANGE` bit), `fflags`/`fflags_autoarrange` (what is persisted),
+  `icons` and `screen` — not `OK`. Use it to verify a box rather than trusting
+  the agent log. See "Desktop icons: AUTO ARRANGE is the fleet default".
 
 > ### ⚠️ TRIAGE FIRST: IS THE MENU KEYBOARD-NAVIGABLE?
 > **A menu that moves its own cursor by RELATIVE MOUSE DELTAS cannot be driven

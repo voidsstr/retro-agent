@@ -2,11 +2,13 @@
 
 WHY THIS EXISTS. Two pieces of code arranged desktop icons and they disagreed:
 
-  * `gs_arrange_icons()` in gamesync.c parks icons in the wallpaper's bay, which
-    is TOP-LEFT — matching `gen_retro_wall.py:icon_bay()`, clearing
-    LVS_EX_SNAPTOGRID (v1.67.0) so the shell stops rounding to its own 103px
-    grid, and widening into extra columns when the library outgrows the bay
-    (v1.68.0) so no icon lands below the screen edge.
+  * `gs_desktop_icons_apply()` in gamesync.c owns the desktop icon layout. Since
+    v1.73.0 it sets Windows' own AUTO ARRANGE by default, so the shell keeps the
+    desktop packed by itself; with HKLM\\Software\\RetroAgent\\IconAutoArrange = 0
+    it instead runs `gs_arrange_bay()`, the wallpaper's TOP-LEFT bay — matching
+    `gen_retro_wall.py:icon_bay()`, clearing LVS_EX_SNAPTOGRID (v1.67.0) so the
+    shell stops rounding to its own 103px grid, and widening into extra columns
+    when the library outgrows the bay (v1.68.0).
   * `C:\\retro-wall\\arrange_icons.exe` is the LEGACY arranger. Its own printf
     says "moved %d icons to bottom-right well" — where the wallpaper used to
     reserve space, and no longer does.
@@ -62,11 +64,30 @@ def test_retrowall_does_not_execute_the_legacy_arranger():
 def test_the_agent_still_arranges_icons_itself():
     """Removing the call must not leave the fleet with no arranger at all."""
     code = _strip_comments(_read(GAMESYNC))
-    assert "static void gs_arrange_icons(" in code, (
-        "gs_arrange_icons() is what replaced the legacy exe — it must exist"
+    assert "void gs_desktop_icons_apply(" in code, (
+        "gs_desktop_icons_apply() is what replaced the legacy exe — it must exist"
     )
-    assert re.search(r"\bgs_arrange_icons\s*\(\s*\)\s*;", code), (
-        "gs_arrange_icons() must actually be called, or icons are never parked"
+    assert re.search(r"\bgs_desktop_icons_apply\s*\(\s*\)\s*;", code), (
+        "gs_desktop_icons_apply() must actually be called, or nothing ever "
+        "arranges the desktop"
+    )
+    assert "static void gs_arrange_bay(" in code, (
+        "the icon-bay layout must survive as the IconAutoArrange=0 opt-out — "
+        "the registry switch has to lead somewhere"
+    )
+
+
+def test_the_agent_applies_the_icon_layout_on_every_startup():
+    """Once at onboarding is not enough — see the wallpaper/theme precedent.
+
+    A re-imaged box arrives with the Windows default (auto-arrange off), and
+    Explorer can drop the setting at logoff, so the agent has to re-assert it
+    on every start the way it does the wallpaper and the dark theme.
+    """
+    code = _strip_comments(_read(RETROWALL))
+    assert re.search(r"\bgs_desktop_icons_apply\s*\(\s*\)\s*;", code), (
+        "retrowall_apply_startup() must apply the desktop icon layout, or the "
+        "setting only ever lands on a box that happens to run a GAMESYNC"
     )
 
 
@@ -107,7 +128,8 @@ def test_deploy_rotation_does_not_stage_or_run_the_legacy_arranger():
     )
     assert not re.search(r"EXEC[^\n\"']*arrange_icons", code), (
         "deploy_rotation.py must not EXEC arrange_icons.exe — the agent owns "
-        "icon layout (gs_arrange_icons, top-left bay)"
+        "icon layout (gs_desktop_icons_apply), and that exe clears "
+        "LVS_AUTOARRANGE, so one run undoes the fleet default"
     )
 
 

@@ -1,4 +1,26 @@
 /*
+ * ============================ SUPERSEDED =============================
+ * DO NOT DEPLOY OR RUN THIS ON A FLEET BOX.
+ *
+ * Since agent v1.73.0 the fleet default is Windows' own AUTO ARRANGE:
+ * agent/src/gamesync.c:gs_desktop_icons_apply() sets LVS_AUTOARRANGE and
+ * persists it, on EVERY agent startup, so the shell keeps the desktop
+ * packed by itself and no external arranger is needed or wanted.
+ *
+ * This program CLEARS LVS_AUTOARRANGE (it has to - the shell ignores
+ * LVM_SETITEMPOSITION while auto-arrange is on), so a single run of it
+ * silently turns the fleet-wide setting back off, and the icons then
+ * stay wherever this program left them until the agent next starts.
+ * That is the "two mechanisms fighting over one desktop" bug this
+ * codebase has already been through twice; do not restart it.
+ *
+ * deploy_rotation.py no longer stages it and renames any stale copy
+ * aside. Kept as source only, for the box that deliberately opts out
+ * with HKLM\Software\RetroAgent\IconAutoArrange = 0 - and even then
+ * the agent's own icon-bay path is the supported route, not this exe.
+ * =====================================================================
+ */
+/*
  * arrange_icons.exe - park the Windows desktop icons in the wallpaper's ICON
  * BAY, which the current fleet wallpaper draws TOP-LEFT.
  *

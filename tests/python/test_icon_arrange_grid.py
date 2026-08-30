@@ -1,7 +1,11 @@
 """The desktop arranger must clear BOTH arrangement settings, not just one.
 
 WHY THIS EXISTS (2026-08-29, found on .246). The fleet wallpaper draws an icon
-bay of 76x80 cells and `gs_arrange_icons()` moves every desktop icon into one.
+bay of 76x80 cells and `gs_arrange_bay()` moves every desktop icon into one.
+Since agent v1.73.0 that path is the OPT-OUT layout, reached only with
+HKLM\\Software\\RetroAgent\\IconAutoArrange = 0 - the fleet default is now
+Windows' own Auto Arrange (see test_icon_autoarrange_source.py). These fixes
+still have to hold for the boxes that opt out, so they are kept, not deleted.
 It correctly turned OFF `LVS_AUTOARRANGE` first, because with auto-arrange on
 the shell snaps every icon back to the top-left and no position sticks.
 
@@ -37,7 +41,7 @@ SRC = os.path.join(REPO, "agent", "src", "gamesync.c")
 def _arrange_fn():
     with open(SRC, "r", encoding="utf-8", errors="replace") as fh:
         text = fh.read()
-    i = text.index("static void gs_arrange_icons(")
+    i = text.index("static void gs_arrange_bay(")
     j = text.index("\n}\n", i)
     return text[:i], text[i:j]
 
@@ -56,7 +60,7 @@ def test_snap_to_grid_is_cleared_before_any_icon_is_positioned():
     _, body = _arrange_fn()
 
     assert "LVS_EX_SNAPTOGRID" in body, (
-        "gs_arrange_icons() must clear align-to-grid, or the shell rounds every "
+        "gs_arrange_bay() must clear align-to-grid, or the shell rounds every "
         "position to its own ~103 px grid and the icons leave the bay's cells"
     )
     clear_at = body.index("LVM_SETEXSTYLE_")
@@ -134,7 +138,7 @@ def test_overflow_widens_instead_of_running_off_the_bottom():
     """
     _, body = _arrange_fn()
     assert "gs_arrange_cols(" in body, (
-        "gs_arrange_icons() must ask gs_arrange_cols() how many columns to use "
+        "gs_arrange_bay() must ask gs_arrange_cols() how many columns to use "
         "so an overflowing library widens instead of running off the screen"
     )
     assert not re.search(r"col\s*=\s*i\s*%\s*bay\.cols", body), (
