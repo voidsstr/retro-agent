@@ -13,7 +13,7 @@ title's `Play <Game>.bat` runs a 54 KB helper staged beside it, which reads
 ```
 i686-w64-mingw32-gcc -O2 -s -o FLEETRES.EXE fleetres.c -ladvapi32 -luser32 -lm
 ```
-59,392 bytes. sha256 2266d6737dc76909344eb908a6d8eb444d5181ee23b71df013e8fd5d42598493
+59,392 bytes. sha256 e82aa5bf4413c451bb4011fba59da78284fba6e0a6faf62e7563f111a5730770
 Runs on XP SP3 and Windows 7 (both verified on the fleet). Pure Win32 — no CRT
 redist, no SSE, so it is safe on the pre-SSE2 boxes (.124/.133/.143).
 
@@ -40,6 +40,7 @@ redist, no SSE, so it is safe on the pre-SSE2 boxes (.124/.133/.143).
 | `FR_DOSFULLRES` | `desktop` on an LCD, `original` on a CRT — for DOSBox `[sdl] fullresolution` |
 | `FR_NATIVE_W/H` `FR_DESK_W/H` `FR_LIVE_W/H` | panel native; persisted desktop; live desktop |
 | `FR_MON` | monitor name from EDID |
+| `FR_EDID` | `1` = the panel was **measured**; `0` = every answer is inferred from the persisted desktop mode plus a 4:3 assumption. **A box can lose its EDID across a reboot** — .133 did, on 2026-08-30 — and two different confidences must not read the same. |
 | `FR_HZ` | refresh of the **persisted** desktop mode, for an engine whose mode switch takes one (Halo's `-vidmode w,h,hz`). A hardcoded 60 is a staged constant like any other and is wrong on every CRT box — .143 runs 100 Hz, .124 75 Hz. |
 | `FR_GLIDE` | `1` when the box has REAL 3dfx silicon (`VEN_121A` anywhere in the PCI enum). A Voodoo 2 is `Class=MEDIA` and never appears as a display adapter, so nothing else on the box can see it. |
 | `FR_GLIDEDEV` | the matching PCI instance, for the log |
@@ -117,7 +118,13 @@ is a Voodoo 2 (hard 800x600 ceiling) hiding behind an Intel 865G.
 4. LCD vs CRT: digital-input bit **OR** (EDID vertical-refresh max <= 76 Hz AND
    preferred timing <= 61 Hz). Correct on all eight fleet panels — every CRT
    here quotes 85-180 Hz, every LCD quotes <= 76 and 60.
-5. Target: **LCD -> the panel's native mode** (anything else is resampled by
+5. **No EDID at all -> assume a 4:3 tube.** Falling through to the persisted
+   mode's own aspect is what this tool exists to stop: .133 lost its EDID after
+   a reboot and was instantly handed 1280x1024 back, a 5:4 image on the 4:3
+   tube it had been measured at 37x28cm that morning. A 5:4 CRT essentially
+   does not exist, and a widescreen LCD cannot reach this branch because the
+   LCD test itself needs EDID.
+6. Target: **LCD -> the panel's native mode** (anything else is resampled by
    the panel's scaler and looks soft, and a 4:3 mode is additionally stretched
    or pillarboxed). **CRT -> the largest mode matching the TUBE's aspect that
    does not exceed the persisted desktop mode.** A CRT has no pixel grid, so

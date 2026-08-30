@@ -104,6 +104,7 @@ set FR_DOSFULLRES=
 set FR_PANEL=
 set FR_Q3MODE=
 set FR_HZ=
+set FR_EDID=
 set FR_GLIDE=
 set FR_UE1DEV=
 if not defined TEMP set TEMP=%SystemRoot%\\Temp
@@ -119,6 +120,7 @@ if not defined FR_FOV set FR_FOV=90
 if not defined FR_Q2MODE set FR_Q2MODE=6
 if not defined FR_Q3MODE set FR_Q3MODE=6
 if not defined FR_HZ set FR_HZ=60
+if not defined FR_EDID set FR_EDID=0
 if not defined FR_DOSFULLRES set FR_DOSFULLRES=original
 rem FR_GLIDE defaults to 0 - "no 3dfx silicon" - deliberately. The wrong way
 rem round would move the nGlide wrapper aside on a box that has nothing else,
@@ -522,20 +524,10 @@ TITLES = {
             "Play Halo.bat": rec('cd /d "%~dp0"', [CALL]),
         },
         "fix": {
+            # 60 Hz is a staged constant, and wrong on every CRT box: measured
+            # today, .143 runs 100 Hz, .133 85 Hz and .124 75 Hz. This is the
+            # same defect as the resolution, one field to the right.
             "Play Halo.bat": [
-                ('rem ==== FLEET RESOLUTION BLOCK - identical in every staged '
-                 'title ==========\r\n'
-                 'set FR_W=\r\n'
-                 'set FR_H=\r\n'
-                 'if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -cmd > '
-                 '"%TEMP%\\fleetres.cmd"\r\n'
-                 'if exist "%TEMP%\\fleetres.cmd" call "%TEMP%\\fleetres.cmd"\r\n'
-                 'if not defined FR_W set FR_W=1024\r\n'
-                 'if not defined FR_H set FR_H=768\r\n'
-                 'rem ======================================================================\r\n',
-                 'rem The block is CALLED, not pasted - see FLEETRES.BAT.\r\n'),
-                # 60 Hz is a staged constant, and wrong on every CRT box: .143
-                # runs 100 Hz and .124 75 Hz.
                 ('-vidmode %FR_W%,%FR_H%,60', '-vidmode %FR_W%,%FR_H%,%FR_HZ%'),
             ],
         },

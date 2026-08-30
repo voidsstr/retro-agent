@@ -734,6 +734,18 @@ int main(int argc, char **argv)
             cls = aspect_class_phys((double)p.hcm / (double)p.vcm);
         if (!cls && native_ok)
             cls = aspect_class_mode((double)p.native_w / (double)p.native_h);
+        /* NO EDID AT ALL -> ASSUME A 4:3 TUBE. Falling through to the
+         * persisted mode's own aspect is what this whole tool exists to stop:
+         * .133 lost its EDID after a reboot on 2026-08-30 and was instantly
+         * handed 1280x1024 back - a 5:4 mode on the 4:3 tube it had been
+         * measured at 37x28cm that morning.
+         *
+         * The assumption is safe here because a 5:4 CRT essentially does not
+         * exist - 1280x1024 on a 4:3 tube is the classic mistake, not a panel
+         * shape - and because a widescreen LCD cannot reach this branch: the
+         * LCD test itself needs EDID, so no EDID already means `lcd == 0`.
+         * FR_EDID reports which of the two answers you are getting. */
+        if (!cls) cls = 43;
         if (cls) {
             for (i = 0; i < g_nmodes; i++) {
                 if (aspect_class_mode((double)g_modes[i].w / (double)g_modes[i].h) != cls) continue;
@@ -842,6 +854,10 @@ int main(int argc, char **argv)
     printf("set FR_WIDE=%d\n",     (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0);
     printf("set FR_DOSFULLRES=%s\n", lcd ? "desktop" : "original");
     printf("set FR_MON=%s\n",      native_ok && p.name[0] ? p.name : "unknown");
+    /* 1 = the panel was MEASURED (EDID present); 0 = every answer above is an
+     * inference from the persisted desktop mode plus a 4:3 assumption. Two
+     * different confidences should not look identical to a reader. */
+    printf("set FR_EDID=%d\n",    native_ok ? 1 : 0);
     printf("set FR_GLIDE=%d\n",   glide_n ? 1 : 0);
     printf("set FR_GLIDEDEV=%s\n", glide_n ? glide_dev : "none");
     printf("set FR_UE1DEV=%s\n",

@@ -848,3 +848,23 @@ def test_refresh_is_per_box_too():
     assert '%FR_HZ%' in _pre('Halo') or any(
         '%FR_HZ%' in n for pairs in sf.TITLES['Halo']['fix'].values()
         for _, n in pairs)
+
+
+def test_no_edid_assumes_a_four_three_tube_rather_than_the_current_mode():
+    """.133 was measured at 37x28cm (a 4:3 tube) in the morning and had LOST
+    its EDID by the afternoon, after a reboot. With no EDID the CRT branch fell
+    through to the persisted desktop mode and handed the box 1280x1024 straight
+    back — a 5:4 image on a 4:3 tube, which is the exact fault this tool exists
+    to remove, silently reintroduced by a driver change.
+
+    A 5:4 CRT essentially does not exist; 1280x1024 on a 4:3 tube is the
+    classic mistake, not a panel shape. And a widescreen LCD cannot reach this
+    branch, because the LCD test itself needs EDID — no EDID already means
+    lcd == 0. Verified after the fix: .133 answers 1280x960 (4:3), while .143
+    and .124 (also EDID-less, already 4:3) are unchanged at 1024x768."""
+    src = open(FLEETRES_C, encoding='latin1').read()
+    assert 'if (!cls) cls = 43;' in src, (
+        'no-EDID no longer defaults to a 4:3 tube, so a 5:4 desktop mode is '
+        'taken at face value again')
+    assert 'set FR_EDID=' in src, (
+        'a measured panel and an inferred one must not look identical')
