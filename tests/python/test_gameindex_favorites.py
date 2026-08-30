@@ -82,6 +82,30 @@ def test_unreal_query_port_is_carried_not_guessed():
     assert favorites._query_port(row("1.2.3.4:7777", "ut")) == 7778
 
 
+def test_a_written_line_survives_ut99s_OWN_parser():
+    """Round-trip our output through a transcription of UBrowser's ParseOption.
+
+    This is as close as a host-side test gets to proving the game will read
+    what we wrote. ParseOption splits the string on backslashes and returns
+    the Nth field; Query() then calls
+    `FoundServer(ParseOption(f,1), Int(ParseOption(f,2)), "", "Unreal",
+    ParseOption(f,0))` -- so field 0 is the name, 1 the IP, 2 the QUERY port
+    and 3 the bKeepDescription flag. Getting the order wrong yields a
+    favourite that silently never pings.
+    """
+    def parse_option(text, pos):            # UBrowser.UBrowserFavoritesFact
+        parts = text.split("\\")
+        return parts[pos] if pos < len(parts) else ""
+
+    text, _ = favorites.render("unreal", UT99, "", key="ut99")
+    line = [l for l in text.splitlines()
+            if l.startswith("Favorites[0]=")][0].split("=", 1)[1]
+    assert parse_option(line, 0) == "NSC Retro Fleet Arena (UT99)"
+    assert parse_option(line, 1) == "192.168.1.132"
+    assert int(parse_option(line, 2)) == 7798        # query, not the game port
+    assert parse_option(line, 3) == "False"
+
+
 def test_unreal_writes_favoritecount_and_the_terminator():
     text, _ = favorites.render("unreal", UT99, "", key="ut99")
     assert "FavoriteCount=1" in text
