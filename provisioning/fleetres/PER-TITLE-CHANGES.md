@@ -1,4 +1,21 @@
-# Per-title resolution change list for Games-Library  (for library-warden)
+# Per-title resolution change list for Games-Library
+
+> ## ⚠️ SUPERSEDED — read `PER-TITLE-STATUS.md` instead
+>
+> This was the **work list**, written before any of it had been applied, and
+> several of its judgements were measured wrong afterwards:
+>
+> * Tiberian Sun is **not** capped at 1024x768 — the engine renders 1920x1080.
+> * Quake 1's cap is real but it is **1280x960**, not 1024x768.
+> * Hexen II is **not** limited like GLQuake — it takes 1920x1080.
+> * SoF2 must **not** use `r_mode -1`; that fork has no such branch and renders
+>   640x480. It also must not use `FR_Q2MODE`, whose mode 8 is a different
+>   resolution from id Tech 3's.
+>
+> Everything in it has now been applied, and `PER-TITLE-STATUS.md` records what
+> each of the 37 titles actually does, per box, with the measurement behind it.
+> Keep this file only as the record of what was planned and why.
+
 
 Prerequisite for every row marked "launcher": copy `FLEETRES.EXE` (54,784 B)
 into the title's root, and paste the standard block from README-FLEETRES.md at
