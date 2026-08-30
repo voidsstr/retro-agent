@@ -65,7 +65,9 @@ SYSTEM = (
     "\"run\" = playable. \"marginal\" = runs but poorly; still install it. "
     "\"no\" = do not install it on this machine.\n"
     "Period minimum specs were often conservative, and a title with a software "
-    "or lower-detail renderer is usually still worth installing."
+    "or lower-detail renderer is usually still worth installing.\n"
+    "The machine's target_resolution is the mode the game will actually be "
+    "configured to run at, so judge the GPU against THAT, not against 640x480."
 )
 
 GPU_GLOSS = {
@@ -112,6 +114,14 @@ class Judge:
                     f"({GPU_GLOSS.get(p.gpu_level, 'unclassified')})"),
             "os": p.os_product,
             "directx": p.dx_major,
+            # THE TARGET RESOLUTION IS PART OF THE QUESTION. The staged titles
+            # are configured to the panel's native mode, and 1920x1080 is ~2.4x
+            # the pixels of 1024x768 - enough to be the difference between a
+            # 2004 title being comfortable on a Radeon 9800 XT and not. Asking
+            # "can this GPU run this game" without saying at what resolution is
+            # asking an underdetermined question.
+            "target_resolution": (f"{p.panel_w}x{p.panel_h}"
+                                  if p.panel_w and p.panel_h else "unknown"),
         }
 
     def judge(self, profile: rules.Profile, req: rules.Requirements,

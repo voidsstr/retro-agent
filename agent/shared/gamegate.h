@@ -161,6 +161,23 @@ typedef struct gg_profile_s {
      * field is a fact about the moment.
      */
     unsigned      free_mb;
+    /*
+     * The PANEL's native mode - what the games will actually be configured to
+     * run at, NOT the mode the desktop happens to be in. See edid.h: two fleet
+     * boxes were sitting at 640x480 from a DOSBox leftover while driving 1080p
+     * panels, so the live mode answers the wrong question.
+     *
+     * IN THE HASH, deliberately. Two boxes with identical silicon and
+     * different panels are NOT interchangeable for this decision: 1920x1080 is
+     * ~2.4x the pixels of 1024x768, which is the difference between a 2004
+     * title being comfortable on a Radeon 9800 XT and not. Without it they
+     * would share a cache entry and one box would be served the other's
+     * verdicts. It also keeps the cache honest when a monitor is swapped,
+     * which on this fleet does happen.
+     *
+     * 0 = no EDID could be read, which FAILS OPEN like every other field.
+     */
+    unsigned      panel_w, panel_h;
 } gg_profile_t;
 /* The tag exists so handlers.h can forward-declare this without pulling the
  * whole gate header into every translation unit. */
@@ -1013,7 +1030,7 @@ GG_FN void gg_decide(const gg_profile_t *p, const gg_req_t *r,
 GG_FN void gg_profile_hash(const gg_profile_t *p, char out[17])
 {
     unsigned long long h = 1469598103934665603ULL;   /* FNV-1a 64 offset */
-    unsigned fields[10];
+    unsigned fields[12];
     const char *v;
     int i, k;
 
@@ -1038,8 +1055,12 @@ GG_FN void gg_profile_hash(const gg_profile_t *p, char out[17])
     fields[7] = (p->gpu_ven << 16) | (p->gpu_dev & 0xFFFFu);
     fields[8] = p->vram_mb;
     fields[9] = (p->os_major << 8) | (p->os_minor & 0xFFu);
+    /* The panel, NOT bucketed: a mode is an exact, discrete fact - there is no
+     * measurement jitter between 1920x1080 and 1280x1024 to smooth over. */
+    fields[10] = p->panel_w;
+    fields[11] = p->panel_h;
 
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < 12; i++) {
         unsigned f = fields[i];
         for (k = 0; k < 4; k++) {
             h ^= (unsigned char)(f & 0xFFu);

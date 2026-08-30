@@ -103,16 +103,23 @@ int main(int argc, char **argv)
     }
     if (!strcmp(argv[1], "hash")) {
         /* vendor family model stepping mhz count features ram ven dev vram
-         * osmajor osminor */
+         * osmajor osminor panelw panelh
+         *
+         * The whole struct is zeroed each pass. It used to be only partly
+         * filled, which was harmless while every hashed field was assigned -
+         * but the moment a NEW field entered the hash, the unassigned bytes
+         * were stack garbage and the same machine hashed differently run to
+         * run. Zero it, don't chase which members the hash happens to read. */
         gg_profile_t p;
         char vendor[32];
         char out[17];
-        while (scanf("%31s %u %u %u %u %u %u %u %x %x %u %u %u",
+        while (memset(&p, 0, sizeof(p)),
+               scanf("%31s %u %u %u %u %u %u %u %x %x %u %u %u %u %u",
                      vendor, &p.cpu_family, &p.cpu_model, &p.cpu_stepping,
                      &p.cpu_mhz, &p.cpu_count, &p.cpu_features, &p.ram_mb,
                      &p.gpu_ven, &p.gpu_dev, &p.vram_mb,
-                     &p.os_major, &p.os_minor) == 13) {
-            memset(p.cpu_vendor, 0, sizeof(p.cpu_vendor));
+                     &p.os_major, &p.os_minor,
+                     &p.panel_w, &p.panel_h) == 15) {
             strncpy(p.cpu_vendor, vendor, sizeof(p.cpu_vendor) - 1);
             gg_profile_hash(&p, out);
             printf("%s\n", out);
@@ -344,10 +351,15 @@ def test_profile_hash_matches_and_is_stable(cbin):
     look for a file the host never wrote and silently fall back to local rules.
     """
     machines = [
-        ("GenuineIntel", 6, 8, 3, 845, 1, 15, 511, 0x10DE, 0x0150, 32, 5, 1),
-        ("AuthenticAMD", 6, 2, 2, 1000, 1, 271, 511, 0x10DE, 0x0041, 128, 5, 1),
-        ("GenuineIntel", 6, 42, 7, 3093, 4, 255, 2047, 0x10DE, 0x10C3, 512, 5, 1),
-        ("GenuineIntel", 6, 42, 7, 3093, 4, 255, 2047, 0x1002, 0x68F9, 1024, 6, 1),
+        # ... trailing pair is the PANEL's native mode, which is hashed
+        ("GenuineIntel", 6, 8, 3, 845, 1, 15, 511, 0x10DE, 0x0150, 32, 5, 1,
+         1024, 768),
+        ("AuthenticAMD", 6, 2, 2, 1000, 1, 271, 511, 0x10DE, 0x0041, 128, 5, 1,
+         1024, 768),
+        ("GenuineIntel", 6, 42, 7, 3093, 4, 255, 2047, 0x10DE, 0x10C3, 512, 5, 1,
+         1920, 1080),
+        ("GenuineIntel", 6, 42, 7, 3093, 4, 255, 2047, 0x1002, 0x68F9, 1024, 6, 1,
+         1920, 1080),
     ]
     stdin = "".join(" ".join(str(x) for x in m) + "\n" for m in machines)
     got = _run(cbin, "hash", stdin)
@@ -372,3 +384,45 @@ def test_profile_hash_matches_and_is_stable(cbin):
     recarded[9] = 0x0250
     again = _run(cbin, "hash", " ".join(str(x) for x in recarded) + "\n")
     assert again[0] != got[0], "a new GPU must produce a new profile"
+
+
+def test_the_panel_is_part_of_the_machine(cbin):
+    """Two boxes with identical silicon and different panels must not share a
+    cache entry.
+
+    1920x1080 is ~2.4x the pixels of 1024x768, which is the difference between
+    a 2004 title being comfortable on a Radeon 9800 XT and not - so the panel
+    changes the answer and therefore has to change the key. This is a live
+    fleet case, not a hypothetical: .123/.145/.240/.246 drive 1080p panels
+    while .124/.133/.143/.171 do not, and .123/.240 were additionally found
+    sitting at 640x480 from a DOSBox leftover, which is why the profile carries
+    the panel's EDID native mode rather than the current desktop mode.
+    """
+    base = ["GenuineIntel", 6, 42, 7, 3093, 4, 255, 2047,
+            0x10DE, 0x10C3, 512, 5, 1, 1024, 768]
+    wide = list(base)
+    wide[13], wide[14] = 1920, 1080
+
+    got = _run(cbin, "hash",
+               " ".join(str(x) for x in base) + "\n"
+               + " ".join(str(x) for x in wide) + "\n")
+    assert len(got) == 2
+    assert got[0] != got[1], (
+        "swapping the panel left the profile hash alone - a 1080p box would "
+        "be served a 1024x768 box's cached verdicts")
+
+
+def test_the_hash_is_deterministic(cbin):
+    """The same machine must hash the same every time.
+
+    This is only true if every hashed field is assigned. The harness used to
+    leave part of gg_profile_t as stack residue, which was harmless only for as
+    long as no unassigned member was hashed - exactly the kind of latent fault
+    that surfaces as "the cache stopped working" a release later.
+    """
+    m = ["AuthenticAMD", 15, 39, 1, 2403, 1, 255, 2047,
+         0x1002, 0x9515, 512, 5, 1, 1920, 1080]
+    line = " ".join(str(x) for x in m) + "\n"
+    got = _run(cbin, "hash", line * 3)
+    assert len(got) == 3
+    assert got[0] == got[1] == got[2], "the profile hash is not deterministic"

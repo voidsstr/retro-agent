@@ -37,6 +37,13 @@
 #include "util.h"
 #include "log.h"
 #include "../shared/gamegate.h"
+#include "../shared/edid.h"
+
+/* ENUM_REGISTRY_SETTINGS: the PERSISTED display mode. Absent from the old
+ * mingw headers this agent is built against, so define it if need be. */
+#ifndef ENUM_REGISTRY_SETTINGS
+#define ENUM_REGISTRY_SETTINGS ((DWORD)-2)
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -644,6 +651,8 @@ typedef struct {
     char     mount_evidence[64];  /* which key proved the mounter exists */
     hw_gpu_t gpu;
     int      screen_w, screen_h, screen_bpp;
+    edid_panel_t panel;
+    char     target_source[16];
 } hw_extra_t;
 
 static void hwprofile_collect(gg_profile_t *p, hw_extra_t *x)
@@ -722,6 +731,47 @@ static void hwprofile_collect(gg_profile_t *p, hw_extra_t *x)
             x->screen_bpp = GetDeviceCaps(hdc, BITSPIXEL) *
                             GetDeviceCaps(hdc, PLANES);
             ReleaseDC(NULL, hdc);
+        }
+    }
+
+    /*
+     * THE TARGET MODE - the resolution the games will actually run at. This is
+     * a third fact, distinct from both of the two above, and getting it from
+     * the wrong one of them has a different failure in each direction:
+     *
+     *  - The LIVE mode (screen_w/h) is wrong because a game that exits without
+     *    restoring leaves it behind. .123 and .240 were both found sitting at
+     *    640x480 from a DOSBox leftover while driving 1080p panels; a gate
+     *    trusting that would conclude they were 640x480 machines.
+     *  - The EDID NATIVE mode is wrong for a CRT, where the "preferred" timing
+     *    is the tube's MAXIMUM, not anything the box is set to. Measured on
+     *    .171: its Gateway VX1120 reports 1920x1440, while the fleet actually
+     *    runs it at 1280x1024. Feeding the larger number to the adjudicator
+     *    made it refuse four titles the box runs perfectly well - a box
+     *    silently losing games to a number nothing uses.
+     *
+     * So: prefer the PERSISTED registry mode, which is what the machine is
+     * configured to present and which a game's temporary ChangeDisplaySettings
+     * does NOT alter, and fall back to the EDID native mode when there is no
+     * usable registry mode. Both are reported; only this one is hashed.
+     * Everything failing leaves 0/0, which fails open.
+     */
+    edid_probe_panel(&x->panel);
+    {
+        DEVMODEA dm;
+        memset(&dm, 0, sizeof(dm));
+        dm.dmSize = sizeof(dm);
+        if (EnumDisplaySettingsA(NULL, ENUM_REGISTRY_SETTINGS, &dm)
+            && dm.dmPelsWidth >= 640 && dm.dmPelsHeight >= 480) {
+            p->panel_w = (unsigned)dm.dmPelsWidth;
+            p->panel_h = (unsigned)dm.dmPelsHeight;
+            safe_strncpy(x->target_source, "registry", sizeof(x->target_source));
+        } else if (x->panel.ok) {
+            p->panel_w = (unsigned)x->panel.native_w;
+            p->panel_h = (unsigned)x->panel.native_h;
+            safe_strncpy(x->target_source, "edid", sizeof(x->target_source));
+        } else {
+            safe_strncpy(x->target_source, "unknown", sizeof(x->target_source));
         }
     }
 }
@@ -875,6 +925,19 @@ void handle_hwprofile(SOCKET sock, const char *args)
     json_kv_int(&j, "width", x.screen_w);
     json_kv_int(&j, "height", x.screen_h);
     json_kv_int(&j, "bpp", x.screen_bpp);
+    /* The panel's own native mode, distinct from the three fields above: those
+     * say what the desktop is showing, these say what the hardware can do and
+     * therefore what the games get configured to. */
+    /* panel_w/h is the TARGET mode the gate hashes and judges against;
+     * edid_* is the panel's own native timing, reported for diagnosis. */
+    json_kv_uint(&j, "panel_w", p.panel_w);
+    json_kv_uint(&j, "panel_h", p.panel_h);
+    json_kv_str(&j, "panel_source", x.target_source);
+    json_kv_int(&j, "edid_w", x.panel.native_w);
+    json_kv_int(&j, "edid_h", x.panel.native_h);
+    json_kv_int(&j, "panel_hz", x.panel.native_hz);
+    json_kv_int(&j, "panel_digital", x.panel.digital);
+    json_kv_str(&j, "panel_name", x.panel.name);
     json_object_end(&j);
 
     add_disk(&j);

@@ -233,6 +233,11 @@ class Profile:
     dx_major: int = 0
     caps: int = 0
     free_mb: int = 0
+    # The PANEL's native mode - what the games get configured to, not what the
+    # desktop is showing. In the agent's profile_hash, so two boxes with the
+    # same silicon and different panels do not share a cached verdict.
+    panel_w: int = 0
+    panel_h: int = 0
 
     @classmethod
     def from_hwprofile(cls, data: dict, ip: str = "") -> "Profile":
@@ -279,6 +284,8 @@ class Profile:
             dx_major=int((data.get("directx", {}) or {}).get("major", 0) or 0),
             caps=int(caps.get("bits", 0) or 0),
             free_mb=free,
+            panel_w=int((data.get("display", {}) or {}).get("panel_w", 0) or 0),
+            panel_h=int((data.get("display", {}) or {}).get("panel_h", 0) or 0),
         )
         ver = (os_.get("version", "") or "").split(".")
         if len(ver) >= 2:
