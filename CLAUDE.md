@@ -1735,33 +1735,43 @@ Comparison write-up: `retro-3dfx/DRIVER-STACK-ASSESSMENT.md` (commit `1768c53`).
 Current fleet is on **192.168.1.0/24** (see "Per-box console accounts" above for
 the full list).
 
-> ### ⚠️ A BOX'S 3dfx CARD IS OFTEN NOT THE CARD DRIVING THE DISPLAY
+> ### ⚠️ EVERY MEASURED FACT ABOUT A BOX LIVES IN [`docs/fleet-inventory.md`](docs/fleet-inventory.md) — NOT HERE
 >
-> This table used to name each machine by its Voodoo, and that misled a whole
-> staging session on 2026-08-30. **`.133` and `.143` both render on a GeForce**;
-> the Voodoo5 is a second adapter in the same box. Three machines carry a
-> DX9-or-better GPU that nothing in these docs mentioned, and reasoning from the
-> old table would have wrongly refused two 2004 titles on five of eight boxes.
+> **That file is generated, and this section deliberately holds no CPU, no
+> card, no resolution, no free-space figure.** Each machine publishes its own
+> hardware record to the share on every agent startup
+> (`agent/src/hwpublish.c` → `…\Utility\Retro Automation\fleet-inventory\<host>.json`),
+> and `scripts/fleet/inventory.py` renders those records into that document:
 >
-> **Measure, don't recall: `VIDEODIAG` for the adapter, `DISPLAYCFG get` for the
-> mode, and `REGREAD HKLM HARDWARE\DESCRIPTION\System\CentralProcessor\0` for
-> `~MHz` + `ProcessorNameString`** (`SYSINFO` gives no clock at all). Everything
-> below was measured that way on 2026-08-30 and carries a date for that reason.
+> ```bash
+> python3 scripts/fleet/inventory.py            # regenerate docs/fleet-inventory.md
+> python3 scripts/fleet/inventory.py --check    # exit 1 if a box is stale or missing
+> ```
+>
+> **Why the table that used to be here is gone.** It was hand-maintained and it
+> was wrong about most of the fleet. **Twice a box's graphics card was swapped
+> without the docs noticing** — `.124`'s Voodoo 3 came out on 2026-08-11 and the
+> stale claim survived for weeks, and `.133`'s Voodoo5 6000 is physically gone
+> while three documents still named the box by it. Three machines carried a
+> DX9-or-better GPU nothing mentioned, which would have wrongly refused
+> 2004-era titles on five of eight boxes. A replacement table was *measured*
+> on 2026-08-30 and was already drifting within the day.
+>
+> **Generating a document and keeping the hand-written one solves nothing** —
+> it creates a second thing to go stale. So the generated file is the single
+> source of truth for every measured field, and what stays here is only the
+> prose a probe cannot discover: the traps below, and the per-box notes in
+> `scripts/fleet/fleet-roster.txt`. **Do not re-add a specs table here.** If a
+> figure is missing from the generated document, fix the probe
+> (`agent/src/hwprofile.c`, `agent/src/hwextra.c`), not this file.
+>
+> **A stale or missing record is not an outage.** The fleet is powered on
+> demand, so several boxes legitimately carry old data at any moment;
+> `stale`, `never seen` and `unreadable` are three distinct states in that
+> document and none of them is by itself a fault.
 
-Measured 2026-08-30, all eight boxes live:
-
-| IP | Hostname | CPU | RAM | Display GPU (PCI id) | Mode | Free | OS |
-|----|----------|-----|-----|----------------------|------|------|----|
-| .123 | NSC-B20C188E96D | Athlon 64 4000+ 2403 MHz | 2047 MB | **Radeon HD 3850 AGP** (`1002:9515`) | 1920x1080 | 204 GB | XP SP3 |
-| .124 | ADMIN / NSC-CABE14B7486 | PIII 845 MHz | 511 MB | GeForce2 GTS (`10DE:0150`) — no programmable shaders | 1024x768 | 101 GB | XP SP3, dual-boot Win98 |
-| .133 | P3-DUAL | dual PIII 701 MHz | **255 MB** | **GeForce4 Ti 4600** (`10DE:0250`) — **the V5 6000 is GONE**, see below | 1280x1024 | 876 GB | XP SP3 |
-| .143 | 1GHZ | Athlon 1000 MHz (**K7, family 6 model 2 — no SSE**) | 511 MB | **GeForce 6800** (`10DE:0041`) — V5 5500 present as a 2nd adapter | 1024x768 | 143 GB | XP SP3 |
-| .145 | DELL | Core i5-2400 3093 MHz | 2047 MB | GeForce 8400GS (`10DE:10C3`) + Intel HD | 1920x1080 | 148 GB | XP SP3 |
-| .171 | NSC-5B996B81319 | Pentium 4 2793 MHz | 509 MB | Intel 865G (`8086:2572`) — no HW T&L | 1280x1024 | 58 GB | XP SP3 |
-| .240 | USER-41EA3B3330 | Athlon 64 3300+ 2403 MHz | 1534 MB | **Radeon 9800 XT** (`1002:4E4A`) | 1920x1080 | **17 GB** | XP SP3 |
-| .246 | ADMIN-PC | Core i5-2400 3093 MHz | 2047 MB | Radeon HD 6xxx (`1002:68F9`) | 1920x1080 | 151 GB | **Windows 7** |
-
-Per-box traps worth keeping:
+Per-box traps worth keeping — **prose only; the numbers are in the generated
+file** and the roster line for each box repeats the one-liner:
 
 - **.171's Voodoo 2 NEVER shows as a display adapter.** Its INF is `Class=MEDIA`,
   so `VIDEODIAG` and every display-class scan report only the Intel chip and the
@@ -1772,19 +1782,25 @@ Per-box traps worth keeping:
   use ≥8s TCP timeouts or sweeps miss it entirely.**
 - **.124** had its Voodoo 3 removed 2026-08-11 and the whole 3dfx stack purged;
   it is on ForceWare 71.89. XP is on **D:**, Win98 on C:, and games live on both.
-- **.145's `DISPLAYCFG get` reports 640x480x16 while the desktop is really
-  1920x1080** — it reads the inactive Intel HD, not the 8400GS that is driving
-  the panel. Cross-check against a `WINLIST` Program Manager rect before
-  believing a suspiciously small mode on a dual-adapter box.
-- **.133 has 255 MB of RAM**, one megabyte under the 256 MB floor that several
-  2004 titles publish. That is not a rounding artifact — it is the number the
-  capability gate sees.
-- **.240 is the only disk-constrained machine still in service** at 17 GB free.
+- **.145's `DISPLAYCFG get` reads the INACTIVE Intel HD**, not the discrete card
+  driving the panel, so it reports a far smaller mode than the desktop really
+  has. Cross-check against a `WINLIST` Program Manager rect before believing a
+  suspiciously small mode on a dual-adapter box. (The generated inventory
+  sidesteps this: it reports the **persisted** mode from the registry, which is
+  also immune to a game exiting without restoring — `.123` and `.240` were both
+  found sitting at 640x480 from a DOSBox leftover while driving 1080p panels.)
+- **.133 sits just UNDER the 256 MB floor several 2004 titles publish.** That is
+  not a rounding artifact — it is the number the capability gate sees. Read the
+  exact figure from the generated inventory, not from memory.
+- **.240 is the only disk-constrained machine still in service.** Check its free
+  space in the generated inventory before staging anything large on it.
 
 > #### ⚠️ THE VOODOO5 6000 IS NO LONGER IN `.133` (measured 2026-08-30)
 >
-> An earlier draft of this table said the V5 6000 was still a second adapter in
-> `.133`. It is not. Four independent reads all say the card is physically
+> A draft of the table that used to live here said the V5 6000 was still a
+> second adapter in `.133`. It is not, and that draft was written from the
+> *previous* table rather than from a probe — which is the whole argument for
+> generating this. Four independent reads all say the card is physically
 > absent:
 >
 > - `VIDEODIAG` returns **one** adapter, the GeForce4 Ti 4600;
@@ -1802,7 +1818,11 @@ Per-box traps worth keeping:
 > 2026-08-11. Do not size a Voodoo5 test matrix at two boxes.
 >
 > **Real Glide silicon on this fleet is now exactly two cards:** `.143`'s V5 5500
-> (`121A:0009`, subsys `0002121A`) and `.171`'s Voodoo 2 (`121A:0002`). Every
+> (`121A:0009`, subsys `0002121A`) and `.171`'s Voodoo 2 (`121A:0002`) — and
+> this no longer has to be remembered: every box now reports its own
+> `accelerators[]` from the PCI enumerator, so `docs/fleet-inventory.md` says
+> which machines have 3dfx silicon and states positively where there is none.
+> Every
 > other box would run a Glide title through a wrapper or not at all — which is
 > what makes the staged game-local `glide2x.dll` question a real one.
 

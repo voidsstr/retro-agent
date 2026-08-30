@@ -53,6 +53,14 @@ retro-agent/tests/
     test_driver_prefs.c   TRUE-SOURCE: agent/shared/drvprefs.h — the PREFER.TXT
                           parse, the line-anchored hardware-id match, and the
                           reclaim gate (force-install BEFORE deleting C:\D)
+    test_hwpublish.c      TRUE-SOURCE: agent/shared/hwpub.h — the fleet-inventory
+                          publish. The hostname->filename mapping (a NetBIOS name
+                          in a path is not a filename: '\' or ".." writes
+                          SOMEWHERE ELSE on the share, silently), the BOUNDED
+                          retry schedule (an unbounded one against an absent
+                          server is what killed the agent on the 31MB Deskpro),
+                          and the MAC formatter (offset k*3-1, not k*3 — at k*3
+                          the whole address truncates to "00")
 ../retro-3dfx/tests/      VINTAGE H5 / SGL harness — the .143 pure-3dfx lane, NOT our stack
   native/test_texheap_align.c, test_mip_download_addr.c ; test_source_invariants.sh ; predeploy.sh
 
@@ -110,6 +118,8 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 
 | Fix | Component | Test |
 |-----|-----------|------|
+| **agent 1.74.0: every box publishes its own hardware record on every startup, so the fleet documentation is measured rather than remembered** — the hand-maintained table was wrong about most of the fleet and TWICE missed a graphics card being swapped (2026-08-30) | agent `hwpublish.c` / `hwextra.c` / `hwprofile_json()` + `agent/shared/hwpub.h`, `scripts/fleet/inventory.py` | `native/test_hwpublish.c`, `python/test_fleet_inventory.py` |
+| **the generated inventory must tell `current` / `stale` / `never seen` / `unreadable` apart, and a torn record must degrade rather than crash** — "not installed" and "crashed" must never render the same, and a fleet powered on demand always has boxes reporting old data (2026-08-30) | `scripts/fleet/inventory.py` | `python/test_fleet_inventory.py` |
 | **agent 1.59.0: force the staged driver over the one XP picks, and never reclaim C:\D before doing it** (2026-08-29, .124) | agent gamesync.c + `agent/shared/drvprefs.h`, `scripts/pxe/{driver-prefs.txt,stage-oem.sh}` | `native/test_driver_prefs.c`, `test_pxe_drivers.py` |
 | **image: AutoPlay off on every drive type, so an ISO mount cannot modal over a fullscreen game** (2026-08-29) | `scripts/pxe/stage-oem.sh` | `test_pxe_autoplay.py` |
 | **GAMEINDEX saw only 10 of the 29 staged library titles** (2026-08-29) | agent C (gameindex.c `g_sigs[]`) | `python/test_gameindex_staged_library.py` |
