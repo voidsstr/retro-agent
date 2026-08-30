@@ -251,6 +251,8 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 
 | the library validator walks ~40 GB over SMB and several agents ran it at once — **15 processes, 9 stuck in uninterruptible IO, the oldest 19 minutes**, none able to finish; three agents read their own stall as a test failure and one nearly reported a PASS that had been SIGTERMed (wrapper exit 0, validator exit 143). It now takes an advisory lock, `--no-wait` returns **75** (distinct from 1 = problems found), and a waiter names the gvfs second transport, which completes when the CIFS mount cannot (2026-08-30) | `scripts/validate-staged-library.py` | `python/test_validator_serialises.py` |
 
+| the agent's two remaining CMOVs sit in mingw runtime code reached from `___tmainCRTStartup` **before `main`** — they are unreachable only because the linker resolves the pseudo-reloc list bounds to the SAME address, so a CMOV *count* stays at 2 while a new import makes them live and faults a genuine Pentium 1 with `0xC000001D` before any log line exists (2026-08-30) | `agent/Makefile` (`-march=i586`), the link | `python/test_agent_is_pentium1_safe.py` |
+
 (The vintage SGL/H5 fixes — garble 0.3.1, mip-download 08fd889 — are tested in
 `retro-3dfx/tests/`, the other lane's harness, not here.)
 
