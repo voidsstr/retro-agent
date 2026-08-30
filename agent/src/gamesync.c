@@ -377,6 +377,27 @@ static int  gs_desk_changed(void)
 {
     return (g_gs_desk_files > 0 || g_gs_desk_lnks > 0);
 }
+static long gs_desk_files(void) { return g_gs_desk_files; }
+static long gs_desk_lnks(void)  { return g_gs_desk_lnks; }
+
+/* WHY THESE ARE REPORTED IN THE `done:` LINE, NOT JUST USED INTERNALLY.
+ *
+ * gs_desk_changed() decides whether to rebuild the desktop icon layout. If it
+ * is wrong in the "always true" direction the icon rebuild comes straight back
+ * and NOTHING SAYS SO - the gate would be defeated permanently and silently,
+ * which is this project's signature failure mode.
+ *
+ * The realistic way that happens is ONE file that re-copies on every single
+ * pass: a destination whose mtime never stamps (SetFileTime failing on a
+ * read-only or oddly-attributed file, a filesystem with coarser time
+ * granularity than the source) fails the size+mtime resume test forever, so
+ * every sync writes at least one file and the gate is always true.
+ *
+ * So the counts go in the log line an operator already reads. A steady-state
+ * box must report `0 file(s) written, 0 new shortcut(s)`; a box that reports
+ * the SAME small non-zero count on consecutive no-change syncs is announcing
+ * exactly that defect instead of hiding it. That turns an untestable claim
+ * into a one-line observation. */
 
 /* gs_same_mtime - do these two files carry the same last-write time?
  *
@@ -2999,16 +3020,27 @@ static void gs_run(const char *library)
      * it is what the staged-game fix loop depends on, and suppressing it would
      * leave a freshly deployed game's icon unplaced. */
     if (gs_desk_changed()) {
+        log_msg(LOG_GS, "desktop changed (%ld file(s) written, %ld new/removed "
+                        "shortcut(s)) - arranging icons",
+                gs_desk_files(), gs_desk_lnks());
         Sleep(2000);
         gs_desktop_icons_apply();
     } else {
-        log_msg(LOG_GS, "nothing changed - icons left alone (no files written, "
-                        "no new shortcuts); use ICONARRANGE to force a pass");
+        log_msg(LOG_GS, "nothing changed - icons left alone (0 file(s) written, "
+                        "0 new/removed shortcut(s)); use ICONARRANGE to force "
+                        "a pass");
     }
 
+    /* The written/shortcut counts belong on the line an operator already reads.
+     * See the comment on gs_desk_files() - a steady-state box MUST report
+     * `0 file(s) written`, and one that reports the same small non-zero count
+     * every pass is telling you a file re-copies forever and the icon-rebuild
+     * gate is permanently defeated. Without this, that is invisible. */
     log_msg(LOG_GS, "done: %d/%d title(s) copied, %d skipped (no room), "
-            "%d gated (machine cannot run), %d file error(s)",
-            ok_titles, n, g_gs.skipped_titles, g_gs.gated_titles, i);
+            "%d gated (machine cannot run), %d file error(s), "
+            "%ld file(s) written, %ld new/removed shortcut(s)",
+            ok_titles, n, g_gs.skipped_titles, g_gs.gated_titles, i,
+            gs_desk_files(), gs_desk_lnks());
     gs_gate_free();
     gs_set_msg("complete - %d title(s)", ok_titles);
 
@@ -3375,12 +3407,19 @@ void handle_gamesync(SOCKET sock, const char *args)
         "\"current_title\":\"%s\",\"current_file\":\"%s\","
         "\"failed_files\":%d,\"failed_file\":\"%s\","
         "\"elapsed_s\":%d,\"provisioned\":%s,"
+        /* files_written/shortcuts_changed are what the icon-rebuild gate
+         * decides on. Reported so a caller can SEE whether a steady-state sync
+         * really had nothing to do - a box that reports the same non-zero
+         * files_written every pass has a file that re-copies forever, which
+         * defeats the gate silently. See gs_desk_files(). */
+        "\"files_written\":%ld,\"shortcuts_changed\":%ld,"
         "\"new_image\":%s,\"message\":\"%s\"}",
         names[(s.state >= 0 && s.state <= GS_SKIPPED) ? s.state : 0],
         pct, s.done_titles, s.total_titles, s.skipped_titles, s.gated_titles,
         s.done_bytes / 1048576, s.total_bytes / 1048576, s.mbps,
         s.title, s.file, s.failed_files, esc_failed, elapsed,
         gs_file_exists(GS_MARKER) ? "true" : "false",
+        gs_desk_files(), gs_desk_lnks(),
         gs_file_exists(GS_NEWIMAGE_FLAG) ? "true" : "false",
         s.message);
     /* new_image is deliberately reported alongside provisioned: together they

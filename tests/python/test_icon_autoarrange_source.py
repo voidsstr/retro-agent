@@ -232,3 +232,47 @@ def test_an_already_on_desktop_is_not_re_packed_every_startup():
         "and it achieves nothing, because with auto-arrange on the shell is "
         "already keeping the desktop packed by itself."
     )
+
+
+def test_the_gate_reports_what_it_decided_on():
+    """A silent gate is an untestable gate.
+
+    gs_desk_changed() decides whether to rebuild the icon layout. If it is ever
+    wrong in the "always true" direction the every-boot rebuild returns and
+    NOTHING says so. The realistic cause is one file that re-copies on every
+    pass - a destination whose mtime never stamps fails the size+mtime resume
+    test forever - and from the outside that is indistinguishable from a box
+    that genuinely had work to do.
+
+    So the counts the gate decides on must be reported: in the `done:` log line
+    an operator already reads, and in GAMESYNC STATUS so a caller can assert on
+    them. A steady-state box must show zero.
+    """
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+
+    assert "gs_desk_files()" in code and "gs_desk_lnks()" in code, (
+        "the written-file and shortcut counts must be readable, not private to "
+        "the gate"
+    )
+
+    # The done: line must carry both counts.
+    done = [ln for ln in code.splitlines() if "done: %d/%d title(s) copied" in ln]
+    assert done, "the GAMESYNC done: line must still exist"
+    idx = code.index("done: %d/%d title(s) copied")
+    stmt = code[idx:code.index(";", idx)]
+    assert "file(s) written" in stmt, (
+        "the done: line must report how many files were actually written, or a "
+        "gate that never suppresses anything is invisible"
+    )
+    assert "gs_desk_files()" in stmt and "gs_desk_lnks()" in stmt, (
+        "the done: line must report the ACTUAL counters, not a recomputed guess"
+    )
+
+    # GAMESYNC STATUS must expose them too, so this is machine-checkable.
+    assert '\\"files_written\\":%ld' in code, (
+        "GAMESYNC STATUS must expose files_written so a caller can assert a "
+        "steady-state sync really wrote nothing"
+    )
+    assert '\\"shortcuts_changed\\":%ld' in code, (
+        "GAMESYNC STATUS must expose shortcuts_changed"
+    )

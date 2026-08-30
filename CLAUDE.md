@@ -1354,7 +1354,25 @@ Two counters that look obvious and are **wrong**, both guarded by tests:
 The second churn source was in the auto-arrange code itself: `LVM_ARRANGE` was
 sent on every startup even when auto-arrange was **already on**. With the shell
 maintaining the layout that achieves nothing and is visible churn, so it is now
-sent only when the setting was just changed, or when forced. Stage/refresh all of them
+sent only when the setting was just changed, or when forced.
+
+**The gate REPORTS what it decided on (v1.75.0)** — a silent gate is an
+untestable gate. Both the `done:` log line and `GAMESYNC STATUS` now carry
+`files_written` and `shortcuts_changed`:
+
+```
+done: 35/37 title(s) copied, 0 skipped, 2 gated, 0 file error(s),
+      0 file(s) written, 0 new/removed shortcut(s)
+```
+
+**A steady-state box must report `0 file(s) written`.** A box reporting the
+*same small non-zero count on consecutive no-change syncs* is announcing the one
+realistic way this gate fails: a file whose mtime never stamps (SetFileTime
+failing on an odd-attributed file, or coarser destination time granularity)
+fails the size+mtime resume test **forever**, so every sync writes it, the gate
+is always true, and the every-boot rebuild returns with nothing saying so. That
+is the project's signature failure mode, and this line is what makes it
+visible. Stage/refresh all of them
 with `python3 scripts/retro-wallpaper/deploy_rotation.py <ip>` (it now also stages
 `retro_theme.reg` + `setsyscolors.exe`). To fix a single box's theme immediately
 without a restart: `python3 scripts/retro-wallpaper/apply_hacker_theme.py <ip>`
