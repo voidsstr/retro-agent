@@ -157,6 +157,55 @@ receives the game and loses only the OpenGL icon.
 
 ---
 
+## `cpu_features` — how to tell a real floor from a fast path
+
+An absent instruction is `#UD` — an immediate hard crash — so this field is the
+most valuable one in the schema and the easiest to get catastrophically wrong in
+**both** directions. UT99 469e is the worked example: it declared only a clock
+and a RAM figure, and the gate cheerfully approved a build compiled with SSE2
+throughout onto three boxes that die on it with `0xC000001D`, misread as a
+broken GAMESYNC about thirty times.
+
+The opposite mistake is just as bad and much easier to make, because almost
+every game of this era **detects the CPU at runtime and picks a path**. Declare
+a floor from a raw instruction count and you refuse a title on machines that
+run it perfectly.
+
+**Counting instructions is the start of the answer, never the end.** Disassemble
+the binaries the launcher actually loads and then apply three discriminators:
+
+| discriminator | reads as | what it means |
+|---|---|---|
+| **`cpuid` count** | 0, or 1 at startup | no dispatch — a REAL floor |
+| | 3–19 sites | runtime dispatch — **not** a floor |
+| **dispatch symbols** | `GIsMMX`, `GIsKatmai`, `GIs3DNow` (Unreal Engine 1), `Sys_GetProcessorFeatures` (id Tech 3) | the engine branches — **not** a floor |
+| **address adjacency** | the vectorised block sits immediately after a `cpuid` | a fast path — **not** a floor |
+
+And beware the disassembler itself. `objdump` disassembles a PE's `.text`
+linearly, including padding, tables and any packed/encrypted region, so a
+**small count is usually noise**. `WINQUAKE.EXE` "has" five CMOVs that are
+really `add BYTE PTR [edi],al` zero-padding, and `MaxPayne.exe` — SafeDisc, so
+most of its image is data to a disassembler — reports 785 CMOVs including
+`cmove esp,[ecx]`, which is not an instruction any compiler emits. **Look at
+the actual lines** before believing a count. Real MMX looks like coherent
+register use (`movd mm0,[esi]` … `punpcklwd mm4,mm2` … `pmulhw`), and real
+vector code appears inside a loop.
+
+A 2026-08-30 sweep of all 38 staged titles under this method found exactly one
+unconditional floor beyond UT99's — Aliens versus Predator's MMX (1126
+MMX-register references, one `cpuid` in the whole binary, matching Rebellion's
+published "Pentium 200 MMX" minimum). Everything else large was dispatched:
+Unreal Engine 1's software renderer (29,598 MMX references in `SoftDrv.dll`,
+gated on `GIsMMX`), GoldSrc's (`hl.exe` carries five `cpuid` sites), id Tech 3's
+`jamp.exe` and `quake3.exe`, and StarCraft's SSE2 double math, which begins
+0x4e bytes after the two `cpuid` instructions that select it.
+
+**Side finding worth not re-deriving:** DXX-Rebirth ships `libmikmod-2.dll` with
+544 CMOVs — a third-party i686-baseline build, the same defect `FLEETRES.EXE`
+had. A Pentium 1 faults there when music initialises, not at startup.
+
+---
+
 ## `requires_capabilities` — software state, deliberately not a verdict
 
 A capability is something the box **lacks but can be given**. Right now there is
