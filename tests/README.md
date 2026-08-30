@@ -228,6 +228,8 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | an unrecognisable image must fail loudly rather than default to 2048 — a guessed geometry writes an ISO that opens nowhere and the symptom then points at the archive tool (2026-08-30) | `scripts/fleet/mdf2iso.py::detect` | `python/test_mdf2iso.py::test_no_volume_descriptor_raises_rather_than_guessing` |
 | a CD key or product key pasted into a tracked file is permanent — rewriting published history is a negotiation, so the cheap moment to catch it is before the commit (2026-08-30) | the whole tracked tree | `python/test_no_committed_secrets.py` |
 
+| the library validator walks ~40 GB over SMB and several agents ran it at once — **15 processes, 9 stuck in uninterruptible IO, the oldest 19 minutes**, none able to finish; three agents read their own stall as a test failure and one nearly reported a PASS that had been SIGTERMed (wrapper exit 0, validator exit 143). It now takes an advisory lock, `--no-wait` returns **75** (distinct from 1 = problems found), and a waiter names the gvfs second transport, which completes when the CIFS mount cannot (2026-08-30) | `scripts/validate-staged-library.py` | `python/test_validator_serialises.py` |
+
 (The vintage SGL/H5 fixes — garble 0.3.1, mip-download 08fd889 — are tested in
 `retro-3dfx/tests/`, the other lane's harness, not here.)
 

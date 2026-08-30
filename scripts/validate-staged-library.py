@@ -27,6 +27,8 @@ preference: each check encodes a defect that actually reached a box.
 import argparse
 import json
 import os
+import tempfile
+import time
 import re
 import struct
 import sys
@@ -431,6 +433,65 @@ def check_title(lib, title):
     return out
 
 
+# ---------------------------------------------------------------------------
+# ONE VALIDATOR AT A TIME.
+#
+# This walks ~40 GB of staged tree over SMB, and today several agents ran it
+# concurrently: 15 processes at once, 9 of them stuck in uninterruptible IO,
+# the oldest 19 minutes in, none able to finish. Three separate agents read
+# their own stall as a test failure and one nearly reported a pass that had
+# actually been SIGTERMed at its timeout.
+#
+# A slow check is tolerable. A check that cannot finish, and whose stall looks
+# exactly like a failure, is worse than no check - so serialise it. A waiter
+# says what it is waiting for rather than sitting mute, and --no-wait exists
+# for a caller that would rather be told than queue.
+# ---------------------------------------------------------------------------
+_LOCK_PATH = os.path.join(tempfile.gettempdir(), "validate-staged-library.lock")
+
+
+def _acquire_lock(wait_s, quiet=False):
+    """Return the held lock file, or None if we gave up waiting.
+
+    Deliberately advisory and best-effort: on a platform without fcntl, or if
+    anything about locking fails, the validator still RUNS. Refusing to check
+    the library because a lock could not be taken would be a worse failure
+    than the contention it guards against.
+    """
+    try:
+        import fcntl
+    except ImportError:
+        return "unsupported"
+    try:
+        fh = open(_LOCK_PATH, "a+")
+    except OSError:
+        return "unsupported"
+    deadline = time.time() + max(0, wait_s)
+    announced = False
+    while True:
+        try:
+            fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return fh
+        except OSError:
+            pass
+        if time.time() >= deadline:
+            fh.close()
+            return None
+        if not announced and not quiet:
+            print("waiting: another validate-staged-library.py holds the lock "
+                  "(%s). This walks the whole share, so they are serialised.\n"
+                  "  --no-wait          fail fast (exit 75) instead of queuing\n"
+                  "  --library <path>   a SECOND TRANSPORT to the same server is\n"
+                  "                     a real way past a contended mount: the\n"
+                  "                     gvfs path is uncontended when the CIFS\n"
+                  "                     mount is in IO wait, and a run that got\n"
+                  "                     no timeslice in 25 minutes on /mnt\n"
+                  "                     completed there. Same files, same server."
+                  % _LOCK_PATH, file=sys.stderr)
+            announced = True
+        time.sleep(2.0)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -438,7 +499,18 @@ def main():
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--quiet", action="store_true",
                     help="print only titles with problems")
+    ap.add_argument("--no-wait", action="store_true",
+                    help="exit 75 rather than queue behind another run")
+    ap.add_argument("--lock-wait", type=int, default=1800, metavar="SECONDS",
+                    help="how long to wait for another run (default 1800)")
     args = ap.parse_args()
+
+    # Serialise: see _acquire_lock. Held for the whole run.
+    _lock = _acquire_lock(0 if args.no_wait else args.lock_wait, args.quiet)
+    if _lock is None:
+        print("another validate-staged-library.py is already running; "
+              "not queuing (--no-wait)", file=sys.stderr)
+        return 75          # EX_TEMPFAIL - distinct from 1 (problems found)
 
     lib = args.library
     if not os.path.isdir(lib):
