@@ -107,7 +107,25 @@ def decide_title(profile, title, shortcut, cache, judge, model,
                 limiting=row["limiting"], reason=row["reason"],
                 missing_caps=row["missing_caps"],
                 decided_by=row["decided_by"], confidence=row["confidence"])
-            return d, True
+            # A MARGINAL THAT ONLY EVER SAW THE RULES IS NOT A DECISION - it is
+            # the rules saying "I cannot call this one", which is the exact
+            # input the escalation gate exists to consume. Caching it as though
+            # it were an answer made it a DEAD END: the hit returned before the
+            # gate, so the model was never consulted, and because the row is
+            # typed `rule` even --refresh-llm could not reach it (that flag
+            # drops llm rows by design). The only recovery was --refresh, which
+            # throws away every verdict on the box.
+            #
+            # This is not a rare corner: it is what every run records whenever
+            # ollama is down or --no-llm is passed, and the fail-open path is
+            # SUPPOSED to be routine. So the row is still stored - losing the
+            # record would be worse - but a later run that CAN adjudicate treats
+            # it as unfinished and escalates. Self-healing, and no flag needed.
+            if not (d.verdict == rules.V_MARGINAL
+                    and d.decided_by != "llm"
+                    and use_llm and judge is not None
+                    and req.has_opinion()):
+                return d, True
 
     d = rules.decide(profile, req)
 
@@ -212,6 +230,21 @@ def print_plan(profile, rows, cache, judge):
         print(f"  llm calls: {judge.calls}"
               + (f", {judge.failures} FAILED (rule verdict stood)"
                  if judge.failures else ""))
+        # A box with marginal rows and ZERO model calls is indistinguishable
+        # from a healthy run, and for a long time it was one: a rule-derived
+        # marginal cached as an answer meant the model was never consulted
+        # again. Say it, and say which flag actually reaches it, because
+        # --refresh-llm cannot (those rows are typed `rule` by design).
+        unadjudicated = [t.name for t, d, _h, _s in rows
+                         if d.verdict == rules.V_MARGINAL
+                         and d.decided_by != "llm"]
+        if unadjudicated:
+            print(f"  {C['marginal']}NOTE{C['off']} {len(unadjudicated)} "
+                  f"marginal verdict(s) were NOT adjudicated by the model "
+                  f"({', '.join(unadjudicated[:6])}"
+                  f"{', ...' if len(unadjudicated) > 6 else ''}) - "
+                  f"ollama unreachable, --no-llm, or the title declares no "
+                  f"requirement worth reasoning about")
     if blocked:
         print(f"\n  {C['marginal']}blocked but REMEDIABLE{C['off']} - the "
               f"hardware is fine, the box is missing software:")
@@ -276,13 +309,31 @@ def cmd_plan(args, publish=False):
             # ONLY THE TITLE-LEVEL VERDICT IS PUBLISHED. A per-shortcut
             # line is not a shape the agent parses, so shortcut suppression
             # stays a deterministic on-box decision made from requires.json.
+            decided = [(t.name, d) for t, d, _, _ in rows]
+
+            # A NARROWED PUBLISH MERGES; IT NEVER REPLACES. With --title, `rows`
+            # covers only the named titles, and writing that straight out
+            # discards every other verdict in the file. That is not theoretical:
+            # on 2026-08-30 a one-title publish left a single-row file on seven
+            # of eight boxes, and because the survivor was perfectly well formed
+            # nothing reported it for hours - taking nine ollama adjudications,
+            # the one thing a fleet box cannot recompute, with it.
+            if args.title:
+                keep = library_mod.read_verdict_file(p.profile_hash,
+                                                     args.library)
+                if keep:
+                    fresh = {name for name, _d in decided}
+                    merged = [(nm, dd) for nm, dd in keep if nm not in fresh]
+                    decided = sorted(merged + decided, key=lambda r: r[0])
+                    print(f"  merged {len(decided) - len(rows)} existing "
+                          f"verdict(s) with {len(rows)} re-decided")
+
             text = rules.format_verdict_file(
-                p, [(t.name, d) for t, d, _, _ in rows],
-                args.model,
+                p, decided, args.model,
                 datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"))
             path = library_mod.write_verdict_file(p.profile_hash, text,
                                                   args.library)
-            print(f"\n  published {path}")
+            print(f"\n  published {path} ({len(decided)} verdicts)")
     c.close()
     return rc
 

@@ -722,6 +722,69 @@ TEST(a_2d_only_adapter_is_none_and_that_is_binary)
     CHECK_EQ_I(d.verdict, GG_V_RUN);
 }
 
+/* A one-title file must be COUNTABLE as a one-title file.
+ *
+ * This is the 2026-08-30 clobber, encoded. A per-title publisher wrote a
+ * single-row verdict file over the complete 38-row one on seven of eight boxes.
+ * The survivor parsed perfectly - right header, right columns, one valid
+ * verdict - so every reader saw a healthy file and the nine ollama
+ * adjudications, the only verdicts a fleet box cannot recompute, were gone with
+ * nothing reporting it.
+ *
+ * The gate itself was never at risk: local rules decide every title, which is
+ * exactly why it stayed invisible. So the defence is not validation that
+ * refuses the file, it is a COUNT that makes the shrinkage sayable. */
+TEST(a_published_file_reports_how_much_it_covers)
+{
+    static const char FULL[] =
+        "# gamegate v1 profile=abc host=BOX generated=2026-08-30T13:00:00\n"
+        "# a machine\n"
+        "# model=qwen3:14b\n"
+        "# titles=3\n"
+        "# <verdict>\t<title>\t<limiting>\t<reason>\n"
+        "run\tQuake1\t-\tmeets requirements [rule]\n"
+        "no\tFarCry\tvram_mb\tnot enough video RAM [rule]\n"
+        "marginal\tUT2004\tcpu_mhz\tCPU below minimum [llm]\n";
+    /* what the clobber actually left behind */
+    static const char CLOBBERED[] =
+        "# gamegate v1 profile=abc host=BOX generated=2026-08-30T13:18:52\n"
+        "# a machine\n"
+        "# model=qwen3:14b\n"
+        "# <verdict>\t<title>\t<limiting>\t<reason>\n"
+        "no\tHalo\tcpu_features\tCPU lacks sse2 [rule]\n";
+
+    CHECK_EQ_I(gg_verdict_count(FULL), 3);
+    CHECK_EQ_I(gg_verdict_declared(FULL), 3);
+
+    /* One row, and it is well formed - which is the whole problem. */
+    CHECK_EQ_I(gg_verdict_count(CLOBBERED), 1);
+
+    /* No "# titles=" at all is an OLDER file, not an empty one. It must read
+     * as "did not say", so a pre-count file is never mistaken for a truncation
+     * and does not raise a false alarm on every sync. */
+    CHECK_EQ_I(gg_verdict_declared(CLOBBERED), 0);
+
+    /* Comments and blank lines are not verdicts. */
+    CHECK_EQ_I(gg_verdict_count("# only comments\n\n# and blanks\n"), 0);
+    CHECK_EQ_I(gg_verdict_count(""), 0);
+    CHECK_EQ_I(gg_verdict_count(0), 0);
+    CHECK_EQ_I(gg_verdict_declared(0), 0);
+
+    /* A header claiming more than it carries is the truncation signature: the
+     * declared count survives the cut because it is written first. */
+    {
+        static const char CUT[] =
+            "# gamegate v1 profile=abc host=BOX generated=x\n"
+            "# titles=38\n"
+            "# <verdict>\t<title>\t<limiting>\t<reason>\n"
+            "run\tQuake1\t-\tmeets requirements [rule]\n";
+        CHECK_EQ_I(gg_verdict_declared(CUT), 38);
+        CHECK_EQ_I(gg_verdict_count(CUT), 1);
+        CHECK(gg_verdict_declared(CUT) != gg_verdict_count(CUT),
+              "a truncated file must be detectable from its own header");
+    }
+}
+
 
 MUNIT_MAIN("gamegate (hardware capability gate)",
     RUN(fail_open_on_absent_data);
@@ -738,5 +801,6 @@ MUNIT_MAIN("gamegate (hardware capability gate)",
     RUN(a_checked_no_floor_file_is_distinguishable);
     RUN(free_disk_is_a_hard_floor_that_fails_open);
     RUN(a_hardware_floor_outranks_the_disk_floor);
+    RUN(a_published_file_reports_how_much_it_covers);
     RUN(a_2d_only_adapter_is_none_and_that_is_binary);
 )

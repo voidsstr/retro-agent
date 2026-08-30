@@ -93,6 +93,20 @@ class Cache:
         # Rule verdicts are stored under the empty model - they do not belong
         # to one. Only an LLM verdict is attributed.
         key_model = "" if decision.decided_by == "rule" else model
+        if key_model:
+            # AN ADJUDICATION SUPERSEDES THE ARITHMETIC IT REPLACED. get()
+            # deliberately prefers the empty-model row so that swapping models
+            # never throws away rule verdicts - but that preference means a
+            # leftover rule row PERMANENTLY SHADOWS the llm row written beside
+            # it. A marginal escalated to the model would be re-asked on every
+            # single run and the answer never used: unbounded model calls, and
+            # `cached ... llm calls: 0` reported for a verdict that had in fact
+            # been decided. Drop the superseded row; the arithmetic costs
+            # nothing to recompute, the adjudication is the irreplaceable half.
+            self.db.execute(
+                "DELETE FROM verdicts WHERE profile_hash=? AND title=? AND "
+                "shortcut=? AND req_version=? AND model=''",
+                (profile_hash, title, shortcut, req_version))
         self.db.execute(
             "INSERT OR REPLACE INTO verdicts (profile_hash, title, shortcut, "
             "req_version, model, verdict, limiting, reason, missing_caps, "

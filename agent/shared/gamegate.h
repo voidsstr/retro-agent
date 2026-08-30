@@ -1186,4 +1186,70 @@ GG_FN int gg_verdict_parse(char *line, char **title, char **limiting,
     return verdict;
 }
 
+
+/* ------------------------------------------------------------------ */
+/* Counting what a published verdict file actually covers               */
+/* ------------------------------------------------------------------ */
+/*
+ * WHY THIS EXISTS. On 2026-08-30 a per-title publisher wrote a ONE-TITLE
+ * verdict file over the complete 38-title file on seven of eight boxes. The
+ * survivor was perfectly well formed - same "# gamegate v1" header, same
+ * columns, one valid row - so nothing anywhere reported it, and the nine ollama
+ * adjudications that only the host can produce were simply gone. Every box kept
+ * gating correctly by its own rules, which is exactly what made it invisible.
+ *
+ * A file cannot defend itself against being replaced. What it CAN do is say how
+ * much it claims to cover, so the next reader can notice the claim shrank.
+ * gg_verdict_count() counts the rows actually present; gg_verdict_declared()
+ * reads the "# titles=N" the writer put in the header (0 = an older file that
+ * did not carry one, which must not be treated as "covers nothing").
+ */
+GG_FN int gg_verdict_count(const char *text)
+{
+    int n = 0;
+
+    if (!text)
+        return 0;
+    while (*text) {
+        char line[512], *t, *lim, *reason;
+        size_t i = 0;
+
+        while (*text && *text != '\n' && i < sizeof(line) - 1)
+            line[i++] = *text++;
+        line[i] = 0;
+        while (*text && *text != '\n')
+            text++;
+        if (*text == '\n')
+            text++;
+        if (gg_verdict_parse(line, &t, &lim, &reason) >= 0 && t && *t)
+            n++;
+    }
+    return n;
+}
+
+GG_FN int gg_verdict_declared(const char *text)
+{
+    const char *p = text;
+    const char *key = "# titles=";
+
+    if (!text)
+        return 0;
+    while (*p) {
+        const char *k = key;
+        const char *q = p;
+        while (*k && *q == *k) { q++; k++; }
+        if (!*k) {
+            int v = 0;
+            while (*q >= '0' && *q <= '9')
+                v = v * 10 + (*q++ - '0');
+            return v;
+        }
+        while (*p && *p != '\n')
+            p++;
+        if (*p == '\n')
+            p++;
+    }
+    return 0;
+}
+
 #endif /* RETRO_GAMEGATE_H */

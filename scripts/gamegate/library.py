@@ -117,3 +117,39 @@ def write_verdict_file(profile_hash: str, text: str, root=None) -> Path:
     tmp.write_text(text, encoding="ascii", errors="replace")
     os.replace(tmp, final)
     return final
+
+
+def read_verdict_file(profile_hash: str, root=None):
+    """Read a published file back as [(title, Decision), ...], or [] if absent.
+
+    Exists so a NARROWED publish can merge rather than replace. Reading what is
+    already there is the difference between "update one title" and "delete the
+    other 37", and those looked identical from the outside until it happened.
+
+    The trailing "[rule]"/"[llm]" that format_verdict_file appends is stripped
+    back off into decided_by, so a merge round-trip does not accumulate
+    "... [rule] [rule] [rule]" one publish at a time.
+    """
+    from . import rules
+    f = gate_dir(root) / f"{profile_hash}.txt"
+    try:
+        text = f.read_text(encoding="ascii", errors="replace")
+    except OSError:
+        return []
+
+    out = []
+    for name, (verdict, limiting, reason) in \
+            rules.parse_verdict_file(text).items():
+        by = ""
+        r = (reason or "").rstrip()
+        for tag in ("rule", "llm"):
+            suffix = f"[{tag}]"
+            if r.endswith(suffix):
+                by = tag
+                r = r[:-len(suffix)].rstrip()
+                break
+        d = rules.Decision(verdict=verdict,
+                           limiting="" if limiting == "-" else limiting,
+                           reason=r, decided_by=by)
+        out.append((name, d))
+    return sorted(out, key=lambda x: x[0])

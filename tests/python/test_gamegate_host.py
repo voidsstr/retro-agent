@@ -276,3 +276,127 @@ def test_launch_txt_is_read_with_the_agents_1023_byte_limit(tmp_path):
     assert "first.exe" in t.shortcuts
     assert "last.exe" not in t.shortcuts, \
         "a line past 1023 bytes must be invisible here too"
+
+
+def test_published_file_declares_its_own_scope():
+    """A verdict file must state how many titles it covers.
+
+    The 2026-08-30 clobber: a per-title publisher wrote a ONE-row file over the
+    complete 38-row one on seven of eight boxes. It parsed perfectly - right
+    header, right columns, one valid verdict - so nothing reported it, and the
+    nine ollama adjudications (the only verdicts a fleet box cannot recompute
+    for itself) were lost silently. The gate kept working, by local rules, which
+    is exactly what hid it.
+
+    A file cannot stop itself being replaced. It can declare its scope, so the
+    next reader can see the claim shrink.
+    """
+    from gamegate import rules
+
+    p = rules.Profile(ip="10.0.0.1", hostname="BOX", profile_hash="abc123",
+                      cpu_brand="test", cpu_mhz=1000, ram_mb=512,
+                      gpu_name="test gpu", vram_mb=64,
+                      gpu_level=rules.GPU_SM2, os_level=rules.OS_WINXP,
+                      os_product="Windows XP")
+
+    def dec(v, name="x", reason="r", by="rule"):
+        d = rules.Decision()
+        d.verdict, d.reason, d.decided_by = v, reason, by
+        return d
+
+    rows = [("Quake1", dec(rules.V_RUN)),
+            ("FarCry", dec(rules.V_NO)),
+            ("UT2004", dec(rules.V_MARGINAL, by="llm"))]
+    text = rules.format_verdict_file(p, rows, "qwen3:14b", "2026-08-30T13:00:00")
+
+    assert "# titles=3" in text, "the file must declare its own scope"
+    body = [l for l in text.splitlines() if l and not l.startswith("#")]
+    assert len(body) == 3
+    # and the declaration must match what is actually there, or it is worthless
+    declared = int([l for l in text.splitlines()
+                    if l.startswith("# titles=")][0].split("=")[1])
+    assert declared == len(body)
+
+    # It must survive a round trip through the reader.
+    got = rules.parse_verdict_file(text)
+    assert set(got) == {"Quake1", "FarCry", "UT2004"}
+
+    # A one-row file is well formed -- that is the whole danger -- but its
+    # declared scope is now 1, so a reader comparing against the library size
+    # can see it covers almost nothing.
+    one = rules.format_verdict_file(p, [("Halo", dec(rules.V_NO))],
+                                    "qwen3:14b", "2026-08-30T13:18:52")
+    assert "# titles=1" in one
+    assert len(rules.parse_verdict_file(one)) == 1
+
+
+def test_a_rule_marginal_is_reescalated_not_served_forever(tmp_path):
+    """A cached `marginal` that only ever saw the rules must not be a dead end.
+
+    THE BUG (2026-08-30): decide_title returned on a cache hit BEFORE the
+    escalation gate. So a marginal recorded while ollama was down - or under
+    --no-llm - was served back forever and the model was never consulted. And
+    because such a row is typed `rule`, --refresh-llm could not reach it either:
+    that flag drops llm rows by design. The only recovery was --refresh, which
+    discards every verdict for the box.
+
+    That made every routine re-publish silently strip the model's reasoning -
+    the one part of a verdict file a fleet box cannot recompute for itself.
+    """
+    import sys, os
+    sys.path.insert(0, os.path.join(REPO, "scripts"))
+    from gamegate import rules, cache as cache_mod
+    from gamegate import gamegate as gg
+
+    class FakeTitle:
+        name = "UT2004"
+        shortcuts = []
+        def requirements(self, shortcut=""):
+            return rules.parse_requirements(
+                {"requirements_version": 1, "min_cpu_mhz": 1000}, "UT2004")
+
+    class CountingJudge:
+        model = "fake"
+        def __init__(self):
+            self.calls = 0
+        def judge(self, profile, req, fallback):
+            self.calls += 1
+            d = rules.Decision()
+            d.verdict, d.limiting = rules.V_MARGINAL, fallback.limiting
+            d.reason, d.decided_by = "model reasoned about it", "llm"
+            return d
+
+    # 845 MHz against a 1000 MHz floor: inside the band, so MARGINAL.
+    prof = rules.Profile(ip="10.0.0.9", hostname="BOX", profile_hash="deadbeef",
+                         cpu_mhz=845, ram_mb=512, gpu_level=rules.GPU_SM2,
+                         os_level=rules.OS_WINXP, os_product="Windows XP")
+    c = cache_mod.Cache(str(tmp_path / "gg.db"))
+    t = FakeTitle()
+
+    # 1. ollama down: the rules stand, and the fail-open record IS cached.
+    d1, hit1 = gg.decide_title(prof, t, "", c, None, "fake", use_llm=False)
+    assert d1.verdict == rules.V_MARGINAL and d1.decided_by == "rule"
+    assert hit1 is False
+
+    # 2. ollama back. The cached row must NOT short-circuit the escalation.
+    judge = CountingJudge()
+    d2, _ = gg.decide_title(prof, t, "", c, judge, "fake", use_llm=True)
+    assert judge.calls == 1, ("a rule-derived marginal was served from cache "
+                              "and never adjudicated - the dead end is back")
+    assert d2.decided_by == "llm" and d2.reason == "model reasoned about it"
+
+    # 3. Now it IS decided, so it must be a real hit - no repeat model calls,
+    #    or every plan would re-bill every marginal on every run.
+    d3, hit3 = gg.decide_title(prof, t, "", c, judge, "fake", use_llm=True)
+    assert judge.calls == 1, "an adjudicated verdict must be cached"
+    assert hit3 is True and d3.decided_by == "llm"
+
+    # 4. A settled RUN verdict is never re-escalated either.
+    fast = rules.Profile(ip="10.0.0.8", hostname="F", profile_hash="cafe",
+                         cpu_mhz=3000, ram_mb=2048, gpu_level=rules.GPU_SM3,
+                         os_level=rules.OS_WINXP, os_product="Windows XP")
+    gg.decide_title(fast, t, "", c, judge, "fake", use_llm=True)
+    before = judge.calls
+    gg.decide_title(fast, t, "", c, judge, "fake", use_llm=True)
+    assert judge.calls == before
+    c.close()

@@ -601,12 +601,25 @@ def format_verdict_file(profile: Profile, rows, model: str,
     Tab separated for the same reason PREFER.TXT is: a title name contains
     spaces and a reason certainly does. ONLY a "no" line blocks a title, so a
     file cut off mid-write can never do worse than deploy everything.
+
+    THIS FILE IS WHOLE-LIBRARY AND SINGLE-OWNER. It is written for one profile
+    by one publisher covering every title. A per-title pass must NOT write it -
+    see scripts/gamegate/README.md; on 2026-08-30 one did, and the resulting
+    one-row file was well formed enough that nothing noticed for hours.
     """
+    rows = list(rows)
     out = [
         f"{VERDICT_HEADER} profile={profile.profile_hash} "
         f"host={profile.hostname or profile.ip} generated={generated}",
         f"# {profile.describe()}",
         f"# model={model}",
+        # HOW MANY THIS FILE CLAIMS TO COVER. A one-title file overwrote the
+        # full 38-title file on seven boxes and read as perfectly healthy - same
+        # header, same columns, one valid row - so the loss was invisible and
+        # nine ollama adjudications went with it. A file cannot stop itself
+        # being replaced; it can state its own scope so the next reader notices
+        # the claim shrank. gg_verdict_declared() reads this back.
+        f"# titles={len(rows)}",
         "# <verdict>\t<title>\t<limiting>\t<reason>",
     ]
     for title, d in rows:

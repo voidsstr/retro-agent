@@ -103,6 +103,94 @@ python3 scripts/gamegate/gamegate.py cache --forget-llm   # keep rule verdicts
 Useful flags: `--no-llm` (rules only), `--refresh` (ignore the cache),
 `--refresh-llm` (drop model opinions, keep arithmetic), `--model`, `--library`.
 
+## ONE PUBLISHER OWNS THE WHOLE FILE (read this before writing `_gamegate/`)
+
+`<library>/_gamegate/<profile_hash>.txt` is **per-profile and whole-library**.
+It is written by `gamegate.py publish`, in `rules.py:format_verdict_file`, and
+by nothing else.
+
+**A per-title pass must NOT write it.** If you stage a new title and want its
+verdict published, **re-run the full publish** for the affected boxes:
+
+```bash
+python3 scripts/gamegate/publish_all.py          # every live box, whole library
+```
+
+**Why this rule exists, in one incident.** On 2026-08-30 a per-title publisher
+wrote a **one-row** verdict file over the complete **38-row** file on **seven of
+eight** boxes. The survivor was immaculate — same `# gamegate v1` header, same
+columns, one valid verdict line — so every reader, human and machine, saw a
+healthy file. Nothing errored, nothing warned.
+
+What was actually lost were the **nine ollama adjudications**: `.124`/UT2004 and
+`.171`/BF1942, JediAcademy, MaxPayne, SoF2, UT2004. Those are the marginal-band
+calls a Pentium III **cannot recompute for itself** — they are the entire reason
+a host publishes a file at all. Every box carried on gating correctly from its
+local rules, which is precisely what made the loss invisible.
+
+So:
+
+* **Never write a partial file.** Merge into the existing one or regenerate the
+  library; a "just my title" write is a clobber wearing the right header.
+* **The file declares its own scope** (`# titles=N`) and the agent logs how many
+  verdicts it loaded, warning when the file covers fewer titles than the library
+  holds. Neither refuses the sync — the gate is unharmed — but the shrinkage is
+  now *sayable* instead of silent.
+* **Verify the post-condition after publishing**, always:
+
+```bash
+for f in /mnt/retro-share/Files/Games-Library/_gamegate/*.txt; do
+  printf '%s  %s rows\n' "$(basename "$f")" "$(grep -vc '^#' "$f")"
+done
+```
+  Every box should report the library's title count. A `1` is this bug.
+
+## `--library /mnt/retro-share/...` cannot write — the mount is read-only
+
+`/mnt/retro-share` is mounted **`ro`** in `/etc/fstab`, so pointing `--library`
+at it and publishing dies with a bare traceback:
+
+```
+OSError: [Errno 30] Read-only file system
+```
+
+That is the mount, not a bug, and nothing about the message says so. Publish
+through a fleet agent instead (`publish_all.py` does this), or through a
+writable gvfs mount of the same share.
+
+## `--title` MERGES; it never replaces
+
+A narrowed publish reads the existing file and overlays only the titles it
+re-decided. Before 2026-08-30 it wrote just those rows, which is how a one-title
+pass left a one-row file on seven boxes. If you change this code path, keep the
+merge: the verdicts it would otherwise drop are the **ollama adjudications**,
+the only ones a fleet box cannot recompute for itself.
+
+## Getting the file onto the share without corrupting its timestamp
+
+The host mount is read-only, so publishing goes through a fleet agent — and
+**`copy` propagates the SOURCE file's timestamp**. Writing a local temp on a box
+and `copy`-ing it to the share stamps the file with **that box's clock**:
+measured, `.124` is two hours fast and its files landed two hours in the future.
+
+**Write straight to the share instead**, so the file server does the stamping:
+
+```
+UPLOAD Z:\Files\Games-Library\_gamegate\<hash>.txt      <- correct
+UPLOAD C:\temp\x.txt  +  EXEC copy /Y ... Z:\...          <- box's clock
+```
+
+The agent's own file write is already `CreateFile`+`WriteFile`, so no agent
+change is needed for the host-driven case. (Where the *agent itself* publishes
+at startup with no host in the loop, there is no `UPLOAD` available and a direct
+`CreateFile` on the share is the fix — see `agent/shared/hwpub.h`.)
+
+Nothing currently reads these mtimes — the agent slurps the file's *content*,
+and `_`-prefixed directories never enter GAMESYNC's size+mtime resume test
+(`gamesync.c:2943`) — so the wrong stamp was harmless. It is worth getting right
+anyway: the moment anything judges freshness by mtime, a two-hour-future file
+is permanently "newest".
+
 ## The cache, and why it is keyed on hardware
 
 `~/.retro-fleet/gamegate.db`, keyed

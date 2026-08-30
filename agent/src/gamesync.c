@@ -1964,6 +1964,8 @@ static int          g_gate_ready;         /* profile built for this run */
 static int          g_gate_on = 1;
 static char         g_gate_hash[17];
 static char        *g_gate_verdicts;      /* published file, heap, or NULL */
+static int          g_gate_verdict_n;     /* rows the published file carries */
+static int          g_gate_verdict_decl;  /* rows its header CLAIMS it carries */
 
 static int gs_gate_enabled(void)
 {
@@ -2055,9 +2057,26 @@ static void gs_gate_init(const char *library)
               library, g_gate_hash);
     path[sizeof(path) - 1] = 0;
     g_gate_verdicts = gs_slurp(path, 256u * 1024u);
-    log_msg(LOG_GS, "gate: published verdicts %s (%s)",
-            g_gate_verdicts ? "loaded" : "not published for this profile",
-            path);
+    g_gate_verdict_n = gg_verdict_count(g_gate_verdicts);
+    g_gate_verdict_decl = gg_verdict_declared(g_gate_verdicts);
+    if (!g_gate_verdicts) {
+        log_msg(LOG_GS, "gate: published verdicts not published for this "
+                        "profile (%s)", path);
+    } else {
+        /* SAY HOW MANY. A one-title file overwrote the full one on seven boxes
+         * and read as healthy because it was well formed; a count is what makes
+         * that visible to the next person reading a log. */
+        log_msg(LOG_GS, "gate: published verdicts loaded - %d verdict(s)%s (%s)",
+                g_gate_verdict_n,
+                (g_gate_verdict_decl && g_gate_verdict_decl != g_gate_verdict_n)
+                    ? " - HEADER COUNT MISMATCH" : "",
+                path);
+        if (g_gate_verdict_decl && g_gate_verdict_decl != g_gate_verdict_n)
+            log_msg(LOG_GS, "gate: WARNING published file claims titles=%d but "
+                            "carries %d row(s) - it was truncated or partly "
+                            "rewritten; local rules still apply",
+                    g_gate_verdict_decl, g_gate_verdict_n);
+    }
 }
 
 static void gs_gate_free(void)
@@ -3046,6 +3065,23 @@ static void gs_run(const char *library)
     log_msg(LOG_GS, "%d title(s), %d file(s), %I64d MB to copy; C: has %I64d MB free",
             n, files, grand / 1048576,
             freeb < 0 ? (__int64)-1 : freeb / 1048576);
+
+    /*
+     * Does the published file actually cover this library? A host publish is
+     * per-PROFILE and whole-library by definition, so a file carrying fewer
+     * rows than there are titles means something overwrote it with a partial
+     * pass - which is precisely how nine ollama adjudications were lost without
+     * a single error anywhere. The gate is unharmed (local rules still decide
+     * every title), so this is a WARNING and never a refusal to sync; but it
+     * must be SAID, because the verdicts a published file uniquely carries are
+     * the marginal-band ones this box cannot recompute for itself.
+     */
+    if (g_gate_on && g_gate_verdicts && g_gate_verdict_n < n)
+        log_msg(LOG_GS, "gate: WARNING published file covers %d of %d title(s) "
+                        "- it was overwritten by a partial publish; any "
+                        "host-adjudicated verdict for the missing %d has been "
+                        "lost and those titles fall back to local rules",
+                g_gate_verdict_n, n, n - g_gate_verdict_n);
 
     EnterCriticalSection(&g_gs_lock);
     g_gs.state        = GS_COPYING;
