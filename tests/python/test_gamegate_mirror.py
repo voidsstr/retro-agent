@@ -228,6 +228,11 @@ FLEET = {
                                0xFF, 0, 143400),
     "P1 Deskpro/S3":          (166, 32, 2, rules.GPU_FIXED, rules.OS_WIN9X,
                                rules.CPU_FPU | rules.CPU_MMX, 0, 900),
+    # A 2D-ONLY adapter - the level that had no way to be reached until the
+    # Deskpro arrived. Kept as its own row because GPU_NONE now takes a
+    # DIFFERENT branch from "one level short" and the two must not drift.
+    "2D-only VGA / no MMX":   (166, 31, 2, rules.GPU_NONE, rules.OS_WIN9X,
+                               rules.CPU_FPU, 0, 900),
     # free space unmeasurable (0) must FAIL OPEN, never refuse.
     "unknown free space":     (3093, 2047, 512, rules.GPU_SM3, rules.OS_WINXP,
                                0xFF, 0, 0),

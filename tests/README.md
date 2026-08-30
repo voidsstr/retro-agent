@@ -257,6 +257,7 @@ green-world; provisioning — P3 no-SSE2 opcode scan of staged DLLs.
 | `profile_hash` (the cache key) ignores measurement jitter and moves on real hardware changes | `native/test_gamegate.c::profile_hash_is_stable_and_sensitive` |
 | NVIDIA device ids are NOT monotonic — 0x0150 is a GeForce2 GTS and 0x0160 a GeForce 6200 | `native/test_gamegate.c::gpu_table_handles_non_monotonic_ids` |
 | a capability gap (`disc_mount`) is REPORTED, never folded into run/marginal/no | `native/test_gamegate.c::capabilities_are_reported_not_folded_into_the_verdict` |
+| a 2D-ONLY adapter is `none`, not `fixed` — an S3 Trio64 has no 3D pipeline, and `none` against any GPU floor is a flat NO rather than a one-level-short MARGINAL | `native/test_gamegate.c::a_2d_only_adapter_is_none_and_that_is_binary` |
 | per-shortcut requirements overlay the title and do not leak upward (BF1942's LAN half) | `native/test_gamegate.c::per_shortcut_requirements_override_the_title` |
 | the C gate and the Python gate give the SAME answer — compiled and compared over the whole GPU table and a grid of fleet profiles | `python/test_gamegate_mirror.py` |
 | the verdict cache hits on the same hardware and misses on a corrected `requirements_version` | `python/test_gamegate_host.py` |

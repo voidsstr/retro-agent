@@ -154,12 +154,28 @@ GPU_TABLE = [
     (0x8086, 0x2E00, 0x2E92, GPU_SM3),     # G4x
     (0x8086, 0x0042, 0x0126, GPU_SM3),     # Ironlake / Sandy Bridge HD
 
-    (0x5333, 0x0000, 0xFFFF, GPU_FIXED),   # S3
-    (0x102B, 0x0000, 0xFFFF, GPU_FIXED),   # Matrox
+    # THE PURE-2D PARTS - GPU_NONE, and this is why the level exists. See the
+    # long note on the same rows in agent/shared/gamegate.h: an S3 Trio64, a
+    # Matrox Millennium, a Tseng ET4000 and a Cirrus GD54xx have no 3D
+    # pipeline at all. ORDER MATTERS - first match wins, so these precede
+    # their vendor's catch-all.
+    (0x5333, 0x8810, 0x8814, GPU_NONE),    # S3 Trio64 / 64V+ / 64UV+ / Aurora64V+
+    (0x5333, 0x8880, 0x8880, GPU_NONE),    # S3 868
+    (0x5333, 0x88B0, 0x88F1, GPU_NONE),    # S3 928 / 864 / 964 / 968
+    (0x5333, 0x8901, 0x8902, GPU_NONE),    # S3 Trio64V2/DX/GX, Plato/PX
+    (0x102B, 0x0518, 0x0519, GPU_NONE),    # Matrox MGA-II, Millennium
+    (0x102B, 0x051B, 0x051B, GPU_NONE),    # Matrox Millennium II
+    (0x102B, 0x051F, 0x051F, GPU_NONE),    # Matrox Millennium II AGP
+    (0x102B, 0x0D10, 0x0D10, GPU_NONE),    # Matrox Impression/Ultima
+    (0x1023, 0x9320, 0x9697, GPU_NONE),    # Trident TGUI 93xx/94xx/96xx, Cyber9x8x
+    (0x1013, 0x00A0, 0x00BC, GPU_NONE),    # Cirrus GD5430/5434/5436/5446/5480
+    (0x100C, 0x0000, 0xFFFF, GPU_NONE),    # Tseng - never made a 3D part
+
+    (0x5333, 0x0000, 0xFFFF, GPU_FIXED),   # S3 ViRGE / Savage
+    (0x102B, 0x0000, 0xFFFF, GPU_FIXED),   # Matrox Mystique / G100-G550
     (0x1039, 0x0000, 0xFFFF, GPU_FIXED),   # SiS
-    (0x1023, 0x0000, 0xFFFF, GPU_FIXED),   # Trident
-    (0x100C, 0x0000, 0xFFFF, GPU_FIXED),   # Tseng
-    (0x1013, 0x0000, 0xFFFF, GPU_FIXED),   # Cirrus Logic
+    (0x1023, 0x0000, 0xFFFF, GPU_FIXED),   # Trident 3DImage / Blade3D
+    (0x1013, 0x0000, 0xFFFF, GPU_FIXED),   # Cirrus Laguna
 
     (0x15AD, 0x0000, 0xFFFF, GPU_FIXED),   # VMware SVGA
     (0x80EE, 0x0000, 0xFFFF, GPU_FIXED),   # VirtualBox
@@ -502,6 +518,14 @@ def decide(p: Profile, r: Requirements) -> Decision:
     soft = None
     if r.min_gpu_level != GPU_UNKNOWN and p.gpu_level != GPU_UNKNOWN:
         gap = r.min_gpu_level - p.gpu_level
+        # NO 3D AT ALL is binary, not a judgement call, so it is tested before
+        # the gap. There is no lower-detail path from "has a rasteriser" to
+        # "has none". Mirrors gg_decide() in gamegate.h.
+        if p.gpu_level == GPU_NONE and r.min_gpu_level >= GPU_FIXED:
+            d.verdict, d.limiting = V_NO, "gpu_feature_level"
+            d.reason = ("no 3D acceleration at all and this title has no "
+                        "software renderer")
+            return d
         if gap >= 2:
             d.verdict, d.limiting = V_NO, "gpu_feature_level"
             d.reason = (f"GPU too old for this title's renderer (have "

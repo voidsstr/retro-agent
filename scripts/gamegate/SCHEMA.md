@@ -108,7 +108,8 @@ counts megabytes passes it and is wrong.
 
 | level | means | fleet examples |
 |---|---|---|
-| `fixed` | fixed-function rasteriser, **no hardware T&L** | every 3dfx Voodoo, RIVA TNT2, **Intel 865G (.171)**, S3, Rage 128 |
+| `none` | **no 3D pipeline at all** | S3 Trio64, Matrox Millennium, Tseng ET4000, Cirrus GD54xx, Trident TGUI — the Pentium-1 **Compaq Deskpro** class |
+| `fixed` | fixed-function rasteriser, **no hardware T&L** | every 3dfx Voodoo, RIVA TNT2, **Intel 865G (.171)**, S3 ViRGE/Savage, Rage 128 |
 | `tnl` | DX7 hardware T&L, no programmable shaders | **GeForce2 GTS (.124)**, GeForce4 **MX**, Radeon 7x00 |
 | `sm1.x` | DX8 shaders | GeForce3, GeForce4 **Ti**, Radeon 8500 |
 | `sm2.0` | DX9 shaders | GeForce FX, Radeon 9500+, Intel 915/945 |
@@ -120,6 +121,39 @@ name. Getting that one wrong hands it every shader title on the shelf.
 **A one-level shortfall is `marginal`** (many titles of that era ship a
 lower-detail path) and is the *only* thing that reaches the LLM. **Two levels or
 more is a flat `no`**, decided by arithmetic.
+
+### `none` is the one exception to the marginal band
+
+**A box at `none` against ANY declared floor is a flat `no`, even though that
+is only one level below `fixed`.** The marginal band exists because a title
+usually ships a *lower-detail* path for a weaker rasteriser; there is no
+lower-detail path from "has a rasteriser" to "has none". Aliens versus Predator
+is the title this protects — its own note reads "Direct3D only, there is no
+software renderer, so a 3D accelerator is mandatory rather than optional".
+
+Until 2026-08-30 nothing was ever classified `none`: every S3, Matrox, Trident,
+Cirrus and Tseng id fell through one vendor-wide catch-all at `fixed`, so a
+Trio64 — a chip with no 3D pipeline whatsoever and no Direct3D driver ever
+written for it — claimed a fixed-function rasteriser. The level existed and was
+unreachable. Only `min_vram_mb` happened to catch some of the 3D-only titles on
+such a box, which is luck, not a gate.
+
+### STATE A FLOOR ONLY WHEN THE TITLE CANNOT START BELOW IT
+
+`gpu_feature_level` means **"will not launch below this"**, never "runs better
+above this". Nine staged titles used to state `fixed` while their own notes
+said a software renderer shipped — harmless while every box was `fixed` or
+better (a gap of zero), and a hard `no` the moment a `none` box arrived.
+
+So before writing this field, look in the tree for the software renderer and
+name the file you found in `notes`: `sw.dll` (GoldSrc), `System\SoftDrv.dll`
+(Unreal Engine 1), `soft.ren` (LithTech), `Carma2_SW.exe`. If one is there and
+the launcher does not force a 3D device, **state no `gpu_feature_level` and no
+`min_vram_mb`** — both describe the 3D path — and let the cpu/ram floors
+describe the software path, which is what decides whether copying is worth it.
+A title with two launchers says it per-shortcut instead: Hexen II puts `fixed`
+on the three `glh2.exe` shortcuts and nothing on the `h2.exe` one, so a 2D box
+receives the game and loses only the OpenGL icon.
 
 ---
 

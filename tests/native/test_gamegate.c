@@ -651,6 +651,78 @@ TEST(a_hardware_floor_outranks_the_disk_floor)
 }
 
 
+/*
+ * A 2D-ONLY ADAPTER IS GG_GPU_NONE, AND THAT IS A HARD NO FOR A 3D-ONLY TITLE.
+ *
+ * Verified against the Pentium-1 Compaq Deskpro, 2026-08-30, which is the box
+ * that exposed this: until then every S3/Matrox/Trident/Cirrus/Tseng id fell
+ * through a single vendor-wide catch-all at GG_GPU_FIXED, so an S3 Trio64 -
+ * a chip with no 3D pipeline whatsoever - claimed a fixed-function
+ * rasteriser. GG_GPU_NONE was defined from the start and assigned to NOTHING,
+ * so the level meaning "this box cannot do 3D" was unreachable.
+ *
+ * TWO separate bugs, and both are asserted here with the OLD value spelled
+ * out, because either one alone still lets the title through:
+ *   1. classification - 5333:8811 was GG_GPU_FIXED (1), must be GG_GPU_NONE (0)
+ *   2. the verdict    - NONE against a "fixed" requirement is a gap of ONE,
+ *                       which landed in the MARGINAL band and was COPIED.
+ *                       There is no lower-detail path from "has a rasteriser"
+ *                       to "has none", so it is binary.
+ *
+ * Aliens versus Predator is the real title this protects: its own
+ * requires.json note says "Direct3D only - there is no software renderer, so
+ * a 3D accelerator is mandatory rather than optional."
+ */
+TEST(a_2d_only_adapter_is_none_and_that_is_binary)
+{
+    gg_decision_t d;
+    gg_req_t r;
+    gg_profile_t p = box_p1();
+
+    /* 1. classification. The old table said GG_GPU_FIXED for all of these. */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x5333, 0x8811), GG_GPU_NONE);  /* S3 Trio64 */
+    CHECK(gg_gpu_level_from_pci(0x5333, 0x8811) != GG_GPU_FIXED,
+          "the old vendor-wide catch-all answer must not come back");
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x5333, 0x8901), GG_GPU_NONE);  /* Trio64V2 */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x102B, 0x0519), GG_GPU_NONE);  /* Millennium */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x1013, 0x00B8), GG_GPU_NONE);  /* Cirrus GD5446 */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x100C, 0x3207), GG_GPU_NONE);  /* Tseng ET6000 */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x1023, 0x9440), GG_GPU_NONE);  /* Trident TGUI9440 */
+
+    /* ...and the parts that really do rasterise are still GG_GPU_FIXED, or
+     * this fix would have swung the other way and starved the fleet. */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x5333, 0x5631), GG_GPU_FIXED); /* S3 ViRGE */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x5333, 0x8A20), GG_GPU_FIXED); /* Savage3D */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x102B, 0x051A), GG_GPU_FIXED); /* Mystique */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x102B, 0x0521), GG_GPU_FIXED); /* G200 */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x1023, 0x9880), GG_GPU_FIXED); /* Blade3D */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x1013, 0x00D6), GG_GPU_FIXED); /* Cirrus Laguna */
+
+    /* 2. the verdict. A "fixed" floor against a NONE box is a hard NO. */
+    p.gpu_level = gg_gpu_level_from_pci(p.gpu_ven, p.gpu_dev);
+    CHECK_EQ_I(p.gpu_level, GG_GPU_NONE);
+    gg_req_parse("{\"gpu_feature_level\":\"fixed\"}", &r);
+    gg_decide(&p, &r, &d);
+    CHECK_EQ_I(d.verdict, GG_V_NO);
+    CHECK(d.verdict != GG_V_MARGINAL,
+          "the old one-level-short band copied the title onto a 2D box");
+    CHECK(strcmp(d.limiting, "gpu_feature_level") == 0,
+          "the GPU is the fact that stops it");
+
+    /* Every higher floor stays a NO too, obviously - but by the same branch,
+     * so the reason a person reads is the honest one. */
+    gg_req_parse("{\"gpu_feature_level\":\"tnl\"}", &r);
+    gg_decide(&p, &r, &d);
+    CHECK_EQ_I(d.verdict, GG_V_NO);
+
+    /* AND FAIL-OPEN IS INTACT: a title that declares no GPU opinion at all
+     * still reaches a 2D box, because plenty of them are 2D sprite games. */
+    gg_req_parse("{\"min_cpu_mhz\":90,\"min_ram_mb\":16}", &r);
+    gg_decide(&p, &r, &d);
+    CHECK_EQ_I(d.verdict, GG_V_RUN);
+}
+
+
 MUNIT_MAIN("gamegate (hardware capability gate)",
     RUN(fail_open_on_absent_data);
     RUN(rules_decide_the_obvious_alone);
@@ -666,4 +738,5 @@ MUNIT_MAIN("gamegate (hardware capability gate)",
     RUN(a_checked_no_floor_file_is_distinguishable);
     RUN(free_disk_is_a_hard_floor_that_fails_open);
     RUN(a_hardware_floor_outranks_the_disk_floor);
+    RUN(a_2d_only_adapter_is_none_and_that_is_binary);
 )

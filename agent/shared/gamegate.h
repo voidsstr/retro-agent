@@ -289,13 +289,44 @@ GG_DATA const gg_gpu_row_t gg_gpu_table[] = {
     { 0x8086, 0x2E00, 0x2E92, GG_GPU_SM3   },   /* G4x */
     { 0x8086, 0x0042, 0x0126, GG_GPU_SM3   },   /* Ironlake / Sandy Bridge HD */
 
-    /* S3, Matrox, SiS, Trident - the 2D-with-a-bit-of-3D crowd */
-    { 0x5333, 0x0000, 0xFFFF, GG_GPU_FIXED },   /* S3 Virge/Trio/Savage */
-    { 0x102B, 0x0000, 0xFFFF, GG_GPU_FIXED },   /* Matrox */
+    /*
+     * THE PURE-2D PARTS - GG_GPU_NONE, and this is why the level exists.
+     *
+     * Until the Pentium-1 Compaq Deskpro joined the fleet, every one of these
+     * vendors was a single catch-all row at GG_GPU_FIXED, i.e. "has a
+     * fixed-function 3D rasteriser". For an S3 ViRGE or a Savage that is
+     * true. For an S3 Trio64, a Matrox Millennium, a Tseng ET4000 or a Cirrus
+     * GD54xx it is FALSE: those chips have NO 3D pipeline at all, no Direct3D
+     * driver was ever written for them, and a title with no software renderer
+     * does not start. GG_GPU_NONE was defined from the beginning and assigned
+     * to nothing, so the level that says "this box cannot do 3D" was
+     * unreachable - and the only reason the gate did not wave 3D-only titles
+     * onto such a box anyway is that min_vram_mb happened to catch some of
+     * them. That is luck, not a gate.
+     *
+     * ORDER MATTERS: gg_gpu_level_from_pci returns the FIRST matching row, so
+     * every one of these must precede its vendor's catch-all below.
+     */
+    { 0x5333, 0x8810, 0x8814, GG_GPU_NONE  },   /* S3 Trio64 / 64V+ / 64UV+ / Aurora64V+ */
+    { 0x5333, 0x8880, 0x8880, GG_GPU_NONE  },   /* S3 868 */
+    { 0x5333, 0x88B0, 0x88F1, GG_GPU_NONE  },   /* S3 928 / 864 / 964 / 968 */
+    { 0x5333, 0x8901, 0x8902, GG_GPU_NONE  },   /* S3 Trio64V2/DX/GX, Plato/PX */
+    { 0x102B, 0x0518, 0x0519, GG_GPU_NONE  },   /* Matrox MGA-II, Millennium */
+    { 0x102B, 0x051B, 0x051B, GG_GPU_NONE  },   /* Matrox Millennium II */
+    { 0x102B, 0x051F, 0x051F, GG_GPU_NONE  },   /* Matrox Millennium II AGP */
+    { 0x102B, 0x0D10, 0x0D10, GG_GPU_NONE  },   /* Matrox Impression/Ultima */
+    { 0x1023, 0x9320, 0x9697, GG_GPU_NONE  },   /* Trident TGUI 93xx/94xx/96xx, Cyber9x8x */
+    { 0x1013, 0x00A0, 0x00BC, GG_GPU_NONE  },   /* Cirrus GD5430/5434/5436/5446/5480 */
+    { 0x100C, 0x0000, 0xFFFF, GG_GPU_NONE  },   /* Tseng ET4000/ET6000 - never made a 3D part */
+
+    /* S3, Matrox, SiS, Trident, Cirrus - the rest, which really do rasterise:
+     * ViRGE and Savage, Mystique and the G-series, the SiS 6326 and up, the
+     * Trident 3DImage/Blade, the Cirrus Laguna. */
+    { 0x5333, 0x0000, 0xFFFF, GG_GPU_FIXED },   /* S3 ViRGE / Savage */
+    { 0x102B, 0x0000, 0xFFFF, GG_GPU_FIXED },   /* Matrox Mystique / G100-G550 */
     { 0x1039, 0x0000, 0xFFFF, GG_GPU_FIXED },   /* SiS */
-    { 0x1023, 0x0000, 0xFFFF, GG_GPU_FIXED },   /* Trident */
-    { 0x100C, 0x0000, 0xFFFF, GG_GPU_FIXED },   /* Tseng */
-    { 0x1013, 0x0000, 0xFFFF, GG_GPU_FIXED },   /* Cirrus Logic */
+    { 0x1023, 0x0000, 0xFFFF, GG_GPU_FIXED },   /* Trident 3DImage / Blade3D */
+    { 0x1013, 0x0000, 0xFFFF, GG_GPU_FIXED },   /* Cirrus Laguna */
 
     /* Virtual adapters. A VM's display is not a game GPU; classify it as
      * fixed-function so a shader title is gated rather than crashing. */
@@ -937,6 +968,20 @@ GG_FN void gg_decide(const gg_profile_t *p, const gg_req_t *r,
      *    unclassifiable adapter never rejects. */
     if (r->min_gpu_level != GG_GPU_UNKNOWN && p->gpu_level != GG_GPU_UNKNOWN) {
         int gap = r->min_gpu_level - p->gpu_level;
+        /* NO 3D AT ALL is binary, not a judgement call, so it is tested
+         * before the gap. The marginal band exists because a title of that
+         * era usually ships a lower-detail path for a weaker rasteriser -
+         * but there is no lower-detail path from "has a rasteriser" to "has
+         * none", and a title that can run without one declares no
+         * gpu_feature_level in the first place. Without this a Trio64 box
+         * reads as merely ONE level short of a Direct3D-only title like
+         * Aliens versus Predator and gets it copied. */
+        if (p->gpu_level == GG_GPU_NONE && r->min_gpu_level >= GG_GPU_FIXED) {
+            gg__say_plain(d, GG_V_NO, "gpu_feature_level",
+                          "no 3D acceleration at all and this title has no "
+                          "software renderer");
+            return;
+        }
         if (gap >= 2) {
             gg__say_plain(d, GG_V_NO, "gpu_feature_level",
                           "GPU too old for this title's renderer");
