@@ -19,11 +19,11 @@
 # live in CLAUDE.md's "Known Machines" section, which keeps the prose and
 # points here for every measured field.
 
-192.168.1.123	NSC-B20C188E96D	Desktop left at 640x480 by a game that exited without restoring; read the PERSISTED mode, not the live one.
+192.168.1.123	NSC-B20C188E96D	Prone to being left at 640x480 by a game that exits without restoring - the Display mode row shows both, and the PERSISTED one is what the box is configured to be.
 192.168.1.124	NSC-CABE14B7486	Dual-boot: XP on D:, Win98 on C:, and games live on both volumes. Console account "voidsstr". Voodoo 3 removed 2026-08-11.
 192.168.1.133	P3-DUAL	Dual-socket. The Voodoo5 6000 is PHYSICALLY GONE - Enum\PCI carries no VEN_121A key at all.
 192.168.1.143	1GHZ	Athlon K7: family 6 model 2 is an AMD, NOT a Pentium III, and it has NO SSE. The Voodoo5 5500 is the SECOND adapter, behind the card driving the panel.
 192.168.1.145	DELL	DISPLAYCFG get reports the INACTIVE Intel HD, not the card driving the panel; cross-check a WINLIST Program Manager rect before believing a small mode here.
-192.168.1.171	NSC-5B996B81319	ANSWERS SLOWLY - use >=8s TCP timeouts or sweeps miss it entirely. Its Voodoo 2 is Class=MEDIA and appears in no display-class scan; see glide_cards.
-192.168.1.240	USER-41EA3B3330	The disk-constrained box. Desktop also left at 640x480 by a game.
+192.168.1.171	NSC-5B996B81319	ANSWERS SLOWLY - use >=8s TCP timeouts or sweeps miss it entirely. Its Voodoo 2 is Class=MEDIA and appears in no display-class scan; see the accelerators list below.
+192.168.1.240	USER-41EA3B3330	The disk-constrained box - check its free space here before staging anything large. Also prone to a game leaving the desktop at 640x480.
 192.168.1.246	ADMIN-PC	The only Windows 7 machine on the fleet.
