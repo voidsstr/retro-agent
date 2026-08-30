@@ -766,6 +766,59 @@ empty, try `connect 192.168.1.132:27015` from the console — that distinguishes
 "server unreachable" from "broadcast discovery failing", which are different
 faults with different fixes.
 
+## Adding a NEW Staged Title — the checklist (REQUIRED)
+
+**User directive: every deployed game must have a real icon, neatly placed. That
+is part of staging a title, not a follow-up pass.** A title is not staged until
+it satisfies all of this:
+
+1. **The installed tree**, not the installer — the state *after* setup ran.
+2. **`launch.txt`**, one line per shortcut:
+   `<target><TAB><display name><TAB><icon path>`
+   - The **display name becomes the `.lnk` filename**, so it must be a legal
+     Windows filename: **no** `\ / : * ? " < > |`. Redneck Rampage shipped
+     `"... Setup / Network Config"` and that shortcut **never existed on any
+     box** — the agent logs a failure and carries on.
+   - **No parentheses in a target filename** — unlaunchable through the agent,
+     yet fine from a desktop double-click, so it survives review.
+   - **Keep every data line inside the agent's 1023-byte read** — put data
+     lines above any comments.
+3. **THE ICON, and ship it INSIDE THE TREE.** Auto-resolution is a fallback, not
+   a plan: it cannot separate a title's several launchers (Red Alert 2 from
+   Yuri's Revenge; Half-Life's five mods all reaching `hl.exe`), and it picks
+   wrongly on its own — Counter-Strike resolved to `hl.exe` and wore the
+   Half-Life lambda; System Shock 2 resolved to `clokspl.exe`, a CD-Cops loader.
+   **Give the third field explicitly for every shortcut**, pointing at an `.ico`
+   or an exe **inside the staged tree**, so the artwork deploys with the game
+   and a fresh box gets it with no extra step. If a title genuinely ships no
+   artwork (Carmageddon 1 has none — no `.ico`, and a DOS4GW binary carries no
+   PE resources), **say so in the tree's notes**; a dull icon beats a wrong one.
+4. **`install.reg`** for every registry key the game needs — CD-check
+   satisfaction, install paths, video config. **`REGEDIT4`** merges everywhere;
+   `Windows Registry Editor Version 5.00` is XP+ only and does nothing at all,
+   silently, on Win9x.
+   **A per-INSTALLATION value cannot live here** — install.reg is copied
+   byte-identically to every box, so a network serial or machine GUID must be
+   generated on the box by the launcher (see Red Alert 2).
+5. **Fullscreen**, set in the tree — and a resolution the box's monitor
+   actually supports.
+6. **Relocatable** — no absolute paths assuming the machine it was built on.
+7. **Multiplayer patched to the version our servers run**, and LAN proven on two
+   machines if the title has it.
+8. **Check the PE subsystem of every binary**: `SubsystemVersion >= 6.0` is
+   Vista-only and **XP's loader refuses it before a single instruction runs**.
+   GOG and re-release repacks are the usual offenders — SiN Gold shipped one and
+   was unloadable on every XP box. `pescan.py` in the ops scratchpad sweeps a
+   whole tree.
+9. **Run the validator**: `python3 scripts/validate-staged-library.py` must
+   report 0 failures.
+10. **Deploy it and look at the desktop.** The icon must be real and the icons
+    must sit tidily in the wallpaper's bay. A staged title whose shortcut is a
+    generic white page is not finished.
+
+**Then push it to every connected box** — a title staged but not deployed is
+half done.
+
 ## Prove the Library Is Deployable — run the validator (REQUIRED)
 
 **A staged library is only worth the promise it keeps: that the agent can move a
