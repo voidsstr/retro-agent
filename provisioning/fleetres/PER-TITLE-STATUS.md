@@ -75,7 +75,7 @@ mode 8 (1280x1024) rather than taking the biggest number available.
 | **TiberianSun** | **1080p** | `-ini SUN.INI [Video] ScreenWidth/Height`, **cap removed** | **measured on .123 in-game, and reproduced on .145 from a PURGED tree: `Tiberian Sun` window 1920x1080, `SUN.INI` written to 1920/1080.** Its own Display Options list stops at 800x600, but the CnCNet patch reads SUN.INI directly and bypasses that list |
 | **Turok2** | **incapable (1024x768 max)** | one **boolean per mode** in `Data\config.ned`, largest 4:3 entry that fits — **verified on .145: `1024^x^768 1`, every other mode 0** | the list is compiled into `Video_D3D.dll`: 320x240 / 512x384 / 640x480 / 800x600 / 1024x768 / 1280x1024. No 1080p entry, no custom mode. 1280x1024 is explicitly written back to 0 — it is 5:4 |
 | **UT2004** | 1080p | UE2 `FullscreenViewportX/Y` | |
-| **UnrealGold** | 1080p | UE1 `FullscreenViewportX/Y` + per-box render device | also swaps the game-local nGlide `glide2x.dll` aside on a box with real Glide silicon |
+| **UnrealGold** | 1080p / **native** | UE1 `FullscreenViewportX/Y` + per-box render device | **verified end to end on .171**: the wrapper is moved aside, `Unreal.ini` gets `GlideDrv.GlideRenderDevice` and 800x600, and `Unreal.log` reads `Found Glide: 2.56.00.0459`, `fbRam=4 nTexelfx=2` (the 12 MB Voodoo 2) and **`grSstOpen` SUCCEEDS** where through the wrapper it failed `(2, 3)`. A Glide fullscreen surface on a pass-through card can never be screenshotted, so the engine log is the evidence |
 | **UnrealTournament** | 1080p | UE1 `FullscreenViewportX/Y` | |
 | **UnrealTournament436** | 1080p | UE1 `FullscreenViewportX/Y` | |
 | **AliensVsPredator** | — | not staged | CLOSED as BLOCKED: graphics fastfile content absent from every distribution |
