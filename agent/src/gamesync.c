@@ -1263,8 +1263,160 @@ static int gs_desktop_dir(char *out, DWORD cch)
     return 0;
 }
 
+/* Find real icon artwork for a shortcut whose target may be a .bat.
+ *
+ * A .bat has no icon resources at all, so a shortcut pointing its icon at one
+ * gets the generic batch icon. Most staged titles now launch through a
+ * `Play <Game>.bat` (disc mounting, per-box serials, fullscreen), so without
+ * this the desktop is a wall of identical icons.
+ *
+ * Order, cheapest and most explicit first:
+ *   1. an explicit third TAB-separated field in launch.txt   (caller supplies)
+ *   2. an .ico sitting in the title's own directory
+ *   3. the first .exe the .bat actually names that exists on disk - the game's
+ *      own executable, which is exactly the artwork we want
+ *   4. any .exe in the title's directory, longest name first as a weak proxy
+ *      for "the game" over "setup"/"uninstall"
+ *
+ * Returns 1 and fills `out` on success, 0 to leave the shortcut's icon alone.
+ */
+static int gs_bat_names_exe(const char *bat, const char *dst_dir,
+                            char *out, size_t cap)
+{
+    HANDLE h;
+    char   buf[8192];
+    DWORD  got = 0;
+    char  *p;
+
+    h = CreateFileA(bat, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                    0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    if (!ReadFile(h, buf, sizeof(buf) - 1, &got, NULL) || !got) {
+        CloseHandle(h);
+        return 0;
+    }
+    CloseHandle(h);
+    buf[got] = 0;
+
+    /* Walk every ".exe" in the file and take the first whose path resolves.
+     * A token may be quoted, may be bare, and may be relative to the title
+     * directory or to the .bat's own directory - both are tried. Comment lines
+     * are skipped so a `rem` mentioning an exe cannot win over the real one. */
+    for (p = buf; *p; p++) {
+        char cand[MAX_PATH], full[MAX_PATH];
+        char *s2, *e2;
+        size_t n;
+
+        if ((p[0] != 'e' && p[0] != 'E') ||
+            _strnicmp(p, "exe", 3) != 0 || p == buf || p[-1] != '.')
+            continue;
+
+        /* walk back to the start of the token */
+        s2 = p - 1;
+        while (s2 > buf && s2[-1] != '"' && s2[-1] != ' ' && s2[-1] != '\t' &&
+               s2[-1] != '\r' && s2[-1] != '\n' && s2[-1] != '=')
+            s2--;
+        e2 = p + 3;
+        n = (size_t)(e2 - s2);
+        if (n == 0 || n >= sizeof(cand))
+            continue;
+        lstrcpynA(cand, s2, (int)n + 1);
+
+        /* skip anything on a rem/:: comment line */
+        {
+            char *ls = s2;
+            while (ls > buf && ls[-1] != '\n')
+                ls--;
+            while (*ls == ' ' || *ls == '\t')
+                ls++;
+            if (_strnicmp(ls, "rem", 3) == 0 || (ls[0] == ':' && ls[1] == ':'))
+                continue;
+        }
+        /* cmd.exe / start.exe are the shell, not the game */
+        if (_stricmp(cand, "cmd.exe") == 0 || _stricmp(cand, "start.exe") == 0)
+            continue;
+
+        if (cand[1] == ':' || cand[0] == '\\') {          /* already absolute */
+            if (gs_file_exists(cand)) {
+                lstrcpynA(out, cand, (int)cap);
+                return 1;
+            }
+            continue;
+        }
+        _snprintf(full, sizeof(full) - 1, "%s\\%s", dst_dir, cand);
+        full[sizeof(full) - 1] = 0;
+        if (gs_file_exists(full)) {
+            lstrcpynA(out, full, (int)cap);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int gs_resolve_icon(const char *dst_dir, const char *target,
+                           char *out, size_t cap)
+{
+    const char *ext;
+    WIN32_FIND_DATAA fd;
+    HANDLE h;
+    char   pat[MAX_PATH], best[MAX_PATH];
+    int    bestlen = -1;
+
+    out[0] = 0;
+    ext = target + lstrlenA(target);
+    while (ext > target && *ext != '.' && *ext != '\\')
+        ext--;
+
+    /* An .exe already carries its own artwork - nothing to resolve. */
+    if (_stricmp(ext, ".exe") == 0 || _stricmp(ext, ".com") == 0)
+        return 0;
+
+    /* 2. an .ico shipped in the title's directory */
+    _snprintf(pat, sizeof(pat) - 1, "%s\\*.ico", dst_dir);
+    pat[sizeof(pat) - 1] = 0;
+    h = FindFirstFileA(pat, &fd);
+    if (h != INVALID_HANDLE_VALUE) {
+        _snprintf(out, cap - 1, "%s\\%s", dst_dir, fd.cFileName);
+        out[cap - 1] = 0;
+        FindClose(h);
+        return 1;
+    }
+
+    /* 3. the exe the .bat itself launches */
+    if (gs_bat_names_exe(target, dst_dir, out, cap))
+        return 1;
+
+    /* 4. weakest: any exe in the title dir, longest name wins. Deliberately
+     *    last - it is a guess, and setup/uninstall exes live here too. */
+    best[0] = 0;
+    _snprintf(pat, sizeof(pat) - 1, "%s\\*.exe", dst_dir);
+    pat[sizeof(pat) - 1] = 0;
+    h = FindFirstFileA(pat, &fd);
+    if (h != INVALID_HANDLE_VALUE) {
+        do {
+            int l = lstrlenA(fd.cFileName);
+            if (_strnicmp(fd.cFileName, "unins", 5) == 0 ||
+                _strnicmp(fd.cFileName, "setup", 5) == 0)
+                continue;
+            if (l > bestlen) {
+                bestlen = l;
+                lstrcpynA(best, fd.cFileName, sizeof(best));
+            }
+        } while (FindNextFileA(h, &fd));
+        FindClose(h);
+    }
+    if (best[0]) {
+        _snprintf(out, cap - 1, "%s\\%s", dst_dir, best);
+        out[cap - 1] = 0;
+        return 1;
+    }
+    return 0;
+}
+
 static int gs_make_shortcut(const char *target, const char *workdir,
-                            const char *lnk_path, const char *desc)
+                            const char *lnk_path, const char *desc,
+                            const char *icon)
 {
     IShellLinkA  *sl = NULL;
     IPersistFile *pf = NULL;
@@ -1281,9 +1433,17 @@ static int gs_make_shortcut(const char *target, const char *workdir,
 
     sl->lpVtbl->SetPath(sl, target);
     sl->lpVtbl->SetWorkingDirectory(sl, workdir);
-    /* The icon comes from the game's own exe, so the desktop shows the game's
-     * artwork rather than a row of identical generic icons. */
-    sl->lpVtbl->SetIconLocation(sl, target, 0);
+    /* The icon comes from the game's own artwork, so the desktop shows the game
+     * rather than a row of identical generic icons.
+     *
+     * Pointing at `target` is right for an .exe, which carries its icons in its
+     * resources - and WRONG for a .bat, which carries none, so Windows falls
+     * back to the generic batch-file icon. That became the common case as more
+     * titles moved to a `Play <Game>.bat` launcher to mount a disc, generate a
+     * per-box serial or force fullscreen: the desktop filled up with identical
+     * gear icons and you could not tell the games apart. gs_resolve_icon()
+     * finds the real artwork; `icon` is empty only when it found none. */
+    sl->lpVtbl->SetIconLocation(sl, (icon && icon[0]) ? icon : target, 0);
     if (desc && desc[0])
         sl->lpVtbl->SetDescription(sl, desc);
 
@@ -1349,7 +1509,7 @@ static void gs_tool_shortcut(const char *exe, const char *name)
         slash--;
     *slash = 0;
 
-    if (gs_make_shortcut(exe, workdir, lnk, name))
+    if (gs_make_shortcut(exe, workdir, lnk, name, NULL))
         log_msg(LOG_GS, "desktop shortcut -> %s", name);
     else
         log_msg(LOG_GS, "%s: could not create the shortcut", name);
@@ -1508,6 +1668,7 @@ static void gs_shortcut_from_line(const char *dst_dir, const char *title,
 {
     char exe_rel[MAX_PATH], disp[128], target[MAX_PATH];
     char desktop[MAX_PATH], lnk[MAX_PATH], workdir[MAX_PATH];
+    char icon_rel[MAX_PATH], icon[MAX_PATH];
     char *tab, *slash;
 
     while (*line == ' ' || *line == '\t')
@@ -1516,11 +1677,20 @@ static void gs_shortcut_from_line(const char *dst_dir, const char *title,
         return;
 
     disp[0] = 0;
+    icon_rel[0] = 0;
     tab = line;
     while (*tab && *tab != '\t')
         tab++;
     if (*tab == '\t') {
+        char *tab2;
         *tab = 0;
+        tab2 = tab + 1;
+        while (*tab2 && *tab2 != '\t')
+            tab2++;
+        if (*tab2 == '\t') {          /* optional THIRD field: the icon */
+            *tab2 = 0;
+            lstrcpynA(icon_rel, tab2 + 1, sizeof(icon_rel));
+        }
         lstrcpynA(disp, tab + 1, sizeof(disp));
     }
     lstrcpynA(exe_rel, line, sizeof(exe_rel));
@@ -1550,8 +1720,26 @@ static void gs_shortcut_from_line(const char *dst_dir, const char *title,
     _snprintf(lnk, sizeof(lnk) - 1, "%s\\%s.lnk", desktop, disp);
     lnk[sizeof(lnk) - 1] = 0;
 
-    if (gs_make_shortcut(target, workdir, lnk, disp))
-        log_msg(LOG_GS, "%s: desktop shortcut -> %s", title, exe_rel);
+    /* Icon: an explicit third launch.txt field wins, because only the library
+     * can know which artwork belongs to which of a title's several launchers -
+     * Red Alert 2 ships both the game and Yuri's Revenge, and auto-detection
+     * cannot tell them apart. Otherwise resolve it from the tree. */
+    icon[0] = 0;
+    if (icon_rel[0]) {
+        _snprintf(icon, sizeof(icon) - 1, "%s\\%s", dst_dir, icon_rel);
+        icon[sizeof(icon) - 1] = 0;
+        if (!gs_file_exists(icon)) {
+            log_msg(LOG_GS, "%s: launch.txt icon %s is not there - resolving",
+                    title, icon_rel);
+            icon[0] = 0;
+        }
+    }
+    if (!icon[0])
+        gs_resolve_icon(dst_dir, target, icon, sizeof(icon));
+
+    if (gs_make_shortcut(target, workdir, lnk, disp, icon))
+        log_msg(LOG_GS, "%s: desktop shortcut -> %s (icon: %s)", title, exe_rel,
+                icon[0] ? icon : "from target");
     else
         log_msg(LOG_GS, "%s: could not create desktop shortcut", title);
 }
