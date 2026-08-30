@@ -139,7 +139,7 @@ fi
 # modules, because most of them assert against the STAGED IMAGE on the SMB
 # share and must degrade to SKIP when it is not mounted rather than error.
 echo; echo "### [6] PXE / unattended-image invariants ###"
-for t in "$HERE"/test_pxe_*.py "$HERE"/test_binl.py; do
+for t in "$HERE"/test_pxe_*.py "$HERE"/test_binl.py "$HERE"/test_staged_library.py; do
   [ -f "$t" ] || continue
   echo "-- $(basename "$t")"
   python3 "$t" || rc=1

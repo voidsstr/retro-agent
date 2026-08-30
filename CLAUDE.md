@@ -766,6 +766,41 @@ empty, try `connect 192.168.1.132:27015` from the console — that distinguishes
 "server unreachable" from "broadcast discovery failing", which are different
 faults with different fixes.
 
+## Prove the Library Is Deployable — run the validator (REQUIRED)
+
+**A staged library is only worth the promise it keeps: that the agent can move a
+title onto a brand-new machine and it simply works.** Every way we have broken
+that promise was **silent** — the defect appears on a box, hours later, with
+nothing pointing back at the library.
+
+```bash
+python3 scripts/validate-staged-library.py          # full report
+python3 scripts/validate-staged-library.py --quiet  # only problems
+python3 scripts/validate-staged-library.py --json   # for tooling
+```
+
+Exit 0 means every title satisfies the contract. **Run it before any imaging
+run, after any change to `Games-Library/`, and as the last step of any staging
+work.** `tests/test_staged_library.py` runs it in the suite (suite [6]) and
+SKIPS loudly when the share is not mounted, because a silent skip would let the
+library rot unnoticed.
+
+What it catches, each of which really reached a box:
+
+| check | the silent failure it prevents |
+|---|---|
+| `launch.txt` names a file in the tree | no shortcut is made and nothing says why |
+| every data line inside the **1023-byte** read | comments above the data push a line past the agent's read and that game silently loses its shortcut |
+| no `(` or `)` in a launcher filename | unlaunchable through the agent, fine from a desktop double-click — so it survives human review |
+| an explicit icon path resolves | a typo degrades quietly to the auto-resolved icon, i.e. exactly the wrong artwork the field exists to prevent |
+| `install.reg` dialect | `REGEDIT4` merges everywhere; `Windows Registry Editor Version 5.00` is XP+ only and does nothing at all on Win9x |
+| DOSBox conf sets `fullscreen=true` | all staged games must run fullscreen |
+
+**Deploy-blocking problems are `FAIL`; everything else is `warn`.** That line is
+deliberate — a validator that cries wolf trains people to ignore it, and the
+REGEDIT5 check was demoted to a warning for exactly that reason once it was
+confirmed valid on the whole current fleet.
+
 ## "Staged Games" — the term, and what it guarantees (REQUIRED)
 
 **A game is STAGED when it can be moved onto a retro PC by the agent and simply
