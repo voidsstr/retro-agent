@@ -250,6 +250,45 @@ def test_staleness_uses_the_host_clock_not_the_boxs(tmp_path):
 
 # ---------------------------------------------------------------- content
 
+def test_a_record_from_the_future_is_current_not_negative_aged(tmp_path):
+    """A record cannot be older than zero. If the file server's clock and this
+    host's disagree, an mtime in the future must render as current and the
+    skew must be reported - never as a negative age, and never as a reason to
+    doubt a record that has just been written.
+
+    This is not hypothetical: .124's own clock runs two hours fast, which is
+    how the CopyFile-carries-the-source-timestamp bug was found in the first
+    place."""
+    d = os.path.join(str(tmp_path), "records")
+    write_record(d, "AHEAD.json", sample_record("AHEAD", "192.168.1.7"),
+                 age_days=-0.2)          # two hours in the future
+    roster = write_roster(tmp_path, [("192.168.1.7", "AHEAD", "")])
+    ctx = inventory.build(d, roster, 14)
+    assert ctx["states"]["192.168.1.7"]["state"] == inventory.STATE_CURRENT
+    doc = inventory.render(ctx["roster"], ctx["matched"], ctx["unrostered"],
+                           ctx["now"], 14, d)
+    assert "-1 days ago" not in doc and "-0 " not in doc
+
+
+def test_every_value_is_labelled_as_a_snapshot(tmp_path):
+    """The agent version in a record was true when the box wrote it and can be
+    false an hour later - and so can every other field. A reader must be able
+    to tell 'what .143 SAID at 12:47' from 'what .143 IS', or the document goes
+    stale in the reader's head even while the file is correct."""
+    d = os.path.join(str(tmp_path), "records")
+    write_record(d, "A.json", sample_record("A", "192.168.1.1"), age_days=0.1)
+    roster = write_roster(tmp_path, [("192.168.1.1", "A", "")])
+    ctx = inventory.build(d, roster, 14)
+    doc = inventory.render(ctx["roster"], ctx["matched"], ctx["unrostered"],
+                           ctx["now"], 14, d)
+    assert "SNAPSHOT" in doc
+    assert "As this box reported itself at" in doc
+    # the agent version is dated where it is shown, not stated bare
+    assert "the version that WROTE this record" in doc
+    # and the summary carries it too, so a reader scanning the table sees it
+    assert "| Agent |" in doc.split("## Summary")[1].split("---")[0]
+
+
 def test_the_document_says_it_is_generated(tmp_path):
     """A generated file that does not say so gets hand-edited, and then there
     are two sources of truth again."""

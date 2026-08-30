@@ -43,10 +43,27 @@
  * file two agents append to.  The name comes from hwpub_safe_name(), because a
  * NetBIOS name pasted into a path is not a filename (see agent/shared/hwpub.h).
  *
- * The record is written to a local temp file first and then copied, so a
- * reader on the host sees one CopyFile rather than a slow incremental write
- * over SMB1.  A torn read is still possible in principle, and the renderer
- * treats unparseable JSON as its own reported state rather than crashing.
+ * WRITTEN DIRECTLY TO THE SHARE, AND THAT IS DELIBERATE.  The obvious
+ * implementation - write a local temp file, CopyFileA it across - was tried
+ * first and is WRONG, for a reason that took a measurement to see:
+ * **CopyFile propagates the SOURCE file's timestamp**, so the record landed on
+ * the share stamped with the retro box's own clock.  Measured on .124, whose
+ * clock is two hours fast: an `echo >` straight to the share produced mtime
+ * 12:55:58 (the file server's clock, correct) while a `copy` of an identical
+ * local file produced 14:56:31 (the box's).
+ *
+ * That matters because the host-side renderer judges a record's age by its
+ * mtime PRECISELY so that a retro machine's wrong clock cannot make a fresh
+ * record look ancient - and CopyFile was quietly handing it the very clock it
+ * was trying not to trust.  A single CreateFile + WriteFile of ~2 KB lets the
+ * server stamp the time, which is the whole point.
+ *
+ * It is written straight to its final name rather than to a temp name renamed
+ * into place.  A reader can therefore catch a partial file - but that renders
+ * as `unreadable`, which is honest and self-heals on the next publish, whereas
+ * a delete-then-rename would briefly show NO file at all and render as
+ * `never seen`: a box that has never reported. The misleading failure is the
+ * one worth designing out.
  *
  * Registry (HKLM\Software\RetroAgent):
  *   HwPublish     REG_DWORD  0 = disabled; absent/1 = enabled (default)
@@ -233,8 +250,7 @@ static int hwpub_resolve_dir(const char *configured, char *out, int outsz)
  */
 static int hwpub_publish_once(char *dest, int destsz, char *err, int errsz)
 {
-    char  dir[512], resolved[512], name[160], host[128], tmp[MAX_PATH];
-    char  tmpdir[MAX_PATH];
+    char  dir[512], resolved[512], name[160], host[128];
     DWORD hlen = sizeof(host), written = 0;
     char *json = NULL;
     DWORD len;
@@ -273,53 +289,43 @@ static int hwpub_publish_once(char *dest, int destsz, char *err, int errsz)
         return 0;
     }
 
-    /* Local temp first: a slow incremental write straight onto SMB1 is what
-     * gives a reader a half-written record. */
-    if (!GetTempPathA(sizeof(tmpdir), tmpdir))
-        safe_strncpy(tmpdir, "C:\\", sizeof(tmpdir));
-    _snprintf(tmp, sizeof(tmp) - 1, "%shwprofile.json", tmpdir);
-    tmp[sizeof(tmp) - 1] = 0;
-
-    h = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+    /* Straight to the share, in ONE write, so the FILE SERVER stamps the
+     * timestamp - see the header. A local temp plus CopyFileA would carry this
+     * box's clock across and defeat the renderer's staleness test. */
+    h = CreateFileA(dest, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
-        _snprintf(err, errsz - 1, "cannot write %s (%lu)", tmp,
+        _snprintf(err, errsz - 1, "cannot write %s (%lu)", dest,
                   (unsigned long)GetLastError());
         err[errsz - 1] = 0;
         HeapFree(GetProcessHeap(), 0, json);
         return 0;
     }
-    WriteFile(h, json, len, &written, NULL);
+    if (!WriteFile(h, json, len, &written, NULL))
+        written = 0;
     CloseHandle(h);
     HeapFree(GetProcessHeap(), 0, json);
 
     if (written != len) {
-        _snprintf(err, errsz - 1, "short local write %lu/%lu",
-                  (unsigned long)written, (unsigned long)len);
+        _snprintf(err, errsz - 1, "short write %lu/%lu to %s",
+                  (unsigned long)written, (unsigned long)len, dest);
         err[errsz - 1] = 0;
         return 0;
     }
 
-    if (!CopyFileA(tmp, dest, FALSE)) {
-        _snprintf(err, errsz - 1, "copy to share failed (%lu)",
-                  (unsigned long)GetLastError());
-        err[errsz - 1] = 0;
-        DeleteFileA(tmp);
-        return 0;
-    }
-
-    /* The post-condition, not the return value. */
+    /* The post-condition, not the return value. WriteFile can report every
+     * byte written and still leave a short file on a share that ran out of
+     * room or dropped the session, so ask the share what is actually there. */
     if (GetFileAttributesExA(dest, GetFileExInfoStandard, &fad) &&
         fad.nFileSizeLow == len && fad.nFileSizeHigh == 0) {
         ok = 1;
     } else {
         _snprintf(err, errsz - 1,
-                  "copy reported success but %s is not %lu bytes", dest,
+                  "write reported success but %s is not %lu bytes", dest,
                   (unsigned long)len);
         err[errsz - 1] = 0;
     }
 
-    DeleteFileA(tmp);
     return ok;
 }
 

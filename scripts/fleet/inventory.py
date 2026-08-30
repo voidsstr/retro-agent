@@ -218,6 +218,11 @@ def classify(rec, now, stale_days):
     if rec["mtime"] is None:
         return STATE_STALE, None
     age_days = (now - rec["mtime"]) / 86400.0
+    # A record cannot be from the future. If it reads that way the file
+    # server's clock and this host's disagree, which is a skew to REPORT and
+    # not a reason to call a fresh record anything but current.
+    if age_days < 0:
+        return STATE_CURRENT, rec["mtime"]
     if age_days > stale_days:
         return STATE_STALE, rec["mtime"]
     return STATE_CURRENT, rec["mtime"]
@@ -355,6 +360,12 @@ python3 scripts/fleet/inventory.py
 
 *Rendered {rendered} from records in `{directory}`.*
 
+> **Every field here is a SNAPSHOT, stamped per box.** A box republishes on
+> every agent startup, so the fleet's records refresh themselves whenever the
+> machines are restarted - but between restarts this file says what each box
+> *said*, not what it *is*. Read the Measured column before quoting anything,
+> and if a figure matters right now, restart that box's agent and regenerate.
+>
 > **A stale or missing record is not an outage.** The fleet is powered on
 > demand - the retro machines are deliberately kept off - so at any moment
 > several boxes legitimately carry old data. `stale` means *re-measure before
@@ -372,23 +383,30 @@ def render(roster, matched, unrostered, now, stale_days, directory):
     lines.append("")
     lines.append("## Summary")
     lines.append("")
-    lines.append("| IP | Hostname | State | Measured | CPU | RAM | Display GPU | OS |")
-    lines.append("|----|----------|-------|----------|-----|-----|-------------|----|")
+    lines.append("Every row is **what that box said about itself at the time in "
+                 "the Measured column** - not what it is now. A machine "
+                 "re-publishes on every agent startup, so the way to refresh "
+                 "any of this is to restart the box's agent and re-run the "
+                 "renderer.")
+    lines.append("")
+    lines.append("| IP | Hostname | State | Measured | Agent | CPU | RAM | Display GPU | OS |")
+    lines.append("|----|----------|-------|----------|-------|-----|-----|-------------|----|")
     for ip, host, _note in roster:
         rec = matched.get(ip)
         state, ts = classify(rec, now, stale_days)
         if state in (STATE_NEVER, STATE_UNREADABLE):
-            lines.append("| %s | %s | **%s** | %s | - | - | - | - |" % (
+            lines.append("| %s | %s | **%s** | %s | - | - | - | - | - |" % (
                 ip, host or "-", state,
                 fmt_age(ts, now) if ts else "-"))
             continue
         data = rec["data"]
         mark = "current" if state == STATE_CURRENT else "**stale**"
-        lines.append("| %s | %s | %s | %s | %s | %s MB | %s | %s |" % (
+        lines.append("| %s | %s | %s | %s | %s | %s | %s MB | %s | %s |" % (
             ip,
             data.get("hostname") or host or "-",
             mark,
             fmt_age(ts, now),
+            data.get("agent_version") or "?",
             cpu_line(data),
             data.get("ram_mb") or "?",
             gpu_line(data),
@@ -441,7 +459,9 @@ def render(roster, matched, unrostered, now, stale_days, directory):
                          "is normal for a box that has been powered off." %
                          (fmt_age(ts, now), fmt_when(ts), stale_days))
         else:
-            lines.append("Measured %s (%s)." % (fmt_when(ts), fmt_age(ts, now)))
+            lines.append("**As this box reported itself at %s** (%s). Every "
+                         "value below is that snapshot; restart its agent to "
+                         "take a fresh one." % (fmt_when(ts), fmt_age(ts, now)))
         lines.append("")
         if note:
             lines.append("> %s" % note)
@@ -470,7 +490,8 @@ def render(roster, matched, unrostered, now, stale_days, directory):
                                  if os_.get("version") else "")),
             ("DirectX", dx.get("version") or "?"),
             ("Disks", disk_line(data)),
-            ("Agent", data.get("agent_version") or "?"),
+            ("Agent", "%s (the version that WROTE this record, at %s)" % (
+                data.get("agent_version") or "?", fmt_when(ts))),
             ("Profile hash", "`%s`" % (data.get("profile_hash") or "?")),
         ]
         lines.append("| field | value |")
