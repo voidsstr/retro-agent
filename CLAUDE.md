@@ -489,9 +489,46 @@ whether anything is down — walk past the monitor.
 | `retro-dosgames-http` | `--user` | HTTP bridge for the DOS game catalog |
 | `retro-pxe` | system | proxyDHCP + TFTP for network-installing the fleet |
 | `retro-dashboard-collector` | system | gathers everything into `/run/retro-dashboard/state.json` |
+| `ollama` | system | the 5090 inference engine the capability gate calls |
+
+### After a host reboot, ask ONE question
+
+```bash
+python3 scripts/fleet/host-duties.py            # full report
+python3 scripts/fleet/host-duties.py --quiet    # only problems
+```
+
+It answers the two questions that actually matter, because they have different
+answers:
+
+* **Is it running NOW** — and not merely `active`. A unit can be active while
+  the thing it supervises is wedged, so where a duty has an observable output
+  the check probes *that*: the game servers' own per-engine query replies, the
+  freshness of `state.json`, ollama's API, the brain's heartbeat. Verify the
+  post-condition, not the return value.
+* **Will it come back after the NEXT boot** — which means `enabled`, and for
+  `--user` units it also means **linger**. A service started by hand is
+  invisible until the reboot that loses it, and that is the one failure this
+  cannot be eyeballed.
+
+> **⚠️ LINGER IS THE SINGLE POINT OF FAILURE FOR SEVEN OF THESE DUTIES.**
+> Without `loginctl enable-linger voidsstr`, **no `systemctl --user` unit starts
+> until somebody logs in** — every unit still reads `enabled`, and the host
+> comes up with the fleet bridge, the brain, the favourites agent and all nine
+> game servers dead. Verified on 2026-08-30: `Linger=yes`, and all 12 servers
+> answered after the reboot.
+
+The check reports **three** states, never two — `absent` (never installed here),
+`unknown` (could not ask) and `down` — because only the last is a fault. Its
+tests are `tests/python/test_host_duties.py`, and most of them assert the
+NEGATIVE path: a checker that can only say OK is the exact failure this project
+keeps paying for.
+
+Narrower tools, still useful on their own:
 
 ```bash
 systemctl --user status retro-gameindex retro-gameservers-watch
+python3 scripts/game-servers/healthcheck.py          # per-engine query, 12 servers
 python3 scripts/game-servers/gameservers.py          # every game server, right now
 python3 scripts/gameindex/sync.py --status           # what the favourites DB knows
 ```
