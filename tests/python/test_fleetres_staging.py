@@ -507,3 +507,92 @@ def test_validator_accepts_the_two_way_nglide_rename(tmp_path):
     probs = vl.check_title(str(tmp_path), 'G2')
     assert not [p for p in probs if p.severity == 'fail'], \
         [p.detail for p in probs]
+# 8. "Already staged" must mean the CALL, not the mention
+#
+# The staging tool decided a launcher was already done by looking for the bare
+# string "FLEETRES.BAT" anywhere in it. A good launcher COMMENT names
+# FLEETRES.BAT — that is how a reader finds out where the resolution comes from
+# — so a well-documented launcher reported itself "already current" and was
+# silently never patched. Far Cry hit exactly this on its first staging run:
+# the tool printed "1 already current" and shipped a launcher with no block.
+#
+# It is the "make failure visible" rule in miniature. The run did not fail; it
+# reported success and skipped the work. Both the tool and the share-side
+# validator now test for the call.
+# ---------------------------------------------------------------------------
+def test_mark_is_the_call_not_the_bare_filename():
+    assert sf.MARK == 'call "%~dp0FLEETRES.BAT"', (
+        'MARK is what "already staged" means. As the bare filename it matches a '
+        'comment, and the tool then skips a launcher that has no block at all.')
+    # Both ways of invoking the block must satisfy it, or a -cap title would be
+    # patched twice on the next run.
+    assert sf.MARK in sf.CALL
+    assert sf.MARK in sf.call_cap(1024, 768)
+
+
+def test_a_launcher_that_only_mentions_the_block_is_not_staged(tmp_path):
+    """The exact regression: comments name FLEETRES.BAT, nothing calls it."""
+    mentions = ('@echo off\r\n'
+                'rem The resolution is not staged - see FLEETRES.BAT.\r\n'
+                'cd /d "%~dp0"\r\n'
+                'start "" "Bin32\\FarCry.exe" %*\r\n')
+    assert sf.MARK not in mentions, (
+        'a launcher whose only reference to the block is a comment must NOT '
+        'count as staged')
+    staged = mentions.replace('cd /d "%~dp0"\r\n',
+                              'cd /d "%~dp0"\r\n' + sf.CALL + '\r\n')
+    assert sf.MARK in staged
+
+
+def test_validator_rejects_a_launcher_that_only_mentions_the_block(tmp_path):
+    """Share-side half of the same check: %FR_W% with a mention but no call
+    still expands to nothing, so it has to fail."""
+    _title(tmp_path, 'M', {
+        'launch.txt': 'Play M.bat\tM\tm.exe\r\n',
+        'Play M.bat': ('@echo off\r\n'
+                       'rem resolution comes from FLEETRES.BAT\r\n'
+                       'start "" m.exe -w %FR_W% -h %FR_H%\r\n'),
+        'm.exe': '',
+        'FLEETRES.EXE': '',
+        'FLEETRES.BAT': sf.FLEETRES_BAT,
+    })
+    checks = {p.check for p in vl.check_title(str(tmp_path), 'M')
+              if p.severity == 'fail'}
+    assert 'fleetres' in checks, (
+        'a launcher that names the block only in a comment expands every '
+        '%FR_*% to nothing — that must be a FAIL, not a pass')
+
+
+def test_validator_accepts_the_call_case_insensitively(tmp_path):
+    """cmd.exe does not care about case and neither may the check."""
+    _title(tmp_path, 'C', {
+        'launch.txt': 'Play C.bat\tC\tc.exe\r\n',
+        'Play C.bat': ('@echo off\r\ncall "%~dp0fleetres.bat"\r\n'
+                       'start "" c.exe -w %FR_W%\r\n'),
+        'c.exe': '',
+        'FLEETRES.EXE': '',
+        'FLEETRES.BAT': sf.FLEETRES_BAT,
+    })
+    assert not [p for p in vl.check_title(str(tmp_path), 'C')
+                if p.severity == 'fail' and p.check == 'fleetres']
+
+
+# ---------------------------------------------------------------------------
+# 9. Far Cry: the block must land AFTER the config is reset from its template
+#
+# CryEngine rewrites System.cfg on exit, so the launcher restores it from
+# System-fleet.cfg every launch and only then writes the resolution in. If the
+# FLEETRES block were anchored on `cd /d "%~dp0"` like most titles, it would run
+# BEFORE that copy and its two -setline writes would be overwritten one line
+# later — the same shape of bug that silently wiped Soldier of Fortune II's
+# GAMEARGS.
+# ---------------------------------------------------------------------------
+def test_farcry_block_is_anchored_after_the_config_reset():
+    rec = sf.TITLES['FarCry']['launchers']['Play Far Cry.bat']
+    assert rec['before'].startswith('start ""'), (
+        'the Far Cry block must be anchored on the START line, so it runs after '
+        'System.cfg has been reset from the template')
+    body = '\n'.join(rec['pre'])
+    assert '-setline' in body and 'r_Width' in body and 'r_Height' in body
+    assert '%FR_W%' in body and '%FR_H%' in body, (
+        'Far Cry 1.4 is natively 16:9, so it takes the full panel, not FR_W43')

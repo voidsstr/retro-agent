@@ -36,7 +36,13 @@ PAYLOAD = os.path.join(os.path.dirname(HERE), "..", "provisioning", "fleetres")
 PAYLOAD = os.path.normpath(PAYLOAD)
 LIB_DEFAULT = "/mnt/retro-share/Files/Games-Library"
 
-MARK = "FLEETRES.BAT"          # presence of this in a .bat means already staged
+# What "already staged" means: the launcher actually CALLS the block. It was
+# the bare filename "FLEETRES.BAT", and that is a false positive waiting to
+# happen - a launcher whose COMMENTS merely mention FLEETRES.BAT (explaining
+# where its resolution comes from, which is exactly what a good comment does)
+# was reported "already current" and silently never patched. Far Cry hit this
+# on the first run. Both CALL and call_cap() start with this prefix.
+MARK = 'call "%~dp0FLEETRES.BAT"'   # the call, not the mention
 
 # --------------------------------------------------------------------------
 # The block, staged once per title as FLEETRES.BAT and CALLed by every launcher.
@@ -600,6 +606,24 @@ TITLES = {
                       "Host Redneck Rampage - LAN.bat",
                       "Join Redneck Rampage - LAN.bat",
                       "Redneck Rampage Setup.bat")
+        },
+    },
+    # CryEngine 1. The engine reads System.cfg from the CURRENT directory and
+    # REWRITES it on exit, so the launcher resets it from System-fleet.cfg
+    # first and FLEETRES writes the mode into the fresh copy. Far Cry 1.4 is
+    # natively 16:9, so it gets the whole panel (FR_W/FR_H), not the 4:3 subset.
+    # The anchor is the start line, not the `cd /d`: the block MUST land after
+    # the copy, or it would write the resolution into a file overwritten a line
+    # later - the same shape of bug that wiped SoF2's GAMEARGS.
+    "FarCry": {
+        "launchers": {
+            "Play Far Cry.bat": rec(
+                'start "" "Bin32\\FarCry.exe" %*',
+                [CALL,
+                 'if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -setline '
+                 '"%~dp0System.cfg" r_Width r_Width = %FR_W%',
+                 'if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -setline '
+                 '"%~dp0System.cfg" r_Height r_Height = %FR_H%']),
         },
     },
 }

@@ -30,6 +30,10 @@ import os
 import re
 import sys
 
+# `call "%~dp0FLEETRES.BAT"`, optionally with -cap args. cmd.exe is
+# case-insensitive, so this must be too.
+FLEETRES_CALL_RE = re.compile(r'call\s+"%~dp0FLEETRES\.BAT"', re.I)
+
 LIB_DEFAULT = "/mnt/retro-share/Files/Games-Library"
 
 # The agent reads only the first this-many bytes of launch.txt
@@ -218,7 +222,10 @@ def check_title(lib, title):
     # A launcher that expands FR_* without calling the block gets empty strings
     # — i.e. `-w  -h ` on a command line, silently.
     for b, body in bodies.items():
-        if "%FR_" in body and "FLEETRES.BAT" not in body:
+        # The CALL, not the mention. Testing for the bare name "FLEETRES.BAT"
+        # passes a launcher that only names it in a comment — and a good
+        # comment DOES name it, to say where the resolution comes from.
+        if "%FR_" in body and not FLEETRES_CALL_RE.search(body):
             fail("fleetres", "%r uses %%FR_*%% but never calls FLEETRES.BAT, so "
                              "every one of those expands to nothing" % b)
 
