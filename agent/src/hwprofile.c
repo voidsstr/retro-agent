@@ -37,6 +37,7 @@
 #include "util.h"
 #include "log.h"
 #include "hwextra.h"
+#include "../shared/hwpub.h"
 #include "../shared/gamegate.h"
 #include "../shared/edid.h"
 
@@ -296,13 +297,35 @@ static DWORD ram_total_mb(void)
 typedef BOOL (WINAPI *PFN_EnumDisplayDevicesA)(LPCSTR, DWORD,
                                                PDISPLAY_DEVICEA, DWORD);
 
+/*
+ * Read a registry value as a string, INCLUDING when it is not stored as one.
+ *
+ * FOUND ON .246 (Windows 7, 2026-08-30): the display class key's DriverDesc is
+ * a **REG_BINARY** holding UTF-16LE. RegQueryValueExA converts REG_SZ for you
+ * and hands REG_BINARY back RAW, so as a C string it ends at the first NUL -
+ * after ONE character. The box reported its graphics card as "A": short,
+ * printable, entirely plausible, and flagged by nothing. hwpub_utf16le_narrow()
+ * detects that layout; anything that is neither a string nor UTF-16 in
+ * disguise yields nothing rather than a byte soup that reads as a short name.
+ */
 static void reg_str(HKEY h, const char *name, char *buf, DWORD cch)
 {
-    DWORD type = REG_SZ, size = cch;
+    DWORD type = REG_SZ, size;
+    BYTE  raw[512];
+
     buf[0] = 0;
-    if (RegQueryValueExA(h, name, NULL, &type, (BYTE *)buf, &size)
-            != ERROR_SUCCESS)
+    size = sizeof(raw);
+    if (RegQueryValueExA(h, name, NULL, &type, raw, &size) != ERROR_SUCCESS)
+        return;
+
+    if (type == REG_SZ || type == REG_EXPAND_SZ) {
+        if (size >= cch)
+            size = cch - 1;
+        memcpy(buf, raw, size);
+        buf[size] = 0;
+    } else if (!hwpub_utf16le_narrow(raw, (int)size, buf, (int)cch)) {
         buf[0] = 0;
+    }
     buf[cch - 1] = 0;
 }
 

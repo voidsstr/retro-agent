@@ -242,6 +242,77 @@ TEST(a_mac_never_runs_past_its_buffer)
     }
 }
 
+/* ---- 4. a registry string that is not a REG_SZ ---- */
+
+TEST(a_reg_binary_utf16_name_is_narrowed_not_truncated_to_one_letter)
+{
+    /* FOUND ON .246 (Windows 7). The display class key's DriverDesc is stored
+     * as REG_BINARY holding UTF-16LE, not as REG_SZ. RegQueryValueExA converts
+     * REG_SZ for you and hands REG_BINARY back RAW, so an ANSI reader sees the
+     * string end at the first NUL - after ONE character. The box reported its
+     * graphics card as "A": short, printable, entirely plausible, and flagged
+     * by nothing. */
+    static const unsigned char utf16[] = {
+        'A',0,'M',0,'D',0,' ',0,'R',0,'a',0,'d',0,'e',0,'o',0,'n',0,' ',0,
+        'H',0,'D',0,' ',0,'5',0,'4',0,'5',0,'0',0, 0,0
+    };
+    char out[64];
+
+    CHECK_EQ_I(hwpub_looks_utf16le(utf16, (int)sizeof(utf16)), 1);
+    CHECK_EQ_I(hwpub_utf16le_narrow(utf16, (int)sizeof(utf16), out,
+                                    sizeof(out)), 1);
+    CHECK(strcmp(out, "AMD Radeon HD 5450") == 0, "the whole adapter name");
+
+    /* the OLD-BUGGY value: the same bytes taken as a C string */
+    CHECK(strcmp((const char *)utf16, "A") == 0,
+          "read as ANSI it really is just \"A\"");
+}
+
+TEST(a_genuine_ansi_string_is_left_alone)
+{
+    /* The far more common case must not be mangled by the fix. An ordinary
+     * REG_SZ payload must be rejected by the detector so the caller uses it
+     * verbatim. */
+    static const unsigned char ansi[] = "NVIDIA GeForce4 Ti 4600";
+    char out[64];
+
+    CHECK_EQ_I(hwpub_looks_utf16le(ansi, (int)sizeof(ansi)), 0);
+    out[0] = 'Z'; out[1] = 0;
+    CHECK_EQ_I(hwpub_utf16le_narrow(ansi, (int)sizeof(ansi), out, sizeof(out)), 0);
+    CHECK(strcmp(out, "Z") == 0, "a rejected buffer leaves out untouched");
+}
+
+TEST(the_utf16_detector_does_not_guess_from_too_little)
+{
+    /* One code unit is not evidence: a one-character ANSI string with its
+     * terminator is indistinguishable from a one-character UTF-16 one, and
+     * guessing wrong in that direction invents a name. Demand two. */
+    static const unsigned char one_unit[] = { 'A', 0, 0, 0 };
+    static const unsigned char two_units[] = { 'A', 0, 'B', 0, 0, 0 };
+    static const unsigned char odd_len[]  = { 'A', 0, 'B' };
+    static const unsigned char high_byte[] = { 0x41, 0x30, 0x42, 0x30, 0, 0 };
+    char out[16];
+
+    CHECK_EQ_I(hwpub_looks_utf16le(one_unit, (int)sizeof(one_unit)), 0);
+    CHECK_EQ_I(hwpub_looks_utf16le(two_units, (int)sizeof(two_units)), 1);
+    CHECK_EQ_I(hwpub_looks_utf16le(odd_len, (int)sizeof(odd_len)), 0);
+    /* Non-ASCII UTF-16 (a CJK name) is not narrowable to ASCII, so it is not
+     * claimed - better an empty field than mojibake presented as a card. */
+    CHECK_EQ_I(hwpub_looks_utf16le(high_byte, (int)sizeof(high_byte)), 0);
+    CHECK_EQ_I(hwpub_looks_utf16le(NULL, 8), 0);
+    CHECK_EQ_I(hwpub_utf16le_narrow(NULL, 8, out, sizeof(out)), 0);
+
+    /* And a narrow into a short buffer stays terminated. */
+    {
+        static const unsigned char longname[] = {
+            'A',0,'B',0,'C',0,'D',0,'E',0,'F',0,'G',0,'H',0, 0,0 };
+        char small[4];
+        CHECK_EQ_I(hwpub_utf16le_narrow(longname, (int)sizeof(longname),
+                                        small, sizeof(small)), 1);
+        CHECK(strcmp(small, "ABC") == 0, "truncated and terminated");
+    }
+}
+
 MUNIT_MAIN("fleet inventory publish (agent/shared/hwpub.h)",
     RUN(real_fleet_names_pass_through_untouched);
     RUN(a_separator_can_never_survive_into_the_path);
@@ -253,4 +324,7 @@ MUNIT_MAIN("fleet inventory publish (agent/shared/hwpub.h)",
     RUN(the_record_cap_is_sane);
     RUN(a_mac_is_formatted_whole_not_truncated_to_its_first_octet);
     RUN(a_mac_never_runs_past_its_buffer);
+    RUN(a_reg_binary_utf16_name_is_narrowed_not_truncated_to_one_letter);
+    RUN(a_genuine_ansi_string_is_left_alone);
+    RUN(the_utf16_detector_does_not_guess_from_too_little);
 )

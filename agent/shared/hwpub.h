@@ -171,4 +171,68 @@ HWPUB_UNUSED static int hwpub_format_mac(const unsigned char *addr, unsigned len
     return (int)k;
 }
 
+/*
+ * A registry string that is not a REG_SZ.
+ *
+ * FOUND ON .246 (Windows 7, AMD ForceWare-era installer): the display class
+ * key's DriverDesc is a **REG_BINARY** holding UTF-16LE, not a REG_SZ:
+ *
+ *   DriverDesc  REG_BINARY  41 00 4D 00 44 00 20 00 52 00 ...   ("AMD Radeon HD 5450")
+ *
+ * RegQueryValueExA converts REG_SZ for you and hands REG_BINARY back RAW, so
+ * an ANSI reader gets those bytes verbatim and the C string terminates at the
+ * first NUL - after ONE character.  The box reported its graphics card as
+ * "A".  Short, printable, entirely plausible, and flagged by nothing: exactly
+ * the shape of wrong answer this project keeps being bitten by.
+ *
+ * hwpub_utf16le_narrow() detects that layout and narrows it.  Adapter names,
+ * driver versions and hardware ids are all ASCII in practice, so a plain
+ * narrowing is right here and does not need the Win32 conversion API (which
+ * would also make this untestable on the host).  A non-ASCII code unit is
+ * rendered '?' rather than dropped, so a mangled name still LOOKS wrong
+ * instead of quietly looking short.
+ *
+ * Returns 1 when the buffer was UTF-16LE and out now holds the narrowed
+ * string; 0 when it was not, leaving out untouched.
+ */
+HWPUB_UNUSED static int hwpub_looks_utf16le(const unsigned char *buf, int len)
+{
+    int i, pairs = 0;
+
+    /* Need at least one full code unit and an even length. A single 'A' as
+     * ANSI is len 1 or 2 ("A\0"); as UTF-16 it is 4 ("A\0\0\0"), so demand
+     * two code units before believing it - one is not evidence. */
+    if (!buf || len < 4 || (len % 2) != 0)
+        return 0;
+    for (i = 0; i + 1 < len; i += 2) {
+        if (buf[i] == 0 && buf[i + 1] == 0)
+            break;                       /* terminator */
+        if (buf[i + 1] != 0)
+            return 0;                    /* high byte set: not ASCII UTF-16 */
+        if (buf[i] == 0)
+            return 0;                    /* lone NUL low byte */
+        pairs++;
+    }
+    return pairs >= 2;
+}
+
+HWPUB_UNUSED static int hwpub_utf16le_narrow(const unsigned char *buf, int len,
+                                             char *out, int outsz)
+{
+    int i, n = 0;
+
+    if (!out || outsz < 1)
+        return 0;
+    if (!hwpub_looks_utf16le(buf, len))
+        return 0;
+    for (i = 0; i + 1 < len && n < outsz - 1; i += 2) {
+        unsigned c = (unsigned)buf[i] | ((unsigned)buf[i + 1] << 8);
+        if (c == 0)
+            break;
+        out[n++] = (c < 0x80) ? (char)c : '?';
+    }
+    out[n] = 0;
+    return 1;
+}
+
 #endif /* RETRO_HWPUB_H */

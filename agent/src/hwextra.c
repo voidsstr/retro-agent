@@ -63,14 +63,35 @@ typedef BOOL (WINAPI *PFN_EnumDisplayDevicesA_x)(LPCSTR, DWORD,
 /* small registry helpers (local: hwprofile.c's are static there)       */
 /* ------------------------------------------------------------------ */
 
+/*
+ * Read a registry value as a string, INCLUDING when it is not stored as one.
+ *
+ * RegQueryValueExA converts REG_SZ and hands REG_BINARY back raw, so a driver
+ * installer that wrote UTF-16 into a REG_BINARY (as .246's does for
+ * DriverDesc) makes an ANSI reader see the string terminate after its first
+ * character - the box reported its graphics card as "A". See
+ * hwpub_utf16le_narrow().
+ */
 static int hx_reg_str(HKEY h, const char *name, char *out, DWORD outsz)
 {
     DWORD ty = REG_SZ, n = outsz;
+    BYTE  raw[512];
+    DWORD rawn = sizeof(raw);
+
     out[0] = 0;
-    if (RegQueryValueExA(h, name, NULL, &ty, (BYTE *)out, &n) != ERROR_SUCCESS)
+    if (RegQueryValueExA(h, name, NULL, &ty, raw, &rawn) != ERROR_SUCCESS)
         return 0;
-    if (n >= outsz) n = outsz - 1;
-    out[n] = 0;
+
+    if (ty == REG_SZ || ty == REG_EXPAND_SZ) {
+        if (rawn >= outsz) rawn = outsz - 1;
+        memcpy(out, raw, rawn);
+        out[rawn] = 0;
+    } else if (!hwpub_utf16le_narrow(raw, (int)rawn, out, (int)outsz)) {
+        /* Neither a string nor UTF-16 in disguise. Report nothing rather than
+         * a byte soup that would read as a plausible short name. */
+        out[0] = 0;
+    }
+    (void)n;
     return out[0] != 0;
 }
 
