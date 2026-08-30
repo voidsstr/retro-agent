@@ -56,6 +56,17 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 
 DEFAULT_DIR = "/mnt/retro-share/Utility/Retro Automation/fleet-inventory"
+
+# Where the rendered document can ALSO be dropped so the retro boxes can read
+# it. Two mounts of the same share exist on this host and they are not the
+# same: the fstab CIFS mount at /mnt/retro-share is explicitly `ro`, while the
+# gvfs one is read-write. The gvfs mount is per-login-session, so it can be
+# absent headless and has been seen to disappear and come back - which is why
+# the generated document's HOME is the repo, and this is only a convenience
+# copy that says so when it cannot be made.
+SHARE_RW = ("/run/user/1000/gvfs/"
+            "smb-share:server=192.168.1.122,share=files,user=voidsstr"
+            "/Utility/Retro Automation/fleet-inventory")
 DEFAULT_ROSTER = os.path.join(HERE, "fleet-roster.txt")
 DEFAULT_OUT = os.path.join(REPO, "docs", "fleet-inventory.md")
 
@@ -587,6 +598,13 @@ def main(argv=None):
                     help="emit the per-box states as JSON, for tooling")
     ap.add_argument("--check", action="store_true",
                     help="exit 1 if any rostered box is not current")
+    ap.add_argument("--share-copy", nargs="?", const=SHARE_RW, default=None,
+                    metavar="DIR",
+                    help="also drop the rendered document on the share so the "
+                         "boxes can read it. Best-effort: the read-write gvfs "
+                         "mount is per-login-session and may not exist, and "
+                         "that is reported rather than fatal - the document's "
+                         "home is the repo.")
     args = ap.parse_args(argv)
 
     ctx = build(args.dir, args.roster, args.stale_days)
@@ -613,6 +631,24 @@ def main(argv=None):
                   (args.out, len(ctx["roster"]), len(bad)))
             for ip in bad:
                 print("  %-16s %s" % (ip, ctx["states"][ip]["state"]))
+
+            if args.share_copy:
+                dest = os.path.join(args.share_copy, "fleet-inventory.md")
+                try:
+                    os.makedirs(args.share_copy, exist_ok=True)
+                    with open(dest, "w", encoding="utf-8") as fh:
+                        fh.write(doc)
+                    # Verify the post-condition, not the return value.
+                    if os.path.getsize(dest) == len(doc.encode("utf-8")):
+                        print("also wrote %s" % dest)
+                    else:
+                        print("share copy is the wrong size - NOT written: %s"
+                              % dest)
+                except OSError as exc:
+                    print("share copy skipped (%s): %s" % (exc.strerror or exc,
+                                                           args.share_copy))
+                    print("  the read-write gvfs mount is per-login-session; "
+                          "the document in the repo is unaffected")
 
     if args.check:
         bad = [ip for ip, s in ctx["states"].items()

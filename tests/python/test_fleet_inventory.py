@@ -367,6 +367,29 @@ def test_cli_check_and_json_modes(tmp_path):
     assert "192.168.1.2" in out.stderr
 
 
+def test_the_share_copy_is_best_effort_not_fatal(tmp_path):
+    """The read-write gvfs mount is per-login-session and can be absent
+    headless. Its absence must be REPORTED and must not lose the document -
+    whose home is the repo, always present."""
+    d = os.path.join(str(tmp_path), "records")
+    write_record(d, "A.json", sample_record("A", "192.168.1.1"), age_days=0.1)
+    roster = write_roster(tmp_path, [("192.168.1.1", "A", "")])
+    out = os.path.join(str(tmp_path), "doc.md")
+    # a path under a file is guaranteed unusable as a directory
+    blocker = os.path.join(str(tmp_path), "blocker")
+    open(blocker, "w").close()
+
+    res = subprocess.run(
+        [sys.executable, SCRIPT, "--dir", d, "--roster", roster,
+         "--out", out, "--share-copy", os.path.join(blocker, "sub")],
+        capture_output=True, text=True, timeout=120)
+    assert res.returncode == 0, res.stderr
+    assert "share copy skipped" in res.stdout
+    # the document itself still landed
+    assert os.path.exists(out)
+    assert "Fleet hardware inventory" in open(out, encoding="utf-8").read()
+
+
 def test_the_shipped_roster_parses_and_carries_no_measurements():
     """The roster holds prose a probe cannot discover, and NOTHING measured.
     A CPU or a card in here is the hand-maintained table growing back."""
