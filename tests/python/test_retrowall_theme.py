@@ -153,3 +153,70 @@ def test_vista_and_later_keep_their_own_visual_style():
         "the Vista+ path must log that it deliberately left the visual style "
         "alone - silence here reads as 'the theme code never ran'"
     )
+
+
+# ---------------------------------------------------------------------------
+# 2026-08-29: applying the wallpaper once is not enough on .246.
+#
+# That box runs a Windows 7 that is not activated - `slmgr /xpr` reports
+# "Windows is in Notification mode" - and Windows' own enforcement BLANKS THE
+# DESKTOP on its own schedule: it clears HKCU\Control Panel\Desktop\Wallpaper to
+# an EMPTY string and paints black, roughly hourly. Measured directly: the agent
+# logged "retrowall: wallpaper set to C:\retro-wall\retrowall_1920x1080.bmp",
+# and a `reg query` of that value some time later returned nothing at all with a
+# black desktop on screen. Nothing in the log said why, because nothing the
+# agent did was wrong.
+#
+# So the wallpaper has to be KEPT, not just set. The keeper must:
+#   * only act when the FLEET wallpaper path is in charge (never fight the
+#     legacy rotation, and never fight a box with nothing staged),
+#   * compare against the exact path we applied, so a deliberate change by a
+#     person to some other file is left alone... and only OUR file restored,
+#   * poll on a long interval and in short sleep slices, so a QUIT is not held
+#     up behind it on a single-threaded Win9x agent.
+# ---------------------------------------------------------------------------
+
+
+def _fn_body(src, signature):
+    i = src.index(signature)
+    j = src.index("\n}\n", i)
+    return src[i:j]
+
+
+def test_the_fleet_wallpaper_is_kept_not_merely_applied():
+    src = _read(RETROWALL_C)
+    assert "keep_fleet_wallpaper" in src, (
+        "an unactivated Windows blanks the desktop hourly - setting the "
+        "wallpaper once at startup does not keep it set"
+    )
+    body = _fn_body(src, "static int keep_fleet_wallpaper(")
+    assert "g_fleet_wall" in body, "it must compare against the path we applied"
+    assert "SPI_SETDESKWALLPAPER" in body, "it must re-apply live, not only in the registry"
+    assert "lstrcmpiA" in body, "the comparison must be case-insensitive"
+
+
+def test_the_keeper_does_nothing_when_no_fleet_wallpaper_is_in_charge():
+    body = _fn_body(_read(RETROWALL_C), "static int keep_fleet_wallpaper(")
+    guard = body.index("g_fleet_wall[0]")
+    act = body.index("SPI_SETDESKWALLPAPER")
+    assert guard < act, (
+        "bail out before touching anything when g_fleet_wall is empty - a box "
+        "on the legacy rotation, or with nothing staged, must not be fought"
+    )
+
+
+def test_the_keeper_loop_wakes_often_enough_to_shut_down():
+    src = _read(RETROWALL_C)
+    body = _fn_body(src, "DWORD WINAPI retrowall_thread(")
+    assert "keep_fleet_wallpaper()" in body, "the thread must run the keeper"
+    assert "while (g_running)" in body, "and must stop when the agent stops"
+    assert "Sleep(1000)" in body, (
+        "sleep in ~1s slices, not one long Sleep - on Win9x the agent is "
+        "single-threaded and a QUIT must not wait out the whole interval"
+    )
+    m = re.search(r"#define RETROWALL_KEEP_SEC\s+(\d+)", src)
+    assert m, "the keeper interval must be a named constant"
+    assert 60 <= int(m.group(1)) <= 900, (
+        "a registry read every few minutes is free; every few seconds is noise "
+        "and every hour loses the race with the blanker"
+    )

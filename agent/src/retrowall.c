@@ -49,6 +49,8 @@
 
 /* Let the shell/desktop finish coming up before we touch it. */
 #define RETROWALL_DELAY_SEC  20
+/* How often to check that the fleet wallpaper is still the wallpaper. */
+#define RETROWALL_KEEP_SEC   300
 
 #ifndef SPI_SETDESKWALLPAPER
 #define SPI_SETDESKWALLPAPER 0x0014
@@ -402,6 +404,11 @@ static void stop_wallpaper_rotation(void)
 
 /* Returns 1 if a fleet wallpaper was found and applied. The caller uses that
  * to decide whether the older rotation should run at all. */
+/* The fleet wallpaper this agent applied, or "" if none. The keeper loop below
+ * needs it, and it is also the flag that says the fleet path (rather than the
+ * legacy rotation) is in charge of this desktop. */
+static char g_fleet_wall[MAX_PATH];
+
 static int apply_fleet_wallpaper(void)
 {
     static const struct { int w, h; } SIZES[] = {
@@ -454,6 +461,45 @@ static int apply_fleet_wallpaper(void)
     SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, best,
                           SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
     log_msg(LOG_MAIN, "retrowall: wallpaper set to %s (screen %dx%d)", best, sw, sh);
+    safe_strncpy(g_fleet_wall, best, sizeof(g_fleet_wall));
+    return 1;
+}
+
+/*
+ * Put the fleet wallpaper back if something took it away.
+ *
+ * WHY THIS EXISTS. .246 runs a copy of Windows 7 that is not activated, and
+ * Windows' "Notification mode" enforcement BLANKS THE DESKTOP - it clears
+ * HKCU\Control Panel\Desktop\Wallpaper to an empty string and paints black,
+ * on its own schedule, roughly hourly. The agent applied the wallpaper
+ * correctly at startup, logged that it had, and the desktop was black again
+ * within the hour with nothing in the log to say why. A game that takes an
+ * exclusive fullscreen mode and exits badly can do the same thing.
+ *
+ * So applying it once is not enough on a box like that: it has to be kept.
+ * This is a registry read every five minutes - free even on a Pentium 1 - and
+ * it only ever acts when the value no longer names OUR file, so a person who
+ * deliberately sets a different wallpaper from C:\retro-wall is not fought.
+ *
+ * Returns 1 if it had to repair.
+ */
+static int keep_fleet_wallpaper(void)
+{
+    char cur[MAX_PATH];
+
+    if (!g_fleet_wall[0])
+        return 0;                       /* no fleet wallpaper in charge here */
+    if (hkcu_get_sz(DESKTOP_KEY, "Wallpaper", cur, sizeof(cur)) == 0 &&
+        lstrcmpiA(cur, g_fleet_wall) == 0)
+        return 0;                       /* still ours */
+
+    hkcu_set_sz(DESKTOP_KEY, "WallpaperStyle", "0");
+    hkcu_set_sz(DESKTOP_KEY, "TileWallpaper", "0");
+    hkcu_set_sz(DESKTOP_KEY, "Wallpaper", g_fleet_wall);
+    SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, g_fleet_wall,
+                          SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+    log_msg(LOG_MAIN, "retrowall: wallpaper had been changed to \"%s\" - "
+                      "put %s back", cur[0] ? cur : "(none)", g_fleet_wall);
     return 1;
 }
 
@@ -564,5 +610,17 @@ DWORD WINAPI retrowall_thread(LPVOID param)
     if (!g_running)
         return 0;
     retrowall_apply_startup();
+
+    /* Then keep it. See keep_fleet_wallpaper() - an unactivated Windows blanks
+     * the desktop on its own schedule, so "applied at startup" is not the same
+     * as "applied". Sleep in short slices so a QUIT is not held up by this. */
+    while (g_running) {
+        int i;
+        for (i = 0; i < RETROWALL_KEEP_SEC && g_running; i++)
+            Sleep(1000);
+        if (!g_running)
+            break;
+        keep_fleet_wallpaper();
+    }
     return 0;
 }
