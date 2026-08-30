@@ -1031,11 +1031,114 @@ static int next_launcher(const char *dir, const char *current, char *out)
     return 0;
 }
 
+/* ---------------------------------------------------------------------------
+ * DOSGAME.TXT — a game directory DECLARES its own real-mode launcher.
+ *
+ * pick_launcher() is an inference, and it says so: it ranks 8.3 names, prefers
+ * one matching the directory, and falls back to "first .EXE the directory
+ * happens to return". That is the right answer for the ~3,000 shareware
+ * archives this program installs, where nobody can annotate anything.
+ *
+ * It is the WRONG answer for a tree that arrived from the fleet's staged
+ * library (\\...\Games-Library\<Title>, deployed by the agent's GAMESYNC into
+ * C:\GAMES\<Title> — the directory this program already scans). Those trees
+ * are built for WINDOWS: they carry a DOSBox of their own, several
+ * "Play <Game>.bat" launchers that start it, and 32-bit Windows binaries
+ * beside the DOS ones. Measured against the real trees:
+ *
+ *   C:\GAMES\QUAKE1     first .EXE in directory order is GLQUAKE.EXE — a Win32
+ *                       PE. Started from real DOS that is not a game, it is
+ *                       "This program cannot be run in DOS mode" at best.
+ *                       The DOS build is QUAKE.EXE (+ CWSDPMI.EXE).
+ *   C:\GAMES\DESCENT1   a .BAT named after the directory outranks everything,
+ *                       and DESCENT1.BAT is a *Windows* batch: it opens with
+ *                       "cd /d", which is a cmd.exe switch COMMAND.COM does
+ *                       not have. The DOS build is DESCENTR.EXE.
+ *
+ * Neither is a bug in pick_launcher — no heuristic over 8.3 names can know
+ * which of two real executables is the DOS one. So the tree says it. One line,
+ * the same shape as the library's own launch.txt:
+ *
+ *      DESCENTR.EXE<TAB>Descent
+ *
+ * field 1  the launcher to run, 8.3, in THIS directory (required)
+ * field 2  the title to show in the menu (optional)
+ * '#' or ';' comments and blank lines are ignored; the first data line wins.
+ *
+ * THE FILE NAME ITSELF IS THE CONSTRAINT. Real DOS sees 8.3 only, so a
+ * "dosnative.txt" would reach this program as DOSNAT~1.TXT — a mangled name
+ * that depends on what else is in the directory. DOSGAME.TXT is 7.3 and is
+ * therefore the same string on every box.
+ *
+ * PRECEDENCE: the registry (INSTALL.LST, which includes an operator's F2
+ * override) still wins — scan_game_dir returns before this on reg_covers_dir.
+ * Then this declaration. Then the guess. A declaration naming a file that is
+ * not in the directory is NOT honoured, and says so in the log: a staged tree
+ * that was gated out, or copied short, must degrade to the guess rather than
+ * to a launcher that cannot start.
+ * -------------------------------------------------------------------------*/
+#define DECL_FILE "DOSGAME.TXT"
+
+static int file_exists(const char *dir, const char *name);
+
+/* Trim leading and trailing blanks IN PLACE, tabs included. chomp() stops at
+ * spaces and CR/LF, which is not enough here: the separator is a TAB, so a
+ * line ending in one would otherwise leave "DESCENTR.EXE\t" as the name. */
+static char *trim_ws(char *s)
+{
+    int n;
+    while (*s == ' ' || *s == '\t') s++;
+    n = strlen(s);
+    while (n > 0 && (s[n-1] == '\n' || s[n-1] == '\r' || s[n-1] == ' '
+                     || s[n-1] == '\t'))
+        s[--n] = '\0';
+    return s;
+}
+
+static int read_declared(const char *fulldir, char *exe, char *title)
+{
+    char path[MAX_PATH_L * 2], line[160];
+    FILE *f;
+    int got = 0;
+
+    exe[0] = '\0';
+    if (title) title[0] = '\0';
+    path_join(path, fulldir, DECL_FILE);
+    if (!path[0]) return 0;
+    f = fopen(path, "r");
+    if (!f) return 0;
+    while (!got && fgets(line, sizeof(line), f)) {
+        char *p = trim_ws(line);
+        char *tab;
+        if (!*p || *p == '#' || *p == ';') continue;
+        tab = strchr(p, '\t');
+        if (tab) {
+            *tab++ = '\0';
+            if (title) copy_str(title, trim_ws(tab), MAX_TITLE + 1);
+            p = trim_ws(p);
+        }
+        copy_str(exe, p, 13);
+        got = 1;
+    }
+    fclose(f);
+    if (!got || !exe[0]) { exe[0] = '\0'; if (title) title[0] = '\0'; return 0; }
+    if (!file_exists(fulldir, exe)) {
+        logf("scan:   %s\\%s names %s, which is NOT in that directory - "
+             "ignoring the declaration and guessing instead", fulldir,
+             DECL_FILE, exe);
+        exe[0] = '\0';
+        if (title) title[0] = '\0';
+        return 0;
+    }
+    return 1;
+}
+
 static void scan_game_dir(const char *root, const char *dir)
 {
     char full[MAX_PATH_L + 1];
     char best[13];
     char sub[13] = "";
+    char decl_title[MAX_TITLE + 1] = "";
     int needs_setup;
     game_t *g;
 
@@ -1047,7 +1150,14 @@ static void scan_game_dir(const char *root, const char *dir)
     if (is_scan_root(full)) { logf("scan:   skip %s (it is a scan root)", full); return; }
     if (reg_covers_dir(full)) { logf("scan:   skip %s (registry owns it)", full); return; }
 
-    needs_setup = pick_launcher(full, dir, best);
+    /* A DECLARATION replaces the guess entirely - see DOSGAME.TXT above. */
+    if (read_declared(full, best, decl_title)) {
+        needs_setup = 0;
+        logf("scan:   %s declares %s in %s (no guess made)", full, best,
+             DECL_FILE);
+    } else {
+        needs_setup = pick_launcher(full, dir, best);
+    }
 
     /* Nothing runnable at the top level. Roughly a quarter of the share's
      * archives are not flat-root, so the game sits one directory further
@@ -1099,8 +1209,15 @@ static void scan_game_dir(const char *root, const char *dir)
     /* Remember what this row is called on disk. The catalogue pass may replace
      * the title with the game's real name, and a tie has to be able to put the
      * folder name back. Registry rows deliberately leave this empty - they
-     * already carry the title the install recorded. */
-    copy_str(g->dir, dir, sizeof(g->dir));
+     * already carry the title the install recorded.
+     *
+     * A DECLARED title is in that same class and leaves g->dir empty for the
+     * same reason: the tree said what this game is called, and the catalogue's
+     * fuzzy name match must not then overwrite it with a near miss. Leaving
+     * g->dir set would have made "Descent" resolvable to any of the catalogue's
+     * Descent rows, which is precisely the ambiguity the declaration removes. */
+    if (decl_title[0]) copy_str(g->title, decl_title, sizeof(g->title));
+    else               copy_str(g->dir, dir, sizeof(g->dir));
     /* A multi-disk set with disks missing can never install. Work that out
      * once, here, so the list can SAY so instead of the operator finding out
      * by pressing Enter. Cheap: a directory with no .DAT costs one findfirst. */

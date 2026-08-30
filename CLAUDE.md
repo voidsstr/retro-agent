@@ -433,6 +433,45 @@ Registry (`HKLM\Software\RetroAgent`): `DosStage` DWORD 0 disables,
 `DosStageTiles` DWORD 1 opts into the preview tiles, `DosStagePath` overrides
 the source share, `DosStaged` records the last run.
 
+### A staged DOS title declares its real-DOS launcher — `DOSGAME.TXT` (2026-08-30)
+
+**DOSBox needs roughly a gigahertz of host CPU to emulate a 486, so on the
+fleet's genuine Pentium 1 (`.243`) every DOSBox shortcut is correctly refused —
+while the DOS binaries those emulators are running are NATIVE to that machine.**
+Five staged titles carry one: `DESCENTR.EXE`, `DESCENT2.EXE`, `QUAKE.EXE`,
+`MAINPROG.EXE`, `RR.EXE`.
+
+Two things had to change, and the first is the one worth remembering:
+
+- **A cost a WRAPPER pays must be stated on the shortcut that pays it.** Those
+  four titles each declared `min_cpu_mhz` 350–400 at the **title** level, with a
+  note reading *"the floor is the emulator's host cost"* — and the title-level
+  floor decides whether the tree is **copied at all**, so the whole DOS half of
+  the library never reached the one box that runs it natively. The same shape
+  bit `requires_capabilities`: Descent 2's title-level `disc_mount` suppressed
+  **both** its shortcuts, so on `.123`/`.246` the title had no icon at all.
+  Rules 6 and 7 in [`scripts/gamegate/SCHEMA.md`](scripts/gamegate/SCHEMA.md).
+- **The DOS menu could not pick the DOS build.** `DOSGAME.EXE` already scans
+  `C:\GAMES` — where GAMESYNC deploys — but a staged tree is built for Windows,
+  so its 8.3 guess lands on `GLQUAKE.EXE` (a Win32 PE) for Quake and on
+  `DESCENT1.BAT` (a cmd.exe batch) for Descent. **Measured in DOSBox**, not
+  assumed: `scripts/dosgames/tests/test_pick_outcomes.sh`. The tree now says it
+  in `DOSGAME.TXT` (`<8.3 launcher><TAB><title>`), staged by
+  `python3 scripts/fleet/stage-dosnative.py`. **The file's own name must be
+  8.3** — `dosnative.txt` reaches real DOS as `DOSNAT~1.TXT`.
+
+Carmageddon 1 and Redneck Rampage are deliberately **withheld**: both
+`imgmount` a CD image at launch and real DOS here has no image mounter staged.
+That is recorded in the stager's `WITHHELD` table, because "we looked and it
+cannot work yet" and "we never looked" are different facts.
+
+> **⚠️ Every staged `Play *.bat` is cmd.exe dialect and Win9x is COMMAND.COM.**
+> They all open `call "%~dp0FLEETRES.BAT"` / `cd /d "%~dp0"`, and `%~dp0`,
+> `cd /d` and `start "<title>"` are NT extensions. That includes
+> `Play Quake - Software.bat`, the one Windows shortcut the gate approves for
+> `.243`. **Unverified on hardware** — test it with one `EXEC` before believing
+> any staged Windows shortcut works on a Win9x box.
+
 **A box running the chat client locally needs client slots for BOTH.**
 `retro_chat` holds three connections (command + log poll + status poll) and the
 daemon needs two (wait + send). `MAX_CLIENTS` was 4, so on the Win98 box the

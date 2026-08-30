@@ -67,6 +67,27 @@ mk JAGGED2  DG.EXE MICPATCH.BAT JA2.DAT
 # a lone SMALL exe with no data is a tiny complete game, not a download
 mk TINY     TINY.EXE
 
+# --- staged-library trees (GAMESYNC deploys these into C:\GAMES) -----------
+# These are NOT shareware archives. They are the fleet's Windows-built staged
+# trees, which carry a DOSBox of their own, several "Play <Game>.bat" wrappers
+# and Win32 binaries beside the DOS ones. File lists copied from the real
+# library, 2026-08-30.
+mk QUAKE1   CWSDPMI.EXE GLQUAKE.EXE QLAUNCH.EXE QUAKE.EXE WINQUAKE.EXE Q95.BAT \
+            PDIPX.COM PAK0.PAK
+mk DESCENT1 DESCENT1.BAT DESCENT.BAT DESCENTR.EXE SETUP.EXE PCXVIEW.EXE \
+            EREGCARD.EXE DESCENT.HOG
+# the same two trees, with the declaration the library now ships
+mk QUAKE1D  CWSDPMI.EXE GLQUAKE.EXE QLAUNCH.EXE QUAKE.EXE WINQUAKE.EXE Q95.BAT \
+            PDIPX.COM PAK0.PAK
+printf 'QUAKE.EXE\tQuake\n' > "$C/QUAKE1D/DOSGAME.TXT"
+mk DESC1D   DESCENT1.BAT DESCENT.BAT DESCENTR.EXE SETUP.EXE PCXVIEW.EXE \
+            EREGCARD.EXE DESCENT.HOG
+printf '# comments and blanks are skipped\n\nDESCENTR.EXE\tDescent\n' \
+    > "$C/DESC1D/DOSGAME.TXT"
+# a declaration naming a file that is not there must NOT be honoured
+mk BADDECL  DESCENTR.EXE DESCENT.HOG
+printf 'NOTHERE.EXE\tGhost\n' > "$C/BADDECL/DOSGAME.TXT"
+
 conf="$WORK/dosbox.conf"
 {
     printf '[sdl]\noutput=surface\nautolock=false\n'
@@ -111,6 +132,38 @@ expect SW       SW.EXE      "dir-named and catalogued"
 expect DUKE3D   DUKE3D.EXE  "dir-named"
 expect JAGGED2  DG.EXE      "catalogue names it"
 expect TINY     TINY.EXE    "small lone exe is a game, not a self-extractor"
+
+echo "== DOSGAME.TXT: a staged tree declares its own DOS launcher =="
+# WHY THIS PAIR. The first two assertions are the EVIDENCE for the feature, not
+# a blessing of the guess: they record what the heuristic does with a staged
+# Windows tree, which in both cases is something real DOS cannot start.
+#   QUAKE1   -> GLQUAKE.EXE, a Win32 PE ("cannot be run in DOS mode")
+#   DESCENT1 -> DESCENT1.BAT, a cmd.exe batch that opens with "cd /d"
+# If either of these ever fails because pick_launcher got BETTER, that is good
+# news - re-read this block rather than editing the expectation blind.
+not_expect() {                      # not_expect <dir> <launcher> <why>
+    local got
+    got=$(awk -F'|' -v d="C:\\\\$1" '$5==d {print $4}' "$SELF" | head -1)
+    if [ -n "$got" ] && [ "$got" != "$2" ]; then
+        ok "$1 -> $got , NOT $2   ($3)"
+    else
+        bad "$1 -> ${got:-<missing>} , expected anything but $2   ($3)"
+    fi
+}
+not_expect QUAKE1   QUAKE.EXE    "undeclared: the guess cannot find the DOS build"
+not_expect DESCENT1 DESCENTR.EXE "undeclared: the guess cannot find the DOS build"
+expect     QUAKE1D  QUAKE.EXE    "DOSGAME.TXT names the DOS build"
+expect     DESC1D   DESCENTR.EXE "DOSGAME.TXT, past a comment and a blank line"
+expect     BADDECL  DESCENTR.EXE "declaration names a missing file - guess instead"
+
+# A declared TITLE reaches the menu, and is not overwritten by the catalogue's
+# fuzzy name match (that is why the row leaves g->dir empty).
+got=$(awk -F'|' -v d='C:\\DESC1D' '$5==d {print $3}' "$SELF" | head -1)
+if [ "$got" = "Descent" ]; then
+    ok "DESC1D titled \"Descent\" from DOSGAME.TXT field 2"
+else
+    bad "DESC1D titled \"${got:-<missing>}\", expected \"Descent\""
+fi
 
 echo "== known limitation: Jagged Alliance =="
 # The real game is JA.EXE. NOTHING here can find it: no program is named after

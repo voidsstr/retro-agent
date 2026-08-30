@@ -115,6 +115,66 @@ The disk scan still runs, for games that predate this program; the registry
 simply wins where both have an opinion, and stale rows (directory or launcher
 gone) are dropped on load.
 
+## `DOSGAME.TXT` — a STAGED title declares its own real-DOS launcher (v0.3)
+
+The fleet's staged library (`\\192.168.1.122\files\Files\Games-Library`) is
+deployed by the agent's `GAMESYNC` into **`C:\Games\<Title>`** — which is
+already one of this program's default scan roots (`scan=C:\GAMES;C:\`). So a
+staged game is in front of the DOS menu the moment it lands. What was missing is
+**which file to start**, and for a staged tree `pick_launcher()` cannot work it
+out, because those trees are built for **Windows**: each carries a DOSBox of its
+own, several `Play <Game>.bat` wrappers that start it, and 32-bit Windows
+binaries beside the DOS ones.
+
+Measured in DOSBox against the real file lists
+(`tests/test_pick_outcomes.sh`, fixtures `QUAKE1` and `DESCENT1`):
+
+| directory | the guess picks | what that is in real DOS |
+|---|---|---|
+| `C:\GAMES\QUAKE1` | `GLQUAKE.EXE` | a Win32 PE — *"This program cannot be run in DOS mode"* |
+| `C:\GAMES\DESCENT1` | `DESCENT1.BAT` | a **cmd.exe** batch, opening with `cd /d` — a switch `COMMAND.COM` does not have |
+
+Neither is a bug in the heuristic: no ranking of 8.3 names can know which of two
+real executables is the DOS one. **So the tree says it**, in one line, in the
+same shape as the library's own `launch.txt`:
+
+```
+DESCENTR.EXE<TAB>Descent
+# field 1  the launcher, 8.3, in THIS directory (required)
+# field 2  the title to show in the menu (optional)
+# '#'/';' comments and blanks ignored; the FIRST data line wins.
+```
+
+**The file's own name is the constraint.** Real DOS sees 8.3 only, so
+`dosnative.txt` would arrive as `DOSNAT~1.TXT` — a mangled name that depends on
+what else is in the directory. `DOSGAME.TXT` is 7.3 and is the same string on
+every box.
+
+- **Precedence:** the registry (`INSTALL.LST`, which includes an operator's F2
+  override) still wins — `scan_game_dir` returns on `reg_covers_dir` before this
+  is read. Then the declaration. Then the guess.
+- **A declaration naming a file that is not in the directory is NOT honoured**,
+  and says so in `DOSGAME.LOG`. A tree that was gated out, or copied short, must
+  degrade to the guess rather than to a launcher that cannot start.
+- **A declared title leaves `game_t.dir` empty**, the same way a registry row
+  does, so the catalogue's fuzzy name match cannot overwrite it with a near
+  miss. `C:\GAMES\DESCENT1` titled "Descent" must not become whichever Descent
+  row the catalogue scored highest.
+
+**Why this matters at all:** DOSBox needs roughly a gigahertz of host CPU to
+emulate a 486, so on the fleet's genuine Pentium 1 (`.243`, a 1997 Compaq
+Deskpro 2000 on Windows 98 SE) the capability gate correctly refuses every
+DOSBox shortcut — while the binaries those emulators are running are **native
+to that machine**. Descent 1's own `DESCENT.FAQ`, staged in its tree, puts the
+requirement at *"486 or Pentium processor, 8 MB RAM"*. This is the path by which
+that box gets to play it.
+
+Staged and re-staged by **`scripts/fleet/stage-dosnative.py`**, which refuses to
+declare a launcher whose PE header says it is a Windows binary — the check is on
+the image, not the file name, because `QUAKE.EXE` and `GLQUAKE.EXE` sit in the
+same directory. `scripts/validate-staged-library.py` enforces the same rules on
+the share; `tests/python/test_dosnative.py` covers both.
+
 ## The diagnostic log — `C:\DOSGAME\DOSGAME.LOG`
 
 This program runs where nothing can watch it: a real-mode DOS session with the

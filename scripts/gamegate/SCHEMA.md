@@ -200,9 +200,26 @@ gated on `GIsMMX`), GoldSrc's (`hl.exe` carries five `cpuid` sites), id Tech 3's
 `jamp.exe` and `quake3.exe`, and StarCraft's SSE2 double math, which begins
 0x4e bytes after the two `cpuid` instructions that select it.
 
-**Side finding worth not re-deriving:** DXX-Rebirth ships `libmikmod-2.dll` with
-544 CMOVs — a third-party i686-baseline build, the same defect `FLEETRES.EXE`
-had. A Pentium 1 faults there when music initialises, not at startup.
+**Side finding worth not re-deriving, CORRECTED 2026-08-30:** DXX-Rebirth is a
+real CMOV floor, and *not* where the first version of this note said. The
+launcher binaries themselves are clean — `d1x-rebirth.exe` and
+`d2x-rebirth.exe` carry **0 CMOV** — so an instruction count on "the game" finds
+nothing. The floor is in what they **import at load time**: `d1x-rebirth.exe`'s
+import table names `SDL.dll` (**286 CMOV**) and `SDL_mixer.dll` (**117**), which
+map at process start, not lazily. `libmikmod-2.dll` (**544**) is behind
+SDL_mixer. `SDL_mixer.dll` and `libmikmod-2.dll` contain **zero `cpuid`**, so
+there is no dispatch to fall back on and the i686 baseline is unconditional.
+
+The same binaries show the *opposite* answer for MMX, and it is the discriminator
+table above doing the work: `SDL.dll` has 73 MMX-register references, **14
+`cpuid` sites**, and exports `SDL_HasMMX`/`SDL_HasSSE`/`SDL_Has3DNow` — a runtime
+dispatch, so **`mmx` must not be declared**. Declaring it would refuse the title
+on every machine that runs it perfectly.
+
+So `Games-Library/Descent1/requires.json` and `Descent2/requires.json` state
+`"cpu_features": ["cmov"]` on the DXX-Rebirth shortcut **only**, and nothing on
+the DOS ones. **Look past the executable named in `launch.txt` to its load-time
+imports**: a floor can live entirely in a DLL the launcher never mentions.
 
 ---
 
@@ -313,4 +330,26 @@ whole reason the rules run first.
    cards at reduced detail" changes the answer.
 5. **Bump `requirements_version` when you correct a number**, so cached verdicts
    are invalidated rather than outliving the correction.
+6. **NEVER state a WRAPPER's cost as the TITLE's floor.** Four staged DOS titles
+   declared `min_cpu_mhz` 350–400 at the title level, with notes that said in
+   so many words *"the floor is the emulator's host cost"*. That is true of the
+   `Play <Game>.bat` shortcuts, which start the DOSBox staged beside the game,
+   and true of nothing else — the game's own DOS binary is in the same tree and
+   runs natively on a Pentium. The title-level floor decides whether the tree is
+   **copied at all**, so it refused the whole library's DOS half on the one
+   machine that can run those games at full speed, and the note explaining why
+   was sitting in the file. **A floor a shortcut pays belongs in `shortcuts`.**
+   Descent 1 now reads 66 MHz / 8 MB at the title level — its own staged
+   `DESCENT.FAQ` says *"486 or Pentium processor, 8 MB RAM"* — with 350 on each
+   of the four DOSBox launchers. Guarded by
+   `tests/python/test_dosnative.py::test_the_dosbox_host_cost_is_per_shortcut_not_per_title`.
+7. **A title-level `requires_capabilities` is inherited by EVERY shortcut**, so
+   it suppresses the ones that do not need it. Descent 2 required `disc_mount`
+   at the title level; its default shortcut is DXX-Rebirth, whose own launcher
+   header reads *"NO DISC, NO MOUNTER"* — and on `.123` and `.246`, neither of
+   which has a mounter, **Descent II therefore had no desktop icon at all** and
+   nothing said why. State a capability on the shortcut that needs it, and clear
+   it on the ones that do not with `"requires_capabilities": []` — remember an
+   empty list and an absent list are indistinguishable by value and mean
+   opposite things.
 6. Validate: `python3 scripts/gamegate/gamegate.py lint`.

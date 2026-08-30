@@ -37,6 +37,10 @@ retro-agent/tests/
                           older than the newest version claimed in agent/ commits
     test_dosgame_stem.py           DOSGAME install-directory stem: uniqueness across the real
                           catalog, DOS-legal 8.3 shape, and the /z/<STEM> server lookup
+    test_dosnative.py              The DOS-native lane: DOSGAME.TXT declares a staged
+                          title's real-DOS launcher (the 8.3 guess picks a Win32 PE out of a
+                          staged tree); a wrapper's cost belongs on its shortcut, not the
+                          title; DXX-Rebirth's CMOV floor lives in a load-time import
     test_dosgame_stability.py      DOSGAME 0.2 source invariants: bounded path_join, footer
                           buffer, split() init, CALLed .BAT, batch label reachability,
                           8K stack, keyboard drain, video-mode reset
@@ -150,6 +154,9 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | transport XOR keystream (involution + derivation) | agent C (crypto.c) | `native/test_crypto.c` |
 | discovery packet wire format | Python client | `test_discovery.py` |
 | length-prefixed frame codec + status contract | Python client | `test_protocol.py` |
+| **A staged tree's DOS build is DECLARED, not guessed — `DOSGAME.TXT`** (2026-08-30). The 8.3 guess picks `GLQUAKE.EXE` (a Win32 PE) for Quake and `DESCENT1.BAT` (a cmd.exe batch) for Descent, both unstartable in real DOS | DOS lane (dosgame.c) + staged library | `python/test_dosnative.py`, `scripts/dosgames/tests/test_pick_outcomes.sh` |
+| **A wrapper's cost was stated as the title's floor**, so the Pentium 1 was refused every DOS title it can run natively; and a title-level `requires_capabilities` suppressed shortcuts that do not need it (Descent II had no icon on `.123`/`.246`) (2026-08-30) | staged library `requires.json` | `python/test_dosnative.py` |
+| **DXX-Rebirth's CMOV floor is in a load-time IMPORT** (`SDL.dll` 286, `SDL_mixer.dll` 117), not in its own 0-CMOV exe; its MMX *is* cpuid-dispatched and must not be declared (2026-08-30) | staged library `requires.json` | `python/test_dosnative.py` |
 | DOSGAME installed-detection stem match + install receipts (2026-08-03) | DOS lane (dosgame.c) | `python/test_dosgame_install_detect.py` |
 | **DOSGAME 0.2 install→play: registry records the installer's OWN target dir** (2026-08-11) | DOS lane (dosgame.c) | `python/test_dosgame_install_detect.py`, `scripts/dosgames/tests/run_dos_tests.sh` |
 | 0.2 collision-free install stem (1,268/2,982 rows shared a directory) | DOS lane + serve_dosgames.py | `python/test_dosgame_stem.py`, `run_dos_tests.sh` |
