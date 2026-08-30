@@ -260,7 +260,7 @@ def unreal_favorites(servers, existing="", slots=16):
 # --- UT2004 ------------------------------------------------------------------
 #
 # [XInterface.ExtendedConsole]
-# Favorites=(ServerID=0,IP="192.168.1.132",Port=7777,QueryPort=7787,ServerName="...")
+# Favorites=(ServerID=0,IP="192.168.1.132",Port=7777,QueryPort=7778,ServerName="...")
 #
 # From XInterface.u: `struct ServerFavorite { int ServerID; string IP;
 # int Port; int QueryPort; string ServerName; }` and
@@ -271,13 +271,54 @@ _UT2K4_OWN = re.compile(r"^Favorites\s*=", re.IGNORECASE)
 UT2K4_SECTION = "XInterface.ExtendedConsole"
 
 
+def _ut2k4_query_port(row):
+    r"""UT2004's CLIENT asks on a DIFFERENT PORT, in a DIFFERENT PROTOCOL, than
+    the port our own health probe uses -- and the row carries only the latter.
+
+    A UT2004 server opens TWO query listeners:
+
+      game port + 1   `IpServer.UdpServerQuery`, Epic's own binary protocol.
+                      THIS is what the in-game server browser speaks, and the
+                      only one it will ever speak.
+      OldQueryPortNumber   the legacy GameSpy `\status\` text protocol,
+                      default game port + 10. Third-party tools use it -- ours
+                      included: masters.py `_gamespy_probe` is a GameSpy client.
+
+    `_query_port()` returns the port the row was PROBED on, so for the fleet's
+    own server it returns 7787. Writing that into a favourite made the client
+    send its binary query to the GameSpy listener, which never answers it, and
+    the browser showed the server with **Ping N/A** and no map or player count
+    -- while every host-side health check said the server was up in 49 ms.
+
+    MEASURED on box .240, 2026-08-30, with three favourites differing only in
+    QueryPort and a UDP sink on the third:
+
+        QueryPort=7778   -> name resolved to "NSC Retro Fleet Arena",
+                            map DM-Rankin, 0/12 players, ping 54
+        QueryPort=7787   -> N/A
+        QueryPort=29000  -> N/A, and the sink logged the client's actual
+                            query: b"\x80\x00\x00\x00\x00" -- i.e. the
+                            binary UdpServerQuery, NOT `\status\`.
+
+    So the client honours QueryPort verbatim and speaks only the binary
+    protocol; game port + 1 is where that lives, by the engine's own default.
+
+    UT99 is deliberately NOT changed: its browser speaks the same GameSpy
+    protocol our probe does, so there the probed port is the right one, and it
+    is 7798 = port + 1 anyway. That coincidence is exactly why this stayed
+    invisible for so long.
+    """
+    return _split_addr(row)[1] + 1
+
+
 def ut2k4_favorites(servers, existing="", slots=16):
     body = []
     for i, s in enumerate(servers[:slots]):
         host, port = _split_addr(s)
         name = _label(s).replace('"', "'")
         body.append('Favorites=(ServerID=%d,IP="%s",Port=%d,QueryPort=%d,'
-                    'ServerName="%s")' % (i, host, port, _query_port(s), name))
+                    'ServerName="%s")'
+                    % (i, host, port, _ut2k4_query_port(s), name))
     if not body:
         # An empty array config is expressed by writing no lines at all; the
         # dropped ones are already gone, which is how a favourite is removed.

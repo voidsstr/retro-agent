@@ -149,7 +149,58 @@ def test_ut2k4_carries_both_ports_because_its_struct_has_both():
                local=1, query_port=7787)]
     text, _ = favorites.render("ut2k4", srv, "", key="ut2004")
     assert ('Favorites=(ServerID=0,IP="192.168.1.132",Port=7777,'
-            'QueryPort=7787,ServerName="NSC Retro Fleet Arena")') in text
+            'QueryPort=7778,ServerName="NSC Retro Fleet Arena")') in text
+
+
+def test_ut2k4_favourite_uses_the_CLIENTS_query_port_not_the_probes():
+    r"""The UT2004 browser speaks a different protocol on a different port.
+
+    A UT2004 server answers our GameSpy `\status\` probe on
+    OldQueryPortNumber (7787 for the fleet server) and answers the in-game
+    browser's own binary UdpServerQuery on game port + 1 (7778). The row
+    carries the port it was PROBED on, so reusing it wrote 7787 into the
+    favourite and the browser showed the server with Ping N/A for ever --
+    with every host-side health check reporting it up.
+
+    MEASURED on .240, 2026-08-30: three favourites differing only in
+    QueryPort. 7778 resolved the name, map DM-Rankin, 0/12, ping 54; 7787
+    and a control port both read N/A, and a UDP sink on the control port
+    logged the client's actual query as b"\x80\x00\x00\x00\x00" -- the
+    binary UdpServerQuery, not `\status\`.
+
+    Asserts the fixed value AND that the old buggy one is gone.
+    """
+    srv = [row("192.168.1.132:7777", "ut2004", "NSC Retro Fleet Arena",
+               local=1, query_port=7787)]
+    text, _ = favorites.render("ut2k4", srv, "", key="ut2004")
+    assert "QueryPort=7778" in text
+    assert "QueryPort=7787" not in text, (
+        "regressed to the PROBE port -- the browser will read Ping N/A")
+    # The joinable game port must still be the game port, not the query port.
+    assert "Port=7777," in text
+
+
+def test_ut2k4_query_port_is_derived_per_server_not_pinned_to_the_fleet():
+    """A second UT2004 server on another port must get ITS port + 1.
+
+    Hard-coding 7778 would fix the fleet server and silently break every
+    other one the master hands us.
+    """
+    srv = [row("10.0.0.9:6677", "ut2004", "somewhere else", query_port=6687)]
+    text, _ = favorites.render("ut2k4", srv, "", key="ut2004")
+    assert "QueryPort=6678" in text
+    assert "Port=6677," in text
+
+
+def test_ut99_still_uses_the_probed_query_port():
+    """UT99 must NOT be swept up in the UT2004 fix.
+
+    UT99's browser speaks the same GameSpy protocol our probe does, so there
+    the probed port is the correct one. That the fleet's UT99 happens to be
+    port + 1 is a coincidence, not the rule.
+    """
+    text, _ = favorites.render("unreal", UT99, "", key="ut99")
+    assert r"\192.168.1.132\7798\False" in text
 
 
 def test_ut2k4_replaces_its_own_lines_and_keeps_the_rest_of_the_section():
