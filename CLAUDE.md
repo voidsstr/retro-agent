@@ -1008,15 +1008,54 @@ sidecar and the "always bump" rule are mandatory.) A distinct remote version is
 attempted at most once (`HKLM\Software\RetroAgent\LastUpdateVer` guard), so a
 mispublished `.ver`/`.exe` mismatch can't loop the fleet — but keep them in sync.
 
-Two ways to publish:
-1. **`make release`** (in `agent/tools/` for the chat client, `agent/` for the
+#### ⚠️ WRITE THE `.ver` SIDECAR **LAST** (ordering invariant, not style)
+
+Publish in this order, whichever route you use: **versioned archive → latest
+pointer → `.ver` sidecar.** Auto-update compares the agent's compiled version
+against the sidecar and pulls on **inequality**, so while `.ver` still names the
+OLD version every box compares equal and correctly declines to pull. There is
+then no instant at which a box can fetch a binary whose version disagrees with
+the sidecar. Writing `.ver` first opens exactly that window.
+
+#### ⚠️ THE DEV HOST HAS **TWO** MOUNTS OF THE SAME SHARE — one is read-only
+
+"the share is read-only from the dev host" is half true, and the half that is
+false costs an hour. Both of these are the same SMB share:
+
+| path | how | access |
+|---|---|---|
+| `/mnt/retro-share` | CIFS from `/etc/fstab`, with an explicit **`ro`** flag | **read-only** — a `cp` here fails with *Read-only file system* |
+| `/run/user/1000/gvfs/smb-share:server=192.168.1.122,share=files,user=voidsstr` | gvfs (the GNOME "mapped network drive") | **read-write** (verified by write → read back → delete) |
+
+So a host-side `cp` **does** work — through the gvfs path, not `/mnt`. Read
+through `/mnt/retro-share` (it is fine for that and always present); write
+through gvfs. **The gvfs mount is per-login-session**: it exists because the
+user is logged into a desktop, and it is absent in a headless, `systemd`-run or
+freshly-rebooted context. Do not build anything that depends on it silently.
+
+`/etc/cifs-retro-share.creds` is root-only, and sudo needs an interactive
+password on this host, so `smbclient -A` is **not** an available route.
+
+Three ways to publish, in order of preference:
+1. **Host-side `cp` via the gvfs mount** (above) when that mount is present —
+   simplest, and lets you `md5sum` the published file directly afterwards.
+2. **`make release`** (in `agent/tools/` for the chat client, `agent/` for the
    agent) — bumps the version tag, builds, and uploads both. Needs `SMB_CREDS`
    set in the Makefile.
-2. **Via an online fleet agent** when SMB creds aren't handy locally: build, then
-   `UPLOAD` the binary to a machine (e.g. `C:\RETRO_AGENT\retro_chat.exe`) and
-   `EXEC cmd /c copy /Y` it to the share's latest pointer **and** the versioned
-   path. The fleet machines have the share mapped with write access (the `Z:`
-   drive), so the copy succeeds from there.
+3. **Via an online fleet agent** — the fallback that always works, and the one
+   to use when gvfs is absent: build, then `UPLOAD` the binary to a machine
+   (e.g. `C:\RETRO_AGENT\retro_chat.exe`) and `EXEC cmd /c copy /Y` it to the
+   share's latest pointer **and** the versioned path.
+   **`NETMAP` first — do not assume the box has the share mapped.** On
+   2026-08-30 `.171` answered `net use` with "There are no entries in the list"
+   and `Z:\Utility\Retro Automation` did not exist; one
+   `NETMAP \\192.168.1.122\files Z:` fixed it. The `Z:` drive is a
+   convention, not a guarantee.
+
+**Verify the post-condition from the host**, never from "1 file(s) copied":
+`md5sum` the local build against BOTH published copies, `cat` the `.ver`, and
+`strings <published exe> | grep -x <version>` so the binary itself confirms the
+version you think you shipped.
 
 Also commit the rebuilt binary to git (`agent/tools/retro_chat.exe` is tracked).
 The fleet picks up the new build on each machine's next agent restart/reboot.
@@ -1259,7 +1298,17 @@ clear**, the bit is read back afterwards, and `SetWindowLongA` is the fallback.
 `FWF_SNAPTOGRID` ("align to grid"). It must be **read-modify-written**, never
 stamped: the fleet is not uniform — `.143` read `0x220` and `.171` read `0x224`
 — so a constant would silently change align-to-grid on some boxes and not
-others. Verified to survive an Explorer restart and a reboot.
+others.
+
+> **THE REGISTRY ALONE IS NOT ENOUGH — the every-startup re-apply is what
+> actually delivers the guarantee.** Measured on `.133` across a real power
+> cycle: `FFlags` came back **`0x221`, bit 0 intact**, and the live listview
+> style was nonetheless **OFF** — XP's shell did not honour the persisted bag —
+> so the agent had to set it again at startup (`shell toggle did not take - set
+> LVS_AUTOARRANGE directly`). Treat the bag write as a **backstop**, not the
+> mechanism. It does survive an Explorer restart (measured separately on
+> `.171`: `FFlags` stayed `0x225` and the live bit stayed on), which is the case
+> it genuinely covers.
 
 **Align-to-grid is left alone** in auto mode. The agent used to clear
 `LVS_EX_SNAPTOGRID` only because its 103px row pitch walked icons out of the
