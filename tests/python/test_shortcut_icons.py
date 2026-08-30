@@ -67,15 +67,31 @@ def test_an_exe_target_is_left_alone():
     )
 
 
-def test_resolution_order_is_ico_then_bat_then_fallback():
+def test_the_bat_exe_outranks_the_ico_sweep():
+    """A shipped .ico is a WEAKER signal than the exe the launcher runs.
+
+    Learned from the staged trees: Thief 2's only icon is `support.ico` — a
+    HELP icon — and Tiberian Sun ships `NOTES.ICO` beside `SUN.ICO`. An
+    unfiltered .ico rule confidently picks the wrong artwork, and a wrong icon
+    is worse than a dull one because it actively misleads.
+    """
     body = _fn(_src(), "static int gs_resolve_icon(")
-    i_ico = body.index('"%s\\\\*.ico"')
     i_bat = body.index("gs_bat_names_exe")
+    i_ico = body.index('"%s\\\\*.ico"')
     i_any = body.index('"%s\\\\*.exe"')
-    assert i_ico < i_bat < i_any, (
-        "order must be: shipped .ico, then the exe the .bat names, then the "
-        "weak any-exe guess — the last is a guess and must never pre-empt the "
-        "specific answers"
+    assert i_bat < i_ico < i_any, (
+        "order must be: the exe the .bat names, THEN a shipped .ico, then the "
+        "weak any-exe guess"
+    )
+
+
+@pytest.mark.parametrize("junk", ["support", "notes", "readme", "help",
+                                  "manual", "unins", "setup"])
+def test_the_ico_sweep_skips_non_game_artwork(junk):
+    body = _fn(_src(), "static int gs_resolve_icon(")
+    assert '"%s"' % junk in body, (
+        "the .ico sweep must skip %s*.ico — Thief 2 (support.ico) and Tiberian "
+        "Sun (NOTES.ICO) both ship exactly this kind of decoy" % junk
     )
 
 
@@ -84,6 +100,22 @@ def test_the_weak_fallback_skips_setup_and_uninstallers():
     assert '"unins"' in body and '"setup"' in body, (
         "the any-exe fallback must skip uninstallers and setup programs — they "
         "sit beside the game and would otherwise win on name length"
+    )
+
+
+@pytest.mark.parametrize("tool", ["dosbox", "reg.exe", "taskkill.exe",
+                                  "attrib.exe", "daemon.exe", "batchmnt"])
+def test_the_bat_scanner_ignores_tooling(tool):
+    """The emulator and the shell utilities are not the game.
+
+    DOSBox matters as much as cmd.exe: every DOS title's launcher names it
+    first, so without this System Shock 1's shortcut claimed to be DOSBox. The
+    mount launchers likewise name daemon.exe/batchmnt, and the RA2 launchers
+    name reg.exe for the per-box serial.
+    """
+    body = _fn(_src(), "static int gs_bat_names_exe(")
+    assert '"%s"' % tool in body, (
+        "the .bat scanner must skip %s, or it wins over the game's own exe" % tool
     )
 
 

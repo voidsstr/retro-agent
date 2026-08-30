@@ -1272,9 +1272,11 @@ static int gs_desktop_dir(char *out, DWORD cch)
  *
  * Order, cheapest and most explicit first:
  *   1. an explicit third TAB-separated field in launch.txt   (caller supplies)
- *   2. an .ico sitting in the title's own directory
- *   3. the first .exe the .bat actually names that exists on disk - the game's
- *      own executable, which is exactly the artwork we want
+ *   2. the first .exe the .bat actually names that exists on disk - the game's
+ *      own executable, which is exactly the artwork we want. ABOVE the .ico
+ *      sweep on purpose: a shipped .ico is often support/notes artwork.
+ *   3. an .ico sitting in the title's own directory, skipping obvious
+ *      non-game names
  *   4. any .exe in the title's directory, longest name first as a weak proxy
  *      for "the game" over "setup"/"uninstall"
  *
@@ -1333,8 +1335,15 @@ static int gs_bat_names_exe(const char *bat, const char *dst_dir,
             if (_strnicmp(ls, "rem", 3) == 0 || (ls[0] == ':' && ls[1] == ':'))
                 continue;
         }
-        /* cmd.exe / start.exe are the shell, not the game */
-        if (_stricmp(cand, "cmd.exe") == 0 || _stricmp(cand, "start.exe") == 0)
+        /* The shell and the EMULATOR are not the game. DOSBox matters as much
+         * as cmd.exe here: every DOS title's launcher names it first, so
+         * without this System Shock 1's shortcut claimed to be DOSBox. */
+        if (_stricmp(cand, "cmd.exe") == 0 || _stricmp(cand, "start.exe") == 0 ||
+            _strnicmp(cand, "dosbox", 6) == 0 ||
+            _stricmp(cand, "reg.exe") == 0 || _stricmp(cand, "taskkill.exe") == 0 ||
+            _stricmp(cand, "attrib.exe") == 0 || _stricmp(cand, "xcopy.exe") == 0 ||
+            _stricmp(cand, "daemon.exe") == 0 ||
+            _strnicmp(cand, "batchmnt", 8) == 0)
             continue;
 
         if (cand[1] == ':' || cand[0] == '\\') {          /* already absolute */
@@ -1372,20 +1381,38 @@ static int gs_resolve_icon(const char *dst_dir, const char *target,
     if (_stricmp(ext, ".exe") == 0 || _stricmp(ext, ".com") == 0)
         return 0;
 
-    /* 2. an .ico shipped in the title's directory */
+    /* 2. the exe the .bat itself launches.
+     *
+     * This is deliberately ABOVE the .ico sweep. "Any .ico in the directory" is
+     * a much weaker signal than it looks: Thief 2's only icon is `support.ico`
+     * (a HELP icon) and Tiberian Sun ships `NOTES.ICO` beside `SUN.ICO`, so an
+     * unfiltered .ico rule confidently picks the wrong artwork - and a wrong
+     * icon is worse than a dull one, because it actively misleads. */
+    if (gs_bat_names_exe(target, dst_dir, out, cap))
+        return 1;
+
+    /* 3. an .ico shipped in the title's directory, skipping the obvious
+     *    non-game ones. Last resort among the specific rules. */
     _snprintf(pat, sizeof(pat) - 1, "%s\\*.ico", dst_dir);
     pat[sizeof(pat) - 1] = 0;
     h = FindFirstFileA(pat, &fd);
     if (h != INVALID_HANDLE_VALUE) {
-        _snprintf(out, cap - 1, "%s\\%s", dst_dir, fd.cFileName);
-        out[cap - 1] = 0;
+        do {
+            if (_strnicmp(fd.cFileName, "support", 7) == 0 ||
+                _strnicmp(fd.cFileName, "notes",   5) == 0 ||
+                _strnicmp(fd.cFileName, "readme",  6) == 0 ||
+                _strnicmp(fd.cFileName, "help",    4) == 0 ||
+                _strnicmp(fd.cFileName, "manual",  6) == 0 ||
+                _strnicmp(fd.cFileName, "unins",   5) == 0 ||
+                _strnicmp(fd.cFileName, "setup",   5) == 0)
+                continue;
+            _snprintf(out, cap - 1, "%s\\%s", dst_dir, fd.cFileName);
+            out[cap - 1] = 0;
+            FindClose(h);
+            return 1;
+        } while (FindNextFileA(h, &fd));
         FindClose(h);
-        return 1;
     }
-
-    /* 3. the exe the .bat itself launches */
-    if (gs_bat_names_exe(target, dst_dir, out, cap))
-        return 1;
 
     /* 4. weakest: any exe in the title dir, longest name wins. Deliberately
      *    last - it is a guess, and setup/uninstall exes live here too. */
