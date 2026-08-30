@@ -70,26 +70,27 @@ int main(int argc, char **argv)
     }
     if (!strcmp(argv[1], "decide")) {
         /* one case per line:
-         * mhz ram vram gpulevel oslevel features caps <tab> json */
+         * mhz ram vram gpulevel oslevel features caps free <tab> json */
         char line[4096];
         while (fgets(line, sizeof(line), stdin)) {
             gg_profile_t p;
             gg_req_t r;
             gg_decision_t d;
             char *tab;
-            unsigned mhz, ram, vram, feats, caps;
+            unsigned mhz, ram, vram, feats, caps, freemb;
             int gl, ol;
 
             tab = strchr(line, '\t');
             if (!tab) continue;
             *tab = 0;
-            if (sscanf(line, "%u %u %u %d %d %u %u",
-                       &mhz, &ram, &vram, &gl, &ol, &feats, &caps) != 7)
+            if (sscanf(line, "%u %u %u %d %d %u %u %u",
+                       &mhz, &ram, &vram, &gl, &ol, &feats, &caps,
+                       &freemb) != 8)
                 continue;
             memset(&p, 0, sizeof(p));
             p.cpu_mhz = mhz; p.ram_mb = ram; p.vram_mb = vram;
             p.gpu_level = gl; p.os_level = ol;
-            p.cpu_features = feats; p.caps = caps;
+            p.cpu_features = feats; p.caps = caps; p.free_mb = freemb;
             {
                 char *nl = strchr(tab + 1, '\n');
                 if (nl) *nl = 0;
@@ -186,28 +187,43 @@ def test_gpu_table_matches(cbin):
 # drift shows up as "this box would now be told something different", which is
 # the only form of the bug anyone cares about.
 FLEET = {
-    # name:   (mhz, ram, vram, gpu_level, os_level, features, caps)
+    # name:   (mhz, ram, vram, gpu_level, os_level, features, caps, free_mb)
+    # free_mb is the volume games land on (C:), measured the same day. .240 is
+    # the one genuinely disk-constrained box and is why the disk floor exists.
     ".124 PIII/GeForce2 GTS": (845, 511, 32, rules.GPU_TNL, rules.OS_WINXP,
                                rules.CPU_FPU | rules.CPU_MMX | rules.CPU_CMOV
-                               | rules.CPU_SSE, 0),
+                               | rules.CPU_SSE, 0, 95968),
     ".143 Athlon K7/6800":    (1000, 511, 128, rules.GPU_SM3, rules.OS_WINXP,
                                # a K7 Athlon has 3DNow! and NO SSE - a title
                                # that executes SSE is #UD on this box
                                rules.CPU_FPU | rules.CPU_MMX | rules.CPU_CMOV
-                               | rules.CPU_3DNOW, rules.CAP_DISC_MOUNT),
+                               | rules.CPU_3DNOW, rules.CAP_DISC_MOUNT,
+                               146367),
     ".133 dual PIII/Ti4600":  (701, 255, 128, rules.GPU_SM1, rules.OS_WINXP,
                                rules.CPU_FPU | rules.CPU_MMX | rules.CPU_CMOV
-                               | rules.CPU_SSE, rules.CAP_DISC_MOUNT),
+                               | rules.CPU_SSE, rules.CAP_DISC_MOUNT, 897572),
     ".171 P4/Intel 865G":     (2793, 509, 8, rules.GPU_FIXED, rules.OS_WINXP,
                                rules.CPU_FPU | rules.CPU_MMX | rules.CPU_CMOV
-                               | rules.CPU_SSE | rules.CPU_SSE2, 
-                               rules.CAP_DISC_MOUNT),
+                               | rules.CPU_SSE | rules.CPU_SSE2,
+                               rules.CAP_DISC_MOUNT, 51509),
+    ".123 Athlon64/HD3850":   (2403, 2047, 512, rules.GPU_SM3, rules.OS_WINXP,
+                               rules.CPU_FPU | rules.CPU_MMX | rules.CPU_CMOV
+                               | rules.CPU_SSE | rules.CPU_SSE2
+                               | rules.CPU_SSE3 | rules.CPU_3DNOW, 0, 204494),
+    ".240 Athlon64/9800XT":   (2403, 1534, 256, rules.GPU_SM2, rules.OS_WINXP,
+                               rules.CPU_FPU | rules.CPU_MMX | rules.CPU_CMOV
+                               | rules.CPU_SSE | rules.CPU_SSE2
+                               | rules.CPU_3DNOW, rules.CAP_DISC_MOUNT,
+                               15471),
     ".145 i5-2400/8400GS":    (3093, 2047, 512, rules.GPU_SM3, rules.OS_WINXP,
-                               0xFF, 0),
-    ".246 i5-2400/HD6xxx":    (3093, 2047, 1024, rules.GPU_SM3, rules.OS_WIN7,
-                               0xFF, 0),
+                               0xFF, rules.CAP_DISC_MOUNT, 141095),
+    ".246 i5-2400/HD5450":    (3093, 2047, 512, rules.GPU_SM3, rules.OS_WIN7,
+                               0xFF, 0, 143400),
     "P1 Deskpro/S3":          (166, 32, 2, rules.GPU_FIXED, rules.OS_WIN9X,
-                               rules.CPU_FPU | rules.CPU_MMX, 0),
+                               rules.CPU_FPU | rules.CPU_MMX, 0, 900),
+    # free space unmeasurable (0) must FAIL OPEN, never refuse.
+    "unknown free space":     (3093, 2047, 512, rules.GPU_SM3, rules.OS_WINXP,
+                               0xFF, 0, 0),
 }
 
 REQS = [
@@ -234,6 +250,12 @@ REQS = [
     '{"gpu_feature_level":"sm1.x"}',
     '{"gpu_feature_level":"sm2.0"}',
     '{"gpu_feature_level":"sm3.0"}',
+    '{"disk_mb":500}',
+    '{"disk_mb":15471}',
+    '{"disk_mb":15472}',
+    '{"disk_mb":3700}',
+    '{"disk_mb":2000000}',
+    '{"min_cpu_mhz":1000,"disk_mb":2000000}',
     '{"cpu_features":["sse"]}',
     '{"cpu_features":["sse2"]}',
     '{"cpu_features":["mmx","sse"]}',
@@ -260,20 +282,22 @@ REQS = [
 
 def test_decisions_match(cbin):
     cases = []
-    for name, (mhz, ram, vram, gl, ol, feats, caps) in FLEET.items():
+    for name, (mhz, ram, vram, gl, ol, feats, caps, free) in FLEET.items():
         for js in REQS:
-            cases.append((name, mhz, ram, vram, gl, ol, feats, caps, js))
+            cases.append((name, mhz, ram, vram, gl, ol, feats, caps, free, js))
     stdin = "".join(
-        f"{mhz} {ram} {vram} {gl} {ol} {feats} {caps}\t{js}\n"
-        for _n, mhz, ram, vram, gl, ol, feats, caps, js in cases)
+        f"{mhz} {ram} {vram} {gl} {ol} {feats} {caps} {free}\t{js}\n"
+        for _n, mhz, ram, vram, gl, ol, feats, caps, free, js in cases)
     got = _run(cbin, "decide", stdin)
     assert len(got) == len(cases), "C driver dropped a case"
 
     bad = []
-    for (name, mhz, ram, vram, gl, ol, feats, caps, js), line in zip(cases, got):
+    for (name, mhz, ram, vram, gl, ol, feats, caps, free,
+         js), line in zip(cases, got):
         cv, climit, ccaps = line.split("|")
         p = rules.Profile(cpu_mhz=mhz, ram_mb=ram, vram_mb=vram, gpu_level=gl,
-                          os_level=ol, cpu_features=feats, caps=caps)
+                          os_level=ol, cpu_features=feats, caps=caps,
+                          free_mb=free)
         r = rules.parse_requirements(json.loads(js), "T")
         d = rules.decide(p, r)
         if (int(cv) != d.verdict or climit != d.limiting
@@ -291,7 +315,7 @@ def test_marginal_band_is_where_both_think_it_is(cbin):
     mhz = 845
     needs = list(range(400, 2000, 1))
     stdin = "".join(
-        f"{mhz} 1024 128 {rules.GPU_SM3} {rules.OS_WINXP} 255 0"
+        f"{mhz} 1024 128 {rules.GPU_SM3} {rules.OS_WINXP} 255 0 0"
         f'\t{{"min_cpu_mhz":{n}}}\n' for n in needs)
     got = _run(cbin, "decide", stdin)
     p = rules.Profile(cpu_mhz=mhz, ram_mb=1024, vram_mb=128,
@@ -306,7 +330,7 @@ def test_marginal_band_is_where_both_think_it_is(cbin):
     # marginal, >= 1127 no.
     def cverdict(n):
         return int(_run(cbin, "decide",
-                        f"{mhz} 1024 128 {rules.GPU_SM3} {rules.OS_WINXP} 255 0"
+                        f"{mhz} 1024 128 {rules.GPU_SM3} {rules.OS_WINXP} 255 0 0"
                         f'\t{{"min_cpu_mhz":{n}}}\n')[0].split("|")[0])
     assert cverdict(845) == rules.V_RUN
     assert cverdict(846) == rules.V_MARGINAL

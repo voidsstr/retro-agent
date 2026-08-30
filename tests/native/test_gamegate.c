@@ -581,6 +581,75 @@ TEST(a_checked_no_floor_file_is_distinguishable)
     CHECK_EQ_I(d.verdict, GG_V_RUN);
 }
 
+/* The free-disk floor.
+ *
+ * disk_mb was parsed into gg_req_t from the very first version and then never
+ * consulted, so a library author could write "disk_mb": 3700 and get a silent
+ * no-op - exactly the shape CLAUDE.md's "Make Failure VISIBLE" section is
+ * about. .240 is the box that makes it matter: 15,471 MB free, which is real
+ * enough that a 3.6 GB title is fine and a 20 GB one never had a chance.
+ *
+ * It is deliberately HARD with NO margin band. A clock 10% under yields a
+ * slower game; a disk 10% under yields a partial copy, and 90% of Far Cry is
+ * not a playable game. */
+TEST(free_disk_is_a_hard_floor_that_fails_open)
+{
+    gg_decision_t d;
+    gg_req_t r;
+    gg_profile_t b = box_145();
+
+    b.free_mb = 15471;                      /* .240's real figure */
+
+    /* Comfortably fits. */
+    gg_req_parse("{\"disk_mb\":3700}", &r);
+    CHECK_EQ_U(r.disk_mb, 3700);
+    gg_decide(&b, &r, &d);
+    CHECK_EQ_I(d.verdict, GG_V_RUN);
+
+    /* Exactly fits - equality must not refuse. */
+    gg_req_parse("{\"disk_mb\":15471}", &r);
+    gg_decide(&b, &r, &d);
+    CHECK_EQ_I(d.verdict, GG_V_RUN);
+
+    /* One megabyte over is a refusal, and there is NO marginal band here. */
+    gg_req_parse("{\"disk_mb\":15472}", &r);
+    gg_decide(&b, &r, &d);
+    CHECK_EQ_I(d.verdict, GG_V_NO);
+    CHECK(strcmp(d.limiting, "disk") == 0, "limiting factor must be disk");
+    CHECK(strstr(d.reason, "15471") != 0, "reason must quote what we have");
+    CHECK(strstr(d.reason, "15472") != 0, "reason must quote what is needed");
+
+    /* FAILS OPEN when free space could not be measured (0). An agent that
+     * cannot call GetDiskFreeSpaceEx must not cost the box its games. */
+    b.free_mb = 0;
+    gg_req_parse("{\"disk_mb\":2000000}", &r);
+    gg_decide(&b, &r, &d);
+    CHECK_EQ_I(d.verdict, GG_V_RUN);
+
+    /* And a title that declares no disk floor is never gated on disk. */
+    b.free_mb = 10;
+    gg_req_parse("{\"min_cpu_mhz\":300}", &r);
+    gg_decide(&b, &r, &d);
+    CHECK_EQ_I(d.verdict, GG_V_RUN);
+}
+
+/* Ordering: a box that can neither run nor store a title is told the thing it
+ * cannot change. Sending someone to free up 20 GB on a Pentium 1 that was
+ * never going to run the game wastes their afternoon. */
+TEST(a_hardware_floor_outranks_the_disk_floor)
+{
+    gg_decision_t d;
+    gg_req_t r;
+    gg_profile_t weak = box_p1();
+
+    weak.free_mb = 100;                     /* hopeless on both counts */
+    gg_req_parse("{\"min_cpu_mhz\":1000,\"disk_mb\":2000000}", &r);
+    gg_decide(&weak, &r, &d);
+    CHECK_EQ_I(d.verdict, GG_V_NO);
+    CHECK(strcmp(d.limiting, "cpu_mhz") == 0,
+          "the CPU is the fact worth reporting, not the disk");
+}
+
 
 MUNIT_MAIN("gamegate (hardware capability gate)",
     RUN(fail_open_on_absent_data);
@@ -595,4 +664,6 @@ MUNIT_MAIN("gamegate (hardware capability gate)",
     RUN(capabilities_are_reported_not_folded_into_the_verdict);
     RUN(per_shortcut_requirements_override_the_title);
     RUN(a_checked_no_floor_file_is_distinguishable);
+    RUN(free_disk_is_a_hard_floor_that_fails_open);
+    RUN(a_hardware_floor_outranks_the_disk_floor);
 )

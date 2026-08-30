@@ -273,17 +273,13 @@ def cmd_plan(args, publish=False):
                     use_llm=not args.no_llm, refresh=args.refresh)
         print_plan(p, rows, c, judge)
         if publish:
+            # ONLY THE TITLE-LEVEL VERDICT IS PUBLISHED. A per-shortcut
+            # line is not a shape the agent parses, so shortcut suppression
+            # stays a deterministic on-box decision made from requires.json.
             text = rules.format_verdict_file(
-                p, [(t.name, d) for t, d, _, _ in rows]
-                   + [(f"{t.name}\t{sc}", sd)
-                      for t, _, _, subs in rows for sc, sd, _ in subs
-                      if False],          # per-shortcut lines are separate
+                p, [(t.name, d) for t, d, _, _ in rows],
                 args.model,
                 datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"))
-            # per-shortcut lines: "<verdict>\t<Title>|<shortcut>\t..." is not
-            # a shape the agent parses, so shortcut suppression stays a
-            # deterministic on-box decision from requires.json. Only the
-            # title-level verdict is published.
             path = library_mod.write_verdict_file(p.profile_hash, text,
                                                   args.library)
             print(f"\n  published {path}")

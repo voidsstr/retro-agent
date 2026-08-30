@@ -26,7 +26,8 @@ ever seen it, and it must still not put Doom 3 on a Pentium III.
 
 ```
 hard NO    OS floor unmet, a required CPU instruction absent, a GPU two whole
-           feature levels short.            -> arithmetic, no model call
+           feature levels short, or the tree cannot fit in the free space.
+                                            -> arithmetic, no model call
 MARGINAL   within 25% of a published minimum, or a GPU exactly one level short.
            -> the ONLY thing that reaches ollama
 RUN        everything met.                  -> arithmetic, no model call

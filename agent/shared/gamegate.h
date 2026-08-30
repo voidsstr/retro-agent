@@ -150,6 +150,17 @@ typedef struct gg_profile_s {
     unsigned      os_minor;
     unsigned      dx_major;         /* DirectX runtime major, 0 = unknown */
     unsigned      caps;             /* GG_CAP_* bitmask - software state */
+    /*
+     * Free space on the volume the games land on, in MB. 0 = could not be
+     * measured, which FAILS OPEN like every other absent field.
+     *
+     * DELIBERATELY NOT IN gg_profile_hash(). Free space changes every time
+     * anything is written, so hashing it would mint a new profile - and
+     * therefore miss every cached verdict - on essentially every run, which is
+     * the same as having no cache at all. The hash names the MACHINE; this
+     * field is a fact about the moment.
+     */
+    unsigned      free_mb;
 } gg_profile_t;
 /* The tag exists so handlers.h can forward-declare this without pulling the
  * whole gate header into every translation unit. */
@@ -940,6 +951,22 @@ GG_FN void gg_decide(const gg_profile_t *p, const gg_req_t *r,
     if (gg__hard_short(p->vram_mb, r->min_vram_mb)) {
         gg__say(d, GG_V_NO, "vram_mb", "not enough video RAM", p->vram_mb,
                 r->min_vram_mb, "MB");
+        return;
+    }
+
+    /* 5. Free disk. HARD, and with NO margin band: a tree either fits or it
+     *    does not, and 90% of Far Cry is not a playable game. Checked AFTER
+     *    the cpu/ram/vram floors so a box that genuinely cannot run the title
+     *    is told that, rather than sent to free up space it would then waste.
+     *
+     *    FAILS OPEN on free_mb == 0 - what the agent reports when it could not
+     *    measure the volume - the same direction as every other absent field.
+     *    GAMESYNC's own room check is the backstop and sees the REAL tree size;
+     *    this refuses the copy BEFORE an hour of SMB1 bandwidth is spent on a
+     *    title that was never going to fit. */
+    if (r->disk_mb && p->free_mb && p->free_mb < r->disk_mb) {
+        gg__say(d, GG_V_NO, "disk", "not enough free disk", p->free_mb,
+                r->disk_mb, "MB");
         return;
     }
 

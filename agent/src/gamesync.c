@@ -1844,17 +1844,27 @@ static void gs_gate_init(const char *library)
     }
 
     hwprofile_build(&g_gate_profile);
+    /* The hash is taken BEFORE free_mb is filled in, which costs nothing (the
+     * field is not one of the hashed ten) but makes the ordering explicit:
+     * the hash names the machine, and free space is not part of its identity.
+     * Games land on C:, so that is the volume the disk_mb floor is measured
+     * against; a negative return (the call failed) stays 0 and fails open. */
     gg_profile_hash(&g_gate_profile, g_gate_hash);
+    {
+        __int64 fb = gs_free_bytes("C:\\");
+        g_gate_profile.free_mb = fb > 0 ? (unsigned)(fb / 1048576) : 0u;
+    }
     g_gate_ready = 1;
 
     log_msg(LOG_GS, "gate: profile %s - %s %u MHz x%u, %u MB RAM, "
-                    "gpu %04X:%04X %u MB (%s), os %s",
+                    "gpu %04X:%04X %u MB (%s), os %s, %u MB free on C:",
             g_gate_hash, g_gate_profile.cpu_vendor, g_gate_profile.cpu_mhz,
             g_gate_profile.cpu_count, g_gate_profile.ram_mb,
             g_gate_profile.gpu_ven, g_gate_profile.gpu_dev,
             g_gate_profile.vram_mb,
             gg_gpu_level_name(g_gate_profile.gpu_level),
-            gg_os_level_name(g_gate_profile.os_level));
+            gg_os_level_name(g_gate_profile.os_level),
+            g_gate_profile.free_mb);
 
     _snprintf(path, sizeof(path) - 1, "%s\\_gamegate\\%s.txt",
               library, g_gate_hash);

@@ -519,6 +519,22 @@ def decide(p: Profile, r: Requirements) -> Decision:
             d.reason = f"{hard_msg} (have {have} {unit}, needs {need})"
             return d
 
+    # DISK IS HARD AND HAS NO MARGIN BAND: a tree either fits or it does not,
+    # and "90% of Far Cry" is not a playable game. It is checked AFTER the
+    # cpu/ram/vram floors so that a box which genuinely cannot run the title is
+    # told that, rather than being sent to free up space it would then waste.
+    #
+    # FAILS OPEN on free_mb == 0, which is what an agent that could not measure
+    # the volume reports - the same direction as every other absent field. The
+    # agent's own GAMESYNC room check is the backstop that sees the REAL tree
+    # size rather than this declared estimate; this test exists to refuse the
+    # copy BEFORE an hour of SMB1 bandwidth is spent on a title that cannot fit.
+    if r.disk_mb and p.free_mb and p.free_mb < r.disk_mb:
+        d.verdict, d.limiting = V_NO, "disk"
+        d.reason = (f"not enough free disk (have {p.free_mb} MB, "
+                    f"needs {r.disk_mb})")
+        return d
+
     if soft is None:
         for field_name, have, need, unit, _h, soft_msg in (
                 ("cpu_mhz", p.cpu_mhz, r.min_cpu_mhz, "MHz", "",

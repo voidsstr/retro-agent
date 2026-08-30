@@ -88,7 +88,7 @@ the six titles you just staged are this shape.
 | `min_cpu_mhz` | int | published minimum clock. |
 | `min_ram_mb` | int | published minimum system RAM. |
 | `min_vram_mb` | int | published minimum video RAM. |
-| `disk_mb` | int | installed size. Advisory — GAMESYNC already measures the tree and refuses a title that will not fit. |
+| `disk_mb` | int | installed size in MB. A **hard floor with no margin band** (a tree either fits or it does not, and 90% of Far Cry is not a playable game), checked *after* the cpu/ram/vram floors so a box that cannot run the title is told that rather than sent to free up space it would then waste. Fails open when the agent could not measure free space. GAMESYNC's own room check still backstops it with the real tree size; this exists to refuse the copy **before** the bandwidth is spent. |
 | `gpu_feature_level` | enum | `none` · `fixed` · `tnl` · `sm1.x` · `sm2.0` · `sm3.0`. **Ordered.** See below. |
 | `cpu_features` | string[] | `fpu` `mmx` `cmov` `sse` `sse2` `sse3` `ssse3` `sse4.1` `3dnow`. Instructions the binary *executes*, not ones it prefers. |
 | `min_os` / `max_os` | enum | `win9x` `win2k` `winxp` `vista` `win7` `win8` `win10`. Ordered. |
