@@ -120,7 +120,10 @@ def test_fleetres_source_still_maps_lcd_to_desktop():
     CRT -> original (a CRT has no pixel grid; the native DOS mode is fine)
     """
     src = open(FLEETRES_C, 'rb').read().decode('latin1')
-    m = re.search(r'FR_DOSFULLRES=%s\\n"\s*,\s*(\w+)\s*\?\s*"(\w+)"\s*:\s*"(\w+)"',
+    # The emitted line is quoted as `set "FR_X=..."` since b6f12e1 (a PCI id is
+    # full of ampersands and cmd would eat them), so the %s now has an escaped
+    # closing quote after it. \\" is optional so this keeps matching either way.
+    m = re.search(r'FR_DOSFULLRES=%s(?:\\")?\\n"\s*,\s*(\w+)\s*\?\s*"(\w+)"\s*:\s*"(\w+)"',
                   src)
     assert m, 'the FR_DOSFULLRES emit line moved — re-read it before editing'
     cond, when_true, when_false = m.groups()
@@ -773,7 +776,7 @@ def test_q3_table_exists_and_skips_the_five_four_mode():
     assert 'if (i == 8 || i == 11) continue;' in src, (
         'FR_Q3MODE can now select a 5:4 mode, which is the fault this whole '
         'mechanism exists to remove')
-    assert 'set FR_Q3MODE=' in src
+    assert (r'set \"FR_Q3MODE=' in src or 'set FR_Q3MODE=' in src)
     assert 'if not defined FR_Q3MODE set FR_Q3MODE=6' in sf.FLEETRES_BAT
 
 
@@ -841,7 +844,7 @@ def test_refresh_is_per_box_too():
     .124 75 Hz). FLEETRES reports the PERSISTED mode's refresh, and clamps a
     nonsense value from a driver rather than passing it on."""
     src = open(FLEETRES_C, encoding='latin1').read()
-    assert 'set FR_HZ=' in src
+    assert (r'set \"FR_HZ=' in src or 'set FR_HZ=' in src)
     assert 'reg_hz >= 50 && reg_hz <= 240' in src, (
         'a driver reporting 0 or 1 Hz would be handed straight to the game')
     assert 'if not defined FR_HZ set FR_HZ=60' in sf.FLEETRES_BAT
@@ -866,7 +869,7 @@ def test_no_edid_assumes_a_four_three_tube_rather_than_the_current_mode():
     assert 'if (!cls) cls = 43;' in src, (
         'no-EDID no longer defaults to a 4:3 tube, so a 5:4 desktop mode is '
         'taken at face value again')
-    assert 'set FR_EDID=' in src, (
+    assert (r'set \"FR_EDID=' in src or 'set FR_EDID=' in src), (
         'a measured panel and an inferred one must not look identical')
 
 
