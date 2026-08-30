@@ -200,6 +200,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | the persisted `Bags\1\Desktop\FFlags` word is NOT uniform across the fleet — `.143` read `0x220`, `.171` read `0x224` — so stamping a constant would have silently changed align-to-grid on some boxes and not others; only bit 0 may move (2026-08-30) | `agent/src/gamesync.c:gs_bag_autoarrange` | `native/test_icon_autoarrange.c` |
 | the icon-layout call sited BELOW `retrowall_apply_startup()`'s early returns would run on almost no box, log nothing, and look installed — both returns are the normal path on a fleet machine (2026-08-30) | `agent/src/retrowall.c` | `python/test_icon_autoarrange_source.py`, `python/test_no_conflicting_arranger.py` |
 | the desktop icon layout was rebuilt at the end of EVERY gamesync, including the every-boot case where nothing was copied and no shortcut was created - so every machine rebuilt its icons on every boot (user-reported, 2026-08-30) | `agent/src/gamesync.c:gs_run` | `native/test_icon_rebuild_gate.c`, `python/test_icon_autoarrange_source.py` |
+| `gs_run()` SWEEPS every .lnk off the desktop before writing any, so "was this shortcut already there?" is always false - every shortcut counted as new and the icon-rebuild gate was true on every box on every sync while reporting itself as working; the icon SET is now sampled before the sweep and compared at the end (found on .171 minutes after the counters shipped, 2026-08-30) | `agent/src/gamesync.c:gs_desk_snapshot` | `native/test_icon_rebuild_gate.c`, `python/test_icon_autoarrange_source.py` |
 | the icon-rebuild gate decided silently, so a gate permanently stuck at "changed" - one file whose mtime never stamps re-copies every pass - would restore the every-boot rebuild with NOTHING saying so; `done:` and `GAMESYNC STATUS` now report `files_written`/`shortcuts_changed` (2026-08-30) | `agent/src/gamesync.c:gs_run` | `python/test_icon_autoarrange_source.py` |
 | the two obvious change-counters are both true on EVERY run and measure nothing: `gs_copy_file` returns success for a SKIPPED file, and `gs_make_game_shortcut` rewrites a title's `.lnk` every pass (2026-08-30) | `agent/src/gamesync.c` | `native/test_icon_rebuild_gate.c` |
 | `LVM_ARRANGE` was posted on every agent startup even when auto-arrange was already ON - pure churn, since the shell already maintains the layout (2026-08-30) | `agent/src/gamesync.c:gs_apply_autoarrange` | `native/test_icon_rebuild_gate.c`, `python/test_icon_autoarrange_source.py` |
@@ -258,3 +259,17 @@ green-world; provisioning — P3 no-SSE2 opcode scan of staged DLLs.
 | the verdict cache hits on the same hardware and misses on a corrected `requirements_version` | `python/test_gamegate_host.py` |
 | a malformed LLM reply NEVER becomes "run"; the rule verdict stands | `python/test_gamegate_host.py::test_a_malformed_reply_never_becomes_a_verdict` |
 | only MARGINAL escalates to the model | `python/test_gamegate_host.py::test_only_marginal_reaches_the_model` |
+
+## The staged-library suite is not safe to judge under heavy concurrency
+
+`test_staged_library.py` (suite [6]) walks the whole SMB share, and the
+PE-subsystem check costs roughly **168 ms per binary over SMB across ~731
+binaries**. It is no longer a "seconds" tool. With several agents running
+`bash tests/run_all.sh` at once — twelve concurrent runs were observed on
+2026-08-30 — the validator sits in **uninterruptible IO** and the suite looks
+hung at `-- test_staged_library.py` for many minutes.
+
+**A stall there is contention, not a failure.** Check with
+`ps aux | grep -c "[r]un_all.sh"` before concluding anything; if several are
+running, wait or re-run when the share is quiet. Reading the stall as a failure
+is an easy and expensive mistake.

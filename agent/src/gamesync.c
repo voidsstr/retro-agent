@@ -368,11 +368,43 @@ static void gs_note_progress(__int64 added)
  * every run and would measure nothing. Only a link that did not previously
  * exist changes the set of icons on the desktop. */
 static long g_gs_desk_files;   /* files actually written this run          */
-static long g_gs_desk_lnks;    /* .lnk files created or swept away         */
+static long g_gs_desk_lnks;    /* net change in the set of desktop icons   */
 
-static void gs_desk_reset(void)   { g_gs_desk_files = 0; g_gs_desk_lnks = 0; }
+/* THE SET OF ICONS, SAMPLED BEFORE ANY OF THIS RUN TOUCHES THE DESKTOP.
+ *
+ * Counting "a .lnk was created that did not exist a moment ago" is WRONG here,
+ * and it silently defeated the whole gate in v1.73.0/1.74.x. gs_run() begins by
+ * calling gs_sweep_desktop(), which moves EVERY .lnk off the desktop into a
+ * backup directory - so by the time each title's shortcut is written, nothing
+ * is ever "already there" and every single shortcut counted as new. The gate
+ * was therefore true on every box on every sync and suppressed nothing, while
+ * reporting itself as working. Found within minutes of shipping the counters,
+ * which is exactly why the counters exist.
+ *
+ * The honest question is "did the SET of desktop icons change?", so sample the
+ * set before the sweep and compare against what exists at the end. A box that
+ * sweeps 81 shortcuts and recreates the same 81 has not changed. */
+#define GS_LNK_MAX   256
+#define GS_LNK_NAME  96
+static char g_gs_prelnk[GS_LNK_MAX][GS_LNK_NAME];
+static char g_gs_prelnk_seen[GS_LNK_MAX];
+static int  g_gs_prelnk_n;
+static long g_gs_lnk_new;      /* created that were not in the pre-set     */
+
+static void gs_desk_reset(void)
+{
+    g_gs_desk_files = 0;
+    g_gs_desk_lnks = 0;
+    g_gs_prelnk_n = 0;
+    g_gs_lnk_new = 0;
+}
 static void gs_desk_note_file(void) { g_gs_desk_files++; }
-static void gs_desk_note_lnk(int n) { g_gs_desk_lnks += n; }
+
+/* Defined below, next to the desktop enumeration they need; declared here
+ * because gs_place_tool_shortcuts() writes a .lnk earlier in the file. */
+static void gs_desk_note_lnk_written(const char *lnk_path);
+static void gs_desk_snapshot(void);
+static void gs_desk_settle_lnks(void);
 static int  gs_desk_changed(void)
 {
     return (g_gs_desk_files > 0 || g_gs_desk_lnks > 0);
@@ -1645,10 +1677,12 @@ static void gs_tool_shortcut(const char *exe, const char *name)
         slash--;
     *slash = 0;
 
-    if (gs_make_shortcut(exe, workdir, lnk, name, NULL))
+    if (gs_make_shortcut(exe, workdir, lnk, name, NULL)) {
         log_msg(LOG_GS, "desktop shortcut -> %s", name);
-    else
+        gs_desk_note_lnk_written(lnk);
+    } else {
         log_msg(LOG_GS, "%s: could not create the shortcut", name);
+    }
 }
 
 void gs_place_tool_shortcuts(void)
@@ -1703,6 +1737,90 @@ void gs_place_tool_shortcuts(void)
  * .url go - real files someone left on the desktop are left exactly where they
  * are.
  */
+/* --- desktop icon-set snapshot (see g_gs_prelnk above) --- */
+
+static const char *gs_basename(const char *p)
+{
+    const char *b = p + lstrlenA(p);
+    while (b > p && *(b - 1) != '\\')
+        b--;
+    return b;
+}
+
+static void gs_prelnk_add(const char *name)
+{
+    int i;
+    if (g_gs_prelnk_n >= GS_LNK_MAX)
+        return;                          /* full: treated as "was there" below */
+    for (i = 0; i < g_gs_prelnk_n; i++)
+        if (lstrcmpiA(g_gs_prelnk[i], name) == 0)
+            return;                      /* both desktops can hold the same name */
+    lstrcpynA(g_gs_prelnk[g_gs_prelnk_n], name, GS_LNK_NAME);
+    g_gs_prelnk_seen[g_gs_prelnk_n] = 0;
+    g_gs_prelnk_n++;
+}
+
+static void gs_prelnk_scan_dir(const char *desk)
+{
+    WIN32_FIND_DATAA fd;
+    HANDLE h;
+    char   pat[MAX_PATH];
+
+    _snprintf(pat, sizeof(pat) - 1, "%s\\*.lnk", desk);
+    pat[sizeof(pat) - 1] = 0;
+    h = FindFirstFileA(pat, &fd);
+    if (h == INVALID_HANDLE_VALUE)
+        return;
+    do {
+        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+            gs_prelnk_add(fd.cFileName);
+    } while (FindNextFileA(h, &fd));
+    FindClose(h);
+}
+
+/* Sample the desktop BEFORE the sweep. Must be called first in gs_run(). */
+static void gs_desk_snapshot(void)
+{
+    char desk[MAX_PATH], userdesk[MAX_PATH];
+
+    if (gs_desktop_dir(desk, sizeof(desk)))
+        gs_prelnk_scan_dir(desk);
+    if (gs_user_desktop_dir(userdesk, sizeof(userdesk)) &&
+        lstrcmpiA(userdesk, desk) != 0)
+        gs_prelnk_scan_dir(userdesk);
+}
+
+/* A shortcut was written. It is only a CHANGE if that icon was not on the
+ * desktop when this run started - otherwise we have merely put back what our
+ * own sweep removed a moment ago. */
+static void gs_desk_note_lnk_written(const char *lnk_path)
+{
+    const char *name = gs_basename(lnk_path);
+    int i;
+
+    for (i = 0; i < g_gs_prelnk_n; i++) {
+        if (lstrcmpiA(g_gs_prelnk[i], name) == 0) {
+            g_gs_prelnk_seen[i] = 1;     /* restored, not new */
+            return;
+        }
+    }
+    if (g_gs_prelnk_n >= GS_LNK_MAX)
+        return;      /* snapshot overflowed - do not invent a change */
+    g_gs_lnk_new++;
+}
+
+/* Net change in the icon set: icons added, plus icons that were there at the
+ * start and are not there now. Call once, after every shortcut is written. */
+static void gs_desk_settle_lnks(void)
+{
+    int i;
+    long gone = 0;
+    for (i = 0; i < g_gs_prelnk_n; i++)
+        if (!g_gs_prelnk_seen[i])
+            gone++;
+    g_gs_desk_lnks = g_gs_lnk_new + gone;
+}
+
 static int gs_sweep_desktop_dir(const char *desk)
 {
     WIN32_FIND_DATAA fd;
@@ -1752,11 +1870,13 @@ static void gs_sweep_desktop(void)
     if (gs_user_desktop_dir(userdesk, sizeof(userdesk)) &&
         lstrcmpiA(userdesk, desk) != 0)
         moved += gs_sweep_desktop_dir(userdesk);
-    if (moved) {
+    if (moved)
         log_msg(LOG_GS, "desktop swept: %d shortcut(s) moved to %s",
                 moved, GS_DESK_BACKUP);
-        gs_desk_note_lnk(moved);   /* icons REMOVED is a change too */
-    }
+    /* The sweep deliberately does NOT count as a change. It removes every .lnk
+     * including the ones this same run is about to write straight back, so
+     * counting it made the icon-rebuild gate true on every sync forever. What
+     * counts is the net difference against gs_desk_snapshot(). */
 }
 
 /*
@@ -2184,16 +2304,12 @@ static void gs_shortcut_from_line(const char *dst_dir, const char *title,
      * every pass, so counting writes would be true on every run and would
      * measure nothing. Only a link that was NOT there before changes the set
      * of icons, and only that is worth an arrange. */
-    {
-        int was_there = gs_file_exists(lnk);
-        if (gs_make_shortcut(target, workdir, lnk, disp, icon)) {
-            log_msg(LOG_GS, "%s: desktop shortcut -> %s (icon: %s)", title,
-                    exe_rel, icon[0] ? icon : "from target");
-            if (!was_there)
-                gs_desk_note_lnk(1);
-        } else {
-            log_msg(LOG_GS, "%s: could not create desktop shortcut", title);
-        }
+    if (gs_make_shortcut(target, workdir, lnk, disp, icon)) {
+        log_msg(LOG_GS, "%s: desktop shortcut -> %s (icon: %s)", title,
+                exe_rel, icon[0] ? icon : "from target");
+        gs_desk_note_lnk_written(lnk);
+    } else {
+        log_msg(LOG_GS, "%s: could not create desktop shortcut", title);
     }
 }
 
@@ -2766,6 +2882,9 @@ static void gs_run(const char *library)
      *
      * Both run on every provision, imaged box or not: a hand-built machine is
      * exactly the one that has a cluttered desktop and no C:\retro-wall. */
+    /* Sample the icon set BEFORE the sweep removes it - the sweep takes every
+     * .lnk off the desktop, so after it nothing is ever "already there". */
+    gs_desk_snapshot();
     gs_sweep_desktop();
     /* Immediately after the sweep, so the tools the operator needs are never
      * missing between the sweep and the next agent start. */
@@ -3019,6 +3138,10 @@ static void gs_run(const char *library)
      * A deploy that DID change something still arranges - that case is wanted,
      * it is what the staged-game fix loop depends on, and suppressing it would
      * leave a freshly deployed game's icon unplaced. */
+    /* Resolve the icon set against the pre-run snapshot before anything reads
+     * the counter: icons added, plus icons that were there and now are not. */
+    gs_desk_settle_lnks();
+
     if (gs_desk_changed()) {
         log_msg(LOG_GS, "desktop changed (%ld file(s) written, %ld new/removed "
                         "shortcut(s)) - arranging icons",

@@ -179,7 +179,20 @@ def test_the_change_counters_are_reset_per_run():
 
 
 def test_a_skipped_file_and_a_rewritten_lnk_are_not_counted_as_changes():
-    """The two ways a naive counter would be true on every run."""
+    """The two ways a naive counter is true on EVERY run and measures nothing.
+
+    The second one silently defeated the whole gate in v1.73.0-1.74.x and is the
+    reason this test is specific about the mechanism rather than just "something
+    counts shortcuts". gs_run() begins with gs_sweep_desktop(), which moves
+    EVERY .lnk off the desktop into a backup directory. So by the time a title's
+    shortcut is written, nothing is ever "already there" - a
+    `gs_file_exists(lnk)` check before the write is always false, every shortcut
+    counts as new, and the gate is true on every box on every sync while
+    reporting itself as working.
+
+    The honest question is whether the SET of desktop icons changed, so the set
+    must be sampled BEFORE the sweep and compared at the end.
+    """
     code = _strip_comments(GAMESYNC.read_text(errors="replace"))
 
     # The file counter must sit on the real-write path, i.e. AFTER the resume
@@ -194,15 +207,38 @@ def test_a_skipped_file_and_a_rewritten_lnk_are_not_counted_as_changes():
         "gs_copy_file() must count a real write"
     )
 
-    # The .lnk counter must be conditional on the link not already existing.
-    sc = code.split("gs_shortcut_from_line", 1)[1].split("\nstatic ", 1)[0]
-    assert "gs_file_exists(lnk)" in sc, (
-        "gs_shortcut_from_line() must check whether the .lnk was already there "
-        "- it rewrites the link on every pass, so counting writes measures "
-        "nothing"
+    # The icon set must be snapshotted BEFORE the sweep destroys it.
+    run = code.split("static void gs_run(", 1)[1]
+    snap = run.index("gs_desk_snapshot()")
+    sweep = run.index("gs_sweep_desktop()")
+    assert snap < sweep, (
+        "gs_desk_snapshot() must run BEFORE gs_sweep_desktop(). The sweep moves "
+        "every .lnk off the desktop, so a set sampled after it is empty and "
+        "every recreated shortcut looks new - which is exactly how this gate "
+        "was defeated silently before."
     )
-    assert re.search(r"if\s*\(\s*!\s*was_there\s*\)", sc), (
-        "only a .lnk that was NOT already on the desktop is a change"
+
+    # The sweep itself must not count: it removes what we put straight back.
+    swp = code.split("static void gs_sweep_desktop(void)", 1)[1].split("\nstatic ", 1)[0]
+    assert "gs_desk_note_lnk" not in swp, (
+        "gs_sweep_desktop() must not count its own removals as a change - it "
+        "removes the very shortcuts this run is about to rewrite"
+    )
+
+    # A written shortcut is judged against the snapshot, not against the disk.
+    assert "gs_desk_note_lnk_written(" in code, (
+        "a written .lnk must be judged against the pre-run icon set"
+    )
+    assert "gs_file_exists(lnk)" not in code, (
+        "judging a shortcut by whether the file exists just before writing it "
+        "is always false after the sweep - use the pre-run snapshot"
+    )
+
+    # And the net difference must be resolved before the gate reads it.
+    settle = run.index("gs_desk_settle_lnks()")
+    gate = run.index("gs_desk_changed()")
+    assert settle < gate, (
+        "gs_desk_settle_lnks() must run before gs_desk_changed() is consulted"
     )
 
 
@@ -234,6 +270,50 @@ def test_an_already_on_desktop_is_not_re_packed_every_startup():
     )
 
 
+def _enclosing_call(code, idx):
+    """Return the full text of the call expression containing offset `idx`.
+
+    Walks back to the opening paren of the enclosing call, then forward
+    balancing parens while skipping string literals and their escapes, so a
+    `(`, `)` or `;` inside a format string cannot end the extraction early.
+    """
+    # back up to the '(' that opens the enclosing call
+    depth = 0
+    i = idx
+    while i > 0:
+        ch = code[i]
+        if ch == ")":
+            depth += 1
+        elif ch == "(":
+            if depth == 0:
+                break
+            depth -= 1
+        i -= 1
+    start = i
+    # forward, balancing, honouring string literals
+    depth = 0
+    j = start
+    in_str = False
+    while j < len(code):
+        ch = code[j]
+        if in_str:
+            if ch == "\\":
+                j += 2
+                continue
+            if ch == '"':
+                in_str = False
+        elif ch == '"':
+            in_str = True
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                return code[start:j + 1]
+        j += 1
+    raise AssertionError("unbalanced call expression at offset %d" % idx)
+
+
 def test_the_gate_reports_what_it_decided_on():
     """A silent gate is an untestable gate.
 
@@ -256,10 +336,16 @@ def test_the_gate_reports_what_it_decided_on():
     )
 
     # The done: line must carry both counts.
-    done = [ln for ln in code.splitlines() if "done: %d/%d title(s) copied" in ln]
-    assert done, "the GAMESYNC done: line must still exist"
+    #
+    # Extract the call by BALANCING PARENTHESES, not by scanning to the first
+    # `;`. Scanning to `;` works only while the format string happens to contain
+    # no semicolon: add one (`"%d file error(s); "`) and the statement is
+    # silently truncated at that point, so every assertion below the cut passes
+    # against a line that is missing the fields they exist to require. The test
+    # then goes green on a change that was never made - which is precisely the
+    # failure mode this file exists to prevent, reproduced inside the test.
     idx = code.index("done: %d/%d title(s) copied")
-    stmt = code[idx:code.index(";", idx)]
+    stmt = _enclosing_call(code, idx)
     assert "file(s) written" in stmt, (
         "the done: line must report how many files were actually written, or a "
         "gate that never suppresses anything is invisible"

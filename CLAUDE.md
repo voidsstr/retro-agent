@@ -1057,6 +1057,11 @@ Three ways to publish, in order of preference:
 `strings <published exe> | grep -x <version>` so the binary itself confirms the
 version you think you shipped.
 
+**Publish through gvfs, then verify through `/mnt`.** That is not just faster
+than the fleet-box route — it is a *better* check, because you read the bytes
+that actually landed back over a **different mount than you wrote them through**.
+The fleet-box route can only tell you a copy command returned.
+
 Also commit the rebuilt binary to git (`agent/tools/retro_chat.exe` is tracked).
 The fleet picks up the new build on each machine's next agent restart/reboot.
 
@@ -1364,6 +1369,15 @@ untestable gate. Both the `done:` log line and `GAMESYNC STATUS` now carry
 done: 35/37 title(s) copied, 0 skipped, 2 gated, 0 file error(s),
       0 file(s) written, 0 new/removed shortcut(s)
 ```
+
+> **This instrumentation immediately found that the gate was defeated.**
+> `gs_run()` begins with `gs_sweep_desktop()`, which moves **every** `.lnk` off
+> the desktop — so by the time each title's shortcut is written nothing is ever
+> "already there", every shortcut counted as new, and the gate was true on every
+> box on every sync while reporting itself as working. Fixed in **v1.76.0**: the
+> icon **set** is sampled before the sweep (`gs_desk_snapshot()`) and the net
+> difference resolved at the end (`gs_desk_settle_lnks()`), so sweeping 81
+> shortcuts and rewriting the same 81 is correctly *no change*.
 
 **A steady-state box must report `0 file(s) written`.** A box reporting the
 *same small non-zero count on consecutive no-change syncs* is announcing the one

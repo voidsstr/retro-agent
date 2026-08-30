@@ -31,6 +31,7 @@
  */
 
 #include "munit.h"
+#include <string.h>
 
 /* ---- mirror of the accounting in agent/src/gamesync.c ---- */
 static long files_written;   /* g_gs_desk_files */
@@ -169,10 +170,90 @@ TEST(auto_arrange_already_on_does_not_re_pack)
     }
 }
 
+/* --- the icon SET model, which is what the gate actually has to ask --- */
+/* gs_run() sweeps EVERY .lnk off the desktop before writing any, so "was this
+ * file there a moment ago?" is always false and cannot be the question. The
+ * question is whether the SET differs from the one sampled before the sweep. */
+#define SETMAX 8
+typedef struct { const char *pre[SETMAX]; int pre_n; char seen[SETMAX]; long added; } iconset_t;
+
+static void set_snapshot(iconset_t *s, const char **names, int n)
+{
+    int i;
+    s->pre_n = n; s->added = 0;
+    for (i = 0; i < n; i++) { s->pre[i] = names[i]; s->seen[i] = 0; }
+}
+static void set_written(iconset_t *s, const char *name)
+{
+    int i;
+    for (i = 0; i < s->pre_n; i++)
+        if (strcmp(s->pre[i], name) == 0) { s->seen[i] = 1; return; }
+    s->added++;
+}
+static long set_changed(const iconset_t *s)
+{
+    int i; long gone = 0;
+    for (i = 0; i < s->pre_n; i++) if (!s->seen[i]) gone++;
+    return s->added + gone;
+}
+/* The shipped-and-broken v1.73.0 shape: count every write as new, because the
+ * sweep guaranteed nothing was ever already there. */
+static long set_changed_SWEPT_BUGGY(int shortcuts_written) { return shortcuts_written; }
+
+TEST(sweeping_and_recreating_the_same_icons_is_not_a_change)
+{
+    /* The real defect, found on .171 minutes after the counters shipped: a
+     * fully provisioned box swept 81 shortcuts and wrote back the same 81, and
+     * the gate called that a change on every single sync, forever. */
+    static const char *before[] = { "Quake.lnk", "Descent.lnk", "Half-Life.lnk" };
+    iconset_t s;
+    set_snapshot(&s, before, 3);
+    set_written(&s, "Quake.lnk");
+    set_written(&s, "Descent.lnk");
+    set_written(&s, "Half-Life.lnk");
+    CHECK(set_changed(&s) == 0,
+          "sweeping and rewriting the SAME icons is not a change");
+    CHECK(set_changed_SWEPT_BUGGY(3) == 3,
+          "the shipped v1.73.0 shape counted all three as new");
+    CHECK(set_changed(&s) != set_changed_SWEPT_BUGGY(3),
+          "the two genuinely differ on the every-boot case - this is the bug");
+}
+
+TEST(a_genuinely_new_or_removed_icon_still_counts)
+{
+    static const char *before[] = { "Quake.lnk", "Descent.lnk" };
+    iconset_t s;
+
+    /* A title added to the library: its shortcut was not there before. */
+    set_snapshot(&s, before, 2);
+    set_written(&s, "Quake.lnk");
+    set_written(&s, "Descent.lnk");
+    set_written(&s, "Far Cry.lnk");
+    CHECK(set_changed(&s) == 1, "one genuinely new icon counts as one change");
+
+    /* A title removed from the library: its shortcut is never rewritten. */
+    set_snapshot(&s, before, 2);
+    set_written(&s, "Quake.lnk");
+    CHECK(set_changed(&s) == 1, "an icon that is gone counts as one change");
+
+    /* Both at once. */
+    set_snapshot(&s, before, 2);
+    set_written(&s, "Quake.lnk");
+    set_written(&s, "Far Cry.lnk");
+    CHECK(set_changed(&s) == 2, "one added and one removed is two changes");
+
+    /* A desktop that was empty and gains icons - a fresh image. */
+    set_snapshot(&s, before, 0);
+    set_written(&s, "Quake.lnk");
+    CHECK(set_changed(&s) == 1, "a fresh box's first shortcut is a change");
+}
+
 MUNIT_MAIN("icon rebuild gate: only when the desktop changed",
     RUN(a_no_op_sync_on_a_provisioned_box_does_not_arrange);
     RUN(a_real_deploy_still_arranges);
     RUN(the_counters_are_per_run_not_cumulative);
     RUN(a_forced_pass_ignores_the_gate_entirely);
     RUN(auto_arrange_already_on_does_not_re_pack);
+    RUN(sweeping_and_recreating_the_same_icons_is_not_a_change);
+    RUN(a_genuinely_new_or_removed_icon_still_counts);
 )
