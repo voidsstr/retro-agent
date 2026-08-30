@@ -612,6 +612,46 @@ This has cost real time more than once:
   — highest patch first, first-match-wins), which settles load order without
   experiment.
 
+## Make Failure VISIBLE — every serious defect here reported success (REQUIRED)
+
+Across a full day of fleet work, **every serious defect had the same shape: the
+tool reported success and the operator believed it.**
+
+| the tool said | what was actually true |
+|---|---|
+| `GAMESYNC` → `state=done, failed_files: 0` | it had **skipped every same-size file**, half-applying a patch — Deus Ex took the new `Core.u` and kept the retail `Core.dll` |
+| `rd /s /q` → returns, no error surfaced | it hit **per-file access-denied on a running game and carried on**, leaving a partial tree that then synced into a mix |
+| a mount launcher → printed reassurance and started the game | `batchmnt64.exe` had **exited 216 on 32-bit**, and it launched against a **completely different game's disc** |
+| `state=done` after an abort | the aborted run recorded its in-flight file as `failed_files: 1` — a real failure and an abort look identical |
+
+**In none of these cases was the remedy better tooling. It was making the
+failure visible.** Quote `failed_files` rather than `state`. Verify the
+directory is actually gone rather than trusting `rd`. Check the exit code rather
+than assuming a mounter ran. Print a banner instead of a soothing sentence.
+
+So, when you build or use anything in this repo:
+
+- **A tolerated failure must SAY it is a failure.** The mount launchers now
+  print a boxed `MOUNT FAILED` banner, state that the disc in the drive may be
+  another game's entirely, and write a `mount-error.txt` — while still
+  proceeding, because these checks often do accept any disc and a launcher that
+  refuses where the game would have run is its own bug. Tolerating a failure is
+  fine; **concealing it is not.**
+- **Check the exit code of the thing that actually did the work**, not of the
+  wrapper that started it. `start ""` discards it entirely; a launcher stub
+  (`SUN.EXE`, `Ra2.exe`) always returns 0 regardless of the game.
+- **Verify the post-condition, not the return value.** Did the directory
+  disappear? Did the drive letter appear? Did the file's size change on the box?
+- **A negative result needs the same rigour as a positive one.** "Not found" is
+  reportable only once it has been re-run case-insensitively; "no such file" is
+  reportable only once you have listed the parent.
+
+The corollary for reporting: **a phantom bug report is worse than no report**,
+because it sends everyone chasing something that was never there. Before
+escalating "this affects the whole fleet", check whether your *measurement* is
+the broken thing — especially when the claim rests on timing rather than on a
+screenshot or a log line.
+
 ## GAMESYNC's Two Blind Spots — a staged fix that can never arrive (REQUIRED)
 
 `gs_copy_file()` decides what to copy by **file size alone** — not content, not
