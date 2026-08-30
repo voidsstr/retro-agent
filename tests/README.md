@@ -203,6 +203,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | "never installed here" (`claude-csbot`, `rtcw-server`, `mohaa-server`) must NOT render as an outage, or the board shows a permanent red light and everyone learns to ignore it (2026-08-30) | `scripts/fleet/host-duties.py` | `python/test_host_duties.py` |
 | Tribes 2 is a **docker container**, so anything enumerating the game servers through systemd alone gets `not-found` and drops a running server off the board (2026-08-30) | `scripts/fleet/host-duties.py` | `python/test_host_duties.py` |
 | a refused TCP connect is a full **listen backlog** under fleet contention, not a dead agent — it returns INSTANTLY, so two back-to-back retries both hit the same backlog and called a healthy .124 unreachable (2026-08-30) | `scripts/fleet/box-owner.py` | `python/test_box_owner.py` |
+| a 39 MB ImageMagick `System\magick.exe` sat unreferenced in the UnrealTournament tree at PE `MajorSubsystemVersion` **6.0** — Vista-only, so XP's loader refuses it before a single instruction runs, with no dialog and nothing in any log (2026-08-30) | `\\192.168.1.122\files\Files\Games-Library\<Title>\**\*.exe|*.dll`, `Play Unreal Tournament.bat` | `scripts/validate-staged-library.py` check `pe-subsystem` (suite [6]) |
 
 (The vintage SGL/H5 fixes — garble 0.3.1, mip-download 08fd889 — are tested in
 `retro-3dfx/tests/`, the other lane's harness, not here.)

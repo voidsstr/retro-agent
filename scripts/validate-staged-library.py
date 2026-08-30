@@ -28,6 +28,7 @@ import argparse
 import json
 import os
 import re
+import struct
 import sys
 
 # `call "%~dp0FLEETRES.BAT"`, optionally with -cap args. cmd.exe is
@@ -60,6 +61,55 @@ def read_text(path):
     compare ASCII structure, so decoding cannot be the thing that fails."""
     with open(path, "rb") as fh:
         return fh.read().decode("latin1")
+
+
+# The XP loader refuses a PE whose MajorSubsystemVersion is 6 or higher BEFORE
+# a single instruction runs - it is a load-time check, not a runtime one, so
+# there is no error dialog from the program and nothing in its own log. The
+# whole fleet is XP (5.1), so anything >= 6.0 is a Vista-and-later binary that
+# simply cannot start. GOG and re-release repacks are the usual offenders --
+# SiN Gold shipped one and was unloadable on every box.
+#
+# Found by this check on 2026-08-30: UnrealTournament\System\magick.exe, a
+# 39 MB ImageMagick 7 binary referenced by no launcher, left in the tree by
+# whoever generated the icons. Dead weight on every box AND unloadable.
+# `scripts/fleet/pe-audit.py` is the richer standalone sweep of the same
+# territory - it also flags an impossible TimeDateStamp (a scene watermark).
+# This is deliberately a SEPARATE, dependency-free parse rather than an import:
+# the validator is the pre-imaging GATE and has to run on the share with
+# nothing but the standard library. Keep the two in agreement on this rule.
+MAX_SUBSYSTEM_MAJOR = 5          # 5.x = Win2000/XP. 6.0 = Vista.
+
+
+def pe_subsystem_version(path):
+    """(major, minor) from a PE optional header, or None if it is not a PE.
+
+    Deliberately hand-rolled: the validator must run on the share with nothing
+    installed but the standard library. Verified byte-for-byte against
+    `objdump -p` on magick.exe (6.0), UnrealTournament.exe (5.1) and Tiberian
+    Sun's GAME.EXE (4.0).
+    """
+    try:
+        with open(path, "rb") as fh:
+            head = fh.read(1024)
+            if head[:2] != b"MZ":
+                return None
+            pe_off = struct.unpack_from("<I", head, 0x3C)[0]
+            # The optional header can sit past our first read on a fat DOS stub.
+            if pe_off + 0x50 > len(head):
+                fh.seek(0)
+                head = fh.read(pe_off + 0x100)
+            if head[pe_off:pe_off + 4] != b"PE\0\0":
+                return None
+            magic = struct.unpack_from("<H", head, pe_off + 24)[0]
+            if magic not in (0x10B, 0x20B):      # PE32 / PE32+
+                return None
+            # MajorSubsystemVersion is at optional-header offset 48 in both.
+            major = struct.unpack_from("<H", head, pe_off + 24 + 48)[0]
+            minor = struct.unpack_from("<H", head, pe_off + 24 + 50)[0]
+            return (major, minor)
+    except (OSError, struct.error):
+        return None
 
 
 def check_title(lib, title):
@@ -356,6 +406,27 @@ def check_title(lib, title):
                          "quote spans into the next line and BOTH are "
                          "silently swallowed: %s"
                          % (rel, n, line.strip()[:70]))
+
+    # ---- PE subsystem version: XP refuses a Vista-only binary outright -----
+    #
+    # This is a LOAD-TIME refusal, so the failure is maximally silent: no
+    # window, no dialog from the program, nothing in its own log, and the
+    # launcher's `start ""` throws the exit code away. It presents as "the
+    # game does nothing when you double-click it".
+    for root, dirs, files in os.walk(tdir):
+        dirs[:] = [d for d in dirs if not d.startswith("_")]
+        for fn in files:
+            if not fn.lower().endswith((".exe", ".dll")):
+                continue
+            path = os.path.join(root, fn)
+            ver = pe_subsystem_version(path)
+            if ver and ver[0] > MAX_SUBSYSTEM_MAJOR:
+                fail("pe-subsystem",
+                     "%s is PE subsystem %d.%d — XP's loader refuses anything "
+                     "from 6.0 (Vista) before a single instruction runs, with "
+                     "no dialog and nothing in any log. Restage a build "
+                     "targeting 5.x, or drop the file if nothing launches it."
+                     % (os.path.relpath(path, tdir), ver[0], ver[1]))
 
     return out
 
