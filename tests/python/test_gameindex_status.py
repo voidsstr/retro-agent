@@ -93,9 +93,15 @@ def test_a_new_report_is_json_serialisable(status):
 
 def test_write_buckets_start_at_zero_not_absent(status):
     """`0 written` and `we never got that far` must render differently, so the
-    counters exist from the start rather than appearing when first used."""
+    counters exist from the start rather than appearing when first used.
+
+    `busy` joined them once the pass learned to skip a title whose game is
+    running: "we did not attempt this" needs the next pass, "there was nothing
+    to do" does not, and a wall that shows one number for both cannot tell an
+    operator whether to re-run.
+    """
     assert status.new_report()["writes"] == {
-        "wrote": 0, "unchanged": 0, "skipped": 0, "failed": 0}
+        "wrote": 0, "unchanged": 0, "skipped": 0, "busy": 0, "failed": 0}
 
 
 # --- DB summaries -----------------------------------------------------------

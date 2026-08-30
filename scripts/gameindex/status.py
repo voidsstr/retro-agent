@@ -92,6 +92,12 @@ def new_report():
         "engines": [],
         "servers": {},
         "favorites": {},
-        "writes": {"wrote": 0, "unchanged": 0, "skipped": 0, "failed": 0},
+        # `busy` is deliberately NOT folded into `skipped`. A box we did not
+        # attempt because a game was running still needs the next pass to
+        # reach it; a title with no writer never will. Collapsing the two
+        # makes a fleet that silently never got written look like a fleet
+        # that needed nothing.
+        "writes": {"wrote": 0, "unchanged": 0, "skipped": 0, "busy": 0,
+                   "failed": 0},
         "errors": [],
     }

@@ -412,3 +412,64 @@ def test_a_database_made_before_query_port_existed_is_migrated(tmp_path):
     assert "query_port" in cols
     db.upsert_servers(con, "unreal", [row("1.2.3.4:7777", "ut", query_port=7778)])
     con.close()
+
+
+# --- "not attempted" is not "nothing to do" ----------------------------------
+
+def test_a_busy_box_is_reported_as_its_own_state_not_as_skipped():
+    """A title we did not attempt must not read like a title that needed
+    nothing.
+
+    Only one of them needs the next pass to come back. Folding the busy skips
+    into `skipped` makes a fleet where every box was mid-game look exactly
+    like a fleet where every box was already correct -- and the operator would
+    have no reason to re-run. Six of the eight boxes were mid-verification
+    when this went fleet-wide, so it is the common case, not the corner one.
+    """
+    import status as status_mod
+    report = status_mod.new_report()
+    assert "busy" in report["writes"], "the bucket must exist"
+
+    # the classifier in sync.run_once keys off these prefixes
+    def bucket(note):
+        if note.startswith("wrote") or note.startswith("WOULD"):
+            return "wrote"
+        if note.startswith("unchanged"):
+            return "unchanged"
+        if note.startswith("BUSY"):
+            return "busy"
+        if note.startswith("FAILED") or note.startswith("ERROR"):
+            return "failed"
+        return "skipped"
+
+    assert bucket("BUSY: hl.exe is running - not attempted") == "busy"
+    assert bucket("unchanged (deadbeef)") == "unchanged"
+    assert bucket("skipped: Thief II is single-player") == "skipped"
+    assert bucket("wrote 7 servers (abc)") == "wrote"
+
+
+def test_a_curated_server_that_is_merely_empty_is_still_listed(con):
+    """`players > 0` is a defence against a master's list, not a rule for ours.
+
+    900 Quake III addresses of which most are empty would fill the favourites
+    with ghost towns, hence the rule. Applied to an address we chose, it means
+    a curated UT99 server drops out the moment its last player quits and comes
+    back when someone joins -- so the file churns and every box is rewritten,
+    for a server that never went anywhere.
+    """
+    db.upsert_servers(con, "unreal", [
+        row("139.162.235.20:7777", "ut", players=0, source="seed"),
+        row("8.8.8.8:27960", "ut", players=0, source="q3master")])
+    got = {r["addr"] for r in db.best_servers(con, "unreal")}
+    assert "139.162.235.20:7777" in got, "we chose this one; it is alive"
+    assert "8.8.8.8:27960" not in got, "an empty server off a master is noise"
+
+
+def test_the_unreal_slot_count_clears_the_whole_curated_list():
+    # 18 seeds + our own, into 16 slots, puts the cut exactly where the list
+    # is -- so one server emptying reshuffles the file. UBrowser declares
+    # Favorites[100], so there is no reason to be at the boundary.
+    import masters
+    assert favorites.WRITERS["unreal"]["slots"] > len(masters.UNREAL_SEEDS), (
+        "the slot count must clear the seed list, or membership churns at "
+        "the boundary and rewrites every box every pass")

@@ -443,8 +443,13 @@ WRITERS = {
                slots=16, supported=True),
     "q2": dict(fn=q2_favorites, subdir="baseq2", filename="autoexec.cfg",
                slots=9, supported=True),
+    # 24, not 16: UBrowserFavoritesFact declares `Favorites[100]`, and the
+    # curated seed list is 18 entries. Cutting 17 candidates down to 16 puts
+    # the boundary right where the list is, so one server emptying reshuffles
+    # the file and rewrites every box. Give the whole curated list room and
+    # membership changes only when a server actually dies.
     "unreal": dict(fn=unreal_favorites, subdir="System",
-                   filename="UnrealTournament.ini", slots=16, supported=True),
+                   filename="UnrealTournament.ini", slots=24, supported=True),
     "ut2k4": dict(fn=ut2k4_favorites, subdir="System",
                   filename="UT2004.ini", slots=16, supported=True),
     "goldsrc": dict(fn=goldsrc_favorites, subdir="config",

@@ -335,18 +335,27 @@ async def push_favorites(con, ip, dry_run=False):
                                 f"nothing of ours goes in there"))
                 continue
 
-            exe = str(g["exe"] or "").rsplit("\\", 1)[-1].lower()
-            if running is not None and exe and exe in running:
-                results.append((key, engine,
-                                f"skipped: {exe} is running - it rewrites this "
-                                f"file on exit, so our write would be lost or "
-                                f"would revert what the player just set"))
-                continue
-
             servers = db.best_servers(con, engine, limit=pol["slots"],
                                       accepts=pol.get("accepts"))
             if not servers:
                 results.append((key, engine, "skipped: no live servers known"))
+                continue
+
+            # Checked HERE, after we know there is something to write.
+            # Reporting BUSY for a title that had nothing to write anyway
+            # inflates the retry list with work that will never happen -- and
+            # the whole point of the bucket is that it means "come back".
+            #
+            # BUSY, not "skipped": this one needs the next pass, a title with
+            # no writer does not. The prefix is what run_once buckets on, so
+            # the two can never be read as the same outcome.
+            exe = str(g["exe"] or "").rsplit("\\", 1)[-1].lower()
+            if running is not None and exe and exe in running:
+                results.append((key, engine,
+                                f"BUSY: {exe} is running - not attempted. It "
+                                f"rewrites this file on exit, so our write "
+                                f"would be lost or would revert what the "
+                                f"player just set; retry next pass"))
                 continue
 
             path = favorites.target_path(engine, gdir, key)
@@ -485,6 +494,12 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
                 report["writes"]["wrote"] += 1
             elif note.startswith("unchanged"):
                 report["writes"]["unchanged"] += 1
+            elif note.startswith("BUSY"):
+                # Reported at the top level too: a pass that reached every box
+                # and wrote nothing because all eight were mid-game is a
+                # completely different fact from a pass with nothing to do.
+                report["writes"]["busy"] += 1
+                report.setdefault("busy", []).append(f"{ip}/{key}: {note}")
             elif note.startswith("FAILED") or note.startswith("ERROR"):
                 report["writes"]["failed"] += 1
                 report["errors"].append(f"{ip}/{key}: {note}")
@@ -492,6 +507,10 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
                 report["writes"]["skipped"] += 1
             log.info("[%s] %-11s %-8s %s", ip, key, engine, note)
 
+    if report["writes"]["busy"]:
+        log.info("NOT ATTEMPTED on %d title(s) - a game was running. These "
+                 "need the next pass; they are not 'unchanged'.",
+                 report["writes"]["busy"])
     report["servers"] = status.summarize_servers(con)
     report["favorites"] = status.summarize_favorites(con)
     report["duration_sec"] = round(time.time() - t0, 1)

@@ -244,9 +244,16 @@ def best_servers(con, engine, limit=16, fresh_s=900, accepts=None):
     # broken on the address, which never moves. Membership then changes only
     # when a server crosses a band -- much rarer, and a real change when it
     # happens.
+    # `players > 0` is a defence against a MASTER's list -- 900 addresses of
+    # which 584 answer and most are empty, so without it the favourites are
+    # 16 ghost towns. It is the wrong rule for an address we chose ourselves:
+    # a curated UT99 server that happens to be empty right now is still one of
+    # the known-good community servers, and dropping it churns the file every
+    # time somebody quits. Curated entries need only to be ALIVE.
     rows = con.execute(
         "SELECT * FROM servers WHERE engine=? AND passworded=0"
-        " AND (is_local=1 OR (last_seen >= ? AND players > 0))"
+        " AND (is_local=1 OR (last_seen >= ?"
+        "      AND (source='seed' OR players > 0)))"
         " ORDER BY is_local DESC, (players/4) DESC, (ping_ms/25) ASC, addr ASC",
         (engine, cutoff)).fetchall()
     out, seen_hosts = [], set()
