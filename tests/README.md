@@ -174,6 +174,9 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | `-mfpmath=387` alone does NOT remove SSE; `-march` must drop too (2026-08-29) | `voodoo-cleanroom/build-stack.sh` | `python/test_voodoo2_cvg_stack.py` |
 | cvg relink must glob shared `swlibs/newpci/pcilib` objects or it emits NO dll (2026-08-29) | `voodoo-cleanroom/build-stack.sh` | `python/test_voodoo2_cvg_stack.py` |
 | `GL_SGIS_multitexture` stays opt-in — advertising it hangs the Q2 timedemo on Voodoo 2 (2026-08-29) | `voodoo-cleanroom/patches/mesafx-sgis-multitexture.patch` | `python/test_voodoo2_cvg_stack.py` |
+| Unreal's `WindowedRenderDevice` must be GlideDrv — a Voodoo 2 cannot render windowed, so `SoftDrv` strands the session on the software rasterizer (2026-08-30) | `scripts/voodoo2/fix_glide_games.py` | `python/test_voodoo2_unreal_glide.py` |
+| A Voodoo 2 is 16bpp-only and a single 4MB-FBI card cannot exceed 640x480 with 3 colour buffers — the stock ini asked 1024x768x32 (2026-08-30) | `scripts/voodoo2/fix_glide_games.py` | `python/test_voodoo2_unreal_glide.py` |
+| A game-local `glide2x.dll` shadows the real driver; tell nGlide (1,310,720) from real 3dfx Glide (226,304) BY SIZE (2026-08-30) | `scripts/voodoo2/fix_glide_games.py` | `python/test_voodoo2_unreal_glide.py` |
 | stopping the Themes service strips **Aero** on Vista+ — XP-only, or every agent restart un-fixes Win7 (.246, 2026-08-29) | `agent/src/retrowall.c` | `python/test_retrowall_theme.py` |
 | desktop icons landed 103 px apart in an 80 px bay - `LVS_EX_SNAPTOGRID` is a SECOND setting the arranger never cleared (2026-08-29) | `agent/src/gamesync.c` | `python/test_icon_arrange_grid.py` |
 | an unactivated Windows blanks the desktop hourly - the fleet wallpaper must be KEPT, not just applied (.246, 2026-08-29) | `agent/src/retrowall.c` | `python/test_retrowall_theme.py` |

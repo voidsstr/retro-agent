@@ -133,3 +133,33 @@ i686-w64-mingw32-gcc -O2 -o drvupd.exe tools/drvupd.c -lsetupapi -lcfgmgr32
 The script does **not** reboot — that needs explicit user approval.
 
 Fleetbook: `voodoo-2-and-voodoo-2-sli-on-a-fleet-windows-xp-box-driver-d`.
+
+## Keeping games ON the card (2026-08-30)
+
+A Voodoo 2 is a **3D-only passthrough card**, and two things silently take a game
+off it. Both were live on `.171`'s UnrealGold, which looked like it was crashing
+and was really running on the *software rasterizer* at 100% CPU.
+
+**A game-local `glide2x.dll` shadows the real driver.** Game-local DLLs win over
+`system32`. Identify by **size**: **226,304** is the real 3dfx Glide (reports
+`Glide 2.56.00.0459`); **1,310,720** is the **nGlide wrapper** (reports `Glide
+2.60`) which translates to Direct3D and does not touch the card. On `.171` nGlide
+does not even work — `grSstOpen failed (2, 3)` — so the game got neither.
+
+**Unreal-engine games fall out of Glide on the first focus change.** Unreal's own
+splash grabs the foreground after the viewport has gone fullscreen; the resulting
+`WM_KILLFOCUS` → `EndFullscreen` switches to `WindowedRenderDevice`, and the card
+cannot render windowed. Point that at GlideDrv too and Unreal *re-opens* Glide
+instead of falling back to `SoftDrv`.
+
+Mode limits worth remembering: the card is **16bpp only**, and a single 4 MB-FBI
+card cannot exceed **640x480** once the game asks for three colour buffers.
+
+```bash
+python3 scripts/voodoo2/fix_glide_games.py --host 192.168.1.171 --check
+python3 scripts/voodoo2/fix_glide_games.py --host 192.168.1.171 --apply
+```
+
+Diagnosing: a GDI `SCREENSHOT` **cannot see this card** (3D leaves via the
+passthrough cable), so judge by CPU-time delta and the game's own log. Full
+write-up: [`docs/machines/192.168.1.171-NSC-5B996B81319.md`](../../docs/machines/192.168.1.171-NSC-5B996B81319.md).
