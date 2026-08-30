@@ -17,26 +17,37 @@ than implied.
 | **capped / 4:3** | the engine has a real ceiling or no widescreen mode; it gets the largest correctly-proportioned mode it can reach |
 | **incapable** | no configurable resolution at all |
 
-## The panels (measured 2026-08-30 with `FLEETRES.EXE -info` on each box)
+## The panels — read back from each box's own DEPLOYED `FLEETRES.EXE`
 
-| box | monitor | panel | native | wide target | 4:3 target | `FR_Q2MODE` | `FR_Q3MODE` |
-|---|---|---|---|---|---|---|---|
-| .123 | DELL P2312H | **LCD** | 1920x1080 16:9 | **1920x1080** | 1280x960 | 8 | 7 (1152x864) |
-| .124 | no EDID | CRT | — | 1024x768 | 1024x768 | 6 | 6 (1024x768) |
-| .133 | ViewSonic `VSC384D` | CRT | 1280x1024 pref, **4:3 tube** (37x28 cm) | 1280x960 | 1280x960 | 8 | 7 |
-| .143 | no EDID | CRT | — | 1024x768 | 1024x768 | 6 | 6 |
-| .145 | DELL E2414H | **LCD** | 1920x1080 16:9 | **1920x1080** | 1280x960 | 8 | 7 |
-| .171 | Gateway VX1120 | CRT | 1920x1440 4:3 | **800x600** ¹ | 800x600 | 4 | 4 |
-| .240 | DELL E2313H | **LCD** | 1920x1080 16:9 | **1920x1080** | 1280x960 | 8 | 7 |
-| .246 | HP 2511 (digital) | **LCD** | 1920x1080 16:9 | **1920x1080** | 1280x960 | 8 | 7 |
+Not from notes, and not from my copy: this is `FLEETRES.EXE -cmd` run out of
+`C:\Games\HalfLife1\` on each machine, i.e. the exact answer the launchers get.
+
+| box | monitor | EDID | panel | wide target | 4:3 target | Hz | `FR_Q2MODE` | `FR_Q3MODE` |
+|---|---|---|---|---|---|---|---|---|
+| .123 | DELL P2312H | yes | **LCD** | **1920x1080** | 1280x960 | 60 | 8 | 7 (1152x864) |
+| .124 | — | **no** | CRT | 1024x768 | 1024x768 | **75** | 6 | 6 |
+| .133 | — | **no** | CRT | **1280x960** | 1280x960 | **85** | 8 | 7 |
+| .143 | — | **no** | CRT | 1024x768 | 1024x768 | **100** | 6 | 6 |
+| .145 | DELL E2414H | yes | **LCD** | **1920x1080** | 1280x960 | 60 | 8 | 7 |
+| .171 | Gateway VX1120 | yes | CRT | **800x600** ¹ | 800x600 | 60 | 4 | 4 |
+| .240 | DELL E2313H | yes | **LCD** | **1920x1080** | 1280x960 | 60 | 8 | 7 |
+| .246 | HP 2511 | yes | **LCD** | **1920x1080** | 1280x960 | 60 | 8 | 7 |
 
 ¹ `.171`'s 3D is a **Voodoo 2** (hard 800x600 ceiling) behind an Intel 865G, so
-it carries `HKLM\Software\RetroAgent\ResCapW/ResCapH = 800/600`. The tube itself
-would take far more; the card would not.
+it carries `HKLM\Software\RetroAgent\ResCapW/ResCapH = 800/600`. The tube
+itself would take far more; the card would not.
 
-`.133` and `.171` were both being driven at **1280x1024 on a 4:3 tube** before
-this work — 5:4 on 4:3, i.e. squashed. That is why `FR_Q3MODE` skips id Tech 3
-mode 8 (1280x1024) rather than taking the biggest number available.
+**Three boxes now present no EDID** (`.124`, `.133`, `.143`) — and `.133` had it
+this morning, measured at 37x28 cm. It lost it across a reboot, at which point
+the old fallback handed it 1280x1024 back: a 5:4 image on a 4:3 tube. No EDID
+now assumes a 4:3 tube, which is why `.133` reads 1280x960 above. Putting those
+three monitors on a port that carries DDC would turn three inferences back into
+measurements.
+
+**The refresh column is why `FR_HZ` exists.** Halo's `-vidmode w,h,hz` shipped a
+hardcoded `60`, which throws away 100 Hz on `.143`, 85 on `.133` and 75 on
+`.124`. A refresh constant is the same defect as a resolution constant, one
+field to the right.
 
 ## Every title
 
