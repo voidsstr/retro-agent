@@ -41,6 +41,7 @@
 #include "handlers.h"
 #include "util.h"
 #include "log.h"
+#include "ntdyn.h"
 
 #define WALLDIR        "C:\\retro-wall"
 #define ROTATE_EXE     WALLDIR "\\rotate_wall.exe"
@@ -148,24 +149,41 @@ static int os_is_xp_or_older(void)
     return osvi.dwMajorVersion < 6;
 }
 
+/*
+ * NOTE the ntdyn_* wrappers, not the plain Win32 names.
+ *
+ * Windows 9x has NO Service Control Manager - its advapi32.dll exports none of
+ * this family - and a STATIC import the loader cannot resolve makes the whole
+ * EXE fail to load, before main() runs, with nothing written anywhere. Calling
+ * OpenSCManagerA directly here is what stranded the Win98SE box .243 on agent
+ * 1.30.0 for 48 versions. See ntdyn.h.
+ */
 static void stop_and_disable_themes(void)
 {
     SC_HANDLE scm, svc;
     SERVICE_STATUS st;
 
-    scm = OpenSCManagerA(NULL, NULL, SC_MANAGER_CONNECT);
+    /* On 9x there is no SCM at all. That is not a failure to report five
+     * times over - it is a whole class of work this Windows does not have. */
+    if (!ntdyn_scm_available()) {
+        log_msg(LOG_MAIN, "retrowall: no Service Control Manager on this "
+                          "Windows - leaving the Themes service alone");
+        return;
+    }
+
+    scm = ntdyn_OpenSCManagerA(NULL, NULL, SC_MANAGER_CONNECT);
     if (!scm)
         return;
-    svc = OpenServiceA(scm, "Themes",
-                       SERVICE_STOP | SERVICE_QUERY_STATUS | SERVICE_CHANGE_CONFIG);
+    svc = ntdyn_OpenServiceA(scm, "Themes",
+                             SERVICE_STOP | SERVICE_QUERY_STATUS | SERVICE_CHANGE_CONFIG);
     if (!svc) {
         /* Not present on 9x, and on some XP builds it is called differently.
          * Nothing to do either way. */
-        CloseServiceHandle(scm);
+        ntdyn_CloseServiceHandle(scm);
         return;
     }
-    if (QueryServiceStatus(svc, &st) && st.dwCurrentState != SERVICE_STOPPED) {
-        if (ControlService(svc, SERVICE_CONTROL_STOP, &st))
+    if (ntdyn_QueryServiceStatus(svc, &st) && st.dwCurrentState != SERVICE_STOPPED) {
+        if (ntdyn_ControlService(svc, SERVICE_CONTROL_STOP, &st))
             log_msg(LOG_MAIN, "retrowall: stopped the Themes service (Luna off)");
         else
             log_msg(LOG_MAIN, "retrowall: could not stop Themes (%lu) - the "
@@ -174,12 +192,12 @@ static void stop_and_disable_themes(void)
     }
     /* Disabled, not Manual: on Manual something else can start it again and the
      * box silently reverts to half-themed after a reboot. */
-    if (ChangeServiceConfigA(svc, SERVICE_NO_CHANGE, SERVICE_DISABLED,
-                             SERVICE_NO_CHANGE, NULL, NULL, NULL, NULL,
-                             NULL, NULL, NULL))
+    if (ntdyn_ChangeServiceConfigA(svc, SERVICE_NO_CHANGE, SERVICE_DISABLED,
+                                   SERVICE_NO_CHANGE, NULL, NULL, NULL, NULL,
+                                   NULL, NULL, NULL))
         log_msg(LOG_MAIN, "retrowall: Themes service set to Disabled");
-    CloseServiceHandle(svc);
-    CloseServiceHandle(scm);
+    ntdyn_CloseServiceHandle(svc);
+    ntdyn_CloseServiceHandle(scm);
 }
 
 

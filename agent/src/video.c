@@ -8,6 +8,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "ntdyn.h"
 #include <windows.h>
 #include <setupapi.h>
 #include <cfgmgr32.h>
@@ -21,43 +22,10 @@ static const GUID GUID_DISPLAY = {
 };
 
 /*
- * CM_Get_DevNode_Status - dynamically loaded for Win98SE compatibility.
- * On Win98SE this is in cfgmgr32.dll, on NT in setupapi.dll or cfgmgr32.dll.
- * We try both. If unavailable, device status checks are skipped.
+ * CM_Get_DevNode_Status is resolved at RUNTIME, in ntdyn.c, because it lives in
+ * cfgmgr32.dll on Win98SE and in setupapi.dll on NT - and a static import the
+ * loader cannot resolve makes the whole EXE fail to load. See ntdyn.h.
  */
-typedef DWORD (WINAPI *PFN_CM_Get_DevNode_Status)(
-    PULONG pulStatus, PULONG pulProblemNumber, DWORD dnDevInst, ULONG ulFlags);
-static PFN_CM_Get_DevNode_Status pfn_CM_Get_DevNode_Status = NULL;
-static int g_cm_loaded = 0;
-
-static void load_cfgmgr(void)
-{
-    HMODULE hmod;
-    if (g_cm_loaded) return;
-    g_cm_loaded = 1;
-
-    hmod = LoadLibraryA("cfgmgr32.dll");
-    if (hmod) {
-        pfn_CM_Get_DevNode_Status = (PFN_CM_Get_DevNode_Status)
-            GetProcAddress(hmod, "CM_Get_DevNode_Status");
-        if (pfn_CM_Get_DevNode_Status) {
-            log_msg(LOG_VIDEO, "CM_Get_DevNode_Status loaded from cfgmgr32.dll");
-            return;
-        }
-    }
-
-    hmod = LoadLibraryA("setupapi.dll");
-    if (hmod) {
-        pfn_CM_Get_DevNode_Status = (PFN_CM_Get_DevNode_Status)
-            GetProcAddress(hmod, "CM_Get_DevNode_Status");
-        if (pfn_CM_Get_DevNode_Status) {
-            log_msg(LOG_VIDEO, "CM_Get_DevNode_Status loaded from setupapi.dll");
-            return;
-        }
-    }
-
-    log_msg(LOG_VIDEO, "CM_Get_DevNode_Status not available");
-}
 
 static void read_reg_string(HKEY hkey, const char *name, char *buf, int bufsize)
 {
@@ -252,8 +220,7 @@ static void add_adapters_from_registry(json_t *j)
             }
 
             /* Try to get device status via SetupAPI / CfgMgr */
-            load_cfgmgr();
-            if (pfn_CM_Get_DevNode_Status) {
+            if (ntdyn_cm_available()) {
                 HDEVINFO devs;
                 SP_DEVINFO_DATA devinfo;
                 DWORD dev_idx;
@@ -266,7 +233,7 @@ static void add_adapters_from_registry(json_t *j)
                          SetupDiEnumDeviceInfo(devs, dev_idx, &devinfo);
                          dev_idx++) {
                         ULONG dn_status = 0, dn_problem = 0;
-                        if (pfn_CM_Get_DevNode_Status(&dn_status, &dn_problem,
+                        if (ntdyn_CM_Get_DevNode_Status(&dn_status, &dn_problem,
                                                       devinfo.DevInst, 0)
                             == CR_SUCCESS) {
                             (void)dn_status;
@@ -387,7 +354,6 @@ void handle_pciscan(SOCKET sock)
             pci_enum_path, display_class_path);
 
     /* ---- Phase 1: Collect physically present display devices ---- */
-    load_cfgmgr();
     {
         HDEVINFO devs;
         SP_DEVINFO_DATA devinfo;
@@ -783,9 +749,8 @@ void handle_drivers(SOCKET sock, const char *args)
             if (filter[0] && _stricmp(cls, filter) != 0)
                 continue;
 
-            load_cfgmgr();
-            if (pfn_CM_Get_DevNode_Status)
-                pfn_CM_Get_DevNode_Status(&status, &problem, devinfo.DevInst, 0);
+            if (ntdyn_cm_available())
+                ntdyn_CM_Get_DevNode_Status(&status, &problem, devinfo.DevInst, 0);
 
             json_object_start(&j);
             json_kv_str(&j, "description", desc);

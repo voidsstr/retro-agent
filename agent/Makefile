@@ -50,6 +50,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/dosstage.c \
           $(SRCDIR)/watchdog.c \
           $(SRCDIR)/monitor.c \
+          $(SRCDIR)/ntdyn.c \
           $(SRCDIR)/log.c \
           $(SRCDIR)/util.c
 

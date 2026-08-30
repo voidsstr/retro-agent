@@ -159,6 +159,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | 0.2 real-mode hardening: 8K stack, kflush, vinit mode reset, INT 24h handler | DOS lane (dosgame.c + Makefile) | `python/test_dosgame_stability.py` |
 | 0.2 diagnostic log (DOSGAME.LOG): decisions + batch steps, flushed per line | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
 | **agent 1.26.0 Win9x REBOOT: don't kill the agent mid-shutdown-negotiation** | agent handlers.c | `python/test_agent_log_and_reboot.py` |
+| **agent 1.78.1 Win9x LOAD: the exe must import nothing 9x lacks — 7 NT-only statics (SCM family + `CM_Get_DevNode_Status`) made every build since ~1.31 fail to LOAD on Win98SE, no log line, `main()` never reached** (2026-08-30) | agent ntdyn.c / retrowall.c / gamesync.c / video.c | `python/test_agent_win9x_imports.py` |
 | agent 1.26.0 batched logging: unbuffered startup, flush on every exit path | agent log.c / main.c | `python/test_agent_log_and_reboot.py` |
 | DOS net bring-up: guarded drivers, PKT.OK written, CHAT auto-calls NETUP | DOS lane (NETUP/PLAY/CHAT.BAT) | `python/test_dosgame_install_detect.py` |
 | **0.2 a game you PLAYED is not where the next install went (Duke 3D)** (2026-08-13) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |

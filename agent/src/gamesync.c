@@ -33,6 +33,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "ntdyn.h"
 #include "../shared/drvprefs.h"
 #include "../shared/gamegate.h"
 
@@ -751,7 +752,7 @@ static int gs_devices_unconfigured(void)
     dev.cbSize = sizeof(dev);
     for (i = 0; SetupDiEnumDeviceInfo(set, i, &dev); i++) {
         DWORD status = 0, problem = 0;
-        if (CM_Get_DevNode_Status(&status, &problem, dev.DevInst, 0) != CR_SUCCESS)
+        if (ntdyn_CM_Get_DevNode_Status(&status, &problem, dev.DevInst, 0) != CR_SUCCESS)
             continue;
         if (problem != 0 || (status & DN_HAS_PROBLEM)) {
             char name[256], ids[1024], inf[MAX_PATH];
@@ -900,7 +901,7 @@ static void gs_install_missing_drivers(void)
         BOOL  reboot = FALSE;
         char *p;
 
-        if (CM_Get_DevNode_Status(&status, &problem, dev.DevInst, 0) != CR_SUCCESS)
+        if (ntdyn_CM_Get_DevNode_Status(&status, &problem, dev.DevInst, 0) != CR_SUCCESS)
             continue;
         if (problem == 0 && !(status & DN_HAS_PROBLEM))
             continue;

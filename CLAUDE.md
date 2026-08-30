@@ -1649,6 +1649,49 @@ img.save('/tmp/retro-screenshots/screen.png', optimize=True)
 
 Zoom into regions for detail: crop with Pillow and resize with `Image.NEAREST`.
 
+## A STATIC IMPORT WIN9x LACKS KILLS THE EXE AT LOAD — resolve it dynamically (REQUIRED)
+
+**The agent must import nothing Windows 9x cannot resolve. A single unresolved
+static import makes the WHOLE PROCESS fail to load — before `main()`, with no
+log file, no error dialog and nothing on the box to point at it.** There is no
+lazy binding to save you.
+
+Found 2026-08-30 on **.243** (`N5R5L9`, Win98SE, Pentium P54C): the box was
+stranded on agent **1.30.0** while the fleet ran 1.78.0, and 1.78.0 would not
+start there *at all*. Diffing the two binaries' PE import tables named seven
+NT-only entry points that had crept in:
+
+| import | why 9x cannot resolve it |
+|---|---|
+| `OpenSCManagerA` `OpenServiceA` `ControlService` `QueryServiceStatus` `CloseServiceHandle` `ChangeServiceConfigA` | **Windows 9x has no Service Control Manager** — its `advapi32.dll` exports none of that family (`retrowall.c`, stopping the Themes service) |
+| `CM_Get_DevNode_Status` | `setupapi.dll` on NT, **`cfgmgr32.dll` on 9x** (`gamesync.c`) |
+
+Fixed in **1.78.1**: all seven resolve through **`agent/src/ntdyn.c`** with
+`GetProcAddress` and degrade gracefully — on 9x `ntdyn_scm_available()` is
+false, and the caller logs *"no Service Control Manager on this Windows"* and
+skips, rather than failing. `video.c`'s own duplicate loader was folded into it.
+
+- **`service.c` keeps its own, larger dynamic table** (it also needs
+  `CreateServiceA`, `StartServiceCtrlDispatcherA`, … for NT service mode). It
+  has always been dynamic and was never part of this bug.
+- **NOT banned:** the four `SetupDi*`, `AdjustTokenPrivileges`,
+  `OpenProcessToken`, `LookupPrivilegeValueA` — 1.30.0 imports them too and runs
+  fine on that box. Do not widen the ban list by resemblance.
+- **The guard is a PE-import assertion on the BUILT binary**,
+  `tests/python/test_agent_win9x_imports.py` — *a source grep would not have
+  caught this*: `OpenSCManagerA(...)` is perfectly ordinary C, and it sat in
+  files right beside modules that already resolved the same names dynamically.
+  ONE direct call anywhere recreates the import.
+
+**Why this test is now a safety mechanism and not a nicety:** `spawn_helper()`
+used to pass `lpThreadId = NULL`, which NT accepts and **Win95/98 rejects with
+error 87** — so on 9x the `autoupdate`, `retrowall`, `watchdog`, `dosstage` and
+`sharelog` threads silently never started. That is the only reason .243 never
+pulled the unloadable binary and bricked itself. With that fixed, a 9x box now
+auto-updates like any other, so a future NT-only import would take it dark with
+**no supervision at all** — the `RetroAgent` Run key fires only at logon, and
+recovery needs someone physically at the machine.
+
 ## Win98 Known Issues & Fixes
 
 ### SYSFIX Command
