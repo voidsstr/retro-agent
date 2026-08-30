@@ -31,7 +31,7 @@ other values and an `unknown` must carry a reason.
 | GoldSrc | `steam.inf` `PatchVersion` ∈ known protocol-48 set; **no `steam.inf` anywhere = WON-era = fail** | comparing PatchVersion to the *server's* for equality reported 56 mismatches, none real — 1.1.2.5 and 1.1.2.7 are both protocol 48 |
 | Quake III | any `pak*.pk3` in `baseq3` | requiring the retail `pak0..pak8` set failed .145, which has only pak0..pak6 and was at that moment playing on the server |
 | Quake II | a recognised engine exe | protocol 34 is stable across 3.20 and every source port |
-| UT99 | the `OldUnreal469*.u` stamp package | the first version looked for `VulkanDrv`/`XOpenGLDrv`/`SDLDrv` — the *Linux server's* renderers, which no Windows client has, so all 15 UT99 installs read as 436/451 |
+| UT99 | the `OldUnreal469*.u` stamp package; **a 436 tree also passes** | the first version looked for `VulkanDrv`/`XOpenGLDrv`/`SDLDrv` — the *Linux server's* renderers, which no Windows client has, so all 15 UT99 installs read as 436/451 |
 
 It also flags **files differing only in case** in a UT99 `System/` directory:
 two such files are one file on a Windows client, and which one survives the
@@ -58,6 +58,12 @@ console log) — not by reasoning about version numbers:
 | Quake III | ioquake3, pak0..pak6 | ioquake3 1.36 | joined as `BOX145` |
 | Quake II | quake2.exe | Yamagi 8.60, protocol 34 | joined as `Player` |
 | The Specialists | WON HL 1.1.1.0 | 48 | **process exits on `+connect`** |
+| UT99 | true 436 (no OldUnreal stamp) | 469a | joined as `pigga` |
+
+**436 and 469 interoperate**, which matters because `UnrealTournament436` is a
+deliberately staged library title for the boxes whose CPUs predate SSE2 and so
+cannot run 469 at all — it is on 7 of the 9 boxes. A 436 tree is therefore a
+supported client, not a leftover to be upgraded, and the audit passes it.
 
 Two traps worth remembering, both of which nearly produced a wrong answer here:
 

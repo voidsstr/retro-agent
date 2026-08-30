@@ -206,21 +206,24 @@ async def _test_ut99_is_identified_by_the_oldunreal_stamp_package():
     assert got[0].state == audit.OK and got[0].found == "OldUnreal469c"
 
 
-def test_a_436_tree_is_unknown_because_it_may_be_a_kept_reference_copy():
-    asyncio.run(_test_a_436_tree_is_unknown_because_it_may_be_a_kept_reference_copy())
+def test_a_436_tree_is_a_supported_client_not_a_fault():
+    asyncio.run(_test_a_436_tree_is_a_supported_client_not_a_fault())
 
 
-async def _test_a_436_tree_is_unknown_because_it_may_be_a_kept_reference_copy():
-    """C:\\Games\\UT436 is named for its version and is old on purpose.
+async def _test_a_436_tree_is_a_supported_client_not_a_fault():
+    """436 is staged ON PURPOSE for the pre-SSE2 boxes, which cannot run 469.
 
-    Every box carrying one ALSO has a 469c C:\\Games\\UnrealTournament. Calling
-    the old tree a mismatch sends someone to fix a directory nobody plays on.
+    `UnrealTournament436` is a library title on 7 of the 9 boxes. Verified on
+    hardware 2026-08-29: .145's true-436 client (no OldUnreal stamp, no
+    D3D9Drv/ALAudio) joined our OldUnreal 469a server and appeared in its
+    player list. 436 and 469 interoperate, so a 436 tree can play and must not
+    be reported as a client needing an upgrade.
     """
     names = ["Core.dll", "UnrealTournament.exe"]
     conn = FakeConn(texts={"DIRLIST C:\\Games\\UT436\\System":
                            "[" + ",".join('{"name":"%s"}' % n for n in names) + "]"})
     got = await audit.check_unreal(conn, "ut99", "C:\\Games\\UT436", {"unreal": "469"})
-    assert got[0].state == audit.UNKNOWN
+    assert got[0].state == audit.OK
 
 
 def test_a_case_collision_is_flagged():

@@ -269,19 +269,21 @@ async def check_unreal(conn, game: str, d: str, want) -> list:
         out.append(Marker(game, d, OK, found="469-era (D3D9Drv/ALAudio, no stamp)",
                           want=want["unreal"]))
     else:
-        # Several boxes deliberately keep a second, older tree -- C:\Games\UT436
-        # is named for its own version, and .143 also has the untouched GOG
-        # copy. Those are reference installs, not broken clients: each of those
-        # boxes ALSO has a 469c C:\Games\UnrealTournament, which is the one
-        # that plays. Reporting the old tree as a mismatch sends someone to
-        # "fix" a directory that is old on purpose. It is reported, but the
-        # box's verdict is decided by its best install (see summarise_box).
-        out.append(Marker(game, d, UNKNOWN,
-                          found="no OldUnreal stamp package (436/451-era tree)",
-                          want=want["unreal"],
-                          why="an older tree kept alongside a current one is"
-                              " not necessarily a fault -- check whether this"
-                              " box has another install that is on 469"))
+        # A 436 tree is a SUPPORTED client here, not a fault and not merely a
+        # leftover. `UnrealTournament436` is a deliberately staged library
+        # title for the boxes whose CPUs predate SSE2 and therefore cannot run
+        # 469 at all; it is on 7 of the 9 boxes.
+        #
+        # And it works: verified 2026-08-29 by launching .145's
+        # C:\Games\UnrealTournament436 client -- no OldUnreal stamp, no
+        # D3D9Drv/ALAudio, a true 436 -- at our OldUnreal 469a server, where it
+        # appeared in the server's own player list. 436 and 469 interoperate.
+        #
+        # (C:\Games\UT436 and .143's untouched GOG copy are the older, ad-hoc
+        # version of the same idea. Same verdict: they can play.)
+        out.append(Marker(game, d, OK,
+                          found="436 (no OldUnreal stamp) -- verified against 469a",
+                          want=want["unreal"]))
     # The case-collision trap: two files differing only in case are one file on
     # a Windows client, and which one survives a copy is arbitrary. A client
     # that ends up with the wrong Botpack.u is refused with a version mismatch.
