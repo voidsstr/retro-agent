@@ -59,13 +59,62 @@ def font(size, bold=False):
     return ImageFont.load_default()
 
 
-def icon_bay(w, h):
+DEFAULT_LIBRARY = '/mnt/retro-share/Files/Games-Library'
+
+
+def count_staged_shortcuts(library):
+    """How many desktop icons the fleet will actually have.
+
+    One per DATA line of each title's launch.txt (a title can ship several -
+    Red Alert 2 lists the game and Yuri's Revenge), plus the handful the agent
+    makes itself. Directories starting with '_' are support, not games.
+
+    Returns 0 when the share is not mounted, which is not an error here: the
+    caller falls back to the base bay and says so.
+    """
+    AGENT_OWN = 3          # Retro Agent, Retro Chat, and the share shortcut
+    try:
+        titles = sorted(os.listdir(library))
+    except OSError:
+        return 0
+    n = 0
+    for t in titles:
+        if t.startswith('_'):
+            continue
+        try:
+            with open(os.path.join(library, t, 'launch.txt'), 'rb') as fh:
+                body = fh.read(1023).decode('ascii', 'replace')
+        except OSError:
+            continue
+        for line in body.splitlines():
+            line = line.strip()
+            if line and not line.startswith('#'):
+                n += 1
+    return n + AGENT_OWN if n else 0
+
+
+def icon_bay(w, h, n_icons=None):
     """Where the icons live. THE one definition - the arranger reads this.
 
     Windows puts icons at the top-left by default and fights attempts to move
     them elsewhere, so the bay is top-left too: with the grain rather than
     against it. Cell size matches XP's default icon spacing closely enough that
     a user dragging an icon lands in a cell.
+
+    n_icons WIDENS THE DRAWN PANEL TO MATCH THE ARRANGER. The agent
+    (gamesync.c:gs_arrange_cols) widens on overflow rather than packing
+    downward, because at 1024x768 the base bay is 4x8 = 32 slots against a
+    library that is now 76 shortcuts, and rows past the 8th land below the
+    bottom of the screen where they cannot be clicked at all.
+
+    Until now only the ARRANGER widened; this function always drew a bay at a
+    fixed ~34% of the screen width. So the extra columns spilled outside the
+    drawn "GAME LIBRARY" frame onto the bare wallpaper - observed on .143.
+    Passing the real shortcut count makes the art and the layout agree.
+
+    Leave n_icons None to get the base panel (what a caller wants when it does
+    not know the count). The widening rule below MUST stay identical to
+    gs_arrange_cols(); tests/python/test_icon_bay_matches_agent.py pins them.
     """
     cell_w, cell_h = 76, 80
     margin_x = max(18, int(w * 0.018))
@@ -74,6 +123,12 @@ def icon_bay(w, h):
     # As many columns as fit in ~34% of the width, and rows in the usable height.
     cols = max(2, int((w * 0.34) // cell_w))
     rows = max(3, int((h - margin_y - header_h - 24) // cell_h))
+
+    if n_icons is not None and n_icons > cols * rows:
+        need = (n_icons + rows - 1) // rows      # cols to fit in `rows` rows
+        maxcols = max(1, (w - margin_x) // cell_w)   # what the screen allows
+        cols = max(cols, min(need, maxcols))     # never narrow the bay
+
     return {
         'x': margin_x, 'y': margin_y + header_h,
         'cell_w': cell_w, 'cell_h': cell_h,
@@ -271,10 +326,10 @@ def scanlines_and_glow(img, w, h):
     return Image.composite(img, Image.new('RGB', (w, h), BLACK), vig)
 
 
-def generate(w, h, label, seed=7):
+def generate(w, h, label, seed=7, n_icons=None):
     img = Image.new('RGB', (w, h), BLACK)
     d = ImageDraw.Draw(img)
-    bay = icon_bay(w, h)
+    bay = icon_bay(w, h, n_icons)
 
     horizon = int(h * 0.62)
     draw_grid_floor(d, w, h, horizon)
@@ -305,13 +360,32 @@ def main():
     ap.add_argument('--label', default='RETRO FLEET')
     ap.add_argument('--sizes', default='800x600,1024x768,1280x1024,1600x1200,'
                                        '1280x800,1440x900,1920x1080')
+    ap.add_argument('--icons', type=int, default=None,
+                    help='expected desktop shortcut count. The bay is DRAWN '
+                         'wide enough to hold this many, matching the widening '
+                         'the agent does at arrange time. Omit and it is '
+                         'counted from the staged library; pass 0 to force the '
+                         'base panel.')
+    ap.add_argument('--library', default=DEFAULT_LIBRARY,
+                    help='staged library, used to count shortcuts for --icons')
     a = ap.parse_args()
+
+    n_icons = a.icons
+    if n_icons is None:
+        n_icons = count_staged_shortcuts(a.library)
+        if n_icons:
+            print(f'  counted {n_icons} shortcuts in {a.library}')
+        else:
+            print(f'  library not readable ({a.library}) - drawing the base '
+                  f'bay. Pass --icons N if the fleet has more shortcuts than '
+                  f'it holds, or the art will not match the layout.')
+    n_icons = n_icons or None
     os.makedirs(a.out, exist_ok=True)
 
     geom = {}
     for spec in a.sizes.split(','):
         w, h = (int(v) for v in spec.lower().split('x'))
-        img, bay = generate(w, h, a.label)
+        img, bay = generate(w, h, a.label, n_icons=n_icons)
         # BMP: XP sets a BMP wallpaper without involving any image decoder, which
         # is one less thing to fail on a fresh install.
         path = os.path.join(a.out, f'retrowall_{w}x{h}.bmp')
