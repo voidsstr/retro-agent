@@ -97,3 +97,31 @@ mode 8 (1280x1024) rather than taking the biggest number available.
 `Quake1`, at the measured 1280x960. `tests/python/test_fleetres_staging.py`
 fails if a second appears, because both caps this project has shipped were
 inherited from taste rather than measured, and both were wrong.
+
+## The id Tech 3 sweep was exhaustive, and here is how
+
+`r_mode -1` is not universal in that family, so "check the others" needed a way
+to *find* the others that does not rely on remembering which games are Quake III
+forks. Every id Tech 3 binary carries its mode table as strings, and one entry
+is distinctive enough to be a fingerprint:
+
+```bash
+strings -a <exe> | grep -q "^Mode 11: 856x480 (wide)"
+```
+
+Run over every `.exe` in the library, that returns **exactly six** binaries:
+
+| binary | `r_mode -1` | measured on .145 |
+|---|---|---|
+| `Quake3-TeamArena/quake3.exe` | works | 1920x1080 |
+| `Quake3-TeamArena/ioquake3.x86.exe` | works | 1920x1080 (through its launcher) |
+| `JediAcademy/jasp.exe` | works | 1920x1080 |
+| `JediAcademy/jamp.exe` | works | 1920x1080 |
+| `SoldierOfFortune2/sof2mp.exe` | **broken** | **640x480** |
+| `SoldierOfFortune2/SoF2.exe` | same engine, same treatment | — |
+
+There is **no** Return to Castle Wolfenstein, Elite Force or Jedi Knight II in
+this library, so nothing else on that engine is outstanding.
+`JediKnightDF2`/`JediKnightMotS` are the **Sith** engine, not id Tech 3 — they
+do not carry the string, which is the same evidence that says they have no
+width/height pair to write.
