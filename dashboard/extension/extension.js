@@ -1197,7 +1197,11 @@ export default class RetroFleetDashboard extends Extension {
                         `  +${art.scheduled} scheduled`);
                 }
             } else {
-                detail = R.span(R.COLORS.hot, art.why || 'no data');
+                // Say WHY. A bare "no data" is indistinguishable from a site
+                // that published nothing this week, which is a completely
+                // different thing and would be a real problem.
+                detail = R.span(R.STATUS[artState].color,
+                    art.why || arts.error || 'no data');
             }
             rows.push(`  ${R.statusRow(artState, 'articles', detail,
                 {markup: true, width: 10})}`);

@@ -833,3 +833,27 @@ def test_an_unreachable_api_is_a_fault_with_a_reason(dc, monkeypatch):
     got = dc.collect_site_agents()
     assert got["state"] == "fail"
     assert "refused" in got["error"]
+
+
+def test_a_missing_postgres_driver_names_itself_per_site(dc, monkeypatch):
+    """The collector runs as ROOT and psycopg2 may only be in a user
+    site-packages that root does not read -- the exact state this host was in.
+
+    The panel must say "needs python3-psycopg2", not show a blank. A blank
+    article count is indistinguishable from a site that published nothing all
+    week, which is a completely different and much more alarming thing.
+    """
+    import builtins
+    real_import = builtins.__import__
+
+    def no_psycopg2(name, *a, **kw):
+        if name == "psycopg2":
+            raise ImportError("No module named 'psycopg2'")
+        return real_import(name, *a, **kw)
+
+    monkeypatch.setattr(builtins, "__import__", no_psycopg2)
+    got = dc.collect_site_articles()
+    assert got["state"] == "absent"
+    for site in dc.SITES:
+        assert got["sites"][site]["state"] == "absent"
+        assert "psycopg2" in got["sites"][site]["why"]

@@ -1220,8 +1220,21 @@ def collect_site_articles():
     try:
         import psycopg2
     except ImportError:
+        # The collector runs as root, and psycopg2 may only be installed in a
+        # USER site-packages directory that root does not read -- which is
+        # exactly the state this host was in when the panel was written.
+        #
+        # Deliberately NOT worked around by appending the user's site-packages
+        # to sys.path: that would have a root service import code from a
+        # user-writable directory, which is a privilege-escalation route for
+        # the sake of a wall decoration. The fix is `apt install
+        # python3-psycopg2`; until then the panel says precisely that, because
+        # a blank number is indistinguishable from a site publishing nothing.
         out["state"] = "absent"
-        out["error"] = "psycopg2 not installed"
+        out["error"] = "psycopg2 not installed for root"
+        for site in SITES:
+            out["sites"][site] = {"state": "absent",
+                                  "why": "needs python3-psycopg2"}
         return out
 
     any_ok = False
