@@ -17,6 +17,7 @@ SRCDIR="$(dirname "$HERE")"
 WORK="${DOSGAME_WORK:-/tmp/dosgame-tests-$$}"
 WATCOM="${DOSGAME_WATCOM:-$HOME/development/toolchain-dos/watcom}"
 DOSBOX="${DOSGAME_DOSBOX:-dosbox}"
+DOS_RUN_FAILED=0
 
 pass=0; fail=0; skipped=0
 ok()   { echo "  PASS  $*"; pass=$((pass+1)); }
@@ -93,7 +94,35 @@ run_dos() {   # run_dos <croot> <cmd...>
     } > "$conf"
     SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy HOME="$WORK" \
         timeout -s KILL 90 "$DOSBOX" -conf "$conf" -userconf-skip >"$WORK/dosbox.log" 2>&1
-    return 0
+    local rc=$?
+    # Do NOT swallow the emulator's exit status.
+    #
+    # This used to `return 0` unconditionally. When a DOSBox run timed out --
+    # `timeout -s KILL 90` returns 137, and 90s is reachable on a loaded host,
+    # which this one routinely is with several sessions running at once -- the
+    # test carried on and every assertion that reads the run's output failed
+    # with an EMPTY value. That surfaced as
+    #
+    #     FAIL  wrong directory chosen:
+    #
+    # with nothing after the colon: an infrastructure failure reported as a
+    # logic failure, in a suite that passes perfectly on an idle machine. Two
+    # different sessions chased it as a real install-detection bug.
+    #
+    # "the emulator did not run" and "the emulator ran and got it wrong" are
+    # different answers and must not look the same.
+    if [ $rc -ne 0 ]; then
+        DOS_RUN_FAILED=$((DOS_RUN_FAILED + 1))
+        if [ $rc -eq 137 ]; then
+            echo "  [dosbox] TIMED OUT after 90s (rc=137) -- the assertions" \
+                 "below have no output to read and will fail spuriously." >&2
+        else
+            echo "  [dosbox] exited rc=$rc -- the assertions below have no" \
+                 "output to read and will fail spuriously." >&2
+        fi
+        tail -3 "$WORK/dosbox.log" 2>/dev/null | sed 's/^/  [dosbox] /' >&2
+    fi
+    return $rc
 }
 
 # ============================================================ TEST 1 =======
@@ -1133,5 +1162,13 @@ else
 fi
 
 echo
+if [ "${DOS_RUN_FAILED:-0}" -gt 0 ]; then
+    echo
+    echo "  !! $DOS_RUN_FAILED DOSBox run(s) did not complete (timeout or crash)."
+    echo "     Failures above are very likely SPURIOUS -- the assertions had no"
+    echo "     emulator output to read. This suite passes on an idle host and"
+    echo "     the 90s per-run timeout is reachable when several sessions are"
+    echo "     building at once. Re-run before chasing an install-detection bug."
+fi
 echo "dosgame DOS tests: $pass passed, $fail failed, $skipped skipped"
 [ "$fail" -eq 0 ]
