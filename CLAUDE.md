@@ -1565,3 +1565,56 @@ Two hard-won rules from standing that up (full detail in
 The older *Linux* dedicated-server installers and the `cs16-servers` ops skill
 remain in the private **retro-agent-private** repo
 (`.claude/skills/cs16-servers/`, `docs/game-compat-and-servers.md`).
+
+## One Staged Tree, Eight Monitors — the resolution is PER BOX (REQUIRED)
+
+**A resolution written into a staged config is wrong somewhere by
+construction.** The fleet is four 1920x1080 16:9 LCDs (`.123` `.145` `.240`
+`.246`) and four CRTs — `.124` at 1024x768, `.143` with no readable EDID, and
+**`.133` and `.171` are 4:3 TUBES** that were being driven at 1280x1024, i.e.
+5:4 and visibly squashed. Until 2026-08-30 every title was pinned at 1024x768
+and Tiberian Sun at 640x480.
+
+So the fix lives **inside the staged tree and runs at launch**: each affected
+title stages `FLEETRES.EXE` (54,784 B, mingw, pure Win32, **no SSE** so it is
+safe on `.124`/`.133`/`.143`) plus `FLEETRES.BAT`, and its `Play <Game>.bat`
+calls them before starting the game.
+
+```bash
+python3 scripts/fleet/stage-fleetres.py            # apply / re-apply, idempotent
+python3 scripts/fleet/stage-fleetres.py --check    # is the share current?
+```
+Source and payload: `provisioning/fleetres/`. Tests:
+`tests/python/test_fleetres_staging.py` plus new share-side checks in
+`scripts/validate-staged-library.py`.
+
+**Four findings this encodes — do not re-derive them:**
+
+- **`wmic Win32_VideoController.CurrentHorizontalResolution` is WRONG.** It
+  reported 640x480 on `.123` while the box was really at 1024x768. Use
+  `EnumDisplaySettings`.
+- **Never derive a target from the LIVE desktop mode.** A game that exits
+  without restoring leaves the desktop at 640x480 — `.123` and `.240` were both
+  found sitting there — so a launcher trusting it pins every LATER game to
+  640x480 for good. Read the PERSISTED mode (`ENUM_REGISTRY_SETTINGS`).
+- **DOSBox `fullresolution=original` changes the WHOLE DESKTOP** to the DOS
+  mode (proved with `DISPLAYCFG` on `.145`). On a 16:9 LCD that is a stretched
+  640x480 upscale left behind after a crash; `desktop` + `aspect=true`
+  pillarboxes correctly. But `original` is right on a CRT — so neither value can
+  be a staged constant, and the launcher writes it per box.
+- **id Tech 3's `r_mode`/`r_customwidth`/`r_customheight`/`r_fullscreen` are
+  `CVAR_LATCH`** — read once at renderer init. A staged `seta r_mode "6"` runs
+  after `Com_StartupVariable` and before `R_Init` and therefore **beats the
+  command line** (measured on `.123`). Those setas are now deleted from every
+  staged `autoexec.cfg`, which ends with `exec fleetres.cfg` instead — a file
+  the launcher writes fresh at every start. **Never put `seta r_mode` back**;
+  the validator fails the library if you do. Note also that a per-user
+  `%APPDATA%\Quake3\baseq3\autoexec.cfg` (retro-gameindex writes one)
+  SHADOWS the staged file entirely, which is why the command line is kept as a
+  second route. `+vid_restart` also fixes the latch and **exits ioquake3
+  outright on `.246`** — not usable fleet-wide.
+
+**Per-box ceiling** for hardware that cannot drive its own monitor:
+`HKLM\Software\RetroAgent` `ResCapW`/`ResCapH` (REG_DWORD). Set to 800x600 on
+`.171`, whose 3D is a **Voodoo 2** with a hard 800x600 limit hiding behind the
+Intel 865G that every display-class scan reports instead.
