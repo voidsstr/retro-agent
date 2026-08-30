@@ -91,3 +91,54 @@ def test_auto_arrange_handling_is_still_there():
         "auto-arrange is a WM_COMMAND toggle and must stay a PostMessage - a "
         "synchronous send into the shell can block the agent indefinitely"
     )
+
+
+def test_auto_arrange_is_cleared_directly_when_the_toggle_does_not_take():
+    """The toggle is not enough - .143 refused it on every run for weeks.
+
+    `FCIDM_SHVIEW_AUTOARRANGE` is the shell's own menu command and it does not
+    always land. On 192.168.1.143 the agent logged "auto-arrange still on after
+    the toggle" on EVERY GAMESYNC, and the shell then laid the icons out in its
+    own grid, sprawled across the wallpaper art instead of parked in the bay.
+
+    `scripts/retro-wallpaper/arrange_icons.c` has always cleared the style bit
+    directly as well; the agent was the only arranger missing that call. It is a
+    SET, not a toggle, so it cannot turn auto-arrange on where a box had it off.
+    """
+    _, body = _arrange_fn()
+    assert re.search(
+        r"SetWindowLongA\(\s*lv,\s*GWL_STYLE,\s*style\s*&\s*~LVS_AUTOARRANGE\s*\)",
+        body), (
+        "when the WM_COMMAND toggle leaves LVS_AUTOARRANGE set, clear it with "
+        "SetWindowLongA(lv, GWL_STYLE, style & ~LVS_AUTOARRANGE) - without it "
+        "no position the agent asks for ever sticks on such a box"
+    )
+    set_at = body.index("SetWindowLongA")
+    move_at = body.index("LVM_SETITEMPOSITION_")
+    assert set_at < move_at, "clear the style before positioning anything"
+
+
+def test_overflow_widens_instead_of_running_off_the_bottom():
+    """The other half of the .143 fix, and the reason it cannot be split off.
+
+    Auto-arrange being stuck ON was MASKING a second defect: the arranger packed
+    overflow downward past the last drawn row. At 1024x768 the bay is 4x8 = 32
+    slots and the staged library is 65 shortcuts, so icons 36..64 were placed at
+    y >= 783 on a 768-pixel screen - unclickable. While the shell was ignoring
+    our positions nobody could see it; clearing auto-arrange alone would have
+    made .143 visibly WORSE.
+
+    So the two changes must ship together, and a later "simplification" must not
+    remove either. The arithmetic itself is pinned in
+    tests/native/test_icon_bay.c; this asserts the arranger actually uses it.
+    """
+    _, body = _arrange_fn()
+    assert "gs_arrange_cols(" in body, (
+        "gs_arrange_icons() must ask gs_arrange_cols() how many columns to use "
+        "so an overflowing library widens instead of running off the screen"
+    )
+    assert not re.search(r"col\s*=\s*i\s*%\s*bay\.cols", body), (
+        "the layout must use the widened column count, not bay.cols directly"
+    )
+    assert re.search(r"col\s*=\s*i\s*%\s*cols", body)
+    assert re.search(r"row\s*=\s*i\s*/\s*cols", body)

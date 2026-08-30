@@ -40,6 +40,26 @@ static void gs_icon_bay(int w, int h, gs_bay_t *b)
     b->y = margin_y + header_h;
 }
 
+
+/* Verbatim copy of gs_arrange_cols() in agent/src/gamesync.c. */
+static int gs_arrange_cols(const gs_bay_t *bay, int screen_w, int count)
+{
+    int need, maxcols;
+
+    if (count <= bay->cols * bay->rows)
+        return bay->cols;
+
+    need = (count + bay->rows - 1) / bay->rows;
+    maxcols = (screen_w - bay->x) / bay->cell_w;
+    if (maxcols < 1)
+        maxcols = 1;
+    if (need > maxcols)
+        need = maxcols;
+    if (need < bay->cols)
+        need = bay->cols;
+    return need;
+}
+
 /* Produced by: python3 scripts/retro-wallpaper/gen_retro_wall.py --out ... */
 struct expect { int w, h, x, y, cols, rows; };
 static const struct expect EXPECT[] = {
@@ -91,9 +111,67 @@ int main(void)
         gs_bay_t b;
         gs_icon_bay(800, 600, &b);
         /* 22 games plus My Computer / Recycle Bin will overflow 3x6 at 800x600.
-         * That is expected and handled - the arranger keeps packing downward -
-         * but the FIRST screenful must at least be respectable. */
+         * The arranger widens rather than running off the bottom (below), but
+         * the FIRST screenful must at least be respectable. */
         CHECK(b.cols * b.rows >= 18, "800x600 shows at least 18 slots");
+    }
+
+    printf("== a library BIGGER than the bay stays ON SCREEN ==\n");
+    /* THE BUG THIS PINS. gs_arrange_icons used to pack overflow downward past
+     * the last drawn row. At 1024x768 the bay is 4x8 = 32 slots and the staged
+     * library is 31 titles = 65 shortcuts (67 listview items with My Computer
+     * and the Recycle Bin), so items 36..66 were placed at y >= 783 on a
+     * 768-pixel screen and could not be clicked at all. Measured on .143.
+     *
+     * The rule now: widen into extra columns, keeping every icon on screen. */
+    {
+        static const int COUNTS[] = { 32, 33, 65, 67, 96, 120 };
+        unsigned c;
+        for (i = 0; i < sizeof(EXPECT) / sizeof(EXPECT[0]); i++) {
+            const struct expect *e = &EXPECT[i];
+            for (c = 0; c < sizeof(COUNTS) / sizeof(COUNTS[0]); c++) {
+                gs_bay_t b;
+                int n = COUNTS[c], cols, last_row, last_col, y, x, fits;
+                gs_icon_bay(e->w, e->h, &b);
+                cols = gs_arrange_cols(&b, e->w, n);
+                /* Skip ONLY when the screen genuinely cannot hold this many
+                 * icons at all - never when the arranger merely chose too few
+                 * columns, which is the bug under test. */
+                fits = ((e->w - b.x) / b.cell_w) * b.rows;
+                if (n > fits)
+                    continue;
+                last_row = (n - 1) / cols;
+                last_col = (n - 1) % cols;
+                y = b.y + last_row * b.cell_h + 6;
+                x = b.x + last_col * b.cell_w + 6;
+                sprintf(msg, "%dx%d with %d icons: last icon is on screen",
+                        e->w, e->h, n);
+                CHECK(y + b.cell_h <= e->h && x + b.cell_w <= e->w, msg);
+                if (y + b.cell_h > e->h || x + b.cell_w > e->w)
+                    printf("      last icon at (%d,%d) on a %dx%d screen, "
+                           "%d cols\n", x, y, e->w, e->h, cols);
+            }
+        }
+    }
+
+    printf("== widening never NARROWS the bay, and is a no-op when it fits ==\n");
+    {
+        gs_bay_t b;
+        gs_icon_bay(1920, 1080, &b);
+        /* 67 icons fit 8x12 = 96, so the drawn bay is used exactly as-is. */
+        CHECK(gs_arrange_cols(&b, 1920, 67) == b.cols,
+              "1920x1080 with 67 icons uses the bay's own 8 columns");
+        CHECK(gs_arrange_cols(&b, 1920, 1) == b.cols,
+              "a nearly empty desktop still uses the bay's own columns");
+        gs_icon_bay(1024, 768, &b);
+        /* 4x8 = 32 slots, 65 icons -> ceil(65/8) = 9 columns, and
+         * (1024-18)/76 = 13 columns fit across, so 9 it is. */
+        CHECK(gs_arrange_cols(&b, 1024, 65) == 9,
+              "1024x768 with 65 icons widens to 9 columns");
+        CHECK(gs_arrange_cols(&b, 1024, 32) == b.cols,
+              "1024x768 with exactly 32 icons does not widen");
+        CHECK(gs_arrange_cols(&b, 1024, 5000) >= b.cols,
+              "an absurd icon count never narrows the bay");
     }
 
     printf("== degenerate inputs do not produce a nonsense grid ==\n");

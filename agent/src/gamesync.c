@@ -1919,6 +1919,42 @@ static void gs_icon_bay(int w, int h, gs_bay_t *b)
     b->y = margin_y + header_h;
 }
 
+/* How many columns to actually use.
+ *
+ * The bay is a DRAWN panel: cols x rows cells, sized so the art has room. When
+ * the library outgrows it, gs_arrange_icons used to keep packing DOWNWARD past
+ * the last drawn row - which is fine on a big screen and silently loses icons
+ * on a small one. At 1024x768 the bay is 4x8 = 32 slots; the staged library is
+ * now 31 titles = 65 shortcuts, so rows 9 and beyond land below y=768 and those
+ * icons cannot be clicked at all. Measured on .143, which is exactly that box.
+ *
+ * So on overflow, widen instead of lengthening: keep the bay's row count (the
+ * screen decides that) and add whatever columns are needed, bounded by what
+ * fits across the screen. The extra columns spill outside the drawn panel,
+ * which is not pretty - but an icon beside the art beats an icon nobody can
+ * reach, and the alternative is a desktop that silently hides half the games.
+ *
+ * No overflow means no change: at 1920x1080 the bay is 8x12 = 96 slots and 67
+ * icons still land in exactly the cells the wallpaper drew.
+ */
+static int gs_arrange_cols(const gs_bay_t *bay, int screen_w, int count)
+{
+    int need, maxcols;
+
+    if (count <= bay->cols * bay->rows)
+        return bay->cols;
+
+    need = (count + bay->rows - 1) / bay->rows;   /* cols to fit in bay.rows */
+    maxcols = (screen_w - bay->x) / bay->cell_w;  /* what the screen allows */
+    if (maxcols < 1)
+        maxcols = 1;
+    if (need > maxcols)
+        need = maxcols;
+    if (need < bay->cols)
+        need = bay->cols;                          /* never narrow the bay */
+    return need;
+}
+
 static HWND gs_desktop_listview(HWND *defview_out)
 {
     HWND prog = FindWindowA("Progman", NULL);
@@ -1943,7 +1979,7 @@ static void gs_arrange_icons(void)
     HWND     defview = NULL;
     HWND     lv = gs_desktop_listview(&defview);
     gs_bay_t bay;
-    int      count, i, col, row;
+    int      count, i, col, row, cols;
     int      sw, sh;
 
     if (!lv) {
@@ -1974,9 +2010,26 @@ static void gs_arrange_icons(void)
             PostMessageA(defview, WM_COMMAND, FCIDM_SHVIEW_AUTOARRANGE_, 0);
             Sleep(600);
             style = GetWindowLongA(lv, GWL_STYLE);
-            if (style & LVS_AUTOARRANGE)
-                log_msg(LOG_GS, "auto-arrange still on after the toggle - "
-                                "icons may not stay where they are put");
+            if (style & LVS_AUTOARRANGE) {
+                /* The toggle does not always take. On .143 it failed on EVERY
+                 * run for weeks - the agent logged "still on" each time and the
+                 * shell then laid the icons out in its own grid, sprawled over
+                 * the wallpaper art instead of in the bay, which is what the
+                 * whole feature exists to prevent.
+                 *
+                 * Clear the style bit directly. GWL_STYLE is settable
+                 * cross-process on a listview, and this is precisely what
+                 * scripts/retro-wallpaper/arrange_icons.c has always done -
+                 * the agent was the only arranger missing the call. Unlike the
+                 * WM_COMMAND it is a SET, not a toggle, so it cannot turn
+                 * auto-arrange ON where a box had it off. */
+                SetWindowLongA(lv, GWL_STYLE, style & ~LVS_AUTOARRANGE);
+                Sleep(200);
+                style = GetWindowLongA(lv, GWL_STYLE);
+                log_msg(LOG_GS, "auto-arrange survived the toggle - cleared "
+                                "the style directly (now %s)",
+                        (style & LVS_AUTOARRANGE) ? "STILL ON" : "off");
+            }
         }
     }
 
@@ -2008,22 +2061,31 @@ static void gs_arrange_icons(void)
     if (count <= 0)
         return;
 
+    cols = gs_arrange_cols(&bay, sw, count);
+
     for (i = 0; i < count; i++) {
-        col = i % bay.cols;
-        row = i / bay.cols;
-        /* More icons than slots: keep packing downward rather than refusing.
-         * A machine with a small screen and every game installed should still
-         * get a tidy column, even if it runs past the drawn cells. */
+        col = i % cols;
+        row = i / cols;
+        /* Still more icons than the widened grid holds - a 3,000-title desktop
+         * on an 800x600 screen. Keep packing downward as a last resort rather
+         * than refusing; that is now genuinely the edge case it was meant to
+         * be, instead of the normal state of a 1024x768 box. */
         if (row >= bay.rows)
-            row = bay.rows - 1 + (i / bay.cols - bay.rows + 1);
+            row = bay.rows - 1 + (i / cols - bay.rows + 1);
         /* +6 centres the icon in its drawn cell (cells are inset by 3 and the
          * icon's own bitmap is smaller than the cell). */
         SendMessageA(lv, LVM_SETITEMPOSITION_, (WPARAM)i,
                      MAKELPARAM(bay.x + col * bay.cell_w + 6,
                                 bay.y + row * bay.cell_h + 6));
     }
-    log_msg(LOG_GS, "arranged %d desktop icon(s) into the %dx%d icon bay",
-            count, bay.cols, bay.rows);
+    if (cols != bay.cols)
+        log_msg(LOG_GS, "arranged %d desktop icon(s) into %d columns - the "
+                        "%dx%d bay holds only %d, so it was widened to keep "
+                        "every icon on screen",
+                count, cols, bay.cols, bay.rows, bay.cols * bay.rows);
+    else
+        log_msg(LOG_GS, "arranged %d desktop icon(s) into the %dx%d icon bay",
+                count, bay.cols, bay.rows);
 }
 
 /* ---------------------------------------------------------------------- */
