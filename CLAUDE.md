@@ -652,36 +652,51 @@ escalating "this affects the whole fleet", check whether your *measurement* is
 the broken thing — especially when the claim rests on timing rather than on a
 screenshot or a log line.
 
-## GAMESYNC's Two Blind Spots — a staged fix that can never arrive (REQUIRED)
+## GAMESYNC Never Deletes — and what changed in v1.62.0 (REQUIRED)
 
-`gs_copy_file()` decides what to copy by **file size alone** — not content, not
-mtime, not a hash. That is a deliberate trade (hashing 30 GB over SMB1 on a
-Pentium III costs more than it saves) but it produces **two distinct ways for a
-staged fix to be silently undeployable**, both of which report
-`state: done, failed_files: 0`:
+`gs_copy_file()` decides what to copy cheaply, because hashing 30 GB over SMB1
+on a Pentium III costs more than it saves. That leaves **one** live blind spot,
+and one that has been **fixed** — the distinction matters, because the old
+workaround is now obsolete advice.
 
-| blind spot | what happens | what to do instead |
-|---|---|---|
-| **it never DELETES** | a file the library stops shipping stays on every box forever | have the title's `Play <Game>.bat` delete it, or remove it on each box by hand |
-| **it skips a SAME-SIZE file** | a staged file edited to the same byte count never reaches a box that already has the old one — **forever** | **change the file's size** when you edit it, and verify it ON THE BOX |
+### STILL TRUE: it never DELETES
+A file the library **stops shipping stays on every box forever**. A stale
+`System\Running.ini` survived a full redeploy and went on raising UT's "Recovery
+Mode" dialog; `SiNGold` currently carries ~963 stale files on `.143`. Removal is
+not something GAMESYNC can express, so **put the deletion in the title's
+`Play <Game>.bat`**, or clear it on each box by hand.
 
-Both have really bitten:
-- A stale `System\Running.ini` survived a full redeploy and kept raising UT's
-  "Recovery Mode" dialog, because the library had *removed* the file and
-  removal is not a thing GAMESYNC can express.
-- A corrected `Descent1\DESCENT.CFG` was **228 bytes** and the broken copy on
-  the box was **also 228 bytes**. Repeated clean syncs never corrected it, and
-  the title went on hanging at `SOUND: (HMI) 'Invalid Driver ID'`.
-- Two boxes ran hand-edited `aqrit.cfg` files (404 bytes either way) that the
-  library could never have put right.
+### FIXED in v1.62.0: it no longer skips a same-size file
+Until then the skip test was **size only**, so a staged file edited to the same
+byte count never reached a box that already had it — silently, with
+`state=done, failed_files: 0`. That half-applied every patch we shipped: the
+Deus Ex 1.112fm payload changed 38 files and **seventeen kept their exact byte
+size**, including `Core.dll` (790,528) and `DeusEx.exe` (253,952), so boxes took
+the new `Core.u` and kept the retail `Core.dll`.
 
-**So, concretely:**
-- **Editing a staged config?** Make the length change — a trailing comment line
-  is enough and costs nothing. A one-character fix that preserves the byte count
-  cannot reach the fleet.
-- **Verifying a small fix?** Check the file **on the box** (its size, or `type`
-  it). A passing sync is not evidence that a one-line change arrived.
-- **Need a file gone?** GAMESYNC cannot do it. Put the deletion in the launcher.
+**v1.62.0 requires size AND last-write time**, and stamps the destination with
+the source's mtime so resume still costs nothing. Verified: the one-off repair
+re-copy took 1,446 s, and the **next incremental sync took 182 s**.
+
+> **⚠️ OBSOLETE ADVICE — do not follow it.** An earlier version of this section
+> told agents to *"deliberately change a staged file's size when you edit it"*
+> and to pad configs with a trailing comment. That was the correct workaround
+> **before v1.62.0 and is now cargo-cult** — it clutters staged configs to
+> defeat a check that no longer exists. Edit staged files normally.
+
+### What has NOT changed: verify the post-condition
+A sync reporting success is still not proof a specific fix arrived. **Check the
+file on the box** — its size, or `type` it — after any small staged change, and
+quote `titles_skipped` **and** `failed_files`, not `state`. Note an **aborted**
+run records its in-flight file as `failed_files: 1`, so an abort and a real
+failure look identical from the status alone.
+
+Two ways to manufacture the same mixed install by hand, both seen here:
+- **`rd /s /q` hits per-file access-denied on a running game and carries on**,
+  leaving a partial tree. Kill the game first (quoting spaced image names),
+  `rd`, then **verify the directory is gone** before syncing.
+- **GAMESYNC cannot overwrite a running `.exe`** and will skip the marker — one
+  box hit `failed_files: 5` on `SiNGold\sin.exe` because a test had it running.
 
 ## LAN / TCP Multiplayer Is Part of a Staged Game (REQUIRED)
 
