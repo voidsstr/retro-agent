@@ -21,8 +21,11 @@
  *   3. (re)installs the HKCU Run key so the rotator survives logon,
  *   4. launches the rotator (its named mutex dedupes, so this is a no-op if it's
  *      already running), and
- *   5. does NOT arrange icons - gs_arrange_icons() owns that, and the legacy
- *      exe would fight it by parking them bottom-right.
+ *   5. does NOT run the legacy arrange_icons.exe - it parks icons
+ *      bottom-right AND clears auto-arrange, so it fights the layout twice
+ *      over. The icon layout itself (gs_desktop_icons_apply(), Auto Arrange by
+ *      default) is applied EARLIER, beside the theme, because it needs nothing
+ *      staged and must not sit behind the staged-asset early returns.
  *
  * Runs in a background thread after a short delay so the shell/desktop is up
  * (the icon listview lives in explorer, and SPI_SETDESKWALLPAPER needs the
@@ -526,6 +529,22 @@ void retrowall_apply_startup(void)
     apply_hacker_theme();
     set_starfield_screensaver();
 
+    /* The DESKTOP ICON LAYOUT needs nothing staged either, and it MUST be
+     * applied above the early returns below.
+     *
+     * This is the same trap the theme and screensaver were already caught by,
+     * two paragraphs up: both of the returns below are the NORMAL path on a
+     * fleet box - apply_fleet_wallpaper() succeeds on every imaged machine,
+     * and a box with no rotation staged takes the other one. A call placed
+     * after them runs on almost nothing, logs nothing, and looks installed.
+     *
+     * gs_desktop_icons_apply() sets Windows' own Auto Arrange (or the legacy
+     * icon bay when HKLM\Software\RetroAgent\IconAutoArrange is 0). It is
+     * re-asserted on EVERY startup because Explorer rewrites its view state at
+     * logoff and can drop it, and because a re-imaged box arrives with the
+     * Windows default (off). See the block comment in gamesync.c. */
+    gs_desktop_icons_apply();
+
     /* The FLEET wallpaper wins over the old rotation.
      *
      * apply_fleet_wallpaper() picks retrowall_<W>x<H>.bmp to match the screen -
@@ -592,29 +611,24 @@ void retrowall_apply_startup(void)
     /* 4. Ensure the rotator is running (its named mutex makes this idempotent). */
     run_process(runcmd, 0);
 
-    /* 5. Park the desktop icons in the blank well. */
-    /* DO NOT run arrange_icons.exe here.
+    /* 5. DO NOT run arrange_icons.exe.
      *
-     * It parks icons in the BOTTOM-RIGHT well, which is where the wallpaper
-     * used to reserve space. The wallpaper now draws its icon bay TOP-LEFT and
-     * the agent parks them there itself in gs_arrange_icons() - which also
-     * clears LVS_EX_SNAPTOGRID (v1.67.0) and widens into extra columns when the
-     * library outgrows the bay (v1.68.0), neither of which the old exe does.
+     * The icon layout itself was already applied at the top of this function
+     * (gs_desktop_icons_apply(), above the early returns). Do not add a second
+     * arranger here; two mechanisms fighting over one desktop is exactly the
+     * bug described below.
      *
-     * Running it here therefore UNDID a correct arrangement on every single
-     * agent start. That is the worst shape a bug can take: each manual fix
-     * appeared to work and was silently reverted at the next boot, so the
-     * defect looked like "the icons keep moving" rather than anything
-     * attributable. The deployed binary is byte-identical to the repo's
-     * bottom-right arranger and its own printf still says "moved %d icons to
-     * bottom-right well".
-     *
-     * The agent has done this natively since it grew gs_arrange_icons(), so
-     * there is nothing to replace it with - the call simply goes away. Staging
-     * the file remains harmless; only running it was wrong. */
+     * It parks icons in the BOTTOM-RIGHT well and CLEARS auto-arrange, so it
+     * now fights this call twice over. Running it here UNDID a correct
+     * arrangement on every single agent start until v1.70.0. That is the worst
+     * shape a bug can take: each manual fix appeared to work and was silently
+     * reverted at the next boot, so the defect looked like "the icons keep
+     * moving" rather than anything attributable. The deployed binary's own
+     * printf still says "moved %d icons to bottom-right well". Staging the
+     * file remains harmless; only running it was wrong. */
     if (file_exists(ARRANGE_EXE))
-        log_msg(LOG_MAIN, "retrowall: %s present but NOT run - the agent "
-                          "arranges icons itself (top-left bay)", ARRANGE_EXE);
+        log_msg(LOG_MAIN, "retrowall: %s present but NOT run - the agent owns "
+                          "the desktop icon layout", ARRANGE_EXE);
 
     /* The theme and screensaver were applied at the top of this function, before
      * the rotation check, so that a machine with nothing staged still gets them.

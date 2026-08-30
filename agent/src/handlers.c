@@ -57,6 +57,7 @@ static const cmd_entry_t commands[] = {
     { "SMARTINFO",  0, handle_smartinfo,  NULL },
     { "GAMEINDEX",  1, NULL,              handle_gameindex },
     { "GAMESYNC",   1, NULL,              handle_gamesync },
+    { "ICONARRANGE",1, NULL,           handle_iconarrange },
     { "DRVUPDATE",  1, NULL,             handle_drvupdate },
     { "HWPROFILE",  1, NULL,             handle_hwprofile },
     { "DISPLAYCFG", 1, NULL,             handle_displaycfg },

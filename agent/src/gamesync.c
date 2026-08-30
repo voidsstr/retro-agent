@@ -2178,8 +2178,70 @@ static void gs_make_game_shortcut(const char *dst_dir, const char *title)
 }
 
 /* ---------------------------------------------------------------------- */
-/* desktop icon arrangement                                                */
+/* desktop icon layout                                                     */
 /* ---------------------------------------------------------------------- */
+
+/* AUTO-ARRANGE IS THE FLEET DEFAULT (v1.72.0). READ THIS BEFORE CHANGING IT.
+ *
+ * The user's requirement is simple and absolute: "the icons are always auto
+ * arranged". Windows' own Auto Arrange is the only mechanism that delivers
+ * that, because the shell re-packs the desktop ITSELF on every event that
+ * scatters icons - a resolution change, a fullscreen game exiting, a new
+ * shortcut appearing, an Explorer restart. No agent, however often it runs,
+ * can win that race; it can only tidy up afterwards, which is precisely the
+ * "the icons keep moving" complaint this replaces.
+ *
+ * WHAT THIS COSTS: the icon bay. gs_icon_bay()/gs_arrange_cols() below place
+ * each icon in a cell the wallpaper draws, to keep icons off the dossier art.
+ * With Auto Arrange ON the shell packs icons into its own grid from the
+ * top-left and IGNORES LVM_SETITEMPOSITION outright, so the bay cannot work at
+ * the same time. The two are mutually exclusive, and pretending otherwise is
+ * how this feature has broken before - two mechanisms silently fighting, each
+ * correct on its own, with the last one to run winning.
+ *
+ * So exactly one of them runs, chosen by an explicit switch rather than by
+ * accident:
+ *
+ *     HKLM\Software\RetroAgent\IconAutoArrange  (REG_DWORD)
+ *         absent or 1  -> Auto Arrange ON, shell owns the layout  (DEFAULT)
+ *         0            -> legacy icon bay, agent owns the layout
+ *
+ * The bay code is kept, not deleted, because that switch has to lead somewhere
+ * - and because the wallpaper still draws the bay, so a box that wants the art
+ * respected can have it back with one REGWRITE.
+ *
+ * IT IS A SET, NOT A TOGGLE. FCIDM_SHVIEW_AUTOARRANGE is a WM_COMMAND toggle.
+ * Firing it blindly turns Auto Arrange OFF on a box that already had it on -
+ * the exact inverse of the bug that used to leave icons in rows across the top
+ * of the screen. So: read LVS_AUTOARRANGE first, post the toggle ONLY when the
+ * bit is clear (i.e. only when the toggle moves it the way we want), then read
+ * the bit back and log what actually happened. Never trust the call.
+ *
+ * WHY THE TOGGLE AND NOT JUST SetWindowLong. The WM_COMMAND goes through the
+ * shell view's own handler, which updates Explorer's internal FOLDERSETTINGS
+ * as well as the listview style - and it is that internal state Explorer
+ * writes to the registry at logoff. SetWindowLongA(GWL_STYLE) changes only the
+ * window, so the shell would write the old value back over us. It is therefore
+ * the FALLBACK, for the case seen on .143 where the toggle did not take at all.
+ *
+ * PERSISTENCE. The desktop's view state lives in the shell bag
+ * HKCU\Software\Microsoft\Windows\Shell\Bags\1\Desktop, value FFlags - the
+ * FOLDERFLAGS word, in which bit 0 (FWF_AUTOARRANGE) is this setting and bit 2
+ * (FWF_SNAPTOGRID) is "align to grid". Measured on .143 before this change:
+ * FFlags = 0x220 (FWF_DESKTOP|FWF_NOCLIENTEDGE), both bits clear, exactly what
+ * the agent had been forcing. We OR in bit 0 so a reboot comes up arranged
+ * even before the agent's startup pass runs. That write is a BACKSTOP, not the
+ * guarantee: Explorer may rewrite the bag from its own state, which is why the
+ * live pass re-runs on EVERY agent startup (retrowall.c), the same way the
+ * wallpaper and theme do.
+ *
+ * ALIGN-TO-GRID IS LEFT ALONE in auto-arrange mode. The agent used to clear
+ * LVS_EX_SNAPTOGRID because its 103px row pitch walked icons out of the bay's
+ * 80px cells (A/B-verified on .246). With the shell doing the packing that no
+ * longer applies to anything, so clearing it would be churn against a setting
+ * we no longer care about. It is still cleared in bay mode, where it still
+ * matters.
+ */
 
 /* Park the desktop icons in the wallpaper's icon bay.
  *
@@ -2198,9 +2260,11 @@ static void gs_make_game_shortcut(const char *dst_dir, const char *title)
 
 #define LVM_FIRST_           0x1000
 #define LVM_GETITEMCOUNT_    (LVM_FIRST_ + 4)
+#define LVM_ARRANGE_         (LVM_FIRST_ + 22)
 #define LVM_SETITEMPOSITION_ (LVM_FIRST_ + 15)
 #define LVM_SETEXSTYLE_      (LVM_FIRST_ + 54)
 #define LVM_GETEXSTYLE_      (LVM_FIRST_ + 55)
+#define LVA_DEFAULT_         0x0000
 #define FCIDM_SHVIEW_AUTOARRANGE_ 0x7031
 #ifndef LVS_AUTOARRANGE
 #define LVS_AUTOARRANGE 0x0100
@@ -2208,6 +2272,14 @@ static void gs_make_game_shortcut(const char *dst_dir, const char *title)
 #ifndef LVS_EX_SNAPTOGRID
 #define LVS_EX_SNAPTOGRID 0x00080000
 #endif
+
+/* The persisted desktop view state, and the two FOLDERFLAGS bits we care
+ * about. These are the shell's own values, not ours - do not renumber. */
+#define GS_DESKTOP_BAG   "Software\\Microsoft\\Windows\\Shell\\Bags\\1\\Desktop"
+#define GS_FWF_AUTOARRANGE 0x00000001u
+#define GS_FWF_SNAPTOGRID  0x00000004u
+#define GS_ICON_KEY      "Software\\RetroAgent"
+#define GS_ICON_VALUE    "IconAutoArrange"
 
 typedef struct { int x, y, cell_w, cell_h, cols, rows; } gs_bay_t;
 
@@ -2233,7 +2305,7 @@ static void gs_icon_bay(int w, int h, gs_bay_t *b)
 /* How many columns to actually use.
  *
  * The bay is a DRAWN panel: cols x rows cells, sized so the art has room. When
- * the library outgrows it, gs_arrange_icons used to keep packing DOWNWARD past
+ * the library outgrows it, gs_arrange_bay used to keep packing DOWNWARD past
  * the last drawn row - which is fine on a big screen and silently loses icons
  * on a small one. At 1024x768 the bay is 4x8 = 32 slots; the staged library is
  * now 31 titles = 65 shortcuts, so rows 9 and beyond land below y=768 and those
@@ -2285,85 +2357,171 @@ static HWND gs_desktop_listview(HWND *defview_out)
     return FindWindowExA(defview, NULL, "SysListView32", NULL);
 }
 
-static void gs_arrange_icons(void)
+/* Which layout does this box want? Default (value absent) is auto-arrange:
+ * a box that has never heard of the switch gets the fleet behaviour. */
+static int gs_want_autoarrange(void)
 {
-    HWND     defview = NULL;
-    HWND     lv = gs_desktop_listview(&defview);
+    HKEY  hk;
+    DWORD val = 1, sz = sizeof(val), ty = REG_DWORD;
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, GS_ICON_KEY, 0, KEY_QUERY_VALUE, &hk)
+            == ERROR_SUCCESS) {
+        if (RegQueryValueExA(hk, GS_ICON_VALUE, NULL, &ty, (LPBYTE)&val, &sz)
+                != ERROR_SUCCESS || ty != REG_DWORD)
+            val = 1;
+        RegCloseKey(hk);
+    }
+    return val != 0;
+}
+
+/* Persist the setting in the desktop's shell bag so it survives a reboot even
+ * if the agent's startup pass has not run yet. Read-modify-write: FFlags
+ * carries several unrelated bits (FWF_DESKTOP, FWF_NOCLIENTEDGE...) and
+ * stamping a whole word over it would change things nobody asked about.
+ *
+ * The key may not exist at all - Win7's .246 had no Desktop subkey under
+ * Bags\1 until the desktop view state was first saved - so create it. */
+static void gs_bag_autoarrange(int on)
+{
+    HKEY  hk;
+    DWORD flags = 0, sz = sizeof(flags), ty = REG_DWORD, disp = 0;
+    DWORD before;
+    LONG  rc;
+
+    rc = RegCreateKeyExA(HKEY_CURRENT_USER, GS_DESKTOP_BAG, 0, NULL,
+                         REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE | KEY_SET_VALUE,
+                         NULL, &hk, &disp);
+    if (rc != ERROR_SUCCESS) {
+        log_msg(LOG_GS, "shell bag %s not writable (error %ld) - auto-arrange "
+                        "is still applied live, just not persisted here",
+                GS_DESKTOP_BAG, (long)rc);
+        return;
+    }
+    if (RegQueryValueExA(hk, "FFlags", NULL, &ty, (LPBYTE)&flags, &sz)
+            != ERROR_SUCCESS || ty != REG_DWORD)
+        flags = 0x220;   /* the shell's own desktop default: FWF_DESKTOP|NOCLIENTEDGE */
+    before = flags;
+
+    if (on)
+        flags |= GS_FWF_AUTOARRANGE;
+    else
+        flags &= ~GS_FWF_AUTOARRANGE;
+
+    if (flags != before) {
+        RegSetValueExA(hk, "FFlags", 0, REG_DWORD, (const BYTE *)&flags,
+                       sizeof(flags));
+        log_msg(LOG_GS, "persisted auto-arrange %s: %s\\FFlags 0x%lx -> 0x%lx",
+                on ? "ON" : "OFF", GS_DESKTOP_BAG,
+                (unsigned long)before, (unsigned long)flags);
+    } else {
+        log_msg(LOG_GS, "auto-arrange already persisted (%s\\FFlags 0x%lx)",
+                GS_DESKTOP_BAG, (unsigned long)flags);
+    }
+    RegCloseKey(hk);
+}
+
+/* Turn Auto Arrange ON, deterministically, and say whether it took.
+ *
+ * The ordering is the whole point - see the block comment at the top of this
+ * section. Post the shell's toggle ONLY when the bit is clear, because it is a
+ * toggle; fall back to the style bit when the toggle does not take; verify by
+ * reading the bit back rather than trusting either call. */
+static void gs_apply_autoarrange(HWND defview, HWND lv)
+{
+    LONG style = GetWindowLongA(lv, GWL_STYLE);
+
+    if (style & LVS_AUTOARRANGE) {
+        log_msg(LOG_GS, "auto-arrange already on - left alone (posting the "
+                        "shell toggle here would turn it OFF)");
+    } else {
+        if (defview) {
+            /* PostMessage, not Send: a synchronous send into the shell can
+             * block the agent indefinitely. */
+            PostMessageA(defview, WM_COMMAND, FCIDM_SHVIEW_AUTOARRANGE_, 0);
+            Sleep(600);
+            style = GetWindowLongA(lv, GWL_STYLE);
+        }
+        if (!(style & LVS_AUTOARRANGE)) {
+            /* The toggle does not always take - it failed on .143 on every run
+             * for weeks. Set the style bit directly; GWL_STYLE is settable
+             * cross-process on a listview. This is a SET, so it cannot flip
+             * the setting the wrong way, but it does NOT update Explorer's
+             * internal view state, which is why gs_bag_autoarrange() below and
+             * the every-startup re-apply both exist. */
+            SetWindowLongA(lv, GWL_STYLE, style | LVS_AUTOARRANGE);
+            Sleep(200);
+            style = GetWindowLongA(lv, GWL_STYLE);
+            log_msg(LOG_GS, "shell toggle did not take - set LVS_AUTOARRANGE "
+                            "directly (now %s)",
+                    (style & LVS_AUTOARRANGE) ? "on" : "STILL OFF");
+        } else {
+            log_msg(LOG_GS, "auto-arrange turned on via the shell");
+        }
+    }
+
+    /* Setting the style does not re-pack what is already on screen; ask for it
+     * explicitly so the desktop is tidy now rather than at the next refresh. */
+    if (style & LVS_AUTOARRANGE)
+        SendMessageA(lv, LVM_ARRANGE_, LVA_DEFAULT_, 0);
+    else
+        log_msg(LOG_GS, "auto-arrange COULD NOT BE SET on this desktop - icons "
+                        "will stay wherever they are");
+
+    gs_bag_autoarrange(1);
+}
+
+/* Legacy layout: park every icon in a cell the wallpaper drew.
+ *
+ * Only reachable with HKLM\Software\RetroAgent\IconAutoArrange = 0. It must
+ * turn Auto Arrange back OFF, or the shell ignores every position we set. */
+static void gs_arrange_bay(HWND defview, HWND lv)
+{
     gs_bay_t bay;
     int      count, i, col, row, cols;
     int      sw, sh;
 
-    if (!lv) {
-        log_msg(LOG_GS, "desktop listview not found - icons left as they are");
-        return;
-    }
     sw = GetSystemMetrics(SM_CXSCREEN);
     sh = GetSystemMetrics(SM_CYSCREEN);
     gs_icon_bay(sw, sh, &bay);
 
     /* Auto Arrange must be OFF or the shell snaps every icon back to the
-     * top-left grid and our positions never stick.
-     *
-     * FCIDM_SHVIEW_AUTOARRANGE is a TOGGLE, not a set - so firing it blindly
-     * turns the setting ON when it was already off, which is worse than doing
-     * nothing and is precisely what happened: the icons ended up in neat rows
-     * across the top of the screen instead of in the bay. Read the listview's
-     * LVS_AUTOARRANGE style first (GetWindowLong works cross-process) and only
-     * toggle when it is actually set.
-     *
-     * PostMessage rather than SendMessage because a synchronous send into the
-     * shell can block us indefinitely. */
+     * top-left grid and our positions never stick. Same toggle rule in
+     * reverse: fire the WM_COMMAND only when the bit is SET. */
     if (defview) {
         LONG style = GetWindowLongA(lv, GWL_STYLE);
         if (style & LVS_AUTOARRANGE) {
-            log_msg(LOG_GS, "auto-arrange is on - turning it off so icon "
-                            "positions stick");
+            log_msg(LOG_GS, "icon bay: auto-arrange is on - turning it off so "
+                            "icon positions stick");
             PostMessageA(defview, WM_COMMAND, FCIDM_SHVIEW_AUTOARRANGE_, 0);
             Sleep(600);
             style = GetWindowLongA(lv, GWL_STYLE);
             if (style & LVS_AUTOARRANGE) {
-                /* The toggle does not always take. On .143 it failed on EVERY
-                 * run for weeks - the agent logged "still on" each time and the
-                 * shell then laid the icons out in its own grid, sprawled over
-                 * the wallpaper art instead of in the bay, which is what the
-                 * whole feature exists to prevent.
-                 *
-                 * Clear the style bit directly. GWL_STYLE is settable
-                 * cross-process on a listview, and this is precisely what
-                 * scripts/retro-wallpaper/arrange_icons.c has always done -
-                 * the agent was the only arranger missing the call. Unlike the
-                 * WM_COMMAND it is a SET, not a toggle, so it cannot turn
-                 * auto-arrange ON where a box had it off. */
                 SetWindowLongA(lv, GWL_STYLE, style & ~LVS_AUTOARRANGE);
                 Sleep(200);
                 style = GetWindowLongA(lv, GWL_STYLE);
-                log_msg(LOG_GS, "auto-arrange survived the toggle - cleared "
-                                "the style directly (now %s)",
+                log_msg(LOG_GS, "icon bay: auto-arrange survived the toggle - "
+                                "cleared the style directly (now %s)",
                         (style & LVS_AUTOARRANGE) ? "STILL ON" : "off");
             }
         }
     }
+    gs_bag_autoarrange(0);
 
-    /* "Align icons to grid" is a SECOND, independent setting, and clearing
-     * auto-arrange does nothing about it. While LVS_EX_SNAPTOGRID is set the
-     * shell ROUNDS every position we ask for to its own grid, whose row pitch
-     * is the icon spacing PLUS the label - measured at 103 px on a 1920x1080
-     * box - so a bay drawn with 80 px cells gets icons 103 px apart and they
-     * walk out of their slots down the column. Verified by A/B on .246: the
-     * identical arrange gave 103 px row pitch with the flag set and exactly
-     * 80 px with it cleared.
-     *
-     * Windows enables align-to-grid by default, so this affected every box,
-     * not one. Unlike auto-arrange this is not a toggle: the message takes a
-     * (mask, value) pair, so passing value 0 clears it deterministically and
-     * cannot turn it on. */
+    /* "Align icons to grid" is a SECOND, independent setting. While
+     * LVS_EX_SNAPTOGRID is set the shell ROUNDS every position we ask for to
+     * its own grid, whose row pitch is the icon spacing PLUS the label -
+     * measured at 103 px on a 1920x1080 box - so a bay drawn with 80 px cells
+     * gets icons 103 px apart and they walk out of their slots down the
+     * column. Verified by A/B on .246. Unlike auto-arrange this is not a
+     * toggle: the message takes a (mask, value) pair, so passing value 0
+     * clears it deterministically and cannot turn it on. */
     {
         DWORD exst = (DWORD)SendMessageA(lv, LVM_GETEXSTYLE_, 0, 0);
         if (exst & LVS_EX_SNAPTOGRID) {
             SendMessageA(lv, LVM_SETEXSTYLE_, LVS_EX_SNAPTOGRID, 0);
             exst = (DWORD)SendMessageA(lv, LVM_GETEXSTYLE_, 0, 0);
-            log_msg(LOG_GS, "align-to-grid was on - cleared it so icons land "
-                            "in the bay's cells (now %s)",
+            log_msg(LOG_GS, "icon bay: align-to-grid was on - cleared it so "
+                            "icons land in the bay's cells (now %s)",
                     (exst & LVS_EX_SNAPTOGRID) ? "STILL ON" : "off");
         }
     }
@@ -2390,13 +2548,31 @@ static void gs_arrange_icons(void)
                                 bay.y + row * bay.cell_h + 6));
     }
     if (cols != bay.cols)
-        log_msg(LOG_GS, "arranged %d desktop icon(s) into %d columns - the "
-                        "%dx%d bay holds only %d, so it was widened to keep "
-                        "every icon on screen",
+        log_msg(LOG_GS, "icon bay: arranged %d desktop icon(s) into %d columns "
+                        "- the %dx%d bay holds only %d, so it was widened to "
+                        "keep every icon on screen",
                 count, cols, bay.cols, bay.rows, bay.cols * bay.rows);
     else
-        log_msg(LOG_GS, "arranged %d desktop icon(s) into the %dx%d icon bay",
-                count, bay.cols, bay.rows);
+        log_msg(LOG_GS, "icon bay: arranged %d desktop icon(s) into the %dx%d "
+                        "icon bay", count, bay.cols, bay.rows);
+}
+
+/* The one entry point. Called on every agent startup (retrowall.c), after a
+ * GAMESYNC has created new shortcuts, and on demand via the ICONARRANGE
+ * command. Idempotent by construction. */
+void gs_desktop_icons_apply(void)
+{
+    HWND defview = NULL;
+    HWND lv = gs_desktop_listview(&defview);
+
+    if (!lv) {
+        log_msg(LOG_GS, "desktop listview not found - icons left as they are");
+        return;
+    }
+    if (gs_want_autoarrange())
+        gs_apply_autoarrange(defview, lv);
+    else
+        gs_arrange_bay(defview, lv);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -2745,7 +2921,7 @@ static void gs_run(const char *library)
      * per .lnk asynchronously, so arranging per title would keep re-sorting a
      * list that is still growing. */
     Sleep(2000);
-    gs_arrange_icons();
+    gs_desktop_icons_apply();
 
     log_msg(LOG_GS, "done: %d/%d title(s) copied, %d skipped (no room), "
             "%d gated (machine cannot run), %d file error(s)",
@@ -2996,6 +3172,69 @@ void handle_drvupdate(SOCKET sock, const char *args)
         send_error_response(sock, msg);
     }
     FreeLibrary(newdev);
+}
+
+/* ICONARRANGE [bay|auto] - apply the desktop icon layout now, and REPORT THE
+ * POST-CONDITION rather than "OK".
+ *
+ * A log line saying we set auto-arrange is not evidence that auto-arrange is
+ * set; the whole reason this code reads its own writes back is that the shell
+ * toggle has silently refused before. So the reply carries the live
+ * LVS_AUTOARRANGE bit, the persisted FFlags word and the icon count, which is
+ * what a fleet-wide verification sweep actually needs.
+ *
+ * The optional argument overrides the box's stored preference for this call
+ * only: "bay" runs the legacy wallpaper-bay layout once, "auto" forces
+ * auto-arrange. With no argument it follows
+ * HKLM\Software\RetroAgent\IconAutoArrange (default: auto). */
+void handle_iconarrange(SOCKET sock, const char *args)
+{
+    HWND  defview = NULL;
+    HWND  lv;
+    char  msg[512];
+    LONG  style;
+    DWORD flags = 0, sz = sizeof(flags), ty = REG_DWORD;
+    HKEY  hk;
+    int   count;
+    const char *mode;
+
+    lv = gs_desktop_listview(&defview);
+    if (!lv) {
+        send_text_response(sock, "ERR desktop listview not found - is explorer "
+                                 "running in this session?");
+        return;
+    }
+
+    if (args && (str_starts_with(args, "bay") || str_starts_with(args, "BAY"))) {
+        mode = "bay";
+        gs_arrange_bay(defview, lv);
+    } else if (args && (str_starts_with(args, "auto") ||
+                        str_starts_with(args, "AUTO"))) {
+        mode = "auto";
+        gs_apply_autoarrange(defview, lv);
+    } else {
+        mode = gs_want_autoarrange() ? "auto" : "bay";
+        gs_desktop_icons_apply();
+    }
+
+    style = GetWindowLongA(lv, GWL_STYLE);
+    count = (int)SendMessageA(lv, LVM_GETITEMCOUNT_, 0, 0);
+    if (RegOpenKeyExA(HKEY_CURRENT_USER, GS_DESKTOP_BAG, 0, KEY_QUERY_VALUE,
+                      &hk) == ERROR_SUCCESS) {
+        RegQueryValueExA(hk, "FFlags", NULL, &ty, (LPBYTE)&flags, &sz);
+        RegCloseKey(hk);
+    }
+    _snprintf(msg, sizeof(msg) - 1,
+              "{\"mode\":\"%s\",\"autoarrange\":%s,\"fflags\":%lu,"
+              "\"fflags_autoarrange\":%s,\"icons\":%d,\"screen\":\"%dx%d\"}",
+              mode,
+              (style & LVS_AUTOARRANGE) ? "true" : "false",
+              (unsigned long)flags,
+              (flags & GS_FWF_AUTOARRANGE) ? "true" : "false",
+              count,
+              GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
+    msg[sizeof(msg) - 1] = '\0';
+    send_text_response(sock, msg);
 }
 
 void handle_gamesync(SOCKET sock, const char *args)

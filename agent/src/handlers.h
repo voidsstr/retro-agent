@@ -57,6 +57,12 @@ struct gg_profile_s;
 void hwprofile_build(struct gg_profile_s *p);
 void gamesync_init(void);
 DWORD WINAPI gamesync_thread(LPVOID param);
+void handle_iconarrange(SOCKET sock, const char *args);
+/* Apply the fleet's desktop icon layout. Auto Arrange by default; the legacy
+ * icon bay when HKLM\Software\RetroAgent\IconAutoArrange is 0. Called on
+ * every agent startup, after a GAMESYNC, and by the ICONARRANGE command.
+ * See the block comment in gamesync.c - the two layouts are exclusive. */
+void gs_desktop_icons_apply(void);
 void gameindex_init(void);
 DWORD WINAPI gameindex_thread(LPVOID param);
 void handle_displaycfg(SOCKET sock, const char *args);
