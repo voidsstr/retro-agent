@@ -1379,6 +1379,21 @@ done: 35/37 title(s) copied, 0 skipped, 2 gated, 0 file error(s),
 > difference resolved at the end (`gs_desk_settle_lnks()`), so sweeping 81
 > shortcuts and rewriting the same 81 is correctly *no change*.
 
+**VERIFIED ON HARDWARE (.171, agent 1.77.0, quiet library):**
+
+```
+nothing changed - icons left alone (0 file(s) written, 0 new/removed shortcut(s))
+done: 37/38 title(s) copied, ... 0 file(s) written, 0 new/removed shortcut(s)
+```
+
+> **To see the gate suppress, the library must be QUIET.** It could not be
+> observed doing so for a whole afternoon — every sync read `files_written=1`,
+> which looks exactly like the defect below. It was not: four agents were
+> editing `Games-Library` throughout, so a *different* file legitimately changed
+> each pass. **You cannot measure "did anything change?" while something is
+> changing.** Establish that a no-op was actually available before concluding
+> the no-op path is broken.
+
 **A steady-state box must report `0 file(s) written`.** A box reporting the
 *same small non-zero count on consecutive no-change syncs* is announcing the one
 realistic way this gate fails: a file whose mtime never stamps (SetFileTime
