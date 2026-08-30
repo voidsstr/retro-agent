@@ -437,13 +437,13 @@ def test_reg_mode_is_used_and_not_reg_exe():
 def test_four_three_only_engines_never_get_the_widescreen_variable():
     """Hexen II's glh2.exe is a 1997 GLQuake derivative with no widescreen
     support; handing it FR_W would stretch the image rather than fix it."""
-    for title in ('HexenII',):
-        text = "\n".join(
-            (l for rec in sf.TITLES[title]['launchers'].values()
-             for l in rec['pre'] + ([rec['sub'][1]] if rec['sub'] else [])))
-        assert '%FR_W43%' in text and '%FR_H43%' in text
-        assert re.search(r'%FR_W%', text) is None, (
-            '%s is 4:3-only but is being handed the widescreen mode' % title)
+    assert '%FR_W43%' in sf.NEW_GLQUAKE and '%FR_H43%' in sf.NEW_GLQUAKE
+    assert '%FR_W%' not in sf.NEW_GLQUAKE.replace('%FR_W43%', ''), (
+        'GLQuake is 4:3-only but is being handed the widescreen mode')
+    for mod in ('baseq2', 'base'):
+        assert '%FR_Q2MODE%' in "\n".join(sf.q2_cfg(mod)), (
+            'id Tech 2 has a fixed 4:3 mode table topping out at 1600x1200 - '
+            'gl_mode is the only lever and there is no 16:9 entry')
 
 
 # ---------------------------------------------------------------------------
@@ -596,3 +596,97 @@ def test_farcry_block_is_anchored_after_the_config_reset():
     assert '-setline' in body and 'r_Width' in body and 'r_Height' in body
     assert '%FR_W%' in body and '%FR_H%' in body, (
         'Far Cry 1.4 is natively 16:9, so it takes the full panel, not FR_W43')
+
+
+# ---------------------------------------------------------------------------
+# 10. 1080p where the panel AND the engine allow it (user directive 2026-08-30)
+#
+# "all games that can be configured to run in 1080p and the computer has an lcd
+#  with 1080p resolution capabilities, the settings for all applicable games
+#  allow for 1080p resolution"
+#
+# FLEETRES already answers the panel half. This half is about not leaving a
+# capable engine at a lower mode "to be safe" — every ceiling below has to be a
+# MEASUREMENT, not an assumption, and the two that were assumptions were both
+# wrong in the same direction.
+# ---------------------------------------------------------------------------
+
+def _pre(title, name=None):
+    spec = sf.TITLES[title]
+    out = []
+    for n, rec in spec.get('launchers', {}).items():
+        if name and n != name:
+            continue
+        out += rec['pre'] + ([rec['sub'][1]] if rec['sub'] else [])
+    return "\n".join(out)
+
+
+def test_only_the_measured_ceilings_carry_a_cap():
+    """A -cap is a claim that an engine cannot go higher, and this repo has now
+    shipped two of them that were inherited from taste rather than measured.
+    Tiberian Sun's 1024x768 was one: the engine really renders 1920x1080 (.123),
+    and its own Display Options menu offering only 640x400/640x480/800x600 is
+    not evidence — the CnCNet patch reads SUN.INI directly and bypasses that
+    list. So any NEW cap has to arrive with a measurement in the comment."""
+    capped = set()
+    for title, spec in sf.TITLES.items():
+        for name, rec in spec.get('launchers', {}).items():
+            if any('-cap ' in l for l in rec['pre']):
+                capped.add(title)
+    # Quake 1's cap lives in new_launcher's GLQuake branch, not in a recipe.
+    if '-cap ' in sf.call_cap(1280, 960):
+        capped.add('Quake1')
+    assert capped == {'Quake1'}, (
+        'unexpected resolution cap on %s — a cap must be measured on hardware, '
+        'and the only measured one is GLQuake' % sorted(capped - {'Quake1'}))
+
+
+def test_glquake_cap_is_the_measured_ceiling_not_the_old_guess():
+    """Measured on .145 (GeForce 8400GS, 1920x1080 panel): GLQUAKE.EXE answers
+    `Quake Error: Specified video mode not available` at 1920x1080 AND at
+    1600x1200, and comes up fullscreen at 1280x960. The previous cap of
+    1024x768 was a guess and cost every 1080p box a sharper picture."""
+    src = open(STAGER, encoding='utf-8').read()
+    assert 'block = "\\n".join([call_cap(1280, 960)])' in src, (
+        'the GLQuake launcher no longer carries the measured 1280x960 cap')
+    assert 'call_cap(1024, 768)' not in src, 'the old guessed cap is back'
+    assert 'Specified video mode not available' in sf.NEW_GLQUAKE, (
+        'the measurement behind the cap is no longer recorded in the launcher')
+
+
+def test_hexen2_is_not_capped_like_glquake():
+    """glh2.exe LOOKS like a GLQuake derivative and was treated as one. On .145
+    it comes up at a real 1920x1080 (window class HexenII, 0,0-1920x1080) where
+    GLQUAKE.EXE on the same box refuses the identical mode. Two engines in one
+    family, two answers — measure each."""
+    t = _pre('HexenII')
+    assert '%FR_W%' in t and '%FR_H%' in t
+    assert '%FR_W43%' not in t
+
+
+def test_tiberian_sun_is_no_longer_capped():
+    t = _pre('TiberianSun')
+    assert '-cap' not in t, 'the cap the engine does not actually have is back'
+    assert 'ScreenWidth %FR_W%' in t and 'ScreenHeight %FR_H%' in t
+
+
+def test_a_changed_recipe_can_still_reach_an_already_staged_launcher():
+    """patch_launcher stops at the FLEETRES.BAT marker, so the day a recipe
+    changes it silently does nothing to the 27 titles already staged. The
+    `fix` list is the way through, and it must refuse when NEITHER the old text
+    nor its replacement is present — that condition means the recipe is stale,
+    and applying it blind ships a launcher that did not change."""
+    for title in ('TiberianSun', 'HexenII'):
+        assert sf.TITLES[title].get('fix'), '%s has no repair path' % title
+    src = open(STAGER, encoding='utf-8').read()
+    assert 'neither %r nor its replacement is present' in src
+
+
+def test_the_registry_only_engines_are_all_covered():
+    """Three titles keep the mode ONLY in the registry and were therefore
+    pinned by install.reg to one constant on all eight boxes: Max Payne
+    (800x600), Red Faction (never written at all), Hidden & Dangerous
+    (800x600)."""
+    for title in ('MaxPayne', 'RedFaction', 'HiddenAndDangerous'):
+        assert '-reg ' in _pre(title), '%s still inherits a staged constant' % title
+        assert '%FR_W%' in _pre(title)

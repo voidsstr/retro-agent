@@ -398,14 +398,69 @@ TITLES = {
         },
     },
     "HexenII": {
-        # glh2.exe is a 1997 GLQuake derivative: 4:3 only, no widescreen, and
-        # the same mini-driver-era fussiness at high modes. FR_W43/FR_H43.
+        # glh2.exe is a GLQuake derivative and was assumed to share GLQuake's
+        # fixed 4:3 mode table. IT DOES NOT: measured on .145, glh2.exe comes up
+        # fullscreen at a real 1920x1080 (window class HexenII, 0,0-1920x1080)
+        # and renders the menu, while GLQUAKE.EXE on the SAME BOX refuses the
+        # same mode with "Specified video mode not available". Two engines that
+        # look like one family, two different answers - which is why each is
+        # measured rather than inferred from the other.
         "launchers": {
             n: rec('cd /d "%~dp0"', [CALL],
                    (re.escape('-width 640 -height 480'),
-                    '-width %FR_W43% -height %FR_H43%'))
+                    '-width %FR_W% -height %FR_H%'))
             for n in ("Play Hexen II.bat", "Host Hexen II - LAN.bat",
                       "Join Hexen II - LAN.bat")
+        },
+        "fix": {
+            n: [("-width %FR_W43% -height %FR_H43%", "-width %FR_W% -height %FR_H%")]
+            for n in ("Play Hexen II.bat", "Host Hexen II - LAN.bat",
+                      "Join Hexen II - LAN.bat")
+        },
+    },
+    "HiddenAndDangerous": {
+        # There is no fullscreen or resolution switch on this engine: HDE.exe
+        # reads HKLM\Software\Lonely Cat Games\...\Config (root index 1 of its
+        # {HKCU,HKLM,HKCR} table) and install.reg pins 800x600 there, which is a
+        # staged constant and therefore wrong on seven of the eight boxes.
+        "launchers": {
+            n: rec('cd /d "%~dp0"',
+                   [CALL] + reg_cfg(
+                       "HKLM",
+                       "Software\\Lonely Cat Games\\Hidden and Dangerous "
+                       "Deluxe\\Config",
+                       [("Display width", "dword", "%FR_W%"),
+                        ("Display height", "dword", "%FR_H%"),
+                        ("Display bitdepth", "dword", "32"),
+                        ("Fullscreen", "dword", "1")]))
+            for n in ("Play Hidden and Dangerous Deluxe.bat",
+                      "Host Hidden and Dangerous - LAN.bat",
+                      "Join Hidden and Dangerous - LAN.bat")
+        },
+    },
+    "RedAlert2": {
+        # Two games, two .ini files, one tree. The aqrit ddraw wrapper this tree
+        # ships is what lets the Westwood engine take a mode its own menu never
+        # offers - the same shape as Tiberian Sun and CnCNet.
+        "launchers": {
+            "Launch Red Alert 2.bat": rec(
+                'start /wait Ra2.exe -speedcontrol',
+                [CALL,
+                 'if exist "%~dp0FLEETRES.EXE" (',
+                 '  "%~dp0FLEETRES.EXE" -ini "%~dp0RA2.INI" Video '
+                 'ScreenWidth %FR_W%',
+                 '  "%~dp0FLEETRES.EXE" -ini "%~dp0RA2.INI" Video '
+                 'ScreenHeight %FR_H%',
+                 ')']),
+            "Launch Yuri's Revenge.bat": rec(
+                'start /wait RA2MD.exe -speedcontrol',
+                [CALL,
+                 'if exist "%~dp0FLEETRES.EXE" (',
+                 '  "%~dp0FLEETRES.EXE" -ini "%~dp0RA2MD.INI" Video '
+                 'ScreenWidth %FR_W%',
+                 '  "%~dp0FLEETRES.EXE" -ini "%~dp0RA2MD.INI" Video '
+                 'ScreenHeight %FR_H%',
+                 ')']),
         },
     },
     "BF1942": {
@@ -558,15 +613,33 @@ TITLES = {
         "launch_txt_line0": ("Play Quake.bat", "Quake", "GLQUAKE.EXE"),
     },
     "TiberianSun": {
+        # THE CAP IS GONE, AND THE REASON MATTERS. It was set at 1024x768 on the
+        # argument that a Westwood 2D engine draws sprites 1:1 and they become
+        # unreadable at 1920x1080. That is a taste judgement, and underneath it
+        # was a factual assumption - that the engine could not go higher -
+        # which is wrong: TS renders a real 1920x1080 (measured on .123, full
+        # sidebar and a large map viewport). Its own Display Options list only
+        # offers 640x400/640x480/800x600, but the CnCNet patch reads
+        # [Video] ScreenWidth/ScreenHeight out of SUN.INI directly and bypasses
+        # that list entirely. So A GAME'S OWN MODE MENU IS NOT EVIDENCE OF ITS
+        # CEILING - which is exactly the inference that produced this cap.
+        "fix": {
+            "Play Tiberian Sun.bat": [
+                ('call "%~dp0FLEETRES.BAT" -cap 1024 768',
+                 'call "%~dp0FLEETRES.BAT"'),
+                ("Video ScreenWidth %FR_W43%", "Video ScreenWidth %FR_W%"),
+                ("Video ScreenHeight %FR_H43%", "Video ScreenHeight %FR_H%"),
+            ],
+        },
         "launchers": {
             "Play Tiberian Sun.bat": rec(
                 'cd /d "%~dp0"',
-                [call_cap(1024, 768),
+                [CALL,
                  'if exist "%~dp0FLEETRES.EXE" (',
                  '  "%~dp0FLEETRES.EXE" -ini "%~dp0SUN.INI" Video '
-                 'ScreenWidth %FR_W43%',
+                 'ScreenWidth %FR_W%',
                  '  "%~dp0FLEETRES.EXE" -ini "%~dp0SUN.INI" Video '
-                 'ScreenHeight %FR_H43%',
+                 'ScreenHeight %FR_H%',
                  '  "%~dp0FLEETRES.EXE" -ini "%~dp0SUN.INI" Video '
                  'AllowHiResModes yes',
                  ')']),
@@ -680,9 +753,13 @@ rem This .bat exists because launch.txt used to point straight at GLQUAKE.EXE,
 rem and a desktop shortcut cannot carry arguments - so there was nowhere to set
 rem a resolution and every box got GLQuake's own 640x480 default.
 rem
-rem CAPPED AT 1024x768 ON PURPOSE. GLQuake is a 1997 mini-driver-era binary and
-rem is known to be fussy above 1024x768 on modern OpenGL drivers; the fleet's
-rem CRTs are at or below that anyway. Raise the cap only after a box proves it.
+rem CAPPED AT 1280x960, AND THAT CEILING IS MEASURED, NOT ASSUMED. On .145
+rem (GeForce 8400GS, 1920x1080 panel) GLQUAKE.EXE answers
+rem     Quake Error: "Specified video mode not available"
+rem at BOTH 1920x1080 and 1600x1200, and comes up fullscreen at 1280x960. Its
+rem mode list is a fixed 4:3 table compiled into the binary, so there is no
+rem 16:9 entry to ask for and no custom mode. 1280x960 pillarboxed on a 1080p
+rem panel is the honest best this engine can do.
 cd /d "%~dp0"
 
 {block}
@@ -787,6 +864,44 @@ class Runner:
             write(path, out)
         self.note("%s/%s" % (title, name))
 
+    def repair(self, tdir, title, name, pairs):
+        """Change a launcher this tool has ALREADY staged.
+
+        patch_launcher keys idempotency off the presence of `FLEETRES.BAT`, so
+        once a launcher carries the block it is never touched again — which is
+        right for re-runs and wrong the day a recipe changes. Every repair here
+        is a literal old->new pair that must be in exactly one of two states:
+        present (apply it) or already applied (skip). NEITHER is an error, not
+        a silent no-op, because "the recipe no longer matches the library" is
+        precisely the condition that ships a launcher which did not get its
+        arguments."""
+        path = os.path.join(tdir, name)
+        if not os.path.isfile(path):
+            self.fail("%s/%s: launcher missing from the library" % (title, name))
+            return
+        body = read(path)
+        out = body
+        did = []
+        for old, new in pairs:
+            if old in out:
+                if self.check:
+                    self.fail("%s/%s: still has %r" % (title, name, old))
+                    return
+                out = out.replace(old, new)
+                did.append(old)
+            elif new not in out:
+                self.fail("%s/%s: neither %r nor its replacement is present — "
+                          "this recipe is stale, and applying it blind would "
+                          "ship a launcher that silently did not change"
+                          % (title, name, old))
+                return
+        if not did:
+            self.skipped += 1
+            return
+        if not self.dry:
+            write(path, out)
+        self.note("%s/%s [repair]" % (title, name))
+
     def post_block(self, tdir, title, pb):
         """A second, independently-marked block in a launcher that may ALREADY
         carry the FLEETRES block. patch_launcher keys idempotency off
@@ -823,7 +938,7 @@ class Runner:
         path = os.path.join(tdir, name)
         disp = name[len("Play "):-len(".bat")] if name.startswith("Play ") else name
         if exe.upper() == "GLQUAKE.EXE":
-            block = "\n".join([call_cap(1024, 768)])
+            block = "\n".join([call_cap(1280, 960)])
             text = NEW_GLQUAKE.format(block=block)
         elif title in ("SiNGold", "SoldierOfFortune"):
             block = "\n".join([CALL] + q2_cfg(mod))
@@ -937,6 +1052,8 @@ class Runner:
                 self.add_exec(tdir, title, rel)
             for pb in spec.get("post", []):
                 self.post_block(tdir, title, pb)
+            for name, pairs in sorted(spec.get("fix", {}).items()):
+                self.repair(tdir, title, name, pairs)
             if "launch_txt" in spec:
                 self.launch_txt(tdir, title, rows=spec["launch_txt"])
             if "launch_txt_line0" in spec:
