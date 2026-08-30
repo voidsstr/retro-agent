@@ -207,10 +207,19 @@ def test_a_skipped_file_and_a_rewritten_lnk_are_not_counted_as_changes():
         "gs_copy_file() must count a real write"
     )
 
-    # The icon set must be snapshotted BEFORE the sweep destroys it.
+    # ORDER, all four steps. Each of these was wrong at some point and each
+    # failed SILENTLY - the counters kept reporting, just the wrong number.
     run = code.split("static void gs_run(", 1)[1]
+    reset = run.index("gs_desk_reset()")
     snap = run.index("gs_desk_snapshot()")
     sweep = run.index("gs_sweep_desktop()")
+    assert reset < snap, (
+        "gs_desk_reset() must run BEFORE gs_desk_snapshot(). It clears the "
+        "snapshot as well as the counters, so resetting afterwards throws away "
+        "the sampled icon set and every rewritten shortcut counts as ADDED - "
+        "the exact bug the snapshot exists to fix. Measured on .171: "
+        "shortcuts_changed=81 on a box whose icons had not changed."
+    )
     assert snap < sweep, (
         "gs_desk_snapshot() must run BEFORE gs_sweep_desktop(). The sweep moves "
         "every .lnk off the desktop, so a set sampled after it is empty and "
@@ -361,4 +370,23 @@ def test_the_gate_reports_what_it_decided_on():
     )
     assert '\\"shortcuts_changed\\":%ld' in code, (
         "GAMESYNC STATUS must expose shortcuts_changed"
+    )
+
+
+def test_the_shortcut_counter_is_readable_during_a_run():
+    """GAMESYNC STATUS must not read 0 mid-run when the answer will be 81.
+
+    gs_desk_settle_lnks() only runs at the end, so if the published counter is
+    written *only* there, every poll during a sync reports 0 - which reads as
+    "nothing changed, the gate is working" and is the most misleading value the
+    field could possibly carry. The running 'added' total must be published as
+    it accrues; settle then folds in the removals.
+    """
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    # the DEFINITION, not the forward declaration or the call sites
+    fn = code.split("static void gs_desk_note_lnk_written(const char *lnk_path)\n{", 1)[1]
+    fn = fn.split("\n}", 1)[0]
+    assert "g_gs_desk_lnks" in fn, (
+        "gs_desk_note_lnk_written() must publish the running total, or "
+        "GAMESYNC STATUS reports 0 for the whole run regardless of the truth"
     )

@@ -1807,6 +1807,10 @@ static void gs_desk_note_lnk_written(const char *lnk_path)
     if (g_gs_prelnk_n >= GS_LNK_MAX)
         return;      /* snapshot overflowed - do not invent a change */
     g_gs_lnk_new++;
+    /* Publish the running total so GAMESYNC STATUS is meaningful DURING a run,
+     * not only after gs_desk_settle_lnks(). Reading 0 mid-run when the final
+     * answer is 81 is worse than useless - it reads as "the fix is working". */
+    g_gs_desk_lnks = g_gs_lnk_new;
 }
 
 /* Net change in the icon set: icons added, plus icons that were there at the
@@ -2882,6 +2886,15 @@ static void gs_run(const char *library)
      *
      * Both run on every provision, imaged box or not: a hand-built machine is
      * exactly the one that has a cluttered desktop and no C:\retro-wall. */
+    /* RESET FIRST, THEN SNAPSHOT. Ordering matters and getting it wrong is
+     * silent: gs_desk_reset() clears the snapshot as well as the counters, so
+     * calling it after gs_desk_snapshot() throws the sampled icon set away and
+     * every rewritten shortcut counts as ADDED - which is the very bug this
+     * snapshot exists to fix, reintroduced one line later. Measured on .171:
+     * shortcuts_changed came back as 81 on a box whose icons had not changed
+     * at all. tests/python/test_icon_autoarrange_source.py pins the order. */
+    gs_desk_reset();
+
     /* Sample the icon set BEFORE the sweep removes it - the sweep takes every
      * .lnk off the desktop, so after it nothing is ever "already there". */
     gs_desk_snapshot();
@@ -2895,7 +2908,8 @@ static void gs_run(const char *library)
     memset(&g_gs, 0, sizeof(g_gs));
     g_gs.state   = GS_SIZING;
     g_gs.started = GetTickCount();
-    gs_desk_reset();   /* "did anything change?" is per-run, not cumulative */
+    /* NB: gs_desk_reset() is deliberately NOT here - it must run before
+     * gs_desk_snapshot() above, or it wipes the icon set we just sampled. */
     LeaveCriticalSection(&g_gs_lock);
 
     log_msg(LOG_GS, "library: %s", library);
