@@ -307,6 +307,34 @@ static int q2_mode_for(int w, int h)
     return best;
 }
 
+/* id TECH 3 HAS A DIFFERENT TABLE FROM id TECH 2, AND THE DIFFERENCE BITES AT
+ * INDEX 8: id Tech 2's mode 8 is 1280x960 (4:3), id Tech 3's is 1280x1024
+ * (5:4).  Handing FR_Q2MODE to a Quake III-family engine therefore asks a 16:9
+ * panel for a 5:4 image - the exact squashed picture this whole mechanism
+ * exists to remove.  Measured: r_mode 8 gives 1280x1024 on SoF2 (.123).
+ *
+ * Index 8 and index 11 (856x480) are deliberately skipped: one is 5:4 and the
+ * other is a 16:9 mode so small that a correctly proportioned 4:3 one beats it
+ * on every fleet panel.  Everything else on the list is 4:3.
+ *
+ * This exists at all because r_mode -1 (the custom-mode branch) IS NOT
+ * UNIVERSAL in this engine family - see the launcher notes.  Where the branch
+ * is missing the engine does not error, it renders 640x480. */
+static const MODE q3tab[] = {
+    {320,240},{400,300},{512,384},{640,480},{800,600},{960,720},
+    {1024,768},{1152,864},{1280,1024},{1600,1200},{2048,1536},{856,480}
+};
+
+static int q3_mode_for(int w, int h)
+{
+    int i, best = 3;                            /* 640x480 floor */
+    for (i = 0; i < (int)(sizeof(q3tab)/sizeof(q3tab[0])); i++) {
+        if (i == 8 || i == 11) continue;        /* 5:4, and a tiny 16:9 */
+        if (q3tab[i].w <= w && q3tab[i].h <= h) best = i;
+    }
+    return best;
+}
+
 
 /* ------------------------------------------------------------- GLIDE -- */
 /* Is there REAL 3dfx silicon in this box?
@@ -769,8 +797,11 @@ int main(int argc, char **argv)
             (native_ok && (desk_w != p.native_w || desk_h != p.native_h)) ? "  *** NOT NATIVE ***" : ""); }
         printf("target     : %dx%d  aspect %s  fov(hor+) %d\n",
                tgt_w, tgt_h, asp, horplus_fov(tgt_w, tgt_h));
-        printf("target 4:3 : %dx%d  (for the engines with no widescreen)  q2mode %d\n",
-               t43_w, t43_h, q2_mode_for(t43_w, t43_h));
+        printf("target 4:3 : %dx%d  (for the engines with no widescreen)  q2mode %d  q3mode %d (%dx%d)\n",
+               t43_w, t43_h, q2_mode_for(t43_w, t43_h),
+               q3_mode_for(t43_w, t43_h),
+               q3tab[q3_mode_for(t43_w, t43_h)].w,
+               q3tab[q3_mode_for(t43_w, t43_h)].h);
         printf("glide      : %s%s%s  render device %s\n",
                glide_n ? "3dfx silicon PRESENT " : "no 3dfx silicon",
                glide_n ? glide_dev : "",
@@ -798,6 +829,7 @@ int main(int argc, char **argv)
     printf("set FR_W43=%d\n",      t43_w);
     printf("set FR_H43=%d\n",      t43_h);
     printf("set FR_Q2MODE=%d\n",   q2_mode_for(t43_w, t43_h));
+    printf("set FR_Q3MODE=%d\n",   q3_mode_for(t43_w, t43_h));
     printf("set FR_WIDE=%d\n",     (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0);
     printf("set FR_DOSFULLRES=%s\n", lcd ? "desktop" : "original");
     printf("set FR_MON=%s\n",      native_ok && p.name[0] ? p.name : "unknown");

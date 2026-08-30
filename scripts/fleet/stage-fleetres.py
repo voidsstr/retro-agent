@@ -76,6 +76,10 @@ rem
 rem  FR_W    / FR_H    resolution for an engine that can do widescreen
 rem  FR_W43  / FR_H43  resolution for an engine that is 4:3-only
 rem  FR_Q2MODE         id Tech 2 gl_mode index matching FR_W43/FR_H43
+rem  FR_Q3MODE         id Tech 3 r_mode index - a DIFFERENT TABLE: id Tech 2's
+rem                    mode 8 is 1280x960 (4:3), id Tech 3's is 1280x1024 (5:4),
+rem                    so handing FR_Q2MODE to a Quake III-family engine asks a
+rem                    16:9 panel for a squashed picture
 rem  FR_FOV            hor+ FOV preserving the 4:3 vertical FOV (90 at 4:3)
 rem  FR_DOSFULLRES     DOSBox [sdl] fullresolution: desktop on an LCD,
 rem                    original on a CRT
@@ -95,6 +99,7 @@ set FR_FOV=
 set FR_Q2MODE=
 set FR_DOSFULLRES=
 set FR_PANEL=
+set FR_Q3MODE=
 set FR_GLIDE=
 set FR_UE1DEV=
 if not defined TEMP set TEMP=%SystemRoot%\\Temp
@@ -108,6 +113,7 @@ if not defined FR_W43 set FR_W43=1024
 if not defined FR_H43 set FR_H43=768
 if not defined FR_FOV set FR_FOV=90
 if not defined FR_Q2MODE set FR_Q2MODE=6
+if not defined FR_Q3MODE set FR_Q3MODE=6
 if not defined FR_DOSFULLRES set FR_DOSFULLRES=original
 rem FR_GLIDE defaults to 0 - "no 3dfx silicon" - deliberately. The wrong way
 rem round would move the nGlide wrapper aside on a box that has nothing else,
@@ -143,6 +149,34 @@ def idtech3_cfg(mod, wide=True):
         # field of view (106 at 16:9, 90 at 4:3).
         lines.append('>>%s echo seta cg_fov "%%FR_FOV%%"' % p)
     return lines
+
+
+def idtech3_modecfg(mod):
+    """For an id Tech 3 fork with NO r_mode -1 BRANCH.
+
+    `r_mode -1` + r_customwidth/r_customheight is the standard idiom and it is
+    NOT universal: measured on .145 with an identical fleetres.cfg,
+    quake3.exe/jasp.exe/jamp.exe all came up at 1920x1080 and **sof2mp.exe came
+    up at 640x480**. It does not error - it renders small - which is exactly
+    the silent class of defect this repo keeps paying for.
+
+    So this fork gets a plain mode INDEX, and it must be FR_Q3MODE and not
+    FR_Q2MODE: the two engines' tables differ at index 8, which is 1280x960
+    (4:3) in id Tech 2 and 1280x1024 (5:4) in id Tech 3. Asking a 16:9 panel
+    for 1280x1024 is the squashed picture this whole mechanism removes."""
+    p = '"%%~dp0%s\\fleetres.cfg"' % mod
+    return [
+        '> %s echo // written by the launcher at every start - do not edit' % p,
+        '>>%s echo // r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,' % p,
+        '>>%s echo // and FR_Q3MODE not FR_Q2MODE: idTech3 mode 8 is 1280x1024.' % p,
+        '>>%s echo seta r_mode "%%FR_Q3MODE%%"' % p,
+        '>>%s echo seta r_fullscreen "1"' % p,
+        '>>%s echo seta cg_fov "%%FR_FOV%%"' % p,
+    ]
+
+
+def idtech3_modeargs():
+    return ('+set r_mode %FR_Q3MODE% +set r_fullscreen 1 +set cg_fov %FR_FOV%')
 
 
 def idtech3_args(wide=True, fov=True):
@@ -325,19 +359,38 @@ TITLES = {
         "cfg_strip": ["baseq3/autoexec.cfg", "missionpack/autoexec.cfg"],
     },
     "SoldierOfFortune2": {
+        # THE ONLY idTech3 TITLE HERE WITH NO r_mode -1 BRANCH. See
+        # idtech3_modecfg(). Both binaries are the same engine, so both get the
+        # index - the single-player launcher was still on -1 and was therefore
+        # silently 640x480 too.
         "launchers": {
             "Play Soldier of Fortune II - Multiplayer.bat": rec(
-                'cd /d "%~dp0"', [CALL] + idtech3_cfg("base"),
+                'cd /d "%~dp0"', [CALL] + idtech3_modecfg("base"),
                 (re.escape('start "" "%~dp0sof2mp.exe"'),
-                 'start "" "%%~dp0sof2mp.exe" %s' % idtech3_args())),
+                 'start "" "%%~dp0sof2mp.exe" %s' % idtech3_modeargs())),
             # NB the substitution target is `set "GAMEARGS="`, not the GAME=
             # line above it: this launcher CLEARS GAMEARGS after setting GAME,
             # so appending there is silently wiped one line later. Found by
             # reading the generated file rather than trusting the patch.
             "Play Soldier of Fortune II.bat": rec(
-                'cd /d "%~dp0"', [CALL] + idtech3_cfg("base"),
+                'cd /d "%~dp0"', [CALL] + idtech3_modecfg("base"),
                 (re.escape('set "GAMEARGS="'),
-                 'set "GAMEARGS=%s"' % idtech3_args())),
+                 'set "GAMEARGS=%s"' % idtech3_modeargs())),
+        },
+        "fix": {
+            # The MP launcher was moved off -1 by the library-qa sweep, but onto
+            # FR_Q2MODE - the wrong table. The SP one was never moved at all.
+            "Play Soldier of Fortune II - Multiplayer.bat": [
+                ('r_mode "%FR_Q2MODE%"', 'r_mode "%FR_Q3MODE%"'),
+                ('+set r_mode %FR_Q2MODE%', '+set r_mode %FR_Q3MODE%'),
+            ],
+            "Play Soldier of Fortune II.bat": [
+                ('seta r_mode "-1"', 'seta r_mode "%FR_Q3MODE%"'),
+                ('+set r_mode -1 +set r_customwidth %FR_W% '
+                 '+set r_customheight %FR_H% +set r_customaspect 1 '
+                 '+set r_customPixelAspect 1 +set r_fullscreen 1',
+                 '+set r_mode %FR_Q3MODE% +set r_fullscreen 1'),
+            ],
         },
         "cfg_strip": ["base/autoexec.cfg"],
     },

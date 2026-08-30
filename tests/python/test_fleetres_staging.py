@@ -149,16 +149,29 @@ def test_stripping_the_autoexec_requires_the_launcher_to_supply_the_mode():
         if not text and spec.get('new'):
             # a title whose launchers are created whole rather than patched
             text = sf.idtech3_args()
-        for cvar in LATCHED:
-            assert '+set %s' % cvar in text, (
-                '%s strips its staged autoexec.cfg but no launcher passes '
-                '+set %s — that ships a windowed game to every box'
-                % (title, cvar))
+        assert '+set r_fullscreen' in text, (
+            '%s strips its staged autoexec.cfg but no launcher passes '
+            '+set r_fullscreen — that ships a windowed game to every box'
+            % title)
+        # The mode may arrive by EITHER route, and which one is a property of
+        # the specific binary, not of the engine family: -1 + custom w/h where
+        # the fork has that branch (quake3.exe, jasp.exe, jamp.exe, all
+        # measured at 1920x1080 on .145), a plain index where it does not
+        # (sof2mp.exe, measured at 640x480 through the identical config).
+        # What is NOT allowed is neither.
+        custom = all('+set %s' % c in text
+                     for c in ('r_mode -1', 'r_customwidth', 'r_customheight'))
+        index = '+set r_mode %FR_Q3MODE%' in text
+        assert custom or index, (
+            '%s strips its staged autoexec.cfg but no launcher supplies the '
+            'mode by either route — the engine comes up on its own default'
+            % title)
 
 
 def test_command_line_uses_custom_mode_not_a_mode_index():
-    """r_mode must be -1: the fixed table has no 1920x1080 entry, so a mode
-    index cannot express what half this fleet needs."""
+    """For the forks that HAVE the branch, r_mode must be -1: the fixed table
+    has no 1920x1080 entry, so an index cannot express what half this fleet
+    needs. (SoF2 is the measured exception and uses idtech3_modeargs.)"""
     args = sf.idtech3_args()
     assert '+set r_mode -1' in args
     assert '+set r_customwidth %FR_W%' in args
@@ -717,3 +730,55 @@ def test_turok2_keys_keep_their_caret():
                 if '^x^' in frag or 'T2SEL' in frag:
                     assert frag.startswith('"') or frag.endswith('"'), (
                         'unquoted caret in %r' % line)
+
+
+# ---------------------------------------------------------------------------
+# 11. id Tech 2 and id Tech 3 have DIFFERENT mode tables, and index 8 is a trap
+# ---------------------------------------------------------------------------
+
+def test_q3_table_exists_and_skips_the_five_four_mode():
+    """id Tech 2 mode 8 is 1280x960 (4:3); id Tech 3 mode 8 is 1280x1024 (5:4).
+    Handing FR_Q2MODE to a Quake III-family engine therefore asks a 16:9 panel
+    for a squashed picture — measured on SoF2 (.123), where r_mode 8 gave
+    1280x1024. FR_Q3MODE is a separate index into the separate table, and it
+    skips index 8 and index 11 (856x480, a 16:9 mode smaller than any 4:3 one
+    the fleet can drive)."""
+    src = open(FLEETRES_C, encoding='latin1').read()
+    assert 'q3tab' in src and 'q3_mode_for' in src
+    assert '{1280,1024}' in src, 'the id Tech 3 table no longer matches the engine'
+    assert 'if (i == 8 || i == 11) continue;' in src, (
+        'FR_Q3MODE can now select a 5:4 mode, which is the fault this whole '
+        'mechanism exists to remove')
+    assert 'set FR_Q3MODE=' in src
+    assert 'if not defined FR_Q3MODE set FR_Q3MODE=6' in sf.FLEETRES_BAT
+
+
+def test_sof2_uses_a_mode_index_and_the_right_table():
+    """`r_mode -1` is the standard id Tech 3 idiom and IS NOT UNIVERSAL.
+    Measured on .145 with one identical fleetres.cfg (-1 + custom 1920x1080):
+
+        quake3.exe   -> 1920x1080     jasp.exe -> 1920x1080
+        jamp.exe     -> 1920x1080     sof2mp.exe -> **640x480**
+
+    SoF2's fork never implemented the -1 branch. It does not error; it renders
+    small. Both SoF2 binaries are the same engine, so both take a plain index —
+    and it must be FR_Q3MODE, because id Tech 3's mode 8 is 1280x1024 (5:4)
+    where id Tech 2's is 1280x960 (4:3)."""
+    t = _pre('SoldierOfFortune2')
+    assert '%FR_Q3MODE%' in t
+    assert '%FR_Q2MODE%' not in t, (
+        'SoF2 is being handed the id Tech 2 table, whose mode 8 is a different '
+        'resolution — 1280x1024 on a 16:9 panel is the squashed picture')
+    assert 'r_mode "-1"' not in t and '+set r_mode -1' not in t, (
+        'SoF2 has no r_mode -1 branch; this silently renders 640x480')
+    for name in sf.TITLES['SoldierOfFortune2']['fix']:
+        assert name in sf.TITLES['SoldierOfFortune2']['launchers']
+
+
+def test_the_engines_that_do_have_the_minus_one_branch_keep_it():
+    """Quake III and Jedi Academy were measured at a real 1920x1080 through the
+    -1 branch on the same box that refused it for SoF2. Do not generalise
+    SoF2's exception back onto them."""
+    for title in ('Quake3-TeamArena', 'JediAcademy'):
+        blob = _pre(title) + "\n".join(sf.idtech3_cfg('base'))
+        assert 'r_customwidth' in blob or '%FR_W%' in blob
