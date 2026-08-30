@@ -444,6 +444,139 @@ static void gpu_annotate_from_class(hw_gpu_t *g, int is_nt)
     RegCloseKey(hbase);
 }
 
+
+/*
+ * WIN9x ONLY: find the display adapter's PCI ids by walking HKLM\Enum\PCI.
+ *
+ * THIS IS THE ONE PATH NT NEVER NEEDS, AND IT IS THE ONE THAT DECIDES THE
+ * GATE. On the NT family EnumDisplayDevices hands back a DeviceID string with
+ * VEN_/DEV_ in it and everything above works. On Windows 98 it very often does
+ * not: the API exists but its DeviceID is frequently empty, and the display
+ * CLASS key there (System\CurrentControlSet\Services\Class\Display\NNNN) has no
+ * MatchingDeviceId value at all - that is an NT invention - so
+ * gpu_annotate_from_class finds nothing either. The old fallback read
+ * DriverDesc and stopped, which left gpu_ven/gpu_dev at 0.
+ *
+ * Zero is not a harmless "unknown" here. gg_gpu_level_from_pci(0, 0) returns
+ * GG_GPU_UNKNOWN, the gate FAILS OPEN on unknown by design, and the result is
+ * that the machine with the weakest graphics in the entire fleet is the one
+ * machine whose GPU is never gated - every Direct3D-only title approved onto a
+ * Pentium-1 with a 2D-only VGA. The fail-open default is right; being unable
+ * to answer on the box that needs the answer is not.
+ *
+ * Win9x binds the two halves the other way round from NT: the PCI instance
+ * key carries "Driver" = "Display\0000", pointing AT the class key. So walk
+ * Enum\PCI\<VEN_xxxx&DEV_xxxx>\<instance>, take the first one whose Driver
+ * binding starts with "Display\", and read the ids out of the device key's own
+ * NAME - which is where Windows put them.
+ */
+static int gpu_ids_from_win9x_enum(hw_gpu_t *g)
+{
+    static const char *const roots[] = {
+        "Enum\\PCI",                                /* Win95/98/ME */
+        "System\\CurrentControlSet\\Enum\\PCI",     /* belt and braces */
+        0
+    };
+    int ri;
+
+    for (ri = 0; roots[ri]; ri++) {
+        HKEY hpci;
+        DWORD di;
+
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, roots[ri], 0, KEY_READ, &hpci)
+                != ERROR_SUCCESS)
+            continue;
+
+        for (di = 0; ; di++) {
+            char  dev[128], devpath[512];
+            DWORD cch = sizeof(dev);
+            HKEY  hdev;
+            DWORD ii;
+            unsigned ven = 0, id = 0;
+
+            if (RegEnumKeyExA(hpci, di, dev, &cch, NULL, NULL, NULL, NULL)
+                    != ERROR_SUCCESS)
+                break;
+            /* parse_ven_dev upper-cases first, so a lower-case Win98 key name
+             * ("ven_5333&dev_8901") matches as well as an upper-case one. */
+            if (!parse_ven_dev(dev, &ven, &id) || !ven)
+                continue;
+
+            _snprintf(devpath, sizeof(devpath) - 1, "%s\\%s", roots[ri], dev);
+            devpath[sizeof(devpath) - 1] = 0;
+            if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, devpath, 0, KEY_READ, &hdev)
+                    != ERROR_SUCCESS)
+                continue;
+
+            for (ii = 0; ; ii++) {
+                char  inst[64], instpath[640], binding[64], desc[256];
+                DWORD icch = sizeof(inst);
+                HKEY  hinst;
+
+                if (RegEnumKeyExA(hdev, ii, inst, &icch, NULL, NULL, NULL, NULL)
+                        != ERROR_SUCCESS)
+                    break;
+                _snprintf(instpath, sizeof(instpath) - 1, "%s\\%s", devpath,
+                          inst);
+                instpath[sizeof(instpath) - 1] = 0;
+                if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, instpath, 0, KEY_READ,
+                                  &hinst) != ERROR_SUCCESS)
+                    continue;
+                reg_str(hinst, "Driver", binding, sizeof(binding));
+                reg_str(hinst, "DeviceDesc", desc, sizeof(desc));
+                RegCloseKey(hinst);
+
+                /* "Display\0000" - case-insensitively, because this is a
+                 * Windows registry value and we are a Linux-built binary
+                 * reasoning about one. */
+                if (_strnicmp(binding, "Display\\", 8) != 0)
+                    continue;
+
+                g->ven = ven;
+                g->dev = id;
+                if (!g->name[0] && desc[0])
+                    safe_strncpy(g->name, desc, sizeof(g->name));
+                if (!g->hwid[0]) {
+                    _snprintf(g->hwid, sizeof(g->hwid) - 1, "PCI\\%s", dev);
+                    g->hwid[sizeof(g->hwid) - 1] = 0;
+                }
+                safe_strncpy(g->source, "Enum\\PCI(Driver=Display)",
+                             sizeof(g->source));
+
+                /* The class key the binding names carries the video RAM and
+                 * the driver description on 9x, where there is no
+                 * MatchingDeviceId to find it by. */
+                {
+                    char ckey[320];
+                    HKEY hc;
+                    _snprintf(ckey, sizeof(ckey) - 1,
+                              "System\\CurrentControlSet\\Services\\Class\\%s",
+                              binding);
+                    ckey[sizeof(ckey) - 1] = 0;
+                    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, ckey, 0, KEY_READ,
+                                      &hc) == ERROR_SUCCESS) {
+                        if (!g->vram_mb)
+                            g->vram_mb = reg_memsize_mb(hc);
+                        if (!g->driver_version[0])
+                            reg_str(hc, "DriverVersion", g->driver_version,
+                                    sizeof(g->driver_version));
+                        if (!g->name[0])
+                            reg_str(hc, "DriverDesc", g->name,
+                                    sizeof(g->name));
+                        RegCloseKey(hc);
+                    }
+                }
+                RegCloseKey(hdev);
+                RegCloseKey(hpci);
+                return 1;
+            }
+            RegCloseKey(hdev);
+        }
+        RegCloseKey(hpci);
+    }
+    return 0;
+}
+
 /*
  * Identify the adapter that is DRAWING THE SCREEN.
  *
@@ -511,14 +644,19 @@ static void gpu_identify(hw_gpu_t *g, int is_nt)
 
     gpu_annotate_from_class(g, is_nt);
 
-    /* Last resort on Win9x, where EnumDisplayDevices may be absent entirely. */
-    if (!g->ven && !is_nt) {
+    /* Last resort on Win9x, where EnumDisplayDevices may be absent entirely
+     * or may hand back an empty DeviceID. The PCI ids matter more than the
+     * name: without them the gate cannot classify the adapter and fails open,
+     * which on this fleet means the weakest graphics in it is the one card
+     * never gated. */
+    if (!g->ven && !is_nt)
+        gpu_ids_from_win9x_enum(g);
+    if (!g->name[0] && !is_nt) {
         HKEY h;
         if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
                           "System\\CurrentControlSet\\Services\\Class\\"
                           "Display\\0000", 0, KEY_READ, &h) == ERROR_SUCCESS) {
-            if (!g->name[0])
-                reg_str(h, "DriverDesc", g->name, sizeof(g->name));
+            reg_str(h, "DriverDesc", g->name, sizeof(g->name));
             RegCloseKey(h);
         }
     }
