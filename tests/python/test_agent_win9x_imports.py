@@ -56,6 +56,10 @@ import pytest
 REPO = pathlib.Path(__file__).resolve().parents[2]
 AGENT_DIR = REPO / "agent"
 AGENT_EXE = AGENT_DIR / "retro_agent.exe"
+# The chat client runs on the SAME Win98 boxes and is a TRACKED binary, so it
+# can be checked with no build at all. Audited 2026-08-30: it imports only
+# kernel32, msvcrt and ws2_32.
+CHAT_EXE = AGENT_DIR / "tools" / "retro_chat.exe"
 CC = "i686-w64-mingw32-gcc"
 
 # The seven names that made 1.78.0 unloadable on Win98SE.
@@ -257,3 +261,27 @@ def test_no_agent_source_calls_them_directly_except_the_resolvers():
         "these agent sources call NT-only entry points directly, which puts "
         "them in the import table and makes the EXE unloadable on Win98: %s. "
         "Call the ntdyn_* wrapper instead (agent/src/ntdyn.h)." % offenders)
+
+
+def test_the_chat_client_is_win9x_clean_too():
+    """retro_chat.exe runs on the same Win98 boxes and dies the same way.
+
+    It is committed to git, so unlike the agent this needs no toolchain - which
+    makes it the one half of this guard that can never be skipped.
+    """
+    assert CHAT_EXE.is_file(), "%s is tracked in git and must be present" % CHAT_EXE
+    imports = pe_imports(CHAT_EXE.read_bytes())
+    every = {name for names in imports.values() for name in names}
+
+    leaked = sorted(n for n in WIN9X_ABSENT if n in every)
+    assert not leaked, (
+        "retro_chat.exe statically imports %s - it will not LOAD on a Win9x "
+        "box, and the local chat UI is how those machines are used." % leaked)
+
+    extra = sorted(set(imports) - WIN98_PROVEN_DLLS)
+    assert not extra, (
+        "retro_chat.exe now links against %s, which Win98SE may not ship." % extra)
+
+    assert len(every) > 20, (
+        "only %d imports parsed from retro_chat.exe - the parser is not "
+        "reading it, so a clean verdict means nothing" % len(every))
