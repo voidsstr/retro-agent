@@ -1513,12 +1513,106 @@ Comparison write-up: `retro-3dfx/DRIVER-STACK-ASSESSMENT.md` (commit `1768c53`).
 >   claim — never by a live agent count.
 
 Current fleet is on **192.168.1.0/24** (see "Per-box console accounts" above for
-the full list). Verified boxes:
+the full list).
 
-| IP | Hostname | OS | Hardware Notes |
-|----|----------|----|----|
-| 192.168.1.124 | ADMIN | Windows XP SP3 | **NVIDIA GeForce2 GTS** (`10DE:0150`, NV15) on **ForceWare 71.89** — the Voodoo 3 was removed 2026-08-11 and the whole 3dfx stack purged. 383MB RAM, single CPU (440BX/PIII class), dual-boot: **XP on D:**, Win98 on C: (games live on both volumes). |
-| 192.168.1.171 | NSC-5B996B81319 | Windows XP SP3 | **Pentium 4 2.8GHz**, 509MB, Dell i865G. 2D is the onboard **Intel 865G**; 3D is a **3dfx Voodoo 2** (12MB). ⚠️ **A Voodoo 2 NEVER shows as a display adapter** — its INF is `Class=MEDIA`, so `VIDEODIAG` and every display-class scan report only the Intel chip and the card looks absent. Detect it with `REGREAD HKLM SYSTEM\CurrentControlSet\Enum\PCI` → `VEN_121A&DEV_0002` (NB `VEN_1102&DEV_0002` is a Creative SB Live!, not a Voodoo). Two identical cards share ONE device key with separate instance subkeys, so descend a level to count them. **This box also answers slowly — use ≥8s TCP timeouts or sweeps miss it entirely.** |
+> ### ⚠️ A BOX'S 3dfx CARD IS OFTEN NOT THE CARD DRIVING THE DISPLAY
+>
+> This table used to name each machine by its Voodoo, and that misled a whole
+> staging session on 2026-08-30. **`.133` and `.143` both render on a GeForce**;
+> the Voodoo5 is a second adapter in the same box. Three machines carry a
+> DX9-or-better GPU that nothing in these docs mentioned, and reasoning from the
+> old table would have wrongly refused two 2004 titles on five of eight boxes.
+>
+> **Measure, don't recall: `VIDEODIAG` for the adapter, `DISPLAYCFG get` for the
+> mode, and `REGREAD HKLM HARDWARE\DESCRIPTION\System\CentralProcessor\0` for
+> `~MHz` + `ProcessorNameString`** (`SYSINFO` gives no clock at all). Everything
+> below was measured that way on 2026-08-30 and carries a date for that reason.
+
+Measured 2026-08-30, all eight boxes live:
+
+| IP | Hostname | CPU | RAM | Display GPU (PCI id) | Mode | Free | OS |
+|----|----------|-----|-----|----------------------|------|------|----|
+| .123 | NSC-B20C188E96D | Athlon 64 4000+ 2403 MHz | 2047 MB | **Radeon HD 3850 AGP** (`1002:9515`) | 1920x1080 | 204 GB | XP SP3 |
+| .124 | ADMIN / NSC-CABE14B7486 | PIII 845 MHz | 511 MB | GeForce2 GTS (`10DE:0150`) — no programmable shaders | 1024x768 | 101 GB | XP SP3, dual-boot Win98 |
+| .133 | P3-DUAL | dual PIII 701 MHz | **255 MB** | **GeForce4 Ti 4600** (`10DE:0250`) — **the V5 6000 is GONE**, see below | 1280x1024 | 876 GB | XP SP3 |
+| .143 | 1GHZ | Athlon 1000 MHz (**K7, family 6 model 2 — no SSE**) | 511 MB | **GeForce 6800** (`10DE:0041`) — V5 5500 present as a 2nd adapter | 1024x768 | 143 GB | XP SP3 |
+| .145 | DELL | Core i5-2400 3093 MHz | 2047 MB | GeForce 8400GS (`10DE:10C3`) + Intel HD | 1920x1080 | 148 GB | XP SP3 |
+| .171 | NSC-5B996B81319 | Pentium 4 2793 MHz | 509 MB | Intel 865G (`8086:2572`) — no HW T&L | 1280x1024 | 58 GB | XP SP3 |
+| .240 | USER-41EA3B3330 | Athlon 64 3300+ 2403 MHz | 1534 MB | **Radeon 9800 XT** (`1002:4E4A`) | 1920x1080 | **17 GB** | XP SP3 |
+| .246 | ADMIN-PC | Core i5-2400 3093 MHz | 2047 MB | Radeon HD 6xxx (`1002:68F9`) | 1920x1080 | 151 GB | **Windows 7** |
+
+Per-box traps worth keeping:
+
+- **.171's Voodoo 2 NEVER shows as a display adapter.** Its INF is `Class=MEDIA`,
+  so `VIDEODIAG` and every display-class scan report only the Intel chip and the
+  card looks absent. Detect it with `REGREAD HKLM SYSTEM\CurrentControlSet\Enum\PCI`
+  → `VEN_121A&DEV_0002` (NB `VEN_1102&DEV_0002` is a Creative SB Live!, not a
+  Voodoo). Two identical cards share ONE device key with separate instance
+  subkeys, so descend a level to count them. **This box also answers slowly —
+  use ≥8s TCP timeouts or sweeps miss it entirely.**
+- **.124** had its Voodoo 3 removed 2026-08-11 and the whole 3dfx stack purged;
+  it is on ForceWare 71.89. XP is on **D:**, Win98 on C:, and games live on both.
+- **.145's `DISPLAYCFG get` reports 640x480x16 while the desktop is really
+  1920x1080** — it reads the inactive Intel HD, not the 8400GS that is driving
+  the panel. Cross-check against a `WINLIST` Program Manager rect before
+  believing a suspiciously small mode on a dual-adapter box.
+- **.133 has 255 MB of RAM**, one megabyte under the 256 MB floor that several
+  2004 titles publish. That is not a rounding artifact — it is the number the
+  capability gate sees.
+- **.240 is the only disk-constrained machine still in service** at 17 GB free.
+
+> #### ⚠️ THE VOODOO5 6000 IS NO LONGER IN `.133` (measured 2026-08-30)
+>
+> An earlier draft of this table said the V5 6000 was still a second adapter in
+> `.133`. It is not. Four independent reads all say the card is physically
+> absent:
+>
+> - `VIDEODIAG` returns **one** adapter, the GeForce4 Ti 4600;
+> - `HKLM\SYSTEM\CurrentControlSet\Enum\PCI` contains **no `VEN_121A` key at
+>   all** — and a physically present card enumerates there even with no driver
+>   bound, so this is the decisive one;
+> - the Display class GUID has a single instance, `\0000`;
+> - there is no `3dfx*` service and **no `glide*.dll` anywhere under `%SystemRoot%`**.
+>
+> **So the vintage Voodoo5 lane is down to ONE box, `.143`** — and even there the
+> V5 5500 is the *second* adapter behind a GeForce 6800 that drives the panel.
+> The `voodoo5-driver-dev` skill still names ".143 (V5 5500) and .133 (V5 6000,
+> 4-chip)"; the `.133` half of that has no hardware behind it, exactly as the
+> `voodoo3-driver-dev` skill lost `.124` when its Voodoo 3 came out on
+> 2026-08-11. Do not size a Voodoo5 test matrix at two boxes.
+>
+> **Real Glide silicon on this fleet is now exactly two cards:** `.143`'s V5 5500
+> (`121A:0009`, subsys `0002121A`) and `.171`'s Voodoo 2 (`121A:0002`). Every
+> other box would run a Glide title through a wrapper or not at all — which is
+> what makes the staged game-local `glide2x.dll` question a real one.
+
+### A game-local nGlide in the LIBRARY hides a real Voodoo from every box that has one
+
+**Game-local wins at load time.** Two staged titles ship a 1,310,720-byte nGlide
+`glide2x.dll` beside their exe — `UnrealGold/System/` and `Carmageddon2/` — and
+that wrapper shadows the real 3dfx `glide2x.dll` in `system32` (226,304 B on
+`.171`, 258,048 B on `.143`). So on **exactly the two boxes that still have Glide
+silicon**, the staged library guarantees the card is never used.
+
+This has already been diagnosed once the expensive way, on `.171` (commit
+`7823586`): UnrealGold was reported as *crashing*, had never crashed, and had in
+fact spent the whole session on the software rasterizer at 100% CPU — the
+wrapper's `grSstOpen` failed `(2, 3)` every time, so the game got neither the
+card nor a working wrapper. **That fix was applied to the box, not to the
+library**, so the next `GAMESYNC` restores the wrapper. Carmageddon2 carries the
+identical wrapper and is still untested.
+
+The staged `Unreal.ini` also still carries the values that stranded that session
+(`WindowedRenderDevice=SoftDrv.SoftwareRenderDevice`, and a 1024x768x32 mode no
+Voodoo 2 can scan out), so the library reproduces the bug on demand.
+
+**The fix belongs in the per-box launcher, not in a staged constant** — this is
+the same shape as the resolution problem: one staged tree, eight boxes, and any
+single baked-in answer is wrong somewhere by construction. A box with real Glide
+silicon wants the real `system32` Glide and `GlideDrv`; a box without wants
+`D3DDrv` and may keep the wrapper. Deleting the staged wrapper outright is *not*
+obviously right — it is the only Glide path the six non-3dfx boxes have.
+
 
 Legacy rows below are from an older 10.0.0.0/24 network and are **not** current:
 
