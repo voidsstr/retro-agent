@@ -8,7 +8,8 @@
  *
  *     C:\retro-wall\wall00.bmp .. wallNN.bmp   (the iterations)
  *     C:\retro-wall\rotate_wall.exe            (GUI, single-instance, cycles them)
- *     C:\retro-wall\arrange_icons.exe          (parks icons in the bottom-right well)
+ *     C:\retro-wall\arrange_icons.exe          (LEGACY bottom-right arranger - staged
+ *                                              but deliberately NOT run; see below)
  *
  * The agent cannot render those BMPs itself (they encode per-machine specs), so
  * this module only *applies* what has been staged. If nothing is staged yet it
@@ -20,7 +21,8 @@
  *   3. (re)installs the HKCU Run key so the rotator survives logon,
  *   4. launches the rotator (its named mutex dedupes, so this is a no-op if it's
  *      already running), and
- *   5. runs arrange_icons.exe to move the desktop icons into the blank well.
+ *   5. does NOT arrange icons - gs_arrange_icons() owns that, and the legacy
+ *      exe would fight it by parking them bottom-right.
  *
  * Runs in a background thread after a short delay so the shell/desktop is up
  * (the icon listview lives in explorer, and SPI_SETDESKWALLPAPER needs the
@@ -591,12 +593,28 @@ void retrowall_apply_startup(void)
     run_process(runcmd, 0);
 
     /* 5. Park the desktop icons in the blank well. */
-    if (file_exists(ARRANGE_EXE)) {
-        run_process(ARRANGE_EXE, 15000);
-        log_msg(LOG_MAIN, "retrowall: arranged desktop icons");
-    } else {
-        log_msg(LOG_MAIN, "retrowall: %s missing, icons not arranged", ARRANGE_EXE);
-    }
+    /* DO NOT run arrange_icons.exe here.
+     *
+     * It parks icons in the BOTTOM-RIGHT well, which is where the wallpaper
+     * used to reserve space. The wallpaper now draws its icon bay TOP-LEFT and
+     * the agent parks them there itself in gs_arrange_icons() - which also
+     * clears LVS_EX_SNAPTOGRID (v1.67.0) and widens into extra columns when the
+     * library outgrows the bay (v1.68.0), neither of which the old exe does.
+     *
+     * Running it here therefore UNDID a correct arrangement on every single
+     * agent start. That is the worst shape a bug can take: each manual fix
+     * appeared to work and was silently reverted at the next boot, so the
+     * defect looked like "the icons keep moving" rather than anything
+     * attributable. The deployed binary is byte-identical to the repo's
+     * bottom-right arranger and its own printf still says "moved %d icons to
+     * bottom-right well".
+     *
+     * The agent has done this natively since it grew gs_arrange_icons(), so
+     * there is nothing to replace it with - the call simply goes away. Staging
+     * the file remains harmless; only running it was wrong. */
+    if (file_exists(ARRANGE_EXE))
+        log_msg(LOG_MAIN, "retrowall: %s present but NOT run - the agent "
+                          "arranges icons itself (top-left bay)", ARRANGE_EXE);
 
     /* The theme and screensaver were applied at the top of this function, before
      * the rotation check, so that a machine with nothing staged still gets them.
