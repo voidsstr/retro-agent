@@ -112,6 +112,24 @@ def check_title(lib, title):
             fail("launch.txt", "a data line has an empty target")
             continue
 
+        # The DISPLAY NAME becomes the .lnk filename, so it must be a legal
+        # Windows filename. Redneck Rampage shipped "Redneck Rampage - Setup /
+        # Network Config" and that shortcut has NEVER existed on any box: the
+        # agent logs "could not create desktop shortcut" and moves on, so a
+        # title quietly loses a launcher with nothing on the desktop to show
+        # for it. Same family as the parentheses rule - a character that is
+        # fine in prose and fatal in a path.
+        # NB this applies to the display name ONLY. The target and icon fields
+        # are PATHS and legitimately contain backslashes (AGAIN\BUBBA.ICO).
+        disp = parts[1].strip() if len(parts) >= 2 else ""
+        if disp:
+            bad = [c for c in '\\/:*?"<>|' if c in disp]
+            if bad:
+                fail("launch.txt", "display name %r contains %s, which is "
+                                   "illegal in a filename — the .lnk cannot be "
+                                   "created and that launcher silently never "
+                                   "appears" % (disp, " ".join(repr(c) for c in bad)))
+
         # ( and ) survive a desktop double-click and break agent launching,
         # so a broken launcher looks perfect to a human tester.
         if "(" in target or ")" in target:
