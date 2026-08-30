@@ -26,12 +26,21 @@ ever seen it, and it must still not put Doom 3 on a Pentium III.
 
 ```
 hard NO    OS floor unmet, a required CPU instruction absent, a GPU two whole
-           feature levels short, or the tree cannot fit in the free space.
+           feature levels short, NO 3D AT ALL against any GPU floor, or the
+           tree cannot fit in the free space.
                                             -> arithmetic, no model call
 MARGINAL   within 25% of a published minimum, or a GPU exactly one level short.
            -> the ONLY thing that reaches ollama
 RUN        everything met.                  -> arithmetic, no model call
 ```
+
+`none` (an S3 Trio64, a Matrox Millennium, a Tseng ET4000 - chips with no 3D
+pipeline whatsoever) is the one exception to the marginal band, even though it
+sits only one level below `fixed`. The band exists because a title of that era
+usually ships a *lower-detail* path for a weaker rasteriser; there is no
+lower-detail path from "has a rasteriser" to "has none". See SCHEMA.md, which
+also explains why stating `gpu_feature_level` on a title that ships a software
+renderer is a bug rather than a harmless extra.
 
 A gate that phones an LLM to conclude "a Pentium III cannot run Doom 3" is a bad
 gate. `tests/native/test_gamegate.c` asserts the obvious cases stay obvious —
