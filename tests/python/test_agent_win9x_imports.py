@@ -87,6 +87,17 @@ KNOWN_GOOD = (
 # them at all.
 DYNAMIC_RESOLVER_SOURCES = {"ntdyn.c", "ntdyn.h", "service.c"}
 
+# The EIGHT DLLs agent v1.30.0 depends on. That binary demonstrably loads and
+# runs on .243's Win98SE, so this set is proven, not assumed. A NEW DLL in the
+# import table is the same class of fault as a new function: if Win98 does not
+# ship it, the loader fails the process before main(). iphlpapi, shlwapi, ole32
+# and shell32 are all used by the agent and are all loaded with LoadLibrary for
+# exactly this reason - keep it that way.
+WIN98_PROVEN_DLLS = {
+    "advapi32.dll", "gdi32.dll", "kernel32.dll", "msvcrt.dll",
+    "setupapi.dll", "user32.dll", "winmm.dll", "ws2_32.dll",
+}
+
 
 # ---------------------------------------------------------------------------
 # A minimal PE import-table reader. No pefile dependency - the repo already
@@ -197,6 +208,20 @@ def test_the_control_group_is_still_imported(imports):
         "%s vanished from the import table. These are Win98-safe (agent 1.30.0 "
         "imports them and runs on .243); losing them means real functionality "
         "was removed, not a Win9x fix." % missing)
+
+
+def test_the_agent_depends_on_no_dll_beyond_the_proven_eight(imports):
+    """Verified 2026-08-30 by building v1.30.0 and diffing: its DLL set and
+    v1.78.1's are IDENTICAL, and all 17 new function imports between them
+    (GetFileTime, SetFileTime, QueryPerformanceCounter, FindWindowExA,
+    SendMessageA, ...) are Windows 95-era ANSI entry points present in Win98SE.
+    """
+    extra = sorted(set(imports) - WIN98_PROVEN_DLLS)
+    assert not extra, (
+        "retro_agent.exe now links against %s. Windows 98SE may not ship it, "
+        "and a missing DLL fails the process at LOAD exactly like a missing "
+        "function does. Use LoadLibrary/GetProcAddress instead - that is why "
+        "iphlpapi, ole32, shell32 and shlwapi are absent from this list." % extra)
 
 
 def test_the_parser_would_actually_see_a_bad_import(imports):
