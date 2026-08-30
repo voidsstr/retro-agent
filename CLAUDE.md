@@ -99,6 +99,42 @@ so the account password and `DefaultPassword` always match — that's what preve
   negatives** on XP (network-access policy) — a failure there does NOT mean the console
   password is wrong.
 
+## CHECK ACTIVATION BEFORE YOU REBOOT A BOX (REQUIRED)
+
+**An unactivated XP box is fine while it is logged in and unreachable the moment
+it restarts.** When the activation grace expires, Windows blocks logon entirely
+— so the console session never starts, the `HKLM\...\Run\RetroAgent` value
+never fires, and the machine comes back with networking up (445/139/135 open)
+and **the agent dead** (9898/9899/9897 refused). It looks like a failed boot; it
+is a locked activation screen.
+
+This happened to **.171** on 2026-08-29 while finishing a Daemon Tools install:
+auto-login was verified correct *before* the reboot, `safe-reboot.py` armed the
+PXE hold so the box was not re-imaged, and it still came back unreachable. The
+box had been flagged weeks earlier as "not activated, `wpabaln.exe` runs at
+logon, not blocking yet" — those two facts were never connected.
+
+**So, before rebooting any box:**
+1. **Check activation** — `LICSTATUS` (read-only, like `slmgr /xpr`). If it is
+   unactivated or in grace, resolve that FIRST or accept you may need a keyboard.
+2. Be especially careful when the reboot is to finish a **driver-class install**
+   (a virtual SCSI bus, a display driver) — that is a reboot you chose, and it
+   can be deferred.
+3. Note that a network logon failure tells you **nothing** about the console
+   password: XP Pro in a workgroup defaults to ForceGuest, so
+   `NT_STATUS_LOGON_FAILURE` over SMB is expected even when the password is
+   right. Do not start guessing credentials.
+
+**Recovering a locked box** (needs someone at the screen — there is no remote
+path): the activation lockout itself offers **Yes → "telephone a customer
+service representative" → any country**, which displays the 54-digit
+Installation ID. Microsoft retired the XP activation servers, internet *and*
+phone, so the Confirmation ID is generated offline with the **`xp-activation`
+skill** in the private `retro-agent-private` repo
+(`scripts/xp-activation/xpcid`). It computes the same value the phone system
+used to read back, patches nothing, and only works for IDs the hardware itself
+produces. Safe Mode (F8) also allows a login to run `msoobe.exe /a`.
+
 ## Findings Log & Documentation Upkeep (REQUIRED)
 
 **Keep a running findings log and keep docs current.** As you uncover any important,
