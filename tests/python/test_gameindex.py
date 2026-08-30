@@ -64,10 +64,32 @@ def test_a_reply_with_no_infostring_is_not_mistaken_for_a_live_server():
 
 
 def test_unsupported_engines_say_so_instead_of_returning_empty():
-    rows, note = masters.discover("unreal")
+    # Tribes 2, not Unreal: Unreal gained a curated seed list (see below), so
+    # it is no longer an example of an engine we cannot look at. The rule it
+    # is testing is unchanged.
+    rows, note = masters.discover("t2")
     assert rows == []
     assert "unsupported" in note, (
         "'we never looked' must not be reported the same as 'none found'")
+
+
+def test_a_seeded_engine_never_claims_a_master_answered():
+    # GameSpy is dead, so the Unreal list is a hand-kept set of addresses that
+    # are probed like any other. That is a real discovery path, but the note
+    # must say where the addresses came from - "17 alive of 18 listed" would
+    # imply a master we do not have.
+    spec = masters.ENGINES["unreal"]
+    assert spec["supported"] and spec.get("seeded")
+    assert spec["list"](), "the seed list must not be empty"
+
+
+def test_an_engine_with_a_probe_but_no_list_says_which_it_is_missing():
+    # GoldSrc has a working A2S probe (it verifies our own servers) and no
+    # reachable master. Those are different halves and the note must not
+    # suggest the probe is what is missing.
+    rows, note = masters.discover("goldsrc")
+    assert rows == [] and "unsupported" in note
+    assert masters.ENGINES["goldsrc"]["probe"] is not None
 
 
 # --- favourites rendering ----------------------------------------------------
@@ -125,8 +147,10 @@ def test_q2_uses_the_address_book_cvars():
 
 
 def test_engine_without_a_writer_reports_why():
-    text, why = favorites.render("goldsrc", [srv("1.2.3.4:27015")])
-    assert text is None and "verification" in why
+    # QuakeWorld, not GoldSrc: GoldSrc gained a writer once the format was
+    # read out of the staged tree's own revSrvBrowser.dll.
+    text, why = favorites.render("qw", [srv("1.2.3.4:27500")])
+    assert text is None and "favourites store" in why
 
 
 def test_target_path_lands_in_the_engine_subdir():

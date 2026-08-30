@@ -57,18 +57,30 @@ STAGED_LIBRARY = {
     "Shogo":             "Shogo.exe",
     "SiNGold":           "sin.exe",
     "SoldierOfFortune":  "SoF.exe",
+    "SoldierOfFortune2": "sof2mp.exe",   # the MP exe, not the SP SoF2.exe
     "StarCraft":         "StarCraft.exe",
-    "SystemShock1":      "sshock.exe",
     "SystemShock2":      "shock2.exe",
     "Thief2":            "Thief2.exe",
     "ThiefGold":         "THIEF.EXE",
     "TiberianSun":       "SUN.EXE",
     "UnrealGold":        "Unreal.exe",
     "UnrealTournament":  "UnrealTournament.exe",
+    # A SECOND UT99 tree, staged 2026-08-29 for the three pre-SSE2 boxes. It
+    # carries the same exe name, so it needs no signature of its own - but the
+    # host must keep telling the two apart by DIRECTORY, which is why
+    # installed_games is keyed (ip, game_key, dir) and not (ip, game_key).
+    "UnrealTournament436": "UnrealTournament.exe",
+    # Added to the library 2026-08-29; both are LAN-multiplayer titles.
+    "HexenII":           "glh2.exe",
+    "HiddenAndDangerous": "HDE.exe",
     # approved for staging 2026-08-29; the fleet runs a ut2004-server on :7777
     "UT2004":            "UT2004.exe",
 }
 
+# Two staged trees share one executable name on purpose (the 469e and 436
+# builds of UT99), so the title->exe map is not injective and a test asserting
+# uniqueness would be wrong.
+#
 # Names generic enough that a signature on them would fire on unrelated
 # software during the depth-3 walk of every fixed drive.
 FORBIDDEN_EXES = {"game.exe", "main.exe", "setup.exe", "launcher.exe",

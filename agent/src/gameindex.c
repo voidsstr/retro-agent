@@ -201,6 +201,14 @@ static const game_sig_t g_sigs[] = {
     { "tibsun",     "C&C: Tiberian Sun",      "SUN.EXE",            NULL,       "-" },
     { "ra2",        "C&C: Red Alert 2",       "Ra2.exe",            NULL,       "-" },
     { "ra2yr",      "Red Alert 2: Yuri's Revenge", "gamemd.exe",    NULL,       "-" },
+    /* Added to the library after the rows above. Both have LAN multiplayer
+     * (each ships Host/Join .bat launchers) but neither has a server list to
+     * populate, so engine "-": being SEEN is the point - an unlisted title is
+     * indistinguishable from an uninstalled one to the host.
+     * Hexen II is matched on the OpenGL build's name rather than h2.exe,
+     * which is short enough to collide during the depth-3 drive walk. */
+    { "hexen2",     "Hexen II",               "glh2.exe",           NULL,       "-" },
+    { "hd",         "Hidden & Dangerous",     "HDE.exe",            NULL,       "-" },
     { NULL,         NULL,                     NULL,                   NULL,       NULL }
 };
 

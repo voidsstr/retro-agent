@@ -279,6 +279,118 @@ def _a2s_probe(addr):
     }
 
 
+# --- Unreal engine 1 and 2 (UT99, Unreal Gold, Deus Ex, UT2004) --------------
+#
+# GameSpy died in 2014 and took the Unreal masters with it, so there is no list
+# to ask. What there IS is a curated set of addresses -- and, crucially, a
+# probe: `\status\` on the QUERY port, which is the game port + 1 by
+# convention but not by rule (the fleet's own UT99 is 7797/7798, UT2004 is
+# 7777/7787). Every seed is probed before it can reach anybody's favourites,
+# so a dead entry in the list below costs nothing but a timeout.
+#
+# The reply carries `hostport`, which is the address a client actually
+# connects to. That is what we store as `addr`; the query port is stored
+# alongside it because the UT99 favourites format wants the query port and
+# UT2004's wants both.
+
+# Provenance: Games-Library/UnrealTournament/SERVERS-online.txt (community
+# curation, refreshed 2026-04-19) plus the three servers the staged tree's own
+# [UBrowser.UBrowserFavoritesFact] shipped with. Listed as GAME ports; the
+# probe tries port+1 then the port itself, so either style works.
+UNREAL_SEEDS = [
+    "139.162.235.20:7777", "130.61.36.168:7777", "192.223.24.67:7777",
+    "194.164.194.68:7787", "85.214.243.170:7777", "23.92.16.218:7777",
+    "109.123.250.228:4444", "74.91.116.164:7777", "185.242.112.2:6677",
+    "37.153.1.43:7777", "66.85.80.155:7797", "108.61.109.162:7777",
+    "74.91.119.21:7777", "85.214.243.170:9000", "173.199.111.57:7777",
+    "31.220.4.155:2250", "18.184.97.232:2250", "209.38.218.216:2250",
+]
+
+
+def _gamespy_status(host, port):
+    data, rtt = _udp(host, port, b"\\status\\", reads=3)
+    if not data:
+        return None, rtt
+    info = _infostring(data.decode("latin-1", "replace"))
+    return (info or None), rtt
+
+
+def _gamespy_probe(addr, want_gamename=None, query_port=0):
+    """Probe a UT-family server. `addr` may be the game port or the query port.
+
+    Returns a row whose `addr` is the JOINABLE address (from the reply's own
+    `hostport`) and whose `query_port` is where it answered -- the two are not
+    the same and both are needed downstream.
+
+    `query_port` short-circuits the guessing when the caller already knows it.
+    That is not a nicety: the fleet's UT2004 answers on 7787 for game port
+    7777, so trying port+1 and then the port itself finds nothing at all and
+    our own live server reads as down.
+    """
+    host, port = addr.rsplit(":", 1)
+    port = int(port)
+    if query_port:
+        info, rtt = _gamespy_status(host, query_port)
+        qport = query_port
+    else:
+        info, rtt = _gamespy_status(host, port + 1)
+        qport = port + 1
+        if not info:
+            info, rtt = _gamespy_status(host, port)
+            qport = port
+    if not info or "hostname" not in info:
+        return None
+    try:
+        gameport = int(info.get("hostport") or (qport - 1))
+    except ValueError:
+        gameport = qport - 1
+    gamename = info.get("gamename", "")
+    if want_gamename and gamename.lower() != want_gamename:
+        return None
+    passworded = info.get("password", "0").strip().lower() not in ("0", "false", "")
+    return {
+        "addr": f"{host}:{gameport}",
+        "query_port": qport,
+        "hostname": " ".join(info.get("hostname", "").split())[:120],
+        "map": info.get("maptitle") or info.get("mapname", ""),
+        "players": int(info.get("numplayers", "0") or 0),
+        "maxplayers": int(info.get("maxplayers", "0") or 0),
+        "ping_ms": rtt,
+        "gamename": gamename,
+        "passworded": 1 if passworded else 0,
+        "source": "seed",
+    }
+
+
+def _unreal_probe(addr):
+    return _gamespy_probe(addr, want_gamename="ut")
+
+
+def _ut2k4_probe(addr):
+    return _gamespy_probe(addr, want_gamename="ut2004")
+
+
+# Engines whose probe needs to be told the query port rather than guess it.
+_QUERY_PORT_ENGINES = {"unreal", "ut2k4"}
+
+
+def probe_server(engine, addr, query_port=0):
+    """Probe ONE known address, for the servers we already know we own.
+
+    Separate from discover() on purpose: discovery answers "what is out
+    there", this answers "is the thing we run still up", and the fleet's own
+    servers must be verified rather than pinned on faith.
+    """
+    spec = ENGINES.get(engine) or {}
+    probe = spec.get("probe")
+    if probe is None:
+        return None
+    if query_port and engine in _QUERY_PORT_ENGINES:
+        want = "ut2004" if engine == "ut2k4" else "ut"
+        return _gamespy_probe(addr, want_gamename=want, query_port=query_port)
+    return probe(addr)
+
+
 # --- engine registry ---------------------------------------------------------
 
 def _collect(masters, parser):
@@ -305,15 +417,25 @@ ENGINES = {
     # pinned into favorites by the sync pass, which is the part that matters
     # on this LAN. _goldsrc_master_list/_a2s_probe are kept and tested so
     # this flips back on the day a reachable master exists.
-    "goldsrc": dict(list=None, probe=None, supported=False,
+    # The probe is wired even though discovery is not: it is what verifies our
+    # OWN GoldSrc servers on .132 before they are pinned, instead of inventing
+    # a row for a port nobody checked. Its PLAYER COUNT is not to be trusted --
+    # A2S_INFO reported players=0 on :27015 while two real clients were playing,
+    # because they arrive through the browser proxy and hlds logs them as the
+    # host itself. Use the hlds log or rcon for population; A2S answers only
+    # "this server is up, and this is its name and map".
+    "goldsrc": dict(list=None, probe=_a2s_probe, supported=False,
                     why="Steam master hostnames do not resolve from this host"),
-    # No working public master any more, or none we have verified. Declared
-    # here on purpose so the caller can say "unsupported" instead of "none
-    # found" -- they are very different facts.
-    "unreal":  dict(list=None, probe=None, supported=False,
-                    why="the 333networks/GameSpy master is unverified here"),
-    "ut2k4":   dict(list=None, probe=None, supported=False,
-                    why="the 333networks/GameSpy master is unverified here"),
+    # GameSpy is gone, so there is no master to ask -- but a CURATED SEED LIST
+    # that is probed before anything is listed is a real discovery path, not a
+    # guess, and `seeded` makes the log say so rather than implying a master
+    # answered. UT2004 has no seed list because the only UT2004 server we can
+    # reach is our own, which the sync pass pins directly.
+    "unreal":  dict(list=lambda: list(UNREAL_SEEDS), probe=_unreal_probe,
+                    supported=True, seeded=True),
+    "ut2k4":   dict(list=None, probe=_ut2k4_probe, supported=False,
+                    why="no live UT2004 master and no curated seed list; the "
+                        "fleet's own server on .132 is pinned directly"),
     "t2":      dict(list=None, probe=None, supported=False,
                     why="TribesNext master not implemented"),
     "rtcw":    dict(list=None, probe=None, supported=False,
@@ -331,9 +453,14 @@ def discover(engine, max_probe=900, workers=PROBE_WORKERS):
     if not spec["supported"]:
         return [], f"unsupported: {spec.get('why', 'no discovery path')}"
 
+    if spec.get("list") is None:
+        return [], "no discovery list for this engine (local servers are " \
+                   "pinned by the sync pass)"
     addrs = spec["list"]()
+    seeded = spec.get("seeded")
     if not addrs:
-        return [], "master returned no addresses (master down or filtered)"
+        return [], ("seed list is empty" if seeded else
+                    "master returned no addresses (master down or filtered)")
     addrs = addrs[:max_probe]
 
     rows = []
@@ -341,4 +468,5 @@ def discover(engine, max_probe=900, workers=PROBE_WORKERS):
         for r in ex.map(spec["probe"], addrs):
             if r:
                 rows.append(r)
-    return rows, f"{len(rows)} alive of {len(addrs)} listed"
+    where = "seeded (no master)" if seeded else "listed"
+    return rows, f"{len(rows)} alive of {len(addrs)} {where}"

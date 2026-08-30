@@ -24,6 +24,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 import socket
 import sys
 import time
@@ -47,14 +48,39 @@ ME = os.environ.get("RETRO_FLEET_HOST", "192.168.1.132")
 # Our own dedicated servers, from scripts/game-servers/. These are pinned into
 # the top favourite slots so there is always something joinable on the LAN even
 # when the internet lists come back empty.
+#
+# Three columns beyond the obvious, each of which is load-bearing:
+#
+#   query_port  where the server answers a QUERY, which is not always the game
+#               port + 1. UT99 here is 7797/7798 but UT2004 is 7777/7787, and
+#               guessing +1 makes our own live UT2004 server read as down.
+#   gamename    what a client must be running to join it. All ten servers sit
+#               on one IP, so without this a Counter-Strike box is handed the
+#               Specialists server and a Quake III box the OpenArena one --
+#               addresses that connect and then reject you.
+#   name        the label written beside the address in the favourites file.
+#
+# Tribes 2 (docker, :28000) is deliberately absent: TribesNext encrypts the
+# info response and no staged title has a favourites file to put it in.
 LOCAL_SERVERS = [
-    ("q3", 27961, "NSC Retro Fleet Arena - Quake III"),
-    ("q3", 27960, "NSC Retro Fleet Arena - OpenArena"),
-    ("q2", 27910, "NSC Retro Fleet Arena - Quake II"),
-    ("qw", 27502, "NSC Retro Fleet Arena - QuakeWorld"),
-    ("goldsrc", 27015, "NSC Retro Fleet Arena - CS 1.6"),
-    ("goldsrc", 27016, "NSC Retro Fleet Arena - CS 1.6 no-blood"),
-    ("goldsrc", 27017, "NSC Retro Fleet Arena - The Specialists"),
+    dict(engine="q3", port=27961, gamename="baseq3",
+         name="NSC Retro Fleet Arena - Quake III"),
+    dict(engine="q3", port=27960, gamename="baseoa",
+         name="NSC Retro Fleet Arena - OpenArena"),
+    dict(engine="q2", port=27910, gamename="baseq2",
+         name="NSC Retro Fleet Arena - Quake II"),
+    dict(engine="qw", port=27502, gamename="qw",
+         name="NSC Retro Fleet Arena - QuakeWorld"),
+    dict(engine="goldsrc", port=27015, gamename="cstrike",
+         name="NSC Retro Fleet Arena - CS 1.6"),
+    dict(engine="goldsrc", port=27016, gamename="cstrike",
+         name="NSC Retro Fleet Arena - CS 1.6 no-blood"),
+    dict(engine="goldsrc", port=27017, gamename="ts",
+         name="NSC Retro Fleet Arena - The Specialists"),
+    dict(engine="unreal", port=7797, query_port=7798, gamename="ut",
+         name="NSC Retro Fleet Arena - UT99"),
+    dict(engine="ut2k4", port=7777, query_port=7787, gamename="ut2004",
+         name="NSC Retro Fleet Arena - UT2004"),
 ]
 
 log = logging.getLogger("gameindex.sync")
@@ -146,28 +172,38 @@ async def refresh_machine(con, ip, force=False):
 # --- step 3: refresh the live-server table -----------------------------------
 
 def probe_local_servers(con):
-    """Our own servers on .132, probed directly and pinned."""
-    added = 0
-    for engine, port, label in LOCAL_SERVERS:
-        spec = masters.ENGINES.get(engine, {})
-        probe = spec.get("probe")
+    """Our own servers on .132, probed directly and pinned.
+
+    Returns (pinned, down) so a pass can say which of our own servers did not
+    answer. They are pinned either way -- a box should still carry the address
+    of a server that is merely restarting -- but "we asked and it did not
+    reply" is worth reporting rather than swallowing.
+    """
+    pinned, down = 0, []
+    for spec in LOCAL_SERVERS:
+        engine, port, label = spec["engine"], spec["port"], spec["name"]
         addr = f"{ME}:{port}"
-        row = None
-        if probe:
-            row = probe(addr)
+        row = masters.probe_server(engine, addr,
+                                   query_port=spec.get("query_port", 0))
         if row is None:
-            # A local server with no usable probe (goldsrc: no A2S path wired)
-            # is still pinned -- we KNOW it is ours and where it is. Just check
-            # the UDP port is bound rather than inventing player counts.
+            # Still pinned: we KNOW it is ours and where it is. What we do NOT
+            # do is invent a player count for a server that did not answer.
+            down.append(f"{engine}:{port}")
             row = {"addr": addr, "hostname": label, "map": "", "players": 0,
-                   "maxplayers": 0, "ping_ms": 0, "gamename": "", "passworded": 0}
+                   "maxplayers": 0, "ping_ms": 0, "passworded": 0}
         row["is_local"] = 1
         row["source"] = "local"
         row["hostname"] = row.get("hostname") or label
+        row["query_port"] = spec.get("query_port") or row.get("query_port") or 0
+        # The DECLARED gamename wins for our own servers. The probe's is
+        # usually the same, but this table is the thing we actually control,
+        # and one surprising cvar must not filter a box away from a server we
+        # know it can join.
+        row["gamename"] = spec["gamename"]
         db.upsert_servers(con, engine, [row])
-        added += 1
+        pinned += 1
     con.commit()
-    return added
+    return pinned, down
 
 
 def refresh_servers(con, engines, max_probe=900):
@@ -242,6 +278,29 @@ async def read_existing(conn, path):
 
 
 
+async def running_exes(conn):
+    """Lowercased basenames of every process on the box.
+
+    Used to skip a title that is running. Q3 rewrites q3config.cfg on exit and
+    UT rewrites UnrealTournament.ini on exit, both from memory -- so a write
+    made while the game is up is at best thrown away, and at worst reverts
+    whatever the player changed in that session. The five-minute pass has no
+    business landing in the middle of a game.
+
+    Parsed by pulling every *.exe out of the reply rather than by walking the
+    JSON: PROCLIST's exact shape is the agent's business, and a fleet running
+    several agent versions must not turn a schema change into a lost guard.
+    """
+    try:
+        raw = await conn.command_text("PROCLIST", timeout=30)
+    except Exception:  # noqa: BLE001
+        # Not knowing is not the same as "nothing is running", but refusing to
+        # write anything at all because one command failed would be worse. Say
+        # so by returning None, and let the caller decide.
+        return None
+    return {m.lower() for m in re.findall(r'[^"\\/:*?<>|]+\.exe', raw)}
+
+
 async def push_favorites(con, ip, dry_run=False):
     """Write each installed game's favourites file, but only when it changed."""
     results = []
@@ -250,20 +309,67 @@ async def push_favorites(con, ip, dry_run=False):
         return [("-", "-", "no games indexed for this box yet - nothing to write")]
 
     async def work(c, _greeting):
+        running = await running_exes(c)
+        # Two keys can name one file: the staged Quake III tree ships both
+        # quake3.exe and ioquake3.x86.exe, so `quake3` and `ioquake3` are both
+        # detected in the same directory and both resolve to
+        # baseq3\autoexec.cfg. Writing it twice per pass is pure waste.
+        done_paths = {}
         for g in games:
-            engine, key, gdir = g["engine"], g["game_key"], g["dir"]
-            spec = favorites.writer_for(engine)
-            if not spec.get("supported"):
-                results.append((key, engine, f"skipped: {spec.get('why')}"))
+            key, gdir = g["game_key"], g["dir"]
+            # The TITLE decides, not the engine the agent reported. An agent
+            # says "-" for Deus Ex because that box has no server browser it
+            # can name; the host knows Deus Ex is Unreal engine and where its
+            # favourites live. Doing this here rather than in gameindex.c
+            # keeps a favourites change off the critical path of a fleet-wide
+            # agent republish.
+            pol = favorites.policy_for(key, g["engine"])
+            if not pol.get("supported"):
+                results.append((key, g["engine"], f"skipped: {pol.get('why')}"))
+                continue
+            engine = pol["engine"]
+
+            if favorites.SKIP_DIRS.search(gdir):
+                results.append((key, engine,
+                                f"skipped: {gdir} is a benchmark harness - "
+                                f"nothing of ours goes in there"))
                 continue
 
-            servers = db.best_servers(con, engine, limit=spec["slots"])
+            exe = str(g["exe"] or "").rsplit("\\", 1)[-1].lower()
+            if running is not None and exe and exe in running:
+                results.append((key, engine,
+                                f"skipped: {exe} is running - it rewrites this "
+                                f"file on exit, so our write would be lost or "
+                                f"would revert what the player just set"))
+                continue
+
+            servers = db.best_servers(con, engine, limit=pol["slots"],
+                                      accepts=pol.get("accepts"))
             if not servers:
                 results.append((key, engine, "skipped: no live servers known"))
                 continue
 
-            path = favorites.target_path(engine, gdir)
+            path = favorites.target_path(engine, gdir, key)
+            if path in done_paths:
+                other, other_hash = done_paths[path]
+                db.record_applied(con, ip, key, gdir, other_hash,
+                                  f"same file as {other}")
+                con.commit()
+                results.append((key, engine,
+                                f"unchanged (same file as {other} this pass)"))
+                continue
             existing, state, why = await read_existing(c, path)
+            if state == "missing" and not pol.get("create", True):
+                # Not an error, and not something to fix by creating it. The
+                # file's ABSENCE is the evidence: this build does not use this
+                # mechanism (a WON Half-Life has no revSrvBrowser and so no
+                # config\serverbrowser.vdf), and an ini holding nothing but a
+                # favourites section would be worse than no ini at all.
+                results.append((key, engine,
+                                f"skipped: {path} does not exist, and this "
+                                f"title's favourites file is one we update, "
+                                f"never create"))
+                continue
             if state == "unreadable":
                 # NEVER write when we could not read. Merging against an empty
                 # string would silently replace whatever is there with only our
@@ -277,7 +383,7 @@ async def push_favorites(con, ip, dry_run=False):
                 continue
 
             try:
-                text, h = favorites.render(engine, servers, existing)
+                text, h = favorites.render(engine, servers, existing, key=key)
             except favorites.WouldClobber as exc:
                 # The merge itself found it would lose somebody's settings.
                 # Leave the file alone and make the reason loud.
@@ -287,6 +393,7 @@ async def push_favorites(con, ip, dry_run=False):
             if text is None:
                 results.append((key, engine, f"skipped: {h}"))
                 continue
+            done_paths[path] = (key, h)
             if db.applied_hash(con, ip, key, gdir) == h:
                 results.append((key, engine, f"unchanged ({h})"))
                 continue
@@ -342,7 +449,8 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
             report["errors"].append(f"{ip}: {note}")
         log.info("[%s] %s", ip, note)
 
-    engines = db.engines_in_use(con)
+    engines = sorted(set(db.engines_in_use(con))
+                     | set(favorites.engines_for_keys(db.keys_in_use(con))))
     if not engines:
         # Nothing indexed yet (cold DB, or every box still on an old agent).
         # Warm the server table with the engines we can actually discover, so
@@ -357,7 +465,12 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
     report["phase"] = "probing servers"
     for engine, note in refresh_servers(con, engines).items():
         log.info("  servers/%-8s %s", engine, note)
-    probe_local_servers(con)
+    pinned, down = probe_local_servers(con)
+    log.info("  pinned %d of our own servers%s", pinned,
+             ("; NO REPLY from " + ", ".join(down)) if down else "")
+    if down:
+        report["errors"].append("our own servers did not answer: "
+                                + ", ".join(down))
     pruned = db.prune_servers(con)
     con.commit()
     if pruned:
