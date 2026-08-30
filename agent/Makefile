@@ -36,6 +36,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/smart.c \
           $(SRCDIR)/gameindex.c \
           $(SRCDIR)/gamesync.c \
+          $(SRCDIR)/hwprofile.c \
           $(SRCDIR)/display.c \
           $(SRCDIR)/audio.c \
           $(SRCDIR)/sysfix.c \
@@ -44,7 +45,6 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/chatproxy.c \
           $(SRCDIR)/autoupdate.c \
           $(SRCDIR)/retrowall.c \
-          $(SRCDIR)/onboard.c \
           $(SRCDIR)/dosstage.c \
           $(SRCDIR)/watchdog.c \
           $(SRCDIR)/monitor.c \

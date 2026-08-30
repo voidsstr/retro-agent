@@ -34,8 +34,9 @@
  *     here instead of __thread). Our own code is -march=i586 (CMOV-free).
  *  4. Not a crash but a hang: auto-onboarding at startup saturated the P1 for
  *     minutes (SMB wallpaper/game copy) and made the agent look dead. FIX:
- *     onboarding is on demand now (ONBOARD command), not spawned at startup;
- *     the boot path is kept lightweight.
+ *     it was moved off the boot path, and in v1.71.0 removed outright -
+ *     GAMESYNC does the same work from the staged library, on its own
+ *     schedule, and now gates each title on what the machine can run.
  *  5. Silent failures were invisible because logging was stderr-only and via
  *     msvcrt stdio (which can fault on 9x). FIX: default-on RAW-Win32 rotating
  *     file log (log.c) with startup breadcrumbs + a lock-free crash logger, so
@@ -1051,12 +1052,11 @@ void agent_run(void)
     /* spawn_helper() already logs the failure with the error code. */
     spawn_helper(dosstage_thread, "dosstage");
 
-    /* Onboarding is deliberately NOT auto-spawned. On old, slow hardware
-     * (Compaq Deskpro 2000, Pentium 1) the first-boot onboarding job — mapping
-     * the share and copying the wallpaper bundle / extracting games over SMB —
-     * saturated the box for minutes and made the agent look hung. Onboarding is
-     * now on demand via the ONBOARD command (chat / onboard-machine skill), so
-     * a fresh boot stays lightweight. */
+    /* (Onboarding used to be spawned around here, then was moved off the boot
+     * path because on a Pentium 1 its first-boot SMB copy saturated the box
+     * for minutes and made the agent look hung. It is gone entirely as of
+     * v1.71.0: GAMESYNC below does the same work from the staged library and
+     * gates each title on what this machine can actually run.) */
 
     /* Game index: the host's server-favorites pipeline polls this every few
      * minutes, so the scan has to have already happened by the time it asks.

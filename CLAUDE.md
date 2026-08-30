@@ -632,12 +632,12 @@ Desktop shortcuts are unaffected, so the file looks perfectly good to a person
 double-clicking it — **it only bites automation**, which is exactly why it
 survives review.
 
-**This is the SECOND time this character has cost us time.** `onboard.cmd` had
-the same problem with game NAMEs containing parentheses — `(BC Romania)`,
-`(fleet build)` — where the `)` in an expanded variable closed a `( ... )` block
-early and cmd aborted with `- was unexpected at this time.`, leaving onboarding
-silently unfinished (no theme, no Onboarded flag). See the onboarding section
-above.
+**This is the SECOND time this character has cost us time.** The generated
+`onboard.cmd` (since removed with ONBOARD in v1.71.0) had the same problem with
+game NAMEs containing parentheses — `(BC Romania)`, `(fleet build)` — where the
+`)` in an expanded variable closed a `( ... )` block early and cmd aborted with
+`- was unexpected at this time.`, leaving onboarding silently unfinished. The
+file is gone; the rule is not.
 
 So the rule is now general, not per-script:
 
@@ -1084,48 +1084,129 @@ curl --upload-file agent-linux/retro_agent_linux -u YOUR-CREDS \
   "smb://YOUR-SERVER/files/Utility/Retro%20Automation/retro_agent_linux"
 ```
 
-## Fleet Onboarding (on demand, via chat/skill — NOT at startup)
+## Hardware Capability Gate — only deploy a game a machine can RUN (agent v1.71.0+)
 
-Onboarding maps the share, installs a **hardware-appropriate** game set (games
-the box can't run are skipped), applies the desktop/wallpaper, and marks
-`HKLM\Software\RetroAgent\Onboarded`. As of **agent v1.16.0 it is triggered on
-demand, not at agent startup** — on old, slow hardware (a Pentium-1 Compaq
-Deskpro 2000) the first-boot SMB copy/extract saturated the box for minutes and
-made the agent look hung, so the boot path is now kept lightweight. Trigger it
-with the **`ONBOARD`** agent command (`ONBOARD force` to re-run an
-already-onboarded box); over chat that's `mcp__retro__retro_command` with
-`command=ONBOARD`. Full workflow: the **`onboard-machine` skill**
-(`.claude/skills/onboard-machine/`). `agent/src/onboard.c:onboard_run()` does
-the work in a background thread; it's a no-op until the payload is published.
+**GAMESYNC now decides, per title, whether this machine can actually run it, and
+skips the ones it cannot.** The fleet spans a 1999 Pentium III with a Voodoo and
+a 2011 Sandy Bridge quad; copying the whole library onto every box spent an hour
+of SMB1 bandwidth on titles that then launched into a black screen.
 
-- **Dual dialect + hardware gating:** `provisioning/gen_onboard.py` emits BOTH
-  `onboard.cmd` (NT/XP cmd.exe) and `onboard_9x.bat` (Win98 COMMAND.COM — no
-  cmd.exe on 98); the agent picks the right one per OS and runs it with the
-  right shell (`command.com /c`, no `2>&1`, on 9x). Each game in
-  `onboard.json` declares `requires` capability flags (gpu3d/cpufast/ram64/
-  ram128); the agent detects the box's hardware (`onboard.c:set_capability_env`,
-  via GetSystemInfo wProcessorLevel / EnumDisplayDevices / GlobalMemoryStatus)
-  and sets `ONB_*` env vars the batch gates on. A P1+2D box (Deskpro 2000) gets
-  no games (all `[HWSKIP]`), just wallpaper.
-- Edit the game list in `provisioning/onboard.json`, regenerate with
-  `python3 provisioning/gen_onboard.py`, publish control files via
-  `provisioning/push_onboard.py <online-agent-ip>`, and drop per-game ZIPs into
-  the share's `…\Games\` dir. Full docs: [`provisioning/README.md`](provisioning/README.md).
-- Uses the `copy /Y` + JScript `retro_unzip.js` extract pattern (NOT `xcopy` -
-  it hangs on NETMAP'd SMB on XP); sets the marker via `regedit /s` (no `reg.exe`
-  on Win98). Idempotent - reruns skip already-installed games.
-- **`onboard.cmd` gotcha (fixed):** game NAMEs contain parentheses (e.g.
-  `(BC Romania)`, `(fleet build)`), so the `:game` routine must NOT echo `%NAME%`
-  inside a `( ... )` block — the `)` in the expanded name closes the block early
-  and cmd aborts with `- was unexpected at this time.` (onboarding then never
-  completes: no theme, no Onboarded flag). `gen_onboard.py` emits goto-based flow
-  with plain-line echoes instead. If you edit the generator, keep it paren-safe.
+Full docs: [`scripts/gamegate/README.md`](scripts/gamegate/README.md).
+Authoring a title's requirements: [`scripts/gamegate/SCHEMA.md`](scripts/gamegate/SCHEMA.md).
 
-### Desktop theme + icons are (re)applied on EVERY startup (not just onboarding)
+### The split — by where the work can physically run
+
+A Pentium III cannot call a language model; the dev host's RTX 5090 cannot see
+inside a fleet box.
+
+- **Agent (C):** `HWPROFILE` collects the machine (below), and
+  `agent/shared/gamegate.h` carries the **deterministic rules**, so a freshly
+  PXE-imaged box gates its own GAMESYNC before any host tool has seen it.
+- **Host (Python, `scripts/gamegate/`):** plans the whole fleet, escalates
+  **only** the borderline band to ollama, caches every verdict in
+  `~/.retro-fleet/gamegate.db`, and publishes
+  `<library>\_gamegate\<profile_hash>.txt` which the agent prefers when present.
+- The two rule copies are pinned together by `tests/python/test_gamegate_mirror.py`,
+  which **compiles the C header** and compares every answer against the Python one.
+
+### Rules decide alone wherever they can; only MARGINAL reaches the LLM
+
+| | |
+|---|---|
+| **hard NO** | OS floor unmet, a required CPU instruction absent (a missing SSE2 is `#UD`, not "slow"), a GPU **two** whole feature levels short |
+| **MARGINAL** | within **25%** of a published minimum, or a GPU **exactly one** level short — the only band an LLM ever sees |
+| **RUN** | everything met |
+
+A gate that phones an LLM to conclude "a Pentium III cannot run Doom 3" is a bad
+gate. `tests/native/test_gamegate.c` asserts the obvious cases stay obvious.
+
+**Model: `qwen3:14b`** — 5/5 strict JSON, 4/5 agreement, 0.4 s median on the
+5090. `qwen3.6:27b` returns an **empty response** under schema `format` (0/5) —
+do not re-try it. `gemma4:26b` matches accuracy at 45 s and emits nonsense
+confidences. `qwen2.5-coder:7b` is fast and confidently wrong. A malformed reply
+is retried and then **the deterministic verdict stands** — it is never allowed to
+become "run", which would make a broken model the most permissive gate on the
+fleet, invisibly.
+
+### FAIL-OPEN, by explicit decision
+
+**Absent data never blocks a title** — no `requires.json`, an unparsable one, a
+field omitted, an unclassifiable GPU, an unmeasurable clock: all deploy. The gate
+blocks only on **positive evidence**. Fail-closed would produce a box that
+silently receives no games and says nothing about why. Every skip is logged with
+its limiting factor and both numbers, and `GAMESYNC` status gained
+**`titles_gated`**, counted separately from `titles_skipped` (which means "did
+not fit on the disk" — different fact, different follow-up).
+
+**Kill switch:** `HKLM\Software\RetroAgent\GameGate` = `0` restores
+copy-everything.
+
+### HWPROFILE — because SYSINFO cannot answer the question
+
+`SYSINFO` reports no clock, no CPU vendor, no instruction set and no GPU at all,
+and its RAM saturates at 2047 MB. `HWPROFILE` (`agent/src/hwprofile.c`) reports
+CPUID vendor/family/model/stepping, the real clock (`~MHz`, or a timed TSC loop
+on 9x), `GlobalMemoryStatusEx` RAM, the instruction-set bits, the **active**
+display adapter's PCI ids + video RAM + driver version, OS level, DirectX, free
+disk, a `disc_mount` capability, and a **`profile_hash`** that is stable across
+reboots (hardware fields only, clock bucketed to 25 MHz and RAM to 16 MB) — that
+hash is the cache key and the published verdict file's name.
+
+> **⚠️ `VIDEODIAG.adapters[0]` IS NOT THE LIVE ADAPTER.** It enumerates every
+> `Class\{4D36E968-...}\NNNN` subkey, so on any box that has ever had a card
+> swapped its first entry can be a **stale registry key for hardware that is no
+> longer fitted** — it has already caused one wrong report that a box had no
+> video driver. `HWPROFILE` asks `EnumDisplayDevices` for the adapter
+> `ATTACHED_TO_DESKTOP` and follows **its own `DeviceKey`**. Use `HWPROFILE` when
+> you want to know what card is really driving the screen.
+
+**Hardware T&L is the axis that separates this fleet, not VRAM megabytes.**
+`.171`'s Intel 865G has 3D and no hardware T&L at all (`fixed`), `.124`'s
+GeForce2 GTS has T&L and no shaders (`tnl`), and GeForce4 **MX** is `tnl` while
+GeForce4 **Ti** is `sm1.x` — a DX7 part wearing a DX8 part's name.
+
+### Capabilities are reported, never folded into the verdict
+
+A GeForce2 will never grow a pixel shader; a box with no virtual disc mounter is
+one installer away. Calling both "cannot run" tells the operator to give up
+rather than to fix the box. So a missing **capability** (`disc_mount` today)
+leaves the verdict alone: **the title still deploys**, only the shortcut that
+needs it is suppressed, and the log names the remedy. GAMESYNC re-runs every
+boot, so it returns by itself once the box is fixed. This is live right now —
+seven staged titles mount a disc image at launch and `.123`/`.246` have no
+mounter, so on those boxes they have never worked and nothing said so.
+
+**Requirements can be per-shortcut**, keyed on the `launch.txt` first column,
+because a title's halves need different machines: BF1942's single player wants a
+mounted disc while its LAN launchers check neither disc nor CD key.
+
+### ONBOARD was REMOVED in v1.71.0
+
+`ONBOARD`, `agent/src/onboard.c`, `provisioning/onboard.json` /
+`gen_onboard.py` / `onboard.cmd` / `onboard_9x.bat` / `push_onboard.py` and the
+`onboard-machine` skill are all gone. **GAMESYNC does the same work from the
+staged library, which is the source of truth for what a game is** — the
+onboarding list was a second hand-maintained inventory, so a properly staged
+title still did not reach a box until someone remembered to add it, zip it and
+push control files.
+
+The hardware gating that made onboarding worth having did not go away, it got
+much better: `set_capability_env()` exported four coarse booleans (`ONB_GPU3D`,
+`ONB_CPUFAST`, `ONB_RAM64`, `ONB_RAM128`) from `wProcessorLevel >= 6` and a
+substring search of the adapter name — it could not tell an 845 MHz Pentium III
+from a 3.1 GHz Core i5, could not see a clock or video RAM at all, and treated a
+Voodoo 2 and a GeForce 8400 GS as the same "has 3D" fact. That role is now
+`HWPROFILE` + `requires.json`.
+
+**`provisioning/retro_unzip.js` STAYS** — `provisioning/ddk/*.py` and the
+`game-install` skill both stage and drive it. The `Onboarded` registry value is
+simply ignored now; leaving it set does nothing.
+
+### Desktop theme + icons are (re)applied on EVERY startup
 
 The dark "hacker" system-color theme, the dossier wallpaper, and the parked-icon
 layout are applied by the agent's **`retrowall` thread on every startup** (v1.8.0+,
-`agent/src/retrowall.c`) — not only on first-run onboarding — so a box keeps the
+`agent/src/retrowall.c`) — so a box keeps the
 fleet look across reboots. It applies whatever the **retro-wallpaper skill** has
 staged into `C:\retro-wall\`:
 - `wall00..NN.bmp` + `rotate_wall.exe` → wallpaper rotation
@@ -1241,6 +1322,12 @@ for pc in pcs:
 - **SMARTINFO** — S.M.A.R.T. disk health
 - **DISPLAYCFG** — display config and refresh rate
 - **PCISCAN** — PCI device enumeration with vendor/device IDs
+- **HWPROFILE** — the machine's stable hardware fingerprint as JSON: CPUID
+  vendor/family/model/stepping, real clock, real RAM, instruction-set bits, the
+  **ACTIVE** display adapter (PCI ids, video RAM, driver version — not
+  `VIDEODIAG`'s possibly-stale `adapters[0]`), OS level, DirectX, free disk, a
+  `disc_mount` capability, and a reboot-stable `profile_hash`. This is what the
+  capability gate runs on; see the Hardware Capability Gate section.
 
 ### Execution
 - **EXEC cmd** — run hidden, capture output, block until exit (60s timeout)

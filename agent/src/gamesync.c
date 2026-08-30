@@ -34,6 +34,7 @@
 #include "util.h"
 #include "log.h"
 #include "../shared/drvprefs.h"
+#include "../shared/gamegate.h"
 
 #include <windows.h>
 #include <string.h>
@@ -73,6 +74,11 @@ typedef struct {
     int     total_titles;
     int     done_titles;
     int     skipped_titles;
+    /* Titles the capability gate refused. Counted SEPARATELY from
+     * skipped_titles, which means "did not fit on the disk": a game left off
+     * for want of space and a game left off because the machine cannot run it
+     * are different facts and want different follow-up. */
+    int     gated_titles;
     int     failed_files;
     /* The FULL PATH of the first file that failed to copy. `file` above is
      * merely whatever the walker was last on, which after a failure keeps
@@ -1734,6 +1740,288 @@ static void gs_stage_wallpapers(const char *library)
 }
 
 /* Make ONE desktop shortcut from a "<relative exe>[<TAB><display name>]" line. */
+/* ---------------------------------------------------------------------- */
+/* the hardware capability gate                                            */
+/* ---------------------------------------------------------------------- */
+/*
+ * WHY GAMESYNC GATES AT ALL. The fleet spans a 1999 Pentium III with a Voodoo
+ * and a 2011 Sandy Bridge quad, and this copied the whole library onto every
+ * one of them. A machine that cannot run a title still spent an hour of SMB1
+ * bandwidth on it and then wore a desktop icon that launches into a black
+ * screen. Skipping the copy is strictly better on both counts.
+ *
+ * TWO SOURCES OF TRUTH, IN THIS ORDER:
+ *
+ *  1. A verdict file the host published for THIS machine's hardware profile,
+ *     at <library>\_gamegate\<profile_hash>.txt. It carries the host's richer
+ *     decisions, including the ones a language model was consulted about for
+ *     genuinely borderline cases. Keyed on the hardware hash rather than on an
+ *     IP, so it survives a re-image and is shared by identical boxes.
+ *
+ *  2. Failing that, the DETERMINISTIC rules right here, against the title's own
+ *     requires.json. This is not a nicety: a freshly PXE-imaged box syncs its
+ *     games before any host tool has ever seen it, and it must still not put
+ *     Doom 3 on a Pentium III.
+ *
+ * FAIL-OPEN, DELIBERATELY. No verdict file, no requires.json, an unparsable
+ * one, an unclassifiable GPU - all deploy. The gate blocks only on positive
+ * evidence. Fail-closed here would produce a box that silently receives no
+ * games and says nothing about why, which is exactly the failure shape
+ * CLAUDE.md's "make failure VISIBLE" section exists to prevent. Every skip is
+ * logged with its limiting factor and the two numbers behind it.
+ *
+ * KILL SWITCH: HKLM\Software\RetroAgent\GameGate = 0 disables it entirely and
+ * restores the old copy-everything behaviour.
+ */
+
+static gg_profile_t g_gate_profile;
+static int          g_gate_ready;         /* profile built for this run */
+static int          g_gate_on = 1;
+static char         g_gate_hash[17];
+static char        *g_gate_verdicts;      /* published file, heap, or NULL */
+
+static int gs_gate_enabled(void)
+{
+    HKEY  h;
+    DWORD type, val = 1, size = sizeof(val);
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0,
+                      KEY_QUERY_VALUE, &h) == ERROR_SUCCESS) {
+        if (RegQueryValueExA(h, "GameGate", NULL, &type, (BYTE *)&val, &size)
+                != ERROR_SUCCESS || type != REG_DWORD)
+            val = 1;
+        RegCloseKey(h);
+    }
+    return val != 0;
+}
+
+/* Slurp a small text file onto the heap. NULL when absent or too big; a
+ * requires.json or verdict file bigger than this is a mistake, not a file. */
+static char *gs_slurp(const char *path, DWORD cap)
+{
+    HANDLE h;
+    DWORD  size, got = 0;
+    char  *buf;
+
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                    0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return NULL;
+    size = GetFileSize(h, NULL);
+    if (size == INVALID_FILE_SIZE || size == 0 || size > cap) {
+        CloseHandle(h);
+        return NULL;
+    }
+    buf = (char *)HeapAlloc(GetProcessHeap(), 0, size + 1);
+    if (!buf) {
+        CloseHandle(h);
+        return NULL;
+    }
+    if (!ReadFile(h, buf, size, &got, NULL)) {
+        CloseHandle(h);
+        HeapFree(GetProcessHeap(), 0, buf);
+        return NULL;
+    }
+    CloseHandle(h);
+    buf[got] = 0;
+    return buf;
+}
+
+static void gs_gate_init(const char *library)
+{
+    char path[MAX_PATH];
+
+    g_gate_ready = 0;
+    g_gate_on = gs_gate_enabled();
+    if (g_gate_verdicts) {
+        HeapFree(GetProcessHeap(), 0, g_gate_verdicts);
+        g_gate_verdicts = NULL;
+    }
+    if (!g_gate_on) {
+        log_msg(LOG_GS, "capability gate DISABLED "
+                        "(HKLM\\Software\\RetroAgent\\GameGate=0) - every "
+                        "title will be copied");
+        return;
+    }
+
+    hwprofile_build(&g_gate_profile);
+    gg_profile_hash(&g_gate_profile, g_gate_hash);
+    g_gate_ready = 1;
+
+    log_msg(LOG_GS, "gate: profile %s - %s %u MHz x%u, %u MB RAM, "
+                    "gpu %04X:%04X %u MB (%s), os %s",
+            g_gate_hash, g_gate_profile.cpu_vendor, g_gate_profile.cpu_mhz,
+            g_gate_profile.cpu_count, g_gate_profile.ram_mb,
+            g_gate_profile.gpu_ven, g_gate_profile.gpu_dev,
+            g_gate_profile.vram_mb,
+            gg_gpu_level_name(g_gate_profile.gpu_level),
+            gg_os_level_name(g_gate_profile.os_level));
+
+    _snprintf(path, sizeof(path) - 1, "%s\\_gamegate\\%s.txt",
+              library, g_gate_hash);
+    path[sizeof(path) - 1] = 0;
+    g_gate_verdicts = gs_slurp(path, 256u * 1024u);
+    log_msg(LOG_GS, "gate: published verdicts %s (%s)",
+            g_gate_verdicts ? "loaded" : "not published for this profile",
+            path);
+}
+
+static void gs_gate_free(void)
+{
+    if (g_gate_verdicts) {
+        HeapFree(GetProcessHeap(), 0, g_gate_verdicts);
+        g_gate_verdicts = NULL;
+    }
+    g_gate_ready = 0;
+}
+
+/* Look one title up in the published file. Returns GG_V_* or -1 for "no line".
+ * Works on a COPY of each line because gg_verdict_parse splits in place and
+ * the buffer is reused for every title. */
+static int gs_gate_published(const char *title, char *why, DWORD why_cch)
+{
+    const char *p = g_gate_verdicts;
+
+    if (why && why_cch)
+        why[0] = 0;
+    if (!p)
+        return -1;
+    while (*p) {
+        char  line[512], *t, *lim, *reason;
+        DWORD n = 0;
+        int   v;
+
+        while (*p && *p != '\n' && n < sizeof(line) - 1)
+            line[n++] = *p++;
+        line[n] = 0;
+        while (*p && *p != '\n')
+            p++;                        /* skip an over-long remainder */
+        if (*p == '\n')
+            p++;
+
+        v = gg_verdict_parse(line, &t, &lim, &reason);
+        if (v < 0 || !t || lstrcmpiA(t, title) != 0)
+            continue;
+        if (why && why_cch) {
+            _snprintf(why, why_cch - 1, "%s%s%s",
+                      lim && lim[0] && lstrcmpA(lim, "-") ? lim : "",
+                      (lim && lim[0] && lstrcmpA(lim, "-") && reason
+                       && reason[0]) ? ": " : "",
+                      reason && reason[0] ? reason : "");
+            why[why_cch - 1] = 0;
+        }
+        return v;
+    }
+    return -1;
+}
+
+/* Read a title's requires.json. `root` is either the library (before the copy)
+ * or the deployed tree (after it) - the file is copied with the title, so
+ * shortcut gating works on a box with the share unreachable. */
+static char *gs_gate_requires(const char *root, const char *title)
+{
+    char path[MAX_PATH];
+    if (title && *title)
+        _snprintf(path, sizeof(path) - 1, "%s\\%s\\requires.json", root, title);
+    else
+        _snprintf(path, sizeof(path) - 1, "%s\\requires.json", root);
+    path[sizeof(path) - 1] = 0;
+    return gs_slurp(path, 64u * 1024u);
+}
+
+/*
+ * Should this TITLE be copied? Fills `why` with a human sentence either way.
+ * Returns 1 to copy, 0 to skip.
+ */
+static int gs_gate_allows_title(const char *library, const char *title,
+                                char *why, DWORD why_cch)
+{
+    char *json;
+    gg_req_t r;
+    gg_decision_t d;
+    int v;
+
+    if (why && why_cch)
+        why[0] = 0;
+    if (!g_gate_on || !g_gate_ready)
+        return 1;
+
+    /* The host's verdict wins: it saw the same rules plus, for the borderline
+     * band, a model that was given the title's notes. */
+    v = gs_gate_published(title, why, why_cch);
+    if (v >= 0)
+        return v != GG_V_NO;
+
+    json = gs_gate_requires(library, title);
+    if (!json)
+        return 1;                       /* no declaration - not gated */
+    gg_req_parse(json, &r);
+    gg_decide(&g_gate_profile, &r, &d);
+    HeapFree(GetProcessHeap(), 0, json);
+
+    if (why && why_cch) {
+        _snprintf(why, why_cch - 1, "%s: %s", d.limiting[0] ? d.limiting : "-",
+                  d.reason);
+        why[why_cch - 1] = 0;
+    }
+    return d.verdict != GG_V_NO;
+}
+
+/*
+ * Should this ONE SHORTCUT be created? `dst_dir` is the deployed tree and
+ * `target` the launch.txt first column.
+ *
+ * Two different reasons to say no, and they are NOT the same fact:
+ *   - a hardware verdict of NO for that shortcut specifically;
+ *   - a missing CAPABILITY, which is software state and remediable. The title
+ *     still deployed; the shortcut is suppressed and the log names the fix.
+ *     GAMESYNC re-runs every boot, so it comes back once the box is fixed.
+ */
+static int gs_gate_allows_shortcut(const char *dst_dir, const char *title,
+                                   const char *target, char *why,
+                                   DWORD why_cch)
+{
+    char *json;
+    gg_req_t r;
+    gg_decision_t d;
+    int ok = 1;
+
+    (void)title;
+    if (why && why_cch)
+        why[0] = 0;
+    if (!g_gate_on || !g_gate_ready)
+        return 1;
+
+    json = gs_gate_requires(dst_dir, NULL);
+    if (!json)
+        return 1;
+    gg_req_parse_shortcut(json, target, &r);
+    gg_decide(&g_gate_profile, &r, &d);
+    HeapFree(GetProcessHeap(), 0, json);
+
+    if (d.missing_caps) {
+        unsigned bit;
+        for (bit = 1; bit; bit <<= 1) {
+            if (!(d.missing_caps & bit))
+                continue;
+            if (why && why_cch) {
+                _snprintf(why, why_cch - 1, "needs %s - %s",
+                          gg_capability_name(bit), gg_capability_remedy(bit));
+                why[why_cch - 1] = 0;
+            }
+            break;
+        }
+        ok = 0;
+    } else if (d.verdict == GG_V_NO) {
+        if (why && why_cch) {
+            _snprintf(why, why_cch - 1, "%s: %s",
+                      d.limiting[0] ? d.limiting : "-", d.reason);
+            why[why_cch - 1] = 0;
+        }
+        ok = 0;
+    }
+    return ok;
+}
+
 static void gs_shortcut_from_line(const char *dst_dir, const char *title,
                                   char *line)
 {
@@ -1776,6 +2064,19 @@ static void gs_shortcut_from_line(const char *dst_dir, const char *title,
         log_msg(LOG_GS, "%s: launch.txt names %s but it is not there - "
                         "no shortcut", title, exe_rel);
         return;
+    }
+    /* Per-shortcut gate. A title's halves do not always need the same machine:
+     * Battlefield 1942's single player wants a mounted disc while its LAN
+     * launchers check neither disc nor CD key, so gating the whole title on
+     * the harder half would take working multiplayer off most of the fleet. */
+    {
+        char why[192];
+        if (!gs_gate_allows_shortcut(dst_dir, title, exe_rel, why,
+                                     sizeof(why))) {
+            log_msg(LOG_GS, "%s: SHORTCUT SUPPRESSED \"%s\" (%s) - %s",
+                    title, disp, exe_rel, why);
+            return;
+        }
     }
     /* Working directory is the exe's own folder: many of these games look for
      * their data relative to the current directory and start in a broken state
@@ -2204,6 +2505,12 @@ static void gs_run(const char *library)
     log_msg(LOG_GS, "library: %s", library);
     gs_set_msg("enumerating library");
 
+    /* Build this machine's hardware profile and load any verdict file the host
+     * published for it, BEFORE the sizing pass - the per-title decision below
+     * needs both, and doing it once per run keeps a CPUID+registry sweep off
+     * the inner loop. */
+    gs_gate_init(library);
+
     _snprintf(pat, sizeof(pat) - 1, "%s\\*", library);
     pat[sizeof(pat) - 1] = 0;
     h = FindFirstFileA(pat, &fd);
@@ -2343,6 +2650,23 @@ static void gs_run(const char *library)
             log_msg(LOG_GS, "aborted by request");
             break;
         }
+        /* Can this machine actually RUN it? Asked before the disk maths,
+         * because a title the box cannot run should not be charged against
+         * the space a title it CAN run needs. */
+        {
+            char why[192];
+            if (!gs_gate_allows_title(library, titles[i], why, sizeof(why))) {
+                log_msg(LOG_GS, "GATED %s - %s", titles[i], why);
+                EnterCriticalSection(&g_gs_lock);
+                g_gs.gated_titles++;
+                /* Its bytes will never arrive; drop them from the target so
+                 * the percentage still reaches 100. */
+                g_gs.total_bytes -= sizes[i];
+                LeaveCriticalSection(&g_gs_lock);
+                continue;
+            }
+        }
+
         /* Re-measure per title: earlier titles have just consumed space, and
          * on a period disk the difference decides whether this one fits. */
         freeb = gs_free_bytes("C:\\");
@@ -2413,8 +2737,10 @@ static void gs_run(const char *library)
     Sleep(2000);
     gs_arrange_icons();
 
-    log_msg(LOG_GS, "done: %d/%d title(s) copied, %d skipped, %d file error(s)",
-            ok_titles, n, g_gs.skipped_titles, i);
+    log_msg(LOG_GS, "done: %d/%d title(s) copied, %d skipped (no room), "
+            "%d gated (machine cannot run), %d file error(s)",
+            ok_titles, n, g_gs.skipped_titles, g_gs.gated_titles, i);
+    gs_gate_free();
     gs_set_msg("complete - %d title(s)", ok_titles);
 
     /* Only claim the box is provisioned if nothing failed. A marker written
@@ -2712,13 +3038,14 @@ void handle_gamesync(SOCKET sock, const char *args)
     _snprintf(json, sizeof(json) - 1,
         "{\"state\":\"%s\",\"percent\":%d,"
         "\"titles_done\":%d,\"titles_total\":%d,\"titles_skipped\":%d,"
+        "\"titles_gated\":%d,"
         "\"mb_done\":%I64d,\"mb_total\":%I64d,\"mbps\":%.2f,"
         "\"current_title\":\"%s\",\"current_file\":\"%s\","
         "\"failed_files\":%d,\"failed_file\":\"%s\","
         "\"elapsed_s\":%d,\"provisioned\":%s,"
         "\"new_image\":%s,\"message\":\"%s\"}",
         names[(s.state >= 0 && s.state <= GS_SKIPPED) ? s.state : 0],
-        pct, s.done_titles, s.total_titles, s.skipped_titles,
+        pct, s.done_titles, s.total_titles, s.skipped_titles, s.gated_titles,
         s.done_bytes / 1048576, s.total_bytes / 1048576, s.mbps,
         s.title, s.file, s.failed_files, esc_failed, elapsed,
         gs_file_exists(GS_MARKER) ? "true" : "false",

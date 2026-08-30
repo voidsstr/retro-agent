@@ -215,3 +215,19 @@ green-world; provisioning — P3 no-SSE2 opcode scan of staged DLLs.
 3. `bash tests/run_all.sh` must stay green.
 4. Add a row to the table above and, if the fix is a milestone, a line in
    `CLAUDE.md`.
+
+## Hardware capability gate (agent v1.71.0)
+
+| what it pins | test |
+|---|---|
+| the gate FAILS OPEN — no requires.json, an unparsable one, an unclassifiable GPU or an unmeasurable clock all deploy | `native/test_gamegate.c::fail_open_on_absent_data` |
+| the deterministic rules answer the obvious cases ALONE (a Pentium III vs an SM2.0 title is arithmetic, not an LLM call) | `native/test_gamegate.c::rules_decide_the_obvious_alone` |
+| the 25% marginal band has BOTH edges — 845 MHz is marginal against 1126 and a flat no against 1127 | `native/test_gamegate.c::marginal_band_has_both_edges` |
+| `profile_hash` (the cache key) ignores measurement jitter and moves on real hardware changes | `native/test_gamegate.c::profile_hash_is_stable_and_sensitive` |
+| NVIDIA device ids are NOT monotonic — 0x0150 is a GeForce2 GTS and 0x0160 a GeForce 6200 | `native/test_gamegate.c::gpu_table_handles_non_monotonic_ids` |
+| a capability gap (`disc_mount`) is REPORTED, never folded into run/marginal/no | `native/test_gamegate.c::capabilities_are_reported_not_folded_into_the_verdict` |
+| per-shortcut requirements overlay the title and do not leak upward (BF1942's LAN half) | `native/test_gamegate.c::per_shortcut_requirements_override_the_title` |
+| the C gate and the Python gate give the SAME answer — compiled and compared over the whole GPU table and a grid of fleet profiles | `python/test_gamegate_mirror.py` |
+| the verdict cache hits on the same hardware and misses on a corrected `requirements_version` | `python/test_gamegate_host.py` |
+| a malformed LLM reply NEVER becomes "run"; the rule verdict stands | `python/test_gamegate_host.py::test_a_malformed_reply_never_becomes_a_verdict` |
+| only MARGINAL escalates to the model | `python/test_gamegate_host.py::test_only_marginal_reaches_the_model` |

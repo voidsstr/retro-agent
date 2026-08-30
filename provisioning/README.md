@@ -1,85 +1,62 @@
-# Fleet Onboarding
+# Provisioning helpers
 
-When a machine runs `retro_agent.exe` for the **first time**, the agent's
-`onboard_thread` bootstraps it into the fleet: maps the file share, stages a
-core set of games, and applies the retro desktop + dark "hacker" XP theme. It
-prints an `ONBOARDING` banner to the console while it works.
+> ## Onboarding was REMOVED in agent v1.71.0
+>
+> There used to be an `ONBOARD` command here, driven by `onboard.json` ->
+> `gen_onboard.py` -> `onboard.cmd` / `onboard_9x.bat`, published with
+> `push_onboard.py`. It mapped the share, unzipped a hand-maintained list of
+> games, applied the theme, and set `HKLM\Software\RetroAgent\Onboarded`.
+>
+> **GAMESYNC does all of it, from the staged library, which is the source of
+> truth for what a game actually is.** The onboarding list was a second,
+> divergent inventory maintained by hand: a title staged properly in
+> `Games-Library/` still did not reach a box until somebody remembered to add
+> it to `onboard.json`, zip it, and push the control files. GAMESYNC copies the
+> installed tree, merges `install.reg`, builds a desktop shortcut per
+> `launch.txt` line with the icon the library specifies, stages the wallpapers
+> and parks the icons.
+>
+> **The hardware gating that made onboarding worth having did not go away — it
+> got much better.** Onboarding exported four coarse booleans (`ONB_GPU3D`,
+> `ONB_CPUFAST`, `ONB_RAM64`, `ONB_RAM128`) derived from
+> `GetSystemInfo(wProcessorLevel) >= 6` and a substring search of the adapter
+> name, and a batch file gated on them. That could not tell an 845 MHz Pentium
+> III from a 3.1 GHz Core i5 (both "family >= 6"), could not see a clock at all,
+> could not see video RAM, and treated a Voodoo 2 and a GeForce 8400 GS as the
+> same "has 3D" fact.
+>
+> It is replaced by **`HWPROFILE`** (`agent/src/hwprofile.c`) - CPUID vendor,
+> family/model/stepping, real clock, real RAM, instruction-set bits, the ACTIVE
+> display adapter's PCI ids and video RAM, OS level, DirectX, and a disc-mounter
+> capability - feeding the **capability gate** in `agent/shared/gamegate.h`,
+> which decides per title against the library's own `requires.json`. See
+> [`scripts/gamegate/README.md`](../scripts/gamegate/README.md) and
+> [`scripts/gamegate/SCHEMA.md`](../scripts/gamegate/SCHEMA.md).
+>
+> Nothing needs migrating on a live box. The `Onboarded` registry value is now
+> simply ignored; leaving it set does nothing.
+
+## What is still here
 
 ```
 provisioning/
-  onboard.json      the manifest (core game list + desktop/theme) - EDIT THIS
-  gen_onboard.py    onboard.json -> onboard.cmd
-  onboard.cmd       generated idempotent batch the agent runs (committed for review)
-  retro_unzip.js    Shell.Application unzip shim (no unzip tool on 9x/XP)
-  push_onboard.py   publish the control files to the share via an online agent
+  retro_unzip.js    Shell.Application unzip shim - there is no unzip tool on
+                    9x/XP, and xcopy HANGS on a NETMAP'd SMB share on XP.
+                    STILL IN USE: provisioning/ddk/*.py and the game-install
+                    skill both stage it and drive it with cscript. Do not
+                    delete it with the onboarding files.
+  games/            per-game launcher fragments kept for reference
+  ddk/              Windows DDK staging for the driver lanes (see ddk/README.md)
+  win98/            Win98-specific provisioning bits
 ```
 
-## How it works
+## Where the work moved
 
-1. **Agent (C, `agent/src/onboard.c`)** runs once per machine, guarded by
-   `HKLM\Software\RetroAgent\Onboarded`:
-   - prints the onboarding banner to the console,
-   - maps the share (`net use`, path/creds/drive from `HKLM\Software\RetroAgent`:
-     `SharePath` / `ShareDrive` / `ShareUser` / `SharePass`, defaulting to
-     `\\192.168.1.122\files` -> `Z:`),
-   - if `…\Onboard\onboard.cmd` is on the share, copies it local and runs it,
-   - **no-op if no payload is staged** (so the new binary is inert on the
-     existing fleet until you publish) and it does **not** set the marker itself.
-2. **`onboard.cmd`** (the data layer, idempotent) does the real work:
-   - for each game: skip if the sentinel file already exists, else `copy /Y` the
-     game's ZIP off the share and extract it with `retro_unzip.js`
-     (`copy`+extract, **not** `xcopy` - xcopy hangs on NETMAP'd SMB on XP),
-   - import `retro_theme.reg` (dark hacker XP theme) if staged, re-park icons,
-   - set `Onboarded=1` via `regedit /s` (works on 98 **and** XP; no `reg.exe` on 98).
-   Because the batch owns the marker and is idempotent, an interrupted
-   onboarding just resumes on the next boot (finished games are skipped).
-
-Wallpaper rotation + desktop-icon parking are (re)applied on **every** boot by
-the agent's separate `retrowall` thread; onboarding only adds the theme + a
-re-park.
-
-## Core game set (edit `onboard.json`)
-
-| id | game | dest | ZIP on share (`…\Games\`) |
-|----|------|------|---------------------------|
-| cs16 | Counter-Strike 1.6 (BC Romania) | `C:\Program Files\Counter-Strike 1.6` | `cs16-bc-romania.zip` |
-| ut | Unreal Tournament (GOTY/469) | `C:\UnrealTournament` | `unreal-tournament.zip` |
-| ra2 | Red Alert 2 (fleet build) | `C:\Westwood\RA2` | `red-alert-2.zip` |
-| quake2 | Quake II | `C:\Quake2` | `quake2.zip` |
-| quake3 | Quake III Arena | `C:\Quake III Arena` | `quake3.zip` |
-
-To expand the list: edit `onboard.json`, run `python3 gen_onboard.py`, re-publish.
-Paths marked NEEDS-VERIFY in the JSON are best-effort until confirmed on a live
-machine - fix any the first onboarding reports as `[MISS]`/`[WARN]` and they stick.
-
-## Publishing (do once, then per game)
-
-Two things must be on the share:
-
-1. **Control files** -> `…\Utility\Retro Automation\Onboard\`
-   (`onboard.cmd`, `retro_unzip.js`, optional `retro_theme.reg`):
-   ```bash
-   # generate the theme reg from the wallpaper skill (optional):
-   python3 ../scripts/retro-wallpaper/apply_hacker_theme.py --dump-reg > retro_theme.reg
-   # publish through any online agent that has Z: mapped writable:
-   python3 push_onboard.py <online-agent-ip> --theme-reg retro_theme.reg
-   ```
-2. **Game payloads** -> `…\Games\<id>.zip` (one ZIP per game, files at the ZIP
-   root so extracting into `dest` yields `dest\<sentinel>`; for Quake III the ZIP
-   contains the `Quake3\…` subtree). Place these on the share directly.
-
-## Rollout safety
-
-- The onboarding binary is **inert** until the payload is published, so shipping
-  the new agent to the fleet changes nothing on already-set-up machines by itself.
-- Onboarding is **idempotent** - even if it runs on a machine that already has
-  the games, every step is a skip. Optionally pre-set `Onboarded=1` on known-good
-  machines to suppress the banner.
-- Validated for **XP / 2000** (the fleet). Win98 onboarding (command.com, `.bat`
-  vs `.cmd`) is untested - flag if a 9x box needs it.
-
-## Source of game payloads
-
-Games come from the **share** (reliable distribution point). Pulling directly
-from a peer agent is a documented future option but not implemented - the share
-is the designed source, and `push-*` scripts already populate it.
+| was | is now |
+|---|---|
+| `ONBOARD` agent command | `GAMESYNC START` (and it runs by itself on a fresh image) |
+| `onboard.json` game list | the staged library, `Games-Library/<Title>/` |
+| `ONB_*` capability flags | `HWPROFILE` + `Games-Library/<Title>/requires.json` |
+| `push_onboard.py` | nothing to push; the library IS the payload |
+| theme + wallpaper + icons | the agent's `retrowall` thread, every startup |
+| `Onboarded` registry flag | `C:\RETRO_AGENT\gamesync.done` |

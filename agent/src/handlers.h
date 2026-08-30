@@ -48,6 +48,13 @@ void handle_smartinfo(SOCKET sock);
 void handle_gameindex(SOCKET sock, const char *args);
 void handle_gamesync(SOCKET sock, const char *args);
 void handle_drvupdate(SOCKET sock, const char *args);
+/* HWPROFILE (hwprofile.c): the machine's stable hardware fingerprint - CPUID
+ * vendor/family/features, real clock, real RAM, the ACTIVE display adapter's
+ * PCI ids and video RAM, OS level, DirectX. gamesync's capability gate runs on
+ * the same struct, so what the gate decides on is what HWPROFILE reports. */
+void handle_hwprofile(SOCKET sock, const char *args);
+struct gg_profile_s;
+void hwprofile_build(struct gg_profile_s *p);
 void gamesync_init(void);
 DWORD WINAPI gamesync_thread(LPVOID param);
 void gameindex_init(void);
@@ -105,13 +112,19 @@ DWORD WINAPI autoupdate_thread(LPVOID param);
 void retrowall_apply_startup(void);
 DWORD WINAPI retrowall_thread(LPVOID param);
 
-/* First-run onboarding: map share, stage core games, apply desktop/theme.
- * No-op once HKLM\Software\RetroAgent\Onboarded is set (or if no payload is
- * staged on the share). Runs as a background thread after the shell settles. */
-/* Onboarding is on-demand now (not run at startup). onboard_run(force)
- * performs it; the ONBOARD command triggers it in the background. */
-void onboard_run(int force);
-void handle_onboard(SOCKET sock, const char *args);
+/* ONBOARD was REMOVED in v1.71.0. It mapped the share, ran a generated batch
+ * that unzipped a hand-maintained game list, and gated each game on four
+ * coarse ONB_* capability flags the agent exported as environment variables.
+ * GAMESYNC does all of it better and unconditionally: it copies the staged
+ * library (which is the source of truth for what a game IS), merges
+ * install.reg, builds the desktop shortcuts, stages the wallpapers and parks
+ * the icons - and, as of this version, decides per title whether the machine
+ * can actually run it. The capability detection that made onboarding worth
+ * having did not go away; it moved into hwprofile.c, where it reports a real
+ * clock, real RAM, CPUID feature bits and the active adapter's PCI ids
+ * instead of four booleans.
+ *
+ */
 
 /* RESTART: relaunch via a detached batch, then stop. Use this instead of
  * QUIT for remote restarts — nothing supervises the agent on Win9x. */
