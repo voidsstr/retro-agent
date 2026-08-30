@@ -26,7 +26,24 @@
  *   FLEETRES.EXE -cmd                       emit "set FR_*=..." for CALL
  *   FLEETRES.EXE -info                      human readable dump
  *   FLEETRES.EXE -ini <file> <sec> <k> <v>  WritePrivateProfileString
+ *   FLEETRES.EXE -setline <f> <key> <line>  replace the line starting <key>
+ *   FLEETRES.EXE -kv <file> <key> <value>   replace/append  key=value
+ *   FLEETRES.EXE -reg <HKLM|HKCU> <subkey> <value> <dword|sz> <data>
  *   FLEETRES.EXE -cap <w> <h>               cap the chosen mode (perf ceiling)
+ *
+ * WHY -kv AND -reg EXIST.  Three staged titles keep their mode somewhere none
+ * of the first three modes can reach, and each was found by reading the game
+ * rather than guessing:
+ *   * DXX-Rebirth (Descent 2) writes DESCENT.CFG as bare  ResolutionX=1024
+ *     with NO [section] header, so WritePrivateProfileString cannot address it
+ *     and -setline cannot match it either - "ResolutionX=1024" is ONE
+ *     whitespace token.  -kv splits at the '=' instead.
+ *   * Max Payne reads its mode through MFC's SetRegistryKey("Remedy
+ *     Entertainment"), and Red Faction through HKLM\SOFTWARE\Volition\Red
+ *     Faction.  Nothing that ships in the tree can set those, so a box
+ *     inherits whatever stale HKCU it happens to have.  -reg writes them.
+ * -reg is used rather than reg.exe because reg.exe does not exist on Win9x and
+ * this helper is already staged beside every launcher.
  */
 
 #include <windows.h>
@@ -291,6 +308,63 @@ static int q2_mode_for(int w, int h)
 }
 
 
+/* ------------------------------------------------------------- GLIDE -- */
+/* Is there REAL 3dfx silicon in this box?
+ *
+ * WHY THIS IS HERE.  Two staged titles (UnrealGold, Carmageddon2) ship a
+ * game-local nGlide `glide2x.dll` wrapper.  Game-local wins at load time, so on
+ * the only two boxes that still HAVE Glide silicon that wrapper shadows the
+ * real system32 glide2x.dll and the game gets neither the card nor a working
+ * wrapper - grSstOpen fails and UE1 silently falls back to the software
+ * rasterizer at 100% CPU.  Diagnosed the expensive way on .171 (commit
+ * 7823586), where it presented as "UnrealGold crashes" and was never a crash.
+ * So the wrapper is not deleted - six boxes have no other Glide path - it is
+ * moved aside per box, and that decision needs this measurement.
+ *
+ * A Voodoo 2 is Class=MEDIA and NEVER appears as a display adapter, so
+ * EnumDisplayDevices and VIDEODIAG both report it absent.  The PCI enum key is
+ * the only place it shows up.  Matching is on the vendor id VEN_121A, which
+ * covers Voodoo Banshee/3/4/5 (display class) and Voodoo 1/2 (media class)
+ * alike; a match is case-insensitive because the key spelling is not ours. */
+static int g_glide_dev[64];
+
+static int glide_probe(char *devout, int devcap)
+{
+    static const char *ENUM = "SYSTEM\\CurrentControlSet\\Enum\\PCI";
+    HKEY hk;
+    char name[256];
+    DWORD i = 0, n;
+    int found = 0;
+
+    if (devout && devcap) devout[0] = 0;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, ENUM, 0, KEY_READ, &hk) != ERROR_SUCCESS)
+        return 0;
+    for (;; i++) {
+        n = sizeof(name);
+        if (RegEnumKeyExA(hk, i, name, &n, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+            break;
+        /* strstr is case-sensitive; the key is written by Windows as
+         * VEN_121A but a case-insensitive walk is what this repo's own rule
+         * about Windows identifiers demands. */
+        {
+            char up[256]; int k;
+            for (k = 0; name[k] && k < 255; k++)
+                up[k] = (char)((name[k] >= 'a' && name[k] <= 'z') ? name[k] - 32 : name[k]);
+            up[k] = 0;
+            if (strstr(up, "VEN_121A")) {
+                found++;
+                if (devout && devcap && !devout[0]) {
+                    strncpy(devout, name, devcap - 1);
+                    devout[devcap - 1] = 0;
+                }
+            }
+        }
+    }
+    RegCloseKey(hk);
+    (void)g_glide_dev;
+    return found;
+}
+
 /* Replace the first line whose first whitespace-delimited token matches KEY
  * (quotes stripped, case-insensitive) with LINE; append LINE if absent.
  * Needed for the configs that are NOT ini-shaped:
@@ -309,7 +383,27 @@ static int first_token(const char *line, char *out, int cap)
     return n;
 }
 
-static int do_setline(const char *file, const char *key, const char *line)
+/* Like first_token, but for the KEY=VALUE configs where the whole
+ * "ResolutionX=1024" is a single whitespace-delimited token and first_token
+ * therefore never matches.  Returns 0 (no key) for any line that is not
+ * key=value, so a comment or a [section] header can never be overwritten. */
+static int first_key(const char *line, char *out, int cap)
+{
+    int n = 0;
+    while (*line == ' ' || *line == '\t') line++;
+    while (*line && *line != '=' && *line != ' ' && *line != '\t'
+           && *line != '\r' && *line != '\n') {
+        if (*line != '"' && n < cap - 1) out[n++] = *line;
+        line++;
+    }
+    while (*line == ' ' || *line == '\t') line++;
+    if (*line != '=' || n == 0) { out[0] = 0; return 0; }
+    out[n] = 0;
+    return n;
+}
+
+static int do_setline_x(const char *file, const char *key, const char *line,
+                        int kv)
 {
     FILE *f; char *buf; long sz; long i, ls; int done = 0;
     char tok[128];
@@ -338,7 +432,8 @@ static int do_setline(const char *file, const char *key, const char *line)
             if (body > ls && buf[body-1] == '\r') body--;
             {
                 char save = buf[body]; buf[body] = 0;
-                first_token(buf + ls, tok, sizeof(tok));
+                if (kv) first_key(buf + ls, tok, sizeof(tok));
+                else    first_token(buf + ls, tok, sizeof(tok));
                 buf[body] = save;
             }
             if (!done && tok[0] && _stricmp(tok, key) == 0) {
@@ -359,6 +454,46 @@ static int do_setline(const char *file, const char *key, const char *line)
     return 0;
 }
 
+static int do_setline(const char *file, const char *key, const char *line)
+{
+    return do_setline_x(file, key, line, 0);
+}
+
+/* HKLM/HKCU only: those are the two roots every staged game uses, and a typo
+ * that silently picked the wrong hive would be invisible until a box behaved
+ * oddly.  An unknown root is an error, not a default. */
+static int do_reg(const char *root, const char *sub, const char *val,
+                  const char *type, const char *data)
+{
+    HKEY h, k;
+    DWORD disp;
+    LONG r;
+
+    if (_stricmp(root, "HKLM") == 0)      h = HKEY_LOCAL_MACHINE;
+    else if (_stricmp(root, "HKCU") == 0) h = HKEY_CURRENT_USER;
+    else { fprintf(stderr, "FLEETRES: -reg root must be HKLM or HKCU\n"); return 2; }
+
+    r = RegCreateKeyExA(h, sub, 0, NULL, REG_OPTION_NON_VOLATILE,
+                        KEY_SET_VALUE, NULL, &k, &disp);
+    if (r != ERROR_SUCCESS) {
+        fprintf(stderr, "FLEETRES: -reg cannot open %s\\%s (%ld)\n", root, sub, (long)r);
+        return 1;
+    }
+    if (_stricmp(type, "dword") == 0) {
+        DWORD d = (DWORD)strtoul(data, NULL, 0);
+        r = RegSetValueExA(k, val, 0, REG_DWORD, (const BYTE *)&d, sizeof(d));
+    } else {
+        r = RegSetValueExA(k, val, 0, REG_SZ, (const BYTE *)data,
+                           (DWORD)strlen(data) + 1);
+    }
+    RegCloseKey(k);
+    if (r != ERROR_SUCCESS) {
+        fprintf(stderr, "FLEETRES: -reg cannot write %s (%ld)\n", val, (long)r);
+        return 1;
+    }
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     DEVMODEA dm;
@@ -371,6 +506,8 @@ int main(int argc, char **argv)
     int t43_w, t43_h;
     int lcd, native_ok;
     int cap_w = 0, cap_h = 0;
+    int glide_n = 0, glide_render = 0;
+    char glide_dev[128];
     char asp[16], nasp[16];
     const char *mode = "-cmd";
 
@@ -381,6 +518,8 @@ int main(int argc, char **argv)
             mode = argv[i];
             if (_stricmp(argv[i], "-ini") == 0) break;
             if (_stricmp(argv[i], "-setline") == 0) break;
+            if (_stricmp(argv[i], "-kv") == 0) break;
+            if (_stricmp(argv[i], "-reg") == 0) break;
         }
     }
 
@@ -415,6 +554,29 @@ int main(int argc, char **argv)
             return 1;
         }
         return 0;
+    }
+
+    if (_stricmp(mode, "-kv") == 0) {
+        /* -kv <file> <key> <value>  ->  writes "key=value" */
+        int a = 0; char line[1024];
+        for (i = 1; i < argc; i++) if (_stricmp(argv[i], "-kv") == 0) { a = i; break; }
+        if (!a || argc < a + 4) { fprintf(stderr, "usage: -kv <file> <key> <value>\n"); return 2; }
+        sprintf(line, "%.400s=%.400s", argv[a+2], argv[a+3]);
+        if (do_setline_x(argv[a+1], argv[a+2], line, 1)) {
+            fprintf(stderr, "FLEETRES: kv failed on %s\n", argv[a+1]);
+            return 1;
+        }
+        return 0;
+    }
+
+    if (_stricmp(mode, "-reg") == 0) {
+        int a = 0;
+        for (i = 1; i < argc; i++) if (_stricmp(argv[i], "-reg") == 0) { a = i; break; }
+        if (!a || argc < a + 6) {
+            fprintf(stderr, "usage: -reg <HKLM|HKCU> <subkey> <value> <dword|sz> <data>\n");
+            return 2;
+        }
+        return do_reg(argv[a+1], argv[a+2], argv[a+3], argv[a+4], argv[a+5]);
     }
 
     memset(&dm, 0, sizeof(dm)); dm.dmSize = sizeof(dm);
@@ -475,6 +637,33 @@ int main(int argc, char **argv)
         }
     }
     if (ov_w && ov_h && (!cap_w || ov_w < cap_w)) { cap_w = ov_w; cap_h = ov_h; }
+
+    /* Real Glide silicon, and whether this box should RENDER on it.
+     *
+     * These are two different questions and conflating them would be wrong on
+     * .143: it has a Voodoo5 5500 fitted, but the monitor is on a GeForce 6800
+     * and the V5 is a second adapter, so rendering through Glide would draw to
+     * a port nobody is looking at.  So:
+     *   FR_GLIDE  = the silicon is present  -> move the game-local nGlide
+     *               wrapper aside so it stops shadowing the real system32
+     *               glide2x.dll.  Measured, and right on every box.
+     *   FR_UE1DEV = which UE1 render device to write.  Glide only when the
+     *               box says its 3dfx card is the one driving the screen:
+     *               HKLM\Software\RetroAgent  GlideRender (REG_DWORD) 1.
+     *               Default is D3D, which is a working renderer on every
+     *               fleet GPU including .171's Intel 865G. */
+    glide_n = glide_probe(glide_dev, sizeof(glide_dev));
+    {
+        HKEY hk; DWORD v, n2, t;
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, KEY_READ, &hk)
+            == ERROR_SUCCESS) {
+            n2 = sizeof(v);
+            if (RegQueryValueExA(hk, "GlideRender", NULL, &t, (BYTE*)&v, &n2) == ERROR_SUCCESS
+                && t == REG_DWORD) glide_render = (int)v;
+            RegCloseKey(hk);
+        }
+    }
+    if (glide_render && !glide_n) glide_render = 0;   /* asked for, not fitted */
 
     /* LCD test, validated against all eight fleet panels 2026-08-29:
      *   digital input bit, OR (vertical refresh capped at <=76 Hz AND the
@@ -582,6 +771,11 @@ int main(int argc, char **argv)
                tgt_w, tgt_h, asp, horplus_fov(tgt_w, tgt_h));
         printf("target 4:3 : %dx%d  (for the engines with no widescreen)  q2mode %d\n",
                t43_w, t43_h, q2_mode_for(t43_w, t43_h));
+        printf("glide      : %s%s%s  render device %s\n",
+               glide_n ? "3dfx silicon PRESENT " : "no 3dfx silicon",
+               glide_n ? glide_dev : "",
+               glide_n ? "" : "",
+               glide_render ? "GlideDrv" : "D3DDrv");
         printf("modes(%d)  :", g_nmodes);
         for (i = 0; i < g_nmodes; i++) printf(" %dx%d", g_modes[i].w, g_modes[i].h);
         printf("\n");
@@ -607,5 +801,9 @@ int main(int argc, char **argv)
     printf("set FR_WIDE=%d\n",     (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0);
     printf("set FR_DOSFULLRES=%s\n", lcd ? "desktop" : "original");
     printf("set FR_MON=%s\n",      native_ok && p.name[0] ? p.name : "unknown");
+    printf("set FR_GLIDE=%d\n",   glide_n ? 1 : 0);
+    printf("set FR_GLIDEDEV=%s\n", glide_n ? glide_dev : "none");
+    printf("set FR_UE1DEV=%s\n",
+           glide_render ? "GlideDrv.GlideRenderDevice" : "D3DDrv.D3DRenderDevice");
     return 0;
 }

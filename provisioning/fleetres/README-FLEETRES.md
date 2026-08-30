@@ -13,7 +13,7 @@ title's `Play <Game>.bat` runs a 54 KB helper staged beside it, which reads
 ```
 i686-w64-mingw32-gcc -O2 -s -o FLEETRES.EXE fleetres.c -ladvapi32 -luser32 -lm
 ```
-54,784 bytes. sha256 bfb588f9d9885af9d1e64d0da908e8442538a60d51b084ac93d24df42ca0c174
+58,880 bytes. sha256 2f0724a116298f88836dcaed37058028b80542e8f572ed5afd7cc7e726ecdabf
 Runs on XP SP3 and Windows 7 (both verified on the fleet). Pure Win32 — no CRT
 redist, no SSE, so it is safe on the pre-SSE2 boxes (.124/.133/.143).
 
@@ -24,6 +24,8 @@ redist, no SSE, so it is safe on the pre-SSE2 boxes (.124/.133/.143).
 | `FLEETRES.EXE -info` | human-readable panel report |
 | `FLEETRES.EXE -ini <file> <section> <key> <value>` | WritePrivateProfileString — for UE1/UE2 `.ini`, DOSBox `.conf`, `SUN.INI`, `RA2.INI` |
 | `FLEETRES.EXE -setline <file> <key> <line...>` | replaces the line whose first token is `<key>` (append if absent) — for the configs that are not INI-shaped: Dark engine `CAM.CFG`, LithTech `autoexec.cfg`, Quake-family `.cfg`. A backtick in the replacement becomes a double quote, because cmd.exe eats real ones and LithTech's format needs them. |
+| `FLEETRES.EXE -kv <file> <key> <value>` | replaces/appends `key=value`, splitting at the `=`. For a config that is bare key=value with **no `[section]` header**, which neither of the two above can address — DXX-Rebirth's `DESCENT.CFG`. A line that merely *contains* an `=` (a comment) is never matched. |
+| `FLEETRES.EXE -reg <HKLM\|HKCU> <subkey> <value> <dword\|sz> <data>` | writes one registry value. For the engines that keep the mode **only** in the registry — Max Payne (`HKCU\Software\Remedy Entertainment\Max Payne\Video Settings`), Red Faction (`HKLM\SOFTWARE\Volition\Red Faction`). Used rather than `reg.exe`, which does not exist on Win9x. |
 
 ## Variables from `-cmd`
 | var | meaning |
@@ -37,6 +39,29 @@ redist, no SSE, so it is safe on the pre-SSE2 boxes (.124/.133/.143).
 | `FR_DOSFULLRES` | `desktop` on an LCD, `original` on a CRT — for DOSBox `[sdl] fullresolution` |
 | `FR_NATIVE_W/H` `FR_DESK_W/H` `FR_LIVE_W/H` | panel native; persisted desktop; live desktop |
 | `FR_MON` | monitor name from EDID |
+| `FR_GLIDE` | `1` when the box has REAL 3dfx silicon (`VEN_121A` anywhere in the PCI enum). A Voodoo 2 is `Class=MEDIA` and never appears as a display adapter, so nothing else on the box can see it. |
+| `FR_GLIDEDEV` | the matching PCI instance, for the log |
+| `FR_UE1DEV` | the UE1 render device to write: `GlideDrv.GlideRenderDevice` when the box has *and opts into* Glide, else `D3DDrv.D3DRenderDevice` |
+
+## Why the render device is here too
+Same problem, same shape: one staged tree, eight boxes, and a constant that is
+wrong somewhere by construction. Two titles (`UnrealGold/System/`,
+`Carmageddon2/`) ship a game-local nGlide `glide2x.dll` (1,310,720 B). Game-local
+wins at load time, so on the only two boxes that still have Glide silicon that
+wrapper **shadows the real system32 `glide2x.dll`** and the game gets neither the
+card nor a working wrapper — `grSstOpen` fails and UE1 drops to the software
+rasterizer at 100% CPU. That cost a whole session on `.171`, where it presented
+as "UnrealGold crashes" and was never a crash.
+
+The wrapper is **not deleted** — six boxes have no other Glide path. The
+launcher moves it aside when `FR_GLIDE=1` and moves it **back** when it is 0.
+
+`FR_GLIDE` (silicon present) and `FR_UE1DEV` (render through it) are deliberately
+two different questions: `.143` has a Voodoo5 5500 fitted but its monitor is on a
+GeForce 6800, so rendering through Glide would draw to a port nobody is looking
+at. Rendering on the 3dfx card is therefore an explicit per-box opt-in,
+`HKLM\Software\RetroAgent\GlideRender` (REG_DWORD 1) — set on `.171` only,
+whose Voodoo 2 is the box's only real 3D.
 
 ## The standard launcher block — paste this into every `Play <Game>.bat`
 ```bat

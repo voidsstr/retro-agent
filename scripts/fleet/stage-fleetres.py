@@ -64,8 +64,8 @@ rem      leaves the desktop at 640x480 (.123 and .240 were both sitting there
 rem      mid-survey) and a launcher trusting it would pin every later game to
 rem      640x480 for good. The PERSISTED mode is what it reads.
 rem
-rem  Usage:  call "%%~dp0FLEETRES.BAT"            (whole panel)
-rem          call "%%~dp0FLEETRES.BAT" -cap 1024 768   (engine ceiling)
+rem  Usage:  call "%~dp0FLEETRES.BAT"            (whole panel)
+rem          call "%~dp0FLEETRES.BAT" -cap 1024 768   (engine ceiling)
 rem
 rem  FR_W    / FR_H    resolution for an engine that can do widescreen
 rem  FR_W43  / FR_H43  resolution for an engine that is 4:3-only
@@ -73,6 +73,13 @@ rem  FR_Q2MODE         id Tech 2 gl_mode index matching FR_W43/FR_H43
 rem  FR_FOV            hor+ FOV preserving the 4:3 vertical FOV (90 at 4:3)
 rem  FR_DOSFULLRES     DOSBox [sdl] fullresolution: desktop on an LCD,
 rem                    original on a CRT
+rem  FR_GLIDE          1 when this box has REAL 3dfx silicon (VEN_121A in the
+rem                    PCI enum - a Voodoo 2 is Class=MEDIA and never shows up
+rem                    as a display adapter, so nothing else can see it). The
+rem                    launcher moves the game-local nGlide glide2x.dll aside
+rem                    when this is 1, because game-local shadows system32 and
+rem                    the wrapper then blocks the card it is standing in for.
+rem  FR_UE1DEV         the UE1 render device to write into the game's .ini
 rem ==========================================================================
 set FR_W=
 set FR_H=
@@ -82,6 +89,8 @@ set FR_FOV=
 set FR_Q2MODE=
 set FR_DOSFULLRES=
 set FR_PANEL=
+set FR_GLIDE=
+set FR_UE1DEV=
 if not defined TEMP set TEMP=%SystemRoot%\\Temp
 if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -cmd %1 %2 %3 > "%TEMP%\\fleetres.cmd"
 if exist "%TEMP%\\fleetres.cmd" call "%TEMP%\\fleetres.cmd"
@@ -94,6 +103,11 @@ if not defined FR_H43 set FR_H43=768
 if not defined FR_FOV set FR_FOV=90
 if not defined FR_Q2MODE set FR_Q2MODE=6
 if not defined FR_DOSFULLRES set FR_DOSFULLRES=original
+rem FR_GLIDE defaults to 0 - "no 3dfx silicon" - deliberately. The wrong way
+rem round would move the nGlide wrapper aside on a box that has nothing else,
+rem costing six machines a working renderer to help two.
+if not defined FR_GLIDE set FR_GLIDE=0
+if not defined FR_UE1DEV set FR_UE1DEV=D3DDrv.D3DRenderDevice
 """
 
 
@@ -170,6 +184,70 @@ def dosbox_conf(conf):
     still right, which is why this is per-box and not a staged constant."""
     return ['if exist "%%~dp0FLEETRES.EXE" "%%~dp0FLEETRES.EXE" -ini '
             '"%%~dp0%s" sdl fullresolution %%FR_DOSFULLRES%%' % conf]
+
+
+def kv_cfg(conf, pairs):
+    """DXX-Rebirth writes DESCENT.CFG as bare `ResolutionX=1024` with NO
+    [section] header, so WritePrivateProfileString cannot address it and
+    -setline cannot match it (the whole "ResolutionX=1024" is one whitespace
+    token). -kv splits at the '=' instead."""
+    e = '"%~dp0FLEETRES.EXE"'
+    out = ['if exist "%~dp0FLEETRES.EXE" (']
+    for k, v in pairs:
+        out.append('  %s -kv "%%~dp0%s" %s %s' % (e, conf, k, v))
+    out.append(')')
+    return out
+
+
+def reg_cfg(root, subkey, values):
+    r"""Some engines keep the mode ONLY in the registry - Max Payne through
+    MFC's SetRegistryKey("Remedy Entertainment"), Red Faction under
+    HKLM\SOFTWARE\Volition. Nothing that ships in the tree can set those, so
+    a box inherits whatever stale hive it happens to have. FLEETRES -reg is
+    used rather than reg.exe because reg.exe does not exist on Win9x."""
+    e = '"%~dp0FLEETRES.EXE"'
+    out = ['if exist "%~dp0FLEETRES.EXE" (']
+    for name, typ, data in values:
+        out.append('  %s -reg %s "%s" "%s" %s %s' % (e, root, subkey, name, typ, data))
+    out.append(')')
+    return out
+
+
+def setline_cfg(conf, entries):
+    e = '"%~dp0FLEETRES.EXE"'
+    out = ['if exist "%~dp0FLEETRES.EXE" (']
+    for key, line in entries:
+        out.append('  %s -setline "%%~dp0%s" %s %s' % (e, conf, key, line))
+    out.append(')')
+    return out
+
+
+# --------------------------------------------------------------------------
+# The per-box RENDER DEVICE block. Structurally the same problem as the
+# resolution: one staged tree, eight boxes, and a game-local nGlide
+# glide2x.dll that is RIGHT on the six boxes with no Glide silicon and WRONG
+# on the two that have it, because game-local wins at load time and shadows
+# the real system32 glide2x.dll. On .171 that cost a whole session: UnrealGold
+# was reported as crashing, had never crashed, and had spent the time on the
+# software rasterizer at 100% CPU because the wrapper's grSstOpen failed (2,3).
+#
+# The wrapper is NOT deleted - it is the only Glide path the other six boxes
+# have. It is moved aside per box, at launch, and moved back when the box has
+# no 3dfx card. Both directions matter: a tree that only ever renames one way
+# would strand the wrapper aside after the card came out.
+# --------------------------------------------------------------------------
+def glide_swap(rel):
+    """rel = the game-local wrapper's path relative to the title root."""
+    w = '%~dp0' + rel
+    return [
+        'rem ---- per-box RENDER DEVICE (see stage-fleetres.py) --------------',
+        'if "%FR_GLIDE%"=="1" (',
+        '  if exist "%s" move /y "%s" "%s.nglide" >nul' % (w, w, w),
+        ') else (',
+        '  if not exist "%s" if exist "%s.nglide" move /y "%s.nglide" "%s" >nul'
+        % (w, w, w, w),
+        ')',
+    ]
 
 
 CALL = 'call "%~dp0FLEETRES.BAT"'
@@ -265,6 +343,138 @@ TITLES = {
         "launchers": {
             "Play Unreal Gold.bat": rec('cd /d "%~dp0System"',
                                         [CALL] + ue_ini("System\\Unreal.ini")),
+        },
+        # The render device is per-box for exactly the reason the resolution
+        # is. The staged Unreal.ini asks for SoftDrv in a window and D3DDrv
+        # fullscreen; FR_UE1DEV picks the right one for THIS box and the swap
+        # stops the game-local nGlide wrapper shadowing real Glide silicon.
+        "post": [{
+            "file": "Play Unreal Gold.bat",
+            "marker": "FR_GLIDE",
+            "before": 'cd /d "%~dp0System"',
+            "lines": glide_swap("System\\glide2x.dll") + [
+                'if exist "%~dp0FLEETRES.EXE" (',
+                '  "%~dp0FLEETRES.EXE" -ini "%~dp0System\\Unreal.ini" '
+                'Engine.Engine GameRenderDevice %FR_UE1DEV%',
+                '  "%~dp0FLEETRES.EXE" -ini "%~dp0System\\Unreal.ini" '
+                'Engine.Engine WindowedRenderDevice %FR_UE1DEV%',
+                '  "%~dp0FLEETRES.EXE" -ini "%~dp0System\\Unreal.ini" '
+                'Engine.Engine RenderDevice %FR_UE1DEV%',
+                ')',
+            ],
+        }],
+    },
+    "Carmageddon2": {
+        # Carries the IDENTICAL 1,310,720-byte nGlide wrapper as UnrealGold and
+        # was never tested on a box with Glide silicon. install.reg already
+        # selects the Glide renderer (Driver=2), so on .143/.171 the game asks
+        # for Glide and gets the wrapper instead of the card.
+        "launchers": {
+            "Play Carmageddon 2.bat": rec('cd /d "%~dp0"', [CALL]),
+        },
+        "post": [{
+            "file": "Play Carmageddon 2.bat",
+            "marker": "FR_GLIDE",
+            "before": 'start "" CARMA2_HW.EXE',
+            "lines": glide_swap("glide2x.dll"),
+        }],
+    },
+    "HalfLife1": {
+        # GoldSrc, same engine as the already-proven Counter-Strike launcher.
+        # It is vert- at 16:9, so FR_FOV is not applicable here (WON HL has no
+        # fov cvar worth setting from the command line) - the mode is.
+        "launchers": {
+            n: rec('cd /d "%~dp0"', [CALL],
+                   (re.escape('-full -gl -w 1024 -h 768'),
+                    '-full -gl -w %FR_W% -h %FR_H%'))
+            for n in ("Half-Life.bat", "Opposing Force.bat", "Blue Shift.bat",
+                      "Team Fortress Classic.bat", "Deathmatch Classic.bat")
+        },
+    },
+    "HexenII": {
+        # glh2.exe is a 1997 GLQuake derivative: 4:3 only, no widescreen, and
+        # the same mini-driver-era fussiness at high modes. FR_W43/FR_H43.
+        "launchers": {
+            n: rec('cd /d "%~dp0"', [CALL],
+                   (re.escape('-width 640 -height 480'),
+                    '-width %FR_W43% -height %FR_H43%'))
+            for n in ("Play Hexen II.bat", "Host Hexen II - LAN.bat",
+                      "Join Hexen II - LAN.bat")
+        },
+    },
+    "BF1942": {
+        # Refractor keeps the mode in Video.con as
+        #   game.setGameDisplayMode <w> <h> <bpp> <refresh-index>
+        # and reads the PROFILE copy, so both the Default and Custom profiles
+        # are written - a box that has ever opened the video menu uses Custom.
+        "launchers": {
+            "Play Battlefield 1942.bat": rec(
+                'cd /d "%~dp0"',
+                [CALL]
+                + setline_cfg("Mods\\bf1942\\Settings\\Profiles\\Default\\Video.con",
+                              [("game.setGameDisplayMode",
+                                "game.setGameDisplayMode %FR_W% %FR_H% 32 0")])
+                + setline_cfg("Mods\\bf1942\\Settings\\Profiles\\Custom\\Video.con",
+                              [("game.setGameDisplayMode",
+                                "game.setGameDisplayMode %FR_W% %FR_H% 32 0")])),
+            "Join Battlefield 1942 - LAN.bat": rec(
+                'cd /d "%~dp0"',
+                [CALL]
+                + setline_cfg("Mods\\bf1942\\Settings\\Profiles\\Default\\Video.con",
+                              [("game.setGameDisplayMode",
+                                "game.setGameDisplayMode %FR_W% %FR_H% 32 0")])
+                + setline_cfg("Mods\\bf1942\\Settings\\Profiles\\Custom\\Video.con",
+                              [("game.setGameDisplayMode",
+                                "game.setGameDisplayMode %FR_W% %FR_H% 32 0")])),
+        },
+    },
+    "Descent2": {
+        # DXX-Rebirth is genuinely widescreen. Its DESCENT.CFG is bare
+        # key=value with no [section], which is why -kv exists.
+        "launchers": {
+            "Play Descent 2.bat": rec(
+                'cd /d "%~dp0"',
+                [CALL] + kv_cfg("DESCENT.CFG",
+                                [("ResolutionX", "%FR_W%"),
+                                 ("ResolutionY", "%FR_H%")])),
+        },
+    },
+    "RedFaction": {
+        # The mode is ONLY in HKLM\SOFTWARE\Volition\Red Faction - value
+        # names read out of rf.exe. Nothing in the tree can set it.
+        "launchers": {
+            "Play Red Faction.bat": rec(
+                'cd /d "%~dp0"',
+                [CALL] + reg_cfg("HKLM", "SOFTWARE\\Volition\\Red Faction",
+                                 [("Resolution Width", "dword", "%FR_W%"),
+                                  ("Resolution Height", "dword", "%FR_H%"),
+                                  ("Resolution Bit Depth", "dword", "32")])),
+        },
+    },
+    "MaxPayne": {
+        # install.reg pins 800x600 into HKCU because that is the only place the
+        # engine reads. That is a staged constant and therefore wrong on seven
+        # of the eight boxes; the launcher writes the box's own mode instead.
+        "launchers": {
+            "Play Max Payne.bat": rec(
+                'cd /d "%~dp0"',
+                [CALL] + reg_cfg(
+                    "HKCU",
+                    "Software\\Remedy Entertainment\\Max Payne\\Video Settings",
+                    [("Display Width", "dword", "%FR_W%"),
+                     ("Display Height", "dword", "%FR_H%")])),
+        },
+    },
+    "Shogo": {
+        # LithTech 1.0 keeps the mode in autoexec.cfg as  "screenwidth" "640".
+        # The quotes are required by the format and cmd.exe eats real ones, so
+        # FLEETRES turns a backtick into a double quote.
+        "launchers": {
+            "Play Shogo - direct engine.bat": rec(
+                'cd /d "%~dp0"',
+                [CALL] + setline_cfg("autoexec.cfg",
+                                     [("screenwidth", "`screenwidth` `%FR_W%`"),
+                                      ("screenheight", "`screenheight` `%FR_H%`")])),
         },
     },
     "DeusEx": {
@@ -553,6 +763,37 @@ class Runner:
             write(path, out)
         self.note("%s/%s" % (title, name))
 
+    def post_block(self, tdir, title, pb):
+        """A second, independently-marked block in a launcher that may ALREADY
+        carry the FLEETRES block. patch_launcher keys idempotency off
+        `FLEETRES.BAT`, so it skips a launcher it has already done - which would
+        silently drop anything added later. This one keys off its own marker."""
+        path = os.path.join(tdir, pb["file"])
+        if not os.path.isfile(path):
+            self.fail("%s/%s: launcher missing from the library"
+                      % (title, pb["file"]))
+            return
+        body = read(path)
+        if pb["marker"] in body:
+            self.skipped += 1
+            return
+        if self.check:
+            self.fail("%s/%s: no %s block" % (title, pb["file"], pb["marker"]))
+            return
+        nl = "\r\n" if "\r\n" in body else "\n"
+        flat = body.replace("\r\n", "\n")
+        if pb["before"] not in flat:
+            self.fail("%s/%s: anchor %r not found - the launcher changed under "
+                      "us, so this recipe is stale"
+                      % (title, pb["file"], pb["before"]))
+            return
+        flat = flat.replace(pb["before"],
+                            "\n".join(pb["lines"]) + "\n\n" + pb["before"], 1)
+        out = flat.replace("\n", nl) if nl == "\r\n" else flat
+        if not self.dry:
+            write(path, out)
+        self.note("%s/%s [%s]" % (title, pb["file"], pb["marker"]))
+
     def new_launcher(self, tdir, title, name, spec):
         exe, mod = spec
         path = os.path.join(tdir, name)
@@ -670,6 +911,8 @@ class Runner:
                 self.strip_latched(tdir, title, rel)
             for rel in spec.get("cfg_exec", []):
                 self.add_exec(tdir, title, rel)
+            for pb in spec.get("post", []):
+                self.post_block(tdir, title, pb)
             if "launch_txt" in spec:
                 self.launch_txt(tdir, title, rows=spec["launch_txt"])
             if "launch_txt_line0" in spec:

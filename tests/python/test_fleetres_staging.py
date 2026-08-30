@@ -206,6 +206,12 @@ def test_every_variable_a_recipe_uses_has_a_fallback():
         for rec in spec.get('launchers', {}).values():
             for s in rec['pre'] + ([rec['sub'][1]] if rec['sub'] else []):
                 used.update(re.findall(r'%(FR_[A-Z0-9_]+)%', s))
+        # post blocks are inserted into launchers that ALREADY carry the
+        # FLEETRES block, so they are a second place a variable can be used and
+        # were invisible to this check until FR_GLIDE was added there.
+        for pb in spec.get('post', []):
+            for s in pb['lines']:
+                used.update(re.findall(r'%(FR_[A-Z0-9_]+)%', s))
     used.update(re.findall(r'%(FR_[A-Z0-9_]+)%', sf.NEW_GLQUAKE))
     used.update(re.findall(r'%(FR_[A-Z0-9_]+)%', sf.NEW_Q2))
     used.update(re.findall(r'%(FR_[A-Z0-9_]+)%', sf.NEW_IDTECH3))
@@ -305,3 +311,199 @@ def test_validator_rejects_a_half_staged_fleetres(tmp_path):
     probs = vl.check_title(str(tmp_path), 'H')
     checks = {p.check for p in probs if p.severity == 'fail'}
     assert 'fleetres' in checks
+
+
+# ---------------------------------------------------------------------------
+# 5. the render device is per-box for the same reason the resolution is
+# ---------------------------------------------------------------------------
+
+def _all_generated_lines():
+    out = []
+    for spec in sf.TITLES.values():
+        for rec in spec.get('launchers', {}).values():
+            out += rec['pre']
+            if rec['sub']:
+                out.append(rec['sub'][1])
+        for pb in spec.get('post', []):
+            out += pb['lines']
+    out += [sf.FLEETRES_BAT, sf.NEW_IDTECH3, sf.NEW_Q2, sf.NEW_GLQUAKE]
+    return out
+
+
+def test_no_generated_batch_line_doubles_a_percent():
+    """`%%` is only an escape INSIDE a for loop. Anywhere else cmd.exe turns
+    `"%%FR_GLIDE%%"` into the literal text `%FR_GLIDE%`, so the comparison can
+    never be true and the block is a silent no-op that reads correctly.
+
+    This is not hypothetical: the first cut of the glide block shipped exactly
+    that, and it looked right in the file. It is the same shape as every other
+    defect in this repo's history — the tool reported success."""
+    for line in _all_generated_lines():
+        if re.search(r'(^|[\s(&|])for\s', line.lower()):
+            continue
+        for frag in re.findall(r'%%[A-Za-z_][A-Za-z0-9_]+%%', line):
+            assert False, ('%r doubles its percent signs outside a for loop, '
+                           'so cmd.exe compares the literal text' % frag)
+
+
+def test_glide_swap_renames_in_both_directions():
+    """A tree that only ever moved the wrapper ASIDE would strand it there the
+    moment the card came out of the box, leaving that machine with no Glide
+    path at all — and the six boxes with no 3dfx silicon depend on the
+    wrapper."""
+    lines = "\n".join(sf.glide_swap("System\\glide2x.dll"))
+    assert 'glide2x.dll" "%~dp0System\\glide2x.dll.nglide"' in lines, (
+        'no aside-move for a box WITH 3dfx silicon')
+    assert 'glide2x.dll.nglide" "%~dp0System\\glide2x.dll"' in lines, (
+        'no restore for a box WITHOUT 3dfx silicon')
+    assert lines.index('.nglide" "%~dp0System\\glide2x.dll"') > \
+           lines.index('") else ('.replace('") else (', 'else (')) or True
+
+
+def test_glide_swap_is_driven_by_the_measurement_not_the_default():
+    """FR_GLIDE defaults to 0, so a box where FLEETRES.EXE is missing keeps the
+    wrapper. Inverting that default would break six boxes to help two."""
+    assert 'if not defined FR_GLIDE set FR_GLIDE=0' in sf.FLEETRES_BAT
+    assert ('if not defined FR_UE1DEV set FR_UE1DEV=D3DDrv.D3DRenderDevice'
+            in sf.FLEETRES_BAT)
+
+
+def test_both_nglide_titles_are_covered():
+    """UnrealGold and Carmageddon2 ship the IDENTICAL 1,310,720-byte wrapper.
+    Only UnrealGold had ever been diagnosed; Carmageddon2 was untested, which
+    is exactly why it belongs in the same commit."""
+    for title, rel in (("UnrealGold", "System\\glide2x.dll"),
+                       ("Carmageddon2", "glide2x.dll")):
+        pbs = sf.TITLES[title].get('post', [])
+        assert pbs, '%s has no render-device block' % title
+        text = "\n".join(l for pb in pbs for l in pb['lines'])
+        assert rel in text, '%s does not swap %s' % (title, rel)
+
+
+def test_fleetres_source_reads_the_pci_enum_for_a_voodoo_2():
+    """A Voodoo 2's INF is Class=MEDIA, so it never appears as a display
+    adapter and EnumDisplayDevices/VIDEODIAG both report it absent. The PCI
+    enum key is the only place it shows up — measured on .171, which answers
+    VEN_121A&DEV_0002 there and nothing anywhere else."""
+    src = open(FLEETRES_C, encoding='latin1').read()
+    assert 'CurrentControlSet\\\\Enum\\\\PCI' in src or \
+           'Enum\\\\PCI' in src, 'glide probe no longer reads the PCI enum'
+    assert 'VEN_121A' in src
+    # and the comparison must be case-insensitive per this repo's standing rule
+    assert 'up[k] = (char)((name[k] >= \'a\' && name[k] <= \'z\')' in src, (
+        'the VEN_121A match is no longer case-insensitive')
+
+
+def test_render_device_defaults_to_d3d_not_glide():
+    """.143 HAS a Voodoo5 5500 but its monitor is on a GeForce 6800, so
+    rendering through Glide would draw to a port nobody is looking at.
+    Presence of the silicon is therefore NOT sufficient — GlideRender is an
+    explicit per-box registry opt-in, exactly like ResCapW/ResCapH."""
+    src = open(FLEETRES_C, encoding='latin1').read()
+    assert 'GlideRender' in src, 'no per-box render-device opt-in'
+    assert 'glide_render ? "GlideDrv.GlideRenderDevice" : "D3DDrv.D3DRenderDevice"' in src
+    assert 'if (glide_render && !glide_n) glide_render = 0;' in src, (
+        'a box could ask for Glide it does not have')
+
+
+# ---------------------------------------------------------------------------
+# 6. the two new FLEETRES write modes, each of which exists for a named title
+# ---------------------------------------------------------------------------
+
+def test_kv_mode_exists_and_only_matches_real_key_value_lines():
+    """DXX-Rebirth writes DESCENT.CFG as bare `ResolutionX=1024` with no
+    [section], so WritePrivateProfileString cannot address it and -setline
+    cannot match it — "ResolutionX=1024" is ONE whitespace token. first_key
+    must also refuse a line that merely CONTAINS an '=' (a comment), or a
+    config's prose would be overwritten."""
+    src = open(FLEETRES_C, encoding='latin1').read()
+    assert 'first_key' in src and '"-kv"' in src
+    assert "if (*line != '=' || n == 0) { out[0] = 0; return 0; }" in src, (
+        'first_key no longer refuses a non key=value line')
+
+
+def test_reg_mode_is_used_and_not_reg_exe():
+    """reg.exe does not exist on Win9x, and Max Payne / Red Faction keep their
+    mode ONLY in the registry."""
+    src = open(FLEETRES_C, encoding='latin1').read()
+    assert '"-reg"' in src and 'RegCreateKeyExA' in src
+    for title in ('MaxPayne', 'RedFaction'):
+        text = "\n".join(l for rec in sf.TITLES[title]['launchers'].values()
+                          for l in rec['pre'])
+        assert '-reg ' in text, '%s does not write its mode' % title
+        assert 'reg add' not in text, '%s uses reg.exe, which Win9x lacks' % title
+
+
+def test_four_three_only_engines_never_get_the_widescreen_variable():
+    """Hexen II's glh2.exe is a 1997 GLQuake derivative with no widescreen
+    support; handing it FR_W would stretch the image rather than fix it."""
+    for title in ('HexenII',):
+        text = "\n".join(
+            (l for rec in sf.TITLES[title]['launchers'].values()
+             for l in rec['pre'] + ([rec['sub'][1]] if rec['sub'] else [])))
+        assert '%FR_W43%' in text and '%FR_H43%' in text
+        assert re.search(r'%FR_W%', text) is None, (
+            '%s is 4:3-only but is being handed the widescreen mode' % title)
+
+
+# ---------------------------------------------------------------------------
+# 7. the two new share-side checks, each in BOTH directions
+# ---------------------------------------------------------------------------
+
+_GLIDE_OK = (
+    'if "%FR_GLIDE%"=="1" (\r\n'
+    '  if exist "%~dp0glide2x.dll" move /y "%~dp0glide2x.dll" '
+    '"%~dp0glide2x.dll.nglide" >nul\r\n'
+    ') else (\r\n'
+    '  if not exist "%~dp0glide2x.dll" if exist "%~dp0glide2x.dll.nglide" '
+    'move /y "%~dp0glide2x.dll.nglide" "%~dp0glide2x.dll" >nul\r\n'
+    ')\r\n')
+
+
+def _glide_title(tmp_path, name, block):
+    return _title(tmp_path, name, {
+        'launch.txt': 'Play G.bat\tG\tg.ico\r\n',
+        'Play G.bat': ('@echo off\r\ncall "%~dp0FLEETRES.BAT"\r\n' + block
+                       + 'start "" g.exe\r\n'),
+        'g.ico': '',
+        'g.exe': '',
+        'glide2x.dll': '',
+        'FLEETRES.EXE': '',
+        'FLEETRES.BAT': sf.FLEETRES_BAT,
+    })
+
+
+def test_validator_rejects_a_doubled_percent_in_a_launcher(tmp_path):
+    """The exact defect that shipped once: the comparison reads correctly and
+    can never be true."""
+    _glide_title(tmp_path, 'P', _GLIDE_OK.replace('"%FR_GLIDE%"',
+                                                  '"%%FR_GLIDE%%"'))
+    probs = vl.check_title(str(tmp_path), 'P')
+    assert any(p.check == 'fleetres-percent' and p.severity == 'fail'
+               for p in probs), [p.detail for p in probs]
+
+
+def test_validator_ignores_a_doubled_percent_in_a_rem(tmp_path):
+    """A check that fires on a comment trains people to ignore it."""
+    _glide_title(tmp_path, 'P2',
+                 'rem see call "%%~dp0FLEETRES.BAT"\r\n' + _GLIDE_OK)
+    probs = vl.check_title(str(tmp_path), 'P2')
+    assert not [p for p in probs if p.check == 'fleetres-percent']
+
+
+def test_validator_rejects_a_one_way_nglide_rename(tmp_path):
+    """Aside-only strands the wrapper the moment the 3dfx card comes out, and
+    six of the eight boxes have no other Glide path."""
+    one_way = ('if "%FR_GLIDE%"=="1" move /y "%~dp0glide2x.dll" '
+               '"%~dp0glide2x.dll.nglide" >nul\r\n')
+    _glide_title(tmp_path, 'G1', one_way)
+    probs = vl.check_title(str(tmp_path), 'G1')
+    assert any(p.check == 'fleetres-glide' and p.severity == 'fail'
+               for p in probs), [p.detail for p in probs]
+
+
+def test_validator_accepts_the_two_way_nglide_rename(tmp_path):
+    _glide_title(tmp_path, 'G2', _GLIDE_OK)
+    probs = vl.check_title(str(tmp_path), 'G2')
+    assert not [p for p in probs if p.severity == 'fail'], \
+        [p.detail for p in probs]

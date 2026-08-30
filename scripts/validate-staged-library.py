@@ -222,6 +222,50 @@ def check_title(lib, title):
             fail("fleetres", "%r uses %%FR_*%% but never calls FLEETRES.BAT, so "
                              "every one of those expands to nothing" % b)
 
+    # `%%` is an escape ONLY inside a for loop. Anywhere else cmd.exe reduces
+    # `"%%FR_GLIDE%%"` to the literal text `%FR_GLIDE%`, so a comparison against
+    # it can never be true and the whole block is a silent no-op that reads
+    # perfectly in review. This really shipped once, in the per-box render-device
+    # block, and it is the same shape as every other defect this repo has paid
+    # for: the tool reported success.
+    # The distinction that makes this precise rather than noisy: a FOR loop
+    # variable is ONE character (%%A, %%~K, %%D) and is never closed with a
+    # second %%, while an environment variable is %%NAME%%. So match only a
+    # doubled pair around a multi-character identifier, and skip any line that
+    # carries a `for` anyway. Without both, this check fires on every mount
+    # launcher in the library and trains people to ignore it.
+    dbl = re.compile(r"%%[A-Za-z_][A-Za-z0-9_]+%%")
+    for b, body in bodies.items():
+        for line in body.splitlines():
+            st = line.strip().lower()
+            if st.startswith("rem") or st.startswith("::"):
+                continue
+            if re.search(r"(^|[\s(&|])for\s", st):
+                continue
+            m = dbl.search(line)
+            if m:
+                fail("fleetres-percent",
+                     "%r contains %s outside a for loop — cmd.exe compares the "
+                     "literal text, so this line silently does nothing"
+                     % (b, m.group(0)))
+
+    # A launcher that swaps the game-local nGlide wrapper must be able to swap
+    # it BACK. A one-way rename strands the wrapper aside the moment the 3dfx
+    # card comes out, and the six boxes with no Glide silicon depend on it.
+    for b, body in bodies.items():
+        if ".nglide" not in body.lower():
+            continue
+        if not re.search(r'move\s+/y\s+"[^"]*glide2x\.dll"\s+"[^"]*\.nglide"',
+                         body, re.I):
+            fail("fleetres-glide",
+                 "%r mentions .nglide but never moves glide2x.dll aside" % b)
+        if not re.search(r'move\s+/y\s+"[^"]*\.nglide"\s+"[^"]*glide2x\.dll"',
+                         body, re.I):
+            fail("fleetres-glide",
+                 "%r moves the nGlide wrapper aside but never restores it — a "
+                 "box that loses its 3dfx card would be left with no Glide "
+                 "path at all" % b)
+
     # DOSBox: `fullresolution=original` changes the WHOLE DESKTOP to the DOS
     # mode. Measured on .145 with DISPLAYCFG: the desktop really does drop to
     # 640x480 and a 4:3 signal is handed to a 16:9 panel, and it is left behind
