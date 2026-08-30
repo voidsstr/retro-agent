@@ -53,6 +53,14 @@ retro-agent/tests/
     test_driver_prefs.c   TRUE-SOURCE: agent/shared/drvprefs.h — the PREFER.TXT
                           parse, the line-anchored hardware-id match, and the
                           reclaim gate (force-install BEFORE deleting C:\D)
+    test_verdict_coverage.c  TRUE-SOURCE: agent/shared/gamegate.h - the guard
+                          that makes a SHRUNKEN verdict file visible.
+                          gg_verdict_count() (rows present) vs
+                          gg_verdict_declared() (the "# titles=N" the writer
+                          claimed). Pins the real 2026-08-30 clobber - one row
+                          declaring 38 - and the subtle case: a headerless file
+                          returns 0, which means "did not say" and must NEVER
+                          read as "covers nothing".
     test_profile_hash_pin.c  TRUE-SOURCE: agent/shared/gamegate.h - the gate's
                           cache key PINNED to the eight hashes the fleet's own
                           agents published on 2026-08-30. test_gamegate.c
@@ -127,6 +135,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 
 | Fix | Component | Test |
 |-----|-----------|------|
+| **a verdict file that shrank must SAY so** — `publish --title` rendered only the named title and wrote it over the whole per-box file, leaving seven of eight boxes a one-row file that was perfectly well formed and reported by nothing; found by counting rows by hand, which is not a mechanism (2026-08-30) | `scripts/gamegate/rules.py` (`# titles=N`) + `agent/shared/gamegate.h` | `native/test_verdict_coverage.c` |
 | **the gate's cache key is pinned to the fleet's real published hashes** — `test_gamegate.c` only asserts relative stability, so a uniform drift (a field added to the fold, a bucket resized) passes it while every box silently loses the verdict file named by its hash (2026-08-30) | `agent/shared/gamegate.h` | `native/test_profile_hash_pin.c` |
 | **agent 1.77.1: the record was landing stamped with the RETRO BOX's clock** — `CopyFile` propagates the source timestamp, handing the staleness test the one clock it was built not to trust (2026-08-30) | agent `hwpublish.c` | `native/test_hwpublish.c`, `python/test_fleet_inventory.py` |
 | **agent 1.74.1: a graphics card reported as `"A"`** — `DriverDesc` is a REG_BINARY holding UTF-16 and `RegQueryValueExA` hands REG_BINARY back raw (2026-08-30, .246) | agent `hwextra.c` + `hwprofile.c` `reg_str()` | `native/test_hwpublish.c` |
