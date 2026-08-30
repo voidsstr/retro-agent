@@ -528,7 +528,7 @@ int main(int argc, char **argv)
     int i;
     PANEL p;
     int desk_w = 1024, desk_h = 768, desk_bpp = 32, desk_hz = 60;
-    int reg_w = 0, reg_h = 0;          /* the PERSISTED desktop mode */
+    int reg_w = 0, reg_h = 0, reg_hz = 0;  /* the PERSISTED desktop mode */
     int ov_w = 0, ov_h = 0;            /* per-box cap from the registry */
     int tgt_w, tgt_h;
     int t43_w, t43_h;
@@ -617,6 +617,7 @@ int main(int argc, char **argv)
     if (EnumDisplaySettingsA(NULL, ENUM_REGISTRY_SETTINGS, &dm)
         && dm.dmPelsWidth >= 320) {
         reg_w = dm.dmPelsWidth; reg_h = dm.dmPelsHeight;
+        reg_hz = dm.dmDisplayFrequency;
     }
     for (i = 0; ; i++) {
         memset(&dm, 0, sizeof(dm)); dm.dmSize = sizeof(dm);
@@ -817,6 +818,14 @@ int main(int argc, char **argv)
     printf("set FR_W=%d\n",        tgt_w);
     printf("set FR_H=%d\n",        tgt_h);
     printf("set FR_BPP=%d\n",      desk_bpp);
+    /* The refresh of the PERSISTED desktop mode, for the engines whose mode
+     * switch takes one - Halo's `-vidmode w,h,hz`. A hardcoded 60 there is a
+     * staged constant like any other and is simply wrong on the CRT boxes,
+     * which run 75-100 Hz. 0 or a nonsense value from a driver is reported as
+     * 60 rather than passed on. */
+    printf("set FR_HZ=%d\n",
+           (reg_hz >= 50 && reg_hz <= 240) ? reg_hz
+           : ((desk_hz >= 50 && desk_hz <= 240) ? desk_hz : 60));
     printf("set FR_ASPECT=%s\n",   asp);
     printf("set FR_PANEL=%s\n",    lcd ? "LCD" : "CRT");
     printf("set FR_NATIVE_W=%d\n", native_ok ? p.native_w : desk_w);

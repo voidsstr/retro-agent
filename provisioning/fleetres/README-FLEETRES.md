@@ -13,7 +13,7 @@ title's `Play <Game>.bat` runs a 54 KB helper staged beside it, which reads
 ```
 i686-w64-mingw32-gcc -O2 -s -o FLEETRES.EXE fleetres.c -ladvapi32 -luser32 -lm
 ```
-59,392 bytes. sha256 548dd46106da5aabd3e479bb575864408f7a21bfdf4d9413a875a7464e7d8175
+59,392 bytes. sha256 2266d6737dc76909344eb908a6d8eb444d5181ee23b71df013e8fd5d42598493
 Runs on XP SP3 and Windows 7 (both verified on the fleet). Pure Win32 — no CRT
 redist, no SSE, so it is safe on the pre-SSE2 boxes (.124/.133/.143).
 
@@ -40,6 +40,7 @@ redist, no SSE, so it is safe on the pre-SSE2 boxes (.124/.133/.143).
 | `FR_DOSFULLRES` | `desktop` on an LCD, `original` on a CRT — for DOSBox `[sdl] fullresolution` |
 | `FR_NATIVE_W/H` `FR_DESK_W/H` `FR_LIVE_W/H` | panel native; persisted desktop; live desktop |
 | `FR_MON` | monitor name from EDID |
+| `FR_HZ` | refresh of the **persisted** desktop mode, for an engine whose mode switch takes one (Halo's `-vidmode w,h,hz`). A hardcoded 60 is a staged constant like any other and is wrong on every CRT box — .143 runs 100 Hz, .124 75 Hz. |
 | `FR_GLIDE` | `1` when the box has REAL 3dfx silicon (`VEN_121A` anywhere in the PCI enum). A Voodoo 2 is `Class=MEDIA` and never appears as a display adapter, so nothing else on the box can see it. |
 | `FR_GLIDEDEV` | the matching PCI instance, for the log |
 | `FR_UE1DEV` | the UE1 render device to write: `GlideDrv.GlideRenderDevice` when the box has *and opts into* Glide, else `D3DDrv.D3DRenderDevice` |
@@ -64,23 +65,35 @@ at. Rendering on the 3dfx card is therefore an explicit per-box opt-in,
 `HKLM\Software\RetroAgent\GlideRender` (REG_DWORD 1) — set on `.171` only,
 whose Voodoo 2 is the box's only real 3D.
 
-## The standard launcher block — paste this into every `Play <Game>.bat`
+## Do NOT paste a launcher block. Call the staged one.
+
+> **This section used to print a block to copy into every `Play <Game>.bat`,
+> and that was a mistake that reached a box.** Halo was staged in 2026-08-30
+> with the pre-`FLEETRES.BAT` version of it hand-pasted in, so the title
+> shipped `FLEETRES.EXE` with no `FLEETRES.BAT`, its `%FR_*%` all fell through
+> to the fallbacks, and `validate-staged-library.py` failed the whole library.
+> A block that is copied is a block that goes stale in 27 places at once.
+
+Each title carries **`FLEETRES.BAT`**, staged beside `FLEETRES.EXE`, and its
+launchers do exactly this:
+
 ```bat
-cd /d "%~dp0"
-rem ==== FLEET RESOLUTION BLOCK - identical in every staged title ==========
-set FR_W=
-set FR_H=
-if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -cmd > "%TEMP%\fleetres.cmd"
-if exist "%TEMP%\fleetres.cmd" call "%TEMP%\fleetres.cmd"
-if not defined FR_W set FR_W=1024
-if not defined FR_H set FR_H=768
-if not defined FR_W43 set FR_W43=1024
-if not defined FR_H43 set FR_H43=768
-if not defined FR_FOV set FR_FOV=90
-rem ======================================================================
+call "%~dp0FLEETRES.BAT"
+rem  ... or, for an engine with a ceiling:
+call "%~dp0FLEETRES.BAT" -cap 1280 960
 ```
-Everything after that is one or two engine-specific lines. Both example
-launchers in this directory are the ones actually run on hardware.
+
+Both files, and the engine-specific lines after the call, are written by
+`scripts/fleet/stage-fleetres.py`. **Add the title there and re-run it** — do
+not hand-edit a staged launcher, and do not copy another title's block. The
+tool is idempotent, every substitution must match, and an unmatched one aborts
+the run rather than shipping a launcher that silently did not get its
+arguments.
+
+```
+python3 scripts/fleet/stage-fleetres.py            # apply
+python3 scripts/fleet/stage-fleetres.py --check    # exit 1 if not applied
+```
 
 ## Per-box override, for hardware that cannot drive its monitor
 `HKLM\Software\RetroAgent\ResCapW` / `ResCapH` (REG_DWORD) cap the answer on

@@ -75,6 +75,9 @@ rem          call "%~dp0FLEETRES.BAT" -cap 1024 768   (engine ceiling)
 rem
 rem  FR_W    / FR_H    resolution for an engine that can do widescreen
 rem  FR_W43  / FR_H43  resolution for an engine that is 4:3-only
+rem  FR_HZ             refresh of the PERSISTED desktop mode, for an engine
+rem                    whose mode switch takes one (Halo's -vidmode w,h,hz).
+rem                    A hardcoded 60 there is wrong on every CRT box.
 rem  FR_Q2MODE         id Tech 2 gl_mode index matching FR_W43/FR_H43
 rem  FR_Q3MODE         id Tech 3 r_mode index - a DIFFERENT TABLE: id Tech 2's
 rem                    mode 8 is 1280x960 (4:3), id Tech 3's is 1280x1024 (5:4),
@@ -100,6 +103,7 @@ set FR_Q2MODE=
 set FR_DOSFULLRES=
 set FR_PANEL=
 set FR_Q3MODE=
+set FR_HZ=
 set FR_GLIDE=
 set FR_UE1DEV=
 if not defined TEMP set TEMP=%SystemRoot%\\Temp
@@ -114,6 +118,7 @@ if not defined FR_H43 set FR_H43=768
 if not defined FR_FOV set FR_FOV=90
 if not defined FR_Q2MODE set FR_Q2MODE=6
 if not defined FR_Q3MODE set FR_Q3MODE=6
+if not defined FR_HZ set FR_HZ=60
 if not defined FR_DOSFULLRES set FR_DOSFULLRES=original
 rem FR_GLIDE defaults to 0 - "no 3dfx silicon" - deliberately. The wrong way
 rem round would move the nGlide wrapper aside on a box that has nothing else,
@@ -502,6 +507,38 @@ TITLES = {
             "before": 'start "" CARMA2_HW.EXE',
             "lines": glide_swap("glide2x.dll"),
         }],
+    },
+    "Halo": {
+        # ADDED AFTER THE VALIDATOR CAUGHT IT. This title arrived with the
+        # obsolete block HAND-PASTED into its launcher - the pre-FLEETRES.BAT
+        # form that README-FLEETRES.md used to tell people to copy. It staged
+        # FLEETRES.EXE and no FLEETRES.BAT, which is exactly the half-staged
+        # shape the `fleetres` check exists for, and it would have deployed a
+        # launcher whose %FR_*% expanded to the fallbacks on every box.
+        #
+        # The README section that invited the copy is gone; this recipe is how
+        # the title stays correct when the block changes again.
+        "launchers": {
+            "Play Halo.bat": rec('cd /d "%~dp0"', [CALL]),
+        },
+        "fix": {
+            "Play Halo.bat": [
+                ('rem ==== FLEET RESOLUTION BLOCK - identical in every staged '
+                 'title ==========\r\n'
+                 'set FR_W=\r\n'
+                 'set FR_H=\r\n'
+                 'if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -cmd > '
+                 '"%TEMP%\\fleetres.cmd"\r\n'
+                 'if exist "%TEMP%\\fleetres.cmd" call "%TEMP%\\fleetres.cmd"\r\n'
+                 'if not defined FR_W set FR_W=1024\r\n'
+                 'if not defined FR_H set FR_H=768\r\n'
+                 'rem ======================================================================\r\n',
+                 'rem The block is CALLED, not pasted - see FLEETRES.BAT.\r\n'),
+                # 60 Hz is a staged constant, and wrong on every CRT box: .143
+                # runs 100 Hz and .124 75 Hz.
+                ('-vidmode %FR_W%,%FR_H%,60', '-vidmode %FR_W%,%FR_H%,%FR_HZ%'),
+            ],
+        },
     },
     "HalfLife1": {
         # GoldSrc, same engine as the already-proven Counter-Strike launcher.

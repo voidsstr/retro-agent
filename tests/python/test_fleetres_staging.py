@@ -806,3 +806,45 @@ def test_the_engines_that_do_have_the_minus_one_branch_keep_it():
     for title in ('Quake3-TeamArena', 'JediAcademy'):
         blob = _pre(title) + "\n".join(sf.idtech3_cfg('base'))
         assert 'r_customwidth' in blob or '%FR_W%' in blob
+
+
+def test_no_title_carries_a_hand_pasted_block():
+    """Halo arrived with the pre-FLEETRES.BAT block HAND-PASTED into its
+    launcher, copied from a section of README-FLEETRES.md that used to invite
+    exactly that. It shipped FLEETRES.EXE with no FLEETRES.BAT, every %FR_*%
+    fell through to the fallbacks, and the validator failed the whole library.
+
+    A recipe here is the only supported way in, so the giveaway line from the
+    old block must not appear in anything this tool generates."""
+    # FLEETRES.BAT itself carries that banner - it IS the block. What must
+    # never carry it is a LAUNCHER.
+    for line in _all_generated_lines():
+        if line is sf.FLEETRES_BAT:
+            continue
+        assert 'FLEET RESOLUTION BLOCK - identical in every staged title' \
+            not in line, 'the pasted block is back in a generated launcher'
+    assert 'Halo' in sf.TITLES, 'Halo is staged but has no recipe'
+
+
+def test_the_readme_no_longer_hands_out_a_block_to_copy():
+    """The doc is half the defect. A block that is copied goes stale in 27
+    places at once, and this one really did."""
+    readme = open(os.path.join(REPO, 'provisioning', 'fleetres',
+                               'README-FLEETRES.md'), encoding='utf-8').read()
+    assert 'paste this into every' not in readme.lower()
+    assert 'Do NOT paste a launcher block' in readme
+
+
+def test_refresh_is_per_box_too():
+    """Halo's -vidmode takes w,h,hz and shipped a hardcoded 60 - a staged
+    constant like any other, and wrong on every CRT box (.143 runs 100 Hz,
+    .124 75 Hz). FLEETRES reports the PERSISTED mode's refresh, and clamps a
+    nonsense value from a driver rather than passing it on."""
+    src = open(FLEETRES_C, encoding='latin1').read()
+    assert 'set FR_HZ=' in src
+    assert 'reg_hz >= 50 && reg_hz <= 240' in src, (
+        'a driver reporting 0 or 1 Hz would be handed straight to the game')
+    assert 'if not defined FR_HZ set FR_HZ=60' in sf.FLEETRES_BAT
+    assert '%FR_HZ%' in _pre('Halo') or any(
+        '%FR_HZ%' in n for pairs in sf.TITLES['Halo']['fix'].values()
+        for _, n in pairs)
