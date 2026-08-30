@@ -13,7 +13,7 @@ title's `Play <Game>.bat` runs a 54 KB helper staged beside it, which reads
 ```
 i686-w64-mingw32-gcc -O2 -s -o FLEETRES.EXE fleetres.c -ladvapi32 -luser32 -lm
 ```
-58,880 bytes. sha256 2f0724a116298f88836dcaed37058028b80542e8f572ed5afd7cc7e726ecdabf
+59,392 bytes. sha256 548dd46106da5aabd3e479bb575864408f7a21bfdf4d9413a875a7464e7d8175
 Runs on XP SP3 and Windows 7 (both verified on the fleet). Pure Win32 — no CRT
 redist, no SSE, so it is safe on the pre-SSE2 boxes (.124/.133/.143).
 
@@ -33,6 +33,7 @@ redist, no SSE, so it is safe on the pre-SSE2 boxes (.124/.133/.143).
 | `FR_W` / `FR_H` | **the resolution to use** for an engine that can do widescreen |
 | `FR_W43` / `FR_H43` | the resolution to use for an engine that is 4:3-only |
 | `FR_Q2MODE` | id Tech 2 `gl_mode` index matching `FR_W43`/`FR_H43` |
+| `FR_Q3MODE` | id Tech 3 `r_mode` index — **a different table.** id Tech 2's mode 8 is 1280x960 (4:3); id Tech 3's is 1280x1024 (5:4). Handing `FR_Q2MODE` to a Quake III-family engine asks a 16:9 panel for a squashed picture. `FR_Q3MODE` skips index 8 and index 11 (856x480). |
 | `FR_FOV` | horizontal FOV that preserves the 4:3 vertical FOV (90 at 4:3, 106 at 16:9) |
 | `FR_ASPECT` `FR_WIDE` | `16:9`/`4:3`/`5:4`; `FR_WIDE=1` on a widescreen panel |
 | `FR_PANEL` | `LCD` or `CRT` |
@@ -131,3 +132,14 @@ the indexed mode enumeration, and its active monitor node is `Default_Monitor`
 with no EDID — so on that one box FLEETRES has only the persisted desktop mode
 to go on. It answers 1024x768, which is right, but it is an inference, not a
 measurement. Plugging the monitor into a port that gives DDC would fix it.
+
+## Which engines can actually take which mode
+Per-title, with the measurement behind each answer: **`PER-TITLE-STATUS.md`**.
+Two rules that came out of building it and are easy to get wrong again:
+
+* **A game's own mode menu is not evidence of its ceiling.** Tiberian Sun lists
+  640x400/640x480/800x600 and renders 1920x1080, because the CnCNet patch reads
+  `SUN.INI` directly.
+* **`r_mode -1` is not universal in the id Tech 3 family.** `quake3.exe`,
+  `jasp.exe` and `jamp.exe` take it; `sof2mp.exe` silently renders 640x480. All
+  four contain the string `r_customwidth`, so the symbol table proves nothing.
