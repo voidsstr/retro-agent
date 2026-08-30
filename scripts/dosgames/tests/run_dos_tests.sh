@@ -1150,6 +1150,13 @@ grep -q 'here ? ATTR_INSTALLED : ATTR_AVAILABLE' "$SRCDIR/dosgame.c" \
 # their own file. Everything above is a source grep, which cannot notice the
 # logic breaking while the strings survive; an adversarial review called that
 # out, so these assert the result of a real run instead.
+echo "== is the FLEET running what this repo builds? =="
+# Reports, never fails - see scripts/dosgames/check-published.py for why. The
+# divergence is a known unresolved fact, and a check that failed the suite
+# today would train everyone to ignore it. Switch to --strict when it is
+# resolved.
+python3 "$SRCDIR/check-published.py" 2>&1 | sed 's/^/  /'
+
 echo "== launcher outcomes (tests/test_pick_outcomes.sh) =="
 if bash "$HERE/test_pick_outcomes.sh" > "$WORK/pick.log" 2>&1; then
     n=$(grep -c '^  PASS' "$WORK/pick.log")

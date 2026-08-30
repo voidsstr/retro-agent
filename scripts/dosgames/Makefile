@@ -41,5 +41,11 @@ catalog:
 check-catalog:
 	python3 tests/check_catalog.py data/GAMES.CAT
 
+# Is the DOSGAME.EXE the FLEET runs the one this repo can rebuild? On
+# 2026-08-30 it was not: the share's copy carries 1,842 bytes of code that
+# exists in no commit, on no branch and in no file on this host. Reports only.
+check-published:
+	python3 check-published.py
+
 clean:
 	rm -f dosgame.exe *.o *.err *.map

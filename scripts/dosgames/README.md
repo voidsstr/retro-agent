@@ -279,6 +279,37 @@ between the Shut Down dialog and the operator typing `PLAY`. Now:
   straight from the Linux dev host would have put the LF versions on every DOS
   box and broken `PLAY`, `NETUP` and `DOSSTART` in one go. Pinned by
   `.gitattributes` (`*.BAT text eol=crlf`) and asserted by `run_dos_tests.sh`.
+- **⚠️ THE SHARE'S `DOSGAME.EXE` IS NOT THIS REPO'S BUILD, AND ITS SOURCE IS
+  LOST (found 2026-08-30).** `git HEAD` rebuilds byte-exactly to **111,170 B**;
+  the share has carried **113,012 B** since 2026-08-26. The extra 1,842 bytes
+  are real work — four log strings that appear in **no commit, on no branch, in
+  no worktree and in no file on this host**:
+
+      pick:   %s is a self-extracting archive, not the game
+      pick:   %s -> %s (self-extracting archive; needs setup run)
+      pick:   %s -> %s (skip-listed, but it is the only thing that runs here)
+      registry: DROP %s - launcher "%s" is a self-extracting archive, not the
+                game; re-deriving
+
+  i.e. a launcher-choice refinement plus a registry-repair rule, built,
+  published to the fleet, and never committed. Searched exhaustively:
+  `git log --all -S` over the whole history with no path filter, `git grep`
+  across every reachable commit, and every `dosgame.c` on the host.
+
+  **So `make` + `copy` over the share DELETES that work permanently.** The
+  2026-08-30 `DOSGAME.TXT` support was therefore committed and *not* published:
+  publishing is a trade — a staged-library fix for a shareware-install fix —
+  and a person has to make it. `python3 check-published.py` (also
+  `make check-published`, and printed by `tests/run_dos_tests.sh`) says whether
+  the fleet is running what this repo builds. It reports and never fails,
+  because a check that failed the suite today would train everyone to ignore
+  it; switch it to `--strict` the day this is resolved.
+
+  The lesson is the same one the CRLF entry below teaches from the other
+  direction: **the share and the repo drift in BOTH directions, and neither
+  notices.** Compare before you publish, and publish from a build you can
+  reproduce.
+
 - **The share can be STALE relative to this repo, silently.** After the CRLF
   conversion five of the six shipped batch files were byte-identical to the
   copies running on .243 - and `NETUP.BAT` was not. The share is still carrying

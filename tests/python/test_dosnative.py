@@ -355,3 +355,39 @@ def test_every_dos_title_states_a_disk_floor():
 
 if __name__ == '__main__':
     sys.exit(pytest.main([__file__, '-v']))
+
+
+# ---------------------------------------------------------------------------
+# 5. The fleet's DOSGAME.EXE is not this repo's build, and its source is lost.
+#    These pin the RECORD of that, so it cannot be quietly deleted by someone
+#    tidying up - which is exactly how it came to exist.
+# ---------------------------------------------------------------------------
+
+CHECK_PUBLISHED = os.path.join(REPO, 'scripts', 'dosgames', 'check-published.py')
+
+
+def test_the_published_binary_divergence_is_still_recorded():
+    cp = _load('check_published', CHECK_PUBLISHED)
+    assert cp.LOST_MARKERS, \
+        ('the markers for the lost DOSGAME.EXE source must not be emptied - '
+         'the share carries 1,842 bytes that exist in no commit, and this is '
+         'the only place that fact is machine-checkable')
+    for m in cp.LOST_MARKERS:
+        assert isinstance(m, bytes)
+        # If a marker ever appears in the committed source, the lost work has
+        # been recovered and this whole guard can go.
+        assert m not in open(DOSGAME_C, 'rb').read(), \
+            ('%r is now in dosgame.c - the lost source has been recovered, so '
+             'rebuild, publish, and delete check-published.py' % m)
+
+
+def test_the_divergence_check_reports_rather_than_failing_the_suite():
+    """A check that failed every agent's run_all.sh today, over a known and
+    unresolved fact, would train everyone to ignore it. It must stay a report
+    until somebody decides the trade."""
+    body = open(CHECK_PUBLISHED, encoding='utf-8').read()
+    assert 'return 1 if args.strict else 0' in body
+    runner = open(os.path.join(REPO, 'scripts', 'dosgames', 'tests',
+                               'run_dos_tests.sh'), encoding='utf-8').read()
+    assert 'check-published.py' in runner, 'the suite must print the verdict'
+    assert '--strict' not in runner.split('check-published.py')[1][:40]
