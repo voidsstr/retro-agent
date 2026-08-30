@@ -403,8 +403,28 @@ async def push_favorites(con, ip, dry_run=False):
                 results.append((key, engine, f"skipped: {h}"))
                 continue
             done_paths[path] = (key, h)
-            if db.applied_hash(con, ip, key, gdir) == h:
+            # Compare against WHAT IS ON THE BOX, not against what we last
+            # meant to put there.
+            #
+            # The DB's applied_hash records our own intent. If anything else
+            # rewrites the file -- and something does: GAMESYNC re-copied the
+            # staged UnrealTournament.ini over ours on .171 at 00:54, taking
+            # the favourites back to the three the library ships -- then the
+            # next pass renders the same output from the same staged base,
+            # matches its own recorded hash, and skips. The box keeps the
+            # reverted file FOREVER while the log says "unchanged". That is
+            # the house failure mode exactly: a tool reporting success while
+            # being wrong, and invisible because the reverted state and the
+            # never-written state look identical from here.
+            #
+            # We already hold the current bytes from read_existing, so the
+            # honest test is free. applied_hash stays for the status wall.
+            if text.splitlines() == existing.splitlines():
                 results.append((key, engine, f"unchanged ({h})"))
+                if db.applied_hash(con, ip, key, gdir) != h:
+                    db.record_applied(con, ip, key, gdir, h,
+                                      f"{len(servers)} servers -> {path}")
+                    con.commit()
                 continue
             if dry_run:
                 results.append((key, engine,

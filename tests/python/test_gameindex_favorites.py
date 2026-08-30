@@ -473,3 +473,36 @@ def test_the_unreal_slot_count_clears_the_whole_curated_list():
     assert favorites.WRITERS["unreal"]["slots"] > len(masters.UNREAL_SEEDS), (
         "the slot count must clear the seed list, or membership churns at "
         "the boundary and rewrites every box every pass")
+
+
+def test_change_detection_must_look_at_the_box_not_at_our_own_intent():
+    r"""An external rewrite has to be repaired, not reported as "unchanged".
+
+    Something else DOES rewrite these files. GAMESYNC re-copied the staged
+    `UnrealTournament.ini` over ours on .171 and took the favourites back to
+    the three the library ships. Comparing our freshly-rendered output against
+    the hash we last RECORDED then matches -- same servers, same staged base,
+    same output -- so the pass skips, and the box keeps the reverted file
+    forever while the log says "unchanged".
+
+    The current bytes are already in hand from read_existing, so comparing
+    against them costs nothing and cannot be fooled this way.
+    """
+    staged = ("[UBrowser.UBrowserFavoritesFact]\n"
+              "FavoriteCount=1\n"
+              r"Favorites[0]=somebody elses\9.9.9.9\7778\False" "\n")
+    ours, h = favorites.render("unreal", UT99, staged, key="ut99")
+
+    # What the DB would hold after we wrote `ours` once.
+    recorded = h
+    # ...then the file is reverted to `staged` behind our back, and the next
+    # pass renders from that same base and gets the same answer.
+    again, h2 = favorites.render("unreal", UT99, staged, key="ut99")
+    assert h2 == recorded, "the intent-based check would see no change here"
+
+    # The bytes-on-the-box check is what catches it.
+    assert again.splitlines() != staged.splitlines(), (
+        "comparing the render against the file actually present is what "
+        "distinguishes 'already correct' from 'someone reverted us'")
+    # ...and when the file really is already ours, it must still be a no-op.
+    assert again.splitlines() == ours.splitlines()
