@@ -161,3 +161,38 @@ def test_helpers_are_bounded(fn):
     assert "strcpy(" not in body and "sprintf(" not in body, (
         "%s must not use unbounded string functions" % fn
     )
+
+def test_the_bat_scanner_looks_one_level_down():
+    """An Unreal-engine launcher `cd`s into System\\ before naming its exe.
+
+    `Play Unreal Tournament.bat` does `cd /d "%~dp0System"` and then
+    `start "" "UnrealTournament.exe"` — so the name is relative to the directory
+    it changed to, not to the title root. Both Unreal titles came back with
+    generic icons on two boxes for exactly this reason: the exe is real, it just
+    is not where the scanner looked.
+
+    One level is deliberate: it covers every staged layout (Unreal's System\\,
+    the id-engine game dirs) without walking a 6 GB tree on a Pentium III.
+    """
+    src = _src()
+    assert "gs_find_in_subdir" in src, (
+        "the .bat scanner must look one level down; an exe named after a `cd` "
+        "is not in the title root"
+    )
+    body = _fn(src, "static int gs_bat_names_exe(")
+    assert "gs_find_in_subdir" in body, (
+        "gs_bat_names_exe() must fall back to the subdirectory search"
+    )
+    # and it must be a FALLBACK - the root is still the first place to look
+    assert body.index('"%s\\\\%s"') < body.index("gs_find_in_subdir"), (
+        "the title root must be tried before descending"
+    )
+
+
+def test_the_subdir_search_is_bounded_to_one_level():
+    body = _fn(_src(), "static int gs_find_in_subdir(")
+    assert "FindFirstFileA" in body and body.count("FindFirstFileA") == 1, (
+        "one level only — a recursive walk would cost minutes on a P3 over SMB1"
+    )
+    assert "FILE_ATTRIBUTE_DIRECTORY" in body, "must only descend into directories"
+    assert "'.'" in body, "must skip . and .. or it recurses on itself"

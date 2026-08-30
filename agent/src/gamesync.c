@@ -1282,6 +1282,38 @@ static int gs_desktop_dir(char *out, DWORD cch)
  *
  * Returns 1 and fills `out` on success, 0 to leave the shortcut's icon alone.
  */
+/* Look for `name` in each immediate subdirectory of `dir`. Bounded to one
+ * level on purpose: it covers every staged layout (Unreal's System\, id's
+ * game dirs) without walking a 6 GB tree on a Pentium III. */
+static int gs_find_in_subdir(const char *dir, const char *name,
+                             char *out, size_t cap)
+{
+    WIN32_FIND_DATAA fd;
+    HANDLE h;
+    char   pat[MAX_PATH], cand[MAX_PATH];
+
+    _snprintf(pat, sizeof(pat) - 1, "%s\\*", dir);
+    pat[sizeof(pat) - 1] = 0;
+    h = FindFirstFileA(pat, &fd);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    do {
+        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+            continue;
+        if (fd.cFileName[0] == '.')
+            continue;
+        _snprintf(cand, sizeof(cand) - 1, "%s\\%s\\%s", dir, fd.cFileName, name);
+        cand[sizeof(cand) - 1] = 0;
+        if (gs_file_exists(cand)) {
+            lstrcpynA(out, cand, (int)cap);
+            FindClose(h);
+            return 1;
+        }
+    } while (FindNextFileA(h, &fd));
+    FindClose(h);
+    return 0;
+}
+
 static int gs_bat_names_exe(const char *bat, const char *dst_dir,
                             char *out, size_t cap)
 {
@@ -1359,6 +1391,18 @@ static int gs_bat_names_exe(const char *bat, const char *dst_dir,
             lstrcpynA(out, full, (int)cap);
             return 1;
         }
+        /* Not in the title root - and that is the COMMON case for an Unreal
+         * Engine title, whose launcher does `cd /d "%~dp0System"` before
+         * naming the exe, so the name is relative to the directory it changed
+         * to. Unreal Tournament and Unreal Gold both looked like resolver
+         * failures for exactly this reason: `UnrealTournament.exe` is real,
+         * but it lives in System\.
+         *
+         * Rather than parse `cd` (a .bat can change directory several times,
+         * conditionally), look for the named file one level down. One level is
+         * enough for every staged tree and keeps this bounded on a P3. */
+        if (gs_find_in_subdir(dst_dir, cand, out, cap))
+            return 1;
     }
     return 0;
 }
