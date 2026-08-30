@@ -6,7 +6,7 @@ Deploy the rotating dossier wallpaper to a retro XP machine.
 
 Stages the machine's 10 iteration BMPs (out/<host>.iNN.bmp) into C:\\retro-wall\\
 as wall00.bmp..wall09.bmp, uploads rotate_wall.exe, sets the wallpaper style,
-parks the desktop icons in the bottom-right well (arrange_icons.exe), installs an
+removes the legacy bottom-right icon arranger (the agent owns icon layout), installs an
 HKCU Run key so the rotator starts at logon, and launches it now. rotate_wall.exe
 cycles the wallpapers every <interval> seconds (default 60).
 """
@@ -49,15 +49,26 @@ async def deploy(host, interval=60):
                              '/v WallpaperStyle /t REG_SZ /d 2 /f')
         await c.command_text('EXEC cmd /c reg add "HKCU\\Control Panel\\Desktop" '
                              '/v TileWallpaper /t REG_SZ /d 0 /f')
-        # park icons in the bottom-right well. Stage arrange_icons.exe into
-        # C:\retro-wall\ (persistent) as well as TEMP so the agent can re-run it
-        # on every startup (see agent/src/retrowall.c).
-        await upload_file(c, os.path.join(HERE, "arrange_icons.exe"),
-                          WALLDIR + "\\arrange_icons.exe")
-        await upload_file(c, os.path.join(HERE, "arrange_icons.exe"),
-                          "C:\\WINDOWS\\TEMP\\arrange_icons.exe")
-        print("%s: %s" % (host, (await c.command_text(
-            "EXEC C:\\WINDOWS\\TEMP\\arrange_icons.exe")).strip()))
+        # Desktop icons: DO NOT stage or run arrange_icons.exe.
+        #
+        # That tool parks icons in the BOTTOM-RIGHT well. The agent arranges
+        # them itself into a TOP-LEFT bay (agent/src/gamesync.c:gs_arrange_icons,
+        # gs_icon_bay), so the two disagree about where icons belong and the
+        # last one to run wins. Staging it here is what kept putting a fresh
+        # copy back on boxes it had already been removed from, and retrowall
+        # ran it on every agent start until v1.70.0 -- which UNDID a correct
+        # arrangement on every single boot.
+        #
+        # So this step now REMOVES it instead, renaming it aside (never
+        # deleting) so an agent older than v1.70.0 on the same box cannot
+        # find it and re-park the icons behind our back.
+        for stale in (WALLDIR + "\\arrange_icons.exe",
+                      "C:\\WINDOWS\\TEMP\\arrange_icons.exe"):
+            await c.command_text(
+                'EXEC cmd /c if exist "%s" move /Y "%s" "%s.disabled-bottom-right"'
+                % (stale, stale, stale))
+        print("%s: legacy bottom-right arranger removed; the agent owns the "
+              "top-left icon bay" % host)
         # dark "hacker" system-color theme. Stage retro_theme.reg (the fleet-wide
         # green-on-black scheme) + setsyscolors.exe into C:\retro-wall\ so the
         # agent re-applies the theme on EVERY startup (agent/src/retrowall.c

@@ -17,7 +17,13 @@ defect can take: each manual fix appeared to work and was silently reverted
 later, so it presented as "the icons keep moving" rather than as anything
 attributable to a specific change.
 
-The exe is still staged — harmless on disk. Only running it was wrong.
+Removing the call from the agent was only half of it. `deploy_rotation.py`
+STAGED the exe (to `C:\\retro-wall\\` and to TEMP) and then RAN it, so every
+wallpaper deploy re-created the binary on boxes it had been removed from and
+re-parked the icons bottom-right. That is why a fresh `arrange_icons.exe`
+reappeared on .143 after it had been renamed aside. The deploy step now removes
+it instead — renaming, never deleting, so an agent older than v1.70.0 on the
+same box cannot find it either.
 """
 import os
 import re
@@ -25,6 +31,9 @@ import re
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RETROWALL = os.path.join(REPO, "agent", "src", "retrowall.c")
 GAMESYNC = os.path.join(REPO, "agent", "src", "gamesync.c")
+DEPLOY_ROTATION = os.path.join(
+    REPO, "scripts", "retro-wallpaper", "deploy_rotation.py"
+)
 
 
 def _read(p):
@@ -71,4 +80,49 @@ def test_the_native_arranger_keeps_its_two_fixes():
     assert "SetWindowLongA" in code, (
         "the style must be cleared directly; PostMessage-ing the toggle was "
         "not enough"
+    )
+
+
+def _strip_py_comments(text):
+    out = []
+    for line in text.splitlines():
+        stripped = line.lstrip()
+        if not stripped.startswith("#"):
+            out.append(line)
+    # drop docstrings too, so the explanation above cannot satisfy a test
+    return re.sub(r'"""".*?""""|\'\'\'.*?\'\'\'|""".*?"""', "", "\n".join(out), flags=re.S)
+
+
+def test_deploy_rotation_does_not_stage_or_run_the_legacy_arranger():
+    """The wallpaper deploy must not put the bottom-right arranger back.
+
+    It used to `upload_file(...arrange_icons.exe...)` to two paths and then
+    `EXEC` it, which re-created the binary on every box it touched — including
+    boxes where it had already been renamed aside — and re-parked the icons.
+    """
+    code = _strip_py_comments(_read(DEPLOY_ROTATION))
+    assert not re.search(r"upload_file\([^)]*arrange_icons", code, re.S), (
+        "deploy_rotation.py must not upload arrange_icons.exe: staging it is "
+        "what kept restoring the bottom-right arranger the agent had removed"
+    )
+    assert not re.search(r"EXEC[^\n\"']*arrange_icons", code), (
+        "deploy_rotation.py must not EXEC arrange_icons.exe — the agent owns "
+        "icon layout (gs_arrange_icons, top-left bay)"
+    )
+
+
+def test_deploy_rotation_actively_disables_a_stale_arranger():
+    """Not staging it is not enough — boxes already carry a copy.
+
+    An agent older than v1.70.0 still runs whatever it finds, so the deploy
+    has to move the stale binary out of the way rather than merely ignore it.
+    """
+    code = _strip_py_comments(_read(DEPLOY_ROTATION))
+    assert "arrange_icons" in code, (
+        "the deploy must still reference the legacy name — it has to find the "
+        "stale copy in order to disable it"
+    )
+    assert "move /Y" in code and "disabled" in code, (
+        "the stale arrange_icons.exe must be RENAMED ASIDE (move /Y ... "
+        ".disabled-...), not deleted and not left in place"
     )
