@@ -1273,7 +1273,39 @@ stale copy aside; the source carries a `SUPERSEDED` banner.
 On demand: **`ICONARRANGE [auto|bay]`** — applies the layout now and returns the
 **post-condition** (live style bit, persisted `FFlags`, icon count, screen mode)
 rather than `OK`, because a log line saying we set auto-arrange is not evidence
-that auto-arrange is set. Stage/refresh all of them
+that auto-arrange is set.
+
+#### The icon layout is rebuilt ONLY when the desktop changed (v1.73.0)
+
+`gs_run()` used to end with an **unconditional** arrange. GAMESYNC runs at
+startup and the usual case is a fully provisioned box — every title skipped,
+nothing copied, no shortcut created — so **every boot of every machine rebuilt
+the layout for nothing.** That is what "the retro agent is rebuilding icons all
+the time" was.
+
+| what happened | rebuild? |
+|---|---|
+| a file was really **written** (not skipped by the size+mtime resume test) | **yes** |
+| a `.lnk` **appeared** that was not there before, or was **swept away** | **yes** |
+| explicit **`ICONARRANGE`** | **yes, always** — a manual request is deliberate |
+| a sync that copied nothing and created no shortcut (the every-boot case) | **no** — logs `nothing changed - icons left alone` |
+
+**Do not over-correct this.** A title genuinely redeployed *must* still arrange
+— that is the staged-game fix loop, and a freshly deployed game whose icon never
+gets placed is a worse bug than the churn.
+
+Two counters that look obvious and are **wrong**, both guarded by tests:
+- counting "`gs_copy_file` succeeded" — it returns success for a **skipped**
+  file, so it is true on every run and measures nothing. The counter sits past
+  the resume early-out.
+- counting **shortcut writes** — `gs_make_game_shortcut()` rewrites a title's
+  `.lnk` every pass. Only a link that was **not there before** changes the set
+  of icons.
+
+The second churn source was in the auto-arrange code itself: `LVM_ARRANGE` was
+sent on every startup even when auto-arrange was **already on**. With the shell
+maintaining the layout that achieves nothing and is visible churn, so it is now
+sent only when the setting was just changed, or when forced. Stage/refresh all of them
 with `python3 scripts/retro-wallpaper/deploy_rotation.py <ip>` (it now also stages
 `retro_theme.reg` + `setsyscolors.exe`). To fix a single box's theme immediately
 without a restart: `python3 scripts/retro-wallpaper/apply_hacker_theme.py <ip>`

@@ -344,6 +344,40 @@ static void gs_note_progress(__int64 added)
     gs_note_progress2(added, added);
 }
 
+/* ---------------------------------------------------------------------- */
+/* did this run actually CHANGE the desktop?                                */
+/* ---------------------------------------------------------------------- */
+
+/* WHY THIS EXISTS. gs_run() used to re-lay-out the whole desktop at the end of
+ * EVERY sync, unconditionally. GAMESYNC runs at startup, and the overwhelmingly
+ * common case is a box that is already fully provisioned: every title skipped,
+ * not one file copied, not one shortcut created. So every boot rebuilt the icon
+ * layout for no reason, on every machine - which the user noticed as "the retro
+ * agent is rebuilding icons all the time".
+ *
+ * The fix is not to arrange less eagerly in general - a freshly deployed game
+ * whose icon never gets placed would be a worse bug, and it would show up
+ * exactly during the staged-game fix loop that the whole fleet is doing. It is
+ * to arrange when the desktop ACTUALLY CHANGED:
+ *
+ *   - a file was really written (not skipped by the size+mtime resume test), or
+ *   - a .lnk was created that was not there before, or one was swept away.
+ *
+ * Note what is deliberately NOT counted: gs_make_game_shortcut() rewrites a
+ * title's .lnk on every pass, so counting shortcut WRITES would be true on
+ * every run and would measure nothing. Only a link that did not previously
+ * exist changes the set of icons on the desktop. */
+static long g_gs_desk_files;   /* files actually written this run          */
+static long g_gs_desk_lnks;    /* .lnk files created or swept away         */
+
+static void gs_desk_reset(void)   { g_gs_desk_files = 0; g_gs_desk_lnks = 0; }
+static void gs_desk_note_file(void) { g_gs_desk_files++; }
+static void gs_desk_note_lnk(int n) { g_gs_desk_lnks += n; }
+static int  gs_desk_changed(void)
+{
+    return (g_gs_desk_files > 0 || g_gs_desk_lnks > 0);
+}
+
 /* gs_same_mtime - do these two files carry the same last-write time?
  *
  * WHY THIS EXISTS AT ALL: gs_copy_file used to treat "destination is the same
@@ -496,6 +530,10 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
     CloseHandle(hd);
     if (!ok)
         DeleteFileA(dst);      /* never leave a truncated file looking complete */
+    else
+        gs_desk_note_file();   /* a REAL write - the resume early-out returned
+                                * long before here, so this run changed the box
+                                * and the desktop is worth re-arranging */
     return ok;
 }
 
@@ -1693,9 +1731,11 @@ static void gs_sweep_desktop(void)
     if (gs_user_desktop_dir(userdesk, sizeof(userdesk)) &&
         lstrcmpiA(userdesk, desk) != 0)
         moved += gs_sweep_desktop_dir(userdesk);
-    if (moved)
+    if (moved) {
         log_msg(LOG_GS, "desktop swept: %d shortcut(s) moved to %s",
                 moved, GS_DESK_BACKUP);
+        gs_desk_note_lnk(moved);   /* icons REMOVED is a change too */
+    }
 }
 
 /*
@@ -2119,11 +2159,21 @@ static void gs_shortcut_from_line(const char *dst_dir, const char *title,
     if (!icon[0])
         gs_resolve_icon(dst_dir, target, icon, sizeof(icon));
 
-    if (gs_make_shortcut(target, workdir, lnk, disp, icon))
-        log_msg(LOG_GS, "%s: desktop shortcut -> %s (icon: %s)", title, exe_rel,
-                icon[0] ? icon : "from target");
-    else
-        log_msg(LOG_GS, "%s: could not create desktop shortcut", title);
+    /* Was this link already on the desktop? gs_make_shortcut() rewrites it
+     * every pass, so counting writes would be true on every run and would
+     * measure nothing. Only a link that was NOT there before changes the set
+     * of icons, and only that is worth an arrange. */
+    {
+        int was_there = gs_file_exists(lnk);
+        if (gs_make_shortcut(target, workdir, lnk, disp, icon)) {
+            log_msg(LOG_GS, "%s: desktop shortcut -> %s (icon: %s)", title,
+                    exe_rel, icon[0] ? icon : "from target");
+            if (!was_there)
+                gs_desk_note_lnk(1);
+        } else {
+            log_msg(LOG_GS, "%s: could not create desktop shortcut", title);
+        }
+    }
 }
 
 /*
@@ -2426,9 +2476,10 @@ static void gs_bag_autoarrange(int on)
  * section. Post the shell's toggle ONLY when the bit is clear, because it is a
  * toggle; fall back to the style bit when the toggle does not take; verify by
  * reading the bit back rather than trusting either call. */
-static void gs_apply_autoarrange(HWND defview, HWND lv)
+static void gs_apply_autoarrange(HWND defview, HWND lv, int force)
 {
     LONG style = GetWindowLongA(lv, GWL_STYLE);
+    int  changed = 0;
 
     if (style & LVS_AUTOARRANGE) {
         log_msg(LOG_GS, "auto-arrange already on - left alone (posting the "
@@ -2457,15 +2508,24 @@ static void gs_apply_autoarrange(HWND defview, HWND lv)
         } else {
             log_msg(LOG_GS, "auto-arrange turned on via the shell");
         }
+        changed = (style & LVS_AUTOARRANGE) ? 1 : 0;
     }
 
-    /* Setting the style does not re-pack what is already on screen; ask for it
-     * explicitly so the desktop is tidy now rather than at the next refresh. */
-    if (style & LVS_AUTOARRANGE)
-        SendMessageA(lv, LVM_ARRANGE_, LVA_DEFAULT_, 0);
-    else
+    if (!(style & LVS_AUTOARRANGE)) {
         log_msg(LOG_GS, "auto-arrange COULD NOT BE SET on this desktop - icons "
                         "will stay wherever they are");
+    } else if (changed || force) {
+        /* Setting the style does not re-pack what is already on screen; ask
+         * for it explicitly so the desktop is tidy now rather than at the next
+         * refresh. */
+        SendMessageA(lv, LVM_ARRANGE_, LVA_DEFAULT_, 0);
+    }
+    /* ...and when auto-arrange was ALREADY on and nothing changed, do not send
+     * LVM_ARRANGE at all. The shell is already keeping the desktop packed by
+     * itself - that is the entire point of auto-arrange - so a re-pack here
+     * would be visible churn that achieves nothing. This ran on every agent
+     * startup, which is a large part of what the user saw as "rebuilding icons
+     * all the time". */
 
     gs_bag_autoarrange(1);
 }
@@ -2558,9 +2618,13 @@ static void gs_arrange_bay(HWND defview, HWND lv)
 }
 
 /* The one entry point. Called on every agent startup (retrowall.c), after a
- * GAMESYNC has created new shortcuts, and on demand via the ICONARRANGE
- * command. Idempotent by construction. */
-void gs_desktop_icons_apply(void)
+ * GAMESYNC that actually changed the desktop, and on demand via ICONARRANGE.
+ *
+ * force = 0 is the routine pass: it makes sure the setting is right and does
+ * as little as possible if it already is. force = 1 is a deliberate human
+ * request and always does a full pass - "fixing issues" is a legitimate reason
+ * to re-arrange a desktop that the agent thinks is already fine. */
+void gs_desktop_icons_apply_ex(int force)
 {
     HWND defview = NULL;
     HWND lv = gs_desktop_listview(&defview);
@@ -2570,9 +2634,14 @@ void gs_desktop_icons_apply(void)
         return;
     }
     if (gs_want_autoarrange())
-        gs_apply_autoarrange(defview, lv);
+        gs_apply_autoarrange(defview, lv, force);
     else
         gs_arrange_bay(defview, lv);
+}
+
+void gs_desktop_icons_apply(void)
+{
+    gs_desktop_icons_apply_ex(0);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -2686,6 +2755,7 @@ static void gs_run(const char *library)
     memset(&g_gs, 0, sizeof(g_gs));
     g_gs.state   = GS_SIZING;
     g_gs.started = GetTickCount();
+    gs_desk_reset();   /* "did anything change?" is per-run, not cumulative */
     LeaveCriticalSection(&g_gs_lock);
 
     log_msg(LOG_GS, "library: %s", library);
@@ -2919,9 +2989,22 @@ static void gs_run(const char *library)
 
     /* Arrange AFTER every shortcut exists: the shell creates a listview item
      * per .lnk asynchronously, so arranging per title would keep re-sorting a
-     * list that is still growing. */
-    Sleep(2000);
-    gs_desktop_icons_apply();
+     * list that is still growing.
+     *
+     * ...and ONLY when this run actually changed the desktop. GAMESYNC runs at
+     * startup and the usual case is a fully provisioned box where every title
+     * was skipped, nothing was copied and no shortcut was created. Arranging
+     * there rebuilt the layout on every boot of every machine for no reason.
+     * A deploy that DID change something still arranges - that case is wanted,
+     * it is what the staged-game fix loop depends on, and suppressing it would
+     * leave a freshly deployed game's icon unplaced. */
+    if (gs_desk_changed()) {
+        Sleep(2000);
+        gs_desktop_icons_apply();
+    } else {
+        log_msg(LOG_GS, "nothing changed - icons left alone (no files written, "
+                        "no new shortcuts); use ICONARRANGE to force a pass");
+    }
 
     log_msg(LOG_GS, "done: %d/%d title(s) copied, %d skipped (no room), "
             "%d gated (machine cannot run), %d file error(s)",
@@ -3211,10 +3294,10 @@ void handle_iconarrange(SOCKET sock, const char *args)
     } else if (args && (str_starts_with(args, "auto") ||
                         str_starts_with(args, "AUTO"))) {
         mode = "auto";
-        gs_apply_autoarrange(defview, lv);
+        gs_apply_autoarrange(defview, lv, 1);
     } else {
         mode = gs_want_autoarrange() ? "auto" : "bay";
-        gs_desktop_icons_apply();
+        gs_desktop_icons_apply_ex(1);
     }
 
     style = GetWindowLongA(lv, GWL_STYLE);

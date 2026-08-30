@@ -145,3 +145,90 @@ def test_legacy_arrangers_carry_a_superseded_banner():
             "%s clears LVS_AUTOARRANGE and would undo the fleet default; its "
             "header must say so, or someone will helpfully redeploy it" % name
         )
+
+
+def test_gamesync_arranges_only_when_the_desktop_changed():
+    """The unconditional arrange at the end of gs_run() must not come back.
+
+    GAMESYNC runs at startup, so an unconditional call rebuilt the icon layout
+    on every boot of every machine - reported by the user as "the retro agent
+    is rebuilding icons all the time". The call must be guarded by
+    gs_desk_changed().
+    """
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    lines = code.splitlines()
+    calls = [i for i, ln in enumerate(lines)
+             if re.search(r"\bgs_desktop_icons_apply\s*\(\s*\)\s*;", ln)]
+    assert calls, "gs_run() must still arrange when something changed"
+    for i in calls:
+        window = "\n".join(lines[max(0, i - 8):i])
+        assert "gs_desk_changed()" in window, (
+            "gamesync.c line %d calls gs_desktop_icons_apply() without a "
+            "gs_desk_changed() guard. GAMESYNC runs at startup, so an "
+            "unguarded call rebuilds the icon layout on every boot." % (i + 1)
+        )
+
+
+def test_the_change_counters_are_reset_per_run():
+    """Without a reset, one deploy makes every later sync look like a change."""
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    assert "gs_desk_reset()" in code, (
+        "gs_run() must reset the change counters at the top, or the gate leaks "
+        "across syncs and the every-boot rebuild comes straight back"
+    )
+
+
+def test_a_skipped_file_and_a_rewritten_lnk_are_not_counted_as_changes():
+    """The two ways a naive counter would be true on every run."""
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+
+    # The file counter must sit on the real-write path, i.e. AFTER the resume
+    # early-out, which is the `return 1` inside gs_copy_file's skip test.
+    copy_fn = code.split("static int gs_copy_file", 1)[1].split("\nstatic ", 1)[0]
+    early = copy_fn.index("return 1;")
+    assert "gs_desk_note_file()" not in copy_fn[:early], (
+        "a file skipped by the size+mtime resume test must NOT count as a "
+        "change - it is the normal case on a provisioned box"
+    )
+    assert "gs_desk_note_file()" in copy_fn[early:], (
+        "gs_copy_file() must count a real write"
+    )
+
+    # The .lnk counter must be conditional on the link not already existing.
+    sc = code.split("gs_shortcut_from_line", 1)[1].split("\nstatic ", 1)[0]
+    assert "gs_file_exists(lnk)" in sc, (
+        "gs_shortcut_from_line() must check whether the .lnk was already there "
+        "- it rewrites the link on every pass, so counting writes measures "
+        "nothing"
+    )
+    assert re.search(r"if\s*\(\s*!\s*was_there\s*\)", sc), (
+        "only a .lnk that was NOT already on the desktop is a change"
+    )
+
+
+def test_iconarrange_always_forces_a_full_pass():
+    """A manual request is a deliberate act and the gate must not refuse it."""
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    fn = code.split("void handle_iconarrange", 1)[1].split("\nvoid ", 1)[0]
+    assert "gs_desktop_icons_apply_ex(1)" in fn, (
+        "ICONARRANGE must force a full pass - the user named 'fixing issues' "
+        "as a legitimate reason to re-arrange a desktop the agent thinks is fine"
+    )
+    assert re.search(r"gs_apply_autoarrange\(defview,\s*lv,\s*1\)", fn), (
+        "the explicit 'auto' mode must force too"
+    )
+
+
+def test_an_already_on_desktop_is_not_re_packed_every_startup():
+    """LVM_ARRANGE on an already-arranged desktop is churn, not maintenance."""
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    fn = code.split("gs_apply_autoarrange", 1)[1].split("\nstatic ", 1)[0]
+    assert "LVM_ARRANGE_" in fn, "the re-pack must still exist for a real change"
+    m = re.search(r"else if \(changed \|\| force\)", fn)
+    assert m, (
+        "LVM_ARRANGE must be sent only when the setting was just changed or the "
+        "pass was forced. Sending it unconditionally re-packs the desktop on "
+        "every agent startup, which is exactly the churn the user reported - "
+        "and it achieves nothing, because with auto-arrange on the shell is "
+        "already keeping the desktop packed by itself."
+    )

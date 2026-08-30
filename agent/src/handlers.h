@@ -63,6 +63,9 @@ void handle_iconarrange(SOCKET sock, const char *args);
  * every agent startup, after a GAMESYNC, and by the ICONARRANGE command.
  * See the block comment in gamesync.c - the two layouts are exclusive. */
 void gs_desktop_icons_apply(void);
+/* force=1 always does a full pass (the ICONARRANGE command); force=0 is the
+ * routine startup pass and does nothing when the setting is already right. */
+void gs_desktop_icons_apply_ex(int force);
 void gameindex_init(void);
 DWORD WINAPI gameindex_thread(LPVOID param);
 void handle_displaycfg(SOCKET sock, const char *args);
