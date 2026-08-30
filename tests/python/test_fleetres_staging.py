@@ -892,3 +892,31 @@ def test_every_generated_config_line_has_balanced_quotes():
             assert effective % 2 == 0, (
                 'odd quote/backtick count in %r — in a Quake-family or '
                 'LithTech config that swallows the following line' % one)
+# 12. Far Cry's config dialect: EVERY VALUE IS QUOTED
+#
+# Far Cry writes its own System.cfg with every value in double quotes - its
+# configurator emits sys_firstlaunch = "1", e_decals = "1" - and a BARE value is
+# not parsed at all. Measured on .246: with `r_Fullscreen = 1` and
+# `sys_firstlaunch = 0` unquoted, the engine's log carried no `Lua cvar:` line
+# for any of them, the first-run wizard was NOT suppressed, and the launch
+# stopped on a modal "Auto detection will adjust settings for optimal
+# performance!" dialog. Requoted, the same log reads:
+#
+#     Lua cvar: (r_Fullscreen,1)
+#     Lua cvar: (r_Width,1920)
+#     Lua cvar: (r_Height,1080)
+#     Setting sys_firstlaunch to 0
+#
+# Nothing reported an error either way; the settings simply did not exist. So
+# the backticks in the recipe (FLEETRES turns ` into ") are load-bearing, and
+# dropping them silently reverts the box to a wizard on every first launch.
+# ---------------------------------------------------------------------------
+def test_farcry_writes_quoted_values():
+    rec = sf.TITLES['FarCry']['launchers']['Play Far Cry.bat']
+    for line in rec['pre']:
+        if '-setline' not in line:
+            continue
+        assert '`%FR_W%`' in line or '`%FR_H%`' in line, (
+            "Far Cry's System.cfg quotes every value; an unquoted r_Width is "
+            "not parsed at all, and nothing reports an error. FLEETRES turns a "
+            "backtick into a double quote - keep them. Line was: %r" % line)

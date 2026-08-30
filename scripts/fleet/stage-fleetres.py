@@ -893,13 +893,32 @@ TITLES = {
     # later - the same shape of bug that wiped SoF2's GAMEARGS.
     "FarCry": {
         "launchers": {
+            # NB the BACKTICKS. Far Cry's System.cfg QUOTES EVERY VALUE - its own
+            # configurator writes sys_firstlaunch = "1", e_decals = "1" - and a
+            # bare `r_Width = 1920` is not parsed at all. Measured on .246: with
+            # unquoted values the engine ignored the whole file, so
+            # sys_firstlaunch did not suppress the first-run wizard and the
+            # launch stopped on a modal "Auto detection will adjust settings"
+            # dialog. FLEETRES turns a backtick into a double quote precisely
+            # because cmd.exe eats real ones.
             "Play Far Cry.bat": rec(
                 'start "" "Bin32\\FarCry.exe" %*',
-                [CALL,
+                # GAMESYNC NEVER DELETES, so a file the library stops shipping
+                # lives on every box that ever had it. Three did: the superseded
+                # "Widescreen 1080p" launcher and its two pinned configs, which
+                # on a 1024x768 box (.143) would set a mode the panel cannot do,
+                # plus GameuxInstallHelper.dll, the Vista-only PE. Removal is not
+                # something GAMESYNC can express, so the launcher does it - once
+                # per box, silently, and it self-heals a machine nobody revisits.
+                ['for %%F in ("Play Far Cry - Widescreen.bat" '
+                 '"System-1024x768.cfg" "System-1920x1080.cfg" '
+                 '"GameuxInstallHelper.dll") do if exist "%~dp0%%~F" '
+                 'del /F /Q "%~dp0%%~F" >nul 2>&1',
+                 CALL,
                  'if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -setline '
-                 '"%~dp0System.cfg" r_Width r_Width = %FR_W%',
+                 '"%~dp0System.cfg" r_Width r_Width = `%FR_W%`',
                  'if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -setline '
-                 '"%~dp0System.cfg" r_Height r_Height = %FR_H%']),
+                 '"%~dp0System.cfg" r_Height r_Height = `%FR_H%`']),
         },
     },
 }
