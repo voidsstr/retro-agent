@@ -308,16 +308,38 @@ T2_LADDER = [(640, "640^x^480"), (800, "800^x^600"), (1024, "1024^x^768")]
 
 
 def turok2_mode():
+    """NO CARET EVER TRAVELS THROUGH A VARIABLE HERE.
+
+    `set T2SEL=640^x^480` stores "640x480" - cmd.exe eats `^` as its own escape
+    before the assignment. Measured on .145: config.ned came back with all six
+    modes at 0 and a junk `...\1024x768 1` APPENDED, every command having
+    returned success. Quoting the assignment (`set "T2SEL=1024^x^768"`) does
+    fix it, and that was verified afterwards on the same box.
+
+    This form is used anyway, because it removes the question entirely: the
+    variable carries only a width and each candidate mode is written by its own
+    guarded line whose key is a quoted LITERAL - the shape the six clearing
+    lines had from the start, and the shape that never depended on working out
+    how cmd.exe interleaves caret escaping with quoting.
+
+    A METHOD NOTE WORTH MORE THAN THE FIX. The quoted version was briefly
+    written off as "also broken" because config.ned was re-read from the box
+    BEFORE the corrected launcher had actually synced to it - so the old
+    launcher's output was attributed to the new one. Check that the artifact on
+    the box is the version you think it is before you attribute a result to
+    it; that is the same class of error as trusting `state=done`."""
     e = '"%~dp0FLEETRES.EXE"'
     f = '"%~dp0Data\\config.ned"'
     k = 'Acclaim\\Turok\\VideoD3D\\'
-    out = ['set T2SEL=640^x^480']
+    out = ['set T2SEL=640']
     for w, m in T2_LADDER[1:]:
-        out.append('if %%FR_W43%% GEQ %d set T2SEL=%s' % (w, m))
+        out.append('if %%FR_W43%% GEQ %d set T2SEL=%d' % (w, w))
     out.append('if exist "%~dp0FLEETRES.EXE" (')
     for m in T2_MODES:
         out.append('  %s -setline %s "%s%s" "%s%s" 0' % (e, f, k, m, k, m))
-    out.append('  %s -setline %s "%s%%T2SEL%%" "%s%%T2SEL%%" 1' % (e, f, k, k))
+    for w, m in T2_LADDER:
+        out.append('  if "%%T2SEL%%"=="%d" %s -setline %s "%s%s" "%s%s" 1'
+                   % (w, e, f, k, m, k, m))
     out.append('  %s -setline %s "%sWindowed" "%sWindowed" 0' % (e, f, k, k))
     out.append(')')
     return out
@@ -535,6 +557,27 @@ TITLES = {
         },
     },
     "Turok2": {
+        # The staged launchers already carry a block, and it was WRONG: the
+        # caret did not survive the variable. See turok2_mode().
+        "fix": {
+            n: [('set "T2SEL=640^x^480"', 'set T2SEL=640'),
+                ('set "T2SEL=800^x^600"', 'set T2SEL=800'),
+                ('set "T2SEL=1024^x^768"', 'set T2SEL=1024'),
+                ('  "%~dp0FLEETRES.EXE" -setline "%~dp0Data\\config.ned" '
+                 '"Acclaim\\Turok\\VideoD3D\\%T2SEL%" '
+                 '"Acclaim\\Turok\\VideoD3D\\%T2SEL%" 1',
+                 "\r\n".join(
+                     '  if "%%T2SEL%%"=="%s" "%%~dp0FLEETRES.EXE" -setline '
+                     '"%%~dp0Data\\config.ned" '
+                     '"Acclaim\\Turok\\VideoD3D\\%s" '
+                     '"Acclaim\\Turok\\VideoD3D\\%s" 1' % (w, m, m)
+                     for w, m in (("640", "640^x^480"),
+                                  ("800", "800^x^600"),
+                                  ("1024", "1024^x^768")))),
+                ]
+            for n in ("Play Turok 2.bat", "Play Turok 2 - Multiplayer.bat",
+                      "Join Turok 2 - LAN.bat")
+        },
         "launchers": {
             n: rec('cd /d "%~dp0"', [CALL] + turok2_mode())
             for n in ("Play Turok 2.bat", "Play Turok 2 - Multiplayer.bat",

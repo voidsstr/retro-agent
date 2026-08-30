@@ -726,10 +726,23 @@ def test_turok2_picks_from_its_fixed_boolean_mode_list():
     assert 'config.ned' in t
     assert '%T2SEL%' in t and 'set T2SEL=' in t
     assert '1280^x^1024" 0' in t, '5:4 must be explicitly turned OFF, not left'
-    assert 'set T2SEL=1280' not in t, '5:4 must never be selected'
+    assert 'T2SEL=1280' not in t, '5:4 must never be selected'
     # every mode on the list is cleared before one is set, or two could be 1
     for m in sf.T2_MODES:
         assert '%s" 0' % m in t, '%s is never cleared' % m
+
+
+def test_turok2_never_puts_a_caret_in_a_variable():
+    """`set T2SEL=640^x^480` silently stores "640x480" - cmd.exe eats `^` as
+    its own escape before the assignment. Measured on .145: all six modes came
+    back 0 with a junk `...\\1024x768 1` appended, and every command reported
+    success. Quoting the assignment does fix it; carrying only the WIDTH in the
+    variable and writing each mode from a quoted literal removes the question."""
+    for line in sf.turok2_mode():
+        if 'T2SEL=' in line:
+            assert '^' not in line, (
+                '%r puts a caret through a variable, which is the assignment '
+                'cmd.exe strips' % line)
 
 
 def test_turok2_keys_keep_their_caret():
