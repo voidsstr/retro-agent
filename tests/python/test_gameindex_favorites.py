@@ -506,3 +506,85 @@ def test_change_detection_must_look_at_the_box_not_at_our_own_intent():
         "distinguishes 'already correct' from 'someone reverted us'")
     # ...and when the file really is already ours, it must still be a no-op.
     assert again.splitlines() == ours.splitlines()
+
+
+# --- verified in the games' OWN browsers, 2026-08-30 -------------------------
+#
+# Everything above reasons from the engines' bytecode and file formats. These
+# assert the shapes that were then SEEN on screen, on hardware, in each game's
+# own server browser -- the only evidence that actually settles "the favourites
+# agent works". Screenshots and the boxes they came from are named per test.
+#
+# The pair that matters most is the slot numbering: Quake III's cvars are
+# server1..server16 and Quake II's are adr0..adr8. They are one engine
+# generation apart and differ by one, and getting either wrong is invisible
+# from the host -- the pass still logs "wrote 1 servers", the file still looks
+# right, and the game just quietly shows an empty row.
+
+def test_quake2_address_book_is_ZERO_based_and_quake3s_is_ONE_based():
+    """Verified on .143: Q2's JOIN SERVER listed our server in the FIRST row.
+
+    Quake II reads adr0..adr8 (`m_num_addressbook_entries` indexes from 0), so
+    a 1-based writer leaves adr0 empty and the game's first "connect to..."
+    row reads <no server> while ours sits below it. Quake III reads
+    server1..server16 and a 0-based writer loses the last one instead.
+
+    Screenshots: /tmp/retro-screenshots/fav/143-q2-join4.png  (0/12, q2dm1)
+                 /tmp/retro-screenshots/fav/133-q3-fav3.png   (16 of 16)
+    """
+    q2, _ = favorites.render("q2", UT99, "", key="quake2")
+    assert re.search(r'^set adr0 "192\.168\.1\.132:7797"', q2, re.M), (
+        "Q2's address book starts at adr0 - the game's first row is adr0")
+    assert not re.search(r"^set adr9\b", q2, re.M), "Q2 has adr0..adr8, no adr9"
+
+    q3, _ = favorites.render("q3", UT99, "", key="quake3")
+    assert re.search(r'^seta server1 "192\.168\.1\.132:7797"', q3, re.M), (
+        "Q3's favourites start at server1 - there is no server0 cvar")
+    assert not re.search(r"^seta server0\b", q3, re.M)
+    assert re.search(r"^seta server16 ", q3, re.M), "and run to server16"
+
+
+def test_goldsrc_favourite_carries_the_four_keys_cs16_actually_reads():
+    """Verified on .133 and .143: both fleet servers appeared under Favorites.
+
+    revSrvBrowser builds each entry from name/address/lastplayed/appID. The
+    address is the GAME port (27015), not a query port -- GoldSrc answers A2S
+    on the game port, and this is the one engine here where the two are the
+    same, so a query-port habit carried over from UT99 would silently produce
+    an entry that never resolves.
+
+    Screenshots: /tmp/retro-screenshots/fav/133-cs-fav-zoom.png
+                 /tmp/retro-screenshots/fav/143-cs-fav-zoom.png
+    """
+    cs = [row("192.168.1.132:27015", "cstrike",
+              "NSC Retro Fleet Arena (CS 1.6)", local=1),
+          row("192.168.1.132:27016", "cstrike",
+              "NSC Retro Fleet Arena (CS 1.6 No Blood)", local=1)]
+    existing = ('"filters"\n{\n\t"favorites"\n\t{\n\t}\n\n'
+                '\t"history"\n\t{\n\t}\n\n}\n')
+    text, _ = favorites.render("goldsrc", cs, existing, key="cs16")
+
+    for k in ("name", "address", "lastplayed", "appID"):
+        assert f'"{k}"' in text, f"CS 1.6 reads {k} out of every entry"
+    assert '"192.168.1.132:27015"' in text and '"192.168.1.132:27016"' in text
+    assert '"27016:' not in text and ":27017" not in text, (
+        "the address is the game port; nothing derives a query port here")
+    # Entries are numbered from "0" and the enclosing structure survives.
+    assert '"0"' in text and '"1"' in text
+    assert '"history"' in text, (
+        "the writer must preserve the rest of the document - a client whose "
+        "history section vanished would be a regression nobody sees until "
+        "they open the browser")
+
+
+def test_a_favourite_line_is_never_wider_than_the_browser_column():
+    """Verified on .143: the UT99 browser's Server column truncates at ~50.
+
+    Not a correctness bug, but the reason `_label` caps at 60: a hostname
+    longer than the column pushes ping/map/players off the visible row, and
+    on screen the entry reads as blank rather than as a long name.
+    """
+    long_name = "X" * 400
+    r = row("192.168.1.132:7797", "ut", long_name, local=1, query_port=7798)
+    assert len(favorites._label(r)) <= 60
+    assert len(favorites._label(r, 120)) <= 120
