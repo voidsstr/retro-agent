@@ -35,7 +35,7 @@ network awaiting a keyboard.*
 | Hexen II | Quake-derived, peer | `.123` + `.240` |
 | SiN Gold | id Tech 2 | `.123` + `.240` |
 | Soldier of Fortune II | id Tech 3 | `.123` + `.240` |
-| Jedi Academy | id Tech 3 / Raven | `.143` + fleet server |
+| Jedi Academy | id Tech 3 / Raven | `.143` + `.246` (both on the fleet server; `.246`'s console reads `Fleet143 connected`) |
 | Jedi Knight: Dark Forces II | Sith / DirectPlay TCP-IP | `.123` + `.240` |
 | Mysteries of the Sith | Sith / DirectPlay TCP-IP | `.123` + `.240` |
 | Unreal Tournament (436 client) | UE1 | `.143` + `.133` |
@@ -251,7 +251,7 @@ official 1.07f patch — **not another image**.
 | | what is actually needed |
 |---|---|
 | **BF1942 client**, **C&C Generals + Zero Hour** | a **user DECISION**: a SafeDisc-2.80-capable mounter means a third-party kernel driver and a reboot per box, and `.123`/`.133` are unactivated and must not be rebooted. No agent should install one unilaterally. |
-| **Jedi Academy on `.124`/`.240`** | a **reboot** of those two boxes, to clear the locked DAEMON Tools unit. Everything else is staged and proven. |
+| **Jedi Academy on `.124`/`.240`** | a **reboot** of those two boxes, to clear the locked DAEMON Tools unit. Everything else is staged and proven — it plays on `.143` and `.246`, and on a locked box the launcher now says so in `mount-error.txt` instead of hanging. |
 | **Soldier of Fortune 1 multiplayer** | **engineering**, not media — see above. |
 | **Far Cry, Halo, Carmageddon 1/2, AvP, Shogo, Descent 3, Deus Ex** | a **person at the keyboard**, once: their menus are driven by relative mouse deltas, which `UICLICK` cannot reach at all. |
 | **Hidden & Dangerous** | a person to create a profile once; then `Savegame\*.bin` is staged. |
