@@ -58,6 +58,7 @@ def _image(sector: int, off: int, payloads) -> bytes:
 CASES = [
     (2448, 16, "daemon tools mdf"),
     (2352, 16, "raw mode1 bin"),
+    (2352, 24, "raw mode2 form1 bin"),
     (2336, 8, "mode2 form1"),
     (2048, 0, "plain iso"),
 ]
@@ -124,3 +125,31 @@ def test_cli_probe_reports_geometry(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "2448-byte sectors" in out
     assert "GENERALS1" in out
+
+
+def test_raw_mode2_form1_is_read_at_24_not_16():
+    """Serious Sam's discs, and the second time this project paid for a stride.
+
+    Both Encounters' .bin files declare `TRACK 01 MODE2/2352` in their own cue
+    sheets. A raw Mode 2 Form 1 sector is the same 2352 bytes as Mode 1 but
+    carries an extra **8-byte subheader** after the 4-byte header, so the
+    filesystem starts at +24. Read at +16 - the Mode 1 offset - the volume
+    descriptor is not there, so the image looks as though it has no filesystem
+    at all, and converting at that offset writes a full-size ISO that nothing
+    can mount. That reads as "the image is corrupt" rather than "we used the
+    wrong stride", which is the expensive way to be wrong.
+
+    Asserted BOTH ways: a Mode 2 image must not be detected as (2352, 16), and
+    a Mode 1 image must still be, because 2352/16 is tried first and a greedy
+    2352/24 rule would silently steal every ordinary raw .bin on the share.
+    """
+    payloads = [bytes([i % 251]) * 2048 for i in range(16)] + [_pvd("SamSE")]
+
+    m2 = io.BytesIO(_image(2352, 24, payloads))
+    assert mdf2iso.detect(m2) == (2352, 24)
+    assert mdf2iso.volume_label(m2, 2352, 24) == "SamSE"
+
+    m1 = io.BytesIO(_image(2352, 16, payloads))
+    assert mdf2iso.detect(m1) == (2352, 16), (
+        "an ordinary raw Mode 1 .bin must still detect as 2352/16 - the "
+        "Mode 2 entry sits AFTER it precisely so it cannot steal these")

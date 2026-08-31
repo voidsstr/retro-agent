@@ -47,9 +47,26 @@ import sys
 GEOMETRIES = (
     (2448, 16),   # Daemon Tools .mdf: 2352 raw + 96 subchannel
     (2352, 16),   # raw Mode 1 / .bin
+    (2352, 24),   # raw Mode 2 FORM 1 / .bin - 12 sync + 4 header + 8 SUBHEADER
     (2336, 8),    # Mode 2 Form 1, no sync/header
     (2048, 0),    # already a plain ISO
 )
+
+#: Why 2352/24 is its own entry, and why it sits AFTER 2352/16.
+#:
+#: A raw Mode 2 Form 1 sector is the same 2352 bytes as Mode 1, but carries an
+#: extra **8-byte subheader** between the 4-byte header and the payload, so the
+#: filesystem starts at +24 rather than +16.  Serious Sam's First and Second
+#: Encounter discs are both pressed this way (``TRACK 01 MODE2/2352`` in their
+#: own cue sheets), and reading them at +16 lands in the subheader: no `CD001`,
+#: so the file looks like it has no filesystem at all.  Converting at the wrong
+#: offset is worse - it writes a full-size ISO that nothing can mount, which
+#: reads as "the image is corrupt" rather than "we used the wrong stride".
+#:
+#: The order is safe because the two cannot be confused: at 2352/16 a Mode 2
+#: image exposes its subheader (four repeated bytes, never `\0CD001`), and at
+#: 2352/24 a Mode 1 image exposes bytes 8..12 of the volume descriptor.  The
+#: first geometry whose sector 16 really begins a volume descriptor wins.
 
 PVD_LBA = 16          # ISO 9660 puts the Primary Volume Descriptor here
 SIG = b"CD001"

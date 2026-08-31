@@ -460,6 +460,39 @@ def turok2_mode():
     return out
 
 
+def ssam_startup_ini():
+    """Serious Engine 1 (both Serious Sam Encounters).
+
+    The mode lives in TWO files and only one of them is ours to write.
+
+    `Scripts\\PersistentSymbols.ini` is where the engine SAVES its persistent
+    cvars **on exit**, so anything staged there is overwritten by the first box
+    that runs the game - and was wrong on the other seven before that. It is the
+    same trap as an id engine rewriting config.cfg.
+
+    `Scripts\\Game_startup.ini` is the engine's own documented hook; its shipped
+    first line is literally "// executed each time SeriousSam is started". So
+    the launcher rewrites that file at every start, exactly as the id Tech 3
+    titles rewrite fleetres.cfg. Serious Engine's console syntax needs the
+    trailing semicolons.
+
+    sam_iDriver is left at 0 (the default OpenGL/ICD path) rather than being
+    computed: the engine picks its own renderer, and this mechanism is about
+    the panel, not the API.
+    """
+    p = '"%~dp0Scripts\\Game_startup.ini"'
+    return [
+        '> %s echo // written by the launcher at every start - do not edit' % p,
+        '>>%s echo // PersistentSymbols.ini is NOT the place for this: the engine' % p,
+        '>>%s echo // rewrites that file on exit and would overwrite the mode.' % p,
+        '>>%s echo sam_bFullScreen=1;' % p,
+        '>>%s echo sam_iScreenSizeI=%%FR_W%%;' % p,
+        '>>%s echo sam_iScreenSizeJ=%%FR_H%%;' % p,
+        '>>%s echo sam_iDriver=0;' % p,
+        '>>%s echo gfx_iRefreshRate=%%FR_HZ%%;' % p,
+    ]
+
+
 CALL = 'call "%~dp0FLEETRES.BAT"'
 def call_cap(w, h):
     return 'call "%~dp0FLEETRES.BAT" -cap ' + str(w) + ' ' + str(h)
@@ -486,6 +519,33 @@ def q3(mod, exe, extra=""):
 
 
 TITLES = {
+    # SERIOUS SAM - both Encounters. Croteam Serious Engine 1.
+    #
+    # Every launcher here is hand-written (a disc mount, a dedicated server and
+    # a +connect client need arguments this tool has no vocabulary for), so the
+    # recipe only inserts the FLEETRES call and the Game_startup.ini rewrite -
+    # the same shape RedneckRampage's LAN pair uses.
+    #
+    # The anchor is the `cd /d` that every one of the three launchers already
+    # has: the engine resolves its .gro files against the CURRENT DIRECTORY, so
+    # a launcher that does not cd first dies on a black screen no matter what
+    # resolution it was handed.
+    "SeriousSamFirstEncounter": {
+        "launchers": {
+            n: rec('cd /d "%~dp0"', [CALL] + ssam_startup_ini())
+            for n in ("Play Serious Sam - The First Encounter.bat",
+                      "Host Serious Sam TFE - LAN.bat",
+                      "Join Serious Sam TFE - LAN.bat")
+        },
+    },
+    "SeriousSamSecondEncounter": {
+        "launchers": {
+            n: rec('cd /d "%~dp0"', [CALL] + ssam_startup_ini())
+            for n in ("Play Serious Sam - The Second Encounter.bat",
+                      "Host Serious Sam TSE - LAN.bat",
+                      "Join Serious Sam TSE - LAN.bat")
+        },
+    },
     "ReturnToCastleWolfenstein": {
         # id Tech 3, and it is one of the forks with NO r_mode -1 BRANCH -
         # see IDTECH3_NO_CUSTOM_MODE, which records the measurement. The cvar

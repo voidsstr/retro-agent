@@ -56,20 +56,21 @@ LIB = '/mnt/retro-share/Files/Games-Library'
 TITLES = ('ReturnToCastleWolfenstein', 'WarcraftII', 'WarcraftOrcsAndHumans',
           'ShadowWarrior', 'MasterOfOrionII')
 
-# Staged, tested on hardware, and REMOVED again - recorded here so the next
-# person to look at this share does not spend the same afternoon.
+# WITHDRAWN IS GONE, AND THAT IS THE POINT.
 #
-# Serious Sam: The First Encounter and The Second Encounter both raise a modal
-# "CD check / Please insert the game CD" and will not start without the disc,
-# on a FULL local install with every .gro, Setup.exe, a C:\Install\ decoy and
-# +cdpath all present. SeriousSam.exe imports GetDriveTypeA and the strings
-# beside the message are "C:\Install\", "Bin\SeriousSam.exe", "Setup.exe" -
-# it walks the drive letters for a CD-ROM-typed volume holding the game. That
-# cannot be satisfied without mounting the disc, TSE is already v1.05 so a
-# later official patch does not remove it, and two of the fleet's eight boxes
-# (.123, .246) have no mounter at all - including the one this batch was
-# LAN-proved against. Do not re-stage them without a mounter story.
-WITHDRAWN = ('SeriousSamFirstEncounter', 'SeriousSamSecondEncounter')
+# Both Serious Sam Encounters used to be listed here as staged-then-removed,
+# "disc-locked and unfixable". The observation was right and the conclusion was
+# wrong: SeriousSam.exe carries no copy protection at all, and its check is a
+# plain GetDriveTypeA + fopen for Install\Bin\SeriousSam.exe on a CD-ROM-typed
+# volume - which DAEMON Tools 3.47 satisfies completely. What actually defeated
+# the first attempt was that every optical drive on the fleet held some OTHER
+# game's disc, so a drive of the right TYPE was there and the file was not.
+#
+# They are staged again, as disc-mount titles. Their own regression tests are
+# tests/python/test_serioussam_staging.py; this module keeps only the assertion
+# that they did not come back WITHOUT the mount machinery, because a tree that
+# looks staged and cannot start is worse than one that is absent.
+RESTAGED_AS_DISC_MOUNT = ('SeriousSamFirstEncounter', 'SeriousSamSecondEncounter')
 
 # Not staged, and each for its own reason. See the module docstring.
 WITHHELD = {
@@ -125,25 +126,30 @@ def test_every_new_title_has_a_fleetres_recipe():
             'to one resolution on eight different monitors.' % t)
 
 
-def test_withdrawn_titles_are_not_in_the_library():
-    """A title that cannot start is worse than a title that is absent.
+def test_restaged_serious_sam_carries_its_mount_machinery():
+    """A staged tree that cannot start is worse than an absent one.
 
-    Serious Sam was staged, validated and deployed before the CD check was
-    found - by launching it. This asserts the removal stuck, in the library
-    AND in the recipe file, because a leftover recipe would silently re-stage
-    FLEETRES into a directory that should not exist.
+    The first Serious Sam staging pass was validated and deployed before anyone
+    launched it, so the library said DEPLOYABLE for a title that raised a modal
+    on every box. The tree is back now, and what makes that legitimate is the
+    disc mount - so that, and not mere presence, is what is asserted.
     """
     src = _read(STAGER)
-    for t in WITHDRAWN:
-        assert '"%s"' % t not in src, (
-            '%s still has a stage-fleetres recipe. See WITHDRAWN above: the '
-            'title does not start without its disc.' % t)
+    for t in RESTAGED_AS_DISC_MOUNT:
+        assert '"%s": {' % t in src, (
+            '%s has no stage-fleetres recipe, so its launchers never get the '
+            'FLEETRES block and the title is pinned to one resolution on eight '
+            'different monitors.' % t)
     if not os.path.isdir(LIB):
         pytest.skip('SKIPPED LOUDLY: %s is not mounted.' % LIB)
-    for t in WITHDRAWN:
-        assert not os.path.isdir(os.path.join(LIB, t)), (
-            '%s is back in the library. It raises a modal "Please insert the '
-            'game CD" on a full local install; see WITHDRAWN above.' % t)
+    for t in RESTAGED_AS_DISC_MOUNT:
+        tree = os.path.join(LIB, t)
+        assert os.path.isdir(tree), '%s is not in the library' % t
+        assert os.path.isfile(os.path.join(tree, 'MOUNTDISC.BAT')), (
+            '%s is back in the library WITHOUT MOUNTDISC.BAT. Its CD check '
+            'needs Install\\Bin\\SeriousSam.exe on a DRIVE_CDROM volume; '
+            'without the mount every shortcut raises a modal nothing on a '
+            'headless box will dismiss.' % t)
 
 
 def test_pe_subsystem_rule_is_still_the_xp_rule():
