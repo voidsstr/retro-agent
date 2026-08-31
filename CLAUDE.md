@@ -677,7 +677,12 @@ driven fullscreen, and using a window to get past them is correct:
 
 - **id Tech 3 ignores synthetic keyboard input in exclusive fullscreen** and
   accepts it windowed — that is the documented way to type a CD key.
-- **GDI cannot photograph an exclusive-fullscreen surface** on some boxes
+- **GDI cannot photograph an exclusive-fullscreen surface on WINDOWS 7**
+  (`.246`). **It CAN on XP** — measured 2026-08-31 on `.123` and `.133`,
+  where a plain `SCREENSHOT 0` of fullscreen GoldSrc returned the game in
+  3D at 1280x960. XP has no DWM; Vista/7 composite. This was written up as
+  a fleet-wide rule and is not one, which sent agents down the slow
+  screenshot-bind path on seven of eight boxes
   (`.246` especially); a windowed relaunch may be the only way to get a frame.
 
 In both cases the window is a means to an end: **do the typing or the capture,
@@ -1103,7 +1108,21 @@ user is logged into a desktop, and it is absent in a headless, `systemd`-run or
 freshly-rebooted context. Do not build anything that depends on it silently.
 
 `/etc/cifs-retro-share.creds` is root-only, and sudo needs an interactive
-password on this host, so `smbclient -A` is **not** an available route.
+password on this host. **`smbclient -A` IS available, though** — the NAS
+credentials are vaulted as `fleet-nas-192-168-1-122-user` /
+`fleet-nas-192-168-1-122-password`, so a headless session can write an
+auth file from the vault and publish with no gvfs and no fleet box.
+Verified 2026-08-31. (This paragraph used to say the route did not exist,
+which stranded a headless agent that had a proven library fix and nowhere
+to put it.)
+
+> **⚠️ BUT `smbclient put` STAMPS THIS NAS `Oct 31 2007`.** Measured
+> 2026-08-31: correct time-of-day, nineteen years stale, on every dialect.
+> GAMESYNC's resume test has been size **AND** mtime since v1.62.0, so a
+> **same-size** edit published this way is skipped on every box, silently,
+> with `state=done` and `failed_files: 0`. A size-changing edit is safe.
+> After publishing through smbclient, **verify the file actually landed on
+> a box**, or publish through gvfs/a fleet box when the edit keeps its size.
 
 Three ways to publish, in order of preference:
 1. **Host-side `cp` via the gvfs mount** (above) when that mount is present —
