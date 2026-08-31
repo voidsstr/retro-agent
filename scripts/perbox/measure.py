@@ -4,15 +4,27 @@ Records: does it launch, actual resolution/refresh, fullscreen or not,
 renderer, and screenshot evidence.  An untested cell is NEVER recorded as a
 pass -- every status here comes from an observation.
 """
-import asyncio, json, os, sys, time, struct
+import asyncio, json, os, re, sys, time, struct
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fleetlib import Box, jload
 
 LIB = '/mnt/retro-share/Files/Games-Library'
 EVID = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
         os.path.abspath(__file__)))), 'evidence')
+# Processes that are NOT the game.  This list is load-bearing: `daemon.exe`
+# (the Daemon Tools mounter) appearing while a disc-mount title is still
+# mounting made two cells on .240 score `runs` with the game never started --
+# this project's signature failure, a helper's success read as the real
+# thing.  A cell whose ONLY new processes are these is a launch failure.
 IGNORE = {'cmd.exe','conhost.exe','fleetres.exe','taskkill.exe','net.exe',
-          'regedit.exe','dwwin.exe','dumprep.exe','wmiprvse.exe','csrss.exe'}
+          'regedit.exe','dwwin.exe','dumprep.exe','wmiprvse.exe','csrss.exe',
+          'daemon.exe','searchfilterhost.exe','find.exe','findstr.exe',
+          'rundll32.exe','wuauclt.exe','imapi.exe','msiexec.exe','alg.exe',
+          'ctfmon.exe','explorer.exe','wscntfy.exe','logonui.exe'}
+
+def _is_game(name):
+    """A transient ~xxxx.tmp helper is not the game either."""
+    return name not in IGNORE and not re.match(r'^~[0-9a-f]+\.tmp$', name)
 
 def launch_entries(title):
     """(target, display_name) per launch.txt data line, first 1023 bytes."""
@@ -67,12 +79,13 @@ async def measure(b, ip, title, gamedir, target, settle=35, shot=True):
     await b.cmd(f'EXEC cmd /c start "" /D "{gamedir}" "{target}"')
     await asyncio.sleep(settle)
     now = await procset(b)
-    new = [n for (p, n) in (now - base_procs) if n not in IGNORE]
+    new = [n for (p, n) in (now - base_procs) if _is_game(n)]
     r['new_processes'] = sorted(set(new))
     r['desktop_mode_after'] = m = await mode(b)
     if not new:
         r['status'] = 'launch_failed'
-        r['note'] = 'no new process after %ds' % settle
+        r['note'] = 'no GAME process after %ds (helpers seen: %s)' % (
+            settle, ','.join(sorted({n for (p, n) in (now - base_procs)})) or 'none')
     else:
         r['status'] = 'runs'
         r['mode'] = f"{m.get('width')}x{m.get('height')}x{m.get('bpp')}@{m.get('refresh')}"
