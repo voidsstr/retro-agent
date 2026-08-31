@@ -322,7 +322,10 @@ def ingest_gamegate(con, strict=True):
         v = r["verdict"]
         state = {"no": "gated", "marginal": "marginal"}.get(v, "untested")
         have = need = ""
-        m = re.search(r"have (\S+)[^,]*,?\s*needs? (\S+)", r["reason"] or "")
+        # "not enough video RAM (have 32 MB, needs 64)" -> 32 / 64.
+        # Strip the trailing bracket: `needs 1000)` must not become "1000)".
+        m = re.search(r"have\s+([\d.]+)[^,]*,\s*needs?\s+([\d.]+)",
+                      r["reason"] or "")
         if m:
             have, need = m.group(1), m.group(2)
         C.put_deploy(con, ip, r["title"], "derived", state, gate=v,
@@ -470,23 +473,39 @@ def ingest_probe(con, strict=True):
             continue
         for t in known:
             prev = con.execute(
-                "SELECT gate, state FROM compat_deploy WHERE ip=? AND title=? "
+                "SELECT * FROM compat_deploy WHERE ip=? AND title=? "
                 "AND origin='derived'", (ip, t)).fetchone()
             gate = prev["gate"] if prev else ""
             if t.lower() in found:
                 state = "deployed"
-            elif gate in ("no",):
+            elif gate == "no":
                 # Not there BECAUSE the gate refused it.  `gated` names the
                 # remedy and `absent` does not, so the gated reading survives.
                 state = "gated"
             else:
                 state = "absent"
+            # CARRY THE GATE'S DIAGNOSIS FORWARD. `put_deploy` replaces the
+            # whole row, so writing presence without these silently erased the
+            # limiting factor and BOTH NUMBERS that the gamegate ingest had
+            # just recorded - leaving "capability gate refused it" with nothing
+            # to argue with. A gated verdict is only actionable while it still
+            # says `cpu_mhz: have 701, needs 1000`.
+            keep = dict(limiting="", have="", need="", decided_by="",
+                        confidence=None, reason="")
+            if prev:
+                keep = dict(limiting=prev["limiting"], have=prev["have"],
+                            need=prev["need"], decided_by=prev["decided_by"],
+                            confidence=prev["confidence"],
+                            reason=prev["reason"])
+            if state == "deployed":
+                keep["reason"] = (
+                    "on the box, but the capability gate says this machine "
+                    "cannot run it: " + (prev["reason"] if prev else "")
+                    if gate == "no" else "")
+            elif state == "absent":
+                keep["reason"] = "not present in the box's Games directory"
             C.put_deploy(con, ip, t, "derived", state, gate=gate,
-                         source="probe", measured_at=when,
-                         reason="" if state == "deployed" else
-                                ("capability gate refused it"
-                                 if state == "gated"
-                                 else "not present in the box's Games directory"))
+                         source="probe", measured_at=when, **keep)
             written += 1
     detail = "%d box(es) did not answer - left untested, NOT marked absent" \
              % unreachable if unreachable else ""
@@ -950,6 +969,8 @@ def cmd_status(con, a):
     print("%-26s %-10s %-9s %-18s %s" % (key.upper(), "DEPLOY", "RUNS", "MULTIPLAYER", "DETAIL"))
     for r in rows:
         detail = r["mp_blocker"] or r["deploy_reason"] or ""
+        if r["gate"] == "no" and r["deploy"] == "deployed" and not detail:
+            detail = "GATE SAYS NO on this box"
         if r["renderer"] and r["renderer"] != "unknown":
             detail = "%s %sx%s %s" % (r["renderer"], r["width"], r["height"],
                                       r["fullscreen"]) + (" | " + detail if detail else "")
