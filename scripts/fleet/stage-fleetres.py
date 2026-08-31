@@ -158,7 +158,7 @@ def idtech3_cfg(mod, wide=True):
     return lines
 
 
-def idtech3_modecfg(mod):
+def idtech3_modecfg(mod, fov=True):
     """For an id Tech 3 fork with NO r_mode -1 BRANCH.
 
     `r_mode -1` + r_customwidth/r_customheight is the standard idiom and it is
@@ -172,18 +172,68 @@ def idtech3_modecfg(mod):
     (4:3) in id Tech 2 and 1280x1024 (5:4) in id Tech 3. Asking a 16:9 panel
     for 1280x1024 is the squashed picture this whole mechanism removes."""
     p = '"%%~dp0%s\\fleetres.cfg"' % mod
-    return [
+    out = [
         '> %s echo // written by the launcher at every start - do not edit' % p,
         '>>%s echo // r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,' % p,
         '>>%s echo // and FR_Q3MODE not FR_Q2MODE: idTech3 mode 8 is 1280x1024.' % p,
         '>>%s echo seta r_mode "%%FR_Q3MODE%%"' % p,
         '>>%s echo seta r_fullscreen "1"' % p,
-        '>>%s echo seta cg_fov "%%FR_FOV%%"' % p,
     ]
+    # FR_FOV is computed for the PANEL, and every entry in this engine's mode
+    # table except 11 is 4:3. So a title that renders at a mode INDEX is
+    # rendering 4:3 and wants the engine's own 90, not the 106 a 16:9 panel
+    # would earn - handing it 106 widens an already-correct picture. Left True
+    # by default so the titles that already ship it are not changed silently.
+    if fov:
+        out.append('>>%s echo seta cg_fov "%%FR_FOV%%"' % p)
+    return out
 
 
-def idtech3_modeargs():
-    return ('+set r_mode %FR_Q3MODE% +set r_fullscreen 1 +set cg_fov %FR_FOV%')
+# MEASURED ON HARDWARE, NOT INFERRED. These id Tech 3 forks accept a plain
+# r_mode INDEX and silently REJECT r_mode -1, falling back to mode 3 (640x480).
+# The trap is that they still carry r_customwidth / r_customheight /
+# r_customaspect as cvars, still SAVE the values you set, and print no error -
+# so every artefact you can inspect says the resolution was applied.
+#
+# Return to Castle Wolfenstein 1.41 (the GOG build), measured on .246
+# 2026-08-31: with fleetres.cfg asking for r_mode -1 + 1920x1080, the game came
+# up 640x480 and wrote back `seta r_mode "3"` beside an intact
+# `seta r_customwidth "1920"`. Repeated at 1280x1024 with r_colorbits 32 - also
+# 640x480. A plain `seta r_mode "8"` on the same box came up 1280x1024 at once.
+IDTECH3_NO_CUSTOM_MODE = {"ReturnToCastleWolfenstein", "SoldierOfFortune2"}
+
+# ...AND FR_Q3MODE CAN NAME A MODE THE BOX CANNOT SET, which this engine
+# answers by running in a WINDOW rather than by failing.
+#
+# Measured on .246 (Radeon HD 5450, 1920x1080 HP 2511) 2026-08-31. FR_W43 is
+# 1280x960 there, so q3_mode_for() answers 7 = 1152x864 - and
+# `DISPLAYCFG set 1152 864 32` on that same box returns
+#     {"status":"error","error":"mode not supported by display driver"}
+# RTCW accepted `seta r_mode "7"`, kept it in wolfconfig_mp.cfg, set the
+# DESKTOP to 1280x960 (the driver's nearest) and drew itself into a 1152x864
+# WINDOW at the top-left, with the taskbar and the desktop icons visible around
+# it. r_fullscreen stayed "1". Nothing anywhere reported a failure.
+#
+# 1024x768 is the fleet's documented lowest common denominator and it came up
+# genuinely fullscreen on the same box (mode 6, screen 1024x768, and the
+# capture went BLACK - which is what an exclusive GL surface does and is itself
+# the evidence that it is no longer a window).
+#
+# NOTE FOR WHOEVER FIXES THIS PROPERLY: the real repair is in FLEETRES.EXE, not
+# here. fleetres.c already enumerates the driver's mode list into g_modes[] for
+# its own -report output, and q3_mode_for()/q2_mode_for() simply do not consult
+# it. Making them skip a table entry the driver does not offer would fix this
+# for every id Tech 2/3 title at once and could only ever move a mode DOWN to
+# one that exists. It is deliberately not done in this pass: FLEETRES.EXE is
+# staged into ~30 titles and four other agents are mid-verification against it.
+IDTECH3_MODE_CAP = {"ReturnToCastleWolfenstein": (1024, 768)}
+
+
+def idtech3_modeargs(fov=True):
+    a = '+set r_mode %FR_Q3MODE% +set r_fullscreen 1'
+    if fov:
+        a += ' +set cg_fov %FR_FOV%'
+    return a
 
 
 def idtech3_args(wide=True, fov=True):
@@ -377,36 +427,6 @@ def turok2_mode():
     return out
 
 
-def ss_cfg():
-    """Serious Sam (Croteam Serious Engine 1).
-
-    The mode lives in `Scripts\\PersistentSymbols.ini`, which the ENGINE
-    REWRITES ON EXIT - so a staged constant there is overwritten by the first
-    box that runs the game, and was wrong on the other seven before that. The
-    engine's own hook is `Scripts\\Game_startup.ini`, whose shipped first line
-    is literally "// executed each time SeriousSam is started", so the mode is
-    written there fresh at every launch - structurally the same fix as id Tech
-    3's fleetres.cfg.
-
-    `sam_iDriver=0` is OpenGL. That value is READ OUT OF the retail tree
-    (`Scripts\\Addons\\SafeMode.ini`), not guessed - the Voodoo2 addon beside
-    it uses 1, so the numbering is not obvious.
-
-    `sam_bWideScreen` is deliberately NOT set. In this engine it means
-    "letterbox the view", not "the panel is 16:9", so setting it on a
-    widescreen box would crop the game rather than fit it.
-    """
-    p = '"%~dp0Scripts\\Game_startup.ini"'
-    return [
-        '> %s echo // written by the launcher at every start - do not edit' % p,
-        '>>%s echo sam_bFullScreen=1;' % p,
-        '>>%s echo sam_iScreenSizeI=%%FR_W%%;' % p,
-        '>>%s echo sam_iScreenSizeJ=%%FR_H%%;' % p,
-        '>>%s echo sam_iDriver=0;' % p,
-        '>>%s echo gfx_iRefreshRate=%%FR_HZ%%;' % p,
-    ]
-
-
 CALL = 'call "%~dp0FLEETRES.BAT"'
 def call_cap(w, h):
     return 'call "%~dp0FLEETRES.BAT" -cap ' + str(w) + ' ' + str(h)
@@ -434,10 +454,11 @@ def q3(mod, exe, extra=""):
 
 TITLES = {
     "ReturnToCastleWolfenstein": {
-        # id Tech 3, and it DOES have the r_mode -1 branch (r_customwidth /
-        # r_customheight / r_customaspect are all in WolfMP.exe's cvar table),
-        # so it gets the standard idtech3_cfg treatment rather than SoF2's
-        # plain-index workaround. Main\autoexec.cfg ships from GOG carrying
+        # id Tech 3, and it is one of the forks with NO r_mode -1 BRANCH -
+        # see IDTECH3_NO_CUSTOM_MODE, which records the measurement. The cvar
+        # table was NOT evidence: WolfMP.exe carries r_customwidth,
+        # r_customheight and r_customaspect and honours none of them.
+        # Main\autoexec.cfg ships from GOG carrying
         # `set devdll 1` and is exec'd by BOTH WolfSP.exe and WolfMP.exe, so
         # one `exec fleetres.cfg` appended there serves both engines.
         #
@@ -451,13 +472,25 @@ TITLES = {
             "Play RTCW Multiplayer.bat": ("WolfMP.exe", "Main"),
         },
         "cfg_exec": ["Main/autoexec.cfg"],
-    },
-    "SeriousSamFirstEncounter": {
-        "launchers": {
-            n: rec('cd /d "%~dp0"', [CALL] + ss_cfg())
-            for n in ("Play Serious Sam - The First Encounter.bat",
-                      "Host Serious Sam TFE - LAN.bat",
-                      "Join Serious Sam TFE - LAN.bat")
+        "cfg_lines": {
+            "Main/autoexec.cfg": [
+                '// F12 is unbound in a stock RTCW, and this is how a fleet box',
+                '// PROVES what the game is drawing: GDI cannot read an exclusive',
+                '// fullscreen OpenGL surface (a solid black frame on .246), the',
+                '// console key does not open the console in-game, and the engine',
+                '// writes Main/screenshots/shotNNNN.tga that DOWNLOAD can fetch.',
+                'bind F12 "screenshot"',
+                '',
+                '// RTCW MULTIPLAYER\'S LIMBO MENU IS A RELATIVE-MOUSE MENU.',
+                '// UICLICK sets an ABSOLUTE pointer position, which that menu does',
+                '// not follow - measured on .143: two clicks straight on ALLIES left',
+                '// SPECTATOR still selected. So a fleet box has no way to pick a team,',
+                '// and a two-box LAN proof cannot get either end into the game.',
+                '// Keys DO reach the engine in-game (a UIKEY TEXT: landed as chat),',
+                '// so these two binds are the keyboard route the menu never offered.',
+                'bind F9 "team allies"',
+                'bind F10 "team axis"',
+            ],
         },
     },
     # DOOM 3 (2004, id Tech 4). No cfg_strip and no fleetres.cfg: see
@@ -489,14 +522,6 @@ TITLES = {
         },
         "cfg_strip": ["baseq3/autoexec.cfg", "missionpack/autoexec.cfg"],
     },
-    "SeriousSamSecondEncounter": {
-        "launchers": {
-            n: rec('cd /d "%~dp0"', [CALL] + ss_cfg())
-            for n in ("Play Serious Sam - The Second Encounter.bat",
-                      "Host Serious Sam TSE - LAN.bat",
-                      "Join Serious Sam TSE - LAN.bat")
-        },
-    },
     "ShadowWarrior": {
         # Build engine under DOSBox, same shape as RedneckRampage. The base
         # conf (GOG's own dosbox_swarrior.conf, staged unmodified) carries
@@ -511,6 +536,19 @@ TITLES = {
                       "Play Wanton Destruction.bat",
                       "Host Shadow Warrior - LAN.bat",
                       "Join Shadow Warrior - LAN.bat")
+        },
+    },
+    "WarcraftOrcsAndHumans": {
+        # DOS under DOSBox, same shape as RedneckRampage and ShadowWarrior.
+        # The base conf carries [sdl] fullresolution and that value cannot be
+        # a staged constant: `original` retargets the WHOLE DESKTOP on an LCD
+        # and `desktop` is wrong on a CRT, and this fleet has four of each.
+        "launchers": {
+            n: rec('cd /d "%~dp0DOSBOX"',
+                   [CALL] + dosbox_conf("dosboxWC1.conf"))
+            for n in ("Play Warcraft - Orcs and Humans.bat",
+                      "Host Warcraft 1 - LAN.bat",
+                      "Join Warcraft 1 - LAN.bat")
         },
     },
     "SoldierOfFortune2": {
@@ -1341,6 +1379,12 @@ class Runner:
         elif title in ("SiNGold", "SoldierOfFortune"):
             block = "\n".join([CALL] + q2_cfg(mod))
             text = NEW_Q2.format(title=disp, exe=exe, block=block)
+        elif title in IDTECH3_NO_CUSTOM_MODE:
+            cap = IDTECH3_MODE_CAP.get(title)
+            head = call_cap(cap[0], cap[1]) if cap else CALL
+            block = "\n".join([head] + idtech3_modecfg(mod, fov=False))
+            text = NEW_IDTECH3.format(title=disp, exe=exe, block=block,
+                                      args=idtech3_modeargs(fov=False))
         else:
             block = "\n".join([CALL] + idtech3_cfg(mod))
             text = NEW_IDTECH3.format(title=disp, exe=exe, block=block,
@@ -1381,6 +1425,34 @@ class Runner:
                       % (title, rel))
             return
         self.put(path, crlf(text), "%s/%s" % (title, rel))
+
+    def add_lines(self, tdir, title, rel, lines):
+        """Append lines to a staged cfg if they are not already in it.
+
+        WHY THIS EXISTS: getting a PICTURE out of a fullscreen id Tech 3 title.
+        GDI cannot read an exclusive fullscreen OpenGL surface - measured on
+        .246 (Win7 + Radeon HD 5450), where SCREENSHOT returns a solid black
+        1024x768 frame while the game is plainly running. The engine's OWN
+        `screenshot` command does work, and synthetic keys DO reach the game
+        in-game (a `UIKEY TEXT:` landed as chat on .143) - but the CONSOLE key
+        does not open the console in-game, so there is no way to type it.
+        A bind is the only route, and F12 is unbound in a stock RTCW.
+
+        Without this, "the title renders" can only ever be argued from a black
+        frame and a resolution number, which is exactly the kind of evidence
+        this project has learned not to accept.
+        """
+        path = os.path.join(tdir, rel.replace("/", os.sep))
+        if not os.path.isfile(path):
+            self.fail("%s/%s: missing" % (title, rel))
+            return
+        body = read(path).replace("\r\n", "\n")
+        missing = [l for l in lines if l not in body]
+        if not missing:
+            self.skipped += 1
+            return
+        text = body.rstrip("\n") + "\n" + "\n".join(missing) + "\n"
+        self.put(path, crlf(text), "%s/%s [lines]" % (title, rel))
 
     def add_exec(self, tdir, title, rel):
         path = os.path.join(tdir, rel.replace("/", os.sep))
@@ -1448,6 +1520,8 @@ class Runner:
                 self.strip_latched(tdir, title, rel)
             for rel in spec.get("cfg_exec", []):
                 self.add_exec(tdir, title, rel)
+            for rel, lines in spec.get("cfg_lines", {}).items():
+                self.add_lines(tdir, title, rel, lines)
             for pb in spec.get("post", []):
                 self.post_block(tdir, title, pb)
             for name, pairs in sorted(spec.get("fix", {}).items()):

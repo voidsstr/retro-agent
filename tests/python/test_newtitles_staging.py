@@ -53,8 +53,23 @@ REPO = os.path.normpath(os.path.join(HERE, '..', '..'))
 STAGER = os.path.join(REPO, 'scripts', 'fleet', 'stage-fleetres.py')
 LIB = '/mnt/retro-share/Files/Games-Library'
 
-TITLES = ('ReturnToCastleWolfenstein', 'SeriousSamFirstEncounter',
-          'SeriousSamSecondEncounter', 'WarcraftII', 'ShadowWarrior')
+TITLES = ('ReturnToCastleWolfenstein', 'WarcraftII', 'WarcraftOrcsAndHumans',
+          'ShadowWarrior', 'MasterOfOrionII')
+
+# Staged, tested on hardware, and REMOVED again - recorded here so the next
+# person to look at this share does not spend the same afternoon.
+#
+# Serious Sam: The First Encounter and The Second Encounter both raise a modal
+# "CD check / Please insert the game CD" and will not start without the disc,
+# on a FULL local install with every .gro, Setup.exe, a C:\Install\ decoy and
+# +cdpath all present. SeriousSam.exe imports GetDriveTypeA and the strings
+# beside the message are "C:\Install\", "Bin\SeriousSam.exe", "Setup.exe" -
+# it walks the drive letters for a CD-ROM-typed volume holding the game. That
+# cannot be satisfied without mounting the disc, TSE is already v1.05 so a
+# later official patch does not remove it, and two of the fleet's eight boxes
+# (.123, .246) have no mounter at all - including the one this batch was
+# LAN-proved against. Do not re-stage them without a mounter story.
+WITHDRAWN = ('SeriousSamFirstEncounter', 'SeriousSamSecondEncounter')
 
 # Not staged, and each for its own reason. See the module docstring.
 WITHHELD = {
@@ -89,14 +104,17 @@ def test_every_new_title_has_a_fleetres_recipe():
     is asserted as an exception rather than left as an absence.
     """
     src = _read(STAGER)
+    # Both of these are native Win32 at a FIXED 640x480 - Warcraft II is
+    # DirectDraw, Master of Orion II is a 1996 Win32 blit - so there is no mode
+    # for a launcher to write and a recipe would be a no-op that READS AS
+    # COVERAGE. They are asserted as exceptions rather than left as absences.
+    NO_MODE = ('WarcraftII', 'MasterOfOrionII')
     for t in TITLES:
-        if t == 'WarcraftII':
-            # 2D DirectDraw at a fixed 640x480: there is no mode to write, so
-            # a recipe would be a no-op that reads as coverage.
-            assert '"WarcraftII"' not in src, (
-                'WarcraftII gained a stage-fleetres recipe. If the title really '
-                'did grow a settable mode, delete this assertion and say why - '
-                'do not leave both stories in the tree.')
+        if t in NO_MODE:
+            assert '"%s": {' % t not in src, (
+                '%s gained a stage-fleetres recipe. If the title really did '
+                'grow a settable mode, delete this assertion and say why - do '
+                'not leave both stories in the tree.' % t)
             continue
         assert '"%s": {' % t in src, (
             '%s has no recipe in stage-fleetres.py TITLES, so its launchers '
@@ -104,29 +122,25 @@ def test_every_new_title_has_a_fleetres_recipe():
             'to one resolution on eight different monitors.' % t)
 
 
-def test_serious_sam_mode_goes_to_game_startup_not_persistentsymbols():
-    """Finding 3. The hook is the file the engine EXECUTES, not the one it WRITES."""
+def test_withdrawn_titles_are_not_in_the_library():
+    """A title that cannot start is worse than a title that is absent.
+
+    Serious Sam was staged, validated and deployed before the CD check was
+    found - by launching it. This asserts the removal stuck, in the library
+    AND in the recipe file, because a leftover recipe would silently re-stage
+    FLEETRES into a directory that should not exist.
+    """
     src = _read(STAGER)
-    assert 'Game_startup.ini' in src, (
-        'ss_cfg() no longer writes Scripts\\Game_startup.ini - that is the only '
-        'file Serious Engine 1 re-executes at every start.')
-    m = re.search(r'def ss_cfg\(\):.*?\n    \]', src, re.S)
-    assert m, 'ss_cfg() is gone from stage-fleetres.py'
-    body = m.group(0)
-    # The DOCSTRING names every trap this helper avoids, so an assertion over
-    # the whole function body would be satisfied by the prose and would pass
-    # even if the code did the opposite. Only the code after the docstring is
-    # evidence.
-    code = body.split('"""')[2]
-    assert 'PersistentSymbols' not in code, (
-        'ss_cfg() writes PersistentSymbols.ini. The ENGINE rewrites that file '
-        'on exit, so anything put there is discarded by the first run.')
-    assert 'sam_bWideScreen' not in code, (
-        'sam_bWideScreen means "letterbox the view" in this engine, not "the '
-        'panel is 16:9". Setting it on a widescreen box CROPS the game.')
-    for sym in ('sam_bFullScreen=1', 'sam_iScreenSizeI=%%FR_W%%',
-                'sam_iScreenSizeJ=%%FR_H%%'):
-        assert sym in code, 'ss_cfg() no longer sets %s' % sym
+    for t in WITHDRAWN:
+        assert '"%s"' % t not in src, (
+            '%s still has a stage-fleetres recipe. See WITHDRAWN above: the '
+            'title does not start without its disc.' % t)
+    if not os.path.isdir(LIB):
+        pytest.skip('SKIPPED LOUDLY: %s is not mounted.' % LIB)
+    for t in WITHDRAWN:
+        assert not os.path.isdir(os.path.join(LIB, t)), (
+            '%s is back in the library. It raises a modal "Please insert the '
+            'game CD" on a full local install; see WITHDRAWN above.' % t)
 
 
 def test_pe_subsystem_rule_is_still_the_xp_rule():
