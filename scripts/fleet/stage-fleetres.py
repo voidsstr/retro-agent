@@ -202,8 +202,14 @@ def idtech3_modecfg(mod, fov=True):
 # 640x480. A plain `seta r_mode "8"` on the same box came up 1280x1024 at once.
 IDTECH3_NO_CUSTOM_MODE = {"ReturnToCastleWolfenstein", "SoldierOfFortune2"}
 
-# ...AND FR_Q3MODE CAN NAME A MODE THE BOX CANNOT SET, which this engine
-# answers by running in a WINDOW rather than by failing.
+# ...AND FR_Q3MODE USED TO NAME A MODE THE BOX COULD NOT SET, which this
+# engine answered by running in a WINDOW rather than by failing.
+#
+# ===> FIXED UPSTREAM IN fleetres.c (26dbe12): q2_mode_for()/q3_mode_for() now
+# ===> consult the adapter's own enumerated mode list, so the index they return
+# ===> is one the driver OFFERS. THE CAP BELOW IS THEREFORE EMPTY AND MUST STAY
+# ===> EMPTY - see the measurement under IDTECH3_MODE_CAP for why capping is now
+# ===> actively WORSE than not capping.
 #
 # Measured on .246 (Radeon HD 5450, 1920x1080 HP 2511) 2026-08-31. FR_W43 is
 # 1280x960 there, so q3_mode_for() answers 7 = 1152x864 - and
@@ -226,7 +232,34 @@ IDTECH3_NO_CUSTOM_MODE = {"ReturnToCastleWolfenstein", "SoldierOfFortune2"}
 # for every id Tech 2/3 title at once and could only ever move a mode DOWN to
 # one that exists. It is deliberately not done in this pass: FLEETRES.EXE is
 # staged into ~30 titles and four other agents are mid-verification against it.
-IDTECH3_MODE_CAP = {"ReturnToCastleWolfenstein": (1024, 768)}
+# EMPTY, AND THAT IS THE FIX - not an oversight.
+#
+# RTCW carried (1024, 768) here for exactly as long as fleetres.c could return
+# an unofferable index. Once the selector was taught to check the enumerated
+# list, the cap stopped being belt-and-braces and became the defect: measured
+# with the FIXED FLEETRES.EXE on all seven live boxes, `-cap 1024 768` is a
+# no-op on three of them and a DOWNGRADE on four -
+#
+#     box     uncapped FR_Q3MODE      with -cap 1024 768
+#     .124    6  (1024x768)           6
+#     .143    6  (1024x768)           6
+#     .246    6  (1024x768)           6
+#     .133    7  (1152x864)           6     <- loses a mode it can drive
+#     .171    4  (800x600)            4
+#     .123    7  (1152x864)           3     <- 640x480. THE FLOOR.
+#     .240    7  (1152x864)           3     <- 640x480. THE FLOOR.
+#
+# .123 and .240 are the ones that matter: capping the TARGET at 1024x768 asks
+# the fixed selector for the largest OFFERED entry that fits inside 1024x768,
+# and those two adapters do not enumerate 1024x768 at the queried depth - so it
+# falls to the 640x480 floor. The workaround for "the engine renders 640x480"
+# had become a way to render 640x480.
+#
+# The lesson is the one this repo keeps paying for in another costume: a
+# workaround outlives the defect, and the day the defect is fixed the
+# workaround is the only thing still broken. Leave this dict empty unless a
+# NEW measurement puts something in it.
+IDTECH3_MODE_CAP = {}
 
 
 def idtech3_modeargs(fov=True):
