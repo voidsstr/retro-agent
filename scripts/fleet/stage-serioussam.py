@@ -280,10 +280,31 @@ if not defined DTKIND echo %%DT%% | find /i "DTLite.exe" >nul && set "DTKIND=lit
 if not defined DTKIND echo %%DT%% | find /i "\DAEMON Tools\" >nul && set "DTKIND=4x"
 if not defined DTKIND set "DTKIND=347"
 echo [%%MD_TITLE%%] Daemon Tools flavour: %%DTKIND%%
-if "%%DTKIND%%"=="347"  "%%DT%%" -mount 0,"%%MD_IMAGE%%"
-if "%%DTKIND%%"=="4x"   "%%DT%%" -mount dt, 0, "%%MD_IMAGE%%"
-if "%%DTKIND%%"=="lite" "%%DT%%" -mount dt, 0, "%%MD_IMAGE%%"
+rem *** NEVER WAIT ON daemon.exe ITSELF - `start /b`, then poll. ***
+rem
+rem A DAEMON Tools UNIT CAN BE LOCKED. Measured on .124 and .240 (2026-08-31):
+rem device 0 answers "Unable to mount image. Unit is locked." - and so does
+rem -unmount, and neither d347bus nor d347prt will stop, so there is no
+rem reboot-free way to clear it. A direct call then BLOCKS FOREVER behind that
+rem modal: the launcher never starts the game, never reaches :md_anydisc, never
+rem writes mount-error.txt, prints no banner, and LEAKS a daemon.exe plus a
+rem cmd.exe every attempt. .124 was found carrying five of each. A silent hang
+rem is indistinguishable from "slow".
+rem
+rem `start "" /b` returns immediately, so :md_waitdisc decides on the
+rem POST-CONDITION - did a drive carrying OUR disc appear? - rather than on
+rem daemon.exe's return, and a locked unit falls through to the loud paths.
+rem
+rem This is the same safeguard as provisioning/discmount/mount-launcher-template.bat
+rem and it must stay in step with it; test_mountdisc_carries_the_template_safeguards
+rem asserts both files have it.
+if "%%DTKIND%%"=="347"  start "" /b "%%DT%%" -mount 0,"%%MD_IMAGE%%"
+if "%%DTKIND%%"=="4x"   start "" /b "%%DT%%" -mount dt, 0, "%%MD_IMAGE%%"
+if "%%DTKIND%%"=="lite" start "" /b "%%DT%%" -mount dt, 0, "%%MD_IMAGE%%"
 call :md_waitdisc 14
+rem A locked unit leaves a modal up and a daemon.exe stuck behind it, which then
+rem wedges the NEXT title's launcher too. Clear both.
+if not defined DISCDRV taskkill /f /im daemon.exe >nul 2>&1
 goto :eof
 
 rem Volume label first, marker file second. The marker is a .gro that exists

@@ -389,6 +389,55 @@ def test_the_launcher_does_not_pin_the_renderer():
                     '%s/%s still writes sam_iDriver' % (name, lname)
 
 
+#: The canonical fleet mount launcher. Serious Sam's MOUNTDISC.BAT is the same
+#: logic factored into one CALLable file per title (three launchers share it),
+#: so it is a SECOND copy of hard-won cmd.exe and the standing risk is a fix
+#: landing in one and not the other. These are the safeguards that were added
+#: to the template after a real hang, quoted so both files must keep them.
+TEMPLATE = os.path.join(REPO, 'provisioning', 'discmount',
+                        'mount-launcher-template.bat')
+SHARED_SAFEGUARDS = (
+    'start "" /b "%DT%" -mount 0,',
+    'if not defined DISCDRV taskkill /f /im daemon.exe',
+)
+
+
+def test_mountdisc_carries_the_template_safeguards():
+    """A DAEMON Tools unit can be LOCKED, and a direct -mount then hangs forever.
+
+    Measured on .124 and .240 2026-08-31: device 0 answers "Unable to mount
+    image. Unit is locked.", `-unmount` answers the same, and the kernel drivers
+    will not stop - so there is no reboot-free way to clear it. A direct call
+    blocks behind that modal: no game, no banner, no mount-error.txt, and a
+    leaked daemon.exe + cmd.exe per attempt (.124 had five of each). A silent
+    hang is indistinguishable from "slow".
+
+    The fix belongs to provisioning/discmount/mount-launcher-template.bat, which
+    ten titles are generated from. Serious Sam's MOUNTDISC.BAT is the same logic
+    in a CALLable file, so it needs the same safeguards - and this asserts they
+    are in BOTH, because the whole hazard of a second copy is that a fix reaches
+    one of them.
+    """
+    if not os.path.isfile(TEMPLATE):
+        pytest.skip('SKIPPED LOUDLY: the canonical mount template is not in '
+                    'this checkout, so the two copies could not be compared.')
+    tpl = _text(TEMPLATE)
+    for guard in SHARED_SAFEGUARDS:
+        assert guard in tpl, (
+            'the canonical template lost %r. If it was deliberately replaced, '
+            'update SHARED_SAFEGUARDS here in the same commit rather than '
+            'leaving the two mount implementations to drift.' % guard)
+    _skip_unless_share()
+    for name in TITLES:
+        body = _text(os.path.join(LIB, name, 'MOUNTDISC.BAT'))
+        for guard in SHARED_SAFEGUARDS:
+            assert guard.replace('%DT%', '%DT%') in body or guard in body, (
+                '%s/MOUNTDISC.BAT is missing the safeguard %r that the '
+                'canonical mount template carries. A locked DAEMON Tools unit '
+                'will hang this launcher forever with no banner and no '
+                'mount-error.txt.' % (name, guard))
+
+
 def test_per_box_state_is_not_staged():
     """The engine writes Scripts\\PersistentSymbols.ini on EXIT.
 
