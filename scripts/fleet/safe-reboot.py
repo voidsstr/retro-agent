@@ -45,6 +45,49 @@ async def agent_mac(ip):
     return [m.replace('-', ':').lower() for m in macs]
 
 
+async def activation_risk(ip):
+    """Would this box come back from a reboot?
+
+    CLAUDE.md makes this REQUIRED and nothing enforced it, which is how it kept
+    happening. An unactivated XP box is fine while it is logged in and
+    UNREACHABLE the moment it restarts: when the grace expires Windows blocks
+    logon entirely, so the console session never starts, the Run-key
+    RetroAgent value never fires, and the machine comes back with networking up
+    (445/139/135 open) and the agent DEAD. It looks like a failed boot; it is a
+    locked activation screen, and there is no remote path back.
+
+    That cost .171 a day on 2026-08-29 - and the box had been flagged weeks
+    earlier as "not activated, wpabaln.exe runs at logon, not blocking yet".
+    Nobody connected the two facts, because nothing made them meet.
+
+    Returns (risky, why). Read-only: LICSTATUS only reports.
+    """
+    c = RetroConnection(ip, 9898)
+    await asyncio.wait_for(c.connect(SECRET), timeout=20)
+    try:
+        try:
+            lic = json.loads(await c.command_text('LICSTATUS', timeout=30))
+        except Exception as e:                       # noqa: BLE001
+            return None, f'could not read LICSTATUS ({e})'
+        if not lic.get('is_winxp'):
+            return False, 'not Windows XP - the XP activation lockout does not apply'
+        seen = {v.get('id'): v.get('observed') for v in lic.get('values', [])}
+        nag = ''
+        try:
+            out = await c.command_text('EXEC tasklist', timeout=40)
+            if 'wpabaln' in out.lower():
+                nag = 'wpabaln.exe is RUNNING (the activation nag)'
+        except Exception:
+            pass                                     # 9x has no tasklist; XP always does
+        if nag:
+            return True, nag
+        if seen.get('activation_required') == 'present':
+            return True, 'Winlogon reports activation required'
+        return False, 'no activation nag and no activation-required flag'
+    finally:
+        await c.close()
+
+
 async def reboot(ip):
     c = RetroConnection(ip, 9898)
     await asyncio.wait_for(c.connect(SECRET), timeout=20)
@@ -65,7 +108,26 @@ async def main():
     ap.add_argument('ip')
     ap.add_argument('--reinstall', action='store_true',
                     help='release the hold instead, so the box DOES reimage')
+    ap.add_argument('--ignore-activation', action='store_true',
+                    help='reboot even though this box may not survive it. Only '
+                         'with a keyboard in reach of the machine.')
     a = ap.parse_args()
+
+    # ACTIVATION BEFORE ANYTHING ELSE. Arming a PXE hold protects the disk;
+    # it does nothing about a box that will never reach a logon again.
+    risky, why = (False, 'skipped (--ignore-activation)') if a.ignore_activation \
+        else await activation_risk(a.ip)
+    if risky:
+        print(f'{a.ip}: REFUSING to reboot - {why}.\n'
+              f'  An unactivated XP box does not come back: logon is blocked, so\n'
+              f'  the agent never starts and there is no remote path in. Resolve\n'
+              f'  activation first, or re-run with --ignore-activation if you are\n'
+              f'  physically at the machine.', file=sys.stderr)
+        return 4
+    if risky is None:
+        print(f'  {a.ip}: activation UNKNOWN - {why}; continuing', file=sys.stderr)
+    else:
+        print(f'  activation ok: {why}')
 
     macs = await agent_mac(a.ip)
     if not macs:

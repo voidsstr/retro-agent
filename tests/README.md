@@ -263,6 +263,8 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 
 | the agent's two remaining CMOVs sit in mingw runtime code reached from `___tmainCRTStartup` **before `main`** — they are unreachable only because the linker resolves the pseudo-reloc list bounds to the SAME address, so a CMOV *count* stays at 2 while a new import makes them live and faults a genuine Pentium 1 with `0xC000001D` before any log line exists (2026-08-30) | `agent/Makefile` (`-march=i586`), the link | `python/test_agent_is_pentium1_safe.py` |
 
+| CLAUDE.md made "check activation before you reboot" REQUIRED and **nothing enforced it** — `safe-reboot.py` guarded the PXE re-image risk and never asked the question that actually strands a box. Measured with six agents live: `.123` and `.133` were both running `wpabaln.exe`, so two of seven would not have survived a reboot (2026-08-31) | `scripts/fleet/safe-reboot.py` | `python/test_safe_reboot_activation.py` |
+
 (The vintage SGL/H5 fixes — garble 0.3.1, mip-download 08fd889 — are tested in
 `retro-3dfx/tests/`, the other lane's harness, not here.)
 
