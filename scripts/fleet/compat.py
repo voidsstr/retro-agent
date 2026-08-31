@@ -97,6 +97,19 @@ WITHDRAWN = {
 # This map is EXPLICIT rather than fuzzy on purpose: a near-match that silently
 # picks the wrong tree would attribute one box's verification to another title.
 DOC_ALIASES = {
+    # The document uses a title's REAL name; the matrix is keyed on the
+    # Games-Library DIRECTORY name. Those differ often enough that guessing is
+    # not an option -- "Serious Sam: The First Encounter" against
+    # SeriousSamFirstEncounter differs by punctuation AND a dropped "The", so
+    # no normalisation rule short of a fuzzy match connects them, and a fuzzy
+    # match here would silently mis-attribute a verification to the wrong
+    # title. An unmapped title is REPORTED rather than skipped, which is what
+    # surfaced this one: three two-box LAN proofs of Serious Sam sat in the
+    # database while `doc --check` said the document had never heard of it.
+    "serious sam: the first encounter": "SeriousSamFirstEncounter",
+    "serious sam: the second encounter": "SeriousSamSecondEncounter",
+    "serious sam - the first encounter": "SeriousSamFirstEncounter",
+    "serious sam - the second encounter": "SeriousSamSecondEncounter",
     "half-life": "HalfLife1",
     "half-life - team fortress classic": "HalfLife-TFC",
     "half-life - opposing force": "HalfLife-OpposingForce",
