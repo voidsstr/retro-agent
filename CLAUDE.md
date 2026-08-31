@@ -1810,7 +1810,7 @@ auto-updates like any other, so a future NT-only import would take it dark with
 **no supervision at all** — the `RetroAgent` Run key fires only at logon, and
 recovery needs someone physically at the machine.
 
-## NEVER `EXEC ... type` A FILE — USE `DOWNLOAD` (REQUIRED)
+## NEVER READ A FILE THROUGH `EXEC` ON WIN9x — USE `DOWNLOAD` (REQUIRED)
 
 **Reading a file by capturing `type`'s output through `EXEC` killed the Win98
 agent on `.243` on 2026-08-31 and cost the box a trip to the keyboard.** `EXEC`
@@ -1824,8 +1824,34 @@ as well (which Win98 Winsock handles badly — see the RST crash note below).
 - For a **Win9x agent log** the prescribed route is
   `retro_agent.exe -l <path on the share>`.
 - Treat `EXEC` output as **small by contract**, especially on 9x. If a command
-  could emit more than a few KB, redirect it to a file and `DOWNLOAD` that, or
-  reduce it on the box (`find /c`, `findstr`).
+  could emit more than a few KB, redirect it to a file and `DOWNLOAD` that.
+
+> ### ⚠️ "REDUCE IT ON THE BOX WITH `find`/`findstr`" IS NOT A SAFE WORKAROUND
+> This section used to recommend exactly that, and **following it killed `.243`
+> a second time on 2026-08-31**, four minutes after a clean boot:
+>
+> ```
+> EXEC command.com /c find "to copy; C:" C:\RETRO_AGENT\agent.log > C:\GS1.TXT
+> ```
+>
+> `PING`, `HWPROFILE`, `GAMESYNC STATUS` and `DIRLIST` had all just answered on
+> that same connection. The `find` never returned and the agent was gone — 139
+> open, 9897 accepting, 9898/9899 refused. Two power-cycles in one day, both
+> caused by trying to read that log.
+>
+> **The redirect sends the output to a file, so the pipe the agent captures gets
+> NOTHING** — "large stdout" does not explain this one. Running `command.com`
+> under `EXEC` to walk a ~300 KB file on a 165 MHz / 127 MB single-threaded
+> agent is enough on its own. So on Win9x: **to read a file, use `DOWNLOAD`,
+> full stop.** `find`, `findstr` and `more` are not safer, they are the same
+> trap wearing a smaller number.
+>
+> **Corollary for any recovery work on a 9x box: prefer agent-INTERNAL
+> commands.** `REGREAD`, `REGDELETE`, `UPLOAD`, `DOWNLOAD`, `FILECOPY`,
+> `GAMESYNC`, `ICONARRANGE` and `RESTART` all run inside the agent and spawn no
+> child process. On a machine whose recovery needs a person at the keyboard,
+> that is the difference between finishing the job and losing the box for an
+> hour.
 
 ### ⚠️ A SUCCESSFUL TCP CONNECT IS NOT LIVENESS
 
