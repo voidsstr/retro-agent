@@ -51,8 +51,9 @@ network awaiting a keyboard.*
 | Descent 3 | dedicated server | `.240` |
 | Doom 3 | id Tech 4 | `.123` + `.246` |
 | Return to Castle Wolfenstein | id Tech 3 | `.143` + `.246` |
+| Serious Sam: The First Encounter | Serious Engine 1, dedicated server | `.123` + `.133` + `.240` |
 
-**29 titles.**
+**30 titles.**
 
 ### Staged, LAN-capable, gather not yet proven
 
@@ -74,16 +75,50 @@ does not change it. `UIKEY` works, which is why Shadow Warrior's setup could
 be completed; menus with no keyboard path cannot. One person, once, at a
 mouse finishes all four.
 
-### Staged then WITHDRAWN
+### WITHDRAWN, THEN RECOVERED — Serious Sam
 
-**Serious Sam: The First and Second Encounter.** Both were among the best
-showcase picks and both are disc-locked: `SeriousSam.exe` imports
-`GetDriveTypeA` and walks the drive letters for a CD-ROM-**typed** volume,
-so it refuses to start with every `.gro` local. TSE is already retail v1.05,
-so the Doom 3 escape — a later official patch that drops the wrapper — does
-not exist. Removed from the library, purged from both test boxes, and
-recorded as `WITHDRAWN` in the test so nobody re-stages them. **Recoverable
-the moment a disc mounter exists on more than one box.**
+**Both Encounters are staged again, and the withdrawal was a wrong conclusion
+from a right observation.** They were pulled on 2026-08-30 as "disc-locked and
+unfixable"; they are back on 2026-08-31 and TFE's LAN is in the table above.
+
+The old entry said `SeriousSam.exe` "imports `GetDriveTypeA` and walks the drive
+letters for a CD-ROM-**typed** volume", which is exactly right. What it did not
+say is that the check **also opens a file on that volume** —
+`<drive>:\Install\Bin\SeriousSam.exe` — and that the binary carries **no copy
+protection at all**: no `stxt774`, no `stxt371`, no `BoG_` marker, no `secdrv`.
+It is not SafeDisc and needs no SafeDisc emulation, which is what separates it
+from Generals and BF1942 and is why **DAEMON Tools 3.47 satisfies it
+completely**.
+
+So a CD-ROM-typed drive is **necessary and not sufficient**, and that is what
+actually defeated the first attempt: six of the seven live boxes already had
+`DRIVE_CDROM` volumes and every one of them held *another game's disc* or
+nothing. "The fleet has mounters" was mistaken for "the fleet has this disc".
+Measured both ways on 2026-08-31 — `.240` with the SHOGO disc in `F:` raised the
+modal; the same box with its own image mounted started the game.
+
+One correction worth carrying forward, because it inverts the usual rule:
+**TSE retail is v1.05 and a later official patch DOES exist —
+`serious-sam-tse-1.07.exe`, on the share — and it must NOT be applied.** It
+replaces the 442,434-byte retail exe with a 1,777,634-byte **SafeDisc 2** one
+and ships `secdrv.sys` beside it, dropping `GetDriveTypeA` entirely. It would
+convert a title this fleet can run into one it demonstrably cannot — the exact
+inverse of Doom 3, where the official 1.3 patch *removed* the wrapper. The TFE
+1.05 patch is clean; neither is applied, because a LAN pair only has to agree
+with itself.
+
+**The disc requirement is declared per SHORTCUT, not per title**, because
+`DedicatedServer.exe` has no CD check at all. `.123` — the only box on the fleet
+with no optical drive and no mounter — therefore still receives the title, still
+gets an icon, and **hosted the verified LAN game above**: it served `.133` and
+`.240` simultaneously while being unable to play itself. A title-level
+capability would have suppressed all three shortcuts and left it with nothing,
+which is how Descent 2 lost both of its.
+
+TSE is verified running fullscreen on `.240`; its LAN has not been proved on two
+boxes yet. **Its main menu reads "THE FIRST ENCOUNTER v1.05" and the tree is
+correct** — `SE1_00.gro` ships TFE's menu-logo textures byte for byte. The
+campaign it loads is TSE's.
 
 ## Hosted on this computer — 18 servers, all `enabled` with linger on
 

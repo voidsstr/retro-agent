@@ -361,6 +361,44 @@ def test_the_icon_is_a_real_icon():
                     % (name, exe))
 
 
+def test_per_box_state_is_not_staged():
+    """The engine writes Scripts\\PersistentSymbols.ini on EXIT.
+
+    Staged, GAMESYNC copies the pristine one back over every box's own on the
+    next sync (the engine's write changes size AND mtime, so the resume test
+    always fires). That resets `sam_bFirstStarted`, so the modal "SeriousSam is
+    starting for the first time" returns after EVERY sync - on a headless box
+    that is a dialog with nobody to click it - and it would carry one machine's
+    detected renderer onto all eight. Same rule Doom 3 already carries for
+    DoomConfig.cfg and config.spec.
+    """
+    _skip_unless_share()
+    for name in TITLES:
+        p = os.path.join(LIB, name, 'Scripts', 'PersistentSymbols.ini')
+        assert not os.path.exists(p), (
+            '%s stages Scripts\\PersistentSymbols.ini. That file is per-box '
+            'state the engine rewrites on exit; the engine recreates it by '
+            'itself. See PER_BOX_STATE in stage-serioussam.py.' % name)
+
+
+def test_tse_menu_art_quirk_is_recorded_in_the_tree():
+    """A non-finding that WILL be re-diagnosed unless the tree says so.
+
+    The Second Encounter's main menu reads "THE FIRST ENCOUNTER v1.05" because
+    SE1_00.gro ships the First Encounter's menu-logo textures byte for byte.
+    The tree is correct - the campaign it loads is TSE's - but every symptom
+    says "the wrong game is staged", which is an afternoon.
+    """
+    _skip_unless_share()
+    notes = _text(os.path.join(LIB, 'SeriousSamSecondEncounter', 'NOTES.txt'))
+    assert 'THE FIRST ENCOUNTER' in notes, (
+        "the TSE tree no longer records that its menu says THE FIRST "
+        "ENCOUNTER. Without it the next person concludes the tree is "
+        "mis-staged - the menu is the loudest evidence and it is wrong.")
+    assert 'InTheLastEpisode' in notes, \
+        'the note no longer says what to check instead (the campaign)'
+
+
 def test_launch_txt_fits_the_agents_1023_byte_read():
     _skip_unless_share()
     for name, t in TITLES.items():

@@ -116,10 +116,50 @@ TITLES = {
         join='Join Serious Sam TSE - LAN.bat',
         year=2001,
         disk_mb=1050,
-    ),
+        extra_note='''THE TITLE SCREEN SAYS "THE FIRST ENCOUNTER". THE TREE IS CORRECT.
+    This release's SE1_00.gro ships The FIRST Encounter's menu-logo textures
+    BYTE FOR BYTE - Textures/Logo/sam_menulogo256a.tex and 256b.tex are md5
+    a703371889b7... and 1571785bea78... in both games' archives - so the main
+    menu reads "SERIOUS SAM - THE FIRST ENCOUNTER - v1.05" while running the
+    Second Encounter. It is a Croteam packaging quirk, not a staging error.
+
+    What settles it, and what to check if you ever doubt this again:
+      * the campaign. SINGLE PLAYER loads a SNOWY ALPINE VILLAGE
+        (Levels/LevelsMP/1_0_InTheLastEpisode) - The First Encounter is
+        entirely Egyptian, and its levels are 01_Hatshepsut .. 10_Metropolis.
+      * SE1_00_Levels.gro carries Palenque, Teotihuacan, Ziggurrat,
+        Persepolis, TowerOfBabylon, GothicCastle, LandOfDamned - all TSE.
+      * the tree's only .gro files are SE1_00*.gro, and the running exe is
+        this tree's own Bin\\SeriousSam.exe (checked with wmic
+        ExecutablePath, because a leftover process from the other Encounter
+        would look exactly like this).
+    Do NOT "fix" the menu art. It is what the disc ships.'''),
 }
 
 ICON = 'SeriousSam.ico'
+
+#: Files the CD's Install\ directory contains that MUST NOT be staged, because
+#: they are PER-BOX STATE the engine rewrites on exit.
+#:
+#: `Scripts\PersistentSymbols.ini` is where Serious Engine saves its persistent
+#: cvars when it quits - the resolution, the renderer it detected, and
+#: `sam_bFirstStarted`. Staged, it is copied back over every box's own copy on
+#: the next GAMESYNC (the engine's write changes size AND mtime, so the resume
+#: test always fires), which:
+#:   * resets sam_bFirstStarted, so the modal "SeriousSam is starting for the
+#:     first time" returns after EVERY sync - on a headless box that is a
+#:     dialog with nobody to click it; and
+#:   * would carry one machine's detected renderer onto all eight.
+#:
+#: This is the same rule Doom 3 already carries for DoomConfig.cfg and
+#: config.spec, and the engine recreates the file by itself - its own shipped
+#: contents are the single line "// initially, this file is empty".
+#:
+#: GAMESYNC never DELETES, so a box that already took a copy keeps it. That is
+#: correct: the copy on the box is the live one.
+PER_BOX_STATE = (
+    os.path.join('Scripts', 'PersistentSymbols.ini'),
+)
 
 # The share path a box falls back to when GAMESYNC could not fit _disc\ on it.
 # Z: is the fleet's mapping convention and NOT a guarantee, so the launcher
@@ -516,6 +556,7 @@ DO NOT APPLY THE OFFICIAL TSE 1.07 PATCH
     would make the title unrunnable on this fleet. The TFE 1.05 patch is clean.
     Neither is applied: a LAN pair only has to agree with itself.
 
+%(extra)s
 WHAT IS NOT STAGED, and why
     Bin\SeriousEditor.exe, Bin\SeriousModeler.exe, Bin\eview3d.dll and the
     whole Bin\3DExplorationPlugins\ directory. Four of those plug-ins carry an
@@ -610,8 +651,10 @@ def files_for(name, t):
     t = dict(t, _dir=name)
     tree_mb = {'SeriousSamFirstEncounter': 369, 'SeriousSamSecondEncounter': 485}[name]
     iso_mb = {'SeriousSamFirstEncounter': 479, 'SeriousSamSecondEncounter': 512}[name]
+    extra = t.get('extra_note')
     sub = dict(t, dir=name, icon=ICON, tree_mb=tree_mb, iso_mb=iso_mb,
-               rule='=' * 60)
+               rule='=' * 60,
+               extra=('\n' + extra + '\n') if extra else '')
     return {
         'MOUNTDISC.BAT': mountdisc_bat(t),
         t['play']: PLAY % sub,
@@ -640,6 +683,18 @@ def main():
             print('%-28s MISSING TREE' % name)
             rc = 1
             continue
+        for rel in PER_BOX_STATE:
+            sp = os.path.join(tree, rel)
+            if os.path.exists(sp):
+                if args.check:
+                    print('%-28s %-46s MUST NOT BE STAGED' % (name, rel))
+                    rc = 1
+                else:
+                    os.remove(sp)
+                    print('%-28s %-46s removed (per-box state)' % (name, rel))
+            else:
+                print('%-28s %-46s absent (correct)' % (name, rel))
+
         launchers = {t['play'], t['host'], t['join']}
         for fn, body in sorted(files_for(name, t).items()):
             p = os.path.join(tree, fn)
