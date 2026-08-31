@@ -2213,6 +2213,22 @@ python3 scripts/fleet/keyvault.py get <name>     # the value, on stdout
 - **`contentType` is capped at 255 chars** and Key Vault rejects a longer one
   with `Property  has invalid value`, naming no property. The helper checks first.
 
+### Cloudflare — the credentials that reach beyond the LAN
+
+**Cloudflare provides this dev host's connectivity from the internet**, so
+unlike every game key here, a leak reaches past the isolated LAN. Vaulted
+2026-08-31 from `~/Documents/cloudflare.odt` (token page project
+`polished-bush-2355`): `fleet-cloudflare-account-id`,
+`fleet-cloudflare-api-token` (**scope unverified — treat as account-wide**),
+`fleet-cloudflare-r2-access-key-id`, `fleet-cloudflare-r2-secret-access-key`
+and `fleet-cloudflare-r2-s3-endpoint`. The pre-existing
+`fleet-cloudflared-tgz` and `file-cloudflared-cert-pem` are the tunnel client
+and its origin cert — different things, not duplicates.
+
+All are `verified=pending`: transcribed and stored, but nothing has yet
+authenticated with them. **Never echo one into a transcript, a log, a commit,
+or the dashboard.**
+
 ### ⚠️ `aisleprompt-kv` is a DIFFERENT vault and is not ours
 
 There is a second vault, `aisleprompt-kv`, belonging to the AislePrompt

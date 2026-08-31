@@ -223,6 +223,43 @@ mount can be recreated after a host rebuild. Do not guess at the value from the
 fleet's `password` convention and store a guess — a wrong secret that looks
 handled is worse than an absent one.
 
+## Host / infrastructure credentials — Cloudflare (vaulted 2026-08-31)
+
+**Cloudflare provides internet connectivity to this dev host**, so its
+credentials are the one set here whose compromise reaches beyond the LAN. They
+were transcribed from `~/Documents/cloudflare.odt` and vaulted; the project
+name on the token page is `polished-bush-2355`.
+
+| secret | what it is |
+|---|---|
+| `fleet-cloudflare-account-id` | Cloudflare account ID |
+| `fleet-cloudflare-api-token` | API token — **scope unverified, treat as account-wide** until confirmed |
+| `fleet-cloudflare-r2-access-key-id` | R2 (S3-compatible) access key ID |
+| `fleet-cloudflare-r2-secret-access-key` | its paired secret |
+| `fleet-cloudflare-r2-s3-endpoint` | the R2 S3 endpoint URL — not secret, stored beside its keys so the set stays together |
+
+Two older Cloudflare entries already existed and are **not** duplicates of
+these: `fleet-cloudflared-tgz` (the tunnel client binary) and
+`file-cloudflared-cert-pem` (its origin certificate).
+
+```bash
+python3 scripts/fleet/keyvault.py get fleet-cloudflare-r2-secret-access-key
+```
+
+**These differ from every game key in this vault in one way that matters: they
+are LIVE credentials to an internet-facing service, not a record of a value
+that also sits in a staged file.** So the usual "the vault is the system of
+record, not a runtime dependency" framing still applies — but the failure mode
+if one leaks is not a re-typed CD key, it is someone else reaching this host.
+Treat `~/Documents/cloudflare.odt` as the thing to remove once you are
+confident the vault copies are good, and **never** echo one of these into a
+transcript, a log, a commit, or the dashboard.
+
+All five are tagged `verified=pending`: they were transcribed and stored, but
+nothing has yet authenticated with them. Per the `verified=` convention above,
+**move that tag only when something actually succeeds against Cloudflare** —
+storing a value proves only that it was copied correctly.
+
 ## Never commit a literal
 
 `tests/python/test_no_committed_secrets.py` greps every tracked text file for

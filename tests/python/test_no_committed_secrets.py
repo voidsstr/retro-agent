@@ -86,6 +86,21 @@ KEY_SHAPES = [
 ]
 
 
+# Values that are fleet-wide CONVENTIONS on an isolated LAN, documented as
+# deliberately not secret in CLAUDE.md ("Deliberately NOT secret - documented,
+# not hidden"). They are vaulted so the record exists, but they appear in the
+# tree by design and must never be reported as leaks.
+CONVENTIONAL_NOT_SECRET = {
+    "password",              # the console account on every box; XP auto-login
+                             # requires it in cleartext, and ~20 scripts assume it
+    "retro-agent-secret",    # the agent's shared secret, compiled in as the default
+    "retroadmin",            # the game servers' rcon password
+    "retro-vanilla",
+    "retro-noblood",
+    "admin",
+}
+
+
 def test_no_key_shaped_literal_is_committed():
     hits = []
     for rel, text in _tracked_text_files():
@@ -136,9 +151,24 @@ def test_no_private_key_or_azure_connection_string_is_committed():
     assert not hits, "credential material is committed: %s" % hits
 
 
-def test_the_vaulted_game_keys_do_not_appear_in_the_tree():
+def test_the_vaulted_secrets_do_not_appear_in_the_tree():
     """The catch-all: compare against the REAL values.  Shape-matching can only
     catch shapes we thought of; this catches anything at all.
+
+    WIDENED 2026-08-31 from `fleet-gamekey-*` to **every `fleet-*` secret**.
+    The vault stopped being only game keys: `fleet-cloudflare-api-token` and the
+    R2 key pair are live credentials to an internet-facing service, so a leak
+    of one reaches past this isolated LAN in a way a 1999 CD key never could --
+    and they are exactly the kind of value that gets pasted into a config while
+    debugging. A guard scoped to the *old* contents of the vault protects least
+    where it now matters most.
+
+    Two consequences worth stating, because both are deliberate:
+      * `fleet-cloudflare-r2-s3-endpoint` is NOT secret and is checked anyway.
+        Committing it is harmless, so if this ever fires on that one, just
+        exclude it -- do not weaken the prefix.
+      * A short or highly generic secret value would drown this in false
+        positives; the length floor below is what keeps that from happening.
 
     Skips loudly (never silently) when the vault cannot be reached -- offline,
     or `az` not logged in -- because a guard that quietly passes is worse than
@@ -154,13 +184,17 @@ def test_the_vaulted_game_keys_do_not_appear_in_the_tree():
 
     listing = subprocess.run(
         ["az", "keyvault", "secret", "list", "--vault-name", "nsc-secrets-kv",
-         "--query", "[?starts_with(name,'fleet-gamekey')].name", "-o", "tsv"],
+         "--query", "[?starts_with(name,'fleet-')].name", "-o", "tsv"],
         capture_output=True, text=True, timeout=180)
     if listing.returncode != 0:
         pytest.skip("SKIPPED (vault unreachable) - the strongest secret guard did NOT run")
 
     names = [n.strip() for n in listing.stdout.split("\n") if n.strip()]
-    assert names, "no fleet-gamekey-* secrets in nsc-secrets-kv - has the vault been emptied?"
+    assert names, "no fleet-* secrets in nsc-secrets-kv - has the vault been emptied?"
+    # The widening is the point of this test; assert it actually happened
+    # rather than trusting the query string to stay correct.
+    assert any(n.startswith("fleet-gamekey") for n in names), (
+        "no fleet-gamekey-* secrets returned - the listing query has regressed")
 
     values = {}
     for name in names:
@@ -172,8 +206,21 @@ def test_the_vaulted_game_keys_do_not_appear_in_the_tree():
             continue
         v = r.stdout.strip()
         # Too short to grep for without drowning in coincidences.
-        if len(v) >= 8:
-            values[name] = v
+        if len(v) < 8:
+            continue
+        # A secret whose VALUE is a deliberately-public fleet convention must
+        # not be grepped for: `password` and `retro-agent-secret` appear in
+        # almost every source file as ordinary words, struct fields and
+        # documented defaults. Widening the prefix immediately lit up 20+ files
+        # on `fleet-nas-...-password`, whose value is the literal word
+        # "password" -- CLAUDE.md's "Deliberately NOT secret" section says so
+        # explicitly. Reporting those would be a permanent red light, and a
+        # guard that cries wolf gets ignored, which is how the real one gets
+        # missed. Excluded BY VALUE, not by name, so a genuine secret can never
+        # be skipped just because someone named it badly.
+        if v.lower() in CONVENTIONAL_NOT_SECRET:
+            continue
+        values[name] = v
 
     hits = []
     for rel, text in _tracked_text_files():
