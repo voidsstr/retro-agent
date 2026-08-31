@@ -360,14 +360,26 @@ def test_descent2_disc_mount_is_per_shortcut():
         'requires_capabilities'] == ['disc_mount']
 
 
+# Titles the Pentium 1 is offered on CPU/RAM/GPU grounds and cannot possibly
+# hold. Measured 2026-08-30: with no disk_mb on these four, that box was offered
+# 4,594 MB against a 617 MB disk, and GAMESYNC would have discovered it one
+# SMB1 file at a time. Sizes: ThiefGold 797, SiNGold 964, Shogo 1101,
+# TiberianSun 1113. Adding the floor changed no other box - the next smallest
+# fleet disk has 9 GB free - and changed the P1's plan from 5 marginal to 1.
+NEEDED_A_DISK_FLOOR = ('ThiefGold', 'SiNGold', 'Shogo', 'TiberianSun')
+
+
 @_share
 def test_every_dos_title_states_a_disk_floor():
     """617 MB free on the Pentium 1 is the binding constraint, not its CPU.
     Without disk_mb the gate approves a 878 MB tree onto it and GAMESYNC finds
     out an hour of SMB1 later."""
-    for title in DOSBOX_TITLES:
-        assert _requires(title).get('disk_mb'), \
-            '%s states no disk_mb' % title
+    for title in DOSBOX_TITLES + NEEDED_A_DISK_FLOOR:
+        assert _requires(title).get('disk_mb'), (
+            '%s states no disk_mb. disk_mb exists to refuse a copy BEFORE the '
+            'bandwidth is spent, and it fails open where free space cannot be '
+            'measured - so there is no cost to stating it and a real cost to '
+            'leaving it out.' % title)
 
 
 if __name__ == '__main__':
