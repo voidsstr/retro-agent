@@ -1,8 +1,8 @@
 {
-  "title": "Soldier of Fortune II: Gold (single player)",
+  "title": "Soldier of Fortune II: Gold - single player",
   "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_mode \"%FR_Q3MODE%\"\r\nrem r_customwidth/r_customheight are NOT written: this engine\r\nrem has no r_mode -1 branch, so they would be inert and would\r\nrem say the opposite of what is true. Measured on .145.\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customaspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customPixelAspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_fullscreen \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta cg_fov \"%FR_FOV%\"",
   "vars": {
-    "GTITLE": "Soldier of Fortune II: Gold (single player)",
+    "GTITLE": "Soldier of Fortune II: Gold - single player",
     "IMAGE": "%~dp0_disc\\sofii_1.iso",
     "VOLID": "sofii_1",
     "MARKER": "SOF2Video.avi",

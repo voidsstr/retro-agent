@@ -318,5 +318,53 @@ def test_spec_would_not_generate_an_unlaunchable_filename(name):
     assert b'( or )' in r.stderr + r.stdout
 
 
+@pytest.mark.parametrize('name', _all_specs())
+def test_spec_gtitle_has_no_parentheses(name):
+    """A ')' inside an ECHOED VARIABLE closes an `if ( ... )` block early.
+
+    The sibling test above covers parentheses in a generated FILENAME. This one
+    covers the same character in a generated VALUE, which is where it actually
+    bit us next.
+
+    Measured on .246, 2026-08-31: SoldierOfFortune2's spec set
+
+        GTITLE = "Soldier of Fortune II: Gold (single player)"
+
+    and the template echoes it as `echo [%GTITLE%] ...` from inside blocks such
+    as `if defined DISCDRV ( ... )`. cmd expands the variable BEFORE it matches
+    the parentheses, so the ')' in "(single player)" closed the block and the
+    whole launcher aborted with
+
+        ] was unexpected at this time.
+
+    ...having started nothing at all. Through the agent that is invisible: the
+    `EXEC ... start ""` returns success and WINLIST simply shows no window, so
+    it reads as a broken GAME rather than a launcher that never parsed. It was
+    broken on every box in the fleet.
+
+    This is the third distinct appearance of this character in this project
+    (generated filenames, the old onboard.cmd's game NAMEs, now a spec value),
+    which is why it is asserted rather than remembered.
+    """
+    gtitle = _spec(name).get('vars', {}).get('GTITLE', '')
+    assert '(' not in gtitle and ')' not in gtitle, (
+        '%s: GTITLE %r contains a parenthesis. The template echoes GTITLE '
+        'inside if ( ... ) blocks, so this aborts the whole launcher with '
+        '"] was unexpected at this time." Use a dash instead.' % (name, gtitle))
+
+
+def test_the_old_soldier_of_fortune_gtitle_would_now_be_caught():
+    """The guard above must actually reject the value that really shipped.
+
+    A test that can only pass is the failure mode this project keeps paying
+    for, so assert the OLD buggy string is rejected as well as the new one
+    being accepted.
+    """
+    old = 'Soldier of Fortune II: Gold (single player)'
+    fixed = 'Soldier of Fortune II: Gold - single player'
+    assert '(' in old or ')' in old            # the shipped, broken value
+    assert '(' not in fixed and ')' not in fixed
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main([__file__, '-v']))
