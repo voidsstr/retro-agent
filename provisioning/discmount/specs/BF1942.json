@@ -1,0 +1,16 @@
+{
+  "title": "Battlefield 1942",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\nif exist \"%~dp0FLEETRES.EXE\" (\r\n  \"%~dp0FLEETRES.EXE\" -setline \"%~dp0Mods\\bf1942\\Settings\\Profiles\\Default\\Video.con\" game.setGameDisplayMode game.setGameDisplayMode %FR_W% %FR_H% 32 0\r\n)\r\nif exist \"%~dp0FLEETRES.EXE\" (\r\n  \"%~dp0FLEETRES.EXE\" -setline \"%~dp0Mods\\bf1942\\Settings\\Profiles\\Custom\\Video.con\" game.setGameDisplayMode game.setGameDisplayMode %FR_W% %FR_H% 32 0\r\n)",
+  "vars": {
+    "GTITLE": "Battlefield 1942",
+    "IMAGE": "%~dp0_disc\\BF1942_Disc1.iso",
+    "VOLID": "BF1942_1",
+    "MARKER": "BFDIST.VLU",
+    "GAME": "%~dp0BF1942.exe",
+    "GAMEARGS": "",
+    "REQUIREDISC": "1"
+  },
+  "autokill": "Autorun.exe Setup.exe",
+  "prelaunch": "rem (none)",
+  "_note": "MARKER was SETUP.INI until 2026-08-31 - a file on essentially every game CD, the exact mistake that made the Descent II launcher match a mounted StarCraft disc and start the game against it. BFDIST.VLU is in this disc's root and on no other disc here. The disc mounts, but the CLIENT is gated by SafeDisc 2.80.010 in Mods\\bf1942\\Mod.dll which DAEMON Tools 3.47 does not emulate. The Host/Join LAN shortcuts are separate .bat files that need no disc and are NOT generated from this template."
+}

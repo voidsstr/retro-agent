@@ -85,6 +85,15 @@ def _generate(spec_name):
     (':waitdisc',
      'a mount is asynchronous; starting the game too early is the classic '
      'spurious "please insert the CD".'),
+    ('start "" /b "%DT%"',
+     'NEVER wait on daemon.exe. A DAEMON Tools unit can be LOCKED (.124 and '
+     '.240, 2026-08-31) and a direct call then blocks forever behind a modal: '
+     'no game, no banner, no mount-error.txt, and a leaked daemon.exe plus '
+     'cmd.exe on every attempt - .124 had five of each. start /b returns '
+     'immediately so :waitdisc decides on the post-condition instead.'),
+    ('if not defined DISCDRV taskkill /f /im daemon.exe',
+     'a locked unit leaves a stuck daemon.exe behind a modal; clearing it stops '
+     'this launch wedging the next one, and stops one title blocking another.'),
 ])
 def test_template_keeps_safeguard(needle, why):
     assert needle in _template(), 'template lost a safeguard: %s (%s)' % (needle, why)
@@ -108,30 +117,53 @@ def test_template_checks_volume_label_before_marker():
 
 
 # --------------------------------------------------------------------------
-# 2. Round-trip: the template must reproduce the hand-written launchers.
+# 2. Every shipped launcher must still BE what its spec generates.
 #
-# This is the real assurance. Two INDEPENDENTLY hand-written launchers, both
-# proven on hardware, regenerating byte-identical from one template is what
-# shows the template is faithful and not overfitted to whichever file it was
-# extracted from.
+# WHAT THIS DID AND WHAT IT DOES NOW - the distinction matters.
+#
+# When the template was extracted (2026-08-31) this was a genuine round-trip:
+# two INDEPENDENTLY hand-written launchers, both proven on hardware, regenerated
+# byte-identical from one template. That is what showed the extraction had lost
+# nothing and was not overfitted to the file it came from. The other eight were
+# then brought onto the template the same way, each one diffed first so the only
+# lines that changed were the three the fix touches.
+#
+# Those launchers are now GENERATED, so this test can no longer prove the
+# template is faithful - that proof was a one-time event and is recorded in the
+# commit. What it still does, and what it exists for now, is catch DRIFT: a
+# hand-edit to a generated launcher, or a template change that was never shipped
+# to the ten trees. Both are exactly how a fix lands in one launcher and not the
+# others, which is the failure this whole mechanism was built to stop.
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize('spec,shipped', [
+SHIPPED = [
     ('RedFaction.json', 'RedFaction/Play Red Faction.bat'),
     ('SoldierOfFortune2.json', 'SoldierOfFortune2/Play Soldier of Fortune II.bat'),
-])
-def test_template_round_trips_a_proven_launcher(spec, shipped):
+    ('BF1942.json', 'BF1942/Play Battlefield 1942.bat'),
+    ('Descent2.json', 'Descent2/Play Descent 2 - original Win95.bat'),
+    ('MaxPayne.json', 'MaxPayne/Play Max Payne.bat'),
+    ('Shogo.json', 'Shogo/Play Shogo.bat'),
+    ('StarCraft.json', 'StarCraft/Play StarCraft.bat'),
+    ('SystemShock2.json', 'SystemShock2/Play System Shock 2.bat'),
+    ('JediAcademy.json', 'JediAcademy/Play Jedi Academy.bat'),
+    ('JediAcademy-Multiplayer.json', 'JediAcademy/Play Jedi Academy - Multiplayer.bat'),
+]
+
+
+@pytest.mark.parametrize('spec,shipped', SHIPPED)
+def test_shipped_launcher_matches_its_spec(spec, shipped):
     path = os.path.join(LIBRARY, shipped)
     if not os.path.exists(path):
-        pytest.skip('SHARE NOT MOUNTED - cannot verify the template against %s. '
-                    'This test is the one that proves the template did not lose a '
-                    'line when it was extracted; a silent pass here would let it '
-                    'rot.' % shipped)
+        pytest.skip('SHARE NOT MOUNTED - cannot check %s against the template. '
+                    'This test is what stops a fix landing in one launcher and '
+                    'not the other nine; a silent pass here would let them drift.'
+                    % shipped)
     r = subprocess.run([sys.executable, GEN, '--spec', os.path.join(SPECS, spec),
                         '--check', path], capture_output=True)
     assert r.returncode == 0, \
-        ('%s is no longer what the template + spec generates. Either the template '
-         'drifted or someone hand-edited a GENERATED launcher.\n%s%s'
+        ('%s is no longer what the template + spec generates. Either someone '
+         'hand-edited a GENERATED launcher, or the template was changed and '
+         'never re-shipped to the staged trees.\n%s%s'
          % (shipped, r.stdout.decode(), r.stderr.decode()))
 
 
@@ -157,6 +189,23 @@ def test_spec_is_complete_and_generates(name):
     text = _generate(name)
     assert '@@' not in text, '%s: generated launcher still has placeholders' % name
     assert text.startswith('@echo off'), '%s: generated launcher lost its header' % name
+
+
+def test_requiredisc_is_per_title_not_a_constant():
+    """Descent 2 ships REQUIREDISC=0 and every other title ships 1.
+
+    It was hard-coded to 1 in the first cut of the template, which would have
+    made Descent 2 REFUSE TO LAUNCH on a box whose mount failed - a title that
+    runs perfectly well without its disc. Caught by diffing the generated file
+    against the shipped one rather than trusting the substitution.
+    """
+    vals = {n[:-5]: _spec(n)['vars'].get('REQUIREDISC') for n in _all_specs()}
+    assert vals.get('Descent2') == '0', \
+        'Descent 2 must keep REQUIREDISC=0 - it runs without its disc'
+    assert set(vals.values()) >= {'0', '1'}, \
+        'REQUIREDISC has collapsed to a constant; it is per title'
+    for name, v in vals.items():
+        assert v in ('0', '1'), '%s: REQUIREDISC=%r is not 0 or 1' % (name, v)
 
 
 @pytest.mark.parametrize('name', _all_specs())

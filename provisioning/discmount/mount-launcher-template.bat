@@ -69,7 +69,6 @@ rem  sector 16 carries the label at offset 40, and its root directory record at
 rem  offset 156 points at the root listing.
 rem ==========================================================================
 setlocal enableextensions
-call "%~dp0FLEETRES.BAT"
 @@FLEETRES@@
 
 cd /d "%~dp0"
@@ -80,7 +79,7 @@ set "VOLID=@@VAR_VOLID@@"
 set "MARKER=@@VAR_MARKER@@"
 set "GAME=@@VAR_GAME@@"
 set "GAMEARGS=@@VAR_GAMEARGS@@"
-set "REQUIREDISC=1"
+set "REQUIREDISC=@@VAR_REQUIREDISC@@"
 set "ERRFILE=%~dp0mount-error.txt"
 if exist "%ERRFILE%" del "%ERRFILE%" >nul 2>&1
 
@@ -146,6 +145,9 @@ rem Daemon Tools absent, or present and unproductive - WinCDEmu takes just the
 rem image path, no device number and no spelling zoo.
 if defined WCD (
     echo [%GTITLE%] trying WinCDEmu ...
+    rem WinCDEmu's exit code IS meaningful (216 = wrong architecture, the bug
+    rem that once started Brood War against the SHOGO disc), so unlike Daemon
+    rem Tools this one is called directly and its code is checked.
     "%WCD%" "%IMAGE%" >nul 2>&1
     if errorlevel 1 echo [%GTITLE%] WinCDEmu returned %errorlevel% - wrong architecture?
     call :waitdisc 12
@@ -220,10 +222,35 @@ if not defined DTKIND echo %DT% | find /i "DTLite.exe" >nul && set "DTKIND=lite"
 if not defined DTKIND echo %DT% | find /i "\DAEMON Tools\" >nul && set "DTKIND=4x"
 if not defined DTKIND set "DTKIND=347"
 echo [%GTITLE%] Daemon Tools flavour: %DTKIND%
-if "%DTKIND%"=="347"  "%DT%" -mount 0,"%IMAGE%"
-if "%DTKIND%"=="4x"   "%DT%" -mount dt, 0, "%IMAGE%"
-if "%DTKIND%"=="lite" "%DT%" -mount dt, 0, "%IMAGE%"
+rem *** NEVER WAIT ON daemon.exe ITSELF - `start /b`, then poll. ***
+rem
+rem A DAEMON Tools UNIT CAN BE LOCKED. On .124 and .240 (2026-08-31) device 0
+rem answered "Unable to mount image. Unit is locked." - and so did -unmount, and
+rem neither d347bus nor d347prt will stop (kernel drivers), so there is no
+rem reboot-free way to clear it. Suspected cause: a SafeDisc title issues
+rem PREVENT_ALLOW_MEDIUM_REMOVAL and the lock outlives the game; .124 was parked
+rem on SYSTEMSHOCK2 (SafeDisc 1.11) and .240 on SHOGO.
+rem
+rem A direct call BLOCKS FOREVER behind that modal, and this is the worst
+rem possible failure: the launcher never starts the game, never reaches
+rem :anydisc, never writes mount-error.txt, prints no banner - and LEAKS a
+rem daemon.exe plus a cmd.exe on every attempt. .124 was found carrying five of
+rem each. A silent hang is indistinguishable from "slow", which is exactly the
+rem failure this project keeps paying for.
+rem
+rem `start "" /b` returns immediately, so the modal can no longer wedge the
+rem batch; :waitdisc then decides on the POST-CONDITION (did a drive letter
+rem carrying our disc actually appear?) rather than on daemon.exe's return, and
+rem a locked unit falls through to the loud :anydisc / :fail paths below the way
+rem any other mount failure does.
+if "%DTKIND%"=="347"  start "" /b "%DT%" -mount 0,"%IMAGE%"
+if "%DTKIND%"=="4x"   start "" /b "%DT%" -mount dt, 0, "%IMAGE%"
+if "%DTKIND%"=="lite" start "" /b "%DT%" -mount dt, 0, "%IMAGE%"
 call :waitdisc 14
+rem If the unit was locked, a modal is now up and a daemon.exe is stuck behind
+rem it. Clear both so the NEXT launch is not fighting this one's wreckage, and
+rem so a second title's launcher is not blocked by a dialog it did not raise.
+if not defined DISCDRV taskkill /f /im daemon.exe >nul 2>&1
 goto :eof
 
 rem Set DISCDRV to the first drive letter carrying THIS disc.

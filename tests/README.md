@@ -346,3 +346,16 @@ success**: the validator was green, `GAMESYNC` said `state=done` /
 
 The share-side half **skips loudly** when `/mnt/retro-share` is absent — a
 silent skip would let the library rot back to the broken state unnoticed.
+
+### Disc-mount launchers (2026-08-31)
+
+| fix / invariant | test |
+|---|---|
+| the ~300-line resilient mount launcher had been hand-copied into TEN staged titles, which is how a fix lands in one and not the others — it is now generated from `provisioning/discmount/mount-launcher-template.bat` plus a per-title spec, and every shipped launcher must still equal what its spec generates | `python/test_mount_launcher_template.py::test_shipped_launcher_matches_its_spec` |
+| **never wait on `daemon.exe`** — a DAEMON Tools unit can be LOCKED (measured on `.124` and `.240`), and a direct `-mount` call then blocks forever behind a modal: no game, no banner, no `mount-error.txt`, and a leaked `daemon.exe` + `cmd.exe` per attempt (`.124` had five of each). `start "" /b` lets `:waitdisc` decide on the post-condition instead | `python/test_mount_launcher_template.py::test_template_keeps_safeguard[start "" /b "%DT%"]` |
+| a locked unit leaves a stuck `daemon.exe` behind its modal, which then wedges the NEXT title's launcher too — clear it when no drive appeared | `::test_template_keeps_safeguard[if not defined DISCDRV taskkill /f /im daemon.exe]` |
+| `REQUIREDISC` is **per title**, not a constant: Descent 2 ships `0` and every other title `1`, so hard-coding `1` would make a title that runs perfectly well without its disc refuse to launch on a box whose mount failed | `::test_requiredisc_is_per_title_not_a_constant` |
+| a `MARKER` must be unique to THAT disc — `AUTORUN.INF` made the Descent II launcher match a mounted StarCraft disc, and this test found BF1942 still shipping `Setup.ini` | `::test_spec_marker_is_not_a_generic_cd_file` |
+| the volume label is tested BEFORE the marker; the marker is only the fallback | `::test_template_checks_volume_label_before_marker` |
+| a launcher's `VOLID` must match the image's real ISO9660 label — Max Payne shipped `Max Payne` against `MAX_PAYNE` and only its marker fallback was saving it. The validator reads the label out of the image (2048 / 2352 / 2448-byte sectors; the PVD is at `16*sector+offset`, so a flat 32768 gets zeros) | `scripts/validate-staged-library.py` check `disc-mount` (suite [6]) |
+| the disc image a launcher mounts must exist in the tree, and a `.cue`'s `FILE` line must resolve beside it | same |

@@ -39,7 +39,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_TEMPLATE = os.path.join(
     HERE, '..', '..', 'provisioning', 'discmount', 'mount-launcher-template.bat')
 
-VAR_NAMES = ('GTITLE', 'IMAGE', 'VOLID', 'MARKER', 'GAME', 'GAMEARGS')
+VAR_NAMES = ('GTITLE', 'IMAGE', 'VOLID', 'MARKER', 'GAME', 'GAMEARGS',
+             'REQUIREDISC')
 
 
 def load_template(path):
@@ -66,11 +67,24 @@ def substitute(tpl, spec):
 
     # 2. FLEETRES block
     fr = spec.get('fleetres_block', '').rstrip('\r\n')
-    out = out.replace('@@FLEETRES@@', fr)
+    if fr:
+        out = out.replace('@@FLEETRES@@', fr)
+    else:
+        # Three staged launchers have no FLEETRES block at all. Substituting an
+        # empty string would leave the blank lines that framed it, so the whole
+        # framed region goes instead - a generated file must be byte-identical
+        # to the hand-written one it replaces, or the round-trip test that is
+        # the only real assurance here becomes untrustworthy.
+        out = re.sub(r'\r?\n@@FLEETRES@@\r?\n\r?\n', '\r\n', out, count=1)
+        out = out.replace('@@FLEETRES@@', '')
 
     # 3. the six variables
     for name in VAR_NAMES:
-        val = spec['vars'].get(name, '')
+        # REQUIREDISC defaults to 1 (refuse rather than launch discless) - the
+        # conservative half. A title that genuinely runs without its disc says
+        # so explicitly in its spec.
+        default = '1' if name == 'REQUIREDISC' else ''
+        val = spec['vars'].get(name, default)
         out = out.replace('@@VAR_%s@@' % name, val)
 
     # 4. autorun kill list

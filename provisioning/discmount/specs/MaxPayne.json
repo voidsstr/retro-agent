@@ -1,0 +1,16 @@
+{
+  "title": "Max Payne",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\nif exist \"%~dp0FLEETRES.EXE\" (\r\n  \"%~dp0FLEETRES.EXE\" -reg HKCU \"Software\\Remedy Entertainment\\Max Payne\\Video Settings\" \"Display Width\" dword %FR_W%\r\n  \"%~dp0FLEETRES.EXE\" -reg HKCU \"Software\\Remedy Entertainment\\Max Payne\\Video Settings\" \"Display Height\" dword %FR_H%\r\n)",
+  "vars": {
+    "GTITLE": "Max Payne",
+    "IMAGE": "%~dp0_disc\\MaxPayne.cue",
+    "VOLID": "MAX_PAYNE",
+    "MARKER": "maxpayne.ico",
+    "GAME": "%~dp0MaxPayne.exe",
+    "GAMEARGS": "-skipstartup",
+    "REQUIREDISC": "1"
+  },
+  "autokill": "Install.exe",
+  "prelaunch": "sc start secdrv >nul 2>&1",
+  "_note": "SafeDisc 2.51.020 - within DAEMON Tools 3.47's emulation, verified reaching in-game play on .124 with emulation ON and failing with it OFF. VOLID was 'Max Payne' until 2026-08-31 while the image's real label is MAX_PAYNE; only the MARKER fallback was saving it."
+}

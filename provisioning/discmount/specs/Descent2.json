@@ -1,0 +1,16 @@
+{
+  "title": "Descent II",
+  "fleetres_block": "",
+  "vars": {
+    "GTITLE": "Descent II",
+    "IMAGE": "%~dp0d2disc.iso",
+    "VOLID": "DESCENT_II",
+    "MARKER": "D2VOODOO\\",
+    "GAME": "%~dp0DESCENTW.EXE",
+    "GAMEARGS": "",
+    "REQUIREDISC": "0"
+  },
+  "autokill": "autorun.exe install.exe",
+  "prelaunch": "rem (none)",
+  "_note": "The original Win95 build. D2X-Rebirth speaks UDP/IP natively and needs no disc, which is why this is the secondary shortcut. NOTE: MARKER was AUTORUN.INF once and matched a mounted StarCraft disc on .240, starting the game against the wrong disc - that is the origin of the 'marker must be unique to this disc' rule."
+}

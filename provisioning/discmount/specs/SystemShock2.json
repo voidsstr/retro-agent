@@ -1,0 +1,16 @@
+{
+  "title": "System Shock 2",
+  "fleetres_block": "",
+  "vars": {
+    "GTITLE": "System Shock 2",
+    "IMAGE": "%~dp0_disc\\System Shock 2 (USA).cue",
+    "VOLID": "SYSTEMSHOCK2",
+    "MARKER": "SHKICON.ICO",
+    "GAME": "%~dp0shock2.exe",
+    "GAMEARGS": "",
+    "REQUIREDISC": "1"
+  },
+  "autokill": "setup.exe iv5play.exe panel.exe",
+  "prelaunch": "rem (none)",
+  "_note": "Has NO FLEETRES block and does not stage FLEETRES.BAT. SafeDisc 1.11.000, within DAEMON Tools 3.47's emulation. Suspected source of the LOCKED DAEMON Tools unit on .124 - a SafeDisc title issues PREVENT_ALLOW_MEDIUM_REMOVAL and the lock outlives the game."
+}

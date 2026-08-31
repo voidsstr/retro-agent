@@ -1,0 +1,16 @@
+{
+  "title": "Shogo - Mobile Armor Division",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\nif exist \"%~dp0FLEETRES.EXE\" (\r\n  \"%~dp0FLEETRES.EXE\" -setline \"%~dp0autoexec.cfg\" screenwidth `screenwidth` `%FR_W%`\r\n  \"%~dp0FLEETRES.EXE\" -setline \"%~dp0autoexec.cfg\" screenheight `screenheight` `%FR_H%`\r\n)",
+  "vars": {
+    "GTITLE": "Shogo - Mobile Armor Division",
+    "IMAGE": "%~dp0_disc\\Shogo.iso",
+    "VOLID": "SHOGO",
+    "MARKER": "Data\\SHOGO.REZ",
+    "GAME": "%~dp0Shogo.exe",
+    "GAMEARGS": "",
+    "REQUIREDISC": "1"
+  },
+  "autokill": "AutoRun.exe Previews.exe SETUP.EXE",
+  "prelaunch": "rem (none)",
+  "_note": "LithTech. No protection wrapper in the tree."
+}

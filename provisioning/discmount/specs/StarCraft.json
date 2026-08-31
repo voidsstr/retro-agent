@@ -1,0 +1,16 @@
+{
+  "title": "StarCraft",
+  "fleetres_block": "",
+  "vars": {
+    "GTITLE": "StarCraft",
+    "IMAGE": "%~dp0_disc\\STARCRAFT.iso",
+    "VOLID": "STARCRAFT",
+    "MARKER": "SC.ICO",
+    "GAME": "%~dp0StarCraft.exe",
+    "GAMEARGS": "",
+    "REQUIREDISC": "1"
+  },
+  "autokill": "SETUP.EXE INSTALL.EXE",
+  "prelaunch": "rem (none)",
+  "_note": "Has NO FLEETRES block and does not stage FLEETRES.BAT. Brood War ran on .240 against a merely STARCRAFT-labelled disc, so this title does not verify the disc closely."
+}

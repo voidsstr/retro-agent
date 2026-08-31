@@ -1,13 +1,14 @@
 {
   "title": "Soldier of Fortune - host a LAN game",
-  "fleetres_block": "> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo set gl_mode \"%FR_Q2MODE%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo set vid_fullscreen \"1\"",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo set gl_mode \"%FR_Q2MODE%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo set vid_fullscreen \"1\"",
   "vars": {
     "GTITLE": "Soldier of Fortune - Host LAN",
     "GAME": "%~dp0SoF.exe",
     "GAMEARGS": "+set gl_mode %FR_Q2MODE% +set deathmatch 1 +set maxclients 8 +set dedicated 0 +map dm/nycdm1",
     "IMAGE": "%~dp0_disc\\sof.cue",
     "VOLID": "SOF",
-    "MARKER": "BIN\\SOF.DBD"
+    "MARKER": "BIN\\SOF.DBD",
+    "REQUIREDISC": "1"
   },
   "autokill": "LAUNCH.EXE AUTORUN.EXE demo32.exe",
   "prelaunch": "rem (none)",
