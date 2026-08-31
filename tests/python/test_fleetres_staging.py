@@ -152,6 +152,33 @@ def _launch_text(spec):
     return '\n'.join(out)
 
 
+def _discmount_text(title):
+    """What a title's DISC-MOUNT specs contribute to its .bat files.
+
+    A title's launchers can come from provisioning/discmount/ instead of from
+    this tool - Jedi Academy's and Serious Sam's do - and then the resolution
+    arrives from the spec's `fleetres_block` and `GAMEARGS` rather than from a
+    recipe here. The invariant below is about the SHIPPED launcher, not about
+    which generator wrote it, so it has to look in both places or it reports a
+    correctly-configured title as broken.
+    """
+    import glob
+    import json
+    d = os.path.join(REPO, "provisioning", "discmount", "specs")
+    out = []
+    for f in sorted(glob.glob(os.path.join(d, '%s*.json' % title))):
+        # Only specs for THIS title: SoldierOfFortune must not match
+        # SoldierOfFortune2.
+        stem = os.path.basename(f)[:-len('.json')]
+        if stem != title and not stem.startswith(title + '-'):
+            continue
+        with open(f) as fh:
+            spec = json.load(fh)
+        out.append(spec.get('fleetres_block', '') or '')
+        out.append(spec['vars'].get('GAMEARGS', '') or '')
+    return '\n'.join(out)
+
+
 def test_stripping_the_autoexec_requires_the_launcher_to_supply_the_mode():
     """THE invariant. A title may only lose `seta r_mode` from its staged
     autoexec.cfg if its launchers pass the mode on the command line — otherwise
@@ -159,8 +186,8 @@ def test_stripping_the_autoexec_requires_the_launcher_to_supply_the_mode():
     for title, spec in sf.TITLES.items():
         if not spec.get('cfg_strip'):
             continue
-        text = _launch_text(spec)
-        if not text and spec.get('new'):
+        text = _launch_text(spec) + '\n' + _discmount_text(title)
+        if not text.strip() and spec.get('new'):
             # a title whose launchers are created whole rather than patched
             text = sf.idtech3_args()
         assert '+set r_fullscreen' in text, (

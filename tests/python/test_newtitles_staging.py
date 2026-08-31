@@ -145,11 +145,19 @@ def test_restaged_serious_sam_carries_its_mount_machinery():
     for t in RESTAGED_AS_DISC_MOUNT:
         tree = os.path.join(LIB, t)
         assert os.path.isdir(tree), '%s is not in the library' % t
-        assert os.path.isfile(os.path.join(tree, 'MOUNTDISC.BAT')), (
-            '%s is back in the library WITHOUT MOUNTDISC.BAT. Its CD check '
-            'needs Install\\Bin\\SeriousSam.exe on a DRIVE_CDROM volume; '
-            'without the mount every shortcut raises a modal nothing on a '
-            'headless box will dismiss.' % t)
+        # The mount used to live in a MOUNTDISC.BAT this title shipped itself;
+        # it is now the fleet's shared disc-mount launcher, generated from
+        # provisioning/discmount/specs/. What matters either way is that the
+        # shipped launchers MOUNT - without that, every shortcut raises a modal
+        # nothing on a headless box will dismiss.
+        play = [f for f in os.listdir(tree) if f.startswith('Play ')]
+        assert play, '%s has no Play launcher at all' % t
+        body = _read(os.path.join(tree, play[0]))
+        for mark in ('set "REQUIREDISC=', 'call :finddisc'):
+            assert mark in body, (
+                '%s/%s does not mount its disc (missing %r). Its CD check '
+                'needs Install\\Bin\\SeriousSam.exe on a DRIVE_CDROM '
+                'volume.' % (t, play[0], mark))
 
 
 def test_pe_subsystem_rule_is_still_the_xp_rule():

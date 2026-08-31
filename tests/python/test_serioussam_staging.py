@@ -280,34 +280,39 @@ def test_staged_binaries_carry_no_copy_protection():
             'not the retail binary whose check the mount satisfies.' % name)
 
 
-def test_the_mount_machinery_is_present_and_called():
+def test_every_launcher_mounts_this_title_own_disc():
+    """All three shortcuts mount, and each mounts the RIGHT disc.
+
+    The per-title values are what a generated launcher can still get wrong, so
+    they are checked on the SHIPPED file rather than only in the spec: an image
+    path that is not in the tree, or a VOLID that does not match the image's
+    real ISO 9660 label, both produce a launcher that looks fine and never
+    recognises its own mounted disc.
+    """
     _skip_unless_share()
     for name, t in TITLES.items():
         tree = os.path.join(LIB, name)
-        md = os.path.join(tree, 'MOUNTDISC.BAT')
-        assert os.path.isfile(md), '%s has no MOUNTDISC.BAT' % name
-        body = _text(md)
-        assert t['volid'] in body
-        assert t['marker'] in body
-        assert 'exit' not in [ln.strip().lower() for ln in body.splitlines()], (
-            '%s/MOUNTDISC.BAT has a bare `exit`. It is CALLed by every '
-            'launcher, so `exit` would close the console the game is about to '
-            'be started from.' % name)
-        # A CODE line, not the `rem` that explains why there is none.
-        code = [ln.strip().lower() for ln in body.splitlines()
-                if not ln.strip().lower().startswith('rem')]
-        assert not any(ln.startswith('setlocal') for ln in code), (
-            '%s/MOUNTDISC.BAT uses setlocal, which would discard DISCDRV '
-            'before the launcher that CALLed it can read it.' % name)
         for lname in (t['play'], t['host'], t['join']):
             lp = os.path.join(tree, lname)
             assert os.path.isfile(lp), '%s/%s is missing' % (name, lname)
             lb = _text(lp)
-            assert 'call "%~dp0MOUNTDISC.BAT"' in lb, (
-                '%s/%s does not mount the disc, so it raises a modal on every '
-                'box.' % (name, lname))
-            assert 'call "%~dp0FLEETRES.BAT"' in lb, (
-                '%s/%s has no FLEETRES block.' % (name, lname))
+            for m in TEMPLATE_MARKS:
+                assert m in lb, (
+                    '%s/%s is missing the template safeguard %r - a locked '
+                    'DAEMON Tools unit would hang it forever with no banner '
+                    'and no mount-error.txt.' % (name, lname, m))
+            assert 'set "VOLID=%s"' % t['volid'] in lb, \
+                '%s/%s does not look for volume %r' % (name, lname, t['volid'])
+            assert 'set "MARKER=%s"' % t['marker'] in lb, \
+                '%s/%s does not carry this disc\'s marker' % (name, lname)
+            assert t['iso'] in lb, \
+                '%s/%s does not name this title\'s image' % (name, lname)
+            assert 'call "%~dp0FLEETRES.BAT"' in lb, \
+                '%s/%s has no FLEETRES block' % (name, lname)
+        for aux in ('FLEETRES.BAT', 'FLEETRES.EXE'):
+            assert os.path.isfile(os.path.join(tree, aux)), (
+                '%s does not stage %s, which every launcher calls.'
+                % (name, aux))
 
 
 def test_shortcut_capabilities_on_the_share():
@@ -389,53 +394,161 @@ def test_the_launcher_does_not_pin_the_renderer():
                     '%s/%s still writes sam_iDriver' % (name, lname)
 
 
-#: The canonical fleet mount launcher. Serious Sam's MOUNTDISC.BAT is the same
-#: logic factored into one CALLable file per title (three launchers share it),
-#: so it is a SECOND copy of hard-won cmd.exe and the standing risk is a fix
-#: landing in one and not the other. These are the safeguards that were added
-#: to the template after a real hang, quoted so both files must keep them.
+SPECS = os.path.join(REPO, 'provisioning', 'discmount', 'specs')
 TEMPLATE = os.path.join(REPO, 'provisioning', 'discmount',
                         'mount-launcher-template.bat')
-SHARED_SAFEGUARDS = (
+GENERATOR = os.path.join(REPO, 'scripts', 'fleet', 'make-mount-launcher.py')
+
+#: Present in every launcher the canonical template generates. Serious Sam used
+#: to ship its OWN mount implementation (a CALLable MOUNTDISC.BAT shared by the
+#: three launchers) and a locked-DAEMON-Tools-unit fix then had to be applied to
+#: BOTH copies - which is the drift a second copy guarantees. It is gone; these
+#: assert the titles are on the shared one and stayed there.
+TEMPLATE_MARKS = (
+    'set "REQUIREDISC=',
     'start "" /b "%DT%" -mount 0,',
     'if not defined DISCDRV taskkill /f /im daemon.exe',
 )
 
 
-def test_mountdisc_carries_the_template_safeguards():
-    """A DAEMON Tools unit can be LOCKED, and a direct -mount then hangs forever.
+def test_the_launchers_are_generated_from_the_shared_template():
+    """Every shipped launcher must be exactly what its spec generates.
 
-    Measured on .124 and .240 2026-08-31: device 0 answers "Unable to mount
-    image. Unit is locked.", `-unmount` answers the same, and the kernel drivers
-    will not stop - so there is no reboot-free way to clear it. A direct call
-    blocks behind that modal: no game, no banner, no mount-error.txt, and a
-    leaked daemon.exe + cmd.exe per attempt (.124 had five of each). A silent
-    hang is indistinguishable from "slow".
-
-    The fix belongs to provisioning/discmount/mount-launcher-template.bat, which
-    ten titles are generated from. Serious Sam's MOUNTDISC.BAT is the same logic
-    in a CALLable file, so it needs the same safeguards - and this asserts they
-    are in BOTH, because the whole hazard of a second copy is that a fix reaches
-    one of them.
+    This is the assurance the whole generator exists for: a substitution that
+    looks right is not the same as one that is. It compares bytes rather than
+    grepping for markers, so an edit made directly on the share - the way the
+    old second copy drifted - fails here.
     """
+    _skip_unless_share()
     if not os.path.isfile(TEMPLATE):
         pytest.skip('SKIPPED LOUDLY: the canonical mount template is not in '
-                    'this checkout, so the two copies could not be compared.')
-    tpl = _text(TEMPLATE)
-    for guard in SHARED_SAFEGUARDS:
-        assert guard in tpl, (
-            'the canonical template lost %r. If it was deliberately replaced, '
-            'update SHARED_SAFEGUARDS here in the same commit rather than '
-            'leaving the two mount implementations to drift.' % guard)
+                    'this checkout, so nothing could be compared.')
+    import subprocess
+    for name, t in TITLES.items():
+        for role, lname in (('Play', t['play']), ('Host', t['host']),
+                            ('Join', t['join'])):
+            spec = os.path.join(SPECS, '%s-%s.json' % (name, role))
+            assert os.path.isfile(spec), 'no spec for %s %s' % (name, role)
+            shipped = os.path.join(LIB, name, lname)
+            assert os.path.isfile(shipped), '%s/%s is missing' % (name, lname)
+            r = subprocess.run(
+                ['python3', GENERATOR, '--spec', spec, '--check', shipped],
+                capture_output=True, text=True)
+            assert r.returncode == 0, (
+                '%s/%s is NOT what its spec generates:\n%s%s'
+                % (name, lname, r.stdout, r.stderr))
+
+
+def test_the_old_second_mount_implementation_is_gone():
+    """MOUNTDISC.BAT was Serious Sam's own copy of the mount logic.
+
+    Keeping it beside the generated launchers would be worse than either
+    arrangement alone: nothing references it, so it rots silently and the next
+    person cannot tell which one is live.
+    """
     _skip_unless_share()
     for name in TITLES:
-        body = _text(os.path.join(LIB, name, 'MOUNTDISC.BAT'))
-        for guard in SHARED_SAFEGUARDS:
-            assert guard.replace('%DT%', '%DT%') in body or guard in body, (
-                '%s/MOUNTDISC.BAT is missing the safeguard %r that the '
-                'canonical mount template carries. A locked DAEMON Tools unit '
-                'will hang this launcher forever with no banner and no '
-                'mount-error.txt.' % (name, guard))
+        p = os.path.join(LIB, name, 'MOUNTDISC.BAT')
+        assert not os.path.exists(p), (
+            '%s still ships MOUNTDISC.BAT. Its launchers are generated from '
+            'provisioning/discmount now; a second copy of the mount logic is '
+            'how a fix lands in one and not the other.' % name)
+
+
+def test_host_spec_does_not_require_a_disc_and_says_why():
+    """REQUIREDISC=0 here is load-bearing, and looks like an oversight.
+
+    DedicatedServer.exe has no CD check, so this shortcut must still run on a
+    box with no mounter at all - .123 hosted a verified three-box LAN game.
+    A later tidy-up back to the conservative 1 would silently take that away,
+    so the spec has to carry the reason, not just the value.
+    """
+    for name in TITLES:
+        with open(os.path.join(SPECS, '%s-Host.json' % name)) as fh:
+            spec = json.load(fh)
+        assert spec['vars']['REQUIREDISC'] == '0', (
+            '%s Host now requires a disc. DedicatedServer.exe has no CD check '
+            'and this takes hosting away from every box with no mounter.' % name)
+        note = spec.get('_note', '')
+        assert 'load-bearing' in note.lower() and '.123' in note, (
+            '%s Host spec no longer records WHY REQUIREDISC is 0. Without the '
+            'reason it reads as an oversight and gets "fixed".' % name)
+        # and the client half must still be conditional on a disc
+        assert 'if not defined DISCDRV' in spec.get('postlaunch', ''), (
+            '%s Host no longer gates its local client on a mounted disc. The '
+            'CLIENT does check for the disc even though the server does not.'
+            % name)
+    for name, t in TITLES.items():
+        for role in ('Play', 'Join'):
+            with open(os.path.join(SPECS, '%s-%s.json' % (name, role))) as fh:
+                assert json.load(fh)['vars']['REQUIREDISC'] == '1', (
+                    '%s %s must require its disc - SeriousSam.exe checks for '
+                    'it.' % (name, role))
+
+
+def test_no_spec_escapes_a_pipe_or_redirect_it_should_not():
+    """`^` is a cmd escape and both hooks are emitted where it is wrong.
+
+    `ipconfig ^| findstr ...` at top level hands ipconfig a LITERAL pipe as an
+    argument, and `ping ... ^>nul` inside a ( ) block hands ping a literal
+    ">nul" - redirection works perfectly well inside parentheses. Neither
+    fails loudly; the first prints the wrong thing and the second prints
+    something that should have been silent. Both were in my first draft.
+    """
+    import glob
+    for f in sorted(glob.glob(os.path.join(SPECS, 'SeriousSam*.json'))):
+        with open(f) as fh:
+            spec = json.load(fh)
+        for key in ('prelaunch', 'postlaunch', 'fleetres_block'):
+            v = spec.get(key) or ''
+            assert '^|' not in v and '^>' not in v, (
+                '%s: %s escapes a pipe or redirect with ^. Both hooks are '
+                'emitted where cmd treats the operator normally, so the caret '
+                'makes it a literal argument instead.'
+                % (os.path.basename(f), key))
+
+
+def test_stage_fleetres_cannot_clobber_a_disc_mount_launcher():
+    """Two tools claimed the same .bat, and one silently won.
+
+    stage-fleetres.py's `new` recipe writes a launcher from scratch and its
+    put() overwrites whenever content differs - so a run of it replaced Jedi
+    Academy's 22 KB generated mount launcher with a 2 KB one carrying NO DISC
+    MOUNT AT ALL, on a title whose entire fix was the mount. Both tools
+    reported success. Detected by CONTENT so it also covers titles added later.
+    """
+    src = _text(FLEETRES)
+    assert 'def is_discmount_launcher' in src, (
+        'stage-fleetres.py lost its guard against overwriting a disc-mount '
+        'launcher. It will silently replace one with a launcher that does not '
+        'mount anything.')
+    i = src.index('def new_launcher')
+    body = src[i:i + 1200]
+    assert 'is_discmount_launcher' in body, (
+        'new_launcher() no longer checks before writing - that is the exact '
+        'call site that clobbered Jedi Academy.')
+    # ...and no title may carry BOTH a `new` recipe and a discmount spec, which
+    # is what makes the guard fire during a normal run rather than never.
+    import ast as _ast
+    import glob as _glob
+    newt = set()
+    for node in _ast.parse(src).body:
+        if isinstance(node, _ast.Assign) and getattr(node.targets[0], 'id', '') == 'TITLES':
+            for k, v in zip(node.value.keys, node.value.values):
+                keys = [kk.value for kk in v.keys] if isinstance(v, _ast.Dict) else []
+                if 'new' in keys:
+                    newt.add(k.value)
+    staged_specs = set()
+    for f in _glob.glob(os.path.join(SPECS, '*.json')):
+        with open(f) as fh:
+            if '_note' in json.load(fh) and 'NOT CURRENTLY STAGED' in json.load(open(f)).get('_note', ''):
+                continue
+        staged_specs.add(os.path.basename(f).split('-')[0].replace('.json', ''))
+    overlap = sorted(newt & staged_specs)
+    assert not overlap, (
+        'these titles have BOTH a stage-fleetres "new" recipe and a staged '
+        'disc-mount spec, so the two tools fight over the same .bat: %s. The '
+        'FLEETRES block belongs in the spec; drop the "new" entry.' % overlap)
 
 
 def test_per_box_state_is_not_staged():

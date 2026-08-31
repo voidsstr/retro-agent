@@ -1,0 +1,17 @@
+{
+  "title": "Serious Sam - The First Encounter - host a LAN game",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0Scripts\\Game_startup.ini\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo // PersistentSymbols.ini is NOT the place for this: the engine\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo // rewrites that file on exit and would overwrite the mode.\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_bFullScreen=1;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_iScreenSizeI=%FR_W%;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_iScreenSizeJ=%FR_H%;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo gfx_iRefreshRate=%FR_HZ%;",
+  "vars": {
+    "GTITLE": "Serious Sam - The First Encounter - Host LAN",
+    "GAME": "%~dp0Bin\\DedicatedServer.exe",
+    "GAMEARGS": "DefaultCoop",
+    "REQUIREDISC": "0",
+    "IMAGE": "%~dp0_disc\\SeriousSamTFE.iso",
+    "VOLID": "SERIOUS_SAM_RC2",
+    "MARKER": "Install\\1_00.gro"
+  },
+  "autokill": "setup.exe autorun.exe",
+  "prelaunch": "echo.\r\necho  Other players need THIS machine address:\r\nipconfig | findstr /i \"IPv4 Address\"\r\necho.\r\necho  On every other machine: put that address on the first line of\r\necho  C:\\Games\\lanhost.txt and run the matching Join shortcut.\r\necho.",
+  "postlaunch": "rem Serious Engine 1 cannot open a listen server from the command line -\r\nrem SeriousSam.exe accepts only +level/+game/+cdpath/+password/+connect/\r\nrem +script/+goto (read out of the binary). So the host runs the DEDICATED\r\nrem server and then joins it on the loopback, which puts a player at this\r\nrem end too - a two-box proof needs a game on BOTH screens.\r\nrem\r\nrem The client does NOT retry: it reports \"server not responding\" and drops\r\nrem to the menu, which reads exactly like a server that never started.\r\nping -n 17 127.0.0.1 >nul\r\nif not defined DISCDRV (\r\n    echo.\r\n    echo  ============================================================\r\n    echo   The dedicated server is UP and other machines can join it.\r\n    echo   This machine has no disc mounted, so the game itself cannot\r\n    echo   start here. That is EXPECTED on a box with no disc mounter -\r\n    echo   DedicatedServer.exe has no CD check and SeriousSam.exe does.\r\n    echo  ============================================================\r\n    ping -n 11 127.0.0.1 >nul\r\n    goto :theend\r\n)\r\nstart \"\" /D \"%~dp0\" \"%~dp0Bin\\SeriousSam.exe\" +connect 127.0.0.1",
+  "_note": "REQUIREDISC=0 IS LOAD-BEARING HERE, not the conservative default. DedicatedServer.exe has NO CD check - no GetDriveTypeA import, no +cdpath, no 'Please insert the game CD' string - so this shortcut carries no disc_mount capability in requires.json and must still run on a box with no mounter at all. VERIFIED 2026-08-31: .123 (no optical drive, no mounter) hosted a three-box LAN game for .133 and .240. The local client in postlaunch is started ONLY when DISCDRV is defined, because the CLIENT does check for the disc - that is the per-shortcut split expressed rather than papered over. MARKER is a per-disc .gro and deliberately NOT Install\\Bin\\SeriousSam.exe, which is the file the CD check itself opens: it is on BOTH Encounters' discs, so it would let the wrong one report success. Same class as BF1942's Setup.ini marker."
+}

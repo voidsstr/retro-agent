@@ -1,0 +1,17 @@
+{
+  "title": "Serious Sam - The First Encounter",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0Scripts\\Game_startup.ini\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo // PersistentSymbols.ini is NOT the place for this: the engine\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo // rewrites that file on exit and would overwrite the mode.\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_bFullScreen=1;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_iScreenSizeI=%FR_W%;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_iScreenSizeJ=%FR_H%;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo gfx_iRefreshRate=%FR_HZ%;",
+  "vars": {
+    "GTITLE": "Serious Sam - The First Encounter",
+    "GAME": "%~dp0Bin\\SeriousSam.exe",
+    "GAMEARGS": "",
+    "REQUIREDISC": "1",
+    "IMAGE": "%~dp0_disc\\SeriousSamTFE.iso",
+    "VOLID": "SERIOUS_SAM_RC2",
+    "MARKER": "Install\\1_00.gro"
+  },
+  "autokill": "setup.exe autorun.exe",
+  "prelaunch": "rem (none)",
+  "postlaunch": "rem (none)",
+  "_note": "The engine resolves its .gro files against the CURRENT DIRECTORY, which the template's cd /d and start /D both give it. MARKER is a per-disc .gro and deliberately NOT Install\\Bin\\SeriousSam.exe, which is the file the CD check itself opens: it is on BOTH Encounters' discs, so it would let the wrong one report success. Same class as BF1942's Setup.ini marker. The launcher writes the RESOLUTION only and never sam_iDriver: the engine auto-detects its renderer and persists it, and pinning OpenGL made this title unstartable on .246."
+}
