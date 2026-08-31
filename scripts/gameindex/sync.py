@@ -67,8 +67,23 @@ LOCAL_SERVERS = [
          name="NSC Retro Fleet Arena - Quake III"),
     dict(engine="q3", port=27960, gamename="baseoa",
          name="NSC Retro Fleet Arena - OpenArena"),
+    # Added 2026-08-31 with the servers themselves. Each carries the gamename
+    # its clients report, so `accepts` can keep them apart: all fourteen fleet
+    # servers sit on one IP, and a Quake III box handed the Team Arena address
+    # gets a connection that is then rejected.
+    dict(engine="q3", port=27962, gamename="missionpack",
+         name="NSC Retro Fleet Arena - Team Arena"),
+    dict(engine="q3", port=29070, gamename="base",
+         name="NSC Retro Fleet Arena - Jedi Academy"),
+    dict(engine="q3", port=20100, gamename="sof2mp",
+         name="NSC Retro Fleet Arena - SoF II"),
     dict(engine="q2", port=27910, gamename="baseq2",
          name="NSC Retro Fleet Arena - Quake II"),
+    # NetQuake, NOT QuakeWorld. It is listed for the record and for
+    # `sync.py --status`; no staged NetQuake client keeps a favourites file,
+    # so nothing is written for it (see favorites.UNWRITABLE["quake"]).
+    dict(engine="nq", port=26000, gamename="netquake",
+         name="NSC Retro Fleet Arena - Quake"),
     dict(engine="qw", port=27502, gamename="qw",
          name="NSC Retro Fleet Arena - QuakeWorld"),
     dict(engine="goldsrc", port=27015, gamename="cstrike",

@@ -215,3 +215,101 @@ def test_empty_internet_servers_are_not_offered(con):
     db.upsert_servers(con, "q3", [srv("8.8.8.8:27960", players=0)])
     assert db.best_servers(con, "q3") == [], \
         "the request was servers WITH players on them"
+
+
+# ==========================================================================
+# The four servers the fleet gained on 2026-08-31, and the NetQuake probe
+# --------------------------------------------------------------------------
+
+import struct as _struct
+
+sys.path.insert(0, str(REPO / "scripts" / "gameindex"))
+import sync as _sync   # noqa: E402
+
+
+def _nq_reply(hostname, level, cur, mx, kind=0x83):
+    body = (bytes([kind]) + b"0.0.0.0:26000\x00" + hostname.encode() + b"\x00"
+            + level.encode() + b"\x00" + bytes([cur, mx, 3]))
+    return _struct.pack(">I", 0x80000000 | (len(body) + 4)) + body
+
+
+def test_nq_probe_sends_the_control_packet(monkeypatch):
+    """A NetQuake server ignores `getstatus` and `status` in silence. Sending
+    either would mark the fleet's own quake1-server down on every pass while
+    it is perfectly healthy -- and it is pinned into favourites regardless,
+    which is precisely how a permanent false alarm becomes background noise."""
+    seen = {}
+
+    def fake(host, port, payload, timeout=None, reads=None):
+        seen["payload"] = payload
+        return _nq_reply("NSC Retro Fleet Arena (Quake)", "e1m1", 2, 16), 3.0
+
+    monkeypatch.setattr(masters, "_udp", fake)
+    row = masters._nq_probe("192.168.1.132:26000")
+    assert seen["payload"][4] == 0x02                 # CCREQ_SERVER_INFO
+    assert b"getstatus" not in seen["payload"]
+    assert seen["payload"][5:11] == b"QUAKE\x00"
+    assert row["hostname"] == "NSC Retro Fleet Arena (Quake)"
+    assert row["map"] == "e1m1"
+    assert row["players"] == 2 and row["maxplayers"] == 16
+    assert row["gamename"] == "netquake"
+
+
+def test_nq_probe_is_wired_even_though_discovery_is_not():
+    """`supported: False` is about the MASTER, not about our own server. If the
+    probe goes back to None the sync pass pins quake1-server with an invented
+    row and reports it down forever."""
+    spec = masters.ENGINES["nq"]
+    assert spec["probe"] is masters._nq_probe
+    assert spec["list"] is None          # no NetQuake master exists
+    assert spec["supported"] is False
+    assert "master" in spec["why"]
+
+
+def test_nq_probe_rejects_a_wrong_reply_type(monkeypatch):
+    monkeypatch.setattr(masters, "_udp",
+                        lambda *a, **k: (_nq_reply("x", "y", 0, 8, kind=0x81), 1.0))
+    assert masters._nq_probe("192.168.1.132:26000") is None
+
+
+def test_the_new_local_servers_are_declared():
+    """A server that runs but is not in LOCAL_SERVERS is never pinned into any
+    box's favourites and never appears in `sync.py --status`."""
+    by_port = {s["port"]: s for s in _sync.LOCAL_SERVERS}
+    for port, engine, gamename in ((26000, "nq", "netquake"),
+                                   (27962, "q3", "missionpack"),
+                                   (29070, "q3", "base"),
+                                   (20100, "q3", "sof2mp")):
+        assert port in by_port, port
+        assert by_port[port]["engine"] == engine
+        assert by_port[port]["gamename"] == gamename
+        assert masters.ENGINES[engine]["probe"] is not None, engine
+
+
+def test_every_local_server_has_a_probe():
+    """Otherwise probe_local_servers() records it as `down` on every pass."""
+    for spec in _sync.LOCAL_SERVERS:
+        engine = spec["engine"]
+        assert engine in masters.ENGINES, engine
+        assert masters.ENGINES[engine]["probe"] is not None, engine
+
+
+def test_team_arena_is_not_offered_to_a_baseq3_client():
+    """All fourteen servers sit on one IP. `gamename` is the only thing that
+    keeps a Quake III box from being handed the Team Arena address, which
+    connects and is then rejected."""
+    q3a = next(s for s in _sync.LOCAL_SERVERS if s["port"] == 27961)
+    ta = next(s for s in _sync.LOCAL_SERVERS if s["port"] == 27962)
+    assert q3a["gamename"] == "baseq3"
+    assert ta["gamename"] == "missionpack"
+    assert "baseq3" in favorites.TITLES["quake3"]["accepts"]
+    assert "missionpack" not in favorites.TITLES["quake3"]["accepts"]
+
+
+def test_unwritable_reasons_do_not_deny_a_server_that_now_exists():
+    """These strings are read by a human deciding what to do next, so a reason
+    that is factually stale ('no fleet server') is worse than no reason."""
+    for key in ("sof2", "jka", "quake"):
+        why = favorites.UNWRITABLE[key]
+        assert "no fleet" not in why.lower(), key
+        assert "192.168.1.132" in why, key

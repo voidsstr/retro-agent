@@ -1,0 +1,16 @@
+[Unit]
+Description=Jedi Knight: Jedi Academy MP Dedicated Server (OpenJK) - NSC Retro Fleet Arena
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/jka-server
+ExecStart=/home/voidsstr/jka-server/openjkded.x86_64 +set fs_homepath /home/voidsstr/jka-server/.ja +set fs_basepath /home/voidsstr/jka-server +set net_port 29070 +set dedicated 2 +exec server.cfg
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/voidsstr/jka-server/server.log
+StandardError=append:/home/voidsstr/jka-server/server.log
+
+[Install]
+WantedBy=default.target

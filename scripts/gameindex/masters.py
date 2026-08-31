@@ -134,6 +134,41 @@ def _q3_probe(addr):
     }
 
 
+# --- NetQuake / Hexen II -----------------------------------------------------
+# NEITHER `getstatus` NOR `status`: the Quake CONTROL protocol on the game
+# port. Both of the other two are dropped in silence, so probing a NetQuake
+# server the Quake III way reports it down forever -- and our own servers are
+# pinned into every box's favourites either way, which is exactly how a
+# permanent false alarm gets normalised. Hence a real probe rather than None.
+_NQ_CTL = 0x80000000
+_NQ_CCREQ_SERVER_INFO = 0x02
+_NQ_CCREP_SERVER_INFO = 0x83
+
+
+def _nq_probe(addr, game=b"QUAKE"):
+    host, port = addr.rsplit(":", 1)
+    body = bytes([_NQ_CCREQ_SERVER_INFO]) + game + b"\x00" + bytes([3])
+    packet = struct.pack(">I", _NQ_CTL | (len(body) + 4)) + body
+    data, rtt = _udp(host, int(port), packet)
+    if not data or len(data) < 6 or data[4] != _NQ_CCREP_SERVER_INFO:
+        return None
+    fields = data[5:].split(b"\x00", 3)
+    if len(fields) < 4:
+        return None
+    _address, name, level, tail = fields
+    return {
+        "addr": addr,
+        "hostname": name.decode("latin-1", "replace")[:120],
+        "map": level.decode("latin-1", "replace"),
+        "players": tail[0] if len(tail) > 0 else 0,
+        "maxplayers": tail[1] if len(tail) > 1 else 0,
+        "ping_ms": rtt,
+        "gamename": "netquake",
+        "passworded": 0,
+        "source": "local",
+    }
+
+
 # --- Quake II ----------------------------------------------------------------
 # master.q2servers.com wants a plain "query" on 27900 and often does not answer
 # from a residential IP. Kept, but treated as best-effort.
@@ -440,8 +475,12 @@ ENGINES = {
                     why="TribesNext master not implemented"),
     "rtcw":    dict(list=None, probe=None, supported=False,
                     why="wolfmaster.idsoftware.com is long dead"),
-    "nq":      dict(list=None, probe=None, supported=False,
-                    why="NetQuake has no live master"),
+    # No master exists for NetQuake, so there is no discovery -- but the probe
+    # IS wired, because it is what verifies the fleet's own quake1-server on
+    # :26000 before the sync pass pins it.
+    "nq":      dict(list=None, probe=_nq_probe, supported=False,
+                    why="NetQuake has no live master; the fleet's own server "
+                        "on .132:26000 is pinned directly"),
 }
 
 

@@ -596,18 +596,32 @@ UNWRITABLE = {
         "would be a favourites list of dead entries. Half-Life is box-to-box "
         "LAN only here",
     "sof2":
-        "no Soldier of Fortune II server on the fleet and no live SoF2 master "
-        "we have verified; its Quake III lineage does NOT mean it can join a "
-        "Quake III server",
-    "jka":  "no Jedi Academy server on the fleet and no live JKA master",
+        "there IS a fleet SoF2 server now (sof2-server, 192.168.1.132:20100, "
+        "verified two-box 2026-08-31) but no favourites writer here is "
+        "verified for this engine: SoF2 keeps its multiplayer config in "
+        "base\\MP, not base, and nobody has confirmed on hardware which cvars "
+        "its browser reads. Writing a guess into a staged config is worse "
+        "than this sentence. Join it from the console: "
+        "connect 192.168.1.132:20100. NB its Quake III lineage still does NOT "
+        "mean it can join a Quake III server",
+    "jka":  "there IS a fleet Jedi Academy server now (jka-server, "
+            "192.168.1.132:29070, OpenJK, protocol 26). Nothing is written "
+            "because the staged jamp.exe cannot get past its own CD check "
+            "(\"Disk 1 not in drive\") on a box with no disc, so a favourites "
+            "entry would point a client that cannot start at a server that is "
+            "up. See JediAcademy/README-FLEET.txt in the staged library",
     "jk2":  "no Jedi Knight II server on the fleet and no live JK2 master",
     "et":   "no Enemy Territory server on the fleet and no live ET master",
     "mohaa":
         "no MOHAA server on the fleet; note MOHAA also needs the framed "
         "\\xff\\xff\\xff\\xff\\x02getinfo\\x00 query, not Quake III's getstatus",
     "wolfmp": "no RtCW server on the fleet and wolfmaster.idsoftware.com is dead",
-    "quake":  "NetQuake has no favourites store, and the fleet's Quake server "
-              "is QuakeWorld, which a NetQuake client cannot join",
+    "quake":  "NetQuake keeps no favourites store - the engine has no such "
+              "cvar block, so there is nowhere to write. The fleet DOES have "
+              "a NetQuake server as of 2026-08-31 (quake1-server, port 26000, "
+              "verified two-box): join it from the console with "
+              "`connect 192.168.1.132`. The QuakeWorld server on 27502 remains "
+              "unjoinable from a NetQuake client - different protocol",
     "quakeworld": "classic QW keeps no favourites; the fleet server is reached "
                   "from the console with `connect 192.168.1.132:27502`",
     "ezquake": "ezQuake's favourites file differs per build; unverified here",
@@ -635,16 +649,30 @@ UNWRITABLE = {
     "carmageddon": "Carmageddon 1 is DOSBox/IPX - no server list",
     "carmageddon2": "Carmageddon 2 uses IPXWrapper over the LAN - no server list",
     "redneck": "Redneck Rampage is DOSBox/IPX - no server list",
-    "hexen2":  "Hexen II LAN play is the NetQuake broadcast; no favourites store",
+    "hexen2":  "Hexen II LAN play is the Quake-family broadcast search and the "
+               "engine keeps no favourites store. Verified two-box 2026-08-31: "
+               "the staged Host/Join launchers work and the joiner's Search "
+               "lists the host. There is no fleet Hexen II server to list "
+               "either - uhexen2's h2ded refuses the staged retail 1.03 data",
     "hd":      "Hidden & Dangerous joins by typed address; no fleet server",
-    "jk":      "Jedi Knight: Dark Forces II is DirectPlay LAN - no server list",
-    "jkmots":  "Mysteries of the Sith is DirectPlay LAN - no server list",
+    "jk":      "Jedi Knight: Dark Forces II is DirectPlay LAN - no server list "
+               "and no dedicated server on any platform. Verified two-box "
+               "2026-08-31: Host Game on one box, Join Game -> TCP/IP -> blank "
+               "Locate Session on the other, and the broadcast finds it",
+    "jkmots":  "Mysteries of the Sith is DirectPlay LAN - no server list, same "
+               "Sith engine as Dark Forces II. Verified two-box 2026-08-31",
     # Quake II engine, but that buys nothing without a server of their own:
     # a SiN or SoF client cannot join a Quake II server.
-    "sin":     "SiN is Quake II engine but speaks its own game; no fleet SiN "
-               "server and no live master",
+    "sin":     "SiN is Quake II engine but speaks its own game and keeps no "
+               "favourites store; no fleet SiN server (Ritual never shipped a "
+               "Linux one). Verified two-box 2026-08-31 box-to-box: one box "
+               "runs ds_deathmatch.bat or a listen server, the rest use "
+               "`sin.exe +connect <host ip>`",
     "sof":     "Soldier of Fortune is Quake II engine but speaks its own game; "
-               "no fleet SoF server and no live master",
+               "no fleet SoF server and none is possible - Loki's Linux port "
+               "topped out at 1.06a and a standalone sofded never existed. Its "
+               "multiplayer also wants the SOF CD in a drive (WON Error!), so "
+               "there is nothing an address list could fix",
     # Single-player titles that reached the library for other reasons.
     "thief":   "Thief: The Dark Project is single-player - there is no "
                "multiplayer to have favourites for",

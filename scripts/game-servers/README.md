@@ -95,6 +95,8 @@ permanently claim someone was playing.
 | Quake III | `getstatus` | infostring on **line 1** (line 0 is `statusResponse`); one line per player |
 | Quake 2 | `status` (not `getstatus`) | infostring on **line 1** (line 0 is `print`) |
 | QuakeWorld (mvdsv) | `status` | infostring on **line 0** — the `n` header is glued to the first key. The reply ends `\n\x00`, and `str.strip()` does not remove a NUL, so a naive line count reports one phantom player |
+| NetQuake / Hexen II | the Quake **control protocol** on the game port: `[0x80\|len:u32BE][0x02]["QUAKE"\0][3]` → `[0x83][addr\0][hostname\0][level\0][cur][max][proto]` | the server gives its own count, so there is no ping-0 bot heuristic to get wrong. **It answers neither `getstatus` nor `status`** and drops both in silence, so the wrong packet reports a live host as dead. Hexen II answers only to the game string `HEXENII`. Tool: `nqquery.py <ip> <port> [QUAKE\|HEXENII]` |
+| Soldier of Fortune II | `getstatus` | infostring as Quake III, but the **player lines carry THREE numbers** before the name (`0 5 0 "B240"`), so the shared `<score> <ping> "<name>"` bot rule reads the wrong field. SoF2 MP has no bots at all, so `probe_sof2` returns a hard zero rather than a parse |
 | UT99 / UT2004 | `\status\` on **game port + 1** | `numplayers` / `maxplayers` given directly |
 | Tribes 2 | Torque binary `0x0E` → `0x10` | **liveness only, and not by choice** — under TribesNext the info response body is encrypted (`0x12` returns a well-formed `0x14` full of ciphertext). The reply *does* echo the request's four key bytes, so we send a random key and check it comes back: that proves the packet answers *our* query rather than being any UDP traffic that happened to arrive |
 
@@ -109,8 +111,12 @@ every bound of the restart policy).
 | CS 1.6 no blood | `cs16-noblood` | **27019** (browser via proxy **27016**) | `~/hlds-cs16-noblood` |
 | The Specialists | `specialists-server` | **27017** | `~/hlds-ts` |
 | Quake III Arena | `quake3-server` | **27961** | `~/q3a-server` |
+| Quake III: Team Arena | `q3ta-server` | **27962** | `~/q3ta-server` (ioq3ded, `fs_game missionpack`) |
+| Jedi Academy (MP) | `jka-server` | **29070** | `~/jka-server` (OpenJK `openjkded`, built from source) |
+| Soldier of Fortune II Gold | `sof2-server` | **20100** | `~/sof2-server` (Raven's own `sof2ded` + `libcxa.so.1`) |
 | OpenArena | `openarena-server` | **27960** | `~/q3-server` |
 | Quake 2 | `quake2-server` | **27910** | `~/q2-server` |
+| Quake 1 (**NetQuake**) | `quake1-server` | **26000** | `~/quake1-server` (DarkPlaces, `sv_protocolname QUAKE`) |
 | QuakeWorld | `quakeworld-server` | **27502** | `~/qw-server` |
 | UT99 (469e) | `ut99-server` | **7797** (query 7798) | `~/ut99-server` |
 | UT2004 | `ut2004-server` | **7777** (query 7787) | `~/ut2004-server` |
@@ -169,6 +175,50 @@ python3 scripts/game-servers/healthcheck.py     # exit 0 = all up
 Quake 2 answers `status`, not `getstatus`; UT answers GameSpy `\status\` on
 **game port + 1**; Tribes 2 answers only the Torque binary query
 (`0E 00 00 00 00 00`). `healthcheck.py` encodes all of this.
+
+### Four servers added 2026-08-31 — and why each one is its own server
+
+None of these is "another map on an existing server", which is the tempting
+shortcut and is wrong in all four cases.
+
+- **`quake1-server` :26000 — NetQuake, and QuakeWorld is not a substitute.**
+  The staged `Quake1` tree ships `GLQUAKE.EXE` / `WINQUAKE.EXE`, which are
+  **NetQuake** clients: they cannot join `quakeworld-server` on 27502 at all,
+  and mvdsv cannot serve them. "Quake 1 already has a server" was true and
+  useless. DarkPlaces in `sv_protocolname QUAKE` mode serves the retail
+  clients; the data is the library's own `ID1/PAK0.PAK` + `PAK1.PAK`.
+  *Verified 2026-08-31: `.123` and `.240` both joined and saw each other in
+  the frag list; the server reported 2 clients, 0 bots.*
+
+- **`q3ta-server` :27962 — Team Arena is a different `fs_game`, not a map.**
+  A `baseq3` client cannot join a `missionpack` server or vice versa. The
+  missionpack `.pk3`s ship **no QVM** (only the Windows DLLs), so the Linux
+  game module comes from Debian's `/usr/lib/ioquake3/missionpack/qagame.so`.
+  *Verified: both boxes fragging each other on `mpteam1`.*
+
+- **`jka-server` :29070 — OpenJK `openjkded`, built here.**
+  `-DBuildMPDed=ON -DBuildMPGame=ON` and, importantly, **`-DUseInternalZlib=OFF`**:
+  the bundled zlib is K&R-era and does not compile under gcc 15. Protocol 26,
+  which is what retail `jamp.exe` 1.01 speaks, so no client change is needed.
+  *The server answers; the CLIENT is blocked by a CD check — see the title's
+  `README-FLEET.txt` in the staged library.*
+
+- **`sof2-server` :20100 — Raven's own 32-bit `sof2ded`.**
+  Needs `libc6:i386` (present) and ships its own **`libcxa.so.1`** (the Intel
+  C++ 2002 runtime, packaged nowhere), which is why the unit sets
+  `LD_LIBRARY_PATH` to the server directory. The engine reports itself as
+  `SOF2MP V1.02a` while the game QVM loaded from the library's
+  `update103.pk3` is `gamedate: Nov 12 2002` — that mismatch is normal and is
+  what a Gold 1.03 server looks like.
+  *Verified: `.123` and `.240` in `mp_shop` together, both `ClientConnect`
+  lines in the server log.*
+
+**Nothing was added for Hexen II, SiN or Soldier of Fortune 1, and that is a
+finding rather than an omission.** uhexen2's `h2ded` refuses to run on the
+staged retail 1.03 data ("You must patch your installation with Raven's 1.11
+update"); Ritual never shipped a Linux SiN server; and Loki's SoF 1 port
+topped out at 1.06a with no standalone `sofded` ever existing. All three are
+hosted box-to-box instead, and all three of those paths are verified.
 
 ### The CS servers sit behind an A2S proxy — that is deliberate
 

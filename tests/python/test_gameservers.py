@@ -510,3 +510,143 @@ def test_t2_reports_no_player_count_rather_than_zero(monkeypatch):
     info = gameservers.probe_t2(28000)
     assert "players" not in info
     assert info["map"] is None
+
+
+# ==========================================================================
+# NetQuake / Hexen II control protocol, and SoF2's three-number player line
+# --------------------------------------------------------------------------
+# Added 2026-08-31 with the four servers this fleet gained that day
+# (quake1-server :26000, q3ta-server :27962, jka-server :29070,
+#  sof2-server :20100).
+#
+# The failure these pin down is the project's signature shape -- a probe that
+# reports a healthy thing as broken, and says nothing about why. Quake 1 and
+# Hexen II answer NEITHER `getstatus` NOR `status`: they speak the Quake
+# control protocol on the game port and drop the other two in silence, so a
+# single-getstatus sweep calls a live host dead. And a Hexen II host answers
+# only to the game string "HEXENII" -- send "QUAKE" and it is, again,
+# indistinguishable from an unplugged machine.
+# ==========================================================================
+
+import struct as _struct
+
+
+def _nq_reply(address, hostname, level, cur, mx, proto=3, kind=0x83):
+    body = (bytes([kind]) + address.encode() + b"\x00" + hostname.encode() + b"\x00"
+            + level.encode() + b"\x00" + bytes([cur, mx, proto]))
+    return _struct.pack(">I", 0x80000000 | (len(body) + 4)) + body
+
+
+NQ_QUAKE = _nq_reply("0.0.0.0:26000", "NSC Retro Fleet Arena (Quake)", "e1m1", 2, 16)
+NQ_HEXEN2 = _nq_reply("192.168.1.123:26900", "NSC Retro Fleet Hexen II", "demo1", 2, 8, proto=5)
+
+# Captured from sof2-server on 2026-08-31 with .123 and .240 both in mp_shop.
+# Note the player lines: THREE numbers before the name, not two.
+SOF2 = (b"\xff\xff\xff\xffstatusResponse\n"
+        b"\\game_version\\sof2mp-1.02\\g_gametype\\dm\\protocol\\2004"
+        b"\\mapname\\mp_shop\\sv_hostname\\NSC Retro Fleet Arena (SoF2)"
+        b"\\sv_maxclients\\12\n"
+        b'0 0 0 "B123"\n0 5 0 "B240"\n')
+
+
+def test_nq_request_is_the_control_packet_not_getstatus(monkeypatch):
+    """The bytes on the wire are the thing under test: a getstatus here would
+    be answered by nothing, and the caller could not tell that from a dead
+    server."""
+    seen = {}
+
+    def fake(port, payload, timeout=None, host=None):
+        seen["payload"] = payload
+        return NQ_QUAKE, 1.0
+
+    monkeypatch.setattr(gameservers, "_ask", fake)
+    gameservers.probe_nq(26000)
+    payload = seen["payload"]
+    assert payload[:4] == _struct.pack(">I", 0x80000000 | len(payload))
+    assert payload[4] == 0x02                      # CCREQ_SERVER_INFO
+    assert payload[5:11] == b"QUAKE\x00"
+    assert payload[11] == 3                        # NET_PROTOCOL_VERSION
+    assert b"getstatus" not in payload and b"status" not in payload
+
+
+def test_nq_reads_the_servers_own_player_count(canned):
+    canned(NQ_QUAKE)
+    info = gameservers.probe_nq(26000)
+    assert info["name"] == "NSC Retro Fleet Arena (Quake)"
+    assert info["map"] == "e1m1"
+    assert info["players"] == 2
+    assert info["max_players"] == 16
+    # NetQuake has no bots, and the count comes from the server rather than
+    # from a ping-0 heuristic, so this is a fact and not a guess.
+    assert info["bots"] == 0
+
+
+def test_hexen2_sends_its_own_game_string(monkeypatch):
+    """A Hexen II host ignores b"QUAKE". Sending the wrong string is how a
+    live host reads as dead, so the string is asserted, not the parse."""
+    seen = {}
+
+    def fake(port, payload, timeout=None, host=None):
+        seen["p"] = payload
+        return NQ_HEXEN2, 2.0
+
+    monkeypatch.setattr(gameservers, "_ask", fake)
+    info = gameservers.probe_hexen2(26900)
+    assert b"HEXENII\x00" in seen["p"]
+    assert b"QUAKE\x00" not in seen["p"]
+    assert info["name"] == "NSC Retro Fleet Hexen II"
+    assert info["map"] == "demo1"
+    assert info["players"] == 2 and info["max_players"] == 8
+
+
+def test_nq_rejects_a_reply_that_is_not_a_server_info(canned):
+    canned(_nq_reply("x", "y", "z", 0, 8, kind=0x81))   # CCREP_ACCEPT
+    assert gameservers.probe_nq(26000) is None
+
+
+def test_nq_unreachable_is_none_not_an_exception(monkeypatch):
+    monkeypatch.setattr(gameservers, "_ask", lambda *a, **k: (None, None))
+    assert gameservers.probe_nq(26000) is None
+    assert gameservers.probe_hexen2(26900) is None
+
+
+def test_sof2_counts_both_players_despite_the_third_number(canned):
+    canned(SOF2)
+    info = gameservers.probe_sof2(20100)
+    assert info["name"] == "NSC Retro Fleet Arena (SoF2)"
+    assert info["map"] == "mp_shop"
+    assert info["players"] == 2
+
+
+def test_sof2_never_claims_a_bot(canned):
+    """SoF2 multiplayer ships no bots at all, and its player line carries an
+    EXTRA number, so the shared `<score> <ping> "<name>"` ping-0 rule would be
+    reading the wrong field. `0 0 0 "B123"` is a real person on .123 -- calling
+    it a bot would hide exactly the two-machine LAN result this server exists
+    to make possible."""
+    canned(SOF2)
+    assert gameservers.probe_sof2(20100)["bots"] == 0
+
+
+def test_the_new_servers_are_in_the_table():
+    """A server that is running but absent from SERVERS is a server the
+    watchdog never restarts and the wall never shows."""
+    by_unit = {s["unit"]: s for s in gameservers.SERVERS}
+    for unit, port, probe in (("quake1-server", 26000, "nq"),
+                              ("q3ta-server", 27962, "q3"),
+                              ("jka-server", 29070, "q3"),
+                              ("sof2-server", 20100, "sof2")):
+        assert unit in by_unit, unit
+        assert by_unit[unit]["port"] == port
+        assert by_unit[unit]["probe"] == probe
+        assert by_unit[unit]["probe"] in gameservers.PROBES
+
+
+def test_quake1_is_not_probed_as_quakeworld():
+    """Both are 'Quake', they are different protocols, and they are different
+    servers on different ports. Probing 26000 the QuakeWorld way returns
+    nothing at all."""
+    q1 = next(s for s in gameservers.SERVERS if s["unit"] == "quake1-server")
+    qw = next(s for s in gameservers.SERVERS if s["unit"] == "quakeworld-server")
+    assert q1["probe"] == "nq" and qw["probe"] == "qw"
+    assert q1["port"] != qw["port"]

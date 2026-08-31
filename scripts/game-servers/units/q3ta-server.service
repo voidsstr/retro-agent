@@ -1,0 +1,16 @@
+[Unit]
+Description=Quake III Team Arena Dedicated Server - NSC Retro Fleet Arena
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/q3ta-server
+ExecStart=/usr/lib/ioquake3/ioq3ded +set fs_homepath /home/voidsstr/q3ta-server/.q3a +set fs_game missionpack +set net_port 27962 +set dedicated 2 +set com_legacyprotocol 68 +exec server.cfg
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/voidsstr/q3ta-server/server.log
+StandardError=append:/home/voidsstr/q3ta-server/server.log
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,17 @@
+[Unit]
+Description=Soldier of Fortune II Gold Dedicated Server - NSC Retro Fleet Arena
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/sof2-server
+Environment=LD_LIBRARY_PATH=/home/voidsstr/sof2-server
+ExecStart=/home/voidsstr/sof2-server/sof2ded +set dedicated 2 +set net_port 20100 +set fs_basepath /home/voidsstr/sof2-server +set fs_homepath /home/voidsstr/sof2-server/.sof2 +set sv_punkbuster 0 +exec server.cfg
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/voidsstr/sof2-server/server.log
+StandardError=append:/home/voidsstr/sof2-server/server.log
+
+[Install]
+WantedBy=default.target

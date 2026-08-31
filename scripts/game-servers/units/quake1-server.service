@@ -1,0 +1,17 @@
+[Unit]
+Description=Quake 1 NetQuake Dedicated Server (DarkPlaces) - NSC Retro Fleet Arena
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/quake1-server
+Environment=LD_LIBRARY_PATH=/home/voidsstr/quake1-server/lib
+ExecStart=/home/voidsstr/quake1-server/darkplaces-server -basedir /home/voidsstr/quake1-server -port 26000 +exec server.cfg +map e1m1
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/voidsstr/quake1-server/server.log
+StandardError=append:/home/voidsstr/quake1-server/server.log
+
+[Install]
+WantedBy=default.target

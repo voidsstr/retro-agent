@@ -29,6 +29,7 @@ import os
 import re
 import re
 import socket
+import struct
 import subprocess
 import sys
 import time
@@ -221,6 +222,70 @@ def probe_t2(port, timeout=4.0, host=None):
     return {"name": "Tribes 2", "map": None, "rtt_ms": rtt}
 
 
+# NetQuake / Hexen II speak neither `getstatus` nor `status`: they answer the
+# Quake CONTROL protocol on the game port, and ignore the other two in silence.
+# That silence is the whole hazard -- probed the Quake III way, a perfectly
+# healthy Quake 1 or Hexen II host reads as DOWN.
+_NQ_CTL_FLAG = 0x80000000
+_NQ_CCREQ_SERVER_INFO = 0x02
+_NQ_CCREP_SERVER_INFO = 0x83
+_NQ_NET_PROTOCOL_VERSION = 3
+
+
+def probe_nq(port, timeout=DEFAULT_TIMEOUT, host=None, game=b"QUAKE"):
+    r"""NetQuake control query — Quake 1 (26000) and Hexen II (26900).
+
+    Request:  [0x80 | len : u32 big-endian][0x02]["QUAKE"\0][protocol byte]
+    Reply:    [0x80 | len][0x83][address\0][hostname\0][level\0][cur][max][proto]
+
+    `game` is NOT decoration: a Hexen II host answers only to b"HEXENII" and
+    drops b"QUAKE" without a word, so the wrong string here is indistinguishable
+    from a dead box.
+
+    The reply carries the server's own player count, so nothing is counted by
+    hand and there is no ping-0 bot heuristic to get wrong -- neither engine
+    has bots.
+    """
+    body = bytes([_NQ_CCREQ_SERVER_INFO]) + game + b"\x00" + bytes([_NQ_NET_PROTOCOL_VERSION])
+    packet = struct.pack(">I", _NQ_CTL_FLAG | (len(body) + 4)) + body
+    data, rtt = _ask(port, packet, timeout, host)
+    if not data or len(data) < 6 or data[4] != _NQ_CCREP_SERVER_INFO:
+        return None
+    rest = data[5:]
+    fields = rest.split(b"\x00", 3)
+    if len(fields) < 4:
+        return None
+    _address, name, level, tail = fields
+    out = {
+        "name": name.decode("latin-1", "replace"),
+        "map": level.decode("latin-1", "replace"),
+        "bots": 0,
+        "rtt_ms": rtt,
+    }
+    if len(tail) >= 2:
+        out["players"] = tail[0]
+        out["max_players"] = tail[1]
+    return out
+
+
+def probe_hexen2(port, timeout=DEFAULT_TIMEOUT, host=None):
+    """Hexen II: the same control protocol, with the game string it answers to."""
+    return probe_nq(port, timeout, host, game=b"HEXENII")
+
+
+def probe_sof2(port, timeout=DEFAULT_TIMEOUT, host=None):
+    r"""Soldier of Fortune II — Quake III `getstatus`, with one difference that
+    matters: its player lines carry THREE numbers before the name, not two
+    (`0 5 0 "B240"`), so the shared `<score> <ping> "<name>"` bot heuristic does
+    not apply and must not be allowed to guess. SoF2 multiplayer ships no bots
+    at all, so the honest answer is a hard zero rather than a parse.
+    """
+    out = probe_q3(port, timeout, host)
+    if out is not None:
+        out["bots"] = 0
+    return out
+
+
 PROBES = {
     "a2s": probe_a2s,
     "q3": probe_q3,
@@ -228,6 +293,9 @@ PROBES = {
     "qw": probe_qw,
     "ut": probe_ut,
     "t2": probe_t2,
+    "nq": probe_nq,
+    "hexen2": probe_hexen2,
+    "sof2": probe_sof2,
 }
 
 
@@ -250,8 +318,21 @@ SERVERS = [
      "probe": "q3",  "port": 27961, "join": 27961},
     {"unit": "openarena-server",   "label": "OpenArena",       "engine": "q3",
      "probe": "q3",  "port": 27960, "join": 27960},
+    # fs_game missionpack. A baseq3 client cannot join this and a missionpack
+    # client cannot join 27961, so it is a separate server and not a map.
+    {"unit": "q3ta-server",        "label": "Q3 Team Arena",   "engine": "q3",
+     "probe": "q3",  "port": 27962, "join": 27962},
+    {"unit": "jka-server",         "label": "Jedi Academy",    "engine": "q3",
+     "probe": "q3",  "port": 29070, "join": 29070},
+    {"unit": "sof2-server",        "label": "SoF II",          "engine": "q3",
+     "probe": "sof2", "port": 20100, "join": 20100},
     {"unit": "quake2-server",      "label": "Quake 2",         "engine": "q2",
      "probe": "q2",  "port": 27910, "join": 27910},
+    # NetQuake, not QuakeWorld. GLQUAKE.EXE cannot join 27502 and mvdsv cannot
+    # serve it -- two protocols, so two servers, and the staged Quake 1 tree is
+    # a NetQuake client.
+    {"unit": "quake1-server",      "label": "Quake (NetQuake)", "engine": "nq",
+     "probe": "nq",  "port": 26000, "join": 26000},
     {"unit": "quakeworld-server",  "label": "QuakeWorld",      "engine": "qw",
      "probe": "qw",  "port": 27502, "join": 27502},
     {"unit": "ut99-server",        "label": "UT99",            "engine": "unreal",
