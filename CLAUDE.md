@@ -2198,10 +2198,29 @@ retail 1.0 in fact raises that modal **before any key prompt**.
 
 - **Identify it:** the PE has sections `stxt774` / `stxt371` and the string
   `BoG_ *90.0&!!  Yy>`.
-- **Get the exact version, it is three dwords:** immediately after that marker
-  (file offset `0xfd4` on both binaries measured here) sit major/minor/subminor
-  — `3 / 0x14 / 0x16` = **SafeDisc 3.20.022** (Doom 3 retail),
-  `2 / 0x50 / 0x0a` = **SafeDisc 2.80.010** (C&C Generals).
+- **Get the exact version, it is three dwords at `marker + 0x20`** —
+  major/minor/subminor. **Locate the marker, do not use a fixed file offset.**
+  An earlier version of this note said "file offset `0xfd4`", which was the
+  address the version happened to land at in the two binaries first measured;
+  it is not a constant and it reads garbage elsewhere. Verified 2026-08-31 on
+  two more:
+
+  | binary | `BoG_` marker at | `marker + 0x20` | fixed `0xfd4` |
+  |---|---|---|---|
+  | `Carmageddon2/Carma2_SW.exe` | `0x3d4` | **1.01.034** | `3246392461.3269002208...` (garbage) |
+  | `BF1942/Mods/bf1942/Mod.dll` | `0xfd4` | **2.80.010** | garbage |
+
+  Known values: `3 / 0x14 / 0x16` = **3.20.022** (Doom 3 retail),
+  `2 / 0x50 / 0x0a` = **2.80.010** (C&C Generals *and* the BF1942 client),
+  `1 / 0x01 / 0x22` = **1.01.034** (Carmageddon 2).
+
+  **The version decides the whole plan**, which is why a wrong read is
+  expensive: DAEMON Tools 3.47 emulates the **1.x** generation happily —
+  Carmageddon 2 is not protection-blocked at all — and cannot satisfy **2.80**,
+  which is what actually walls Generals and the BF1942 client.
+
+- **The wrapper is not always in the .exe.** BF1942's SafeDisc lives in
+  `Mods\bf1942\Mod.dll`; scanning only the executable reports the title clean.
 - **Look for an OFFICIAL patch that drops the wrapper before reaching for a
   mounter.** id's Doom 3 1.3 does — its `Doom3.exe` has six ordinary sections
   including `.reloc`, no `stxt*`, no `BoG_`. Pull it without installing: run the
