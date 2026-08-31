@@ -37,8 +37,27 @@ sys.path.insert(0, HERE)
 import compat        # noqa: E402
 import compat_db as C  # noqa: E402
 
-DEFAULT_URL = os.getenv("RETRO_DASHBOARD_URL",
-                        "https://nsc-dashboard.azurecontainerapps.io")
+# The FULL FQDN, including the Container Apps ENVIRONMENT subdomain.
+#
+# This was "https://nsc-dashboard.azurecontainerapps.io" -- an app name glued
+# straight onto the service domain, which is not a hostname Azure ever issues
+# and does not resolve. Every publish therefore died with
+#
+#     PUBLISH FAILED: <urlopen error [Errno -2] Name or service not known>
+#
+# after building a perfectly good 373 KB snapshot, and it read as a network or
+# DNS problem on this host -- one agent reported it as exactly that. It is not:
+# `getent hosts` on the real FQDN resolves fine and the app reports Running.
+# A wrong constant that fails like an outage is worse than one that fails
+# loudly, because it sends people to debug the wrong machine.
+#
+# Container Apps FQDNs are <app>.<environment>.<region>.azurecontainerapps.io.
+# Confirm with:
+#   az containerapp show -n nsc-dashboard -g <rg> \
+#      --query properties.configuration.ingress.fqdn -o tsv
+DEFAULT_URL = os.getenv(
+    "RETRO_DASHBOARD_URL",
+    "https://nsc-dashboard.happysky-24190067.eastus.azurecontainerapps.io")
 
 
 def token_from_vault():
