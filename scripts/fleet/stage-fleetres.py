@@ -377,6 +377,36 @@ def turok2_mode():
     return out
 
 
+def ss_cfg():
+    """Serious Sam (Croteam Serious Engine 1).
+
+    The mode lives in `Scripts\\PersistentSymbols.ini`, which the ENGINE
+    REWRITES ON EXIT - so a staged constant there is overwritten by the first
+    box that runs the game, and was wrong on the other seven before that. The
+    engine's own hook is `Scripts\\Game_startup.ini`, whose shipped first line
+    is literally "// executed each time SeriousSam is started", so the mode is
+    written there fresh at every launch - structurally the same fix as id Tech
+    3's fleetres.cfg.
+
+    `sam_iDriver=0` is OpenGL. That value is READ OUT OF the retail tree
+    (`Scripts\\Addons\\SafeMode.ini`), not guessed - the Voodoo2 addon beside
+    it uses 1, so the numbering is not obvious.
+
+    `sam_bWideScreen` is deliberately NOT set. In this engine it means
+    "letterbox the view", not "the panel is 16:9", so setting it on a
+    widescreen box would crop the game rather than fit it.
+    """
+    p = '"%~dp0Scripts\\Game_startup.ini"'
+    return [
+        '> %s echo // written by the launcher at every start - do not edit' % p,
+        '>>%s echo sam_bFullScreen=1;' % p,
+        '>>%s echo sam_iScreenSizeI=%%FR_W%%;' % p,
+        '>>%s echo sam_iScreenSizeJ=%%FR_H%%;' % p,
+        '>>%s echo sam_iDriver=0;' % p,
+        '>>%s echo gfx_iRefreshRate=%%FR_HZ%%;' % p,
+    ]
+
+
 CALL = 'call "%~dp0FLEETRES.BAT"'
 def call_cap(w, h):
     return 'call "%~dp0FLEETRES.BAT" -cap ' + str(w) + ' ' + str(h)
@@ -403,6 +433,33 @@ def q3(mod, exe, extra=""):
 
 
 TITLES = {
+    "ReturnToCastleWolfenstein": {
+        # id Tech 3, and it DOES have the r_mode -1 branch (r_customwidth /
+        # r_customheight / r_customaspect are all in WolfMP.exe's cvar table),
+        # so it gets the standard idtech3_cfg treatment rather than SoF2's
+        # plain-index workaround. Main\autoexec.cfg ships from GOG carrying
+        # `set devdll 1` and is exec'd by BOTH WolfSP.exe and WolfMP.exe, so
+        # one `exec fleetres.cfg` appended there serves both engines.
+        #
+        # The two LAN launchers are NOT listed here: they are hand-written (a
+        # dedicated/listen server and a +connect client need arguments this
+        # tool has no vocabulary for) and each carries the same
+        # `call FLEETRES.BAT` plus the same cfg writes inline, exactly as
+        # RedneckRampage's LAN pair does.
+        "new": {
+            "Play Return to Castle Wolfenstein.bat": ("WolfSP.exe", "Main"),
+            "Play RTCW Multiplayer.bat": ("WolfMP.exe", "Main"),
+        },
+        "cfg_exec": ["Main/autoexec.cfg"],
+    },
+    "SeriousSamFirstEncounter": {
+        "launchers": {
+            n: rec('cd /d "%~dp0"', [CALL] + ss_cfg())
+            for n in ("Play Serious Sam - The First Encounter.bat",
+                      "Host Serious Sam TFE - LAN.bat",
+                      "Join Serious Sam TFE - LAN.bat")
+        },
+    },
     # DOOM 3 (2004, id Tech 4). No cfg_strip and no fleetres.cfg: see
     # doom3_args() - this engine re-applies the command line AFTER its config,
     # so the launcher's +set wins and there is nothing staged to fight with.
@@ -431,6 +488,30 @@ TITLES = {
             "Play Quake III Arena - retail 1.32c.bat": q3("baseq3", "quake3.exe"),
         },
         "cfg_strip": ["baseq3/autoexec.cfg", "missionpack/autoexec.cfg"],
+    },
+    "SeriousSamSecondEncounter": {
+        "launchers": {
+            n: rec('cd /d "%~dp0"', [CALL] + ss_cfg())
+            for n in ("Play Serious Sam - The Second Encounter.bat",
+                      "Host Serious Sam TSE - LAN.bat",
+                      "Join Serious Sam TSE - LAN.bat")
+        },
+    },
+    "ShadowWarrior": {
+        # Build engine under DOSBox, same shape as RedneckRampage. The base
+        # conf (GOG's own dosbox_swarrior.conf, staged unmodified) carries
+        # [sdl] fullresolution, and that value cannot be a staged constant:
+        # `original` retargets the WHOLE DESKTOP on an LCD and `desktop` is
+        # wrong on a CRT, and this fleet has four of each.
+        "launchers": {
+            n: rec('cd /d "%~dp0DOSBOX"',
+                   [CALL] + dosbox_conf("dosbox_swarrior.conf"))
+            for n in ("Play Shadow Warrior.bat",
+                      "Play Twin Dragon.bat",
+                      "Play Wanton Destruction.bat",
+                      "Host Shadow Warrior - LAN.bat",
+                      "Join Shadow Warrior - LAN.bat")
+        },
     },
     "SoldierOfFortune2": {
         # THE ONLY idTech3 TITLE HERE WITH NO r_mode -1 BRANCH. See
