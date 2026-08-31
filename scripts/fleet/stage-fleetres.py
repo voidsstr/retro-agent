@@ -1036,6 +1036,18 @@ TITLES = {
                 'cd /d "%~dp0DOSBOX"', [CALL] + dosbox_conf("dosboxCarma.conf")),
         },
     },
+    "MasterOfOrionII": {
+        # DOS under DOSBox, same shape as RedneckRampage / ShadowWarrior /
+        # WarcraftOrcsAndHumans. The base conf carries [sdl] fullresolution
+        # and that value cannot be a staged constant.
+        "launchers": {
+            n: rec('cd /d "%~dp0DOSBOX"',
+                   [CALL] + dosbox_conf("dosboxMOO2.conf"))
+            for n in ("Play Master of Orion II.bat",
+                      "Host Master of Orion II - LAN.bat",
+                      "Join Master of Orion II - LAN.bat")
+        },
+    },
     "RedneckRampage": {
         "launchers": {
             n: rec('cd /d "%~dp0DOSBOX"', [CALL] + dosbox_conf("dosboxRR.conf"))

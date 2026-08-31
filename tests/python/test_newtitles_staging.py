@@ -108,7 +108,10 @@ def test_every_new_title_has_a_fleetres_recipe():
     # DirectDraw, Master of Orion II is a 1996 Win32 blit - so there is no mode
     # for a launcher to write and a recipe would be a no-op that READS AS
     # COVERAGE. They are asserted as exceptions rather than left as absences.
-    NO_MODE = ('WarcraftII', 'MasterOfOrionII')
+    # Warcraft II is native Win32 DirectDraw at a FIXED 640x480 - there is no
+    # mode for a launcher to write and a recipe would be a no-op that READS AS
+    # COVERAGE. It is asserted as an exception rather than left as an absence.
+    NO_MODE = ('WarcraftII',)
     for t in TITLES:
         if t in NO_MODE:
             assert '"%s": {' % t not in src, (
