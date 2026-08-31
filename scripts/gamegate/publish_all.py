@@ -35,7 +35,7 @@ sys.path.insert(0, os.path.join(REPO, "scripts"))
 sys.path.insert(0, REPO)
 
 from gamegate import rules, cache as cache_mod, library as library_mod, llm as llm_mod
-from gamegate.gamegate import get_profile, plan
+from gamegate.gamegate import get_profile_async, plan
 from client.retro_protocol import RetroConnection
 
 SECRET = "retro-agent-secret"
@@ -81,14 +81,32 @@ async def main_async(ips, verify_only):
     bad = []
     for ip in ips:
         prof = None
-        for _ in range(6):
+        last = None
+        for attempt in range(6):
             try:
-                prof, _d = get_profile(ip, cache)
+                prof, _d = await get_profile_async(ip, cache)
                 break
-            except Exception:
-                await asyncio.sleep(15)
+            except (OSError, asyncio.TimeoutError) as e:
+                # Only a genuinely network-shaped failure is worth retrying.
+                last = e
+                if attempt < 5:
+                    await asyncio.sleep(15)
+            except Exception as e:
+                # Anything else is a BUG, not a powered-off box. Say so and
+                # stop -- retrying it six times over 90 seconds and then
+                # printing "UNREACHABLE" is how this stayed hidden: an
+                # asyncio.run()-inside-a-loop RuntimeError wore the costume of
+                # a machine that was simply switched off, on a fleet that is
+                # deliberately switched off most of the time.
+                bad.append(f"{ip}: {type(e).__name__}: {e}")
+                print(f"{ip:16s} ERROR ({type(e).__name__}: {e}) - not a "
+                      f"reachability problem, not retried")
+                last = e
+                break
         if prof is None:
-            print(f"{ip:16s} UNREACHABLE - not published (its file is left alone)")
+            if not any(b.startswith(f"{ip}:") for b in bad):
+                print(f"{ip:16s} UNREACHABLE ({type(last).__name__ if last else 'no reply'})"
+                      f" - not published (its file is left alone)")
             continue
 
         if not verify_only:

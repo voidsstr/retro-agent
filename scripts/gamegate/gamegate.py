@@ -71,9 +71,55 @@ async def _fetch_hwprofile(ip, port=9898, timeout=20.0):
     return text
 
 
+def _parse_profile(ip, text, cache):
+    try:
+        data = json.loads(text)
+    except ValueError:
+        raise SystemExit(
+            f"{ip}: HWPROFILE did not return JSON. If this agent predates "
+            f"v1.71.0 it has no HWPROFILE command - update it first.\n"
+            f"  got: {text[:200]}")
+    p = rules.Profile.from_hwprofile(data, ip=ip)
+    if cache:
+        cache.remember_profile(p, text)
+    return p, data
+
+
+async def get_profile_async(ip, cache=None):
+    """The real implementation. Use this from any async caller.
+
+    WHY THIS EXISTS. `get_profile` wraps the fetch in `asyncio.run`, which
+    raises `RuntimeError: asyncio.run() cannot be called from a running event
+    loop` when called from inside one. `publish_all.py` calls it from inside
+    `main_async`, so **it could never publish a verdict file for any box** --
+    every machine came back "UNREACHABLE" while its agent was answering
+    perfectly. Measured on .243 on 2026-08-31: this coroutine raised, while the
+    identical call from a sync context returned profile d931bfe6c33fae5e.
+
+    The failure was invisible because the caller caught bare `Exception` and
+    printed a network-shaped message, so a programming error wore the costume
+    of a powered-off machine -- on a fleet that is deliberately powered off
+    most of the time, which is precisely the condition nobody investigates.
+    """
+    return _parse_profile(ip, await _fetch_hwprofile(ip), cache)
+
+
 def get_profile(ip, cache=None):
     """Fetch and parse HWPROFILE. Raises with a usable message if the agent is
-    too old to have the command - that is a fixable state, not a mystery."""
+    too old to have the command - that is a fixable state, not a mystery.
+
+    SYNC callers only. From async code use `get_profile_async`.
+    """
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        pass
+    else:
+        raise RuntimeError(
+            "get_profile() was called from inside a running event loop, where "
+            "its asyncio.run() can only ever raise. Use get_profile_async(). "
+            "This is the defect that silently stopped publish_all.py "
+            "publishing any verdict file at all.")
     text = asyncio.run(_fetch_hwprofile(ip))
     try:
         data = json.loads(text)

@@ -1731,6 +1731,43 @@ auto-updates like any other, so a future NT-only import would take it dark with
 **no supervision at all** — the `RetroAgent` Run key fires only at logon, and
 recovery needs someone physically at the machine.
 
+## NEVER `EXEC ... type` A FILE — USE `DOWNLOAD` (REQUIRED)
+
+**Reading a file by capturing `type`'s output through `EXEC` killed the Win98
+agent on `.243` on 2026-08-31 and cost the box a trip to the keyboard.** `EXEC`
+buffers the child's *entire* stdout and returns it in one frame; a 204 KB
+`agent.log` on a 127 MB single-threaded Win9x agent is enough to take the
+process down, and the 120 s timeout then tore the connection down mid-capture
+as well (which Win98 Winsock handles badly — see the RST crash note below).
+
+- **Use `DOWNLOAD <path>`** to read a file. It streams as binary instead of
+  buffering through the command path.
+- For a **Win9x agent log** the prescribed route is
+  `retro_agent.exe -l <path on the share>`.
+- Treat `EXEC` output as **small by contract**, especially on 9x. If a command
+  could emit more than a few KB, redirect it to a file and `DOWNLOAD` that, or
+  reduce it on the box (`find /c`, `findstr`).
+
+### ⚠️ A SUCCESSFUL TCP CONNECT IS NOT LIVENESS
+
+When that agent died the ports read:
+
+| port | state | what it means |
+|---|---|---|
+| 139 | **OPEN** | the OS and networking are perfectly fine |
+| 9898 / 9899 | refused | the agent's listeners are gone |
+| **9897** | **accepts, then never answers** | the alt listener is still bound |
+
+**So a reachability check that merely connects reports a dead agent as healthy.**
+Probe with a protocol-level `PING`. This is the same shape recorded for
+pre-1.20.0 shutdowns, and the fixed shutdown path does **not** help when the
+process *dies* rather than exits.
+
+**Recovery on Win9x needs a person** — nothing supervises the agent there (the
+`HKLM\...\Run\RetroAgent` value fires only at logon), exactly as with a bare
+`QUIT`. The machine is otherwise healthy; a reboot or double-clicking the exe
+restores it.
+
 ## Win98 Known Issues & Fixes
 
 ### SYSFIX Command
