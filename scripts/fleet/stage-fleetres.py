@@ -476,9 +476,16 @@ def ssam_startup_ini():
     titles rewrite fleetres.cfg. Serious Engine's console syntax needs the
     trailing semicolons.
 
-    sam_iDriver is left at 0 (the default OpenGL/ICD path) rather than being
-    computed: the engine picks its own renderer, and this mechanism is about
-    the panel, not the API.
+    THE LAUNCHER DELIBERATELY DOES NOT WRITE sam_iDriver. It used to pin it to
+    0 (OpenGL), and that is a renderer choice this tool cannot make: measured on
+    .246 (Win7, Radeon HD 5450) the OpenGL path dies before any window with
+    "Cannot set display mode! Serious Sam was unable to find display mode with
+    OpenGL acceleration", and the same box runs fine on sam_iDriver=1
+    (Direct3D). Pinning 0 at every launch also overwrote the engine's OWN
+    persisted answer, so a box fixed by hand was un-fixed on its next start.
+    The engine auto-detects a renderer on first run and saves it to
+    PersistentSymbols.ini - which is no longer staged, so that answer now
+    survives. This block owns the PANEL; the engine owns the API.
     """
     p = '"%~dp0Scripts\\Game_startup.ini"'
     return [
@@ -488,7 +495,6 @@ def ssam_startup_ini():
         '>>%s echo sam_bFullScreen=1;' % p,
         '>>%s echo sam_iScreenSizeI=%%FR_W%%;' % p,
         '>>%s echo sam_iScreenSizeJ=%%FR_H%%;' % p,
-        '>>%s echo sam_iDriver=0;' % p,
         '>>%s echo gfx_iRefreshRate=%%FR_HZ%%;' % p,
     ]
 

@@ -361,6 +361,34 @@ def test_the_icon_is_a_real_icon():
                     % (name, exe))
 
 
+def test_the_launcher_does_not_pin_the_renderer():
+    """sam_iDriver is a choice this tool cannot make, and it broke a box.
+
+    Serious Engine 1 has an OpenGL path (0) and a Direct3D path (1). Measured
+    on .246 (Win7, Radeon HD 5450) 2026-08-31: sam_iDriver=0 dies before any
+    window with "Cannot set display mode! ... unable to find display mode with
+    OpenGL acceleration"; the same tree on sam_iDriver=1 runs. The launcher
+    used to write 0 at EVERY start, which additionally overwrote the engine's
+    own auto-detected answer - so a box fixed by hand was un-fixed on its next
+    launch. The engine owns the API; the launcher owns the panel.
+    """
+    src = _text(FLEETRES)
+    i = src.index('def ssam_startup_ini')
+    body = src[i:src.index('\nCALL = ', i)]
+    assert 'sam_iScreenSizeI' in body, 'the helper no longer writes a resolution'
+    assert 'echo sam_iDriver' not in body, (
+        'the launcher pins sam_iDriver again. That overrides the engine\'s own '
+        'auto-detected renderer at every start, and pinning 0 makes the title '
+        'unstartable on .246 - which has no working OpenGL path for this '
+        'engine. Put a per-box override in that box\'s PersistentSymbols.ini.')
+    if os.path.isdir(LIB):
+        for name, t in TITLES.items():
+            for lname in (t['play'], t['host'], t['join']):
+                lb = _text(os.path.join(LIB, name, lname))
+                assert 'sam_iDriver' not in lb, \
+                    '%s/%s still writes sam_iDriver' % (name, lname)
+
+
 def test_per_box_state_is_not_staged():
     """The engine writes Scripts\\PersistentSymbols.ini on EXIT.
 

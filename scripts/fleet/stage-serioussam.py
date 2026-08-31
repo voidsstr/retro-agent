@@ -573,6 +573,28 @@ THE ICON
     main-menu logo texture (Textures/Logo/sam_menulogo256b.tex inside %(gro)s)
     by scripts/fleet/make-ssam-icon.py in the retro-agent repo.
 
+THE RENDERER IS THE ENGINE'S CHOICE, NOT THE LAUNCHER'S
+    The launcher writes the RESOLUTION and deliberately does NOT write
+    sam_iDriver. Serious Engine 1 has an OpenGL path (0) and a Direct3D path
+    (1), it auto-detects on first run, and it saves the answer in
+    Scripts\PersistentSymbols.ini.
+
+    That matters because the OpenGL path is not universal here. Measured on
+    .246 (Windows 7, Radeon HD 5450) 2026-08-31: with sam_iDriver=0 the game
+    dies before opening a window -
+
+        Fatal Error: Cannot set display mode!
+        Serious Sam was unable to find display mode with OpenGL acceleration.
+
+    - and the identical tree with sam_iDriver=1 starts and renders. An earlier
+    version of the launcher pinned sam_iDriver=0 at EVERY start, which also
+    overwrote the engine's own persisted answer, so a box fixed by hand was
+    un-fixed on its next launch.
+
+    To pin a renderer on one box, put it in THAT BOX'S
+    Scripts\PersistentSymbols.ini - that file is per-box state and is
+    deliberately not staged, so it survives GAMESYNC.
+
 RESOLUTION
     Scripts\Game_startup.ini, which the engine documents as "executed each time
     SeriousSam is started", is rewritten by each launcher from FLEETRES.
