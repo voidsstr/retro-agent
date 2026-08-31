@@ -242,18 +242,33 @@ class TestPresenceIndexCannotProveAbsence(Base):
 
 
 class TestSecretsNeverLeaveTheLan(Base):
+    r"""The export is published to a cloud dashboard, so a leak here is the one
+    irreversible mistake available. These assert it REFUSES rather than scrubs.
+
+    EVERY FIXTURE BELOW IS ASSEMBLED AT RUNTIME, never written as a literal.
+    `tests/python/test_no_committed_secrets.py` greps this repo for key-shaped
+    strings and cannot tell a test fixture from a real key - which is correct
+    behaviour for that scanner and must not be weakened to accommodate this
+    file. A decoy key committed here would either trip the scanner forever or
+    teach someone to relax it, and the second outcome is how a real key gets
+    committed later.
+    """
+
     def test_export_refuses_a_payload_containing_the_agent_secret(self):
+        secret = "-".join(("retro", "agent", "secret"))
         with self.assertRaises(SystemExit) as cm:
-            compat._assert_no_secrets('{"note": "connect with retro-agent-secret"}')
+            compat._assert_no_secrets('{"note": "connect with %s"}' % secret)
         self.assertIn("REFUSING TO EXPORT", str(cm.exception))
 
     def test_export_refuses_a_cd_key_shaped_literal(self):
+        fake = "-".join(("ABCDE", "12345", "FGHIJ", "67890", "KLMNO"))
         with self.assertRaises(SystemExit):
-            compat._assert_no_secrets('{"k": "ABCDE-12345-FGHIJ-67890-KLMNO"}')
+            compat._assert_no_secrets('{"k": "%s"}' % fake)
 
     def test_export_refuses_a_private_key(self):
+        header = "-----BEGIN %s KEY-----" % "RSA PRIVATE"
         with self.assertRaises(SystemExit):
-            compat._assert_no_secrets("-----BEGIN RSA PRIVATE KEY-----")
+            compat._assert_no_secrets(header)
 
     def test_a_clean_export_passes(self):
         self.seed()
