@@ -167,3 +167,44 @@ def test_the_room_check_still_credits_an_installed_tree():
         "credit a large title can never be patched once the disk fills, which "
         "is the UnrealTournament-436 incident"
     )
+
+
+def test_an_installed_title_gets_its_icons_back_even_when_not_copied():
+    """The sweep takes every icon off the desktop; only the copy branch puts any back.
+
+    So a title that is INSTALLED and playable but gated or skipped on this run
+    loses its shortcuts permanently.  Measured on `.243` 2026-08-31: the engine
+    index found ``c:\\games\\HexenII`` on the box at 14:25 and an hour later the
+    desktop carried Quake and nothing else -- the games were there, the icons
+    were in ``C:\\retro-desktop-backup``.  That is the whole of the user's report.
+
+    Restoring them is safe for a gated title too: ``gs_shortcut_from_line()``
+    re-asks the gate per shortcut and ``gg_req_parse_shortcut()`` overlays the
+    shortcut's requirements on the title's, so a title-level hard NO still
+    suppresses every icon.
+    """
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    assert "gs_restore_shortcuts_if_installed" in code, (
+        "a title that is installed but not copied this run must still get its "
+        "desktop shortcuts back - the sweep removed them"
+    )
+
+    # the helper must actually build the shortcuts, so the PER-SHORTCUT gate
+    # runs again and suppresses what genuinely cannot run.
+    at = code.index("static void gs_restore_shortcuts_if_installed")
+    helper = code[at:at + 700]
+    assert "gs_file_exists" in helper, \
+        "it must only restore icons for a tree that is really on the disk"
+    assert "gs_make_game_shortcut" in helper, (
+        "it must go through gs_make_game_shortcut so gs_gate_allows_shortcut() "
+        "re-applies per shortcut"
+    )
+
+    body = _gs_run(code)
+    calls = body.count("gs_restore_shortcuts_if_installed(titles[i])")
+    assert calls == 2, (
+        "both ways a title can be passed over must restore its icons - the "
+        "capability gate and the disk room check - found %d call(s)" % calls
+    )
+    assert "gs_make_game_shortcut(dst, titles[i])" in body, \
+        "the copy branch must still make shortcuts the normal way"

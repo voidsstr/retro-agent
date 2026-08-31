@@ -2426,6 +2426,39 @@ static void gs_make_game_shortcut(const char *dst_dir, const char *title)
     }
 }
 
+/*
+ * A title this run is NOT going to copy may still be INSTALLED on the box - and
+ * gs_sweep_desktop() has just taken every icon off the desktop. Without this, a
+ * game that is sitting on the disk and runs perfectly loses its shortcuts on
+ * the first sync that gates or skips it, and never gets them back, because the
+ * only call to gs_make_game_shortcut() is inside the copy branch.
+ *
+ * THIS IS WHAT "I DON'T SEE ANY GAMES ON THE DESKTOP" TURNED OUT TO BE on .243
+ * (2026-08-31). The engine index had found `c:\games\HexenII` installed on that
+ * machine at 14:25; an hour later the desktop carried Quake and nothing else.
+ * The games were on the box. Their icons were in C:\retro-desktop-backup.
+ *
+ * Safe for a GATED title too, and deliberately so: gs_shortcut_from_line() asks
+ * the gate again PER SHORTCUT, and gg_req_parse_shortcut() overlays a
+ * shortcut's own requirements on top of the title's - so a title-level hard NO
+ * still suppresses every one of its icons, while a per-shortcut floor
+ * suppresses only the icon that fails it. On a box with no 3D, Hexen II keeps
+ * its software-renderer shortcut and loses the three OpenGL ones, which is
+ * exactly the intended behaviour.
+ */
+static void gs_restore_shortcuts_if_installed(const char *title)
+{
+    char have[MAX_PATH];
+
+    _snprintf(have, sizeof(have) - 1, "%s\\%s", GS_DEST, title);
+    have[sizeof(have) - 1] = 0;
+    if (!gs_file_exists(have))
+        return;
+    log_msg(LOG_GS, "%s is installed but not copied this run - restoring its "
+                    "desktop shortcut(s)", title);
+    gs_make_game_shortcut(have, title);
+}
+
 /* ---------------------------------------------------------------------- */
 /* desktop icon layout                                                     */
 /* ---------------------------------------------------------------------- */
@@ -3199,6 +3232,7 @@ static void gs_run(const char *library)
                  * the percentage still reaches 100. */
                 g_gs.total_bytes -= sizes[i];
                 LeaveCriticalSection(&g_gs_lock);
+                gs_restore_shortcuts_if_installed(titles[i]);
                 continue;
             }
         }
@@ -3235,6 +3269,7 @@ static void gs_run(const char *library)
              * so the overall percentage still reaches 100. */
             g_gs.total_bytes -= sizes[i];
             LeaveCriticalSection(&g_gs_lock);
+            gs_restore_shortcuts_if_installed(titles[i]);
             continue;
         }
         EnterCriticalSection(&g_gs_lock);
