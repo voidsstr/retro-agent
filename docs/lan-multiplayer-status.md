@@ -256,3 +256,5 @@ official 1.07f patch — **not another image**.
 | **Far Cry, Halo, Carmageddon 1/2, AvP, Shogo, Descent 3, Deus Ex** | a **person at the keyboard**, once: their menus are driven by relative mouse deltas, which `UICLICK` cannot reach at all. |
 | **Hidden & Dangerous** | a person to create a profile once; then `Savegame\*.bin` is staged. |
 | **Turok 2** | investigation: host and browse work, `+connect` answers "Unable to contact the GameManager." |
+| **Red Faction** | investigation, with two untested leads recorded in its tree: `rf.exe` has **no `-connect`/`+connect` switch at all** (so "Add Server" is the only manual route) but it does have **`-trackerip`**, and the fleet's own favourites agent already records that RF LAN games are found by **broadcast** — a different control from the Get Servers / Add Server path everything has been tried on. Its dedicated server works and needs no disc. |
+| **Redneck Rampage** | **not** the network CFG: that was captured through the game's own setup and md5s identical to the staged one, and `-net` has been A/B'd twice. `rr.exe` documents `/i# Network mode (1/0)` in its own switch list, which is untried. |
