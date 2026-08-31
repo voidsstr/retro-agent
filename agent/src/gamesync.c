@@ -57,6 +57,11 @@
 #define GS_NEWIMAGE_FLAG   "C:\\RETRO_AGENT\\newimage.flag"
 #define GS_INI             "C:\\RETRO_AGENT\\gamesync.ini"
 
+/* How many titles gs_run() can hold. The library was 46 on 2026-08-31 and it
+ * grows; overflowing this used to be a silent truncation, so it is named, it is
+ * logged when hit, and it has headroom. */
+#define GS_MAX_TITLES      96
+
 #define GS_CHUNK           (64u * 1024u)
 /* Leave the OS room to breathe; filling C: to the last byte breaks XP in
  * confusing ways long before it reports "disk full". */
@@ -2889,9 +2894,10 @@ static void gs_run(const char *library)
     WIN32_FIND_DATAA fd;
     HANDLE h;
     char   pat[MAX_PATH], src[MAX_PATH], dst[MAX_PATH];
-    char   titles[64][128];
-    __int64 sizes[64];
-    int    n = 0, i, files = 0, ok_titles = 0;
+    char   titles[GS_MAX_TITLES][128];
+    __int64 sizes[GS_MAX_TITLES];
+    int    n = 0, i, files = 0, ok_titles = 0, capped = 0;
+    DWORD  enum_err = 0;
     __int64 grand = 0, freeb;
 
     g_gs_abort = 0;
@@ -2952,6 +2958,25 @@ static void gs_run(const char *library)
         gs_set_msg("library unreachable - will retry");
         return;
     }
+    /*
+     * NAME THE TITLES FIRST, SIZE THEM AFTERWARDS - and say so if the walk
+     * stopped early.
+     *
+     * gs_dir_size() used to be called from inside this loop, which meant the
+     * outer FindFirstFile handle stayed open across a full recursive walk of
+     * every title's tree - minutes of further SMB traffic per title, over the
+     * SAME redirector connection. On Win9x that search context does not
+     * survive it: FindNextFileA simply returns FALSE partway down the library
+     * and the loop ends, with no error anywhere and a `state=done` at the end
+     * of the run. Measured on .243 (Win98SE, Pentium 1) on 2026-08-31: a
+     * 46-title library enumerated as 25 titles, and the 21 past the cut - one
+     * of which the gate approves for that box - were never even considered.
+     * The status line reported `titles_total: 25` and looked entirely healthy.
+     *
+     * So: collect the names, CLOSE the handle, then size. The handle now lives
+     * for one directory listing instead of for the whole sizing pass.
+     */
+    SetLastError(0);
     do {
         if (fd.cFileName[0] == '.')
             continue;
@@ -2964,16 +2989,35 @@ static void gs_run(const char *library)
             continue;
         if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
             continue;
-        if (n >= 64)
+        if (n >= GS_MAX_TITLES) {
+            capped = 1;
             break;
+        }
         lstrcpynA(titles[n], fd.cFileName, sizeof(titles[0]));
-        _snprintf(src, sizeof(src) - 1, "%s\\%s", library, fd.cFileName);
-        src[sizeof(src) - 1] = 0;
-        sizes[n] = gs_dir_size(src, &files);
-        grand += sizes[n];
         n++;
+        SetLastError(0);
     } while (FindNextFileA(h, &fd));
+    enum_err = GetLastError();
     FindClose(h);
+
+    /* A truncated library must SAY it was truncated. Both of these end the
+     * loop and both used to be silent. */
+    if (capped)
+        log_msg(LOG_GS, "library enumeration CAPPED at %d title(s) - the rest "
+                        "were NOT considered; raise GS_MAX_TITLES",
+                GS_MAX_TITLES);
+    else if (enum_err != 0 && enum_err != ERROR_NO_MORE_FILES)
+        log_msg(LOG_GS, "library enumeration STOPPED EARLY after %d title(s) "
+                        "(error %lu) - the library is bigger than this and "
+                        "everything past that point was NEVER considered",
+                n, enum_err);
+
+    for (i = 0; i < n; i++) {
+        _snprintf(src, sizeof(src) - 1, "%s\\%s", library, titles[i]);
+        src[sizeof(src) - 1] = 0;
+        sizes[i] = gs_dir_size(src, &files);
+        grand += sizes[i];
+    }
 
     /* Order the titles before copying any of them.
      *
@@ -3077,6 +3121,17 @@ static void gs_run(const char *library)
      * must be SAID, because the verdicts a published file uniquely carries are
      * the marginal-band ones this box cannot recompute for itself.
      */
+    /* The MIRROR of the check below, and the one that catches a truncated
+     * enumeration from the other side: the published file is whole-library by
+     * definition, so if it carries MORE rows than we enumerated, we did not see
+     * the whole library. On .243 this would have read "covers 46 of 25". */
+    if (g_gate_on && g_gate_verdicts && g_gate_verdict_n > n)
+        log_msg(LOG_GS, "gate: WARNING the published verdict file lists %d "
+                        "title(s) but only %d were enumerated - the library "
+                        "listing was TRUNCATED and %d title(s) were never "
+                        "considered",
+                g_gate_verdict_n, n, g_gate_verdict_n - n);
+
     if (g_gate_on && g_gate_verdicts && g_gate_verdict_n < n)
         log_msg(LOG_GS, "gate: WARNING published file covers %d of %d title(s) "
                         "- it was overwritten by a partial publish; any "
@@ -3103,9 +3158,27 @@ static void gs_run(const char *library)
         {
             char why[192];
             if (!gs_gate_allows_title(library, titles[i], why, sizeof(why))) {
-                log_msg(LOG_GS, "GATED %s - %s", titles[i], why);
+                /* WHICH COUNTER? `why` opens with the limiting factor, and a
+                 * refusal limited by `disk` is NOT the machine being unable to
+                 * run the title - it is the title not fitting, which is the
+                 * definition of skipped_titles and has a completely different
+                 * follow-up (free space / bigger disk, versus give up). Rolling
+                 * both into titles_gated told an operator that a Pentium 1
+                 * "cannot run" Warcraft II; on .243 thirteen of the twenty-two
+                 * gated titles were really just too big for a 604 MB volume. */
+                int is_disk = (lstrlenA(why) >= 4
+                               && (why[0] == 'd' || why[0] == 'D')
+                               && (why[1] == 'i' || why[1] == 'I')
+                               && (why[2] == 's' || why[2] == 'S')
+                               && (why[3] == 'k' || why[3] == 'K')
+                               && (why[4] == 0 || why[4] == ':'));
+                log_msg(LOG_GS, "%s %s - %s", is_disk ? "SKIP" : "GATED",
+                        titles[i], why);
                 EnterCriticalSection(&g_gs_lock);
-                g_gs.gated_titles++;
+                if (is_disk)
+                    g_gs.skipped_titles++;
+                else
+                    g_gs.gated_titles++;
                 /* Its bytes will never arrive; drop them from the target so
                  * the percentage still reaches 100. */
                 g_gs.total_bytes -= sizes[i];

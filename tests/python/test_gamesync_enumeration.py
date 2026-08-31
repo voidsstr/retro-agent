@@ -1,0 +1,141 @@
+"""The library listing must be COMPLETE, and must say so when it is not.
+
+GAMESYNC decides what a machine gets by walking the staged library with
+FindFirstFile/FindNextFile.  Until 2026-08-31 it called ``gs_dir_size()`` -- a
+full recursive walk of a whole title tree, over the same SMB connection -- from
+*inside* that loop, so the outer search handle stayed open for minutes of
+further redirector traffic per title.
+
+On Win9x that search context does not survive it.  Measured on ``.243``
+(Win98SE, Pentium 1, agent 1.78.1): a **46**-title library enumerated as **25**
+titles.  ``FindNextFileA`` returned FALSE partway down the alphabet, the loop
+ended, and the run finished ``state=done`` with ``titles_total: 25`` -- no error
+in the log, nothing in the status, and 21 titles never considered at all.  One
+of them (``ShadowWarrior``) is a title the capability gate approves for that
+box, so the user's report of "no games on the desktop" was partly this.
+
+This is the project's signature failure shape: the tool reported success and was
+believed.  Two invariants keep it fixed, and both are shape, not arithmetic --
+no unit test can see them because the calls are Win32 side effects:
+
+  1. **Size the trees only after the directory handle is closed.**  The handle
+     now lives for one directory listing instead of the whole sizing pass.
+  2. **A truncated listing must be logged.**  Both ways the loop can end early
+     (a FindNextFile error, and the GS_MAX_TITLES cap) were silent.
+
+Also pinned here: a gate refusal whose limiting factor is ``disk`` counts as
+``titles_skipped``, never ``titles_gated``.  CLAUDE.md is explicit that these
+are different facts with different follow-ups -- "did not fit" versus "this
+machine cannot run it" -- and rolling them together told an operator that a
+Pentium 1 *cannot run Warcraft II*.  On .243, thirteen of the twenty-two
+"gated" titles were really just too big for a 604 MB volume.
+"""
+
+import re
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+GAMESYNC = REPO / "agent" / "src" / "gamesync.c"
+
+
+def _strip_comments(src: str) -> str:
+    """Drop /* ... */ and // ... so prose about the bug is not mistaken for it."""
+    src = re.sub(r"/\*.*?\*/", " ", src, flags=re.S)
+    src = re.sub(r"//[^\n]*", " ", src)
+    return src
+
+
+def _gs_run(code: str) -> str:
+    start = code.index("static void gs_run(const char *library)")
+    return code[start:]
+
+
+def _enum_block(code: str) -> str:
+    """The text between opening the library search and closing it."""
+    body = _gs_run(code)
+    open_at = body.index("FindFirstFileA(pat")
+    close_at = body.index("FindClose(h)", open_at)
+    return body[open_at:close_at]
+
+
+def test_sizing_does_not_happen_inside_the_find_loop():
+    """gs_dir_size() must not run while the library search handle is open."""
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    block = _enum_block(code)
+    assert "gs_dir_size" not in block, (
+        "gs_dir_size() is being called while the library FindFirstFile handle "
+        "is still open. On Win9x that invalidates the search context and "
+        "FindNextFileA silently truncates the library (46 titles seen as 25 on "
+        ".243). Collect the names first, FindClose, THEN size them."
+    )
+
+
+def test_the_names_are_collected_then_sized_afterwards():
+    """The sizing pass must exist, after FindClose, over the collected names."""
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    body = _gs_run(code)
+    close_at = body.index("FindClose(h)")
+    after = body[close_at:body.index("_priority.txt", close_at)]
+    assert "gs_dir_size" in after, \
+        "the per-title sizing pass has gone missing after FindClose"
+    assert "sizes[i]" in after and "grand" in after, \
+        "the sizing pass must still fill sizes[] and the grand total"
+
+
+def test_an_early_end_to_the_walk_is_logged():
+    """A FindNextFile failure must be reported, not swallowed."""
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    body = _gs_run(code)
+    assert "ERROR_NO_MORE_FILES" in body, (
+        "nothing distinguishes a normal end-of-directory from a redirector "
+        "dropping the search - so a truncated library looks healthy"
+    )
+    assert "STOPPED EARLY" in body, \
+        "the truncation must be logged in words an operator will notice"
+
+
+def test_the_title_cap_is_named_and_logged():
+    """Overflowing the titles[] array must not be silent either."""
+    src = GAMESYNC.read_text(errors="replace")
+    code = _strip_comments(src)
+    assert "#define GS_MAX_TITLES" in src, \
+        "the cap must be a named constant, not a bare 64 in three places"
+    body = _gs_run(code)
+    assert "titles[GS_MAX_TITLES][128]" in body and \
+           "sizes[GS_MAX_TITLES]" in body, \
+        "both arrays must be sized by the same constant"
+    assert re.search(r"n\s*>=\s*GS_MAX_TITLES", body), \
+        "the loop guard must use the constant"
+    assert "CAPPED" in body, \
+        "hitting the cap silently drops titles - it must be logged"
+
+
+def test_a_bigger_published_verdict_file_flags_a_truncated_listing():
+    """The verdict file is whole-library, so more rows than titles = truncation."""
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    body = _gs_run(code)
+    assert re.search(r"g_gate_verdict_n\s*>\s*n", body), (
+        "the published file covering MORE titles than were enumerated is a "
+        "direct, free detector of a truncated listing - on .243 it would have "
+        "read 'covers 46 of 25'"
+    )
+    assert re.search(r"g_gate_verdict_n\s*<\s*n", body), \
+        "the pre-existing partial-publish warning must survive"
+
+
+def test_a_disk_refusal_counts_as_skipped_not_gated():
+    """`disk` is 'did not fit', which is titles_skipped - a different fact."""
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    body = _gs_run(code)
+    at = body.index("gs_gate_allows_title(library")
+    block = body[at:at + 2000]
+    assert "skipped_titles++" in block, (
+        "a gate refusal limited by disk must land in skipped_titles; counting "
+        "it as gated tells the operator the machine cannot run the title when "
+        "the real remedy is free space"
+    )
+    assert "gated_titles++" in block, \
+        "genuine hardware refusals must still count as gated"
+    # And the two must be selected by the limiting factor, not both bumped.
+    assert re.search(r"if\s*\(is_disk\)", block), \
+        "the choice between the two counters must be explicit"

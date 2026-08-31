@@ -277,6 +277,14 @@ agent-C — `handle_execw` timeout clamp, `discovery_build_packet` ⇄ Python
 `from_packet` round-trip, `util.c` json/hex helpers; render (CSIM track) — filters,
 green-world; provisioning — P3 no-SSE2 opcode scan of staged DLLs.
 
+### GAMESYNC library enumeration (box `.243`, 2026-08-31)
+
+| fix | code | test |
+|---|---|---|
+| `gs_dir_size()` was called from INSIDE the library `FindFirstFile` loop, holding the SMB search handle open across minutes of recursive walking — on Win9x the redirector drops that context and `FindNextFileA` silently truncates the library. `.243` (Win98SE, P1) enumerated **25 of 46** titles and reported `state=done, titles_total: 25` with no error anywhere; 21 titles, one of them gate-approved for that box, were never considered (2026-08-31) | `agent/src/gamesync.c:gs_run` | `python/test_gamesync_enumeration.py` |
+| both ways the listing can end early were silent — a `FindNextFile` failure and the (unnamed, bare `64`) titles[] cap. Now `GS_MAX_TITLES`, and both log; the published verdict file carrying MORE rows than were enumerated is also flagged, which reads "covers 46 of 25" on the box that had the bug (2026-08-31) | `agent/src/gamesync.c:gs_run` | `python/test_gamesync_enumeration.py` |
+| a gate refusal limited by `disk` was counted as `titles_gated` — "this machine cannot run it" — when the fact is `titles_skipped`, "it did not fit". 13 of `.243`'s 22 "gated" titles were merely too big for a 604 MB volume, and the operator was told a Pentium 1 cannot run Warcraft II (2026-08-31) | `agent/src/gamesync.c:gs_run` | `python/test_gamesync_enumeration.py::test_a_disk_refusal_counts_as_skipped_not_gated` |
+
 ## Adding a test when a fix is verified
 
 1. Identify the invariant the fix establishes (the exact value/relationship that
