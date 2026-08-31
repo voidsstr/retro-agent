@@ -22,6 +22,7 @@ is not mounted -- a silent skip would let the library rot unnoticed, which is
 the same reasoning as tests/test_staged_library.py.
 """
 import os
+import re
 
 import pytest
 
@@ -58,12 +59,44 @@ def test_hexen2_gl_launchers_cap_to_a_mode_the_engine_has(rel):
 
 
 @pytest.mark.parametrize("rel", HEXEN_GL_LAUNCHERS)
-def test_hexen2_gl_launchers_pass_the_4x3_variables(rel):
+def test_hexen2_gl_launchers_cap_the_engine_at_1024x768(rel):
+    """glh2.exe must never be handed more than 1024x768.
+
+    THE FAULT THIS PROTECTS AGAINST. Hexen II's GL build refuses 1920x1080,
+    1280x1024 **and** 1280x960, and it dies at the video-mode check *before*
+    loading the map -- so on every 16:9 box the host launcher opened no listen
+    server at all while `glh2.exe` sat happily in the process list. Measured,
+    not assumed.
+
+    WHY THIS TEST WAS REWRITTEN. It used to require the literal `%FR_W43%` and
+    forbid the literal `%FR_W%`. Both are proxies for the real condition, and
+    the second is wrong in the presence of a cap: `FLEETRES.BAT -cap 1024 768`
+    clamps **every** target it emits, verified on hardware --
+
+        FR_W=1024  FR_H=768  FR_W43=1024  FR_H43=768
+
+    -- so `-cap 1024 768` + `%FR_W%` is exactly as safe as `%FR_W43%`, and is
+    what `stage-fleetres.py` (the generator, and per CLAUDE.md the source of
+    truth) actually emits. Pinning the variable name made a correct generated
+    launcher fail.
+
+    So this asserts the CONDITION: whatever mechanism is used, the engine
+    cannot receive a mode larger than 1024x768.
+    """
     text = read(rel)
-    assert "%FR_W43%" in text and "%FR_H43%" in text, rel
+    m = re.search(r"-cap\s+(\d+)\s+(\d+)", text)
+    if m:
+        w, h = int(m.group(1)), int(m.group(2))
+        assert w <= 1024 and h <= 768, (
+            "%s caps at %dx%d; glh2.exe refuses anything above 1024x768 and "
+            "dies before it can open a listen server" % (rel, w, h))
+        return
+    assert "%FR_W43%" in text and "%FR_H43%" in text, (
+        "%s has no `-cap` and does not use the 4:3 targets, so nothing stops a "
+        "16:9 box handing glh2.exe a mode it refuses" % rel)
     assert "-width %FR_W%" not in text, (
-        "%s passes the raw desktop width, which is what killed the listen "
-        "server on every 16:9 box" % rel)
+        "%s passes the raw desktop width with no cap, which is what killed the "
+        "listen server on every 16:9 box" % rel)
 
 
 def test_hexen2_host_sets_the_hostname_as_a_cvar_not_a_switch():

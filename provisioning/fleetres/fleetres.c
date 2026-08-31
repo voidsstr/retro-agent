@@ -299,12 +299,37 @@ static const MODE q2tab[] = {
     {960,720},{1024,768},{1152,864},{1280,960},{1600,1200}
 };
 
+/* THE MODE MUST ALSO BE ONE THE DRIVER ACTUALLY OFFERS.
+ *
+ * Fitting inside the target is not enough.  Measured on .246: FR_Q3MODE
+ * resolved to 7 = 1152x864, and `DISPLAYCFG set 1152 864 32` answers "mode not
+ * supported by display driver".  RTCW obeyed anyway - it set the desktop to
+ * 1280x960 and drew into a WINDOW with r_fullscreen still 1, i.e. it neither
+ * errored nor did what was asked, which is the shape of fault this file exists
+ * to stop.  SoldierOfFortune2 and JediAcademy consume FR_Q3MODE today and are
+ * exposed to it on all three 1080p boxes.
+ *
+ * We already enumerate the adapter's own mode list a few hundred lines below
+ * (add_mode/have_mode) and then never consulted it here.  So: prefer the
+ * largest table entry that fits AND exists; fall back to the largest that
+ * merely fits only when the list is unusable (some drivers answer FALSE at
+ * index 0 - the .143 GeForce 6800 case the enumeration already works around),
+ * because refusing to answer would be worse than answering approximately. */
+static int mode_offered(int w, int h)
+{
+    return g_nmodes < 4 ? 1 : have_mode(w, h);
+}
+
 static int q2_mode_for(int w, int h)
 {
-    int i, best = 3;                            /* 640x480 floor */
-    for (i = 0; i < (int)(sizeof(q2tab)/sizeof(q2tab[0])); i++)
-        if (q2tab[i].w <= w && q2tab[i].h <= h) best = i;
-    return best;
+    int i, best = 3, best_fit = 3;              /* 640x480 floor */
+    for (i = 0; i < (int)(sizeof(q2tab)/sizeof(q2tab[0])); i++) {
+        if (q2tab[i].w > w || q2tab[i].h > h) continue;
+        best_fit = i;
+        if (mode_offered(q2tab[i].w, q2tab[i].h)) best = i;
+    }
+    return best > 3 ? best : (mode_offered(q2tab[best_fit].w, q2tab[best_fit].h)
+                              ? best : best_fit);
 }
 
 /* id TECH 3 HAS A DIFFERENT TABLE FROM id TECH 2, AND THE DIFFERENCE BITES AT
@@ -327,12 +352,15 @@ static const MODE q3tab[] = {
 
 static int q3_mode_for(int w, int h)
 {
-    int i, best = 3;                            /* 640x480 floor */
+    int i, best = 3, best_fit = 3;              /* 640x480 floor */
     for (i = 0; i < (int)(sizeof(q3tab)/sizeof(q3tab[0])); i++) {
         if (i == 8 || i == 11) continue;        /* 5:4, and a tiny 16:9 */
-        if (q3tab[i].w <= w && q3tab[i].h <= h) best = i;
+        if (q3tab[i].w > w || q3tab[i].h > h) continue;
+        best_fit = i;
+        if (mode_offered(q3tab[i].w, q3tab[i].h)) best = i;
     }
-    return best;
+    return best > 3 ? best : (mode_offered(q3tab[best_fit].w, q3tab[best_fit].h)
+                              ? best : best_fit);
 }
 
 

@@ -265,6 +265,8 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 
 | CLAUDE.md made "check activation before you reboot" REQUIRED and **nothing enforced it** — `safe-reboot.py` guarded the PXE re-image risk and never asked the question that actually strands a box. Measured with six agents live: `.123` and `.133` were both running `wpabaln.exe`, so two of seven would not have survived a reboot (2026-08-31) | `scripts/fleet/safe-reboot.py` | `python/test_safe_reboot_activation.py` |
 
+| an id Tech mode index named a mode the driver does not offer — `FR_Q3MODE`=7=1152x864 on `.246`, whose adapter lists 1152x**648** and no 1152x864; the engine neither errored nor obeyed, setting the desktop to 1280x960 and drawing into a **window** with `r_fullscreen` still 1. `SoldierOfFortune2`/`JediAcademy` consume that value on all three 1080p boxes (2026-08-31) | `provisioning/fleetres/fleetres.c` `q2_mode_for`/`q3_mode_for` | `python/test_fleetres_mode_offered.py` |
+
 (The vintage SGL/H5 fixes — garble 0.3.1, mip-download 08fd889 — are tested in
 `retro-3dfx/tests/`, the other lane's harness, not here.)
 
