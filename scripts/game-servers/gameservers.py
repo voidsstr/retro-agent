@@ -285,6 +285,60 @@ def probe_sof2(port, timeout=DEFAULT_TIMEOUT, host=None):
         out["bots"] = 0
     return out
 
+# --------------------------------------------------------------------------
+# The two Wine-hosted servers (Descent 3, Far Cry).  Both are Windows binaries
+# run on this host under Wine in a container - see ~/descent3-server/_run and
+# ~/farcry-server/_run - because neither game ever shipped a Linux server.
+# --------------------------------------------------------------------------
+
+def probe_d3(port, timeout=DEFAULT_TIMEOUT, host=None):
+    """Descent 3 - TCP connect to the game port.
+
+    D3 answers no text query we know, but it LISTENS on TCP 2092 as well as
+    UDP, and only while a mission is actually loaded: the dedicated server
+    binds the socket after `Mission '<x>.mn3' loaded successfully`.  So an
+    accepted TCP connection separates "hosting" from "process alive but not
+    serving", which is the distinction this module exists for.
+    """
+    sock = socket.socket()
+    sock.settimeout(timeout)
+    started = time.monotonic()
+    try:
+        sock.connect((host or HOST, port))
+        return {"name": "Descent 3", "map": None,
+                "rtt_ms": round((time.monotonic() - started) * 1000, 1)}
+    except Exception:
+        return None
+    finally:
+        sock.close()
+
+
+def probe_udp_bound(port, timeout=DEFAULT_TIMEOUT, host=None):
+    """LOCAL-ONLY liveness: is anything bound to this UDP port on this host?
+
+    Far Cry's LAN discovery packet is proprietary and undocumented, and the
+    server answers nothing we can spell - `\\status\\` and a bare NUL both time
+    out (measured 2026-08-31).  Rather than invent a probe that can only ever
+    say "no reply", this checks the post-condition that actually distinguishes
+    the failure we hit: FarCry_WinSV.exe binds UDP 49001 **only once a map is
+    loaded**, so an unbound port is exactly the "console is up, nothing is
+    hosting" state, and a bound one is a real server.
+
+    It is honest about its limit: it can only be run ON the server host, so it
+    returns None (reported as no reply) from anywhere else rather than
+    pretending to know.
+    """
+    if host not in (None, HOST, "127.0.0.1", "localhost"):
+        return None
+    try:
+        out = subprocess.run(["ss", "-lnuH"], capture_output=True, text=True,
+                             timeout=timeout).stdout
+    except Exception:
+        return None
+    if re.search(r"[:\s]%d\s" % port, out):
+        return {"name": "Far Cry", "map": None, "rtt_ms": None}
+    return None
+
 
 PROBES = {
     "a2s": probe_a2s,
@@ -296,6 +350,9 @@ PROBES = {
     "nq": probe_nq,
     "hexen2": probe_hexen2,
     "sof2": probe_sof2,
+
+    "d3": probe_d3,
+    "udp_bound": probe_udp_bound,
 }
 
 
@@ -342,6 +399,14 @@ SERVERS = [
     # Docker, not systemd: Tribes 2 needs a 2001 userland. See docker_states().
     {"unit": "tribes2-server",     "label": "Tribes 2",        "engine": "t2",
      "probe": "t2",  "port": 28000, "join": 28000, "manager": "docker"},
+    # Wine in Docker, not systemd-only: these two are Windows dedicated servers
+    # with no Linux build, run on this host inside retro-wine:bookworm. The
+    # UNIT is still systemd --user, so `manager` stays default; only the probe
+    # is unusual.
+    {"unit": "descent3-server",    "label": "Descent 3",       "engine": "d3",
+     "probe": "d3",  "port": 2092,  "join": 2092},
+    {"unit": "farcry-server",      "label": "Far Cry",         "engine": "farcry",
+     "probe": "udp_bound", "port": 49001, "join": 49001},
 ]
 
 # The a2s proxies are what make the CS servers visible in a 2003 LAN browser.

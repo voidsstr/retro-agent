@@ -515,3 +515,79 @@ connect 192.168.1.82:27017
 which is the only reason the fleet's **non-Steam BCS 1.6** clients can connect.
 It also keeps these servers off the public master list, which is what we want
 for a LAN box.
+
+---
+
+## Wine-hosted servers: Descent 3 and Far Cry (added 2026-08-31)
+
+Two of the fleet's servers are **Windows binaries with no Linux build**, so they
+run on the dev host under **Wine inside a container** — the same shape as the
+Tribes 2 server, which is a container because it needs a userland this host does
+not have. Neither game ever shipped a Linux dedicated server, and this host has
+no Wine (installing one needs root, which needs the user's password), so the
+container is the whole reason these exist at all rather than costing a fleet box.
+
+| unit | game | port | image |
+|---|---|---|---|
+| `descent3-server` | Descent 3 (`main.exe -dedicated Dedicated.cfg`) | TCP+UDP **2092** | `retro-wine:bookworm` |
+| `farcry-server` | Far Cry 1.4 (`Bin32\FarCry_WinSV.exe`) | UDP **49001** | `retro-wine:bookworm` |
+
+Trees: `~/descent3-server` (494 MB — movies, Mercenary and the editor excluded)
+and `~/farcry-server` (3.6 GB). Launch scripts live in each tree's `_run/`.
+Both units are `enabled`, so they return after a reboot given `linger`.
+
+### Three traps, each of which reported success while doing nothing
+
+**1. `wine <game>.exe` returns as soon as wineserver owns the process.**
+It does not wait for the game. A unit whose `ExecStart` was just
+`xvfb-run wine main.exe` therefore "succeeded" in about a second, `xvfb-run`
+tore its X server down, the game died with it — and `systemctl` still read
+`active (running)`, because the *docker client* was alive. Both entry scripts
+background the game and then block on **`wineserver -w`**.
+
+**2. `xdotool type --window <id>` loses modifier state under Wine.**
+Far Cry's dedicated server has no `+command` argument; its console is a Win32
+edit control that has to be typed into. Aimed at the window directly, every
+underscore arrived as a hyphen and every capital as lower case — the console
+echoed `start-server mp-monkeybay` and `g-gametype ffa` and answered
+`Unknown command` four times, while the container went on looking healthy.
+Focus the window and let xdotool drive the real X input pipeline (**no
+`--window`**) so proper Shift-downs are sent.
+
+**3. `xvfb-run` as the container's own CMD silently never runs its argument.**
+`docker run … xvfb-run -a /game/_run/entry.sh` left `xvfb-run` as PID 1 with
+Xvfb up and the script never executed — no wine, no `WINEPREFIX`. Wrapping it
+(`bash -c "exec xvfb-run -a …"`, plus `--init`) fixes it. The symptom is
+identical to a game that crashed, so check for the wine process, not the
+container.
+
+### "To run a dedicated server you should save a server-profile in the game" is HALF TRUE
+
+That banner is why Far Cry was recorded for a year as *needs a human once*: a
+person had to create a server in the game and the saved profile be copied back
+into `Profiles/server/`. The same banner lists the two commands the console
+takes:
+
+```
+SProfile_run <profilename>   .. run a saved profile
+start_server <map>           .. start a different map (set g_gametype first)
+```
+
+**`start_server` needs no profile at all.** Measured 2026-08-31: typing
+`g_gametype FFA` then `start_server mp_monkeybay` took the server from *no
+ports bound* to `Precaching level ... done` with UDP 49001 open. The profile is
+a convenience, not a prerequisite.
+
+### Probing them
+
+`gameservers.py` carries a probe for each, and neither is a fabricated query:
+
+- **Descent 3** — a **TCP connect to 2092**. D3 answers no text query we know,
+  but it binds that socket only after `Mission '<x>.mn3' loaded successfully`,
+  so an accepted connection separates *hosting* from *process alive but idle*.
+- **Far Cry** — `udp_bound`, a **local** check that something holds UDP 49001.
+  Far Cry's LAN discovery packet is proprietary; `\status\` and a bare NUL both
+  time out. Rather than ship a probe that can only ever say "down", this checks
+  the post-condition that actually distinguishes the failure we hit — the
+  server binds 49001 **only once a map is loaded**. It returns nothing when
+  asked about a remote host rather than pretending to know.
