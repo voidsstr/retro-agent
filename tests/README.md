@@ -325,3 +325,22 @@ hung at `-- test_staged_library.py` for many minutes.
 `ps aux | grep -c "[r]un_all.sh"` before concluding anything; if several are
 running, wait or re-run when the share is quiet. Reading the stall as a failure
 is an easy and expensive mistake.
+
+## LAN multiplayer — GoldSrc + the standalone shooters (2026-08-31)
+
+`python/test_lan_goldsrc.py`. Added while proving two-box LAN play on `.171`
+(host) with `.133`/`.124` joining. Every row is a defect that **reported
+success**: the validator was green, `GAMESYNC` said `state=done` /
+`failed_files: 0`, and the desktop shortcut looked perfect.
+
+| fix / invariant | test |
+|---|---|
+| a mod's precached `events/*.sc` must resolve in its OWN `events\` or in `valve\events\` — Deathmatch Classic shipped only `events\door\` and could not host at all (`Host_Error: EV_Precache: file events/axe.sc missing from server`), while the same gap on the CLIENT is silent: it connects, holds a slot and sticks on "Server # 1" | `python/test_lan_goldsrc.py::GoldSrcEventResolution` |
+| that resolution is CASE-INSENSITIVE — TFC ships `Tf_nail.sc`/`Tf_sg.sc` with a capital T and a case-sensitive audit called them missing | `python/test_lan_goldsrc.py::test_resolution_is_case_insensitive` |
+| the `valve` fallback covers only valve's own events, so it must not be assumed to cover a mod's weapons | `python/test_lan_goldsrc.py::test_valve_fallback_is_not_assumed_to_cover_everything` |
+| Blue Shift is single-player only — judged on its MAPS (37, all `ba_*` campaign), not on its `mpentity` line, which is inherited boilerplate | `python/test_lan_goldsrc.py::BlueShiftHasNoMultiplayer` |
+| a staged launcher must not pass `net_connection_provider` — HDE.exe advertises it in `-help` and does NOT implement it, so the game died on `Unknown command-line option: tcpip` | `python/test_lan_goldsrc.py::HiddenAndDangerousOptionTable`, `::test_hd_launchers_do_not_pass_the_unimplemented_option` |
+| Red Faction's `UpdateRate` is a rate in BYTES PER SECOND under **HKCU** (`0x30d40` = T1/LAN), not an enum under HKLM; at 0 the client's MULTI menu and `rf.exe -dedicated` both refuse, and the dedicated server binds UDP 7755 on its way out so `netstat` shows a port for a server that is already dead | `python/test_lan_goldsrc.py::RedFactionConnectionSpeed`, `::test_red_faction_install_reg_seeds_updaterate` |
+
+The share-side half **skips loudly** when `/mnt/retro-share` is absent — a
+silent skip would let the library rot back to the broken state unnoticed.

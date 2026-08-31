@@ -1,0 +1,12 @@
+[Unit]
+Description=A2S old-query proxy for hldm (27020 -> 27021) - GoldSrc clients see Half-Life Deathmatch in the LAN browser
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/voidsstr/development/retro-agent-private/scripts/game-servers/a2s_oldquery_proxy.py --listen-port 27020 --target 192.168.1.132:27021
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

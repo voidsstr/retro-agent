@@ -591,3 +591,27 @@ a convenience, not a prerequisite.
   the post-condition that actually distinguishes the failure we hit — the
   server binds 49001 **only once a map is loaded**. It returns nothing when
   asked about a remote host rather than pretending to know.
+
+
+## `hldm-server` — Half-Life Deathmatch (added 2026-08-31)
+
+A new systemd server: **`hldm-server`** on UDP **27021** with
+**`a2s-proxy-hldm`** on **27020** in front of it (the port players use), same
+split as the CS 1.6 units. Install, config and the two unit files live in
+[`hldm/`](hldm/); `healthcheck.py` and `gameservers.py` both carry it.
+
+**The staged `HalfLife1` tree cannot join it — that is not a bug, it is a
+protocol wall.** That tree is the WON build (**protocol 45**) and every GoldSrc
+server on this host is **protocol 48**; measured 2026-08-31 the client is
+refused outright, and the final WON patch is only protocol 47. The client that
+CAN join is the **`CounterStrike16`** tree's Steam-era engine, which already
+ships a `valve\` mod directory with no maps and downloads them on connect. That
+tree now has a `Play Half-Life Deathmatch.bat` shortcut for exactly this.
+
+Verified with two fleet boxes in the server at once (`.171` and `.124`,
+`players: 2 active (12 max)`, ping 11 and 8, both rendering crossfire). HLDM has
+no bots, so its player count is always people.
+
+Do not read the players' address column as the client's address: they arrive
+through the proxy, so the server shows `192.168.1.132` with a per-client source
+port. Query/connect **27021** directly if you need the real addresses.

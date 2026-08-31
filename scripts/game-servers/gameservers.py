@@ -371,6 +371,13 @@ SERVERS = [
      "probe": "a2s", "port": 27019, "join": 27016},
     {"unit": "specialists-server", "label": "Specialists",     "engine": "goldsrc",
      "probe": "a2s", "port": 27017, "join": 27017},
+    # Half-Life Deathmatch. The QUERY port is 27021 and the JOIN port is
+    # 27020 (the proxy), same split as the CS units. NOTE the staged
+    # HalfLife1 tree CANNOT reach this - it is the WON build, protocol 45,
+    # and this is protocol 48. The client that can is the CounterStrike16
+    # tree's engine: hl.exe -game valve +connect 192.168.1.132:27020
+    {"unit": "hldm-server",        "label": "Half-Life DM",   "engine": "goldsrc",
+     "probe": "a2s", "port": 27021, "join": 27020},
     {"unit": "quake3-server",      "label": "Quake III",       "engine": "q3",
      "probe": "q3",  "port": 27961, "join": 27961},
     {"unit": "openarena-server",   "label": "OpenArena",       "engine": "q3",
@@ -415,6 +422,7 @@ SERVERS = [
 PROXIES = [
     {"unit": "a2s-proxy-cs16",        "label": "a2s 27015", "port": 27015},
     {"unit": "a2s-proxy-cs16-public", "label": "a2s 27016", "port": 27016},
+    {"unit": "a2s-proxy-hldm",        "label": "a2s 27020", "port": 27020},
 ]
 
 

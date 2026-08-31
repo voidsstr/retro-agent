@@ -1,0 +1,14 @@
+[Unit]
+Description=Half-Life Deathmatch (HLDS, "valve") Dedicated Server - NSC Retro Fleet
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/hldm-server
+ExecStart=/home/voidsstr/hldm-server/hlds_run -game valve -strictportbind -ip 192.168.1.132 -port 27021 +sv_lan 1 +maxplayers 12 +map crossfire +servercfgfile server.cfg
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
