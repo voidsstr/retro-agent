@@ -149,6 +149,68 @@ def find_ci(directory, name):
     return None
 
 
+def find_ci_path(base, relpath):
+    """Case-insensitive lookup of a MULTI-COMPONENT relative path.
+
+    find_ci() takes one name in one directory. Handing it "_disc\\image.iso"
+    silently returns None for every title that has one - which is how the first
+    version of the disc-mount check "found" that eleven working launchers all
+    pointed at missing images. The measurement was the broken thing, not the
+    library, and that is the exact shape CLAUDE.md warns about.
+    """
+    cur = base
+    for part in relpath.replace("\\", "/").split("/"):
+        if not part or part == ".":
+            continue
+        cur = find_ci(cur, part)
+        if cur is None:
+            return None
+    return cur
+
+
+def _bat_var(text, name):
+    """Value of a `set "NAME=value"` line in a .bat, or ''."""
+    m = re.search(r'(?mi)^\s*set\s+"%s=(.*?)"\s*$' % re.escape(name), text)
+    return m.group(1) if m else ""
+
+
+def _cue_binary(text):
+    """The FILE named by a cue sheet's first FILE line, or ''."""
+    m = re.search(r'(?mi)^\s*FILE\s+"([^"]+)"', text)
+    if m:
+        return m.group(1)
+    m = re.search(r'(?mi)^\s*FILE\s+(\S+)', text)
+    return m.group(1) if m else ""
+
+
+def iso_volume_label(path):
+    """The ISO9660 volume label, read from the image itself.
+
+    Handles the three sector layouts that actually turn up on this share:
+    2048 (a plain .iso), 2352 (MODE1/2352 raw .bin) and 2448 (2352 plus 96
+    bytes of subchannel, which is what a SafeDisc-capable dump has to carry).
+    Reading the PVD at a flat offset 32768 gets ZEROS on the latter two - that
+    arithmetic slip has already cost this project a wrong conclusion about the
+    Generals images being malformed when they were not.
+
+    Returns None when no PVD can be found, which is a "could not check", not a
+    failure - the caller must render those differently.
+    """
+    try:
+        size = os.path.getsize(path)
+        with open(path, "rb") as f:
+            for sector, offset in ((2048, 0), (2352, 16), (2448, 16)):
+                if size % sector:
+                    continue
+                f.seek(16 * sector + offset)
+                pvd = f.read(2048)
+                if len(pvd) >= 72 and pvd[1:6] == b"CD001":
+                    return pvd[40:72].decode("latin1").rstrip()
+    except OSError:
+        return None
+    return None
+
+
 def check_title(lib, title):
     """Every check below is a defect that really reached a box."""
     out = []
@@ -514,6 +576,64 @@ def check_title(lib, title):
                      "no dialog and nothing in any log. Restage a build "
                      "targeting 5.x, or drop the file if nothing launches it."
                      % (os.path.relpath(path, tdir), ver[0], ver[1]))
+
+    # --- disc-mount launchers: the image must exist AND the label must match -
+    #
+    # A mount launcher decides "is the disc already there?" by comparing VOLID
+    # against the drive's ISO9660 volume label. Get that string wrong by one
+    # character and NOTHING says so: the mount succeeds, :finddisc never
+    # matches, :waitdisc spins out its ~30 seconds, and the launcher falls
+    # through to "a mounter was found but no drive appeared" - which reads as a
+    # broken mounter on the box rather than a typo in the library. The same
+    # silence covers an IMAGE path that points at a file GAMESYNC never
+    # deployed, because _disc\ is easy to forget when a title is copied.
+    #
+    # Both are checkable from here, against the image itself, so they are.
+    for fn in sorted(os.listdir(tdir)):
+        if not fn.lower().endswith(".bat"):
+            continue
+        text = read_text(os.path.join(tdir, fn))
+        if 'set "VOLID=' not in text or 'set "IMAGE=' not in text:
+            continue                      # not a mount launcher
+        volid = _bat_var(text, "VOLID")
+        image = _bat_var(text, "IMAGE")
+        if not image.startswith("%~dp0"):
+            fail("disc-mount", "%s: IMAGE=%r is not relative to %%~dp0, so the "
+                               "title does not relocate" % (fn, image))
+            continue
+        rel = image[len("%~dp0"):]
+        real = find_ci_path(tdir, rel)
+        if real is None:
+            fail("disc-mount", "%s: the disc image it mounts is not in the tree "
+                               "(%s). The launcher will report NO DISC MOUNTER / "
+                               "no drive appeared, which reads as a broken box "
+                               "rather than a missing file." % (fn, image))
+            continue
+        ipath = real
+        # A .cue names its own data file; check that too, and probe the image.
+        probe = ipath
+        if ipath.lower().endswith(".cue"):
+            binname = _cue_binary(read_text(ipath))
+            binpath = find_ci(os.path.dirname(ipath), binname) if binname else None
+            if binpath is None:
+                fail("disc-mount", "%s: the cue sheet %s names %r and that file "
+                                   "is not beside it - Daemon Tools cannot mount "
+                                   "a cue whose FILE line does not resolve"
+                                   % (fn, os.path.basename(ipath), binname))
+                continue
+            probe = binpath
+        label = iso_volume_label(probe)
+        if label is None:
+            warn("disc-mount", "%s: could not read an ISO9660 volume label out of "
+                               "%s, so its VOLID could not be checked"
+                               % (fn, os.path.basename(probe)))
+        elif volid.upper() not in label.upper():
+            fail("disc-mount", "%s: VOLID=%r but the image's real volume label is "
+                               "%r. :finddisc uses a substring match on the label, "
+                               "so this launcher will mount the disc correctly and "
+                               "then never find it - reported on the box as \"a "
+                               "mounter was found but no drive appeared\"."
+                               % (fn, volid, label))
 
     return out
 

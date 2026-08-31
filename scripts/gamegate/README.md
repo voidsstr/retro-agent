@@ -76,9 +76,13 @@ deploys, only the shortcut that needs it is suppressed, and the log names the
 remedy. GAMESYNC re-runs every boot, so it comes back by itself once the box is
 fixed.
 
-This matters right now: seven already-staged titles mount a disc image at launch
-and `.123` and `.246` have no mounter at all, so on those boxes they have never
-once worked and nothing reported it.
+This matters right now: ten already-staged titles mount a disc image at launch.
+**Re-measure which boxes have a mounter before quoting a number here** — as of
+2026-08-31 exactly one box lacks one (`.123`, which has no optical drive at all),
+not two: `.246` has WinCDEmu and five boxes run DAEMON Tools 3.47. An unchecked
+"only .240 has a mounter" in a sibling document blocked four titles for a day.
+See SCHEMA.md, which also has the table of what a virtual drive does and does not
+satisfy — `disc_mount` does not mean SafeDisc 2.80 will pass.
 
 ## Use
 

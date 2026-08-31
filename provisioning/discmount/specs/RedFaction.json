@@ -1,0 +1,15 @@
+{
+  "title": "Red Faction",
+  "fleetres_block": "if exist \"%~dp0FLEETRES.EXE\" (\r\n  \"%~dp0FLEETRES.EXE\" -reg HKLM \"SOFTWARE\\Volition\\Red Faction\" \"Resolution Width\" dword %FR_W%\r\n  \"%~dp0FLEETRES.EXE\" -reg HKLM \"SOFTWARE\\Volition\\Red Faction\" \"Resolution Height\" dword %FR_H%\r\n  \"%~dp0FLEETRES.EXE\" -reg HKLM \"SOFTWARE\\Volition\\Red Faction\" \"Resolution Bit Depth\" dword 32\r\n)",
+  "vars": {
+    "GTITLE": "Red Faction",
+    "IMAGE": "%~dp0_disc\\RedFaction_Disc2.cue",
+    "VOLID": "RF_2",
+    "MARKER": "MUSIC.VPP",
+    "GAME": "%~dp0rf.exe",
+    "GAMEARGS": ""
+  },
+  "autokill": "autorun.exe setup.exe",
+  "prelaunch": "rem (none)",
+  "_note": "Round-trip fixture: generating from this spec must reproduce the shipped Play Red Faction.bat byte for byte. That is what proves the template did not lose a line when it was extracted."
+}

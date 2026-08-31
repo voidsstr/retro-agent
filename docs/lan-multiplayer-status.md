@@ -35,6 +35,7 @@ network awaiting a keyboard.*
 | Hexen II | Quake-derived, peer | `.123` + `.240` |
 | SiN Gold | id Tech 2 | `.123` + `.240` |
 | Soldier of Fortune II | id Tech 3 | `.123` + `.240` |
+| Jedi Academy | id Tech 3 / Raven | `.143` + fleet server |
 | Jedi Knight: Dark Forces II | Sith / DirectPlay TCP-IP | `.123` + `.240` |
 | Mysteries of the Sith | Sith / DirectPlay TCP-IP | `.123` + `.240` |
 | Unreal Tournament (436 client) | UE1 | `.143` + `.133` |
@@ -138,16 +139,15 @@ control protocol, and a Hexen II host replies only to the game string
 
 | Title | What blocks it | The one-time step |
 |---|---|---|
-| **Jedi Academy** | client demands `Disk 1`; server is already up on `:29070` | a disc mounter on a second box + a labelled image |
-| **Soldier of Fortune 1** | multiplayer-only CD check | same, with a `SOF`-labelled image |
-| **BF1942** | SafeDisc 2.80 blocks the *client*; the host launcher works | a mounter that handles SafeDisc |
+| **Soldier of Fortune 1** | multiplayer refused **even with the disc** — see below | a disassembly, or the 1.07f patch. NOT a mounter |
+| **BF1942** | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works | a mounter whose emulation covers SafeDisc 2.80 — a kernel driver and a reboot per box, so a **user decision** |
 | **Far Cry** | server hosts unattended; CryEngine takes DirectInput exclusively | one click: Multiplayer → LAN |
 | **Halo** | shell ignores synthetic input; `haloded.exe` is not on the share | one System Link join |
 | **Carmageddon 1 / 2** | tunnel proven both ends; the front end ignores click *and* key | click **HOST GAME** / **NETWORK GAME** |
 | **Hidden & Dangerous** | launcher bug fixed; stops at profile creation | create a profile, then copy `Savegame\*.bin` into the tree |
 | **Aliens vs Predator** | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black | drive its menus at the keyboard |
 | **Turok 2** | host works and is listed in the joiner's browser; join fails | investigate the GameManager path |
-| **Redneck Rampage** | IPX tunnel proven; the Build gather never happens | run `SETMAIN.EXE` Network Config once, stage the CFG |
+| **Redneck Rampage** | IPX tunnel proven; the Build gather never happens | **not** the CFG — that was already captured and md5s identical to the staged one. See its README-FLEET |
 | **Shogo** | dedicated server stands up; client menu renders intermittently | drive the join at the keyboard |
 | **Red Faction** | root cause fixed (`UpdateRate`); join unproven | re-test |
 
@@ -175,17 +175,84 @@ healthy while nobody can join it.
 
 ---
 
-## Why several titles are blocked on one thing
+## The mounter picture — RE-MEASURED 2026-08-31, and the old claim was wrong
 
-**Three titles (Jedi Academy, Soldier of Fortune 1, BF1942) and C&C Generals are
-all waiting on the same step: a virtual disc mounter that handles SafeDisc-era
-protection, on more than one box.** Today only `.240` has any mounter, and
-DAEMON Tools 3.47 was measured — with all four emulations verified ON — still
-failing Generals and BF1942 on `.133`. Newer mounters need a kernel driver and
-**a reboot per box**, and `.123` and `.133` are currently unactivated, so they
-**must not be rebooted** (see `scripts/fleet/safe-reboot.py`, which now refuses).
+**This section used to say "today only `.240` has any mounter". That was false,
+and it blocked four titles for a day.** Measured with `sc query d347bus` plus
+`wmic cdrom get Drive,Caption,MediaLoaded` on every box:
 
-**There is a better route where it exists:** Doom 3 was SafeDisc 3.20 and was
-unblocked with **no mounter and no crack**, because id's official 1.3 patch
-ships an exe with no protection wrapper at all. Check for that before fighting
-the mounter.
+| box | mounter | virtual drives |
+|---|---|---|
+| `.123` | **NONE** — and no optical drive at all | — |
+| `.124` | DAEMON Tools 3.47 (`d347bus`+`d347prt` RUNNING) | D: |
+| `.133` | DT 3.47 | E: (D: is a real TEAC) |
+| `.143` | DT 3.47 | D: E: F: G: — **four** |
+| `.171` | DT 3.47 | E: (D: is a real LITE-ON) |
+| `.240` | DT 3.47 | F: |
+| `.246` | WinCDEmu | D: V: |
+
+A DAEMON Tools virtual drive reports `Caption = "Generic DVD-ROM SCSI CdRom
+Device"`; that string is how you tell it from a real drive. **Six of seven boxes
+can mount an image today.** Re-measure before quoting this table.
+
+### `disc_mount` does not mean "the disc check will pass"
+
+Protection strength is a separate axis, and it decides the approach:
+
+| class | how to identify it | satisfied by a virtual drive? |
+|---|---|---|
+| plain drive-type / volume-label scan | no `BoG_ *90.0&!!` magic, no `stxt774`/`stxt371` sections; `GetDriveTypeA` + `GetVolumeInformationA` | **yes** — Jedi Academy, Red Faction |
+| SafeDisc 1.x – 2.5x | version dwords at the marker **+ 0x20** | **yes**, with DT emulation on — System Shock 2 (1.11.000), Carmageddon 2 (1.01.034), Max Payne (2.51.020) |
+| SafeDisc 2.80+ | same, reading `2 / 0x50 / 0x0a` | **no** on this fleet — BF1942, C&C Generals |
+
+The version dwords sit at **marker offset + 0x20**, not immediately after the
+13-byte marker: the full magic is `BoG_ *90.0&!!  Yy>` followed by 14 zero
+bytes. Reproduced against two knowns (BF1942 `Mod.dll` 2.80.010, `MaxPayne.exe`
+2.51.020).
+
+### Two traps found the same day, both of which fake a working mount
+
+**A DAEMON Tools unit can be LOCKED, and the failure is nearly silent.** On
+`.124` and `.240`, `daemon.exe -mount 0,"..."` answers with a modal reading
+*"Unable to mount image. Unit is locked."* — `-unmount 0` says the same, and
+neither `net stop d347bus` nor `d347prt` will stop (kernel drivers), so there is
+**no reboot-free way to clear it that was found**. The modals then STACK: `.240`
+was carrying three of them, and while one is up every later `daemon.exe` call
+hangs. Because the launcher's fallback starts the game against whatever disc is
+already parked in a drive, a locked unit presents as "the game ran, against the
+wrong disc". `.143` was not locked and mounted first try, `rc=0`.
+
+**A launcher's `VOLID` can silently never match.** Max Payne's shipped
+`set "VOLID=Max Payne"` against an image whose real ISO9660 label is
+`MAX_PAYNE`; `find /i` does a substring match, so it could never hit, and only
+the MARKER fallback was saving it. `scripts/validate-staged-library.py` now
+reads the label out of the image itself and fails the library on a mismatch —
+it found this one on its first run.
+
+## Soldier of Fortune 1 — the disc is NOT the gate (refuted 2026-08-31)
+
+Worth stating separately because the staged tree asserted the opposite. A
+SOF-labelled retail image was mounted on `.143` (DAEMON Tools, `E:` reading
+`SOF`) and on `.246` (WinCDEmu, `D:` reading `SOF`), with no `mount-error.txt`
+on either. **Both hosts still raised the game's own "WON Error! Please insert
+the SOF CD and try again."** — the identical message `.123`, which has no
+mounter at all, produces. Same failure with and without the disc means the disc
+is not what the check wants, and the 795 MB image was removed from the library
+again rather than shipped to seven boxes for nothing.
+
+The message is not a literal in `SoF.exe`: it is a localised string in
+`base/pak0.pak` under `REFERENCE NEED`, inside a block headed
+`DESCRIPTION "Won error messages"` alongside "You disconnected" and "Server
+Quit!". Next step is a disassembly of the `%c:\` drive-loop's caller, or the
+official 1.07f patch — **not another image**.
+
+## What genuinely still needs a person, and of what kind
+
+| | what is actually needed |
+|---|---|
+| **BF1942 client**, **C&C Generals + Zero Hour** | a **user DECISION**: a SafeDisc-2.80-capable mounter means a third-party kernel driver and a reboot per box, and `.123`/`.133` are unactivated and must not be rebooted. No agent should install one unilaterally. |
+| **Jedi Academy on `.124`/`.240`** | a **reboot** of those two boxes, to clear the locked DAEMON Tools unit. Everything else is staged and proven. |
+| **Soldier of Fortune 1 multiplayer** | **engineering**, not media — see above. |
+| **Far Cry, Halo, Carmageddon 1/2, AvP, Shogo, Descent 3, Deus Ex** | a **person at the keyboard**, once: their menus are driven by relative mouse deltas, which `UICLICK` cannot reach at all. |
+| **Hidden & Dangerous** | a person to create a profile once; then `Savegame\*.bin` is staged. |
+| **Turok 2** | investigation: host and browse work, `+connect` answers "Unable to contact the GameManager." |

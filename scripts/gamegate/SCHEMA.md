@@ -228,10 +228,34 @@ imports**: a floor can live entirely in a DLL the launcher never mentions.
 A capability is something the box **lacks but can be given**. Right now there is
 one: `disc_mount`, a virtual disc/CD image mounter.
 
-This matters more than it sounds. Seven already-staged titles mount an image at
-launch — SystemShock2, Shogo, RedFaction, StarCraft, Descent2, Descent3,
-SoldierOfFortune2 — and `.123` and `.246` have no mounter at all, so on those
-boxes those titles have never once worked and nothing reported it.
+This matters more than it sounds. Ten already-staged titles now mount an image
+at launch — SystemShock2, Shogo, RedFaction, StarCraft, Descent2, Descent3,
+SoldierOfFortune2, MaxPayne, JediAcademy and SoldierOfFortune — so a wrong
+answer here silently costs a box a fifth of the library.
+
+**Re-measure this before you quote it.** As of 2026-08-31 exactly ONE box lacks
+a mounter, not two: `.123`, which has no mounter *and no optical drive at all*
+(`wmic cdrom` returns "No Instance(s) Available"). `.246` has WinCDEmu, and
+`.124` `.133` `.143` `.171` `.240` all run DAEMON Tools 3.47 with `d347bus` and
+`d347prt` in state RUNNING. The earlier claim that only `.240` had one blocked
+four titles for a day and was never re-checked. A DAEMON Tools virtual drive
+reports `Caption = "Generic DVD-ROM SCSI CdRom Device"`, which is how to tell it
+from a real drive in a probe.
+
+**`disc_mount` is a coarse capability and it does not mean "any disc check will
+pass".** Protection strength is a separate axis the gate does not model:
+
+| what the title uses | does a virtual drive satisfy it? |
+|---|---|
+| plain `GetDriveTypeA` + volume label | **yes** — JediAcademy, SoldierOfFortune, RedFaction, Turok2 |
+| SafeDisc 1.x / 2.5x | **yes**, with DT 3.47 emulation on — SystemShock2 (1.11.000), Carmageddon2 (1.01.034), MaxPayne (2.51.020) |
+| SafeDisc 2.80+ | **no** — BF1942 (2.80.010 in `Mods\bf1942\Mod.dll`) and C&C Generals (2.80.010) fail on this fleet even with all four DT emulations verified ON |
+
+So `disc_mount` being satisfied is **necessary but not sufficient** for the last
+row, and `requires.json` should say so in `notes` rather than let a green
+capability imply the title works. The SafeDisc version is three dwords at the
+`BoG_ *90.0&!!  Yy>` marker **plus 0x20** — not immediately after the marker;
+the magic carries 14 trailing zero bytes.
 
 **A capability gap is never folded into `run`/`marginal`/`no`.** A GeForce2 will
 never grow a pixel shader; a missing mounter is an installer away. Calling both

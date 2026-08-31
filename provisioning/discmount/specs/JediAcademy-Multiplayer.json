@@ -1,0 +1,15 @@
+{
+  "title": "Jedi Academy - Multiplayer",
+  "fleetres_block": "> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_mode \"-1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customwidth \"%FR_W%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customheight \"%FR_H%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customaspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customPixelAspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_fullscreen \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta cg_fov \"%FR_FOV%\"",
+  "vars": {
+    "GTITLE": "Jedi Academy - Multiplayer",
+    "GAME": "%~dp0jamp.exe",
+    "GAMEARGS": "+set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov %FR_FOV%",
+    "IMAGE": "%~dp0_disc\\JediAcademy_CD1.iso",
+    "VOLID": "JEDIACAD",
+    "MARKER": "GameData\\GameData\\jamp.exe"
+  },
+  "autokill": "AUTORUN.EXE JED_0008.EXE SETUP.EXE",
+  "prelaunch": "rem (none)",
+  "_note": "The fleet jka-server is on :29070 - see SERVERS-fleet.txt. The disc is needed to reach the menu at all, not merely to join."
+}

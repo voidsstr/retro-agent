@@ -1,0 +1,15 @@
+{
+  "title": "Soldier of Fortune - host a LAN game",
+  "fleetres_block": "> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo set gl_mode \"%FR_Q2MODE%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo set vid_fullscreen \"1\"",
+  "vars": {
+    "GTITLE": "Soldier of Fortune - Host LAN",
+    "GAME": "%~dp0SoF.exe",
+    "GAMEARGS": "+set gl_mode %FR_Q2MODE% +set deathmatch 1 +set maxclients 8 +set dedicated 0 +map dm/nycdm1",
+    "IMAGE": "%~dp0_disc\\sof.cue",
+    "VOLID": "SOF",
+    "MARKER": "BIN\\SOF.DBD"
+  },
+  "autokill": "LAUNCH.EXE AUTORUN.EXE demo32.exe",
+  "prelaunch": "rem (none)",
+  "_note": "NOT CURRENTLY STAGED - kept as the record of a REFUTED hypothesis. The image these mount was staged on 2026-08-31 and removed again the same day: a SOF-labelled retail image mounted on .143 (DAEMON Tools 3.47) and on .246 (WinCDEmu) still produced the game's own 'WON Error! Please insert the SOF CD', which is the IDENTICAL message a box with no mounter at all (.123) produces. Same failure with and without the disc, so the disc is not the gate. Do not re-stage the 795 MB image on the strength of the volume-label theory - see Games-Library/SoldierOfFortune/README-FLEET.txt. SoF 1's CD check fires only when the game goes MULTIPLAYER; single player runs with no disc at all, which is why 'Play Soldier of Fortune.bat' does NOT mount and still works on a box with no mounter."
+}
