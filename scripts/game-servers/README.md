@@ -116,6 +116,43 @@ every bound of the restart policy).
 | UT2004 | `ut2004-server` | **7777** (query 7787) | `~/ut2004-server` |
 | Tribes 2 | `tribes2-server` (docker) | **28000** | `retro-agent-private/.../tribes2-docker` |
 
+### Two engines whose server can only run ON A FLEET BOX — not here (2026-08-31)
+
+`healthcheck.py` will never list these, and that is correct:
+
+| Game | Where the server runs | Ports (UDP) | Launcher |
+|---|---|---|---|
+| Deus Ex | any fleet box | **7790** (query 7791) | `Games-Library/DeusEx/Host Deus Ex Multiplayer.bat` |
+| Unreal Gold 226 | any fleet box | **7777** (query 7778, LAN beacon 7775) | `Games-Library/UnrealGold/Host Unreal Gold LAN.bat` |
+
+Neither engine has a Linux build, and there is no wine on this host. **The
+OldUnreal 227k Linux server DOES run here** — `ucc-bin-amd64` over the staged
+Unreal Gold data — but a retail **226 client cannot join it**, so it is not
+installed as a unit: a server nobody can join is worse than no server, because
+it reports itself healthy. The server advertises `\mingamever\224`, which reads
+as "224 and up are welcome" and is only the version-NUMBER floor; the package
+GENERATION check still runs and the client aborts with
+
+```
+DevNet: PendingLevel received: CHALLENGE VER=226 RVER=227 ...
+DevNet: ... USES ... PKG="UnrealI" FLAGS=0 SIZE=23850693 GEN=6
+Warning: Failed to load 'UnrealI': Package 'UnrealI' version mismatch
+```
+
+`FLAGS=0` means it is not downloadable either. **This is the opposite of the
+UT99 result** — a retail 436 client really does join our 469e server — so do not
+carry one over to the other. Staging 227k clients would fix it and would cost
+`.124`, `.133` and `.143` the game outright: the 227k Windows build is SSE2
+(~15,500 SSE2 instructions in `Engine.dll` alone).
+
+Both box-hosted servers were verified two-box on 2026-08-31 (server on `.143`,
+client on `.246`): Unreal Gold's own console printed `Join succeeded! Player1`,
+and Deus Ex's GameSpy reply on 7791 carried `numplayers\1 ... player_0\Player`.
+
+Note the fleet-box Unreal Gold server uses **7777**, the same number as this
+host's UT2004 server — different machines, so they do not collide, but do not
+read a 7777 in a capture as necessarily being UT2004.
+
 **Tribes 2 must be built with the legacy builder**: `docker build --network=host
 -t nsc-tribes2-tribesnext:latest .` then `docker compose up -d --no-build`. Under
 buildkit its apt step hangs indefinitely with zero bytes fetched — see that
