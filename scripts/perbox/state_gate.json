@@ -1,0 +1,1870 @@
+{
+ "hash": {
+  "192.168.1.123": "e633518d4747e4f2",
+  "192.168.1.124": "881d549a01caf0cb",
+  "192.168.1.133": "b65fa1fee4df292c",
+  "192.168.1.143": "ee52d7b186da86b0",
+  "192.168.1.171": "efb240b3f32bb482",
+  "192.168.1.240": "bb40bf867d4782d3",
+  "192.168.1.246": "7cf5bd34eefa68a7",
+  "192.168.1.243": "d931bfe6c33fae5e"
+ },
+ "verdicts": {
+  "192.168.1.123": {
+   "AliensVsPredator": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "BF1942": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "CounterStrike16": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent3": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "DeusEx": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Doom3": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "FarCry": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HalfLife1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Halo": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HexenII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HiddenAndDangerous": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediAcademy": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightDF2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightMotS": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MasterOfOrionII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MaxPayne": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake2Complete": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake3-TeamArena": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedAlert2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedFaction": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedneckRampage": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ReturnToCastleWolfenstein": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamFirstEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamSecondEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ShadowWarrior": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Shogo": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SiNGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "StarCraft": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SystemShock2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Thief2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ThiefGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "TiberianSun": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Turok2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UT2004": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament436": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftOrcsAndHumans": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ]
+  },
+  "192.168.1.124": {
+   "AliensVsPredator": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "BF1942": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "CounterStrike16": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent3": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "DeusEx": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Doom3": [
+    "no",
+    "cpu_mhz",
+    "CPU too slow (have 845 MHz, needs 1500) [rule]"
+   ],
+   "FarCry": [
+    "no",
+    "vram_mb",
+    "not enough video RAM (have 32 MB, needs 64) [rule]"
+   ],
+   "HalfLife1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Halo": [
+    "no",
+    "cpu_features",
+    "CPU lacks sse2 [rule]"
+   ],
+   "HexenII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HiddenAndDangerous": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediAcademy": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightDF2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightMotS": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MasterOfOrionII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MaxPayne": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake2Complete": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake3-TeamArena": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedAlert2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedFaction": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedneckRampage": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ReturnToCastleWolfenstein": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamFirstEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamSecondEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ShadowWarrior": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Shogo": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SiNGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "StarCraft": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SystemShock2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Thief2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ThiefGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "TiberianSun": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Turok2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UT2004": [
+    "marginal",
+    "cpu_mhz",
+    "CPU is 845 MHz, needs 1000. Game may run with reduced performance. [llm]"
+   ],
+   "UnrealGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament": [
+    "no",
+    "cpu_features",
+    "CPU lacks sse2 [rule]"
+   ],
+   "UnrealTournament436": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftOrcsAndHumans": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ]
+  },
+  "192.168.1.133": {
+   "AliensVsPredator": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "BF1942": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "CounterStrike16": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent3": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "DeusEx": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Doom3": [
+    "no",
+    "cpu_mhz",
+    "CPU too slow (have 701 MHz, needs 1500) [rule]"
+   ],
+   "FarCry": [
+    "no",
+    "cpu_mhz",
+    "CPU too slow (have 701 MHz, needs 1000) [rule]"
+   ],
+   "HalfLife1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Halo": [
+    "no",
+    "cpu_features",
+    "CPU lacks sse2 [rule]"
+   ],
+   "HexenII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HiddenAndDangerous": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediAcademy": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightDF2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightMotS": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MasterOfOrionII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MaxPayne": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake2Complete": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake3-TeamArena": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedAlert2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedFaction": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedneckRampage": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ReturnToCastleWolfenstein": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamFirstEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamSecondEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ShadowWarrior": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Shogo": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SiNGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "StarCraft": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SystemShock2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Thief2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ThiefGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "TiberianSun": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Turok2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UT2004": [
+    "no",
+    "cpu_mhz",
+    "CPU too slow (have 701 MHz, needs 1000) [rule]"
+   ],
+   "UnrealGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament": [
+    "no",
+    "cpu_features",
+    "CPU lacks sse2 [rule]"
+   ],
+   "UnrealTournament436": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftOrcsAndHumans": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ]
+  },
+  "192.168.1.143": {
+   "AliensVsPredator": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "BF1942": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "CounterStrike16": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent3": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "DeusEx": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Doom3": [
+    "no",
+    "cpu_mhz",
+    "CPU too slow (have 1000 MHz, needs 1500) [rule]"
+   ],
+   "FarCry": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HalfLife1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Halo": [
+    "no",
+    "cpu_features",
+    "CPU lacks sse [rule]"
+   ],
+   "HexenII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HiddenAndDangerous": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediAcademy": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightDF2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightMotS": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MasterOfOrionII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MaxPayne": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake2Complete": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake3-TeamArena": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedAlert2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedFaction": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedneckRampage": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ReturnToCastleWolfenstein": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamFirstEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamSecondEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ShadowWarrior": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Shogo": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SiNGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "StarCraft": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SystemShock2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Thief2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ThiefGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "TiberianSun": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Turok2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UT2004": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament": [
+    "no",
+    "cpu_features",
+    "CPU lacks sse2 [rule]"
+   ],
+   "UnrealTournament436": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftOrcsAndHumans": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ]
+  },
+  "192.168.1.171": {
+   "AliensVsPredator": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "BF1942": [
+    "marginal",
+    "gpu_feature_level",
+    "GPU lacks T&L; game needs T&L for 1280x1024 [llm]"
+   ],
+   "Carmageddon1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "CounterStrike16": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent3": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "DeusEx": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Doom3": [
+    "no",
+    "gpu_feature_level",
+    "GPU too old for this title's renderer (have fixed, needs sm1.x) [rule]"
+   ],
+   "FarCry": [
+    "no",
+    "gpu_feature_level",
+    "GPU too old for this title's renderer (have fixed, needs sm1.x) [rule]"
+   ],
+   "HalfLife1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Halo": [
+    "no",
+    "gpu_feature_level",
+    "GPU too old for this title's renderer (have fixed, needs sm1.x) [rule]"
+   ],
+   "HexenII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HiddenAndDangerous": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediAcademy": [
+    "marginal",
+    "gpu_feature_level",
+    "GPU lacks hardware T&L required by Jedi Academy; may run with software rendering but performance will be poor. [llm]"
+   ],
+   "JediKnightDF2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightMotS": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MasterOfOrionII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MaxPayne": [
+    "marginal",
+    "gpu_feature_level",
+    "GPU lacks T&L; game may run with workarounds [llm]"
+   ],
+   "Quake1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake2Complete": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake3-TeamArena": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedAlert2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedFaction": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedneckRampage": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ReturnToCastleWolfenstein": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamFirstEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamSecondEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ShadowWarrior": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Shogo": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SiNGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune2": [
+    "marginal",
+    "gpu_feature_level",
+    "GPU lacks T&L; runs on DX7-class hardware at reduced detail [llm]"
+   ],
+   "StarCraft": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SystemShock2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Thief2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ThiefGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "TiberianSun": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Turok2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UT2004": [
+    "marginal",
+    "gpu_feature_level",
+    "GPU lacks T&L; UT2004 needs TNL for XP. Performance may be poor. [llm]"
+   ],
+   "UnrealGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament436": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftOrcsAndHumans": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ]
+  },
+  "192.168.1.240": {
+   "AliensVsPredator": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "BF1942": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "CounterStrike16": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent3": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "DeusEx": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Doom3": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "FarCry": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HalfLife1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Halo": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HexenII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HiddenAndDangerous": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediAcademy": [
+    "no",
+    "disk",
+    "not enough free disk (have 1647 MB, needs 4300) [rule]"
+   ],
+   "JediKnightDF2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightMotS": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MasterOfOrionII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MaxPayne": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake2Complete": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake3-TeamArena": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedAlert2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedFaction": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedneckRampage": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ReturnToCastleWolfenstein": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamFirstEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamSecondEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ShadowWarrior": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Shogo": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SiNGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune": [
+    "no",
+    "disk",
+    "not enough free disk (have 1647 MB, needs 4600) [rule]"
+   ],
+   "SoldierOfFortune2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "StarCraft": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SystemShock2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Thief2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ThiefGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "TiberianSun": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Turok2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UT2004": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament436": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftOrcsAndHumans": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ]
+  },
+  "192.168.1.246": {
+   "AliensVsPredator": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "BF1942": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Carmageddon2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "CounterStrike16": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent3": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "DeusEx": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Doom3": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "FarCry": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HalfLife1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Halo": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HexenII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HiddenAndDangerous": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediAcademy": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightDF2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "JediKnightMotS": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MasterOfOrionII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MaxPayne": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake2Complete": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake3-TeamArena": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedAlert2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedFaction": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "RedneckRampage": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ReturnToCastleWolfenstein": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamFirstEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SeriousSamSecondEncounter": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ShadowWarrior": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Shogo": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SiNGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SoldierOfFortune2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "StarCraft": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "SystemShock2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Thief2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "ThiefGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "TiberianSun": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Turok2": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UT2004": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealGold": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "UnrealTournament436": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "WarcraftOrcsAndHumans": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ]
+  },
+  "192.168.1.243": {
+   "AliensVsPredator": [
+    "no",
+    "cpu_features",
+    "CPU lacks mmx [rule]"
+   ],
+   "BF1942": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "Carmageddon1": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 660) [rule]"
+   ],
+   "Carmageddon2": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "CounterStrike16": [
+    "no",
+    "cpu_mhz",
+    "CPU too slow (have 165 MHz, needs 233) [rule]"
+   ],
+   "Descent1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Descent2": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 800) [rule]"
+   ],
+   "Descent3": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "DeusEx": [
+    "no",
+    "cpu_mhz",
+    "CPU too slow (have 165 MHz, needs 300) [rule]"
+   ],
+   "Doom3": [
+    "no",
+    "os",
+    "OS too old for this title (have win9x, needs win2k) [rule]"
+   ],
+   "FarCry": [
+    "no",
+    "os",
+    "OS too old for this title (have win9x, needs winxp) [rule]"
+   ],
+   "HalfLife1": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 1050) [rule]"
+   ],
+   "Halo": [
+    "no",
+    "cpu_features",
+    "CPU lacks mmx [rule]"
+   ],
+   "HexenII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "HiddenAndDangerous": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "JediAcademy": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "JediKnightDF2": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 820) [rule]"
+   ],
+   "JediKnightMotS": [
+    "marginal",
+    "cpu_mhz",
+    "CPU below minimum but software-renderer may compensate [llm]"
+   ],
+   "MasterOfOrionII": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "MaxPayne": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "Quake1": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Quake2Complete": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 840) [rule]"
+   ],
+   "Quake3-TeamArena": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "RedAlert2": [
+    "no",
+    "cpu_mhz",
+    "CPU too slow (have 165 MHz, needs 266) [rule]"
+   ],
+   "RedFaction": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "RedneckRampage": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 940) [rule]"
+   ],
+   "ReturnToCastleWolfenstein": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "SeriousSamFirstEncounter": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "SeriousSamSecondEncounter": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "ShadowWarrior": [
+    "run",
+    "-",
+    "meets requirements [rule]"
+   ],
+   "Shogo": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 1180) [rule]"
+   ],
+   "SiNGold": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 1040) [rule]"
+   ],
+   "SoldierOfFortune": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "SoldierOfFortune2": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "StarCraft": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 1550) [rule]"
+   ],
+   "SystemShock2": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "Thief2": [
+    "no",
+    "os",
+    "OS too old for this title (have win9x, needs winxp) [rule]"
+   ],
+   "ThiefGold": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 860) [rule]"
+   ],
+   "TiberianSun": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 1200) [rule]"
+   ],
+   "Turok2": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "UT2004": [
+    "no",
+    "gpu_feature_level",
+    "no 3D acceleration at all and this title has no software renderer [rule]"
+   ],
+   "UnrealGold": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 620) [rule]"
+   ],
+   "UnrealTournament": [
+    "no",
+    "os",
+    "OS too old for this title (have win9x, needs winxp) [rule]"
+   ],
+   "UnrealTournament436": [
+    "no",
+    "cpu_mhz",
+    "CPU too slow (have 165 MHz, needs 233) [rule]"
+   ],
+   "WarcraftII": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 660) [rule]"
+   ],
+   "WarcraftOrcsAndHumans": [
+    "no",
+    "disk",
+    "not enough free disk (have 604 MB, needs 680) [rule]"
+   ]
+  }
+ }
+}

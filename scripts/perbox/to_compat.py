@@ -24,7 +24,8 @@ MAPPING, and why each one is what it is
 """
 import json, os, sys, argparse
 
-FLEETDB = '/home/voidsstr/development/retro-agent/.claude/worktrees/fleetdb/scripts/fleet'
+FLEETDB = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+           os.path.abspath(__file__)))), 'scripts', 'fleet')
 
 # Renderer per title where the staged tree settles it unambiguously.
 RENDERER = {
@@ -84,13 +85,19 @@ def main():
                   f'{m.get("width")}x{m.get("height")}@{m.get("refresh")} '
                   f'fs={r.get("fullscreen")}')
             n += 1; continue
-        C.put_render(con, ip, title, 'measured', runs, shortcut=sc,
-                     renderer=RENDERER.get(title, 'unknown'),
-                     width=m.get('width'), height=m.get('height'),
-                     refresh_hz=m.get('refresh'),
-                     fullscreen=('yes' if r.get('fullscreen') is True
-                                 else 'no' if r.get('fullscreen') is False else 'unknown'),
-                     detail=detail, source='perbox', measured_at=r.get('ts'))
+        fs = ('yes' if r.get('fullscreen') is True
+              else 'no' if r.get('fullscreen') is False else 'unknown')
+        kw = dict(renderer=RENDERER.get(title, 'unknown'),
+                  width=m.get('width'), height=m.get('height'),
+                  refresh_hz=m.get('refresh'), fullscreen=fs,
+                  detail=detail, source='perbox', measured_at=r.get('ts'))
+        # TWO rows on purpose.  The per-shortcut row is the precise fact - a
+        # title's halves can need different machines.  The shortcut='' row is
+        # the TITLE-level fact the matrix and `summary` read; without it a
+        # measurement lands in the database and never reaches the view that
+        # answers "is this title verified on this box".
+        C.put_render(con, ip, title, 'measured', runs, shortcut=sc, **kw)
+        C.put_render(con, ip, title, 'measured', runs, shortcut='', **kw)
         if deploy:
             C.put_deploy(con, ip, title, 'measured', deploy,
                          reason=detail, source='perbox', measured_at=r.get('ts'))
