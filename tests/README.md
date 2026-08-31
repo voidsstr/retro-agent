@@ -304,6 +304,13 @@ green-world; provisioning — P3 no-SSE2 opcode scan of staged DLLs.
 | the verdict cache hits on the same hardware and misses on a corrected `requirements_version` | `python/test_gamegate_host.py` |
 | a malformed LLM reply NEVER becomes "run"; the rule verdict stands | `python/test_gamegate_host.py::test_a_malformed_reply_never_becomes_a_verdict` |
 | only MARGINAL escalates to the model | `python/test_gamegate_host.py::test_only_marginal_reaches_the_model` |
+| a NetQuake / Hexen II server answers NEITHER `getstatus` NOR `status` — it speaks the Quake CONTROL protocol on the game port and drops the other two in silence, so the wrong packet marks a live server DOWN forever while it is pinned into every box's favourites anyway | `python/test_gameservers.py::test_nq_request_is_the_control_packet_not_getstatus`, `python/test_gameindex.py::test_nq_probe_sends_the_control_packet` |
+| a Hexen II host replies ONLY to the game string `HEXENII`; sending `QUAKE` is indistinguishable from a dead box | `python/test_gameservers.py::test_hexen2_sends_its_own_game_string` |
+| SoF2's player lines carry THREE numbers before the name, so the shared `<score> <ping> "<name>"` ping-0 bot rule reads the wrong field — SoF2 MP has no bots, so the count is a hard zero rather than a parse | `python/test_gameservers.py::test_sof2_never_claims_a_bot` |
+| every server in `LOCAL_SERVERS` has a probe — one without is recorded `down` on every favourites pass while healthy | `python/test_gameindex.py::test_every_local_server_has_a_probe` |
+| Hexen II's GL build has a small FIXED mode table and refuses 1920x1080, 1280x1024 **and** 1280x960 — it dies at the video-mode check BEFORE loading the map, so the staged host launcher opened no listen server on any 16:9 box while glh2.exe sat in the process list looking healthy | `python/test_lan_multiplayer_library.py::test_hexen2_gl_launchers_cap_to_a_mode_the_engine_has` |
+| `sin.exe +set dedicated 1` with no `+map` never binds UDP 22450 — same shape: healthy process, no socket | `python/test_lan_multiplayer_library.py::test_sin_dedicated_servers_load_a_map` |
+| Jedi Knight DF2 / MotS refuse to host or join with "No Valid Characters" until a pilot **and** a multiplayer character exist, and the retail trees ship `player\` empty | `python/test_lan_multiplayer_library.py::test_sith_engine_titles_stage_a_playable_profile` |
 
 ## The staged-library suite is not safe to judge under heavy concurrency
 
