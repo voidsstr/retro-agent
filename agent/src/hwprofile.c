@@ -705,10 +705,31 @@ static unsigned caps_detect(char *why, DWORD why_cch)
 {
     /* Virtual bus/port drivers, newest naming first. d346/d347 are Daemon
      * Tools 3.x/4.x; sptd is Daemon Tools 4+ and Alcohol; ElbyCDIO/VClone is
-     * Virtual CloneDrive; mcdbus is MagicDisc; the rest are self-explanatory. */
+     * Virtual CloneDrive; mcdbus is MagicDisc; the rest are self-explanatory.
+     *
+     * A PRODUCT'S NAME IS NOT ITS SERVICE NAME, and this list is matched on
+     * the service name. WinCDEmu was listed here as "WinCDEmu" and therefore
+     * never matched: its driver is registered as **BazisVirtualCDBus**, and
+     * only its DisplayName says WinCDEmu. Measured on .246 on 2026-08-31 --
+     * the box mounts images perfectly well (it is the box that proved the
+     * Serious Sam disc check with WinCDEmu) while HWPROFILE reported
+     * disc_mount:false.
+     *
+     * That is not a cosmetic miss. This capability SUPPRESSES SHORTCUTS: the
+     * gate withholds every disc-needing launcher on a box it believes has no
+     * mounter, so a machine that could run four disc titles silently got none
+     * of them, and any sweep that launched one anyway recorded a `failed`
+     * cell against a title that was never given its disc. Both the wrong
+     * suppression and the false failure trace back to this one string.
+     *
+     * When adding a mounter, verify the SERVICE name on a box that has it --
+     *   reg query HKLM\SYSTEM\CurrentControlSet\services /f "<product>" /d /s
+     * -- rather than assuming the product name. */
     static const char *const mount_svc[] = {
         "d347bus", "d347prt", "d346bus", "d346prt", "sptd", "sptd2",
-        "ElbyCDIO", "VClone", "mcdbus", "ImDisk", "WinCDEmu", "PxHelp20",
+        "ElbyCDIO", "VClone", "mcdbus", "ImDisk", "PxHelp20",
+        "BazisVirtualCDBus",            /* WinCDEmu - NOT called "WinCDEmu" */
+        "WinCDEmu",                     /* kept: older builds did use it */
         "dtscsibus", "dtsoftbus01", "VCdRom", 0
     };
     static const char *const mount_key[] = {
