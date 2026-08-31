@@ -196,6 +196,31 @@ def idtech3_args(wide=True, fov=True):
     return a
 
 
+def doom3_args(extra=""):
+    """id Tech 4 (DOOM 3), which differs from id Tech 3 in the one way that
+    decides how this title is staged.
+
+    In id Tech 3 a staged `seta r_mode` in autoexec.cfg BEAT the command line,
+    because the cfg is exec'd after Com_StartupVariable and before R_Init - that
+    is why every idTech3 title here has its setas stripped and a launcher-written
+    fleetres.cfg instead. **DOOM 3 is the other way round.** After exec'ing
+    default.cfg and DoomConfig.cfg, idCommonLocal::InitGame calls StartupVariable
+    a second time, commented in id's own source "re-override anything from the
+    config files with command line args". So the command line wins outright and
+    this title needs NO fleetres.cfg at all - which is also why DoomConfig.cfg is
+    NOT shipped in the staged tree: it is per-box state the engine rewrites on
+    exit, and a copy captured on one machine would carry that machine's
+    resolution and video settings onto all eight.
+
+    r_aspectRatio is a separate cvar (0=4:3, 1=16:9, 2=16:10) and the engine
+    derives its horizontal FOV from it, so a 16:9 panel driven at the right pixel
+    count with the default 0 is still stretched. FR_D3AR is computed in the
+    launcher from FR_W/FR_H."""
+    a = ("+set r_mode -1 +set r_customWidth %FR_W% +set r_customHeight %FR_H% "
+         "+set r_aspectRatio %FR_D3AR% +set r_fullscreen 1")
+    return (a + " " + extra).strip() if extra else a
+
+
 def q2_cfg(mod):
     """id Tech 2 has a FIXED mode table indexed by gl_mode and no custom mode:
     0=320x240 ... 6=1024x768 ... 9=1600x1200, no 16:9 entry anywhere. So the
@@ -378,6 +403,26 @@ def q3(mod, exe, extra=""):
 
 
 TITLES = {
+    # DOOM 3 (2004, id Tech 4). No cfg_strip and no fleetres.cfg: see
+    # doom3_args() - this engine re-applies the command line AFTER its config,
+    # so the launcher's +set wins and there is nothing staged to fight with.
+    "Doom3": {
+        "new": {
+            "Play DOOM 3.bat": ("DOOM3.exe", None),
+            # The LAN host. si_map/si_gameType/si_maxPlayers are set before
+            # +spawnServer so the server comes up on a real map rather than
+            # dropping the host at the menu. TCP/IP native - no IPX wrapper.
+            "Host DOOM 3 - LAN.bat": (
+                "DOOM3.exe",
+                '+set si_name "Fleet DOOM 3" +set si_map "game/mp/d3dm1" '
+                '+set si_gameType "Deathmatch" +set si_maxPlayers 4 '
+                '+set net_LANServer 1 +spawnServer'),
+        },
+        "launch_txt": [
+            ("Play DOOM 3.bat", "DOOM 3", "DOOM3.exe"),
+            ("Host DOOM 3 - LAN.bat", "DOOM 3 - Host LAN Game", "DOOM3.exe"),
+        ],
+    },
     "Quake3-TeamArena": {
         "launchers": {
             "Play Quake III Arena.bat": q3("baseq3", "ioquake3.x86.exe"),
@@ -954,6 +999,40 @@ rem from "the game never started".
 exit
 """
 
+NEW_DOOM3 = """\
+@echo off
+rem {title} - fleet launcher.
+rem
+rem This .bat exists because a desktop shortcut cannot carry arguments
+rem (gamesync.c never calls SetArguments), so there is nowhere else to run
+rem FLEETRES and the game would come up at whatever DoomConfig.cfg last held on
+rem whichever box wrote it.
+rem
+rem DOOM 3 takes its resolution from the COMMAND LINE, not from a staged cfg:
+rem id Tech 4 re-applies +set startup variables AFTER exec'ing DoomConfig.cfg.
+rem That is the opposite of every id Tech 3 title in this library.
+cd /d "%~dp0"
+
+{block}
+
+rem r_aspectRatio (0=4:3, 1=16:9, 2=16:10) from the panel FLEETRES measured.
+rem Integer cross-multiply so there is no rounding: 1920*9 == 1080*16 is 16:9.
+rem Anything that is neither stays 0, which is the safe answer for a 4:3 tube.
+set FR_D3AR=0
+set /a _FRA=%FR_W%*9
+set /a _FRB=%FR_H%*16
+if "%_FRA%"=="%_FRB%" set FR_D3AR=1
+set /a _FRA=%FR_W%*10
+set /a _FRB=%FR_H%*16
+if "%_FRA%"=="%_FRB%" set FR_D3AR=2
+
+start "" {exe} {args}
+
+rem Close this console - a launcher that lingers stacks a window per launch and
+rem makes every later screenshot ambiguous.
+exit
+"""
+
 NEW_Q2 = """\
 @echo off
 rem {title} - fleet launcher.
@@ -1169,6 +1248,12 @@ class Runner:
         exe, mod = spec
         path = os.path.join(tdir, name)
         disp = name[len("Play "):-len(".bat")] if name.startswith("Play ") else name
+        if title == "Doom3":
+            block = CALL
+            text = NEW_DOOM3.format(title=disp, exe=exe, block=block,
+                                    args=doom3_args(mod or ""))
+            self.put(path, crlf(text), "%s/%s" % (title, name))
+            return
         if exe.upper() == "GLQUAKE.EXE":
             block = "\n".join([call_cap(1280, 960)])
             text = NEW_GLQUAKE.format(block=block)
