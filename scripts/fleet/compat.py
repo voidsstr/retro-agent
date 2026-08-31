@@ -9,7 +9,7 @@ r"""The fleet compatibility matrix - which games work on which computers.
     python3 scripts/fleet/compat.py conflicts          # measured vs derived disagreements
     python3 scripts/fleet/compat.py gaps               # what nobody has ever tested
     python3 scripts/fleet/compat.py export --out f.json # what the dashboard eats
-    python3 scripts/fleet/compat.py doc                # render the LAN status doc
+    python3 scripts/fleet/compat.py doc --check         # has the LAN doc drifted?
 
 THE CLI IS THE PRIMARY INTERFACE.  The dashboard is a consumer of `export`,
 and the fleet must keep working with the dashboard down - the SQLite file is
@@ -1137,6 +1137,58 @@ def _assert_no_secrets(blob):
                 % (m.group(0)[:40], m.start()))
 
 
+def cmd_doc(con, a):
+    """Report where docs/lan-multiplayer-status.md and the database disagree.
+
+    The brief for this database was that the LAN document should become a
+    RENDERING of it rather than a rival source of truth. It is not regenerated
+    wholesale, and deliberately so: most of that file is hard-won prose - why
+    four titles stall on the same DOSBox mouse problem, why Serious Sam was
+    withdrawn, which probe each engine answers - and a generator would flatten
+    all of it into tables, destroying the part that is actually expensive.
+
+    So the document keeps its prose and this keeps them honest. Drift only
+    happens in one direction that matters: somebody records a verification with
+    `compat.py record` and does not write it up. That is what this finds.
+    """
+    facts, unmapped = _mp_from_doc(open(LAN_DOC).read())
+    in_doc = {(t, ip) for t, ip, st, *_ in facts if ip} | \
+             {(t, None) for t, ip, st, *_ in facts if not ip}
+    doc_titles = {t for t, _ip, *_ in facts}
+    drift = []
+    for r in con.execute(
+            "SELECT ip, title, status, partner_ip, source FROM compat_mp "
+            "WHERE origin='measured' AND status IN "
+            "('verified_two_box','verified_server','blocked','no_multiplayer')"
+            " ORDER BY title, ip"):
+        if r["source"] == "lan-doc":
+            continue                      # it CAME from the doc; not drift
+        if (r["title"], r["ip"]) in in_doc or r["title"] in doc_titles:
+            continue
+        drift.append(dict(r))
+    if a.json:
+        print(json.dumps({"drift": drift, "unmapped": sorted(set(unmapped))},
+                         indent=1))
+        return 0
+    if unmapped:
+        print("%d title(s) in the document map to NO library directory, so "
+              "their verifications never reached the matrix:" % len(unmapped))
+        for u in sorted(set(unmapped)):
+            print("    %s" % u)
+        print()
+    if not drift:
+        print("no drift: every hand-recorded multiplayer verification is "
+              "either from the document or already written up in it.")
+        return 0 if not unmapped else 1
+    print("%d verification(s) recorded in the database but NOT in "
+          "docs/lan-multiplayer-status.md:" % len(drift))
+    for d in drift:
+        print("    %-16s %-26s %-18s %s" % (_short(d["ip"]), d["title"],
+                                            d["status"], d["source"]))
+    print("\nWrite them up, or the document stops being true.")
+    return 1
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(
         description="fleet-wide game compatibility matrix",
@@ -1197,11 +1249,17 @@ def main(argv=None):
     s = sub.add_parser("export", help="write the dashboard's JSON payload")
     s.add_argument("--out")
 
+    s = sub.add_parser("doc", help="has the LAN status doc drifted from the DB?")
+    s.add_argument("--check", action="store_true",
+                   help="accepted for symmetry; this command only ever checks")
+    s.add_argument("--json", action="store_true")
+
     a = p.parse_args(argv)
     con = C.connect(a.db)
     fn = {"ingest": cmd_ingest, "matrix": cmd_matrix, "status": cmd_status,
           "gaps": cmd_gaps, "conflicts": cmd_conflicts, "summary": cmd_summary,
-          "record": cmd_record, "titles": cmd_titles, "export": cmd_export}[a.cmd]
+          "record": cmd_record, "titles": cmd_titles, "export": cmd_export,
+          "doc": cmd_doc}[a.cmd]
     try:
         return fn(con, a)
     finally:
