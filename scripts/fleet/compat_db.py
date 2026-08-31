@@ -288,24 +288,38 @@ WHERE m.origin = (
 
 -- Every cell where a hand-recorded fact and a machine-derived one disagree.
 -- These are NOT resolved silently; they are reported so a person can look.
+--
+-- `kind` SEPARATES AN UPGRADE FROM A CONTRADICTION, and that split is what
+-- keeps this list worth reading. Most disagreements are benign: a derived row
+-- said `untested`, or the LAN proof could only conclude `runs`, and then
+-- somebody actually watched the game and wrote `verified`. That is the system
+-- working. A real contradiction - measured says the game is ABSENT while the
+-- probe found its directory - is a different thing entirely, and burying four
+-- of those under thirty upgrades is exactly the validator-that-cries-wolf
+-- failure this project has already paid for once.
 DROP VIEW IF EXISTS v_compat_conflict;
 CREATE VIEW v_compat_conflict AS
 SELECT 'deploy' AS axis, a.ip, a.title, '' AS shortcut,
        a.state AS measured, b.state AS derived,
        a.source AS measured_source, b.source AS derived_source,
-       a.measured_at AS measured_at
+       a.measured_at AS measured_at,
+       CASE WHEN b.state='untested' THEN 'upgrade' ELSE 'contradiction' END AS kind
   FROM compat_deploy a JOIN compat_deploy b
     ON a.ip=b.ip AND a.title=b.title
  WHERE a.origin='measured' AND b.origin='derived' AND a.state <> b.state
 UNION ALL
 SELECT 'render', a.ip, a.title, a.shortcut, a.runs, b.runs,
-       a.source, b.source, a.measured_at
+       a.source, b.source, a.measured_at,
+       CASE WHEN b.runs='untested'
+                 OR (b.runs='runs' AND a.runs='verified')
+            THEN 'upgrade' ELSE 'contradiction' END
   FROM compat_render a JOIN compat_render b
     ON a.ip=b.ip AND a.title=b.title AND a.shortcut=b.shortcut
  WHERE a.origin='measured' AND b.origin='derived' AND a.runs <> b.runs
 UNION ALL
 SELECT 'mp', a.ip, a.title, '', a.status, b.status,
-       a.source, b.source, a.measured_at
+       a.source, b.source, a.measured_at,
+       CASE WHEN b.status='untested' THEN 'upgrade' ELSE 'contradiction' END
   FROM compat_mp a JOIN compat_mp b
     ON a.ip=b.ip AND a.title=b.title
  WHERE a.origin='measured' AND b.origin='derived' AND a.status <> b.status;

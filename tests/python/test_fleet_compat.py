@@ -119,6 +119,35 @@ class TestMeasuredSurvivesIngest(Base):
         self.assertEqual(conflicts[0]["measured"], "verified_two_box")
         self.assertEqual(conflicts[0]["derived"], "untested")
 
+    def test_an_upgrade_is_not_reported_as_a_contradiction(self):
+        """Burying the real disagreements under benign ones is how a checker
+        trains people to ignore it - the validator-cries-wolf failure."""
+        self.seed()
+        # benign: the LAN proof could only conclude `runs`; somebody then
+        # actually watched it render.
+        C.put_render(self.con, "192.168.1.143", "Quake1", "derived", "runs",
+                     source="lan-proof-implied")
+        C.put_render(self.con, "192.168.1.143", "Quake1", "measured",
+                     "verified", source="perbox")
+        # real: two sources that both claim to know, and disagree.
+        C.put_deploy(self.con, "192.168.1.246", "Doom3", "derived", "deployed",
+                     source="probe")
+        C.put_deploy(self.con, "192.168.1.246", "Doom3", "measured", "absent",
+                     source="perbox")
+        kinds = {(r["title"], r["kind"]) for r in
+                 self.con.execute("SELECT * FROM v_compat_conflict")}
+        self.assertIn(("Quake1", "upgrade"), kinds)
+        self.assertIn(("Doom3", "contradiction"), kinds)
+
+    def test_measuring_a_previously_untested_cell_is_an_upgrade(self):
+        self.seed()
+        C.put_mp(self.con, "192.168.1.143", "Quake1", "derived", "untested",
+                 source="gamegate.db")
+        C.put_mp(self.con, "192.168.1.143", "Quake1", "measured",
+                 "verified_two_box", source="perbox")
+        row = self.con.execute("SELECT * FROM v_compat_conflict").fetchone()
+        self.assertEqual(row["kind"], "upgrade")
+
     def test_partial_update_does_not_wipe_another_ingests_field(self):
         C.put_box(self.con, "192.168.1.143", hostname="1GHZ", gpu="V5 5500")
         C.put_box(self.con, "192.168.1.143", os="Windows XP")

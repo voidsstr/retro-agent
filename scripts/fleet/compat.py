@@ -1014,12 +1014,23 @@ def cmd_conflicts(con, a):
     if not rows:
         print("no disagreements between hand-recorded and machine-derived facts.")
         return 0
-    print("%d cell(s) where a MEASURED fact disagrees with a DERIVED one.\n"
-          "Both are kept; the measured value wins in every view." % len(rows))
-    for r in rows:
-        print("  %-7s %-16s %-24s measured=%-18s derived=%-18s (%s vs %s)" % (
-            r["axis"], r["ip"], r["title"], r["measured"], r["derived"],
+    bad = [r for r in rows if r["kind"] == "contradiction"]
+    up = [r for r in rows if r["kind"] == "upgrade"]
+    print("%d cell(s) where a MEASURED fact disagrees with a DERIVED one. "
+          "Both are kept;\nthe measured value wins in every view.\n" % len(rows))
+    print("CONTRADICTIONS - %d. Worth looking at: two sources that both claim "
+          "to know." % len(bad))
+    for r in bad:
+        print("  %-7s %-16s %-26s measured=%-14s derived=%-14s (%s vs %s)" % (
+            r["axis"], _short(r["ip"]), r["title"], r["measured"], r["derived"],
             r["measured_source"], r["derived_source"]))
+    print("\nUPGRADES - %d. The system working: somebody measured a cell that "
+          "was\nguessed or unknown. Listed with --all." % len(up))
+    if a.all:
+        for r in up:
+            print("  %-7s %-16s %-26s measured=%-14s derived=%-14s (%s vs %s)"
+                  % (r["axis"], _short(r["ip"]), r["title"], r["measured"],
+                     r["derived"], r["measured_source"], r["derived_source"]))
     return 0
 
 
