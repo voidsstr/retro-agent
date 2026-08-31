@@ -697,7 +697,7 @@ have both been found in that state.
 
 **Multiplayer is part of "working"** — see the LAN/IPX rules below.
 
-## Never Put Parentheses in a Generated Filename (REQUIRED)
+## Never Put Parentheses in a Generated Filename OR a `.bat` VALUE (REQUIRED)
 
 **A `.bat` whose filename contains `(` or `)` cannot be launched through the
 agent.** `EXEC cmd /c start "" /D "<dir>" "Host Redneck Rampage (LAN).bat"`
@@ -706,7 +706,27 @@ Desktop shortcuts are unaffected, so the file looks perfectly good to a person
 double-clicking it — **it only bites automation**, which is exactly why it
 survives review.
 
-**This is the SECOND time this character has cost us time.** The generated
+**This is the THIRD time this character has cost us time, and the third time it
+found a place the rule did not cover.** The rule said *filename*, so the defect
+simply moved into a **value**: `SoldierOfFortune2`'s generated launcher set
+
+    set "GTITLE=Soldier of Fortune II: Double Helix Gold (single player)"
+
+and then echoed `[%GTITLE%]` **inside an `if ( ... )` block**. The `)` in the
+expanded value closed the block, cmd aborted with `] was unexpected at this
+time`, and the launcher started nothing — **on every box** — while the
+compatibility matrix recorded the title as `runs`. Found 2026-08-31.
+
+So the rule is not about filenames. It is about **every string this project
+generates that cmd.exe will later expand inside a block**: a `set` value, a
+window title, an echoed label, a `launch.txt` display name that reaches a
+`.bat`. Parenthesise nothing; use a dash.
+
+**And fix it at the GENERATOR.** That launcher is generated from a spec, so a
+share-only edit is silently regenerated away — the test suite caught exactly
+that attempt.
+
+**The earlier two occurrences:** The generated
 `onboard.cmd` (since removed with ONBOARD in v1.71.0) had the same problem with
 game NAMEs containing parentheses — `(BC Romania)`, `(fleet build)` — where the
 `)` in an expanded variable closed a `( ... )` block early and cmd aborted with

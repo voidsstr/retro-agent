@@ -194,7 +194,14 @@ if defined ANYDRV (
     echo   ============================================================
     echo.
     > "%ERRFILE%" echo %GTITLE%: MOUNT FAILED - started against an unrelated disc
-    >>"%ERRFILE%" echo image=%IMAGE%
+    rem QUOTED DELIBERATELY. %IMAGE% is a disc-image path we do not choose,
+    rem and several carry a region tag - "System Shock 2 (USA).cue". This line
+    rem sits INSIDE an if( ) block, and cmd expands variables while PARSING the
+    rem block, so an unquoted ")" here closes the block early and the launcher
+    rem dies with "] was unexpected at this time" having started nothing. That
+    rem is the same defect that broke SoldierOfFortune2 on every box while the
+    rem matrix recorded it as running. Third occurrence of this character.
+    >>"%ERRFILE%" echo image="%IMAGE%"
     >>"%ERRFILE%" echo fell back to whatever disc was in %ANYDRV%:
     >>"%ERRFILE%" echo daemon=%DT%
     >>"%ERRFILE%" echo wincdemu=%WCD%  fallback=%WCD2%
@@ -443,7 +450,7 @@ echo   ============================================================
 echo.
 > "%ERRFILE%" echo %GTITLE% mount failure
 >>"%ERRFILE%" echo %~1
->>"%ERRFILE%" echo image=%IMAGE%
+>>"%ERRFILE%" echo image="%IMAGE%"
 >>"%ERRFILE%" echo game=%GAME%
 >>"%ERRFILE%" echo daemon=%DT%
 >>"%ERRFILE%" echo wincdemu=%WCD%
