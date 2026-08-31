@@ -1061,6 +1061,40 @@ def cmd_record(con, a):
                          fullscreen=a.fullscreen, detail=a.detail or "",
                          source=a.source, measured_at=when)
             wrote.append("runs=%s" % a.runs)
+            # A PER-SHORTCUT ROW IS INVISIBLE UNLESS A TITLE-LEVEL ROW EXISTS.
+            #
+            # `v_compat_matrix` (and `status`, and `gaps`) join on
+            # `shortcut=''`, because the grid has one cell per box x TITLE. So
+            # a measurement recorded against a single launcher lands in the
+            # table and is then absent from every view -- `gaps` even lists the
+            # cell as never-looked-at, which sends the next agent to re-measure
+            # something already proved.
+            #
+            # Measured 2026-08-31: six real observations on .246 were sitting
+            # in compat_render, four of them `verified` with evidence, none of
+            # them visible.
+            #
+            # So a shortcut-level record also refreshes the title-level cell,
+            # but ONLY when that cell has no `measured` row already -- a
+            # title-level observation is the stronger statement (it is about
+            # the game, not one launcher), and one shortcut must never silently
+            # overwrite it. Recording every shortcut of a title therefore
+            # settles the title on whichever was recorded first, which is
+            # visible and correctable, rather than on whichever ran last.
+            if a.shortcut:
+                have = con.execute(
+                    "SELECT 1 FROM compat_render WHERE ip=? AND title=? "
+                    "AND shortcut='' AND origin='measured'",
+                    (ip, a.title)).fetchone()
+                if not have:
+                    C.put_render(con, ip, a.title, "measured", a.runs,
+                                 shortcut="", renderer=a.renderer,
+                                 width=w, height=h, refresh_hz=a.refresh,
+                                 fullscreen=a.fullscreen,
+                                 detail=("via shortcut %s; %s"
+                                         % (a.shortcut, a.detail or "")).strip("; "),
+                                 source=a.source, measured_at=when)
+                    wrote.append("(also title-level, so the matrix can see it)")
         if a.mp:
             C.put_mp(con, ip, a.title, "measured", a.mp,
                      partner_ip=_full(a.partner) if a.partner else "",
