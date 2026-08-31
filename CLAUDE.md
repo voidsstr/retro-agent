@@ -660,6 +660,36 @@ staged tree, not in an in-game menu on one box: an id engine rewrites
 Unreal-engine titles use `[WinDrv.WindowsClient] StartupFullscreen=True`; DOSBox
 titles need `fullscreen=true` in the title's own `dosbox*.conf`.
 
+### TEST IN FULLSCREEN — a windowed pass is not a pass (REQUIRED)
+
+**User directive: testing is always done in fullscreen.** Fullscreen is how the
+games are actually played here, and it is the mode where this fleet's real
+failures live — an exclusive-fullscreen mode set is exactly what a wrong
+`r_mode`, an unsupported refresh rate, a squashed 5:4 tube or a mode the driver
+does not offer will break, and **none of those reproduce in a window.** A title
+confirmed windowed has not been confirmed.
+
+So a cell may only be recorded `verified` from a **fullscreen** observation, and
+the resolution recorded must be the fullscreen one.
+
+**Windowed mode is a TOOL, never the result.** Some things genuinely cannot be
+driven fullscreen, and using a window to get past them is correct:
+
+- **id Tech 3 ignores synthetic keyboard input in exclusive fullscreen** and
+  accepts it windowed — that is the documented way to type a CD key.
+- **GDI cannot photograph an exclusive-fullscreen surface** on some boxes
+  (`.246` especially); a windowed relaunch may be the only way to get a frame.
+
+In both cases the window is a means to an end: **do the typing or the capture,
+then return the title to fullscreen, confirm it there, and record THAT.** If a
+title can only ever be made to run windowed, say so explicitly — that is a real
+defect in the staged tree, not a pass.
+
+**Leave the box fullscreen and at its proper mode.** A game that exits without
+restoring the desktop strands the machine at 640x480, and the next launcher
+that reads the live mode then pins every later game to it — `.123` and `.240`
+have both been found in that state.
+
 **Multiplayer is part of "working"** — see the LAN/IPX rules below.
 
 ## Never Put Parentheses in a Generated Filename (REQUIRED)
