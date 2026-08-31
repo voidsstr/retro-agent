@@ -94,6 +94,16 @@ def _generate(spec_name):
     ('if not defined DISCDRV taskkill /f /im daemon.exe',
      'a locked unit leaves a stuck daemon.exe behind a modal; clearing it stops '
      'this launch wedging the next one, and stops one title blocking another.'),
+    ('@@POSTLAUNCH@@',
+     'the post-launch hook. Without it a LAN host that must start a dedicated '
+     'server and THEN a local client cannot be expressed, and the title falls '
+     'back to a bespoke launcher - which is the duplication this template '
+     'exists to remove.'),
+    ('%DISCDRV% IS IN SCOPE IN BOTH',
+     'the hooks are only worth having if they can say "skip this step when no '
+     'disc mounted" - that is what lets a box with NO mounter still host for '
+     'the others. DISCDRV is undefined exactly when no disc was found, '
+     'including after a failed mount fell through to :anydisc.'),
 ])
 def test_template_keeps_safeguard(needle, why):
     assert needle in _template(), 'template lost a safeguard: %s (%s)' % (needle, why)
@@ -189,6 +199,34 @@ def test_spec_is_complete_and_generates(name):
     text = _generate(name)
     assert '@@' not in text, '%s: generated launcher still has placeholders' % name
     assert text.startswith('@echo off'), '%s: generated launcher lost its header' % name
+
+
+def test_postlaunch_hook_reaches_the_generated_launcher():
+    """A hook nobody can use is worse than no hook.
+
+    The Serious Sam LAN host needs "start the dedicated server, wait, then start
+    a local client ONLY if a disc mounted" - the conditional half is what lets
+    a box with no mounter at all still host for the others. If the generator
+    silently dropped `postlaunch`, that title would go back to a bespoke
+    launcher and the duplication this template removes would come straight back.
+    """
+    import json as _json
+    import tempfile
+    spec = _spec('RedFaction.json')
+    spec['postlaunch'] = ('ping -n 17 127.0.0.1 >nul\r\n'
+                          'if defined DISCDRV start "" /D "%~dp0" "%~dp0client.exe"')
+    with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False) as f:
+        _json.dump(spec, f)
+        tmp = f.name
+    out = subprocess.run([sys.executable, GEN, '--spec', tmp], capture_output=True)
+    os.unlink(tmp)
+    assert out.returncode == 0, out.stderr.decode()
+    text = out.stdout.decode('latin-1')
+    assert 'if defined DISCDRV start "" /D "%~dp0" "%~dp0client.exe"' in text, \
+        'postlaunch did not reach the generated launcher'
+    # and it must land AFTER the game is started, not before
+    assert text.index('start "" /D "%~dp0" "%GAME%"') < text.index('client.exe'), \
+        'postlaunch ran before the game started - that is a prelaunch'
 
 
 def test_requiredisc_is_per_title_not_a_constant():

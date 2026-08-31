@@ -90,9 +90,17 @@ def substitute(tpl, spec):
     # 4. autorun kill list
     out = out.replace('@@AUTOKILL@@', spec.get('autokill', 'autorun.exe setup.exe'))
 
-    # 5. optional pre-launch step
+    # 5. optional pre- and post-launch steps.
+    #
+    # Both see %DISCDRV%, which is the drive letter carrying THIS title's disc
+    # and is UNDEFINED when none mounted. That is what lets a spec say "only if
+    # a disc is present" honestly - e.g. a LAN host that starts a dedicated
+    # server unconditionally and a local client only when there is a disc, so a
+    # box with no mounter at all can still host for the others.
     pre = spec.get('prelaunch', 'rem (none)').rstrip('\r\n')
     out = out.replace('@@PRELAUNCH@@', pre)
+    post = spec.get('postlaunch', 'rem (none)').rstrip('\r\n')
+    out = out.replace('@@POSTLAUNCH@@', post)
 
     leftover = re.findall(r'@@[A-Z_]+@@', out)
     if leftover:

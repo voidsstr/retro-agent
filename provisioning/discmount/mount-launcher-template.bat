@@ -204,9 +204,35 @@ goto :play
 
 :play
 if defined DISCDRV echo [%GTITLE%] disc is on %DISCDRV%:
+rem ---- the two per-title hooks -------------------------------------------
+rem
+rem  %DISCDRV% IS IN SCOPE IN BOTH, and it is the honest way to say "only if a
+rem  disc actually mounted": it holds the drive letter carrying THIS title's
+rem  disc, and is UNDEFINED when no disc was found - including when the mount
+rem  failed and we fell through to :anydisc, which is the case that matters.
+rem  A hook that cannot express that would push a title back into a bespoke
+rem  launcher anyway, so it is stated here rather than left to be discovered.
+rem
+rem  So a title whose LAN host runs a dedicated server and then a local client
+rem  ONLY when a disc is present - which is what lets a box with no mounter at
+rem  all still host for the others - writes exactly that:
+rem
+rem      GAME       = DedicatedServer.exe
+rem      postlaunch = ping -n 17 127.0.0.1 >nul
+rem                   if defined DISCDRV start "" /D "%~dp0" "%~dp0game.exe"
+rem
+rem  And a JOIN launcher resolves its host address in the FLEETRES slot, which
+rem  runs BEFORE the `set "GAMEARGS=..."` line - cmd expands %HOSTIP% at the
+rem  moment that set runs, so resolving it later would silently produce
+rem  "+connect" with no address. See specs/SoldierOfFortune-Join.json for a
+rem  worked example, including the argv / lanhost.txt / C:\Games\lanhost.txt
+rem  order that avoids a `set /p` prompt hanging a headless box forever.
+rem ------------------------------------------------------------------------
 rem Per-title pre-launch step, if this title needs one.
 @@PRELAUNCH@@
 start "" /D "%~dp0" "%GAME%" %GAMEARGS%
+rem Per-title post-launch step, if this title needs one.
+@@POSTLAUNCH@@
 goto :theend
 
 rem ======================== subroutines ====================================
@@ -227,9 +253,20 @@ rem
 rem A DAEMON Tools UNIT CAN BE LOCKED. On .124 and .240 (2026-08-31) device 0
 rem answered "Unable to mount image. Unit is locked." - and so did -unmount, and
 rem neither d347bus nor d347prt will stop (kernel drivers), so there is no
-rem reboot-free way to clear it. Suspected cause: a SafeDisc title issues
-rem PREVENT_ALLOW_MEDIUM_REMOVAL and the lock outlives the game; .124 was parked
-rem on SYSTEMSHOCK2 (SafeDisc 1.11) and .240 on SHOGO.
+rem reboot-free way to clear it.
+rem
+rem WHAT IT IS NOT: "cannot mount over an occupied unit". Refuted - .240 swapped
+rem its single virtual drive SHOGO -> SERIOUS_SAM_RC2 -> SamSE with no unmount
+rem at all. Occupancy is fine; a lock is a lock, and an unmount-first fix would
+rem have been ceremony that fixed nothing.
+rem
+rem LIKELIEST CAUSE, and the reproducible one: TWO AGENTS MOUNTING AT ONCE.
+rem .124 locked at the moment a Serious Sam launcher and a Jedi Academy launcher
+rem raced each other. That needs no SafeDisc title and can be reproduced on
+rem demand. A second candidate, weaker: a SafeDisc title issues
+rem PREVENT_ALLOW_MEDIUM_REMOVAL and the lock outlives the game - both locked
+rem boxes were parked on a SafeDisc disc (.124 SYSTEMSHOCK2 1.11.000, .240
+rem SHOGO). Neither is proven; the launcher does not depend on which is right.
 rem
 rem A direct call BLOCKS FOREVER behind that modal, and this is the worst
 rem possible failure: the launcher never starts the game, never reaches
