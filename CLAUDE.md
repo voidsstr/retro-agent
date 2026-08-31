@@ -2131,6 +2131,55 @@ Source and payload: `provisioning/fleetres/`. Tests:
 `.171`, whose 3D is a **Voodoo 2** with a hard 800x600 limit hiding behind the
 Intel 865G that every display-class scan reports instead.
 
+### ⚠️ id Tech 4 IS THE OPPOSITE OF id Tech 3 HERE — the command line WINS
+
+Everything above about stripping a latched `seta r_mode` is an **id Tech 3**
+rule. **DOOM 3 (id Tech 4) re-applies `+set` startup variables a SECOND time,
+after it has exec'd `DoomConfig.cfg`** — id's own source comments it
+*"re-override anything from the config files with command line args"* — so the
+launcher's command line beats the config and the title needs **no
+`fleetres.cfg` at all**. Applying the idTech3 recipe there produces a launcher
+that looks right and changes nothing.
+
+Two more id Tech 4 specifics, both silent when wrong:
+- the cvars are **camel-case**: `r_customWidth` / `r_customHeight`.
+  idTech3's lower-case spelling is a *different name* and is ignored.
+- **`r_aspectRatio` is a separate cvar** (0=4:3, 1=16:9, 2=16:10) and the engine
+  derives horizontal FOV from it, so a 16:9 panel at the right pixel count with
+  the default 0 is still stretched. `Doom3`'s launcher computes it per box from
+  `%FR_W%`/`%FR_H%` by integer cross-multiply.
+- **`DoomConfig.cfg` and `config.spec` must NOT be staged.** Both are per-box
+  state the engine writes on exit; a copy captured on one machine carries that
+  machine's resolution and detected machine-spec onto all eight.
+
+## Copy protection: read the SafeDisc VERSION before you plan around it (REQUIRED)
+
+**A staged title that says *"Cannot locate the CD-ROM/DVD-ROM"* is not
+necessarily missing a CD key, and the disc image is usually not what is
+short.** Doom 3 was tracked for a session as "one plain-text file away" when
+retail 1.0 in fact raises that modal **before any key prompt**.
+
+- **Identify it:** the PE has sections `stxt774` / `stxt371` and the string
+  `BoG_ *90.0&!!  Yy>`.
+- **Get the exact version, it is three dwords:** immediately after that marker
+  (file offset `0xfd4` on both binaries measured here) sit major/minor/subminor
+  — `3 / 0x14 / 0x16` = **SafeDisc 3.20.022** (Doom 3 retail),
+  `2 / 0x50 / 0x0a` = **SafeDisc 2.80.010** (C&C Generals).
+- **Look for an OFFICIAL patch that drops the wrapper before reaching for a
+  mounter.** id's Doom 3 1.3 does — its `Doom3.exe` has six ordinary sections
+  including `.reloc`, no `stxt*`, no `BoG_`. Pull it without installing: run the
+  InstallShield setup once and `7z x` `%TEMP%\_is2\<name>.msi`. EA's Generals
+  ZH 1.04 does **not** — it is an RTPatch binary delta over `game.dat` and never
+  touches the wrapper.
+- **NEVER compare candidate exes by SIZE.** id's official 1.3 exe and the scene
+  crack of it on the same share are **both 5,832,704 bytes**. Compare md5.
+- **DAEMON Tools 3.47 — the fleet's only mounter — does NOT satisfy SafeDisc
+  2.80**, and the image is not the reason: the `.mdf` pairs here are
+  2448-byte-sector dumps (2352 + 96 **subchannel**) with a real weak-sector
+  table. Its emulation is set from the tray menu, and the four entries are
+  **TOGGLES** — only *"All options ON"* is a SET — so verify the post-condition
+  (checkmarks **and** a changed `d347bus\Cfg\khjeh` blob), never the click.
+
 ## Keys and Secrets — Azure Key Vault `nsc-secrets-kv` (REQUIRED)
 
 **Every product key, CD key, serial and credential this project depends on
