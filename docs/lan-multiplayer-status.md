@@ -12,7 +12,7 @@ and a **player count** that has not had bots subtracted (Quake III runs
 and SoF2's player lines carry a third number so the ping field is not where you
 think it is).
 
-*Measured 2026-08-31 across `.123 .124 .133 .143 .171 .240 .246`. `.145` was
+*Measured 2026-08-30/31 across `.123 .124 .133 .143 .171 .240 .246`. `.145` was
 offline (its cable was in the Win98 box) and `.243` (Win98 Pentium) was off the
 network awaiting a keyboard.*
 
@@ -50,8 +50,40 @@ network awaiting a keyboard.*
 | Descent 2 | UDP/IP native | `.123` + `.240` |
 | Descent 3 | dedicated server | `.240` |
 | Doom 3 | id Tech 4 | `.123` + `.246` |
+| Return to Castle Wolfenstein | id Tech 3 | `.143` + `.246` |
 
-**28 titles.**
+**29 titles.**
+
+### Staged, LAN-capable, gather not yet proven
+
+Added in the same batch as RTCW and deployed to all seven live boxes.
+Each runs fullscreen and its **transport is proven** (the IPX tunnel is
+confirmed connected end to end), but no two-box match has been completed:
+
+| Title | What is proven | What is missing |
+|---|---|---|
+| Warcraft II: Battle.net Edition | runs; ships IPXWrapper | its 8-bit DirectDraw surface is **uncapturable by GDI on both XP and Win7**, so the agent cannot photograph it at all |
+| Warcraft: Orcs & Humans | runs under its own DOSBox | campaign/network screen is mouse-only |
+| Shadow Warrior Classic Complete | runs; SETUP.EXE driven end-to-end by keyboard | the in-game gather |
+| Master of Orion II | runs; **MULTI PLAYER** present natively | that menu entry is mouse-only |
+
+**Why these four stall on the same thing.** *Absolute clicks cannot drive a
+DOSBox game's mouse.* DOSBox turns host mouse **motion** into DOS deltas, and
+moving the cursor to an unfocused window produces none — `autolock=false`
+does not change it. `UIKEY` works, which is why Shadow Warrior's setup could
+be completed; menus with no keyboard path cannot. One person, once, at a
+mouse finishes all four.
+
+### Staged then WITHDRAWN
+
+**Serious Sam: The First and Second Encounter.** Both were among the best
+showcase picks and both are disc-locked: `SeriousSam.exe` imports
+`GetDriveTypeA` and walks the drive letters for a CD-ROM-**typed** volume,
+so it refuses to start with every `.gro` local. TSE is already retail v1.05,
+so the Doom 3 escape — a later official patch that drops the wrapper — does
+not exist. Removed from the library, purged from both test boxes, and
+recorded as `WITHDRAWN` in the test so nobody re-stages them. **Recoverable
+the moment a disc mounter exists on more than one box.**
 
 ## Hosted on this computer — 18 servers, all `enabled` with linger on
 
