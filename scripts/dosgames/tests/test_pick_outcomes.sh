@@ -88,6 +88,44 @@ printf '# comments and blanks are skipped\n\nDESCENTR.EXE\tDescent\n' \
 mk BADDECL  DESCENTR.EXE DESCENT.HOG
 printf 'NOTHERE.EXE\tGhost\n' > "$C/BADDECL/DOSGAME.TXT"
 
+# --- self-extracting archives: decided by CONTENT, never by name -----------
+# A downloaded self-extractor is an .EXE by name and a ZIP/LZH archive by
+# content. Nothing name-based can tell it from the game: it is in no installer
+# table, and it is usually the only program in the directory, so "first
+# non-tool .EXE" handed it back as ready to play - and Enter then re-extracted
+# the game instead of starting it, for ever.
+#
+# The fixtures below are what makes this a real test rather than a source grep:
+# each pair differs ONLY in the bytes inside the file.
+sfx() {                 # sfx <dir> <exe> <signature-bytes> <size>
+    d="$C/$1"; mkdir -p "$d"
+    { head -c 300 /dev/zero; printf "$3"; head -c "$4" /dev/zero; } > "$d/$2"
+}
+mk  SFXZIP  SFXZIP.DAT
+sfx SFXZIP  SFXZIP.EXE 'PK\003\004' 20000
+mk  SFXLZH  SFXLZH.DAT
+sfx SFXLZH  SFXLZH.EXE '\043\043-lh5-' 20000
+# the CONTROL: same shape, same size, no archive signature -> still the game
+mk  BIGGAME BIGGAME.DAT
+sfx BIGGAME BIGGAME.EXE 'MZnot-an-archive' 20000
+# below the size floor a PK is a coincidence, not a payload
+mk  SMALLPK SMALLPK.DAT
+sfx SMALLPK SMALLPK.EXE 'PK\003\004' 1000
+
+# A REGISTRY row can carry the same mistake, and it is the worse half: a 'G'
+# row makes reg_covers_dir() hide the directory from the scan, so once one is
+# recorded the wrong launcher can never be re-derived. Poison the registry
+# here and require it to repair itself.
+printf 'G|Zip Sfx|C:\\SFXZIP|SFXZIP.EXE|\n' > "$C/DOSGAME/INSTALL.LST"
+
+# --- the skip list must not make a directory disappear ---------------------
+# skip_exes[] exists to stop a support tool being taken for the game WHEN
+# THERE IS A GAME. A directory whose only program is skip-listed used to
+# resolve to nothing at all and vanish from the menu.
+mk SKIPONLY LOADER.EXE GAME.DAT
+# ... but an installer still goes through the setup path, not this one
+mk SETUPDIR INSTALL.EXE GAME.DAT
+
 conf="$WORK/dosbox.conf"
 {
     printf '[sdl]\noutput=surface\nautolock=false\n'
@@ -164,6 +202,42 @@ if [ "$got" = "Descent" ]; then
 else
     bad "DESC1D titled \"${got:-<missing>}\", expected \"Descent\""
 fi
+
+echo "== a launcher that is really a packed archive (content, not name) =="
+# expect_kind <dir> <launcher> <kind> <why>   kind: R ready, I needs setup, Z archive
+expect_kind() {
+    local got want
+    got=$(awk -F'|' -v d="C:\\\\$1" '$5==d {print $2 "|" $4}' "$SELF" | head -1)
+    want="$3|$2"
+    if [ "$got" = "$want" ]; then
+        ok "$1 -> $2 [$3]   ($4)"
+    else
+        bad "$1 -> ${got:-<missing>} , expected $want   ($4)"
+    fi
+}
+expect_kind SFXZIP  SFXZIP.EXE  I "PK\\3\\4 inside: offered as setup, NOT as 'R' ready-to-play"
+expect_kind SFXLZH  SFXLZH.EXE  I "-lh5- inside: same, via the LZH signature"
+expect_kind BIGGAME BIGGAME.EXE R "same size and shape, no signature - still the game"
+expect_kind SMALLPK SMALLPK.EXE R "under the 16K floor a PK is a coincidence"
+
+echo "== a poisoned INSTALL.LST row repairs itself =="
+# Without the repair this row wins outright: SFXZIP is titled "Zip Sfx", kind
+# R (ready to play), and the scan never looks at the directory again.
+got=$(awk -F'|' -v d='C:\\SFXZIP' '$5==d {print $3}' "$SELF" | head -1)
+if [ "$got" != "Zip Sfx" ]; then
+    ok "SFXZIP is no longer titled \"Zip Sfx\" - the stale 'G' row was dropped"
+else
+    bad "SFXZIP still carries the poisoned registry row (title \"$got\")"
+fi
+if grep -qi 'registry: DROP C:.SFXZIP - launcher' "$C/DOSGAME/DOSGAME.LOG"; then
+    ok "the log says WHY the row went (registry: DROP ... re-deriving)"
+else
+    bad "no 'registry: DROP ... self-extracting archive' line in the log"
+fi
+
+echo "== the skip list must not make a directory vanish =="
+expect_kind SKIPONLY  LOADER.EXE  R "skip-listed, but it is the only thing that runs here"
+expect_kind SETUPDIR  INSTALL.EXE I "an installer still goes through the setup path"
 
 echo "== known limitation: Jagged Alliance =="
 # The real game is JA.EXE. NOTHING here can find it: no program is named after

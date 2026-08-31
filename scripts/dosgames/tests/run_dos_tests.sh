@@ -445,6 +445,55 @@ grep -q 'SELFEXTRACT_MIN_BYTES' "$SRCDIR/dosgame.c" \
   && ok "a lone exe must also be LARGE to count as a self-extractor" \
   || bad "a lone exe must also be LARGE to count as a self-extractor"
 
+# ...and the name-and-shape rules above still cannot see INSIDE the file. A
+# self-extracting download is an .EXE by name and a ZIP/LZH archive by
+# content, sitting beside its own data files, so every rule that reads only
+# the directory listing hands it back as the game. is_selfextract() reads the
+# head of the file and looks for the archive signature itself. The OUTCOMES
+# are asserted in tests/test_pick_outcomes.sh (SFXZIP / SFXLZH / BIGGAME /
+# SMALLPK); these greps only pin the mechanism.
+grep -q 'static int is_selfextract' "$SRCDIR/dosgame.c" \
+  && ok "the launcher choice can read a file's CONTENT, not just its name" \
+  || bad "the launcher choice can read a file's CONTENT, not just its name"
+grep -q "buf\[i\] == 0x50 && buf\[i + 1\] == 0x4b" "$SRCDIR/dosgame.c" \
+  && ok "the ZIP local-header signature PK\\3\\4 is what is looked for" \
+  || bad "the ZIP local-header signature PK\\3\\4 is what is looked for"
+grep -q "buf\[i + 2\] == 'h'" "$SRCDIR/dosgame.c" \
+  && ok "the LZH/LHA -lh?- method id is looked for too" \
+  || bad "the LZH/LHA -lh?- method id is looked for too"
+grep -q 'SFX_MIN_BYTES' "$SRCDIR/dosgame.c" \
+  && ok "a file too small to hold a game is never opened past its size" \
+  || bad "a file too small to hold a game is never opened past its size"
+grep -q 'SFX_SCAN_BYTES' "$SRCDIR/dosgame.c" \
+  && ok "the content scan is bounded - this runs on a 486" \
+  || bad "the content scan is bounded - this runs on a 486"
+# The 4-byte carry-over is not decoration: a signature straddling a 512-byte
+# read boundary is invisible without it.
+grep -q 'memmove(buf, buf + end - 4, 4)' "$SRCDIR/dosgame.c" \
+  && ok "chunks overlap by 4 bytes so a straddling signature is still seen" \
+  || bad "chunks overlap by 4 bytes so a straddling signature is still seen"
+# A 'G' row hides its directory from the scan for good, so a row that names an
+# archive as the launcher can never be corrected by re-scanning. It must be
+# dropped and re-derived. (Outcome asserted in test_pick_outcomes.sh.)
+grep -q 'registry: DROP %s - launcher' "$SRCDIR/dosgame.c" \
+  && ok "a registry row naming an archive as the launcher is re-derived" \
+  || bad "a registry row naming an archive as the launcher is re-derived"
+# skip_exes[] exists to stop a support tool being taken for the game WHEN
+# THERE IS A GAME. It must not make a directory disappear from the menu.
+grep -q 'skip-listed, but it is the only thing that ' "$SRCDIR/dosgame.c" \
+  && ok "a directory whose only program is skip-listed is still offered" \
+  || bad "a directory whose only program is skip-listed is still offered"
+# F2 must not be able to cycle onto one either - the manual override writes a
+# 'G' row, which is exactly the un-correctable case above.
+grep -q 'if (!is_bat(ft.name) && is_selfextract(dir, ft.name)) continue;' "$SRCDIR/dosgame.c" \
+  && ok "F2 cannot cycle onto a self-extracting archive" \
+  || bad "F2 cannot cycle onto a self-extracting archive"
+# The log is recycled by RENAMING: the run that filled it is usually the run
+# worth reading, and remove() threw it away.
+grep -q 'rename(path, old);' "$SRCDIR/dosgame.c" \
+  && ok "an oversized log is renamed to .OLD, not deleted" \
+  || bad "an oversized log is renamed to .OLD, not deleted"
+
 # The name-shape rule alone gets ROTT exactly BACKWARDS: it promoted
 # ROTTIPX.EXE (the IPX multiplayer launcher) over ROTT.EXE (the game) on the
 # real box. The catalogue lists ROTT.EXE and KEEN4E.EXE, and neither
@@ -1151,11 +1200,19 @@ grep -q 'here ? ATTR_INSTALLED : ATTR_AVAILABLE' "$SRCDIR/dosgame.c" \
 # logic breaking while the strings survive; an adversarial review called that
 # out, so these assert the result of a real run instead.
 echo "== is the FLEET running what this repo builds? =="
-# Reports, never fails - see scripts/dosgames/check-published.py for why. The
-# divergence is a known unresolved fact, and a check that failed the suite
-# today would train everyone to ignore it. Switch to --strict when it is
-# resolved.
-python3 "$SRCDIR/check-published.py" 2>&1 | sed 's/^/  /'
+# --strict, and that is the point. Between 2026-08-26 and 2026-08-31 the share
+# carried 1,842 bytes the repo could not rebuild - a self-extracting-archive
+# fix, built and published and never committed - and nothing said so for five
+# days. The source was recovered from the binary, the two now agree, and this
+# check FAILS the suite if they ever drift again in either direction.
+# It SKIPS (exit 0) when the share is not mounted or Watcom is absent.
+if python3 "$SRCDIR/check-published.py" --strict > "$WORK/pub.log" 2>&1; then
+    sed 's/^/  /' "$WORK/pub.log"
+    ok "the share and this repo build the same DOSGAME.EXE"
+else
+    sed 's/^/  /' "$WORK/pub.log"
+    bad "the published DOSGAME.EXE is NOT what this repo builds - see above"
+fi
 
 echo "== launcher outcomes (tests/test_pick_outcomes.sh) =="
 if bash "$HERE/test_pick_outcomes.sh" > "$WORK/pick.log" 2>&1; then

@@ -387,39 +387,78 @@ if __name__ == '__main__':
 
 
 # ---------------------------------------------------------------------------
-# 5. The fleet's DOSGAME.EXE is not this repo's build, and its source is lost.
-#    These pin the RECORD of that, so it cannot be quietly deleted by someone
-#    tidying up - which is exactly how it came to exist.
+# 5. The fleet's DOSGAME.EXE and this repo's build must stay the same program.
+#
+#    They were not, between 2026-08-26 and 2026-08-31: the share carried 1,842
+#    bytes -- a self-extracting-archive fix -- that existed in no commit, on no
+#    branch and in no file on this host, and nothing said so for five days. The
+#    source was recovered from the binary (see scripts/dosgames/README.md); the
+#    tests below now pin the RESOLVED state, and each one names the old broken
+#    value so a regression reads as a regression rather than as a new fact.
 # ---------------------------------------------------------------------------
 
 CHECK_PUBLISHED = os.path.join(REPO, 'scripts', 'dosgames', 'check-published.py')
 
 
-def test_the_published_binary_divergence_is_still_recorded():
+DOSGAME_EXE = os.path.join(REPO, 'scripts', 'dosgames', 'dosgame.exe')
+
+
+def test_the_recovered_feature_is_in_the_committed_build():
+    """OLD (2026-08-26..08-30): these four strings existed ONLY inside a binary
+    on the share - in no commit and in no file on this host. NOW the tracked
+    build carries all four, which is what makes the fleet's copy reproducible.
+
+    Checked against the BINARY, not the source: C string literals wrap across
+    lines, so a source grep would be asserting the formatting rather than the
+    program. The binary is the artifact the fleet actually runs."""
     cp = _load('check_published', CHECK_PUBLISHED)
-    assert cp.LOST_MARKERS, \
-        ('the markers for the lost DOSGAME.EXE source must not be emptied - '
-         'the share carries 1,842 bytes that exist in no commit, and this is '
-         'the only place that fact is machine-checkable')
-    for m in cp.LOST_MARKERS:
+    assert len(cp.FEATURE_MARKERS) == 4, \
+        ('the four log strings of the recovered feature are the machine-'
+         'checkable record that it exists - do not thin them out')
+    built = open(DOSGAME_EXE, 'rb').read()
+    for m in cp.FEATURE_MARKERS:
         assert isinstance(m, bytes)
-        # If a marker ever appears in the committed source, the lost work has
-        # been recovered and this whole guard can go.
-        assert m not in open(DOSGAME_C, 'rb').read(), \
-            ('%r is now in dosgame.c - the lost source has been recovered, so '
-             'rebuild, publish, and delete check-published.py' % m)
+        assert m in built, (
+            '%r is NOT in the tracked dosgame.exe. Either the recovered '
+            'self-extracting-archive fix has been deleted, or the tracked '
+            'binary is stale - and its only symptom on a DOS box is a game '
+            'menu that launches an installer instead of the game, for ever. '
+            'Rebuild with `make -C scripts/dosgames`.' % m)
 
 
-def test_the_divergence_check_reports_rather_than_failing_the_suite():
-    """A check that failed every agent's run_all.sh today, over a known and
-    unresolved fact, would train everyone to ignore it. It must stay a report
-    until somebody decides the trade."""
+def test_the_divergence_check_now_fails_the_suite():
+    """OLD: check-published.py was wired in WITHOUT --strict, because the
+    divergence was a known unresolved fact and failing every run_all.sh over it
+    would have trained everyone to ignore it. It is resolved, so the check is
+    now a gate - which is the only thing that stops it happening twice."""
     body = open(CHECK_PUBLISHED, encoding='utf-8').read()
     assert 'return 1 if args.strict else 0' in body
     runner = open(os.path.join(REPO, 'scripts', 'dosgames', 'tests',
                                'run_dos_tests.sh'), encoding='utf-8').read()
     assert 'check-published.py' in runner, 'the suite must print the verdict'
-    assert '--strict' not in runner.split('check-published.py')[1][:40]
+    assert '--strict' in runner.split('check-published.py')[1][:40], \
+        ('run_dos_tests.sh must invoke check-published.py --strict. Without '
+         'it the repo and the share can drift again in either direction and '
+         'nothing will say so.')
+
+
+def test_the_content_test_reads_the_file_not_the_name():
+    """The whole point of the recovered feature: a self-extracting download is
+    an .EXE by name and a ZIP/LZH archive by content, so a name-based rule
+    cannot see it. OLD: no signature test existed at all."""
+    src = open(DOSGAME_C, encoding='utf-8', errors='replace').read()
+    assert 'static int is_selfextract' in src
+    assert "buf[i] == 0x50 && buf[i + 1] == 0x4b" in src, \
+        'the ZIP local-header signature PK\\3\\4 is what identifies an SFX'
+    assert "buf[i + 2] == 'h'" in src, 'the LZH -lh?- method id too'
+    assert 'memmove(buf, buf + end - 4, 4)' in src, \
+        ('chunks must overlap by 4 bytes or a signature straddling a 512-byte '
+         'read boundary is invisible')
+    for bound in ('SFX_MIN_BYTES', 'SFX_SCAN_BYTES'):
+        assert bound in src, \
+            ('%s bounds the content scan - this runs on a 486, and an '
+             'unbounded read of every candidate in every directory is not '
+             'affordable there' % bound)
 
 
 # ---------------------------------------------------------------------------

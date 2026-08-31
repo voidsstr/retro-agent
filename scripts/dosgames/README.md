@@ -279,36 +279,94 @@ between the Shut Down dialog and the operator typing `PLAY`. Now:
   straight from the Linux dev host would have put the LF versions on every DOS
   box and broken `PLAY`, `NETUP` and `DOSSTART` in one go. Pinned by
   `.gitattributes` (`*.BAT text eol=crlf`) and asserted by `run_dos_tests.sh`.
-- **⚠️ THE SHARE'S `DOSGAME.EXE` IS NOT THIS REPO'S BUILD, AND ITS SOURCE IS
-  LOST (found 2026-08-30).** `git HEAD` rebuilds byte-exactly to **111,170 B**;
-  the share has carried **113,012 B** since 2026-08-26. The extra 1,842 bytes
-  are real work — four log strings that appear in **no commit, on no branch, in
-  no worktree and in no file on this host**:
-
-      pick:   %s is a self-extracting archive, not the game
-      pick:   %s -> %s (self-extracting archive; needs setup run)
-      pick:   %s -> %s (skip-listed, but it is the only thing that runs here)
-      registry: DROP %s - launcher "%s" is a self-extracting archive, not the
-                game; re-deriving
-
-  i.e. a launcher-choice refinement plus a registry-repair rule, built,
-  published to the fleet, and never committed. Searched exhaustively:
+- **⚠️ THE SHARE ONCE CARRIED 1,842 BYTES THAT EXISTED IN NO COMMIT — and
+  they were recovered from the binary rather than reinvented (2026-08-31).**
+  On 2026-08-30 `git HEAD` rebuilt byte-exactly to **111,170 B** while the
+  share had carried **113,012 B** since 2026-08-26. The extra bytes were a real
+  feature — a self-extracting-archive test in the launcher choice plus a
+  registry-repair rule — built, published to the fleet, and **never committed**.
   `git log --all -S` over the whole history with no path filter, `git grep`
-  across every reachable commit, and every `dosgame.c` on the host.
+  across every reachable commit and a filesystem sweep of every `dosgame.c` on
+  this host all came back empty. So `make` + `copy` would have deleted it
+  permanently, and nothing anywhere would have said so.
 
-  **So `make` + `copy` over the share DELETES that work permanently.** The
-  2026-08-30 `DOSGAME.TXT` support was therefore committed and *not* published:
-  publishing is a trade — a staged-library fix for a shareware-install fix —
-  and a person has to make it. `python3 check-published.py` (also
-  `make check-published`, and printed by `tests/run_dos_tests.sh`) says whether
-  the fleet is running what this repo builds. It reports and never fails,
-  because a check that failed the suite today would train everyone to ignore
-  it; switch it to `--strict` the day this is resolved.
+  **How it was recovered** — the method is the reusable part, so it is written
+  down rather than the outcome alone:
 
-  The lesson is the same one the CRLF entry below teaches from the other
-  direction: **the share and the repo drift in BOTH directions, and neither
-  notices.** Compare before you publish, and publish from a build you can
-  reproduce.
+  1. **Build the exact ancestor.** The published binary was dated 2026-08-26,
+     so `0e0a4d4` (2026-08-25) was the last commit before it. Rebuilt, that
+     commit gives 111,170 B — a *control* that differs from the published
+     binary only by the lost work.
+  2. **Diff the SEGMENTS, not the file.** `wcl -fm=` gives the segment map
+     (`dosgame_TEXT` 0x53a4, `DGROUP` at para 0x1790), which turns a file
+     offset into "our code", "library code" or "a string constant". The
+     string-constant diff named every new literal — including `".OLD"`, which
+     belongs to a *second*, silent change nobody had noticed.
+  3. **Find code by the strings it loads.** A log format string's DGROUP offset
+     appears in the code as a 2-byte immediate (`mov ax, 0x627`). Searching for
+     that immediate locates every call site of every message, in both binaries,
+     which is what maps published addresses back onto known source lines.
+  4. **Disassemble 16-bit with capstone and read the register convention.**
+     Watcom passes `ax`/`dx:ax` then `bx`/`cx:bx`, spills the rest, and a
+     `push cs; call near` is its far call. The map file names the library
+     routines, so `call 0x59c6` reads as `strrchr` and `test byte [tbl+c],0xe0`
+     as `isalnum` (`_LOWER|_UPPER|_DIGIT` from `watcom/h/ctype.h`).
+  5. **Reconstruct, rebuild, and diff again — iterate until it converges.**
+     The first attempt was 113,012 B (already the exact size) with 18,206 bytes
+     differing; the differences pointed straight at a missing `sz >= 0` guard
+     and a 520- not 516-byte buffer. The final reconstruction differs from the
+     published binary in **57 bytes, every one of them a stack-frame
+     displacement byte**: normalising `[bp ± X]` out of both disassemblies
+     gives **0 instruction differences across all 9,885 instructions**, and the
+     whole data segment is byte-identical. That is the proof, and it is much
+     stronger than "it looks right".
+
+  **The one deliberate deviation** is `if (n == 0)` where the original had
+  `if (n <= 0)` on an unsigned — a W136 warning the build had been shipping,
+  and `run_dos_tests.sh` fails on any warning. It is one opcode byte
+  (`0x76 jbe` → `0x74 je`) and identical in effect.
+
+  **What could NOT be recovered, and was left out on purpose:** nothing in the
+  1,842 bytes is unaccounted for, but the recovered feature predates
+  `DOSGAME.TXT`, so there is no evidence about how it should interact with a
+  staged tree's own declaration. A declaration is therefore still honoured
+  as-is and is *not* content-tested. If a staged tree ever declares a packed
+  archive, that is a `stage-dosnative.py` bug, not this one.
+
+  `check-published.py` now runs **`--strict` inside the suite** (it skips,
+  loudly, when the share is not mounted or Watcom is absent) so the two can
+  never silently drift again — in either direction. The lesson is the same one
+  the CRLF entry below teaches from the other side: **the share and the repo
+  drift BOTH ways, and neither notices. Compare before you publish, and publish
+  from a build you can reproduce.**
+
+- **A launcher is decided by the file's CONTENT, not only its name.** A
+  downloaded self-extractor is an `.EXE` by name and a ZIP/LZH archive inside,
+  sitting beside its own data files, so every name-based rule hands it back as
+  the game: it is in no installer table, and it is usually the only program in
+  the directory. `is_selfextract()` reads the head of the file and looks for
+  `PK\3\4` (the ZIP local file header) or `-lh?-` (the LZH method id), bounded
+  by a 16 KB size floor and a 32 KB scan limit so it stays cheap on a 486, with
+  a 4-byte overlap between chunks so a signature straddling a read boundary is
+  still seen. It is asked wherever a launcher is chosen or believed:
+  `pick_launcher` (the directory-named exe, the sibling, and every catalogue
+  candidate), `next_launcher` (F2 must not be able to cycle onto one),
+  `reg_load` (a `'G'` row hides its directory from the scan for good, so a row
+  naming an archive can never be corrected by re-scanning — it is dropped and
+  re-derived), and all three places `/postinst` accepts the catalogue's exe.
+  Outcomes are asserted in `tests/test_pick_outcomes.sh` against fixtures that
+  **differ only in the bytes inside the file** (`SFXZIP`/`SFXLZH` vs the
+  identically-shaped `BIGGAME`, and `SMALLPK` under the size floor).
+
+- **The skip list must not make a directory VANISH.** `skip_exes[]` exists to
+  stop a support tool being taken for the game *when there is a game*. A
+  directory whose only program is skip-listed used to resolve to nothing at all
+  and disappear from the menu. It is now offered with
+  `pick:   ... (skip-listed, but it is the only thing that runs here)` — unless
+  it is itself an archive, and never in place of an installer.
+
+- **An oversized `DOSGAME.LOG` is RENAMED to `.OLD`, not deleted.** The run that
+  filled the log is usually the run worth reading, and `remove()` threw it away.
 
 - **The share can be STALE relative to this repo, silently.** After the CRLF
   conversion five of the six shipped batch files were byte-identical to the

@@ -3,42 +3,30 @@
 
 WHY THIS EXISTS
 ===============
-On 2026-08-30, publishing a rebuilt DOSGAME.EXE was stopped one command short by
-a size mismatch, and the mismatch turned out to be this:
+On 2026-08-30, publishing a rebuilt DOSGAME.EXE was stopped one command short
+by a size mismatch, and the mismatch turned out to be this:
 
     git HEAD, rebuilt        111,170 bytes   (byte-exact reproduction)
     share, dated 2026-08-26  113,012 bytes
 
-The share's binary is **1,842 bytes of code that exists in no commit, on no
-branch, in no worktree and in no file on this host**. It carries four log
-strings that appear nowhere in the repository's entire history:
+The share's binary carried **1,842 bytes of code that existed in no commit, on
+no branch, in no worktree and in no file on this host** - a self-extracting-
+archive fix, built and published to the fleet and never committed. Nothing
+anywhere said so, for five days, and a `make` plus a `copy` would have deleted
+it permanently.
 
-    pick:   %s is a self-extracting archive, not the game
-    pick:   %s -> %s (self-extracting archive; needs setup run)
-    pick:   %s -> %s (skip-listed, but it is the only thing that runs here)
-    registry: DROP %s - launcher "%s" is a self-extracting archive, not the
-              game; re-deriving
-
-i.e. a real refinement to the launcher choice and a registry-repair rule, built
-and published to the fleet and never committed. Searched exhaustively:
-`git log --all -S` over the whole history with no path filter, `git grep` across
-every reachable commit, and a filesystem sweep of every `dosgame.c` on the host.
-
-**So the fleet is running a DOSGAME the repo cannot reproduce, and overwriting
-it would delete that work permanently.** That is why the DOSGAME.TXT support
-added on 2026-08-30 was committed but NOT published: publishing is a trade
-(a staged-library fix for a shareware-install fix) that a person has to make.
-
-This script makes the divergence loud instead of leaving it to be rediscovered
-by the next person who compares two file sizes. It reports; it never writes.
+**That is resolved.** The source was recovered from the binary on 2026-08-31
+(see scripts/dosgames/README.md, "how the lost feature was recovered") and the
+share now carries a build this repo makes. So this check no longer documents an
+unresolved divergence: it EXISTS TO STOP ONE HAPPENING AGAIN, in either
+direction, and `--strict` is wired into tests/run_dos_tests.sh.
 
     python3 scripts/dosgames/check-published.py
     python3 scripts/dosgames/check-published.py --strict   # exit 1 on divergence
 
-It exits 0 by default even when the share diverges, deliberately: the divergence
-is a known, recorded, unresolved fact, and a check that fails the whole suite
-today would train everyone to ignore it. Use --strict once it is resolved, and
-wire that into tests/run_all.sh at the same time.
+It SKIPS (exit 0) when the share is not mounted or Open Watcom is absent - it
+cannot answer the question then, and "could not ask" must never render as
+"they agree". It reports; it never writes.
 """
 
 import argparse
@@ -55,12 +43,15 @@ SHARE = "/mnt/retro-share/Utility/Retro Automation/dosgame/DOSGAME.EXE"
 WATCOM = os.environ.get("DOSGAME_WATCOM",
                         os.path.expanduser("~/development/toolchain-dos/watcom"))
 
-# Strings the PUBLISHED binary carries that no committed source has ever
-# produced. If a future build reproduces these, the lost source has been
-# recovered and this whole file can go.
-LOST_MARKERS = [
+# The four log strings of the recovered feature. A published binary WITHOUT
+# them is a build made from a tree that never had the fix - the exact silent
+# regression this file was created by. Its only symptom on a DOS box is a game
+# menu that launches an installer instead of a game.
+FEATURE_MARKERS = [
     b"is a self-extracting archive, not the game",
+    b"self-extracting archive; needs setup run",
     b"skip-listed, but it is the only thing that runs here",
+    b'registry: DROP %s - launcher "%s" is a self-extracting archive',
 ]
 
 
@@ -131,25 +122,42 @@ def main():
             print("\nok  the fleet runs exactly what this repo builds")
             return 0
 
-        lost = [m for m in LOST_MARKERS if m in theirs and m not in mine]
+        missing_here = [m for m in FEATURE_MARKERS if m not in mine]
+        missing_there = [m for m in FEATURE_MARKERS if m not in theirs]
         lines = ["THE PUBLISHED DOSGAME.EXE IS NOT THIS REPO'S BUILD"]
-        if lost:
+        if missing_there:
             lines += [
                 "",
-                "It carries %d string(s) that NO COMMIT has ever produced:" % len(lost),
+                "and the PUBLISHED one is missing %d string(s) of the"
+                % len(missing_there),
+                "self-extracting-archive fix:",
             ]
-            lines += ["  " + m.decode() for m in lost]
+            lines += ["  " + m.decode() for m in missing_there]
             lines += [
                 "",
-                "The source for it is lost - searched all of git history with",
-                "-S and no path filter, git grep over every reachable commit,",
-                "and every dosgame.c on this host.",
+                "So the fleet is running a build made without that fix. On a",
+                "DOS box its only symptom is a menu that launches an installer",
+                "instead of the game, for ever. Publish this repo's build.",
+            ]
+        elif missing_here:
+            lines += [
                 "",
-                "DO NOT PUBLISH OVER IT without deciding to discard that work.",
+                "and THIS REPO'S BUILD is missing %d string(s) the published"
+                % len(missing_here),
+                "one has:",
+            ]
+            lines += ["  " + m.decode() for m in missing_here]
+            lines += [
+                "",
+                "That is the 2026-08-26 shape again: the share carries work the",
+                "repo cannot rebuild. DO NOT PUBLISH OVER IT - recover the",
+                "source first (README.md records how it was done last time).",
             ]
         else:
-            lines += ["", "The share carries none of the known lost markers, so",
-                      "this is a NEW divergence - find out what published it."]
+            lines += ["", "Both carry the whole feature set, so this is a",
+                      "smaller drift - a stale publish, or an uncommitted edit.",
+                      "Compare the two and publish from a build you can",
+                      "reproduce."]
         print()
         banner(lines)
         return 1 if args.strict else 0

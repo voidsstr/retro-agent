@@ -190,8 +190,17 @@ static void log_open(const char *tag)
     if (!g_log_enabled) return;
     log_path(path, sizeof(path));
 
-    if (_dos_findfirst(path, _A_NORMAL, &ft) == 0 && ft.size > LOG_MAX_BYTES)
-        remove(path);
+    if (_dos_findfirst(path, _A_NORMAL, &ft) == 0 && ft.size > LOG_MAX_BYTES) {
+        /* Recycle by RENAMING, not deleting: the run that filled the log is
+         * usually the run worth reading, and remove() threw it away. */
+        char old[MAX_PATH_L + 24];
+        char *dot;
+        copy_str(old, path, sizeof(old));
+        dot = strrchr(old, '.');
+        if (dot) strcpy(dot, ".OLD");
+        remove(old);
+        rename(path, old);
+    }
 
     g_log = fopen(path, "a");
 }
@@ -243,6 +252,7 @@ static void path_join_n(char *out, size_t cap, const char *root,
                         const char *leaf);
 static int  deice_short(const char *dir, unsigned long *have,
                         unsigned long *need);
+static int  is_bat(const char *name);
 /* Callers always join into a local array, so the capacity comes for free.
  * An overlong join yields "" — treat that as "skip this path". */
 #define path_join(out, root, leaf) path_join_n((out), sizeof(out), (root), (leaf))
@@ -817,6 +827,68 @@ static void path_join_n(char *out, size_t cap, const char *root,
     strcpy(out + n + sep, leaf);
 }
 
+/* ---- is this "program" actually a packed archive? ----
+ *
+ * A self-extracting download is an .EXE by name and a ZIP/LZH archive by
+ * content, and every name-based rule we have gets it wrong: it is not in
+ * skip_exes[], it is not in setup_exes[], and it is frequently the only
+ * executable in the directory, so "first non-tool .EXE" hands it back as the
+ * game. Launching it then re-extracts instead of playing - the exact loop the
+ * registry exists to end, except that the registry happily records it.
+ *
+ * So ask the FILE, not the name. Read the head of it and look for an archive
+ * signature that a self-extractor carries somewhere after its stub:
+ *   "PK\3\4"  - the ZIP local file header (PKSFX and every zip-based SFX)
+ *   "-lh?-"    - the LZH/LHA method id (LHA/LHarc self-extractors)
+ *
+ * Two bounds keep this cheap on a 486: a file smaller than SFX_MIN_BYTES
+ * cannot be carrying a game and is not opened past its size, and at most
+ * SFX_SCAN_BYTES of it is read. The 4-byte overlap between chunks is there so
+ * a signature straddling a read boundary is still seen.
+ */
+#define SFX_MIN_BYTES   16384UL   /* below this it is a program, not a payload */
+#define SFX_SCAN_BYTES  32768L    /* how far in to look for the signature */
+#define SFX_CHUNK       512
+
+static int is_selfextract(const char *dir, const char *name)
+{
+    static unsigned char buf[SFX_CHUNK + 8];
+    char path[MAX_PATH_L * 2];
+    long total = 0;
+    int found = 0;
+    FILE *f;
+    unsigned have = 0, n, i, end;
+
+    path_join(path, dir, name);
+    if (!path[0]) return 0;
+    f = fopen(path, "rb");
+    if (!f) return 0;
+    if (fseek(f, 0L, SEEK_END) == 0) {
+        long sz = ftell(f);
+        if (sz >= 0 && sz < (long)SFX_MIN_BYTES) {
+            fclose(f);
+            return 0;
+        }
+    }
+    rewind(f);
+    while (!found && total < SFX_SCAN_BYTES) {
+        n = (unsigned)fread(buf + have, 1, SFX_CHUNK, f);
+        if (n == 0) break;
+        end = have + n;
+        total += n;
+        for (i = 0; i + 4 < end; i++) {
+            if (buf[i] == 0x50 && buf[i + 1] == 0x4b
+                && buf[i + 2] == 3 && buf[i + 3] == 4) { found = 1; break; }
+            if (buf[i] == '-' && buf[i + 1] == 'l' && buf[i + 2] == 'h'
+                && buf[i + 4] == '-' && isalnum(buf[i + 3])) { found = 1; break; }
+        }
+        memmove(buf, buf + end - 4, 4);
+        have = 4;
+    }
+    fclose(f);
+    return found;
+}
+
 /* Look at ONE directory and decide what, if anything, launches a game in it.
  * Returns 0 (nothing runnable), or the needs_setup class: 0 ready, 1 run its
  * installer, 2 unpack its archive first. *best gets the launcher name. */
@@ -829,6 +901,8 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
     char want_exe[13], want_com[13], want_bat[13];
     char runlist[80] = "";
     char sibling[13] = "";
+    char sfx[13] = "";              /* a self-extractor found here, if any */
+    char skipped[13] = "";          /* first skip-listed runnable file */
     int nrun = 0;
     int ndata = 0;
     unsigned long firstexe_size = 0;
@@ -887,6 +961,18 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
             && !is_util_suffix(ft.name + dlen))
             strcpy(sibling, ft.name);
 
+        /* A directory whose ONLY program is skip-listed is not a directory
+         * with no game in it - it is a game we refused to name. C:\GAMES\X
+         * holding nothing but LOADER.EXE listed as "nothing runnable" and
+         * vanished from the menu. Remember the first one; the tail of this
+         * function offers it when nothing better turned up. An installer is
+         * never offered this way - that is what the setup[] path is for. */
+        if (!stricmp(dot, ".EXE") || !stricmp(dot, ".COM")
+            || !stricmp(dot, ".BAT")) {
+            if (!skipped[0] && is_skip_exe(ft.name) && !is_setup_exe(ft.name))
+                strcpy(skipped, ft.name);
+        }
+
         /* Remember the alternatives so a wrong pick is visible in the log. */
         if ((!stricmp(dot, ".EXE") || !stricmp(dot, ".COM") ||
              !stricmp(dot, ".BAT")) && !is_skip_exe(ft.name)) {
@@ -925,6 +1011,54 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
         logf("pick:   %s -> %s (lone program, no data files: an unextracted "
              "self-extracting download; needs setup run)", fulldir, best);
         return 1;
+    }
+    /* Nothing chosen so far may be a packed archive wearing an .EXE name.
+     * Take every such file out of the running FIRST - and remember it, so the
+     * tail of this function can still offer it as "needs setup run" when the
+     * directory holds nothing else. */
+    if (best[0] && !is_bat(best) && is_selfextract(fulldir, best)) {
+        logf("pick:   %s is a self-extracting archive, not the game", best);
+        copy_str(sfx, best, sizeof(sfx));
+        best[0] = '\0';
+    }
+    if (sibling[0] && is_selfextract(fulldir, sibling)) {
+        logf("pick:   %s is a self-extracting archive, not the game", sibling);
+        if (!sfx[0]) copy_str(sfx, sibling, sizeof(sfx));
+        sibling[0] = '\0';
+    }
+    {
+        int k = 0;
+        while (k < ncand) {
+            if (!is_bat(cands[k]) && stricmp(cands[k], sfx) != 0
+                && is_selfextract(fulldir, cands[k])) {
+                logf("pick:   %s is a self-extracting archive, not the game",
+                     cands[k]);
+                if (!sfx[0]) copy_str(sfx, cands[k], sizeof(sfx));
+                memmove(cands[k], cands[k + 1],
+                        (ncand - k - 1) * sizeof(cands[0]));
+                ncand--;
+                continue;
+            }
+            if (sfx[0] && !stricmp(cands[k], sfx)) {
+                memmove(cands[k], cands[k + 1],
+                        (ncand - k - 1) * sizeof(cands[0]));
+                ncand--;
+                continue;
+            }
+            k++;
+        }
+        /* firstexe/firstbat were filled in directory order before we knew any
+         * of this, so rebuild them from what survived. */
+        if (sfx[0]) {
+            firstexe[0] = firstbat[0] = '\0';
+            for (k = 0; k < ncand; k++) {
+                if (is_bat(cands[k])) {
+                    if (!firstbat[0]) strcpy(firstbat, cands[k]);
+                } else {
+                    if (!firstexe[0]) strcpy(firstexe, cands[k]);
+                }
+            }
+        }
     }
     if (best[0]) {
         char *bdot = strrchr(best, '.');
@@ -985,6 +1119,21 @@ static int pick_launcher(const char *fulldir, const char *dirname, char *best)
      * installer — running that is what makes it playable. */
     if (setup[0]) { strcpy(best, setup);
         logf("pick:   %s -> %s (installer only; needs setup run)", fulldir, best); return 1; }
+    /* A packed self-extractor and nothing else: launching it unpacks the game,
+     * and the post-install pass then re-picks the real binary. */
+    if (sfx[0]) { strcpy(best, sfx);
+        logf("pick:   %s -> %s (self-extracting archive; needs setup run)",
+             fulldir, best); return 1; }
+    /* Everything runnable here is skip-listed. The list exists to stop a
+     * support tool being taken for the game WHEN THERE IS A GAME - it must not
+     * make a directory disappear. Offer it, unless it is itself an archive. */
+    if (skipped[0] && ndata > 0
+        && (is_bat(skipped) || !is_selfextract(fulldir, skipped))) {
+        strcpy(best, skipped);
+        logf("pick:   %s -> %s (skip-listed, but it is the only thing that "
+             "runs here)", fulldir, best);
+        return 0;
+    }
     /* Only an archive in there (a download that was never unpacked, like
      * KEENDRMS = PKUNZJR.COM + a ZIP). Offer it: launching unpacks it with
      * our own UNZIP and then runs whatever installer it contained. */
@@ -1018,6 +1167,7 @@ static int next_launcher(const char *dir, const char *current, char *out)
          * F2 cycle back. pick_launcher is careful to exclude exactly these;
          * the manual override has to be at least as careful. */
         if (is_skip_exe(ft.name) || is_setup_exe(ft.name)) continue;
+        if (!is_bat(ft.name) && is_selfextract(dir, ft.name)) continue;
         if (!first[0]) copy_str(first, ft.name, 13);
         if (seen_current) { copy_str(out, ft.name, 13); return 1; }
         if (!stricmp(ft.name, current)) seen_current = 1;
@@ -1479,6 +1629,17 @@ static void load_registry(void)
                  r->dir, r->exe);
             continue;
         }
+        /* A 'G' row means "this is playable". A row whose launcher turns out
+         * to be a self-extracting archive is not, and because a 'G' row makes
+         * reg_covers_dir() hide the directory from the scan, it can never be
+         * corrected by re-scanning. Drop it and let the scan derive it again
+         * now that pick_launcher knows the difference. */
+        if (r->flag == 'G' && !is_bat(r->exe)
+            && is_selfextract(r->dir, r->exe)) {
+            logf("registry: DROP %s - launcher \"%s\" is a self-extracting "
+                 "archive, not the game; re-deriving", r->dir, r->exe);
+            continue;
+        }
         /* The file is append-only (a batch step cannot rewrite it), so
          * re-installing a game leaves several rows for the same directory.
          * Last one wins; without this the menu shows the game twice and
@@ -1831,7 +1992,8 @@ static int find_deep_launcher(const char *parent, const char *want,
         if (!(ft.attrib & _A_SUBDIR) || ft.name[0] == '.') continue;
         path_join(full, parent, ft.name);
         if (!full[0]) continue;
-        if (want[0] && file_exists(full, want)) {
+        if (want[0] && file_exists(full, want)
+            && (is_bat(want) || !is_selfextract(full, want))) {
             copy_str(subdir, full, MAX_PATH_L + 1);
             copy_str(best, want, 13);
             return 1;
@@ -2062,7 +2224,8 @@ static int post_install(void)
              "not the game", want);
         want[0] = '\0';
     }
-    if (want[0] && file_exists(unpack, want)) {
+    if (want[0] && file_exists(unpack, want)
+        && (is_bat(want) || !is_selfextract(unpack, want))) {
         copy_str(gamedir, unpack, sizeof(gamedir));
         copy_str(best, want, sizeof(best));
         logf("post:   the catalog's launcher %s is right there in %s", want, unpack);
@@ -2106,7 +2269,8 @@ static int post_install(void)
                         if (!stricmp(full, unpack)) continue;
                         if (is_skip_dir(ft.name)) continue;
                         logf("post:   installer created %s - checking it", full);
-                        if (want[0] && file_exists(full, want)) {
+                        if (want[0] && file_exists(full, want)
+                            && (is_bat(want) || !is_selfextract(full, want))) {
                             copy_str(gamedir, full, sizeof(gamedir));
                             copy_str(best, want, sizeof(best));
                             logf("post:   it has the catalog's launcher %s", want);
@@ -2208,7 +2372,8 @@ static int post_install(void)
             } else if (bestcount) {
                 logf("post:   %s is where the installer wrote (%d files)",
                      bestdir, bestcount);
-                if (want[0] && file_exists(bestdir, want)) {
+                if (want[0] && file_exists(bestdir, want)
+                    && (is_bat(want) || !is_selfextract(bestdir, want))) {
                     copy_str(gamedir, bestdir, sizeof(gamedir));
                     copy_str(best, want, sizeof(best));
                 } else if (pick_launcher(bestdir, bestleaf, best) == 0) {
