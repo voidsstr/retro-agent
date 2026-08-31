@@ -224,6 +224,23 @@ def test_the_dos_side_outcome_is_asserted_in_dosbox():
     assert 'not_expect QUAKE1' in t and 'expect     QUAKE1D  QUAKE.EXE' in t
 
 
+def test_gamesync_deploys_where_the_dos_menu_looks():
+    """The whole DOS lane rests on one coincidence that nothing else asserts:
+    GAMESYNC's destination and DOSGAME.EXE's default scan root are the same
+    directory. Either could be moved by someone who has never heard of the
+    other, and the symptom would be a DOS menu that lists no games at all -
+    with both components working exactly as designed.
+    """
+    gs = open(os.path.join(REPO, 'agent', 'src', 'gamesync.c'),
+              encoding='utf-8', errors='replace').read()
+    assert '#define GS_DEST            "C:\\\\Games"' in gs, \
+        'GAMESYNC no longer deploys to C:\\Games - update DOSGAME.EXE\'s scan root'
+    dg = open(DOSGAME_C, encoding='utf-8', errors='replace').read()
+    assert 'cfg_scan[MAX_PATH_L * 2] = "C:\\\\GAMES;C:\\\\"' in dg, \
+        'DOSGAME.EXE no longer scans C:\\GAMES by default - the staged games ' \
+        'it is meant to find land there'
+
+
 # ---------------------------------------------------------------------------
 # 4. The share as it actually stands. SKIPS loudly.
 # ---------------------------------------------------------------------------
