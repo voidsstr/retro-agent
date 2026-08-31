@@ -2149,6 +2149,39 @@ static char *gs_gate_requires(const char *root, const char *title)
 }
 
 /*
+ * Was a refusal limited by DISK rather than by capability?  `why` opens with
+ * the limiting factor (see gs_gate_published / gs_gate_allows_title).
+ *
+ * WHY THIS EXISTS. The gate's disk test compares the title's DECLARED
+ * `disk_mb` against a `free_mb` sampled before the run, and it gives no credit
+ * for a copy of the title already sitting on the volume. GAMESYNC's own room
+ * check, further down gs_run(), asks the same question far better: the tree's
+ * REAL measured size, the CURRENT free space, and the space an installed copy
+ * is about to give back. So a `disk` verdict is deferred to that check rather
+ * than being final, and whatever it decides is counted as skipped_titles.
+ *
+ * `skipped` ("did not fit") and `gated` ("this machine cannot run it") are
+ * deliberately different counters with different follow-ups, and collapsing
+ * them has now misreported two boxes: .243 was told a Pentium 1 cannot RUN
+ * Warcraft II (13 of its 22 "gated" titles were merely too big for a 604 MB
+ * volume), and .240 read `deploy=gated, runs=verified` for a FarCry that was
+ * installed on that very disk and had been played - the gate `continue`d
+ * twenty lines above the credit block that exists to prevent exactly that, so
+ * a large installed title could never be patched once the disk filled. That is
+ * the UnrealTournament-436 incident the credit block's own comment describes,
+ * live again.
+ */
+static int gs_gate_limited_by_disk(const char *why)
+{
+    if (!why)
+        return 0;
+    if ((why[0] != 'd' && why[0] != 'D') || (why[1] != 'i' && why[1] != 'I')
+        || (why[2] != 's' && why[2] != 'S') || (why[3] != 'k' && why[3] != 'K'))
+        return 0;
+    return why[4] == 0 || why[4] == ':';
+}
+
+/*
  * Should this TITLE be copied? Fills `why` with a human sentence either way.
  * Returns 1 to copy, 0 to skip.
  */
@@ -3157,28 +3190,11 @@ static void gs_run(const char *library)
          * the space a title it CAN run needs. */
         {
             char why[192];
-            if (!gs_gate_allows_title(library, titles[i], why, sizeof(why))) {
-                /* WHICH COUNTER? `why` opens with the limiting factor, and a
-                 * refusal limited by `disk` is NOT the machine being unable to
-                 * run the title - it is the title not fitting, which is the
-                 * definition of skipped_titles and has a completely different
-                 * follow-up (free space / bigger disk, versus give up). Rolling
-                 * both into titles_gated told an operator that a Pentium 1
-                 * "cannot run" Warcraft II; on .243 thirteen of the twenty-two
-                 * gated titles were really just too big for a 604 MB volume. */
-                int is_disk = (lstrlenA(why) >= 4
-                               && (why[0] == 'd' || why[0] == 'D')
-                               && (why[1] == 'i' || why[1] == 'I')
-                               && (why[2] == 's' || why[2] == 'S')
-                               && (why[3] == 'k' || why[3] == 'K')
-                               && (why[4] == 0 || why[4] == ':'));
-                log_msg(LOG_GS, "%s %s - %s", is_disk ? "SKIP" : "GATED",
-                        titles[i], why);
+            if (!gs_gate_allows_title(library, titles[i], why, sizeof(why))
+                && !gs_gate_limited_by_disk(why)) {
+                log_msg(LOG_GS, "GATED %s - %s", titles[i], why);
                 EnterCriticalSection(&g_gs_lock);
-                if (is_disk)
-                    g_gs.skipped_titles++;
-                else
-                    g_gs.gated_titles++;
+                g_gs.gated_titles++;
                 /* Its bytes will never arrive; drop them from the target so
                  * the percentage still reaches 100. */
                 g_gs.total_bytes -= sizes[i];

@@ -123,19 +123,47 @@ def test_a_bigger_published_verdict_file_flags_a_truncated_listing():
         "the pre-existing partial-publish warning must survive"
 
 
-def test_a_disk_refusal_counts_as_skipped_not_gated():
-    """`disk` is 'did not fit', which is titles_skipped - a different fact."""
+def test_a_disk_refusal_defers_to_the_real_room_check():
+    """`disk` is not a capability verdict, and it is not final.
+
+    The gate compares the title's DECLARED ``disk_mb`` against a ``free_mb``
+    sampled before the run and gives no credit for a copy already installed.
+    GAMESYNC's own room check twenty lines below asks the same question with
+    the tree's real size, the current free space, and the space an existing
+    install is about to give back -- so a disk verdict must fall through to it
+    and be counted as ``skipped_titles``, never ``gated_titles``.
+    """
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    assert "gs_gate_limited_by_disk" in code, \
+        "the disk-versus-capability distinction must be made explicitly"
+
+    body = _gs_run(code)
+    at = body.index("gs_gate_allows_title(library")
+    block = body[at:at + 900]
+    assert "gs_gate_limited_by_disk(why)" in block, (
+        "the gate call site must let a disk verdict through to the room check; "
+        "on .240 a FarCry that was installed AND verified read deploy=gated, "
+        "and on .243 the operator was told a Pentium 1 cannot RUN Warcraft II"
+    )
+    assert "gated_titles++" in block, \
+        "a genuine capability refusal must still count as gated"
+    assert "skipped_titles++" not in block, \
+        "the gate must not decide disk; the room check owns that counter"
+
+    # ...and the room check, which does own it, is what bumps the counter.
+    room_at = body.index("GS_FREE_MARGIN", at)
+    assert "skipped_titles++" in body[room_at:room_at + 900], \
+        "the real room check must be what increments skipped_titles"
+
+
+def test_the_room_check_still_credits_an_installed_tree():
+    """The credit block is what makes deferring to the room check correct."""
     code = _strip_comments(GAMESYNC.read_text(errors="replace"))
     body = _gs_run(code)
     at = body.index("gs_gate_allows_title(library")
-    block = body[at:at + 2000]
-    assert "skipped_titles++" in block, (
-        "a gate refusal limited by disk must land in skipped_titles; counting "
-        "it as gated tells the operator the machine cannot run the title when "
-        "the real remedy is free space"
+    room = body[at:body.index("gs_copy_tree", at)]
+    assert "gs_dir_size(have" in room and "freeb += existing" in room, (
+        "an already-installed title is being UPDATED, not added: without this "
+        "credit a large title can never be patched once the disk fills, which "
+        "is the UnrealTournament-436 incident"
     )
-    assert "gated_titles++" in block, \
-        "genuine hardware refusals must still count as gated"
-    # And the two must be selected by the limiting factor, not both bumped.
-    assert re.search(r"if\s*\(is_disk\)", block), \
-        "the choice between the two counters must be explicit"
