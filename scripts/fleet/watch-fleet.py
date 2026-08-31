@@ -41,12 +41,44 @@ TIMEOUT = 10.0
 INTERVAL = 20.0
 
 
+# A REFUSED CONNECTION IS USUALLY CONTENTION, NOT DEATH.
+#
+# The Win9x agents are single-threaded: they serve one client at a time and
+# REFUSE every other connection while busy. So while a box agent is working
+# .243, this watcher's probe is refused -- and reporting that as DOWN produces
+# a fake power-cycle event, which tells the working agent its box vanished and
+# invites it to abandon or mis-record whatever it was measuring.
+#
+# Measured 2026-08-31 on .243: a raw TCP connect to 9898 succeeded while five
+# consecutive protocol probes were refused, because a sibling agent held the
+# single slot throughout. CLAUDE.md says the same thing about box-owner.py --
+# "a refused 9898 is usually listen-backlog contention, so retry".
+#
+# Retries are therefore spent ONLY on refusal. A timeout or an unreachable host
+# is not retried: those are what a box being switched off actually looks like,
+# and retrying them would delay a real event by the full backoff on every
+# sweep, for every powered-off machine -- and most of this fleet is off most of
+# the time.
+REFUSAL_RETRIES = 3
+REFUSAL_BACKOFF = 4.0
+
+
 async def probe(ip):
-    try:
-        c = RetroConnection(ip, 9898)
-        await c.connect(SECRET, timeout=TIMEOUT)
-    except Exception:
-        return ip, "DOWN"
+    refused = 0
+    while True:
+        try:
+            c = RetroConnection(ip, 9898)
+            await c.connect(SECRET, timeout=TIMEOUT)
+            break
+        except ConnectionRefusedError:
+            refused += 1
+            if refused > REFUSAL_RETRIES:
+                # Persistently refusing is a real fault, but it is NOT the same
+                # fault as silence: something is listening and turning us away.
+                return ip, "BUSY-OR-REFUSING"
+            await asyncio.sleep(REFUSAL_BACKOFF)
+        except Exception:
+            return ip, "DOWN"
     try:
         r = await c.command_text("PING", timeout=TIMEOUT)
         return ip, ("UP" if "PONG" in r.upper() else "ACCEPTS-BUT-DEAD")
@@ -60,13 +92,48 @@ async def probe(ip):
             pass
 
 
+# DEBOUNCE: a box must MISS TWICE before we call it gone.
+#
+# Measured 2026-08-31, and the reason matters. While three box agents were
+# testing, this watcher reported .143, .240 and .243 down within seconds of
+# each other. Probing each with patience separated three different things:
+#
+#   .143  answered on the FIRST retry            -> transient, it never left
+#   .240  OSError x4, no route                   -> genuinely powered off
+#   .243  ConnectionRefusedError x4              -> listening and refusing
+#
+# Only one of those was a real departure. A busy box answers slowly -- these
+# agents are being driven hard, and .143 needed a longer timeout than a quiet
+# sweep does -- so a single missed probe is not evidence. Requiring two
+# consecutive misses costs one sweep of latency on a real power-off and removes
+# the false events entirely.
+#
+# This matters beyond tidiness: a false DOWN tells the agent working that box
+# that its machine vanished, and the standing instruction on a vanished box is
+# to stop and record cells as untested. A flapping watcher would therefore
+# manufacture exactly the gaps this whole exercise exists to close.
+MISSES_BEFORE_DOWN = 2
+
+
 async def main():
     state = {}
+    misses = {}
     first = True
     while True:
         results = await asyncio.gather(*[probe(h) for h in HOSTS])
         for ip, now in results:
             was = state.get(ip)
+
+            # Debounce only the transition INTO a non-answering state; a box
+            # coming back is reported immediately, because a late UP wastes an
+            # agent's time while a late DOWN costs nothing.
+            if now in ("DOWN", "BUSY-OR-REFUSING") and was == "UP":
+                misses[ip] = misses.get(ip, 0) + 1
+                if misses[ip] < MISSES_BEFORE_DOWN:
+                    continue
+            else:
+                misses[ip] = 0
+
             if was == now:
                 continue
             state[ip] = now
@@ -79,6 +146,11 @@ async def main():
             elif now == "ACCEPTS-BUT-DEAD":
                 print("%s FLEET-DEAD-AGENT %s accepts TCP but does not answer "
                       "- the machine is up and its agent is not" % (stamp, ip),
+                      flush=True)
+            elif now == "BUSY-OR-REFUSING":
+                print("%s FLEET-BUSY %s refused %d probes - most likely a "
+                      "single-threaded agent fully occupied by another client, "
+                      "NOT a box that went away" % (stamp, ip, REFUSAL_RETRIES),
                       flush=True)
             else:
                 print("%s FLEET-DOWN %s stopped answering" % (stamp, ip),

@@ -89,3 +89,79 @@ def test_every_host_is_probed_concurrently():
     assert "gather(" in _src(), (
         "hosts must be probed concurrently, or the sweep costs the sum of all "
         "timeouts and a newly-booted box waits behind the dead ones")
+
+
+def test_a_refused_connection_is_retried_before_being_called_down():
+    """Refusal means something is LISTENING and turning us away.
+
+    The Win9x agents serve one client at a time and refuse everyone else while
+    busy. Measured on .243: a raw TCP connect to 9898 succeeded while five
+    consecutive protocol probes were refused, because a sibling agent held the
+    single slot. Reporting that as DOWN manufactures a fake power-cycle.
+    """
+    src = _src()
+    assert "ConnectionRefusedError" in src, (
+        "the watcher no longer distinguishes a refused connection from an "
+        "unreachable host; on a single-threaded Win9x agent those mean "
+        "opposite things")
+    assert "BUSY-OR-REFUSING" in src, (
+        "a persistently refusing box must get its own state -- something is "
+        "listening, which is not the same fault as silence")
+
+
+def test_only_refusal_is_retried_inline():
+    """Retrying a timeout would delay every real event.
+
+    Most of this fleet is powered off most of the time, so an unreachable host
+    is the COMMON case; spending backoff on it on every sweep would make a real
+    power-on late for the sake of a rare condition.
+    """
+    src = _src()
+    i = src.index("async def probe(")
+    body = src[i:src.index("\nasync def main", i)]
+    assert 'return ip, "DOWN"' in body, "probe no longer reports DOWN at all"
+    assert body.index("ConnectionRefusedError") < body.index('return ip, "DOWN"'), (
+        "the refusal branch must come before the general handler, or refusal "
+        "falls through to DOWN and the retry never happens")
+
+
+def test_a_single_missed_probe_is_not_a_departure():
+    """Debounce. A busy box answers slowly; one miss is not evidence.
+
+    Measured 2026-08-31: .143, .240 and .243 were all reported down within
+    seconds while three agents drove them hard. Probing with patience showed
+    .143 had never left, .240 was genuinely off, and .243 was refusing. Only
+    one was a real departure.
+
+    This is not cosmetic: a false DOWN tells the agent working that box that
+    its machine vanished, and the standing instruction is then to stop and
+    record cells `untested` -- so a flapping watcher manufactures exactly the
+    gaps the sweep exists to close.
+    """
+    src = _src()
+    assert "MISSES_BEFORE_DOWN" in src, (
+        "the watcher no longer debounces; a single slow answer on a busy box "
+        "is reported as a power-cycle")
+    tree = ast.parse(src)
+    n = None
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Assign) and node.targets
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "MISSES_BEFORE_DOWN"):
+            n = ast.literal_eval(node.value)
+    assert n and n >= 2, "MISSES_BEFORE_DOWN must be at least 2, got %r" % n
+
+
+def test_a_box_COMING_BACK_is_reported_immediately():
+    """Debounce must be one-sided.
+
+    A late UP wastes an agent's time waiting; a late DOWN costs nothing. So
+    only the transition into a non-answering state is debounced.
+    """
+    src = _src()
+    i = src.index("MISSES_BEFORE_DOWN = ")
+    body = src[i:]
+    assert 'now in ("DOWN", "BUSY-OR-REFUSING")' in body, (
+        "the debounce must apply ONLY to the non-answering states -- if it "
+        "also delays UP, every returning box waits an extra sweep for no "
+        "benefit")
