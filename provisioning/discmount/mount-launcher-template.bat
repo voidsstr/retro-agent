@@ -103,9 +103,23 @@ if not exist "%IMAGE%" (
 rem ---- 2. find a mounter -------------------------------------------------
 call :finddt
 call :findwcd
+rem BOTH failure branches must gate on REQUIREDISC, and for a long time only
+rem the other one did. This branch was unconditional, so a shortcut that does
+rem NOT need its disc still refused to launch on a box with no mounter at all -
+rem and that is not hypothetical: .123 has no mounter AND no optical drive, and
+rem it hosted a verified three-box LAN game, because a dedicated-server binary
+rem typically carries no CD check. Refusing there would have thrown away a
+rem proven capability to enforce a requirement the shortcut does not have.
+rem Caught by the serioussam agent while migrating its launchers onto this
+rem template; the asymmetry IS the bug, which is why the test covers both.
 if not defined DT if not defined WCD (
-    call :fail "NO DISC MOUNTER IS INSTALLED on this machine. Looked for Daemon Tools (Program Files\D-Tools, DAEMON Tools, DAEMON Tools Lite; registry App Paths daemon.exe and DTLite.exe; HKLM\SOFTWARE\DT Soft) and for WinCDEmu (Program Files\WinCDEmu batchmnt64.exe and batchmnt.exe; registry Uninstall\WinCDEmu InstallLocation), then searched Program Files for both. Install one - this is an INSTALL problem, not a mount problem."
-    goto :theend
+    if "%REQUIREDISC%"=="1" (
+        call :fail "NO DISC MOUNTER IS INSTALLED on this machine. Looked for Daemon Tools (Program Files\D-Tools, DAEMON Tools, DAEMON Tools Lite; registry App Paths daemon.exe and DTLite.exe; HKLM\SOFTWARE\DT Soft) and for WinCDEmu (Program Files\WinCDEmu batchmnt64.exe and batchmnt.exe; registry Uninstall\WinCDEmu InstallLocation), then searched Program Files for both. Install one - this is an INSTALL problem, not a mount problem."
+        goto :theend
+    )
+    echo [%GTITLE%] no disc mounter on this box - starting anyway; this
+    echo             shortcut is marked as not needing the disc.
+    goto :play
 )
 if defined DT  echo [%GTITLE%] Daemon Tools: %DT%
 if defined WCD echo [%GTITLE%] WinCDEmu:     %WCD%

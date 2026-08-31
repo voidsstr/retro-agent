@@ -201,6 +201,36 @@ def test_spec_is_complete_and_generates(name):
     assert text.startswith('@echo off'), '%s: generated launcher lost its header' % name
 
 
+def test_both_failure_branches_gate_on_requiredisc():
+    """The asymmetry IS the bug, so the test covers BOTH halves.
+
+    "no mounter is installed" and "a mounter ran but no drive appeared" are
+    different calls to action and are reported differently on purpose - but a
+    shortcut marked REQUIREDISC=0 must be let through by BOTH. For a long time
+    only the second one checked, so a shortcut that does NOT need its disc still
+    refused to launch on a box with no mounter at all. That is not hypothetical:
+    .123 has no mounter AND no optical drive and it hosted a verified three-box
+    LAN game, because a dedicated-server binary typically carries no CD check.
+    Found by the serioussam agent while migrating its launchers onto this
+    template.
+    """
+    t = _template()
+
+    # branch 1: no mounter found at all
+    i = t.index('if not defined DT if not defined WCD (')
+    branch1 = t[i:t.index('\r\n)\r\n', i)]
+    assert '"%REQUIREDISC%"=="1"' in branch1, \
+        ('the "NO DISC MOUNTER IS INSTALLED" branch does not honour '
+         'REQUIREDISC, so a shortcut that does not need its disc cannot run on '
+         'a box without a mounter')
+    assert 'goto :play' in branch1, \
+        'the REQUIREDISC=0 path must reach :play, not fall through to :theend'
+
+    # branch 2: a mounter ran but produced nothing
+    j = t.index('if "%REQUIREDISC%"=="1" (', t.index(':anydisc\r\n', i))
+    assert j > 0, 'the "no drive appeared" branch lost its REQUIREDISC check'
+
+
 def test_postlaunch_hook_reaches_the_generated_launcher():
     """A hook nobody can use is worse than no hook.
 
