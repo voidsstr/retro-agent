@@ -1303,10 +1303,20 @@ A GeForce2 will never grow a pixel shader; a box with no virtual disc mounter is
 one installer away. Calling both "cannot run" tells the operator to give up
 rather than to fix the box. So a missing **capability** (`disc_mount` today)
 leaves the verdict alone: **the title still deploys**, only the shortcut that
-needs it is suppressed, and the log names the remedy. GAMESYNC re-runs every
-boot, so it returns by itself once the box is fixed. This is live right now —
+needs it is suppressed, and the log names the remedy. This is live right now —
 seven staged titles mount a disc image at launch and `.123`/`.246` have no
 mounter, so on those boxes they have never worked and nothing said so.
+
+> **⚠️ "GAMESYNC re-runs every boot, so it returns by itself" — IT DOES NOT.**
+> This section used to say that, and the code has never done it: the startup
+> thread does `if (gs_file_exists(GS_MARKER)) { "already provisioned - idle";
+> return 0; }` (`agent/src/gamesync.c`), so **on a provisioned box the boot-time
+> sync does nothing at all**. A suppressed shortcut therefore stays suppressed,
+> and a title newly added to the library never reaches a machine, until someone
+> issues `GAMESYNC RESET` (clears the marker) and `GAMESYNC START`. That is what
+> the "then push it to every connected box" step in the staged-game fix loop is
+> for, and it is not optional — verified 2026-08-31 on `.243`, whose
+> `gamesync.done` recorded a run that had seen 25 of the library's 46 titles.
 
 **Requirements can be per-shortcut**, keyed on the `launch.txt` first column,
 because a title's halves need different machines: BF1942's single player wants a
