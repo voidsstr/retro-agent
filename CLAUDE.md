@@ -2497,6 +2497,52 @@ retail 1.0 in fact raises that modal **before any key prompt**.
   WinCDEmu does no copy-protection emulation at all, so it is *further* from
   satisfying SafeDisc, not closer: mounting is not the blocker, emulation is.
 
+### THE VERSION IS ONLY HALF THE ANSWER — ASK THE IMAGE TOO (2026-09-01)
+
+**A SafeDisc version DAEMON Tools can emulate does not mean this copy of the
+disc can be satisfied. Emulation REPLAYS a protection the image must still
+carry; it cannot invent one.** Everything above is about the *exe*, and it left
+the other half unasked — which cost a full hardware pass on Comanche 4.
+
+`C4setup\C4.EXE` from the FLT/IGG re-master is **SafeDisc 2.40.011** — squarely
+in the generation 3.47 targets — and it is the *intact* retail binary, not a
+crack (the retail `.text` is ciphertext; the `Crack\c4.exe` beside it, same
+2,505,453 bytes, decrypts to ordinary `55 8b ec` x86). It renders on `.143`, and
+then says *"Cannot locate the CD-ROM"* with the image mounted, with **all four**
+emulation options on (verified by the checkmarks *and* the changed `khjeh`
+blob), and with the disc's own `DRVMGT.DLL` / `00000001.TMP` copied into the
+game directory the way a real install puts them.
+
+The media is why. **SafeDisc 2 authenticates the disc by reading sectors that
+MUST FAIL**, and in a 2352-byte raw dump those survive as sectors whose stored
+EDC does not match their own bytes. Recomputing every sector's Mode-1 EDC:
+
+| image | sectors | bad EDC |
+|---|---|---|
+| `SystemShock2/_disc/System Shock 2 (USA).bin` | 284,667 | **793** (673 runs, 819–10058) |
+| `MaxPayne/_disc/MaxPayne.bin` | 357,635 | **600** (536 runs, 347779–357324) |
+| `Comanche.4/FLT-COM4.BIN` | 358,557 | **0** |
+
+The first two are SafeDisc titles that *work* here under DAEMON Tools — they are
+the control, and without one "0 bad sectors" would be an observation rather than
+a finding. The Comanche 4 image is a regenerated data rip with the protection
+region stripped, which is exactly why that release shipped a Crack folder.
+
+- **Ask both questions:** `python3 scripts/fleet/discprotect.py exe <binary>`
+  and `… image <bin>`. Tests: `tests/python/test_disc_image_carries_protection.py`.
+- **A `.iso` is a THIRD state, not "clean".** 2048-byte sectors have no EDC
+  field, so the question is unanswerable from that format — never report it as
+  zero. Blue Shift.iso is exactly 150,257 × 2048.
+- **The same trap, one protection along:** retail Blue Shift's `bshift.exe` is
+  **SecuROM** (sections `.cms_t`/`.cms_d`, entry point inside `.cms_t`, entropy
+  7.17; Razor 1911's own `.nfo` for the title says `Protection: Securom`), which
+  authenticates by **Data Position Measurement** — the angular position of
+  sectors on a pressed CD. A plain ISO cannot carry that either, so DAEMON
+  Tools' SecuROM emulation changed nothing there. Its "Wrong disc inserted."
+  string is in **neither** the tree nor the disc, because it lives in the
+  encrypted wrapper section: a string search coming back empty is evidence of a
+  wrapper, not evidence there is no check.
+
 ## Halo PC: ONE SIMULTANEOUS PLAYER PER CD KEY (measured 2026-08-31)
 
 **Halo allows one concurrent player per key, and it reports the second machine

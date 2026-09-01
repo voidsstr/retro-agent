@@ -83,9 +83,34 @@ def test_it_declares_that_it_needs_the_disc():
 
 
 def test_the_note_records_what_was_refuted():
-    """The next person must not re-run two experiments that already failed."""
+    """The next person must not re-run three experiments that already failed."""
     note = _spec()["_note"]
     low = note.lower()
     assert "wrong disc" in low
     assert "joliet" in low, "the Joliet descriptor is the one Windows reports"
-    assert "untested" in low, "the mounter question must stay marked open"
+    assert "daemon tools" in low, (
+        "the MOUNTER experiment was run on .143 on 2026-09-01 and it failed - "
+        "the image mounted as BLUESHIFT_UK with all four emulation options on "
+        "and the game still refused. That has to be in the note or the next "
+        "agent spends a day re-running it")
+
+
+def test_the_note_names_securom_as_the_cause():
+    """AN EXCUSE FOR A QUESTION THAT HAS BEEN ANSWERED IS WORSE THAN NO NOTE.
+
+    This assertion used to be `"untested" in low` - the mounter question had to
+    stay marked open. It is now closed, and leaving the old wording would send
+    someone to mount an image that can never satisfy its own exe. bshift.exe is
+    SecuROM (sections .cms_t/.cms_d, entry point inside .cms_t), which
+    authenticates by Data Position Measurement; Blue Shift.iso is 150,257 x 2048
+    exactly, a plain ISO with no raw sectors and therefore no DPM to replay.
+    """
+    low = _spec()["_note"].lower()
+    assert "securom" in low, "the note no longer names the actual protection"
+    assert "data position measurement" in low or "dpm" in low, (
+        "the note must say WHAT SecuROM measures - 'it is SecuROM' alone does "
+        "not tell anyone why no image we hold can satisfy it")
+    assert "untested" not in low, (
+        "the note still calls the mounter question untested. It was tested on "
+        "hardware and refuted; an excuse for a thing that has been done renders "
+        "a closed question as an open one, forever and silently")
