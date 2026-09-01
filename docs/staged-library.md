@@ -12,7 +12,7 @@ of the fleet.
 Source of truth is `~/.retro-fleet/fleetbook.db`. Query it directly with
 `scripts/fleet/compat.py` (`matrix`, `status --box .143`, `gaps`, `summary`).
 
-Generated 2026-09-01 08:47.
+Generated 2026-09-01 09:53.
 
 ## The machines
 
@@ -84,7 +84,7 @@ merely had no space for.
 | Quake2Complete | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
 | Quake3-TeamArena | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
 | Quake3Arena | +V | +V | +V | +V | +. | +. | +V | G. | +V | 6 |
-| RainbowSix | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
+| RainbowSix | +V | .. | .. | .. | .. | .. | .. | .. | .. | 1 |
 | RedAlert2 | +V | +r | +V | +V | +. | +V | +V | G. | +V | 6 |
 | RedFaction | +- | +r | +V | +V | +. | +V | +X | G. | +V | 4 |
 | RedneckRampage | +V | +V | +V | +r | +. | +V | +r | G. | +r | 4 |
@@ -112,7 +112,7 @@ merely had no space for.
 | WarcraftOrcsAndHumans | +V | .V | +V | .X | .. | .V | +V | G. | +V | 6 |
 | YurisRevenge | +V | +V | +V | +V | +. | +. | +V | G. | +V | 6 |
 
-**57 titles × 9 machines = 513 cells — 260 verified, 160 untested.**
+**57 titles × 9 machines = 513 cells — 261 verified, 159 untested.**
 
 ## Titles with a blocker recorded
 
