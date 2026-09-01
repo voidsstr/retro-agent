@@ -442,6 +442,44 @@ static void stop_wallpaper_rotation(void)
             RegCloseKey(k);
         }
     }
+    /* Finally, put the legacy EXEs beyond use.
+     *
+     * The user's requirement is that the old desktop is not merely inactive
+     * but "should not be used anymore". Killing the process and clearing both
+     * Run values stops it starting BY ITSELF; it does not stop a person, a
+     * stale script, or a future agent from running it. Two binaries can undo
+     * this desktop:
+     *
+     *   rotate_wall.exe   - puts the old wallpaper back
+     *   arrange_icons.exe - parks icons bottom-right and explicitly CLEARS
+     *                       LVS_AUTOARRANGE, so one run turns off the
+     *                       fleet-wide auto-arrange setting. CLAUDE.md already
+     *                       says it must never be staged or run, and
+     *                       deploy_rotation.py renames stale copies aside -
+     *                       the agent simply never did the same.
+     *
+     * RENAMED, not deleted: it is reversible, it leaves evidence of what was
+     * there, and deleting files we did not stage is a bigger action than this
+     * warrants. MoveFileA fails harmlessly if the source is absent or the
+     * target already exists, which is the normal steady state. */
+    {
+        static const char *const SUPERSEDED[] = { ROTATE_EXE, ARRANGE_EXE, 0 };
+        char aside[MAX_PATH];
+        int  i;
+        for (i = 0; SUPERSEDED[i]; i++) {
+            if (GetFileAttributesA(SUPERSEDED[i]) == INVALID_FILE_ATTRIBUTES)
+                continue;
+            _snprintf(aside, sizeof(aside), "%s.superseded", SUPERSEDED[i]);
+            aside[sizeof(aside) - 1] = '\0';
+            if (MoveFileA(SUPERSEDED[i], aside)) {
+                log_msg(LOG_MAIN, "retrowall: %s renamed aside - the old "
+                                  "desktop can no longer be applied",
+                        SUPERSEDED[i]);
+                n++;
+            }
+        }
+    }
+
     if (n)
         log_msg(LOG_MAIN, "retrowall: legacy wallpaper rotation stopped");
 }

@@ -75,3 +75,51 @@ def test_the_fleet_wallpaper_is_preferred_over_the_legacy_rotation():
     assert "retrowall_" in s, (
         "the resolution-named fleet wallpapers are no longer referenced; the "
         "agent would fall back to the legacy rotation on every box")
+
+
+def test_the_legacy_binaries_are_put_beyond_use():
+    """The old desktop must not merely stop starting itself.
+
+    User requirement: *"the old desktop should not be used anymore."* Killing
+    the rotator and clearing both Run values stops it starting BY ITSELF; it
+    does not stop a person, a stale script, or a future agent from running it.
+
+    Two binaries can undo this desktop:
+      * `rotate_wall.exe`   - puts the old wallpaper back;
+      * `arrange_icons.exe` - parks icons bottom-right and explicitly CLEARS
+        `LVS_AUTOARRANGE`, so a single run turns off the fleet-wide
+        auto-arrange setting the user asked for. CLAUDE.md already says it must
+        never be staged or run, and `deploy_rotation.py` renames stale copies
+        aside -- the agent simply never did the same.
+
+    Renamed rather than deleted: reversible, leaves evidence of what was there,
+    and deleting files we did not stage is a bigger action than this warrants.
+    """
+    body = _stop_fn()
+    assert "MoveFileA" in body, (
+        "the legacy EXEs are no longer put beyond use. Clearing the Run value "
+        "only stops the old desktop starting itself; anything that runs "
+        "rotate_wall.exe or arrange_icons.exe still reverts the machine.")
+    assert "ROTATE_EXE" in body and "ARRANGE_EXE" in body, (
+        "both legacy binaries must be neutralised -- arrange_icons.exe is the "
+        "more damaging of the two, because it clears LVS_AUTOARRANGE and turns "
+        "off the fleet-wide auto-arrange setting")
+    assert "superseded" in body, (
+        "the renamed-aside suffix is gone; without a stable suffix a second "
+        "run cannot tell 'already neutralised' from 'never seen'")
+
+
+def test_neutralising_happens_only_after_a_fleet_wallpaper_is_applied():
+    """Never strand a box with no wallpaper at all.
+
+    stop_wallpaper_rotation() is called ONLY once the fleet wallpaper has been
+    applied, so a machine that genuinely still depends on the rotation keeps
+    it. Renaming the binaries from anywhere else would break exactly those
+    boxes.
+    """
+    with open(SRC, encoding="utf-8", errors="replace") as f:
+        s = f.read()
+    assert s.count("stop_wallpaper_rotation()") <= 2, (
+        "stop_wallpaper_rotation() is called from more than one place; it must "
+        "run only on the success path of apply_fleet_wallpaper(), or a box "
+        "with no matching fleet wallpaper loses its rotation and gets nothing")
