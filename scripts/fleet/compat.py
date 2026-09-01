@@ -662,6 +662,7 @@ def ingest_lan_doc(con, strict=True):
         os.path.getmtime(LAN_DOC)).strftime("%Y-%m-%d %H:%M:%S")
     boxes = [r["ip"] for r in con.execute("SELECT ip FROM compat_box")]
     written = 0
+    withdrawn = 0
     for title, ip, status, partner, transport, blocker, remedy in facts:
         if ip is None:
             # A title-level fact.  Applied to every box would be a fabrication
@@ -680,6 +681,28 @@ def ingest_lan_doc(con, strict=True):
                 d = con.execute("SELECT state FROM v_compat_deploy WHERE ip=? "
                                 "AND title=?", (b, title)).fetchone()
                 if d is None or d["state"] not in ("deployed", "marginal"):
+                    # AND WITHDRAW A ROW THIS RULE WOULD NO LONGER WRITE.
+                    # The guard above only stops a wrong row being CREATED. A
+                    # row written before the title was gated - or before the
+                    # guard existed - is never revisited, so it survives every
+                    # later ingest looking exactly like a current fact.
+                    # Measured 2026-09-01: `.171` still carried Halo's old
+                    # "needs a person / one System Link join" long after the
+                    # gate refused Halo there for lack of hardware T&L, which
+                    # is precisely the buried-pending-action the comment above
+                    # says it is avoiding. Only lan-doc's own TITLE-LEVEL rows
+                    # are withdrawn: a two-box proof (the `ip is not None`
+                    # branch below) names its boxes explicitly and is never
+                    # touched here, nor is any row from another source.
+                    cur = con.execute(
+                        "DELETE FROM compat_mp WHERE ip=? AND title=? "
+                        "AND origin='measured' AND source='lan-doc' "
+                        # partner_ip is NOT NULL DEFAULT '' - a title-level
+                        # row has the empty string here, a two-box proof
+                        # carries the partner. `IS NULL` would match
+                        # nothing and delete nothing, silently.
+                        "AND partner_ip = ''", (b, title))
+                    withdrawn += cur.rowcount or 0
                     continue
                 C.put_mp(con, b, title, "measured", status, transport=transport,
                          blocker=blocker[:400], remedy=remedy[:400],
@@ -694,10 +717,17 @@ def ingest_lan_doc(con, strict=True):
                        when, "two-box proof, both ends screenshotted")
         written += 1
     detail = ""
+    if withdrawn:
+        # Say it out loud. A row disappearing from the matrix is a change to
+        # what the fleet reports, and a silent deletion is worse than a stale
+        # row - nobody can tell it happened.
+        detail = ("withdrew %d stale title-level row(s) for boxes where the "
+                  "title is no longer deployed; " % withdrawn)
+        print("lan-doc: %s" % detail.strip("; "), file=sys.stderr)
     if unmapped:
         # LOUD, not silent: an unmapped title is a verification that did not
         # reach the matrix, and it must never look like a clean run.
-        detail = "UNMAPPED titles (not in DOC_ALIASES): " + ", ".join(sorted(set(unmapped)))
+        detail += "UNMAPPED titles (not in DOC_ALIASES): " + ", ".join(sorted(set(unmapped)))
         print("WARNING: %s" % detail, file=sys.stderr)
     C.log_ingest(con, "lan-doc", not unmapped, rows_in=len(facts),
                  rows_written=written, detail=detail)

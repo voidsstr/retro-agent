@@ -12,7 +12,7 @@ of the fleet.
 Source of truth is `~/.retro-fleet/fleetbook.db`. Query it directly with
 `scripts/fleet/compat.py` (`matrix`, `status --box .143`, `gaps`, `summary`).
 
-Generated 2026-09-01 00:40.
+Generated 2026-09-01 01:33.
 
 ## The machines
 
@@ -114,7 +114,7 @@ merely had no space for.
 | Carmageddon2 | `192.168.1.123` | tunnel proven both ends; the front end ignores click *and* key |
 | FarCry | `192.168.1.123` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.123` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
-| Halo | `192.168.1.123` | shell ignores synthetic input; `haloded.exe` is not on the share |
+| Halo | `192.168.1.123` | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a c |
 | HiddenAndDangerous | `192.168.1.123` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.123` | the box has NO disc mounter and NO optical drive at all (HWPROFILE disc_mount=false, wmic logica |
 | MasterOfOrionII | `192.168.1.123` | that menu entry is mouse-only |
@@ -133,21 +133,16 @@ merely had no space for.
 | BF1942 | `192.168.1.124` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.124` | tunnel proven both ends; the front end ignores click *and* key |
 | Carmageddon2 | `192.168.1.124` | tunnel proven both ends; the front end ignores click *and* key |
-| HalfLife-BlueShift | `192.168.1.124` | bshift game DLL is outdated against this HL engine build - loading any map kills hl.exe |
+| HalfLife-BlueShift | `192.168.1.124` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
 | HalfLife-OpposingForce | `192.168.1.124` | gearbox\dlls\opfor.dll against the staged WON engine - the engine and console start, then ANY ma |
 | HiddenAndDangerous | `192.168.1.124` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.124` | NOT the disc - the image and launcher are staged and proven on .143 and .246. This box's DAEMON  |
-| MasterOfOrionII | `192.168.1.124` | that menu entry is mouse-only |
 | MaxPayne | `192.168.1.124` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |
 | RedFaction | `192.168.1.124` | root cause fixed (`UpdateRate`); join unproven |
 | RedneckRampage | `192.168.1.124` | IPX tunnel proven; the Build gather never happens |
-| ShadowWarrior | `192.168.1.124` | the in-game gather |
 | Shogo | `192.168.1.124` | dedicated server stands up; client menu renders intermittently |
-| SoldierOfFortune | `192.168.1.124` | no LEVEL will start: 'WON Error! Please insert the SOF CD and try again.' on any map load, singl |
+| SoldierOfFortune | `192.168.1.124` | multiplayer refused **even with the disc** — see below |
 | SystemShock2 | `192.168.1.124` | the menu offers New Game / Load / Options / Credits / |
-| Turok2 | `192.168.1.124` | host works and is listed in the joiner's browser; join fails |
-| WarcraftII | `192.168.1.124` | its 8-bit DirectDraw surface is **uncapturable by GDI on both XP and Win7**, so the agent cannot |
-| WarcraftOrcsAndHumans | `192.168.1.124` | campaign/network screen is mouse-only |
 | AliensVsPredator | `192.168.1.133` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
 | BF1942 | `192.168.1.133` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.133` | tunnel proven both ends; the front end ignores click *and* key |
@@ -170,20 +165,15 @@ merely had no space for.
 | BF1942 | `192.168.1.143` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.143` | tunnel proven both ends; the front end ignores click *and* key |
 | Carmageddon2 | `192.168.1.143` | tunnel proven both ends; the front end ignores click *and* key |
-| FarCry | `192.168.1.143` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.143` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
 | HiddenAndDangerous | `192.168.1.143` | launcher bug fixed; stops at profile creation |
-| MasterOfOrionII | `192.168.1.143` | that menu entry is mouse-only |
 | MaxPayne | `192.168.1.143` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |
 | RedFaction | `192.168.1.143` | root cause fixed (`UpdateRate`); join unproven |
 | RedneckRampage | `192.168.1.143` | IPX tunnel proven; the Build gather never happens |
-| ShadowWarrior | `192.168.1.143` | the in-game gather |
 | Shogo | `192.168.1.143` | dedicated server stands up; client menu renders intermittently |
 | SoldierOfFortune | `192.168.1.143` | multiplayer refused **even with the disc** — see below |
 | SystemShock2 | `192.168.1.143` | the menu offers New Game / Load / Options / Credits / |
 | Turok2 | `192.168.1.143` | host works and is listed in the joiner's browser; join fails |
-| WarcraftII | `192.168.1.143` | its 8-bit DirectDraw surface is **uncapturable by GDI on both XP and Win7**, so the agent cannot |
-| WarcraftOrcsAndHumans | `192.168.1.143` | campaign/network screen is mouse-only |
 | AliensVsPredator | `192.168.1.145` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
 | BF1942 | `192.168.1.145` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.145` | tunnel proven both ends; the front end ignores click *and* key |
@@ -201,27 +191,21 @@ merely had no space for.
 | Carmageddon1 | `192.168.1.171` | tunnel proven both ends; the front end ignores click *and* key |
 | Carmageddon2 | `192.168.1.171` | tunnel proven both ends; the front end ignores click *and* key |
 | HalfLife-BlueShift | `192.168.1.171` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
-| Halo | `192.168.1.171` | shell ignores synthetic input; `haloded.exe` is not on the share |
 | HiddenAndDangerous | `192.168.1.171` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.171` | box was offline for the whole session - untested, not failed |
-| MasterOfOrionII | `192.168.1.171` | that menu entry is mouse-only |
 | MaxPayne | `192.168.1.171` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |
 | RedFaction | `192.168.1.171` | root cause fixed (`UpdateRate`); join unproven |
 | RedneckRampage | `192.168.1.171` | IPX tunnel proven; the Build gather never happens |
-| ShadowWarrior | `192.168.1.171` | the in-game gather |
 | Shogo | `192.168.1.171` | dedicated server stands up; client menu renders intermittently |
 | SoldierOfFortune | `192.168.1.171` | multiplayer refused **even with the disc** — see below |
 | SystemShock2 | `192.168.1.171` | the menu offers New Game / Load / Options / Credits / |
-| Turok2 | `192.168.1.171` | host works and is listed in the joiner's browser; join fails |
-| WarcraftII | `192.168.1.171` | its 8-bit DirectDraw surface is **uncapturable by GDI on both XP and Win7**, so the agent cannot |
-| WarcraftOrcsAndHumans | `192.168.1.171` | campaign/network screen is mouse-only |
 | AliensVsPredator | `192.168.1.240` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
 | BF1942 | `192.168.1.240` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.240` | tunnel proven both ends; the front end ignores click *and* key |
 | Carmageddon2 | `192.168.1.240` | tunnel proven both ends; the front end ignores click *and* key |
 | FarCry | `192.168.1.240` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.240` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
-| Halo | `192.168.1.240` | shell ignores synthetic input; `haloded.exe` is not on the share |
+| Halo | `192.168.1.240` | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a c |
 | HiddenAndDangerous | `192.168.1.240` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.240` | NOT the disc - the image and launcher are staged and proven on .143 and .246. This box's DAEMON  |
 | MasterOfOrionII | `192.168.1.240` | that menu entry is mouse-only |
@@ -243,7 +227,7 @@ merely had no space for.
 | FarCry | `192.168.1.246` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.246` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
 | HalfLife1 | `192.168.1.246` | The HalfLife1 tree's engine is WON hl.exe 1.1.0.8 = network protocol 45, and the fleet Half-Life |
-| Halo | `192.168.1.246` | shell ignores synthetic input; `haloded.exe` is not on the share |
+| Halo | `192.168.1.246` | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a c |
 | HiddenAndDangerous | `192.168.1.246` | launcher bug fixed; stops at profile creation |
 | MasterOfOrionII | `192.168.1.246` | that menu entry is mouse-only |
 | MaxPayne | `192.168.1.246` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |
