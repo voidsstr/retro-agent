@@ -421,12 +421,30 @@ game; the other two would have been thrown out with *"Your CD Key is invalid"* �
 the same wording a genuinely bad key produces.
 
 This is worth writing down because it had gone quiet. The keys were assigned
-per box on 2026-08-31 and were distinct then; something has since restored a
-shared value on all of them — most plausibly a `GAMESYNC` of `Halo\install.reg`,
-which is copied byte-identically to every machine and therefore *cannot* carry a
-per-installation value. **That is the same class of bug as Red Alert 2's
-`Serial`,** which is generated on the box by the launcher for exactly this
-reason.
+per box on 2026-08-31 and were distinct then. **The mechanism that undid it is
+measured, not guessed: `Games-Library/Halo/install.reg` carries a literal
+`DigitalProductID`**, and GAMESYNC merges that file byte-identically onto every
+machine. So every Halo deploy silently restores one shared key across the whole
+fleet, and the per-box assignment survives only until the next sync of this
+title.
+
+**That is the same class of bug as Red Alert 2's `Serial`,** which is generated
+on the box by the launcher for exactly this reason — a per-INSTALLATION value
+cannot live in `install.reg`. Halo's case is harder than RA2's, because a CD key
+cannot be derived from the machine the way a volume serial can; it has to come
+out of a pool. So this needs a decision rather than a patch:
+
+* **strip `DigitalProductID` from `install.reg`** and let `assign_keys.py` own
+  it — clean, but a freshly imaged box then has no key at all until somebody
+  runs the assigner, and Halo will not start without one; or
+* **keep it as the first-boot fallback** and make re-running `assign_keys.py`
+  part of the deploy loop for this title, the way the RA2 launcher's serial
+  block is part of its launch.
+
+Whichever is chosen, **`audit_keys.py` should be run after any Halo GAMESYNC**,
+because today the regression is completely silent: the game installs, launches,
+reaches its menu and only fails at a *server's* key check, with wording that
+blames the key rather than the duplication.
 
 **Fixed the same day:**
 
