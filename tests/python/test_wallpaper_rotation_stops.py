@@ -123,3 +123,54 @@ def test_neutralising_happens_only_after_a_fleet_wallpaper_is_applied():
         "stop_wallpaper_rotation() is called from more than one place; it must "
         "run only on the success path of apply_fleet_wallpaper(), or a box "
         "with no matching fleet wallpaper loses its rotation and gets nothing")
+
+
+def test_an_unmatched_resolution_never_falls_back_to_the_old_desktop():
+    """A crashed game must not permanently revert the machine.
+
+    USER REPORT, second round: *"the agent keeps on bringing the old desktop
+    background back."* The agent's own log on `.133` says exactly why:
+
+        retrowall: no fleet wallpaper for 640x480 in C:\\retro-wall
+        retrowall: applying staged wallpaper rotation + icon layout
+        retrowall: installed Run key (C:\\retro-wall\\rotate_wall.exe 60)
+
+    A game exited without restoring the desktop and left the box at 640x480.
+    Every staged wallpaper is LARGER than that, so the nearest-smaller search
+    found nothing, `apply_fleet_wallpaper()` returned 0, and the legacy path
+    took over **and re-installed the Run key** -- so one crashed game reverted
+    the desktop permanently, and the agent re-did it on every startup
+    afterwards. That is why clearing the key by hand did not stick.
+
+    The fix is to take the SMALLEST staged fleet wallpaper when nothing fits.
+    Windows crops a centred oversized bitmap; the icon bay will not line up at
+    640x480, but the box is not meant to sit at 640x480 either -- the
+    resolution is the fault, and reverting the whole desktop hides it behind a
+    cosmetic change.
+    """
+    with open(SRC, encoding="utf-8", errors="replace") as f:
+        s = f.read()
+    i = s.index("static int apply_fleet_wallpaper")
+    body = s[i:s.index("\n}", i)]
+    assert "smallest" in body, (
+        "apply_fleet_wallpaper() no longer falls back to the smallest staged "
+        "wallpaper. Without it, a box left at 640x480 by a crashed game gets "
+        "the OLD desktop and re-installs the rotation Run key on every start.")
+    assert body.count("return 0") <= 1, (
+        "apply_fleet_wallpaper() has gained extra give-up paths; each one hands "
+        "the desktop back to the legacy rotation")
+
+
+def test_the_legacy_path_self_disables_once_the_binary_is_renamed():
+    """Belt and braces: the two fixes reinforce each other.
+
+    stop_wallpaper_rotation() renames rotate_wall.exe to .superseded, and the
+    legacy path returns early when ROTATE_EXE is missing. So once a box has
+    taken the fleet wallpaper even once, the old desktop cannot be applied
+    again even if a later resolution change somehow reached that code.
+    """
+    with open(SRC, encoding="utf-8", errors="replace") as f:
+        s = f.read()
+    assert "file_exists(ROTATE_EXE)" in s, (
+        "the legacy path no longer checks for rotate_wall.exe, so renaming it "
+        "aside stops disabling that path")

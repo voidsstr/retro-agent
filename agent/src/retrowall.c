@@ -529,9 +529,47 @@ static int apply_fleet_wallpaper(void)
             }
         }
     }
+    /* NOTHING FITS: take the SMALLEST fleet wallpaper rather than giving up.
+     *
+     * "Nothing fits" happens for one reason in practice, and it is not an odd
+     * monitor: a game exited without restoring the desktop and left the box at
+     * 640x480. There is no retrowall_640x480.bmp and every staged size is
+     * LARGER, so the nearest-smaller search above finds nothing.
+     *
+     * Returning 0 here handed the desktop to the legacy rotation, which then
+     * RE-INSTALLED its Run key - so one crashed game permanently reverted the
+     * machine to the old desktop, and the agent did it on every startup
+     * afterwards. Measured on .133 2026-08-31, in the agent's own log:
+     *
+     *   retrowall: no fleet wallpaper for 640x480 in C:\retro-wall
+     *   retrowall: applying staged wallpaper rotation + icon layout
+     *   retrowall: installed Run key (C:\retro-wall\rotate_wall.exe 60)
+     *
+     * The user's requirement is that every box ALWAYS uses the new background,
+     * so an oversized fleet wallpaper - which Windows simply crops when
+     * centred - is strictly better than the old one. The icon bay will not
+     * line up at 640x480, but the box is not meant to sit at 640x480 either;
+     * the resolution is the fault, and reverting the whole desktop hides it. */
     if (!best[0]) {
-        log_msg(LOG_MAIN, "retrowall: no fleet wallpaper for %dx%d in %s",
-                sw, sh, WALLDIR);
+        unsigned smallest = 0;
+        for (i = 0; i < sizeof(SIZES) / sizeof(SIZES[0]); i++) {
+            _snprintf(path, sizeof(path), "%s\\retrowall_%dx%d.bmp",
+                      WALLDIR, SIZES[i].w, SIZES[i].h);
+            path[sizeof(path) - 1] = '\0';
+            if (GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES)
+                continue;
+            if (!smallest || (unsigned)(SIZES[i].w * SIZES[i].h) < smallest) {
+                smallest = (unsigned)(SIZES[i].w * SIZES[i].h);
+                safe_strncpy(best, path, sizeof(best));
+            }
+        }
+        if (best[0])
+            log_msg(LOG_MAIN, "retrowall: no fleet wallpaper fits %dx%d - using "
+                              "the smallest staged one (%s) rather than falling "
+                              "back to the OLD desktop", sw, sh, best);
+    }
+    if (!best[0]) {
+        log_msg(LOG_MAIN, "retrowall: no fleet wallpaper at all in %s", WALLDIR);
         return 0;
     }
 
