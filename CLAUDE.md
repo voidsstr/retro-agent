@@ -1767,6 +1767,28 @@ img.save('/tmp/retro-screenshots/screen.png', optimize=True)
 
 Zoom into regions for detail: crop with Pillow and resize with `Image.NEAREST`.
 
+### "The fullscreen surface is black" is a PER-TITLE fact, not a per-box one
+
+`SCREENSHOT 0` photographs most fullscreen games on the XP fleet perfectly —
+D3D, OpenGL, DirectDraw and DOSBox alike. The "GDI returns black" rule is a
+**Windows 7** fact that was wrongly generalised. On 2026-08-31 that sentence
+had been copied onto **six** rows of `.133`'s compat matrix and was **false on
+five of them** (Deus Ex, Master of Orion II, Redneck Rampage, Jedi Knight,
+Warcraft II — all now `verified` from real frames). Only Aliens vs Predator is
+genuinely black there, extrema `(0,0)` across the frame. **Take the picture
+before writing that a picture is impossible.**
+
+### An 8-BPP title photographs with the RIGHT geometry and the WRONG colours
+
+This is worse than a black frame, because it looks like evidence. On a
+256-colour display `BitBlt` copies palette *indices* and `GetDIBits` needs the
+right palette to turn them into RGB; agent **1.79.1+** realizes the live system
+palette into the capture DC, which fixes an 8-bpp **desktop** (A/B proven on
+`.133`). It does **not** fix a **DirectDraw exclusive-mode** game — StarCraft,
+Jedi Knight and Warcraft II program the DAC without telling GDI, so their
+frames stay confetti. For those titles the colours are a *capture* limit and
+the geometry in the frame is real; say so rather than calling the render broken.
+
 ## A STATIC IMPORT WIN9x LACKS KILLS THE EXE AT LOAD — resolve it dynamically (REQUIRED)
 
 **The agent must import nothing Windows 9x cannot resolve. A single unresolved
