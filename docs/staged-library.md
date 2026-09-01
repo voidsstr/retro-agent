@@ -12,7 +12,7 @@ of the fleet.
 Source of truth is `~/.retro-fleet/fleetbook.db`. Query it directly with
 `scripts/fleet/compat.py` (`matrix`, `status --box .143`, `gaps`, `summary`).
 
-Generated 2026-09-01 11:22.
+Generated 2026-09-01 12:27.
 
 ## The machines
 
@@ -75,7 +75,7 @@ merely had no space for.
 | HalfLife-TFC | +V | .V | +V | +V | +. | +r | +. | +V | G. | +r | 5 |
 | HalfLife1 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +r | 6 |
 | Halo | +r | G. | G. | G. | +. | G- | -. | +V | G. | +V | 2 |
-| Halo2 | +X | .. | G. | G. | +. | .. | -. | G. | .. | +. | 0 |
+| Halo2 | +X | .. | G. | G. | +. | .. | -. | G. | .. | +V | 1 |
 | HexenII | +r | .V | +V | +V | +. | +V | +. | +V | +. | +r | 5 |
 | HiddenAndDangerous | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
 | JediAcademy | +- | .V | +V | +V | +. | +. | +. | +V | G. | +V | 5 |
@@ -116,7 +116,7 @@ merely had no space for.
 | WarcraftOrcsAndHumans | +V | .V | +V | +X | +. | .V | +. | +V | G. | +V | 6 |
 | YurisRevenge | +V | .V | +V | +V | +. | +. | +. | +V | G. | +V | 6 |
 
-**60 titles × 10 machines = 600 cells — 263 verified, 243 untested.**
+**60 titles × 10 machines = 600 cells — 264 verified, 242 untested.**
 
 ## Titles with a blocker recorded
 
@@ -129,6 +129,7 @@ merely had no space for.
 | FarCry | `192.168.1.123` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.123` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
 | Halo | `192.168.1.123` | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a c |
+| Halo2 | `192.168.1.123` | halo2.exe loads and holds ~362 MB and creates a fullscreen 'Halo 2' window, but the window never |
 | HiddenAndDangerous | `192.168.1.123` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.123` | the box has NO disc mounter and NO optical drive at all (HWPROFILE disc_mount=false, wmic logica |
 | MasterOfOrionII | `192.168.1.123` | that menu entry is mouse-only |
