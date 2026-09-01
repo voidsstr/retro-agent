@@ -18,7 +18,9 @@ before touching anything; conflating the two stacks wastes hours.
   `docs/fleet-inventory.md` and `docs/staged-library.md` both list "GeForce 6800"
   as this box's *Display GPU*. That is not a contradiction and not a swapped
   card; do not "correct" it. Since `.133`'s V5 6000 was pulled (2026-08-31),
-  this is the fleet's only Voodoo5.
+  this is NOT the fleet's only Voodoo5 - .124 reported one on 2026-09-01
+  (VEN_121A&DEV_0009, 32 MB) after being a GeForce2 the day before. Cards
+  move between boxes here; ask the box, do not trust a card list.
 - `.133` (192.168.1.133) — dual P3-700 "P3-DUAL". **THE V5 6000 IS PHYSICALLY GONE**
   as of the 2026-08-31 rescan - `Enum\PCI` has no `VEN_121A` key at all and the box
   runs a GeForce4 Ti 4600. **Do not target .133 in this lane** without a fresh

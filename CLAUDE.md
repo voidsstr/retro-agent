@@ -260,7 +260,7 @@ GPL release + MIT Mesa). Three components, all our forks/code — provenance in
 
 ### 2. Vintage 3dfx source = the `retro-3dfx/` repo — VOODOO 5 (`.143` 5500) ONLY, READ-ONLY HERE
 
-**`.133` HAS NO 3dfx SILICON as of the 2026-08-31 rescan** - the V5 6000 was pulled and the box now runs a GeForce4 Ti 4600 (`10DE:0250`); `Enum\PCI` carries no `VEN_121A` key, which is decisive. `.143` (V5 5500) is the fleet's only Voodoo5. Every V5 6000 note below applies only if that card is refitted - verify with a fresh `SYSINFO` before acting on one. See [`docs/fleet-inventory.md`](docs/fleet-inventory.md).
+**`.133` HAS NO 3dfx SILICON as of the 2026-08-31 rescan** - the V5 6000 was pulled and the box now runs a GeForce4 Ti 4600 (`10DE:0250`); `Enum\PCI` carries no `VEN_121A` key, which is decisive. `.143` (V5 5500) is NOT the fleet's only Voodoo5 either - **`.124` reported a 3dfx Voodoo5 (`PCI\VEN_121A&DEV_0009`, 32 MB, feature level `fixed`) on 2026-09-01**, having been recorded as a GeForce2 GTS the day before. THE HARDWARE IN THIS FLEET MOVES BETWEEN BOXES; do not write "the only X" about any card. `docs/fleet-inventory.md` is generated from what each box PUBLISHES at startup and is the only trustworthy answer - check it, or ask the box. Every V5 6000 note below applies only if that card is refitted - verify with a fresh `SYSINFO` before acting on one. See [`docs/fleet-inventory.md`](docs/fleet-inventory.md).
 
 3dfx's own leaked/released **H5/Napalm** driver source. It is a *different*
 codebase from our open stack and, per the directive above, **off-limits for

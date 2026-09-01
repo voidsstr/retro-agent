@@ -177,12 +177,26 @@ def match_records(roster, records):
     used = set()
     for ip, host, _note in roster:
         hit = None
-        for idx, rec in enumerate(records):
-            if idx in used or rec["data"] is None:
-                continue
-            if ip and ip in record_ips(rec["data"]):
-                hit = idx
-                break
+        # NEWEST WINS WHEN TWO RECORDS CLAIM THE SAME ADDRESS, and they do:
+        # hardware moves between boxes here constantly. On 2026-09-01 both
+        # NSC-9871C0E9964 (a GeForce2) and NSC-AB862B3CF23 (a 3dfx Voodoo5)
+        # published 192.168.1.124. This loop took the FIRST match in directory
+        # order, so the alphabetically earlier name won and the inventory
+        # showed a graphics card that was no longer in the machine - the exact
+        # failure this document exists to prevent, and the third time a card
+        # swap has been missed.
+        #
+        # The tie-break is the FILE's mtime, never the record's reported_at.
+        # Box clocks on this fleet are not trustworthy: the two records above
+        # were stamped 2003-04-02 and 2004-07-29 by machines whose CMOS had
+        # drifted or reset. The share's mtime is written by this host.
+        candidates = [
+            idx for idx, rec in enumerate(records)
+            if idx not in used and rec["data"] is not None
+            and ip and ip in record_ips(rec["data"])
+        ]
+        if candidates:
+            hit = max(candidates, key=lambda i: records[i]["mtime"] or 0)
         if hit is None:
             for idx, rec in enumerate(records):
                 if idx in used or rec["data"] is None:
