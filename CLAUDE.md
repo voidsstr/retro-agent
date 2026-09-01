@@ -2543,6 +2543,45 @@ region stripped, which is exactly why that release shipped a Crack folder.
   encrypted wrapper section: a string search coming back empty is evidence of a
   wrapper, not evidence there is no check.
 
+### AND ASK WHO OWNS THE ENTRY POINT — six staged titles carry SafeDisc, three are protected (2026-09-01)
+
+**A `BoG_` marker, an `stxt774`/`stxt371` section, a `.ICD` or the v1 runtime
+DLLs are EVIDENCE OF SafeDisc, not evidence that SafeDisc still runs.** Half the
+library's SafeDisc hits are litter left behind by an executable that was
+replaced years before this project staged it, and treating them as protection
+plans work around a wall that is not there.
+
+The discriminator is the **entry point**:
+
+| title | evidence | entry point | live? |
+|---|---|---|---|
+| MaxPayne | `BoG_` 2.51.020 + `stxt*` | **inside `stxt371`** | **yes** |
+| BF1942 `Mod.dll` | `BoG_` 2.80.010 + `stxt*` | **inside `stxt371`** | **yes** |
+| SystemShock2 | `SHOCK2.ICD` + v1 runtime | v1 **loader** (imports only kernel32/user32/advapi32/version) | **yes** |
+| Carmageddon2 | `BoG_` 1.01.034, `.IIDKing` | `.text` | no — residue |
+| RedAlert2 | `BoG_` 2.05.030, `stxt*`, `drvmgt.dll`, `secdrv.sys` | `.text` | no — residue |
+| TiberianSun | `GAME.ICD` + full v1 runtime | `GAME.EXE` imports `ddraw`/`dsound`/`binkw32` | no — residue |
+| UnrealTournament / …436 | `System\UnrealTournament.icd` | exe imports `core.dll`/`engine.dll` | no — residue |
+
+Two traps, both hit before they were written down:
+
+- **SafeDisc 1.x has NO `stxt*` section** — those arrived with 2.x. Carmageddon
+  2 is 1.01.034 behind a plain `.text`/`.rdata`/`.data` table, so a
+  section-only scan calls it clean. Search for the marker in every PE.
+- **SafeDisc v1 hides nothing in the exe at all.** The shipped `.EXE` is a small
+  loader and the game is the encrypted `<NAME>.ICD` beside it, so the loader has
+  an ordinary MSVC entry point. Tiberian Sun is the control that stops "`.icd`
+  present" being the rule: same `.ICD`, same v1 runtime, and `GAME.EXE` is the
+  game.
+
+`python3 scripts/fleet/win64-compat.py <library>` answers all of this per title;
+`tests/python/test_win64_compat.py` pins it.
+
+**On Windows 10/11 a live wrapper is terminal and DAEMON Tools is not the
+answer** — Windows 10 never shipped `secdrv.sys` and Windows 11 additionally
+hard-blocks these binaries in its own compatibility database. Mounting BF1942's
+disc image on Windows 11 changed nothing. See `docs/win10-compatibility.md`.
+
 ## Halo PC: ONE SIMULTANEOUS PLAYER PER CD KEY (measured 2026-08-31)
 
 **Halo allows one concurrent player per key, and it reports the second machine
