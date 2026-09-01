@@ -30,6 +30,35 @@ def _text():
     return SRC.read_text()
 
 
+
+def _strip_comments(code):
+    """Remove C comments and string literals before searching for CODE.
+
+    Three tests written today failed by matching their own explanatory prose:
+    a comment saying "ReadConsoleInputA drains it once the loop starts" is not
+    a call to ReadConsoleInputA, and a comment naming LOG_CLEAR is not the
+    LOG_CLEAR round-trip. An ordering assertion over raw text is an assertion
+    about where somebody wrote a sentence.
+    """
+    out, i, n = [], 0, len(code)
+    while i < n:
+        if code.startswith("/*", i):
+            j = code.find("*/", i + 2)
+            i = n if j < 0 else j + 2
+        elif code.startswith("//", i):
+            j = code.find("\n", i)
+            i = n if j < 0 else j
+        elif code[i] == '"':
+            j = i + 1
+            while j < n and code[j] != '"':
+                j += 2 if code[j] == "\\" else 1
+            out.append(code[i:j + 1])       # keep literals: we match on some
+            i = j + 1
+        else:
+            out.append(code[i])
+            i += 1
+    return "".join(out)
+
 def _fn_body(text, name):
     """Extract a top-level function body by name (brace matching)."""
     m = re.search(r"\b%s\s*\([^;{)]*\)\s*\n?\{" % re.escape(name), text)
@@ -101,3 +130,66 @@ def test_reconnect_pacing_not_hot():
         assert "Sleep(RECONNECT_SLEEP_MS)" in body, (
             "%s must pace reconnects with RECONNECT_SLEEP_MS" % fn)
         assert "Sleep(300)" not in body
+
+
+def test_prompt_is_not_drawn_before_the_input_loop_can_service_it():
+    """The reported bug: "on slower computers it doesnt reflect user input".
+
+    The console is set to ENABLE_WINDOW_INPUT with no ENABLE_ECHO_INPUT, so
+    Windows echoes NOTHING - every visible character is painted by
+    draw_input_area(). main() used to draw the prompt, then make two more
+    blocking agent_connect_wait() calls, and only then enter the loop that
+    reads and echoes keys. On a Pentium that gap is seconds of a prompt that
+    looks ready and swallows everything typed into it. The keystrokes are not
+    lost (the console input buffer queues them) - it is purely a feedback lie.
+    """
+    body = _strip_comments(_fn_body(_text(), "main"))
+    banner = body.find("print_banner()")
+    loop = body.find("ReadConsoleInputA")
+    assert banner > 0 and loop > 0
+    threads = body.rfind("CreateThread", 0, banner)
+    assert threads > 0, (
+        "print_banner() must come AFTER the worker threads are created - "
+        "before them, the prompt is a promise the program cannot keep")
+    assert banner < loop
+
+
+def test_the_first_banner_paint_is_locked_and_erases_first():
+    """The repair for the bug the reordering itself introduced.
+
+    status_thread is already running when main draws the banner: LOG_CLEAR
+    empties the status string and bumps status_seq, so the agent's STATUS_WAIT
+    fast path fires at once and status_thread calls refresh_input() ->
+    draw_input_area(). Unlocked, that paint interleaves with print_banner()
+    and leaves a stray "> " inside the banner or a blanked banner row -
+    permanent, because nothing redraws the banner again.
+    """
+    body = _strip_comments(_fn_body(_text(), "main"))
+    i = body.find("print_banner()")
+    assert i > 0
+    window = body[max(0, i - 400):i]
+    assert "EnterCriticalSection(&g_console_cs)" in window, (
+        "the first print_banner() must be inside the console lock, like the "
+        ":clear handler already is")
+    assert "erase_input_area()" in window, (
+        "main must erase before drawing the banner, to reclaim an input area "
+        "status_thread may already have painted")
+
+
+def test_the_connecting_notice_covers_the_calls_that_actually_block():
+    """A notice printed after the blocking calls fills no silence at all.
+
+    The two agent_connect_wait() calls before the threads are normally
+    instant. What stalls is the AUTH frame_recv inside agent_connect() and the
+    LOG_CLEAR round-trip - both unbounded reads - so the notice has to precede
+    them.
+    """
+    body = _strip_comments(_fn_body(_text(), "main"))
+    notice = body.find("Connecting to the agent")
+    assert notice > 0, "the startup notice is gone"
+    first_connect = body.find("agent_connect_wait()")
+    log_clear = body.find("LOG_CLEAR")
+    assert notice < first_connect, (
+        "the notice must precede the first connect, which is where the AUTH "
+        "recv can block")
+    assert notice < log_clear

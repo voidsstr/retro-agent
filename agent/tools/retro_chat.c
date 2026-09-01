@@ -770,6 +770,23 @@ int main(void)
     /* Set raw input mode */
     SetConsoleMode(g_hIn, ENABLE_WINDOW_INPUT);
 
+    /* Say what is happening BEFORE the first thing that can block.
+     *
+     * The two connect_wait() calls further down are normally instant; the
+     * calls that actually stall are the AUTH frame_recv inside
+     * agent_connect() and the LOG_CLEAR round-trip, both of which are
+     * unbounded reads. Putting the notice after them would leave exactly the
+     * silence it exists to fill. Console is unshared here - no thread has
+     * been created yet - so no lock is needed.
+     */
+    {
+        DWORD nw;
+        static const char connecting[] = "Connecting to the agent...\n";
+        set_color(COLOR_SPINNER);
+        WriteConsoleA(g_hOut, connecting, (DWORD)(sizeof(connecting) - 1), &nw, NULL);
+        set_color(COLOR_DEFAULT);
+    }
+
     /* Wait for the agent instead of exiting — at boot the chat can come
      * up before the agent's listen socket is open. */
     s = agent_connect_wait();
@@ -783,11 +800,24 @@ int main(void)
     agent_command(s, "LOG_CLEAR", NULL, NULL);
     g_log_offset = 0;
 
-    print_banner();
-    /* Banner ends with newline; just draw the input area below it */
-    EnterCriticalSection(&g_console_cs);
-    draw_input_area();
-    LeaveCriticalSection(&g_console_cs);
+    /* DO NOT DRAW THE PROMPT YET.
+     *
+     * The prompt is a promise that typing will do something, and until the
+     * input loop at the bottom of main() is running that promise is false.
+     * Two more agent_connect_wait() calls sit between here and there, and
+     * nothing echoes a keystroke except draw_input_area() - the console is in
+     * ENABLE_WINDOW_INPUT with no ENABLE_ECHO_INPUT, so Windows itself prints
+     * nothing. On a fast box that gap is milliseconds and invisible. On the
+     * Pentium-class boxes it is seconds: the user sees a ready prompt, types,
+     * and NOTHING APPEARS - which reads as "the machine is hung", not as "it
+     * is still connecting".
+     *
+     * The keystrokes are not lost - the console input buffer queues them and
+     * ReadConsoleInputA drains it once the loop starts - so this is purely a
+     * feedback bug, and the fix is to not claim readiness early. The banner
+     * and the prompt now go up AFTER the worker threads exist, and a plain
+     * one-line notice covers the gap so the screen is never blank either.
+     */
 
     /* Start three background threads, each on its own dedicated socket
      * (or none for the spinner):
@@ -824,6 +854,32 @@ int main(void)
          * On exit we just close the underlying socket via WSACleanup. */
         (void)status_h;
     }
+
+    /* NOW the client can service input: the threads that stream replies and
+     * status exist, and the loop below is the next statement. Only now is a
+     * prompt honest.
+     *
+     * ALL THREE CALLS GO UNDER THE CONSOLE LOCK, AND THE ERASE IS NOT
+     * OPTIONAL. status_thread is already running by this point and it paints:
+     * LOG_CLEAR above sets the status string empty and bumps status_seq, so
+     * the agent's STATUS_WAIT fast path fires immediately and status_thread
+     * calls refresh_input() -> draw_input_area(). That paint can land before
+     * or during the banner. Unlocked, the two interleave and you get a stray
+     * "> " absorbed into the banner's first line, or a banner row blanked with
+     * the prompt stranded above the rest of it - permanent for the session,
+     * because nothing redraws the banner again.
+     *
+     * erase_input_area() reclaims whatever status_thread drew before the
+     * banner goes down; taking the lock around all three stops a new paint
+     * arriving mid-banner. This mirrors the `:clear` handler below, which
+     * already calls print_banner() inside the lock for the same reason.
+     */
+    EnterCriticalSection(&g_console_cs);
+    erase_input_area();     /* reclaim any input area status_thread drew */
+    print_banner();
+    /* Banner ends with newline; just draw the input area below it */
+    draw_input_area();
+    LeaveCriticalSection(&g_console_cs);
 
     /* Input loop */
     while (g_running) {

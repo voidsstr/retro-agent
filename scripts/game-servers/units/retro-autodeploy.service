@@ -1,0 +1,19 @@
+[Unit]
+Description=Deploy newly staged retro titles to each fleet box as it comes online
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/development/retro-agent
+# The agent's GAMESYNC startup thread gates on a bare `gamesync.done` check, so
+# a title staged today never reaches a box provisioned yesterday. This closes
+# that gap. It never reboots anything and leaves a box mid-sync alone.
+ExecStart=/usr/bin/python3 -u /home/voidsstr/development/retro-agent/scripts/fleet/autodeploy.py --interval 90
+Restart=always
+RestartSec=30
+StandardOutput=append:/home/voidsstr/.retro-fleet/autodeploy.log
+StandardError=append:/home/voidsstr/.retro-fleet/autodeploy.log
+
+[Install]
+WantedBy=default.target
