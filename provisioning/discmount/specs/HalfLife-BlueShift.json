@@ -1,0 +1,16 @@
+{
+  "title": "Half-Life: Blue Shift",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n",
+  "vars": {
+    "GTITLE": "Half-Life - Blue Shift",
+    "IMAGE": "%~dp0_disc\\Blue Shift.iso",
+    "VOLID": "BLUESHIFT_UK",
+    "MARKER": "bsinstall.EXE",
+    "GAME": "%~dp0bshift.exe",
+    "GAMEARGS": "-full -gl -w %FR_W43% -h %FR_H43% -nosierra",
+    "REQUIREDISC": "1"
+  },
+  "autokill": "setup.EXE SETUP.EXE bsinstall.EXE",
+  "prelaunch": "rem (none)",
+  "_note": "Blue Shift is a STANDALONE product with its OWN engine - bshift.exe, its own hw.dll and sw.dll, protocol 40 / build 1588. It is NOT 'hl.exe -game bshift'; the library staged it that way onto Half-Life GOTY's Sep-2001 engine (protocol 45 / build 1792) and that engine REJECTS Blue Shift's April-2001 game DLL outright - 'Game DLL version mismatch' then Host_Error. That is why this is its own tree. Installed from the retail disc in the build VM 2026-09-01; 143 files, 264,492,993 bytes. UNRESOLVED: retail Blue Shift 1.0 checks for its CD and rejects this image as 'Wrong disc inserted' under QEMU's ATAPI (with no disc at all it says 'No disc inserted', so it is a disc-IDENTITY check, not a presence one). The volume label was refuted as the criterion: relabelling a COPY to BLUESHIFT in both the ISO9660 PVD and the Joliet SVD - which is what Windows reports - changed nothing, verified with SETUP.EXE proven absent so the dialog could only be the game's. Whether a REAL mounter (WinCDEmu on .246, DAEMON Tools on .240/.143) satisfies it is untested - every mounter box was powered down when this was staged."
+}
