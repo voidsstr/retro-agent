@@ -4,7 +4,7 @@
 `python3 scripts/fleet/gen-staged-library.py`; `--check` fails if it is stale.
 
 A hand-written version of this was never going to survive: the library went
-38 → 57 titles in a single session, two graphics cards were swapped mid-session,
+38 → 60 titles in a single session, two graphics cards were swapped mid-session,
 and the machines are powered on and off continuously. The same argument settled
 `docs/fleet-inventory.md`, whose hand-maintained predecessor was wrong about most
 of the fleet.
@@ -12,18 +12,19 @@ of the fleet.
 Source of truth is `~/.retro-fleet/fleetbook.db`. Query it directly with
 `scripts/fleet/compat.py` (`matrix`, `status --box .143`, `gaps`, `summary`).
 
-Generated 2026-09-01 09:53.
+Generated 2026-09-01 11:22.
 
 ## The machines
 
 | box | host | CPU | RAM | GPU | OS |
 |---|---|---|---|---|---|
-| `192.168.1.123` | NSC-B20C188E96D | 2403 MHz | 2047 MB | ATI Radeon HD 3850 AGP (512 MB) | Windows XP |
-| `192.168.1.124` | NSC-CABE14B7486 | 845 MHz | 511 MB | NVIDIA GeForce2 GTS/GeForce2 Pro ( | Windows XP |
+| `192.168.1.123` | NSC-B20C188E96D | 2402 MHz | 2047 MB | ATI Radeon HD 3850 AGP (512 MB) | Windows XP |
+| `192.168.1.124` | NSC-9871C0E9964 | 1503 MHz | 511 MB | NVIDIA GeForce2 GTS/GeForce2 Pro ( | Windows XP |
 | `192.168.1.133` | P3-DUAL | 701 MHz | 255 MB | NVIDIA GeForce4 Ti 4600 (128 MB) | Windows XP |
 | `192.168.1.143` | 1GHZ | 1000 MHz | 511 MB | NVIDIA GeForce 6800 (128 MB) | Windows XP |
-| `192.168.1.145` | DELL | 3093 MHz | 3316 MB | NVIDIA GeForce 8400GS (512 MB) | Windows XP |
+| `192.168.1.145` | DELL | 3092 MHz | 3316 MB | NVIDIA GeForce 8400GS (512 MB) | Windows XP |
 | `192.168.1.171` | NSC-5B996B81319 | 2793 MHz | 509 MB | Intel(R) 82865G Graphics Controlle | Windows XP |
+| `192.168.1.184` | NSC-CABE14B7486 | 845 MHz | 511 MB | NVIDIA GeForce2 GTS/GeForce2 Pro ( | Windows XP |
 | `192.168.1.240` | USER-41EA3B3330 | 2403 MHz | 1022 MB | RADEON X800 Series (256 MB) | Windows XP |
 | `192.168.1.243` | N5R5L9 | 165 MHz | 127 MB | Cirrus Logic 5436 PCI (0 MB) | Windows 98 |
 | `192.168.1.246` | ADMIN-PC | 3093 MHz | 3317 MB | AMD Radeon HD 5450 (512 MB) | Windows 7 |
@@ -52,67 +53,70 @@ cannot run it and carries the limiting number; the second means there was no
 room. Conflating them once told an operator a Pentium 1 "cannot run" a game it
 merely had no space for.
 
-| title | `.123` | `.124` | `.133` | `.143` | `.145` | `.171` | `.240` | `.243` | `.246` | verified |
-|---|---|---|---|---|---|---|---|---|---|---|
-| AliensVsPredator | +r | +r | +r | +r | +. | +r | +r | G. | +r | 0 |
-| BF1942 | +- | +X | +X | +X | +. | +. | +X | G. | +X | 0 |
-| Carmageddon1 | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
-| Carmageddon2 | +V | +V | +V | +V | +. | +r | +V | G. | +V | 6 |
-| CounterStrike16 | +V | +V | +V | +V | +. | +V | +V | G. | +r | 6 |
-| Descent1 | +V | +V | +V | +V | +. | +V | +V | +. | +V | 7 |
-| Descent2 | +r | +V | +V | +V | +. | +V | +V | G. | +r | 5 |
-| Descent3 | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
-| DeusEx | +V | +r | +V | +V | +. | +r | +r | G. | +V | 4 |
-| Doom3 | +V | G. | G. | G. | .. | G. | +V | G. | +r | 2 |
-| FarCry | +V | G. | G. | .V | .. | G. | +V | G. | +V | 4 |
-| Generals | .. | .. | ~. | .. | .. | ~. | .. | .. | .. | 0 |
-| HalfLife-BlueShift | +X | +X | +X | +X | +. | +. | +X | G. | +r | 0 |
-| HalfLife-DMC | +V | +V | +V | +V | +. | +r | +V | G. | +r | 5 |
-| HalfLife-Deathmatch | +V | +r | +V | +V | +. | +r | +V | G. | +r | 4 |
-| HalfLife-OpposingForce | +X | +X | +X | +X | +. | +. | +X | G. | +X | 0 |
-| HalfLife-TFC | +V | +V | +V | +V | +. | +r | +V | G. | +r | 5 |
-| HalfLife1 | +V | +V | +V | +V | +. | +V | +V | G. | +r | 6 |
-| Halo | +r | G. | G. | G. | .. | G- | +V | G. | +V | 2 |
-| HexenII | +r | +V | +V | +V | +. | +V | +V | +. | +r | 5 |
-| HiddenAndDangerous | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
-| JediAcademy | +- | +V | +V | +V | +. | +. | +V | G. | +V | 5 |
-| JediKnightDF2 | +r | +r | +V | +r | +. | +r | +r | G. | +V | 2 |
-| JediKnightMotS | +V | +r | +V | +V | +. | +V | +r | ~. | +V | 5 |
-| MasterOfOrionII | +r | .V | +V | .V | .. | .V | +r | .. | +r | 4 |
-| MaxPayne | +- | .V | +V | .V | .. | ~V | +X | G. | +V | 5 |
-| Quake1 | +V | +V | +V | +V | +. | +V | +V | +. | +V | 7 |
-| Quake2Complete | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
-| Quake3-TeamArena | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
-| Quake3Arena | +V | +V | +V | +V | +. | +. | +V | G. | +V | 6 |
-| RainbowSix | +V | .. | .. | .. | .. | .. | .. | .. | .. | 1 |
-| RedAlert2 | +V | +r | +V | +V | +. | +V | +V | G. | +V | 6 |
-| RedFaction | +- | +r | +V | +V | +. | +V | +X | G. | +V | 4 |
-| RedneckRampage | +V | +V | +V | +r | +. | +V | +r | G. | +r | 4 |
-| ReturnToCastleWolfenstein | +V | +V | +V | +V | .. | +V | +V | G. | +V | 7 |
-| SeriousSamFirstEncounter | +- | +V | +V | +V | .. | +V | +V | G. | +X | 5 |
-| SeriousSamSecondEncounter | +- | +V | +V | +V | .. | +. | +V | G. | +r | 4 |
-| SeriousSamTFE | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
-| SeriousSamTSE | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
-| ShadowWarrior | +V | .r | +V | .V | .. | .V | +r | .. | +V | 5 |
-| Shogo | +V | +V | +V | +V | +. | +V | +r | G. | +V | 6 |
-| SiNGold | +V | +V | +V | +V | +. | +V | +V | G. | +r | 6 |
-| SoldierOfFortune | +V | +V | +V | +V | +. | +. | +r | G. | +r | 4 |
-| SoldierOfFortune2 | +V | +V | +V | +V | +. | +V | +V | G. | +r | 6 |
-| StarCraft | +- | +r | +V | +V | +. | +r | +V | +. | +V | 4 |
-| SystemShock2 | +- | +V | +V | +V | +. | +V | +V | G. | +V | 6 |
-| Thief2 | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
-| ThiefGold | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
-| TiberianSun | +V | +r | +V | +V | +. | +V | +r | G. | +V | 5 |
-| Turok2 | +V | .V | +V | .V | .. | .V | +V | G. | +V | 7 |
-| UT2004 | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
-| UnrealGold | +V | +V | +V | +X | +. | +V | +V | G. | +V | 6 |
-| UnrealTournament | +V | +X | +X | +X | +. | +V | +V | G. | +V | 4 |
-| UnrealTournament436 | +V | +V | +V | +V | +. | +V | +r | G. | +V | 6 |
-| WarcraftII | +r | .r | +V | .V | .. | .r | +r | G. | +r | 2 |
-| WarcraftOrcsAndHumans | +V | .V | +V | .X | .. | .V | +V | G. | +V | 6 |
-| YurisRevenge | +V | +V | +V | +V | +. | +. | +V | G. | +V | 6 |
+| title | `.123` | `.124` | `.133` | `.143` | `.145` | `.171` | `.184` | `.240` | `.243` | `.246` | verified |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| AliensVsPredator | +r | .r | +r | +r | +. | +r | +. | +r | G. | +r | 0 |
+| BF1942 | +- | .X | +X | +X | +. | +. | +. | +X | G. | +X | 0 |
+| Carmageddon1 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
+| Carmageddon2 | +V | .V | +V | +V | +. | +r | +. | +V | G. | +V | 6 |
+| CounterStrike16 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +r | 6 |
+| Daggerfall | -. | .. | +V | +V | +. | .. | -. | +. | .. | -. | 2 |
+| Descent1 | +V | .V | +V | +V | +. | +V | +. | +V | +. | +V | 7 |
+| Descent2 | +r | .V | +V | +V | +. | +V | +. | +V | G. | +r | 5 |
+| Descent3 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
+| DeusEx | +V | .r | +V | +V | +. | +r | +. | +r | G. | +V | 4 |
+| Doom3 | +V | G. | G. | G. | +. | G. | -. | +V | G. | +r | 2 |
+| FarCry | +V | G. | G. | +V | +. | G. | -. | +V | G. | +V | 4 |
+| Generals | .. | .. | ~. | .. | .. | ~. | .. | .. | .. | .. | 0 |
+| HalfLife-BlueShift | +X | .X | +X | +X | +. | +. | +. | +X | G. | +r | 0 |
+| HalfLife-DMC | +V | .V | +V | +V | +. | +r | +. | +V | G. | +r | 5 |
+| HalfLife-Deathmatch | +V | .r | +V | +V | +. | +r | +. | +V | G. | +r | 4 |
+| HalfLife-OpposingForce | +X | .X | +X | +X | +. | +. | +. | +X | G. | +X | 0 |
+| HalfLife-TFC | +V | .V | +V | +V | +. | +r | +. | +V | G. | +r | 5 |
+| HalfLife1 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +r | 6 |
+| Halo | +r | G. | G. | G. | +. | G- | -. | +V | G. | +V | 2 |
+| Halo2 | +X | .. | G. | G. | +. | .. | -. | G. | .. | +. | 0 |
+| HexenII | +r | .V | +V | +V | +. | +V | +. | +V | +. | +r | 5 |
+| HiddenAndDangerous | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
+| JediAcademy | +- | .V | +V | +V | +. | +. | +. | +V | G. | +V | 5 |
+| JediKnightDF2 | +r | .r | +V | +r | +. | +r | +. | +r | G. | +V | 2 |
+| JediKnightMotS | +V | .r | +V | +V | +. | +V | +. | +r | ~. | +V | 5 |
+| MasterOfOrionII | +r | .V | +V | +V | +. | .V | +. | +r | .. | +r | 4 |
+| MaxPayne | +- | .V | +V | +V | +. | ~V | +. | +X | G. | +V | 5 |
+| Postal | -. | .. | G. | G. | +. | .. | -. | -. | .. | -. | 0 |
+| Quake1 | +V | .V | +V | +V | +. | +V | +. | +V | +. | +V | 7 |
+| Quake2Complete | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
+| Quake3-TeamArena | +V | +V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
+| Quake3Arena | +V | +V | +V | +V | +. | +. | +. | +V | G. | +V | 6 |
+| RainbowSix | +V | .. | +. | +. | +. | .. | -. | +. | .. | +. | 1 |
+| RedAlert2 | +V | .r | +V | +V | +. | +V | +. | +V | G. | +V | 6 |
+| RedFaction | +- | .r | +V | +V | +. | +V | +. | +X | G. | +V | 4 |
+| RedneckRampage | +V | .V | +V | +r | +. | +V | +. | +r | G. | +r | 4 |
+| ReturnToCastleWolfenstein | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
+| SeriousSamFirstEncounter | +- | .V | +V | +V | +. | +V | +. | +V | G. | +X | 5 |
+| SeriousSamSecondEncounter | +- | .V | +V | +V | +. | +. | +. | +V | G. | +r | 4 |
+| SeriousSamTFE | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
+| SeriousSamTSE | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
+| ShadowWarrior | +V | .r | +V | +V | +. | .V | +. | +r | .. | +V | 5 |
+| Shogo | +V | .V | +V | +V | +. | +V | +. | +r | G. | +V | 6 |
+| SiNGold | +V | .V | +V | +V | +. | +V | +. | +V | G. | +r | 6 |
+| SoldierOfFortune | +V | .V | +V | +V | +. | +. | +. | +r | G. | +r | 4 |
+| SoldierOfFortune2 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +r | 6 |
+| StarCraft | +- | .r | +V | +V | +. | +r | +. | +V | +. | +V | 4 |
+| SystemShock2 | +- | .V | +V | +V | +. | +V | +. | +V | G. | +V | 6 |
+| Thief2 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
+| ThiefGold | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
+| TiberianSun | +V | .r | +V | +V | +. | +V | +. | +r | G. | +V | 5 |
+| Turok2 | +V | .V | +V | +V | +. | .V | +. | +V | G. | +V | 7 |
+| UT2004 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
+| UnrealGold | +V | .V | +V | +X | +. | +V | +. | +V | G. | +V | 6 |
+| UnrealTournament | +V | GX | +X | +X | +. | +V | +. | +V | G. | +V | 4 |
+| UnrealTournament436 | +V | .V | +V | +V | +. | +V | +. | +r | G. | +V | 6 |
+| WarcraftII | +r | .r | +V | +V | +. | .r | +. | +r | G. | +r | 2 |
+| WarcraftOrcsAndHumans | +V | .V | +V | +X | +. | .V | +. | +V | G. | +V | 6 |
+| YurisRevenge | +V | .V | +V | +V | +. | +. | +. | +V | G. | +V | 6 |
 
-**57 titles × 9 machines = 513 cells — 261 verified, 159 untested.**
+**60 titles × 10 machines = 600 cells — 263 verified, 243 untested.**
 
 ## Titles with a blocker recorded
 
@@ -139,20 +143,13 @@ merely had no space for.
 | Turok2 | `192.168.1.123` | host works and is listed in the joiner's browser; join fails |
 | WarcraftII | `192.168.1.123` | its 8-bit DirectDraw surface is **uncapturable by GDI on both XP and Win7**, so the agent cannot |
 | WarcraftOrcsAndHumans | `192.168.1.123` | campaign/network screen is mouse-only |
-| AliensVsPredator | `192.168.1.124` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
 | BF1942 | `192.168.1.124` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
-| Carmageddon1 | `192.168.1.124` | tunnel proven both ends; the front end ignores click *and* key |
 | Carmageddon2 | `192.168.1.124` | tunnel proven both ends; the front end ignores click *and* key |
 | HalfLife-BlueShift | `192.168.1.124` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
 | HalfLife-OpposingForce | `192.168.1.124` | gearbox\dlls\opfor.dll against the staged WON engine - the engine and console start, then ANY ma |
-| HiddenAndDangerous | `192.168.1.124` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.124` | NOT the disc - the image and launcher are staged and proven on .143 and .246. This box's DAEMON  |
 | MaxPayne | `192.168.1.124` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |
-| RedFaction | `192.168.1.124` | root cause fixed (`UpdateRate`); join unproven |
-| RedneckRampage | `192.168.1.124` | IPX tunnel proven; the Build gather never happens |
-| Shogo | `192.168.1.124` | dedicated server stands up; client menu renders intermittently |
 | SoldierOfFortune | `192.168.1.124` | multiplayer refused **even with the disc** — see below |
-| SystemShock2 | `192.168.1.124` | the menu offers New Game / Load / Options / Credits / |
 | AliensVsPredator | `192.168.1.133` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
 | BF1942 | `192.168.1.133` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.133` | tunnel proven both ends; the front end ignores click *and* key |
@@ -175,27 +172,40 @@ merely had no space for.
 | BF1942 | `192.168.1.143` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.143` | tunnel proven both ends; the front end ignores click *and* key |
 | Carmageddon2 | `192.168.1.143` | tunnel proven both ends; the front end ignores click *and* key |
+| FarCry | `192.168.1.143` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.143` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
 | HiddenAndDangerous | `192.168.1.143` | launcher bug fixed; stops at profile creation |
+| MasterOfOrionII | `192.168.1.143` | that menu entry is mouse-only |
 | MaxPayne | `192.168.1.143` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |
 | RedFaction | `192.168.1.143` | root cause fixed (`UpdateRate`); join unproven |
 | RedneckRampage | `192.168.1.143` | IPX tunnel proven; the Build gather never happens |
+| ShadowWarrior | `192.168.1.143` | the in-game gather |
 | Shogo | `192.168.1.143` | dedicated server stands up; client menu renders intermittently |
 | SoldierOfFortune | `192.168.1.143` | multiplayer refused **even with the disc** — see below |
 | SystemShock2 | `192.168.1.143` | the menu offers New Game / Load / Options / Credits / |
 | Turok2 | `192.168.1.143` | host works and is listed in the joiner's browser; join fails |
+| WarcraftII | `192.168.1.143` | its 8-bit DirectDraw surface is **uncapturable by GDI on both XP and Win7**, so the agent cannot |
+| WarcraftOrcsAndHumans | `192.168.1.143` | campaign/network screen is mouse-only |
 | AliensVsPredator | `192.168.1.145` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
 | BF1942 | `192.168.1.145` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.145` | tunnel proven both ends; the front end ignores click *and* key |
 | Carmageddon2 | `192.168.1.145` | tunnel proven both ends; the front end ignores click *and* key |
+| FarCry | `192.168.1.145` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.145` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
+| Halo | `192.168.1.145` | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a c |
 | HiddenAndDangerous | `192.168.1.145` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.145` | box offline all session (its cable is in the Win98 box) - untested, not failed |
+| MasterOfOrionII | `192.168.1.145` | that menu entry is mouse-only |
+| MaxPayne | `192.168.1.145` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |
 | RedFaction | `192.168.1.145` | root cause fixed (`UpdateRate`); join unproven |
 | RedneckRampage | `192.168.1.145` | IPX tunnel proven; the Build gather never happens |
+| ShadowWarrior | `192.168.1.145` | the in-game gather |
 | Shogo | `192.168.1.145` | dedicated server stands up; client menu renders intermittently |
 | SoldierOfFortune | `192.168.1.145` | multiplayer refused **even with the disc** — see below |
 | SystemShock2 | `192.168.1.145` | the menu offers New Game / Load / Options / Credits / |
+| Turok2 | `192.168.1.145` | host works and is listed in the joiner's browser; join fails |
+| WarcraftII | `192.168.1.145` | its 8-bit DirectDraw surface is **uncapturable by GDI on both XP and Win7**, so the agent cannot |
+| WarcraftOrcsAndHumans | `192.168.1.145` | campaign/network screen is mouse-only |
 | AliensVsPredator | `192.168.1.171` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
 | BF1942 | `192.168.1.171` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.171` | tunnel proven both ends; the front end ignores click *and* key |
@@ -209,6 +219,22 @@ merely had no space for.
 | Shogo | `192.168.1.171` | dedicated server stands up; client menu renders intermittently |
 | SoldierOfFortune | `192.168.1.171` | multiplayer refused **even with the disc** — see below |
 | SystemShock2 | `192.168.1.171` | the menu offers New Game / Load / Options / Credits / |
+| AliensVsPredator | `192.168.1.184` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
+| BF1942 | `192.168.1.184` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
+| Carmageddon1 | `192.168.1.184` | tunnel proven both ends; the front end ignores click *and* key |
+| Carmageddon2 | `192.168.1.184` | tunnel proven both ends; the front end ignores click *and* key |
+| HiddenAndDangerous | `192.168.1.184` | launcher bug fixed; stops at profile creation |
+| MasterOfOrionII | `192.168.1.184` | that menu entry is mouse-only |
+| MaxPayne | `192.168.1.184` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |
+| RedFaction | `192.168.1.184` | root cause fixed (`UpdateRate`); join unproven |
+| RedneckRampage | `192.168.1.184` | IPX tunnel proven; the Build gather never happens |
+| ShadowWarrior | `192.168.1.184` | the in-game gather |
+| Shogo | `192.168.1.184` | dedicated server stands up; client menu renders intermittently |
+| SoldierOfFortune | `192.168.1.184` | multiplayer refused **even with the disc** — see below |
+| SystemShock2 | `192.168.1.184` | the menu offers New Game / Load / Options / Credits / |
+| Turok2 | `192.168.1.184` | host works and is listed in the joiner's browser; join fails |
+| WarcraftII | `192.168.1.184` | its 8-bit DirectDraw surface is **uncapturable by GDI on both XP and Win7**, so the agent cannot |
+| WarcraftOrcsAndHumans | `192.168.1.184` | campaign/network screen is mouse-only |
 | AliensVsPredator | `192.168.1.240` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
 | BF1942 | `192.168.1.240` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.240` | tunnel proven both ends; the front end ignores click *and* key |
