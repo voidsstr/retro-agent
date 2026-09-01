@@ -4,7 +4,7 @@
 `python3 scripts/fleet/gen-staged-library.py`; `--check` fails if it is stale.
 
 A hand-written version of this was never going to survive: the library went
-38 → 54 titles in a single session, two graphics cards were swapped mid-session,
+38 → 57 titles in a single session, two graphics cards were swapped mid-session,
 and the machines are powered on and off continuously. The same argument settled
 `docs/fleet-inventory.md`, whose hand-maintained predecessor was wrong about most
 of the fleet.
@@ -12,7 +12,7 @@ of the fleet.
 Source of truth is `~/.retro-fleet/fleetbook.db`. Query it directly with
 `scripts/fleet/compat.py` (`matrix`, `status --box .143`, `gaps`, `summary`).
 
-Generated 2026-09-01 01:33.
+Generated 2026-09-01 08:47.
 
 ## The machines
 
@@ -39,6 +39,13 @@ Each cell is **deploy / runs**:
 | `s` | skipped — did not fit on the disk | `X` | failed |
 | `~` | marginal (allowed) | `.` | **untested — nobody has looked** |
 | `-` | absent | `-` | not applicable |
+| `.` | **nobody has looked** — no deploy record for this box at all | | |
+
+A row that is `..` all the way across is a title that IS in the library and
+has never been deployed to anything — staged, but nowhere yet. That is a
+different fact from `-` (absent: we looked, it is not there) and from `G`
+(gated: the hardware cannot run it), and it is what a title staged while the
+fleet was powered down looks like.
 
 **`gated` and `skipped` are different facts.** The first means the hardware
 cannot run it and carries the limiting number; the second means there was no
@@ -77,12 +84,15 @@ merely had no space for.
 | Quake2Complete | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
 | Quake3-TeamArena | +V | +V | +V | +V | +. | +V | +V | G. | +V | 7 |
 | Quake3Arena | +V | +V | +V | +V | +. | +. | +V | G. | +V | 6 |
+| RainbowSix | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
 | RedAlert2 | +V | +r | +V | +V | +. | +V | +V | G. | +V | 6 |
 | RedFaction | +- | +r | +V | +V | +. | +V | +X | G. | +V | 4 |
 | RedneckRampage | +V | +V | +V | +r | +. | +V | +r | G. | +r | 4 |
 | ReturnToCastleWolfenstein | +V | +V | +V | +V | .. | +V | +V | G. | +V | 7 |
 | SeriousSamFirstEncounter | +- | +V | +V | +V | .. | +V | +V | G. | +X | 5 |
 | SeriousSamSecondEncounter | +- | +V | +V | +V | .. | +. | +V | G. | +r | 4 |
+| SeriousSamTFE | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
+| SeriousSamTSE | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
 | ShadowWarrior | +V | .r | +V | .V | .. | .V | +r | .. | +V | 5 |
 | Shogo | +V | +V | +V | +V | +. | +V | +r | G. | +V | 6 |
 | SiNGold | +V | +V | +V | +V | +. | +V | +V | G. | +r | 6 |
@@ -102,7 +112,7 @@ merely had no space for.
 | WarcraftOrcsAndHumans | +V | .V | +V | .X | .. | .V | +V | G. | +V | 6 |
 | YurisRevenge | +V | +V | +V | +V | +. | +. | +V | G. | +V | 6 |
 
-**54 titles × 9 machines = 486 cells — 260 verified, 133 untested.**
+**57 titles × 9 machines = 513 cells — 260 verified, 160 untested.**
 
 ## Titles with a blocker recorded
 

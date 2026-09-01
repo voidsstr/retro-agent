@@ -56,8 +56,18 @@ def load():
     c.row_factory = sqlite3.Row
     boxes = [(r["ip"], r["hostname"], r["cpu_mhz"], r["ram_mb"], r["gpu"], r["os"])
              for r in c.execute("SELECT * FROM compat_box ORDER BY ip")]
+    # compat_title as well, NOT just the two fact tables. A title that is in
+    # the library but has never been deployed anywhere appears in neither
+    # compat_deploy nor compat_render, so it was INVISIBLE here - the doc that
+    # answers "which games are staged and where did they go" silently omitted
+    # the newest ones. Rainbow Six was staged on 2026-09-01 while the whole
+    # fleet was powered down and did not appear at all. Such a title now
+    # renders as a full row of `-.`: absent from every box, untested
+    # everywhere - which is the honest reading, and visibly different from
+    # not being staged.
     titles = sorted({r[0] for r in c.execute("SELECT title FROM compat_deploy")}
-                    | {r[0] for r in c.execute("SELECT title FROM compat_render")})
+                    | {r[0] for r in c.execute("SELECT title FROM compat_render")}
+                    | {r[0] for r in c.execute("SELECT title FROM compat_title")})
     dep, run, mp = {}, {}, {}
     for r in c.execute("SELECT ip,title,state,limiting,have,need FROM compat_deploy"):
         dep[(r["ip"], r["title"])] = r
@@ -112,6 +122,13 @@ def render():
     A("| `s` | skipped — did not fit on the disk | `X` | failed |")
     A("| `~` | marginal (allowed) | `.` | **untested — nobody has looked** |")
     A("| `-` | absent | `-` | not applicable |")
+    A("| `.` | **nobody has looked** — no deploy record for this box at all | | |")
+    A("")
+    A("A row that is `..` all the way across is a title that IS in the library and")
+    A("has never been deployed to anything — staged, but nowhere yet. That is a")
+    A("different fact from `-` (absent: we looked, it is not there) and from `G`")
+    A("(gated: the hardware cannot run it), and it is what a title staged while the")
+    A("fleet was powered down looks like.")
     A("")
     A("**`gated` and `skipped` are different facts.** The first means the hardware")
     A("cannot run it and carries the limiting number; the second means there was no")
