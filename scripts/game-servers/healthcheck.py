@@ -193,6 +193,8 @@ CHECKS = [
     # `mapname` rather than the UT family's `maptitle`.
     ("ssam-tfe-server",    "Serious Sam TFE (q 25601)", 25601, ut),
     ("ssam-tse-server",    "Serious Sam TSE (q 25611)", 25611, ut),
+    # Shogo speaks GameSpy on the GAME port itself, not port + 1.
+    ("shogo-server",       "Shogo",               27888, ut),
     ("tribes2-server",     "Tribes 2",            28000, t2),
     # Wine-in-docker Windows servers. They were live on this host and absent
     # from THIS list, so the "one-shot check of every server" quietly checked

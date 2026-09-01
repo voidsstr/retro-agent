@@ -659,7 +659,11 @@ UNWRITABLE = {
                 "tracker is long dead and there is no fleet D3 server",
     "redfaction": "Red Faction's tracker is dead; LAN games are found by "
                   "broadcast, with no favourites file",
-    "shogo":   "Shogo joins by typed address; no fleet server",
+    "shogo":   "there IS a fleet Shogo server now (shogo-server, "
+               "192.168.1.132:27888, ShogoSrv 2.2 under Wine, since "
+               "2026-09-01) but Shogo keeps no favourites file - its browser "
+               "is a live GameSpy/LAN enumeration and there is nothing on "
+               "disk to write. Join it from Multiplayer -> the address box",
     "avp":     "Aliens versus Predator uses its own dead lobby; LAN by broadcast",
     "starcraft": "StarCraft LAN is UDP broadcast - no server list",
     "sshock2": "System Shock 2 co-op joins by typed address",

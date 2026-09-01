@@ -650,3 +650,192 @@ def test_quake1_is_not_probed_as_quakeworld():
     qw = next(s for s in gameservers.SERVERS if s["unit"] == "quakeworld-server")
     assert q1["probe"] == "nq" and qw["probe"] == "qw"
     assert q1["port"] != qw["port"]
+
+
+# ---------------------------------------------------------------------------
+# The servers added 2026-09-01, and the three parsers they needed.
+#
+# Every fixture below is a REAL reply captured from the live server on .132,
+# and every one of them encodes a probe that would otherwise report a healthy
+# server as dead or nameless.
+# ---------------------------------------------------------------------------
+
+# Unreal 227 answering `\info\`. Note what it does NOT contain: this is the
+# reply the UT probe never sees, because `\status\` returns only the basic
+# block on this engine.
+UNREAL227_INFO = (
+    b"\\hostname\\NSC Retro Fleet Arena (Unreal Gold)\\shortname\\NSC Unreal"
+    b"\\hostport\\7807\\mapname\\Deck #16\\gametype\\DeathMatch"
+    b"\\GameClass\\UnrealShare.DeathMatchGame\\numplayers\\0\\maxplayers\\12"
+    b"\\gamemode\\openplaying\\gamever\\227k\\gamesubver\\11\\mingamever\\224"
+    b"\\LANServer\\True\\final\\\\queryid\\2.1"
+)
+
+# The SAME server answering `\status\` -- the whole reply, nothing elided.
+UNREAL227_STATUS = (
+    b"\\gamename\\unreal\\gamever\\227k\\gamesubver\\11\\mingamever\\224"
+    b"\\location\\0\\queryid\\5.1"
+)
+
+
+def test_unreal227_reads_the_info_reply(canned):
+    canned(UNREAL227_INFO)
+    r = gameservers.probe_unreal227(7808)
+    assert r["name"] == "NSC Retro Fleet Arena (Unreal Gold)"
+    assert r["map"] == "Deck #16"
+    assert r["max_players"] == 12
+    assert r["players"] == 0
+
+
+def test_the_UT_probe_on_an_unreal227_status_reply_is_nameless(canned):
+    """Why probe_unreal227 exists at all.
+
+    Unreal 227 answers `\\status\\` with only the basic block -- no hostname,
+    no map, no count -- so reusing probe_ut renders a server that is up and
+    hosting as `? | map=?` with zero players. That is not a smaller answer, it
+    is a wrong one, and it is what a "just use the UT probe" shortcut buys.
+    """
+    canned(UNREAL227_STATUS)
+    ut = gameservers.probe_ut(7808)
+    assert ut["name"] == "?" and ut["map"] == "?"
+    assert "players" not in ut
+
+    # And the correct probe refuses the same bytes rather than inventing a row.
+    assert gameservers.probe_unreal227(7808) is None
+
+
+# Serious Sam speaks GameSpy on game port + 1 but names the level `mapname`,
+# where the UT family uses `maptitle`.
+SERIOUSSAM_STATUS = (
+    b"\\gamename\\serioussam\\gamever\\Build10000.1\\location\\USA"
+    b"\\hostname\\NSC Retro Fleet Arena (Serious Sam TFE)\\hostport\\25600"
+    b"\\mapname\\Desert Temple\\gametype\\Fragmatch\\numplayers\\0"
+    b"\\maxplayers\\8\\gamemode\\paused\\difficulty\\Normal"
+)
+
+
+def test_serioussam_map_comes_from_mapname_not_maptitle(canned):
+    canned(SERIOUSSAM_STATUS)
+    r = gameservers.probe_ut(25601)
+    assert r["name"] == "NSC Retro Fleet Arena (Serious Sam TFE)"
+    assert r["map"] == "Desert Temple", "mapname must be the fallback for maptitle"
+    assert r["max_players"] == 8
+
+
+def _d3_reply(challenge, name=b"NSC Retro Fleet Arena (DOOM 3)",
+              mapname=b"game/mp/d3dm1"):
+    r"""Build an id Tech 4 infoResponse the way the engine really lays it out.
+
+    `\xff\xff` + "infoResponse\0" + the echoed CHALLENGE (4 bytes) + the
+    PROTOCOL (4 bytes) + NUL-separated key/value pairs. Those eight raw bytes
+    contain NULs of their own, which is the entire trap: the pairs start at
+    offset 23, and a parser that splits from byte 0 lands one field out of
+    phase and reads every value against the wrong key.
+    """
+    import struct
+    body = b""
+    for k, v in ((b"si_name", name), (b"si_map", mapname),
+                 (b"si_maxPlayers", b"4"), (b"gamename", b"baseDOOM-1")):
+        body += k + b"\x00" + v + b"\x00"
+    return (b"\xff\xffinfoResponse\x00" + struct.pack("<i", challenge)
+            + struct.pack("<I", 0x00010028) + body + b"\x00\x00")
+
+
+def test_idtech4_pairs_start_at_offset_23(monkeypatch):
+    sent = {}
+
+    def fake_ask(port, payload, timeout=None, host=None):
+        import struct
+        sent["challenge"] = struct.unpack("<i", payload[-4:])[0]
+        return _d3_reply(sent["challenge"]), 0.5
+
+    monkeypatch.setattr(gameservers, "_ask", fake_ask)
+    r = gameservers.probe_idtech4(27666)
+    assert r["name"] == "NSC Retro Fleet Arena (DOOM 3)"
+    assert r["map"] == "game/mp/d3dm1"
+    assert r["max_players"] == 4
+
+
+def test_idtech4_rejects_a_reply_to_someone_elses_challenge(monkeypatch):
+    """The challenge is echoed, so a stray datagram is provably not our answer."""
+    def fake_ask(port, payload, timeout=None, host=None):
+        return _d3_reply(0x7FFFFFFF), 0.5      # not the challenge we sent
+
+    monkeypatch.setattr(gameservers, "_ask", fake_ask)
+    assert gameservers.probe_idtech4(27666) is None
+
+
+def test_idtech4_ignores_a_quake3_style_reply(monkeypatch):
+    monkeypatch.setattr(gameservers, "_ask",
+                        lambda *a, **k: (b"\xff\xff\xff\xffstatusResponse\n\\a\\b", 1.0))
+    assert gameservers.probe_idtech4(27666) is None
+
+
+def test_healthcheck_and_gameservers_cover_the_same_servers():
+    """The two tools must not disagree about what this host runs.
+
+    They did: `healthcheck.py` -- documented as the one-shot check of EVERY
+    server -- listed eighteen while `gameservers.py` knew twenty, so
+    `descent3-server` and `farcry-server` were live and unchecked, and an
+    outage on either would have been invisible to the check people actually
+    run. A server added to one and not the other is the same bug again.
+    """
+    import re
+    src = open(os.path.join(_GS_DIR, "healthcheck.py")).read()
+    checked = set(re.findall(r'^\s*\("([a-z0-9\-]+)",', src, re.M))
+    declared = {s["unit"] for s in gameservers.SERVERS}
+    missing = declared - checked
+    assert not missing, (
+        "these servers are declared in gameservers.py and NOT checked by "
+        "healthcheck.py: %s" % sorted(missing))
+
+
+def test_a_slow_starting_server_is_not_mistaken_for_a_wedged_one():
+    """Three mute cycles is 60s. Some of these servers take longer to BOOT.
+
+    The Wine-in-docker servers legitimately answer nothing for a while after
+    `active`: Serious Sam loads a level out of a .gro, Deus Ex boots a UE1
+    package set, and Shogo's four-page wizard is driven with xdotool before
+    its socket is even bound (~70s). Restarting there does not fix anything --
+    it starts the same slow boot over, and on a host reboot it would do that
+    to several servers at once, which is a watchdog stamping on healthy
+    services.
+    """
+    w = watch.Watch()
+    row = _row(unit="shogo-server", up=False, slow_start_sec=180,
+               uptime_sec=65)
+    w.mute_streak["shogo-server"] = watch.PROBE_FAIL_LIMIT * 5
+    should, why = w.decide(row, 1000.0)
+    assert should is False, "a server 65s into a 180s start is not wedged"
+    assert "still starting" in why
+
+
+def test_the_grace_expires_and_a_genuinely_wedged_slow_server_is_restarted():
+    """The counterpart: the grace must not become a permanent excuse."""
+    w = watch.Watch()
+    row = _row(unit="shogo-server", up=False, slow_start_sec=180,
+               uptime_sec=400)
+    w.mute_streak["shogo-server"] = watch.PROBE_FAIL_LIMIT
+    should, why = w.decide(row, 1000.0)
+    assert should is True, why
+    assert "mute" in why
+
+
+def test_a_server_with_no_declared_slow_start_keeps_the_old_behaviour():
+    w = watch.Watch()
+    row = _row(up=False, uptime_sec=5)          # no slow_start_sec
+    w.mute_streak[row["unit"]] = watch.PROBE_FAIL_LIMIT
+    should, _why = w.decide(row, 1000.0)
+    assert should is True
+
+
+def test_every_wine_in_docker_server_declares_a_slow_start():
+    """These are the rows the grace exists for; a new one must not forget it."""
+    slow = {s["unit"]: s.get("slow_start_sec", 0) for s in gameservers.SERVERS}
+    for unit in ("doom3-server", "deusex-server", "ssam-tfe-server",
+                 "ssam-tse-server", "shogo-server"):
+        assert slow.get(unit, 0) >= 120, (
+            "%s runs a Windows server under Wine in docker and needs a "
+            "start-up grace, or the watchdog restarts it mid-boot" % unit)
+    assert slow["shogo-server"] >= 180, (
+        "Shogo's wizard alone takes ~70s before the port is bound")

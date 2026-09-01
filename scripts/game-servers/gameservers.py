@@ -492,18 +492,25 @@ SERVERS = [
     # Deus Ex. Same `\info\` probe as Unreal 227 and the same +1 query port
     # (7790 -> 7791); probing 7776/7777 times out and reads as "no server".
     {"unit": "deusex-server",      "label": "Deus Ex",         "engine": "unreal",
-     "probe": "unreal227", "port": 7791, "join": 7790},
+     "probe": "unreal227", "port": 7791, "join": 7790, "slow_start_sec": 120},
     # DOOM 3. Windows DOOM3DED.exe under Wine, because dhewm3 is not network
     # compatible with retail 1.3 and the fleet's staged client IS retail 1.3.
     {"unit": "doom3-server",       "label": "DOOM 3",          "engine": "idtech4",
-     "probe": "idtech4", "port": 27666, "join": 27666},
+     "probe": "idtech4", "port": 27666, "join": 27666, "slow_start_sec": 120},
     # Serious Sam speaks GameSpy on game port + 1 and names the level
     # `mapname`, which probe_ut already falls back to. TSE is on 25610 rather
     # than 25601 because Serious Engine opens the port AND port+1.
     {"unit": "ssam-tfe-server",    "label": "Serious Sam TFE",  "engine": "serioussam",
-     "probe": "ut",  "port": 25601, "join": 25600},
+     "probe": "ut",  "port": 25601, "join": 25600, "slow_start_sec": 120},
     {"unit": "ssam-tse-server",    "label": "Serious Sam TSE",  "engine": "serioussam",
-     "probe": "ut",  "port": 25611, "join": 25610},
+     "probe": "ut",  "port": 25611, "join": 25610, "slow_start_sec": 120},
+    # Shogo. ShogoSrv 2.2 speaks GameSpy on the GAME PORT ITSELF, not port + 1
+    # like the UT family and Serious Sam -- probing 27889 times out.
+    # 180s, and it is not padding: ShogoSrv's four-page wizard has to be
+    # driven with xdotool on every start (see scripts/game-servers/shogo/),
+    # which takes about 70 seconds before the port is even bound.
+    {"unit": "shogo-server",       "label": "Shogo",           "engine": "lithtech",
+     "probe": "ut",  "port": 27888, "join": 27888, "slow_start_sec": 180},
     # Docker, not systemd: Tribes 2 needs a 2001 userland. See docker_states().
     {"unit": "tribes2-server",     "label": "Tribes 2",        "engine": "t2",
      "probe": "t2",  "port": 28000, "join": 28000, "manager": "docker"},
@@ -754,6 +761,14 @@ def collect(servers=None, proxies=None, timeout=DEFAULT_TIMEOUT, host=None):
             "unit_sub": unit.get("sub"),
             "restarts": unit.get("restarts"),
             "uptime_sec": unit.get("uptime_sec"),
+            # How long this server legitimately takes to start ANSWERING, as
+            # opposed to being `active`. A Wine-in-docker server has to boot a
+            # wineprefix, load a level and open its socket, and Shogo has a
+            # four-page wizard driven with xdotool first. Without this the
+            # watchdog reads a normal cold start as a wedge and restarts a
+            # server that was about to come up -- which then takes just as
+            # long again.
+            "slow_start_sec": spec.get("slow_start_sec", 0),
             "up": False,
             "players": None,
             "max_players": None,

@@ -124,6 +124,14 @@ LOCAL_SERVERS = [
     # DOOM 3. id Tech 4, so neither `getstatus` nor `\status\` reaches it.
     dict(engine="idtech4", port=27666, gamename="baseDOOM-1",
          name="NSC Retro Fleet Arena - DOOM 3"),
+    # Shogo. GameSpy on the GAME PORT ITSELF, not port + 1 like the UT family
+    # and Serious Sam -- so query_port is 27888 too, and declaring it skips a
+    # pointless probe of 27889. (It does NOT make the probe fast: every
+    # GameSpy probe here reads three datagrams for a reply that may be split,
+    # so a single-packet answer always costs the remaining timeouts. UT99
+    # measures the same 2.5s.)
+    dict(engine="lithtech", port=27888, query_port=27888, gamename="shogo",
+         name="NSC Retro Fleet Arena - Shogo"),
 ]
 
 log = logging.getLogger("gameindex.sync")

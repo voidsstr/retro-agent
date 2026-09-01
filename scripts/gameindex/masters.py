@@ -477,7 +477,7 @@ def _idtech4_probe(addr):
 
 
 # Engines whose probe needs to be told the query port rather than guess it.
-_QUERY_PORT_ENGINES = {"unreal", "ut2k4", "serioussam"}
+_QUERY_PORT_ENGINES = {"unreal", "ut2k4", "serioussam", "lithtech"}
 
 
 def probe_server(engine, addr, query_port=0, gamename=""):
@@ -497,7 +497,7 @@ def probe_server(engine, addr, query_port=0, gamename=""):
         # Gold reports `gamename\unreal` and was filtered out by its own
         # engine's probe.
         want = gamename.lower() or ("ut2004" if engine == "ut2k4" else "ut")
-        if engine == "serioussam" and not gamename:
+        if engine in ("serioussam", "lithtech") and not gamename:
             want = None          # TFE and TSE report different gamenames
         return _gamespy_probe(addr, want_gamename=want, query_port=query_port)
     return probe(addr)
@@ -561,6 +561,9 @@ ENGINES = {
     "serioussam": dict(list=None, probe=_serioussam_probe, supported=False,
                     why="GameSpy is gone and Croteam's master with it; the "
                         "fleet's own TFE/TSE servers are pinned directly"),
+    "lithtech": dict(list=None, probe=_gamespy_probe, supported=False,
+                    why="Shogo's GameSpy master is gone; the fleet's own "
+                        "server on .132:27888 is pinned directly"),
     "idtech4": dict(list=None, probe=_idtech4_probe, supported=False,
                     why="id's DOOM 3 master is long dead; the fleet's own "
                         "server on .132:27666 is pinned directly"),

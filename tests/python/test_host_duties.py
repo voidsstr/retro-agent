@@ -61,16 +61,33 @@ def test_running_but_not_enabled_is_a_fault_even_though_it_is_active():
 def test_never_installed_here_is_NOT_reported_as_an_outage():
     """"Not installed" and "crashed" must never render the same.
 
-    claude-csbot, rtcw-server and mohaa-server are named in the docs but have
-    never run on this host. Rendering their absence as a fault would put a
-    permanent red light on the board and train everyone to ignore it.
+    claude-csbot and mohaa-server are named in the docs but have never run on
+    this host. Rendering their absence as a fault would put a permanent red
+    light on the board and train everyone to ignore it.
     """
     hd._systemctl = _stub_systemctl({})       # nothing exists
-    for unit in ("claude-csbot", "rtcw-server", "mohaa-server"):
+    for unit in ("claude-csbot", "mohaa-server"):
         assert unit in hd.NEVER_INSTALLED_HERE
         r = hd.check_unit(unit, True, unit, "why")
         assert r["state"] == "absent", (unit, r)
         assert r["state"] != "missing", "%s has never been installed here" % unit
+
+
+def test_rtcw_is_no_longer_excused_as_never_installed():
+    """The other half of the same rule, and the one that goes stale.
+
+    `rtcw-server` was on NEVER_INSTALLED_HERE while it genuinely did not
+    exist. It was installed on 2026-09-01 (:27963, ioRTCW 1.51c, proven
+    two-box), and leaving it on the excuse list would render a REAL outage as
+    the reassuring word "absent" -- forever, and silently. An excuse for a
+    thing that now exists is worse than no excuse at all.
+    """
+    assert "rtcw-server" not in hd.NEVER_INSTALLED_HERE
+    hd._systemctl = _stub_systemctl({})       # nothing exists
+    r = hd.check_unit("rtcw-server", True, "RTCW", "why")
+    assert r["state"] == "missing", r
+    assert r["state"] != "absent", (
+        "rtcw-server is installed on this host; its absence is a fault")
 
 
 def test_a_unit_that_SHOULD_exist_but_does_not_is_a_fault():
@@ -96,12 +113,13 @@ def test_tribes2_is_checked_through_docker_not_systemd():
     `not-found` and silently drops a running server off the board -- which is
     exactly the bug CLAUDE.md records.
     """
-    names = [u for u, _ in hd.DOCKER]
-    assert "tribes2-server" in names
-    unit_names = [u for u, _ in hd.USER_UNITS] + [u for u, _ in hd.GAME_UNITS]
-    assert "tribes2-server" not in unit_names, (
+    rows = hd._game_units()
+    managers = {u: mgr for u, _lbl, mgr in rows}
+    assert managers.get("tribes2-server") == "docker", (
         "Tribes 2 must not be probed as a systemd unit -- it would read "
         "not-found while the server is up")
+    unit_names = [u for u, _ in hd.USER_UNITS]
+    assert "tribes2-server" not in unit_names
 
 
 def test_a_container_with_no_restart_policy_wont_survive_a_reboot():
@@ -156,8 +174,46 @@ def test_systemctl_user_as_root_is_pointed_at_uid_1000():
 def test_every_duty_in_CLAUDE_md_s_host_services_table_is_covered():
     """The docs list seven host services; none may be quietly dropped."""
     covered = ({u for u, _ in hd.USER_UNITS} | {u for u, _ in hd.SYSTEM_UNITS}
-               | {u for u, _ in hd.GAME_UNITS} | {u for u, _ in hd.DOCKER})
+               | {u for u, _lbl, _mgr in hd._game_units()})
     for required in ("retro-chat-daemon", "retro-chat-brain", "retro-gameindex",
                      "retro-gameservers-watch", "retro-dosgames-http",
                      "retro-pxe", "retro-dashboard-collector"):
         assert required in covered, "%s is a documented host duty" % required
+
+
+def test_game_servers_come_from_gameservers_py_not_a_second_hand_kept_list():
+    """One source of truth for what this host runs.
+
+    host-duties.py used to keep its own copy of the game-server list, and it
+    rotted exactly as a duplicate does: by 2026-09-01 it named NINE servers
+    while the host ran twenty-four -- so the tool you run after a reboot to
+    ask "is the host back?" answered ALL HOST DUTIES UP with fifteen servers
+    it had never heard of, any of which could have been dead.
+
+    So: every row gameservers.py declares must appear, and the module must not
+    reintroduce a hardcoded list beside it.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "gameservers",
+        os.path.join(REPO, "scripts", "game-servers", "gameservers.py"))
+    gs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gs)
+
+    got = {u for u, _lbl, _mgr in hd._game_units()}
+    for row in gs.SERVERS:
+        assert row["unit"] in got, (
+            "%s is declared in gameservers.py and missing from host-duties"
+            % row["unit"])
+    for row in gs.PROXIES:
+        assert row["unit"] in got, row["unit"]
+
+    # The servers added 2026-09-01 are the concrete case this guards.
+    for unit in ("rtcw-server", "doom3-server", "deusex-server",
+                 "unrealgold-server", "ssam-tfe-server", "ssam-tse-server",
+                 "shogo-server", "descent3-server", "farcry-server"):
+        assert unit in got, unit
+
+    src = open(SRC).read()
+    assert "GAME_UNITS = [" not in src, (
+        "the hand-kept game-server list is back; it is the thing that rotted")

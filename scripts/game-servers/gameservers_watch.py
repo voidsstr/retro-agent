@@ -128,6 +128,19 @@ class Watch:
             self.mute_streak[unit] = 0
             return False, None
         else:
+            # A server that is STILL STARTING is not a wedged one. Three mute
+            # cycles is 60s, and the Wine-in-docker servers legitimately take
+            # longer than that to answer: Serious Sam loads a level out of a
+            # .gro, Deus Ex boots a UE1 package set, and Shogo has a four-page
+            # wizard driven with xdotool before its socket is even bound.
+            # Restarting there does not fix anything -- it starts the same
+            # slow boot over, and on a host reboot it would do it to several
+            # servers at once.
+            slow = row.get("slow_start_sec") or 0
+            up_for = row.get("uptime_sec")
+            if slow and up_for is not None and up_for < slow:
+                return False, (f"still starting ({int(up_for)}s of "
+                               f"{int(slow)}s allowed) — not a wedge")
             streak = self.mute_streak[unit]
             if streak < PROBE_FAIL_LIMIT:
                 # One mute cycle is a map change, not a wedge. Say which.

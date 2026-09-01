@@ -1,0 +1,21 @@
+[Unit]
+Description=Shogo Dedicated Server (ShogoSrv 2.2, Wine in Docker) - NSC Retro Fleet
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/shogo-server
+ExecStart=/home/voidsstr/shogo-server/_run/run-shogo-server.sh
+ExecStop=/usr/bin/docker stop -t 10 shogosrv
+Restart=always
+RestartSec=30
+# Longer than the others: the wizard has to be driven with xdotool on every
+# start (ShogoSrv commits its settings only on a clean exit, and a service is
+# killed rather than closed), which takes about 70 seconds.
+TimeoutStartSec=300
+StandardOutput=append:/home/voidsstr/shogo-server/server.log
+StandardError=append:/home/voidsstr/shogo-server/server.log
+
+[Install]
+WantedBy=default.target

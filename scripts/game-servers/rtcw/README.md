@@ -90,3 +90,31 @@ from the staged retail tree, appeared in the server's `getstatus` player list
 with live pings, took Axis and Allied respectively, and **each box's chat
 showed the other's message** — traffic relayed by this server, not a
 peer-to-peer session that happened to be open.
+
+## Correction: UICLICK *does* drive RTCW's limbo menu
+
+The staged tree's own `Main/autoexec.cfg` carries this note, and it is wrong:
+
+> RTCW MULTIPLAYER'S LIMBO MENU IS A RELATIVE-MOUSE MENU. UICLICK sets an
+> ABSOLUTE pointer position, which that menu does not follow - measured on
+> .143: two clicks straight on ALLIES left SPECTATOR still selected. So a
+> fleet box has no way to pick a team, and a two-box LAN proof cannot get
+> either end into the game.
+
+Measured again on 2026-09-01 against this server, on `.123` and `.240` at
+`r_mode 3` (640x480 fullscreen, so screen and screenshot coordinates are 1:1):
+
+* `UICLICK 533 314` (**AXIS**) → the panel switched from `CONFIGURE` to the
+  `SPAWNING` tab showing *Spawn Closest To: Auto Pick / axis side / allied
+  side*. That is the menu responding to an absolute click.
+* `UICLICK 533 458` (**CLOSE**) → the limbo screen faded and both clients'
+  server-side pings changed from 1 to 3 and 4 — they left the limbo state.
+
+The `F9`/`F10` `team allies` / `team axis` binds that note added are still
+useful and are left alone; they are simply not the only route. What is true is
+that **the coordinates have to come from a screenshot at the resolution the
+game is actually running**, and that `UIKEY CONSOLE` does *not* open RTCW's
+console from the limbo screen — the keystrokes land in the limbo CHAT box
+instead. That turned out to be a better proof than the console would have
+been: `.123`'s chat pane showed **both** `Fleet123`'s and `Fleet240`'s
+messages, which is this server relaying between two boxes.

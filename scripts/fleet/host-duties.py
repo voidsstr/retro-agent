@@ -52,15 +52,29 @@ USER_UNITS = [
     ("retro-gameservers-watch", "watchdog - restarts game servers that die"),
     ("retro-dosgames-http",     "HTTP bridge for the DOS game catalog"),
 ]
-GAME_UNITS = [
-    ("cs16-server", "CS 1.6"), ("cs16-noblood", "CS 1.6 no-blood"),
-    ("specialists-server", "The Specialists"), ("quake3-server", "Quake III"),
-    ("openarena-server", "OpenArena"), ("quake2-server", "Quake 2"),
-    ("quakeworld-server", "QuakeWorld"), ("ut99-server", "UT99"),
-    ("ut2004-server", "UT2004"),
-    ("a2s-proxy-cs16", "CS 1.6 browser proxy"),
-    ("a2s-proxy-cs16-public", "no-blood browser proxy"),
-]
+# GAME SERVERS ARE NOT LISTED HERE. They are read from
+# `scripts/game-servers/gameservers.py`, which is the one place that declares
+# what this host runs and which process manager owns each row.
+#
+# This list used to be a hand-kept copy and it rotted exactly as you would
+# expect: by 2026-09-01 it named nine servers while the host ran twenty-four,
+# so `host-duties.py` -- the thing you run after a reboot to ask "is the host
+# back?" -- answered YES with fifteen servers it had never heard of, half of
+# them possibly dead. A second list of the same facts is a second thing to
+# forget.
+def _game_units():
+    """(unit, label, manager) for every game server, from gameservers.py."""
+    sys.path.insert(0, os.path.join(REPO, "scripts", "game-servers"))
+    try:
+        import gameservers
+    except Exception:                       # pragma: no cover - defensive
+        # Fall back to the minimum we can assert without that module rather
+        # than silently reporting an empty, all-green game-server section.
+        return [("cs16-server", "CS 1.6", "systemd")]
+    rows = [(s["unit"], s["label"], s.get("manager", "systemd"))
+            for s in gameservers.SERVERS]
+    rows += [(p["unit"], p["label"], "systemd") for p in gameservers.PROXIES]
+    return rows
 SYSTEM_UNITS = [
     ("retro-pxe",                 "proxyDHCP + TFTP for network-installing the fleet"),
     ("retro-dashboard-collector", "gathers everything into /run/retro-dashboard/state.json"),
@@ -68,11 +82,16 @@ SYSTEM_UNITS = [
 ]
 # Tribes 2 needs a 2001 userland, so it is a container, not a unit.  Anything
 # enumerating the game servers via systemd alone silently drops it.
-DOCKER = [("tribes2-server", "Tribes 2 (needs a 2001 userland)")]
+# Tribes 2 is a docker container, not a unit, and gameservers.py is what says
+# so (`manager: "docker"`). Anything enumerating the game servers via systemd
+# alone silently drops it.
 
 # Named here so their ABSENCE is reported as "never installed", not as an
 # outage.  All three are referenced in docs but have never run on this host.
-NEVER_INSTALLED_HERE = {"claude-csbot", "rtcw-server", "mohaa-server"}
+# `rtcw-server` came OFF this list on 2026-09-01 - it is really installed now
+# (:27963), so treating its absence as "never installed here" would hide a
+# genuine outage behind a reassuring word.
+NEVER_INSTALLED_HERE = {"claude-csbot", "mohaa-server"}
 
 
 def _run(cmd, timeout=15):
@@ -239,9 +258,9 @@ def main():
     groups = [
         ("fleet services (systemd --user)",
          [check_unit(u, True, u, w) for u, w in USER_UNITS]),
-        ("game servers (systemd --user)",
-         [check_unit(u, True, u, w) for u, w in GAME_UNITS]
-         + [check_docker(u, w) for u, w in DOCKER]),
+        ("game servers",
+         [check_docker(u, w) if mgr == "docker" else check_unit(u, True, u, w)
+          for u, w, mgr in _game_units()]),
         ("host services (system units)",
          [check_unit(u, False, u, w) for u, w in SYSTEM_UNITS]),
     ]

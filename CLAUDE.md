@@ -524,7 +524,7 @@ whether anything is down — walk past the monitor.
 | `retro-chat-daemon` | `--user` | LAN bridge that claims retro agents |
 | `retro-chat-brain` | `--user` | the Claude Agent SDK processor answering chat prompts |
 | `retro-gameindex` | `--user` | **the favourites agent** — keeps every box's in-game server list full of live servers |
-| `retro-gameservers-watch` | `--user` | **game-server watchdog** — probes all 10 servers every 20s and restarts what dies |
+| `retro-gameservers-watch` | `--user` | **game-server watchdog** — probes all 24 servers every 20s and restarts what dies |
 | `retro-dosgames-http` | `--user` | HTTP bridge for the DOS game catalog |
 | `retro-pxe` | system | proxyDHCP + TFTP for network-installing the fleet |
 | `retro-dashboard-collector` | system | gathers everything into `/run/retro-dashboard/state.json` |
@@ -599,17 +599,30 @@ time the retro machines are switched off.
 
 ### The game servers have two process managers
 
-Nine are `systemd --user` units; **Tribes 2 is a docker container**
-(`tribes2-server`), because it needs a 2001 userland. Anything enumerating the
+Twenty-three are `systemd --user` units; **Tribes 2 is a docker container**
+(`tribes2-server`), because it needs a 2001 userland. Six of the twenty-three
+run a WINDOWS server binary under Wine inside a container while still being an
+ordinary user unit (`descent3-server`, `farcry-server`, `doom3-server`,
+`deusex-server`, `ssam-tfe-server`, `ssam-tse-server`, `shogo-server`) — the
+manager is systemd, only the payload is unusual. Anything enumerating the
 game servers must ask the right manager — `systemctl show tribes2-server`
 returns `not-found` and silently drops a running server off the board.
 `scripts/game-servers/gameservers.py` declares each row's `manager` and
 dispatches; use it rather than assuming systemd.
 
-**`rtcw-server` and `mohaa-server` have never existed on this host** — they are
-in the game-servers *skill's* table as a wish list. Do not treat their absence
-as a regression, and do not add them to the status table until they are really
-installed, or the wall shows a permanent outage.
+**`rtcw-server` EXISTS as of 2026-09-01** — ioRTCW 1.51c on **:27963**, proven
+two-box. It spent months in the game-servers *skill's* table as a wish list and
+on `host-duties.py`'s `NEVER_INSTALLED_HERE` excuse list; both have been
+corrected, because **an excuse for a thing that now exists renders a real
+outage as the reassuring word "absent", forever and silently.** When you
+install something that was previously excused, delete the excuse in the same
+change.
+
+**`mohaa-server` still has never existed here**, and MOHAA is not a staged
+title either. Do not treat its absence as a regression.
+
+Which staged title has a dedicated server on this host, which cannot have one,
+and why: [`docs/staged-title-server-matrix.md`](docs/staged-title-server-matrix.md).
 
 **Bots are not players.** The Q3 server runs `bot_minplayers 4`, so any player
 count that does not separate bots claims someone is playing 24/7. GoldSrc's

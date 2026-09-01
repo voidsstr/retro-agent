@@ -50,8 +50,8 @@ network awaiting a keyboard.*
 | Descent 1 | DOSBox IPX tunnel | `.246` + `.124` |
 | Descent 2 | UDP/IP native | `.123` + `.240` |
 | Descent 3 | dedicated server | `.240` |
-| Doom 3 | id Tech 4 | `.123` + `.246` |
-| Return to Castle Wolfenstein | id Tech 3 | `.143` + `.246` |
+| Doom 3 | id Tech 4 | `.123` + `.246` peer; **`.123` + `.240` on the fleet server 2026-09-01** |
+| Return to Castle Wolfenstein | id Tech 3 | `.143` + `.246` peer; **`.123` + `.240` on the fleet server 2026-09-01** |
 | Serious Sam: The First Encounter | Serious Engine 1, dedicated server | `.123` + `.133` + `.240` |
 
 **30 titles.**
@@ -121,12 +121,31 @@ boxes yet. **Its main menu reads "THE FIRST ENCOUNTER v1.05" and the tree is
 correct** — `SE1_00.gro` ships TFE's menu-logo textures byte for byte. The
 campaign it loads is TSE's.
 
-## Hosted on this computer — 18 servers, all `enabled` with linger on
+## Hosted on this computer — 24 servers, all `enabled` with linger on
 
-`cs16-server` · `cs16-noblood` (+ both A2S browser proxies) · `specialists-server` ·
-`hldm-server` (+ its proxy) · `quake1-server` · `quake2-server` · `quakeworld-server` ·
-`quake3-server` · `q3ta-server` · `openarena-server` · `sof2-server` · `jka-server` ·
-`ut99-server` · `ut2004-server` · `tribes2-server` · `descent3-server` · `farcry-server`
+`cs16-server` · `cs16-noblood` · `specialists-server` · `hldm-server`
+(+ three A2S browser proxies) · `quake1-server` · `quake2-server` ·
+`quakeworld-server` · `quake3-server` · `q3ta-server` · `openarena-server` ·
+`sof2-server` · `jka-server` · **`rtcw-server`** · `ut99-server` ·
+`ut2004-server` · **`unrealgold-server`** · **`deusex-server`** ·
+**`doom3-server`** · **`ssam-tfe-server`** · **`ssam-tse-server`** ·
+**`shogo-server`** · `tribes2-server` · `descent3-server` · `farcry-server`
+
+**Seven of those were added on 2026-09-01** (bold), on a brief of "a dedicated
+LAN server on this host for every staged title". Which staged title has one,
+which cannot have one and why: [`staged-title-server-matrix.md`](staged-title-server-matrix.md).
+
+### The RTCW server is the one that had been listed but never existed
+
+`rtcw-server` sat in the game-servers skill's table as a wish list —
+"no directory, no install script, no game data" — while RTCW was staged, played
+box-to-box, and in this table above. It is real now: **ioRTCW 1.51c on
+:27963**, and `.123` + `.240` both joined it from the staged retail tree, took
+Axis and Allied, saw each other's chat, and survived the map rotation.
+`scripts/game-servers/rtcw/README.md` has the three traps that decide whether
+such a server works at all — the wrong-platform game module, the protocol-60
+legacy handshake, and the fact that **27963 is the last port in the Quake III
+LAN-scan window** so anything outside 27960-27963 never self-announces.
 
 Check them with `python3 scripts/game-servers/healthcheck.py` — it uses the
 **right query packet per engine**, which a single `getstatus` sweep does not.
