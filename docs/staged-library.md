@@ -12,7 +12,7 @@ of the fleet.
 Source of truth is `~/.retro-fleet/fleetbook.db`. Query it directly with
 `scripts/fleet/compat.py` (`matrix`, `status --box .143`, `gaps`, `summary`).
 
-Generated 2026-09-01 12:27.
+Generated 2026-09-01 14:40.
 
 ## The machines
 
@@ -74,7 +74,7 @@ merely had no space for.
 | HalfLife-OpposingForce | +X | .X | +X | +X | +. | +. | +. | +X | G. | +X | 0 |
 | HalfLife-TFC | +V | .V | +V | +V | +. | +r | +. | +V | G. | +r | 5 |
 | HalfLife1 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +r | 6 |
-| Halo | +r | G. | G. | G. | +. | G- | -. | +V | G. | +V | 2 |
+| Halo | +r | G. | G- | G- | +. | G- | -. | +V | G. | +V | 2 |
 | Halo2 | +X | .. | G. | G. | +. | .. | -. | G. | .. | +V | 1 |
 | HexenII | +r | .V | +V | +V | +. | +V | +. | +V | +. | +r | 5 |
 | HiddenAndDangerous | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
@@ -85,14 +85,14 @@ merely had no space for.
 | MaxPayne | +- | .V | +V | +V | +. | ~V | +. | +X | G. | +V | 5 |
 | Postal | -. | .. | G. | G. | +. | .. | -. | -. | .. | -. | 0 |
 | Quake1 | +V | .V | +V | +V | +. | +V | +. | +V | +. | +V | 7 |
-| Quake2Complete | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
-| Quake3-TeamArena | +V | +V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
-| Quake3Arena | +V | +V | +V | +V | +. | +. | +. | +V | G. | +V | 6 |
+| Quake2Complete | +V | .V | +V | +V | +V | +V | +. | +V | G. | +V | 8 |
+| Quake3-TeamArena | +V | +V | +V | +V | +V | +V | +. | +V | G. | +V | 8 |
+| Quake3Arena | +V | +V | +V | +V | +V | +. | +. | +V | G. | +V | 7 |
 | RainbowSix | +V | .. | +. | +. | +. | .. | -. | +. | .. | +. | 1 |
 | RedAlert2 | +V | .r | +V | +V | +. | +V | +. | +V | G. | +V | 6 |
 | RedFaction | +- | .r | +V | +V | +. | +V | +. | +X | G. | +V | 4 |
 | RedneckRampage | +V | .V | +V | +r | +. | +V | +. | +r | G. | +r | 4 |
-| ReturnToCastleWolfenstein | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
+| ReturnToCastleWolfenstein | +V | .V | +V | +V | +V | +V | +. | +V | G. | +V | 8 |
 | SeriousSamFirstEncounter | +- | .V | +V | +V | +. | +V | +. | +V | G. | +X | 5 |
 | SeriousSamSecondEncounter | +- | .V | +V | +V | +. | +. | +. | +V | G. | +r | 4 |
 | SeriousSamTFE | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
@@ -102,7 +102,7 @@ merely had no space for.
 | SiNGold | +V | .V | +V | +V | +. | +V | +. | +V | G. | +r | 6 |
 | SoldierOfFortune | +V | .V | +V | +V | +. | +. | +. | +r | G. | +r | 4 |
 | SoldierOfFortune2 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +r | 6 |
-| StarCraft | +- | .r | +V | +V | +. | +r | +. | +V | +. | +V | 4 |
+| StarCraft | +- | .r | +V | +V | +r | +r | +. | +V | +. | +V | 4 |
 | SystemShock2 | +- | .V | +V | +V | +. | +V | +. | +V | G. | +V | 6 |
 | Thief2 | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
 | ThiefGold | +V | .V | +V | +V | +. | +V | +. | +V | G. | +V | 7 |
@@ -116,7 +116,7 @@ merely had no space for.
 | WarcraftOrcsAndHumans | +V | .V | +V | +X | +. | .V | +. | +V | G. | +V | 6 |
 | YurisRevenge | +V | .V | +V | +V | +. | +. | +. | +V | G. | +V | 6 |
 
-**60 titles × 10 machines = 600 cells — 264 verified, 242 untested.**
+**60 titles × 10 machines = 600 cells — 268 verified, 235 untested.**
 
 ## Titles with a blocker recorded
 
@@ -128,7 +128,7 @@ merely had no space for.
 | Carmageddon2 | `192.168.1.123` | tunnel proven both ends; the front end ignores click *and* key |
 | FarCry | `192.168.1.123` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.123` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
-| Halo | `192.168.1.123` | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a c |
+| Halo | `192.168.1.123` | not tested 2026-09-01 - the box went off the LAN mid-session and cycled twice; excluded. |
 | Halo2 | `192.168.1.123` | halo2.exe loads and holds ~362 MB and creates a fullscreen 'Halo 2' window, but the window never |
 | HiddenAndDangerous | `192.168.1.123` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.123` | the box has NO disc mounter and NO optical drive at all (HWPROFILE disc_mount=false, wmic logica |
@@ -139,7 +139,7 @@ merely had no space for.
 | ShadowWarrior | `192.168.1.123` | the in-game gather |
 | Shogo | `192.168.1.123` | dedicated server stands up; client menu renders intermittently |
 | SoldierOfFortune | `192.168.1.123` | multiplayer refused **even with the disc** — see below |
-| StarCraft | `192.168.1.123` | cannot start on .123 at all: disc-image title, box has no optical drive and no mounter, shortcut |
+| StarCraft | `192.168.1.123` | no disc_mount capability - .123 is the only fleet box with NO optical drive AND no image mounter |
 | SystemShock2 | `192.168.1.123` | the menu offers New Game / Load / Options / Credits / |
 | Turok2 | `192.168.1.123` | host works and is listed in the joiner's browser; join fails |
 | WarcraftII | `192.168.1.123` | its 8-bit DirectDraw surface is **uncapturable by GDI on both XP and Win7**, so the agent cannot |
@@ -156,6 +156,7 @@ merely had no space for.
 | Carmageddon1 | `192.168.1.133` | tunnel proven both ends; the front end ignores click *and* key |
 | Carmageddon2 | `192.168.1.133` | tunnel proven both ends; the front end ignores click *and* key |
 | HalfLife-BlueShift | `192.168.1.133` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
+| Halo | `192.168.1.133` | cpu_features sse2 (.133 P3 has SSE but no SSE2; .143 Athlon Thunderbird has neither) - the gate  |
 | HiddenAndDangerous | `192.168.1.133` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.133` | disc image and launcher staged; this box has a DAEMON Tools unit but the title was not exercised |
 | MasterOfOrionII | `192.168.1.133` | that menu entry is mouse-only |
@@ -175,6 +176,7 @@ merely had no space for.
 | Carmageddon2 | `192.168.1.143` | tunnel proven both ends; the front end ignores click *and* key |
 | FarCry | `192.168.1.143` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.143` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
+| Halo | `192.168.1.143` | cpu_features sse2 (.133 P3 has SSE but no SSE2; .143 Athlon Thunderbird has neither) - the gate  |
 | HiddenAndDangerous | `192.168.1.143` | launcher bug fixed; stops at profile creation |
 | MasterOfOrionII | `192.168.1.143` | that menu entry is mouse-only |
 | MaxPayne | `192.168.1.143` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |
@@ -193,7 +195,7 @@ merely had no space for.
 | Carmageddon2 | `192.168.1.145` | tunnel proven both ends; the front end ignores click *and* key |
 | FarCry | `192.168.1.145` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.145` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
-| Halo | `192.168.1.145` | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a c |
+| Halo | `192.168.1.145` | no host. Retail halo.exe cannot be made a dedicated server (already refuted on hardware), and it |
 | HiddenAndDangerous | `192.168.1.145` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.145` | box offline all session (its cable is in the Win98 box) - untested, not failed |
 | MasterOfOrionII | `192.168.1.145` | that menu entry is mouse-only |
@@ -242,7 +244,7 @@ merely had no space for.
 | Carmageddon2 | `192.168.1.240` | tunnel proven both ends; the front end ignores click *and* key |
 | FarCry | `192.168.1.240` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.240` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
-| Halo | `192.168.1.240` | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a c |
+| Halo | `192.168.1.240` | no host. Retail halo.exe cannot be made a dedicated server (already refuted on hardware), and it |
 | HiddenAndDangerous | `192.168.1.240` | launcher bug fixed; stops at profile creation |
 | JediAcademy | `192.168.1.240` | NOT the disc - the image and launcher are staged and proven on .143 and .246. This box's DAEMON  |
 | MasterOfOrionII | `192.168.1.240` | that menu entry is mouse-only |
@@ -264,7 +266,7 @@ merely had no space for.
 | FarCry | `192.168.1.246` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.246` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
 | HalfLife1 | `192.168.1.246` | The HalfLife1 tree's engine is WON hl.exe 1.1.0.8 = network protocol 45, and the fleet Half-Life |
-| Halo | `192.168.1.246` | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a c |
+| Halo | `192.168.1.246` | no host. Retail halo.exe cannot be made a dedicated server (already refuted on hardware), and it |
 | HiddenAndDangerous | `192.168.1.246` | launcher bug fixed; stops at profile creation |
 | MasterOfOrionII | `192.168.1.246` | that menu entry is mouse-only |
 | MaxPayne | `192.168.1.246` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |

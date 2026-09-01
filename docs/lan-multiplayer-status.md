@@ -16,6 +16,12 @@ think it is).
 offline (its cable was in the Win98 box) and `.243` (Win98 Pentium) was off the
 network awaiting a keyboard.*
 
+*Re-measured and widened 2026-09-01 across `.123 .133 .143 .145 .240 .246`
+(`.124` `.171` `.243` switched off). That run added the ALL-SIX-BOXES section
+below, found that **Tribes 2 has no client staged anywhere**, found the **Halo
+CD keys had gone back to being identical on every box that has the game**, and
+lost `.123` mid-session — see the last section.*
+
 ---
 
 ## VERIFIED LAN — both ends screenshotted
@@ -29,8 +35,8 @@ network awaiting a keyboard.*
 | Counter-Strike 1.6 | GoldSrc | `.171` + `.124` |
 | Half-Life Deathmatch | GoldSrc (fleet server) | `.171` + `.124` |
 | Quake 1 | NetQuake | `.123` + `.240` |
-| Quake II | id Tech 2 | `.123` + `.240` |
-| Quake III Arena | id Tech 3 | fleet server |
+| Quake II | id Tech 2 | **ALL SIX live boxes in one game 2026-09-01** — `.123` `.133` `.143` `.145` `.240` `.246` on the fleet server `:27910` |
+| Quake III Arena | id Tech 3 | **ALL SIX live boxes in one game 2026-09-01** — `.123` `.133` `.143` `.145` `.240` `.246` on the fleet server `:27961` |
 | Quake III: Team Arena | id Tech 3 | `.123` + `.240` |
 | Hexen II | Quake-derived, peer | `.123` + `.240` |
 | SiN Gold | id Tech 2 | `.123` + `.240` |
@@ -43,7 +49,7 @@ network awaiting a keyboard.*
 | UT2004 | UE2 | `.240` + `.246` |
 | Unreal Gold | UE1 | `.143` + `.246` |
 | Deus Ex | UE1 | `.143` + `.246` |
-| Red Alert 2 | Westwood, peer | `.246` + `.143` |
+| Red Alert 2 | Westwood, peer | `.246` + `.143`; **re-proved `.123` + `.240` 2026-09-01, both ends in the match** |
 | Yuri's Revenge | Westwood, peer | `.246` + `.143` |
 | Tiberian Sun | Westwood, peer | `.240` + `.123` |
 | StarCraft | peer, UDP LAN | `.246` + `.143` |
@@ -51,10 +57,89 @@ network awaiting a keyboard.*
 | Descent 2 | UDP/IP native | `.123` + `.240` |
 | Descent 3 | dedicated server | `.240` |
 | Doom 3 | id Tech 4 | `.123` + `.246` peer; **`.123` + `.240` on the fleet server 2026-09-01** |
-| Return to Castle Wolfenstein | id Tech 3 | `.143` + `.246` peer; **`.123` + `.240` on the fleet server 2026-09-01** |
+| Return to Castle Wolfenstein | id Tech 3 | `.143` + `.246` peer; **FIVE boxes in one game on the fleet server `:27963` 2026-09-01** — `.133` `.143` `.145` `.240` `.246` (`.123` had already dropped off the LAN) |
 | Serious Sam: The First Encounter | Serious Engine 1, dedicated server | `.123` + `.133` + `.240` |
 
 **30 titles.**
+
+---
+
+## ALL SIX BOXES IN ONE GAME — measured 2026-09-01
+
+**User directive: "have them run them on all connected computers together i want
+to make sure they can all run multiplayer".** A two-box join is the *floor*, not
+the deliverable. Where a title has a dedicated server on this host the whole
+fleet can be put in one match at once, and that is what these rows are.
+
+Boxes live that day: `.123` `.133` `.143` `.145` `.240` `.246`
+(`.124` `.171` `.243` were switched off).
+
+| Title | In one game at once | Excluded, and why |
+|---|---|---|
+| **Quake III Arena** (`:27961`) | **6 of 6** — `.123` `.133` `.143` `.145` `.240` `.246` | none |
+| **Quake II** (`:27910`) | **6 of 6** — same six | none |
+| **Return to Castle Wolfenstein** (`:27963`) | **5** — `.133` `.143` `.145` `.240` `.246` | `.123` had already dropped off the LAN (see below); it is otherwise eligible and was proved two-box on `:27963` an hour earlier |
+| **Red Alert 2** (peer) | **2** — `.123` hosted, `.240` joined | not driven wider before `.123` fell over; the lobby is menu-work per box, not a `+connect` |
+| **StarCraft** (peer) | **0 this session** — see below | `.123` cannot run it at all (`disc_mount`) |
+| **Halo** (peer) | **0** — there is no host | `.133` `.143` gated on SSE2; `.123` offline |
+| **Tribes 2** | **0** — there is no client | every box |
+
+**How the evidence was taken, because the method is reusable.** Every id Tech
+title takes `+connect <ip>:<port>` and `+exec <cfg>` on the command line, so a
+whole fleet joins one server with no menu work at all. Give each box
+`seta name "Fleet<octet>"` and a key bound to `say`, and the scoreboard *is* the
+proof: `~/lan-proof/quake3/allbox6_q3a_143_scoreboard.png` lists all six names
+with real pings, above four bots at ping 0.
+
+> ### `UIKEY` DOES reach an id Tech 3 game in exclusive fullscreen
+> CLAUDE.md records that "id Tech 3 ignores synthetic keyboard input in
+> exclusive fullscreen", measured on SoF2. **That is a MENU fact, not an engine
+> fact.** In-game, at fullscreen 1920x1080 on `.123` and `.240`, `UIKEY F5`
+> fired a bound `say` and `UIKEY F6` opened the scoreboard on ioquake3, Quake II
+> and RTCW alike. This is what made the six-box proof possible without anyone at
+> a keyboard — and it is worth knowing before anyone reaches for the windowed
+> workaround again.
+>
+> **It does NOT generalise to Halo.** See the Halo section: `halo.exe -window`
+> reaches its main menu and then ignores `UICLICK` *and* `UIKEY` just as it does
+> fullscreen.
+
+> ### Getting a frame off `.246` (Windows 7) — use the game's own screenshot
+> GDI returns a black frame for an exclusive-fullscreen surface on Vista+, so
+> `SCREENSHOT 0` on `.246` is `extrema=((0,0),(0,0),(0,0))` every time. Bind a
+> key to the engine's own screenshot command instead (`screenshotJPEG` on
+> ioquake3, `screenshot` on Quake II), press it with `UIKEY`, and `DOWNLOAD` the
+> file: ioquake3 writes `%APPDATA%\Quake3\baseq3\screenshots\`, Quake II writes
+> `baseq2\scrnshot\`. `allbox6_q3a_246_scoreboard.jpg` was taken that way and
+> shows all six players.
+
+### TRIBES 2 — there is no client, and there never was
+
+**This is the whole answer, and it is not a failed test.** Measured 2026-09-01:
+
+- `Games-Library` has **no `Tribes2` directory**. `compat.py record` refuses the
+  title outright — *"unknown title 'Tribes2' — it must be a Games-Library
+  directory name"* — which is the database saying the same thing.
+- **No fleet box has `C:\Games\Tribes2`** (checked on all six).
+- `tribes2-server` (docker, UDP `28000`, TribesNext) is up and answers
+  `healthcheck.py`. So the fleet has a Tribes 2 *server* and nothing that can
+  dial it.
+
+"Tribes 2 has never been tested" was therefore never a gap in testing. It was a
+title nobody staged, and a healthy server on a port no client on this network
+can reach — the exact shape this project keeps getting caught by, a green tick
+standing in for a thing that does not exist.
+
+**What it would take:** the installer is on the share as
+`Files/Games/Windows XP/Tribes2_gsi.exe` (564,721,416 B; **an InstallShield PE,
+not an archive** — `7z` refuses it, so it must be *run*). A file of exactly the
+same size sits at `Files/Games/Demos & Shareware/Tribes2Demo.exe`; md5 them
+before assuming either is a demo. Install it in the **build VM** (never on a
+fleet box), apply whatever TribesNext client patch this server's build expects
+— TribesNext replaced the dead Sierra master **and** encrypts the info response,
+so a vanilla client may not be able to join at all, and *that* is the question
+to answer before spending an hour on an install — then stage it and `GAMESYNC`.
+
 
 ### Staged, LAN-capable, gather not yet proven
 
@@ -161,7 +246,7 @@ control protocol, and a Hexen II host replies only to the game string
 | **Soldier of Fortune 1** | multiplayer refused **even with the disc** — see below | a disassembly, or the 1.07f patch. NOT a mounter |
 | **BF1942** | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works | a mounter whose emulation covers SafeDisc 2.80 — a kernel driver and a reboot per box, so a **user decision** |
 | **Far Cry** | server hosts unattended; CryEngine takes DirectInput exclusively | one click: Multiplayer → LAN |
-| **Halo** | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a client needs nobody. A HOST does: retail `halo.exe` **cannot be made dedicated** — measured 2026-09-01, see below — and its menu ignores synthetic input. Licensing is a separate constraint: **one simultaneous player per CD key**, each box needs its own (`scripts/halo/assign_keys.py`). | one person to start the game at the host's menu — OR `haloded.exe`, which is a free official download and is not on the share |
+| **Halo** | **JOINING is automated; HOSTING is not**, and as of 2026-09-01 the **CD keys were also duplicated** — see "Halo — the keys were the second problem" below. `halo.exe -connect <ip>:<port>` skips the menu, so a client needs nobody; a HOST does. | one person to start the game at the host's menu — OR `haloded.exe`, which is a free official download and is not on the share |
 | **Carmageddon 1 / 2** | tunnel proven both ends; the front end ignores click *and* key | click **HOST GAME** / **NETWORK GAME** |
 | **Hidden & Dangerous** | launcher bug fixed; stops at profile creation | create a profile, then copy `Savegame\*.bin` into the tree |
 | **Aliens vs Predator** | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black | drive its menus at the keyboard |
@@ -223,6 +308,9 @@ host's menu. Do not spend another session on switches.
 - **Max Payne** — `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all.
 - **System Shock 2** — the menu offers New Game / Load / Options / Credits /
   Intro / Quit and nothing else.
+- **Daggerfall** — single-player only by design; the GOG DOSBox build staged
+  2026-09-01 reaches Load/New/Exit and offers no network entry at all. Recorded
+  `no_multiplayer` on `.133` and `.143`.
 
 ## Peer-hosted by design — no dedicated server exists
 
@@ -318,3 +406,164 @@ official 1.07f patch — **not another image**.
 | **Turok 2** | investigation: host and browse work, `+connect` answers "Unable to contact the GameManager." |
 | **Red Faction** | investigation, with two untested leads recorded in its tree: `rf.exe` has **no `-connect`/`+connect` switch at all** (so "Add Server" is the only manual route) but it does have **`-trackerip`**, and the fleet's own favourites agent already records that RF LAN games are found by **broadcast** — a different control from the Get Servers / Add Server path everything has been tried on. Its dedicated server works and needs no disc. |
 | **Redneck Rampage** | **not** the network CFG: that was captured through the game's own setup and md5s identical to the staged one, and `-net` has been A/B'd twice. `rr.exe` documents `/i# Network mode (1/0)` in its own switch list, which is untried. |
+
+
+---
+
+## Halo — the keys were the second problem, and they were silently wrong
+
+**Measured 2026-09-01 with `scripts/halo/audit_keys.py`: every live box that has
+`halo.exe` — `.145`, `.240`, `.246` — carried the SAME `DigitalProductID`**
+(fingerprint `dc775ec92b`, byte-identical to the leftover blob on `.133` and
+`.143`, which do not have Halo at all). Halo allows **one simultaneous player
+per CD key**, so with that state exactly ONE box could ever have been in a Halo
+game; the other two would have been thrown out with *"Your CD Key is invalid"* —
+the same wording a genuinely bad key produces.
+
+This is worth writing down because it had gone quiet. The keys were assigned
+per box on 2026-08-31 and were distinct then; something has since restored a
+shared value on all of them — most plausibly a `GAMESYNC` of `Halo\install.reg`,
+which is copied byte-identically to every machine and therefore *cannot* carry a
+per-installation value. **That is the same class of bug as Red Alert 2's
+`Serial`,** which is generated on the box by the launcher for exactly this
+reason.
+
+**Fixed the same day:**
+
+```bash
+python3 scripts/halo/audit_keys.py          # fingerprints, never keys
+python3 scripts/halo/assign_keys.py --keys-file <file> \
+        --boxes 192.168.1.240,192.168.1.246
+```
+
+`.240` and `.246` took `fleet-gamekey-halo-pc-3` / `-4` from the vault; `.145`
+kept key 1. Confirmed by a direct `REGREAD` of the blob on all five boxes: three
+distinct 491-byte `DigitalProductID` values on the three boxes that have the
+game, and the old shared one only on the two that do not.
+
+> **`audit_keys.py` and `assign_keys.py` fingerprint DIFFERENT things** — the
+> assigner prints a hash of the KEY, the auditor a hash of the resulting DPID
+> BLOB — so the two never agree and a reader comparing them concludes the write
+> failed. It did not. Verify with `REGREAD`, which is the post-condition.
+
+### Windowed does NOT unlock Halo's menu — refuted on hardware 2026-09-01
+
+The obvious next idea, once `UIKEY` turned out to work in-game on id Tech 3
+(above), is that Halo's menu might accept synthetic input **windowed** the way
+SoF2's does. It does not.
+
+On `.240`, `halo.exe -window -vidmode 1024,768,60` (through a `.bat` that `cd`s
+to the tree — an absolute-path launch dies on `Cannot find 'C:\config.txt'`)
+came up as an ordinary 1032x795 window titled `Halo`, main menu drawn,
+`CAMPAIGN` highlighted. `UICLICK` on **MULTIPLAYER** and then `UIKEY DOWN` both
+left the highlight exactly where it was.
+Evidence: `~/lan-proof/halo-2026-09-01/halo_240_win_down.png`.
+
+So Halo still needs `haloded.exe` or one person at one keyboard. The keys are no
+longer the obstacle; the host is.
+
+## StarCraft on `.123` — the blocker has a name
+
+`.123` is the only box on the fleet with **no optical drive and no image
+mounter**, and `StarCraft/requires.json` declares
+`requires_capabilities: ["disc_mount"]` because `Play StarCraft.bat` mounts
+`_disc\STARCRAFT.iso` with DAEMON Tools before starting the game — 1.16.1 keeps
+a CD-presence check that a copy of the disc contents does not satisfy. So
+StarCraft cannot start on `.123` at all, LAN or single player, and the fix is a
+mounter — which is a kernel driver, which is a reboot, on a box that is
+unactivated. **That is a user decision, not an agent's.**
+
+The other four live boxes all mounted and reached the title screen fullscreen
+640x480 on 2026-09-01 (`.143` `.145` `.240` `.246`). The **LAN gather was not
+re-proved this session**: StarCraft's 8-bit DirectDraw surface captures with the
+wrong palette, so the menu buttons are not legible in a screenshot and blind
+clicking was not attempted. The existing `.246` + `.143` record stands
+unchallenged — and unrepeated.
+
+One new defect worth fixing: on `.145`, which has **four** DAEMON Tools virtual
+drives (D E F G), the first launch raced its own mount and left a modal
+`cmd.exe - No Disk: There is no disk in the drive. Please insert a disk into
+drive E:` on the desktop, while `E:` did in fact end up holding the `STARCRAFT`
+volume. The launcher's wait-for-drive loop is not tight enough on a box with
+that many virtual units. The second launch was clean.
+
+## `.123` went off the LAN twice mid-session — treat it as fragile
+
+`.123` (`NSC-B20C188E96D`, Radeon HD 3850 AGP) dropped off the network at
+**14:20:14** during a six-box Quake II run, came back at 14:25:08 with its
+uptime reset, and went again at **14:26:58**. It **reboots** — ARP, ICMP and
+every TCP port including 445/139 go away together, which is a box, not a dead
+agent (a dead agent leaves SMB up).
+
+What it was doing: it had run six consecutive exclusive-fullscreen,
+mode-switching titles in about forty-five minutes — Quake III (1920x1080),
+Quake II (1280x960), RTCW (1152x864), Red Alert 2 (1920x1080x**16 bpp**), then
+Quake III and Quake II again — and the first drop landed on a `SCREENSHOT 0`
+(a GDI `BitBlt` of the whole screen) taken of Quake II's fullscreen OpenGL
+surface. **The second drop happened with no command sent to the box at all**,
+which is the fact that matters: whatever this is, it is not driven by the test
+harness. Nothing rebooting-class was ever issued there — no `REBOOT`, no
+`SHUTDOWN`, no installer, no driver work, no `netsh`, no `DISPLAYCFG set`.
+
+`.123` is one of the two boxes that **must never be rebooted** (unactivated
+Windows). Windows survived both cycles. Until someone looks at it, do not put a
+long fullscreen mode-switching sequence on that box unattended.
+
+
+## Halo 2 (Vista) — why LIVE and NETWORK are greyed out, and the way in
+
+**Not tested on hardware yet. This section is host-side research plus binary
+analysis, and it says so.** Halo 2 is staged and its single player runs on
+`.246` (Win7) and `.145` (XP); both its **LIVE** and **NETWORK** menu entries are
+dimmed.
+
+**The cause is documented by Microsoft.** KB 927007 (the 2007/2008 revision —
+the 2015 snapshot has the sentence deleted) states verbatim: *"For Halo 2 for
+Windows Vista, the LIVE and NETWORK game options will be unavailable (dimmed)"*
+when the product is **not activated**. Consistent with the hardware:
+`HKLM\SOFTWARE\Microsoft\Microsoft Games\Halo 2\1.0` has `GameInstallDir` and
+**no `DigitalPID2`** on `.123`, `.145` and `.246`. It is not a sign-in problem —
+a real GFWL profile exists on both working boxes and NETWORK is grey anyway.
+
+**Halo 2 does have a real LAN mode, separate from LIVE**, and the retail disc
+ships a dedicated server for it: `Dedicated Server/Halo 2 Dedicated Server.msi`
+(984,064 B) inside `Halo2.iso`. Its own readme splits the requirements:
+
+> If you want to run a **LAN** server, you need: … CPU / RAM / disk / **Network
+> card** / Windows Vista or Windows 2003 Server.
+> If you want to run a **LIVE** server, you **also** need: … a Silver or Gold
+> Games for Windows – LIVE account. **A Halo 2 for Windows Vista product key.**
+
+**The key is listed only under LIVE**, and the binary agrees: `h2server.exe`
+(11,056,504 B) imports **nothing** from `sldl_dll`, `sldlext` or `PCCompat` —
+the licensing layer exists only in `halo2.exe`, which imports seven functions
+from `sldl_dll` and eight from `PCCompat`. `h2server.exe` is a **console** app
+with **SubsystemVersion 4.00**, so XP's loader accepts it, and the installer's
+`Setup.ini` lists `WinXP=1` even though the readme says Vista. Switches in its
+string table: `-lan -live -createservice -deleteservice -highquality -nosound
+-novsync -windowed`. Default port **UDP 23056**. Its `h2server.exe.cfg` and the
+staged `halo2.exe.cfg` already carry the **same `titleid` and the same
+`lankey`**, so client and server are matched out of the box — do not edit
+either.
+
+**The honest limit of that finding:** the dimming is a *client-local* decision
+taken when the menu is built, and the LAN browser sits *behind* the NETWORK
+entry, so standing up a server almost certainly will not un-grey it. Two things
+to try, cheapest first, and the first is the one that can kill the plan:
+
+1. **Install the current official GFWL on `.246` and relaunch.** All three boxes
+   run GFWL **1.0.6027** (`xlive.dll` 7,677,744 B) — the on-disc build
+   PCGamingWiki calls broken. Microsoft's CDN still serves
+   `xliveredist.msi` (21,598,208 B), which installs **3.5.0092.0** (`xlive`
+   payload 15,453,832 B) and still declares XP SP2 support. **NETWORK coming
+   back while LIVE stays grey is the win condition.** Snapshot the existing
+   `system32\xlive.dll` first — Halo 2's single player currently works and a
+   2011 client replacing a 2007 one could regress it.
+2. If NETWORK is still grey the activation gate is real, and the route is the
+   two genuine keys in the vault (`fleet-gamekey-halo-2`, `-2-2`) through the
+   in-game GFWL guide — with the caveat that GFWL activation servers were
+   degraded in 2025 and their 2026 state is unknown, which would be a legitimate
+   dead end rather than a failure.
+
+**Boxes: `.145` and `.246` only.** `.123` loads Halo 2 and renders a black
+window, and it is now unstable besides.
