@@ -411,15 +411,36 @@ static void stop_wallpaper_rotation(void)
     run_process("cmd.exe /c taskkill /f /im rotate_wall.exe", 10000);
     n++;
 
-    /* ...and the Run key that would start a fresh one at the next logon. */
-    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-                      "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
-                      0, KEY_SET_VALUE, &k) == ERROR_SUCCESS) {
-        if (RegDeleteValueA(k, "RetroWallRotate") == ERROR_SUCCESS) {
-            log_msg(LOG_MAIN, "retrowall: removed the RetroWallRotate Run key");
-            n++;
+    /* ...and the Run key that would start a fresh one at the next logon.
+     *
+     * BOTH HIVES, and HKCU is the one that actually matters.
+     * deploy_rotation.py writes this value to **HKCU** (`RUN_KEY`), and for a
+     * long time this function only cleared HKLM. So the rotation was killed,
+     * the fleet wallpaper was applied, and then the very next logon started
+     * rotate_wall.exe again from HKCU and put the OLD wallpaper back. The box
+     * looked correct until it was rebooted, which is exactly when nobody is
+     * watching.
+     *
+     * Measured on .240 on 2026-08-31: HKLM\...\Run held no wallpaper entry
+     * while HKCU\...\Run held
+     *     RetroWallRotate = C:\retro-wall\rotate_wall.exe 60
+     * and the desktop was showing wall01.bmp although
+     * retrowall_1920x1080.bmp was staged and matched the screen exactly. */
+    {
+        static const HKEY HIVES[2] = { HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER };
+        int h;
+        for (h = 0; h < 2; h++) {
+            if (RegOpenKeyExA(HIVES[h],
+                              "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                              0, KEY_SET_VALUE, &k) != ERROR_SUCCESS)
+                continue;
+            if (RegDeleteValueA(k, RUN_VALUE) == ERROR_SUCCESS) {
+                log_msg(LOG_MAIN, "retrowall: removed the %s Run key from %s",
+                        RUN_VALUE, h ? "HKCU" : "HKLM");
+                n++;
+            }
+            RegCloseKey(k);
         }
-        RegCloseKey(k);
     }
     if (n)
         log_msg(LOG_MAIN, "retrowall: legacy wallpaper rotation stopped");

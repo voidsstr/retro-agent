@@ -7,10 +7,10 @@
     "VOLID": "MAX_PAYNE",
     "MARKER": "maxpayne.ico",
     "GAME": "%~dp0MaxPayne.exe",
-    "GAMEARGS": "-skipstartup",
+    "GAMEARGS": "-nodialog -skipstartup",
     "REQUIREDISC": "1"
   },
   "autokill": "Install.exe",
   "prelaunch": "sc start secdrv >nul 2>&1",
-  "_note": "SafeDisc 2.51.020 - within DAEMON Tools 3.47's emulation, verified reaching in-game play on .124 with emulation ON and failing with it OFF. VOLID was 'Max Payne' until 2026-08-31 while the image's real label is MAX_PAYNE; only the MARKER fallback was saving it."
+  "_note": "SafeDisc 2.51.020 - within DAEMON Tools 3.47's emulation, verified reaching in-game play on .124 with emulation ON and failing with it OFF. VOLID was 'Max Payne' until 2026-08-31 while the image's real label is MAX_PAYNE; only the MARKER fallback was saving it.  -nodialog IS the switch that skips CMaxPayneStartupDialog, measured on .133 2026-08-31 and consistent with the .124 note in README-FLEET.txt: with -skipstartup ALONE the Play/Options/Parental Lock/Quit dialog still comes up and the game sits there until somebody clicks Play - which is exactly what made an automated sweep record this title as \"no GAME process after 90s\" on three boxes. With -nodialog it boots straight to the main menu at the registry resolution. Both are passed: -skipstartup is harmless and is in the engine switch table. Found by the .133 agent, which put it in the GENERATED launcher; moved here so a regeneration cannot erase it."
 }
