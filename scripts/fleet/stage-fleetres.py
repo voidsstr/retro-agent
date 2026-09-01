@@ -681,6 +681,38 @@ TITLES = {
                       "Join Warcraft 1 - LAN.bat")
         },
     },
+    "Daggerfall": {
+        # THE ELDER SCROLLS II: DAGGERFALL (1996), GOG build, DOS under DOSBox -
+        # same shape as ShadowWarrior and WarcraftOrcsAndHumans. GOG's own
+        # dosbox_daggerfall.conf is staged unmodified and carries [sdl]
+        # fullresolution, and that value cannot be a staged constant: `original`
+        # retargets the WHOLE DESKTOP on an LCD and `desktop` is wrong on a CRT,
+        # and this fleet has four of each.
+        #
+        # The launcher does NOT pass GOG's dosbox_daggerfall_single.conf. That
+        # conf's [autoexec] draws a four-item menu and blocks on `choice /c1234`,
+        # so a staged shortcut with nobody at the keyboard would sit at a prompt
+        # forever - and an agent-driven test would photograph the menu and score
+        # the title as running. dosbox_daggerfall_fleet.conf, staged beside it,
+        # carries the same two mount lines and goes straight to `fall.exe z.cfg`.
+        "launchers": {
+            "Play Daggerfall.bat": rec(
+                'cd /d "%~dp0DOSBOX"',
+                [CALL] + dosbox_conf("dosbox_daggerfall.conf")),
+        },
+    },
+    "Postal": {
+        # POSTAL Classic and Uncut (GOG, 2018) - Running With Scissors' own SDL2
+        # rebuild. There is nothing per-box to write: the engine takes its
+        # geometry from POSTAL.INI's [Video] DeviceWidth/DeviceHeight, and no
+        # value for those has been PROVEN on hardware yet because the whole
+        # pre-SSE2 half of the fleet cannot load the binary at all (see the
+        # title's requires.json). The entry exists so FLEETRES.EXE/BAT are
+        # staged and `--check` tells the truth about this title.
+        "launchers": {
+            "Play Postal.bat": rec('cd /d "%~dp0"', [CALL]),
+        },
+    },
     "SoldierOfFortune2": {
         # THE ONLY idTech3 TITLE HERE WITH NO r_mode -1 BRANCH. See
         # idtech3_modecfg(). Both binaries are the same engine, so both get the

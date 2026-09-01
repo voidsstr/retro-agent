@@ -102,6 +102,22 @@ WITHHELD = {
         "mounter staged, so a bare MAINPROG.EXE would run without D: and this "
         "has not been tried on hardware. Needs a DOS CD-image driver "
         "(SHSUCDX/SHSUCDHD) staged and PROVEN before it can be declared."),
+    "Daggerfall": (
+        "FALL.EXE",
+        "The DOS binary is real - FALL.EXE is a CauseWay-extended LE image, "
+        "not a PE - and a Pentium 1 is above the 1996 game's own published "
+        "floor, so this one is worth revisiting. TWO things block it today and "
+        "neither has been tried on hardware. First, Z.CFG hardcodes "
+        "'path C:\\arena2\\' and 'pathCD C:\\arena2\\', which is only "
+        "true INSIDE DOSBox, where the conf's 'mount C \"..\"' makes the tree "
+        "root C:; on real DOS the tree is at C:\\GAMES\\Daggerfall and the "
+        "game would look for a directory that is not there. Second, FALL.EXE "
+        "takes its config file as argv[1] - GOG's own autoexec runs "
+        "'fall.exe z.cfg' - and DOSGAME.TXT's '<8.3 launcher><TAB><title>' "
+        "cannot carry an argument. A second cfg with real-DOS paths plus a "
+        "DAGGER.BAT wrapper would probably do it, but neither exists and "
+        "neither has been proven, and a declared launcher that starts and then "
+        "fails is worse than one that is honestly absent."),
     "RedneckRampage": (
         "RR.EXE",
         "Same shape: `imgmount d \"..\\Redneck.inst\"`, plus FIX.EXE runs "
