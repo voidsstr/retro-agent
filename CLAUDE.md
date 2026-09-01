@@ -966,6 +966,18 @@ nowhere in writing; it is now.
 
 - Disk **`xp3.qcow2`**, plus `d2disk.img` as a second IDE disk for moving
   payloads in and out.
+
+  **`d2disk.img` IS ONLY 3 GB, AND `xcopy` LIES WHEN IT FILLS.** Capturing
+  Daggerfall (564 MB) and POSTAL (499 MB) alongside an earlier 264 MB tree
+  overran it, and `xcopy /E /I /H /K /Y` still printed **`1838 File(s)
+  copied`** and returned 0 while POSTAL landed as 205 of its 580 files. The
+  only trace was one `Insufficient disk space` line in the middle of its log.
+  So: **verify a capture by FILE COUNT AND BYTE TOTAL against the source**,
+  never by exit code or by the "File(s) copied" line, and free the disk between
+  titles — a tree already uploaded to the share can be deleted from the payload
+  disk to make room. Grep the log for `Insufficient disk space`, not for
+  `error`: POSTAL ships a file called `errors.htm`, which matches a naive grep
+  and looks exactly like a failure.
 - **The same retro agent runs INSIDE the guest**, forwarded to
   **`127.0.0.1:19898`**, so every tool you already have works against it
   unchanged — `vmagent.py` drives it, `upload.py` pushes files in, and the

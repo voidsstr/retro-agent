@@ -1,0 +1,28 @@
+[Unit]
+Description=Counter-Strike Source Dedicated Server (srcds, Steam app 232330) - NSC Retro Fleet
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/css-server
+# -insecure because VAC cannot be reached on a LAN server and srcds otherwise
+# spends its startup trying. +sv_lan 1 keeps it off the master servers.
+# -ip is REQUIRED. Without it srcds resolved the hostname to 127.0.1.1 out
+# of /etc/hosts and bound there: UDP 27025 WAS listening, and it was
+# unreachable from the LAN and from 127.0.0.1 alike. Every sibling server
+# on this host passes -ip 192.168.1.132 for the same reason.
+# NO -strictportbind. srcds wants SEVERAL ports, not just the game port,
+# and 27020 (its SourceTV default) is already held by a2s-proxy-hldm.
+# With -strictportbind that collision is FATAL - status=100, restart loop -
+# even though the game port itself was free. tv_port is pinned to 27035
+# instead, so the fallback is deterministic rather than 'whatever is free',
+# which is what it silently picked (27022) on the first run.
+ExecStart=/home/voidsstr/css-server/srcds_run -game cstrike -console -usercon -insecure -norestart -ip 192.168.1.132 -port 27025 +tv_port 27035 +sv_lan 1 +maxplayers 16 +map de_dust2 +exec server.cfg
+Restart=always
+RestartSec=15
+StandardOutput=append:/home/voidsstr/css-server/server.log
+StandardError=append:/home/voidsstr/css-server/server.log
+
+[Install]
+WantedBy=default.target

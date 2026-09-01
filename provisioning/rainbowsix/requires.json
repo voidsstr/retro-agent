@@ -1,0 +1,15 @@
+{
+  "requirements_version": 1,
+  "title": "RainbowSix",
+  "year": 1998,
+  "min_cpu_mhz": 90,
+  "min_ram_mb": 32,
+  "min_vram_mb": 2,
+  "disk_mb": 420,
+  "gpu_feature_level": "none",
+  "cpu_features": [
+    "fpu"
+  ],
+  "min_os": "win9x",
+  "notes": "Measured from the binary, not from the box. RainbowSix.exe is MSVC 5.10, built Nov 1998 - which PREDATES SSE (Feb 1999), so an SSE floor is impossible: 0 movaps, 0 SSE2, 0 CMOV under a real disassembly of .text. Heavy x87 (26,548 D9-prefixed bytes). MMX is DETECTED, not required - the one CPUID site at VA 0x47405C reads CPUID.1:EDX bit 23 and uses it as an optional fast path - so cpu_features is fpu alone. gpu_feature_level is 'none' because the engine ships a SOFTWARE renderer and DevicePicker.exe can select it; the 3D path is Direct3D through DirectDraw and there is NO Glide path at all (zero glide/3dfx strings), so the Voodoo boxes gain nothing from their cards here. min_vram_mb 2 is the readme's own figure for the accelerated path ('>= 2 megabytes of texture memory'); below it textures are downscaled rather than refused, so this is a soft floor stated for honesty. disk_mb 420: the tree measures 376,845,268 bytes (6,213 files), rounded up for the saves and config it writes into its own directory. EVERY box on this fleet clears all of this with room to spare, including the Pentium 1 on the CPU floor - though .243 is Win98 with 127 MB RAM and a 2D-only Cirrus, so it gets the software renderer."
+}

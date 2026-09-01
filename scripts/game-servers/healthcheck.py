@@ -166,6 +166,10 @@ CHECKS = [
     ("cs16-noblood",       "CS 1.6 No Blood",     27019, a2s),
     ("  \\_ a2s proxy",    "No Blood browser",    27016, a2s),
     ("specialists-server", "The Specialists",     27017, a2s),
+    # CS: Source, added 2026-09-01. srcds (Steam app 232330, SteamCMD anonymous).
+    # 27025 because 27015-27021 are taken. Same a2s probe - srcds answers the
+    # `A` challenge first and a2s() already echoes it back.
+    ("css-server",         "CS: Source",          27025, a2s),
     ("hldm-server",        "Half-Life DM",        27021, a2s),
     ("  \\_ a2s proxy",    "Half-Life DM browser",27020, a2s),
     ("quake3-server",      "Quake III Arena",     27961, q3),

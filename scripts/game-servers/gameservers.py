@@ -444,6 +444,16 @@ SERVERS = [
      "probe": "a2s", "port": 27019, "join": 27016},
     {"unit": "specialists-server", "label": "Specialists",     "engine": "goldsrc",
      "probe": "a2s", "port": 27017, "join": 27017},
+    # Counter-Strike: Source, added 2026-09-01. srcds from Steam app 232330,
+    # fetched with SteamCMD +login anonymous - a DEDICATED SERVER needs no CS:S
+    # licence, which is why this exists while every copy of CS:S on the share is
+    # RevEmu-cracked and unstageable. 27025 because 27015-27021 are taken by the
+    # CS 1.6 / HLDM servers and their A2S proxies. Same `a2s` probe as GoldSrc -
+    # srcds answers the `A` challenge first, which probe_a2s already echoes back.
+    # NO FLEET BOX CAN JOIN THIS: a CS:S client needs Steam, and Valve dropped
+    # XP/Vista in 2019 and Win7/8.1 in 2024. It is for a modern client on the LAN.
+    {"unit": "css-server",         "label": "CS: Source",      "engine": "source",
+     "probe": "a2s", "port": 27025, "join": 27025, "slow_start_sec": 120},
     # Half-Life Deathmatch. The QUERY port is 27021 and the JOIN port is
     # 27020 (the proxy), same split as the CS units. NOTE the staged
     # HalfLife1 tree CANNOT reach this - it is the WON build, protocol 45,

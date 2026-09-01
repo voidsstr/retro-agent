@@ -1,0 +1,87 @@
+REGEDIT4
+
+; Tom Clancy's Rainbow Six (1998) - fleet install.reg
+; ================================================================
+; GENERATED from the GOG build's own regs.cmd. Do not hand-edit -
+; regenerate, so the two cannot drift.
+;
+; WHY THIS FILE REPLACES regs.cmd, AND WHY IT MATTERS
+; GOG ships regs.cmd, which ends every one of its 40 REG ADD lines
+; with /reg:32. Windows XP's reg.exe HAS NO /reg:32 SWITCH - it was
+; added in Vista - so on XP every line fails and NOT ONE value is
+; written. That is not cosmetic: 33 of the 34 asset-path defaults
+; compiled into RainbowSix.exe point at \data2\*, i.e. THE CD. With
+; no registry values the game finds essentially nothing. regedit /s
+; on a .reg file avoids reg.exe entirely and behaves identically on
+; XP and Win7.
+;
+; THE TWO VALUES THAT KEEP THE DISC OUT OF IT
+;   InstallType="Full" gates the CD check (compared at VA 0x40A17A;
+;                      equal -> skip the check)
+;   CDPath="C:\\"      where it would look if it ran
+; THE CD CHECK IS STILL FULLY PRESENT in the binary - GetVolumeInfo-
+; rmationA at VA 0x40B1CB, the MessageBeep/MessageBoxA Retry-Cancel
+; loop, and its 'Please insert the Rainbow Six CD in drive ' string
+; in data\text\interface\english\dialogueCD.txt. That is the proof
+; this exe is NOT cracked: a cracked one would have that NOPed out.
+; It runs disc-free because the VENDOR sets a registry value, which
+; is exactly how GOG ships it.
+;
+; There is NO CD KEY for this title - 1998 retail had no activation
+; and GOG strips serials. Nothing to supply and nothing vaulted.
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\RainbowSix.exe]
+@="C:\\Games\\RainbowSix\\RainbowSix.exe"
+"Path"="C:\\Games\\RainbowSix"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Red Storm Entertainment\Tom Clancy's Rainbow Six]
+"Language"=dword:00000000
+"ActorPath"="C:\\Games\\RainbowSix\\data\\actor"
+"BiographyTextPath"="C:\\Games\\RainbowSix\\data\\text\\bios"
+"BitmapPath"="C:\\Games\\RainbowSix\\data\\bitmap"
+"BriefingBitmapPath"="C:\\Games\\RainbowSix\\data\\shell\\briefing"
+"BriefingTextPath"="C:\\Games\\RainbowSix\\data\\text\\briefing"
+"CursorPath"="C:\\Games\\RainbowSix\\data\\shell\\cursor"
+"DialoguePath"="C:\\Games\\RainbowSix\\data\\dialogue"
+"EquipmentPath"="C:\\Games\\RainbowSix\\data\\kit"
+"EquipTextPath"="C:\\Games\\RainbowSix\\data\\text\\kit"
+"FacesPath"="C:\\Games\\RainbowSix\\data\\shell\\faces"
+"FontPath"="C:\\Games\\RainbowSix\\data\\font"
+"GamePath"="C:\\Games\\RainbowSix\\data\\save"
+"IconPath"="C:\\Games\\RainbowSix\\data\\icon"
+"InstallationPath"="C:\\Games\\RainbowSix\\\\"
+"IntelBitmapPath"="C:\\Games\\RainbowSix\\data\\shell\\intel"
+"IntelTextPath"="C:\\Games\\RainbowSix\\data\\text\\intel"
+"JournalPath"="C:\\Games\\RainbowSix\\data\\journals"
+"MissionPath"="C:\\Games\\RainbowSix\\data\\mission"
+"MissionSplashPath"="C:\\Games\\RainbowSix\\data\\text\\splash"
+"MissionTextPath"="C:\\Games\\RainbowSix\\data\\text\\mission"
+"ModelPath"="C:\\Games\\RainbowSix\\data\\model"
+"MotionPath"="C:\\Games\\RainbowSix\\data\\motion"
+"PlanPath"="C:\\Games\\RainbowSix\\data\\plan"
+"PlotPath"="C:\\Games\\RainbowSix\\data\\plot"
+"ProfileTextPath"="C:\\Games\\RainbowSix\\data\\text\\profile"
+"RosterBitmapPath"="C:\\Games\\RainbowSix\\data\\shell\\roster"
+"ShellTextPath"="C:\\Games\\RainbowSix\\data\\text\\interface"
+"TempPath"="C:\\Games\\RainbowSix\\data\\temp"
+"TextPath"="C:\\Games\\RainbowSix\\data\\text"
+"TexturePath"="C:\\Games\\RainbowSix\\data\\texture"
+"SoundPath"="C:\\Games\\RainbowSix\\data\\sound"
+"CharacterPath"="C:\\Games\\RainbowSix\\data\\character"
+"MapPath"="C:\\Games\\RainbowSix\\data\\map"
+"MissionSplashBMPPath"="C:\\Games\\RainbowSix\\data\\Splash"
+"BriefingSoundPath"="C:\\Games\\RainbowSix\\data\\sound"
+"ActionMusicPath"="C:\\Games\\RainbowSix\\data\\sound\\music"
+"VideoPath"="C:\\Games\\RainbowSix\\data\\video"
+"CDPath"="C:\\\\"
+"InstallType"="Full"
+
+; FULLSCREEN IS A REGISTRY VALUE, NOT A SWITCH. RainbowSix.exe has
+; exactly two switch-shaped tokens in the whole image, -server and
+; -client; there is no resolution or windowed switch at all. The
+; fleet's testing rule is fullscreen, so it is set here.
+"FullScreen"=dword:00000001
+; SoftwareOnly 0 = let it use Direct3D (through DirectDraw; there is
+; no Glide path in this engine at all). DevicePicker.exe rewrites
+; this and the device GUIDs if a box needs the software renderer.
+"SoftwareOnly"=dword:00000000
