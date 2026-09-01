@@ -1,0 +1,17 @@
+[Unit]
+Description=DOOM 3 Dedicated Server (Wine in Docker) - NSC Retro Fleet
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/doom3-server
+ExecStart=/home/voidsstr/doom3-server/_run/run-d3d-server.sh
+ExecStop=/usr/bin/docker stop -t 10 d3dsrv
+Restart=always
+RestartSec=20
+StandardOutput=append:/home/voidsstr/doom3-server/server.log
+StandardError=append:/home/voidsstr/doom3-server/server.log
+
+[Install]
+WantedBy=default.target

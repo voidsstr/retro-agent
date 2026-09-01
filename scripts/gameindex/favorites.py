@@ -534,6 +534,18 @@ TITLES = {
     "quake3":    dict(engine="q3", subdir="baseq3", accepts={"baseq3"}),
     "ioquake3":  dict(engine="q3", subdir="baseq3", accepts={"baseq3"}),
     "openarena": dict(engine="q3", subdir="baseoa", accepts={"baseoa"}),
+    # Return to Castle Wolfenstein. The agent indexes it as `wolfmp` with
+    # engine `rtcw`, but the FAVOURITES mechanism is plain Quake III: the
+    # staged Main\ui_mp_x86.dll carries `server1`..`server16`, `addFavorite`
+    # and `ui_favoriteAddress`, so q3_favorites writes it verbatim into
+    # Main\autoexec.cfg. `accepts={"main"}` is what stops an RTCW box being
+    # handed the Q3A, OpenArena, Team Arena, Jedi Academy or SoF2 addresses,
+    # all of which are engine `q3` on the same IP.
+    # `local_only` because RTCW is a Quake III ENGINE but a DIFFERENT GAME.
+    # Without it the permissive master rule handed a WolfMP client sixteen
+    # live Quake III Arena servers, every one of which refuses it on connect.
+    "wolfmp":    dict(engine="q3", subdir="Main", accepts={"main"},
+                      local_only=True),
     "quake2":    dict(engine="q2", subdir="baseq2", accepts={"baseq2"}),
     "q2pro":     dict(engine="q2", subdir="baseq2", accepts={"baseq2"}),
     "yquake2":   dict(engine="q2", subdir="baseq2", accepts={"baseq2"}),
@@ -590,6 +602,12 @@ SKIP_DIRS = re.compile(r"(^|[\\/])(q3bench|[^\\/]*bench(mark)?s?)([\\/]|$)",
 # and "the favourites agent has nothing it could honestly put there", which
 # are answers to different questions.
 UNWRITABLE = {
+    "sam":
+        "there ARE fleet Serious Sam servers now (ssam-tfe-server :25600 and "
+        "ssam-tse-server :25610 on .132) but Serious Engine 1 keeps no "
+        "favourites file - its browser is a live GameSpy/LAN enumeration and "
+        "there is nothing on disk to write. The LAN tab finds them by "
+        "broadcast; a direct join is Join Game -> type the address",
     "halflife":
         "the staged Half-Life tree is WON protocol 46 and every fleet GoldSrc "
         "server answers protocol 48 - it could not join them, so listing them "
@@ -615,7 +633,6 @@ UNWRITABLE = {
     "mohaa":
         "no MOHAA server on the fleet; note MOHAA also needs the framed "
         "\\xff\\xff\\xff\\xff\\x02getinfo\\x00 query, not Quake III's getstatus",
-    "wolfmp": "no RtCW server on the fleet and wolfmaster.idsoftware.com is dead",
     "quake":  "NetQuake keeps no favourites store - the engine has no such "
               "cvar block, so there is nowhere to write. The fleet DOES have "
               "a NetQuake server as of 2026-08-31 (quake1-server, port 26000, "
@@ -682,8 +699,10 @@ UNWRITABLE = {
                "to have favourites for",
     "hl2":     "no Half-Life 2 / Source server on the fleet",
     "diablo2": "Diablo II LAN is UDP broadcast; battle.net is not ours",
-    "wolfsp":  "the RtCW single-player executable - the multiplayer one is "
-               "WolfMP.exe, and there is no RtCW server on the fleet either",
+    "wolfsp":  "the RtCW single-player executable. WolfSP.exe has no server "
+               "browser and no multiplayer at all; the fleet's RTCW server "
+               "(rtcw-server, 192.168.1.132:27963, since 2026-09-01) is for "
+               "`wolfmp`, which is indexed separately and IS written",
 }
 
 

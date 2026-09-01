@@ -1,0 +1,17 @@
+[Unit]
+Description=Deus Ex Multiplayer Dedicated Server (Wine in Docker) - NSC Retro Fleet
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/deusex-server
+ExecStart=/home/voidsstr/deusex-server/_run/run-dx-server.sh
+ExecStop=/usr/bin/docker stop -t 10 dxsrv
+Restart=always
+RestartSec=20
+StandardOutput=append:/home/voidsstr/deusex-server/server.log
+StandardError=append:/home/voidsstr/deusex-server/server.log
+
+[Install]
+WantedBy=default.target

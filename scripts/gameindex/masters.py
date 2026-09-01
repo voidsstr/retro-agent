@@ -16,6 +16,7 @@ the per-engine formats right (Q2 uses `status`, not `getstatus`; UT answers
 GameSpy on port+1; GoldSrc needs the A2S challenge echo).
 """
 import concurrent.futures as cf
+import os
 import re
 import socket
 import struct
@@ -343,10 +344,31 @@ UNREAL_SEEDS = [
 
 
 def _gamespy_status(host, port):
+    r"""UT-family GameSpy query, with the ONE fallback Unreal 227 needs.
+
+    UT99 and UT2004 answer `\status\` with hostname, maptitle and numplayers.
+    **Unreal 227 (Unreal Gold) answers the same packet with only the *basic*
+    block** -- `\gamename\unreal\gamever\227k\mingamever\224\location\0` -- so
+    the caller's `"hostname" not in info` test rejects it and our own live
+    Unreal Gold server on .132:7808 reads as down forever. Its hostname, map
+    and player count are in the `\info\` response instead.
+
+    So: ask `\status\`, and if the reply carries no hostname, ask `\info\` and
+    merge. The extra packet only ever costs a round trip on a server that had
+    already failed to answer the question.
+    """
     data, rtt = _udp(host, port, b"\\status\\", reads=3)
     if not data:
         return None, rtt
     info = _infostring(data.decode("latin-1", "replace"))
+    if info and "hostname" not in info:
+        data2, rtt2 = _udp(host, port, b"\\info\\", reads=3)
+        if data2:
+            extra = _infostring(data2.decode("latin-1", "replace"))
+            if extra.get("hostname"):
+                merged = dict(info)
+                merged.update(extra)
+                return merged, (rtt2 if rtt2 is not None else rtt)
     return (info or None), rtt
 
 
@@ -405,11 +427,60 @@ def _ut2k4_probe(addr):
     return _gamespy_probe(addr, want_gamename="ut2004")
 
 
+def _serioussam_probe(addr, query_port=0):
+    """Serious Sam speaks GameSpy on the game port + 1, like the UT family.
+
+    TFE reports `gamename\\serioussam` and TSE `gamename\\serioussamse` -- two
+    different games on one host, which is exactly what `want_gamename` keeps
+    apart, so the caller's declared name is used rather than a fixed one.
+    """
+    return _gamespy_probe(addr, query_port=query_port)
+
+
+def _idtech4_probe(addr):
+    r"""DOOM 3 -- id Tech 4's connectionless `getInfo`.
+
+    NOT `getstatus` and NOT `\status\`: the message is `short 0xFFFF`, a
+    NUL-terminated command, then a long. The reply is
+    `\xff\xff` + "infoResponse\0" + the echoed challenge (4B) + protocol (4B)
+    + NUL-separated key/value pairs, so the pairs start at offset 23; splitting
+    from zero puts every value against the wrong key. The challenge is checked
+    so a stray datagram cannot be mistaken for an answer.
+    """
+    host, port = addr.rsplit(":", 1)
+    port = int(port)
+    challenge = int.from_bytes(os.urandom(4), "little", signed=True)
+    query = struct.pack("<H", 0xFFFF) + b"getInfo\x00" + struct.pack("<i", challenge)
+    data, rtt = _udp(host, port, query, reads=3)
+    if not data or not data.startswith(b"\xff\xffinfoResponse\x00") or len(data) < 23:
+        return None
+    if struct.unpack("<i", data[15:19])[0] != challenge:
+        return None
+    fields = data[23:].split(b"\x00")
+    kv = {}
+    for i in range(0, len(fields) - 1, 2):
+        k = fields[i].decode("latin-1", "replace")
+        if not k:
+            break
+        kv[k] = fields[i + 1].decode("latin-1", "replace")
+    if "si_name" not in kv:
+        return None
+    return {
+        "addr": f"{host}:{port}", "query_port": port,
+        "hostname": " ".join(kv["si_name"].split())[:120],
+        "map": kv.get("si_map", ""),
+        "players": 0, "maxplayers": int(kv.get("si_maxPlayers", "0") or 0),
+        "ping_ms": rtt, "gamename": kv.get("gamename", "baseDOOM-1"),
+        "passworded": 1 if kv.get("si_usepass", "0") not in ("0", "") else 0,
+        "source": "local",
+    }
+
+
 # Engines whose probe needs to be told the query port rather than guess it.
-_QUERY_PORT_ENGINES = {"unreal", "ut2k4"}
+_QUERY_PORT_ENGINES = {"unreal", "ut2k4", "serioussam"}
 
 
-def probe_server(engine, addr, query_port=0):
+def probe_server(engine, addr, query_port=0, gamename=""):
     """Probe ONE known address, for the servers we already know we own.
 
     Separate from discover() on purpose: discovery answers "what is out
@@ -421,7 +492,13 @@ def probe_server(engine, addr, query_port=0):
     if probe is None:
         return None
     if query_port and engine in _QUERY_PORT_ENGINES:
-        want = "ut2004" if engine == "ut2k4" else "ut"
+        # The CALLER's declared gamename wins. Hardcoding "ut" for every
+        # `unreal`-engine row was right while UT99 was the only one; Unreal
+        # Gold reports `gamename\unreal` and was filtered out by its own
+        # engine's probe.
+        want = gamename.lower() or ("ut2004" if engine == "ut2k4" else "ut")
+        if engine == "serioussam" and not gamename:
+            want = None          # TFE and TSE report different gamenames
         return _gamespy_probe(addr, want_gamename=want, query_port=query_port)
     return probe(addr)
 
@@ -473,8 +550,20 @@ ENGINES = {
                         "fleet's own server on .132 is pinned directly"),
     "t2":      dict(list=None, probe=None, supported=False,
                     why="TribesNext master not implemented"),
-    "rtcw":    dict(list=None, probe=None, supported=False,
-                    why="wolfmaster.idsoftware.com is long dead"),
+    # RTCW's own master is long dead, but the PROBE is wired now: it is what
+    # verifies the fleet's rtcw-server on .132:27963 before the sync pass pins
+    # it. RTCW is a Quake III engine, so `getstatus` is the right packet.
+    "rtcw":    dict(list=None, probe=_q3_probe, supported=False,
+                    why="wolfmaster.idsoftware.com is long dead; the fleet's "
+                        "own server on .132:27963 is pinned directly"),
+    # No master for either of these and no discovery -- the probes exist so our
+    # OWN servers are verified before being pinned rather than asserted.
+    "serioussam": dict(list=None, probe=_serioussam_probe, supported=False,
+                    why="GameSpy is gone and Croteam's master with it; the "
+                        "fleet's own TFE/TSE servers are pinned directly"),
+    "idtech4": dict(list=None, probe=_idtech4_probe, supported=False,
+                    why="id's DOOM 3 master is long dead; the fleet's own "
+                        "server on .132:27666 is pinned directly"),
     # No master exists for NetQuake, so there is no discovery -- but the probe
     # IS wired, because it is what verifies the fleet's own quake1-server on
     # :26000 before the sync pass pins it.

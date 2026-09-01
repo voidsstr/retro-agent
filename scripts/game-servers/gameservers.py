@@ -196,6 +196,77 @@ def probe_ut(port, timeout=DEFAULT_TIMEOUT, host=None):
     return out
 
 
+def probe_unreal227(port, timeout=DEFAULT_TIMEOUT, host=None):
+    r"""Unreal 227 (Unreal Gold) — `\info\`, NOT the UT family's `\status\`.
+
+    UT99 and UT2004 answer `\status\` with hostname, maptitle and numplayers.
+    Unreal 227's UdpServerQuery answers that SAME packet with only the *basic*
+    block — `\gamename\unreal\gamever\227k\mingamever\224\location\0` —
+    no hostname, no map, no count. Reusing probe_ut here would therefore report
+    a perfectly healthy server as `? | map=? | 0 players`, which is the exact
+    class of mistake this module exists to stop: a probe that guesses.
+
+    Unreal's DeathMatchGame runs no bots unless MultiplayerBots is set, and
+    this server leaves it False, so `numplayers` is a human count.
+    """
+    data, rtt = _ask(port, b"\\info\\", timeout, host)
+    if not data:
+        return None
+    info = _infostring(data.decode("latin-1", "replace"))
+    if "hostname" not in info:
+        return None
+    out = {"name": info["hostname"],
+           "map": info.get("mapname", "?"),
+           "rtt_ms": rtt}
+    for src, dst in (("numplayers", "players"), ("maxplayers", "max_players")):
+        if src in info:
+            try:
+                out[dst] = int(info[src])
+            except ValueError:
+                pass
+    return out
+
+
+def probe_idtech4(port, timeout=DEFAULT_TIMEOUT, host=None):
+    r"""DOOM 3 -- id Tech 4 connectionless `getInfo`.
+
+    id Tech 4 answers NEITHER `getstatus` NOR `\status\`. Its out-of-band
+    messages are `short 0xFFFF`, a NUL-terminated command, then a long, so
+    every probe in this module except this one reports a healthy DOOM 3 server
+    as down.
+
+    The reply is `\xff\xff` + "infoResponse\0" + the echoed CHALLENGE (4 bytes)
+    + the PROTOCOL (4 bytes) + NUL-separated key/value pairs. Those eight raw
+    bytes contain NULs, so the pairs start at offset 23 -- splitting from zero
+    puts every value against the wrong key. The challenge is checked so a
+    stray datagram cannot be read as an answer.
+
+    DOOM 3 multiplayer has no bots, so the count is always human.
+    """
+    challenge = int.from_bytes(os.urandom(4), "little", signed=True)
+    query = struct.pack("<H", 0xFFFF) + b"getInfo\x00" + struct.pack("<i", challenge)
+    data, rtt = _ask(port, query, timeout, host)
+    if not data or not data.startswith(b"\xff\xffinfoResponse\x00"):
+        return None
+    if len(data) < 23 or struct.unpack("<i", data[15:19])[0] != challenge:
+        return None
+    fields = data[23:].split(b"\x00")
+    kv = {}
+    for i in range(0, len(fields) - 1, 2):
+        k = fields[i].decode("latin-1", "replace")
+        if not k:
+            break
+        kv[k] = fields[i + 1].decode("latin-1", "replace")
+    if "si_name" not in kv:
+        return None
+    out = {"name": kv["si_name"], "map": kv.get("si_map", "?"), "rtt_ms": rtt}
+    try:
+        out["max_players"] = int(kv.get("si_maxPlayers", "0"))
+    except ValueError:
+        pass
+    return out
+
+
 # Torque request -> expected response type. Tribes 2 answers a ping (0x0E) with
 # 0x10 and an info request (0x12) with 0x14, echoing the four key bytes back.
 _T2_PING = 0x0E
@@ -346,6 +417,8 @@ PROBES = {
     "q2": probe_q2,
     "qw": probe_qw,
     "ut": probe_ut,
+    "unreal227": probe_unreal227,
+    "idtech4": probe_idtech4,
     "t2": probe_t2,
     "nq": probe_nq,
     "hexen2": probe_hexen2,
@@ -390,6 +463,14 @@ SERVERS = [
      "probe": "q3",  "port": 29070, "join": 29070},
     {"unit": "sof2-server",        "label": "SoF II",          "engine": "q3",
      "probe": "sof2", "port": 20100, "join": 20100},
+    # RTCW, added 2026-09-01. ioRTCW 1.51c speaks com_protocol 61 AND
+    # com_legacyprotocol 60; 60 is retail 1.41, which is what the staged tree
+    # ships, and the getinfo reply advertises 60, so the retail LAN browser
+    # lists it. 27963 is not arbitrary: the Q3 engine's LAN scan broadcasts to
+    # 27960-27963 ONLY, so a server outside that window never self-announces.
+    # RTCW MP shipped no bots, so this count is always human.
+    {"unit": "rtcw-server",        "label": "RTCW",            "engine": "q3",
+     "probe": "q3",  "port": 27963, "join": 27963},
     {"unit": "quake2-server",      "label": "Quake 2",         "engine": "q2",
      "probe": "q2",  "port": 27910, "join": 27910},
     # NetQuake, not QuakeWorld. GLQUAKE.EXE cannot join 27502 and mvdsv cannot
@@ -403,6 +484,26 @@ SERVERS = [
      "probe": "ut",  "port": 7798,  "join": 7797},
     {"unit": "ut2004-server",      "label": "UT2004",          "engine": "ut2k4",
      "probe": "ut",  "port": 7787,  "join": 7777},
+    # Unreal Gold on OldUnreal 227k. NOT the UT probe -- see probe_unreal227.
+    # 7807/7808 because 7777 is UT2004 and 7797 is UT99; the server advertises
+    # mingamever 224, so the staged 227k client joins it.
+    {"unit": "unrealgold-server",  "label": "Unreal Gold",     "engine": "unreal",
+     "probe": "unreal227", "port": 7808, "join": 7807},
+    # Deus Ex. Same `\info\` probe as Unreal 227 and the same +1 query port
+    # (7790 -> 7791); probing 7776/7777 times out and reads as "no server".
+    {"unit": "deusex-server",      "label": "Deus Ex",         "engine": "unreal",
+     "probe": "unreal227", "port": 7791, "join": 7790},
+    # DOOM 3. Windows DOOM3DED.exe under Wine, because dhewm3 is not network
+    # compatible with retail 1.3 and the fleet's staged client IS retail 1.3.
+    {"unit": "doom3-server",       "label": "DOOM 3",          "engine": "idtech4",
+     "probe": "idtech4", "port": 27666, "join": 27666},
+    # Serious Sam speaks GameSpy on game port + 1 and names the level
+    # `mapname`, which probe_ut already falls back to. TSE is on 25610 rather
+    # than 25601 because Serious Engine opens the port AND port+1.
+    {"unit": "ssam-tfe-server",    "label": "Serious Sam TFE",  "engine": "serioussam",
+     "probe": "ut",  "port": 25601, "join": 25600},
+    {"unit": "ssam-tse-server",    "label": "Serious Sam TSE",  "engine": "serioussam",
+     "probe": "ut",  "port": 25611, "join": 25610},
     # Docker, not systemd: Tribes 2 needs a 2001 userland. See docker_states().
     {"unit": "tribes2-server",     "label": "Tribes 2",        "engine": "t2",
      "probe": "t2",  "port": 28000, "join": 28000, "manager": "docker"},

@@ -77,6 +77,11 @@ LOCAL_SERVERS = [
          name="NSC Retro Fleet Arena - Jedi Academy"),
     dict(engine="q3", port=20100, gamename="sof2mp",
          name="NSC Retro Fleet Arena - SoF II"),
+    # Return to Castle Wolfenstein, added 2026-09-01. The gamename it reports
+    # is "main" -- RTCW's own basegame directory -- which is what keeps a
+    # Quake III box from being handed this address and rejected on connect.
+    dict(engine="q3", port=27963, gamename="main",
+         name="NSC Retro Fleet Arena - RTCW"),
     dict(engine="q2", port=27910, gamename="baseq2",
          name="NSC Retro Fleet Arena - Quake II"),
     # NetQuake, NOT QuakeWorld. It is listed for the record and for
@@ -96,6 +101,29 @@ LOCAL_SERVERS = [
          name="NSC Retro Fleet Arena - UT99"),
     dict(engine="ut2k4", port=7777, query_port=7787, gamename="ut2004",
          name="NSC Retro Fleet Arena - UT2004"),
+    # Unreal Gold on OldUnreal 227k. gamename "unreal" (not "ut") is what the
+    # UdpServerQuery reports and is what `accepts` matches on, so a UT99 box is
+    # never handed it. NOTE the query is `\info\`, not the UT family's
+    # `\status\` -- see masters._unreal_probe.
+    dict(engine="unreal", port=7807, query_port=7808, gamename="unreal",
+         name="NSC Retro Fleet Arena - Unreal Gold"),
+    # Deus Ex. Same UE1 GameSpy shape as Unreal/UT99 and the same +1 query
+    # port; gamename "deusex" is what keeps a UT99 or Unreal Gold box from
+    # being handed it.
+    dict(engine="unreal", port=7790, query_port=7791, gamename="deusex",
+         name="NSC Retro Fleet Arena - Deus Ex"),
+    # Serious Sam. TFE and TSE are DIFFERENT GAMES with different gamenames
+    # (serioussam / serioussamse) - a TFE client handed the TSE address
+    # connects and is rejected. No favourites file is written for either (see
+    # favorites.UNWRITABLE["sam"]); they are listed so `sync.py --status`
+    # reports them and so the probe verifies them each pass.
+    dict(engine="serioussam", port=25600, query_port=25601, gamename="serioussam",
+         name="NSC Retro Fleet Arena - Serious Sam TFE"),
+    dict(engine="serioussam", port=25610, query_port=25611, gamename="serioussamse",
+         name="NSC Retro Fleet Arena - Serious Sam TSE"),
+    # DOOM 3. id Tech 4, so neither `getstatus` nor `\status\` reaches it.
+    dict(engine="idtech4", port=27666, gamename="baseDOOM-1",
+         name="NSC Retro Fleet Arena - DOOM 3"),
 ]
 
 log = logging.getLogger("gameindex.sync")
@@ -199,7 +227,8 @@ def probe_local_servers(con):
         engine, port, label = spec["engine"], spec["port"], spec["name"]
         addr = f"{ME}:{port}"
         row = masters.probe_server(engine, addr,
-                                   query_port=spec.get("query_port", 0))
+                                   query_port=spec.get("query_port", 0),
+                                   gamename=spec.get("gamename", ""))
         if row is None:
             # Still pinned: we KNOW it is ours and where it is. What we do NOT
             # do is invent a player count for a server that did not answer.
@@ -351,7 +380,8 @@ async def push_favorites(con, ip, dry_run=False):
                 continue
 
             servers = db.best_servers(con, engine, limit=pol["slots"],
-                                      accepts=pol.get("accepts"))
+                                      accepts=pol.get("accepts"),
+                                      local_only=pol.get("local_only", False))
             if not servers:
                 results.append((key, engine, "skipped: no live servers known"))
                 continue

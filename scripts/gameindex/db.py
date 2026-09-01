@@ -210,7 +210,8 @@ def prune_servers(con, older_than_s=3600):
                        (cutoff,)).rowcount
 
 
-def best_servers(con, engine, limit=16, fresh_s=900, accepts=None):
+def best_servers(con, engine, limit=16, fresh_s=900, accepts=None,
+                 local_only=False):
     """Live servers for an engine, our own first, then busiest-and-closest.
 
     `accepts`, when given, is the set of gamenames the asking TITLE can
@@ -224,6 +225,14 @@ def best_servers(con, engine, limit=16, fresh_s=900, accepts=None):
     entry we can simply prevent -- and the last of those was about to happen.
     For a master's list we have no reliable mod taxonomy, so the permissive
     behaviour is kept rather than silently shrinking a list that works.
+
+    `local_only` is the stronger statement, and RTCW is why it exists. RTCW is
+    a Quake III ENGINE but a different GAME: it shares the `q3` bucket, so the
+    permissive master rule handed it sixteen live Quake III Arena servers,
+    every one of which refuses a WolfMP client. Where a title's engine bucket
+    is dominated by a game it cannot join, "our own servers or nothing" is the
+    only honest list -- and an empty favourites list is better than sixteen
+    entries that all fail to connect.
 
     Deduped by host IP, but again only for the internet ones. Big hosts run
     eight ports of the same server and would otherwise eat every favourite
@@ -258,6 +267,8 @@ def best_servers(con, engine, limit=16, fresh_s=900, accepts=None):
         (engine, cutoff)).fetchall()
     out, seen_hosts = [], set()
     for r in rows:
+        if local_only and not r["is_local"]:
+            continue
         curated = bool(r["is_local"]) or (r["source"] or "") == "seed"
         if accepts and curated:
             gamename = (r["gamename"] or "").strip().lower()

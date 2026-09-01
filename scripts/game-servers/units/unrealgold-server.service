@@ -1,0 +1,16 @@
+[Unit]
+Description=Unreal Gold Dedicated Server (OldUnreal 227k) - NSC Retro Fleet Arena
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/unreal-server/System64
+ExecStart=/home/voidsstr/unreal-server/System64/ucc-bin-amd64 server DmDeck16.unr?game=UnrealShare.DeathMatchGame?maxplayers=12 -ini=UnrealServer.ini -nohomedir
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/voidsstr/unreal-server/server.log
+StandardError=append:/home/voidsstr/unreal-server/server.log
+
+[Install]
+WantedBy=default.target

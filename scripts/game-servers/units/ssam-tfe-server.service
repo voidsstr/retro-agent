@@ -1,0 +1,17 @@
+[Unit]
+Description=Serious Sam The First Encounter Dedicated Server (Wine in Docker) - NSC Retro Fleet
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/ssam-tfe-server
+ExecStart=/home/voidsstr/ssam-tfe-server/_run/run-ss-server.sh
+ExecStop=/usr/bin/docker stop -t 10 sstfesrv
+Restart=always
+RestartSec=20
+StandardOutput=append:/home/voidsstr/ssam-tfe-server/server.log
+StandardError=append:/home/voidsstr/ssam-tfe-server/server.log
+
+[Install]
+WantedBy=default.target

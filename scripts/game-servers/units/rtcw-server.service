@@ -1,0 +1,16 @@
+[Unit]
+Description=Return to Castle Wolfenstein Dedicated Server - NSC Retro Fleet Arena
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/rtcw-server
+ExecStart=/home/voidsstr/rtcw-server/iowolfded.x86_64 +set fs_basepath /home/voidsstr/rtcw-server +set fs_homepath /home/voidsstr/rtcw-server/.wolf +set dedicated 2 +set net_port 27963 +set com_legacyprotocol 60 +set sv_punkbuster 0 +exec server.cfg
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/voidsstr/rtcw-server/server.log
+StandardError=append:/home/voidsstr/rtcw-server/server.log
+
+[Install]
+WantedBy=default.target
