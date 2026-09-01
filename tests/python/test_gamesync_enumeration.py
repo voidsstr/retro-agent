@@ -156,6 +156,40 @@ def test_a_disk_refusal_defers_to_the_real_room_check():
         "the real room check must be what increments skipped_titles"
 
 
+def test_a_disk_refusal_does_not_suppress_a_SHORTCUT_either():
+    """The disk defer had TWO call sites and only one of them got the fix.
+
+    ``gs_gate_allows_title`` learned to let a ``disk`` verdict fall through to
+    the real room check.  ``gs_gate_allows_shortcut`` did not, and it runs
+    AFTER the tree is on the volume and after ``gs_file_exists(target)`` has
+    confirmed the launcher itself is there -- so a ``disk`` refusal there took
+    the desktop icon off a game that was installed and working.
+
+    Measured on .240 on 2026-08-31, on a Far Cry that the compat matrix
+    records as ``runs=verified``::
+
+        FarCry: SHORTCUT SUPPRESSED "Far Cry" (Play Far Cry.bat)
+                - disk: not enough free disk (have 1492 MB, needs 3700)
+
+    and ``titles_gated`` read 0, so the summary line said nothing was gated at
+    all.  ``disk_mb`` answers "is this copy worth the bandwidth", never "can
+    this machine run it", and it must not decide a shortcut.
+    """
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    at = code.index("static int gs_gate_allows_shortcut(")
+    body = code[at:code.index("static void gs_shortcut_from_line(", at)]
+    assert "gs_gate_limited_by_disk" in body, (
+        "the per-shortcut gate must exempt a disk-limited verdict, the same "
+        "way the per-title gate does"
+    )
+    assert re.search(r"GG_V_NO\s*&&\s*!gs_gate_limited_by_disk", body), (
+        "the exemption belongs on the GG_V_NO branch: a genuine hardware "
+        "refusal must still suppress the shortcut"
+    )
+    # A missing CAPABILITY is a different fact and must still suppress.
+    assert "missing_caps" in body,         "a missing capability must still suppress the shortcut"
+
+
 def test_the_room_check_still_credits_an_installed_tree():
     """The credit block is what makes deferring to the room check correct."""
     code = _strip_comments(GAMESYNC.read_text(errors="replace"))

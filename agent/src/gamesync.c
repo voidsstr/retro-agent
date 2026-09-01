@@ -2264,7 +2264,7 @@ static int gs_gate_allows_shortcut(const char *dst_dir, const char *title,
             break;
         }
         ok = 0;
-    } else if (d.verdict == GG_V_NO) {
+    } else if (d.verdict == GG_V_NO && !gs_gate_limited_by_disk(d.limiting)) {
         if (why && why_cch) {
             _snprintf(why, why_cch - 1, "%s: %s",
                       d.limiting[0] ? d.limiting : "-", d.reason);
@@ -2272,6 +2272,27 @@ static int gs_gate_allows_shortcut(const char *dst_dir, const char *title,
         }
         ok = 0;
     }
+    /*
+     * A `disk` verdict MUST NOT suppress a shortcut, and this is the same
+     * fix gs_gate_allows_title() already carries, at the second call site it
+     * was never applied to.
+     *
+     * disk_mb answers "is it worth an hour of SMB1 bandwidth copying this
+     * tree?", not "can this machine run it" - and by the time we are here the
+     * tree is ON THE DISK and gs_file_exists(target) has just confirmed the
+     * launcher itself is present. Suppressing then takes the icon off a game
+     * that is installed and works.
+     *
+     * Measured on .240 2026-08-31: Far Cry occupies 3609 MB of that box's
+     * 76 GB volume, leaving 1492 MB free against its declared disk_mb of
+     * 3700. The title gate correctly deferred and the tree copied, then this
+     * function logged
+     *     FarCry: SHORTCUT SUPPRESSED "Far Cry" (Play Far Cry.bat)
+     *             - disk: not enough free disk (have 1492 MB, needs 3700)
+     * and the box was left with an installed, previously VERIFIED Far Cry and
+     * no way to start it. `titles_gated` read 0, so the summary line said
+     * nothing was gated at all - the one trace was that single log line.
+     */
     return ok;
 }
 
