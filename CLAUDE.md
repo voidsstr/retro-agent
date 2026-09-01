@@ -897,6 +897,62 @@ empty, try `connect 192.168.1.132:27015` from the console — that distinguishes
 "server unreachable" from "broadcast discovery failing", which are different
 faults with different fixes.
 
+## INSTALL IN THE BUILD VM, NOT ON A FLEET BOX (REQUIRED)
+
+**User directive, 2026-09-01: every new title is installed in the build VM, its
+installed tree captured from there, staged to the library, and pushed to the
+machines by GAMESYNC. That is how the existing library was built.** An agent
+with a careful brief installed Halo 2 straight onto `.123` because this was
+nowhere in writing; it is now.
+
+    ~/retro-vm/run-build.sh        # "Build VM for offline work
+                                   #  (patching games, capturing installers)"
+
+- Disk **`xp3.qcow2`**, plus `d2disk.img` as a second IDE disk for moving
+  payloads in and out.
+- **The same retro agent runs INSIDE the guest**, forwarded to
+  **`127.0.0.1:19898`**, so every tool you already have works against it
+  unchanged — `vmagent.py` drives it, `upload.py` pushes files in, and the
+  protocol is identical to a fleet box.
+- **User-mode (slirp) networking on purpose.** It reaches the LAN and the NAS
+  through NAT, needs no tap or bridge, and **cannot disturb the physical fleet
+  network** — which matters because real machines are usually mid-install.
+- VNC on `:5`; QEMU monitor at `~/retro-vm/mon.sock`.
+- The guest was installed from **retail** XP media, so its NIC is **rtl8139**;
+  an e1000 leaves it with no network at all. (`run-xp.sh` deliberately uses
+  e1000 against the FLEET image, because that proves the injected DriverPacks
+  driver bound.)
+
+**Why this and not a fleet box** — every reason is one this project has already
+been bitten by:
+
+* **A tree captured from a real machine carries that machine's fingerprints.**
+  Detected video settings, resolution, paths and per-machine registry state all
+  end up staged and then copied to every other box. Serious Sam's
+  `PersistentSymbols.ini` did exactly this: staged from one box, it reset
+  `sam_bFirstStarted` on all eight at every sync and would have carried one
+  machine's detected renderer everywhere.
+* **A messy or failed install costs nothing in a VM** and is permanent on a
+  fleet box. GAMESYNC never deletes, so leftovers persist until someone removes
+  them by hand — `_fstest*.bat`, a 0-byte `SoldierOfFortune2.wip` and a 44 MB
+  `C:\H2SRC` all had to be cleaned up this way.
+* **Two boxes must never be rebooted** (`.123` and `.133` are unactivated), and
+  installers frequently want one.
+* The fleet is **powered on demand** and the user swaps hardware constantly, so
+  a box can vanish mid-install. The VM cannot.
+
+**`vmagent.py`'s own note is the general rule, not a VM detail:** *"A bare TCP
+connect to the forwarded port proves nothing about the guest — QEMU binds
+127.0.0.1:19898 at startup whether or not anything listens inside — so
+readiness is decided by a completed protocol handshake, never by `connect()`."*
+The identical mistake on real hardware had a dead agent's `:9897` accepting
+sockets while answering nothing.
+
+**The one legitimate exception is HARDWARE.** Anything that depends on the real
+card — Glide on the Voodoo boxes, a per-box resolution, a driver — must be
+proven on the machine, because the VM's Cirrus adapter is not that hardware.
+**Install in the VM; verify on the metal.**
+
 ## Adding a NEW Staged Title — the checklist (REQUIRED)
 
 **User directive: every deployed game must have a real icon, neatly placed. That

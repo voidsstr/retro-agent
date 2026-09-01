@@ -3,6 +3,27 @@ name: game-install
 description: Install any game from the SMB share onto a fleet retro PC (Win98/2K/XP/7) — headless/silent where the installer allows, or by walking the GUI with screenshot-clicks where it doesn't. Knows the share's Games layout (~4,200 titles across GOG, Windows XP, Freeware, DOS, ISOs, ZIPs), how to detect an installer's type and drive it, and the per-box gotchas (dual-boot D:, Win7 UAC, stale Z:, broken xcopy). Use when the user says "install <game> on <box>", "put <game> on all the boxes", "set up <game>", or asks what games are available to install.
 ---
 
+> ## ⚠️ FOR A NEW STAGED TITLE, INSTALL IN THE BUILD VM — NOT ON A FLEET BOX
+>
+> **This skill describes installing onto a fleet PC, and for a one-off "put
+> Doom on .124" that is right. It is NOT how a new LIBRARY title is staged.**
+>
+> Every staged title's tree is captured from `~/retro-vm/run-build.sh`
+> (`xp3.qcow2`; the same agent runs inside, forwarded to `127.0.0.1:19898`;
+> drive it with `vmagent.py`), then staged and pushed by GAMESYNC.
+>
+> An agent read this skill, installed Halo 2 straight onto `.123`, and was
+> right to by the text in front of it — the method was established practice and
+> written down nowhere. See **"INSTALL IN THE BUILD VM"** in CLAUDE.md for the
+> reasons, which are all failures this project has already had: a tree captured
+> from a real machine carries that machine's fingerprints onto all eight, a
+> failed install is permanent because GAMESYNC never deletes, and two boxes
+> must never be rebooted.
+>
+> **Hardware is the exception**: Glide, per-box resolutions and drivers must be
+> proven on the metal. Install in the VM; verify on the machine.
+
+
 # Install a game from the share onto a fleet box
 
 Goal: take any title from the SMB share's Games library and get it installed and
