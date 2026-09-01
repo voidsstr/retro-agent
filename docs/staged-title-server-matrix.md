@@ -104,8 +104,8 @@ rather than averaged away — "the server answers its own query protocol" and
 | `doom3-server` :27666 | yes | **yes** — `.123` + `.240` | **YES.** Both named in the server's `infoResponse` player block, both screenshots show live play on `game/mp/d3dm1` at the same match clock with two entries on the scoreboard |
 | `unrealgold-server` :7807 | yes | **yes, partially** — the server log records `Open MyLevel … 192.168.1.123` then `Pre: 'Player' 192.168.1.123: Player`, which is `DeathMatchGame` accepting a login | no. The staged client reaches the server and then leaves; its launch URL arrives as `unreal://192.168.1.132/Index.unr` — **the port is dropped** — and `.240` times out `<Unconnected>`. A client-side launch problem, on a server that demonstrably accepts logins |
 | `deusex-server` :7790 | yes (`\info\`: hostname, map, `gamemode\openplaying`, 0/16) | not attempted | no |
-| `ssam-tfe-server` :25600 | yes (`\status\` on 25601, `gamemode` reported) | not attempted | no |
-| `ssam-tse-server` :25610 | yes (`\status\` on 25611) | not attempted | no |
+| `ssam-tfe-server` :25600 | yes | **yes** — `.240` joined from the staged tree and played | **partly.** The server went `0 players / paused` → `1 player / openplaying`, reported `player_0 Serious Sam` at ping 38, and `.240`'s screenshot shows live fullscreen play on DesertTemple. One client, not two — but on a DEDICATED server that is the claim that matters |
+| `ssam-tse-server` :25610 | yes (`\status\` on 25611) | not attempted — same engine and the same client prerequisite as TFE | no |
 | `shogo-server` :27888 | yes (`\status\` on the game port: hostname, `MCA_12FLOZ`, `gamemode\openplaying`, 0/16) | not attempted | no |
 
 **A listening socket is not a working server** — Red Faction's dedicated server
@@ -122,5 +122,13 @@ engine actually speaks.
   did not; that has been tried here and the port is still dropped, so the next
   variable to change is the client's own Multiplayer → Open Location box.
 * **Deus Ex, both Serious Sams, Shogo** — none has a favourites file the
-  fleet agent can write, so each is joined by typing the address. That is one
-  person, once, per title.
+  fleet agent can write, so each is joined by typing the address.
+
+**Serious Sam's client also needs its CONNECTION SETTINGS chosen once per
+box** before it will join anything — a first-run modal and then a full-screen
+page offering `LAN gaming`. Until it is answered, `+connect <ip>` goes nowhere
+and the process just sits there, which reads exactly like a broken server. It
+is drivable remotely (a click only HIGHLIGHTS the row; the page's own footer
+says `Enter - load this`) — the working sequence is in
+`scripts/game-servers/serioussam/README.md`. Where that choice persists has
+not been found, so it is currently per-box rather than a library fix.
