@@ -311,6 +311,24 @@ TEST(gpu_table_handles_non_monotonic_ids)
     /* The 8400 GS in .145. */
     CHECK_EQ_I(gg_gpu_level_from_pci(0x10DE, 0x06E4), GG_GPU_SM3);
 
+    /* THE AGP RADEON X800 IN .240 (fitted 2026-08-31, replacing a 9800 XT).
+     * DEV_4A4B is R420. Before this row existed the table covered only the
+     * PCIe R423/R480 ids at 0x5D48, so the AGP part fell through to UNKNOWN
+     * and HWPROFILE reported feature_level "unknown" - the gate then could
+     * not reason about that machine's GPU at all. Measured on the box. */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x1002, 0x4A4B), GG_GPU_SM2);
+    /* ... and the whole R4xx family is SM2.0b, NEVER SM3. SM3.0 was NVIDIA's
+     * NV40 differentiator that generation. The old table said SM3 here, which
+     * would hand an X800 every shader-model-3 title on the shelf. */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x1002, 0x4A48), GG_GPU_SM2);  /* X800 */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x1002, 0x5549), GG_GPU_SM2);  /* R423 */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x1002, 0x5D4F), GG_GPU_SM2);  /* R480 */
+    /* The 9800 XT that came OUT of .240 is unchanged, so the new rows did not
+     * swallow a neighbouring range. */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x1002, 0x4E4A), GG_GPU_SM2);
+    /* Radeon 9000 (0x496x) sits just below the new R420 range and stays SM1. */
+    CHECK_EQ_I(gg_gpu_level_from_pci(0x1002, 0x4966), GG_GPU_SM1);
+
     /* Unknown vendor and unknown device both fall through to UNKNOWN. */
     CHECK_EQ_I(gg_gpu_level_from_pci(0x0000, 0x0000), GG_GPU_UNKNOWN);
     CHECK_EQ_I(gg_gpu_level_from_pci(0x10DE, 0xFFFF), GG_GPU_UNKNOWN);

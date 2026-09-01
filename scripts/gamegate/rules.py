@@ -139,7 +139,12 @@ GPU_TABLE = [
     (0x1002, 0x4E44, 0x4E56, GPU_SM2),     # Radeon 9800
     (0x1002, 0x5960, 0x5965, GPU_SM2),     # Radeon 9200
     (0x1002, 0x5B60, 0x5B7F, GPU_SM2),     # Radeon X300/X550
-    (0x1002, 0x5D48, 0x5D6F, GPU_SM3),     # Radeon X800
+    # R4xx - X800/X850. THREE ranges, level SM2 not SM3: R420/R423/R430/R480
+    # top out at Shader Model 2.0b. The 0x5D48 row alone covered only the PCIe
+    # parts, so the AGP X800 fitted to .240 (DEV_4A4B) classified as unknown.
+    (0x1002, 0x4A48, 0x4A6F, GPU_SM2),     # R420 Radeon X800 AGP
+    (0x1002, 0x5548, 0x557F, GPU_SM2),     # R423/R480/R481 X800/X850
+    (0x1002, 0x5D48, 0x5D6F, GPU_SM2),     # R423/R480 secondary
     (0x1002, 0x7100, 0x71FF, GPU_SM3),     # Radeon X1000
     (0x1002, 0x7240, 0x729F, GPU_SM3),     # Radeon X1900
     (0x1002, 0x9400, 0x9FFF, GPU_SM3),     # HD 2000 and later

@@ -271,7 +271,16 @@ GG_DATA const gg_gpu_row_t gg_gpu_table[] = {
     { 0x1002, 0x4E44, 0x4E56, GG_GPU_SM2   },   /* R350/R360 Radeon 9800 */
     { 0x1002, 0x5960, 0x5965, GG_GPU_SM2   },   /* RV280 Radeon 9200 */
     { 0x1002, 0x5B60, 0x5B7F, GG_GPU_SM2   },   /* RV370 Radeon X300/X550 */
-    { 0x1002, 0x5D48, 0x5D6F, GG_GPU_SM3   },   /* R423/R480 Radeon X800 */
+    /* R4xx - Radeon X800 / X850. THREE ranges, and the level is SM2, NOT SM3.
+     * R420/R423/R430/R480/R481 top out at Shader Model 2.0b; SM3.0 was
+     * NVIDIA's NV40 differentiator that generation and no R4xx ever had it.
+     * The 0x5D48 row alone used to say SM3 AND covered only the PCIe parts,
+     * so the AGP X800 fitted to .240 on 2026-08-31 (DEV_4A4B) fell off the
+     * table entirely and reported feature_level "unknown" - which fails open,
+     * i.e. the gate could not reason about that box's GPU at all. */
+    { 0x1002, 0x4A48, 0x4A6F, GG_GPU_SM2   },   /* R420 Radeon X800 AGP */
+    { 0x1002, 0x5548, 0x557F, GG_GPU_SM2   },   /* R423/R480/R481 X800/X850 */
+    { 0x1002, 0x5D48, 0x5D6F, GG_GPU_SM2   },   /* R423/R480 secondary */
     { 0x1002, 0x7100, 0x71FF, GG_GPU_SM3   },   /* R520/RV530 Radeon X1000 */
     { 0x1002, 0x7240, 0x729F, GG_GPU_SM3   },   /* R580 Radeon X1900 */
     { 0x1002, 0x9400, 0x9FFF, GG_GPU_SM3   },   /* R600 (HD 2000) and later */
