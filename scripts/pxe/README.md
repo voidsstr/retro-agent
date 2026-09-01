@@ -325,6 +325,104 @@ PXE ~10 minutes later is that reboot, and the boot hold refusing it is the hold
 doing its job - `--release` there re-images a box that had just finished. See
 `e60f121`.
 
+## `OemPreinstall = No` installs a machine that does nothing
+
+This is the most expensive silent failure in the whole path, because the
+install *succeeds*. Setup finishes, the box reboots, it auto-logs-on - and then
+sits on an empty desktop forever.
+
+`$OEM$` reaches the target by two different routes and only one of them is
+gated on `OemPreinstall`:
+
+| what | when | needs `OemPreinstall = Yes` |
+|---|---|---|
+| `$OEM$\cmdlines.txt` -> `regedit /s retroagent.reg` | GUI setup, T-12 | no |
+| `$OEM$\$1\*` -> `C:\` (agent, `C:\D`, wallpapers) | text-mode copy | **yes** |
+| `$OEM$\$Progs`, `$OEM$\$$` | text-mode copy | **yes** |
+
+> Note (2026-09-29, on landing): "A booted machine may not answer ping" above
+> says the slim profile never runs `cmdlines.txt` at all. The disk measured on
+> 2026-09-01 did carry the Run key, so which holds for a given build is
+> unproven. Either way the agent binary and `C:\D` are absent, which is the
+> failure this section is about.
+
+So with `No`, the registry merge still lands and the machine looks perfectly
+configured from the registry's point of view:
+
+```
+HKLM\...\Run\RetroAgent = C:\RETRO_AGENT\retro_agent.exe     <- never written
+DevicePath               = %SystemRoot%\inf;C:\D\C001;...     <- never written
+```
+
+Nothing reports this. The agent is simply absent, and every device XP has no
+in-box driver for raises a Found New Hardware wizard because `DevicePath`
+points at 493 directories that do not exist.
+
+**How to tell, on a finished box:** `C:\WINDOWS\setupapi.log`. A correctly
+imaged machine has several `Found ... in C:\D\` lines. A machine with this
+hole has **zero**. Measured: the disk provisioned on 2026-09-01 had 0; `.124`
+had 6.
+
+`pxe_selftest.py` now checks this against the sif the server actually serves,
+so it fails loudly instead:
+
+```
+unattend (whether the installed machine will actually work)
+  FAIL  OemPreinstall = No - text-mode setup will NOT copy $OEM$\$1 ...
+  FAIL  OemPnPDriversPath absent - ...
+```
+
+## Finishing a disk offline: `foolproof-disk.py`
+
+The other way out is to stop asking text-mode setup to push 2.4 GB over SMB1
+and apply the payload to the disk directly, from Linux, at USB speed:
+
+```bash
+sudo mount -t ntfs-3g /dev/sdX1 /mnt/xpdisk
+python3 scripts/pxe/foolproof-disk.py --root /mnt/xpdisk --check   # never writes
+python3 scripts/pxe/foolproof-disk.py --root /mnt/xpdisk           # all stages
+```
+
+Four stages, each runnable alone with `--stage`:
+
+- **payload** - `$OEM$\$1`, `$Progs` and `$$` copied to the disk. Every file is
+  verified by SHA-256 **read back off the target**, not by the copy's exit
+  status; a dropped write that leaves a short file has bitten this project
+  before.
+- **storage** - makes the disk boot in *any* box. Expands the in-box IDE
+  miniports (`intelide`, `viaide`, `aliide`, `cmdide`, `toside`) off the media,
+  sets every one whose `.sys` is now present to boot-start, and adds the
+  `CriticalDeviceDatabase` entries - generic channel entries plus the vendor
+  PCI ids parsed out of the media's own `mshdc.inf`, so the list cannot rot the
+  way a hand-copied MergeIDE list does. Never sets a service boot-start without
+  its file: that is a dead boot, not a fallback.
+- **agent** - copies the *published* `retro_agent.exe` / `retro_chat.exe` (what
+  the fleet auto-updates to) over the image's staged copy, and rewrites
+  `newimage.flag` to describe the disk that exists. Without it the box still
+  works - it self-updates 15s in and restarts - but that is one more thing that
+  has to go right unattended.
+- **harden** - no dialog can sit in front of the desktop waiting for a human:
+  Found New Hardware wizard silent (`DontPromptForWindowsUpdate`), error
+  reporting off, Automatic Updates off, `ErrorMode=2` for hard-error popups,
+  auto-reboot on STOP, screensaver off in **both** Default User and
+  `HKU\.DEFAULT`, and a one-shot `C:\RETRO_AGENT\foolproof.cmd` from RunOnce
+  for the power policy (`powercfg` owns a binary blob not worth editing
+  offline).
+
+It is idempotent - a re-run recopies nothing that already matches.
+
+### What it does not fix
+
+**The HAL.** XP picks one at install time and the disk carries it. A disk
+installed on an ACPI uniprocessor machine has `halaacpi.dll`, which boots on
+any ACPI box (using one CPU on a multiprocessor one) but **not** on a machine
+with no ACPI at all. Swapping a HAL offline is fragile enough to be a worse
+risk than the one it removes, so it is left alone and stated instead.
+
+**`rdisk(0)`.** `boot.ini` names the disk by controller order. Move the disk in
+as anything other than the first hard disk and it will not boot until that line
+is corrected.
+
 ## Files
 
 | file | what |
@@ -338,5 +436,6 @@ doing its job - `--release` there re-images a box that had just finished. See
 | `install-task.ps1` | registers the `RetroPXE` startup task |
 | `setup-firewall.ps1` | inbound UDP rules |
 | `winnt.sif.template` | reference copy of the generated `winnt.sif` |
+| `foolproof-disk.py` | finishes a PXE-installed disk offline, from Linux |
 
 Tests: `tests/python/test_pxe_server.py` (packet building, TFTP path safety).

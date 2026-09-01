@@ -151,6 +151,61 @@ def tftp_get(server, name, blksize=None, timeout=5.0):
         s.close()
 
 
+# ------------------------------------------------------- the unattend itself
+
+def check_unattend(sif_bytes):
+    """The boot chain can be perfect and still install a machine that does
+    nothing. That is not hypothetical: a disk imaged from this server on
+    2026-09-01 came up with
+
+        HKLM\\...\\Run\\RetroAgent = C:\\RETRO_AGENT\\retro_agent.exe   (absent)
+        DevicePath               = ...;C:\\D\\C001;...                (absent)
+
+    because the sif carried OemPreinstall = No. cmdlines.txt still runs at
+    T-12, so the registry merge lands and everything LOOKS configured - but
+    text-mode setup copies $OEM$\\$1 only when OemPreinstall is Yes, so the
+    agent and the driver tree the registry points at were never written. The
+    give-away on a finished box is setupapi.log: a correctly imaged machine
+    has several "Found ... in C:\\D\\" lines, that one had zero.
+
+    Checked here, against the bytes the client actually receives, because the
+    file on disk is not necessarily the file being served.
+    """
+    text = sif_bytes.decode('latin-1')
+    kv = {}
+    for line in text.splitlines():
+        line = line.split(';', 1)[0].strip()
+        if '=' in line and not line.startswith('['):
+            k, v = line.split('=', 1)
+            kv[k.strip().lower()] = v.strip().strip('"')
+
+    oem = kv.get('oempreinstall', '<absent>')
+    if oem.lower() == 'yes':
+        ok('OemPreinstall = Yes ($OEM$\\$1 is copied: agent, C:\\D, wallpapers)')
+    else:
+        bad('OemPreinstall = %s - text-mode setup will NOT copy $OEM$\\$1, so the '
+            'install gets a Run key and a DevicePath pointing at files that are '
+            'never written. Either set it to Yes, or apply the payload offline '
+            'with scripts/pxe/foolproof-disk.py before the disk is used.' % oem)
+
+    if 'oempnpdriverspath' in kv:
+        n = len([x for x in kv['oempnpdriverspath'].split(';') if x])
+        ok('OemPnPDriversPath present (%d dirs for GUI-setup device install)' % n)
+    else:
+        bad('OemPnPDriversPath absent - GUI setup installs devices with no driver '
+            'search path, so graphics and sound land on in-box drivers and the '
+            'agent has to force them afterwards')
+
+    for key, want, why in (
+            ('unattendmode', 'fullunattended', 'setup would stop on a prompt'),
+            ('autologon', 'yes', 'the agent never starts without a logon'),
+            ('driversigningpolicy', 'ignore', 'unsigned pack drivers would prompt'),
+    ):
+        got = kv.get(key, '<absent>')
+        (ok if got.lower() == want else bad)(
+            '%s = %s%s' % (key, got, '' if got.lower() == want else
+                           '  (want %s - %s)' % (want, why)))
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--server', default=None, help='PXE host (default: this host)')
@@ -187,12 +242,19 @@ def main():
         print()
 
     print('TFTP (what it fetches next)')
+    fetched = {}
     for name in BOOT_FILES:
         d, err = tftp_get(server, name)
         if d is None:
             bad(f'{name}: {err}')
         else:
+            fetched[name] = d
             ok(f'{name}: {len(d)} bytes  md5={hashlib.md5(d).hexdigest()[:12]}')
+
+    if 'winnt.sif' in fetched:
+        print()
+        print('unattend (whether the installed machine will actually work)')
+        check_unattend(fetched['winnt.sif'])
 
     print()
     print('TFTP naming quirks (NTLDR asks like this)')
