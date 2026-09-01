@@ -897,6 +897,36 @@ empty, try `connect 192.168.1.132:27015` from the console — that distinguishes
 "server unreachable" from "broadcast discovery failing", which are different
 faults with different fixes.
 
+## Where to find "what is staged, where, and was it tested"
+
+**`docs/staged-library.md` — GENERATED, never hand-edited.**
+
+    python3 scripts/fleet/gen-staged-library.py           # write it
+    python3 scripts/fleet/gen-staged-library.py --check   # non-zero if stale
+
+It renders the compatibility database as one table: every staged title against
+every machine, each cell showing **deploy state and test state** together, plus
+a blockers section. The database itself is `~/.retro-fleet/fleetbook.db`; query
+it live with `scripts/fleet/compat.py` (`matrix`, `status --box .143`, `gaps`,
+`summary`, `conflicts`).
+
+**It is generated for the same reason `docs/fleet-inventory.md` is:** the
+hand-maintained table this replaced was wrong about most of the fleet, and twice
+a graphics card was swapped without the docs noticing. This library went 38 → 46
+titles in a single session and two cards changed mid-session. **Generate it, or
+it lies.**
+
+**Three distinctions it keeps, each of which has cost real time here:**
+- **deployed** (files are on the box) ≠ **runs** (it starts) ≠ **verified**
+  (someone SAW it render fullscreen and kept the screenshot). `state=done` is
+  not evidence a game works.
+- **gated** (the hardware cannot run it, with the limiting number) ≠ **skipped**
+  (it did not fit on the disk). Conflating those told an operator a Pentium 1
+  "cannot run" a game it merely had no room for.
+- **untested** renders as untested, always. A blank cell that reads as a pass is
+  how a matrix starts lying — this one currently reports 133 of them, and that
+  honesty is the point.
+
 ## INSTALL IN THE BUILD VM, NOT ON A FLEET BOX (REQUIRED)
 
 **User directive, 2026-09-01: every new title is installed in the build VM, its
