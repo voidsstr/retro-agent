@@ -118,6 +118,7 @@ DOC_ALIASES = {
     "half-life deathmatch": "HalfLife-Deathmatch",
     "counter-strike 1.6": "CounterStrike16",
     "quake 1": "Quake1",
+    "daggerfall": "Daggerfall",
     "quake ii": "Quake2Complete",
     "quake iii arena": "Quake3Arena",
     "quake iii: team arena": "Quake3-TeamArena",
