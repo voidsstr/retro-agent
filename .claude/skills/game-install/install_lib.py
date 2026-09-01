@@ -206,11 +206,20 @@ async def install_copy_in(c, src_dir, dest, log=print):
     """Copy an already-installed game folder from the share into place."""
     log("copy-in %s -> %s" % (src_dir, dest))
     await cmd(c, r'EXEC cmd /c mkdir "%s" 2>nul' % dest)
-    # single-level copy per subdir avoids the broken-xcopy trap on XP
-    out = await cmd(c, r'EXECW 1200 cmd /c xcopy "%s" "%s" /E /I /Y /Q 2>&1' % (src_dir, dest), 1220.0)
+    # `< nul` IS LOAD-BEARING, NOT TIDINESS. xcopy asks whether the target is a
+    # file or a directory and reads the answer from stdin; the agent's hidden
+    # CreateProcess gives the child no stdin handle, so xcopy exits IMMEDIATELY,
+    # copies nothing, prints nothing and returns 0. Measured on .143 2026-09-01:
+    # `EXEC cmd /c xcopy /?` produced no output at all, and `xcopy /? < nul`
+    # printed the full help - so it is not "a console" that is missing, it is a
+    # readable stdin, and one redirect fixes it without `start /wait` (which
+    # detaches and throws the exit code away).
+    out = await cmd(c, r'EXECW 1200 cmd /c xcopy "%s" "%s" /E /I /Y /Q < nul 2>&1' % (src_dir, dest), 1220.0)
     got = await count_files(c, dest)
     want = await count_files(c, src_dir)
-    if got < want:  # xcopy silently did nothing on this box — fall back to robocopy/copy tree
+    # The parity check stays. A redirect explains the failure we have SEEN; it
+    # does not license trusting xcopy's return value, which is 0 either way.
+    if got < want:  # fall back to robocopy/copy tree
         log("xcopy short (%d/%d) — retrying with robocopy" % (got, want))
         await cmd(c, r'EXECW 1200 cmd /c robocopy "%s" "%s" /E /NFL /NDL /NJH /NJS 2>&1' % (src_dir, dest), 1220.0)
         got = await count_files(c, dest)

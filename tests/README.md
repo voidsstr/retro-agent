@@ -417,7 +417,10 @@ found — and move it up there.
 | **compat: guard that a `verified` cell keeps evidence that still EXISTS** (2026-08-31) — A `verified` cell must keep at least one piece of evidence that still exists | `python/test_compat_evidence_survives.py` |
 | **compat-publish: the default dashboard URL was never a real Azure hostname** (2026-08-31) — The dashboard URL must be a real Container Apps FQDN | `python/test_compat_publish_url.py` |
 | **compat: a per-shortcut measurement was invisible to the matrix** (2026-08-31) — A per-shortcut measurement must not be invisible to the matrix | `python/test_compat_shortcut_visibility.py` |
+| **GAMESYNC's startup thread idles once `gamesync.done` exists, so a title staged today never reaches a box provisioned yesterday** (2026-09-01) — `scripts/fleet/autodeploy.py` closes that gap. *Row added by the arranger session so the README guard stays green while that work is still uncommitted; the owning session should rewrite this line when it lands.* | `python/test_autodeploy.py` |
 | **cs16: LAN game servers on whitebeast + a vanilla-minus-blood CS 1.6 mod** (2026-08-11) — Source invariants for the CS 1.6 no-blood mod (scripts/game-servers/cs16-noblood) | `python/test_cs16_noblood.py` |
+| **library: stage Daggerfall and Postal from the build VM's GOG installs** (2026-09-01) — GOG's own DOSBox conf blocks on a keypress; a wrapper's CPU cost belongs on its shortcut, not the title; and Postal's 2018 SDL2 rebuild has an SSE2 floor the 1997 game never had, which rules it out on the fleet's whole pre-SSE2 half | `python/test_daggerfall_postal_staging.py` |
+| **safedisc: an emulator cannot invent a protection the IMAGE does not carry** (2026-09-01) — Comanche 4 is SafeDisc 2.40.011, a version DAEMON Tools targets, and still refuses: its FLT/IGG re-master has 0 bad-EDC sectors where working staged SafeDisc titles have hundreds. Reading the exe's version is only half the question | `python/test_disc_image_carries_protection.py` |
 | **hwprofile: WinCDEmu's driver is BazisVirtualCDBus, so we never detected it** (2026-08-31) — The disc-mount probe matches SERVICE names, not product names | `python/test_disc_mount_service_names.py` |
 | **compat: map Serious Sam's document name to its library directory** (2026-08-31) — Every title in the LAN document must map to a library directory | `python/test_doc_alias_coverage.py` |
 | **library: stage DOOM 3, patched to the OFFICIAL id 1.3 update** (2026-08-31) | `python/test_doom3_staging.py` |
@@ -462,6 +465,7 @@ found — and move it up there.
 | **retrowall: the old desktop came back because we only cleared HKLM** (2026-08-31) — The legacy wallpaper rotation must be stopped in BOTH registry hives | `python/test_wallpaper_rotation_stops.py` |
 | **fleet: watch for boxes arriving, so a power-cycled machine gets picked up** (2026-08-31) — The fleet watcher must report EDGES, and must not mistake a socket for life | `python/test_watch_fleet.py` |
 | **game-servers: host Descent 3 and Far Cry on the dev host under Wine** (2026-08-31) | `python/test_wine_servers.py` |
+| **xcopy through the agent copies NOTHING and returns 0 unless it is given a stdin** (2026-09-01) — not "broken on some XP boxes": it blocks on its own file-or-directory prompt, and `< nul` fixes it | `python/test_xcopy_needs_stdin.py` |
 
 ### `tests/native/`
 

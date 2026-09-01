@@ -127,9 +127,14 @@ python3 .claude/skills/game-install/install_lib.py <ip> writable   # find a writ
 - **`copy /Y` a single file from the share works even >32 MB** (UPLOAD is capped
   at 32 MB/frame). But **relaying a whole FOLDER box→share→box HANGS `xcopy` on
   XP** — re-stage the installer per box instead of copying a tree over SMB.
-- **`xcopy` is broken on several fleet XP boxes** (returns RC=0 but copies
-  nothing). `install_lib.install_copy_in` falls back to `robocopy`, then verifies
-  file-count parity before trusting it. Plain `copy *.*` per subdir also works.
+- **`xcopy` through the agent needs `< nul`** — it is not "broken on several
+  boxes", it needs a readable STDIN to answer its own file-or-directory prompt,
+  and the agent's hidden `CreateProcess` gives the child none. Without it: RC=0,
+  no output, nothing copied. Measured on `.143` 2026-09-01 (`xcopy /?` silent,
+  `xcopy /? < nul` prints the help). `install_lib.install_copy_in` now passes the
+  redirect, still falls back to `robocopy`, and still verifies file-count parity
+  — the redirect explains the failure we have seen, it does not make xcopy's
+  return value trustworthy. Plain `copy *.*` per subdir also works.
 - **Dual-boot boxes run Windows on `D:`** while `C:` is the old Win9x volume
   (`.124`). `%ProgramFiles%`/`%TEMP%` are on D:, so **install to the same volume as
   `%TEMP%`** or a post-extract `move` becomes a slow, half-failing cross-volume

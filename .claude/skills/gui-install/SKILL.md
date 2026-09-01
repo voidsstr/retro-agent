@@ -62,8 +62,10 @@ Client: `fastui.py` → `FastUI(ip)`; `.baseline()`, `.clickshot(x,y)`, `.refres
 - **Same-volume `move` is instant and reliable.** Prefer installing where the final
   home lives so relocation is a same-volume `move`.
 - **Cross-volume is painful:** cmd `move` across volumes can throw "Access is denied",
-  and **`xcopy` is broken on several fleet XP boxes (RC=0 but copies nothing).** Plain
-  `copy` works. `install_lib.tree_copy_via_batch()` recreates the tree with
+  and **`xcopy` through the agent copies nothing unless it is given a stdin**
+  (RC=0, no output — it exits at its own file-or-directory prompt). Add `< nul`;
+  measured on `.143` 2026-09-01. Plain `copy` works with or without.
+  `install_lib.tree_copy_via_batch()` recreates the tree with
   `mkdir`+`copy *.*` per subdir and verifies file-count parity before deleting.
 - **xcopy of a directory tree over the SMB share HANGS on XP** — never relay a folder
   box→share→box; re-stage the installer per box instead. Single-file `copy` to/from the

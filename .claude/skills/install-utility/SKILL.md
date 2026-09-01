@@ -87,9 +87,15 @@ ring-0 driver, so **confirm with the operator before putting it on machines**.
 
 ## Gotchas that cost real time here
 
-- **`xcopy` does not run through the agent.** No output, no files, exit code 0 —
-  it needs a console the agent's `CreateProcess` does not provide. Wrap it:
-  `cmd /c start /wait "" xcopy ...`. Plain `copy` works fine.
+- **`xcopy` needs a readable STDIN, and the agent gives its children none.**
+  No output, no files, exit code 0 — xcopy asks "file or directory?" and reads
+  the answer from stdin, so with no stdin handle it exits before doing anything.
+  **The fix is one redirect: `cmd /c xcopy ... < nul`.** Measured on `.143`
+  2026-09-01: `EXEC cmd /c xcopy /?` printed *nothing*, `xcopy /? < nul` printed
+  the full help, and the same redirect turned a silent no-op into
+  `147 File(s) copied`. `cmd /c start /wait "" xcopy ...` also works — it gives
+  the child a console, and hence a stdin — but it detaches and discards the exit
+  code, so prefer the redirect. Plain `copy` works fine either way.
 - **A GUI installer needs a screen big enough for its buttons.** At 640x480 the
   PowerStrip and Unreal wizards have their Next button below the visible area.
   `C:\setmode.exe 800 600 16` first — and note 1024x768x32 fails on the build
