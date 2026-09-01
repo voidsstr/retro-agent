@@ -15,6 +15,57 @@
 #define DIFF_TILE_SIZE 64
 #define LOG_SCREEN "SCREEN"
 
+/*
+ * screen_palette_for_capture - the 256-colour display's LIVE hardware palette.
+ *
+ * WHY THIS EXISTS.  On an 8-bpp display CreateCompatibleBitmap makes an 8-bpp
+ * DDB, so BitBlt copies palette INDICES and GetDIBits is the step that has to
+ * turn them into RGB.  It does that with the palette selected into the HDC it
+ * is handed - and a fresh CreateCompatibleDC carries only the 20 static system
+ * colours.  So every 256-colour fullscreen title photographed as coloured
+ * NOISE: the geometry was there and the colours were meaningless.  Measured on
+ * .133 (2026-08-31) against StarCraft, Jedi Knight and Warcraft II, each of
+ * which sets its own palette in a 640x480x8 exclusive mode.
+ *
+ * That is this project's signature failure shape - the capture SUCCEEDED, the
+ * frame came back the right size, and it was wrong - so it is fixed rather
+ * than worked around.
+ *
+ * Returns NULL on any display deeper than 8 bpp (the normal fleet case), which
+ * is exactly right: GetDIBits needs no palette there and the caller must not
+ * change its behaviour.
+ */
+static HPALETTE screen_palette_for_capture(HDC hScreenDC)
+{
+    struct {
+        LOGPALETTE     lp;
+        PALETTEENTRY   rest[255];   /* palPalEntry[1] is inside LOGPALETTE */
+    } pal;
+    UINT n, i;
+
+    if (GetDeviceCaps(hScreenDC, BITSPIXEL) * GetDeviceCaps(hScreenDC, PLANES) > 8)
+        return NULL;
+    if (!(GetDeviceCaps(hScreenDC, RASTERCAPS) & RC_PALETTE))
+        return NULL;
+
+    memset(&pal, 0, sizeof(pal));
+    pal.lp.palVersion = 0x300;
+    pal.lp.palNumEntries = 256;
+
+    n = GetSystemPaletteEntries(hScreenDC, 0, 256, pal.lp.palPalEntry);
+    if (n == 0)
+        return NULL;
+
+    /* peFlags comes back carrying PC_* bits on some drivers; a logical palette
+     * built from them can be mapped rather than copied, which reintroduces the
+     * very translation error this is here to remove. */
+    for (i = 0; i < n; i++)
+        pal.lp.palPalEntry[i].peFlags = 0;
+
+    pal.lp.palNumEntries = (WORD)n;
+    return CreatePalette(&pal.lp);
+}
+
 /* quality: 0=full, 1=half, 2=quarter */
 void handle_screenshot(SOCKET sock, const char *args)
 {
@@ -23,6 +74,7 @@ void handle_screenshot(SOCKET sock, const char *args)
     int cap_w, cap_h;
     HDC hScreenDC, hMemDC;
     HBITMAP hBitmap, hOld;
+    HPALETTE hPal = NULL, hOldPal = NULL;
     BITMAPINFOHEADER bih;
     BITMAPFILEHEADER bfh;
     DWORD row_size, pixel_data_size, total_size;
@@ -53,6 +105,13 @@ void handle_screenshot(SOCKET sock, const char *args)
     hBitmap = CreateCompatibleBitmap(hScreenDC, cap_w, cap_h);
     hOld = (HBITMAP)SelectObject(hMemDC, hBitmap);
 
+    /* 256-colour modes only - see screen_palette_for_capture(). */
+    hPal = screen_palette_for_capture(hScreenDC);
+    if (hPal) {
+        hOldPal = SelectPalette(hMemDC, hPal, FALSE);
+        RealizePalette(hMemDC);
+    }
+
     if (quality == 0) {
         BitBlt(hMemDC, 0, 0, cap_w, cap_h, hScreenDC, 0, 0, SRCCOPY);
     } else {
@@ -76,6 +135,7 @@ void handle_screenshot(SOCKET sock, const char *args)
 
     pixel_buf = (char *)HeapAlloc(GetProcessHeap(), 0, pixel_data_size);
     if (!pixel_buf) {
+        if (hPal) { SelectPalette(hMemDC, hOldPal, FALSE); DeleteObject(hPal); }
         SelectObject(hMemDC, hOld);
         DeleteObject(hBitmap);
         DeleteDC(hMemDC);
@@ -92,6 +152,7 @@ void handle_screenshot(SOCKET sock, const char *args)
     bmp_data = (char *)HeapAlloc(GetProcessHeap(), 0, total_size);
     if (!bmp_data) {
         HeapFree(GetProcessHeap(), 0, pixel_buf);
+        if (hPal) { SelectPalette(hMemDC, hOldPal, FALSE); DeleteObject(hPal); }
         SelectObject(hMemDC, hOld);
         DeleteObject(hBitmap);
         DeleteDC(hMemDC);
@@ -110,6 +171,7 @@ void handle_screenshot(SOCKET sock, const char *args)
     memcpy(bmp_data + sizeof(bfh) + sizeof(bih), pixel_buf, pixel_data_size);
 
     /* Cleanup GDI */
+    if (hPal) { SelectPalette(hMemDC, hOldPal, FALSE); DeleteObject(hPal); }
     SelectObject(hMemDC, hOld);
     DeleteObject(hBitmap);
     DeleteDC(hMemDC);
@@ -184,6 +246,7 @@ static void screendiff_core(SOCKET sock)
     int screen_w, screen_h;
     HDC hScreenDC, hMemDC;
     HBITMAP hBitmap, hOld;
+    HPALETTE hPal = NULL, hOldPal = NULL;
     BITMAPINFOHEADER bih;
     DWORD row_size, pixel_data_size;
     char *curr_pixels;
@@ -207,6 +270,14 @@ static void screendiff_core(SOCKET sock)
     hBitmap = CreateCompatibleBitmap(hScreenDC, screen_w, screen_h);
     hOld = (HBITMAP)SelectObject(hMemDC, hBitmap);
 
+    /* Same 256-colour translation the still capture needs; without it a tile
+     * diff on an 8-bpp display compares noise against noise. */
+    hPal = screen_palette_for_capture(hScreenDC);
+    if (hPal) {
+        hOldPal = SelectPalette(hMemDC, hPal, FALSE);
+        RealizePalette(hMemDC);
+    }
+
     BitBlt(hMemDC, 0, 0, screen_w, screen_h, hScreenDC, 0, 0, SRCCOPY);
 
     memset(&bih, 0, sizeof(bih));
@@ -222,6 +293,7 @@ static void screendiff_core(SOCKET sock)
 
     curr_pixels = (char *)HeapAlloc(GetProcessHeap(), 0, pixel_data_size);
     if (!curr_pixels) {
+        if (hPal) { SelectPalette(hMemDC, hOldPal, FALSE); DeleteObject(hPal); }
         SelectObject(hMemDC, hOld);
         DeleteObject(hBitmap);
         DeleteDC(hMemDC);
@@ -233,6 +305,7 @@ static void screendiff_core(SOCKET sock)
     GetDIBits(hMemDC, hBitmap, 0, screen_h, curr_pixels,
               (BITMAPINFO *)&bih, DIB_RGB_COLORS);
 
+    if (hPal) { SelectPalette(hMemDC, hOldPal, FALSE); DeleteObject(hPal); }
     SelectObject(hMemDC, hOld);
     DeleteObject(hBitmap);
     DeleteDC(hMemDC);
