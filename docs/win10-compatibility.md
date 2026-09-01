@@ -18,8 +18,8 @@ Windows 11 VM — see [The rig](#the-rig) for what it can and cannot answer.
 |---|---|
 | **RUNS** | **26** |
 | **RUNS WITH CAVEATS** — runs, but needs a step the fleet does not do today | **12** |
-| **BLOCKED** — no route from the staged tree | **9** |
-| **UNTESTED** — the rig could not answer; analysis says they are fine | **3** |
+| **BLOCKED** — no route from the staged tree | **8** |
+| **UNTESTED** — the rig could not answer | **4** |
 | total | **50** |
 
 **About three quarters of the library — 38 of 50 — is playable on Windows 11
@@ -37,7 +37,7 @@ which it is, and the analysed rows say which measured title they lean on.
 |---|---|---|
 | **A live SafeDisc wrapper** | SystemShock2, MaxPayne, BF1942 (client only) | **No.** Not without replacing the executable. |
 | **A 1997–2000 DirectDraw/D3D engine that cannot create its surface** | AliensVsPredator, RainbowSix, JediKnightDF2, JediKnightMotS | Only a community patch or a re-release. |
-| **A dead middleware dependency** | ThiefGold (`lgvid.ax` video filter), Halo2 (Games for Windows LIVE) | Community patch / NewDark. |
+| **A dead middleware dependency** | ThiefGold (`lgvid.ax` video filter) | Community patch (NewDark). |
 
 **The SafeDisc scare is mostly a false alarm, and that is the single most
 useful finding here.** Six staged titles carry SafeDisc evidence — a `BoG_`
@@ -112,7 +112,7 @@ measured same-engine control named in the notes.
 | 12 | FarCry | RUNS | A | D3D9, 2004, and **no protection wrapper survives in the staged tree** — retail Far Cry was SafeDisc, so the staged executable has already been replaced. |
 | 13 | HalfLife1 | RUNS WITH CAVEATS | M | Menu renders; the software renderer reaches in-game (`crossfire`, textures and sky correct). Two caveats, both measured: the **OpenGL** path answers *"The selected OpenGL mode is not supported by your video card"* without a GPU ICD, and `-soft -full` exits (windowed software is fine). The CD-key prompt appears until `install.reg` is merged — its key is HKCU, which is **not** redirected, so a plain import works for that half. |
 | 14 | Halo | RUNS WITH CAVEATS | M | **The worked example of the `/reg:32` problem.** With `install.reg` imported by the default 64-bit `reg.exe`, Halo stops at its EULA — the 32-bit game cannot see `HKLM\SOFTWARE\Microsoft\Microsoft Games\Halo`. With `reg import ... /reg:32` it reaches the main menu, fullscreen 1280×800. |
-| 15 | Halo2 | **BLOCKED** | A | Games for Windows LIVE. The service is gone and the staged tree has no replacement; the only working modern route is a third-party executable replacement, which is a different kind of fix from anything this library does. |
+| 15 | Halo2 | **UNTESTED** | A | **Do not assume Games for Windows LIVE.** Another session measured Halo 2 Vista reaching its main menu on `.246` (Windows 7 32-bit) on 2026-09-01, with no product-key prompt: `sldl_dll.dll` imports no `slc.dll`, so its licence store is self-contained and the "the service is dead" reasoning does not apply. Windows 11 is a much closer relative of Vista than XP is, and the two known gates are both satisfiable — the disc's XP-only 6 KB `dwmapi.dll` stub must *not* be placed beside the exe (it now ships as `dwmapi.dll.xpshim`, and Windows 11 has the real one), and `halo2.exe` needs `d3dx9_31.dll` from the DirectX redist, which is not in the tree. Never started on Windows 11. |
 | 16 | HexenII | RUNS | A | Quake engine with both a software and a GL build staged; the software shortcut is the safe one. Control: Quake 1, measured on both renderers. |
 | 17 | HiddenAndDangerous | **UNTESTED** | M | Rig limit: *"Unable to initialize graphics. This program requires DirectX 8 or greater."* There is no `d3d8on12`, so a driverless Windows cannot run any D3D8 title. Analysis: clean PE, no protection — expected to run on the OMEN. |
 | 18 | JediAcademy | RUNS WITH CAVEATS | A | id Tech 3 (control: Quake III, measured). Needs `_disc\JediAcademy_CD1.iso` mounted — Windows 11 can do that itself. |
@@ -188,11 +188,17 @@ patches and re-releases exist for both. Rainbow Six and Turok 2 are the two
 results most contaminated by the rig's missing GPU; retest them on the OMEN
 before treating them as settled.
 
-### These two lost a dependency that no longer exists
+### This one lost a dependency that no longer works
 
 **ThiefGold** — crashes in `lgvid.ax`, the Looking Glass DirectShow video
-filter. **Halo2** — Games for Windows LIVE. Both have community fixes (NewDark;
-a replacement executable) and neither fix is staged.
+filter, on the intro movie. The community fix is NewDark, the same patch Thief 2
+in this library already has; it is not staged for Thief 1.
+
+Halo 2 *was* in this group until 2026-09-01, on the assumption that Games for
+Windows LIVE gates it. It does not: another session proved on `.246` that its
+licence store is self-contained. That assumption was knowledge, not
+measurement, and it was wrong — which is the argument for keeping the two apart
+everywhere in this document.
 
 ---
 
@@ -380,6 +386,9 @@ Windows 11 evaluation licence in it expires after 90 days.
 
 * **DeusEx, Doom3, HiddenAndDangerous** — the rig has no GPU. Analysis says all
   three run; nobody has seen them.
+* **Halo2** — never started on Windows 11 at all. It reaches its main menu on
+  Windows 7, which is the strongest signal in the whole analysed half, and it
+  is still not a measurement on Windows 11.
 * **RainbowSix and Turok2** — measured as failing, but on a driverless display
   adapter. These two are the likeliest to change on the OMEN.
 * **The other 25 analysed titles** were never started on Windows. Each leans on
