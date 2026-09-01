@@ -217,7 +217,10 @@ def test_both_failure_branches_gate_on_requiredisc():
     t = _template()
 
     # branch 1: no mounter found at all
-    i = t.index('if not defined DT if not defined WCD (')
+    # a third mounter joined in 2026-09: Windows' own Mount-DiskImage.
+    # The GATE is what this test is about - all three must be absent
+    # before the launcher refuses - so the condition grew, not the rule.
+    i = t.index('if not defined DT if not defined WCD if not defined NATIVEMOUNT (')
     branch1 = t[i:t.index('\r\n)\r\n', i)]
     assert '"%REQUIREDISC%"=="1"' in branch1, \
         ('the "NO DISC MOUNTER IS INSTALLED" branch does not honour '

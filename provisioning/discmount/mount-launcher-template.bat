@@ -103,6 +103,7 @@ if not exist "%IMAGE%" (
 rem ---- 2. find a mounter -------------------------------------------------
 call :finddt
 call :findwcd
+call :findnative
 rem BOTH failure branches must gate on REQUIREDISC, and for a long time only
 rem the other one did. This branch was unconditional, so a shortcut that does
 rem NOT need its disc still refused to launch on a box with no mounter at all -
@@ -112,9 +113,9 @@ rem typically carries no CD check. Refusing there would have thrown away a
 rem proven capability to enforce a requirement the shortcut does not have.
 rem Caught by the serioussam agent while migrating its launchers onto this
 rem template; the asymmetry IS the bug, which is why the test covers both.
-if not defined DT if not defined WCD (
+if not defined DT if not defined WCD if not defined NATIVEMOUNT (
     if "%REQUIREDISC%"=="1" (
-        call :fail "NO DISC MOUNTER IS INSTALLED on this machine. Looked for Daemon Tools (Program Files\D-Tools, DAEMON Tools, DAEMON Tools Lite; registry App Paths daemon.exe and DTLite.exe; HKLM\SOFTWARE\DT Soft) and for WinCDEmu (Program Files\WinCDEmu batchmnt64.exe and batchmnt.exe; registry Uninstall\WinCDEmu InstallLocation), then searched Program Files for both. Install one - this is an INSTALL problem, not a mount problem."
+        call :fail "NO DISC MOUNTER IS INSTALLED on this machine. Looked for Daemon Tools (Program Files\D-Tools, DAEMON Tools, DAEMON Tools Lite; registry App Paths daemon.exe and DTLite.exe; HKLM\SOFTWARE\DT Soft), for WinCDEmu (Program Files\WinCDEmu batchmnt64.exe and batchmnt.exe; registry Uninstall\WinCDEmu InstallLocation), and for Windows' OWN Mount-DiskImage (Windows 8 and later, .iso only), then searched Program Files for both. Install one - this is an INSTALL problem, not a mount problem."
         goto :theend
     )
     echo [%GTITLE%] no disc mounter on this box - starting anyway; this
@@ -171,6 +172,20 @@ rem wrong-architecture batchmnt is the case this exists for.
 if not defined DISCDRV if defined WCD2 (
     echo [%GTITLE%] retrying with %WCD2% ...
     "%WCD2%" "%IMAGE%" >nul 2>&1
+    call :waitdisc 12
+)
+rem WINDOWS MOUNTS ISOs ITSELF from Windows 8 onward, and the fleet's answer
+rem to "no mounter" used to be a hard refusal ON AN OS THAT HAS ONE BUILT IN.
+rem Measured on Windows 11: eight of the eleven disc-backed titles are .iso
+rem and every one of them refused to launch with "NO DISC MOUNTER IS
+rem INSTALLED". This is last, deliberately - Daemon Tools and WinCDEmu can
+rem EMULATE copy protection and Mount-DiskImage cannot, so a SafeDisc title
+rem must still prefer them; this only rescues the ordinary majority.
+rem .cue/.bin are NOT supported by Mount-DiskImage - :findnative only sets
+rem NATIVEMOUNT for a .iso, so those titles still report honestly.
+if not defined DISCDRV if defined NATIVEMOUNT (
+    echo [%GTITLE%] trying Windows Mount-DiskImage ...
+    powershell -NoProfile -NonInteractive -Command "Mount-DiskImage -ImagePath '%IMAGE%' -ErrorAction SilentlyContinue | Out-Null" >nul 2>&1
     call :waitdisc 12
 )
 if defined DISCDRV goto :mounted
@@ -440,6 +455,23 @@ if exist %1 set "WCD=%~1"
 goto :eof
 
 rem Loud, attributable failure - on screen and in a file an agent can fetch.
+rem ==========================================================================
+rem :findnative - is Windows itself able to mount this image?
+rem
+rem Windows 8 and later ship Mount-DiskImage. Two guards, both necessary:
+rem   * .iso ONLY. Mount-DiskImage does not read .cue/.bin/.mds, and a title
+rem     staged with those must keep reporting "no mounter" rather than
+rem     pretending it can be mounted and failing later, further from the cause.
+rem   * powershell must actually EXIST. XP has none, so NATIVEMOUNT stays
+rem     unset there and every XP box behaves exactly as it did before.
+rem ==========================================================================
+:findnative
+set "NATIVEMOUNT="
+echo %IMAGE% | find /i ".iso" >nul 2>&1 || goto :eof
+where powershell >nul 2>&1 || goto :eof
+set "NATIVEMOUNT=1"
+goto :eof
+
 :fail
 echo.
 echo   ============================================================

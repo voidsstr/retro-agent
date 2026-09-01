@@ -953,6 +953,42 @@ it lies.**
   how a matrix starts lying — this one currently reports 133 of them, and that
   honesty is the point.
 
+## WRITING TO THE SHARE: VERIFY EACH FILE, NOT THE BATCH (REQUIRED)
+
+**gvfs silently drops writes to this NAS, and a failed `cp` leaves the
+destination MISSING, not unchanged.** Measured 2026-09-01 while shipping
+regenerated launchers: a bash loop copying six files through
+`/run/user/1000/gvfs/smb-share:...` destroyed three of them — `Host Serious Sam
+TFE - LAN.bat`, `Join Serious Sam TSE - LAN.bat` and `Play Serious Sam - The
+Second Encounter.bat` were **gone from the library**, not stale. One file failed
+twice even when copied individually, and once reported a matching md5 and was
+absent again seconds later.
+
+So, when writing to `/mnt/retro-share`:
+
+* **Verify EACH file immediately after writing it**, before the next one — hash
+  it back through `/mnt`, which is a different mount from the gvfs path you
+  wrote through. A loop that copies everything and checks at the end has
+  already destroyed files by the time it looks. The batch report is worthless:
+  the run that ate three launchers printed `copied 10, failed 0` for the batch
+  before it.
+* **If gvfs drops a file twice, switch to `smbclient put`.** It backdates mtimes
+  on this NAS to Oct 2007, which is cosmetic; a present correct file beats an
+  absent one. The mtime caveat is why gvfs is preferred *first*, not a reason
+  to keep retrying it.
+* **Regenerated launchers are recoverable** — they come from
+  `provisioning/discmount/specs/` plus the template, via
+  `scripts/fleet/make-mount-launcher.py`. Nothing was lost above. Tree content
+  is NOT recoverable that way; be correspondingly more careful with it.
+* **`validate-staged-library.py` is the check that a title is whole again.**
+  Run it after any write to the library, not just after staging a new title.
+
+A related trap from the same day: **a template change is not finished until the
+launchers ship.** `test_shipped_launcher_matches_its_spec` reads the SHARE, and
+`test_serioussam_staging` checks six MORE launchers that the first test's table
+does not list. Change the template and both must be regenerated — the second
+set was missed precisely because it lives in a different test.
+
 ## INSTALL IN THE BUILD VM, NOT ON A FLEET BOX (REQUIRED)
 
 **User directive, 2026-09-01: every new title is installed in the build VM, its
