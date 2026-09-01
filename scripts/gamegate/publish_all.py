@@ -40,7 +40,53 @@ from client.retro_protocol import RetroConnection
 
 SECRET = "retro-agent-secret"
 # Any box with the share mapped can write it; the file lands on the SERVER.
-WRITER = "192.168.1.124"
+# The box used to WRITE the verdict files onto the share.
+#
+# This was hardcoded to .124, which meant the publisher could not run whenever
+# that one machine was off - and this fleet is powered on demand, so that is
+# the normal state, not an edge case. Measured 2026-08-31: publishing verdicts
+# for .240's new GPU failed with "Connect call failed ('192.168.1.124', 9898)"
+# while .240 itself, .133, .143 and .246 were all up and answering.
+#
+# Now: an override, then the first box that actually answers. The writer only
+# needs a mapped share and a working agent; it does not have to be any
+# particular machine.
+WRITER = os.getenv("RETRO_GAMEGATE_WRITER", "")
+WRITER_CANDIDATES = ["192.168.1.124", "192.168.1.123", "192.168.1.133",
+                     "192.168.1.143", "192.168.1.240", "192.168.1.246"]
+
+
+async def _pick_writer():
+    """First candidate that can actually WRITE, not merely answer.
+
+    An answering agent is not a usable writer: .123 replies to PING perfectly
+    and has no Z: mapping at all, so the first version of this picked it and
+    the publish failed with "Cannot create file: error 3" (path not found).
+    Verify the post-condition - can this box SEE the target directory - rather
+    than the return value. A stale or missing share mapping is common here;
+    CLAUDE.md records boxes answering `net use` with "no entries in the list"
+    and with an "Unavailable" drive.
+    """
+    if WRITER:
+        return WRITER
+    for ip in WRITER_CANDIDATES:
+        try:
+            c = RetroConnection(ip, 9898)
+            await c.connect(SECRET, timeout=8.0)
+            try:
+                r = await c.command_text(
+                    'EXEC cmd /c if exist "%s" (echo YES) else (echo NO)'
+                    % SHARE_DIR, timeout=20.0)
+            finally:
+                await c.close()
+            if "YES" in r.upper():
+                return ip
+        except Exception:
+            continue
+    raise SystemExit(
+        "no reachable fleet box can SEE %s. The publisher needs one machine "
+        "with the share mapped - an agent that merely answers is not enough. "
+        "Set RETRO_GAMEGATE_WRITER to override the candidate list." % SHARE_DIR)
 SHARE_DIR = "Z:\\Files\\Games-Library\\_gamegate"
 FLEET = ["192.168.1.123", "192.168.1.124", "192.168.1.133", "192.168.1.143",
          "192.168.1.145", "192.168.1.171", "192.168.1.240", "192.168.1.246"]
@@ -73,7 +119,9 @@ async def main_async(ips, verify_only):
     model = getattr(judge, "model", "") or ""
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
-    conn = RetroConnection(WRITER, 9898)
+    writer = await _pick_writer()
+    print("writer: %s" % writer)
+    conn = RetroConnection(writer, 9898)
     await conn.connect(SECRET, timeout=20.0)
     await conn.send_command(
         f'EXEC cmd /c if not exist "{SHARE_DIR}" mkdir "{SHARE_DIR}"')
