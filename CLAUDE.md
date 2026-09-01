@@ -2363,6 +2363,82 @@ retail 1.0 in fact raises that modal **before any key prompt**.
   **TOGGLES** — only *"All options ON"* is a SET — so verify the post-condition
   (checkmarks **and** a changed `d347bus\Cfg\khjeh` blob), never the click.
 
+## Halo PC: ONE SIMULTANEOUS PLAYER PER CD KEY (measured 2026-08-31)
+
+**Halo allows one concurrent player per key, and it reports the second machine
+as `Your CD Key is invalid` — the same wording it uses for a key that is
+genuinely bad.** That collision is the whole trap: the error was read as "this
+key is wrong", the fleet's key was replaced, and the problem moved instead of
+going away.
+
+The experiment that settled it, one server (`.246:2302`), one key:
+
+| | |
+|---|---|
+| `.145` joins alone | **in-game** |
+| `.240` joins while `.145` is still connected | **"Your CD Key is invalid"** |
+| `.145` disconnected, `.240` joins alone | **in-game** |
+
+Same key, same box, same server. The only variable was whether another machine
+was already using that key.
+
+**`halo.exe` has NO "key already in use" string at all** — every binary in the
+tree was searched. So the absence of that message is NOT evidence the check
+does not exist; the rejection comes from the server and reuses the generic
+text. Reasoning "the game has no such message, therefore no such check" is
+exactly the wrong inference, and it was made here.
+
+**So N machines in one Halo game need N DISTINCT keys.**
+
+**SEVEN working keys are vaulted** as `fleet-gamekey-halo-pc` and
+`fleet-gamekey-halo-pc-3` … `-8`, each tagged with the date it authenticated
+and a `concurrency` tag stating the one-player limit. Every one was proved by
+joining the `.246:2302` LAN server **as the sole player**, with all other Halo
+instances killed and the session given time to expire first — a key that
+"works" while sharing a session proves nothing. Screenshots are the evidence.
+
+**`fleet-gamekey-halo-pc-2` is tagged REJECTED and kept deliberately**, per the
+vault's `verified=` convention: it is refused by the server even as the only
+player (tested twice, on two boxes), and keeping it stops someone re-trying it.
+It installs and reaches the main menu exactly like the working keys — the
+difference appears only at the server check, which is why "it launches" is not
+evidence a Halo key is good.
+
+**Format-check a key before deploying it.** Halo uses Microsoft's base-24
+alphabet `BCDFGHJKMPQRTVWXY2346789`, which deliberately omits every look-alike
+(`A E I L N O S U Z 0 1 5`). A 25-character key containing any of those cannot
+be a Halo key and needs no hardware test — one supplied key was ruled out that
+way in seconds.
+
+Assign them with:
+
+```bash
+python3 scripts/halo/assign_keys.py --keys-file keys.txt \
+        --boxes 192.168.1.145,192.168.1.240,192.168.1.123
+```
+
+It builds each box's `DigitalProductID` with `make_dpid.py`, **reads the blob
+back to verify**, never echoes a key (fingerprints only), and **refuses a
+duplicate outright** — because a shared key produces the misleading error above
+rather than an honest one.
+
+**Two useful facts for diagnosing this title:**
+- **`halo.exe -connect <ip>:<port>` bypasses the menu**, which matters because
+  Halo's shell ignores synthetic keyboard AND absolute clicks — the menu cannot
+  be driven by the agent at all. `-connect` is how the LAN join above was
+  tested with nobody at the keyboard.
+- **A forced `taskkill` of `halo.exe` makes the next launch open a
+  crash-recovery dialog** (*"the game did not exit correctly"*), which sits on
+  top of everything and contaminated two runs here before it was noticed. Tick
+  *"Don't show this warning again"* or expect to dismiss it every time.
+
+**Key status (2026-08-31):** `fleet-gamekey-halo-pc` **works** — it
+authenticates and plays. `fleet-gamekey-halo-pc-2` is **rejected even as the
+only player**, tested twice on two boxes with every other instance killed and
+the server given time to release the session; it may belong to a different Halo
+release. Both install and reach the main menu identically — the difference only
+appears when the server checks them.
+
 ## Keys and Secrets — Azure Key Vault `nsc-secrets-kv` (REQUIRED)
 
 **Every product key, CD key, serial and credential this project depends on

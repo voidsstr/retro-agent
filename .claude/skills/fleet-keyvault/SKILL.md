@@ -260,6 +260,37 @@ nothing has yet authenticated with them. Per the `verified=` convention above,
 **move that tag only when something actually succeeds against Cloudflare** —
 storing a value proves only that it was copied correctly.
 
+## Halo: SEVEN keys, because the game allows one player each
+
+`fleet-gamekey-halo-pc` and `fleet-gamekey-halo-pc-3` … `-8` are seven working
+Halo: Combat Evolved keys. **Halo permits ONE simultaneous player per key** and
+refuses the second machine with `Your CD Key is invalid` — the same wording as
+a genuinely bad key — so the fleet needs one key per player, not one per
+licence-holder. Assign them with `scripts/halo/assign_keys.py`, which refuses
+to give two boxes the same key.
+
+`fleet-gamekey-halo-pc-2` is tagged **REJECTED** and kept on purpose. It is
+refused even as the sole player, tested twice on two boxes. Keeping a dead key
+so nobody re-tries it is exactly what the `verified=` convention is for.
+
+**Two things this taught that generalise:**
+
+* **"It launches" is not verification.** All eight keys install and reach
+  Halo's main menu identically; seven authenticate and one does not. The
+  difference appears only at the server check, so a key can look completely
+  fine and still be dead.
+* **Check the format first — it is free.** Halo uses Microsoft's base-24
+  alphabet `BCDFGHJKMPQRTVWXY2346789`, omitting every look-alike character
+  (`A E I L N O S U Z 0 1 5`). A key containing one of those cannot be a Halo
+  key, and no hardware test is needed to say so.
+
+> **⚠️ AZURE TAG VALUES CAP AT 256 CHARACTERS**, and a longer one is dropped
+> **silently** — `set-attributes` still reports success and the tag simply does
+> not change. That happened here while recording the rejection above: the tag
+> read `pending` afterwards and only a read-back caught it. This is the same
+> shape as the documented 255-char `contentType` limit. **Always read the tag
+> back.**
+
 ## Never commit a literal
 
 `tests/python/test_no_committed_secrets.py` greps every tracked text file for
