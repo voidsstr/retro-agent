@@ -161,7 +161,7 @@ control protocol, and a Hexen II host replies only to the game string
 | **Soldier of Fortune 1** | multiplayer refused **even with the disc** — see below | a disassembly, or the 1.07f patch. NOT a mounter |
 | **BF1942** | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works | a mounter whose emulation covers SafeDisc 2.80 — a kernel driver and a reboot per box, so a **user decision** |
 | **Far Cry** | server hosts unattended; CryEngine takes DirectInput exclusively | one click: Multiplayer → LAN |
-| **Halo** | ~~needs a person~~ — **SOLVED 2026-08-31.** The menu does ignore synthetic input, but `halo.exe -connect <ip>:<port>` skips it entirely and joins directly. The real limit is licensing: **one simultaneous player per CD key** (the *server* rejects the second joiner with the generic "CD key invalid" text), so each box needs its own key — see `scripts/halo/assign_keys.py`. `haloded.exe` is still not on the share, so a box hosts from the client. | nothing — automated |
+| **Halo** | **JOINING is automated; HOSTING is not.** `halo.exe -connect <ip>:<port>` skips the menu, so a client needs nobody. A HOST does: retail `halo.exe` **cannot be made dedicated** — measured 2026-09-01, see below — and its menu ignores synthetic input. Licensing is a separate constraint: **one simultaneous player per CD key**, each box needs its own (`scripts/halo/assign_keys.py`). | one person to start the game at the host's menu — OR `haloded.exe`, which is a free official download and is not on the share |
 | **Carmageddon 1 / 2** | tunnel proven both ends; the front end ignores click *and* key | click **HOST GAME** / **NETWORK GAME** |
 | **Hidden & Dangerous** | launcher bug fixed; stops at profile creation | create a profile, then copy `Savegame\*.bin` into the tree |
 | **Aliens vs Predator** | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black | drive its menus at the keyboard |
@@ -174,6 +174,46 @@ control protocol, and a Hexen II host replies only to the game string
 `UICLICK` sets an *absolute* pointer such menus do not follow. Descent 3, SoF2,
 Deus Ex and Far Cry are all in that class. Recognising it early is worth
 more than another hour of clicking.
+
+### Retail `halo.exe` cannot host headlessly — REFUTED 2026-09-01, on hardware
+
+Worth writing down because the binary looks like it should. `halo.exe`'s string
+table carries the whole dedicated-server side:
+
+    Dedicated server is running on map %s (%d / %d players)
+    Game Complete. Dedicated server is now idle.
+    sv_map / sv_mapcycle_begin / sv_map_next / sv_players ...
+    init.txt
+
+and a bare `dedicated`. So the server code is compiled in, and `-console`,
+`-exec` and `init.txt` are all real switches. The obvious conclusion — that a
+client can be told to host without touching the menu — **is wrong.**
+
+What was actually tried on `.145`, each launched through a `.bat` that `cd`s to
+the tree first (an absolute-path launch dies on `Cannot find 'C:\config.txt'`
+before anything else happens), each left 55–80 s, each **screenshotted**:
+
+| attempt | result |
+|---|---|
+| `-console -exec init.txt`, `init.txt` = `sv_map bloodgulch slayer` | Halo main menu. `sv_map` is *server-only* and a client at the menu is not a server. |
+| `-dedicated` | Halo main menu |
+| `-dedicated -console` | Halo main menu |
+| `-server` | Halo main menu |
+| `-console -dedicated` | Halo main menu |
+
+All four unknown switches are silently ignored — no error, no log (`> _ded.log`
+came back empty every time), just the menu. `netstat` shows `UDP 0.0.0.0:2302`
+bound in **every** case including the plain menu, so **a bound 2302 is not
+evidence of a server**; it is Halo's ordinary client port.
+
+Meanwhile `.123` and `.240` were pointed at it with `-connect 192.168.1.145:2302`
+and both answered **"Unable to join game."** — note that this is NOT "Your CD Key
+is invalid", which is what a licensing rejection looks like. Nothing was wrong
+with the keys; there was simply no game.
+
+So the remedy is `haloded.exe` (the free official Halo Dedicated Server; a
+case-insensitive sweep finds it nowhere on the share) or one person at the
+host's menu. Do not spend another session on switches.
 
 ## NO MULTIPLAYER — measured, not assumed
 
@@ -273,7 +313,7 @@ official 1.07f patch — **not another image**.
 | **Jedi Academy on `.124`/`.240`** | a **reboot** of those two boxes, to clear the locked DAEMON Tools unit. Everything else is staged and proven — it plays on `.143` and `.246`, and on a locked box the launcher now says so in `mount-error.txt` instead of hanging. |
 | **Soldier of Fortune 1 multiplayer** | **engineering**, not media — see above. |
 | **Far Cry, Carmageddon 1/2, AvP, Shogo, Descent 3, Deus Ex** | a **person at the keyboard**, once: their menus are driven by relative mouse deltas, which `UICLICK` cannot reach at all. |
-| ~~**Halo**~~ | **nothing — resolved 2026-08-31.** Its menu is in that class too, but `halo.exe -connect <ip>:<port>` bypasses the menu. Its one real constraint is one simultaneous player per CD key. |
+| **Halo** | a person **at the HOST only**, to start the game from its menu. Every client is automated by `-connect`. Or put `haloded.exe` on the share and no person is needed at all. |
 | **Hidden & Dangerous** | a person to create a profile once; then `Savegame\*.bin` is staged. |
 | **Turok 2** | investigation: host and browse work, `+connect` answers "Unable to contact the GameManager." |
 | **Red Faction** | investigation, with two untested leads recorded in its tree: `rf.exe` has **no `-connect`/`+connect` switch at all** (so "Add Server" is the only manual route) but it does have **`-trackerip`**, and the fleet's own favourites agent already records that RF LAN games are found by **broadcast** — a different control from the Get Servers / Add Server path everything has been tried on. Its dedicated server works and needs no disc. |

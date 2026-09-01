@@ -2575,7 +2575,25 @@ and **each carries a distinct key**, so all four can be in one game. `.124`,
 - **`halo.exe -connect <ip>:<port>` bypasses the menu**, which matters because
   Halo's shell ignores synthetic keyboard AND absolute clicks — the menu cannot
   be driven by the agent at all. `-connect` is how the LAN join above was
-  tested with nobody at the keyboard.
+  tested with nobody at the keyboard. **It automates the CLIENT only.**
+- **Retail `halo.exe` CANNOT be made a dedicated server — refuted on hardware
+  2026-09-01, do not retry it.** The binary looks like it should: its strings
+  hold `Dedicated server is running on map %s (%d / %d players)`, the whole
+  `sv_map`/`sv_mapcycle_*` family, `init.txt`, and a bare `dedicated`.
+  `-dedicated`, `-server`, `-console -dedicated` and `-console -exec init.txt`
+  with `sv_map bloodgulch slayer` were each launched on `.145` and each landed
+  on the **main menu** — unknown switches are ignored silently, with an empty
+  log. `sv_map` is *server-only* and a client at the menu is not a server.
+  Hosting needs `haloded.exe` (free official download, **not on the share**) or
+  one person at the host's menu. Full write-up in
+  [`docs/lan-multiplayer-status.md`](docs/lan-multiplayer-status.md).
+- **A bound `UDP 0.0.0.0:2302` is NOT evidence Halo is hosting.** It is Halo's
+  ordinary client port and is bound even when the game is sitting at the menu.
+  That reading nearly passed as a working server.
+- **Launch Halo through a `.bat` that `cd`s to the tree.** An absolute-path
+  `LAUNCH C:\Games\Halo\halo.exe` does not set the working directory and dies
+  on `Cannot find 'C:\config.txt'` before any other check runs — so that error
+  says nothing about the key, the tree or the network.
 - **A forced `taskkill` of `halo.exe` makes the next launch open a
   crash-recovery dialog** (*"the game did not exit correctly"*), which sits on
   top of everything and contaminated two runs here before it was noticed. Tick
