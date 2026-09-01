@@ -43,6 +43,37 @@ PLACEHOLDER = re.compile(
 )
 
 
+# Microsoft's base-24 product-key alphabet, in order. It omits the characters
+# that look like one another (A/4, E/3, I/1, L, N, O/0, S/5, U/V, Z/2).
+_B24 = "BCDFGHJKMPQRTVWXY2346789"
+
+
+def _is_alphabet_walk(lit):
+    """True for a fixture key written by walking the key alphabet in order.
+
+    `BCDFG-HJKMP-QRTVW-XY234-6789B` is not a leak - it is what someone writes
+    when they need a key-SHAPED string the real encoder will accept. The
+    encoder rejects any character outside _B24, so such a fixture cannot be
+    built from "XXXXX" or "AAAAA"; it has to come out of this alphabet, which
+    is why the plain PLACEHOLDER rule above cannot cover it.
+
+    A consecutive run of the alphabet (wrapping allowed, since 25 characters do
+    not divide 24) is not a key anyone was issued. A real key has one chance in
+    roughly 24**24 of walking the alphabet in order, so this cannot launder a
+    genuine key by accident - and it stays narrow, unlike adding the file to
+    ALLOWED_FILES, which would blind the scanner to a real key pasted into that
+    same file later.
+    """
+    body = lit.replace("-", "").upper()
+    if len(body) < 20 or any(c not in _B24 for c in body):
+        return False
+    n = len(_B24)
+    return all(
+        (_B24.index(b) - _B24.index(a)) % n == 1
+        for a, b in zip(body, body[1:])
+    )
+
+
 def _tracked_text_files():
     out = subprocess.run(
         ["git", "-C", REPO, "ls-files", "-z"],
@@ -109,7 +140,7 @@ def test_no_key_shaped_literal_is_committed():
         for label, rx in KEY_SHAPES:
             for m in rx.finditer(text):
                 lit = m.group(0)
-                if PLACEHOLDER.match(lit):
+                if PLACEHOLDER.match(lit) or _is_alphabet_walk(lit):
                     continue
                 line = text.count("\n", 0, m.start()) + 1
                 # Report the SHAPE and the location, never the value itself --
@@ -231,3 +262,45 @@ def test_the_vaulted_secrets_do_not_appear_in_the_tree():
         "a vaulted secret's literal value is committed to this repo:\n  "
         + "\n  ".join(hits)
         + "\nReference it by vault NAME. Tell the user before rewriting history.")
+
+
+def test_the_alphabet_walk_exemption_cannot_launder_a_real_key():
+    """The narrow exemption must stay narrow.
+
+    `_is_alphabet_walk` exists so a test fixture built from the key alphabet
+    (the encoder rejects anything else, so a fixture cannot say "XXXXX") is not
+    reported as a leak. If it ever accepted an ordinary key-shaped string it
+    would silently switch the scanner off, which is worse than not having it.
+    """
+    # what a fixture looks like: the alphabet, in order, wrapping
+    assert _is_alphabet_walk("BCDFG-HJKMP-QRTVW-XY234-6789B")
+    assert _is_alphabet_walk("CDFGH-JKMPQ-RTVWX-Y2346-789BC")
+    assert _is_alphabet_walk("BCDFGHJKMPQRTVWXY2346789")      # no dashes
+
+    # what a real key looks like: same alphabet, not in order. These two
+    # are INVENTED scrambles, not anyone's key - the sibling test
+    # test_the_vaulted_secrets_do_not_appear_in_the_tree fails the suite if a
+    # vaulted value is ever pasted here, and it caught exactly that mistake
+    # while this test was being written.
+    assert not _is_alphabet_walk("QW2XB-4KMTG-9CJ6R-HD3PF-7VY8B")
+    assert not _is_alphabet_walk("T7BMC-3XQ9K-J4WGD-2FYHR-V68PB")
+    # one character out of place is enough to make it a key again
+    assert not _is_alphabet_walk("BCDFG-HJKMP-QRTVW-XY234-6789C")
+    # a descending run is not a walk
+    assert not _is_alphabet_walk("9876432-YXWVT-RQPMK-JHGFD-CB")
+    # too short to be a key at all
+    assert not _is_alphabet_walk("BCDFG-HJKMP")
+    # right length, wrong alphabet (contains A, E, I, L, N, O, S, U, Z or 0/1/5)
+    assert not _is_alphabet_walk("ABCDE-FGHIJ-KLMNO-PQRST-UVWXY")
+
+
+def test_the_scanner_still_catches_a_key_that_is_not_a_walk():
+    """End to end: a plausible key literal in a tracked file is still a hit."""
+    for _label, rx in KEY_SHAPES:
+        for m in rx.finditer("key = QW2XB-4KMTG-9CJ6R-HD3PF-7VY8B"):
+            lit = m.group(0)
+            if PLACEHOLDER.match(lit) or _is_alphabet_walk(lit):
+                raise AssertionError(
+                    "the scanner would let a real Microsoft-shaped key through")
+            return
+    raise AssertionError("no KEY_SHAPES pattern matched a 5x5 product key")

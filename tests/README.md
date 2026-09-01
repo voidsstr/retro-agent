@@ -139,6 +139,9 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 
 | Fix | Component | Test |
 |-----|-----------|------|
+| **a shared Halo CD key is only a FAULT between boxes that HAVE Halo** — Halo allows one simultaneous player per key, so `audit_keys.py` reports duplicates; its first version flagged `.133`/`.143`, neither of which has `halo.exe` (the gate refuses the title there — no SSE2), which made stale registry state read as a licensing fault (2026-09-01) | `scripts/halo/audit_keys.py` (`classify_duplicates`) | `python/test_halo_key_audit.py` |
+| **the secret scanner reported a test fixture as a leaked key** — a key-shaped fixture cannot be written as `XXXXX`, because the encoder only accepts the base-24 alphabet, so `PLACEHOLDER` could never cover one; the narrow exemption is "a consecutive walk of that alphabet", which a real key has ~1 in 24²⁴ chance of matching. Found only after the file was COMMITTED — `git ls-files` cannot see an untracked file, so the suite was green while the leak-shape was still `??` (2026-09-01) | `tests/python/test_no_committed_secrets.py` (`_is_alphabet_walk`) | `python/test_no_committed_secrets.py::test_the_alphabet_walk_exemption_cannot_launder_a_real_key` |
+| **tests/README.md had drifted into naming barely half the suite** — 53 Python and 11 native test files had no row anywhere, so the fix→test table read as complete while it was not (2026-09-01) | `tests/README.md` | `python/test_readme_lists_every_test.py` |
 | **a verdict file that shrank must SAY so** — `publish --title` rendered only the named title and wrote it over the whole per-box file, leaving seven of eight boxes a one-row file that was perfectly well formed and reported by nothing; found by counting rows by hand, which is not a mechanism (2026-08-30) | `scripts/gamegate/rules.py` (`# titles=N`) + `agent/shared/gamegate.h` | `native/test_verdict_coverage.c` |
 | **the gate's cache key is pinned to the fleet's real published hashes** — `test_gamegate.c` only asserts relative stability, so a uniform drift (a field added to the fold, a bucket resized) passes it while every box silently loses the verdict file named by its hash (2026-08-30) | `agent/shared/gamegate.h` | `native/test_profile_hash_pin.c` |
 | **agent 1.77.1: the record was landing stamped with the RETRO BOX's clock** — `CopyFile` propagates the source timestamp, handing the staleness test the one clock it was built not to trust (2026-08-30) | agent `hwpublish.c` | `native/test_hwpublish.c`, `python/test_fleet_inventory.py` |
@@ -372,11 +375,6 @@ silent skip would let the library rot back to the broken state unnoticed.
 | the disc image a launcher mounts must exist in the tree, and a `.cue`'s `FILE` line must resolve beside it | same |
 
 
-<!-- ===================================================================== -->
-<!-- Appended by the `lanservers` session, 2026-09-01. Kept as its own      -->
-<!-- block because tests/README.md was concurrently modified in another     -->
-<!-- worktree; merge it into the tables above when that lands.              -->
-<!-- ===================================================================== -->
 
 ## Game servers added 2026-09-01 — fix → test
 
@@ -388,3 +386,91 @@ silent skip would let the library rot back to the broken state unnoticed.
 | **`healthcheck.py` and `gameservers.py` disagreed about what this host runs** — 18 vs 20, so `descent3-server` and `farcry-server` were live and unchecked by the tool documented as the one-shot check of EVERY server | `scripts/game-servers/healthcheck.py` | `python/test_gameservers.py::test_healthcheck_and_gameservers_cover_the_same_servers` |
 | **`host-duties.py` kept a SECOND hand-written game-server list** and it rotted: nine names against twenty-four running servers, so the after-a-reboot check answered ALL HOST DUTIES UP with fifteen servers it had never heard of | `scripts/fleet/host-duties.py::_game_units` | `python/test_host_duties.py::test_game_servers_come_from_gameservers_py_not_a_second_hand_kept_list` |
 | **the watchdog had no start-up grace**, so a Wine-in-docker server still booting (Serious Sam loading a level from a .gro, Shogo's xdotool-driven wizard, ~70s before the port is even bound) read as `active but mute 3 cycles` at 60s and was restarted mid-boot — starting the same slow boot over, and on a host reboot doing it to several servers at once | `scripts/game-servers/gameservers.py` (`slow_start_sec`), `gameservers_watch.py::decide` | `python/test_gameservers.py::test_a_slow_starting_server_is_not_mistaken_for_a_wedged_one`, `::test_the_grace_expires_and_a_genuinely_wedged_slow_server_is_restarted`, `::test_every_wine_in_docker_server_declares_a_slow_start` |
+
+## Backfilled index — the rest of the suite (added 2026-09-01)
+
+The `Fix → test coverage` table above is hand-written and had drifted: 53 Python
+and 11 native test files existed with **no row anywhere in this file**, so the
+table read as the whole suite while covering barely half of it. That is this
+project's signature failure — a document reporting success — so the rows below
+were generated from each file's own docstring and the commit that introduced it,
+and `python/test_readme_lists_every_test.py` now fails the suite if a new test
+file is added without a row.
+
+These rows are **mechanically derived**, not curated. When you touch one of these
+tests, rewrite its row in the voice of the table above — what broke, how it was
+found — and move it up there.
+
+### `tests/python/`
+
+| Fix | Test |
+|-----|------|
+| **agent 1.29.0: GAMEINDEX command, and fix the Win98 CRT shim that broke the build** (2026-08-25) — agent/lib/libmsvcrt.a — the Win98 CRT import-lib shim must stay valid | `python/test_agent_crtlib.py` |
+| **gameindex host pipeline + a real fleet-scope policy for the chat brain** (2026-08-25) — retro_brain_guard — the chat brain's fleet-scope policy | `python/test_brain_guard.py` |
+| **brain: publish queue files atomically - answers were being deleted mid-write** (2026-08-28) — The chat brain must never publish a queue file the daemon can read half-written | `python/test_chat_brain_atomic_outbox.py` |
+| **tests: the chat daemon's shared connection must only be touched under its lock** (2026-08-28) — The chat daemon's shared send connection must only be touched under its lock | `python/test_chat_daemon_conn_safety.py` |
+| **tests: reaping an offline box must not kill the whole chat daemon** (2026-08-28) — Reaping an offline box must not take the whole chat daemon down with it | `python/test_chat_daemon_reap_survival.py` |
+| **compat: guard that a `verified` cell keeps evidence that still EXISTS** (2026-08-31) — A `verified` cell must keep at least one piece of evidence that still exists | `python/test_compat_evidence_survives.py` |
+| **compat-publish: the default dashboard URL was never a real Azure hostname** (2026-08-31) — The dashboard URL must be a real Container Apps FQDN | `python/test_compat_publish_url.py` |
+| **compat: a per-shortcut measurement was invisible to the matrix** (2026-08-31) — A per-shortcut measurement must not be invisible to the matrix | `python/test_compat_shortcut_visibility.py` |
+| **cs16: LAN game servers on whitebeast + a vanilla-minus-blood CS 1.6 mod** (2026-08-11) — Source invariants for the CS 1.6 no-blood mod (scripts/game-servers/cs16-noblood) | `python/test_cs16_noblood.py` |
+| **hwprofile: WinCDEmu's driver is BazisVirtualCDBus, so we never detected it** (2026-08-31) — The disc-mount probe matches SERVICE names, not product names | `python/test_disc_mount_service_names.py` |
+| **compat: map Serious Sam's document name to its library directory** (2026-08-31) — Every title in the LAN document must map to a library directory | `python/test_doc_alias_coverage.py` |
+| **library: stage DOOM 3, patched to the OFFICIAL id 1.3 update** (2026-08-31) | `python/test_doom3_staging.py` |
+| **fleetdb: one database for which games work on which computers** (2026-08-31) | `python/test_fleet_compat.py` |
+| **fleetres: quote every emitted set - a PCI id is full of ampersands** (2026-08-30) — Every `set` FLEETRES.EXE emits must be quoted | `python/test_fleetres_quoting.py` |
+| **CLAUDE.md: testing is done in FULLSCREEN - a windowed pass is not a pass** (2026-08-31) — Verification must be a FULLSCREEN observation | `python/test_fullscreen_testing_rule.py` |
+| **gamebots/goldsrc: fix the compile, dlopen, and link bugs a real 32-bit build found** (2026-08-29) — Regression: the GoldSrc adapter's Metamod hooks must match the real HLSDK | `python/test_gamebots_goldsrc_hooks.py` |
+| **gamebots: the custom model on the 5090, and the C client every adapter links** (2026-08-28) — Tests for the custom policy network and its GPU serving runtime | `python/test_gamebots_model.py` |
+| **gamebots: the strategic layer — squad intent at 2Hz on the same GPU** (2026-08-29) — Tests for the strategic layer (the LLM planner) | `python/test_gamebots_planner.py` |
+| **gamebots: Phase 0 — the schema, the policy server, and the measurements** (2026-08-28) — Tests for the bot policy server | `python/test_gamebots_policyd.py` |
+| **gamebots: build the Quake 2 engine adapter** (2026-08-29) — Source-level tests for the Quake II engine adapter | `python/test_gamebots_quake2.py` |
+| **gamebots: the Quake III adapter — bots in a real game, driven by our policy** (2026-08-29) — Source-level tests for the Quake III engine adapter | `python/test_gamebots_quake3.py` |
+| **gamebots: Phase 2 — demonstration recorder + BC training pipeline** (2026-08-29) — Tests for the demonstration recorder: the shard container format (record/shard.py), the episode-bookkeeping wrapper policyd calls into (record/recorder.py), and the policyd hook that wires it up (policyd.py's --record) | `python/test_gamebots_record.py` |
+| **gamebots: Phase 0 — the schema, the policy server, and the measurements** (2026-08-28) — Tests for the game-bot observation/action schema | `python/test_gamebots_schema.py` |
+| **gamebots: Phase 2 — demonstration recorder + BC training pipeline** (2026-08-29) — Tests for the behavioural-cloning training pipeline: dataset loading (train/dataset.py), the BC trainer (train/bc.py), imitation evaluation (train/eval_imitation.py) and the record -> train -> evaluate driver (train/e2e_synthetic.py) | `python/test_gamebots_train.py` |
+| **gamebots: add the UT99 (UnrealScript) engine adapter** (2026-08-29) — Source-level tests for the UT99 (UnrealScript) engine adapter | `python/test_gamebots_ut99.py` |
+| **gamegate: publish_all could never publish - asyncio.run() inside a running loop** (2026-08-31) — `publish_all.py` must be able to publish | `python/test_gamegate_publish_async.py` |
+| **gameindex: never write a favourites file we could not read first** (2026-08-29) — The favourites agent must never destroy settings it did not write | `python/test_gameindex_no_clobber.py` |
+| **dashboard: game servers, PXE and the services behind them, on the idle wall** (2026-08-28) — Tests for the favourites agent's own health reporting | `python/test_gameindex_status.py` |
+| **gamepatch: audit whether the fleet's clients can actually join our servers** (2026-08-29) — Tests for the fleet LAN patch-level audit (scripts/gamepatch/audit.py) | `python/test_gamepatch_audit.py` |
+| **agent: GAMESYNC could never overwrite a hidden file, so failed_files was never 0** (2026-08-29) — GAMESYNC must be able to overwrite a HIDDEN or READ-ONLY file, and must not break its own status JSON when reporting the path that failed | `python/test_gs_copy_attrs.py` |
+| **agent: GAMESYNC could never overwrite a hidden file, so failed_files was never 0** (2026-08-29) — tests/native/test_gs_json_escape.c carries a VERBATIM copy of gs_json_escape() from agent/src/gamesync.c - this pins the two together | `python/test_gs_json_escape_mirror.py` |
+| **halo: stage Halo PC - build the DigitalProductID, and the 1080 Keystone layout** (2026-08-30) — Halo: Combat Evolved - the DigitalProductID the game reads at startup | `python/test_halo_dpid.py` |
+| **land the tools CLAUDE.md already documents, and generate the staged-library doc** (2026-09-01) — One Halo CD key per simultaneous player, and never the same key twice | `python/test_halo_key_assignment.py` |
+| **wallpaper: draw the icon bay as wide as the arranger actually fills it** (2026-08-30) — The drawn icon bay and the agent's arranger must agree about the columns | `python/test_icon_bay_matches_agent.py` |
+| **game-servers: host Descent 3 and Far Cry on the dev host under Wine** (2026-08-31) | `python/test_lan_dosipx_library.py` |
+| **library: stage five LAN titles - RTCW, Serious Sam TFE+TSE, Warcraft II, Shadow Warrior** (2026-08-31) | `python/test_newtitles_staging.py` |
+| **parens: the rule covered FILENAMES, so the defect moved into a VALUE** (2026-08-31) — A `)` inside an expanded .bat value closes its enclosing block | `python/test_no_parens_in_generated_values.py` |
+| **CLAUDE.md: smbclient IS a publish route, and GDI-black is a Windows 7 fact** (2026-08-31) — Two facts the docs had wrong, both of which cost an agent real work | `python/test_publish_and_capture_facts.py` |
+| **fleet: the binary offered to the fleet must be built from master, and its tag must exist** (2026-08-30) — Regression: the binary offered to the fleet must be built from master | `python/test_published_build_is_on_master.py` |
+| **pxe: proxyDHCP + TFTP server on whitebeast for network OS installs** (2026-08-20) — Tests for scripts/pxe/pxe_server.py (proxyDHCP + TFTP) | `python/test_pxe_server.py` |
+| **agent: stop REGREAD/REGWRITE/REGDELETE truncating a key path at a space** (2026-08-29) — The registry-parsing test's VERBATIM copy must stay identical to the source | `python/test_reg_argparse_mirror.py` |
+| **safedisc: the version is three dwords at marker+0x20, not at a fixed 0xfd4** (2026-08-31) — SafeDisc's version is at `marker + 0x20`, never at a fixed file offset | `python/test_safedisc_version_offset.py` |
+| **screenshot: a 256-colour screen was photographed in the SHELL's palette** (2026-08-31) — A 256-colour screen must be photographed in ITS colours, not the shell's | `python/test_screenshot_palette.py` |
+| **library: Serious Sam is NOT SafeDisc - both Encounters come back as disc-mount titles** (2026-08-31) | `python/test_serioussam_staging.py` |
+| **agent: desktop shortcuts show the game's artwork, not the generic .bat icon** (2026-08-29) — Desktop shortcuts must show the GAME's artwork, not a generic .bat icon | `python/test_shortcut_icons.py` |
+| **land the tools CLAUDE.md already documents, and generate the staged-library doc** (2026-09-01) — docs/staged-library.md is GENERATED, and keeps the distinctions that matter | `python/test_staged_library_doc.py` |
+| **tests: a KILLED validator must not read as a BROKEN library** (2026-08-30) | `python/test_staged_library_wrapper.py` |
+| **agent: teach UIKEY PrintScreen and the console key, and flag extended keys** (2026-08-29) — UIKEY must be able to send PrintScreen and the console key, and must flag extended keys | `python/test_uikey_named_keys.py` |
+| **ut99: a retail 436 client DOES join our 469e server - pin the route** (2026-08-30) — The non-SSE2 boxes' only route to UT99 multiplayer must stay open | `python/test_ut99_436_compat.py` |
+| **staging: install a new title in the BUILD VM, not on a fleet box (REQUIRED)** (2026-09-01) — New titles are installed in the BUILD VM, not on a fleet box | `python/test_vm_staging_is_documented.py` |
+| **retrowall: the old desktop came back because we only cleared HKLM** (2026-08-31) — The legacy wallpaper rotation must be stopped in BOTH registry hives | `python/test_wallpaper_rotation_stops.py` |
+| **fleet: watch for boxes arriving, so a power-cycled machine gets picked up** (2026-08-31) — The fleet watcher must report EDGES, and must not mistake a socket for life | `python/test_watch_fleet.py` |
+| **game-servers: host Descent 3 and Far Cry on the dev host under Wine** (2026-08-31) | `python/test_wine_servers.py` |
+
+### `tests/native/`
+
+| Fix | Test |
+|-----|------|
+| **agent: refuse to downgrade on self-update** (2026-08-27) — test_autoupdate_version.c - TRUE-SOURCE test of the agent's update gate | `native/test_autoupdate_version.c` |
+| **agent: EXEC heartbeat logging + DOWNLOAD of live files (v1.23.0)** (2026-08-03) — test_exec_logging.c — protects the EXEC observability fixes (agent v1.23.0) that came out of the .243 Cirrus refresh session, where two mingw console helpers hung inside Win98's WINOA386 console VM and the single-threaded agent went silent for the full 60s EXEC timeout — looking like a crash with nothing in the log between launch and kill | `native/test_exec_logging.c` |
+| **gamebots: the custom model on the 5090, and the C client every adapter links** (2026-08-28) — True-source tests for the shared engine-adapter client | `native/test_gamebots_client.c` |
+| **gamebots: add the GoldSrc (CS 1.6 / TS) Metamod adapter** (2026-08-29) — True-source tests for the GoldSrc adapter's engine-independent core | `native/test_gamebots_goldsrc.c` |
+| **tests: glide GETLINEARADDR zero-base guard regression test (grSstWinOpen crash fix)** (2026-07-22) — test_glide_linaddr_guard.c Guards the grSstWinOpen crash fix in our glide fork (voidsstr/retro3dfx-glide, glide3x/h3/minihwc/minihwc.c hwcMapBoard; see voodoo-cleanroom DEBUGGING-NOTES "GLIDE grSstWinOpen VERIFIED ROOT CAUSE") | `native/test_glide_linaddr_guard.c` |
+| **agent: GAMESYNC could never overwrite a hidden file, so failed_files was never 0** (2026-08-29) — test_gs_json_escape.c - GAMESYNC's status JSON must survive a Windows path | `native/test_gs_json_escape.c` |
+| **gamesync: stop treating "same size" as "same file"** (2026-08-29) — test_gs_resume_mtime.c - GAMESYNC must not treat "same size" as "same file" | `native/test_gs_resume_mtime.c` |
+| **fleet: give every game a desktop icon, and a wallpaper built around finding them** (2026-08-27) — test_icon_bay.c - the wallpaper's icon bay and the agent's icon arranger must describe the SAME grid | `native/test_icon_bay.c` |
+| **agent 1.29.1: three bugs GAMEINDEX found the moment it ran on real hardware** (2026-08-25) — test_json_escape.c — TRUE-SOURCE test: compiles the REAL JSON escaper from agent/src/util.c against the fake Win32 in stubs/ and checks what it emits | `native/test_json_escape.c` |
+| **tests: pin launch.txt to one shortcut per line** (2026-08-28) — test_launch_txt.c - launch.txt must yield ONE desktop shortcut per line | `native/test_launch_txt.c` |
+| **agent: stop REGREAD/REGWRITE/REGDELETE truncating a key path at a space** (2026-08-29) — test_reg_argparse.c - the registry commands must not truncate a key path at a space | `native/test_reg_argparse.c` |

@@ -161,7 +161,7 @@ control protocol, and a Hexen II host replies only to the game string
 | **Soldier of Fortune 1** | multiplayer refused **even with the disc** — see below | a disassembly, or the 1.07f patch. NOT a mounter |
 | **BF1942** | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works | a mounter whose emulation covers SafeDisc 2.80 — a kernel driver and a reboot per box, so a **user decision** |
 | **Far Cry** | server hosts unattended; CryEngine takes DirectInput exclusively | one click: Multiplayer → LAN |
-| **Halo** | shell ignores synthetic input; `haloded.exe` is not on the share | one System Link join |
+| **Halo** | ~~needs a person~~ — **SOLVED 2026-08-31.** The menu does ignore synthetic input, but `halo.exe -connect <ip>:<port>` skips it entirely and joins directly. The real limit is licensing: **one simultaneous player per CD key** (the *server* rejects the second joiner with the generic "CD key invalid" text), so each box needs its own key — see `scripts/halo/assign_keys.py`. `haloded.exe` is still not on the share, so a box hosts from the client. | nothing — automated |
 | **Carmageddon 1 / 2** | tunnel proven both ends; the front end ignores click *and* key | click **HOST GAME** / **NETWORK GAME** |
 | **Hidden & Dangerous** | launcher bug fixed; stops at profile creation | create a profile, then copy `Savegame\*.bin` into the tree |
 | **Aliens vs Predator** | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black | drive its menus at the keyboard |
@@ -172,7 +172,7 @@ control protocol, and a Hexen II host replies only to the game string
 
 **A menu driven by RELATIVE MOUSE DELTAS cannot be automated at all** —
 `UICLICK` sets an *absolute* pointer such menus do not follow. Descent 3, SoF2,
-Deus Ex, Far Cry and Halo are all in that class. Recognising it early is worth
+Deus Ex and Far Cry are all in that class. Recognising it early is worth
 more than another hour of clicking.
 
 ## NO MULTIPLAYER — measured, not assumed
@@ -272,7 +272,8 @@ official 1.07f patch — **not another image**.
 | **BF1942 client**, **C&C Generals + Zero Hour** | a **user DECISION**: a SafeDisc-2.80-capable mounter means a third-party kernel driver and a reboot per box, and `.123`/`.133` are unactivated and must not be rebooted. No agent should install one unilaterally. |
 | **Jedi Academy on `.124`/`.240`** | a **reboot** of those two boxes, to clear the locked DAEMON Tools unit. Everything else is staged and proven — it plays on `.143` and `.246`, and on a locked box the launcher now says so in `mount-error.txt` instead of hanging. |
 | **Soldier of Fortune 1 multiplayer** | **engineering**, not media — see above. |
-| **Far Cry, Halo, Carmageddon 1/2, AvP, Shogo, Descent 3, Deus Ex** | a **person at the keyboard**, once: their menus are driven by relative mouse deltas, which `UICLICK` cannot reach at all. |
+| **Far Cry, Carmageddon 1/2, AvP, Shogo, Descent 3, Deus Ex** | a **person at the keyboard**, once: their menus are driven by relative mouse deltas, which `UICLICK` cannot reach at all. |
+| ~~**Halo**~~ | **nothing — resolved 2026-08-31.** Its menu is in that class too, but `halo.exe -connect <ip>:<port>` bypasses the menu. Its one real constraint is one simultaneous player per CD key. |
 | **Hidden & Dangerous** | a person to create a profile once; then `Savegame\*.bin` is staged. |
 | **Turok 2** | investigation: host and browse work, `+connect` answers "Unable to contact the GameManager." |
 | **Red Faction** | investigation, with two untested leads recorded in its tree: `rf.exe` has **no `-connect`/`+connect` switch at all** (so "Add Server" is the only manual route) but it does have **`-trackerip`**, and the fleet's own favourites agent already records that RF LAN games are found by **broadcast** — a different control from the Get Servers / Add Server path everything has been tried on. Its dedicated server works and needs no disc. |

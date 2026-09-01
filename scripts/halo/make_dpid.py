@@ -43,7 +43,11 @@ BCDFGHJKMPQRTVWXY2346789, big-endian digits, little-endian integer) -- the
 exact inverse of the decoder every "show me my Windows product key" script
 uses.  `--self-test` round-trips it against a real Microsoft-written blob.
 
-    python3 make_dpid.py --key MCXMM-.....-..... --reg
+    python3 make_dpid.py --key-file /path/to/key.txt --reg
+
+Use --key-file, NOT --key.  A key on argv is visible in `ps`, lands in the
+shell history, and is echoed back in this session's transcript; CLAUDE.md
+forbids it.  --key is kept only for an interactive throwaway.
 """
 import argparse
 import hashlib

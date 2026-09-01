@@ -225,7 +225,10 @@ exact (driver, resolution, quality) point. Add new knobs to `QUALITY_DEFAULT` /
 
 ## Pure-3dfx lane — `3dfx-driver-optimized` (.143 Voodoo5 5500)
 
-> The **Voodoo5 6000 is a different box: .133 "P3-DUAL"** (4-chip, 256MB).
+> The **Voodoo5 6000 WAS a different box: .133 "P3-DUAL"** (4-chip, 256MB) - but that
+> card is **physically gone** as of the 2026-08-31 rescan (no `VEN_121A` in `Enum\PCI`;
+> GeForce4 Ti 4600 in its place), so **there is nothing to bench on .133 in this lane**
+> unless it is refitted. Confirm with `SYSINFO` first. If it is refitted:
 > Bench it with `bench-safe.py` from the retro-3dfx repo (enforced cooldowns,
 > no-stomp preflight) — NOT with a naive loop; flat-out back-to-back timedemos
 > reset that board (`retro-3dfx/V56K-SLI-FINDINGS.md` §11, §13, §22). The

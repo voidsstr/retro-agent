@@ -207,7 +207,8 @@ fixes, files, build tools, versions, and even the OpenGL renderer string differ.
 
 ### NEVER EDIT THE `retro-3dfx/` DRIVER CODE (REQUIRED, user directive 2026-08-04)
 
-**`retro-3dfx/` is the Voodoo 5 lane (`.143` V5 5500 and `.133` V5 6000) and is NOT ours to modify.** In
+**`retro-3dfx/` is the Voodoo 5 lane (`.143` V5 5500; `.133` HELD a V5 6000 until it was
+pulled - see the rescan note in §2 below) and is NOT ours to modify.** In
 this repo's work — and on **.124 (Voodoo 3)** specifically — write and ship
 **only our own drivers in `retro-agent/voodoo-cleanroom/`** (MesaFX ICD, our
 Glide, `vcr-disp`).
@@ -257,7 +258,9 @@ GPL release + MIT Mesa). Three components, all our forks/code — provenance in
   (0.1.2), vertex cache (0.1.3), swap-interval (0.1.6), LOD-bias (0.1.11), Q2
   glide3x (0.1.19), gamma/dither/alpha-PFD (0.1.30), etc.
 
-### 2. Vintage 3dfx source = the `retro-3dfx/` repo — VOODOO 5 (`.143` 5500 / `.133` 6000) ONLY, READ-ONLY HERE
+### 2. Vintage 3dfx source = the `retro-3dfx/` repo — VOODOO 5 (`.143` 5500) ONLY, READ-ONLY HERE
+
+**`.133` HAS NO 3dfx SILICON as of the 2026-08-31 rescan** - the V5 6000 was pulled and the box now runs a GeForce4 Ti 4600 (`10DE:0250`); `Enum\PCI` carries no `VEN_121A` key, which is decisive. `.143` (V5 5500) is the fleet's only Voodoo5. Every V5 6000 note below applies only if that card is refitted - verify with a fresh `SYSINFO` before acting on one. See [`docs/fleet-inventory.md`](docs/fleet-inventory.md).
 
 3dfx's own leaked/released **H5/Napalm** driver source. It is a *different*
 codebase from our open stack and, per the directive above, **off-limits for
@@ -272,8 +275,9 @@ its files and stay out of them:
   ("Copyright 1991-1997, Silicon Graphics, Inc.", `__glSST*` naming) → `opengl.dll`
   (MSVC, ~704 KB) / `3dfxogl.dll`. **Versions 0.2.x+** (0.4.x on .143, 0.5.x on
   .133); this is the **Voodoo5 "pure-3dfx" lane (the OTHER agent)** — .143 is the
-  V5 5500, .133 "P3-DUAL" is the **V5 6000** (4-chip, 256MB mode verified;
-  see `retro-3dfx/V56K-SLI-FINDINGS.md`) — NOT our MesaFX.
+  V5 5500 and is now the **only** box in it. `.133` "P3-DUAL" held the **V5 6000**
+  (4-chip, 256MB mode verified; see `retro-3dfx/V56K-SLI-FINDINGS.md`) but the card
+  is **physically gone** as of 2026-08-31 — GeForce4 Ti 4600 there now. NOT our MesaFX.
 - **Tests:** `retro-3dfx/tests/` (source-invariants, `d3dlab` pixel goldens,
   predeploy gate) — for the H5 HAL + SGL ICD.
 
@@ -450,6 +454,10 @@ Two things had to change, and the first is the one worth remembering:
   the library never reached the one box that runs it natively. The same shape
   bit `requires_capabilities`: Descent 2's title-level `disc_mount` suppressed
   **both** its shortcuts, so on `.123`/`.246` the title had no icon at all.
+  (Historical: `.246` was in that list only because `hwprofile` did not know
+  WinCDEmu's driver name `BazisVirtualCDBus` and so reported `disc_mount:false`.
+  Fixed 2026-08-31 — **`.246` mounts fine**. `.123` is the only box on the fleet
+  with no optical drive and no mounter.)
   Rules 6 and 7 in [`scripts/gamegate/SCHEMA.md`](scripts/gamegate/SCHEMA.md).
 - **The DOS menu could not pick the DOS build.** `DOSGAME.EXE` already scans
   `C:\GAMES` — where GAMESYNC deploys — but a staged tree is built for Windows,
@@ -652,9 +660,14 @@ the same broken title. **Every game fix follows this loop, in this order:**
    broken tree).
 4. **Redeploy from the library** via the agent's `GAMESYNC`, and confirm it
    really landed: `state=done` **AND** `failed_files == 0` **AND**
-   `titles_done == titles_total`. `state` alone hides partial failures, and
-   `gs_write_marker` is skipped when `failed_files != 0`, so `gamesync.done`
-   goes stale after a bad run.
+   `titles_done == titles_total` **AND `titles_total` equals the number of
+   titles the LIBRARY holds for that box's profile**. `state` alone hides
+   partial failures, and `gs_write_marker` is skipped when `failed_files != 0`,
+   so `gamesync.done` goes stale after a bad run. The last clause is not
+   pedantry: `titles_total` is what the *box* enumerated, so a truncated
+   enumeration reports `12 == 12` and passes — which is exactly the `.243`
+   Win9x `gs_dir_size()` bug this loop was written for. Compare against the
+   library, or the check certifies the bug as a success.
 5. **Retest and SCREENSHOT it.** A process list is not evidence. The title must
    render, and it must render **fullscreen** (see below).
 6. **THEN PUSH IT TO EVERY OTHER CONNECTED BOX.** Purge + `GAMESYNC` the fixed
@@ -1470,7 +1483,13 @@ layout are applied by the agent's **`retrowall` thread on every startup** (v1.8.
 `agent/src/retrowall.c`) — so a box keeps the
 fleet look across reboots. It applies whatever the **retro-wallpaper skill** has
 staged into `C:\retro-wall\`:
-- `wall00..NN.bmp` + `rotate_wall.exe` → wallpaper rotation
+- `wall00..NN.bmp` → ONE wallpaper, picked to match the screen. **Rotation is
+  DEAD** (2026-08-31): `retrowall` deletes `RetroWallRotate` from the `Run` key
+  under **both** HKLM and HKCU, and renames `rotate_wall.exe` /
+  `arrange_icons.exe` to `.superseded` so nothing can relaunch them. If no
+  staged BMP matches the mode it takes the **smallest** one — it does *not*
+  fall back to the rotator, which is what re-installed the Run key and reverted
+  the desktop to the old background on every reboot.
 - `retro_theme.reg` + `setsyscolors.exe` → dark green-on-black system colors
   (regedit writes `HKCU\Control Panel\Colors`, then `setsyscolors.exe` pushes
   them live via `SetSysColors` so it takes effect without a re-logon)
@@ -2455,12 +2474,16 @@ retail 1.0 in fact raises that modal **before any key prompt**.
   touches the wrapper.
 - **NEVER compare candidate exes by SIZE.** id's official 1.3 exe and the scene
   crack of it on the same share are **both 5,832,704 bytes**. Compare md5.
-- **DAEMON Tools 3.47 — the fleet's only mounter — does NOT satisfy SafeDisc
+- **DAEMON Tools 3.47 does NOT satisfy SafeDisc
   2.80**, and the image is not the reason: the `.mdf` pairs here are
   2448-byte-sector dumps (2352 + 96 **subchannel**) with a real weak-sector
   table. Its emulation is set from the tray menu, and the four entries are
   **TOGGLES** — only *"All options ON"* is a SET — so verify the post-condition
   (checkmarks **and** a changed `d347bus\Cfg\khjeh` blob), never the click.
+  It is **not** the fleet's only mounter — `.246` runs **WinCDEmu** (driver
+  `BazisVirtualCDBus`), which `hwprofile` did not recognise until 2026-08-31.
+  WinCDEmu does no copy-protection emulation at all, so it is *further* from
+  satisfying SafeDisc, not closer: mounting is not the blocker, emulation is.
 
 ## Halo PC: ONE SIMULTANEOUS PLAYER PER CD KEY (measured 2026-08-31)
 
@@ -2520,6 +2543,33 @@ It builds each box's `DigitalProductID` with `make_dpid.py`, **reads the blob
 back to verify**, never echoes a key (fingerprints only), and **refuses a
 duplicate outright** — because a shared key produces the misleading error above
 rather than an honest one.
+
+**Audit what is actually on the fleet before believing the assignment held:**
+
+```bash
+python3 scripts/halo/audit_keys.py            # every roster box that answers
+```
+
+It reads each box's `DigitalProductID` back and prints a **fingerprint**, never
+a key — two boxes with the same fingerprint carry the same key. It exists
+because `assign_keys.py` only prevents a duplicate being *created*; a box that
+was re-imaged, restored, or handed a staged `install.reg` carrying the library's
+single key acquires one silently, and the symptom is a licensing error.
+
+Two things it deliberately gets right, both of which are this project's
+recurring failure shapes:
+- **A switched-off box is `unreachable`, never "no key".** The fleet is powered
+  on demand.
+- **A shared key is only a FAULT between boxes that actually have `halo.exe`.**
+  Measured 2026-09-01: `.133` and `.143` share one and neither has Halo
+  installed (the gate refuses it there — no SSE2), so no game can be affected.
+  That is leftover registry state from a fleet-wide `install.reg` push, and
+  calling it a licensing fault would be a measurement artefact reported as a
+  defect. It reports those separately and exits 0.
+
+Fleet state at 2026-09-01: `.123`, `.145`, `.240` and `.246` have Halo installed
+and **each carries a distinct key**, so all four can be in one game. `.124`,
+`.171` and `.243` were switched off and are unaudited.
 
 **Two useful facts for diagnosing this title:**
 - **`halo.exe -connect <ip>:<port>` bypasses the menu**, which matters because

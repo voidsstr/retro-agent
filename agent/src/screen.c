@@ -24,8 +24,17 @@
  * is handed - and a fresh CreateCompatibleDC carries only the 20 static system
  * colours.  So every 256-colour fullscreen title photographed as coloured
  * NOISE: the geometry was there and the colours were meaningless.  Measured on
- * .133 (2026-08-31) against StarCraft, Jedi Knight and Warcraft II, each of
- * which sets its own palette in a 640x480x8 exclusive mode.
+ * .133 (2026-08-31) on an 8-bpp DESKTOP, and A/B proven there.
+ *
+ * WHAT THIS DOES **NOT** FIX, and do not let the comment above imply it does:
+ * a DirectDraw EXCLUSIVE-MODE game.  StarCraft, Jedi Knight and Warcraft II
+ * program the DAC directly without telling GDI, so their frames stay confetti
+ * with this fix in place.  For those three the colour is a CAPTURE limit and
+ * the geometry in the frame is real - record `runs`, say the capture was
+ * limited, and do NOT call the render broken.  An earlier draft of this
+ * comment named those exact titles as the failure it cures, which would send
+ * the next agent to re-shoot them, get confetti, and either record a false
+ * `verified` or conclude the fix regressed.
  *
  * That is this project's signature failure shape - the capture SUCCEEDED, the
  * frame came back the right size, and it was wrong - so it is fixed rather

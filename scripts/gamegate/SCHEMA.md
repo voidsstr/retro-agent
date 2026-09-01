@@ -88,7 +88,7 @@ the six titles you just staged are this shape.
 | `min_cpu_mhz` | int | published minimum clock. |
 | `min_ram_mb` | int | published minimum system RAM. |
 | `min_vram_mb` | int | published minimum video RAM. |
-| `disk_mb` | int | installed size in MB. A **hard floor with no margin band** (a tree either fits or it does not, and 90% of Far Cry is not a playable game), checked *after* the cpu/ram/vram floors so a box that cannot run the title is told that rather than sent to free up space it would then waste. Fails open when the agent could not measure free space. GAMESYNC's own room check still backstops it with the real tree size; this exists to refuse the copy **before** the bandwidth is spent. |
+| `disk_mb` | int | installed size in MB. **It answers "is this copy worth an hour of SMB1 bandwidth", NEVER "can this machine run it"** — so it is *not* a hardware verdict and it is **not final** (fixed 2026-08-31, commits `1e6929e` / `b65a787`). Checked *after* the cpu/ram/vram floors. Fails open when free space could not be measured. A refusal limited by `disk` **falls through to GAMESYNC's own room check** — which knows the tree's real measured size, current free space, and the space an existing copy is about to give back — and lands in `skipped_titles` ("did not fit"), never `gated_titles` ("this machine cannot run it"). It must **never suppress a shortcut**: `.240` had a `runs=verified` Far Cry installed in the 3609 MB that was making the volume look full, and the old code took its icon away. |
 | `gpu_feature_level` | enum | `none` · `fixed` · `tnl` · `sm1.x` · `sm2.0` · `sm3.0`. **Ordered.** See below. |
 | `cpu_features` | string[] | `fpu` `mmx` `cmov` `sse` `sse2` `sse3` `ssse3` `sse4.1` `3dnow`. Instructions the binary *executes*, not ones it prefers. |
 | `min_os` / `max_os` | enum | `win9x` `win2k` `winxp` `vista` `win7` `win8` `win10`. Ordered. |
@@ -264,8 +264,11 @@ never grow a pixel shader; a missing mounter is an installer away. Calling both
 * the **copy** decision is hardware-only — the title still deploys;
 * the individual **shortcut** that needs the capability is not created, and the
   agent logs `blocked: disc_mount — install a virtual disc mounter (Daemon Tools)`;
-* GAMESYNC re-runs on every boot, so the shortcut appears by itself once the box
-  is fixed. Nothing needs re-running by hand.
+* **GAMESYNC does NOT re-run on every boot.** `gamesync.done` idles the startup
+  thread entirely on a provisioned box, so a shortcut does **not** come back by
+  itself once the box is fixed - run `GAMESYNC RESET` then `GAMESYNC START`.
+  (This bullet said the opposite until 2026-08-31; someone acting on it would
+  install a mounter and then wait for icons that never appear.)
 
 The agent detects it by driver service key (`d347bus`, `sptd`, `ElbyCDIO`,
 `mcdbus`, `ImDisk`, …) rather than by looking for an executable, so it survives
@@ -303,8 +306,19 @@ have used anyway.
 |---|---|---|
 | `run` | copies the title | rules |
 | `marginal` | copies the title | rules, or the LLM for the borderline band |
-| `no` | **skips** the title and logs the limiting factor | rules, or the LLM |
+| `no` (hardware/OS) | **skips** the title, logs the limiting factor, counts in `gated_titles` | rules, or the LLM |
+| `no` (limited by `disk`) | **defers to GAMESYNC's room check**, counts in `skipped_titles` — not a hardware verdict, and it never suppresses a shortcut | rules |
 | any + `missing_caps` | copies, drops that shortcut, logs the remedy | rules |
+
+**A gated or skipped title still gets the icons of an install it already has.**
+`gs_run()` sweeps every `.lnk`/`.pif`/`.url` off both desktops before it starts,
+and shortcuts used to be rebuilt only inside the *copy* branch — so the first
+sync that gated or skipped an already-installed title deleted its icons for good
+(this was "i dont see any games on the desktop" on `.243`). Both `continue` paths
+now call `gs_restore_shortcuts_if_installed()`, rebuilding from the deployed
+tree's own `launch.txt`. The gate stays the authority: a title-level hard NO
+still suppresses all of its icons, and a per-shortcut floor still suppresses
+only the icon that fails it.
 
 ---
 

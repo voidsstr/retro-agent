@@ -95,6 +95,15 @@ Python client:
 python3 deploy_rotation.py 192.168.1.XXX [interval_seconds]   # default 60
 ```
 
+>  **THIS SCRIPT IS SUPERSEDED — DO NOT RUN IT ON A FLEET BOX.** Since 2026-08-31
+">  the agent's `retrowall` thread owns the desktop, and it actively *undoes* what
+">  this script installs: it deletes the `RetroWallRotate` `Run` value from **both**
+">  HKLM and HKCU and renames `rotate_wall.exe`/`arrange_icons.exe` to
+">  `.superseded`. Running `deploy_rotation.py` re-installs the rotator, which is
+">  the bug that reverted boxes to the old background on every reboot. Stage
+">  wallpapers for the agent to pick up instead; the description below is kept
+">  only to explain what the old assets on a box are.
+
 Per machine it: stages the 10 BMPs into `C:\retro-wall\wall00..09.bmp`, uploads
 `rotate_wall.exe`, sets the HKCU wallpaper style, runs **`arrange_icons.exe`** to
 park the desktop icons in the bottom-right well, installs an HKCU `Run` key, and
@@ -144,9 +153,12 @@ without re-uploading the BMPs.
 
 ### 5. Verify
 
-Confirm rotation is advancing: `reg query "HKCU\Control Panel\Desktop" /v Wallpaper`
-returns `C:\retro-wall\wallNN.bmp` and the NN changes across an interval; check
-`tasklist | find "rotate_wall"`.
+On a fleet box the wallpaper is **static** and rotation is gone. Confirm the
+agent's pick landed: `reg query "HKCU\Control Panel\Desktop" /v Wallpaper` returns
+a `C:\retro-wall\wallNN.bmp` that does **not** change across an interval, and
+`tasklist | find "rotate_wall"` finds **nothing**. A *running* `rotate_wall` or a
+changing NN is a REGRESSION, not a pass — check that `RetroWallRotate` is absent
+from `Run` under both HKLM and HKCU.
 
 `retro_screenshot` the machine. If it comes back **pure black** or shows a saver
 (starfield / "Windows XP" logo), the machine is idle: `taskkill /f /im *.scr`

@@ -76,6 +76,7 @@ sweep when the fleet is powered down).
 | a live `DIRLIST` probe | presence *and absence* | derived |
 | `docs/lan-multiplayer-status.md` | the two-box LAN proofs | **measured** |
 | `lan-proof/`, `lanid/evidence/`, `retro-screenshots/` | screenshots attached to cells | — |
+| `scripts/perbox/` — `to_compat.py` loading a `sweep.py` matrix | per-(box, title) launch, resolution, fullscreen, renderer, screenshot | **measured** (`source='perbox'`) |
 
 Two traps worth keeping:
 
@@ -83,6 +84,14 @@ Two traps worth keeping:
   there is no `game_key` for Doom 3, Far Cry, Halo, Turok 2 or Master of Orion
   II — so "not in it" once marked Doom 3 absent on `.123`, a box where Doom 3 is
   LAN-verified. It writes `deployed` and nothing else.
+- **A `perbox` row is the only source that can say a title RENDERS.** Every
+  other machine-derived source answers *is it on the disk* or *would the gate
+  allow it*; only the sweep looks at a frame. It writes `origin='measured'`, so
+  it is never overwritten by a later ingest — and it is also the only source
+  that can be **wrong about a pass**, which is why `desktopcheck.py` exists
+  (a game that dies with an illegal instruction keeps its name in `PROCLIST`,
+  held by Windows Error Reporting, so the cell scores `runs` with nothing drawn).
+  See [`scripts/perbox/README.md`](../perbox/README.md).
 - **An unreachable box is `untested`, never `absent`.** The fleet is powered on
   demand. So is a box whose `DIRLIST` reply will not parse: *"I could not read
   the answer"* and *"the directory is empty"* must never render the same.

@@ -1,6 +1,6 @@
 ---
 name: voodoo5-driver-dev
-description: Build, test, diagnose, fix, and deploy the VINTAGE-source 3dfx H5/Napalm driver stack (retro-3dfx repo — display driver + D3D HAL + miniport + Glide + vintage SGL OpenGL ICD) for the Voodoo 5 boxes .143 (V5 5500) and .133 (V5 6000, 4-chip). Use when the user reports a D3D/DirectDraw/2D/mode-set problem, a Voodoo5 rendering or crash issue, asks to rebuild 3dfxv5d/3dfxv5m/the vintage driver, wants the flight-recorder ring read, or wants a driver fix verified/deployed on .143 or .133. NOT for the clean-room MesaFX stack on .124 (use voodoo3-driver-dev).
+description: Build, test, diagnose, fix, and deploy the VINTAGE-source 3dfx H5/Napalm driver stack (retro-3dfx repo — display driver + D3D HAL + miniport + Glide + vintage SGL OpenGL ICD) for the Voodoo 5 box .143 (V5 5500) - and .133 (V5 6000, 4-chip) ONLY if that card is refitted, it was pulled 2026-08-31. Use when the user reports a D3D/DirectDraw/2D/mode-set problem, a Voodoo5 rendering or crash issue, asks to rebuild 3dfxv5d/3dfxv5m/the vintage driver, wants the flight-recorder ring read, or wants a driver fix verified/deployed on .143 or .133. NOT for the clean-room MesaFX stack on .124 (use voodoo3-driver-dev).
 ---
 
 # Voodoo 5 driver work — the vintage H5 stack (retro-3dfx repo, boxes .143 & .133)
@@ -14,7 +14,16 @@ before touching anything; conflating the two stacks wastes hours.
 
 **Target boxes:**
 - `.143` (192.168.1.143) — Athlon 1GHz "1GHZ", **Voodoo5 5500** AGP, XP SP3.
-- `.133` (192.168.1.133) — dual P3-700 "P3-DUAL", **Voodoo5 6000** (4× VSA-100
+  The V5 5500 is the **SECOND adapter** - a GeForce 6800 drives the panel, so
+  `docs/fleet-inventory.md` and `docs/staged-library.md` both list "GeForce 6800"
+  as this box's *Display GPU*. That is not a contradiction and not a swapped
+  card; do not "correct" it. Since `.133`'s V5 6000 was pulled (2026-08-31),
+  this is the fleet's only Voodoo5.
+- `.133` (192.168.1.133) — dual P3-700 "P3-DUAL". **THE V5 6000 IS PHYSICALLY GONE**
+  as of the 2026-08-31 rescan - `Enum\PCI` has no `VEN_121A` key at all and the box
+  runs a GeForce4 Ti 4600. **Do not target .133 in this lane** without a fresh
+  `SYSINFO` proving the card is back. The rest of this entry applies only then:
+  **Voodoo5 6000** (4× VSA-100
   behind a HiNT bridge, 256MB mode = 64MB/chip, 4-way SLI verified), XP SP3.
   V56K-specific rules: cooldowns between flat-out timedemos, ONE fullscreen 3D
   app at a time, bench via `bench-safe.py` only, keep `FX_GLIDE_NUM_CHIPS`/

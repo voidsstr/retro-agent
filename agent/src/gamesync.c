@@ -2227,7 +2227,9 @@ static int gs_gate_allows_title(const char *library, const char *title,
  *   - a hardware verdict of NO for that shortcut specifically;
  *   - a missing CAPABILITY, which is software state and remediable. The title
  *     still deployed; the shortcut is suppressed and the log names the fix.
- *     GAMESYNC re-runs every boot, so it comes back once the box is fixed.
+ *     GAMESYNC does NOT re-run every boot - gamesync.done idles the startup
+ *     thread on a provisioned box - so it does NOT come back by itself.
+ *     Run GAMESYNC RESET then GAMESYNC START.
  */
 static int gs_gate_allows_shortcut(const char *dst_dir, const char *title,
                                    const char *target, char *why,

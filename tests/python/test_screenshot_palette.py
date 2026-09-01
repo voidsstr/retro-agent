@@ -2,7 +2,15 @@
 
 THE FAILURE THIS GUARDS, measured on .133 (2026-08-31)
 ------------------------------------------------------
-`SCREENSHOT 0` of StarCraft, Jedi Knight and Warcraft II - all of which run in
+`SCREENSHOT 0` on an 8-bpp DESKTOP - A/B proven on .133.
+
+IT DOES NOT FIX A DIRECTDRAW EXCLUSIVE-MODE GAME. StarCraft, Jedi Knight
+and Warcraft II program the DAC without telling GDI, so their frames stay
+confetti with this fix in place; for those the colour is a CAPTURE limit and
+the geometry is real. An earlier draft of this docstring named those three as
+the failure the fix cures, which is the opposite of what was measured.
+
+The original 8-bpp failure, for context - titles that run in
 a 640x480x8 exclusive fullscreen mode - came back the right size, from a live
 process, with the frame's geometry plainly visible, and with every colour
 WRONG: confetti. The predecessor session recorded a `verified` cell on one of
