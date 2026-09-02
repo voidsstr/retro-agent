@@ -66,10 +66,12 @@ fi
 if [ "${WIPE:-0}" = "1" ]; then
     AUTOPARTITION=1
     REPARTITION="Yes"
+    USEWHOLEDISK="Yes"
     FILESYSTEM="ConvertNTFS"
 else
     AUTOPARTITION=0
     REPARTITION="No"
+    USEWHOLEDISK="No"
     FILESYSTEM="LeaveAlone"
 fi
 
@@ -190,6 +192,21 @@ install -m 0644 "$SRC/I386/NTDETECT.COM" "$TFTP_ROOT/ntdetect.com"
     printf '    OsLoadOptions = "/fastdetect"\r\n'
     printf '    SetupSourceDevice = "%s"\r\n' "$SOURCE_DEV"
     printf '\r\n'
+    # Repartition lives HERE, not in [Unattended]. It is a RIS key and setupldr
+    # reads it out of [RemoteInstall]; in [Unattended] it parses fine, is
+    # ignored, and the disk is never wiped - which is invisible until the target
+    # already has an install on it. That is what happened on 2026-08-31: three
+    # text-mode phases completed onto the same disk, and the fourth boot stopped
+    # on the partition screen because AutoPartition=1 will not choose a
+    # partition that ALREADY CONTAINS Windows, and nothing had cleared it.
+    #
+    # And the default here is DESTRUCTIVE: omit the section, or the key, and a
+    # RIS install deletes every partition anyway. So WIPE=0 has to say No out
+    # loud - leaving it out is not the safe option, it is the dangerous one.
+    printf '[RemoteInstall]\r\n'
+    printf '    Repartition = %s\r\n' "$REPARTITION"
+    printf '    UseWholeDisk = %s\r\n' "$USEWHOLEDISK"
+    printf '\r\n'
     printf '[Unattended]\r\n'
     printf '    UnattendMode = %s\r\n' "$UNATTEND_MODE"
     # $OEM$ only exists for setup when OemPreinstall is Yes. Without it the
@@ -201,7 +218,6 @@ install -m 0644 "$SRC/I386/NTDETECT.COM" "$TFTP_ROOT/ntdetect.com"
     printf '    FileSystem = %s\r\n' "$FILESYSTEM"
     printf '    NtUpgrade = No\r\n'
     printf '    OverwriteOemFilesOnUpgrade = No\r\n'
-    printf '    Repartition = %s\r\n' "$REPARTITION"
     printf '    DriverSigningPolicy = Ignore\r\n'
     # PnP does NOT recurse: every directory holding an INF must be listed.
     # inject-drivers.sh writes the list next to the image.
@@ -286,6 +302,6 @@ for f in startrom.n12 ntldr ntdetect.com winnt.sif; do
     printf '%-16s %s\n' "$f" "$(stat -c%s "$TFTP_ROOT/$f")"
 done
 echo
-echo "Payload ready.   mode=$UNATTEND_MODE  autopartition=$AUTOPARTITION  repartition=$REPARTITION"
+echo "Payload ready.   mode=$UNATTEND_MODE  autopartition=$AUTOPARTITION  repartition=$REPARTITION  usewholedisk=$USEWHOLEDISK"
 echo "setupldr TFTPs txtsetup.sif through the link above; text-mode setup then"
 echo "reads the rest of the CD from the NAS over SMB1."

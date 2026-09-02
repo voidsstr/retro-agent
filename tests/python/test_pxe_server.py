@@ -238,3 +238,39 @@ class HostPortabilityTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestNeverOffer(unittest.TestCase):
+    """The timed hold ALWAYS expires, and these boxes boot from the network
+    first - so an expired hold silently reimages a finished machine. That is
+    what happened on 2026-09-02. never_offer is the belt that does not expire.
+    """
+
+    def _state(self, served_ago):
+        import json, tempfile, time
+        fd, path = tempfile.mkstemp(suffix='.json')
+        with os.fdopen(fd, 'w') as fh:
+            json.dump({'aa:bb:cc:dd:ee:ff': time.time() - served_ago}, fh)
+        self.addCleanup(os.unlink, path)
+        return path
+
+    def test_blocked_mac_stays_held_after_the_timed_hold_expires(self):
+        hold = pxe_server.BootHold(self._state(999999), 21600, 0,
+                                   ['aa:bb:cc:dd:ee:ff'])
+        self.assertTrue(hold.held('aa:bb:cc:dd:ee:ff'),
+                        'a blocked MAC must never be offered a boot file')
+
+    def test_block_match_is_case_insensitive(self):
+        hold = pxe_server.BootHold(self._state(999999), 21600, 0,
+                                   ['aa:bb:cc:dd:ee:ff'])
+        self.assertTrue(hold.held('AA:BB:CC:DD:EE:FF'))
+
+    def test_other_macs_are_unaffected_by_the_blocklist(self):
+        hold = pxe_server.BootHold(self._state(999999), 21600, 0,
+                                   ['aa:bb:cc:dd:ee:ff'])
+        self.assertFalse(hold.held('00:11:22:33:44:55'))
+
+    def test_without_a_block_an_expired_hold_releases(self):
+        hold = pxe_server.BootHold(self._state(999999), 21600, 0, [])
+        self.assertFalse(hold.held('aa:bb:cc:dd:ee:ff'),
+                         'this is the hazard never_offer exists to cover')

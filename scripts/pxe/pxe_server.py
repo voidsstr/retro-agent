@@ -148,10 +148,21 @@ class BootHold:
     the ROM already has the offer it needs.
     """
 
-    def __init__(self, path, hold_seconds, grace_seconds=900):
+    def __init__(self, path, hold_seconds, grace_seconds=900, blocked=()):
         self.path = path
         self.hold = int(hold_seconds or 0)
         self.grace = int(grace_seconds or 0)
+        # PERMANENT block, independent of the timed hold. The timed hold always
+        # expires - six hours later a machine that boots from the network first
+        # reinstalls itself, which is how an ASUS box lost a finished install on
+        # 2026-09-02. Anything in here is never offered a boot file at all,
+        # until it is explicitly unblocked.
+        #
+        # Do NOT try to fake this by writing a future timestamp into
+        # pxe_state.json: with retry_grace_seconds at 0 a negative age still
+        # satisfies `age < self.grace` below, so the machine lands in the retry
+        # branch and gets RE-OFFERED - the exact opposite of blocking it.
+        self.blocked = {m.strip().lower() for m in (blocked or ()) if m.strip()}
         # How many times a machine may be re-served inside the grace window
         # before we conclude it is looping rather than retrying.
         self.max_retries = 2
@@ -229,6 +240,8 @@ class BootHold:
         returning machine is one that installed and is now booting the wrong
         device, and must be left alone.
         """
+        if mac and mac.lower() in self.blocked:
+            return True
         if not self.hold or not mac:
             return False
         with self.lock:
@@ -595,6 +608,14 @@ class TFTPServer(threading.Thread):
             log(f'tftp {addr[0]} DONE {filename}')
             # Arm only on the boot file itself. Setup fetches a dozen other
             # files over TFTP; any of them would be the wrong trigger.
+            #
+            # WARNING TO ANYONE ADDING A SECOND BOOT FILE (a Linux imager, a
+            # restore environment, iPXE): this compares against cfg['bootfile']
+            # ONLY. A machine served a DIFFERENT boot file never arms the hold,
+            # so it is re-offered on every single boot - an unbounded reinstall
+            # loop. That is the same failure that destroyed a finished install
+            # on 2026-09-02, and it will be silent. Make the comparison cover
+            # every servable boot file before you add one.
             hold = self.cfg.get('_hold')
             if hold is not None and os.path.basename(
                     filename.replace('\\', '/')).lower() == str(
@@ -724,6 +745,9 @@ DEFAULT_CONFIG = {
     # setupldr cannot load a network driver and setup dies claiming the
     # IMAGE lacks drivers - see binl.py for why that message misleads.
     'nicdb': os.path.join(_ROOT, 'nicdb.json'),
+    # MACs here are NEVER offered a boot file, no matter what the timed hold
+    # says. Use for a machine whose install must be preserved indefinitely.
+    'never_offer': [],
     'state_file': os.path.join(_ROOT, 'pxe_state.json'),
 }
 
@@ -745,6 +769,12 @@ def main():
                     help="confirm a destructive release ('--release all')")
     ap.add_argument('--list-holds', action='store_true',
                     help='show which machines are being held, and for how long')
+    ap.add_argument('--block', metavar='MAC',
+                    help='NEVER offer this MAC a boot file again, whatever the '
+                         'timed hold says. Survives hold expiry; use for a '
+                         'machine whose install must be preserved.')
+    ap.add_argument('--unblock', metavar='MAC',
+                    help='remove a MAC from the permanent blocklist')
     args = ap.parse_args()
 
     cfg = dict(DEFAULT_CONFIG)
@@ -759,7 +789,8 @@ def main():
         f'BINL nic database MISSING or empty at {cfg.get("nicdb")} - '
         f'network installs will fail; run build-nicdb.py')
     hold = BootHold(cfg.get('state_file'), cfg.get('boot_hold_seconds', 0),
-                    cfg.get('retry_grace_seconds', 900))
+                    cfg.get('retry_grace_seconds', 900),
+                    cfg.get('never_offer', ()))
     cfg['_hold'] = hold
 
     if args.arm:
@@ -788,6 +819,36 @@ def main():
         n = hold.release(args.release)
         print(f'released {n} hold(s)')
         return 0
+    if hold.blocked:
+        print('PERMANENTLY BLOCKED (never_offer in pxe_config.json):')
+        for m in sorted(hold.blocked):
+            print(f'   {m}')
+    if args.block or args.unblock:
+        mac = (args.block or args.unblock).strip().lower()
+        with open(args.config, encoding='ascii') as fh:
+            conf = json.load(fh)
+        lst = [m.strip().lower() for m in conf.get('never_offer', [])]
+        if args.block:
+            if mac in lst:
+                print(f'{mac} is already blocked')
+            else:
+                lst.append(mac)
+                print(f'{mac} will NEVER be offered a boot file')
+        else:
+            if mac not in lst:
+                print(f'{mac} was not blocked')
+            else:
+                lst.remove(mac)
+                print(f'{mac} unblocked - the timed hold applies again')
+        conf['never_offer'] = sorted(set(lst))
+        tmp = args.config + '.tmp'
+        with open(tmp, 'w', encoding='ascii') as fh:
+            json.dump(conf, fh, indent=2)
+        os.replace(tmp, args.config)
+        print('restart retro-pxe for this to take effect: '
+              'sudo systemctl restart retro-pxe')
+        return 0
+
     if args.list_holds:
         rows = hold.listing()
         if not rows:

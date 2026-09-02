@@ -12,6 +12,22 @@ target PC  --TFTP-->  \Files\OS\XPSP3-PXE\i386\txtsetup.sif       (see below)
 target PC  --SMB1-->  \\192.168.1.122\files\Files\OS\XPSP3-PXE   (the CD contents)
 ```
 
+## Every failure mode, symptom-first
+
+[`docs/pxe-failure-catalogue.md`](../../docs/pxe-failure-catalogue.md) is the reference:
+the five stages of an install, how to read this server's log, and every failure hit on real
+hardware with its root cause and fix - PXE-E77, "txtsetup.sif is corrupt", the four distinct
+causes of STOP 0x7B, driver installs that fail with code 39 / error 1078 / error 1168,
+`ERROR_NOT_ENOUGH_QUOTA`, and the NTFS dirty bit.
+
+Start there when something breaks. The short version of its diagnostic order:
+
+1. read the screen
+2. `--list-holds`  (most "the server is broken" reports are the hold working)
+3. `ping 192.168.1.122`  (a dead NAS looks like corrupt media)
+4. `setupapi.log` on the target, for anything driver-shaped
+5. pull the disk and read the SYSTEM hive, for anything boot-shaped
+
 ## Check it before you walk to the machine
 
 ```bash
@@ -157,6 +173,94 @@ the resolver rejects `..` but does not resolve symlinks against the root, and
 its case-insensitive walk handles `i386` -> `I386` and `txtsetup.sif` ->
 `TXTSETUP.SIF`.
 
+## The install is unattended on a BLANK disk, and only on a blank disk
+
+`AutoPartition = 1` installs to the first partition with enough room **that does
+not already contain an installation of Windows**. On a blank disk that is the
+free space and the install is hands-off. On a disk that already carries XP there
+is no eligible partition, so text-mode setup falls back to the interactive
+partition list - a `FullUnattended` answer file stopping on the one page it was
+written to skip.
+
+`Repartition` is the key that clears the disk, and it belongs in
+**`[RemoteInstall]`**, not `[Unattended]`. In `[Unattended]` it parses without
+complaint and is ignored, so it reads like it is working.
+
+**It is NOT inert once placed correctly** - an earlier version of this file
+claimed it needed the RIS Client Installation Wizard, which we do not implement.
+That was wrong: `setupdd.sys` parses `UseWholeDisk`, `Repartition` and
+`RemoteInstall` as an adjacent string triple, so text-mode setup reads them
+directly.
+
+```
+[RemoteInstall]
+    Repartition = Yes
+    UseWholeDisk = Yes
+```
+
+**The default is destructive.** Omit the section, or the key, and a RIS install
+deletes every partition anyway - so `WIPE=0` has to write `No` explicitly.
+Leaving it out is not the cautious choice, it is the dangerous one.
+`make-xp-source.sh` writes the section either way for that reason.
+
+## Blocking a machine permanently
+
+The timed hold ALWAYS expires (6 h), and these boxes boot from the network first - so an
+expired hold means a finished install gets silently reimaged. That cost a completed install
+on 2026-09-02.
+
+For a machine whose install must be preserved indefinitely, add its MAC to `never_offer` in
+`pxe_config.json` and restart the service:
+
+```json
+"never_offer": ["e0:cb:4e:26:ec:a0"]
+```
+
+`held()` checks that list before any time-based logic, and `--list-holds` prints a
+PERMANENTLY BLOCKED section so it is visible rather than mysterious.
+
+**Do not fake this with a future timestamp in `pxe_state.json`.** With
+`retry_grace_seconds` at 0 a negative age still satisfies `age < grace`, so the machine
+lands in the retry branch and is RE-OFFERED - the opposite of blocking it.
+
+## nForce2 boards need the boot disk OFF the onboard IDE
+
+`inject-massstorage.py` binds the nForce2 IDE controller to NVIDIA's driver:
+
+```
+PCI\VEN_10DE&DEV_0065 = "nvatabus"      # and _0085, _008E
+```
+
+**Stock XP does not do this** - `txtsetup.sif.preinject` has zero occurrences of
+`DEV_0065`, and retail falls through to `PCI\CC_0101 = "pciide"`. An EPoX
+EP-8RDA imaged this way installs perfectly and then fails to boot - **STOP
+0x0000007B INACCESSIBLE_BOOT_DEVICE** on the runs with a native IDE disk, and an
+MBR-stage "Error loading operating system" on one earlier run behind a
+SATA-to-IDE adapter.
+
+The fix that worked: a **Promise Ultra 66** PCI IDE card (`VEN_105A&DEV_4D38`)
+with the boot disk on it and the onboard IDE disabled in BIOS. Promise support
+is MOSTLY stock: `ultra = ultra.sys,4` and the `&CC_0180` hardware id are in
+`txtsetup.sif.preinject`, though our injector added a bare `DEV_4D38` id and a
+second, non-stock `ultra.sys` binary alongside the stock one.
+
+**The log cannot tell you whether the card is in use.** `[SCSI.Load]` is fetched
+unconditionally - every miniport, every run - so `ultra.sy_` and `nvatabus.sys`
+both appear whatever hardware is fitted (`ultra.sy_`: 106 fetches, nine machines,
+every failing run included). Confirm the controller on the machine instead: the
+Promise option ROM lists attached drives at POST, and text-mode setup names
+"Promise Technology Inc. Ultra IDE Controller".
+
+Full write-up, including what is proven versus merely consistent and how to fix
+this without a Promise card: [case study 003](../../docs/case-studies/003-epox-nforce2-xp-pxe-0x7b.md).
+
+## A booted machine may not answer ping
+
+The slim profile (`OemPreinstall = No`) never runs `cmdlines.txt`, so
+`retroagent.reg` never merges, so the XP firewall stays on and blocks ICMP. A
+successful install looks dead to `ping`. Check TCP 9898 or the ARP table
+instead.
+
 ## Two log lines that are NOT faults
 
 - `MISS BOOTFONT.BIN` - only used for East-Asian boot locales. English XP does
@@ -184,6 +288,13 @@ an XP box with `net use \\MEDIASERVER\files /user:"" ""`.
 
 Watch `pxe_server.log` while it boots - every DHCP OFFER and TFTP GET is logged,
 so a failure tells you exactly how far it got.
+
+**A run of 133 GETs ending at `mrxsmb.sy_` is text-mode setup SUCCEEDING**, not
+dying. That is the end of the TFTP phase; setup then works over SMB for about
+ten minutes and reboots to continue into GUI setup. The machine coming back to
+PXE ~10 minutes later is that reboot, and the boot hold refusing it is the hold
+doing its job - `--release` there re-images a box that had just finished. See
+`e60f121`.
 
 ## Files
 

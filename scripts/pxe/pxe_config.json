@@ -2,5 +2,7 @@
   "_comment": "server_ip is PINNED, not 'auto'. This host also carries a macvlan (mac0, .133) used for VM testing, and auto-detection picks whichever address it finds first - which pointed real hardware at an interface it could not TFTP from. Pin it.",
   "server_ip": "192.168.1.132",
   "bootfile": "startrom.n12",
-  "bootfile_by_arch": {}
+  "bootfile_by_arch": {},
+  "_never_offer_comment": "MACs here are NEVER offered a boot file, whatever the timed hold says. The 6h hold always expires and these boxes boot from the network FIRST, so an expired hold means a finished install gets silently reimaged. Remove a MAC here to allow it to install again.",
+  "never_offer": []
 }
