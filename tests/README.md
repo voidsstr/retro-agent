@@ -211,6 +211,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | agent 1.30.0 stages `DOSSTART.BAT`, and never stages over a box's `AUTOEXEC.BAT`/`CONFIG.SYS` | agent dosstage.c | `native/test_dosstage.c` |
 | 0.2 both tabs share one column grid, one `*` marker and one green | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
 | fleetbook add/search/log contract (brain's solved-problems DB) | scripts/retro_fleetbook.py | `python/test_fleetbook.py` |
+| **the per-game driver sweep must never rewrite a DRIVER PACKAGE dir** (2026-09-01, .185: it planned to replace `C:\DRIVERS\amigamerlin-3.1-R11\3dfxOGL.dll` -- the installer you roll back TO) | `.claude/skills/driver-install/game_sweep.py` | `python/test_game_sweep_skip.py` |
 | player-profile store: cvar command word preserved per game family, ini applied as a patch, dry-run stays offline | scripts/retro_playerprofile.py | `python/test_playerprofile.py` |
 | agent default desktop theme = green hacker + Starfield (was gray classic) | agent retrowall.c | `python/test_retrowall_theme.py` |
 | 0.1.34 fullscreen refresh snap-down (`fxBestRefresh`, was hardcoded 60Hz) | MesaFX ICD | `native/test_fx_best_refresh.c` |

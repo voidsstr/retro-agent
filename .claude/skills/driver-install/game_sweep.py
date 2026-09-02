@@ -43,6 +43,13 @@ GL_NAMES = ("opengl32.dll", "3dfxgl.dll", "3dfxogl.dll")
 GLIDE_NAMES = ("glide2x.dll", "glide3x.dll")
 WRAPPER_NAMES = ("ddraw.dll",)
 ALL_NAMES = GL_NAMES + GLIDE_NAMES + WRAPPER_NAMES
+# Directories never swept. \WINDOWS\ and \RETRO_AGENT\ are ours/the system's;
+# the rest are DRIVER PACKAGE / installer trees, which look exactly like game dirs
+# to a filename scan but are the source you reinstall or roll back FROM. Rewriting
+# a 3dfxOGL.dll inside C:\DRIVERS\amigamerlin-3.1-R11\ destroys that safety net
+# and nothing warns you. Add more with --exclude.
+SKIP_DIRS = ("\\WINDOWS\\", "\\RETRO_AGENT\\", "\\DRIVERS\\", "\\NVIDIA\\",
+             "\\RECYCLER\\", "\\$RECYCLE.BIN\\", "\\SYSTEM VOLUME INFORMATION\\")
 # processes that hold these DLLs; --kill closes them before acting
 GAME_PROCS = ("hl.exe", "quake3.exe", "quake2.exe", "UnrealTournament.exe",
               "UT2004.exe", "gamemd.exe", "RA2MD.exe", "hexen2.exe",
@@ -92,15 +99,16 @@ async def rc(c, cmd, t=60):
     return d.decode("ascii", "replace")
 
 
-async def scan(c, drives):
-    """dir /s /b every relevant DLL name on each drive; skip \\WINDOWS\\."""
+async def scan(c, drives, skips=()):
+    """dir /s /b every relevant DLL name on each drive; skip SKIP_DIRS + --exclude."""
+    skips = tuple(SKIP_DIRS) + tuple(s.upper() for s in skips)
     found = []
     for drv in drives:
         pats = " ".join("%s:\\%s" % (drv, n) for n in ALL_NAMES)
         out = await rc(c, "EXEC cmd /c dir /s /b %s 2>nul" % pats, t=300)
         for line in out.splitlines():
             p = line.strip()
-            if not p or "\\WINDOWS\\" in p.upper() or "\\RETRO_AGENT\\" in p.upper():
+            if not p or any(sk in p.upper() for sk in skips):
                 continue
             if p.lower().endswith(".dll"):
                 found.append(p)
@@ -201,6 +209,9 @@ async def main():
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--kill", action="store_true")
     ap.add_argument("--drives", nargs="+", default=["C"])
+    ap.add_argument("--exclude", nargs="+", default=[], metavar="FRAGMENT",
+                    help="extra path fragments to skip, e.g. --exclude \\INSTALLERS\\ "
+                         "(matched case-insensitively; SKIP_DIRS always applies)")
     ap.add_argument("--icd"); ap.add_argument("--glide2"); ap.add_argument("--glide3")
     a = ap.parse_args()
 
@@ -217,7 +228,7 @@ async def main():
         await asyncio.sleep(3)
 
     print("scanning drives %s for %s ..." % (a.drives, ", ".join(ALL_NAMES)))
-    paths = await scan(c, a.drives)
+    paths = await scan(c, a.drives, a.exclude)
     print("found %d game-local candidates" % len(paths))
 
     rows, failures, ut_dirs, gl_md5s = [], 0, set(), {}
