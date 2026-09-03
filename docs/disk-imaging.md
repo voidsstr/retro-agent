@@ -31,6 +31,48 @@ It is also the *only* route that will ever work for three machines: the HP 100VG
 entire log), the 3c509 Win98 box (no `CONFIG_EL3` module), and the Pentium-classic
 box whose CPU has no CMOV and so cannot run an i686 kernel at all.
 
+## It needs sudo, and it stages locally first
+
+`ntfsclone` and `dd` both read the block device directly, so **every capture runs under
+`sudo`**. Not `sudo -E` - sudo rejects it and the tool does not need your environment.
+
+```bash
+sudo python3 scripts/fleet/diskimage.py capture --device /dev/sdb --name box --raw
+```
+
+The capture writes to `/var/tmp/diskimage-staging` at source speed (~47 MB/s measured),
+hashes it there, then does ONE sequential copy to the NAS, **verifies the sha256 of the
+copy**, and only then renames it into place and deletes the local staging.
+
+That ordering is deliberate. The NAS measures 6-22 MB/s on a `soft` CIFS mount: streaming
+a two-hour capture straight into it is two hours of exposure to an `EIO` that kills the
+run with no resume. Staged, the fragile part is a plain copy of an already-hashed file,
+and a failure means re-running `push`, not the capture.
+
+- `--local-only` - capture and stop, do not touch the NAS yet
+- `push --image <id>` - move a staged image later, same verification
+- `staged` - list what is captured locally but not yet pushed
+
+## Choosing a format when the filesystem is damaged
+
+`ntfsclone` does its own consistency check and **refuses an inconsistent filesystem**,
+even with `--force`. `--force` only gets past the dirty *flag*; a real inconsistency stops
+it dead:
+
+```
+Totally 13 cluster accounting mismatches.   ("extra cluster in $Bitmap")
+ERROR: Filesystem check failed!
+```
+
+That is correct behaviour - an image of an inconsistent filesystem is an inconsistent
+image. But it means the machine you MOST want to back up, the one whose disk is failing,
+is the one ntfsclone will not touch.
+
+**Use `--raw` there.** `dd` never parses NTFS, so corruption is irrelevant and you get a
+faithful byte-for-byte copy of the damage. Image first, repair second - never run
+`chkdsk` over a storage path that is failing writes, because chkdsk rewrites metadata and
+a failed metadata write loses volumes rather than clusters.
+
 ## Two formats, and "byte for byte" means `--raw`
 
 | | what it stores | when |

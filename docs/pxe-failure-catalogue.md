@@ -289,6 +289,41 @@ something on the machine did. Fix: set it back to `0`.
 The other classic cause is desktop-heap exhaustion —
 `Session Manager\SubSystems\Windows`, `SharedSection=1024,3072,512`.
 
+### Read the EVENT LOG before changing any resource setting
+
+`ERROR_NOT_ENOUGH_QUOTA`, "the system directory is corrupted", stalls, and unexplained
+bugchecks can all be one fault: **failing disk I/O**. XP records it plainly, and the log
+is readable offline from the disk (`WINDOWS/system32/config/SysEvent.Evt`, legacy `.Evt`
+format - no parser is installed here, but the record layout is simple enough to parse
+directly).
+
+On the EPoX/Voodoo box, 2026-09-02:
+
+```
+739x  Event 26  source ultra   \Device\Scsi\ultra1        (Promise driver, device error)
+684x  Event 51  source Disk    "error during a PAGING operation"
+  6x  Event 57  source Ftdisk  could not flush the transaction log
+  3x  Event  9  source ultra   device did not respond within the timeout
+```
+
+1,438 errors over the life of the install. **Event 51 is literally a paging failure** -
+paging backs the paged pool, so when it fails the next allocation reports
+`ERROR_NOT_ENOUGH_QUOTA`. The activation wizard was not special; it was simply the next
+thing to ask for memory.
+
+Two registry "fixes" were applied before the log was read - `SystemPages` (genuinely
+misconfigured at 823296) and the desktop heap (at stock). Neither could ever have worked,
+because nothing was exhausted. **The log named the fault immediately and was on the disk
+the whole time.**
+
+The drive was then surface-tested over USB: 768 MB pagefile read end to end at 47 MB/s,
+300 large system32 files all readable, zero kernel I/O errors. Same platters, clean on one
+controller and 1,438 errors on another - so the fault was the path
+(SATA drive -> IDE/SATA bridge -> Promise Ultra 66), not the media.
+
+`ntfsclone` later found **13 cluster accounting mismatches** in `$Bitmap`, confirming the
+I/O errors had done real filesystem damage rather than just setting a dirty flag.
+
 ### "The system directory is corrupted", clears after a reboot
 
 The **NTFS dirty bit**. Overwhelmingly caused by pulling a USB-attached disk without

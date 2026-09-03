@@ -55,6 +55,12 @@ import time
 
 NAS_ROOT = os.environ.get("RETRO_IMAGE_ROOT",
                           "/mnt/retro-share/Files/OS/DiskImages")
+# Capture to LOCAL disk first, then move. The NAS measures 6-22 MB/s and its
+# CIFS mount is `soft`, so a two-hour write is two hours of exposure to an EIO
+# that kills the capture with no resume. Local staging runs at source speed
+# (~47 MB/s measured) and the NAS only sees one sequential copy of a finished,
+# already-hashed file.
+STAGE_ROOT = os.environ.get("RETRO_IMAGE_STAGE", "/var/tmp/diskimage-staging")
 CHUNK = 8 * 1024 * 1024
 
 
@@ -81,21 +87,31 @@ def dev_size(dev):
         return fh.seek(0, os.SEEK_END) or fh.tell()
 
 
+PROBE_MNT = "/tmp/.diskimage-probe"
+
+
 def system_disks():
     """Every block device backing a mounted filesystem, plus its parents.
 
     Restoring over the host's own root disk would destroy this machine, so the
     check is deliberately broad: a whole disk counts as in use if ANY of its
     partitions is mounted.
+
+    Our own read-only probe mount is excluded - otherwise reading the profile
+    makes the disk look busy and capture refuses the disk it just probed.
     """
     busy = set()
     r = run(["lsblk", "-rno", "NAME,MOUNTPOINT,PKNAME"])
     for line in r.stdout.splitlines():
-        parts = line.split()
-        if len(parts) >= 2 and parts[1].strip():
-            busy.add("/dev/" + parts[0])
-            if len(parts) >= 3:
-                busy.add("/dev/" + parts[2])
+        parts = line.split(None, 2)
+        if len(parts) < 2 or not parts[1].strip():
+            continue
+        mnt = parts[1].strip()
+        if mnt == PROBE_MNT:
+            continue
+        busy.add("/dev/" + parts[0])
+        if len(parts) >= 3 and parts[2].strip():
+            busy.add("/dev/" + parts[2].strip())
     return busy
 
 
@@ -138,7 +154,7 @@ def read_profile(part):
     """
     prof = {"hal": None, "boot_storage": [], "mergeide": False,
             "windows": None, "computername": None}
-    tmp = "/tmp/.diskimage-probe"
+    tmp = PROBE_MNT
     os.makedirs(tmp, exist_ok=True)
     mounted_here = False
     try:
@@ -209,7 +225,12 @@ def read_profile(part):
         prof["windows"] = "found"
     finally:
         if mounted_here:
-            run(["umount", tmp])
+            # An ignored umount failure leaks the mount, and capture's safety
+            # check then refuses the very disk we just probed. Retry lazily and
+            # say so if it still will not go.
+            if run(["umount", tmp]).returncode != 0:
+                if run(["umount", "-l", tmp]).returncode != 0:
+                    print(f"  WARNING: could not unmount the probe at {tmp}")
     return prof, None
 
 
@@ -255,14 +276,19 @@ def cmd_capture(a):
     stamp = time.strftime("%Y%m%d-%H%M%S")
     image_id = f"{name}-{stamp}"
     outdir = os.path.join(NAS_ROOT, key, image_id)
-    incoming = outdir + ".incoming"
 
     if not os.path.isdir(NAS_ROOT):
         try:
             os.makedirs(NAS_ROOT, exist_ok=True)
         except OSError as e:
             die(f"cannot create {NAS_ROOT}: {e} (is the NAS mounted rw?)")
+
+    stage = a.stage or STAGE_ROOT
+    incoming = os.path.join(stage, image_id + ".incoming")
     os.makedirs(incoming, exist_ok=True)
+    free = shutil.disk_usage(stage).free
+    print(f"  staging     {incoming}")
+    print(f"              {human(free)} free locally")
 
     method = "raw" if a.raw else ("ntfsclone" if part else "raw")
     src = dev if method == "raw" else part
@@ -278,13 +304,27 @@ def cmd_capture(a):
         # byte-for-byte, whole disk, partition table and boot sector included
         cmd = f"dd if={src} bs=8M status=progress conv=noerror,sync | zstd -3 -T0 -o {blob!r} -f"
     else:
-        cmd = f"ntfsclone --save-image --output - {src} | zstd -3 -T0 -o {blob!r} -f"
+        # A volume that was shut down uncleanly - which is EVERY disk pulled from
+        # a machine with I/O errors, and the reason you are imaging it - makes
+        # ntfsclone refuse. --force reads it anyway. The image is then a faithful
+        # copy of a dirty filesystem: restore it and Windows runs autochk, exactly
+        # as it would have on the original. That is a backup, not a repair.
+        force = " --force" if a.force else ""
+        cmd = (f"ntfsclone --save-image{force} --output - {src} "
+               f"| zstd -3 -T0 -o {blob!r} -f")
     r = subprocess.run(["bash", "-o", "pipefail", "-c", cmd])
     if r.returncode != 0:
-        die(f"capture failed (exit {r.returncode}); leaving {incoming} for inspection")
+        shutil.rmtree(incoming, ignore_errors=True)
+        extra = ""
+        if method == "ntfsclone" and not a.force:
+            extra = ("\n       If it said the volume is scheduled for a check or was "
+                     "shut down uncleanly, re-run with --force (keeps the dirty flag, "
+                     "which is right for a backup), or --raw to bypass NTFS entirely.")
+        die(f"capture failed (exit {r.returncode}){extra}")
     elapsed = time.time() - t0
-
     stored = os.path.getsize(blob)
+    rate = f"{human(stored/max(elapsed,1))}/s"
+
     print("\n  hashing...")
     hsh = hashlib.sha256()
     with open(blob, "rb") as fh:
@@ -311,14 +351,43 @@ def cmd_capture(a):
         "profile_key": key,
         "profile": prof,
         "capture_seconds": round(elapsed, 1),
+        "source_was_dirty": bool(a.force),
         "captured_by": "scripts/fleet/diskimage.py",
     }
     with open(os.path.join(incoming, "manifest.json"), "w") as fh:
         json.dump(manifest, fh, indent=2)
 
-    # rename last: a directory without .incoming is a COMPLETE image, always
-    os.rename(incoming, outdir)
-    print(f"\n  stored      {human(stored)} in {elapsed/60:.1f} min")
+    if a.local_only:
+        final = os.path.join(stage, image_id)
+        os.rename(incoming, final)
+        print(f"\n  captured    {human(stored)} in {elapsed/60:.1f} min ({rate})")
+        print(f"  image id    {image_id}")
+        print(f"  LOCAL ONLY  {final}")
+        print(f"  move it later with:  {sys.argv[0]} push --image {image_id}")
+        return
+
+    nas_incoming = outdir + ".incoming"
+    print(f"\n  copying to the NAS (this is the slow part)...")
+    t1 = time.time()
+    os.makedirs(nas_incoming, exist_ok=True)
+    for f in sorted(os.listdir(incoming)):
+        shutil.copy2(os.path.join(incoming, f), os.path.join(nas_incoming, f))
+    # verify the copy landed intact before we trust it and delete the local one
+    print("  verifying the copy...")
+    h2 = hashlib.sha256()
+    with open(os.path.join(nas_incoming, os.path.basename(blob)), "rb") as fh:
+        for b in iter(lambda: fh.read(CHUNK), b""):
+            h2.update(b)
+    if h2.hexdigest() != manifest["sha256"]:
+        die(f"the copy on the NAS does not match the local image. Local copy kept "
+            f"at {incoming}; NAS copy left at {nas_incoming} for inspection.")
+    # rename last: a directory without .incoming is a COMPLETE, VERIFIED image
+    os.rename(nas_incoming, outdir)
+    shutil.rmtree(incoming, ignore_errors=True)
+    move = time.time() - t1
+    print(f"\n  captured    {human(stored)} in {elapsed/60:.1f} min ({rate})")
+    print(f"  copied      to the NAS in {move/60:.1f} min "
+          f"({human(stored/max(move,1))}/s)")
     print(f"  image id    {image_id}")
     print(f"  path        {outdir}")
 
@@ -437,6 +506,53 @@ def cmd_restore(a):
         print("        See docs/pxe-failure-catalogue.md - 'Making an image portable'.")
 
 
+def cmd_push(a):
+    """Move a locally-staged image to the NAS, verifying before deleting."""
+    stage = a.stage or STAGE_ROOT
+    src = os.path.join(stage, a.image)
+    mp = os.path.join(src, "manifest.json")
+    if not os.path.exists(mp):
+        die(f"no staged image at {src}")
+    with open(mp) as fh:
+        m = json.load(fh)
+    outdir = os.path.join(NAS_ROOT, m["profile_key"], m["image_id"])
+    if os.path.isdir(outdir):
+        die(f"{outdir} already exists on the NAS")
+    nas_incoming = outdir + ".incoming"
+    os.makedirs(nas_incoming, exist_ok=True)
+    print(f"  {src}\n  -> {outdir}")
+    for f in sorted(os.listdir(src)):
+        shutil.copy2(os.path.join(src, f), os.path.join(nas_incoming, f))
+    print("  verifying...")
+    h = hashlib.sha256()
+    with open(os.path.join(nas_incoming, m["blob"]), "rb") as fh:
+        for b in iter(lambda: fh.read(CHUNK), b""):
+            h.update(b)
+    if h.hexdigest() != m["sha256"]:
+        die(f"copy does not match; left at {nas_incoming}")
+    os.rename(nas_incoming, outdir)
+    shutil.rmtree(src, ignore_errors=True)
+    print(f"  done - local staging removed")
+
+
+def cmd_staged(a):
+    stage = a.stage or STAGE_ROOT
+    if not os.path.isdir(stage):
+        print(f"nothing staged in {stage}")
+        return
+    rows = [d for d in sorted(os.listdir(stage))
+            if os.path.exists(os.path.join(stage, d, "manifest.json"))]
+    if not rows:
+        print(f"nothing staged in {stage}")
+        return
+    print(f"staged locally in {stage}:")
+    for d in rows:
+        with open(os.path.join(stage, d, "manifest.json")) as fh:
+            m = json.load(fh)
+        print(f"  {m['image_id']:<38} {human(m['stored_bytes']):>10}  "
+              f"{'DIRTY' if m.get('source_was_dirty') else ''}")
+
+
 # ------------------------------------------------------------------ main
 
 def main():
@@ -453,6 +569,13 @@ def main():
     p.add_argument("--raw", action="store_true",
                    help="true byte-for-byte whole-disk image (bigger, exact)")
     p.add_argument("--note", help="free text stored in the manifest")
+    p.add_argument("--stage", help=f"local staging directory (default {STAGE_ROOT})")
+    p.add_argument("--local-only", action="store_true",
+                   help="capture locally and STOP - do not copy to the NAS yet")
+    p.add_argument("--force", action="store_true",
+                   help="image a volume that was shut down uncleanly. The image "
+                        "keeps the dirty flag, so a restored copy runs autochk "
+                        "on first boot - which is correct for a backup.")
     p.set_defaults(fn=cmd_capture)
 
     p = sub.add_parser("verify", help="re-hash a stored image")
@@ -467,6 +590,15 @@ def main():
     p.add_argument("--expect-profile", help="refuse unless the image matches this key")
     p.add_argument("--force-profile", action="store_true")
     p.set_defaults(fn=cmd_restore)
+
+    p = sub.add_parser("push", help="move a locally-staged image to the NAS")
+    p.add_argument("--image", required=True)
+    p.add_argument("--stage")
+    p.set_defaults(fn=cmd_push)
+
+    p = sub.add_parser("staged", help="list images staged locally, not yet on the NAS")
+    p.add_argument("--stage")
+    p.set_defaults(fn=cmd_staged)
 
     a = ap.parse_args()
     a.fn(a)
