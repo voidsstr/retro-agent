@@ -1,6 +1,6 @@
 {
   "title": "Jedi Academy (single player)",
-  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_mode \"-1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customwidth \"%FR_W%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customheight \"%FR_H%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customaspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customPixelAspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_fullscreen \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta cg_fov \"%FR_FOV%\"",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_mode \"-1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customwidth \"%FR_W%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customheight \"%FR_H%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customaspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customPixelAspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_fullscreen \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_displayRefresh \"%FR_HZ%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta cg_fov \"%FR_FOV%\"",
   "vars": {
     "GTITLE": "Jedi Academy",
     "GAME": "%~dp0jasp.exe",

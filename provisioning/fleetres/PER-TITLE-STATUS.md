@@ -17,6 +17,28 @@ than implied.
 | **capped / 4:3** | the engine has a real ceiling or no widescreen mode; it gets the largest correctly-proportioned mode it can reach |
 | **incapable** | no configurable resolution at all |
 
+## GAMESYNC now applies the same answer at SYNC time (agent v1.81.0+)
+
+Everything below is still true and `FLEETRES.EXE` still runs from every
+launcher. What changed is that the **agent** also detects the monitor and writes
+each title's own configuration at the end of that title's sync — see
+`agent/shared/gameres.h` and the GAMERES section of `CLAUDE.md`.
+
+It exists because the launcher half is structurally unable to fix one case:
+`gs_merge_reg()` applies a title's staged `install.reg` **after** any launcher
+has run, and `HalfLife1`'s pins the shared GoldSrc mode key — the one key every
+GoldSrc title on the box uses — on every machine on every sync.
+
+Two consequences for this table:
+
+* the **`launcher`** column is no longer the only writer for a title whose mode
+  lives in a file or the registry. The rule table in `gameres.h` mirrors those
+  lines and `tests/python/test_gameres_mirror.py` fails if the two disagree.
+* a title whose mode is set purely on a **command line** — Quake 1, Hexen II,
+  Descent 3, Halo, Doom 3, Jedi Academy's `+set` — is served ONLY by the
+  launcher, deliberately. There is nothing on disk for a sync-time pass to
+  write.
+
 ## The panels — read back from each box's own DEPLOYED `FLEETRES.EXE`
 
 Not from notes, and not from my copy: this is `FLEETRES.EXE -cmd` run out of

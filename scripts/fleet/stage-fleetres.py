@@ -175,6 +175,20 @@ def idtech3_cfg(mod, wide=True):
         '>>%s echo seta r_customaspect "1"' % p,
         '>>%s echo seta r_customPixelAspect "1"' % p,
         '>>%s echo seta r_fullscreen "1"' % p,
+        # THE REFRESH RATE, and FR_HZ rather than a constant: a hardcoded 60
+        # throws away 100 Hz on .143, 85 on .133 and 75 on .124. r_displayRefresh
+        # is present in every id Tech 3 binary in this library (checked: quake3,
+        # ioquake3, jasp, sof2mp, WolfSP), and 0 means "driver default", so it is
+        # safe on a box whose rate could not be read.
+        #
+        # THE AGENT WRITES THIS SAME FILE (agent/shared/gameres.h, GAMERES), and
+        # both writers MUST emit the same number or each rewrites the other's
+        # copy on every launch and every sync. That is why this is FR_HZ - the
+        # persisted desktop rate - and not the highest rate the panel offers at
+        # the target. The agent raises the DESKTOP to the panel's best refresh
+        # instead, which makes FR_HZ that best rate for everything at once,
+        # including the engines with no refresh setting of their own.
+        '>>%s echo seta r_displayRefresh "%%FR_HZ%%"' % p,
     ]
     if wide:
         # id Tech 3 is vert-: at 16:9 with the default FOV you see LESS
@@ -204,6 +218,8 @@ def idtech3_modecfg(mod, fov=True):
         '>>%s echo // and FR_Q3MODE not FR_Q2MODE: idTech3 mode 8 is 1280x1024.' % p,
         '>>%s echo seta r_mode "%%FR_Q3MODE%%"' % p,
         '>>%s echo seta r_fullscreen "1"' % p,
+        # See idtech3_cfg(): FR_HZ, and the agent writes the same line.
+        '>>%s echo seta r_displayRefresh "%%FR_HZ%%"' % p,
     ]
     # FR_FOV is computed for the PANEL, and every entry in this engine's mode
     # table except 11 is 4:3. So a title that renders at a mode INDEX is
@@ -1272,6 +1288,66 @@ TITLES = {
         },
     },
 }
+
+
+# --------------------------------------------------------------------------
+# THE REFRESH RATE, added to launchers that were staged before it existed.
+#
+# `seta r_displayRefresh` is present in every id Tech 3 binary in this library
+# (checked in quake3.exe, ioquake3.x86.exe, jasp.exe, sof2mp.exe, WolfSP.exe),
+# and a hardcoded 60 throws away 100 Hz on .143, 85 on .133 and 75 on .124 -
+# a refresh constant is the same defect as a resolution constant, one field to
+# the right.
+#
+# THE AGENT WRITES THIS SAME FILE (agent/shared/gameres.h). Both writers must
+# emit the SAME number or each rewrites the other's copy on every launch and
+# every sync, and the "0 value(s) changed" signal that catches real faults dies
+# with it. Hence FR_HZ, the persisted desktop rate, on both sides; the agent
+# raises the DESKTOP to the panel's best refresh instead, which makes FR_HZ the
+# best rate for everything at once - including the engines that have no refresh
+# setting of their own at all (Quake II and GoldSrc carry no refresh cvar).
+#
+# Built as literal old->new pairs so repair() can apply them exactly once. The
+# window is TWO lines on purpose: replacing the `r_fullscreen` line alone would
+# leave `old` a substring of `new`, so a second run would insert the line
+# again. With the following line included, `old` is gone once applied.
+# --------------------------------------------------------------------------
+def _refresh_fix(mod, tail):
+    cfg = '>>"%%~dp0%s\\fleetres.cfg" echo ' % mod
+    full = cfg + 'seta r_fullscreen "1"\r\n'
+    rate = cfg + 'seta r_displayRefresh "%FR_HZ%"\r\n'
+    after = (cfg + 'seta cg_fov "%FR_FOV%"\r\n') if tail == "fov" else "\r\n"
+    return [(full + after, full + rate + after)]
+
+
+_REFRESH = {
+    "Quake3-TeamArena": {
+        "Play Quake III Arena.bat": _refresh_fix("baseq3", "fov"),
+        "Play Quake III Arena - retail 1.32c.bat": _refresh_fix("baseq3", "fov"),
+        "Play Team Arena.bat": _refresh_fix("missionpack", "fov"),
+    },
+    "JediAcademy": {
+        "Play Jedi Academy.bat": _refresh_fix("base", "fov"),
+        "Play Jedi Academy - Multiplayer.bat": _refresh_fix("base", "fov"),
+    },
+    "SoldierOfFortune2": {
+        "Play Soldier of Fortune II.bat": _refresh_fix("base", "fov"),
+        "Play Soldier of Fortune II - Multiplayer.bat": _refresh_fix("base", "fov"),
+    },
+    # RTCW's fork gets no cg_fov line, so the window ends at a blank line.
+    "ReturnToCastleWolfenstein": {
+        "Play Return to Castle Wolfenstein.bat": _refresh_fix("Main", ""),
+        "Play RTCW Multiplayer.bat": _refresh_fix("Main", ""),
+        "Host RTCW - LAN.bat": _refresh_fix("Main", ""),
+        "Join RTCW - LAN.bat": _refresh_fix("Main", ""),
+    },
+}
+
+for _t, _fixes in _REFRESH.items():
+    _spec = TITLES[_t]
+    _spec.setdefault("fix", {})
+    for _name, _pairs in _fixes.items():
+        _spec["fix"].setdefault(_name, []).extend(_pairs)
 
 # --------------------------------------------------------------------------
 # Whole-file templates for the launchers that do not exist yet

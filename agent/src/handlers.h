@@ -74,6 +74,34 @@ void handle_hwpublish(SOCKET sock, const char *args);
 void gamesync_init(void);
 DWORD WINAPI gamesync_thread(LPVOID param);
 void handle_iconarrange(SOCKET sock, const char *args);
+
+/* ------------------------------------------------------------------------
+ * GAMERES - the monitor, and the per-box resolution GAMESYNC writes into each
+ * staged title's own configuration.
+ *
+ *   GAMERES              report the panel, every mode the driver offers, and
+ *                        the target derived from them, as JSON. It reports the
+ *                        POST-CONDITION rather than "OK", for the same reason
+ *                        ICONARRANGE does: a log line saying we set a mode is
+ *                        not evidence that the mode is set.
+ *   GAMERES APPLY [t]    run the pass now over every installed title, or one.
+ *
+ * gamesync.c calls gameres_apply_title() at the end of each title's sync -
+ * after gs_merge_reg(), because a staged install.reg is a constant shipped to
+ * eight different monitors and Half-Life's re-pins the shared GoldSrc mode key
+ * to 1024x768 on every box on every sync.
+ * ---------------------------------------------------------------------- */
+void handle_gameres(SOCKET sock, const char *args);
+void gameres_probe(void);
+int  gameres_apply_title(const char *dst_dir, const char *title,
+                         int *absent_out);
+int  gameres_has_rules(const char *title);
+/* Raise the PERSISTED desktop refresh to the highest rate the monitor supports
+ * at the mode it is already in - upward only, resolution untouched, and only
+ * with an EDID to bound it. It is how the engines with no refresh setting of
+ * their own (Quake II and GoldSrc carry no refresh cvar at all) get the
+ * monitor's best rate. Must run BEFORE gameres_apply_title(). */
+int  gameres_apply_display(void);
 /* Apply the fleet's desktop icon layout. Auto Arrange by default; the legacy
  * icon bay when HKLM\Software\RetroAgent\IconAutoArrange is 0. Called on
  * every agent startup, after a GAMESYNC, and by the ICONARRANGE command.

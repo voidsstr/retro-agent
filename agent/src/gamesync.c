@@ -2986,6 +2986,7 @@ static void gs_run(const char *library)
     char   titles[GS_MAX_TITLES][128];
     __int64 sizes[GS_MAX_TITLES];
     int    n = 0, i, files = 0, ok_titles = 0, capped = 0;
+    int    gr_titles = 0, gr_changed = 0, gr_absent_t = 0;
     DWORD  enum_err = 0;
     __int64 grand = 0, freeb;
 
@@ -3035,6 +3036,19 @@ static void gs_run(const char *library)
      * needs both, and doing it once per run keeps a CPUID+registry sweep off
      * the inner loop. */
     gs_gate_init(library);
+
+    /* Read the monitor ONCE per run rather than per title: it is an EDID
+     * fetch plus a full mode enumeration, and the answer cannot change
+     * mid-sync. The log line it emits is also the only place an operator can
+     * see WHY a box was given the resolution it was given. */
+    gameres_probe();
+    /* Raise the desktop to the panel's best refresh BEFORE any title is
+     * written: the id Tech 3 configs carry the persisted rate so they agree
+     * with what each title's own launcher writes, so the desktop has to be on
+     * its best rate first for that number to be the best one. It also reaches
+     * every engine that has no refresh setting of its own, which on this
+     * library is most of them. */
+    gameres_apply_display();
 
     _snprintf(pat, sizeof(pat) - 1, "%s\\*", library);
     pat[sizeof(pat) - 1] = 0;
@@ -3308,8 +3322,25 @@ static void gs_run(const char *library)
         dst[sizeof(dst) - 1] = 0;
 
         if (gs_copy_tree(src, dst)) {
+            int gr_absent = 0;
             ok_titles++;
             gs_merge_reg(dst, titles[i]);
+            /*
+             * THE RESOLUTION PASS RUNS AFTER gs_merge_reg(), AND THE ORDER IS
+             * THE POINT. A staged install.reg is a byte-identical constant
+             * shipped to eight different monitors, and Half-Life's pins
+             * HKCU\Software\Valve\Half-Life\Settings ScreenWidth to 1024 -
+             * the one key every GoldSrc title on the box shares, there being
+             * no Software\Valve\CounterStrike key at all. Merging it and then
+             * leaving it is how a 1080p machine gets re-pinned to 1024x768 on
+             * every single sync, with the launcher unable to undo something
+             * written after it ran. Anything that later re-orders these two
+             * calls silently restores that bug.
+             */
+            gr_changed += gameres_apply_title(dst, titles[i], &gr_absent);
+            gr_absent_t += gr_absent;
+            if (gameres_has_rules(titles[i]))
+                gr_titles++;
             gs_make_game_shortcut(dst, titles[i]);
         } else {
             log_msg(LOG_GS, "%s finished with errors", titles[i]);
@@ -3362,6 +3393,14 @@ static void gs_run(const char *library)
             "%ld file(s) written, %ld new/removed shortcut(s)",
             ok_titles, n, g_gs.skipped_titles, g_gs.gated_titles, i,
             gs_desk_files(), gs_desk_lnks());
+    /* The resolution pass reports on its own line, and it reports CHANGES -
+     * a steady-state box must read 0, exactly like `file(s) written` above.
+     * A box that reports the same non-zero count on consecutive no-change
+     * syncs is announcing that something rewrites a config forever, which is
+     * this project's signature invisible fault one directory along. */
+    log_msg(LOG_GS, "gameres: %d title(s) have resolution rules, "
+                    "%d value(s) changed, %d target(s) absent from this build",
+            gr_titles, gr_changed, gr_absent_t);
     gs_gate_free();
     gs_set_msg("complete - %d title(s)", ok_titles);
 

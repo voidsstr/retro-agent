@@ -1851,6 +1851,14 @@ for pc in pcs:
   > the OS pointer (`+set in_mouse 0` does not change this). At that point the
   > honest answer is a physical keyboard, not more automation.
 - **WINLIST** — JSON list of visible windows
+- **GAMERES** — the monitor and the resolution every staged game is set to, as
+  JSON: the EDID panel (name, native timing, physical size, LCD/CRT), the
+  persisted **and** live desktop modes, the per-box `ResCapW`/`ResCapH`, **every
+  mode the driver enumerates**, and the derived target (widescreen pair, 4:3
+  pair, refresh, hor+ FOV, id Tech 2 and id Tech 3 mode indices, DOSBox
+  `fullresolution`). Reports the post-condition, not `OK`.
+  **`GAMERES APPLY [title]`** runs the pass now over every installed title, or
+  one, and answers with how many values it CHANGED — a settled box must say 0.
 - **ICONARRANGE [auto|bay]** — apply the desktop icon layout now. Defaults to
   the box's `HKLM\Software\RetroAgent\IconAutoArrange` setting (absent = auto).
   Returns the **post-condition** as JSON — `autoarrange` (the live
@@ -2407,6 +2415,113 @@ Two hard-won rules from standing that up (full detail in
 The older *Linux* dedicated-server installers and the `cs16-servers` ops skill
 remain in the private **retro-agent-private** repo
 (`.claude/skills/cs16-servers/`, `docs/game-compat-and-servers.md`).
+
+## GAMESYNC sets the resolution too — GAMERES (agent v1.81.0+)
+
+**The launcher half of the resolution fix (FLEETRES, below) cannot see the state
+GAMESYNC itself writes.** `gs_run()` copies a title and then runs
+`gs_merge_reg()`, which applies that title's staged `install.reg` — a
+byte-identical constant shipped to every monitor on the fleet. `HalfLife1`'s
+pins
+
+    HKCU\Software\Valve\Half-Life\Settings   ScreenWidth / ScreenHeight
+
+and there is **no `Software\Valve\CounterStrike` key at all** (read live on
+`.240`), so that one value is the mode for *every* GoldSrc title on the machine.
+Its own comment records that Counter-Strike **"ignores -w/-h on the command
+line for the same reason"**. A launcher cannot undo something written after it
+ran, so on a 1080p box the staged library re-pinned Counter-Strike at every
+sync and nothing said so. Measured on `.191` (2026-09-04): 800x600, on a box
+whose panel wants 1024x768.
+
+So GAMESYNC now detects the monitor and writes each title's own configuration,
+**after** `gs_merge_reg()`. That ordering IS the fix; anything that re-orders
+those two calls silently restores the bug.
+
+- **Decision:** `agent/shared/gameres.h` — Win32-free, so the regression test
+  compiles the code the agent runs. It is a port of `fleetres.c`; keep them in
+  step. `tests/native/test_gameres.c` + `tests/python/test_gameres_mirror.py`.
+- **Probe and writers:** `agent/src/gameres.c` — EDID, the driver's full mode
+  list, the persisted desktop mode, `ResCapW`/`ResCapH`, then INI / line /
+  key=value / registry / cfg writers.
+- **Command:** `GAMERES` reports the panel, **every mode the driver offers**,
+  and the target, as JSON — the post-condition, not `OK`. `GAMERES APPLY [title]`
+  runs the pass now.
+
+**It covers PERSISTENT config only** — a file in the tree or a registry value.
+A title whose mode is set purely on a command line (Quake 1's `GLQUAKE.EXE
+-width`, Hexen II, Descent 3, Halo, Doom 3) is deliberately absent: there is
+nothing on disk to write, and inventing a config the engine does not read is a
+change that looks like a fix. Those stay with `FLEETRES.BAT`, which is why that
+mechanism is not going away.
+
+> **A SETTLED BOX MUST REPORT `0 value(s) changed`.** The pass logs what it
+> CHANGED, for the same reason GAMESYNC logs `files_written`, and it earned that
+> line immediately: the first hardware run reported 4 changes forever because
+> `GR_OP_KV` was handed the bare value instead of `key=value`, so it replaced
+> `ResolutionX=1024` with `1024` and then **appended** another `1024` every
+> pass. Three runs left Descent 2's `DESCENT.CFG` with six junk lines and no
+> resolution, and every run reported success. Verified after the fix on `.191`:
+> **4 → 0 → 0**.
+
+**The two writers of `fleetres.cfg` must not fight.** The launcher rewrites it
+at every launch and this pass writes it at every sync, and their bytes will
+never match — different banner comments, and SoF2's two launchers already write
+two *different* bodies to the same `base\fleetres.cfg`. So `gr_w_cfg()` asks
+"are the settings I need already present", line by line, comments excluded — not
+"are the bytes equal". A byte comparison would report a change on every sync
+forever and bury the one signal that detects a real fault.
+
+### The monitor's highest refresh rate, per resolution
+
+**A refresh constant is the same defect as a resolution constant, one field to
+the right** — a hardcoded 60 throws away 100 Hz on `.143`, 85 on `.133` and 75
+on `.124`. So the pass asks the driver for **the highest rate this monitor
+supports at each resolution**, which is not one number for the box: `.191`'s
+Gateway VX1120 offers 100 Hz at 1024x768 and 75 at 1280x960.
+
+Two ceilings bound it, and both are load-bearing:
+* **the driver's own list FOR THAT RESOLUTION** — a rate it does not enumerate
+  is a black screen on a CRT. The 0/1 Hz "driver default" entries are sentinels
+  and are never chosen (the band is `refreshlogic.h`'s, measured on `.124`).
+* **the EDID vertical-refresh maximum**, applied as each mode is *added* —
+  only the best rate per resolution is kept, so clamping at read time would
+  store a rate the panel cannot sync and leave nothing to fall back to. **With
+  no EDID there is no measurement, so there is no clamp and no claim**: the
+  answer is 0, which callers must read as *leave the refresh alone*, never 60.
+
+**Most of the library has no refresh setting to write.** Quake II's and
+GoldSrc's binaries carry no refresh cvar at all — only `timerefresh` and
+`r_norefresh` — and Unreal Engine 1 keeps `RefreshRate` solely under
+`[GlideDrv.GlideRenderDevice]`, which is not the device these boxes render on.
+Those engines take whatever the desktop is on. So the pass **raises the
+persisted desktop refresh** to the panel's best at the mode it is already in —
+upward only, resolution and depth untouched, EDID required, the result read
+back rather than trusted, and `HKLM\Software\RetroAgent\RefreshMax = 0` to
+switch it off. That is what reaches every title at once.
+
+`seta r_displayRefresh` **is** written for id Tech 3 (confirmed present in
+`quake3.exe`, `ioquake3.x86.exe`, `jasp.exe`, `sof2mp.exe` and `WolfSP.exe`),
+and Serious Engine takes `gfx_iRefreshRate`.
+
+> **A file BOTH writers touch must get the SAME number from each.** The
+> launcher rebuilds `fleetres.cfg` at every start and the agent rewrites it
+> whenever one of its settings is missing, so a one-line disagreement means
+> each rewrites the other's copy forever and the `0 value(s) changed` signal
+> dies. Both therefore emit **`FR_HZ`, the persisted desktop rate** — not the
+> per-target best — and the desktop raise above is what makes that number the
+> highest the monitor supports. `stage-fleetres.py` and `gameres.h` are pinned
+> together by `test_a_shared_cfg_is_written_identically_by_both_writers`.
+
+**What cannot reach 1080p, and it is the engine, not this pass:** WON Half-Life
+(4:3-only — handed 16:9 it falls to 400x300 and takes the desktop with it,
+measured on `.240`), Quake II / SiN / Soldier of Fortune (id Tech 2's fixed
+table has no 16:9 entry), Quake 1's GLQuake (refuses above 1280x960, measured),
+SoF2 and RTCW (their id Tech 3 fork has no `r_mode -1` branch — it renders
+640x480 rather than erroring), Turok 2, StarCraft, the Sith-engine Jedi Knights,
+and the pre-NewDark Dark engine. Those get the largest correctly-proportioned
+mode they can reach. `provisioning/fleetres/PER-TITLE-STATUS.md` is the register,
+per title, with the measurement behind each answer.
 
 ## One Staged Tree, Eight Monitors — the resolution is PER BOX (REQUIRED)
 

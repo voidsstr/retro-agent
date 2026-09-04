@@ -420,11 +420,45 @@ def check_title(lib, title):
 
     # A launcher that expands FR_* without calling the block gets empty strings
     # — i.e. `-w  -h ` on a command line, silently.
+    #
+    # A HELPER .bat INHERITS FR_* FROM THE LAUNCHER THAT CALLED IT, and this
+    # check has to know that or it reports a working title as broken.
+    # Quake III's FLEETGL.BAT is exactly that: every "Play ....bat" in the tree
+    # does `call FLEETRES.BAT` and then `call FLEETGL.BAT`, so FR_W and FR_H are
+    # already in the environment by the time the helper reads them. Requiring
+    # every file that mentions %FR_* to call the block itself failed the whole
+    # library on that one file - and a validator that cries wolf is one people
+    # learn to ignore, which is the same argument that demoted the REGEDIT5
+    # check to a warning.
+    #
+    # So the rule is: a file may inherit FR_* if some OTHER .bat in the same
+    # tree calls it by name and that caller does satisfy the block. A helper
+    # nothing calls is still a failure - it would run with empty variables.
+    callers = {}
+    for b, body in bodies.items():
+        low = body.lower()
+        for other in bodies:
+            if other == b:
+                continue
+            if re.search(r"\bcall\b[^\r\n]*" + re.escape(other.lower()), low):
+                callers.setdefault(other, []).append(b)
+
     for b, body in bodies.items():
         # The CALL, not the mention. Testing for the bare name "FLEETRES.BAT"
         # passes a launcher that only names it in a comment — and a good
         # comment DOES name it, to say where the resolution comes from.
-        if "%FR_" in body and not FLEETRES_CALL_RE.search(body):
+        if "%FR_" not in body or FLEETRES_CALL_RE.search(body):
+            continue
+        inherited = [c for c in callers.get(b, [])
+                     if FLEETRES_CALL_RE.search(bodies[c])]
+        if inherited:
+            continue
+        if callers.get(b):
+            fail("fleetres", "%r uses %%FR_*%% and is called only by %s, which "
+                             "does not call FLEETRES.BAT either — so every one "
+                             "of those expands to nothing"
+                             % (b, ", ".join(sorted(callers[b]))))
+        else:
             fail("fleetres", "%r uses %%FR_*%% but never calls FLEETRES.BAT, so "
                              "every one of those expands to nothing" % b)
 
