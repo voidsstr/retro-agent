@@ -43,6 +43,7 @@
 #include <shlobj.h>
 #include <setupapi.h>
 #include <cfgmgr32.h>
+#include "../shared/gamesroot.h"
 
 #define LOG_GS "GAMESYNC"
 
@@ -50,7 +51,12 @@
  * see gs_library_path() - because an address baked into a binary is a promise
  * we cannot keep across a NAS move. */
 #define GS_DEFAULT_LIBRARY "\\\\192.168.1.122\\files\\Files\\Games-Library"
-#define GS_DEST            "C:\\Games"
+/* Where game trees land. C: by default, but OVERRIDABLE - see gs_dest_path().
+ * A box whose system volume is small (or dual-boot, where C: is the OTHER
+ * OS) needs the library on a second disk, and a root baked into the binary
+ * meant the only way to get it there was to move the trees by hand and then
+ * watch the next GAMESYNC put them straight back on C:. */
+#define GS_DEST_DEFAULT    "C:\\Games"
 #define GS_MARKER          "C:\\RETRO_AGENT\\gamesync.done"
 /* Written into the image by stage-oem.sh. Its PRESENCE is what says
  * "this machine was just imaged" - see gs_new_image(). */
@@ -202,6 +208,50 @@ static __int64 gs_free_bytes(const char *root)
     if (GetDiskFreeSpaceA(root, &spc, &bps, &freec, &totalc))
         return (__int64)freec * (__int64)spc * (__int64)bps;
     return -1;
+}
+
+/* The games root for THIS machine.
+ *
+ * HKLM\Software\RetroAgent\GamesRoot (REG_SZ, e.g. "D:\Games") moves the
+ * whole library to another volume. Anything that is not an absolute local
+ * path is IGNORED rather than honoured: a typo here would otherwise send a
+ * 32 GB copy somewhere unintended, and the default is always safe. */
+static void gs_dest_path(char *out, DWORD cch)
+{
+    HKEY  k;
+    char  buf[MAX_PATH];
+    DWORD type = 0, cb = sizeof(buf);
+
+    lstrcpynA(out, GS_DEST_DEFAULT, cch);
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0,
+                      KEY_QUERY_VALUE, &k) != ERROR_SUCCESS)
+        return;
+    if (RegQueryValueExA(k, "GamesRoot", NULL, &type, (LPBYTE)buf, &cb)
+            == ERROR_SUCCESS && (type == REG_SZ || type == REG_EXPAND_SZ)) {
+        buf[sizeof(buf) - 1] = 0;
+        if (!gr_valid_root(buf, out, cch) && buf[0])
+            log_msg(LOG_GS, "GamesRoot=\"%s\" is not an absolute local path "
+                            "- ignoring it and using %s", buf, GS_DEST_DEFAULT);
+    }
+    RegCloseKey(k);
+}
+
+/* "D:\\" for the games root - the volume whose free space actually limits
+ * what can be copied. Measuring C: while writing to D: is the same class of
+ * mistake as trusting a return code. */
+static void gs_dest_volume(char *out, DWORD cch)
+{
+    char dest[MAX_PATH];
+
+    gs_dest_path(dest, sizeof(dest));
+    lstrcpynA(out, "C:\\", cch);
+    if (lstrlenA(dest) >= 3 && dest[1] == ':') {
+        out[0] = dest[0];
+        out[1] = ':';
+        out[2] = '\\';
+        out[3] = 0;
+    }
 }
 
 static void gs_mkdir_p(const char *path)
@@ -1969,6 +2019,9 @@ static gg_profile_t g_gate_profile;
 static int          g_gate_ready;         /* profile built for this run */
 static int          g_gate_on = 1;
 static char         g_gate_hash[17];
+/* the volume the games root lives on - reported so the gate's disk floor can
+ * never be read against the wrong disk without saying so */
+static char         g_gate_vol[8] = "C:\\";
 static char        *g_gate_verdicts;      /* published file, heap, or NULL */
 static int          g_gate_verdict_n;     /* rows the published file carries */
 static int          g_gate_verdict_decl;  /* rows its header CLAIMS it carries */
@@ -2040,24 +2093,27 @@ static void gs_gate_init(const char *library)
     /* The hash is taken BEFORE free_mb is filled in, which costs nothing (the
      * field is not one of the hashed ten) but makes the ordering explicit:
      * the hash names the machine, and free space is not part of its identity.
-     * Games land on C:, so that is the volume the disk_mb floor is measured
-     * against; a negative return (the call failed) stays 0 and fails open. */
+     * The disk_mb floor is measured against the volume games actually land
+     * on (gs_dest_path, overridable), not a hardcoded C:; a negative return
+     * (the call failed) stays 0 and fails open. */
     gg_profile_hash(&g_gate_profile, g_gate_hash);
     {
-        __int64 fb = gs_free_bytes("C:\\");
+        __int64 fb;
+        gs_dest_volume(g_gate_vol, sizeof(g_gate_vol));
+        fb = gs_free_bytes(g_gate_vol);
         g_gate_profile.free_mb = fb > 0 ? (unsigned)(fb / 1048576) : 0u;
     }
     g_gate_ready = 1;
 
     log_msg(LOG_GS, "gate: profile %s - %s %u MHz x%u, %u MB RAM, "
-                    "gpu %04X:%04X %u MB (%s), os %s, %u MB free on C:",
+                    "gpu %04X:%04X %u MB (%s), os %s, %u MB free on %s",
             g_gate_hash, g_gate_profile.cpu_vendor, g_gate_profile.cpu_mhz,
             g_gate_profile.cpu_count, g_gate_profile.ram_mb,
             g_gate_profile.gpu_ven, g_gate_profile.gpu_dev,
             g_gate_profile.vram_mb,
             gg_gpu_level_name(g_gate_profile.gpu_level),
             gg_os_level_name(g_gate_profile.os_level),
-            g_gate_profile.free_mb);
+            g_gate_profile.free_mb, g_gate_vol);
 
     _snprintf(path, sizeof(path) - 1, "%s\\_gamegate\\%s.txt",
               library, g_gate_hash);
@@ -2472,8 +2528,10 @@ static void gs_make_game_shortcut(const char *dst_dir, const char *title)
 static void gs_restore_shortcuts_if_installed(const char *title)
 {
     char have[MAX_PATH];
+    char gdest[MAX_PATH];
 
-    _snprintf(have, sizeof(have) - 1, "%s\\%s", GS_DEST, title);
+    gs_dest_path(gdest, sizeof(gdest));
+    _snprintf(have, sizeof(have) - 1, "%s\\%s", gdest, title);
     have[sizeof(have) - 1] = 0;
     if (!gs_file_exists(have))
         return;
@@ -2983,6 +3041,7 @@ static void gs_run(const char *library)
     WIN32_FIND_DATAA fd;
     HANDLE h;
     char   pat[MAX_PATH], src[MAX_PATH], dst[MAX_PATH];
+    char   dest_root[MAX_PATH], dest_vol[8];
     char   titles[GS_MAX_TITLES][128];
     __int64 sizes[GS_MAX_TITLES];
     int    n = 0, i, files = 0, ok_titles = 0, capped = 0;
@@ -3195,9 +3254,10 @@ static void gs_run(const char *library)
         return;
     }
 
-    freeb = gs_free_bytes("C:\\");
-    log_msg(LOG_GS, "%d title(s), %d file(s), %I64d MB to copy; C: has %I64d MB free",
-            n, files, grand / 1048576,
+    gs_dest_volume(dest_vol, sizeof(dest_vol));
+    freeb = gs_free_bytes(dest_vol);
+    log_msg(LOG_GS, "%d title(s), %d file(s), %I64d MB to copy; %s has %I64d MB free",
+            n, files, grand / 1048576, dest_vol,
             freeb < 0 ? (__int64)-1 : freeb / 1048576);
 
     /*
@@ -3234,7 +3294,9 @@ static void gs_run(const char *library)
     g_gs.total_bytes  = grand;
     LeaveCriticalSection(&g_gs_lock);
 
-    gs_mkdir_p(GS_DEST);
+    gs_dest_path(dest_root, sizeof(dest_root));
+    log_msg(LOG_GS, "games root: %s", dest_root);
+    gs_mkdir_p(dest_root);
 
     for (i = 0; i < n; i++) {
         if (g_gs_abort) {
@@ -3262,7 +3324,7 @@ static void gs_run(const char *library)
 
         /* Re-measure per title: earlier titles have just consumed space, and
          * on a period disk the difference decides whether this one fits. */
-        freeb = gs_free_bytes("C:\\");
+        freeb = gs_free_bytes(dest_vol);
         {
             /* A title ALREADY INSTALLED is being updated, not added, so what it
              * needs is the difference - the space its current copy occupies is
@@ -3275,7 +3337,7 @@ static void gs_run(const char *library)
             char  have[MAX_PATH];
             int   nfiles = 0;
             __int64 existing;
-            _snprintf(have, sizeof(have) - 1, "%s\\%s", GS_DEST, titles[i]);
+            _snprintf(have, sizeof(have) - 1, "%s\\%s", dest_root, titles[i]);
             have[sizeof(have) - 1] = 0;
             if (gs_file_exists(have)) {
                 existing = gs_dir_size(have, &nfiles);
@@ -3303,7 +3365,7 @@ static void gs_run(const char *library)
         log_msg(LOG_GS, "==> %s (%I64d MB)", titles[i], sizes[i] / 1048576);
 
         _snprintf(src, sizeof(src) - 1, "%s\\%s", library, titles[i]);
-        _snprintf(dst, sizeof(dst) - 1, "%s\\%s", GS_DEST, titles[i]);
+        _snprintf(dst, sizeof(dst) - 1, "%s\\%s", dest_root, titles[i]);
         src[sizeof(src) - 1] = 0;
         dst[sizeof(dst) - 1] = 0;
 
