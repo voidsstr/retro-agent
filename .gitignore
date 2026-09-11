@@ -35,3 +35,12 @@ voodoo-cleanroom/vcr-disp-h5/src/
 # sibling engine adapter's build/out dir.
 scripts/gamebots/adapters/*/build/
 scripts/gamebots/adapters/*/out/
+
+# Stray repo-root `build` SYMLINK left behind by an agent worktree run; it points
+# at .claude/worktrees/<id>/scripts/gamebots/adapters/goldsrc/build, i.e. the two
+# upstream clones (hlsdk, metamod-hl1) plus retrobot.so. No trailing slash -- the
+# adapters/*/build/ rule above cannot catch it because a symlink is not a dir.
+/build
+
+# hand-made config backups (e.g. scripts/pxe/pxe_config.json.bak)
+*.bak
