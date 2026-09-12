@@ -31,6 +31,7 @@
  * Usage:
  *   glideprobe.exe [--res 1024x768] [--refresh 60|75|85|100|120] [--aa N]
  *                  [--dll <path to glide3x.dll>] [--log <path>] [--noopen]
+ *                  [--nowindow]
  *
  * --aa only RECORDS what the caller intends and sets the environment variable
  * in-process; the chip/AA topology is chosen by the driver from
@@ -47,6 +48,7 @@
 #include <windows.h>
 #include <io.h>      /* _get_osfhandle - the log must reach DISK, not just stdio */
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -134,11 +136,70 @@ static const struct hz_ent REFRESH[] = {
     { 100, GR_REFRESH_100Hz }, { 120, GR_REFRESH_120Hz }, { 0, 0 }
 };
 
+/* ------------------------------------------------------------------ */
+/* A real window, because grSstWinOpen(hWnd=0) HANGS here              */
+/* ------------------------------------------------------------------ */
+/* Measured on .191: with hWnd=0 the probe reached "step: grSstWinOpen"
+ * and never returned, for EVERY SSTH3_SLI_AA_CONFIGURATION - including the
+ * ones Quake III runs perfectly. That uniformity is what gave it away: a
+ * driver limit would not affect the working configurations too. Handed 0,
+ * Glide creates and owns the window itself and then waits on messages, which
+ * a console program with no pump never delivers. A game always passes its own
+ * HWND, so the probe does too, and pumps.
+ *
+ * The lesson is the one this project keeps relearning: before reporting that
+ * the hardware refuses something, check whether the MEASUREMENT is the broken
+ * thing. Reported as-is, this would have been a phantom "grSstWinOpen hangs
+ * on the Voodoo 5 6000" affecting every config. */
+static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM w, LPARAM l)
+{
+    if (m == WM_CLOSE) return 0;         /* Glide owns the lifetime */
+    return DefWindowProcA(h, m, w, l);
+}
+
+static void pump(void)
+{
+    MSG msg;
+    while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
+        TranslateMessage(&msg);
+        DispatchMessageA(&msg);
+    }
+}
+
+static HWND make_window(int w, int h)
+{
+    WNDCLASSA wc;
+    memset(&wc, 0, sizeof wc);
+    wc.lpfnWndProc   = wndproc;
+    wc.hInstance     = GetModuleHandleA(NULL);
+    wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    wc.lpszClassName = "glideprobe";
+    if (!RegisterClassA(&wc)) {
+        if (GetLastError() != ERROR_CLASS_ALREADY_EXISTS) return NULL;
+    }
+    HWND hwnd = CreateWindowExA(0, "glideprobe", "glideprobe",
+                                WS_POPUP | WS_VISIBLE, 0, 0, w, h,
+                                NULL, NULL, wc.hInstance, NULL);
+    if (!hwnd) return NULL;
+    ShowWindow(hwnd, SW_SHOW);
+    SetForegroundWindow(hwnd);
+    SetFocus(hwnd);
+    pump();
+    return hwnd;
+}
+
+static void parse_wh(const char *s, int *w, int *h)
+{
+    *w = 640; *h = 480;
+    sscanf(s, "%dx%d", w, h);
+}
+
 int main(int argc, char **argv)
 {
     const char *dllpath = "glide3x.dll";
     const char *resname = "640x480";
-    int hz = 60, aa = -1, noopen = 0;
+    int hz = 60, aa = -1, noopen = 0, nowindow = 0;
 
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--res") && i + 1 < argc)          resname = argv[++i];
@@ -148,11 +209,12 @@ int main(int argc, char **argv)
         else if (!strcmp(argv[i], "--log") && i + 1 < argc)
             strncpy(g_logpath, argv[++i], sizeof g_logpath - 1);
         else if (!strcmp(argv[i], "--noopen"))                  noopen = 1;
+        else if (!strcmp(argv[i], "--nowindow"))                nowindow = 1;
     }
 
     g_log = fopen(g_logpath, "w");
-    say("glideprobe: res=%s refresh=%dHz aa=%d dll=%s noopen=%d",
-        resname, hz, aa, dllpath, noopen);
+    say("glideprobe: res=%s refresh=%dHz aa=%d dll=%s noopen=%d nowindow=%d",
+        resname, hz, aa, dllpath, noopen, nowindow);
 
     /* The driver reads the topology from this; set it in-process too so the
      * value the Glide in THIS process sees is not left to chance. */
@@ -241,10 +303,25 @@ int main(int argc, char **argv)
     /* THE DANGEROUS CALL. Everything above is bookkeeping; this is where the
      * board is actually programmed, and where an unsupported AA topology has
      * taken the machine down. The log is already on disk. */
-    say("step: grSstWinOpen(res=%s, %dHz, ABGR, UPPER_LEFT, 2 colour, 1 aux)",
-        resname, hz);
-    FxU32 ctx = p_open(0, (GrScreenResolution_t)rescode, (GrScreenRefresh_t)hzcode,
+    HWND hwnd = NULL;
+    if (!nowindow) {
+        int ww, wh;
+        parse_wh(resname, &ww, &wh);
+        say("step: CreateWindow %dx%d (WS_POPUP) for Glide to render into", ww, wh);
+        hwnd = make_window(ww, wh);
+        say("  hwnd=%p%s", (void *)hwnd,
+            hwnd ? "" : " - CreateWindow FAILED, falling back to hWnd=0");
+    } else {
+        say("--nowindow: passing hWnd=0, which is the case that HANGS here");
+    }
+
+    say("step: grSstWinOpen(hWnd=%p, res=%s, %dHz, ABGR, UPPER_LEFT, 2 colour, 1 aux)",
+        (void *)hwnd, resname, hz);
+    pump();
+    FxU32 ctx = p_open((FxU32)(uintptr_t)hwnd,
+                       (GrScreenResolution_t)rescode, (GrScreenRefresh_t)hzcode,
                        GR_COLORFORMAT_ABGR, GR_ORIGIN_UPPER_LEFT, 2, 1);
+    pump();
     say("  grSstWinOpen returned 0x%lx (%s)", (unsigned long)ctx,
         ctx ? "context created" : "REFUSED - this mode/AA combination is not available");
 
@@ -264,6 +341,7 @@ int main(int argc, char **argv)
     for (int i = 0; i < 3; i++) {
         if (p_clear) p_clear(0x00204060, 0xff, 0xffff);
         if (p_swap)  p_swap(1);
+        pump();
         say("  frame %d done", i + 1);
     }
 
@@ -274,6 +352,8 @@ int main(int argc, char **argv)
     say("step: grGlideShutdown");
     if (p_shut) p_shut();
     say("  grGlideShutdown returned");
+
+    if (hwnd) { DestroyWindow(hwnd); pump(); say("window destroyed"); }
 
     say("RESULT: ok");
     return 0;
