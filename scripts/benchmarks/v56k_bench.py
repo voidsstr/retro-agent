@@ -85,6 +85,18 @@ AA_CONFIGS = {
     8: {"chips": 4, "samples": 8, "label": "4chip-8xaa"},
 }
 
+# Measured twice on .191, through two different launch paths: asking for
+# 4-chip 8-sample AA wedges the display driver and takes the AGENT down with
+# it (139/445 stay open, 9898/9897 refused), so the box needs attending before
+# anything else can be measured. It is therefore OFF by default - a campaign
+# that needs a person halfway through is not a campaign. `--allow-8xaa` opts
+# back in for a deliberate, attended diagnostic run; glideprobe.exe is the
+# better tool for that, because it names the exact Glide call that dies.
+HAZARD_CONFIGS = {
+    8: "4-chip 8x AA wedges the display driver and kills the agent "
+       "(measured twice on .191) - use glideprobe.exe, attended",
+}
+
 CSV_COLS = ["stamp", "title", "engine", "api", "res", "width", "height",
             "colordepth",
             "aa_cfg", "chips", "samples", "aa_label", "avg_fps", "frames",
@@ -200,6 +212,17 @@ async def apply_aa_config(box, glide_key, cfg):
 
 # Both id shapes: Quake III / Quake II write "1260 frames, 8.2 seconds: 154.2
 # fps"; GLQuake writes "1260 frames 8.2 seconds 154.2 fps" with no punctuation.
+def renderer_up(raw):
+    """Did the renderer finish coming up in this log?
+
+    The marker is deliberately the renderer IDENTITY rather than "the window
+    opened": every engine here prints its GL_RENDERER / bound render device
+    only once the driver has answered, which is the line after which a silence
+    means "rendering" instead of "stuck".
+    """
+    return bool(re.search(r"GL_RENDERER:|Bound to |GR_RENDERER:", raw or ""))
+
+
 FPS_RE = re.compile(
     r"(\d+)\s+frames[,\s]+([\d.]+)\s+seconds[:,\s]+([\d.]+)\s*fps", re.I)
 
@@ -719,7 +742,9 @@ def _ut(api):
 def _ugold(api):
     return Unreal1("unrealgold", "Unreal Gold", r"C:\Games\UnrealGold",
                    "Unreal.exe", "Unreal.ini", "Unreal.log",
-                   "DmMorpheus", api=api)
+                   # Morpheus is a UT map; Unreal Gold's DM set is DmDeck16,
+                   # DmAriza, DmCurse, ... - checked against the staged tree.
+                   "DmDeck16", api=api)
 
 
 def _deusex(api):
@@ -746,6 +771,73 @@ TITLES = {
 # --------------------------------------------------------------------------- #
 # one run
 # --------------------------------------------------------------------------- #
+
+# --------------------------------------------------------------------------- #
+# game-local DLL safety - a wrong glide beside the exe is not a small mistake
+# --------------------------------------------------------------------------- #
+
+# Game-local wins at load time, so a DLL sitting beside a game's exe decides
+# which Glide that game gets regardless of what is in system32.  Two are known
+# to be staged in this library, and they are NOT the same kind of problem:
+#
+#   989,027  the clean-room/open glide3x_h5.dll.  FINDINGS 2026-09-04: on this
+#            4-chip board it does not hang the game, it HARD-FREEZES THE BOX -
+#            100% ping loss, agent gone, physical power cycle.  It is staged
+#            game-local in Quake2Complete right now.  Refuse to run rather
+#            than discover that again unattended.
+#   1,310,720  the nGlide WRAPPER (contains "E:\glide\nglide\logs\log.wri"),
+#            staged in UnrealGold\System and Carmageddon2.  It translates
+#            Glide to Direct3D, so on the one box with real Glide silicon it
+#            guarantees the card is bypassed - which already cost a session on
+#            .171.  Harmless to move aside, so move it aside and say so.
+DANGEROUS_GLIDE = {989027: ("open-glide3x-h5",
+                            "clean-room Glide: hard-freezes this 4-chip board "
+                            "(FINDINGS 2026-09-04) - physical power cycle")}
+WRAPPER_GLIDE = {1310720: ("nglide-wrapper",
+                           "nGlide translates Glide to D3D and shadows the "
+                           "real card")}
+
+
+async def preflight_title_dlls(box, title, allow_open_glide=False):
+    """Inspect the DLLs beside this title's exe before measuring it.
+
+    Returns (ok, notes).  ok=False means do not run this title at all.
+    """
+    notes = []
+    root = getattr(title, "root", None)
+    if not root:
+        return True, ""
+    out = await box.exec_(
+        f'cmd /c dir /s /b /-c "{root}\\glide2x.dll" "{root}\\glide3x.dll" 2>&1',
+        timeout=120)
+    for line in out.splitlines():
+        path = line.strip()
+        if not path.lower().endswith(".dll") or ":" not in path:
+            continue
+        size_out = await box.exec_(f'cmd /c for %I in ("{path}") do @echo %~zI',
+                                   timeout=60)
+        try:
+            size = int(size_out.strip().splitlines()[0])
+        except (ValueError, IndexError):
+            notes.append(f"could not size {path}")
+            continue
+        if size in DANGEROUS_GLIDE:
+            tag, why = DANGEROUS_GLIDE[size]
+            log(f"    !! REFUSING {title.name}: {path} is the {tag} ({size} B)")
+            log(f"       {why}")
+            return False, f"blocked: {tag} at {path} - {why}"
+        if size in WRAPPER_GLIDE:
+            tag, why = WRAPPER_GLIDE[size]
+            await box.exec_(f'cmd /c move /Y "{path}" "{path}.v56kbak"', timeout=60)
+            still = await box.exec_(f'cmd /c if exist "{path}" echo STILL_THERE',
+                                    timeout=60)
+            if "STILL_THERE" in still:
+                log(f"    !! could not move {tag} aside at {path}")
+                return False, f"blocked: {tag} at {path} could not be moved aside"
+            log(f"    moved {tag} aside: {path} ({why})")
+            notes.append(f"{tag} moved aside at {path}")
+    return True, "; ".join(notes)
+
 
 async def agent_alive(box, tries=3):
     """Protocol-level liveness.
@@ -853,8 +945,16 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args):
             if len(data) != last_size:
                 last_size, last_growth = len(data), time.time()
             elif time.time() - last_growth > args.stall_after:
-                wedged = True
-                break
+                # A quiet log is NOT evidence of a hang: an id engine prints
+                # nothing at all between loading the map and finishing the
+                # timedemo, so at 4x AA and 1600x1200 a perfectly healthy run
+                # is silent for minutes. Only a run that never got the
+                # renderer up is wedged; past that point wait out max_run.
+                if renderer_up(raw):
+                    last_growth = time.time()   # healthy, just slow - keep waiting
+                else:
+                    wedged = True
+                    break
         await asyncio.sleep(6)
 
     await box.exec_(f'cmd /c taskkill /f /im "{title.proc}"', timeout=30)
@@ -900,13 +1000,46 @@ def load_done(csv_path):
     return done, rows
 
 
+def migrate_header(csv_path):
+    """Rewrite an existing CSV whose header predates a column change.
+
+    append_row writes the header only when the file does not exist, so adding a
+    column to CSV_COLS mid-campaign silently writes NEW rows in the NEW order
+    underneath the OLD header - every field after the inserted one shifts by
+    one and the file reads as garbage while looking perfectly well-formed.
+    That happened here when `api` was added, so the migration is not
+    hypothetical.  Old rows are preserved and read back through their OWN
+    header, then rewritten under the current one.
+    """
+    if not csv_path.exists():
+        return
+    with csv_path.open(newline="") as fh:
+        rd = csv.reader(fh)
+        try:
+            have = next(rd)
+        except StopIteration:
+            return
+        if have == CSV_COLS:
+            return
+        rows = [dict(zip(have, r)) for r in rd]
+    backup = csv_path.with_suffix(".csv.pre-migration")
+    csv_path.replace(backup)
+    with csv_path.open("w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=CSV_COLS, extrasaction="ignore")
+        w.writeheader()
+        for r in rows:
+            w.writerow({k: r.get(k, "") for k in CSV_COLS})
+    log(f"migrated {csv_path.name} to the current columns "
+        f"({len(rows)} row(s) kept; previous file at {backup.name})")
+
+
 def append_row(csv_path, row):
     new = not csv_path.exists()
     with csv_path.open("a", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=CSV_COLS)
+        w = csv.DictWriter(fh, fieldnames=CSV_COLS, extrasaction="ignore")
         if new:
             w.writeheader()
-        w.writerow(row)
+        w.writerow({k: row.get(k, "") for k in CSV_COLS})
 
 
 async def amain(args):
@@ -925,6 +1058,7 @@ async def amain(args):
 
     args.outdir.mkdir(parents=True, exist_ok=True)
     csv_path = args.outdir / "results.csv"
+    migrate_header(csv_path)
     done, _ = load_done(csv_path)
     if done:
         log(f"resuming: {len(done)} completed run(s) already recorded")
@@ -934,6 +1068,11 @@ async def amain(args):
         await quiesce(box)
 
     titles = [TITLES[t](api) if api else TITLES[t]() for t, api in args.titles]
+    if not args.allow_8xaa:
+        skipped = [c for c in args.configs if c in HAZARD_CONFIGS]
+        for c in skipped:
+            log(f"cfg {c} EXCLUDED: {HAZARD_CONFIGS[c]}")
+        args.configs = [c for c in args.configs if c not in HAZARD_CONFIGS]
     matrix = [(t, w, h, d, c)
               for t in titles
               for (w, h) in args.resolutions
@@ -941,7 +1080,29 @@ async def amain(args):
               for c in args.configs]
     log(f"matrix: {len(matrix)} run(s)")
 
+    checked, blocked = {}, {}
     for i, (t, w, h, d, c) in enumerate(matrix, 1):
+        # Once per title: what Glide is sitting beside this game's exe?  A
+        # wrong one either bypasses the card silently or takes the box down.
+        if t.tid not in checked:
+            ok, why = await preflight_title_dlls(box, t, args.allow_open_glide)
+            checked[t.tid] = why
+            if not ok:
+                blocked[t.tid] = why
+        if t.tid in blocked:
+            row = {k: "" for k in CSV_COLS}
+            row.update({"stamp": datetime.now(timezone.utc).isoformat(),
+                        "title": t.name, "api": getattr(t, "api", ""),
+                        "res": f"{w}x{h}", "width": w, "height": h,
+                        "colordepth": d, "aa_cfg": c,
+                        "chips": AA_CONFIGS[c]["chips"],
+                        "samples": AA_CONFIGS[c]["samples"],
+                        "aa_label": AA_CONFIGS[c]["label"],
+                        "status": "blocked-unsafe-game-local-dll",
+                        "notes": blocked[t.tid]})
+            append_row(csv_path, row)
+            continue
+
         key = (t.name, getattr(t, "api", ""), f"{w}x{h}", str(d), str(c))
         if args.resume and key in done:
             log(f"[{i}/{len(matrix)}] skip (already measured) {key}")
@@ -959,6 +1120,8 @@ async def amain(args):
                         "api": getattr(t, "api", ""),
                         "status": f"error: {type(e).__name__}: {e}"})
             log(f"    !! {row['status']}")
+        if checked.get(t.tid) and not row.get("notes"):
+            row["notes"] = checked[t.tid]
         append_row(csv_path, row)
 
         # A wedged fullscreen Glide context can take the agent process with it,
@@ -1008,6 +1171,13 @@ def main():
     ap.add_argument("--outdir", default=None)
     ap.add_argument("--no-resume", dest="resume", action="store_false")
     ap.add_argument("--no-quiesce", action="store_true")
+    ap.add_argument("--allow-8xaa", action="store_true",
+                    help="include the 4-chip 8x AA config. It has twice taken "
+                         "the agent down on .191 and needs someone at the box.")
+    ap.add_argument("--allow-open-glide", action="store_true",
+                    help="run a title even when the clean-room Glide is staged "
+                         "beside it. It hard-freezes this board and needs a "
+                         "physical power cycle - never set this unattended.")
     args = ap.parse_args()
 
     specs = []
