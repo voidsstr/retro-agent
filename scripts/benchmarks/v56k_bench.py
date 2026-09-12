@@ -93,8 +93,23 @@ AA_CONFIGS = {
 # back in for a deliberate, attended diagnostic run; glideprobe.exe is the
 # better tool for that, because it names the exact Glide call that dies.
 HAZARD_CONFIGS = {
+    2: "2-chip SLI wedges the display driver and kills the agent (measured on "
+       ".191 2026-09-12, 640x480x16) - the DualChipAASLI descriptors come from "
+       "the 2-chip Voodoo 5 5500 and a 4-chip board asked to run as two may "
+       "simply not be a valid topology here",
     8: "4-chip 8x AA wedges the display driver and kills the agent "
        "(measured twice on .191) - use glideprobe.exe, attended",
+}
+
+# The same DualChipAASLI family as cfg 2, and therefore SUSPECT - but NOT
+# measured. They are excluded by default for the same reason cfg 2 is, and the
+# distinction is kept because "we looked and it cannot work" and "we never
+# looked" are different facts and must not render the same. Screen them with
+# glideprobe.exe (safe: a console child can be tree-killed out of a wedged
+# Glide init, which a fullscreen game cannot) before spending a grid on them.
+SUSPECT_CONFIGS = {
+    3: "same DualChipAASLI family as cfg 2, which kills the agent - UNTESTED",
+    4: "same DualChipAASLI family as cfg 2, which kills the agent - UNTESTED",
 }
 
 CSV_COLS = ["stamp", "title", "engine", "api", "res", "width", "height",
@@ -1068,11 +1083,13 @@ async def amain(args):
         await quiesce(box)
 
     titles = [TITLES[t](api) if api else TITLES[t]() for t, api in args.titles]
-    if not args.allow_8xaa:
-        skipped = [c for c in args.configs if c in HAZARD_CONFIGS]
-        for c in skipped:
-            log(f"cfg {c} EXCLUDED: {HAZARD_CONFIGS[c]}")
-        args.configs = [c for c in args.configs if c not in HAZARD_CONFIGS]
+    if not args.allow_hazards:
+        for c in [c for c in args.configs if c in HAZARD_CONFIGS]:
+            log(f"cfg {c} EXCLUDED (measured killer): {HAZARD_CONFIGS[c]}")
+        for c in [c for c in args.configs if c in SUSPECT_CONFIGS]:
+            log(f"cfg {c} EXCLUDED (untested, not proven bad): {SUSPECT_CONFIGS[c]}")
+        args.configs = [c for c in args.configs
+                        if c not in HAZARD_CONFIGS and c not in SUSPECT_CONFIGS]
     matrix = [(t, w, h, d, c)
               for t in titles
               for (w, h) in args.resolutions
@@ -1171,9 +1188,11 @@ def main():
     ap.add_argument("--outdir", default=None)
     ap.add_argument("--no-resume", dest="resume", action="store_false")
     ap.add_argument("--no-quiesce", action="store_true")
-    ap.add_argument("--allow-8xaa", action="store_true",
-                    help="include the 4-chip 8x AA config. It has twice taken "
-                         "the agent down on .191 and needs someone at the box.")
+    ap.add_argument("--allow-hazards", "--allow-8xaa", dest="allow_hazards",
+                    action="store_true",
+                    help="include the configs known or suspected to wedge the "
+                         "driver (2, 3, 4, 8 on .191). Each may cost a trip to "
+                         "the machine - never set this unattended.")
     ap.add_argument("--allow-open-glide", action="store_true",
                     help="run a title even when the clean-room Glide is staged "
                          "beside it. It hard-freezes this board and needs a "
