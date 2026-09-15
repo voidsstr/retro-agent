@@ -85,31 +85,48 @@ AA_CONFIGS = {
     8: {"chips": 4, "samples": 8, "label": "4chip-8xaa"},
 }
 
-# Measured twice on .191, through two different launch paths: asking for
-# 4-chip 8-sample AA wedges the display driver and takes the AGENT down with
-# it (139/445 stay open, 9898/9897 refused), so the box needs attending before
-# anything else can be measured. It is therefore OFF by default - a campaign
-# that needs a person halfway through is not a campaign. `--allow-8xaa` opts
-# back in for a deliberate, attended diagnostic run; glideprobe.exe is the
-# better tool for that, because it names the exact Glide call that dies.
+# WHAT ACTUALLY WEDGES THIS DRIVER: the NUMBER of topology changes since
+# boot, not any particular configuration.
+#
+# This corrects an earlier reading of the same data. cfg 2 and cfg 8 were
+# recorded as "box-killers" because each hung the display driver and took the
+# agent with it. Then the card moved to .124 and cfg 5 - the DEFAULT, and a
+# configuration that had already produced 150 fps on .191 - hung in exactly the
+# same way. Lining up every hang by position in its boot session:
+#
+#   .191  cfg 0 ok -> cfg 5 ok                 2 changes, fine
+#   .191  cfg 0 ok -> cfg 1 ok -> cfg 2 HUNG   3rd change
+#   .191  cfg 5 ok -> cfg 8 HUNG               2nd change
+#   .124  cfg 0 ok -> cfg 1 ok -> cfg 5 HUNG   3rd change
+#   .124  (after reboot) cfg 5 ok              1st, fine
+#
+# cfg 5 hung as a 3rd change and worked as a 1st and as a 2nd. So no config is
+# inherently bad; writing SSTH3_SLI_AA_CONFIGURATION repeatedly within one boot
+# is what breaks it, on the second or third write. Everything measured after a
+# hang is measured against broken hardware - which is how SIX false "wedges the
+# driver" verdicts were produced on .124 in one screening run.
+#
+# The consequence for method: ONE AA CONFIG PER BOOT. A multi-config sweep in a
+# single session cannot produce trustworthy numbers no matter how it is
+# ordered. board_alive() exists so a wedge is detected and the campaign stops
+# instead of blaming the next config for it.
+#
+# These two stay excluded by default only because a hang costs a trip to the
+# machine, not because they are known-bad: on the evidence they are no worse
+# than cfg 5.
 HAZARD_CONFIGS = {
-    2: "2-chip SLI wedges the display driver and kills the agent (measured on "
-       ".191 2026-09-12, 640x480x16) - the DualChipAASLI descriptors come from "
-       "the 2-chip Voodoo 5 5500 and a 4-chip board asked to run as two may "
-       "simply not be a valid topology here",
-    8: "4-chip 8x AA wedges the display driver and kills the agent "
-       "(measured twice on .191) - use glideprobe.exe, attended",
+    2: "hung as a 3rd topology change on .191; NOT shown to be bad in itself "
+       "- measure it in its own boot",
+    8: "hung as a 2nd topology change on .191; NOT shown to be bad in itself "
+       "- 8-sample AA is the card's headline feature and deserves its own boot",
 }
 
-# The same DualChipAASLI family as cfg 2, and therefore SUSPECT - but NOT
-# measured. They are excluded by default for the same reason cfg 2 is, and the
-# distinction is kept because "we looked and it cannot work" and "we never
-# looked" are different facts and must not render the same. Screen them with
-# glideprobe.exe (safe: a console child can be tree-killed out of a wedged
-# Glide init, which a fullscreen game cannot) before spending a grid on them.
+# Never measured at all, in any boot. Kept separate from HAZARD_CONFIGS
+# because "we looked and it failed" and "we never looked" must not render the
+# same.
 SUSPECT_CONFIGS = {
-    3: "same DualChipAASLI family as cfg 2, which kills the agent - UNTESTED",
-    4: "same DualChipAASLI family as cfg 2, which kills the agent - UNTESTED",
+    3: "UNTESTED in a clean boot",
+    4: "UNTESTED in a clean boot",
 }
 
 CSV_COLS = ["stamp", "title", "engine", "api", "res", "width", "height",
@@ -854,6 +871,36 @@ async def preflight_title_dlls(box, title, allow_open_glide=False):
     return True, "; ".join(notes)
 
 
+async def board_alive(box, probe=r"C:\RETRO_AGENT\glideprobe.exe"):
+    """Is the BOARD still able to bring Glide up, or is it wedged?
+
+    This is a different question from agent liveness and the difference is
+    expensive. Screening the nine AA configs on .124 produced six "wedges the
+    driver" verdicts that were all FALSE: one config wedged the board, the
+    agent survived, and every later config was then measured against broken
+    hardware and blamed for it. cfg 5 was among the six and works perfectly
+    from a fresh boot.
+
+    So a failed cell must be followed by asking the board whether IT is the
+    broken thing, exactly as a negative result about a Windows file has to be
+    re-run case-insensitively before it is reportable.
+
+    Returns True (healthy), False (wedged), or None (could not tell).
+    """
+    try:
+        st, out = await box.cmd(
+            f"EXECW 90 {probe} --res 640x480 --noopen "
+            r"--dll C:\WINDOWS\system32\glide3x.dll "
+            r"--log C:\RETRO_AGENT\probe-health.log", timeout=140)
+    except Exception:
+        return None
+    if "RESULT: probe-ok-noopen" in out:
+        return True
+    if "timed out" in out or "grGlideInit" in out:
+        return False
+    return None
+
+
 async def agent_alive(box, tries=3):
     """Protocol-level liveness.
 
@@ -1146,6 +1193,25 @@ async def amain(args):
         # liveness is checked with a protocol PING between runs and a dead
         # agent STOPS the campaign: every later cell would fail identically
         # and the CSV would fill with noise that looks like driver results.
+        # A cell that failed might be a bad config OR a board already wedged
+        # by an earlier cell. Recording the former when it is the latter is how
+        # six false verdicts got produced on .124.
+        if row.get("status") not in ("ok", "unsupported-by-engine",
+                                     "blocked-unsafe-game-local-dll"):
+            health = await board_alive(box)
+            if health is False:
+                log("THE BOARD IS WEDGED - Glide will not initialise at all.")
+                log("  Every later cell would fail for this reason and be "
+                    "blamed on its own config, so stopping here.")
+                log("  Reboot the box, then re-run to resume. One AA config "
+                    "per boot is the only sound way to sweep them.")
+                row["notes"] = ((row.get("notes") or "") +
+                                " | board wedged after this cell").strip()
+                append_row(csv_path, row)
+                return 4
+            if health is None:
+                log("    (could not determine board health)")
+
         if not await agent_alive(box):
             log("AGENT IS NOT ANSWERING - stopping the campaign here.")
             log("  135/139/445 open with 9898 refused means the agent died, not "
