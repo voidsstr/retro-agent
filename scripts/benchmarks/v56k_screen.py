@@ -43,8 +43,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from client.retro_protocol import RetroConnection, RetroProtocolError  # noqa: E402
 
 SECRET = "retro-agent-secret"
-GLIDE_KEY = (r"SYSTEM\CurrentControlSet\Control\Class"
-             r"\{4D36E968-E325-11CE-BFC1-08002BE10318}\0000\Settings\Glide")
+# The display-class INSTANCE is NOT always 0000. On .191 the 3dfx card sat at
+# \0000; on .124 it is \0001, because that box had an NVIDIA card installed
+# first and the Voodoo enumerated second. A hardcoded instance writes the AA
+# config into the WRONG card's key and then reads it back successfully, so the
+# screener would report every config as applied while changing nothing - the
+# project's signature failure. Resolve it from the adapter that is actually
+# driving the desktop, exactly as v56k_bench.py does.
+GLIDE_KEY_TMPL = (r"SYSTEM\CurrentControlSet\Control\Class"
+                  r"\{{4D36E968-E325-11CE-BFC1-08002BE10318}}\{inst}\Settings\Glide")
 PROBE = r"C:\RETRO_AGENT\glideprobe.exe"
 
 LABELS = {0: "1chip-noaa", 1: "1chip-2xaa", 2: "2chip-noaa", 3: "2chip-2xaa",
@@ -71,7 +78,24 @@ async def agent_alive(ip, tries=3):
     return False
 
 
-async def screen_one(ip, cfg, res, dll, timeout_s):
+async def find_glide_key(ip):
+    """Ask the box which display-class instance drives the desktop."""
+    c = RetroConnection(ip, 9898)
+    await c.connect(SECRET, timeout=20.0)
+    try:
+        st, d = await c.send_command("HWPROFILE", timeout=40)
+        prof = json.loads(d.decode("ascii", errors="replace"))
+    finally:
+        await c.close()
+    inst = "0000"
+    for v in prof.get("video_cards", []):
+        if v.get("attached_to_desktop"):
+            inst = v.get("instance", "0000")
+    gpu = prof.get("gpu", {})
+    return GLIDE_KEY_TMPL.format(inst=inst), inst, gpu
+
+
+async def screen_one(ip, cfg, res, dll, timeout_s, GLIDE_KEY):
     c = RetroConnection(ip, 9898)
     await c.connect(SECRET, timeout=20.0)
     try:
@@ -117,12 +141,15 @@ async def amain(a):
               f"screen. Restart the agent on the machine first.")
         return 2
 
-    print(f"screening {a.host} at {a.res}, dll={a.dll}\n")
+    glide_key, inst, gpu = await find_glide_key(a.host)
+    print(f"screening {a.host} at {a.res}, dll={a.dll}")
+    print(f"  gpu: {gpu.get('name')} ({gpu.get('pci_ven')}:{gpu.get('pci_dev')})")
+    print(f"  display-class instance {inst} -> HKLM\\{glide_key}\n")
     print(f"{'cfg':<5}{'label':<13}{'boards':>7}{'chips':>7}{'verdict':>10}  detail")
     results = {}
     for cfg in a.configs:
         try:
-            r = await screen_one(a.host, cfg, a.res, a.dll, a.timeout)
+            r = await screen_one(a.host, cfg, a.res, a.dll, a.timeout, glide_key)
         except Exception as e:
             print(f"{cfg:<5}{LABELS.get(cfg,'?'):<13}{'-':>7}{'-':>7}"
                   f"{'ERROR':>10}  {type(e).__name__}: {e}")
