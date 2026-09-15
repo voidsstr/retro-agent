@@ -111,8 +111,10 @@ card of the era can produce that row.
 1. **The AA value is written AND read back** before every run. `REGWRITE`
    answers `OK` for a write that silently created a subkey instead of setting
    a value, so the `OK` is not evidence.
-2. **One AA config per clean boot.** See the retraction below — this is not
-   fastidiousness, it is the only way to get trustworthy numbers.
+2. **One AA config per clean boot.** See the retractions below. This is
+   necessary but, as it turns out, **not sufficient** — cfg 1 wedged inside a
+   clean single-config boot — so the harness also has to detect a wedge and
+   stop rather than attribute it to the next cell.
 3. **The renderer string is recorded per run**, from the last renderer init in
    the engine's log. A benchmark that cannot say which driver drew the frames
    is not a driver benchmark.
@@ -158,6 +160,31 @@ screening run**. And the reason it was not caught immediately: **agent
 liveness is not board liveness.** The agent survived every wedge; only the
 graphics subsystem died, so a liveness check that pings the agent sails
 straight past it.
+
+### 1b. ...and "it is the count of topology writes" is ALSO not the whole story
+
+The count theory above explained four hangs and then failed on the fifth. cfg 1
+(1 chip, 2x AA) was given a clean boot and exactly one topology write, ran
+640x480 fine at 106.9 fps, and then **wedged on its second cell** - 800x600 at
+the same config. Meanwhile cfg 0 and cfg 5 each completed all five resolutions
+in a single boot without trouble.
+
+So the honest state of knowledge is:
+
+- **Established:** the AmigaMerlin driver wedges under repeated Glide context
+  creation, the wedge takes the retro agent's process down with it, and the
+  machine then needs attending. cfg 0 and cfg 5 are the only configurations
+  that have completed a full five-resolution run.
+- **Not established:** which variable predicts it. "That config is bad" is
+  refuted (cfg 5 works from a clean boot). "The number of topology writes" is
+  refuted (cfg 1 died on one write). "Any AA enabled" fits cfg 1 and cfg 8 but
+  not cfg 2 or cfg 5, both of which are no-AA.
+
+This is worth reporting in the article exactly as it stands. **Driver
+instability under repeated mode setup is itself the finding** - it is the
+reason a 2000-era halo card with four chips is hard to benchmark at all, and
+guessing at a mechanism we have not isolated would be the same error as the
+retraction above, one level up.
 
 ### 2. `GR_NUM_FB` is chips PRESENT, not chips ganged
 
