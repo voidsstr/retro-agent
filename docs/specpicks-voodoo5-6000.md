@@ -114,7 +114,21 @@ card of the era can produce that row.
 2. **One AA config per clean boot.** See the retractions below. This is
    necessary but, as it turns out, **not sufficient** — cfg 1 wedged inside a
    clean single-config boot — so the harness also has to detect a wedge and
-   stop rather than attribute it to the next cell.
+   refuse to attribute it to the next cell.
+2b. **The box restarts its own agent.** A wedge takes the agent's process down
+   with it, and nothing on a fleet box supervises the agent: the `Run` value
+   fires only at logon, so until this session a wedge meant the machine was
+   unreachable until somebody walked to it. That is why the first sweep stopped
+   after a single measured cell. A Run-key watchdog loop now relaunches the
+   agent within 30 seconds — **verified by killing it deliberately: back in
+   under 5 seconds, with the restart logged** — which does not fix the wedge
+   (only a reboot does) but makes the reboot issuable remotely. A wedge costs
+   about three minutes instead of a physical visit, and that is the difference
+   between a matrix that can be measured unattended and one that cannot.
+2c. **A retry is earned, not automatic.** A config gets another boot only when
+   the previous pass actually measured a cell. A wedged pass still writes its
+   failed row, so "did we make progress?" has to be counted from rows that
+   *succeeded* — otherwise every config buys itself another boot forever.
 3. **The renderer string is recorded per run**, from the last renderer init in
    the engine's log. A benchmark that cannot say which driver drew the frames
    is not a driver benchmark.
@@ -236,22 +250,40 @@ here is trustworthy and the reason the read-back in method (1) exists.
 
 ---
 
-## Screenshot / image-quality pass — planned
+## Screenshot / image-quality pass
 
-fps alone undersells an AA card, so the article needs matched-scene captures at
-each AA level. Design constraints already known:
+fps alone undersells an AA card, so the article carries matched-scene captures
+at each AA level. Four constraints, three of which are engine facts that cost
+something to learn:
 
-- **Use the engine's own screenshot command, not the agent's GDI capture.**
-  A Glide exclusive-fullscreen surface is the case where GDI garbles; the
-  engines all have `screenshot` (Q3/Q2/RtCW) or `SHOT` (UT99).
-- **Capture a deterministic frame**, e.g. `demo four; wait <n>; screenshot`, so
-  the same scene is compared across AA levels rather than a random frame.
-- One resolution is enough for quality comparison (edge quality at a fixed
-  resolution is the point), so a single boot per config can capture several
-  games — no extra topology changes.
-- The 3dfx driver also exposes a `Screen Capture Hotkey` in its Glide settings,
-  which captures the actual Glide framebuffer — a fallback if an engine's own
-  capture proves unreliable.
+- **The engine takes the picture, not the agent.** A Glide exclusive-fullscreen
+  surface is precisely the case GDI cannot be trusted for — the board renders
+  into its own framebuffer and what `SCREENSHOT` hands back is not necessarily
+  what was scanned out. A resampled or mis-paletted capture used to judge
+  anti-aliasing would be worse than no screenshots: it would look like evidence.
+- **A fixed frame of a demo**, via `demo <name>` + `wait <N frames>` +
+  `screenshot`. `wait` counts FRAMES, not seconds, which is the whole trick:
+  the same N is the same viewpoint whether the card is managing 25 fps or 120.
+  A shot taken "a few seconds in" lands on a different frame each run, and
+  edge-quality differences are far subtler than scene differences.
+- **Each engine's dialect is its own.** Quake III's latched cvars
+  (`r_mode`, `r_customwidth`, `r_colorbits`) must be set *before* `R_Init`, not
+  in the file the command line execs — the `vid_restart` that would otherwise
+  be needed is what hung the driver solid at 4 chips / 8× AA. Quake II has no
+  `r_mode -1` at all, and its `wait` **takes no argument and delays exactly one
+  frame**, so the id Tech 3 spelling would have photographed the opening frame
+  of the demo at every AA level and produced a complete, plausible, entirely
+  wrong set of images. RtCW's id Tech 3 fork has no `r_mode -1` branch either:
+  it renders 640×480 rather than erroring, so it is given a real mode index and
+  refuses an off-table resolution instead of quietly rounding it.
+- **One resolution is enough**, because edge quality at a fixed resolution is
+  the point — so a single boot per config captures every game with no extra
+  topology changes.
+
+RtCW ships no demo, so its fixed scene is a map spawn point instead: same map,
+same spawn, player standing still. The 3dfx driver also exposes a
+`Screen Capture Hotkey` in its Glide settings which captures the actual Glide
+framebuffer — the fallback if an engine's own capture proves unreliable.
 
 ## Open questions
 
