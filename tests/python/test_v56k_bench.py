@@ -230,3 +230,187 @@ def test_screener_reports_a_hang_when_there_is_no_result_line_at_all(screen):
     absence of RESULT must never be read as success."""
     assert screen.classify("")[0] == "hung"
     assert screen.classify("glideprobe: res=640x480\nstep: grGlideInit()")[0] == "hung"
+
+
+# --------------------------------------------------------------------------- #
+# v56k_sweep wedge recovery + the agent watchdog that makes it possible
+#
+# Added 2026-09-15. Until the watchdog existed, a wedge took the agent's
+# process down with it and the box was gone until somebody walked to it - so
+# the only safe thing the sweep could do was stop, which it did, after ONE
+# measured cell of a nine-config matrix. These lock in the two halves of the
+# fix: the box restarts its own agent, and the sweep spends another boot only
+# when the last one actually measured something.
+# --------------------------------------------------------------------------- #
+
+@pytest.fixture(scope="module")
+def sweep():
+    return _load("v56k_sweep")
+
+
+@pytest.fixture(scope="module")
+def watchdog():
+    path = REPO / "scripts" / "fleet" / "install-agent-watchdog.py"
+    if not path.exists():
+        pytest.skip(f"{path} not present")
+    spec = importlib.util.spec_from_file_location("install_agent_watchdog", path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["install_agent_watchdog"] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _write_csv(path, rows):
+    cols = ["title", "api", "res", "colordepth", "aa_cfg", "status", "avg_fps"]
+    with path.open("w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=cols)
+        w.writeheader()
+        for r in rows:
+            w.writerow(r)
+
+
+def test_measured_cells_counts_only_verified_rows(sweep, tmp_path):
+    """A wedged pass still APPENDS its failed cell, so counting rows would
+    report progress on a pass that measured nothing and buy it another boot,
+    forever."""
+    _write_csv(tmp_path / "results.csv", [
+        {"title": "Quake III Arena", "api": "opengl-icd", "res": "640x480",
+         "colordepth": "16", "aa_cfg": "1", "status": "ok", "avg_fps": "106.9"},
+        {"title": "Quake III Arena", "api": "opengl-icd", "res": "800x600",
+         "colordepth": "16", "aa_cfg": "1", "status": "wedged", "avg_fps": ""},
+    ])
+    assert sweep.measured_cells(tmp_path) == 1
+
+
+def test_measured_cells_is_zero_before_the_first_run(sweep, tmp_path):
+    assert sweep.measured_cells(tmp_path) == 0
+
+
+def test_a_config_gets_more_than_one_attempt_by_default(sweep):
+    """One wedge must cost a reboot, not the sweep."""
+    import argparse as _ap
+    p = [a for a in _parser_actions(sweep) if a.dest == "attempts"]
+    assert p and p[0].default > 1
+
+
+def _parser_actions(mod):
+    import argparse
+    ap = argparse.ArgumentParser()
+    # rebuild the parser the way main() does, without running it
+    src = (REPO / "scripts" / "benchmarks" / "v56k_sweep.py").read_text()
+    ns = {"argparse": argparse}
+    body = src[src.index("    ap = argparse.ArgumentParser("):src.index("    a = ap.parse_args()")]
+    exec("import argparse\n" + "\n".join(l[4:] for l in body.splitlines()), ns)
+    return ns["ap"]._actions
+
+
+def test_the_watchdog_is_a_separate_run_value_from_the_agent(watchdog):
+    """Clobbering HKLM Run\\RetroAgent would replace the thing it exists to
+    restart - and auto-login is what starts the agent after a reboot."""
+    assert watchdog.RUN_VAL != "RetroAgent"
+
+
+def test_the_watchdog_never_puts_a_password_in_argv(watchdog):
+    """The reason this is a Run-key loop and not `schtasks /ru <user> /rp
+    <password>`. The console password is a documented fleet convention rather
+    than a secret, but argv lands in transcripts regardless."""
+    # Only what actually reaches the box - the module docstring EXPLAINS why
+    # /rp is avoided, and scanning it fails the test for saying so.
+    shipped = watchdog.WATCHDOG + watchdog.WD_PATH + watchdog.RUN_KEY + watchdog.RUN_VAL
+    assert "/rp" not in shipped
+    assert "password" not in shipped.lower()
+    assert "schtasks" not in shipped.lower()
+
+
+def test_the_watchdog_relaunches_detached_and_keeps_looping(watchdog):
+    """`start ""` so the loop does not block on the agent it just started, and
+    a goto so one restart is not the end of the supervision."""
+    assert 'start ""' in watchdog.WATCHDOG
+    assert "goto loop" in watchdog.WATCHDOG
+    assert "ping -n" in watchdog.WATCHDOG, "XP's shell has no `timeout` command"
+
+
+def test_the_watchdog_batch_is_crlf(watchdog):
+    """A LF-only .cmd is not reliably parsed by XP's command processor."""
+    assert "\r\n" in watchdog.WATCHDOG
+    assert "\n" not in watchdog.WATCHDOG.replace("\r\n", "")
+
+
+def test_the_watchdog_logs_every_restart(watchdog):
+    """A supervisor that silently fixes things hides how often the driver
+    wedges - which is the measurement this campaign is actually for."""
+    assert ">>" in watchdog.WATCHDOG and "agentwd.log" in watchdog.WATCHDOG
+
+
+# --------------------------------------------------------------------------- #
+# v56k_shots - the image-quality pass
+#
+# The first version of that file carried its OWN copy of the cvar dialect, and
+# the copy was wrong in two ways the fps campaign had already paid to learn: it
+# set LATCHED cvars from a command-line exec (which lands after R_Init, so they
+# either do nothing or need the vid_restart that hung the driver at 8x AA), and
+# it wrote Quake III's cvars into Quake II. These pin the engine facts.
+# --------------------------------------------------------------------------- #
+
+@pytest.fixture(scope="module")
+def shots():
+    return _load("v56k_shots")
+
+
+def test_quake2_waits_one_frame_per_line_because_its_wait_takes_no_argument(shots):
+    """id Tech 2's `wait` is not id Tech 3's. `wait 250` there delays a SINGLE
+    frame and photographs the opening frame of the demo - a shot that looks
+    perfectly fine and is the wrong scene at every AA level."""
+    cfg = shots.Q2Shot(wait_frames=250).bench_cfg()
+    lines = [l.strip() for l in cfg.splitlines()]
+    assert lines.count("wait") >= 250
+    assert not any(l.startswith("wait ") for l in lines), \
+        "an argument to id Tech 2's wait is silently ignored"
+
+
+def test_quake3_keeps_the_latched_cvars_out_of_the_exec_file(shots):
+    """r_mode/r_customwidth/r_colorbits are CVAR_LATCH. In the file the command
+    line execs they arrive after R_Init, and 'fixing' that with vid_restart is
+    what wedged the board at 4 chips / 8x AA."""
+    cfg = shots.Q3Shot().bench_cfg()
+    for latched in ("r_mode", "r_customwidth", "r_customheight",
+                    "r_colorbits", "r_texturebits", "r_fullscreen"):
+        assert latched not in cfg, f"{latched} is latched - it belongs in fleetres.cfg"
+    assert "vid_restart" not in cfg
+
+
+def test_quake3_still_sets_the_latched_cvars_somewhere(shots):
+    """The negative above is only safe because the launcher sets them BEFORE
+    R_Init, by both routes that agree."""
+    g = shots.Q3Shot()
+    assert 'r_customwidth "800"' in g.fleetres_cfg(800, 600, 16)
+    assert "+set r_customwidth 800" in g.setargs(800, 600, 16)
+
+
+def test_rtcw_never_asks_for_r_mode_minus_one(shots):
+    """RtCW's id Tech 3 fork has no r_mode -1 branch: it renders 640x480 rather
+    than erroring, so the whole column would be the wrong resolution and look
+    fine."""
+    bat = shots.RTCWShot().launch_bat(1024, 768, 16, {})
+    assert "+set r_mode 6" in bat
+    assert "r_mode -1" not in bat
+    assert "r_customwidth" not in bat
+
+
+def test_rtcw_refuses_a_resolution_its_mode_table_does_not_have(shots):
+    """Rounding to a nearby mode would silently mislabel the capture."""
+    g = shots.RTCWShot()
+    assert g.supports(1024, 768, 16) is None
+    why = g.supports(1280, 960, 16)
+    assert why and "mode table" in why
+
+
+def test_every_shot_title_photographs_a_fixed_scene(shots):
+    """A shot taken 'a few seconds in' lands on a different frame each run, and
+    edge-quality differences are subtler than scene differences."""
+    for make in shots.GAMES.values():
+        g = make()
+        cfg = g.bench_cfg() if hasattr(g, "bench_cfg") else g.shot_cfg()
+        assert "screenshot" in cfg.lower()
+        assert "wait" in cfg
+        assert cfg.strip().endswith("quit")

@@ -30,8 +30,24 @@ What it refuses to do
   not come back: logon is blocked, the Run-key agent never starts, and there is
   no remote path in). No --ignore-activation here; that flag means "a human is
   standing at the machine", which is not true of an unattended sweep.
-- It stops on the first wedge or dead agent rather than producing rows that
-  describe broken hardware.
+- It will not produce rows that describe broken hardware. A wedge ends the
+  ATTEMPT, never the row: the cell is left unmeasured and retried on a clean
+  boot.
+
+Recovering from a wedge, rather than stopping at one
+----------------------------------------------------
+A wedge takes the agent's process down with it, and until the watchdog existed
+that meant the box was gone until somebody walked to it - so the only safe
+thing a sweep could do was stop. `scripts/fleet/install-agent-watchdog.py` puts
+a Run-key loop on the box that restarts the agent within ~30s, which turns a
+wedge from "the sweep is over" into "this config costs one more reboot".
+
+So a config now gets up to --attempts passes. Each pass writes the topology,
+reboots, and runs the bench, which is RESUMABLE - it skips cells already in the
+CSV - so a pass that wedged at 800x600 resumes there rather than re-measuring
+640x480. A pass that measures NOTHING ends the retries for that config: three
+boots that each wedge before the first cell are evidence about the config, not
+a reason to keep rebooting.
 
 Usage:
     python3 v56k_sweep.py --host 192.168.1.124
@@ -130,6 +146,19 @@ async def board_ok(ip):
     return None
 
 
+def measured_cells(outdir):
+    """How many verified rows are banked. Progress is the ONLY thing that
+    justifies another boot, and it has to be read from the CSV rather than
+    inferred from an exit code - a wedged pass and a pass that measured three
+    cells and then wedged both exit 3."""
+    csv_path = Path(outdir) / "results.csv"
+    if not csv_path.exists():
+        return 0
+    import csv as _csv
+    with open(csv_path, newline="") as fh:
+        return sum(1 for r in _csv.DictReader(fh) if r.get("status") == "ok")
+
+
 def reboot(ip):
     r = subprocess.run(
         [sys.executable, str(REPO / "scripts" / "fleet" / "safe-reboot.py"), ip],
@@ -160,6 +189,11 @@ def main():
     ap.add_argument("--max-run", type=float, default=600.0,
                     help="high AA at 1600x1200 is genuinely slow; give it room")
     ap.add_argument("--outdir", default=None)
+    ap.add_argument("--attempts", type=int, default=3,
+                    help="passes per config. A wedge ends the pass; the bench "
+                         "resumes from the CSV, so a retry costs one reboot and "
+                         "re-measures nothing. A pass that measures nothing "
+                         "ends the retries for that config.")
     a = ap.parse_args()
     cfgs = [int(x) for x in a.configs.split(",")]
     outdir = Path(a.outdir) if a.outdir else (HERE / "results" / f"v56k_sweep_{a.host}")
@@ -176,47 +210,83 @@ def main():
     for n, cfg in enumerate(cfgs, 1):
         log("")
         log(f"===== [{n}/{len(cfgs)}] cfg {cfg} ({LABELS.get(cfg,'?')}) =====")
+        stop_sweep = None
 
-        ok, got = asyncio.run(set_aa(a.host, key, cfg))
-        if not ok:
-            log(f"  AA write did not stick (read back {got!r}) - skipping")
-            failed.append((cfg, "aa-write-failed"))
-            continue
-        log(f"  AA set to {cfg} and read back")
+        for attempt in range(1, a.attempts + 1):
+            before = measured_cells(outdir)
+            if attempt > 1:
+                log(f"  -- attempt {attempt}/{a.attempts} "
+                    f"({before} cell(s) banked so far)")
 
-        log("  rebooting for a clean single topology write ...")
-        rok, rout = reboot(a.host)
-        if not rok:
-            log("  safe-reboot REFUSED - stopping the sweep:")
-            for line in rout.splitlines()[:6]:
-                log(f"    {line}")
-            failed.append((cfg, "reboot-refused"))
-            break
-        if not asyncio.run(wait_agent(a.host)):
-            log("  the box did not come back - stopping.")
-            failed.append((cfg, "no-agent-after-reboot"))
-            break
-        log("  agent back")
-
-        h = asyncio.run(board_ok(a.host))
-        if h is False:
-            log("  BOARD WEDGED before any measurement - stopping.")
-            failed.append((cfg, "board-wedged-on-boot"))
-            break
-        log(f"  board health: {'ok' if h else 'unknown'}")
-
-        rc, out = run_bench(a.host, cfg, a.resolutions, a.depths, outdir, a.max_run)
-        for line in out.splitlines():
-            if "->" in line or "!!" in line or "WEDGED" in line or "EXCLUDED" in line:
-                log(f"    {line.strip()}")
-        if rc == 0:
-            done.append(cfg)
-        else:
-            log(f"  bench exited {rc} for cfg {cfg}")
-            failed.append((cfg, f"bench-rc-{rc}"))
-            if rc in (3, 4):        # dead agent / wedged board
-                log("  stopping the sweep - the box needs attention.")
+            ok, got = asyncio.run(set_aa(a.host, key, cfg))
+            if not ok:
+                log(f"  AA write did not stick (read back {got!r}) - skipping")
+                failed.append((cfg, "aa-write-failed"))
                 break
+            log(f"  AA set to {cfg} and read back")
+
+            log("  rebooting for a clean single topology write ...")
+            rok, rout = reboot(a.host)
+            if not rok:
+                log("  safe-reboot REFUSED - stopping the sweep:")
+                for line in rout.splitlines()[:6]:
+                    log(f"    {line}")
+                failed.append((cfg, "reboot-refused"))
+                stop_sweep = "reboot-refused"
+                break
+            if not asyncio.run(wait_agent(a.host)):
+                log("  the box did not come back - stopping.")
+                failed.append((cfg, "no-agent-after-reboot"))
+                stop_sweep = "no-agent-after-reboot"
+                break
+            log("  agent back")
+
+            h = asyncio.run(board_ok(a.host))
+            if h is False:
+                log("  BOARD WEDGED before any measurement on this boot.")
+                failed.append((cfg, "board-wedged-on-boot"))
+                break
+            log(f"  board health: {'ok' if h else 'unknown'}")
+
+            rc, out = run_bench(a.host, cfg, a.resolutions, a.depths,
+                                outdir, a.max_run)
+            for line in out.splitlines():
+                if "->" in line or "!!" in line or "WEDGED" in line or "EXCLUDED" in line:
+                    log(f"    {line.strip()}")
+            after = measured_cells(outdir)
+            gained = after - before
+
+            if rc == 0:
+                done.append(cfg)
+                break
+
+            log(f"  bench exited {rc} for cfg {cfg} ({gained} new cell(s) this pass)")
+            if rc not in (3, 4):
+                failed.append((cfg, f"bench-rc-{rc}"))
+                break
+
+            # A wedge or a dead agent. The watchdog restarts the agent; the
+            # reboot at the top of the next attempt is what clears the board.
+            log("  wedged - waiting for the watchdog to restart the agent ...")
+            if not asyncio.run(wait_agent(a.host, timeout=300)):
+                log("  the agent did not come back. The watchdog is not "
+                    "installed or not running; this box needs attention.")
+                failed.append((cfg, f"bench-rc-{rc}-no-recovery"))
+                stop_sweep = "no-watchdog-recovery"
+                break
+            log("  agent back (watchdog)")
+
+            if gained == 0:
+                log("  this pass measured nothing - not spending another boot "
+                    "on it. That is a fact about the config, not a transient.")
+                failed.append((cfg, f"bench-rc-{rc}-no-progress"))
+                break
+            if attempt == a.attempts:
+                failed.append((cfg, f"bench-rc-{rc}-attempts-exhausted"))
+
+        if stop_sweep:
+            log(f"  stopping the sweep: {stop_sweep}")
+            break
 
     log("")
     log(f"sweep finished: {len(done)} config(s) measured {done}")
