@@ -1147,6 +1147,28 @@ class RTCW:
         await box.upload(self.bat, self.launch_bat(w, h, depth, env))
         await box.exec_(f'cmd /c del /f /q "{self.log}"')
 
+    def verify_driver(self, raw):
+        """r_glDriver is CVAR_LATCH: pinning 3dfxogl does not take on the FIRST
+        launch after a change (measured 2026-09-16 - the config read 3dfxogl yet
+        R_Init loaded the game-staged gl/openglv5.dll and only latched the
+        change). Retiring the wrong ICD to force a fallback WEDGED the box (the
+        agent died on a fullscreen GL-init error, 2026-09-16), so instead the
+        runner READS BACK which ICD actually loaded and says so, rather than
+        forcing it blind. Returns (ok, note): ok is False when the loaded
+        GL_VENDOR does not match the driver this cell asked for."""
+        vend = ""
+        m = re.search(r"(?im)^GL_VENDOR:\s*(.+)$", raw)
+        if m:
+            vend = m.group(1).strip()
+        is_wicked = "wicked" in vend.lower() or "metabyte" in vend.lower()
+        want_wicked = self.api == "opengl-3dfx-openglv5"
+        if not vend:
+            return True, ""
+        if is_wicked != want_wicked:
+            got = "gl/openglv5.dll (Wicked3D)" if is_wicked else "the registered AmigaMerlin ICD"
+            return False, f"driver-mismatch: asked for {self.gldriver}, engine loaded {got} (r_glDriver is latched - needs a warm-up launch)"
+        return True, ""
+
     async def start(self, box):
         await box.text(f"LAUNCH {self.bat}")
 
@@ -1455,7 +1477,18 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     row.update(parsed)
     row.update(title.attribution(raw))
     row["status"] = "ok"
-    log(f"    -> {parsed['avg_fps']} fps   [{row.get('gl_renderer','?')}]")
+    # A title may READ BACK which driver actually loaded (RtCW's r_glDriver is
+    # latched, so a pinned driver can lose the first launch after a change). A
+    # mismatch is recorded visibly - never published as a clean number for the
+    # wrong driver - per the make-failure-visible rule.
+    verify = getattr(title, "verify_driver", None)
+    if verify is not None:
+        ok_drv, drv_note = verify(raw)
+        if not ok_drv:
+            row["status"] = "driver-mismatch"
+            row["notes"] = (row.get("notes", "") + "; " if row.get("notes") else "") + drv_note
+    log(f"    -> {parsed['avg_fps']} fps   [{row.get('gl_renderer','?')}]"
+        + ("  !! " + row["notes"] if row["status"] == "driver-mismatch" else ""))
     return row
 
 

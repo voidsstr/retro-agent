@@ -559,3 +559,20 @@ def test_rtcw_pins_the_driver_in_a_config_the_engine_reads(bench):
         assert box.files[cfg] == b'seta r_glDriver "3dfxogl"\r\n'
     t2 = bench.RTCW(api="openglv5")
     assert t2.gldriver == "gl/openglv5.dll" and t2.tid == "rtcw:openglv5" and t2.api == "opengl-3dfx-openglv5"
+
+def test_rtcw_verify_driver_flags_wrong_icd(bench):
+    """RtCW reads back GL_VENDOR: a mismatch between the ICD asked for and the
+    one loaded (latched r_glDriver losing the first launch) is reported, not
+    published as a clean number. Retiring the wrong ICD to force it wedged the
+    box, so read-back is how honesty is kept."""
+    am = bench.RTCW(api="amigamerlin")
+    mesa = "GL_VENDOR: Brian Paul\nGL_RENDERER: Mesa Glide v0.63 Voodoo5 6000 (tm)\n"
+    wick = "GL_VENDOR: METABYTE/WICKED3D\nGL_RENDERER: 3Dfx Interactive Voodoo5(tm)\n"
+    assert am.verify_driver(mesa) == (True, "")
+    ok, note = am.verify_driver(wick)
+    assert ok is False and "driver-mismatch" in note
+    ov5 = bench.RTCW(api="openglv5")
+    assert ov5.verify_driver(wick)[0] is True
+    assert ov5.verify_driver(mesa)[0] is False
+    # no GL_VENDOR in the log -> cannot judge, do not fail the row
+    assert am.verify_driver("nothing here")[0] is True
