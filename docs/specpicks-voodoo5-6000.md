@@ -487,9 +487,15 @@ before anyone looked for it.
 
 ### Not yet run — the second instalment
 
-- **128 MB vs 256 MB mode.** The card's switch has not been touched. Whether
-  the driver even exposes the difference (texture memory per chip, `FX_GLIDE_FBRAM`)
-  is the first question.
+- **128 MB vs 256 MB mode.** The card's switch has not been touched in this
+  campaign. It was flipped once before it, on 2026-08-12, on a third machine
+  (`.133`, dual Pentium III) under the lab's in-house H5 driver stack:
+  `HardwareInformation.MemorySize` went `0x08000000` → `0x10000000` (64 MB per
+  chip), Quake III at 1024×768 read 61.4 fps either way, and UT99's Glide
+  texture space rose from 15.9 MB to 32.4 MB (`retro-3dfx/V56K-SLI-FINDINGS.md`
+  §12/§14). Under AmigaMerlin, on either campaign host, the mode is untested;
+  whether that driver even exposes the difference (texture memory per chip,
+  `FX_GLIDE_FBRAM`) is the first question.
 - **Other driver stacks on the same card:** SFFT, the official 3dfx
   1.04.00 beta, and the two in-house stacks (`voodoo-cleanroom/` MesaFX +
   open Glide; the vintage H5 source tree). AmigaMerlin was chosen first
