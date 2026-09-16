@@ -470,3 +470,42 @@ def test_a_retroactive_probe_never_overwrites_a_runtime_capture():
     assert 'not (r.get(k) or "").strip()' in src
     assert "versions backfilled retroactively" in src, \
         "a backfilled row must say so in the row"
+
+
+# --------------------------------------------------------------------------- #
+# The ported UT99 and RtCW routes (2026-09-16)
+# --------------------------------------------------------------------------- #
+
+def test_rtcw_refuses_the_4_3_high_mode_it_does_not_have(bench):
+    """RtCW's fork has no r_mode -1 and no 1280x960; it would render 640x480
+    and look fine."""
+    t = bench.RTCW()
+    assert t.supports(1024, 768, 16) is None
+    assert t.supports(1280, 960, 16)
+    assert "+set r_mode 6" in t.launch_bat(1024, 768, 16, {})
+    assert "r_mode -1" not in t.launch_bat(1024, 768, 16, {})
+    assert "+set r_glDriver 3dfxogl" in t.launch_bat(640, 480, 16, {})
+
+
+def test_ut99_route_is_the_proven_keybind_timedemo(bench):
+    """UE1's -benchmark never exits on this build; the fleet's route is F9 ->
+    timedemo of UTbench.dem, F10 -> clean Exit (which flushes the locked log
+    and leaves no Running.ini)."""
+    t = bench.UT99Bench("opengl")
+    assert "-log=bench.log" in t.launch_bat({})
+    assert t.parse("Log: 2200 frames rendered in 31.9 seconds. Min 40.1 Max 120.2 Avg 68.9 fps.") == \
+        {"frames": 2200, "seconds": 31.9, "avg_fps": 68.9}
+    assert t.parse("no summary here") is None
+    assert (bench.DEMOS / "UTbench.dem").exists() and (bench.DEMOS / "wolfbench.dm_60").exists()
+
+
+def test_quiesce_closes_the_hardware_wizard(bench):
+    """A modal dialog steals focus from a fullscreen game and eats the synthetic
+    keystrokes the UE1 route depends on; .124 raises one after every boot."""
+    import inspect
+    assert "Found New Hardware Wizard" in inspect.getsource(bench.quiesce)
+
+
+def test_the_new_titles_are_registered(bench):
+    assert "ut99" in bench.TITLES and "rtcw" in bench.TITLES
+    assert bench.TITLES["ut99"]("glide").tid == "ut99:glide"

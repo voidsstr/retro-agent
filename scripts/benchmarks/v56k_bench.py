@@ -908,11 +908,204 @@ def _deusex(api):
                    "DeusEx.ini", "DeusEx.log", "00_Training", api=api)
 
 
+
+DEMOS = HERE / "demos"          # UTbench.dem and wolfbench.dm_60, committed with the runner
+
+
+class UT99Bench(Unreal1):
+    """Unreal Tournament 436 through the fleet's proven UTbench.dem route.
+
+    UE1's `-benchmark -seconds=N` never exits on this build (measured: 100% CPU
+    past two and a half minutes with the log locked), so the timedemo is driven
+    the way `.claude/skills/driver-bench/run_bench.py` proved on 25 earlier
+    fleet runs: bind F9 to `timedemo 1|demoplay UTbench.dem` and F10 to `Exit`,
+    launch to the menu, press F9, wait for the demo, press F10. UE1 accepts a
+    synthetic keystroke in exclusive fullscreen (id Tech 3 does not), and the
+    CLEAN exit is what flushes the locked log and leaves no Running.ini behind.
+
+    The summary line UE1 prints on a finished timedemo:
+        N frames rendered in S seconds. Min A Max B Avg C fps.
+
+    The render device is patched into UnrealTournament.ini by the parent class
+    (glide -> GlideDrv, opengl -> OpenGLDrv over the AmigaMerlin ICD, d3d ->
+    D3DDrv over its D3D HAL) together with FullscreenColorBits, so a 32-bit
+    request reaches every device - and the log records what each device
+    actually did with it. UE1's GlideDrv is expected to stay 16-bit whatever
+    the ini says; that is a result to record, not a failure to hide.
+    """
+
+    demo = "UTbench.dem"
+
+    def __init__(self, api="glide"):
+        super().__init__("ut99", "Unreal Tournament 436", r"C:\Games\UnrealTournament436",
+                         "UnrealTournament.exe", "UnrealTournament.ini", "bench.log",
+                         "DM-Gothic", api=api)
+        self.engine = f"UnrealTournament.exe 436 ({self.api_devices[api].split('.')[0]}, UTbench.dem)"
+        self.user_ini = rf"{self.root}\System\User.ini"
+        self.demo_path = rf"{self.root}\System\{self.demo}"
+
+    def launch_bat(self, env):
+        lines = ["@echo off"] + [f'set {k}={v}' for k, v in env.items()]
+        lines += [rf'cd /d "{self.root}\System"',
+                  f'{self.exe} -log=bench.log -nosound']
+        return "\r\n".join(lines) + "\r\n"
+
+    async def _ensure_binds(self, box):
+        raw = await box.download(self.user_ini)
+        if raw is None:
+            raise RetroProtocolError(f"cannot read {self.user_ini}")
+        txt = raw.decode("latin-1")
+        new = re.sub(r"(?m)^F9=.*$", f"F9=timedemo 1|demoplay {self.demo}", txt, count=1)
+        new = re.sub(r"(?m)^F10=.*$", "F10=Exit", new, count=1)
+        if "F9=" not in new:
+            new = new.replace("[Engine.Input]", f"[Engine.Input]\r\nF9=timedemo 1|demoplay {self.demo}\r\nF10=Exit", 1)
+        if new != txt:
+            await box.upload(self.user_ini, new.encode("latin-1"))
+
+    async def _stage_demo(self, box):
+        chk = await box.exec_(f'cmd /c if exist "{self.demo_path}" (echo Y) else (echo N)')
+        if "Y" not in chk:
+            await box.upload(self.demo_path, (DEMOS / self.demo).read_bytes())
+
+    async def prepare(self, box, w, h, depth, env):
+        await self._patch_ini(box, w, h, depth)
+        await self._ensure_binds(box)
+        await self._stage_demo(box)
+        await box.upload(self.bat, self.launch_bat(env))
+        await box.exec_(f'cmd /c del /f /q "{self.log}"')
+        await box.exec_(rf'cmd /c del /f /q "{self.root}\System\Running.ini"')
+
+    async def start(self, box):
+        # The whole timedemo is driven here; the runner's log poll then finds
+        # the flushed bench.log. Timings from the fleet route: ~20 s to the
+        # menu, the demo runs ~90 s, F10 exits cleanly.
+        await box.text(f"LAUNCH {self.bat}")
+        await asyncio.sleep(24)
+        await box.text("UIKEY F9")
+        await asyncio.sleep(105)
+        await box.text("UIKEY F10")
+        await asyncio.sleep(8)
+
+    def parse(self, raw):
+        m = re.search(r"(\d+) frames rendered in ([\d.]+) seconds\.\s*Min [\d.]+ Max [\d.]+ Avg ([\d.]+) fps", raw)
+        if not m:
+            return None
+        return {"frames": int(m.group(1)), "seconds": float(m.group(2)), "avg_fps": float(m.group(3))}
+
+    def attribution(self, raw):
+        out = {}
+        m = re.findall(r"GL_RENDERER\)?:?\s*(.+)", raw)
+        if m:
+            out["gl_renderer"] = m[-1].strip()[:120]
+        else:
+            m = re.findall(r"(?:Bound to|Initialized)\s+(\S*(?:Glide|OpenGL|D3D)\S*)", raw, re.I)
+            if m:
+                out["gl_renderer"] = m[-1].strip()
+        # what the device actually did with the requested depth
+        m = re.findall(r"(?im)^.*(?:Glide|OpenGL|D3D|Direct3D).*\b(\d{2})[- ]?bit.*$", raw)
+        if m:
+            out["pixelformat"] = re.findall(r"(?im)^(.*(?:Glide|OpenGL|D3D|Direct3D).*\b\d{2}[- ]?bit.*)$", raw)[-1].strip()[:120]
+        m = re.findall(r"(?im)^(.*(?:Resolution|Setting res|SetRes|Mode:).*)$", raw)
+        if m:
+            out["mode_line"] = m[-1].strip()[:120]
+        return out
+
+
+class RTCW:
+    """Return to Castle Wolfenstein multiplayer engine, `timedemo 1 +demo wolfbench`.
+
+    id Tech 3 fork with NO `r_mode -1` branch (it renders 640x480 rather than
+    erroring), so a real mode index is used and an off-table resolution is
+    declared unsupported. The demo `wolfbench.dm_60` was recorded on this fleet
+    for the driver-bench skill and is committed beside the runner. The saved
+    wolfconfig forces `r_glDriver "gl/openglv5.dll"` (the file staged with the
+    game), and a saved cvar OVERRIDES a +set on this engine, so the config is
+    patched to name the AmigaMerlin ICD by its registered name, `3dfxogl`, the
+    same way Quake III loads it - backed up once, first touch.
+    """
+
+    tid = "rtcw"
+    name = "Return to Castle Wolfenstein"
+    engine = "WolfMP.exe (wolfbench.dm_60)"
+    proc = "WolfMP.exe"
+    api = "opengl-icd"
+    MODES = {(320, 240): 0, (400, 300): 1, (512, 384): 2, (640, 480): 3, (800, 600): 4,
+             (960, 720): 5, (1024, 768): 6, (1152, 864): 7, (1280, 1024): 8, (1600, 1200): 9}
+
+    def __init__(self, root=r"C:\Games\ReturnToCastleWolfenstein"):
+        self.root = root
+        self.log = rf"{root}\main\rtcwconsole.log"
+        self.bat = rf"{root}\V56KBENCH.BAT"
+        self.demo_path = rf"{root}\main\demos\wolfbench.dm_60"
+        self.cfgs = (rf"{root}\main\wolfconfig_mp.cfg", rf"{root}\main\wolfconfig.cfg")
+
+    def supports(self, w, h, depth):
+        if (w, h) not in self.MODES:
+            return (f"RtCW's id Tech 3 fork has no r_mode -1 and no {w}x{h} entry "
+                    f"in its mode table (1280x1024, not 1280x960)")
+        return None
+
+    def launch_bat(self, w, h, depth, env):
+        mode = self.MODES[(w, h)]
+        zbits = 24 if depth >= 32 else 16
+        lines = ["@echo off"] + [f'set {k}={v}' for k, v in env.items()]
+        lines += [f'cd /d "{self.root}"',
+                  (f'{self.proc} +set fs_basepath "{self.root}" +set fs_homepath "{self.root}" '
+                   f'+set logfile 2 +set r_glDriver 3dfxogl +set r_mode {mode} +set r_fullscreen 1 '
+                   f'+set r_colorbits {depth} +set r_texturebits {depth} +set r_depthbits {zbits} '
+                   f'+set r_picmip 0 +set r_swapInterval 0 +set com_maxfps 0 +set sv_pure 0 '
+                   f'+set s_initsound 0 +set timedemo 1 +demo wolfbench')]
+        return "\r\n".join(lines) + "\r\n"
+
+    async def _pin_gldriver(self, box):
+        for cfg in self.cfgs:
+            raw = await box.download(cfg)
+            if raw is None:
+                continue
+            txt = raw.decode("latin-1")
+            new = re.sub(r'(?im)^(seta?\s+r_glDriver\s+)"[^"]*"', r'\g<1>"3dfxogl"', txt)
+            if new != txt:
+                if await box.download(cfg + ".v56kbak") is None:
+                    await box.upload(cfg + ".v56kbak", raw)
+                await box.upload(cfg, new.encode("latin-1"))
+
+    async def prepare(self, box, w, h, depth, env):
+        chk = await box.exec_(f'cmd /c if exist "{self.demo_path}" (echo Y) else (echo N)')
+        if "Y" not in chk:
+            await box.exec_(rf'cmd /c if not exist "{self.root}\main\demos" mkdir "{self.root}\main\demos"')
+            await box.upload(self.demo_path, (DEMOS / "wolfbench.dm_60").read_bytes())
+        await self._pin_gldriver(box)
+        await box.upload(self.bat, self.launch_bat(w, h, depth, env))
+        await box.exec_(f'cmd /c del /f /q "{self.log}"')
+
+    async def start(self, box):
+        await box.text(f"LAUNCH {self.bat}")
+
+    def parse(self, raw):
+        m = None
+        for m in FPS_RE.finditer(raw):
+            pass
+        if not m:
+            return None
+        return {"frames": int(m.group(1)), "seconds": float(m.group(2)), "avg_fps": float(m.group(3))}
+
+    def attribution(self, raw):
+        out = {}
+        for key, pat in (("gl_renderer", r"GL_RENDERER:\s*(.+)"), ("gl_vendor", r"GL_VENDOR:\s*(.+)"),
+                         ("mode_line", r"(MODE:\s*.+)"), ("pixelformat", r"(PIXELFORMAT:\s*.+)")):
+            hits = re.findall(pat, raw)
+            if hits:
+                out[key] = hits[-1].strip()
+        return out
+
+
 TITLES = {
     "quake3": lambda api=None: Quake3(),
     "quake2": lambda api=None: Quake2(),
     "glquake": lambda api=None: GLQuake(),
     "ut": lambda api="glide": _ut(api),
+    "ut99": lambda api="glide": UT99Bench(api),
+    "rtcw": lambda api=None: RTCW(),
     "unrealgold": lambda api="glide": _ugold(api),
     "deusex": lambda api="glide": _deusex(api),
     "serioussam": lambda api="opengl": SeriousSam(
@@ -1061,6 +1254,14 @@ async def quiesce(box):
             await box.exec_(f'cmd /c taskkill /f /im "{p}"', timeout=30)
         except Exception:
             pass
+    # .124 raises a "Found New Hardware Wizard" after every boot since the
+    # card swap (observed 2026-09-15/16). A modal dialog steals focus from a
+    # fullscreen game and can eat the synthetic keystrokes the UE1 route
+    # depends on, so it is closed by window title before every run.
+    try:
+        await box.exec_('cmd /c taskkill /f /fi "windowtitle eq Found New Hardware Wizard"', timeout=30)
+    except Exception:
+        pass
 
 
 async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
