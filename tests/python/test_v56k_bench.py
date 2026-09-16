@@ -414,3 +414,16 @@ def test_every_shot_title_photographs_a_fixed_scene(shots):
         assert "screenshot" in cfg.lower()
         assert "wait" in cfg
         assert cfg.strip().endswith("quit")
+
+
+def test_the_sweep_refuses_a_results_directory_that_will_not_survive(sweep, tmp_path, capsys):
+    """A results path that can vanish is worse than none: every reboot the
+    sweep spends is unrecoverable hardware time and the rows are the only
+    record of it. A session scratchpad under /tmp is deleted when the session
+    ends - which really happened, taking 14 measured rows with it."""
+    import argparse
+    ap = [a for a in _parser_actions(sweep) if a.dest == "allow_volatile_outdir"]
+    assert ap, "the escape hatch must exist, and be explicit"
+    assert ap[0].default is False, "volatile results must be opt-in"
+    src = (REPO / "scripts" / "benchmarks" / "v56k_sweep.py").read_text()
+    assert "/tmp/" in src and "REFUSING" in src

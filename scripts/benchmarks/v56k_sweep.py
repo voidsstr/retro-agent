@@ -188,7 +188,13 @@ def main():
     ap.add_argument("--depths", default="16")
     ap.add_argument("--max-run", type=float, default=600.0,
                     help="high AA at 1600x1200 is genuinely slow; give it room")
-    ap.add_argument("--outdir", default=None)
+    ap.add_argument("--outdir", default=None,
+                    help="default: scripts/benchmarks/results/v56k_sweep_<host>, "
+                         "which survives a session. See --allow-volatile-outdir.")
+    ap.add_argument("--allow-volatile-outdir", action="store_true",
+                    help="permit an outdir under /tmp. Off by default because a "
+                         "session scratchpad is DELETED when the session ends, "
+                         "and it took a measured campaign with it.")
     ap.add_argument("--attempts", type=int, default=3,
                     help="passes per config. A wedge ends the pass; the bench "
                          "resumes from the CSV, so a retry costs one reboot and "
@@ -197,6 +203,20 @@ def main():
     a = ap.parse_args()
     cfgs = [int(x) for x in a.configs.split(",")]
     outdir = Path(a.outdir) if a.outdir else (HERE / "results" / f"v56k_sweep_{a.host}")
+    outdir = outdir.resolve()
+    # A results path that can vanish is worse than no results path: every
+    # reboot this sweep spends is unrecoverable hardware time, and the rows are
+    # the only record of it. A session scratchpad under /tmp is deleted when the
+    # session ends - which really happened here, taking 14 rows with it, and the
+    # numbers were only recoverable because some had been quoted into a document.
+    if not a.allow_volatile_outdir:
+        for volatile in ("/tmp/", "/var/tmp/", "/dev/shm/"):
+            if str(outdir).startswith(volatile):
+                print(f"REFUSING: {outdir} is under {volatile}, which does not "
+                      f"survive the session.\n"
+                      f"  Use the default ({HERE / 'results'}), or pass "
+                      f"--allow-volatile-outdir if you really mean it.")
+                return 2
     outdir.mkdir(parents=True, exist_ok=True)
 
     log(f"full sweep on {a.host}: {len(cfgs)} config(s), one boot each")
