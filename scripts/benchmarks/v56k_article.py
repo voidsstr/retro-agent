@@ -29,9 +29,17 @@ from pathlib import Path
 
 CHIPS = {0: 1, 1: 1, 2: 2, 3: 2, 4: 2, 5: 4, 6: 4, 7: 4, 8: 4}
 SAMPLES = {0: 1, 1: 2, 2: 1, 3: 2, 4: 4, 5: 1, 6: 2, 7: 4, 8: 8}
-LABEL = {0: "1 chip, no AA", 1: "1 chip, 2x AA", 2: "2 chips, no AA",
-         3: "2 chips, 2x AA", 4: "2 chips, 4x AA", 5: "4 chips, no AA",
-         6: "4 chips, 2x AA", 7: "4 chips, 4x AA", 8: "4 chips, 8x AA"}
+# The DRIVER's own labels for each SSTH3_SLI_AA_CONFIGURATION value, quoted.
+# They are what 3dfx Tools shows; they are NOT established descriptions of what
+# the card does - cfg 2 ("Dual Chip") scales 3.47x over cfg 0 and beats cfg 5
+# ("Quad Chip") at every resolution, so a table that printed "2 chips" would be
+# asserting a chip count the measurement contradicts. Print the setting and the
+# driver's words, and let the reader see the quote marks.
+LABEL = {0: 'cfg 0 "Single Chip Only"', 1: 'cfg 1 "Single Chip, 2-Sample AA"',
+         2: 'cfg 2 "Dual Chip, Fastest Performance"', 3: 'cfg 3 "Dual Chip, 2-Sample AA"',
+         4: 'cfg 4 "Dual Chip, 4-Sample AA"', 5: 'cfg 5 "Quad Chip, Fastest Performance"',
+         6: 'cfg 6 "Quad Chip, 2-Sample AA"', 7: 'cfg 7 "Quad Chip, 4-Sample AA"',
+         8: 'cfg 8 "Quad Chip, 8-Sample AA"'}
 
 
 def load(p):
@@ -96,8 +104,8 @@ def main():
     # ---- SLI scaling --------------------------------------------------- #
     base = {r: grid.get((0, r)) for r in res}
     if any(base.values()):
-        print("### SLI scaling against a single chip, no AA\n")
-        print("| resolution | 1 chip | 2 chips | 4 chips | 2ch gain | 4ch gain |")
+        print("### Spread against cfg 0 (the driver's \"Single Chip Only\" setting)\n")
+        print("| resolution | cfg 0 | cfg 2 | cfg 5 | cfg 2 ÷ cfg 0 | cfg 5 ÷ cfg 0 |")
         print("|---|--:|--:|--:|--:|--:|")
         for r in res:
             c1, c2, c4 = grid.get((0, r)), grid.get((2, r)), grid.get((5, r))
@@ -115,7 +123,8 @@ def main():
         if not any((c, r) in grid for c in trio for r in res):
             continue
         head = [f"{SAMPLES[c]}x AA" if SAMPLES[c] > 1 else "no AA" for c in trio]
-        print(f"### Cost of anti-aliasing on {chips} chip{'s' if chips > 1 else ''}"
+        print(f"### Cost of requested anti-aliasing within the driver's "
+              f"{'quad' if chips == 4 else 'dual' if chips == 2 else 'single'}-chip group"
               f"  (% of the no-AA figure retained)\n")
         print("| resolution | " + " | ".join(head) + " |")
         print("|---|" + "|".join(["--:"] * len(trio)) + "|")

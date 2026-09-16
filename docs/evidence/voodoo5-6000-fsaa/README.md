@@ -27,8 +27,16 @@ is exactly why identical images prove identical rendering.
 Read off UT's own `stat fps` overlay in the frames themselves
 (`*_statline.png`). **8x AA renders faster than no AA**, and
 `ut99-glide_cfg8_8xaa_edge-zoom.png` shows why: the polygon edges are hard
-staircases with no intermediate shading. 78% of edge columns across a
-high-contrast boundary carry no blended pixel.
+staircases with no intermediate shading.
+
+The quantified edge statistic comes from a DIFFERENT capture with a cleaner
+two-tone boundary: `ut99-glide_1024x768_cfg4_4xaa.png` (the driver's "Dual
+Chip, 4-Sample AA" setting requested), terrain horizon against the starfield,
+crop (300,430)-(700,510). `edge_stats.py` on that crop: **78% of edge columns
+carry no blended pixel** (257 of 328). The same metric on a textured indoor
+crop of the cfg 8 frame is not meaningful (texture noise reads as blending),
+which is why the cfg 8 evidence is the frame time and the zoom, not a
+percentage. Method: `python3 edge_stats.py <png> 300 430 700 510`.
 
 The two UT frames are different spawn points — UT's `?quickstart=true` picks a
 random PlayerStart — so they are NOT a pixel-diff pair. Edge quality is

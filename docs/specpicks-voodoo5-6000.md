@@ -282,8 +282,10 @@ screenshot:
 
 **8× AA renders faster than no AA.** Eight samples cannot be free. And the
 polygon edges in that 8× frame are hard staircases with no intermediate
-shading — 78% of edge columns across a high-contrast boundary carry no blended
-pixel at all.
+shading. The quantified figure — **78% of edge columns across a high-contrast
+boundary carry no blended pixel** — was measured on the *4×-AA-requested* UT99
+frame (cfg 4, terrain horizon against sky, the cleanest two-tone edge captured);
+`docs/evidence/voodoo5-6000-fsaa/edge_stats.py` reproduces it.
 
 So it is not the ICD. **On this card with AmigaMerlin 3.1-R11, FSAA does not
 work through either rendering path**, and the flagship feature of the flagship
@@ -456,7 +458,12 @@ Repeatability, same host, cfg 0 and cfg 5 measured on two different days
 (first run → re-run): 640×480 **105.3 → 97.4** and **122.8 → 108.1**; every
 other cell within 1.7% and three within 0.1 fps (800×600 88.0 → 88.1,
 1280×960 38.8 → 38.8, 1600×1200 25.1 → 25.1). The CPU-bound cell is the noisy
-one; the GPU-bound cells repeat.
+one; the GPU-bound cells repeat. **Caveat:** the agent watchdog (a `cmd` loop
+running `tasklist` every 30 s) was installed between the first run and the
+re-run and is an uncontrolled variable on exactly the CPU-bound cell; the
+re-measurement with the watchdog paused was scheduled but the host went
+offline before it ran. Until it is done, "noise" is the hypothesis, not the
+finding.
 
 Host 1 (`.191`), Quake III 640×480 only: cfg 0 = 126.6 and 127.8 (two runs),
 cfg 5 = 150.2, cfg 1 ("Single Chip, 2× AA") = 126.9. Note that even there the
