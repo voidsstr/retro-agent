@@ -492,10 +492,17 @@ and 121.6** (`results/v56k_repeat_nowd_192.168.1.124/`). The published
 re-run values for that cell — cfg 0 97.4, cfg 5 108.1 — were taken with the
 watchdog loop running and are 10–17% low; the first-run cfg 5 value (122.8,
 taken before the watchdog existed) matches the quiet figure. GPU-bound cells
-showed no such sensitivity. The watchdog is now a filtered check every 90 s,
-and the 640×480 cells are re-measured quiet for every setting before they
-are republished. Lesson: on a single-core host the CPU-bound cell measures
-everything else that is running.
+showed no such sensitivity. A second variable rides with it: **the first cell
+after a boot reads low** — cfg 2 at 640×480 gave 105.9 as the first cell
+after its boot and 117.5 two minutes later in the same boot (the agent's
+startup threads and XP's post-logon work), and every 640×480 cell in the
+first published sweep was a first-cell-after-boot. Quiet, settled, all three
+settings meet at 640×480: cfg 0 ≈ 117, cfg 2 117.5, cfg 5 ≈ 120 — the cell is
+purely CPU-bound and says nothing about the card. The watchdog is now a
+filtered check every 90 s, the sweep settles 150 s after each boot and runs
+resolutions high to low, and the 640×480 cells were re-measured quiet for
+every setting before being republished. Lesson: on a single-core host the
+CPU-bound cell measures everything else that is running.
 
 Host 1 (`.191`), Quake III 640×480 only: cfg 0 = 126.6 and 127.8 (two runs),
 cfg 5 = 150.2, cfg 1 ("Single Chip, 2× AA") = 126.9. Note that even there the

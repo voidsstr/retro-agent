@@ -40,9 +40,14 @@ Companion documents:
    page with "Don't prompt me again" ticked and has not returned; `quiesce()`
    also kills it by window title. If a run stalls right after `cgame loaded`,
    check `WINLIST` for a dialog before blaming the card.
-   The agent watchdog loop (`agentwd.cmd`) polls `tasklist` every 30 s and is a
-   candidate perturbation on CPU-bound cells; pause it for repeatability runs
-   and restart it afterwards.
+   Two more CPU-bound-cell variables, both measured 2026-09-16: the agent
+   watchdog loop (now a filtered `tasklist` every 90 s; the old unfiltered
+   30 s loop cost 10–17% at 640×480), and **time since boot** — cfg 2 at
+   640×480 read 105.9 as the first cell after its boot and 117.5 two minutes
+   later in the same boot (agent startup threads, XP post-logon work). The
+   sweep now settles 150 s after the board probe (`--settle`) and
+   `v56k_full_sweep.sh` orders resolutions high→low so the CPU-bound cell
+   runs last. Pause the watchdog for repeatability runs; restart it after.
 7. **The engine takes the picture.** GDI capture of a Glide surface is noise.
    Quake III: `screenshotJPEG` on a fixed `demo four` frame. UT99: `Shot` via
    `UIKEY F11` (UE1 accepts synthetic keys fullscreen; id Tech 3 does not).
@@ -76,7 +81,7 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | title (api) | 16-bit | 32-bit | notes |
 |---|---|---|---|
 | Quake III (OpenGL ICD) | cfg 0/2/5 × 5 res ✅; cfg 1 partial | queued | published; cfg 2 measured once (repeat queued) |
-| Quake III repeatability, box quiet | ✅ 640×480: cfg 0 117.5/116.3, cfg 5 119.4/121.6 (cfg 2 in progress) | — | resolved: background load (watchdog loop / wizard) cost 10–17% on the CPU-bound cell; GPU-bound cells unaffected |
+| Quake III repeatability, box quiet | ✅ 640×480: cfg 0 117.5/116.3, cfg 2 117.5 (105.9 as first cell after boot), cfg 5 119.4/121.6 | — | resolved: background load and first-cell-after-boot cost 10–17% on the CPU-bound cell; all three settings equal at 640×480 (pure CPU bound); GPU-bound cells unaffected |
 | Quake II (game-local `3dfxgl.dll` = a copy of the AmigaMerlin ICD, 2,646,009 B; the real MiniGL is 142,848 B in the library) | queued | queued | `demomap demo1.dm2`; fixed mode table; the runner labels the row by the DLL's real identity |
 | GLQuake (MiniGL) | queued | queued | refuses >1280×960 |
 | UT99 436 (GlideDrv, native Glide) | queued (UTbench.dem route) | **not possible** — UE1 GlideDrv is 16-bit only (verify on the box, record the log line) | user hit this in the video menu |
