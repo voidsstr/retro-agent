@@ -295,6 +295,19 @@ async def capture(box, outdir, label="capture", ring=False):
         report["dump_error"] = f"{type(e).__name__}: {e}"
     got = await watson_fetch(box, outdir, label)
     report["watson_files"] = got
+    # The agent's OWN log. Its in-process watchdog kills a game and restores
+    # the mode when a handler is stuck >75 s, and its EXEC children inherit its
+    # handles - both are candidate explanations for the "agent dead, 9897
+    # still bound" signature that nobody had read the log for. Tail only:
+    # the whole file is hundreds of KB and DOWNLOAD is the safe route.
+    try:
+        b = await box.download(r"C:\RETRO_AGENT\agent.log")
+        if b:
+            tail = b[-65536:].decode("latin-1", "replace")
+            (outdir / f"{label}-agent.log.tail").write_text(tail)
+            report["agent_log_tail_lines"] = tail.count("\n")
+    except Exception:
+        pass
     if "drwtsn32.log" in got:
         report["watson"] = watson_decode(outdir / "drwtsn32.log")
     try:
