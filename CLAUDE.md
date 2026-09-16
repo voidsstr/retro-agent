@@ -188,6 +188,21 @@ agent, client, provisioning), immediately:
 This is how we show reliability and catch a fix breaking under a later change.
 Do this proactively, the same way you keep `FINDINGS.md` current.
 
+## Voodoo 5 6000 benchmark campaign — pick it up from the plan (2026-09-16)
+
+**Everything about benchmarking the Voodoo 5 6000 (Strange God AGP reproduction)
+on `.124` lives in [`docs/v56k-benchmark-plan.md`](docs/v56k-benchmark-plan.md):**
+the ground rules that cost real time (one driver setting per clean boot, a
+setting is applied only when the rendering changes, never compare hosts,
+results in the repo tree not the scratchpad, quiesce incl. the "Found New
+Hardware Wizard"), the tools and their exact invocations (`v56k_sweep.py`,
+`v56k_bench.py`, `v56k_shots.py`, `v56k_versions.py`, the specpicks loader /
+publisher / deploy), the status of every title × depth × setting cell, the
+execution plan, and how to unblock FSAA. The editorial record is
+[`docs/specpicks-voodoo5-6000.md`](docs/specpicks-voodoo5-6000.md); the
+published series is `specpicks.com/reviews/voodoo5-6000-strange-god-part-{1..6}-*-2026`.
+**Update the plan's status table as cells land** — it is the hand-off.
+
 ## Driver Stack Map — KNOW WHICH STACK YOU'RE TOUCHING (READ FIRST)
 
 > ### ⚠️ `.124` NO LONGER HAS A VOODOO 3 (hardware change 2026-08-11)
