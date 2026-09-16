@@ -175,6 +175,46 @@ liveness is not board liveness.** The agent survived every wedge; only the
 graphics subsystem died, so a liveness check that pings the agent sails
 straight past it.
 
+### 0b. THE CHIP-COUNT LABELS ARE NOT ESTABLISHED EITHER
+
+The same Tweak Map that produced the AA labels produced the chip-count labels,
+and the AA half is now known not to take effect — so the chip half cannot be
+taken on trust. The measurement says it is wrong:
+
+| resolution | cfg 0 | cfg 2 | cfg 5 | cfg 2 ÷ cfg 0 | cfg 5 ÷ cfg 0 |
+|---|--:|--:|--:|--:|--:|
+| 640×480 | 97.4 | 124.7 | 108.1 | 1.28× | 1.11× |
+| 800×600 | 88.1 | 140.1 | 120.2 | 1.59× | 1.36× |
+| 1024×768 | 58.6 | 136.1 | 116.9 | 2.32× | 1.99× |
+| 1280×960 | 38.8 | 134.5 | 115.4 | **3.47×** | 2.97× |
+| 1600×1200 | 25.1 | 87.0 | 78.7 | **3.47×** | 3.14× |
+
+**cfg 2 was labelled "2 chips" and it reaches 3.47× a single chip.** Two chips
+cannot do that. And cfg 2 beats cfg 5 — the config labelled "4 chips" — at
+every single resolution, including the fill-limited ones where more chips must
+win if they are really there.
+
+So exactly one of these is true, and this campaign has not yet distinguished
+them:
+
+1. the labels are permuted, and cfg 2 is the real four-chip mode;
+2. cfg 0 is not a single chip, which would make every scaling ratio in this
+   document wrong by a constant factor;
+3. both cfg 2 and cfg 5 drive four chips and differ in something else (SLI band
+   height is the obvious candidate — `FX_GLIDE_SLI_BAND_HEIGHT` and
+   `FX_GLIDE_FORCE_SLI_BAND_HEIGHT` both exist in `glide3x.dll`), with cfg 5
+   simply the less efficient arrangement.
+
+**What IS measured, and is safe to publish:** one setting of this card runs
+Quake III at 25.1 fps at 1600×1200 and another runs the identical workload at
+87.0 — a **3.47× spread from a registry value**, with the renderer string
+recorded on every row. That is the real headline, and it does not depend on
+knowing how many chips each mode lights up.
+
+**What must NOT be published until it is verified:** any sentence of the form
+"two chips give X and four chips give Y". `GR_NUM_FB` cannot settle it — it
+reports chips *present*, not chips *ganged* (see retraction 2 below).
+
 ### 0. THE AA AXIS IS NOT MEASURED — the card never anti-aliased
 
 **This is the most important correction in the file, and it invalidates every
