@@ -1472,6 +1472,22 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
             row["status"] = "mode-rejected-by-card"
         log(f"    -> {row['status']}  {row.get('notes','')}")
         row.update(title.attribution(raw))
+        # A failed cell is the ONLY time the card will tell us why, so take the
+        # flight recorder and the crash dump now. AmigaMerlin has no registry
+        # ring of its own (measured: no RLog* anywhere), so this is Dr Watson +
+        # the per-chip scanout dump - which is what named
+        # glide3x!grDrawTriangle+0x2d as the Quake III "hang".
+        try:
+            import v56k_diag
+            rep = await v56k_diag.capture(
+                box, args.outdir / "diag", f"{title.tid}_{res}_{depth}_cfg{cfg}")
+            w = (rep.get("watson") or {}).get("records") or []
+            if w:
+                row["notes"] = ((row.get("notes", "") + "; ") if row.get("notes") else "") + \
+                    f"crash: {w[-1]['exception']} in {rep['watson'].get('fault_function')}"
+                log(f"       crash: {w[-1]['exception']} in {rep['watson'].get('fault_function')}")
+        except Exception as e:
+            log(f"       (diagnostic capture failed: {type(e).__name__}: {e})")
         return row
 
     row.update(parsed)

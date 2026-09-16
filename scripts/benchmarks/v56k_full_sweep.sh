@@ -12,7 +12,10 @@
 #   ut99:glide       - native Glide; FullscreenColorBits=32 expected to be ignored (record it)
 #   ut99:opengl      - OpenGLDrv over the AmigaMerlin ICD; the 32-bit route for UT
 #   ut99:d3d         - D3DDrv over the AmigaMerlin D3D HAL
-#   rtcw             - WolfMP, wolfbench.dm_60; no 1280x960 mode (declared)
+#   rtcw:openglv5    - WolfMP, wolfbench.dm_60; this GOG build ALWAYS loads its bundled
+#                      Wicked3D gl/openglv5.dll (r_glDriver only latches; removing it
+#                      wedges the box), so RtCW is measured on that 3dfx ICD, not AmigaMerlin's.
+#                      No 1280x960 mode (declared).
 #   serioussam, serioussam2 - Serious Engine, own demo
 #   unrealgold:glide, deusex:glide - UE1 -benchmark route (may not exit; kept last)
 #
@@ -21,7 +24,7 @@ set -u
 cd "$(dirname "$0")/../.."
 OUT=scripts/benchmarks/results/v56k_titles_192.168.1.124
 mkdir -p "$OUT"
-TITLES="quake3,quake2,glquake,ut99:glide,ut99:opengl,ut99:d3d,rtcw,serioussam,serioussam2"
+TITLES="quake3,quake2,glquake,ut99:glide,ut99:opengl,ut99:d3d,rtcw:openglv5,serioussam,serioussam2"
 RES="1600x1200,1280x960,1024x768,800x600,640x480"   # high to low: the CPU-bound cell last, well after boot
 echo "[$(date +%H:%M:%S)] full sweep start: titles=$TITLES res=$RES depths=16,32 configs=5,2,0"
 python3 scripts/benchmarks/v56k_sweep.py --host 192.168.1.124 --configs 5,2,0 \

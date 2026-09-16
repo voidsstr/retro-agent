@@ -576,3 +576,61 @@ def test_rtcw_verify_driver_flags_wrong_icd(bench):
     assert ov5.verify_driver(mesa)[0] is False
     # no GL_VENDOR in the log -> cannot judge, do not fail the row
     assert am.verify_driver("nothing here")[0] is True
+
+
+def _diag():
+    import importlib.util, sys
+    from pathlib import Path
+    p = Path(__file__).resolve().parents[2] / "scripts" / "benchmarks" / "v56k_diag.py"
+    sys.path.insert(0, str(p.parent))
+    spec = importlib.util.spec_from_file_location("v56k_diag", p)
+    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    return m
+
+
+def test_watson_decode_names_the_faulting_glide_entry(tmp_path):
+    """The Quake III 'hang' was an int3 inside AmigaMerlin's retail glide3x,
+    reached from its Mesa ICD. Decoding that from drwtsn32.log is what turned a
+    wedge into a diagnosis, so the parser is pinned to the real log shape."""
+    log = tmp_path / "drwtsn32.log"
+    log.write_text(
+        "Application exception occurred:\n"
+        "        App: C:\\Games\\Quake3-TeamArena\\quake3.exe (pid=1008)\n"
+        "        When: 4/2/2003 @ 21:16:14.437\n"
+        "        Exception number: 80000003 (hardcoded breakpoint)\n"
+        "function: glide3x!grDrawTriangle\n"
+        "*----> Stack Back Trace <----*\n"
+        "ChildEBP RetAddr  Args to Child\n"
+        "01469f98 61f465a1 0e300048 00000000 00000006 glide3x!grDrawTriangle+0x2d\n"
+        "01469fd8 61f3a55a 0e300048 0e556acc 00000001 3dfxogl+0xc65a1\n"
+        "0146a088 0046208d 00000004 00000006 00001405 3dfxogl+0xb9608\n"
+        "00000000 00000000 00000000 00000000 00000000 quake3+0x6208d\n")
+    d = _diag().watson_decode(log)
+    assert d["records"][0]["exception"].startswith("80000003")
+    assert "quake3.exe" in d["records"][0]["app"]
+    assert d["fault_function"] == "glide3x!grDrawTriangle"
+    assert d["frames"][0] == "glide3x!grDrawTriangle+0x2d"
+    assert "quake3+0x6208d" in d["frames"]
+
+
+def test_ring_summary_flags_a_stalled_crtc(tmp_path):
+    """A CRTC that stops advancing is a wedge signature no register diff shows:
+    nothing CHANGES, which reads identically to a healthy idle card."""
+    m = _diag()
+    good = tmp_path / "g.txt"
+    good.write_text(
+        "    6562  0   vidScreenSize        00300400 -> 001E0280\n"
+        "    7003  HB   curline  c0= 312  c1= 311  c2= 313  c3= 312\n"
+        "    8003  HB   curline  c0= 44  c1= 51  c2= 43  c3= 42\n"
+        "    9003  HB   curline  c0= 180  c1= 181  c2= 179  c3= 180\n"
+        "   10003  HB   curline  c0= 260  c1= 261  c2= 259  c3= 260\n")
+    g = m.ring_summary(good)
+    assert g["stalled"] is False
+    assert "chip0 vidScreenSize" in g["changed"]
+    bad = tmp_path / "b.txt"
+    bad.write_text(
+        "    7003  HB   curline  c0= 312  c1= 311  c2= 313  c3= 312\n"
+        "    8003  HB   curline  c0= 312  c1= 311  c2= 313  c3= 312\n"
+        "    9003  HB   curline  c0= 312  c1= 311  c2= 313  c3= 312\n"
+        "   10003  HB   curline  c0= 312  c1= 311  c2= 313  c3= 312\n")
+    assert m.ring_summary(bad)["stalled"] is True
