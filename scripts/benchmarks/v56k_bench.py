@@ -575,6 +575,19 @@ class Quake2:
         return "\r\n".join(lines) + "\r\n"
 
     async def prepare(self, box, w, h, depth, env):
+        # `gl_driver 3dfxgl` loads whatever file sits beside quake2.exe under
+        # that name. The staged library ships the real 3dfx MiniGL (142,848 B);
+        # the driver-install sweep on .124 replaced it with a copy of the
+        # AmigaMerlin ICD (2,646,009 B). Label the row by what is actually
+        # loaded, measured at prepare time, not by what the class assumed.
+        out = await box.exec_(rf'cmd /c for %I in ("{self.root}\3dfxgl.dll") do @echo %~zI')
+        size = (out.strip().splitlines() or [""])[-1].strip()
+        if size == "2646009":
+            self.api, self.engine = "opengl-icd-gamelocal", "quake2.exe (3.20; game-local 3dfxgl.dll = AmigaMerlin ICD copy)"
+        elif size == "142848":
+            self.api, self.engine = "opengl-minigl", "quake2.exe (3.20; 3dfx MiniGL 3dfxgl.dll)"
+        elif size.isdigit():
+            self.api, self.engine = f"opengl-3dfxgl-{size}B", f"quake2.exe (3.20; 3dfxgl.dll {size} B, unidentified)"
         await box.upload(self.cfg, self.bench_cfg())
         await box.upload(self.bat, self.launch_bat(w, h, depth, env))
         await box.exec_(f'cmd /c del /f /q "{self.log}"')
@@ -737,10 +750,21 @@ class Unreal1:
         }
         out, section = [], None
         seen = {s: set() for s in wanted}
+        seen_sections = set()
+        skipping_dup = False
         for line in text.splitlines():
             st = line.strip()
             if st.startswith("[") and st.endswith("]"):
                 section = st[1:-1]
+                # A second copy of a section we manage (left by an earlier
+                # append) is dropped wholesale: UE1 honours the first copy and
+                # the duplicate only confuses the next reader.
+                skipping_dup = section in wanted and section in seen_sections
+                seen_sections.add(section)
+                if skipping_dup:
+                    continue
+            elif skipping_dup:
+                continue
             elif section in wanted:
                 key = st.split("=", 1)[0].strip() if "=" in st else None
                 if key and key in wanted[section]:
@@ -748,11 +772,21 @@ class Unreal1:
                     seen[section].add(key)
                     continue
             out.append(line)
-        # append any key the ini did not already carry
+        # A key the section did not carry is inserted INTO that section's first
+        # copy, right under its header. Appending a fresh "[Section]" block at
+        # the end is what left UnrealTournament.ini with two
+        # [WinDrv.WindowsClient] sections on .124 - UE1 reads the first one and
+        # the values in the second are silently inert.
         for sec, kv in wanted.items():
             missing = {k: v for k, v in kv.items() if k not in seen.get(sec, ())}
-            if missing:
-                out.append(f"[{sec}]")
+            if not missing:
+                continue
+            header = f"[{sec}]"
+            if header in out:
+                idx = out.index(header) + 1
+                out[idx:idx] = [f"{k}={v}" for k, v in missing.items()]
+            else:
+                out.append(header)
                 out += [f"{k}={v}" for k, v in missing.items()]
         await box.upload(self.ini, ("\r\n".join(out) + "\r\n").encode("latin-1"))
 

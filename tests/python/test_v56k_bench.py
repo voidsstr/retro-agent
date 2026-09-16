@@ -509,3 +509,25 @@ def test_quiesce_closes_the_hardware_wizard(bench):
 def test_the_new_titles_are_registered(bench):
     assert "ut99" in bench.TITLES and "rtcw" in bench.TITLES
     assert bench.TITLES["ut99"]("glide").tid == "ut99:glide"
+
+
+def test_ue1_ini_patcher_drops_a_duplicated_managed_section(bench):
+    """An earlier append left UnrealTournament.ini with two
+    [WinDrv.WindowsClient] blocks; UE1 honours the first and the second only
+    confuses the next reader. The patcher must merge, not patch twice."""
+    import asyncio
+    t = bench.UT99Bench("opengl")
+    ini = ("[Engine.Engine]\nGameRenderDevice=GlideDrv.GlideRenderDevice\n\n"
+           "[WinDrv.WindowsClient]\nFullscreenViewportX=1024\nFullscreenViewportY=768\nFullscreenColorBits=16\n\n"
+           "[WinDrv.WindowsClient]\nFullscreenViewportX=640\nFullscreenViewportY=480\n")
+    class FakeBox:
+        def __init__(self): self.uploads = {}
+        async def download(self, path): return ini.encode("latin-1") if path.endswith("UnrealTournament.ini") else b"x"
+        async def upload(self, path, data): self.uploads[path] = data.decode("latin-1")
+    box = FakeBox()
+    asyncio.run(t._patch_ini(box, 800, 600, 32))
+    new = box.uploads[t.ini]
+    assert new.count("[WinDrv.WindowsClient]") == 1
+    assert "FullscreenViewportX=800" in new and "FullscreenColorBits=32" in new
+    assert "FullscreenViewportX=640" not in new
+    assert "GameRenderDevice=OpenGLDrv.OpenGLRenderDevice" in new

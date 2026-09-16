@@ -31,8 +31,15 @@ Companion documents:
    renderer string). `v56k_bench.py` does this; `v56k_versions.py` backfills
    older CSVs and marks them retroactive.
 6. **Quiesce before measuring**: AI engine, wallpaper rotator, Windows Update,
-   `3dfxMan.exe`, error reporters — and the **"Found New Hardware Wizard"**
-   dialog that reappears on `.124` after every boot (kill it by window title).
+   `3dfxMan.exe`, error reporters — and any modal dialog. **A modal that
+   appears after a game starts freezes it**: on 2026-09-16 two consecutive
+   Quake III runs loaded the map and never rendered a frame because the XP
+   "Found New Hardware Wizard" (for DAEMON Tools' driverless *SI Pseudo Device
+   SCSI Processor Device*) re-launched behind the fullscreen window and took
+   focus — it looked exactly like a driver wedge. It was walked to its last
+   page with "Don't prompt me again" ticked and has not returned; `quiesce()`
+   also kills it by window title. If a run stalls right after `cgame loaded`,
+   check `WINLIST` for a dialog before blaming the card.
    The agent watchdog loop (`agentwd.cmd`) polls `tasklist` every 30 s and is a
    candidate perturbation on CPU-bound cells; pause it for repeatability runs
    and restart it afterwards.
@@ -70,7 +77,7 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 |---|---|---|---|
 | Quake III (OpenGL ICD) | cfg 0/2/5 × 5 res ✅; cfg 1 partial | queued | published; cfg 2 measured once (repeat queued) |
 | Quake III repeatability with watchdog paused | running 2026-09-16 | — | closes the 640×480 caveat |
-| Quake II (MiniGL 3dfxgl) | queued | queued | `demomap demo1.dm2`; fixed mode table (no 1280×1024) |
+| Quake II (game-local `3dfxgl.dll` = a copy of the AmigaMerlin ICD, 2,646,009 B; the real MiniGL is 142,848 B in the library) | queued | queued | `demomap demo1.dm2`; fixed mode table; the runner labels the row by the DLL's real identity |
 | GLQuake (MiniGL) | queued | queued | refuses >1280×960 |
 | UT99 436 (GlideDrv, native Glide) | queued (UTbench.dem route) | **not possible** — UE1 GlideDrv is 16-bit only (verify on the box, record the log line) | user hit this in the video menu |
 | UT99 436 (OpenGLDrv → AmigaMerlin ICD) | queued | queued | the 32-bit route for UT |
