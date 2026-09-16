@@ -909,7 +909,7 @@ def _deusex(api):
 
 
 
-DEMOS = HERE / "demos"          # UTbench.dem and wolfbench.dm_60, committed with the runner
+DEMOS = Path(__file__).resolve().parent / "demos"   # UTbench.dem and wolfbench.dm_60, committed with the runner
 
 
 class UT99Bench(Unreal1):
