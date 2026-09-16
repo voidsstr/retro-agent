@@ -153,10 +153,17 @@ async def watson_clear(box):
     await box.exec_(f'cmd /c del /f /q "{WATSON_LOG}" "{WATSON_DMP}" 2>nul & echo ok')
 
 
-async def watson_fetch(box, outdir):
-    """Download Dr Watson's log + dump. Returns (log_path, bytes) or (None, 0)."""
+async def watson_fetch(box, outdir, label=None):
+    """Download Dr Watson's log + dump. Returns {name: bytes} of what landed.
+
+    NEVER overwrites: the Quake III int3 record (71,647 B) was replaced on disk
+    by the next fetch, and the only copy of the evidence behind a published
+    finding was gone. Each fetch lands under a label (or a UTC stamp) and the
+    unlabelled names are kept as "latest" copies for the decoders."""
+    import datetime
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
+    tag = label or datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
     got = {}
     for remote, name in ((WATSON_LOG, "drwtsn32.log"), (WATSON_DMP, "user.dmp")):
         try:
@@ -164,8 +171,18 @@ async def watson_fetch(box, outdir):
         except Exception:
             data = None
         if data:
-            (outdir / name).write_bytes(data)
+            stem, ext = name.rsplit(".", 1)
+            keep = outdir / f"{stem}-{tag}.{ext}"
+            if keep.exists() and keep.read_bytes() == data:
+                pass                              # same record, already kept
+            elif keep.exists():
+                keep = outdir / f"{stem}-{tag}-{len(data)}.{ext}"
+                keep.write_bytes(data)
+            else:
+                keep.write_bytes(data)
+            (outdir / name).write_bytes(data)     # "latest", for the decoders
             got[name] = len(data)
+            got[keep.name] = len(data)
     return got
 
 
@@ -258,7 +275,7 @@ async def capture(box, outdir, label="capture"):
         (outdir / f"{label}-fxscan-dump.txt").write_text(report["dump"])
     except Exception as e:
         report["dump_error"] = f"{type(e).__name__}: {e}"
-    got = await watson_fetch(box, outdir)
+    got = await watson_fetch(box, outdir, label)
     report["watson_files"] = got
     if "drwtsn32.log" in got:
         report["watson"] = watson_decode(outdir / "drwtsn32.log")

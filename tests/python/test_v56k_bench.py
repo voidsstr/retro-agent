@@ -686,3 +686,24 @@ def test_runner_names_a_process_exit_instead_of_waiting_it_out():
     class DeadAgent:
         async def text(self, cmd, timeout=30): raise ConnectionError()
     assert asyncio.run(d.process_alive(DeadAgent(), "glquake.exe")) is None
+
+
+def test_watson_fetch_keeps_every_record(tmp_path):
+    """The Quake III int3 record was overwritten by the next fetch. Evidence
+    behind a finding must never be replaced silently: each fetch lands under
+    its label, and a different record under the same label gets its own file."""
+    import asyncio
+    d = _diag()
+    class Box:
+        def __init__(self, blob): self.blob = blob
+        async def download(self, remote): return self.blob if remote.endswith("drwtsn32.log") else None
+    asyncio.run(d.watson_fetch(Box(b"first crash"), tmp_path, "q3"))
+    asyncio.run(d.watson_fetch(Box(b"second, different crash"), tmp_path, "glq"))
+    asyncio.run(d.watson_fetch(Box(b"second, different crash"), tmp_path, "glq"))   # same record again
+    asyncio.run(d.watson_fetch(Box(b"third under a reused label"), tmp_path, "glq"))
+    names = sorted(p.name for p in tmp_path.iterdir())
+    assert "drwtsn32-q3.log" in names and "drwtsn32-glq.log" in names
+    assert (tmp_path / "drwtsn32-q3.log").read_bytes() == b"first crash"
+    assert (tmp_path / "drwtsn32-glq.log").read_bytes() == b"second, different crash"
+    assert any(n.startswith("drwtsn32-glq-") for n in names), names   # the reused label did not clobber
+    assert (tmp_path / "drwtsn32.log").read_bytes() == b"third under a reused label"
