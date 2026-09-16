@@ -531,3 +531,31 @@ def test_ue1_ini_patcher_drops_a_duplicated_managed_section(bench):
     assert "FullscreenViewportX=800" in new and "FullscreenColorBits=32" in new
     assert "FullscreenViewportX=640" not in new
     assert "GameRenderDevice=OpenGLDrv.OpenGLRenderDevice" in new
+
+
+def test_ut99_parse_takes_the_demo_not_the_toggle_blip(bench):
+    """UE1 prints a summary every time timedemo is toggled: a '3 frames in
+    0.11 s ... Avg 25.62 fps' blip precedes the real '2937 frames ... Avg 66.44
+    fps'. Taking the first match published 25.6 fps for a 66 fps run."""
+    t = bench.UT99Bench("glide")
+    raw = ("ScriptLog: 3 frames rendered in 0.11 seconds. Min 0.00 Max 0.00 Avg 25.62 fps.\n"
+           "ScriptLog: 2937 frames rendered in 44.19 seconds. Min 42.28 Max 113.74 Avg 66.44 fps.\n")
+    assert t.parse(raw) == {"frames": 2937, "seconds": 44.19, "avg_fps": 66.44}
+
+
+def test_rtcw_pins_the_driver_in_a_config_the_engine_reads(bench):
+    """r_glDriver is latched and the staged build's config wins over +set: the
+    engine loaded gl/openglv5.dll despite '+set r_glDriver 3dfxogl'. The pin
+    goes into the config file, created when absent."""
+    import asyncio
+    t = bench.RTCW(api="amigamerlin")
+    class FakeBox:
+        def __init__(self): self.files = {}
+        async def download(self, path): return self.files.get(path)
+        async def upload(self, path, data): self.files[path] = data
+    box = FakeBox()
+    asyncio.run(t._pin_gldriver(box))
+    for cfg in t.cfgs:
+        assert box.files[cfg] == b'seta r_glDriver "3dfxogl"\r\n'
+    t2 = bench.RTCW(api="openglv5")
+    assert t2.gldriver == "gl/openglv5.dll" and t2.tid == "rtcw:openglv5" and t2.api == "opengl-3dfx-openglv5"

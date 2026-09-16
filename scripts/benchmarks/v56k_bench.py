@@ -1021,10 +1021,19 @@ class UT99Bench(Unreal1):
         await asyncio.sleep(8)
 
     def parse(self, raw):
-        m = re.search(r"(\d+) frames rendered in ([\d.]+) seconds\.\s*Min [\d.]+ Max [\d.]+ Avg ([\d.]+) fps", raw)
-        if not m:
+        # UE1 prints a summary every time timedemo is toggled, so the log holds a
+        # "3 frames rendered in 0.11 seconds ... Avg 25.62 fps" blip from the
+        # toggle BEFORE the demo's own "2937 frames rendered in 44.19 seconds
+        # ... Avg 66.44 fps" (measured 2026-09-16). The demo is the summary with
+        # the most frames, and only a run of at least 500 frames counts.
+        best = None
+        for m in re.finditer(r"(\d+) frames rendered in ([\d.]+) seconds\.\s*Min [\d.]+ Max [\d.]+ Avg ([\d.]+) fps", raw):
+            frames = int(m.group(1))
+            if frames >= 500 and (best is None or frames > best[0]):
+                best = (frames, float(m.group(2)), float(m.group(3)))
+        if not best:
             return None
-        return {"frames": int(m.group(1)), "seconds": float(m.group(2)), "avg_fps": float(m.group(3))}
+        return {"frames": best[0], "seconds": best[1], "avg_fps": best[2]}
 
     def attribution(self, raw):
         out = {}
@@ -1042,6 +1051,12 @@ class UT99Bench(Unreal1):
         m = re.findall(r"(?im)^(.*(?:Resolution|Setting res|SetRes|Mode:).*)$", raw)
         if m:
             out["mode_line"] = m[-1].strip()[:120]
+        # GlideDrv reports what Glide 2 sees of the board: on the V5 6000 via
+        # AmigaMerlin's glide2x it is "Type=0, fbRam=27262976 ... nTexelfx=2
+        # Sli=0" - one chip's worth, SLI flag clear. Worth keeping on the row.
+        m = re.findall(r"(?im)^.*(Found Glide:.*|Glide info:.*)$", raw)
+        if m:
+            out["pixelformat"] = (out.get("pixelformat", "") + " | " + " ; ".join(x.strip() for x in m)).strip(" |")[:200]
         return out
 
 
@@ -1066,7 +1081,15 @@ class RTCW:
     MODES = {(320, 240): 0, (400, 300): 1, (512, 384): 2, (640, 480): 3, (800, 600): 4,
              (960, 720): 5, (1024, 768): 6, (1152, 864): 7, (1280, 1024): 8, (1600, 1200): 9}
 
-    def __init__(self, root=r"C:\Games\ReturnToCastleWolfenstein"):
+    def __init__(self, root=r"C:\Games\ReturnToCastleWolfenstein", api="amigamerlin"):
+        # "amigamerlin" -> the registered 3dfxogl ICD (Mesa 6.3), the same file
+        # Quake III measures; "openglv5" -> the 3dfx-era OpenGL ICD staged with
+        # the game in gl\ (GL_VENDOR METABYTE/WICKED3D, GL_VERSION 1.1) - a
+        # second driver's number on the same card, labelled as such.
+        self.api = {"amigamerlin": "opengl-icd", "openglv5": "opengl-3dfx-openglv5"}.get(api, api)
+        self.gldriver = {"amigamerlin": "3dfxogl", "openglv5": "gl/openglv5.dll"}.get(api, api)
+        self.tid = "rtcw" if api == "amigamerlin" else f"rtcw:{api}"
+        self.engine = f"WolfMP.exe (wolfbench.dm_60, r_glDriver {self.gldriver})"
         self.root = root
         self.log = rf"{root}\main\rtcwconsole.log"
         self.bat = rf"{root}\V56KBENCH.BAT"
@@ -1085,19 +1108,31 @@ class RTCW:
         lines = ["@echo off"] + [f'set {k}={v}' for k, v in env.items()]
         lines += [f'cd /d "{self.root}"',
                   (f'{self.proc} +set fs_basepath "{self.root}" +set fs_homepath "{self.root}" '
-                   f'+set logfile 2 +set r_glDriver 3dfxogl +set r_mode {mode} +set r_fullscreen 1 '
+                   f'+set logfile 2 +set r_glDriver {self.gldriver} +set r_mode {mode} +set r_fullscreen 1 '
                    f'+set r_colorbits {depth} +set r_texturebits {depth} +set r_depthbits {zbits} '
                    f'+set r_picmip 0 +set r_swapInterval 0 +set com_maxfps 0 +set sv_pure 0 '
                    f'+set s_initsound 0 +set timedemo 1 +demo wolfbench')]
         return "\r\n".join(lines) + "\r\n"
 
     async def _pin_gldriver(self, box):
+        """r_glDriver is CVAR_LATCH|ARCHIVE. Measured 2026-09-16: with no
+        wolfconfig on disk and `+set r_glDriver 3dfxogl` on the command line the
+        engine still loaded the game's staged gl/openglv5.dll (GL_VENDOR
+        METABYTE/WICKED3D - the 3dfx-era ICD) and logged "r_glDriver will be
+        changed upon restarting": something exec'd after the +set set it back.
+        So the value goes into every config the engine reads - patched where
+        the file exists, CREATED where it does not - and the runner's
+        attribution records which library actually loaded either way."""
         for cfg in self.cfgs:
             raw = await box.download(cfg)
             if raw is None:
+                await box.upload(cfg, f'seta r_glDriver "{self.gldriver}"\r\n'.encode("latin-1"))
                 continue
             txt = raw.decode("latin-1")
-            new = re.sub(r'(?im)^(seta?\s+r_glDriver\s+)"[^"]*"', r'\g<1>"3dfxogl"', txt)
+            if re.search(r'(?im)^seta?\s+r_glDriver\s+', txt):
+                new = re.sub(r'(?im)^(seta?\s+r_glDriver\s+)"[^"]*"', rf'\g<1>"{self.gldriver}"', txt)
+            else:
+                new = txt.rstrip("\r\n") + f'\r\nseta r_glDriver "{self.gldriver}"\r\n'
             if new != txt:
                 if await box.download(cfg + ".v56kbak") is None:
                     await box.upload(cfg + ".v56kbak", raw)
@@ -1139,7 +1174,7 @@ TITLES = {
     "glquake": lambda api=None: GLQuake(),
     "ut": lambda api="glide": _ut(api),
     "ut99": lambda api="glide": UT99Bench(api),
-    "rtcw": lambda api=None: RTCW(),
+    "rtcw": lambda api="amigamerlin": RTCW(api=api or "amigamerlin"),
     "unrealgold": lambda api="glide": _ugold(api),
     "deusex": lambda api="glide": _deusex(api),
     "serioussam": lambda api="opengl": SeriousSam(
