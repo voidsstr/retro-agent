@@ -268,12 +268,27 @@ binaries — and it is not one value:
 
 So the configuration value *selects* a mode and something else *enables* it,
 and the live key holds only the configuration (plus `FX_GLIDE_ANALOG_SLI=1`).
-The leading hypothesis follows from the section above on AmigaMerlin's OpenGL
-being Mesa: **a Mesa-derived ICD never issues the T-buffer/AA request**, which
-would make FSAA on this driver reachable only from *native Glide* titles. That
-is **not yet verified** — the UT99 native-Glide run never launched (0-byte log)
-— and until it is, the honest statement is the one above: through the OpenGL
-path, on this driver, this card does not anti-alias.
+That hypothesis — a Mesa-derived ICD that never issues the T-buffer request,
+leaving FSAA reachable from native Glide — has now been **tested and refuted.**
+
+UT99 was run through `GlideDrv.GlideRenderDevice`, with no OpenGL anywhere in
+the path, reading the engine's own on-screen `stat fps` overlay off its own
+screenshot:
+
+| configuration | FRAME | RENDER | polys |
+|---|--:|--:|--:|
+| cfg 5 — no AA | 6.9 ms | 5.4 ms | 058 |
+| cfg 8 — **8× AA** | 6.6 ms | **5.1 ms** | 056 |
+
+**8× AA renders faster than no AA.** Eight samples cannot be free. And the
+polygon edges in that 8× frame are hard staircases with no intermediate
+shading — 78% of edge columns across a high-contrast boundary carry no blended
+pixel at all.
+
+So it is not the ICD. **On this card with AmigaMerlin 3.1-R11, FSAA does not
+work through either rendering path**, and the flagship feature of the flagship
+3dfx card is simply absent — which is the story, and a far better one than a
+table of AA frame rates would have been.
 
 Which is a better story than an AA benchmark table. The Voodoo 5 6000's whole
 reason to exist is T-buffer anti-aliasing, and the community driver everyone
