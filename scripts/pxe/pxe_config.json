@@ -5,6 +5,8 @@
   "bootfile_by_arch": {},
   "_never_offer_comment": "MACs here are NEVER offered a boot file, whatever the timed hold says. The 6h hold always expires and these boxes boot from the network FIRST, so an expired hold means a finished install gets silently reimaged. Remove a MAC here to allow it to install again.",
   "never_offer": [
+    "00:04:61:2f:8f:84",
+    "00:04:61:f7:25:84",
     "e0:cb:4e:26:ec:a0"
   ]
 }
