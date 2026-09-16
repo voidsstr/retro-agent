@@ -149,7 +149,9 @@ async def main_async(a):
         for fr in d["frames"]:
             log(f"    {fr}")
     else:
-        log("  no Dr Watson record - the agent died without a user-mode crash being logged")
+        log("  no Dr Watson record"
+            + (" - the agent died without a user-mode crash being logged" if died_at
+               else " - correct: nothing crashed this run"))
     try:
         (outdir / "after-dump.txt").write_text(await v56k_diag.dump(box))
     except Exception as e:

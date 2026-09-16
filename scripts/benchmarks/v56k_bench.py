@@ -144,6 +144,7 @@ CSV_COLS = ["stamp", "title", "engine", "api", "res", "width", "height",
             "game_exe", "game_size", "game_md5",
             "driver_pkg", "driver_ver", "glide3x_md5", "icd_md5",
             "os_build", "agent_ver", "gpu",
+            "mem_avail_mb", "mem_load_pct",
             "status", "notes"]
 
 # The files whose identity decides what a number means on this box.
@@ -1384,6 +1385,19 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
         "aa_label": meta["label"], "api": getattr(title, "api", ""),
         "status": "pending",
     })
+    # Free memory BEFORE the cell. A single cell is healthy in isolation, so the
+    # thing that kills the agent on the ~5th cell of a boot is cumulative, and
+    # this box has 255 MB. A monotonic decline across cells is the evidence that
+    # separates a resource leak from a driver fault; without it both look like
+    # "it died again". Cheap: SYSINFO is one call the runner already makes.
+    try:
+        import json as _json
+        _si = _json.loads(await box.text("SYSINFO", timeout=30))
+        _m = _si.get("memory", {})
+        row["mem_avail_mb"] = _m.get("avail_mb", "")
+        row["mem_load_pct"] = _m.get("load_percent", "")
+    except Exception:
+        pass
     log(f"--- {title.name} [{getattr(title,'api','')}]  {res}x{depth}  "
         f"cfg={cfg} ({meta['label']})")
 
@@ -1521,6 +1535,7 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
             row["status"] = "driver-mismatch"
             row["notes"] = (row.get("notes", "") + "; " if row.get("notes") else "") + drv_note
     log(f"    -> {parsed['avg_fps']} fps   [{row.get('gl_renderer','?')}]"
+        f"  free={row.get('mem_avail_mb','?')}MB"
         + ("  !! " + row["notes"] if row["status"] == "driver-mismatch" else ""))
     return row
 
