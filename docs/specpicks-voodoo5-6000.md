@@ -406,6 +406,29 @@ same spawn, player standing still. The 3dfx driver also exposes a
 `Screen Capture Hotkey` in its Glide settings which captures the actual Glide
 framebuffer — the fallback if an engine's own capture proves unreliable.
 
+## Published — 2026-09-16
+
+The first instalment is live on specpicks.com as a six-part SpecPicks Retro Lab
+series (`series_slug` `voodoo5-6000-strange-god`, category `testbench`, tag
+`specpicks-lab`), written from this dossier and the published dataset:
+
+1. https://specpicks.com/reviews/voodoo5-6000-strange-god-part-1-history-2026
+2. https://specpicks.com/reviews/voodoo5-6000-strange-god-part-2-test-method-2026
+3. https://specpicks.com/reviews/voodoo5-6000-strange-god-part-3-quake3-benchmarks-2026
+4. https://specpicks.com/reviews/voodoo5-6000-strange-god-part-4-fsaa-2026
+5. https://specpicks.com/reviews/voodoo5-6000-strange-god-part-5-bricked-board-2026
+6. https://specpicks.com/reviews/voodoo5-6000-strange-god-part-6-verdict-next-2026
+
+The measurements are in the site database — `hardware_specs` row
+`3dfx-voodoo5-6000`, 20 `gaming_benchmarks` rows whose `quality_preset` is the
+driver's quoted label and whose `source_name` shows the host, rendered at
+https://specpicks.com/benchmarks/3dfx-voodoo5-6000 — and in the fleet ledger
+(`retro_benchmark_runs`, source `specpicks-lab-v56k`, 23 rows). The dataset
+behind every figure is published at
+https://nscagentstorage.blob.core.windows.net/article-images/voodoo5-6000-strange-god/dataset/
+(results CSVs, versions.json, this dossier, the evidence README and the edge
+metric). Loader and publisher: `specpicks/scripts/lab/`.
+
 ## Where testing stands — 2026-09-16 (checkpoint for the specpicks review)
 
 This is the state the first published instalment of the review describes.
