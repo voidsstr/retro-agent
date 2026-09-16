@@ -707,3 +707,19 @@ def test_watson_fetch_keeps_every_record(tmp_path):
     assert (tmp_path / "drwtsn32-glq.log").read_bytes() == b"second, different crash"
     assert any(n.startswith("drwtsn32-glq-") for n in names), names   # the reused label did not clobber
     assert (tmp_path / "drwtsn32.log").read_bytes() == b"third under a reused label"
+
+
+def test_quake2_label_never_defaults_to_a_named_driver(bench):
+    """A failed 3dfxgl.dll size probe left the class default 'opengl-minigl' on
+    two rows that ran on the Mesa ICD. An unmeasured identity must SAY so."""
+    import asyncio
+    class Box:
+        def __init__(self, outs): self.outs = list(outs)
+        async def exec_(self, cmd, timeout=90): return self.outs.pop(0) if self.outs else ""
+        async def upload(self, *a): pass
+    t = bench.Quake2()
+    asyncio.run(t.prepare(Box(["", "", ""]), 640, 480, 16, {}))
+    assert t.api == "opengl-3dfxgl-unmeasured"
+    t2 = bench.Quake2()
+    asyncio.run(t2.prepare(Box(["", "2646009\r\n"]), 640, 480, 16, {}))   # retry succeeds
+    assert t2.api == "opengl-icd-gamelocal"

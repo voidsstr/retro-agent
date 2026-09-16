@@ -581,14 +581,25 @@ class Quake2:
         # the driver-install sweep on .124 replaced it with a copy of the
         # AmigaMerlin ICD (2,646,009 B). Label the row by what is actually
         # loaded, measured at prepare time, not by what the class assumed.
-        out = await box.exec_(rf'cmd /c for %I in ("{self.root}\3dfxgl.dll") do @echo %~zI')
-        size = (out.strip().splitlines() or [""])[-1].strip()
+        # The label is EVIDENCE, never a default. Twice on .124 this probe came
+        # back empty and the row kept the class default "opengl-minigl" - the
+        # specific name of a driver the cell did not run on - while its own
+        # gl_renderer said "Mesa Glide v0.63", which no MiniGL can report.
+        size = ""
+        for _ in range(3):
+            out = await box.exec_(rf'cmd /c for %I in ("{self.root}\3dfxgl.dll") do @echo %~zI')
+            size = (out.strip().splitlines() or [""])[-1].strip()
+            if size.isdigit():
+                break
+            await asyncio.sleep(2)
         if size == "2646009":
             self.api, self.engine = "opengl-icd-gamelocal", "quake2.exe (3.20; game-local 3dfxgl.dll = AmigaMerlin ICD copy)"
         elif size == "142848":
             self.api, self.engine = "opengl-minigl", "quake2.exe (3.20; 3dfx MiniGL 3dfxgl.dll)"
         elif size.isdigit():
             self.api, self.engine = f"opengl-3dfxgl-{size}B", f"quake2.exe (3.20; 3dfxgl.dll {size} B, unidentified)"
+        else:
+            self.api, self.engine = "opengl-3dfxgl-unmeasured", "quake2.exe (3.20; 3dfxgl.dll size probe returned nothing)"
         await box.upload(self.cfg, self.bench_cfg())
         await box.upload(self.bat, self.launch_bat(w, h, depth, env))
         await box.exec_(f'cmd /c del /f /q "{self.log}"')
@@ -1543,6 +1554,16 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     row.update(parsed)
     row.update(title.attribution(raw))
     row["status"] = "ok"
+    # What the engine REPORTED beats what a file-size probe guessed. A Mesa
+    # renderer string is the AmigaMerlin ICD (or a copy of it); a 3dfx MiniGL
+    # never says "Mesa". Reconcile the label, and say that it was reconciled.
+    rend = (row.get("gl_renderer") or "")
+    if "Mesa" in rend and str(row.get("api", "")).startswith(("opengl-minigl", "opengl-3dfxgl-")):
+        row["notes"] = ((row.get("notes", "") + "; ") if row.get("notes") else "") + \
+            f"api relabelled from '{row['api']}' to opengl-icd-gamelocal: GL_RENDERER '{rend[:40]}' is the Mesa ICD"
+        row["api"] = "opengl-icd-gamelocal"
+        if getattr(title, "tid", "") == "quake2":
+            row["engine"] = "quake2.exe (3.20; game-local 3dfxgl.dll = AmigaMerlin ICD copy, identified from GL_RENDERER)"
     # A title may READ BACK which driver actually loaded (RtCW's r_glDriver is
     # latched, so a pinned driver can lose the first launch after a change). A
     # mismatch is recorded visibly - never published as a clean number for the
