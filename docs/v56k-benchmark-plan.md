@@ -82,15 +82,15 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 
 | title (api) | 16-bit | 32-bit | notes |
 |---|---|---|---|
-| Quake III (OpenGL ICD) | cfg 0/2/5 x 5 res OK; cfg 1 partial | **cfg 5 done: 51.3 / 75.1 / 101.1 / 110.3 / 115.0** (1600x1200 -> 640x480) | published. **Crashes are an int3 in AmigaMerlin's own `glide3x!grDrawTriangle+0x2d`, tripped by its Mesa ICD** — not a hang |
+| Quake III (OpenGL ICD) | cfg 0/2/5 x 5 res OK; cfg 1 partial | **cfg 5 done: 51.3 / 75.1 / 101.1 / 110.3 / 115.0** (1600x1200 -> 640x480) | published. ONE 10:01 cfg-0 stall was `glide3x`'s no-context int3 (likely the wizard's focus loss); 16 of ~20 launches that day were clean. The agent deaths are a separate, unexplained event (FINDINGS) |
 | Quake III repeatability, box quiet | OK 640x480: cfg 0 117.5/116.3, cfg 2 117.5 (105.9 as first cell after boot), cfg 5 119.4/121.6 | — | resolved: background load + first-cell-after-boot cost 10-17% on the CPU-bound cell |
 | Quake II (game-local `3dfxgl.dll` = a copy of the AmigaMerlin ICD) | **cfg 5 done: 147-173 fps, flat across resolution** | **cfg 5 done: 32-bit = 16-bit** (172.6 vs 172.5 @1600x1200) | entirely CPU-bound on this card; the runner labels the row by the DLL's real identity |
-| GLQuake (MiniGL) | **out of the automated sweep** | same | Runs fine on AmigaMerlin (GL_RENDERER Mesa Glide v0.63) - **our `-condebug` flag crashes it**: the ICD's 1,449-byte GL_EXTENSIONS overflows 1997's 1 KB Con_DebugLog buffer (return address on the stack = ASCII "TENS"). Without `-condebug` there is no log to parse; `MESA_EXTENSION_OVERRIDE` is ignored by this Mesa 6.3. Needs a capture route (read the console frame) before it can be measured |
-| UT99 436 (GlideDrv, native Glide) | **MEASURED 66.44 fps @640x480 cfg2** | **not possible** — GlideDrv is 16-bit only | parser must take the demo's summary, not the toggle blip (25.62) |
-| UT99 436 (OpenGLDrv -> AmigaMerlin ICD) | **BROKEN** | **BROKEN** | **GPF: `UOpenGlRenderDevice::SetRes <- ::Init <- TryRenderDevice <- UGameEngine::Init`.** This is why UT99 cannot be put in 32-bit |
-| UT99 436 (D3DDrv -> AmigaMerlin D3D HAL) | sweeping | sweeping | the remaining 32-bit candidate |
-| RtCW (`rtcw:openglv5`) | **MEASURED 116-126 fps @640x480 cfg2** | sweeping | **always loads its bundled Wicked3D `gl/openglv5.dll`**, never AmigaMerlin's ICD: `r_glDriver` is latched and only ever latches. Removing the file to force it WEDGED the box — the runner reads back which ICD loaded instead |
-| Serious Sam TFE / TSE (OpenGL) | **BLOCKED** | **BLOCKED** | `CD check - "Please insert the game CD"`. A **library** fix (staged tree), not a driver one |
+| GLQuake (MiniGL) | **out of the automated sweep** | same | Runs fine on AmigaMerlin (GL_RENDERER Mesa Glide v0.63) - **our `-condebug` flag crashes it**: the ICD's 1,434-byte extension string overruns `Con_DebugLog`'s static 1 KB buffer into the console-text pointer. Without `-condebug` there is no log; `MESA_EXTENSION_OVERRIDE` does not exist in this Mesa vintage. Capture route ready (`v56k_glq_shot.py` photographs the console line), untested |
+| UT99 436 (GlideDrv, native Glide) | **cfg 5 done: 56.0 / 62.7 / 65.0 / 65.8 / 67.1** (1600x1200 -> 640x480); 66.4 @640x480 cfg 2 | **renders 16-bit regardless** — the ten "32-bit" rows matched their 16-bit twins to within noise; now `unsupported-by-engine` | parser takes the demo's summary, not the toggle blip |
+| UT99 436 (OpenGLDrv -> AmigaMerlin ICD) | **BROKEN** | **BROKEN** | GPF at init in UT's stock v436 `OpenGLDrv.dll` (`UOpenGlRenderDevice::SetRes <- ::Init <- TryRenderDevice <- UGameEngine::Init`, read off the screen). Known-fragile renderer; blaming the driver is an inference |
+| UT99 436 (D3DDrv -> AmigaMerlin D3D HAL) | **cfg 5: 1024x768 69.1, 800x600 69.5**; dies at 1280x960+ | **cfg 5: 800x600 68.1 — UT99's real 32-bit route**; dies at 1024x768/32 and above (`process-exited`, records kept) | the answer to "UT99 wouldn't go 32-bit": use D3DDrv at 800x600 |
+| RtCW (`rtcw:openglv5`) | **116-127 fps @640x480 cfg 2** | sweeping | loads its bundled Wicked3D `gl/openglv5.dll` on the first launch after an `r_glDriver` change regardless of `+set`/config (mechanism not fully established). Removing the file to force the ICD WEDGED the box — the runner reads back which ICD loaded instead |
+| Serious Sam TFE / TSE (OpenGL) | not yet measured | not yet measured | the first harness bypassed the staged **disc-mount launcher** and got the CD check it exists to prevent — a harness fault. The bench launcher is now generated from the fleet mount template; untested on the box |
 | Unreal Gold / Deus Ex (Glide) | not run | not run | UE1 `-benchmark` never exits; needs the UTbench-style route |
 | AA settings cfg 1/3/4/6/7/8 | **blocked** — AA never engages via registry/env | — | unblock via §4 first |
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
@@ -106,6 +106,7 @@ different next action, which is the point of not collapsing them:
 | `unsupported-by-engine` | the engine declares it cannot do this mode (GLQuake >1280x960, RtCW 1280x960) | none - reportable as an engine limit |
 | `blocked-by-modal` | a dialog that never clears (UE1 "Critical Error", Serious Sam "CD check") | fix the title/library; the dialog is named in `notes` |
 | `process-exited` | the game process died before any fps line | read the Dr Watson bundle in `diag/` - it names the fault |
+| `mount-failed` | the disc-mount launcher wrote `mount-error.txt` (no mounter, or no drive appeared) | fix the box's mounter; the text is in `notes` |
 | `driver-mismatch` | the ICD that loaded is not the one the cell asked for (RtCW) | the number is real but for the OTHER driver; do not publish under this one |
 | `gl-init-hung` / `mode-rejected-by-card` | renderer never came up / the card refused the mode | the flight recorder (`v56k_diag ring`) is the instrument |
 | `no-fps-line(see raw log)` | none of the above matched | the runner could not classify it - look at the log |
