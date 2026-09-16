@@ -24,7 +24,11 @@ set -u
 cd "$(dirname "$0")/../.."
 OUT=scripts/benchmarks/results/v56k_titles_192.168.1.124
 mkdir -p "$OUT"
-TITLES="quake3,quake2,glquake,ut99:glide,ut99:opengl,ut99:d3d,rtcw:openglv5,serioussam,serioussam2"
+# Measured on .124 2026-09-16 - only titles that CAN produce a number are swept.
+#   ut99:opengl   GPF in UOpenGlRenderDevice::SetRes on AmigaMerlin (UE1 Critical Error modal)
+#   serioussam(2) CD-locked: "CD check - Please insert the game CD", a library fix not a driver one
+# ut99:d3d is kept: it is the other 32-bit candidate and now fails in seconds if it modals.
+TITLES="quake3,quake2,glquake,ut99:glide,ut99:d3d,rtcw:openglv5"
 RES="1600x1200,1280x960,1024x768,800x600,640x480"   # high to low: the CPU-bound cell last, well after boot
 echo "[$(date +%H:%M:%S)] full sweep start: titles=$TITLES res=$RES depths=16,32 configs=5,2,0"
 python3 scripts/benchmarks/v56k_sweep.py --host 192.168.1.124 --configs 5,2,0 \

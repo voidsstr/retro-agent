@@ -114,7 +114,14 @@ async def dump(box, diff=False):
     divergence that is not one, and a stale-but-equal dump hides a real one.
     """
     await ensure_fxscan(box)
-    return await box.exec_(f'EXECW 40 {FXSCAN_EXE} {"diff" if diff else "dump"}', timeout=90)
+    # EXECW is its own agent command, NOT an argument to EXEC. Box.exec_ already
+    # prefixes EXEC, so routing it through there produced the cmd.exe error
+    # "'EXECW' is not recognized" in a 96-byte dump that looked like a real
+    # capture - make the failure visible instead of banking it.
+    out = await box.text(f'EXECW 40 {FXSCAN_EXE} {"diff" if diff else "dump"}', timeout=90)
+    if "not recognized" in out or "escape" not in out:
+        raise RuntimeError(f"fxscan2 did not run: {out.strip()[:200]}")
+    return out
 
 
 async def errors_quiet(box):
@@ -305,3 +312,33 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+# Windows that BLOCK a benchmark and never go away on their own. Each one has
+# cost a stalled run on .124: the engine sits on a modal while the runner waits
+# out max_run, times out, retries, and burns attempts x max_run on a cell that
+# could never have produced a number.
+BLOCKING_MODALS = (
+    "critical error",      # UE1's own GPF box - e.g. UOpenGlRenderDevice::SetRes
+    "cd check",            # Serious Sam: "Please insert the game CD"
+    "please insert",
+    "found new hardware",  # the wizard that froze a Quake III run
+    "drwtsn32", "dr. watson",
+    "has encountered a problem",
+)
+
+
+async def blocking_modal(box):
+    """Return the title of a blocking modal that is up, or None.
+
+    Cheap enough to poll: one WINLIST. This is how a doomed cell is failed in
+    seconds instead of attempts x max_run.
+    """
+    try:
+        out = await box.text("WINLIST", timeout=30)
+    except Exception:
+        return None
+    for t in re.findall(r'"title"\s*:\s*"((?:[^"\\]|\\.)*)"', out):
+        if any(k in t.lower() for k in BLOCKING_MODALS):
+            return t.encode().decode("unicode_escape", errors="replace")
+    return None

@@ -1432,6 +1432,7 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     parsed, raw = None, ""
     last_size, last_growth = -1, time.time()
     wedged = False
+    modal = None
     await asyncio.sleep(12)
     while time.time() < deadline:
         data = await box.download(title.log)
@@ -1453,6 +1454,17 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
                 else:
                     wedged = True
                     break
+        # A modal that will never clear is not a slow run - fail the cell now.
+        # UE1's "Critical Error" and Serious Sam's "CD check" both sit forever,
+        # and waiting them out cost attempts x max_run per cell on .124.
+        if modal is None:
+            try:
+                import v56k_diag
+                modal = await v56k_diag.blocking_modal(box)
+            except Exception:
+                modal = None
+            if modal:
+                break
         await asyncio.sleep(6)
 
     await box.exec_(f'cmd /c taskkill /f /im "{title.proc}"', timeout=30)
@@ -1462,6 +1474,11 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
         (args.outdir / f"{title.tid}_{res}_{depth}_cfg{cfg}.log").write_text(raw)
     if not parsed:
         row["status"] = "no-fps-line(see raw log)"
+        if modal:
+            # Name the dialog. "no-fps-line" invites another attempt; "blocked
+            # by a modal" tells the operator the cell can never pass as staged.
+            row["status"] = "blocked-by-modal"
+            row["notes"] = f"blocking dialog: {modal[:80]}"
         # These are real, reportable outcomes for a card/driver, not tool
         # failures - a mode this card cannot bring up belongs in the article.
         if wedged:

@@ -634,3 +634,14 @@ def test_ring_summary_flags_a_stalled_crtc(tmp_path):
         "    9003  HB   curline  c0= 312  c1= 311  c2= 313  c3= 312\n"
         "   10003  HB   curline  c0= 312  c1= 311  c2= 313  c3= 312\n")
     assert m.ring_summary(bad)["stalled"] is True
+
+
+def test_blocking_modal_titles_are_recognised():
+    """UE1's Critical Error and Serious Sam's CD check both sit forever; each
+    cost a stalled cell on .124 before the runner learned to fail fast."""
+    d = _diag()
+    for t in ("Critical Error", "CD check", "Found New Hardware Wizard",
+              "Please insert the game CD"):
+        assert any(k in t.lower() for k in d.BLOCKING_MODALS), t
+    for t in ("Unreal Tournament (Starting)", "Quake III Arena", "Program Manager"):
+        assert not any(k in t.lower() for k in d.BLOCKING_MODALS), t
