@@ -43,23 +43,29 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[1]))
 import v56k_diag  # noqa: E402
-from v56k_bench import Box, Quake3  # noqa: E402
+from v56k_bench import Box, Quake3, find_display_instance  # noqa: E402
 
 
 def log(m):
     print(f"[{time.strftime('%H:%M:%S')}] {m}", flush=True)
 
 
-async def alive(ip, timeout=6):
+async def alive(ip, timeout=20, tries=3):
+    """Dead means N CONSECUTIVE failed PINGs with a generous timeout. One slow
+    answer while the box is rendering fullscreen is not a death, and calling
+    it one leaves the game running and the diagnosis wrong."""
     from client.retro_protocol import RetroConnection
-    try:
-        c = RetroConnection(ip, 9898)
-        await c.connect("retro-agent-secret", timeout=timeout)
-        await c.send_command("PING", timeout=timeout)
-        await c.close()
-        return True
-    except Exception:
-        return False
+    for i in range(tries):
+        try:
+            c = RetroConnection(ip, 9898)
+            await c.connect("retro-agent-secret", timeout=timeout)
+            await c.send_command("PING", timeout=timeout)
+            await c.close()
+            return True
+        except Exception:
+            if i < tries - 1:
+                await asyncio.sleep(5)
+    return False
 
 
 async def wait_back(ip, minutes=45):
@@ -72,6 +78,7 @@ async def wait_back(ip, minutes=45):
 
 
 async def main_async(a):
+    v56k_diag.refuse_if_owned(a.host, a.force)
     box = Box(a.host)
     outdir = Path(a.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
@@ -101,8 +108,12 @@ async def main_async(a):
     await asyncio.sleep(5)
 
     t = Quake3()
-    log(f"launching Quake III {a.res} {a.depth}-bit - the cell that kills the agent")
-    await t.prepare(box, w, h, a.depth, {})
+    from v56k_glq_shot import read_cfg
+    inst, _ = await find_display_instance(box)
+    cfg = await read_cfg(box, inst)
+    env = {"SSTH3_SLI_AA_CONFIGURATION": str(cfg), "FX_GLIDE_SWAPINTERVAL": "0"}   # what the sweep cell ran with
+    log(f"launching Quake III {a.res} {a.depth}-bit at cfg {cfg} - the cell that kills the agent")
+    await t.prepare(box, w, h, a.depth, env)
     await t.start(box)
 
     died_at = None
@@ -166,6 +177,7 @@ def main():
     ap.add_argument("--depth", type=int, default=16)
     ap.add_argument("--secs", type=int, default=240)
     ap.add_argument("--interval", type=int, default=100)
+    ap.add_argument("--force", action="store_true")
     ap.add_argument("--outdir", default=str(HERE / "results" / "v56k_repro_192.168.1.124"))
     return asyncio.run(main_async(ap.parse_args()))
 

@@ -585,6 +585,18 @@ class Quake2:
         # back empty and the row kept the class default "opengl-minigl" - the
         # specific name of a driver the cell did not run on - while its own
         # gl_renderer said "Mesa Glide v0.63", which no MiniGL can report.
+        await self.identify(box)
+        await box.upload(self.cfg, self.bench_cfg())
+        await box.upload(self.bat, self.launch_bat(w, h, depth, env))
+        await box.exec_(f'cmd /c del /f /q "{self.log}"')
+
+    async def identify(self, box):
+        """Measure which 3dfxgl.dll sits beside quake2.exe, ONCE. The runner
+        calls this before the matrix is keyed, so the resume key, the row and
+        the label all agree; prepare() only falls back to it."""
+        if getattr(self, "_identified", False):
+            return
+        self._identified = True
         size = ""
         for _ in range(3):
             out = await box.exec_(rf'cmd /c for %I in ("{self.root}\3dfxgl.dll") do @echo %~zI')
@@ -600,9 +612,6 @@ class Quake2:
             self.api, self.engine = f"opengl-3dfxgl-{size}B", f"quake2.exe (3.20; 3dfxgl.dll {size} B, unidentified)"
         else:
             self.api, self.engine = "opengl-3dfxgl-unmeasured", "quake2.exe (3.20; 3dfxgl.dll size probe returned nothing)"
-        await box.upload(self.cfg, self.bench_cfg())
-        await box.upload(self.bat, self.launch_bat(w, h, depth, env))
-        await box.exec_(f'cmd /c del /f /q "{self.log}"')
 
     async def start(self, box):
         await box.text(f"LAUNCH {self.bat}")
@@ -899,22 +908,45 @@ class SeriousSam:
         ])
 
     def launch_bat(self, env):
-        lines = ["@echo off"]
-        for k, v in env.items():
-            lines.append(f'set {k}={v}')
-        lines += [
-            f'cd /d "{self.root}"',
-            r'Bin\SeriousSam.exe +game SeriousSam +exec Scripts\v56kbench.ini',
-        ]
-        return "\r\n".join(lines) + "\r\n"
+        """The staged title is a DISC-MOUNT launcher: the fleet template mounts
+        _disc\\<image>, waits for the drive letter, then starts the game. The
+        first harness launched Bin\\SeriousSam.exe directly and got the CD
+        check the library was staged to prevent - a harness fault that was
+        first written up as a library one. So the bench launcher is generated
+        from the SAME template and spec, with the bench's args and env and the
+        resolution block replaced (v56kbench.ini pins the mode)."""
+        import importlib.util, json as _json
+        repo = Path(__file__).resolve().parents[2]
+        from pathlib import PureWindowsPath
+        spec_file = repo / "provisioning" / "discmount" / "specs" / f"{PureWindowsPath(self.root).name}-Play.json"
+        gen = repo / "scripts" / "fleet" / "make-mount-launcher.py"
+        if not spec_file.exists() or not gen.exists():
+            raise RuntimeError(f"no disc-mount spec/generator for {self.root} ({spec_file.name})")
+        spec = dict(_json.loads(spec_file.read_text()))
+        spec["title"] = spec.get("title", self.name) + " - V56K bench"
+        spec["fleetres_block"] = "rem (bench: the resolution comes from Scripts\\v56kbench.ini)"
+        spec["prelaunch"] = "\r\n".join(f"set {k}={v}" for k, v in env.items()) or "rem (none)"
+        v = dict(spec.get("vars", {}))
+        v["GTITLE"] = v.get("GTITLE", self.name) + " - V56K bench"
+        v["GAMEARGS"] = "+exec Scripts\\v56kbench.ini"
+        spec["vars"] = v
+        mspec = importlib.util.spec_from_file_location("make_mount_launcher", gen)
+        mod = importlib.util.module_from_spec(mspec); mspec.loader.exec_module(mod)
+        return mod.crlf(mod.substitute(mod.load_template(mod.DEFAULT_TEMPLATE), spec))
 
     async def prepare(self, box, w, h, depth, env):
         await box.upload(self.cfg, self.bench_cfg(w, h, depth))
         await box.upload(self.bat, self.launch_bat(env))
-        await box.exec_(f'cmd /c del /f /q "{self.log}"')
+        await box.exec_(f'cmd /c del /f /q "{self.log}" "{self.root}\\mount-error.txt" 2>nul & echo ok')
 
     async def start(self, box):
         await box.text(f"LAUNCH {self.bat}")
+
+    async def mount_error(self, box):
+        """The template writes mount-error.txt when the mounter is missing or no
+        drive appeared - two different failures it reports differently."""
+        data = await box.download(rf"{self.root}\mount-error.txt")
+        return data.decode("latin-1", "replace").strip()[:200] if data else None
 
     def parse(self, raw):
         m = re.search(r"Average(?:\s*FPS)?[:=\s]+([\d.]+)", raw, re.I)
@@ -959,6 +991,18 @@ DEMOS = Path(__file__).resolve().parent / "demos"   # UTbench.dem and wolfbench.
 
 
 class UT99Bench(Unreal1):
+    def supports(self, w, h, depth):
+        base = getattr(super(), "supports", None)
+        why = base(w, h, depth) if callable(base) else None
+        if why:
+            return why
+        if self.api == "glide" and depth >= 32:
+            # Glide 2.x has no 32-bit framebuffer; the engine takes the request
+            # and renders 16-bit anyway. Measured: every "32-bit" GlideDrv row
+            # matched its 16-bit twin to within noise (57.82 vs 56.01 ...).
+            return "GlideDrv is Glide 2.x: no 32-bit framebuffer - a 32-bit request renders 16-bit"
+        return None
+
     """Unreal Tournament 436 through the fleet's proven UTbench.dem route.
 
     UE1's `-benchmark -seconds=N` never exits on this build (measured: 100% CPU
@@ -1168,18 +1212,24 @@ class RTCW:
         runner READS BACK which ICD actually loaded and says so, rather than
         forcing it blind. Returns (ok, note): ok is False when the loaded
         GL_VENDOR does not match the driver this cell asked for."""
-        vend = ""
-        m = re.search(r"(?im)^GL_VENDOR:\s*(.+)$", raw)
-        if m:
-            vend = m.group(1).strip()
-        is_wicked = "wicked" in vend.lower() or "metabyte" in vend.lower()
-        want_wicked = self.api == "opengl-3dfx-openglv5"
-        if not vend:
+        vends = re.findall(r"(?im)^GL_VENDOR:\s*(.+)$", raw)
+        rends = re.findall(r"(?im)^GL_RENDERER:\s*(.+)$", raw)
+        vend = vends[-1].strip() if vends else ""
+        rend = rends[-1].strip() if rends else ""
+        if not vend and not rend:
             return True, ""
-        if is_wicked != want_wicked:
-            got = "gl/openglv5.dll (Wicked3D)" if is_wicked else "the registered AmigaMerlin ICD"
-            return False, f"driver-mismatch: asked for {self.gldriver}, engine loaded {got} (r_glDriver is latched - needs a warm-up launch)"
-        return True, ""
+        is_wicked = "wicked" in vend.lower() or "metabyte" in vend.lower()
+        is_mesa = "mesa" in rend.lower() or "brian paul" in vend.lower()
+        if self.api == "opengl-3dfx-openglv5":
+            if is_wicked:
+                return True, ""
+            return False, f"driver-mismatch: asked for gl/openglv5.dll (Wicked3D), engine loaded GL_VENDOR '{vend[:40]}' / '{rend[:40]}'"
+        # AmigaMerlin: a POSITIVE match. "not Wicked3D" would pass a GDI Generic
+        # software fallback as if it were the ICD.
+        if is_mesa:
+            return True, ""
+        got = "gl/openglv5.dll (Wicked3D)" if is_wicked else f"GL_VENDOR '{vend[:40]}' / '{rend[:40]}'"
+        return False, f"driver-mismatch: asked for {self.gldriver} (the Mesa ICD), engine loaded {got}"
 
     async def start(self, box):
         await box.text(f"LAUNCH {self.bat}")
@@ -1436,11 +1486,27 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     # 2. stage config + launcher, clear the log
     env = {"SSTH3_SLI_AA_CONFIGURATION": str(cfg), "FX_GLIDE_SWAPINTERVAL": "0"}
     await title.prepare(box, w, h, depth, env)
+    # prepare() may have MEASURED the identity (Quake II probes 3dfxgl.dll);
+    # the row was built before that, so refresh it - the class default
+    # "opengl-minigl" reached a row that ran on the Mesa ICD this way.
+    row["api"] = getattr(title, "api", row["api"])
+    row["engine"] = getattr(title, "engine", row["engine"])
     await box.exec_(f'cmd /c taskkill /f /im "{title.proc}"', timeout=30)
     await asyncio.sleep(2)
 
     # 3. go
     try:
+        # A crash record on the box belongs to whichever cell made it. Keep any
+        # that is there (labelled pre-<this cell>), then clear, so the record a
+        # failure fetches is THIS cell's - not an earlier title's.
+        try:
+            import v56k_diag
+            pre = await v56k_diag.watson_fetch(box, args.outdir / "diag", f"pre-{title.tid}_{res}_{depth}_cfg{cfg}")
+            if pre:
+                log(f"    (an earlier crash record was on the box - kept as pre-{title.tid}_{res}_{depth}_cfg{cfg})")
+            await v56k_diag.watson_clear(box)
+        except Exception:
+            pass
         await title.start(box)
     except RetroProtocolError as e:
         row["status"] = f"launch-failed: {e}"
@@ -1460,6 +1526,7 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     modal = None
     exited = None
     t_launch = time.time()
+    last_poll = 0.0
     await asyncio.sleep(12)
     while time.time() < deadline:
         data = await box.download(title.log)
@@ -1485,25 +1552,27 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
         # GLQuake crashed 5 s after GL init (a 1997 buffer vs a 1449-byte
         # GL_EXTENSIONS string) and the runner waited out the full max_run
         # five times over, 7 minutes each, for a log that would never grow.
-        if exited is None and time.time() - t_launch > 20:
+        # Process and modal checks every 30 s, not every 6 s: each is a
+        # connection to the single-threaded agent while the timed run is on,
+        # and a bench with background work reads low. Tri-state on purpose:
+        # None means the AGENT could not be asked, which must never read as
+        # the GAME being gone - one slow PROCLIST mid-timedemo would otherwise
+        # fail a healthy cell.
+        if time.time() - t_launch > 20 and time.time() - last_poll >= 30:
+            last_poll = time.time()
             try:
                 import v56k_diag
-                if not await v56k_diag.process_alive(box, title.proc):
-                    exited = True
-                    break
+                if exited is None:
+                    alive = await v56k_diag.process_alive(box, title.proc)
+                    if alive is False:
+                        exited = True
+                        break
+                if modal is None:
+                    modal = await v56k_diag.blocking_modal(box)
+                    if modal:
+                        break
             except Exception:
                 pass
-        # A modal that will never clear is not a slow run - fail the cell now.
-        # UE1's "Critical Error" and Serious Sam's "CD check" both sit forever,
-        # and waiting them out cost attempts x max_run per cell on .124.
-        if modal is None:
-            try:
-                import v56k_diag
-                modal = await v56k_diag.blocking_modal(box)
-            except Exception:
-                modal = None
-            if modal:
-                break
         await asyncio.sleep(6)
 
     await box.exec_(f'cmd /c taskkill /f /im "{title.proc}"', timeout=30)
@@ -1523,6 +1592,15 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
             # diagnostic capture below will name from Dr Watson.
             row["status"] = "process-exited"
             row["notes"] = "game process gone before any fps line"
+        me = getattr(title, "mount_error", None)
+        if me is not None:
+            try:
+                err = await me(box)
+                if err:
+                    row["status"] = "mount-failed"
+                    row["notes"] = f"disc-mount launcher reported: {err}"
+            except Exception:
+                pass
         # These are real, reportable outcomes for a card/driver, not tool
         # failures - a mode this card cannot bring up belongs in the article.
         if wedged:
@@ -1558,7 +1636,7 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     # renderer string is the AmigaMerlin ICD (or a copy of it); a 3dfx MiniGL
     # never says "Mesa". Reconcile the label, and say that it was reconciled.
     rend = (row.get("gl_renderer") or "")
-    if "Mesa" in rend and str(row.get("api", "")).startswith(("opengl-minigl", "opengl-3dfxgl-")):
+    if "Mesa" in rend and getattr(title, "tid", "") == "quake2" and str(row.get("api", "")).startswith(("opengl-minigl", "opengl-3dfxgl-")):
         row["notes"] = ((row.get("notes", "") + "; ") if row.get("notes") else "") + \
             f"api relabelled from '{row['api']}' to opengl-icd-gamelocal: GL_RENDERER '{rend[:40]}' is the Mesa ICD"
         row["api"] = "opengl-icd-gamelocal"
@@ -1639,12 +1717,34 @@ def append_row(csv_path, row):
         w.writerow({k: row.get(k, "") for k in CSV_COLS})
 
 
+def _lock_path(ip):
+    return Path(__file__).resolve().parent / "results" / f".box-{ip}.lock"
+
+
+def _take_box_lock(ip, outdir):
+    import os
+    p = _lock_path(ip)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"pid": os.getpid(), "started": datetime.now(timezone.utc).isoformat(),
+                             "outdir": str(outdir)}))
+    return p
+
+
 async def amain(args):
+    _take_box_lock(args.host, args.outdir)
     box = Box(args.host)
     inst, prof = await find_display_instance(box)
     glide_key = GLIDE_KEY_TMPL.format(inst=inst)
     gpu = prof.get("gpu", {})
     log(f"box {args.host} {prof.get('hostname')}  agent {prof.get('agent_version')}")
+    # A crash must fail the CELL, not the box: the Windows crash dialog sits
+    # behind the exclusive fullscreen surface and reads as a wedge. Idempotent,
+    # read back; HKLM so it survives reboots (not a re-image).
+    try:
+        import v56k_diag
+        log(f"crash dialogs suppressed: {await v56k_diag.errors_quiet(box)}")
+    except Exception as e:
+        log(f"(could not suppress crash dialogs: {type(e).__name__})")
     log(f"gpu  {gpu.get('name')}  {gpu.get('vram_mb')} MB  "
         f"({gpu.get('pci_ven')}:{gpu.get('pci_dev')})")
     log(f"glide settings key: HKLM\\{glide_key}")
@@ -1699,6 +1799,12 @@ async def amain(args):
         # Once per title: what Glide is sitting beside this game's exe?  A
         # wrong one either bypasses the card silently or takes the box down.
         if t.tid not in checked:
+            ident = getattr(t, "identify", None)
+            if ident is not None:
+                try:
+                    await ident(box)       # so the resume key below uses the MEASURED label
+                except Exception as e:
+                    log(f"    (identity probe failed for {t.tid}: {type(e).__name__})")
             ok, why = await preflight_title_dlls(box, t, args.allow_open_glide)
             checked[t.tid] = why
             if not ok:
@@ -1834,7 +1940,13 @@ def main():
     args.outdir = Path(args.outdir) if args.outdir else \
         Path(__file__).resolve().parent / "results" / f"v56k_{args.host}"
 
-    raise SystemExit(asyncio.run(amain(args)))
+    try:
+        raise SystemExit(asyncio.run(amain(args)))
+    finally:
+        try:
+            _lock_path(args.host).unlink()
+        except OSError:
+            pass
 
 
 if __name__ == "__main__":

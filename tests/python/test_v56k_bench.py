@@ -723,3 +723,68 @@ def test_quake2_label_never_defaults_to_a_named_driver(bench):
     t2 = bench.Quake2()
     asyncio.run(t2.prepare(Box(["", "2646009\r\n"]), 640, 480, 16, {}))   # retry succeeds
     assert t2.api == "opengl-icd-gamelocal"
+
+
+def test_watson_decode_reports_the_newest_record_consistently(tmp_path):
+    """A log holds many records; function and frames must come from the SAME
+    record as the exception - the newest - never a Quake III function under a
+    GLQuake exception."""
+    m = _diag()
+    log = tmp_path / "w.log"
+    log.write_text(
+        "Application exception occurred:\n        App: C:\\Games\\Quake3-TeamArena\\quake3.exe (pid=1)\n"
+        "        When: 4/2/2003 @ 21:16:14.437\n        Exception number: 80000003 (hardcoded breakpoint)\n"
+        "function: glide3x!grDrawTriangle\n*----> Stack Back Trace <----*\n"
+        "01469f98 61f465a1 0e300048 00000000 00000006 glide3x!grDrawTriangle+0x2d\n"
+        "Application exception occurred:\n        App: C:\\Games\\Quake1\\GLQUAKE.EXE (pid=2)\n"
+        "        When: 4/3/2003 @ 00:02:08.687\n        Exception number: c0000005 (access violation)\n"
+        "function: GLQUAKE\n*----> Stack Back Trace <----*\n"
+        "0012ede8 00408795 00000000 00000000 00000000 GLQUAKE+0x617c\n")
+    d = m.watson_decode(log)
+    assert [r["exception"][:8] for r in d["records"]] == ["80000003", "c0000005"]
+    assert d["fault_function"] == "GLQUAKE" and d["frames"] == ["GLQUAKE+0x617c"]
+    assert d["records"][0]["fault_function"] == "glide3x!grDrawTriangle"
+
+
+def test_rtcw_amigamerlin_branch_requires_a_positive_mesa_match(bench):
+    """'not Wicked3D' would pass a GDI Generic software fallback as the ICD."""
+    am = bench.RTCW(api="amigamerlin")
+    ok, note = am.verify_driver("GL_VENDOR: Microsoft Corporation\nGL_RENDERER: GDI Generic\n")
+    assert ok is False and "GDI Generic" in note
+    assert am.verify_driver("GL_VENDOR: Brian Paul\nGL_RENDERER: Mesa Glide v0.63 Voodoo5 6000 (tm)\n") == (True, "")
+
+
+def test_ut99_glidedrv_declares_32bit_unsupported(bench):
+    """Glide 2.x has no 32-bit framebuffer; a 32-bit request renders 16-bit.
+    Ten 'ok' rows at colordepth 32 matched their 16-bit twins to within noise."""
+    t = bench.UT99Bench("glide")
+    assert t.supports(640, 480, 16) is None
+    assert "no 32-bit" in (t.supports(640, 480, 32) or "")
+    assert bench.UT99Bench("d3d").supports(800, 600, 32) is None
+
+
+def test_box_lock_refuses_while_owner_is_alive(tmp_path, monkeypatch):
+    import os, json
+    d = _diag()
+    monkeypatch.setattr(d, "__file__", str(tmp_path / "v56k_diag.py"))
+    (tmp_path / "results").mkdir()
+    (tmp_path / "results" / ".box-1.2.3.4.lock").write_text(json.dumps({"pid": os.getpid(), "started": "now", "outdir": "x"}))
+    import pytest
+    with pytest.raises(SystemExit):
+        d.refuse_if_owned("1.2.3.4")
+    d.refuse_if_owned("1.2.3.4", force=True)
+    (tmp_path / "results" / ".box-1.2.3.4.lock").write_text(json.dumps({"pid": 999999999, "started": "now", "outdir": "x"}))
+    d.refuse_if_owned("1.2.3.4")          # stale lock: owner gone, not refused
+
+
+def test_serioussam_bench_launcher_is_the_fleet_mount_template(bench):
+    """The first harness launched Bin\\SeriousSam.exe directly and got the CD
+    check the staged disc-mount launcher exists to prevent. The bench launcher
+    is generated from the same template and spec, with the bench's args."""
+    t = bench.SeriousSam("serioussam", "Serious Sam - The First Encounter", r"C:\Games\SeriousSamFirstEncounter")
+    bat = t.launch_bat({"FX_GLIDE_SWAPINTERVAL": "0", "SSTH3_SLI_AA_CONFIGURATION": "5"})
+    assert "_disc" in bat and "SeriousSamTFE.iso" in bat          # it mounts the staged image
+    assert "+exec Scripts\\v56kbench.ini" in bat                    # with the bench's args
+    assert "set FX_GLIDE_SWAPINTERVAL=0" in bat                     # and the bench's environment
+    assert "mount-error.txt" in bat                                 # and reports a mount failure
+    assert "(" not in bat.split("GTITLE=")[1].split("\n")[0]        # no parenthesis in a value cmd expands

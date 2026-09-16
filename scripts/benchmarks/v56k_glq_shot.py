@@ -123,6 +123,8 @@ async def one_cell(box, w, h, depth, cfg, outdir, hold):
 
 
 async def main_async(a):
+    import v56k_diag
+    v56k_diag.refuse_if_owned(a.host, a.force)
     box = Box(a.host)
     outdir = Path(a.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
@@ -146,6 +148,7 @@ def main():
     ap.add_argument("--res", default="640x480,800x600,1024x768,1280x960")
     ap.add_argument("--depths", default="16,32")
     ap.add_argument("--hold", type=int, default=45, help="seconds from launch to screenshot")
+    ap.add_argument("--force", action="store_true")
     ap.add_argument("--outdir", default=str(HERE / "results" / "v56k_glquake_192.168.1.124"))
     return asyncio.run(main_async(ap.parse_args()))
 

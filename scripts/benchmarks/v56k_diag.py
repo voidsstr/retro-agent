@@ -83,12 +83,12 @@ def build_fxscan(out=None):
     out = Path(out or (HERE / "bin" / "fxscan2.exe"))
     out.parent.mkdir(parents=True, exist_ok=True)
     if not FXSCAN_SRC.exists():
-        raise SystemExit(f"fxscan2 source not found at {FXSCAN_SRC}")
+        raise RuntimeError(f"fxscan2 source not found at {FXSCAN_SRC}")
     if out.exists() and out.stat().st_mtime >= FXSCAN_SRC.stat().st_mtime:
         return out
     cc = shutil.which("i686-w64-mingw32-gcc")
     if not cc:
-        raise SystemExit("i686-w64-mingw32-gcc not found - cannot build fxscan2")
+        raise RuntimeError("i686-w64-mingw32-gcc not found - cannot build fxscan2")
     subprocess.run([cc, "-O2", "-Wall", "-o", str(out), str(FXSCAN_SRC), "-lgdi32"], check=True)
     return out
 
@@ -119,7 +119,7 @@ async def dump(box, diff=False):
     # "'EXECW' is not recognized" in a 96-byte dump that looked like a real
     # capture - make the failure visible instead of banking it.
     out = await box.text(f'EXECW 40 {FXSCAN_EXE} {"diff" if diff else "dump"}', timeout=90)
-    if "not recognized" in out or "escape" not in out:
+    if "not recognized" in out or "numChips" not in out or out.lstrip().startswith("ERR"):
         raise RuntimeError(f"fxscan2 did not run: {out.strip()[:200]}")
     return out
 
@@ -204,18 +204,27 @@ def watson_decode(path):
     """Pull the useful facts out of a drwtsn32.log: the app, the exception, the
     faulting function and the stack. This is what named glide3x!grDrawTriangle."""
     txt = read_watson_text(path)
+    # One log holds MANY records (Dr Watson appends). Function and frames must
+    # come from the SAME record as the exception - the newest - or a Quake III
+    # function gets reported under a GLQuake exception.
+    chunks = re.split(r"(?=Application exception occurred:)", txt)
     recs = []
-    for m in re.finditer(r"Application exception occurred:\s*\n\s*App:\s*(.+?)\n\s*When:\s*(.+?)\n\s*Exception number:\s*(.+?)\n", txt):
-        recs.append({"app": m.group(1).strip(), "when": m.group(2).strip(), "exception": m.group(3).strip()})
-    funcs = [m.group(1).strip() for m in re.finditer(r"function:\s*(.+)", txt)]
-    frames = []
-    i = txt.lower().find("stack back trace")
-    if i >= 0:
-        for line in txt[i:i + 3000].splitlines():
-            fm = re.match(r"\s*[0-9a-fA-F]{8}\s+[0-9a-fA-F]{8}\s+(?:[0-9a-fA-F]{8}\s+){0,3}(\S+)", line)
-            if fm and not fm.group(1).startswith("*"):
-                frames.append(fm.group(1))
-    return {"records": recs, "fault_function": funcs[0] if funcs else None, "frames": frames[:12]}
+    for ch in chunks:
+        m = re.match(r"Application exception occurred:\s*\n\s*App:\s*(.+?)\n\s*When:\s*(.+?)\n\s*Exception number:\s*(.+?)\n", ch)
+        if not m:
+            continue
+        funcs = [x.group(1).strip() for x in re.finditer(r"function:\s*(.+)", ch)]
+        frames = []
+        i = ch.lower().find("stack back trace")
+        if i >= 0:
+            for line in ch[i:i + 3000].splitlines():
+                fm = re.match(r"\s*[0-9a-fA-F]{8}\s+[0-9a-fA-F]{8}\s+(?:[0-9a-fA-F]{8}\s+){0,3}(\S+)", line)
+                if fm and not fm.group(1).startswith("*"):
+                    frames.append(fm.group(1))
+        recs.append({"app": m.group(1).strip(), "when": m.group(2).strip(), "exception": m.group(3).strip(),
+                     "fault_function": funcs[0] if funcs else None, "frames": frames[:12]})
+    last = recs[-1] if recs else {}
+    return {"records": recs, "fault_function": last.get("fault_function"), "frames": last.get("frames", [])}
 
 
 async def ring_start(box, secs=70, interval_ms=60, outfile=RING_TXT):
@@ -229,7 +238,10 @@ async def ring_start(box, secs=70, interval_ms=60, outfile=RING_TXT):
     await box.text(f'LAUNCH cmd /c {FXSCAN_EXE} ring {secs} {interval_ms} {outfile}', timeout=40)
 
 
-async def ring_fetch(box, outdir, name="fxring.txt", outfile=RING_TXT):
+async def ring_fetch(box, outdir, name="fxring.txt", outfile=RING_TXT, remove=True):
+    """Download the ring and, by default, DELETE it on the box: a stale
+    C:\\fxring.txt from an earlier repro was re-fetched and attached to three
+    later GLQuake failures as if it were theirs."""
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     try:
@@ -239,6 +251,11 @@ async def ring_fetch(box, outdir, name="fxring.txt", outfile=RING_TXT):
     if not data:
         return None, 0
     (outdir / name).write_bytes(data)
+    if remove:
+        try:
+            await box.exec_(f'cmd /c del /f /q "{outfile}" 2>nul & echo ok')
+        except Exception:
+            pass
     return outdir / name, len(data)
 
 
@@ -265,8 +282,9 @@ def _hb_stalled(hb):
     return len(vals) >= 2 and len(set(vals)) == 1
 
 
-async def capture(box, outdir, label="capture"):
-    """Everything worth having after a failure, in one bundle."""
+async def capture(box, outdir, label="capture", ring=False):
+    """Everything worth having after a failure, in one bundle. The ring is
+    attached only if the caller says it ARMED one for this cell."""
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     report = {"label": label}
@@ -280,19 +298,23 @@ async def capture(box, outdir, label="capture"):
     if "drwtsn32.log" in got:
         report["watson"] = watson_decode(outdir / "drwtsn32.log")
     try:
+        from v56k_bench import find_display_instance
+        inst, _ = await find_display_instance(box)
         report["glide_reg"] = await box.exec_(
             r'cmd /c reg query "HKLM\SYSTEM\CurrentControlSet\Control\Class'
-            r'\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide" 2>nul')
+            rf'\{{4D36E968-E325-11CE-BFC1-08002BE10318}}\{inst}\Settings\Glide" 2>nul')
     except Exception:
         pass
-    ringp, n = await ring_fetch(box, outdir, f"{label}-fxring.txt")
-    if ringp:
-        report["ring_bytes"] = n
-        report["ring"] = ring_summary(ringp)
+    if ring:
+        ringp, n = await ring_fetch(box, outdir, f"{label}-fxring.txt")
+        if ringp:
+            report["ring_bytes"] = n
+            report["ring"] = ring_summary(ringp)
     return report
 
 
 async def main_async(a):
+    refuse_if_owned(a.host, a.force)
     box = Box(a.host)
     if a.cmd == "dump":
         log(await dump(box, diff=a.diff))
@@ -338,6 +360,7 @@ def main():
     ap.add_argument("--secs", type=int, default=70)
     ap.add_argument("--interval", type=int, default=60)
     ap.add_argument("--diff", action="store_true")
+    ap.add_argument("--force", action="store_true", help="talk to the box even while a benchmark owns it")
     return asyncio.run(main_async(ap.parse_args()))
 
 
@@ -385,3 +408,26 @@ async def process_alive(box, image_name):
         return None
     want = image_name.lower()
     return any((p.get("name") or "").lower() == want for p in procs)
+
+
+def box_owner(ip):
+    """The bench process that owns this box right now, or None."""
+    import json as _json, os
+    p = Path(__file__).resolve().parent / "results" / f".box-{ip}.lock"
+    if not p.exists():
+        return None
+    try:
+        info = _json.loads(p.read_text())
+        os.kill(int(info["pid"]), 0)
+        return info
+    except (OSError, ValueError, KeyError):
+        return None                       # stale lock: the process is gone
+
+
+def refuse_if_owned(ip, force=False):
+    """The agent is single-threaded and a second client mid-cell breaks the
+    cell. Refuse unless the caller says --force."""
+    o = box_owner(ip)
+    if o and not force:
+        raise SystemExit(f"{ip} is owned by a running benchmark (pid {o['pid']}, since {o['started']}, "
+                         f"results in {o['outdir']}). Wait for it or pass --force.")
