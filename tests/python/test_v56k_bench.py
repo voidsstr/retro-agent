@@ -427,3 +427,46 @@ def test_the_sweep_refuses_a_results_directory_that_will_not_survive(sweep, tmp_
     assert ap[0].default is False, "volatile results must be opt-in"
     src = (REPO / "scripts" / "benchmarks" / "v56k_sweep.py").read_text()
     assert "/tmp/" in src and "REFUSING" in src
+
+
+# --------------------------------------------------------------------------- #
+# Version tracking (user requirement, 2026-09-15): every benchmark row must
+# record WHAT WAS RUNNING - the game binary included - not just how fast it ran.
+# --------------------------------------------------------------------------- #
+
+def test_every_row_records_the_game_and_driver_under_test(bench):
+    """A number without its versions cannot be compared against a later one."""
+    for col in ("game_exe", "game_size", "game_md5",
+                "driver_pkg", "driver_ver", "glide3x_md5", "icd_md5",
+                "os_build", "agent_ver", "gpu"):
+        assert col in bench.CSV_COLS, f"{col} must be stamped on every row"
+
+
+def test_the_version_columns_are_at_the_end_so_older_rows_still_migrate(bench):
+    """migrate_header rewrites an older CSV, but status/notes must stay last:
+    they are what a reader scans for, and a column added AFTER them would put
+    the failure reason in the middle of a hash soup."""
+    assert bench.CSV_COLS[-2:] == ["status", "notes"]
+
+
+def test_versions_are_identified_by_hash_not_only_by_version_string(bench):
+    """A driver DLL here may carry no version resource, or carry the version of
+    the package it was rebranded from - AmigaMerlin ships rebranded 3dfx
+    binaries. Only a hash actually distinguishes two builds."""
+    assert "glide3x" in bench.VERSION_FILES and "icd" in bench.VERSION_FILES
+    src = (REPO / "scripts" / "benchmarks" / "v56k_bench.py").read_text()
+    assert "hashlib.md5" in src
+
+
+def test_a_retroactive_probe_never_overwrites_a_runtime_capture():
+    """A value captured while the run happened is evidence; one probed days
+    later is an assumption, and must not be able to replace the first."""
+    path = REPO / "scripts" / "benchmarks" / "v56k_versions.py"
+    if not path.exists():
+        pytest.skip("v56k_versions.py not present")
+    src = path.read_text()
+    assert "retroactive" in src
+    # the guard itself: only fill a cell that is empty
+    assert 'not (r.get(k) or "").strip()' in src
+    assert "versions backfilled retroactively" in src, \
+        "a backfilled row must say so in the row"

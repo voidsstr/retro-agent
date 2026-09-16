@@ -129,11 +129,31 @@ SUSPECT_CONFIGS = {
     4: "UNTESTED in a clean boot",
 }
 
+# Every row records WHAT WAS RUNNING, not just how fast it ran. A benchmark
+# whose software versions are not in the row cannot be compared against a later
+# one, and "which build was that?" is unanswerable a week later - so the game
+# binary, the driver files and the OS/agent are captured per run, by md5 and
+# size as well as by version string. (A version RESOURCE can be absent or
+# stale; an md5 cannot.) migrate_header() rewrites an older CSV so these can be
+# added mid-campaign without shifting every field.
 CSV_COLS = ["stamp", "title", "engine", "api", "res", "width", "height",
             "colordepth",
             "aa_cfg", "chips", "samples", "aa_label", "avg_fps", "frames",
             "seconds", "gl_renderer", "gl_vendor", "mode_line", "pixelformat",
-            "aa_verified", "status", "notes"]
+            "aa_verified",
+            "game_exe", "game_size", "game_md5",
+            "driver_pkg", "driver_ver", "glide3x_md5", "icd_md5",
+            "os_build", "agent_ver", "gpu",
+            "status", "notes"]
+
+# The files whose identity decides what a number means on this box.
+VERSION_FILES = {
+    "glide3x":  r"C:\WINDOWS\system32\glide3x.dll",
+    "glide2x":  r"C:\WINDOWS\system32\glide2x.dll",
+    "icd":      r"C:\WINDOWS\system32\3dfxOGL.dll",
+    "display":  r"C:\WINDOWS\system32\3dfxvs.dll",
+    "miniport": r"C:\WINDOWS\system32\drivers\3dfxvsm.sys",
+}
 
 
 def log(msg):
@@ -221,6 +241,88 @@ async def find_display_instance(box):
         if c.get("attached_to_desktop"):
             return c.get("instance", "0000"), prof
     return "0000", prof
+
+
+async def file_identity(box, path):
+    """size + md5 of one file on the box.
+
+    md5 rather than a version resource because a driver DLL here may carry no
+    version at all, or carry the version of the package it was copied FROM -
+    AmigaMerlin ships rebranded 3dfx binaries. A hash is what actually
+    distinguishes two builds.
+    """
+    out = await box.exec_(f'cmd /c if exist "{path}" '
+                          f'(for %I in ("{path}") do @echo %~zI) else (echo -)')
+    size = out.strip().splitlines()[-1].strip() if out.strip() else "-"
+    md5 = "-"
+    try:
+        data = await box.download(path)
+        if data:
+            import hashlib
+            md5 = hashlib.md5(data).hexdigest()
+            size = str(len(data))
+    except Exception:
+        pass
+    return {"path": path, "size": size, "md5": md5}
+
+
+async def collect_versions(box, glide_key):
+    """Everything that decides what a benchmark number MEANS on this box.
+
+    Captured once per campaign and written beside the CSV as versions.json, and
+    the identifying fields are also stamped onto every row - a sidecar can be
+    separated from its data, a row cannot.
+    """
+    v = {"probed": datetime.now(timezone.utc).isoformat(), "files": {}}
+    for name, path in VERSION_FILES.items():
+        v["files"][name] = await file_identity(box, path)
+    try:
+        prof = json.loads(await box.text("HWPROFILE"))
+        v["agent_ver"] = prof.get("agent_version")
+        v["os"] = prof.get("os") or prof.get("os_version")
+        # A CSV cell holding a dict repr is not a version anyone can read or
+        # sort on, so flatten it for the row while versions.json keeps the full
+        # structure.
+        o = v["os"]
+        v["os_str"] = (" ".join(str(o.get(k, "")) for k in
+                                ("product", "version", "service_pack")).strip()
+                       if isinstance(o, dict) else str(o or ""))
+        v["hostname"] = prof.get("hostname")
+        for c in prof.get("video_cards", []):
+            if c.get("attached_to_desktop"):
+                v["gpu"] = {"name": c.get("name"), "driver_version":
+                            c.get("driver_version"), "vram_mb": c.get("vram_mb"),
+                            "pci": f"{c.get('pci_ven')}:{c.get('pci_dev')}"}
+    except Exception as e:
+        v["hwprofile_error"] = f"{type(e).__name__}: {e}"
+    # The driver PACKAGE as the display class records it - this is what a reader
+    # means by "which driver", and it is not derivable from any single file.
+    try:
+        cls = glide_key.rsplit("\\Settings\\Glide", 1)[0]
+        out = await box.text(f"REGREAD HKLM {cls}")
+        for val in json.loads(out).get("values", []):
+            if val["name"] in ("DriverVersion", "DriverDesc", "ProviderName",
+                               "InfPath", "DriverDate"):
+                v.setdefault("display_class", {})[val["name"]] = val["data"]
+    except Exception:
+        pass
+    return v
+
+
+async def title_identity(box, title):
+    """The GAME binary actually launched - the user's explicit requirement that
+    the version of the game under test is tracked, not just the driver."""
+    exe = getattr(title, "proc", None)
+    root = getattr(title, "root", None)
+    if not exe or not root:
+        return {}
+    for cand in (rf"{root}\{exe}", rf"{root}\System\{exe}"):
+        ident = await file_identity(box, cand)
+        if ident["md5"] != "-":
+            ident["engine"] = getattr(title, "engine", "")
+            return ident
+    return {"path": exe, "size": "-", "md5": "-",
+            "engine": getattr(title, "engine", "")}
 
 
 async def apply_aa_config(box, glide_key, cfg):
@@ -669,6 +771,14 @@ class Unreal1:
         await self._patch_ini(box, w, h, depth)
         await box.upload(self.bat, self.launch_bat(env))
         await box.exec_(f'cmd /c del /f /q "{self.log}"')
+        # UE1 writes System\Running.ini while a session is live and removes it
+        # on a CLEAN exit. A benchmark harness kills the game, so the marker
+        # survives and the NEXT launch stops on a modal "Unreal Tournament
+        # Recovery Mode" dialog instead of starting - which looks exactly like
+        # a launch failure, and leaves a 0-byte log with nothing to parse.
+        # CLAUDE.md records this file surviving a full redeploy for the same
+        # reason. Clearing it is part of preparing the run, not cleanup.
+        await box.exec_(rf'cmd /c del /f /q "{self.root}\System\Running.ini"')
 
     async def start(self, box):
         await box.text(f"LAUNCH {self.bat}")
@@ -953,10 +1063,27 @@ async def quiesce(box):
             pass
 
 
-async def run_one(box, title, w, h, depth, cfg, glide_key, args):
+async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     meta = AA_CONFIGS[cfg]
     res = f"{w}x{h}"
     row = {c: "" for c in CSV_COLS}
+    # What was running, stamped on the row itself. A sidecar can be separated
+    # from its data; a row cannot.
+    v = versions or {}
+    files = v.get("files", {})
+    dc = v.get("display_class", {})
+    ti = v.get("titles", {}).get(getattr(title, "tid", ""), {})
+    row.update({
+        "game_exe": ti.get("path", ""), "game_size": ti.get("size", ""),
+        "game_md5": ti.get("md5", ""),
+        "driver_pkg": dc.get("DriverDesc", ""),
+        "driver_ver": dc.get("DriverVersion", ""),
+        "glide3x_md5": files.get("glide3x", {}).get("md5", ""),
+        "icd_md5": files.get("icd", {}).get("md5", ""),
+        "os_build": v.get("os_str") or v.get("os", ""),
+        "agent_ver": v.get("agent_ver", ""),
+        "gpu": (v.get("gpu") or {}).get("name", ""),
+    })
     row.update({
         "stamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "title": title.name, "engine": title.engine, "res": res,
@@ -1161,6 +1288,21 @@ async def amain(args):
               for c in args.configs]
     log(f"matrix: {len(matrix)} run(s)")
 
+    # ---- what is under test, captured before a single frame is drawn ------ #
+    log("capturing software versions (driver files, game binaries, OS, agent)")
+    versions = await collect_versions(box, glide_key)
+    versions["titles"] = {}
+    for t in titles:
+        versions["titles"][t.tid] = await title_identity(box, t)
+        ti = versions["titles"][t.tid]
+        log(f"  {t.name}: {ti.get('path','?')}  {ti.get('size','?')} B  "
+            f"md5 {str(ti.get('md5','?'))[:12]}")
+    for n in ("glide3x", "icd", "display"):
+        f = versions["files"].get(n, {})
+        log(f"  {n}: {f.get('size','?')} B  md5 {str(f.get('md5','?'))[:12]}")
+    (args.outdir / "versions.json").write_text(json.dumps(versions, indent=2))
+    log(f"versions -> {args.outdir / 'versions.json'}")
+
     checked, blocked = {}, {}
     for i, (t, w, h, d, c) in enumerate(matrix, 1):
         # Once per title: what Glide is sitting beside this game's exe?  A
@@ -1190,7 +1332,7 @@ async def amain(args):
             continue
         log(f"[{i}/{len(matrix)}]")
         try:
-            row = await run_one(box, t, w, h, d, c, glide_key, args)
+            row = await run_one(box, t, w, h, d, c, glide_key, args, versions)
         except Exception as e:                      # keep the campaign alive
             row = {k: "" for k in CSV_COLS}
             row.update({"stamp": datetime.now(timezone.utc).isoformat(),
