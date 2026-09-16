@@ -166,10 +166,10 @@ def reboot(ip):
     return r.returncode == 0, (r.stdout + r.stderr).strip()
 
 
-def run_bench(ip, cfg, resolutions, depths, outdir, max_run):
+def run_bench(ip, cfg, resolutions, depths, outdir, max_run, titles="quake3"):
     r = subprocess.run(
         [sys.executable, str(HERE / "v56k_bench.py"), "--host", ip,
-         "--titles", "quake3", "--resolutions", resolutions, "--depths", depths,
+         "--titles", titles, "--resolutions", resolutions, "--depths", depths,
          "--configs", str(cfg), "--allow-hazards",
          "--outdir", str(outdir), "--max-run", str(max_run)],
         capture_output=True, text=True, timeout=7200)
@@ -186,6 +186,9 @@ def main():
     ap.add_argument("--resolutions",
                     default="640x480,800x600,1024x768,1280x960,1600x1200")
     ap.add_argument("--depths", default="16")
+    ap.add_argument("--titles", default="quake3",
+                    help="passed to v56k_bench; e.g. ut:glide to measure the "
+                         "NATIVE Glide path rather than the OpenGL ICD")
     ap.add_argument("--max-run", type=float, default=600.0,
                     help="high AA at 1600x1200 is genuinely slow; give it room")
     ap.add_argument("--outdir", default=None,
@@ -269,7 +272,7 @@ def main():
             log(f"  board health: {'ok' if h else 'unknown'}")
 
             rc, out = run_bench(a.host, cfg, a.resolutions, a.depths,
-                                outdir, a.max_run)
+                                outdir, a.max_run, a.titles)
             for line in out.splitlines():
                 if "->" in line or "!!" in line or "WEDGED" in line or "EXCLUDED" in line:
                     log(f"    {line.strip()}")

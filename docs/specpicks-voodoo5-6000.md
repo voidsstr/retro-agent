@@ -175,6 +175,70 @@ liveness is not board liveness.** The agent survived every wedge; only the
 graphics subsystem died, so a liveness check that pings the agent sails
 straight past it.
 
+### 0. THE AA AXIS IS NOT MEASURED — the card never anti-aliased
+
+**This is the most important correction in the file, and it invalidates every
+AA number this campaign has produced so far.** It belongs near the top of the
+article, not in a footnote.
+
+`SSTH3_SLI_AA_CONFIGURATION` writes, reads back, survives a reboot — and
+changes nothing at all. Two independent measurements, either one sufficient:
+
+| evidence | 4 chips, no AA (cfg 5) | 4 chips, 4× AA (cfg 7) |
+|---|---|---|
+| Quake III 1024×768 screenshot, md5 | `6361acde…a18a` | **`6361acde…a18a`** |
+| pixel difference, per channel | — | **(0,0) (0,0) (0,0)** |
+| fps cost of 2× AA on one chip at 1024×768 | 58.6 | **58.2 — 0.99×** |
+
+The frames are **byte-identical**. And at a fill-bound resolution, 2× AA costs
+**nothing** — where real 2× AA must roughly halve fill rate. A third run with
+`FX_GLIDE_AA_SAMPLE=4` added produced the **same md5 again**: three settings,
+one image.
+
+This is not a capture artefact. The screenshots are the *engine's own*, from a
+deterministic `demo four` frame — and a deterministic frame rendered with
+identical settings *should* be byte-identical, which is exactly why identical
+images prove identical rendering.
+
+**The harness said these rows were fine, and it was asking the wrong
+question.** The column was called `aa_verified` and it meant *"the registry
+value read back"*. That proves the write landed; it says nothing about whether
+the driver acted on it. It now records `reg-readback-only`, and each AA cell is
+checked against its matching no-AA cell — a cell that costs nothing is reported
+as **AA not applied** rather than as a remarkable free feature.
+
+**Where the setting was supposed to go**, from strings in the installed
+binaries — and it is not one value:
+
+- `glide3x.dll` reads `SSTH3_SLI_AA_CONFIGURATION` and also carries
+  `FX_GLIDE_AA_SAMPLE`, `FX_GLIDE_AA_CLIP`, `FX_GLIDE_FORCE_OLD_AA`, the full
+  `FX_GLIDE_AA{2,4,8}_OFFSET_{X,Y}n` sub-pixel jitter tables, and
+  `grTBufferWriteMaskExt` — the T-buffer entry point.
+- Glide **asks the miniport** for the configuration rather than applying it
+  itself: `hwcInitVideo: HWC_MINIVDD_HACK: ExEscape:HWCEXT_SLI_AA_REQUEST`.
+- The display driver `3dfxvs.dll` references the value **six** times and owns
+  the *enables*: `SSTH3_ANTIALIAS`, `SSTH3_DIGITAL_SLI_AA`,
+  `SSTH3_AA_ENABLE_OUTOFMEMORY`, `SSTH3_AAJITTER_FORCEFLAG`, plus per-chip
+  dither-matrix selectors (`SSTH3_DITHMATSEL_4SMPL_CHP0` …
+  `_8SMPL_CHP2`) — which is what four chips cooperating on eight samples would
+  need.
+- `3dfxOGL.dll` — the ICD actually in use, 2,646,009 bytes, reporting
+  `GL_VENDOR: Brian Paul`, `GL_VERSION: 1.2 Mesa 6.3` — references the value
+  exactly **once**.
+
+So the configuration value *selects* a mode and something else *enables* it,
+and the live key holds only the configuration (plus `FX_GLIDE_ANALOG_SLI=1`).
+The leading hypothesis follows from the section above on AmigaMerlin's OpenGL
+being Mesa: **a Mesa-derived ICD never issues the T-buffer/AA request**, which
+would make FSAA on this driver reachable only from *native Glide* titles. That
+is **not yet verified** — the UT99 native-Glide run never launched (0-byte log)
+— and until it is, the honest statement is the one above: through the OpenGL
+path, on this driver, this card does not anti-alias.
+
+Which is a better story than an AA benchmark table. The Voodoo 5 6000's whole
+reason to exist is T-buffer anti-aliasing, and the community driver everyone
+recommends appears to be unable to deliver it to an OpenGL game.
+
 ### 1b. ...and "it is the count of topology writes" is ALSO not the whole story
 
 The count theory above explained four hangs and then failed on the fifth. cfg 1

@@ -224,10 +224,24 @@ async def find_display_instance(box):
 
 
 async def apply_aa_config(box, glide_key, cfg):
-    """Write SSTH3_SLI_AA_CONFIGURATION and prove it landed.
+    """Write SSTH3_SLI_AA_CONFIGURATION and prove THE WRITE LANDED.
 
     Returns (ok, readback).  Never trust the OK from REGWRITE: given a path
     with the value name folded in it creates a subkey and still answers OK.
+
+    ⚠️ THIS IS NOT EVIDENCE THE CARD IS ANTI-ALIASING, and for a while this
+    function's result was recorded in a column called `aa_verified`, which read
+    as though it were. Measured 2026-09-15 on .124: the value writes, reads
+    back, survives a reboot, and changes NOTHING - Quake III's own screenshot
+    of a fixed demo frame at 4 chips/no AA and 4 chips/4x AA is byte-identical
+    (same md5, zero pixel difference), and 2x AA on one chip costs 0.99x at a
+    fill-bound 1024x768 where it must cost roughly half. Adding
+    FX_GLIDE_AA_SAMPLE=4 produced the same md5 a third time.
+
+    The only honest post-condition for "AA is applied" is that THE RENDERING
+    CHANGED: a fps delta against the matching no-AA cell, or a pixel
+    difference between the two screenshots. So the column now records
+    `reg-readback-only`, which is what this actually checked all along.
     """
     await box.text(f"REGWRITE HKLM {glide_key} SSTH3_SLI_AA_CONFIGURATION REG_SZ {cfg}")
     out = await box.text(f"REGREAD HKLM {glide_key}")
@@ -966,7 +980,10 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args):
 
     # 1. the card's configuration, applied and proven
     ok, got = await apply_aa_config(box, glide_key, cfg)
-    row["aa_verified"] = "yes" if ok else f"NO(read={got})"
+    # "the value read back", NOT "the card is anti-aliasing" - see
+    # apply_aa_config. Anything downstream that wants the latter has to compare
+    # this row against the matching no-AA cell.
+    row["aa_verified"] = "reg-readback-only" if ok else f"NO(read={got})"
     if not ok:
         row["status"] = "aa-apply-failed"
         log(f"    AA config did not take (read back {got!r}) - not recording a number")

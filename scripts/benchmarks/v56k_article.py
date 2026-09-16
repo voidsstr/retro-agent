@@ -74,8 +74,14 @@ def main():
     if len(rends) > 1:
         print("- **WARNING: more than one renderer appears in this data; the rows "
               "do not all describe the same driver.**")
-    print(f"- AA config written AND read back on every measured row: "
-          f"{'yes' if not unver else f'NO - {len(unver)} row(s) unverified'}")
+    print(f"- AA config written and read back on every measured row: "
+          f"{'yes' if not unver else f'NO - {len(unver)} row(s) did not even write'}")
+    print("- **but a value that reads back is not a card that anti-aliases.** "
+          "Measured on this box: requesting 4x AA produced a BYTE-IDENTICAL "
+          "Quake III frame (same md5, zero pixel difference) and no fps cost "
+          "at all. Each AA row below is therefore checked against its matching "
+          "no-AA cell, and one that costs nothing is reported as AA NOT "
+          "APPLIED rather than as a free feature.")
     print()
 
     # ---- the grid ------------------------------------------------------ #
@@ -123,8 +129,21 @@ def main():
                 elif c == trio[0]:
                     cells.append(f"{v:.1f}")
                 else:
-                    cells.append(f"{v:.1f} ({v/b*100:.0f}%)" if b else f"{v:.1f}")
+                    if not b:
+                        cells.append(f"{v:.1f}")
+                    else:
+                        pct = v / b * 100
+                        # A sample count above 1 that costs under 3% has not
+                        # been applied: AA is a fill-rate cost by construction,
+                        # so "free AA" is a measurement of AA being ignored.
+                        flag = " **not applied**" if pct > 97 else ""
+                        cells.append(f"{v:.1f} ({pct:.0f}%){flag}")
             print(f"| {r[0]}x{r[1]} | " + " | ".join(cells) + " |")
+        print()
+        print("A cell marked **not applied** retained ≥97% of the no-AA frame "
+              "rate. Anti-aliasing costs fill rate by construction, so a free "
+              "AA cell is evidence the setting never reached the hardware - "
+              "confirmed independently here by byte-identical screenshots.")
         print()
 
     # ---- what is NOT measured, and why --------------------------------- #
