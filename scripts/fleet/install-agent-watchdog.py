@@ -53,18 +53,26 @@ RUN_VAL = "RetroAgentWD"
 
 # `start ""` so the loop does not block on the agent, and a ping-based sleep
 # because XP's shell has no `timeout` command.
+#
+# The check is deliberately cheap and infrequent. The first version ran an
+# unfiltered `tasklist` every 30 s, and on the single-core Athlon XP that was
+# measurable: Quake III's CPU-bound 640x480 cell read 97.4 fps with the loop
+# running and 116-117 fps with it paused (2026-09-16). A filtered `tasklist`
+# enumerates far less, and 90 s between checks keeps recovery under two
+# minutes while cutting the duty cycle by three quarters.
 WATCHDOG = "\r\n".join([
     "@echo off",
     "rem retro agent watchdog - restarts the agent if its process disappears.",
     "rem Installed by scripts/fleet/install-agent-watchdog.py. See that file",
-    "rem for why this is a Run-key loop rather than a scheduled task.",
+    "rem for why this is a Run-key loop rather than a scheduled task, and why",
+    "rem the check is filtered and 90 s apart (it perturbs CPU-bound benchmarks).",
     ":loop",
-    'tasklist | find /i "retro_agent.exe" >nul',
+    'tasklist /fi "imagename eq retro_agent.exe" /nh | find /i "retro_agent.exe" >nul',
     'if errorlevel 1 (',
     '  echo %DATE% %TIME% agent not running - starting it >> C:\\RETRO_AGENT\\agentwd.log',
     '  start "" C:\\RETRO_AGENT\\retro_agent.exe',
     ')',
-    "ping -n 31 127.0.0.1 >nul",
+    "ping -n 91 127.0.0.1 >nul",
     "goto loop",
     "",
 ])
