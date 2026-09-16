@@ -76,7 +76,7 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | title (api) | 16-bit | 32-bit | notes |
 |---|---|---|---|
 | Quake III (OpenGL ICD) | cfg 0/2/5 × 5 res ✅; cfg 1 partial | queued | published; cfg 2 measured once (repeat queued) |
-| Quake III repeatability with watchdog paused | running 2026-09-16 | — | closes the 640×480 caveat |
+| Quake III repeatability, box quiet | ✅ 640×480: cfg 0 117.5/116.3, cfg 5 119.4/121.6 (cfg 2 in progress) | — | resolved: background load (watchdog loop / wizard) cost 10–17% on the CPU-bound cell; GPU-bound cells unaffected |
 | Quake II (game-local `3dfxgl.dll` = a copy of the AmigaMerlin ICD, 2,646,009 B; the real MiniGL is 142,848 B in the library) | queued | queued | `demomap demo1.dm2`; fixed mode table; the runner labels the row by the DLL's real identity |
 | GLQuake (MiniGL) | queued | queued | refuses >1280×960 |
 | UT99 436 (GlideDrv, native Glide) | queued (UTbench.dem route) | **not possible** — UE1 GlideDrv is 16-bit only (verify on the box, record the log line) | user hit this in the video menu |

@@ -482,12 +482,20 @@ Repeatability, same host, cfg 0 and cfg 5 measured on two different days
 (first run → re-run): 640×480 **105.3 → 97.4** and **122.8 → 108.1**; every
 other cell within 1.7% and three within 0.1 fps (800×600 88.0 → 88.1,
 1280×960 38.8 → 38.8, 1600×1200 25.1 → 25.1). The CPU-bound cell is the noisy
-one; the GPU-bound cells repeat. **Caveat:** the agent watchdog (a `cmd` loop
-running `tasklist` every 30 s) was installed between the first run and the
-re-run and is an uncontrolled variable on exactly the CPU-bound cell; the
-re-measurement with the watchdog paused was scheduled but the host went
-offline before it ran. Until it is done, "noise" is the hypothesis, not the
-finding.
+one; the GPU-bound cells repeat.
+
+**Resolved 2026-09-16 — it was background load, not noise.** With the box
+quiet (the agent watchdog's 30-second `tasklist` loop paused, and the
+"Found New Hardware Wizard" that XP raised after every boot suppressed for
+good), 640×480 repeated within 2%: cfg 0 **117.5 and 116.3**, cfg 5 **119.4
+and 121.6** (`results/v56k_repeat_nowd_192.168.1.124/`). The published
+re-run values for that cell — cfg 0 97.4, cfg 5 108.1 — were taken with the
+watchdog loop running and are 10–17% low; the first-run cfg 5 value (122.8,
+taken before the watchdog existed) matches the quiet figure. GPU-bound cells
+showed no such sensitivity. The watchdog is now a filtered check every 90 s,
+and the 640×480 cells are re-measured quiet for every setting before they
+are republished. Lesson: on a single-core host the CPU-bound cell measures
+everything else that is running.
 
 Host 1 (`.191`), Quake III 640×480 only: cfg 0 = 126.6 and 127.8 (two runs),
 cfg 5 = 150.2, cfg 1 ("Single Chip, 2× AA") = 126.9. Note that even there the
