@@ -42,6 +42,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/display.c \
           $(SRCDIR)/audio.c \
           $(SRCDIR)/sysfix.c \
+          $(SRCDIR)/hostpolicy.c \
           $(SRCDIR)/licstatus.c \
           $(SRCDIR)/ai.c \
           $(SRCDIR)/chatproxy.c \

@@ -91,6 +91,22 @@ def test_autoarrange_is_applied_above_retrowall_early_returns():
     code = _strip_comments(RETROWALL.read_text(errors="replace"))
     start = code.index("retrowall_apply_startup")
     body = code[start:]
+
+    # The hostpolicy guard is the ONE return allowed above the call, and only
+    # because it is the opposite case to the bug below: it fires when the box
+    # is not a fleet box at all (modern Windows), where applying a retro icon
+    # layout is the defect rather than the fix. Strip exactly that construct -
+    # nothing else - then hold the original line.
+    # NB the argument contains its own ')' inside a string literal, so this
+    # matches lazily up to the CLOSING pair rather than to the first ')'.
+    body, n = re.subn(
+        r"if\s*\(\s*host_policy_skip\s*\(.*?\)\s*\)\s*return\s*0?\s*;",
+        "", body)
+    assert n >= 1, (
+        "the hostpolicy guard is no longer in retrowall_apply_startup - a modern "
+        "Windows box would get the retro theme, wallpaper and icon layout"
+    )
+
     call = body.index("gs_desktop_icons_apply()")
     before = body[:call]
     assert "return" not in before, (

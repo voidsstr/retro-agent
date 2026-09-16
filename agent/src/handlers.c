@@ -6,6 +6,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "hostpolicy.h"
 #include <string.h>
 #include <stdio.h>
 #include <tlhelp32.h>
@@ -15,85 +16,103 @@ typedef struct {
     int         has_args;
     void       (*handler_no_args)(SOCKET sock);
     void       (*handler_with_args)(SOCKET sock, const char *args);
+    /*
+     * 1 = this command RECONFIGURES THE HOST as a retro fleet box (skins it,
+     * stages content onto it, changes how it boots or what drivers it runs).
+     * Refused on modern Windows - see hostpolicy.h.
+     *
+     * This is deliberately NOT "anything that writes". The general-purpose
+     * remote-control primitives - EXEC, UPLOAD, DELETE, REGWRITE, NETMAP,
+     * SERVICE, REBOOT - are the OPERATOR's own hands, and an operator driving
+     * their own PC through the agent is not the agent imposing a fleet policy
+     * on it. Blocking those would make the agent useless on the very box it is
+     * installed on to reach (the copier host), and would not stop anything the
+     * operator could not do by opening a shell.
+     *
+     * Rows that omit this field get 0 from C's initializer rules, so a NEW
+     * command defaults to ALLOWED. If you add one that reconfigures the host,
+     * set this to 1 - tests/python/test_hostpolicy.py pins the current set.
+     */
+    int         reconfigures_host;
 } cmd_entry_t;
 
 static const cmd_entry_t commands[] = {
-    { "PING",       0, handle_ping,       NULL },
-    { "SYSINFO",    0, handle_sysinfo,    NULL },
-    { "VIDEODIAG",  0, handle_videodiag,  NULL },
-    { "DRIVERS",    1, NULL,              handle_drivers },
-    { "SCREENSHOT", 1, NULL,              handle_screenshot },
-    { "SCREENDIFF", 1, NULL,              handle_screendiff },
-    { "CLICKSHOT",  1, NULL,              handle_clickshot },
-    { "EXEC",       1, NULL,              handle_exec },
-    { "EXECW",      1, NULL,              handle_execw },
-    { "UPLOAD",     1, NULL,              handle_upload },
-    { "DOWNLOAD",   1, NULL,              handle_download },
-    { "DIRLIST",    1, NULL,              handle_dirlist },
-    { "MKDIR",      1, NULL,              handle_mkdir },
-    { "DELETE",     1, NULL,              handle_delete },
-    { "REGREAD",    1, NULL,              handle_regread },
-    { "REGWRITE",   1, NULL,              handle_regwrite },
-    { "REGDELETE",  1, NULL,              handle_regdelete },
-    { "PCISCAN",    0, handle_pciscan,    NULL },
-    { "PROCLIST",   0, handle_proclist,   NULL },
-    { "PROCKILL",   1, NULL,              handle_prockill },
-    { "SHUTDOWN",   0, handle_shutdown,   NULL },
-    { "REBOOT",     0, handle_reboot,     NULL },
-    { "QUIT",       0, handle_quit,       NULL },
-    { "RESTART",    0, handle_restart,    NULL },
-    { "NETMAP",     1, NULL,              handle_netmap },
-    { "NETUNMAP",   1, NULL,              handle_netunmap },
-    { "FILECOPY",   1, NULL,              handle_filecopy },
-    { "LAUNCH",     1, NULL,              handle_launch },
-    { "WINLIST",    0, handle_winlist,    NULL },
-    { "UICLICK",    1, NULL,              handle_uiclick },
-    { "UIDRAG",     1, NULL,              handle_uidrag },
-    { "UIKEY",      1, NULL,              handle_uikey },
-    { "MONITOR",    1, NULL,              handle_monitor },
-    { "DRVSNAPSHOT",1, NULL,              handle_drvsnapshot },
-    { "AUTOLOGIN", 1, NULL,              handle_autologin },
-    { "SERVICE",   1, NULL,              handle_service },
-    { "SMARTINFO",  0, handle_smartinfo,  NULL },
-    { "GAMEINDEX",  1, NULL,              handle_gameindex },
-    { "GAMESYNC",   1, NULL,              handle_gamesync },
-    { "ICONARRANGE",1, NULL,           handle_iconarrange },
-    { "GAMERES",    1, NULL,               handle_gameres },
-    { "DRVUPDATE",  1, NULL,             handle_drvupdate },
-    { "HWPROFILE",  1, NULL,             handle_hwprofile },
-    { "HWPUBLISH",  1, NULL,             handle_hwpublish },
-    { "DISPLAYCFG", 1, NULL,             handle_displaycfg },
-    { "AUDIOINFO",  0, handle_audioinfo,  NULL },
-    { "SYSFIX",     1, NULL,             handle_sysfix },
-    { "LICSTATUS",  1, NULL,            handle_licstatus },
-    { "WPASAVE",    1, NULL,              handle_wpasave },
-    { "WPALOAD",    1, NULL,              handle_wpaload },
-    { "AUTOMAP",    1, NULL,             handle_automap },
-    { "DOSSTAGE",   1, NULL,            handle_dosstage },
-    { "PROMPT_PUSH",1, NULL,            handle_prompt_push },
-    { "PROMPT_POP", 0, handle_prompt_pop, NULL },
-    { "PROMPT_WAIT",1, NULL,            handle_prompt_wait },
-    { "LOG_APPEND", 1, NULL,            handle_log_append },
-    { "LOG_READ",   1, NULL,            handle_log_read },
-    { "LOG_WAIT",   1, NULL,            handle_log_wait },
-    { "LOG_CLEAR",  0, handle_log_clear, NULL },
-    { "PROXY_GET",  0, handle_proxy_get,  NULL },
-    { "PROXY_SET",  1, NULL,            handle_proxy_set },
-    { "STATUS_SET", 1, NULL,            handle_status_set },
-    { "STATUS_GET", 0, handle_status_get, NULL },
-    { "STATUS_WAIT",1, NULL,            handle_status_wait },
-    { "AI_HELLO",   0, handle_ai_hello,   NULL },
-    { "AI_RESTART", 0, handle_ai_restart, NULL },
-    { "AI_ENABLE",  0, handle_ai_enable,  NULL },
-    { "AI_DISABLE", 0, handle_ai_disable, NULL },
-    { "MODEL_LOAD", 1, NULL,            handle_model_load },
-    { "MODEL_UNLOAD",1, NULL,           handle_model_unload },
-    { "MODEL_LIST", 0, handle_model_list, NULL },
-    { "INFER_RUN",  1, NULL,            handle_infer_run },
-    { "TENSOR",     1, NULL,            handle_tensor },
-    { "AI_RAW",     1, NULL,            handle_ai_raw },
-    { "AI_RAWP",    1, NULL,            handle_ai_rawp },
-    { NULL,         0, NULL,              NULL }
+    { "PING",       0, handle_ping,       NULL, 0 },
+    { "SYSINFO",    0, handle_sysinfo,    NULL, 0 },
+    { "VIDEODIAG",  0, handle_videodiag,  NULL, 0 },
+    { "DRIVERS",    1, NULL,              handle_drivers, 0 },
+    { "SCREENSHOT", 1, NULL,              handle_screenshot, 0 },
+    { "SCREENDIFF", 1, NULL,              handle_screendiff, 0 },
+    { "CLICKSHOT",  1, NULL,              handle_clickshot, 0 },
+    { "EXEC",       1, NULL,              handle_exec, 0 },
+    { "EXECW",      1, NULL,              handle_execw, 0 },
+    { "UPLOAD",     1, NULL,              handle_upload, 0 },
+    { "DOWNLOAD",   1, NULL,              handle_download, 0 },
+    { "DIRLIST",    1, NULL,              handle_dirlist, 0 },
+    { "MKDIR",      1, NULL,              handle_mkdir, 0 },
+    { "DELETE",     1, NULL,              handle_delete, 0 },
+    { "REGREAD",    1, NULL,              handle_regread, 0 },
+    { "REGWRITE",   1, NULL,              handle_regwrite, 0 },
+    { "REGDELETE",  1, NULL,              handle_regdelete, 0 },
+    { "PCISCAN",    0, handle_pciscan,    NULL, 0 },
+    { "PROCLIST",   0, handle_proclist,   NULL, 0 },
+    { "PROCKILL",   1, NULL,              handle_prockill, 0 },
+    { "SHUTDOWN",   0, handle_shutdown,   NULL, 0 },
+    { "REBOOT",     0, handle_reboot,     NULL, 0 },
+    { "QUIT",       0, handle_quit,       NULL, 0 },
+    { "RESTART",    0, handle_restart,    NULL, 0 },
+    { "NETMAP",     1, NULL,              handle_netmap, 0 },
+    { "NETUNMAP",   1, NULL,              handle_netunmap, 0 },
+    { "FILECOPY",   1, NULL,              handle_filecopy, 0 },
+    { "LAUNCH",     1, NULL,              handle_launch, 0 },
+    { "WINLIST",    0, handle_winlist,    NULL, 0 },
+    { "UICLICK",    1, NULL,              handle_uiclick, 0 },
+    { "UIDRAG",     1, NULL,              handle_uidrag, 0 },
+    { "UIKEY",      1, NULL,              handle_uikey, 0 },
+    { "MONITOR",    1, NULL,              handle_monitor, 0 },
+    { "DRVSNAPSHOT",1, NULL,              handle_drvsnapshot, 0 },
+    { "AUTOLOGIN", 1, NULL,              handle_autologin, 1 },
+    { "SERVICE",   1, NULL,              handle_service, 0 },
+    { "SMARTINFO",  0, handle_smartinfo,  NULL, 0 },
+    { "GAMEINDEX",  1, NULL,              handle_gameindex, 0 },
+    { "GAMESYNC",   1, NULL,              handle_gamesync, 1 },
+    { "ICONARRANGE",1, NULL,           handle_iconarrange, 1 },
+    { "GAMERES",    1, NULL,               handle_gameres, 1 },
+    { "DRVUPDATE",  1, NULL,             handle_drvupdate, 1 },
+    { "HWPROFILE",  1, NULL,             handle_hwprofile, 0 },
+    { "HWPUBLISH",  1, NULL,             handle_hwpublish, 0 },
+    { "DISPLAYCFG", 1, NULL,             handle_displaycfg, 0 },
+    { "AUDIOINFO",  0, handle_audioinfo,  NULL, 0 },
+    { "SYSFIX",     1, NULL,             handle_sysfix, 0 },
+    { "LICSTATUS",  1, NULL,            handle_licstatus, 0 },
+    { "WPASAVE",    1, NULL,              handle_wpasave, 0 },
+    { "WPALOAD",    1, NULL,              handle_wpaload, 1 },
+    { "AUTOMAP",    1, NULL,             handle_automap, 0 },
+    { "DOSSTAGE",   1, NULL,            handle_dosstage, 1 },
+    { "PROMPT_PUSH",1, NULL,            handle_prompt_push, 0 },
+    { "PROMPT_POP", 0, handle_prompt_pop, NULL, 0 },
+    { "PROMPT_WAIT",1, NULL,            handle_prompt_wait, 0 },
+    { "LOG_APPEND", 1, NULL,            handle_log_append, 0 },
+    { "LOG_READ",   1, NULL,            handle_log_read, 0 },
+    { "LOG_WAIT",   1, NULL,            handle_log_wait, 0 },
+    { "LOG_CLEAR",  0, handle_log_clear, NULL, 0 },
+    { "PROXY_GET",  0, handle_proxy_get,  NULL, 0 },
+    { "PROXY_SET",  1, NULL,            handle_proxy_set, 0 },
+    { "STATUS_SET", 1, NULL,            handle_status_set, 0 },
+    { "STATUS_GET", 0, handle_status_get, NULL, 0 },
+    { "STATUS_WAIT",1, NULL,            handle_status_wait, 0 },
+    { "AI_HELLO",   0, handle_ai_hello,   NULL, 0 },
+    { "AI_RESTART", 0, handle_ai_restart, NULL, 0 },
+    { "AI_ENABLE",  0, handle_ai_enable,  NULL, 0 },
+    { "AI_DISABLE", 0, handle_ai_disable, NULL, 0 },
+    { "MODEL_LOAD", 1, NULL,            handle_model_load, 0 },
+    { "MODEL_UNLOAD",1, NULL,           handle_model_unload, 0 },
+    { "MODEL_LIST", 0, handle_model_list, NULL, 0 },
+    { "INFER_RUN",  1, NULL,            handle_infer_run, 0 },
+    { "TENSOR",     1, NULL,            handle_tensor, 0 },
+    { "AI_RAW",     1, NULL,            handle_ai_raw, 0 },
+    { "AI_RAWP",    1, NULL,            handle_ai_rawp, 0 },
+    { NULL,         0, NULL,              NULL, 0 }
 };
 
 void handle_command(SOCKET sock, const char *cmd, DWORD cmd_len)
@@ -117,6 +136,31 @@ void handle_command(SOCKET sock, const char *cmd, DWORD cmd_len)
     /* Look up command */
     for (entry = commands; entry->name; entry++) {
         if (_stricmp(cmd_name, entry->name) == 0) {
+            /*
+             * ONE choke point for the whole "do not reconfigure a modern PC"
+             * rule. Put it here, not in each handler: a guard that has to be
+             * remembered in fifteen places is one that will be missed in the
+             * sixteenth, and the miss is silent - the box just gets skinned.
+             *
+             * The refusal is an ERROR with the reason in it, so the server
+             * sees WHY rather than a command that appeared to succeed and
+             * changed nothing. (SYSFIX and DISPLAYCFG are not flagged here:
+             * each has a genuinely read-only mode worth keeping, so they carry
+             * the same guard on their modifying branch instead.)
+             */
+            if (entry->reconfigures_host && !host_manages_this_box()) {
+                char why[256];
+                _snprintf(why, sizeof(why) - 1,
+                          "%s refused: this is modern Windows and the retro agent "
+                          "does not reconfigure it. Set HKLM\\%s\\%s (DWORD) to 1 "
+                          "to manage this box anyway.",
+                          entry->name, HOSTPOLICY_OVERRIDE_KEY,
+                          HOSTPOLICY_OVERRIDE_VALUE);
+                why[sizeof(why) - 1] = 0;
+                log_msg(LOG_MAIN, "%s", why);
+                send_error_response(sock, why);
+                return;
+            }
             if (entry->has_args) {
                 entry->handler_with_args(sock, args ? args : "");
             } else {

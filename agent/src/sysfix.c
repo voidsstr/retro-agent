@@ -13,6 +13,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "hostpolicy.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -511,6 +512,12 @@ void sysfix_apply_startup(void)
     json_t j;
     int i;
 
+    /* vcache/conservative_swap/udma already skip themselves on anything that is
+     * not Win9x, but AUTOLOGON does not - it would happily configure automatic
+     * logon on somebody's Windows 11 machine. Gate the whole auto-apply. */
+    if (host_policy_skip("sysfix startup auto-apply"))
+        return;
+
     log_msg(LOG_SYSFIX, "Startup auto-apply running");
 
     for (i = 0; all_fixes[i].func; i++) {
@@ -533,6 +540,17 @@ void handle_sysfix(SOCKET sock, const char *args)
 
     if (args && _stricmp(args, "apply") == 0) {
         apply = 1;
+    }
+
+    /* "check" reports what WOULD be fixed and changes nothing, so it stays
+     * useful as a diagnostic on any box. Only "apply" is refused. */
+    if (apply && !host_manages_this_box()) {
+        send_error_response(sock,
+            "SYSFIX apply refused: this is modern Windows and the retro agent "
+            "does not reconfigure it. SYSFIX check still works. Set HKLM\\"
+            HOSTPOLICY_OVERRIDE_KEY "\\" HOSTPOLICY_OVERRIDE_VALUE
+            " (DWORD) to 1 to manage this box anyway.");
+        return;
     }
 
     log_msg(LOG_SYSFIX, "SYSFIX %s", apply ? "apply" : "check");

@@ -7,6 +7,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "hostpolicy.h"
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
@@ -179,6 +180,16 @@ void handle_displaycfg(SOCKET sock, const char *args)
         display_get(sock);
     } else if (str_starts_with(args, "set")) {
         const char *params = args + 3;
+        /* "get" is a read and stays available; changing someone's resolution
+         * is a host change like any other. */
+        if (!host_manages_this_box()) {
+            send_error_response(sock,
+                "DISPLAYCFG set refused: this is modern Windows and the retro "
+                "agent does not reconfigure it. DISPLAYCFG get still works. Set "
+                "HKLM\\" HOSTPOLICY_OVERRIDE_KEY "\\" HOSTPOLICY_OVERRIDE_VALUE
+                " (DWORD) to 1 to manage this box anyway.");
+            return;
+        }
         params = str_skip_spaces(params);
         display_set(sock, params);
     } else {

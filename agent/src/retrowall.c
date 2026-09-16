@@ -42,6 +42,7 @@
 #include "util.h"
 #include "log.h"
 #include "ntdyn.h"
+#include "hostpolicy.h"
 
 #define WALLDIR        "C:\\retro-wall"
 #define ROTATE_EXE     WALLDIR "\\rotate_wall.exe"
@@ -633,6 +634,12 @@ void retrowall_apply_startup(void)
     char runcmd[512];
     char curwall[MAX_PATH];
 
+    /* Everything below this line changes how somebody's desktop LOOKS. On a
+     * modern Windows that is not ours to touch. Guarded here as well as in
+     * retrowall_thread() so a future caller cannot reach it another way. */
+    if (host_policy_skip("retrowall (theme, wallpaper, screensaver, icon layout)"))
+        return;
+
     /* The THEME and the SCREENSAVER need nothing staged - the theme is registry
      * plus a colour call, and the screensaver falls back to XP's own
      * system32\ssstars.scr. Only the wallpaper ROTATION needs C:\retro-wall.
@@ -753,6 +760,13 @@ void retrowall_apply_startup(void)
 DWORD WINAPI retrowall_thread(LPVOID param)
 {
     (void)param;
+
+    /* Leave before the delay even elapses: on an unmanaged box there is no
+     * wallpaper to apply AND no wallpaper to keep, so the 5-minute keep loop
+     * below must not run either. */
+    if (host_policy_skip("retrowall thread"))
+        return 0;
+
     Sleep(RETROWALL_DELAY_SEC * 1000);
     if (!g_running)
         return 0;

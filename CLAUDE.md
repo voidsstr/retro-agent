@@ -1797,6 +1797,48 @@ for pc in pcs:
   `REBOOT` cannot know any of this — it just reboots.
 - **Win98 RST crash**: Abrupt TCP disconnects crash Win98 Winsock. Always `await conn.close()` gracefully. Never kill connections to Win98 agents.
 
+## A Modern Windows Box Is NOT Managed (agent v1.82.0+) (REQUIRED)
+
+The agent turns a machine into a retro fleet box: theme, wallpaper, screensaver,
+desktop icon layout, autologon, staged games, pinned resolutions. On a Win9x/XP/7
+fleet box that is the product. On a **Windows 10/11** machine that runs the agent
+only so the fleet can reach it — the copier host `.139` is exactly this — it is
+vandalism, so the agent applies **nothing** to the host there.
+
+**What still works on a modern box.** Everything that observes (`SYSINFO`,
+`PROCLIST`, `SCREENSHOT`, `GAMEINDEX`, `HWPROFILE`, `LICSTATUS`, `SYSFIX check`,
+`DISPLAYCFG get`), the chat/proxy path, hardware publishing, and the agent's own
+auto-update. The general remote-control primitives are deliberately **left
+alone** as well — `EXEC`, `UPLOAD`, `DELETE`, `REGWRITE`, `NETMAP`, `SERVICE`,
+`REBOOT`. Those are the operator's own hands on their own machine; blocking them
+would make the agent useless on the box it exists to reach and would stop nothing
+the operator could not do by opening a shell.
+
+**What is refused**, with the reason in the error rather than a silent no-op:
+`GAMESYNC`, `GAMERES`, `ICONARRANGE`, `AUTOLOGIN`, `DRVUPDATE`, `DOSSTAGE`,
+`WPALOAD`, `SYSFIX apply`, `DISPLAYCFG set`. The startup work — `retrowall`
+(theme/wallpaper/screensaver/icons, including its 5-minute keep loop) and the
+`sysfix` auto-apply — does not run at all.
+
+**To manage a modern box anyway**, set
+`HKLM\Software\RetroAgent\ManageModernWindows` (DWORD) to `1`. Default absent
+= hands off.
+
+**NEVER detect the OS with `GetVersionEx` here.** It reports **6.2 (Windows 8)**
+on every 8.1/10/11 machine unless the EXE carries a manifest naming the newer
+`<supportedOS>` GUIDs, and `retro_agent.exe` has no manifest at all — its only
+resource is the icon. A `dwMajorVersion >= 10` test is therefore **FALSE on
+exactly the machines this protects**: it reads as if it works, skins the box, and
+the only evidence is somebody's wallpaper changing. `agent/src/hostpolicy.c` uses
+`RtlGetVersion`, which is not subject to that shim. It is **LoadLibrary'd, never
+imported** — `ntdll.dll` is not one of the eight DLLs proven to load on Win98SE,
+and a static import kills the whole process at EXE load (see `ntdyn.h`).
+
+Adding a new command that reconfigures the host? Set `reconfigures_host = 1` on
+its row in `agent/src/handlers.c` — `handle_command` enforces the policy centrally
+from that flag, and `tests/python/test_hostpolicy.py` pins the flagged set in both
+directions.
+
 ## Agent Command Reference
 
 ### System Info
@@ -1805,7 +1847,7 @@ for pc in pcs:
 - **VIDEODIAG** — video card, driver, PCI IDs, resolution, DirectX
 - **AUDIOINFO** — audio device enumeration
 - **SMARTINFO** — S.M.A.R.T. disk health
-- **DISPLAYCFG** — display config and refresh rate
+- **DISPLAYCFG** — display config and refresh rate (`set` is refused on modern Windows; `get` always works)
 - **PCISCAN** — PCI device enumeration with vendor/device IDs
 - **HWPROFILE** — the machine's stable hardware fingerprint as JSON: CPUID
   vendor/family/model/stepping, real clock, real RAM, instruction-set bits, the
