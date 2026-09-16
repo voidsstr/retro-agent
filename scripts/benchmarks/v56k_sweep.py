@@ -198,6 +198,9 @@ def main():
                     help="permit an outdir under /tmp. Off by default because a "
                          "session scratchpad is DELETED when the session ends, "
                          "and it took a measured campaign with it.")
+    ap.add_argument("--settle", type=int, default=150,
+                    help="seconds to wait after a clean boot before the first cell; "
+                         "the first cell after boot reads low on CPU-bound resolutions")
     ap.add_argument("--attempts", type=int, default=3,
                     help="passes per config. A wedge ends the pass; the bench "
                          "resumes from the CSV, so a retry costs one reboot and "
@@ -270,6 +273,17 @@ def main():
                 failed.append((cfg, "board-wedged-on-boot"))
                 break
             log(f"  board health: {'ok' if h else 'unknown'}")
+
+            # Let the box settle. The first cell after a boot reads low on the
+            # CPU-bound resolution: cfg 2 at 640x480 gave 105.9 fps as the first
+            # cell after its boot and 117.5 two minutes later in the same boot
+            # (2026-09-16) - the agent's own startup threads and XP's post-logon
+            # work are still running. Every 640x480 cell in the first published
+            # sweep was a first-cell-after-boot. Pair this with resolutions
+            # ordered high to low so the CPU-bound cell comes last.
+            if a.settle > 0:
+                log(f"  settling {a.settle} s after boot before the first cell ...")
+                time.sleep(a.settle)
 
             rc, out = run_bench(a.host, cfg, a.resolutions, a.depths,
                                 outdir, a.max_run, a.titles)
