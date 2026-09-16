@@ -1447,6 +1447,8 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     last_size, last_growth = -1, time.time()
     wedged = False
     modal = None
+    exited = None
+    t_launch = time.time()
     await asyncio.sleep(12)
     while time.time() < deadline:
         data = await box.download(title.log)
@@ -1468,6 +1470,18 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
                 else:
                     wedged = True
                     break
+        # A game whose PROCESS IS GONE with no fps line can never produce one.
+        # GLQuake crashed 5 s after GL init (a 1997 buffer vs a 1449-byte
+        # GL_EXTENSIONS string) and the runner waited out the full max_run
+        # five times over, 7 minutes each, for a log that would never grow.
+        if exited is None and time.time() - t_launch > 20:
+            try:
+                import v56k_diag
+                if not await v56k_diag.process_alive(box, title.proc):
+                    exited = True
+                    break
+            except Exception:
+                pass
         # A modal that will never clear is not a slow run - fail the cell now.
         # UE1's "Critical Error" and Serious Sam's "CD check" both sit forever,
         # and waiting them out cost attempts x max_run per cell on .124.
@@ -1493,6 +1507,11 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
             # by a modal" tells the operator the cell can never pass as staged.
             row["status"] = "blocked-by-modal"
             row["notes"] = f"blocking dialog: {modal[:80]}"
+        elif exited:
+            # The process died before printing a result: a crash, which the
+            # diagnostic capture below will name from Dr Watson.
+            row["status"] = "process-exited"
+            row["notes"] = "game process gone before any fps line"
         # These are real, reportable outcomes for a card/driver, not tool
         # failures - a mode this card cannot bring up belongs in the article.
         if wedged:

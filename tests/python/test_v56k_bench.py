@@ -645,3 +645,44 @@ def test_blocking_modal_titles_are_recognised():
         assert any(k in t.lower() for k in d.BLOCKING_MODALS), t
     for t in ("Unreal Tournament (Starting)", "Quake III Arena", "Program Manager"):
         assert not any(k in t.lower() for k in d.BLOCKING_MODALS), t
+
+
+def test_watson_decode_reads_a_fresh_utf16_log(tmp_path):
+    """Dr Watson writes UTF-16LE+BOM when it CREATES the log (every log after
+    watson_clear) and ANSI when it appends. Decoding the fresh form as latin-1
+    found zero markers in a 67 KB crash record and would have reported 'no
+    crash'. The BOM is sniffed; both forms must decode to the same facts."""
+    m = _diag()
+    body = ("Application exception occurred:\n"
+            "        App: C:\\Games\\Quake1\\glquake.exe (pid=1336)\n"
+            "        When: 4/2/2003 @ 22:38:10.000\n"
+            "        Exception number: c0000005 (access violation)\n"
+            "function: 3dfxogl!DrvSetPixelFormat\n"
+            "*----> Stack Back Trace <----*\n"
+            "ChildEBP RetAddr  Args to Child\n"
+            "0012f000 00401000 00000001 00000002 00000003 3dfxogl+0x1234\n"
+            "0012f100 00402000 00000001 00000002 00000003 glquake+0x5678\n")
+    ansi = tmp_path / "ansi.log"; ansi.write_bytes(body.encode("latin-1"))
+    u16 = tmp_path / "u16.log"; u16.write_bytes(b"\xff\xfe" + body.encode("utf-16-le"))
+    a, u = m.watson_decode(ansi), m.watson_decode(u16)
+    assert a["records"][0]["exception"].startswith("c0000005")
+    assert u["records"] == a["records"]
+    assert u["fault_function"] == "3dfxogl!DrvSetPixelFormat"
+    assert u["frames"][:2] == ["3dfxogl+0x1234", "glquake+0x5678"]
+
+
+def test_runner_names_a_process_exit_instead_of_waiting_it_out():
+    """GLQuake died 5 s after GL init and the runner waited the full max_run
+    five times over. The status must say the process is gone, not 'no fps
+    line' (which invites another attempt)."""
+    import asyncio
+    d = _diag()
+    class FakeBox:
+        def __init__(self, procs): self.procs = procs
+        async def text(self, cmd, timeout=30):
+            import json; return json.dumps([{"name": n} for n in self.procs])
+    assert asyncio.run(d.process_alive(FakeBox(["glquake.exe", "explorer.exe"]), "GLQUAKE.EXE")) is True
+    assert asyncio.run(d.process_alive(FakeBox(["explorer.exe"]), "glquake.exe")) is False
+    class DeadAgent:
+        async def text(self, cmd, timeout=30): raise ConnectionError()
+    assert asyncio.run(d.process_alive(DeadAgent(), "glquake.exe")) is None

@@ -169,10 +169,24 @@ async def watson_fetch(box, outdir):
     return got
 
 
+def read_watson_text(path):
+    """drwtsn32.log is ANSI when Dr Watson APPENDS to an existing file and
+    UTF-16LE with a BOM when it CREATES one - which is every log after
+    watson_clear(). Decoding a fresh log as latin-1 finds no markers at all and
+    reports "no crash" for a crash that is right there (measured on the GLQuake
+    exit, 67,522 B, 33,760 NULs). Sniff the BOM; never assume."""
+    b = Path(path).read_bytes()
+    if b[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return b.decode("utf-16", errors="replace")
+    if len(b) > 64 and b[1:64:2].count(b"\x00") > 24:
+        return b.decode("utf-16-le", errors="replace")
+    return b.decode("latin-1", errors="replace")
+
+
 def watson_decode(path):
     """Pull the useful facts out of a drwtsn32.log: the app, the exception, the
     faulting function and the stack. This is what named glide3x!grDrawTriangle."""
-    txt = Path(path).read_text(encoding="latin-1", errors="replace")
+    txt = read_watson_text(path)
     recs = []
     for m in re.finditer(r"Application exception occurred:\s*\n\s*App:\s*(.+?)\n\s*When:\s*(.+?)\n\s*Exception number:\s*(.+?)\n", txt):
         recs.append({"app": m.group(1).strip(), "when": m.group(2).strip(), "exception": m.group(3).strip()})
@@ -342,3 +356,15 @@ async def blocking_modal(box):
         if any(k in t.lower() for k in BLOCKING_MODALS):
             return t.encode().decode("unicode_escape", errors="replace")
     return None
+
+
+async def process_alive(box, image_name):
+    """Is a process with this image name running? One PROCLIST; None if it
+    could not be asked (a dead agent must not read as a dead game)."""
+    import json
+    try:
+        procs = json.loads(await box.text("PROCLIST", timeout=30))
+    except Exception:
+        return None
+    want = image_name.lower()
+    return any((p.get("name") or "").lower() == want for p in procs)
