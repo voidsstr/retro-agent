@@ -426,7 +426,8 @@ Everything below the line "Not yet run" is the second instalment.
   built (`provisioning/bios-recovery/`) but the board was written off. **Its
   numbers are not comparable with host 2's** — same card, same driver files
   byte-for-byte, different machine.
-- **Host 2 — `.124`:** nForce2, Athlon XP 2400+ @ 2004 MHz, **255 MB**, XP SP3,
+- **Host 2 — `.124`:** Athlon XP 2400+ @ 2004 MHz (no SSE2), **255 MB**, XP SP3,
+  chipset not in the published hardware record (lab notes said nForce2 — unverified),
   hostname `NSC-C543575F526`, agent 1.81.1. Every table in this document that
   is not explicitly marked `.191` is from this host.
 
