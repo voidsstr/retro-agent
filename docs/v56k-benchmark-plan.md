@@ -66,6 +66,8 @@ Companion documents:
 | `scripts/benchmarks/v56k_shots.py` | matched-scene image-quality captures per config (engine screenshots) | `python3 scripts/benchmarks/v56k_shots.py --host 192.168.1.124 --configs 5,7 --games quake3 --res 1024x768 --outdir scripts/benchmarks/results/shots_192.168.1.124` |
 | `scripts/benchmarks/v56k_versions.py` | retroactive version capture / backfill of an older CSV | `python3 scripts/benchmarks/v56k_versions.py --host 192.168.1.124 --outdir <results dir> --backfill` |
 | `scripts/benchmarks/v56k_article.py` | generates the data tables (driver labels quoted, AA cells flagged "not applied") | `python3 scripts/benchmarks/v56k_article.py <results.csv>` |
+| `scripts/benchmarks/v56k_diag.py` | **the AmigaMerlin flight recorder and crash capture** — `dump`/`ring` (per-chip scanout over the driver's own `HWCEXT_GET_SLAVE_REGS` escape), `watson` (decode the crash), `quiet` (suppress the crash dialog that makes a crash look like a wedge), `capture` (bundle) | `python3 scripts/benchmarks/v56k_diag.py --host 192.168.1.124 watson` |
+| `scripts/benchmarks/v56k_audit.py` | read-only readiness audit per title (exe, game-local DLLs, demo, config depth) | `python3 scripts/benchmarks/v56k_audit.py --host 192.168.1.124` |
 | `scripts/fleet/install-agent-watchdog.py` | Run-key agent watchdog (`--check`, `--remove`) | installed on `.124` |
 | `voodoo-cleanroom/tools/glideprobe.c` → `C:\RETRO_AGENT\glideprobe.exe` | step-by-step Glide init probe; `--noopen` = board health | used by the sweep |
 | `specpicks/scripts/lab/load-voodoo5-6000-lab-results.py` | loads CSVs into `hardware_specs`/`gaming_benchmarks`/`retro_benchmark_runs` | `python3 scripts/lab/load-voodoo5-6000-lab-results.py [--dry-run]` |
@@ -80,20 +82,42 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 
 | title (api) | 16-bit | 32-bit | notes |
 |---|---|---|---|
-| Quake III (OpenGL ICD) | cfg 0/2/5 × 5 res ✅; cfg 1 partial | queued | published; cfg 2 measured once (repeat queued) |
-| Quake III repeatability, box quiet | ✅ 640×480: cfg 0 117.5/116.3, cfg 2 117.5 (105.9 as first cell after boot), cfg 5 119.4/121.6 | — | resolved: background load and first-cell-after-boot cost 10–17% on the CPU-bound cell; all three settings equal at 640×480 (pure CPU bound); GPU-bound cells unaffected |
-| Quake II (game-local `3dfxgl.dll` = a copy of the AmigaMerlin ICD, 2,646,009 B; the real MiniGL is 142,848 B in the library) | queued | queued | `demomap demo1.dm2`; fixed mode table; the runner labels the row by the DLL's real identity |
-| GLQuake (MiniGL) | queued | queued | refuses >1280×960 |
-| UT99 436 (GlideDrv, native Glide) | queued (UTbench.dem route) | **not possible** — UE1 GlideDrv is 16-bit only (verify on the box, record the log line) | user hit this in the video menu |
-| UT99 436 (OpenGLDrv → AmigaMerlin ICD) | queued | queued | the 32-bit route for UT |
-| UT99 436 (D3DDrv → AmigaMerlin D3D HAL) | queued | queued | second 32-bit route |
-| Unreal Gold (Glide / OpenGL) | queued | queued | staged nGlide `glide2x.dll` was retired to `.wrapper.bak` |
-| Deus Ex (Glide / OpenGL) | queued | queued | UE1 rules as UT99 |
-| RtCW (OpenGL ICD) | queued | queued | needs a bench class: `wolfbench.dm_60` + `rtcwconsole.log`; no `r_mode -1` (real mode index) |
-| Serious Sam TFE / TSE (OpenGL) | queued | queued | class exists in `v56k_bench.py` |
+| Quake III (OpenGL ICD) | cfg 0/2/5 x 5 res OK; cfg 1 partial | sweeping | published. **Crashes are an int3 in AmigaMerlin's own `glide3x!grDrawTriangle+0x2d`, tripped by its Mesa ICD** — not a hang |
+| Quake III repeatability, box quiet | OK 640x480: cfg 0 117.5/116.3, cfg 2 117.5 (105.9 as first cell after boot), cfg 5 119.4/121.6 | — | resolved: background load + first-cell-after-boot cost 10-17% on the CPU-bound cell |
+| Quake II (game-local `3dfxgl.dll` = a copy of the AmigaMerlin ICD) | sweeping | sweeping | runner labels the row by the DLL's real identity |
+| GLQuake (MiniGL) | sweeping | sweeping | refuses >1280x960 |
+| UT99 436 (GlideDrv, native Glide) | **MEASURED 66.44 fps @640x480 cfg2** | **not possible** — GlideDrv is 16-bit only | parser must take the demo's summary, not the toggle blip (25.62) |
+| UT99 436 (OpenGLDrv -> AmigaMerlin ICD) | **BROKEN** | **BROKEN** | **GPF: `UOpenGlRenderDevice::SetRes <- ::Init <- TryRenderDevice <- UGameEngine::Init`.** This is why UT99 cannot be put in 32-bit |
+| UT99 436 (D3DDrv -> AmigaMerlin D3D HAL) | sweeping | sweeping | the remaining 32-bit candidate |
+| RtCW (`rtcw:openglv5`) | **MEASURED 116-126 fps @640x480 cfg2** | sweeping | **always loads its bundled Wicked3D `gl/openglv5.dll`**, never AmigaMerlin's ICD: `r_glDriver` is latched and only ever latches. Removing the file to force it WEDGED the box — the runner reads back which ICD loaded instead |
+| Serious Sam TFE / TSE (OpenGL) | **BLOCKED** | **BLOCKED** | `CD check - "Please insert the game CD"`. A **library** fix (staged tree), not a driver one |
+| Unreal Gold / Deus Ex (Glide) | not run | not run | UE1 `-benchmark` never exits; needs the UTbench-style route |
 | AA settings cfg 1/3/4/6/7/8 | **blocked** — AA never engages via registry/env | — | unblock via §4 first |
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
-| Other drivers: official 3dfx 1.04.00 (Win2K), SFFT (non-SSE2 build only), in-house stacks | not run | — | each is a full re-run of the matrix |
+| Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
+
+### Diagnosing an AmigaMerlin failure (2026-09-16)
+
+**AmigaMerlin is a RETAIL driver and has no `RLog*` registry ring** — the
+flight recorder we rely on in the vintage H5 build does not exist here
+(measured: absent from the display class, `3dfxvs`, and `Device0`). The
+recorder has to come from outside the driver, and there are exactly two
+surfaces, both wrapped by `v56k_diag.py`:
+
+- **`fxscan2 ring`** (built from `retro-3dfx/tools/v56k`, single-sourced there)
+  — per-chip scanout registers over the `HWCEXT_GET_SLAVE_REGS` escape the
+  SHIPPING driver answers. Verified against AmigaMerlin on `.124`: escape
+  `0x3df3`, `121A:0009`, 4 chips. **The only recorder that can see a Glide
+  fullscreen session**, since the driver releases the card on
+  `DrvAssertMode(DISABLE)`. Start it BEFORE the game.
+- **Dr Watson** — which is what identified the Quake III crash.
+
+Two failure classes need different handling, and confusing them wasted a day:
+
+| class | mechanism | handling |
+|---|---|---|
+| a **crash** (Windows) | int3/GPF raises a dialog that sits BEHIND the exclusive fullscreen surface, so the box reads as wedged | `v56k_diag quiet` suppresses the dialog, keeps the dump |
+| a **modal the ENGINE owns** (UE1 "Critical Error", Serious Sam "CD check") | sits forever; `quiet` cannot touch it | `blocking_modal()` detects it; the cell fails in seconds as `blocked-by-modal` |
 
 Host 1 (`.191`): four verified Quake III cells at 640×480 only; board written off.
 
