@@ -82,10 +82,10 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 
 | title (api) | 16-bit | 32-bit | notes |
 |---|---|---|---|
-| Quake III (OpenGL ICD) | cfg 0/2/5 x 5 res OK; cfg 1 partial | sweeping | published. **Crashes are an int3 in AmigaMerlin's own `glide3x!grDrawTriangle+0x2d`, tripped by its Mesa ICD** — not a hang |
+| Quake III (OpenGL ICD) | cfg 0/2/5 x 5 res OK; cfg 1 partial | **cfg 5 done: 51.3 / 75.1 / 101.1 / 110.3 / 115.0** (1600x1200 -> 640x480) | published. **Crashes are an int3 in AmigaMerlin's own `glide3x!grDrawTriangle+0x2d`, tripped by its Mesa ICD** — not a hang |
 | Quake III repeatability, box quiet | OK 640x480: cfg 0 117.5/116.3, cfg 2 117.5 (105.9 as first cell after boot), cfg 5 119.4/121.6 | — | resolved: background load + first-cell-after-boot cost 10-17% on the CPU-bound cell |
-| Quake II (game-local `3dfxgl.dll` = a copy of the AmigaMerlin ICD) | sweeping | sweeping | runner labels the row by the DLL's real identity |
-| GLQuake (MiniGL) | sweeping | sweeping | refuses >1280x960 |
+| Quake II (game-local `3dfxgl.dll` = a copy of the AmigaMerlin ICD) | **cfg 5 done: 147-173 fps, flat across resolution** | **cfg 5 done: 32-bit = 16-bit** (172.6 vs 172.5 @1600x1200) | entirely CPU-bound on this card; the runner labels the row by the DLL's real identity |
+| GLQuake (MiniGL) | **out of the automated sweep** | same | Runs fine on AmigaMerlin (GL_RENDERER Mesa Glide v0.63) - **our `-condebug` flag crashes it**: the ICD's 1,449-byte GL_EXTENSIONS overflows 1997's 1 KB Con_DebugLog buffer (return address on the stack = ASCII "TENS"). Without `-condebug` there is no log to parse; `MESA_EXTENSION_OVERRIDE` is ignored by this Mesa 6.3. Needs a capture route (read the console frame) before it can be measured |
 | UT99 436 (GlideDrv, native Glide) | **MEASURED 66.44 fps @640x480 cfg2** | **not possible** — GlideDrv is 16-bit only | parser must take the demo's summary, not the toggle blip (25.62) |
 | UT99 436 (OpenGLDrv -> AmigaMerlin ICD) | **BROKEN** | **BROKEN** | **GPF: `UOpenGlRenderDevice::SetRes <- ::Init <- TryRenderDevice <- UGameEngine::Init`.** This is why UT99 cannot be put in 32-bit |
 | UT99 436 (D3DDrv -> AmigaMerlin D3D HAL) | sweeping | sweeping | the remaining 32-bit candidate |
@@ -95,6 +95,23 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | AA settings cfg 1/3/4/6/7/8 | **blocked** — AA never engages via registry/env | — | unblock via §4 first |
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
+
+### Row statuses a CSV can carry (2026-09-16)
+
+`ok` is the only status the specpicks loader publishes. The others each name a
+different next action, which is the point of not collapsing them:
+
+| status | meaning | next action |
+|---|---|---|
+| `unsupported-by-engine` | the engine declares it cannot do this mode (GLQuake >1280x960, RtCW 1280x960) | none - reportable as an engine limit |
+| `blocked-by-modal` | a dialog that never clears (UE1 "Critical Error", Serious Sam "CD check") | fix the title/library; the dialog is named in `notes` |
+| `process-exited` | the game process died before any fps line | read the Dr Watson bundle in `diag/` - it names the fault |
+| `driver-mismatch` | the ICD that loaded is not the one the cell asked for (RtCW) | the number is real but for the OTHER driver; do not publish under this one |
+| `gl-init-hung` / `mode-rejected-by-card` | renderer never came up / the card refused the mode | the flight recorder (`v56k_diag ring`) is the instrument |
+| `no-fps-line(see raw log)` | none of the above matched | the runner could not classify it - look at the log |
+
+Evidence is never overwritten: every Dr Watson fetch lands under its cell label
+(`drwtsn32-<label>.log`), and the unlabelled name is only the "latest" copy.
 
 ### Diagnosing an AmigaMerlin failure (2026-09-16)
 
