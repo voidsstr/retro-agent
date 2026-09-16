@@ -404,6 +404,169 @@ same spawn, player standing still. The 3dfx driver also exposes a
 `Screen Capture Hotkey` in its Glide settings which captures the actual Glide
 framebuffer — the fallback if an engine's own capture proves unreliable.
 
+## Where testing stands — 2026-09-16 (checkpoint for the specpicks review)
+
+This is the state the first published instalment of the review describes.
+Everything below the line "Not yet run" is the second instalment.
+
+### The card and the two hosts
+
+- **The card:** a modern "Strange God" AGP reproduction of the 3dfx Voodoo 5
+  6000 — four VSA-100s, identifying itself to Windows as
+  `PCI\VEN_121A&DEV_0009&SUBSYS_0001121A` (`0001121A` is the 6000; a 5500 is
+  `0002121A`), behind a HiNT bridge `VEN_3388&DEV_0021`. It carries a **128 MB
+  / 256 MB mode switch**; every number here was taken in the mode it shipped
+  in and the switch has **not** been exercised (see "Not yet run"). The driver
+  reports 32 MB, which is per-chip framebuffer as Glide sees it, not the card.
+- **Host 1 — `.191`:** EPoX EP-8RDA+ (nForce2), Athlon XP 2600+ @ 1921 MHz,
+  511 MB, XP SP3. Produced four verified Quake III cells at 640×480 (below)
+  before its BIOS was corrupted mid-campaign; a bootblock floppy recovery was
+  built (`provisioning/bios-recovery/`) but the board was written off. **Its
+  numbers are not comparable with host 2's** — same card, same driver files
+  byte-for-byte, different machine.
+- **Host 2 — `.124`:** nForce2, Athlon XP 2400+ @ 2004 MHz, **255 MB**, XP SP3,
+  hostname `NSC-C543575F526`, agent 1.81.1. Every table in this document that
+  is not explicitly marked `.191` is from this host.
+
+### Software under test, exactly
+
+| component | identity |
+|---|---|
+| driver package | `AMIGAMERLIN 3.1-R11 For Voodoo 5 6000 AGP`, DriverVersion `5.1.2605.5`, DriverDate 6-9-2005, `oem2.inf`, provider string "3dfx Interactive, Inc." |
+| `glide3x.dll` | 344,064 B, md5 `8c376063b95fa9a4d05a03626a2a1e5c` |
+| `glide2x.dll` | 94,208 B, md5 `a0d0841a178acda0dfc200ef9e31f5db` |
+| `3dfxOGL.dll` (the OpenGL ICD) | 2,646,009 B, md5 `8912a1388a15a8f6b3a75b6a1a344ee9` — reports `GL_VENDOR: Brian Paul`, `GL_RENDERER: Mesa Glide v0.63 Voodoo5 6000 (tm)`, `GL_VERSION: 1.2 Mesa 6.3` |
+| `3dfxvs.dll` (display driver) | 610,240 B, md5 `95634e870d73a33e64ddd138074f523b` |
+| `3dfxvsm.sys` (miniport) | 174,720 B, md5 `83ee5503255fd9f9c2291253221cb466` |
+| Quake III Arena | retail `quake3.exe` 1.32c, 872,448 B, md5 `b5cf3dd55e045aac6096ff97379d0cab`, `demo four`, 16-bit |
+| Unreal Tournament | 436, `UnrealTournament.exe` 241,664 B, md5 `7dadcc7e3a9a3d66001e3b37cf636f0e`, `GlideDrv.GlideRenderDevice` |
+
+### Measured and publishable (host 2, `.124`)
+
+Quake III `demo four`, 16-bit, average fps, renderer string recorded on every
+row (`scripts/benchmarks/results/v56k_sweep_192.168.1.124/results.csv`):
+
+| driver setting | label the driver gives it | 640×480 | 800×600 | 1024×768 | 1280×960 | 1600×1200 |
+|---|---|--:|--:|--:|--:|--:|
+| cfg 0 | "Single Chip Only" | 97.4 | 88.1 | 58.6 | 38.8 | 25.1 |
+| cfg 2 | "Dual Chip, no AA" | **124.7** | **140.1** | **136.1** | **134.5** | **87.0** |
+| cfg 5 | "Quad Chip, no AA" | 108.1 | 120.2 | 116.9 | 115.4 | 78.7 |
+
+Repeatability, same host, cfg 0 and cfg 5 measured on two different days
+(first run → re-run): 640×480 **105.3 → 97.4** and **122.8 → 108.1**; every
+other cell within 1.7% and three within 0.1 fps (800×600 88.0 → 88.1,
+1280×960 38.8 → 38.8, 1600×1200 25.1 → 25.1). The CPU-bound cell is the noisy
+one; the GPU-bound cells repeat.
+
+Host 1 (`.191`), Quake III 640×480 only: cfg 0 = 126.6 and 127.8 (two runs),
+cfg 5 = 150.2, cfg 1 ("Single Chip, 2× AA") = 126.9. Note that even there the
+"2× AA" cell equals the no-AA cell — the FSAA finding was already in the data
+before anyone looked for it.
+
+### Established beyond the numbers
+
+1. **FSAA does not engage on this card with this driver, through either
+   rendering path** (retraction 0, above). Not "looks similar": byte-identical
+   frames and no frame-time cost, on OpenGL and on native Glide.
+2. **The driver's chip-count labels do not describe what the card does**
+   (retraction 0b). A registry value takes 1600×1200 from 25.1 to 87.0 fps —
+   3.47× — which is the publishable headline, label-free.
+3. **The wedge is real and mechanical.** Under repeated Glide context creation
+   the display driver hangs; sometimes it kills the agent process (a Run-key
+   watchdog now restarts it in ~30 s), sometimes it hangs the box with the game
+   on screen and needs a power cycle. One AA config per clean boot is
+   necessary and not sufficient.
+
+### Not yet run — the second instalment
+
+- **128 MB vs 256 MB mode.** The card's switch has not been touched. Whether
+  the driver even exposes the difference (texture memory per chip, `FX_GLIDE_FBRAM`)
+  is the first question.
+- **Other driver stacks on the same card:** SFFT, the official 3dfx
+  1.04.00 beta, and the two in-house stacks (`voodoo-cleanroom/` MesaFX +
+  open Glide; the vintage H5 source tree). AmigaMerlin was chosen first
+  because it is the community default; whether FSAA works on *any* of them is
+  now the central question.
+- **Making FSAA engage at all** — the 3dfx Tools control-panel route, and the
+  display-driver enables the binaries name (`SSTH3_ANTIALIAS`,
+  `SSTH3_DIGITAL_SLI_AA`). If a route exists, every AA cell (cfg 1, 3, 4, 6, 7,
+  8) is then measurable; today they are all measurements of AA being ignored.
+- **Resolving the chip labels** — SLI band height (`FX_GLIDE_SLI_BAND_HEIGHT`)
+  is the leading explanation for why cfg 2 beats cfg 5.
+- **32-bit colour** at matched settings.
+- **The other titles** the harness already knows how to drive: Quake II
+  (MiniGL), GLQuake, RtCW, Serious Sam TFE/TSE, Unreal Gold and Deus Ex on
+  native Glide vs OpenGL, and a Direct3D title.
+- **UT99 frame rates as a table** — the engine's `-benchmark` never exits on
+  this build; the working route is its on-screen stat overlay read off its
+  own screenshot, which is a number per capture rather than a timedemo.
+- **Host 1's board**, if it is repaired: a within-box comparison of the two
+  memory modes on two hosts.
+
+---
+
+## What this campaign taught us — the learnings page
+
+Each of these cost time; several cost a trip to the machine.
+
+1. **Agent liveness is not board liveness.** Six of nine "this configuration
+   wedges the driver" verdicts were measurements of a board that was already
+   wedged. Check board health after any failure, and never attribute a hang to
+   the cell that happened to be running.
+2. **A value that reads back is not a feature that works.** `aa_verified`
+   meant "the registry value read back" and read as "the card anti-aliases".
+   The only honest post-condition is that the *rendering changed* — an fps
+   delta against the matching no-AA cell, or a pixel difference.
+3. **Free AA is not a feature, it is a bug in the measurement.** Anti-aliasing
+   costs fill rate by construction. A cell that retains ≥97% of the no-AA
+   frame rate is AA being ignored, and the table now says so.
+4. **A driver's own labels are claims, not facts.** The same Tweak Map that
+   produced the AA labels produced the chip-count labels, and the AA half was
+   demonstrably inert. Publish only what the measurement supports: the spread,
+   not the chip count.
+5. **One topology write per boot, and it is still not enough.** The reboot is
+   what clears the wedge; the retry is what makes the sweep finish; and a
+   retry is only earned by a pass that measured something.
+6. **The box must restart its own agent.** Nothing supervised the agent; every
+   crash was a physical visit. A 30-second Run-key loop turned that into three
+   minutes — and a hang that leaves the game on screen still needs a person.
+7. **A results path that can vanish is worse than none.** Fourteen measured
+   rows were lost to a session scratchpad. Results now refuse a `/tmp` outdir,
+   and the evidence images live under `docs/`.
+8. **Record what was running, on the row.** Game exe md5, driver package and
+   version, Glide and ICD hashes, OS, agent — per row, not only in a sidecar.
+   AmigaMerlin ships rebranded 3dfx binaries whose version resources lie;
+   only a hash distinguishes two builds. A retroactive probe fills only empty
+   cells and says so in the row.
+9. **The engine takes the picture.** The agent's GDI capture of a Glide
+   exclusive-fullscreen surface returns dark noise. `screenshotJPEG` in Quake
+   III and `Shot` in UT99 are the only trustworthy frames.
+10. **A deterministic scene is the hard part, and the shortcuts fail
+    quietly.** `?quickstart=true` spawns at a random PlayerStart (74% of
+    pixels differed for reasons unrelated to AA); a demo photographed too
+    early is the loading screen, a 2D blit identical under every setting and
+    therefore a vacuous pass that looks decisive. Look at the image.
+11. **Edge quality is scene-independent; a pixel diff is not.** When the
+    scene cannot be pinned, judge the staircase.
+12. **UE1 accepts synthetic keystrokes in exclusive fullscreen; id Tech 3 does
+    not.** A rule measured on one engine does not generalise. The `stat fps`
+    overlay, read off the engine's own screenshot, is a measurement channel
+    when no log can be parsed.
+13. **UE1 leaves `System\Running.ini` behind when it is killed**, and the next
+    launch stops on a modal Recovery Mode dialog with a 0-byte log — which
+    looks exactly like a renderer failure and was misread as one.
+14. **Every engine has its own dialect.** Quake II's `wait` takes no argument
+    and delays one frame; RtCW's fork has no `r_mode -1`; Quake III's latched
+    cvars must be set before `R_Init`. Copying one engine's recipe into
+    another produces a complete, plausible, wrong set of images.
+15. **Read the binary, not the forum.** `awdflash /F` is "use the flash
+    routines in the original BIOS", the opposite of "force". `glide3x.dll`'s
+    strings named the FSAA mechanism (`ExEscape:HWCEXT_SLI_AA_REQUEST`) in a
+    minute.
+16. **Do not compare hosts.** The same card and byte-identical driver gave
+    150.2 fps on one machine and 122.8 on another at the same setting. Only
+    within-box comparisons are valid.
+
 ## Open questions
 
 - 16-bit vs 32-bit at matched settings: the one published test of this card's
