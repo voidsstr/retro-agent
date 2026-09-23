@@ -6,7 +6,7 @@ this repo. The full picture is in [`README.md`](README.md) — §5, §6 and §15
 
 | Our fork | Upstream | Fork point | Our branch / head |
 |---|---|---|---|
-| [voidsstr/retro3dfx-gl](https://github.com/voidsstr/retro3dfx-gl) | [sezero/MesaFX-6.2](https://github.com/sezero/MesaFX-6.2) | sezero's last commit `fd191eb` (2023-02-02) | `master` at `492a0d8` (ICD 0.1.33) |
+| [voidsstr/retro3dfx-gl](https://github.com/voidsstr/retro3dfx-gl) | [sezero/MesaFX-6.2](https://github.com/sezero/MesaFX-6.2) | sezero's `fd191eb` (2023-02-02); upstream has since added `f991518` (2026-07-15, mingw build fixes), not merged | `master` at `492a0d8` (ICD 0.1.33) |
 | [voidsstr/retro3dfx-glide](https://github.com/voidsstr/retro3dfx-glide) | [sezero/glide](https://github.com/sezero/glide) | `ee38094805f778566cc752c6d854f058253234de` | `glide-devel-sezero` at `a71eb3f` |
 
 ## Where our changes live
@@ -29,16 +29,18 @@ captured under `patches/`.
 
 ## Licenses (upstream, preserved)
 
-- **Glide:** 3dfx Glide Source Code General Public License — the genuine 2000
-  open release.
+- **Glide:** 3dfx Glide Source Code General Public License — 3dfx's genuine
+  1999–2000 open release (h3/cvg from November 1999, h5/Napalm from June 2000).
 - **MesaFX:** MIT / Mesa license (Brian Paul et al.).
 
 Both allow redistribution; the forks keep the upstream license files.
 
 ## Not forks — written by us
 
-- **`vcr-disp/`** and **fxD3D (`../scripts/3dfx/`)** are original code,
-  *modelled on* the open Device3Dfx (Linux kernel driver), RISCyVoodoo (NT) and
-  vmdisp9x (9x) — read for structure, not copied.
+- **`vcr-disp/`** is original code modelled on the open Device3Dfx (Linux
+  kernel driver), RISCyVoodoo (NT) and vmdisp9x (9x); **fxD3D
+  (`../scripts/3dfx/`)** is original code on the public DDK/DDI, with vmdisp9x,
+  RISCyVoodoo and triatomic as host-driver templates. Both were read for
+  structure, not copied.
 - **`vcr-disp-h5/dist/`** is *not* ours and not clean-room: a prebuilt vintage
   H5 driver package from the `retro-3dfx` lane, kept as a stopgap.

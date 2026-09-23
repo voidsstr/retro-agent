@@ -398,9 +398,10 @@ to 1600×1200 (22.9 fps). The V3 vertex/transform path remains near-optimal for 
 
 > **⚠️ LOST (found 2026-09-23).** Neither change below exists in any source
 > today — not in any `retro3dfx-gl` commit, not in `patches/`, not in either
-> local clone. They were never committed, and the clone was re-created on
-> 2026-09-04. Every build since (0.1.41 → 0.1.61) opens fullscreen at 60 Hz and
-> has no software cursor. `tests/native/test_fx_best_refresh.c` and
+> local clone. They were never committed. Builds 0.1.36 onward came from a fresh
+> clone of the fork (the `cvg` worktree, 2026-08-28), and the main clone that
+> may still have held them was re-created on 2026-09-04. Every build from 0.1.36
+> to 0.1.61 opens fullscreen at 60 Hz and has no software cursor. `tests/native/test_fx_best_refresh.c` and
 > `test_fx_cursor_overlay.c` still pass because they copy the logic. Restoring
 > both is on the roadmap (README §17.3).
 

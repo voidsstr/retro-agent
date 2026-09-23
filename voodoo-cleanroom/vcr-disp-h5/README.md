@@ -32,9 +32,10 @@ The source is **not** vendored here (an old version of this README said
 
 ## Install (when a Voodoo 3 returns)
 
-`updrv.exe voodoo3-wfp.inf "PCI\VEN_121A&DEV_0005"` — or, better, the
-`deploy-3dfx-driver` skill, which does the backup, activation check, safe
-reboot and rollback.
+`updrv.exe voodoo3-wfp.inf "PCI\VEN_121A&DEV_0005"` — or the
+`deploy-3dfx-driver` skill (backup, install, verify, rollback). **The skill does
+not check activation and issues a bare `REBOOT`:** run `LICSTATUS` first and
+reboot with `scripts/fleet/safe-reboot.py <ip>` (see `../../CLAUDE.md`).
 
 ## Retirement
 

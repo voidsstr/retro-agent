@@ -64,10 +64,14 @@ and `out/glide2x_cvg.dll` (Voodoo 2), `out/glide2x.dll` (Voodoo 3, Glide 2),
 ICD (`out/opengl32_retail.dll`). `out/glideprobe.exe` is built by hand
 (README §11.3).
 
-Check what you built, not the flags: every DLL must import nothing beyond the
-system DLLs (a stray `libgcc_s_dw2-1.dll` means a silent load failure on the box):
+Check what you built, not the flags: no DLL may import a MinGW runtime DLL (the
+ICD's only non-system import is `glide3x.dll`; a stray `libgcc_s_dw2-1.dll`
+means a load failure on the box that names nothing):
 
     i686-w64-mingw32-objdump -p out/opengl32_retail.dll | grep "DLL Name"
 
-`tests/run_all.sh` finds the `$PREFIX/hostbin/gcc` wrapper for the native tests
-by itself.
+`tests/run_all.sh` finds the `hostbin/gcc` wrapper by itself when `PREFIX` is
+`$HOME/toolchain-mingw` (as above); otherwise set `CC=$PREFIX/hostbin/gcc` or
+`DOSGAME_TOOLCHAIN=$PREFIX`. (The dev host itself now uses the system
+`gcc-mingw-w64-i686` package, installed 2026-08-24; this document is the
+fallback for a machine without root.)
