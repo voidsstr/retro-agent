@@ -1,6 +1,6 @@
 ---
 name: voodoo5-driver-dev
-description: Build, test, diagnose, fix, and deploy the VINTAGE-source 3dfx H5/Napalm driver stack (retro-3dfx repo — display driver + D3D HAL + miniport + Glide + vintage SGL OpenGL ICD) for the Voodoo 5 box .143 (V5 5500) - and .133 (V5 6000, 4-chip) ONLY if that card is refitted, it was pulled 2026-08-31. Use when the user reports a D3D/DirectDraw/2D/mode-set problem, a Voodoo5 rendering or crash issue, asks to rebuild 3dfxv5d/3dfxv5m/the vintage driver, wants the flight-recorder ring read, or wants a driver fix verified/deployed on .143 or .133. NOT for the clean-room MesaFX stack on .124 (use voodoo3-driver-dev).
+description: Build, test, diagnose, fix, and deploy the VINTAGE-source 3dfx H5/Napalm driver stack (retro-3dfx repo — display driver + D3D HAL + miniport + Glide + vintage SGL OpenGL ICD) for the Voodoo 5 boxes - .143 (V5 5500) and .124 (V5 6000 Strange God AGP, 4-chip, currently on AmigaMerlin 3.1-R11; verify with HWPROFILE, cards move). Use when the user reports a D3D/DirectDraw/2D/mode-set problem, a Voodoo5 rendering or crash issue, asks to rebuild 3dfxv5d/3dfxv5m/the vintage driver, wants the flight-recorder ring read, or wants a driver fix verified/deployed on .143 or .124, or wants to diagnose a V5 6000 lock-up with the instrumented vintage stack. NOT for the clean-room MesaFX stack (use voodoo3-driver-dev).
 ---
 
 # Voodoo 5 driver work — the vintage H5 stack (retro-3dfx repo, boxes .143 & .133)
@@ -12,7 +12,18 @@ SGI/3dfx SGL (`SST_*.c`, versions **0.2.x–0.3.x**) — NOT our MesaFX. Read
 `retro-3dfx/CLAUDE.md` and the **Driver Stack Map in this repo's CLAUDE.md**
 before touching anything; conflating the two stacks wastes hours.
 
+**Scope (user directive 2026-09-23):** this tree is ours to build, deploy,
+test, fix and optimize — the old "read-only from retro-agent" rule is
+withdrawn (see the Driver Stack Map in this repo's CLAUDE.md). The gates below
+(predeploy, target tests, regression test with each fix) are what make that safe.
+
 **Target boxes:**
+- `.124` (192.168.1.124) — Athlon XP 2400+, **Voodoo5 6000 AGP (Strange God
+  reproduction, `121A:0009`, 4 chips)**, XP SP3, running **AmigaMerlin 3.1-R11**
+  as the benchmark baseline (`docs/v56k-benchmark-plan.md`). Deploying the
+  vintage stack here replaces that baseline: back up the AmigaMerlin files
+  first, keep vintage results in their own rows, and restore AmigaMerlin
+  before resuming its sweep. No SSE2 on this CPU.
 - `.143` (192.168.1.143) — Athlon 1GHz "1GHZ", **Voodoo5 5500** AGP, XP SP3.
   The V5 5500 is the **SECOND adapter** - a GeForce 6800 drives the panel, so
   `docs/fleet-inventory.md` and `docs/staged-library.md` both list "GeForce 6800"

@@ -220,30 +220,38 @@ published series is `specpicks.com/reviews/voodoo5-6000-strange-god-part-{1..6}-
 There are **two different 3dfx codebases** in play. Do not conflate them — the
 fixes, files, build tools, versions, and even the OpenGL renderer string differ.
 
-### NEVER EDIT THE `retro-3dfx/` DRIVER CODE (REQUIRED, user directive 2026-08-04)
+### `retro-3dfx/` IS OURS TO TEST, DEPLOY, FIX AND OPTIMIZE (user directive 2026-09-23)
 
-**`retro-3dfx/` is the Voodoo 5 lane (`.143` V5 5500; `.133` HELD a V5 6000 until it was
-pulled - see the rescan note in §2 below) and is NOT ours to modify.** In
-this repo's work — and on **.124 (Voodoo 3)** specifically — write and ship
-**only our own drivers in `retro-agent/voodoo-cleanroom/`** (MesaFX ICD, our
-Glide, `vcr-disp`).
+**This replaces the 2026-08-04 "never edit `retro-3dfx/`" rule, which is
+withdrawn.** The vintage H5/Napalm tree (display driver, D3D/DDraw HAL,
+miniport, vintage SGL ICD, vintage Glide) is an active lane of this project: we
+are expected to build it, deploy it, test it on the Voodoo hardware, and fix
+and optimize the real bugs in it. It is also the stack with the instrumentation
+a closed retail driver lacks (the `RLog*` flight-recorder ring, source for
+every frame of a crash), which makes it the natural tool for diagnosing a
+lock-up such as the AmigaMerlin/Voodoo 5 6000 wedges on `.124`.
 
-- **Do not edit** anything under `retro-3dfx/3dfx Driver Code/**` (H5 display
-  driver, D3D/DDraw HAL, miniport, vintage SGL ICD, vintage Glide), do not
-  build it, and do not deploy artifacts built from it.
-- Treat that tree as **read-only reference** only: reading it to understand
-  hardware behaviour or to port a *concept* into our clean-room code is fine;
-  copying/patching its source is not.
-- **A missing capability is not a licence to patch the vintage tree.** If our
-  stack lacks something (e.g. `vcr-disp` has no full D3D HAL yet), the answer
-  is to build it in `voodoo-cleanroom/`, or to tell the user it's missing —
-  never to "just fix it in retro-3dfx".
-- **Known outstanding conflict:** `.124` currently boots the vintage
-  `3dfxv3d.dll` (H5 display driver) because our `vcr-disp` cannot yet drive 2D
-  + D3D, and a 2026-08-03 D3D flip-present optimization was (wrongly) made in
-  that tree and deployed there. Do not extend that work. Migrating `.124` onto
-  an all-ours display driver is the open task; ask the user before touching the
-  deployed vintage binary either way.
+What still applies — these are the rules that keep that work safe, not a ban:
+
+- **Know which stack you are touching.** Two codebases, two ICDs, different
+  build tools and version series (table below). Label every fix, deploy and
+  benchmark row with the stack it belongs to; never file a vintage-lane fix
+  under `voodoo-cleanroom/` or the reverse.
+- **Follow `retro-3dfx`'s own gates.** Work in a worktree of that repo (other
+  sessions use it), run `retro-3dfx/tests/predeploy.sh` before deploying any
+  binary (non-zero = do not deploy), `run_target_tests.py` after the reboot,
+  and land each verified fix with its regression test in the same commit
+  (the "Driver Regression Tests" section above). Findings go in
+  `retro-3dfx/FINDINGS.md`.
+- **A driver deploy usually needs a reboot**, so the activation check and
+  `scripts/fleet/safe-reboot.py` rules apply. Keep a known-good copy of the
+  binaries you replace and know the rollback before you start.
+- **Benchmark numbers belong to the stack that produced them.** A result on
+  the vintage stack is not an AmigaMerlin result; keep them in separate rows /
+  tables (the V5 6000 plan's "other drivers" lane).
+- **Both lanes stay open.** The clean-room stack in `voodoo-cleanroom/`
+  remains ours too; choose the lane that fits the problem rather than
+  treating either one as the only place work may go.
 
 ### 1. OUR open-source stack = `retro-agent/voodoo-cleanroom/` (this is "the driver we build")
 
@@ -273,14 +281,13 @@ GPL release + MIT Mesa). Three components, all our forks/code — provenance in
   (0.1.2), vertex cache (0.1.3), swap-interval (0.1.6), LOD-bias (0.1.11), Q2
   glide3x (0.1.19), gamma/dither/alpha-PFD (0.1.30), etc.
 
-### 2. Vintage 3dfx source = the `retro-3dfx/` repo — VOODOO 5 (`.143` 5500) ONLY, READ-ONLY HERE
+### 2. Vintage 3dfx source = the `retro-3dfx/` repo — the Voodoo 5 lane (build, deploy, fix, optimize)
 
 **`.133` HAS NO 3dfx SILICON as of the 2026-08-31 rescan** - the V5 6000 was pulled and the box now runs a GeForce4 Ti 4600 (`10DE:0250`); `Enum\PCI` carries no `VEN_121A` key, which is decisive. `.143` (V5 5500) is NOT the fleet's only Voodoo5 either - **`.124` reported a 3dfx Voodoo5 (`PCI\VEN_121A&DEV_0009`, 32 MB, feature level `fixed`) on 2026-09-01**, having been recorded as a GeForce2 GTS the day before. THE HARDWARE IN THIS FLEET MOVES BETWEEN BOXES; do not write "the only X" about any card. `docs/fleet-inventory.md` is generated from what each box PUBLISHES at startup and is the only trustworthy answer - check it, or ask the box. Every V5 6000 note below applies only if that card is refitted - verify with a fresh `SYSINFO` before acting on one. See [`docs/fleet-inventory.md`](docs/fleet-inventory.md).
 
 3dfx's own leaked/released **H5/Napalm** driver source. It is a *different*
-codebase from our open stack and, per the directive above, **off-limits for
-editing/building/deploying from this repo** — listed here so you can recognise
-its files and stay out of them:
+codebase from our open stack; per the 2026-09-23 directive above it is ours to
+build, deploy, test and fix. Its components:
 
 - **Display driver + full D3D/DDraw HAL:** `retro-3dfx/3dfx Driver Code/H5/W2K/Src/Video/Displays/H5/`
   → `3dfxvs.dll` (Wine/**MSVC DDK**), WFP-renamed `3dfxv3d.dll` (.124) / `3dfxv5d.dll` (.143 and .133).
@@ -289,7 +296,7 @@ its files and stay out of them:
 - **Vintage SGI/3dfx SGL OpenGL ICD:** `retro-3dfx/3dfx Driver Code/SWLIBS/OPENGL/GLIDE3X/`
   ("Copyright 1991-1997, Silicon Graphics, Inc.", `__glSST*` naming) → `opengl.dll`
   (MSVC, ~704 KB) / `3dfxogl.dll`. **Versions 0.2.x+** (0.4.x on .143, 0.5.x on
-  .133); this is the **Voodoo5 "pure-3dfx" lane (the OTHER agent)** — .143 is the
+  .133); this is the **Voodoo5 "pure-3dfx" lane** — .143 is the
   V5 5500 and is now the **only** box in it. `.133` "P3-DUAL" held the **V5 6000**
   (4-chip, 256MB mode verified; see `retro-3dfx/V56K-SLI-FINDINGS.md`) but the card
   is **physically gone** as of 2026-08-31 — GeForce4 Ti 4600 there now. NOT our MesaFX.
@@ -305,13 +312,13 @@ its files and stay out of them:
 | build | mingw gcc-13 | Wine/MSVC |
 | size / version | ~2.7 MB / **0.1.x** | ~704 KB / **0.2.x–0.3.x** |
 | renderer | `Mesa Glide v0.62 [voodoo-cleanroom 0.1.N]` | `[retro3dfx 0.2.x]` (the vintage lane's own brand) |
-| lane | **.124 (ours)** | .143 (other agent) |
+| lane | clean-room stack | vintage H5 stack (Voodoo 5 boxes) |
 
 **Current .124 deployment is a HYBRID:** OUR MesaFX ICD (open) + retail AmigaMerlin
 glide + vintage H5 display/D3D driver — converging toward the all-open stack
 (retro3dfx-gl + retro3dfx-glide + vcr-disp). The vintage display driver is there
-only because `vcr-disp` can't drive the box yet; **all NEW driver work goes into
-`voodoo-cleanroom/`** (see the never-edit rule above).
+only because `vcr-disp` can't drive the box yet. New driver work may go into
+either lane (see the 2026-09-23 directive above); say which one in the commit.
 
 **Before writing a driver test or "fixing" an ICD bug, confirm which ICD it's in**
 (renderer string / file path / version number above). A 0.3.x fix in `SWLIBS`

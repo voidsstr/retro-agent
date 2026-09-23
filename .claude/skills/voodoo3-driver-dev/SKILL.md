@@ -16,13 +16,12 @@ in CLAUDE.md first** — there are two 3dfx codebases; a `0.3.x` / `SST_*.c` /
 on **D:** (dual-boot). Deployed stack is a HYBRID: our ICD + our glide3x on
 top of the vintage H5 display/D3D driver (`3dfxv3d.dll`).
 
-**HARD RULE (user directive 2026-08-04): never edit/build/deploy `retro-3dfx/`
-driver code — that repo is the Voodoo 5 (`.143`) lane.** Everything you ship
-comes from `voodoo-cleanroom/`. The vintage `3dfxv3d.dll` on .124 is a legacy
-dependency (our `vcr-disp` can't drive 2D+D3D yet), not an invitation to patch
-it. If a fix seems to belong in the display/D3D HAL, that is **out of scope** —
-implement it in our stack or tell the user it needs the vcr-disp work; ask
-before touching the deployed vintage binary. See CLAUDE.md → Driver Stack Map.
+**Lanes (user directive 2026-09-23, replacing the 2026-08-04 hard rule):**
+this skill covers the clean-room stack in `voodoo-cleanroom/`. The vintage
+`retro-3dfx/` tree is no longer off-limits — it is ours to build, deploy, fix
+and optimize too, through the `voodoo5-driver-dev` skill and that repo's own
+gates (`predeploy.sh`, target tests, regression test with every fix). Keep the
+two lanes labelled apart. See CLAUDE.md → Driver Stack Map.
 
 **Key files/docs (read before deep work):**
 - Source: `voodoo-cleanroom/build/retro3dfx-gl/src/mesa/drivers/glide/fx*.c`
@@ -109,10 +108,10 @@ Never REBOOT without explicit user approval (fleet rule).
 ## Fix workflow
 
 1. Reproduce + localize (which layer: ICD `fx*.c`, glide2x/glide3x, or the
-   display/D3D HAL). **If it localizes to the display/D3D HAL, STOP** — that
-   code lives in `retro-3dfx/` (Voodoo 5 lane) and is off-limits. Report it as
-   a gap in our stack (`vcr-disp`) and let the user decide; do not patch or
-   rebuild the vintage tree.
+   display/D3D HAL). **If it localizes to the display/D3D HAL**, that code is the vintage
+   H5 tree in `retro-3dfx/`: fix it there with the `voodoo5-driver-dev`
+   workflow (predeploy gate, regression test in the same commit), or build the
+   missing piece in `vcr-disp` — whichever fits the problem.
 2. Edit the source in `voodoo-cleanroom/build/retro3dfx-gl/` (or
    `retro3dfx-glide/`), rebuild, bump 0.1.N, CHANGELOG entry.
 3. `bash tests/run_all.sh` green → deploy (above) → verify on hardware by
