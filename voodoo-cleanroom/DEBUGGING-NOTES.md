@@ -1,5 +1,12 @@
 # retro3dfx Driver Debugging Notes
 
+> **Historical narrative** of the Voodoo 3 bring-up on `.124` (the Voodoo 3 was removed from `.124` on 2026-08-11 and no box has one now); still
+> the best account of how each ICD/Glide problem was found. Where it and the
+> code disagree, [`README.md`](README.md) (audited 2026-09-23) is current. Note:
+> the 2026-07-20 "FIXED (0.1.31)" vid_restart entry is fixed in code (Glide stays
+> initialised); its body still carries the earlier "document, don't fix" text.
+
+
 A growing knowledge base of hard-won debugging findings for the retro3dfx MesaFX
 ICD (`retrogl.dll` / `opengl32_retail.dll`) on Voodoo3 hardware. Each entry:
 symptom → how we isolated it → root cause → fix → how to reproduce the diagnosis.

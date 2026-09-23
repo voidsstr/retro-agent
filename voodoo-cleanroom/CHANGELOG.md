@@ -1,10 +1,24 @@
-# retro3dfx driver changelog
+# voodoo-cleanroom ICD changelog (MesaFX fork)
+
+> The dated overview of every change — ICD, Glide, display driver, tooling —
+> with its current status is in [`README.md` §15](README.md#15-change-history--optimizations-fixes-and-changes-with-dates).
+> This file is the detailed per-version log of the OpenGL ICD.
 
 Versioning: `VERSION` (MAJOR.MINOR) + auto-incrementing `.buildnum` → `0.1.N`,
-injected into `GL_RENDERER` (`... [retro3dfx 0.1.N]`) so logs and benchmarks
-self-document. One functional change per version. Every benchmark row in the
+injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
+`[voodoo-cleanroom 0.1.N]` from 0.1.32 on (2026-07-21); earlier builds stamped
+`[retro3dfx 0.1.N]` — not to be confused with the vintage lane's
+`[retro3dfx 0.2.x+]` SGL ICD. One functional change per version. Every benchmark row in the
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
+
+## 0.1.61 — renderer re-stamp only (2026-09-04)
+
+No code change: the build differs from 0.1.60 only in the version string. It
+was built after the fork clone under `build/` was re-created from GitHub on
+2026-09-04, and it is the current `out/opengl32_retail.dll` (2,757,140 B, md5
+`bcf0b1bd…`). Like every build since 0.1.41 it **lacks 0.1.34 and 0.1.35**
+(see the warning on that section below).
 
 ## 0.1.60 — -static-libgcc for the Glide lanes too, and where the hunt stands
 
@@ -382,6 +396,14 @@ to 1600×1200 (22.9 fps). The V3 vertex/transform path remains near-optimal for 
 
 ## Refresh + cursor session 2026-08-03 (0.1.34–0.1.35)
 
+> **⚠️ LOST (found 2026-09-23).** Neither change below exists in any source
+> today — not in any `retro3dfx-gl` commit, not in `patches/`, not in either
+> local clone. They were never committed, and the clone was re-created on
+> 2026-09-04. Every build since (0.1.41 → 0.1.61) opens fullscreen at 60 Hz and
+> has no software cursor. `tests/native/test_fx_best_refresh.c` and
+> `test_fx_cursor_overlay.c` still pass because they copy the logic. Restoring
+> both is on the roadmap (README §17.3).
+
 ### 0.1.34 — fullscreen refresh: monitor-max instead of hardcoded 60Hz
 - **Change:** `fxapi.c fxMesaCreateBestContext()` no longer hardcodes
   `GR_REFRESH_60Hz`. New `fxBestRefresh(w,h)`: env override
@@ -415,6 +437,11 @@ to 1600×1200 (22.9 fps). The V3 vertex/transform path remains near-optimal for 
 ## glide2x bring-up session 2026-08-04 (Unreal Gold 3dfx renderer)
 
 ### glide2x: XP bring-up fixes + dual-ABI exports (fork 79ee51e)
+
+> **⚠️ LOST (found 2026-09-23).** Fork commit `79ee51e` was never pushed: it is
+> in neither local clone nor on GitHub, so the current `out/glide2x.dll` lacks
+> these guards. The dual-ABI half (`dual_abi_relink2`, repo `809c567`) is intact.
+> `tests/native/test_glide2x_mapboard_guards.c` copies the logic and still passes.
 - **Problem:** selecting the 3dfx renderer in Unreal Gold (GOG) hard-wedged
   .124 — the GOG install ships **nGlide** as game-local `glide2x.dll`, whose
   failing grSstOpen attempts froze the chip (physical power cycle needed).

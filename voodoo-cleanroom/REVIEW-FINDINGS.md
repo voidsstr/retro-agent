@@ -1,5 +1,12 @@
 # retro3dfx ICD — codebase review findings (2026-07-18)
 
+> **Status as of 2026-09-23:** done — gamma, dither, alpha pixel formats (but
+> see README §16 I3: they cannot open a board on a Voodoo 3), `wglUseFontBitmapsW`,
+> `freopen` guard, debug gating, windowed path (unfinished). Not done — C1
+> paletted-off-by-default, C2 `texture_env_combine` on Voodoo 3, B2/B4 ARB pixel
+> format, B3/B4 window-procedure restore, C3 S3TC.
+
+
 Three deep source reviews of our MesaFX fork vs the H5 3dfx reference, to make the
 driver more well-rounded / higher-quality / more compatible across games and
 Win98+XP. Ranked, with file:line. Status tracked as we implement.

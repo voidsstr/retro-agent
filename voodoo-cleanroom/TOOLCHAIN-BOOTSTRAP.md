@@ -57,6 +57,17 @@ symbolic link ...: Not a directory`. Pass a workdir under `$HOME`:
 
     bash build-stack.sh $HOME/vcr-build      # out/ still lands in the repo
 
-Artifacts: `out/glide3x_h3.dll` (=`glide3x.dll`, Voodoo3), **`out/glide3x_h5.dll`
-(Voodoo4/5)**, `out/glide2x.dll`, `out/opengl32.dll` (MesaFX over our Glide),
-`out/sdk/`. Then `build-mesafx-retail.sh` for the retail-glide-linked ICD.
+Artifacts: `out/glide3x_h3.dll` (=`glide3x.dll`, Voodoo 3), `out/glide3x_h5.dll`
+(Voodoo 4/5 — **broken, do not ship**, see README §16.1), `out/glide3x_cvg.dll`
+and `out/glide2x_cvg.dll` (Voodoo 2), `out/glide2x.dll` (Voodoo 3, Glide 2),
+`out/opengl32.dll`, `out/sdk/`. Then `build-mesafx-retail.sh` for the shipping
+ICD (`out/opengl32_retail.dll`). `out/glideprobe.exe` is built by hand
+(README §11.3).
+
+Check what you built, not the flags: every DLL must import nothing beyond the
+system DLLs (a stray `libgcc_s_dw2-1.dll` means a silent load failure on the box):
+
+    i686-w64-mingw32-objdump -p out/opengl32_retail.dll | grep "DLL Name"
+
+`tests/run_all.sh` finds the `$PREFIX/hostbin/gcc` wrapper for the native tests
+by itself.

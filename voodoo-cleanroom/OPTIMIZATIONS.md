@@ -1,5 +1,12 @@
 # Clean-room Voodoo3 stack — optimization log (complete)
 
+> **Historical — Voodoo 3 lane.** The Voodoo 3 was removed from `.124` on 2026-08-11 and no box has one now. Two labels below are
+> known to be off: the gamma/dither/alpha-format defaults landed around
+> 0.1.20–0.1.22 (not 0.1.30, which was the windowed path), and "CS 1.6 not
+> supported" predates CS 1.6 running on our ICD (2026-07-23/24). The dated,
+> re-verified history is [`README.md` §15](README.md#15-change-history--optimizations-fixes-and-changes-with-dates).
+
+
 Single place documenting **every** performance/quality optimization attempted on
 the clean-room 3dfx stack (`retro3dfx-glide` + MesaFX `retrogl` ICD) on the
 fleet's **.124 Voodoo3 box** (Intel Pentium III Coppermine, 845 MHz, SSE, **no

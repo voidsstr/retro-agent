@@ -1,5 +1,11 @@
 # Running games on our retro3dfx stack
 
+> **Historical (2026-07-16).** The first per-game recipes, from the Voodoo 3 on
+> `.124`; the Voodoo 3 was removed from `.124` on 2026-08-11 and no box has one now. Names here predate the 2026-07-21 rename (`retro3dfx/` →
+> `voodoo-cleanroom/`, `retro3dfx-disp` → `vcr-disp`). Current deploy rules:
+> [`README.md` §10](README.md#10-deploying).
+
+
 ## Quake III Arena — WORKING on Voodoo3 (.124), via our MesaFX ✅
 
 **Status (2026-07-16):** Quake III 1.32 runs hardware-accelerated on the real

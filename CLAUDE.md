@@ -256,14 +256,16 @@ What still applies — these are the rules that keep that work safe, not a ban:
 ### 1. OUR open-source stack = `retro-agent/voodoo-cleanroom/` (this is "the driver we build")
 
 A complete, self-built Voodoo stack from genuinely open source (3dfx's 2000 Glide
-GPL release + MIT Mesa). Three components, all our forks/code — provenance in
-`voodoo-cleanroom/FORKS.md`:
+GPL release + MIT Mesa). **Its single documentation page — layers, build,
+deploy, debug, tests, benchmarks, screenshots, the dated history of every change,
+known bugs and roadmap — is [`voodoo-cleanroom/README.md`](voodoo-cleanroom/README.md)**
+(audited against the code 2026-09-23). Provenance in `voodoo-cleanroom/FORKS.md`:
 
 | Component | Fork / repo | Upstream | Source (local, gitignored clone) | Builds to |
 |---|---|---|---|---|
 | **OpenGL ICD (MesaFX)** | `voidsstr/retro3dfx-gl` | `sezero/MesaFX-6.2` (Brian Paul) | `voodoo-cleanroom/build/retro3dfx-gl/src/mesa/drivers/glide/fx*.c` | `voodoo-cleanroom/out/opengl32_retail.dll` (~2.7 MB) |
 | **Glide** | `voidsstr/retro3dfx-glide` | `sezero/glide` | `voodoo-cleanroom/build/retro3dfx-glide/` | `voodoo-cleanroom/out/glide3x.dll` |
-| **Display driver** | `voodoo-cleanroom/vcr-disp/` (OUR original code, GDI_DRIVER) | modeled on Device3Dfx/RISCyVoodoo/vmdisp9x | `voodoo-cleanroom/vcr-disp/*.c` | `vcr-disp.dll` |
+| **Display driver** | fxD3D `scripts/3dfx/` (primary, M4c-2, never on silicon) and `voodoo-cleanroom/vcr-disp/` (skeleton, does not compile) — OUR original code | modeled on Device3Dfx/RISCyVoodoo/vmdisp9x | `scripts/3dfx/driver/nt/*.c`, `voodoo-cleanroom/vcr-disp/*.c` | `fxd3ddd.dll` (DDK build) |
 
 - **Build:** `bash voodoo-cleanroom/build-stack.sh` once (builds glide + the gl SDK/headers),
   then `bash voodoo-cleanroom/build-mesafx-retail.sh` → `out/opengl32_retail.dll`.
@@ -273,13 +275,18 @@ GPL release + MIT Mesa). Three components, all our forks/code — provenance in
   `retro3dfx-glide`.)
 - **Version:** `voodoo-cleanroom/VERSION` (0.1) + `.buildnum` → **0.1.N**;
   `GL_RENDERER = "Mesa Glide v0.62 ... [voodoo-cleanroom 0.1.N]"`.
-- **Deploy:** to **.124** as game-local `opengl32.dll` / system32 `retrogl.dll`
-  (**game-local shadows system32** — deploy to both or neutralize game-local when
-  A/B-ing). See the `deploy-3dfx-driver` skill.
+- **Deploy:** as game-local `opengl32.dll` / `retrogl.dll` (**game-local shadows
+  system32** — deploy to both or neutralize game-local when A/B-ing). The one box
+  it is proven on today is **`.171` (Voodoo 2, over stock Glide)** via
+  `voodoo-cleanroom/deploy/deploy171.py`; the Voodoo 3 it was built on left `.124`
+  on 2026-08-11, and on Voodoo 4/5 the h5 Glide is broken (README §16.1).
 - **Tests:** `bash tests/run_all.sh` (Python client + agent-C + MesaFX ICD logic).
-- **Fix versions live in `voodoo-cleanroom/CHANGELOG.md`** (0.1.x): fx_pack_ub SSE clamp
-  (0.1.2), vertex cache (0.1.3), swap-interval (0.1.6), LOD-bias (0.1.11), Q2
-  glide3x (0.1.19), gamma/dither/alpha-PFD (0.1.30), etc.
+- **Fix versions live in `voodoo-cleanroom/CHANGELOG.md`** (0.1.x), dated overview
+  in README §15: fx_pack_ub SSE clamp (0.1.2), batched triangle submission
+  (0.1.3 — *not* a vertex cache; that is the vintage lane's 0.1.3), swap-interval
+  (0.1.6), LOD-bias (0.1.11), Q2 glide3x (0.1.16–0.1.19), gamma/dither/alpha-PFD
+  (~0.1.20–0.1.22), keep-Glide-alive (0.1.31), point_parameters withdrawn (0.1.44).
+  **0.1.34/0.1.35 (monitor refresh, cursor) are LOST** — in no source (README §15.4).
 
 ### 2. Vintage 3dfx source = the `retro-3dfx/` repo — the Voodoo 5 lane (build, deploy, fix, optimize)
 

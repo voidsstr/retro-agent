@@ -1,5 +1,10 @@
 # Clean-room Voodoo3 stack — optimization research & plan (2026-07-23)
 
+> **Historical — Voodoo 3 lane** (the Voodoo 3 was removed from `.124` on 2026-08-11 and no box has one now). Its parity baseline (our Glide 46.0
+> vs retail 46.3 fps, same conditions) is the number to quote; the "78–94% of
+> retail" figure elsewhere compared runs taken under different conditions.
+
+
 Goal: push the clean-room stack (retro3dfx-glide + MesaFX retrogl ICD) **past
 retail 3dfx glide** on the .124 Voodoo3 (Pentium III Coppermine, 845 MHz, SSE,
 **no SSE2**), using modern approaches the 1999-era code never had.

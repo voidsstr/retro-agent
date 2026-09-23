@@ -1,64 +1,40 @@
-# vcr-disp — the cooperative Voodoo display driver (a minimal layer-1 track)
+# vcr-disp — our cooperative display-driver skeleton
 
-> Directory renamed `retro3dfx-disp` → `vcr-disp` (the source calls it VCR/GDI_DRIVER).
-> **Relationship to fxD3D:** there are two clean-room tracks for layer [1] of the
-> stack. **`scripts/3dfx/` (fxD3D / `fxd3ddd.dll`) is the primary, fuller one** — a
-> real DX6/7 D3D + DDraw HAL with a kernel-Glide backend, code-complete through
-> M4c-2. **This `vcr-disp` track is the minimal alternative:** it does only enough
-> to be the display adapter and answer the HWCEXT escape our Glide needs for hw
-> init — no D3D HAL. It's a lighter fallback; fxD3D is further along. See the
-> whole-stack overview in [`../README.md`](../README.md).
+> The whole stack is documented on one page: [`../README.md`](../README.md).
+> This file summarises the state of this directory; the detail is in
+> [§7.1 there](../README.md#71-vcr-disp--our-cooperative-display-driver-skeleton).
 
-The layer that lets **our unmodified Glide** drive a real Voodoo on Windows XP.
-It's a display driver we own that (a) does the minimum to be the display adapter
-and (b) **answers the HWCEXT escape protocol** `retro3dfx-glide` sends — the exact
-probe the retail 2001 `3dfxvs` driver ignores (verified on `.124`, see
-`docs/3dfx-glide-hardware-init.md`). "Cooperative" = we're the display driver, so
-no fight over the card (unlike a direct PCI grab).
+**Goal:** a display driver of our own whose main job is to answer the HWCEXT
+escapes our Glide sends (`ExtEscape` codes `0x3df3` / `0xfd3` / `0x13df3`), so
+our unmodified Glide can drive the card while Windows keeps the desktop through
+us. Modelled on the open Device3Dfx (Linux), RISCyVoodoo (NT) and vmdisp9x —
+read for structure, not copied.
 
-## Why this and not a PCI mapper
-Our Glide's NT path asks the *display driver* `"are you a 3dfx device?"` via
-`ExtEscape(0x3df3, HWCEXT_GETDEVICECONFIG)` and then `HWCEXT_GETLINEARADDR` for the
-card's mapped registers/framebuffer. Own the display driver → answer those → Glide
-works, and Windows still manages the desktop through us (no takeover corruption).
+**State (audited 2026-09-23): a skeleton that cannot compile, and would not
+work if it did.** No build or load of it has ever been recorded. The fuller
+clean-room display driver is fxD3D in [`../../scripts/3dfx/`](../../scripts/3dfx/).
 
 ## Files
-```
-retro3dfx_hwcext.h  the escape ABI (opcodes + structs) - shared contract, mirrors
-                    retro3dfx-glide's minihwc/hwcext.h. Single source of truth.
-disp_escape.c       THE escape server: DrvEscape -> r3dfx_escape_dispatch(),
-                    answers GETDEVICECONFIG / GETLINEARADDR / ALLOCCONTEXT /
-                    exclusive. Host-tested (the dispatch logic is DDK-independent).
-disp_hw.c           device bring-up + THE BAR MAPPER (written): reads BAR0/BAR1,
-                    maps them into the Glide process via ZwMapViewOfSection over
-                    \Device\PhysicalMemory (the retail HWCEXT_GETLINEARADDR technique).
-                    Modeled on the open Device3Dfx. [DDK build]
-disp_modeset.c      CRTC / video mode-set for fullscreen. [needs DDK]
-disp_enable.c       DrvEnableDriver + the GDI driver table (2D/DDraw chassis,
-                    from the vmdisp9x / RISCyVoodoo skeleton). [needs DDK]
-SOURCES, disp.def   DDK build + exports
-retro3dfx.inf       registration (binds PCI VEN_121A DEV 0005/0009 under Display)
-```
 
-## Status
-- **Escape server (`disp_escape.c`) — written + host-tested + cross-compiles.**
-  It correctly answers `GETDEVICECONFIG` (reports Voodoo3/5) and `GETLINEARADDR`
-  (returns the mapped BARs) — the two probes that fail today.
-- **`disp_hw.c` — written** (BAR mapper: maps BAR0 registers + BAR1 framebuffer
-  into the Glide process; the core `GETLINEARADDR` needs). Compile in the DDK.
-- **`disp_modeset.c` / `disp_enable.c` — to write** (CRTC, the GDI chassis). These are the parts that need real
-  hardware iteration; the Device3Dfx model + RISCyVoodoo/vmdisp9x skeletons give
-  the templates.
+| File | Contents |
+|---|---|
+| `vcr_hwcext.h` | The escape contract: codes, opcodes, device IDs `0003`/`0005`/`0009`. (Its include guard still says `RETRO3DFX_HWCEXT_H`.) |
+| `disp_escape.c` | `r3dfx_escape_dispatch()` — answers GETDRIVERVERSION, GETDEVICECONFIG, GETLINEARADDR, ALLOCCONTEXT, exclusive/restore-desktop and context queries; fails everything else. `DrvEscape` wrapper under `HAVE_DDK` |
+| `disp_hw.c` | Under `HAVE_DDK` only: reads BAR0/BAR1, maps BAR0 with `MmMapIoSpace`, maps both into the caller through `\Device\PhysicalMemory` + `ZwMapViewOfSection`. Hard-codes Voodoo 3 values (16 MB, 4 KB strides) |
+| `SOURCES` | DDK build file — lists `disp_enable.c` and `disp_modeset.c`, **which do not exist** |
+| `disp.def` | Exports `DrvEnableDriver`, **which is not written** |
+| `vcr-disp.inf` | Binds `DEV_0005`/`DEV_0009` on NT 5.1; copies a `retro3dfx-mp.sys` miniport that does not exist; no `InstalledDisplayDrivers`, no services section |
 
-## Build
-Needs the platform DDK. Build via the fleet DDK toolchain
-(`provisioning/ddk/build_driver.py` pattern) or an NT DDK `build` env → produces
-`retro3dfx-disp.dll` + the miniport. Install via `retro3dfx.inf` (PnP), then run
-our unmodified `retro3dfx-glide` `glide3x.dll` on top → the Voodoo lights up.
+## What must change before it can work
 
-## Bring-up order
-1. Escape server ✓ (done, tested).
-2. `disp_hw.c` BAR mapping (from Device3Dfx) → `GETLINEARADDR` returns real addrs.
-3. `disp_modeset.c` fullscreen CRTC.
-4. `disp_enable.c` minimal 2D so Windows loads us as the adapter.
-5. Load driver, run our Glide → gfxbench → UT → Q3 (via retro3dfx-gl).
+1. **Match Glide's HWCEXT layout.** Glide sends `{contextID, which, optData}`
+   and reads `{resStatus, optData}` (`retro3dfx-glide/glide3x/h3/minihwc/hwcext.h`).
+   This code reads `contextID` as the opcode and writes results with no
+   `resStatus`.
+2. Answer `LINEAR_MAP_OFFSET` and `FIFOINFO`, which Glide sends.
+3. Return three base addresses (registers, frame buffer, I/O), as the H5 driver does.
+4. Write the GDI chassis (`DrvEnableDriver`, PDEV, surfaces, mode set) — or
+   reuse fxD3D's `scripts/3dfx/driver/nt/chassis.c`, which already has one.
+5. Move the kernel mapping into a real miniport: a GDI display DLL may import
+   only `win32k.sys`.
+6. A working INF, and host tests for the escape dispatcher.
