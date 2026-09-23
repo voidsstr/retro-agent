@@ -96,6 +96,24 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-23)
+
+- **Listener-aware watchdog deployed on `.124` and proven**: the agent killed on
+  purpose came back by itself in 83 s.
+- **cfg 2 resumed**: Quake III 1280x960 = **115.9 (16-bit) / 78.5 (32-bit)**.
+  The next cell (1024x768/16) stalled after `cgame loaded` with no modal
+  showing, and the box went to 9898 refused / 9897 accepting-but-mute / SMB up.
+  **The watchdog did not recover that in 12+ min**: it handles a dead agent,
+  not a display-driver wedge. That costs a power cycle (FINDINGS 2026-09-23).
+- **Next, after the power cycle:** run the other titles FIRST and Quake III
+  LAST, so a Quake III stall cannot cost the rest of the config:
+
+      setsid nohup python3 scripts/benchmarks/v56k_sweep.py --host 192.168.1.124 \
+        --configs 2,0 --titles quake2,ut99:glide,ut99:d3d,rtcw:openglv5,quake3 \
+        --resolutions 1600x1200,1280x960,1024x768,800x600,640x480 --depths 16,32 \
+        --attempts 3 --max-run 420 --outdir scripts/benchmarks/results/v56k_titles_192.168.1.124 \
+        > scripts/benchmarks/results/v56k_titles_192.168.1.124/sweep_cfg2_cfg0.log 2>&1 < /dev/null &
+
 ### Row statuses a CSV can carry (2026-09-16)
 
 `ok` is the only status the specpicks loader publishes. The others each name a
