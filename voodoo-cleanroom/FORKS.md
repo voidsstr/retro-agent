@@ -6,7 +6,7 @@ this repo. The full picture is in [`README.md`](README.md) — §5, §6 and §15
 
 | Our fork | Upstream | Fork point | Our branch / head |
 |---|---|---|---|
-| [voidsstr/retro3dfx-gl](https://github.com/voidsstr/retro3dfx-gl) | [sezero/MesaFX-6.2](https://github.com/sezero/MesaFX-6.2) | sezero's `fd191eb` (2023-02-02); upstream has since added `f991518` (2026-07-15, mingw build fixes), not merged | `master` at `492a0d8` (ICD 0.1.33) |
+| [voidsstr/retro3dfx-gl](https://github.com/voidsstr/retro3dfx-gl) | [sezero/MesaFX-6.2](https://github.com/sezero/MesaFX-6.2) | sezero's `fd191eb` (2023-02-02) — one commit behind upstream's head at fork time: `f991518` (2026-07-15, mingw build fixes) was already upstream and is not merged | `master` at `492a0d8` (ICD 0.1.33) |
 | [voidsstr/retro3dfx-glide](https://github.com/voidsstr/retro3dfx-glide) | [sezero/glide](https://github.com/sezero/glide) | `ee38094805f778566cc752c6d854f058253234de` | `glide-devel-sezero` at `a71eb3f` |
 
 ## Where our changes live
@@ -30,7 +30,7 @@ captured under `patches/`.
 ## Licenses (upstream, preserved)
 
 - **Glide:** 3dfx Glide Source Code General Public License — 3dfx's genuine
-  1999–2000 open release (h3/cvg from November 1999, h5/Napalm from June 2000).
+  1999–2000 open release (h3 from November 1999, cvg from December 1999, h5/Napalm from June 2000).
 - **MesaFX:** MIT / Mesa license (Brian Paul et al.).
 
 Both allow redistribution; the forks keep the upstream license files.

@@ -32,15 +32,17 @@ clean-room display driver is fxD3D in [`../../scripts/3dfx/`](../../scripts/3dfx
 1. **Match Glide's HWCEXT layout.** Glide sends `{contextID, which, optData}`
    and reads `{resStatus, optData}` (`retro3dfx-glide/glide3x/h3/minihwc/hwcext.h`).
    This code reads `contextID` as the opcode and writes results with no
-   `resStatus`.
-2. Answer the other escapes Glide's h3 Win32 path sends — `HWCSETEXCLUSIVE`
-   (fatal if refused), `LINEAR_MAP_OFFSET`, `FIFOINFO`, `EXECUTEFIFO`,
+   `resStatus` — so even the escapes it does handle look refused to Glide,
+   and a refused `HWCSETEXCLUSIVE` is fatal in `grSstWinOpen`.
+2. Answer the other escapes Glide's h3 and h5 Win32 paths send —
+   `LINEAR_MAP_OFFSET`, `FIFOINFO`, `EXECUTEFIFO`,
    `VIDTIMING`, `GETAGPINFO`, `CONTEXT_DWORD_NT`/`SHARE_CONTEXT_DWORD`,
    `UNMAP_MEMORY`. Some are tolerated if refused; check each one.
 3. Return three base addresses (registers, frame buffer, I/O), as the H5 driver does.
 4. Write the GDI chassis (`DrvEnableDriver`, PDEV, surfaces, mode set) — or
-   reuse fxD3D's `scripts/3dfx/driver/nt/chassis.c`, which has one (it links
-   and is host-tested, but has never been loaded on hardware).
+   reuse fxD3D's `scripts/3dfx/driver/nt/chassis.c`, which has one (DDK-only,
+   links into `fxd3ddd.dll`, no host test; deployed once on `.124` on
+   2026-07-24, never became active, and whether it loaded is unknown).
 5. Move the kernel mapping into a real miniport: a GDI display DLL may import
    only `win32k.sys`.
 6. A working INF, and host tests for the escape dispatcher.

@@ -215,7 +215,7 @@ correctly via `GR_SSTTYPE_Voodoo2`.
 - **`-mtune=pentium4`** for the cvg lane (`-march=pentium3` retained so one
   artifact still runs on .124's Pentium III).
 - **GL_SGIS_multitexture: implemented but OPT-IN** (`FX_SGIS_MULTITEXTURE=1`),
-  see `patches/mesafx-sgis-multitexture.patch`. Quake II predates
+  see `patches/mesafx-voodoo2-icd.patch`. Quake II predates
   ARB_multitexture and probes only the SGIS name, so the stock MiniGL gets
   single-pass lightmapping and we do not. Advertising SGIS does flip Q2 over
   (`...using GL_SGIS_multitexture` in qconsole.log) but the timedemo then never

@@ -60,13 +60,13 @@ and for `.171`.
 
 | Component | Current build | State | Last proven on hardware |
 |---|---|---|---|
-| **OpenGL ICD** (MesaFX 6.2.2 fork) | **0.1.61**, built 2026-09-04, 2,757,140 B | **Works on Voodoo 2 (and formerly Voodoo 3); has never worked on a Voodoo 4/5** — on the V5 5500 it stopped after the mode set even over retail Glide (I11). Source = fork `492a0d8` (0.1.33) + `patches/mesafx-voodoo2-icd.patch` (0.1.41–0.1.60) | **Voodoo 2**, `.171`, 0.1.60, 2026-08-29 (Quake II 57.2 fps). Voodoo 3, `.124`, July – 2026-08-03 (card removed 2026-08-11) |
+| **OpenGL ICD** (MesaFX 6.2.2 fork) | **0.1.61**, built 2026-09-04, 2,757,140 B | **Works on Voodoo 2 (and formerly Voodoo 3); has never worked on a Voodoo 4/5** — on the V5 5500 it stopped after the mode set even over retail Glide (I11). Source = fork `492a0d8` (0.1.33) + `patches/mesafx-voodoo2-icd.patch` (0.1.41–0.1.60) | **Voodoo 2**, `.171`, 0.1.60, 2026-08-29 (Quake II 57.2 fps). Voodoo 3, `.124`, July – 2026-08-04 (card removed 2026-08-11) |
 | **Glide 3, Voodoo 3 (`h3`)** | `glide3x_h3.dll` = `glide3x.dll`, 855,150 B, built 2026-09-12 | Works: renders Quake III (2026-07-22) at parity with retail Glide (2026-07-23). **This rebuild has never been run on hardware** | Voodoo 3, `.124`, 2026-07-22 – 2026-08-03 (the 787,186 B build) |
 | **Glide 3, Voodoo 4/5 (`h5`)** | `glide3x_h5.dll`, 989,027 B, built 2026-09-12 | **Broken — do not ship.** Paired with our ICD it hard-froze the V5 6000 (then in `.191`) on 2026-09-04 — which layer caused it is not established. Carries a TLS inline-asm bug found 2026-09-23 ([§16](#16-known-bugs-and-open-issues)) | never |
 | **Glide 3, Voodoo 2 (`cvg`)** | `glide3x_cvg.dll`, 845,530 B | Built, **not yet deployed** (`.171` runs the stock 3dfx Glide 3.03.00) | never |
 | **Glide 2** (`h3`, `cvg`) | `glide2x.dll` 798,501 B · `glide2x_cvg.dll` 831,246 B | Built. A 2026-08-04 build ran Unreal Gold's Glide renderer on `.124`, but its XP bring-up guards (`79ee51e`) were never pushed and **the current build lacks them** ([§15.4](#154-what-was-lost-and-why)) | Voodoo 3, `.124`, 2026-08-04 (a build that no longer exists) |
 | **Display driver — `vcr-disp`** | none (cannot compile) | **Skeleton.** Escape server written but its request layout does not match Glide's; no GDI chassis | never |
-| **Display driver + D3D HAL — fxD3D** (`../scripts/3dfx/`) | no artifact in the repo (built on a fleet box through the DDK; last reported ~45 KB) | **Code-complete through milestone M4c-2, host-tested only.** Voodoo 3 register backend only | never |
+| **Display driver + D3D HAL — fxD3D** (`../scripts/3dfx/`) | no artifact in the repo (every recorded build came from the dev-host Wine DDK harness, now gone; last reported ~45 KB) | **Code-complete through milestone M4c-2, host-tested only.** Voodoo 3 register backend only | never |
 | **Stopgap display driver — `vcr-disp-h5`** | prebuilt `3dfxv3d.dll` / `3dfxv3m.sys` | Vintage H5 source, **Voodoo 3 INF only** (`DEV_0005`) | Voodoo 3, `.124`, July–August 2026 |
 
 **In one sentence:** the ICD is mature and measured, the Voodoo 3 Glide works,
@@ -315,13 +315,14 @@ All in `build/retro3dfx-gl/src/mesa/drivers/glide/`.
 | `fxg.c/h` | Optional Glide call tracer (`FX_TRAP_GLIDE`, compile-time) and resolution of Glide extension functions |
 | `fxwindow.c` | Ours: windowed Glide through DirectDraw (opt-in, unfinished) |
 | `fxrlog.h` | Ours: the crash-safe `C:\retrogl.log` tracer |
-| `fxdrv.h` | `fxMesaContext` and driver-wide declarations; `build-mesafx-retail.sh` widens `rendererString[64]` → `[96]` here at build time |
+| `fxdrv.h` | `fxMesaContext` and driver-wide declarations (`rendererString[96]` since 0.1.5; the widening `sed` in `build-mesafx-retail.sh` is a no-op leftover) |
 | `fxopengl.def`, `fx.rc` | Export list and version resource |
 
 `patches/mesafx-voodoo2-icd.patch` also edits files outside the driver: both
 `Makefile.mgw`s (`TUNE`, `-static-libgcc`), `main/extensions.c` and
-`main/mtypes.h` (the `SGIS_multitexture` flag), and `tnl/t_context.c` +
-`tnl/t_vtx_api.c` (the `fxp_*` `FX_PROFILE` counters — see I9). Anyone
+`main/mtypes.h` (the `SGIS_multitexture` flag), `tnl/t_vtx_api.c` (the `fxp_*`
+`FX_PROFILE` counters — see I9) and `tnl/t_context.c` (a comment on
+`MESA_CODEGEN` only). Anyone
 re-basing the patch must carry those too.
 
 ### 5.3 Pixel formats
@@ -448,7 +449,7 @@ What Glide needs from any display driver, ours included:
 - on multi-chip boards, answer **GET_SLAVE_REGS** and **SLI_AA_REQUEST**, and on h5 **PCI_OP** (per-chip PCI config read/write, used for AA/SLI setup);
 - optionally **CONTEXT_DWORD_NT** (both lanes fall back to a dummy flag) and **VIDTIMING** (a failure is ignored).
 
-The h3 Win32 path also sends `LINEAR_MAP_OFFSET`, `FIFOINFO`, `EXECUTEFIFO`,
+Both the h3 and h5 Win32 paths also send `LINEAR_MAP_OFFSET`, `FIFOINFO`, `EXECUTEFIFO`,
 `GETAGPINFO`, `SHARE_CONTEXT_DWORD` and `UNMAP_MEMORY`; some are tolerated if
 refused — check each one before relying on a driver that refuses it.
 
@@ -472,7 +473,7 @@ with `SLI_AA_REQUEST`:
 |---|---|---|
 | 0 | force single chip | single chip |
 | 1 | single chip, 2× AA | single chip, 2 samples |
-| 2 | default: all SLI, no AA | **Glide's default when the value is unset** — all chips in SLI, no AA |
+| 2 | 2-way SLI enabled, AA disabled | **Glide's default when the value is unset** — all chips in SLI, no AA |
 | 3 / 4 | 2× / 4× AA (2-chip) | 2 / 4 samples |
 | 5 | 4-way SLI (4-chip) | falls through to the default: all chips SLI |
 | 6 | 4-way SLI + 2× AA | **same as 3** (2 samples) → on a 4-chip board, 2-way SLI + 2× AA. 4-way SLI + 2× only with `FX_GLIDE_FORCE_OLD_AA`, which the source marks "doesn't work yet" |
@@ -480,9 +481,12 @@ with `SLI_AA_REQUEST`:
 | 8 | 8× AA, no SLI | 8 samples (2 per chip on a 4-chip board) |
 
 `FX_GLIDE_AA_SAMPLE` and `FX_GLIDE_NUM_CHIPS` override the value. **The ICD
-reads the same variable with its own default of 0** (`fxapi.c` ~459) to choose
-its pixel format, while Glide defaults to 2 — so with the value unset the two
-layers disagree about the topology. **None of the multi-chip path has
+reads the same variable** (through Glide's own reader, default 0, `fxapi.c`
+~459) to choose its pixel format. Unset, both layers end up with all chips in
+SLI and no AA. They disagree for explicit values the ICD's per-chip-count
+switch does not map — for example 1 on a 2- or 4-chip board, 3 or 4 on a
+4-chip board, 5–8 on a 2-chip board — where the ICD asks for a non-AA format
+while Glide turns AA on. **None of the multi-chip path has
 worked in our build yet** — see the h5 bugs in [§16](#16-known-bugs-and-open-issues).
 
 ### 6.4 Where Glide reads its settings
@@ -565,9 +569,11 @@ What is wrong or missing — it **cannot compile and would not work if it did**:
 5. The INF copies a `retro3dfx-mp.sys` that does not exist and has no `InstalledDisplayDrivers`.
 6. No test covers any of it.
 
-`../scripts/3dfx/driver/nt/chassis.c` already has a clean-room GDI chassis
-(it links and its logic is host-tested, but it has never been loaded on
-hardware) that could be reused here.
+`../scripts/3dfx/driver/nt/chassis.c` already has a clean-room GDI chassis that
+could be reused here. It is DDK-only and links into `fxd3ddd.dll`, but no host
+test builds it (fxD3D's pure-logic parts are host-tested), and it has never
+become the active driver: the one deploy on `.124` (2026-07-24) could not tell
+"did not load" from "loaded and failed init".
 
 ### 7.2 fxD3D (`../scripts/3dfx/`) — the fuller clean-room display driver
 
@@ -580,7 +586,7 @@ and its register backend (`gbkernel.c`, `hw/h3hw.h`) is **Voodoo 3 only** —
 there is no Voodoo 3 in the fleet now and no H5 backend, so M4d currently has
 no hardware to run on.
 
-- Build: on a fleet box with `provisioning/ddk/build_driver.py` (runs `provisioning/ddk/build_fxd3d.bat` under the staged DDK). The Wine harness `clfxd3d.bat` that did the July builds **no longer exists**; recreating it means a Windows 2000 + DX7 DDK in `$RETRO3DFX_TC/prefix/drive_c/` (default `~/retro3dfx-toolchain`). It must be a NATIVE-subsystem image importing only `WIN32K.SYS`; never cross-build it with mingw.
+- Build: every recorded build came from the dev-host Wine harness `clfxd3d.bat`, which **no longer exists**. To recreate it: put the harness back in `$RETRO3DFX_TC/prefix/drive_c/` (default `~/retro3dfx-toolchain`); the Windows 2000 DDK is still at `$RETRO3DFX_TC/devtools/w2kddk`, and the DX7 DDK must be installed into `devtools/dx7ddk` from the share's `3dfx-build-toolchain/downloads/dx7ddk.exe`. A fleet-box route (`provisioning/ddk/build_driver.py` → `build_fxd3d.bat`) is scripted but has never been used — its DDK package (`winddk-3790.zip`) is not staged on the share. It must be a NATIVE-subsystem image importing only `WIN32K.SYS`; never cross-build it with mingw.
 - Host tests: `make -C ../scripts/3dfx test` (DP2 parser, D3D→Glide translation, kernel-backend packet/layout/state/FIFO/surface logic). Note this target also rebuilds a tracked test binary and cross-builds `fxdbg.exe`.
 - Load selector: `InstalledDisplayDrivers` under the **active PnP Display-class instance key** (`...\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\NNNN`). Editing `Services\...\Device0` or `Control\Video` does nothing.
 - On-card bring-up tool: `fxdbg` escapes `FXDBG_PROBE/CLEAR/TRI/TEX/READBACK`. **Known bug:** `FXDBG_TEX` is `0x3DF3`, the same code as Glide's HWCEXT escape ([§16](#16-known-bugs-and-open-issues)).
@@ -659,8 +665,8 @@ What each step does, and the traps it encodes:
   for both cvg lanes (glide2x cvg gets them through `CPU=`, since the glide2x
   Makefiles have no `OPTFLAGS`) and for the retail ICD. **Exception:**
   `glide2x.dll` (h3) is handed an `OPTFLAGS=` it ignores, so it builds with the
-  stock `-O2 -ffast-math -mtune=pentium` and has **no SSE** — the only artifact
-  in `out/` that would run on an SSE-less CPU (a latent slip at
+  stock `-O2 -ffast-math -mtune=pentium` and has **no SSE** — the only Glide/ICD DLL
+  in `out/` that would run on an SSE-less CPU (`glideprobe.exe` has none either) (a latent slip at
   `build-stack.sh:182`). **Everything else needs SSE**: it faults (`c000001d`)
   on an SSE-less CPU such as a K7 "Thunderbird"/K75, and lowering `-mfpmath`
   alone does not remove SSE — `-march` must be lowered too
@@ -722,11 +728,12 @@ strings -a out/opengl32_retail.dll | grep voodoo-cleanroom
 #   Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.61]
 ```
 
-A stray `libgcc_s_dw2-1.dll` import makes `LoadLibrary` fail on a retro box and
-nothing names the missing DLL — Quake II reports only `could not load
-"retrogl"` (CHANGELOG 0.1.52). (The silent fall-back to Microsoft's
-"Direct3D GL 1.1" is a different failure: an ICD linked with the wrong Glide
-symbol naming.)
+A stray `libgcc_s_dw2-1.dll` import — like a Glide symbol-naming mismatch —
+makes `LoadLibrary` fail on a retro box, and nothing names the missing piece.
+The symptom depends on how the game loads the ICD, not on the cause: through
+`gl_driver`, Quake II reports only `could not load "retrogl"` (CHANGELOG 0.1.52);
+a game that goes through the system `opengl32` silently falls back to another
+renderer (Microsoft's "Direct3D GL 1.1", or the registered ICD).
 
 ### 8.4 Build outputs
 
@@ -786,7 +793,7 @@ Glide registry key (§6.4).
 | `MESA_FX_ALLOW_VP` | off | Advertise vertex programs |
 | `MESA_FX_IGNORE_PALEXT` / `PIXEXT` / `TEXFMT` / `CMBEXT` / `MIREXT` / `TEXUMA` / `TEXUS2` | off | Mask a Glide extension capability (upstream switches) |
 | `MESA_FX_NOSNAP`, `MESA_FX_POINTCAST`, `MESA_FX_MAXLOD` | off | Upstream compatibility switches |
-| `MESA_CODEGEN`, `MESA_NO_ASM`, `MESA_NO_MMX`, `MESA_NO_3DNOW`, `MESA_NO_SSE`, `MESA_FORCE_SSE`, `MESA_NO_DITHER`, `MESA_INFO`, `MESA_PROFILE`, `MESA_DEBUG`, `MESA_VERBOSE`, `LIBGL_DEBUG` | | Mesa core switches. `MESA_NO_SSE` only turns off Mesa's SSE transform assembly — the DLL is still compiled with `-mfpmath=sse` and faults on an SSE-less CPU regardless |
+| `MESA_CODEGEN`, `MESA_NO_ASM`, `MESA_NO_MMX`, `MESA_NO_3DNOW`, `MESA_NO_SSE`, `MESA_FORCE_SSE`, `MESA_NO_DITHER`, `MESA_INFO`, `MESA_DEBUG`, `MESA_VERBOSE`, `LIBGL_DEBUG` | | Mesa core switches. `MESA_NO_SSE` only turns off Mesa's SSE transform assembly — the DLL is still compiled with `-mfpmath=sse` and faults on an SSE-less CPU regardless |
 
 Documented in older logs but **not in the current source**:
 `FX_GLIDE_REFRESH_RATE`, `SSTV2_REFRESH_RATE`, `MESA_FX_REFRESH`, `FX_CURSOR`,
@@ -807,7 +814,7 @@ Documented in older logs but **not in the current source**:
 | `FX_GLIDE_FBRAM`, `FX_GLIDE_TMU_MEMSIZE` | h3/h5 | Override detected memory sizes |
 | `SSTH3_GRXCLOCK`, `SSTH3_MEMCLOCK`, `SSTH3_*GAMMA` | h3/h5 | Clocks and gamma |
 | `SSTV2_*` (~90) | cvg | Voodoo 2 init, video and timing overrides, including `SSTV2_SCREENREFRESH` / `SSTV2_REFRESH_<res>` (refresh). `SSTV2_INITDEBUG=1` + `SSTV2_INITDEBUG_FILE` work **only with the stock retail Glide** — our cvg build compiles that code out (no `INIT_OUTPUT` on Win32) |
-| `SSTV2_MISMATCHED_SLI` | cvg | Only in our `glide3x_cvg.dll` (absent from the stock 3.03.00): bypasses the `fbiBoardID` check so two Voodoo 2s with different board straps run SLI. SLI compares TMU count, `fbiBoardID` and video struct only — not RAM — so 8 MB + 12 MB runs as 2 × 8 MB |
+| `SSTV2_MISMATCHED_SLI` | cvg | Only in our cvg builds (`glide3x_cvg.dll`, `glide2x_cvg.dll`; absent from the stock 3dfx 3.03.00 / 2.56 DLLs): bypasses the `fbiBoardID` check so two Voodoo 2s with different board straps run SLI. SLI compares TMU count, `fbiBoardID` and video struct only — not RAM — so 8 MB + 12 MB runs as 2 × 8 MB |
 
 ---
 
@@ -850,7 +857,9 @@ result:
    mid-FIFO-packet wedged `.124` past every bounded wait (power cycle,
    2026-08-04). Leave through the game's own quit path.
 2. **Kill every process holding the DLL before replacing it.** A loaded DLL is
-   locked and `copy /Y` fails; check each copy's "1 file(s) copied".
+   locked and `copy /Y` fails. Verify each replaced DLL by DOWNLOAD + md5 (as
+   `deploy171.py` and `game_sweep.py` do) or by the renderer string — never by
+   cmd's "1 file(s) copied".
 3. **Where a 3dfx display driver is installed, `system32\glide3x.dll` is
    WFP-protected**: seed `dllcache\glide3x.dll` first, or stay game-local.
 4. **After a driver install, read `Session Manager\PendingFileRenameOperations`
@@ -931,7 +940,7 @@ for every fullscreen game.
 It showed every ICD-side metric identical between SGIS-off (57.2 fps) and
 SGIS-on (32.0 fps) Quake II on the Voodoo 2. 0.1.58 read that as "the cost is not
 in our driver"; **0.1.60 retracted it** — the stock MiniGL takes the same SGIS
-path at 90.7 fps, so the ~24 ms is in our stack, and with the ICD DLL ruled out
+path at 90.7 fps, so the extra ~14 ms per frame (31.2 − 17.5 ms) is in our stack, and with the ICD DLL ruled out
 the remaining suspect is `glide3x.dll`, which has never been instrumented.
 
 ### 11.3 `glideprobe` — which Glide call hung the machine
@@ -1127,8 +1136,9 @@ What the Voodoo 3 numbers say:
 - **Our Glide is at parity with retail Glide** when measured under the same
   conditions (46.0 vs 46.3 fps, 2026-07-23). An earlier "78–94% of retail"
   figure compared runs taken under different conditions — see §15.6.
-- **Removing a machine-wide `FX_GLIDE_SWAPINTERVAL=1` was worth +32% at
-  1024×768** (38.7 → 51.0/51.3). The 0.1.6 ICD-side change by itself did nothing
+- **Overriding a machine-wide `FX_GLIDE_SWAPINTERVAL=1` with 0 was worth +32% at
+  1024×768** (38.7 → 51.0/51.3) — first in the launcher environment, then in
+  `Session Manager\Environment`. The 0.1.6 ICD-side change by itself did nothing
   over retail Glide, which ignores the swap argument (§15.2).
 - Era reference: a Voodoo 3 3000 with 3dfx's own ICD, Quake III 1024: 44.3.
 
@@ -1150,9 +1160,9 @@ Cost isolation at 640×480 (0.1.60): `r_drawentities 0` → 66.3 (entities
 2.40 ms) · `r_drawworld 0` → 206.6 (world 12.64 ms) · `gl_dynamic 0` → 57.6
 (lightmap uploads, +0.7% ceiling). With SGIS on, the frame rate is flat across
 resolution (32.9 / 32.7 / 32.1 at 320×240 / 512×384 / 640×480, against
-121.0 / 80.6 / 54.3 without, in the profiling build). **Everything measured
-before 2026-08-28 was vsync-capped at ~59 fps — always force
-`gl_swapinterval 0` and `cl_maxfps 1000`.**
+121.0 / 80.6 / 54.3 without, in the profiling build). **Every Voodoo 2 Quake II
+measurement taken before vsync was forced off (2026-08-28) was capped at
+~59 fps — always force `gl_swapinterval 0` and `cl_maxfps 1000`.**
 
 The frame is 2.4 ms of CPU and 15.1 ms of fill; Quake II touches each pixel
 about 5 times and the CPU is idle ~69% of the time. **The card's fill rate is
@@ -1186,8 +1196,11 @@ actually loads.
 **The Voodoo 2 lane is not in either place.** `deploy/q2bench171.py` writes JSON
 to the gitignored `deploy/bench-results/` and never to SpecPicks; only six early
 2026-08-29 runs survive (in the `cvg` worktree), and the shipping numbers
-(57.2 / 80.5 / 37.2 / 92.9) exist only in `OPTIMIZATIONS-VOODOO2.md` and the
-CHANGELOG. **Known bug:** its version regex still expects
+(57.2 / 80.5 / 37.2 / 92.9) exist only as prose — `OPTIMIZATIONS-VOODOO2.md`,
+the CHANGELOG, `retro-3dfx/FINDINGS.md` and the `.171` machine doc. No JSON or
+SpecPicks row holds them.
+
+**Known bug (T1):** `driver-bench`'s version regex still expects
 `[retro3dfx x.y.z]`, so a current build is recorded as `driver_version=unknown`
 unless `--driver-version` is passed (§16).
 
@@ -1321,7 +1334,7 @@ timeline
 | 2026-07-16 | 0.1.3 | Batched triangles: one `grDrawVertexArrayContiguous` per buffer; 768-vertex indexed chunks | optimization | Q3 640: 57.6 → 58.1 (+0.9%, tuned env). Not a "vertex cache" — that label belongs to the vintage lane's 0.1.3 | ✅ |
 | 2026-07-16 | 0.1.4 | Set swap defaults with `_putenv` before `grGlideInit` | optimization | **None** — retail Glide snapshots its environment at DLL load | ✅ (inert) |
 | 2026-07-16 | 0.1.5 | Glide state shadow cache (clamp, filter, mipmap, source, colour/alpha combine) | optimization | Q3 640: 54.2 → 54.9 (+1.3%; the CHANGELOG says +0.7%) | ✅ |
-| 2026-07-16 | 0.1.6 | Read `FX_GLIDE_SWAPINTERVAL` with our own C runtime, default 0 | fix | **None over the hybrid** (Q3 1024 stayed 38.7): retail Glide ignores the swap argument. The +32% (38.7 → 51.0/51.3) came from removing a machine-wide `FX_GLIDE_SWAPINTERVAL=1` in `Session Manager\Environment` on `.124`, and from the 07-17 self-built stack whose Glide honours the argument | ✅ (inert on hybrid) |
+| 2026-07-16 | 0.1.6 | Read `FX_GLIDE_SWAPINTERVAL` with our own C runtime, default 0 | fix | **None over the hybrid** (Q3 1024 stayed 38.7): retail Glide ignores the swap argument. The +32% (38.7 → 51.0/51.3) came from forcing `FX_GLIDE_SWAPINTERVAL=0` over a machine-wide `=1` — first in the launcher environment (51.0), then in `Session Manager\Environment` on `.124`; the 07-17 self-built 51.3 was measured after that change | ✅ (inert on hybrid) |
 | 2026-07-17 | 0.1.6 | 📌 "ALL-RETRO3DFX" milestone: our ICD + H5-source `glide3x` + H5-source display driver replace AmigaMerlin | milestone | Q3 **58.8** @640, **51.3** @1024 — +32.6% over the untuned hybrid at 1024, +16% over the era 3dfx ICD (44.3) | 📌 |
 | 2026-07-17 | 0.1.7 | `-O3 -funroll-loops` | experiment | 58.7 vs 58.8 — nothing | ❌ |
 | 2026-07-17 | 0.1.8 | SSE 4-wide clip test + `rcpps` perspective divide | experiment | **37.9 vs 58.8 (−35%)** | ❌ |
@@ -1417,7 +1430,7 @@ is exposed to exactly this today.
 | 2026-07-16 | `benchmarks/ingest.py` + SpecPicks tracking; `deploy-3dfx-driver` skill and `updrv.exe` (vintage package installer) | ✅ |
 | 2026-07-17 | `driver-bench` skill: one-command benchmark/optimize/track loop | ✅ |
 | 2026-07-21 | Directory renamed `retro3dfx/` → `voodoo-cleanroom/`, `retro3dfx-disp` → `vcr-disp`; `vcr-disp-h5` stopgap created; regression suite created | ✅ |
-| 2026-07-19 | All five Quake II launchers moved from the unstable stock `gl_driver 3dfxgl` to `retrogl` (`gl_mode` 3/4/6/8 = 640/800/1024/1280) (`981c1e9`) | 📌 |
+| 2026-07-19 | `play_q2.bat` moved from the unstable stock `gl_driver 3dfxgl` to `retrogl`; all five Quake II launchers rewritten to name `retrogl` explicitly with the right `gl_mode` (3/4/6/8 = 640/800/1024/1280) (`981c1e9`) | 📌 |
 | 2026-07-21 | `driver-bench` multi-game resolution matrix + DAEMON Tools ISO mount for MOHAA (`61b0194`) | ✅ |
 | 2026-07-21 | `voodoo3-wfp.inf` rename package makes the vintage H5 display driver load durably under our ICD (games back: Q2 96.6, Q3 58.6 @640) | 📌 vintage enabler |
 | 2026-07-23 | fxD3D M3: `fxd3ddd.dll` links against the Windows 2000 + DX7 DDK under Wine | ✅ |
@@ -1522,7 +1535,7 @@ sequenceDiagram
 | I8 | `getenv` on every call in the SGIS shim and in `TexImage2D` (`FX_TRACE_TEX`) | `fxwgl.c`, `fxddtex.c` | Small per-call cost |
 | I9 | The patch puts `fxp_*` counters into core Mesa (`tnl/t_vtx_api.c`), so a non-FX build no longer links; the Makefile default `CPU=pentium` contradicts `-mfpmath=sse` | patch, `Makefile.mgw` | Build hygiene |
 | I10 | The window procedure is restored from `WindowFromDC` of a possibly stale HDC | `fxwgl.c` ~457 | REVIEW-FINDINGS B3/B4, not done |
-| I11 | **On a Voodoo 4/5 the ICD stops after the mode set even over known-good retail Glide.** Quake II logs `...calling CDS: ok` and nothing further, three runs: no fps, no `GL_RENDERER`, no crash. Measured on `.143` (V5 5500) on 2026-08-14 with a retail-linked build stamped v0.1.2 (2,749,065 B, ~0.1.33 source) over the 344,064 B retail `glide3x` that runs the vintage ICD at 159.5 fps. Not the ABI — all 65 imports resolve. Cause unknown | ICD init on VSA-100 | Blocks our ICD on every Voodoo 4/5, including §17.1 Step 1 |
+| I11 | **On a Voodoo 4/5 the ICD stops after the mode set even over known-good retail Glide.** Quake II logs `...calling CDS: ok` and nothing further, three runs: no fps, no `GL_RENDERER`, no crash. Measured on `.143` (V5 5500) on 2026-08-14 with a retail-linked build stamped v0.1.2 (2,749,065 B, ~0.1.33 source) over the 344,064 B retail `glide3x` that runs the vintage ICD at 159.5 fps. Not the ABI — all 65 imports resolve. Cause unknown | ICD init on VSA-100 | Stopped our ICD (a ~0.1.33-source build) on the V5 5500; expect the same with 0.1.61, including in §17.1 Step 1, until measured |
 | I12 | SiN's demo playback stalls at GL init on our ICD (2026-07-21); the bundled MiniGL plays it at 29.5 fps @640 | — | SiN stays on its MiniGL |
 
 ### 16.5 Tooling and documentation
@@ -1534,7 +1547,7 @@ sequenceDiagram
 | T3 | `build-stack.sh` never fetches, builds uncommitted edits, does not `make clean` the ICD, reports a failed MesaFX make or a patch that no longer applies without failing, hands glide2x h3 an `OPTFLAGS` it ignores, and labels that build "(Napalm)"; `build-mesafx-retail.sh` burns a build number on a failed build and only warns on a wrong-ABI link (§8.2, §8.3) | `build-stack.sh`, `build-mesafx-retail.sh` |
 | T4 | `v56k_bench.py` treats our `glide3x_h5.dll` as dangerous (refuses unless `--allow-open-glide`) — correct until H1 is fixed — but recognises it **only by exact size** (`DANGEROUS_GLIDE = {989027: …}`), so any rebuild escapes the guard. Add the new build's size or md5 before Step 3 | `../scripts/benchmarks/v56k_bench.py` ~1295 |
 | T5 | Commit `79ee51e` cited by the CHANGELOG for the glide2x bring-up is not in the fork on GitHub | CHANGELOG |
-| T6 | Several docs still describe `.124` as a Voodoo 3 (see the index in §20), including the `voodoo3-driver-dev` skill, which also documents the lost `FX_DUMP_FRONT` as available. `CHANGELOG.md` 0.1.41 and `../tests/README.md` name `patches/mesafx-sgis-multitexture.patch`, which does not exist (the SGIS shim is in `mesafx-voodoo2-icd.patch`) | various |
+| T6 | Several docs still describe `.124` as a Voodoo 3 (see the index in §20), including the `voodoo3-driver-dev` skill, which also documents the lost `FX_DUMP_FRONT` as available. `../tests/README.md` names `patches/mesafx-sgis-multitexture.patch`, which does not exist (it was renamed `mesafx-voodoo2-icd.patch` in `ec8d329`; the CHANGELOG was corrected 2026-09-23) | various |
 
 ---
 
@@ -1634,8 +1647,8 @@ yardstick both lanes are measured against. Its own OpenGL ICD reports
 
 | Our repository | Upstream | Fork point | License |
 |---|---|---|---|
-| [voidsstr/retro3dfx-gl](https://github.com/voidsstr/retro3dfx-gl) | [sezero/MesaFX-6.2](https://github.com/sezero/MesaFX-6.2) | `fd191eb` (2023-02-02); upstream has since added `f991518` (2026-07-15, mingw build fixes), not merged | MIT / Mesa |
-| [voidsstr/retro3dfx-glide](https://github.com/voidsstr/retro3dfx-glide) | [sezero/glide](https://github.com/sezero/glide) | `ee38094` | 3dfx Glide Source Code General Public License (3dfx's 1999–2000 open release: h3/cvg from November 1999, h5/Napalm from June 2000) |
+| [voidsstr/retro3dfx-gl](https://github.com/voidsstr/retro3dfx-gl) | [sezero/MesaFX-6.2](https://github.com/sezero/MesaFX-6.2) | `fd191eb` (2023-02-02) — one commit behind upstream's head at fork time: `f991518` (2026-07-15, mingw build fixes) was already upstream and is not merged | MIT / Mesa |
+| [voidsstr/retro3dfx-glide](https://github.com/voidsstr/retro3dfx-glide) | [sezero/glide](https://github.com/sezero/glide) | `ee38094` | 3dfx Glide Source Code General Public License (3dfx's 1999–2000 open release: h3 from November 1999, cvg from December 1999, h5/Napalm from June 2000) |
 | `vcr-disp/`, `../scripts/3dfx/` | — | — | our original code, modelled on Device3Dfx, RISCyVoodoo and vmdisp9x |
 | `vcr-disp-h5/dist/` | 3dfx H5 driver source (vintage lane) | — | **not clean-room** — a borrowed stopgap |
 
@@ -1648,7 +1661,7 @@ license files. Details: [`FORKS.md`](FORKS.md).
 
 | Document | Covers | Current? |
 |---|---|---|
-| [`CHANGELOG.md`](CHANGELOG.md) | ICD 0.1.1 → 0.1.61, with measurements | yes (0.1.34/0.1.35 entries describe lost code; its 0.1.41 entry names a patch file that does not exist) |
+| [`CHANGELOG.md`](CHANGELOG.md) | ICD 0.1.1 → 0.1.61, with measurements | yes (0.1.34/0.1.35 entries describe lost code) |
 | [`OPTIMIZATIONS-VOODOO2.md`](OPTIMIZATIONS-VOODOO2.md) | Voodoo 2 lane on `.171` | **yes — most current** |
 | [`OPTIMIZATIONS.md`](OPTIMIZATIONS.md) | Voodoo 3 lane on `.124` | historical (card gone) |
 | [`OPTIMIZATION-RESEARCH.md`](OPTIMIZATION-RESEARCH.md) | Research behind the optimizations | historical |
