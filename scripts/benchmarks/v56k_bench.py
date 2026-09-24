@@ -487,6 +487,8 @@ class Quake3:
         return "\r\n".join(lines) + "\r\n"
 
     async def prepare(self, box, w, h, depth, env):
+        if not getattr(self, "local_glide", False):
+            await _stage_local_glide(box, self.root, False)   # never a stray copy
         await box.upload(rf"{self.root}\baseq3\fleetres.cfg",
                          self.fleetres_cfg(w, h, depth))
         await box.upload(self.cfg, self.bench_cfg())
@@ -627,6 +629,8 @@ class Quake2:
         return None
 
     async def prepare(self, box, w, h, depth, env):
+        if not getattr(self, "local_glide", False):
+            await _stage_local_glide(box, self.root, False)   # never a stray copy
         await box.upload(rf"{self.root}\baseq2\fleetres.cfg",
                          self.fleetres_cfg(w, h, depth))
         # `gl_driver 3dfxgl` loads whatever file sits beside quake2.exe under
@@ -1584,6 +1588,62 @@ class Quake3Cleanroom(_Cleanroom, Quake3):
         await super().prepare(box, w, h, depth, env)
 
 
+# --------------------------------------------------------------------------- #
+# ALL-OURS lane: our ICD over OUR h5 Glide (roadmap 17.1 Step 5)
+# --------------------------------------------------------------------------- #
+# The game-local glide3x.dll shadows system32 for EVERY ICD the game loads
+# (an ICD's imports resolve from the application directory first), so a stray
+# copy would silently turn an AmigaMerlin or retail-Glide row into an all-ours
+# one. Every Quake II / Quake III prepare() therefore removes it unless the
+# title is all-ours, and an all-ours row must show our renderer string.
+CLEANROOM_GLIDE_H5 = Path(os.environ.get(
+    "V56K_CLEANROOM_GLIDE", CLEANROOM_ICD.parent / "glide3x_h5.dll"))
+
+
+async def _stage_local_glide(box, root, want):
+    import hashlib
+    dest = rf"{root}\glide3x.dll"
+    if not want:
+        await box.exec_(f'cmd /c if exist "{dest}" del /f /q "{dest}"')
+        return None
+    data = CLEANROOM_GLIDE_H5.read_bytes()
+    have = await box.download(dest)
+    if not have or hashlib.md5(have).hexdigest() != hashlib.md5(data).hexdigest():
+        await box.upload(dest, data)
+        have = await box.download(dest)
+        if not have or hashlib.md5(have).hexdigest() != hashlib.md5(data).hexdigest():
+            raise RetroProtocolError(f"{dest}: upload did not land intact")
+    return hashlib.md5(data).hexdigest()[:8]
+
+
+class Quake2AllOurs(Quake2Cleanroom):
+    tid = "quake2:allours"
+    local_glide = True
+
+    async def identify(self, box):
+        if getattr(self, "_identified", False):
+            return
+        self._identified = True
+        ver = await self.stage_icd(box)
+        g = await _stage_local_glide(box, self.root, True)
+        self.api = f"opengl-allours-{ver}"
+        self.engine = f"quake2.exe (3.20; retrogl.dll voodoo-cleanroom {ver} over OUR h5 glide3x md5 {g})"
+
+
+class Quake3AllOurs(Quake3Cleanroom):
+    tid = "quake3:allours"
+    local_glide = True
+
+    async def identify(self, box):
+        if getattr(self, "_identified", False):
+            return
+        self._identified = True
+        ver = await self.stage_icd(box)
+        g = await _stage_local_glide(box, self.root, True)
+        self.api = f"opengl-allours-{ver}"
+        self.engine = f"quake3.exe (retail 1.32c; retrogl.dll voodoo-cleanroom {ver} over OUR h5 glide3x md5 {g})"
+
+
 class RTCWCleanroom(_Cleanroom, RTCW):
     """RtCW on OUR ICD: retrogl.dll beside WolfMP.exe, r_glDriver retrogl.
     r_glDriver is latched, so the first launch after the change can still load
@@ -1604,8 +1664,8 @@ class RTCWCleanroom(_Cleanroom, RTCW):
 
 TITLES = {
     "cs16": lambda api=None: CS16(),
-    "quake3": lambda api=None: (Quake3Cleanroom() if api == "retrogl" else Quake3()),
-    "quake2": lambda api=None: (Quake2Cleanroom() if api == "retrogl" else Quake2()),
+    "quake3": lambda api=None: {"retrogl": Quake3Cleanroom, "allours": Quake3AllOurs}.get(api, Quake3)(),
+    "quake2": lambda api=None: {"retrogl": Quake2Cleanroom, "allours": Quake2AllOurs}.get(api, Quake2)(),
     "glquake": lambda api=None: GLQuake(),
     "ut": lambda api="glide": _ut(api),
     "ut99": lambda api="glide": UT99Bench(api),

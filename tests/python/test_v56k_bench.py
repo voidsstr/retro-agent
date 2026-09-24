@@ -912,3 +912,21 @@ def test_rtcw_cleanroom_names_our_icd(bench):
     assert t.gldriver == "retrogl" and t.tid == "rtcw:retrogl"
     assert "+set r_glDriver retrogl" in t.launch_bat(640, 480, 16, {})
     assert not t.verify_driver("GL_VENDOR: METABYTE/WICKED3D\nGL_RENDERER: x\n")[0]
+
+
+def test_allours_stages_our_glide_and_other_lanes_remove_it(bench):
+    import asyncio
+    calls = []
+    class Box:
+        async def exec_(self, cmd, timeout=90): calls.append(cmd); return ""
+        async def upload(self, *a): calls.append(("upload", a[0]))
+        async def download(self, p): return None
+    # a retail / retrogl lane must delete a game-local glide3x.dll first
+    for t in (bench.TITLES["quake2"](), bench.TITLES["quake3"]("retrogl")):
+        calls.clear()
+        asyncio.run(t.prepare(Box(), 640, 480, 16, {}) if t.tid.startswith("quake2")
+                    else bench._stage_local_glide(Box(), t.root, False))
+        assert any("glide3x.dll" in str(c) and "del /f /q" in str(c) for c in calls), t.tid
+    a = bench.TITLES["quake2"]("allours")
+    assert a.tid == "quake2:allours" and a.local_glide and a.gl_driver == "retrogl"
+    assert bench.TITLES["quake3"]("allours").tid == "quake3:allours"
