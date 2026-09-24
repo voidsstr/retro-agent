@@ -420,6 +420,7 @@ static DWORD WINAPI system_shutdown_thread(LPVOID param)
 static void do_system_power(SOCKET sock, const char *label, UINT ewx_flags)
 {
     OSVERSIONINFOA osvi;
+    HANDLE th;
 
     if (g_power_pending) {
         /* Now that the agent survives a Win9x shutdown attempt, a repeated
@@ -427,6 +428,31 @@ static void do_system_power(SOCKET sock, const char *label, UINT ewx_flags)
          * consoles each time. One at a time. */
         send_text_response(sock, "OK (a power operation is already in flight)");
         log_msg(LOG_MAIN, "%s: ignored - one is already in flight", label);
+        return;
+    }
+
+    /* Create the worker FIRST, suspended, and only then say OK. Until
+     * 2026-09-24 this sent "OK" up front and then called CreateThread with a
+     * NULL lpThreadId - which Win95/98 reject with ERROR_INVALID_PARAMETER
+     * (87). So REBOOT and SHUTDOWN never did anything on a Win9x box, while
+     * answering OK every time; the only trace was one log line. Found on .243
+     * when safe-reboot.py reported "rebooting: OK" and the uptime kept
+     * counting. spawn_helper() had the same bug fixed long ago. */
+    {
+        DWORD tid;
+        th = CreateThread(NULL, 0, system_shutdown_thread,
+                          (LPVOID)(UINT_PTR)ewx_flags, CREATE_SUSPENDED, &tid);
+    }
+    if (!th) {
+        DWORD err = GetLastError();
+        char msg[96];
+        _snprintf(msg, sizeof(msg) - 1,
+                  "ERR %s failed: could not start the shutdown thread (error %lu)",
+                  label, (unsigned long)err);
+        msg[sizeof(msg) - 1] = '\0';
+        log_msg(LOG_MAIN, "%s", msg);
+        log_flush();
+        send_text_response(sock, msg);
         return;
     }
 
@@ -447,16 +473,8 @@ static void do_system_power(SOCKET sock, const char *label, UINT ewx_flags)
      * shutdown we asked for for a reason to stop the agent. */
     g_power_pending = 1;
 
-    {
-        HANDLE th = CreateThread(NULL, 0, system_shutdown_thread,
-                                 (LPVOID)(UINT_PTR)ewx_flags, 0, NULL);
-        if (th) CloseHandle(th);        /* fire-and-forget: don't leak it */
-        else {
-            log_msg(LOG_MAIN, "%s: FAILED to start the shutdown thread", label);
-            log_flush();
-            g_power_pending = 0;
-        }
-    }
+    ResumeThread(th);
+    CloseHandle(th);                    /* fire-and-forget: don't leak it */
 
     osvi.dwOSVersionInfoSize = sizeof(osvi);
     GetVersionExA(&osvi);

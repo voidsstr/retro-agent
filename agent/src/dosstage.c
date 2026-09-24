@@ -555,9 +555,20 @@ void handle_dosstage(SOCKET sock, const char *args)
         return;
     }
 
-    h = CreateThread(NULL, 0, dosstage_run_thread,
-                     (LPVOID)(UINT_PTR)force, 0, NULL);
-    if (h) CloseHandle(h);
+    {
+        /* A real lpThreadId: Win95/98 fail CreateThread with a NULL one
+         * (error 87), and DOSSTAGE exists for exactly those machines. */
+        DWORD tid;
+        h = CreateThread(NULL, 0, dosstage_run_thread,
+                         (LPVOID)(UINT_PTR)force, 0, &tid);
+    }
+    if (!h) {
+        log_msg(LOG_DOSSTAGE, "DOSSTAGE: could not start the staging thread "
+                "(error %lu)", (unsigned long)GetLastError());
+        send_text_response(sock, "ERR could not start the DOS staging thread");
+        return;
+    }
+    CloseHandle(h);
     log_msg(LOG_DOSSTAGE, "DOSSTAGE command received (force=%d)", force);
     send_text_response(sock, force ? "DOS staging started (forced)"
                                    : "DOS staging started");
