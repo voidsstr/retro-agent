@@ -51,7 +51,7 @@ logs it links to.
 
 ## 1. Status at a glance
 
-State as of **2026-09-23**. The hardware in this fleet moves between boxes. Ask
+State as of **2026-09-24**. The hardware in this fleet moves between boxes. Ask
 the box (`HWPROFILE`) or regenerate
 [`../docs/fleet-inventory.md`](../docs/fleet-inventory.md) — its last render
 (2026-09-01) is already stale for `.124` (the V5 6000 host changed for the
@@ -60,7 +60,7 @@ and for `.171`.
 
 | Component | Current build | State | Last proven on hardware |
 |---|---|---|---|
-| **OpenGL ICD** (MesaFX 6.2.2 fork) | **0.1.61**, built 2026-09-04, 2,757,140 B | **Works on Voodoo 2 (and formerly Voodoo 3); has never worked on a Voodoo 4/5** — on the V5 5500 it stopped after the mode set even over retail Glide (I11). Source = fork `492a0d8` (0.1.33) + `patches/mesafx-voodoo2-icd.patch` (0.1.41–0.1.60) | **Voodoo 2**, `.171`, 0.1.60, 2026-08-29 (Quake II 57.2 fps). Voodoo 3, `.124`, July – 2026-08-04 (card removed 2026-08-11) |
+| **OpenGL ICD** (MesaFX 6.2.2 fork) | **0.1.62**, built 2026-09-24, 2,757,177 B | **Works on the Voodoo 5 6000** (over AmigaMerlin's Glide, 2026-09-24 — faster than AmigaMerlin's own ICD in Quake II, level-to-ahead in Quake III, [§13.3](#133-voodoo-5-6000-124-athlon-xp-2400-2026-09-24)), on the Voodoo 2, and formerly on the Voodoo 3. I11 (stopped at the mode set on the V5 5500 with a ~0.1.33 build) does not reproduce with 0.1.61/0.1.62. Source = fork `492a0d8` (0.1.33) + `patches/mesafx-voodoo2-icd.patch` (0.1.41–0.1.62) | **Voodoo 5 6000**, `.124`, 0.1.61/0.1.62, 2026-09-24. Voodoo 2, `.171`, 0.1.60, 2026-08-29. Voodoo 3, `.124`, July – 2026-08-04 |
 | **Glide 3, Voodoo 3 (`h3`)** | `glide3x_h3.dll` = `glide3x.dll`, 855,150 B, built 2026-09-12 | Works: renders Quake III (2026-07-22) at parity with retail Glide (2026-07-23). **This rebuild has never been run on hardware** | Voodoo 3, `.124`, 2026-07-22 – 2026-08-03 (the 787,186 B build) |
 | **Glide 3, Voodoo 4/5 (`h5`)** | `glide3x_h5.dll`, 989,027 B, built 2026-09-12 | **Broken — do not ship.** Paired with our ICD it hard-froze the V5 6000 (then in `.191`) on 2026-09-04 — which layer caused it is not established. Carries a TLS inline-asm bug found 2026-09-23 ([§16](#16-known-bugs-and-open-issues)) | never |
 | **Glide 3, Voodoo 2 (`cvg`)** | `glide3x_cvg.dll`, 845,530 B | Built, **not yet deployed** (`.171` runs the stock 3dfx Glide 3.03.00) | never |
@@ -69,7 +69,8 @@ and for `.171`.
 | **Display driver + D3D HAL — fxD3D** (`../scripts/3dfx/`) | no artifact in the repo (every recorded build came from the dev-host Wine DDK harness, now gone; last reported ~45 KB) | **Code-complete through milestone M4c-2, host-tested only.** Voodoo 3 register backend only | never |
 | **Stopgap display driver — `vcr-disp-h5`** | prebuilt `3dfxv3d.dll` / `3dfxv3m.sys` | Vintage H5 source, **Voodoo 3 INF only** (`DEV_0005`) | Voodoo 3, `.124`, July–August 2026 |
 
-**In one sentence:** the ICD is mature and measured, the Voodoo 3 Glide works,
+**In one sentence:** the ICD is mature and measured and now runs on the Voodoo 5
+6000 over AmigaMerlin's Glide, the Voodoo 3 Glide works,
 the Voodoo 2 lane runs on stock Glide, the Voodoo 4/5 Glide does not work yet,
 and there is no working clean-room display driver — on every card that needs
 one we still borrow the vintage H5 or AmigaMerlin display driver.
@@ -86,12 +87,12 @@ flowchart LR
     classDef gone fill:#555555,stroke:#2b2b2b,color:#ffffff
 
     S171["<b>.171</b> · Pentium 4 2.8 GHz<br/>3dfx Voodoo 2, 12 MB, 3D-only<br/>2D on Intel 865G"]:::ours
-    S124["<b>.124</b> · Athlon XP 2400+<br/>Voodoo 5 6000 AGP, 4 chips<br/>AmigaMerlin 3.1-R11"]:::blocked
+    S124["<b>.124</b> · Athlon XP 2400+<br/>Voodoo 5 6000 AGP, 4 chips<br/>AmigaMerlin 3.1-R11"]:::borrowed
     S143["<b>.143</b> · Athlon 1 GHz<br/>Voodoo 5 5500, second adapter<br/>behind a GeForce 6800"]:::borrowed
     V3["Voodoo 3<br/>no box has one since 2026-08-11"]:::gone
 
     S171 --> R171["OUR ICD 0.1.60 over stock 3dfx Glide 3.03.00<br/>proven: Quake II 57.2 fps · 2026-08-29"]
-    S124 --> R124["benchmark reference box — AmigaMerlin baseline campaign<br/>our ICD + our h5 Glide hard-froze this card, then in .191 · 2026-09-04"]
+    S124 --> R124["OUR ICD 0.1.62 over AmigaMerlin Glide + display driver<br/>proven: Quake II 221.5 fps 4-chip · 2026-09-24<br/>(our h5 Glide still hard-froze it · 2026-09-04)"]
     S143 --> R143["vintage lane box<br/>our ICD and our h5 Glide each failed there · 2026-08-14"]
     V3 --> RV3["the lane our Glide h3, fxD3D, vcr-disp-h5<br/>and ICD 0.1.1–0.1.35 were built on"]
 ```
@@ -99,7 +100,7 @@ flowchart LR
 | Box | Card | Can our stack run there? |
 |---|---|---|
 | **`.171`** | Voodoo 2, 12 MB (4 MB frame buffer + 2 × 4 MB texture). 3D-only, INF `Class=MEDIA`, so it never shows as a display adapter. A second Voodoo 2 was fitted until 2026-08-28 — with both in, Glide hung; later records disagree on the card count (the 2026-08-31 inventory shows 2 PCI instances, possibly a stale key), so confirm with `HWPROFILE` | **Yes — the one proven box today.** The ICD runs over the stock Glide. No display driver is needed (the Intel 865G keeps 2D), so this is the one box where the 3D path needs no borrowed display driver — though the Voodoo 2 Glide still reaches the card through 3dfx's stock kernel helpers `fxgpio.sys`/`fxptl.sys`. Our `glide3x_cvg.dll` is built and waiting to be deployed |
-| **`.124`** | Voodoo 5 6000 (Strange God AGP reproduction, `121A:0009`, 4 VSA-100 chips) on AmigaMerlin 3.1-R11 | **Not yet.** It is the reference box for the running AmigaMerlin benchmark campaign ([`../docs/v56k-benchmark-plan.md`](../docs/v56k-benchmark-plan.md)); leave its driver alone while that runs. Our ICD over our h5 Glide hard-froze the V5 6000 (then in `.191`) on 2026-09-04. The next test is our ICD over AmigaMerlin's own Glide ([§17](#17-roadmap)) — which already stopped at the mode set on the V5 5500 (I11) |
+| **`.124`** | Voodoo 5 6000 (Strange God AGP reproduction, `121A:0009`, 4 VSA-100 chips) on AmigaMerlin 3.1-R11 | **The ICD, yes — since 2026-09-24.** Game-local `retrogl.dll` over AmigaMerlin's own Glide and display driver runs Quake II and Quake III on 1, 2 and 4 chips ([§13.3](#133-voodoo-5-6000-124-athlon-xp-2400-2026-09-24)); nothing in `system32` changes. Our h5 Glide is still broken (H1) and hard-froze this card (then in `.191`) on 2026-09-04. Games that go through the system `opengl32` (GoldSrc/CS 1.6) cannot reach our ICD yet — it has no `Drv*` ICD interface — and RtCW forces its own Wicked3D driver on a Voodoo |
 | **`.143`** | Voodoo 5 5500, second adapter behind a GeForce 6800 | The vintage lane's box. On 2026-08-14 **both open layers failed there, independently**: our ICD over the known-good retail Glide stopped at the mode set (I11); our h5 Glide (then a 920,669 B build) hung at Glide init under our ICD 0.1.31; and under the known-good vintage ICD our h5 Glide made the game fall back to Microsoft's Direct3D GL (`retro-3dfx/OPEN-STACK-ON-VSA100.md` §7) |
 | none | Voodoo 3 | The card this stack was built on (`.124`, July–August 2026) was **removed 2026-08-11**. Every Voodoo 3 result below is historical until one is refitted |
 
@@ -1170,9 +1171,41 @@ the wall**, and the remaining gap to the MiniGL is the lightmap pass
 (6.72 ms, 38% of the frame), which the MiniGL does in a single multitexture
 pass. Detail: [`OPTIMIZATIONS-VOODOO2.md`](OPTIMIZATIONS-VOODOO2.md).
 
-### 13.3 Voodoo 5 (none yet)
+### 13.3 Voodoo 5 6000 (`.124`, Athlon XP 2400+, 2026-09-24)
 
-Not benchmarked. On the V5 5500 (2026-08-14) the vintage lane's tuned 0.4.0 ICD
+**First Voodoo 5 numbers for this stack.** ICD 0.1.61/0.1.62 as game-local
+`retrogl.dll` over **AmigaMerlin 3.1-R11's** `glide3x` and display driver
+(roadmap §17.1 Step 1), against AmigaMerlin's own Mesa 6.3 ICD on the same box,
+same boot discipline (one SLI/AA config per clean boot, `v56k_bench.py`,
+renderer string read back on every row). fps, 16-bit / 32-bit:
+
+| | 1600×1200 | 1280×960 | 1024×768 | 800×600 | 640×480 |
+|---|---|---|---|---|---|
+| **Quake II, 4 chips (cfg 5) — ours** | 64.4 / 64.5 | 93.1 / 76.3 | 130.2 / 130.2 | 181.9 / 182.5 | **214.8 / 221.3** |
+| Quake II, 4 chips — AmigaMerlin ICD | 60.1 / 60.1 | 83.8 / 84.7 | 113.6 / 113.4 | 148.6 / 152.1 | 168.4 / 175.2 |
+| **Quake II, 1 chip (cfg 0) — ours** | 14.8 / 14.8 | 24.5 / 24.5 | 38.7 / 38.7 | 61.5 / 61.5 | **90.6 / 90.6** |
+| Quake II, 1 chip — AmigaMerlin ICD | 14.5 / 14.5 | 22.7 / 23.8 | 37.1 / 37.1 | 57.2 / 57.3 | 81.5 / 69.1 |
+| **Quake III, 4 chips — ours** | 77.6 / 49.8 | 120.0 / 76.9 | 123.9 / 103.9 | 131.7 / 117.9 | **133.1 / 125.7** |
+| Quake III, 4 chips — AmigaMerlin ICD | 79.0 / 51.3 | 116.3 / 75.1 | 120.4 / 101.1 | 119.9 / 110.3 | 122.3 / 115.0 |
+| **Quake III, 1 chip — ours** | 24.5 / 7.3 | 37.6 / 15.8 | 56.8 / 30.5 | 84.5 / 50.8 | 119.7 / 75.3 |
+| Quake III, 1 chip — AmigaMerlin ICD | hung / 7.3 | 38.8 / 16.0 | 54.9 / 32.8 | 88.1 / 52.9 | 117.9 / 78.8 |
+
+- Quake II is faster on ours in every cell (+2 % fill-bound on one chip, up to
+  **+26 %** at 640×480 on four). Quake III is level on one chip and ahead on
+  four at 1280×960 and below. cfg 2 ("Dual Chip") reads the same as cfg 5 on
+  both ICDs, as it does for every title in the campaign.
+- The 32-bit Quake II rows equal the 16-bit ones on both ICDs.
+- Every Quake II number from before 2026-09-24 in the campaign ran at
+  640×480×16 whatever it was labelled (the staged `autoexec.cfg` reset the mode);
+  the rows above are the re-measured, mode-verified ones.
+- An intermittent crash in AmigaMerlin's `grGlideInit` (dead board mapping)
+  hits roughly 1 launch in 10 after long sessions on either ICD; the runner
+  retries once and keeps the failed row.
+- Raw rows: `../scripts/benchmarks/results/v56k_cleanroom_192.168.1.124/`
+  (gitignored, like every campaign CSV); campaign notes:
+  [`../docs/v56k-benchmark-plan.md`](../docs/v56k-benchmark-plan.md).
+
+Earlier Voodoo 5 history: on the V5 5500 (2026-08-14) the vintage lane's tuned 0.4.0 ICD
 scored 159.5 fps in Quake II 640 against 93.5 for AmigaMerlin's own ICD (itself
 Mesa 6.3); our ICD produced no number there — neither over retail Glide nor over
 our h5 Glide. On the V5 6000 our ICD over our h5 Glide hard-froze the box
@@ -1535,7 +1568,7 @@ sequenceDiagram
 | I8 | `getenv` on every call in the SGIS shim and in `TexImage2D` (`FX_TRACE_TEX`) | `fxwgl.c`, `fxddtex.c` | Small per-call cost |
 | I9 | The patch puts `fxp_*` counters into core Mesa (`tnl/t_vtx_api.c`), so a non-FX build no longer links; the Makefile default `CPU=pentium` contradicts `-mfpmath=sse` | patch, `Makefile.mgw` | Build hygiene |
 | I10 | The window procedure is restored from `WindowFromDC` of a possibly stale HDC | `fxwgl.c` ~457 | REVIEW-FINDINGS B3/B4, not done |
-| I11 | **On a Voodoo 4/5 the ICD stops after the mode set even over known-good retail Glide.** Quake II logs `...calling CDS: ok` and nothing further, three runs: no fps, no `GL_RENDERER`, no crash. Measured on `.143` (V5 5500) on 2026-08-14 with a retail-linked build stamped v0.1.2 (2,749,065 B, ~0.1.33 source) over the 344,064 B retail `glide3x` that runs the vintage ICD at 159.5 fps. Not the ABI — all 65 imports resolve. Cause unknown | ICD init on VSA-100 | Stopped our ICD (a ~0.1.33-source build) on the V5 5500; expect the same with 0.1.61, including in §17.1 Step 1, until measured |
+| I11 | **(Does not reproduce on the V5 6000 with 0.1.61/0.1.62, 2026-09-24 — kept for the V5 5500 record.)** **On a Voodoo 4/5 the ICD stops after the mode set even over known-good retail Glide.** Quake II logs `...calling CDS: ok` and nothing further, three runs: no fps, no `GL_RENDERER`, no crash. Measured on `.143` (V5 5500) on 2026-08-14 with a retail-linked build stamped v0.1.2 (2,749,065 B, ~0.1.33 source) over the 344,064 B retail `glide3x` that runs the vintage ICD at 159.5 fps. Not the ABI — all 65 imports resolve. Cause unknown | ICD init on VSA-100 | Stopped our ICD (a ~0.1.33-source build) on the V5 5500; expect the same with 0.1.61, including in §17.1 Step 1, until measured |
 | I12 | SiN's demo playback stalls at GL init on our ICD (2026-07-21); the bundled MiniGL plays it at 29.5 fps @640 | — | SiN stays on its MiniGL |
 
 ### 16.5 Tooling and documentation
@@ -1567,7 +1600,7 @@ flowchart TD
     classDef work fill:#2d4f7c,stroke:#16273e,color:#ffffff
     classDef risk fill:#7a2330,stroke:#3d1118,color:#ffffff
 
-    C["Step 1 · our ICD 0.1.61 over AmigaMerlin's own Glide + display driver<br/>game-local retrogl.dll only — nothing in system32<br/>first Voodoo 5 number; A/B vs AmigaMerlin's Mesa 6.3 ICD"]:::safe
+    C["Step 1 · DONE 2026-09-24 · our ICD over AmigaMerlin's own Glide + display driver<br/>game-local retrogl.dll only — nothing in system32<br/>Quake II faster, Quake III level-to-ahead (§13.3)"]:::safe
     F["Step 2 · fix the h5 Glide on the dev host<br/>H1 TLS accessor · H2 grGetString guard · reconcile the hwcMapBoard guard<br/>H3–H7 · native tests for each · --debug build"]:::work
     P["Step 3 · glideprobe --noopen with our h5 Glide<br/>GDBG_FILE + fxscan ring armed"]:::risk
     O["Step 4 · glideprobe open 640×480<br/>cfg 0 single chip → cfg 2 → cfg 5 four-way SLI"]:::risk
@@ -1575,6 +1608,9 @@ flowchart TD
     C --> F --> P --> O --> Q
 ```
 
+**Step 1 ran on 2026-09-24 and passed** ([§13.3](#133-voodoo-5-6000-124-athlon-xp-2400-2026-09-24)): no stall at the mode set, no
+wedge, and the lock-ups seen on this box follow AmigaMerlin's own stack (Quake
+III and RtCW on the retail ICD), not ours. What it said before it ran:
 Step 1 is also the cheapest experiment on the V5 6000 lock-ups: if the stalls
 follow AmigaMerlin's Glide with our ICD on top, the fault is below the ICD.
 **But expect I11:** this pairing already stopped at the mode set on the V5 5500
