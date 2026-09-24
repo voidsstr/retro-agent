@@ -12,6 +12,30 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.62 — Glide is shut down at process exit; first Voodoo 5 numbers (2026-09-24)
+
+`fxCloseHardware` has kept Glide initialised across a context destroy since
+0.1.31, so a `vid_restart` does not do `grGlideShutdown → grGlideInit` mid-flight
+(which wedged the Voodoo 3). The same rule applied at **process exit**, so
+`grGlideShutdown` was never called: the teardown was left to the OS. The exit
+handler (`cleangraphics`) now sets `glbProcessExiting` and shuts Glide down
+itself, including when the game already deleted its context before quitting.
+`vid_restart` behaviour is unchanged. Test: `tests/native/test_icd_exit_shutdown.c`.
+
+Found while chasing an intermittent dead board mapping in AmigaMerlin's
+`grGlideInit` on the V5 6000 (`gc->ioRegs` unmapped → c0000005). **An
+interleaved A/B on a fresh cfg 0 boot did not reproduce that fault with either
+build** (0/10 each, identical fps: Quake II 90.0–90.6, Quake III 117.2–119.8),
+so this is hygiene, not a proven cure — and the fault then struck 0.1.62 once
+in the next 11 launches (retried; the next launch was clean). It lives below
+the ICD. 2,757,177 B.
+
+**The ICD runs on the Voodoo 5 6000** (`.124`, AmigaMerlin 3.1-R11 Glide + display
+driver underneath, game-local `retrogl.dll`) — README I11 does not reproduce
+with 0.1.61/0.1.62. Quake II beats AmigaMerlin's own Mesa 6.3 ICD in every cell
+(4-chip 640×480: 209.8–221.5 vs 172.6–175.3); Quake III is level on one chip
+and ahead on four at 1280×960 and below. Numbers in README §13.3.
+
 ## 0.1.61 — renderer re-stamp only (2026-09-04)
 
 No code change: the build differs from 0.1.60 only in the version string. It

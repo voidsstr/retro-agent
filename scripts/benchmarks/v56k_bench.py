@@ -1837,12 +1837,16 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
 
     # 2. stage config + launcher, clear the log
     env = {"SSTH3_SLI_AA_CONFIGURATION": str(cfg), "FX_GLIDE_SWAPINTERVAL": "0"}
+    extra = dict(e.split("=", 1) for e in (getattr(args, "env", None) or []))
+    env.update(extra)
     await title.prepare(box, w, h, depth, env)
     # prepare() may have MEASURED the identity (Quake II probes 3dfxgl.dll);
     # the row was built before that, so refresh it - the class default
     # "opengl-minigl" reached a row that ran on the Mesa ICD this way.
     row["api"] = getattr(title, "api", row["api"])
     row["engine"] = getattr(title, "engine", row["engine"])
+    if extra:   # an A/B knob belongs to the row, not to the operator's memory
+        row["engine"] += " [env " + " ".join(f"{k}={v}" for k, v in extra.items()) + "]"
     await box.exec_(f'cmd /c taskkill /f /im "{title.proc}"', timeout=30)
     await asyncio.sleep(2)
 
@@ -2307,6 +2311,9 @@ def main():
     ap.add_argument("--outdir", default=None)
     ap.add_argument("--no-resume", dest="resume", action="store_false")
     ap.add_argument("--no-quiesce", action="store_true")
+    ap.add_argument("--env", action="append", default=[], metavar="KEY=VAL",
+                    help="extra environment for the game's launch .bat (repeatable); "
+                         "recorded in the row's notes so an A/B is never anonymous")
     ap.add_argument("--allow-hazards", "--allow-8xaa", dest="allow_hazards",
                     action="store_true",
                     help="include the configs known or suspected to wedge the "

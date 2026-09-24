@@ -49,6 +49,7 @@ retro-agent/tests/
     stubs/windows.h       lets agent C compile natively (funcs use no Win32 API)
     test_crypto.c         TRUE-SOURCE: compiles agent/src/crypto.c, XOR keystream
     test_fx_pack_ub.c     MesaFX ICD 0.1.2: SSE float->ubyte color clamp (fxvbtmp.h)
+    test_icd_exit_shutdown.c  MesaFX ICD 0.1.62: grGlideShutdown at process exit, kept across vid_restart (fxapi.c)
     test_chatcore.c       TRUE-SOURCE: agent/shared/chatcore.c — the chat-proxy state
                           engine shared by the Windows agent and the DOS DOSCHAT build
     test_dosstage.c       TRUE-SOURCE: agent/src/dosstage.c against a fake Win32
@@ -162,6 +163,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | **favourites agent: decide by what is ON THE BOX, not by our recorded intent** — an external rewrite (GAMESYNC restaging `UnrealTournament.ini` on .171) was reported `unchanged` forever (2026-08-30) | `scripts/gameindex/sync.py` | `python/test_gameindex_favorites.py` |
 | **favourites slot numbering, verified in each game's own browser on .133/.143: Q2 `adr0..adr8` (0-based), Q3 `server1..server16` (1-based), GoldSrc's four VDF keys** (2026-08-30) | `scripts/gameindex/favorites.py` | `python/test_gameindex_favorites.py` |
 | 0.1.2 SSE float→ubyte color clamp (`fx_pack_ub`) | MesaFX ICD | `native/test_fx_pack_ub.c` |
+| 0.1.62 Glide is shut down at process exit, still kept alive across `vid_restart` (`cleangraphics`/`fxCloseHardware`) | MesaFX ICD | `native/test_icd_exit_shutdown.c` |
 | transport XOR keystream (involution + derivation) | agent C (crypto.c) | `native/test_crypto.c` |
 | discovery packet wire format | Python client | `test_discovery.py` |
 | length-prefixed frame codec + status contract | Python client | `test_protocol.py` |
