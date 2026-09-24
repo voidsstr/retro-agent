@@ -905,3 +905,10 @@ def test_quake3_mode_check_and_cleanroom_renderer_check(bench):
     c = bench.TITLES["quake2"]("retrogl")
     assert c.verify_driver("GL_RENDERER: Mesa Glide v0.62 Voodoo5 [voodoo-cleanroom 0.1.61]")[0]
     assert not c.verify_driver("GL_RENDERER: Mesa Glide v0.63 Voodoo5 6000 (tm)")[0]
+
+
+def test_rtcw_cleanroom_names_our_icd(bench):
+    t = bench.TITLES["rtcw"]("retrogl")
+    assert t.gldriver == "retrogl" and t.tid == "rtcw:retrogl"
+    assert "+set r_glDriver retrogl" in t.launch_bat(640, 480, 16, {})
+    assert not t.verify_driver("GL_VENDOR: METABYTE/WICKED3D\nGL_RENDERER: x\n")[0]

@@ -454,6 +454,10 @@ class Quake3:
             'seta r_finish "0"',
             'seta cg_drawFPS "1"',
             'seta timedemo "1"',
+            # exit cleanly when the demo ends: a taskkill'd Glide process can
+            # leave the display driver handing its stale board mapping to the
+            # next Glide app, which then faults in grGlideInit (2026-09-24)
+            'set nextdemo "quit"',
             'demo four',
             '',
         ])
@@ -564,6 +568,9 @@ class Quake2:
             'set gl_picmip "0"',
             'set gl_finish "0"',
             'set timedemo "1"',
+            # clean exit after the demo (see Quake3.bench_cfg): killserver
+            # first so the timedemo line is printed by the disconnect
+            'set nextserver "killserver; quit"',
             'demomap demo1.dm2',
             '',
         ])
@@ -1577,6 +1584,24 @@ class Quake3Cleanroom(_Cleanroom, Quake3):
         await super().prepare(box, w, h, depth, env)
 
 
+class RTCWCleanroom(_Cleanroom, RTCW):
+    """RtCW on OUR ICD: retrogl.dll beside WolfMP.exe, r_glDriver retrogl.
+    r_glDriver is latched, so the first launch after the change can still load
+    the previous driver - verify_driver reads the renderer back and refuses."""
+
+    def __init__(self):
+        RTCW.__init__(self, api="retrogl")
+        self.tid = "rtcw:retrogl"
+        self.api = "opengl-cleanroom"
+
+    async def prepare(self, box, w, h, depth, env):
+        ver = await self.stage_icd(box)
+        self.engine = f"WolfMP.exe (wolfbench.dm_60; game-local retrogl.dll = voodoo-cleanroom {ver} over AmigaMerlin glide3x)"
+        await RTCW.prepare(self, box, w, h, depth, env)
+
+    def verify_driver(self, raw):
+        return Quake2Cleanroom.verify_driver(self, raw)
+
 TITLES = {
     "cs16": lambda api=None: CS16(),
     "quake3": lambda api=None: (Quake3Cleanroom() if api == "retrogl" else Quake3()),
@@ -1584,7 +1609,8 @@ TITLES = {
     "glquake": lambda api=None: GLQuake(),
     "ut": lambda api="glide": _ut(api),
     "ut99": lambda api="glide": UT99Bench(api),
-    "rtcw": lambda api="amigamerlin": RTCW(api=api or "amigamerlin"),
+    "rtcw": lambda api="amigamerlin": (RTCWCleanroom() if api == "retrogl"
+                                       else RTCW(api=api or "amigamerlin")),
     "unrealgold": lambda api="glide": _ugold(api),
     "deusex": lambda api="glide": _deusex(api),
     "serioussam": lambda api="opengl": SeriousSam(
@@ -2190,6 +2216,14 @@ async def amain(args):
         log(f"[{i}/{len(matrix)}]")
         try:
             row = await run_one(box, t, w, h, d, c, glide_key, args, versions)
+            if row.get("status") == "process-exited" and "glide3x!" in (row.get("notes") or ""):
+                # AmigaMerlin's Glide sometimes gets a dead board mapping in
+                # grGlideInit (ioRegs -> unmapped); the very next launch works.
+                # Keep the failed row - it is a real event - and try once more.
+                append_row(csv_path, row)
+                log("    glide3x init fault - retrying the cell once")
+                await asyncio.sleep(10)
+                row = await run_one(box, t, w, h, d, c, glide_key, args, versions)
         except Exception as e:                      # keep the campaign alive
             row = {k: "" for k in CSV_COLS}
             row.update({"stamp": datetime.now(timezone.utc).isoformat(),
