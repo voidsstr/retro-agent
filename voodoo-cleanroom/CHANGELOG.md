@@ -12,6 +12,25 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.64 — fullscreen refresh is the monitor's best again (I1; the lost 0.1.34, re-implemented) (2026-09-24)
+
+`fxMesaCreateBestContext` passed `GR_REFRESH_60Hz` to every fullscreen game —
+Glide programs the video timing itself, so nothing in Windows could raise it,
+and a CRT flickered at 60 Hz. The 0.1.34 fix for exactly this was **lost from
+every source** (README §15.4) while its native test kept passing, because the
+test mirrors the logic instead of reading it. `fxBestRefresh()` is back, to the
+letter of that test: env override (`FX_GLIDE_REFRESH_RATE` / `SSTV2_REFRESH_RATE` /
+`MESA_FX_REFRESH`, Hz) else the highest rate the display driver enumerates for
+W×H (0/1 Hz "default" sentinels ignored), snapped down to a `GR_REFRESH_*` timing;
+below 60 or no answer → 60. New `tests/python/test_cleanroom_refresh_source.py`
+reads the **patch**, so this cannot silently vanish a second time.
+
+Verified on the V5 6000 (`.124`, cfg 2): 1024×768 → 100 Hz (`GR_REFRESH_100Hz`),
+640×480 → 120 Hz; the board opens at both. Performance unchanged in an
+interleaved A/B against 0.1.63 (Quake II 1024×768 129.0 vs 129.2–130.2;
+640×480 210.0–211.9 vs 209.5). 2,764,496 B. Installed on `.124` as the system ICD
+(`system32\retroicd.dll`; 0.1.63 kept as `retroicd_0.1.63.dll`).
+
 ## 0.1.63 — the DLL is also a Microsoft ICD (`Drv*` front end) (2026-09-24)
 
 Until now the ICD could only be reached by games that load an OpenGL library

@@ -43,7 +43,7 @@ index a6c0ab5..eb79114 100644
  else
  ifeq ($(ICD),1)
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..7fa9ce2 100644
+index 350f075..575002b 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
 @@ -83,13 +83,32 @@ static GrHwConfiguration glbHWConfig;
@@ -82,16 +82,93 @@ index 350f075..7fa9ce2 100644
     return 0;
  }
  #elif defined(__linux__)
-@@ -828,7 +847,7 @@ fxMesaCreateContext(GLuint win,
+@@ -331,15 +350,73 @@ static GrScreenResolution_t fxBestResolution (int width, int height)
+ }
+ 
+ 
++/* [retro3dfx 0.1.64] Fullscreen refresh. Re-implements the 0.1.34 fix, which
++ * was lost from every source (README §15.4) while its test survived
++ * (tests/native/test_fx_best_refresh.c, which this mirrors exactly).
++ * Glide programs the video timing itself, so GDI/-freq cannot override it; the
++ * old code passed GR_REFRESH_60Hz to every fullscreen game - visible flicker on
++ * a CRT. Choose: env override (FX_GLIDE_REFRESH_RATE / SSTV2_REFRESH_RATE /
++ * MESA_FX_REFRESH, in Hz) else the highest rate the display driver enumerates
++ * for WxH, snapped DOWN to a GR_REFRESH_* timing Glide has; below 60 or no
++ * answer -> 60. */
++static GrScreenRefresh_t
++fxSnapRefresh(int hz)
++{
++   static const struct { int hz; GrScreenRefresh_t ref; } tbl[] = {
++      {120, GR_REFRESH_120Hz}, {100, GR_REFRESH_100Hz}, {90, GR_REFRESH_90Hz},
++      {85, GR_REFRESH_85Hz},   {80, GR_REFRESH_80Hz},   {75, GR_REFRESH_75Hz},
++      {72, GR_REFRESH_72Hz},   {70, GR_REFRESH_70Hz},   {60, GR_REFRESH_60Hz},
++   };
++   unsigned i;
++   for (i = 0; i < sizeof(tbl) / sizeof(tbl[0]); i++)
++      if (tbl[i].hz <= hz)
++         return tbl[i].ref;
++   return GR_REFRESH_60Hz;
++}
++
++static GrScreenRefresh_t
++fxBestRefresh(int width, int height)
++{
++   int hz = 0;
++   const char *src = "none";
++   const char *env = getenv("FX_GLIDE_REFRESH_RATE");
++   if (!env) env = getenv("SSTV2_REFRESH_RATE");
++   if (!env) env = getenv("MESA_FX_REFRESH");
++   if (env) {
++      hz = atoi(env);
++      src = "env";
++   }
++#if defined(__WIN32__)
++   else {
++      DEVMODEA dm;
++      DWORD i;
++      memset(&dm, 0, sizeof(dm));
++      dm.dmSize = sizeof(dm);
++      for (i = 0; EnumDisplaySettingsA(NULL, i, &dm); i++) {
++         /* 0 and 1 Hz are the driver's "default" sentinels, never a rate */
++         if ((int)dm.dmPelsWidth == width && (int)dm.dmPelsHeight == height &&
++             dm.dmDisplayFrequency > 1 && (int)dm.dmDisplayFrequency > hz)
++            hz = (int)dm.dmDisplayFrequency;
++      }
++      src = "EnumDisplaySettings";
++   }
++#endif
++   rgl_log("fxBestRefresh: %dx%d max %d Hz (%s) -> GR_REFRESH enum %d",
++           width, height, hz, src, (int)fxSnapRefresh(hz));
++   return fxSnapRefresh(hz);
++}
++
++
+ fxMesaContext GLAPIENTRY
+ fxMesaCreateBestContext(GLuint win, GLint width, GLint height,
+ 			const GLint attribList[])
+ {
+  /* fxMesaCreateContext() handles fxQueryHardware() error returns */
+  int res = fxBestResolution(width, height);
+- rgl_log("fxMesaCreateBestContext: win=%lu %dx%d -> res enum %d, ref=GR_REFRESH_60Hz(%d)",
+-         (unsigned long)win, width, height, res, GR_REFRESH_60Hz);
+- return fxMesaCreateContext(win, res, GR_REFRESH_60Hz, attribList);
++ GrScreenRefresh_t ref = fxBestRefresh(width, height);
++ rgl_log("fxMesaCreateBestContext: win=%lu %dx%d -> res enum %d, ref enum %d",
++         (unsigned long)win, width, height, res, (int)ref);
++ return fxMesaCreateContext(win, res, ref, attribList);
+ }
+ 
+ 
+@@ -828,7 +905,7 @@ fxMesaCreateContext(GLuint win,
                        fxMesa->snapVertices ? "" : "no ");
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.63]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.64]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
-@@ -1106,6 +1125,37 @@ fxMesaMakeCurrent(fxMesaContext fxMesa)
+@@ -1106,6 +1183,37 @@ fxMesaMakeCurrent(fxMesaContext fxMesa)
  void GLAPIENTRY
  fxMesaSwapBuffers(void)
  {
@@ -129,7 +206,7 @@ index 350f075..7fa9ce2 100644
     if (TDFX_DEBUG & VERBOSE_DRIVER) {
        fprintf(stderr, "fxMesaSwapBuffers()\n");
     }
-@@ -1120,7 +1170,21 @@ fxMesaSwapBuffers(void)
+@@ -1120,7 +1228,21 @@ fxMesaSwapBuffers(void)
  	    /* [retro3dfx] present the offscreen surface to the window (no page
  	     * flip in windowed mode). grBufferSwap is completed first inside the
  	     * board so the render is finished before we Blt it out. */
@@ -152,7 +229,7 @@ index 350f075..7fa9ce2 100644
  	    fxWinSwap(fxMesaCurrentCtx);
  	 } else
  #endif
-@@ -1165,7 +1229,7 @@ fxCloseHardware(void)
+@@ -1165,7 +1287,7 @@ fxCloseHardware(void)
  	  * board is still released by grSstWinClose, and the process teardown (atexit
  	  * cleangraphics / OS) reclaims Glide on final exit. FX_GLIDE_SHUTDOWN=1
  	  * restores the old shutdown-on-last-context behaviour for A/B testing. */

@@ -1946,6 +1946,12 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
 
     if raw:
         (args.outdir / f"{title.tid}_{res}_{depth}_cfg{cfg}.log").write_text(raw)
+    if not parsed and raw:
+        # the per-cell log above is overwritten by the next attempt at the same
+        # cell, so a failure's log would be lost exactly when it matters
+        faildir = args.outdir / "diag"
+        faildir.mkdir(parents=True, exist_ok=True)
+        (faildir / f"{title.tid}_{res}_{depth}_cfg{cfg}-FAILED-{time.strftime('%H%M%S')}.log").write_text(raw)
     if not parsed:
         row["status"] = "no-fps-line(see raw log)"
         if modal:
