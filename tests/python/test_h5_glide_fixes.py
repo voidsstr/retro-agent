@@ -62,3 +62,10 @@ def test_built_dll_has_no_raw_teb_tls_reads():
 def shutil_which(x):
     import shutil
     return shutil.which(x)
+
+
+def test_g3_fifo_and_idle_spins_are_bounded():
+    f = src("glide3/src/fifo.c")
+    assert "stuckPolls > 4000000UL" in f and "roomToReadPtr = blockSize;" in f
+    g = src("glide3/src/gsst.c")
+    assert "busyPolls > 4000000UL" in g
