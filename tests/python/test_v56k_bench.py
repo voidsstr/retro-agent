@@ -851,3 +851,21 @@ def test_cs16_record_cfg_uses_aliases_and_flushes_before_quit(bench):
     assert "record cs16_bench" in cfg
     i_stop, i_quit = cfg.index("stop"), cfg.index("quit")
     assert "w100" in cfg[i_stop:i_quit]           # flush waits between stop and quit
+
+
+def test_cleanroom_variants_load_our_icd_by_name_and_never_the_retail_one(bench):
+    q2 = bench.TITLES["quake2"]("retrogl")
+    bat = q2.launch_bat(1024, 768, 16, {})
+    assert "+set gl_driver retrogl" in bat and "3dfxgl" not in bat
+    q3 = bench.TITLES["quake3"]("retrogl")
+    assert "+set r_glDriver retrogl" in q3.setargs(1024, 768, 16)
+    cfg = q3.fleetres_cfg(1024, 768, 16)
+    assert 'r_glDriver "retrogl"' in cfg and "3dfxogl" not in cfg
+    # the retail lane is untouched
+    assert "+set gl_driver 3dfxgl" in bench.TITLES["quake2"]().launch_bat(1024, 768, 16, {})
+
+
+def test_cleanroom_version_is_read_from_the_binary(bench):
+    assert bench.cleanroom_version(b"x [voodoo-cleanroom 0.1.61] y") == "0.1.61"
+    assert bench.cleanroom_version(b"no stamp") == "unknown"
+    assert bench.CLEANROOM_ICD.name == "opengl32_retail.dll"

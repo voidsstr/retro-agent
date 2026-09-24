@@ -126,6 +126,31 @@ async def reboot(ip):
         await c.close()
 
 
+def arp_mac(ip):
+    """The host's ARP/neighbour entry. Used only by --rpc, where the agent is
+    by definition not answering and cannot report its own MAC."""
+    r = subprocess.run(['ip', 'neigh', 'show', ip], capture_output=True, text=True)
+    m = re.search(r'lladdr\s+([0-9a-f:]{17})', r.stdout)
+    return [m.group(1)] if m else []
+
+
+def rpc_reboot(ip, user, password):
+    """Reboot through the Windows RPC shutdown service - the route that still
+    works when the AGENT is dead or the display driver has wedged user mode
+    while the kernel still answers SMB (.124's V5 6000 wedge: 9898 refused,
+    9897 mute, 445 up). Needs, on the box: ForceGuest=0
+    (HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\forceguest), and it
+    speaks SMB1 + NTLMv1 because that is what XP accepts."""
+    r = subprocess.run(
+        ['net', 'rpc', 'shutdown', '-r', '-f', '-t', '5',
+         '-C', 'safe-reboot.py --rpc (agent unreachable)',
+         '-I', ip, '-U', f'{user}%{password}',
+         '--option=client min protocol=NT1',
+         '--option=client ntlmv2 auth=no'],
+        capture_output=True, text=True, timeout=90)
+    return r.returncode == 0, (r.stdout + r.stderr).strip()
+
+
 def hold(action, mac):
     r = subprocess.run([sys.executable, str(PXE), f'--{action}', mac],
                        capture_output=True, text=True, timeout=60)
@@ -140,7 +165,32 @@ async def main():
     ap.add_argument('--ignore-activation', action='store_true',
                     help='reboot even though this box may not survive it. Only '
                          'with a keyboard in reach of the machine.')
+    ap.add_argument('--rpc', action='store_true',
+                    help='the agent is not answering: take the MAC from the host '
+                         'ARP table and reboot through Windows RPC (net rpc '
+                         'shutdown) instead of the agent. Activation cannot be '
+                         'checked without the agent, so it is reported as unknown.')
+    ap.add_argument('--rpc-user', default='Administrator',
+                    help='console account (fleet convention password: "password")')
+    ap.add_argument('--rpc-password', default='password')
     a = ap.parse_args()
+
+    if a.rpc:
+        macs = arp_mac(a.ip)
+        if not macs:
+            print(f'{a.ip}: no ARP entry - cannot arm the boot hold, NOT rebooting',
+                  file=sys.stderr)
+            return 2
+        for m in macs:
+            ok, msg = hold('arm', m)
+            if not ok:
+                print(f'  could not arm a hold for {m} - NOT rebooting', file=sys.stderr)
+                return 3
+            print(f'  hold armed for {m} (from ARP)')
+        print(f'  activation UNKNOWN (agent unreachable)', file=sys.stderr)
+        ok, msg = rpc_reboot(a.ip, a.rpc_user, a.rpc_password)
+        print(f'  rpc shutdown {a.ip}: {"ok" if ok else "FAILED"} {msg}')
+        return 0 if ok else 5
 
     # ACTIVATION BEFORE ANYTHING ELSE. Arming a PXE hold protects the disk;
     # it does nothing about a box that will never reach a logon again.

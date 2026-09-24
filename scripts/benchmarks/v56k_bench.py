@@ -1434,10 +1434,96 @@ class CS16:
         return out
 
 
+# --------------------------------------------------------------------------- #
+# the clean-room lane: OUR MesaFX ICD (voodoo-cleanroom), game-local
+# --------------------------------------------------------------------------- #
+
+# Roadmap 17.1 Step 1: our ICD over AmigaMerlin's own Glide + display driver,
+# loaded by name from beside the game's exe - nothing in system32 changes, so
+# removing one file restores the retail stack. The DLL is the retail-linked
+# build (imports the glide3x.dll already in system32).
+CLEANROOM_ICD = Path(os.environ.get(
+    "V56K_CLEANROOM_ICD",
+    Path(__file__).resolve().parents[2].parent.parent.parent
+    / "voodoo-cleanroom" / "out" / "opengl32_retail.dll"))
+if not CLEANROOM_ICD.exists():   # running from the main tree, not a worktree
+    CLEANROOM_ICD = (Path(__file__).resolve().parents[2]
+                     / "voodoo-cleanroom" / "out" / "opengl32_retail.dll")
+CLEANROOM_TRACE = r"C:\retrogl.log"
+
+
+def cleanroom_version(data):
+    m = re.search(rb"\[voodoo-cleanroom (\d+\.\d+\.\d+)\]", data)
+    return m.group(1).decode() if m else "unknown"
+
+
+class _Cleanroom:
+    """Mixin: put our ICD beside the exe as retrogl.dll and make sure the
+    bytes on the box are the bytes we mean (md5 compared, never trusted)."""
+    icd_name = "retrogl"
+
+    async def stage_icd(self, box):
+        import hashlib
+        data = CLEANROOM_ICD.read_bytes()
+        want = hashlib.md5(data).hexdigest()
+        dest = rf"{self.root}\{self.icd_name}.dll"
+        have = await box.download(dest)
+        if not have or hashlib.md5(have).hexdigest() != want:
+            await box.upload(dest, data)
+            have = await box.download(dest)
+            if not have or hashlib.md5(have).hexdigest() != want:
+                raise RetroProtocolError(f"{dest}: upload did not land intact")
+        ver = cleanroom_version(data)
+        self.api = f"opengl-cleanroom-{ver}"
+        # the tracer from the previous run would be misread as this run's
+        await box.exec_(f'cmd /c del /f /q "{CLEANROOM_TRACE}"')
+        return ver
+
+
+class Quake2Cleanroom(_Cleanroom, Quake2):
+    tid = "quake2:retrogl"
+    api = "opengl-cleanroom"
+
+    def launch_bat(self, w, h, depth, env):
+        return super().launch_bat(w, h, depth, env).replace(
+            "+set gl_driver 3dfxgl", f"+set gl_driver {self.icd_name}")
+
+    async def identify(self, box):
+        if getattr(self, "_identified", False):
+            return
+        self._identified = True
+        ver = await self.stage_icd(box)
+        self.engine = f"quake2.exe (3.20; game-local retrogl.dll = voodoo-cleanroom {ver} over AmigaMerlin glide3x)"
+
+
+class Quake3Cleanroom(_Cleanroom, Quake3):
+    tid = "quake3:retrogl"
+    api = "opengl-cleanroom"
+
+    def fleetres_cfg(self, w, h, depth):
+        return super().fleetres_cfg(w, h, depth).replace(
+            'seta r_glDriver "3dfxogl"', f'seta r_glDriver "{self.icd_name}"')
+
+    def setargs(self, w, h, depth):
+        return super().setargs(w, h, depth).replace(
+            "+set r_glDriver 3dfxogl", f"+set r_glDriver {self.icd_name}")
+
+    async def identify(self, box):
+        if getattr(self, "_identified", False):
+            return
+        self._identified = True
+        ver = await self.stage_icd(box)
+        self.engine = f"quake3.exe (retail 1.32c; game-local retrogl.dll = voodoo-cleanroom {ver} over AmigaMerlin glide3x)"
+
+    async def prepare(self, box, w, h, depth, env):
+        await self.identify(box)
+        await super().prepare(box, w, h, depth, env)
+
+
 TITLES = {
     "cs16": lambda api=None: CS16(),
-    "quake3": lambda api=None: Quake3(),
-    "quake2": lambda api=None: Quake2(),
+    "quake3": lambda api=None: (Quake3Cleanroom() if api == "retrogl" else Quake3()),
+    "quake2": lambda api=None: (Quake2Cleanroom() if api == "retrogl" else Quake2()),
     "glquake": lambda api=None: GLQuake(),
     "ut": lambda api="glide": _ut(api),
     "ut99": lambda api="glide": UT99Bench(api),
@@ -1759,7 +1845,16 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
                 pass
         await asyncio.sleep(6)
 
-    await box.exec_(f'cmd /c taskkill /f /im "{title.proc}"', timeout=30)
+    # A game hung inside the driver can take longer than 30 s to die (CS 1.6
+    # at 1600x1200 on one VSA-100, 2026-09-24): the kill then times out and
+    # the cell used to become an anonymous "error: TimeoutError". It is a
+    # real outcome - record it as such, and give the box time to settle.
+    unkillable = False
+    try:
+        await box.exec_(f'cmd /c taskkill /f /im "{title.proc}"', timeout=30)
+    except (asyncio.TimeoutError, TimeoutError):
+        unkillable = True
+        await asyncio.sleep(45)
     await asyncio.sleep(3)
 
     if raw:
@@ -1787,7 +1882,12 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
                 pass
         # These are real, reportable outcomes for a card/driver, not tool
         # failures - a mode this card cannot bring up belongs in the article.
-        if wedged:
+        if unkillable:
+            tail = (raw or "").strip().splitlines()[-1:] or [""]
+            row["status"] = "hung-unkillable"
+            row["notes"] = (f"{title.proc} ignored taskkill for 30 s; log "
+                            f"stopped at: {tail[0].strip()[:80]}")
+        elif wedged:
             tail = (raw or "").strip().splitlines()[-1:] or [""]
             row["status"] = "gl-init-hung"
             row["notes"] = f"log stopped growing at: {tail[0].strip()[:90]}"
@@ -1890,6 +1990,15 @@ def migrate_header(csv_path):
             w.writerow({k: r.get(k, "") for k in CSV_COLS})
     log(f"migrated {csv_path.name} to the current columns "
         f"({len(rows)} row(s) kept; previous file at {backup.name})")
+
+
+def _where(e):
+    """'func:line' of the innermost traceback frame inside this script."""
+    import traceback
+    here = os.path.basename(__file__)
+    frames = [f for f in traceback.extract_tb(e.__traceback__)
+              if os.path.basename(f.filename) == here]
+    return " > ".join(f"{f.name}:{f.lineno}" for f in frames[-3:])
 
 
 def append_row(csv_path, row):
@@ -2022,8 +2131,11 @@ async def amain(args):
                         "samples": AA_CONFIGS[c]["samples"],
                         "aa_label": AA_CONFIGS[c]["label"],
                         "api": getattr(t, "api", ""),
-                        "status": f"error: {type(e).__name__}: {e}"})
-            log(f"    !! {row['status']}")
+                        "status": f"error: {type(e).__name__}: {e}",
+                        # a bare TimeoutError says nothing: name the call
+                        # that timed out (innermost frame in this file)
+                        "notes": _where(e)})
+            log(f"    !! {row['status']}  at {row['notes']}")
         if checked.get(t.tid) and not row.get("notes"):
             row["notes"] = checked[t.tid]
         append_row(csv_path, row)
