@@ -438,6 +438,13 @@ class Quake3:
             '',
         ])
 
+    def verify_mode(self, raw, w, h, depth):
+        modes = re.findall(r"MODE:\s*-?\d+,\s*(\d+)\s*x\s*(\d+)", raw)
+        if not modes:
+            return "no 'MODE:' line in the log"
+        mw, mh = map(int, modes[-1])
+        return None if (mw, mh) == (w, h) else f"asked {w}x{h}, the demo ran at {mw}x{mh}"
+
     # Only NON-latched settings and the run itself; no vid_restart.
     def bench_cfg(self):
         return "\r\n".join([
@@ -569,13 +576,52 @@ class Quake2:
         lines += [
             f'cd /d "{self.root}"',
             (f'quake2.exe +set basedir "{self.root}" +set vid_ref gl '
-             f'+set gl_driver 3dfxgl +set gl_mode {mode} '
-             f'+set gl_bitdepth {16 if depth < 32 else 0} '
+             f'+set gl_driver {self.gl_driver} +set gl_mode {mode} '
+             f'+set gl_bitdepth {16 if depth < 32 else 32} '
              f'+set vid_fullscreen 1 +set logfile 2 +exec bench.cfg'),
         ]
         return "\r\n".join(lines) + "\r\n"
 
+    # The AmigaMerlin ICD straight from system32, by name - the same route
+    # Quake III takes. The game-local 3dfxgl.dll is whatever the library
+    # ships (the stock V1/V2 MiniGL, which cannot drive a VSA-100 and drops
+    # the engine to ref_soft at 320x240) or a hand-placed ICD copy that the
+    # next GAMESYNC restores away; neither is a stable thing to measure.
+    gl_driver = "3dfxogl"
+
+    def fleetres_cfg(self, w, h, depth):
+        """The staged autoexec.cfg sets gl_driver "opengl32" and then execs
+        fleetres.cfg LAST - so this file, not the command line, decides the
+        mode, depth and driver the timedemo runs at. Written per run with the
+        same values the command line carries, so the renderer is built once."""
+        return "\r\n".join([
+            '// written per run by v56k_bench.py - the launcher rewrites this',
+            '// file at every start, so overwriting it is harmless.',
+            f'set gl_mode "{self.MODES[(w, h)]}"',
+            f'set gl_bitdepth "{16 if depth < 32 else 32}"',
+            f'set gl_driver "{self.gl_driver}"',
+            'set vid_ref "gl"',
+            'set vid_fullscreen "1"',
+            '',
+        ])
+
+    def verify_mode(self, raw, w, h, depth):
+        """None when the LAST renderer init ran at w x h and depth, else why."""
+        modes = re.findall(r"setting mode \d+:\s*(\d+)\s+(\d+)", raw)
+        if not modes:
+            return "no 'setting mode' line in the log"
+        mw, mh = map(int, modes[-1])
+        if (mw, mh) != (w, h):
+            return f"asked {w}x{h}, the timedemo ran at {mw}x{mh}"
+        bits = re.findall(r"using gl_bitdepth of (\d+)", raw)
+        want = 16 if depth < 32 else 32
+        if bits and int(bits[-1]) != want:
+            return f"asked {want}-bit, ran at {bits[-1]}-bit"
+        return None
+
     async def prepare(self, box, w, h, depth, env):
+        await box.upload(rf"{self.root}\baseq2\fleetres.cfg",
+                         self.fleetres_cfg(w, h, depth))
         # `gl_driver 3dfxgl` loads whatever file sits beside quake2.exe under
         # that name. The staged library ships the real 3dfx MiniGL (142,848 B);
         # the driver-install sweep on .124 replaced it with a copy of the
@@ -597,6 +643,10 @@ class Quake2:
         if getattr(self, "_identified", False):
             return
         self._identified = True
+        if self.gl_driver == "3dfxogl":
+            self.api = "opengl-icd"
+            self.engine = "quake2.exe (3.20; gl_driver 3dfxogl = the AmigaMerlin ICD in system32)"
+            return
         size = ""
         for _ in range(3):
             out = await box.exec_(rf'cmd /c for %I in ("{self.root}\3dfxgl.dll") do @echo %~zI')
@@ -1484,9 +1534,13 @@ class Quake2Cleanroom(_Cleanroom, Quake2):
     tid = "quake2:retrogl"
     api = "opengl-cleanroom"
 
-    def launch_bat(self, w, h, depth, env):
-        return super().launch_bat(w, h, depth, env).replace(
-            "+set gl_driver 3dfxgl", f"+set gl_driver {self.icd_name}")
+    gl_driver = "retrogl"
+
+    def verify_driver(self, raw):
+        r = re.findall(r"GL_RENDERER:\s*(.+)", raw)
+        if r and "voodoo-cleanroom" in r[-1]:
+            return True, ""
+        return False, f"GL_RENDERER is '{(r[-1] if r else '?').strip()[:60]}', not our ICD"
 
     async def identify(self, box):
         if getattr(self, "_identified", False):
@@ -1499,6 +1553,9 @@ class Quake2Cleanroom(_Cleanroom, Quake2):
 class Quake3Cleanroom(_Cleanroom, Quake3):
     tid = "quake3:retrogl"
     api = "opengl-cleanroom"
+
+    def verify_driver(self, raw):
+        return Quake2Cleanroom.verify_driver(self, raw)
 
     def fleetres_cfg(self, w, h, depth):
         return super().fleetres_cfg(w, h, depth).replace(
@@ -1936,9 +1993,19 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
         if not ok_drv:
             row["status"] = "driver-mismatch"
             row["notes"] = (row.get("notes", "") + "; " if row.get("notes") else "") + drv_note
+    # And which MODE it ran at. Every Quake II row until 2026-09-24 ran at
+    # 640x480x16 whatever it was labelled: the staged autoexec.cfg execs
+    # fleetres.cfg, which reset gl_mode and restarted the renderer at the
+    # box's own mode before the timedemo. The log said so; nothing read it.
+    vmode = getattr(title, "verify_mode", None)
+    if vmode is not None:
+        bad = vmode(raw, w, h, depth)
+        if bad:
+            row["status"] = "wrong-mode"
+            row["notes"] = (row.get("notes", "") + "; " if row.get("notes") else "") + bad
     log(f"    -> {parsed['avg_fps']} fps   [{row.get('gl_renderer','?')}]"
         f"  free={row.get('mem_avail_mb','?')}MB"
-        + ("  !! " + row["notes"] if row["status"] == "driver-mismatch" else ""))
+        + ("  !! " + row["notes"] if row["status"] in ("driver-mismatch", "wrong-mode") else ""))
     return row
 
 

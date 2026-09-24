@@ -717,12 +717,17 @@ def test_quake2_label_never_defaults_to_a_named_driver(bench):
         def __init__(self, outs): self.outs = list(outs)
         async def exec_(self, cmd, timeout=90): return self.outs.pop(0) if self.outs else ""
         async def upload(self, *a): pass
-    t = bench.Quake2()
+    # the size probe only matters when the game-local 3dfxgl.dll is the driver
+    # (since 2026-09-24 the retail lane loads 3dfxogl from system32 by name)
+    t = bench.Quake2(); t.gl_driver = "3dfxgl"
     asyncio.run(t.prepare(Box(["", "", ""]), 640, 480, 16, {}))
     assert t.api == "opengl-3dfxgl-unmeasured"
-    t2 = bench.Quake2()
+    t2 = bench.Quake2(); t2.gl_driver = "3dfxgl"
     asyncio.run(t2.prepare(Box(["", "2646009\r\n"]), 640, 480, 16, {}))   # retry succeeds
     assert t2.api == "opengl-icd-gamelocal"
+    t3 = bench.Quake2()
+    asyncio.run(t3.prepare(Box([]), 640, 480, 16, {}))
+    assert t3.api == "opengl-icd"
 
 
 def test_watson_decode_reports_the_newest_record_consistently(tmp_path):
@@ -862,10 +867,41 @@ def test_cleanroom_variants_load_our_icd_by_name_and_never_the_retail_one(bench)
     cfg = q3.fleetres_cfg(1024, 768, 16)
     assert 'r_glDriver "retrogl"' in cfg and "3dfxogl" not in cfg
     # the retail lane is untouched
-    assert "+set gl_driver 3dfxgl" in bench.TITLES["quake2"]().launch_bat(1024, 768, 16, {})
+    assert "+set gl_driver 3dfxogl" in bench.TITLES["quake2"]().launch_bat(1024, 768, 16, {})
 
 
 def test_cleanroom_version_is_read_from_the_binary(bench):
     assert bench.cleanroom_version(b"x [voodoo-cleanroom 0.1.61] y") == "0.1.61"
     assert bench.cleanroom_version(b"no stamp") == "unknown"
     assert bench.CLEANROOM_ICD.name == "opengl32_retail.dll"
+
+
+def test_quake2_writes_the_mode_into_fleetres_because_autoexec_runs_it_last(bench):
+    """2026-09-24: every Quake II row had run at 640x480x16 - the staged
+    autoexec.cfg execs fleetres.cfg last, which reset gl_mode and gl_driver
+    and restarted the renderer before the timedemo."""
+    q2 = bench.TITLES["quake2"]()
+    cfg = q2.fleetres_cfg(1600, 1200, 32)
+    assert 'set gl_mode "9"' in cfg and 'set gl_bitdepth "32"' in cfg
+    assert 'set gl_driver "3dfxogl"' in cfg
+    assert "+set gl_bitdepth 32" in q2.launch_bat(1600, 1200, 32, {})   # not 0 = desktop
+    assert 'set gl_driver "retrogl"' in bench.TITLES["quake2"]("retrogl").fleetres_cfg(640, 480, 16)
+
+
+def test_quake2_refuses_a_row_that_ran_at_another_mode(bench):
+    q2 = bench.TITLES["quake2"]()
+    old_buggy = ("...setting mode 9: 1600 1200 FS\n...using gl_bitdepth of 16\n"
+                 "...setting mode 3: 640 480 FS\n...using gl_bitdepth of 16\n")
+    assert "640x480" in q2.verify_mode(old_buggy, 1600, 1200, 16)
+    good = "...setting mode 9: 1600 1200 FS\n...using gl_bitdepth of 32\n"
+    assert q2.verify_mode(good, 1600, 1200, 32) is None
+    assert "16-bit" in q2.verify_mode(good.replace("32", "16"), 1600, 1200, 32)
+
+
+def test_quake3_mode_check_and_cleanroom_renderer_check(bench):
+    q3 = bench.TITLES["quake3"]()
+    assert q3.verify_mode("MODE: -1, 1024 x 768 fullscreen hz:60", 1024, 768, 32) is None
+    assert q3.verify_mode("MODE: -1, 640 x 480 fullscreen", 1024, 768, 32)
+    c = bench.TITLES["quake2"]("retrogl")
+    assert c.verify_driver("GL_RENDERER: Mesa Glide v0.62 Voodoo5 [voodoo-cleanroom 0.1.61]")[0]
+    assert not c.verify_driver("GL_RENDERER: Mesa Glide v0.63 Voodoo5 6000 (tm)")[0]
