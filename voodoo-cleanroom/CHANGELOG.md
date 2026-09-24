@@ -12,6 +12,33 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.63 — the DLL is also a Microsoft ICD (`Drv*` front end) (2026-09-24)
+
+Until now the ICD could only be reached by games that load an OpenGL library
+**by name** (Quake II `gl_driver`, Quake III / RtCW `r_glDriver`). Everything
+that links the system `opengl32.dll` — Counter-Strike 1.6 / GoldSrc, UT99's
+OpenGLDrv — never saw it, because `opengl32` is a KnownDLL on XP (a game-local
+copy is ignored) and Microsoft's `opengl32` talks to an ICD only through `Drv*`
+entry points and the 336-entry dispatch table `DrvSetContext` returns.
+
+New `src/mesa/drivers/glide/fxicd.c` maps the 17 `Drv*` entry points one-for-one
+onto the existing single-context `wgl*` layer (`fxwgl.c`) and hands back the
+dispatch table in Microsoft's order, taken from Mesa's own
+`drivers/windows/icd/icdlist.h`. The same DLL still works game-local by name.
+
+Install as the system ICD (reversible — nothing is overwritten): copy the DLL to
+`system32\retroicd.dll` and set `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\
+OpenGLDrivers\<name>\DLL` = `retroicd.dll` (on `.124` `<name>` is `3dfx`, original
+value `3dfxOGL.dll`). Use `reg.exe`: the agent's `REGWRITE` splits on the space
+in "Windows NT".
+
+Verified on the V5 6000 (`.124`, cfg 0): **Counter-Strike 1.6 runs** (119.9 fps
+640×480, 63.4 at 1024×768, best of 3) — note Microsoft's pixel-format chooser
+picks our 32-bit ARGB8888 format, so compare with AmigaMerlin's 32-bit rows
+(119.5 / 63.1). **UT99 OpenGLDrv runs** (58.3 fps 800×600) — on AmigaMerlin's own
+ICD it GPFs at init. Test: `tests/python/test_cleanroom_icd_frontend.py`.
+2,763,236 B.
+
 ## 0.1.62 — Glide is shut down at process exit; first Voodoo 5 numbers (2026-09-24)
 
 `fxCloseHardware` has kept Glide initialised across a context destroy since
