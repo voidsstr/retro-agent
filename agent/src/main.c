@@ -1032,6 +1032,12 @@ void agent_run(void)
      * crash is in one of them (or in spawning it), the last breadcrumb names
      * it — important on Win9x where the unhandled-exception filter is not
      * reliably called. */
+    /* Win9x only: an installed PCI device the boot-time enumeration missed
+     * (.243's Voodoo 2) gets its devnode back before anyone can start a game -
+     * Glide on an unconfigured Voodoo maps it over RAM. See pcirescue.c. */
+    log_msg(LOG_MAIN, "startup: spawning pcirescue thread");
+    spawn_helper(pcirescue_thread, "pcirescue");
+
     log_msg(LOG_MAIN, "startup: spawning automap thread");
     spawn_helper(automap_thread_proc, "automap");
 

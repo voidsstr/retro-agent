@@ -89,6 +89,7 @@ static const cmd_entry_t commands[] = {
     { "WPALOAD",    1, NULL,              handle_wpaload, 1 },
     { "AUTOMAP",    1, NULL,             handle_automap, 0 },
     { "DOSSTAGE",   1, NULL,            handle_dosstage, 1 },
+    { "PCIRESCAN",  1, NULL,           handle_pcirescan, 0 },
     { "PROMPT_PUSH",1, NULL,            handle_prompt_push, 0 },
     { "PROMPT_POP", 0, handle_prompt_pop, NULL, 0 },
     { "PROMPT_WAIT",1, NULL,            handle_prompt_wait, 0 },

@@ -252,12 +252,27 @@ void hwextra_emit_accelerators(json_t *j)
     HKEY  hpci;
     DWORD index;
 
+    /* NT keeps the PCI enumerator under CurrentControlSet; Windows 9x keeps it
+     * at HKLM\Enum\PCI and has no CurrentControlSet\Enum at all. Reading only
+     * the NT path made every Win9x box report "accelerators": [] - so .243's
+     * Voodoo 2 was invisible to the fleet inventory and the game gate
+     * (2026-09-24). Same two-path order as hwprofile.c. */
+    static const char *const pci_roots[] = {
+        "SYSTEM\\CurrentControlSet\\Enum\\PCI",   /* NT family */
+        "Enum\\PCI",                               /* Win95/98/ME */
+    };
+    const char *pci_root = NULL;
+    int r;
+
     json_key(j, "accelerators");
     json_array_start(j);
 
-    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-                      "SYSTEM\\CurrentControlSet\\Enum\\PCI", 0,
-                      KEY_READ, &hpci) == ERROR_SUCCESS) {
+    for (r = 0; r < 2 && !pci_root; r++)
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, pci_roots[r], 0, KEY_READ, &hpci)
+                == ERROR_SUCCESS)
+            pci_root = pci_roots[r];
+
+    if (pci_root) {
         for (index = 0; index < 512; index++) {
             char  dkey[128], full[512], inst[128], desc[256], buf[16];
             DWORD cch = sizeof(dkey);
@@ -275,8 +290,7 @@ void hwextra_emit_accelerators(json_t *j)
             if (ven != VEN_3DFX)
                 continue;
 
-            _snprintf(full, sizeof(full) - 1,
-                      "SYSTEM\\CurrentControlSet\\Enum\\PCI\\%s", dkey);
+            _snprintf(full, sizeof(full) - 1, "%s\\%s", pci_root, dkey);
             full[sizeof(full) - 1] = 0;
             desc[0] = 0;
             count = 0;

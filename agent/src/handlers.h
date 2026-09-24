@@ -191,6 +191,10 @@ void dosstage_run(int force);
 DWORD WINAPI dosstage_thread(LPVOID param);
 void handle_dosstage(SOCKET sock, const char *args);
 
+/* pcirescue.c - Win9x: re-enumerate PCI when an installed device has no devnode */
+DWORD WINAPI pcirescue_thread(LPVOID param);
+void handle_pcirescan(SOCKET sock, const char *args);
+
 /* Long-poll ceiling, in ms. 0 = no extra cap (thread-per-client mode).
  *
  * On Win9x the agent is forced into MULTIPLEX mode — ONE thread serves every

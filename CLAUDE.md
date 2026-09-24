@@ -1990,6 +1990,13 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
 
 ### Hardware (Windows)
 - **DRVSNAPSHOT** — capture driver configuration state
+- **PCIRESCAN [force]** (agent **v1.83.0+**, Win9x only) — if a PCI device that has a driver
+  installed has no live devnode, re-enumerate the PCI bus and report JSON (`missing_before`,
+  `buses_reenumerated`, `missing_after`). The same check runs **at every agent startup** on Win9x
+  (`agent/src/pcirescue.c`; `HKLM\Software\RetroAgent\PciRescue`=0 disables it). Found on `.243`:
+  its Voodoo 2 answers config cycles but the BIOS leaves it unconfigured (BAR0 0) and Win98's
+  boot-time enumeration misses it, and Glide on a BAR0-0 Voodoo maps it over RAM and kills the
+  box. A re-enumeration after logon finds it, installs its driver and assigns BAR0 (0x09000000).
 - **SYSFIX [check|apply]** — check/apply Win98 system fixes
 
 ### Linux-Only

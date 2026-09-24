@@ -49,6 +49,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/autoupdate.c \
           $(SRCDIR)/retrowall.c \
           $(SRCDIR)/dosstage.c \
+          $(SRCDIR)/pcirescue.c \
           $(SRCDIR)/watchdog.c \
           $(SRCDIR)/monitor.c \
           $(SRCDIR)/gameres.c \
