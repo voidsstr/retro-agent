@@ -103,6 +103,11 @@ def test_win7_and_older_stay_managed():
         ("retrowall.c", "retrowall_apply_startup", "theme/wallpaper/screensaver/icons"),
         ("retrowall.c", "retrowall_thread", "the wallpaper keep-loop"),
         ("sysfix.c", "sysfix_apply_startup", "autologon and the 9x fixes"),
+        # Missing from this list until 1.83.1, which is exactly how it got
+        # through: the startup provisioning thread copied 2.6 GB of the 54 GB
+        # retro library onto WHITEBEAST (Win11) before it was stopped.
+        ("gamesync.c", "gamesync_thread", "startup game provisioning + desktop shortcuts"),
+        ("gamesync.c", "gs_start", "any other start of a library sync"),
     ],
 )
 def test_startup_appliers_are_guarded(path, func, what):
@@ -235,3 +240,22 @@ def _pe_import_dlls(data):
             out.add(data[o:data.index(b"\0", o)].decode("ascii", "replace").lower())
         i += 20
     return out
+
+
+def test_gamesync_thread_asks_the_policy_before_doing_anything():
+    """The check must come FIRST - before the startup delay, the desktop
+    shortcut placement, the first-boot driver work and the marker test - or a
+    modern host still gets some of it."""
+    body = _function_body(read(SRC / "gamesync.c"), "gamesync_thread")
+    assert body is not None
+    gate = body.index("host_manages_this_box")
+    for later in ("Sleep(GS_FIRST_DELAY_MS)", "gs_place_tool_shortcuts()",
+                  "gs_install_missing_drivers()", "gs_file_exists(GS_MARKER)"):
+        assert later in body, later
+        assert gate < body.index(later), f"policy check comes after {later}"
+
+
+def test_gs_start_asks_the_policy_before_starting_a_worker():
+    body = _function_body(read(SRC / "gamesync.c"), "gs_start")
+    assert body is not None
+    assert body.index("host_manages_this_box") < body.index("CreateThread(")

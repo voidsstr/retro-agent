@@ -1835,8 +1835,14 @@ the operator could not do by opening a shell.
 **What is refused**, with the reason in the error rather than a silent no-op:
 `GAMESYNC`, `GAMERES`, `ICONARRANGE`, `AUTOLOGIN`, `DRVUPDATE`, `DOSSTAGE`,
 `WPALOAD`, `SYSFIX apply`, `DISPLAYCFG set`. The startup work — `retrowall`
-(theme/wallpaper/screensaver/icons, including its 5-minute keep loop) and the
-`sysfix` auto-apply — does not run at all.
+(theme/wallpaper/screensaver/icons, including its 5-minute keep loop), the
+`sysfix` auto-apply, and (since **1.83.1**) the **startup `GAMESYNC` thread** — does
+not run at all. Until 1.83.1 only the `GAMESYNC` *command* was refused: the
+startup thread provisions whenever `gamesync.done` is absent, which on a box that
+was never meant to be provisioned is always, and it had copied 2.6 GB of the
+library onto WHITEBEAST (Win11) before it was stopped on 2026-09-24. A new
+startup path that changes the host must be added to
+`test_startup_appliers_are_guarded` in `tests/python/test_hostpolicy.py`.
 
 **To manage a modern box anyway**, set
 `HKLM\Software\RetroAgent\ManageModernWindows` (DWORD) to `1`. Default absent

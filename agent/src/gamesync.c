@@ -34,6 +34,7 @@
 #include "util.h"
 #include "log.h"
 #include "ntdyn.h"
+#include "hostpolicy.h"
 #include "../shared/drvprefs.h"
 #include "../shared/gamegate.h"
 
@@ -3442,6 +3443,15 @@ static int gs_start(const char *library)
     HANDLE    th;
     DWORD     tid;
 
+    /* Never copy the retro library onto a modern Windows host (see
+     * gamesync_thread). The GAMESYNC command is already refused there by the
+     * command table; this covers every other caller. */
+    if (!host_manages_this_box()) {
+        log_msg(LOG_GS, "not starting: modern Windows host is not managed "
+                "(HKLM\\Software\\RetroAgent\\ManageModernWindows=1 overrides)");
+        return 0;
+    }
+
     if (InterlockedCompareExchange((LONG *)&g_gs_running, 1, 0) != 0)
         return 0;                          /* already running */
 
@@ -3502,6 +3512,22 @@ DWORD WINAPI gamesync_thread(LPVOID param)
     int fresh;
 
     (void)param;
+
+    /* A MODERN WINDOWS HOST GETS NOTHING FROM THIS THREAD - no games, no
+     * desktop shortcuts, no first-boot driver work. Until 1.83.1 this thread
+     * had no host-policy check at all: 1.82.0 refused the GAMESYNC *command*
+     * on Windows 10/11 through the command table, but this startup thread
+     * provisions on its own whenever gamesync.done is absent, which on a box
+     * that was never meant to be provisioned is always. WHITEBEAST (Win11,
+     * the fleet's server host) was 2.6 GB into copying all 51 staged titles
+     * when it was stopped on 2026-09-24. Checked FIRST, before the delay, so
+     * nothing below can run on such a box. */
+    if (!host_manages_this_box()) {
+        log_msg(LOG_GS, "modern Windows host - not provisioning games, not placing "
+                "shortcuts (HKLM\\Software\\RetroAgent\\ManageModernWindows=1 overrides)");
+        return 0;
+    }
+
     /* Let the desktop settle and the redirector come up before touching a
      * UNC path; on a fresh XP logon the network is not ready immediately. */
     Sleep(GS_FIRST_DELAY_MS);
