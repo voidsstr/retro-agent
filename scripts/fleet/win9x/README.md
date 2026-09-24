@@ -1,4 +1,4 @@
-# fleet9x — two Win9x chores, with no C runtime
+# Win9x helper tools — no C runtime
 
 `fleet9x.exe` is a small Win32 GUI program for Windows 95/98 boxes:
 
@@ -14,11 +14,23 @@ Build (it must be `-nostdlib`, see below):
 
 Run it through the agent: `EXECW 30 C:\RETRO_AGENT\FLEET9X.EXE attrib ...`, or `LAUNCH` for `reboot`.
 
-## Why it exists (found on .243, Win98 SE, 2026-09-24)
+## The other tools (all found necessary on .243, 2026-09-24)
+
+| tool | what it does | output |
+|---|---|---|
+| `pci9x [out] [noio]` | read-only PCI bus-0 config scan (mechanism #1: it only ever writes 0xCF8, never 0xCFC); reports each function's command register and BARs, with a verdict on any 3dfx BAR0 | `C:\RETRO_AGENT\PCI9X.TXT` |
+| `reenum9x` | `CM_Reenumerate_DevNode` on the PCI bus (what agent 1.83.0's `PCIRESCAN` does) | `C:\RETRO_AGENT\REENUM.TXT` |
+| `regdump9x <HKDD\|HKLM\|HKCC> <key> <out>` | recursive registry dump. Reads `HKEY_DYN_DATA`, the live devnode tree, which the agent's `REGREAD` cannot | the file you name |
+| `wintext9x` | dumps every visible `#32770` dialog's controls: class, id, text, enabled, checked, rect. Lets you drive a wizard when 8-bpp screenshots are unreadable | `C:\RETRO_AGENT\WINTEXT.TXT` |
+| `agentswap9x` | installs `retro_agent_new.exe` over a RUNNING agent (Win9x cannot replace a running exe). LAUNCH it, then send `QUIT`; it swaps, starts the new build, and rolls back if that build is not still running after 25 s | `C:\RETRO_AGENT\AGENTSWAP.TXT` |
+
+All of them build with the same command (add `-ladvapi32` for regdump9x). GUI-subsystem exes are not waited for by `EXEC` on 9x, so poll `PROCLIST` until the process is gone, then `DOWNLOAD` the output.
+
+## Why fleet9x exists (found on .243, Win98 SE, 2026-09-24)
 
 * **Agents older than 1.82.1 cannot reboot a Win9x box.** `REBOOT` answered `OK` and did nothing: `CreateThread` with a NULL thread id fails on 95/98. Fixed in 1.82.1. Until a box runs that build, `fleet9x reboot` is the remote route.
 * **The agent cannot write a read-only file**, and running DOS `ATTRIB` through `EXEC` starts a DOS VM, which is the pattern that has killed this single-threaded agent before. `fleet9x attrib` is plain Win32.
-* **A mingw-w64 program linked against msvcrt does not start on Win98 SE.** Its startup code imports a CRT function that Win98's `MSVCRT.DLL` lacks. The loader then shows a modal "missing export" dialog that nobody sees: the process sits in `PROCLIST`, writes nothing, and `EXECW` returns empty. Worse, the orphaned dialog **blocks a later `ExitWindowsEx`** until someone presses Enter on it. So this tool uses no CRT (`-nostdlib`, `wsprintfA`, `CreateFileA`), and it imports only KERNEL32 and USER32. **Build any throwaway Win9x probe the same way.**
+* **Build every Win9x helper without a C runtime.** On .243 the first, msvcrt-linked build of this tool sat in `PROCLIST`, wrote nothing, and left a `#32770` dialog named after itself. That orphaned dialog then **blocked a later `ExitWindowsEx`** until someone pressed Enter on it. The CRT-free rebuild never did this. The cause was never established: "an msvcrt export Win98 lacks" was checked and is wrong for two similar probes. So build `-nostdlib`, keep buffers larger than 4 KB static (otherwise `__chkstk_ms` gets linked in), and check `WINLIST` for `#32770` after running anything new.
 
 ## Caution
 
