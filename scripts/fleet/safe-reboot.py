@@ -32,12 +32,41 @@ SECRET = 'retro-agent-secret'
 PXE = Path(__file__).resolve().parents[1] / 'pxe' / 'pxe_server.py'
 
 
+def macs_from_hwprofile(text):
+    """MACs from HWPROFILE's network.interfaces[], normalised to aa:bb:.. form.
+    Empty list on anything unparsable - the caller then tries ipconfig."""
+    try:
+        ifaces = json.loads(text).get('network', {}).get('interfaces', [])
+    except (ValueError, AttributeError):
+        return []
+    out = []
+    for i in ifaces:
+        m = str(i.get('mac') or '').strip()
+        if re.fullmatch(r'[0-9A-Fa-f]{2}([-:][0-9A-Fa-f]{2}){5}', m):
+            m = m.replace('-', ':').lower()
+            if m != '00:00:00:00:00:00' and m not in out:
+                out.append(m)
+    return out
+
+
 async def agent_mac(ip):
     """Ask the machine for its own MAC. More reliable than the host ARP cache,
-    which can be stale or hold the address a DIFFERENT interface had."""
+    which can be stale or hold the address a DIFFERENT interface had.
+
+    HWPROFILE first: it runs inside the agent, so it works on Windows 9x, which
+    has no cmd.exe - the ipconfig route could never read a Win98 box's MAC, so
+    this script refused to reboot every 9x machine (found on .243, 2026-09-24).
+    It also spawns no child process, which on a single-threaded 9x agent is the
+    difference between a safe query and a dead agent (CLAUDE.md)."""
     c = RetroConnection(ip, 9898)
     await asyncio.wait_for(c.connect(SECRET), timeout=20)
     try:
+        try:
+            macs = macs_from_hwprofile(await c.command_text('HWPROFILE', timeout=60))
+        except Exception:  # noqa: BLE001 - an older agent without HWPROFILE
+            macs = []
+        if macs:
+            return macs
         out = await c.command_text('EXECW 40 cmd /c ipconfig /all', timeout=60)
     finally:
         await c.close()
