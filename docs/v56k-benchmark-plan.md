@@ -96,6 +96,33 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-24 morning) — clean-room lane is running on the V5 6000
+
+**The AmigaMerlin matrix is complete** (cfg 5 / 2 / 0, every title): Quake II was
+re-measured after the discovery that every earlier Quake II row had run at
+640×480×16 (staged `autoexec.cfg` reset `gl_mode`; now a per-run `fleetres.cfg`
+plus a `verify_mode` gate that refuses a row at the wrong mode). RtCW's last cell
+(cfg 0 1024×768×32) is 17.9 fps, no wedge. SpecPicks is reloaded: the 20
+mislabelled Quake II rows retired, the 30 mode-verified ones and CS 1.6 best-of-3
+loaded (specpicks `a9b3ab0`).
+
+**Our voodoo-cleanroom ICD on this card** — rows in
+`results/v56k_cleanroom_192.168.1.124/` (never mixed with AmigaMerlin rows):
+
+| lane | how it loads | result |
+|---|---|---|
+| Quake II / Quake III, `quake2:retrogl` / `quake3:retrogl` | game-local `retrogl.dll` by name (0.1.61/0.1.62) | cfg 0/2/5 complete. Quake II faster than AmigaMerlin in every cell (up to +26 % at 640×480 4-chip); Quake III level on 1 chip, ahead on 4 at ≤1280×960 |
+| CS 1.6, UT99 OpenGLDrv | **system ICD** — `system32\retroicd.dll`, `OpenGLDrivers\3dfx\DLL=retroicd.dll` (0.1.63 added the `Drv*` front end) | cfg 0 done: CS best-of-3 26.8 / 41.0 / 63.3 / 93.1 / 126.3 (parity; AmigaMerlin hangs at 1600×1200); UT99 OpenGL 45.2 @1280, 58.3 @800/640 — **runs, where AmigaMerlin's ICD GPFs at init**; 1600×1200 and 1024×768 raised UT's "Critical Error" (not yet diagnosed). cfg 5/2 sweeping (`sysicd/`) |
+| RtCW | — | cannot be pointed at another ICD: `WolfMP.exe` loads `system32\gl\openglv5.dll` on a Voodoo regardless of `r_glDriver` |
+
+**`.124` is currently running OUR ICD as the system ICD.** Rollback:
+`reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\3dfx" /v DLL /t REG_SZ /d 3dfxOGL.dll /f`
+(the AmigaMerlin value). Do this before any further AmigaMerlin measurement.
+
+**Next:** diagnose UT99's Critical Error on our ICD (screenshot the dialog + keep
+`UnrealTournament.log`), hardware-verify ICD 0.1.64 (refresh fix, I1), then
+restore the AmigaMerlin ICD registration.
+
 ### Resume point (2026-09-24 night) — AmigaMerlin matrix done; CS 1.6 in; clean-room lane next
 
 **cfg 5 / 2 / 0 are measured on every title** (best `ok` row per cell, 16 / 32-bit,
