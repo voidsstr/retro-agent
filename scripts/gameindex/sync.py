@@ -353,6 +353,38 @@ async def running_exes(conn):
     return {m.lower() for m in re.findall(r'[^"\\/:*?<>|]+\.exe', raw)}
 
 
+_NT_VERSION = re.compile(r"Win(\d+)\.(\d+)")
+
+
+async def unmanaged_modern_host(c, greeting):
+    """Why this box's game configs must NOT be written, or None to proceed.
+
+    Windows 10/11 hosts run the agent only so the fleet can reach them (the
+    server box WHITEBEAST is one). The agent itself leaves those hosts alone,
+    but this push is host-side and swept every live agent with no OS filter: on
+    2026-09-24 it had written 15 servers into WHITEBEAST's own
+    UnrealTournament.ini. So ask the box. HWPROFILE's host_policy is the
+    agent's own answer (1.83.2+). An older agent on Windows 10/11 reports the
+    GetVersionEx shim value 6.2, so 6.2+ with no host_policy is treated as
+    modern - the fleet has no Windows 8 machines. 9x/XP/Vista/7 greetings are
+    never queried, which keeps the Win98 box's single-threaded agent quiet.
+    """
+    parts = greeting.split()
+    m = _NT_VERSION.search(parts[2]) if len(parts) > 2 else None
+    if not m or (int(m.group(1)), int(m.group(2))) < (6, 2):
+        return None
+    try:
+        prof = json.loads(await c.command_text("HWPROFILE", timeout=60))
+    except Exception:  # noqa: BLE001 - no answer is not permission to write
+        prof = {}
+    hp = prof.get("host_policy") if isinstance(prof, dict) else None
+    if isinstance(hp, dict):
+        return None if hp.get("managed") else \
+            "modern Windows host - its agent reports it is not managed"
+    return ("Windows 6.2+ on an agent too old to report host_policy - "
+            "treated as a modern host (the fleet has no Windows 8 boxes)")
+
+
 async def push_favorites(con, ip, dry_run=False):
     """Write each installed game's favourites file, but only when it changed."""
     results = []
@@ -360,7 +392,11 @@ async def push_favorites(con, ip, dry_run=False):
     if not games:
         return [("-", "-", "no games indexed for this box yet - nothing to write")]
 
-    async def work(c, _greeting):
+    async def work(c, greeting):
+        why = await unmanaged_modern_host(c, greeting)
+        if why:
+            results.append(("*", "-", f"skipped: {why}"))
+            return
         running = await running_exes(c)
         # Two keys can name one file: the staged Quake III tree ships both
         # quake3.exe and ioquake3.x86.exe, so `quake3` and `ioquake3` are both

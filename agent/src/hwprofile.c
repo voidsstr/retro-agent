@@ -37,6 +37,7 @@
 #include "util.h"
 #include "log.h"
 #include "hwextra.h"
+#include "hostpolicy.h"
 #include "../shared/hwpub.h"
 #include "../shared/gamegate.h"
 #include "../shared/edid.h"
@@ -1108,6 +1109,17 @@ char *hwprofile_json(void)
     json_kv_str(&j, "service_pack", x.os_sp);
     json_kv_str(&j, "level", gg_os_level_name(p.os_level));
     json_kv_int(&j, "level_num", p.os_level);
+    json_object_end(&j);
+
+    /* Whether this agent will change the host at all. Host-side tools (the
+     * favourites push in scripts/gameindex/sync.py) ask this instead of
+     * guessing from a version string: GetVersionEx says 6.2 on every
+     * Windows 10/11 box, so "os.version" cannot tell them apart from Windows
+     * 8. Not part of profile_hash - it is policy, not hardware. */
+    json_key(&j, "host_policy");
+    json_object_start(&j);
+    json_kv_bool(&j, "modern", host_is_modern_windows());
+    json_kv_bool(&j, "managed", host_manages_this_box());
     json_object_end(&j);
 
     json_key(&j, "directx");

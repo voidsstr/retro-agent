@@ -108,6 +108,9 @@ def test_win7_and_older_stay_managed():
         # retro library onto WHITEBEAST (Win11) before it was stopped.
         ("gamesync.c", "gamesync_thread", "startup game provisioning + desktop shortcuts"),
         ("gamesync.c", "gs_start", "any other start of a library sync"),
+        # Both found by the 2026-09-24 audit of every startup/background path.
+        ("watchdog.c", "watchdog_thread", "killing hung fullscreen games + resetting the display mode"),
+        ("autoupdate.c", "update_retro_chat", "installing and launching the chat client"),
     ],
 )
 def test_startup_appliers_are_guarded(path, func, what):
@@ -259,3 +262,13 @@ def test_gs_start_asks_the_policy_before_starting_a_worker():
     body = _function_body(read(SRC / "gamesync.c"), "gs_start")
     assert body is not None
     assert body.index("host_manages_this_box") < body.index("CreateThread(")
+
+
+def test_hwprofile_reports_the_host_policy():
+    """Host-side tools (the favourites push) ask the box instead of guessing
+    from a version string that reads 6.2 on every Windows 10/11 machine."""
+    s = read(SRC / "hwprofile.c")
+    i = s.index('json_key(&j, "host_policy")')
+    block = s[i:i + 400]
+    assert 'json_kv_bool(&j, "modern", host_is_modern_windows())' in block
+    assert 'json_kv_bool(&j, "managed", host_manages_this_box())' in block

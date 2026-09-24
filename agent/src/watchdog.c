@@ -25,6 +25,7 @@
 #include "handlers.h"
 #include "util.h"
 #include "log.h"
+#include "hostpolicy.h"
 
 /* Set by the command loop (main.c) around each handle_command call. */
 volatile LONG  g_cmd_inflight = 0;   /* # commands currently inside a handler */
@@ -98,6 +99,12 @@ static void recover_from_hung_game(void)
 DWORD WINAPI watchdog_thread(LPVOID param)
 {
     (void)param;
+    /* On a modern Windows host this would kill the owner's own fullscreen
+     * games and reset their display mode whenever an agent command stalls -
+     * it exists for a wedged Glide lock on a fleet box, not for a daily
+     * driver. Found ungated by the 2026-09-24 host-policy audit. */
+    if (host_policy_skip("watchdog (kills hung fullscreen games, resets the display mode)"))
+        return 0;
     for (;;) {
         Sleep(WATCHDOG_POLL_MS);
         if (!g_running)

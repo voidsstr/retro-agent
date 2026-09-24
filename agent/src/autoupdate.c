@@ -26,6 +26,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "hostpolicy.h"
 #include <string.h>
 #include <stdio.h>
 #include <tlhelp32.h>
@@ -236,6 +237,13 @@ static void update_retro_chat(const char *install_dir)
     char share_path[512];
     DWORD local_size, remote_size;
     int kill_count;
+
+    /* The chat client is a fleet box's front end. On a modern Windows host it
+     * is not ours to install, replace or pop up in a console window at every
+     * agent start - the agent's OWN self-update (below this call) still runs.
+     * Found ungated by the 2026-09-24 host-policy audit. */
+    if (host_policy_skip("retro_chat install/update/launch"))
+        return;
 
     _snprintf(chat_path, sizeof(chat_path), "%s\\retro_chat.exe", install_dir);
     chat_path[sizeof(chat_path) - 1] = '\0';
