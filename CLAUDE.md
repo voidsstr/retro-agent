@@ -1844,6 +1844,16 @@ library onto WHITEBEAST (Win11) before it was stopped on 2026-09-24. A new
 startup path that changes the host must be added to
 `test_startup_appliers_are_guarded` in `tests/python/test_hostpolicy.py`.
 
+**1.83.2 closed the rest**, found by an audit of every startup/background path:
+the **watchdog** (kills a "hung" fullscreen game and resets the display mode) and the
+**chat-client updater** (installs and launches `retro_chat.exe`) are skipped too, and
+`HWPROFILE` reports `host_policy: {modern, managed}` so **host-side tools ask the box**:
+`scripts/gameindex/sync.py`'s favourites push had written into WHITEBEAST's own
+`UnrealTournament.ini`. Deliberately still ungated: the agent's firewall exception
+and replay of operator-stored `AUTOMAP` drive mappings. **Any new host-side tool that
+writes to fleet boxes must skip `host_policy.managed == false`** (older agents greeting
+`Win6.2`+ count as modern: that is the GetVersionEx shim on 10/11).
+
 **To manage a modern box anyway**, set
 `HKLM\Software\RetroAgent\ManageModernWindows` (DWORD) to `1`. Default absent
 = hands off.
@@ -2483,7 +2493,8 @@ Upload: `curl --upload-file file -u YOUR-CREDS "smb://YOUR-SERVER/files/Utility/
 
 ## Game/dedicated-server tooling
 
-**The fleet's game servers now run on `whitebeast` (192.168.1.82, Windows 11)**,
+**The fleet's game servers now run on `whitebeast` (Windows 11; it answered at
+**192.168.1.249** on 2026-09-24, not the .82 recorded earlier)**,
 which has taken over from the old server box. Configs, the no-blood CS mod and
 the host notes live here in [`scripts/game-servers/`](scripts/game-servers/).
 
