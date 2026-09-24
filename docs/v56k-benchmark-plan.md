@@ -96,6 +96,50 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-24 night) — AmigaMerlin matrix done; CS 1.6 in; clean-room lane next
+
+**cfg 5 / 2 / 0 are measured on every title** (best `ok` row per cell, 16 / 32-bit,
+1600×1200 → 640×480):
+
+| title | cfg 5 (4-chip) | cfg 2 (2-chip) | cfg 0 (1-chip) |
+|---|---|---|---|
+| Quake II (ICD game-local) | 171 / 173 … 169 / 172 — flat, CPU-bound | 171 / 172 … 166 / 171 | **81.5 at every cell — suspected vsync cap, verify** |
+| Quake III | 79.0/51.3 · 116.3/75.1 · 120.4/101.1 · 119.9/110.3 · 122.3/115.0 | 79.0/51.2 · 115.9/78.5 · 117.3/97.9 · 121.9/110.5 · 122.9/116.5 | gl-init-hung/7.3 · 38.8/16.0 · 54.9/32.8 · 88.1/52.9 · 117.9/78.8 |
+| RtCW (Wicked3D `openglv5`) | crash · no mode · 117.9/91.9 · 113.3/111.5 · 128.4/110.3 | crash · no mode · 102.6/94.5 · 125.8/115.1 · 127.1/106.3 | crash · no mode · 37.9/**pending** · 57.8/47.1 · 81.4/65.8 |
+| UT99 GlideDrv (16-bit only) | 56.0 · 62.7 · 65.0 · 65.8 · 67.1 | 57.7 · 62.8 · 64.7 · 64.3 · 66.5 | exited · 31.9 · 44.7 · 56.2 · 65.4 |
+| UT99 D3DDrv | exits ≥1280 · 69.1/exit · 69.5/68.1 · 70.3/69.1 | same shape | same shape |
+| CS 1.6 | see below | | |
+
+- **RtCW 1600×1200 is a deterministic crash in Wicked3D's `openglv5!glReadPixels`**
+  (c0000005, every config) — a limit of that wrapper, not the card. 1280×960 is not
+  in its mode table. The one open cell, cfg 0 1024×768×32, timed out once; it has the
+  shape of the 640×480×32 wedge, so it is retried last, with the box guardian armed.
+- **CS 1.6 needed a fix before it could run at all**: the AmigaMerlin ICD is
+  Mesa-based and its SSE-exception probe (a deliberate `divps` by zero) is caught by
+  GoldSrc's own handler, which shuts the engine down → `MESA_FORCE_SSE=1`
+  (retro-agent `c71127f`, FINDINGS 2026-09-23 night).
+- **CS 1.6 numbers are RAM-bound on this box, so they are best-of-3.** `.124` has
+  **255 MB** of RAM (156 MB available at idle) and `hl.exe` commits ~169 MB, so a run
+  pages or not depending on what the OS has trimmed: the same cell read 47–58 fps
+  on one boot and 119 on another, the game logs identical but for the fps line, the
+  box 97–100 % idle meanwhile (sampled). Single runs are therefore not comparable;
+  `results/…/cs16_best3/` runs every cell three times and the article takes the
+  best (the unpaged run) with the spread. **Say "256 MB RAM" next to every CS number.**
+- **CS 1.6 1600×1200 on ONE chip hangs in the driver** and ignores `taskkill` for
+  30 s+ — the runner now records that as `hung-unkillable` (it used to be an
+  anonymous `error: TimeoutError`).
+
+**Recovery without a person (new, 2026-09-24):** the V5 display wedge leaves SMB up,
+so `.124` now has ForceGuest=0 and `scripts/fleet/safe-reboot.py <ip> --rpc` reboots
+it over Windows RPC after arming the PXE hold (proven: down 10 s after the call, agent
+back in ~2 min). `scripts/fleet/box-guardian.py 192.168.1.124` runs that automatically
+after 6 min of agent silence with 445 up.
+
+**Next: the clean-room lane (roadmap 17.1 Step 1)** — `quake2:retrogl` /
+`quake3:retrogl` load our voodoo-cleanroom 0.1.61 ICD game-local over AmigaMerlin's
+Glide; rows carry `api = opengl-cleanroom-<ver>` and go to their own outdir
+(`results/v56k_cleanroom_192.168.1.124/`), never mixed with the AmigaMerlin rows.
+
 ### Resume point (2026-09-23 evening) — cfg 2 nearly complete
 
 Sweep `sweep_cfg2_cfg0_20260923b.log` (titles ordered Quake III **last**) measured
