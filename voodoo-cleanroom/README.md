@@ -62,7 +62,7 @@ and for `.171`.
 |---|---|---|---|
 | **OpenGL ICD** (MesaFX 6.2.2 fork) | **0.1.64**, built 2026-09-24, 2,764,496 B — also a Microsoft ICD (`Drv*` front end, 0.1.63); monitor-best refresh (0.1.64) | **Works on the Voodoo 5 6000** (over AmigaMerlin's Glide, 2026-09-24 — faster than AmigaMerlin's own ICD in Quake II, level-to-ahead in Quake III, [§13.3](#133-voodoo-5-6000-124-athlon-xp-2400-2026-09-24)), on the Voodoo 2, and formerly on the Voodoo 3. I11 (stopped at the mode set on the V5 5500 with a ~0.1.33 build) does not reproduce with 0.1.61/0.1.62. Source = fork `492a0d8` (0.1.33) + `patches/mesafx-voodoo2-icd.patch` (0.1.41–0.1.64) | **Voodoo 5 6000**, `.124`, 0.1.61/0.1.62, 2026-09-24. Voodoo 2, `.171`, 0.1.60, 2026-08-29. Voodoo 3, `.124`, July – 2026-08-04 |
 | **Glide 3, Voodoo 3 (`h3`)** | `glide3x_h3.dll` = `glide3x.dll`, 855,150 B, built 2026-09-12 | Works: renders Quake III (2026-07-22) at parity with retail Glide (2026-07-23). **This rebuild has never been run on hardware** | Voodoo 3, `.124`, 2026-07-22 – 2026-08-03 (the 787,186 B build) |
-| **Glide 3, Voodoo 4/5 (`h5`)** | `glide3x_h5.dll`, 989,027 B, built 2026-09-12 | **Broken — do not ship.** Paired with our ICD it hard-froze the V5 6000 (then in `.191`) on 2026-09-04 — which layer caused it is not established. Carries a TLS inline-asm bug found 2026-09-23 ([§16](#16-known-bugs-and-open-issues)) | never |
+| **Glide 3, Voodoo 4/5 (`h5`)** | `glide3x_h5.dll`, 998,243 B, built 2026-09-24 (fork `839143c`) | **H1–H7 fixed 2026-09-24** ([§16.1](#161-blocking-the-voodoo-45-h5-glide)): initialises on the V5 6000 (`glideprobe --noopen`: 1 board, 4 chips, "Voodoo5 6000"). **Board open not yet exercised** — the 2026-09-04 build hard-froze this card at open | `.124` V5 6000, init only, 2026-09-24 |
 | **Glide 3, Voodoo 2 (`cvg`)** | `glide3x_cvg.dll`, 845,530 B | Built, **not yet deployed** (`.171` runs the stock 3dfx Glide 3.03.00) | never |
 | **Glide 2** (`h3`, `cvg`) | `glide2x.dll` 798,501 B · `glide2x_cvg.dll` 831,246 B | Built. A 2026-08-04 build ran Unreal Gold's Glide renderer on `.124`, but its XP bring-up guards (`79ee51e`) were never pushed and **the current build lacks them** ([§15.4](#154-what-was-lost-and-why)) | Voodoo 3, `.124`, 2026-08-04 (a build that no longer exists) |
 | **Display driver — `vcr-disp`** | none (cannot compile) | **Skeleton.** Escape server written but its request layout does not match Glide's; no GDI chassis | never |
@@ -1549,6 +1549,12 @@ sequenceDiagram
     SEL->>SEL: first gc-> dereference faults or wedges
     Note over App,SEL: grSstWinOpen is never reached.<br/>h3 fixed the same asm in a71eb3f with TlsGetValue(_GlideRoot.tlsIndex)
 ```
+
+**Status 2026-09-24: H1–H7 are fixed** in fork `voidsstr/retro3dfx-glide` `839143c`
+(`tests/python/test_h5_glide_fixes.py`); the table below records what each was.
+Rebuilding after a header-only fix needs `make clean` — the Makefile does not
+track header dependencies, and the first rebuild of H1 silently reused the old
+objects (339 broken reads still in the DLL).
 
 | # | Defect | Where | Found | Effect |
 |---|---|---|---|---|
