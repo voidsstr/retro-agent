@@ -96,6 +96,31 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-23 evening) — cfg 2 nearly complete
+
+Sweep `sweep_cfg2_cfg0_20260923b.log` (titles ordered Quake III **last**) measured
+cfg 2 on every title but Quake III, and all 88 rows are loaded into SpecPicks:
+
+| cfg 2 (2-chip, no AA) | 1600×1200 | 1280×960 | 1024×768 | 800×600 | 640×480 |
+|---|---|---|---|---|---|
+| Quake II 16 / 32-bit | 171.2 / 172.3 | 167.8 / 172.3 | 163.5 / 161.5 | 166.5 / 167.9 | 165.9 / 171.4 |
+| UT99 GlideDrv 16-bit | 57.74 | 62.79 | 64.72 | 64.3 | 66.49 |
+| UT99 D3DDrv 16 / 32-bit | process-exited | process-exited | 68.97 / exited | 69.9 / 68.12 | 70.6 / 69.11 |
+| RtCW (Wicked3D openglv5) 16 / 32 | process-exited | no such mode | 102.6 / 94.5 | 125.8 / 115.1 | 127.1 / **timeout → wedge** |
+| Quake III | not reached | | 1280×960: 115.9 / 78.5 (morning) | | |
+
+Same shape as cfg 5: Quake II flat (CPU-bound), UT99 D3D dies above 1024×768.
+
+**Two agent deaths, two outcomes.** At 19:12 (UT99 D3D) the agent died and the
+listener-aware watchdog restarted it in 25 s; the sweep rebooted and carried on —
+the first unattended recovery. At 19:54 (RtCW 640×480/32) the box went to the
+display-driver wedge (9898 refused, 9897 mute) and nothing recovered it: that
+needs a power cycle, as the Quake III wedge did this morning.
+
+**Next, after the power cycle:** resume with `--configs 2,0 --titles
+quake2,ut99:glide,ut99:d3d,rtcw:openglv5,quake3` (the runner skips measured
+cells, so cfg 2 costs one boot for Quake III + RtCW 640/32, then cfg 0 runs).
+
 ### Resume point (2026-09-23)
 
 - **Listener-aware watchdog deployed on `.124` and proven**: the agent killed on
