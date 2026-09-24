@@ -60,7 +60,7 @@ and for `.171`.
 
 | Component | Current build | State | Last proven on hardware |
 |---|---|---|---|
-| **OpenGL ICD** (MesaFX 6.2.2 fork) | **0.1.62**, built 2026-09-24, 2,757,177 B | **Works on the Voodoo 5 6000** (over AmigaMerlin's Glide, 2026-09-24 — faster than AmigaMerlin's own ICD in Quake II, level-to-ahead in Quake III, [§13.3](#133-voodoo-5-6000-124-athlon-xp-2400-2026-09-24)), on the Voodoo 2, and formerly on the Voodoo 3. I11 (stopped at the mode set on the V5 5500 with a ~0.1.33 build) does not reproduce with 0.1.61/0.1.62. Source = fork `492a0d8` (0.1.33) + `patches/mesafx-voodoo2-icd.patch` (0.1.41–0.1.62) | **Voodoo 5 6000**, `.124`, 0.1.61/0.1.62, 2026-09-24. Voodoo 2, `.171`, 0.1.60, 2026-08-29. Voodoo 3, `.124`, July – 2026-08-04 |
+| **OpenGL ICD** (MesaFX 6.2.2 fork) | **0.1.63**, built 2026-09-24, 2,763,236 B — now also a Microsoft ICD (`Drv*` front end) | **Works on the Voodoo 5 6000** (over AmigaMerlin's Glide, 2026-09-24 — faster than AmigaMerlin's own ICD in Quake II, level-to-ahead in Quake III, [§13.3](#133-voodoo-5-6000-124-athlon-xp-2400-2026-09-24)), on the Voodoo 2, and formerly on the Voodoo 3. I11 (stopped at the mode set on the V5 5500 with a ~0.1.33 build) does not reproduce with 0.1.61/0.1.62. Source = fork `492a0d8` (0.1.33) + `patches/mesafx-voodoo2-icd.patch` (0.1.41–0.1.63) | **Voodoo 5 6000**, `.124`, 0.1.61/0.1.62, 2026-09-24. Voodoo 2, `.171`, 0.1.60, 2026-08-29. Voodoo 3, `.124`, July – 2026-08-04 |
 | **Glide 3, Voodoo 3 (`h3`)** | `glide3x_h3.dll` = `glide3x.dll`, 855,150 B, built 2026-09-12 | Works: renders Quake III (2026-07-22) at parity with retail Glide (2026-07-23). **This rebuild has never been run on hardware** | Voodoo 3, `.124`, 2026-07-22 – 2026-08-03 (the 787,186 B build) |
 | **Glide 3, Voodoo 4/5 (`h5`)** | `glide3x_h5.dll`, 989,027 B, built 2026-09-12 | **Broken — do not ship.** Paired with our ICD it hard-froze the V5 6000 (then in `.191`) on 2026-09-04 — which layer caused it is not established. Carries a TLS inline-asm bug found 2026-09-23 ([§16](#16-known-bugs-and-open-issues)) | never |
 | **Glide 3, Voodoo 2 (`cvg`)** | `glide3x_cvg.dll`, 845,530 B | Built, **not yet deployed** (`.171` runs the stock 3dfx Glide 3.03.00) | never |
@@ -100,7 +100,7 @@ flowchart LR
 | Box | Card | Can our stack run there? |
 |---|---|---|
 | **`.171`** | Voodoo 2, 12 MB (4 MB frame buffer + 2 × 4 MB texture). 3D-only, INF `Class=MEDIA`, so it never shows as a display adapter. A second Voodoo 2 was fitted until 2026-08-28 — with both in, Glide hung; later records disagree on the card count (the 2026-08-31 inventory shows 2 PCI instances, possibly a stale key), so confirm with `HWPROFILE` | **Yes — the one proven box today.** The ICD runs over the stock Glide. No display driver is needed (the Intel 865G keeps 2D), so this is the one box where the 3D path needs no borrowed display driver — though the Voodoo 2 Glide still reaches the card through 3dfx's stock kernel helpers `fxgpio.sys`/`fxptl.sys`. Our `glide3x_cvg.dll` is built and waiting to be deployed |
-| **`.124`** | Voodoo 5 6000 (Strange God AGP reproduction, `121A:0009`, 4 VSA-100 chips) on AmigaMerlin 3.1-R11 | **The ICD, yes — since 2026-09-24.** Game-local `retrogl.dll` over AmigaMerlin's own Glide and display driver runs Quake II and Quake III on 1, 2 and 4 chips ([§13.3](#133-voodoo-5-6000-124-athlon-xp-2400-2026-09-24)); nothing in `system32` changes. Our h5 Glide is still broken (H1) and hard-froze this card (then in `.191`) on 2026-09-04. Games that go through the system `opengl32` (GoldSrc/CS 1.6) cannot reach our ICD yet — it has no `Drv*` ICD interface — and RtCW forces its own Wicked3D driver on a Voodoo |
+| **`.124`** | Voodoo 5 6000 (Strange God AGP reproduction, `121A:0009`, 4 VSA-100 chips) on AmigaMerlin 3.1-R11 | **The ICD, yes — since 2026-09-24.** Game-local `retrogl.dll` over AmigaMerlin's own Glide and display driver runs Quake II and Quake III on 1, 2 and 4 chips ([§13.3](#133-voodoo-5-6000-124-athlon-xp-2400-2026-09-24)); nothing in `system32` changes. Our h5 Glide is still broken (H1) and hard-froze this card (then in `.191`) on 2026-09-04. Since 0.1.63 the same DLL can also be registered as the **system ICD** ([§10.5](#105-as-the-system-icd-0163)), which is how Counter-Strike 1.6 and UT99's OpenGL renderer reach it — UT99 OpenGL crashes at init on AmigaMerlin's own ICD and runs on ours. RtCW still forces its bundled Wicked3D driver on a Voodoo |
 | **`.143`** | Voodoo 5 5500, second adapter behind a GeForce 6800 | The vintage lane's box. On 2026-08-14 **both open layers failed there, independently**: our ICD over the known-good retail Glide stopped at the mode set (I11); our h5 Glide (then a 920,669 B build) hung at Glide init under our ICD 0.1.31; and under the known-good vintage ICD our h5 Glide made the game fall back to Microsoft's Direct3D GL (`retro-3dfx/OPEN-STACK-ON-VSA100.md` §7) |
 | none | Voodoo 3 | The card this stack was built on (`.124`, July–August 2026) was **removed 2026-08-11**. Every Voodoo 3 result below is historical until one is refitted |
 
@@ -907,6 +907,30 @@ key; the durable route is a proper Display INF installed through SetupAPI
 (`updrv.exe`) — the `deploy-3dfx-driver` skill automates that for the vintage
 package. **Check activation (`LICSTATUS`) and use `scripts/fleet/safe-reboot.py`
 for the reboot** — never a bare `REBOOT` (see `../CLAUDE.md`).
+
+### 10.5 As the system ICD (0.1.63+)
+
+Games that link the system `opengl32.dll` (GoldSrc / Counter-Strike 1.6, UT99
+OpenGLDrv, and most titles that take no driver name) cannot use a game-local
+copy — `opengl32` is a KnownDLL on XP. Since 0.1.63 the DLL carries the 17
+`Drv*` entry points Microsoft's `opengl32` calls (`fxicd.c`), so it can be
+registered as the display driver's ICD instead. Nothing is overwritten:
+
+```bat
+copy out\opengl32_retail.dll C:\WINDOWS\system32\retroicd.dll
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\3dfx" /v DLL /t REG_SZ /d retroicd.dll /f
+rem rollback (AmigaMerlin on .124):
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\3dfx" /v DLL /t REG_SZ /d 3dfxOGL.dll /f
+```
+
+The subkey name (`3dfx` here) is whatever the installed display driver
+registered — read `OpenGLDrivers` first. Use `reg.exe`: the agent's `REGWRITE`
+splits on the space in "Windows NT". `C:\retrogl.log` shows
+`ICD: DrvValidateVersion ... (loaded as the system ICD)` when it took. GoldSrc
+also needs `MESA_FORCE_SSE=1` on any Mesa-based ICD, ours included (its own
+exception handler catches Mesa's deliberate SSE probe trap —
+`../docs/v56k-benchmark-plan.md`). Microsoft's pixel-format chooser, not ours,
+picks the format in this mode; on the V5 it picks our 32-bit ARGB8888 format.
 
 ---
 
