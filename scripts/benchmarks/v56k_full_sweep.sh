@@ -32,7 +32,7 @@ mkdir -p "$OUT"
 #                 harness's own -condebug crashes it (1450-byte GL_EXTENSIONS vs a 1 KB
 #                 buffer in 1997's Con_DebugLog; stack return address = "TENS"). Without
 #                 -condebug there is no log to parse. Needs a capture route first.
-TITLES="quake3,quake2,ut99:glide,ut99:d3d,rtcw:openglv5"
+TITLES="quake2,ut99:glide,ut99:d3d,rtcw:openglv5,cs16,quake3"   # Quake III last: its stall wedges the box
 RES="1600x1200,1280x960,1024x768,800x600,640x480"   # high to low: the CPU-bound cell last, well after boot
 echo "[$(date +%H:%M:%S)] full sweep start: titles=$TITLES res=$RES depths=16,32 configs=5,2,0"
 python3 scripts/benchmarks/v56k_sweep.py --host 192.168.1.124 --configs 5,2,0 \

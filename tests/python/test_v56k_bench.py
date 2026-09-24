@@ -788,3 +788,64 @@ def test_serioussam_bench_launcher_is_the_fleet_mount_template(bench):
     assert "set FX_GLIDE_SWAPINTERVAL=0" in bat                     # and the bench's environment
     assert "mount-error.txt" in bat                                 # and reports a mount failure
     assert "(" not in bat.split("GTITLE=")[1].split("\n")[0]        # no parenthesis in a value cmd expands
+
+
+# --------------------------------------------------------------------------- #
+# Counter-Strike 1.6 (added 2026-09-23)
+# --------------------------------------------------------------------------- #
+
+def test_cs16_is_a_title_and_plays_its_demo_through_timedemo(bench):
+    t = bench.TITLES["cs16"]()
+    bat = t.launch_bat(1024, 768, 32, {})
+    assert "+timedemo cs16_bench" in bat and "-gl" in bat and "-condebug" in bat
+    assert t.log.endswith(r"CounterStrike16\qconsole.log")    # CS ROOT, not cstrike\
+
+
+def test_cs16_parse_skips_the_demo_load_priming_line(bench):
+    """GoldSrc prints '-1 frames 1.000 seconds -1.000 fps' while a demo loads;
+    that must never become a result."""
+    t = bench.CS16()
+    assert t.parse("-1 frames 1.000 seconds -1.000 fps\n") is None
+    r = t.parse("-1 frames 1.000 seconds -1.000 fps\n1234 frames 18.2 seconds 67.8 fps\n")
+    assert r == {"frames": 1234, "seconds": 18.2, "avg_fps": 67.8}
+
+
+def test_cs16_mode_is_read_back_not_trusted(bench):
+    """GoldSrc ignores -w/-h; the registry decides. A write that did not stick
+    must fail the cell, not measure the wrong resolution."""
+    import asyncio, json as _j
+    class Box:
+        def __init__(self, w): self.w = w
+        async def text(self, cmd, timeout=60):
+            if cmd.startswith("REGREAD"):
+                return _j.dumps({"values": [{"name": "ScreenWidth", "data": self.w},
+                                            {"name": "ScreenHeight", "data": 768},
+                                            {"name": "ScreenBPP", "data": 32}]})
+            return "OK"
+    t = bench.CS16()
+    asyncio.run(t._set_mode(Box(1024), 1024, 768, 32))           # stuck: fine
+    with pytest.raises(bench.RetroProtocolError):
+        asyncio.run(t._set_mode(Box(640), 1024, 768, 32))        # "OK" but did not stick
+
+
+def test_cs16_label_says_which_opengl_it_loads(bench):
+    import asyncio
+    class Box:
+        def __init__(self, out): self.out = out
+        async def exec_(self, cmd, timeout=90): return self.out
+    t = bench.CS16()
+    t._ensure_demo = lambda box: asyncio.sleep(0)
+    asyncio.run(t.identify(Box("\r\n")))
+    assert t.api == "opengl-icd"
+    t2 = bench.CS16()
+    t2._ensure_demo = lambda box: asyncio.sleep(0)
+    asyncio.run(t2.identify(Box("2757140\r\n")))
+    assert t2.api == "opengl-gamelocal-2757140B"
+
+
+def test_cs16_record_cfg_uses_aliases_and_flushes_before_quit(bench):
+    cfg = bench.CS16.record_cfg()
+    assert cfg.count("\n") < 80                  # no flat wait chain to overflow the buffer
+    assert "record cs16_bench" in cfg
+    i_stop, i_quit = cfg.index("stop"), cfg.index("quit")
+    assert "w100" in cfg[i_stop:i_quit]           # flush waits between stop and quit
