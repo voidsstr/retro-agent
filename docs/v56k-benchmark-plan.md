@@ -96,6 +96,29 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-24 08:39) — `.124` WEDGED during the clean-room smoke test; needs a power cycle
+
+`cleanroom_smoke.py` launched Hexen II (after SoF2, which ran fine on our ICD) and the
+box went into the deep form of the wedge: 9898 refused, 9897 accepting, then **445
+down too**, 135/139 accepting TCP but the endpoint mapper timing out on bind. No
+remote path answers (RPC reboot over 445, over 139 and over `ncacn_ip_tcp` all
+fail), so `box-guardian.py` correctly did nothing. PXE hold re-armed at 08:5x.
+
+**After the power cycle:**
+1. Read `C:\retrogl.log` (DOWNLOAD) — its tail names the last process that touched
+   our ICD, and whether Hexen II got that far.
+2. `.124` still has **our ICD 0.1.64 registered as the system ICD**
+   (`system32\retroicd.dll`, 0.1.63 kept as `retroicd_0.1.63.dll`). Rollback to
+   AmigaMerlin: `reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\3dfx" /v DLL /t REG_SZ /d 3dfxOGL.dll /f`.
+3. Our h5 Glide (fork `839143c`, H1–H7) is staged at `C:\RETRO_AGENT\cr\glide3x.dll`
+   and passed `glideprobe --noopen`; roadmap step 4 (board open) has NOT been run.
+
+Smoke-test results so far (`results/v56k_cleanroom_192.168.1.124/smoke*.json`), our
+ICD as system ICD: GLQuake, WON Half-Life, Quake II (staged bat), SoF, SoF2 MP, CS 1.6
+and UT99 OpenGL create a context and keep running; ioquake3 loads our ICD but
+creates no context (SDL path, not diagnosed); Jedi Academy and Serious Sam FE
+started no process from the harness (launcher not diagnosed); Hexen II → wedge.
+
 ### Resume point (2026-09-24 morning) — clean-room lane is running on the V5 6000
 
 **The AmigaMerlin matrix is complete** (cfg 5 / 2 / 0, every title): Quake II was
