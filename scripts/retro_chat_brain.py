@@ -40,6 +40,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 import shutil
 import sys
 import time
@@ -505,6 +506,41 @@ def tool_status(name, tool_input):
     return "running: " + name
 
 
+async def prompt_stream(text):
+    """The prompt as an AsyncIterable of one user message.
+
+    options_for() always passes can_use_tool, and older claude-agent-sdk
+    releases REFUSE that with a plain-string prompt ("can_use_tool callback
+    requires streaming mode"), before the CLI is even started. 2026-09-23: a
+    stale brain on the old host (whitebeast) hit exactly that on every
+    account and told a user on .171 no Claude account was usable. Streaming
+    works on every SDK version, so never hand query() a bare string."""
+    yield {"type": "user", "message": {"role": "user", "content": text}}
+
+
+# What an account/auth failure looks like. Anything else that fails on EVERY
+# account is a brain/SDK fault, and must not be reported as "no account".
+_AUTH_ERR = re.compile(
+    r"log ?in|logged|auth|oauth|credential|token|\b40[13]\b|rate.?limit|"
+    r"usage limit|limit reached|overloaded|quota|no response", re.I)
+
+
+def is_account_error(err):
+    return bool(_AUTH_ERR.search(str(err or "")))
+
+
+def all_failed_message(last_err):
+    """The chat line shown when no account produced an answer. Only blame the
+    accounts when the error actually looks like an account problem."""
+    err = str(last_err or "no response")
+    if is_account_error(err):
+        return ("[No Claude account on the brain is usable right now (" + err[:60] +
+                "). Re-login one on the server: HOME=~/.reusable-agents/claude-pool/"
+                "profile-1 claude /login  - chat will recover automatically.]\n")
+    return ("[The chat brain failed before answering - this is a brain/SDK error, "
+            "not an account problem: " + err[:120] + "]\n")
+
+
 async def run_prompt(host, seq, prompt, sessions, accounts):
     """Stream one prompt through the agent loop with account failover.
 
@@ -545,7 +581,7 @@ async def run_prompt(host, seq, prompt, sessions, accounts):
         st = {"authed": False, "text": False, "think": "", "shown": 0,
               "sid": resume, "err": None, "result": None}
         try:
-            async for msg in query(prompt=prompt,
+            async for msg in query(prompt=prompt_stream(prompt),
                                    options=options_for(host, resume, account_home)):
                 if isinstance(msg, StreamEvent):
                     if msg.parent_tool_use_id:      # subagent internal stream — skip
@@ -647,9 +683,7 @@ async def run_prompt(host, seq, prompt, sessions, accounts):
 
     # Every account failed.
     log.error("host=%s seq=%s ALL accounts failed: %s", host, seq, str(last_err)[:120])
-    emit("[No Claude account on the brain is usable right now (" + str(last_err)[:60] +
-         "). Re-login one on the server: HOME=~/.reusable-agents/claude-pool/profile-1 "
-         "claude /login  — chat will recover automatically.]\n")
+    emit(all_failed_message(last_err))
     write_status(host, "")
 
 
