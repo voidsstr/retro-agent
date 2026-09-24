@@ -1299,7 +1299,13 @@ class CS16:
         return None     # GoldSrc takes any mode the driver lists
 
     def launch_bat(self, w, h, depth, env):
-        lines = ["@echo off"]
+        # MESA_FORCE_SSE=1: the AmigaMerlin ICD is Mesa-based and, at
+        # wglCreateContext, runs Mesa's SSE-exception probe - a deliberate
+        # divps by zero it expects its unhandled-exception filter to swallow.
+        # GoldSrc's own handler catches the trap first and shuts the engine
+        # down, so without this every GL launch on the V5 dies before the
+        # first frame (caught under ntsd on .124, 2026-09-23).
+        lines = ["@echo off", "set MESA_FORCE_SSE=1"]
         for k, v in env.items():
             lines.append(f"set {k}={v}")
         lines += [

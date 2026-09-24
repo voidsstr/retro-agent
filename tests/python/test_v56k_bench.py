@@ -798,6 +798,8 @@ def test_cs16_is_a_title_and_plays_its_demo_through_timedemo(bench):
     t = bench.TITLES["cs16"]()
     bat = t.launch_bat(1024, 768, 32, {})
     assert "+timedemo cs16_bench" in bat and "-gl" in bat and "-condebug" in bat
+    # the Mesa ICD's SSE-exception probe kills GoldSrc without this
+    assert bat.index("set MESA_FORCE_SSE=1") < bat.index("hl.exe")
     assert t.log.endswith(r"CounterStrike16\qconsole.log")    # CS ROOT, not cstrike\
 
 

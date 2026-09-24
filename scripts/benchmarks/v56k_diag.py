@@ -377,8 +377,6 @@ def main():
     return asyncio.run(main_async(ap.parse_args()))
 
 
-if __name__ == "__main__":
-    sys.exit(main())
 
 
 # Windows that BLOCK a benchmark and never go away on their own. Each one has
@@ -444,3 +442,7 @@ def refuse_if_owned(ip, force=False):
     if o and not force:
         raise SystemExit(f"{ip} is owned by a running benchmark (pid {o['pid']}, since {o['started']}, "
                          f"results in {o['outdir']}). Wait for it or pass --force.")
+
+
+if __name__ == "__main__":
+    sys.exit(main())
