@@ -122,22 +122,22 @@ def test_tribes2_is_checked_through_docker_not_systemd():
     assert "tribes2-server" not in unit_names
 
 
-def test_a_container_with_no_restart_policy_wont_survive_a_reboot():
+def test_a_container_with_no_restart_policy_wont_survive_a_reboot(monkeypatch):
     """restart=no is the docker equivalent of a disabled unit."""
     hd._run = lambda cmd, timeout=15: (0, "true no", "")
-    hd.shutil.which = lambda _x: "/usr/bin/docker"
+    monkeypatch.setattr(hd.shutil, "which", lambda _x: "/usr/bin/docker")
     assert hd.check_docker("c", "why")["state"] == "wont-survive-reboot"
 
 
-def test_a_stopped_container_is_down():
+def test_a_stopped_container_is_down(monkeypatch):
     hd._run = lambda cmd, timeout=15: (0, "false unless-stopped", "")
-    hd.shutil.which = lambda _x: "/usr/bin/docker"
+    monkeypatch.setattr(hd.shutil, "which", lambda _x: "/usr/bin/docker")
     assert hd.check_docker("c", "why")["state"] == "down"
 
 
-def test_a_running_container_with_a_restart_policy_is_ok():
+def test_a_running_container_with_a_restart_policy_is_ok(monkeypatch):
     hd._run = lambda cmd, timeout=15: (0, "true unless-stopped", "")
-    hd.shutil.which = lambda _x: "/usr/bin/docker"
+    monkeypatch.setattr(hd.shutil, "which", lambda _x: "/usr/bin/docker")
     assert hd.check_docker("c", "why")["state"] == "ok"
 
 
