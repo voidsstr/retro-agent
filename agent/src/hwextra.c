@@ -247,6 +247,77 @@ static int hx_count_instances(HKEY hdev, char *first, DWORD firstsz)
     return n;
 }
 
+/*
+ * The gate's `glide` capability: is there a 3dfx device that is PRESENT and has
+ * a driver installed? Both halves matter. A Voodoo with no driver cannot run
+ * Glide (.243 before 2026-09-24), and a card that was pulled leaves its Enum
+ * key - Driver value and all - behind, which is how .124 and .133 kept
+ * "having" Voodoos they no longer contained. Presence is asked of Config
+ * Manager (CM_Locate_DevNodeA without the PHANTOM flag finds live devnodes
+ * only); cfgmgr32 is loaded dynamically, never imported (Win9x load rule). If
+ * it cannot be asked, an installed driver alone counts - fail-open, like every
+ * other gate input.
+ */
+typedef DWORD (WINAPI *hx_locate_t)(DWORD *, const char *, ULONG);
+
+int hwextra_glide_installed(char *why, DWORD why_cch)
+{
+    static const char *const roots[] = {
+        "SYSTEM\\CurrentControlSet\\Enum\\PCI",   /* NT family */
+        "Enum\\PCI",                               /* Win95/98/ME */
+    };
+    HMODULE     cm = LoadLibraryA("cfgmgr32.dll");
+    hx_locate_t locate = cm ? (hx_locate_t)GetProcAddress(cm, "CM_Locate_DevNodeA") : NULL;
+    int r, found = 0;
+
+    if (why && why_cch) why[0] = 0;
+    for (r = 0; r < 2 && !found; r++) {
+        HKEY  hpci;
+        DWORD i;
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, roots[r], 0, KEY_READ, &hpci) != ERROR_SUCCESS)
+            continue;
+        for (i = 0; i < 512 && !found; i++) {
+            char  dkey[128], full[512];
+            DWORD cch = sizeof(dkey), k;
+            unsigned ven = 0, dev = 0;
+            HKEY  hdev;
+            if (RegEnumKeyExA(hpci, i, dkey, &cch, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+                break;
+            if (!hx_parse_ven_dev(dkey, &ven, &dev) || ven != VEN_3DFX)
+                continue;
+            _snprintf(full, sizeof(full) - 1, "%s\\%s", roots[r], dkey);
+            full[sizeof(full) - 1] = 0;
+            if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, full, 0, KEY_READ, &hdev) != ERROR_SUCCESS)
+                continue;
+            for (k = 0; k < 16 && !found; k++) {
+                char  inst[128], drv[128], id[300];
+                DWORD icch = sizeof(inst), dn = 0;
+                HKEY  hinst;
+                if (RegEnumKeyExA(hdev, k, inst, &icch, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+                    break;
+                if (RegOpenKeyExA(hdev, inst, 0, KEY_READ, &hinst) != ERROR_SUCCESS)
+                    continue;
+                drv[0] = 0;
+                hx_reg_str(hinst, "Driver", drv, sizeof(drv));
+                RegCloseKey(hinst);
+                if (!drv[0])
+                    continue;                       /* no driver installed */
+                _snprintf(id, sizeof(id) - 1, "PCI\\%s\\%s", dkey, inst);
+                id[sizeof(id) - 1] = 0;
+                if (locate && locate(&dn, id, 0) != 0)
+                    continue;                       /* not present: a leftover key */
+                found = 1;
+                if (why && why_cch)
+                    safe_strncpy(why, id, (int)why_cch);
+            }
+            RegCloseKey(hdev);
+        }
+        RegCloseKey(hpci);
+    }
+    if (cm) FreeLibrary(cm);
+    return found;
+}
+
 void hwextra_emit_accelerators(json_t *j)
 {
     HKEY  hpci;

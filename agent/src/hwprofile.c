@@ -833,6 +833,7 @@ typedef struct {
     char     os_sp[64];
     char     dx_version[64];
     char     mount_evidence[64];  /* which key proved the mounter exists */
+    char     glide_evidence[160]; /* the present, driver-bound 3dfx instance */
     hw_gpu_t gpu;
     int      screen_w, screen_h, screen_bpp;
     edid_panel_t panel;
@@ -906,6 +907,8 @@ static void hwprofile_collect(gg_profile_t *p, hw_extra_t *x)
                                 p->os_level);
 
     p->caps = caps_detect(x->mount_evidence, sizeof(x->mount_evidence));
+    if (hwextra_glide_installed(x->glide_evidence, sizeof(x->glide_evidence)))
+        p->caps |= GG_CAP_GLIDE;
 
     {
         HDC hdc = GetDC(NULL);
@@ -1132,6 +1135,8 @@ char *hwprofile_json(void)
     json_object_start(&j);
     json_kv_bool(&j, "disc_mount", (p.caps & GG_CAP_DISC_MOUNT) ? 1 : 0);
     json_kv_str(&j, "disc_mount_evidence", x.mount_evidence);
+    json_kv_bool(&j, "glide", (p.caps & GG_CAP_GLIDE) ? 1 : 0);
+    json_kv_str(&j, "glide_evidence", x.glide_evidence);
     json_kv_uint(&j, "bits", p.caps);
     json_object_end(&j);
 

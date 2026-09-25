@@ -496,6 +496,25 @@ TEST(capabilities_are_reported_not_folded_into_the_verdict)
     CHECK_EQ_U(r.req_caps, 0);
 
     /* And the remedy text exists, so the log line is a next step. */
+    /* glide (2026-09-24): the Voodoo GLQuake shortcut on .243 needs it, and a
+     * box without a present, driver-bound 3dfx card must not get that icon. */
+    CHECK_EQ_U(gg_capability_parse("glide"), GG_CAP_GLIDE);
+    CHECK(!strcmp(gg_capability_name(GG_CAP_GLIDE), "glide"), "glide name");
+    CHECK(strstr(gg_capability_remedy(GG_CAP_GLIDE), "Voodoo") != 0, "glide remedy");
+    {
+        gg_profile_t novoodoo, voodoo;
+        gg_req_t rq;
+        gg_decision_t dd;
+        memset(&novoodoo, 0, sizeof(novoodoo));
+        memset(&voodoo, 0, sizeof(voodoo));
+        voodoo.caps = GG_CAP_GLIDE;
+        gg_req_parse("{\"requires_capabilities\":[\"glide\"]}", &rq);
+        CHECK_EQ_U(rq.req_caps, GG_CAP_GLIDE);
+        gg_decide(&novoodoo, &rq, &dd);
+        CHECK_EQ_U(dd.missing_caps, GG_CAP_GLIDE);
+        gg_decide(&voodoo, &rq, &dd);
+        CHECK_EQ_U(dd.missing_caps, 0);
+    }
     CHECK(strstr(gg_capability_remedy(GG_CAP_DISC_MOUNT), "Daemon") != 0,
           "remedy must name the fix");
 }

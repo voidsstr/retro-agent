@@ -28,6 +28,10 @@ void hwextra_emit_video_cards(json_t *j);
  * with no driver bound to it. */
 void hwextra_emit_accelerators(json_t *j);
 
+/* 1 if a 3dfx device with an installed driver is PRESENT (a live devnode), with
+ * its Enum instance path in `why`. Used for the gate's `glide` capability. */
+int hwextra_glide_installed(char *why, DWORD why_cch);
+
 /* "network": the box's own addresses and MAC, so a record on the share can be
  * matched back to the machine that wrote it - a computer name is not an
  * identity. */

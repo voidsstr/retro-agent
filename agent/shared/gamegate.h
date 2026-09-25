@@ -112,6 +112,12 @@
  * box is fixed.
  */
 #define GG_CAP_DISC_MOUNT 0x0001u   /* a virtual disc/CD image mounter exists */
+/* A 3dfx Voodoo that is PRESENT and has its driver (Glide) installed. A
+ * capability, not a GPU level: on a Voodoo 2 box the active display adapter is
+ * the 2D card (.243's Cirrus, .171's Intel 865G), so feature levels cannot see
+ * it, and a missing driver is exactly the fixable kind of gap. Added for the
+ * Voodoo GLQuake shortcut on .243 (2026-09-24). */
+#define GG_CAP_GLIDE      0x0002u
 
 /* ------------------------------------------------------------------ */
 /* Verdicts                                                             */
@@ -476,6 +482,7 @@ GG_FN unsigned gg_capability_parse(const char *s)
 {
     if (!s || !*s)                 return 0;
     if (!strcmp(s, "disc_mount"))  return GG_CAP_DISC_MOUNT;
+    if (!strcmp(s, "glide"))       return GG_CAP_GLIDE;
     return 0;
 }
 
@@ -483,6 +490,7 @@ GG_FN const char *gg_capability_name(unsigned bit)
 {
     switch (bit) {
     case GG_CAP_DISC_MOUNT: return "disc_mount";
+    case GG_CAP_GLIDE:      return "glide";
     default:                return "?";
     }
 }
@@ -494,6 +502,8 @@ GG_FN const char *gg_capability_remedy(unsigned bit)
     switch (bit) {
     case GG_CAP_DISC_MOUNT:
         return "install a virtual disc mounter (Daemon Tools)";
+    case GG_CAP_GLIDE:
+        return "fit a 3dfx Voodoo card and install its driver (Glide)";
     default:
         return "unknown remedy";
     }

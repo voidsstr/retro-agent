@@ -92,7 +92,7 @@ the six titles you just staged are this shape.
 | `gpu_feature_level` | enum | `none` · `fixed` · `tnl` · `sm1.x` · `sm2.0` · `sm3.0`. **Ordered.** See below. |
 | `cpu_features` | string[] | `fpu` `mmx` `cmov` `sse` `sse2` `sse3` `ssse3` `sse4.1` `3dnow`. Instructions the binary *executes*, not ones it prefers. |
 | `min_os` / `max_os` | enum | `win9x` `win2k` `winxp` `vista` `win7` `win8` `win10`. Ordered. |
-| `requires_capabilities` | string[] | currently only `disc_mount`. See below. |
+| `requires_capabilities` | string[] | `disc_mount` or `glide`. See below. |
 | `shortcuts` | object | per-shortcut overrides, keyed by the **first column of `launch.txt`**. |
 
 Unknown keys are ignored. An unknown *enum value* reads as "no opinion" rather
@@ -227,6 +227,15 @@ imports**: a floor can live entirely in a DLL the launcher never mentions.
 
 A capability is something the box **lacks but can be given**. Right now there is
 one: `disc_mount`, a virtual disc/CD image mounter.
+
+**`glide`** (agent **1.84.0+**, 2026-09-24): a 3dfx Voodoo that is **present**
+(a live devnode, asked of Config Manager) **and has a driver installed**. It is a
+capability rather than a GPU level because a Voodoo 1/2 is an add-on beside a 2D
+card, so the active adapter the feature levels read is the Cirrus or Intel chip,
+and because a missing driver is exactly the fixable kind of gap. The presence
+check matters: a pulled card leaves its Enum key behind, Driver value and all.
+Agents older than 1.84.0 IGNORE an unknown capability (fail-open), so a
+`glide`-only shortcut must also refuse to start on a box without Glide.
 
 This matters more than it sounds. Ten already-staged titles now mount an image
 at launch — SystemShock2, Shogo, RedFaction, StarCraft, Descent2, Descent3,

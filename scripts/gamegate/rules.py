@@ -72,10 +72,12 @@ OS_LEVEL_NAME[OS_UNKNOWN] = "unknown"
 
 # ----------------------------------------------------------- Machine capabilities
 CAP_DISC_MOUNT = 0x0001
-CAPABILITIES = {"disc_mount": CAP_DISC_MOUNT}
+CAP_GLIDE = 0x0002          # a present 3dfx Voodoo with its driver installed
+CAPABILITIES = {"disc_mount": CAP_DISC_MOUNT, "glide": CAP_GLIDE}
 CAPABILITY_NAME = {v: k for k, v in CAPABILITIES.items()}
 CAPABILITY_REMEDY = {
     CAP_DISC_MOUNT: "install a virtual disc mounter (Daemon Tools)",
+    CAP_GLIDE: "fit a 3dfx Voodoo card and install its driver (Glide)",
 }
 
 # ----------------------------------------------------------------- Verdicts
