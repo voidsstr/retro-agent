@@ -423,18 +423,119 @@ def write_status(host, text):
         pass
 
 
+def _is_pool_shim(path):
+    """True for the claude-pool `claude` shim (a script that re-execs `claude`
+    under a profile IT picks)."""
+    try:
+        p = Path(path).resolve()
+        if POOL_ROOT.resolve() in p.parents:
+            return True
+        with open(p, "rb") as f:
+            return b"claude_pool" in f.read(4096)
+    except OSError:
+        return False
+
+
 def _find_cli():
-    """Locate the `claude` binary — PATH may be bare under systemctl --user."""
-    cli = shutil.which("claude")
-    if cli:
-        return cli
+    """Locate the REAL `claude` binary — never the claude-pool shim.
+
+    The brain does its own account management (AccountManager pins HOME per
+    machine). A user-wide systemd drop-in puts the pool shim first on PATH, and
+    the shim then re-picked a profile on EVERY prompt: a conversation saved
+    under profile-3 was resumed under profile-2 ("No conversation found with
+    session ID"), and with HOME already pointed at a profile the shim found no
+    pool at all ("No authenticated profiles", exit 70) - so every follow-up
+    prompt from a machine failed on every account (2026-09-25, .184)."""
+    explicit = os.environ.get("CLAUDE_POOL_REAL_CLAUDE")
+    if explicit and Path(explicit).exists():
+        return explicit
+    for d in (os.environ.get("PATH") or "").split(os.pathsep):
+        cand = Path(d or ".") / "claude"
+        if cand.is_file() and os.access(cand, os.X_OK) and not _is_pool_shim(cand):
+            return str(cand)
     for cand in (Path.home() / ".local/bin/claude", Path("/usr/local/bin/claude")):
-        if cand.exists():
+        if cand.exists() and not _is_pool_shim(cand):
             return str(cand)
     return None
 
 
 _CLI_PATH = _find_cli()
+
+
+SESSIONS_FILE = Path(os.environ.get(
+    "RETRO_BRAIN_SESSIONS", str(Path.home() / ".retro-fleet" / "brain-sessions.json")))
+
+
+def _claude_home(account_home):
+    return Path(account_home) if account_home else Path.home()
+
+
+def portable_resume(sid, account_home, homes):
+    """Make session `sid` resumable under `account_home`, or return None.
+
+    A transcript lives in the HOME of the account that wrote it
+    (<home>/.claude/projects/<cwd-slug>/<sid>.jsonl). If a machine's next prompt
+    runs on a different account (failover, a brain restart, a pool re-pick),
+    `--resume` there fails with "No conversation found". Copy the transcript
+    across instead of losing the conversation; if it exists nowhere, start
+    fresh rather than failing the prompt."""
+    if not sid:
+        return None
+    name = f"{sid}.jsonl"
+    target_root = _claude_home(account_home) / ".claude" / "projects"
+    if any(target_root.glob(f"*/{name}")):
+        return sid
+    for h in [None] + [x for x in homes if x]:
+        root = _claude_home(h) / ".claude" / "projects"
+        if root == target_root:
+            continue
+        for src in root.glob(f"*/{name}"):
+            try:
+                dst = target_root / src.parent.name / name
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dst)
+                log.info("session %s copied %s -> %s", sid[:8], root, target_root)
+                return sid
+            except OSError as e:
+                log.warning("session %s copy failed (%s)", sid[:8], e)
+    log.warning("session %s not found in any account home - starting fresh", sid[:8])
+    return None
+
+
+class SessionStore(dict):
+    """(host, account_home) -> session id, persisted across brain restarts.
+
+    A lookup for an account that has never served this host falls back to the
+    host's most recent session, so the conversation follows the machine across
+    account failover (portable_resume moves the transcript)."""
+
+    def __init__(self, path=SESSIONS_FILE):
+        super().__init__()
+        self.path = Path(path)
+        self.latest = {}
+        try:
+            self.latest = dict(json.loads(self.path.read_text()))
+        except (OSError, ValueError, TypeError):
+            pass
+
+    def get(self, key, default=None):
+        if key in self:
+            return dict.__getitem__(self, key)
+        host = key[0] if isinstance(key, tuple) else key
+        return self.latest.get(host, default)
+
+    def __setitem__(self, key, sid):
+        dict.__setitem__(self, key, sid)
+        host = key[0] if isinstance(key, tuple) else key
+        self.latest[host] = sid
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self.path.with_suffix(".tmp")
+            body = json.dumps(self.latest, indent=1)
+            tmp.write_text(body)
+            os.replace(tmp, self.path)
+        except OSError as e:
+            log.warning("could not persist sessions (%s)", e)
 
 
 def options_for(host, resume, account_home=None):
@@ -577,7 +678,8 @@ async def run_prompt(host, seq, prompt, sessions, accounts):
         """Run the query on one account. Returns a state dict. `authed` is True
         once ANY assistant activity (text/thinking/tool) arrives — i.e. the CLI
         got past authentication. Auth/login failures never set it."""
-        resume = sessions.get((host, account_home))
+        resume = portable_resume(sessions.get((host, account_home)),
+                                 account_home, accounts.homes)
         st = {"authed": False, "text": False, "think": "", "shown": 0,
               "sid": resume, "err": None, "result": None}
         try:
@@ -715,10 +817,11 @@ async def main():
         MODEL, EFFORT, len(accounts.homes),
         ", ".join(accounts.label(h) for h in accounts.homes),
     )
+    log.info("claude cli: %s", _CLI_PATH)
     asyncio.create_task(heartbeat_loop())
     asyncio.create_task(account_refresh_loop(accounts))
 
-    sessions = {}          # (host, account_home) -> Agent SDK session_id
+    sessions = SessionStore()  # (host, account_home) -> Agent SDK session_id
     host_queues = {}       # host -> asyncio.Queue of (seq, prompt)
     host_tasks = {}        # host -> worker Task
 
