@@ -559,12 +559,26 @@ Queued work means "run when the box next appears", not "run forever" — and use
 `RESTART`, never `QUIT`.
 
 **Win9x agents are single-threaded (multiplex mode)** — one thread serves every
-client. Long-polls are therefore clamped to 1s there (`g_longpoll_max_ms`);
-without that, the local chat client's 30s `LOG_WAIT`/`STATUS_WAIT` starved every
-other client and the box was unreachable from the network while happily serving
-localhost. If a 9x box "accepts but never answers", suspect starvation, and get
-its log via `retro_agent.exe -l <path on the share>` rather than inferring from
-port behaviour.
+client. A long-poll must never BLOCK there: the local chat client's 30s
+`LOG_WAIT`/`STATUS_WAIT` once starved every other client and the box was
+unreachable from the network while happily serving localhost. The 1s clamp
+(`g_longpoll_max_ms`) that fixed that still serialised pollers into 1s stalls,
+so since agent **1.85.0** multiplex long-polls are **PARKED** in the client slot
+and answered by the select loop (`agent/src/chatproxy.h`) — the DOS agent's
+model. Every in-frame `recv`/`send` is also bounded by `select()` (30s/60s), so
+a peer that vanishes mid-frame can no longer freeze the agent. If a 9x box
+"accepts but never answers", suspect starvation, and get its log via
+`retro_agent.exe -l <path on the share>` rather than inferring from port
+behaviour.
+
+**Chat bus semantics (agent 1.85.0, shared engine `agent/shared/chatcore.c`):**
+log offsets on the wire are **absolute** (a ring truncation no longer sends a
+reader back to 0); a prompt taken by `PROMPT_WAIT` stays **in flight** until
+that connection's next command and is put back if it drops first;
+**`LOG_APPEND2 <id> <text>`** is the idempotent append (`OK dup` on a resend;
+an older agent answers `Unknown command`, which is the sender's cue to fall
+back to `LOG_APPEND`); chat text is passed **verbatim** after one space; and
+`PROMPT_PUSH` answers `OK`, `OK replaced` and/or `OK no-listener <n>s`.
 
 **Shared code lives in `agent/shared/`** — `frameproto.h` (wire constants, also
 included by `src/protocol.h`), `chatcore.[ch]` (prompt slot / log ring / status

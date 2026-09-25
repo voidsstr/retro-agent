@@ -33,6 +33,13 @@ retro-agent/tests/
                           catalog generation, .PRV preview-tile format
     test_doschat_shared.py         DOSCHAT (DOS agent+chat): shared-module invariants +
                           DOS memory limits (mTCP 64K socket malloc, DGROUP, cfg rebuild dep)
+    test_chat_text_verbatim.py     agent 1.85.0: chat text (LOG_APPEND/2, PROMPT_PUSH,
+                          STATUS_SET) passes after ONE space, verbatim - the splitter is
+                          compiled out of handlers.c and run; LOG_APPEND2 registered
+    test_retro_chat_resilience.py  retro-chat 0.16.0: bounded replies + prompt retry, one-send
+                          frames + TCP_NODELAY, absolute log offsets, push notices,
+                          one-char echo, event-parked spinner (frame I/O run against
+                          native/stubs/netfake_env.h)
     test_agent_version.py          agent/Makefile's git-tag-derived VERSION must not be
                           older than the newest version claimed in agent/ commits
     test_dosgame_stem.py           DOSGAME install-directory stem: uniqueness across the real
@@ -52,6 +59,16 @@ retro-agent/tests/
     test_icd_exit_shutdown.c  MesaFX ICD 0.1.62: grGlideShutdown at process exit, kept across vid_restart (fxapi.c)
     test_chatcore.c       TRUE-SOURCE: agent/shared/chatcore.c — the chat-proxy state
                           engine shared by the Windows agent and the DOS DOSCHAT build
+                          (absolute log offsets, prompt take/ack/requeue, LOG_APPEND2
+                          dedupe, PROMPT_PUSH reply)
+    test_chatproxy.c      TRUE-SOURCE: agent/src/chatproxy.c against a fake single-
+                          threaded Win32/Winsock (stubs/netfake_env.h): long-polls
+                          cannot spin or miss a wake-up, multiplex parking, prompts
+                          survive a dead connection, ring truncation, LOG_APPEND2
+    test_protocol_stall.c TRUE-SOURCE: agent/src/protocol.c against the same fake: no
+                          recv/send waits forever mid-frame; small replies are one send
+    stubs/netfake_env.h   fake Win32 events/ticks + Winsock sockets/select: counts waits
+                          (a spinner aborts the test) and recvs that would never return
     test_dosstage.c       TRUE-SOURCE: agent/src/dosstage.c against a fake Win32
                           (stubs/dosstage_env.h) — OS gate (never stage on NT),
                           idempotence, ordering/pacing, registry switches
@@ -203,6 +220,15 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | **agent 1.85.0: RESTART brings a Win9x agent back** (2026-09-24) — the relaunch batch said `start "" "<exe>"`, which is cmd.exe syntax; Win98's START.EXE takes the `""` as the program, so RESTART left .243 with networking up and no agent. On 9x it now writes `start <8.3 path>`, the form the auto-update batch has proven there | `python/test_doschat_shared.py` |
 | **agent 1.85.0: a clock that is YEARS wrong is set from the NAS** (2026-09-24) — .243's dead CMOS battery booted it into 1980 at every power-on, so its log, its published hardware record (`stale` forever in the inventory) and every file it wrote carried 1980. At startup, only when the year reads < 2024, the agent takes the NAS's HTTP `Date:` and sets UTC; `ClockFixed` records what changed. The parser refuses anything but exact RFC 1123 | `native/test_httpdate.c`, `python/test_hostpolicy.py` |
 | **agent 1.85.0: auto-update actually updates a Win9x box** (2026-09-25) — .243 downloaded 1.84.3, "shut down for the swap" and was back on 1.84.2 in 4 s: the swap batch trusted COPY's ERRORLEVEL, which COMMAND.COM never sets, so a copy onto the still-locked exe read as success. On 9x it now renames and checks `if exist`. The chat client never updated on 9x either: Toolhelp reports a full path there, so the kill never matched and CopyFile hit error 32. AGENTRUN.BAT (the boot-time updater) deletes a stale `share.ver` before re-copying it, retries the share for ~30 s, and uses the long quoted share name (Samba's 8.3 alias is a hash, not `RETRO_~1`) | `python/test_autoupdate_win9x_swap.py` (compiles the real batch builder and runs its output in a COMMAND.COM model), `python/test_dosstage_and_batch.py` |
+| **agent 1.85.0 chat path 1: STATUS_WAIT spun the CPU for up to 30 s on XP** (review 2026-09-24) — `g_status_event` was manual-reset and only the slow path reset it, so after any fast-path answer every later wait "woke" at once, saw no change and looped until its deadline at HIGH priority. The long-polls now wait on one-shot GENERATION events (joined under the lock that checked the condition, never reset): no spin, no missed wake-up, every waiter woken | `native/test_chatproxy.c` (the old chatproxy.c aborts its spin guard at 5001 waits) |
+| **agent 1.85.0 chat path 2: Win9x long-polls PARK instead of blocking** — in multiplex mode a long-poll blocked the one thread on an event only that same thread could set, so pollers serialised into ~1 s sleeps and every command queued behind them. Parked in the client slot {kind, arg, deadline}, answered after each command and select pass, select bounded by the nearest deadline; the 1 s clamp now only guards a blocking fallback | `native/test_chatproxy.c`, `python/test_doschat_shared.py` (`test_multiplex_longpolls_park_instead_of_blocking`) |
+| **agent 1.85.0 chat path 3: no recv/send waits forever mid-frame** — on Win9x (no SO_RCVTIMEO) a peer that vanished part-way through a frame froze the whole agent. select() precedes every in-frame recv (30 s) and send (60 s, 8 KB chunks); per call, so a slow transfer is never cut off; UPLOAD's payload frame must start within 30 s | `native/test_protocol_stall.c` |
+| **agent 1.85.0 chat path 4: a prompt is not lost to a dead connection** — PROMPT_WAIT popped the prompt and "sent" it into a half-open socket. A waiter now checks its peer first (select + MSG_PEEK) and leaves the prompt; a taken prompt stays in flight until that connection's next command and is put back if it drops first (unless a newer prompt was pushed) | `native/test_chatcore.c`, `native/test_chatproxy.c`, `python/test_doschat_shared.py` |
+| **agent 1.85.0 chat path 5: log offsets are ABSOLUTE** — the ring's drop-oldest-half shrank the total under readers: retro_chat reset to 0 and reprinted up to 128 KB, the DOS UI printed nothing. `log_base` now advances by what a drop discards; behind-base readers resume at the base; past-the-end means cleared. An old retro_chat is fixed by a new agent unchanged (its offset += bytes equals the absolute position) | `native/test_chatcore.c`, `native/test_chatproxy.c` (`ring_truncation_does_not_send_a_reader_back_to_zero`), `python/test_retro_chat_resilience.py` |
+| **agent 1.85.0 chat path 6: LOG_APPEND2 `<id> <text>` + chat text verbatim** — the daemon's resend after a timeout duplicated reply text; LOG_APPEND2 remembers the last 16 chunk ids and answers `OK dup`. And the dispatcher's space-trim glued words across chunks and flattened indentation: LOG_APPEND/2, PROMPT_PUSH and STATUS_SET take everything after exactly one space | `native/test_chatproxy.c`, `python/test_chat_text_verbatim.py` |
+| **retro-chat 0.16.0: a wedged agent cannot freeze the chat** (chat path 8/9) — replies are bounded (poll + 10 s, 15 s for a push, 10 s AUTH); an undelivered prompt is retried for 30 s, then `[prompt NOT delivered - agent unreachable]` and the spinner stops. Frames go out as ONE send with TCP_NODELAY (the two-send frames with Nagle cost up to ~200 ms per poll); the agent coalesces its replies the same way | `python/test_retro_chat_resilience.py`, `native/test_protocol_stall.c` |
+| **agent 1.85.0 / retro-chat 0.16.0 chat path 10: PROMPT_PUSH says `OK replaced` / `OK no-listener <n>s`** — an unpicked prompt was silently overwritten and nothing said nobody was polling; the reply still starts `OK` for old clients, and the chat shows a one-line notice | `native/test_chatcore.c`, `native/test_chatproxy.c`, `python/test_retro_chat_resilience.py` |
+| **retro-chat 0.16.0: typing is cheap on Win9x** (CPU review 2026-09-24) — every key was a full erase + redraw (~12 console calls through the 16-bit console); appending at the end of the line now writes one character, and the idle spinner sleeps on an event instead of waking 4x a second forever | `python/test_retro_chat_resilience.py` |
 | agent 1.26.0 batched logging: unbuffered startup, flush on every exit path | agent log.c / main.c | `python/test_agent_log_and_reboot.py` |
 | DOS net bring-up: guarded drivers, PKT.OK written, CHAT auto-calls NETUP | DOS lane (NETUP/PLAY/CHAT.BAT) | `python/test_dosgame_install_detect.py` |
 | **0.2 a game you PLAYED is not where the next install went (Duke 3D)** (2026-08-13) | DOS lane (dosgame.c) | `scripts/dosgames/tests/run_dos_tests.sh` |
