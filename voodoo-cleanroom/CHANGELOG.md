@@ -12,6 +12,25 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.65 — the activation pump is bounded: ioquake3 runs on the system ICD (2026-09-24)
+
+`wglCreateContext` pumps the thread's messages before Glide takes the board (the
+idTech2 `ref_gl` activation deadlock fix). Its inner loop was
+`while (PeekMessage(...)) DispatchMessage(...)` with **no bound** — and `WM_PAINT`
+is not a queued message: Windows synthesises it for as long as the window has an
+update region. Loaded as the **system ICD**, Microsoft's `opengl32` subclasses
+the window as well, and under SDL (ioquake3) the region never cleared: the game
+sat inside `wglCreateContext` forever. Caught with `ntsd` on `.124`, twice:
+`DispatchMessageA(WM_PAINT)` → `__wglMonitor` → `opengl32` hook → SDL's WndProc →
+`EndPaint`.
+
+Now `WM_PAINT` is validated instead of dispatched (the game repaints every frame
+anyway), the pump dispatches at most 256 messages, a `WM_QUIT` is handed back with
+`PostQuitMessage`, and `retrogl.log` records what the pump did. Verified on the
+V5 6000: ioquake3 creates its 1024×768 context and runs; Quake II's staged
+launcher (the case the pump exists for) still does.
+Test: `tests/python/test_cleanroom_activation_pump.py`. 2,764,902 B.
+
 ## 0.1.64 — fullscreen refresh is the monitor's best again (I1; the lost 0.1.34, re-implemented) (2026-09-24)
 
 `fxMesaCreateBestContext` passed `GR_REFRESH_60Hz` to every fullscreen game —

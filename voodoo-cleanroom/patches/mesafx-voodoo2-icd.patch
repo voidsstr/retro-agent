@@ -43,7 +43,7 @@ index a6c0ab5..eb79114 100644
  else
  ifeq ($(ICD),1)
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..575002b 100644
+index 350f075..e1cf394 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
 @@ -83,13 +83,32 @@ static GrHwConfiguration glbHWConfig;
@@ -164,7 +164,7 @@ index 350f075..575002b 100644
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.64]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.65]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
@@ -665,10 +665,54 @@ index f8a6db0..6cb456a 100644
  
  
 diff --git a/src/mesa/drivers/glide/fxwgl.c b/src/mesa/drivers/glide/fxwgl.c
-index 6ad6fc9..ffb7d13 100644
+index 6ad6fc9..168acb3 100644
 --- a/src/mesa/drivers/glide/fxwgl.c
 +++ b/src/mesa/drivers/glide/fxwgl.c
-@@ -660,10 +660,54 @@ wglGetExtensionsStringARB (HDC hdc)
+@@ -387,12 +387,38 @@ wglCreateContext(HDC hdc)
+       * the game thread enters grSstWinOpen without pumping, it deadlocks. Q3's
+       * window is already settled, which is why it never hit this. Pump so the
+       * WM_ACTIVATE/WM_SETFOCUS get dispatched and the window is truly active. */
+-     for (pumpI = 0; pumpI < 40; pumpI++) {
+-        while (PeekMessage(&pumpMsg, NULL, 0, 0, PM_REMOVE)) {
+-           TranslateMessage(&pumpMsg);
+-           DispatchMessage(&pumpMsg);
++     /* [retro3dfx 0.1.65] The inner loop was unbounded, and WM_PAINT is not a
++      * queued message: Windows synthesises it for as long as the window has an
++      * update region. Loaded as the SYSTEM ICD, Microsoft's opengl32 subclasses
++      * the window too, and under SDL (ioquake3) the region never cleared - the
++      * thread sat in this loop forever inside wglCreateContext (ntsd on .124,
++      * 2026-09-24: DispatchMessageA(WM_PAINT) -> __wglMonitor -> opengl32 hook
++      * -> SDL WndProc -> EndPaint, every time). The pump exists only to let the
++      * ACTIVATION messages through (idTech2 ref_gl deadlock, see above), so:
++      * validate WM_PAINT instead of dispatching it (the game repaints every
++      * frame anyway), cap the total, and never swallow a WM_QUIT. */
++     {
++        int dispatched = 0, painted = 0, quit = 0;
++        for (pumpI = 0; pumpI < 40 && dispatched < 256 && !quit; pumpI++) {
++           while (dispatched < 256 && PeekMessage(&pumpMsg, NULL, 0, 0, PM_REMOVE)) {
++              if (pumpMsg.message == WM_QUIT) {
++                 PostQuitMessage((int) pumpMsg.wParam);   /* hand it back */
++                 quit = 1;
++                 break;
++              }
++              if (pumpMsg.message == WM_PAINT) {
++                 ValidateRect(pumpMsg.hwnd, NULL);
++                 painted++;
++                 continue;
++              }
++              TranslateMessage(&pumpMsg);
++              DispatchMessage(&pumpMsg);
++              dispatched++;
++           }
++           Sleep(5);
+         }
+-        Sleep(5);
++        rgl_log("wglCreateContext: activation pump dispatched=%d paints-validated=%d quit=%d",
++                dispatched, painted, quit);
+      }
+         GetClientRect(hWnd, &cliRect);
+         rgl_log("wglCreateContext: hWnd=%p GetClientRect=%ldx%ld curPFD=%d "
+@@ -660,10 +686,54 @@ wglGetExtensionsStringARB (HDC hdc)
   return wglGetExtensionsStringEXT();
  }
  
@@ -723,7 +767,7 @@ index 6ad6fc9..ffb7d13 100644
         {"wglGetExtensionsStringARB",    (PROC)wglGetExtensionsStringARB},
         {"wglGetExtensionsStringEXT",    (PROC)wglGetExtensionsStringEXT},
         {"wglSwapIntervalEXT",           (PROC)wglSwapIntervalEXT},
-@@ -693,18 +737,29 @@ wglGetProcAddress(LPCSTR lpszProc)
+@@ -693,18 +763,29 @@ wglGetProcAddress(LPCSTR lpszProc)
     int i;
     PROC p;
     rgl_first_entry("wglGetProcAddress");

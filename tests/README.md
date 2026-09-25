@@ -164,6 +164,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | **favourites slot numbering, verified in each game's own browser on .133/.143: Q2 `adr0..adr8` (0-based), Q3 `server1..server16` (1-based), GoldSrc's four VDF keys** (2026-08-30) | `scripts/gameindex/favorites.py` | `python/test_gameindex_favorites.py` |
 | 0.1.2 SSE float→ubyte color clamp (`fx_pack_ub`) | MesaFX ICD | `native/test_fx_pack_ub.c` |
 | h5 Glide H1–H7 (TLS accessor, grGetString guard, board/slave-reg map guards, SLI/AA result, XP escape, FX_GLIDE_BPP) — fork `839143c` | Glide h5 | `python/test_h5_glide_fixes.py` |
+| 0.1.65 `wglCreateContext`'s activation pump is bounded and never dispatches WM_PAINT (ioquake3 hung forever on the system ICD) | MesaFX ICD | `python/test_cleanroom_activation_pump.py` |
 | 0.1.64 fullscreen refresh = the monitor's best, re-implemented in SOURCE (`fxBestRefresh`, bug I1) | MesaFX ICD | `python/test_cleanroom_refresh_source.py` + `native/test_fx_best_refresh.c` |
 | 0.1.63 the ICD is also a Microsoft ICD: 17 `Drv*` exports + the 336-entry dispatch table (`fxicd.c`) | MesaFX ICD | `python/test_cleanroom_icd_frontend.py` |
 | 0.1.62 Glide is shut down at process exit, still kept alive across `vid_restart` (`cleangraphics`/`fxCloseHardware`) | MesaFX ICD | `native/test_icd_exit_shutdown.c` |
