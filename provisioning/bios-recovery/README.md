@@ -147,3 +147,63 @@ from.
 **If you are flashing this board, run `bash build.sh` and write `recovery.img`.
 Do not assemble a flash floppy by hand.** `scripts/fleet/rawfloppy/` is a
 general-purpose image writer and says so; it no longer carries a flash recipe.
+
+## 2026-09-25: awdflash hangs at "Programming Flash Memory" with `/sb` too
+
+The `/sb` build above was written to a fresh floppy, read-back-verified, and it
+**hung in the same place as the ad-hoc 8.24F disk**. So the missing `/sb` was
+not the cause of the first hang; it remains the right switch, and it is now the
+reason a second attempt is still possible, but it did not fix anything.
+
+**That the operator can READ "Programming Flash Memory" is itself a finding.**
+A blind bootblock recovery has no video at all - the whole disk is built around
+nobody being able to see the screen. If awdflash's UI is on the monitor then
+the main BIOS is initialising the graphics card, the board POSTs, and this is
+an ordinary flash that will not write, not a bootblock rescue. Those are
+different problems with different next steps, and the recovery README's
+framing (`no video at all`, 2026-09-13) no longer matches what the machine is
+doing.
+
+### Check the BIOS's own write protection before flashing again
+
+EPoX's nForce2 Award BIOS carries a **Flash BIOS Protection** item. With it
+enabled the chipset refuses the write and the flasher sits there - which is
+exactly the observed symptom. If the board reaches setup (Del at POST), that
+is a thirty-second check and costs nothing. Award's `Virus Warning` guards
+boot sectors rather than the flash part, but turn it off in the same visit.
+
+### `frdiag.img` - a flasher that REPORTS
+
+awdflash has no verbose mode and no log, so a hang there yields exactly one
+fact: it hung. `build-flashrom-diag.sh` builds a second floppy carrying
+**flashrom 1.2 (DOS/DJGPP, + CWSDPMI)**, which names the chipset it enabled and
+the flash part it identified, and writes the whole verbose log **to the floppy**
+- so the answer survives even if nobody can read the screen.
+
+    bash build-flashrom-diag.sh          # -> frdiag.img
+
+Booting it **writes nothing**: two probes, the second with
+`laptop=this_is_not_a_laptop` because flashrom disables buses when DMI does not
+convince it the machine is a desktop. The write is on the same disk and is
+**never automatic** - a human who has seen the chip get identified types
+`FLASH`. One trip to the machine, with the decision still made by somebody
+looking at evidence.
+
+flashrom was chosen on three checks against the binary itself, all enforced by
+the build script: it knows `NForce2`, it knows `SST49LF020`/`49LF020A`, and it
+has `-o <logfile>`. FreeDOS COMMAND.COM has no `2>&1`, so a tool that logs only
+to stderr would have come back with nothing.
+
+**Proven in QEMU before it goes near the board** (i440FX, so it correctly finds
+no supported chipset and reports `No EEPROM/flash device found` - the disk
+boots, the DPMI extender loads, flashrom runs, and both logs land on the
+floppy). What it says on the real board is the measurement we are after:
+
+| the log says | what it means |
+|---|---|
+| `Found chipset "NVIDIA nForce2"` + `Found ... flash chip` | the write path is live; awdflash was the problem, and `FLASH` can run |
+| chipset found, **no** flash chip | the part is not answering JEDEC ID - dead chip, or writes/reads blocked at the chipset |
+| no chipset found | flashrom cannot drive this board either; the remaining route is a CH341A programmer or a hot-flash |
+
+Note the second probe takes a few **minutes** - it sweeps every chip flashrom
+knows. That is not a hang.
