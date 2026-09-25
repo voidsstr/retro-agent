@@ -1,141 +1,107 @@
 """The chat daemon's shared send connection must only be touched under its lock.
 
-Each `HostState` has one `send_conn` shared by several coroutines: the response
-forwarder, the status forwarder, the deferred-task drainer and the connect
-banner. `state.lock` exists to serialise them. It was only ever half applied,
-and the gaps produced errors that looked like flaky hardware:
+Each `HostState` has one `send_conn` shared by several coroutines: the host's
+sender (answer text and status), the deferred-task drainer, the keepalive and
+the connect banner. `state.lock` exists to serialise them. It was only ever
+half applied, and the gaps produced errors that looked like flaky hardware:
 
     [192.168.1.143] STATUS_SET failed: 0 bytes read on a total of 4 expected
     [192.168.1.143] send attempt 1/3 failed: readexactly() called while
                     another coroutine is already waiting for incoming data
     [192.168.1.143] STATUS_SET failed: Connection lost
 
-Two distinct gaps, both real:
+Two distinct gaps, both real (2026-08-28):
 
   * **`ensure_send_conn()` outside the lock.** It check-and-creates
-    `state.send_conn` and reads the agent's greeting, so unlocked it can
-    replace the connection another coroutine is mid-read on. The resulting
-    failure fires *after* the `LOG_APPEND` has gone out, so the retry loop
-    delivers the user's answer a second time.
-  * **Tearing the connection down outside the lock.** The error handlers did
-    `close()` then `send_conn = None` unlocked — destroying a connection
-    another coroutine was actively reading from.
+    `state.send_conn` and reads the agent's greeting, so unlocked it could
+    replace the connection another coroutine was mid-read on. The failure
+    fired *after* the `LOG_APPEND` had gone out, so the retry delivered the
+    user's answer a second time.
+  * **Tearing the connection down outside the lock.**
 
-Rather than test the interleavings (which are timing-dependent and would be
-flaky), this asserts the *invariant that prevents them*: every use of
-`state.send_conn` sits inside an open `async with state.lock`.
+This file used to assert the invariant by indentation-scanning the source.
+Since the 2026-09 rework every command on the send connection goes through
+ONE function, `_send_cmd`, which refuses to run unless `state.lock` is held —
+so the invariant is enforced at run time, and tested here by behaviour:
+hammering one host with concurrent answer text, statuses, queued tasks and
+keepalives, and checking the box saw every byte exactly once with no
+concurrent-reader error.
 
-The daemon is server-side and lives in the sibling `nsc-assistant` repo.
-
-Run: pytest tests/python/test_chat_daemon_conn_safety.py
+Run: NSC_ASSISTANT_DIR=<nsc worktree> pytest tests/python/test_chat_daemon_conn_safety.py
 """
 
-from pathlib import Path
+import asyncio
+import logging
+import re
 
 import pytest
 
-_DAEMON = Path.home() / "development" / "nsc-assistant" / \
-    "agent" / "tools" / "retro_chat_daemon.py"
+from chat_fake_agent import (DAEMON, FakeAgent, load_daemon, point_at,
+                             wait_until, write_outbox, write_status)
 
-needs_daemon = pytest.mark.skipif(
-    not _DAEMON.is_file(),
-    reason=f"chat daemon not checked out at {_DAEMON}")
+pytestmark = pytest.mark.skipif(not DAEMON.is_file(),
+                                reason=f"chat daemon not checked out at {DAEMON}")
 
-
-def _unlocked_uses():
-    """Lines touching state.send_conn with no `async with state.lock` open.
-
-    Indentation-based, which is enough here: the daemon is ordinary async
-    Python and the lock is always taken with a plain `async with`.
-    """
-    lines = _DAEMON.read_text().splitlines()
-    depth = None
-    unlocked = []
-    for n, line in enumerate(lines, 1):
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-        if "async with state.lock" in stripped:
-            depth = len(line) - len(line.lstrip())
-            continue
-        if depth is not None:
-            indent = len(line) - len(line.lstrip())
-            if indent <= depth:
-                depth = None
-        touches = ("state.send_conn" in stripped
-                   or "ensure_send_conn(" in stripped)
-        if touches and "async def" not in stripped and depth is None:
-            unlocked.append((n, stripped))
-    return unlocked
+A = "192.168.1.231"
 
 
-@needs_daemon
-def test_every_send_conn_use_is_under_the_lock():
-    """The one exception is the last-resort `state.send_conn = None` in the
-    handler that runs when taking the lock ITSELF failed — the connection has
-    to be dropped either way, or a dead one is reused forever."""
-    offenders = [
-        (n, text) for n, text in _unlocked_uses()
-        if text != "state.send_conn = None"
-    ]
-    assert not offenders, (
-        "state.send_conn touched outside state.lock:\n" +
-        "\n".join(f"  line {n}: {t}" for n, t in offenders))
+def run(coro):
+    return asyncio.run(asyncio.wait_for(coro, 30))
 
 
-@needs_daemon
-def test_the_only_unlocked_uses_are_the_lock_failure_fallbacks():
-    """Pin the exemption so it cannot quietly widen: every remaining unlocked
-    line must be the bare reset, and each must sit in an `except` block."""
-    src = _DAEMON.read_text().splitlines()
-    for n, text in _unlocked_uses():
-        assert text == "state.send_conn = None", f"line {n}: {text}"
-        preceding = "\n".join(src[max(0, n - 4):n - 1])
-        assert "except" in preceding, (
-            f"line {n} resets the connection unlocked outside an except block")
+def test_send_cmd_refuses_to_run_without_the_lock(tmp_path):
+    async def go():
+        mod = load_daemon(tmp_path)
+        st = mod.HostState(A)
+        with pytest.raises(RuntimeError, match="without state.lock"):
+            await mod._send_cmd(st, "PING", 1)
+
+    run(go())
 
 
-@needs_daemon
-def test_ensure_send_conn_is_never_called_unlocked():
-    """This is the one that duplicated a user's answer: the failure it causes
-    fires after the LOG_APPEND has already gone out, so the retry re-sends."""
-    bad = [(n, t) for n, t in _unlocked_uses() if "ensure_send_conn(" in t]
-    assert not bad, f"ensure_send_conn() called unlocked: {bad}"
+def test_nothing_talks_to_the_send_connection_except_send_cmd():
+    """The runtime guard only protects what goes through _send_cmd."""
+    src = DAEMON.read_text()
+    direct = [m.group(0) for m in re.finditer(r"send_conn\.(send_command|command_text|"
+                                               r"command_binary|_send_frame)\(", src)]
+    assert not direct, f"send_conn used directly, bypassing the lock guard: {direct}"
+    body = src[src.index("async def _send_cmd("):]
+    body = body[:body.index("\nasync def ", 10)]
+    assert "state.lock.locked()" in body
 
 
-@needs_daemon
-def test_teardown_closes_and_nulls_together():
-    """A handler that closes without nulling leaves a dead connection in
-    place; one that nulls without closing leaks the socket."""
-    src = _DAEMON.read_text()
-    assert src.count("await state.send_conn.close()") == \
-        src.count("if state.send_conn:"), \
-        "close() and the None-guard have drifted apart"
+def test_concurrent_senders_share_one_connection_safely(tmp_path, caplog):
+    caplog.set_level(logging.WARNING)
 
+    async def go():
+        mod = load_daemon(tmp_path)
+        mod.KEEPALIVE_IDLE_S = 0.0                 # keepalive fires every time it can
+        agent = await FakeAgent(append2=True, poll_ms=50).start()
+        point_at(mod, {A: agent})
+        st = mod.add_host(A)
+        assert await wait_until(lambda: st.send_conn is not None, 3)
+        want = ""
+        for i in range(40):
+            line = f"line {i:02d}\n"
+            want += line
+            write_outbox(mod, A, 1, line)
+            write_status(mod, A, f"step {i}")
+            if i % 10 == 0:
+                mod.enqueue_task(A, [f"EXEC task {i}"], f"t{i}")
+            mod.dispatch_queues()
+            await asyncio.gather(*(mod.keepalive_send_conn(st) for _ in range(3)),
+                                 mod.deliver_status(st))
+            mod._kick_task_drain(st)
+            await asyncio.sleep(0)
+        assert await wait_until(lambda: agent.log.endswith(want), 5)
+        assert await wait_until(lambda: not mod._pending_tasks(A), 5)
+        await mod.shutdown()
+        await agent.stop()
+        return agent
 
-# --- the fleet is powered on demand: zero agents is not an error ------------
-
-@needs_daemon
-def test_no_agents_found_does_not_exit():
-    """The retro fleet is deliberately powered on demand, so discovering zero
-    agents is the normal resting state. Exiting made `daemon: NOT RUNNING`
-    the steady state — so the status check could not tell "fleet is off" from
-    "the daemon is broken" — and with Restart=always it became a permanent
-    rescan loop over all 254 addresses."""
-    src = _DAEMON.read_text()
-    start = src.index("discovered = await discover_agents()")
-    window = src[start:start + 1200]
-    assert "no v1.4.0 agents found, exiting" not in window
-    assert "return\n" not in window.split("for ip in discovered:")[0], \
-        "main_async still bails out when the fleet is powered down"
-
-
-@needs_daemon
-def test_rediscover_still_adds_hosts_that_appear_later():
-    """Staying up with zero hosts is only safe because rediscover() claims
-    machines as they boot."""
-    src = _DAEMON.read_text()
-    start = src.index("async def rediscover(")
-    body = src[start:start + 1500]
-    assert "new agent online" in body
-    assert "asyncio.create_task(serve_host(" in body
+    agent = run(go())
+    assert agent.log.count("line 17\n") == 1, "a line was delivered twice"
+    assert sum(1 for c in agent.commands if c.startswith("EXEC task")) == 4
+    bad = [r.getMessage() for r in caplog.records
+           if "readexactly" in r.getMessage() or "another coroutine" in r.getMessage()]
+    assert not bad, bad

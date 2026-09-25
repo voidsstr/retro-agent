@@ -1,53 +1,52 @@
-"""Reaping an offline box must not take the whole chat daemon down with it.
+"""Releasing an offline box must not take the whole chat daemon down with it.
 
 This encodes the root cause of a user-visible outage. Someone typed a message
-on a retro box and got no reply. The proximate reason was that the box was
-never claimed — and the reason for *that* was this:
+on a retro box and got no reply. The box was never claimed — because:
 
     2026-08-28 22:26:02,785 [INFO] reaping offline agent 192.168.1.171 ...
     2026-08-28 22:26:03      retro-chat-daemon.service: Failed, status=1
 
-Under a second apart, and it had happened all day. `rediscover()` cancels a
-host's `serve_host` task when the box goes offline; `serve_host` correctly
-cleans up and re-raises `CancelledError`, which is proper asyncio practice.
-But `main_async` awaited `asyncio.gather(*tasks)` **without**
-`return_exceptions=True`, so that cancellation propagated straight out of
-gather and killed the process. Every reaped machine took the entire chat
-service down, and because the unit restarts with `RestartSec=5min`, chat
-stayed dead for five minutes each time — which is how a box sat unclaimed for
-two hours while its user typed into it.
+`rediscover()` cancelled a host's `serve_host` task when the box went offline;
+`serve_host` correctly cleaned up and re-raised `CancelledError`. But
+`main_async` awaited `asyncio.gather(*tasks)` **without**
+`return_exceptions=True`, so that cancellation propagated straight out and
+killed the process — every reaped machine took the entire chat service down.
 
-The daemon lives in the sibling `nsc-assistant` repo (it is server-side and
-never ships to the fleet), so this asserts against that source plus the
-asyncio semantics the fix depends on.
+Since the 2026-09 rework the daemon no longer gathers host tasks at all: it
+waits for a stop request, and each host task's end is reported by a done
+callback (a cancellation is normal, anything else is logged as an error).
+Hosts are no longer cancelled by discovery either — a silent host releases
+itself. These tests pin the behaviour, not the source text.
 
-Run: pytest tests/python/test_chat_daemon_reap_survival.py
+Run: NSC_ASSISTANT_DIR=<nsc worktree> pytest tests/python/test_chat_daemon_reap_survival.py
 """
 
 import asyncio
-import os
-from pathlib import Path
+import logging
 
 import pytest
 
-_DAEMON = Path.home() / "development" / "nsc-assistant" / \
-    "agent" / "tools" / "retro_chat_daemon.py"
+from chat_fake_agent import DAEMON, FakeAgent, load_daemon, point_at, wait_until
 
-needs_daemon = pytest.mark.skipif(
-    not _DAEMON.is_file(),
-    reason=f"chat daemon not checked out at {_DAEMON}")
+needs_daemon = pytest.mark.skipif(not DAEMON.is_file(),
+                                  reason=f"chat daemon not checked out at {DAEMON}")
+
+A = "192.168.1.241"
 
 
-# --- the semantics the fix relies on ----------------------------------------
+def run(coro):
+    return asyncio.run(asyncio.wait_for(coro, 30))
+
+
+# --- the asyncio semantics the original bug came from ----------------------
 
 async def _gather_survives_a_cancelled_child(return_exceptions):
-    """Model main_async: one task gets cancelled (a reap), another runs on."""
     reaped = asyncio.create_task(asyncio.sleep(3600))
     other = asyncio.create_task(asyncio.sleep(3600))
 
     async def reaper():
         await asyncio.sleep(0.01)
-        reaped.cancel()          # exactly what rediscover() does
+        reaped.cancel()
 
     asyncio.create_task(reaper())
     try:
@@ -56,16 +55,15 @@ async def _gather_survives_a_cancelled_child(return_exceptions):
             timeout=0.3)
         return "returned"
     except asyncio.CancelledError:
-        return "died"            # the cancellation escaped gather
+        return "died"
     except asyncio.TimeoutError:
-        return "survived"        # still serving the other host
+        return "survived"
     finally:
         other.cancel()
 
 
 def test_a_bare_gather_dies_when_a_child_is_cancelled():
-    """The old behaviour, pinned so the fix has something to be measured
-    against — this is what took the daemon down on every reap."""
+    """The old behaviour, pinned so the fix has something to be measured against."""
     assert asyncio.run(_gather_survives_a_cancelled_child(False)) == "died"
 
 
@@ -73,54 +71,113 @@ def test_gather_with_return_exceptions_survives_a_reap():
     assert asyncio.run(_gather_survives_a_cancelled_child(True)) == "survived"
 
 
-# --- the daemon actually uses it --------------------------------------------
+# --- the daemon --------------------------------------------------------------
 
-def _main_async_body():
-    """Just main_async, so the assertion cannot be satisfied (or broken) by
-    an unrelated gather elsewhere in the file."""
-    src = _DAEMON.read_text()
-    start = src.index("async def main_async(")
-    return src[start:]
-
-
-@needs_daemon
-def test_main_async_gathers_with_return_exceptions():
-    body = _main_async_body()
-    assert "asyncio.gather(*tasks, return_exceptions=True)" in body, \
-        "a reaped host will kill the whole chat daemon again"
-    assert "await asyncio.gather(*tasks)\n" not in body
+def _no_scan(mod, ips=()):
+    async def scan(exclude=()):
+        await asyncio.sleep(0)
+        return [ip for ip in ips if ip not in exclude]
+    mod.discover_agents = scan
+    mod.listen_announcements = lambda: asyncio.sleep(0)
 
 
 @needs_daemon
-def test_the_discovery_gather_is_left_alone():
+def test_a_cancelled_host_task_does_not_take_the_daemon_down(tmp_path):
+    async def go():
+        mod = load_daemon(tmp_path)
+        agent = await FakeAgent(poll_ms=100).start()
+        point_at(mod, {A: agent})
+        _no_scan(mod, [A])
+        main = asyncio.create_task(mod.main_async(install_signals=False))
+        assert await wait_until(lambda: A in mod.hosts, 3)
+        mod.hosts[A].task.cancel()
+        await asyncio.sleep(0.5)
+        assert not main.done(), "a cancelled host task killed the whole daemon"
+        mod.request_stop()
+        await asyncio.wait_for(main, 5)
+        await agent.stop()
+
+    run(go())
+
+
+@needs_daemon
+def test_serve_host_closes_gracefully_and_reraises_when_cancelled(tmp_path):
+    """Swallowing the cancellation would leave a zombie loop; not closing
+    would leak two connections to a single-threaded agent."""
+    async def go():
+        mod = load_daemon(tmp_path)
+        agent = await FakeAgent(poll_ms=100).start()
+        point_at(mod, {A: agent})
+        st = mod.add_host(A)
+        assert await wait_until(lambda: len(agent.open_conns()) == 2, 3)
+        st.sender.cancel()
+        st.task.cancel()
+        res = await asyncio.gather(st.task, st.sender, return_exceptions=True)
+        assert all(isinstance(r, asyncio.CancelledError) for r in res)
+        assert await wait_until(lambda: not agent.open_conns(), 3)
+        assert all(c["end"] == "eof" for c in agent.conns), [c["end"] for c in agent.conns]
+        await agent.stop()
+
+    run(go())
+
+
+@needs_daemon
+def test_a_task_ending_any_other_way_is_reported(tmp_path, caplog):
+    caplog.set_level(logging.ERROR)
+
+    async def go():
+        mod = load_daemon(tmp_path)
+
+        async def boom():
+            raise ValueError("serve loop crashed")
+
+        crashed = asyncio.create_task(boom(), name="serve-x")
+        cancelled = asyncio.create_task(asyncio.sleep(10), name="serve-y")
+        for t in (crashed, cancelled):
+            t.add_done_callback(mod._report_task_end)
+        cancelled.cancel()
+        await asyncio.gather(crashed, cancelled, return_exceptions=True)
+        await asyncio.sleep(0)
+
+    run(go())
+    msgs = [r.getMessage() for r in caplog.records]
+    assert any("serve-x" in m and "serve loop crashed" in m for m in msgs), msgs
+    assert not any("serve-y" in m for m in msgs), "a cancellation is normal, not an error"
+
+
+@needs_daemon
+def test_a_probe_crash_is_not_hidden_by_discovery(tmp_path):
     """discover_agents() gathers 254 short-lived probes that each swallow
-    their own exceptions and are never cancelled individually — it does not
-    need return_exceptions, and changing it would hide a real failure."""
-    src = _DAEMON.read_text()
-    start = src.index("async def discover_agents(")
-    body = src[start:src.index("\n\n\n", start)]
-    assert "await asyncio.gather(*tasks)" in body
+    their own network errors; a bug in the probe itself must still surface
+    (and discovery_loop's task then reports it)."""
+    mod = load_daemon(tmp_path)
+
+    async def broken_probe(ip, timeout=8.0):
+        raise KeyError("bug")
+
+    mod.try_connect = broken_probe
+    with pytest.raises(KeyError):
+        run(mod.discover_agents())
 
 
 @needs_daemon
-def test_serve_host_still_cleans_up_and_reraises_on_cancel():
-    """The fix belongs in the gather, NOT in swallowing the cancellation:
-    serve_host must still close its connections and re-raise, or a reaped
-    host leaks two TCP connections to a box that is already gone."""
-    src = _DAEMON.read_text()
-    start = src.index("except asyncio.CancelledError:")
-    block = src[start:start + 400]
-    assert "close_all()" in block
-    assert "raise" in block
+def test_a_box_that_appears_later_is_claimed(tmp_path):
+    """Staying up with zero hosts is only safe because discovery claims
+    machines as they boot."""
+    async def go():
+        mod = load_daemon(tmp_path)
+        agent = await FakeAgent(poll_ms=100).start()
+        point_at(mod, {A: agent})
+        found = []
+        _no_scan(mod, found)
+        mod.next_discovery_delay = lambda n, e: 0.05
+        main = asyncio.create_task(mod.main_async(install_signals=False))
+        await asyncio.sleep(0.3)
+        assert A not in mod.hosts
+        found.append(A)                          # the box is switched on
+        assert await wait_until(lambda: A in mod.hosts, 3)
+        mod.request_stop()
+        await asyncio.wait_for(main, 5)
+        await agent.stop()
 
-
-@needs_daemon
-def test_a_task_failing_for_any_other_reason_is_still_reported():
-    """return_exceptions=True hides real crashes unless they are logged.
-    A silently swallowed exception here would be worse than the original bug,
-    because the daemon would stay up doing nothing."""
-    src = _DAEMON.read_text()
-    tail = src[src.index("asyncio.gather(*tasks, return_exceptions=True)"):]
-    assert "logger.error" in tail[:900]
-    assert "CancelledError" in tail[:900], \
-        "a cancelled task is normal and must not be logged as an error"
+    run(go())

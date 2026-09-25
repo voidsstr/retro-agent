@@ -5,11 +5,17 @@ time the chat daemon is connected to it.
 The retro chat daemon (nsc-assistant/agent/tools/retro_chat_daemon.py) drains a
 per-host task queue whenever it (re)connects to that host and on each idle
 cycle, so a task queued while a machine is offline runs as soon as it next comes
-online. Storage is plain files under the daemon's runtime dir:
+online. Storage is plain files in a DURABLE directory (not tmpfs /tmp, which
+a host reboot wipes -- a queued task is "run it when the box is next on"):
 
-    /tmp/retro-chat/tasks/<ip>/<ts>-<slug>.json   pending  (oldest runs first)
-    /tmp/retro-chat/tasks/<ip>/done/<name>        completed (with captured output)
-    /tmp/retro-chat/tasks/<ip>/failed/<name>      gave up (machine unreachable)
+    ~/.retro-fleet/chat-tasks/<ip>/<ts>-<slug>.json   pending  (oldest runs first)
+    ~/.retro-fleet/chat-tasks/<ip>/done/<name>        completed (with captured output)
+    ~/.retro-fleet/chat-tasks/<ip>/failed/<name>      gave up / expired / timed out
+                                                      after it was sent (never re-run)
+
+The queue used to live in /tmp/retro-chat/tasks/; the daemon moves anything
+still there into the durable queue when it starts, and --list shows it.
+Override the location with RETRO_CHAT_TASKS (the daemon honours it too).
 
 This helper just writes a pending task file - it needs no network and does not
 require the daemon to be running (the daemon picks the file up on its next
@@ -33,7 +39,11 @@ import sys
 import time
 from pathlib import Path
 
-TASKS = Path(os.environ.get('RETRO_CHAT_ROOT', '/tmp/retro-chat')) / 'tasks'
+TASKS = Path(os.environ.get(
+    'RETRO_CHAT_TASKS',
+    str(Path(os.environ.get('RETRO_FLEET_STATE', str(Path.home() / '.retro-fleet')))
+        / 'chat-tasks')))
+LEGACY_TASKS = Path(os.environ.get('RETRO_CHAT_ROOT', '/tmp/retro-chat')) / 'tasks'
 
 
 def enqueue(ip: str, cmds: list, label: str = '') -> Path:
@@ -73,6 +83,11 @@ def list_tasks(ip: str | None):
                       f'({len(cmds)} cmd, attempts={t.get("attempts", 0)})')
             except Exception:
                 print(f'  - {f.name} (unreadable)')
+    legacy = sorted(LEGACY_TASKS.glob(f'{ip or "*"}/*.json')) if LEGACY_TASKS.is_dir() else []
+    if legacy:
+        found = True
+        print(f'{len(legacy)} task(s) still in the old {LEGACY_TASKS} '
+              '(the daemon moves them to the durable queue when it next starts)')
     if not found:
         print('no pending tasks')
 
