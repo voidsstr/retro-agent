@@ -50,6 +50,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/retrowall.c \
           $(SRCDIR)/dosstage.c \
           $(SRCDIR)/pcirescue.c \
+          $(SRCDIR)/clockfix.c \
           $(SRCDIR)/watchdog.c \
           $(SRCDIR)/monitor.c \
           $(SRCDIR)/gameres.c \

@@ -193,6 +193,9 @@ void handle_dosstage(SOCKET sock, const char *args);
 
 /* pcirescue.c - Win9x: re-enumerate PCI when an installed device has no devnode */
 DWORD WINAPI pcirescue_thread(LPVOID param);
+
+/* clockfix.c - a clock that is YEARS wrong (dead CMOS battery) is set from the NAS */
+DWORD WINAPI clockfix_thread(LPVOID param);
 void handle_pcirescan(SOCKET sock, const char *args);
 
 /* Long-poll ceiling, in ms. 0 = no extra cap (thread-per-client mode).

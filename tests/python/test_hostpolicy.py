@@ -111,6 +111,8 @@ def test_win7_and_older_stay_managed():
         # Both found by the 2026-09-24 audit of every startup/background path.
         ("watchdog.c", "watchdog_thread", "killing hung fullscreen games + resetting the display mode"),
         ("autoupdate.c", "update_retro_chat", "installing and launching the chat client"),
+        # 1.85.0: sets the system clock when it reads a year before 2024.
+        ("clockfix.c", "clockfix_thread", "setting the system clock from the NAS"),
     ],
 )
 def test_startup_appliers_are_guarded(path, func, what):

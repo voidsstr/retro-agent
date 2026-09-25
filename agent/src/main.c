@@ -1072,6 +1072,11 @@ void agent_run(void)
     /* Win9x only: an installed PCI device the boot-time enumeration missed
      * (.243's Voodoo 2) gets its devnode back before anyone can start a game -
      * Glide on an unconfigured Voodoo maps it over RAM. See pcirescue.c. */
+    /* A dead CMOS battery (.243) boots into 1980; set the clock from the NAS
+     * first, so everything written afterwards carries a real date. */
+    log_msg(LOG_MAIN, "startup: spawning clockfix thread");
+    spawn_helper(clockfix_thread, "clockfix");
+
     log_msg(LOG_MAIN, "startup: spawning pcirescue thread");
     spawn_helper(pcirescue_thread, "pcirescue");
 

@@ -2398,7 +2398,13 @@ the full list).
 Per-box traps worth keeping — **prose only; the numbers are in the generated
 file** and the roster line for each box repeats the one-liner:
 
-- **.171's Voodoo 2 NEVER shows as a display adapter.** Its INF is `Class=MEDIA`,
+- **The Voodoo 2 moved from `.171` to `.243` (Win98 SE, P166) — measured
+  2026-09-24.** `.171`'s `Enum\PCI` has no `VEN_121A` key at all and a GeForce FX
+  5500 drives its screen; `.243` has the card, driven by the 3.02.02 Glide kit, with
+  a boot-time PCI re-enumeration (`PCIRESCAN`) because its BIOS leaves the card
+  unconfigured. Its Glide shortcuts (Quake, Hexen II) are gated on the agent's
+  `glide` capability, so they follow the card wherever it goes next.
+- **A Voodoo 2 NEVER shows as a display adapter.** Its INF is `Class=MEDIA`,
   so `VIDEODIAG` and every display-class scan report only the Intel chip and the
   card looks absent. Detect it with `REGREAD HKLM SYSTEM\CurrentControlSet\Enum\PCI`
   → `VEN_121A&DEV_0002` (NB `VEN_1102&DEV_0002` is a Creative SB Live!, not a
@@ -2443,7 +2449,8 @@ file** and the roster line for each box repeats the one-liner:
 > 2026-08-11. Do not size a Voodoo5 test matrix at two boxes.
 >
 > **Real Glide silicon on this fleet is now exactly two cards:** `.143`'s V5 5500
-> (`121A:0009`, subsys `0002121A`) and `.171`'s Voodoo 2 (`121A:0002`) — and
+> (`121A:0009`, subsys `0002121A`) and `.243`'s Voodoo 2 (`121A:0002`; it was in
+> `.171` until 2026-09 — the hardware moves, see the trap list above) — and
 > this no longer has to be remembered: every box now reports its own
 > `accelerators[]` from the PCI enumerator, so `docs/fleet-inventory.md` says
 > which machines have 3dfx silicon and states positively where there is none.

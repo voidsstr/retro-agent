@@ -127,7 +127,7 @@ def test_restart_command_exists_and_relaunches_before_stopping():
 
 
 def test_restart_batch_speaks_win9x_start_on_win9x():
-    """agent 1.84.4. RESTART wrote `start "" "C:\\...\\retro_agent.exe"` on every
+    """agent 1.85.0. RESTART wrote `start "" "C:\\...\\retro_agent.exe"` on every
     Windows. The empty title is cmd.exe syntax; Win98's START.EXE takes the ""
     as the program, fails, and the agent never came back on .243 (2026-09-24)
     - networking up, 9898 refused, a person needed. On 9x the batch must use
