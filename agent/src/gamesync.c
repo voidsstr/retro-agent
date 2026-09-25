@@ -366,6 +366,9 @@ static void gs_note_progress2(__int64 added, __int64 transferred)
 
     EnterCriticalSection(&g_gs_lock);
     g_gs.done_bytes += added;
+    /* A re-listed directory (gs_copy_tree) walks files it already counted. */
+    if (g_gs.total_bytes > 0 && g_gs.done_bytes > g_gs.total_bytes)
+        g_gs.done_bytes = g_gs.total_bytes;
     total = g_gs.total_bytes;
     done  = g_gs.done_bytes;
     lstrcpynA(title, g_gs.title, sizeof(title));
@@ -714,54 +717,106 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size,
     return ok;
 }
 
+/*
+ * A DIRECTORY LISTING THAT ENDS EARLY IS A FAILURE, NOT THE END OF THE LIST.
+ *
+ * `while (FindNextFileA(...))` treats every FALSE as "no more files". On Win98
+ * the network redirector drops the SMB session under load (error 55) - the
+ * file copy survives that since 1.84.2 by reopening and seeking - but the
+ * reconnect also invalidates every OPEN SEARCH HANDLE, so each directory's
+ * listing simply stopped. Measured on .243 (2026-09-25): Quake2Win9x reported
+ * "done: 4/52 title(s) copied, 0 file error(s)" with quake2.exe, every pak and
+ * both launchers missing - a half-installed game certified as complete.
+ *
+ * So the listing must end in ERROR_NO_MORE_FILES. Anything else re-lists the
+ * directory (up to GS_LIST_PASSES times): copying is resumable, so files that
+ * already arrived are skipped by the size+mtime test and cost a local compare.
+ * If it still cannot be listed to the end, that is recorded as a failure -
+ * failed_files, the directory named - so gamesync.done is not written and the
+ * next pass tries again.
+ */
+#define GS_LIST_PASSES 3
+
 static int gs_copy_tree(const char *src, const char *dst)
 {
     WIN32_FIND_DATAA fd;
     HANDLE h;
     char   pat[MAX_PATH], s[MAX_PATH], d[MAX_PATH];
-    int    ok = 1, ok_file;
+    int    ok = 1, ok_file, pass;
+    DWORD  err = ERROR_NO_MORE_FILES;
     __int64 sz;
 
     gs_mkdir_p(dst);
     _snprintf(pat, sizeof(pat) - 1, "%s\\*", src);
     pat[sizeof(pat) - 1] = 0;
-    h = FindFirstFileA(pat, &fd);
-    if (h == INVALID_HANDLE_VALUE)
-        return 0;
-    do {
-        if (fd.cFileName[0] == '.' &&
-            (fd.cFileName[1] == 0 || (fd.cFileName[1] == '.' && fd.cFileName[2] == 0)))
-            continue;
-        if (g_gs_abort)
-            { ok = 0; break; }
-        _snprintf(s, sizeof(s) - 1, "%s\\%s", src, fd.cFileName);
-        _snprintf(d, sizeof(d) - 1, "%s\\%s", dst, fd.cFileName);
-        s[sizeof(s) - 1] = 0;
-        d[sizeof(d) - 1] = 0;
-        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-            if (!gs_copy_tree(s, d))
-                ok = 0;
+    for (pass = 1; pass <= GS_LIST_PASSES; pass++) {
+        h = FindFirstFileA(pat, &fd);
+        if (h == INVALID_HANDLE_VALUE) {
+            err = GetLastError();
+            if (err == ERROR_NO_MORE_FILES || err == ERROR_FILE_NOT_FOUND) {
+                err = ERROR_NO_MORE_FILES;      /* an empty directory */
+                break;
+            }
         } else {
-            EnterCriticalSection(&g_gs_lock);
-            lstrcpynA(g_gs.file, fd.cFileName, sizeof(g_gs.file));
-            LeaveCriticalSection(&g_gs_lock);
-            sz = ((__int64)fd.nFileSizeHigh << 32) | fd.nFileSizeLow;
-            {
-                /* the listing already carries the source's time: pass it */
-                FILETIME list_ft = fd.ftLastWriteTime;
-                ok_file = gs_copy_file(s, d, sz, &list_ft);
-            }
-            if (!ok_file) {
-                EnterCriticalSection(&g_gs_lock);
-                if (g_gs.failed_files == 0)
-                    lstrcpynA(g_gs.failed_file, d, sizeof(g_gs.failed_file));
-                g_gs.failed_files++;
-                LeaveCriticalSection(&g_gs_lock);
-                ok = 0;
-            }
+            do {
+                if (fd.cFileName[0] == '.' &&
+                    (fd.cFileName[1] == 0 || (fd.cFileName[1] == '.' && fd.cFileName[2] == 0)))
+                    continue;
+                if (g_gs_abort)
+                    break;
+                _snprintf(s, sizeof(s) - 1, "%s\\%s", src, fd.cFileName);
+                _snprintf(d, sizeof(d) - 1, "%s\\%s", dst, fd.cFileName);
+                s[sizeof(s) - 1] = 0;
+                d[sizeof(d) - 1] = 0;
+                if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                    if (!gs_copy_tree(s, d))
+                        ok = 0;
+                } else {
+                    EnterCriticalSection(&g_gs_lock);
+                    lstrcpynA(g_gs.file, fd.cFileName, sizeof(g_gs.file));
+                    LeaveCriticalSection(&g_gs_lock);
+                    sz = ((__int64)fd.nFileSizeHigh << 32) | fd.nFileSizeLow;
+                    {
+                        /* the listing already carries the source's time: pass it */
+                        FILETIME list_ft = fd.ftLastWriteTime;
+                        ok_file = gs_copy_file(s, d, sz, &list_ft);
+                    }
+                    if (!ok_file) {
+                        EnterCriticalSection(&g_gs_lock);
+                        if (g_gs.failed_files == 0)
+                            lstrcpynA(g_gs.failed_file, d, sizeof(g_gs.failed_file));
+                        g_gs.failed_files++;
+                        LeaveCriticalSection(&g_gs_lock);
+                        ok = 0;
+                    }
+                }
+            } while (FindNextFileA(h, &fd));
+            /* read BEFORE anything else can overwrite it - FindClose included */
+            err = g_gs_abort ? ERROR_NO_MORE_FILES : GetLastError();
+            FindClose(h);
         }
-    } while (FindNextFileA(h, &fd));
-    FindClose(h);
+        if (g_gs_abort)
+            return 0;
+        if (err == ERROR_NO_MORE_FILES)
+            break;
+        log_msg(LOG_GS, "listing of %s cut short (error %lu) - listing it again (%d/%d)",
+                src, (unsigned long)err, pass, GS_LIST_PASSES);
+        Sleep(2000);
+    }
+    if (err != ERROR_NO_MORE_FILES) {
+        char what[MAX_PATH];
+        _snprintf(what, sizeof(what) - 1, "%s (listing cut short, error %lu)",
+                  src, (unsigned long)err);
+        what[sizeof(what) - 1] = 0;
+        log_msg(LOG_GS, "could not list %s to the end after %d tries - recorded as a failure",
+                src, GS_LIST_PASSES);
+        EnterCriticalSection(&g_gs_lock);
+        if (g_gs.failed_files == 0)
+            lstrcpynA(g_gs.failed_file, what, sizeof(g_gs.failed_file));
+        g_gs.failed_files++;
+        LeaveCriticalSection(&g_gs_lock);
+        ok = 0;
+    }
     return ok;
 }
 
