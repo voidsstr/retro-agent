@@ -69,3 +69,32 @@ def test_g3_fifo_and_idle_spins_are_bounded():
     assert "stuckPolls > 4000000UL" in f and "roomToReadPtr = blockSize;" in f
     g = src("glide3/src/gsst.c")
     assert "busyPolls > 4000000UL" in g
+
+
+def test_audit_fixes_2026_09_24_are_in_the_source():
+    """The pre-flight audit of the board-open path (see
+    tests/native/test_h5_glide_guards.c for the logic mirrors)."""
+    c = src("minihwc/minihwc.c")
+    # bounded idle wait that reports, and both callers act on it
+    assert "FxBool hwcIdleHardwareWithTimeout(hwcBoardInfo *bInfo)" in c
+    assert "if (!hwcIdleHardwareWithTimeout(bInfo)) {" in c
+    assert c.count("if (!hwcIdleHardwareWithTimeout(bInfo))") == 2
+    assert "goto hwcRestoreVideo_release;" in c and "hwcRestoreVideo_release:" in c
+    assert "timeout >= 1000000000" not in c
+    # FX_GLIDE_NUM_CHIPS only as 1 or the real count, at every override site
+    assert c.count("hwcClampNumChipsOverride(") == 4        # definition + 3 sites
+    # mappings validated before the first MMIO
+    assert "if (!hwcValidateMappings(bInfo))" in c
+    assert "mbi.Type != MEM_MAPPED" in c
+
+
+def test_h6_escape_field_is_32_bit():
+    h = src("minihwc/minihwc.h")
+    assert re.search(r"^\s*FxI32 hwcEscape ;", h, re.M)
+    assert "FxI16/*FxI32*/ hwcEscape" not in h
+
+
+def test_a_refused_board_is_skipped_not_touched():
+    g = src("glide3/src/gpci.c")
+    blk = g.split("if (!hwcMapBoard(bInfo, HWC_BASE_ADDR_MASK)) {", 1)[1][:400]
+    assert "continue;" in blk.split("}", 1)[0]
