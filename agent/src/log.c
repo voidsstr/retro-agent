@@ -78,6 +78,12 @@ static int   g_buf_len = 0;
 static int   g_buffered = 0;          /* 0 until the agent is up: see header */
 static DWORD g_last_flush = 0;        /* GetTickCount of the last write-out */
 static HANDLE g_flush_thread = NULL;
+/* Monotonic counters for readers that need to know whether the FILE changed
+ * (the share mirror in main.c): successful writes to the current file, and
+ * rotations. Bumped with InterlockedIncrement - the crash logger writes
+ * without the lock. */
+static volatile LONG g_write_seq = 0;
+static volatile LONG g_rotate_seq = 0;
 static HANDLE g_flush_evt = NULL;     /* set by log_shutdown to stop the flusher */
 static volatile int g_flush_stop = 0;
 
@@ -157,6 +163,7 @@ static int disk_out(const char *s, DWORD len)
     if (WriteFile(g_log_h, s, len, &wr, NULL)) {
         FlushFileBuffers(g_log_h);   /* durability: on disk before we return */
         g_log_bytes += (long)len;
+        InterlockedIncrement((LONG *)&g_write_seq);
         return 1;
     }
     return 0;
@@ -213,6 +220,7 @@ static void rotate_files(const char *path)
     bak[sizeof(bak) - 1] = '\0';
     DeleteFileA(bak);
     MoveFileA(path, bak);
+    InterlockedIncrement((LONG *)&g_rotate_seq);
 }
 
 static void open_log(void)
@@ -277,6 +285,16 @@ void log_init(const char *logfile)
 const char *log_path(void)
 {
     return g_log_path;
+}
+
+unsigned long log_write_seq(void)
+{
+    return (unsigned long)g_write_seq;
+}
+
+unsigned long log_rotation_seq(void)
+{
+    return (unsigned long)g_rotate_seq;
 }
 
 /*

@@ -798,6 +798,7 @@ static void log_system_metadata(void)
  * only user, and it keeps this hunk away from the include block other work
  * touches. */
 #include "bgwork.h"
+#include "../shared/sharelog.h"
 
 /* Best-effort mirror of the local agent.log to the file share, so logs from a
  * box that can't be reached interactively (or that crashed) can be pulled from
@@ -805,7 +806,8 @@ static void log_system_metadata(void)
  * share is reachable; silently no-ops when it isn't ("if the network is
  * accessible"). Per-host filename so boxes don't collide. Runs the FIRST copy
  * soon after boot (so the PREVIOUS run's log, incl. any crash that persisted
- * to the local file, gets uploaded), then periodically. */
+ * to the local file, gets uploaded), then ONLY WHEN THE LOG HAS CHANGED -
+ * see agent/shared/sharelog.h for what it used to cost. */
 #define SHARELOG_DIR_DEFAULT \
     "\\\\192.168.1.122\\files\\Utility\\Retro Automation\\agent logs"
 #define SHARELOG_FIRST_MS   10000
@@ -854,6 +856,7 @@ static DWORD WINAPI sharelog_thread(LPVOID param)
     char host[128];
     DWORD hlen = sizeof(host);
     HKEY hk;
+    sharelog_state_t st;
     (void)param;
 
     thread_background();
@@ -876,18 +879,43 @@ static DWORD WINAPI sharelog_thread(LPVOID param)
     _snprintf(srcbak, sizeof(srcbak), "%s.1", log_path());
     srcbak[sizeof(srcbak) - 1] = '\0';
 
+    sharelog_init(&st);
     Sleep(SHARELOG_FIRST_MS);
     while (g_running) {
+        unsigned long seq, rot;
+        int plan, log_ok = 0, bak_ok = 0;
+        DWORD err = 0;
+
         /* Commit the batch first: the whole point of mirroring is that the
          * copy on the share is what gets read when the box is unreachable,
-         * and a copy missing the newest lines is worse than useless. */
+         * and a copy missing the newest lines is worse than useless. The
+         * counters are read AFTER the flush and BEFORE the copy, so a line
+         * written during the copy makes the next pass copy again. */
         log_flush();
-        /* CopyFileA fails fast + harmlessly if the share isn't reachable. */
-        if (CopyFileA(log_path(), dest, FALSE))
-            log_msg(LOG_MAIN, "sharelog: mirrored to %s", dest);
-        if (GetFileAttributesA(srcbak) != INVALID_FILE_ATTRIBUTES)
-            CopyFileA(srcbak, destbak, FALSE);
-        agent_nap(SHARELOG_PERIOD_MS);      /* one wait, not 60 x 1 s */
+        seq = log_write_seq();
+        rot = log_rotation_seq();
+        plan = sharelog_plan(&st, seq, rot,
+                             GetFileAttributesA(srcbak) != INVALID_FILE_ATTRIBUTES);
+        if (plan & SHARELOG_COPY_LOG) {
+            log_ok = CopyFileA(log_path(), dest, FALSE) != 0;
+            if (!log_ok) err = GetLastError();
+        }
+        if (plan & SHARELOG_COPY_BAK) {
+            bak_ok = CopyFileA(srcbak, destbak, FALSE) != 0;
+            if (!bak_ok && !err) err = GetLastError();
+        }
+        /* Say something only when the outcome CHANGES. A line per copy made
+         * the log change every minute, so the next copy was never a no-op. */
+        if (sharelog_record(&st, plan, log_ok, bak_ok, seq, rot)) {
+            if (st.last_ok)
+                log_msg(LOG_MAIN, "sharelog: mirroring to %s (copied again only "
+                        "when the log changes)", dest);
+            else
+                log_msg(LOG_MAIN, "sharelog: cannot copy to %s (error %lu) - "
+                        "retrying, less often while it fails", dest,
+                        (unsigned long)err);
+        }
+        agent_nap(sharelog_next_ms(&st, SHARELOG_PERIOD_MS));
     }
     return 0;
 }

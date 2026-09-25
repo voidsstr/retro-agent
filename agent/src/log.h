@@ -19,6 +19,13 @@ void log_init(const char *logfile);
 /* The resolved active log-file path (for printing to the console). */
 const char *log_path(void);
 
+/* Change detection for anything that copies the log file somewhere (the share
+ * mirror). log_write_seq() moves on every successful write to the current
+ * file; log_rotation_seq() moves each time agent.log is rolled to agent.log.1.
+ * Both only ever increase. Call log_flush() first if batched lines matter. */
+unsigned long log_write_seq(void);
+unsigned long log_rotation_seq(void);
+
 /* Log a message with tag and printf-style format. */
 void log_msg(const char *tag, const char *fmt, ...);
 
