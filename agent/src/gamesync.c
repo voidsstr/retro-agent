@@ -2571,7 +2571,23 @@ static void gs_restore_shortcuts_if_installed(const char *title)
 #define LVM_SETEXSTYLE_      (LVM_FIRST_ + 54)
 #define LVM_GETEXSTYLE_      (LVM_FIRST_ + 55)
 #define LVA_DEFAULT_         0x0000
-#define FCIDM_SHVIEW_AUTOARRANGE_ 0x7031
+/* The shell's "Auto Arrange" menu command. NOT one constant: read from each
+ * OS's own SHELL32.DLL menu resources (2026-09-24) -
+ *     Win98 SE shell32 4.72:  0x7041 "&Auto Arrange"   (0x7051 is "&Help Topics")
+ *     XP SP3 shell32 6.0:     0x7051 "&Auto Arrange"
+ * This used to be a single 0x7031, which is no menu command on EITHER, so the
+ * toggle was a silent no-op everywhere - the "shell toggle silently failed on
+ * .171 and .143" in CLAUDE.md. XP was rescued by the style-bit fallback; Win98
+ * was not (.243's desktop never auto-arranged and new icons landed
+ * off-screen). Never "fix" it to 0x7051 unconditionally: on Win98 that opens
+ * Windows Help on the desktop. */
+#define FCIDM_AUTOARRANGE_WIN9X_  0x7041
+#define FCIDM_AUTOARRANGE_NT_     0x7051
+static WPARAM gs_autoarrange_cmd(void)
+{
+    return (GetVersion() & 0x80000000UL) ? FCIDM_AUTOARRANGE_WIN9X_
+                                         : FCIDM_AUTOARRANGE_NT_;
+}
 #ifndef LVS_AUTOARRANGE
 #define LVS_AUTOARRANGE 0x0100
 #endif
@@ -2744,7 +2760,7 @@ static void gs_apply_autoarrange(HWND defview, HWND lv, int force)
         if (defview) {
             /* PostMessage, not Send: a synchronous send into the shell can
              * block the agent indefinitely. */
-            PostMessageA(defview, WM_COMMAND, FCIDM_SHVIEW_AUTOARRANGE_, 0);
+            PostMessageA(defview, WM_COMMAND, gs_autoarrange_cmd(), 0);
             Sleep(600);
             style = GetWindowLongA(lv, GWL_STYLE);
         }
@@ -2768,8 +2784,12 @@ static void gs_apply_autoarrange(HWND defview, HWND lv, int force)
     }
 
     if (!(style & LVS_AUTOARRANGE)) {
-        log_msg(LOG_GS, "auto-arrange COULD NOT BE SET on this desktop - icons "
-                        "will stay wherever they are");
+        /* Still pack the icons once. LVM_ARRANGE carries no pointer, so it is
+         * safe across processes on Win9x too, and without it a new game's icon
+         * lands wherever Explorer dropped it - off-screen on .243. */
+        SendMessageA(lv, LVM_ARRANGE_, LVA_DEFAULT_, 0);
+        log_msg(LOG_GS, "auto-arrange COULD NOT BE SET on this desktop - "
+                        "packed the icons once with LVM_ARRANGE instead");
     } else if (changed || force) {
         /* Setting the style does not re-pack what is already on screen; ask
          * for it explicitly so the desktop is tidy now rather than at the next
@@ -2808,7 +2828,7 @@ static void gs_arrange_bay(HWND defview, HWND lv)
         if (style & LVS_AUTOARRANGE) {
             log_msg(LOG_GS, "icon bay: auto-arrange is on - turning it off so "
                             "icon positions stick");
-            PostMessageA(defview, WM_COMMAND, FCIDM_SHVIEW_AUTOARRANGE_, 0);
+            PostMessageA(defview, WM_COMMAND, gs_autoarrange_cmd(), 0);
             Sleep(600);
             style = GetWindowLongA(lv, GWL_STYLE);
             if (style & LVS_AUTOARRANGE) {

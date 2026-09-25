@@ -90,7 +90,7 @@ def test_auto_arrange_handling_is_still_there():
     """The older half of the fix must not be lost while adding the new one."""
     _, body = _arrange_fn()
     assert "LVS_AUTOARRANGE" in body
-    assert "FCIDM_SHVIEW_AUTOARRANGE_" in body
+    assert "gs_autoarrange_cmd()" in body
     assert "PostMessageA" in body, (
         "auto-arrange is a WM_COMMAND toggle and must stay a PostMessage - a "
         "synchronous send into the shell can block the agent indefinitely"

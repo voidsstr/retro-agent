@@ -53,7 +53,8 @@ def test_autoarrange_toggle_is_never_posted_blindly():
     """
     code = _strip_comments(GAMESYNC.read_text(errors="replace"))
     lines = code.splitlines()
-    posts = [i for i, ln in enumerate(lines) if "FCIDM_SHVIEW_AUTOARRANGE" in ln
+    posts = [i for i, ln in enumerate(lines)
+             if ("FCIDM_SHVIEW_AUTOARRANGE" in ln or "gs_autoarrange_cmd()" in ln)
              and ("PostMessage" in ln or "SendMessage" in ln)]
     assert posts, "expected the shell toggle to still be used (guarded)"
 
@@ -406,3 +407,28 @@ def test_the_shortcut_counter_is_readable_during_a_run():
         "gs_desk_note_lnk_written() must publish the running total, or "
         "GAMESYNC STATUS reports 0 for the whole run regardless of the truth"
     )
+
+
+def test_the_autoarrange_command_id_is_chosen_per_platform():
+    """0x7031 was no menu command on Win98 OR XP, so the toggle never fired.
+
+    Read from each OS's own SHELL32.DLL menu resources on 2026-09-24: Win98 SE
+    has "&Auto Arrange" at 0x7041 (and 0x7051 is "&Help Topics"); XP SP3 has it
+    at 0x7051. One constant is wrong somewhere by construction.
+    """
+    src = GAMESYNC.read_text(errors="replace")
+    assert "#define FCIDM_AUTOARRANGE_WIN9X_  0x7041" in src
+    assert "#define FCIDM_AUTOARRANGE_NT_     0x7051" in src
+    assert "0x7031" not in _strip_comments(src), "0x7031 is not Auto Arrange anywhere"
+    fn = src[src.index("static WPARAM gs_autoarrange_cmd(void)"):]
+    fn = fn[:fn.index("\n}\n")]
+    assert "0x80000000" in fn and "FCIDM_AUTOARRANGE_WIN9X_" in fn and "FCIDM_AUTOARRANGE_NT_" in fn
+
+
+def test_icons_are_packed_even_when_autoarrange_cannot_be_set():
+    """On .243 (Win98) neither the toggle nor the style bit took, and the code
+    then did nothing, so a new game's icon landed off-screen."""
+    code = _strip_comments(GAMESYNC.read_text(errors="replace"))
+    fn = code.split("static void gs_apply_autoarrange", 1)[1].split("\nstatic ", 1)[0]
+    assert re.search(r"if \(!\(style & LVS_AUTOARRANGE\)\) \{\s*SendMessageA\(lv, LVM_ARRANGE_", fn), \
+        "when auto-arrange cannot be set, the icons must still be packed once"
