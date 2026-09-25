@@ -1256,8 +1256,16 @@ ICD-over-AmigaMerlin-Glide rows from above for scale:
   `gl/openglv5.dll`, with 1 it forces `opengl32` - `r_glDriver` never stands
   (WolfMP.exe 0x477ff6/0x478042, read out 2026-09-25). Every earlier RtCW row
   "on" another ICD ran on Wicked3D; the runner now sets the cvar and stages
-  `system32\retroicd.dll`. Ours trails Wicked3D there (−17 % at 1024×768×16,
-  −32 % at ×32) - the next optimisation target.
+  `system32\retroicd.dll`. Ours trails Wicked3D there (−17 % at 1024×768×16),
+  and **RtCW is GPU-bound on four chips**: ~19 % of the CPU sits in
+  `grBufferSwap`'s pending-swap wait (`_grSstStatus` + `_grBufferNumPending`),
+  so CPU-side work is not the lever. Two knobs, measured: a 3-deep swap queue
+  changes nothing; our default **LOD bias −0.5** (a Voodoo 3-era sharpening
+  choice, `FX_LOD_BIAS`) costs 2 % at 16-bit and **9 % at 1024×768×32** - left
+  as the default because every earlier row of ours was measured with it. The
+  32-bit gap is not like-for-like: **Wicked3D renders 16-bit colour at every
+  requested depth** (RtCW's own log: `color(16-bits) Z(16-bit)`), ours renders
+  32-bit colour with a 24-bit Z-buffer.
 - Level within 3 % almost everywhere; the gaps worth chasing are Quake II
   1280×960 (−9 %) and Quake III 640×480×32 (−9 %).
 - Two Quake III launches (of ~40 on our Glide) "hung" inside `grGlideInit`.
