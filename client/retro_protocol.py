@@ -37,6 +37,12 @@ class RetroConnection:
         self.hostname: str = ""
         self.os_version: str = ""
         self.os_family: str = ""  # "windows", "linux", "mac_classic"
+        # True once the current request's frame(s) have been handed to the
+        # socket. Callers that must not repeat a command which may already
+        # have run (a LOG_APPEND that timed out waiting for its "OK" has
+        # usually been appended) read this after a failure: False means the
+        # agent cannot have seen the command, so a retry is safe.
+        self.request_sent: bool = False
 
     async def connect(self, secret: str, timeout: float = 10.0) -> str:
         """Connect and authenticate. Returns the agent's greeting."""
@@ -73,40 +79,88 @@ class RetroConnection:
                 self.os_family = "mac_classic"
         return greeting
 
-    async def close(self, graceful: bool = True):
+    async def close(self, graceful: bool = True, drain_timeout: float = 2.0):
         """Close the connection.
 
-        When *graceful* is True (default) we first try to send a TCP FIN via
-        ``socket.shutdown(SHUT_WR)`` before closing.  This is critical for
-        Win98 agents: an abrupt close causes the OS to send a TCP RST which
-        crashes Win98 Winsock, killing the agent.  A FIN-initiated teardown
-        lets the remote Winsock close cleanly.
+        When *graceful* is True (default) we half-close first with
+        ``socket.shutdown(SHUT_WR)`` (a TCP FIN), then keep READING until the
+        agent closes its side too (EOF), for at most *drain_timeout* seconds,
+        and only then close the socket.
+
+        Both halves matter on Win98, where an abrupt close can take the
+        agent's Winsock (and the machine) down:
+
+        * the FIN, instead of an RST, starts a clean 4-way close;
+        * the drain: closing a socket that still has unread data in its
+          receive buffer -- or that receives data after close() -- makes our
+          kernel answer with an RST anyway. A reply the agent was still
+          writing when we decided to leave (a slow Win9x agent answering a
+          timed-out command, a long-poll that completes) used to land on a
+          closed socket and draw exactly that RST. Reading until EOF lets the
+          late reply arrive and be discarded, so the teardown stays FIN/FIN.
         """
-        if self._writer:
-            try:
-                if graceful:
-                    sock = self._writer.get_extra_info("socket")
-                    if sock is not None:
-                        try:
-                            # Send FIN — tells the remote side we're done
-                            # writing.  This starts a clean 4-way TCP close
-                            # instead of an RST.
-                            sock.shutdown(socket.SHUT_WR)
-                            # Give the remote side a moment to process FIN
-                            # before we tear down the socket completely.
-                            await asyncio.sleep(0.1)
-                        except OSError:
-                            pass  # Socket already broken
-                self._writer.close()
-                await self._writer.wait_closed()
-            except Exception:
-                pass
+        writer = self._writer
+        if writer is None:
+            return
+        try:
+            if graceful:
+                sock = writer.get_extra_info("socket")
+                if sock is not None:
+                    try:
+                        sock.shutdown(socket.SHUT_WR)
+                    except OSError:
+                        pass  # Socket already broken
+                await self._drain_until_eof(drain_timeout)
+        finally:
+            # Always release the socket, even when the drain is cancelled
+            # (a shutdown that cannot wait any longer).
             self._writer = None
             self._reader = None
+            try:
+                writer.close()
+            except Exception:
+                pass
+        try:
+            await writer.wait_closed()
+        except Exception:
+            pass
+
+    async def _drain_until_eof(self, timeout: float):
+        """Discard incoming bytes until the peer closes (EOF) or *timeout*."""
+        reader = self._reader
+        if reader is None or timeout <= 0:
+            return
+        loop = asyncio.get_running_loop()
+        deadline = loop.time() + timeout
+        try:
+            while True:
+                remaining = deadline - loop.time()
+                if remaining <= 0:
+                    return
+                chunk = await asyncio.wait_for(reader.read(65536), timeout=remaining)
+                if not chunk:
+                    return  # EOF: the agent has closed its side too
+        except (asyncio.TimeoutError, OSError, ConnectionError, RuntimeError):
+            # RuntimeError: another coroutine is still mid-read on this
+            # reader (a cancelled command). Nothing more to drain here.
+            return
 
     @property
     def connected(self) -> bool:
-        return self._writer is not None and not self._writer.is_closing()
+        """True only while BOTH directions are usable.
+
+        ``is_closing()`` alone stays False after the agent closes its end
+        (the agent drops a silent client: 120 s on NT, 300 s on Win9x), so an
+        idle connection kept reporting itself connected and the next command
+        failed with "Connection lost". A reader at EOF means the agent has
+        gone; the caller should reconnect before sending.
+        """
+        if self._writer is None or self._writer.is_closing():
+            return False
+        reader = self._reader
+        if reader is not None and reader.at_eof():
+            return False
+        return True
 
     async def send_command(
         self, command: str, binary_payload: bytes | None = None, timeout: float = 60.0
@@ -117,9 +171,11 @@ class RetroConnection:
         Returns (RESP_OK_TEXT | RESP_OK_BINARY | RESP_ERROR, response_bytes).
         """
         async with self._lock:
+            self.request_sent = False
             await self._send_frame(command.encode("ascii"))
             if binary_payload is not None:
                 await self._send_frame(binary_payload)
+            self.request_sent = True
             return await self._recv_response(timeout=timeout)
 
     async def command_text(self, command: str, timeout: float = 60.0) -> str:
@@ -149,7 +205,9 @@ class RetroConnection:
         if procname:
             cmd += f" {procname}"
         async with self._lock:
+            self.request_sent = False
             await self._send_frame(cmd.encode("ascii"))
+            self.request_sent = True
             while True:
                 status, data = await self._recv_response(timeout=frame_timeout)
                 text = data.decode("ascii", errors="replace")
