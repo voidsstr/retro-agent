@@ -232,22 +232,75 @@ static void get_local_ip(char *buf, int bufsize)
 }
 
 /*
- * Add Windows Firewall exception for the agent (XP SP2+).
- * Uses "netsh firewall" which exists on XP SP2+ but not Win98SE.
- * Silently fails on Win9x where there's no firewall to worry about.
+ * Add a Windows Firewall exception for the agent (XP SP2+, Vista+).
+ *
+ * Runs on a background thread AFTER the listener is up (it used to run before
+ * listen(), holding the agent off the network for up to 10 s of netsh on every
+ * boot), looks the exception up in the registry first, and runs netsh only
+ * when it is missing - and only the netsh context this Windows has. The plan
+ * and the registry parsing are agent/shared/fwplan.h.
  */
-static void ensure_firewall_exception(void)
+/* Included here rather than at the top: the helper-thread code from here on
+ * is the only user, and it keeps these lines away from the include block
+ * other work touches. */
+#include "bgwork.h"
+#include "../shared/fwplan.h"
+
+#define FW_POLICY_KEY \
+    "SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy"
+
+/* Is there already an enabled inbound exception for exe? */
+static int firewall_already_allows(const char *exe, unsigned os_major)
 {
-    char exe_path[MAX_PATH];
-    char cmd[1024];
+    HKEY k;
+    int found = 0;
+
+    if (os_major < 6) {
+        /* XP / 2003: one value per program, named by its path */
+        char data[1024];
+        DWORD ty = 0, n = sizeof(data) - 1;
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, FW_POLICY_KEY
+                          "\\StandardProfile\\AuthorizedApplications\\List",
+                          0, KEY_QUERY_VALUE, &k) != ERROR_SUCCESS)
+            return 0;
+        if (RegQueryValueExA(k, exe, NULL, &ty, (BYTE *)data, &n) == ERROR_SUCCESS
+            && (ty == REG_SZ || ty == REG_EXPAND_SZ)) {
+            data[n < sizeof(data) ? n : sizeof(data) - 1] = '\0';
+            found = fw_list_entry_enabled(data, exe);
+        }
+        RegCloseKey(k);
+        return found;
+    }
+
+    /* Vista+: one value per rule; look for an inbound allow naming exe */
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, FW_POLICY_KEY "\\FirewallRules",
+                      0, KEY_QUERY_VALUE, &k) != ERROR_SUCCESS)
+        return 0;
+    {
+        DWORD i;
+        for (i = 0; !found; i++) {
+            char name[256], data[2048];
+            DWORD nlen = sizeof(name), dlen = sizeof(data) - 1, ty = 0;
+            LONG rc = RegEnumValueA(k, i, name, &nlen, NULL, &ty,
+                                    (BYTE *)data, &dlen);
+            if (rc == ERROR_NO_MORE_ITEMS)
+                break;
+            if (rc != ERROR_SUCCESS || ty != REG_SZ)
+                continue;              /* includes ERROR_MORE_DATA: not ours */
+            data[dlen < sizeof(data) ? dlen : sizeof(data) - 1] = '\0';
+            found = fw_rule_allows(data, exe);
+        }
+    }
+    RegCloseKey(k);
+    return found;
+}
+
+/* Run one netsh and report what really happened, not that it started. */
+static void run_netsh(char *cmd, const char *what)
+{
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
-
-    GetModuleFileNameA(NULL, exe_path, sizeof(exe_path));
-
-    _snprintf(cmd, sizeof(cmd),
-        "netsh firewall add allowedprogram \"%s\" \"Retro Agent\" ENABLE",
-        exe_path);
+    DWORD code = 0;
 
     memset(&si, 0, sizeof(si));
     si.cb = sizeof(si);
@@ -255,28 +308,83 @@ static void ensure_firewall_exception(void)
     si.wShowWindow = SW_HIDE;
     memset(&pi, 0, sizeof(pi));
 
-    if (CreateProcessA(NULL, cmd, NULL, NULL, FALSE,
-                       CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
-        WaitForSingleObject(pi.hProcess, 5000);
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-        log_msg(LOG_MAIN, "Firewall exception added (netsh firewall)");
+    if (!CreateProcessA(NULL, cmd, NULL, NULL, FALSE,
+                        CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+        log_msg(LOG_MAIN, "firewall: could not run netsh %s (%lu)", what,
+                (unsigned long)GetLastError());
+        return;
+    }
+    if (WaitForSingleObject(pi.hProcess, 5000) == WAIT_TIMEOUT)
+        log_msg(LOG_MAIN, "firewall: netsh %s did not finish in 5 s", what);
+    else if (GetExitCodeProcess(pi.hProcess, &code))
+        log_msg(LOG_MAIN, "firewall: netsh %s exited %lu%s", what,
+                (unsigned long)code, code ? " (FAILED)" : "");
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+}
+
+static void ensure_firewall_exception(void)
+{
+    char exe_path[MAX_PATH];
+    char cmd[1024];
+    OSVERSIONINFOA osvi;
+    int is_nt, plan, before;
+
+    memset(&osvi, 0, sizeof(osvi));
+    osvi.dwOSVersionInfoSize = sizeof(osvi);
+    GetVersionExA(&osvi);
+    is_nt = osvi.dwPlatformId == VER_PLATFORM_WIN32_NT;
+    GetModuleFileNameA(NULL, exe_path, sizeof(exe_path));
+
+    /* The registry is only consulted where a firewall can exist at all. */
+    before = (is_nt && osvi.dwMajorVersion >= 5)
+             ? firewall_already_allows(exe_path, osvi.dwMajorVersion) : 0;
+    plan = fw_plan(is_nt, osvi.dwMajorVersion, osvi.dwMinorVersion, before);
+
+    if (!plan) {
+        if (!is_nt || osvi.dwMajorVersion < 5 ||
+            (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0))
+            log_msg(LOG_MAIN, "firewall: this Windows has no Windows Firewall "
+                    "- nothing to do");
+        else
+            log_msg(LOG_MAIN, "firewall: exception for %s already present - "
+                    "netsh not run", exe_path);
+        return;
     }
 
-    /* Also try the newer "netsh advfirewall" syntax (Vista+ / some XP SP3) */
-    _snprintf(cmd, sizeof(cmd),
-        "netsh advfirewall firewall add rule name=\"Retro Agent\" "
-        "dir=in action=allow program=\"%s\" enable=yes protocol=tcp localport=%d",
-        exe_path, AGENT_TCP_PORT);
-
-    memset(&pi, 0, sizeof(pi));
-    if (CreateProcessA(NULL, cmd, NULL, NULL, FALSE,
-                       CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
-        WaitForSingleObject(pi.hProcess, 5000);
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-        log_msg(LOG_MAIN, "Firewall exception added (netsh advfirewall)");
+    if (plan & FWP_NETSH_FIREWALL) {
+        _snprintf(cmd, sizeof(cmd),
+            "netsh firewall add allowedprogram \"%s\" \"Retro Agent\" ENABLE",
+            exe_path);
+        cmd[sizeof(cmd) - 1] = '\0';
+        run_netsh(cmd, "firewall");
     }
+    /* Vista+ only: XP's netsh has no advfirewall context, so on XP this half
+     * failed on every boot while the log said "added". */
+    if (plan & FWP_NETSH_ADV) {
+        _snprintf(cmd, sizeof(cmd),
+            "netsh advfirewall firewall add rule name=\"Retro Agent\" "
+            "dir=in action=allow program=\"%s\" enable=yes protocol=tcp localport=%d",
+            exe_path, AGENT_TCP_PORT);
+        cmd[sizeof(cmd) - 1] = '\0';
+        run_netsh(cmd, "advfirewall");
+    }
+
+    /* The post-condition, not netsh's word for it. */
+    if (firewall_already_allows(exe_path, osvi.dwMajorVersion))
+        log_msg(LOG_MAIN, "firewall: exception for %s is present", exe_path);
+    else
+        log_msg(LOG_MAIN, "firewall: WARNING no exception for %s after netsh "
+                "- remote connections may be blocked if the firewall is on",
+                exe_path);
+}
+
+static DWORD WINAPI firewall_thread(LPVOID param)
+{
+    (void)param;
+    thread_background();
+    ensure_firewall_exception();
+    return 0;
 }
 
 static void cache_system_info(void)
@@ -794,10 +902,6 @@ static void log_system_metadata(void)
                 dd.DeviceString, dd.DeviceID);
 }
 
-/* Included here rather than at the top: the helper-thread code below is the
- * only user, and it keeps this hunk away from the include block other work
- * touches. */
-#include "bgwork.h"
 #include "../shared/sharelog.h"
 
 /* Best-effort mirror of the local agent.log to the file share, so logs from a
@@ -986,8 +1090,8 @@ void agent_run(void)
 
     log_msg(LOG_MAIN, "startup: cache_system_info()");
     cache_system_info();
-    log_msg(LOG_MAIN, "startup: ensure_firewall_exception()");
-    ensure_firewall_exception();
+    /* (the firewall exception is added by a helper thread once the listener
+     * is up - see firewall_thread) */
 
     log_msg(LOG_MAIN, "Hostname=%s IP=%s OS=%s RAM=%luMB",
             g_hostname, g_local_ip, g_os_str, (unsigned long)g_ram_mb);
@@ -1118,6 +1222,11 @@ void agent_run(void)
 
     log_msg(LOG_MAIN, "startup: spawning pcirescue thread");
     spawn_helper(pcirescue_thread, "pcirescue");
+
+    /* The firewall exception, off the startup path: it used to run two netsh
+     * processes (up to 5 s each) BEFORE listen() on every boot. */
+    log_msg(LOG_MAIN, "startup: spawning firewall thread");
+    spawn_helper(firewall_thread, "firewall");
 
     log_msg(LOG_MAIN, "startup: spawning automap thread");
     spawn_helper(automap_thread_proc, "automap");
