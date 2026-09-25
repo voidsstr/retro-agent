@@ -43,6 +43,9 @@ typedef struct { DWORD dwFileAttributes; FILETIME ftLastWriteTime; DWORD nFileSi
 #define FILE_ATTRIBUTE_DIRECTORY 0x10
 #define ERROR_FILE_NOT_FOUND 2
 #define ERROR_NO_MORE_FILES 18
+#define ERROR_NETNAME_DELETED 64
+typedef long LONG;
+static LONG InterlockedIncrement(LONG *p) { return ++*p; }
 #define LOG_GS "GS"
 #define _snprintf snprintf
 typedef int CRITICAL_SECTION;
@@ -65,18 +68,22 @@ static const char *list_for(const char *pat, int *n, int *isdir) {
     if (strstr(pat, "\\sub\\*")) { *n = 5; return (const char *)sub; }
     *n = 13; return (const char *)root;
 }
-typedef struct { const char **names; int n, pos; int is_sub; } find_t;
+typedef struct { const char **names; int n, pos; int is_sub; int epoch; } find_t;
 static int g_nexts = 0, g_fail_at = -1, g_fail_times = 0;
+/* Win98 model: a session reset (bumped by the copy) silently ends every OPEN
+ * listing with ERROR_NO_MORE_FILES - the behaviour measured on .243. */
+static int g_epoch = 0, g_reset_at_copy = -1, g_resets_left = 0, g_copy_calls = 0;
 static HANDLE FindFirstFileA(const char *pat, WIN32_FIND_DATAA *fd) {
     find_t *f = calloc(1, sizeof(*f)); int n, isdir = 0;
     f->names = (const char **)list_for(pat, &n, &isdir); f->n = n; f->is_sub = strstr(pat, "\\sub\\*") != 0;
     memset(fd, 0, sizeof(*fd)); strcpy(fd->cFileName, f->names[0]);
     fd->dwFileAttributes = (!f->is_sub && !strcmp(f->names[0], "sub")) ? FILE_ATTRIBUTE_DIRECTORY : 0;
-    f->pos = 1; return f;
+    f->pos = 1; f->epoch = g_epoch; return f;
 }
 static BOOL FindNextFileA(HANDLE h, WIN32_FIND_DATAA *fd) {
     find_t *f = h;
     g_nexts++;
+    if (f->epoch != g_epoch) { g_err = ERROR_NO_MORE_FILES; return 0; }
     if (g_fail_times > 0 && g_nexts == g_fail_at) { g_fail_times--; g_fail_at += 7; g_err = 55; return 0; }
     if (f->pos >= f->n) { g_err = ERROR_NO_MORE_FILES; return 0; }
     memset(fd, 0, sizeof(*fd)); strcpy(fd->cFileName, f->names[f->pos]);
@@ -86,8 +93,13 @@ static BOOL FindNextFileA(HANDLE h, WIN32_FIND_DATAA *fd) {
 static BOOL FindClose(HANDLE h) { free(h); return 1; }
 static void gs_mkdir_p(const char *p) { (void)p; }
 static char g_copied[64][MAX_PATH]; static int g_ncopied = 0;
+static volatile LONG g_gs_net_resets = 0;
 static int gs_copy_file(const char *s, const char *d, __int64 sz, FILETIME *ft) {
     int i; (void)s; (void)sz; (void)ft;
+    if (++g_copy_calls == g_reset_at_copy && g_resets_left > 0) {
+        g_resets_left--; g_reset_at_copy += 4;
+        InterlockedIncrement((LONG *)&g_gs_net_resets); g_epoch++;   /* the reconnect */
+    }
     for (i = 0; i < g_ncopied; i++) if (!strcmp(g_copied[i], d)) return 1;   /* resume: already there */
     strcpy(g_copied[g_ncopied++], d); return 1;
 }
@@ -95,6 +107,7 @@ static int gs_copy_file(const char *s, const char *d, __int64 sz, FILETIME *ft) 
 %s
 int main(int c, char **v) {
     int r; g_fail_at = atoi(v[1]); g_fail_times = atoi(v[2]);
+    if (c > 4) { g_reset_at_copy = atoi(v[3]); g_resets_left = atoi(v[4]); }
     r = gs_copy_tree("S", "D");
     printf("%%d %%d %%d\n", r, g_ncopied, g_gs.failed_files);
     return 0;
@@ -108,12 +121,14 @@ def run(tmp_path_factory):
     if not cc:
         pytest.skip("no host C compiler - gs_copy_tree NOT exercised")
     define = re.search(r"#define GS_LIST_PASSES \d+", SRC).group(0)
+    define = define
     d = tmp_path_factory.mktemp("listing")
     (d / "t.c").write_text(HARNESS % (define, _extract("static int gs_copy_tree(")))
     subprocess.run([cc, "-w", "-o", str(d / "t"), str(d / "t.c")], check=True)
 
-    def go(fail_at, times):
-        out = subprocess.run([str(d / "t"), str(fail_at), str(times)], capture_output=True,
+    def go(fail_at, times, reset_at=-1, resets=0):
+        out = subprocess.run([str(d / "t"), str(fail_at), str(times), str(reset_at), str(resets)],
+                             capture_output=True,
                              text=True, check=True).stdout.split()
         return tuple(int(x) for x in out)
     return go
@@ -147,3 +162,17 @@ def test_the_loop_checks_why_the_listing_ended():
     assert "GetLastError()" in after.split("FindClose(h);")[0], \
         "the reason must be read before FindClose can overwrite it"
     assert "ERROR_NO_MORE_FILES" in body
+
+
+def test_a_session_reset_that_ends_listings_as_no_more_files_is_caught(run):
+    """The .243 case exactly: the reconnect makes every open listing end with
+    ERROR_NO_MORE_FILES, so the error code alone cannot tell. The walk must
+    notice the reset and list those directories again."""
+    ok, copied, failed = run(-1, 0, reset_at=4, resets=1)
+    assert copied == ALL, "files after the reset must still be copied"
+    assert (ok, failed) == (1, 0)
+
+
+def test_resets_that_never_stop_are_a_recorded_failure(run):
+    ok, copied, failed = run(-1, 0, reset_at=2, resets=999)
+    assert ok == 0 and failed >= 1

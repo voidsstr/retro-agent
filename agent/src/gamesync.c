@@ -542,6 +542,10 @@ static long long gs_ft64(const FILETIME *f)
 /* How many times one file's copy may reopen its source after a failed read.
  * See the read loop in gs_copy_file(). */
 #define GS_READ_RETRIES   6
+/* Every time a copy has to reconnect to the share (a failed read or open of a
+ * source file). A directory listing that was open across one of these cannot
+ * be trusted - see gs_copy_tree. */
+static volatile LONG g_gs_net_resets = 0;
 
 /* src_list_ft: the source's last-write time as the directory listing
  * reported it, or NULL when the caller has none (then the source is asked). */
@@ -651,6 +655,7 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size,
              * so a long file on a flaky link can resume as often as it keeps
              * making progress, while a source that fails at the same byte
              * every time still gives up after GS_READ_RETRIES tries. */
+            InterlockedIncrement((LONG *)&g_gs_net_resets);
             if (copied - last_fail_at >= 8 * 1024 * 1024)
                 retries = 0;
             last_fail_at = copied;
@@ -735,7 +740,7 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size,
  * failed_files, the directory named - so gamesync.done is not written and the
  * next pass tries again.
  */
-#define GS_LIST_PASSES 3
+#define GS_LIST_PASSES 5
 
 static int gs_copy_tree(const char *src, const char *dst)
 {
@@ -750,6 +755,7 @@ static int gs_copy_tree(const char *src, const char *dst)
     _snprintf(pat, sizeof(pat) - 1, "%s\\*", src);
     pat[sizeof(pat) - 1] = 0;
     for (pass = 1; pass <= GS_LIST_PASSES; pass++) {
+        LONG resets_at_start = g_gs_net_resets;
         h = FindFirstFileA(pat, &fd);
         if (h == INVALID_HANDLE_VALUE) {
             err = GetLastError();
@@ -797,8 +803,19 @@ static int gs_copy_tree(const char *src, const char *dst)
         }
         if (g_gs_abort)
             return 0;
-        if (err == ERROR_NO_MORE_FILES)
+        /* WIN98 SAYS "NO MORE FILES" WHEN IT MEANS "I LOST THE SESSION". A
+         * search handle that was open while a copy had to reconnect ends with
+         * ERROR_NO_MORE_FILES, exactly like a finished listing - measured on
+         * .243 after the error check above was already in place. So a listing
+         * that spanned a reconnect is re-done regardless of how it ended. */
+        if (err == ERROR_NO_MORE_FILES && g_gs_net_resets == resets_at_start)
             break;
+        if (err == ERROR_NO_MORE_FILES) {
+            err = ERROR_NETNAME_DELETED;        /* 64: what really happened */
+            log_msg(LOG_GS, "the share connection was reset while %s was being listed "
+                    "- listing it again (%d/%d)", src, pass, GS_LIST_PASSES);
+            continue;
+        }
         log_msg(LOG_GS, "listing of %s cut short (error %lu) - listing it again (%d/%d)",
                 src, (unsigned long)err, pass, GS_LIST_PASSES);
         Sleep(2000);

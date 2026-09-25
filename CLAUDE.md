@@ -2216,6 +2216,30 @@ process *dies* rather than exits.
 `QUIT`. The machine is otherwise healthy; a reboot or double-clicking the exe
 restores it.
 
+### Win9x restarts: three traps, found on `.243` on 2026-09-25 (agent 1.85.0 fixes two)
+
+- **`ExitProcess` can hang on Win9x.** 1.84.2 logged `shutdown complete;
+  exiting process` at `QUIT` and the process was still alive 120 s later (a DLL's
+  PROCESS_DETACH blocked), so the rollback-guarded swap tool gave up and the box
+  had no agent until someone restarted it. **1.85.0+ ends a 9x agent with
+  `TerminateProcess` after the log is closed** — verified: the next hand-over
+  left no old process behind.
+- **`RESTART` never worked on Win9x before 1.85.0**: its batch said
+  `start "" "<exe>"` (cmd.exe syntax; Win98's START.EXE takes the `""` as the
+  program). Fixed.
+- **After a restart, Win98 can REFUSE `:9898` for about four minutes while
+  `:9897` works.** The new instance logs `Listening on TCP :9898+:9897`, yet
+  connections to 9898 are refused until the stack drops the old instance's
+  closed listener (measured ~3 min 50 s). **Talk to `:9897` in the meantime** —
+  it is the same agent. `retro_chat_daemon` claims the box again once 9898
+  answers. Not yet fixed in the agent.
+- **To swap in a build on a running 9x box without a person**, run it under a
+  DIFFERENT filename (e.g. `C:\RETRO_AGENT\RA185.EXE`) from a small batch that
+  pings for 5 s and `start`s it, `LAUNCH` that batch, then `QUIT` the old agent —
+  a lingering old process cannot then hold the exe you need, and staging the
+  same build as `retro_agent_new.exe` lets `AGENTRUN.BAT` install it properly at
+  the next boot.
+
 ## Win98 Known Issues & Fixes
 
 ### SYSFIX Command
