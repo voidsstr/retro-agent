@@ -2232,7 +2232,9 @@ restores it.
   connections to 9898 are refused until the stack drops the old instance's
   closed listener (measured ~3 min 50 s). **Talk to `:9897` in the meantime** —
   it is the same agent. `retro_chat_daemon` claims the box again once 9898
-  answers. Not yet fixed in the agent.
+  answers. Seen only when the OLD instance left through the pre-1.85.0
+  `ExitProcess` path: two hand-overs from a 1.85.0 instance (which ends with
+  `TerminateProcess`) had `:9898` answering at once.
 - **To swap in a build on a running 9x box without a person**, run it under a
   DIFFERENT filename (e.g. `C:\RETRO_AGENT\RA185.EXE`) from a small batch that
   pings for 5 s and `start`s it, `LAUNCH` that batch, then `QUIT` the old agent —
