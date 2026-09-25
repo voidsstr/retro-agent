@@ -36,6 +36,7 @@
 #include "ntdyn.h"
 #include "hostpolicy.h"
 #include "bgwork.h"
+#include "gameindex.h"
 #include "../shared/drvprefs.h"
 #include "../shared/gamegate.h"
 
@@ -3476,6 +3477,12 @@ static void gs_run(const char *library)
             gr_titles, gr_changed, gr_absent_t);
     gs_gate_free();
     gs_set_msg("complete - %d title(s)", ok_titles);
+
+    /* The game index checks for changes only every 15 minutes now. A sync
+     * that really wrote files or changed the icon set is the one moment the
+     * host's favourites pipeline most wants the index to move, so wake it. */
+    if (gs_desk_changed())
+        gameindex_poke();
 
     /* Only claim the box is provisioned if nothing failed. A marker written
      * over a partial run would make the next boot skip the retry. */

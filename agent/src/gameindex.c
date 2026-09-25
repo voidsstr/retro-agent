@@ -13,6 +13,15 @@
  * The hash is order-independent (a sum of per-entry FNV-1a hashes), so the
  * host can compare it without caring how the scan happened to enumerate.
  *
+ * WHAT A PASS COSTS, AND WHEN ONE RUNS (agent 1.85.0) - see
+ * agent/shared/gimatch.h. In short: one FindFirstFile listing per directory
+ * instead of ~68 GetFileAttributesA probes, no directory walked twice, a
+ * cheap fingerprint every 15 minutes that skips the pass when nothing an
+ * install touches has changed, a forced full pass hourly, an immediate pass
+ * when GAMESYNC has just deployed something (gameindex_poke), and the last
+ * index kept in C:\RETRO_AGENT\gameindex.cache so a reboot answers GAMEINDEX
+ * at once instead of scanning. The thread runs at THREAD_PRIORITY_IDLE.
+ *
  * Three detection sources, merged and deduped by (key, dir):
  *   1. Desktop shortcuts (all-users + current user), resolved through
  *      IShellLink. This is the one that matters most: a box often has several
@@ -30,6 +39,8 @@
 #include "util.h"
 #include "log.h"
 #include "bgwork.h"
+#include "gameindex.h"
+#include "../shared/gimatch.h"
 #include <windows.h>
 #include <shlobj.h>
 #include <objbase.h>
@@ -74,12 +85,33 @@ static int ole_load(void)
 
 #define LOG_GI "GAMEINDEX"
 
-/* Refresh cadence. The host polls every 5 minutes and wants the index no
- * staler than that, so re-scan a little more often than it asks. Overridable
- * from HKLM\Software\RetroAgent\GameIndexPeriodMs for slow boxes. */
-#define GI_FIRST_DELAY_MS   20000
-#define GI_PERIOD_MS_DEF    240000
-#define GI_PERIOD_MS_MIN    60000
+#ifndef AGENT_VERSION
+#define AGENT_VERSION "0.0.0"
+#endif
+
+/* Cadence. The host asks for GAMEINDEX HASH every 5 minutes; until 1.85.0 the
+ * agent re-scanned every 4 minutes to stay fresher than that, which on a
+ * Pentium meant a 6-65 s disk walk every 4 minutes forever. Now:
+ *   - the FIRST check waits until the rest of the boot has settled (retrowall
+ *     20 s, gamesync 40 s, this 120 s) - sooner when there is no cached index,
+ *     because until there is one the host forces a synchronous GAMEINDEX SCAN
+ *     on the command thread;
+ *   - then a fingerprint check every GameIndexPeriodMs (default 15 min) that
+ *     runs the full pass only if something changed;
+ *   - a forced full pass once an hour, for changes the fingerprint cannot see
+ *     (a new file deep inside an existing game tree on FAT, which does not
+ *     update directory times);
+ *   - and an immediate pass when GAMESYNC deploys something (gameindex_poke),
+ *     which is when the host most wants the answer to move.
+ * GameIndexPeriodMs (HKLM\Software\RetroAgent) still overrides the check
+ * period, with the same 60 s floor. */
+#define GI_FIRST_DELAY_MS          120000
+#define GI_FIRST_DELAY_NOCACHE_MS   60000
+#define GI_PERIOD_MS_DEF           900000
+#define GI_PERIOD_MS_MIN            60000
+#define GI_FULL_EVERY_MS          3600000
+#define GI_CACHE_PATH  "C:\\RETRO_AGENT\\gameindex.cache"
+#define GI_CACHE_MAX   (512u * 1024u)
 
 #define GI_MAX_GAMES        256
 #define GI_MAX_DEPTH        3
@@ -89,22 +121,10 @@ static int ole_load(void)
 /* ---------------------------------------------------------------------- */
 
 /*
- * `engine` tells the host which server-query protocol and which favorites
- * mechanism apply. "-" means we can detect the game but have no server
- * browser to populate, which is still worth reporting.
- *
- * `moddir`, when set, must exist as a subdirectory next to the exe. That is
- * how the GoldSrc family is split apart: Half-Life, Counter-Strike and The
- * Specialists are all hl.exe, distinguished only by the mod directory.
+ * game_sig_t (key, name, exe, moddir, engine) is defined in
+ * agent/shared/gimatch.h beside the matcher that reads it; see there for what
+ * `engine` and `moddir` mean.
  */
-typedef struct {
-    const char *key;
-    const char *name;
-    const char *exe;
-    const char *moddir;
-    const char *engine;
-} game_sig_t;
-
 static const game_sig_t g_sigs[] = {
     /* Quake III engine - getstatus, favorites via autoexec.cfg server1..16 */
     { "quake3",     "Quake III Arena",        "quake3.exe",           "baseq3",   "q3" },
@@ -249,6 +269,19 @@ static DWORD  g_gi_scanned_at;  /* GetTickCount at last successful scan */
 static DWORD  g_gi_scan_ms;     /* how long the last scan took */
 static int    g_gi_have;
 
+/* One pass at a time: g_ents and everything below are shared by the
+ * background thread and GAMEINDEX SCAN. Until 1.85.0 nothing stopped the two
+ * running gi_scan() concurrently over the same g_ents. */
+static CRITICAL_SECTION g_gi_scan_lock;
+static HANDLE g_gi_wake;            /* auto-reset; gameindex_poke() sets it  */
+static volatile LONG g_gi_poked;    /* ...and says why                        */
+static HANDLE g_gi_thread;          /* the scanner, so SCAN can lift it       */
+static DWORD  g_gi_fp;              /* fingerprint the index reflects         */
+static DWORD  g_gi_full_at;         /* GetTickCount of the last full pass     */
+static DWORD  g_gi_cache_fp;        /* what the on-disk cache holds, so an    */
+static DWORD  g_gi_cache_hash;      /* unchanged index is not rewritten       */
+static gim_table_t g_gi_tab;        /* g_sigs with lengths, for gim_note()    */
+
 /* ---------------------------------------------------------------------- */
 
 static DWORD fnv1a(const char *s)
@@ -342,25 +375,48 @@ static void add_entry(const game_sig_t *sig, const char *dir, const char *exe,
     g_ent_count++;
 }
 
-/* Test one directory against every signature. A signature with a moddir only
+/* Trees that are large and never hold a game, so a walk of C:\ on a slow
+ * disk stays measured in seconds. The fingerprint skips the same names. */
+static int gi_skip_name(const char *name)
+{
+    return ieq(name, "WINDOWS") || ieq(name, "WINNT")
+        || ieq(name, "System Volume Information")
+        || ieq(name, "RECYCLER") || ieq(name, "RECYCLED")
+        || ieq(name, "$Recycle.Bin");
+}
+
+/* The game roots of the drive being walked (C:\Games, C:\Program Files...).
+ * Each is walked on its own from depth 0, so a walk that meets one as a child
+ * - the drive root meets C:\Games, Program Files meets Program Files\Games -
+ * must not descend into it again. Until 1.85.0 it did, and C:\Games, where
+ * every staged title lives, was walked twice per pass. */
+#define GI_MAX_ROOTS 8
+static char g_gi_roots[GI_MAX_ROOTS][MAX_PATH];
+static int  g_gi_nroots;
+
+static int gi_is_own_root(const char *path)
+{
+    int i;
+    for (i = 0; i < g_gi_nroots; i++)
+        if (ieq(path, g_gi_roots[i]))
+            return 1;
+    return 0;
+}
+
+/* Record what a directory listing matched. A signature with a moddir only
  * matches when that subdirectory is present, which is what separates the
  * GoldSrc mods from each other and from plain Half-Life. */
-static void match_dir(const char *dir, const char *launcher,
-                      const char *launcher_exe, const char *source)
+static void gi_emit(const char *dir, const gim_hits_t *hits,
+                    const char *launcher, const char *launcher_exe,
+                    const char *source)
 {
     char path[MAX_PATH];
-    char mod[MAX_PATH];
     int  i;
 
-    for (i = 0; g_sigs[i].key; i++) {
-        join(path, sizeof(path), dir, g_sigs[i].exe);
-        if (!file_exists(path))
+    for (i = 0; i < g_gi_tab.n; i++) {
+        if (!gim_matches(hits, &g_gi_tab, i))
             continue;
-        if (g_sigs[i].moddir) {
-            join(mod, sizeof(mod), dir, g_sigs[i].moddir);
-            if (!dir_exists(mod))
-                continue;
-        }
+        join(path, sizeof(path), dir, g_sigs[i].exe);
         /* Only claim the shortcut for the game it actually launches. One
          * directory can satisfy several signatures -- C:\UT2004\System holds
          * UT2004 plus every mod's shortcut -- and attributing the first .lnk
@@ -371,6 +427,56 @@ static void match_dir(const char *dir, const char *launcher,
         else
             add_entry(&g_sigs[i], dir, path, NULL, source);
     }
+}
+
+/*
+ * One directory, ONE listing. The FindFirstFile enumeration both matches the
+ * signatures (each entry's long and 8.3 name against the table in memory -
+ * gim_note()) and, when `recurse` allows, finds the subdirectories to descend
+ * into. Until 1.85.0 each directory cost that enumeration PLUS ~68
+ * GetFileAttributesA probes, one per signature, each a path lookup that is a
+ * linear directory search on FAT.
+ */
+static void gi_scan_dir(const char *dir, int depth, int recurse,
+                        const char *launcher, const char *launcher_exe,
+                        const char *source)
+{
+    WIN32_FIND_DATAA fd;
+    HANDLE           h;
+    char             pat[MAX_PATH];
+    char             child[MAX_PATH];
+    gim_hits_t       hits;
+
+    if (g_ent_count >= GI_MAX_GAMES)
+        return;
+    gim_reset(&hits);
+    join(pat, sizeof(pat), dir, "*");
+    h = FindFirstFileA(pat, &fd);
+    if (h == INVALID_HANDLE_VALUE)
+        return;
+    do {
+        int is_dir = (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
+        gim_note(&hits, &g_gi_tab, fd.cFileName, fd.cAlternateFileName, is_dir);
+        if (!recurse || !is_dir || depth >= GI_MAX_DEPTH)
+            continue;
+        if (fd.cFileName[0] == '.' || gi_skip_name(fd.cFileName))
+            continue;
+        join(child, sizeof(child), dir, fd.cFileName);
+        if (gi_is_own_root(child))
+            continue;                    /* walked on its own - see above */
+        gi_scan_dir(child, depth + 1, 1, NULL, NULL, source);
+    } while (g_ent_count < GI_MAX_GAMES && FindNextFileA(h, &fd));
+    FindClose(h);
+
+    gi_emit(dir, &hits, launcher, launcher_exe, source);
+}
+
+/* Test one directory against every signature, without descending. */
+static void match_dir(const char *dir, const char *launcher,
+                      const char *launcher_exe, const char *source)
+{
+    gi_scan_dir(dir, GI_MAX_DEPTH, 0, launcher, launcher_exe, source);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -470,13 +576,48 @@ static void scan_shortcut_dir(const char *dir)
  * stripped Win95/98 shell just skips this source instead of failing to load. */
 typedef BOOL (WINAPI *shgsfp_t)(HWND, LPSTR, int, BOOL);
 
+/* The four shortcut folders, resolved once - the scan AND the fingerprint read
+ * them, and they do not move while the agent runs. Retried while none has
+ * resolved yet (the shell may not be up at the first ask). */
+#define GI_LNKDIRS 4
+static char g_gi_lnkdir[GI_LNKDIRS][MAX_PATH];
+static int  g_gi_nlnkdirs = -1;
+
+static void gi_lnkdirs_resolve(void)
+{
+    static const int csidl[GI_LNKDIRS] = {
+        CSIDL_DESKTOPDIRECTORY, CSIDL_COMMON_DESKTOPDIRECTORY,
+        CSIDL_PROGRAMS, CSIDL_COMMON_PROGRAMS
+    };
+    HMODULE  sh;
+    shgsfp_t fn;
+    int      i, j;
+
+    if (g_gi_nlnkdirs > 0)
+        return;
+    g_gi_nlnkdirs = 0;
+    sh = LoadLibraryA("shell32.dll");
+    if (!sh)
+        return;
+    fn = (shgsfp_t)GetProcAddress(sh, "SHGetSpecialFolderPathA");
+    for (i = 0; fn && i < GI_LNKDIRS; i++) {
+        char path[MAX_PATH];
+        int  dup = 0;
+        if (!fn(NULL, path, csidl[i], FALSE) || !path[0])
+            continue;
+        for (j = 0; j < g_gi_nlnkdirs; j++)
+            if (ieq(g_gi_lnkdir[j], path))
+                dup = 1;         /* Win9x without profiles: one Desktop */
+        if (!dup)
+            safe_strncpy(g_gi_lnkdir[g_gi_nlnkdirs++], path, MAX_PATH);
+    }
+    FreeLibrary(sh);
+}
+
 static void scan_shortcuts(void)
 {
-    HMODULE   sh;
-    shgsfp_t  fn;
-    char      path[MAX_PATH];
     HRESULT   hr;
-    int       inited = 0;
+    int       inited = 0, i;
 
     if (!ole_load()) {
         log_msg(LOG_GI, "ole32 unavailable - skipping shortcut scan");
@@ -485,21 +626,9 @@ static void scan_shortcuts(void)
     hr = g_CoInitialize ? g_CoInitialize(NULL) : E_FAIL;
     inited = (SUCCEEDED(hr) || hr == S_FALSE);
 
-    sh = LoadLibraryA("shell32.dll");
-    if (sh) {
-        fn = (shgsfp_t)GetProcAddress(sh, "SHGetSpecialFolderPathA");
-        if (fn) {
-            if (fn(NULL, path, CSIDL_DESKTOPDIRECTORY, FALSE))
-                scan_shortcut_dir(path);
-            if (fn(NULL, path, CSIDL_COMMON_DESKTOPDIRECTORY, FALSE))
-                scan_shortcut_dir(path);
-            if (fn(NULL, path, CSIDL_PROGRAMS, FALSE))
-                scan_shortcut_dir(path);
-            if (fn(NULL, path, CSIDL_COMMON_PROGRAMS, FALSE))
-                scan_shortcut_dir(path);
-        }
-        FreeLibrary(sh);
-    }
+    gi_lnkdirs_resolve();
+    for (i = 0; i < g_gi_nlnkdirs; i++)
+        scan_shortcut_dir(g_gi_lnkdir[i]);
 
     if (inited && g_CoUninitialize)
         g_CoUninitialize();
@@ -545,41 +674,6 @@ static void scan_uninstall(void)
 /* Source 3: depth-limited walk of the usual roots                         */
 /* ---------------------------------------------------------------------- */
 
-static void walk(const char *dir, int depth)
-{
-    WIN32_FIND_DATAA fd;
-    HANDLE           h;
-    char             pat[MAX_PATH];
-    char             child[MAX_PATH];
-
-    match_dir(dir, NULL, NULL, "scan");
-    if (depth >= GI_MAX_DEPTH || g_ent_count >= GI_MAX_GAMES)
-        return;
-
-    join(pat, sizeof(pat), dir, "*");
-    h = FindFirstFileA(pat, &fd);
-    if (h == INVALID_HANDLE_VALUE)
-        return;
-
-    do {
-        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            continue;
-        if (fd.cFileName[0] == '.')
-            continue;
-        /* Skip the trees that are large and never hold a game, so a walk of
-         * C:\ on a slow disk stays measured in seconds. */
-        if (ieq(fd.cFileName, "WINDOWS") || ieq(fd.cFileName, "WINNT")
-            || ieq(fd.cFileName, "System Volume Information")
-            || ieq(fd.cFileName, "RECYCLER") || ieq(fd.cFileName, "RECYCLED")
-            || ieq(fd.cFileName, "$Recycle.Bin"))
-            continue;
-        join(child, sizeof(child), dir, fd.cFileName);
-        walk(child, depth + 1);
-    } while (FindNextFileA(h, &fd) && g_ent_count < GI_MAX_GAMES);
-
-    FindClose(h);
-}
-
 static void scan_drives(void)
 {
     char  drives[512];
@@ -595,19 +689,24 @@ static void scan_drives(void)
     for (p = drives; *p; p += lstrlenA(p) + 1) {
         if (GetDriveTypeA(p) != DRIVE_FIXED)
             continue;
+        /* This drive's game roots, BEFORE any walk, so the drive-root walk
+         * already knows which children it must leave to their own walk. */
+        g_gi_nroots = 0;
         for (i = 0; g_roots[i]; i++) {
-            if (g_roots[i][0] == 0) {
-                /* The drive root itself, one level down - a lot of retro
-                 * installs live at C:\Quake III Arena and nowhere tidier. */
-                safe_strncpy(root, p, MAX_PATH);
-                walk(root, GI_MAX_DEPTH - 2);
-            } else {
-                join(root, sizeof(root), p, g_roots[i]);
-                if (dir_exists(root))
-                    walk(root, 0);
-            }
+            if (!g_roots[i][0] || g_gi_nroots >= GI_MAX_ROOTS)
+                continue;
+            join(root, sizeof(root), p, g_roots[i]);
+            if (dir_exists(root))
+                safe_strncpy(g_gi_roots[g_gi_nroots++], root, MAX_PATH);
         }
+        /* The drive root itself, one level down - a lot of retro installs
+         * live at C:\Quake III Arena and nowhere tidier. */
+        safe_strncpy(root, p, MAX_PATH);
+        gi_scan_dir(root, GI_MAX_DEPTH - 2, 1, NULL, NULL, "scan");
+        for (i = 0; i < g_gi_nroots; i++)
+            gi_scan_dir(g_gi_roots[i], 0, 1, NULL, NULL, "scan");
     }
+    g_gi_nroots = 0;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -656,13 +755,209 @@ static char *build_json(DWORD *out_hash, DWORD scan_ms)
     return json_finish(&j);
 }
 
-static void gi_scan(void)
+/* ---------------------------------------------------------------------- */
+/* Has anything an install touches changed? (the fingerprint)              */
+/* ---------------------------------------------------------------------- */
+
+#define GI_FP_DIR_TIMES   1     /* fold in each subdirectory's write time */
+#define GI_FP_FILE_TIMES  2     /* fold in each file's write time         */
+#define GI_FP_SKIP_SYS    4     /* leave out WINDOWS, RECYCLER, ...       */
+
+/* One listing's contribution: names always, write times where asked. A folder
+ * that does not exist contributes a distinct constant, so its appearance is a
+ * change too. */
+static DWORD gi_fp_listing(const char *dir, const char *pattern, int flags)
+{
+    WIN32_FIND_DATAA fd;
+    HANDLE           h;
+    char             pat[MAX_PATH];
+    DWORD            sum = 0, n = 0;
+
+    join(pat, sizeof(pat), dir, pattern);
+    h = FindFirstFileA(pat, &fd);
+    if (h == INVALID_HANDLE_VALUE)
+        return (DWORD)gi_fnv1a(dir) ^ 0x5EED5EEDUL;
+    do {
+        int   is_dir = (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+        int   times  = is_dir ? (flags & GI_FP_DIR_TIMES) : (flags & GI_FP_FILE_TIMES);
+        if (fd.cFileName[0] == '.' &&
+            (!fd.cFileName[1] || (fd.cFileName[1] == '.' && !fd.cFileName[2])))
+            continue;
+        if ((flags & GI_FP_SKIP_SYS) && is_dir && gi_skip_name(fd.cFileName))
+            continue;
+        sum += (DWORD)gi_fp_entry(fd.cFileName, is_dir,
+                                  times ? fd.ftLastWriteTime.dwLowDateTime : 0,
+                                  times ? fd.ftLastWriteTime.dwHighDateTime : 0);
+        n++;
+    } while (FindNextFileA(h, &fd));
+    FindClose(h);
+    return sum + n * 16777619UL + (DWORD)gi_fnv1a(dir);
+}
+
+/*
+ * A few directory listings and one registry enumeration - milliseconds, where a
+ * pass is seconds. It covers where an install shows up: a new directory in a
+ * drive root or a game root, a changed directory time under a game root (NTFS
+ * updates it when a title's own directory gains or loses an entry), a new or
+ * rewritten shortcut, a new uninstall entry. AGENT_VERSION is folded in so an
+ * agent update - which may carry new signatures - re-indexes once.
+ *
+ * What it cannot see - a file appearing deep inside an existing tree on FAT,
+ * which updates no directory time the fingerprint reads - the hourly full pass
+ * and gameindex_poke() cover.
+ */
+static DWORD gi_fingerprint(void)
+{
+    DWORD fp = (DWORD)gi_fnv1a(AGENT_VERSION);
+    char  drives[512], root[MAX_PATH];
+    char *p;
+    DWORD n;
+    int   i;
+    HKEY  k;
+
+    gi_lnkdirs_resolve();
+    for (i = 0; i < g_gi_nlnkdirs; i++)
+        fp += gi_fp_listing(g_gi_lnkdir[i], "*.lnk", GI_FP_FILE_TIMES);
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
+                      "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+                      0, KEY_READ, &k) == ERROR_SUCCESS) {
+        DWORD j;
+        for (j = 0; ; j++) {
+            char  name[256];
+            DWORD nlen = sizeof(name);
+            if (RegEnumKeyExA(k, j, name, &nlen, NULL, NULL, NULL, NULL)
+                    != ERROR_SUCCESS)
+                break;
+            fp += (DWORD)gi_fp_entry(name, 1, 0, 0);
+        }
+        fp += j * 2654435761UL;
+        RegCloseKey(k);
+    }
+
+    n = GetLogicalDriveStringsA(sizeof(drives) - 1, drives);
+    if (n == 0 || n >= sizeof(drives))
+        return fp;
+    for (p = drives; *p; p += lstrlenA(p) + 1) {
+        if (GetDriveTypeA(p) != DRIVE_FIXED)
+            continue;
+        /* the drive root: names only - its own entries (pagefile, the agent's
+         * directory) change for reasons that have nothing to do with games */
+        fp += gi_fp_listing(p, "*", GI_FP_SKIP_SYS);
+        for (i = 0; g_roots[i]; i++) {
+            if (!g_roots[i][0])
+                continue;
+            join(root, sizeof(root), p, g_roots[i]);
+            fp += gi_fp_listing(root, "*", GI_FP_DIR_TIMES);
+        }
+    }
+    return fp;
+}
+
+/* ---------------------------------------------------------------------- */
+/* The on-disk copy of the last index                                      */
+/* ---------------------------------------------------------------------- */
+
+/*
+ * A reboot used to mean "no index until the first scan" - GAMEINDEX answered
+ * {"pending":true}, and the host answered THAT with a synchronous GAMEINDEX
+ * SCAN on the command thread (on Win9x, the only thread). Keeping the last
+ * index on disk lets the agent answer straight away, and lets the first check
+ * skip the pass entirely when the fingerprint still matches. A torn or foreign
+ * file fails gi_cache_parse() and is ignored.
+ */
+static void gi_cache_load(void)
+{
+    HANDLE h;
+    DWORD  size, got = 0;
+    char  *buf, *doc;
+    unsigned long fp, hash, off, len;
+
+    h = CreateFileA(GI_CACHE_PATH, GENERIC_READ, FILE_SHARE_READ, NULL,
+                    OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return;
+    /* under the scan lock: a GAMEINDEX SCAN can already be running */
+    EnterCriticalSection(&g_gi_scan_lock);
+    if (g_gi_have) {                    /* ...and may already have finished */
+        LeaveCriticalSection(&g_gi_scan_lock);
+        CloseHandle(h);
+        return;
+    }
+    size = GetFileSize(h, NULL);
+    buf = (size == 0xFFFFFFFF || size < 32 || size > GI_CACHE_MAX)
+          ? NULL : (char *)HeapAlloc(GetProcessHeap(), 0, size + 1);
+    if (!buf || !ReadFile(h, buf, size, &got, NULL) || got != size ||
+        !gi_cache_parse(buf, size, &fp, &hash, &off, &len)) {
+        LeaveCriticalSection(&g_gi_scan_lock);
+        CloseHandle(h);
+        if (buf)
+            HeapFree(GetProcessHeap(), 0, buf);
+        log_msg(LOG_GI, "cache %s unreadable - will scan", GI_CACHE_PATH);
+        return;
+    }
+    CloseHandle(h);
+    doc = (char *)HeapAlloc(GetProcessHeap(), 0, len + 1);
+    if (doc) {
+        memcpy(doc, buf + off, len);
+        doc[len] = 0;
+        EnterCriticalSection(&g_gi_lock);
+        if (g_gi_json)
+            HeapFree(GetProcessHeap(), 0, g_gi_json);
+        g_gi_json = doc;
+        g_gi_hash = (DWORD)hash;
+        g_gi_have = 1;
+        LeaveCriticalSection(&g_gi_lock);
+        g_gi_fp = g_gi_cache_fp = (DWORD)fp;
+        g_gi_cache_hash = (DWORD)hash;
+        g_gi_full_at = GetTickCount();
+        log_msg(LOG_GI, "serving the last index from %s (hash=%08lx) until "
+                "the first check", GI_CACHE_PATH, hash);
+    }
+    LeaveCriticalSection(&g_gi_scan_lock);
+    HeapFree(GetProcessHeap(), 0, buf);
+}
+
+static void gi_cache_save(DWORD fp, DWORD hash, const char *doc)
+{
+    char   hdr[GI_CACHE_HDR_MAX];
+    DWORD  len = (DWORD)lstrlenA(doc), wr = 0, wr2 = 0;
+    int    hl;
+    HANDLE h;
+
+    if (fp == g_gi_cache_fp && hash == g_gi_cache_hash)
+        return;                 /* same index, same fingerprint: nothing new */
+    hl = gi_cache_header(hdr, fp, hash, len);
+    CreateDirectoryA("C:\\RETRO_AGENT", NULL);
+    h = CreateFileA(GI_CACHE_PATH, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return;
+    WriteFile(h, hdr, (DWORD)hl, &wr, NULL);
+    WriteFile(h, doc, len, &wr2, NULL);
+    CloseHandle(h);
+    if (wr == (DWORD)hl && wr2 == len) {
+        g_gi_cache_fp = fp;
+        g_gi_cache_hash = hash;
+    }
+}
+
+/* ---------------------------------------------------------------------- */
+/* A pass                                                                  */
+/* ---------------------------------------------------------------------- */
+
+/* Caller holds g_gi_scan_lock. `fp` is the fingerprint taken BEFORE the walk
+ * (so a change made during it is seen by the next check), or 0 to take it
+ * here. */
+static void gi_scan_locked(DWORD fp, const char *why)
 {
     DWORD t0 = GetTickCount();
     DWORD hash = 0;
     DWORD took;
     char *doc;
 
+    if (!fp)
+        fp = gi_fingerprint();
     g_ent_count = 0;
     scan_shortcuts();
     scan_uninstall();
@@ -682,9 +977,12 @@ static void gi_scan(void)
     g_gi_scan_ms    = took;
     g_gi_have       = 1;
     LeaveCriticalSection(&g_gi_lock);
+    g_gi_fp      = fp;
+    g_gi_full_at = GetTickCount();
 
-    log_msg(LOG_GI, "scan complete: %d game(s), hash=%08lx, %lums",
-            g_ent_count, (unsigned long)hash, (unsigned long)took);
+    log_msg(LOG_GI, "scan complete (%s): %d game(s), hash=%08lx, %lums",
+            why, g_ent_count, (unsigned long)hash, (unsigned long)took);
+    gi_cache_save(fp, hash, doc);
 }
 
 static DWORD gi_period_ms(void)
@@ -707,22 +1005,62 @@ static DWORD gi_period_ms(void)
 
 DWORD WINAPI gameindex_thread(LPVOID param)
 {
-    DWORD period;
+    HANDLE me = NULL;
     (void)param;
 
     thread_background();         /* a disk walk is not worth a game frame */
-    Sleep(GI_FIRST_DELAY_MS);
-    for (;;) {
-        gi_scan();
-        period = gi_period_ms();
-        Sleep(period);
+    /* A real handle to this thread, so GAMEINDEX SCAN can lift it while it
+     * waits for a pass this thread holds (see handle_gameindex). */
+    if (DuplicateHandle(GetCurrentProcess(), GetCurrentThread(),
+                        GetCurrentProcess(), &me, 0, FALSE,
+                        DUPLICATE_SAME_ACCESS))
+        g_gi_thread = me;
+
+    gi_cache_load();
+    Sleep(g_gi_have ? GI_FIRST_DELAY_MS : GI_FIRST_DELAY_NOCACHE_MS);
+
+    while (g_running) {
+        int   reason, poked;
+        DWORD fp;
+
+        thread_background();     /* SCAN may have lifted us for its wait */
+        poked = (int)InterlockedExchange((LONG *)&g_gi_poked, 0);
+
+        EnterCriticalSection(&g_gi_scan_lock);
+        fp = gi_fingerprint();
+        reason = gi_scan_reason(g_gi_have, fp, g_gi_fp,
+                                GetTickCount() - g_gi_full_at,
+                                GI_FULL_EVERY_MS, poked);
+        if (reason != GI_SCAN_SKIP)
+            gi_scan_locked(fp, gi_scan_reason_name(reason));
+        LeaveCriticalSection(&g_gi_scan_lock);
+
+        /* Sleep until the next check - or until GAMESYNC says it deployed
+         * something, which is exactly when the host wants a fresh answer. */
+        if (g_gi_wake)
+            WaitForSingleObject(g_gi_wake, gi_period_ms());
+        else
+            Sleep(gi_period_ms());
     }
+    return 0;
+}
+
+void gameindex_poke(void)
+{
+    InterlockedExchange((LONG *)&g_gi_poked, 1);
+    if (g_gi_wake)
+        SetEvent(g_gi_wake);
 }
 
 void gameindex_init(void)
 {
     if (!g_gi_lock_ready) {
         InitializeCriticalSection(&g_gi_lock);
+        InitializeCriticalSection(&g_gi_scan_lock);
+        g_gi_wake = CreateEventA(NULL, FALSE, FALSE, NULL);   /* auto-reset */
+        if (gim_table_init(&g_gi_tab, g_sigs) < 0)
+            log_msg(LOG_GI, "signature table has more than %d rows - raise "
+                    "GIM_MAX_SIGS; the rest are NOT matched", GIM_MAX_SIGS);
         g_gi_lock_ready = 1;
     }
 }
@@ -740,8 +1078,17 @@ void handle_gameindex(SOCKET sock, const char *args)
 
     gameindex_init();
 
-    if (a[0] && str_starts_with(a, "SCAN"))
-        gi_scan();
+    if (a[0] && str_starts_with(a, "SCAN")) {
+        /* A background pass holds g_gi_scan_lock at THREAD_PRIORITY_IDLE.
+         * While a game keeps the CPU busy an IDLE thread barely runs, and
+         * this command - on Win9x, every command - would wait behind it. Lift
+         * the scanner first; it drops itself back before its next check. */
+        if (g_gi_thread)
+            SetThreadPriority(g_gi_thread, THREAD_PRIORITY_NORMAL);
+        EnterCriticalSection(&g_gi_scan_lock);
+        gi_scan_locked(0, "requested");
+        LeaveCriticalSection(&g_gi_scan_lock);
+    }
 
     EnterCriticalSection(&g_gi_lock);
     if (!g_gi_have) {
