@@ -19,6 +19,10 @@ It does not touch a box whose SMB is also down (the machine is off or dead -
 nothing remote can help), and it never acts on a box that is answering.
 
     box-guardian.py 192.168.1.124 [--grace 360] [--interval 60] [--log FILE]
+
+Start it OUTSIDE the Claude Code session, or it dies with the session:
+    systemd-run --user --unit=box-guardian-124 --same-dir \
+        python3 scripts/fleet/box-guardian.py 192.168.1.124 --log <file>
 """
 import argparse
 import asyncio
@@ -70,15 +74,25 @@ async def main():
     ap.add_argument('--interval', type=int, default=60)
     ap.add_argument('--cooldown', type=int, default=600)
     ap.add_argument('--log')
+    ap.add_argument('--heartbeat', type=int, default=1800,
+                    help='seconds between "agent ok" log lines (0 = every poll)')
     ap.add_argument('--dry-run', action='store_true')
     a = ap.parse_args()
     last_ok = time.time()
+    last_beat = 0.0
     log(a.log, f'guarding {a.ip}: grace {a.grace}s, interval {a.interval}s')
     while True:
         if await agent_alive(a.ip):
             if time.time() - last_ok > 2 * a.interval:
                 log(a.log, 'agent answering again')
             last_ok = time.time()
+            # A guardian that only writes on trouble dies silently: twice on
+            # 2026-09-24 it was killed with the Claude Code session that
+            # started it and the log simply stopped. A heartbeat makes a dead
+            # guardian visible in its own log. Run it under systemd-run --user.
+            if time.time() - last_beat >= a.heartbeat:
+                log(a.log, 'heartbeat: agent ok')
+                last_beat = time.time()
         else:
             silent = time.time() - last_ok
             smb = smb_open(a.ip)
