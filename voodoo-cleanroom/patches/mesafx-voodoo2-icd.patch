@@ -43,7 +43,7 @@ index a6c0ab5..eb79114 100644
  else
  ifeq ($(ICD),1)
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..e1cf394 100644
+index 350f075..22781f7 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
 @@ -83,13 +83,32 @@ static GrHwConfiguration glbHWConfig;
@@ -164,7 +164,7 @@ index 350f075..e1cf394 100644
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.65]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.66]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
@@ -820,6 +820,28 @@ index efdee0c..f943fc5 100644
     { OFF, "GL_ARB_occlusion_query",            F(ARB_occlusion_query) },
     { OFF, "GL_ARB_point_parameters",           F(EXT_point_parameters) },
     { OFF, "GL_ARB_point_sprite",               F(ARB_point_sprite) },
+diff --git a/src/mesa/main/imports.h b/src/mesa/main/imports.h
+index 86480c8..64ab495 100644
+--- a/src/mesa/main/imports.h
++++ b/src/mesa/main/imports.h
+@@ -143,7 +143,16 @@ extern "C" {
+ #  define DEFMNARRAY(TYPE,NAME,SIZE1,SIZE2,SIZE3)	TYPE (*NAME)[SIZE2][SIZE3] = (TYPE(*)[SIZE2][SIZE3])_mesa_alloc(sizeof(TYPE)*(SIZE1)*(SIZE2)*(SIZE3))
+ #  define CHECKARRAY(NAME,CMD)				do {if (!(NAME)) {CMD;}} while (0)
+ #  define UNDEFARRAY(NAME)          			do {if ((NAME)) {_mesa_free((char*)NAME);}  }while (0)
+-#elif defined(__BEOS__)
++#elif defined(__BEOS__) || (defined(FX) && defined(__WIN32__))
++/* [retro3dfx 0.1.66] Our Win32 FX ICD takes the heap variant too. The stack
++ * variant made _mesa_unpack_color_span_chan (and its pack/float siblings) an
++ * 80 KB stack frame (MAX_WIDTH 4096 x 4 floats + indexes); a Quake II-engine
++ * game already holds ~768 KB of texture scratch on its 1 MB main-thread stack
++ * when it calls glTexImage2D, so SiN Gold died of a stack overflow in
++ * ___chkstk_ms under fxDDTexImage2D -> _mesa_texstore_argb8888 ->
++ * _mesa_make_temp_chan_image -> _mesa_unpack_color_span_chan (Dr Watson,
++ * .124, 2026-09-24). Every DEF*ARRAY site is paired with UNDEFARRAY on each
++ * exit (checked; the two s_texture.c crossbar returns were fixed with this). */
+ #  define DEFARRAY(TYPE,NAME,SIZE)  			TYPE *NAME = (TYPE*)_mesa_malloc(sizeof(TYPE)*(SIZE))
+ #  define DEFMARRAY(TYPE,NAME,SIZE1,SIZE2)  		TYPE (*NAME)[SIZE2] = (TYPE(*)[SIZE2])_mesa_malloc(sizeof(TYPE)*(SIZE1)*(SIZE2))
+ #  define DEFMNARRAY(TYPE,NAME,SIZE1,SIZE2,SIZE3)	TYPE (*NAME)[SIZE2][SIZE3] = (TYPE(*)[SIZE2][SIZE3])_mesa_malloc(sizeof(TYPE)*(SIZE1)*(SIZE2)*(SIZE3))
 diff --git a/src/mesa/main/mtypes.h b/src/mesa/main/mtypes.h
 index 9da1e58..fe3b2f7 100644
 --- a/src/mesa/main/mtypes.h
@@ -832,6 +854,34 @@ index 9da1e58..fe3b2f7 100644
     GLboolean SGIS_pixel_texture;
     GLboolean SGIS_texture_edge_clamp;
     GLboolean SGIS_texture_lod;
+diff --git a/src/mesa/swrast/s_texture.c b/src/mesa/swrast/s_texture.c
+index 2139716..58730da 100644
+--- a/src/mesa/swrast/s_texture.c
++++ b/src/mesa/swrast/s_texture.c
+@@ -2914,8 +2914,10 @@ texture_combine( const GLcontext *ctx, GLuint unit, GLuint n,
+             {
+                const GLuint srcUnit = srcRGB - GL_TEXTURE0;
+                ASSERT(srcUnit < ctx->Const.MaxTextureUnits);
+-               if (!ctx->Texture.Unit[srcUnit]._ReallyEnabled)
++               if (!ctx->Texture.Unit[srcUnit]._ReallyEnabled) {
++                  UNDEFARRAY(ccolor);  /* [retro3dfx 0.1.66] heap in our build */
+                   return;
++               }
+                argRGB[j] = (const GLchan (*)[4])
+                   (texelBuffer + srcUnit * (n * 4 * sizeof(GLchan)));
+             }
+@@ -2990,8 +2992,10 @@ texture_combine( const GLcontext *ctx, GLuint unit, GLuint n,
+             {
+                const GLuint srcUnit = srcA - GL_TEXTURE0;
+                ASSERT(srcUnit < ctx->Const.MaxTextureUnits);
+-               if (!ctx->Texture.Unit[srcUnit]._ReallyEnabled)
++               if (!ctx->Texture.Unit[srcUnit]._ReallyEnabled) {
++                  UNDEFARRAY(ccolor);  /* [retro3dfx 0.1.66] heap in our build */
+                   return;
++               }
+                argA[j] = (const GLchan (*)[4])
+                   (texelBuffer + srcUnit * (n * 4 * sizeof(GLchan)));
+             }
 diff --git a/src/mesa/tnl/t_context.c b/src/mesa/tnl/t_context.c
 index e4d0d04..f662936 100644
 --- a/src/mesa/tnl/t_context.c

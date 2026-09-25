@@ -930,3 +930,27 @@ def test_allours_stages_our_glide_and_other_lanes_remove_it(bench):
     a = bench.TITLES["quake2"]("allours")
     assert a.tid == "quake2:allours" and a.local_glide and a.gl_driver == "retrogl"
     assert bench.TITLES["quake3"]("allours").tid == "quake3:allours"
+
+
+def test_rows_carry_the_cpu_clock(bench):
+    """.124 came back from a power cycle at 1503 MHz instead of 2004 and every
+    CPU-bound cell read ~20% low with nothing in the row saying why."""
+    assert "cpu_mhz" in bench.CSV_COLS
+
+
+def test_game_is_closed_gracefully_before_any_force_kill(bench):
+    import asyncio
+    calls = []
+    class Box:
+        def __init__(self): self.n = 0
+        async def exec_(self, cmd, timeout=90):
+            calls.append(cmd)
+            if cmd.startswith("cmd /c tasklist"):
+                self.n += 1
+                return "" if self.n >= 2 else "quake2.exe  123 Console"
+            return ""
+    assert asyncio.run(bench.graceful_kill(Box(), "quake2.exe", wait_s=10)) is True
+    assert "/f" not in calls[0] and not any("taskkill /f" in c for c in calls)
+    import inspect
+    src = inspect.getsource(bench)
+    assert src.count("taskkill /f /im \"{title.proc}\"") == 0

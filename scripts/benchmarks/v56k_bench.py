@@ -143,7 +143,7 @@ CSV_COLS = ["stamp", "title", "engine", "api", "res", "width", "height",
             "aa_verified",
             "game_exe", "game_size", "game_md5",
             "driver_pkg", "driver_ver", "glide3x_md5", "icd_md5",
-            "os_build", "agent_ver", "gpu",
+            "os_build", "agent_ver", "gpu", "cpu_mhz",
             "mem_avail_mb", "mem_load_pct",
             "status", "notes"]
 
@@ -267,6 +267,28 @@ async def file_identity(box, path):
     return {"path": path, "size": size, "md5": md5}
 
 
+async def graceful_kill(box, image, wait_s=10):
+    """Close a game with WM_CLOSE first and force it only if it is still there.
+
+    A Glide process killed with TerminateProcess never runs glide3x's
+    DLL_PROCESS_DETACH, so it never sends HWCEXT_UNMAP_MEMORY; the display
+    driver keys that state on the PID alone and hands the dead process's
+    register mappings to the next process that reuses the PID - the "dead board
+    mapping" c0000005 in grGlideInit seen on CS 1.6, Quake II and Quake III
+    (retro-3dfx FINDINGS 2026-09-24; audit of the vintage HWCEXT.C). A hard
+    kill mid-frame also preceded the 2026-09-24 total wedge of .124.
+    Returns True when the image is gone."""
+    await box.exec_(f'cmd /c taskkill /im "{image}" 2>nul', timeout=30)
+    deadline = time.time() + wait_s
+    while time.time() < deadline:
+        out = await box.exec_(f'cmd /c tasklist /fi "imagename eq {image}" /nh', timeout=30)
+        if image.lower() not in out.lower():
+            return True
+        await asyncio.sleep(2)
+    await box.exec_(f'cmd /c taskkill /f /im "{image}" 2>nul', timeout=30)
+    return False
+
+
 async def collect_versions(box, glide_key):
     """Everything that decides what a benchmark number MEANS on this box.
 
@@ -289,6 +311,13 @@ async def collect_versions(box, glide_key):
                                 ("product", "version", "service_pack")).strip()
                        if isinstance(o, dict) else str(o or ""))
         v["hostname"] = prof.get("hostname")
+        # The CPU clock decides every CPU-bound cell. .124 came back from a
+        # power cycle at 1503 MHz (BIOS reset to a 100 MHz FSB) instead of
+        # 2004, and nothing in a row said so: Quake II 640x480 read 175 fps
+        # against 215 the day before, on the same card and config.
+        cpu = prof.get("cpu") or {}
+        v["cpu_mhz"] = cpu.get("mhz")
+        v["cpu"] = cpu.get("brand")
         for c in prof.get("video_cards", []):
             if c.get("attached_to_desktop"):
                 v["gpu"] = {"name": c.get("name"), "driver_version":
@@ -1431,7 +1460,7 @@ class CS16:
             if "hl.exe" not in out.lower():
                 break
             await asyncio.sleep(10)
-        await box.exec_('cmd /c taskkill /f /im hl.exe 2>nul')
+        await graceful_kill(box, "hl.exe")
         await box.exec_(f'cmd /c del /f /q "{self.lscfg}" 2>nul')
         size = await self._demo_size(box)
         if size <= 20000:
@@ -1849,6 +1878,7 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
         "os_build": v.get("os_str") or v.get("os", ""),
         "agent_ver": v.get("agent_ver", ""),
         "gpu": (v.get("gpu") or {}).get("name", ""),
+        "cpu_mhz": v.get("cpu_mhz", ""),
     })
     row.update({
         "stamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -1907,7 +1937,7 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     row["engine"] = getattr(title, "engine", row["engine"])
     if extra:   # an A/B knob belongs to the row, not to the operator's memory
         row["engine"] += " [env " + " ".join(f"{k}={v}" for k, v in extra.items()) + "]"
-    await box.exec_(f'cmd /c taskkill /f /im "{title.proc}"', timeout=30)
+    await graceful_kill(box, title.proc)
     await asyncio.sleep(2)
 
     # 3. go
@@ -1998,7 +2028,7 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     # real outcome - record it as such, and give the box time to settle.
     unkillable = False
     try:
-        await box.exec_(f'cmd /c taskkill /f /im "{title.proc}"', timeout=30)
+        await graceful_kill(box, title.proc)
     except (asyncio.TimeoutError, TimeoutError):
         unkillable = True
         await asyncio.sleep(45)
