@@ -44,6 +44,18 @@
 #define CONNECT_RETRY_MS  2000  /* startup wait-for-agent retry pace */
 #define INPUT_MAX 1024
 
+/* How long a reply may take before the connection is written off.
+ *
+ * frame_recv() had no bound at all, and PROMPT_PUSH runs on the INPUT thread:
+ * an agent that accepted the connection but never answered (a wedged 9x
+ * agent, one mid-way through an auto-update restart) froze typing - even
+ * :quit - for good. Now every reply is waited for at most this long, after
+ * which the socket is closed and re-opened. */
+#define POLL_SLACK_MS     10000   /* a long-poll: its own timeout + this */
+#define AUTH_TIMEOUT_MS   10000
+#define CMD_TIMEOUT_MS    15000   /* PROMPT_PUSH, LOG_CLEAR */
+#define PUSH_RETRY_MS     30000   /* keep re-trying an undelivered prompt */
+
 static HANDLE g_hOut;
 static HANDLE g_hIn;
 static CRITICAL_SECTION g_console_cs;
@@ -73,38 +85,73 @@ static CRITICAL_SECTION g_status_cs;
 
 /* ---- frame I/O ---- */
 
+/* One buffer, ONE send. Two sends of a tiny frame are two segments, and with
+ * Nagle on (this client never used to turn it off) the second one waited for
+ * the agent's delayed ACK - up to ~200 ms on every single poll. */
 static int frame_send(SOCKET s, const char *data, DWORD len)
 {
-    BYTE hdr[4];
-    hdr[0] = (BYTE)(len & 0xFF);
-    hdr[1] = (BYTE)((len >> 8) & 0xFF);
-    hdr[2] = (BYTE)((len >> 16) & 0xFF);
-    hdr[3] = (BYTE)((len >> 24) & 0xFF);
-    if (send(s, (const char *)hdr, 4, 0) != 4) return -1;
-    if (len > 0 && send(s, data, len, 0) != (int)len) return -1;
-    return 0;
+    char stackbuf[512];
+    char *buf = stackbuf;
+    DWORD total = len + 4, sent = 0;
+
+    if (total > sizeof(stackbuf)) {
+        buf = (char *)malloc(total);
+        if (!buf) return -1;
+    }
+    buf[0] = (char)(len & 0xFF);
+    buf[1] = (char)((len >> 8) & 0xFF);
+    buf[2] = (char)((len >> 16) & 0xFF);
+    buf[3] = (char)((len >> 24) & 0xFF);
+    if (len) memcpy(buf + 4, data, len);
+    while (sent < total) {
+        int n = send(s, buf + sent, (int)(total - sent), 0);
+        if (n <= 0) break;
+        sent += (DWORD)n;
+    }
+    if (buf != stackbuf) free(buf);
+    return sent == total ? 0 : -1;
 }
 
-static int frame_recv(SOCKET s, char **out_buf, DWORD *out_len)
+/* recv() at most len bytes, but give up (-1) once `deadline` (a GetTickCount
+ * value) has passed with nothing to read. select() is safe on Win9x. */
+static int recv_by(SOCKET s, char *buf, int len, DWORD deadline)
+{
+    fd_set r;
+    struct timeval tv;
+    DWORD now = GetTickCount();
+    DWORD left = ((LONG)(deadline - now) > 0) ? deadline - now : 0;
+
+    FD_ZERO(&r);
+    FD_SET(s, &r);
+    tv.tv_sec = (long)(left / 1000);
+    tv.tv_usec = (long)((left % 1000) * 1000);
+    if (select(0, &r, NULL, NULL, &tv) <= 0)
+        return -1;                      /* timed out (or error) */
+    return recv(s, buf, len, 0);
+}
+
+/* Receive one frame; the WHOLE frame must arrive within timeout_ms. */
+static int frame_recv(SOCKET s, char **out_buf, DWORD *out_len, DWORD timeout_ms)
 {
     BYTE hdr[4];
     int got = 0;
     DWORD len;
     char *buf;
+    DWORD deadline = GetTickCount() + timeout_ms;
 
     while (got < 4) {
-        int r = recv(s, (char *)hdr + got, 4 - got, 0);
+        int r = recv_by(s, (char *)hdr + got, 4 - got, deadline);
         if (r <= 0) return -1;
         got += r;
     }
-    len = hdr[0] | (hdr[1] << 8) | (hdr[2] << 16) | (hdr[3] << 24);
+    len = hdr[0] | (hdr[1] << 8) | (hdr[2] << 16) | ((DWORD)hdr[3] << 24);
     if (len > 4 * 1024 * 1024) return -1;
 
     buf = (char *)malloc(len + 1);
     if (!buf) return -1;
     got = 0;
     while ((DWORD)got < len) {
-        int r = recv(s, buf + got, len - got, 0);
+        int r = recv_by(s, buf + got, (int)(len - got), deadline);
         if (r <= 0) { free(buf); return -1; }
         got += r;
     }
@@ -137,6 +184,13 @@ static SOCKET agent_connect(void)
         return INVALID_SOCKET;
     }
 
+    /* Nagle off: every exchange here is a small request and a reply */
+    {
+        BOOL nodelay = TRUE;
+        setsockopt(s, IPPROTO_TCP, TCP_NODELAY,
+                   (const char *)&nodelay, sizeof(nodelay));
+    }
+
     /* Send AUTH */
     _snprintf(auth, sizeof(auth), "AUTH %s", AGENT_SECRET);
     if (frame_send(s, auth, (DWORD)strlen(auth)) != 0) {
@@ -144,8 +198,9 @@ static SOCKET agent_connect(void)
         return INVALID_SOCKET;
     }
 
-    /* Receive auth response */
-    if (frame_recv(s, &resp, &resp_len) != 0) {
+    /* Receive auth response - bounded: an agent that accepts and never
+     * answers must not hang whoever is connecting */
+    if (frame_recv(s, &resp, &resp_len, AUTH_TIMEOUT_MS) != 0) {
         closesocket(s);
         return INVALID_SOCKET;
     }
@@ -159,20 +214,26 @@ static SOCKET agent_connect(void)
     return s;
 }
 
-static int agent_command(SOCKET s, const char *cmd, char **out_text, DWORD *out_len)
+/* Send one command and wait at most timeout_ms for its reply.
+ * Returns  0  success: *out_text (if asked for) holds the reply text
+ *         -1  the CONNECTION failed (send/recv error, or no reply in time):
+ *             close it and reconnect
+ *         -2  the agent answered with an ERROR: *out_text holds its message */
+static int agent_command(SOCKET s, const char *cmd, char **out_text, DWORD *out_len,
+                         DWORD timeout_ms)
 {
     char *resp = NULL;
     DWORD resp_len = 0;
+    int rc = 0;
 
+    if (out_text) *out_text = NULL;
+    if (s == INVALID_SOCKET) return -1;
     if (frame_send(s, cmd, (DWORD)strlen(cmd)) != 0) return -1;
-    if (frame_recv(s, &resp, &resp_len) != 0) return -1;
+    if (frame_recv(s, &resp, &resp_len, timeout_ms) != 0) return -1;
 
     if (resp_len < 1) { free(resp); return -1; }
-    if ((BYTE)resp[0] == 0xFF) {
-        /* error */
-        free(resp);
-        return -1;
-    }
+    if ((BYTE)resp[0] == 0xFF)
+        rc = -2;                        /* the agent refused the command */
     /* Skip status byte */
     if (out_text) {
         DWORD textlen = resp_len - 1;
@@ -185,7 +246,7 @@ static int agent_command(SOCKET s, const char *cmd, char **out_text, DWORD *out_
         }
     }
     free(resp);
-    return 0;
+    return rc;
 }
 
 /* ---- console UI (Claude Code-style) ----
@@ -232,9 +293,26 @@ static volatile int g_waiting = 0;     /* 1 = prompt sent, awaiting first chunk 
 static int g_spinner_idx = 0;
 static const char SPINNER_CHARS[] = "|/-\\";
 
+/* Wakes the spinner thread, which otherwise sleeps until there is something
+ * to animate (auto-reset; set whenever g_waiting goes to 1, and at exit). */
+static HANDLE g_spin_event = NULL;
+
+static void start_waiting(void)
+{
+    g_waiting = 1;
+    if (g_spin_event) SetEvent(g_spin_event);
+}
+
+/* Console attribute changes are not free on Win9x (every console call goes
+ * through the 16-bit console), so skip the ones that change nothing. Only
+ * set_color() ever sets the attribute, so the cache cannot go stale. */
+static WORD g_cur_color = 0xFFFF;
+
 static void set_color(WORD attrs)
 {
+    if (attrs == g_cur_color) return;
     SetConsoleTextAttribute(g_hOut, attrs);
+    g_cur_color = attrs;
 }
 
 /* Connect to the local agent, waiting for it to come up if it isn't
@@ -272,6 +350,21 @@ static SOCKET agent_connect_wait(void)
         } else {
             WriteConsoleA(g_hOut, ".", 1, &written, NULL);
         }
+        Sleep(CONNECT_RETRY_MS);
+    }
+}
+
+/* Like agent_connect_wait(), but gives up after max_ms and prints nothing -
+ * it runs while the input area is on screen, where the spinner already says
+ * that something is happening. */
+static SOCKET agent_connect_within(DWORD max_ms)
+{
+    DWORD give_up = GetTickCount() + max_ms;
+    for (;;) {
+        SOCKET s = agent_connect();
+        if (s != INVALID_SOCKET) return s;
+        if (!g_running || (LONG)(GetTickCount() - give_up) >= 0)
+            return INVALID_SOCKET;
         Sleep(CONNECT_RETRY_MS);
     }
 }
@@ -484,6 +577,21 @@ static void print_log_chunk(const char *text, DWORD len)
     free(wrapped);
 }
 
+/* A one-line notice from the client itself (not the assistant), printed
+ * above the input area. stop_waiting clears the spinner too. */
+static void print_notice(const char *text, int stop_waiting)
+{
+    DWORD written;
+    EnterCriticalSection(&g_console_cs);
+    erase_input_area();
+    set_color(COLOR_SPINNER);
+    WriteConsoleA(g_hOut, text, (DWORD)strlen(text), &written, NULL);
+    WriteConsoleA(g_hOut, "\n", 1, &written, NULL);
+    if (stop_waiting) g_waiting = 0;
+    draw_input_area();
+    LeaveCriticalSection(&g_console_cs);
+}
+
 /* ---- polling thread ---- */
 
 /* Close a dead socket and reopen a fresh authenticated connection in its
@@ -520,24 +628,38 @@ static DWORD WINAPI wait_thread(LPVOID param)
 
         _snprintf(cmd, sizeof(cmd), "LOG_WAIT %lu %d",
                   (unsigned long)g_log_offset, WAIT_TIMEOUT_MS);
-        if (agent_command(s, cmd, &resp, &resp_len) == 0 && resp) {
-            /* Format: "<total_size>\n<bytes>" */
+        if (agent_command(s, cmd, &resp, &resp_len,
+                          WAIT_TIMEOUT_MS + POLL_SLACK_MS) == 0 && resp) {
+            /* Format: "<total_size>\n<bytes>".
+             *
+             * Offsets are ABSOLUTE on an agent >= 1.85.0 (agent/shared/
+             * chatcore.h): the body always runs up to total_size, even when
+             * the agent had to skip bytes its ring already dropped, so the
+             * new offset is total_size itself - not offset + bytes received,
+             * which would land short of the end after a skip and print the
+             * same text again next time. On an older agent the body also
+             * ends at total_size, so this is the same arithmetic there.
+             *
+             * total_size BELOW our offset means the log was cleared or the
+             * agent restarted: start again from 0. (An older agent also
+             * shrank the total when its ring dropped its oldest half, and
+             * this reprinted up to 128 KB; a current one never does.) */
             char *nl = strchr(resp, '\n');
             if (nl) {
                 DWORD total_size = (DWORD)strtoul(resp, NULL, 10);
                 const char *body = nl + 1;
                 DWORD body_len = resp_len - (DWORD)(body - resp);
-                if (body_len > 0) {
-                    print_log_chunk(body, body_len);
-                    g_log_offset += body_len;
-                }
                 if (total_size < g_log_offset) {
-                    /* Log was cleared/reset on the agent */
                     g_log_offset = 0;
+                } else {
+                    if (body_len > 0)
+                        print_log_chunk(body, body_len);
+                    g_log_offset = total_size;
                 }
             }
             free(resp);
         } else {
+            free(resp);         /* an error reply carries text too */
             /* Connection lost — reconnect the wait socket so responses
              * keep flowing after an agent restart or network blip. The
              * LOG_WAIT total_size check resyncs g_log_offset if the log
@@ -572,7 +694,8 @@ static DWORD WINAPI status_thread(LPVOID param)
 
         _snprintf(cmd, sizeof(cmd), "STATUS_WAIT %lu %d",
                   (unsigned long)known, WAIT_TIMEOUT_MS);
-        if (agent_command(s, cmd, &resp, &resp_len) == 0 && resp) {
+        if (agent_command(s, cmd, &resp, &resp_len,
+                          WAIT_TIMEOUT_MS + POLL_SLACK_MS) == 0 && resp) {
             char *nl = strchr(resp, '\n');
             if (nl) {
                 DWORD new_seq = (DWORD)strtoul(resp, NULL, 10);
@@ -589,6 +712,7 @@ static DWORD WINAPI status_thread(LPVOID param)
             }
             free(resp);
         } else {
+            free(resp);
             /* Reconnect the status socket on failure (self-heal). */
             Sleep(RECONNECT_SLEEP_MS);
             agent_reconnect(&s);
@@ -615,7 +739,17 @@ static DWORD WINAPI spinner_thread(LPVOID param)
 {
     (void)param;
     while (g_running) {
-        if (g_waiting) {
+        if (!g_waiting) {
+            /* Nothing to animate: sleep until start_waiting() (or exit)
+             * signals, instead of waking 4x a second for as long as the
+             * chat is open. */
+            if (g_spin_event)
+                WaitForSingleObject(g_spin_event, INFINITE);
+            else
+                Sleep(250);
+            continue;
+        }
+        {
             g_spinner_idx = (g_spinner_idx + 1) & 3;
             EnterCriticalSection(&g_console_cs);
             /* Only touch the cell if the spinner line is actually drawn
@@ -636,8 +770,6 @@ static DWORD WINAPI spinner_thread(LPVOID param)
             }
             LeaveCriticalSection(&g_console_cs);
             Sleep(SPINNER_TICK_MS);
-        } else {
-            Sleep(250);  /* light idle */
         }
     }
     return 0;
@@ -703,6 +835,77 @@ static void history_browse(int dir)
     }
 }
 
+/* ---- prompt delivery ---- */
+
+/* The PROMPT_PUSH reply is "OK" plus optional flags (agent >= 1.85.0; an
+ * older agent just says "OK"): "replaced" = an earlier prompt had not been
+ * picked up and is gone; "no-listener <n>s" = nothing has polled this box
+ * for prompts in n seconds, so this one may sit unanswered. */
+static void show_push_reply(const char *reply)
+{
+    const char *nl;
+    char note[160];
+
+    if (!reply) return;
+    if (strstr(reply, "replaced"))
+        print_notice("[your previous prompt had not been picked up yet - "
+                     "this one replaced it]", 0);
+    nl = strstr(reply, "no-listener ");
+    if (nl) {
+        unsigned long secs = strtoul(nl + 12, NULL, 10);
+        _snprintf(note, sizeof(note),
+                  "[no chat service has polled this machine for %lus - "
+                  "the prompt is queued, but may not be answered]", secs);
+        note[sizeof(note) - 1] = '\0';
+        print_notice(note, 0);
+    }
+}
+
+/* Deliver a prompt, on the input thread. Every wait in here is bounded, so a
+ * wedged or restarting agent costs the user seconds, not the whole client:
+ * the old code blocked in an unbounded recv (typing, even :quit, froze), and
+ * when its one reconnect failed - the agent restarting for an auto-update -
+ * the prompt was silently dropped with the spinner turning forever. */
+static void push_prompt(SOCKET *ps, const char *prompt)
+{
+    char cmd[INPUT_MAX + 64];
+    char *reply = NULL;
+    int rc;
+
+    _snprintf(cmd, sizeof(cmd), "PROMPT_PUSH %s", prompt);
+    cmd[sizeof(cmd) - 1] = '\0';
+    rc = agent_command(*ps, cmd, &reply, NULL, CMD_TIMEOUT_MS);
+    if (rc == -1) {
+        /* The connection failed - the main socket sits idle between
+         * prompts and can be dropped (idle timeout, agent restart). Keep
+         * re-connecting and re-sending for PUSH_RETRY_MS. */
+        DWORD give_up = GetTickCount() + PUSH_RETRY_MS;
+        do {
+            DWORD left = give_up - GetTickCount();
+            if ((LONG)left <= 0) break;
+            if (*ps != INVALID_SOCKET) closesocket(*ps);
+            *ps = agent_connect_within(left);
+            if (*ps == INVALID_SOCKET) break;
+            free(reply);
+            reply = NULL;
+            rc = agent_command(*ps, cmd, &reply, NULL, CMD_TIMEOUT_MS);
+        } while (rc == -1 && g_running);
+    }
+
+    if (rc == 0) {
+        show_push_reply(reply);
+    } else if (rc == -2) {
+        char note[200];
+        _snprintf(note, sizeof(note), "[the agent refused the prompt: %s]",
+                  reply ? reply : "error");
+        note[sizeof(note) - 1] = '\0';
+        print_notice(note, 1);
+    } else {
+        print_notice("[prompt NOT delivered - agent unreachable]", 1);
+    }
+    free(reply);
+}
+
 /* ---- main ---- */
 
 static void print_banner(void)
@@ -763,6 +966,7 @@ int main(void)
 
     g_hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     g_hIn = GetStdHandle(STD_INPUT_HANDLE);
+    g_spin_event = CreateEvent(NULL, FALSE, FALSE, NULL);   /* auto-reset */
     InitializeCriticalSection(&g_console_cs);
     InitializeCriticalSection(&g_status_cs);
     get_console_size();
@@ -797,7 +1001,7 @@ int main(void)
 
     /* Fresh session: clear any previous chat history from the agent's
      * log buffer. Resume functionality can be added later. */
-    agent_command(s, "LOG_CLEAR", NULL, NULL);
+    agent_command(s, "LOG_CLEAR", NULL, NULL, CMD_TIMEOUT_MS);
     g_log_offset = 0;
 
     /* DO NOT DRAW THE PROMPT YET.
@@ -893,9 +1097,17 @@ int main(void)
 
             if (vk == VK_RETURN) {
                 if (g_input_len > 0) {
-                    char cmd[INPUT_MAX + 64];
                     char saved_prompt[INPUT_MAX];
                     g_input_buf[g_input_len] = '\0';
+
+                    /* A line of blanks is not a prompt (the agent refuses
+                     * one, and the daemon would read it as "no prompt") */
+                    if (strspn(g_input_buf, " ") == (size_t)g_input_len) {
+                        g_input_len = 0;
+                        g_input_cursor = 0;
+                        refresh_input();
+                        continue;
+                    }
 
                     /* Local commands */
                     if (strcmp(g_input_buf, ":quit") == 0) {
@@ -910,7 +1122,11 @@ int main(void)
                         continue;
                     }
                     if (strcmp(g_input_buf, ":clear") == 0) {
-                        agent_command(s, "LOG_CLEAR", NULL, NULL);
+                        if (agent_command(s, "LOG_CLEAR", NULL, NULL,
+                                          CMD_TIMEOUT_MS) == -1 &&
+                            agent_reconnect(&s) == 0)
+                            agent_command(s, "LOG_CLEAR", NULL, NULL,
+                                          CMD_TIMEOUT_MS);
                         g_log_offset = 0;
                         EnterCriticalSection(&g_console_cs);
                         {
@@ -948,22 +1164,15 @@ int main(void)
                         WriteConsoleA(g_hOut, "\n", 1, &w, NULL);
                         g_input_len = 0;
                         g_input_cursor = 0;
-                        g_waiting = 1;
                         g_spinner_idx = 0;
+                        start_waiting();
                         draw_input_area();
                     }
                     LeaveCriticalSection(&g_console_cs);
 
-                    /* Send the prompt to the proxy via the local agent. The
-                     * main socket sits idle between prompts and can be dropped
-                     * (idle timeout, agent restart, NAT). If the push fails,
-                     * reconnect and retry once so the prompt is never silently
-                     * lost. */
-                    _snprintf(cmd, sizeof(cmd), "PROMPT_PUSH %s", saved_prompt);
-                    if (agent_command(s, cmd, NULL, NULL) != 0
-                        && agent_reconnect(&s) == 0) {
-                        agent_command(s, cmd, NULL, NULL);
-                    }
+                    /* Send the prompt to the proxy via the local agent -
+                     * bounded, retried, and never silently lost. */
+                    push_prompt(&s, saved_prompt);
                 }
             } else if (vk == VK_UP) {
                 history_browse(-1);
@@ -998,19 +1207,39 @@ int main(void)
                 }
             } else if (ch >= 32 && ch < 127) {
                 if (g_input_len < INPUT_MAX - 1) {
-                    memmove(g_input_buf + g_input_cursor + 1,
-                            g_input_buf + g_input_cursor,
-                            g_input_len - g_input_cursor);
-                    g_input_buf[g_input_cursor] = ch;
-                    g_input_cursor++;
-                    g_input_len++;
-                    refresh_input();
+                    int echoed = 0;
+                    EnterCriticalSection(&g_console_cs);
+                    /* Typing at the END of the line, with no horizontal
+                     * scroll needed: write the ONE character where the caret
+                     * already is. The full erase + redraw below is ~12
+                     * console calls per key, and on Win9x every console call
+                     * goes through the slow 16-bit console - typing visibly
+                     * lagged. (Same bound as draw_input_area's scroll.) */
+                    if (g_input_cursor == g_input_len &&
+                        g_input_len + 1 <= g_screen_w - 3) {
+                        DWORD w;
+                        g_input_buf[g_input_len++] = ch;
+                        g_input_cursor = g_input_len;
+                        set_color(COLOR_DEFAULT);
+                        WriteConsoleA(g_hOut, &ch, 1, &w, NULL);
+                        echoed = 1;
+                    } else {
+                        memmove(g_input_buf + g_input_cursor + 1,
+                                g_input_buf + g_input_cursor,
+                                g_input_len - g_input_cursor);
+                        g_input_buf[g_input_cursor] = ch;
+                        g_input_cursor++;
+                        g_input_len++;
+                    }
+                    LeaveCriticalSection(&g_console_cs);
+                    if (!echoed) refresh_input();
                 }
             }
         }
     }
 
     g_running = 0;
+    if (g_spin_event) SetEvent(g_spin_event);   /* let the spinner exit */
     WaitForSingleObject(wait_h, 2000);
     WaitForSingleObject(spin_h, 500);
     CloseHandle(wait_h);
