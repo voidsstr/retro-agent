@@ -134,3 +134,16 @@ it is worth recognising early instead of retrying for an hour.
   `AWDFLASH 8RDA4729.BIN /py/sn/nvmac:000461F72584/wb` — but note `/wb`
   programs the boot block, so only do that **once the board boots normally**,
   never as part of a blind recovery.
+
+## This directory is the authority for flashing this board (2026-09-24)
+
+A chat session built a *second*, ad-hoc EP-8RDA+ flash floppy without finding
+this one - AWDFLASH 8.24F, `/Py /Sy /CC /CD /CP /R`, **no `/sb`** - and the
+board hung at *Programming Flash Memory*. Nothing was wrong with the BIOS image
+(same `8rda4729`, same md5); what was missing was every safety decision
+reasoned out above, above all skipping the boot block the flasher is running
+from.
+
+**If you are flashing this board, run `bash build.sh` and write `recovery.img`.
+Do not assemble a flash floppy by hand.** `scripts/fleet/rawfloppy/` is a
+general-purpose image writer and says so; it no longer carries a flash recipe.

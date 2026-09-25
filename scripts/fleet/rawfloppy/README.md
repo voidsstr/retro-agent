@@ -32,32 +32,36 @@ media took the bytes. Floppies rot; this fleet's stock is 20+ years old.
 
     i686-w64-mingw32-gcc -O2 -s -o rawfloppy.exe rawfloppy.c -lkernel32 -luser32
 
-## Recipe: an Award BIOS flash floppy (done 2026-09-24 for the EPoX EP-8RDA+)
+## DO NOT invent a BIOS flash floppy with this tool - use `provisioning/bios-recovery/`
 
-1. **BIOS image** - The Retro Web keeps EPoX's BIOSes; the EP-8RDA+ (PCB 2.x)
-   final is `8rda4729` (29 Jul 2004), 262,144 bytes, Award 6.00PG.
-2. **Flasher** - The Retro Web driver 1408 is a collection of every AWDFLASH
-   from 1.1 to 8.99. `AWD824F.exe` is AwardBIOS Flash Utility **V8.24F**, the
-   version the nForce2 boards shipped with. The files are plain DOS MZ
-   executables, not self-extractors - just rename to `AWDFLASH.EXE`.
-3. **DOS** - FreeDOS 1.3 `FD13-FloppyEdition.zip` -> `144m/x86BOOT.img`.
-   Copy that image, `mdeltree ::/FREEDOS` and `mdel` the installer's
-   `SETUP.BAT` / `FDAUTO.BAT` / `FDCONFIG.SYS`, keeping `KERNEL.SYS` and the
-   FreeDOS boot sector. Pull `COMMAND.COM` out of `::/FREEDOS/BIN` first -
-   deleting the tree takes it with it.
-4. `mcopy` in `COMMAND.COM`, `AWDFLASH.EXE`, the `.BIN`, an `FDCONFIG.SYS`
-   (`SHELL=A:\COMMAND.COM A:\ /E:512 /P`), an `AUTOEXEC.BAT` banner and a
-   `FLASH.BAT`. Everything **8.3 uppercase** - real DOS has no long names.
-5. **Boot-test it before trusting it**, no hardware needed:
+**This README used to carry a "recipe" for building an Award flash floppy, and
+following it hung an EPoX EP-8RDA+ mid-flash on 2026-09-24.** The recipe was
+written from scratch while a vetted one for that exact board already existed in
+this repo, unread, at [`provisioning/bios-recovery/`](../../../provisioning/bios-recovery/README.md).
+The recipe is deleted rather than corrected, because the correct one is not
+here.
 
-       qemu-system-i386 -m 32 -fda image.img -boot a -display none \
-           -vnc :19 -monitor unix:mon.sock,server,nowait
-       # then: screendump out.ppm  over the monitor socket
+The difference that mattered was one switch:
 
-   This is worth the two minutes. A flash floppy that does not boot is found
-   at the worst possible moment, in front of the machine with its case open.
+| | this README's old recipe | `provisioning/bios-recovery/build.sh` |
+|---|---|---|
+| flasher | AWDFLASH 8.24F | **8.24G** - nForce-MAC aware, SST 49LF020 in its chip table |
+| boot block | *nothing* - left to awdflash's default | **`/sb` - Skip BootBlock programming** |
+| backup | `/Sy` to the floppy | `/sn` - no backup |
+| invocation | operator types `FLASH` | auto-runs from `AUTOEXEC.BAT` (blind recovery has no screen) |
 
-**Do not auto-flash from `AUTOEXEC.BAT`.** The banner tells the operator to
-type `FLASH`, so inserting the disk and powering on cannot by itself rewrite a
-BIOS. `FLASH.BAT` saves the existing BIOS to `A:\OLDBIOS.BIN` (`/Sy`) before
-programming - which needs the floppy left **write-enabled**.
+**`/sb` is the one that turns a failed flash into a retryable one.** The
+flasher is executing *out of the boot block*; if the boot block is in the set
+of blocks being rewritten when the board hangs, there is nothing left to
+recover with and the next step is a hardware programmer. `provisioning/bios-recovery/README.md`
+reasons this out switch by switch, from the flasher binary's own help text,
+and explains why three pieces of common web advice (`/F`, `/tiny`, `/QI`) are
+wrong for the job.
+
+**The general lesson, which is the one this project keeps paying for:** search
+the fleetbook and the repo *before* building, not after. `retro_fleetbook.py
+search` and a `grep -ril` for the board name would each have found the existing
+work in seconds.
+
+So: this tool writes images. **What goes in the image, for a BIOS flash, is
+decided somewhere else.**
