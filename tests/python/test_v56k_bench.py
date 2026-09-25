@@ -954,3 +954,63 @@ def test_game_is_closed_gracefully_before_any_force_kill(bench):
     import inspect
     src = inspect.getsource(bench)
     assert src.count("taskkill /f /im \"{title.proc}\"") == 0
+
+
+def test_allours_rows_name_the_glide_build_variant(bench):
+    vb = bench
+    """The asm triangle-setup build of our h5 Glide (glide3x_h5_x86.dll) and
+    the C build (glide3x_h5.dll) must land in different api labels."""
+    from pathlib import Path
+    assert vb.glide_variant(Path("out/glide3x_h5.dll")) == ""
+    assert vb.glide_variant(Path("out/glide3x_h5_x86.dll")) == "x86"
+    assert vb.allours_api("0.1.66", Path("out/glide3x_h5.dll")) == "opengl-allours-0.1.66"
+    assert vb.allours_api("0.1.66", Path("out/glide3x_h5_x86.dll")) == "opengl-allours-0.1.66-x86"
+
+
+def test_hang_stacks_are_symbolized_against_our_own_modules():
+    vd = _diag()
+    raw = ("ChildEBP RetAddr  Args to Child\n"
+           "0012f8a0 6fcb09c5 00000000 00000001 0012f8f0 glide3x+0x309a0\n"
+           "0012f8f0 7c80a0b7 00000000 00000000 00000000 kernel32!Sleep+0xf\n"
+           "start    end        module name\n"
+           "6fc80000 6fd7c000   glide3x    (export symbols)  glide3x.dll\n"
+           "7c800000 7c8f4000   kernel32   (export symbols)  kernel32.dll\n")
+    tables = {"glide3x": [(0x25f0, "_grGlideInit@0"), (0x309a0, "_hwcIdleHardwareWithTimeout")]}
+    sym = vd.symbolize_ntsd(raw, {}, tables=tables)
+    line = [l for l in sym.splitlines() if l.startswith("0012f8a0")][0]
+    assert "glide3x!_hwcIdleHardwareWithTimeout+0x25" in line     # the return address
+    assert "kernel32!" not in line.split("[", 1)[1]
+    k = [l for l in sym.splitlines() if l.startswith("0012f8f0")][0]
+    assert "[" not in k                                         # nothing we have symbols for
+
+
+def test_hang_bat_logs_through_the_env_var_and_attaches_noninvasively():
+    vd = _diag()
+    bat = vd.hang_bat(r"C:\x\h.txt", r"C:\x\h.cmd").decode()
+    assert "set _NT_DEBUG_LOG_FILE_OPEN=C:\\x\\h.txt" in bat
+    assert "ntsd -pv -p %1" in bat and '$<C:\\x\\h.cmd' in bat
+    assert "-logo" not in bat and "-cf" not in bat        # XP ntsd rejects both
+    assert vd.NTSD_CMDS.rstrip().endswith("q")            # noninvasive q resumes the target
+
+
+def test_allours_launches_always_carry_the_glide_maplog(bench):
+    """The stale-slot fault leaves no trace unless our Glide's opt-in log is on;
+    the all-ours lanes set it on every launch, and an explicit --env still wins."""
+    for cls in (bench.Quake2AllOurs, bench.Quake3AllOurs):
+        t = cls()
+        bat = t.launch_bat(640, 480, 16, {})
+        assert f"set RETRO_GLIDE_MAPLOG={bench.ALLOURS_MAPLOG}" in bat
+        bat2 = t.launch_bat(640, 480, 16, {"RETRO_GLIDE_MAPLOG": r"C:\x.txt"})
+        assert "set RETRO_GLIDE_MAPLOG=C:\\x.txt" in bat2 and bench.ALLOURS_MAPLOG not in bat2
+    # the ICD-over-AmigaMerlin lanes do not load our Glide and must not claim to
+    assert "RETRO_GLIDE_MAPLOG" not in bench.Quake2Cleanroom().launch_bat(640, 480, 16, {})
+
+
+def test_quake2_sets_nextserver_after_demomap_so_quit_survives(bench):
+    """Retail Quake II's SV_Map clears nextserver for a plain map name; set
+    before demomap, the quit never ran and every cell ended in a force-kill."""
+    cfg = bench.Quake2().bench_cfg().splitlines()
+    dm = next(i for i, l in enumerate(cfg) if l.startswith("demomap "))
+    ns = [i for i, l in enumerate(cfg) if l.startswith("set nextserver")]
+    assert ns and all(i > dm for i in ns)
+    assert 'quit' in cfg[ns[-1]] and 'killserver' in cfg[ns[-1]]

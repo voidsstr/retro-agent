@@ -152,10 +152,30 @@ PY
     || { echo "  dual_abi: relink FAILED for $D"; tail -20 /tmp/dual_abi_relink.log; exit 1; }
 }
 
-echo "== retro3dfx-glide: glide3x h5 (Voodoo4/5) =="
-make -C "$GTREE/glide3x" -f Makefile.mingw CROSS="$CROSS" FX_GLIDE_HW=h5 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT" >/dev/null
+# h5 is built TWICE, from clean each time (the Makefile tracks no headers and
+# the two variants share one object directory, so an incremental build would
+# silently mix them):
+#   glide3x_h5.dll      C triangle setup (GLIDE_USE_C_TRISETUP)
+#   glide3x_h5_x86.dll  3dfx's asm triangle setup + 3DNow!/MMX/SSE, chosen at
+#                       run time by CPUID (FX_GLIDE_NO_CPU_EXTENSIONS=1 forces
+#                       the plain x86 asm). SSE2 is left out: no fleet Voodoo
+#                       box has it.
+# FXGASM_CROSS=1 is REQUIRED for the asm variant on this 64-bit host: without
+# it fxgasm.exe runs as a 64-bit program and every GC offset the asm reads is
+# wrong (fork c41b50d). The C variant takes it too - its fxinline.h is then the
+# target's, not the host's.
+H5ARGS=(CROSS="$CROSS" FX_GLIDE_HW=h5 FXGASM_CROSS=1 $DEBUGBUILD "$HOSTFIX" "$LDFIX" "$DTFIX" "$GLIDEOPT")
+echo "== retro3dfx-glide: glide3x h5 (Voodoo4/5), C triangle setup =="
+make -C "$GTREE/glide3x" -f Makefile.mingw "${H5ARGS[@]}" clean >/dev/null 2>&1 || true
+make -C "$GTREE/glide3x" -f Makefile.mingw "${H5ARGS[@]}" >/dev/null
 dual_abi_relink "$GTREE/glide3x/h5"
 emit "$GTREE/glide3x/h5/lib" glide3x_h5.dll libglide3x.dll.a
+echo "== retro3dfx-glide: glide3x h5 (Voodoo4/5), asm triangle setup (x86/3DNow!/MMX/SSE) =="
+make -C "$GTREE/glide3x" -f Makefile.mingw "${H5ARGS[@]}" clean >/dev/null 2>&1 || true
+make -C "$GTREE/glide3x" -f Makefile.mingw "${H5ARGS[@]}" USE_X86=1 USE_3DNOW=1 USE_MMX=1 USE_SSE=1 >/dev/null
+dual_abi_relink "$GTREE/glide3x/h5"
+emit "$GTREE/glide3x/h5/lib" glide3x_h5_x86.dll libglide3x_h5_x86.dll.a
+make -C "$GTREE/glide3x" -f Makefile.mingw "${H5ARGS[@]}" clean >/dev/null 2>&1 || true
 cp "$GTREE"/glide3x/h5/glide3/src/{glide,g3ext,glidesys,glideutl}.h "$OUT/sdk/include/" 2>/dev/null || true
 cp "$GTREE"/glide3x/h5/incsrc/sst1vid.h "$OUT/sdk/include/" 2>/dev/null || true
 cp "$GTREE"/swlibs/fxmisc/3dfx.h "$OUT/sdk/include/" 2>/dev/null || true

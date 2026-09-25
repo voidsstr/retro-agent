@@ -32,9 +32,13 @@ def test_h5_emit_does_not_claim_deploy_name():
         if ln.strip().startswith("emit ") and "/h5/lib" in ln
     ]
     assert h5_emits, "h5 emit line not found in build-stack.sh"
+    assert any(re.search(r"\bglide3x_h5\.dll\b", ln) for ln in h5_emits), \
+        "the plain C-trisetup h5 build must still be emitted as glide3x_h5.dll"
     for ln in h5_emits:
-        assert "glide3x_h5.dll" in ln, (
-            "h5 build must be emitted as glide3x_h5.dll (got: %r)" % ln)
+        # glide3x_h5.dll, or a named build variant of it (glide3x_h5_x86.dll:
+        # the asm triangle-setup build, 2026-09-25) - never the deploy name
+        assert re.search(r"\bglide3x_h5(_\w+)?\.dll\b", ln), (
+            "h5 build must be emitted as glide3x_h5[_variant].dll (got: %r)" % ln)
         assert not re.search(r"\bglide3x\.dll\b", ln), (
             "h5 build must NOT claim the deploy name glide3x.dll (got: %r)" % ln)
 

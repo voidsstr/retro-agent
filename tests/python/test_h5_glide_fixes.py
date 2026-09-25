@@ -106,3 +106,87 @@ def test_swap_pending_bookkeeping_is_bounded_and_in_range():
     assert g.count("for(i = MAX_BUFF_PENDING - 1; i >= 0; --i)") == 3
     assert g.count("++swapSpins > 4000000UL") == 2
     assert "++stableTries < 1000" in g and "++stableTries < 2000" in g
+
+
+# --- asm triangle-setup build: offsets from the TARGET, not the host --------
+# Fork c41b50d (2026-09-25). fxgasm.c prints GrGC offsets by being RUN; on this
+# 64-bit host that made every one of the 50 offsets the asm reads wrong
+# (kTriProcOffset 0x95c0 for 0x9558). fxgasm_cross.sh folds them with the
+# i686 compiler instead; its output matched fxgasm.exe run on .124 value for
+# value, and the USE_X86=1 DLL built from it rendered Quake II on the V5 6000.
+
+_OFF_RE = re.compile(r'^\s*OFFSET\s*\(\s*(\w+)\s*,\s*([\w.\[\]]+)\s*,\s*"(\w+)', re.M)
+
+
+def test_build_stack_builds_the_asm_variant_with_target_offsets():
+    bs = (CR / "build-stack.sh").read_text()
+    h5 = bs.split("H5ARGS=(", 1)[1].split(")", 1)[0]
+    assert "FXGASM_CROSS=1" in h5
+    assert "USE_X86=1 USE_3DNOW=1 USE_MMX=1 USE_SSE=1" in bs
+    assert "glide3x_h5_x86.dll" in bs
+    assert "USE_SSE2=1" not in bs.split("H5ARGS=(", 1)[1]     # no fleet Voodoo box has SSE2
+    mk = src("glide3/src/Makefile.mingw")
+    assert "ifeq ($(FXGASM_CROSS),1)" in mk and "sh fxgasm_cross.sh" in mk
+
+
+def test_fxgasm_cross_offsets_are_the_i686_layout(tmp_path):
+    import shutil
+    cc = shutil.which("i686-w64-mingw32-gcc")
+    if TREE is None or cc is None or not (TREE / "glide3/src/fxgasm_cross.sh").exists():
+        pytest.skip("fork clone / fxgasm_cross.sh / i686 gcc absent - asm offsets NOT checked")
+    s = TREE / "glide3/src"
+    for f in ("fxgasm.c", "fxgasm_cross.sh"):
+        shutil.copy(s / f, tmp_path / f)
+    inc = " ".join(f"-I{p}" for p in (s, TREE / "incsrc", TREE / "minihwc",
+                                       TREE.parent / "swlibs/fxmisc", TREE.parent / "swlibs/newpci/pcilib",
+                                       TREE.parent / "swlibs/fxmemmap", TREE.parent / "swlibs/texus2/lib"))
+    flags = (f"-m32 {inc} -D__WIN32__ -DFX_DLL_ENABLE -DHWC_ACCESS_DDRAW=1 -DHWC_EXT_INIT=1 "
+             "-DGLIDE_ALT_TAB=1 -DBETA=1 -DHWC_MINIVDD_HACK=1 -DWIN40COMPAT=1 -DWINXP_ALT_TAB_FIX=1 "
+             "-DWINXP_SAFER_ALT_TAB_FIX=1 -DNEED_MSGFILE_ASSIGN -UWINNT -DGLIDE3 -DGLIDE3_ALPHA "
+             "-DGLIDE_HW_TRI_SETUP=1 -DGLIDE_INIT_HWC -DGLIDE_PACKED_RGB=0 -DGLIDE_PACKET3_TRI_SETUP=1 "
+             "-DGLIDE_TRI_CULLING=1 -DUSE_PACKET_FIFO=1 -DGLIDE_CHECK_CONTEXT -DH3 -DFX_GLIDE_H5_CSIM=1 "
+             "-DFX_GLIDE_NAPALM=1 -DGL_AMD3D -DGL_MMX -DGL_SSE -DGL_X86")
+    r = subprocess.run(["sh", "fxgasm_cross.sh", cc, flags], cwd=tmp_path, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-2000:]
+    gen = dict(re.findall(r"^(\w+)\tequ ([0-9a-f]{8})h$", (tmp_path / "fxgasm.h").read_text(), re.M))
+    inl = dict(re.findall(r"^#define (k\w+) (0x[0-9A-Fa-f]+)", (tmp_path / "fxinline.h").read_text(), re.M))
+    assert len(gen) >= 40 and "fifoPtr" in gen and "kTriProcOffset" in inl
+    # Every OFFSET() in fxgasm.c, asserted against offsetof() in a 32-bit compile.
+    body = (s / "fxgasm.c").read_text(errors="replace")
+    checks = []
+    for inst, path, name in _OFF_RE.findall(body):
+        if name in gen:
+            typ = {"gc": "GrGC", "gr": "struct _GlideRoot_s"}.get(inst)
+            if typ:
+                checks.append(f"_Static_assert(__builtin_offsetof({typ}, {path}) == 0x{gen[name]}, \"{name}\");")
+    assert len(checks) >= 40
+    checks.append(f"_Static_assert(__builtin_offsetof(struct GrGC_s, triSetupProc) == {inl['kTriProcOffset'].rstrip('UL')}, \"kTriProcOffset\");")
+    checks.append(f"_Static_assert(__builtin_offsetof(GrGC, lostContext) == {inl['kLostContextOffset'].rstrip('UL')}, \"kLostContextOffset\");")
+    (tmp_path / "chk.c").write_text('#include <stddef.h>\n#include <glide.h>\n#include "fxglide.h"\n' + "\n".join(checks) + "\n")
+    r = subprocess.run([cc] + flags.split() + ["-fsyntax-only", "chk.c"], cwd=tmp_path, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-3000:]
+
+
+# --- fork 5439bb8 (2026-09-25): the "hang in grGlideInit" was a hidden dialog --
+def test_a_callback_installed_before_grglideinit_survives_it():
+    g = src("glide3/src/gpci.c")
+    blk = g.split("dBorca - play safe", 1)[1][:1200]
+    assert "if (!GrErrorCallback)" in blk
+    assert blk.index("if (!GrErrorCallback)") < blk.index("grErrorSetCallback(_grErrorDefaultCallback)")
+
+
+def test_default_fatal_box_is_in_front_and_logged():
+    e = src("glide3/src/gerror.c")
+    body = e.split("_grErrorDefaultCallback( const char *s, FxBool fatal )", 1)[1][:1500]
+    assert "MB_TOPMOST" in body and "MB_SETFOREGROUND" in body
+    assert 'getenv("RETRO_GLIDE_MAPLOG")' in body
+
+
+def test_unmap_falls_back_to_the_pid_the_mapping_was_filed_under():
+    c = src("minihwc/minihwc.c")
+    for fn in ("hwcUnmapMemory() ", "hwcUnmapMemory9x(hwcBoardInfo *bInfo) "):
+        body = c.split(fn, 1)[1][:2500]
+        assert "contextHandle\n" in body.replace(" ", "").replace("?", "\n") or "contextHandle" in body
+        assert "procHandle;" in body or ": hInfo.boardInfo[i].procHandle" in body
+        assert "hwcLogLine(\"UNMAP" in body
+    assert 'hwcLogLine("REFUSED pid=%lu %s\\n"' in c

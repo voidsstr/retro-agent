@@ -1229,6 +1229,41 @@ renderer string read back on every row). fps, 16-bit / 32-bit:
   (gitignored, like every campaign CSV); campaign notes:
   [`../docs/v56k-benchmark-plan.md`](../docs/v56k-benchmark-plan.md).
 
+**All ours (roadmap §17.1 Step 5, 2026-09-24/25): our ICD 0.1.66 over OUR h5
+Glide** (game-local `glide3x.dll`, fork `215a9e7`/`468609e`) and AmigaMerlin's
+display driver only - no AmigaMerlin Glide or ICD in the path, confirmed per row
+by `retrogl.log` naming the game-local `glide3x.dll`. One chip (cfg 0), fps
+16-bit / 32-bit, with the ICD-over-AmigaMerlin-Glide row from above for scale:
+
+| | 1600×1200 | 1280×960 | 1024×768 | 800×600 | 640×480 |
+|---|---|---|---|---|---|
+| **Quake II, 1 chip — all ours** | 14.8 / 14.8 | 22.3 / 23.5 | 37.7 / 37.7 | 60.6 / 60.6 | 89.3 / 89.6 |
+| Quake II, 1 chip — our ICD over AmigaMerlin Glide | 14.8 / 14.8 | 24.5 / 24.5 | 38.7 / 38.7 | 61.5 / 61.5 | 90.6 / 90.6 |
+| **Quake III, 1 chip — all ours** | 24.6 / 7.1 | 37.1 / 14.9 | 56.2 / 30.7 | 83.8 / 49.9 | 118.7 / 68.2 |
+| Quake III, 1 chip — our ICD over AmigaMerlin Glide | 24.5 / 7.3 | 37.6 / 15.8 | 56.8 / 30.5 | 84.5 / 50.8 | 119.7 / 75.3 |
+
+- Level within 3 % almost everywhere; the gaps worth chasing are Quake II
+  1280×960 (−9 %) and Quake III 640×480×32 (−9 %).
+- Two Quake III launches (of ~40 on our Glide) "hung" inside `grGlideInit`.
+  The runner's new `ntsd -pv` stack capture showed it was not a hang: our h5
+  Glide had refused a **stale board mapping** and reported it through Glide's
+  default callback, `MessageBox(NULL, …)`, hidden behind the fullscreen window.
+  The stale slots came from the benchmark runner itself: every Quake II cell
+  ended in a force-kill (its `nextserver` was wiped by `demomap`), and a
+  force-killed process never unmaps, so the display driver handed its dead
+  mapping to the next process that reused the PID. Fixed three ways: the runner
+  lets Quake II quit (verified: `UNMAP9x … retVal=1` at exit), the ICD logs a
+  fatal Glide error and fails cleanly instead of a dialog (0.1.67), and our
+  Glide unmaps under the PID it mapped with (fork `5439bb8`).
+- **CPU-bound, one chip at 320×240** (where four chips sit at 640×480): Quake II
+  221.9 fps with Glide's C triangle setup, 225.5 with 3dfx's asm + 3DNow! setup
+  (`glide3x_h5_x86.dll`, built with target-derived offsets, fork `c41b50d`);
+  Quake III 133.2 vs 133.8. The Glide triangle setup is not where the frame
+  time goes. The ICD's own sampling profiler (0.1.67, `RETROGL_PROF`) on that
+  Quake III cell: `quake3.exe` 46.8 %, our ICD 20.5 %, our Glide 17.3 % (of
+  which triangle submission ~10.7 %), QVM code 6.9 %, `ntdll` 6.5 % - spread
+  over many small costs, with no single hot spot (CHANGELOG 0.1.67).
+
 Earlier Voodoo 5 history: on the V5 5500 (2026-08-14) the vintage lane's tuned 0.4.0 ICD
 scored 159.5 fps in Quake II 640 against 93.5 for AmigaMerlin's own ICD (itself
 Mesa 6.3); our ICD produced no number there — neither over retail Glide nor over

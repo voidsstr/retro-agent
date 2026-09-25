@@ -12,6 +12,50 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.68 — teardown breadcrumbs (2026-09-25)
+
+Diagnostic only: `wglDeleteContext`, `fxMesaDestroyContext`, `fxCloseHardware`,
+`cleangraphics` and `DllMain(DLL_PROCESS_DETACH)` each append a line to
+`C:\retrogl.log`, and the detach line says whether the process is exiting or the
+DLL is being `FreeLibrary`'d (an engine renderer restart). Their **absence** after a
+run means the process was terminated, not exited - which is how it was found that
+every Quake II benchmark cell had ended in a force-kill (the runner's
+`nextserver` was wiped by `demomap`; fixed in `v56k_bench.py`). On our h5 Glide a
+force-killed process never unmaps the board, and the display driver later hands
+its dead mapping to whichever process reuses the PID.
+
+## 0.1.67 — render-thread sampling profiler (`RETROGL_PROF`); Glide errors logged, never a hidden dialog (2026-09-25)
+
+**Profiler.** `RETROGL_PROF=<file>` in the game's environment: at the first
+`wglMakeCurrent` the calling thread becomes the target, and a TIME_CRITICAL
+thread suspends it about once a millisecond, records `EIP` and resumes it. A
+sample counts only while `wglSwapBuffers` ran in the last 100 ms (no loading
+screens), and the histogram is written at exit as `eip count base module`
+(`src/mesa/drivers/glide/fxprof.c`). While the target is suspended the sampler
+calls only kernel entry points and a static table, so it cannot wait on a lock
+the target holds; `winmm` is `LoadLibrary`'d, so the ICD gained no import.
+Unset, it costs one store per swap. `scripts/benchmarks/icdprof.py` names the
+functions from the unstripped DLLs. About 1 % of frame rate when on.
+
+First profile - Quake III, 320×240, one chip (CPU-bound, 131 fps), all-ours
+stack: `quake3.exe` 46.8 %, **our ICD 20.5 %**, **our Glide 17.3 %**, QVM code
+6.9 %, ntdll 6.5 % (almost all `KiFastSystemCallRet`). In Glide, triangle
+submission (`grDrawTriangle` + 3DNow! setup + `grDrawVertexArray`) is ~10.7 %;
+in the ICD, vertex emit ~3.5 %, clipping ~3.2 %, ubyte→float colour
+conversion 1.3 %, state changes ~2 %. No single hot spot.
+
+**Glide error callback.** Glide's default callback reports a fatal error with
+`MessageBox(NULL, …)` + `exit(1)`; behind a fullscreen window nobody can see the
+box and the game waits forever. That was the intermittent Quake III "hang in
+`grGlideInit`" on the V5 6000 (ntsd: `USER32!MessageBoxA` ←
+`glide3x!_grErrorDefaultCallback`, text in minihwc's `errorString`, a refused
+stale board mapping). `fxQueryHardware` now installs `fxGlideErrorCallback`
+before `grGlideInit`: it logs `GLIDE FATAL ERROR: <text>` to `retrogl.log` and
+returns, so Glide skips the board and the context fails cleanly. Our h5 Glide
+keeps a pre-installed callback (fork `5439bb8`); AmigaMerlin's resets it, so
+that lane behaves as before. The callback is cdecl (`GrErrorCallbackFnc_t` has
+no `FX_CALL`).
+
 ## 0.1.66 — Mesa's span scratch arrays on the heap: SiN Gold runs (I12) (2026-09-24)
 
 SiN Gold died of a **stack overflow** (`c00000fd`) inside our ICD: Dr Watson put

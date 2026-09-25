@@ -18,7 +18,7 @@ index aca4625..1723e97 100644
  export CFLAGS
  
 diff --git a/src/mesa/Makefile.mgw b/src/mesa/Makefile.mgw
-index a6c0ab5..eb79114 100644
+index a6c0ab5..e837af1 100644
 --- a/src/mesa/Makefile.mgw
 +++ b/src/mesa/Makefile.mgw
 @@ -89,7 +89,11 @@ else
@@ -34,19 +34,20 @@ index a6c0ab5..eb79114 100644
  AR = ar
  ARFLAGS = rus
  
-@@ -117,6 +121,7 @@ ifeq ($(FX),1)
+@@ -117,6 +121,8 @@ ifeq ($(FX),1)
  DRIVER_SOURCES = \
  	$(GLIDE_DRIVER_SOURCES) \
  	drivers/glide/fxwgl.c \
 +	drivers/glide/fxicd.c \
++	drivers/glide/fxprof.c \
  	drivers/glide/fxwindow.c
  else
  ifeq ($(ICD),1)
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..22781f7 100644
+index 350f075..8ce2fea 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
-@@ -83,13 +83,32 @@ static GrHwConfiguration glbHWConfig;
+@@ -83,13 +83,34 @@ static GrHwConfiguration glbHWConfig;
  static int glbCurrentBoard = 0;
  
  
@@ -68,6 +69,7 @@ index 350f075..22781f7 100644
 -   fxMesaDestroyContext(fxMesaCurrentCtx);
 -
 +   glbProcessExiting = 1;
++   fxProfStop();   /* [retro3dfx] 0.1.67: writes RETROGL_PROF, if armed */
 +   if (fxMesaCurrentCtx) {
 +      glbTotNumCtx = 1;
 +      fxMesaDestroyContext(fxMesaCurrentCtx);   /* -> fxCloseHardware */
@@ -77,12 +79,56 @@ index 350f075..22781f7 100644
 +   if (glbGlideInitialized) {
 +      rgl_log("cleangraphics: process exit -> grGlideShutdown()");
 +      grGlideShutdown();
++      rgl_log("cleangraphics: grGlideShutdown returned");
 +      glbGlideInitialized = 0;
 +   }
     return 0;
  }
  #elif defined(__linux__)
-@@ -331,15 +350,73 @@ static GrScreenResolution_t fxBestResolution (int width, int height)
+@@ -112,6 +133,30 @@ cleangraphics_handler(int s)
+ #endif
+ 
+ 
++/* [retro3dfx] 0.1.67: Glide's default error callback reports a FATAL error
++ * with MessageBox(NULL, ...) + exit(1). Behind a game's fullscreen window
++ * nobody can see or dismiss that box, and the game waits forever - the
++ * intermittent Quake III "hang in grGlideInit" on the V5 6000 (.124,
++ * 2026-09-25) was exactly that: ntsd put the thread in USER32!MessageBoxA
++ * called from glide3x!_grErrorDefaultCallback, the text in minihwc's
++ * errorString. Log it and RETURN instead: Glide then skips the board,
++ * FX_grSstQueryHardware finds none, and the context fails cleanly - a
++ * failure the game can report and a runner can retry. Our h5 Glide keeps a
++ * callback installed before grGlideInit (fork, gpci.c); a Glide that resets
++ * it (AmigaMerlin's) simply behaves as before. */
++static int glbGlideErrors = 0;
++static int glbGlideFatal = 0;
++
++static void   /* cdecl: GrErrorCallbackFnc_t has no FX_CALL */
++fxGlideErrorCallback(const char *string, FxBool fatal)
++{
++   if (fatal)
++      glbGlideFatal++;
++   if (glbGlideErrors++ < 32)
++      rgl_log("GLIDE %s ERROR: %s", fatal ? "FATAL" : "non-fatal",
++              string ? string : "(null)");
++}
++
+ /*
+  * Query 3Dfx hardware presence/kind
+  */
+@@ -151,8 +196,10 @@ static GLboolean GLAPIENTRY fxQueryHardware (void)
+     }
+ #endif
+     rgl_log("fxQueryHardware: FIRST init -> calling grGlideInit() ...");
++    grErrorSetCallback(fxGlideErrorCallback);
+     grGlideInit();
+-    rgl_log("fxQueryHardware: grGlideInit() RETURNED; calling FX_grSstQueryHardware() ...");
++    rgl_log("fxQueryHardware: grGlideInit() RETURNED (%d fatal Glide error(s)); "
++            "calling FX_grSstQueryHardware() ...", glbGlideFatal);
+     glb3DfxPresent = FX_grSstQueryHardware(&glbHWConfig);
+     rgl_log("fxQueryHardware: FX_grSstQueryHardware -> present=%d num_sst=%d type0=%d",
+             (int)glb3DfxPresent, (int)glbHWConfig.num_sst,
+@@ -331,15 +378,73 @@ static GrScreenResolution_t fxBestResolution (int width, int height)
  }
  
  
@@ -159,16 +205,43 @@ index 350f075..22781f7 100644
  }
  
  
-@@ -828,7 +905,7 @@ fxMesaCreateContext(GLuint win,
+@@ -828,7 +933,7 @@ fxMesaCreateContext(GLuint win,
                        fxMesa->snapVertices ? "" : "no ");
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.66]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.68]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
-@@ -1106,6 +1183,37 @@ fxMesaMakeCurrent(fxMesaContext fxMesa)
+@@ -1029,12 +1134,18 @@ fxMesaDestroyContext(fxMesaContext fxMesa)
+    /* close the hardware first,
+     * so we can debug atexit problems (memory leaks, etc).
+     */
++   /* [retro3dfx] 0.1.67 teardown breadcrumbs. Quake II never reaches the end
++    * of its own quit on the all-ours V5 6000 stack (the runner force-kills it
++    * 10 s later), and a force-kill is what leaves the display driver's stale
++    * per-PID slot behind; a log line per step names the step that stops. */
++   rgl_log("fxMesaDestroyContext: closing board (windowed=%d)", (int) fxMesa->windowed);
+ #if defined(__WIN32__)
+    if (fxMesa->windowed)
+       fxWinClose(fxMesa);   /* grSurfaceReleaseContext + release DDraw surfaces */
+    else
+ #endif
+       grSstWinClose(fxMesa->glideContext);
++   rgl_log("fxMesaDestroyContext: board closed; fxCloseHardware");
+    fxCloseHardware();
+ 
+    fxDDDestroyFxMesaContext(fxMesa); /* must be before _mesa_destroy_context */
+@@ -1047,6 +1158,7 @@ fxMesaDestroyContext(fxMesaContext fxMesa)
+ 
+    if (fxMesa == fxMesaCurrentCtx)
+       fxMesaCurrentCtx = NULL;
++   rgl_log("fxMesaDestroyContext: done");
+ }
+ 
+ 
+@@ -1106,6 +1218,37 @@ fxMesaMakeCurrent(fxMesaContext fxMesa)
  void GLAPIENTRY
  fxMesaSwapBuffers(void)
  {
@@ -206,7 +279,7 @@ index 350f075..22781f7 100644
     if (TDFX_DEBUG & VERBOSE_DRIVER) {
        fprintf(stderr, "fxMesaSwapBuffers()\n");
     }
-@@ -1120,7 +1228,21 @@ fxMesaSwapBuffers(void)
+@@ -1120,7 +1263,21 @@ fxMesaSwapBuffers(void)
  	    /* [retro3dfx] present the offscreen surface to the window (no page
  	     * flip in windowed mode). grBufferSwap is completed first inside the
  	     * board so the render is finished before we Blt it out. */
@@ -229,15 +302,18 @@ index 350f075..22781f7 100644
  	    fxWinSwap(fxMesaCurrentCtx);
  	 } else
  #endif
-@@ -1165,7 +1287,7 @@ fxCloseHardware(void)
+@@ -1165,8 +1322,10 @@ fxCloseHardware(void)
  	  * board is still released by grSstWinClose, and the process teardown (atexit
  	  * cleangraphics / OS) reclaims Glide on final exit. FX_GLIDE_SHUTDOWN=1
  	  * restores the old shutdown-on-last-context behaviour for A/B testing. */
 -	 if (getenv("FX_GLIDE_SHUTDOWN")) {
 +	 if (glbProcessExiting || getenv("FX_GLIDE_SHUTDOWN")) {
++	    rgl_log("fxCloseHardware: grGlideShutdown()");
  	    grGlideShutdown();
++	    rgl_log("fxCloseHardware: grGlideShutdown returned");
  	    glbGlideInitialized = 0;
  	 }
+       }
 diff --git a/src/mesa/drivers/glide/fxdd.c b/src/mesa/drivers/glide/fxdd.c
 index ffc0047..bccfaef 100644
 --- a/src/mesa/drivers/glide/fxdd.c
@@ -290,6 +366,20 @@ index ffc0047..bccfaef 100644
     }
  
     if (fxMesa->type >= GR_SSTTYPE_Voodoo4) {
+diff --git a/src/mesa/drivers/glide/fxdrv.h b/src/mesa/drivers/glide/fxdrv.h
+index 1939489..0d60b07 100644
+--- a/src/mesa/drivers/glide/fxdrv.h
++++ b/src/mesa/drivers/glide/fxdrv.h
+@@ -788,4 +788,9 @@ extern int TDFX_DEBUG;
+ #define FX_RESCALE_BIG_TEXURES_HACK   1
+ #define FX_COMPRESS_S3TC_AS_FXT1_HACK 1
+ 
++/* [retro3dfx] 0.1.67 fxprof.c: opt-in render-thread sampler (RETROGL_PROF) */
++extern void fxProfStart(void);
++extern void fxProfFrame(void);
++extern void fxProfStop(void);
++
+ #endif
 diff --git a/src/mesa/drivers/glide/fxicd.c b/src/mesa/drivers/glide/fxicd.c
 new file mode 100644
 index 0000000..8c72979
@@ -482,6 +572,162 @@ index fecbb25..b21fe5d 100644
   glAccum
   glActiveStencilFaceEXT
   glActiveTexture
+diff --git a/src/mesa/drivers/glide/fxprof.c b/src/mesa/drivers/glide/fxprof.c
+new file mode 100644
+index 0000000..1d5f696
+--- /dev/null
++++ b/src/mesa/drivers/glide/fxprof.c
+@@ -0,0 +1,150 @@
++/* fxprof.c - [retro3dfx] 0.1.67: an opt-in sampling profiler for the render
++ * thread, because XP ships none and the Voodoo 5 6000 is CPU-bound.
++ *
++ * WHY: with four VSA-100s Quake II runs at the same ~215 fps at 640x480 and at
++ * 320x240 on one chip - the card is waiting on the CPU. Which part of the
++ * CPU (our Mesa T&L, the fx vertex emit, Glide's triangle setup, the game
++ * itself) cannot be read off a frame rate, and guessing at it is how an
++ * optimisation pass spends a day on the wrong function.
++ *
++ * HOW: RETROGL_PROF=<output path> in the game's environment. At the first
++ * wglMakeCurrent the calling thread - the one that renders - becomes the
++ * target, and a TIME_CRITICAL sampler thread suspends it every ~1 ms, reads
++ * its EIP and resumes it. A sample counts only while wglSwapBuffers has run
++ * in the last 100 ms, so level loading and menus stay out of the profile. At
++ * process exit (cleangraphics, the atexit handler) the histogram is written
++ * as "eip count allocation-base module-path" lines; our DLLs keep their
++ * symbols, so scripts/benchmarks/icdprof.py names the functions on the host.
++ *
++ * SAFETY: while the target is suspended the sampler calls ONLY kernel entry
++ * points (SuspendThread, GetThreadContext, ResumeThread, Sleep) and writes a
++ * static table - no heap, no CRT, no loader lock - so it can never wait on a
++ * lock the suspended thread holds. winmm's timeBeginPeriod is resolved with
++ * LoadLibrary so the ICD gains no static import. Unset, none of this runs:
++ * fxProfStart returns on the getenv and fxProfFrame is one store.
++ */
++
++#include <windows.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include "fxrlog.h"
++
++#define PROF_SLOTS   65536u        /* power of two; open addressing */
++#define PROF_PROBES  64
++
++static DWORD prof_eip[PROF_SLOTS];
++static DWORD prof_cnt[PROF_SLOTS];
++static volatile LONG prof_run;
++static volatile DWORD prof_lastswap;
++static DWORD prof_samples, prof_idle, prof_dropped;
++static HANDLE prof_target, prof_thread;
++static char prof_path[MAX_PATH];
++
++static void
++prof_add(DWORD eip)
++{
++   DWORD h = (eip * 2654435761u) >> 16, i;
++   for (i = 0; i < PROF_PROBES; i++) {
++      DWORD k = (h + i) & (PROF_SLOTS - 1);
++      if (prof_eip[k] == eip) { prof_cnt[k]++; return; }
++      if (prof_eip[k] == 0)   { prof_eip[k] = eip; prof_cnt[k] = 1; return; }
++   }
++   prof_dropped++;
++}
++
++static DWORD WINAPI
++prof_main(LPVOID unused)
++{
++   CONTEXT c;
++   (void) unused;
++   while (prof_run) {
++      Sleep(1);
++      if (GetTickCount() - prof_lastswap > 100) { prof_idle++; continue; }
++      if (SuspendThread(prof_target) == (DWORD) -1)
++         break;                       /* the thread is gone */
++      c.ContextFlags = CONTEXT_CONTROL;
++      if (GetThreadContext(prof_target, &c)) {
++         prof_add(c.Eip);
++         prof_samples++;
++      }
++      ResumeThread(prof_target);
++   }
++   return 0;
++}
++
++void
++fxProfStart(void)
++{
++   const char *p;
++   DWORD tid;
++   if (prof_thread || !(p = getenv("RETROGL_PROF")) || !*p)
++      return;
++   lstrcpynA(prof_path, p, sizeof(prof_path));
++   if (!DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(),
++                        &prof_target, THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT |
++                        THREAD_QUERY_INFORMATION, FALSE, 0)) {
++      rgl_log("fxprof: DuplicateHandle failed (%lu) - no profile", GetLastError());
++      return;
++   }
++   {  /* 1 ms Sleep needs the 1 ms timer; most id engines already set it */
++      HMODULE w = LoadLibraryA("winmm.dll");
++      FARPROC f = w ? GetProcAddress(w, "timeBeginPeriod") : NULL;
++      if (f) ((UINT (WINAPI *)(UINT)) f)(1);
++   }
++   prof_lastswap = GetTickCount() - 1000;
++   prof_run = 1;
++   prof_thread = CreateThread(NULL, 0, prof_main, NULL, 0, &tid);
++   if (!prof_thread) {
++      prof_run = 0;
++      rgl_log("fxprof: CreateThread failed (%lu) - no profile", GetLastError());
++      return;
++   }
++   SetThreadPriority(prof_thread, THREAD_PRIORITY_TIME_CRITICAL);
++   rgl_log("fxprof: sampling render thread %lu -> %s",
++           (unsigned long) GetCurrentThreadId(), prof_path);
++}
++
++void
++fxProfFrame(void)
++{
++   prof_lastswap = GetTickCount();
++}
++
++void
++fxProfStop(void)
++{
++   FILE *f;
++   DWORD k, n = 0;
++   if (!prof_thread)
++      return;
++   prof_run = 0;
++   WaitForSingleObject(prof_thread, 500);
++   CloseHandle(prof_thread);
++   prof_thread = NULL;
++   f = fopen(prof_path, "w");
++   if (!f) {
++      rgl_log("fxprof: cannot write %s", prof_path);
++      return;
++   }
++   fprintf(f, "# retrogl fxprof v1 samples=%lu idle=%lu dropped=%lu\n",
++           (unsigned long) prof_samples, (unsigned long) prof_idle,
++           (unsigned long) prof_dropped);
++   for (k = 0; k < PROF_SLOTS; k++) {
++      MEMORY_BASIC_INFORMATION mbi;
++      char mod[MAX_PATH];
++      if (!prof_eip[k])
++         continue;
++      mod[0] = '\0';
++      if (VirtualQuery((LPCVOID) prof_eip[k], &mbi, sizeof(mbi)) && mbi.AllocationBase)
++         GetModuleFileNameA((HMODULE) mbi.AllocationBase, mod, sizeof(mod));
++      else
++         mbi.AllocationBase = NULL;
++      fprintf(f, "%08lx %lu %08lx %s\n", (unsigned long) prof_eip[k],
++              (unsigned long) prof_cnt[k], (unsigned long) mbi.AllocationBase,
++              mod[0] ? mod : "?");
++      n++;
++   }
++   fclose(f);
++   rgl_log("fxprof: wrote %lu addresses, %lu samples -> %s",
++           (unsigned long) n, (unsigned long) prof_samples, prof_path);
++}
 diff --git a/src/mesa/drivers/glide/fxsetup.c b/src/mesa/drivers/glide/fxsetup.c
 index 48a8895..b8b9c38 100644
 --- a/src/mesa/drivers/glide/fxsetup.c
@@ -665,10 +911,31 @@ index f8a6db0..6cb456a 100644
  
  
 diff --git a/src/mesa/drivers/glide/fxwgl.c b/src/mesa/drivers/glide/fxwgl.c
-index 6ad6fc9..168acb3 100644
+index 6ad6fc9..df6c341 100644
 --- a/src/mesa/drivers/glide/fxwgl.c
 +++ b/src/mesa/drivers/glide/fxwgl.c
-@@ -387,12 +387,38 @@ wglCreateContext(HDC hdc)
+@@ -258,13 +258,19 @@ static void rgl_first_entry(const char *fn)
+ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID reserved)
+ {
+    (void) hInst;
+-   (void) reserved;
+    if (reason == DLL_PROCESS_ATTACH) {
+       char path[MAX_PATH];
+       if (!GetModuleFileNameA(NULL, path, sizeof(path)))
+          path[0] = '\0';
+       rgl_log("### DllMain PROCESS_ATTACH: retrogl LOADED by '%s' (pid=%lu) ###",
+               path, (unsigned long) GetCurrentProcessId());
++   } else if (reason == DLL_PROCESS_DETACH) {
++      /* [retro3dfx] 0.1.67: reserved != NULL means the process is exiting;
++       * NULL means FreeLibrary (an engine's renderer restart). Its ABSENCE
++       * after a run means the process was terminated, not exited. */
++      rgl_log("### DllMain PROCESS_DETACH: retrogl %s (pid=%lu) ###",
++              reserved ? "process exit" : "FreeLibrary",
++              (unsigned long) GetCurrentProcessId());
+    }
+    return TRUE;
+ }
+@@ -387,12 +393,38 @@ wglCreateContext(HDC hdc)
        * the game thread enters grSstWinOpen without pumping, it deadlocks. Q3's
        * window is already settled, which is why it never hit this. Pump so the
        * WM_ACTIVATE/WM_SETFOCUS get dispatched and the window is truly active. */
@@ -712,7 +979,23 @@ index 6ad6fc9..168acb3 100644
       }
          GetClientRect(hWnd, &cliRect);
          rgl_log("wglCreateContext: hWnd=%p GetClientRect=%ldx%ld curPFD=%d "
-@@ -660,10 +686,54 @@ wglGetExtensionsStringARB (HDC hdc)
+@@ -451,6 +483,7 @@ GLAPI BOOL GLAPIENTRY
+ wglDeleteContext(HGLRC hglrc)
+ {
+    if (ctx && hglrc == (HGLRC) 1) {
++      rgl_log("wglDeleteContext: enter");
+ 
+       fxMesaDestroyContext(ctx);
+ 
+@@ -458,6 +491,7 @@ wglDeleteContext(HGLRC hglrc)
+ 
+       ctx = NULL;
+       hDC = 0;
++      rgl_log("wglDeleteContext: done");
+       return (TRUE);
+    }
+ 
+@@ -660,10 +694,54 @@ wglGetExtensionsStringARB (HDC hdc)
   return wglGetExtensionsStringEXT();
  }
  
@@ -767,7 +1050,7 @@ index 6ad6fc9..168acb3 100644
         {"wglGetExtensionsStringARB",    (PROC)wglGetExtensionsStringARB},
         {"wglGetExtensionsStringEXT",    (PROC)wglGetExtensionsStringEXT},
         {"wglSwapIntervalEXT",           (PROC)wglSwapIntervalEXT},
-@@ -693,18 +763,29 @@ wglGetProcAddress(LPCSTR lpszProc)
+@@ -693,18 +771,29 @@ wglGetProcAddress(LPCSTR lpszProc)
     int i;
     PROC p;
     rgl_first_entry("wglGetProcAddress");
@@ -801,6 +1084,22 @@ index 6ad6fc9..168acb3 100644
 +
     SetLastError(0);
     return (NULL);
+ }
+@@ -730,6 +819,7 @@ wglMakeCurrent(HDC hdc, HGLRC hglrc)
+    hDC = hdc;
+ 
+    fxMesaMakeCurrent(ctx);
++   fxProfStart();   /* [retro3dfx] 0.1.67: no-op unless RETROGL_PROF is set */
+ 
+    return (TRUE);
+ }
+@@ -1113,6 +1203,7 @@ wglSwapBuffers(HDC hdc)
+    }
+ 
+    fxMesaSwapBuffers();
++   fxProfFrame();
+ 
+    return (TRUE);
  }
 diff --git a/src/mesa/main/extensions.c b/src/mesa/main/extensions.c
 index efdee0c..f943fc5 100644

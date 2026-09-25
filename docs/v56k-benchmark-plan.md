@@ -96,6 +96,39 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-25 01:00) — all-ours stack runs; 4-chip open on our Glide is next
+
+**State of `.124`:** cfg 0 (1 chip) boot, CPU 2004 MHz, system ICD still
+`retroicd.dll` 0.1.66 (rollback in the 2026-09-24 night point), guardian unit
+`box-guardian-124` active. Game-local lanes stage their own DLLs per run.
+
+**Done since the night point** (details: `voodoo-cleanroom/README.md` §13.3,
+`CHANGELOG.md` 0.1.67/0.1.68):
+- All-ours (our ICD over OUR h5 Glide) cfg 0 matrix, Quake II + Quake III, 5 res ×
+  16/32: level with our-ICD-over-AmigaMerlin within 3 % except Q2 1280×960 and Q3
+  640×480×32 (−9 % each). Raw: `results/…/allours/`.
+- `glide3x_h5_x86.dll` (3dfx asm triangle setup + 3DNow!/SSE, target-derived
+  offsets, fork `c41b50d`): +1.7 % Quake II / +0.5 % Quake III at 320×240 (CPU-bound
+  one chip), interleaved A/B ×2 (`results/…/allours-ab/`). Built by `build-stack.sh`.
+- ICD 0.1.67 profiler: `--env "RETROGL_PROF=C:\RETRO_AGENT\cr\prof_<t>.txt"`, then
+  `icdprof.py --fetch 192.168.1.124 <path> --dll retrogl.dll=<icd> --dll glide3x.dll=<glide>`.
+  Quake III 320×240: game 47 %, ICD 20 %, Glide 17 %; no single hot spot.
+- The "hang in grGlideInit" was a hidden Glide fatal-error dialog (stale mapping
+  from force-killed Quake II PIDs). Runner: Quake II now QUITS by itself
+  (`nextserver` after `demomap`); ICD logs Glide errors (0.1.67); Glide unmaps
+  under the right PID (fork `5439bb8`). Every all-ours launch writes
+  `C:\RETRO_AGENT\cr\maplog.txt`, and a failed cell saves its tail to `diag/`.
+- A wedged cell's thread stacks are taken with `ntsd -pv` before the kill
+  (`diag/*-hangstacks-sym.txt`).
+- Another process on the dev host ran `GAMESYNC RESET+START` on `.124` at 00:43
+  (not `retro-agent-f3`/`-90`, both asked to keep off `.124`); the one cell it
+  overlapped (a profiled run) was discarded. **Check `GAMESYNC STATUS` before
+  trusting a number taken tonight.**
+
+**Next:** Step 4 at four chips: safe-reboot into cfg 5 via `v56k_sweep.py`, then
+`glideprobe` with `SSTH3_SLI_AA_CONFIGURATION=5` + `RETRO_GLIDE_MAPLOG` to capture
+the `SLI_AA_REQUEST(open)` result, then the all-ours cfg 5 matrix (C and x86 builds).
+
 ### Resume point (2026-09-24 08:39) — `.124` WEDGED during the clean-room smoke test; needs a power cycle
 
 `cleanroom_smoke.py` launched Hexen II (after SoF2, which ran fine on our ICD) and the

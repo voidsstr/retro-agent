@@ -326,6 +326,121 @@ async def capture(box, outdir, label="capture", ring=False):
     return report
 
 
+# ---------------------------------------------------------------------------
+# Stacks of a HUNG process, taken before it is killed.
+#
+# 2026-09-25 00:01, .124: a Quake III cell on the all-ours stack stopped inside
+# our own h5 Glide's grGlideInit() - the ICD's trace line "calling
+# grGlideInit()" was the last thing the process ever wrote, the launch before
+# and after it were clean, and killing it destroyed the only evidence. Dr
+# Watson sees nothing (nothing crashed) and fxscan sees registers, not code.
+# XP ships ntsd.exe; a NONINVASIVE attach (-pv) suspends the threads, prints
+# them and resumes on `q`, so it costs the process nothing - the kill that
+# follows is the runner's usual graceful_kill().
+#
+# XP ntsd rejects -logo/-cf: the log goes through _NT_DEBUG_LOG_FILE_OPEN and
+# the commands through -c "$<file" (both measured on .124, 2026-09-24). The
+# environment variable has to be set in a .bat - `set X=Y&& prog` through the
+# agent's cmd wrapper loses it.
+# ---------------------------------------------------------------------------
+HANG_DIR = r"C:\RETRO_AGENT\cr"
+NTSD_CMDS = "~*kb 48\nlm\nq\n"
+
+
+def hang_bat(log_path, cmds_path):
+    return ("@echo off\r\n"
+            f"if exist \"{log_path}\" del /f /q \"{log_path}\"\r\n"
+            f"set _NT_DEBUG_LOG_FILE_OPEN={log_path}\r\n"
+            f"ntsd -pv -p %1 -c \"$<{cmds_path}\"\r\n").encode("ascii")
+
+
+async def hang_stacks(box, image_name, outdir, label, symbols=None):
+    """Write <label>-hangstacks.txt (raw ntsd) and, when `symbols` maps a
+    module name to a local unstripped DLL, a symbolized copy. Returns the
+    symbolized text, or None when the process is gone or ntsd gave nothing."""
+    import json
+    want = image_name.lower()
+    procs = json.loads(await box.text("PROCLIST", timeout=30))
+    pids = [p["pid"] for p in procs if (p.get("name") or "").lower() == want]
+    if not pids:
+        return None
+    logp, cmdp, batp = (rf"{HANG_DIR}\hangstk.txt", rf"{HANG_DIR}\hangstk.cmd",
+                        rf"{HANG_DIR}\hangstk.bat")
+    await box.text(f"MKDIR {HANG_DIR}")
+    await box.upload(cmdp, NTSD_CMDS.encode("ascii"))
+    await box.upload(batp, hang_bat(logp, cmdp))
+    await box.text(f"EXECW 90 {batp} {pids[0]}", timeout=150)
+    raw = (await box.download(logp) or b"").decode("latin-1", "replace")
+    if not raw.strip():
+        return None
+    outdir = Path(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    (outdir / f"{label}-hangstacks.txt").write_text(raw)
+    sym = symbolize_ntsd(raw, symbols or {})
+    (outdir / f"{label}-hangstacks-sym.txt").write_text(sym)
+    return sym
+
+
+_LM_RE = re.compile(r"^([0-9a-f]{8})\s+([0-9a-f]{8})\s+(\S+)", re.I | re.M)
+_HEX_RE = re.compile(r"\b([0-9a-f]{8})\b", re.I)
+
+
+def nm_table(dll_path):
+    """[(rva, name)] sorted, from the DLL's own symbol table, plus ImageBase."""
+    out = subprocess.run(["i686-w64-mingw32-nm", "-n", str(dll_path)],
+                         capture_output=True, text=True).stdout
+    base = 0
+    hdr = subprocess.run(["i686-w64-mingw32-objdump", "-p", str(dll_path)],
+                         capture_output=True, text=True).stdout
+    m = re.search(r"^ImageBase\s+([0-9a-f]+)", hdr, re.M | re.I)
+    if m:
+        base = int(m.group(1), 16)
+    syms = []
+    for line in out.splitlines():
+        parts = line.split()
+        if len(parts) == 3 and parts[1] in "tT":
+            syms.append((int(parts[0], 16) - base, parts[2]))
+    return sorted(syms)
+
+
+def nearest(syms, rva):
+    lo, hi, best = 0, len(syms) - 1, None
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if syms[mid][0] <= rva:
+            best, lo = syms[mid], mid + 1
+        else:
+            hi = mid - 1
+    return best
+
+
+def symbolize_ntsd(raw, symbols, tables=None):
+    """Append [module!symbol+0xoff] to every address that lands inside a module
+    we have an unstripped local copy of. `symbols` maps a module name as ntsd's
+    `lm` prints it (e.g. 'glide3x', 'retrogl') to a DLL path; `tables` lets the
+    tests pass pre-built nm tables instead."""
+    mods = []
+    for start, end, name in _LM_RE.findall(raw):
+        key = name.lower()
+        if tables and key in tables:
+            mods.append((int(start, 16), int(end, 16), key, tables[key]))
+        elif key in {k.lower() for k in symbols}:
+            path = {k.lower(): v for k, v in symbols.items()}[key]
+            mods.append((int(start, 16), int(end, 16), key, nm_table(path)))
+    out = []
+    for line in raw.splitlines():
+        notes = []
+        for h in _HEX_RE.findall(line):
+            a = int(h, 16)
+            for start, end, name, syms in mods:
+                if start <= a < end:
+                    s = nearest(syms, a - start)
+                    if s:
+                        notes.append(f"{name}!{s[1]}+0x{a - start - s[0]:x}")
+        out.append(line + (("   [" + " ".join(notes) + "]") if notes else ""))
+    return "\n".join(out) + "\n"
+
+
 async def main_async(a):
     refuse_if_owned(a.host, a.force)
     box = Box(a.host)

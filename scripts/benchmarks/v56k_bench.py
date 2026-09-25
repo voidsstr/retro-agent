@@ -599,10 +599,18 @@ class Quake2:
             'set gl_picmip "0"',
             'set gl_finish "0"',
             'set timedemo "1"',
-            # clean exit after the demo (see Quake3.bench_cfg): killserver
-            # first so the timedemo line is printed by the disconnect
-            'set nextserver "killserver; quit"',
             'demomap demo1.dm2',
+            # Clean exit after the demo (see Quake3.bench_cfg): killserver
+            # first so the timedemo line is printed by the disconnect.
+            # AFTER demomap, not before: retail 3.20's SV_Map resets
+            # nextserver to "" for a map name without '+', so a value set
+            # first was wiped by the demomap itself and only the default
+            # "killserver" ran - Quake II then sat at the console until the
+            # runner force-killed it, on every cell, and on our h5 Glide
+            # every force-kill left the display driver a stale per-PID slot
+            # (measured on .124, 2026-09-25). SV_Map defers the rest of the
+            # buffer (Cbuf_CopyToDefer), so this runs once the demo loads.
+            'set nextserver "killserver; quit"',
             '',
         ])
 
@@ -1629,6 +1637,21 @@ CLEANROOM_GLIDE_H5 = Path(os.environ.get(
     "V56K_CLEANROOM_GLIDE", CLEANROOM_ICD.parent / "glide3x_h5.dll"))
 
 
+def glide_variant(path=None):
+    """The build variant of our h5 Glide, taken from its file name, so a row
+    names it in the api column rather than only in an md5: glide3x_h5.dll ->
+    "" (the C triangle-setup build), glide3x_h5_x86.dll -> "x86" (3dfx's asm
+    triangle setup + 3DNow!/SSE specialisations). Two builds of one lane must
+    never average into one table cell."""
+    stem = Path(path or CLEANROOM_GLIDE_H5).stem.lower()
+    return stem[len("glide3x_h5"):].strip("_-") if stem.startswith("glide3x_h5") else stem
+
+
+def allours_api(ver, path=None):
+    v = glide_variant(path)
+    return f"opengl-allours-{ver}" + (f"-{v}" if v else "")
+
+
 async def _stage_local_glide(box, root, want):
     import hashlib
     dest = rf"{root}\glide3x.dll"
@@ -1645,7 +1668,20 @@ async def _stage_local_glide(box, root, want):
     return hashlib.md5(data).hexdigest()[:8]
 
 
-class Quake2AllOurs(Quake2Cleanroom):
+# Every all-ours launch writes our h5 Glide's opt-in log: board mappings per
+# PID, the SLI/AA request result, every UNMAP with its escape return, every
+# refused (stale) mapping and the text of any fatal Glide error. It costs a
+# few file appends at init and exit, none per frame. It is the only record of
+# the PID-reuse stale-slot fault, which otherwise leaves nothing behind.
+ALLOURS_MAPLOG = r"C:\RETRO_AGENT\cr\maplog.txt"
+
+
+class _AllOursLog:
+    def launch_bat(self, w, h, depth, env):
+        return super().launch_bat(w, h, depth, {"RETRO_GLIDE_MAPLOG": ALLOURS_MAPLOG, **env})
+
+
+class Quake2AllOurs(_AllOursLog, Quake2Cleanroom):
     tid = "quake2:allours"
     local_glide = True
 
@@ -1655,11 +1691,11 @@ class Quake2AllOurs(Quake2Cleanroom):
         self._identified = True
         ver = await self.stage_icd(box)
         g = await _stage_local_glide(box, self.root, True)
-        self.api = f"opengl-allours-{ver}"
+        self.api = allours_api(ver)
         self.engine = f"quake2.exe (3.20; retrogl.dll voodoo-cleanroom {ver} over OUR h5 glide3x md5 {g})"
 
 
-class Quake3AllOurs(Quake3Cleanroom):
+class Quake3AllOurs(_AllOursLog, Quake3Cleanroom):
     tid = "quake3:allours"
     local_glide = True
 
@@ -1669,7 +1705,7 @@ class Quake3AllOurs(Quake3Cleanroom):
         self._identified = True
         ver = await self.stage_icd(box)
         g = await _stage_local_glide(box, self.root, True)
-        self.api = f"opengl-allours-{ver}"
+        self.api = allours_api(ver)
         self.engine = f"quake3.exe (retail 1.32c; retrogl.dll voodoo-cleanroom {ver} over OUR h5 glide3x md5 {g})"
 
 
@@ -2026,6 +2062,24 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     # at 1600x1200 on one VSA-100, 2026-09-24): the kill then times out and
     # the cell used to become an anonymous "error: TimeoutError". It is a
     # real outcome - record it as such, and give the box time to settle.
+    # A process wedged before its renderer came up is about to be killed, and
+    # the kill destroys the only evidence of WHERE it was stuck. Take every
+    # thread's stack first (noninvasive ntsd), symbolized against our own
+    # unstripped Glide/ICD when this cell ran them.
+    if wedged:
+        try:
+            import v56k_diag
+            syms = {}
+            if getattr(title, "local_glide", False):
+                syms["glide3x"] = CLEANROOM_GLIDE_H5
+            if hasattr(title, "stage_icd"):
+                syms["retrogl"] = CLEANROOM_ICD
+            st = await v56k_diag.hang_stacks(
+                box, title.proc, args.outdir / "diag",
+                f"{title.tid}_{res}_{depth}_cfg{cfg}", syms)
+            log("       hang stacks captured" if st else "       (no hang stacks: process gone or ntsd silent)")
+        except Exception as e:
+            log(f"       (hang stack capture failed: {type(e).__name__}: {e})")
     unkillable = False
     try:
         await graceful_kill(box, title.proc)
@@ -2083,6 +2137,14 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
         # ring of its own (measured: no RLog* anywhere), so this is Dr Watson +
         # the per-chip scanout dump - which is what named
         # glide3x!grDrawTriangle+0x2d as the Quake III "hang".
+        if getattr(title, "local_glide", False):
+            try:
+                ml = await box.download(ALLOURS_MAPLOG)
+                if ml:
+                    (args.outdir / "diag").mkdir(parents=True, exist_ok=True)
+                    (args.outdir / "diag" / f"{title.tid}_{res}_{depth}_cfg{cfg}-maplog.tail").write_bytes(ml[-16384:])
+            except Exception:
+                pass
         try:
             import v56k_diag
             rep = await v56k_diag.capture(
