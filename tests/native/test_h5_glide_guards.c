@@ -247,6 +247,41 @@ TEST(swap_pending_wait_is_bounded) {
     CHECK(n <= 4000001UL, "gives up after the bound");
 }
 
+/* ---- 6. grTexDownloadMipMapLevelPartialRowExt min_s alignment (fork, 2026-09-25) --
+ * "64 bit Align minS": the 3dfx source wrote `min_s &= 8 / 4 / 2`, keeping ONE
+ * bit instead of clearing the low ones, so a 32-bit row patch starting at s=16
+ * was sent from s=0 - the wrong texels, silently. The fix clears the low bits,
+ * and clamps the rounded-up width at the row end. */
+static int align_old(int bpp, int s) { return bpp == 8 ? (s & 8) : bpp == 16 ? (s & 4) : (s & 2); }
+static int align_new(int bpp, int s) { return bpp == 8 ? (s & ~7) : bpp == 16 ? (s & ~3) : (s & ~1); }
+
+TEST(partial_row_min_s_aligns_down_to_64_bits) {
+    CHECK_EQ_U(align_new(32, 16), 16);
+    CHECK_EQ_U(align_old(32, 16), 0);        /* the bug: sent from column 0 */
+    CHECK_EQ_U(align_new(32, 17), 16);
+    CHECK_EQ_U(align_new(16, 13), 12);
+    CHECK_EQ_U(align_old(16, 13), 4);
+    CHECK_EQ_U(align_new(8, 21), 16);
+    CHECK_EQ_U(align_old(8, 21), 0);
+    {   /* aligned start never passes the requested one, never by >= 64 bits */
+        int bpp, sidx;
+        for (bpp = 8; bpp <= 32; bpp *= 2)
+            for (sidx = 0; sidx < 256; sidx++) {
+                int a = align_new(bpp, sidx);
+                CHECK(a <= sidx && (sidx - a) * bpp < 64, "aligned down within 64 bits");
+            }
+    }
+}
+
+TEST(partial_row_width_never_runs_past_the_row) {
+    /* 32-bit, 128-wide row, patch [126, 127]: min_s 126, width 2 - fine;
+     * patch [127,127] after align min_s 126, width 2: stays inside */
+    int real_width = 128, min_s = align_new(32, 127), width = 128 - min_s;
+    if (width > 1) width = (width + 1) & ~1;
+    if (min_s + width > real_width && real_width > min_s) width = real_width - min_s;
+    CHECK(min_s + width <= real_width, "clamped to the row");
+}
+
 MUNIT_MAIN("h5 Glide guards: chip clamp, bounded idle, live mappings, XP escape (2026-09-24)", {
     RUN(numchips_two_on_a_four_chip_board_is_refused);
     RUN(numchips_one_and_real_count_are_honoured);
@@ -261,4 +296,6 @@ MUNIT_MAIN("h5 Glide guards: chip clamp, bounded idle, live mappings, XP escape 
     RUN(xp_escape_code_survives_a_32_bit_field_not_a_16_bit_one);
     RUN(retire_never_touches_the_field_after_the_array);
     RUN(swap_pending_wait_is_bounded);
+    RUN(partial_row_min_s_aligns_down_to_64_bits);
+    RUN(partial_row_width_never_runs_past_the_row);
 })

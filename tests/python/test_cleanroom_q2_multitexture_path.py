@@ -64,3 +64,18 @@ def test_unit_selection_marks_state_dirty_instead_of_flushing():
     assert "if (lazy_unit_select())\n      ctx->NewState |= _NEW_TEXTURE;\n   else\n      FLUSH_VERTICES(ctx, _NEW_TEXTURE);" in t
     assert "      if (ctx->Array.ActiveTexture == texUnit)\n         return;\n      ctx->NewState |= _NEW_ARRAY;" in t
     assert '_mesa_getenv("MESA_NO_LAZY_UNIT_SELECT")' in t
+
+
+def test_sub_rect_uploads_only_on_a_glide_with_the_fixed_row_ext():
+    """0.1.74: patches narrower than the level go as sub-rows via
+    grTexDownloadMipMapLevelPartialRowExt - ONLY when the Glide advertises
+    RETRO3DFX_PARTIALROW (other Glides carry the min_s alignment bug), with a
+    stdcall pointer (the ext is _grTexDownloadMipMapLevelPartialRowExt@44)."""
+    m = _post("src/mesa/drivers/glide/fxtexman.c")
+    assert 'strstr(ext, " RETRO3DFX_PARTIALROW ")' in m
+    assert "typedef FxBool (FX_CALL *fxPartialRowProc)" in m
+    body = _fn(m, "fxTMReloadSubRect(fxMesaContext fxMesa, struct gl_texture_object *tObj,")
+    assert "if (!row || !ti->validated || !ti->isInTM)\n      return GL_FALSE;" in body
+    assert "(GLuint) t * pitch" in body          # the ext wants the START of row t
+    t = _post("src/mesa/drivers/glide/fxddtex.c")
+    assert "!fxTMReloadSubRect(fxMesa, texObj, level, xoffset, yoffset, width, height))" in t

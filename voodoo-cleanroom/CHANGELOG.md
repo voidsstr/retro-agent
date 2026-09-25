@@ -12,6 +12,22 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.74 — a sub-row lightmap patch goes as sub-rows (2026-09-25)
+
+After 0.1.71 a `glTexSubImage2D` sent only the changed ROWS, but whole rows:
+a 16×16 lightmap patch on a 128-wide page still moved 16 × 128 texels, 8× what
+changed, and that was 9 % of a single-pass Quake II frame. Glide has
+`grTexDownloadMipMapLevelPartialRowExt` (one row, a column range), but the
+3dfx source aligns its start with `min_s &= 2` (32-bit) - which keeps one bit
+rather than clearing the low ones, so a patch at s = 16 was sent from s = 0.
+Our h5 Glide fixes that (fork `d161bd4`) and advertises `RETRO3DFX_PARTIALROW`;
+`fxTMReloadSubRect` uses the extension **only** when that token is present, so
+over any other Glide nothing changes. `FX_NO_PARTIALROW=1` disables it.
+
+Quake II single-pass, 4 chips: **1024×768 162.6 → 176.3**, **640×480 184.2 →
+197.5**; two-pass unchanged (132.1 / 228.5). Pixel-identical to whole-row
+uploads (0 of 307,200). Glide's download proc left the profile's top 16.
+
 ## 0.1.71 – 0.1.73 — Quake II's single-pass multitexture wall, found and taken down (2026-09-25)
 
 Quake II with `GL_SGIS_multitexture` (opt-in, `FX_SGIS_MULTITEXTURE=1`) was the

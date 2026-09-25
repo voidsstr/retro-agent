@@ -44,7 +44,7 @@ index a6c0ab5..e837af1 100644
  else
  ifeq ($(ICD),1)
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..6f6c0e2 100644
+index 350f075..ffbff54 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
 @@ -83,13 +83,34 @@ static GrHwConfiguration glbHWConfig;
@@ -210,7 +210,7 @@ index 350f075..6f6c0e2 100644
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.73]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.74]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
@@ -367,10 +367,10 @@ index ffc0047..bccfaef 100644
  
     if (fxMesa->type >= GR_SSTTYPE_Voodoo4) {
 diff --git a/src/mesa/drivers/glide/fxddtex.c b/src/mesa/drivers/glide/fxddtex.c
-index 1418d51..6e9909e 100644
+index 1418d51..d35b25f 100644
 --- a/src/mesa/drivers/glide/fxddtex.c
 +++ b/src/mesa/drivers/glide/fxddtex.c
-@@ -1596,8 +1596,21 @@ fxDDTexSubImage2D(GLcontext * ctx, GLenum target, GLint level,
+@@ -1596,8 +1596,26 @@ fxDDTexSubImage2D(GLcontext * ctx, GLenum target, GLint level,
        }
     }
  
@@ -386,8 +386,13 @@ index 1418d51..6e9909e 100644
 +      if (fullTexSub < 0)
 +         fullTexSub = getenv("FX_FULL_TEXSUB") != NULL;
 +      if (!fullTexSub && !texImage->IsCompressed &&
-+          mml->wScale == 1 && mml->hScale == 1 && height > 0)
-+         fxTMReloadSubMipMapLevel(fxMesa, texObj, level, yoffset, height);
++          mml->wScale == 1 && mml->hScale == 1 && height > 0) {
++         /* 0.1.74: a patch narrower than the level goes as sub-rows when
++          * this Glide has the fixed row extension; else whole rows */
++         if (width >= mml->width ||
++             !fxTMReloadSubRect(fxMesa, texObj, level, xoffset, yoffset, width, height))
++            fxTMReloadSubMipMapLevel(fxMesa, texObj, level, yoffset, height);
++      }
 +      else
 +         fxTMReloadMipMapLevel(fxMesa, texObj, level);
 +   }
@@ -395,10 +400,19 @@ index 1418d51..6e9909e 100644
        fxTexInvalidate(ctx, texObj);
  }
 diff --git a/src/mesa/drivers/glide/fxdrv.h b/src/mesa/drivers/glide/fxdrv.h
-index 1939489..0d60b07 100644
+index 1939489..1b9d4fb 100644
 --- a/src/mesa/drivers/glide/fxdrv.h
 +++ b/src/mesa/drivers/glide/fxdrv.h
-@@ -788,4 +788,9 @@ extern int TDFX_DEBUG;
+@@ -678,6 +678,8 @@ extern void fxTMMoveOutTM(fxMesaContext, struct gl_texture_object *);
+ extern void fxTMFreeTexture(fxMesaContext, struct gl_texture_object *);
+ extern void fxTMReloadMipMapLevel(fxMesaContext, struct gl_texture_object *,
+ 				  GLint);
++extern GLboolean fxTMReloadSubRect(fxMesaContext, struct gl_texture_object *,
++                                   GLint, GLint, GLint, GLint, GLint);
+ extern void fxTMReloadSubMipMapLevel(fxMesaContext,
+ 				     struct gl_texture_object *, GLint, GLint,
+ 				     GLint);
+@@ -788,4 +790,9 @@ extern int TDFX_DEBUG;
  #define FX_RESCALE_BIG_TEXURES_HACK   1
  #define FX_COMPRESS_S3TC_AS_FXT1_HACK 1
  
@@ -907,10 +921,18 @@ index 9d337d4..c687d45 100644
                        GR_COMBINE_FACTOR_ONE,
                        GR_COMBINE_FUNCTION_BLEND,
 diff --git a/src/mesa/drivers/glide/fxtexman.c b/src/mesa/drivers/glide/fxtexman.c
-index d0480de..a1c6282 100644
+index d0480de..2d0da41 100644
 --- a/src/mesa/drivers/glide/fxtexman.c
 +++ b/src/mesa/drivers/glide/fxtexman.c
-@@ -617,6 +617,22 @@ fxTMReloadMipMapLevel(fxMesaContext fxMesa, struct gl_texture_object *tObj,
+@@ -41,6 +41,7 @@
+ #if defined(FX)
+ 
+ #include "fxdrv.h"
++#include <string.h>
+ 
+ int texSwaps = 0;
+ static FxU32 texBoundMask;
+@@ -617,6 +618,22 @@ fxTMReloadMipMapLevel(fxMesaContext fxMesa, struct gl_texture_object *tObj,
     }
  }
  
@@ -933,7 +955,7 @@ index d0480de..a1c6282 100644
  void
  fxTMReloadSubMipMapLevel(fxMesaContext fxMesa,
  			 struct gl_texture_object *tObj,
-@@ -624,12 +640,14 @@ fxTMReloadSubMipMapLevel(fxMesaContext fxMesa,
+@@ -624,12 +641,14 @@ fxTMReloadSubMipMapLevel(fxMesaContext fxMesa,
  {
     tfxTexInfo *ti = fxTMGetTexInfo(tObj);
     GrLOD_t lodlevel;
@@ -949,7 +971,7 @@ index d0480de..a1c6282 100644
  
     if (!ti->validated) {
        fprintf(stderr, "fxTMReloadSubMipMapLevel: INTERNAL ERROR: not validated\n");
-@@ -638,72 +656,40 @@ fxTMReloadSubMipMapLevel(fxMesaContext fxMesa,
+@@ -638,72 +657,40 @@ fxTMReloadSubMipMapLevel(fxMesaContext fxMesa,
     }
  
     tmu = (int) ti->whichTMU;
@@ -1047,6 +1069,98 @@ index d0480de..a1c6282 100644
        break;
     default:
        fprintf(stderr, "fxTMReloadSubMipMapLevel: INTERNAL ERROR: wrong tmu (%d)\n", tmu);
+@@ -712,6 +699,91 @@ fxTMReloadSubMipMapLevel(fxMesaContext fxMesa,
+    }
+ }
+ 
++/* [retro3dfx] 0.1.74: a sub-row patch goes as sub-rows. Glide's partial
++ * download is row-granular, so a 16x16 lightmap patch on a 128-wide page
++ * still sent 16 whole rows - 8x the texels that changed; that was 9 % of a
++ * single-pass Quake II frame after 0.1.71. grTexDownloadMipMapLevelPartialRowExt
++ * sends one row between two columns, but its min_s alignment is broken in the
++ * 3dfx source (`min_s &= 2` for 32-bit keeps one bit), so it is used ONLY on a
++ * Glide that advertises RETRO3DFX_PARTIALROW - our h5 fork, which fixed it.
++ * FX_NO_PARTIALROW=1 disables it. The ext is stdcall, like every Glide entry. */
++typedef FxBool (FX_CALL *fxPartialRowProc)(GrChipID_t, FxU32, GrLOD_t, GrLOD_t,
++                                           GrAspectRatio_t, GrTextureFormat_t,
++                                           FxU32, void *, int, int, int);
++
++static fxPartialRowProc
++fxPartialRowExt(void)
++{
++   static int state = -1;
++   static fxPartialRowProc fn = NULL;
++   if (state < 0) {
++      const char *ext = grGetString(GR_EXTENSION);
++      state = 0;
++      if (ext && strstr(ext, " RETRO3DFX_PARTIALROW ") && !getenv("FX_NO_PARTIALROW")) {
++         fn = (fxPartialRowProc) grGetProcAddress("grTexDownloadMipMapLevelPartialRowExt");
++         state = (fn != NULL);
++      }
++   }
++   return state ? fn : NULL;
++}
++
++/* Returns GL_FALSE when the rect cannot go as sub-rows (no fixed ext on this
++ * Glide); the caller then sends whole rows. */
++GLboolean
++fxTMReloadSubRect(fxMesaContext fxMesa, struct gl_texture_object *tObj,
++                  GLint level, GLint xoffset, GLint yoffset,
++                  GLint width, GLint height)
++{
++   fxPartialRowProc row = fxPartialRowExt();
++   tfxTexInfo *ti = fxTMGetTexInfo(tObj);
++   struct gl_texture_image *texImage = tObj->Image[0][level];
++   tfxMipMapLevel *mml = FX_MIPMAP_DATA(texImage);
++   const GLuint pitch = (GLuint) mml->width * texImage->TexFormat->TexelBytes;
++   GrLOD_t lodlevel;
++   GLint t, tmu;
++
++   if (!row || !ti->validated || !ti->isInTM)
++      return GL_FALSE;
++
++   tmu = (int) ti->whichTMU;
++   fxMesa->stats.reqTexUpload++;
++   fxMesa->stats.texUpload++;
++   lodlevel = ti->info.largeLodLog2 - (level - ti->minLevel);
++
++   for (t = yoffset; t < yoffset + height; t++) {
++      /* the ext takes the START of row t and offsets to min_s itself */
++      GLubyte *rowData = (GLubyte *) texImage->Data + (GLuint) t * pitch;
++      const int s0 = xoffset, s1 = xoffset + width - 1;
++      switch (tmu) {
++      case FX_TMU0:
++      case FX_TMU1:
++         row(tmu, ti->tm[tmu]->startAddr, lodlevel, FX_largeLodLog2(ti->info),
++             FX_aspectRatioLog2(ti->info), ti->info.format,
++             GR_MIPMAPLEVELMASK_BOTH, rowData, t, s0, s1);
++         break;
++      case FX_TMU_SPLIT:
++         row(GR_TMU0, ti->tm[GR_TMU0]->startAddr, lodlevel, FX_largeLodLog2(ti->info),
++             FX_aspectRatioLog2(ti->info), ti->info.format,
++             GR_MIPMAPLEVELMASK_ODD, rowData, t, s0, s1);
++         row(GR_TMU1, ti->tm[GR_TMU1]->startAddr, lodlevel, FX_largeLodLog2(ti->info),
++             FX_aspectRatioLog2(ti->info), ti->info.format,
++             GR_MIPMAPLEVELMASK_EVEN, rowData, t, s0, s1);
++         break;
++      case FX_TMU_BOTH:
++         row(GR_TMU0, ti->tm[GR_TMU0]->startAddr, lodlevel, FX_largeLodLog2(ti->info),
++             FX_aspectRatioLog2(ti->info), ti->info.format,
++             GR_MIPMAPLEVELMASK_BOTH, rowData, t, s0, s1);
++         row(GR_TMU1, ti->tm[GR_TMU1]->startAddr, lodlevel, FX_largeLodLog2(ti->info),
++             FX_aspectRatioLog2(ti->info), ti->info.format,
++             GR_MIPMAPLEVELMASK_BOTH, rowData, t, s0, s1);
++         break;
++      default:
++         return GL_FALSE;
++      }
++   }
++   return GL_TRUE;
++}
++
+ void
+ fxTMMoveOutTM(fxMesaContext fxMesa, struct gl_texture_object *tObj)
+ {
 diff --git a/src/mesa/drivers/glide/fxtris.c b/src/mesa/drivers/glide/fxtris.c
 index f8a6db0..6cb456a 100644
 --- a/src/mesa/drivers/glide/fxtris.c

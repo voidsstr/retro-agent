@@ -190,3 +190,16 @@ def test_unmap_falls_back_to_the_pid_the_mapping_was_filed_under():
         assert "procHandle;" in body or ": hInfo.boardInfo[i].procHandle" in body
         assert "hwcLogLine(\"UNMAP" in body
     assert 'hwcLogLine("REFUSED pid=%lu %s\\n"' in c
+
+
+def test_partial_row_ext_aligns_min_s_and_is_advertised():
+    """Fork (2026-09-25): the row extension's min_s masks kept one bit; fixed,
+    and the Glide says so with RETRO3DFX_PARTIALROW so an ICD only sends sub-row
+    patches to a Glide that gets them right."""
+    g = src("glide3/src/gtexdl.c")
+    body = g.split("GR_EXT_ENTRY(grTexDownloadMipMapLevelPartialRowExt", 1)[1][:12000]
+    assert "min_s &= ~7;" in body and "min_s &= ~3;" in body and "min_s &= ~1;" in body
+    for bad in ("min_s &= 8;", "min_s &= 4;", "min_s &= 2;"):
+        assert bad not in body
+    assert "width = real_width - min_s;" in body
+    assert "RETRO3DFX_PARTIALROW" in src("glide3/src/diget.c").split("#define NAPALM_EXT_STR", 1)[1][:120]
