@@ -21,8 +21,10 @@ void handle_upload(SOCKET sock, const char *args)
         return;
     }
 
-    /* Next frame contains the file data */
-    if (frame_recv(sock, &data, &data_len) != 0) {
+    /* Next frame contains the file data. It must START promptly too: a
+     * client that sent "UPLOAD path" and then vanished would otherwise hold
+     * a Win9x agent's only thread forever (see protocol.c). */
+    if (frame_recv_timed(sock, &data, &data_len, FRAME_FOLLOW_MS) != 0) {
         send_error_response(sock, "Failed to receive file data");
         return;
     }

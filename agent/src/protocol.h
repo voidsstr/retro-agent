@@ -10,6 +10,12 @@
 
 /* Frame I/O: 4-byte LE length prefix + payload */
 int  frame_recv(SOCKET sock, char **out_buf, DWORD *out_len);
+/* frame_recv, but the wait for the FIRST byte is bounded too (0 = unbounded,
+ * which is frame_recv). For a frame that must follow at once - UPLOAD's
+ * payload - where waiting forever would freeze a Win9x agent. */
+int  frame_recv_timed(SOCKET sock, char **out_buf, DWORD *out_len,
+                      DWORD first_byte_ms);
+#define FRAME_FOLLOW_MS  30000   /* how long a following frame may take to start */
 int  frame_send(SOCKET sock, const char *data, DWORD len);
 
 /* Response builders */
