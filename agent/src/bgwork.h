@@ -49,4 +49,17 @@
  * lifted the scanner for one pass). */
 void thread_background(void);
 
+/* Sleep for up to `ms`, returning early once the agent is stopping.
+ *
+ * Replaces the 1-second sleep-poll loops the helpers had: those woke every
+ * helper once a second for the life of the agent just to re-read g_running.
+ * The slice can be long because nothing waits for these threads - agent_run()
+ * ends in ExitProcess(), which ends every helper wherever it is - so the slice
+ * only bounds how long a helper could run on after a stop request, and the
+ * answer to that is already "it cannot: the process is gone".
+ *
+ * Returns g_running (non-zero = keep going). */
+#define BG_NAP_SLICE_MS  60000
+int agent_nap(DWORD ms);
+
 #endif /* BGWORK_H */

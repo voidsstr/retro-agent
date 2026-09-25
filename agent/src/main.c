@@ -854,7 +854,6 @@ static DWORD WINAPI sharelog_thread(LPVOID param)
     char host[128];
     DWORD hlen = sizeof(host);
     HKEY hk;
-    int i;
     (void)param;
 
     thread_background();
@@ -888,8 +887,7 @@ static DWORD WINAPI sharelog_thread(LPVOID param)
             log_msg(LOG_MAIN, "sharelog: mirrored to %s", dest);
         if (GetFileAttributesA(srcbak) != INVALID_FILE_ATTRIBUTES)
             CopyFileA(srcbak, destbak, FALSE);
-        for (i = 0; i < SHARELOG_PERIOD_MS / 1000 && g_running; i++)
-            Sleep(1000);
+        agent_nap(SHARELOG_PERIOD_MS);      /* one wait, not 60 x 1 s */
     }
     return 0;
 }
@@ -1144,8 +1142,19 @@ void agent_run(void)
     gamesync_init();
     spawn_helper(gamesync_thread, "gamesync");
 
-    log_msg(LOG_MAIN, "startup: spawning watchdog thread");
-    spawn_helper(watchdog_thread, "watchdog");
+    /* The watchdog recovers a command wedged behind a hung fullscreen game,
+     * and it can only tell that a command is wedged from g_cmd_inflight -
+     * which ONLY handle_client() (single/threaded mode) maintains. In
+     * multiplex mode, i.e. on every Win9x box, nothing ever raises it, so the
+     * watchdog could never fire and was a thread waking every 8 s forever on
+     * the slowest machines for nothing. Start it where it can work. */
+    if (g_client_mode != MODE_MULTIPLEX) {
+        log_msg(LOG_MAIN, "startup: spawning watchdog thread");
+        spawn_helper(watchdog_thread, "watchdog");
+    } else {
+        log_msg(LOG_MAIN, "startup: watchdog not started - multiplex mode never "
+                "marks a command in flight, so it could never fire");
+    }
 
     log_msg(LOG_MAIN, "startup: spawning ai_status thread");
     spawn_helper(ai_status_thread, "ai_status");

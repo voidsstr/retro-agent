@@ -776,14 +776,14 @@ DWORD WINAPI retrowall_thread(LPVOID param)
 
     /* Then keep it. See keep_fleet_wallpaper() - an unactivated Windows blanks
      * the desktop on its own schedule, so "applied at startup" is not the same
-     * as "applied". Sleep in short slices so a QUIT is not held up by this. */
-    while (g_running) {
-        int i;
-        for (i = 0; i < RETROWALL_KEEP_SEC && g_running; i++)
-            Sleep(1000);
-        if (!g_running)
-            break;
+     * as "applied".
+     *
+     * agent_nap(), not a 1 s Sleep loop. The loop's comment said the slices
+     * were "so a QUIT is not held up by this", but nothing ever waits for this
+     * thread: a QUIT ends the accept loop and agent_run() calls ExitProcess(),
+     * which ends this thread mid-sleep. The slices bought nothing and cost 300
+     * wake-ups per keeper pass, forever. See bgwork.h. */
+    while (agent_nap(RETROWALL_KEEP_SEC * 1000))
         keep_fleet_wallpaper();
-    }
     return 0;
 }

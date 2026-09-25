@@ -348,10 +348,9 @@ DWORD WINAPI hwpublish_thread(LPVOID param)
     }
 
     for (attempt = 0; attempt < HWPUB_MAX_ATTEMPTS && g_running; attempt++) {
-        int wait = hwpub_retry_delay_sec(attempt), i;
-        for (i = 0; i < wait && g_running; i++)
-            Sleep(1000);
-        if (!g_running)
+        int wait = hwpub_retry_delay_sec(attempt);
+        /* one wait, not a 1 s poll: see agent_nap() in bgwork.h */
+        if (!agent_nap((DWORD)wait * 1000))
             return 0;
 
         freemb = hwpub_free_mb();
@@ -378,12 +377,7 @@ DWORD WINAPI hwpublish_thread(LPVOID param)
 
     /* Slow refresh, so a box that has been up for days does not carry a
      * startup timestamp forever and get called stale for being healthy. */
-    while (g_running) {
-        int i;
-        for (i = 0; i < HWPUB_REFRESH_SEC && g_running; i++)
-            Sleep(1000);
-        if (!g_running)
-            break;
+    while (agent_nap((DWORD)HWPUB_REFRESH_SEC * 1000)) {
         if (hwpub_free_mb() < HWPUB_MIN_FREE_MB)
             continue;
         if (hwpub_publish_once(dest, sizeof(dest), err, sizeof(err)))

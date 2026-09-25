@@ -22,3 +22,13 @@ void thread_background(void)
                 "runs at the agent's own priority",
                 (unsigned long)GetLastError());
 }
+
+int agent_nap(DWORD ms)
+{
+    while (ms > 0 && g_running) {
+        DWORD slice = ms > BG_NAP_SLICE_MS ? BG_NAP_SLICE_MS : ms;
+        Sleep(slice);
+        ms -= slice;
+    }
+    return g_running;
+}

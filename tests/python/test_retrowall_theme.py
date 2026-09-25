@@ -172,8 +172,12 @@ def test_vista_and_later_keep_their_own_visual_style():
 #     legacy rotation, and never fight a box with nothing staged),
 #   * compare against the exact path we applied, so a deliberate change by a
 #     person to some other file is left alone... and only OUR file restored,
-#   * poll on a long interval and in short sleep slices, so a QUIT is not held
-#     up behind it on a single-threaded Win9x agent.
+#   * poll on a long interval, and stop when the agent stops.
+#
+# (2026-09-25, agent 1.85.0: the "short sleep slices so a QUIT is not held up"
+# requirement that used to be here was wrong - nothing waits for this thread;
+# agent_run() ends in ExitProcess(), which ends it mid-sleep. The 1 s slices
+# only woke the thread 300 times per pass. It now naps via agent_nap().)
 # ---------------------------------------------------------------------------
 
 
@@ -205,15 +209,16 @@ def test_the_keeper_does_nothing_when_no_fleet_wallpaper_is_in_charge():
     )
 
 
-def test_the_keeper_loop_wakes_often_enough_to_shut_down():
+def test_the_keeper_loop_naps_and_stops_with_the_agent():
     src = _read(RETROWALL_C)
     body = _fn_body(src, "DWORD WINAPI retrowall_thread(")
     assert "keep_fleet_wallpaper()" in body, "the thread must run the keeper"
-    assert "while (g_running)" in body, "and must stop when the agent stops"
-    assert "Sleep(1000)" in body, (
-        "sleep in ~1s slices, not one long Sleep - on Win9x the agent is "
-        "single-threaded and a QUIT must not wait out the whole interval"
-    )
+    assert "while (agent_nap(RETROWALL_KEEP_SEC * 1000))" in body, (
+        "the keeper waits with agent_nap(), which returns g_running - so it "
+        "stops with the agent without waking every second to ask")
+    assert "Sleep(1000)" not in body, (
+        "a 1 s poll loop woke this thread 300 times per keeper pass for "
+        "nothing: agent_run() ends in ExitProcess, nothing waits for it")
     m = re.search(r"#define RETROWALL_KEEP_SEC\s+(\d+)", src)
     assert m, "the keeper interval must be a named constant"
     assert 60 <= int(m.group(1)) <= 900, (

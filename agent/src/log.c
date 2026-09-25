@@ -78,6 +78,7 @@ static int   g_buf_len = 0;
 static int   g_buffered = 0;          /* 0 until the agent is up: see header */
 static DWORD g_last_flush = 0;        /* GetTickCount of the last write-out */
 static HANDLE g_flush_thread = NULL;
+static HANDLE g_flush_evt = NULL;     /* set by log_shutdown to stop the flusher */
 static volatile int g_flush_stop = 0;
 
 /* Local strcpy (no util.h dependency, safe from the crash logger). */
@@ -378,17 +379,22 @@ void log_flush(void)
     log_unlift(lifted);
 }
 
-/* Periodic flusher: bounds how much routine logging a power cut can cost. */
+/* Periodic flusher: bounds how much routine logging a power cut can cost.
+ *
+ * It WAITS on an event rather than polling. It used to wake every 250 ms -
+ * 240 times a minute, for the life of the agent, on every box - purely so a
+ * shutdown would not wait out the 15 s interval. log_shutdown() now signals
+ * the event, which ends the wait at once, so the thread wakes four times a
+ * minute and only touches the disk when something was logged. */
 static DWORD WINAPI log_flush_thread(LPVOID unused)
 {
     (void)unused;
     while (!g_flush_stop) {
-        int slept = 0;
-        /* Wake often enough to stop promptly on shutdown, flush rarely. */
-        while (slept < LOG_FLUSH_MS && !g_flush_stop) {
-            Sleep(250);
-            slept += 250;
-        }
+        if (g_flush_evt)
+            WaitForSingleObject(g_flush_evt, LOG_FLUSH_MS);
+        else
+            Sleep(LOG_FLUSH_MS);   /* no event: log_shutdown's 2 s wait times
+                                    * out and it flushes itself - still safe */
         log_flush();
     }
     return 0;
@@ -413,6 +419,8 @@ void log_set_buffered(int on)
     if (on && !g_flush_thread) {
         DWORD tid;
         g_flush_stop = 0;
+        if (!g_flush_evt)
+            g_flush_evt = CreateEventA(NULL, TRUE, FALSE, NULL);  /* manual reset */
         g_flush_thread = CreateThread(NULL, 0, log_flush_thread, NULL, 0, &tid);
         if (!g_flush_thread) {
             /* Stay batched. The thread is only an optimisation for an IDLE
@@ -433,6 +441,8 @@ void log_shutdown(void)
     if (!g_log_initialized) return;
 
     g_flush_stop = 1;
+    if (g_flush_evt)
+        SetEvent(g_flush_evt);          /* end the flusher's wait now */
     if (g_flush_thread) {
         WaitForSingleObject(g_flush_thread, 2000);
         CloseHandle(g_flush_thread);
