@@ -347,6 +347,30 @@ here is trustworthy and the reason the read-back in method (1) exists.
 
 ---
 
+### 5. RtCW's "32-bit" rows are 16-bit renders — and no RtCW row ever ran the ICD it named (2026-09-25)
+
+Two facts, both read out of the evidence rather than the labels:
+
+- **RtCW never honours `r_glDriver` on a 3dfx card.** `WolfMP.exe` 1.4's
+  `GLW_StartOpenGL` (0x477ff6) checks a cvar the lab had never set,
+  `r_glIgnoreWicked3D` (default 0): while it is 0 and a 3dfx card is present,
+  the engine loads its bundled Wicked3D `gl/openglv5.dll` and `Cvar_Set`s
+  `r_glDriver` to it; with 1 it forces `opengl32`, i.e. the system ICD. So every
+  RtCW row asked to run the AmigaMerlin ICD ran Wicked3D. The published rows
+  were already labelled correctly (`opengl-3dfx-openglv5`), because the runner
+  reads GL_VENDOR back; the label the harness *asked for* was the fiction.
+- **Wicked3D renders 16-bit colour at every requested depth.** RtCW's own log
+  reads `PIXELFORMAT: color(16-bits) Z(16-bit)` on all eight host-2 rows labelled
+  32-bit (cfg 5/2/0). They are a 16-bit framebuffer with 32-bit *textures*,
+  which is why they are slower than the 16-bit rows without being 32-bit colour.
+  The loader now drops any 32-bit row whose engine logged a 16-bit colour
+  PIXELFORMAT and deletes the nine already loaded (specpicks `f2610e0`,
+  **dry-run only — not yet run against the live DB**).
+
+For the clean-room lane the runner now sets `r_glIgnoreWicked3D 1` and stages
+the ICD as the system ICD; there, RtCW renders true 32-bit colour with a 24-bit
+Z-buffer - which is why its 32-bit numbers are not comparable to Wicked3D's.
+
 ## Hardware and driver facts discovered along the way
 
 - **XP ships an in-box Voodoo5 driver** (`3dfxvs2k.inf`, `5.1.2001.0`, 2001)
