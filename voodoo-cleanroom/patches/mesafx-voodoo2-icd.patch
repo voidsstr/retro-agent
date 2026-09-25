@@ -44,7 +44,7 @@ index a6c0ab5..e837af1 100644
  else
  ifeq ($(ICD),1)
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..8ce2fea 100644
+index 350f075..6f6c0e2 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
 @@ -83,13 +83,34 @@ static GrHwConfiguration glbHWConfig;
@@ -210,7 +210,7 @@ index 350f075..8ce2fea 100644
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.68]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.73]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
@@ -366,6 +366,34 @@ index ffc0047..bccfaef 100644
     }
  
     if (fxMesa->type >= GR_SSTTYPE_Voodoo4) {
+diff --git a/src/mesa/drivers/glide/fxddtex.c b/src/mesa/drivers/glide/fxddtex.c
+index 1418d51..6e9909e 100644
+--- a/src/mesa/drivers/glide/fxddtex.c
++++ b/src/mesa/drivers/glide/fxddtex.c
+@@ -1596,8 +1596,21 @@ fxDDTexSubImage2D(GLcontext * ctx, GLenum target, GLint level,
+       }
+    }
+ 
+-   if (ti->validated && ti->isInTM && !texObj->GenerateMipmap)
+-      fxTMReloadMipMapLevel(fxMesa, texObj, level);
++   if (ti->validated && ti->isInTM && !texObj->GenerateMipmap) {
++      /* [retro3dfx] 0.1.71: send only the rows this call changed. A full
++       * level per glTexSubImage2D was Quake II's single-pass lightmap wall
++       * (see fxTMReloadSubMipMapLevel). A rescaled or compressed level keeps
++       * the full reload: its rows do not map 1:1 onto the caller's. The
++       * env FX_FULL_TEXSUB=1 restores the old behaviour for A/B. */
++      static int fullTexSub = -1;
++      if (fullTexSub < 0)
++         fullTexSub = getenv("FX_FULL_TEXSUB") != NULL;
++      if (!fullTexSub && !texImage->IsCompressed &&
++          mml->wScale == 1 && mml->hScale == 1 && height > 0)
++         fxTMReloadSubMipMapLevel(fxMesa, texObj, level, yoffset, height);
++      else
++         fxTMReloadMipMapLevel(fxMesa, texObj, level);
++   }
+    else
+       fxTexInvalidate(ctx, texObj);
+ }
 diff --git a/src/mesa/drivers/glide/fxdrv.h b/src/mesa/drivers/glide/fxdrv.h
 index 1939489..0d60b07 100644
 --- a/src/mesa/drivers/glide/fxdrv.h
@@ -878,6 +906,147 @@ index 9d337d4..c687d45 100644
                        GR_COMBINE_FUNCTION_BLEND,
                        GR_COMBINE_FACTOR_ONE,
                        GR_COMBINE_FUNCTION_BLEND,
+diff --git a/src/mesa/drivers/glide/fxtexman.c b/src/mesa/drivers/glide/fxtexman.c
+index d0480de..a1c6282 100644
+--- a/src/mesa/drivers/glide/fxtexman.c
++++ b/src/mesa/drivers/glide/fxtexman.c
+@@ -617,6 +617,22 @@ fxTMReloadMipMapLevel(fxMesaContext fxMesa, struct gl_texture_object *tObj,
+    }
+ }
+ 
++/* [retro3dfx] 0.1.71: download only the rows glTexSubImage2D changed.
++ *
++ * Until 0.1.71 nothing called this: fxDDTexSubImage2D re-sent the WHOLE mip
++ * level for every sub-image update. Quake II's single-pass
++ * (GL_SGIS_multitexture) path updates a dynamic lightmap with one small
++ * glTexSubImage2D per lit surface per frame, so each one re-sent a 128x128
++ * 32-bit page (64 KB, twice when the page sits on both TMUs) through the
++ * command FIFO: 55 % of all CPU time on the V5 6000 (ICD profiler, 0.1.67),
++ * the "fixed CPU wall" that made multitexture 4x SLOWER than two-pass.
++ *
++ * The body mirrors fxTMReloadMipMapLevel, which works: the Glide3 LOD
++ * (largeLodLog2 - (level - minLevel)), the same TMU cases and masks. The old
++ * body had never run and was wrong twice over: a Glide2-era LOD formula, and
++ * a first-row pointer computed in 16-bit units - half the real offset for a
++ * 32-bit texture. Glide's download procs read the data pointer AS row `t`
++ * (xtexdl_def.c), so it must point at the first row sent, in bytes. */
+ void
+ fxTMReloadSubMipMapLevel(fxMesaContext fxMesa,
+ 			 struct gl_texture_object *tObj,
+@@ -624,12 +640,14 @@ fxTMReloadSubMipMapLevel(fxMesaContext fxMesa,
+ {
+    tfxTexInfo *ti = fxTMGetTexInfo(tObj);
+    GrLOD_t lodlevel;
+-   unsigned short *data;
+    GLint tmu;
+    struct gl_texture_image *texImage = tObj->Image[0][level];
+    tfxMipMapLevel *mml = FX_MIPMAP_DATA(texImage);
++   GLubyte *data;
++   const int first = yoffset, last = yoffset + height - 1;
+ 
+    assert(mml);
++   assert(ti->isInTM);
+ 
+    if (!ti->validated) {
+       fprintf(stderr, "fxTMReloadSubMipMapLevel: INTERNAL ERROR: not validated\n");
+@@ -638,72 +656,40 @@ fxTMReloadSubMipMapLevel(fxMesaContext fxMesa,
+    }
+ 
+    tmu = (int) ti->whichTMU;
+-   fxTMMoveInTM(fxMesa, tObj, tmu);
+-
+-   fxTexGetInfo(mml->width, mml->height,
+-		&lodlevel, NULL, NULL, NULL, NULL, NULL);
++   fxMesa->stats.reqTexUpload++;
++   fxMesa->stats.texUpload++;
+ 
+-   if ((ti->info.format == GR_TEXFMT_INTENSITY_8) ||
+-       (ti->info.format == GR_TEXFMT_P_8) ||
+-       (ti->info.format == GR_TEXFMT_ALPHA_8))
+-	 data = (GLushort *) texImage->Data + ((yoffset * mml->width) >> 1);
+-   else
+-      data = (GLushort *) texImage->Data + yoffset * mml->width;
++   lodlevel = ti->info.largeLodLog2 - (level - ti->minLevel);
++   data = (GLubyte *) texImage->Data
++        + (GLuint) yoffset * (GLuint) mml->width * texImage->TexFormat->TexelBytes;
+ 
+    switch (tmu) {
+    case FX_TMU0:
+    case FX_TMU1:
+-      grTexDownloadMipMapLevelPartial(tmu,
+-					 ti->tm[tmu]->startAddr,
+-					 FX_valueToLod(FX_lodToValue(lodlevel)
+-						       + level),
+-					 FX_largeLodLog2(ti->info),
+-					 FX_aspectRatioLog2(ti->info),
+-					 ti->info.format,
+-					 GR_MIPMAPLEVELMASK_BOTH, data,
+-					 yoffset, yoffset + height - 1);
++      grTexDownloadMipMapLevelPartial(tmu, ti->tm[tmu]->startAddr, lodlevel,
++				      FX_largeLodLog2(ti->info), FX_aspectRatioLog2(ti->info),
++				      ti->info.format, GR_MIPMAPLEVELMASK_BOTH,
++				      data, first, last);
+       break;
+    case FX_TMU_SPLIT:
+-      grTexDownloadMipMapLevelPartial(GR_TMU0,
+-					 ti->tm[FX_TMU0]->startAddr,
+-					 FX_valueToLod(FX_lodToValue(lodlevel)
+-						       + level),
+-					 FX_largeLodLog2(ti->info),
+-					 FX_aspectRatioLog2(ti->info),
+-					 ti->info.format,
+-					 GR_MIPMAPLEVELMASK_ODD, data,
+-					 yoffset, yoffset + height - 1);
+-
+-      grTexDownloadMipMapLevelPartial(GR_TMU1,
+-					 ti->tm[FX_TMU1]->startAddr,
+-					 FX_valueToLod(FX_lodToValue(lodlevel)
+-						       + level),
+-					 FX_largeLodLog2(ti->info),
+-					 FX_aspectRatioLog2(ti->info),
+-					 ti->info.format,
+-					 GR_MIPMAPLEVELMASK_EVEN, data,
+-					 yoffset, yoffset + height - 1);
++      grTexDownloadMipMapLevelPartial(GR_TMU0, ti->tm[GR_TMU0]->startAddr, lodlevel,
++				      FX_largeLodLog2(ti->info), FX_aspectRatioLog2(ti->info),
++				      ti->info.format, GR_MIPMAPLEVELMASK_ODD,
++				      data, first, last);
++      grTexDownloadMipMapLevelPartial(GR_TMU1, ti->tm[GR_TMU1]->startAddr, lodlevel,
++				      FX_largeLodLog2(ti->info), FX_aspectRatioLog2(ti->info),
++				      ti->info.format, GR_MIPMAPLEVELMASK_EVEN,
++				      data, first, last);
+       break;
+    case FX_TMU_BOTH:
+-      grTexDownloadMipMapLevelPartial(GR_TMU0,
+-					 ti->tm[FX_TMU0]->startAddr,
+-					 FX_valueToLod(FX_lodToValue(lodlevel)
+-						       + level),
+-					 FX_largeLodLog2(ti->info),
+-					 FX_aspectRatioLog2(ti->info),
+-					 ti->info.format,
+-					 GR_MIPMAPLEVELMASK_BOTH, data,
+-					 yoffset, yoffset + height - 1);
+-
+-      grTexDownloadMipMapLevelPartial(GR_TMU1,
+-					 ti->tm[FX_TMU1]->startAddr,
+-					 FX_valueToLod(FX_lodToValue(lodlevel)
+-						       + level),
+-					 FX_largeLodLog2(ti->info),
+-					 FX_aspectRatioLog2(ti->info),
+-					 ti->info.format,
+-					 GR_MIPMAPLEVELMASK_BOTH, data,
+-					 yoffset, yoffset + height - 1);
++      grTexDownloadMipMapLevelPartial(GR_TMU0, ti->tm[GR_TMU0]->startAddr, lodlevel,
++				      FX_largeLodLog2(ti->info), FX_aspectRatioLog2(ti->info),
++				      ti->info.format, GR_MIPMAPLEVELMASK_BOTH,
++				      data, first, last);
++      grTexDownloadMipMapLevelPartial(GR_TMU1, ti->tm[GR_TMU1]->startAddr, lodlevel,
++				      FX_largeLodLog2(ti->info), FX_aspectRatioLog2(ti->info),
++				      ti->info.format, GR_MIPMAPLEVELMASK_BOTH,
++				      data, first, last);
+       break;
+    default:
+       fprintf(stderr, "fxTMReloadSubMipMapLevel: INTERNAL ERROR: wrong tmu (%d)\n", tmu);
 diff --git a/src/mesa/drivers/glide/fxtris.c b/src/mesa/drivers/glide/fxtris.c
 index f8a6db0..6cb456a 100644
 --- a/src/mesa/drivers/glide/fxtris.c
@@ -911,7 +1080,7 @@ index f8a6db0..6cb456a 100644
  
  
 diff --git a/src/mesa/drivers/glide/fxwgl.c b/src/mesa/drivers/glide/fxwgl.c
-index 6ad6fc9..df6c341 100644
+index 6ad6fc9..30dc475 100644
 --- a/src/mesa/drivers/glide/fxwgl.c
 +++ b/src/mesa/drivers/glide/fxwgl.c
 @@ -258,13 +258,19 @@ static void rgl_first_entry(const char *fn)
@@ -995,7 +1164,7 @@ index 6ad6fc9..df6c341 100644
        return (TRUE);
     }
  
-@@ -660,10 +694,54 @@ wglGetExtensionsStringARB (HDC hdc)
+@@ -660,10 +694,64 @@ wglGetExtensionsStringARB (HDC hdc)
   return wglGetExtensionsStringEXT();
  }
  
@@ -1023,8 +1192,18 @@ index 6ad6fc9..df6c341 100644
 +    * early when the unit is unchanged. An app that selects a unit per surface
 +    * therefore eats a vertex flush + full array revalidation per surface even
 +    * when it draws in immediate mode and has no arrays bound.
-+    * FX_SGIS_NO_CLIENTTEX=1 skips it, to attribute that cost. */
-+   if (!getenv("FX_SGIS_NO_CLIENTTEX")) {
++    * FX_SGIS_NO_CLIENTTEX=1 skips it, to attribute that cost.
++    *
++    * [retro3dfx] 0.1.72: read that variable ONCE. It was read on every call,
++    * and Quake II selects a unit twice per surface: XP msvcrt's getenv is
++    * locale-aware (MultiByteToWideChar, CompareStringA, GetVersionExW per
++    * call), and the ICD profiler put the env/locale functions at ~27 % of a
++    * single-pass Quake II frame on the V5 6000 - the largest cost left once
++    * 0.1.71 fixed the lightmap re-downloads. */
++   static int noClientTex = -1;
++   if (noClientTex < 0)
++      noClientTex = getenv("FX_SGIS_NO_CLIENTTEX") != NULL;
++   if (!noClientTex) {
 +      glClientActiveTextureARB(unit);
 +   }
 +}
@@ -1050,7 +1229,7 @@ index 6ad6fc9..df6c341 100644
         {"wglGetExtensionsStringARB",    (PROC)wglGetExtensionsStringARB},
         {"wglGetExtensionsStringEXT",    (PROC)wglGetExtensionsStringEXT},
         {"wglSwapIntervalEXT",           (PROC)wglSwapIntervalEXT},
-@@ -693,18 +771,29 @@ wglGetProcAddress(LPCSTR lpszProc)
+@@ -693,18 +781,29 @@ wglGetProcAddress(LPCSTR lpszProc)
     int i;
     PROC p;
     rgl_first_entry("wglGetProcAddress");
@@ -1085,7 +1264,7 @@ index 6ad6fc9..df6c341 100644
     SetLastError(0);
     return (NULL);
  }
-@@ -730,6 +819,7 @@ wglMakeCurrent(HDC hdc, HGLRC hglrc)
+@@ -730,6 +829,7 @@ wglMakeCurrent(HDC hdc, HGLRC hglrc)
     hDC = hdc;
  
     fxMesaMakeCurrent(ctx);
@@ -1093,7 +1272,7 @@ index 6ad6fc9..df6c341 100644
  
     return (TRUE);
  }
-@@ -1113,6 +1203,7 @@ wglSwapBuffers(HDC hdc)
+@@ -1113,6 +1213,7 @@ wglSwapBuffers(HDC hdc)
     }
  
     fxMesaSwapBuffers();
@@ -1153,6 +1332,64 @@ index 9da1e58..fe3b2f7 100644
     GLboolean SGIS_pixel_texture;
     GLboolean SGIS_texture_edge_clamp;
     GLboolean SGIS_texture_lod;
+diff --git a/src/mesa/main/texstate.c b/src/mesa/main/texstate.c
+index 2686378..5bbcfc0 100644
+--- a/src/mesa/main/texstate.c
++++ b/src/mesa/main/texstate.c
+@@ -2666,6 +2666,25 @@ _mesa_GetTexGeniv( GLenum coord, GLenum pname, GLint *params )
+ #endif
+ 
+ /* GL_ARB_multitexture */
++/* [retro3dfx] 0.1.73: selecting a texture unit changes no rendering state -
++ * it only decides which unit LATER texture calls address, and every one of
++ * those that does change state (bind, env, parameters, enables) flushes for
++ * itself. Stock Mesa flushed the buffered vertices on every unit switch
++ * anyway, and Quake II's single-pass (SGIS multitexture) path switches units
++ * twice per surface: each surface became its own trip through the whole TNL
++ * pipeline, with the immediate-mode vertex format rebuilt from scratch
++ * (_tnl_wrap_upgrade_vertex, 6 % of a frame on the V5 6000 against 0.8 %
++ * two-pass). Mark the state dirty instead, so surfaces that share a texture
++ * and a lightmap page batch. MESA_NO_LAZY_UNIT_SELECT=1 restores the flush. */
++static int
++lazy_unit_select(void)
++{
++   static int lazy = -1;
++   if (lazy < 0)
++      lazy = _mesa_getenv("MESA_NO_LAZY_UNIT_SELECT") == NULL;
++   return lazy;
++}
++
+ void GLAPIENTRY
+ _mesa_ActiveTextureARB( GLenum target )
+ {
+@@ -2686,7 +2705,10 @@ _mesa_ActiveTextureARB( GLenum target )
+    if (ctx->Texture.CurrentUnit == texUnit)
+       return;
+ 
+-   FLUSH_VERTICES(ctx, _NEW_TEXTURE);
++   if (lazy_unit_select())
++      ctx->NewState |= _NEW_TEXTURE;
++   else
++      FLUSH_VERTICES(ctx, _NEW_TEXTURE);
+ 
+    ctx->Texture.CurrentUnit = texUnit;
+    if (ctx->Transform.MatrixMode == GL_TEXTURE) {
+@@ -2713,7 +2735,14 @@ _mesa_ClientActiveTextureARB( GLenum target )
+       return;
+    }
+ 
+-   FLUSH_VERTICES(ctx, _NEW_ARRAY);
++   if (lazy_unit_select()) {
++      /* the client unit only routes LATER glTexCoordPointer-style calls */
++      if (ctx->Array.ActiveTexture == texUnit)
++         return;
++      ctx->NewState |= _NEW_ARRAY;
++   }
++   else
++      FLUSH_VERTICES(ctx, _NEW_ARRAY);
+    ctx->Array.ActiveTexture = texUnit;
+ }
+ 
 diff --git a/src/mesa/swrast/s_texture.c b/src/mesa/swrast/s_texture.c
 index 2139716..58730da 100644
 --- a/src/mesa/swrast/s_texture.c

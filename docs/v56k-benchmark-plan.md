@@ -125,9 +125,17 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
   overlapped (a profiled run) was discarded. **Check `GAMESYNC STATUS` before
   trusting a number taken tonight.**
 
-**Next:** Step 4 at four chips: safe-reboot into cfg 5 via `v56k_sweep.py`, then
-`glideprobe` with `SSTH3_SLI_AA_CONFIGURATION=5` + `RETRO_GLIDE_MAPLOG` to capture
-the `SLI_AA_REQUEST(open)` result, then the all-ours cfg 5 matrix (C and x86 builds).
+**Update 01:45 — four chips WORK on our Glide.** `.124` is now booted at **cfg 5**.
+`glideprobe` open at cfg 5: `SLI_AA_REQUEST(open) retVal=1 resStatus=1 chips=4
+sliEn=1 nlines=8 analog=1`, 3 frames, clean close. All-ours cfg 5 matrix complete,
+Q2 + Q3 × 5 res × 16/32, both Glide builds, 0 failed cells
+(`results/…/allours-cfg5/{c,x86}`): level with our-ICD-over-AmigaMerlin; the
+asm build is within ±3 % of the C build at four chips (noise). A real Quake II
+frame reads back through the LFB under SLI (`frame_compare_0169/`).
+
+**Next:** 0.1.69 (clipped-path triangle batching) A/B running (`allours-ab-tribatch/`,
+pixel-identical on vs off); then an all-ours RtCW cfg 5 matrix (`rtcw:allours`);
+then cfg 2 (sweep reboot) for the all-ours 2-chip row.
 
 ### Resume point (2026-09-24 08:39) — `.124` WEDGED during the clean-room smoke test; needs a power cycle
 

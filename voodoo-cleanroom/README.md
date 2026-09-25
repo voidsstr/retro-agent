@@ -1229,14 +1229,21 @@ renderer string read back on every row). fps, 16-bit / 32-bit:
   (gitignored, like every campaign CSV); campaign notes:
   [`../docs/v56k-benchmark-plan.md`](../docs/v56k-benchmark-plan.md).
 
-**All ours (roadmap §17.1 Step 5, 2026-09-24/25): our ICD 0.1.66 over OUR h5
-Glide** (game-local `glide3x.dll`, fork `215a9e7`/`468609e`) and AmigaMerlin's
-display driver only - no AmigaMerlin Glide or ICD in the path, confirmed per row
-by `retrogl.log` naming the game-local `glide3x.dll`. One chip (cfg 0), fps
-16-bit / 32-bit, with the ICD-over-AmigaMerlin-Glide row from above for scale:
+**All ours (roadmap §17.1 Steps 4-5, 2026-09-24/25): our ICD over OUR h5
+Glide** (game-local `glide3x.dll`) and AmigaMerlin's display driver only - no
+AmigaMerlin Glide or ICD in the path, confirmed per row by `retrogl.log` naming
+the game-local `glide3x.dll`. **Four chips work on our Glide**: the first open
+(`glideprobe`, cfg 5) logged `SLI_AA_REQUEST(open) retVal=1 resStatus=1 chips=4
+sliEn=1 nlines=8` and every cfg 5 cell below completed. ICD 0.1.66 (1 chip) /
+0.1.68 (4 chips), Glide C-trisetup build; fps 16-bit / 32-bit, with the
+ICD-over-AmigaMerlin-Glide rows from above for scale:
 
 | | 1600×1200 | 1280×960 | 1024×768 | 800×600 | 640×480 |
 |---|---|---|---|---|---|
+| **Quake II, 4 chips (cfg 5) — all ours** | 63.9 / 63.8 | 91.7 / 91.7 | 129.3 / 129.3 | 180.8 / 180.9 | **216.8 / 216.6** |
+| Quake II, 4 chips — our ICD over AmigaMerlin Glide | 64.4 / 64.5 | 93.1 / 76.3 | 130.2 / 130.2 | 181.9 / 182.5 | 214.8 / 221.3 |
+| **Quake III, 4 chips (cfg 5) — all ours** | 77.5 / 50.0 | 118.7 / 75.2 | 128.7 / 102.9 | 130.2 / 118.1 | 128.5 / 123.8 |
+| Quake III, 4 chips — our ICD over AmigaMerlin Glide | 77.6 / 49.8 | 120.0 / 76.9 | 123.9 / 103.9 | 131.7 / 117.9 | 133.1 / 125.7 |
 | **Quake II, 1 chip — all ours** | 14.8 / 14.8 | 22.3 / 23.5 | 37.7 / 37.7 | 60.6 / 60.6 | 89.3 / 89.6 |
 | Quake II, 1 chip — our ICD over AmigaMerlin Glide | 14.8 / 14.8 | 24.5 / 24.5 | 38.7 / 38.7 | 61.5 / 61.5 | 90.6 / 90.6 |
 | **Quake III, 1 chip — all ours** | 24.6 / 7.1 | 37.1 / 14.9 | 56.2 / 30.7 | 83.8 / 49.9 | 118.7 / 68.2 |
@@ -1255,6 +1262,11 @@ by `retrogl.log` naming the game-local `glide3x.dll`. One chip (cfg 0), fps
   lets Quake II quit (verified: `UNMAP9x … retVal=1` at exit), the ICD logs a
   fatal Glide error and fails cleanly instead of a dialog (0.1.67), and our
   Glide unmaps under the PID it mapped with (fork `5439bb8`).
+- **Quake II single-pass multitexture (ICD 0.1.71-0.1.73, `FX_SGIS_MULTITEXTURE=1`),
+  four chips:** 49.3 → **162.6** fps at 1024×768 and 50.8 → **184.2** at 640×480
+  after three profiler-found fixes (CHANGELOG 0.1.71-0.1.73). At 1024×768 that
+  beats two-pass (132.1) by 23 %; at 640×480 two-pass still leads (228.5, itself
+  up from ~215 thanks to 0.1.71). All pixel-identical on the box.
 - **CPU-bound, one chip at 320×240** (where four chips sit at 640×480): Quake II
   221.9 fps with Glide's C triangle setup, 225.5 with 3dfx's asm + 3DNow! setup
   (`glide3x_h5_x86.dll`, built with target-derived offsets, fork `c41b50d`);

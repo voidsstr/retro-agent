@@ -1298,6 +1298,11 @@ class RTCW:
             await box.exec_(rf'cmd /c if not exist "{self.root}\main\demos" mkdir "{self.root}\main\demos"')
             await box.upload(self.demo_path, (DEMOS / "wolfbench.dm_60").read_bytes())
         await self._pin_gldriver(box)
+        # A game-local glide3x.dll shadows system32's for every ICD this engine
+        # loads, so a copy left by an all-ours cell would silently turn the
+        # next AmigaMerlin or our-ICD row into an all-ours one. Only the
+        # all-ours lane keeps (re-stages) it.
+        await _stage_local_glide(box, self.root, getattr(self, "local_glide", False))
         await box.upload(self.bat, self.launch_bat(w, h, depth, env))
         await box.exec_(f'cmd /c del /f /q "{self.log}"')
 
@@ -1727,6 +1732,25 @@ class RTCWCleanroom(_Cleanroom, RTCW):
     def verify_driver(self, raw):
         return Quake2Cleanroom.verify_driver(self, raw)
 
+class RTCWAllOurs(_AllOursLog, RTCWCleanroom):
+    """RtCW on the whole clean-room stack: our ICD beside WolfMP.exe and OUR
+    h5 glide3x.dll beside it too (the ICD's import resolves from the exe's
+    directory first)."""
+    local_glide = True
+
+    def __init__(self):
+        RTCWCleanroom.__init__(self)
+        self.tid = "rtcw:allours"
+
+    async def prepare(self, box, w, h, depth, env):
+        ver = await self.stage_icd(box)
+        g = await _stage_local_glide(box, self.root, True)
+        self.api = allours_api(ver)
+        self.engine = (f"WolfMP.exe (wolfbench.dm_60; retrogl.dll voodoo-cleanroom {ver} "
+                       f"over OUR h5 glide3x md5 {g})")
+        await RTCW.prepare(self, box, w, h, depth, env)
+
+
 TITLES = {
     "cs16": lambda api=None: CS16(),
     "quake3": lambda api=None: {"retrogl": Quake3Cleanroom, "allours": Quake3AllOurs}.get(api, Quake3)(),
@@ -1735,6 +1759,7 @@ TITLES = {
     "ut": lambda api="glide": _ut(api),
     "ut99": lambda api="glide": UT99Bench(api),
     "rtcw": lambda api="amigamerlin": (RTCWCleanroom() if api == "retrogl"
+                                       else RTCWAllOurs() if api == "allours"
                                        else RTCW(api=api or "amigamerlin")),
     "unrealgold": lambda api="glide": _ugold(api),
     "deusex": lambda api="glide": _deusex(api),

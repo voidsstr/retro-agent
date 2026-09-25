@@ -400,7 +400,32 @@ def nm_table(dll_path):
         parts = line.split()
         if len(parts) == 3 and parts[1] in "tT":
             syms.append((int(parts[0], 16) - base, parts[2]))
-    return sorted(syms)
+    return sorted(syms) or pe_export_table(dll_path)
+
+
+def pe_export_table(dll_path):
+    """[(rva, name)] from a PE's export table - for stripped system DLLs
+    (XP's msvcrt/kernel32/ntdll), where nm finds nothing. Nearest-export is a
+    coarse name for an internal function, but it tells malloc from memcpy."""
+    out = subprocess.run(["i686-w64-mingw32-objdump", "-p", str(dll_path)],
+                         capture_output=True, text=True).stdout
+    rvas, names, mode = {}, {}, None
+    for line in out.splitlines():
+        if line.startswith("Export Address Table --"):
+            mode = "eat"; continue
+        if line.startswith("[Ordinal/Name Pointer] Table"):
+            mode = "names"; continue
+        m = re.match(r"\s*\[\s*(\d+)\]\s+\+base\[\s*\d+\]\s+([0-9a-fA-F]+)\s+(\S.*)$", line)
+        if not m:
+            if mode and line.strip() == "":
+                mode = None
+            continue
+        idx = int(m.group(1))
+        if mode == "eat" and m.group(3).startswith("Export RVA"):
+            rvas[idx] = int(m.group(2), 16)
+        elif mode == "names":
+            names[idx] = m.group(3).strip()
+    return sorted((rvas[i], names.get(i, f"ord{i}")) for i in rvas if rvas[i])
 
 
 def nearest(syms, rva):

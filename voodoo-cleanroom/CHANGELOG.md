@@ -12,6 +12,69 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.71 – 0.1.73 — Quake II's single-pass multitexture wall, found and taken down (2026-09-25)
+
+Quake II with `GL_SGIS_multitexture` (opt-in, `FX_SGIS_MULTITEXTURE=1`) was the
+open mystery of 0.1.57/0.1.58: a "fixed CPU wall" that made single-pass slower
+than two-pass although every counter the old instrumentation had was the same.
+It reproduced on the V5 6000, harder - **50.8 fps single-pass vs 213.2
+two-pass** (640×480, 4 chips, all-ours) - and the 0.1.67 sampler named it in
+one run. Three fixes, each pixel-identical on the box
+(`icd_frame_compare.py`, 0 of 307,200 pixels differ against the fix switched
+off), each with an env switch to undo it:
+
+| build | fix | Q2 single-pass 1024×768 | 640×480 |
+|---|---|---|---|
+| 0.1.70 | — | 49.3 | 50.8 |
+| **0.1.71** | `glTexSubImage2D` re-sent the **whole mip level**: `grTexDownload_Default_32_WideS` was **55 %** of all CPU. Quake II's single-pass path updates a dynamic lightmap with one small sub-image per lit surface per frame, and each re-sent a 128×128 32-bit page (64 KB, ×2 on both TMUs) through the command FIFO. Now only the changed rows (`fxTMReloadSubMipMapLevel`, rewritten: it had never run, used a Glide2-era LOD formula, and computed the first row in 16-bit units - half the offset for a 32-bit texture). `FX_FULL_TEXSUB=1` undoes it. | 108.2 | 116.5 |
+| **0.1.72** | `fx_glSelectTextureSGIS` read `FX_SGIS_NO_CLIENTTEX` with `getenv` on **every call** - twice per surface. XP msvcrt's getenv is locale-aware (`MultiByteToWideChar`, `CompareStringA`, `GetVersionExW` per call): **~27 %** of the frame. Read once. | 152.4 | 172.2 |
+| **0.1.73** | `glActiveTexture` / `glClientActiveTexture` flushed the buffered vertices on every unit switch, so each surface was its own trip through the TNL pipeline with the vertex format rebuilt (`_tnl_wrap_upgrade_vertex` 6.3 % vs 0.8 % two-pass). Selecting a unit changes no rendering state, so mark it dirty instead (`src/mesa/main/texstate.c`). `MESA_NO_LAZY_UNIT_SELECT=1` restores the flush. | **162.6** | **184.2** |
+
+Two-pass, same builds: 132.1 at 1024×768; 640×480 rose from ~213-217 to
+**228.5** (its dynamic lightmaps also go through `glTexSubImage2D`, now partial).
+
+So at 1024×768 single-pass now **beats** two-pass (+23 %) and the stack's
+Quake II there is **+26 %** over 0.1.68 (129.3). At 640×480 - CPU-bound on four
+chips - two-pass still leads (228.5 vs 184.2): single-pass still pays for
+per-surface lightmap uploads (full 128-texel rows for a small patch, 9 % of
+the frame) and more pipeline runs. SGIS therefore stays opt-in until that gap
+closes or a single-chip measurement says otherwise. The profiler also learned
+to name functions in stripped system DLLs from their export tables
+(`v56k_diag.pe_export_table`), which is what turned "17 % in msvcrt" into
+"getenv".
+
+## 0.1.70 — 0.1.69 reverted: identical to 0.1.68 (2026-09-25)
+
+`fxtris.c` is byte-for-byte the 0.1.68 source again (checked against the 0.1.68
+patch). See 0.1.69 for why.
+
+## 0.1.69 — clipped-path triangle batching: pixel-identical, no measurable gain, REVERTED (2026-09-25)
+
+A vertex buffer with ANY clipped vertex is rendered by Mesa's clip-aware
+tables, which call `Render.Triangle` once per triangle - one `grDrawTriangle`
+DLL call each (stub, indirect jump, triangle-setup prologue). The 0.1.67
+profiler put triangle submission at ~10 % of a CPU-bound Quake III frame. The
+plain render variant (`render_index` 0 only) now queues the vertex pointers
+and sends a run as one `grDrawVertexArray(GR_TRIANGLES)`; quads queue as the
+same two triangles as the fan they replaced.
+
+Order is preserved: the clipped-polygon, points, lines, primitive-change,
+multipass, pass-end and state-change paths all flush first, and the offset /
+two-sided / unfilled / flat variants - which rewrite vertices in place around
+each draw - never batch. `FX_NO_TRI_BATCH=1` turns it off.
+`scripts/benchmarks/icd_frame_compare.py` checks pixel identity on the box.
+
+**Result.** Pixel-identical: Quake II's last timedemo frame at 640×480 on four
+chips, batching on vs off, 0 of 307,200 pixels differ (and the frame is a real
+rendered frame, read back through the LFB under SLI). **Speed: nothing.**
+Interleaved A/B ×2, cfg 5: Quake II 640×480 +0.4 %, 800×600 −0.5 %; Quake III
+640×480 −0.2 %, 800×600 +0.1 %. The profiler says why: `grDrawTriangle` barely
+moved (102 vs 96 samples) - Quake III's geometry already reaches Glide through
+0.1.3's batched unclipped path, and the per-triangle cost that remains is
+Glide's own triangle setup (`_internal_trisetup`, 6-7 %), paid per triangle on
+every path. A change with no measurable benefit is not worth its ordering risk,
+so 0.1.70 removes it; the pixel-compare harness stays.
+
 ## 0.1.68 — teardown breadcrumbs (2026-09-25)
 
 Diagnostic only: `wglDeleteContext`, `fxMesaDestroyContext`, `fxCloseHardware`,

@@ -1014,3 +1014,32 @@ def test_quake2_sets_nextserver_after_demomap_so_quit_survives(bench):
     ns = [i for i, l in enumerate(cfg) if l.startswith("set nextserver")]
     assert ns and all(i > dm for i in ns)
     assert 'quit' in cfg[ns[-1]] and 'killserver' in cfg[ns[-1]]
+
+
+def test_rtcw_allours_lane_and_other_rtcw_lanes_drop_a_stray_glide(bench):
+    t = bench.TITLES["rtcw"]("allours")
+    assert t.tid == "rtcw:allours" and t.local_glide
+    assert "RETRO_GLIDE_MAPLOG" in t.launch_bat(640, 480, 16, {})
+    import inspect
+    src = inspect.getsource(bench.RTCW.prepare)
+    assert '_stage_local_glide(box, self.root, getattr(self, "local_glide", False))' in src
+    assert not getattr(bench.TITLES["rtcw"]("retrogl"), "local_glide", False)
+    assert not getattr(bench.TITLES["rtcw"](), "local_glide", False)
+
+
+def test_frame_compare_screenshots_the_last_frame_after_demomap_and_quits():
+    """icd_frame_compare.py: the screenshot rides nextserver, set AFTER
+    demomap (SV_Map clears it), and ends in quit. No wait chain: that starved
+    the demo's precache commands ("CM_InlineModel: bad number")."""
+    import importlib.util
+    p = REPO / "scripts" / "benchmarks" / "icd_frame_compare.py"
+    spec = importlib.util.spec_from_file_location("icd_frame_compare", p)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    t = m.Quake2Frame()
+    cfg = t.bench_cfg().splitlines()
+    dm = next(i for i, l in enumerate(cfg) if l.startswith("demomap "))
+    ns = next(i for i, l in enumerate(cfg) if l.startswith("set nextserver"))
+    assert ns > dm and "screenshot" in cfg[ns] and cfg[ns].rstrip('"').endswith("quit")
+    assert not any("wait" in l for l in cfg)
+    assert t.local_glide     # the all-ours lane: our ICD over our Glide
