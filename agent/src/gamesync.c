@@ -39,6 +39,7 @@
 #include "gameindex.h"
 #include "../shared/drvprefs.h"
 #include "../shared/gamegate.h"
+#include "../shared/lnkcheck.h"
 
 #include <windows.h>
 #include <string.h>
@@ -1703,12 +1704,59 @@ static int gs_make_shortcut(const char *target, const char *workdir,
  * Run on EVERY agent start, not only on a fresh image: a box that is swept
  * today should still have them tomorrow, and a machine that never went through
  * the imaging process should get them too. Both are cheap no-ops when the
- * shortcut already exists and points at the same place.
+ * shortcut already exists and points at the same place - which, until 1.85.0,
+ * nothing actually checked: every start rebuilt both through COM and resaved
+ * them, making Explorer refresh the desktop. gs_lnk_points_at() now reads the
+ * existing file first (see agent/shared/lnkcheck.h).
  *
  * The chat client is only given an icon if it is actually on the box. A
  * shortcut to something that is not there is worse than no shortcut: it looks
  * like a working feature until someone clicks it.
  */
+typedef DWORD (WINAPI *gs_getlongpath_t)(LPCSTR, LPSTR, DWORD);
+
+/* Does the .lnk at `lnk` already point at `exe`? Reads the file; no COM. The
+ * path is tried as given and in its short and long forms, because
+ * GetModuleFileName reports whatever form the agent was started with. */
+static int gs_lnk_points_at(const char *lnk, const char *exe)
+{
+    static gs_getlongpath_t getlong;
+    static int looked;
+    unsigned char buf[8192];
+    char   alt[MAX_PATH];
+    DWORD  got = 0, n;
+    HANDLE h;
+
+    h = CreateFileA(lnk, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                    NULL, OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    if (!ReadFile(h, buf, sizeof(buf), &got, NULL))
+        got = 0;
+    CloseHandle(h);
+    if (!got)
+        return 0;
+    if (lnk_bytes_name_path(buf, got, exe))
+        return 1;
+    n = GetShortPathNameA(exe, alt, sizeof(alt));
+    if (n && n < sizeof(alt) && lnk_bytes_name_path(buf, got, alt))
+        return 1;
+    /* GetLongPathNameA is Win98/2000+; resolved so a 95/NT4 kernel32 still
+     * loads the agent. */
+    if (!looked) {
+        HMODULE k = GetModuleHandleA("kernel32.dll");
+        if (k)
+            getlong = (gs_getlongpath_t)GetProcAddress(k, "GetLongPathNameA");
+        looked = 1;
+    }
+    if (getlong) {
+        n = getlong(exe, alt, sizeof(alt));
+        if (n && n < sizeof(alt) && lnk_bytes_name_path(buf, got, alt))
+            return 1;
+    }
+    return 0;
+}
+
 static void gs_tool_shortcut(const char *exe, const char *name)
 {
     char desktop[MAX_PATH], lnk[MAX_PATH], workdir[MAX_PATH];
@@ -1730,6 +1778,10 @@ static void gs_tool_shortcut(const char *exe, const char *name)
     }
     _snprintf(lnk, sizeof(lnk) - 1, "%s\\%s.lnk", desktop, name);
     lnk[sizeof(lnk) - 1] = 0;
+
+    /* Already there and pointing at this exe: nothing to do, and no COM. */
+    if (gs_lnk_points_at(lnk, exe))
+        return;
 
     lstrcpynA(workdir, exe, sizeof(workdir));
     slash = workdir + lstrlenA(workdir);
