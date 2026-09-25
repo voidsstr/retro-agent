@@ -1244,11 +1244,20 @@ ICD-over-AmigaMerlin-Glide rows from above for scale:
 | Quake II, 4 chips — our ICD over AmigaMerlin Glide | 64.4 / 64.5 | 93.1 / 76.3 | 130.2 / 130.2 | 181.9 / 182.5 | 214.8 / 221.3 |
 | **Quake III, 4 chips (cfg 5) — all ours** | 77.5 / 50.0 | 118.7 / 75.2 | 128.7 / 102.9 | 130.2 / 118.1 | 128.5 / 123.8 |
 | Quake III, 4 chips — our ICD over AmigaMerlin Glide | 77.6 / 49.8 | 120.0 / 76.9 | 123.9 / 103.9 | 131.7 / 117.9 | 133.1 / 125.7 |
+| **RtCW, 4 chips — all ours** (ICD 0.1.74 as the system ICD) | 47.5 / 29.7 | — (no 1280×960 mode) | 97.6 / 62.4 | 101.9 / 80.4 | 102.8 / 87.4 |
+| RtCW, 4 chips — Wicked3D `openglv5` over AmigaMerlin Glide | crashes | — | 117.9 / 91.9 | 113.3 / 111.5 | — |
 | **Quake II, 1 chip — all ours** | 14.8 / 14.8 | 22.3 / 23.5 | 37.7 / 37.7 | 60.6 / 60.6 | 89.3 / 89.6 |
 | Quake II, 1 chip — our ICD over AmigaMerlin Glide | 14.8 / 14.8 | 24.5 / 24.5 | 38.7 / 38.7 | 61.5 / 61.5 | 90.6 / 90.6 |
 | **Quake III, 1 chip — all ours** | 24.6 / 7.1 | 37.1 / 14.9 | 56.2 / 30.7 | 83.8 / 49.9 | 118.7 / 68.2 |
 | Quake III, 1 chip — our ICD over AmigaMerlin Glide | 24.5 / 7.3 | 37.6 / 15.8 | 56.8 / 30.5 | 84.5 / 50.8 | 119.7 / 75.3 |
 
+- **RtCW reaches an ICD only as the SYSTEM ICD on a 3dfx card**: with
+  `r_glIgnoreWicked3D 0` (the default) it forces its bundled Wicked3D
+  `gl/openglv5.dll`, with 1 it forces `opengl32` - `r_glDriver` never stands
+  (WolfMP.exe 0x477ff6/0x478042, read out 2026-09-25). Every earlier RtCW row
+  "on" another ICD ran on Wicked3D; the runner now sets the cvar and stages
+  `system32\retroicd.dll`. Ours trails Wicked3D there (−17 % at 1024×768×16,
+  −32 % at ×32) - the next optimisation target.
 - Level within 3 % almost everywhere; the gaps worth chasing are Quake II
   1280×960 (−9 %) and Quake III 640×480×32 (−9 %).
 - Two Quake III launches (of ~40 on our Glide) "hung" inside `grGlideInit`.

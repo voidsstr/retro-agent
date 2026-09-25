@@ -1256,13 +1256,26 @@ class RTCW:
                     f"in its mode table (1280x1024, not 1280x960)")
         return None
 
+    @property
+    def ignore_wicked(self):
+        """RtCW 1.4's GLW_StartOpenGL: while the cvar r_glIgnoreWicked3D (default
+        0, ARCHIVE|LATCH) is 0 and a 3dfx card is present, it LoadLibrary's
+        gl/openglv5.dll (then gl/openglv3.dll) and Cvar_Sets r_glDriver to
+        whichever loads - overriding the command line and every config. That
+        is the "something sets it back" of 2026-09-16, read out of WolfMP.exe
+        (0x477ff6) on 2026-09-25: until then every RtCW row asked for another
+        ICD had run on Wicked3D (the runner's GL_VENDOR check relabelled them).
+        1 lets r_glDriver stand; the Wicked3D lane keeps 0."""
+        return 0 if self.gldriver == "gl/openglv5.dll" else 1
+
     def launch_bat(self, w, h, depth, env):
         mode = self.MODES[(w, h)]
         zbits = 24 if depth >= 32 else 16
         lines = ["@echo off"] + [f'set {k}={v}' for k, v in env.items()]
         lines += [f'cd /d "{self.root}"',
                   (f'{self.proc} +set fs_basepath "{self.root}" +set fs_homepath "{self.root}" '
-                   f'+set logfile 2 +set r_glDriver {self.gldriver} +set r_mode {mode} +set r_fullscreen 1 '
+                   f'+set logfile 2 +set r_glIgnoreWicked3D {self.ignore_wicked} '
+                   f'+set r_glDriver {self.gldriver} +set r_mode {mode} +set r_fullscreen 1 '
                    f'+set r_colorbits {depth} +set r_texturebits {depth} +set r_depthbits {zbits} '
                    f'+set r_picmip 0 +set r_swapInterval 0 +set com_maxfps 0 +set sv_pure 0 '
                    f'+set s_initsound 0 +set timedemo 1 +demo wolfbench')]
@@ -1280,13 +1293,19 @@ class RTCW:
         for cfg in self.cfgs:
             raw = await box.download(cfg)
             if raw is None:
-                await box.upload(cfg, f'seta r_glDriver "{self.gldriver}"\r\n'.encode("latin-1"))
+                await box.upload(cfg, (f'seta r_glDriver "{self.gldriver}"\r\n'
+                                       f'seta r_glIgnoreWicked3D "{self.ignore_wicked}"\r\n').encode("latin-1"))
                 continue
             txt = raw.decode("latin-1")
             if re.search(r'(?im)^seta?\s+r_glDriver\s+', txt):
                 new = re.sub(r'(?im)^(seta?\s+r_glDriver\s+)"[^"]*"', rf'\g<1>"{self.gldriver}"', txt)
             else:
                 new = txt.rstrip("\r\n") + f'\r\nseta r_glDriver "{self.gldriver}"\r\n'
+            if re.search(r'(?im)^seta?\s+r_glIgnoreWicked3D\s+', new):
+                new = re.sub(r'(?im)^(seta?\s+r_glIgnoreWicked3D\s+)"[^"]*"',
+                             rf'\g<1>"{self.ignore_wicked}"', new)
+            else:
+                new = new.rstrip("\r\n") + f'\r\nseta r_glIgnoreWicked3D "{self.ignore_wicked}"\r\n'
             if new != txt:
                 if await box.download(cfg + ".v56kbak") is None:
                     await box.upload(cfg + ".v56kbak", raw)
@@ -1329,9 +1348,13 @@ class RTCW:
             return False, f"driver-mismatch: asked for gl/openglv5.dll (Wicked3D), engine loaded GL_VENDOR '{vend[:40]}' / '{rend[:40]}'"
         # AmigaMerlin: a POSITIVE match. "not Wicked3D" would pass a GDI Generic
         # software fallback as if it were the ICD.
-        if is_mesa:
+        # our ICD is Mesa too: with r_glIgnoreWicked3D 1 RtCW reaches the SYSTEM
+        # ICD, which may be ours - that is not an AmigaMerlin row
+        if is_mesa and "voodoo-cleanroom" not in rend:
             return True, ""
-        got = "gl/openglv5.dll (Wicked3D)" if is_wicked else f"GL_VENDOR '{vend[:40]}' / '{rend[:40]}'"
+        got = ("gl/openglv5.dll (Wicked3D)" if is_wicked else
+               f"our voodoo-cleanroom ICD ('{rend[:40]}') as the system ICD" if "voodoo-cleanroom" in rend
+               else f"GL_VENDOR '{vend[:40]}' / '{rend[:40]}'")
         return False, f"driver-mismatch: asked for {self.gldriver} (the Mesa ICD), engine loaded {got}"
 
     async def start(self, box):
@@ -1714,23 +1737,60 @@ class Quake3AllOurs(_AllOursLog, Quake3Cleanroom):
         self.engine = f"quake3.exe (retail 1.32c; retrogl.dll voodoo-cleanroom {ver} over OUR h5 glide3x md5 {g})"
 
 
+SYSTEM_ICD_DLL = r"C:\WINDOWS\system32\retroicd.dll"
+SYSTEM_ICD_KEY = r"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\3dfx"
+
+
 class RTCWCleanroom(_Cleanroom, RTCW):
-    """RtCW on OUR ICD: retrogl.dll beside WolfMP.exe, r_glDriver retrogl.
-    r_glDriver is latched, so the first launch after the change can still load
-    the previous driver - verify_driver reads the renderer back and refuses."""
+    """RtCW on OUR ICD - reached as the SYSTEM ICD.
+
+    RtCW 1.4 never honours a game-local r_glDriver on a 3dfx card: with
+    r_glIgnoreWicked3D 0 it forces gl/openglv5.dll (Wicked3D), and with 1 it
+    forces "opengl32" (WolfMP.exe 0x478042). So the only route to our ICD is
+    Microsoft's opengl32 -> OpenGLDrivers\3dfx -> system32\retroicd.dll
+    (README 10.5). Measured 2026-09-25: a game-local retrogl.dll 0.1.74 was
+    staged and the row rendered on the system ICD's 0.1.66 - so the lane
+    stages THAT file, checks the registration points at it, and refuses a row
+    whose renderer string names any other build."""
 
     def __init__(self):
         RTCW.__init__(self, api="retrogl")
         self.tid = "rtcw:retrogl"
         self.api = "opengl-cleanroom"
+        self._ver = None
+
+    async def stage_icd(self, box):
+        import hashlib
+        data = CLEANROOM_ICD.read_bytes()
+        want = hashlib.md5(data).hexdigest()
+        reg = await box.exec_(f'cmd /c reg query "{SYSTEM_ICD_KEY}" /v DLL')
+        if not re.search(r"(?im)^\s*DLL\s+REG_SZ\s+retroicd\.dll\s*$", reg or ""):
+            raise RetroProtocolError(
+                f"OpenGLDrivers\\3dfx\\DLL is not retroicd.dll - RtCW would not reach our ICD "
+                f"({(reg or '').strip()[-80:]})")
+        have = await box.download(SYSTEM_ICD_DLL)
+        if not have or hashlib.md5(have).hexdigest() != want:
+            await box.upload(SYSTEM_ICD_DLL, data)
+            have = await box.download(SYSTEM_ICD_DLL)
+            if not have or hashlib.md5(have).hexdigest() != want:
+                raise RetroProtocolError(f"{SYSTEM_ICD_DLL}: upload did not land intact")
+        self._ver = cleanroom_version(data)
+        self.api = f"opengl-cleanroom-{self._ver}"
+        await box.exec_(f'cmd /c del /f /q "{CLEANROOM_TRACE}"')
+        return self._ver
 
     async def prepare(self, box, w, h, depth, env):
         ver = await self.stage_icd(box)
-        self.engine = f"WolfMP.exe (wolfbench.dm_60; game-local retrogl.dll = voodoo-cleanroom {ver} over AmigaMerlin glide3x)"
+        self.engine = (f"WolfMP.exe (wolfbench.dm_60; system ICD retroicd.dll = voodoo-cleanroom {ver} "
+                       f"over AmigaMerlin glide3x)")
         await RTCW.prepare(self, box, w, h, depth, env)
 
     def verify_driver(self, raw):
-        return Quake2Cleanroom.verify_driver(self, raw)
+        r = re.findall(r"GL_RENDERER:\s*(.+)", raw)
+        rend = (r[-1] if r else "?").strip()
+        if self._ver and f"voodoo-cleanroom {self._ver}]" in rend:
+            return True, ""
+        return False, f"GL_RENDERER is '{rend[:60]}', not our ICD {self._ver}"
 
 class RTCWAllOurs(_AllOursLog, RTCWCleanroom):
     """RtCW on the whole clean-room stack: our ICD beside WolfMP.exe and OUR
@@ -1746,7 +1806,7 @@ class RTCWAllOurs(_AllOursLog, RTCWCleanroom):
         ver = await self.stage_icd(box)
         g = await _stage_local_glide(box, self.root, True)
         self.api = allours_api(ver)
-        self.engine = (f"WolfMP.exe (wolfbench.dm_60; retrogl.dll voodoo-cleanroom {ver} "
+        self.engine = (f"WolfMP.exe (wolfbench.dm_60; system ICD retroicd.dll voodoo-cleanroom {ver} "
                        f"over OUR h5 glide3x md5 {g})")
         await RTCW.prepare(self, box, w, h, depth, env)
 

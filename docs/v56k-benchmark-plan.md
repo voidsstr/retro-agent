@@ -133,9 +133,17 @@ Q2 + Q3 × 5 res × 16/32, both Glide builds, 0 failed cells
 asm build is within ±3 % of the C build at four chips (noise). A real Quake II
 frame reads back through the LFB under SLI (`frame_compare_0169/`).
 
-**Next:** 0.1.69 (clipped-path triangle batching) A/B running (`allours-ab-tribatch/`,
-pixel-identical on vs off); then an all-ours RtCW cfg 5 matrix (`rtcw:allours`);
-then cfg 2 (sweep reboot) for the all-ours 2-chip row.
+**Update 03:50** — ICD now 0.1.74. Quake II single-pass (`FX_SGIS_MULTITEXTURE=1`)
+50.8 → 197.5 fps at 640×480 and 49.3 → 176.3 at 1024×768 (4 chips) after four
+profiler-found fixes (CHANGELOG 0.1.71-0.1.74); 0.1.69 batching reverted (no
+gain). **RtCW:** set `r_glIgnoreWicked3D 1` or it runs Wicked3D whatever
+`r_glDriver` says; with it, it reaches the SYSTEM ICD — so the RtCW clean-room
+lanes stage `C:\WINDOWS\system32\retroicd.dll` (registration must read
+`retroicd.dll`; rollback `reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\3dfx" /v DLL /t REG_SZ /d 3dfxOGL.dll /f`).
+All-ours RtCW cfg 5 done (`allours-rtcw/cfg5b`). `.124` agent is 1.85.0 (auto-updated 02:16).
+
+**Next:** profile RtCW (ours trails Wicked3D 17-32 %); cfg 2 and cfg 0 all-ours
+rows incl. Quake II single-pass (sweep reboot); decide SGIS default from them.
 
 ### Resume point (2026-09-24 08:39) — `.124` WEDGED during the clean-room smoke test; needs a power cycle
 

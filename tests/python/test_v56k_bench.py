@@ -556,7 +556,9 @@ def test_rtcw_pins_the_driver_in_a_config_the_engine_reads(bench):
     box = FakeBox()
     asyncio.run(t._pin_gldriver(box))
     for cfg in t.cfgs:
-        assert box.files[cfg] == b'seta r_glDriver "3dfxogl"\r\n'
+        # 2026-09-25: and r_glIgnoreWicked3D 1, without which RtCW 1.4 forces
+        # gl/openglv5.dll on a 3dfx card whatever r_glDriver says
+        assert box.files[cfg] == b'seta r_glDriver "3dfxogl"\r\nseta r_glIgnoreWicked3D "1"\r\n'
     t2 = bench.RTCW(api="openglv5")
     assert t2.gldriver == "gl/openglv5.dll" and t2.tid == "rtcw:openglv5" and t2.api == "opengl-3dfx-openglv5"
 
@@ -1043,3 +1045,31 @@ def test_frame_compare_screenshots_the_last_frame_after_demomap_and_quits():
     assert ns > dm and "screenshot" in cfg[ns] and cfg[ns].rstrip('"').endswith("quit")
     assert not any("wait" in l for l in cfg)
     assert t.local_glide     # the all-ours lane: our ICD over our Glide
+
+
+def test_rtcw_lets_r_gldriver_stand_unless_it_is_the_wicked3d_lane(bench):
+    """RtCW 1.4 forces gl/openglv5.dll on a 3dfx card while r_glIgnoreWicked3D
+    is 0 (WolfMP.exe 0x477ff6), so every non-Wicked3D lane must set it to 1 -
+    before this, AmigaMerlin-ICD and our-ICD RtCW cells ran on Wicked3D."""
+    for api, want in (("amigamerlin", "1"), ("retrogl", "1"), ("openglv5", "0")):
+        t = bench.TITLES["rtcw"](api)
+        bat = t.launch_bat(640, 480, 16, {})
+        assert f"+set r_glIgnoreWicked3D {want} " in bat, api
+        assert bat.index("r_glIgnoreWicked3D") < bat.index("+set r_glDriver"), api
+    assert "+set r_glIgnoreWicked3D 1 " in bench.TITLES["rtcw"]("allours").launch_bat(640, 480, 16, {})
+
+
+def test_rtcw_cleanroom_rows_must_name_the_staged_build_and_am_rejects_ours(bench):
+    """RtCW reaches our ICD only as the system ICD, so a stale system32 copy
+    would render a row under the wrong version; and our Mesa must never pass
+    as AmigaMerlin's."""
+    t = bench.TITLES["rtcw"]("allours")
+    t._ver = "0.1.74"
+    ok, _ = t.verify_driver("GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.74]\n")
+    assert ok
+    ok, note = t.verify_driver("GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.66]\n")
+    assert not ok and "0.1.74" in note
+    am = bench.RTCW(api="amigamerlin")
+    ours = "GL_VENDOR: Brian Paul\nGL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.66]\n"
+    ok, note = am.verify_driver(ours)
+    assert not ok and "voodoo-cleanroom" in note
