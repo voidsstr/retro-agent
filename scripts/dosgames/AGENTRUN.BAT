@@ -44,9 +44,24 @@ rem     MAPSHARE itself spends up to ~53s retrying because the network is not
 rem     up at logon - so on a cold boot the check below was simply false and
 rem     the entire share half of the updater was skipped, with nothing logged
 rem     to say so. Map it here rather than depend on winning a race.
+rem
+rem     The network is often not up yet at logon, so keep trying for ~30s
+rem     before giving up. And use the LONG name, quoted: the NAS is Samba,
+rem     whose 8.3 alias for "Retro Automation" is a hash, not RETRO_~1 - so
+rem     the old RETRO_~1 test was never true and E: was never used.
+SET AGTRY=
+:mapit
 net use E: \\192.168.1.122\files password /YES > nul
-if exist E:\Utility\RETRO_~1\retro_agent.exe.ver SET AGSHARE=E:\Utility\RETRO_~1
-if exist E:\Utility\RETRO_~1\retro_agent.exe.ver echo boot:   share via E: >> %AGLOG%
+if exist "E:\Utility\Retro Automation\retro_agent.exe.ver" goto mapped
+if "%AGTRY%"=="xxxxxx" goto nomap
+SET AGTRY=%AGTRY%x
+ping -n 6 127.0.0.1 > nul
+goto mapit
+:mapped
+SET AGSHARE=E:\Utility\Retro Automation
+echo boot:   share via E: >> %AGLOG%
+:nomap
+SET AGTRY=
 
 rem --- 1. the share. The network may not be up yet at logon (the drive
 rem     mapping races it too), so this is best-effort: if the sidecar is
@@ -55,8 +70,19 @@ if exist "%AGSHARE%\retro_agent.exe.ver" goto haveshare
 echo boot:   share not readable - skipping the update this boot >> %AGLOG%
 goto trystaged
 :haveshare
+rem A share.ver left from an EARLIER boot must not survive a failed copy:
+rem it then matches agent.ver and a real update reads as "already on the
+rem share's version" - exactly what .243 logged on 2026-09-25 while the share
+rem held 1.84.3 and the box ran 1.84.2.
+if exist %AGDIR%\share.ver del %AGDIR%\share.ver
 copy "%AGSHARE%\retro_agent.exe.ver" %AGDIR%\share.ver > nul
-if not exist %AGDIR%\share.ver goto trystaged
+if exist %AGDIR%\share.ver goto gotver
+echo boot:   could not copy the share's .ver - skipping the update >> %AGLOG%
+goto trystaged
+:gotver
+echo boot:   share version: >> %AGLOG%
+type %AGDIR%\share.ver >> %AGLOG%
+echo. >> %AGLOG%
 if not exist %AGDIR%\agent.ver goto pullit
 fc %AGDIR%\agent.ver %AGDIR%\share.ver > nul
 if not errorlevel 1 goto uptodate

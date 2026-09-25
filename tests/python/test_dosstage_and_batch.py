@@ -158,3 +158,29 @@ def test_reference_config_sys_sizes_the_environment():
     # EMM386 is a known cause of a hang on the way into MS-DOS mode.
     assert not re.search(r"^DEVICE.*EMM386", src, re.M | re.I)
     assert re.search(r"^DEVICE=.*HIMEM\.SYS", src, re.M | re.I), "no XMS driver"
+
+
+def test_agentrun_never_compares_against_a_stale_share_ver():
+    """2026-09-25, .243: the share held 1.84.3, the box ran 1.84.2, and
+    AGENTRUN logged "already on the share's version". A share.ver left from an
+    earlier boot survived a copy that failed at logon and matched agent.ver.
+    It must be deleted BEFORE the copy, and a failed copy must say so."""
+    src = _read(os.path.join(DG, "AGENTRUN.BAT"))
+    lines = [l.strip() for l in src.replace("\r\n", "\n").split("\n")]
+    d = lines.index(r"if exist %AGDIR%\share.ver del %AGDIR%\share.ver")
+    c = next(i for i, l in enumerate(lines)
+             if l.startswith('copy "%AGSHARE%\\retro_agent.exe.ver" %AGDIR%\\share.ver'))
+    assert d < c, "share.ver must be deleted before it is re-copied"
+    assert "could not copy the share's .ver" in src
+
+
+def test_agentrun_waits_for_the_network_and_uses_the_long_share_name():
+    """The Samba share's 8.3 alias for "Retro Automation" is a hash, so the
+    old RETRO_~1 test never matched; and at logon the network is often not up
+    yet, so one attempt was usually no attempt."""
+    src = _read(os.path.join(DG, "AGENTRUN.BAT"))
+    assert not re.search(r"^if exist E:\\Utility\\RETRO_~1", src, re.M)
+    assert re.search(r'^if exist "E:\\Utility\\Retro Automation\\retro_agent\.exe\.ver" goto mapped',
+                     src, re.M)
+    assert re.search(r"^goto mapit", src, re.M), "the share is retried, not tried once"
+    assert re.search(r'^if "%AGTRY%"=="x+" goto nomap', src, re.M), "and the retry is bounded"

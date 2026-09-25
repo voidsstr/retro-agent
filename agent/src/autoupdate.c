@@ -205,7 +205,14 @@ static int kill_retro_chat(void)
     pe.dwSize = sizeof(pe);
     if (Process32First(snap, &pe)) {
         do {
-            if (_stricmp(pe.szExeFile, "retro_chat.exe") == 0) {
+            /* Win9x Toolhelp gives the FULL PATH in szExeFile
+             * ("C:\RETRO_AGENT\RETRO_CHAT.EXE"); NT gives the bare name.
+             * Comparing the whole field never matched on 9x, so nothing was
+             * killed and every 9x chat update failed with CopyFile error 32
+             * (sharing violation) - .243, 2026-09-25. Compare the basename. */
+            const char *base = strrchr(pe.szExeFile, '\\');
+            base = base ? base + 1 : pe.szExeFile;
+            if (_stricmp(base, "retro_chat.exe") == 0) {
                 HANDLE h = OpenProcess(PROCESS_TERMINATE, FALSE,
                                        pe.th32ProcessID);
                 if (h) {
@@ -278,11 +285,23 @@ static void update_retro_chat(const char *install_dir)
         Sleep(500);  /* let file handle release */
     }
 
-    /* Replace the binary. */
-    if (!CopyFileA(share_path, chat_path, FALSE)) {
-        log_msg(LOG_UPDATE, "Chat: CopyFile failed: %lu",
-                (unsigned long)GetLastError());
-        return;
+    /* Replace the binary. A killed process can hold its image a moment
+     * longer (Win9x especially), so a sharing violation is retried briefly
+     * rather than abandoning the update until the next agent start. */
+    {
+        int tries;
+        DWORD err = 0;
+        for (tries = 0; tries < 6; tries++) {
+            if (CopyFileA(share_path, chat_path, FALSE)) { err = 0; break; }
+            err = GetLastError();
+            if (err != ERROR_SHARING_VIOLATION && err != ERROR_ACCESS_DENIED) break;
+            Sleep(1000);
+        }
+        if (err) {
+            log_msg(LOG_UPDATE, "Chat: CopyFile failed: %lu%s", (unsigned long)err,
+                    kill_count ? "" : " (no running instance was found to stop)");
+            return;
+        }
     }
 
     log_msg(LOG_UPDATE, "Chat: updated to %lu bytes",
@@ -336,6 +355,40 @@ static int build_restart_bat(const char *bat_path, const char *install_dir,
      * COMMAND.COM has no SET /A, so the counter is unrolled. */
     fprintf(f, "@echo off\r\n");
     fprintf(f, "echo Auto-update: waiting for old agent to exit...\r\n");
+    if (GetVersion() & 0x80000000) {
+        /* WIN9x: COMMAND.COM's COPY does not set ERRORLEVEL, so the loop
+         * below reads a copy that failed on the still-locked exe as success,
+         * deletes the download and restarts the OLD build - hardware-observed
+         * on .243 (2026-09-25): 1.84.2 downloaded 1.84.3, "shut down for the
+         * swap" and was back on 1.84.2 four seconds later. Decide by the
+         * POST-CONDITION instead: 9x cannot rename a running exe, so the
+         * rename below fails until the old agent has really exited, and
+         * `if exist` tells us whether it happened. Same method as
+         * scripts/dosgames/AGENTRUN.BAT. (Not used on NT, which CAN rename a
+         * running exe - the new build would start while the old one still
+         * holds its ports.) */
+        fprintf(f, "if exist %s\\retro_agent_old.exe del %s\\retro_agent_old.exe\r\n",
+                install_dir, install_dir);
+        for (i = 1; i <= UPDATE_SWAP_TRIES; i++) {
+            fprintf(f, "ping -n 3 127.0.0.1 > nul\r\n");
+            fprintf(f, "ren %s\\retro_agent.exe retro_agent_old.exe\r\n", install_dir);
+            fprintf(f, "if not exist %s\\retro_agent.exe goto renamed\r\n", install_dir);
+        }
+        fprintf(f, "echo Auto-update: old agent never released its exe; "
+                   "restarting it\r\n");
+        fprintf(f, "goto startit\r\n");
+        fprintf(f, ":renamed\r\n");
+        fprintf(f, "ren %s %s\r\n", temp_exe, "retro_agent.exe");
+        /* the new build did not land: put the old one back */
+        fprintf(f, "if not exist %s\\retro_agent.exe ren %s\\retro_agent_old.exe retro_agent.exe\r\n",
+                install_dir, install_dir);
+        fprintf(f, ":startit\r\n");
+        fprintf(f, "if exist %s del %s\r\n", temp_exe, temp_exe);
+        fprintf(f, "start %s\\retro_agent.exe\r\n", install_dir);
+        fprintf(f, "del %s\\autoupdate.bat\r\n", install_dir);
+        fclose(f);
+        return 1;
+    }
     for (i = 1; i <= UPDATE_SWAP_TRIES; i++) {
         fprintf(f, "ping -n 3 127.0.0.1 > nul\r\n");
         fprintf(f, "copy /Y %s %s\\retro_agent.exe\r\n", temp_exe, install_dir);
