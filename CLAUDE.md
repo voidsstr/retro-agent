@@ -146,6 +146,23 @@ plan/design doc). **After every key milestone**, also update the affected
 documentation (e.g. `retro-3dfx/D3D-DRIVER-PLAN.md`, skill `SKILL.md` files, the
 memory files) so they reflect reality. Do this proactively, not only when asked.
 
+## Dev Host Issues Log — read it, then UPDATE it (REQUIRED)
+
+**[`docs/host-issues-log.md`](docs/host-issues-log.md) is the record of every
+crash, hang, power loss and GPU fault on the dev host (192.168.1.132), and of
+every mitigation in force.** It covers the RTX 5090 Xid 79 bus drops, MCE panics,
+instant power-offs, and hung shutdowns, along with the current GPU power cap. Read it
+**before** diagnosing "the box rebooted", "the GPU is gone" or "everything on
+the host went down". Its triage commands and failure signatures stop you from
+re-deriving weeks of work, and from mistaking a desktop crash for a reboot.
+
+**Update it in the same session** whenever you see a host crash, reboot, hang,
+GPU fault or power event, or change a mitigation (power cap, sysctls, NVIDIA
+driver, GRUB, BIOS, hardware work): add a newest-first incident entry
+(time, boot ID, signature, evidence, load, cap in effect, response) and fix
+the "Current state" table. The procedure is at the bottom of the file. Mark
+causes "likely/unproven" unless the logs prove them.
+
 ## Driver Regression Tests (REQUIRED for every driver fix and deploy)
 
 The 3dfx driver stack has a regression suite at
@@ -584,6 +601,9 @@ whether anything is down — walk past the monitor.
 python3 scripts/fleet/host-duties.py            # full report
 python3 scripts/fleet/host-duties.py --quiet    # only problems
 ```
+
+If the reboot was **unplanned** (a crash, a power loss, or a dead GPU), work out why
+with [`docs/host-issues-log.md`](docs/host-issues-log.md) and record it there.
 
 It answers the two questions that actually matter, because they have different
 answers:
