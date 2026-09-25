@@ -181,6 +181,72 @@ TEST(xp_escape_code_survives_a_32_bit_field_not_a_16_bit_one) {
     CHECK_EQ_U((uint32_t) (uint16_t) narrow, 0x3df3u);   /* the old H6 dead code */
 }
 
+/* ---- 5. swap-pending bookkeeping (gglide.c, fork after 215a9e7) ----
+ * bufferSwaps has MAX_BUFF_PENDING (7) entries; three loops started at index 7
+ * and so read AND wrote the field after the array. A decrement per stray match
+ * can wrap swapsPending (unsigned) to ~4e9, after which
+ * while (_grBufferNumPending() > swapPendingCount) never ends. */
+#define MAX_BUFF_PENDING 7
+struct swapctx { uint32_t swapsPending, lastSwapCheck, curSwap, bufferSwaps[MAX_BUFF_PENDING], next; };
+
+static void retire_old(struct swapctx *g, uint32_t readPtr)
+{   /* "it's behind us" branch, original bounds; next models the field after */
+    uint32_t *slots = g->bufferSwaps;
+    int i;
+    for (i = MAX_BUFF_PENDING; i >= 0; --i) {
+        uint32_t *slot = (i == MAX_BUFF_PENDING) ? &g->next : &slots[i];
+        if (*slot != 0xffffffffu && *slot >= g->lastSwapCheck && *slot <= readPtr) {
+            --g->swapsPending;
+            *slot = 0xffffffffu;
+        }
+    }
+}
+static void retire_new(struct swapctx *g, uint32_t readPtr)
+{
+    int i;
+    for (i = MAX_BUFF_PENDING - 1; i >= 0; --i)
+        if (g->bufferSwaps[i] != 0xffffffffu &&
+            g->bufferSwaps[i] >= g->lastSwapCheck && g->bufferSwaps[i] <= readPtr) {
+            --g->swapsPending;
+            g->bufferSwaps[i] = 0xffffffffu;
+        }
+}
+static void init(struct swapctx *g)
+{
+    int i;
+    for (i = 0; i < MAX_BUFF_PENDING; i++) g->bufferSwaps[i] = 0xffffffffu;
+    g->swapsPending = 1; g->lastSwapCheck = 0x100; g->bufferSwaps[0] = 0x200;
+    g->next = 0x300;          /* an unrelated field whose value lies in range */
+}
+
+TEST(retire_never_touches_the_field_after_the_array) {
+    struct swapctx g;
+    init(&g); retire_new(&g, 0x400);
+    CHECK_EQ_U(g.swapsPending, 0);
+    CHECK_EQ_U(g.next, 0x300);                 /* untouched */
+    init(&g); retire_old(&g, 0x400);
+    CHECK_EQ_U(g.next, 0xffffffffu);           /* the old code stamped it */
+    CHECK_EQ_U(g.swapsPending, 0xffffffffu);   /* and wrapped the counter */
+}
+
+static int pending_forever(void *ctx) { (void) ctx; return 3; }
+static unsigned long bounded_swap_wait(int (*pending)(void *), void *ctx, int limit, int *broke)
+{
+    unsigned long spins = 0;
+    *broke = 0;
+    while (pending(ctx) > limit) {
+        if (++spins > 4000000UL) { *broke = 1; break; }
+    }
+    return spins;
+}
+
+TEST(swap_pending_wait_is_bounded) {
+    int broke = 0;
+    unsigned long n = bounded_swap_wait(pending_forever, NULL, 2, &broke);
+    CHECK_EQ_U(broke, 1);
+    CHECK(n <= 4000001UL, "gives up after the bound");
+}
+
 MUNIT_MAIN("h5 Glide guards: chip clamp, bounded idle, live mappings, XP escape (2026-09-24)", {
     RUN(numchips_two_on_a_four_chip_board_is_refused);
     RUN(numchips_one_and_real_count_are_honoured);
@@ -193,4 +259,6 @@ MUNIT_MAIN("h5 Glide guards: chip clamp, bounded idle, live mappings, XP escape 
     RUN(a_stale_address_now_holding_our_own_memory_is_refused);
     RUN(an_interior_address_or_short_view_is_refused);
     RUN(xp_escape_code_survives_a_32_bit_field_not_a_16_bit_one);
+    RUN(retire_never_touches_the_field_after_the_array);
+    RUN(swap_pending_wait_is_bounded);
 })

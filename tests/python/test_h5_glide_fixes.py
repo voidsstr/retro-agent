@@ -98,3 +98,11 @@ def test_a_refused_board_is_skipped_not_touched():
     g = src("glide3/src/gpci.c")
     blk = g.split("if (!hwcMapBoard(bInfo, HWC_BASE_ADDR_MASK)) {", 1)[1][:400]
     assert "continue;" in blk.split("}", 1)[0]
+
+
+def test_swap_pending_bookkeeping_is_bounded_and_in_range():
+    g = src("glide3/src/gglide.c")        # Latin-1 file: src() reads with errors='replace'
+    assert "for(i = MAX_BUFF_PENDING; i >= 0; --i)" not in g
+    assert g.count("for(i = MAX_BUFF_PENDING - 1; i >= 0; --i)") == 3
+    assert g.count("++swapSpins > 4000000UL") == 2
+    assert "++stableTries < 1000" in g and "++stableTries < 2000" in g
