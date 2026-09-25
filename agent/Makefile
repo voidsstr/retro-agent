@@ -55,6 +55,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/monitor.c \
           $(SRCDIR)/gameres.c \
           $(SRCDIR)/ntdyn.c \
+          $(SRCDIR)/bgwork.c \
           $(SRCDIR)/log.c \
           $(SRCDIR)/util.c
 

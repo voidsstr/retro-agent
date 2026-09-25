@@ -43,6 +43,7 @@
 #include "log.h"
 #include "ntdyn.h"
 #include "hostpolicy.h"
+#include "bgwork.h"
 
 #define WALLDIR        "C:\\retro-wall"
 #define ROTATE_EXE     WALLDIR "\\rotate_wall.exe"
@@ -767,6 +768,7 @@ DWORD WINAPI retrowall_thread(LPVOID param)
     if (host_policy_skip("retrowall thread"))
         return 0;
 
+    thread_background();
     Sleep(RETROWALL_DELAY_SEC * 1000);
     if (!g_running)
         return 0;

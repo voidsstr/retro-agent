@@ -794,6 +794,11 @@ static void log_system_metadata(void)
                 dd.DeviceString, dd.DeviceID);
 }
 
+/* Included here rather than at the top: the helper-thread code below is the
+ * only user, and it keeps this hunk away from the include block other work
+ * touches. */
+#include "bgwork.h"
+
 /* Best-effort mirror of the local agent.log to the file share, so logs from a
  * box that can't be reached interactively (or that crashed) can be pulled from
  * one place. Copies to <share>\agent logs\<host>-agent.log (+ .1 backup) if the
@@ -852,6 +857,7 @@ static DWORD WINAPI sharelog_thread(LPVOID param)
     int i;
     (void)param;
 
+    thread_background();
     if (!GetComputerNameA(host, &hlen))
         safe_strncpy(host, "agent", sizeof(host));
 
@@ -920,7 +926,14 @@ void agent_run(void)
      * frozen to the controller exactly when diagnostics matter most.  HIGH
      * class keeps command handling live during tests; the agent is idle
      * (select() with 1s timeout) whenever nothing is asked of it, so this
-     * costs the foreground app nothing measurable. */
+     * costs the foreground app nothing measurable.
+     *
+     * HIGH is for the threads that SERVE COMMANDS. Every background helper
+     * (game index, library sync, theme, self-update, log mirror, hardware
+     * publish, DOS staging, firewall) drops itself to THREAD_PRIORITY_IDLE
+     * with thread_background() - the only level below a normal-class game
+     * inside a HIGH-class process. Until 1.85.0 they all inherited base 13
+     * and ran above Explorer and the game. See bgwork.h. */
     if (SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS))
         log_msg(LOG_MAIN, "Process priority raised to HIGH");
     else

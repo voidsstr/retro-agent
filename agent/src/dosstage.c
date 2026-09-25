@@ -47,6 +47,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "bgwork.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -497,6 +498,7 @@ void dosstage_run(int force)
 static DWORD WINAPI dosstage_run_thread(LPVOID param)
 {
     int force = (int)(UINT_PTR)param;
+    thread_background();        /* DOSSTAGE from a command: same work, same place */
     g_stage_running = 1;
     dosstage_run(force);
     g_stage_running = 0;
@@ -514,9 +516,11 @@ DWORD WINAPI dosstage_thread(LPVOID param)
 
     if (!dosstage_os_is_dos_capable()) return 0;
 
-    /* Below normal: on the Pentium-1 box this competes with the shell
-     * coming up, and a laggy first minute reads as a hung agent. */
-    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
+    /* Below the foreground: on the Pentium-1 box this competes with the
+     * shell coming up, and a laggy first minute reads as a hung agent.
+     * (BELOW_NORMAL was 12 inside the agent's HIGH class - still above the
+     * shell. See bgwork.h.) */
+    thread_background();
 
     Sleep(DOSSTAGE_DELAY_SEC * 1000);
     if (!g_running) return 0;

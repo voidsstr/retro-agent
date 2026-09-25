@@ -544,3 +544,14 @@ found — and move it up there.
 | **agent 1.29.1: three bugs GAMEINDEX found the moment it ran on real hardware** (2026-08-25) — test_json_escape.c — TRUE-SOURCE test: compiles the REAL JSON escaper from agent/src/util.c against the fake Win32 in stubs/ and checks what it emits | `native/test_json_escape.c` |
 | **tests: pin launch.txt to one shortcut per line** (2026-08-28) — test_launch_txt.c - launch.txt must yield ONE desktop shortcut per line | `native/test_launch_txt.c` |
 | **agent: stop REGREAD/REGWRITE/REGDELETE truncating a key path at a space** (2026-08-29) — test_reg_argparse.c - the registry commands must not truncate a key path at a space | `native/test_reg_argparse.c` |
+
+## Agent CPU / IO efficiency on the old boxes (agent 1.85.0, 2026-09-25)
+
+The user's report: *"the retro chat / agent when starting up / connecting can
+tax the older cpus"*. The fleet runs down to a Pentium 166 on Win98 (`.243`)
+and a 31 MB Deskpro; a PIII 800 on XP is typical. Every row is work the agent
+did at every boot or on a timer whether or not anything had changed.
+
+| Fix | Test |
+|-----|------|
+| **priority: background helpers ran above the game** — the process is HIGH_PRIORITY_CLASS so commands stay reachable during a fullscreen game, but every helper inherited base 13 too (BELOW_NORMAL is still 12 there). Helpers now call `thread_background()` (THREAD_PRIORITY_IDLE, base 1); command-serving threads are never lowered; the log lock lifts an IDLE holder so a starved helper cannot stall the command thread's next log line | `python/test_agent_priority_model.py` |

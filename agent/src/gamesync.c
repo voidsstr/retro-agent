@@ -35,6 +35,7 @@
 #include "log.h"
 #include "ntdyn.h"
 #include "hostpolicy.h"
+#include "bgwork.h"
 #include "../shared/drvprefs.h"
 #include "../shared/gamegate.h"
 
@@ -3493,6 +3494,10 @@ static DWORD WINAPI gs_worker(LPVOID param)
     gs_arg_t *a = (gs_arg_t *)param;
     char lib[MAX_PATH];
 
+    /* Started by the startup thread OR by a GAMESYNC command - either way
+     * a library copy is background work, and CreateThread does not inherit
+     * the creator's priority. */
+    thread_background();
     lstrcpynA(lib, a->library, sizeof(lib));
     HeapFree(GetProcessHeap(), 0, a);
 
@@ -3583,6 +3588,7 @@ DWORD WINAPI gamesync_thread(LPVOID param)
     int fresh;
 
     (void)param;
+    thread_background();
 
     /* A MODERN WINDOWS HOST GETS NOTHING FROM THIS THREAD - no games, no
      * desktop shortcuts, no first-boot driver work. Until 1.83.1 this thread

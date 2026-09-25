@@ -75,6 +75,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "bgwork.h"
 #include "../shared/hwpub.h"
 #include <string.h>
 #include <stdio.h>
@@ -337,7 +338,9 @@ DWORD WINAPI hwpublish_thread(LPVOID param)
     int  attempt, freemb;
 
     (void)param;
-    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
+    /* BELOW_NORMAL was 12 inside the agent's HIGH class - still above the
+     * game. See bgwork.h. */
+    thread_background();
 
     if (!hwpub_enabled()) {
         log_msg(LOG_HWPUB, "disabled by HKLM\\%s\\%s", HWPUB_KEY, HWPUB_ENABLE);

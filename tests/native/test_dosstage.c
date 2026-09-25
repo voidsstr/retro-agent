@@ -39,6 +39,8 @@ int str_starts_with(const char *s, const char *prefix)
 {
     return strncmp(s, prefix, strlen(prefix)) == 0;
 }
+/* agent/src/bgwork.c: drops the helper to THREAD_PRIORITY_IDLE (-15) */
+void thread_background(void) { SetThreadPriority(GetCurrentThread(), -15); }
 
 /* the real module under test */
 #include "../../agent/src/dosstage.c"

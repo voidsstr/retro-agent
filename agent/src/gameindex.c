@@ -29,6 +29,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "bgwork.h"
 #include <windows.h>
 #include <shlobj.h>
 #include <objbase.h>
@@ -709,6 +710,7 @@ DWORD WINAPI gameindex_thread(LPVOID param)
     DWORD period;
     (void)param;
 
+    thread_background();         /* a disk walk is not worth a game frame */
     Sleep(GI_FIRST_DELAY_MS);
     for (;;) {
         gi_scan();

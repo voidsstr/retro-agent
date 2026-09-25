@@ -27,6 +27,7 @@
 #include "util.h"
 #include "log.h"
 #include "hostpolicy.h"
+#include "bgwork.h"
 #include <string.h>
 #include <stdio.h>
 #include <tlhelp32.h>
@@ -423,6 +424,7 @@ DWORD WINAPI autoupdate_thread(LPVOID param)
     char *last_slash;
 
     (void)param;
+    thread_background();
 
     /* Wait for network to stabilize */
     Sleep(UPDATE_DELAY_SEC * 1000);

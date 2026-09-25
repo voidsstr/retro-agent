@@ -278,6 +278,36 @@ const char *log_path(void)
     return g_log_path;
 }
 
+/*
+ * PRIORITY-INVERSION GUARD for g_log_cs.
+ *
+ * Background helpers run at THREAD_PRIORITY_IDLE (bgwork.h) and every one of
+ * them logs. This lock is held across DISK I/O - every line in the unbuffered
+ * startup window, and every flush after it - so an IDLE thread preempted
+ * inside it by a busy foreground game would keep it for as long as the game
+ * keeps the CPU, and the command thread's next log line would queue behind it.
+ * On a Win9x box that thread is the ONLY one serving commands.
+ *
+ * So whoever holds the log lock runs at no less than normal priority: an IDLE
+ * caller is lifted for the few milliseconds it holds it, then put back. Every
+ * other caller pays one GetThreadPriority. The crash logger stays lock-free
+ * and untouched.
+ */
+static int log_lift(void)
+{
+    HANDLE me = GetCurrentThread();
+    if (GetThreadPriority(me) != THREAD_PRIORITY_IDLE)
+        return 0;
+    SetThreadPriority(me, THREAD_PRIORITY_NORMAL);
+    return 1;
+}
+
+static void log_unlift(int lifted)
+{
+    if (lifted)
+        SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_IDLE);
+}
+
 /* Format "[HH:MM:SS][TAG] msg\r\n" into `out`; returns length. */
 static int format_line(char *out, int cap, const char *tag,
                        const char *fmt, va_list ap)
@@ -298,7 +328,7 @@ static int format_line(char *out, int cap, const char *tag,
 void log_msg(const char *tag, const char *fmt, ...)
 {
     char line[2048];
-    int n;
+    int n, lifted;
     va_list ap;
 
     if (!g_log_initialized) return;
@@ -307,6 +337,7 @@ void log_msg(const char *tag, const char *fmt, ...)
     n = format_line(line, (int)sizeof(line), tag, fmt, ap);
     va_end(ap);
 
+    lifted = log_lift();
     EnterCriticalSection(&g_log_cs);
     raw_out(line, (DWORD)n);
 
@@ -332,15 +363,19 @@ void log_msg(const char *tag, const char *fmt, ...)
         open_log();
     }
     LeaveCriticalSection(&g_log_cs);
+    log_unlift(lifted);
 }
 
 /* Force everything pending to disk. Safe to call from anywhere. */
 void log_flush(void)
 {
+    int lifted;
     if (!g_log_initialized) return;
+    lifted = log_lift();
     EnterCriticalSection(&g_log_cs);
     flush_locked();
     LeaveCriticalSection(&g_log_cs);
+    log_unlift(lifted);
 }
 
 /* Periodic flusher: bounds how much routine logging a power cut can cost. */
