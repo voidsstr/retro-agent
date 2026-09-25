@@ -38,23 +38,32 @@
 typedef unsigned int   DWORD32_;
 typedef struct { DWORD32_ dwLowDateTime, dwHighDateTime; } FILETIME_;
 
-/* --- verbatim from agent/src/gamesync.c (gs_same_mtime) ------------------- */
-#define GS_MTIME_SLACK_100NS  (2 * 10000000LL)
+/* --- TRUE SOURCE since 1.85.0: the comparison and the decision live in
+ *     agent/shared/gsresume.h, which gamesync.c includes. (This used to be a
+ *     "verbatim" copy of gs_same_mtime, which nothing kept in step.) ------- */
+#include "../../agent/shared/gsresume.h"
+
+static long long ft(const FILETIME_ *f)
+{
+    return gsr_ft64(f->dwHighDateTime, f->dwLowDateTime);
+}
 
 static int gs_same_mtime(const FILETIME_ *a, const FILETIME_ *b)
 {
-    long long ta = ((long long)a->dwHighDateTime << 32) | a->dwLowDateTime;
-    long long tb = ((long long)b->dwHighDateTime << 32) | b->dwLowDateTime;
-    long long d  = ta - tb;
-    if (d < 0) d = -d;
-    return d <= GS_MTIME_SLACK_100NS;
+    return gsr_same_time(ft(a), ft(b));
 }
 
-/* --- the skip decision, mirroring gs_copy_file's early-out ---------------- */
+/* --- the skip decision, as gs_copy_file makes it: stage 1 from the listing,
+ *     stage 2 (the source asked directly) only if the listing disagrees. Here
+ *     the listing and the source report the same time, as they do on disk. */
 static int skip_now(long long dst_size, long long src_size,
                     const FILETIME_ *src_ft, const FILETIME_ *dst_ft)
 {
-    return dst_size >= 0 && dst_size == src_size && gs_same_mtime(src_ft, dst_ft);
+    int v = gsr_decide(dst_size >= 0, dst_size, ft(dst_ft), src_size,
+                       1, ft(src_ft));
+    if (v == GSR_ASK_SOURCE)
+        v = gsr_decide_source(1, ft(src_ft), ft(dst_ft));
+    return v == GSR_SKIP;
 }
 
 /* the OLD, buggy rule - kept so the regression is asserted in both directions */

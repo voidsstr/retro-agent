@@ -40,6 +40,7 @@
 #include "../shared/drvprefs.h"
 #include "../shared/gamegate.h"
 #include "../shared/lnkcheck.h"
+#include "../shared/gsresume.h"
 
 #include <windows.h>
 #include <string.h>
@@ -471,7 +472,9 @@ static long gs_desk_lnks(void)  { return g_gs_desk_lnks; }
  * and that judgement still holds: 6 GB over SMB1 on a Pentium III costs far
  * more than it could ever save.
  */
-#define GS_MTIME_SLACK_100NS  (2 * 10000000LL)   /* 2 s, in 100ns FILETIME units */
+/* GS_MTIME_SLACK_100NS and the comparison itself live in
+ * agent/shared/gsresume.h, with the decision gs_copy_file() makes from them,
+ * so the regression tests compile the code the agent runs. */
 
 static int gs_get_mtime(const char *path, FILETIME *ft)
 {
@@ -482,20 +485,19 @@ static int gs_get_mtime(const char *path, FILETIME *ft)
     return 1;
 }
 
-static int gs_same_mtime(const FILETIME *a, const FILETIME *b)
+static long long gs_ft64(const FILETIME *f)
 {
-    __int64 ta = ((__int64)a->dwHighDateTime << 32) | a->dwLowDateTime;
-    __int64 tb = ((__int64)b->dwHighDateTime << 32) | b->dwLowDateTime;
-    __int64 d  = ta - tb;
-    if (d < 0) d = -d;
-    return d <= GS_MTIME_SLACK_100NS;
+    return gsr_ft64(f->dwHighDateTime, f->dwLowDateTime);
 }
 
 /* How many times one file's copy may reopen its source after a failed read.
  * See the read loop in gs_copy_file(). */
 #define GS_READ_RETRIES   6
 
-static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
+/* src_list_ft: the source's last-write time as the directory listing
+ * reported it, or NULL when the caller has none (then the source is asked). */
+static int gs_copy_file(const char *src, const char *dst, __int64 src_size,
+                        const FILETIME *src_list_ft)
 {
     HANDLE hs, hd;
     char  *buf;
@@ -503,8 +505,9 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
     int    ok = 1;
     int    retries = 0;
     __int64 copied = 0, last_fail_at = 0;
-    __int64 already;
-    FILETIME src_ft, dst_ft;
+    WIN32_FILE_ATTRIBUTE_DATA dad;
+    int    dst_exists, verdict;
+    long long dst_size = -1, dst_time = 0;
 
     /* Resume: a destination that matches in BOTH size and last-write time is
      * treated as done. Size alone is NOT enough - see gs_same_mtime() above for
@@ -516,10 +519,24 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
      * set (i.e. everything an older agent copied). That is a one-off cost and it
      * is also the remedy: it repairs every box already carrying a half-applied
      * patch. */
-    already = gs_file_size(dst);
-    if (already >= 0 && already == src_size &&
-        gs_get_mtime(src, &src_ft) && gs_get_mtime(dst, &dst_ft) &&
-        gs_same_mtime(&src_ft, &dst_ft)) {
+    /* ONE read of the destination (size and time together), and the source's
+     * time from the listing we are already walking. Only when that listing
+     * time disagrees is the source asked over the network - see gsresume.h
+     * for why this keeps the v1.62.0 test's exact answers. */
+    dst_exists = GetFileAttributesExA(dst, GetFileExInfoStandard, &dad) != 0;
+    if (dst_exists) {
+        dst_size = ((long long)dad.nFileSizeHigh << 32) | dad.nFileSizeLow;
+        dst_time = gs_ft64(&dad.ftLastWriteTime);
+    }
+    verdict = gsr_decide(dst_exists, dst_size, dst_time, (long long)src_size,
+                         src_list_ft != NULL,
+                         src_list_ft ? gs_ft64(src_list_ft) : 0);
+    if (verdict == GSR_ASK_SOURCE) {
+        FILETIME src_ft;
+        int have = gs_get_mtime(src, &src_ft);
+        verdict = gsr_decide_source(have, have ? gs_ft64(&src_ft) : 0, dst_time);
+    }
+    if (verdict == GSR_SKIP) {
         gs_note_progress2(src_size, 0);   /* counted, but nothing crossed the wire */
         return 1;
     }
@@ -656,7 +673,7 @@ static int gs_copy_tree(const char *src, const char *dst)
     WIN32_FIND_DATAA fd;
     HANDLE h;
     char   pat[MAX_PATH], s[MAX_PATH], d[MAX_PATH];
-    int    ok = 1;
+    int    ok = 1, ok_file;
     __int64 sz;
 
     gs_mkdir_p(dst);
@@ -683,7 +700,12 @@ static int gs_copy_tree(const char *src, const char *dst)
             lstrcpynA(g_gs.file, fd.cFileName, sizeof(g_gs.file));
             LeaveCriticalSection(&g_gs_lock);
             sz = ((__int64)fd.nFileSizeHigh << 32) | fd.nFileSizeLow;
-            if (!gs_copy_file(s, d, sz)) {
+            {
+                /* the listing already carries the source's time: pass it */
+                FILETIME list_ft = fd.ftLastWriteTime;
+                ok_file = gs_copy_file(s, d, sz, &list_ft);
+            }
+            if (!ok_file) {
                 EnterCriticalSection(&g_gs_lock);
                 if (g_gs.failed_files == 0)
                     lstrcpynA(g_gs.failed_file, d, sizeof(g_gs.failed_file));
@@ -2025,8 +2047,10 @@ static void gs_stage_wallpapers(const char *library)
         _snprintf(dst, sizeof(dst) - 1, "%s\\%s", GS_WALL_DIR, fd.cFileName);
         src[sizeof(src) - 1] = dst[sizeof(dst) - 1] = 0;
         /* Same-size means already there: this runs on every provision and the
-         * wallpapers are 26 MB. */
-        if (gs_file_size(dst) == gs_file_size(src))
+         * wallpapers are 26 MB. The source's size is the listing's - no need to
+         * ask the NAS again for each file. */
+        if (gs_file_size(dst) ==
+            (((__int64)fd.nFileSizeHigh << 32) | fd.nFileSizeLow))
             continue;
         if (CopyFileA(src, dst, FALSE))
             n++;
@@ -3111,7 +3135,10 @@ static void gs_run(const char *library)
     char   pat[MAX_PATH], src[MAX_PATH], dst[MAX_PATH];
     char   titles[GS_MAX_TITLES][128];
     __int64 sizes[GS_MAX_TITLES];
-    int    n = 0, i, files = 0, ok_titles = 0, capped = 0;
+    /* The gate's verdict per title, decided BEFORE the sizing walk (below). */
+    char   gated[GS_MAX_TITLES];
+    char   gated_why[GS_MAX_TITLES][192];
+    int    n = 0, i, files = 0, ok_titles = 0, capped = 0, n_gated = 0;
     int    gr_titles = 0, gr_changed = 0, gr_absent_t = 0;
     DWORD  enum_err = 0;
     __int64 grand = 0, freeb;
@@ -3241,11 +3268,12 @@ static void gs_run(const char *library)
                         "everything past that point was NEVER considered",
                 n, enum_err);
 
+    /* Sized below, after the gate - see there. The ordering pass moves these
+     * along with the names, so they must start defined. */
     for (i = 0; i < n; i++) {
-        _snprintf(src, sizeof(src) - 1, "%s\\%s", library, titles[i]);
-        src[sizeof(src) - 1] = 0;
-        sizes[i] = gs_dir_size(src, &files);
-        grand += sizes[i];
+        sizes[i] = 0;
+        gated[i] = 0;
+        gated_why[i][0] = 0;
     }
 
     /* Order the titles before copying any of them.
@@ -3335,9 +3363,36 @@ static void gs_run(const char *library)
         return;
     }
 
+    /* ASK THE GATE FIRST, THEN SIZE ONLY WHAT MAY BE COPIED.
+     *
+     * The sizing pass is a full recursive walk of each title's tree ON THE
+     * SHARE - thousands of SMB round trips for a big title. It used to walk
+     * every title, including the ones the capability gate was about to refuse
+     * (22 of 46 on the Pentium-1 .243), whose size nothing ever uses. The gate
+     * reads only the profile, the published verdicts and the title's small
+     * requires.json, so asking it first costs nothing and the refused trees are
+     * never walked. A disk-limited "no" is not a refusal (see
+     * gs_gate_limited_by_disk): that title is sized, because the disk check
+     * below needs its real size. */
+    for (i = 0; i < n; i++) {
+        char why[192];
+        if (!gs_gate_allows_title(library, titles[i], why, sizeof(why))
+            && !gs_gate_limited_by_disk(why)) {
+            gated[i] = 1;
+            lstrcpynA(gated_why[i], why, sizeof(gated_why[0]));
+            n_gated++;
+            continue;
+        }
+        _snprintf(src, sizeof(src) - 1, "%s\\%s", library, titles[i]);
+        src[sizeof(src) - 1] = 0;
+        sizes[i] = gs_dir_size(src, &files);
+        grand += sizes[i];
+    }
+
     freeb = gs_free_bytes("C:\\");
-    log_msg(LOG_GS, "%d title(s), %d file(s), %I64d MB to copy; C: has %I64d MB free",
-            n, files, grand / 1048576,
+    log_msg(LOG_GS, "%d title(s) (%d gated, not walked), %d file(s), "
+            "%I64d MB to copy; C: has %I64d MB free",
+            n, n_gated, files, grand / 1048576,
             freeb < 0 ? (__int64)-1 : freeb / 1048576);
 
     /*
@@ -3381,29 +3436,29 @@ static void gs_run(const char *library)
             log_msg(LOG_GS, "aborted by request");
             break;
         }
-        /* Can this machine actually RUN it? Asked before the disk maths,
-         * because a title the box cannot run should not be charged against
-         * the space a title it CAN run needs. */
-        {
-            char why[192];
-            if (!gs_gate_allows_title(library, titles[i], why, sizeof(why))
-                && !gs_gate_limited_by_disk(why)) {
-                log_msg(LOG_GS, "GATED %s - %s", titles[i], why);
-                EnterCriticalSection(&g_gs_lock);
-                g_gs.gated_titles++;
-                /* Its bytes will never arrive; drop them from the target so
-                 * the percentage still reaches 100. */
-                g_gs.total_bytes -= sizes[i];
-                LeaveCriticalSection(&g_gs_lock);
-                gs_restore_shortcuts_if_installed(titles[i]);
-                continue;
-            }
+        /* Can this machine actually RUN it? Decided before the sizing walk
+         * (above), and before the disk maths here, because a title the box
+         * cannot run should not be charged against the space a title it CAN
+         * run needs. */
+        if (gated[i]) {
+            log_msg(LOG_GS, "GATED %s - %s", titles[i], gated_why[i]);
+            EnterCriticalSection(&g_gs_lock);
+            g_gs.gated_titles++;
+            /* Its bytes were never added to the target (it was not sized),
+             * so the percentage still reaches 100 without subtracting. */
+            LeaveCriticalSection(&g_gs_lock);
+            gs_restore_shortcuts_if_installed(titles[i]);
+            continue;
         }
 
         /* Re-measure per title: earlier titles have just consumed space, and
          * on a period disk the difference decides whether this one fits. */
         freeb = gs_free_bytes("C:\\");
-        {
+        /* The credit below walks the INSTALLED tree, so take it only when it
+         * can change the answer: if the title fits without it, it fits with it
+         * (the credit is never negative). Same verdict, and a box with room to
+         * spare no longer walks every installed title on every sync. */
+        if (freeb >= 0 && sizes[i] + GS_FREE_MARGIN > freeb) {
             /* A title ALREADY INSTALLED is being updated, not added, so what it
              * needs is the difference - the space its current copy occupies is
              * about to be reused. Charging it the full size meant an installed

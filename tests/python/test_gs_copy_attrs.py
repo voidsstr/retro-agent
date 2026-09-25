@@ -66,7 +66,9 @@ def test_attributes_are_cleared_before_the_destination_is_opened():
 def test_the_early_size_match_still_short_circuits():
     """The fix must not cost a full re-copy of every already-present file."""
     body = _fn(_src(), "static int gs_copy_file(")
-    early = body.index("already == src_size")
+    # 1.85.0: the size+time test is gsr_decide() (agent/shared/gsresume.h);
+    # its SKIP is the early-out.
+    early = body.index("if (verdict == GSR_SKIP)")
     set_at = body.index("SetFileAttributesA")
     assert early < set_at, (
         "the same-size early-out must stay ahead of the attribute clear, or "

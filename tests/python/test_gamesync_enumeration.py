@@ -71,11 +71,15 @@ def test_sizing_does_not_happen_inside_the_find_loop():
 
 
 def test_the_names_are_collected_then_sized_afterwards():
-    """The sizing pass must exist, after FindClose, over the collected names."""
+    """The sizing pass must exist, after FindClose, over the collected names.
+
+    (1.85.0: it moved below the _priority.txt ordering, because it now runs
+    after the capability gate - a title the gate refuses is never walked. See
+    test_gamesync_efficiency.py.)"""
     code = _strip_comments(GAMESYNC.read_text(errors="replace"))
     body = _gs_run(code)
     close_at = body.index("FindClose(h)")
-    after = body[close_at:body.index("_priority.txt", close_at)]
+    after = body[close_at:body.index("gs_mkdir_p(GS_DEST)", close_at)]
     assert "gs_dir_size" in after, \
         "the per-title sizing pass has gone missing after FindClose"
     assert "sizes[i]" in after and "grand" in after, \
@@ -145,9 +149,14 @@ def test_a_disk_refusal_defers_to_the_real_room_check():
         "on .240 a FarCry that was installed AND verified read deploy=gated, "
         "and on .243 the operator was told a Pentium 1 cannot RUN Warcraft II"
     )
-    assert "gated_titles++" in block, \
+    # 1.85.0: the gate is asked before the sizing walk and its verdict kept in
+    # gated[]; the copy loop acts on it. The counters are unchanged.
+    assert "gated[i] = 1" in block
+    copy_at = body.index("if (gated[i])")
+    gated_branch = body[copy_at:body.index("continue;", copy_at)]
+    assert "gated_titles++" in gated_branch, \
         "a genuine capability refusal must still count as gated"
-    assert "skipped_titles++" not in block, \
+    assert "skipped_titles++" not in block + gated_branch, \
         "the gate must not decide disk; the room check owns that counter"
 
     # ...and the room check, which does own it, is what bumps the counter.
