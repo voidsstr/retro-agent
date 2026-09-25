@@ -142,8 +142,22 @@ lanes stage `C:\WINDOWS\system32\retroicd.dll` (registration must read
 `retroicd.dll`; rollback `reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\3dfx" /v DLL /t REG_SZ /d 3dfxOGL.dll /f`).
 All-ours RtCW cfg 5 done (`allours-rtcw/cfg5b`). `.124` agent is 1.85.0 (auto-updated 02:16).
 
-**Next:** profile RtCW (ours trails Wicked3D 17-32 %); cfg 2 and cfg 0 all-ours
-rows incl. Quake II single-pass (sweep reboot); decide SGIS default from them.
+**Update 05:05** — ICD **0.1.75**: Quake II single-pass is the DEFAULT now
+(+63..71 % on one chip at every resolution; `FX_SGIS_MULTITEXTURE=0` = two-pass;
+rows say which path ran in `notes`). cfg 0 all-ours done on 0.1.74
+(`allours-0174-cfg0/`: Q2 both paths, Q3, RtCW). RtCW is GPU-bound on four
+chips (~19 % of CPU waiting in grBufferSwap); our LOD bias −0.5 costs up to 9 %
+there (left as default - decision for the user). **Wicked3D renders 16-bit at
+every requested depth** → its RtCW "32-bit" rows are retracted (dossier #5);
+specpicks loader fixed (`f2610e0`) but **not run against the live DB**.
+System ICD on `.124` is now `retroicd.dll` **0.1.75**. CS 1.6 unchanged by the
+SGIS default.
+
+**In flight:** `allours-0175-cfg2` (systemd unit) - sweep reboot into cfg 2, then
+all-ours Q2 (single + two-pass), Q3, RtCW → `results/…/allours-0175-cfg2/`.
+**Next:** reboot back to cfg 5 (the card's default) and re-run all-ours on
+0.1.75 for the final four-chip table (Q2 single-pass full ladder, Q3 with 0.1.73's
+lazy unit select, RtCW).
 
 ### Resume point (2026-09-24 08:39) — `.124` WEDGED during the clean-room smoke test; needs a power cycle
 
