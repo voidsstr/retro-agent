@@ -35,6 +35,7 @@
  */
 
 #include <windows.h>
+#include <tlhelp32.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -44,6 +45,7 @@
 #include "ntdyn.h"
 #include "hostpolicy.h"
 #include "bgwork.h"
+#include "../shared/rwcompare.h"
 
 #define WALLDIR        "C:\\retro-wall"
 #define ROTATE_EXE     WALLDIR "\\rotate_wall.exe"
@@ -97,6 +99,21 @@ static int hkcu_get_sz(const char *subkey, const char *name, char *buf, DWORD bu
         return -1;
     buf[bufsize - 1] = '\0';
     return 0;
+}
+
+/* How many things this startup pass actually CHANGED - so the log can say
+ * "already the fleet desktop" instead of reciting every step it skipped. */
+static int g_rw_changed;
+
+/* Set a REG_SZ only if it is not already that value. Returns 1 if it wrote. */
+static int hkcu_ensure_sz(const char *subkey, const char *name, const char *value)
+{
+    char cur[MAX_PATH];
+    if (hkcu_get_sz(subkey, name, cur, sizeof(cur)) == 0 && rw_ieq(cur, value))
+        return 0;
+    hkcu_set_sz(subkey, name, value);
+    g_rw_changed++;
+    return 1;
 }
 
 /* Launch a process. If wait_ms > 0, wait up to that long for it to exit. */
@@ -185,19 +202,39 @@ static void stop_and_disable_themes(void)
         return;
     }
     if (ntdyn_QueryServiceStatus(svc, &st) && st.dwCurrentState != SERVICE_STOPPED) {
-        if (ntdyn_ControlService(svc, SERVICE_CONTROL_STOP, &st))
+        if (ntdyn_ControlService(svc, SERVICE_CONTROL_STOP, &st)) {
             log_msg(LOG_MAIN, "retrowall: stopped the Themes service (Luna off)");
+            g_rw_changed++;
+        }
         else
             log_msg(LOG_MAIN, "retrowall: could not stop Themes (%lu) - the "
                               "desktop may stay part-themed", GetLastError());
         Sleep(1500);
     }
     /* Disabled, not Manual: on Manual something else can start it again and the
-     * box silently reverts to half-themed after a reboot. */
-    if (ntdyn_ChangeServiceConfigA(svc, SERVICE_NO_CHANGE, SERVICE_DISABLED,
-                                   SERVICE_NO_CHANGE, NULL, NULL, NULL, NULL,
-                                   NULL, NULL, NULL))
-        log_msg(LOG_MAIN, "retrowall: Themes service set to Disabled");
+     * box silently reverts to half-themed after a reboot. Read the start type
+     * first - once it is Disabled there is nothing to change, and this used
+     * to rewrite it (and log that it had) on every boot. */
+    {
+        HKEY  k;
+        DWORD start = 0, n = sizeof(start), ty = 0;
+        int   disabled = 0;
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
+                          "SYSTEM\\CurrentControlSet\\Services\\Themes", 0,
+                          KEY_QUERY_VALUE, &k) == ERROR_SUCCESS) {
+            disabled = RegQueryValueExA(k, "Start", NULL, &ty, (BYTE *)&start,
+                                        &n) == ERROR_SUCCESS &&
+                       ty == REG_DWORD && start == SERVICE_DISABLED;
+            RegCloseKey(k);
+        }
+        if (!disabled &&
+            ntdyn_ChangeServiceConfigA(svc, SERVICE_NO_CHANGE, SERVICE_DISABLED,
+                                       SERVICE_NO_CHANGE, NULL, NULL, NULL, NULL,
+                                       NULL, NULL, NULL)) {
+            log_msg(LOG_MAIN, "retrowall: Themes service set to Disabled");
+            g_rw_changed++;
+        }
+    }
     ntdyn_CloseServiceHandle(svc);
     ntdyn_CloseServiceHandle(scm);
 }
@@ -268,30 +305,46 @@ static const struct {
     {"MenuHilight",          COLOR_MENUHILIGHT,                0, 112,   0},
 };
 
+/* uxtheme.dll's IsThemeActive (XP+): is a visual style in force right now? */
+typedef BOOL (WINAPI *IsThemeActive_t)(void);
+
 static void apply_hacker_theme(void)
 {
     int n = (int)(sizeof(HACKER_COLORS) / sizeof(HACKER_COLORS[0]));
     int idx[64];
     COLORREF rgb[64];
-    int i;
+    unsigned long cur[64], want[64];
+    int supported[64];
+    int i, colors_live = 0, style_changed = 0, reg_before = g_rw_changed;
 
-    /* 1. Persist the green scheme to HKCU\Control Panel\Colors and build the
-     *    live SetSysColors arrays. */
+    /* 1. Persist the green scheme to HKCU\Control Panel\Colors - only the
+     *    values that differ - and build the live SetSysColors arrays. */
     for (i = 0; i < n && i < 64; i++) {
         char val[32];
         _snprintf(val, sizeof(val), "%d %d %d",
                   HACKER_COLORS[i].r, HACKER_COLORS[i].g, HACKER_COLORS[i].b);
-        hkcu_set_sz("Control Panel\\Colors", HACKER_COLORS[i].reg_name, val);
+        hkcu_ensure_sz("Control Panel\\Colors", HACKER_COLORS[i].reg_name, val);
         idx[i] = HACKER_COLORS[i].idx;
         rgb[i] = RGB(HACKER_COLORS[i].r, HACKER_COLORS[i].g,
                      HACKER_COLORS[i].b);
+        want[i] = (unsigned long)rgb[i];
+        cur[i] = (unsigned long)GetSysColor(idx[i]);
+        /* an index this Windows lacks has no brush and can never read back */
+        supported[i] = GetSysColorBrush(idx[i]) != NULL;
     }
-    /* 2. Apply the colors live (SetSysColors broadcasts WM_SYSCOLORCHANGE). */
-    SetSysColors(n < 64 ? n : 64, idx, rgb);
+    /* 2. Apply the colors live - ONLY if they are not live already.
+     *    SetSysColors broadcasts WM_SYSCOLORCHANGE and every window repaints;
+     *    doing that on every boot for colours that were already right is the
+     *    cost this check removes. */
+    if (rw_colors_need_apply(cur, want, supported, n < 64 ? n : 64)) {
+        SetSysColors(n < 64 ? n : 64, idx, rgb);
+        colors_live = 1;
+        g_rw_changed++;
+    }
 
     /* 3. Turn off the Luna visual style -> Classic. Persist for next logon. */
-    hkcu_set_sz("Software\\Microsoft\\Windows\\CurrentVersion\\ThemeManager",
-                "ThemeActive", "0");
+    hkcu_ensure_sz("Software\\Microsoft\\Windows\\CurrentVersion\\ThemeManager",
+                   "ThemeActive", "0");
     /* The registry value alone does NOT switch Luna off. The Themes service
      * re-applies the visual style, so a machine ends up half-themed: system
      * colours black-and-green as we asked, but blue XP title bars and blue
@@ -320,22 +373,32 @@ static void apply_hacker_theme(void)
         if (ux) {
             SetSystemVisualStyle_t fn =
                 (SetSystemVisualStyle_t)GetProcAddress(ux, (LPCSTR)65);
-            if (fn) {
+            IsThemeActive_t active =
+                (IsThemeActive_t)GetProcAddress(ux, "IsThemeActive");
+            /* Switch to Classic only when a visual style is actually in force.
+             * Switching an already-Classic session re-themes every window for
+             * nothing. (No IsThemeActive: cannot tell, so do it as before.) */
+            if (fn && (!active || active())) {
                 HRESULT hr = fn(L"", L"", L"", 0);
                 log_msg(LOG_MAIN,
                         "retrowall: SetSystemVisualStyle(classic) hr=0x%lx",
                         (unsigned long)hr);
+                style_changed = 1;
+                g_rw_changed++;
             }
             FreeLibrary(ux);
         }
     }
-    /* 4. Nudge running apps to repaint in the new (classic) style + colors. */
-    SendMessageTimeoutA(HWND_BROADCAST, WM_THEMECHANGED, 0, 0,
-                        SMTO_ABORTIFHUNG, 2000, NULL);
-    SendMessageTimeoutA(HWND_BROADCAST, WM_SYSCOLORCHANGE, 0, 0,
-                        SMTO_ABORTIFHUNG, 2000, NULL);
-    log_msg(LOG_MAIN, "retrowall: applied green-on-black hacker theme "
-                      "(Luna off + green colors)");
+    /* 4. Nudge running apps to repaint - only for what actually changed. */
+    if (style_changed)
+        SendMessageTimeoutA(HWND_BROADCAST, WM_THEMECHANGED, 0, 0,
+                            SMTO_ABORTIFHUNG, 2000, NULL);
+    if (colors_live || style_changed)
+        SendMessageTimeoutA(HWND_BROADCAST, WM_SYSCOLORCHANGE, 0, 0,
+                            SMTO_ABORTIFHUNG, 2000, NULL);
+    if (g_rw_changed != reg_before)
+        log_msg(LOG_MAIN, "retrowall: applied green-on-black hacker theme "
+                          "(Luna off + green colors)");
 }
 
 /*
@@ -349,6 +412,12 @@ static void apply_hacker_theme(void)
 #endif
 #ifndef SPI_SETSCREENSAVETIMEOUT
 #define SPI_SETSCREENSAVETIMEOUT 0x000F
+#endif
+#ifndef SPI_GETSCREENSAVEACTIVE
+#define SPI_GETSCREENSAVEACTIVE 0x0010
+#endif
+#ifndef SPI_GETSCREENSAVETIMEOUT
+#define SPI_GETSCREENSAVETIMEOUT 0x000E
 #endif
 
 static void set_starfield_screensaver(void)
@@ -371,14 +440,36 @@ static void set_starfield_screensaver(void)
         log_msg(LOG_MAIN, "retrowall: no ssstars.scr found, screensaver unset");
         return;
     }
-    hkcu_set_sz(DESKTOP_KEY, "SCRNSAVE.EXE", scr);
-    hkcu_set_sz(DESKTOP_KEY, "ScreenSaveActive", "1");
-    hkcu_set_sz(DESKTOP_KEY, "ScreenSaveTimeOut", "600");     /* 10 minutes */
-    SystemParametersInfoA(SPI_SETSCREENSAVEACTIVE, TRUE, NULL,
-                          SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-    SystemParametersInfoA(SPI_SETSCREENSAVETIMEOUT, 600, NULL,
-                          SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-    log_msg(LOG_MAIN, "retrowall: screensaver set to Starfield (%s)", scr);
+    {
+        int before = g_rw_changed, sets;
+        BOOL active = FALSE;
+        int  timeout = 0;
+        int  active_known, timeout_known;
+
+        hkcu_ensure_sz(DESKTOP_KEY, "SCRNSAVE.EXE", scr);
+        hkcu_ensure_sz(DESKTOP_KEY, "ScreenSaveActive", "1");
+        hkcu_ensure_sz(DESKTOP_KEY, "ScreenSaveTimeOut", "600");  /* 10 min */
+        /* Each SPIF_SENDWININICHANGE is a broadcast to every top-level
+         * window; ask first and send only what differs. */
+        active_known = SystemParametersInfoA(SPI_GETSCREENSAVEACTIVE, 0,
+                                             &active, 0) != 0;
+        timeout_known = SystemParametersInfoA(SPI_GETSCREENSAVETIMEOUT, 0,
+                                              &timeout, 0) != 0;
+        sets = rw_screensaver_sets(active_known, active != FALSE,
+                                   timeout_known, timeout, 600);
+        if (sets & RW_SS_SET_ACTIVE) {
+            SystemParametersInfoA(SPI_SETSCREENSAVEACTIVE, TRUE, NULL,
+                                  SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+            g_rw_changed++;
+        }
+        if (sets & RW_SS_SET_TIMEOUT) {
+            SystemParametersInfoA(SPI_SETSCREENSAVETIMEOUT, 600, NULL,
+                                  SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+            g_rw_changed++;
+        }
+        if (g_rw_changed != before)
+            log_msg(LOG_MAIN, "retrowall: screensaver set to Starfield (%s)", scr);
+    }
 }
 
 /*
@@ -403,15 +494,53 @@ static void set_starfield_screensaver(void)
  *
  * Only called once a fleet wallpaper has been applied, so a box that still
  * depends on the rotation is never touched. */
+/* Kill every running process whose image is `exe`. Returns how many.
+ *
+ * This used to be `cmd.exe /c taskkill /f /im rotate_wall.exe`, spawned (two
+ * process creations and a wait of up to 10 s) on EVERY boot of every box with a
+ * fleet wallpaper - long after rotate_wall.exe had been renamed .superseded and
+ * could not be running. A Toolhelp walk costs one snapshot, and nothing at all
+ * is started or killed unless the process is actually there. Same approach as
+ * kill_retro_chat() in autoupdate.c, comparing the image's BASE name: on
+ * Windows 9x szExeFile is the full path. */
+static int kill_by_image(const char *exe)
+{
+    HANDLE snap;
+    PROCESSENTRY32 pe;
+    int killed = 0;
+
+    snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snap == INVALID_HANDLE_VALUE)
+        return 0;
+    pe.dwSize = sizeof(pe);
+    if (Process32First(snap, &pe)) {
+        do {
+            if (rw_image_is(pe.szExeFile, exe)) {
+                HANDLE h = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
+                if (h) {
+                    if (TerminateProcess(h, 1))
+                        killed++;
+                    CloseHandle(h);
+                }
+            }
+        } while (Process32Next(snap, &pe));
+    }
+    CloseHandle(snap);
+    return killed;
+}
+
 static void stop_wallpaper_rotation(void)
 {
     HKEY  k;
     DWORD n = 0;
+    int   killed;
 
-    /* The running instance. taskkill rather than a handle-based kill: it is a
-     * separate GUI process we did not start and may not own. */
-    run_process("cmd.exe /c taskkill /f /im rotate_wall.exe", 10000);
-    n++;
+    /* The running instance, if there is one. */
+    killed = kill_by_image("rotate_wall.exe");
+    if (killed) {
+        log_msg(LOG_MAIN, "retrowall: stopped %d running rotate_wall.exe", killed);
+        n++;
+    }
 
     /* ...and the Run key that would start a fresh one at the next logon.
      *
@@ -482,8 +611,10 @@ static void stop_wallpaper_rotation(void)
         }
     }
 
-    if (n)
+    if (n) {
         log_msg(LOG_MAIN, "retrowall: legacy wallpaper rotation stopped");
+        g_rw_changed++;
+    }
 }
 
 /* Returns 1 if a fleet wallpaper was found and applied. The caller uses that
@@ -576,14 +707,28 @@ static int apply_fleet_wallpaper(void)
     }
 
     /* Centred, not stretched: the bay is drawn in exact pixels and stretching
-     * it would put the icons out of their slots. */
-    hkcu_set_sz(DESKTOP_KEY, "WallpaperStyle", "0");
-    hkcu_set_sz(DESKTOP_KEY, "TileWallpaper", "0");
-    hkcu_set_sz(DESKTOP_KEY, "Wallpaper", best);
-    SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, best,
-                          SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-    log_msg(LOG_MAIN, "retrowall: wallpaper set to %s (screen %dx%d)", best, sw, sh);
+     * it would put the icons out of their slots.
+     *
+     * Only if it is not ALREADY the wallpaper - the same test the keeper below
+     * uses. SPI_SETDESKWALLPAPER reloads and decodes the bitmap (6 MB at
+     * 1920x1080), repaints the desktop and broadcasts WM_SETTINGCHANGE; it was
+     * doing all of that on every boot for the wallpaper already on screen. */
     safe_strncpy(g_fleet_wall, best, sizeof(g_fleet_wall));
+    {
+        char cur[MAX_PATH];
+        int  same = hkcu_get_sz(DESKTOP_KEY, "Wallpaper", cur, sizeof(cur)) == 0
+                    && rw_ieq(cur, best);
+        int  style = hkcu_ensure_sz(DESKTOP_KEY, "WallpaperStyle", "0") |
+                     hkcu_ensure_sz(DESKTOP_KEY, "TileWallpaper", "0");
+        if (same && !style)
+            return 1;
+        hkcu_set_sz(DESKTOP_KEY, "Wallpaper", best);
+        SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, best,
+                              SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+        g_rw_changed++;
+        log_msg(LOG_MAIN, "retrowall: wallpaper set to %s (screen %dx%d)",
+                best, sw, sh);
+    }
     return 1;
 }
 
@@ -640,6 +785,7 @@ void retrowall_apply_startup(void)
      * retrowall_thread() so a future caller cannot reach it another way. */
     if (host_policy_skip("retrowall (theme, wallpaper, screensaver, icon layout)"))
         return;
+    g_rw_changed = 0;
 
     /* The THEME and the SCREENSAVER need nothing staged - the theme is registry
      * plus a colour call, and the screensaver falls back to XP's own
@@ -689,8 +835,13 @@ void retrowall_apply_startup(void)
          * replaced by wall04.bmp seconds later. Stop the process and remove the
          * Run key, or the change does not survive the minute it was made in. */
         stop_wallpaper_rotation();
-        log_msg(LOG_MAIN, "retrowall: fleet wallpaper applied; older rotation "
-                          "stopped so it cannot replace it");
+        if (g_rw_changed)
+            log_msg(LOG_MAIN, "retrowall: fleet desktop applied (%d change(s)); "
+                              "older rotation stopped so it cannot replace it",
+                    g_rw_changed);
+        else
+            log_msg(LOG_MAIN, "retrowall: desktop already the fleet's - theme, "
+                              "screensaver and wallpaper left as they were");
         return;
     }
 
