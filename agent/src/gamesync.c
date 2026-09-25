@@ -72,7 +72,10 @@
  * confusing ways long before it reports "disk full". */
 #define GS_FREE_MARGIN     ((__int64)300 * 1024 * 1024)
 #define GS_LOG_EVERY_MS    2000
-#define GS_FIRST_DELAY_MS  20000
+/* Staggered behind retrowall (20 s) and ahead of the game index (120 s):
+ * until 1.85.0 all three woke at 20 s and hit the disk and the shell at
+ * once, on boxes that were still finishing their own logon. */
+#define GS_FIRST_DELAY_MS  40000
 
 enum { GS_IDLE = 0, GS_SIZING, GS_COPYING, GS_DONE, GS_FAILED, GS_SKIPPED };
 

@@ -57,7 +57,9 @@
 #define RUN_VALUE      "RetroWallRotate"
 #define DESKTOP_KEY    "Control Panel\\Desktop"
 
-/* Let the shell/desktop finish coming up before we touch it. */
+/* Let the shell/desktop finish coming up before we touch it. The first of
+ * the staggered startup helpers: GAMESYNC follows at 40 s, GAMEINDEX at
+ * 120 s (tests/python/test_agent_startup_stagger.py). */
 #define RETROWALL_DELAY_SEC  20
 /* How often to check that the fleet wallpaper is still the wallpaper. */
 #define RETROWALL_KEEP_SEC   300
