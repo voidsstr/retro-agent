@@ -171,3 +171,18 @@ def test_the_log_lock_lifts_an_idle_holder():
         assert b.index("LeaveCriticalSection(&g_log_cs)") < b.index("log_unlift("), fn
     # the crash logger must stay lock-free and call-free
     assert "log_lift" not in code_only(body(log, "log_crash"))
+
+
+def test_the_9x_clock_measurement_is_not_skewed_by_running_idle():
+    """hwprofile's Win9x CPU clock is TSC ticks across a QPC interval. On an
+    IDLE helper (GAMESYNC's gate, the hardware publish) a game can preempt
+    between a QPC and its TSC read, skewing the MHz - which feeds the profile
+    hash that names the box's published gate verdicts. The measurement runs at
+    TIME_CRITICAL and puts the thread's own priority back afterwards."""
+    b = code_only(body(read("hwprofile.c"), "cpu_mhz_measure"))
+    raise_at = b.index("SetThreadPriority(me, THREAD_PRIORITY_TIME_CRITICAL)")
+    assert b.index("was = GetThreadPriority(me)") < raise_at
+    assert raise_at < b.index("QueryPerformanceCounter(&t0)")
+    assert b.index("QueryPerformanceCounter(&t1)") < b.index("SetThreadPriority(me, was)")
+    assert "THREAD_PRIORITY_ERROR_RETURN" in b, \
+        "never raise a thread whose priority could not be read back"

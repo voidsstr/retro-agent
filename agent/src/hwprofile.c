@@ -230,14 +230,29 @@ static DWORD cpu_mhz_measure(void)
     LARGE_INTEGER f, t0, t1;
     unsigned long long c0, c1, cycles;
     double secs, mhz;
+    HANDLE me = GetCurrentThread();
+    int    was;
 
     if (!QueryPerformanceFrequency(&f) || f.QuadPart == 0)
         return 0;
+    /* TIME_CRITICAL for the measurement. The two readings at each end must be
+     * taken back to back: a preemption between a QPC and its TSC read shortens
+     * one interval and not the other, and the error lands in the MHz figure -
+     * which feeds the profile hash, the name of the box's published gate
+     * verdicts. Since 1.85.0 this runs on background helpers (GAMESYNC's gate,
+     * the hardware publish) at THREAD_PRIORITY_IDLE, where a game can hold the
+     * CPU across that gap for tens of milliseconds. The raise costs nothing:
+     * the 120 ms in the middle is a Sleep. */
+    was = GetThreadPriority(me);
+    if (was != THREAD_PRIORITY_ERROR_RETURN)
+        SetThreadPriority(me, THREAD_PRIORITY_TIME_CRITICAL);
     QueryPerformanceCounter(&t0);
     c0 = read_tsc();
     Sleep(120);
     c1 = read_tsc();
     QueryPerformanceCounter(&t1);
+    if (was != THREAD_PRIORITY_ERROR_RETURN)
+        SetThreadPriority(me, was);
 
     if (t1.QuadPart <= t0.QuadPart || c1 <= c0)
         return 0;
