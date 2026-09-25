@@ -87,13 +87,24 @@ async def smoke(box, title, wait):
     keep = [l for l in trace if any(k in l for k in (
         "LOADED by", "DrvValidateVersion", "SUCCESS glideContext", "BAIL", "FAILED",
         "fxBestRefresh", "grSstWinOpenExt: win"))]
-    for pid, name in new:
-        if name.lower() not in ("cmd.exe", "conhost.exe"):
+    # Close GRACEFULLY first (WM_CLOSE via taskkill without /f), force only if
+    # it is still there. 2026-09-24: the box wedged solid (every service down,
+    # power cycle needed) seconds after this harness hard-killed sof2mp.exe
+    # mid-frame in a fullscreen Glide context - the next title never even
+    # loaded an ICD. Then give the board time to settle before the next title.
+    games = [(pid, name) for pid, name in new
+             if name.lower() not in ("cmd.exe", "conhost.exe", "wmiprvse.exe", "ping.exe")]
+    for pid, name in games:
+        await box.text(f"EXEC cmd /c taskkill /pid {pid}")
+    await asyncio.sleep(10)
+    alive = {pid for pid, _ in await box.procs()}
+    for pid, name in games:
+        if pid in alive:
             try:
                 await box.text(f"PROCKILL {pid}")
             except Exception:
                 pass
-    await asyncio.sleep(4)
+    await asyncio.sleep(15)
     return {"title": title, "launch": target, "new_processes": [n for _, n in new],
             "alive_after_s": wait, "icd_loaded": any("LOADED by" in l for l in trace),
             "context_ok": any("SUCCESS glideContext" in l for l in trace),
