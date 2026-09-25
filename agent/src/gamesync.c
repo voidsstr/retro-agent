@@ -488,12 +488,18 @@ static int gs_same_mtime(const FILETIME *a, const FILETIME *b)
     return d <= GS_MTIME_SLACK_100NS;
 }
 
+/* How many times one file's copy may reopen its source after a failed read.
+ * See the read loop in gs_copy_file(). */
+#define GS_READ_RETRIES   6
+
 static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
 {
     HANDLE hs, hd;
     char  *buf;
     DWORD  rd, wr;
     int    ok = 1;
+    int    retries = 0;
+    __int64 copied = 0, last_fail_at = 0;
     __int64 already;
     FILETIME src_ft, dst_ft;
 
@@ -562,7 +568,50 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
             break;
         }
         if (!ReadFile(hs, buf, GS_CHUNK, &rd, NULL)) {
-            log_msg(LOG_GS, "read failed (%lu): %s", GetLastError(), src);
+            DWORD err = GetLastError();
+            /* A failed read is not the end of the file. Win98's network client
+             * drops long SMB reads from the NAS - error 55, "the specified
+             * network resource is no longer available" - and on .243
+             * (2026-09-24) it did so on every run, 7-40 s into Hexen II's 22 MB
+             * and 77 MB paks. Giving up there abandoned the whole file, so the
+             * box never got its marker and re-walked the entire library every
+             * 120 s. Reopening the source reconnects the session; resume from
+             * the byte we reached. Bounded, logged, and the abort flag still
+             * wins. */
+            /* The budget refills once 8 MB has crossed since the last failure,
+             * so a long file on a flaky link can resume as often as it keeps
+             * making progress, while a source that fails at the same byte
+             * every time still gives up after GS_READ_RETRIES tries. */
+            if (copied - last_fail_at >= 8 * 1024 * 1024)
+                retries = 0;
+            last_fail_at = copied;
+            if (retries < GS_READ_RETRIES) {
+                LONG  hi = (LONG)(copied >> 32);
+                DWORD lo;
+                retries++;
+                log_msg(LOG_GS, "read failed (%lu) at %I64d of %I64d bytes - "
+                        "reopening and resuming (retry %d/%d): %s",
+                        err, copied, src_size, retries, GS_READ_RETRIES, src);
+                CloseHandle(hs);
+                Sleep(3000);
+                hs = CreateFileA(src, GENERIC_READ, FILE_SHARE_READ, NULL,
+                                 OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+                if (hs != INVALID_HANDLE_VALUE) {
+                    lo = SetFilePointer(hs, (LONG)(copied & 0xFFFFFFFF), &hi, FILE_BEGIN);
+                    if (lo != 0xFFFFFFFFUL || GetLastError() == NO_ERROR)
+                        continue;
+                    log_msg(LOG_GS, "resume: could not seek to %I64d (%lu): %s",
+                            copied, GetLastError(), src);
+                } else {
+                    log_msg(LOG_GS, "resume: could not reopen (%lu): %s",
+                            GetLastError(), src);
+                }
+            } else {
+                log_msg(LOG_GS, "read failed (%lu) after %d resumes - giving up: %s",
+                        err, GS_READ_RETRIES, src);
+            }
+            if (hs == INVALID_HANDLE_VALUE)
+                hs = NULL;              /* nothing left to close below */
             ok = 0;
             break;
         }
@@ -573,6 +622,7 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
             ok = 0;
             break;
         }
+        copied += rd;
         gs_note_progress((__int64)rd);
     }
     HeapFree(GetProcessHeap(), 0, buf);
@@ -586,7 +636,8 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size)
         if (GetFileTime(hs, NULL, NULL, &ft))
             SetFileTime(hd, NULL, NULL, &ft);
     }
-    CloseHandle(hs);
+    if (hs)
+        CloseHandle(hs);
     CloseHandle(hd);
     if (!ok)
         DeleteFileA(dst);      /* never leave a truncated file looking complete */
