@@ -273,3 +273,18 @@ def test_enough_client_slots_for_local_chat_plus_daemon():
     assert int(mm.group(1)) >= 6, (
         "need room for the local chat client (3) + daemon (2) + an operator; "
         "got %s" % mm.group(1))
+
+
+def test_win9x_agent_terminates_itself_after_a_clean_shutdown():
+    """1.85.0. On .243 (Win98 SE) 1.84.2 logged "shutdown complete; exiting
+    process" at QUIT and was still running 120 s later: ExitProcess on 9x runs
+    every DLL's PROCESS_DETACH and one of them blocked. The swap tool gave up
+    and the box had no agent until a person restarted it. After the log is
+    closed, a 9x agent ends itself with TerminateProcess."""
+    src = _read(os.path.join(REPO, "agent", "src", "main.c"))
+    tail = src[src.index('"shutdown complete; exiting process"'):]
+    tail = tail[:tail.index("\nint main(")]
+    assert tail.index("log_shutdown();") < tail.index("TerminateProcess(GetCurrentProcess(), 0)"), \
+        "the log must be flushed and closed before the hard exit"
+    assert "if (GetVersion() & 0x80000000)\n        TerminateProcess(GetCurrentProcess(), 0);" in tail
+    assert tail.rstrip().endswith("ExitProcess(0);\n}") or "ExitProcess(0);" in tail

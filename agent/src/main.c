@@ -1543,7 +1543,20 @@ void agent_run(void)
      * agent on a Win9x box needs physical access to fix.
      * (The exit marker is logged above, before log_shutdown() closes the
      * file — logging it here would only reach the console.)
+     *
+     * WIN9x: ExitProcess IS NOT ENOUGH. It runs every DLL's PROCESS_DETACH,
+     * and on Windows 9x that can block for good behind a helper thread that
+     * is mid-way through a network-redirector or Winsock call. Measured on
+     * .243 (Win98 SE, 2026-09-25): 1.84.2 logged "shutdown complete; exiting
+     * process" at QUIT and the process was STILL RUNNING 120 s later, so the
+     * rollback-guarded swap tool gave up and the box was left with no agent
+     * until someone restarted it. Everything worth keeping is flushed and
+     * closed by now, so on 9x the process ends itself outright;
+     * TerminateProcess notifies no DLL and cannot wait on anyone. NT's
+     * ExitProcess has never been seen to hang here and keeps the clean path.
      */
+    if (GetVersion() & 0x80000000)
+        TerminateProcess(GetCurrentProcess(), 0);
     ExitProcess(0);
 }
 
