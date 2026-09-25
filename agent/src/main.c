@@ -69,6 +69,7 @@
 #include "handlers.h"
 #include "util.h"
 #include "log.h"
+#include "chatproxy.h"
 
 #ifndef AGENT_VERSION
 #define AGENT_VERSION "0.0.0"
@@ -101,12 +102,13 @@ typedef struct {
     int    poll_logged;   /* this connection's first long-poll is already logged */
     DWORD  last_active;   /* GetTickCount of the last byte from this client */
     char   addr_str[24];  /* "x.x.x.x:port" for logging */
+    chat_park_t park;     /* a chat long-poll waiting for its answer (chatproxy.h) */
 } client_slot_t;
 
 /*
  * The chat long-polls are logged ONCE per connection, not every time.
  *
- * On Win9x a long-poll is clamped to 1s (g_longpoll_max_ms), so a local
+ * On Win9x a long-poll was clamped to 1s (it is parked now), so a local
  * retro_chat alone wrote a CMD line plus two frame lines every second per
  * poller and rotated the 512 KB agent.log / agent.log.1 pair in about two
  * hours. On .243 (2026-09-24) the entire boot - the PCIRESCUE result, the
@@ -135,8 +137,8 @@ static int cmd_is_longpoll(const char *buf, DWORD len)
  * is unreachable while looking perfectly healthy.
  *
  * Comfortably longer than any legitimate quiet period: the longest thing a
- * client does without speaking is a LOG_WAIT/STATUS_WAIT long-poll, capped at
- * 30s (1s on Win9x), so anything silent for five minutes is gone.
+ * client does without speaking is a chat long-poll, capped at
+ * CHAT_WAIT_MAX_TIMEOUT_MS (60s), so anything silent for five minutes is gone.
  */
 #define CLIENT_IDLE_MS  300000
 
@@ -578,6 +580,7 @@ static void clients_init(void)
         g_clients[i].sock = INVALID_SOCKET;
         g_clients[i].authed = 0;
         g_clients[i].addr_str[0] = '\0';
+        g_clients[i].park.kind = CHAT_PARK_NONE;
     }
 }
 
@@ -604,6 +607,11 @@ static void client_drop(int slot)
     if (g_clients[slot].sock != INVALID_SOCKET) {
         log_msg(LOG_MAIN, "Client %d (%s) disconnected",
                 slot, g_clients[slot].addr_str);
+        /* Before closesocket, while the handle cannot have been reused: a
+         * parked poll is forgotten, and a prompt this connection took but
+         * never acknowledged goes back for the next poller. */
+        chatproxy_park_clear(&g_clients[slot].park);
+        chatproxy_conn_closed(g_clients[slot].sock);
         closesocket(g_clients[slot].sock);
         g_clients[slot].sock = INVALID_SOCKET;
         g_clients[slot].authed = 0;
@@ -652,6 +660,17 @@ static int client_process(int slot)
         return 0;
     }
 
+    /* A client that sends another command while its own long-poll is still
+     * parked has moved on from it: answer that poll first, so replies stay
+     * in the order they were asked for. */
+    if (cl->park.kind != CHAT_PARK_NONE &&
+        chatproxy_park_service(cl->sock, &cl->park, GetTickCount(), 1) < 0) {
+        HeapFree(GetProcessHeap(), 0, buf);
+        return -1;
+    }
+    /* ...and this command acknowledges a prompt its last poll delivered */
+    chatproxy_conn_command(cl->sock);
+
     {
         int poll = cmd_is_longpoll(buf, len);
         if (!poll || !cl->poll_logged) {
@@ -667,6 +686,10 @@ static int client_process(int slot)
         }
     }
 
+    /* A chat long-poll PARKS in this slot instead of blocking the one
+     * thread every client shares (chatproxy.h); service_parked_polls()
+     * answers it when its condition or deadline is met. */
+    chatproxy_set_park_slot(&cl->park);
     {
         handler_state_t *hs = handler_state();
         if (!hs) {
@@ -680,12 +703,33 @@ static int client_process(int slot)
             hs->in_handler = 0;
             log_msg(LOG_MAIN, "[%d] Exception 0x%08lX processing command",
                     slot, (unsigned long)hs->exception_code);
+            chatproxy_park_clear(&cl->park);   /* the handler never finished */
             send_error_response(cl->sock, "Internal error: exception in handler");
         }
     }
+    chatproxy_set_park_slot(NULL);
 
     HeapFree(GetProcessHeap(), 0, buf);
     return 0;
+}
+
+/*
+ * Answer every parked chat long-poll whose condition or deadline is met.
+ * Called after each command (any command may be the LOG_APPEND/PROMPT_PUSH/
+ * STATUS_SET a poll is waiting for) and on every select() pass (deadlines).
+ */
+static void service_parked_polls(void)
+{
+    int i;
+    DWORD now = GetTickCount();
+    for (i = 0; i < MAX_CLIENTS; i++) {
+        if (g_clients[i].sock == INVALID_SOCKET ||
+            g_clients[i].park.kind == CHAT_PARK_NONE)
+            continue;
+        if (chatproxy_park_service(g_clients[i].sock, &g_clients[i].park,
+                                   now, 0) < 0)
+            client_drop(i);
+    }
 }
 
 /*
@@ -749,6 +793,9 @@ static void handle_client(SOCKET client)
             }
         }
 
+        /* This command acknowledges a prompt the previous one delivered */
+        chatproxy_conn_command(client);
+
         /* Watchdog instrumentation: mark a command in-flight so watchdog_thread
          * can recover the agent if a handler wedges behind a hung fullscreen
          * game (Glide display lock). Incremented before setjmp so a handler that
@@ -777,6 +824,9 @@ static void handle_client(SOCKET client)
     }
 
     log_msg(LOG_MAIN, "Client disconnected");
+    /* a prompt taken but never acknowledged goes back (before closesocket,
+     * while the handle value cannot have been reused) */
+    chatproxy_conn_closed(client);
     closesocket(client);
 }
 
@@ -1197,11 +1247,12 @@ void agent_run(void)
 
     /* Apply system fixes (vcache, autologon, DMA, etc.) */
     /* Multiplex (Win9x): one thread serves all clients, so a long-poll must
-     * never hold it for its full timeout. */
+     * never hold it. They are PARKED (chatproxy.h); the clamp only guards a
+     * blocking wait, which parking never takes. */
     if (g_client_mode == MODE_MULTIPLEX) {
         g_longpoll_max_ms = 1000;
-        log_msg(LOG_MAIN, "multiplex mode: long-polls clamped to %dms "
-                          "so one client cannot stall the others",
+        log_msg(LOG_MAIN, "multiplex mode: long-polls are parked, not "
+                          "blocking (a blocking fallback is capped at %dms)",
                 g_longpoll_max_ms);
     }
 
@@ -1322,6 +1373,8 @@ void agent_run(void)
         SOCKET client;
         fd_set readfds;
         struct timeval tv;
+        DWORD wait_ms = 1000;
+        int nready;
 
         FD_ZERO(&readfds);
         FD_SET(listen_sock, &readfds);
@@ -1329,18 +1382,30 @@ void agent_run(void)
             FD_SET(listen_sock_alt, &readfds);
 
         if (g_client_mode == MODE_MULTIPLEX) {
-            /* Also select on all connected client sockets */
+            /* Also select on all connected client sockets, and wake no
+             * later than the nearest parked long-poll's deadline */
             int i;
-            for (i = 0; i < MAX_CLIENTS; i++)
-                if (g_clients[i].sock != INVALID_SOCKET)
-                    FD_SET(g_clients[i].sock, &readfds);
+            DWORD now = GetTickCount();
+            for (i = 0; i < MAX_CLIENTS; i++) {
+                DWORD left;
+                if (g_clients[i].sock == INVALID_SOCKET) continue;
+                FD_SET(g_clients[i].sock, &readfds);
+                left = chatproxy_park_ms_left(&g_clients[i].park, now);
+                if (left < wait_ms) wait_ms = left;
+            }
         }
 
-        tv.tv_sec = 1;
-        tv.tv_usec = 0;
+        tv.tv_sec = (long)(wait_ms / 1000);
+        tv.tv_usec = (long)((wait_ms % 1000) * 1000);
 
-        if (select(0, &readfds, NULL, NULL, &tv) <= 0)
+        nready = select(0, &readfds, NULL, NULL, &tv);
+        if (nready <= 0) {
+            /* nothing to read - but a parked poll may have reached its
+             * deadline, and that answer is owed now */
+            if (g_client_mode == MODE_MULTIPLEX)
+                service_parked_polls();
             continue;
+        }
 
         /* ---- Accept new connections (primary or alt port) ---- */
         if (FD_ISSET(listen_sock, &readfds) ||
@@ -1350,6 +1415,8 @@ void agent_run(void)
             client = accept(accept_sock, (struct sockaddr *)&client_addr,
                             &client_len);
             if (client != INVALID_SOCKET) {
+                /* On THIS thread, before any client thread can exist */
+                chatproxy_init();
                 /* Disable Nagle — critical for low-latency small commands */
                 {
                     BOOL nodelay = TRUE;
@@ -1385,6 +1452,7 @@ void agent_run(void)
                     if (slot >= 0) {
                         g_clients[slot].sock = client;
                         g_clients[slot].authed = 0;
+                        g_clients[slot].park.kind = CHAT_PARK_NONE;
                         g_clients[slot].last_active = GetTickCount();
                         _snprintf(g_clients[slot].addr_str,
                                   sizeof(g_clients[slot].addr_str),
@@ -1415,7 +1483,10 @@ void agent_run(void)
                 g_clients[i].last_active = GetTickCount();
                 if (client_process(i) != 0)
                     client_drop(i);
+                /* whatever that command changed may answer a parked poll */
+                service_parked_polls();
             }
+            service_parked_polls();   /* deadlines */
 
             /* Reap the silent ones. A half-open connection never reports
              * itself closed, so without this a slot is held for good. */

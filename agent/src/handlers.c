@@ -94,6 +94,7 @@ static const cmd_entry_t commands[] = {
     { "PROMPT_POP", 0, handle_prompt_pop, NULL, 0 },
     { "PROMPT_WAIT",1, NULL,            handle_prompt_wait, 0 },
     { "LOG_APPEND", 1, NULL,            handle_log_append, 0 },
+    { "LOG_APPEND2",1, NULL,            handle_log_append2, 0 },
     { "LOG_READ",   1, NULL,            handle_log_read, 0 },
     { "LOG_WAIT",   1, NULL,            handle_log_wait, 0 },
     { "LOG_CLEAR",  0, handle_log_clear, NULL, 0 },
@@ -116,6 +117,40 @@ static const cmd_entry_t commands[] = {
     { NULL,         0, NULL,              NULL, 0 }
 };
 
+/*
+ * Chat text is passed VERBATIM: everything after exactly ONE separator space,
+ * leading blanks included.
+ *
+ * Every other command's arguments are space-trimmed, and these four were too
+ * - which destroyed text. The brain streams a reply as LOG_APPEND chunks split
+ * wherever it flushes, so a chunk that began with the space between two words
+ * lost it and the words were glued together on screen, and every indented
+ * line of code or of a listing came out flush left. A prompt or a status line
+ * is the user's or the brain's own text for the same reason.
+ */
+static int cmd_takes_raw_text(const char *name)
+{
+    static const char *const raw[] = {
+        "LOG_APPEND", "LOG_APPEND2", "PROMPT_PUSH", "STATUS_SET"
+    };
+    int i;
+    for (i = 0; i < (int)(sizeof(raw) / sizeof(raw[0])); i++)
+        if (_stricmp(name, raw[i]) == 0)
+            return 1;
+    return 0;
+}
+
+/* The arguments of `cmd`, whose first word (the command name) is `name` and
+ * ends at cmd[name_len]. NULL when there is no separator space at all. */
+static const char *cmd_args_of(const char *cmd, int name_len, const char *name)
+{
+    if (cmd[name_len] != ' ')
+        return NULL;
+    if (cmd_takes_raw_text(name))
+        return cmd + name_len + 1;          /* exactly one separator space */
+    return str_skip_spaces(cmd + name_len + 1);
+}
+
 void handle_command(SOCKET sock, const char *cmd, DWORD cmd_len)
 {
     const cmd_entry_t *entry;
@@ -130,9 +165,8 @@ void handle_command(SOCKET sock, const char *cmd, DWORD cmd_len)
         cmd_name[i] = cmd[i];
     cmd_name[i] = '\0';
 
-    /* Find args after first space */
-    if (cmd[i] == ' ')
-        args = str_skip_spaces(cmd + i + 1);
+    /* Find args after first space (chat text verbatim - see above) */
+    args = cmd_args_of(cmd, i, cmd_name);
 
     /* Look up command */
     for (entry = commands; entry->name; entry++) {

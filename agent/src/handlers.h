@@ -126,6 +126,7 @@ void handle_prompt_push(SOCKET sock, const char *args);
 void handle_prompt_pop(SOCKET sock);
 void handle_prompt_wait(SOCKET sock, const char *args);
 void handle_log_append(SOCKET sock, const char *args);
+void handle_log_append2(SOCKET sock, const char *args);
 void handle_log_read(SOCKET sock, const char *args);
 void handle_log_wait(SOCKET sock, const char *args);
 void handle_log_clear(SOCKET sock);
@@ -198,15 +199,17 @@ DWORD WINAPI pcirescue_thread(LPVOID param);
 DWORD WINAPI clockfix_thread(LPVOID param);
 void handle_pcirescan(SOCKET sock, const char *args);
 
-/* Long-poll ceiling, in ms. 0 = no extra cap (thread-per-client mode).
+/* Ceiling, in ms, on a long-poll that BLOCKS. 0 = no extra cap.
  *
  * On Win9x the agent is forced into MULTIPLEX mode — ONE thread serves every
  * client, because threaded TLS is unsafe there. A blocking 30s LOG_WAIT then
  * stalls EVERY other client: the local chat client's long-polls made the
  * Deskpro unreachable to the whole network while it happily served localhost
  * (hardware-diagnosed 2026-07-29: a remote AUTH sat unprocessed for 90s).
- * So in multiplex mode we clamp the wait; clients simply re-issue, which the
- * protocol already expects. */
+ * The 1 s clamp that fixed that still serialised the pollers into one-second
+ * stalls, so multiplex long-polls are now PARKED instead (chatproxy.h) and
+ * run their full requested length without blocking anyone. This clamp only
+ * still guards a blocking wait in multiplex mode, which parking never takes. */
 extern int g_longpoll_max_ms;
 
 /* Shared flag for graceful shutdown */

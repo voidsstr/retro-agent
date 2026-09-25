@@ -170,21 +170,44 @@ def test_update_batch_is_bounded_and_always_starts_an_agent():
 CHATPROXY_C = os.path.join(REPO, "agent", "src", "chatproxy.c")
 
 
-def test_multiplex_longpolls_are_clamped():
+def test_multiplex_longpolls_park_instead_of_blocking():
     """Win9x forces MULTIPLEX mode: one thread serves every client. A blocking
     30s LOG_WAIT there stalls all other clients — the Deskpro served localhost
-    happily while a remote AUTH sat unprocessed for 90 seconds (2026-07-29)."""
-    m = _read(MAIN_C)
-    assert "g_longpoll_max_ms" in m, "the clamp knob must exist"
-    assert re.search(r"MODE_MULTIPLEX\)\s*\{\s*\n\s*g_longpoll_max_ms\s*=\s*[1-9]",
-                     m), "multiplex mode must set a non-zero clamp"
+    happily while a remote AUTH sat unprocessed for 90 seconds (2026-07-29).
 
+    The 1 s clamp that fixed that still left every poller BLOCKING the one
+    thread for its second (the events it waited on can only be set by
+    handlers on that same thread, so it never woke early): pollers serialised
+    into back-to-back 1 s stalls and every command queued behind them. Since
+    agent 1.85.0 a multiplex long-poll is PARKED in its client slot and
+    answered by the loop - the DOS agent's model. Behaviour is exercised in
+    tests/native/test_chatproxy.c; this pins the wiring."""
+    m = _read(MAIN_C)
+    proc = m.split("static int client_process(", 1)[1].split("\n}\n", 1)[0]
+    assert "chatproxy_set_park_slot(&cl->park)" in proc, (
+        "multiplex commands must be handed their slot's park")
+    assert "chatproxy_set_park_slot(NULL)" in proc
+    loop = m.split("/* Accept loop */", 1)[1]
+    assert loop.count("service_parked_polls()") >= 3, (
+        "parked polls must be answered after each command, after each select "
+        "pass, and when select times out (deadlines)")
+    assert "chatproxy_park_ms_left" in loop, (
+        "select()'s timeout must be bounded by the nearest parked deadline")
+    drop = m.split("static void client_drop(", 1)[1].split("\n}\n", 1)[0]
+    assert drop.index("chatproxy_conn_closed(") < drop.index("closesocket(g_clients"), (
+        "a dropped client's prompt must be put back before its handle is freed")
+
+    # the clamp survives only as a guard on a BLOCKING wait in multiplex mode
+    assert re.search(r"MODE_MULTIPLEX\)\s*\{\s*\n\s*g_longpoll_max_ms\s*=\s*[1-9]",
+                     m), "multiplex mode must keep a non-zero blocking clamp"
     cp = _read(CHATPROXY_C)
-    # every long-poll handler must honour the clamp
+    wait = cp.split("static DWORD wait_ms(", 1)[1].split("\n}\n", 1)[0]
+    assert "g_longpoll_max_ms" in wait and "blocking" in wait
     for fn in ("handle_log_wait", "handle_prompt_wait", "handle_status_wait"):
         body = cp.split("void %s(" % fn, 1)[1].split("\nvoid ", 1)[0]
-        assert "g_longpoll_max_ms" in body, (
-            "%s must clamp its wait or it can stall every other client" % fn)
+        assert "g_park_slot" in body, "%s must park in multiplex mode" % fn
+        assert re.search(r"wait_ms\([^)]*, 1\)", body), (
+            "%s's blocking path must go through the clamp" % fn)
 
 
 def test_helper_thread_failures_are_logged():
