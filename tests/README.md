@@ -75,6 +75,10 @@ retro-agent/tests/
     test_driver_prefs.c   TRUE-SOURCE: agent/shared/drvprefs.h — the PREFER.TXT
                           parse, the line-anchored hardware-id match, and the
                           reclaim gate (force-install BEFORE deleting C:\D)
+    test_drvmatch.c       TRUE-SOURCE: agent/shared/drvmatch.h - which C:\D INFs
+                          may serve a device: model lines only, most specific id
+                          first, family ids refused, payload present, and when
+                          C:\D may be reclaimed
     test_verdict_coverage.c  TRUE-SOURCE: agent/shared/gamegate.h - the guard
                           that makes a SHRUNKEN verdict file visible.
                           gg_verdict_count() (rows present) vs
@@ -175,6 +179,7 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | **agent 1.74.0: every box publishes its own hardware record on every startup, so the fleet documentation is measured rather than remembered** — the hand-maintained table was wrong about most of the fleet and TWICE missed a graphics card being swapped (2026-08-30) | agent `hwpublish.c` / `hwextra.c` / `hwprofile_json()` + `agent/shared/hwpub.h`, `scripts/fleet/inventory.py` | `native/test_hwpublish.c`, `python/test_fleet_inventory.py` |
 | **the generated inventory must tell `current` / `stale` / `never seen` / `unreadable` apart, and a torn record must degrade rather than crash** — "not installed" and "crashed" must never render the same, and a fleet powered on demand always has boxes reporting old data (2026-08-30) | `scripts/fleet/inventory.py` | `python/test_fleet_inventory.py` |
 | **agent 1.59.0: force the staged driver over the one XP picks, and never reclaim C:\D before doing it** (2026-08-29, .124) | agent gamesync.c + `agent/shared/drvprefs.h`, `scripts/pxe/{driver-prefs.txt,stage-oem.sh}` | `native/test_driver_prefs.c`, `test_pxe_drivers.py` |
+| **agent 1.85.1: the first-logon driver installer finds the INF, and the reclaim no longer deletes C:\D out from under unconfigured devices** — `gs_find_inf_for()` only ever saw a device's FIRST hardware id (the `&REV_xx` one, which no INF names), so on every fresh image the 865G display and AC'97 audio were never installed and `C:\D` was then reclaimed as "serving nothing"; found while PXE-imaging a Dell Dimension 4600 (2026-09-25). The test also pins what two adversarial reviews against the real 3,669-INF tree found in the first fixes: ids counted outside model lines (comments, ExcludeFromSelect, PosDup, AddReg, wrong OS decoration), family ids, HD Audio codecs, `%strkey%` ids, INFs whose payload was never staged, and the keep/reclaim table | agent gamesync.c + `agent/shared/drvmatch.h` | `native/test_drvmatch.c` |
 | **image: AutoPlay off on every drive type, so an ISO mount cannot modal over a fullscreen game** (2026-08-29) | `scripts/pxe/stage-oem.sh` | `test_pxe_autoplay.py` |
 | **GAMEINDEX saw only 10 of the 29 staged library titles** (2026-08-29) | agent C (gameindex.c `g_sigs[]`) | `python/test_gameindex_staged_library.py` |
 | **favourites agent: decide by what is ON THE BOX, not by our recorded intent** — an external rewrite (GAMESYNC restaging `UnrealTournament.ini` on .171) was reported `unchanged` forever (2026-08-30) | `scripts/gameindex/sync.py` | `python/test_gameindex_favorites.py` |

@@ -38,6 +38,7 @@
 #include "bgwork.h"
 #include "gameindex.h"
 #include "../shared/drvprefs.h"
+#include "../shared/drvmatch.h"
 #include "../shared/gamegate.h"
 #include "../shared/lnkcheck.h"
 #include "../shared/gsresume.h"
@@ -923,68 +924,392 @@ static int gs_rmtree(const char *dir)
     return ok;
 }
 
-/* Defined below, with the driver installer - the reclaim guard needs it to tell
- * a device we could fix from one we could not. */
-static int gs_find_inf_for(const char *hwid, char *out, DWORD out_cch);
+/* ---------------------------------------------------------------------- */
+/* the staged driver tree (C:\D): which INF serves an unconfigured device  */
+/* ---------------------------------------------------------------------- */
 
-/* Are there devices Windows has not managed to configure?
+/*
+ * Two callers need the same answer. gs_install_missing_drivers() installs from
+ * C:\D for every device Windows left with a problem code, and the reclaim guard
+ * (gs_devices_unconfigured) keeps C:\D only while it could still help one.
  *
- * This gates the reclaim, and it matters: the staged drivers in C:\D are
- * precisely what the Found New Hardware wizard needs. Deleting them while a
- * device is still unconfigured would take away the only local copy at the exact
- * moment it is wanted - and on a machine whose NIC is the unconfigured device,
- * there is no network left to fetch a replacement over. That is the worst
- * failure this agent could cause, so the check is deliberately conservative:
- * ANY device with a problem code means keep the drivers.
+ * Until 1.85.1 both asked strstr() about the device's FIRST hardware id - the
+ * "&REV_xx" one no INF names - so the installer never installed anything and the
+ * guard deleted C:\D from under the very devices it served. Now:
+ *   - agent/shared/drvmatch.h ranks candidate INFs (model lines only, most
+ *     specific id first, family ids refused);
+ *   - a candidate whose payload was never staged is refused before anything
+ *     else looks at it (drvmatch_payload_ok - every ATI display INF in the
+ *     image, for one);
+ *   - WINDOWS ITSELF then confirms the INF has a driver node for this device
+ *     (gs_inf_serves) before anything is forced;
+ *   - installs run in SetupAPI's non-interactive mode, under a watchdog, so a
+ *     "Files Needed" prompt fails the install instead of blocking the agent.
+ *
+ * One walk of the tree serves every problem device at once: it is ~3,700 INFs
+ * and ~60 MB, which a Pentium III reads in seconds, not per device.
  */
-static int gs_devices_unconfigured(void)
+
+typedef struct {
+    SP_DEVINFO_DATA dev;
+    DWORD           problem;
+    char            desc[128];
+    char            hw[1024];
+    char            compat[1024];
+    const char     *ids[DRVMATCH_MAX_IDS];
+    int             nids;
+    drvmatch_cands  cand;
+} gs_probdev;
+
+#define GS_MAX_PROBDEV   32
+#define GS_INF_READ_MAX  (2 * 1024 * 1024)
+#define GS_INSTALL_WAIT  (10 * 60 * 1000)   /* one forced install, worst case */
+
+/* What the install pass concluded about each device (DRVMATCH_V_*), so the
+ * reclaim guard straight after it neither walks the tree again nor keeps C:\D
+ * for a device the install pass already failed to fix. */
+static struct { char id[200]; int verdict; } g_gs_dv[GS_MAX_PROBDEV];
+static int g_gs_ndv;
+/* A forced install that never returned: a UI we could not suppress is up on the
+ * console. Nothing may be reclaimed or forced again this boot. */
+static int g_gs_install_hung;
+
+static int gs_dv_lookup(const char *id)
 {
-    HDEVINFO         set;
-    SP_DEVINFO_DATA  dev;
-    DWORD            i;
-    int              bad = 0;
+    int i;
+    if (!id[0])
+        return DRVMATCH_V_UNSEEN;
+    for (i = 0; i < g_gs_ndv; i++)
+        if (strcmp(g_gs_dv[i].id, id) == 0)
+            return g_gs_dv[i].verdict;
+    return DRVMATCH_V_UNSEEN;
+}
 
-    set = SetupDiGetClassDevsA(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
-    if (set == INVALID_HANDLE_VALUE)
-        return 1;                 /* cannot tell -> assume yes, keep drivers */
+static void gs_dv_record(const char *id, int verdict)
+{
+    if (g_gs_ndv >= GS_MAX_PROBDEV || !id[0])
+        return;
+    lstrcpynA(g_gs_dv[g_gs_ndv].id, id, sizeof(g_gs_dv[0].id));
+    g_gs_dv[g_gs_ndv].verdict = verdict;
+    g_gs_ndv++;
+}
 
+/* Defined with PREFER.TXT below: does a driver preference claim this device? */
+static int gs_prefer_claims(const gs_probdev *pd);
+
+/* How many boots has a forced install from C:\D been attempted for this device?
+ * The installer runs on every startup while newimage.flag exists, so a driver
+ * that installs and still leaves the device broken would otherwise be forced
+ * again - and hold C:\D - forever. Two boots, then leave it. */
+#define GS_DRVFIX_KEY "Software\\RetroAgent\\DriverFixes"
+
+static DWORD gs_drvfix_attempts(const char *id, int bump)
+{
+    HKEY  k;
+    DWORD n = 0, type = 0, sz = sizeof(n);
+
+    if (!id[0])
+        return 0;
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, GS_DRVFIX_KEY, 0, NULL, 0,
+                        KEY_READ | KEY_WRITE, NULL, &k, NULL) != ERROR_SUCCESS)
+        return 0;
+    if (RegQueryValueExA(k, id, NULL, &type, (LPBYTE)&n, &sz) != ERROR_SUCCESS ||
+        type != REG_DWORD)
+        n = 0;
+    if (bump) {
+        n++;
+        RegSetValueExA(k, id, 0, REG_DWORD, (const BYTE *)&n, sizeof(n));
+    }
+    RegCloseKey(k);
+    return n;
+}
+
+/* The device's candidate ids, most specific first (see drvmatch.h). The strings
+ * live in pd->hw / pd->compat. Both properties are REG_MULTI_SZ; the buffers are
+ * zeroed and read two bytes short so each list is always double-NUL terminated,
+ * and EVERY string is upper-cased - CharUpperA() on the buffer alone stops at
+ * the first NUL, which is exactly how the old code came to see only one id. */
+static void gs_device_ids(HDEVINFO set, gs_probdev *pd)
+{
+    char *p;
+
+    memset(pd->hw, 0, sizeof(pd->hw));
+    memset(pd->compat, 0, sizeof(pd->compat));
+    if (!SetupDiGetDeviceRegistryPropertyA(set, &pd->dev, SPDRP_HARDWAREID, NULL,
+                                           (PBYTE)pd->hw, sizeof(pd->hw) - 2, NULL))
+        pd->hw[0] = pd->hw[1] = 0;
+    if (!SetupDiGetDeviceRegistryPropertyA(set, &pd->dev, SPDRP_COMPATIBLEIDS, NULL,
+                                           (PBYTE)pd->compat, sizeof(pd->compat) - 2,
+                                           NULL))
+        pd->compat[0] = pd->compat[1] = 0;
+    for (p = pd->hw; *p; p += strlen(p) + 1)
+        CharUpperA(p);
+    for (p = pd->compat; *p; p += strlen(p) + 1)
+        CharUpperA(p);
+    pd->nids = drvmatch_collect(pd->hw, pd->compat, pd->ids, DRVMATCH_MAX_IDS);
+}
+
+/* Every present device carrying a problem code, into out[] (zeroed by caller).
+ * *truncated is set when there were more than `max` - a caller deciding whether
+ * C:\D may be deleted must then treat the answer as unknown. */
+static int gs_problem_devices(HDEVINFO set, gs_probdev *out, int max,
+                              int *truncated)
+{
+    SP_DEVINFO_DATA dev;
+    DWORD           i;
+    int             n = 0;
+
+    *truncated = 0;
     memset(&dev, 0, sizeof(dev));
     dev.cbSize = sizeof(dev);
     for (i = 0; SetupDiEnumDeviceInfo(set, i, &dev); i++) {
         DWORD status = 0, problem = 0;
         if (ntdyn_CM_Get_DevNode_Status(&status, &problem, dev.DevInst, 0) != CR_SUCCESS)
             continue;
-        if (problem != 0 || (status & DN_HAS_PROBLEM)) {
-            char name[256], ids[1024], inf[MAX_PATH];
-            name[0] = ids[0] = 0;
-            SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_DEVICEDESC, NULL,
-                                              (PBYTE)name, sizeof(name), NULL);
-            /* Only devices the STAGED TREE could actually help are worth
-             * keeping it for. The first version counted every unconfigured
-             * device, and two that C:\D can never serve - a phantom PS/2 mouse
-             * on a machine with a USB one, and an in-box WDM audio stub - held
-             * 2.4 GB of drivers on a 6 GB disk indefinitely, which in turn left
-             * no room for the game library. A device we have no driver for is
-             * not a reason to keep drivers. */
-            if (SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_HARDWAREID,
-                                                  NULL, (PBYTE)ids,
-                                                  sizeof(ids), NULL) && ids[0]) {
-                CharUpperA(ids);
-                if (gs_find_inf_for(ids, inf, sizeof(inf))) {
-                    log_msg(LOG_GS, "device not configured (problem %lu): %s "
-                                    "- a driver for it IS staged",
-                            problem, name[0] ? name : "(unnamed)");
-                    bad++;
-                    continue;
-                }
-            }
-            log_msg(LOG_GS, "device not configured (problem %lu): %s - nothing "
-                            "in %s serves it, not a reason to keep the tree",
-                    problem, name[0] ? name : "(unnamed)", GS_DRIVER_DIR);
+        if (problem == 0 && !(status & DN_HAS_PROBLEM))
+            continue;
+        if (!drvmatch_problem_wants_driver(problem))
+            continue;                   /* disabled: no driver will change that */
+        if (n >= max) {
+            *truncated = 1;
+            break;
         }
+        out[n].dev = dev;
+        out[n].problem = problem;
+        out[n].desc[0] = 0;
+        SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_DEVICEDESC, NULL,
+                                          (PBYTE)out[n].desc, sizeof(out[n].desc),
+                                          NULL);
+        gs_device_ids(set, &out[n]);
+        n++;
     }
-    SetupDiDestroyDeviceInfoList(set);
-    return bad;
+    return n;
+}
+
+/* Read an INF, fold UTF-16, upper-case. buf must hold GS_INF_READ_MAX + 2. */
+static int gs_read_inf(const char *path, char *buf)
+{
+    HANDLE h;
+    DWORD  got = 0;
+    size_t len;
+
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    if (!ReadFile(h, buf, GS_INF_READ_MAX, &got, NULL))
+        got = 0;
+    CloseHandle(h);
+    if (!got)
+        return 0;
+    buf[got] = buf[got + 1] = 0;
+    len = drvmatch_fold_utf16(buf, got);
+    buf[len] = 0;
+    CharUpperA(buf);                    /* INFs spell ids in mixed case */
+    return 1;
+}
+
+/* One walk of C:\D, ranking candidate INFs for every device in d[0..n).
+ * Returns 0, or -1 when the tree could not be searched at all - which callers
+ * must NOT read as "nothing serves it": the guard keeps C:\D on -1. */
+static int gs_scan_driver_tree(gs_probdev *d, int n)
+{
+    WIN32_FIND_DATAA fd, ff;
+    HANDLE           hd, hf;
+    char             pat[MAX_PATH], sub[MAX_PATH], infp[MAX_PATH];
+    char            *buf;
+    int              k, any = 0;
+
+    for (k = 0; k < n; k++) {
+        d[k].cand.n = 0;
+        if (d[k].nids)
+            any = 1;
+    }
+    if (!any)
+        return 0;
+    buf = (char *)HeapAlloc(GetProcessHeap(), 0, GS_INF_READ_MAX + 2);
+    if (!buf)
+        return -1;
+    _snprintf(pat, sizeof(pat) - 1, "%s\\*", GS_DRIVER_DIR);
+    pat[sizeof(pat) - 1] = 0;
+    hd = FindFirstFileA(pat, &fd);
+    if (hd == INVALID_HANDLE_VALUE) {
+        HeapFree(GetProcessHeap(), 0, buf);
+        return -1;
+    }
+    do {
+        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) || fd.cFileName[0] == '.')
+            continue;
+        _snprintf(sub, sizeof(sub) - 1, "%s\\%s\\*.inf", GS_DRIVER_DIR, fd.cFileName);
+        sub[sizeof(sub) - 1] = 0;
+        hf = FindFirstFileA(sub, &ff);
+        if (hf == INVALID_HANDLE_VALUE)
+            continue;
+        do {
+            _snprintf(infp, sizeof(infp) - 1, "%s\\%s\\%s", GS_DRIVER_DIR,
+                      fd.cFileName, ff.cFileName);
+            infp[sizeof(infp) - 1] = 0;
+            if (!gs_read_inf(infp, buf))
+                continue;
+            drvmatch_prepare(buf);      /* model-line id fields only */
+            for (k = 0; k < n; k++) {
+                int idx = drvmatch_best(buf, d[k].ids, d[k].nids);
+                if (idx >= 0)
+                    drvmatch_cand_add(&d[k].cand, idx, infp);
+            }
+        } while (FindNextFileA(hf, &ff));
+        FindClose(hf);
+    } while (FindNextFileA(hd, &fd));
+    FindClose(hd);
+    HeapFree(GetProcessHeap(), 0, buf);
+    return 0;
+}
+
+/* Is the INF's payload staged? See drvmatch_payload_ok() for why this is coarse.
+ * A file counts as present as NAME or compressed NAME with a trailing '_'. */
+typedef struct {
+    char dir[MAX_PATH];
+    int  files, missing, sys, sysmissing;
+    char first_missing[64];
+} gs_payload_ctx;
+
+static void gs_payload_file(const char *rel, void *vctx)
+{
+    gs_payload_ctx *c = (gs_payload_ctx *)vctx;
+    char            full[MAX_PATH + 400];
+    size_t          n = strlen(rel);
+    int             is_sys = n > 4 && strcmp(rel + n - 4, ".SYS") == 0;
+
+    c->files++;
+    if (is_sys)
+        c->sys++;
+    _snprintf(full, sizeof(full) - 1, "%s\\%s", c->dir, rel);
+    full[sizeof(full) - 1] = 0;
+    if (GetFileAttributesA(full) != INVALID_FILE_ATTRIBUTES)
+        return;
+    n = strlen(full);
+    if (n) {
+        full[n - 1] = '_';
+        if (GetFileAttributesA(full) != INVALID_FILE_ATTRIBUTES)
+            return;
+    }
+    if (!c->missing)
+        lstrcpynA(c->first_missing, rel, sizeof(c->first_missing));
+    c->missing++;
+    if (is_sys)
+        c->sysmissing++;
+}
+
+static int gs_inf_payload_ok(const char *inf, char *buf, char *why, size_t why_cch)
+{
+    gs_payload_ctx c;
+    char          *slash;
+
+    memset(&c, 0, sizeof(c));
+    lstrcpynA(c.dir, inf, sizeof(c.dir));
+    slash = strrchr(c.dir, '\\');
+    if (slash)
+        *slash = 0;
+    if (!gs_read_inf(inf, buf))
+        return 1;                       /* cannot read it: let Windows decide */
+    drvmatch_payload(buf, gs_payload_file, &c);
+    if (drvmatch_payload_ok(c.files, c.missing, c.sys, c.sysmissing))
+        return 1;
+    _snprintf(why, why_cch - 1, "%d of %d listed files missing, e.g. %s",
+              c.missing, c.files, c.first_missing);
+    why[why_cch - 1] = 0;
+    return 0;
+}
+
+/* Ask Windows whether `inf` has a driver for this device, by its own rules -
+ * [Manufacturer] decorations, every hardware AND compatible id, the lot - by
+ * building a compatible-driver list from that single INF. Returns 1 yes, 0 no,
+ * -1 cannot tell (API unavailable or the list could not be built).
+ *
+ * These are resolved at run time, not imported: they are not among the
+ * SetupDi* entry points proven to load on Win98SE, and one unresolvable static
+ * import kills the whole agent at EXE load there (see ntdyn.h). */
+typedef BOOL (WINAPI *sdi_params_fn)(HDEVINFO, PSP_DEVINFO_DATA, PSP_DEVINSTALL_PARAMS_A);
+typedef BOOL (WINAPI *sdi_build_fn)(HDEVINFO, PSP_DEVINFO_DATA, DWORD);
+typedef BOOL (WINAPI *sdi_enum_fn)(HDEVINFO, PSP_DEVINFO_DATA, DWORD, DWORD,
+                                   PSP_DRVINFO_DATA_A);
+typedef BOOL (WINAPI *sdi_nonint_fn)(BOOL);
+
+static sdi_params_fn g_sdi_get_params, g_sdi_set_params;
+static sdi_build_fn  g_sdi_build, g_sdi_destroy;
+static sdi_enum_fn   g_sdi_enum;
+static sdi_nonint_fn g_sdi_nonint;
+
+static void gs_sdi_resolve(void)
+{
+    static int resolved;
+    HMODULE    m;
+
+    if (resolved)
+        return;
+    resolved = 1;
+    m = GetModuleHandleA("setupapi.dll");
+    if (!m)
+        m = LoadLibraryA("setupapi.dll");
+    if (!m)
+        return;
+    g_sdi_get_params = (sdi_params_fn)GetProcAddress(m, "SetupDiGetDeviceInstallParamsA");
+    g_sdi_set_params = (sdi_params_fn)GetProcAddress(m, "SetupDiSetDeviceInstallParamsA");
+    g_sdi_build      = (sdi_build_fn)GetProcAddress(m, "SetupDiBuildDriverInfoList");
+    g_sdi_destroy    = (sdi_build_fn)GetProcAddress(m, "SetupDiDestroyDriverInfoList");
+    g_sdi_enum       = (sdi_enum_fn)GetProcAddress(m, "SetupDiEnumDriverInfoA");
+    g_sdi_nonint     = (sdi_nonint_fn)GetProcAddress(m, "SetupSetNonInteractiveMode");
+}
+
+static int gs_inf_serves(HDEVINFO set, SP_DEVINFO_DATA *dev, const char *inf)
+{
+    SP_DEVINSTALL_PARAMS_A p, orig;
+    SP_DRVINFO_DATA_A      di;
+    int                    ok;
+
+    gs_sdi_resolve();
+    if (!g_sdi_get_params || !g_sdi_set_params || !g_sdi_build || !g_sdi_destroy ||
+        !g_sdi_enum)
+        return -1;
+    memset(&p, 0, sizeof(p));
+    p.cbSize = sizeof(p);
+    if (!g_sdi_get_params(set, dev, &p))
+        return -1;
+    orig = p;
+    p.Flags |= DI_ENUMSINGLEINF;
+    lstrcpynA(p.DriverPath, inf, sizeof(p.DriverPath));
+    if (!g_sdi_set_params(set, dev, &p))
+        return -1;
+    if (g_sdi_build(set, dev, SPDIT_COMPATDRIVER)) {
+        memset(&di, 0, sizeof(di));
+        di.cbSize = sizeof(di);
+        ok = g_sdi_enum(set, dev, SPDIT_COMPATDRIVER, 0, &di) ? 1 : 0;
+        g_sdi_destroy(set, dev, SPDIT_COMPATDRIVER);
+    } else {
+        ok = -1;
+    }
+    g_sdi_set_params(set, dev, &orig);
+    return ok;
+}
+
+/* May this candidate be forced onto the device? Payload first (cheap, and the
+ * check Windows' own does not make), then Windows' confirmation. Returns 1 yes,
+ * 0 no (with the reason logged), -1 yes-but-unconfirmed. */
+static int gs_candidate_ok(HDEVINFO set, SP_DEVINFO_DATA *dev, const char *inf,
+                           const char *id, const char *name, char *buf)
+{
+    char why[160];
+    int  serves;
+
+    if (!gs_inf_payload_ok(inf, buf, why, sizeof(why))) {
+        log_msg(LOG_GS, "  %s names %s but its payload is not staged (%s) - skipped",
+                inf, id, why);
+        return 0;
+    }
+    serves = gs_inf_serves(set, dev, inf);
+    if (serves == 0)
+        log_msg(LOG_GS, "  %s names %s but Windows finds no driver in it for %s "
+                        "- skipped", inf, id, name);
+    return serves;
 }
 
 /*
@@ -995,87 +1320,148 @@ static int gs_devices_unconfigured(void)
  * 865G driver it needed present on its own disk in C:\D the whole time, waiting
  * for someone to walk over and answer a Found New Hardware wizard. Three
  * devices were in that state: the display, the audio, and a multimedia
- * controller.
+ * controller. (Winnt.sif carries only the LAN + chipset path; DevicePath is
+ * written at T-12, after GUI setup has already installed the devices.)
  *
- * So the agent finishes the job. For each device carrying a problem code it
- * takes the hardware ID, finds an INF in the staged driver tree that mentions
- * it, and hands both to UpdateDriverForPlugAndPlayDevices - the documented way
- * to drive a PnP install without a dialog.
+ * So the agent finishes the job. For each device carrying a problem code:
+ *   - a device PREFER.TXT names is left to gs_apply_driver_prefs(), which
+ *     forces the exact build the fleet wants (the ranking here cannot know that
+ *     .143's GeForce 6800 must get ForceWare 71.89 and not the 270.61 that
+ *     sorts first);
+ *   - otherwise the ranked candidates from C:\D are tried in order, each first
+ *     checked (gs_candidate_ok), until one installs AND leaves the device
+ *     working (or asks for the restart that will);
+ *   - on at most two boots per device (gs_drvfix_attempts).
  *
- * Deliberately quiet about failure. Not every unconfigured device has a driver
- * in the tree, and one that cannot be matched is not an error worth alarming
- * anyone about; it just stays as it was, exactly as if we had not tried.
+ * The id handed to UpdateDriverForPlugAndPlayDevices is the one the INF names.
+ * It matches that against every present device's hardware AND compatible ids,
+ * which is why a family id ("*PNP0501", "USB\ROOT_HUB") never gets this far -
+ * FORCE would reach every device that shares it - and why identical devices
+ * are handled by one install, not one each.
  */
-#define INSTALLFLAG_FORCE_ 0x00000001
+#define INSTALLFLAG_FORCE_          0x00000001
+#define INSTALLFLAG_NONINTERACTIVE_ 0x00000004
 
 typedef BOOL (WINAPI *updrv_fn)(HWND, LPCSTR, LPCSTR, DWORD, PBOOL);
 
-/* Find an INF under C:\D naming this hardware id. The tree is ~500 directories
- * and 18,000 files, so this walks INFs only and stops at the first match. */
-static int gs_find_inf_for(const char *hwid, char *out, DWORD out_cch)
-{
-    WIN32_FIND_DATAA fd, ff;
-    HANDLE           hd, hf;
-    char             pat[MAX_PATH], sub[MAX_PATH], infp[MAX_PATH];
-    int              found = 0;
+/* The job owns COPIES of its strings: a hung job is leaked on purpose, and the
+ * device array its id and INF came from is freed while it is still running. */
+typedef struct {
+    updrv_fn update;
+    char     id[256];
+    char     inf[MAX_PATH];
+    BOOL     reboot;
+    BOOL     ok;
+    DWORD    err;
+} gs_install_job;
 
-    _snprintf(pat, sizeof(pat) - 1, "%s\\*", GS_DRIVER_DIR);
-    pat[sizeof(pat) - 1] = 0;
-    hd = FindFirstFileA(pat, &fd);
-    if (hd == INVALID_HANDLE_VALUE)
+/* NONINTERACTIVE is honoured by XP SP3's newdev (flags up to 0x7 are accepted;
+ * it maps 0x4 to the internal switch that fails with 1459 rather than showing
+ * a finish-install page), and it is the only thing that stops newdev's own
+ * wizard. SetupSetNonInteractiveMode covers setupapi's disk prompts - and newdev
+ * CLEARS it at the end of every install, so it is set again before each call. */
+static DWORD WINAPI gs_install_thread(LPVOID arg)
+{
+    gs_install_job *j = (gs_install_job *)arg;
+    if (g_sdi_nonint)
+        g_sdi_nonint(TRUE);
+    j->ok = j->update(NULL, j->id, j->inf,
+                      INSTALLFLAG_FORCE_ | INSTALLFLAG_NONINTERACTIVE_, &j->reboot);
+    j->err = j->ok ? 0 : GetLastError();
+    return 0;
+}
+
+/* One forced install, in SetupAPI's non-interactive mode (where it exists) and
+ * under a watchdog. Returns 1 installed, 0 failed, -1 hung. On -1 the job and
+ * its thread are deliberately leaked: they are still inside SetupAPI. */
+static int gs_force_install(updrv_fn update, const char *id, const char *inf,
+                            BOOL *reboot, DWORD *err)
+{
+    gs_install_job *j;
+    HANDLE          th;
+    DWORD           tid = 0;
+    int             rc;
+
+    j = (gs_install_job *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*j));
+    if (!j)
         return 0;
-    do {
-        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            continue;
-        if (fd.cFileName[0] == '.')
-            continue;
-        _snprintf(sub, sizeof(sub) - 1, "%s\\%s\\*.inf", GS_DRIVER_DIR,
-                  fd.cFileName);
-        sub[sizeof(sub) - 1] = 0;
-        hf = FindFirstFileA(sub, &ff);
-        if (hf == INVALID_HANDLE_VALUE)
-            continue;
-        do {
-            HANDLE  h;
-            DWORD   got = 0;
-            char   *buf;
-            _snprintf(infp, sizeof(infp) - 1, "%s\\%s\\%s", GS_DRIVER_DIR,
-                      fd.cFileName, ff.cFileName);
-            infp[sizeof(infp) - 1] = 0;
-            h = CreateFileA(infp, GENERIC_READ, FILE_SHARE_READ, NULL,
-                            OPEN_EXISTING, 0, NULL);
-            if (h == INVALID_HANDLE_VALUE)
-                continue;
-            buf = (char *)HeapAlloc(GetProcessHeap(), 0, 262144);
-            if (buf) {
-                if (ReadFile(h, buf, 262143, &got, NULL) && got) {
-                    buf[got] = 0;
-                    /* INFs spell hardware ids in mixed case; compare upper. */
-                    CharUpperA(buf);
-                    if (strstr(buf, hwid)) {
-                        lstrcpynA(out, infp, out_cch);
-                        found = 1;
-                    }
-                }
-                HeapFree(GetProcessHeap(), 0, buf);
-            }
-            CloseHandle(h);
-        } while (!found && FindNextFileA(hf, &ff));
-        FindClose(hf);
-    } while (!found && FindNextFileA(hd, &fd));
-    FindClose(hd);
-    return found;
+    j->update = update;
+    lstrcpynA(j->id, id, sizeof(j->id));
+    lstrcpynA(j->inf, inf, sizeof(j->inf));
+    th = CreateThread(NULL, 0, gs_install_thread, j, 0, &tid);
+    if (!th) {
+        HeapFree(GetProcessHeap(), 0, j);
+        return 0;
+    }
+    if (WaitForSingleObject(th, GS_INSTALL_WAIT) != WAIT_OBJECT_0) {
+        CloseHandle(th);
+        return -1;
+    }
+    CloseHandle(th);
+    *reboot = j->reboot;
+    *err = j->err;
+    rc = j->ok ? 1 : 0;
+    HeapFree(GetProcessHeap(), 0, j);
+    return rc;
+}
+
+/* Driver-signing policy for the duration of the pass. DriverPacks edits the
+ * INFs it ships, which breaks their catalogs - I015\ialmnt5.inf, the Dell
+ * 865G's display driver, is not in igfxnt5.cat - and a NON-INTERACTIVE install
+ * of an unsigned driver under policy Warn FAILS. winnt.sif's
+ * DriverSigningPolicy=Ignore does not reliably survive setup (a freshly imaged
+ * box has been found at Warn), so set Ignore (00) the way tools/README-drvupd.md
+ * does by hand, and put back exactly what was there. */
+#define GS_SIGNING_KEY "Software\\Microsoft\\Driver Signing"
+
+typedef struct {
+    int   had;
+    DWORD type, size;
+    BYTE  data[16];
+} gs_signing_saved;
+
+static void gs_signing_relax(gs_signing_saved *sv)
+{
+    HKEY k;
+    BYTE ignore = 0;
+
+    memset(sv, 0, sizeof(*sv));
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, GS_SIGNING_KEY, 0, NULL, 0,
+                        KEY_READ | KEY_WRITE, NULL, &k, NULL) != ERROR_SUCCESS)
+        return;
+    sv->size = sizeof(sv->data);
+    sv->had = RegQueryValueExA(k, "Policy", NULL, &sv->type, sv->data,
+                               &sv->size) == ERROR_SUCCESS;
+    RegSetValueExA(k, "Policy", 0, REG_BINARY, &ignore, 1);
+    RegCloseKey(k);
+}
+
+static void gs_signing_restore(const gs_signing_saved *sv)
+{
+    HKEY k;
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, GS_SIGNING_KEY, 0, KEY_WRITE, &k) !=
+        ERROR_SUCCESS)
+        return;
+    if (sv->had)
+        RegSetValueExA(k, "Policy", 0, sv->type, sv->data, sv->size);
+    else
+        RegDeleteValueA(k, "Policy");
+    RegCloseKey(k);
 }
 
 static void gs_install_missing_drivers(void)
 {
-    HDEVINFO        set;
-    SP_DEVINFO_DATA dev;
-    DWORD           i;
-    HMODULE         newdev;
-    updrv_fn        update;
-    int             fixed = 0, tried = 0;
+    HDEVINFO    set;
+    gs_probdev *pd;
+    HMODULE     newdev;
+    updrv_fn    update;
+    char       *buf;
+    BOOL        was_nonint = FALSE;
+    gs_signing_saved signing;
+    int         n, k, scan, truncated, fixed = 0, tried = 0;
 
+    g_gs_ndv = 0;
     if (!gs_file_exists(GS_DRIVER_DIR))
         return;
     newdev = LoadLibraryA("newdev.dll");
@@ -1086,59 +1472,233 @@ static void gs_install_missing_drivers(void)
         FreeLibrary(newdev);
         return;
     }
-
     set = SetupDiGetClassDevsA(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
     if (set == INVALID_HANDLE_VALUE) {
         FreeLibrary(newdev);
         return;
     }
-
-    memset(&dev, 0, sizeof(dev));
-    dev.cbSize = sizeof(dev);
-    for (i = 0; SetupDiEnumDeviceInfo(set, i, &dev); i++) {
-        DWORD status = 0, problem = 0;
-        char  ids[1024], desc[256], inf[MAX_PATH];
-        BOOL  reboot = FALSE;
-        char *p;
-
-        if (ntdyn_CM_Get_DevNode_Status(&status, &problem, dev.DevInst, 0) != CR_SUCCESS)
-            continue;
-        if (problem == 0 && !(status & DN_HAS_PROBLEM))
-            continue;
-
-        ids[0] = desc[0] = 0;
-        SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_DEVICEDESC, NULL,
-                                          (PBYTE)desc, sizeof(desc), NULL);
-        if (!SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_HARDWAREID, NULL,
-                                               (PBYTE)ids, sizeof(ids), NULL))
-            continue;
-        /* REG_MULTI_SZ - the first id is the most specific. */
-        for (p = ids; *p; p++)
-            ;
-        CharUpperA(ids);
-        if (!ids[0])
-            continue;
-
-        if (!gs_find_inf_for(ids, inf, sizeof(inf))) {
-            log_msg(LOG_GS, "no driver in %s for %s (%s) - leaving it",
-                    GS_DRIVER_DIR, desc[0] ? desc : "(unnamed)", ids);
-            continue;
-        }
-        tried++;
-        log_msg(LOG_GS, "installing %s for %s", inf, desc[0] ? desc : ids);
-        if (update(NULL, ids, inf, INSTALLFLAG_FORCE_, &reboot)) {
-            fixed++;
-            log_msg(LOG_GS, "  installed%s", reboot ? " (needs a reboot)" : "");
-        } else {
-            log_msg(LOG_GS, "  failed (%lu) - the Found New Hardware wizard can "
-                            "still do it from %s", GetLastError(), GS_DRIVER_DIR);
-        }
+    pd = (gs_probdev *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                                 GS_MAX_PROBDEV * sizeof(gs_probdev));
+    buf = (char *)HeapAlloc(GetProcessHeap(), 0, GS_INF_READ_MAX + 2);
+    if (!pd || !buf) {
+        if (pd)
+            HeapFree(GetProcessHeap(), 0, pd);
+        if (buf)
+            HeapFree(GetProcessHeap(), 0, buf);
+        SetupDiDestroyDeviceInfoList(set);
+        FreeLibrary(newdev);
+        return;
     }
+    n = gs_problem_devices(set, pd, GS_MAX_PROBDEV, &truncated);
+    if (truncated)
+        log_msg(LOG_GS, "more than %d unconfigured devices - handling the first %d",
+                GS_MAX_PROBDEV, GS_MAX_PROBDEV);
+    scan = n ? gs_scan_driver_tree(pd, n) : 0;
+
+    /* Fail instead of prompting. XP has no non-interactive flag for
+     * UpdateDriverForPlugAndPlayDevices; this process-wide switch is what makes
+     * a missing file an error rather than a dialog nobody will answer. */
+    gs_sdi_resolve();
+    if (g_sdi_nonint)
+        was_nonint = g_sdi_nonint(TRUE);
+    gs_signing_relax(&signing);
+
+    for (k = 0; k < n && !g_gs_install_hung; k++) {
+        const char *name = pd[k].desc[0] ? pd[k].desc : "(unnamed)";
+        int         c, ran, verdict = DRVMATCH_V_FAILED;
+        DWORD       attempts;
+
+        if (gs_dv_lookup(pd[k].hw) != DRVMATCH_V_UNSEEN)
+            continue;                   /* an identical device, already handled */
+        if (gs_prefer_claims(&pd[k])) {
+            log_msg(LOG_GS, "unconfigured %s: PREFER.TXT names it - leaving it to "
+                            "the driver-preference pass", name);
+            gs_dv_record(pd[k].hw, DRVMATCH_V_PREFER);
+            continue;
+        }
+        if (scan < 0) {
+            log_msg(LOG_GS, "unconfigured %s: could not search %s", name,
+                    GS_DRIVER_DIR);
+            gs_dv_record(pd[k].hw, DRVMATCH_V_UNSEARCHED);
+            continue;
+        }
+        if (!pd[k].cand.n) {
+            log_msg(LOG_GS, "no driver in %s for %s (%s) - leaving it",
+                    GS_DRIVER_DIR, name, pd[k].hw[0] ? pd[k].hw : "no ids");
+            gs_dv_record(pd[k].hw, DRVMATCH_V_NONE);
+            continue;
+        }
+        if (gs_drvfix_attempts(pd[k].hw, 0) >= 2) {
+            log_msg(LOG_GS, "unconfigured %s: C:\\D drivers already tried on two "
+                            "boots - leaving it", name);
+            gs_dv_record(pd[k].hw, DRVMATCH_V_FAILED);
+            continue;
+        }
+        attempts = gs_drvfix_attempts(pd[k].hw, 1);
+        tried++;
+        ran = 0;
+        for (c = 0; c < pd[k].cand.n; c++) {
+            const char *inf = pd[k].cand.path[c];
+            const char *id  = pd[k].ids[pd[k].cand.idx[c]];
+            BOOL        reboot = FALSE;
+            DWORD       err = 0, status = 0, problem = 0;
+            int         ok, rc;
+
+            ok = gs_candidate_ok(set, &pd[k].dev, inf, id, name, buf);
+            if (ok == 0)
+                continue;
+            log_msg(LOG_GS, "installing %s for %s (matched %s%s)", inf, name, id,
+                    ok < 0 ? ", unconfirmed" : "");
+            rc = gs_force_install(update, id, inf, &reboot, &err);
+            if (rc < 0) {
+                g_gs_install_hung = 1;
+                log_msg(LOG_GS, "  INSTALL DID NOT RETURN after %d min - probably a "
+                                "prompt on the console. No more forced installs, "
+                                "and %s is kept, this boot.",
+                        GS_INSTALL_WAIT / 60000, GS_DRIVER_DIR);
+                verdict = DRVMATCH_V_UNSEARCHED;
+                break;
+            }
+            if (!rc) {
+                ran = 1;
+                log_msg(LOG_GS, "  FAILED (%lu)%s", err,
+                        c + 1 < pd[k].cand.n ? " - trying the next candidate" : "");
+                continue;
+            }
+            if (reboot) {
+                fixed++;
+                verdict = DRVMATCH_V_INSTALLED;
+                log_msg(LOG_GS, "  installed (needs a reboot)");
+                break;
+            }
+            /* Installed without a restart: is the device actually working? */
+            Sleep(2000);
+            if (ntdyn_CM_Get_DevNode_Status(&status, &problem, pd[k].dev.DevInst,
+                                            0) == CR_SUCCESS &&
+                (problem != 0 || (status & DN_HAS_PROBLEM)) &&
+                drvmatch_problem_driver_fixable(problem)) {
+                log_msg(LOG_GS, "  installed but the device still has problem %lu%s",
+                        problem,
+                        c + 1 < pd[k].cand.n ? " - trying the next candidate" : "");
+                continue;
+            }
+            fixed++;
+            verdict = DRVMATCH_V_INSTALLED;
+            log_msg(LOG_GS, problem ? "  installed (device reports problem %lu, "
+                                      "which no driver clears)"
+                                    : "  installed - device working", problem);
+            break;
+        }
+        /* Every install that RAN returned an error (a refusal, not a broken
+         * device): keep C:\D for the next boot's attempt, if there is one. */
+        if (verdict == DRVMATCH_V_FAILED && ran && attempts < 2)
+            verdict = DRVMATCH_V_ERRORED;
+        gs_dv_record(pd[k].hw, verdict);
+    }
+    gs_signing_restore(&signing);
+    /* Not while a hung install is still inside setupapi: turning prompts back
+     * on under it is how it would get one. */
+    if (g_sdi_nonint && !g_gs_install_hung)
+        g_sdi_nonint(was_nonint);
+    HeapFree(GetProcessHeap(), 0, buf);
+    HeapFree(GetProcessHeap(), 0, pd);
     SetupDiDestroyDeviceInfoList(set);
-    FreeLibrary(newdev);
+    /* newdev.dll stays loaded if an install thread is still inside it. */
+    if (!g_gs_install_hung)
+        FreeLibrary(newdev);
     if (tried)
         log_msg(LOG_GS, "unconfigured devices: %d of %d now have drivers",
                 fixed, tried);
+}
+
+/* Are there devices the staged tree could still fix?
+ *
+ * This gates the reclaim, and it matters: the staged drivers in C:\D are
+ * precisely what the Found New Hardware wizard needs. Deleting them while a
+ * device is still unconfigured would take away the only local copy at the exact
+ * moment it is wanted - and on a machine whose NIC is the unconfigured device,
+ * there is no network left to fetch a replacement over. So when the answer
+ * cannot be determined, the answer is KEEP.
+ *
+ * But only devices the STAGED TREE could actually help are worth keeping it for.
+ * The first version counted every unconfigured device, and two that C:\D can
+ * never serve - a phantom PS/2 mouse on a machine with a USB one, and an in-box
+ * WDM audio stub - held 2.4 GB of drivers on a 6 GB disk indefinitely, which in
+ * turn left no room for the game library. The decision per device is
+ * drvmatch_keeps_tree(), so the regression test pins it.
+ */
+static int gs_devices_unconfigured(void)
+{
+    HDEVINFO    set;
+    gs_probdev *pd;
+    char       *buf;
+    int         n, k, bad = 0, scan = 0, need_scan = 0, truncated = 0;
+
+    if (g_gs_install_hung) {
+        log_msg(LOG_GS, "a forced install is still hung - keeping %s", GS_DRIVER_DIR);
+        return 1;
+    }
+    set = SetupDiGetClassDevsA(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
+    if (set == INVALID_HANDLE_VALUE)
+        return 1;                 /* cannot tell -> assume yes, keep drivers */
+    pd = (gs_probdev *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                                 GS_MAX_PROBDEV * sizeof(gs_probdev));
+    buf = (char *)HeapAlloc(GetProcessHeap(), 0, GS_INF_READ_MAX + 2);
+    if (!pd || !buf) {
+        if (pd)
+            HeapFree(GetProcessHeap(), 0, pd);
+        if (buf)
+            HeapFree(GetProcessHeap(), 0, buf);
+        SetupDiDestroyDeviceInfoList(set);
+        return 1;
+    }
+    n = gs_problem_devices(set, pd, GS_MAX_PROBDEV, &truncated);
+    if (truncated) {
+        log_msg(LOG_GS, "more than %d unconfigured devices - cannot judge them all, "
+                        "keeping %s", GS_MAX_PROBDEV, GS_DRIVER_DIR);
+        bad++;
+    }
+    for (k = 0; k < n; k++)
+        if (gs_dv_lookup(pd[k].hw) == DRVMATCH_V_UNSEEN)
+            need_scan = 1;
+    if (need_scan)
+        scan = gs_scan_driver_tree(pd, n);
+
+    for (k = 0; k < n; k++) {
+        const char *name = pd[k].desc[0] ? pd[k].desc : "(unnamed)";
+        int         v = gs_dv_lookup(pd[k].hw), confirmed = 0, c = 0;
+
+        if (v == DRVMATCH_V_UNSEEN && scan == 0) {
+            for (c = 0; c < pd[k].cand.n; c++)
+                if (gs_candidate_ok(set, &pd[k].dev, pd[k].cand.path[c],
+                                    pd[k].ids[pd[k].cand.idx[c]], name, buf) != 0) {
+                    confirmed = 1;
+                    break;
+                }
+        }
+        if (drvmatch_keeps_tree(v, scan == 0, confirmed)) {
+            if (confirmed)
+                log_msg(LOG_GS, "device not configured (problem %lu): %s - a driver "
+                                "for it IS staged (%s) - keeping %s", pd[k].problem,
+                        name, pd[k].cand.path[c], GS_DRIVER_DIR);
+            else
+                log_msg(LOG_GS, "device not configured (problem %lu): %s - could "
+                                "not search %s, keeping it", pd[k].problem, name,
+                        GS_DRIVER_DIR);
+            bad++;
+            continue;
+        }
+        log_msg(LOG_GS, "device not configured (problem %lu): %s - %s; not a reason "
+                        "to keep the tree", pd[k].problem, name,
+                v == DRVMATCH_V_INSTALLED ? "its staged driver is installed" :
+                v == DRVMATCH_V_FAILED    ? "the staged drivers did not fix it" :
+                v == DRVMATCH_V_PREFER    ? "PREFER.TXT owns it" :
+                                            "nothing in C:\\D serves it");
+    }
+    HeapFree(GetProcessHeap(), 0, buf);
+    HeapFree(GetProcessHeap(), 0, pd);
+    SetupDiDestroyDeviceInfoList(set);
+    return bad;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -1171,10 +1731,12 @@ static void gs_install_missing_drivers(void)
  * we force those with UpdateDriverForPlugAndPlayDevices, which does not consult
  * the ranking at all.
  *
- * WHY AN EXPLICIT LIST RATHER THAN A HEURISTIC. gs_find_inf_for() returns the
- * FIRST INF naming a hardware id, and for PCI\VEN_10DE&DEV_0150 that is
- * G003\nv4_go.inf - ForceWare 270.61 MOBILE, a 2011 driver for a 2000 card.
- * Guessing here installs the wrong driver confidently.
+ * WHY AN EXPLICIT LIST RATHER THAN A HEURISTIC. The C:\D ranking
+ * (gs_scan_driver_tree) can tell which INFs serve a device, but not which BUILD
+ * the fleet wants: for PCI\VEN_10DE&DEV_0150 three INFs qualify and the first
+ * is G003\nv4_go.inf - ForceWare 270.61 MOBILE, a 2011 driver for a 2000 card.
+ * Guessing here installs the wrong driver confidently, which is why
+ * gs_install_missing_drivers() leaves every device PREFER.TXT names to this pass.
  *
  * ORDERING IS THE WHOLE POINT, and getting it wrong is worse than not trying:
  * this pass runs BEFORE gs_reclaim_drivers(), and the reclaim now refuses while
@@ -1285,6 +1847,110 @@ static char *gs_present_device_ids(void)
     }
     SetupDiDestroyDeviceInfoList(set);
     return buf;
+}
+
+/* Does PREFER.TXT name this device? Matched exactly as gs_prefs_pass() matches
+ * it - an id at the start of one of the device's own hardware/compatible ids -
+ * so the installer and the preference pass can never both claim one device. */
+static int gs_prefer_claims(const gs_probdev *pd)
+{
+    HANDLE      h;
+    DWORD       got = 0, len = 0;
+    char       *txt, *line, *next, devids[2200];
+    const char *p;
+    int         pass, hit = 0;
+
+    if (!gs_file_exists(GS_PREFER_FILE))
+        return 0;
+    devids[len++] = '\n';
+    for (pass = 0; pass < 2; pass++)
+        for (p = pass ? pd->compat : pd->hw; *p; p += strlen(p) + 1) {
+            DWORD m = (DWORD)strlen(p);
+            if (len + m + 2 >= sizeof(devids))
+                break;
+            memcpy(devids + len, p, m);
+            len += m;
+            devids[len++] = '\n';
+        }
+    devids[len] = 0;
+
+    h = CreateFileA(GS_PREFER_FILE, GENERIC_READ, FILE_SHARE_READ, NULL,
+                    OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    txt = (char *)HeapAlloc(GetProcessHeap(), 0, 262144);
+    if (!txt) {
+        CloseHandle(h);
+        return 0;
+    }
+    if (!ReadFile(h, txt, 262143, &got, NULL))
+        got = 0;
+    txt[got] = 0;
+    CloseHandle(h);
+    for (line = txt; line && *line && !hit; line = next) {
+        char *lhwid = NULL, *linf = NULL, hwid[256];
+        next = strchr(line, '\n');
+        if (next)
+            *next++ = 0;
+        if (!drvpref_split(line, &lhwid, &linf))
+            continue;
+        lstrcpynA(hwid, lhwid, sizeof(hwid));
+        CharUpperA(hwid);
+        hit = drvpref_present(devids, hwid);
+    }
+    HeapFree(GetProcessHeap(), 0, txt);
+    return hit;
+}
+
+/* The INF PREFER.TXT assigns to this device, if any (first matching line). */
+static int gs_prefer_inf_for(const gs_probdev *pd, char *out, DWORD out_cch)
+{
+    HANDLE      h;
+    DWORD       got = 0, len = 0;
+    char       *txt, *line, *next, devids[2200];
+    const char *p;
+    int         pass, hit = 0;
+
+    devids[len++] = '\n';
+    for (pass = 0; pass < 2; pass++)
+        for (p = pass ? pd->compat : pd->hw; *p; p += strlen(p) + 1) {
+            DWORD m = (DWORD)strlen(p);
+            if (len + m + 2 >= sizeof(devids))
+                break;
+            memcpy(devids + len, p, m);
+            len += m;
+            devids[len++] = '\n';
+        }
+    devids[len] = 0;
+    h = CreateFileA(GS_PREFER_FILE, GENERIC_READ, FILE_SHARE_READ, NULL,
+                    OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    txt = (char *)HeapAlloc(GetProcessHeap(), 0, 262144);
+    if (!txt) {
+        CloseHandle(h);
+        return 0;
+    }
+    if (!ReadFile(h, txt, 262143, &got, NULL))
+        got = 0;
+    txt[got] = 0;
+    CloseHandle(h);
+    for (line = txt; line && *line && !hit; line = next) {
+        char *lhwid = NULL, *linf = NULL, hwid[256];
+        next = strchr(line, '\n');
+        if (next)
+            *next++ = 0;
+        if (!drvpref_split(line, &lhwid, &linf))
+            continue;
+        lstrcpynA(hwid, lhwid, sizeof(hwid));
+        CharUpperA(hwid);
+        if (drvpref_present(devids, hwid)) {
+            lstrcpynA(out, linf, out_cch);
+            hit = 1;
+        }
+    }
+    HeapFree(GetProcessHeap(), 0, txt);
+    return hit;
 }
 
 /*
@@ -1407,6 +2073,13 @@ static int gs_prefs_pass(int apply)
 
 static void gs_apply_driver_prefs(void)
 {
+    /* A forced install is still hung inside setupapi: forcing another one on
+     * this thread, with no watchdog, is how the whole startup stops. The
+     * reclaim is already refused, so the preference is simply retried next boot. */
+    if (g_gs_install_hung) {
+        log_msg(LOG_GS, "driver preferences skipped this boot - an install is hung");
+        return;
+    }
     gs_prefs_pass(1);
 }
 
@@ -3947,7 +4620,44 @@ void handle_drvupdate(SOCKET sock, const char *args)
     CharUpperA(hwid);
 
     if (!inf[0]) {
-        if (!gs_find_inf_for(hwid, inf, sizeof(inf))) {
+        /* No device handle here, so no gs_inf_serves(): the text ranking alone
+         * picks it. Give an INF path when that is not good enough. */
+        gs_probdev *one = (gs_probdev *)HeapAlloc(GetProcessHeap(),
+                                                  HEAP_ZERO_MEMORY,
+                                                  sizeof(gs_probdev));
+        int got = 0;
+        if (!one) {
+            send_error_response(sock, "out of memory");
+            return;
+        }
+        lstrcpynA(one->hw, hwid, sizeof(one->hw) - 2);
+        one->nids = drvmatch_collect(one->hw, NULL, one->ids, DRVMATCH_MAX_IDS);
+        if (!one->nids) {
+            HeapFree(GetProcessHeap(), 0, one);
+            send_error_response(sock, "that id names a family of devices - "
+                                      "give the INF path explicitly");
+            return;
+        }
+        /* PREFER.TXT first: it names the build the fleet wants, which the
+         * ranking cannot know (PCI\VEN_10DE&DEV_0150 ranks G003's 270.61 MOBILE
+         * driver first; PREFER.TXT says G005's 71.89). */
+        if (gs_prefer_claims(one) && gs_prefer_inf_for(one, inf, sizeof(inf))) {
+            got = 1;
+        } else if (gs_scan_driver_tree(one, 1) == 0 && one->cand.n) {
+            char *buf = (char *)HeapAlloc(GetProcessHeap(), 0, GS_INF_READ_MAX + 2);
+            int   c;
+            for (c = 0; buf && c < one->cand.n && !got; c++) {
+                char why[160];
+                if (gs_inf_payload_ok(one->cand.path[c], buf, why, sizeof(why))) {
+                    lstrcpynA(inf, one->cand.path[c], sizeof(inf));
+                    got = 1;
+                }
+            }
+            if (buf)
+                HeapFree(GetProcessHeap(), 0, buf);
+        }
+        HeapFree(GetProcessHeap(), 0, one);
+        if (!got) {
             send_error_response(sock, "no INF in " GS_DRIVER_DIR " names that hardware id");
             return;
         }

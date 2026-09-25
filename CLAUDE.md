@@ -2349,8 +2349,45 @@ Ad hoc, on a live box: **`DRVUPDATE <hardware-id> [inf-path]`**.
 - Logic in `agent/shared/drvprefs.h`; tests `tests/native/test_driver_prefs.c`
   and `tests/test_pxe_drivers.py`.
 - **A device XP leaves UNCONFIGURED does not need a preference** —
-  `gs_install_missing_drivers()` already handles those. This mechanism is only
+  `gs_install_missing_drivers()` handles those. This mechanism is only
   for devices Windows configures *badly* and therefore reports as fine.
+
+### Until agent 1.85.1 that installer NEVER installed anything — and the reclaim deleted C:\D
+
+Found 2026-09-25 while PXE-imaging a Dell Dimension 4600 (865G + ICH5). The
+installer and the reclaim guard both searched `C:\D` for only a device's
+**first** hardware id (`...&SUBSYS_xxxx&REV_02`), which no INF names. So on
+every fresh image the display and audio were never installed, and the guard
+concluded "nothing in `C:\D` serves it" and **deleted `C:\D`** from under
+exactly the devices it served. `agent/shared/drvmatch.h` + `gamesync.c` now:
+
+- match **model lines only**: DriverPacks INFs are full of ids in `;` comments,
+  `ExcludeFromSelect`, `[*.PosDup]`, AddReg strings, and models sections XP x86
+  never reads. A first fix that matched anywhere resolved ~600 ids to an INF
+  that does not serve them. Families (`*PNP0501`, bare `USB\ROOT_HUB`,
+  `PCI\CC_*`) are refused, because FORCE reaches every device sharing the id.
+- rank the candidates, most specific id first. **Refuse any INF whose drivers
+  were never staged**: 46 INFs list only `.sys` files that are absent, because
+  they sit in a payload subdirectory `inject-drivers.sh` never copied. That
+  covers every ATI display INF, Creative, USB 3.0 and FTDI. Files inside a staged
+  `.cab` count as present. **Have Windows confirm** each candidate
+  (`SetupDiBuildDriverInfoList` on the single INF) before forcing it.
+- force with **`INSTALLFLAG_NONINTERACTIVE`** (0x4). XP SP3's `newdev` honours it,
+  and it is the only thing that stops newdev's own finish-install wizard. Also
+  set **`SetupSetNonInteractiveMode`** before every call, because newdev clears
+  it; that covers setupapi's "Files Needed" prompt. Driver-signing policy is set
+  to Ignore for the pass and then restored. DriverPacks edits INFs, which breaks
+  their catalogs: the Dell 865G's `I015\ialmnt5.inf` is unsigned. Each install
+  runs under a 10-minute watchdog.
+- leave `PREFER.TXT` devices to the preference pass, try each device on at most
+  two boots (`HKLM\Software\RetroAgent\DriverFixes`), and decide keep/reclaim
+  with `drvmatch_keeps_tree()`. Test: `tests/native/test_drvmatch.c`.
+
+**Open image bug:** `scripts/pxe/inject-drivers.sh` copies only each INF
+directory's top-level files (`find -maxdepth 1`), so payload subdirectories
+(ATI's `B136646\`, Creative, Matrox) never reach `C:\D`. The agent now refuses
+those INFs instead of prompting, but the drivers are still missing from the
+image until the script copies subdirectories and the `$OEM$` tree is rebuilt.
 
 ## Remote Driver Installation
 
