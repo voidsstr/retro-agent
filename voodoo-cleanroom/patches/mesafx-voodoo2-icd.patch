@@ -44,7 +44,7 @@ index a6c0ab5..e837af1 100644
  else
  ifeq ($(ICD),1)
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..ffbff54 100644
+index 350f075..63b27ff 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
 @@ -83,13 +83,34 @@ static GrHwConfiguration glbHWConfig;
@@ -210,7 +210,7 @@ index 350f075..ffbff54 100644
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.74]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.75]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
@@ -315,7 +315,7 @@ index 350f075..ffbff54 100644
  	 }
        }
 diff --git a/src/mesa/drivers/glide/fxdd.c b/src/mesa/drivers/glide/fxdd.c
-index ffc0047..bccfaef 100644
+index ffc0047..8fe1fcb 100644
 --- a/src/mesa/drivers/glide/fxdd.c
 +++ b/src/mesa/drivers/glide/fxdd.c
 @@ -1849,7 +1849,23 @@ fxDDInitExtensions(GLcontext * ctx)
@@ -343,12 +343,21 @@ index ffc0047..bccfaef 100644
     /* [retro3dfx] The Glide paletted-texture path (glColorTableEXT +
      * GL_COLOR_INDEX8 uploads) is incomplete for some engines' usage
      * (GoldSrc/Half-Life uploads 8-bit paletted lightmapped world textures and
-@@ -1867,6 +1883,22 @@ fxDDInitExtensions(GLcontext * ctx)
+@@ -1867,6 +1883,33 @@ fxDDInitExtensions(GLcontext * ctx)
  
     if (fxMesa->haveTwoTMUs && !getenv("FX_NO_MULTITEXTURE")) {
        _mesa_enable_extension(ctx, "GL_ARB_multitexture");
 +
-+      /* [retro3dfx] GL_SGIS_multitexture is OPT-IN (FX_SGIS_MULTITEXTURE=1).
++      /* [retro3dfx] 0.1.75: GL_SGIS_multitexture is ON by default;
++       * FX_SGIS_MULTITEXTURE=0 turns it off. The history below explains why
++       * it was opt-in: the "fixed CPU wall" was three bugs in THIS ICD
++       * (0.1.71-0.1.74: whole-level re-downloads per glTexSubImage2D, a
++       * getenv per unit select, a vertex flush per unit switch). With them
++       * fixed, Quake II single-pass on the V5 6000 is +63..71 % over two-pass
++       * on one chip (every resolution) and +33 % at 1024x768 on four; only
++       * CPU-bound 640/800 on four chips favour two-pass (~200 fps either way).
++       *
++       * Original note - GL_SGIS_multitexture was OPT-IN (FX_SGIS_MULTITEXTURE=1).
 +       *
 +       * Quake II (1997) predates ARB_multitexture and probes ONLY for the SGIS
 +       * name, so advertising it makes Q2 switch from two-pass lightmapping to
@@ -360,8 +369,10 @@ index ffc0047..bccfaef 100644
 +       * back to software. Cause not yet identified, so this stays OFF by
 +       * default: shipping it would be a hard regression.
 +       * Entry points live in fxwgl.c (fx_glSelectTextureSGIS et al). */
-+      if (getenv("FX_SGIS_MULTITEXTURE")) {
-+         _mesa_enable_extension(ctx, "GL_SGIS_multitexture");
++      {
++         const char *sg = getenv("FX_SGIS_MULTITEXTURE");
++         if (!(sg && sg[0] == '0'))
++            _mesa_enable_extension(ctx, "GL_SGIS_multitexture");
 +      }
     }
  

@@ -731,6 +731,14 @@ class Quake2:
             hits = re.findall(pat, raw)
             if hits:
                 out[key] = hits[-1].strip()
+        # Quake II renders the world in ONE pass when the ICD advertises
+        # GL_SGIS_multitexture and in TWO otherwise - +63..71 % on one VSA-100.
+        # voodoo-cleanroom 0.1.75 advertises it by default, so a row must say
+        # which path it measured; the engine's own log line is the evidence.
+        mt = re.findall(r"\.\.\.(using GL_SGIS_multitexture|GL_SGIS_multitexture not found)", raw)
+        if mt:
+            out["notes"] = ("world single-pass (GL_SGIS_multitexture)" if mt[-1].startswith("using")
+                            else "world two-pass (no GL_SGIS_multitexture)")
         return out
 
 

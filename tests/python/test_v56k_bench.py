@@ -1073,3 +1073,10 @@ def test_rtcw_cleanroom_rows_must_name_the_staged_build_and_am_rejects_ours(benc
     ours = "GL_VENDOR: Brian Paul\nGL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.66]\n"
     ok, note = am.verify_driver(ours)
     assert not ok and "voodoo-cleanroom" in note
+
+
+def test_quake2_rows_say_whether_the_world_ran_single_or_two_pass(bench):
+    q = bench.Quake2()
+    assert q.attribution("...using GL_SGIS_multitexture\n")["notes"].startswith("world single-pass")
+    assert q.attribution("...GL_SGIS_multitexture not found\n")["notes"].startswith("world two-pass")
+    assert "notes" not in q.attribution("GL_RENDERER: x\n")

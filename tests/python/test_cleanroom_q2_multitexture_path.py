@@ -79,3 +79,14 @@ def test_sub_rect_uploads_only_on_a_glide_with_the_fixed_row_ext():
     assert "(GLuint) t * pitch" in body          # the ext wants the START of row t
     t = _post("src/mesa/drivers/glide/fxddtex.c")
     assert "!fxTMReloadSubRect(fxMesa, texObj, level, xoffset, yoffset, width, height))" in t
+
+
+def test_sgis_multitexture_is_on_by_default_and_zero_turns_it_off():
+    """0.1.75: with the 0.1.71-0.1.74 fixes Quake II single-pass beats two-pass
+    by 63-71 % on one VSA-100 (every resolution, all ours), so the ICD
+    advertises GL_SGIS_multitexture unless FX_SGIS_MULTITEXTURE starts with 0."""
+    d = _post("src/mesa/drivers/glide/fxdd.c")
+    blk = d.split('const char *sg = getenv("FX_SGIS_MULTITEXTURE");', 1)[1][:200]
+    assert "if (!(sg && sg[0] == '0'))" in blk
+    assert '_mesa_enable_extension(ctx, "GL_SGIS_multitexture");' in blk
+    assert 'if (getenv("FX_SGIS_MULTITEXTURE")) {' not in d      # the old opt-in

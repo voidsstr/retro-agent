@@ -12,6 +12,27 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.75 — Quake II single-pass multitexture is the default (2026-09-25)
+
+`GL_SGIS_multitexture` is now advertised unless `FX_SGIS_MULTITEXTURE` starts
+with `0` (it was opt-in since 0.1.57 because of the "wall" 0.1.71-0.1.74
+removed). Measured all-ours on the V5 6000 with 0.1.74, the same build either
+way:
+
+| Quake II, fps | 1600×1200 | 1280×960 | 1024×768 | 800×600 | 640×480 |
+|---|---|---|---|---|---|
+| **1 chip, single-pass** | **25.3** | **40.0** | **63.6** | **101.1** | **147.9** |
+| 1 chip, two-pass | 14.8 | 23.6 | 37.9 | 61.1 | 90.9 |
+| 4 chips, single-pass | - | - | 176.3 | - | 197.5 |
+| 4 chips, two-pass | - | - | 132.1 | - | 228.5 |
+
++63..71 % on one chip at every resolution, +33 % at 1024×768 on four; only
+CPU-bound 640/800 on four chips favour two-pass, both near 200 fps. GoldSrc
+also looks for the extension: Counter-Strike 1.6 through the system ICD is
+unchanged (57.4 vs 57.7 at 1024×768, 122.9 vs 122.9 at 640×480, one chip),
+with no crash. The runner now records which path each Quake II row ran, from
+the engine's own `...using GL_SGIS_multitexture` line.
+
 ## 0.1.74 — a sub-row lightmap patch goes as sub-rows (2026-09-25)
 
 After 0.1.71 a `glTexSubImage2D` sent only the changed ROWS, but whole rows:

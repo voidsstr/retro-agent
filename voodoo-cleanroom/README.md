@@ -1279,6 +1279,12 @@ ICD-over-AmigaMerlin-Glide rows from above for scale:
   lets Quake II quit (verified: `UNMAP9x … retVal=1` at exit), the ICD logs a
   fatal Glide error and fails cleanly instead of a dialog (0.1.67), and our
   Glide unmaps under the PID it mapped with (fork `5439bb8`).
+- **Quake II on ONE chip, all ours (0.1.74): single-pass 25.3 / 40.0 / 63.6 /
+  101.1 / 147.9 fps vs two-pass 14.8 / 23.6 / 37.9 / 61.1 / 90.9** (1600×1200 →
+  640×480) - +63..71 % everywhere, so **0.1.75 makes single-pass the default**
+  (`FX_SGIS_MULTITEXTURE=0` for two-pass). Quake III (16-bit 24.6 / 37.1 / 56.2 /
+  83.8 / 118.6) and RtCW (14.6 / — / 33.2 / 48.7 / 70.4) one-chip rows:
+  `results/…/allours-0174-cfg0/`.
 - **Quake II single-pass multitexture (ICD 0.1.71-0.1.74, `FX_SGIS_MULTITEXTURE=1`),
   four chips:** 49.3 → **176.3** fps at 1024×768 and 50.8 → **197.5** at 640×480
   after four profiler-found fixes (CHANGELOG 0.1.71-0.1.74). At 1024×768 that
