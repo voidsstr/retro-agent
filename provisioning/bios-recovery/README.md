@@ -207,3 +207,11 @@ floppy). What it says on the real board is the measurement we are after:
 
 Note the second probe takes a few **minutes** - it sweeps every chip flashrom
 knows. That is not a hang.
+
+### Both images are also on the share
+
+`\\192.168.1.122\files\Utility\Retro Automation\bios-recovery\` carries
+`recovery.img`, `frdiag.img`, `8rda4729.bin` and a `README.txt` restating the
+status and the md5s - so a floppy can be re-written from a fleet box with no
+access to this repo. They are copies, not the source: both images are rebuilt
+reproducibly by the two scripts here, and the repo is what says why.
