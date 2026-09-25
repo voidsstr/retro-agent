@@ -429,12 +429,16 @@ bench quiesce, ...). Tests: `tests/python/test_fleetbook.py`.
 The daemon drains a **per-host task queue** whenever it (re)connects to a machine
 (and on each idle cycle), so you can queue agent commands for a box that's
 **offline now** and they run automatically when it next comes online. Plain file
-storage under the daemon runtime dir: `/tmp/retro-chat/tasks/<ip>/*.json`
-(pending) → `done/` (with captured output) or `failed/` (after 3 unreachable
-tries). Queue with `scripts/retro_enqueue.py <ip> "<agent cmd>" [--label ...]`
+storage in a DURABLE dir, `~/.retro-fleet/chat-tasks/<ip>/*.json` (pending) →
+`done/` (with captured output) or `failed/` (unreachable 3x, expired, or timed
+out *after* it was sent — such a command is never re-run). It lived in tmpfs
+`/tmp/retro-chat/tasks/` until 2026-09-25; the daemon migrates what is left there.
+Queue with `scripts/retro_enqueue.py <ip> "<agent cmd>" [--label ...]`
 (or the daemon's `--enqueue`/`--list-tasks` CLI); `retro_enqueue.py --list` shows
 what's pending. A command that reaches the agent but errors still completes the
-task; only network failures are retried. Full docs:
+task; only a failure *before* sending is retried. What the daemon and brain
+guarantee (prompts never silently lost, answers once and in order, one dead box
+never stalls another, FIN-only teardown): the "Reliability" section of
 [`scripts/README-chat-brain.md`](scripts/README-chat-brain.md).
 
 ## Fleet AI engine (retro-infer) — OPT-IN ONLY (agent v1.17.0+)

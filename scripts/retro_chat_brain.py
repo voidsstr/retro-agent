@@ -32,6 +32,23 @@ Real-time + resilient design (LAN, multiple machines, multiple accounts):
     boundaries. Failover attempts that fail auth emit nothing to the client
     (the CLI dies before any assistant token), so a retry is invisible.
 
+  * One LIVE `claude` process per (machine, account) (ClaudeSDKClient), made
+    lazily and reused, instead of spawning a new CLI for every prompt (which
+    re-loads CLAUDE.md, the skills and the MCP servers each time: a 2-3 s
+    floor on a trivial prompt). Recreated on error or failover; closed after
+    RETRO_BRAIN_IDLE_CLOSE seconds idle. RETRO_BRAIN_PERSISTENT=0 restores the
+    one-shot query() path.
+
+  * Restart-safe: a prompt is moved inbox/ -> inbox/queued/ -> inbox/processing/
+    and deleted only when its answer is done. After a restart, queued prompts
+    run normally, and a prompt that was mid-flight is NOT replayed (it may
+    have been a fleet operation): its box is told to resend it. (Session ids
+    persist in ~/.retro-fleet/brain-sessions.json - see SessionStore.)
+
+  * Bounded: a prompt queued behind another says so on the status line, and
+    one prompt may run at most RETRO_BRAIN_PROMPT_TIMEOUT (15 min) of wall
+    clock before it is stopped and the user is told.
+
 Run:  scripts/.brain-venv/bin/python scripts/retro_chat_brain.py
 (usually via the systemd unit or supervisor — see scripts/README-chat-brain.md)
 """
@@ -83,6 +100,10 @@ from claude_agent_sdk import (  # noqa: E402
     ToolUseBlock,
     query,
 )
+try:  # the persistent-client path; absent on very old SDK releases
+    from claude_agent_sdk import ClaudeSDKClient  # noqa: E402
+except ImportError:  # pragma: no cover
+    ClaudeSDKClient = None
 
 import scripts.retro_brain_tools as fleet  # noqa: E402
 import scripts.retro_brain_guard as guard  # noqa: E402
@@ -96,6 +117,11 @@ OUTBOX = ROOT / "outbox"
 STATUS_OUTBOX = ROOT / "status_outbox"
 HEARTBEAT = ROOT / "processor.heartbeat"
 BRAIN_LOG = ROOT / "brain.log"
+# A prompt's life on disk: inbox/ -> inbox/queued/ (routed to its machine's
+# worker) -> inbox/processing/ (running) -> deleted when the answer is done.
+QUEUED = INBOX / "queued"
+PROCESSING = INBOX / "processing"
+INTERRUPTED = ROOT / "interrupted"
 
 POLL_INTERVAL = 0.02        # inbox dispatch poll — only gates pickup, not throughput
 HEARTBEAT_INTERVAL = 20     # chat_status.sh flags the processor stale after 120s
@@ -111,6 +137,13 @@ EFFORT = os.environ.get("RETRO_BRAIN_EFFORT", "medium")
 # driver work), and there's no human watching to bump a limit, so don't cap by
 # default. Set a positive RETRO_BRAIN_MAX_TURNS to re-impose a ceiling.
 MAX_TURNS = int(os.environ.get("RETRO_BRAIN_MAX_TURNS", "0"))
+# ...but wall-clock IS capped: with unlimited turns and a strict per-machine
+# FIFO, one runaway prompt used to hold that machine's chat forever. Generous
+# on purpose (driver builds, multi-step installs); 0 disables.
+PROMPT_TIMEOUT_S = float(os.environ.get("RETRO_BRAIN_PROMPT_TIMEOUT", "900"))
+# Keep one live `claude` process per (machine, account) between prompts.
+PERSISTENT = os.environ.get("RETRO_BRAIN_PERSISTENT", "1") != "0" and ClaudeSDKClient is not None
+IDLE_CLOSE_S = float(os.environ.get("RETRO_BRAIN_IDLE_CLOSE", "1800"))
 
 # The SDK reads whole JSON messages from the `claude` CLI's stdout into one
 # buffer and FATALLY aborts the message reader if a single message exceeds this
@@ -289,7 +322,7 @@ def publish_json(path, payload):
 
 
 def setup():
-    for d in (ROOT, INBOX, OUTBOX, STATUS_OUTBOX):
+    for d in (ROOT, INBOX, OUTBOX, STATUS_OUTBOX, QUEUED, PROCESSING, INTERRUPTED):
         d.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         level=logging.INFO,
@@ -642,14 +675,18 @@ def all_failed_message(last_err):
             "not an account problem: " + err[:120] + "]\n")
 
 
-async def run_prompt(host, seq, prompt, sessions, accounts):
+async def run_prompt(host, seq, prompt, sessions, accounts, pool=None):
     """Stream one prompt through the agent loop with account failover.
 
     Tries the machine's preferred account, then every other account, until one
     authenticates and answers. Failed (unauthenticated) attempts emit NOTHING
     to the client, so the retry is invisible — the user just sees the answer
     from whichever account works. Only if EVERY account fails do we surface an
-    error."""
+    error.
+
+    With a SessionPool (the default) each (machine, account) keeps one live
+    `claude` process between prompts; without one, every attempt spawns a
+    fresh CLI via query() (the original path, RETRO_BRAIN_PERSISTENT=0)."""
     write_status(host, "thinking...")
     idx = {"n": 0}
     buf = {"s": ""}
@@ -674,57 +711,75 @@ async def run_prompt(host, seq, prompt, sessions, accounts):
             buf["s"] = ""
             st["text"] = True
 
-    async def attempt(account_home):
+    def handle(msg, st):
+        if isinstance(msg, StreamEvent):
+            if msg.parent_tool_use_id:      # subagent internal stream — skip
+                return
+            ev = msg.event or {}
+            et = ev.get("type")
+            if et == "content_block_delta":
+                d = ev.get("delta") or {}
+                if d.get("type") == "text_delta":
+                    st["authed"] = True
+                    feed(d.get("text", ""), st)
+                elif d.get("type") == "thinking_delta":
+                    st["authed"] = True
+                    t = d.get("thinking", "")
+                    if t:
+                        st["think"] += t
+                        if len(st["think"]) - st["shown"] >= 30:
+                            st["shown"] = len(st["think"])
+                            snip = st["think"].replace("\n", " ").strip()
+                            if snip:
+                                write_status(host, "thinking: " + snip[-70:])
+            elif et == "content_block_start":
+                if (ev.get("content_block") or {}).get("type") == "thinking":
+                    st["authed"] = True
+                    write_status(host, "thinking...")
+        elif isinstance(msg, AssistantMessage):
+            for block in getattr(msg, "content", []) or []:
+                if isinstance(block, ToolUseBlock):
+                    st["authed"] = True
+                    write_status(host, tool_status(block.name, block.input))
+        elif isinstance(msg, SystemMessage):
+            data = getattr(msg, "data", {}) or {}
+            if data.get("session_id"):
+                st["sid"] = data["session_id"]
+        elif isinstance(msg, ResultMessage):
+            sid = getattr(msg, "session_id", None)
+            if sid:
+                st["sid"] = sid
+            st["result"] = getattr(msg, "result", None)
+            if getattr(msg, "is_error", False):
+                st["err"] = st["result"] or "error"
+
+    async def attempt(account_home, fresh=False, use_resume=True):
         """Run the query on one account. Returns a state dict. `authed` is True
         once ANY assistant activity (text/thinking/tool) arrives — i.e. the CLI
-        got past authentication. Auth/login failures never set it."""
-        resume = portable_resume(sessions.get((host, account_home)),
-                                 account_home, accounts.homes)
+        got past authentication. Auth/login failures never set it.
+        `reused` says a live session from an earlier prompt was used."""
+        resume = (portable_resume(sessions.get((host, account_home)),
+                                  account_home, accounts.homes)
+                  if use_resume else None)
         st = {"authed": False, "text": False, "think": "", "shown": 0,
-              "sid": resume, "err": None, "result": None}
+              "sid": resume, "err": None, "result": None, "reused": False}
         try:
-            async for msg in query(prompt=prompt_stream(prompt),
-                                   options=options_for(host, resume, account_home)):
-                if isinstance(msg, StreamEvent):
-                    if msg.parent_tool_use_id:      # subagent internal stream — skip
-                        continue
-                    ev = msg.event or {}
-                    et = ev.get("type")
-                    if et == "content_block_delta":
-                        d = ev.get("delta") or {}
-                        if d.get("type") == "text_delta":
-                            st["authed"] = True
-                            feed(d.get("text", ""), st)
-                        elif d.get("type") == "thinking_delta":
-                            st["authed"] = True
-                            t = d.get("thinking", "")
-                            if t:
-                                st["think"] += t
-                                if len(st["think"]) - st["shown"] >= 30:
-                                    st["shown"] = len(st["think"])
-                                    snip = st["think"].replace("\n", " ").strip()
-                                    if snip:
-                                        write_status(host, "thinking: " + snip[-70:])
-                    elif et == "content_block_start":
-                        if (ev.get("content_block") or {}).get("type") == "thinking":
-                            st["authed"] = True
-                            write_status(host, "thinking...")
-                elif isinstance(msg, AssistantMessage):
-                    for block in getattr(msg, "content", []) or []:
-                        if isinstance(block, ToolUseBlock):
-                            st["authed"] = True
-                            write_status(host, tool_status(block.name, block.input))
-                elif isinstance(msg, SystemMessage):
-                    data = getattr(msg, "data", {}) or {}
-                    if data.get("session_id"):
-                        st["sid"] = data["session_id"]
-                elif isinstance(msg, ResultMessage):
-                    sid = getattr(msg, "session_id", None)
-                    if sid:
-                        st["sid"] = sid
-                    st["result"] = getattr(msg, "result", None)
-                    if getattr(msg, "is_error", False):
-                        st["err"] = st["result"] or "error"
+            if pool is not None:
+                sess, st["reused"] = await pool.get(host, account_home, resume, fresh=fresh)
+                try:
+                    async for msg in sess.ask(prompt):
+                        handle(msg, st)
+                except BaseException:
+                    # a half-finished turn leaves the session in an unknown
+                    # state (and a timeout must stop the CLI's tools too)
+                    await pool.discard(host, account_home)
+                    raise
+            else:
+                async for msg in query(prompt=prompt_stream(prompt),
+                                       options=options_for(host, resume, account_home)):
+                    handle(msg, st)
+        except asyncio.CancelledError:
+            raise
         except Exception as e:  # noqa: BLE001
             st["err"] = str(e)
         return st
@@ -735,6 +790,17 @@ async def run_prompt(host, seq, prompt, sessions, accounts):
         buf["s"] = ""                       # nothing carried between attempts
         try:
             st = await attempt(account_home)
+            if not st["authed"] and not st["text"] and (st["err"] or not st["result"]):
+                # Before blaming the account: a live session from an earlier
+                # prompt can simply have died, and a persisted session id can
+                # be one this account's CLI no longer has. Retry once fresh.
+                if st["reused"] or st["sid"]:
+                    log.info("host=%s seq=%s retrying on a fresh session (%s)",
+                             host, seq, str(st["err"])[:80])
+                    sessions.pop((host, account_home), None)
+                    st = await attempt(account_home, fresh=True, use_resume=False)
+        except asyncio.CancelledError:
+            raise
         except Exception as e:              # noqa: BLE001
             last_err = str(e)
             accounts.mark_bad(account_home)
@@ -780,6 +846,8 @@ async def run_prompt(host, seq, prompt, sessions, accounts):
         # Unauthenticated / no answer -> this account is unusable; fail over.
         last_err = st["err"] or "no response"
         accounts.mark_bad(account_home)
+        if pool is not None:
+            await pool.discard(host, account_home)
         log.warning("host=%s seq=%s account %s unusable (%s) -> failover",
                     host, seq, accounts.label(account_home), str(last_err)[:80])
 
@@ -787,6 +855,141 @@ async def run_prompt(host, seq, prompt, sessions, accounts):
     log.error("host=%s seq=%s ALL accounts failed: %s", host, seq, str(last_err)[:120])
     emit(all_failed_message(last_err))
     write_status(host, "")
+
+
+def notify(host, seq, text, tag):
+    """One out-of-band line to a machine's chat, ordered after that seq's answer."""
+    try:
+        publish_json(OUTBOX / f"{host}-{seq}-{tag}.json",
+                     {"host": host, "seq": seq, "chunks": [ascii_clean(text)],
+                      "stream": True})
+    except Exception:  # noqa: BLE001
+        log.exception("could not tell %s: %s", host, text[:60])
+
+
+# ---------------------------------------------------------------------------
+# Persistent `claude` processes
+# ---------------------------------------------------------------------------
+_END = object()
+
+
+class _Fail:
+    def __init__(self, exc):
+        self.exc = exc
+
+
+class SessionClosed(Exception):
+    pass
+
+
+class LiveSession:
+    """One live `claude` CLI (ClaudeSDKClient) for a (machine, account).
+
+    Everything that touches the SDK client — connect, each query, disconnect —
+    runs in this object's own task; callers talk to it through queues. The
+    client keeps internal tasks alive from connect() to disconnect(), so a
+    caller's timeout or cancellation must never land inside it: stopping a
+    session cancels ITS task, whose `finally` disconnects (and so ends the CLI
+    and any tool it is still running)."""
+
+    def __init__(self, host, account_home, resume):
+        self.host, self.account_home, self.resume = host, account_home, resume
+        self._requests = asyncio.Queue()
+        self.dead = False
+        self.served = 0
+        self._task = asyncio.create_task(self._run(), name=f"claude-{host}")
+
+    def _drain(self, exc):
+        while not self._requests.empty():
+            req = self._requests.get_nowait()
+            if req is not None:
+                req[1].put_nowait(_Fail(exc))
+
+    async def _run(self):
+        client = None
+        closing_exc = SessionClosed("session closed")
+        try:
+            client = ClaudeSDKClient(options=options_for(self.host, self.resume,
+                                                         self.account_home))
+            try:
+                await client.connect()
+            except Exception as e:  # noqa: BLE001
+                closing_exc = e
+                req = await self._requests.get()      # hand the error to the asker
+                if req is not None:
+                    req[1].put_nowait(_Fail(e))
+                return
+            while True:
+                try:
+                    req = await asyncio.wait_for(self._requests.get(), IDLE_CLOSE_S)
+                except asyncio.TimeoutError:
+                    log.info("host=%s: closing idle claude session", self.host)
+                    return
+                if req is None:
+                    return
+                prompt, out = req
+                try:
+                    await client.query(prompt_stream(prompt))
+                    async for msg in client.receive_response():
+                        out.put_nowait(msg)
+                    out.put_nowait(_END)
+                    self.served += 1
+                except Exception as e:  # noqa: BLE001
+                    out.put_nowait(_Fail(e))
+                    closing_exc = e
+                    return                            # unknown state: start over
+        finally:
+            self.dead = True
+            self._drain(closing_exc)
+            if client is not None:
+                try:
+                    await asyncio.wait_for(client.disconnect(), 30)
+                except BaseException:  # noqa: BLE001
+                    pass
+
+    async def ask(self, prompt):
+        if self.dead:
+            raise SessionClosed("session already closed")
+        out = asyncio.Queue()
+        self._requests.put_nowait((prompt, out))
+        while True:
+            item = await out.get()
+            if item is _END:
+                return
+            if isinstance(item, _Fail):
+                raise item.exc
+            yield item
+
+    async def close(self):
+        if not self._task.done():
+            self._task.cancel()
+        await asyncio.gather(self._task, return_exceptions=True)
+
+
+class SessionPool:
+    """Lazily-created LiveSessions, one per (machine, account)."""
+
+    def __init__(self, factory=LiveSession):
+        self._sessions = {}
+        self._factory = factory
+
+    async def get(self, host, account_home, resume, fresh=False):
+        """-> (session, reused)"""
+        key = (host, account_home)
+        s = self._sessions.get(key)
+        if s is not None and (fresh or s.dead):
+            await self.discard(host, account_home)
+            s = None
+        if s is not None:
+            return s, True
+        s = self._factory(host, account_home, resume)
+        self._sessions[key] = s
+        return s, False
+
+    async def discard(self, host, account_home):
+        s = self._sessions.pop((host, account_home), None)
+        if s is not None:
+            await s.close()
 
 
 async def heartbeat_loop():
@@ -808,48 +1011,118 @@ async def account_refresh_loop(accounts):
                      ", ".join(accounts.label(h) for h in accounts.homes))
 
 
-async def main():
-    setup()
-    beat()
-    accounts = AccountManager()
-    log.info(
-        "retro_chat_brain started (model=%s effort=%s) — %d account(s): %s",
-        MODEL, EFFORT, len(accounts.homes),
-        ", ".join(accounts.label(h) for h in accounts.homes),
-    )
-    log.info("claude cli: %s", _CLI_PATH)
-    asyncio.create_task(heartbeat_loop())
-    asyncio.create_task(account_refresh_loop(accounts))
+INTERRUPTED_NOTICE = ("\n[Your last request was interrupted when the chat brain restarted, "
+                      "before it finished. It was NOT re-run automatically - please "
+                      "send it again if you still need it.]\n")
+QUEUED_NOTICE = "queued behind your previous request"
 
-    sessions = SessionStore()  # (host, account_home) -> Agent SDK session_id
-    host_queues = {}       # host -> asyncio.Queue of (seq, prompt)
-    host_tasks = {}        # host -> worker Task
 
-    async def host_worker(host, q):
+def recover_after_restart():
+    """Called once at startup, before any prompt is taken.
+
+    * inbox/queued/: prompts that were waiting their turn and never started
+      -> back into the inbox, so they run normally, in their original order.
+    * inbox/processing/: prompts that were RUNNING when the brain died. They
+      may have been half-way through a fleet operation, so they are never
+      replayed; the machine is told to resend, and the prompt file is kept in
+      interrupted/ for the record. (Before, the inbox file was deleted the
+      moment it was dispatched, so a restart silently lost the prompt.)
+    """
+    requeued = 0
+    for f in sorted(QUEUED.glob("*.json")):
+        try:
+            os.replace(f, INBOX / f.name)
+            requeued += 1
+        except OSError as e:
+            log.warning("could not requeue %s: %s", f.name, e)
+    told = 0
+    for f in sorted(PROCESSING.glob("*.json")):
+        try:
+            data = json.loads(f.read_text())
+        except Exception:  # noqa: BLE001
+            data = {}
+        host, seq = data.get("host"), data.get("seq")
+        if host and seq is not None:
+            notify(host, seq, INTERRUPTED_NOTICE, "interrupted")
+            write_status(host, "")
+            told += 1
+        try:
+            os.replace(f, INTERRUPTED / f.name)
+        except OSError:
+            f.unlink(missing_ok=True)
+    if requeued or told:
+        log.info("restart recovery: %d queued prompt(s) re-run, %d interrupted "
+                 "prompt(s) reported to their machine", requeued, told)
+    return requeued, told
+
+
+class Brain:
+    """Routes inbox prompts to one worker per machine."""
+
+    def __init__(self, accounts, sessions, pool=None, prompt_timeout=None):
+        self.accounts = accounts
+        self.sessions = sessions
+        self.pool = pool
+        self.prompt_timeout = PROMPT_TIMEOUT_S if prompt_timeout is None else prompt_timeout
+        self.queues = {}       # host -> asyncio.Queue of (seq, prompt, queued_path)
+        self.tasks = {}        # host -> worker Task
+        self.busy = {}         # host -> a prompt is running
+
+    async def run_one(self, host, seq, prompt, qpath):
+        running = PROCESSING / qpath.name
+        try:
+            os.replace(qpath, running)
+        except OSError:
+            running = None
+        try:
+            log.info("host=%s seq=%s: %.80s", host, seq, prompt.replace("\n", " "))
+            if self.prompt_timeout and self.prompt_timeout > 0:
+                try:
+                    async with asyncio.timeout(self.prompt_timeout):
+                        await run_prompt(host, seq, prompt, self.sessions,
+                                         self.accounts, self.pool)
+                except TimeoutError:
+                    mins = self.prompt_timeout / 60
+                    log.error("host=%s seq=%s stopped after %.0f min", host, seq, mins)
+                    notify(host, seq,
+                           f"\n[Stopped: this request was still running after "
+                           f"{mins:.0f} min, so it was cancelled. Anything it had "
+                           f"already done on the machines stays done. Ask again, "
+                           f"narrower, or say what it should skip.]\n", "timeout")
+                    write_status(host, "")
+            else:
+                await run_prompt(host, seq, prompt, self.sessions, self.accounts, self.pool)
+        except Exception:  # noqa: BLE001
+            log.exception("worker error host=%s seq=%s", host, seq)
+            write_status(host, "")
+        finally:
+            if running is not None:
+                running.unlink(missing_ok=True)
+
+    async def worker(self, host, q):
         """Process one machine's prompts strictly in order, concurrently with
         other machines. Failover picks the account per prompt."""
         while True:
-            seq, prompt = await q.get()
+            seq, prompt, qpath = await q.get()
+            self.busy[host] = True
             try:
-                log.info("host=%s seq=%s: %.80s", host, seq, prompt.replace("\n", " "))
-                await run_prompt(host, seq, prompt, sessions, accounts)
-            except Exception:  # noqa: BLE001
-                log.exception("worker error host=%s seq=%s", host, seq)
+                await self.run_one(host, seq, prompt, qpath)
             finally:
+                self.busy[host] = False
                 q.task_done()
 
-    def ensure_host(host):
-        if host in host_queues:
+    def ensure_host(self, host):
+        if host in self.queues:
             return
         q = asyncio.Queue()
-        host_queues[host] = q
-        acct = accounts.assign(host)
-        log.info("new machine %s -> account %s", host, accounts.label(acct))
-        host_tasks[host] = asyncio.create_task(host_worker(host, q))
+        self.queues[host] = q
+        acct = self.accounts.assign(host)
+        log.info("new machine %s -> account %s", host, self.accounts.label(acct))
+        self.tasks[host] = asyncio.create_task(self.worker(host, q), name=f"worker-{host}")
 
-    # Dispatcher: route inbox prompts to per-host queues (fast, non-blocking).
-    while True:
-        beat()
+    def dispatch(self):
+        """Route inbox prompts to per-host queues (fast, non-blocking)."""
+        n = 0
         for f in sorted(INBOX.glob("*.json")):
             try:
                 data = json.loads(f.read_text())
@@ -860,11 +1133,46 @@ async def main():
             host = data.get("host")
             seq = data.get("seq")
             prompt = data.get("prompt", "")
-            f.unlink(missing_ok=True)  # consume now so it isn't reprocessed
             if not host or seq is None:
+                f.unlink(missing_ok=True)
                 continue
-            ensure_host(host)
-            host_queues[host].put_nowait((seq, prompt))
+            qpath = QUEUED / f.name
+            try:
+                os.replace(f, qpath)   # consumed from the inbox, but not yet lost
+            except OSError:
+                continue
+            self.ensure_host(host)
+            if self.busy.get(host) or not self.queues[host].empty():
+                # Strict per-machine FIFO: say so, or a second question just
+                # sits there looking ignored while the first one runs.
+                write_status(host, QUEUED_NOTICE)
+            self.queues[host].put_nowait((seq, prompt, qpath))
+            n += 1
+        return n
+
+
+async def main():
+    setup()
+    beat()
+    accounts = AccountManager()
+    log.info(
+        "retro_chat_brain started (model=%s effort=%s, %s claude sessions, "
+        "prompt cap %.0fs) — %d account(s): %s",
+        MODEL, EFFORT, "persistent" if PERSISTENT else "one-shot", PROMPT_TIMEOUT_S,
+        len(accounts.homes), ", ".join(accounts.label(h) for h in accounts.homes),
+    )
+    log.info("claude cli: %s", _CLI_PATH)
+    asyncio.create_task(heartbeat_loop())
+    asyncio.create_task(account_refresh_loop(accounts))
+
+    sessions = SessionStore()      # (host, account_home) -> session id, persisted
+    pool = SessionPool() if PERSISTENT else None
+    recover_after_restart()
+    brain = Brain(accounts, sessions, pool)
+
+    while True:
+        beat()
+        brain.dispatch()
         await asyncio.sleep(POLL_INTERVAL)
 
 
