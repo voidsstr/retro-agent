@@ -153,11 +153,18 @@ specpicks loader fixed (`f2610e0`) but **not run against the live DB**.
 System ICD on `.124` is now `retroicd.dll` **0.1.75**. CS 1.6 unchanged by the
 SGIS default.
 
-**In flight:** `allours-0175-cfg2` (systemd unit) - sweep reboot into cfg 2, then
-all-ours Q2 (single + two-pass), Q3, RtCW → `results/…/allours-0175-cfg2/`.
-**Next:** reboot back to cfg 5 (the card's default) and re-run all-ours on
-0.1.75 for the final four-chip table (Q2 single-pass full ladder, Q3 with 0.1.73's
-lazy unit select, RtCW).
+**Update 06:00 — all-ours matrix COMPLETE** for Quake II (both paths), Quake III
+and RtCW at cfg 5 / 2 / 0 on 0.1.75 (cfg 0 on 0.1.74): the table is in
+`voodoo-cleanroom/README.md` §13.3. `.124` is booted at **cfg 5**, system ICD
+`retroicd.dll` 0.1.75, agent 1.85.0. cfg 2 ≡ cfg 5 inside Glide (same-boot
+probe: 77.6 = 77.6); the difference is the boot (dossier 0b update).
+
+**Decisions waiting for the user:** (1) run the fixed specpicks loader
+(`f2610e0`) against the live DB to retire the nine RtCW Wicked3D "32-bit" rows;
+(2) keep or drop our default LOD bias −0.5 (costs up to 9 % in GPU-bound RtCW,
+sharper textures); (3) whether clean-room rows go into the article at all.
+**Next technical:** RtCW trails Wicked3D ~15 % at 16-bit (GPU-bound); the
+AmigaMerlin-miniport boot state behind cfg 2 vs cfg 5.
 
 ### Resume point (2026-09-24 08:39) — `.124` WEDGED during the clean-room smoke test; needs a power cycle
 

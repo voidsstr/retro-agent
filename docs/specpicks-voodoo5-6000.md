@@ -215,6 +215,22 @@ knowing how many chips each mode lights up.
 "two chips give X and four chips give Y". `GR_NUM_FB` cannot settle it — it
 reports chips *present*, not chips *ganged* (see retraction 2 below).
 
+#### 0b update (2026-09-25): cfg 2 and cfg 5 are the SAME instruction to Glide; the boot differs
+
+- In 3dfx's Glide 3 source (`glide3x/h5/glide3/src/gpci.c`, our fork), the
+  `SSTH3_SLI_AA_CONFIGURATION` switch treats 2 and 5 as the same `default:`
+  case - all chips in SLI, no AA. The "Dual" / "Quad" wording is 3dfx Tools'
+  per-board labelling (2 is "all chips" on a two-chip 5500, 5 on a four-chip
+  6000). Our Glide logs its SLI request: `chips=4 sliEn=1` at both.
+- Same-boot test, clean-room stack, Quake III 1600×1200×16: on the cfg 5 boot,
+  our Glide told "2" and told "5" gave **77.6 fps in four alternating runs**. The
+  cfg 2 BOOT gave 69.6. So the registry value's effect is at boot, on the display
+  driver's side, not in Glide's configuration.
+- With AmigaMerlin's Glide the cfg 2 boot is the FASTER one (87.0 vs 78.7);
+  with ours it is the slower one. The labels' question therefore narrows to what
+  the AmigaMerlin miniport does differently at boot for 2 vs 5 - a registry or
+  miniport-escape diff between the two boots would answer it.
+
 ### 0. THE AA AXIS IS NOT MEASURED — the card never anti-aliased
 
 **This is the most important correction in the file, and it invalidates every

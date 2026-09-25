@@ -1229,6 +1229,39 @@ renderer string read back on every row). fps, 16-bit / 32-bit:
   (gitignored, like every campaign CSV); campaign notes:
   [`../docs/v56k-benchmark-plan.md`](../docs/v56k-benchmark-plan.md).
 
+**All ours — the full table, 2026-09-25 (ICD 0.1.75; cfg 0 rows on 0.1.74, the
+same code for these paths).** Our ICD + our h5 Glide (C triangle setup) +
+AmigaMerlin's display driver, Voodoo 5 6000 on `.124`, fps 16-bit / 32-bit,
+generated from `results/…/allours-0175-cfg5/`, `allours-0175-cfg2/`,
+`allours-0174-cfg0/`. Quake II "single-pass" is 0.1.75's default
+(GL_SGIS_multitexture); "two-pass" is `FX_SGIS_MULTITEXTURE=0`.
+
+| | cfg | 1600×1200 | 1280×960 | 1024×768 | 800×600 | 640×480 |
+|---|---|---|---|---|---|---|
+| **Quake II single-pass** | 5 (4 chips) | 98.6 / 98.8 | 140.1 / 140.4 | 176.8 / 176.2 | 193.4 / 193.4 | 201.5 / 202.0 |
+| **Quake II single-pass** | 2 | 89.6 / 89.8 | 126.5 / 127.6 | 160.4 / 159.9 | 174.4 / 174.7 | 183.7 / 173.3 |
+| **Quake II single-pass** | 0 (1 chip) | 25.3 / 25.3 | 40.0 / 40.0 | 63.6 / 63.6 | 101.1 / 101.1 | 147.9 / 147.9 |
+| Quake II two-pass | 5 (4 chips) | 64.3 / 64.3 | 92.8 / 92.8 | 132.1 / 132.2 | 186.9 / 187.0 | 228.0 / 225.1 |
+| Quake II two-pass | 2 | 58.1 / 58.0 | 83.0 / 83.5 | 119.8 / 119.4 | 166.8 / 169.8 | 206.4 / 206.7 |
+| Quake II two-pass | 0 (1 chip) | 14.8 / 14.8 | 23.6 / 23.6 | 37.9 / 37.9 | 61.1 / 61.1 | 90.9 / 90.9 |
+| **Quake III** | 5 (4 chips) | 77.6 / 50.0 | 119.2 / 76.0 | 128.6 / 102.9 | 130.1 / 118.4 | 131.5 / 122.1 |
+| **Quake III** | 2 | 69.6 / 44.9 | 107.4 / 68.3 | 115.7 / 92.8 | 117.1 / 106.4 | 115.7 / 111.1 |
+| **Quake III** | 0 (1 chip) | 24.6 / 7.1 | 37.1 / 14.9 | 56.2 / 30.7 | 83.8 / 50.0 | 118.6 / 74.5 |
+| **RtCW** (system ICD) | 5 (4 chips) | 45.9 / 29.4 | — | 97.6 / 64.0 | 102.1 / 80.0 | 102.5 / 87.8 |
+| **RtCW** (system ICD) | 2 | 41.7 / 26.3 | — | 87.9 / 56.1 | 91.0 / 72.3 | 90.1 / 78.1 |
+| **RtCW** (system ICD) | 0 (1 chip) | 14.6 / 4.0 | — | 33.2 / 18.5 | 48.7 / 29.3 | 70.4 / 37.5 |
+
+- Quake II single-pass on four chips is **+64 % over AmigaMerlin's own ICD at
+  1600×1200** (98.6 vs 60.1) and +53 % over this stack two-pass.
+- **cfg 2 vs cfg 5 is the boot, not Glide.** In the Glide source
+  (`gpci.c`) `SSTH3_SLI_AA_CONFIGURATION` 2 and 5 are the same `default:` case -
+  every chip in SLI, no AA - and our Glide asks the miniport for `chips=4` at
+  both. On the cfg 5 boot, telling our Glide "2" or "5" gives **77.6 fps in all
+  four alternating runs** (Quake III 1600×1200×16); the cfg 2 BOOT gives 69.6.
+  So what the registry value changes is how the display driver sets the board up
+  at boot, and the published "cfg 2 beats cfg 5" (AmigaMerlin's Glide) and our
+  "cfg 5 beats cfg 2" are two Glides meeting the same two boot states.
+
 **All ours (roadmap §17.1 Steps 4-5, 2026-09-24/25): our ICD over OUR h5
 Glide** (game-local `glide3x.dll`) and AmigaMerlin's display driver only - no
 AmigaMerlin Glide or ICD in the path, confirmed per row by `retrogl.log` naming
