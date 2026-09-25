@@ -4,6 +4,14 @@
 #include <stdio.h>
 
 /*
+ * Only a TRANSFER earns a frame line. A small frame is already visible as its
+ * CMD line in main.c, and logging every one - two lines per chat long-poll,
+ * once a second on Win9x - rotated the whole boot out of the log on .243
+ * within two hours (2026-09-24). Framing errors are always logged.
+ */
+#define PROTO_LOG_MIN 1024
+
+/*
  * Frame format (both directions):
  *   [uint32 LE: payload length] [payload bytes]
  */
@@ -90,7 +98,8 @@ int frame_recv(SOCKET sock, char **out_buf, DWORD *out_len)
     }
     buf[payload_len] = '\0';
 
-    log_msg(LOG_PROTO, "frame_recv: %lu bytes", (unsigned long)payload_len);
+    if (payload_len >= PROTO_LOG_MIN)
+        log_msg(LOG_PROTO, "frame_recv: %lu bytes", (unsigned long)payload_len);
 
     *out_buf = buf;
     *out_len = payload_len;
@@ -101,7 +110,8 @@ int frame_send(SOCKET sock, const char *data, DWORD len)
 {
     unsigned char hdr[4];
 
-    log_msg(LOG_PROTO, "frame_send: %lu bytes", (unsigned long)len);
+    if (len >= PROTO_LOG_MIN)
+        log_msg(LOG_PROTO, "frame_send: %lu bytes", (unsigned long)len);
 
     hdr[0] = (unsigned char)(len & 0xFF);
     hdr[1] = (unsigned char)((len >> 8) & 0xFF);

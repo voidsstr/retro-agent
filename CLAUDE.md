@@ -2013,6 +2013,10 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
   its Voodoo 2 answers config cycles but the BIOS leaves it unconfigured (BAR0 0) and Win98's
   boot-time enumeration misses it, and Glide on a BAR0-0 Voodoo maps it over RAM and kills the
   box. A re-enumeration after logon finds it, installs its driver and assigns BAR0 (0x09000000).
+  **v1.84.3+:** the startup pass records its outcome in `HKLM\Software\RetroAgent\PciRescueBoot`
+  and `PCIRESCAN` returns it as `last_boot`. Read that, not the log: on a 9x box running
+  `retro_chat` the log used to rotate the whole boot away within ~2 hours (the chat long-polls
+  are now logged once per connection).
 - **SYSFIX [check|apply]** — check/apply Win98 system fixes
 
 ### Linux-Only

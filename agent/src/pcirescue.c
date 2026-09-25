@@ -26,10 +26,18 @@
  * static import Win9x cannot resolve kills the whole exe at load (CLAUDE.md).
  *
  * Registry (HKLM\Software\RetroAgent):
- *   PciRescue  REG_DWORD  0 = do not run at startup (PCIRESCAN still works)
+ *   PciRescue      REG_DWORD  0 = do not run at startup (PCIRESCAN still works)
+ *   PciRescueBoot  REG_SZ     what the STARTUP pass found and did, written by
+ *                             the agent. The log cannot be relied on for this:
+ *                             on .243 the chat polls rotated the whole boot out
+ *                             of agent.log + agent.log.1 within two hours, so
+ *                             "did the rescue run, or did Windows find the card
+ *                             itself?" had no answer. PCIRESCAN reports it as
+ *                             last_boot.
  *
  * Command: PCIRESCAN - run it now; answers with JSON describing what was
- * missing before, which buses were re-enumerated, and what is missing after.
+ * missing before, which buses were re-enumerated, and what is missing after,
+ * plus last_boot (the stored startup summary).
  */
 
 #include "handlers.h"
@@ -180,8 +188,70 @@ static void pcir_run(pcir_result_t *r, int force)
             r->n_missing_after ? " - still missing means not answering on the bus (removed, or not seated)" : "");
 }
 
+/* One line saying what the startup pass saw and did, for PciRescueBoot. */
+static void pcir_summary(const pcir_result_t *r, char *out, size_t cch)
+{
+    size_t n;
+    int i;
+    _snprintf(out, cch - 1, "agent %s, uptime %lus: ",
+#ifdef AGENT_VERSION
+              AGENT_VERSION,
+#else
+              "?",
+#endif
+              (unsigned long)(GetTickCount() / 1000));
+    out[cch - 1] = 0;
+    n = strlen(out);
+    if (r->error) {
+        _snprintf(out + n, cch - n - 1, "error: %s", r->error);
+    } else if (!r->n_missing_before) {
+        _snprintf(out + n, cch - n - 1,
+                  "all %d installed PCI device(s) present - nothing to do", r->installed);
+    } else {
+        _snprintf(out + n, cch - n - 1,
+                  "%d of %d installed PCI device(s) had no devnode, re-enumerated %d bus(es), "
+                  "%d still missing -> %s;",
+                  r->n_missing_before, r->installed, r->n_buses, r->n_missing_after,
+                  r->n_missing_after < r->n_missing_before ? "RESCUED" : "NOT rescued");
+        for (i = 0; i < r->n_missing_before; i++) {
+            n = strlen(out);
+            if (n + 2 >= cch) break;
+            _snprintf(out + n, cch - n - 1, " %s", r->missing_before[i]);
+        }
+    }
+    out[cch - 1] = 0;
+}
+
+static void pcir_store_boot(const char *summary)
+{
+    HKEY h;
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, NULL, 0,
+                        KEY_WRITE, NULL, &h, NULL) != ERROR_SUCCESS) {
+        log_msg(LOG_PCIR, "could not open HKLM\\Software\\RetroAgent to record the result");
+        return;
+    }
+    RegSetValueExA(h, "PciRescueBoot", 0, REG_SZ, (const BYTE *)summary,
+                   (DWORD)strlen(summary) + 1);
+    RegCloseKey(h);
+}
+
+static void pcir_load_boot(char *out, DWORD cch)
+{
+    HKEY h;
+    DWORD type = 0, sz = cch;
+    out[0] = 0;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, KEY_READ, &h) != ERROR_SUCCESS)
+        return;
+    if (RegQueryValueExA(h, "PciRescueBoot", NULL, &type, (LPBYTE)out, &sz) != ERROR_SUCCESS
+            || type != REG_SZ)
+        out[0] = 0;
+    out[cch - 1] = 0;
+    RegCloseKey(h);
+}
+
 DWORD WINAPI pcirescue_thread(LPVOID param)
 {
+    char summary[1024];
     pcir_result_t r;
     DWORD enabled = 1, sz = sizeof(enabled), type = 0;
     HKEY h;
@@ -193,10 +263,16 @@ DWORD WINAPI pcirescue_thread(LPVOID param)
             enabled = 1;
         RegCloseKey(h);
     }
-    if (!enabled) { log_msg(LOG_PCIR, "disabled by PciRescue=0"); return 0; }
+    if (!enabled) {
+        log_msg(LOG_PCIR, "disabled by PciRescue=0");
+        pcir_store_boot("disabled by PciRescue=0");
+        return 0;
+    }
     if (InterlockedExchange((LONG *)&g_pcir_busy, 1)) return 0;
     pcir_run(&r, 0);
     InterlockedExchange((LONG *)&g_pcir_busy, 0);
+    pcir_summary(&r, summary, sizeof(summary));
+    pcir_store_boot(summary);
     return 0;
 }
 
@@ -211,6 +287,7 @@ static void pcir_emit_list(json_t *j, const char *key, char list[][PCIR_ID], int
 
 void handle_pcirescan(SOCKET sock, const char *args)
 {
+    char last_boot[1024];
     pcir_result_t r;
     json_t j;
     char *out;
@@ -239,6 +316,8 @@ void handle_pcirescan(SOCKET sock, const char *args)
     json_array_end(&j);
     pcir_emit_list(&j, "missing_after", r.missing_after, r.n_missing_after);
     json_kv_bool(&j, "rescued", r.n_missing_before > 0 && r.n_missing_after < r.n_missing_before);
+    pcir_load_boot(last_boot, sizeof(last_boot));
+    json_kv_str(&j, "last_boot", last_boot);
     json_object_end(&j);
     out = json_finish(&j);
     if (!out) { send_error_response(sock, "PCIRESCAN: out of memory"); return; }

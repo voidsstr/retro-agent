@@ -98,9 +98,33 @@ static int g_client_mode = MODE_THREADED;
 typedef struct {
     SOCKET sock;
     int    authed;
+    int    poll_logged;   /* this connection's first long-poll is already logged */
     DWORD  last_active;   /* GetTickCount of the last byte from this client */
     char   addr_str[24];  /* "x.x.x.x:port" for logging */
 } client_slot_t;
+
+/*
+ * The chat long-polls are logged ONCE per connection, not every time.
+ *
+ * On Win9x a long-poll is clamped to 1s (g_longpoll_max_ms), so a local
+ * retro_chat alone wrote a CMD line plus two frame lines every second per
+ * poller and rotated the 512 KB agent.log / agent.log.1 pair in about two
+ * hours. On .243 (2026-09-24) the entire boot - the PCIRESCUE result, the
+ * auto-update, GAMESYNC - was gone by the time anyone looked. The first poll
+ * on a connection is still logged, so the log keeps showing who is polling
+ * from where (which is how a second chat stack stealing prompts was found).
+ */
+static int cmd_is_longpoll(const char *buf, DWORD len)
+{
+    static const char *const polls[] = { "PROMPT_WAIT", "LOG_WAIT", "STATUS_WAIT" };
+    int i;
+    for (i = 0; i < 3; i++) {
+        DWORD n = (DWORD)strlen(polls[i]);
+        if (len >= n && _strnicmp(buf, polls[i], n) == 0 && (len == n || buf[n] == ' '))
+            return 1;
+    }
+    return 0;
+}
 
 /*
  * Drop a connection that has gone quiet for this long.
@@ -506,6 +530,7 @@ static int client_process(int slot)
             return -1;
         }
         cl->authed = 1;
+        cl->poll_logged = 0;
         log_msg(LOG_MAIN, "Client %d (%s) authenticated", slot, cl->addr_str);
         return 0;
     }
@@ -520,13 +545,18 @@ static int client_process(int slot)
     }
 
     {
-        char preview[81];
-        DWORD plen = len < 80 ? len : 80;
-        memcpy(preview, buf, plen);
-        preview[plen] = '\0';
-        log_msg(LOG_MAIN, "[%d] CMD: \"%s\"%s (%lu bytes)",
-                slot, preview, len > 80 ? "..." : "",
-                (unsigned long)len);
+        int poll = cmd_is_longpoll(buf, len);
+        if (!poll || !cl->poll_logged) {
+            char preview[81];
+            DWORD plen = len < 80 ? len : 80;
+            memcpy(preview, buf, plen);
+            preview[plen] = '\0';
+            log_msg(LOG_MAIN, "[%d] CMD: \"%s\"%s (%lu bytes)%s",
+                    slot, preview, len > 80 ? "..." : "",
+                    (unsigned long)len,
+                    poll ? " - further long-polls on this connection not logged" : "");
+            if (poll) cl->poll_logged = 1;
+        }
     }
 
     {
@@ -558,6 +588,7 @@ static void handle_client(SOCKET client)
 {
     char *cmd_buf;
     DWORD cmd_len;
+    volatile int poll_logged = 0; /* first long-poll logged; volatile: setjmp below */
 
     /* SO_RCVTIMEO crashes Win98 Winsock — skip on Win9x.
      * On NT (XP+), set receive timeout to detect dead clients. */
@@ -594,14 +625,20 @@ static void handle_client(SOCKET client)
         }
 
         {
-            /* Log first 80 chars of command */
-            char preview[81];
-            DWORD plen = cmd_len < 80 ? cmd_len : 80;
-            memcpy(preview, cmd_buf, plen);
-            preview[plen] = '\0';
-            log_msg(LOG_MAIN, "CMD: \"%s\"%s (%lu bytes)",
-                    preview, cmd_len > 80 ? "..." : "",
-                    (unsigned long)cmd_len);
+            /* Log first 80 chars of command (a long-poll only once, see
+             * cmd_is_longpoll) */
+            int poll = cmd_is_longpoll(cmd_buf, cmd_len);
+            if (!poll || !poll_logged) {
+                char preview[81];
+                DWORD plen = cmd_len < 80 ? cmd_len : 80;
+                memcpy(preview, cmd_buf, plen);
+                preview[plen] = '\0';
+                log_msg(LOG_MAIN, "CMD: \"%s\"%s (%lu bytes)%s",
+                        preview, cmd_len > 80 ? "..." : "",
+                        (unsigned long)cmd_len,
+                        poll ? " - further long-polls on this connection not logged" : "");
+                if (poll) poll_logged = 1;
+            }
         }
 
         /* Watchdog instrumentation: mark a command in-flight so watchdog_thread

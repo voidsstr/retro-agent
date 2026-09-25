@@ -62,3 +62,24 @@ def test_accelerators_read_the_win9x_enum_path_too():
     assert '"Enum\\\\PCI"' in body, "Win9x keeps PCI under HKLM\\Enum\\PCI"
     assert '"SYSTEM\\\\CurrentControlSet\\\\Enum\\\\PCI\\\\%s"' not in body, \
         "the per-device path must follow whichever root was opened"
+
+
+def test_startup_result_is_persisted_not_only_logged():
+    """1.84.3: the log cannot hold the boot on a 9x box running retro_chat.
+
+    On .243 the chat long-polls rotated agent.log + agent.log.1 within two
+    hours, so whether the rescue had run at boot - or Windows had found the
+    Voodoo by itself - could not be answered after the fact. The startup pass
+    now records its outcome in HKLM\\Software\\RetroAgent\\PciRescueBoot and
+    PCIRESCAN reports it as last_boot.
+    """
+    s = _read("pcirescue.c")
+    thread = s[s.index("DWORD WINAPI pcirescue_thread"):s.index("static void pcir_emit_list")]
+    assert "pcir_store_boot(summary)" in thread, "the startup pass must record what it did"
+    assert 'pcir_store_boot("disabled by PciRescue=0")' in thread, (
+        "a disabled pass must say so, or an old RESCUED line reads as this boot's")
+    assert '"PciRescueBoot"' in s
+    handler = s[s.index("void handle_pcirescan"):]
+    assert 'json_kv_str(&j, "last_boot", last_boot)' in handler
+    # both outcomes are spelled out, so a failure cannot read as a success
+    assert '"RESCUED" : "NOT rescued"' in s
