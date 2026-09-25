@@ -70,7 +70,12 @@
  * be >= MAX_CLIENTS + 1 (the listener). */
 #define MAX_CLIENTS    7
 #define FRAME_CAP      16384        /* DOS conventional-memory frame cap */
-#define LOG_MAX_DOS    16384        /* chat log ring on DOS */
+/* chat log ring on DOS. Kept a little under FRAME_CAP so that a reader at the
+ * ring's base gets the WHOLE ring plus its "<total>\n" header in one reply:
+ * at exactly FRAME_CAP that reply was over the cap and was never sent, and a
+ * reader must always be sent everything up to the end (absolute offsets -
+ * see agent/shared/chatcore.h). */
+#define LOG_MAX_DOS    (FRAME_CAP - 64)
 #define RECV_BUF_SIZE  4096
 #define EXEC_TMP       "C:\\RCEXEC.TMP"
 
@@ -108,7 +113,12 @@ static char far *scratch = NULL;
 
 /* UI state */
 static int ui_waiting = 0;              /* prompt sent, no response yet */
-static unsigned long ui_log_shown = 0;  /* bytes of core.log already printed */
+static unsigned long ui_log_shown = 0;  /* ABSOLUTE log offset already printed */
+
+/* PROMPT_PUSH reports when nobody polls for prompts (chatcore.h) */
+static clock_t prompt_last_seen = 0;
+static int prompt_ever_seen = 0;
+static clock_t proxy_started = 0;
 static unsigned long ui_status_seen = 0;
 static volatile uint8_t CtrlBreakDetected = 0;
 
@@ -242,13 +252,28 @@ static void ui_pump_log(void)
     char far *clean = scratch + FRAME_CAP / 2;   /* 8K half */
     char far *wrapped = scratch;                 /* 8K half, wrap output */
     const unsigned long clean_cap = 2048;
-    while (core.log_size > ui_log_shown) {
-        unsigned long chunk = core.log_size - ui_log_shown;
+    unsigned long idx, avail;
+    int past_end;
+
+    /* ui_log_shown is ABSOLUTE. It used to be a buffer offset, so when the
+     * ring dropped its oldest half it pointed past the end and nothing was
+     * printed until the log grew back past it - most of a long reply simply
+     * never appeared (and the main loop redrew the status row every pass). */
+    idx = chatcore_log_window(&core, ui_log_shown, &avail, &past_end);
+    if (past_end) {                     /* cleared under us: start over */
+        ui_log_shown = core.log_base;
+        idx = chatcore_log_window(&core, ui_log_shown, &avail, &past_end);
+    }
+    ui_log_shown = chatcore_log_end(&core) - avail;   /* skip dropped bytes */
+    while (avail) {
+        unsigned long chunk = avail;
         unsigned long cl, wl;
         if (chunk > clean_cap - 2) chunk = clean_cap - 2;
-        cl = chat_sanitize_chunk(core.log + ui_log_shown, chunk, clean);
+        cl = chat_sanitize_chunk(core.log + idx, chunk, clean);
         wl = chat_wrap_text(clean, cl, wrapped, SCR_W - 1);
         put_text(wrapped, wl, ATTR_RESPONSE);
+        idx += chunk;
+        avail -= chunk;
         ui_log_shown += chunk;
         ui_waiting = 0;
     }
@@ -394,16 +419,18 @@ static void cmd_download(TcpSocket *s, const char *path)
     resp_status(s, RESP_OK_BINARY, out, n);
 }
 
-/* chat-proxy long-poll answers */
+/* chat-proxy long-poll answers. Offsets are ABSOLUTE (chatcore.h): the
+ * total is the absolute end, a reader behind the ring's base resumes there,
+ * one past the end (cleared) gets nothing and resets. */
 static void answer_log_read(TcpSocket *s, unsigned long offset)
 {
     char far *out = scratch;
-    unsigned long hl, used;
-    if (offset > core.log_size) offset = core.log_size;
-    hl = sprintf(out, "%lu\n", core.log_size);
-    used = core.log_size - offset;
-    memcpy(out + hl, core.log + offset, used);
-    resp_status(s, RESP_OK_TEXT, out, hl + used);
+    unsigned long hl, idx, avail;
+    int past_end;
+    idx = chatcore_log_window(&core, offset, &avail, &past_end);
+    hl = sprintf(out, "%lu\n", chatcore_log_end(&core));
+    memcpy(out + hl, core.log + idx, avail);
+    resp_status(s, RESP_OK_TEXT, out, hl + avail);
 }
 
 static void answer_status(TcpSocket *s)
@@ -413,13 +440,39 @@ static void answer_status(TcpSocket *s)
     resp_text(s, out);
 }
 
-static void answer_prompt(TcpSocket *s)
+/* The connection id a taken prompt is in flight for (chatcore.h) */
+static unsigned long owner_of(client_t *c)
+{
+    return (unsigned long)(c - clients) + 1;
+}
+
+static void prompt_seen(void)
+{
+    prompt_last_seen = clock();
+    prompt_ever_seen = 1;
+}
+
+/* TAKE, not pop: the prompt stays in flight for this connection until its
+ * next command, and client_drop() puts it back if that never comes. */
+static void answer_prompt(client_t *c)
 {
     char out[CHATCORE_PROMPT_MAX];
-    if (chatcore_prompt_pop(&core, out, sizeof(out)))
-        resp_text(s, out);
+    prompt_seen();
+    if (chatcore_prompt_take(&core, out, sizeof(out), owner_of(c)))
+        resp_text(c->sock, out);
     else
-        resp_text(s, "");
+        resp_text(c->sock, "");
+}
+
+/* answer c's parked long-poll now (it sent another command meanwhile, so it
+ * has moved on: a prompt is NOT handed out on a forced answer) */
+static void answer_parked_now(client_t *c)
+{
+    pollwait_t w = c->pending;
+    c->pending = PW_NONE;
+    if (w == PW_LOG) answer_log_read(c->sock, c->p_param);
+    else if (w == PW_STATUS) answer_status(c->sock);
+    else if (w == PW_PROMPT) { prompt_seen(); resp_text(c->sock, ""); }
 }
 
 static clock_t poll_deadline(const char *args, unsigned long defms)
@@ -464,6 +517,12 @@ static void dispatch(client_t *c, char *cmd, unsigned long len)
         return;
     }
 
+    /* This command proves the reply to the previous one arrived: that
+     * acknowledges a prompt it took, and a poll still parked is answered
+     * first so replies stay in the order they were asked for. */
+    chatcore_prompt_ack(&core, owner_of(c));
+    if (c->pending != PW_NONE) answer_parked_now(c);
+
     args = strchr(cmd, ' ');
     if (args) *args++ = '\0';
 
@@ -487,17 +546,32 @@ static void dispatch(client_t *c, char *cmd, unsigned long len)
         c->expecting_upload = 1;   /* next frame is the payload */
     }
     else if (!strcmp(cmd, "PROMPT_PUSH")) {
+        int replaced = core.prompt_pending;
         if (chatcore_prompt_push(&core, args ? args : "") == 0) {
+            char reply[48];
+            int listening = 0, i;
+            unsigned long idle_s;
+            for (i = 0; i < MAX_CLIENTS; i++)
+                if (clients[i].sock && clients[i].pending == PW_PROMPT)
+                    listening = 1;
+            idle_s = (unsigned long)((clock() - (prompt_ever_seen
+                         ? prompt_last_seen : proxy_started)) / CLOCKS_PER_SEC);
+            if (prompt_ever_seen &&
+                idle_s * 1000UL < CHATCORE_LISTENER_STALE_MS)
+                listening = 1;
             ui_waiting = 1;
             /* echo the remote prompt into the local scrollback */
             put_text("> ", 2, ATTR_PROMPT);
             put_line(args ? args : "", ATTR_DEFAULT);
-            resp_text(s, "OK");
+            chatcore_push_reply(reply, sizeof(reply), replaced, listening,
+                                idle_s * 1000UL);
+            resp_text(s, reply);
         } else resp_err(s, "PROMPT_PUSH requires text");
     }
-    else if (!strcmp(cmd, "PROMPT_POP"))  { answer_prompt(s); }
+    else if (!strcmp(cmd, "PROMPT_POP"))  { answer_prompt(c); }
     else if (!strcmp(cmd, "PROMPT_WAIT")) {
-        if (core.prompt_pending) answer_prompt(s);
+        prompt_seen();
+        if (core.prompt_pending) answer_prompt(c);
         else {
             c->pending = PW_PROMPT;
             c->p_deadline = poll_deadline(args ? args - 1 : 0, 30000);
@@ -508,12 +582,31 @@ static void dispatch(client_t *c, char *cmd, unsigned long len)
                             args ? (unsigned long)strlen(args) : 0);
         resp_text(s, "OK");
     }
+    else if (!strcmp(cmd, "LOG_APPEND2")) {
+        /* LOG_APPEND2 <id> <text>: idempotent per chunk id (chatcore.h) */
+        char *p = args ? args : (char *)"";
+        unsigned long id = 0;
+        int digits = 0, dup = 0;
+        while (*p >= '0' && *p <= '9') {
+            id = id * 10UL + (unsigned long)(*p - '0');
+            p++;
+            digits++;
+        }
+        if (!digits || digits > 10 || (*p && *p != ' '))
+            resp_err(s, "LOG_APPEND2 requires <id> <text>");
+        else {
+            if (*p == ' ') p++;
+            chatcore_log_append_once(&core, id, p,
+                                     (unsigned long)strlen(p), &dup);
+            resp_text(s, dup ? "OK dup" : "OK");
+        }
+    }
     else if (!strcmp(cmd, "LOG_READ")) {
         answer_log_read(s, args ? strtoul(args, NULL, 10) : 0);
     }
     else if (!strcmp(cmd, "LOG_WAIT")) {
         unsigned long off = args ? strtoul(args, NULL, 10) : 0;
-        if (core.log_size > off || (off > 0 && core.log_size < off))
+        if (chatcore_log_end(&core) != off)      /* new bytes, or cleared */
             answer_log_read(s, off);
         else {
             c->pending = PW_LOG;
@@ -563,6 +656,8 @@ static void client_reset_frame(client_t *c)
 
 static void client_drop(client_t *c)
 {
+    /* a prompt this connection took but never acknowledged goes back */
+    chatcore_prompt_requeue(&core, owner_of(c));
     if (c->sock) {
         c->sock->close();
         TcpSocketMgr::freeSocket(c->sock);
@@ -631,17 +726,22 @@ static void service_longpolls(void)
         if (!c->sock || c->pending == PW_NONE) continue;
         switch (c->pending) {
         case PW_LOG:
-            if (core.log_size > c->p_param
-                || (c->p_param > 0 && core.log_size < c->p_param)
+            if (chatcore_log_end(&core) != c->p_param
                 || clock() >= c->p_deadline) {
                 c->pending = PW_NONE;
                 answer_log_read(c->sock, c->p_param);
             }
             break;
         case PW_PROMPT:
+            /* never take a prompt into a connection whose peer has gone:
+             * drop it, and the prompt stays for the next poller */
+            if (core.prompt_pending && c->sock->isRemoteClosed()) {
+                client_drop(c);
+                break;
+            }
             if (core.prompt_pending || clock() >= c->p_deadline) {
                 c->pending = PW_NONE;
-                answer_prompt(c->sock);
+                answer_prompt(c);
             }
             break;
         case PW_STATUS:
@@ -758,6 +858,7 @@ int main(void)
 
     memset(clients, 0, sizeof(clients));
     chatcore_init(&core, LOG_MAX_DOS);
+    proxy_started = clock();
     scratch = (char far *)_fmalloc(SCRATCH_SIZE);
     if (!scratch) {
         puts("Out of memory (response scratch buffer)");
@@ -820,7 +921,7 @@ int main(void)
         }
 
         /* stream new response text into the scrollback */
-        if (core.log_size != ui_log_shown) {
+        if (chatcore_log_end(&core) != ui_log_shown) {
             ui_pump_log();
             draw_status_row();
             draw_input_row();

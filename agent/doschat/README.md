@@ -9,7 +9,8 @@ get from `retro_agent.exe` + `retro_chat.exe` together:
   a DOS box exactly like a Windows box. Command subset that makes sense on
   DOS: `PING`, `SYSINFO`, `DIRLIST`, `EXEC`, `UPLOAD`, `DOWNLOAD`, `DELETE`,
   `MKDIR`, `QUIT`, `REBOOT`, plus the **full** chat-proxy surface
-  (`PROMPT_*`, `LOG_*`, `STATUS_*`, `PROXY_*`).
+  (`PROMPT_*`, `LOG_*` including the idempotent `LOG_APPEND2`, `STATUS_*`,
+  `PROXY_*`).
 - **Chat half** — the retro_chat-style console UI in the same process: prompt
   line, scrollback, `* Working...` spinner, `[subagent status]` line, Up/Down
   history, `:clear` / `:quit`. There's no loopback socket on DOS — the UI
@@ -20,7 +21,7 @@ get from `retro_agent.exe` + `retro_chat.exe` together:
 | Module | Also used by | What it is |
 |---|---|---|
 | `agent/shared/frameproto.h` | Windows agent (`src/protocol.h`) | ports, frame limits, `RESP_*` status bytes |
-| `agent/shared/chatcore.[ch]` | Windows agent (`src/chatproxy.c`) | prompt slot, log ring (drop-oldest-half), status sequence |
+| `agent/shared/chatcore.[ch]` | Windows agent (`src/chatproxy.c`) | prompt slot (take / ack / requeue), log ring (drop-oldest-half, ABSOLUTE offsets via `log_base`), status sequence, `LOG_APPEND2` dedupe, `PROMPT_PUSH` reply |
 | `agent/shared/chattext.h` | Windows chat (`tools/retro_chat.c`) | control-byte sanitize + word wrap |
 
 The Windows agent keeps only its NT-specific parts (critical section, the
@@ -58,6 +59,19 @@ C:\DOSCHAT\DOSCHAT.EXE
 
 Esc or `:quit` exits. The box then shows up in `chat_status.sh` and can be
 prompted from the retro chat like any other fleet machine.
+
+## Chat semantics shared with the Windows agent (agent 1.85.0)
+
+- **Log offsets are absolute.** `ui_log_shown` and every `LOG_READ`/`LOG_WAIT`
+  offset count from the start of the session, not from `core.log[0]`; the ring
+  dropping its oldest half no longer leaves the UI pointing past the end
+  (which printed nothing). `LOG_MAX_DOS` is `FRAME_CAP - 64` so a reader at the
+  ring's base gets the whole ring plus its header in one reply.
+- **A prompt is taken, not popped**, keyed by the client slot, acknowledged by
+  that client's next command and put back by `client_drop()`. A parked
+  `PROMPT_WAIT` whose peer has closed is dropped instead of being handed it.
+- A client that sends a command while its own long-poll is parked gets the
+  parked answer first, so replies stay in order.
 
 ## DOS memory limits (emulator-verified 2026-07-28, do not "optimize" away)
 

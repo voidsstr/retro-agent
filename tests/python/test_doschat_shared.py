@@ -87,11 +87,48 @@ def test_cfg_change_forces_library_rebuild():
 def test_dos_agent_speaks_the_chat_bus_and_discovery():
     dc = _read(DC)
     for cmd in ("PROMPT_PUSH", "PROMPT_POP", "PROMPT_WAIT", "LOG_APPEND",
-                "LOG_READ", "LOG_WAIT", "LOG_CLEAR", "STATUS_SET",
+                "LOG_APPEND2", "LOG_READ", "LOG_WAIT", "LOG_CLEAR", "STATUS_SET",
                 "STATUS_GET", "STATUS_WAIT", "PING", "SYSINFO", "EXEC"):
         assert '"%s"' % cmd in dc, "DOS agent must handle %s" % cmd
     assert "RETRO|%s|" in dc, "must broadcast the standard discovery packet"
     assert "AGENT_UDP_PORT" in dc
+
+
+def test_dos_agent_follows_the_shared_chat_semantics():
+    """agent 1.85.0 changed three chat-bus semantics in the SHARED engine; the
+    DOS agent+chat must use them rather than its own copies.
+
+    - ABSOLUTE log offsets: the DOS UI kept a buffer offset, so after the ring
+      dropped its oldest half it pointed past the end and most of a long
+      reply never appeared.
+    - a prompt is TAKEN (in flight until the connection's next command) and
+      put back when the connection drops, instead of popped and lost.
+    - LOG_APPEND2 dedupes a resent chunk.
+    The shared logic itself is exercised in tests/native/test_chatcore.c;
+    this cannot build the 16-bit exe, so it pins the wiring."""
+    dc = _read(DC)
+    pump = dc.split("static void ui_pump_log(", 1)[1].split("\n}\n", 1)[0]
+    assert "chatcore_log_window(&core, ui_log_shown" in pump, (
+        "the DOS UI must resolve its offset against the ring")
+    assert "core.log + ui_log_shown" not in pump, "buffer offsets are gone"
+    assert "chatcore_log_end(&core) != ui_log_shown" in dc
+    read = dc.split("static void answer_log_read(", 1)[1].split("\n}\n", 1)[0]
+    assert "chatcore_log_window" in read and "chatcore_log_end" in read
+
+    assert "chatcore_prompt_pop(" not in dc, "take, not pop"
+    assert "chatcore_prompt_take(&core, out, sizeof(out), owner_of(c))" in dc
+    drop = dc.split("static void client_drop(", 1)[1].split("\n}\n", 1)[0]
+    assert "chatcore_prompt_requeue(&core, owner_of(c))" in drop
+    disp = dc.split("static void dispatch(", 1)[1]
+    assert "chatcore_prompt_ack(&core, owner_of(c))" in disp
+    assert "isRemoteClosed()" in dc.split("static void service_longpolls(", 1)[1]
+
+    assert '"LOG_APPEND2"' in dc and "chatcore_log_append_once" in dc
+    assert "chatcore_push_reply" in dc
+
+    # a reader at the ring's base must get the whole ring in ONE reply: at
+    # LOG_MAX_DOS == FRAME_CAP the header pushed it over the cap, unsent
+    assert re.search(r"#define\s+LOG_MAX_DOS\s+\(FRAME_CAP - \d+\)", dc)
 
 
 # --- agent shutdown safety (hardware-found on the Deskpro, 2026-07-29) ---
