@@ -541,7 +541,20 @@ void handle_restart(SOCKET sock)
     /* Win9x COMMAND.COM dialect: no 2>&1, ping as the sleep. */
     fprintf(f, "@echo off\r\n");
     fprintf(f, "ping -n 4 127.0.0.1 > nul\r\n");
-    fprintf(f, "start \"\" \"%s\"\r\n", exe);
+    if (GetVersion() & 0x80000000) {
+        /* Win9x START.EXE takes NO window title. `start "" "x"` is cmd.exe
+         * syntax: START.EXE reads the "" as the program, fails, and the agent
+         * never comes back - which is what RESTART left on .243 (Win98 SE,
+         * 2026-09-24): networking up, 9898 refused, nobody to relaunch it.
+         * Use the 8.3 path, which needs no quotes, exactly as the auto-update
+         * batch (hardware-proven on the Deskpro) does. */
+        char shortp[MAX_PATH];
+        if (!GetShortPathNameA(exe, shortp, sizeof(shortp)))
+            safe_strncpy(shortp, exe, sizeof(shortp));
+        fprintf(f, "start %s\r\n", shortp);
+    } else {
+        fprintf(f, "start \"\" \"%s\"\r\n", exe);
+    }
     fclose(f);
 
     memset(&si, 0, sizeof(si));

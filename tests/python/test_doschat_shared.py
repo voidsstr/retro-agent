@@ -126,6 +126,24 @@ def test_restart_command_exists_and_relaunches_before_stopping():
         "use ping as the sleep — Win9x COMMAND.COM has no timeout command")
 
 
+def test_restart_batch_speaks_win9x_start_on_win9x():
+    """agent 1.84.4. RESTART wrote `start "" "C:\\...\\retro_agent.exe"` on every
+    Windows. The empty title is cmd.exe syntax; Win98's START.EXE takes the ""
+    as the program, fails, and the agent never came back on .243 (2026-09-24)
+    - networking up, 9898 refused, a person needed. On 9x the batch must use
+    the unquoted 8.3 path, the form the auto-update batch has proven there."""
+    h = _read(HANDLERS_C)
+    body = h.split("void handle_restart(", 1)[1].split("\nvoid ", 1)[0]
+    assert "GetVersion() & 0x80000000" in body, "must branch on Win9x"
+    win9x, nt = body.split("GetVersion() & 0x80000000", 1)[1].split("} else {", 1)
+    assert "GetShortPathNameA" in win9x
+    emitted_9x = [ln for ln in win9x.splitlines() if "fprintf(f," in ln]
+    assert emitted_9x == ['        fprintf(f, "start %s\\r\\n", shortp);'], emitted_9x
+    assert '\\"\\"' not in "\n".join(emitted_9x), "no empty title on Win9x"
+    assert 'start \\"\\" \\"%s\\"' in nt.split("fclose(f)")[0], (
+        "NT keeps the quoted form - a long path with spaces needs it there")
+
+
 AUTOUPDATE_C = os.path.join(REPO, "agent", "src", "autoupdate.c")
 
 
