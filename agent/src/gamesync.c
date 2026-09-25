@@ -69,8 +69,16 @@
 
 #define GS_CHUNK           (64u * 1024u)
 /* Leave the OS room to breathe; filling C: to the last byte breaks XP in
- * confusing ways long before it reports "disk full". */
-#define GS_FREE_MARGIN     ((__int64)300 * 1024 * 1024)
+ * confusing ways long before it reports "disk full". 300 MB was sized for
+ * the XP boxes; on a period disk it is a quarter of the volume - .243 (Win98,
+ * 1.2 GB C:) had 358 MB free and could add NO title bigger than 58 MB, which
+ * refused the 199 MB Quake II base game while logging "needs 199 MB, only
+ * 358 MB free". A volume under GS_SMALL_DISK keeps GS_FREE_MARGIN_SMALL
+ * (150 MB - still more than Win9x's swap file grows to on a 128 MB box). See
+ * gs_free_margin(). */
+#define GS_FREE_MARGIN       ((__int64)300 * 1024 * 1024)
+#define GS_FREE_MARGIN_SMALL ((__int64)150 * 1024 * 1024)
+#define GS_SMALL_DISK        ((__int64)4096 * 1024 * 1024)
 #define GS_LOG_EVERY_MS    2000
 /* Staggered behind retrowall (20 s) and ahead of the game index (120 s):
  * until 1.85.0 all three woke at 20 s and hit the disk and the shell at
@@ -210,6 +218,41 @@ static __int64 gs_free_bytes(const char *root)
     if (GetDiskFreeSpaceA(root, &spc, &bps, &freec, &totalc))
         return (__int64)freec * (__int64)spc * (__int64)bps;
     return -1;
+}
+
+/* Total size of the volume, or -1. */
+static __int64 gs_total_bytes(const char *root)
+{
+    typedef BOOL (WINAPI *pGDFSE2)(LPCSTR, PULARGE_INTEGER, PULARGE_INTEGER, PULARGE_INTEGER);
+    static pGDFSE2 fn;
+    static int     looked;
+    ULARGE_INTEGER avail, total, freeb;
+    DWORD spc, bps, freec, totalc;
+
+    if (!looked) {
+        HMODULE k = GetModuleHandleA("kernel32.dll");
+        if (k)
+            fn = (pGDFSE2)GetProcAddress(k, "GetDiskFreeSpaceExA");
+        looked = 1;
+    }
+    if (fn && fn(root, &avail, &total, &freeb))
+        return (__int64)total.QuadPart;
+    if (GetDiskFreeSpaceA(root, &spc, &bps, &freec, &totalc))
+        return (__int64)totalc * (__int64)spc * (__int64)bps;
+    return -1;
+}
+
+/* How much of C: GAMESYNC always leaves free: the smaller margin only on a
+ * volume under 4 GB, the XP-era 300 MB everywhere else. An unmeasurable
+ * volume keeps the larger margin - the safe direction. */
+static __int64 gs_margin_for_disk(__int64 total)
+{
+    return (total > 0 && total < GS_SMALL_DISK) ? GS_FREE_MARGIN_SMALL : GS_FREE_MARGIN;
+}
+
+static __int64 gs_free_margin(void)
+{
+    return gs_margin_for_disk(gs_total_bytes("C:\\"));
 }
 
 static void gs_mkdir_p(const char *path)
@@ -3144,7 +3187,7 @@ static void gs_run(const char *library)
     int    n = 0, i, files = 0, ok_titles = 0, capped = 0, n_gated = 0;
     int    gr_titles = 0, gr_changed = 0, gr_absent_t = 0;
     DWORD  enum_err = 0;
-    __int64 grand = 0, freeb;
+    __int64 grand = 0, freeb, margin;
 
     g_gs_abort = 0;
     g_win_tick = GetTickCount();
@@ -3457,11 +3500,12 @@ static void gs_run(const char *library)
         /* Re-measure per title: earlier titles have just consumed space, and
          * on a period disk the difference decides whether this one fits. */
         freeb = gs_free_bytes("C:\\");
+        margin = gs_free_margin();
         /* The credit below walks the INSTALLED tree, so take it only when it
          * can change the answer: if the title fits without it, it fits with it
          * (the credit is never negative). Same verdict, and a box with room to
          * spare no longer walks every installed title on every sync. */
-        if (freeb >= 0 && sizes[i] + GS_FREE_MARGIN > freeb) {
+        if (freeb >= 0 && sizes[i] + margin > freeb) {
             /* A title ALREADY INSTALLED is being updated, not added, so what it
              * needs is the difference - the space its current copy occupies is
              * about to be reused. Charging it the full size meant an installed
@@ -3481,9 +3525,9 @@ static void gs_run(const char *library)
                     freeb += existing;
             }
         }
-        if (freeb >= 0 && sizes[i] + GS_FREE_MARGIN > freeb) {
-            log_msg(LOG_GS, "SKIP %s - needs %I64d MB, only %I64d MB free",
-                    titles[i], sizes[i] / 1048576, freeb / 1048576);
+        if (freeb >= 0 && sizes[i] + margin > freeb) {
+            log_msg(LOG_GS, "SKIP %s - needs %I64d MB + %I64d MB kept free, only %I64d MB free",
+                    titles[i], sizes[i] / 1048576, margin / 1048576, freeb / 1048576);
             EnterCriticalSection(&g_gs_lock);
             g_gs.skipped_titles++;
             /* Its bytes are never going to arrive; drop them from the target

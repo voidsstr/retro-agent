@@ -160,7 +160,7 @@ def test_a_disk_refusal_defers_to_the_real_room_check():
         "the gate must not decide disk; the room check owns that counter"
 
     # ...and the room check, which does own it, is what bumps the counter.
-    room_at = body.index("GS_FREE_MARGIN", at)
+    room_at = body.index("sizes[i] + margin > freeb", at)
     assert "skipped_titles++" in body[room_at:room_at + 900], \
         "the real room check must be what increments skipped_titles"
 

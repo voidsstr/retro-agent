@@ -96,10 +96,10 @@ def test_the_gate_is_asked_before_a_title_is_sized():
 def test_the_installed_tree_is_walked_only_when_it_can_change_the_answer():
     run = body(gs(), "gs_run")
     credit = run.index("existing = gs_dir_size(have")
-    guard = run.rindex("if (freeb >= 0 && sizes[i] + GS_FREE_MARGIN > freeb)", 0, credit)
+    guard = run.rindex("if (freeb >= 0 && sizes[i] + margin > freeb)", 0, credit)
     assert credit - guard < 400, "the credit walk must sit inside the no-room test"
     # the verdict itself is re-tested after the credit
-    assert run.count("sizes[i] + GS_FREE_MARGIN > freeb") == 2
+    assert run.count("sizes[i] + margin > freeb") == 2
 
 
 def test_wallpaper_staging_uses_the_listing_size():
