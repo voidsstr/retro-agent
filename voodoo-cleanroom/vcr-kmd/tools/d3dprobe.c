@@ -109,6 +109,24 @@ static void quad_c(float x0, float y0, float x1, float y1, float z, DWORD c0, DW
     IDirect3DDevice8_DrawPrimitiveUP(g_dev, D3DPT_TRIANGLESTRIP, 2, q, sizeof q[0]);
 }
 
+typedef struct { float x, y, z, rhw; DWORD c, s; } VS;
+#define FVF_S (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR)
+
+static void quad_fog(float x0, float y0, float x1, float y1, float rhw, DWORD c, DWORD spec)
+{
+    VS q[4] = { { x0, y0, 0.5f, rhw, c, spec }, { x1, y0, 0.5f, rhw, c, spec },
+                { x0, y1, 0.5f, rhw, c, spec }, { x1, y1, 0.5f, rhw, c, spec } };
+    IDirect3DDevice8_SetVertexShader(g_dev, FVF_S);
+    IDirect3DDevice8_DrawPrimitiveUP(g_dev, D3DPT_TRIANGLESTRIP, 2, q, sizeof q[0]);
+}
+
+static DWORD fbits(float f)
+{
+    DWORD u;
+    memcpy(&u, &f, 4);
+    return u;
+}
+
 static void quad_t(float x0, float y0, float x1, float y1, DWORD c, float uv)
 {
     VT q[4] = { { x0, y0, 0.5f, 1, c, 0, 0 }, { x1, y0, 0.5f, 1, c, uv, 0 },
@@ -390,6 +408,30 @@ static void run_test(const char *t)
         g_px[128 * BB + 128] = gotrgb;
         expect(t, "screen: the quad", 128, 128, 0x00ff00, 12);
         ReleaseDC(g_hwnd, dc);
+    } else if (!strcmp(t, "fogtable") || !strcmp(t, "fogvertex")) {
+        /* red quads fogged toward blue. Table fog: linear from w=1 to w=5, the
+         * quads at w = 1, 3, 8 (rhw 1, 1/3, 1/8). Vertex fog: the factor in the
+         * specular alpha (255 none, 128 half, 0 all). */
+        int table = !strcmp(t, "fogtable");
+        static const struct { float rhw; DWORD sa; DWORD want; const char *what; } q[3] = {
+            { 1.0f, 0xff, 0xff0000, "no fog" },
+            { 1.0f / 3.0f, 0x80, 0x80007f, "half fog" },
+            { 1.0f / 8.0f, 0x00, 0x0000ff, "all fog" } };
+        if (!frame_begin(0)) return;
+        untextured();
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_FOGENABLE, TRUE);
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_FOGCOLOR, 0xff0000ff);
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_FOGTABLEMODE, table ? D3DFOG_LINEAR : D3DFOG_NONE);
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_FOGVERTEXMODE, D3DFOG_NONE);
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_FOGSTART, fbits(1.0f));
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_FOGEND, fbits(5.0f));
+        for (i = 0; i < 3; i++)
+            quad_fog(16.0f + i * 80.0f, 64, 16.0f + i * 80.0f + 64, 192, table ? q[i].rhw : 1.0f,
+                     0xffff0000, (q[i].sa << 24) | 0x000000);
+        IDirect3DDevice8_SetRenderState(g_dev, D3DRS_FOGENABLE, FALSE);
+        frame_end();
+        for (i = 0; i < 3; i++)
+            expect(t, q[i].what, 16 + i * 80 + 32, 128, q[i].want, i == 1 ? 40 : 12);
     } else if (!strcmp(t, "blend")) {
         if (!frame_begin(0x000000ff)) return;
         untextured();
@@ -422,7 +464,7 @@ static void run_test(const char *t)
 
 int main(int argc, char **argv)
 {
-    const char *mode = "caps", *tests = "clear,flat,gouraud,tex,modulate,blend,ztest,bigtex,present";
+    const char *mode = "caps", *tests = "clear,flat,gouraud,tex,modulate,blend,ztest,bigtex,present,fogtable,fogvertex";
     IDirect3D8 *d3d;
     D3DADAPTER_IDENTIFIER8 id;
     D3DDISPLAYMODE dm;

@@ -36,6 +36,7 @@
 #include <d3dnthal.h>
 #include "vcrdd_3d.h"
 #include "../include/vcr_texlod.h"
+#include "../include/vcr_fog.h"
 
 #define MAX_CTX         32
 #define MAX_HANDLES     4096            /* power of two */
@@ -53,6 +54,7 @@ typedef struct vcr_d3dctx {
     DWORD               tex_handle;     /* stage 0 texture */
     DWORD               tex_refused;    /* last handle logged as unusable */
     DWORD               mip_logged;
+    ULONG               fog_vertex;     /* vertex fog: needs the specular colour */
     ULONG               dirty;
     vcr3d_regs          regs;
     vcr3d_target        target;
@@ -520,7 +522,24 @@ static void compute_regs(vcr_d3dctx *c)
         r->alphaMode |= AM_BLEND | AM_RGBSRC(blend_src(s)) | AM_RGBDST(blend_dst(d, s)) |
                         AM_ASRC(BF_ONE) | AM_ADST(BF_ZERO);
     }
+    /* fog: table fog on W, or vertex fog carried in the specular alpha
+     * (vcr_fog.h); FOGSTART/END/DENSITY are float bit patterns */
     r->fogMode = 0;
+    c->fog_vertex = 0;
+    if (c->rs[D3DRENDERSTATE_FOGENABLE]) {
+        DWORD tm = c->rs[D3DRENDERSTATE_FOGTABLEMODE];
+        r->fogMode = FM_ENABLE | FM_DITHER;
+        if (tm == D3DFOG_LINEAR || tm == D3DFOG_EXP || tm == D3DFOG_EXP2) {
+            r->fog_table[0] = tm == D3DFOG_LINEAR ? VCR_FOG_LINEAR
+                            : tm == D3DFOG_EXP ? VCR_FOG_EXP : VCR_FOG_EXP2;
+            r->fog_table[1] = c->rs[D3DRENDERSTATE_FOGSTART];
+            r->fog_table[2] = c->rs[D3DRENDERSTATE_FOGEND];
+            r->fog_table[3] = c->rs[D3DRENDERSTATE_FOGDENSITY];
+        } else {
+            memset(r->fog_table, 0, sizeof r->fog_table);   /* VCR_FOG_RAMP */
+            c->fog_vertex = 1;
+        }
+    }
     r->fogColor = c->rs[D3DRENDERSTATE_FOGCOLOR] & 0xffffff;
     r->c0 = 0;
     r->c1 = c->rs[D3DRENDERSTATE_TEXTUREFACTOR];
@@ -660,7 +679,7 @@ typedef struct dp2walk {
     int           prepared;     /* target + state sent since the last change */
 } dp2walk;
 
-static BOOL fvf_layout(DWORD fvf, ULONG *stride, ULONG *diff, ULONG *tex)
+static BOOL fvf_layout(DWORD fvf, ULONG *stride, ULONG *diff, ULONG *tex, ULONG *spec)
 {
     ULONG off = 16, ntex = (fvf & D3DFVF_TEXCOUNT_MASK) >> D3DFVF_TEXCOUNT_SHIFT, i;
     if ((fvf & D3DFVF_POSITION_MASK) != D3DFVF_XYZRHW)
@@ -672,8 +691,11 @@ static BOOL fvf_layout(DWORD fvf, ULONG *stride, ULONG *diff, ULONG *tex)
         *diff = off;
         off += 4;
     }
-    if (fvf & D3DFVF_SPECULAR)
+    *spec = 0;
+    if (fvf & D3DFVF_SPECULAR) {
+        *spec = off;
         off += 4;
+    }
     *tex = off;
     for (i = 0; i < ntex; i++) {
         ULONG sz = (fvf >> (16 + 2 * i)) & 3;       /* 0: 2 floats, 1: 3, 2: 4, 3: 1 */
@@ -702,6 +724,9 @@ static BOOL prepare(dp2walk *w)
         c->regs.fbzColorPath &= ~CP_TEXTURE;
         c->regs.setupMode &= ~(SM_W0 | SM_ST0);
     }
+    w->d.fog_vertex = c->fog_vertex && w->d.spec_off;
+    if (c->fog_vertex && !w->d.spec_off)
+        c->regs.fogMode = 0;            /* vertex fog without a factor: none */
     if (!VcrDd3dTarget(c->pd, &c->target) || !VcrDd3dState(c->pd, &c->regs))
         return FALSE;
     w->prepared = 1;
@@ -1070,7 +1095,7 @@ static DWORD APIENTRY D3d_DrawPrimitives2(LPD3DNTHAL_DRAWPRIMITIVES2DATA p)
     vcr_d3dctx *c = ctx_of(p->dwhContext);
     dp2walk w;
     const UCHAR *cmds;
-    ULONG diff = 0, tex = 0;
+    ULONG diff = 0, tex = 0, spec = 0;
     HRESULT hr;
 
     p->dwErrorOffset = 0;
@@ -1081,7 +1106,7 @@ static DWORD APIENTRY D3d_DrawPrimitives2(LPD3DNTHAL_DRAWPRIMITIVES2DATA p)
     c->dp2s++;
     memset(&w, 0, sizeof w);
     w.c = c;
-    if (fvf_layout(p->dwVertexType, &w.stride, &diff, &tex)) {
+    if (fvf_layout(p->dwVertexType, &w.stride, &diff, &tex, &spec)) {
         if (p->dwFlags & D3DNTHALDP2_USERMEMVERTICES)
             w.vb = (const UCHAR *)p->lpVertices;
         else if (p->lpDDVertex && p->lpDDVertex->lpGbl)
@@ -1107,6 +1132,7 @@ static DWORD APIENTRY D3d_DrawPrimitives2(LPD3DNTHAL_DRAWPRIMITIVES2DATA p)
     VcrDd3dDrawInit(&w.d);
     w.d.diff_off = diff;
     w.d.tex_off = tex;
+    w.d.spec_off = spec;
     hr = walk(&w, cmds, p->dwCommandLength, p->lpdwRStates, &p->dwErrorOffset);
     EngRestoreFloatingPointState(c->fpu);
     p->ddrval = hr;
@@ -1231,7 +1257,8 @@ static void prim_caps(D3DPRIMCAPS *c)
     c->dwSize = sizeof *c;
     c->dwMiscCaps = D3DPMISCCAPS_CULLNONE | D3DPMISCCAPS_CULLCW | D3DPMISCCAPS_CULLCCW |
                     D3DPMISCCAPS_MASKZ;
-    c->dwRasterCaps = D3DPRASTERCAPS_DITHER | D3DPRASTERCAPS_ZTEST | D3DPRASTERCAPS_SUBPIXEL;
+    c->dwRasterCaps = D3DPRASTERCAPS_DITHER | D3DPRASTERCAPS_ZTEST | D3DPRASTERCAPS_SUBPIXEL |
+                      D3DPRASTERCAPS_FOGVERTEX | D3DPRASTERCAPS_FOGTABLE | D3DPRASTERCAPS_WFOG;
     c->dwZCmpCaps = D3DPCMPCAPS_NEVER | D3DPCMPCAPS_LESS | D3DPCMPCAPS_EQUAL |
                     D3DPCMPCAPS_LESSEQUAL | D3DPCMPCAPS_GREATER | D3DPCMPCAPS_NOTEQUAL |
                     D3DPCMPCAPS_GREATEREQUAL | D3DPCMPCAPS_ALWAYS;

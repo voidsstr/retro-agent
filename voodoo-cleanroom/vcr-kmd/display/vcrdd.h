@@ -59,6 +59,8 @@ typedef struct VCR_PDEV {
     ULONG       g2d_fifo_full;      /* status[4:0] with the PCI FIFO empty */
     ULONG       d3d_disabled;       /* Diag\\D3D = 0 */
     PVOID       pvmList;            /* DirectDraw's VIDEOMEMORY heap list (it fills lpHeap) */
+    ULONG       fog_loaded[4];      /* the fog table on the chip: mode, start, end, density */
+    ULONG       fog_valid;
     ULONG       g2d_ops, g2d_gdi_copies, g2d_gdi_fills;
     /* a DirectDraw flip the chip has not latched yet */
     ULONG       flip_pending, flip_seen_active;

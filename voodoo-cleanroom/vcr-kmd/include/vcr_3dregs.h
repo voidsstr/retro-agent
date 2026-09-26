@@ -118,7 +118,8 @@
 #define   BF_SATURATE           0xfu    /* source factor only */
 
 /* fogMode */
-#define FM_ENABLE               (1u << 0)
+#define FM_ENABLE               (1u << 0)       /* Afog*Cfog + (1-Afog)*Color, Afog from the W table */
+#define FM_DITHER               (1u << 6)
 
 /* textureMode (TMU) */
 #define TM_PERSPECTIVE          (1u << 0)

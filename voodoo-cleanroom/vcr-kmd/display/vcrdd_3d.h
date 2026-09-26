@@ -19,6 +19,7 @@ typedef struct vcr3d_target {
 
 typedef struct vcr3d_regs {
     ULONG fbzColorPath, fbzMode, alphaMode, fogMode, fogColor, c0, c1;
+    ULONG fog_table[4];             /* VCR_FOG_* mode, start, end, density (float bits) */
     ULONG setupMode;
     ULONG textured;
     ULONG textureMode, tLOD, texBaseAddr;
@@ -28,6 +29,8 @@ typedef struct vcr3d_draw {
     ULONG textured;
     ULONG diff_off;                 /* byte offset of the diffuse colour in a vertex (0: none) */
     ULONG tex_off;                  /* byte offset of texture coordinate set 0 */
+    ULONG spec_off;                 /* byte offset of the specular colour (0: none) */
+    ULONG fog_vertex;               /* Wfbi carries the fog factor (specular alpha) */
     float s_scale, t_scale;         /* u, v (0..1) -> S, T (the wider side spans 256) */
     float xy_bias;                  /* added to x and y: the pixel-centre convention */
 } vcr3d_draw;

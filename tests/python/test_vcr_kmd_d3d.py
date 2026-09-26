@@ -123,3 +123,20 @@ def test_a_mipmap_chain_is_one_block_from_directdraws_heap():
     fr = func(D3D, "int VcrDdD3dFreeMipChain(")
     assert "VidMemFree(" in fr and "MIP_TOP" in fr
     assert "DDSCAPS_MIPMAP;" in D3D                # advertised
+
+
+def test_fog_table_on_w_and_vertex_fog_through_a_synthetic_w():
+    """The Voodoo fog unit only reads W (a 64-entry table indexed by 1/W,
+    common/vcr_fog.c). D3D table fog fills the table from FOGSTART/END/DENSITY;
+    D3D vertex fog - the factor in the specular alpha, which is how every
+    pre-transformed and every runtime-lit vertex arrives - loads a ramp and
+    sends a synthetic 1/W per vertex. d3dprobe fogtable/fogvertex: 6/6 on the
+    86Box Voodoo3."""
+    e3d = (KMD / "display" / "vcrdd_3d.c").read_text()
+    st = func(e3d, "BOOL VcrDd3dState(")
+    assert "vcr_fog_table(" in st and "V3D_FOGTABLE + 4 * i" in st
+    assert "memcmp(pd->fog_loaded, r->fog_table" in st       # loaded once per change
+    assert "vcr_fog_ramp_oow(1.0f - (float)sa * (1.0f / 255.0f))" in e3d
+    cr = func(D3D, "static void compute_regs(")
+    assert "D3DRENDERSTATE_FOGTABLEMODE" in cr and "c->fog_vertex = 1;" in cr
+    assert "$(OUT)/vcr_fog.o: common/vcr_fog.c" in MK        # floats: the FPU object

@@ -17,6 +17,7 @@
  */
 #include "vcrdd.h"
 #include "vcrdd_3d.h"
+#include "../include/vcr_fog.h"
 
 static void w3(VCR_PDEV *pd, ULONG off, ULONG v)
 {
@@ -67,6 +68,22 @@ BOOL VcrDd3dState(VCR_PDEV *pd, const vcr3d_regs *r)
     w3(pd, V3D_C0, r->c0);
     w3(pd, V3D_C1, r->c1);
     w3(pd, V3D_SSETUPMODE, r->setupMode);
+    if ((r->fogMode & FM_ENABLE) &&
+        (!pd->fog_valid || memcmp(pd->fog_loaded, r->fog_table, sizeof pd->fog_loaded))) {
+        unsigned char t[VCR_FOG_TABLE_ENTRIES];
+        ULONG i;
+        vcr_fog_table((int)r->fog_table[0], fbits(r->fog_table[1]), fbits(r->fog_table[2]),
+                      fbits(r->fog_table[3]), t);
+        for (i = 0; i < 32; i++) {
+            if ((i & 7) == 0 && !VcrDdRoom(pd, 8))
+                return FALSE;
+            w3(pd, V3D_FOGTABLE + 4 * i, vcr_fog_reg(t, (int)i));
+        }
+        memcpy(pd->fog_loaded, r->fog_table, sizeof pd->fog_loaded);
+        pd->fog_valid = 1;
+        if (!VcrDdRoom(pd, 4))
+            return FALSE;
+    }
     if (r->textured) {
         w3(pd, V3D_TMU0 + V3D_TEXTUREMODE, r->textureMode);
         w3(pd, V3D_TMU0 + V3D_TLOD, r->tLOD);
@@ -132,7 +149,14 @@ static BOOL vertex(VCR_PDEV *pd, const vcr3d_draw *d, const UCHAR *v)
     wf(pd, V3D_SVY, p[1] + d->xy_bias);
     w3(pd, V3D_SARGB, d->diff_off ? *(const ULONG *)(v + d->diff_off) : 0xffffffffu);
     wf(pd, V3D_SVZ, p[2] * 65535.0f);
-    wf(pd, V3D_SOOWFBI, oow);
+    if (d->fog_vertex) {
+        /* the fog factor rides in the specular alpha (255 = no fog): the
+         * chip's fog table is a ramp, and 1/W is chosen to land on it */
+        ULONG sa = (*(const ULONG *)(v + d->spec_off)) >> 24;
+        wf(pd, V3D_SOOWFBI, vcr_fog_ramp_oow(1.0f - (float)sa * (1.0f / 255.0f)));
+    } else {
+        wf(pd, V3D_SOOWFBI, oow);
+    }
     if (d->textured) {
         const float *uv = (const float *)(v + d->tex_off);
         wf(pd, V3D_SOOW0, oow);
