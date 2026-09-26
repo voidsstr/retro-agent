@@ -8,9 +8,10 @@
  * numChips > 1). Every request is logged with its answer - Glide's own
  * failure messages name the step, the log names the reason.
  *
- * Multi-chip is not exposed yet: GETDEVICECONFIG reports numChips = 1, so
- * Glide runs single-chip and never needs the SLI setup this driver does not
- * do yet.
+ * Multi-chip: GETDEVICECONFIG reports the chips the miniport has placed and
+ * mapped (vcr_info.glide_chips - 1 when Diag\\Sli=0 or placement failed), and
+ * SLI_AA_REQUEST goes to the miniport (IOCTL_VCR_SLI), which runs the Glide GPL
+ * dos_mode.c sequence (vcrmp_sli.c) and programs the V5 6000's clock.
  */
 #include "vcrdd.h"
 
@@ -77,10 +78,10 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
         rs->opt.deviceConfig.hwStride = 0;
         rs->opt.deviceConfig.tileMark = 0;
         rs->opt.deviceConfig.isMaster = 1;
-        rs->opt.deviceConfig.numChips = 1;
+        rs->opt.deviceConfig.numChips = info.glide_chips ? info.glide_chips : 1;
         rs->resStatus = VCR_HWC_OK;
-        VcrDd(VCR_LV_INFO, VCR_EV_HWC_DEVCONFIG, info.device, info.fb_per_chip, 1, 0,
-              "GETDEVICECONFIG vendor %x", info.vendor);
+        VcrDd(VCR_LV_INFO, VCR_EV_HWC_DEVCONFIG, info.device, info.fb_per_chip,
+              rs->opt.deviceConfig.numChips, 0, "GETDEVICECONFIG vendor %x", info.vendor);
         break;
 
     case VCR_HWC_GETLINEARADDR:
@@ -143,11 +144,16 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
 
     case VCR_HWC_SLI_AA_REQUEST: {
         const vcr_sli_chipinfo *ci = &rq->opt.sliAA.ChipInfo;
-        /* single chip, no SLI/AA: nothing to set up, and that is a success */
-        rs->resStatus = (!ci->dwsliEn && !ci->dwaaEn) ? VCR_HWC_OK : VCR_HWC_FAIL;
-        VcrDd(rs->resStatus == VCR_HWC_OK ? VCR_LV_INFO : VCR_LV_WARN, VCR_EV_HWC_SLIAA,
-              ci->dwChips, ci->dwsliEn, ci->dwaaEn, ci->dwsli_nlines,
-              "SLI_AA_REQUEST (multi-chip not implemented yet)");
+        vcr_sli_res sr;
+        memset(&sr, 0, sizeof sr);
+        rc = VcrIoctl(pd->hDriver, IOCTL_VCR_SLI, (PVOID)&rq->opt.sliAA,
+                      sizeof rq->opt.sliAA, &sr, sizeof sr, NULL);
+        /* < 0 refused (nothing written); > 0 done with warnings - still done */
+        rs->resStatus = (!rc && (LONG)sr.result >= 0) ? VCR_HWC_OK : VCR_HWC_FAIL;
+        VcrDd(rs->resStatus == VCR_HWC_OK && !sr.result ? VCR_LV_INFO : VCR_LV_WARN,
+              VCR_EV_HWC_SLIAA, ci->dwChips, ci->dwsliEn | (ci->dwaaEn << 1), sr.result,
+              sr.clock_6k_hz, "SLI_AA_REQUEST -> ioctl %u, result %d, %u chips live", rc,
+              (LONG)sr.result, sr.sli_chips);
         break;
     }
 

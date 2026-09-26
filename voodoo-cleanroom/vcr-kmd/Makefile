@@ -21,8 +21,9 @@ KLDFLAGS := -nostdlib -nostartfiles -shared -Wl,--subsystem,native:5.01 \
 # the ring's sequence counter must be atomic in the kernel (lock xadd)
 ATOMIC  := -D'VCR_LOG_NEXT_SEQ(p)=__sync_add_and_fetch((p),1u)'
 
-MP_SRC  := miniport/vcrmp.c miniport/vcrmp_log.c miniport/vcrmp_hw.c miniport/vcrmp_map.c \
-           common/vcr_log.c common/vcr_fmt.c common/vcr_modes.c
+MP_SRC  := miniport/vcrmp.c miniport/vcrmp_log.c miniport/vcrmp_hw.c miniport/vcrmp_map.c miniport/vcrmp_clock.c \
+           miniport/vcrmp_multi.c miniport/vcrmp_sli.c \
+           common/vcr_log.c common/vcr_fmt.c common/vcr_modes.c common/vcr_ics307.c
 DD_SRC  := display/vcrdd.c display/vcrdd_escape.c display/vcrdd_log.c \
            common/vcr_fmt.c common/vcr_crt.c
 
@@ -32,7 +33,7 @@ $(OUT):
 	mkdir -p $(OUT)
 
 $(OUT)/vcrmp.sys: $(MP_SRC) $(wildcard include/*.h miniport/*.h) | $(OUT)
-	$(CC) $(KCFLAGS) $(ATOMIC) $(MP_SRC) -o $@ $(KLDFLAGS) \
+	$(CC) $(KCFLAGS) $(ATOMIC) -DVCR_SLI_HAVE_6K_CLOCK $(MP_SRC) -o $@ $(KLDFLAGS) \
 	      -Wl,--entry,_DriverEntry@8 -lvideoprt -lntoskrnl -lhal -lgcc
 
 $(OUT)/vcrdd.dll: $(DD_SRC) display/vcrdd.def $(wildcard include/*.h display/*.h) | $(OUT)

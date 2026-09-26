@@ -84,11 +84,16 @@ that file, so names cannot drift.
 | `tools/qemu/run-vcrkmd-vm.sh` | the VM test bed: build VM disk through a throwaway overlay, std-vga, debugcon captured, agent on 127.0.0.1:19910 |
 | `tools/vcrlog.py`, `tools/vcrdump.py` | decode the recorder live / from a crash dump |
 | `tools/check_imports.py` | the binaries will load on XP SP3 |
+| `tools/sli_golden.py` | the LIVE multi-chip state under N-chip SLI: every chip's PCI config (raw cycles), IO registers and 3D sliCtrl, the bridge's clock GPIO - Quake II looping on the all-ours lane, on whichever kernel driver is installed |
+| `tools/sli_compare.py` | two such captures diffed register by register (volatile registers and the unreadable VGA alias excluded) |
+| `tools/sli_golden_sweep.py` | a capture per SLI/AA config, one clean boot each (the vendor's rule), optionally diffed against a reference label |
+| `tools/sli_shot.py` | Quake II photographs itself through Glide's SLI LFB read - every chip's bands, with the mean luma of each chip's rows |
 
-Host tests: `tests/native/test_vcr_kmd_{log,fmt,modes,abi}.c`,
-`tests/python/test_vcr_kmd_tools.py` (all in `tests/run_all.sh`).
+Host tests: `tests/native/test_vcr_kmd_{log,fmt,modes,abi,sli,ics307}.c`,
+`tests/python/test_vcr_kmd_tools.py`, `tests/python/test_vcr_kmd_sli_glue.py`
+(all in `tests/run_all.sh`).
 
-## Status (2026-09-25)
+## Status (2026-09-26)
 
 **Proven in the VM (QEMU std-vga, XP SP3):** installs through `DRVUPDATE`, PnP
 starts the miniport, XP boots onto `vcrdd`, and every mode we offer switches
@@ -152,7 +157,52 @@ DAC powered down; tmuGbeInit 0x00500FF0 everywhere. **The HiNT bridge GPIO
 (0xC4) goes 0x00111101 -> 0x00222201: the vendor DOES program the V5 6000's
 external clock for SLI.**
 
+**FOUR CHIPS ON OUR KERNEL DRIVER (2026-09-26).** The miniport places the
+three slaves exactly where the vendor does (BAR0 master + 32 MB x chip inside
+the master's own 128 MB window, BAR1 master + 64 MB) at boot, maps their
+registers, and tells Glide `numChips = 4`; Glide's `SLI_AA_REQUEST` runs our
+port of the Glide GPL `dos_mode.c` sequence (`miniport/vcrmp_sli.c`) and
+programs the V5 6000's external clock through the HiNT bridge GPIO
+(`common/vcr_ics307.c`, `miniport/vcrmp_clock.c`). Every mode set turns SLI off
+again - the teardown a Glide client that died skips.
+- **Config space equals the vendor's under 4-chip SLI** - all four chips'
+  cfgInitEnable, cfgPciDecode, cfgVideoCtrl0-2, cfgSliLfbCtrl, cfgAA*,
+  cfgSliAAMisc, BARs, command, and the bridge's 0xC4 (0x00222201: the same
+  clock word) - `sli_compare.py`, 640x480 and 1600x1200. Remaining IO-register
+  differences are deliberate: pciInit0 bit 11 (the vendor turns the chips' I/O
+  decode off; our VGA access needs the I/O BAR), the slaves' miscInit0 Y
+  origin (dos_mode.c copies the master's; the vendor leaves 0), and the
+  refresh (below).
+- **Every chip draws its bands**: Quake II's own screenshot under SLI, read
+  back through the SLI LFB path - intact, per-chip band luma 13.2 / 13.5 /
+  13.8 / 13.9 (`evidence/sli_shots/`).
+- **Quake II single-pass, 4 chips, our ICD + our Glide, our kernel vs
+  AmigaMerlin's** (fps, 16-bit): 640x480 201.3 / 201.5, 800x600 191.4 / 193.4,
+  and with the refresh pinned to 60 Hz 1024x768 174.5 / 176.8, 1280x960
+  141.3 / 140.1, 1600x1200 98.2 / 98.6 (`evidence/glide_q2_4chip_cfg5_*`).
+  Unpinned, ours read 4-5 % low at 1024 and above: our ICD asks for the
+  highest refresh the driver lists, and ours lists every timing to 85 Hz
+  (1600x1200 ran at 75 Hz, 195.8 MHz, where the vendor's EDID-filtered list
+  stops at 70 and it ran 60) - the extra scanout bandwidth comes out of fill
+  rate on every chip. DDC/EDID filtering is next for that reason as much as
+  for the monitor's sake.
+
 ## Findings (measured)
+
+- **METHOD_BUFFERED: an IOCTL's input and output are ONE buffer.** The first
+  4-chip run zeroed the answer before reading Glide's request, so the enable
+  arrived as dwChips = sliEn = aaEn = 0 - a disable - and Quake II ran on the
+  master alone, successfully, with nothing reporting a failure. Copy the
+  request out first (`test_vcr_kmd_sli_glue.py` holds every private IOCTL to it).
+- **The slaves go INSIDE the master's windows.** PnP sized the master's BARs
+  from the power-up decode (128 MB / 256 MB); once the decode is narrowed to
+  32 MB / 64 MB the rest of those windows is where the slaves live - so they
+  are routed by the bridge and videoprt maps them like any claimed range.
+- **The vendor keeps each slave's own miscInit1 straps** (chips 2-3 bit 28
+  set, chip 1 clear) and its slaves' vidPixelBufThold at 0x10410 whatever
+  Glide writes on the master (0x20820 at 1600x1200) - dos_mode.c would copy
+  the master's for both. pciInit0's PCI FIFO low threshold is 10 on the vendor
+  (BIOS: 8); ours now matches.
 
 - **The desktop must not sit in Glide's command FIFO.** On VSA-100 Glide
   puts its FIFO at 96 KB .. ~1116 KB (minihwc.c: a 96 KB pad plus
@@ -200,13 +250,11 @@ external clock for SLI.**
 
 ## Roadmap
 
-1. **V5 desktop** — install on `.124` (rollback: `DRVUPDATE` the AmigaMerlin
-   INF, or `Diag\Disable`), mode sweep, compare `vcrctl snapshot` against the
-   golden capture.
-2. **Glide single chip** — Quake II through our ICD + our Glide on our kernel
-   driver: the whole stack ours.
-3. **Four-chip SLI** — the SLI/AA setup Glide asks for (port of the Glide GPL
-   `dos_mode.c` sequence), the V5 6000's external clock via the HiNT bridge.
-4. **DDC/EDID** — monitor child + mode filtering (and EDID for GAMERES).
+1. ~~**V5 desktop**~~ — done 2026-09-26: 123/123 vendor modes.
+2. ~~**Glide single chip**~~ — done 2026-09-26: the whole stack ours.
+3. ~~**Four-chip SLI**~~ — done 2026-09-26 (above). Next there: the AA
+   configs (1, 3, 4, 6, 7, 8) against vendor goldens (`sli_golden_sweep.py`).
+4. **DDC/EDID** — monitor child + mode filtering (and EDID for GAMERES); also
+   what brings the refresh Glide gets in line with the vendor's.
 5. **2D acceleration + hardware cursor + tiled desktop.**
 6. **DirectDraw HAL**, then D3D.

@@ -133,7 +133,11 @@ typedef struct VCR_EXT {
     VCR_PROC  procs[VCR_MAX_PROCS];
     ULONG     allow_poke;
     ULONG     bridge_bus, bridge_slot, bridge_found;
-    ULONG     sli_active;
+    ULONG     sli_active;           /* = sli_chips != 0 */
+    ULONG     glide_chips;          /* chips Glide is told about (1 until slaves are mapped) */
+    ULONG     sli_chips;            /* chips in the live SLI/AA session, 0 = none */
+    LONG      sli_result;           /* last vcr_sli_set() result */
+    ULONG     clock_6k_hz;          /* last external clock programmed */
 
     /* stable-boot timer */
     ULONG     seconds;
@@ -182,7 +186,16 @@ VP_STATUS VcrHwSetClut(VCR_EXT *x, const VIDEO_CLUT *clut, ULONG len);
 void    VcrHwSnapshot(VCR_EXT *x, vcr_snapshot *s);
 ULONG   VcrHwWaitIdle(VCR_EXT *x, ULONG chip, ULONG loops);
 ULONG   VcrHwResetEngine(VCR_EXT *x, ULONG chip, const char *why);
+
 void    VcrHwPower(VCR_EXT *x, ULONG state);
+
+/* ---- vcrmp_clock.c: the V5 6000 external clock --------------------------- */
+ULONG   VcrClock6k(VCR_EXT *x, ULONG pllctrl0);
+
+/* ---- vcrmp_multi.c: slaves and SLI/AA (the port is vcrmp_sli.c) ------------ */
+void    VcrMultiInit(VCR_EXT *x);                     /* place + map the slaves */
+VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out);
+void    VcrSliOff(VCR_EXT *x, const char *why);       /* no-op when SLI is off */
 
 /* ---- vcrmp_map.c: user mappings for Glide and GDI --------------------------- */
 VP_STATUS VcrMapGlide(VCR_EXT *x, vcr_glide_map *m);

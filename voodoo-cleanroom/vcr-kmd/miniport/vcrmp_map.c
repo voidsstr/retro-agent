@@ -78,7 +78,7 @@ VP_STATUS VcrMapGlide(VCR_EXT *x, vcr_glide_map *m)
         return NO_ERROR;
     }
     VideoPortZeroMemory(m, sizeof *m);
-    m->nchips = 1;          /* multi-chip is exposed once SLI setup exists */
+    m->nchips = x->glide_chips ? x->glide_chips : 1;   /* > 1 once the slaves are mapped */
     m->base0 = map_user(x, p, x->chip[0].mmio_phys, VCR_MB0_SIZE, FALSE, 0);
     m->base1_len = x->lfb_len;
     m->base1 = map_user(x, p, x->chip[0].lfb_phys, x->lfb_len, TRUE, 1);

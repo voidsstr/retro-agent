@@ -217,6 +217,7 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
     }
     VcrHwSaveBootState(x);
     VcrHwSnapshotToLog(x, "boot");
+    VcrMultiInit(x);            /* slaves placed + mapped, or Glide stays 1-chip */
 
     x->nmodes = vcr_modes_build(&x->caps, x->modes, VCR_MAX_MODES);
     /* A full table means modes were DROPPED - it happened silently once
@@ -396,6 +397,12 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
     v->boot_attempts = VcrBootAttempts;
     v->boot_good = x->boot_marked;
     v->sli_active = x->sli_active;
+    v->glide_chips = x->glide_chips ? x->glide_chips : 1;
+    v->sli_chips = x->sli_chips;
+    v->sli_result = (vcr_u32)x->sli_result;
+    v->clock_6k_hz = x->clock_6k_hz;
+    for (c = 0; c < x->nchips && c < VCR_MAX_CHIPS; c++)
+        v->slave_bar0[c] = x->chip[c].mmio_phys.LowPart;
     v->log_next_seq = VcrLogNextSeq();
     v->flags = x->allow_poke ? VCR_INFO_F_ALLOW_POKE : 0;
     v->ogl_version = VcrDiagGet(L"OpenGLVersion", 2);
@@ -539,6 +546,7 @@ static BOOLEAN NTAPI VcrStartIO(PVOID ext, PVIDEO_REQUEST_PACKET rp)
         break;
     }
     case IOCTL_VIDEO_RESET_DEVICE:
+        VcrSliOff(x, "display reset");
         VcrHwResetToVga(x);
         break;
     case IOCTL_VIDEO_MAP_VIDEO_MEMORY: {
@@ -633,6 +641,12 @@ static BOOLEAN NTAPI VcrStartIO(PVOID ext, PVIDEO_REQUEST_PACKET rp)
         break;
     case IOCTL_VCR_RESTORE_MODE:
         st = VcrHwRestoreMode(x);
+        break;
+    case IOCTL_VCR_SLI:
+        NEED_OUT(sizeof(vcr_sli_res));
+        st = VcrSliRequest(x, rp->InputBuffer, rp->InputBufferLength,
+                           (vcr_sli_res *)rp->OutputBuffer);
+        info = sizeof(vcr_sli_res);
         break;
     case IOCTL_VCR_RESET_ENGINE:
         st = VcrHwResetEngine(x, 0, "requested") ? NO_ERROR : ERROR_BUSY;

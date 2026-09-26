@@ -163,6 +163,11 @@ VERSION_FILES = {
     "icd":      r"C:\WINDOWS\system32\3dfxOGL.dll",
     "display":  r"C:\WINDOWS\system32\3dfxvs.dll",
     "miniport": r"C:\WINDOWS\system32\drivers\3dfxvsm.sys",
+    # vcr-kmd, our kernel driver pair (voodoo-cleanroom/vcr-kmd). Both pairs can
+    # be installed at once and only one is bound: `display_class` (InfPath,
+    # ProviderName) says which, these say which build of it.
+    "vcr_display":  r"C:\WINDOWS\system32\vcrdd.dll",
+    "vcr_miniport": r"C:\WINDOWS\system32\drivers\vcrmp.sys",
 }
 
 
@@ -2505,7 +2510,12 @@ async def amain(args):
         ti = versions["titles"][t.tid]
         log(f"  {t.name}: {ti.get('path','?')}  {ti.get('size','?')} B  "
             f"md5 {str(ti.get('md5','?'))[:12]}")
-    for n in ("glide3x", "icd", "display"):
+    # Name the kernel pair that is BOUND, not whichever is installed: with
+    # vcr-kmd bound, the vendor's 3dfxvs.dll is still on disk and its md5
+    # identified nothing that drew (the first vcr-kmd rows, 2026-09-26).
+    ours = "vcr-kmd" in str((versions.get("display_class") or {}).get("ProviderName", ""))
+    for n in ("glide3x", "icd") + (("vcr_display", "vcr_miniport") if ours
+                                   else ("display", "miniport")):
         f = versions["files"].get(n, {})
         log(f"  {n}: {f.get('size','?')} B  md5 {str(f.get('md5','?'))[:12]}")
     # Filled per title once its identity probe has staged the game-local DLLs,

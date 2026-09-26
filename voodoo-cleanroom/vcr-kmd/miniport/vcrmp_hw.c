@@ -309,6 +309,21 @@ VP_STATUS VcrHwDiscover(VCR_EXT *x)
             VLOG(VCR_LV_DEBUG, VCR_EV_PCI_DECODE, dec, dec, dec, 0, "master decode already 32 MB");
         }
     }
+    /* pciInit0's PCI FIFO low-water threshold: the BIOS leaves 8, the vendor
+     * driver runs every chip at 10 (golden, all 123 modes and every SLI
+     * capture: 0x01841b28 vs our 0x01841320). The slaves inherit it through
+     * initSlave's copy. The vendor's other extra bit, 11 (PCI I/O decode off),
+     * is NOT taken: our VGA access goes through the I/O BAR. */
+    if (VCR_IS_NAPALM(x->device)) {
+        ULONG th = VcrDiagGet(L"PciLowThresh", 10), p0 = VcrRd(x, 0, VCR_R_PCIINIT0), p1;
+        if (th <= 31 && ((p0 >> VCR_PI0_LOWTHRESH_SHIFT) & 0x1f) != th) {
+            p1 = (p0 & ~(0x1fu << VCR_PI0_LOWTHRESH_SHIFT)) | (th << VCR_PI0_LOWTHRESH_SHIFT);
+            VcrWr(x, 0, VCR_R_PCIINIT0, p1);
+            VLOG(VCR_LV_INFO, VCR_EV_PCI_DECODE, p0, p1, VcrRd(x, 0, VCR_R_PCIINIT0), 0,
+                 "pciInit0 PCI FIFO low threshold %u -> %u",
+                 (p0 >> VCR_PI0_LOWTHRESH_SHIFT) & 0x1f, th);
+        }
+    }
     x->fb_per_chip = voodoo_fb_bytes(x);
 
     x->caps.device_id = x->device;
@@ -601,6 +616,9 @@ VP_STATUS VcrHwSetMode(VCR_EXT *x, ULONG idx)
     }
     VcrPhase(VCR_EV_MODESET_BEGIN, (t->w << 16) | t->h, (bpp << 16) | t->refresh,
              "mode set");
+    /* whoever takes the display now, the slaves stop merging into it - this
+     * is also the teardown of a Glide client that died with SLI on */
+    VcrSliOff(x, "mode set");
     VLOG(VCR_LV_INFO, VCR_EV_MODESET_BEGIN, t->w, t->h, bpp, t->refresh,
          "mode %u: %ux%ux%u@%u", idx, t->w, t->h, bpp, t->refresh);
     VLOG(VCR_LV_INFO, VCR_EV_MODESET_PLL, m.pix_khz_target, m.pix_khz_actual, m.pllctrl0,

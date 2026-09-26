@@ -92,10 +92,15 @@ static int cmd_info(void)
     printf("],\"lfb_phys\":\"%08x\",\"lfb_len\":%u,\"mmio_len\":%u,\"io_base\":\"%x\","
            "\"fb_per_chip\":%u,\"desktop_offset\":%u,\"cur_mode\":%d,\"cur\":\"%ux%ux%u@%u\","
            "\"stride\":%u,\"nmodes\":%u,\"boot_attempts\":%u,\"boot_good\":%u,"
-           "\"sli_active\":%u,\"log_next_seq\":%u,\"flags\":%u}\n",
+           "\"sli_active\":%u,\"log_next_seq\":%u,\"flags\":%u,\"glide_chips\":%u,"
+           "\"sli_chips\":%u,\"sli_result\":%d,\"clock_6k_hz\":%u,\"chip_bar0\":[",
            v.lfb_phys, v.lfb_len, v.mmio_len, v.io_base, v.fb_per_chip, v.desktop_offset,
            (int)v.cur_mode, v.cur_w, v.cur_h, v.cur_bpp, v.cur_hz, v.cur_stride, v.nmodes,
-           v.boot_attempts, v.boot_good, v.sli_active, v.log_next_seq, v.flags);
+           v.boot_attempts, v.boot_good, v.sli_active, v.log_next_seq, v.flags,
+           v.glide_chips, v.sli_chips, (int)v.sli_result, v.clock_6k_hz);
+    for (i = 0; i < (int)v.nchips && i < VCR_MAX_CHIPS; i++)
+        printf("%s\"%08x\"", i ? "," : "", v.slave_bar0[i]);
+    printf("]}\n");
     return 0;
 }
 

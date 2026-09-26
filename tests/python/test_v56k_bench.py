@@ -1107,3 +1107,12 @@ def test_each_lane_names_the_driver_files_it_actually_loads(bench):
     icd, glide = bench.title_driver_paths(rtcw)
     assert icd == bench.SYSTEM_ICD_DLL != sys32_icd       # via the registration
     assert glide == rf"{rtcw.root}\glide3x.dll"
+
+
+def test_provenance_hashes_our_kernel_driver_pair_too(bench):
+    """Both kernel pairs can be installed while only one is bound; the vcr-kmd
+    rows of 2026-09-26 recorded the vendor's idle 3dfxvs.dll md5 as "display"."""
+    assert bench.VERSION_FILES["vcr_display"].lower().endswith(r"system32\vcrdd.dll")
+    assert bench.VERSION_FILES["vcr_miniport"].lower().endswith(r"drivers\vcrmp.sys")
+    src = Path(bench.__file__).read_text()
+    assert '"vcr-kmd" in str((versions.get("display_class")' in src

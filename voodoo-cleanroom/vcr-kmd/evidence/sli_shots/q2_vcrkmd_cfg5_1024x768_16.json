@@ -1,0 +1,22 @@
+{
+ "host": "192.168.1.124",
+ "label": "vcrkmd",
+ "cfg": 5,
+ "res": "1024x768",
+ "depth": 16,
+ "frames": 250,
+ "taken": "2026-09-26T02:21:30",
+ "size": [
+  1024,
+  768
+ ],
+ "engine": "quake2.exe (3.20; retrogl.dll voodoo-cleanroom 0.1.75 over OUR h5 glide3x md5 2df2f969)",
+ "band_luma_per_chip": [
+  13.2,
+  13.5,
+  13.8,
+  13.9
+ ],
+ "nlines": 8,
+ "chips": 4
+}

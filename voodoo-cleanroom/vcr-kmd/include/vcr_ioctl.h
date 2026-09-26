@@ -81,6 +81,12 @@ typedef struct vcr_info {
     vcr_u32 flags;              /* VCR_INFO_F_* */
     vcr_u32 ogl_version, ogl_driver_version;
     vcr_u16 ogl_name[32];       /* OpenGLDrivers key name (UTF-16) */
+    /* multi-chip (appended - older tools read a shorter struct) */
+    vcr_u32 glide_chips;        /* what GETDEVICECONFIG tells Glide: 1, 2 or 4 */
+    vcr_u32 sli_chips;          /* chips in the live SLI/AA session, 0 = none */
+    vcr_u32 sli_result;         /* last vcr_sli_set() result (int) */
+    vcr_u32 clock_6k_hz;        /* last V5 6000 external clock programmed, 0 = never */
+    vcr_u32 slave_bar0[VCR_MAX_CHIPS];
 } vcr_info;
 #define VCR_INFO_F_ALLOW_POKE   0x1
 
@@ -113,6 +119,16 @@ typedef struct vcr_glide_map {
     vcr_u32 nchips;
     vcr_u32 slave[VCR_MAX_CHIPS][4];    /* [chip][IO, CMD, 2D, 3D]; chip 0 unused */
 } vcr_glide_map;
+
+/* IOCTL_VCR_SLI: in = Glide's SLI_AA_REQUEST payload (vcr_sli_aa_req,
+ * vcr_hwcext.h), out = this. result: < 0 refused (nothing written), 0 done,
+ * > 0 done with VCR_SLI_W_* warnings (vcr_sli.h). */
+typedef struct vcr_sli_res {
+    vcr_u32 result;             /* int */
+    vcr_u32 sli_chips;          /* chips now in SLI/AA, 0 = off */
+    vcr_u32 clock_6k_hz;
+    vcr_u32 reserved;
+} vcr_sli_res;
 
 /* IOCTL_VCR_PCI_OP */
 #define VCR_PCI_TARGET_BRIDGE   0x10    /* the V5 6000 HiNT bridge */

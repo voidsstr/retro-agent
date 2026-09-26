@@ -37,7 +37,7 @@
     VCR_EVENT(VCR_EV_CHIP_FOUND,    205, "a=chip b=slot (bus:dev:fn packed) c=bar0 d=bar1") \
     VCR_EVENT(VCR_EV_BRIDGE_FOUND,  206, "a=bus b=slot c=vendor:device") \
     VCR_EVENT(VCR_EV_MODES_BUILT,   207, "a=valid modes b=table size c=max pixclk kHz") \
-    VCR_EVENT(VCR_EV_PCI_DECODE,    208, "a=cfgPciDecode before b=written c=read back d=chip") \
+    VCR_EVENT(VCR_EV_PCI_DECODE,    208, "a=cfgPciDecode/pciInit0 before b=written c=read back d=chip") \
     /* 3xx mode set */ \
     VCR_EVENT(VCR_EV_MODESET_BEGIN, 300, "a=width b=height c=bpp d=refresh") \
     VCR_EVENT(VCR_EV_MODESET_PLL,   301, "a=target kHz b=achieved kHz c=pllCtrl0 d=2x") \
@@ -79,7 +79,7 @@
     /* 7xx SLI / multi-chip */ \
     VCR_EVENT(VCR_EV_SLI_STEP,      700, "a=step b=chip c=register/offset d=value") \
     VCR_EVENT(VCR_EV_SLI_DONE,      701, "a=enabled b=chips c=result") \
-    VCR_EVENT(VCR_EV_CLOCK_6K,      702, "a=target kHz b=programmed c=result") \
+    VCR_EVENT(VCR_EV_CLOCK_6K,      702, "a=target Hz b=programmed Hz c=24-bit word d=gpio after") \
     /* 8xx safety */ \
     VCR_EVENT(VCR_EV_SAFE_DECLINE,  800, "a=reason (1 disabled, 2 boot loop) b=attempts") \
     VCR_EVENT(VCR_EV_SAFE_MARK_OK,  801, "a=attempts cleared") \

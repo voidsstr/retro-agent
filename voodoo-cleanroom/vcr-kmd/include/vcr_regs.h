@@ -38,6 +38,7 @@
 /* ---- IO registers (byte offsets into memBase0 / the I/O BAR) ------------ */
 #define VCR_R_STATUS                    0x00
 #define VCR_R_PCIINIT0                  0x04
+#define VCR_PI0_LOWTHRESH_SHIFT         2      /* 5-bit PCI FIFO low-water threshold */
 #define VCR_R_SIPMONITOR                0x08
 #define VCR_R_LFBMEMORYCONFIG           0x0c
 #define VCR_R_MISCINIT0                 0x10
