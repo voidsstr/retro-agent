@@ -1,0 +1,17 @@
+[13:07:43] plan: info, ddraw, d3d, d3dperf - at most 14 mode switches = 28 timing changes on the cable (each switch passes through the driver's 31.5 kHz VGA reset, ~30 ms), 5s apart at least
+[13:07:43] == info
+[13:07:44]    monitor SNY1270 CPD-G200: H 30-96 kHz, V 48-120 Hz, <= 260 MHz - the driver filters its modes by it
+[13:07:44] == ddraw
+[13:07:44]    rc 0 (1s): [{"mode": "caps", "hal_caps": "04020041", "hal_ddscaps": "00423250", "vidmem_total": 28307456, "vidmem_free": 28307456, "hel_caps": "f4c08241"}]
+[13:07:53]    rc 0 (4s): [{"mode": "flip", "res": "800x600x16", "primary_in": "video", "frames": 60, "frames_run": 60, "mismatch": 0, "lock_fail": 0, "flips_s": 46.9, "vblank_hz": 85.0, "scanline": 2293576, "hal_caps": "04020041", "focus_lost": false}]
+[13:08:02]    rc 0 (4s): [{"mode": "blt", "res": "800x600x16", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "bad_key": 0, "blts_s": 7173, "mpix_s": 470.1, "hal_caps": "04020041", "focus_lost": false}]
+[13:08:02]    rc 0 (1s): [{"mode": "caps", "hal_caps": "04020041", "hal_ddscaps": "00423250", "vidmem_total": 28307456, "vidmem_free": 28307456, "hel_caps": "f4c08241"}]
+[13:08:11]    rc 0 (4s): [{"mode": "flip", "res": "800x600x32", "primary_in": "video", "frames": 60, "frames_run": 60, "mismatch": 0, "lock_fail": 0, "flips_s": 87.4, "vblank_hz": 85.0, "scanline": 2293576, "hal_caps": "04020041", "focus_lost": false}]
+[13:08:20]    rc 0 (4s): [{"mode": "blt", "res": "800x600x32", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "bad_key": 0, "blts_s": 3420, "mpix_s": 224.1, "hal_caps": "04020041", "focus_lost": false}]
+[13:08:20] == d3d
+[13:08:21]    rc 0 (1s): [{"mode": "caps", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "driver": "vcrdd.dll", "desktop_fmt": 22, "hal": "00000000", "DevCaps": "0008ae50", "PrimitiveMiscCaps": "00000072", "RasterCaps": "00100191", "ZCmpCaps": "000000ff", "SrcBlendCaps": "00001f33", "DestBlendCaps": "0000003f", "AlphaCm
+[13:08:31]    rc 0 (5s): [{"mode": "render", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "window": "fullscreen", "fmt": 23, "checks": [{"test": "clear", "at": "corner", "x": 0, "y": 0, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "centre", "x": 128, "y": 128, "got": "ff0000", "want": "ff0000", 
+[13:08:41]    rc 0 (5s): [{"mode": "render", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "window": "fullscreen", "fmt": 23, "checks": [{"test": "clear", "at": "corner", "x": 0, "y": 0, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "centre", "x": 128, "y": 128, "got": "ff0000", "want": "ff0000", 
+[13:08:41] == d3dperf
+[13:08:50]    rc 0 (4s): [{"mode": "perf", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "frames": 300, "frames_run": 300, "tris_per_frame": 200, "fps": 151.2, "tris_s": 30246, "focus_lost": false}]
+[13:08:50] done: 0 failing sub-step(s), 0 switching run(s) skipped after a failure or timeout -> /home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/evidence/silicon/vcrkmd-v5-6.jsonl
