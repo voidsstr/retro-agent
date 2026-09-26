@@ -1,0 +1,21 @@
+[12:06:45] plan: info, modes, gdi, ddraw, d3d, d3dperf - at most 22 mode switches = 44 timing changes on the cable (each switch passes through the driver's 31.5 kHz VGA reset, ~30 ms), 5s apart at least
+[12:06:46] == info
+[12:06:50]    monitor BOX0000 86Box Monitor: H 30-115 kHz, V 45-125 Hz, <= 300 MHz - the driver filters its modes by it
+[12:06:50] == modes
+[12:07:18]    rc 0 (29s): ["        640x480x8@60: ok", "       640x480x16@85: ok", "       800x600x16@85: ok", "      1024x768x16@85: ok", "modeseq: {\"cmd\": \"modeseq\", \"ok\": true, \"modes\": 4, \"ran\": 4, \"failed\": 0, \"stopped\": false, \"pace_ms\": 5000, \"restore\": 0}", "4/4 modes passed"]
+[12:07:18] == gdi
+[12:07:27]    rc 0 (9s): [{"mode": "gdi", "bpp": 16, "rounds": 3, "bad_fill": 0, "bad_rop": 0, "bad_copy": 0, "bad_scroll": 0, "bad_clip": 0, "bad_sync": 0, "bad": 0}]
+[12:07:27] == ddraw
+[12:07:33]    rc 0 (6s): [{"mode": "caps", "hal_caps": "04020041", "hal_ddscaps": "00423250", "vidmem_total": 15810560, "vidmem_free": 15810560, "hel_caps": "f4c08241"}]
+[12:07:46]    rc 0 (8s): [{"mode": "flip", "res": "800x600x16", "primary_in": "video", "frames": 60, "frames_run": 60, "mismatch": 0, "lock_fail": 0, "flips_s": 63.7, "vblank_hz": 60.4, "scanline": 2293576, "hal_caps": "04020041", "focus_lost": false}]
+[12:07:59]    rc 0 (8s): [{"mode": "blt", "res": "800x600x16", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "bad_key": 0, "blts_s": 2265, "mpix_s": 148.4, "hal_caps": "04020041", "focus_lost": false}]
+[12:08:02]    rc 0 (4s): [{"mode": "caps", "hal_caps": "04020041", "hal_ddscaps": "00423250", "vidmem_total": 15810560, "vidmem_free": 14850560, "hel_caps": "f4c08241"}]
+[12:08:19]    rc 0 (11s): [{"mode": "flip", "res": "800x600x32", "primary_in": "video", "frames": 60, "frames_run": 60, "mismatch": 0, "lock_fail": 0, "flips_s": 63.8, "vblank_hz": 60.4, "scanline": 2293576, "hal_caps": "04020041", "focus_lost": false}]
+[12:08:33]    rc 0 (10s): [{"mode": "blt", "res": "800x600x32", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "bad_key": 0, "blts_s": 1757, "mpix_s": 115.1, "hal_caps": "04020041", "focus_lost": false}]
+[12:08:33] == d3d
+[12:08:40]    rc 0 (6s): [{"mode": "caps", "adapter": "vcr-kmd Voodoo 3 (open driver)", "driver": "vcrdd.dll", "desktop_fmt": 23, "hal": "00000000", "DevCaps": "0008ae50", "PrimitiveMiscCaps": "00000072", "RasterCaps": "00100191", "ZCmpCaps": "000000ff", "SrcBlendCaps": "00001f33", "DestBlendCaps": "0000003f", "AlphaCmpCaps
+[12:08:54]    rc 0 (9s): [{"mode": "render", "adapter": "vcr-kmd Voodoo 3 (open driver)", "window": "fullscreen", "fmt": 23, "checks": [{"test": "clear", "at": "corner", "x": 0, "y": 0, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "centre", "x": 128, "y": 128, "got": "ff0000", "want": "ff0000", "ok":
+[12:09:09]    rc 0 (10s): [{"mode": "render", "adapter": "vcr-kmd Voodoo 3 (open driver)", "window": "fullscreen", "fmt": 23, "checks": [{"test": "clear", "at": "corner", "x": 0, "y": 0, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "centre", "x": 128, "y": 128, "got": "ff0000", "want": "ff0000", "ok":
+[12:09:09] == d3dperf
+[12:09:26]    rc 0 (12s): [{"mode": "perf", "adapter": "vcr-kmd Voodoo 3 (open driver)", "frames": 300, "frames_run": 300, "tris_per_frame": 200, "fps": 42.8, "tris_s": 8568, "focus_lost": false}]
+[12:09:26] done: 0 failing sub-step(s), 0 switching run(s) skipped after a failure or timeout -> /home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/evidence/silicon/86box-v3-paced-1.jsonl
