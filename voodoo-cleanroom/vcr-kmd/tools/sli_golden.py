@@ -58,8 +58,8 @@ def jl(text):
 
 async def main_async(a):
     box = vb.Box(a.host)
-    out = {"host": a.host, "label": a.label, "cfg": a.cfg,
-           "taken": time.strftime("%Y-%m-%dT%H:%M:%S")}
+    out = {"host": a.host, "label": a.label, "cfg": a.cfg, "cfg_via": "env+registry",
+           "res": f"{a.w}x{a.h}x{a.depth}", "taken": time.strftime("%Y-%m-%dT%H:%M:%S")}
     vcr = lambda args: box.exec_(rf"{TOOL} {args}")   # noqa: E731
 
     # the probe first, so a failure costs nothing
@@ -79,7 +79,12 @@ async def main_async(a):
     print(f"SLI/AA config {a.cfg} written under HKLM\\{glide_key}")
     t = Quake2Loop()
     await t.identify(box)
-    await t.prepare(box, a.w, a.h, a.depth, {})
+    # The config must reach Glide through the GAME'S ENVIRONMENT, as the bench
+    # runner does it. Our Glide does not read the registry value: every capture
+    # taken before 2026-09-26 03:20 passed {} here and ran Glide's default (2 =
+    # every chip in SLI, no AA), whatever --cfg said.
+    await t.prepare(box, a.w, a.h, a.depth,
+                    {"SSTH3_SLI_AA_CONFIGURATION": str(a.cfg), "FX_GLIDE_SWAPINTERVAL": "0"})
     await t.start(box)
     print(f"game started, cfg {a.cfg}; settling {a.settle}s")
     await asyncio.sleep(a.settle)

@@ -48,8 +48,24 @@ async def set_cfg(ip, cfg):
 async def main_async(a):
     rows = []
     agent = db.Agent(a.host)
+
+    async def recovered():
+        # A config that wedges the display driver takes the agent with it
+        # (9898 refused, 9897 accepting, SMB up); box-guardian reboots it over
+        # RPC after its grace. Wait for that rather than burning the rest of
+        # the list against a dead agent (which the first version did).
+        if await agent.alive():
+            return True
+        log("  agent DEAD - the config wedged the box; waiting for the guardian's reboot")
+        took = await db.wait_back(agent, limit=a.recover_wait)
+        log(f"  back after {took:.0f}s" if took else "  NOT back - stopping")
+        return took is not None
+
     for cfg in a.cfgs:
         log(f"===== cfg {cfg} =====")
+        if not await recovered():
+            rows.append((cfg, "box-unreachable"))
+            break
         try:
             await set_cfg(a.host, cfg)
         except Exception as e:
@@ -76,7 +92,9 @@ async def main_async(a):
         log("  " + out.replace("\n", "\n  ")[-600:])
         golden = KMD / "golden" / f"sli_{a.label}_cfg{cfg}_{a.host}.json"
         if r.returncode or not golden.exists():
-            rows.append((cfg, f"capture-failed rc={r.returncode}"))
+            wedged = not await agent.alive()
+            rows.append((cfg, f"capture-failed rc={r.returncode}" +
+                         (" - WEDGED the box (agent died)" if wedged else "")))
             continue
         res = "captured"
         if a.compare:
@@ -110,6 +128,8 @@ def main():
     ap.add_argument("--h", type=int, default=480)
     ap.add_argument("--depth", type=int, default=16)
     ap.add_argument("--settle", type=int, default=20)
+    ap.add_argument("--recover-wait", type=int, default=1500,
+                    help="seconds to wait for a wedged box to come back (guardian grace + boot)")
     a = ap.parse_args()
     sys.exit(asyncio.run(main_async(a)))
 

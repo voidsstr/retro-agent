@@ -338,5 +338,6 @@
     "attr": "ffffffffffffffffffffffffffffffff01000f0000"
    }
   }
- ]
+ ],
+ "cfg_via": "registry-only: Glide never saw --cfg and ran its default 2 (every chip in SLI, no AA) - the same state as cfg 5 inside Glide, so valid as a 4-chip SLI reference"
 }

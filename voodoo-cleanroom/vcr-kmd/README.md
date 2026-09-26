@@ -143,9 +143,12 @@ FIFO, and a 3D engine left busy by a killed game (now reset automatically).
 **Glide on one chip, our kernel vs AmigaMerlin's (Quake II single-pass, our ICD
 + Glide):** 640x480 147.9 / 147.9, 800x600 101.1 / 101.1, 1024x768 63.6 / 63.6
 fps at 16 and 32 bpp - identical (`evidence/glide_q2_1chip_matrix_vcrkmd.csv`).
-At 1600x1200 ours measures 22.9 against 25.4, but that is NOT like for like:
-the live capture shows the vendor's "config 0" run with all four chips in SLI
-(identical SLI registers to config 5). The fair comparison is 4 chips vs 4.
+At 1600x1200 ours measured 22.9 against 25.4, both on one chip. *Correction
+(2026-09-26): this was first put down to the vendor running four chips at
+"config 0" - a capture artefact: `sli_golden.py` wrote the config only to the
+registry, which our Glide does not read, so every capture ran Glide's default
+(all chips in SLI). The refresh is the difference instead - see the 60 Hz rows
+under FOUR CHIPS.*
 
 **The vendor's 4-chip SLI state, captured live** (`golden/sli_*`, via
 `tools/sli_golden.py`): slaves at BAR0 0xD2/D4/D6000000, BAR1 0xC4000000,
