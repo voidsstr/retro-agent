@@ -21,7 +21,7 @@ const vcr_timing vcr_timings[] = {
      * with the horizontal halved and the vertical kept in physical lines */
     { 320,  200, 70,  12587,   8,  48,  24, 13, 2, 34, N | D },
     { 320,  240, 60,  12587,   8,  48,  24, 10, 2, 33, N | V | D },
-    { 400,  300, 60,  20000,  24,  64,  40,  1, 4, 23, D },
+    { 400,  300, 60,  20003,  24,  64,  40,  1, 4, 23, D },   /* the vendor's clock */
     { 512,  384, 60,  32500,  16,  64,  80,  3, 6, 29, N | V | D },
     { 640,  400, 70,  25175,  16,  96,  48, 13, 2, 34, N },
     /* 4:3 DMT */
@@ -105,30 +105,51 @@ const vcr_u32 vcr_ntimings = sizeof(vcr_timings) / sizeof(vcr_timings[0]);
 
 /* ------------------------------------------------------------------------ */
 
+/* fref = 14.31818 MHz, kept exact: 1431818 / 100 kHz */
+#define VCR_FREF_X100 1431818u
+
 vcr_u32 vcr_pll_khz(vcr_u32 pll)
 {
     vcr_u32 n = (pll >> VCR_PLL_N_SHIFT) & 0xff;
     vcr_u32 m = (pll >> VCR_PLL_M_SHIFT) & 0x3f;
     vcr_u32 k = (pll >> VCR_PLL_K_SHIFT) & 0x3;
-    return (VCR_PLL_REF_KHZ * (n + 2) / (m + 2)) >> k;
+    return (VCR_FREF_X100 * (n + 2) / ((m + 2) * 100u)) >> k;
 }
 
+/*
+ * pllCtrl0 for a dot clock, chosen by the vendor's rules (H5 h3modeset.c),
+ * which keep the PLL's VCO (f * 2^K) in a few hundred MHz:
+ *   K from the clock: 1 above 150 MHz, 2 above 65 MHz, else 3;
+ *   M from 1 (never 0 - the vendor found it misbehaves), at most 10 above
+ *   36 MHz and at most 5 above 200 MHz;  N + 2 <= 257;
+ *   the lowest error wins, the first found (smallest M) on a tie.
+ * The open drivers' exhaustive search lands on the same frequency with a
+ * wildly different VCO: for 157.5 MHz it picked N=174 M=0 K=3, a 1.26 GHz VCO,
+ * where the vendor runs 315 MHz - measured on the V5 6000 with our first boot.
+ */
 vcr_u32 vcr_pll_calc(vcr_u32 khz, vcr_u32 *actual)
 {
-    vcr_u32 best = 0, best_err = 0xffffffffu;
-    int k, m, n;
+    vcr_u32 k = khz > 150000 ? 1 : khz > 65000 ? 2 : 3;
+    vcr_u32 m, best = 0, best_err = 0xffffffffu;
 
-    for (k = 3; k >= 0; k--) {
-        for (m = 63; m >= 0; m--) {
-            int est = (int)(((khz * (vcr_u32)(m + 2)) << k) / VCR_PLL_REF_KHZ) - 2;
-            for (n = est < 0 ? 0 : est; n <= est + 1 && n <= 255; n++) {
-                vcr_u32 f = (VCR_PLL_REF_KHZ * (vcr_u32)(n + 2) / (vcr_u32)(m + 2)) >> k;
-                vcr_u32 err = f > khz ? f - khz : khz - f;
-                if (err < best_err) {
-                    best_err = err;
-                    best = VCR_PLL((vcr_u32)n, (vcr_u32)m, (vcr_u32)k);
-                }
-            }
+    for (m = 1; m < 64; m++) {
+        unsigned long long num;
+        vcr_u32 np2, f, err, div;
+        if (khz > 36000 && m > 10)
+            break;
+        if (khz > 200000 && m > 5)
+            break;
+        /* n + 2 = round(khz * (m + 2) * 2^k / fref) */
+        num = (unsigned long long)khz * (m + 2) * (1u << k) * 100u;
+        np2 = (vcr_u32)((num + VCR_FREF_X100 / 2) / VCR_FREF_X100);
+        if (np2 > 257 || np2 < 2)
+            continue;
+        div = (m + 2) * 100u * (1u << k);
+        f = (vcr_u32)(((unsigned long long)VCR_FREF_X100 * np2 + div / 2) / div);
+        err = f > khz ? f - khz : khz - f;
+        if (err < best_err) {
+            best_err = err;
+            best = VCR_PLL(np2 - 2, m, k);
         }
     }
     if (actual)

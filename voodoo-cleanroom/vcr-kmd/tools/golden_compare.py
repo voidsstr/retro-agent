@@ -69,8 +69,9 @@ def main(argv=None):
         oc = bytes.fromhex(o["crtc"])
         vendor_khz = pll_khz(io[0x40 // 4])
         problems = []
-        if abs(vendor_khz - o["khz"]) > max(50, o["khz"] // 200):
-            problems.append(f"pixclk vendor {vendor_khz} ours {o['khz']}")
+        if io[0x40 // 4] & 0xffff != int(o["pll"], 16):
+            problems.append(f"pllCtrl0 vendor {io[0x40 // 4] & 0xffff:04x} ({vendor_khz} kHz) "
+                            f"ours {o['pll']} ({o['khz']} kHz)")
         if (io[0x4c // 4] & 1) != (o["dacmode"] & 1):
             problems.append(f"2X vendor {io[0x4c // 4] & 1} ours {o['dacmode'] & 1}")
         if io[0x98 // 4] & 0xffffff != int(o["screensize"], 16):

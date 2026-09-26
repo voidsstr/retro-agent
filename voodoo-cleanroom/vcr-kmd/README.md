@@ -91,11 +91,15 @@ Host tests: `tests/native/test_vcr_kmd_{log,fmt,modes,abi}.c`,
 ## Status (2026-09-25)
 
 **Proven in the VM (QEMU std-vga, XP SP3):** installs through `DRVUPDATE`, PnP
-starts the miniport, XP boots onto `vcrdd` — desktop, mode set with read-back,
-**110/110 of our modes** (8/16/32 bpp, 320x200 to 1920x1440) switch and pass
-the GDI read-back test with a clean recorder; the flight recorder, phases and
-debugcon mirror all work. Glide's route to fullscreen (DirectDraw exclusive +
-`SetDisplayMode`, no DirectDraw HAL needed) works at every Glide mode.
+starts the miniport, XP boots onto `vcrdd`, and every mode we offer switches
+and reads back as the current mode. *Correction (2026-09-26): the early VM
+sweeps reported "110/110" and "200/200" GDI passes, but a `CDS_FULLSCREEN`
+mode reverts when the process that set it exits, and those sweeps switched
+in one process and ran the GDI test in the next - so GDI was only ever tested
+at the desktop mode. `vcrctl modetest` now switches, draws and reads the
+registers in ONE process.* The flight recorder, phases and debugcon mirror
+work. Glide's route to fullscreen (DirectDraw exclusive + `SetDisplayMode`,
+no DirectDraw HAL needed) works at every Glide mode.
 **The safety net, proven by `tools/safety_test.py`:** `Diag\Disable` boots XP
 on its VGA driver with `LastDecline` = 0x1xxxx; a boot counter left at its
 limit makes the next boot decline the card (`LastDecline` 0x20004) and the box
@@ -112,7 +116,16 @@ modes it offers on `.124`, plus PCI config of the four chips and the bridge.
 CR1A/CR1B, misc, PLL frequency, 2X, screen size (`golden_compare.py`; pinned
 by `test_vcr_kmd_modes.c`, 13 modes byte for byte).
 
-**Not yet on silicon:** the Voodoo mode set itself.
+**ON THE V5 6000 (2026-09-26): our driver drives the desktop.** Installed with
+`deploy_box.py` (AmigaMerlin rollback package kept on the box), two boots, both
+past the stable mark. `mode_sweep.py --golden` on `.124`: **123/123 of the
+modes the vendor offers pass** - the switch, GDI draw + read-back at 8/16/32
+bpp, a recorder with no WARN/ERROR, and the registers READ BACK FROM THE CHIP
+equal to the vendor's for that mode (`evidence/sweep_124_vs_vendor.json`).
+The scanout runs (`vidCurrentLine` advances). First-boot finding: the open
+drivers' PLL search picked N=174 M=0 K=3 for 157.5 MHz - a 1.26 GHz VCO where
+the vendor runs 315 MHz - fixed by the vendor's selection rules (exact
+`pllCtrl0` match in all 123 modes).
 
 ## Findings (measured)
 

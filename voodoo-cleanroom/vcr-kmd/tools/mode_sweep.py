@@ -9,8 +9,16 @@ it drew, and the driver logged no WARN/ERROR while doing it. A screenshot is
 kept per mode for the eye.
 
 Runs against the QEMU test bed (127.0.0.1:19910) and the real card alike.
+With --golden (a golden_capture.py file from the same box):
+  - only modes the VENDOR offered are visited: its list is filtered by the
+    monitor, so a CRT is never driven outside what it accepts;
+  - after each switch our driver's live registers (vcrctl snapshot, read back
+    from the chip) must equal the vendor's for that mode: every CRTC timing
+    byte, CR1A/CR1B, misc, pllCtrl0, dacMode, vidScreenSize, and vidProcCfg
+    minus the tiled-desktop and hardware-cursor bits ours does not use yet.
 
     mode_sweep.py 127.0.0.1 --port 19910 [--filter 16] [--limit 20] [--shots DIR]
+    mode_sweep.py 192.168.1.124 --golden golden/amigamerlin-3.1-r11_192.168.1.124.json
 """
 import argparse
 import asyncio
@@ -23,6 +31,31 @@ sys.path.insert(0, str(HERE.parents[2]))
 sys.path.insert(0, str(HERE))
 from client.retro_protocol import RetroConnection  # noqa: E402
 import vcrlog  # noqa: E402
+
+
+CRTC_IGNORE = {0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x14}   # cursor/start address
+VPC_IGNORE = (1 << 24) | (1 << 27)                          # tiled desktop, hw cursor
+
+
+def against_golden(snap, cap):
+    """Differences between our live registers and the vendor's for one mode."""
+    ours = snap["chips"][0]
+    oio = [int(x, 16) for x in ours["io"]]
+    vio = [int(x, 16) for x in cap["io"]]
+    diffs = []
+    for off, name, mask in ((0x40, "pllCtrl0", 0xffff), (0x4c, "dacMode", 0x1f),
+                            (0x98, "vidScreenSize", 0xffffff),
+                            (0x5c, "vidProcCfg", ~VPC_IGNORE & 0xffffffff)):
+        if (oio[off // 4] & mask) != (vio[off // 4] & mask):
+            diffs.append(f"{name} {oio[off // 4]:08x}/{vio[off // 4]:08x}")
+    oc = bytes.fromhex(ours["crtc"])
+    vc = bytes.fromhex(cap["vga"]["crtc"])
+    for i in list(range(0x19)) + [0x1a, 0x1b]:
+        if i not in CRTC_IGNORE and oc[i] != vc[i]:
+            diffs.append(f"CR{i:02x} {oc[i]:02x}/{vc[i]:02x}")
+    if ours["misc"] != cap["vga"]["misc"]:
+        diffs.append(f"misc {ours['misc']}/{cap['vga']['misc']}")
+    return diffs
 
 
 def jline(text):
@@ -52,6 +85,11 @@ async def main_async(a):
         # XP adds its VGA driver's 4 bpp modes to the list; they are not ours
         modes = [m for m in jline(await run("modes"))["modes"]
                  if int(m.split("@")[0].split("x")[2]) >= 8]
+        golden = {}
+        if a.golden:
+            g = json.load(open(a.golden))
+            golden = {c["tag"]: c for c in g["captures"] if c.get("ok") and "vga" in c}
+            modes = [m for m in modes if m in golden]
         if a.filter:
             modes = [m for m in modes if m.split("@")[0].endswith("x" + a.filter)]
         if a.limit:
@@ -60,22 +98,34 @@ async def main_async(a):
         for m in modes:
             w, h, rest = m.split("x")
             bpp, hz = rest.split("@")
-            sm = jline(await run(f"setmode {w} {h} {bpp} {hz}"))
-            gdi = jline(await run("gdi")) if sm and sm.get("ok") else None
+            # ONE process: a CDS_FULLSCREEN mode reverts when the process that
+            # set it exits, so switching in one EXEC and testing in the next
+            # tests the desktop mode (every earlier sweep did exactly that).
+            mt = jline(await run(f"modetest {w} {h} {bpp} {hz}")) or {}
+            sm = {"ok": mt.get("current") == m, "current": mt.get("current")}
+            gdi = mt.get("gdi")
+            if gdi is not None:
+                gdi = dict(gdi, ok=gdi.get("mismatches") == 0)
             logtxt = await run(f"log {after}")
             _, ents = vcrlog.parse_tsv(logtxt)
             if ents:
                 after = ents[-1]["seq"]
             bad = [e for e in ents if e["level"] <= 1]
+            regdiff = []
+            if m in golden and sm.get("ok"):
+                snap = mt.get("snapshot")
+                regdiff = against_golden(snap, golden[m]) if snap else ["no snapshot"]
             ok = bool(sm and sm.get("ok") and sm.get("current") == m and gdi and gdi.get("ok")
-                      and not bad)
-            row = {"mode": m, "ok": ok, "setmode": sm, "gdi": gdi,
+                      and not bad and not regdiff)
+            row = {"mode": m, "ok": ok, "setmode": sm, "gdi": gdi, "vs_vendor": regdiff,
                    "log_problems": [vcrlog.format_entry(e, events) for e in bad]}
             results.append(row)
             print(f"  {m:>18}: {'ok' if ok else 'FAIL'}"
                   f"{'' if ok else '  ' + json.dumps({k: row[k] for k in ('setmode', 'gdi')})}")
             for p in row["log_problems"]:
                 print("      " + p)
+            if regdiff:
+                print("      registers (ours/vendor): " + " ".join(regdiff))
             if a.shots:
                 data = await c.command_binary("SCREENSHOT 2")
                 Path(a.shots).mkdir(parents=True, exist_ok=True)
@@ -100,6 +150,7 @@ def main():
     ap.add_argument("--limit", type=int)
     ap.add_argument("--shots")
     ap.add_argument("--out")
+    ap.add_argument("--golden", help="golden capture: vendor modes only + register check")
     a = ap.parse_args()
     sys.exit(asyncio.run(main_async(a)))
 

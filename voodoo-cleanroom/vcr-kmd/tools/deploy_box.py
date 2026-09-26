@@ -89,6 +89,33 @@ class Agent:
         return {}, t
 
 
+async def drvupdate(a, hwid, inf):
+    """DRVUPDATE, clicking through XP's unsigned-driver dialog.
+
+    The "has not passed Windows Logo testing" dialog blocks the install until
+    someone clicks Continue Anyway (default button: STOP). The registry policy
+    value does not help on a box whose policy was not set through the proper
+    path - XP guards it with a hash (measured on .124). So a second connection
+    watches for the dialog and clicks the button, at its fixed offset in the
+    dialog, while the install waits."""
+    task = asyncio.ensure_future(a.text(rf"DRVUPDATE {hwid} {inf}", timeout=300))
+    clicks = 0
+    while not task.done():
+        await asyncio.sleep(4)
+        try:
+            wins = json.loads(await a.text("WINLIST", timeout=20)).get("windows", [])
+        except Exception:
+            continue
+        for w in wins:
+            if w.get("title") == "Hardware Installation" and w.get("class") == "#32770":
+                x, y = w["rect"]["left"] + 219, w["rect"]["top"] + 288
+                await a.text(f"UICLICK {x} {y}")
+                clicks += 1
+                print(f"  clicked Continue Anyway at {x},{y}")
+    r = await task
+    return r, clicks
+
+
 def safe_reboot(ip):
     r = subprocess.run([sys.executable, str(REPO / "scripts" / "fleet" / "safe-reboot.py"), ip],
                        capture_output=True, text=True, timeout=240)
@@ -123,6 +150,20 @@ async def preflight(a, args):
         print(f"  setting CrashDumpEnabled 2 (was {cc.get('CrashDumpEnabled')})")
         await a.text(r"REGWRITE HKLM SYSTEM\CurrentControlSet\Control\CrashControl "
                      "CrashDumpEnabled REG_DWORD 2")
+    # An unsigned driver otherwise stops at XP's "has not passed Windows Logo
+    # testing" dialog and DRVUPDATE waits for a click (seen on .124; the VM's
+    # image already had the policy set). HKCU is the user the agent runs as.
+    # (REGWRITE cannot write REG_BINARY - hence a .reg file.)
+    reg = (b"Windows Registry Editor Version 5.00\r\n\r\n"
+           b"[HKEY_CURRENT_USER\\Software\\Microsoft\\Driver Signing]\r\n"
+           b"\"Policy\"=dword:00000000\r\n\r\n"
+           b"[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Driver Signing]\r\n"
+           b"\"Policy\"=hex:00\r\n")
+    await a.text(rf"MKDIR {args.dir}")
+    await a.raw(rf"UPLOAD {args.dir}\signpolicy.reg", payload=reg)
+    await a.text(rf"EXEC regedit /s {args.dir}\signpolicy.reg")
+    pol = await a.regvals(r"SOFTWARE\Microsoft\Driver Signing")
+    print(f"  driver signing policy (HKLM): {pol}")
     if args.rollback_dir:
         try:
             files = {e["name"].lower() for e in json.loads(await a.text(f"DIRLIST {args.rollback_dir}"))}
@@ -179,7 +220,7 @@ async def install(a, args, evidence):
         if sizes.get(n) != (KMD / f).stat().st_size:
             print(f"  FAIL {n} did not land ({sizes.get(n)})")
             return 2
-    r = await a.text(rf"DRVUPDATE {args.hwid} {args.dir}\vcrkmd.inf", timeout=240)
+    r, _ = await drvupdate(a, args.hwid, rf"{args.dir}\vcrkmd.inf")
     print("  DRVUPDATE:", r.strip()[:200])
     svc = await a.regvals(r"SYSTEM\CurrentControlSet\Services\vcrmp")
     if not svc or "ImagePath" not in svc:
@@ -202,7 +243,7 @@ async def install(a, args, evidence):
 
 async def rollback(a, args, evidence):
     inf = rf"{args.rollback_dir}\{args.rollback_inf}"
-    r = await a.text(rf"DRVUPDATE {args.hwid} {inf}", timeout=240)
+    r, _ = await drvupdate(a, args.hwid, inf)
     print("  DRVUPDATE:", r.strip()[:200])
     if args.ogl_dll:
         await a.text(rf'REGWRITE HKLM {OGL} DLL REG_SZ {args.ogl_dll}')

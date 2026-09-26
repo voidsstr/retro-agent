@@ -1,0 +1,3323 @@
+[
+ {
+  "mode": "320x200x8@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x200x8@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x240x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x240x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "400x300x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "400x300x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "512x384x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "512x384x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x400x8@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x400x8@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x480x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x480x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x8@56",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x8@56"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1024x768x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1024x768x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x960x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x960x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x960x8@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x960x8@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x1024x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x1024x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x1024x8@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x1024x8@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1200x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1200x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1200x8@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1200x8@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x200x8@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x200x8@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x240x8@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x240x8@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "400x300x8@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "400x300x8@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "512x384x8@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "512x384x8@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x400x8@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x400x8@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x480x8@120",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x480x8@120"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x480x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x480x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x480x8@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x480x8@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x576x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x576x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x576x8@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x576x8@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x8@120",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x8@120"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "960x720x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "960x720x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "960x720x8@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "960x720x8@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1024x768x8@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1024x768x8@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1152x864x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1152x864x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1152x864x8@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1152x864x8@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1024x8@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1024x8@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1024x8@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1024x8@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x200x16@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x200x16@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x240x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x240x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "400x300x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "400x300x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "512x384x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "512x384x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x400x16@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x400x16@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x480x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x480x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x480x16@72",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x480x16@72"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x480x16@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x480x16@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x480x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x480x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x16@56",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x16@56"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x16@72",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x16@72"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x16@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x16@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1024x768x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1024x768x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1024x768x16@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1024x768x16@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1024x768x16@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1024x768x16@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1024x768x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1024x768x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1152x864x16@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1152x864x16@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x960x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x960x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x960x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x960x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x1024x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x1024x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x1024x16@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x1024x16@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x1024x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x1024x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1200x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1200x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1200x16@65",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1200x16@65"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1200x16@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1200x16@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x200x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x200x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x240x16@72",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x240x16@72"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x240x16@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x240x16@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x240x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x240x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "400x300x16@72",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "400x300x16@72"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "400x300x16@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "400x300x16@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "400x300x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "400x300x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "512x384x16@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "512x384x16@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "512x384x16@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "512x384x16@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "512x384x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "512x384x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x400x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x400x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x480x16@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x480x16@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x480x16@120",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x480x16@120"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x480x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x480x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x480x16@72",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x480x16@72"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x480x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x480x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x576x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x576x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x576x16@72",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x576x16@72"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x576x16@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x576x16@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x16@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x16@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x16@120",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x16@120"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "960x720x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "960x720x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "960x720x16@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "960x720x16@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1024x768x16@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1024x768x16@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1152x864x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1152x864x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1152x864x16@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1152x864x16@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1152x864x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1152x864x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1152x864x16@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1152x864x16@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x960x16@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x960x16@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1024x16@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1024x16@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1024x16@76",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1024x16@76"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1024x16@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1024x16@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x200x32@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x200x32@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x240x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x240x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "400x300x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "400x300x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "512x384x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "512x384x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x400x32@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x400x32@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x480x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x480x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x32@56",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x32@56"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1024x768x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1024x768x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x960x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x960x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x960x32@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x960x32@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x1024x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x1024x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1280x1024x32@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1280x1024x32@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1200x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1200x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1200x32@70",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1200x32@70"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x200x32@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x200x32@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "320x240x32@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "320x240x32@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "400x300x32@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "400x300x32@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "512x384x32@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "512x384x32@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x400x32@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x400x32@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "640x480x32@120",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "640x480x32@120"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x480x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x480x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x480x32@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x480x32@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x576x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x576x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "720x576x32@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "720x576x32@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "800x600x32@120",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "800x600x32@120"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "960x720x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "960x720x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "960x720x32@75",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "960x720x32@75"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1024x768x32@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1024x768x32@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1152x864x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1152x864x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1152x864x32@100",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1152x864x32@100"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1024x32@60",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1024x32@60"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ },
+ {
+  "mode": "1600x1024x32@85",
+  "ok": true,
+  "setmode": {
+   "ok": true,
+   "current": "1600x1024x32@85"
+  },
+  "gdi": {
+   "mismatches": 0,
+   "attempts": 1,
+   "band_mismatches": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_bad": [
+    -1,
+    -1,
+    "000000",
+    "000000"
+   ],
+   "ok": true
+  },
+  "vs_vendor": [],
+  "log_problems": []
+ }
+]

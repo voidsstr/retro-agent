@@ -28,6 +28,8 @@
  *   hwcregs                any driver: IO registers + CRTC through the mapping
  *   golden W H BPP HZ      any driver: setmode, then hwcregs
  *   gdi                    any driver: GDI draw + read-back pattern test
+ *   modetest W H BPP HZ    switch + GDI test + registers in ONE process (a
+ *                          CDS_FULLSCREEN mode reverts when its process exits)
  *   ddraw W H BPP [HZ]     any driver: Glide's route to fullscreen (DirectDraw
  *                          exclusive + SetDisplayMode + RestoreDisplayMode)
  *   restore                ChangeDisplaySettings(NULL) - back to the registry mode
@@ -628,9 +630,50 @@ static int cmd_golden(DWORD w, DWORD h, DWORD bpp, DWORD hz)
  * A mode switch makes the desktop repaint asynchronously, which can land
  * between the draw and the read-back (seen once in 112 modes in the VM), so
  * settle first and retry: a driver fault fails every attempt the same way. */
+/* What a colour reads back as at the current depth: 16 bpp keeps 5-6-5 bits
+ * and GDI expands them by shifting, so pure red reads 248,0,0 on ANY driver.
+ * Tolerate exactly that quantisation - nothing looser. */
+static ULONG g_first_bad_got, g_first_bad_want;
+static int g_first_bad_x = -1, g_first_bad_y = -1;
+
+static int color_ok(COLORREF got, COLORREF want, int bpp)
+{
+    int tol = bpp == 16 ? 8 : 0, i;
+    for (i = 0; i < 3; i++) {
+        int g = (got >> (8 * i)) & 0xff, w = (want >> (8 * i)) & 0xff;
+        if (g > w || w - g > tol)
+            return 0;
+    }
+    return 1;
+}
+
+/* Draw into OUR OWN topmost popup, never the bare screen DC: after a mode
+ * switch Explorer repaints and re-arranges the desktop for seconds, and a
+ * pattern FillRect'ed onto GetDC(NULL) was painted over before it could be
+ * read back (every sample at (0,0) read the desktop background, on .124). */
+static HWND test_window(void)
+{
+    static HWND w;
+    MSG msg;
+    if (!w) {
+        w = CreateWindowExA(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, "STATIC", "",
+                            WS_POPUP | WS_VISIBLE, 0, 0, 256, 64, NULL, NULL,
+                            GetModuleHandleA(NULL), NULL);
+        SetWindowPos(w, HWND_TOPMOST, 0, 0, 256, 64, SWP_SHOWWINDOW);
+    }
+    UpdateWindow(w);
+    while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
+        TranslateMessage(&msg);
+        DispatchMessageA(&msg);
+    }
+    return w;
+}
+
 static int gdi_once(int band_bad[4])
 {
-    HDC mem;
+    int bpp = GetDeviceCaps(g_dc, BITSPIXEL);
+    HWND wnd = test_window();
+    HDC wdc = GetDC(wnd), mem;
     HBITMAP bm;
     int x, y, bad = 0;
     static const COLORREF c[4] = { RGB(255, 0, 0), RGB(0, 255, 0), RGB(0, 0, 255),
@@ -642,23 +685,44 @@ static int gdi_once(int band_bad[4])
         r.top = y * 16;
         r.right = 256;
         r.bottom = y * 16 + 16;
-        FillRect(g_dc, &r, br);
+        FillRect(wdc, &r, br);
         DeleteObject(br);
         band_bad[y] = 0;
     }
     GdiFlush();
-    mem = CreateCompatibleDC(g_dc);
-    bm = CreateCompatibleBitmap(g_dc, 256, 64);
+    mem = CreateCompatibleDC(wdc);
+    bm = CreateCompatibleBitmap(wdc, 256, 64);
     SelectObject(mem, bm);
-    BitBlt(mem, 0, 0, 256, 64, g_dc, 0, 0, SRCCOPY);
+    BitBlt(mem, 0, 0, 256, 64, wdc, 0, 0, SRCCOPY);
     for (y = 0; y < 64; y += 3)
         for (x = 0; x < 256; x += 7)
-            if (GetPixel(mem, x, y) != c[y / 16]) {
+            if (!color_ok(GetPixel(mem, x, y), c[y / 16], bpp)) {
+                if (!bad) {
+                    g_first_bad_got = GetPixel(mem, x, y);
+                    g_first_bad_want = c[y / 16];
+                    g_first_bad_x = x;
+                    g_first_bad_y = y;
+                }
                 bad++;
                 band_bad[y / 16]++;
             }
     DeleteDC(mem);
     DeleteObject(bm);
+    ReleaseDC(wnd, wdc);
+    return bad;
+}
+
+static int gdi_test(int band[4], int *attempts)
+{
+    int bad = 0, attempt;
+    Sleep(400);
+    for (attempt = 1; attempt <= 3; attempt++) {
+        bad = gdi_once(band);
+        if (!bad)
+            break;
+        Sleep(500);
+    }
+    *attempts = attempt > 3 ? 3 : attempt;
     return bad;
 }
 
@@ -726,6 +790,50 @@ static int cmd_ddraw(DWORD w, DWORD h, DWORD bpp, DWORD hz)
     return SUCCEEDED(hr_mode) ? 0 : 1;
 }
 
+
+/* One mode, proven inside ONE process: a CDS_FULLSCREEN mode is TEMPORARY and
+ * XP restores the registry mode when the process that set it exits - measured
+ * on .124: `setmode` then `modes` in a new process showed the old mode again.
+ * A sweep that switched in one process and tested in the next tested the
+ * desktop mode every time. So: switch, draw + read back, and read the
+ * registers (VCR_ESC_SNAPSHOT) before this process ends. */
+static int cmd_modetest(DWORD w, DWORD h, DWORD bpp, DWORD hz)
+{
+    static vcr_snapshot snap;
+    int band[4], bad, attempts, i, have_snap;
+    LONG r = set_mode(w, h, bpp, hz);
+    DEVMODEA cur;
+    memset(&cur, 0, sizeof cur);
+    cur.dmSize = sizeof cur;
+    EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &cur);
+    if (r != DISP_CHANGE_SUCCESSFUL) {
+        printf("{\"cmd\":\"modetest\",\"ok\":false,\"result\":%ld,\"asked\":\"%lux%lux%lu@%lu\"}\n",
+               r, w, h, bpp, hz);
+        return 1;
+    }
+    bad = gdi_test(band, &attempts);
+    have_snap = esc(VCR_ESC_SNAPSHOT, NULL, 0, &snap, sizeof snap) > 0;
+    printf("{\"cmd\":\"modetest\",\"ok\":%s,\"asked\":\"%lux%lux%lu@%lu\","
+           "\"current\":\"%lux%lux%lu@%lu\",\"gdi\":{\"mismatches\":%d,\"attempts\":%d,"
+           "\"band_mismatches\":[%d,%d,%d,%d],\"first_bad\":[%d,%d,\"%06lx\",\"%06lx\"]}",
+           (!bad && cur.dmPelsWidth == w && cur.dmPelsHeight == h && cur.dmBitsPerPel == bpp)
+               ? "true" : "false", w, h, bpp, hz, cur.dmPelsWidth, cur.dmPelsHeight,
+           cur.dmBitsPerPel, cur.dmDisplayFrequency, bad, attempts, band[0], band[1],
+           band[2], band[3], g_first_bad_x, g_first_bad_y, g_first_bad_got, g_first_bad_want);
+    if (have_snap) {
+        const vcr_chip_snapshot *k = &snap.chip[0];
+        printf(",\"snapshot\":{\"cmd\":\"snapshot\",\"ok\":true,\"chips\":[{\"io\":[");
+        for (i = 0; i < 64; i++)
+            printf("%s\"%08x\"", i ? "," : "", k->ioregs[i]);
+        printf("],\"misc\":\"%02x\",", k->misc);
+        print_bytes("crtc", k->crtc, sizeof k->crtc);
+        printf("}]}");
+    }
+    printf("}\n");
+    ChangeDisplaySettingsA(NULL, 0);
+    return bad ? 1 : 0;
+}
+
 int main(int argc, char **argv)
 {
     const char *cmd = argc > 1 ? argv[1] : "info";
@@ -772,6 +880,8 @@ int main(int argc, char **argv)
                            strtoul(argv[4], NULL, 0), argc > 5 && !strcmp(argv[5], "raw"));
     else if (!strcmp(cmd, "probe-mem") && argc > 3)
         rc = cmd_probe_mem(strtoul(argv[2], NULL, 16), strtoul(argv[3], NULL, 0));
+    else if (!strcmp(cmd, "modetest") && argc > 5)
+        rc = cmd_modetest(atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
     else if (!strcmp(cmd, "gdi"))
         rc = cmd_gdi();
     else if (!strcmp(cmd, "restore")) {
