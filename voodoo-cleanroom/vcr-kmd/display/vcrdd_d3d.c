@@ -52,6 +52,7 @@ typedef struct vcr_d3dctx {
     DWORD               tss[TSS_MAX];   /* stage 0 */
     DWORD               tex_handle;     /* stage 0 texture */
     DWORD               tex_refused;    /* last handle logged as unusable */
+    DWORD               mip_logged;
     ULONG               dirty;
     vcr3d_regs          regs;
     vcr3d_target        target;
@@ -164,6 +165,139 @@ static ULONG surf_bpp(VCR_PDEV *pd, PDD_SURFACE_LOCAL s)
 static int in_vidmem(PDD_SURFACE_LOCAL s)
 {
     return s && s->lpGbl && !(s->ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY);
+}
+
+/* ---- mipmap chains ------------------------------------------------------------------------
+ * The TMU finds level n of a texture by adding the sizes of the levels above
+ * it to the base, so a chain must be ONE block with its levels packed back to
+ * back - the runtime would place every level separately. So the driver
+ * allocates a chain itself, from DirectDraw's own heap (HeapVidMemAllocAligned
+ * on the VIDEOMEMORY entry the heap was built in), and frees it in
+ * DestroySurface. The surface-local dwReserved1 marks what is ours. */
+
+#define MIP_TOP     0x7663724du         /* 'vcrM': the level that owns the block */
+#define MIP_LEVEL   0x7663726cu         /* 'vcrl': a level inside someone's block */
+
+typedef struct { DWORD dwStartAlignment, dwPitchAlignment, dwFlags, dwReserved2; } vcr_surfalign;
+FLATPTR APIENTRY HeapVidMemAllocAligned(VIDEOMEMORY *vm, DWORD w, DWORD h, vcr_surfalign *a,
+                                        LONG *pitch);
+void APIENTRY VidMemFree(PVOID heap, FLATPTR ptr);
+
+static ULONG big_side(ULONG w, ULONG h)
+{
+    return w > h ? w : h;
+}
+
+static ULONG ilog2(ULONG v)
+{
+    ULONG l = 0;
+    while (v > 1) {
+        v >>= 1;
+        l++;
+    }
+    return l;
+}
+
+/* bytes before level k of a w x h 16 bpp chain (levels shrink to 1 x 1) */
+static ULONG mip_offset(ULONG w, ULONG h, ULONG k)
+{
+    ULONG off = 0, i;
+    for (i = 0; i < k; i++) {
+        ULONG lw = w >> i, lh = h >> i;
+        off += (lw ? lw : 1) * (lh ? lh : 1) * 2;
+    }
+    return off;
+}
+
+int VcrDdD3dCreateMipChain(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
+{
+    VIDEOMEMORY *vm = (VIDEOMEMORY *)pd->pvmList;
+    PDD_SURFACE_LOCAL top;
+    DDSURFACEDESC *sd = (DDSURFACEDESC *)p->lpDDSurfaceDesc;
+    ULONG i, w0, h0, levels = 0, bpp;
+    FLATPTR base;
+    vcr_surfalign al;
+    vcr_texlod t;
+    LONG pitch = 0;
+    if (!p->dwSCnt || !pd->pjRegs || !pd->g2d_ok || pd->d3d_disabled)
+        return 0;
+    top = p->lplpSList[0];
+    if ((top->ddsCaps.dwCaps & (DDSCAPS_TEXTURE | DDSCAPS_MIPMAP)) !=
+            (DDSCAPS_TEXTURE | DDSCAPS_MIPMAP) || (top->ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY))
+        return 0;
+    bpp = sd && (sd->dwFlags & DDSD_PIXELFORMAT) ? sd->ddpfPixelFormat.dwRGBBitCount : pd->bpp;
+    w0 = top->lpGbl->wWidth;
+    h0 = top->lpGbl->wHeight;
+    if (bpp != 16 || vcr_texlod_compute(w0, h0, 2, w0 * 2, 0, &t))
+        return 0;                       /* the chip cannot sample it: the runtime places it */
+    if (!vm || !vm->lpHeap) {
+        VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 10, (ULONG)(ULONG_PTR)vm, 0, 0,
+              "mipmap chain: no DirectDraw heap to allocate from (list %p)", vm);
+        return 0;
+    }
+    for (i = 0; i < p->dwSCnt; i++) {   /* every level must be a halving of the top */
+        PDD_SURFACE_LOCAL s = p->lplpSList[i];
+        ULONG k = ilog2(big_side(w0, h0)) - ilog2(big_side(s->lpGbl->wWidth, s->lpGbl->wHeight));
+        ULONG ew = w0 >> k, eh = h0 >> k;
+        if (s->lpGbl->wWidth != (ew ? ew : 1) || s->lpGbl->wHeight != (eh ? eh : 1))
+            return 0;
+        if (k + 1 > levels)
+            levels = k + 1;
+    }
+    memset(&al, 0, sizeof al);
+    al.dwStartAlignment = 16;
+    al.dwPitchAlignment = 16;
+    base = HeapVidMemAllocAligned(vm, mip_offset(w0, h0, levels), 1, &al, &pitch);
+    if (!base) {
+        VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 10, w0, h0, levels,
+              "mipmap chain %ux%u x%u: out of video memory", w0, h0, levels);
+        p->ddRVal = DDERR_OUTOFVIDEOMEMORY;
+        return 1;
+    }
+    for (i = 0; i < p->dwSCnt; i++) {
+        PDD_SURFACE_LOCAL s = p->lplpSList[i];
+        ULONG k = ilog2(big_side(w0, h0)) - ilog2(big_side(s->lpGbl->wWidth, s->lpGbl->wHeight));
+        s->lpGbl->fpVidMem = base + mip_offset(w0, h0, k);
+        s->lpGbl->lPitch = s->lpGbl->wWidth * 2;
+        s->lpGbl->dwReserved1 = (ULONG_PTR)vm->lpHeap;
+        s->dwReserved1 = s == top ? MIP_TOP : MIP_LEVEL;
+        s->ddsCaps.dwCaps = (s->ddsCaps.dwCaps & ~DDSCAPS_SYSTEMMEMORY) | DDSCAPS_VIDEOMEMORY |
+                            DDSCAPS_LOCALVIDMEM;
+    }
+    VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 11, (ULONG)base, (w0 << 16) | h0, levels,
+          "mipmap chain %ux%u, %u levels at %x (desc flags %x mipcount %u)", w0, h0, levels,
+          (ULONG)base, sd ? sd->dwFlags : 0, sd && (sd->dwFlags & DDSD_MIPMAPCOUNT) ? sd->dwMipMapCount : 0);
+    p->ddRVal = DD_OK;
+    return 1;
+}
+
+int VcrDdD3dFreeMipChain(VCR_PDEV *pd, PDD_SURFACE_LOCAL s)
+{
+    (void)pd;
+    if (!s || !s->lpGbl)
+        return 0;
+    if (s->dwReserved1 == MIP_TOP) {
+        VidMemFree((PVOID)s->lpGbl->dwReserved1, s->lpGbl->fpVidMem);
+        s->dwReserved1 = 0;
+        return 1;
+    }
+    if (s->dwReserved1 == MIP_LEVEL) {
+        s->dwReserved1 = 0;
+        return 1;
+    }
+    return 0;
+}
+
+/* the next smaller level of a mipmap chain (attached to this one) */
+static PDD_SURFACE_LOCAL next_mip(PDD_SURFACE_LOCAL s)
+{
+    PDD_ATTACHLIST a;
+    for (a = s->lpAttachList; a; a = a->lpLink)
+        if (a->lpAttached && (a->lpAttached->ddsCaps.dwCaps & DDSCAPS_MIPMAP) &&
+            a->lpAttached->lpGbl && a->lpAttached->lpGbl->wWidth * a->lpAttached->lpGbl->wHeight <
+                                        s->lpGbl->wWidth * s->lpGbl->wHeight)
+            return a->lpAttached;
+    return NULL;
 }
 
 /* ---- state -> registers ------------------------------------------------------------------ */
@@ -311,6 +445,26 @@ static BOOL tex_regs(vcr_d3dctx *c, PDD_SURFACE_LOCAL s, vcr3d_regs *r)
         return FALSE;
     r->texBaseAddr = t.base;
     r->tLOD = t.tlod;
+    /* a chain we packed: sample down to its smallest level, unless mipmapping
+     * is off (MIPFILTER none: the top level only) */
+    if (c->tss[D3DTSS_MIPFILTER] != c->mip_logged) {
+        PDD_SURFACE_LOCAL m = s;
+        ULONG n = 1;
+        while ((m = next_mip(m)) != NULL && n < 9)
+            n++;
+        c->mip_logged = c->tss[D3DTSS_MIPFILTER];
+        VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 12, c->tss[D3DTSS_MIPFILTER], s->dwReserved1, n,
+              "texture %ux%u: MIPFILTER %u, owner %x, %u levels attached", s->lpGbl->wWidth,
+              s->lpGbl->wHeight, c->tss[D3DTSS_MIPFILTER], s->dwReserved1, n);
+    }
+    if (s->dwReserved1 == MIP_TOP && c->tss[D3DTSS_MIPFILTER] > D3DTFP_NONE) {
+        PDD_SURFACE_LOCAL m = s;
+        ULONG n = 1, lodmax;
+        while ((m = next_mip(m)) != NULL && n < 9)
+            n++;
+        lodmax = t.lod + n - 1 > 8 ? 8 : t.lod + n - 1;
+        r->tLOD = (r->tLOD & ~(0x3fu << 6)) | TL_LODMAX(lodmax);
+    }
     r->textureMode = TM_PERSPECTIVE | TM_CLAMPW | TM_FORMAT(fmt) | TM_TC_REPLACE | TM_TCA_REPLACE;
     if (c->tss[D3DTSS_MAGFILTER] >= D3DTFG_LINEAR)
         r->textureMode |= TM_MAGFILTER;
@@ -610,33 +764,25 @@ static void clear_rects(dp2walk *w, DWORD flags, DWORD color, DWORD zbits, const
     w->prepared = 0;
 }
 
-/* copy a texture rectangle (TEXBLT): system or video memory to video memory */
-static void texblt(dp2walk *w, const D3DNTHAL_DP2TEXBLT *t)
+/* copy one level's rectangle (TEXBLT): system or video memory to video memory */
+static void texblt_level(VCR_PDEV *pd, PDD_SURFACE_LOCAL d, PDD_SURFACE_LOCAL s, LONG dx, LONG dy,
+                         const RECTL *r)
 {
-    vcr_d3dctx *c = w->c;
-    VCR_PDEV *pd = c->pd;
-    PDD_SURFACE_LOCAL d = handle_get(c->ddlcl, t->dwDDDestSurface),
-                      s = handle_get(c->ddlcl, t->dwDDSrcSurface);
     PUCHAR dp, sp;
     ULONG bpp, rows, bytes, y;
-    LONG sx = t->rSrc.left, sy = t->rSrc.top;
-    if (!d || !s || !in_vidmem(d) || !d->lpGbl || !s->lpGbl)
-        return;                                 /* dest 0 = a preload hint */
+    LONG sx = r->left, sy = r->top;
     bpp = surf_bpp(pd, d) / 8;
-    if (!bpp || bpp != surf_bpp(pd, s) / 8 || t->rSrc.right <= sx || t->rSrc.bottom <= sy ||
-        t->rSrc.right > (LONG)s->lpGbl->wWidth || t->rSrc.bottom > (LONG)s->lpGbl->wHeight ||
-        t->pDest.x < 0 || t->pDest.y < 0 ||
-        t->pDest.x + (t->rSrc.right - sx) > (LONG)d->lpGbl->wWidth ||
-        t->pDest.y + (t->rSrc.bottom - sy) > (LONG)d->lpGbl->wHeight)
+    if (!bpp || bpp != surf_bpp(pd, s) / 8 || r->right <= sx || r->bottom <= sy ||
+        r->right > (LONG)s->lpGbl->wWidth || r->bottom > (LONG)s->lpGbl->wHeight ||
+        dx < 0 || dy < 0 || dx + (r->right - sx) > (LONG)d->lpGbl->wWidth ||
+        dy + (r->bottom - sy) > (LONG)d->lpGbl->wHeight)
         return;
-    rows = (ULONG)(t->rSrc.bottom - sy);
-    bytes = (ULONG)(t->rSrc.right - sx) * bpp;
-    if ((ULONG)d->lpGbl->fpVidMem + (t->pDest.y + rows - 1) * (ULONG)d->lpGbl->lPitch +
-            t->pDest.x * bpp + bytes > pd->cjVram)
+    rows = (ULONG)(r->bottom - sy);
+    bytes = (ULONG)(r->right - sx) * bpp;
+    if ((ULONG)d->lpGbl->fpVidMem + (dy + rows - 1) * (ULONG)d->lpGbl->lPitch + dx * bpp + bytes >
+        pd->cjVram)
         return;
-    VcrDd2dSync(pd);                            /* queued triangles may still sample it */
-    dp = (PUCHAR)pd->pvRamBase + (ULONG)d->lpGbl->fpVidMem + t->pDest.y * d->lpGbl->lPitch +
-         t->pDest.x * bpp;
+    dp = (PUCHAR)pd->pvRamBase + (ULONG)d->lpGbl->fpVidMem + dy * d->lpGbl->lPitch + dx * bpp;
     if (in_vidmem(s))
         sp = (PUCHAR)pd->pvRamBase + (ULONG)s->lpGbl->fpVidMem;
     else
@@ -644,6 +790,37 @@ static void texblt(dp2walk *w, const D3DNTHAL_DP2TEXBLT *t)
     sp += sy * s->lpGbl->lPitch + sx * bpp;
     for (y = 0; y < rows; y++)
         memcpy(dp + y * d->lpGbl->lPitch, sp + y * s->lpGbl->lPitch, bytes);
+}
+
+/* TEXBLT copies the rectangle of the top level and the matching rectangle of
+ * every smaller level the two chains share */
+static void texblt(dp2walk *w, const D3DNTHAL_DP2TEXBLT *t)
+{
+    vcr_d3dctx *c = w->c;
+    VCR_PDEV *pd = c->pd;
+    PDD_SURFACE_LOCAL d = handle_get(c->ddlcl, t->dwDDDestSurface),
+                      s = handle_get(c->ddlcl, t->dwDDSrcSurface);
+    RECTL r = t->rSrc;
+    LONG dx = t->pDest.x, dy = t->pDest.y;
+    ULONG n = 0;
+    if (!d || !s || !in_vidmem(d) || !d->lpGbl || !s->lpGbl)
+        return;                                 /* dest 0 = a preload hint */
+    VcrDd2dSync(pd);                            /* queued triangles may still sample it */
+    while (d && s && n++ < 12) {
+        texblt_level(pd, d, s, dx, dy, &r);
+        d = next_mip(d);
+        s = next_mip(s);
+        r.left >>= 1;
+        r.top >>= 1;
+        r.right = r.right > 1 ? r.right >> 1 : 1;
+        r.bottom = r.bottom > 1 ? r.bottom >> 1 : 1;
+        if (r.right <= r.left)
+            r.right = r.left + 1;
+        if (r.bottom <= r.top)
+            r.bottom = r.top + 1;
+        dx >>= 1;
+        dy >>= 1;
+    }
 }
 
 /* the fixed record size of an opcode we skip, or 0 for "variable / unknown" */
@@ -1071,8 +1248,10 @@ static void prim_caps(D3DPRIMCAPS *c)
     c->dwTextureCaps = D3DPTEXTURECAPS_PERSPECTIVE | D3DPTEXTURECAPS_POW2 |
                        D3DPTEXTURECAPS_ALPHA | D3DPTEXTURECAPS_TRANSPARENCY;
     c->dwTextureFilterCaps = D3DPTFILTERCAPS_NEAREST | D3DPTFILTERCAPS_LINEAR |
+                             D3DPTFILTERCAPS_MIPNEAREST | D3DPTFILTERCAPS_LINEARMIPNEAREST |
                              D3DPTFILTERCAPS_MINFPOINT | D3DPTFILTERCAPS_MINFLINEAR |
-                             D3DPTFILTERCAPS_MAGFPOINT | D3DPTFILTERCAPS_MAGFLINEAR;
+                             D3DPTFILTERCAPS_MAGFPOINT | D3DPTFILTERCAPS_MAGFLINEAR |
+                             D3DPTFILTERCAPS_MIPFPOINT;
     c->dwTextureBlendCaps = D3DPTBLENDCAPS_DECAL | D3DPTBLENDCAPS_MODULATE |
                             D3DPTBLENDCAPS_MODULATEALPHA | D3DPTBLENDCAPS_COPY |
                             D3DPTBLENDCAPS_ADD;
@@ -1116,7 +1295,8 @@ void VcrDdD3dHalInfo(VCR_PDEV *pd, DD_HALINFO *hal)
     hal->lpD3DGlobalDriverData = &g_gd;
     hal->lpD3DHALCallbacks = &g_cb;
     hal->ddCaps.dwCaps |= DDCAPS_3D;
-    hal->ddCaps.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_TEXTURE | DDSCAPS_ZBUFFER;
+    hal->ddCaps.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_TEXTURE | DDSCAPS_ZBUFFER |
+                                  DDSCAPS_MIPMAP;
     hal->ddCaps.dwZBufferBitDepths = DDBD_16;
 }
 

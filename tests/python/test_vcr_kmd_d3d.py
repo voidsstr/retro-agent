@@ -101,3 +101,25 @@ def test_the_triangle_protocol_of_the_setup_unit():
 def test_a_destroyed_surface_leaves_the_handle_table():
     assert "VcrDdD3dSurfaceGone(p->lpDDSurface);" in DD
     assert "DDHAL_SURFCB32_DESTROYSURFACE" in DD
+
+
+def test_a_mipmap_chain_is_one_block_from_directdraws_heap():
+    """The TMU finds level n by adding the sizes of the larger levels to the
+    base: a chain must be ONE block, packed back to back. On XP the runtime
+    creates every level with its own CreateSurface (measured: seven calls for a
+    64x64 D3D8 texture, DDSD_MIPMAPCOUNT 7 on each), so the driver allocates
+    from DirectDraw's own heap - the VIDEOMEMORY array it filled in
+    DrvGetDirectDrawInfo, whose lpHeap DirectDraw sets - and marks what it owns.
+    Without DDSCAPS_MIPMAP Unreal's D3DDrv stops: "Failed to preallocate
+    initial textures, 4x4: DDERR_NOMIPMAPHW"."""
+    dd = (KMD / "display" / "vcrdd_ddraw.c").read_text()
+    assert "pd->pvmList = vm;" in dd
+    assert "if (VcrDdD3dCreateMipChain(pd, p))" in dd
+    assert "if (VcrDdD3dFreeMipChain(pd, p->lpDDSurface))" in dd
+    mk = func(D3D, "int VcrDdD3dCreateMipChain(")
+    assert "HeapVidMemAllocAligned(vm, mip_offset(w0, h0, levels), 1, &al, &pitch)" in mk
+    assert "s->lpGbl->fpVidMem = base + mip_offset(w0, h0, k);" in mk
+    assert "!vm->lpHeap" in mk                     # no heap: the runtime places it
+    fr = func(D3D, "int VcrDdD3dFreeMipChain(")
+    assert "VidMemFree(" in fr and "MIP_TOP" in fr
+    assert "DDSCAPS_MIPMAP;" in D3D                # advertised

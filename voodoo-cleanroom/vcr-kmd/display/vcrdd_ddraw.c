@@ -75,6 +75,9 @@ BOOL APIENTRY DrvGetDirectDrawInfo(DHPDEV dhpdev, DD_HALINFO *hal, DWORD *nheaps
         vm->dwFlags = VIDMEM_ISLINEAR;
         vm->fpStart = hs;
         vm->fpEnd = he - 1;          /* inclusive */
+        /* kept: DirectDraw builds its heap in THIS array (lpHeap), and the
+         * Direct3D half allocates mipmap chains from it (vcrdd_d3d.c) */
+        pd->pvmList = vm;
     }
     memset(hal, 0, sizeof *hal);
     hal->dwSize = sizeof *hal;
@@ -440,8 +443,12 @@ static DWORD APIENTRY Dd_CanCreateSurface(PDD_CANCREATESURFACEDATA p)
 
 static DWORD APIENTRY Dd_CreateSurface(PDD_CREATESURFACEDATA p)
 {
+    VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
     VcrDd(VCR_LV_DEBUG, VCR_EV_DD_DDRAW, 7, p->dwSCnt,
           p->dwSCnt ? p->lplpSList[0]->ddsCaps.dwCaps : 0, 0, "CreateSurface");
+    /* a mipmap chain must be ONE block, packed as the TMU walks it */
+    if (VcrDdD3dCreateMipChain(pd, p))
+        return DDHAL_DRIVER_HANDLED;
     return DDHAL_DRIVER_NOTHANDLED;
 }
 
@@ -461,8 +468,15 @@ static DWORD APIENTRY Dd_Lock(PDD_LOCKDATA p)
 /* a surface leaves: the Direct3D handle table and contexts must not keep it */
 static DWORD APIENTRY Dd_DestroySurface(PDD_DESTROYSURFACEDATA p)
 {
+    VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
     VcrDdD3dSurfaceGone(p->lpDDSurface);
-    return DDHAL_DRIVER_NOTHANDLED;     /* the runtime frees its video memory */
+    /* memory we allocated (a mipmap chain) is ours to free; the rest the
+     * runtime frees */
+    if (VcrDdD3dFreeMipChain(pd, p->lpDDSurface)) {
+        p->ddRVal = DD_OK;
+        return DDHAL_DRIVER_HANDLED;
+    }
+    return DDHAL_DRIVER_NOTHANDLED;
 }
 
 static DWORD APIENTRY Dd_Unlock(PDD_UNLOCKDATA p)

@@ -15,7 +15,10 @@
  *             textured triangles per second and frames per second (--novsync:
  *             fullscreen presents immediately, so the number is the chip's).
  *
- * Tests: clear flat gouraud tex modulate blend ztest bigtex
+ * Tests: clear flat gouraud tex modulate blend ztest bigtex (default), mip (explicit:
+ * --tests mip. On the 86Box Voodoo3 XP's own 3dfx driver samples level 0 at
+ * every size too - the emulator's LOD, not a driver fault - so it is not in
+ * the default gate; it is the check to run on silicon)
  *
  * Every step is flushed to the log before the next, so a driver that hangs
  * the machine leaves the step it hung in. The final line is `RESULT {json}`.
@@ -256,6 +259,7 @@ static int tpx(int t, int size) { return Q0 + (int)((t + 0.5) * (Q1 - Q0) / size
 
 static void run_test(const char *t)
 {
+    int i;
     say("test %s", t);
     if (!strcmp(t, "clear")) {
         if (!frame_begin(0x00ff0000)) return;
@@ -309,6 +313,57 @@ static void run_test(const char *t)
         expect(t, "cell (1,0)", tpx(12, size), tpx(4, size), blue, 12);
         expect(t, "cell (1,1)", tpx(12, size), tpx(12, size), red, 12);
         expect(t, "last cell", tpx(size - 4, size), tpx(size - 4, size), red, 12);
+    } else if (!strcmp(t, "mip")) {
+        /* a 64x64 chain, every level one solid colour: L0 red, L1 green, L2
+         * blue, L3 yellow, smaller magenta. Drawn 192, 32 and 16 pixels wide
+         * with point mip filtering, the texel:pixel ratio (1/3, 2, 4) picks
+         * L0, L1, L2. */
+        static const DWORD lc[5] = { 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffffff00, 0xffff00ff };
+        static const struct { float x0, x1; DWORD want; const char *what; } q[3] = {
+            { 32, 224, 0xff0000, "192 px: level 0" },
+            { 112, 144, 0x00ff00, "32 px: level 1" },
+            { 120, 136, 0x0000ff, "16 px: level 2" } };
+        IDirect3DTexture8 *tx = NULL;
+        HRESULT hr = IDirect3DDevice8_CreateTexture(g_dev, 64, 64, 0, 0, D3DFMT_R5G6B5,
+                                                    D3DPOOL_MANAGED, &tx);
+        DWORD lv, n;
+        if (FAILED(hr)) {
+            say("  CreateTexture(64, full chain) %08lx", hr);
+            js("%s{\"test\":\"mip\",\"error\":\"CreateTexture %08lx\",\"ok\":0}",
+               g_pass + g_fail ? "," : "", hr);
+            g_fail++;
+            return;
+        }
+        n = IDirect3DTexture8_GetLevelCount(tx);
+        say("  %lu levels", n);
+        for (lv = 0; lv < n; lv++) {
+            D3DLOCKED_RECT lr;
+            D3DSURFACE_DESC ld;
+            DWORD c = lc[lv < 4 ? lv : 4], x, y;
+            WORD px565 = (WORD)(((c >> 19 & 31) << 11) | ((c >> 10 & 63) << 5) | (c >> 3 & 31));
+            IDirect3DTexture8_GetLevelDesc(tx, lv, &ld);
+            if (FAILED(IDirect3DTexture8_LockRect(tx, lv, &lr, NULL, 0)))
+                continue;
+            for (y = 0; y < ld.Height; y++)
+                for (x = 0; x < ld.Width; x++)
+                    ((WORD *)((char *)lr.pBits + y * lr.Pitch))[x] = px565;
+            IDirect3DTexture8_UnlockRect(tx, lv);
+        }
+        for (i = 0; i < 3; i++) {
+            if (!frame_begin(0)) break;
+            IDirect3DDevice8_SetTexture(g_dev, 0, (IDirect3DBaseTexture8 *)tx);
+            IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+            IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+            IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MINFILTER, D3DTEXF_POINT);
+            IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MAGFILTER, D3DTEXF_POINT);
+            IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MIPFILTER, D3DTEXF_POINT);
+            quad_t(q[i].x0, q[i].x0, q[i].x1, q[i].x1, 0xffffffff, 1.0f);
+            frame_end();
+            expect(t, q[i].what, 128, 128, q[i].want, 12);
+        }
+        IDirect3DDevice8_SetTexture(g_dev, 0, NULL);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MIPFILTER, D3DTEXF_NONE);
+        IDirect3DTexture8_Release(tx);
     } else if (!strcmp(t, "blend")) {
         if (!frame_begin(0x000000ff)) return;
         untextured();

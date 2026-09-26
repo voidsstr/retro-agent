@@ -58,6 +58,7 @@ typedef struct VCR_PDEV {
     ULONG       g2d_disabled;       /* Diag\Accel2D = 0 */
     ULONG       g2d_fifo_full;      /* status[4:0] with the PCI FIFO empty */
     ULONG       d3d_disabled;       /* Diag\\D3D = 0 */
+    PVOID       pvmList;            /* DirectDraw's VIDEOMEMORY heap list (it fills lpHeap) */
     ULONG       g2d_ops, g2d_gdi_copies, g2d_gdi_fills;
     /* a DirectDraw flip the chip has not latched yet */
     ULONG       flip_pending, flip_seen_active;
@@ -98,6 +99,8 @@ DWORD APIENTRY DdGetDriverInfo(PDD_GETDRIVERINFODATA p);
 void  VcrDdD3dHalInfo(VCR_PDEV *pd, DD_HALINFO *hal);
 int   VcrDdD3dDriverInfo(VCR_PDEV *pd, PDD_GETDRIVERINFODATA p);
 void  VcrDdD3dSurfaceGone(PDD_SURFACE_LOCAL s);
+int   VcrDdD3dCreateMipChain(VCR_PDEV *pd, PDD_CREATESURFACEDATA p);
+int   VcrDdD3dFreeMipChain(VCR_PDEV *pd, PDD_SURFACE_LOCAL s);
 #endif
 
 /* vcrdd_punt.c: the hooked drawing calls */
