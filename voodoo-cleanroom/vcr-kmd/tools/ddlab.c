@@ -16,8 +16,20 @@
  *             where a naive copy smears) - each read back and compared; then
  *             copies per second. Also where the surfaces live.
  *
+ *   --pace MS  raise the floor between display-mode switches (never below
+ *             vcr_pace.h's 3 s; decimal, at most 30000 - anything else is
+ *             refused before anything switches): flip and blt each switch into
+ *             their mode and back out, and every switch is a monitor re-sync.
+ *
+ * A switch vcr_pace.h cannot pace (its lock held by a stuck tool, a stamp that
+ * never stops moving) is not made: the run ends with a RESULT "error" naming
+ * why, and a mode already held is left for the exit hold. A run whose window
+ * loses the foreground while it holds the mode (DirectDraw gives the desktop
+ * back at that moment, unpaced) records that switch, ends the run and says
+ * "focus_lost":true, rather than let a re-activation switch in again.
+ *
  * Every step is flushed to the log before the next (the glideprobe rule).
- * The final line is `RESULT {json}`.
+ * The final line is `RESULT {json}`; the host reads the LAST one.
  */
 #define INITGUID
 #include <windows.h>
@@ -26,6 +38,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "vcr_pace.h"
 
 static FILE *g_log;
 static char  g_logpath[MAX_PATH] = "C:\\ddlab.log";
@@ -48,15 +62,32 @@ static void say(const char *fmt, ...)
     va_end(ap);
 }
 
+/* the exclusive mode is up and the run is using it (flip / blt, between the
+ * switch in and the start of the paced switch out) */
+static int g_held;
+/* ... and the window lost the foreground meanwhile */
+static int g_focus_lost;
+
 static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM w, LPARAM l)
 {
+    /* Deactivated while exclusive: DirectDraw's hook on this window gives the
+     * desktop back right now - a switch the gate did not pace. Record it, and
+     * end the run: carrying on until something re-activates the window would
+     * be a switch back in, unpaced too. */
+    if (m == WM_ACTIVATEAPP && !w && g_held) {
+        vcr_pace_mark();
+        g_focus_lost = 1;
+    }
     return DefWindowProcA(h, m, w, l);
 }
 
+/* Once the foreground is lost, nothing more is dispatched: a re-activation
+ * still queued would have the runtime switch the fullscreen mode back in,
+ * unpaced, and the run is ending anyway. */
 static void pump(void)
 {
     MSG msg;
-    while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
+    while (!g_focus_lost && PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessageA(&msg);
     }
@@ -103,6 +134,31 @@ static const char *where(DWORD caps)
     return (caps & DDSCAPS_VIDEOMEMORY) ? "video" : (caps & DDSCAPS_SYSTEMMEMORY) ? "system" : "?";
 }
 
+/* ,"focus_lost":... for a RESULT, with an "error" when it was: the run was
+ * cut short, and its numbers are not a pass */
+static const char *focus_json(void)
+{
+    return g_focus_lost ? ",\"focus_lost\":true,\"error\":\"the window lost the foreground while"
+                          " exclusive - run ended\"" : ",\"focus_lost\":false";
+}
+
+/* The paced switch out. Refused by vcr_pace.h (its lock busy, or the floor
+ * never passed): neither RestoreDisplayMode nor a Release - either would give
+ * the mode back unpaced - and a RESULT of its own says so (the host reads the
+ * LAST one); XP reverts the mode as the process exits, after the exit hold. */
+static int restore_mode(LPDIRECTDRAW7 dd, const char *mode)
+{
+    if (!vcr_pace_before_switch()) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"RestoreDisplayMode not made: %s - the mode is"
+            " left for the exit hold\"}", mode, g_vcr_pace_why);
+        return 0;
+    }
+    g_held = 0;                         /* a deactivation from here on is ours */
+    IDirectDraw7_RestoreDisplayMode(dd);
+    vcr_pace_after_restore();
+    return 1;
+}
+
 int main(int argc, char **argv)
 {
     const char *mode = "caps";
@@ -112,17 +168,37 @@ int main(int argc, char **argv)
     DDSCAPS2 vm;
     HRESULT hr;
     int i;
+    DWORD pace;
+    const char *bad_pace = NULL;
 
+    /* A crash must die at once, not sit behind a Watson / "has encountered a
+     * problem" box: that box keeps the process - and the exclusive mode it
+     * set - alive until someone at the box clicks it, and a fullscreen mode
+     * hides it. The box is driven remotely; nobody is at .124's CRT. */
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     for (i = 1; i < argc; i++) {
         const char *a = argv[i], *v = i + 1 < argc ? argv[i + 1] : NULL;
         if (!strcmp(a, "--res") && v) { sscanf(v, "%dx%d", &g_w, &g_h); i++; }
         else if (!strcmp(a, "--bpp") && v) { g_bpp = atoi(v); i++; }
         else if (!strcmp(a, "--frames") && v) { g_frames = atoi(v); i++; }
+        else if (!strcmp(a, "--pace") && v) {
+            /* atoi("-1") was a floor of 0xFFFFFFFF ms: refused, not wrapped */
+            if (vcr_pace_parse_ms(v, &pace))
+                vcr_pace_set_min(pace);
+            else
+                bad_pace = v;
+            i++;
+        }
         else if (!strcmp(a, "--log") && v) { strncpy(g_logpath, v, sizeof g_logpath - 1); i++; }
         else if (a[0] != '-') mode = a;
     }
     g_log = fopen(g_logpath, "w");
     say("ddlab %s: %dx%dx%d frames %d", mode, g_w, g_h, g_bpp, g_frames);
+    if (bad_pace) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"--pace %s: decimal milliseconds, 0 to %u\"}",
+            mode, bad_pace, VCR_PACE_MAX_MS);
+        return 2;
+    }
 
     hr = DirectDrawCreateEx(NULL, (void **)&dd, &IID_IDirectDraw7, NULL);
     if (FAILED(hr)) {
@@ -171,7 +247,22 @@ int main(int argc, char **argv)
         pump();
         hr = IDirectDraw7_SetCooperativeLevel(dd, hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
         say("SetCooperativeLevel -> %08lx", hr);
+        /* every switch goes through vcr_pace.h (2026-09-26, .124: a sweep
+         * re-synced the CRT ~250 times at two a second). Each error return
+         * below is a return from main, so its atexit hold covers the revert
+         * XP makes when this process ends still holding the mode. Refused by
+         * the gate, nothing is switched and the run ends here. */
+        if (!vcr_pace_before_switch()) {
+            say("RESULT {\"mode\":\"flip\",\"error\":\"SetDisplayMode not made: %s\"}",
+                g_vcr_pace_why);
+            return 4;
+        }
         hr = IDirectDraw7_SetDisplayMode(dd, g_w, g_h, g_bpp, 0, 0);
+        /* even when refused: win32k may have set the new mode on the chip and
+         * fallen back, i.e. re-synced the monitor, and the HRESULT does not say
+         * which - count it, which only costs a failed run the hold */
+        vcr_pace_after_switch();
+        g_held = 1;
         say("SetDisplayMode -> %08lx", hr);
         if (FAILED(hr)) {
             say("RESULT {\"mode\":\"flip\",\"error\":\"SetDisplayMode %08lx\"}", hr);
@@ -204,7 +295,7 @@ int main(int argc, char **argv)
             sd.ddsCaps.dwCaps);
 
         t0 = now_s();
-        for (f = 0; f < g_frames; f++) {
+        for (f = 0; f < g_frames && !g_focus_lost; f++) {
             memset(&sd, 0, sizeof sd);
             sd.dwSize = sizeof sd;
             if (FAILED(lhr = IDirectDrawSurface7_Lock(back, NULL, &sd, DDLOCK_WAIT, NULL))) {
@@ -232,22 +323,28 @@ int main(int argc, char **argv)
                 pump();
         }
         t = now_s() - t0;
-        /* vertical blank period: 30 block-begins */
-        IDirectDraw7_WaitForVerticalBlank(dd, DDWAITVB_BLOCKBEGIN, NULL);
-        vb0 = now_s();
-        for (i = 0; i < 30; i++)
-            if (SUCCEEDED(IDirectDraw7_WaitForVerticalBlank(dd, DDWAITVB_BLOCKBEGIN, NULL)))
-                vbn++;
-        vbt = now_s() - vb0;
-        IDirectDraw7_GetScanLine(dd, &scan);
+        pump();                         /* a deactivation still queued is seen now */
+        /* vertical blank period: 30 block-begins (not after a lost focus:
+         * the desktop mode's, not the run's) */
+        if (!g_focus_lost) {
+            IDirectDraw7_WaitForVerticalBlank(dd, DDWAITVB_BLOCKBEGIN, NULL);
+            vb0 = now_s();
+            for (i = 0; i < 30; i++)
+                if (SUCCEEDED(IDirectDraw7_WaitForVerticalBlank(dd, DDWAITVB_BLOCKBEGIN, NULL)))
+                    vbn++;
+            vbt = now_s() - vb0;
+            IDirectDraw7_GetScanLine(dd, &scan);
+        }
         say("RESULT {\"mode\":\"flip\",\"res\":\"%dx%dx%d\",\"primary_in\":\"%s\",\"frames\":%d,"
-            "\"mismatch\":%d,\"lock_fail\":%d,\"flips_s\":%.1f,\"vblank_hz\":%.1f,"
-            "\"scanline\":%lu,\"hal_caps\":\"%08lx\"}",
-            g_w, g_h, g_bpp, prim_in, g_frames, bad, lockfail, g_frames / t,
-            vbn ? vbn / vbt : 0.0, scan, hal.dwCaps);
-        IDirectDraw7_RestoreDisplayMode(dd);
+            "\"frames_run\":%d,\"mismatch\":%d,\"lock_fail\":%d,\"flips_s\":%.1f,"
+            "\"vblank_hz\":%.1f,\"scanline\":%lu,\"hal_caps\":\"%08lx\"%s}",
+            g_w, g_h, g_bpp, prim_in, g_frames, f, bad, lockfail, t > 0 ? f / t : 0.0,
+            vbn ? vbn / vbt : 0.0, scan, hal.dwCaps, focus_json());
+        /* the hold: a short run still sits the floor */
+        if (!restore_mode(dd, "flip"))
+            return 8;
         IDirectDraw7_Release(dd);
-        return bad || lockfail ? 7 : 0;
+        return g_focus_lost ? 9 : bad || lockfail ? 7 : 0;
     }
     if (!strcmp(mode, "blt")) {
         WNDCLASSA wc;
@@ -270,7 +367,16 @@ int main(int argc, char **argv)
                                g_w, g_h, NULL, NULL, wc.hInstance, NULL);
         pump();
         IDirectDraw7_SetCooperativeLevel(dd, hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
+        /* paced as in flip; blt is over in well under a second, so without
+         * the hold its switch out followed the switch in by 0.05-1.5 s */
+        if (!vcr_pace_before_switch()) {
+            say("RESULT {\"mode\":\"blt\",\"error\":\"SetDisplayMode not made: %s\"}",
+                g_vcr_pace_why);
+            return 4;
+        }
         hr = IDirectDraw7_SetDisplayMode(dd, g_w, g_h, g_bpp, 0, 0);
+        vcr_pace_after_switch();        /* refused or not - see flip */
+        g_held = 1;
         if (FAILED(hr)) {
             say("RESULT {\"mode\":\"blt\",\"error\":\"SetDisplayMode %08lx\"}", hr);
             return 4;
@@ -416,19 +522,26 @@ int main(int argc, char **argv)
             IDirectDrawSurface7_Unlock(b, NULL);
             IDirectDrawSurface7_SetColorKey(a, DDCKEY_SRCBLT, NULL);
         }
-        /* rate */
-        t0 = now_s();
-        for (n = 0; n < 200; n++)
-            IDirectDrawSurface7_Blt(b, NULL, a, NULL, DDBLT_WAIT, NULL);
-        t = now_s() - t0;
+        /* rate - unless the window lost the foreground meanwhile: then the
+         * surfaces are lost and the run ends (a deactivation still queued
+         * is seen by this pump) */
+        pump();
+        t = 0;
+        if (!g_focus_lost) {
+            t0 = now_s();
+            for (n = 0; n < 200; n++)
+                IDirectDrawSurface7_Blt(b, NULL, a, NULL, DDBLT_WAIT, NULL);
+            t = now_s() - t0;
+        }
         say("RESULT {\"mode\":\"blt\",\"res\":\"%dx%dx%d\",\"surfaces_in\":\"%s\","
             "\"bad_copy\":%d,\"bad_fill\":%d,\"bad_scroll\":%d,\"bad_key\":%d,\"blts_s\":%.0f,"
-            "\"mpix_s\":%.1f,\"hal_caps\":\"%08lx\"}",
-            g_w, g_h, g_bpp, a_in, bad_copy, bad_fill, bad_scroll, bad_key, 200 / t,
-            200.0 * W * H / t / 1e6, hal.dwCaps);
-        IDirectDraw7_RestoreDisplayMode(dd);
+            "\"mpix_s\":%.1f,\"hal_caps\":\"%08lx\"%s}",
+            g_w, g_h, g_bpp, a_in, bad_copy, bad_fill, bad_scroll, bad_key, t > 0 ? 200 / t : 0.0,
+            t > 0 ? 200.0 * W * H / t / 1e6 : 0.0, hal.dwCaps, focus_json());
+        if (!restore_mode(dd, "blt"))   /* the hold */
+            return 8;
         IDirectDraw7_Release(dd);
-        return bad_copy || bad_fill || bad_scroll || bad_key ? 7 : 0;
+        return g_focus_lost ? 9 : bad_copy || bad_fill || bad_scroll || bad_key ? 7 : 0;
     }
     say("RESULT {\"error\":\"unknown mode %s\"}", mode);
     return 2;

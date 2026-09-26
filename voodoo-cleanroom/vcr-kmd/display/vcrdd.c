@@ -72,26 +72,22 @@ static VIDEO_MODE_INFORMATION *query_modes(HANDLE h, ULONG *count)
     return m;
 }
 
-/* The mode a DEVMODE asks for: an exact refresh if we have it, else the
- * highest refresh BELOW it (never above - that is how a CRT gets driven out
- * of range), else the lowest. Frequency 0/1 means "default": the lowest. A
- * box can ask for a refresh this driver does not list - the registry keeps
- * the previous driver's mode across a driver change - and failing the PDEV
- * for it would leave XP on its VGA driver. */
-static LONG pick_mode(const VIDEO_MODE_INFORMATION *m, ULONG n, const DEVMODEW *dm)
+static ULONG mode_bpp(const VIDEO_MODE_INFORMATION *m)
 {
-    ULONG i, w = dm ? dm->dmPelsWidth : 0, h = dm ? dm->dmPelsHeight : 0;
-    ULONG bpp = dm ? dm->dmBitsPerPel : 0, hz = dm ? dm->dmDisplayFrequency : 0;
+    return m->BitsPerPlane * m->NumberOfPlanes;
+}
+
+/* w x h at bpp (0 = any depth): an exact refresh if we have it, else the
+ * highest refresh BELOW it (never above - that is how a CRT gets driven out
+ * of range), else the lowest. hz 0/1 means "default": the lowest. */
+static LONG pick_refresh(const VIDEO_MODE_INFORMATION *m, ULONG n, ULONG w, ULONG h,
+                         ULONG bpp, ULONG hz)
+{
+    ULONG i;
     LONG lowest = -1, below = -1;
-    if (!w || !h) {
-        w = 800;
-        h = 600;
-    }
-    if (!bpp)
-        bpp = 16;
     for (i = 0; i < n; i++) {
         if (m[i].VisScreenWidth != w || m[i].VisScreenHeight != h ||
-            m[i].BitsPerPlane * m[i].NumberOfPlanes != bpp)
+            (bpp && mode_bpp(&m[i]) != bpp))
             continue;
         if (hz > 1 && m[i].Frequency == hz)
             return (LONG)i;
@@ -102,6 +98,104 @@ static LONG pick_mode(const VIDEO_MODE_INFORMATION *m, ULONG n, const DEVMODEW *
             below = (LONG)i;
     }
     return below >= 0 ? below : lowest;
+}
+
+/* How much of a w x h picture a mw x mh mode can show at w x h's shape: the
+ * area of the largest w:h rectangle inside it. "Largest" by plain area would
+ * hand a 1280x1024 CRT desktop the CVT 1280x720 over 1024x768. */
+static ULONG shown_area(ULONG mw, ULONG mh, ULONG w, ULONG h)
+{
+    ULONG ew = mh * w / h, eh = mw * h / w;
+    return (ew < mw ? ew : mw) * (eh < mh ? eh : mh);
+}
+
+/* The largest listed size that fits inside w x h (at bpp, 0 = any), into pw, ph;
+ * 0 when none does. Largest by shown_area, then by area, then by width. */
+static int largest_within(const VIDEO_MODE_INFORMATION *m, ULONG n, ULONG w, ULONG h,
+                          ULONG bpp, ULONG *pw, ULONG *ph)
+{
+    ULONG i, bw = 0, bh = 0, bs = 0;
+    for (i = 0; i < n; i++) {
+        ULONG mw = m[i].VisScreenWidth, mh = m[i].VisScreenHeight, sa;
+        if (!mw || !mh || mw > w || mh > h || (bpp && mode_bpp(&m[i]) != bpp))
+            continue;
+        sa = shown_area(mw, mh, w, h);
+        if (!bw || sa > bs || (sa == bs && (mw * mh > bw * bh ||
+                                            (mw * mh == bw * bh && mw > bw)))) {
+            bw = mw;
+            bh = mh;
+            bs = sa;
+        }
+    }
+    *pw = bw;
+    *ph = bh;
+    return bw != 0;
+}
+
+/* Of the depths listed at w x h, the one nearest bpp (the deeper on a tie) */
+static ULONG nearest_bpp(const VIDEO_MODE_INFORMATION *m, ULONG n, ULONG w, ULONG h, ULONG bpp)
+{
+    ULONG i, best = 0, d, bd = 0;
+    for (i = 0; i < n; i++) {
+        if (m[i].VisScreenWidth != w || m[i].VisScreenHeight != h)
+            continue;
+        d = mode_bpp(&m[i]) > bpp ? mode_bpp(&m[i]) - bpp : bpp - mode_bpp(&m[i]);
+        if (!best || d < bd || (d == bd && mode_bpp(&m[i]) > best)) {
+            best = mode_bpp(&m[i]);
+            bd = d;
+        }
+    }
+    return best;
+}
+
+/* The mode a DEVMODE asks for (pick_refresh's rule for the refresh). A box can
+ * ask for a refresh this driver does not list - the registry keeps the
+ * previous driver's mode across a driver change - and failing the PDEV for it
+ * would leave XP on its VGA driver.
+ *
+ * It can also ask for a SIZE or depth that is not listed: the list honours
+ * the monitor's limits (vcrmp_ddc.c), so a 1280x1024 desktop persisted under
+ * a good EDID is missing on the boot the monitor was off - the conservative
+ * default stops at 1024x768@60. Failing the PDEV then hands the desktop to
+ * the VGA driver, which is worse in every way, so fall back instead:
+ *   1. the largest listed size within the request (the most of the requested
+ *      picture it can show: 1024x768, not 1280x720, for 1280x1024), at the
+ *      requested depth;
+ *   2. the same at any depth (the nearest to the one asked for);
+ *   3. 640x480, at its lowest refresh;
+ *   4. the smallest listed mode, at its lowest refresh.
+ * Every listed mode is inside the limits in force, so none of these can drive
+ * an out-of-range signal; *fell_back says a fallback was taken (the caller
+ * logs it at WARN). */
+static LONG pick_mode(const VIDEO_MODE_INFORMATION *m, ULONG n, const DEVMODEW *dm,
+                      ULONG *fell_back)
+{
+    ULONG i, w = dm ? dm->dmPelsWidth : 0, h = dm ? dm->dmPelsHeight : 0;
+    ULONG bpp = dm ? dm->dmBitsPerPel : 0, hz = dm ? dm->dmDisplayFrequency : 0;
+    ULONG fw, fh;
+    LONG r;
+    *fell_back = 0;
+    if (!w || !h) {
+        w = 800;
+        h = 600;
+    }
+    if (!bpp)
+        bpp = 16;
+    if ((r = pick_refresh(m, n, w, h, bpp, hz)) >= 0)
+        return r;
+    *fell_back = 1;
+    if (largest_within(m, n, w, h, bpp, &fw, &fh))
+        return pick_refresh(m, n, fw, fh, bpp, hz);
+    if (largest_within(m, n, w, h, 0, &fw, &fh))
+        return pick_refresh(m, n, fw, fh, nearest_bpp(m, n, fw, fh, bpp), hz);
+    if ((r = pick_refresh(m, n, 640, 480, nearest_bpp(m, n, 640, 480, bpp), 0)) >= 0)
+        return r;
+    for (i = 0, r = -1; i < n; i++)
+        if (r < 0 || m[i].VisScreenWidth * m[i].VisScreenHeight <
+                         m[r].VisScreenWidth * m[r].VisScreenHeight)
+            r = (LONG)i;
+    return r < 0 ? -1 : pick_refresh(m, n, m[r].VisScreenWidth, m[r].VisScreenHeight,
+                                     mode_bpp(&m[r]), 0);
 }
 
 ULONG APIENTRY DrvGetModes(HANDLE hDriver, ULONG cjSize, DEVMODEW *pdm)
@@ -251,7 +345,7 @@ DHPDEV APIENTRY DrvEnablePDEV(DEVMODEW *pdm, LPWSTR pwszLogAddress, ULONG cPat,
 {
     VCR_PDEV *pd;
     VIDEO_MODE_INFORMATION *m;
-    ULONG n;
+    ULONG n, fell_back;
     LONG i;
     (void)pwszLogAddress;
     (void)cPat;
@@ -267,7 +361,7 @@ DHPDEV APIENTRY DrvEnablePDEV(DEVMODEW *pdm, LPWSTR pwszLogAddress, ULONG cPat,
         VcrDd(VCR_LV_ERROR, VCR_EV_DD_FAIL, 1, 0, 0, 0, "no mode list from the miniport");
         return NULL;
     }
-    i = pick_mode(m, n, pdm);
+    i = pick_mode(m, n, pdm, &fell_back);
     if (i < 0) {
         VcrDd(VCR_LV_ERROR, VCR_EV_DD_FAIL, 2, pdm ? pdm->dmPelsWidth : 0,
               pdm ? pdm->dmPelsHeight : 0, pdm ? pdm->dmBitsPerPel : 0,
@@ -275,6 +369,13 @@ DHPDEV APIENTRY DrvEnablePDEV(DEVMODEW *pdm, LPWSTR pwszLogAddress, ULONG cPat,
         EngFreeMem(m);
         return NULL;
     }
+    if (fell_back)
+        VcrDd(VCR_LV_WARN, VCR_EV_DD_ENABLE_PDEV, m[i].VisScreenWidth, m[i].VisScreenHeight,
+              mode_bpp(&m[i]), m[i].Frequency,
+              "asked %ux%ux%u@%u, not listed (monitor limits?): using %ux%ux%u@%u",
+              pdm ? pdm->dmPelsWidth : 0, pdm ? pdm->dmPelsHeight : 0,
+              pdm ? pdm->dmBitsPerPel : 0, pdm ? pdm->dmDisplayFrequency : 0,
+              m[i].VisScreenWidth, m[i].VisScreenHeight, mode_bpp(&m[i]), m[i].Frequency);
     pd = (VCR_PDEV *)EngAllocMem(FL_ZERO_MEMORY, sizeof *pd, VCRDD_TAG);
     if (!pd) {
         EngFreeMem(m);

@@ -18,6 +18,7 @@
  */
 #include "vcrmp.h"
 #include "../include/vcr_pciraw.h"
+#include "../include/vcr_sli.h"
 
 /* ---- register access ----------------------------------------------------------- */
 
@@ -656,8 +657,115 @@ VP_STATUS VcrHwRestoreMode(VCR_EXT *x)
     return VcrHwSetMode(x, (ULONG)x->cur_mode);
 }
 
+/* ---- the SLI/AA video path, from any IRQL ---------------------------------------
+ * The accessor table vcrmp_sli.c's reset half runs on. Not vcrmp_multi.c's:
+ * that one reaches the master through HalGetBusDataByOffset (callers must be
+ * at IRQL <= DISPATCH_LEVEL; a bugcheck runs at HIGH_LEVEL) and logs through
+ * VcrPhase (registry). Here every config cycle, the master's included, is a
+ * raw mechanism #1 cycle with interrupts off (vcr_pciraw.h - the same SMP
+ * caveat as every raw cycle this driver makes; .124 is one CPU), register
+ * access is the kernel mapping, and the log is the ring alone: nothing
+ * allocates, nothing waits, nothing touches the registry. A config cycle the
+ * crashed code left half done (0xCF8 written, 0xCFC not) is simply
+ * overwritten - that code never runs again. */
+static ULONG rst_slot(VCR_EXT *x, vcr_u32 chip)
+{
+    return chip ? x->chip[chip].slot : x->slot;
+}
+
+static vcr_u32 rst_cfg_rd(void *ctx, vcr_u32 chip, vcr_u32 off)
+{
+    VCR_EXT *x = (VCR_EXT *)ctx;
+    return chip < x->nchips ? raw_read(x, rst_slot(x, chip), off, 4) : 0xffffffffu;
+}
+
+static void rst_cfg_wr(void *ctx, vcr_u32 chip, vcr_u32 off, vcr_u32 v)
+{
+    VCR_EXT *x = (VCR_EXT *)ctx;
+    ULONG slot;
+    if (chip >= x->nchips)
+        return;
+    slot = rst_slot(x, chip);
+    vcr_pci_raw_write32(x->bus, slot & 0x1f, (slot >> 5) & 7, off & ~3u, v);
+}
+
+static vcr_u32 rst_io_rd(void *ctx, vcr_u32 chip, vcr_u32 off)
+{
+    return VcrRd((VCR_EXT *)ctx, chip, off);        /* unmapped chip: ~0, no access */
+}
+
+static void rst_io_wr(void *ctx, vcr_u32 chip, vcr_u32 off, vcr_u32 v)
+{
+    VcrWr((VCR_EXT *)ctx, chip, off, v);            /* unmapped chip: skipped */
+}
+
+static vcr_u8 rst_vga_rd(void *ctx, vcr_u32 chip, vcr_u32 port)
+{
+    (void)chip;
+    return VcrVgaRd((VCR_EXT *)ctx, port);
+}
+
+static void rst_vga_wr(void *ctx, vcr_u32 chip, vcr_u32 port, vcr_u8 v)
+{
+    (void)chip;
+    VcrVgaWr((VCR_EXT *)ctx, port, v);
+}
+
+static void rst_stall(void *ctx, vcr_u32 us)
+{
+    (void)ctx;
+    VideoPortStallExecution(us);
+}
+
+static void rst_log(void *ctx, vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 val,
+                    const char *what)
+{
+    (void)ctx;
+    VLOG(VCR_LV_INFO, VCR_EV_SLI_STEP, step, chip, reg, val, "reset: %s", what);
+}
+
+/* Before the VGA restore: if the video path is SLI/AA's, give it back to the
+ * master's own PLL. The HARDWARE is asked, not only x->sli_chips: a bugcheck
+ * in the middle of an SLI enable (sli_chips is set when it returns), or an
+ * SLI/AA the driver did not start (a Diag\AllowPoke config write), leaves
+ * the flag at 0 with the master off its own clock. Outside SLI/AA the
+ * master's cfgVideoCtrl0 is 0 (golden cfg0, ours and the vendor's), so any
+ * other value means the path is not the plain one. */
+static void sli_video_reset(VCR_EXT *x)
+{
+    vcr_sli_io io;
+    vcr_u32 vc0;
+    int rc;
+    if (!VCR_IS_NAPALM(x->device) || !x->nchips)
+        return;
+    vc0 = rst_cfg_rd(x, 0, VCR_CFG_VIDEOCTRL0);
+    if (!x->sli_chips && (vc0 == 0 || vc0 == 0xffffffffu))
+        return;
+    io.ctx = x;
+    io.cfg_rd = rst_cfg_rd;
+    io.cfg_wr = rst_cfg_wr;
+    io.io_rd = rst_io_rd;
+    io.io_wr = rst_io_wr;
+    io.vga_rd = rst_vga_rd;
+    io.vga_wr = rst_vga_wr;
+    io.stall_us = rst_stall;
+    io.log = rst_log;
+    VLOG(VCR_LV_WARN, VCR_EV_SLI_DONE, 0, x->nchips, vc0, x->sli_chips,
+         "reset: SLI/AA video path on (cfgVideoCtrl0 %08x, sli %u) - to the master's clock",
+         vc0, x->sli_chips);
+    rc = vcr_sli_reset_video(&io, x->nchips);
+    x->sli_chips = 0;
+    x->sli_active = 0;
+    x->sli_result = rc;
+    vc0 = rst_cfg_rd(x, 0, VCR_CFG_VIDEOCTRL0);
+    VLOG(rc || vc0 ? VCR_LV_WARN : VCR_LV_INFO, VCR_EV_SLI_DONE, 0, x->nchips, (ULONG)rc, vc0,
+         "reset: SLI/AA video path off -> %d, master cfgVideoCtrl0 now %08x", rc, vc0);
+}
+
 /* Back to what the BIOS left. Called from HwResetHw at bugcheck/shutdown time
- * (any IRQL, no allocation, no registry) and from RESET_DEVICE. */
+ * (any IRQL, no allocation, no registry) and from RESET_DEVICE - which is
+ * also the hand-off to VgaSave, so the VGA state has to be complete: why the
+ * RESET_DEVICE shortcut that skipped it was rejected is at that IOCTL. */
 void VcrHwResetToVga(VCR_EXT *x)
 {
     VCR_BOOTSTATE *b = &x->boot;
@@ -670,6 +778,9 @@ void VcrHwResetToVga(VCR_EXT *x)
     }
     if (!b->saved || !x->chip[0].regs)
         return;
+    /* the master's video clock must be its own PLL BEFORE pllCtrl0 is put
+     * back, or the BIOS's text-mode clock goes to a PLL nothing scans from */
+    sli_video_reset(x);
     VcrWr(x, 0, VCR_R_VIDPROCCFG, b->vidproccfg & ~VCR_VPC_VIDEO_PROCESSOR_EN);
     VcrWr(x, 0, VCR_R_DACMODE, b->dacmode);
     VcrWr(x, 0, VCR_R_PLLCTRL0, b->pllctrl0);

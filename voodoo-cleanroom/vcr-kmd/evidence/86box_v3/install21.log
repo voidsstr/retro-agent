@@ -1,0 +1,60 @@
+[preflight]
+  driver signing policy (HKLM): {'Policy': '00'}
+[install]
+  DRVUPDATE: OK installed C:\vcr\vcrkmd.inf for PCI\VEN_121A&DEV_0005 (reboot required)
+[reboot]
+  reboot-cmd: guest down after 23s
+86Box restarted
+Running as unit: vcr86box.service; invocation ID: 365a21635e5c405c891cb94bed7a6fa9 rc 0
+[verify] back after 130s
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 300, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 295, in main
+    rc = asyncio.run(fn(a, args, evidence))
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 250, in install
+    return 0 if await status(a, args, evidence) else 1
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 191, in status
+    d = await a.regvals(DIAG) or {}
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 71, in regvals
+    j = json.loads(await self.text(f'REGREAD HKLM "{path}"' if " " in path
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                   else f"REGREAD HKLM {path}"))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 67, in text
+    return (await self.raw(cmd, timeout)).decode("ascii", "replace")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 56, in raw
+    await c.connect(SECRET, timeout=20)
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/client/retro_protocol.py", line 60, in connect
+    status, data = await self._recv_response(timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/client/retro_protocol.py", line 228, in _recv_response
+    header = await asyncio.wait_for(
+             ^^^^^^^^^^^^^^^^^^^^^^^
+        self._reader.readexactly(4), timeout=timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 769, in readexactly
+    await self._wait_for_data('readexactly')
+  File "/usr/lib/python3.14/asyncio/streams.py", line 539, in _wait_for_data
+    await self._waiter
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 1009, in _read_ready__data_received
+    data = self._sock.recv(self.max_size)
+ConnectionResetError: [Errno 104] Connection reset by peer

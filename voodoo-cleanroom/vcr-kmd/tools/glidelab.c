@@ -18,14 +18,34 @@
  *            repeats it with the lower-left origin (Y flipped per chip).
  *   cycle    open / draw / close `--cycles` times in one process: SLI set up
  *            and torn down again and again (the kernel's enable/disable path).
+ *            At most GLIDELAB_MAX_CYCLES, whatever is asked: every open and
+ *            every close is a monitor re-sync.
  *   abandon  open, draw, and exit WITHOUT grSstWinClose/grGlideShutdown -
  *            what a crashed or force-killed game leaves; the kernel driver
  *            must put the desktop back and turn SLI off by itself. Run it,
  *            then anything else, and check the second run and the desktop.
  *
+ * Every mode: every grSstWinOpen and grSstWinClose waits out vcr_pace.h's
+ * floor (3 s, or `--pace MS` if longer - decimal, at most 30000, anything else
+ * refused before anything switches) and the mode is held that long. A switch
+ * the gate cannot pace (its lock held by a stuck tool, a stamp that never
+ * stops moving) is not made: the run ends with a RESULT "error" naming why,
+ * and a mode already up is left for the exit hold.
+ *
+ * The refresh: --refresh must be one of the HZ[] rates (refused otherwise,
+ * before anything switches), it is handed to Glide as FX_GLIDE_REFRESH as well
+ * as the grSstWinOpen code, and the rate the mode really opened at is read
+ * back ("opened_hz"): a mode at any other rate is closed again, paced, and the
+ * run fails - it is a rate no host gate checked.
+ *
+ * A window that loses the foreground while the board holds the mode
+ * (DirectDraw gives the desktop back at that moment, unpaced) has that switch
+ * recorded, ends the run through the paced close and says "focus_lost":true,
+ * rather than let a re-activation switch in again.
+ *
  * Every step is flushed to the log before the next (glideprobe's rule: when
  * the board wedges the box, the last line names the call). The final line is
- * `RESULT {json}`.
+ * `RESULT {json}`; the host reads the LAST one.
  *
  * Glide is late-bound (any glide3x.dll: --dll), as in glideprobe.c.
  *
@@ -39,6 +59,11 @@
 #include <string.h>
 
 #include "glide.h"
+#include "vcr_pace.h"
+
+/* 2 open/close pairs already exercise enable -> disable -> enable; the 10 this
+ * used to default to were 20 re-syncs of .124's CRT ~0.3 s apart (2026-09-26) */
+#define GLIDELAB_MAX_CYCLES 3
 
 static FILE *g_log;
 static char  g_logpath[MAX_PATH] = "C:\\glidelab.log";
@@ -132,17 +157,32 @@ static int bind_glide(void)
 }
 
 /* ---- window (grSstWinOpen with hWnd 0 hangs - see glideprobe.c) --------------- */
+static int g_held;              /* a context holds (or may hold) a fullscreen mode */
+static int g_focus_lost;        /* ... and the window lost the foreground meanwhile */
+
 static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM w, LPARAM l)
 {
     if (m == WM_CLOSE)
         return 0;
+    /* Deactivated while the board holds the mode: DirectDraw's hook on this
+     * window (Glide takes the screen through it) gives the desktop back right
+     * now - a switch the gate did not pace. Record it, and end the run:
+     * carrying on until something re-activates the window would switch the
+     * mode back in, unpaced too. */
+    if (m == WM_ACTIVATEAPP && !w && g_held) {
+        vcr_pace_mark();
+        g_focus_lost = 1;
+    }
     return DefWindowProcA(h, m, w, l);
 }
 
+/* Once the foreground is lost, nothing more is dispatched: a re-activation
+ * still queued would have DirectDraw switch the mode back in, unpaced, and
+ * the run is ending anyway. */
 static void pump(void)
 {
     MSG msg;
-    while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
+    while (!g_focus_lost && PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessageA(&msg);
     }
@@ -172,7 +212,7 @@ static HWND make_window(int w, int h)
 static struct {
     const char *mode, *dll, *res;
     int w, h, hz, cfg, frames, layers, blend, cycles, lower;
-} O = { "fill", "glide3x.dll", "640x480", 640, 480, 60, -1, 200, 4, 0, 10, 0 };
+} O = { "fill", "glide3x.dll", "640x480", 640, 480, 60, -1, 200, 4, 0, 2, 0 };
 
 static const struct { const char *name; int code; } RES[] = {
     { "640x480", GR_RESOLUTION_640x480 },   { "800x600", GR_RESOLUTION_800x600 },
@@ -215,17 +255,134 @@ static void flat_state(void)
         p_grAlphaBlendFunction(GR_BLEND_ONE, GR_BLEND_ZERO, GR_BLEND_ONE, GR_BLEND_ZERO);
 }
 
+static double now_s(void)
+{
+    LARGE_INTEGER f, t;
+    QueryPerformanceFrequency(&f);
+    QueryPerformanceCounter(&t);
+    return (double)t.QuadPart / (double)f.QuadPart;
+}
+
+/* ---- the pace (vcr_pace.h) ------------------------------------------------------------
+ * Glide takes the screen with DirectDraw SetDisplayMode and gives it back with
+ * RestoreDisplayMode, so every grSstWinOpen and every grSstWinClose is a
+ * monitor re-sync - on 2026-09-26 a sweep re-synced .124's CRT ~250 times at
+ * two a second. Every open and close goes through the gate, in every mode. */
+static double g_paced_s;        /* spent waiting out the floor: not the board's time */
+static int    g_opened_hz;      /* the refresh the last open really set, 0 = none read */
+
+/* 1 = switch; 0 = vcr_pace.h refused (g_vcr_pace_why) and nothing may switch */
+static int pace_before(void)
+{
+    double t = now_s();
+    int go = vcr_pace_before_switch();
+    g_paced_s += now_s() - t;
+    return go;
+}
+
+/* The refresh the mode really opened at. FX_GLIDE_REFRESH and the HZ[] code
+ * ask; the driver answers. */
+static int current_hz(void)
+{
+    DEVMODEA dm;
+    memset(&dm, 0, sizeof dm);
+    dm.dmSize = sizeof dm;
+    if (!EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &dm))
+        return 0;
+    return (int)dm.dmDisplayFrequency;
+}
+
+/* 0 with g_vcr_pace_why set: the gate refused and nothing was switched;
+ * 0 without it: Glide refused (after a switch that may have been made) */
 static FxU32 open_board(HWND hwnd, int rescode, int hzcode)
 {
     FxU32 ctx;
     say("step: grSstWinOpen %s %dHz origin %s", O.res, O.hz, O.lower ? "lower" : "upper");
     pump();
+    if (!pace_before()) {
+        say("  -> not opened: %s", g_vcr_pace_why);
+        return 0;
+    }
     ctx = p_grSstWinOpen((FxU32)(uintptr_t)hwnd, (GrScreenResolution_t)rescode,
                          (GrScreenRefresh_t)hzcode, GR_COLORFORMAT_ARGB,
                          O.lower ? GR_ORIGIN_LOWER_LEFT : GR_ORIGIN_UPPER_LEFT, 2, 1);
+    /* even when refused: the refusal can come after Glide has set the mode,
+     * i.e. after a re-sync, and may leave that mode set until shutdown or
+     * exit. Counting it costs a failed run only the hold. */
+    vcr_pace_after_switch();
+    g_held = 1;
     pump();
-    say("  -> context 0x%lx", (unsigned long)ctx);
+    g_opened_hz = ctx ? current_hz() : 0;
+    say("  -> context 0x%lx, %d Hz", (unsigned long)ctx, g_opened_hz);
     return ctx;
+}
+
+/* 1 = the opened mode is at the refresh asked for. Glide can quietly open at
+ * another (a registry override, a rate the driver moved): the host gate
+ * checked O.hz, not that one. */
+static int refresh_ok(void)
+{
+    /* 0 / 1 is XP's "hardware default" answer, not a rate: unknown is not a
+     * mismatch (unmeasured whether a Glide session on silicon reports one);
+     * the host's lab_halt reads it the same way */
+    if (g_opened_hz == O.hz || g_opened_hz == 0 || g_opened_hz == 1)
+        return 1;
+    say("  opened at %d Hz, not the %d Hz asked: closing it", g_opened_hz, O.hz);
+    return 0;
+}
+
+/* 0 = the gate refused the switch out: NOT closed - grSstWinClose would give
+ * the mode back unpaced - and left for the exit hold */
+static int close_board(FxU32 ctx)
+{
+    if (!pace_before())             /* the hold: a short run still sits the floor */
+        return 0;
+    g_held = 0;                     /* a deactivation from here on is ours */
+    p_grSstWinClose(ctx);
+    vcr_pace_after_restore();
+    return 1;
+}
+
+/* grGlideShutdown closes a context still open, and a refused open may have
+ * left its mode set: while one may be held, the shutdown is the switch out.
+ * 0 = the gate refused it, and Glide is left for the exit (see close_board) */
+static int shutdown_glide(void)
+{
+    int held = g_held;
+    if (!p_grGlideShutdown)
+        return 1;                   /* the exit is the switch out: atexit holds it */
+    if (held && !pace_before())
+        return 0;
+    g_held = 0;
+    p_grGlideShutdown();
+    if (held)
+        vcr_pace_after_restore();
+    return 1;
+}
+
+/* The switch out was refused by the gate: nothing more is switched - no
+ * close, no shutdown, which would give the mode back unpaced - and a RESULT
+ * of its own says so (the host reads the LAST one). Returning from main runs
+ * the exit hold; glide3x's own DLL_PROCESS_DETACH gives the mode back after
+ * it, inside the stamp the hold puts ahead. */
+static int left_for_exit(const char *step)
+{
+    say("RESULT {\"mode\":\"%s\",\"error\":\"%s not made: %s - the mode is left for the exit"
+        " hold\",\"opened_hz\":%d}", O.mode, step, g_vcr_pace_why, g_opened_hz);
+    return 10;
+}
+
+/* ,"opened_hz":N,"focus_lost":... for a RESULT, with an "error" when the
+ * focus was lost: the run was cut short, and its numbers are not a pass */
+static const char *tail_json(void)
+{
+    static char buf[160];
+    _snprintf(buf, sizeof buf, ",\"opened_hz\":%d%s", g_opened_hz,
+              g_focus_lost ? ",\"focus_lost\":true,\"error\":\"the window lost the foreground"
+                             " while the board held the mode - run ended\""
+                           : ",\"focus_lost\":false");
+    buf[sizeof buf - 1] = 0;
+    return buf;
 }
 
 static int chips_in_use(void)
@@ -234,14 +391,6 @@ static int chips_in_use(void)
     if (p_grGet && p_grGet(GR_NUM_FB, sizeof v, &v))
         return (int)v;
     return 1;
-}
-
-static double now_s(void)
-{
-    LARGE_INTEGER f, t;
-    QueryPerformanceFrequency(&f);
-    QueryPerformanceCounter(&t);
-    return (double)t.QuadPart / (double)f.QuadPart;
 }
 
 /* ---- the modes ---------------------------------------------------------------------- */
@@ -254,7 +403,7 @@ static int do_fill(void)
         p_grAlphaBlendFunction(GR_BLEND_SRC_ALPHA, GR_BLEND_ONE_MINUS_SRC_ALPHA,
                                GR_BLEND_ONE, GR_BLEND_ZERO);
     /* warm up */
-    for (f = 0; f < 10; f++) {
+    for (f = 0; f < 10 && !g_focus_lost; f++) {
         p_grBufferClear(0, 0, 0xffff);
         p_grConstantColorValue(0x80406080u);
         quad(0, 0, (float)O.w, (float)O.h);
@@ -264,7 +413,7 @@ static int do_fill(void)
     p_grFinish();
     say("step: %d frames x %d layers%s", O.frames, O.layers, O.blend ? " (blended)" : "");
     t0 = now_s();
-    for (f = 0; f < O.frames; f++) {
+    for (f = 0; f < O.frames && !g_focus_lost; f++) {
         for (l = 0; l < O.layers; l++) {
             p_grConstantColorValue(0x80000000u | ((f * 7 + l * 53) & 0xff) << 16 |
                                    ((l * 91) & 0xff) << 8 | (f & 0xff));
@@ -276,11 +425,13 @@ static int do_fill(void)
     }
     p_grFinish();
     t = now_s() - t0;
+    pump();                         /* a deactivation still queued is seen now */
     say("RESULT {\"mode\":\"fill\",\"res\":\"%s\",\"cfg\":%d,\"chips\":%d,\"frames\":%d,"
-        "\"layers\":%d,\"blend\":%d,\"seconds\":%.4f,\"fps\":%.2f,\"mpix_s\":%.1f}",
-        O.res, O.cfg, chips_in_use(), O.frames, O.layers, O.blend, t, O.frames / t,
-        (double)O.w * O.h * O.layers * O.frames / t / 1e6);
-    return 0;
+        "\"frames_run\":%d,\"layers\":%d,\"blend\":%d,\"seconds\":%.4f,\"fps\":%.2f,"
+        "\"mpix_s\":%.1f%s}",
+        O.res, O.cfg, chips_in_use(), O.frames, f, O.layers, O.blend, t, t > 0 ? f / t : 0.0,
+        t > 0 ? (double)O.w * O.h * O.layers * f / t / 1e6 : 0.0, tail_json());
+    return g_focus_lost ? 12 : 0;
 }
 
 static unsigned line_code(int y)
@@ -336,20 +487,29 @@ static int do_bands(void)
         }
     }
     p_grBufferSwap(0);
+    pump();                         /* a deactivation still queued is seen now */
     say("RESULT {\"mode\":\"bands\",\"res\":\"%s\",\"cfg\":%d,\"chips\":%d,\"origin\":\"%s\","
-        "\"band_lines\":%d,\"bad_lines\":%d,\"bad_per_chip\":[%d,%d,%d,%d],\"first_bad\":%d}",
+        "\"band_lines\":%d,\"bad_lines\":%d,\"bad_per_chip\":[%d,%d,%d,%d],\"first_bad\":%d%s}",
         O.res, O.cfg, chips, O.lower ? "lower" : "upper", nl, bad, badc[0], badc[1], badc[2],
-        badc[3], first_bad);
+        badc[3], first_bad, tail_json());
     free(buf);
-    return bad ? 7 : 0;
+    return g_focus_lost ? 12 : bad ? 7 : 0;
 }
 
 int main(int argc, char **argv)
 {
-    int i, rescode = -1, hzcode = GR_REFRESH_60Hz, rc = 0, c;
+    int i, rescode = -1, hzcode = -1, rc = 0, c, cycles_asked;
     HWND hwnd;
     FxU32 ctx;
+    DWORD pace;
+    const char *bad_pace = NULL;
+    char hz[16];
 
+    /* A crash must die at once, not sit behind a Watson / "has encountered a
+     * problem" box: that box keeps the process - and the fullscreen mode Glide
+     * set - alive until someone at the box clicks it, and the fullscreen mode
+     * hides it. The box is driven remotely; nobody is at .124's CRT. */
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     for (i = 1; i < argc; i++) {
         const char *a = argv[i], *v = i + 1 < argc ? argv[i + 1] : NULL;
         if (!strcmp(a, "--res") && v) { O.res = v; i++; }
@@ -358,6 +518,14 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--frames") && v) { O.frames = atoi(v); i++; }
         else if (!strcmp(a, "--layers") && v) { O.layers = atoi(v); i++; }
         else if (!strcmp(a, "--cycles") && v) { O.cycles = atoi(v); i++; }
+        else if (!strcmp(a, "--pace") && v) {
+            /* atoi("-1") was a floor of 0xFFFFFFFF ms: refused, not wrapped */
+            if (vcr_pace_parse_ms(v, &pace))
+                vcr_pace_set_min(pace);
+            else
+                bad_pace = v;
+            i++;
+        }
         else if (!strcmp(a, "--dll") && v) { O.dll = v; i++; }
         else if (!strcmp(a, "--log") && v) { strncpy(g_logpath, v, sizeof g_logpath - 1); i++; }
         else if (!strcmp(a, "--origin") && v) { O.lower = !strcmp(v, "lower"); i++; }
@@ -373,10 +541,32 @@ int main(int argc, char **argv)
         if (HZ[i].hz == O.hz)
             hzcode = HZ[i].code;
     say("glidelab %s: res=%s refresh=%d cfg=%d dll=%s", O.mode, O.res, O.hz, O.cfg, O.dll);
+    cycles_asked = O.cycles;
+    if (O.cycles > GLIDELAB_MAX_CYCLES) {
+        say("cycles capped at %d (asked %d): every open and every close re-syncs the monitor",
+            GLIDELAB_MAX_CYCLES, cycles_asked);
+        O.cycles = GLIDELAB_MAX_CYCLES;
+    }
+    if (bad_pace) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"--pace %s: decimal milliseconds, 0 to %u\"}",
+            O.mode, bad_pace, VCR_PACE_MAX_MS);
+        return 2;
+    }
     if (rescode < 0) {
         say("RESULT {\"error\":\"no GR_RESOLUTION for %s\"}", O.res);
         return 2;
     }
+    /* it fell through to 60 Hz without a word: a mode the host never gated */
+    if (hzcode < 0) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"no GR_REFRESH for %d Hz\"}", O.mode, O.hz);
+        return 2;
+    }
+    /* Glide reads FX_GLIDE_REFRESH before its HKCU/HKLM overrides, so the
+     * refresh asked for is the one it opens even on a box whose registry
+     * pins another; set before the DLL loads, which may read it at attach */
+    _snprintf(hz, sizeof hz, "%d", O.hz);
+    hz[sizeof hz - 1] = 0;
+    SetEnvironmentVariableA("FX_GLIDE_REFRESH", hz);
     if (O.cfg >= 0) {
         char env[16];
         _snprintf(env, sizeof env, "%d", O.cfg);
@@ -396,17 +586,27 @@ int main(int argc, char **argv)
     hwnd = make_window(O.w, O.h);
 
     if (!strcmp(O.mode, "cycle")) {
-        int ok = 0;
+        int ok = 0, wrong_hz = 0, glide_failed = 0;
+        const char *refused = NULL;
         double t0 = now_s();
-        for (c = 0; c < O.cycles; c++) {
+        for (c = 0; c < O.cycles && !g_focus_lost; c++) {
             int f;
             ctx = open_board(hwnd, rescode, hzcode);
             if (!ctx) {
-                say("  cycle %d: open REFUSED", c);
+                refused = g_vcr_pace_why;
+                glide_failed = !refused;
+                say("  cycle %d: open REFUSED%s%s", c, refused ? " by the pace gate: " : "",
+                    refused ? refused : "");
+                break;
+            }
+            if (!refresh_ok()) {
+                wrong_hz = 1;
+                if (!close_board(ctx))
+                    return left_for_exit("grSstWinClose");
                 break;
             }
             flat_state();
-            for (f = 0; f < 20; f++) {
+            for (f = 0; f < 20 && !g_focus_lost; f++) {
                 p_grBufferClear(0x00102030u + (unsigned)f, 0, 0xffff);
                 p_grConstantColorValue(0xff000000u | (unsigned)(c * 997 + f * 31));
                 quad(0, 0, (float)O.w, (float)O.h);
@@ -415,20 +615,55 @@ int main(int argc, char **argv)
             }
             p_grFinish();
             say("  cycle %d: chips %d, closing", c, chips_in_use());
-            p_grSstWinClose(ctx);
+            if (!close_board(ctx))
+                return left_for_exit("grSstWinClose");
             pump();
-            ok++;
+            if (!g_focus_lost)
+                ok++;
         }
-        say("RESULT {\"mode\":\"cycle\",\"res\":\"%s\",\"cfg\":%d,\"cycles\":%d,\"ok\":%d,"
-            "\"seconds\":%.2f}", O.res, O.cfg, O.cycles, ok, now_s() - t0);
-        rc = ok == O.cycles ? 0 : 8;
+        /* seconds is the wall clock, pace included; paced_s is the part spent
+         * waiting out vcr_pace.h's floor, so seconds - paced_s is the board's */
+        if (refused)
+            say("RESULT {\"mode\":\"cycle\",\"res\":\"%s\",\"cfg\":%d,\"cycles\":%d,"
+                "\"cycles_asked\":%d,\"ok\":%d,\"error\":\"grSstWinOpen not made: %s\"%s}",
+                O.res, O.cfg, O.cycles, cycles_asked, ok, refused, tail_json());
+        else if (glide_failed)
+            /* Glide itself refused: a RESULT without "error" read as a pass
+             * to every runner that counts errors (pre-existing, found 09-26) */
+            say("RESULT {\"mode\":\"cycle\",\"res\":\"%s\",\"cfg\":%d,\"cycles\":%d,"
+                "\"cycles_asked\":%d,\"ok\":%d,\"error\":\"grSstWinOpen failed at cycle %d\"%s}",
+                O.res, O.cfg, O.cycles, cycles_asked, ok, ok, tail_json());
+        else if (wrong_hz)
+            say("RESULT {\"mode\":\"cycle\",\"res\":\"%s\",\"cfg\":%d,\"cycles\":%d,"
+                "\"cycles_asked\":%d,\"ok\":%d,\"error\":\"opened at %d Hz, not the %d Hz"
+                " asked\",\"opened_hz\":%d}", O.res, O.cfg, O.cycles, cycles_asked, ok,
+                g_opened_hz, O.hz, g_opened_hz);
+        else
+            say("RESULT {\"mode\":\"cycle\",\"res\":\"%s\",\"cfg\":%d,\"cycles\":%d,"
+                "\"cycles_asked\":%d,\"ok\":%d,\"seconds\":%.2f,\"paced_s\":%.2f%s}", O.res,
+                O.cfg, O.cycles, cycles_asked, ok, now_s() - t0, g_paced_s, tail_json());
+        rc = refused ? 10 : wrong_hz ? 11 : g_focus_lost ? 12 : ok == O.cycles ? 0 : 8;
     } else {
         ctx = open_board(hwnd, rescode, hzcode);
         if (!ctx) {
+            if (g_vcr_pace_why) {
+                say("RESULT {\"mode\":\"%s\",\"error\":\"grSstWinOpen not made: %s\"}",
+                    O.mode, g_vcr_pace_why);
+                return 10;
+            }
             say("RESULT {\"mode\":\"%s\",\"error\":\"grSstWinOpen refused\"}", O.mode);
-            if (p_grGlideShutdown)
-                p_grGlideShutdown();
+            if (!shutdown_glide())
+                return left_for_exit("grGlideShutdown");
             return 5;
+        }
+        if (!refresh_ok()) {
+            say("RESULT {\"mode\":\"%s\",\"error\":\"opened at %d Hz, not the %d Hz asked\","
+                "\"opened_hz\":%d}", O.mode, g_opened_hz, O.hz, g_opened_hz);
+            if (!close_board(ctx))
+                return left_for_exit("grSstWinClose");
+            if (!shutdown_glide())
+                return left_for_exit("grGlideShutdown");
+            return 11;
         }
         say("chips in use: %d", chips_in_use());
         if (!strcmp(O.mode, "fill")) {
@@ -438,7 +673,7 @@ int main(int argc, char **argv)
         } else if (!strcmp(O.mode, "abandon")) {
             int f;
             flat_state();
-            for (f = 0; f < 30; f++) {
+            for (f = 0; f < 30 && !g_focus_lost; f++) {
                 p_grBufferClear(0x00400000u, 0, 0xffff);
                 p_grConstantColorValue(0xff00ff00u);
                 quad(0, 0, (float)O.w / 2, (float)O.h / 2);
@@ -446,19 +681,27 @@ int main(int argc, char **argv)
                 pump();
             }
             say("RESULT {\"mode\":\"abandon\",\"res\":\"%s\",\"cfg\":%d,\"chips\":%d,"
-                "\"note\":\"exiting WITHOUT grSstWinClose/grGlideShutdown\"}",
-                O.res, O.cfg, chips_in_use());
+                "\"note\":\"exiting WITHOUT grSstWinClose/grGlideShutdown\"%s}",
+                O.res, O.cfg, chips_in_use(), tail_json());
+            /* ExitProcess skips atexit, so vcr_pace.h's exit hold would not
+             * run - and this exit IS the switch out: run that hold here. It
+             * holds the mode for the floor and stamps the revert AHEAD, which
+             * is what this exit needs: the dying glide3x's DLL_PROCESS_DETACH
+             * shuts Glide down - seconds of idle waits - before its
+             * RestoreDisplayMode, long after a stamp made now */
+            vcr_pace_at_exit();
             ExitProcess(0);
         } else {
             say("RESULT {\"error\":\"unknown mode %s\"}", O.mode);
             rc = 2;
         }
         say("step: grSstWinClose");
-        p_grSstWinClose(ctx);
+        if (!close_board(ctx))
+            return left_for_exit("grSstWinClose");
     }
     say("step: grGlideShutdown");
-    if (p_grGlideShutdown)
-        p_grGlideShutdown();
+    if (!shutdown_glide())
+        return left_for_exit("grGlideShutdown");
     if (hwnd)
         DestroyWindow(hwnd);
     say("done rc=%d", rc);

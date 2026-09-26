@@ -1071,17 +1071,12 @@ static int sli_enable(const vcr_sli_io *io, const sli_p *p)
 
 /* ---- hwcSetSLIAAMode disable (D:1483-1512) --------------------------------- */
 
-static int sli_disable(const vcr_sli_io *io, vcr_u32 n)
+/* D:1484-1510, the per-chip half of the disable: everything but the 3D
+ * sliCtrl. It is the whole of what the VIDEO path needs, and it is shared
+ * with vcr_sli_reset_video() so the bugcheck path cannot drift from it. */
+static int sli_disable_video(const vcr_sli_io *io, vcr_u32 n)
 {
     vcr_u32 c, v;
-    int warn = 0;
-
-    lg(io, VCR_SLI_S_OFF_BEGIN, n, 0, n, "hwcSetSLIAAMode: disable");
-
-    /* G:4010-4028 _grDisableSliCtrl - while snooping is still on, so the
-     * master's write reaches every slave even if a slave's own does not. */
-    for (c = 0; c < n; c++)
-        warn |= write_3d(io, VCR_SLI_S_OFF_SLICTRL, c, VCR_3D_SLICTRL, 0, "sliCtrl = 0");
 
     for (c = 0; c < n; c++) {
         v = cfg_r(io, c, VCR_CFG_INITENABLE) >> 8;
@@ -1114,7 +1109,53 @@ static int sli_disable(const vcr_sli_io *io, vcr_u32 n)
             reg_w(io, VCR_SLI_S_OFF_VIDPROC, c, VCR_R_VIDPROCCFG, v, "slave video processor off");
         }
     }
+    return 0;
+}
+
+static int sli_disable(const vcr_sli_io *io, vcr_u32 n)
+{
+    vcr_u32 c;
+    int warn = 0;
+
+    lg(io, VCR_SLI_S_OFF_BEGIN, n, 0, n, "hwcSetSLIAAMode: disable");
+
+    /* G:4010-4028 _grDisableSliCtrl - while snooping is still on, so the
+     * master's write reaches every slave even if a slave's own does not. */
+    for (c = 0; c < n; c++)
+        warn |= write_3d(io, VCR_SLI_S_OFF_SLICTRL, c, VCR_3D_SLICTRL, 0, "sliCtrl = 0");
+
+    warn |= sli_disable_video(io, n);
     lg(io, VCR_SLI_S_OFF_DONE, n, 0, (vcr_u32)warn, "hwcSetSLIAAMode: disable done");
+    return warn;
+}
+
+/* ---- the reset path: the video half of the disable, and nothing else --------
+ * HwResetHw - a bugcheck's blue screen, or shutdown - hands the display back
+ * to the HAL's text mode (vcrmp_hw.c VcrHwResetToVga). Under 4-way SLI the
+ * master's cfgVideoCtrl0 has ENHANCED_VIDEO_EN and VIDPLL_SEL set
+ * (D:1465-1471; 0x801 on .124, golden sli_*_cfg5): its video clock comes from
+ * the slave side / the 6000's external synthesizer, not from its own
+ * pllCtrl0, so restoring pllCtrl0 alone would leave the text screen scanning
+ * at whatever clock that is - far under a CRT's 30 kHz floor. Single-chip AA
+ * sets ENHANCED_VIDEO_EN with a video divide-by-2 (D:928-939), likely the
+ * same kind of trap, and the same write undoes it. D:1498's 0 is what the
+ * master carries outside SLI/AA (golden cfg0); D:1496 and D:1504-1510 stop
+ * the slaves driving the syncs.
+ * Only the per-chip half runs (sli_disable_video): the 3D sliCtrl writes wait
+ * for PCI FIFO room a wedged engine never frees - bounded, but poll time at
+ * HIGH_LEVEL for a register that only steers rendering. No request is
+ * validated because there is none: it does what it can for n chips
+ * (1..VCR_SLI_MAX_CHIPS). The caller supplies accessors legal at any IRQL -
+ * no registry, no allocation, no HAL bus-data call. */
+int vcr_sli_reset_video(const vcr_sli_io *io, vcr_u32 n)
+{
+    int warn;
+    if (!io || !io->cfg_rd || !io->cfg_wr || !io->io_rd || !io->io_wr || n < 1 ||
+        n > VCR_SLI_MAX_CHIPS)
+        return VCR_SLI_EINVAL;
+    lg(io, VCR_SLI_S_OFF_BEGIN, n, 0, n, "SLI/AA video path off for a reset (no 3D writes)");
+    warn = sli_disable_video(io, n);
+    lg(io, VCR_SLI_S_OFF_DONE, n, 0, (vcr_u32)warn, "SLI/AA video path off: done");
     return warn;
 }
 

@@ -97,6 +97,11 @@ typedef struct vcr_info {
     vcr_u32 mon_product;
     char    mon_name[16];
     vcr_u8  edid[128];          /* the block as read */
+    /* where the mon_* limits came from (appended): VCR_MON_SRC_* of
+     * vcr_edid.h - 1 EDID, 2 SAME, 3 ENVELOPE, 4 DEFAULT, 0 none (filter off
+     * or a virtual display). edid_ok alone cannot tell a same-monitor range
+     * from the envelope or the default, and the host gate must. */
+    vcr_u32 mon_src;
 } vcr_info;
 #define VCR_INFO_F_ALLOW_POKE   0x1
 #define VCR_INFO_F_NO_TEXPORT   0x8     /* Diag\\TexPortFlush = 0: no texture-port write in the flush */

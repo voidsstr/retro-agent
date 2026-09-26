@@ -17,6 +17,15 @@ mean brightness of each chip's band rows, so "chip 2 drew nothing" is a
 number and not an impression.
 
     sli_shot.py 192.168.1.124 --cfg 5 --res 1024x768 --label vcrkmd
+
+THE GAME SWITCHES THE MONITOR: Quake II through our ICD goes fullscreen at
+--res and picks the highest refresh the driver lists at that size. So before
+anything changes on the box, that mode - the highest refresh `vcrctl modes`
+lists at WxH, at any depth - is checked on the host against the monitor's
+EDID ranges (mode_sweep.py's gate). Under another driver that needs
+--monitor-info: a `vcrctl info` saved from OUR driver on this box, used only
+once the box's registry says that monitor is the one on it (or, when it
+cannot say, with --i-have-checked-the-monitor). A refusal is rc 2.
 """
 import argparse
 import asyncio
@@ -29,10 +38,13 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.path.insert(0, str(REPO / "scripts" / "benchmarks"))
+sys.path.insert(0, str(HERE))
 import v56k_bench as vb      # noqa: E402
 import v56k_shots as vs      # noqa: E402
+import mode_sweep as ms      # noqa: E402  (the monitor gate every switching tool shares)
 
 OUT = HERE.parent / "evidence" / "sli_shots"
+TOOL = r"C:\vcr\vcrctl.exe"
 
 
 class Q2AllOursShot(vs.ShotTitle, vb.Quake2AllOurs):
@@ -74,10 +86,21 @@ def band_report(png_img, chips, nlines):
 async def main_async(a):
     from PIL import Image
     box = vb.Box(a.host)
+    w, h = (int(v) for v in a.res.lower().split("x"))
+    # the gate first, before the config is written or the game switches
+    # anything: vcrctl answers which monitor and which modes
+    await box.cmd(r"MKDIR C:\vcr")         # an existing one answers an error: fine
+    await box.upload(TOOL, (HERE.parent / "out" / "vcrctl.exe").read_bytes())
+    rng, calc, modes, why = await ms.fullscreen_gate(box.cmd, TOOL, [(w, h, a.depth, True)],
+                                                     a.monitor_info,
+                                                     a.i_have_checked_the_monitor)
+    if why:
+        ms.refuse(why)
+        return 2
+    print(f"the game's mode {modes[0]}  {ms.rates(calc, modes[0])}\n  monitor {ms.describe(rng)}")
     inst, _ = await vb.find_display_instance(box)
     key = vb.GLIDE_KEY_TMPL.format(inst=inst)
     await vb.apply_aa_config(box, key, a.cfg)
-    w, h = (int(v) for v in a.res.lower().split("x"))
     t = Q2AllOursShot(a.frames, a.start)
     await t.identify(box)
     res, err = await t.capture(a.host, w, h, a.depth, {"FX_GLIDE_SWAPINTERVAL": "0"},
@@ -115,6 +138,12 @@ def main():
     ap.add_argument("--nlines", type=int, default=8,
                     help="SLI band height the config uses, for the band report")
     ap.add_argument("--timeout", type=int, default=240)
+    ap.add_argument("--monitor-info", help="a `vcrctl info` saved from OUR driver on this box: "
+                    "the monitor's EDID ranges when the installed driver is not ours (used "
+                    "only when the registry says that monitor is the one on the box)")
+    ap.add_argument(ms.CHECKED_FLAG, action="store_true",
+                    help="with --monitor-info: go on when the box's registry cannot confirm the "
+                         "monitor - only after looking at it (a different one is still refused)")
     a = ap.parse_args()
     sys.exit(asyncio.run(main_async(a)))
 

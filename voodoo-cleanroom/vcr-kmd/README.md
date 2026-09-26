@@ -208,8 +208,39 @@ child. On `.124`: the Sony CPD-G200 (H 30-96 kHz, V 48-120 Hz, 260 MHz), 210
 -> 204 modes (1600x1200@85 at 106 kHz is gone), no New Hardware wizard, and
 the agent's `GAMERES` sees the monitor again (native 1024x768@85). The vendor
 list is a fixed 3dfx table (1600x1200 stops at 70 Hz whatever the monitor);
-ours offers what THIS monitor accepts. `Diag\Ddc`=0 / `Diag\EdidFilter`=0
-switch it off.
+ours offers what THIS monitor accepts. The list is never unfiltered for want
+of an EDID (monitor off at boot, a KVM, a bad checksum, `Diag\Ddc`=0, which
+only skips the read). The limits in force come from, in order:
+
+- **EDID** (`mon_src` 1) - the range descriptor read this boot;
+- **SAME** (2) - an EDID without range limits gets the persisted range only if
+  `Diag\MonId` says it is the same monitor; any other range-less EDID gets the
+  default;
+- **ENVELOPE** (3) - no EDID at all: `Diag\MonHminKhz`..`MonMaxPixclkKhz`,
+  narrowed on every good EDID to the intersection of every monitor this box
+  has seen, **intersected with the default**. The envelope only knows the
+  tubes whose EDID was read, and a DDC-less tube or one behind a KVM is
+  exactly the no-EDID case, never narrowed into it - so it may narrow the
+  default (a 56 Hz panel floor), never widen it. `Diag\MonTrustEnvelope`=1
+  (default 0) uses the bare envelope for an operator who knows which tube sits
+  behind the KVM, and logs a WARN every boot it does;
+- **DEFAULT** (4) - nothing usable known (or an empty envelope): H 30-48 kHz /
+  V 50-75 Hz / 80 MHz, safe for any monitor - 640x480@60-75, 800x600@56-75 and
+  1024x768@60 (48.4 kHz, in the +0.5 kHz slack), no 1024x768@70 and up, no
+  1280x1024. (The first default, 70 kHz / 85 Hz / 135 MHz, claimed "any CRT of
+  the era"; 14" and 15" CRTs of 1995-98 stop at 38-60 kHz.)
+
+Each fallback is a WARN naming its source, and `vcrctl info` reports it as
+`"mon_src":N` (0 = no filter: `Diag\EdidFilter`=0 or a virtual display) - the
+host's mode gates trust only 1 and 2. `Diag\MonReset`=1 forgets the envelope
+when a tube leaves the box for good (the driver sets it back to 0). Only
+`Diag\EdidFilter`=0 lists every mode, and it logs a WARN saying so. A desktop
+persisted in a mode the current limits no longer list (1280x1024 on a boot
+with the monitor off) is not failed over to the VGA driver: the display DLL
+takes the largest listed mode inside it (then any depth, then 640x480) and
+logs the swap at WARN. And a bugcheck or shutdown in 4-chip SLI first gives
+the master back its own video clock (cfgVideoCtrl0, raw config cycles legal
+at any IRQL), so the HAL's text screen is not scanned from the SLI clock.
 
 **DIRECTDRAW (2026-09-26, proven in the VM test bed; on the V5 6000 next).**
 The display DLL carries a DirectDraw HAL (`display/vcrdd_ddraw.c`, built
@@ -358,7 +389,9 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
 - The vendor desktop is **tiled** with a **hardware cursor**, placed at the top
   of video memory; ours is linear with a software cursor for now.
 - `.124` offers 1600x1200 only up to 70 Hz through the vendor driver: its mode
-  list is filtered by the monitor. Ours is not yet (no DDC) — see roadmap.
+  list is a fixed 3dfx table. Ours is filtered by the monitor's EDID range
+  (DDC, 2026-09-26 - see THE MONITOR above), so it offers 1600x1200@75 on the
+  Sony and refuses @85.
 
 ## Roadmap
 

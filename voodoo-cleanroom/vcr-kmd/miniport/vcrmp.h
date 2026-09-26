@@ -158,6 +158,7 @@ typedef struct VCR_EXT {
     UCHAR     edid[VCR_EDID_BLOCK];
     ULONG     edid_ok;
     vcr_edid_info mon;
+    ULONG     mon_src;              /* VCR_MON_SRC_*: where x->caps' limits came from */
 
     /* stable-boot timer */
     ULONG     seconds;
@@ -216,6 +217,11 @@ ULONG   VcrClock6k(VCR_EXT *x, ULONG pllctrl0);
 void    VcrMultiInit(VCR_EXT *x);                     /* place + map the slaves */
 VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out);
 void    VcrSliOff(VCR_EXT *x, const char *why);       /* no-op when SLI is off */
+/* vcrmp_sli.c: the video half of the SLI/AA disable, for the reset path (any
+ * IRQL with any-IRQL accessors). Declared here because the miniport is its
+ * only caller; its natural home is include/vcr_sli.h. */
+struct vcr_sli_io;
+int     vcr_sli_reset_video(const struct vcr_sli_io *io, vcr_u32 n);
 
 /* ---- vcrmp_ddc.c: the monitor ----------------------------------------------- */
 void    VcrMonitorInit(VCR_EXT *x);                   /* EDID over DDC, mode limits */

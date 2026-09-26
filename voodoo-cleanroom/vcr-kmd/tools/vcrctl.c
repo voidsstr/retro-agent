@@ -24,16 +24,56 @@
  *   pci <target> <hexoff>  our driver: read PCI config (target 0-3, 16 = bridge)
  *   modes                  any driver: EnumDisplaySettings
  *   setmode W H BPP [HZ]   any driver: ChangeDisplaySettings, with the result
+ *                          (paced; the mode is held until the floor has passed)
  *   hwc                    any driver: the Glide HWCEXT handshake + mapping
  *                          validation exactly as our Glide checks it
  *   hwcregs                any driver: IO registers + CRTC through the mapping
- *   golden W H BPP HZ      any driver: setmode, then hwcregs
+ *   golden W H BPP HZ      any driver: setmode, then hwcregs (paced, held)
  *   gdi                    any driver: GDI draw + read-back pattern test
  *   modetest W H BPP HZ    switch + GDI test + registers in ONE process (a
- *                          CDS_FULLSCREEN mode reverts when its process exits)
+ *                          CDS_FULLSCREEN mode reverts when its process exits);
+ *                          paced, held, and the restore is paced
  *   ddraw W H BPP [HZ]     any driver: Glide's route to fullscreen (DirectDraw
- *                          exclusive + SetDisplayMode + RestoreDisplayMode)
- *   restore                ChangeDisplaySettings(NULL) - back to the registry mode
+ *                          exclusive + SetDisplayMode + RestoreDisplayMode);
+ *                          the mode is held for the floor, not flashed
+ *   modeseq PACE_MS W H BPP HZ [W H BPP HZ ...]
+ *                          modetest over a LIST in ONE process: no bounce back
+ *                          to the desktop between modes (every switch re-syncs
+ *                          the monitor, and a CRT clicks its relays at each
+ *                          band change), at least max(PACE_MS,
+ *                          MODESEQ_MIN_PACE_MS) between switches - the first
+ *                          one included - whatever the caller asks, at most
+ *                          MODESEQ_MAX_MODES modes, one restore at the end.
+ *                          PACE_MS is decimal 0..30000 (VCR_PACE_MAX_MS);
+ *                          anything else is refused before anything switches.
+ *                          One at a time: a named mutex, and a second run
+ *                          answers "busy":true without switching anything.
+ *                          To stop it from the host, create C:\vcr\modeseq.stop:
+ *                          it is seen before the next switch and deleted, and
+ *                          the run restores once (paced) and reports
+ *                          "stopped":true
+ *   restore                ChangeDisplaySettings(NULL) - back to the registry
+ *                          mode (paced)
+ *   pace-mark              stamp the box's last-switch time NOW (vcr_pace.h)
+ *                          and switch nothing. For the host, right after it
+ *                          KILLS a tool that may have held a temporary mode
+ *                          (PROCKILL, EXECW's tree-kill on timeout, taskkill
+ *                          /f): XP reverted that mode as the process died, a
+ *                          kill runs no exit hold, and without the stamp the
+ *                          next switch is measured from the killed tool's last
+ *                          recorded one - possibly straight after the revert
+ *   pace-kill PID          the kill made AS a switch, instead of a kill and a
+ *                          pace-mark: under the pace lock, a floor after the
+ *                          latest stamp, TerminateProcess, up to 10 s for it
+ *                          to be gone, the revert stamped 5 s ahead. Only a
+ *                          vcrctl / ddlab / d3dprobe / glidelab process - never
+ *                          pid 0 or 4, never itself, never the agent. Answers
+ *                          {"cmd":"pace-kill","ok":..,"pid":N,"exited":..};
+ *                          "ok":false with "pace lock busy" when the victim
+ *                          (or another tool) is stuck holding the lock - then
+ *                          nothing was killed, and the host kills it by no
+ *                          other route (a plain kill reverts its mode
+ *                          unpaced): the survivor is reported for a person
  *   dump [path]            the flight recorder + bugcheck out of a crash dump,
  *                          scanned on the box (dumps exceed the agent's frames)
  *   probe-vga [HEXBASE]    vcrprobe.sys: the whole VGA register file (legacy
@@ -42,6 +82,20 @@
  *                          (raw = 0xCF8 cycles: the V5's slave functions)
  *   probe-mem HEXPHYS LEN  vcrprobe.sys: physical memory, read only (<= 4 KB)
  *   (hwcregs/golden add the VGA file when vcrprobe.sys is loaded)
+ *
+ * Every command that changes the display mode (setmode, golden, modetest,
+ * ddraw, modeseq, restore) goes through vcr_pace.h: at least 3 s since the
+ * last switch by ANY tool on the box, and a temporary mode held 3 s before it
+ * is given back - by us, or by XP when this process exits or crashes. Each
+ * switch is a monitor re-sync; on 2026-09-26 a sweep on .124 did ~250 of them
+ * at two a second to a 1998 Sony CRT, and the user heard every relay click.
+ * A switch the gate cannot pace (its lock held by a stuck tool, a stamp that
+ * never stops moving) is NOT made: the command answers "ok":false with
+ * "error":"pace lock busy" (or "pace floor never passed") and switches
+ * nothing more - a mode it already holds is left for the exit hold, which
+ * paces XP's revert. The one exit no process can pace is being killed: a
+ * host kills a vcrctl (or a lab) with `vcrctl pace-kill`, or runs
+ * `vcrctl pace-mark` after any other kill.
  */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -55,6 +109,10 @@
 #include "vcr_hwcext.h"
 #include "vcr_regs.h"
 #include "vcr_probe.h"
+#include <tlhelp32.h>
+/* vcr_pace.h's paced kill (pace-kill), which only this tool compiles */
+#define VCR_PACE_WANT_KILL
+#include "vcr_pace.h"
 
 static HDC g_dc;
 
@@ -108,7 +166,14 @@ static int cmd_info(void)
            v.mon_hmax_khz, v.mon_vmin_hz, v.mon_vmax_hz, v.mon_max_pixclk_khz);
     for (i = 0; i < (int)sizeof v.edid; i++)
         printf("%02x", v.edid[i]);
-    printf("\"}\n");
+    /* whose limits mon_* are (VCR_MON_SRC_*: 1 EDID, 2 SAME, 3 ENVELOPE,
+     * 4 DEFAULT, 0 none). A driver built before the field was appended fills
+     * a shorter struct and says so in size: null then, not a 0 that would
+     * read as "filter off" */
+    if (v.size >= FIELD_OFFSET(vcr_info, mon_src) + sizeof v.mon_src)
+        printf("\",\"mon_src\":%u}\n", v.mon_src);
+    else
+        printf("\",\"mon_src\":null}\n");
     return 0;
 }
 
@@ -477,9 +542,20 @@ static int cmd_modes(void)
     return 0;
 }
 
+/* What set_mode answers when vcr_pace.h refused the switch (its lock busy, or
+ * the floor never passed - g_vcr_pace_why): not a DISP_CHANGE_* value, and
+ * nothing was switched, so there is nothing to give back either. */
+#define CDS_NOT_MADE (-1000L)
+
+/* The one place this tool switches INTO a mode, so setmode, golden, modetest
+ * and modeseq are all paced by construction. The attempt is recorded even
+ * when it FAILS: a driver can program the CRTC and then fail the switch, and
+ * the monitor re-syncs just the same - an unrecorded one is how a retry loop
+ * turns into the 2026-09-26 burst on .124. */
 static LONG set_mode(DWORD w, DWORD h, DWORD bpp, DWORD hz)
 {
     DEVMODEA dm;
+    LONG r;
     memset(&dm, 0, sizeof dm);
     dm.dmSize = sizeof dm;
     dm.dmPelsWidth = w;
@@ -490,7 +566,30 @@ static LONG set_mode(DWORD w, DWORD h, DWORD bpp, DWORD hz)
         dm.dmDisplayFrequency = hz;
         dm.dmFields |= DM_DISPLAYFREQUENCY;
     }
-    return ChangeDisplaySettingsA(&dm, CDS_FULLSCREEN);
+    if (!vcr_pace_before_switch())
+        return CDS_NOT_MADE;
+    r = ChangeDisplaySettingsA(&dm, CDS_FULLSCREEN);
+    vcr_pace_after_switch();            /* CDS_FULLSCREEN: XP reverts it at exit */
+    return r;
+}
+
+/* After a give-back (ChangeDisplaySettings(NULL) or RestoreDisplayMode) that
+ * the caller paced going in like any switch. One that FAILED leaves the
+ * temporary mode up for XP to revert when this process exits - one more
+ * re-sync - so it is recorded as still holding one, and vcr_pace.h's exit
+ * hook waits out the floor before that revert. Never retried: a restore
+ * failing in a loop is a burst of re-syncs, the very thing the 2026-09-26
+ * .124 sweep did to the CRT. */
+static void pace_gave_back(int ok)
+{
+    vcr_pace_after_switch_ex(!ok);
+}
+
+/* ,"error":"<why vcr_pace.h refused>" after a switch that was not made */
+static void print_not_made(LONG r)
+{
+    if (r == CDS_NOT_MADE)
+        printf(",\"error\":\"%s\"", g_vcr_pace_why);
 }
 
 static int cmd_setmode(DWORD w, DWORD h, DWORD bpp, DWORD hz)
@@ -501,9 +600,11 @@ static int cmd_setmode(DWORD w, DWORD h, DWORD bpp, DWORD hz)
     dm.dmSize = sizeof dm;
     EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &dm);
     printf("{\"cmd\":\"setmode\",\"ok\":%s,\"result\":%ld,\"asked\":\"%lux%lux%lu@%lu\","
-           "\"current\":\"%lux%lux%lu@%lu\"}\n", r == DISP_CHANGE_SUCCESSFUL ? "true" : "false",
+           "\"current\":\"%lux%lux%lu@%lu\"", r == DISP_CHANGE_SUCCESSFUL ? "true" : "false",
            r, w, h, bpp, hz, dm.dmPelsWidth, dm.dmPelsHeight, dm.dmBitsPerPel,
            dm.dmDisplayFrequency);
+    print_not_made(r);
+    printf("}\n");
     return r == DISP_CHANGE_SUCCESSFUL ? 0 : 1;
 }
 
@@ -659,6 +760,11 @@ static int cmd_golden(DWORD w, DWORD h, DWORD bpp, DWORD hz)
 {
     char tag[64];
     LONG r = set_mode(w, h, bpp, hz);
+    if (r == CDS_NOT_MADE) {
+        printf("{\"cmd\":\"golden\",\"ok\":false,\"error\":\"%s\","
+               "\"asked\":\"%lux%lux%lu@%lu\"}\n", g_vcr_pace_why, w, h, bpp, hz);
+        return 1;
+    }
     if (r != DISP_CHANGE_SUCCESSFUL) {
         printf("{\"cmd\":\"golden\",\"ok\":false,\"error\":\"ChangeDisplaySettings %ld\","
                "\"asked\":\"%lux%lux%lu@%lu\"}\n", r, w, h, bpp, hz);
@@ -789,7 +895,13 @@ static int cmd_gdi(void)
 
 /* The path Glide takes to its fullscreen mode (minihwc/win_mode.c):
  * DirectDrawCreate, EXCLUSIVE|FULLSCREEN, SetDisplayMode(w, h, bpp, refresh),
- * then RestoreDisplayMode. ddraw.dll is loaded at run time. */
+ * then RestoreDisplayMode. ddraw.dll is loaded at run time.
+ * FOCUS: unlike the labs this needs no WM_ACTIVATEAPP handler. DirectDraw gives
+ * the desktop back on a deactivation from its hook on the window's messages,
+ * and this thread dispatches none between the switch in and the paced
+ * restore (the hold is a Sleep inside vcr_pace.h), so a lost foreground cannot
+ * make it switch behind the gate's back. Keep it that way: a message pump
+ * added here needs the labs' handler too. */
 typedef HRESULT (WINAPI *PFN_DDCREATEEX)(GUID *, LPVOID *, REFIID, IUnknown *);
 
 static int cmd_ddraw(DWORD w, DWORD h, DWORD bpp, DWORD hz)
@@ -802,6 +914,8 @@ static int cmd_ddraw(DWORD w, DWORD h, DWORD bpp, DWORD hz)
     HWND wnd;
     HRESULT hr, hr_coop = 0, hr_mode = 0, hr_restore = 0;
     DEVMODEA during;
+    int switched = 0, left = 0;         /* left: the mode is left up for the exit hold */
+    const char *why = NULL;             /* why vcr_pace.h refused a switch */
 
     if (!create)
         return fail("ddraw", "no DirectDrawCreateEx");
@@ -814,23 +928,58 @@ static int cmd_ddraw(DWORD w, DWORD h, DWORD bpp, DWORD hz)
         return 1;
     }
     hr_coop = IDirectDraw7_SetCooperativeLevel(dd, wnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
-    if (SUCCEEDED(hr_coop))
-        hr_mode = IDirectDraw7_SetDisplayMode(dd, w, h, bpp, hz, 0);
+    if (SUCCEEDED(hr_coop)) {
+        /* refused: no SetDisplayMode, and leaving exclusive mode below
+         * changes no mode, since DirectDraw changed none */
+        if (!vcr_pace_before_switch()) {
+            why = g_vcr_pace_why;
+        } else {
+            hr_mode = IDirectDraw7_SetDisplayMode(dd, w, h, bpp, hz, 0);
+            vcr_pace_after_switch();    /* recorded even if it failed: see set_mode */
+            switched = 1;
+        }
+    }
     memset(&during, 0, sizeof during);
     during.dmSize = sizeof during;
     EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &during);
-    Sleep(500);
-    hr_restore = IDirectDraw7_RestoreDisplayMode(dd);
-    IDirectDraw7_SetCooperativeLevel(dd, wnd, DDSCL_NORMAL);
-    IDirectDraw7_Release(dd);
-    DestroyWindow(wnd);
+    if (switched) {
+        /* this was a fixed 500 ms: in and out of a mode inside a second, two
+         * re-syncs the tube cannot finish. Now the mode is held for the floor.
+         * Refused, it is not given back here by ANY route - RestoreDisplayMode,
+         * leaving exclusive mode and the Release all would, unpaced - but left
+         * for XP to revert at exit, after vcr_pace.h's exit hold */
+        if (!vcr_pace_before_switch()) {
+            why = g_vcr_pace_why;
+            left = 1;
+        } else {
+            hr_restore = IDirectDraw7_RestoreDisplayMode(dd);
+            pace_gave_back(SUCCEEDED(hr_restore));
+            /* DirectDraw puts back a mode it changed when exclusive mode ends,
+             * so after a FAILED restore, leaving exclusive mode can be a
+             * second attempt at once - pace it as the switch it may be */
+            if (FAILED(hr_restore) && !vcr_pace_before_switch()) {
+                why = g_vcr_pace_why;
+                left = 1;
+            }
+        }
+    }
+    if (!left) {
+        IDirectDraw7_SetCooperativeLevel(dd, wnd, DDSCL_NORMAL);
+        IDirectDraw7_Release(dd);
+        if (FAILED(hr_restore))
+            vcr_pace_after_switch();    /* state unknown: hold again before exit */
+        DestroyWindow(wnd);
+    }
     printf("{\"cmd\":\"ddraw\",\"ok\":%s,\"asked\":\"%lux%lux%lu@%lu\",\"coop\":\"%08lx\","
-           "\"setmode\":\"%08lx\",\"restore\":\"%08lx\",\"during\":\"%lux%lux%lu@%lu\"}\n",
-           SUCCEEDED(hr_coop) && SUCCEEDED(hr_mode) && during.dmPelsWidth == w &&
+           "\"setmode\":\"%08lx\",\"restore\":\"%08lx\",\"during\":\"%lux%lux%lu@%lu\"",
+           switched && !why && SUCCEEDED(hr_coop) && SUCCEEDED(hr_mode) && during.dmPelsWidth == w &&
            during.dmBitsPerPel == bpp ? "true" : "false",
            w, h, bpp, hz, hr_coop, hr_mode, hr_restore, during.dmPelsWidth,
            during.dmPelsHeight, during.dmBitsPerPel, during.dmDisplayFrequency);
-    return SUCCEEDED(hr_mode) ? 0 : 1;
+    if (why)
+        printf(",\"error\":\"%s\",\"left_for_exit\":%s", why, left ? "true" : "false");
+    printf("}\n");
+    return switched && !why && SUCCEEDED(hr_mode) ? 0 : 1;
 }
 
 
@@ -840,7 +989,22 @@ static int cmd_ddraw(DWORD w, DWORD h, DWORD bpp, DWORD hz)
  * A sweep that switched in one process and tested in the next tested the
  * desktop mode every time. So: switch, draw + read back, and read the
  * registers (VCR_ESC_SNAPSHOT) before this process ends. */
-static int cmd_modetest(DWORD w, DWORD h, DWORD bpp, DWORD hz)
+
+/* The flight recorder's next sequence number AFTER a mode: the host
+ * attributes log entries to modes by these boundaries - and a switch that
+ * FAILED is the one whose entries it most needs. */
+static void print_log_next_seq(void)
+{
+    vcr_info v;
+    memset(&v, 0, sizeof v);
+    if (esc(VCR_ESC_INFO, NULL, 0, &v, sizeof v) > 0)
+        printf(",\"log_next_seq\":%u", v.log_next_seq);
+}
+
+/* modetest_one's answer when vcr_pace.h refused the switch: nothing switched */
+#define MODETEST_NOT_MADE 2
+
+static int modetest_one(DWORD w, DWORD h, DWORD bpp, DWORD hz, int seq_index)
 {
     static vcr_snapshot snap;
     int band[4], bad, attempts, i, have_snap;
@@ -850,9 +1014,15 @@ static int cmd_modetest(DWORD w, DWORD h, DWORD bpp, DWORD hz)
     cur.dmSize = sizeof cur;
     EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &cur);
     if (r != DISP_CHANGE_SUCCESSFUL) {
-        printf("{\"cmd\":\"modetest\",\"ok\":false,\"result\":%ld,\"asked\":\"%lux%lux%lu@%lu\"}\n",
-               r, w, h, bpp, hz);
-        return 1;
+        printf("{\"cmd\":\"modetest\",\"ok\":false,\"index\":%d,\"result\":%ld,"
+               "\"asked\":\"%lux%lux%lu@%lu\"", seq_index, r, w, h, bpp, hz);
+        print_not_made(r);
+        print_log_next_seq();
+        printf("}\n");
+        /* out NOW: a host timeout tree-kills a modeseq, and a line still in
+         * the pipe buffer is a failed mode nobody hears about */
+        fflush(stdout);
+        return r == CDS_NOT_MADE ? MODETEST_NOT_MADE : 1;
     }
     bad = gdi_test(band, &attempts);
     have_snap = esc(VCR_ESC_SNAPSHOT, NULL, 0, &snap, sizeof snap) > 0;
@@ -872,15 +1042,269 @@ static int cmd_modetest(DWORD w, DWORD h, DWORD bpp, DWORD hz)
         print_bytes("crtc", k->crtc, sizeof k->crtc);
         printf("}]}");
     }
-    printf("}\n");
-    ChangeDisplaySettingsA(NULL, 0);
+    print_log_next_seq();
+    printf(",\"index\":%d}\n", seq_index);
+    fflush(stdout);
     return bad ? 1 : 0;
+}
+
+static int cmd_modetest(DWORD w, DWORD h, DWORD bpp, DWORD hz)
+{
+    int rc = modetest_one(w, h, bpp, hz, 0);
+    LONG r = CDS_NOT_MADE;
+    if (rc == MODETEST_NOT_MADE)
+        return 1;                       /* nothing switched: nothing to give back */
+    /* holds the tested mode for the floor. Refused, the mode stays up for
+     * XP to revert at exit, after vcr_pace.h's exit hold - never given back
+     * unpaced */
+    if (vcr_pace_before_switch()) {
+        r = ChangeDisplaySettingsA(NULL, 0);
+        pace_gave_back(r == DISP_CHANGE_SUCCESSFUL);
+    }
+    if (r != DISP_CHANGE_SUCCESSFUL) {
+        /* a second line only when it matters: the box may be left in the
+         * test mode, and the modetest line alone would not say so */
+        printf("{\"cmd\":\"restore\",\"ok\":false,\"result\":%ld,\"after\":\"modetest\"", r);
+        print_not_made(r);
+        printf("}\n");
+        rc = 1;
+    }
+    return rc;
+}
+
+/* Every mode switch makes the monitor lose and re-acquire sync; on a CRT a
+ * change of horizontal-frequency band also clicks its mode relays and steps
+ * the high voltage. A sweep of 123 modes with a return to the desktop after
+ * each one was ~250 re-syncs at two a second (.124, 2026-09-26) - needless
+ * wear on a 1998 tube. These limits are enforced HERE, in the tool that
+ * switches, and every switch - the first, each mode, the restore - waits on
+ * vcr_pace.h's floor, which is measured from the last switch made by ANY
+ * process on the box. So no caller can fire switches faster than a person
+ * would: not by a short PACE_MS, not by running modeseq back to back, not by
+ * running two at once (the mutex below). */
+#define MODESEQ_MIN_PACE_MS 3000
+#define MODESEQ_MAX_MODES   16
+/* the literal above is what the safety test reads; it must not undercut the
+ * shared floor, or the usage text would promise a pace the gate overrides */
+#if MODESEQ_MIN_PACE_MS < VCR_PACE_MIN_MS
+#error "MODESEQ_MIN_PACE_MS is below vcr_pace.h's floor"
+#endif
+
+/* Stopping from the host. Killing the process (a PROCKILL, an EXECW timeout)
+ * skips the exit hold: XP drops the test mode the instant the process dies,
+ * possibly right after a switch - two re-syncs back to back. A file the loop
+ * looks for before each switch lets the run end the civil way: finish the
+ * mode it is in, hold it, restore once. The file is consumed so the next run
+ * is not stopped by it; one left over from a finished run stops the next run
+ * before its first switch, which fails safe (nothing switched, it says so). */
+#define MODESEQ_STOP_FILE "C:\\vcr\\modeseq.stop"
+/* One run at a time: two sweeps share the floor's timestamp file but race
+ * between reading it and switching, and a host that times out and re-issues
+ * a sweep while the first is still running would double the re-syncs. */
+#define MODESEQ_MUTEX     "vcrctl-modeseq"
+
+static int modeseq_stop_asked(void)
+{
+    if (GetFileAttributesA(MODESEQ_STOP_FILE) == INVALID_FILE_ATTRIBUTES)
+        return 0;
+    DeleteFileA(MODESEQ_STOP_FILE);
+    return 1;
+}
+
+static int cmd_modeseq(int argc, char **argv)
+{
+    DWORD pace = 0, got;
+    int n = (argc - 3) / 4, i, bad = 0, stopped = 0;
+    LONG r = DISP_CHANGE_SUCCESSFUL;
+    const char *refused = NULL;         /* why vcr_pace.h refused a switch */
+    HANDLE one;
+    if (n < 1 || (argc - 3) % 4)
+        return fail("modeseq", "usage: modeseq PACE_MS W H BPP HZ [W H BPP HZ ...]");
+    if (n > MODESEQ_MAX_MODES)
+        return fail("modeseq", "too many modes for one run (each is a monitor re-sync)");
+    /* strtoul took "-1" as 0xFFFFFFFF: a pace nobody meant, on every switch
+     * of the run. Refused here, before anything switches */
+    if (!vcr_pace_parse_ms(argv[2], &pace))
+        return fail("modeseq", "PACE_MS must be decimal milliseconds, 0 to 30000");
+    if (pace < MODESEQ_MIN_PACE_MS)
+        pace = MODESEQ_MIN_PACE_MS;
+    /* WAIT_ABANDONED is ours too: its owner has exited, and a run that
+     * crashed is not a run in progress */
+    one = CreateMutexA(NULL, FALSE, MODESEQ_MUTEX);
+    got = one ? WaitForSingleObject(one, 0) : WAIT_FAILED;
+    if (got != WAIT_OBJECT_0 && got != WAIT_ABANDONED) {
+        if (one)
+            CloseHandle(one);
+        printf("{\"cmd\":\"modeseq\",\"ok\":false,\"busy\":true,\"error\":\"another modeseq "
+               "is running - one sweep at a time\"}\n");
+        return 1;
+    }
+    /* the caller's pace governs every wait in this process, the first
+     * switch's included: the previous tool's last switch may be a moment ago */
+    vcr_pace_set_min(pace);
+    for (i = 0; i < n; i++) {
+        char **m = argv + 3 + 4 * i;
+        int go, t;
+        /* wait out the floor BEFORE looking for the stop file, so a stop that
+         * arrives during the wait is honoured before this switch, not after.
+         * set_mode paces the same switch again inside modetest_one: nested in
+         * this wait, it does not wait a second floor */
+        go = vcr_pace_before_switch();
+        if (modeseq_stop_asked()) {
+            stopped = 1;
+            /* waited for a switch it will not make: give the pace lock back
+             * (a no-op when it was refused), or the next tool finds it
+             * abandoned and waits a floor for nothing */
+            vcr_pace_cancel();
+            break;
+        }
+        if (!go) {
+            /* the gate could not pace this switch: none is made, and the run
+             * ends here - the mode it is in is given back below if the gate
+             * lets it, else held for XP's revert by the exit hold */
+            refused = g_vcr_pace_why;
+            break;
+        }
+        t = modetest_one(atoi(m[0]), atoi(m[1]), atoi(m[2]), atoi(m[3]), i);
+        if (t == MODETEST_NOT_MADE) {   /* cannot happen nested; said, not assumed */
+            refused = g_vcr_pace_why;
+            break;
+        }
+        bad += t;
+    }
+    /* stopped before the first mode: nothing of ours to give back, and a
+     * restore would be one more re-sync for nothing */
+    if (i) {
+        /* the restore is a switch too: held, paced, and never retried - and
+         * when the gate refuses it, not made at all (the exit hold paces the
+         * revert XP makes instead) */
+        if (vcr_pace_before_switch()) {
+            stopped |= modeseq_stop_asked();    /* consume a stop that came in late */
+            r = ChangeDisplaySettingsA(NULL, 0);
+            pace_gave_back(r == DISP_CHANGE_SUCCESSFUL);
+        } else {
+            r = CDS_NOT_MADE;
+            if (!refused)
+                refused = g_vcr_pace_why;
+        }
+    }
+    printf("{\"cmd\":\"modeseq\",\"ok\":%s,\"modes\":%d,\"ran\":%d,\"failed\":%d,"
+           "\"stopped\":%s,\"pace_ms\":%lu,\"restore\":%ld",
+           !bad && !stopped && !refused && r == DISP_CHANGE_SUCCESSFUL ? "true" : "false", n, i,
+           bad, stopped ? "true" : "false", pace, r);
+    if (refused)
+        printf(",\"error\":\"%s\"", refused);
+    printf("}\n");
+    /* `one` is deliberately NOT released: after a failed restore the exit
+     * hold still has to run, and a queued second run must not switch in the
+     * moment XP reverts ours. Process exit releases it. */
+    return bad || stopped || refused || r != DISP_CHANGE_SUCCESSFUL;
+}
+
+/* The host's half of the exit hold (see the usage above). Deliberately
+ * without the pace lock: the stamp must carry the time of the kill's revert,
+ * not the moment a lock came free, and a tool waiting under the lock reads
+ * the stamp again after every sleep, so it still sees this one. */
+static int cmd_pace_mark(void)
+{
+    if (!vcr_pace_mark())       /* vcr_pace.h has said why on stderr */
+        return fail("pace-mark", "cannot write the switch stamp C:\\\\vcr\\\\lastswitch.dat");
+    printf("{\"cmd\":\"pace-mark\",\"ok\":true}\n");
+    return 0;
+}
+
+/* The image name of a live process, from a Toolhelp snapshot (XP has it).
+ * 0 = no such process in the list. */
+static int image_of(DWORD pid, char *out, int outlen)
+{
+    PROCESSENTRY32 pe;
+    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    int found = 0;
+    if (snap == INVALID_HANDLE_VALUE)
+        return 0;
+    memset(&pe, 0, sizeof pe);
+    pe.dwSize = sizeof pe;
+    if (Process32First(snap, &pe)) {
+        do {
+            if (pe.th32ProcessID == pid) {
+                _snprintf(out, outlen, "%s", pe.szExeFile);
+                out[outlen - 1] = 0;
+                found = 1;
+                break;
+            }
+        } while (Process32Next(snap, &pe));
+    }
+    CloseHandle(snap);
+    return found;
+}
+
+static int pace_kill_answer(DWORD pid, int ok, int exited, const char *image, const char *why,
+                            DWORD err)
+{
+    printf("{\"cmd\":\"pace-kill\",\"ok\":%s,\"pid\":%lu,\"exited\":%s",
+           ok ? "true" : "false", pid, exited ? "true" : "false");
+    if (image)
+        printf(",\"image\":\"%s\"", image);
+    if (why)
+        printf(",\"error\":\"%s\"", why);
+    if (err)
+        printf(",\"win32_error\":%lu", err);
+    printf("}\n");
+    return ok ? 0 : 1;
+}
+
+/* A host that must stop a tool (its budget ran out, a sweep is being
+ * abandoned) kills it THROUGH the gate instead of around it: a PROCKILL or
+ * EXECW's tree-kill drops the tool's mode the instant it dies, possibly right
+ * after a switch, and records nothing. Only our own mode-switching tools, so
+ * this cannot be pointed at the agent or the system. The process is OPENED
+ * before its image is checked: the open handle pins the pid, which then
+ * cannot be recycled for another process between the check and the kill. */
+static int cmd_pace_kill(const char *arg)
+{
+    DWORD pid = 0, err = 0;
+    char image[MAX_PATH];
+    const char *why, *p, *img;
+    HANDLE proc;
+    int r, exited = 0;
+    for (p = arg; *p >= '0' && *p <= '9' && pid <= 0x0fffffffu; p++)
+        pid = pid * 10 + (DWORD)(*p - '0');
+    if (p == arg || *p)
+        return pace_kill_answer(pid, 0, 0, NULL, "PID must be a decimal process id", 0);
+    why = vcr_pace_kill_pid_refusal(pid, GetCurrentProcessId());
+    if (why)                            /* pid 0, 4 or itself: refused before any open */
+        return pace_kill_answer(pid, 0, 0, NULL, why, 0);
+    proc = OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE, FALSE, pid);
+    if (!proc)
+        return pace_kill_answer(pid, 0, 0, NULL, "cannot open the process (gone already?)",
+                                GetLastError());
+    img = image_of(pid, image, sizeof image) ? image : NULL;
+    why = vcr_pace_kill_refusal(pid, GetCurrentProcessId(), img);
+    if (why) {
+        CloseHandle(proc);
+        return pace_kill_answer(pid, 0, 0, img, why, 0);
+    }
+    r = vcr_pace_kill(proc, &exited, &err);
+    CloseHandle(proc);
+    if (r == 0)                         /* the gate refused: nothing was killed */
+        return pace_kill_answer(pid, 0, 0, image, g_vcr_pace_why, 0);
+    if (r < 0)
+        return pace_kill_answer(pid, 0, 0, image, "TerminateProcess failed", err);
+    /* killed, but not gone in 10 s (a thread stuck in the kernel): its mode
+     * goes when it does, later than the stamp says - the host must not
+     * switch until it is gone, then pace-mark */
+    return pace_kill_answer(pid, exited, exited, image,
+                            exited ? NULL : "terminated but not gone after 10 s", 0);
 }
 
 int main(int argc, char **argv)
 {
     const char *cmd = argc > 1 ? argv[1] : "info";
     int rc;
+    /* EXEC runs us hidden: a Watson or critical-error box would sit where
+     * nobody can dismiss it, holding a test mode on the monitor and the agent
+     * command until its timeout. Fail at once and let the host see it. */
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     g_dc = GetDC(NULL);
     if (!g_dc)
         return fail(cmd, "GetDC failed");
@@ -929,15 +1353,31 @@ int main(int argc, char **argv)
         rc = cmd_probe_mem(strtoul(argv[2], NULL, 16), strtoul(argv[3], NULL, 0));
     else if (!strcmp(cmd, "modetest") && argc > 5)
         rc = cmd_modetest(atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]));
+    else if (!strcmp(cmd, "modeseq") && argc > 6)
+        rc = cmd_modeseq(argc, argv);
     else if (!strcmp(cmd, "gdi"))
         rc = cmd_gdi();
+    else if (!strcmp(cmd, "pace-mark"))
+        rc = cmd_pace_mark();
+    else if (!strcmp(cmd, "pace-kill") && argc > 2)
+        rc = cmd_pace_kill(argv[2]);
     else if (!strcmp(cmd, "restore")) {
-        LONG r = ChangeDisplaySettingsA(NULL, 0);
-        printf("{\"cmd\":\"restore\",\"ok\":%s,\"result\":%ld}\n",
+        LONG r = CDS_NOT_MADE;
+        if (vcr_pace_before_switch()) {
+            r = ChangeDisplaySettingsA(NULL, 0);
+            pace_gave_back(r == DISP_CHANGE_SUCCESSFUL);
+        }
+        printf("{\"cmd\":\"restore\",\"ok\":%s,\"result\":%ld",
                r == DISP_CHANGE_SUCCESSFUL ? "true" : "false", r);
+        print_not_made(r);
+        printf("}\n");
         rc = r == DISP_CHANGE_SUCCESSFUL ? 0 : 1;
     } else
         rc = fail(cmd, "unknown command or missing arguments");
     ReleaseDC(NULL, g_dc);
+    /* vcr_pace.h's exit hold can keep this process alive for the floor after
+     * main returns; what it printed must already be out if the host's
+     * timeout kills it there */
+    fflush(stdout);
     return rc;
 }

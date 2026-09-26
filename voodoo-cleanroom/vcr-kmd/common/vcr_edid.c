@@ -83,16 +83,176 @@ int vcr_edid_parse(const vcr_u8 *e, vcr_u32 len, vcr_edid_info *o)
     return 1;
 }
 
-int vcr_hwcaps_set_monitor(struct vcr_hwcaps *hw, const vcr_edid_info *e)
+static int edid_range(const vcr_edid_info *e, vcr_mon_range *r)
 {
-    hw->mon_hmin_khz = hw->mon_hmax_khz = hw->mon_vmin_hz = hw->mon_vmax_hz = 0;
-    hw->mon_max_pixclk_khz = 0;
     if (!e || !e->valid || !e->has_range)
         return 0;
-    hw->mon_hmin_khz = e->hmin_khz;
-    hw->mon_hmax_khz = e->hmax_khz;
-    hw->mon_vmin_hz = e->vmin_hz;
-    hw->mon_vmax_hz = e->vmax_hz;
-    hw->mon_max_pixclk_khz = e->max_pixclk_khz;
+    r->hmin_khz = e->hmin_khz;
+    r->hmax_khz = e->hmax_khz;
+    r->vmin_hz = e->vmin_hz;
+    r->vmax_hz = e->vmax_hz;
+    r->max_pixclk_khz = e->max_pixclk_khz;
     return 1;
+}
+
+int vcr_hwcaps_set_monitor(struct vcr_hwcaps *hw, const vcr_edid_info *e)
+{
+    vcr_mon_range r;
+    if (!edid_range(e, &r)) {
+        vcr_hwcaps_set_range(hw, 0);
+        return 0;
+    }
+    vcr_hwcaps_set_range(hw, &r);
+    return 1;
+}
+
+void vcr_hwcaps_set_range(struct vcr_hwcaps *hw, const vcr_mon_range *r)
+{
+    hw->mon_hmin_khz = r ? r->hmin_khz : 0;
+    hw->mon_hmax_khz = r ? r->hmax_khz : 0;
+    hw->mon_vmin_hz = r ? r->vmin_hz : 0;
+    hw->mon_vmax_hz = r ? r->vmax_hz : 0;
+    hw->mon_max_pixclk_khz = r ? r->max_pixclk_khz : 0;
+}
+
+/* EDID 1.4 encodes rates up to 255 + 255 and a dot clock up to 2550 MHz;
+ * anything past that did not come from a monitor. */
+int vcr_mon_range_valid(const vcr_mon_range *r)
+{
+    return r && r->hmax_khz && r->vmax_hz && r->hmin_khz <= r->hmax_khz &&
+           r->vmin_hz <= r->vmax_hz && r->hmax_khz <= 510 && r->vmax_hz <= 510 &&
+           r->max_pixclk_khz <= 2550000u;
+}
+
+int vcr_mon_range_usable(const vcr_mon_range *r)
+{
+    vcr_hwcaps h;
+    int vga = vcr_timing_find(640, 480, 60);
+    if (!vcr_mon_range_valid(r) || vga < 0)
+        return 0;
+    /* only the monitor half of the check may refuse it: the chip limits are
+     * set out of the way, so this asks exactly what the list would */
+    h.device_id = 0;
+    h.max_pixclk_khz = 0xffffffffu;
+    h.twox_above_khz = 0;
+    h.twox_htotal_chars = 0;
+    h.fb_bytes = 0xffffffffu;
+    h.fb_reserved = 0;
+    h.napalm_vpc_extra = 0;
+    vcr_hwcaps_set_range(&h, r);
+    return vcr_mode_check(&h, &vcr_timings[vga], 8) == 0;
+}
+
+vcr_u32 vcr_mon_id(const vcr_edid_info *e)
+{
+    if (!e || !e->valid)
+        return 0;
+    return ((vcr_u32)(e->pnpid[0] - '@') << 10) | ((vcr_u32)(e->pnpid[1] - '@') << 5) |
+           (vcr_u32)(e->pnpid[2] - '@') | ((vcr_u32)e->product << 16);
+}
+
+const char *vcr_mon_src_name(vcr_u32 src)
+{
+    switch (src) {
+    case VCR_MON_SRC_EDID:      return "edid";
+    case VCR_MON_SRC_SAME:      return "same-monitor persisted";
+    case VCR_MON_SRC_ENVELOPE:  return "envelope";
+    case VCR_MON_SRC_DEFAULT:   return "default";
+    default:                    return "none";
+    }
+}
+
+static void mon_default(vcr_mon_range *r)
+{
+    r->hmin_khz = VCR_MON_DEF_HMIN_KHZ;
+    r->hmax_khz = VCR_MON_DEF_HMAX_KHZ;
+    r->vmin_hz = VCR_MON_DEF_VMIN_HZ;
+    r->vmax_hz = VCR_MON_DEF_VMAX_HZ;
+    r->max_pixclk_khz = VCR_MON_DEF_PIXCLK_KHZ;
+}
+
+vcr_u32 vcr_mon_select(const vcr_edid_info *e, const vcr_mon_range *env, vcr_u32 env_id,
+                       vcr_mon_range *out)
+{
+    vcr_mon_range def;
+    mon_default(&def);
+    if (edid_range(e, out) && vcr_mon_range_valid(out))
+        return VCR_MON_SRC_EDID;
+    if (e && e->valid) {
+        /* A monitor that answered but states no range. Only its OWN persisted
+         * range may stand in: the first cut of this fallback (2026-09-26) took
+         * whichever monitor answered last, and so would have driven this one
+         * by a stranger's limits - a 96 kHz tube's range on a 60 kHz one. */
+        if (env_id && env_id == vcr_mon_id(e) && vcr_mon_range_usable(env)) {
+            *out = *env;
+            return VCR_MON_SRC_SAME;
+        }
+    } else if (vcr_mon_range_usable(env)) {
+        /* Nothing answered, so it may be any tube this box has had - or one
+         * it never read: a tube without DDC, or behind a KVM that eats it, is
+         * exactly this case, and its range was never narrowed into the
+         * envelope. So the envelope may narrow the default (a 60 Hz panel
+         * seen here keeps V at 60), never widen it: the second cut
+         * (2026-09-26) used the bare envelope, which after a Sony-only
+         * history listed 1280x1024@85 (91 kHz) for whatever tube was there.
+         * A usable envelope meets the default in VGA, so the result is
+         * usable too; the check below only keeps that true by construction. */
+        *out = *env;
+        vcr_mon_envelope_add(out, &def);
+        if (vcr_mon_range_usable(out))
+            return VCR_MON_SRC_ENVELOPE;
+    }
+    *out = def;
+    return VCR_MON_SRC_DEFAULT;
+}
+
+int vcr_mon_trust_envelope(vcr_u32 src, const vcr_mon_range *env, vcr_mon_range *out)
+{
+    if (src != VCR_MON_SRC_ENVELOPE || !vcr_mon_range_usable(env))
+        return 0;
+    *out = *env;
+    return 1;
+}
+
+int vcr_mon_envelope_add(vcr_mon_range *env, const vcr_mon_range *seen)
+{
+    vcr_mon_range n;
+    if (!vcr_mon_range_valid(seen))
+        return 0;
+    if (!env->hmax_khz) {
+        n = *seen;              /* the first monitor this box has seen */
+    } else {
+        n.hmin_khz = env->hmin_khz > seen->hmin_khz ? env->hmin_khz : seen->hmin_khz;
+        n.hmax_khz = env->hmax_khz < seen->hmax_khz ? env->hmax_khz : seen->hmax_khz;
+        n.vmin_hz = env->vmin_hz > seen->vmin_hz ? env->vmin_hz : seen->vmin_hz;
+        n.vmax_hz = env->vmax_hz < seen->vmax_hz ? env->vmax_hz : seen->vmax_hz;
+        n.max_pixclk_khz = !env->max_pixclk_khz ? seen->max_pixclk_khz
+                         : !seen->max_pixclk_khz ? env->max_pixclk_khz
+                         : env->max_pixclk_khz < seen->max_pixclk_khz ? env->max_pixclk_khz
+                                                                      : seen->max_pixclk_khz;
+    }
+    if (n.hmin_khz == env->hmin_khz && n.hmax_khz == env->hmax_khz &&
+        n.vmin_hz == env->vmin_hz && n.vmax_hz == env->vmax_hz &&
+        n.max_pixclk_khz == env->max_pixclk_khz)
+        return 0;
+    *env = n;
+    return 1;
+}
+
+vcr_u32 vcr_mon_boot(const vcr_edid_info *e, vcr_u32 reset, vcr_mon_range *env,
+                     vcr_u32 *env_id, vcr_mon_range *out)
+{
+    vcr_u32 src;
+    if (reset) {
+        /* before the choice, so the boot that resets never uses what it forgot */
+        env->hmin_khz = env->hmax_khz = env->vmin_hz = env->vmax_hz = 0;
+        env->max_pixclk_khz = 0;
+        *env_id = 0;
+    }
+    src = vcr_mon_select(e, env, *env_id, out);
+    if (src == VCR_MON_SRC_EDID) {
+        vcr_mon_envelope_add(env, out);
+        *env_id = vcr_mon_id(e);
+    }
+    return src;
 }

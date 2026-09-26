@@ -405,13 +405,19 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
     v->clock_6k_hz = x->clock_6k_hz;
     for (c = 0; c < x->nchips && c < VCR_MAX_CHIPS; c++)
         v->slave_bar0[c] = x->chip[c].mmio_phys.LowPart;
+    /* The limits IN FORCE (the caps the mode list was built from), not the
+     * EDID's: without an EDID's own range those are the same-monitor,
+     * envelope or default range (vcrmp_ddc.c), and reporting the empty EDID
+     * fields made a filtered list read as an unfiltered one. edid_ok alone
+     * says a real EDID was read; mon_src says whose limits these are. */
     v->edid_ok = x->edid_ok;
+    v->mon_src = x->mon_src;
     v->mon_filter = x->caps.mon_hmax_khz != 0;
-    v->mon_hmin_khz = x->mon.hmin_khz;
-    v->mon_hmax_khz = x->mon.hmax_khz;
-    v->mon_vmin_hz = x->mon.vmin_hz;
-    v->mon_vmax_hz = x->mon.vmax_hz;
-    v->mon_max_pixclk_khz = x->mon.max_pixclk_khz;
+    v->mon_hmin_khz = x->caps.mon_hmin_khz;
+    v->mon_hmax_khz = x->caps.mon_hmax_khz;
+    v->mon_vmin_hz = x->caps.mon_vmin_hz;
+    v->mon_vmax_hz = x->caps.mon_vmax_hz;
+    v->mon_max_pixclk_khz = x->caps.mon_max_pixclk_khz;
     VideoPortMoveMemory(v->mon_pnp, x->mon.pnpid, sizeof v->mon_pnp);
     v->mon_product = x->mon.product;
     VideoPortMoveMemory(v->mon_name, x->mon.name, sizeof x->mon.name);
@@ -561,6 +567,21 @@ static BOOLEAN NTAPI VcrStartIO(PVOID ext, PVIDEO_REQUEST_PACKET rp)
         break;
     }
     case IOCTL_VIDEO_RESET_DEVICE:
+        /* All the way back to the BIOS VGA state, every backend - what the
+         * vendor does with int10 mode 3. That costs a mode change a second
+         * monitor re-sync (VGA text between the old mode and the new one),
+         * and a 2026-09-26 shortcut released the display instead, leaving
+         * the old mode scanning for the SET_CURRENT_MODE it assumed would
+         * follow. REJECTED: RESET_DEVICE is also XP's hand-off to VgaSave
+         * for a full-screen console or DOS box, and no mode set of ours
+         * follows that. The card kept the desktop's extension state -
+         * video processor on, CR1A/CR1B overflow bits, 2X, the PLL - and a
+         * VGA text-mode writer that leaves CR1A/CR1B alone combines with it
+         * into ~9 kHz / ~21 Hz, far under a CRT's floor (.124's Sony:
+         * 30 kHz / 48 Hz). VGA text at 31.5 kHz is what every CRT takes; the
+         * extra re-sync is bounded by the tools' pace gate (tools/vcr_pace.h).
+         * Do not re-try it without a private "our own mode set follows"
+         * signal from the display DLL, proven on the 86Box bed. */
         VcrSliOff(x, "display reset");
         VcrHwResetToVga(x);
         break;
@@ -657,11 +678,17 @@ static BOOLEAN NTAPI VcrStartIO(PVOID ext, PVIDEO_REQUEST_PACKET rp)
         break;
 
     /* ---- private -------------------------------------------------------------- */
-    case IOCTL_VCR_INFO:
-        NEED_OUT(sizeof(vcr_info));
-        fill_info(x, (vcr_info *)rp->OutputBuffer);
-        info = sizeof(vcr_info);
+    case IOCTL_VCR_INFO: {
+        /* A tool built before mon_src was appended passes the struct as it
+         * was then: answer it with that much rather than refuse it (v.size
+         * says how much the driver has). Anything shorter still fails. */
+        vcr_info v;
+        NEED_OUT(FIELD_OFFSET(vcr_info, mon_src));
+        fill_info(x, &v);
+        info = rp->OutputBufferLength < sizeof v ? rp->OutputBufferLength : sizeof v;
+        VideoPortMoveMemory(rp->OutputBuffer, &v, info);
         break;
+    }
     case IOCTL_VCR_LOG_WRITE:
         NEED_IN(sizeof(vcr_log_write_req));
         VcrLogFromUser((const vcr_log_write_req *)rp->InputBuffer);

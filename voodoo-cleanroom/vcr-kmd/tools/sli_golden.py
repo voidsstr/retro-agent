@@ -14,7 +14,19 @@ this loads vcrprobe.sys and records what only a running SLI session shows:
 then stops the game. The same capture on our driver, diffed against this one,
 is the SLI port's acceptance test.
 
-    sli_golden.py 192.168.1.124 --label amigamerlin-3.1-r11 --cfg 5
+    sli_golden.py 192.168.1.124 --label amigamerlin-3.1-r11 --cfg 5 \
+        --monitor-info ours-info.json
+
+THE GAME SWITCHES THE MONITOR: Quake II through our ICD goes fullscreen at
+--w x --h and picks the highest refresh the driver lists at that size. So
+before the probe is loaded or the game started, that mode - the highest
+refresh `vcrctl modes` lists at WxH, at any depth - is checked on the host
+against the monitor's EDID ranges (mode_sweep.py's gate). Under the vendor
+driver, which is what a golden is taken on, that needs --monitor-info: a
+`vcrctl info` saved from OUR driver on this box, used only once the box's
+registry says that monitor is the one on it (or, when it cannot say, with
+--i-have-checked-the-monitor). A refused gate is rc 2, before anything
+changed on the box; a probe that did not load is rc 3.
 """
 import argparse
 import asyncio
@@ -28,9 +40,20 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "scripts" / "benchmarks"))
+sys.path.insert(0, str(HERE))
 import v56k_bench as vb  # noqa: E402
+import mode_sweep as ms  # noqa: E402  (the monitor gate every switching tool shares)
 
 TOOL = r"C:\vcr\vcrctl.exe"
+
+
+async def gate(box, a):
+    """The monitor gate for the game's fullscreen mode: (ranges, calc, modes,
+    None) or (.., why). The ICD picks the highest refresh the driver lists at
+    WxH across depths, so that is the mode checked (at --depth: the mode math
+    does not change with it)."""
+    return await ms.fullscreen_gate(box.cmd, TOOL, [(a.w, a.h, a.depth, True)], a.monitor_info,
+                                    a.i_have_checked_the_monitor)
 
 
 class Quake2Loop(vb.Quake2AllOurs):
@@ -62,14 +85,23 @@ async def main_async(a):
            "res": f"{a.w}x{a.h}x{a.depth}", "taken": time.strftime("%Y-%m-%dT%H:%M:%S")}
     vcr = lambda args: box.exec_(rf"{TOOL} {args}")   # noqa: E731
 
-    # the probe first, so a failure costs nothing
-    await box.upload(r"C:\vcr\vcrprobe.sys", (HERE.parent / "out" / "vcrprobe.sys").read_bytes())
+    # vcrctl first: the gate asks it which monitor and which modes. Then the
+    # gate, before a driver is loaded or the game switches anything
+    await box.cmd(r"MKDIR C:\vcr")         # an existing one answers an error: fine
     await box.upload(TOOL, (HERE.parent / "out" / "vcrctl.exe").read_bytes())
+    rng, calc, modes, why = await gate(box, a)
+    if why:
+        ms.refuse(why)
+        return 2
+    out["monitor_gate"] = dict(rng, mode=modes[0])
+    print(f"the game's mode {modes[0]}  {ms.rates(calc, modes[0])}\n  monitor {ms.describe(rng)}")
+    # the probe next, so a failure costs nothing
+    await box.upload(r"C:\vcr\vcrprobe.sys", (HERE.parent / "out" / "vcrprobe.sys").read_bytes())
     await box.exec_(r"sc create vcrprobe type= kernel start= demand binPath= C:\vcr\vcrprobe.sys")
     await box.exec_("sc start vcrprobe")
     if not (jl(await vcr("probe-vga")) or {}).get("ok"):
         print("FAIL: vcrprobe did not load")
-        return 2
+        return 3
 
     # the SLI/AA config our Glide reads (the runner's own mechanism, with its
     # read-back check): Settings\Glide under the active display instance
@@ -133,6 +165,12 @@ def main():
     ap.add_argument("--settle", type=int, default=25)
     ap.add_argument("--samples", type=int, default=2)
     ap.add_argument("--out")
+    ap.add_argument("--monitor-info", help="a `vcrctl info` saved from OUR driver on this box: "
+                    "the monitor's EDID ranges when the installed driver is not ours (used "
+                    "only when the registry says that monitor is the one on the box)")
+    ap.add_argument(ms.CHECKED_FLAG, action="store_true",
+                    help="with --monitor-info: go on when the box's registry cannot confirm the "
+                         "monitor - only after looking at it (a different one is still refused)")
     a = ap.parse_args()
     sys.exit(asyncio.run(main_async(a)))
 

@@ -39,8 +39,11 @@ typedef struct vcr_hwcaps {
     vcr_u32 fb_bytes;           /* local memory of the chip driving the display */
     vcr_u32 fb_reserved;        /* bytes the display cannot use (cursor, etc.) */
     vcr_u32 napalm_vpc_extra;   /* extra vidProcCfg bits on VSA-100 (see .c) */
-    /* the monitor's Display Range Limits (EDID 0xFD). mon_hmax_khz 0 = unknown:
-     * nothing is filtered (vcr_hwcaps_set_monitor, vcr_edid.h) */
+    /* the monitor's scan limits. mon_hmax_khz 0 = none: vcr_mode_check then
+     * filters nothing - but the miniport never leaves it 0 on real hardware:
+     * it sets the EDID's range, else a same-monitor / envelope / default one
+     * (vcr_mon_select, vcr_edid.h). Only Diag\EdidFilter = 0 and the QEMU
+     * bed's virtual display run with 0. */
     vcr_u32 mon_hmin_khz, mon_hmax_khz, mon_vmin_hz, mon_vmax_hz, mon_max_pixclk_khz;
 } vcr_hwcaps;
 

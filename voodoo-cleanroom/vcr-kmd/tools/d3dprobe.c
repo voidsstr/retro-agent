@@ -14,6 +14,17 @@
  *   d3dprobe perf [--full [--novsync]] [--res WxH] [--bpp N] [--frames N]
  *             textured triangles per second and frames per second (--novsync:
  *             fullscreen presents immediately, so the number is the chip's).
+ *   --pace MS  raise the floor between display-mode switches (never below
+ *             vcr_pace.h's 3 s; decimal, at most 30000 - anything else is
+ *             refused before anything switches); only --full switches modes.
+ *
+ * With --full: a switch vcr_pace.h cannot pace (its lock held by a stuck tool,
+ * a stamp that never stops moving) is not made - the run ends with a RESULT
+ * "error" naming why, and a device still up is left for the exit hold. A
+ * window that loses the foreground while the device is fullscreen (the
+ * runtime gives the desktop back at that moment, unpaced) has that switch
+ * recorded, ends the run and says "focus_lost":true, rather than let a
+ * re-activation switch in again.
  *
  * Tests: clear flat gouraud tex modulate blend ztest bigtex (default), mip (explicit:
  * --tests mip. On the 86Box Voodoo3 XP's own 3dfx driver samples level 0 at
@@ -21,7 +32,8 @@
  * the default gate; it is the check to run on silicon)
  *
  * Every step is flushed to the log before the next, so a driver that hangs
- * the machine leaves the step it hung in. The final line is `RESULT {json}`.
+ * the machine leaves the step it hung in. The final line is `RESULT {json}`;
+ * the host reads the LAST one.
  */
 #include <windows.h>
 #include <d3d8.h>
@@ -29,6 +41,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "vcr_pace.h"
 
 static FILE *g_log;
 static char g_logpath[MAX_PATH] = "C:\\d3dprobe.log";
@@ -51,15 +65,33 @@ static void say(const char *fmt, ...)
     va_end(ap);
 }
 
+/* a fullscreen device is up and the run is using it (between CreateDevice and
+ * the start of the paced Release) */
+static int g_held;
+/* ... and the window lost the foreground meanwhile */
+static int g_focus_lost;
+
 static LRESULT CALLBACK wndproc(HWND h, UINT m, WPARAM w, LPARAM l)
 {
+    /* Deactivated while fullscreen: the D3D runtime's hook on this window
+     * minimizes it and gives the desktop back right now - a switch the gate
+     * did not pace. Record it, and end the run: carrying on until something
+     * re-activates the window would put the fullscreen mode back, unpaced
+     * too. */
+    if (m == WM_ACTIVATEAPP && !w && g_held) {
+        vcr_pace_mark();
+        g_focus_lost = 1;
+    }
     return DefWindowProcA(h, m, w, l);
 }
 
+/* Once the foreground is lost, nothing more is dispatched: a re-activation
+ * still queued would have the runtime switch the fullscreen mode back in,
+ * unpaced, and the run is ending anyway. */
 static void pump(void)
 {
     MSG msg;
-    while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
+    while (!g_focus_lost && PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessageA(&msg);
     }
@@ -99,6 +131,41 @@ static HWND g_hwnd;
 static D3DFORMAT g_fmt;
 static int g_w = 640, g_h = 480, g_bpp = 16, g_full, g_frames = 200, g_novsync;
 static int g_pass, g_fail;
+
+/* Releasing a fullscreen device is the switch back to the desktop: hold the
+ * mode for vcr_pace.h's floor first (2026-09-26, .124: every switch re-syncs
+ * the CRT, and a short run switched out almost as soon as it had switched in).
+ * A windowed device switches nothing, so it is not paced. 0 = the gate
+ * refused the switch out (its lock busy, or the floor never passed): the
+ * device is NOT released - that would give the mode back unpaced - and XP
+ * reverts it as the process exits, after the exit hold. */
+static int release_device(void)
+{
+    if (g_full && !vcr_pace_before_switch())
+        return 0;
+    g_held = 0;                         /* a deactivation from here on is ours */
+    IDirect3DDevice8_Release(g_dev);
+    if (g_full)
+        vcr_pace_after_restore();
+    g_dev = NULL;
+    return 1;
+}
+
+/* the RESULT of a run whose device release was refused: its own line (the
+ * host reads the LAST one), after the run's */
+static void say_not_released(const char *mode)
+{
+    say("RESULT {\"mode\":\"%s\",\"error\":\"device not released: %s - the mode is left for"
+        " the exit hold\"}", mode, g_vcr_pace_why);
+}
+
+/* ,"focus_lost":... for a RESULT, with an "error" when it was: the run was
+ * cut short, and its numbers are not a pass */
+static const char *focus_json(void)
+{
+    return g_focus_lost ? ",\"focus_lost\":true,\"error\":\"the window lost the foreground while"
+                          " fullscreen - run ended\"" : ",\"focus_lost\":false";
+}
 
 static void quad_c(float x0, float y0, float x1, float y1, float z, DWORD c0, DWORD c1, DWORD c2,
                    DWORD c3)
@@ -525,12 +592,27 @@ int main(int argc, char **argv)
     RECT rc;
     HRESULT hr;
     int i;
+    DWORD pace;
+    const char *bad_pace = NULL;
 
+    /* A crash must die at once, not sit behind a Watson / "has encountered a
+     * problem" box: that box keeps the process - and a fullscreen mode it
+     * set - alive until someone at the box clicks it, and the fullscreen mode
+     * hides it. The box is driven remotely; nobody is at .124's CRT. */
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     for (i = 1; i < argc; i++) {
         const char *a = argv[i], *v = i + 1 < argc ? argv[i + 1] : NULL;
         if (!strcmp(a, "--res") && v) { sscanf(v, "%dx%d", &g_w, &g_h); i++; }
         else if (!strcmp(a, "--bpp") && v) { g_bpp = atoi(v); i++; }
         else if (!strcmp(a, "--frames") && v) { g_frames = atoi(v); i++; }
+        else if (!strcmp(a, "--pace") && v) {
+            /* atoi("-1") was a floor of 0xFFFFFFFF ms: refused, not wrapped */
+            if (vcr_pace_parse_ms(v, &pace))
+                vcr_pace_set_min(pace);
+            else
+                bad_pace = v;
+            i++;
+        }
         else if (!strcmp(a, "--tests") && v) { tests = v; i++; }
         else if (!strcmp(a, "--log") && v) { strncpy(g_logpath, v, sizeof g_logpath - 1); i++; }
         else if (!strcmp(a, "--full")) g_full = 1;
@@ -539,6 +621,11 @@ int main(int argc, char **argv)
     }
     g_log = fopen(g_logpath, "w");
     say("d3dprobe %s: %s %dx%dx%d", mode, g_full ? "fullscreen" : "windowed", g_w, g_h, g_bpp);
+    if (bad_pace) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"--pace %s: decimal milliseconds, 0 to %u\"}",
+            mode, bad_pace, VCR_PACE_MAX_MS);
+        return 2;
+    }
 
     d3d = Direct3DCreate8(D3D_SDK_VERSION);
     if (!d3d) {
@@ -626,13 +713,29 @@ int main(int argc, char **argv)
     g_fmt = pp.BackBufferFormat;
     say("CreateDevice(HAL, %s, back buffer %ux%u fmt %u, D16)", g_full ? "fullscreen" : "windowed",
         pp.BackBufferWidth, pp.BackBufferHeight, pp.BackBufferFormat);
+    /* fullscreen: CreateDevice is the switch in (through vcr_pace.h). The
+     * failure return below is a return from main, so the header's atexit hold
+     * covers the revert XP makes as the process ends. Refused by the gate,
+     * no device is created and the run ends here. */
+    if (g_full && !vcr_pace_before_switch()) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"CreateDevice not made: %s\",\"adapter\":\"%s\"}",
+            mode, g_vcr_pace_why, id.Description);
+        return 2;
+    }
     hr = IDirect3D8_CreateDevice(d3d, 0, D3DDEVTYPE_HAL, hwnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING,
                                  &pp, &g_dev);
+    /* even when it failed: the runtime sets the display mode before it
+     * creates the swap chain's buffers and the depth buffer, so a failure
+     * after that point was a re-sync - and may leave the mode set until exit.
+     * Counting it only costs a failed run the hold. */
+    if (g_full)
+        vcr_pace_after_switch();
     if (FAILED(hr)) {
         say("RESULT {\"mode\":\"%s\",\"error\":\"CreateDevice %08lx\",\"adapter\":\"%s\"}", mode,
             hr, id.Description);
         return 2;
     }
+    g_held = g_full;
     say("device created");
     IDirect3DDevice8_SetRenderState(g_dev, D3DRS_LIGHTING, FALSE);
     IDirect3DDevice8_SetRenderState(g_dev, D3DRS_CULLMODE, D3DCULL_NONE);
@@ -657,7 +760,7 @@ int main(int argc, char **argv)
         IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
         IDirect3DDevice8_SetVertexShader(g_dev, FVF_T);
         t0 = now_s();
-        for (f = 0; f < g_frames; f++) {
+        for (f = 0; f < g_frames && !g_focus_lost; f++) {
             pump();
             IDirect3DDevice8_Clear(g_dev, 0, NULL, D3DCLEAR_TARGET, 0x00202060, 1.0f, 0);
             IDirect3DDevice8_BeginScene(g_dev);
@@ -666,11 +769,14 @@ int main(int argc, char **argv)
             IDirect3DDevice8_Present(g_dev, NULL, NULL, NULL, NULL);
         }
         dt = now_s() - t0;
-        say("RESULT {\"mode\":\"perf\",\"adapter\":\"%s\",\"frames\":%d,\"tris_per_frame\":%d,"
-            "\"fps\":%.1f,\"tris_s\":%.0f}", id.Description, g_frames, N, g_frames / dt,
-            g_frames * N / dt);
-        IDirect3DDevice8_Release(g_dev);
-        return 0;
+        say("RESULT {\"mode\":\"perf\",\"adapter\":\"%s\",\"frames\":%d,\"frames_run\":%d,"
+            "\"tris_per_frame\":%d,\"fps\":%.1f,\"tris_s\":%.0f%s}", id.Description, g_frames,
+            f, N, dt > 0 ? f / dt : 0.0, dt > 0 ? f * N / dt : 0.0, focus_json());
+        if (!release_device()) {
+            say_not_released("perf");
+            return 4;
+        }
+        return g_focus_lost ? 5 : 0;
     }
 
     js("{\"mode\":\"render\",\"adapter\":\"%s\",\"window\":\"%s\",\"fmt\":%u,\"checks\":[",
@@ -679,12 +785,19 @@ int main(int argc, char **argv)
         char list[512], *p, *save;
         strncpy(list, tests, sizeof list - 1);
         list[sizeof list - 1] = 0;
-        for (p = strtok_r(list, ",", &save); p; p = strtok_r(NULL, ",", &save))
+        /* a lost foreground ends the run: the tests left are not run */
+        for (p = strtok_r(list, ",", &save); p && !g_focus_lost; p = strtok_r(NULL, ",", &save))
             run_test(p);
     }
-    js("],\"readback\":\"%s\",\"pass\":%d,\"fail\":%d}", g_readvia, g_pass, g_fail);
-    IDirect3DDevice8_Release(g_dev);
+    pump();                             /* a deactivation still queued is seen now */
+    js("],\"readback\":\"%s\",\"pass\":%d,\"fail\":%d%s}", g_readvia, g_pass, g_fail,
+       focus_json());
+    if (!release_device()) {
+        say("RESULT %s", g_json);       /* the checks as they stood ... */
+        say_not_released("render");     /* ... and, last, why the run failed */
+        return 4;
+    }
     IDirect3D8_Release(d3d);
     say("RESULT %s", g_json);
-    return g_fail ? 1 : 0;
+    return g_fail || g_focus_lost ? 1 : 0;
 }

@@ -75,7 +75,11 @@ $(OUT)/vcrprobe.sys: probe/vcrprobe.c include/vcr_probe.h | $(OUT)
 	$(CC) $(KCFLAGS) -U_WIN32_WINNT -D_WIN32_WINNT=0x0600 probe/vcrprobe.c -o $@ $(KLDFLAGS) \
 	      -Wl,--entry,_DriverEntry@8 -lntoskrnl -lhal -lgcc
 
-$(OUT)/vcrctl.exe: tools/vcrctl.c $(wildcard include/*.h) | $(OUT)
+# PACE_H: every tool that switches modes compiles in tools/vcr_pace.h, the gate
+# that paces the monitor - an edit to it alone must rebuild all of them
+PACE_H  := tools/vcr_pace.h
+
+$(OUT)/vcrctl.exe: tools/vcrctl.c $(PACE_H) $(wildcard include/*.h) | $(OUT)
 	$(CC) -O2 -Wall -Wextra -march=i586 -DWINVER=0x0501 -D_WIN32_WINNT=0x0501 -Iinclude tools/vcrctl.c -o $@ -static -lgdi32 -luser32
 
 # glidelab: Glide test program (fill / bands / cycle / abandon). Needs the
@@ -83,16 +87,16 @@ $(OUT)/vcrctl.exe: tools/vcrctl.c $(wildcard include/*.h) | $(OUT)
 # not part of `all`, so a tree without the SDK still builds the driver.
 GLIDE_SDK ?= ../out/sdk/include
 glidelab: $(OUT)/glidelab.exe
-$(OUT)/glidelab.exe: tools/glidelab.c | $(OUT)
+$(OUT)/glidelab.exe: tools/glidelab.c $(PACE_H) | $(OUT)
 	$(CC) -O1 -Wall -march=i586 -I$(GLIDE_SDK) tools/glidelab.c -o $@ -static -lgdi32 -luser32
 
 # the self-checking lab programs (Win32 user mode): DirectDraw, Direct3D 8, GDI.
 # Run with tools/lab_run.py (or ddlab_run.py / d3dprobe_run.py).
 LABS := $(OUT)/ddlab.exe $(OUT)/d3dprobe.exe $(OUT)/gdilab.exe
 labs: $(LABS)
-$(OUT)/ddlab.exe: tools/ddlab.c | $(OUT)
+$(OUT)/ddlab.exe: tools/ddlab.c $(PACE_H) | $(OUT)
 	$(CC) -O1 -Wall -march=i586 tools/ddlab.c -o $@ -static -lddraw -ldxguid -lgdi32 -luser32
-$(OUT)/d3dprobe.exe: tools/d3dprobe.c | $(OUT)
+$(OUT)/d3dprobe.exe: tools/d3dprobe.c $(PACE_H) | $(OUT)
 	$(CC) -O1 -Wall -march=i586 tools/d3dprobe.c -o $@ -static -ld3d8 -lgdi32 -luser32
 $(OUT)/gdilab.exe: tools/gdilab.c | $(OUT)
 	$(CC) -O1 -Wall -march=i586 tools/gdilab.c -o $@ -static -lgdi32 -luser32
