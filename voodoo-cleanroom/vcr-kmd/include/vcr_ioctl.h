@@ -99,6 +99,7 @@ typedef struct vcr_info {
     vcr_u8  edid[128];          /* the block as read */
 } vcr_info;
 #define VCR_INFO_F_ALLOW_POKE   0x1
+#define VCR_INFO_F_NO_ACCEL2D   0x2     /* Diag\\Accel2D = 0: the display driver draws in software */
 
 /* IOCTL_VCR_LOG_WRITE */
 typedef struct vcr_log_write_req {

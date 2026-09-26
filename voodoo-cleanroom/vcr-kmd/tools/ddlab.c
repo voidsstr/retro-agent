@@ -256,7 +256,7 @@ int main(int argc, char **argv)
         DDSURFACEDESC2 sd;
         DDBLTFX fx;
         RECT r;
-        int bpp_b, x, y, bad_copy = 0, bad_fill = 0, bad_scroll = 0, n;
+        int bpp_b, x, y, bad_copy = 0, bad_fill = 0, bad_scroll = 0, bad_key = 0, n;
         const int W = 256, H = 256;
         double t0, t;
         const char *a_in;
@@ -374,19 +374,61 @@ int main(int argc, char **argv)
                 if (((unsigned char *)sd.lpSurface)[y * sd.lPitch + x] != (unsigned char)(x * 7 + (y - 8) * 13))
                     bad_scroll++;
         IDirectDrawSurface7_Unlock(a, NULL);
+        /* a source-keyed blit (sprites): A's left half is the key colour and
+         * must leave B untouched, its right half must land */
+        {
+            DWORD key = g_bpp == 8 ? 0xfd : g_bpp == 16 ? 0xf81f : 0x00ff00ff;
+            DWORD val = g_bpp == 8 ? 0x11 : g_bpp == 16 ? 0x07e0 : 0x0000ff00;
+            DDCOLORKEY ck;
+            memset(&sd, 0, sizeof sd);
+            sd.dwSize = sizeof sd;
+            IDirectDrawSurface7_Lock(b, NULL, &sd, DDLOCK_WAIT, NULL);
+            for (y = 0; y < H; y++)
+                memset((unsigned char *)sd.lpSurface + y * sd.lPitch, 0x33, (size_t)W * bpp_b);
+            IDirectDrawSurface7_Unlock(b, NULL);
+            memset(&sd, 0, sizeof sd);
+            sd.dwSize = sizeof sd;
+            IDirectDrawSurface7_Lock(a, NULL, &sd, DDLOCK_WAIT, NULL);
+            for (y = 0; y < H; y++)
+                for (x = 0; x < W; x++) {
+                    unsigned char *px = (unsigned char *)sd.lpSurface + y * sd.lPitch + x * bpp_b;
+                    DWORD v = x < W / 2 ? key : val;
+                    memcpy(px, &v, (size_t)bpp_b);
+                }
+            IDirectDrawSurface7_Unlock(a, NULL);
+            ck.dwColorSpaceLowValue = ck.dwColorSpaceHighValue = key;
+            IDirectDrawSurface7_SetColorKey(a, DDCKEY_SRCBLT, &ck);
+            hr = IDirectDrawSurface7_Blt(b, NULL, a, NULL, DDBLT_KEYSRC | DDBLT_WAIT, NULL);
+            say("Blt A->B (source colour key) -> %08lx", hr);
+            memset(&sd, 0, sizeof sd);
+            sd.dwSize = sizeof sd;
+            IDirectDrawSurface7_Lock(b, NULL, &sd, DDLOCK_WAIT, NULL);
+            for (y = 0; y < H; y++)
+                for (x = 0; x < W; x++) {
+                    unsigned char *px = (unsigned char *)sd.lpSurface + y * sd.lPitch + x * bpp_b;
+                    DWORD v = 0, want = x < W / 2 ? 0x33333333u : val;
+                    memcpy(&v, px, (size_t)bpp_b);
+                    if (bpp_b < 4)
+                        want &= (1u << (bpp_b * 8)) - 1;
+                    if (v != want)
+                        bad_key++;
+                }
+            IDirectDrawSurface7_Unlock(b, NULL);
+            IDirectDrawSurface7_SetColorKey(a, DDCKEY_SRCBLT, NULL);
+        }
         /* rate */
         t0 = now_s();
         for (n = 0; n < 200; n++)
             IDirectDrawSurface7_Blt(b, NULL, a, NULL, DDBLT_WAIT, NULL);
         t = now_s() - t0;
         say("RESULT {\"mode\":\"blt\",\"res\":\"%dx%dx%d\",\"surfaces_in\":\"%s\","
-            "\"bad_copy\":%d,\"bad_fill\":%d,\"bad_scroll\":%d,\"blts_s\":%.0f,"
+            "\"bad_copy\":%d,\"bad_fill\":%d,\"bad_scroll\":%d,\"bad_key\":%d,\"blts_s\":%.0f,"
             "\"mpix_s\":%.1f,\"hal_caps\":\"%08lx\"}",
-            g_w, g_h, g_bpp, a_in, bad_copy, bad_fill, bad_scroll, 200 / t,
+            g_w, g_h, g_bpp, a_in, bad_copy, bad_fill, bad_scroll, bad_key, 200 / t,
             200.0 * W * H / t / 1e6, hal.dwCaps);
         IDirectDraw7_RestoreDisplayMode(dd);
         IDirectDraw7_Release(dd);
-        return bad_copy || bad_fill || bad_scroll ? 7 : 0;
+        return bad_copy || bad_fill || bad_scroll || bad_key ? 7 : 0;
     }
     say("RESULT {\"error\":\"unknown mode %s\"}", mode);
     return 2;

@@ -196,21 +196,69 @@ static DWORD flip_to(VCR_PDEV *pd, ULONG offset)
     return dd_ioctl(pd, IOCTL_VCR_DDFLIP, &f, sizeof f, NULL, 0);
 }
 
+static LONGLONG qpc(void)
+{
+    LONGLONG t;
+    EngQueryPerformanceCounter(&t);
+    return t;
+}
+
+/* Has the chip taken the last flip? It latches the new start address at the
+ * next vertical retrace, so a flip is done once a retrace has been seen that
+ * began AFTER it (active display seen, then the blank), or once a whole frame
+ * has gone by - which also covers a box whose retrace bit cannot be read. */
+static int flip_done(VCR_PDEV *pd)
+{
+    vcr_dd_vblank v;
+    LONGLONG f, frame;
+    if (!pd->flip_pending)
+        return 1;
+    if (vblank(pd, &v)) {
+        if (!v.in_vblank)
+            pd->flip_seen_active = 1;
+        else if (pd->flip_seen_active)
+            pd->flip_pending = 0;
+    }
+    if (pd->flip_pending) {
+        EngQueryPerformanceFrequency(&f);
+        frame = f / (pd->freq > 1 ? pd->freq : 60);
+        if (qpc() - pd->flip_t0 > frame + frame / 8)
+            pd->flip_pending = 0;
+    }
+    return !pd->flip_pending;
+}
+
 static DWORD APIENTRY Dd_Flip(PDD_FLIPDATA p)
 {
     VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
     ULONG off = (ULONG)p->lpSurfTarg->lpGbl->fpVidMem;
-    DWORD rc = flip_to(pd, off);
+    vcr_dd_vblank v;
+    DWORD rc;
+    /* the previous flip has not reached the screen: DDFLIP_WAIT retries */
+    if (!flip_done(pd)) {
+        p->ddRVal = DDERR_WASSTILLDRAWING;
+        return DDHAL_DRIVER_HANDLED;
+    }
+    VcrDd2dSync(pd);            /* a queued blit into the new front finishes first */
+    rc = flip_to(pd, off);
     pd->dd_flips++;
-    if (rc)
+    if (rc) {
         VcrDd(VCR_LV_WARN, VCR_EV_DD_DDRAW, 3, off, rc, pd->dd_flips, "Flip refused");
-    p->ddRVal = rc ? DDERR_GENERIC : DD_OK;
+        p->ddRVal = DDERR_GENERIC;
+        return DDHAL_DRIVER_HANDLED;
+    }
+    pd->flip_pending = 1;
+    pd->flip_seen_active = vblank(pd, &v) && !v.in_vblank;
+    pd->flip_from = p->lpSurfCurr ? (ULONG)p->lpSurfCurr->lpGbl->fpVidMem : 0xffffffffu;
+    pd->flip_t0 = qpc();
+    p->ddRVal = DD_OK;
     return DDHAL_DRIVER_HANDLED;
 }
 
 static DWORD APIENTRY Dd_GetFlipStatus(PDD_GETFLIPSTATUSDATA p)
 {
-    p->ddRVal = DD_OK;              /* the chip latches the start address at vsync */
+    VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
+    p->ddRVal = flip_done(pd) ? DD_OK : DDERR_WASSTILLDRAWING;
     return DDHAL_DRIVER_HANDLED;
 }
 
@@ -250,9 +298,11 @@ static DWORD APIENTRY Dd_Blt(PDD_BLTDATA p)
 {
     VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
     PDD_SURFACE_LOCAL d = p->lpDDDestSurface, s = p->lpDDSrcSurface;
-    const DWORD ok_flags = DDBLT_WAIT | DDBLT_ASYNC | DDBLT_COLORFILL | DDBLT_ROP;
+    const DWORD ok_flags = DDBLT_WAIT | DDBLT_ASYNC | DDBLT_COLORFILL | DDBLT_ROP |
+                           DDBLT_KEYSRC | DDBLT_KEYSRCOVERRIDE;
+    DWORD keyed = p->dwFlags & (DDBLT_KEYSRC | DDBLT_KEYSRCOVERRIDE);
     PUCHAR dp, sp;
-    ULONG dmax, smax, bpp;
+    ULONG dmax, smax, bpp, doff;
     LONG w, h, y, x, dpitch, spitch;
 
     if (p->IsClipped || (p->dwFlags & ~ok_flags))
@@ -262,28 +312,41 @@ static DWORD APIENTRY Dd_Blt(PDD_BLTDATA p)
     bpp = surf_bytespp(pd, d);
     if (bpp != 1 && bpp != 2 && bpp != 4)
         return DDHAL_DRIVER_NOTHANDLED;
+    doff = (ULONG)d->lpGbl->fpVidMem;
     dpitch = d->lpGbl->lPitch;
     w = p->rDest.right - p->rDest.left;
     h = p->rDest.bottom - p->rDest.top;
     if ((ULONG)((p->rDest.bottom - 1) * dpitch + p->rDest.right * (LONG)bpp) > dmax)
         return DDHAL_DRIVER_NOTHANDLED;
-    dp += p->rDest.top * dpitch + p->rDest.left * (LONG)bpp;
+    /* a blit into the buffer a pending flip is taking off the screen tears */
+    if (doff == pd->flip_from && !flip_done(pd)) {
+        p->ddRVal = DDERR_WASSTILLDRAWING;
+        return DDHAL_DRIVER_HANDLED;
+    }
 
     if (p->dwFlags & DDBLT_COLORFILL) {
         DWORD c = p->bltFX.dwFillColor;
-        for (y = 0; y < h; y++, dp += dpitch) {
-            if (bpp == 1)
-                memset(dp, (int)(c & 0xff), (size_t)w);
-            else if (bpp == 2)
-                for (x = 0; x < w; x++)
-                    ((USHORT *)dp)[x] = (USHORT)c;
-            else
-                for (x = 0; x < w; x++)
-                    ((ULONG *)dp)[x] = c;
+        if (keyed)
+            return DDHAL_DRIVER_NOTHANDLED;
+        if (!VcrDd2dFill(pd, doff, dpitch, bpp, p->rDest.left, p->rDest.top, w, h, c)) {
+            VcrDd2dSync(pd);
+            dp += p->rDest.top * dpitch + p->rDest.left * (LONG)bpp;
+            for (y = 0; y < h; y++, dp += dpitch) {
+                if (bpp == 1)
+                    memset(dp, (int)(c & 0xff), (size_t)w);
+                else if (bpp == 2)
+                    for (x = 0; x < w; x++)
+                        ((USHORT *)dp)[x] = (USHORT)c;
+                else
+                    for (x = 0; x < w; x++)
+                        ((ULONG *)dp)[x] = c;
+            }
         }
-    } else if ((p->dwFlags & DDBLT_ROP) && ((p->bltFX.dwROP >> 16) & 0xff) == 0xcc && s) {
-        /* the runtime passes the raster op as 0x00CC0000 - GDI's SRCCOPY
-         * (0x00CC0020) never matches; only the ROP byte counts */
+    } else if (s && (!(p->dwFlags & DDBLT_ROP) || ((p->bltFX.dwROP >> 16) & 0xff) == 0xcc)) {
+        /* a copy: an explicit SRCCOPY - the runtime passes the raster op as
+         * 0x00CC0000, so GDI's SRCCOPY (0x00CC0020) never matches; only the
+         * ROP byte counts - or a keyed blit, which carries no ROP at all */
+        DDCOLORKEY ck = { 0, 0 };
         if (!(sp = surf_kva(pd, s, &smax)) || !rect_inside(&p->rSrc, s) ||
             surf_bytespp(pd, s) != bpp || p->rSrc.right - p->rSrc.left != w ||
             p->rSrc.bottom - p->rSrc.top != h)
@@ -291,14 +354,28 @@ static DWORD APIENTRY Dd_Blt(PDD_BLTDATA p)
         spitch = s->lpGbl->lPitch;
         if ((ULONG)((p->rSrc.bottom - 1) * spitch + p->rSrc.right * (LONG)bpp) > smax)
             return DDHAL_DRIVER_NOTHANDLED;
-        sp += p->rSrc.top * spitch + p->rSrc.left * (LONG)bpp;
-        if (sp < dp && sp + (h - 1) * spitch + w * (LONG)bpp > dp) {
-            /* overlapping, destination below: bottom row first */
-            for (y = h - 1; y >= 0; y--)
-                memmove(dp + y * dpitch, sp + y * spitch, (size_t)w * bpp);
+        if (p->dwFlags & DDBLT_KEYSRCOVERRIDE)
+            ck = p->bltFX.ddckSrcColorkey;
+        else if (keyed)
+            ck = s->ddckCKSrcBlt;
+        if (VcrDd2dCopy(pd, doff, dpitch, (ULONG)s->lpGbl->fpVidMem, spitch, bpp,
+                        p->rSrc.left, p->rSrc.top, p->rDest.left, p->rDest.top, w, h,
+                        keyed != 0, ck.dwColorSpaceLowValue, ck.dwColorSpaceHighValue)) {
+            /* queued on the engine */
+        } else if (keyed) {
+            return DDHAL_DRIVER_NOTHANDLED;         /* the HEL keys in software */
         } else {
-            for (y = 0; y < h; y++)
-                memmove(dp + y * dpitch, sp + y * spitch, (size_t)w * bpp);
+            VcrDd2dSync(pd);
+            dp += p->rDest.top * dpitch + p->rDest.left * (LONG)bpp;
+            sp += p->rSrc.top * spitch + p->rSrc.left * (LONG)bpp;
+            if (sp < dp && sp + (h - 1) * spitch + w * (LONG)bpp > dp) {
+                /* overlapping, destination below: bottom row first */
+                for (y = h - 1; y >= 0; y--)
+                    memmove(dp + y * dpitch, sp + y * spitch, (size_t)w * bpp);
+            } else {
+                for (y = 0; y < h; y++)
+                    memmove(dp + y * dpitch, sp + y * spitch, (size_t)w * bpp);
+            }
         }
     } else {
         return DDHAL_DRIVER_NOTHANDLED;
@@ -310,7 +387,14 @@ static DWORD APIENTRY Dd_Blt(PDD_BLTDATA p)
 
 static DWORD APIENTRY Dd_GetBltStatus(PDD_GETBLTSTATUSDATA p)
 {
-    p->ddRVal = DD_OK;              /* software blits finish before Blt returns */
+    VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
+    ULONG st = pd->pjRegs ? *(volatile ULONG *)pd->pjRegs : 0;
+    /* CANBLT: the engine queues, always yes. ISBLTDONE: only once it drained */
+    if ((p->dwFlags & DDGBS_ISBLTDONE) && pd->g2d_busy && pd->pjRegs &&
+        ((st & (1u << 9)) || (st & 0x1fu) < pd->g2d_fifo_full))
+        p->ddRVal = DDERR_WASSTILLDRAWING;
+    else
+        p->ddRVal = DD_OK;
     return DDHAL_DRIVER_HANDLED;
 }
 
@@ -357,8 +441,15 @@ static DWORD APIENTRY Dd_CreateSurface(PDD_CREATESURFACEDATA p)
 
 static DWORD APIENTRY Dd_Lock(PDD_LOCKDATA p)
 {
-    (void)p;
-    return DDHAL_DRIVER_NOTHANDLED;
+    VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
+    /* the buffer a pending flip is taking off the screen is still visible */
+    if (p->lpDDSurface && (ULONG)p->lpDDSurface->lpGbl->fpVidMem == pd->flip_from &&
+        !flip_done(pd)) {
+        p->ddRVal = DDERR_WASSTILLDRAWING;
+        return DDHAL_DRIVER_HANDLED;
+    }
+    VcrDd2dSync(pd);            /* the CPU is about to read or write video memory */
+    return DDHAL_DRIVER_NOTHANDLED;     /* the runtime computes the pointer */
 }
 
 static DWORD APIENTRY Dd_Unlock(PDD_UNLOCKDATA p)

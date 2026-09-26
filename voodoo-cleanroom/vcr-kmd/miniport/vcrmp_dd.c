@@ -87,7 +87,10 @@ VP_STATUS VcrDdIoctl(VCR_EXT *x, ULONG code, PVOID in, ULONG inlen, PVOID out, U
             /* input status 1 through the std-vga MMIO block (0x3c0 at +0) */
             v->in_vblank = x->bochs_vga ? (VideoPortReadRegisterUchar(x->bochs_vga + 0x1a) >> 3) & 1 : 0;
         } else {
-            v->in_vblank = (VcrRd(x, 0, VCR_R_STATUS) & VCR_STATUS_VRETRACE) ? 1 : 0;
+            /* status[6] is CLEAR during the retrace (Glide: grSstVRetraceOn
+             * returns (status & SST_VRETRACE) == 0) - reading it the other way
+             * waited for the END of the blank and tore every flip */
+            v->in_vblank = (VcrRd(x, 0, VCR_R_STATUS) & VCR_STATUS_VRETRACE) ? 0 : 1;
             v->scanline = VcrRd(x, 0, VCR_R_VIDCURRENTLINE) & 0x7ff;
         }
         v->scan_offset = x->dd_scan;

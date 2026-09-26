@@ -418,6 +418,7 @@ HSURF APIENTRY DrvEnableSurface(DHPDEV dhpdev)
         return NULL;
     }
     pd->hsurfEng = hs;
+    VcrDd2dInit(pd);
     VcrDd(VCR_LV_INFO, VCR_EV_DD_ENABLE_SURF, (ULONG)(ULONG_PTR)pd->pjScreen, pd->lDelta,
           0, 1, "DrvEnableSurface %ux%ux%u", pd->cx, pd->cy, pd->bpp);
     VcrDdPointerProbe(pd);
@@ -429,6 +430,7 @@ VOID APIENTRY DrvDisableSurface(DHPDEV dhpdev)
     VCR_PDEV *pd = (VCR_PDEV *)dhpdev;
     VIDEO_MEMORY vmem;
     VcrDd(VCR_LV_DEBUG, VCR_EV_DD_DISABLE_SURF, 0, 0, 0, 0, "DrvDisableSurface");
+    VcrDd2dTerm(pd);
     if (pd->hsurfEng)
         EngDeleteSurface(pd->hsurfEng);
     pd->hsurfEng = NULL;
@@ -459,8 +461,10 @@ BOOL APIENTRY DrvAssertMode(DHPDEV dhpdev, BOOL bEnable)
                   "exclusive owner %u never released - cleared on re-assert", pd->exclusive_pid);
         pd->exclusive_pid = 0;
         ok = VcrDdSetMode(pd);
-    } else
+    } else {
+        VcrDd2dSync(pd);        /* nothing of ours in flight across the reset */
         VcrIoctl(pd->hDriver, IOCTL_VIDEO_RESET_DEVICE, NULL, 0, NULL, 0, NULL);
+    }
     VcrDd(VCR_LV_INFO, VCR_EV_DD_ASSERT_MODE, bEnable, ok, 0, 0, "DrvAssertMode");
     return ok;
 }

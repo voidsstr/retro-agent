@@ -41,7 +41,7 @@ MP_SRC  := miniport/vcrmp.c miniport/vcrmp_log.c miniport/vcrmp_hw.c miniport/vc
            common/vcr_log.c common/vcr_fmt.c common/vcr_modes.c common/vcr_ics307.c \
            common/vcr_edid.c common/vcr_cursor.c
 DD_SRC  := display/vcrdd.c display/vcrdd_escape.c display/vcrdd_log.c display/vcrdd_pointer.c \
-           display/vcrdd_ddraw.c display/vcrdd_punt.c \
+           display/vcrdd_ddraw.c display/vcrdd_punt.c display/vcrdd_2d.c \
            common/vcr_fmt.c common/vcr_crt.c
 
 all: $(OUT)/vcrmp.sys $(OUT)/vcrdd.dll $(OUT)/vcrctl.exe $(OUT)/vcrprobe.sys
@@ -78,6 +78,17 @@ glidelab: $(OUT)/glidelab.exe
 $(OUT)/glidelab.exe: tools/glidelab.c | $(OUT)
 	$(CC) -O1 -Wall -march=i586 -I$(GLIDE_SDK) tools/glidelab.c -o $@ -static -lgdi32 -luser32
 
+# the self-checking lab programs (Win32 user mode): DirectDraw, Direct3D 8, GDI.
+# Run with tools/lab_run.py (or ddlab_run.py / d3dprobe_run.py).
+LABS := $(OUT)/ddlab.exe $(OUT)/d3dprobe.exe $(OUT)/gdilab.exe
+labs: $(LABS)
+$(OUT)/ddlab.exe: tools/ddlab.c | $(OUT)
+	$(CC) -O1 -Wall -march=i586 tools/ddlab.c -o $@ -static -lddraw -ldxguid -lgdi32 -luser32
+$(OUT)/d3dprobe.exe: tools/d3dprobe.c | $(OUT)
+	$(CC) -O1 -Wall -march=i586 tools/d3dprobe.c -o $@ -static -ld3d8 -lgdi32 -luser32
+$(OUT)/gdilab.exe: tools/gdilab.c | $(OUT)
+	$(CC) -O1 -Wall -march=i586 tools/gdilab.c -o $@ -static -lgdi32 -luser32
+
 imports: all
 	python3 tools/check_imports.py $(OUT)/vcrmp.sys $(OUT)/vcrdd.dll $(OUT)/vcrprobe.sys
 
@@ -87,4 +98,4 @@ check: imports
 clean:
 	rm -rf $(OUT)
 
-.PHONY: glidelab all imports check clean
+.PHONY: glidelab labs all imports check clean

@@ -237,6 +237,35 @@ static int cmd_pci(ULONG target, ULONG off)
 }
 
 
+/* the CLUT as the card holds it: dacAddr <- i, read dacData. Bank 0 is what a
+ * non-bypassed desktop at 16/32 bpp looks every channel up in, so anything but
+ * an identity ramp there is the scan-out's colours, not GDI's. */
+static int cmd_clut(ULONG first, ULONG count)
+{
+    vcr_reg_op op;
+    ULONG i, nonid = 0;
+    printf("{\"cmd\":\"clut\",\"first\":%lu,\"entries\":[", first);
+    for (i = first; i < first + count && i < 512; i++) {
+        memset(&op, 0, sizeof op);
+        op.kind = VCR_REG_MMIO32;
+        op.offset = 0x50;                       /* dacAddr */
+        op.value = i;
+        op.write = 1;
+        if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
+            return fail("clut", "dacAddr write refused");
+        memset(&op, 0, sizeof op);
+        op.kind = VCR_REG_MMIO32;
+        op.offset = 0x54;                       /* dacData */
+        if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
+            return fail("clut", "dacData read refused");
+        if ((op.value & 0xffffff) != ((i & 0xff) * 0x010101))
+            nonid++;
+        printf("%s\"%06x\"", i > first ? "," : "", op.value & 0xffffff);
+    }
+    printf("],\"not_identity\":%lu}\n", nonid);
+    return 0;
+}
+
 /* ---- vcrprobe.sys (loaded on the fly: sc start vcrprobe) --------------------- */
 
 static HANDLE probe_open(void)
@@ -869,6 +898,8 @@ int main(int argc, char **argv)
         rc = cmd_snapshot();
     else if (!strcmp(cmd, "reg") && argc > 2)
         rc = cmd_regop("reg", VCR_REG_MMIO32, strtoul(argv[2], NULL, 16), 0);
+    else if (!strcmp(cmd, "clut"))
+        rc = cmd_clut(argc > 2 ? strtoul(argv[2], NULL, 0) : 0, argc > 3 ? strtoul(argv[3], NULL, 0) : 256);
     else if (!strcmp(cmd, "crtc") && argc > 2)
         rc = cmd_regop("crtc", VCR_REG_VGA_CRTC, 0, strtoul(argv[2], NULL, 16));
     else if (!strcmp(cmd, "pci") && argc > 3)

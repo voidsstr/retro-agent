@@ -1,0 +1,3 @@
+{"mode": "gdi", "bpp": 16, "rounds": 3, "bad_fill": 0, "bad_rop": 0, "bad_copy": 0, "bad_scroll": 0, "bad_clip": 0, "bad_sync": 0, "bad": 0}
+{"mode": "blt", "res": "800x600x16", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "bad_key": 0, "blts_s": 2349, "mpix_s": 153.9, "hal_caps": "04020040"}
+{"mode": "flip", "res": "800x600x16", "primary_in": "video", "frames": 60, "mismatch": 0, "lock_fail": 0, "flips_s": 62.3, "vblank_hz": 60.4, "scanline": 2293576, "hal_caps": "04020040"}

@@ -92,11 +92,16 @@ that file, so names cannot drift.
 | `out/glidelab.exe` (`tools/glidelab.c`, `make glidelab GLIDE_SDK=...`) | our Glide test program, no game in the way: `fill` (Mpixel/s, flat or blended), `bands` (every scanline an exact RGB565 value read back through the LFB, bad lines per owning chip), `cycle` (open/close N times: SLI set up and torn down), `abandon` (exit without closing, as a killed game does) |
 | `tools/glidelab_run.py`, `tools/glidelab_sweep.py` | run one glidelab mode on a box / sweep fill + bands over SLI/AA configs (one boot each, or `--no-reboot` for ours), JSON lines in `evidence/glidelab/` |
 | `tools/cursor_golden.py` | the hardware cursor's registers and 1 KB pattern, read back (a screenshot cannot show a hardware cursor), compared against the vendor's |
-| `out/ddlab.exe` (`tools/ddlab.c`) + `tools/ddlab_run.py` | our DirectDraw test program: `caps` (HAL vs HEL, video memory), `flip` (a frame-numbered pattern written to the back buffer must read back from the FRONT after each flip), `blt` (copy, colour fill and an overlapping scroll between video-memory surfaces, read back) |
+| `out/ddlab.exe` (`tools/ddlab.c`) + `tools/ddlab_run.py` | our DirectDraw test program: `caps` (HAL vs HEL, video memory), `flip` (a frame-numbered pattern written to the back buffer must read back from the FRONT after each flip), `blt` (copy, colour fill, an overlapping scroll and a SOURCE-COLOUR-KEYED copy between video-memory surfaces, read back) |
+| `out/gdilab.exe` (`tools/gdilab.c`) | our GDI test program, self-checking against a per-pixel pattern: solid fills, BLACKNESS/WHITENESS, screen-to-screen copies (odd positions and sizes), overlapping scrolls in all four directions, a copy through a clip region with a hole, and the engine and the CPU interleaved on the same pixels |
+| `out/d3dprobe.exe` (`tools/d3dprobe.c`) + `tools/d3dprobe_run.py` | our Direct3D 8 test program: `caps` (adapter, D3DCAPS8, formats), `render` (clear, flat, gouraud, texture, modulate, blend, z-test, 256x256 texture - the back buffer LOCKED and compared with computed values, windowed or `--full`), `perf` |
+| `tools/lab_run.py <lab> <host>` | runs any of the labs on a box or test bed and fails on any `bad*`/`fail` count |
+| `make labs` | builds ddlab, d3dprobe, gdilab |
+| `tools/86box/` | **the Voodoo3 test bed**: 86Box emulating a real Voodoo3 3000 - the driver's Voodoo paths, recoverable by script. [`tools/86box/README.md`](tools/86box/README.md) |
 
 Host tests: `tests/native/test_vcr_kmd_{log,fmt,modes,abi,sli,ics307}.c`,
-`tests/python/test_vcr_kmd_tools.py`, `tests/python/test_vcr_kmd_sli_glue.py`
-(all in `tests/run_all.sh`).
+`tests/python/test_vcr_kmd_tools.py`, `tests/python/test_vcr_kmd_sli_glue.py`,
+`tests/python/test_vcr_kmd_{ddraw,2d}.py` (all in `tests/run_all.sh`).
 
 ## Status (2026-09-26)
 
@@ -227,6 +232,32 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
 
 ## Findings (measured)
 
+- **The 2D engine, on the 86Box Voodoo3 (2026-09-26).** `display/vcrdd_2d.c`
+  drives it straight through the PCI FIFO (registers mapped for the display
+  driver by `IOCTL_VIDEO_QUERY_PUBLIC_ACCESS_RANGES`): DirectDraw Blt (copy,
+  colour fill, source colour key) and GDI screen-to-screen copies and solid
+  fills, clip rectangle by clip rectangle. ddlab blt: 2349 blts/s, 153.9
+  Mpix/s against the in-box driver's 77.6, 0 bad at 16 and 32 bpp; gdilab 0
+  bad. Three things the labs caught on the way:
+  - a RECTFILL's colour is the **source** operand (colorFore): PATCOPY (0xF0)
+    fills from the pattern registers - ddlab bad_fill 4096/4096. Fills are
+    SRCCOPY.
+  - a source colour key picks the ROP from the **rop register** (byte 1 for a
+    source match); it must say D (0xAA) or keyed pixels are copied anyway.
+  - the sync before any CPU access waits for busy clear **and** the PCI FIFO
+    back at its empty free count: an operation still queued has not started,
+    and 86Box's status counts only started work - gdilab engine/CPU
+    interleave 170 bad, then 0.
+- **`status[6]` is CLEAR during vertical retrace** (Glide `grSstVRetraceOn`:
+  `(status & SST_VRETRACE) == 0`). The miniport read it the other way, so
+  `WaitForVerticalBlank` waited for the END of the blank and `GetScanLine`
+  reported "in blank" during the visible frame - on silicon too. Found on the
+  86Box bed.
+- **A DirectDraw flip is latched at the next retrace**; until then Flip,
+  GetFlipStatus and a Lock (or blit) of the buffer being taken off the screen
+  answer `DDERR_WASSTILLDRAWING`. Before: 768 flips/s on a 60 Hz mode (no
+  vsync at all); after: 62.3, the in-box driver 60.9.
+
 - **DirectDraw on XP is switched off, silently, by `DDCAPS_GDI`.** A HAL that
   claims it is probed at every PDEV (info twice, enable, ten GetDriverInfo
   queries) and disabled again, and applications get `DDCAPS_NOHARDWARE`. Found
@@ -308,5 +339,9 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
 4. ~~**DDC/EDID**~~ — done 2026-09-26 (above). Benchmarks against the vendor
    still need the refresh pinned: our list is the monitor's, the vendor's is
    its own table.
-5. **2D acceleration + hardware cursor + tiled desktop.**
-6. **DirectDraw HAL**, then D3D.
+5. **2D acceleration** — copies and solid fills done on the 86Box Voodoo3
+   (above); next: mono-expanding text (host-to-screen), patterns, lines.
+   Hardware cursor (branch, untested on silicon); tiled desktop.
+6. **DirectDraw HAL** — done in the VM and on the 86Box Voodoo3 (flip on
+   vsync, engine blits). **Direct3D next**: `d3dprobe render` is the gate (the
+   in-box driver passes 26/26 on the same emulated card).

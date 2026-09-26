@@ -228,6 +228,7 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
          x->nmodes >= VCR_MAX_MODES ? "%u modes - TABLE FULL, modes dropped" : "%u modes",
          x->nmodes);
     x->allow_poke = VcrDiagGet(L"AllowPoke", 0);
+    x->accel2d = VcrDiagGet(L"Accel2D", 1);
     hwinfo(x);
 
     /* no VDM (full-screen DOS) support: the VGA driver keeps that role */
@@ -414,7 +415,8 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
     VideoPortMoveMemory(v->mon_name, x->mon.name, sizeof x->mon.name);
     VideoPortMoveMemory(v->edid, x->edid, sizeof v->edid);
     v->log_next_seq = VcrLogNextSeq();
-    v->flags = x->allow_poke ? VCR_INFO_F_ALLOW_POKE : 0;
+    v->flags = (x->allow_poke ? VCR_INFO_F_ALLOW_POKE : 0) |
+               (x->accel2d ? 0 : VCR_INFO_F_NO_ACCEL2D);
     v->ogl_version = VcrDiagGet(L"OpenGLVersion", 2);
     v->ogl_driver_version = VcrDiagGet(L"OpenGLDriverVersion", 1);
     if (!VcrDiagGetString(L"OpenGLName", v->ogl_name, 32)) {
@@ -581,6 +583,43 @@ static BOOLEAN NTAPI VcrStartIO(PVOID ext, PVIDEO_REQUEST_PACKET rp)
         VIDEO_MEMORY *in = (VIDEO_MEMORY *)rp->InputBuffer;
         NEED_IN(sizeof *in);
         st = VideoPortUnmapMemory(ext, in->RequestedVirtualAddress, NULL);
+        break;
+    }
+    case IOCTL_VIDEO_QUERY_PUBLIC_ACCESS_RANGES: {
+        /* the display driver's own view of chip 0's register window (io,
+         * CMDFIFO, 2D, 3D) - what its Direct3D and 2D engines write. System
+         * space only: the input names a process to map into (NULL = the
+         * display driver), and no other process is given the registers here -
+         * Glide has IOCTL_VCR_MAP_GLIDE. */
+        VIDEO_MEMORY req;
+        VIDEO_PUBLIC_ACCESS_RANGES *out = (VIDEO_PUBLIC_ACCESS_RANGES *)rp->OutputBuffer;
+        ULONG len = VCR_MMIO_MAP_LEN, inio = VIDEO_MEMORY_SPACE_MEMORY;
+        PVOID va = NULL;
+        NEED_OUT(sizeof *out);
+        req.RequestedVirtualAddress = NULL;
+        if (rp->InputBufferLength >= sizeof req)        /* one buffer: read first */
+            VideoPortMoveMemory(&req, rp->InputBuffer, sizeof req);
+        if (x->backend != VCR_HW_VOODOO || req.RequestedVirtualAddress) {
+            st = ERROR_INVALID_FUNCTION;
+            break;
+        }
+        st = VideoPortMapMemory(ext, x->chip[0].mmio_phys, &len, &inio, &va);
+        out->InIoSpace = 0;
+        out->MappedInIoSpace = inio;
+        out->VirtualAddress = st == NO_ERROR ? va : NULL;
+        info = sizeof *out;
+        VLOG(st == NO_ERROR ? VCR_LV_INFO : VCR_LV_ERROR, VCR_EV_MAP, 2,
+             x->chip[0].mmio_phys.LowPart, len, (ULONG)(ULONG_PTR)va,
+             "registers mapped for the display driver");
+        break;
+    }
+    case IOCTL_VIDEO_FREE_PUBLIC_ACCESS_RANGES: {
+        VIDEO_MEMORY req;
+        NEED_IN(sizeof req);
+        VideoPortMoveMemory(&req, rp->InputBuffer, sizeof req);
+        st = VideoPortUnmapMemory(ext, req.RequestedVirtualAddress, NULL);
+        VLOG(st == NO_ERROR ? VCR_LV_INFO : VCR_LV_WARN, VCR_EV_MAP, 3,
+             (ULONG)(ULONG_PTR)req.RequestedVirtualAddress, st, 0, "registers unmapped");
         break;
     }
     case IOCTL_VIDEO_GET_CHILD_STATE: {

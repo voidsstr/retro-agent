@@ -85,6 +85,7 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
         break;
 
     case VCR_HWC_GETLINEARADDR:
+        VcrDd2dSync(pd);            /* Glide is about to program the chip */
         rc = VcrIoctl(pd->hDriver, IOCTL_VCR_MAP_GLIDE, NULL, 0, &map, sizeof map, NULL);
         if (rc || map.status)
             break;
@@ -109,6 +110,7 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
         break;
 
     case VCR_HWC_HWCSETEXCLUSIVE:
+        VcrDd2dSync(pd);            /* the chip is Glide's from here: nothing of ours queued */
         pd->exclusive_pid = pid;
         rs->resStatus = VCR_HWC_OK;
         VcrDd(VCR_LV_INFO, VCR_EV_HWC_EXCLUSIVE, 1, pid, 1, 0, "HWCSETEXCLUSIVE");

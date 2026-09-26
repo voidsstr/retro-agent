@@ -51,6 +51,17 @@ typedef struct VCR_PDEV {
     ULONG       hw_pointer;         /* the miniport offers the hardware cursor */
     ULONG       ptr_on;
     LONG        xHot, yHot;
+    /* the 2D engine (vcrdd_2d.c) */
+    PUCHAR      pjRegs;             /* chip 0's register window (system space) */
+    ULONG       g2d_ok;             /* the engine may be used */
+    ULONG       g2d_busy;           /* an operation was queued since the last sync */
+    ULONG       g2d_disabled;       /* Diag\Accel2D = 0 */
+    ULONG       g2d_fifo_full;      /* status[4:0] with the PCI FIFO empty */
+    ULONG       g2d_ops, g2d_gdi_copies, g2d_gdi_fills;
+    /* a DirectDraw flip the chip has not latched yet */
+    ULONG       flip_pending, flip_seen_active;
+    ULONG       flip_from;          /* the old front buffer (fpVidMem): not to be drawn on yet */
+    LONGLONG    flip_t0;
 } VCR_PDEV;
 
 /* vcrdd_log.c */
@@ -62,6 +73,16 @@ DWORD VcrIoctl(HANDLE h, DWORD code, PVOID in, DWORD cin, PVOID out, DWORD cout,
 
 /* vcrdd.c */
 BOOL  VcrDdSetMode(VCR_PDEV *pd);
+
+/* vcrdd_2d.c: the 2D engine. Sync before ANY CPU access to video memory. */
+void  VcrDd2dInit(VCR_PDEV *pd);
+void  VcrDd2dTerm(VCR_PDEV *pd);
+void  VcrDd2dSync(VCR_PDEV *pd);
+BOOL  VcrDd2dCopy(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG src_off, LONG src_stride,
+                  ULONG bytespp, LONG sx, LONG sy, LONG dx, LONG dy, LONG w, LONG h,
+                  ULONG ckey, ULONG ck_lo, ULONG ck_hi);
+BOOL  VcrDd2dFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LONG x, LONG y,
+                  LONG w, LONG h, ULONG color);
 
 /* vcrdd_ddraw.c (with the public DDK's DirectDraw headers) */
 #ifdef VCR_HAVE_DDI

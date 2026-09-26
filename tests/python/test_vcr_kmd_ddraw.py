@@ -50,9 +50,11 @@ def test_srccopy_is_matched_by_the_rop_byte():
 
 def test_a_blit_we_cannot_do_goes_back_to_the_hel():
     blt = func(DD, "static DWORD APIENTRY Dd_Blt(")
-    # stretch, format change, clip lists, system memory: NOTHANDLED, never an error
+    # stretch, format change, clip lists, system memory: NOTHANDLED, never an
+    # error. The one non-OK answer is "still drawing" (a pending flip), which
+    # DDBLT_WAIT retries.
     assert blt.count("return DDHAL_DRIVER_NOTHANDLED;") >= 5
-    assert "DDERR_" not in blt
+    assert set(re.findall(r"DDERR_\w+", blt)) <= {"DDERR_WASSTILLDRAWING"}
 
 
 def test_the_primary_is_a_hooked_device_surface():
