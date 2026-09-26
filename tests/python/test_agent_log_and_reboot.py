@@ -84,6 +84,16 @@ def test_console_apps_that_can_veto_are_killed():
         assert exe in body, "%s can hold up a Win9x shutdown" % exe
 
 
+def test_reboot_never_kills_the_console_host_it_runs_in():
+    """On Win9x CONAGENT.EXE hosts the console of every Win32 console app,
+    this agent's included. Killing it before ExitWindowsEx killed the agent
+    itself, so a remote REBOOT on .243 logged "REBOOT: initiating" and then
+    nothing: the machine stayed up and the agent was gone (2026-09-25/26)."""
+    body = func_body(read("handlers.c"), "static void kill_console_processes(")
+    code = re.sub(r"/\*.*?\*/", "", body, flags=re.S)
+    assert "CONAGENT" not in code.upper()
+
+
 # ----------------------------------------------------------- logging -------
 
 def test_startup_is_unbuffered_then_switches():

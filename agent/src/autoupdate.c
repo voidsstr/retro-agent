@@ -418,6 +418,7 @@ DWORD WINAPI autoupdate_thread(LPVOID param)
     char temp_exe[MAX_PATH];
     char bat_path[MAX_PATH];
     char ver_path[520];        /* update_path[512] + ".ver" */
+    int have_ver = 0;          /* the share published a .ver sidecar */
     char remote_ver[64];
     char last_ver[64];
     DWORD local_size, remote_size;
@@ -476,6 +477,7 @@ DWORD WINAPI autoupdate_thread(LPVOID param)
     ver_path[sizeof(ver_path) - 1] = '\0';
 
     if (read_version_file(ver_path, remote_ver, sizeof(remote_ver))) {
+        have_ver = 1;
         int cmp = version_cmp(remote_ver, AGENT_VERSION);
         if (cmp == 0) {
             log_msg(LOG_UPDATE, "Binary is current (version %s), no update needed",
@@ -528,6 +530,40 @@ DWORD WINAPI autoupdate_thread(LPVOID param)
     if (get_file_size(temp_exe) != remote_size) {
         log_msg(LOG_UPDATE, "Copy size mismatch, aborting");
         DeleteFileA(temp_exe);
+        return 0;
+    }
+
+    /* WIN9x: STAGE, do not swap. An in-session swap needs the old process
+     * gone, and a 9x process can outlive TerminateProcess for a long time
+     * while one of its threads sits in a blocking ring-0 call (SMB, winsock):
+     * the exe stays locked, every rename in the restart batch fails, and the
+     * batch restarts the OLD build. Hardware-observed on .243 three times
+     * (1.85.0 -> 1.85.1 on 2026-09-25, -> 1.85.2 on 2026-09-26 14:42: "shutdown
+     * complete", then the same 1.85.0 back 22 s later), each one costing the
+     * box a restart and the update. AGENTRUN.BAT, which runs at logon before
+     * any agent holds the exe, installs a staged retro_agent_new.exe, and has
+     * done so on this box. So on 9x: leave the new build there, record its
+     * version where AGENTRUN compares it, keep running, and say so. */
+    if (GetVersion() & 0x80000000) {
+        char staged[MAX_PATH];
+        char agent_ver[MAX_PATH];
+        _snprintf(staged, sizeof(staged), "%s\\retro_agent_new.exe", install_dir);
+        staged[sizeof(staged) - 1] = '\0';
+        _snprintf(agent_ver, sizeof(agent_ver), "%s\\agent.ver", install_dir);
+        agent_ver[sizeof(agent_ver) - 1] = '\0';
+        DeleteFileA(staged);
+        if (!MoveFileA(temp_exe, staged)) {
+            log_msg(LOG_UPDATE, "Win9x: could not stage %s (error %lu) - no update",
+                    staged, (unsigned long)GetLastError());
+            DeleteFileA(temp_exe);
+            return 0;
+        }
+        if (have_ver && !CopyFileA(ver_path, agent_ver, FALSE))
+            log_msg(LOG_UPDATE, "Win9x: staged, but could not write %s (error %lu)",
+                    agent_ver, (unsigned long)GetLastError());
+        log_msg(LOG_UPDATE, "Win9x: staged version %s as %s - AGENTRUN.BAT installs "
+                "it at the next logon; this agent keeps running %s",
+                have_ver ? remote_ver : "(no .ver)", staged, AGENT_VERSION);
         return 0;
     }
 

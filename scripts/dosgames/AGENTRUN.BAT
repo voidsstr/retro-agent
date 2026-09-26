@@ -84,7 +84,11 @@ echo boot:   share version: >> %AGLOG%
 type %AGDIR%\share.ver >> %AGLOG%
 echo. >> %AGLOG%
 if not exist %AGDIR%\agent.ver goto pullit
-fc %AGDIR%\agent.ver %AGDIR%\share.ver > nul
+rem FC never sets ERRORLEVEL on DOS/Win9x, so 'if not errorlevel 1' after
+rem it was always true and every boot read as up to date. FIND does set
+rem it: look for FC's own no-differences line in its output.
+fc %AGDIR%\agent.ver %AGDIR%\share.ver > %AGDIR%\fc.txt
+find /i "no differences" %AGDIR%\fc.txt > nul
 if not errorlevel 1 goto uptodate
 
 :pullit

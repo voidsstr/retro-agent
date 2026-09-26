@@ -217,8 +217,19 @@ void handle_ping(SOCKET sock)
 
 /*
  * Kill console/batch processes that can block ExitWindowsEx on Win9x.
- * Win98's EWX_FORCE doesn't reliably terminate console host windows
- * (WINOA386.MOD) or COMMAND.COM/CMD.EXE instances running batch files.
+ * Win98's EWX_FORCE doesn't reliably terminate COMMAND.COM/CMD.EXE instances
+ * running batch files, and our own chat client is a console app too.
+ *
+ * NEVER CONAGENT.EXE. On Win9x that process hosts the console of every Win32
+ * console app - including THIS agent's own ("tty" window). It was on this
+ * list from the first commit, so REBOOT/SHUTDOWN killed the agent's console
+ * right after logging "REBOOT: initiating": the agent died before it could
+ * call ExitWindowsEx, and Windows never restarted. Seen twice on .243
+ * (2026-09-25 22:21 and 2026-09-26 10:02): no ExitWindowsEx line, no 60 s
+ * "STILL RUNNING" line, networking up, agent gone, and the next boot line
+ * only when someone restarted it by hand. A console app we do not want is
+ * killed directly by name; killing its conagent was only ever a way to kill
+ * whatever console happened to be attached, which here was us.
  */
 /* How long the Win9x shutdown thread keeps pumping before concluding the
  * reboot did not take. Generous: the Deskpro takes its time closing DOS
@@ -283,7 +294,6 @@ static void kill_console_processes(int kill_chat)
              * and can hold the shutdown up. It restarts from the Run key. */
             if (_stricmp(pe.szExeFile, "COMMAND.COM") == 0 ||
                 _stricmp(pe.szExeFile, "CMD.EXE") == 0 ||
-                _stricmp(pe.szExeFile, "CONAGENT.EXE") == 0 ||
                 (kill_chat &&
                  _stricmp(pe.szExeFile, "RETRO_CHAT.EXE") == 0)) {
                 h = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);

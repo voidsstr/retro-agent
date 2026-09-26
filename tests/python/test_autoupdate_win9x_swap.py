@@ -136,3 +136,20 @@ def test_chat_kill_matches_the_basename_win9x_reports_a_full_path():
     assert "strrchr(pe.szExeFile, '\\\\')" in body
     assert '_stricmp(base, "retro_chat.exe")' in body
     assert '_stricmp(pe.szExeFile, "retro_chat.exe")' not in body
+
+
+def test_9x_stages_for_agentrun_instead_of_swapping_in_session():
+    """A 9x process can outlive TerminateProcess while a thread is in a
+    blocking ring-0 call, so the exe stays locked and the swap batch restarts
+    the OLD build - observed on .243 on every update. On 9x the agent must
+    stage retro_agent_new.exe (what AGENTRUN.BAT installs at logon), record
+    agent.ver, and keep running."""
+    s = (Path(__file__).resolve().parents[2] / "agent" / "src" / "autoupdate.c").read_text()
+    fn = s[s.index("DWORD WINAPI autoupdate_thread("):]
+    stage = fn.index("if (GetVersion() & 0x80000000) {")
+    branch = fn[stage:fn.index("/* Write restart batch script */")]
+    assert "retro_agent_new.exe" in branch and "MoveFileA(temp_exe, staged)" in branch
+    assert "agent.ver" in branch
+    assert "g_running" not in branch, "staging must not stop the agent"
+    assert branch.rstrip().endswith("return 0;\n    }") or "return 0;\n    }" in branch
+    assert stage < fn.index("build_restart_bat(bat_path")

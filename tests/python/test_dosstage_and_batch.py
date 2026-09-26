@@ -184,3 +184,15 @@ def test_agentrun_waits_for_the_network_and_uses_the_long_share_name():
                      src, re.M)
     assert re.search(r"^goto mapit", src, re.M), "the share is retried, not tried once"
     assert re.search(r'^if "%AGTRY%"=="x+" goto nomap', src, re.M), "and the retry is bounded"
+
+
+def test_agentrun_version_compare_does_not_trust_fc_errorlevel():
+    """FC never sets ERRORLEVEL on DOS/Win9x, so `fc a b` + `if not errorlevel 1`
+    read every boot as "already on the share's version" and .243 was never
+    updated at logon (2026-09-25/26). FIND does set it on Win98."""
+    src = _read(os.path.join(DG, "AGENTRUN.BAT"))
+    lines = [l.strip().lower() for l in src.splitlines() if not l.strip().lower().startswith("rem")]
+    i = next(n for n, l in enumerate(lines) if l.startswith("fc "))
+    assert "> " in lines[i], "FC output must go to a file FIND can read"
+    assert lines[i + 1].startswith('find /i "no differences"')
+    assert lines[i + 2] == "if not errorlevel 1 goto uptodate"
