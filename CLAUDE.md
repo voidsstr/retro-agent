@@ -1155,8 +1155,10 @@ been bitten by:
   fleet box. GAMESYNC never deletes, so leftovers persist until someone removes
   them by hand — `_fstest*.bat`, a 0-byte `SoldierOfFortune2.wip` and a 44 MB
   `C:\H2SRC` all had to be cleaned up this way.
-* **Two boxes must never be rebooted** (`.123` and `.133` are unactivated), and
-  installers frequently want one.
+* **Any unactivated box must not be rebooted**, and installers frequently want
+  one. (`.123` was the standing example until it was activated remotely on
+  2026-09-26; `.133` was off that day and is still unchecked. Ask
+  `safe-reboot.py`, which reads Windows' own verdict, rather than this list.)
 * The fleet is **powered on demand** and the user swaps hardware constantly, so
   a box can vanish mid-install. The VM cannot.
 
