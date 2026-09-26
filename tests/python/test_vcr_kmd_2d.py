@@ -93,8 +93,11 @@ def test_vertical_retrace_is_status_bit_6_clear():
 
 def test_a_flip_is_pending_until_the_chip_latched_it():
     flip = func(DD, "static DWORD APIENTRY Dd_Flip(")
-    assert "if (!flip_done(pd))" in flip and "DDERR_WASSTILLDRAWING" in flip
-    assert "pd->flip_pending = 1;" in flip
+    assert "!flip_done(pd)" in flip and "DDERR_WASSTILLDRAWING" in flip
+    # pending unless the app asked not to wait (DDFLIP_NOVSYNC - see
+    # test_vcr_kmd_ddraw.py): a vsync'd flip still waits for the latch
+    assert "pd->flip_pending = !novsync;" in flip
+    assert re.search(r"if \(!novsync && !flip_done\(pd\)\)", flip)
     status = func(DD, "static DWORD APIENTRY Dd_GetFlipStatus(")
     assert "flip_done(pd) ? DD_OK : DDERR_WASSTILLDRAWING" in status
     done = func(DD, "static int flip_done(")
