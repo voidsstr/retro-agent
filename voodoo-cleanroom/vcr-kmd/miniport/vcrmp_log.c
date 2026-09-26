@@ -165,6 +165,36 @@ static void debug_port_out(const char *s)
     }
 }
 
+/* The phase history of the PREVIOUS boot, kept before this boot's first phase
+ * overwrites it: a box that hung (at boot, or mid-game in an SLI/AA bring-up)
+ * comes back from its power cycle with Prev* saying where it stopped. */
+static void copy_value(HANDLE h, PCWSTR from, PCWSTR to)
+{
+    UCHAR buf[sizeof(VCR_KEY_VALUE_PARTIAL) + PHASE_SLOTS * 16];
+    VCR_KEY_VALUE_PARTIAL *kv = (VCR_KEY_VALUE_PARTIAL *)buf;
+    UNICODE_STRING n;
+    ULONG got = 0;
+    RtlInitUnicodeString(&n, from);
+    if (ZwQueryValueKey(h, &n, VCR_KeyValuePartialInformation, kv, sizeof buf, &got) >= 0 &&
+        kv->DataLength <= PHASE_SLOTS * 16)
+        diag_write(h, to, kv->Type, kv->Data, kv->DataLength);
+}
+
+static void keep_previous_boot(void)
+{
+    HANDLE h;
+    if (KeGetCurrentIrql() != VCR_PASSIVE_LEVEL || !(h = diag_open()))
+        return;
+    copy_value(h, L"PhaseLog", L"PrevPhaseLog");
+    copy_value(h, L"PhaseCount", L"PrevPhaseCount");
+    copy_value(h, L"LastPhase", L"PrevLastPhase");
+    copy_value(h, L"LastPhaseA", L"PrevLastPhaseA");
+    copy_value(h, L"LastPhaseMs", L"PrevLastPhaseMs");
+    copy_value(h, L"BootCount", L"PrevBootCount");
+    ZwFlushKey(h);
+    ZwClose(h);
+}
+
 void VcrLogCreate(PUNICODE_STRING RegistryPath)
 {
     LARGE_INTEGER now;
@@ -190,6 +220,7 @@ void VcrLogCreate(PUNICODE_STRING RegistryPath)
         g_diag_path.MaximumLength = (USHORT)sizeof g_diag_buf;
     }
 
+    keep_previous_boot();
     g_log_level = VcrDiagGet(L"LogLevel", VCR_LV_DEBUG);
     g_debug_port = VcrDiagGet(L"DebugPort", 0);
     g_dbgprint = VcrDiagGet(L"DbgPrint", 0);

@@ -47,11 +47,12 @@ V56K_HWID = r"PCI\VEN_121A&DEV_0009&SUBSYS_0001121A"
 
 
 class Agent:
-    def __init__(self, ip):
+    def __init__(self, ip, port=9898):
         self.ip = ip
+        self.port = port
 
     async def raw(self, cmd, timeout=60, payload=None):
-        c = RetroConnection(self.ip, 9898)
+        c = RetroConnection(self.ip, self.port)
         await c.connect(SECRET, timeout=20)
         try:
             if payload is not None:
@@ -117,7 +118,14 @@ async def drvupdate(a, hwid, inf):
     return r, clicks
 
 
+REBOOT_CMD = None      # --reboot-cmd: the VM test bed reboots without PXE
+
+
 def safe_reboot(ip):
+    if REBOOT_CMD:
+        r = subprocess.run(REBOOT_CMD, shell=True, capture_output=True, text=True, timeout=240)
+        print("  reboot-cmd:", (r.stdout + r.stderr).strip()[-200:], "rc", r.returncode)
+        return r.returncode == 0
     r = subprocess.run([sys.executable, str(REPO / "scripts" / "fleet" / "safe-reboot.py"), ip],
                        capture_output=True, text=True, timeout=240)
     print("  safe-reboot:", (r.stdout + r.stderr).strip().replace("\n", " | ")[-300:])
@@ -275,8 +283,13 @@ def main():
                     help="OpenGLDrivers\\3dfx DLL to restore after a rollback")
     ap.add_argument("--max-boot-attempts", type=int, default=2)
     ap.add_argument("--evidence", default=str(KMD / "evidence"))
+    ap.add_argument("--port", type=int, default=9898, help="agent port (19910: the VM test bed)")
+    ap.add_argument("--reboot-cmd", help="instead of safe-reboot.py - ONLY for the VM test bed "
+                    "(a fleet box PXE-boots first and needs the hold safe-reboot arms)")
     args = ap.parse_args()
-    a = Agent(args.ip)
+    global REBOOT_CMD
+    REBOOT_CMD = args.reboot_cmd
+    a = Agent(args.ip, args.port)
     evidence = Path(args.evidence) / f"{args.ip}_{time.strftime('%Y%m%d-%H%M%S')}_{args.action}"
     fn = {"install": install, "rollback": rollback, "status": status}[args.action]
     rc = asyncio.run(fn(a, args, evidence))

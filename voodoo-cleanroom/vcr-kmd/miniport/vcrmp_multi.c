@@ -72,15 +72,26 @@ static void k_stall(void *ctx, vcr_u32 us)
     VideoPortStallExecution(us);
 }
 
+/* The milestones of the sequence also go to the registry, FLUSHED (VcrPhase):
+ * a wedge in the middle of an SLI/AA bring-up needs a power cycle, which
+ * loses the in-memory flight recorder - Diag\LastPhase / PhaseLog survive and
+ * say which step the box never got past (a = step, b = chip << 24 | register). */
+static int vcr_sli_step_persists(vcr_u32 step)
+{
+    return step % 100 == 0 || step == VCR_SLI_S_MAP_DONE || step == VCR_SLI_S_PCIINIT0 ||
+           step == VCR_SLI_S_CLOCK_6K || step == VCR_SLI_S_SLICTRL ||
+           step == VCR_SLI_S_SET_DONE || step == VCR_SLI_S_OFF_DONE || step >= 900;
+}
+
 static void k_log(void *ctx, vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 val,
                   const char *what)
 {
-    ULONG lv = step >= 900 ? VCR_LV_WARN
-             : (step % 100 == 0 || step == VCR_SLI_S_SET_DONE || step == VCR_SLI_S_OFF_DONE ||
-                step == VCR_SLI_S_MAP_DONE || step == VCR_SLI_S_CLOCK_6K) ? VCR_LV_INFO
-             : VCR_LV_DEBUG;
+    int keep = vcr_sli_step_persists(step);
+    ULONG lv = step >= 900 ? VCR_LV_WARN : keep ? VCR_LV_INFO : VCR_LV_DEBUG;
     (void)ctx;
     VLOG(lv, VCR_EV_SLI_STEP, step, chip, reg, val, "%s", what);
+    if (keep)
+        VcrPhase(VCR_EV_SLI_STEP, step, (chip << 24) | (reg & 0xffffff), what);
 }
 
 static void make_io(VCR_EXT *x, vcr_sli_io *io)
@@ -225,6 +236,9 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
     VideoPortZeroMemory(out, sizeof *out);
     n = r->ChipInfo.dwChips;
     en = r->ChipInfo.dwsliEn || r->ChipInfo.dwaaEn;
+    VcrPhase(VCR_EV_HWC_SLIAA, n, (r->ChipInfo.dwsliEn ? 1 : 0) | (r->ChipInfo.dwaaEn ? 2 : 0) |
+             (r->ChipInfo.dwaaSampleHigh << 4) | (r->ChipInfo.dwsliAaAnalog << 8),
+             en ? "SLI_AA_REQUEST enable" : "SLI_AA_REQUEST disable");
     VLOG(VCR_LV_INFO, VCR_EV_HWC_SLIAA, n, r->ChipInfo.dwsliEn, r->ChipInfo.dwaaEn,
          r->ChipInfo.dwsli_nlines, "SLI_AA_REQUEST: %u chips, analog %u, sample %u, bpp %u",
          n, r->ChipInfo.dwsliAaAnalog, r->ChipInfo.dwaaSampleHigh, r->MemInfo.dwBpp);
