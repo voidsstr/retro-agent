@@ -96,6 +96,30 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-26 08:05) — power-cycled; vendor baselines captured; vcr-kmd (2D + DirectDraw + D3D HAL) installed, battery running
+
+The user power-cycled `.124` after the 03:23 cfg-1 wedge. Steps 1-4 of the
+list below are done:
+
+- cfg 5 written and read back; activation clear.
+- Vendor hardware-cursor golden: `vcr-kmd/golden/cursor_amigamerlin-3.1-r11_192.168.1.124.json`.
+- Vendor glidelab baselines (AmigaMerlin 3.1-R11, one boot each, 60 Hz,
+  `vcr-kmd/evidence/glidelab/amigamerlin-3.1-r11.jsonl`): **cfg 0 and cfg 5
+  identical** - fill 1124.5 / 1121.7 Mpix/s (blend off/on) at 1024x768,
+  1117.2 / 1114.4 at 1600x1200, 4 chips, **0 bad band lines** at both.
+- `deploy_box.py install` of vcr-kmd (branch `worktree-vcr-kmd` 687b1c0 +
+  evidence, now carrying the 2D engine, DirectDraw blt/flip, and the DX7 D3D
+  HAL proven 38/38 on the 86Box Voodoo3) came back on the first boot:
+  4 chips, 1280x1024x32@85, `BootAttempts 1`, `LastDecline 0`.
+- **Running:** `vcr-kmd/tools/silicon_battery.py 192.168.1.124 --label
+  vcrkmd-v5-1 --golden golden/amigamerlin-3.1-r11_192.168.1.124.json` ->
+  `vcr-kmd/evidence/silicon/vcrkmd-v5-1.jsonl` (+ `.log`). It stops at the
+  step that silences the agent; after a wedge, `vcrphases.py --prev`.
+
+**Next:** Quake II all-ours on vcr-kmd, `glidelab_sweep.py --label vcrkmd
+--cfgs 0,2,5 --no-reboot`, `glidelab_run.py ... abandon --then fill`; land the
+branch if all hold; then AA one config at a time (step 5 below).
+
 ### Resume point (2026-09-26 03:40) — `.124` DEEP-WEDGED on the vendor kernel at cfg 1; needs a power cycle
 
 **State:** AmigaMerlin 3.1-R11 is installed (rolled back from vcr-kmd to capture
