@@ -1,0 +1,8 @@
+plan: 1 glidelab run(s) at 1024x768x16@60   48.38 kHz  60.03 Hz   65.0 MHz
+  monitor SNY1270 CPD-G200: H 30-96 kHz, V 48-120 Hz, <= 260 MHz
+  cleanup: PROCLIST did not answer - cannot tell what is still running
+  cleanup: pace-mark FAILED (OSError: [Errno 113] Connect call failed ('192.168.1.124', 9898)) - the host still waits the pace
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+GLIDELAB STILL RUNNING: a survivor of 'bands' could not be confirmed gone (PROCLIST did not answer - cannot tell what is still running) - no further session
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+{"mode": "bands", "error": "EXECW did not answer: TimeoutError:  (and: no RESULT line)", "log_tail": ["(log not read: OSError: [Errno 113] Connect call failed ('192.168.1.124', 9898))"], "timed_out": true, "cleanup": {"images": ["glidelab.exe"], "found": [], "killed": [], "left": [], "spared": [], "gone": false, "pace_mark": false, "error": "PROCLIST did not answer - cannot tell what is still running", "pace_mark_error": "OSError: [Errno 113] Connect call failed ('192.168.1.124', 9898)", "rested_s": 5.0}, "wedged": true, "host": "192.168.1.124"}
