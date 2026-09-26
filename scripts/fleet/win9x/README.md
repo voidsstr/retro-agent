@@ -26,6 +26,7 @@ Run it through the agent: `EXECW 30 C:\RETRO_AGENT\FLEET9X.EXE attrib ...`, or `
 | `hash9x <file> [file ...]` | MD5 and size of each file, read 64 KB at a time. The agent's `DOWNLOAD` buffers a whole file in one heap block, which is no way to check an 80 MB pak on a 127 MB box. Proved agent 1.84.2's resume wrote Hexen II's paks correctly | `C:\RETRO_AGENT\HASH9X.TXT` |
 | `ide9x identify` / `ide9x read <m|s> <lba> <count> <name>` | **read-only**, direct-port ATA IDENTIFY and READ SECTORS on the **secondary** IDE channel (170h-177h/376h), bypassing the BIOS and Win98's driver; never the primary channel, only commands ECh/20h, interrupts off while busy, NEW output files only. Identified the 80 GB disk the 1997 BIOS could not read on .243 | `C:\RETRO_AGENT\IDE9X.TXT`, `IDENT_M.BIN`, the named dump |
 | `idewrite9x zero <serial> <lba> <count>` / `put <serial> <lba> <file>` / `flush <serial>` | the **only write-capable** tool here: direct-port ATA WRITE SECTORS (30h) and FLUSH CACHE (E7h) to the secondary MASTER only. Every command first IDENTIFYs the drive and refuses unless its serial is byte-for-byte the one you named; writes are bounded by the drive's own capacity, at most 256 sectors a run, `put` at most 128 sectors. Never kill it mid-run - create `C:\RETRO_AGENT\IDEW9X.STP` and it stops between runs. Shares the `retro_ide_secondary` mutex with ide9x. Formatted .243's 80 GB disk, ~3.6 MB/s | `C:\RETRO_AGENT\IDEW9X.TXT` |
+| `cmosw9x none` / `restore` / `show` | sets CMOS 1Bh (the Compaq Deskpro 2000's secondary-IDE-master drive type) 44h->00h, or back, and the standard checksum at 2Eh/2Fh (sum of 10h-2Dh, the ROM's own formula). Writes only those three registers; `none` is a compare-and-swap (1Bh=44h and a valid checksum, else REFUSED); every write is re-read and compared. Hides a disk the BIOS mis-addresses so ESDI_506 claims it natively | `C:\RETRO_AGENT\CMOSW9X.TXT`, `CMOSB.BIN`/`CMOSA.BIN` |
 | `disk9x info` / `disk9x read ...` | read-only VWIN32 INT 13h reader - **but VWIN32's INT 13h does not serve hard disks on 9x** (measured: even 80h, the boot disk, is refused), so it only proves that route is closed | `C:\RETRO_AGENT\DISK9X.TXT` |
 | `agentswap9x` | installs `retro_agent_new.exe` over a RUNNING agent (Win9x cannot replace a running exe). LAUNCH it, then send `QUIT`; it swaps, starts the new build, and rolls back if that build is not still running after 25 s | `C:\RETRO_AGENT\AGENTSWAP.TXT` |
 
@@ -75,3 +76,25 @@ zeroes the metadata region and writes those sectors, the MBR last:
   is simply free space now.
 - Verified by reading back every written sector and both edges of every zeroed
   range with `ide9x read` (24/24).
+
+### Why Windows never took the disk, and the fix (2026-09-26)
+
+Established by disassembling the box's own `ESDI_506.PDR` (twice, independently)
+and its Compaq BIOS ROM:
+
+- POST auto-typed the Seagate as **Compaq type 68**, whose logical-heads byte is
+  **00** (256 heads, overflowed). The BIOS's INT 13h CHS validator
+  (F000:84A1) therefore rejects every read above head 0.
+- ESDI_506 matches the disk to BIOS unit 81h by the MBR dword at 0xDC, then
+  verifies with an INT 13h AH=02 read at head H-1. That read fails, ESDI logs
+  `ESDI BIOS read failure` and tears down the **whole secondary channel**
+  (Config Manager Problem 10).
+- **`NoCMOSorFDPT` does not help.** It is a 1-byte REG_BINARY read from the
+  channel's HARDWARE key, but on a Compaq the secondary channel reads CMOS 1Bh
+  directly and still verifies through the BIOS.
+- **The fix is CMOS 1Bh = 00** (`cmosw9x none`): the BIOS then creates no unit
+  for the disk, and ESDI claims it from IDENTIFY with LBA28 and no BIOS read.
+  Keep the partition type 1Ch until a **cold** POST is proven to leave 1Bh at
+  00 (POST auto-typed the drive once already); only then flip it to 0Ch.
+- Pre-flight markers are written for the final check: LBA 156,296,384 (end of
+  partition) and 78,148,223 (~40 GB), each a readable ASCII tag.
