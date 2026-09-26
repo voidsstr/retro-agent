@@ -7,6 +7,7 @@
   "never_offer": [
     "00:04:61:2f:8f:84",
     "00:04:61:f7:25:84",
+    "00:0c:f1:d7:98:4a",
     "e0:cb:4e:26:ec:a0"
   ],
   "_localboot_comment": "A HELD MAC here is ANSWERED with a PXE 'boot from local disk' menu (option 43, menu item type 0, prompt timeout 0) instead of silence. Some ROMs never fall through on silence: the Dell Dimension 4600's Intel Boot Agent sat on 'DHCP' until someone pressed F12 (2026-09-26). Machines not held still get the normal boot file.",
