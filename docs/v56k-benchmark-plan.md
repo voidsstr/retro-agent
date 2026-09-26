@@ -96,6 +96,38 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-26 12:40) — vcr-kmd on master; the monitor is protected; D3D 40/40 on silicon
+
+**The monitor rule first** (user, 08:04: "how many times are you engaging the
+monitor ... make sure that is safe"): the first battery switched all 123
+vendor modes with a desktop bounce after each, ~250 re-syncs of the Sony at
+2/s. Every live switch now goes through `vcr-kmd/tools/vcr_pace.h` (>= 3 s
+apart across processes, modes held >= 3 s, a lock, paced kills), sweeps are
+one `vcrctl modeseq` process, capped, EDID-gated on the host (`mon_src` 1/2);
+the all-mode register check is `golden_compare.py`, off the box (123/123).
+Memory: `pace-monitor-mode-switches`. Plan any new switching run in
+switches and print it.
+
+**vcr-kmd landed on master (`0d361cc`)** with 2D engine, DirectDraw, the DX7
+D3D HAL, the monitor-safety work and the driver-side EDID fallback. On `.124`
+(battery `vcr-kmd/evidence/silicon/vcrkmd-v5-2` and `-4`):
+- modes 7/7 in one paced process (38 s), registers identical to AmigaMerlin;
+- gdilab 0 bad (32 bpp); DirectDraw flip 0 mismatch / blt 0 bad at 16 and
+  32 bpp (blt 467 / 224 Mpix/s);
+- D3D 40/40 fullscreen at 640x480 and 1024x768 - after PARMADJUST (without
+  it falling gouraud channels stayed constant; retro-3dfx FINDINGS 1c23caa).
+
+**Open, in order:**
+1. Glide on vcr-kmd, paced: `glidelab_sweep.py 192.168.1.124 --label vcrkmd
+   --cfgs 0,2,5 --res 1024x768 --no-reboot` (9 sessions = 18 switches, under
+   the 24 cap), then Quake II all-ours; then land.
+2. d3dperf holds 85 fps = refresh with --novsync: the immediate present is
+   not honoured (Flip DDFLIP_NOVSYNC?). DirectDraw flip at 16 bpp runs at half
+   the refresh (42/s at 87.6 Hz) where 32 bpp runs one per retrace (86/s).
+3. The cursor compare differs from AmigaMerlin (hardware-cursor bit clear,
+   stale hwCurLoc) - both captures may be of a hidden pointer; check it by eye.
+4. AA configs one at a time (step 5 below), with the pace gate.
+
 ### Resume point (2026-09-26 08:05) — power-cycled; vendor baselines captured; vcr-kmd (2D + DirectDraw + D3D HAL) installed, battery running
 
 The user power-cycled `.124` after the 03:23 cfg-1 wedge. Steps 1-4 of the
