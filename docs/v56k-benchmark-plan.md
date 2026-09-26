@@ -92,9 +92,44 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | RtCW (`rtcw:openglv5`) | **116-127 fps @640x480 cfg 2** | sweeping | loads its bundled Wicked3D `gl/openglv5.dll` on the first launch after an `r_glDriver` change regardless of `+set`/config (mechanism not fully established). Removing the file to force the ICD WEDGED the box — the runner reads back which ICD loaded instead |
 | Serious Sam TFE / TSE (OpenGL) | not yet measured | not yet measured | the first harness bypassed the staged **disc-mount launcher** and got the CD check it exists to prevent — a harness fault. The bench launcher is now generated from the fleet mount template; untested on the box |
 | Unreal Gold / Deus Ex (Glide) | not run | not run | UE1 `-benchmark` never exits; needs the UTbench-style route |
-| AA settings cfg 1/3/4/6/7/8 | **blocked** — AA never engages via registry/env | — | unblock via §4 first |
+| AA settings cfg 1/3/4/6/7/8 | **blocked** — AA never engages via registry/env on AmigaMerlin's Glide; OUR Glide passes cfg 1 through and AmigaMerlin's kernel deep-wedges on it (2026-09-26 03:23) | — | unblock via §4, or on vcr-kmd (resume point 2026-09-26) |
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
+
+### Resume point (2026-09-26 03:40) — `.124` DEEP-WEDGED on the vendor kernel at cfg 1; needs a power cycle
+
+**State:** AmigaMerlin 3.1-R11 is installed (rolled back from vcr-kmd to capture
+vendor goldens), registry `SSTH3_SLI_AA_CONFIGURATION` = 1. `sli_golden_sweep.py`
+ran Quake II (our ICD + our Glide) at **cfg 1 - single-chip 2-sample AA - and
+the box deep-wedged at 03:23**: 9898 refused, 9897 accepting-and-mute, SMB 445
+closed, 139 negotiates nothing - the 2026-09-24 signature. `box-guardian`
+correctly did nothing; no RPC path answers. **Needs a person at the power
+switch.**
+
+**Why it matters:** AA had never engaged on this box (ground rule 2: the
+registry/env route does nothing on AmigaMerlin's own Glide). OUR Glide does
+pass cfg 1 through (`gpci.c`: aaSample 2, forceSingleChip) - and AmigaMerlin's
+kernel wedges on the request. So there is no vendor AA state to capture this
+way; AA on the V5 6000 is new ground for our kernel (vcr-kmd's `vcrmp_sli.c`
+has the dos_mode.c AA paths, untested on silicon).
+
+Also found: every `sli_golden.py` capture before 03:20 ran Glide's DEFAULT
+(all-chip SLI) whatever `--cfg` said - it wrote the registry only; fixed
+(`88b06c6`), the cfg 5 goldens stay valid (2 == 5 inside Glide).
+
+**After the power cycle, in this order:**
+1. Write cfg 5 (not 1) before anything touches Glide; the vendor stays installed.
+2. `vcr-kmd/tools/cursor_golden.py 192.168.1.124 --label amigamerlin-3.1-r11`
+   (the vendor's hardware-cursor pattern: the reference for vcr-kmd's cursor).
+3. Vendor glidelab baselines, one boot each: `glidelab_sweep.py --label
+   amigamerlin-3.1-r11 --cfgs 0,5` (fill + bands, 1024 and 1600, 60 Hz).
+4. `deploy_box.py install` (vcr-kmd with the hardware cursor, branch
+   `worktree-vcr-kmd`), then `cursor_golden.py --label vcrkmd --compare
+   amigamerlin-3.1-r11`, `glidelab_sweep.py --label vcrkmd --cfgs 0,2,5
+   --no-reboot`, `glidelab_run.py ... abandon --then fill`.
+5. AA (cfg 1, 3, 6, 7, 8) on vcr-kmd ONE config at a time, ideally with someone
+   near the box: `glidelab_run.py ... bands --cfg N` first (a register-level
+   failure is logged by the flight recorder before the write that hangs).
 
 ### Resume point (2026-09-25 01:00) — all-ours stack runs; 4-chip open on our Glide is next
 
