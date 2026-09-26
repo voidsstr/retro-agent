@@ -1080,3 +1080,30 @@ def test_quake2_rows_say_whether_the_world_ran_single_or_two_pass(bench):
     assert q.attribution("...using GL_SGIS_multitexture\n")["notes"].startswith("world single-pass")
     assert q.attribution("...GL_SGIS_multitexture not found\n")["notes"].startswith("world two-pass")
     assert "notes" not in q.attribution("GL_RENDERER: x\n")
+
+
+# --------------------------------------------------------------------------- #
+# provenance: a row names the ICD/Glide the TITLE loads, not system32's
+# --------------------------------------------------------------------------- #
+
+def test_each_lane_names_the_driver_files_it_actually_loads(bench):
+    """Found 2026-09-25: every all-ours 0.1.75 row carried AmigaMerlin's
+    3dfxOGL.dll md5 while its GL_RENDERER said [voodoo-cleanroom 0.1.75]."""
+    sys32_icd = bench.VERSION_FILES["icd"]
+    sys32_glide = bench.VERSION_FILES["glide3x"]
+    stock = bench.Quake2()
+    assert bench.title_driver_paths(stock) == (sys32_icd, sys32_glide)
+
+    q2c = bench.Quake2Cleanroom()
+    icd, glide = bench.title_driver_paths(q2c)
+    assert icd == rf"{q2c.root}\retrogl.dll" and glide == sys32_glide
+
+    q2a = bench.Quake2AllOurs()
+    icd, glide = bench.title_driver_paths(q2a)
+    assert icd == rf"{q2a.root}\retrogl.dll"
+    assert glide == rf"{q2a.root}\glide3x.dll"
+
+    rtcw = bench.RTCWAllOurs()
+    icd, glide = bench.title_driver_paths(rtcw)
+    assert icd == bench.SYSTEM_ICD_DLL != sys32_icd       # via the registration
+    assert glide == rf"{rtcw.root}\glide3x.dll"

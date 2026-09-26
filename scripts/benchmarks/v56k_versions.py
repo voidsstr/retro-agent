@@ -66,6 +66,7 @@ async def amain(a):
     v["probed"] = datetime.now(timezone.utc).isoformat()
 
     v["titles"] = {}
+    v["effective"] = {}
     for tid in a.titles.split(","):
         tid = tid.strip()
         if not tid:
@@ -82,6 +83,15 @@ async def amain(a):
         ti = v["titles"][t.tid]
         print(f"  {t.name}: {ti.get('path','?')} {ti.get('size','?')} B "
               f"md5 {str(ti.get('md5','?'))[:12]}")
+        # The clean-room and all-ours lanes load a game-local retrogl.dll /
+        # glide3x.dll, or system32\retroicd.dll for RtCW - never the installed
+        # 3dfxOGL.dll that `files` records. Stage nothing: the paths come from
+        # the title, and whatever is at them now is exactly what this tool is
+        # allowed to claim.
+        v["effective"][t.tid] = await bench.collect_effective_drivers(box, t)
+        ef = v["effective"][t.tid]
+        print(f"    loads icd {ef['icd']['path']} md5 {str(ef['icd']['md5'])[:12]}, "
+              f"glide3x {ef['glide3x']['path']} md5 {str(ef['glide3x']['md5'])[:12]}")
 
     for n, f in v["files"].items():
         print(f"  {n}: {f.get('size','?')} B  md5 {str(f.get('md5','?'))[:12]}")
@@ -106,17 +116,33 @@ def backfill(csv_path, v):
     with csv_path.open(newline="") as fh:
         rows = list(csv.DictReader(fh))
     files, dc = v.get("files", {}), v.get("display_class", {})
+    # Lane -> the ICD/Glide that lane loads. The row's `api` column names the
+    # lane exactly (`opengl-allours-0.1.75`, `opengl-cleanroom-…`,
+    # `opengl-icd`), which is a far tighter key than the engine-token match
+    # below: `quake2.exe` is the first token of the stock lane AND of both
+    # clean-room lanes, and those load three different ICDs.
+    by_lane = {e.get("lane"): e for e in v.get("effective", {}).values()
+               if e.get("lane")}
     filled = 0
     for r in rows:
+        eff = by_lane.get((r.get("api") or "").strip())
         vals = {
             "driver_pkg": dc.get("DriverDesc", ""),
             "driver_ver": dc.get("DriverVersion", ""),
-            "glide3x_md5": files.get("glide3x", {}).get("md5", ""),
-            "icd_md5": files.get("icd", {}).get("md5", ""),
             "os_build": v.get("os_str") or v.get("os", ""),
             "agent_ver": v.get("agent_ver", ""),
             "gpu": (v.get("gpu") or {}).get("name", ""),
         }
+        if eff:
+            vals["glide3x_md5"] = eff["glide3x"].get("md5", "")
+            vals["icd_md5"] = eff["icd"].get("md5", "")
+        elif (r.get("api") or "").startswith("opengl-icd"):
+            # Only the stock lane is known to load the installed package.
+            vals["glide3x_md5"] = files.get("glide3x", {}).get("md5", "")
+            vals["icd_md5"] = files.get("icd", {}).get("md5", "")
+        # Any other lane with nothing captured for it keeps its EMPTY driver
+        # cells. Stamping system32's md5 on a row whose renderer string says
+        # `[voodoo-cleanroom …]` is the exact error this tool exists to avoid.
         # the game binary depends on which title the row is, so match by tid
         for tid, ti in v.get("titles", {}).items():
             # A FAILED row can carry an empty engine field, so compare first

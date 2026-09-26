@@ -147,7 +147,16 @@ CSV_COLS = ["stamp", "title", "engine", "api", "res", "width", "height",
             "mem_avail_mb", "mem_load_pct",
             "status", "notes"]
 
-# The files whose identity decides what a number means on this box.
+# The INSTALLED driver package on this box - what the display class registered
+# and what a stock title loads. It is the box's provenance, captured once per
+# campaign.
+#
+# ⚠️ It is NOT automatically what the title under test loads. A game-local
+# `retrogl.dll` or `glide3x.dll` shadows system32 for the process that has it
+# (an ICD's imports resolve from the application directory first), and RtCW
+# reaches our ICD through system32\retroicd.dll, never 3dfxOGL.dll. So a row's
+# `icd_md5` / `glide3x_md5` come from `title_driver_paths()` below, and these
+# entries stay in versions.json as the package the box is running.
 VERSION_FILES = {
     "glide3x":  r"C:\WINDOWS\system32\glide3x.dll",
     "glide2x":  r"C:\WINDOWS\system32\glide2x.dll",
@@ -353,6 +362,49 @@ async def title_identity(box, title):
             return ident
     return {"path": exe, "size": "-", "md5": "-",
             "engine": getattr(title, "engine", "")}
+
+
+def title_driver_paths(title):
+    """The ICD and the Glide THIS TITLE loads - which is not always system32's.
+
+    Found 2026-09-25 by reading back an all-ours sidecar: every row of the
+    0.1.75 matrix carried `icd` md5 8912a138 - AmigaMerlin's `3dfxOGL.dll` -
+    while `GL_RENDERER` on the same rows said `[voodoo-cleanroom 0.1.75]`. The
+    numbers were right and the renderer readback saved them, but the provenance
+    column named a driver that had not drawn a single frame, and a reader
+    coming to the CSV later has no reason to distrust it.
+
+    The lanes and what each actually loads:
+
+      stock            system32\\3dfxOGL.dll   + system32\\glide3x.dll
+      retrogl (Q2/Q3)  <game>\\retrogl.dll     + system32\\glide3x.dll
+      allours (Q2/Q3)  <game>\\retrogl.dll     + <game>\\glide3x.dll
+      rtcw:retrogl     system32\\retroicd.dll  + system32\\glide3x.dll
+      rtcw:allours     system32\\retroicd.dll  + <game>\\glide3x.dll
+
+    Both overrides are declared on the title (`icd_path`, `local_glide`) rather
+    than recorded when the file is staged, so this answer is available before a
+    frame is drawn and to the retroactive prober, which stages nothing.
+    """
+    icd = getattr(title, "icd_path", None) or VERSION_FILES["icd"]
+    root = getattr(title, "root", None)
+    glide = (rf"{root}\glide3x.dll"
+             if root and getattr(title, "local_glide", False)
+             else VERSION_FILES["glide3x"])
+    return icd, glide
+
+
+async def collect_effective_drivers(box, title):
+    """size + md5 of the ICD and Glide `title` loads, for versions.json + rows.
+
+    Captured AFTER the title's identity probe has staged them: a game-local DLL
+    that has not been uploaded yet hashes as "-", which would be a different
+    lie from the one this replaces.
+    """
+    icd, glide = title_driver_paths(title)
+    return {"lane": getattr(title, "api", ""),
+            "icd": await file_identity(box, icd),
+            "glide3x": await file_identity(box, glide)}
 
 
 async def apply_aa_config(box, glide_key, cfg):
@@ -1596,6 +1648,12 @@ class _Cleanroom:
     bytes on the box are the bytes we mean (md5 compared, never trusted)."""
     icd_name = "retrogl"
 
+    @property
+    def icd_path(self):
+        """What `title_driver_paths()` stamps on the row: the game-local copy,
+        not system32's AmigaMerlin ICD, which this lane never loads."""
+        return rf"{self.root}\{self.icd_name}.dll"
+
     async def stage_icd(self, box):
         import hashlib
         data = CLEANROOM_ICD.read_bytes()
@@ -1761,11 +1819,24 @@ class RTCWCleanroom(_Cleanroom, RTCW):
     stages THAT file, checks the registration points at it, and refuses a row
     whose renderer string names any other build."""
 
+    # NOT _Cleanroom's game-local retrogl.dll: this lane is reached through the
+    # OpenGLDrivers\3dfx registration, so the file that draws is system32's.
+    icd_path = SYSTEM_ICD_DLL
+
     def __init__(self):
         RTCW.__init__(self, api="retrogl")
         self.tid = "rtcw:retrogl"
         self.api = "opengl-cleanroom"
         self._ver = None
+
+    async def identify(self, box):
+        """The runner's once-per-title probe. `prepare()` stages again on every
+        cell - deliberately, so a driver swapped mid-run is caught - but the
+        sidecar and the resume key are written before the first cell, and
+        without this they would describe whatever the previous campaign left in
+        system32."""
+        await self.stage_icd(box)
+        await _stage_local_glide(box, self.root, getattr(self, "local_glide", False))
 
     async def stage_icd(self, box):
         import hashlib
@@ -1997,13 +2068,18 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     files = v.get("files", {})
     dc = v.get("display_class", {})
     ti = v.get("titles", {}).get(getattr(title, "tid", ""), {})
+    # The ICD and Glide THIS title loads, not the installed package - see
+    # title_driver_paths(). `files` is the fallback for a title with no
+    # override and for a probe that failed; on the stock lanes they are the
+    # same two files.
+    eff = v.get("effective", {}).get(getattr(title, "tid", ""), {})
     row.update({
         "game_exe": ti.get("path", ""), "game_size": ti.get("size", ""),
         "game_md5": ti.get("md5", ""),
         "driver_pkg": dc.get("DriverDesc", ""),
         "driver_ver": dc.get("DriverVersion", ""),
-        "glide3x_md5": files.get("glide3x", {}).get("md5", ""),
-        "icd_md5": files.get("icd", {}).get("md5", ""),
+        "glide3x_md5": (eff.get("glide3x") or files.get("glide3x", {})).get("md5", ""),
+        "icd_md5": (eff.get("icd") or files.get("icd", {})).get("md5", ""),
         "os_build": v.get("os_str") or v.get("os", ""),
         "agent_ver": v.get("agent_ver", ""),
         "gpu": (v.get("gpu") or {}).get("name", ""),
@@ -2432,7 +2508,14 @@ async def amain(args):
     for n in ("glide3x", "icd", "display"):
         f = versions["files"].get(n, {})
         log(f"  {n}: {f.get('size','?')} B  md5 {str(f.get('md5','?'))[:12]}")
-    (args.outdir / "versions.json").write_text(json.dumps(versions, indent=2))
+    # Filled per title once its identity probe has staged the game-local DLLs,
+    # so the sidecar names the driver that drew rather than the one installed.
+    versions["effective"] = {}
+
+    def write_versions():
+        (args.outdir / "versions.json").write_text(json.dumps(versions, indent=2))
+
+    write_versions()
     log(f"versions -> {args.outdir / 'versions.json'}")
 
     checked, blocked = {}, {}
@@ -2450,6 +2533,17 @@ async def amain(args):
             checked[t.tid] = why
             if not ok:
                 blocked[t.tid] = why
+            # After identify(), so a game-local ICD/Glide is on the box and
+            # hashes as itself. Every row of this title is stamped from here.
+            try:
+                eff = await collect_effective_drivers(box, t)
+                versions["effective"][t.tid] = eff
+                log(f"    {t.tid} loads icd {eff['icd']['path']} "
+                    f"md5 {str(eff['icd']['md5'])[:12]}, glide3x "
+                    f"{eff['glide3x']['path']} md5 {str(eff['glide3x']['md5'])[:12]}")
+                write_versions()
+            except Exception as e:
+                log(f"    (effective driver probe failed for {t.tid}: {type(e).__name__})")
         if t.tid in blocked:
             row = {k: "" for k in CSV_COLS}
             row.update({"stamp": datetime.now(timezone.utc).isoformat(),

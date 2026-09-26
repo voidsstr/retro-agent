@@ -67,6 +67,30 @@ def smb_open(ip):
         return False
 
 
+class SilenceClock:
+    """How long the agent has been silent WHILE THE BOX WAS UP.
+
+    Silence only means a wedge while the kernel is answering. Measured
+    2026-09-25: .124 was switched off for fifteen hours, and the moment it was
+    powered back on - SMB up, agent not started yet, mid-boot - the guardian
+    saw "agent silent 56111s, smb up" and rebooted it over RPC. The box came
+    back, but a guardian that reboots every box it sees being switched on is
+    the fault it exists to cure. So an SMB-down observation restarts the
+    clock: the grace period runs from when the box reappeared.
+    """
+
+    def __init__(self, now):
+        self.since = now
+
+    def answered(self, now):
+        self.since = now
+
+    def silent(self, now, smb_up):
+        if not smb_up:
+            self.since = now        # off or rebooting: nothing to wait for yet
+        return now - self.since
+
+
 async def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('ip')
@@ -78,6 +102,7 @@ async def main():
                     help='seconds between "agent ok" log lines (0 = every poll)')
     ap.add_argument('--dry-run', action='store_true')
     a = ap.parse_args()
+    clock = SilenceClock(time.time())
     last_ok = time.time()
     last_beat = 0.0
     log(a.log, f'guarding {a.ip}: grace {a.grace}s, interval {a.interval}s')
@@ -86,6 +111,7 @@ async def main():
             if time.time() - last_ok > 2 * a.interval:
                 log(a.log, 'agent answering again')
             last_ok = time.time()
+            clock.answered(last_ok)
             # A guardian that only writes on trouble dies silently: twice on
             # 2026-09-24 it was killed with the Claude Code session that
             # started it and the log simply stopped. A heartbeat makes a dead
@@ -94,8 +120,8 @@ async def main():
                 log(a.log, 'heartbeat: agent ok')
                 last_beat = time.time()
         else:
-            silent = time.time() - last_ok
             smb = smb_open(a.ip)
+            silent = clock.silent(time.time(), smb)
             log(a.log, f'agent silent {silent:.0f}s, smb {"up" if smb else "down"}')
             if silent >= a.grace and smb:
                 log(a.log, 'WEDGE SIGNATURE - rebooting over RPC')
@@ -105,6 +131,7 @@ async def main():
                     log(a.log, (r.stdout + r.stderr).strip().replace('\n', ' | '))
                 await asyncio.sleep(a.cooldown)
                 last_ok = time.time()
+                clock.answered(last_ok)
                 continue
         await asyncio.sleep(a.interval)
 
