@@ -94,6 +94,26 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-09-26 15:58:13: orderly reboot, then the host moved to 192.168.1.196 and lost the fleet LAN
+
+- **Boot IDs:** `68aeaf02…` ended 15:58:13 with a normal `systemd-reboot.service`
+  shutdown (journal closes cleanly, no Xid, no MCE, no BERT). `e335b889…` began
+  15:58:34. Operator-initiated, likely; nothing in the logs says who.
+- **After the boot the network changed.** The `netplan-enp129s0` connection that
+  had held a DHCP lease on **192.168.1.132** since 08-17 failed at 15:59:34
+  (`ip-config-unavailable`: no DHCP answer). At 16:10:16 a new NetworkManager
+  connection, "Profile 1", was added by hand and activated, and at 16:18:49 it
+  took **192.168.1.196** from gateway **192.168.1.254**. The netplan YAML is gone.
+- **Effect:** from .196 the NAS (.122), every retro box and .1 get no ARP answer,
+  and the CIFS mount `/mnt/retro-share` fails (`-113`, host unreachable). Only
+  .139 and .249 (whitebeast) answer. Everything that assumes .132 is now wrong:
+  `retro-pxe` (`server_ip` pinned to .132), the game-server address the fleet's
+  favourites point at, and the chat daemon's reach.
+- **Load at the time:** idle GPU; a retro-agent session was reading event logs
+  off `.246`.
+- **Response:** recorded here, and the operator was asked whether the network
+  move was intended. No network settings changed from this session.
+
 ### 2026-09-24 23:11:26: instant power-off at 575 W (signature 4)
 Boot `1fa9e5a6` ended mid-ollama generation (149 tok/s, 15.3 GB model on the
 card, `local-image-gen` also resident). No panic, kdump, BERT record,
