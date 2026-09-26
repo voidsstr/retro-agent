@@ -1,0 +1,102 @@
+; vcrkmd.inf - vcr-kmd: our open XP display driver pair for 3dfx
+; Banshee / Voodoo 3 / VSA-100 (Voodoo 4/5), plus the QEMU std-vga test backend.
+;
+; Unsigned: install with the agent's DRVUPDATE <hwid> <this inf> (forced
+; UpdateDriverForPlugAndPlayDevices), e.g.
+;   DRVUPDATE PCI\VEN_121A&DEV_0009 C:\vcr\vcrkmd.inf
+; Roll back to the previous driver by DRVUPDATE-ing its INF the same way, or
+; set HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag\Disable = 1 and reboot
+; (the miniport then declines the card and XP boots on its VGA driver).
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = Display
+ClassGUID   = {4D36E968-E325-11CE-BFC1-08002BE10318}
+Provider    = %Provider%
+DriverVer   = 09/25/2026,0.1.0.0
+
+[DestinationDirs]
+DefaultDestDir = 11
+vcr.Miniport   = 12
+vcr.Display    = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+vcrmp.sys = 1
+vcrdd.dll = 1
+
+[Manufacturer]
+%Mfg% = vcr.Models
+
+[vcr.Models]
+%V56K%    = vcr, PCI\VEN_121A&DEV_0009&SUBSYS_0001121A
+%VSA100%  = vcr, PCI\VEN_121A&DEV_0009
+%Voodoo3% = vcr, PCI\VEN_121A&DEV_0005
+%Banshee% = vcr, PCI\VEN_121A&DEV_0003
+%Bochs%   = vcr, PCI\VEN_1234&DEV_1111
+
+[vcr]
+CopyFiles = vcr.Miniport, vcr.Display
+
+[vcr.Miniport]
+vcrmp.sys
+
+[vcr.Display]
+vcrdd.dll
+
+[vcr.SoftwareSettings]
+AddReg = vcr.SoftwareDeviceSettings
+
+[vcr.SoftwareDeviceSettings]
+HKR,, InstalledDisplayDrivers,     %REG_MULTI_SZ%, vcrdd
+HKR,, VgaCompatible,               %REG_DWORD%,    0
+HKR,, DefaultSettings.BitsPerPel,  %REG_DWORD%,    16
+HKR,, DefaultSettings.XResolution, %REG_DWORD%,    800
+HKR,, DefaultSettings.YResolution, %REG_DWORD%,    600
+HKR,, DefaultSettings.VRefresh,    %REG_DWORD%,    60
+
+[vcr.GeneralConfigData]
+MaximumDeviceMemoryConfiguration = 132
+MaximumNumberOfDevices           = 4
+
+[vcr.Services]
+AddService = vcrmp, 0x00000002, vcr.Service, vcr.EventLog
+
+[vcr.Service]
+ServiceType    = 1
+StartType      = 1
+ErrorControl   = 0
+LoadOrderGroup = Video
+ServiceBinary  = %12%\vcrmp.sys
+AddReg         = vcr.Diag
+
+; <service>\Diag - the flight recorder's settings and the boot-safety counter
+; (miniport/vcrmp_log.c). FLG_ADDREG_NOCLOBBER (0x2): a reinstall keeps the
+; counters and any setting changed on the box.
+[vcr.Diag]
+HKR, Diag, MaxBootAttempts, 0x00010003, 3
+HKR, Diag, LogLevel,        0x00010003, 3
+HKR, Diag, DebugPort,       0x00010003, 0
+HKR, Diag, AllowPoke,       0x00010003, 0
+HKR, Diag, OpenGLName,      0x00000002, "3dfx"
+
+[vcr.EventLog]
+AddReg = vcr.EventLog.AddReg
+
+[vcr.EventLog.AddReg]
+HKR,, EventMessageFile, 0x00020000, "%%SystemRoot%%\System32\IoLogMsg.dll;%%SystemRoot%%\System32\drivers\vcrmp.sys"
+HKR,, TypesSupported,   0x00010001, 7
+
+[Strings]
+Provider    = "vcr-kmd (retro-agent voodoo-cleanroom)"
+Mfg         = "3dfx Interactive, Inc. (vcr-kmd open driver)"
+DiskName    = "vcr-kmd driver files"
+V56K        = "vcr-kmd Voodoo 5 6000 (open driver)"
+VSA100      = "vcr-kmd Voodoo 4/5 (open driver)"
+Voodoo3     = "vcr-kmd Voodoo 3 (open driver)"
+Banshee     = "vcr-kmd Voodoo Banshee (open driver)"
+Bochs       = "vcr-kmd Bochs/QEMU VGA (test backend)"
+REG_MULTI_SZ = 0x00010000
+REG_DWORD    = 0x00010001

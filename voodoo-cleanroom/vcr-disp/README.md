@@ -1,5 +1,9 @@
 # vcr-disp — our cooperative display-driver skeleton
 
+> **Superseded by [`../vcr-kmd/`](../vcr-kmd/README.md) (2026-09-25)** — a complete
+> miniport + display driver pair that builds, loads and runs, with the HWCEXT
+> layout Glide actually uses. This directory is kept as history.
+
 > The whole stack is documented on one page: [`../README.md`](../README.md).
 > This file summarises the state of this directory; the detail is in
 > [§7.1 there](../README.md#71-vcr-disp--our-cooperative-display-driver-skeleton).

@@ -225,7 +225,8 @@ Tracked in git:
 | `deploy/q2bench171.py` | Quake II timedemo A/B on `.171`, quiesced, median of runs 2..N, writes JSON to `deploy/bench-results/` (gitignored) |
 | `deploy/q2bench.py` | Older Quake II timedemo runner (kills the game and deletes the log first, parses only the last session) |
 | `deploy/gfxbench_voodoo3_baseline.csv` | A 30-frame `gfxbench` Glide sweep from the Voodoo 3 — proof the Glide path works, not a performance number ([§13](#13-benchmarks)) |
-| `vcr-disp/` | Our own display-driver skeleton ([§7.1](#71-vcr-disp--our-cooperative-display-driver-skeleton)) |
+| `vcr-kmd/` | **Our XP kernel driver pair** (miniport `vcrmp.sys` + display `vcrdd.dll`) with its debug harness — [its README](vcr-kmd/README.md) |
+| `vcr-disp/` | Our own display-driver skeleton ([§7.1](#71-vcr-disp--our-cooperative-display-driver-skeleton)) | — superseded by `vcr-kmd/`
 | `vcr-disp-h5/` | Prebuilt vintage H5 display driver package used as a stopgap on the Voodoo 3 ([§7.3](#73-vcr-disp-h5--the-stopgap)) |
 | `CHANGELOG.md` | ICD version-by-version log with measurements (0.1.1 → 0.1.61; 0.1.61 is a re-stamp) |
 | `OPTIMIZATIONS.md` | Voodoo 3 optimization log (`.124`, July 2026) |
