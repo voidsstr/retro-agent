@@ -96,6 +96,33 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-26 16:50) — full open stack verified; AA wedges the box; AA work is OFFLINE until the user is present
+
+**Proven on `.124` today, all on our kernel driver (vcr-kmd, on master):**
+Glide 4-chip fill 1124.6 Mpix/s = AmigaMerlin (cfg 2/5, 0 bad band lines);
+Quake II all-open 173.4 fps 1024x768x16 cfg 5; D3D 40/40 (PARMADJUST fix);
+D3D present-immediately 85 -> 151 fps (DDCAPS2_FLIPNOVSYNC); glidelab now
+hands Glide its cfg/refresh via _putenv (Glide's getenv never saw
+SetEnvironmentVariableA - every earlier `--no-reboot` glidelab run used the
+registry's cfg 5).
+
+**AA (FSAA) - three deep wedges (CPU frozen, Num Lock dead, power cycle):**
+| cfg | kernel SLI/AA setup | result |
+|---|---|---|
+| 3 (4 chip, 2-sample) | SET_DONE | fill RENDERS (625 Mpix/s); `grLfbReadRegion` back buffer hangs |
+| 7 (4 chip, 4-sample) | SET_DONE | hangs inside `grSstWinOpen` |
+| 1 (1 chip, 2-sample) | SET_DONE | hangs (AmigaMerlin's kernel wedged here too) |
+Evidence `vcr-kmd/evidence/glidelab/aa_cfg*.log`; glidelab's own step log
+on the box (C:\vcr\glidelab\*.log) names the last step. **Rule (memory
+`aa-tests-need-user-present`): no AA config on `.124` unless the user is at
+the box.** Next: offline comparison of our h5 Glide's AA open / AA LFB paths
+with 3dfx's GPL Glide, flushed step logging in Glide, then ONE supervised run.
+Quake II at cfg 3 (no LFB reads) is the one AA test likely to pass - also
+supervised.
+
+**Still open (safe):** 16 bpp DirectDraw flip at half the refresh; 32 bpp D3D
+render targets (windowed D3D on a 32 bpp desktop fails CreateDevice).
+
 ### Resume point (2026-09-26 12:40) — vcr-kmd on master; the monitor is protected; D3D 40/40 on silicon
 
 **The monitor rule first** (user, 08:04: "how many times are you engaging the
