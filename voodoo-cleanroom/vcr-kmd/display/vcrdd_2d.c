@@ -227,6 +227,7 @@ void VcrDd2dInit(VCR_PDEV *pd)
         pd->g2d_disabled = (info.flags & VCR_INFO_F_NO_ACCEL2D) ? 1 : 0;
         pd->d3d_disabled = (info.flags & VCR_INFO_F_NO_D3D) ? 1 : 0;
         pd->no_texport = (info.flags & VCR_INFO_F_NO_TEXPORT) ? 1 : 0;
+        pd->napalm = info.device == 0x0009;
     }
     req.RequestedVirtualAddress = NULL;
     rc = VcrIoctl(pd->hDriver, IOCTL_VIDEO_QUERY_PUBLIC_ACCESS_RANGES, &req, sizeof req, &r,

@@ -42,8 +42,10 @@ static float fbits(ULONG u)
 
 BOOL VcrDd3dTarget(VCR_PDEV *pd, const vcr3d_target *t)
 {
-    if (!VcrDdRoom(pd, 6))
+    if (!VcrDdRoom(pd, 7))
         return FALSE;
+    if (pd->napalm)             /* VSA-100: 16 bpp 3D, every channel written */
+        w3(pd, V3D_RENDERMODE, RM_16BPP | RM_RGBA_WRITE);
     w3(pd, V3D_COLBUFFERADDR, t->rt_off);
     w3(pd, V3D_COLBUFFERSTRIDE, BS_LINEAR_STRIDE(t->rt_pitch));
     w3(pd, V3D_AUXBUFFERADDR, t->z_off);

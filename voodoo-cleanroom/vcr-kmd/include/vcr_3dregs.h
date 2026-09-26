@@ -33,6 +33,7 @@
 #define V3D_C0                  0x144
 #define V3D_C1                  0x148
 #define V3D_FOGTABLE            0x160
+#define V3D_RENDERMODE          0x1e0   /* VSA-100 only (reserved on Banshee/Voodoo3) */
 #define V3D_COLBUFFERADDR       0x1ec
 #define V3D_COLBUFFERSTRIDE     0x1f0
 #define V3D_AUXBUFFERADDR       0x1f4
@@ -169,6 +170,13 @@
 #define SM_CULL                 (1u << 17)
 #define SM_CULL_NEGATIVE        (1u << 18)
 #define SM_NO_PINGPONG          (1u << 19)
+
+/* renderMode (VSA-100, h5 h3defs.h SST_RM_*): the 3D pixel depth and the
+ * per-channel WRITE ENABLES - left 0 (or at a Glide session's 32 bpp) the
+ * chip draws nothing, or the wrong format */
+#define RM_16BPP                0u
+#define RM_32BPP                2u
+#define RM_RGBA_WRITE           (0xfu << 17)
 
 /* colBufferStride / auxBufferStride: bit 15 clear = linear, stride in bytes */
 #define BS_LINEAR_STRIDE(b)     ((unsigned)(b) & 0x3fffu)

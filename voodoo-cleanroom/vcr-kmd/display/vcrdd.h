@@ -59,6 +59,7 @@ typedef struct VCR_PDEV {
     ULONG       g2d_fifo_full;      /* status[4:0] with the PCI FIFO empty */
     ULONG       d3d_disabled;       /* Diag\\D3D = 0 */
     ULONG       no_texport;         /* Diag\\TexPortFlush = 0 */
+    ULONG       napalm;             /* a VSA-100 (Voodoo 4/5): renderMode, 32 bpp 3D */
     PVOID       pvmList;            /* DirectDraw's VIDEOMEMORY heap list (it fills lpHeap) */
     ULONG       fog_loaded[4];      /* the fog table on the chip: mode, start, end, density */
     ULONG       fog_valid;
