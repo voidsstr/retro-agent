@@ -336,10 +336,15 @@ known bugs and roadmap — is [`voodoo-cleanroom/README.md`](voodoo-cleanroom/RE
   AmigaMerlin's Glide beats AmigaMerlin's own ICD in Quake II and matches or beats
   it in Quake III; **our h5 Glide now opens the board** (fixes H1–H7, G3 and the
   2026-09-24 audit, fork `215a9e7`), and **our ICD over our h5 Glide renders
-  Quake II** — the whole user-mode stack is ours, only the display driver is
-  AmigaMerlin's. 4-chip SLI through our Glide is not yet exercised. `.171`'s
-  Voodoo 2 lane (`deploy/deploy171.py`) is unchanged. Rows: README §13.3 and
-  `docs/v56k-benchmark-plan.md`.
+  Quake II**. **Since 2026-09-26 the kernel driver is ours too:** `vcr-kmd`
+  (`voodoo-cleanroom/vcr-kmd/`, miniport + display DLL with 2D engine,
+  DirectDraw and a DX7 D3D HAL) runs `.124`, and Quake II on our ICD + our h5
+  Glide + our kernel driver ran 173.4 fps at 1024x768x16 in 4-chip SLI
+  (AmigaMerlin's best: 147-173). Our Glide on our kernel matches AmigaMerlin's
+  4-chip fill rate (1124.6 vs 1124.5 Mpix/s). **Every live mode switch goes
+  through `vcr-kmd/tools/vcr_pace.h`** (the monitor is a 1998 CRT - see the
+  v56k plan). `.171`'s Voodoo 2 lane (`deploy/deploy171.py`) is unchanged.
+  Rows: README §13.3 and `docs/v56k-benchmark-plan.md`.
 - **Tests:** `bash tests/run_all.sh` (Python client + agent-C + MesaFX ICD logic).
 - **Fix versions live in `voodoo-cleanroom/CHANGELOG.md`** (0.1.x), dated overview
   in README §15: fx_pack_ub SSE clamp (0.1.2), batched triangle submission
