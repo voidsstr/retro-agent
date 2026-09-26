@@ -17,6 +17,7 @@
  *     mismatch is a log line rather than a black screen with no explanation.
  */
 #include "vcrmp.h"
+#include "../include/vcr_pciraw.h"
 
 /* ---- register access ----------------------------------------------------------- */
 
@@ -90,18 +91,35 @@ static void attr_wr(VCR_EXT *x, UCHAR idx, UCHAR v)
     VcrVgaWr(x, VCR_VGA_ATTR_W, v);
 }
 
-/* ---- PCI config space: HAL directly (see vcrmp.h / FindAdapter: videoprt's
- * VideoPortGetBusData substitutes the adapter's own slot for a PnP device,
- * so it cannot reach functions 1-3, which PnP never enumerated) ------------ */
+/* ---- PCI config space ---------------------------------------------------------
+ * Function 0 (the chip PnP gave us): the HAL. Functions 1-7: RAW mechanism #1
+ * cycles, because the HAL does not probe them - the V5 6000's function-0
+ * header has no multifunction bit, and HalGetBusDataByOffset reports its
+ * three slave chips absent (measured on .124 with vcrprobe: raw cycles find
+ * all four at bus 3 dev 0 fn 0-3). videoprt's VideoPortGetBusData is no help
+ * either: for a PnP device it substitutes the adapter's own slot.
+ * Raw cycles run with interrupts off; that does not exclude the HAL on
+ * another CPU, which is acceptable for a UP box and rare config traffic. */
 
 ULONG VcrPciSlot(ULONG dev, ULONG fn)
 {
     return (dev & 0x1f) | ((fn & 7) << 5);
 }
 
+static ULONG raw_read(VCR_EXT *x, ULONG slot, ULONG off, ULONG size)
+{
+    ULONG d = vcr_pci_raw_read32(x->bus, slot & 0x1f, (slot >> 5) & 7, off & ~3u);
+    ULONG sh = (off & 3) * 8;
+    if (size == 4)
+        return d;
+    return (d >> sh) & (size == 1 ? 0xffu : 0xffffu);
+}
+
 ULONG VcrPciRead(VCR_EXT *x, ULONG slot, ULONG off, ULONG size)
 {
     ULONG v = 0;
+    if ((slot >> 5) & 7)
+        return raw_read(x, slot, off, size);
     if (HalGetBusDataByOffset(VCR_PCIConfiguration, x->bus, slot, &v, off, size) != size)
         return 0xffffffffu;
     return v;
@@ -109,6 +127,16 @@ ULONG VcrPciRead(VCR_EXT *x, ULONG slot, ULONG off, ULONG size)
 
 void VcrPciWrite(VCR_EXT *x, ULONG slot, ULONG off, ULONG v, ULONG size)
 {
+    if ((slot >> 5) & 7) {
+        ULONG d = v, sh = (off & 3) * 8;
+        if (size != 4) {
+            ULONG m = (size == 1 ? 0xffu : 0xffffu) << sh;
+            d = (vcr_pci_raw_read32(x->bus, slot & 0x1f, (slot >> 5) & 7, off & ~3u) & ~m) |
+                ((v << sh) & m);
+        }
+        vcr_pci_raw_write32(x->bus, slot & 0x1f, (slot >> 5) & 7, off & ~3u, d);
+        return;
+    }
     HalSetBusDataByOffset(VCR_PCIConfiguration, x->bus, slot, &v, off, size);
 }
 
@@ -238,11 +266,10 @@ VP_STATUS VcrHwDiscover(VCR_EXT *x)
     x->caps.device_id = x->device;
     x->caps.max_pixclk_khz = VCR_IS_NAPALM(x->device) ? 350000
                              : x->device == VCR_DEV_VOODOO3 ? 300000 : 270000;
-    /* VSA-100: the vendor stays in 1X up to 262 MHz (golden capture: dacMode 0
-     * at 1600x1200@70, 189 MHz; its source switches above 262 MHz). Older
-     * chips: tdfxfb's half-the-RAMDAC rule. */
-    x->caps.twox_above_khz = VCR_IS_NAPALM(x->device) ? 262000
-                                                      : x->caps.max_pixclk_khz / 2;
+    /* 2X mode, the vendor's rule (H5 h3modeset.c; golden capture: dacMode 0
+     * at every mode .124's monitor offers) - see vcr_mode_compute(). */
+    x->caps.twox_above_khz = VCR_IS_NAPALM(x->device) ? 262000 : 160000;
+    x->caps.twox_htotal_chars = VCR_IS_NAPALM(x->device) ? 261 : 0;
     x->caps.fb_bytes = x->fb_per_chip;
     /* The desktop starts 1 MB in: Glide keeps its command FIFO at 96 KB, so a
      * GDI write that lands while a game owns the chip can at worst touch a
@@ -256,6 +283,7 @@ VP_STATUS VcrHwDiscover(VCR_EXT *x)
     if ((over = VcrDiagGet(L"TwoXAboveKhz", 0)) != 0)
         x->caps.twox_above_khz = over;
     x->caps.napalm_vpc_extra = VcrDiagGet(L"NapalmVpcExtra", 0);
+    x->lfbmemcfg_linear = VcrDiagGet(L"LfbMemoryConfig", 0x01803fff);
     return NO_ERROR;
 }
 
@@ -456,12 +484,12 @@ static VP_STATUS voodoo_program(VCR_EXT *x, const vcr_modeset *m)
     VcrWr(x, 0, VCR_R_VIDSCREENSIZE, m->vidscreensize);
     VcrWr(x, 0, VCR_R_VIDPIXELBUFTHOLD, 0x00010410);    /* vendor value, every mode */
     VcrWr(x, 0, VCR_R_VIDDESKTOPSTARTADDR, x->desktop_offset);
-    if (x->boot.saved) {
-        /* Glide re-tiles the LFB and moves the Y origin; the desktop wants
-         * the linear layout the BIOS left */
-        VcrWr(x, 0, VCR_R_LFBMEMORYCONFIG, x->boot.lfbmemcfg);
-        VcrWr(x, 0, VCR_R_MISCINIT0, x->boot.miscinit0);
-    }
+    /* Glide re-tiles the LFB and moves the Y origin; a linear desktop wants
+     * the tile aperture pushed past the end of memory and no Y flip - the
+     * vendor's own values for its linear (8 bpp) desktops, golden capture
+     * (Diag\\LfbMemoryConfig overrides). */
+    VcrWr(x, 0, VCR_R_LFBMEMORYCONFIG, x->lfbmemcfg_linear);
+    VcrWr(x, 0, VCR_R_MISCINIT0, 0);
     clut_identity(x);
     VcrWr(x, 0, VCR_R_VIDPROCCFG, m->vidproccfg);
 

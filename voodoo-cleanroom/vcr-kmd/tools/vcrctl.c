@@ -33,8 +33,10 @@
  *   restore                ChangeDisplaySettings(NULL) - back to the registry mode
  *   dump [path]            the flight recorder + bugcheck out of a crash dump,
  *                          scanned on the box (dumps exceed the agent's frames)
- *   probe-vga              vcrprobe.sys: the whole VGA register file
- *   probe-pci BUS DEV FN   vcrprobe.sys: 256 bytes of PCI config space
+ *   probe-vga [HEXBASE]    vcrprobe.sys: the whole VGA register file (legacy
+ *                          ports, or the alias in a 3dfx I/O BAR at HEXBASE)
+ *   probe-pci BUS DEV FN [raw]  vcrprobe.sys: 256 bytes of PCI config space
+ *                          (raw = 0xCF8 cycles: the V5's slave functions)
  *   probe-mem HEXPHYS LEN  vcrprobe.sys: physical memory, read only (<= 4 KB)
  *   (hwcregs/golden add the VGA file when vcrprobe.sys is loaded)
  */
@@ -227,16 +229,23 @@ static HANDLE probe_open(void)
                        OPEN_EXISTING, 0, NULL);
 }
 
-static int probe_vga(vcr_probe_vga *v)
+static int probe_vga_at(vcr_probe_vga *v, ULONG base)
 {
     HANDLE h = probe_open();
     DWORD got = 0;
     BOOL ok;
     if (h == INVALID_HANDLE_VALUE)
         return 0;
-    ok = DeviceIoControl(h, IOCTL_VCRPROBE_VGA, NULL, 0, v, sizeof *v, &got, NULL);
+    memset(v, 0, sizeof *v);
+    *(ULONG *)v = base;             /* in and out share the buffer */
+    ok = DeviceIoControl(h, IOCTL_VCRPROBE_VGA, v, sizeof(ULONG), v, sizeof *v, &got, NULL);
     CloseHandle(h);
     return ok && got == sizeof *v;
+}
+
+static int probe_vga(vcr_probe_vga *v)
+{
+    return probe_vga_at(v, 0x300);
 }
 
 static void print_vga_json(const vcr_probe_vga *v)
@@ -252,18 +261,18 @@ static void print_vga_json(const vcr_probe_vga *v)
     printf("}");
 }
 
-static int cmd_probe_vga(void)
+static int cmd_probe_vga(ULONG base)
 {
     vcr_probe_vga v;
-    if (!probe_vga(&v))
+    if (!probe_vga_at(&v, base))
         return fail("probe-vga", "\\\\.\\VcrProbe not available (sc start vcrprobe)");
-    printf("{\"cmd\":\"probe-vga\",\"ok\":true,\"vga\":");
+    printf("{\"cmd\":\"probe-vga\",\"ok\":true,\"base\":\"%lx\",\"vga\":", base);
     print_vga_json(&v);
     printf("}\n");
     return 0;
 }
 
-static int cmd_probe_pci(ULONG bus, ULONG dev, ULONG fn)
+static int cmd_probe_pci(ULONG bus, ULONG dev, ULONG fn, ULONG raw)
 {
     vcr_probe_pci q;
     HANDLE h = probe_open();
@@ -276,13 +285,14 @@ static int cmd_probe_pci(ULONG bus, ULONG dev, ULONG fn)
     q.fn = fn;
     q.offset = 0;
     q.len = 256;
+    q.raw = raw;
     if (!DeviceIoControl(h, IOCTL_VCRPROBE_PCI, &q, sizeof q, &q, sizeof q, &got, NULL)) {
         CloseHandle(h);
         return fail("probe-pci", "ioctl failed");
     }
     CloseHandle(h);
-    printf("{\"cmd\":\"probe-pci\",\"ok\":true,\"bus\":%lu,\"dev\":%lu,\"fn\":%lu,\"got\":%u,",
-           bus, dev, fn, q.got);
+    printf("{\"cmd\":\"probe-pci\",\"ok\":true,\"bus\":%lu,\"dev\":%lu,\"fn\":%lu,\"raw\":%lu,"
+           "\"got\":%u,", bus, dev, fn, raw, q.got);
     print_bytes("cfg", q.data, q.got > 256 ? 256 : (int)q.got);
     printf("}\n");
     return 0;
@@ -756,10 +766,10 @@ int main(int argc, char **argv)
     else if (!strcmp(cmd, "dump"))
         rc = cmd_dump(argc > 2 ? argv[2] : "C:\\WINDOWS\\MEMORY.DMP");
     else if (!strcmp(cmd, "probe-vga"))
-        rc = cmd_probe_vga();
+        rc = cmd_probe_vga(argc > 2 ? strtoul(argv[2], NULL, 16) : 0x300);
     else if (!strcmp(cmd, "probe-pci") && argc > 4)
         rc = cmd_probe_pci(strtoul(argv[2], NULL, 0), strtoul(argv[3], NULL, 0),
-                           strtoul(argv[4], NULL, 0));
+                           strtoul(argv[4], NULL, 0), argc > 5 && !strcmp(argv[5], "raw"));
     else if (!strcmp(cmd, "probe-mem") && argc > 3)
         rc = cmd_probe_mem(strtoul(argv[2], NULL, 16), strtoul(argv[3], NULL, 0));
     else if (!strcmp(cmd, "gdi"))

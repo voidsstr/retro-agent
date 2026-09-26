@@ -8,19 +8,22 @@
 /*
  * VESA DMT (and CEA-861 / CVT where DMT has no entry) timings.
  *   w, h, Hz, pixclk kHz, hfp, hsync, hbp, vfp, vsync, vbp, flags
- * Doublescan rows give LOGICAL lines; the hardware scans each twice.
+ * Doublescan rows: `h` is LOGICAL rows (each scanned twice), but vfp/vsync/vbp
+ * are PHYSICAL lines - the vendor's 320x200 has an odd 449-line total.
  * Order matters only for presentation: modes are listed in this order.
  */
 #define N VCR_T_HNEG
 #define V VCR_T_VNEG
 #define D VCR_T_DBLSCAN
 const vcr_timing vcr_timings[] = {
-    /* low resolution, doublescanned (Glide 320x240 / 400x300 / 512x384) */
-    { 320,  200, 70,  12587,   8,  48,  24,  6, 1, 18, N | D },
-    { 320,  240, 60,  12587,   8,  48,  24,  5, 1, 17, N | V | D },
-    { 400,  300, 60,  20000,  20,  64,  44,  1, 2, 11, D },
-    { 512,  384, 60,  32500,  12,  68,  80,  2, 3, 14, N | V | D },
-    { 640,  400, 70,  25175,  16,  96,  48, 12, 2, 35, N },
+    /* low resolution (Glide 320x240 / 400x300 / 512x384): the vendor driver's
+     * timings, decoded from its CRTC on the V5 6000 - the parent VGA/DMT mode
+     * with the horizontal halved and the vertical kept in physical lines */
+    { 320,  200, 70,  12587,   8,  48,  24, 13, 2, 34, N | D },
+    { 320,  240, 60,  12587,   8,  48,  24, 10, 2, 33, N | V | D },
+    { 400,  300, 60,  20000,  24,  64,  40,  1, 4, 23, D },
+    { 512,  384, 60,  32500,  16,  64,  80,  3, 6, 29, N | V | D },
+    { 640,  400, 70,  25175,  16,  96,  48, 13, 2, 34, N },
     /* 4:3 DMT */
     { 640,  480, 60,  25175,  16,  96,  48, 10, 2, 33, N | V },
     { 640,  480, 72,  31500,  24,  40, 128,  9, 3, 28, N | V },
@@ -41,13 +44,51 @@ const vcr_timing vcr_timings[] = {
     { 1280,1024, 60, 108000,  48, 112, 248,  1, 3, 38, 0 },
     { 1280,1024, 75, 135000,  16, 144, 248,  1, 3, 38, 0 },
     { 1280,1024, 85, 157500,  64, 160, 224,  1, 3, 44, 0 },
-    { 1600,1200, 60, 162000,  64, 192, 304,  1, 3, 46, 0 },
-    { 1600,1200, 65, 175500,  64, 192, 304,  1, 3, 46, 0 },
-    { 1600,1200, 70, 189000,  64, 192, 304,  1, 3, 46, 0 },
-    { 1600,1200, 75, 202500,  64, 192, 304,  1, 3, 46, 0 },
-    { 1600,1200, 85, 229500,  64, 192, 304,  1, 3, 46, 0 },
+    /* 1600x1200: NOT DMT (htotal 2160 = 270 chars). The vendor driver keeps
+     * DMT's porches but shortens the back porch to htotal 2088 = 261 chars,
+     * the most 1X mode allows (golden capture; see the 2X rule below). */
+    { 1600,1200, 60, 156600,  64, 192, 232,  1, 3, 46, 0 },
+    { 1600,1200, 65, 169650,  64, 192, 232,  1, 3, 46, 0 },
+    { 1600,1200, 70, 182700,  64, 192, 232,  1, 3, 46, 0 },
+    { 1600,1200, 75, 195750,  64, 192, 232,  1, 3, 46, 0 },
+    { 1600,1200, 85, 221850,  64, 192, 232,  1, 3, 46, 0 },
     { 1920,1440, 60, 234000, 128, 208, 344,  1, 3, 56, N },
     { 1920,1440, 75, 297000, 144, 224, 352,  1, 3, 56, N },
+    /* More modes the vendor driver offers on .124 and its monitor accepts,
+     * decoded from its CRTC by tools/golden_timings.py (GTF-style timings at
+     * 70-120 Hz, 720x480/576, 960x720, 1600x1024). */
+{  320, 200,  85,  15749,  16,  32,  48,  1, 3, 41, N | D },
+    {  320, 240,  72,  15749,  16,  16,  64,  9, 3, 28, N | V | D },
+    {  320, 240,  75,  15901,   8,  32,  64,  1, 3, 16, N | V | D },
+    {  320, 240,  85,  17996,  24,  32,  40,  1, 3, 25, N | V | D },
+    {  400, 300,  72,  24957,  32,  56,  32, 37, 6, 23, D },
+    {  400, 300,  75,  24758,   8,  40,  80,  1, 3, 21, D },
+    {  400, 300,  85,  28337,  16,  32,  80,  1, 3, 27, D },
+    {  512, 384,  70,  37435,  16,  64,  72,  3, 6, 29, N | V | D },
+    {  512, 384,  75,  39374,   8,  48,  88,  1, 3, 28, N | V | D },
+    {  512, 384,  85,  47249,  24,  48, 104,  1, 3, 36, N | V | D },
+    {  640, 400,  85,  31499,  32,  64,  96,  1, 3, 41, N },
+    {  640, 480, 100,  43152,  40,  64, 104,  1, 3, 25, N },
+    {  640, 480, 120,  52414,  40,  64, 104,  1, 3, 31, N },
+    {  720, 480,  60,  28188,  16, 120,  40, 10, 2, 33, N | V },
+    {  720, 480,  72,  34831,  16, 136,  48,  9, 3, 28, N | V },
+    {  720, 480,  85,  40493,  64,  64,  88,  1, 3, 25, N | V },
+    {  720, 576,  60,  36306,  32,  96,  88,  2, 4, 60, 0 },
+    {  720, 576,  72,  43252,  32,  96,  88,  2, 4, 60, 0 },
+    {  720, 576, 100,  60084,  32,  96,  88,  2, 4, 60, 0 },
+    {  800, 600, 100,  68308,  48,  88, 136,  1, 3, 32, N },
+    {  800, 600, 120,  83919,  56,  88, 144,  1, 3, 39, N },
+    {  960, 720,  60,  55840,  48,  96, 144,  1, 3, 22, N },
+    {  960, 720,  75,  72186,  56, 104, 160,  1, 3, 28, N },
+    { 1024, 768, 100, 113350,  72, 112, 184,  1, 3, 42, N },
+    { 1152, 864,  60,  80050,  32,  96, 192,  1, 3, 37, 0 },
+    { 1152, 864,  70,  94498,  32,  96, 200,  1, 3, 44, 0 },
+    { 1152, 864,  85, 121703,  64, 128, 224,  1, 3, 43, 0 },
+    { 1152, 864, 100, 143180,  80, 128, 208,  1, 3, 47, N },
+    { 1280, 960,  75, 129884,  88, 136, 224,  1, 3, 38, N },
+    { 1600,1024,  60, 133873,  32, 160, 296,  3, 3, 40, N | V },
+    { 1600,1024,  76, 169770,  32, 160, 296,  3, 3, 40, N | V },
+    { 1600,1024,  85, 189713,  32, 160, 296,  3, 3, 40, N | V },
     /* wide panels */
     { 1280, 720, 60,  74500,  64, 128, 192,  3, 5, 20, N },   /* CVT: CEA's 1650 px htotal is not whole characters */
     { 1280, 800, 60,  83500,  72, 128, 200,  3, 6, 22, N },
@@ -102,14 +143,14 @@ int vcr_mode_check(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp)
     vcr_u32 need;
     if (bpp != 8 && bpp != 16 && bpp != 32)
         return VCR_MODE_E_BPP;
-    /* Doublescan (HALF mode) only at <= 16 bpp, as the vendor driver does. */
-    if ((t->flags & VCR_T_DBLSCAN) && bpp > 16)
-        return VCR_MODE_E_BPP;
+    /* Doublescan (HALF mode) at every depth: the vendor programs 320x240x32
+     * exactly like 320x240x16 (golden capture; its source comment suggesting
+     * <= 16 bpp describes a different branch). */
     if (t->pixclk_khz > hw->max_pixclk_khz)
         return VCR_MODE_E_PIXCLK;
     /* CRTC field widths: 9-bit horizontal chars, 11-bit vertical lines */
     if (t->w + t->hfp + t->hsync + t->hbp > 4096 ||
-        (vcr_u32)(t->h + t->vfp + t->vsync + t->vbp) * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) > 2048)
+        (vcr_u32)t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) + t->vfp + t->vsync + t->vbp > 2048)
         return VCR_MODE_E_RANGE;
     need = (vcr_u32)t->w * t->h * (bpp / 8);
     if (need + hw->fb_reserved > hw->fb_bytes)
@@ -148,7 +189,12 @@ int vcr_mode_compute(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp,
     hss = hdisp + t->hfp;
     hse = hss + t->hsync;
     htot = hse + t->hbp;
-    if (t->pixclk_khz > hw->twox_above_khz) {
+    /* 2X exactly as the vendor decides it (H5 h3modeset.c): VSA-100 above
+     * 262 MHz at width >= 1280, OR when htotal exceeds 261 characters,
+     * because horizontal blank end is only 6 bits; older chips above 160 MHz
+     * at width >= 1280. */
+    if ((t->pixclk_khz > hw->twox_above_khz && t->w >= 1280) ||
+        (hw->twox_htotal_chars && (htot >> 3) > hw->twox_htotal_chars)) {
         o->twox = 1;
         o->dacmode |= VCR_DAC_MODE_2X;
         o->vidproccfg |= VCR_VPC_2X_MODE_EN;
@@ -157,28 +203,29 @@ int vcr_mode_compute(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp,
         hse >>= 1;
         htot >>= 1;
     }
-    /* CRTC values with VGA / X.org vgaHW semantics (xf86-video-tdfx
-     * TDFXSetMode): sync start/end are the character or line on which the
-     * pulse begins/ends, totals carry the VGA -5 / -2 bias. (tdfxfb programs
-     * both sync starts one unit early; the golden captures from the vendor
-     * driver arbitrate - see tools/vcrprobe and test_vcr_kmd_modes.c.) */
+    /* CRTC values. Totals carry the VGA -5 / -2 bias; the sync start and end
+     * are programmed ONE character / line early - exactly what the vendor
+     * driver writes on the V5 6000 (golden capture with vcrprobe, 51 modes:
+     * CR04/05/10/11 one below standard VGA, everything else identical), and
+     * what tdfxfb does. The X.org vgaHW convention (no -1) is off by one on
+     * this silicon. */
     ht = (htot >> 3) - 5;
     hd = (hdisp >> 3) - 1;
     hbs = hd;
     hbe = (htot >> 3) - 1;
-    hs = hss >> 3;
-    he = hse >> 3;
+    hs = (hss >> 3) - 1;
+    he = (hse >> 3) - 1;
 
     {
         vcr_u32 k = (t->flags & VCR_T_DBLSCAN) ? 2 : 1;
         vcr_u32 vdisp = (vcr_u32)t->h * k;
-        vcr_u32 vss = vdisp + (vcr_u32)t->vfp * k;
-        vcr_u32 vse = vss + (vcr_u32)t->vsync * k;
-        vcr_u32 vtot = vse + (vcr_u32)t->vbp * k;
+        vcr_u32 vss = vdisp + t->vfp;              /* porches: physical lines */
+        vcr_u32 vse = vss + t->vsync;
+        vcr_u32 vtot = vse + t->vbp;
         vd = vdisp - 1;
         vbs = vdisp - 1;
-        vs = vss;
-        ve = vse;
+        vs = vss - 1;
+        ve = vse - 1;
         vbe = vtot - 1;
         vt = vtot - 2;
     }
@@ -190,9 +237,10 @@ int vcr_mode_compute(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp,
         o->vidscreensize = (vcr_u32)t->w | ((vcr_u32)t->h << 12);
     }
 
-    /* misc output: colour I/O, RAM on, clock select 3 (the PLL), page bit,
-     * and the sync polarities the monitor uses to identify the mode */
-    o->misc = 0x2f | ((t->flags & VCR_T_HNEG) ? 0x40 : 0) |
+    /* misc output: colour I/O, RAM on, clock select 3 (the PLL) and the sync
+     * polarities the monitor identifies the mode by. No page bit (0x20): the
+     * vendor writes 0x0f | polarity in every captured mode. */
+    o->misc = 0x0f | ((t->flags & VCR_T_HNEG) ? 0x40 : 0) |
               ((t->flags & VCR_T_VNEG) ? 0x80 : 0);
 
     o->seq[0] = 0x03;
@@ -226,17 +274,27 @@ int vcr_mode_compute(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp,
     o->crtc[0x10] = (vcr_u8)vs;
     o->crtc[0x11] = (vcr_u8)((ve & 0x0f) | 0x20);
     o->crtc[0x12] = (vcr_u8)vd;
-    o->crtc[0x13] = (vcr_u8)hd;
+    /* CR13 (offset) and CR17 (mode control) do not drive the 3dfx desktop,
+     * which the video processor fetches; the values are the vendor's */
+    o->crtc[0x13] = 0x28;
     o->crtc[0x15] = (vcr_u8)vbs;
     o->crtc[0x16] = (vcr_u8)vbe;
-    o->crtc[0x17] = 0xc3;
+    o->crtc[0x17] = 0x80;
     o->crtc[0x18] = 0xff;
 
     /* 3dfx horizontal / vertical overflow registers (CR1A / CR1B), bit
      * layout as both open drivers (tdfxfb, xf86-video-tdfx) program it */
-    o->crtc_ext[0] = (vcr_u8)(((ht & 0x100) >> 8) | ((hd & 0x100) >> 6) |
-                              ((hbs & 0x100) >> 4) | ((hbe & 0x40) >> 1) |
-                              ((hs & 0x100) >> 2) | ((he & 0x20) << 2));
+    /* CR1A bit 5 is bit 6 of the blank-end value AS THE VENDOR FORMS IT:
+     * (htotal - hdisp) + ((hdisp - 1) & 63) in characters. Its low six bits
+     * equal (htotal - 1)'s, which is all CR03/CR05 hold, but bit 6 differs -
+     * tdfxfb and X.org use htotal - 1 and disagree with the vendor driver in
+     * 37 of 51 captured modes (golden_compare.py). */
+    {
+        vcr_u32 hbe_vendor = ((htot - hdisp) >> 3) + (hd & 0x3f);
+        o->crtc_ext[0] = (vcr_u8)(((ht & 0x100) >> 8) | ((hd & 0x100) >> 6) |
+                                  ((hbs & 0x100) >> 4) | ((hbe_vendor & 0x40) >> 1) |
+                                  ((hs & 0x100) >> 2) | ((he & 0x20) << 2));
+    }
     o->crtc_ext[1] = (vcr_u8)(((vt & 0x400) >> 10) | ((vd & 0x400) >> 8) |
                               ((vbs & 0x400) >> 6) | ((vbe & 0x400) >> 4));
 
@@ -247,8 +305,8 @@ int vcr_mode_compute(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp,
 
     o->stride = (vcr_u32)t->w * (bpp / 8);
 
-    vtot_lines = ((vcr_u32)t->h + t->vfp + t->vsync + t->vbp) *
-                 ((t->flags & VCR_T_DBLSCAN) ? 2 : 1);
+    vtot_lines = (vcr_u32)t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) +
+                 t->vfp + t->vsync + t->vbp;
     {
         vcr_u32 htot_px = (vcr_u32)t->w + t->hfp + t->hsync + t->hbp;
         /* kHz * 1000 / px = Hz; keep the milli-Hz product inside 32 bits */

@@ -54,13 +54,17 @@ static VIDEO_MODE_INFORMATION *query_modes(HANDLE h, ULONG *count)
     return m;
 }
 
-/* The mode a DEVMODE asks for. Frequency 0/1 means "default": the lowest
- * refresh offered at that size (the safe one for an unknown monitor). */
+/* The mode a DEVMODE asks for: an exact refresh if we have it, else the
+ * highest refresh BELOW it (never above - that is how a CRT gets driven out
+ * of range), else the lowest. Frequency 0/1 means "default": the lowest. A
+ * box can ask for a refresh this driver does not list - the registry keeps
+ * the previous driver's mode across a driver change - and failing the PDEV
+ * for it would leave XP on its VGA driver. */
 static LONG pick_mode(const VIDEO_MODE_INFORMATION *m, ULONG n, const DEVMODEW *dm)
 {
     ULONG i, w = dm ? dm->dmPelsWidth : 0, h = dm ? dm->dmPelsHeight : 0;
     ULONG bpp = dm ? dm->dmBitsPerPel : 0, hz = dm ? dm->dmDisplayFrequency : 0;
-    LONG best = -1;
+    LONG lowest = -1, below = -1;
     if (!w || !h) {
         w = 800;
         h = 600;
@@ -71,14 +75,15 @@ static LONG pick_mode(const VIDEO_MODE_INFORMATION *m, ULONG n, const DEVMODEW *
         if (m[i].VisScreenWidth != w || m[i].VisScreenHeight != h ||
             m[i].BitsPerPlane * m[i].NumberOfPlanes != bpp)
             continue;
-        if (hz > 1) {
-            if (m[i].Frequency == hz)
-                return (LONG)i;
-        } else if (best < 0 || m[i].Frequency < m[best].Frequency) {
-            best = (LONG)i;
-        }
+        if (hz > 1 && m[i].Frequency == hz)
+            return (LONG)i;
+        if (lowest < 0 || m[i].Frequency < m[lowest].Frequency)
+            lowest = (LONG)i;
+        if (hz > 1 && m[i].Frequency < hz &&
+            (below < 0 || m[i].Frequency > m[below].Frequency))
+            below = (LONG)i;
     }
-    return best;
+    return below >= 0 ? below : lowest;
 }
 
 ULONG APIENTRY DrvGetModes(HANDLE hDriver, ULONG cjSize, DEVMODEW *pdm)

@@ -23,6 +23,7 @@ typedef struct vcr_probe_vga {
 
 typedef struct vcr_probe_pci {
     vcr_u32 bus, dev, fn, offset, len, got;
+    vcr_u32 raw;                /* 1 = mechanism #1 (0xCF8/0xCFC), not the HAL */
     vcr_u8  data[256];
 } vcr_probe_pci;
 

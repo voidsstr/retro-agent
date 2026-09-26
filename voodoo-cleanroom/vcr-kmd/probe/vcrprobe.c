@@ -20,39 +20,44 @@
  */
 #include <ddk/ntddk.h>
 #include "../include/vcr_probe.h"
+#include "../include/vcr_pciraw.h"
 
 static PDEVICE_OBJECT g_dev;
 
-static void vga_dump(vcr_probe_vga *v)
+/* VGA port P is read at base + (P - 0x300): base 0x300 = the legacy ports,
+ * base = a 3dfx I/O BAR = that BAR's alias of them (offsets 0xb0-0xdf). */
+#define VP(p) ((PUCHAR)(ULONG_PTR)(base + ((p) - 0x300)))
+
+static void vga_dump(vcr_probe_vga *v, ULONG base)
 {
     ULONG i;
     UCHAR attr_idx;
-    v->misc = READ_PORT_UCHAR((PUCHAR)0x3cc);
+    v->misc = READ_PORT_UCHAR(VP(0x3cc));
     for (i = 0; i < sizeof v->seq; i++) {
-        WRITE_PORT_UCHAR((PUCHAR)0x3c4, (UCHAR)i);
-        v->seq[i] = READ_PORT_UCHAR((PUCHAR)0x3c5);
+        WRITE_PORT_UCHAR(VP(0x3c4), (UCHAR)i);
+        v->seq[i] = READ_PORT_UCHAR(VP(0x3c5));
     }
     for (i = 0; i < sizeof v->crtc; i++) {
-        WRITE_PORT_UCHAR((PUCHAR)0x3d4, (UCHAR)i);
-        v->crtc[i] = READ_PORT_UCHAR((PUCHAR)0x3d5);
+        WRITE_PORT_UCHAR(VP(0x3d4), (UCHAR)i);
+        v->crtc[i] = READ_PORT_UCHAR(VP(0x3d5));
     }
     for (i = 0; i < sizeof v->gfx; i++) {
-        WRITE_PORT_UCHAR((PUCHAR)0x3ce, (UCHAR)i);
-        v->gfx[i] = READ_PORT_UCHAR((PUCHAR)0x3cf);
+        WRITE_PORT_UCHAR(VP(0x3ce), (UCHAR)i);
+        v->gfx[i] = READ_PORT_UCHAR(VP(0x3cf));
     }
     /* attribute controller: reset the flip-flop, keep PAS (bit 5) set so the
      * screen is not blanked, read, reset again */
-    (void)READ_PORT_UCHAR((PUCHAR)0x3da);
-    attr_idx = READ_PORT_UCHAR((PUCHAR)0x3c0);
+    (void)READ_PORT_UCHAR(VP(0x3da));
+    attr_idx = READ_PORT_UCHAR(VP(0x3c0));
     for (i = 0; i < sizeof v->attr; i++) {
-        (void)READ_PORT_UCHAR((PUCHAR)0x3da);
-        WRITE_PORT_UCHAR((PUCHAR)0x3c0, (UCHAR)(i | 0x20));
-        v->attr[i] = READ_PORT_UCHAR((PUCHAR)0x3c1);
+        (void)READ_PORT_UCHAR(VP(0x3da));
+        WRITE_PORT_UCHAR(VP(0x3c0), (UCHAR)(i | 0x20));
+        v->attr[i] = READ_PORT_UCHAR(VP(0x3c1));
     }
-    (void)READ_PORT_UCHAR((PUCHAR)0x3da);
-    WRITE_PORT_UCHAR((PUCHAR)0x3c0, (UCHAR)(attr_idx | 0x20));
-    (void)READ_PORT_UCHAR((PUCHAR)0x3da);
-    v->is1 = READ_PORT_UCHAR((PUCHAR)0x3da);
+    (void)READ_PORT_UCHAR(VP(0x3da));
+    WRITE_PORT_UCHAR(VP(0x3c0), (UCHAR)(attr_idx | 0x20));
+    (void)READ_PORT_UCHAR(VP(0x3da));
+    v->is1 = READ_PORT_UCHAR(VP(0x3da));
 }
 
 static NTSTATUS NTAPI on_create_close(PDEVICE_OBJECT d, PIRP irp)
@@ -81,7 +86,16 @@ static NTSTATUS NTAPI on_ioctl(PDEVICE_OBJECT d, PIRP irp)
             st = STATUS_BUFFER_TOO_SMALL;
             break;
         }
-        vga_dump((vcr_probe_vga *)buf);
+        {
+            /* optional input: the port base (default the legacy 0x300); only
+             * the legacy ports or a 256-byte-aligned I/O BAR are accepted */
+            ULONG base = in >= sizeof(ULONG) ? *(ULONG *)buf : 0x300;
+            if (base != 0x300 && (base < 0x1000 || base > 0xff00 || (base & 0xff))) {
+                st = STATUS_INVALID_PARAMETER;
+                break;
+            }
+            vga_dump((vcr_probe_vga *)buf, base);
+        }
         info = sizeof(vcr_probe_vga);
         st = STATUS_SUCCESS;
         break;
@@ -96,9 +110,21 @@ static NTSTATUS NTAPI on_ioctl(PDEVICE_OBJECT d, PIRP irp)
             st = STATUS_INVALID_PARAMETER;
             break;
         }
-        req.got = HalGetBusDataByOffset(PCIConfiguration, req.bus,
-                                        (req.dev & 0x1f) | ((req.fn & 7) << 5),
-                                        req.data, req.offset, req.len);
+        if (req.raw) {
+            ULONG o;
+            if ((req.offset | req.len) & 3) {
+                st = STATUS_INVALID_PARAMETER;
+                break;
+            }
+            for (o = 0; o < req.len; o += 4)
+                *(ULONG *)&req.data[o] = vcr_pci_raw_read32(req.bus, req.dev, req.fn,
+                                                            req.offset + o);
+            req.got = req.len;
+        } else {
+            req.got = HalGetBusDataByOffset(PCIConfiguration, req.bus,
+                                            (req.dev & 0x1f) | ((req.fn & 7) << 5),
+                                            req.data, req.offset, req.len);
+        }
         *(vcr_probe_pci *)buf = req;
         info = sizeof req;
         st = STATUS_SUCCESS;

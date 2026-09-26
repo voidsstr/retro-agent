@@ -219,8 +219,12 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
     VcrHwSnapshotToLog(x, "boot");
 
     x->nmodes = vcr_modes_build(&x->caps, x->modes, VCR_MAX_MODES);
-    VLOG(VCR_LV_INFO, VCR_EV_MODES_BUILT, x->nmodes, vcr_ntimings, x->caps.max_pixclk_khz,
-         x->caps.twox_above_khz, "%u modes", x->nmodes);
+    /* A full table means modes were DROPPED - it happened silently once
+     * (200 of ~210, found by the mode sweep landing on exactly 200). */
+    VLOG(x->nmodes >= VCR_MAX_MODES ? VCR_LV_ERROR : VCR_LV_INFO, VCR_EV_MODES_BUILT,
+         x->nmodes, vcr_ntimings, x->caps.max_pixclk_khz, x->caps.twox_above_khz,
+         x->nmodes >= VCR_MAX_MODES ? "%u modes - TABLE FULL, modes dropped" : "%u modes",
+         x->nmodes);
     x->allow_poke = VcrDiagGet(L"AllowPoke", 0);
     hwinfo(x);
 

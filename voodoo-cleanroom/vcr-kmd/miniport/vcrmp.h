@@ -74,7 +74,7 @@ ULONG NTAPI HalSetBusDataByOffset(ULONG BusDataType, ULONG Bus, ULONG Slot,
                                   PVOID Buf, ULONG Offset, ULONG Len);
 
 /* ---- device extension ------------------------------------------------------- */
-#define VCR_MAX_MODES       200
+#define VCR_MAX_MODES       400
 #define VCR_MAX_PROCS       8
 #define VCR_MMIO_MAP_LEN    0x400000    /* io + cmd + 2d + 3d register windows */
 
@@ -114,6 +114,7 @@ typedef struct VCR_EXT {
     PUCHAR    lfb_kernel;           /* only mapped on demand (MAP_VIDEO_MEMORY) */
     ULONG     fb_per_chip;
     ULONG     desktop_offset;       /* where the desktop starts in video memory */
+    ULONG     lfbmemcfg_linear;     /* lfbMemoryConfig for a linear desktop */
     vcr_hwcaps caps;
 
     ULONG     nmodes;

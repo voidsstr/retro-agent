@@ -16,7 +16,8 @@ static vcr_hwcaps v5(void)
     memset(&h, 0, sizeof h);
     h.device_id = VCR_DEV_VSA100;
     h.max_pixclk_khz = 350000;
-    h.twox_above_khz = 262000;      /* the vendor's threshold (golden: no 2X at 189 MHz) */
+    h.twox_above_khz = 262000;      /* the vendor's rule (H5 h3modeset.c) */
+    h.twox_htotal_chars = 261;
     h.fb_bytes = 32u << 20;         /* .124: 128 MB board = 32 MB per chip */
     h.fb_reserved = 64u << 10;
     return h;
@@ -52,8 +53,8 @@ TEST(the_timings_table_is_self_consistent) {
     for (i = 0; i < vcr_ntimings; i++) {
         const vcr_timing *t = &vcr_timings[i];
         vcr_u32 ht = (vcr_u32)t->w + t->hfp + t->hsync + t->hbp;
-        vcr_u32 vt = ((vcr_u32)t->h + t->vfp + t->vsync + t->vbp) *
-                     ((t->flags & VCR_T_DBLSCAN) ? 2 : 1);
+        vcr_u32 vt = (vcr_u32)t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) +
+                     t->vfp + t->vsync + t->vbp;       /* porches are physical lines */
         /* the nominal refresh is within 1.5 Hz of what the numbers give */
         vcr_u32 mhz = (vcr_u32)((unsigned long long)t->pixclk_khz * 1000000ull /
                                 ((unsigned long long)ht * vt));
@@ -63,32 +64,29 @@ TEST(the_timings_table_is_self_consistent) {
     }
 }
 
-TEST(vga_640x480_60_matches_the_standard_crtc_values) {
+TEST(the_640x480_60_crtc_is_the_vendors_not_textbook_vga) {
     vcr_hwcaps h = v5();
     vcr_modeset m;
     CHECK_EQ_I(vcr_mode_compute(&h, T(640, 480, 60), 8, &m), 0);
     /* htotal 800 -> 100 chars -> CR00 = 95; display 80 chars -> CR01 = 79 */
     CHECK_EQ_U(m.crtc[0x00], 0x5f);
     CHECK_EQ_U(m.crtc[0x01], 0x4f);
-    CHECK_EQ_U(m.crtc[0x02], 0x4f);
     CHECK_EQ_U(m.crtc[0x03], 0x80 | (99 & 0x1f));
-    CHECK_EQ_U(m.crtc[0x04], 656 / 8);          /* sync starts at pixel 656 */
-    CHECK_EQ_U(m.crtc[0x05], 0x80 | ((752 / 8) & 0x1f));
-    /* vtotal 525 -> CR06 = 523 & 0xff; vsync starts on line 490 */
+    /* Sync start/end ONE UNIT EARLY - hsync starts at pixel 656 (char 82) and
+     * the vendor writes 81; vsync starts on line 490 and it writes 489. The
+     * textbook VGA values (82, 0xea) were this test's first expectation and
+     * the V5 6000 overruled them (golden capture). */
+    CHECK_EQ_U(m.crtc[0x04], 656 / 8 - 1);
+    CHECK_EQ_U(m.crtc[0x05], 0x80 | ((752 / 8 - 1) & 0x1f));
     CHECK_EQ_U(m.crtc[0x06], 0x0b);
-    CHECK_EQ_U(m.crtc[0x10], 0xea);
-    CHECK_EQ_U(m.crtc[0x11], 0x20 | (492 & 0x0f));
-    CHECK_EQ_U(m.crtc[0x12], 0xdf);             /* 479 */
-    CHECK_EQ_U(m.crtc[0x15], 0xdf);
-    CHECK_EQ_U(m.crtc[0x16], 524 & 0xff);
-    /* overflow, the standard VGA 640x480 value: vt 523 has bit 9 (b5), vd
-     * 479 / vs 490 / vbs 479 have bit 8 (b1, b2, b3), line compare b4 */
+    CHECK_EQ_U(m.crtc[0x10], 0xe9);
+    CHECK_EQ_U(m.crtc[0x11], 0x20 | (491 & 0x0f));
+    CHECK_EQ_U(m.crtc[0x12], 0xdf);
     CHECK_EQ_U(m.crtc[0x07], 0x3e);
-    /* CR1A b5 = hblank end bit 6: hbe = 99 */
-    CHECK_EQ_U(m.crtc_ext[0], 0x20);
+    /* CR1A bit 5 is the vendor's blank-end bit 6: (100-80) + (79 & 63) = 35 -> 0 */
+    CHECK_EQ_U(m.crtc_ext[0], 0);
     CHECK_EQ_U(m.crtc_ext[1], 0);
-    /* 640x480 DMT is -hsync -vsync; clock select 3 = the PLL */
-    CHECK_EQ_U(m.misc, 0xef);
+    CHECK_EQ_U(m.misc, 0xcf);           /* -h -v, clock 3, no page bit */
     CHECK_EQ_U(m.vidscreensize, 640u | (480u << 12));
     CHECK_EQ_U(m.stride, 640);
     CHECK_EQ_U(m.twox, 0);
@@ -109,30 +107,38 @@ TEST(depth_selects_format_stride_and_clut_bank) {
     vcr_mode_compute(&h, T(1024, 768, 85), 32, &m);
     CHECK_EQ_U((m.vidproccfg >> VCR_VPC_DESKTOP_FMT_SHIFT) & 7, VCR_VPC_FMT_RGB32);
     CHECK_EQ_U(m.stride, 4096);
-    CHECK_EQ_U(m.misc, 0x2f);       /* 1024x768@85 is +h +v */
+    CHECK_EQ_U(m.misc, 0x0f);       /* 1024x768@85 is +h +v */
 }
 
-TEST(high_dot_clocks_use_2x_mode_with_halved_horizontal_timing) {
+TEST(two_x_mode_follows_the_vendor_rule) {
     vcr_hwcaps h = v5();
     vcr_modeset m;
-    /* the tdfxfb threshold (max/2 = 175 MHz) - the vendor's is higher, below */
-    h.twox_above_khz = 175000;
-    /* 1600x1200@85: 229.5 MHz > 175 MHz threshold */
-    CHECK_EQ_I(vcr_mode_compute(&h, T(1600, 1200, 85), 16, &m), 0);
+    /* above 262 MHz at width >= 1280: 1920x1440@75 is 297 MHz */
+    CHECK_EQ_I(vcr_mode_compute(&h, T(1920, 1440, 75), 16, &m), 0);
     CHECK_EQ_U(m.twox, 1);
     CHECK(m.dacmode & VCR_DAC_MODE_2X, "dacMode 2X");
     CHECK(m.vidproccfg & VCR_VPC_2X_MODE_EN, "vidProcCfg 2X");
-    /* htotal 2160 halved = 1080 px = 135 chars -> CR00 130, CR01 = 800/8-1 */
-    CHECK_EQ_U(m.crtc[0x00], 130);
-    CHECK_EQ_U(m.crtc[0x01], 99);
-    /* 1200 lines: vd = 1199 -> bit 10 set in CR1B b2; vt = 1248 -> b0 */
-    CHECK_EQ_U(m.crtc_ext[1] & 0x05, 0x05);
-    CHECK_EQ_U(m.vidscreensize, 1600u | (1200u << 12));
-    /* the PLL still runs at the full dot clock */
-    CHECK(m.pix_khz_actual > 228000 && m.pix_khz_actual < 231000, "full dot clock");
-    /* 1600x1200@60 (162 MHz) stays in 1X */
+    /* htotal 2640 halved = 1320 px = 165 chars -> CR00 160, CR01 = 960/8-1 */
+    CHECK_EQ_U(m.crtc[0x00], 160);
+    CHECK_EQ_U(m.crtc[0x01], 119);
+    CHECK(m.pix_khz_actual > 295000 && m.pix_khz_actual < 299000, "the PLL runs the full dot clock");
+    /* OR htotal above 261 characters (blank end is only 6 bits): 1920x1080@60
+     * is only 148.5 MHz but 2200 px = 275 chars */
+    vcr_mode_compute(&h, T(1920, 1080, 60), 16, &m);
+    CHECK_EQ_U(m.twox, 1);
+    /* the vendor's 1600x1200 sits at exactly 261 chars: 1X at every refresh */
+    vcr_mode_compute(&h, T(1600, 1200, 85), 16, &m);
+    CHECK_EQ_U(m.twox, 0);
     vcr_mode_compute(&h, T(1600, 1200, 60), 16, &m);
     CHECK_EQ_U(m.twox, 0);
+    CHECK_EQ_U(m.crtc[0x00], 0x00);                 /* 261 - 5 = 256 -> 0 + CR1A b0 */
+    CHECK_EQ_U(m.crtc_ext[0] & 1, 1);
+    /* a Voodoo 3 switches above 160 MHz at width >= 1280 */
+    h.device_id = VCR_DEV_VOODOO3;
+    h.twox_above_khz = 160000;
+    h.twox_htotal_chars = 0;
+    vcr_mode_compute(&h, T(1600, 1200, 70), 16, &m);
+    CHECK_EQ_U(m.twox, 1);
 }
 
 TEST(doublescan_modes_use_half_mode_and_double_the_lines) {
@@ -143,8 +149,10 @@ TEST(doublescan_modes_use_half_mode_and_double_the_lines) {
     CHECK(m.crtc[0x09] & 0x80, "CR09 doublescan");
     CHECK_EQ_U(m.vidscreensize, 320u | (240u << 13));
     CHECK_EQ_U(m.crtc[0x12], (480 - 1) & 0xff);
-    /* not offered at 32 bpp (the vendor driver only halves at <= 16 bpp) */
-    CHECK_EQ_I(vcr_mode_compute(&h, T(320, 240, 60), 32, &m), VCR_MODE_E_BPP);
+    /* offered at 32 bpp too, programmed identically (vendor vidProcCfg
+     * 0x010c0091 vs 0x01040091 at 16 bpp: only the pixel format differs) */
+    CHECK_EQ_I(vcr_mode_compute(&h, T(320, 240, 60), 32, &m), 0);
+    CHECK(m.vidproccfg & VCR_VPC_HALF_MODE, "HALF at 32 bpp");
 }
 
 TEST(limits_refuse_what_the_hardware_cannot_show) {
@@ -169,7 +177,6 @@ TEST(the_mode_list_and_lookup) {
         const vcr_timing *t = &vcr_timings[list[i].timing];
         if (t->w == 1600 && t->h == 1200 && list[i].bpp == 8) got8 = 1;
         if (t->w == 1600 && t->h == 1200 && list[i].bpp == 32) got32 = 1;
-        CHECK(!(t->flags & VCR_T_DBLSCAN) || list[i].bpp <= 16, "no 32 bpp doublescan");
     }
     /* Glide asks DirectDraw for 8 bpp at its own resolution (win_mode.c) */
     CHECK(got8 && got32, "1600x1200 at 8 and 32 bpp");
@@ -219,14 +226,94 @@ TEST(golden_vendor_capture_agrees) {
     CHECK_EQ_U(m.vgainit0_set, 0x1140);
 }
 
+
+/* EVERY CRTC byte, CR1A/CR1B and misc, as the vendor driver programs them on
+ * the V5 6000 - read with vcrprobe.sys next to AmigaMerlin 3.1-R11 (golden/
+ * amigamerlin-3.1-r11_192.168.1.124.json; tools/golden_compare.py reports
+ * 51/51 modes identical). This is what settled: sync start/end one unit
+ * early, the vendor's blank-end bit in CR1A, its 1600x1200 (htotal 261
+ * chars) and low-resolution timings, misc without the page bit. */
+static const struct {
+    unsigned w, h, hz, bpp;
+    unsigned char misc, cr1a, cr1b, crtc[25];
+} k_vendor[] = {
+        { 320, 200, 70, 8, 0x4f, 0x80, 0x00,
+          { 0x2d, 0x27, 0x27, 0x91, 0x28, 0x8e, 0xbf, 0x1f, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x9c, 0x2e, 0x8f, 0x28, 0x00, 0x8f, 0xc0, 0x80, 0xff } },  /* 320x200x8@70 */
+        { 320, 240, 60, 16, 0xcf, 0x80, 0x00,
+          { 0x2d, 0x27, 0x27, 0x91, 0x28, 0x8e, 0x0b, 0x3e, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe9, 0x2b, 0xdf, 0x28, 0x00, 0xdf, 0x0c, 0x80, 0xff } },  /* 320x240x16@60 */
+        { 400, 300, 60, 16, 0x0f, 0xa0, 0x00,
+          { 0x3d, 0x31, 0x31, 0x81, 0x34, 0x1c, 0x72, 0xf0, 0x00, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x58, 0x2c, 0x57, 0x28, 0x00, 0x57, 0x73, 0x80, 0xff } },  /* 400x300x16@60 */
+        { 512, 384, 60, 16, 0xcf, 0x20, 0x00,
+          { 0x4f, 0x3f, 0x3f, 0x93, 0x41, 0x09, 0x24, 0xf5, 0x00, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x28, 0xff, 0x28, 0x00, 0xff, 0x25, 0x80, 0xff } },  /* 512x384x16@60 */
+        { 640, 400, 70, 16, 0x4f, 0x00, 0x00,
+          { 0x5f, 0x4f, 0x4f, 0x83, 0x51, 0x9d, 0xbf, 0x1f, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x9c, 0x2e, 0x8f, 0x28, 0x00, 0x8f, 0xc0, 0x80, 0xff } },  /* 640x400x16@70 */
+        { 640, 480, 60, 16, 0xcf, 0x00, 0x00,
+          { 0x5f, 0x4f, 0x4f, 0x83, 0x51, 0x9d, 0x0b, 0x3e, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe9, 0x2b, 0xdf, 0x28, 0x00, 0xdf, 0x0c, 0x80, 0xff } },  /* 640x480x16@60 */
+        { 800, 600, 56, 8, 0x0f, 0x80, 0x00,
+          { 0x7b, 0x63, 0x63, 0x9f, 0x66, 0x8f, 0x6f, 0xf0, 0x00, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x58, 0x2a, 0x57, 0x28, 0x00, 0x57, 0x70, 0x80, 0xff } },  /* 800x600x8@56 */
+        { 800, 600, 60, 16, 0x0f, 0xa0, 0x00,
+          { 0x7f, 0x63, 0x63, 0x83, 0x68, 0x18, 0x72, 0xf0, 0x00, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x58, 0x2c, 0x57, 0x28, 0x00, 0x57, 0x73, 0x80, 0xff } },  /* 800x600x16@60 */
+        { 1024, 768, 85, 16, 0x0f, 0x20, 0x00,
+          { 0xa7, 0x7f, 0x7f, 0x8b, 0x85, 0x91, 0x26, 0xf5, 0x00, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x23, 0xff, 0x28, 0x00, 0xff, 0x27, 0x80, 0xff } },  /* 1024x768x16@85 */
+        { 1152, 864, 75, 16, 0x0f, 0xa0, 0x00,
+          { 0xc3, 0x8f, 0x8f, 0x87, 0x97, 0x07, 0x82, 0xff, 0x00, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x23, 0x5f, 0x28, 0x00, 0x5f, 0x83, 0x80, 0xff } },  /* 1152x864x16@75 */
+        { 1280, 1024, 85, 16, 0x0f, 0xa0, 0x41,
+          { 0xd3, 0x9f, 0x9f, 0x97, 0xa7, 0x1b, 0x2e, 0x5a, 0x00, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x23, 0xff, 0x28, 0x00, 0xff, 0x2f, 0x80, 0xff } },  /* 1280x1024x16@85 */
+        { 1600, 1200, 60, 16, 0x0f, 0xa1, 0x55,
+          { 0x00, 0xc7, 0xc7, 0x84, 0xcf, 0x07, 0xe0, 0x10, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb0, 0x23, 0xaf, 0x28, 0x00, 0xaf, 0xe1, 0x80, 0xff } },  /* 1600x1200x16@60 */
+        { 1600, 1200, 70, 16, 0x0f, 0xa1, 0x55,
+          { 0x00, 0xc7, 0xc7, 0x84, 0xcf, 0x07, 0xe0, 0x10, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb0, 0x23, 0xaf, 0x28, 0x00, 0xaf, 0xe1, 0x80, 0xff } },  /* 1600x1200x16@70 */
+};
+
+TEST(golden_vendor_crtc_byte_for_byte) {
+    vcr_hwcaps h = v5();
+    unsigned i, k;
+    for (i = 0; i < sizeof k_vendor / sizeof k_vendor[0]; i++) {
+        vcr_modeset m;
+        int rc = vcr_mode_compute(&h, T(k_vendor[i].w, k_vendor[i].h, k_vendor[i].hz),
+                                  k_vendor[i].bpp, &m);
+        CHECK_EQ_I(rc, 0);
+        if (rc)
+            continue;
+        CHECK_EQ_U(m.misc, k_vendor[i].misc);
+        CHECK_EQ_U(m.crtc_ext[0], k_vendor[i].cr1a);
+        CHECK_EQ_U(m.crtc_ext[1], k_vendor[i].cr1b);
+        for (k = 0; k < 25; k++) {
+            if (m.crtc[k] != k_vendor[i].crtc[k]) {
+                fprintf(stderr, "    %ux%u@%u CR%02x ours %02x vendor %02x\n", k_vendor[i].w,
+                        k_vendor[i].h, k_vendor[i].hz, k, m.crtc[k], k_vendor[i].crtc[k]);
+                munit_fails++;
+            }
+        }
+    }
+}
+
+
+/* The miniport keeps its mode list in a fixed array (vcrmp.h VCR_MAX_MODES,
+ * 400). It once held 200 and the table outgrew it: the VM mode sweep passed
+ * "200/200" while ~10 modes had been dropped. The largest list any supported
+ * chip can produce must fit with room to spare. */
+TEST(the_mode_list_fits_the_miniport_array) {
+    vcr_hwcaps h = v5();
+    static vcr_mode list[1024];
+    vcr_u32 n;
+    h.fb_bytes = 64u << 20;                 /* more memory than any VSA-100 has */
+    h.max_pixclk_khz = 1000000;
+    n = vcr_modes_build(&h, list, 1024);
+    CHECK(n <= 400 - 40, "mode table within the miniport's VCR_MAX_MODES with headroom");
+    CHECK_EQ_U(n, vcr_ntimings * 3);        /* every timing at every depth */
+}
+
 MUNIT_MAIN("vcr-kmd modes", {
+    RUN(the_mode_list_fits_the_miniport_array);
+    RUN(golden_vendor_crtc_byte_for_byte);
     RUN(golden_vendor_capture_agrees);
     RUN(pll_formula_and_register_packing);
     RUN(every_timing_gets_a_pll_within_half_a_percent);
     RUN(the_timings_table_is_self_consistent);
-    RUN(vga_640x480_60_matches_the_standard_crtc_values);
+    RUN(the_640x480_60_crtc_is_the_vendors_not_textbook_vga);
     RUN(depth_selects_format_stride_and_clut_bank);
-    RUN(high_dot_clocks_use_2x_mode_with_halved_horizontal_timing);
+    RUN(two_x_mode_follows_the_vendor_rule);
     RUN(doublescan_modes_use_half_mode_and_double_the_lines);
     RUN(limits_refuse_what_the_hardware_cannot_show);
     RUN(the_mode_list_and_lookup);

@@ -1,0 +1,242 @@
+#!/usr/bin/env python3
+"""deploy_box.py - put vcr-kmd on a real box, or take it off again, safely.
+
+  deploy_box.py install  <ip> [--hwid ...]   preflight, install, reboot, verify
+  deploy_box.py rollback <ip> [--hwid ...]   back to the vendor driver package
+  deploy_box.py status   <ip>                what is on it, what the driver said
+
+INSTALL
+  preflight  agent answers; activation is not pending (a reboot into an
+             activation lockout needs a keyboard); kernel dumps are on (the
+             flight recorder lives in non-paged pool, a minidump has none);
+             a ROLLBACK PACKAGE of the current vendor driver exists on the box
+             (its INF plus every file it copies - the INF alone is not enough,
+             setupapi needs the sources); the boot counter is armed low.
+  install    upload the package, DRVUPDATE (forced UpdateDriverForPlugAndPlay-
+             Devices), then read the service key back - an OK is not proof.
+  reboot     scripts/fleet/safe-reboot.py (PXE hold armed first).
+  verify     wait for the agent; report Diag (LastPhase, PhaseLog,
+             LastDecline, BootAttempts), `vcrctl info`, and save `vcrctl log`
+             + `vcrctl snapshot` + a screenshot under the evidence directory.
+
+ROLLBACK
+  DRVUPDATE the vendor INF from the rollback package, then restore the
+  OpenGLDrivers\\3dfx DLL value the vendor INF overwrites (its AddReg points
+  it back at 3dfxOGL.dll), then safe-reboot.
+
+Nothing here reboots a box that failed preflight.
+"""
+import argparse
+import asyncio
+import json
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+KMD = HERE.parent
+REPO = KMD.parents[1]
+sys.path.insert(0, str(REPO))
+from client.retro_protocol import RetroConnection  # noqa: E402
+
+SECRET = "retro-agent-secret"
+DIAG = r"SYSTEM\CurrentControlSet\Services\vcrmp\Diag"
+OGL = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\3dfx"
+V56K_HWID = r"PCI\VEN_121A&DEV_0009&SUBSYS_0001121A"
+
+
+class Agent:
+    def __init__(self, ip):
+        self.ip = ip
+
+    async def raw(self, cmd, timeout=60, payload=None):
+        c = RetroConnection(self.ip, 9898)
+        await c.connect(SECRET, timeout=20)
+        try:
+            if payload is not None:
+                st, d = await c.send_command(cmd, binary_payload=payload, timeout=timeout)
+            else:
+                st, d = await c.send_command(cmd, timeout=timeout)
+            return d
+        finally:
+            await c.close()
+
+    async def text(self, cmd, timeout=60):
+        return (await self.raw(cmd, timeout)).decode("ascii", "replace")
+
+    async def regvals(self, path):
+        try:
+            j = json.loads(await self.text(f"REGREAD HKLM {path}"))
+        except (ValueError, json.JSONDecodeError):
+            return None
+        return {v["name"]: v.get("data") for v in j.get("values", [])}
+
+    async def alive(self):
+        try:
+            return (await self.raw("PING", timeout=15)).startswith(b"PONG")
+        except Exception:
+            return False
+
+    async def vcrctl(self, args, tool, timeout=60):
+        t = await self.text(f"EXEC {tool} {args}", timeout)
+        for ln in reversed(t.strip().splitlines()):
+            if ln.startswith("{"):
+                try:
+                    return json.loads(ln), t
+                except json.JSONDecodeError:
+                    break
+        return {}, t
+
+
+def safe_reboot(ip):
+    r = subprocess.run([sys.executable, str(REPO / "scripts" / "fleet" / "safe-reboot.py"), ip],
+                       capture_output=True, text=True, timeout=240)
+    print("  safe-reboot:", (r.stdout + r.stderr).strip().replace("\n", " | ")[-300:])
+    return r.returncode == 0
+
+
+async def wait_back(a, limit=900):
+    t0 = time.time()
+    while time.time() - t0 < 150 and await a.alive():
+        await asyncio.sleep(5)
+    while time.time() - t0 < limit:
+        if await a.alive():
+            await asyncio.sleep(20)          # explorer, the agent's own startup work
+            return time.time() - t0
+        await asyncio.sleep(10)
+    return None
+
+
+async def preflight(a, args):
+    ok = True
+    if not await a.alive():
+        print("  FAIL agent does not answer")
+        return False
+    lic = json.loads(await a.text("LICSTATUS"))
+    act = next((v for v in lic.get("values", []) if v["id"] == "activation_required"), {})
+    if act.get("observed") not in ("unknown", "absent", "not_required", None):
+        print(f"  FAIL activation: {act}")
+        ok = False
+    cc = await a.regvals(r"SYSTEM\CurrentControlSet\Control\CrashControl") or {}
+    if cc.get("CrashDumpEnabled") != 2:
+        print(f"  setting CrashDumpEnabled 2 (was {cc.get('CrashDumpEnabled')})")
+        await a.text(r"REGWRITE HKLM SYSTEM\CurrentControlSet\Control\CrashControl "
+                     "CrashDumpEnabled REG_DWORD 2")
+    if args.rollback_dir:
+        try:
+            files = {e["name"].lower() for e in json.loads(await a.text(f"DIRLIST {args.rollback_dir}"))}
+        except (ValueError, json.JSONDecodeError):
+            files = set()
+        need = {n.lower() for n in args.rollback_files.split(",")}
+        if not need <= files:
+            print(f"  FAIL rollback package incomplete in {args.rollback_dir}: missing {sorted(need - files)}")
+            ok = False
+        else:
+            print(f"  rollback package ok: {args.rollback_dir} ({len(need)} files)")
+    return ok
+
+
+async def status(a, args, evidence):
+    d = await a.regvals(DIAG) or {}
+    for k in ("BootCount", "BootAttempts", "GoodBoots", "DeclinedBoots", "LastDecline",
+              "LastPhase", "LastPhaseA", "LastPhaseMs", "PhaseCount"):
+        if k in d:
+            print(f"  Diag {k} = {d[k]:#x}" if k == "LastDecline" else f"  Diag {k} = {d[k]}")
+    info, _ = await a.vcrctl("info", args.tool)
+    print("  vcrctl info:", json.dumps(info)[:600])
+    evidence.mkdir(parents=True, exist_ok=True)
+    _, logtxt = await a.vcrctl("log", args.tool, timeout=90)
+    (evidence / "vcrlog.tsv").write_text(logtxt)
+    snap, snaptxt = await a.vcrctl("snapshot", args.tool)
+    (evidence / "snapshot.json").write_text(snaptxt)
+    shot = await a.raw("SCREENSHOT 0", timeout=90)
+    (evidence / "screen.bmp").write_bytes(shot)
+    try:
+        from PIL import Image
+        Image.open(evidence / "screen.bmp").save(evidence / "screen.png", optimize=True)
+        (evidence / "screen.bmp").unlink()          # the PNG is the evidence
+    except Exception:
+        pass
+    print(f"  evidence -> {evidence}")
+    return bool(info.get("ok"))
+
+
+async def install(a, args, evidence):
+    print("[preflight]")
+    if not await preflight(a, args):
+        return 2
+    print("[install]")
+    await a.text(rf"MKDIR {args.dir}")
+    for f in ("out/vcrmp.sys", "out/vcrdd.dll", "out/vcrctl.exe", "inf/vcrkmd.inf"):
+        data = (KMD / f).read_bytes()
+        name = Path(f).name
+        await a.raw(rf"UPLOAD {args.dir}\{name}", timeout=60, payload=data)
+    listing = json.loads(await a.text(f"DIRLIST {args.dir}"))
+    sizes = {e["name"].lower(): e["size"] for e in listing}
+    for f in ("out/vcrmp.sys", "out/vcrdd.dll", "inf/vcrkmd.inf"):
+        n = Path(f).name.lower()
+        if sizes.get(n) != (KMD / f).stat().st_size:
+            print(f"  FAIL {n} did not land ({sizes.get(n)})")
+            return 2
+    r = await a.text(rf"DRVUPDATE {args.hwid} {args.dir}\vcrkmd.inf", timeout=240)
+    print("  DRVUPDATE:", r.strip()[:200])
+    svc = await a.regvals(r"SYSTEM\CurrentControlSet\Services\vcrmp")
+    if not svc or "ImagePath" not in svc:
+        print("  FAIL no vcrmp service key after DRVUPDATE")
+        return 2
+    await a.text(rf"REGWRITE HKLM {DIAG} MaxBootAttempts REG_DWORD {args.max_boot_attempts}")
+    await a.text(rf"REGWRITE HKLM {DIAG} LogLevel REG_DWORD 3")
+    await a.text(rf"REGWRITE HKLM {DIAG} BootAttempts REG_DWORD 0")
+    print("[reboot]")
+    if not safe_reboot(a.ip):
+        print("  FAIL safe-reboot refused - NOT rebooted; the new driver loads at the next boot")
+        return 2
+    took = await wait_back(a)
+    if took is None:
+        print("  FAIL the box did not come back within 15 min - Diag phases are on its disk")
+        return 3
+    print(f"[verify] back after {took:.0f}s")
+    return 0 if await status(a, args, evidence) else 1
+
+
+async def rollback(a, args, evidence):
+    inf = rf"{args.rollback_dir}\{args.rollback_inf}"
+    r = await a.text(rf"DRVUPDATE {args.hwid} {inf}", timeout=240)
+    print("  DRVUPDATE:", r.strip()[:200])
+    if args.ogl_dll:
+        await a.text(rf'REGWRITE HKLM {OGL} DLL REG_SZ {args.ogl_dll}')
+        print("  OpenGLDrivers\\3dfx:", await a.regvals(OGL))
+    if not safe_reboot(a.ip):
+        return 2
+    took = await wait_back(a)
+    print(f"  back after {took}s" if took else "  FAIL box did not come back")
+    return 0 if took else 3
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("action", choices=("install", "rollback", "status"))
+    ap.add_argument("ip")
+    ap.add_argument("--hwid", default=V56K_HWID)
+    ap.add_argument("--dir", default=r"C:\vcr")
+    ap.add_argument("--tool", default=r"C:\vcr\vcrctl.exe")
+    ap.add_argument("--rollback-dir", default=r"C:\vcr\am31")
+    ap.add_argument("--rollback-inf", default="am31.inf")
+    ap.add_argument("--rollback-files",
+                    default="am31.inf,3dfxvsm.sys,3dfxvs.dll,glide2x.dll,glide3x.dll,"
+                            "3dfxOGL.dll,3dfxSpl2.dll,3dfxSpl3.dll,dxtn.dll")
+    ap.add_argument("--ogl-dll", default="retroicd.dll",
+                    help="OpenGLDrivers\\3dfx DLL to restore after a rollback")
+    ap.add_argument("--max-boot-attempts", type=int, default=2)
+    ap.add_argument("--evidence", default=str(KMD / "evidence"))
+    args = ap.parse_args()
+    a = Agent(args.ip)
+    evidence = Path(args.evidence) / f"{args.ip}_{time.strftime('%Y%m%d-%H%M%S')}_{args.action}"
+    fn = {"install": install, "rollback": rollback, "status": status}[args.action]
+    rc = asyncio.run(fn(a, args, evidence))
+    sys.exit(rc if isinstance(rc, int) else (0 if rc else 1))
+
+
+if __name__ == "__main__":
+    main()

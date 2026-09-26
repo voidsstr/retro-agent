@@ -75,7 +75,11 @@ that file, so names cannot drift.
 | tool | proves |
 |---|---|
 | `vcrctl.exe` (on the box) | `info`, `log`, `mark`, `snapshot`, `reg`, `crtc`, `pci`, `bootok` on our driver; `modes`, `setmode`, `gdi`, `hwc`, `hwcregs`, `golden`, `restore` on ANY driver |
-| `tools/golden_capture.py` | register dumps from the vendor driver per mode (through its own HWCEXT mapping) |
+| `tools/golden_capture.py` | register dumps from the vendor driver per mode (through its own HWCEXT mapping; with `--probe`, the VGA register file and PCI config of every chip) |
+| `tools/golden_compare.py` | our mode math (the driver's own `vcr_modes.c`, host-built) against a capture, register by register |
+| `tools/golden_timings.py` | timing-table rows decoded from a capture's CRTC - modes the monitor is known to accept |
+| `probe/vcrprobe.sys` | a read-mostly NT driver loaded on the fly (`sc start vcrprobe`): VGA file, PCI config (incl. raw 0xCF8 cycles), physical memory read |
+| `tools/deploy_box.py` | install / rollback / status on a real box: preflight (activation, kernel dumps, a complete rollback package), DRVUPDATE + read-back, safe-reboot, evidence |
 | `tools/mode_sweep.py` | every mode: switch, current-mode read-back, GDI draw/read-back, no WARN/ERROR in the recorder |
 | `tools/qemu/run-vcrkmd-vm.sh` | the VM test bed: build VM disk through a throwaway overlay, std-vga, debugcon captured, agent on 127.0.0.1:19910 |
 | `tools/vcrlog.py`, `tools/vcrdump.py` | decode the recorder live / from a crash dump |
@@ -100,16 +104,35 @@ comes back reachable; a forced bugcheck (0xE2) leaves a kernel dump from which
 before the crash and the miniport's own `HwResetHw` DURING the bugcheck.
 
 **Proven on the V5 6000 (read-only):** `vcrctl` maps the card through
-AmigaMerlin's HWCEXT exactly as our Glide checks it, and
-`golden/amigamerlin-3.1-r11_192.168.1.124.json` holds the vendor's registers
-for 123 modes. Our PLL lands on the vendor's frequency for every DMT mode;
-the register choices (no 2X below 262 MHz, `vgaInit0` 0x1140, CLUT bank 0,
-`vidPixelBufThold` 0x10410) are the vendor's (`test_vcr_kmd_modes.c`).
+AmigaMerlin's HWCEXT exactly as our Glide checks it;
+`golden/amigamerlin-3.1-r11_192.168.1.124.json` holds the vendor's IO
+registers AND (via `vcrprobe.sys`) its full VGA register file for all 123
+modes it offers on `.124`, plus PCI config of the four chips and the bridge.
+**All 123 are byte-identical to what our driver computes** - every CRTC byte,
+CR1A/CR1B, misc, PLL frequency, 2X, screen size (`golden_compare.py`; pinned
+by `test_vcr_kmd_modes.c`, 13 modes byte for byte).
 
 **Not yet on silicon:** the Voodoo mode set itself.
 
 ## Findings (measured)
 
+- **The vendor programs sync start/end one unit EARLY** (CR04/05 and CR10/11
+  one below textbook VGA) - tdfxfb's convention; X.org's is off by one here.
+- **CR1A bit 5 is bit 6 of `(htotal - hdisp) + ((hdisp - 1) & 63)`** (the
+  vendor's blank-end value), not of `htotal - 1` as both open drivers write it
+  - they disagree with the vendor in 37 of 51 modes.
+- **2X mode (VSA-100): above 262 MHz at width >= 1280, OR htotal > 261
+  characters** (blank end is only 6 bits). The vendor's 1600x1200 is not DMT:
+  DMT porches with the back porch cut to htotal 2088 = 261 chars (156.6 MHz at
+  60 Hz), which keeps it in 1X.
+- Misc is `0x0F | polarity` (no page bit), CR13 0x28, CR17 0x80; doublescan
+  is offered and programmed identically at 32 bpp.
+- **The V5 6000's slave chips are bus 3 dev 0 fn 1-3 and the HAL cannot see
+  them**: function 0's header type has no multifunction bit, so
+  `HalGetBusDataByOffset` reports fn 1-3 absent. Raw mechanism-#1 cycles find
+  all four (slaves: memory decode on, I/O off, `cfgPciDecode` 0x00011445).
+- The I/O BAR's alias of the VGA registers (0xC0B0-0xC0DF on `.124`) reads
+  the same register file as the legacy ports.
 - **The VSA-100's VGA registers are NOT readable through the MMIO alias** at
   IO-register offsets 0xB0-0xDF: CRTC reads return 0 and 0xCC returns the
   status byte. VGA state is reachable only through the I/O BAR (kernel).

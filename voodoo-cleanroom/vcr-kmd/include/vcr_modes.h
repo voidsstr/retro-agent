@@ -34,7 +34,8 @@ typedef struct vcr_timing {
 typedef struct vcr_hwcaps {
     vcr_u32 device_id;          /* VCR_DEV_* */
     vcr_u32 max_pixclk_khz;     /* RAMDAC limit */
-    vcr_u32 twox_above_khz;     /* use 2X mode above this dot clock */
+    vcr_u32 twox_above_khz;     /* 2X above this dot clock at width >= 1280 */
+    vcr_u32 twox_htotal_chars;  /* ... or above this htotal (VSA-100: 261), 0 = none */
     vcr_u32 fb_bytes;           /* local memory of the chip driving the display */
     vcr_u32 fb_reserved;        /* bytes the display cannot use (cursor, etc.) */
     vcr_u32 napalm_vpc_extra;   /* extra vidProcCfg bits on VSA-100 (see .c) */
