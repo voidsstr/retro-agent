@@ -103,6 +103,7 @@ BOOL APIENTRY DrvGetDirectDrawInfo(DHPDEV dhpdev, DD_HALINFO *hal, DWORD *nheaps
     hal->ddCaps.dwVidMemFree = he - hs;
     hal->GetDriverInfo = DdGetDriverInfo;
     hal->dwFlags = DDHALINFO_GETDRIVERINFOSET;
+    VcrDdD3dHalInfo(pd, hal);           /* Direct3D, where the 3D engine is */
     VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 1, hs, he, (ULONG)hal->vmiData.fpPrimary,
           "DirectDraw HAL: heap %x-%x (%u KB), primary at %x", hs, he, (he - hs) >> 10,
           (ULONG)hal->vmiData.fpPrimary);
@@ -247,6 +248,11 @@ static DWORD APIENTRY Dd_Flip(PDD_FLIPDATA p)
         p->ddRVal = DDERR_GENERIC;
         return DDHAL_DRIVER_HANDLED;
     }
+    VcrDd(VCR_LV_DEBUG, VCR_EV_DD_DDRAW, 3, off,
+          p->lpSurfCurr ? (ULONG)p->lpSurfCurr->lpGbl->fpVidMem : 0, pd->dd_flips,
+          "Flip %u: show %x (surface %p), current %x (surface %p) flags %x", pd->dd_flips, off,
+          p->lpSurfTarg, p->lpSurfCurr ? (ULONG)p->lpSurfCurr->lpGbl->fpVidMem : 0,
+          p->lpSurfCurr, p->dwFlags);
     pd->flip_pending = 1;
     pd->flip_seen_active = vblank(pd, &v) && !v.in_vblank;
     pd->flip_from = p->lpSurfCurr ? (ULONG)p->lpSurfCurr->lpGbl->fpVidMem : 0xffffffffu;
@@ -452,6 +458,13 @@ static DWORD APIENTRY Dd_Lock(PDD_LOCKDATA p)
     return DDHAL_DRIVER_NOTHANDLED;     /* the runtime computes the pointer */
 }
 
+/* a surface leaves: the Direct3D handle table and contexts must not keep it */
+static DWORD APIENTRY Dd_DestroySurface(PDD_DESTROYSURFACEDATA p)
+{
+    VcrDdD3dSurfaceGone(p->lpDDSurface);
+    return DDHAL_DRIVER_NOTHANDLED;     /* the runtime frees its video memory */
+}
+
 static DWORD APIENTRY Dd_Unlock(PDD_UNLOCKDATA p)
 {
     (void)p;
@@ -464,7 +477,9 @@ DWORD APIENTRY DdGetDriverInfo(PDD_GETDRIVERINFODATA p)
     static const GUID nt = { 0x6fe9ecde, 0xdf89, 0x11d1,
                              { 0x9d, 0xb0, 0x00, 0x60, 0x08, 0x27, 0x71, 0xba } };
     p->ddRVal = DDERR_CURRENTLYNOTAVAIL;
-    if (guid_eq(&p->guidInfo, &nt)) {
+    if (VcrDdD3dDriverInfo((VCR_PDEV *)p->dhpdev, p)) {
+        /* answered by the Direct3D half */
+    } else if (guid_eq(&p->guidInfo, &nt)) {
         DD_NTCALLBACKS cb;
         DWORD n = p->dwExpectedSize < sizeof cb ? p->dwExpectedSize : sizeof cb;
         memset(&cb, 0, sizeof cb);
@@ -496,7 +511,9 @@ BOOL APIENTRY DrvEnableDirectDraw(DHPDEV dhpdev, DD_CALLBACKS *cb, DD_SURFACECAL
     cb->MapMemory = Dd_MapMemory;
     scb->dwSize = sizeof *scb;
     scb->dwFlags = DDHAL_SURFCB32_FLIP | DDHAL_SURFCB32_GETFLIPSTATUS | DDHAL_SURFCB32_LOCK |
-                   DDHAL_SURFCB32_UNLOCK | DDHAL_SURFCB32_BLT | DDHAL_SURFCB32_GETBLTSTATUS;
+                   DDHAL_SURFCB32_UNLOCK | DDHAL_SURFCB32_BLT | DDHAL_SURFCB32_GETBLTSTATUS |
+                   DDHAL_SURFCB32_DESTROYSURFACE;
+    scb->DestroySurface = Dd_DestroySurface;
     scb->Blt = Dd_Blt;
     scb->GetBltStatus = Dd_GetBltStatus;
     scb->Lock = Dd_Lock;

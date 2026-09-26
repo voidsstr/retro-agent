@@ -134,6 +134,7 @@ typedef struct VCR_EXT {
     VCR_PROC  procs[VCR_MAX_PROCS];
     ULONG     allow_poke;
     ULONG     accel2d;              /* Diag\\Accel2D (default 1) */
+    ULONG     d3d;                  /* Diag\\D3D (default 1) */
     ULONG     bridge_bus, bridge_slot, bridge_found;
     ULONG     sli_active;           /* = sli_chips != 0 */
     ULONG     glide_chips;          /* chips Glide is told about (1 until slaves are mapped) */

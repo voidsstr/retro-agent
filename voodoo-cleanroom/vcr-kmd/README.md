@@ -232,6 +232,23 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
 
 ## Findings (measured)
 
+- **Direct3D: our own HAL on the 86Box Voodoo3 (2026-09-26)** —
+  `display/vcrdd_d3d.c` (DX7-level NT DDI: caps, contexts, CreateSurfaceEx
+  handles, a bounds-checked DrawPrimitives2 walk of every DX7 opcode, D3D state
+  → fbzColorPath/fbzMode/alphaMode/textureMode/tLOD) over `display/vcrdd_3d.c`
+  (the triangle setup unit and fastfill, the one object built with the x87).
+  **d3dprobe render 26/26 windowed and 26/26 fullscreen** - the matrix XP's
+  in-box Voodoo3 driver passes on the same emulated card. The traps:
+  - **XP does not move video memory between a flip chain's surfaces**; it
+    re-targets rendering with DP2 SETRENDERTARGET by handle, and names a
+    complex surface once, by its root, in CreateSurfaceEx - the driver walks
+    the attach lists (a ring) to learn the back buffer's handle. Without the
+    walk every other fullscreen frame went to the front buffer (18/26).
+  - **a texture's DD_SURFACE_LOCAL has no DDRAWISURF_HASPIXELFORMAT** on NT,
+    though ddpfSurface is filled; trust the format, not the flag.
+  - **the TMU addresses a texture as if its LOD 0 (256 wide) came first**: a
+    64x64's base is its address minus 160 KB (`common/vcr_texlod.c`).
+
 - **The 2D engine, on the 86Box Voodoo3 (2026-09-26).** `display/vcrdd_2d.c`
   drives it straight through the PCI FIFO (registers mapped for the display
   driver by `IOCTL_VIDEO_QUERY_PUBLIC_ACCESS_RANGES`): DirectDraw Blt (copy,
@@ -343,5 +360,8 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
    (above); next: mono-expanding text (host-to-screen), patterns, lines.
    Hardware cursor (branch, untested on silicon); tiled desktop.
 6. **DirectDraw HAL** — done in the VM and on the 86Box Voodoo3 (flip on
-   vsync, engine blits). **Direct3D next**: `d3dprobe render` is the gate (the
-   in-box driver passes 26/26 on the same emulated card).
+   vsync, engine blits). **Direct3D** — first light on the 86Box Voodoo3:
+   d3dprobe 26/26 windowed and fullscreen. Next: games; mipmaps; fog;
+   specular; lines/points; a second texture stage (Voodoo3 has two TMUs);
+   32 bpp render targets on VSA-100; the CMDFIFO instead of PCI-FIFO writes;
+   then `.124`.

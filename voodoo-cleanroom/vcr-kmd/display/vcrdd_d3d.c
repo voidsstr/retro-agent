@@ -1,0 +1,1211 @@
+/*
+ * vcrdd_d3d.c - the Direct3D HAL (DX7-level NT DDI) on the Voodoo 3D engine.
+ *
+ * Shape: a DX7 "DrawPrimitives2" driver without transform and lighting. The
+ * runtime transforms, lights and clips; everything reaching us is
+ * pre-transformed vertices (D3DFVF_XYZRHW) and the command stream that draws
+ * them. The pieces:
+ *
+ *   registration  DD_HALINFO's D3D global data (the DX5 caps) and callbacks;
+ *                 GetDriverInfo answers GUID_D3DCallbacks3 (DrawPrimitives2,
+ *                 Clear2), GUID_D3DExtendedCaps, GUID_ZPixelFormats and
+ *                 GUID_Miscellaneous2Callbacks (CreateSurfaceEx - how DX7
+ *                 names surfaces by handle - GetDriverState, DestroyDDLocal).
+ *   contexts      ContextCreate/Destroy(All): a render target, a Z buffer and
+ *                 the state the command stream sets.
+ *   surfaces      a (DirectDraw local, handle) -> surface table, filled by
+ *                 CreateSurfaceEx and emptied by DestroySurface/DestroyDDLocal.
+ *   DP2           every DX7 opcode is parsed (so the walk never loses its
+ *                 place); state, triangles, clears, TEXBLT and render-target
+ *                 switches are executed, the rest is skipped by its size or
+ *                 handed to the runtime's parse-unknown callback.
+ *   state         D3D render and texture-stage state -> fbzColorPath, fbzMode,
+ *                 alphaMode, textureMode, tLOD, texBaseAddr (integer only here;
+ *                 the register writer vcrdd_3d.c owns the floats).
+ *
+ * Every walk is bounds-checked against the command length and the vertex
+ * count: a malformed stream stops the walk, it never reads past a buffer.
+ * The runtime's buffers are system-memory surfaces of the calling process,
+ * locked by dxg for the duration of the call.
+ */
+/* the DX7 DDI: the D3D headers hide its records below this version */
+#define DIRECT3D_VERSION 0x0700
+#include "vcrdd.h"
+
+#ifdef VCR_HAVE_DDI
+#include <d3dnthal.h>
+#include "vcrdd_3d.h"
+#include "../include/vcr_texlod.h"
+
+#define MAX_CTX         32
+#define MAX_HANDLES     4096            /* power of two */
+#define RS_MAX          256
+#define TSS_MAX         32
+
+typedef struct vcr_d3dctx {
+    ULONG               in_use;
+    VCR_PDEV           *pd;
+    PDD_DIRECTDRAW_LOCAL ddlcl;
+    DWORD               pid;
+    PDD_SURFACE_LOCAL   rt, zb;
+    DWORD               rs[RS_MAX];
+    DWORD               tss[TSS_MAX];   /* stage 0 */
+    DWORD               tex_handle;     /* stage 0 texture */
+    DWORD               tex_refused;    /* last handle logged as unusable */
+    ULONG               dirty;
+    vcr3d_regs          regs;
+    vcr3d_target        target;
+    ULONG               tex_w, tex_h, tex_ok;
+    PVOID               fpu;            /* EngSaveFloatingPointState buffer */
+    ULONG               tris, clears, dp2s, unparsed;
+} vcr_d3dctx;
+
+typedef struct handle_ent {
+    PDD_DIRECTDRAW_LOCAL ddlcl;
+    DWORD               handle;
+    PDD_SURFACE_LOCAL   surf;
+} handle_ent;
+
+static vcr_d3dctx g_ctx[MAX_CTX];
+static handle_ent g_h[MAX_HANDLES];
+static PFND3DNTPARSEUNKNOWNCOMMAND g_parse_unknown;
+static ULONG g_fpu_size;
+
+/* ---- surfaces by handle ------------------------------------------------------------- */
+
+static ULONG hslot(PDD_DIRECTDRAW_LOCAL l, DWORD h)
+{
+    return (((ULONG)(ULONG_PTR)l >> 4) * 2654435761u + h) & (MAX_HANDLES - 1);
+}
+
+static void handle_set(PDD_DIRECTDRAW_LOCAL l, DWORD h, PDD_SURFACE_LOCAL s)
+{
+    ULONG i, k = hslot(l, h), free_k = MAX_HANDLES;
+    for (i = 0; i < MAX_HANDLES; i++, k = (k + 1) & (MAX_HANDLES - 1)) {
+        if (g_h[k].ddlcl == l && g_h[k].handle == h) {
+            g_h[k].surf = s;
+            return;
+        }
+        if (!g_h[k].ddlcl) {
+            if (free_k == MAX_HANDLES)
+                free_k = k;
+            break;
+        }
+    }
+    if (free_k == MAX_HANDLES) {
+        VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 9, h, 0, 0, "surface handle table full");
+        return;
+    }
+    g_h[free_k].ddlcl = l;
+    g_h[free_k].handle = h;
+    g_h[free_k].surf = s;
+}
+
+static PDD_SURFACE_LOCAL handle_get(PDD_DIRECTDRAW_LOCAL l, DWORD h)
+{
+    ULONG i, k = hslot(l, h);
+    if (!h)
+        return NULL;
+    for (i = 0; i < MAX_HANDLES; i++, k = (k + 1) & (MAX_HANDLES - 1)) {
+        if (!g_h[k].ddlcl)
+            return NULL;
+        if (g_h[k].ddlcl == l && g_h[k].handle == h)
+            return g_h[k].surf;
+    }
+    return NULL;
+}
+
+/* forget a surface (or a whole DirectDraw local): open addressing, so the
+ * table is rebuilt without the removed entries */
+static void handle_forget(PDD_DIRECTDRAW_LOCAL l, PDD_SURFACE_LOCAL s)
+{
+    static handle_ent keep[MAX_HANDLES];
+    ULONG i, n = 0;
+    for (i = 0; i < MAX_HANDLES; i++) {
+        if (!g_h[i].ddlcl || (l && g_h[i].ddlcl == l) || (s && g_h[i].surf == s))
+            continue;
+        keep[n++] = g_h[i];
+    }
+    memset(g_h, 0, sizeof g_h);
+    for (i = 0; i < n; i++)
+        handle_set(keep[i].ddlcl, keep[i].handle, keep[i].surf);
+}
+
+void VcrDdD3dSurfaceGone(PDD_SURFACE_LOCAL s)
+{
+    ULONG i;
+    for (i = 0; i < MAX_CTX; i++) {
+        if (!g_ctx[i].in_use)
+            continue;
+        if (g_ctx[i].rt == s)
+            g_ctx[i].rt = NULL;
+        if (g_ctx[i].zb == s)
+            g_ctx[i].zb = NULL;
+    }
+    handle_forget(NULL, s);
+}
+
+/* does the surface carry its own pixel format? On NT DDRAWISURF_HASPIXELFORMAT
+ * is NOT set on a Direct3D texture whose ddpfSurface is filled in (measured
+ * on the 86Box Voodoo3: a 64x64 R5G6B5 managed texture, dwFlags 0) - the
+ * format itself is the evidence */
+static int has_pixfmt(PDD_SURFACE_LOCAL s)
+{
+    return (s->dwFlags & DDRAWISURF_HASPIXELFORMAT) || s->lpGbl->ddpfSurface.dwRGBBitCount;
+}
+
+static ULONG surf_bpp(VCR_PDEV *pd, PDD_SURFACE_LOCAL s)
+{
+    if (has_pixfmt(s))
+        return s->lpGbl->ddpfSurface.dwRGBBitCount;
+    return pd->bpp;
+}
+
+static int in_vidmem(PDD_SURFACE_LOCAL s)
+{
+    return s && s->lpGbl && !(s->ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY);
+}
+
+/* ---- state -> registers ------------------------------------------------------------------ */
+
+static ULONG blend_src(DWORD b)
+{
+    switch (b) {
+    case D3DBLEND_ZERO:          return BF_ZERO;
+    case D3DBLEND_SRCALPHA:      return BF_SRCALPHA;
+    case D3DBLEND_INVSRCALPHA:   return BF_INVSRCALPHA;
+    case D3DBLEND_DESTALPHA:     return BF_DSTALPHA;
+    case D3DBLEND_INVDESTALPHA:  return BF_INVDSTALPHA;
+    case D3DBLEND_DESTCOLOR:     return BF_COLOR;       /* a source factor's COLOR is the destination's */
+    case D3DBLEND_INVDESTCOLOR:  return BF_INVCOLOR;
+    case D3DBLEND_SRCALPHASAT:   return BF_SATURATE;
+    case D3DBLEND_BOTHSRCALPHA:  return BF_SRCALPHA;
+    case D3DBLEND_BOTHINVSRCALPHA: return BF_INVSRCALPHA;
+    default:                     return BF_ONE;         /* ONE, and SRCCOLOR the chip cannot */
+    }
+}
+
+static ULONG blend_dst(DWORD b, DWORD src)
+{
+    if (src == D3DBLEND_BOTHSRCALPHA)
+        return BF_INVSRCALPHA;
+    if (src == D3DBLEND_BOTHINVSRCALPHA)
+        return BF_SRCALPHA;
+    switch (b) {
+    case D3DBLEND_ZERO:          return BF_ZERO;
+    case D3DBLEND_SRCCOLOR:      return BF_COLOR;       /* a destination factor's COLOR is the source's */
+    case D3DBLEND_INVSRCCOLOR:   return BF_INVCOLOR;
+    case D3DBLEND_SRCALPHA:      return BF_SRCALPHA;
+    case D3DBLEND_INVSRCALPHA:   return BF_INVSRCALPHA;
+    case D3DBLEND_DESTALPHA:     return BF_DSTALPHA;
+    case D3DBLEND_INVDESTALPHA:  return BF_INVDSTALPHA;
+    default:                     return BF_ONE;         /* ONE, and DESTCOLOR the chip cannot */
+    }
+}
+
+static ULONG cmp(DWORD f)
+{
+    return f >= D3DCMP_NEVER && f <= D3DCMP_ALWAYS ? f - 1 : 7;     /* D3DCMP_* - 1 = LT|EQ|GT bits */
+}
+
+/* is this argument the texture / the diffuse colour / the texture factor? */
+#define ARG_KIND(a)     ((a) & D3DTA_SELECTMASK)
+
+/* the colour combine for stage 0: other = texture (or c1 for TFACTOR),
+ * local = the iterated (diffuse) colour. Unsupported ops degrade to the
+ * nearest one the chip has, never to nothing. */
+static ULONG color_path(vcr_d3dctx *c, int tex)
+{
+    DWORD op = c->tss[D3DTSS_COLOROP], a1 = ARG_KIND(c->tss[D3DTSS_COLORARG1]),
+          a2 = ARG_KIND(c->tss[D3DTSS_COLORARG2]);
+    DWORD aop = c->tss[D3DTSS_ALPHAOP], b1 = ARG_KIND(c->tss[D3DTSS_ALPHAARG1]),
+          b2 = ARG_KIND(c->tss[D3DTSS_ALPHAARG2]);
+    ULONG cp = 0, sel;
+    int uses_tex = 0;
+
+    /* ---- RGB */
+    if (op == D3DTOP_SELECTARG2) {
+        a1 = a2;
+        op = D3DTOP_SELECTARG1;
+    }
+    if (op == D3DTOP_DISABLE || (!tex && (a1 == D3DTA_TEXTURE || a2 == D3DTA_TEXTURE))) {
+        cp |= CP_RGBSEL_ITER | CP_CC_M(CC_M_ONE);                       /* diffuse */
+    } else if (op == D3DTOP_SELECTARG1) {
+        sel = a1 == D3DTA_TEXTURE ? CP_RGBSEL_TMU : a1 == D3DTA_TFACTOR ? CP_RGBSEL_C1
+                                                                        : CP_RGBSEL_ITER;
+        cp |= sel | CP_CC_M(CC_M_ONE);                                  /* pass other */
+        uses_tex = a1 == D3DTA_TEXTURE;
+    } else {
+        /* two-argument ops: the texture (or TFACTOR) is "other", diffuse "local" */
+        DWORD o = a1 == D3DTA_TEXTURE || a2 == D3DTA_TEXTURE ? D3DTA_TEXTURE
+                : a1 == D3DTA_TFACTOR || a2 == D3DTA_TFACTOR ? D3DTA_TFACTOR : D3DTA_DIFFUSE;
+        cp |= o == D3DTA_TEXTURE ? CP_RGBSEL_TMU : o == D3DTA_TFACTOR ? CP_RGBSEL_C1
+                                                                      : CP_RGBSEL_ITER;
+        uses_tex = o == D3DTA_TEXTURE;
+        switch (op) {
+        case D3DTOP_ADD:
+            cp |= CP_CC_M(CC_M_ONE) | CP_CC_ADD_CLOCAL;
+            break;
+        case D3DTOP_BLENDTEXTUREALPHA:          /* (other - local) * a_tex + local */
+            cp |= CP_CC_SUB_CLOCAL | CP_CC_M(CC_M_ATMU) | CP_CC_REVERSE | CP_CC_ADD_CLOCAL;
+            break;
+        case D3DTOP_BLENDDIFFUSEALPHA:          /* (other - local) * a_diffuse + local */
+            cp |= CP_CC_SUB_CLOCAL | CP_CC_M(CC_M_ALOCAL) | CP_CC_REVERSE | CP_CC_ADD_CLOCAL;
+            break;
+        default:                                /* MODULATE, MODULATE2X/4X, and the rest */
+            cp |= CP_CC_M(CC_M_CLOCAL) | CP_CC_REVERSE;
+            break;
+        }
+    }
+
+    /* ---- alpha: the same, on the alpha channel */
+    if (aop == D3DTOP_SELECTARG2) {
+        b1 = b2;
+        aop = D3DTOP_SELECTARG1;
+    }
+    if (aop == D3DTOP_DISABLE || (!tex && (b1 == D3DTA_TEXTURE || b2 == D3DTA_TEXTURE))) {
+        cp |= CP_ASEL_ITER | CP_CCA_M(CC_M_ONE);
+    } else if (aop == D3DTOP_SELECTARG1) {
+        cp |= (b1 == D3DTA_TEXTURE ? CP_ASEL_TMU : b1 == D3DTA_TFACTOR ? CP_ASEL_C1
+                                                                      : CP_ASEL_ITER) |
+              CP_CCA_M(CC_M_ONE);
+        uses_tex |= b1 == D3DTA_TEXTURE;
+    } else {
+        DWORD o = b1 == D3DTA_TEXTURE || b2 == D3DTA_TEXTURE ? D3DTA_TEXTURE
+                : b1 == D3DTA_TFACTOR || b2 == D3DTA_TFACTOR ? D3DTA_TFACTOR : D3DTA_DIFFUSE;
+        cp |= o == D3DTA_TEXTURE ? CP_ASEL_TMU : o == D3DTA_TFACTOR ? CP_ASEL_C1 : CP_ASEL_ITER;
+        uses_tex |= o == D3DTA_TEXTURE;
+        if (aop == D3DTOP_ADD)
+            cp |= CP_CCA_M(CC_M_ONE) | CP_CCA_ADD_CLOCAL;
+        else
+            cp |= CP_CCA_M(CC_M_CLOCAL) | CP_CCA_REVERSE;
+    }
+    if (uses_tex && tex)
+        cp |= CP_TEXTURE;
+    return cp;
+}
+
+/* the TMU view of a texture surface (common/vcr_texlod.c: LOD, aspect, and
+ * the base the chip wants - where LOD 0 would be). FALSE: the chip cannot
+ * sample it and the stage falls back to the diffuse colour. */
+static BOOL tex_regs(vcr_d3dctx *c, PDD_SURFACE_LOCAL s, vcr3d_regs *r)
+{
+    DDPIXELFORMAT *pf;
+    vcr_texlod t;
+    ULONG fmt;
+    if (!in_vidmem(s) || !has_pixfmt(s))
+        return FALSE;
+    pf = &s->lpGbl->ddpfSurface;
+    if (pf->dwRGBBitCount != 16)
+        return FALSE;
+    if (pf->dwRBitMask == 0xf800)
+        fmt = TF_RGB565;
+    else if (pf->dwRBitMask == 0x7c00)
+        fmt = TF_ARGB1555;
+    else if (pf->dwRBitMask == 0x0f00)
+        fmt = TF_ARGB4444;
+    else
+        return FALSE;
+    if (vcr_texlod_compute(s->lpGbl->wWidth, s->lpGbl->wHeight, 2, (ULONG)s->lpGbl->lPitch,
+                           (ULONG)s->lpGbl->fpVidMem, &t))
+        return FALSE;
+    r->texBaseAddr = t.base;
+    r->tLOD = t.tlod;
+    r->textureMode = TM_PERSPECTIVE | TM_CLAMPW | TM_FORMAT(fmt) | TM_TC_REPLACE | TM_TCA_REPLACE;
+    if (c->tss[D3DTSS_MAGFILTER] >= D3DTFG_LINEAR)
+        r->textureMode |= TM_MAGFILTER;
+    if (c->tss[D3DTSS_MINFILTER] >= D3DTFN_LINEAR)
+        r->textureMode |= TM_MINFILTER;
+    if (c->tss[D3DTSS_ADDRESSU] == D3DTADDRESS_CLAMP)
+        r->textureMode |= TM_CLAMPS;
+    if (c->tss[D3DTSS_ADDRESSV] == D3DTADDRESS_CLAMP)
+        r->textureMode |= TM_CLAMPT;
+    c->tex_w = s->lpGbl->wWidth;
+    c->tex_h = s->lpGbl->wHeight;
+    return TRUE;
+}
+
+static void compute_regs(vcr_d3dctx *c)
+{
+    vcr3d_regs *r = &c->regs;
+    PDD_SURFACE_LOCAL t = handle_get(c->ddlcl, c->tex_handle);
+    int tex = c->tex_handle && tex_regs(c, t, r);
+    DWORD cull = c->rs[D3DRENDERSTATE_CULLMODE];
+
+    if (c->tex_handle && !tex && c->tex_handle != c->tex_refused) {
+        /* once per texture: why the chip cannot use it */
+        c->tex_refused = c->tex_handle;
+        VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 7, c->tex_handle,
+              t ? t->ddsCaps.dwCaps : 0xffffffffu,
+              t && t->lpGbl ? ((ULONG)t->lpGbl->wWidth << 16) | t->lpGbl->wHeight : 0,
+              "texture %u refused: surf %p caps %x %ux%u pitch %d flags %x bpp %u rmask %x",
+              c->tex_handle, t, t ? t->ddsCaps.dwCaps : 0,
+              t && t->lpGbl ? t->lpGbl->wWidth : 0, t && t->lpGbl ? t->lpGbl->wHeight : 0,
+              t && t->lpGbl ? t->lpGbl->lPitch : 0, t ? t->dwFlags : 0,
+              t && t->lpGbl ? t->lpGbl->ddpfSurface.dwRGBBitCount : 0,
+              t && t->lpGbl ? t->lpGbl->ddpfSurface.dwRBitMask : 0);
+    }
+
+    r->textured = tex;
+    c->tex_ok = tex;
+    r->fbzColorPath = color_path(c, tex);
+    r->fbzMode = FZ_RECTCLIP | FZ_RGBWRITE;
+    if (c->rs[D3DRENDERSTATE_DITHERENABLE])
+        r->fbzMode |= FZ_DITHER;
+    if (c->zb && c->rs[D3DRENDERSTATE_ZENABLE] == D3DZB_TRUE) {
+        r->fbzMode |= FZ_DEPTH | FZ_ZFUNC(cmp(c->rs[D3DRENDERSTATE_ZFUNC]));
+        if (c->rs[D3DRENDERSTATE_ZWRITEENABLE])
+            r->fbzMode |= FZ_ZAWRITE;
+    }
+    r->alphaMode = 0;
+    if (c->rs[D3DRENDERSTATE_ALPHATESTENABLE])
+        r->alphaMode |= AM_ATEST | AM_AFUNC(cmp(c->rs[D3DRENDERSTATE_ALPHAFUNC])) |
+                        AM_AREF(c->rs[D3DRENDERSTATE_ALPHAREF] & 0xff);
+    if (c->rs[D3DRENDERSTATE_ALPHABLENDENABLE]) {
+        DWORD s = c->rs[D3DRENDERSTATE_SRCBLEND], d = c->rs[D3DRENDERSTATE_DESTBLEND];
+        r->alphaMode |= AM_BLEND | AM_RGBSRC(blend_src(s)) | AM_RGBDST(blend_dst(d, s)) |
+                        AM_ASRC(BF_ONE) | AM_ADST(BF_ZERO);
+    }
+    r->fogMode = 0;
+    r->fogColor = c->rs[D3DRENDERSTATE_FOGCOLOR] & 0xffffff;
+    r->c0 = 0;
+    r->c1 = c->rs[D3DRENDERSTATE_TEXTUREFACTOR];
+    r->setupMode = SM_RGB | SM_A | SM_Z | SM_WFBI | (tex ? SM_W0 | SM_ST0 : 0);
+    if (cull == D3DCULL_CCW)
+        r->setupMode |= SM_CULL | SM_CULL_NEGATIVE;
+    else if (cull == D3DCULL_CW)
+        r->setupMode |= SM_CULL;
+    c->dirty = 0;
+}
+
+static void target_of(vcr_d3dctx *c)
+{
+    vcr3d_target *t = &c->target;
+    memset(t, 0, sizeof *t);
+    if (!in_vidmem(c->rt))
+        return;
+    t->rt_off = (ULONG)c->rt->lpGbl->fpVidMem;
+    t->rt_pitch = (ULONG)c->rt->lpGbl->lPitch;
+    t->width = c->rt->lpGbl->wWidth;
+    t->height = c->rt->lpGbl->wHeight;
+    if (in_vidmem(c->zb)) {
+        t->z_off = (ULONG)c->zb->lpGbl->fpVidMem;
+        t->z_pitch = (ULONG)c->zb->lpGbl->lPitch;
+    }
+}
+
+/* ---- contexts --------------------------------------------------------------------------- */
+
+static vcr_d3dctx *ctx_of(ULONG_PTR h)
+{
+    if (h < 1 || h > MAX_CTX || !g_ctx[h - 1].in_use)
+        return NULL;
+    return &g_ctx[h - 1];
+}
+
+static void ctx_defaults(vcr_d3dctx *c)
+{
+    memset(c->rs, 0, sizeof c->rs);
+    memset(c->tss, 0, sizeof c->tss);
+    c->rs[D3DRENDERSTATE_ZENABLE] = c->zb ? D3DZB_TRUE : D3DZB_FALSE;
+    c->rs[D3DRENDERSTATE_ZWRITEENABLE] = TRUE;
+    c->rs[D3DRENDERSTATE_ZFUNC] = D3DCMP_LESSEQUAL;
+    c->rs[D3DRENDERSTATE_SRCBLEND] = D3DBLEND_ONE;
+    c->rs[D3DRENDERSTATE_DESTBLEND] = D3DBLEND_ZERO;
+    c->rs[D3DRENDERSTATE_CULLMODE] = D3DCULL_CCW;
+    c->rs[D3DRENDERSTATE_ALPHAFUNC] = D3DCMP_ALWAYS;
+    c->rs[D3DRENDERSTATE_TEXTUREFACTOR] = 0xffffffff;
+    c->tss[D3DTSS_COLOROP] = D3DTOP_MODULATE;
+    c->tss[D3DTSS_COLORARG1] = D3DTA_TEXTURE;
+    c->tss[D3DTSS_COLORARG2] = D3DTA_CURRENT;
+    c->tss[D3DTSS_ALPHAOP] = D3DTOP_SELECTARG1;
+    c->tss[D3DTSS_ALPHAARG1] = D3DTA_TEXTURE;
+    c->tss[D3DTSS_ALPHAARG2] = D3DTA_CURRENT;
+    c->tss[D3DTSS_ADDRESSU] = c->tss[D3DTSS_ADDRESSV] = D3DTADDRESS_WRAP;
+    c->tss[D3DTSS_MAGFILTER] = D3DTFG_POINT;
+    c->tss[D3DTSS_MINFILTER] = D3DTFN_POINT;
+    c->tex_handle = 0;
+    c->dirty = 1;
+}
+
+static DWORD APIENTRY D3d_ContextCreate(LPD3DNTHAL_CONTEXTCREATEDATA p)
+{
+    PDD_DIRECTDRAW_LOCAL l = p->lpDDLcl;
+    VCR_PDEV *pd = (VCR_PDEV *)l->lpGbl->dhpdev;
+    ULONG i;
+    for (i = 0; i < MAX_CTX && g_ctx[i].in_use; i++)
+        ;
+    if (i == MAX_CTX) {
+        p->ddrval = DDERR_OUTOFMEMORY;
+        return DDHAL_DRIVER_HANDLED;
+    }
+    if (!g_fpu_size)
+        g_fpu_size = EngSaveFloatingPointState(NULL, 0);
+    memset(&g_ctx[i], 0, sizeof g_ctx[i]);
+    g_ctx[i].fpu = EngAllocMem(FL_ZERO_MEMORY, g_fpu_size ? g_fpu_size : 512, VCRDD_TAG);
+    if (!g_ctx[i].fpu) {
+        p->ddrval = DDERR_OUTOFMEMORY;
+        return DDHAL_DRIVER_HANDLED;
+    }
+    g_ctx[i].in_use = 1;
+    g_ctx[i].pd = pd;
+    g_ctx[i].ddlcl = l;
+    g_ctx[i].pid = p->dwPID;
+    g_ctx[i].rt = p->lpDDSLcl;
+    g_ctx[i].zb = p->lpDDSZLcl;
+    ctx_defaults(&g_ctx[i]);
+    target_of(&g_ctx[i]);
+    p->dwhContext = i + 1;
+    p->ddrval = DD_OK;
+    VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 1, i + 1, g_ctx[i].target.rt_off, g_ctx[i].target.z_off,
+          "ContextCreate %u: target %x (%ux%u pitch %u), z %x, pid %u", i + 1,
+          g_ctx[i].target.rt_off, g_ctx[i].target.width, g_ctx[i].target.height,
+          g_ctx[i].target.rt_pitch, g_ctx[i].target.z_off, p->dwPID);
+    return DDHAL_DRIVER_HANDLED;
+}
+
+static void ctx_free(vcr_d3dctx *c)
+{
+    VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 2, (ULONG)(c - g_ctx) + 1, c->dp2s, c->tris,
+          "context %u gone: %u DrawPrimitives2, %u triangles, %u clears, %u unparsed",
+          (ULONG)(c - g_ctx) + 1, c->dp2s, c->tris, c->clears, c->unparsed);
+    if (c->pd)
+        VcrDd2dSync(c->pd);
+    if (c->fpu)
+        EngFreeMem(c->fpu);
+    memset(c, 0, sizeof *c);
+}
+
+static DWORD APIENTRY D3d_ContextDestroy(LPD3DNTHAL_CONTEXTDESTROYDATA p)
+{
+    vcr_d3dctx *c = ctx_of(p->dwhContext);
+    if (c)
+        ctx_free(c);
+    p->ddrval = c ? DD_OK : D3DNTHAL_CONTEXT_BAD;
+    return DDHAL_DRIVER_HANDLED;
+}
+
+static DWORD APIENTRY D3d_ContextDestroyAll(LPD3DNTHAL_CONTEXTDESTROYALLDATA p)
+{
+    ULONG i;
+    for (i = 0; i < MAX_CTX; i++)
+        if (g_ctx[i].in_use && g_ctx[i].pid == p->dwPID)
+            ctx_free(&g_ctx[i]);
+    p->ddrval = DD_OK;
+    return DDHAL_DRIVER_HANDLED;
+}
+
+/* ---- drawing ------------------------------------------------------------------------------ */
+
+typedef struct dp2walk {
+    vcr_d3dctx   *c;
+    const UCHAR  *vb;           /* vertex 0 */
+    ULONG         nverts, stride;
+    vcr3d_draw    d;
+    int           drawable;     /* a target, pre-transformed vertices, the engine */
+    int           prepared;     /* target + state sent since the last change */
+} dp2walk;
+
+static BOOL fvf_layout(DWORD fvf, ULONG *stride, ULONG *diff, ULONG *tex)
+{
+    ULONG off = 16, ntex = (fvf & D3DFVF_TEXCOUNT_MASK) >> D3DFVF_TEXCOUNT_SHIFT, i;
+    if ((fvf & D3DFVF_POSITION_MASK) != D3DFVF_XYZRHW)
+        return FALSE;
+    if (fvf & D3DFVF_RESERVED1)
+        off += 4;
+    *diff = 0;
+    if (fvf & D3DFVF_DIFFUSE) {
+        *diff = off;
+        off += 4;
+    }
+    if (fvf & D3DFVF_SPECULAR)
+        off += 4;
+    *tex = off;
+    for (i = 0; i < ntex; i++) {
+        ULONG sz = (fvf >> (16 + 2 * i)) & 3;       /* 0: 2 floats, 1: 3, 2: 4, 3: 1 */
+        off += sz == 0 ? 8 : sz == 1 ? 12 : sz == 2 ? 16 : 4;
+    }
+    *stride = off;
+    if (!ntex)
+        *tex = 0;
+    return TRUE;
+}
+
+static BOOL prepare(dp2walk *w)
+{
+    vcr_d3dctx *c = w->c;
+    if (!w->drawable)
+        return FALSE;
+    if (w->prepared && !c->dirty)
+        return TRUE;
+    compute_regs(c);
+    if (c->tex_ok && w->d.tex_off) {
+        w->d.textured = 1;
+        VcrDd3dTexScale(&w->d, c->tex_w, c->tex_h);
+    } else {
+        w->d.textured = 0;
+        c->regs.textured = 0;
+        c->regs.fbzColorPath &= ~CP_TEXTURE;
+        c->regs.setupMode &= ~(SM_W0 | SM_ST0);
+    }
+    if (!VcrDd3dTarget(c->pd, &c->target) || !VcrDd3dState(c->pd, &c->regs))
+        return FALSE;
+    w->prepared = 1;
+    return TRUE;
+}
+
+static void tri(dp2walk *w, ULONG a, ULONG b, ULONG cc)
+{
+    if (a >= w->nverts || b >= w->nverts || cc >= w->nverts || !prepare(w))
+        return;
+    if (VcrDd3dTriangle(w->c->pd, &w->d, w->vb + a * w->stride, w->vb + b * w->stride,
+                        w->vb + cc * w->stride))
+        w->c->tris++;
+}
+
+static const UCHAR *imm_tri(dp2walk *w, const UCHAR *v0, const UCHAR *v1, const UCHAR *v2)
+{
+    if (prepare(w) && VcrDd3dTriangle(w->c->pd, &w->d, v0, v1, v2))
+        w->c->tris++;
+    return v2;
+}
+
+static WORD rw(const UCHAR *p)
+{
+    return (WORD)(p[0] | (p[1] << 8));
+}
+
+static DWORD rd(const UCHAR *p)
+{
+    return (DWORD)p[0] | ((DWORD)p[1] << 8) | ((DWORD)p[2] << 16) | ((DWORD)p[3] << 24);
+}
+
+static void set_rs(dp2walk *w, DWORD st, DWORD v, LPDWORD rstates)
+{
+    vcr_d3dctx *c = w->c;
+    if (st >= RS_MAX)
+        return;
+    if (rstates)
+        rstates[st] = v;
+    if (st == D3DRENDERSTATE_TEXTUREHANDLE)     /* the legacy spelling of stage 0's texture */
+        c->tex_handle = v;
+    if (c->rs[st] != v || st == D3DRENDERSTATE_TEXTUREHANDLE) {
+        c->rs[st] = v;
+        c->dirty = 1;
+    }
+}
+
+static void clear_rects(dp2walk *w, DWORD flags, DWORD color, DWORD zbits, const RECTL *r,
+                        ULONG n)
+{
+    vcr_d3dctx *c = w->c;
+    ULONG what = (flags & D3DCLEAR_TARGET ? VCR3D_CLEAR_COLOR : 0) |
+                 (flags & D3DCLEAR_ZBUFFER ? VCR3D_CLEAR_Z : 0);
+    if (!w->drawable || !what)
+        return;
+    if (VcrDd3dTarget(c->pd, &c->target) &&
+        VcrDd3dClear(c->pd, &c->target, what, color, zbits, r, n))
+        c->clears++;
+    c->dirty = 1;               /* the clear rewrote fbzMode and c1 */
+    w->prepared = 0;
+}
+
+/* copy a texture rectangle (TEXBLT): system or video memory to video memory */
+static void texblt(dp2walk *w, const D3DNTHAL_DP2TEXBLT *t)
+{
+    vcr_d3dctx *c = w->c;
+    VCR_PDEV *pd = c->pd;
+    PDD_SURFACE_LOCAL d = handle_get(c->ddlcl, t->dwDDDestSurface),
+                      s = handle_get(c->ddlcl, t->dwDDSrcSurface);
+    PUCHAR dp, sp;
+    ULONG bpp, rows, bytes, y;
+    LONG sx = t->rSrc.left, sy = t->rSrc.top;
+    if (!d || !s || !in_vidmem(d) || !d->lpGbl || !s->lpGbl)
+        return;                                 /* dest 0 = a preload hint */
+    bpp = surf_bpp(pd, d) / 8;
+    if (!bpp || bpp != surf_bpp(pd, s) / 8 || t->rSrc.right <= sx || t->rSrc.bottom <= sy ||
+        t->rSrc.right > (LONG)s->lpGbl->wWidth || t->rSrc.bottom > (LONG)s->lpGbl->wHeight ||
+        t->pDest.x < 0 || t->pDest.y < 0 ||
+        t->pDest.x + (t->rSrc.right - sx) > (LONG)d->lpGbl->wWidth ||
+        t->pDest.y + (t->rSrc.bottom - sy) > (LONG)d->lpGbl->wHeight)
+        return;
+    rows = (ULONG)(t->rSrc.bottom - sy);
+    bytes = (ULONG)(t->rSrc.right - sx) * bpp;
+    if ((ULONG)d->lpGbl->fpVidMem + (t->pDest.y + rows - 1) * (ULONG)d->lpGbl->lPitch +
+            t->pDest.x * bpp + bytes > pd->cjVram)
+        return;
+    VcrDd2dSync(pd);                            /* queued triangles may still sample it */
+    dp = (PUCHAR)pd->pvRamBase + (ULONG)d->lpGbl->fpVidMem + t->pDest.y * d->lpGbl->lPitch +
+         t->pDest.x * bpp;
+    if (in_vidmem(s))
+        sp = (PUCHAR)pd->pvRamBase + (ULONG)s->lpGbl->fpVidMem;
+    else
+        sp = (PUCHAR)s->lpGbl->fpVidMem;        /* system memory: a pointer in the caller */
+    sp += sy * s->lpGbl->lPitch + sx * bpp;
+    for (y = 0; y < rows; y++)
+        memcpy(dp + y * d->lpGbl->lPitch, sp + y * s->lpGbl->lPitch, bytes);
+}
+
+/* the fixed record size of an opcode we skip, or 0 for "variable / unknown" */
+static ULONG rec_size(BYTE op)
+{
+    switch (op) {
+    case D3DNTDP2OP_VIEWPORTINFO:     return sizeof(D3DNTHAL_DP2VIEWPORTINFO);
+    case D3DNTDP2OP_WINFO:            return sizeof(D3DNTHAL_DP2WINFO);
+    case D3DNTDP2OP_SETPALETTE:       return sizeof(D3DNTHAL_DP2SETPALETTE);
+    case D3DNTDP2OP_ZRANGE:           return sizeof(D3DNTHAL_DP2ZRANGE);
+    case D3DNTDP2OP_SETMATERIAL:      return sizeof(D3DNTHAL_DP2SETMATERIAL);
+    case D3DNTDP2OP_CREATELIGHT:      return sizeof(D3DNTHAL_DP2CREATELIGHT);
+    case D3DNTDP2OP_SETTRANSFORM:     return sizeof(D3DNTHAL_DP2SETTRANSFORM);
+    case D3DNTDP2OP_STATESET:         return sizeof(D3DNTHAL_DP2STATESET);
+    case D3DNTDP2OP_SETPRIORITY:      return sizeof(D3DNTHAL_DP2SETPRIORITY);
+    case D3DNTDP2OP_SETTEXLOD:        return sizeof(D3DNTHAL_DP2SETTEXLOD);
+    case D3DNTDP2OP_SETCLIPPLANE:     return sizeof(D3DNTHAL_DP2SETCLIPPLANE);
+    default:                        return 0;
+    }
+}
+
+#define NEED(n)  do { if ((ULONG)(end - p) < (ULONG)(n)) goto bad; } while (0)
+
+static HRESULT walk(dp2walk *w, const UCHAR *cmds, ULONG len, LPDWORD rstates, DWORD *erroff)
+{
+    const UCHAR *p = cmds, *end = cmds + len;
+    vcr_d3dctx *c = w->c;
+    while (p < end) {
+        const UCHAR *hdr = p;
+        BYTE op;
+        ULONG n, i, sz;
+        NEED(sizeof(D3DNTHAL_DP2COMMAND));
+        op = p[0];
+        n = rw(p + 2);
+        p += sizeof(D3DNTHAL_DP2COMMAND);
+        switch (op) {
+        case D3DNTDP2OP_RENDERSTATE:
+            NEED(n * 8);
+            for (i = 0; i < n; i++)
+                set_rs(w, rd(p + i * 8), rd(p + i * 8 + 4), rstates);
+            p += n * 8;
+            break;
+        case D3DNTDP2OP_TEXTURESTAGESTATE:
+            NEED(n * 8);
+            for (i = 0; i < n; i++) {
+                WORD stage = rw(p + i * 8), st = rw(p + i * 8 + 2);
+                DWORD v = rd(p + i * 8 + 4);
+                if (stage != 0 || st >= TSS_MAX)
+                    continue;
+                if (st == D3DTSS_TEXTUREMAP) {
+                    c->tex_handle = v;
+                    c->dirty = 1;
+                } else if (c->tss[st] != v) {
+                    c->tss[st] = v;
+                    c->dirty = 1;
+                }
+            }
+            p += n * 8;
+            break;
+        case D3DNTDP2OP_TRIANGLELIST: {
+            ULONG s;
+            NEED(2);
+            s = rw(p);
+            p += 2;
+            for (i = 0; i < n; i++)
+                tri(w, s + 3 * i, s + 3 * i + 1, s + 3 * i + 2);
+            break;
+        }
+        case D3DNTDP2OP_TRIANGLESTRIP: {
+            ULONG s;
+            NEED(2);
+            s = rw(p);
+            p += 2;
+            for (i = 0; i < n; i++) {
+                if (i & 1)
+                    tri(w, s + i + 1, s + i, s + i + 2);    /* keep the winding */
+                else
+                    tri(w, s + i, s + i + 1, s + i + 2);
+            }
+            break;
+        }
+        case D3DNTDP2OP_TRIANGLEFAN: {
+            ULONG s;
+            NEED(2);
+            s = rw(p);
+            p += 2;
+            for (i = 0; i < n; i++)
+                tri(w, s, s + i + 1, s + i + 2);
+            break;
+        }
+        case D3DNTDP2OP_INDEXEDTRIANGLELIST:          /* absolute v1 v2 v3 wFlags */
+            NEED(n * 8);
+            for (i = 0; i < n; i++)
+                tri(w, rw(p + i * 8), rw(p + i * 8 + 2), rw(p + i * 8 + 4));
+            p += n * 8;
+            break;
+        case D3DNTDP2OP_INDEXEDTRIANGLELIST2: {       /* start, then v1 v2 v3 relative */
+            ULONG s;
+            NEED(2 + n * 6);
+            s = rw(p);
+            p += 2;
+            for (i = 0; i < n; i++)
+                tri(w, s + rw(p + i * 6), s + rw(p + i * 6 + 2), s + rw(p + i * 6 + 4));
+            p += n * 6;
+            break;
+        }
+        case D3DNTDP2OP_INDEXEDTRIANGLESTRIP:
+        case D3DNTDP2OP_INDEXEDTRIANGLEFAN: {         /* start, then n + 2 relative indices */
+            ULONG s;
+            NEED(2 + (n + 2) * 2);
+            s = rw(p);
+            p += 2;
+            for (i = 0; i < n; i++) {
+                ULONG a = s + rw(p + i * 2), b = s + rw(p + (i + 1) * 2),
+                      cc = s + rw(p + (i + 2) * 2);
+                if (op == D3DNTDP2OP_INDEXEDTRIANGLEFAN)
+                    tri(w, s + rw(p), b, cc);
+                else if (i & 1)
+                    tri(w, b, a, cc);
+                else
+                    tri(w, a, b, cc);
+            }
+            p += (n + 2) * 2;
+            break;
+        }
+        case D3DNTDP2OP_TRIANGLEFAN_IMM: {            /* edge flags, then n + 2 inline vertices */
+            const UCHAR *v;
+            NEED(4);
+            p += 4;
+            p = cmds + ((p - cmds + 3) & ~3);       /* vertex data is DWORD aligned */
+            NEED((n + 2) * w->stride);
+            v = p;
+            for (i = 0; i < n && w->stride; i++)
+                imm_tri(w, v, v + (i + 1) * w->stride, v + (i + 2) * w->stride);
+            p += (n + 2) * w->stride;
+            break;
+        }
+        case D3DNTDP2OP_LINELIST_IMM:                 /* 2n inline vertices: not drawn yet */
+            p = cmds + ((p - cmds + 3) & ~3);
+            NEED(2 * n * w->stride);
+            p += 2 * n * w->stride;
+            break;
+        case D3DNTDP2OP_POINTS:                       /* n x {wCount, wVStart}: not drawn yet */
+            NEED(n * 4);
+            p += n * 4;
+            break;
+        case D3DNTDP2OP_LINELIST:
+        case D3DNTDP2OP_LINESTRIP:
+            NEED(2);
+            p += 2;
+            break;
+        case D3DNTDP2OP_INDEXEDLINELIST:
+            NEED(n * 4);
+            p += n * 4;
+            break;
+        case D3DNTDP2OP_INDEXEDLINELIST2:
+            NEED(2 + n * 4);
+            p += 2 + n * 4;
+            break;
+        case D3DNTDP2OP_INDEXEDLINESTRIP:
+            NEED(2 + (n + 1) * 2);
+            p += 2 + (n + 1) * 2;
+            break;
+        case D3DNTDP2OP_UPDATEPALETTE:
+            for (i = 0; i < n; i++) {
+                NEED(8);
+                sz = rw(p + 6);
+                p += 8;
+                NEED(sz * 4);
+                p += sz * 4;
+            }
+            break;
+        case D3DNTDP2OP_SETRENDERTARGET:
+            NEED(n * 8);
+            for (i = 0; i < n; i++) {
+                PDD_SURFACE_LOCAL rt = handle_get(c->ddlcl, rd(p + i * 8)),
+                                  zb = handle_get(c->ddlcl, rd(p + i * 8 + 4));
+                if (!rt)
+                    VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 4, rd(p + i * 8), rd(p + i * 8 + 4), 0,
+                          "SETRENDERTARGET: no surface for handle %u", rd(p + i * 8));
+                if (rt) {
+                    c->rt = rt;
+                    c->zb = zb;
+                    target_of(c);
+                    c->dirty = 1;
+                    w->prepared = 0;
+                    w->drawable = w->drawable || (c->target.rt_off && w->stride);
+                }
+            }
+            p += n * 8;
+            break;
+        case D3DNTDP2OP_CLEAR: {                      /* flags color depth stencil, n RECTs */
+            NEED(16 + n * sizeof(RECT));
+            clear_rects(w, rd(p), rd(p + 4), rd(p + 8), (const RECTL *)(p + 16), n);
+            p += 16 + n * sizeof(RECT);
+            break;
+        }
+        case D3DNTDP2OP_TEXBLT:
+            NEED(n * sizeof(D3DNTHAL_DP2TEXBLT));
+            for (i = 0; i < n; i++) {
+                D3DNTHAL_DP2TEXBLT t;
+                memcpy(&t, p + i * sizeof t, sizeof t);
+                texblt(w, &t);
+            }
+            p += n * sizeof(D3DNTHAL_DP2TEXBLT);
+            break;
+        case D3DNTDP2OP_EXT:
+            NEED(8);
+            sz = rd(p + 4);
+            NEED(8 + sz);
+            p += 8 + sz;
+            break;
+        default:
+            sz = rec_size(op);
+            if (sz) {
+                NEED(n * sz);
+                p += n * sz;
+                break;
+            }
+            /* unknown: the runtime parses it, and tells us where to resume */
+            if (g_parse_unknown) {
+                PVOID next = NULL;
+                HRESULT hr = g_parse_unknown((LPVOID)hdr, &next);
+                c->unparsed++;
+                if (SUCCEEDED(hr) && next && (const UCHAR *)next > hdr &&
+                    (const UCHAR *)next <= end) {
+                    p = (const UCHAR *)next;
+                    break;
+                }
+            }
+            *erroff = (DWORD)(hdr - cmds);
+            VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 5, op, *erroff, len, "DP2: opcode %u unparsed at %u",
+                  op, *erroff);
+            return D3DNTERR_COMMAND_UNPARSED;
+        }
+    }
+    return DD_OK;
+bad:
+    VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 6, p[0], (ULONG)(p - cmds), len,
+          "DP2: stream ends inside a command at %u of %u", (ULONG)(p - cmds), len);
+    *erroff = (DWORD)(p - cmds);
+    return D3DNTERR_COMMAND_UNPARSED;
+}
+
+static DWORD APIENTRY D3d_DrawPrimitives2(LPD3DNTHAL_DRAWPRIMITIVES2DATA p)
+{
+    vcr_d3dctx *c = ctx_of(p->dwhContext);
+    dp2walk w;
+    const UCHAR *cmds;
+    ULONG diff = 0, tex = 0;
+    HRESULT hr;
+
+    p->dwErrorOffset = 0;
+    if (!c || !p->lpDDCommands || !p->lpDDCommands->lpGbl) {
+        p->ddrval = D3DNTHAL_CONTEXT_BAD;
+        return DDHAL_DRIVER_HANDLED;
+    }
+    c->dp2s++;
+    memset(&w, 0, sizeof w);
+    w.c = c;
+    if (fvf_layout(p->dwVertexType, &w.stride, &diff, &tex)) {
+        if (p->dwFlags & D3DNTHALDP2_USERMEMVERTICES)
+            w.vb = (const UCHAR *)p->lpVertices;
+        else if (p->lpDDVertex && p->lpDDVertex->lpGbl)
+            w.vb = (const UCHAR *)p->lpDDVertex->lpGbl->fpVidMem;
+        if (w.vb) {
+            w.vb += p->dwVertexOffset;
+            w.nverts = p->dwVertexLength;
+        }
+    }
+    cmds = (const UCHAR *)p->lpDDCommands->lpGbl->fpVidMem + p->dwCommandOffset;
+    /* a flip swaps the video memory of the flip chain's surfaces: the target
+     * is read from the surface at every call, never kept from the last one */
+    {
+        ULONG was = c->target.rt_off;
+        target_of(c);
+        if (c->target.rt_off != was)
+            VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 8, was, c->target.rt_off, c->dp2s,
+                  "DP2 %u: target %x -> %x (surface %p)", c->dp2s, was, c->target.rt_off, c->rt);
+    }
+    w.drawable = c->pd->g2d_ok && !c->pd->exclusive_pid && c->target.rt_off &&
+                 (c->target.rt_pitch & 0xf) == 0;
+    EngSaveFloatingPointState(c->fpu, g_fpu_size);
+    VcrDd3dDrawInit(&w.d);
+    w.d.diff_off = diff;
+    w.d.tex_off = tex;
+    hr = walk(&w, cmds, p->dwCommandLength, p->lpdwRStates, &p->dwErrorOffset);
+    EngRestoreFloatingPointState(c->fpu);
+    p->ddrval = hr;
+    return DDHAL_DRIVER_HANDLED;
+}
+
+static DWORD APIENTRY D3d_Clear2(LPD3DNTHAL_CLEAR2DATA p)
+{
+    vcr_d3dctx *c = ctx_of(p->dwhContext);
+    dp2walk w;
+    ULONG i;
+    if (!c) {
+        p->ddrval = D3DNTHAL_CONTEXT_BAD;
+        return DDHAL_DRIVER_HANDLED;
+    }
+    memset(&w, 0, sizeof w);
+    w.c = c;
+    target_of(c);
+    w.drawable = c->pd->g2d_ok && !c->pd->exclusive_pid && c->target.rt_off;
+    EngSaveFloatingPointState(c->fpu, g_fpu_size);
+    for (i = 0; i < p->dwNumRects; i++) {
+        RECTL r;
+        DWORD z;
+        r.left = p->lpRects[i].x1;
+        r.top = p->lpRects[i].y1;
+        r.right = p->lpRects[i].x2;
+        r.bottom = p->lpRects[i].y2;
+        memcpy(&z, &p->dvFillDepth, 4);
+        clear_rects(&w, p->dwFlags, p->dwFillColor, z, &r, 1);
+    }
+    EngRestoreFloatingPointState(c->fpu);
+    p->ddrval = DD_OK;
+    return DDHAL_DRIVER_HANDLED;
+}
+
+static DWORD APIENTRY D3d_ValidateTextureStageState(LPD3DNTHAL_VALIDATETEXTURESTAGESTATEDATA p)
+{
+    p->dwNumPasses = 1;
+    p->ddrval = DD_OK;
+    return DDHAL_DRIVER_HANDLED;
+}
+
+/* ---- DX7 surface handles -------------------------------------------------------------- */
+
+/* The runtime names a COMPLEX surface once, by its root: every surface
+ * attached to it - the rest of a flip chain, a mipmap's levels - carries its
+ * own handle and is found through the attach lists. A flip chain is a ring,
+ * so the walk stops at a surface it has seen. (Without this a fullscreen
+ * back buffer is never found: XP does not move video memory between the flip
+ * chain's surfaces, it re-targets rendering with SETRENDERTARGET by handle -
+ * measured on the 86Box Voodoo3, alternate frames drawn into the front.) */
+static void name_surface(PDD_DIRECTDRAW_LOCAL l, PDD_SURFACE_LOCAL s)
+{
+    PDD_SURFACE_LOCAL seen[32];
+    ULONG n = 0, i, k;
+    seen[n++] = s;
+    for (i = 0; i < n; i++) {
+        PDD_SURFACE_LOCAL cur = seen[i];
+        PDD_ATTACHLIST a;
+        if (cur->lpSurfMore && cur->lpSurfMore->dwSurfaceHandle) {
+            handle_set(l, cur->lpSurfMore->dwSurfaceHandle, cur);
+            VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 3, cur->lpSurfMore->dwSurfaceHandle,
+                  cur->ddsCaps.dwCaps, cur->lpGbl ? (ULONG)cur->lpGbl->fpVidMem : 0,
+                  "CreateSurfaceEx %u", cur->lpSurfMore->dwSurfaceHandle);
+        }
+        for (a = cur->lpAttachList; a && n < 32; a = a->lpLink) {
+            if (!a->lpAttached)
+                continue;
+            for (k = 0; k < n && seen[k] != a->lpAttached; k++)
+                ;
+            if (k == n)
+                seen[n++] = a->lpAttached;
+        }
+    }
+}
+
+static DWORD APIENTRY Dd_CreateSurfaceEx(PDD_CREATESURFACEEXDATA p)
+{
+    if (p->lpDDSLcl)
+        name_surface(p->lpDDLcl, p->lpDDSLcl);
+    p->ddRVal = DD_OK;
+    return DDHAL_DRIVER_HANDLED;
+}
+
+static DWORD APIENTRY Dd_GetDriverState(PDD_GETDRIVERSTATEDATA p)
+{
+    p->ddRVal = DDERR_UNSUPPORTED;
+    return DDHAL_DRIVER_HANDLED;
+}
+
+static DWORD APIENTRY Dd_DestroyDDLocal(PDD_DESTROYDDLOCALDATA p)
+{
+    handle_forget(p->pDDLcl, NULL);
+    p->ddRVal = DD_OK;
+    return DDHAL_DRIVER_HANDLED;
+}
+
+/* ---- registration ------------------------------------------------------------------------- */
+
+static D3DNTHAL_GLOBALDRIVERDATA g_gd;
+static D3DNTHAL_CALLBACKS g_cb;
+static DDSURFACEDESC g_texfmt[3];
+
+static void texfmt(DDSURFACEDESC *d, DWORD flags, DWORD r, DWORD g, DWORD b, DWORD a)
+{
+    memset(d, 0, sizeof *d);
+    d->dwSize = sizeof *d;
+    d->dwFlags = DDSD_CAPS | DDSD_PIXELFORMAT;
+    d->ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+    d->ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+    d->ddpfPixelFormat.dwFlags = DDPF_RGB | flags;
+    d->ddpfPixelFormat.dwRGBBitCount = 16;
+    d->ddpfPixelFormat.dwRBitMask = r;
+    d->ddpfPixelFormat.dwGBitMask = g;
+    d->ddpfPixelFormat.dwBBitMask = b;
+    d->ddpfPixelFormat.dwRGBAlphaBitMask = a;
+}
+
+static void prim_caps(D3DPRIMCAPS *c)
+{
+    memset(c, 0, sizeof *c);
+    c->dwSize = sizeof *c;
+    c->dwMiscCaps = D3DPMISCCAPS_CULLNONE | D3DPMISCCAPS_CULLCW | D3DPMISCCAPS_CULLCCW |
+                    D3DPMISCCAPS_MASKZ;
+    c->dwRasterCaps = D3DPRASTERCAPS_DITHER | D3DPRASTERCAPS_ZTEST | D3DPRASTERCAPS_SUBPIXEL;
+    c->dwZCmpCaps = D3DPCMPCAPS_NEVER | D3DPCMPCAPS_LESS | D3DPCMPCAPS_EQUAL |
+                    D3DPCMPCAPS_LESSEQUAL | D3DPCMPCAPS_GREATER | D3DPCMPCAPS_NOTEQUAL |
+                    D3DPCMPCAPS_GREATEREQUAL | D3DPCMPCAPS_ALWAYS;
+    c->dwAlphaCmpCaps = c->dwZCmpCaps;
+    c->dwSrcBlendCaps = D3DPBLENDCAPS_ZERO | D3DPBLENDCAPS_ONE | D3DPBLENDCAPS_SRCALPHA |
+                        D3DPBLENDCAPS_INVSRCALPHA | D3DPBLENDCAPS_DESTCOLOR |
+                        D3DPBLENDCAPS_INVDESTCOLOR | D3DPBLENDCAPS_SRCALPHASAT |
+                        D3DPBLENDCAPS_BOTHSRCALPHA | D3DPBLENDCAPS_BOTHINVSRCALPHA;
+    c->dwDestBlendCaps = D3DPBLENDCAPS_ZERO | D3DPBLENDCAPS_ONE | D3DPBLENDCAPS_SRCCOLOR |
+                         D3DPBLENDCAPS_INVSRCCOLOR | D3DPBLENDCAPS_SRCALPHA |
+                         D3DPBLENDCAPS_INVSRCALPHA;
+    c->dwShadeCaps = D3DPSHADECAPS_COLORFLATRGB | D3DPSHADECAPS_COLORGOURAUDRGB |
+                     D3DPSHADECAPS_ALPHAFLATBLEND | D3DPSHADECAPS_ALPHAGOURAUDBLEND;
+    c->dwTextureCaps = D3DPTEXTURECAPS_PERSPECTIVE | D3DPTEXTURECAPS_POW2 |
+                       D3DPTEXTURECAPS_ALPHA | D3DPTEXTURECAPS_TRANSPARENCY;
+    c->dwTextureFilterCaps = D3DPTFILTERCAPS_NEAREST | D3DPTFILTERCAPS_LINEAR |
+                             D3DPTFILTERCAPS_MINFPOINT | D3DPTFILTERCAPS_MINFLINEAR |
+                             D3DPTFILTERCAPS_MAGFPOINT | D3DPTFILTERCAPS_MAGFLINEAR;
+    c->dwTextureBlendCaps = D3DPTBLENDCAPS_DECAL | D3DPTBLENDCAPS_MODULATE |
+                            D3DPTBLENDCAPS_MODULATEALPHA | D3DPTBLENDCAPS_COPY |
+                            D3DPTBLENDCAPS_ADD;
+    c->dwTextureAddressCaps = D3DPTADDRESSCAPS_WRAP | D3DPTADDRESSCAPS_CLAMP |
+                              D3DPTADDRESSCAPS_INDEPENDENTUV;
+}
+
+/* DrvGetDirectDrawInfo: the D3D half of the HAL - only with the 3D engine */
+void VcrDdD3dHalInfo(VCR_PDEV *pd, DD_HALINFO *hal)
+{
+    D3DNTHALDEVICEDESC_V1 *d = &g_gd.hwCaps;
+    if (!pd->pjRegs || !pd->g2d_ok || pd->d3d_disabled)
+        return;
+    memset(&g_gd, 0, sizeof g_gd);
+    g_gd.dwSize = sizeof g_gd;
+    d->dwSize = sizeof *d;
+    d->dwFlags = D3DDD_COLORMODEL | D3DDD_DEVCAPS | D3DDD_LINECAPS | D3DDD_TRICAPS |
+                 D3DDD_DEVICERENDERBITDEPTH | D3DDD_DEVICEZBUFFERBITDEPTH;
+    d->dcmColorModel = D3DCOLOR_RGB;
+    d->dwDevCaps = D3DDEVCAPS_FLOATTLVERTEX | D3DDEVCAPS_EXECUTESYSTEMMEMORY |
+                   D3DDEVCAPS_TLVERTEXSYSTEMMEMORY | D3DDEVCAPS_TEXTUREVIDEOMEMORY |
+                   D3DDEVCAPS_DRAWPRIMTLVERTEX | D3DDEVCAPS_CANRENDERAFTERFLIP |
+                   D3DDEVCAPS_DRAWPRIMITIVES2 | D3DDEVCAPS_DRAWPRIMITIVES2EX |
+                   D3DDEVCAPS_HWRASTERIZATION;
+    prim_caps(&d->dpcTriCaps);
+    prim_caps(&d->dpcLineCaps);
+    d->dwDeviceRenderBitDepth = DDBD_16;
+    d->dwDeviceZBufferBitDepth = DDBD_16;
+    texfmt(&g_texfmt[0], 0, 0xf800, 0x07e0, 0x001f, 0);
+    texfmt(&g_texfmt[1], DDPF_ALPHAPIXELS, 0x7c00, 0x03e0, 0x001f, 0x8000);
+    texfmt(&g_texfmt[2], DDPF_ALPHAPIXELS, 0x0f00, 0x00f0, 0x000f, 0xf000);
+    g_gd.dwNumTextureFormats = 3;
+    g_gd.lpTextureFormats = g_texfmt;
+
+    memset(&g_cb, 0, sizeof g_cb);
+    g_cb.dwSize = sizeof g_cb;
+    g_cb.ContextCreate = D3d_ContextCreate;
+    g_cb.ContextDestroy = D3d_ContextDestroy;
+    g_cb.ContextDestroyAll = D3d_ContextDestroyAll;
+
+    hal->lpD3DGlobalDriverData = &g_gd;
+    hal->lpD3DHALCallbacks = &g_cb;
+    hal->ddCaps.dwCaps |= DDCAPS_3D;
+    hal->ddCaps.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_TEXTURE | DDSCAPS_ZBUFFER;
+    hal->ddCaps.dwZBufferBitDepths = DDBD_16;
+}
+
+static int geq(const GUID *a, const GUID *b)
+{
+    return memcmp(a, b, sizeof *a) == 0;
+}
+
+static void answer(PDD_GETDRIVERINFODATA p, const void *data, DWORD size)
+{
+    DWORD n = p->dwExpectedSize < size ? p->dwExpectedSize : size;
+    memcpy(p->lpvData, data, n);
+    p->dwActualSize = size;
+    p->ddRVal = DD_OK;
+}
+
+/* GetDriverInfo's Direct3D queries: 1 = answered */
+int VcrDdD3dDriverInfo(VCR_PDEV *pd, PDD_GETDRIVERINFODATA p)
+{
+    static const GUID cb3 = { 0xddf41230, 0xec0a, 0x11d0, { 0xa9, 0xb6, 0x00, 0xaa, 0x00, 0xc0, 0x99, 0x3e } };
+    static const GUID ext = { 0x7de41f80, 0x9d93, 0x11d0, { 0x89, 0xab, 0x00, 0xa0, 0xc9, 0x05, 0x41, 0x29 } };
+    static const GUID zpf = { 0x93869880, 0x36cf, 0x11d1, { 0x9b, 0x1b, 0x00, 0xaa, 0x00, 0xbb, 0xb8, 0xae } };
+    static const GUID misc2 = { 0x406b2f00, 0x3e5a, 0x11d1, { 0xb6, 0x40, 0x00, 0xaa, 0x00, 0xa1, 0xf9, 0x6a } };
+    static const GUID unk = { 0x2e04ffa0, 0x98e4, 0x11d1, { 0x8c, 0xe1, 0x00, 0xa0, 0xc9, 0x06, 0x29, 0xa8 } };
+    if (!pd || !pd->pjRegs || !pd->g2d_ok || pd->d3d_disabled)
+        return 0;
+    if (geq(&p->guidInfo, &cb3)) {
+        D3DNTHAL_CALLBACKS3 c;
+        memset(&c, 0, sizeof c);
+        c.dwSize = sizeof c;
+        c.dwFlags = D3DNTHAL3_CB32_CLEAR2 | D3DNTHAL3_CB32_DRAWPRIMITIVES2 |
+                    D3DNTHAL3_CB32_VALIDATETEXTURESTAGESTATE;
+        c.Clear2 = D3d_Clear2;
+        c.ValidateTextureStageState = D3d_ValidateTextureStageState;
+        c.DrawPrimitives2 = D3d_DrawPrimitives2;
+        answer(p, &c, sizeof c);
+        return 1;
+    }
+    if (geq(&p->guidInfo, &ext)) {
+        D3DNTHAL_D3DEXTENDEDCAPS x;
+        DWORD guard = 0xc5000000u, guard_pos = 0x45000000u, maxw = 0x47800000u; /* -2048, 2048, 65536 */
+        memset(&x, 0, sizeof x);
+        x.dwSize = sizeof x;
+        x.dwMinTextureWidth = x.dwMinTextureHeight = 1;
+        x.dwMaxTextureWidth = x.dwMaxTextureHeight = 256;
+        x.dwMaxTextureAspectRatio = 8;
+        x.dwMaxAnisotropy = 1;
+        (void)guard;
+        (void)guard_pos;
+        memcpy(&x.dvMaxVertexW, &maxw, 4);
+        x.dwFVFCaps = 1;
+        x.dwTextureOpCaps = D3DTEXOPCAPS_DISABLE | D3DTEXOPCAPS_SELECTARG1 |
+                            D3DTEXOPCAPS_SELECTARG2 | D3DTEXOPCAPS_MODULATE |
+                            D3DTEXOPCAPS_ADD | D3DTEXOPCAPS_BLENDDIFFUSEALPHA |
+                            D3DTEXOPCAPS_BLENDTEXTUREALPHA;
+        x.wMaxTextureBlendStages = 1;
+        x.wMaxSimultaneousTextures = 1;
+        answer(p, &x, sizeof x);
+        return 1;
+    }
+    if (geq(&p->guidInfo, &zpf)) {
+        struct { DWORD n; DDPIXELFORMAT f; } z;
+        memset(&z, 0, sizeof z);
+        z.n = 1;
+        z.f.dwSize = sizeof z.f;
+        z.f.dwFlags = DDPF_ZBUFFER;
+        z.f.dwZBufferBitDepth = 16;
+        z.f.dwZBitMask = 0xffff;
+        answer(p, &z, sizeof z);
+        return 1;
+    }
+    if (geq(&p->guidInfo, &misc2)) {
+        DD_MISCELLANEOUS2CALLBACKS m;
+        memset(&m, 0, sizeof m);
+        m.dwSize = sizeof m;
+        m.dwFlags = DDHAL_MISC2CB32_CREATESURFACEEX | DDHAL_MISC2CB32_GETDRIVERSTATE |
+                    DDHAL_MISC2CB32_DESTROYDDLOCAL;
+        m.CreateSurfaceEx = Dd_CreateSurfaceEx;
+        m.GetDriverState = Dd_GetDriverState;
+        m.DestroyDDLocal = Dd_DestroyDDLocal;
+        answer(p, &m, sizeof m);
+        return 1;
+    }
+    if (geq(&p->guidInfo, &unk)) {
+        g_parse_unknown = (PFND3DNTPARSEUNKNOWNCOMMAND)p->lpvData;
+        p->ddRVal = DD_OK;
+        return 1;
+    }
+    return 0;
+}
+
+#endif /* VCR_HAVE_DDI */

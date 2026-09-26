@@ -57,6 +57,7 @@ typedef struct VCR_PDEV {
     ULONG       g2d_busy;           /* an operation was queued since the last sync */
     ULONG       g2d_disabled;       /* Diag\Accel2D = 0 */
     ULONG       g2d_fifo_full;      /* status[4:0] with the PCI FIFO empty */
+    ULONG       d3d_disabled;       /* Diag\\D3D = 0 */
     ULONG       g2d_ops, g2d_gdi_copies, g2d_gdi_fills;
     /* a DirectDraw flip the chip has not latched yet */
     ULONG       flip_pending, flip_seen_active;
@@ -78,6 +79,7 @@ BOOL  VcrDdSetMode(VCR_PDEV *pd);
 void  VcrDd2dInit(VCR_PDEV *pd);
 void  VcrDd2dTerm(VCR_PDEV *pd);
 void  VcrDd2dSync(VCR_PDEV *pd);
+BOOL  VcrDdRoom(VCR_PDEV *pd, ULONG n);   /* n free PCI FIFO slots, bounded */
 BOOL  VcrDd2dCopy(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG src_off, LONG src_stride,
                   ULONG bytespp, LONG sx, LONG sy, LONG dx, LONG dy, LONG w, LONG h,
                   ULONG ckey, ULONG ck_lo, ULONG ck_hi);
@@ -92,6 +94,10 @@ BOOL APIENTRY DrvEnableDirectDraw(DHPDEV dhpdev, DD_CALLBACKS *cb, DD_SURFACECAL
                                   DD_PALETTECALLBACKS *pcb);
 VOID APIENTRY DrvDisableDirectDraw(DHPDEV dhpdev);
 DWORD APIENTRY DdGetDriverInfo(PDD_GETDRIVERINFODATA p);
+/* vcrdd_d3d.c: the Direct3D half of the HAL */
+void  VcrDdD3dHalInfo(VCR_PDEV *pd, DD_HALINFO *hal);
+int   VcrDdD3dDriverInfo(VCR_PDEV *pd, PDD_GETDRIVERINFODATA p);
+void  VcrDdD3dSurfaceGone(PDD_SURFACE_LOCAL s);
 #endif
 
 /* vcrdd_punt.c: the hooked drawing calls */

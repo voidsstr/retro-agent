@@ -79,8 +79,8 @@ static void give_up(VCR_PDEV *pd, ULONG why, ULONG status)
     pd->g2d_ok = 0;
 }
 
-/* room for n register writes in the PCI FIFO */
-static BOOL room(VCR_PDEV *pd, ULONG n)
+/* room for n register writes in the PCI FIFO (the 3D engine uses it too) */
+BOOL VcrDdRoom(VCR_PDEV *pd, ULONG n)
 {
     ULONG i, s = 0;
     for (i = 0; i < SPIN_CAP; i++) {
@@ -163,7 +163,7 @@ BOOL VcrDd2dCopy(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG src_off, LO
             dx += w - 1;
         }
     }
-    if (!room(pd, 15))
+    if (!VcrDdRoom(pd, 15))
         return FALSE;
     wr(pd, G_CLIP0MIN, 0);
     wr(pd, G_CLIP0MAX, 0x1fff1fff);
@@ -197,7 +197,7 @@ BOOL VcrDd2dFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LO
     x += dsk;
     if (x + w > 8191 || y + h > 8191)
         return FALSE;
-    if (!room(pd, 9))
+    if (!VcrDdRoom(pd, 9))
         return FALSE;
     wr(pd, G_CLIP0MIN, 0);
     wr(pd, G_CLIP0MAX, 0x1fff1fff);
@@ -223,8 +223,10 @@ void VcrDd2dInit(VCR_PDEV *pd)
     DWORD rc;
     pd->pjRegs = NULL;
     pd->g2d_ok = pd->g2d_busy = 0;
-    if (!VcrIoctl(pd->hDriver, IOCTL_VCR_INFO, NULL, 0, &info, sizeof info, NULL))
+    if (!VcrIoctl(pd->hDriver, IOCTL_VCR_INFO, NULL, 0, &info, sizeof info, NULL)) {
         pd->g2d_disabled = (info.flags & VCR_INFO_F_NO_ACCEL2D) ? 1 : 0;
+        pd->d3d_disabled = (info.flags & VCR_INFO_F_NO_D3D) ? 1 : 0;
+    }
     req.RequestedVirtualAddress = NULL;
     rc = VcrIoctl(pd->hDriver, IOCTL_VIDEO_QUERY_PUBLIC_ACCESS_RANGES, &req, sizeof req, &r,
                   sizeof r, NULL);

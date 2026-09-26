@@ -61,7 +61,7 @@ def test_sync_waits_for_the_fifo_to_drain_not_only_for_busy():
 
 def test_every_wait_is_bounded_and_failure_turns_acceleration_off():
     assert "#define SPIN_CAP" in G2D
-    room = func(G2D, "static BOOL room(")
+    room = func(G2D, "BOOL VcrDdRoom(")
     assert "i < SPIN_CAP" in room and "give_up(" in room
     assert "pd->g2d_ok = 0;" in func(G2D, "static void give_up(")
 

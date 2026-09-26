@@ -41,8 +41,8 @@ MP_SRC  := miniport/vcrmp.c miniport/vcrmp_log.c miniport/vcrmp_hw.c miniport/vc
            common/vcr_log.c common/vcr_fmt.c common/vcr_modes.c common/vcr_ics307.c \
            common/vcr_edid.c common/vcr_cursor.c
 DD_SRC  := display/vcrdd.c display/vcrdd_escape.c display/vcrdd_log.c display/vcrdd_pointer.c \
-           display/vcrdd_ddraw.c display/vcrdd_punt.c display/vcrdd_2d.c \
-           common/vcr_fmt.c common/vcr_crt.c
+           display/vcrdd_ddraw.c display/vcrdd_punt.c display/vcrdd_2d.c display/vcrdd_d3d.c \
+           common/vcr_fmt.c common/vcr_crt.c common/vcr_texlod.c
 
 all: $(OUT)/vcrmp.sys $(OUT)/vcrdd.dll $(OUT)/vcrctl.exe $(OUT)/vcrprobe.sys
 
@@ -56,8 +56,14 @@ $(OUT)/vcrmp.sys: $(MP_SRC) $(wildcard include/*.h miniport/*.h) | $(OUT)
 $(OUT)/ddi/.stamp: $(DDI_HDRS) | $(OUT)
 	mkdir -p $(OUT)/ddi && cp $(DDI_HDRS) $(OUT)/ddi/ && touch $@
 
-$(OUT)/vcrdd.dll: $(DD_SRC) display/vcrdd.def $(wildcard include/*.h display/*.h) $(DD_DDI_DEP) | $(OUT)
-	$(CC) $(DD_DDI) $(KCFLAGS) $(DD_SRC) display/vcrdd.def -o $@ $(KLDFLAGS) \
+# the 3D engine's register writer does float arithmetic (vertex -> setup
+# unit): the one object built with the x87 allowed. The HAL brackets every
+# call into it with EngSave/RestoreFloatingPointState (vcrdd_d3d.c).
+$(OUT)/vcrdd_3d.o: display/vcrdd_3d.c $(wildcard include/*.h display/*.h) $(DD_DDI_DEP) | $(OUT)
+	$(CC) $(DD_DDI) $(filter-out -mgeneral-regs-only,$(KCFLAGS)) -c display/vcrdd_3d.c -o $@
+
+$(OUT)/vcrdd.dll: $(DD_SRC) $(OUT)/vcrdd_3d.o display/vcrdd.def $(wildcard include/*.h display/*.h) $(DD_DDI_DEP) | $(OUT)
+	$(CC) $(DD_DDI) $(KCFLAGS) $(DD_SRC) $(OUT)/vcrdd_3d.o display/vcrdd.def -o $@ $(KLDFLAGS) \
 	      -Wl,--entry,_DrvEnableDriver@12 -lwin32k -lgcc
 
 # vcrprobe.sys: a plain NT driver (not a miniport), loaded on the fly for captures
