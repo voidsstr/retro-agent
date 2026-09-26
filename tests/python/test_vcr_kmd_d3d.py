@@ -140,3 +140,26 @@ def test_fog_table_on_w_and_vertex_fog_through_a_synthetic_w():
     cr = func(D3D, "static void compute_regs(")
     assert "D3DRENDERSTATE_FOGTABLEMODE" in cr and "c->fog_vertex = 1;" in cr
     assert "$(OUT)/vcr_fog.o: common/vcr_fog.c" in MK        # floats: the FPU object
+
+
+def test_a_texture_the_cpu_wrote_is_flushed_before_the_tmu_samples_it():
+    """The runtime uploads managed textures by Lock + CPU writes (no TEXBLT,
+    measured), and the TMU's texture cache does not see LFB writes: a new
+    texture reusing an old one's address sampled the OLD texels (d3dprobe
+    tex2add: grey instead of green). Unlock/TEXBLT flag the surface; before a
+    draw samples it, Glide's download-coherency sequence runs (2D NOP,
+    texBaseAddr away and back, nopCMD - the silicon's need) plus one dword
+    written back through the texture port (86Box's cache watches that).
+    Also: CreateSurfaceEx with fpVidMem 0 is the DESTROY notice."""
+    e3d = (KMD / "display" / "vcrdd_3d.c").read_text()
+    fl = func(e3d, "BOOL VcrDd3dTexFlush(")
+    assert "~base & 0x00fffff0u" in fl and "V3D_NOPCMD" in fl
+    assert "pd->pjRegs + 0x600000 + (addr - base)" in fl and "!pd->no_texport" in fl
+    dd = (KMD / "display" / "vcrdd_ddraw.c").read_text()
+    assert "VcrDdD3dTexWritten(p->lpDDSurface);" in func(dd, "static DWORD APIENTRY Dd_Unlock(")
+    pr = func(D3D, "static BOOL prepare(")
+    assert "g_tex_writes != c->tex_writes_seen" in pr and "flush_written(c, c->tex_surf0);" in pr
+    ns = func(D3D, "static void name_surface(")
+    assert "!cur->lpGbl->fpVidMem" in ns and "handle_forget(NULL, cur)" in ns
+    mp = (KMD / "miniport" / "vcrmp.h").read_text()
+    assert "#define VCR_DD_MAP_LEN      0xa00000" in mp

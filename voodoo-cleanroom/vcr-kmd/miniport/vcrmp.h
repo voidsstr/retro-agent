@@ -78,6 +78,8 @@ ULONG NTAPI HalSetBusDataByOffset(ULONG BusDataType, ULONG Bus, ULONG Slot,
 #define VCR_MAX_MODES       400
 #define VCR_MAX_PROCS       8
 #define VCR_MMIO_MAP_LEN    0x400000    /* io + cmd + 2d + 3d register windows */
+#define VCR_DD_MAP_LEN      0xa00000    /* the display driver's: + the texture port (0x600000,
+                                         * TMU1 at 0x800000) - its texture-cache flush */
 
 typedef struct VCR_CHIP {
     ULONG            slot;          /* PCI_SLOT_NUMBER.u.AsULONG on ext->bus */
@@ -135,6 +137,7 @@ typedef struct VCR_EXT {
     ULONG     allow_poke;
     ULONG     accel2d;              /* Diag\\Accel2D (default 1) */
     ULONG     d3d;                  /* Diag\\D3D (default 1) */
+    ULONG     texport;              /* Diag\\TexPortFlush (default 1) */
     ULONG     bridge_bus, bridge_slot, bridge_found;
     ULONG     sli_active;           /* = sli_chips != 0 */
     ULONG     glide_chips;          /* chips Glide is told about (1 until slaves are mapped) */

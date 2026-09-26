@@ -90,6 +90,14 @@ BOOL VcrDd3dState(VCR_PDEV *pd, const vcr3d_regs *r)
         w3(pd, V3D_TMU0 + V3D_TDETAIL, 0);
         w3(pd, V3D_TMU0 + V3D_TEXBASEADDR, r->texBaseAddr);
     }
+    if (r->textured1) {
+        if (!VcrDdRoom(pd, 4))
+            return FALSE;
+        w3(pd, V3D_TMU1 + V3D_TEXTUREMODE, r->textureMode1);
+        w3(pd, V3D_TMU1 + V3D_TLOD, r->tLOD1);
+        w3(pd, V3D_TMU1 + V3D_TDETAIL, 0);
+        w3(pd, V3D_TMU1 + V3D_TEXBASEADDR, r->texBaseAddr1);
+    }
     pd->g2d_busy = 1;
     return TRUE;
 }
@@ -143,7 +151,7 @@ static BOOL vertex(VCR_PDEV *pd, const vcr3d_draw *d, const UCHAR *v)
 {
     const float *p = (const float *)v;          /* x, y, z, rhw: D3DFVF_XYZRHW */
     float oow = p[3];
-    if (!VcrDdRoom(pd, d->textured ? 9 : 6))
+    if (!VcrDdRoom(pd, 6 + (d->textured ? 3 : 0) + (d->textured1 ? 3 : 0)))
         return FALSE;
     wf(pd, V3D_SVX, p[0] + d->xy_bias);
     wf(pd, V3D_SVY, p[1] + d->xy_bias);
@@ -162,6 +170,12 @@ static BOOL vertex(VCR_PDEV *pd, const vcr3d_draw *d, const UCHAR *v)
         wf(pd, V3D_SOOW0, oow);
         wf(pd, V3D_SSOW0, uv[0] * d->s_scale * oow);
         wf(pd, V3D_STOW0, uv[1] * d->t_scale * oow);
+    }
+    if (d->textured1) {
+        const float *uv = (const float *)(v + d->tex1_off);
+        wf(pd, V3D_SOOW1, oow);
+        wf(pd, V3D_SSOW1, uv[0] * d->s_scale1 * oow);
+        wf(pd, V3D_STOW1, uv[1] * d->t_scale1 * oow);
     }
     return TRUE;
 }
@@ -182,12 +196,44 @@ BOOL VcrDd3dTriangle(VCR_PDEV *pd, const vcr3d_draw *d, const UCHAR *a, const UC
     return TRUE;
 }
 
+/* The TMU's texture cache does not see the CPU write texture memory. Glide's
+ * download-coherency sequence (h3 GR_TEX_FLUSH_PRE/POST): a 2D NOP, the TMUs
+ * pointed away and back with a nopCMD between - what the silicon needs; then
+ * one dword written back through the texture port at the texture's first
+ * texel - the write 86Box's texture cache watches (it ignores LFB writes).
+ * The port decodes linearly from TMU0's texBaseAddr on Banshee and later, so
+ * the written-back dword lands exactly where it was read. */
+BOOL VcrDd3dTexFlush(VCR_PDEV *pd, ULONG base, ULONG addr)
+{
+    if (!VcrDdRoom(pd, 7))
+        return FALSE;
+    *(volatile ULONG *)(pd->pjRegs + 0x100070) = 0x100;         /* 2D: NOP | GO */
+    w3(pd, V3D_TEXBASEADDR, ~base & 0x00fffff0u);               /* chip field 0: every TMU */
+    w3(pd, V3D_NOPCMD, 0);
+    w3(pd, V3D_TEXBASEADDR, base);
+    *(volatile ULONG *)(pd->pjRegs + 0x100070) = 0x100;
+    if (!pd->no_texport && addr >= base && addr - base < 0x200000) {
+        ULONG v = *(volatile ULONG *)((PUCHAR)pd->pvRamBase + addr);
+        w3(pd, V3D_TMU0 + V3D_TEXBASEADDR, base);
+        *(volatile ULONG *)(pd->pjRegs + 0x600000 + (addr - base)) = v;
+    }
+    pd->g2d_busy = 1;
+    return TRUE;
+}
+
 /* the S/T scales for a w x h texture: the wider side spans 256 */
 void VcrDd3dTexScale(vcr3d_draw *d, ULONG w, ULONG h)
 {
     ULONG big = w > h ? w : h;
     d->s_scale = 256.0f * (float)w / (float)big;
     d->t_scale = 256.0f * (float)h / (float)big;
+}
+
+void VcrDd3dTexScale1(vcr3d_draw *d, ULONG w, ULONG h)
+{
+    ULONG big = w > h ? w : h;
+    d->s_scale1 = 256.0f * (float)w / (float)big;
+    d->t_scale1 = 256.0f * (float)h / (float)big;
 }
 
 void VcrDd3dDrawInit(vcr3d_draw *d)

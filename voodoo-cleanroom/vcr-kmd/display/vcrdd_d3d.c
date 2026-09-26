@@ -52,15 +52,20 @@ typedef struct vcr_d3dctx {
     DWORD               rs[RS_MAX];
     DWORD               tss[TSS_MAX];   /* stage 0 */
     DWORD               tex_handle;     /* stage 0 texture */
+    DWORD               tss1[TSS_MAX];  /* stage 1 (the second TMU) */
+    DWORD               tex_handle1;
     DWORD               tex_refused;    /* last handle logged as unusable */
     DWORD               mip_logged;
+    PDD_SURFACE_LOCAL   tex_surf0, tex_surf1;   /* the bound textures, for the dirty check */
+    ULONG               tex_writes_seen;
     ULONG               fog_vertex;     /* vertex fog: needs the specular colour */
     ULONG               dirty;
     vcr3d_regs          regs;
     vcr3d_target        target;
-    ULONG               tex_w, tex_h, tex_ok;
+    ULONG               tex_w, tex_h, tex_ok;     /* TMU0's texture */
+    ULONG               tex1_w, tex1_h;            /* TMU1's, with two stages */
     PVOID               fpu;            /* EngSaveFloatingPointState buffer */
-    ULONG               tris, clears, dp2s, unparsed;
+    ULONG               tris, clears, dp2s, unparsed, tex_flushes;
 } vcr_d3dctx;
 
 typedef struct handle_ent {
@@ -70,6 +75,7 @@ typedef struct handle_ent {
 } handle_ent;
 
 static vcr_d3dctx g_ctx[MAX_CTX];
+static ULONG g_tex_writes;              /* textures written since boot (VcrDdD3dTexWritten) */
 static handle_ent g_h[MAX_HANDLES];
 static PFND3DNTPARSEUNKNOWNCOMMAND g_parse_unknown;
 static ULONG g_fpu_size;
@@ -177,8 +183,15 @@ static int in_vidmem(PDD_SURFACE_LOCAL s)
  * on the VIDEOMEMORY entry the heap was built in), and frees it in
  * DestroySurface. The surface-local dwReserved1 marks what is ours. */
 
-#define MIP_TOP     0x7663724du         /* 'vcrM': the level that owns the block */
-#define MIP_LEVEL   0x7663726cu         /* 'vcrl': a level inside someone's block */
+/* DD_SURFACE_LOCAL.dwReserved1 (the display driver's): a magic in the top
+ * half, flags below. */
+#define SF_MAGIC    0x76630000u         /* 'vc' */
+#define SF_MIP_TOP  0x1u                /* the level that owns the block */
+#define SF_MIP_LVL  0x2u                /* a level inside someone's block */
+#define SF_DIRTY    0x4u                /* the CPU wrote it since the TMU last looked */
+#define SF_IS(s, f) (((s)->dwReserved1 & 0xffff0000u) == SF_MAGIC && ((s)->dwReserved1 & (f)))
+#define MIP_TOP     (SF_MAGIC | SF_MIP_TOP)
+#define MIP_LEVEL   (SF_MAGIC | SF_MIP_LVL)
 
 typedef struct { DWORD dwStartAlignment, dwPitchAlignment, dwFlags, dwReserved2; } vcr_surfalign;
 FLATPTR APIENTRY HeapVidMemAllocAligned(VIDEOMEMORY *vm, DWORD w, DWORD h, vcr_surfalign *a,
@@ -278,16 +291,29 @@ int VcrDdD3dFreeMipChain(VCR_PDEV *pd, PDD_SURFACE_LOCAL s)
     (void)pd;
     if (!s || !s->lpGbl)
         return 0;
-    if (s->dwReserved1 == MIP_TOP) {
+    if (SF_IS(s, SF_MIP_TOP)) {
         VidMemFree((PVOID)s->lpGbl->dwReserved1, s->lpGbl->fpVidMem);
         s->dwReserved1 = 0;
         return 1;
     }
-    if (s->dwReserved1 == MIP_LEVEL) {
+    if (SF_IS(s, SF_MIP_LVL)) {
         s->dwReserved1 = 0;
         return 1;
     }
     return 0;
+}
+
+/* a texture was written by the CPU (Unlock, a HEL blit) or by TEXBLT: the
+ * TMU's texture cache does not see that - flag it, and the next draw that
+ * samples it flushes first. Every level of a chain is flagged on its top. */
+void VcrDdD3dTexWritten(PDD_SURFACE_LOCAL s)
+{
+    if (!s || !(s->ddsCaps.dwCaps & DDSCAPS_TEXTURE) || !in_vidmem(s))
+        return;
+    if ((s->dwReserved1 & 0xffff0000u) != SF_MAGIC)
+        s->dwReserved1 = SF_MAGIC;
+    s->dwReserved1 |= SF_DIRTY;
+    g_tex_writes++;
 }
 
 /* the next smaller level of a mipmap chain (attached to this one) */
@@ -422,9 +448,13 @@ static ULONG color_path(vcr_d3dctx *c, int tex)
 }
 
 /* the TMU view of a texture surface (common/vcr_texlod.c: LOD, aspect, and
- * the base the chip wants - where LOD 0 would be). FALSE: the chip cannot
- * sample it and the stage falls back to the diffuse colour. */
-static BOOL tex_regs(vcr_d3dctx *c, PDD_SURFACE_LOCAL s, vcr3d_regs *r)
+ * the base the chip wants - where LOD 0 would be) under one stage's filter
+ * and address state. FALSE: the chip cannot sample it. */
+typedef struct tmu_view {
+    ULONG textureMode, tLOD, texBaseAddr, w, h;
+} tmu_view;
+
+static BOOL tex_view(const DWORD *tss, PDD_SURFACE_LOCAL s, tmu_view *v)
 {
     DDPIXELFORMAT *pf;
     vcr_texlod t;
@@ -445,47 +475,72 @@ static BOOL tex_regs(vcr_d3dctx *c, PDD_SURFACE_LOCAL s, vcr3d_regs *r)
     if (vcr_texlod_compute(s->lpGbl->wWidth, s->lpGbl->wHeight, 2, (ULONG)s->lpGbl->lPitch,
                            (ULONG)s->lpGbl->fpVidMem, &t))
         return FALSE;
-    r->texBaseAddr = t.base;
-    r->tLOD = t.tlod;
+    v->texBaseAddr = t.base;
+    v->tLOD = t.tlod;
     /* a chain we packed: sample down to its smallest level, unless mipmapping
      * is off (MIPFILTER none: the top level only) */
-    if (c->tss[D3DTSS_MIPFILTER] != c->mip_logged) {
-        PDD_SURFACE_LOCAL m = s;
-        ULONG n = 1;
-        while ((m = next_mip(m)) != NULL && n < 9)
-            n++;
-        c->mip_logged = c->tss[D3DTSS_MIPFILTER];
-        VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 12, c->tss[D3DTSS_MIPFILTER], s->dwReserved1, n,
-              "texture %ux%u: MIPFILTER %u, owner %x, %u levels attached", s->lpGbl->wWidth,
-              s->lpGbl->wHeight, c->tss[D3DTSS_MIPFILTER], s->dwReserved1, n);
-    }
-    if (s->dwReserved1 == MIP_TOP && c->tss[D3DTSS_MIPFILTER] > D3DTFP_NONE) {
+    if (SF_IS(s, SF_MIP_TOP) && tss[D3DTSS_MIPFILTER] > D3DTFP_NONE) {
         PDD_SURFACE_LOCAL m = s;
         ULONG n = 1, lodmax;
         while ((m = next_mip(m)) != NULL && n < 9)
             n++;
         lodmax = t.lod + n - 1 > 8 ? 8 : t.lod + n - 1;
-        r->tLOD = (r->tLOD & ~(0x3fu << 6)) | TL_LODMAX(lodmax);
+        v->tLOD = (v->tLOD & ~(0x3fu << 6)) | TL_LODMAX(lodmax);
     }
-    r->textureMode = TM_PERSPECTIVE | TM_CLAMPW | TM_FORMAT(fmt) | TM_TC_REPLACE | TM_TCA_REPLACE;
-    if (c->tss[D3DTSS_MAGFILTER] >= D3DTFG_LINEAR)
-        r->textureMode |= TM_MAGFILTER;
-    if (c->tss[D3DTSS_MINFILTER] >= D3DTFN_LINEAR)
-        r->textureMode |= TM_MINFILTER;
-    if (c->tss[D3DTSS_ADDRESSU] == D3DTADDRESS_CLAMP)
-        r->textureMode |= TM_CLAMPS;
-    if (c->tss[D3DTSS_ADDRESSV] == D3DTADDRESS_CLAMP)
-        r->textureMode |= TM_CLAMPT;
-    c->tex_w = s->lpGbl->wWidth;
-    c->tex_h = s->lpGbl->wHeight;
+    v->textureMode = TM_PERSPECTIVE | TM_CLAMPW | TM_FORMAT(fmt);
+    if (tss[D3DTSS_MAGFILTER] >= D3DTFG_LINEAR)
+        v->textureMode |= TM_MAGFILTER;
+    if (tss[D3DTSS_MINFILTER] >= D3DTFN_LINEAR)
+        v->textureMode |= TM_MINFILTER;
+    if (tss[D3DTSS_ADDRESSU] == D3DTADDRESS_CLAMP)
+        v->textureMode |= TM_CLAMPS;
+    if (tss[D3DTSS_ADDRESSV] == D3DTADDRESS_CLAMP)
+        v->textureMode |= TM_CLAMPT;
+    v->w = s->lpGbl->wWidth;
+    v->h = s->lpGbl->wHeight;
     return TRUE;
+}
+
+/* stage 1 on TMU0, combining its texture (local) with TMU1's = stage 0's
+ * (other). D3D's CURRENT also carries stage 0's diffuse term; here the
+ * diffuse is applied after, in the colour combine - identical for MODULATE,
+ * and for the usual lightmap stages. */
+static ULONG stage1_combine(const DWORD *tss)
+{
+    DWORD op = tss[D3DTSS_COLOROP], aop = tss[D3DTSS_ALPHAOP];
+    DWORD a1 = ARG_KIND(tss[D3DTSS_COLORARG1]), a2 = ARG_KIND(tss[D3DTSS_COLORARG2]);
+    DWORD b1 = ARG_KIND(tss[D3DTSS_ALPHAARG1]), b2 = ARG_KIND(tss[D3DTSS_ALPHAARG2]);
+    ULONG tc, tca;
+    if (op == D3DTOP_SELECTARG1)
+        tc = a1 == D3DTA_TEXTURE ? TM_TC_REPLACE : TM_TC_PASS;
+    else if (op == D3DTOP_SELECTARG2)
+        tc = a2 == D3DTA_TEXTURE ? TM_TC_REPLACE : TM_TC_PASS;
+    else if (op == D3DTOP_ADD)
+        tc = TM_TC_ADD;
+    else
+        tc = TM_TC_MULT;                            /* MODULATE(2X/4X) and the rest */
+    if (aop == D3DTOP_DISABLE)
+        tca = TM_TCA_PASS;
+    else if (aop == D3DTOP_SELECTARG1)
+        tca = b1 == D3DTA_TEXTURE ? TM_TCA_REPLACE : TM_TCA_PASS;
+    else if (aop == D3DTOP_SELECTARG2)
+        tca = b2 == D3DTA_TEXTURE ? TM_TCA_REPLACE : TM_TCA_PASS;
+    else if (aop == D3DTOP_ADD)
+        tca = TM_TCA_ADD;
+    else
+        tca = TM_TCA_MULT;
+    return tc | tca;
 }
 
 static void compute_regs(vcr_d3dctx *c)
 {
     vcr3d_regs *r = &c->regs;
-    PDD_SURFACE_LOCAL t = handle_get(c->ddlcl, c->tex_handle);
-    int tex = c->tex_handle && tex_regs(c, t, r);
+    PDD_SURFACE_LOCAL t = handle_get(c->ddlcl, c->tex_handle),
+                      t1 = handle_get(c->ddlcl, c->tex_handle1);
+    tmu_view v0, v1;
+    int tex = c->tex_handle && tex_view(c->tss, t, &v0);
+    int two = tex && c->tss1[D3DTSS_COLOROP] != D3DTOP_DISABLE && c->tex_handle1 &&
+              tex_view(c->tss1, t1, &v1);
     DWORD cull = c->rs[D3DRENDERSTATE_CULLMODE];
 
     if (c->tex_handle && !tex && c->tex_handle != c->tex_refused) {
@@ -501,7 +556,29 @@ static void compute_regs(vcr_d3dctx *c)
               t && t->lpGbl ? t->lpGbl->ddpfSurface.dwRGBBitCount : 0,
               t && t->lpGbl ? t->lpGbl->ddpfSurface.dwRBitMask : 0);
     }
-
+    c->tex_surf0 = tex ? t : NULL;
+    c->tex_surf1 = two ? t1 : NULL;
+    /* one texture: TMU0 samples stage 0 and passes it on. Two: TMU1 samples
+     * stage 0, TMU0 samples stage 1 and combines the two */
+    r->textured1 = two;
+    if (two) {
+        r->textureMode1 = v0.textureMode | TM_TC_REPLACE | TM_TCA_REPLACE;
+        r->tLOD1 = v0.tLOD;
+        r->texBaseAddr1 = v0.texBaseAddr;
+        r->textureMode = v1.textureMode | stage1_combine(c->tss1);
+        r->tLOD = v1.tLOD;
+        r->texBaseAddr = v1.texBaseAddr;
+        c->tex_w = v1.w;
+        c->tex_h = v1.h;
+        c->tex1_w = v0.w;
+        c->tex1_h = v0.h;
+    } else if (tex) {
+        r->textureMode = v0.textureMode | TM_TC_REPLACE | TM_TCA_REPLACE;
+        r->tLOD = v0.tLOD;
+        r->texBaseAddr = v0.texBaseAddr;
+        c->tex_w = v0.w;
+        c->tex_h = v0.h;
+    }
     r->textured = tex;
     c->tex_ok = tex;
     r->fbzColorPath = color_path(c, tex);
@@ -543,7 +620,8 @@ static void compute_regs(vcr_d3dctx *c)
     r->fogColor = c->rs[D3DRENDERSTATE_FOGCOLOR] & 0xffffff;
     r->c0 = 0;
     r->c1 = c->rs[D3DRENDERSTATE_TEXTUREFACTOR];
-    r->setupMode = SM_RGB | SM_A | SM_Z | SM_WFBI | (tex ? SM_W0 | SM_ST0 : 0);
+    r->setupMode = SM_RGB | SM_A | SM_Z | SM_WFBI | (tex ? SM_W0 | SM_ST0 : 0) |
+                   (two ? SM_W1 | SM_ST1 : 0);
     if (cull == D3DCULL_CCW)
         r->setupMode |= SM_CULL | SM_CULL_NEGATIVE;
     else if (cull == D3DCULL_CW)
@@ -598,6 +676,18 @@ static void ctx_defaults(vcr_d3dctx *c)
     c->tss[D3DTSS_MAGFILTER] = D3DTFG_POINT;
     c->tss[D3DTSS_MINFILTER] = D3DTFN_POINT;
     c->tex_handle = 0;
+    memset(c->tss1, 0, sizeof c->tss1);
+    c->tss1[D3DTSS_COLOROP] = D3DTOP_DISABLE;
+    c->tss1[D3DTSS_ALPHAOP] = D3DTOP_DISABLE;
+    c->tss1[D3DTSS_COLORARG1] = D3DTA_TEXTURE;
+    c->tss1[D3DTSS_COLORARG2] = D3DTA_CURRENT;
+    c->tss1[D3DTSS_ALPHAARG1] = D3DTA_TEXTURE;
+    c->tss1[D3DTSS_ALPHAARG2] = D3DTA_CURRENT;
+    c->tss1[D3DTSS_TEXCOORDINDEX] = 1;
+    c->tss1[D3DTSS_ADDRESSU] = c->tss1[D3DTSS_ADDRESSV] = D3DTADDRESS_WRAP;
+    c->tss1[D3DTSS_MAGFILTER] = D3DTFG_POINT;
+    c->tss1[D3DTSS_MINFILTER] = D3DTFN_POINT;
+    c->tex_handle1 = 0;
     c->dirty = 1;
 }
 
@@ -640,8 +730,9 @@ static DWORD APIENTRY D3d_ContextCreate(LPD3DNTHAL_CONTEXTCREATEDATA p)
 static void ctx_free(vcr_d3dctx *c)
 {
     VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 2, (ULONG)(c - g_ctx) + 1, c->dp2s, c->tris,
-          "context %u gone: %u DrawPrimitives2, %u triangles, %u clears, %u unparsed",
-          (ULONG)(c - g_ctx) + 1, c->dp2s, c->tris, c->clears, c->unparsed);
+          "context %u gone: %u DrawPrimitives2, %u triangles, %u clears, %u unparsed, "
+          "%u texture flushes", (ULONG)(c - g_ctx) + 1, c->dp2s, c->tris, c->clears,
+          c->unparsed, c->tex_flushes);
     if (c->pd)
         VcrDd2dSync(c->pd);
     if (c->fpu)
@@ -677,9 +768,11 @@ typedef struct dp2walk {
     vcr3d_draw    d;
     int           drawable;     /* a target, pre-transformed vertices, the engine */
     int           prepared;     /* target + state sent since the last change */
+    ULONG         set_off[8], nsets;    /* texture coordinate sets in a vertex */
 } dp2walk;
 
-static BOOL fvf_layout(DWORD fvf, ULONG *stride, ULONG *diff, ULONG *tex, ULONG *spec)
+static BOOL fvf_layout(DWORD fvf, ULONG *stride, ULONG *diff, ULONG *tex, ULONG *spec,
+                       ULONG *set_off, ULONG *nsets)
 {
     ULONG off = 16, ntex = (fvf & D3DFVF_TEXCOUNT_MASK) >> D3DFVF_TEXCOUNT_SHIFT, i;
     if ((fvf & D3DFVF_POSITION_MASK) != D3DFVF_XYZRHW)
@@ -699,12 +792,35 @@ static BOOL fvf_layout(DWORD fvf, ULONG *stride, ULONG *diff, ULONG *tex, ULONG 
     *tex = off;
     for (i = 0; i < ntex; i++) {
         ULONG sz = (fvf >> (16 + 2 * i)) & 3;       /* 0: 2 floats, 1: 3, 2: 4, 3: 1 */
+        if (i < 8)
+            set_off[i] = off;
         off += sz == 0 ? 8 : sz == 1 ? 12 : sz == 2 ? 16 : 4;
     }
+    *nsets = ntex;
     *stride = off;
     if (!ntex)
         *tex = 0;
     return TRUE;
+}
+
+/* a bound texture the CPU wrote (any level of it): flush the TMU's cache */
+static void flush_written(vcr_d3dctx *c, PDD_SURFACE_LOCAL s)
+{
+    PDD_SURFACE_LOCAL m;
+    vcr_texlod t;
+    int dirty = 0, n = 0;
+    if (!s || !s->lpGbl)
+        return;
+    for (m = s; m && n < 12; m = next_mip(m), n++)
+        if (SF_IS(m, SF_DIRTY)) {
+            dirty = 1;
+            m->dwReserved1 &= ~SF_DIRTY;
+        }
+    if (!dirty || vcr_texlod_compute(s->lpGbl->wWidth, s->lpGbl->wHeight, 2,
+                                     (ULONG)s->lpGbl->lPitch, (ULONG)s->lpGbl->fpVidMem, &t))
+        return;
+    VcrDd3dTexFlush(c->pd, t.base, (ULONG)s->lpGbl->fpVidMem);
+    c->tex_flushes++;
 }
 
 static BOOL prepare(dp2walk *w)
@@ -712,17 +828,36 @@ static BOOL prepare(dp2walk *w)
     vcr_d3dctx *c = w->c;
     if (!w->drawable)
         return FALSE;
+    if (g_tex_writes != c->tex_writes_seen) {       /* one compare per triangle */
+        c->tex_writes_seen = g_tex_writes;
+        if (c->dirty)
+            compute_regs(c);                        /* the surfaces about to be bound */
+        flush_written(c, c->tex_surf0);
+        flush_written(c, c->tex_surf1);
+        w->prepared = 0;                            /* the flush moved texBaseAddr */
+    }
     if (w->prepared && !c->dirty)
         return TRUE;
     compute_regs(c);
-    if (c->tex_ok && w->d.tex_off) {
-        w->d.textured = 1;
-        VcrDd3dTexScale(&w->d, c->tex_w, c->tex_h);
-    } else {
-        w->d.textured = 0;
-        c->regs.textured = 0;
-        c->regs.fbzColorPath &= ~CP_TEXTURE;
-        c->regs.setupMode &= ~(SM_W0 | SM_ST0);
+    {
+        ULONG i0 = c->tss[D3DTSS_TEXCOORDINDEX] & 7, i1 = c->tss1[D3DTSS_TEXCOORDINDEX] & 7;
+        /* TMU0 reads stage 1's set when there are two stages, else stage 0's */
+        ULONG s0 = c->regs.textured1 ? i1 : i0;
+        if (c->tex_ok && s0 < w->nsets && (!c->regs.textured1 || i0 < w->nsets)) {
+            w->d.textured = 1;
+            w->d.tex_off = w->set_off[s0];
+            VcrDd3dTexScale(&w->d, c->tex_w, c->tex_h);
+            w->d.textured1 = c->regs.textured1;
+            if (w->d.textured1) {
+                w->d.tex1_off = w->set_off[i0];
+                VcrDd3dTexScale1(&w->d, c->tex1_w, c->tex1_h);
+            }
+        } else {
+            w->d.textured = w->d.textured1 = 0;
+            c->regs.textured = c->regs.textured1 = 0;
+            c->regs.fbzColorPath &= ~CP_TEXTURE;
+            c->regs.setupMode &= ~(SM_W0 | SM_ST0 | SM_W1 | SM_ST1);
+        }
     }
     w->d.fog_vertex = c->fog_vertex && w->d.spec_off;
     if (c->fog_vertex && !w->d.spec_off)
@@ -831,6 +966,7 @@ static void texblt(dp2walk *w, const D3DNTHAL_DP2TEXBLT *t)
     if (!d || !s || !in_vidmem(d) || !d->lpGbl || !s->lpGbl)
         return;                                 /* dest 0 = a preload hint */
     VcrDd2dSync(pd);                            /* queued triangles may still sample it */
+    VcrDdD3dTexWritten(d);
     while (d && s && n++ < 12) {
         texblt_level(pd, d, s, dx, dy, &r);
         d = next_mip(d);
@@ -893,13 +1029,17 @@ static HRESULT walk(dp2walk *w, const UCHAR *cmds, ULONG len, LPDWORD rstates, D
             for (i = 0; i < n; i++) {
                 WORD stage = rw(p + i * 8), st = rw(p + i * 8 + 2);
                 DWORD v = rd(p + i * 8 + 4);
-                if (stage != 0 || st >= TSS_MAX)
+                DWORD *ts = stage == 0 ? c->tss : stage == 1 ? c->tss1 : NULL;
+                DWORD *th = stage == 0 ? &c->tex_handle : &c->tex_handle1;
+                if (!ts || st >= TSS_MAX)
                     continue;
                 if (st == D3DTSS_TEXTUREMAP) {
-                    c->tex_handle = v;
+                    *th = v;
                     c->dirty = 1;
-                } else if (c->tss[st] != v) {
-                    c->tss[st] = v;
+                    VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 14, stage, v, 0, "stage %u texture %u",
+                          stage, v);
+                } else if (ts[st] != v) {
+                    ts[st] = v;
                     c->dirty = 1;
                 }
             }
@@ -1048,6 +1188,10 @@ static HRESULT walk(dp2walk *w, const UCHAR *cmds, ULONG len, LPDWORD rstates, D
             for (i = 0; i < n; i++) {
                 D3DNTHAL_DP2TEXBLT t;
                 memcpy(&t, p + i * sizeof t, sizeof t);
+                VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 13, t.dwDDDestSurface, t.dwDDSrcSurface,
+                      ((ULONG)t.rSrc.right << 16) | (ULONG)t.rSrc.bottom,
+                      "TEXBLT %u <- %u (%dx%d)", t.dwDDDestSurface, t.dwDDSrcSurface,
+                      t.rSrc.right - t.rSrc.left, t.rSrc.bottom - t.rSrc.top);
                 texblt(w, &t);
             }
             p += n * sizeof(D3DNTHAL_DP2TEXBLT);
@@ -1095,7 +1239,7 @@ static DWORD APIENTRY D3d_DrawPrimitives2(LPD3DNTHAL_DRAWPRIMITIVES2DATA p)
     vcr_d3dctx *c = ctx_of(p->dwhContext);
     dp2walk w;
     const UCHAR *cmds;
-    ULONG diff = 0, tex = 0, spec = 0;
+    ULONG diff = 0, tex = 0, spec = 0, nsets = 0;
     HRESULT hr;
 
     p->dwErrorOffset = 0;
@@ -1106,7 +1250,7 @@ static DWORD APIENTRY D3d_DrawPrimitives2(LPD3DNTHAL_DRAWPRIMITIVES2DATA p)
     c->dp2s++;
     memset(&w, 0, sizeof w);
     w.c = c;
-    if (fvf_layout(p->dwVertexType, &w.stride, &diff, &tex, &spec)) {
+    if (fvf_layout(p->dwVertexType, &w.stride, &diff, &tex, &spec, w.set_off, &nsets)) {
         if (p->dwFlags & D3DNTHALDP2_USERMEMVERTICES)
             w.vb = (const UCHAR *)p->lpVertices;
         else if (p->lpDDVertex && p->lpDDVertex->lpGbl)
@@ -1133,6 +1277,7 @@ static DWORD APIENTRY D3d_DrawPrimitives2(LPD3DNTHAL_DRAWPRIMITIVES2DATA p)
     w.d.diff_off = diff;
     w.d.tex_off = tex;
     w.d.spec_off = spec;
+    w.nsets = nsets;
     hr = walk(&w, cmds, p->dwCommandLength, p->lpdwRStates, &p->dwErrorOffset);
     EngRestoreFloatingPointState(c->fpu);
     p->ddrval = hr;
@@ -1193,7 +1338,12 @@ static void name_surface(PDD_DIRECTDRAW_LOCAL l, PDD_SURFACE_LOCAL s)
         PDD_SURFACE_LOCAL cur = seen[i];
         PDD_ATTACHLIST a;
         if (cur->lpSurfMore && cur->lpSurfMore->dwSurfaceHandle) {
-            handle_set(l, cur->lpSurfMore->dwSurfaceHandle, cur);
+            /* CreateSurfaceEx doubles as the DESTROY notice: fpVidMem 0 means
+             * the handle no longer names this surface */
+            if (cur->lpGbl && !cur->lpGbl->fpVidMem)
+                handle_forget(NULL, cur);
+            else
+                handle_set(l, cur->lpSurfMore->dwSurfaceHandle, cur);
             VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 3, cur->lpSurfMore->dwSurfaceHandle,
                   cur->ddsCaps.dwCaps, cur->lpGbl ? (ULONG)cur->lpGbl->fpVidMem : 0,
                   "CreateSurfaceEx %u", cur->lpSurfMore->dwSurfaceHandle);
@@ -1374,13 +1524,13 @@ int VcrDdD3dDriverInfo(VCR_PDEV *pd, PDD_GETDRIVERINFODATA p)
         (void)guard;
         (void)guard_pos;
         memcpy(&x.dvMaxVertexW, &maxw, 4);
-        x.dwFVFCaps = 1;
+        x.dwFVFCaps = 2;
         x.dwTextureOpCaps = D3DTEXOPCAPS_DISABLE | D3DTEXOPCAPS_SELECTARG1 |
                             D3DTEXOPCAPS_SELECTARG2 | D3DTEXOPCAPS_MODULATE |
                             D3DTEXOPCAPS_ADD | D3DTEXOPCAPS_BLENDDIFFUSEALPHA |
                             D3DTEXOPCAPS_BLENDTEXTUREALPHA;
-        x.wMaxTextureBlendStages = 1;
-        x.wMaxSimultaneousTextures = 1;
+        x.wMaxTextureBlendStages = 2;
+        x.wMaxSimultaneousTextures = 2;
         answer(p, &x, sizeof x);
         return 1;
     }

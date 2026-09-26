@@ -58,6 +58,7 @@ typedef struct VCR_PDEV {
     ULONG       g2d_disabled;       /* Diag\Accel2D = 0 */
     ULONG       g2d_fifo_full;      /* status[4:0] with the PCI FIFO empty */
     ULONG       d3d_disabled;       /* Diag\\D3D = 0 */
+    ULONG       no_texport;         /* Diag\\TexPortFlush = 0 */
     PVOID       pvmList;            /* DirectDraw's VIDEOMEMORY heap list (it fills lpHeap) */
     ULONG       fog_loaded[4];      /* the fog table on the chip: mode, start, end, density */
     ULONG       fog_valid;
@@ -103,6 +104,7 @@ int   VcrDdD3dDriverInfo(VCR_PDEV *pd, PDD_GETDRIVERINFODATA p);
 void  VcrDdD3dSurfaceGone(PDD_SURFACE_LOCAL s);
 int   VcrDdD3dCreateMipChain(VCR_PDEV *pd, PDD_CREATESURFACEDATA p);
 int   VcrDdD3dFreeMipChain(VCR_PDEV *pd, PDD_SURFACE_LOCAL s);
+void  VcrDdD3dTexWritten(PDD_SURFACE_LOCAL s);
 #endif
 
 /* vcrdd_punt.c: the hooked drawing calls */

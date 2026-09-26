@@ -230,6 +230,7 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
     x->allow_poke = VcrDiagGet(L"AllowPoke", 0);
     x->accel2d = VcrDiagGet(L"Accel2D", 1);
     x->d3d = VcrDiagGet(L"D3D", 1);
+    x->texport = VcrDiagGet(L"TexPortFlush", 1);
     hwinfo(x);
 
     /* no VDM (full-screen DOS) support: the VGA driver keeps that role */
@@ -417,7 +418,8 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
     VideoPortMoveMemory(v->edid, x->edid, sizeof v->edid);
     v->log_next_seq = VcrLogNextSeq();
     v->flags = (x->allow_poke ? VCR_INFO_F_ALLOW_POKE : 0) |
-               (x->accel2d ? 0 : VCR_INFO_F_NO_ACCEL2D) | (x->d3d ? 0 : VCR_INFO_F_NO_D3D);
+               (x->accel2d ? 0 : VCR_INFO_F_NO_ACCEL2D) | (x->d3d ? 0 : VCR_INFO_F_NO_D3D) |
+               (x->texport ? 0 : VCR_INFO_F_NO_TEXPORT);
     v->ogl_version = VcrDiagGet(L"OpenGLVersion", 2);
     v->ogl_driver_version = VcrDiagGet(L"OpenGLDriverVersion", 1);
     if (!VcrDiagGetString(L"OpenGLName", v->ogl_name, 32)) {
@@ -594,7 +596,7 @@ static BOOLEAN NTAPI VcrStartIO(PVOID ext, PVIDEO_REQUEST_PACKET rp)
          * Glide has IOCTL_VCR_MAP_GLIDE. */
         VIDEO_MEMORY req;
         VIDEO_PUBLIC_ACCESS_RANGES *out = (VIDEO_PUBLIC_ACCESS_RANGES *)rp->OutputBuffer;
-        ULONG len = VCR_MMIO_MAP_LEN, inio = VIDEO_MEMORY_SPACE_MEMORY;
+        ULONG len = VCR_DD_MAP_LEN, inio = VIDEO_MEMORY_SPACE_MEMORY;
         PVOID va = NULL;
         NEED_OUT(sizeof *out);
         req.RequestedVirtualAddress = NULL;

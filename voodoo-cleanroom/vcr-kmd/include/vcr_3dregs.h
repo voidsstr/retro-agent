@@ -15,6 +15,7 @@
 
 #define V3D_BASE                0x200000u
 #define V3D_TMU0                0x000800u   /* chip field: TMU0 only */
+#define V3D_TMU1                0x001000u   /* chip field: TMU1 only */
 
 #define V3D_STATUS              0x000
 #define V3D_FBZCOLORPATH        0x104
@@ -45,6 +46,9 @@
 #define V3D_SOOW0               0x288
 #define V3D_SSOW0               0x28c
 #define V3D_STOW0               0x290
+#define V3D_SOOW1               0x294
+#define V3D_SSOW1               0x298
+#define V3D_STOW1               0x29c
 #define V3D_SDRAWTRICMD         0x2a0
 #define V3D_SBEGINTRICMD        0x2a4
 #define V3D_TEXTUREMODE         0x300
@@ -133,9 +137,18 @@
 #define   TF_ARGB1555           11u
 #define   TF_ARGB4444           12u
 #define   TF_ARGB8888           0x12u   /* VSA-100 only: textureMode[11:8] + tLOD ext bit */
-/* the TMU's own combine = pass its texture through: other zeroed, local added */
+/* the TMU's own combine: local = its texture, other = the TMU upstream's
+ * output. REPLACE: local; PASS: other; MULT: other x local; ADD: other + local.
+ * (h3defs.h SST_TC_* / SST_TCA_*: zero_other 12/21, mselect 14/23 (1 = clocal),
+ * reverse 17/26, add_clocal 18/27) */
 #define TM_TC_REPLACE           ((1u << 12) | (1u << 18))
 #define TM_TCA_REPLACE          ((1u << 21) | (1u << 27))
+#define TM_TC_PASS              0u
+#define TM_TCA_PASS             0u
+#define TM_TC_MULT              ((1u << 14) | (1u << 17))
+#define TM_TCA_MULT             ((1u << 23) | (1u << 26))
+#define TM_TC_ADD               (1u << 18)
+#define TM_TCA_ADD              (1u << 27)
 
 /* tLOD */
 #define TL_LODMIN(l)            ((unsigned)(l) << 2)        /* 4.2 fixed, lod 0 = 256 texels */
@@ -150,6 +163,8 @@
 #define SM_WFBI                 (1u << 3)
 #define SM_W0                   (1u << 4)
 #define SM_ST0                  (1u << 5)
+#define SM_W1                   (1u << 6)
+#define SM_ST1                  (1u << 7)
 #define SM_FAN                  (1u << 16)
 #define SM_CULL                 (1u << 17)
 #define SM_CULL_NEGATIVE        (1u << 18)

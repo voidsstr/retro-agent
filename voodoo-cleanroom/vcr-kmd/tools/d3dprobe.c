@@ -109,6 +109,17 @@ static void quad_c(float x0, float y0, float x1, float y1, float z, DWORD c0, DW
     IDirect3DDevice8_DrawPrimitiveUP(g_dev, D3DPT_TRIANGLESTRIP, 2, q, sizeof q[0]);
 }
 
+typedef struct { float x, y, z, rhw; DWORD c; float u0, v0, u1, v1; } VT2;
+#define FVF_T2 (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX2)
+
+static void quad_t2(float x0, float y0, float x1, float y1, DWORD c)
+{
+    VT2 q[4] = { { x0, y0, 0.5f, 1, c, 0, 0, 0, 0 }, { x1, y0, 0.5f, 1, c, 1, 0, 1, 0 },
+                 { x0, y1, 0.5f, 1, c, 0, 1, 0, 1 }, { x1, y1, 0.5f, 1, c, 1, 1, 1, 1 } };
+    IDirect3DDevice8_SetVertexShader(g_dev, FVF_T2);
+    IDirect3DDevice8_DrawPrimitiveUP(g_dev, D3DPT_TRIANGLESTRIP, 2, q, sizeof q[0]);
+}
+
 typedef struct { float x, y, z, rhw; DWORD c, s; } VS;
 #define FVF_S (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR)
 
@@ -408,6 +419,45 @@ static void run_test(const char *t)
         g_px[128 * BB + 128] = gotrgb;
         expect(t, "screen: the quad", 128, 128, 0x00ff00, 12);
         ReleaseDC(g_hwnd, dc);
+    } else if (!strcmp(t, "tex2mod") || !strcmp(t, "tex2add")) {
+        /* two stages, the second TMU: stage 0 the red/blue checker (x diffuse
+         * white), stage 1 a solid texture that MODULATEs (grey 0x80) or ADDs
+         * (green 0x40) the current colour */
+        int add = !strcmp(t, "tex2add");
+        IDirect3DTexture8 *a = checker(64, 0xffff0000, 0xff0000ff);
+        IDirect3DTexture8 *b = checker(16, add ? 0xff004000 : 0xff808080, add ? 0xff004000 : 0xff808080);
+        DWORD red = add ? 0xff4000 : 0x840000, blue = add ? 0x0041ff : 0x000084;
+        if (!a || !b) {
+            g_fail++;
+            return;
+        }
+        if (!frame_begin(0)) return;
+        IDirect3DDevice8_SetTexture(g_dev, 0, (IDirect3DBaseTexture8 *)a);
+        IDirect3DDevice8_SetTexture(g_dev, 1, (IDirect3DBaseTexture8 *)b);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MINFILTER, D3DTEXF_POINT);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MAGFILTER, D3DTEXF_POINT);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_TEXCOORDINDEX, 0);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 1, D3DTSS_COLOROP, add ? D3DTOP_ADD : D3DTOP_MODULATE);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 1, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 1, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 1, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 1, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 1, D3DTSS_MINFILTER, D3DTEXF_POINT);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 1, D3DTSS_MAGFILTER, D3DTEXF_POINT);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 1, D3DTSS_TEXCOORDINDEX, 1);
+        quad_t2(Q0, Q0, Q1, Q1, 0xffffffff);
+        frame_end();
+        IDirect3DDevice8_SetTextureStageState(g_dev, 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        IDirect3DDevice8_SetTexture(g_dev, 0, NULL);
+        IDirect3DDevice8_SetTexture(g_dev, 1, NULL);
+        IDirect3DTexture8_Release(a);
+        IDirect3DTexture8_Release(b);
+        expect(t, "red cell", tpx(4, 64), tpx(4, 64), red, 14);
+        expect(t, "blue cell", tpx(12, 64), tpx(4, 64), blue, 14);
     } else if (!strcmp(t, "fogtable") || !strcmp(t, "fogvertex")) {
         /* red quads fogged toward blue. Table fog: linear from w=1 to w=5, the
          * quads at w = 1, 3, 8 (rhw 1, 1/3, 1/8). Vertex fog: the factor in the
@@ -464,7 +514,7 @@ static void run_test(const char *t)
 
 int main(int argc, char **argv)
 {
-    const char *mode = "caps", *tests = "clear,flat,gouraud,tex,modulate,blend,ztest,bigtex,present,fogtable,fogvertex";
+    const char *mode = "caps", *tests = "clear,flat,gouraud,tex,modulate,blend,ztest,bigtex,present,fogtable,fogvertex,tex2mod,tex2add";
     IDirect3D8 *d3d;
     D3DADAPTER_IDENTIFIER8 id;
     D3DDISPLAYMODE dm;

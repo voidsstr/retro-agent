@@ -380,6 +380,8 @@ static DWORD APIENTRY Dd_Blt(PDD_BLTDATA p)
     ULONG dmax, smax, bpp, doff;
     LONG w, h, y, x, dpitch, spitch;
 
+    VcrDd(VCR_LV_DEBUG, VCR_EV_DD_DDRAW, 10, d ? (ULONG)d->lpGbl->fpVidMem : 0,
+          s ? s->ddsCaps.dwCaps : 0, p->dwFlags, "Blt");
     if (p->dwFlags & ~ok_flags)
         return DDHAL_DRIVER_NOTHANDLED;
     if (p->IsClipped)
@@ -523,6 +525,8 @@ static DWORD APIENTRY Dd_CreateSurface(PDD_CREATESURFACEDATA p)
 static DWORD APIENTRY Dd_Lock(PDD_LOCKDATA p)
 {
     VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
+    VcrDd(VCR_LV_DEBUG, VCR_EV_DD_DDRAW, 9, p->lpDDSurface ? (ULONG)p->lpDDSurface->lpGbl->fpVidMem : 0,
+          p->lpDDSurface ? p->lpDDSurface->ddsCaps.dwCaps : 0, p->dwFlags, "Lock");
     /* the buffer a pending flip is taking off the screen is still visible */
     if (p->lpDDSurface && (ULONG)p->lpDDSurface->lpGbl->fpVidMem == pd->flip_from &&
         !flip_done(pd)) {
@@ -549,7 +553,8 @@ static DWORD APIENTRY Dd_DestroySurface(PDD_DESTROYSURFACEDATA p)
 
 static DWORD APIENTRY Dd_Unlock(PDD_UNLOCKDATA p)
 {
-    (void)p;
+    /* the CPU just wrote a texture the TMU may have cached (vcrdd_d3d.c) */
+    VcrDdD3dTexWritten(p->lpDDSurface);
     return DDHAL_DRIVER_NOTHANDLED;
 }
 
