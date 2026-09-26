@@ -1,0 +1,17 @@
+[07:43:25] ===== cfg 0 =====
+  safe-reboot: activation ok: no activation nag and no activation-required flag |   192.168.1.124 MACs: 00:d0:b7:40:96:a9 |   hold armed for 00:d0:b7:40:96:a9 |   rebooting 192.168.1.124: OK
+[07:45:25]   {"mode": "fill", "res": "1024x768", "cfg": 0, "chips": 4, "frames": 150, "layers": 8, "blend": 0, "seconds": 0.8392, "fps": 178.74, "mpix_s": 1124.5, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:45:25"}
+[07:45:32]   {"mode": "fill", "res": "1024x768", "cfg": 0, "chips": 4, "frames": 150, "layers": 8, "blend": 1, "seconds": 0.8413, "fps": 178.3, "mpix_s": 1121.7, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:45:32"}
+[07:45:38]   {"mode": "bands", "res": "1024x768", "cfg": 0, "chips": 4, "origin": "upper", "band_lines": 8, "bad_lines": 0, "bad_per_chip": [0, 0, 0, 0], "first_bad": -1, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:45:38"}
+[07:45:46]   {"mode": "fill", "res": "1600x1200", "cfg": 0, "chips": 4, "frames": 150, "layers": 8, "blend": 0, "seconds": 2.0622, "fps": 72.74, "mpix_s": 1117.2, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:45:46"}
+[07:45:54]   {"mode": "fill", "res": "1600x1200", "cfg": 0, "chips": 4, "frames": 150, "layers": 8, "blend": 1, "seconds": 2.0675, "fps": 72.55, "mpix_s": 1114.4, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:45:54"}
+[07:46:00]   {"mode": "bands", "res": "1600x1200", "cfg": 0, "chips": 4, "origin": "upper", "band_lines": 8, "bad_lines": 0, "bad_per_chip": [0, 0, 0, 0], "first_bad": -1, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:46:00"}
+[07:46:00] ===== cfg 5 =====
+  safe-reboot: activation ok: no activation nag and no activation-required flag |   192.168.1.124 MACs: 00:d0:b7:40:96:a9 |   hold armed for 00:d0:b7:40:96:a9 |   rebooting 192.168.1.124: OK
+[07:48:03]   {"mode": "fill", "res": "1024x768", "cfg": 5, "chips": 4, "frames": 150, "layers": 8, "blend": 0, "seconds": 0.8392, "fps": 178.74, "mpix_s": 1124.5, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:48:03"}
+[07:48:09]   {"mode": "fill", "res": "1024x768", "cfg": 5, "chips": 4, "frames": 150, "layers": 8, "blend": 1, "seconds": 0.8413, "fps": 178.3, "mpix_s": 1121.8, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:48:09"}
+[07:48:16]   {"mode": "bands", "res": "1024x768", "cfg": 5, "chips": 4, "origin": "upper", "band_lines": 8, "bad_lines": 0, "bad_per_chip": [0, 0, 0, 0], "first_bad": -1, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:48:16"}
+[07:48:24]   {"mode": "fill", "res": "1600x1200", "cfg": 5, "chips": 4, "frames": 150, "layers": 8, "blend": 0, "seconds": 2.0622, "fps": 72.74, "mpix_s": 1117.2, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:48:24"}
+[07:48:32]   {"mode": "fill", "res": "1600x1200", "cfg": 5, "chips": 4, "frames": 150, "layers": 8, "blend": 1, "seconds": 2.0675, "fps": 72.55, "mpix_s": 1114.4, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:48:32"}
+[07:48:38]   {"mode": "bands", "res": "1600x1200", "cfg": 5, "chips": 4, "origin": "upper", "band_lines": 8, "bad_lines": 0, "bad_per_chip": [0, 0, 0, 0], "first_bad": -1, "label": "amigamerlin-3.1-r11", "refresh": 60, "taken": "2026-09-26T07:48:38"}
+[07:48:38] -> /home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/evidence/glidelab/amigamerlin-3.1-r11.jsonl
