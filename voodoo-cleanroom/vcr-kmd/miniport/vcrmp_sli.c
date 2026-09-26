@@ -59,6 +59,8 @@
  *  10. The slaves also get the master's vidDesktopStartAddr, and
  *      vidPixelBufThold 0x10410 - neither is in dos_mode.c; both are what the
  *      vendor driver's slaves carry (goldens cfg5 and cfg5_1600).
+ *  11. SLI disable clears only the SLI/AA fields of cfgSliAAMisc (vsync
+ *      offset, slave wait), not the undocumented power-up bit 11 (0x800).
  *   8. After placing a slave's BARs, its BAR writes are turned off again.
  *      dos_mode.c leaves them on; the vendor driver does not (golden
  *      sli_amigamerlin-3.1-r11_cfg5_192.168.1.124.json: slave cfgInitEnable
@@ -1091,7 +1093,11 @@ static int sli_disable(const vcr_sli_io *io, vcr_u32 n)
 
         cfg_w(io, VCR_SLI_S_OFF_CFG, c, VCR_CFG_SLILFBCTRL, 0, "cfgSliLfbCtrl = 0");
         cfg_w(io, VCR_SLI_S_OFF_CFG, c, VCR_CFG_AALFBCTRL, 0, "cfgAALfbCtrl = 0");
-        cfg_w(io, VCR_SLI_S_OFF_CFG, c, VCR_CFG_SLIAAMISC, 0, "cfgSliAAMisc = 0");
+        /* ours (header difference 11): D:1493 writes 0, which also clears the
+         * undocumented bit 11 every chip powers up with (0x800 on .124); only
+         * the fields SLI/AA set are cleared here */
+        v = cfg_r(io, c, VCR_CFG_SLIAAMISC) & ~(VCR_SLIAA_VSYNC_OFFSET | VCR_SLIAA_LFB_RD_SLV_WAIT);
+        cfg_w(io, VCR_SLI_S_OFF_CFG, c, VCR_CFG_SLIAAMISC, v, "cfgSliAAMisc: SLI/AA fields cleared");
         /* D:1494 Make sure slave chips don't drive HSYNC & VSYNC */
         cfg_w(io, VCR_SLI_S_OFF_VIDEOCTRL0, c, VCR_CFG_VIDEOCTRL0,
               c > 0 ? (VCR_VC0_DAC_HSYNC_TRISTATE | VCR_VC0_DAC_VSYNC_TRISTATE) : 0,

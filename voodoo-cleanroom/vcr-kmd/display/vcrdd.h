@@ -44,6 +44,9 @@ typedef struct VCR_PDEV {
     ULONG       cjFrameBuffer;
     ULONG       exclusive_pid;      /* a Glide process owns the chip */
     ULONG       hwc_requests;
+    ULONG       hw_pointer;         /* the miniport offers the hardware cursor */
+    ULONG       ptr_on;
+    LONG        xHot, yHot;
 } VCR_PDEV;
 
 /* vcrdd_log.c */
@@ -55,6 +58,13 @@ DWORD VcrIoctl(HANDLE h, DWORD code, PVOID in, DWORD cin, PVOID out, DWORD cout,
 
 /* vcrdd.c */
 BOOL  VcrDdSetMode(VCR_PDEV *pd);
+
+/* vcrdd_pointer.c */
+ULONG APIENTRY DrvSetPointerShape(SURFOBJ *pso, SURFOBJ *psoMask, SURFOBJ *psoColor,
+                                  XLATEOBJ *pxlo, LONG xHot, LONG yHot, LONG x, LONG y,
+                                  RECTL *prcl, FLONG fl);
+VOID APIENTRY DrvMovePointer(SURFOBJ *pso, LONG x, LONG y, RECTL *prcl);
+void  VcrDdPointerProbe(VCR_PDEV *pd);
 
 /* vcrdd_escape.c */
 ULONG APIENTRY DrvEscape(SURFOBJ *pso, ULONG iEsc, ULONG cjIn, PVOID pvIn,

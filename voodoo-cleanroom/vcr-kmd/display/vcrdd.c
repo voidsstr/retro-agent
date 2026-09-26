@@ -18,6 +18,8 @@ static DRVFN g_drvfn[] = {
     { INDEX_DrvSetPalette,     (PFN)0 },
     { INDEX_DrvEscape,         (PFN)0 },
     { INDEX_DrvDisableDriver,  (PFN)0 },
+    { INDEX_DrvSetPointerShape, (PFN)0 },
+    { INDEX_DrvMovePointer,    (PFN)0 },
 };
 
 /* the 20 colours Windows reserves in an 8 bpp palette (0-9 and 246-255) */
@@ -378,6 +380,7 @@ HSURF APIENTRY DrvEnableSurface(DHPDEV dhpdev)
     pd->hsurfEng = hs;
     VcrDd(VCR_LV_INFO, VCR_EV_DD_ENABLE_SURF, (ULONG)(ULONG_PTR)pd->pjScreen, pd->lDelta,
           0, 1, "DrvEnableSurface %ux%ux%u", pd->cx, pd->cy, pd->bpp);
+    VcrDdPointerProbe(pd);
     return hs;
 }
 
@@ -401,9 +404,16 @@ BOOL APIENTRY DrvAssertMode(DHPDEV dhpdev, BOOL bEnable)
 {
     VCR_PDEV *pd = (VCR_PDEV *)dhpdev;
     BOOL ok = TRUE;
-    if (bEnable)
+    if (bEnable) {
+        /* GDI takes the display back. A Glide client that released exclusive
+         * mode cleared this already; one that was killed never will, and a
+         * stale owner would keep the hardware pointer switched off. */
+        if (pd->exclusive_pid)
+            VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 0, pd->exclusive_pid, 2, 0,
+                  "exclusive owner %u never released - cleared on re-assert", pd->exclusive_pid);
+        pd->exclusive_pid = 0;
         ok = VcrDdSetMode(pd);
-    else
+    } else
         VcrIoctl(pd->hDriver, IOCTL_VIDEO_RESET_DEVICE, NULL, 0, NULL, 0, NULL);
     VcrDd(VCR_LV_INFO, VCR_EV_DD_ASSERT_MODE, bEnable, ok, 0, 0, "DrvAssertMode");
     return ok;
@@ -444,6 +454,8 @@ BOOL APIENTRY DrvEnableDriver(ULONG iEngineVersion, ULONG cj, DRVENABLEDATA *pde
     g_drvfn[7].pfn = (PFN)DrvSetPalette;
     g_drvfn[8].pfn = (PFN)DrvEscape;
     g_drvfn[9].pfn = (PFN)DrvDisableDriver;
+    g_drvfn[10].pfn = (PFN)DrvSetPointerShape;
+    g_drvfn[11].pfn = (PFN)DrvMovePointer;
     pded->pdrvfn = g_drvfn;
     pded->c = sizeof g_drvfn / sizeof g_drvfn[0];
     pded->iDriverVersion = DDI_DRIVER_VERSION_NT5;

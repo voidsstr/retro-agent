@@ -583,6 +583,14 @@ static BOOLEAN NTAPI VcrStartIO(PVOID ext, PVIDEO_REQUEST_PACKET rp)
         st = VideoPortUnmapMemory(ext, in->RequestedVirtualAddress, NULL);
         break;
     }
+    case IOCTL_VIDEO_QUERY_POINTER_CAPABILITIES:
+    case IOCTL_VIDEO_SET_POINTER_ATTR:
+    case IOCTL_VIDEO_SET_POINTER_POSITION:
+    case IOCTL_VIDEO_ENABLE_POINTER:
+    case IOCTL_VIDEO_DISABLE_POINTER:
+        st = VcrCursorIoctl(x, code, rp->InputBuffer, rp->InputBufferLength,
+                            rp->OutputBuffer, rp->OutputBufferLength, &info);
+        break;
     case IOCTL_VIDEO_SET_COLOR_REGISTERS:
         st = VcrHwSetClut(x, (VIDEO_CLUT *)rp->InputBuffer, rp->InputBufferLength);
         break;

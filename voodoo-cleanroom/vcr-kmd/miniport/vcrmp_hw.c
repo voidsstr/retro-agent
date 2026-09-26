@@ -634,6 +634,7 @@ VP_STATUS VcrHwSetMode(VCR_EXT *x, ULONG idx)
     x->cur_mode = (LONG)idx;
     x->cur_set = m;
     x->cur_stride = m.stride;
+    VcrCursorApply(x);          /* a mode set rewrote vidProcCfg; Glide owned the memory */
     VLOG(VCR_LV_INFO, VCR_EV_MODESET_DONE, m.vidproccfg, m.vidscreensize, m.stride,
          (VcrMs() - t0) * 1000, "mode set done");
     VcrPhase(VCR_EV_MODESET_DONE, idx, 0, "mode set done");

@@ -625,7 +625,8 @@ TEST(disable_zeroes_sli_aa_config_and_tristates_the_slaves) {
         CHECK_EQ_U(m->slictrl[c], 0);
         CHECK_EQ_U(CFG(m, c, VCR_CFG_SLILFBCTRL), 0);
         CHECK_EQ_U(CFG(m, c, VCR_CFG_AALFBCTRL), 0);
-        CHECK_EQ_U(CFG(m, c, VCR_CFG_SLIAAMISC), 0);
+        /* the SLI/AA fields cleared, the power-up bit 11 (0x800) kept */
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_SLIAAMISC), 0x800u);
         CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL1), 0);
         CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL2), 0);
         CHECK_EQ_U(CFG(m, c, VCR_CFG_AADEPTHBUFAPERTURE), 0);

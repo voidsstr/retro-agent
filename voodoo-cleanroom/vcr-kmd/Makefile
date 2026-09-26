@@ -22,10 +22,10 @@ KLDFLAGS := -nostdlib -nostartfiles -shared -Wl,--subsystem,native:5.01 \
 ATOMIC  := -D'VCR_LOG_NEXT_SEQ(p)=__sync_add_and_fetch((p),1u)'
 
 MP_SRC  := miniport/vcrmp.c miniport/vcrmp_log.c miniport/vcrmp_hw.c miniport/vcrmp_map.c miniport/vcrmp_clock.c \
-           miniport/vcrmp_multi.c miniport/vcrmp_sli.c miniport/vcrmp_ddc.c \
+           miniport/vcrmp_multi.c miniport/vcrmp_sli.c miniport/vcrmp_ddc.c miniport/vcrmp_cursor.c \
            common/vcr_log.c common/vcr_fmt.c common/vcr_modes.c common/vcr_ics307.c \
-           common/vcr_edid.c
-DD_SRC  := display/vcrdd.c display/vcrdd_escape.c display/vcrdd_log.c \
+           common/vcr_edid.c common/vcr_cursor.c
+DD_SRC  := display/vcrdd.c display/vcrdd_escape.c display/vcrdd_log.c display/vcrdd_pointer.c \
            common/vcr_fmt.c common/vcr_crt.c
 
 all: $(OUT)/vcrmp.sys $(OUT)/vcrdd.dll $(OUT)/vcrctl.exe $(OUT)/vcrprobe.sys
@@ -51,6 +51,14 @@ $(OUT)/vcrprobe.sys: probe/vcrprobe.c include/vcr_probe.h | $(OUT)
 $(OUT)/vcrctl.exe: tools/vcrctl.c $(wildcard include/*.h) | $(OUT)
 	$(CC) -O2 -Wall -Wextra -march=i586 -DWINVER=0x0501 -D_WIN32_WINNT=0x0501 -Iinclude tools/vcrctl.c -o $@ -static -lgdi32 -luser32
 
+# glidelab: Glide test program (fill / bands / cycle / abandon). Needs the
+# Glide SDK headers from voodoo-cleanroom/build-stack.sh (GLIDE_SDK=...);
+# not part of `all`, so a tree without the SDK still builds the driver.
+GLIDE_SDK ?= ../out/sdk/include
+glidelab: $(OUT)/glidelab.exe
+$(OUT)/glidelab.exe: tools/glidelab.c | $(OUT)
+	$(CC) -O1 -Wall -march=i586 -I$(GLIDE_SDK) tools/glidelab.c -o $@ -static -lgdi32 -luser32
+
 imports: all
 	python3 tools/check_imports.py $(OUT)/vcrmp.sys $(OUT)/vcrdd.dll $(OUT)/vcrprobe.sys
 
@@ -60,4 +68,4 @@ check: imports
 clean:
 	rm -rf $(OUT)
 
-.PHONY: all imports check clean
+.PHONY: glidelab all imports check clean
