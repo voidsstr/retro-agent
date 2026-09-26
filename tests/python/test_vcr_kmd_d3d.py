@@ -49,7 +49,7 @@ def test_a_complex_surface_is_named_through_its_attach_lists():
 def test_the_pixel_format_is_trusted_without_the_flag():
     f = func(D3D, "static int has_pixfmt(")
     assert "ddpfSurface.dwRGBBitCount" in f
-    tex = func(D3D, "static BOOL tex_regs(")
+    tex = func(D3D, "static BOOL tex_view(")
     assert "has_pixfmt(s)" in tex
     assert "DDRAWISURF_HASPIXELFORMAT))" not in tex
 
