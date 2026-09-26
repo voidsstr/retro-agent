@@ -11,8 +11,9 @@
  *             screenshot and no timing: an emulated or slow box gets the same
  *             verdict as a fast one. Windowed by default (the desktop's depth);
  *             --full is exclusive fullscreen, which is how games run.
- *   d3dprobe perf [--full] [--res WxH] [--bpp N] [--frames N]
- *             textured triangles per second and frames per second.
+ *   d3dprobe perf [--full [--novsync]] [--res WxH] [--bpp N] [--frames N]
+ *             textured triangles per second and frames per second (--novsync:
+ *             fullscreen presents immediately, so the number is the chip's).
  *
  * Tests: clear flat gouraud tex modulate blend ztest bigtex
  *
@@ -92,7 +93,7 @@ typedef struct { float x, y, z, rhw; DWORD c; float u, v; } VT;
 
 static IDirect3DDevice8 *g_dev;
 static D3DFORMAT g_fmt;
-static int g_w = 640, g_h = 480, g_bpp = 16, g_full, g_frames = 200;
+static int g_w = 640, g_h = 480, g_bpp = 16, g_full, g_frames = 200, g_novsync;
 static int g_pass, g_fail;
 
 static void quad_c(float x0, float y0, float x1, float y1, float z, DWORD c0, DWORD c1, DWORD c2,
@@ -360,6 +361,7 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--tests") && v) { tests = v; i++; }
         else if (!strcmp(a, "--log") && v) { strncpy(g_logpath, v, sizeof g_logpath - 1); i++; }
         else if (!strcmp(a, "--full")) g_full = 1;
+        else if (!strcmp(a, "--novsync")) g_novsync = 1;
         else if (a[0] != '-') mode = a;
     }
     g_log = fopen(g_logpath, "w");
@@ -445,6 +447,8 @@ int main(int argc, char **argv)
     pp.AutoDepthStencilFormat = D3DFMT_D16;
     pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
     pp.hDeviceWindow = hwnd;
+    if (g_full && g_novsync)        /* perf: measure the chip, not the refresh */
+        pp.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
     g_fmt = pp.BackBufferFormat;
     say("CreateDevice(HAL, %s, back buffer %ux%u fmt %u, D16)", g_full ? "fullscreen" : "windowed",
         pp.BackBufferWidth, pp.BackBufferHeight, pp.BackBufferFormat);

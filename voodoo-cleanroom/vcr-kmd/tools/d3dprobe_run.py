@@ -44,6 +44,8 @@ async def main_async(a):
     args = f"{a.mode} --res {a.res} --bpp {a.bpp} --frames {a.frames} --log {log}"
     if a.full:
         args += " --full"
+    if a.novsync:
+        args += " --novsync"
     if a.tests:
         args += f" --tests {a.tests}"
     await call(a, f'EXECW {a.timeout} cmd /c start "d3dprobe" /wait "{DIR}\\d3dprobe.exe" {args}',
@@ -70,6 +72,7 @@ def main():
     ap.add_argument("--bpp", type=int, default=16)
     ap.add_argument("--frames", type=int, default=200)
     ap.add_argument("--full", action="store_true")
+    ap.add_argument("--novsync", action="store_true")
     ap.add_argument("--tests", default="")
     ap.add_argument("--timeout", type=int, default=180)
     ap.add_argument("-v", "--verbose", action="store_true")
