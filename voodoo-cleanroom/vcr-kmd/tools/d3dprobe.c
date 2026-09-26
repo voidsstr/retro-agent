@@ -383,6 +383,18 @@ static void run_test(const char *t)
         expect(t, "near red corner", Q0 + 2, Q0 + 2, 0xff0000, 24);
         expect(t, "near green corner", Q1 - 3, Q0 + 2, 0x00ff00, 24);
         expect(t, "near blue corner", Q0 + 2, Q1 - 3, 0x0000ff, 24);
+    } else if (!strcmp(t, "gouraudb")) {
+        /* the gouraud quad with its corners rotated - first vertex BLUE: tells
+         * "red never interpolates" (the corners read with red 0) from "the
+         * first vertex's colour sticks" (every corner reads with blue ff) */
+        if (!frame_begin(0)) return;
+        untextured();
+        quad_c(Q0, Q0, Q1, Q1, 0.5f, 0xff0000ff, 0xffff0000, 0xff00ff00, 0xffffffff);
+        frame_end();
+        expect(t, "near blue corner", Q0 + 2, Q0 + 2, 0x0000ff, 24);
+        expect(t, "near red corner", Q1 - 3, Q0 + 2, 0xff0000, 24);
+        expect(t, "near green corner", Q0 + 2, Q1 - 3, 0x00ff00, 24);
+        expect(t, "near white corner", Q1 - 3, Q1 - 3, 0xffffff, 24);
     } else if (!strcmp(t, "tex") || !strcmp(t, "modulate") || !strcmp(t, "bigtex")) {
         int size = !strcmp(t, "bigtex") ? 256 : 64;
         IDirect3DTexture8 *tx = checker(size, 0xffff0000, 0xff0000ff);
@@ -581,7 +593,7 @@ static void run_test(const char *t)
 
 int main(int argc, char **argv)
 {
-    const char *mode = "caps", *tests = "clear,flat,gouraud,tex,modulate,blend,ztest,bigtex,present,fogtable,fogvertex,tex2mod,tex2add";
+    const char *mode = "caps", *tests = "clear,flat,gouraud,gouraudb,tex,modulate,blend,ztest,bigtex,present,fogtable,fogvertex,tex2mod,tex2add";
     IDirect3D8 *d3d;
     D3DADAPTER_IDENTIFIER8 id;
     D3DDISPLAYMODE dm;

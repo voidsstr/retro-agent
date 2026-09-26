@@ -1,0 +1,10 @@
+[12:23:19] plan: info, d3d, d3dperf - at most 6 mode switches = 12 timing changes on the cable (each switch passes through the driver's 31.5 kHz VGA reset, ~30 ms), 5s apart at least
+[12:23:19] == info
+[12:23:19]    monitor SNY1270 CPD-G200: H 30-96 kHz, V 48-120 Hz, <= 260 MHz - the driver filters its modes by it
+[12:23:19] == d3d
+[12:23:20]    rc 0 (1s): [{"mode": "caps", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "driver": "vcrdd.dll", "desktop_fmt": 22, "hal": "00000000", "DevCaps": "0008ae50", "PrimitiveMiscCaps": "00000072", "RasterCaps": "00100191", "ZCmpCaps": "000000ff", "SrcBlendCaps": "00001f33", "DestBlendCaps": "0000003f", "AlphaCm
+[12:23:30]    rc 1 (5s): [{"mode": "render", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "window": "fullscreen", "fmt": 23, "checks": [{"test": "clear", "at": "corner", "x": 0, "y": 0, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "centre", "x": 128, "y": 128, "got": "ff0000", "want": "ff0000", 
+[12:23:30]    skip d3dprobe_run render --full --res 1024x768 --bpp 16 --timeout 180: not run: 'd3dprobe_run render --full --res 640x480 --bpp 16 --timeout 180' failed - no more mode switches this battery
+[12:23:30] == d3dperf
+[12:23:30]    skip d3dprobe_run perf --full --novsync --res 640x480 --frames 300 --timeout 180: not run: 'd3dprobe_run render --full --res 640x480 --bpp 16 --timeout 180' failed - no more mode switches this battery
+[12:23:30] done: 1 failing sub-step(s), 2 switching run(s) skipped after a failure or timeout -> /home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/evidence/silicon/vcrkmd-v5-3.jsonl

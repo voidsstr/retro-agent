@@ -581,7 +581,14 @@ static void compute_regs(vcr_d3dctx *c)
     }
     r->textured = tex;
     c->tex_ok = tex;
-    r->fbzColorPath = color_path(c, tex);
+    /* PARMADJUST always, as 3dfx's h5 Glide does (gsst.c: the context's
+     * fbzColorPath starts as SST_PARMADJUST and is never cleared): without
+     * it the VSA-100 silicon on .124 iterated every DECREASING parameter as
+     * a constant - a gouraud channel falling from its first vertex stayed at
+     * that vertex's value across the whole triangle (d3dprobe gouraud /
+     * gouraudb, 2026-09-26), while rising ones were right; 86Box does not
+     * reproduce it. */
+    r->fbzColorPath = color_path(c, tex) | CP_PARMADJUST;
     r->fbzMode = FZ_RECTCLIP | FZ_RGBWRITE;
     if (c->rs[D3DRENDERSTATE_DITHERENABLE])
         r->fbzMode |= FZ_DITHER;

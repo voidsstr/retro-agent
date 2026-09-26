@@ -158,12 +158,11 @@ static BOOL vertex(VCR_PDEV *pd, const vcr3d_draw *d, const UCHAR *v)
         return FALSE;
     wf(pd, V3D_SVX, p[0] + d->xy_bias);
     wf(pd, V3D_SVY, p[1] + d->xy_bias);
-    /* The colour as four FLOATS (0..255), never the packed sARGB: on the
-     * V5 6000's VSA-100 silicon a gouraud triangle fed through sARGB kept
-     * its FIRST vertex's red across the whole triangle while green and blue
-     * interpolated (d3dprobe gouraud, .124, 2026-09-26; 86Box accepts
-     * sARGB). 3dfx's own h5 Glide is built GLIDE_PACKED_RGB=0 and feeds
-     * sRed/sGreen/sBlue/sAlpha (gxdraw.c) - the proven path. */
+    /* The colour as four FLOATS (0..255), as 3dfx's h5 Glide feeds the setup
+     * unit (built GLIDE_PACKED_RGB=0: sRed/sGreen/sBlue/sAlpha, gxdraw.c);
+     * the vendor's D3D HAL sends the packed D3DCOLOR, and both work. (A
+     * gouraud failure on .124 was blamed on sARGB first; it was the missing
+     * PARMADJUST - vcrdd_d3d.c compute_regs.) */
     wf(pd, V3D_SRED, (float)((argb >> 16) & 0xff));
     wf(pd, V3D_SGREEN, (float)((argb >> 8) & 0xff));
     wf(pd, V3D_SBLUE, (float)(argb & 0xff));

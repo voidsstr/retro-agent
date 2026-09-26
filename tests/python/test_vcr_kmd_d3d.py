@@ -166,12 +166,11 @@ def test_a_texture_the_cpu_wrote_is_flushed_before_the_tmu_samples_it():
 
 
 def test_vertex_colour_goes_to_the_setup_unit_as_floats_not_packed_sargb():
-    """On the V5 6000's VSA-100 silicon (.124, 2026-09-26) d3dprobe gouraud
-    failed 2 of 36: fed through the packed sARGB register, a triangle kept
-    its FIRST vertex's red everywhere (green corner read fffb00, blue corner
-    ff00ff) while green and blue interpolated; 86Box accepted sARGB. 3dfx's
-    h5 Glide is built GLIDE_PACKED_RGB=0 and writes sRed/sGreen/sBlue/sAlpha
-    as floats - so does vertex() now, and never sARGB."""
+    """vertex() feeds the setup unit as 3dfx's h5 Glide does (built
+    GLIDE_PACKED_RGB=0): sRed/sGreen/sBlue/sAlpha as floats 0..255, never the
+    packed sARGB, and the four register offsets are Glide's h3regs.h. (The
+    .124 gouraud failure this was first written for was PARMADJUST - see
+    test_the_colour_path_always_carries_parmadjust.)"""
     src = (KMD / "display" / "vcrdd_3d.c").read_text()
     body = src[src.index("static BOOL vertex("):src.index("BOOL VcrDd3dTriangle(")]
     code = re.sub(r"/\*.*?\*/", "", body, flags=re.S)
@@ -182,3 +181,18 @@ def test_vertex_colour_goes_to_the_setup_unit_as_floats_not_packed_sargb():
     regs = (KMD / "include" / "vcr_3dregs.h").read_text()
     for name, off in (("SRED", 0x270), ("SGREEN", 0x274), ("SBLUE", 0x278), ("SALPHA", 0x27c)):
         assert re.search(rf"#define V3D_{name}\s+0x{off:x}\b", regs), name
+
+
+def test_the_colour_path_always_carries_parmadjust():
+    """On the V5 6000's VSA-100 silicon (.124, 2026-09-26) every DECREASING
+    parameter iterated as a constant: d3dprobe gouraud read fffb00 at the green
+    corner and ff00ff at the blue one (red falling from its first vertex stayed
+    ff), gouraudb the same with blue first - while rising channels were right
+    and 86Box reproduced none of it. 3dfx's h5 Glide starts every context with
+    fbzColorPath = SST_PARMADJUST (gsst.c) and never clears it; compute_regs
+    now sets it on every fbzColorPath the HAL writes."""
+    src = (KMD / "display" / "vcrdd_d3d.c").read_text()
+    assert re.search(r"r->fbzColorPath = color_path\(c, tex\) \| CP_PARMADJUST;", src)
+    assert len(re.findall(r"r->fbzColorPath = ", src)) == 1
+    regs = (KMD / "include" / "vcr_3dregs.h").read_text()
+    assert re.search(r"#define CP_PARMADJUST\s+\(1u << 26\)", regs)

@@ -1,0 +1,19 @@
+[preflight]
+  driver signing policy (HKLM): {'Policy': '00'}
+  rollback package ok: C:\vcr\am31 (9 files)
+[install]
+  clicked Continue Anyway at 661,627
+  DRVUPDATE: OK installed C:\vcr\vcrkmd.inf for PCI\VEN_121A&DEV_0009&SUBSYS_0001121A (reboot required)
+[reboot]
+  safe-reboot: activation ok: no activation nag and no activation-required flag |   192.168.1.124 MACs: 00:d0:b7:40:96:a9 |   hold armed for 00:d0:b7:40:96:a9 |   rebooting 192.168.1.124: OK
+[verify] back after 113s
+  Diag BootCount = 13
+  Diag BootAttempts = 1
+  Diag GoodBoots = 12
+  Diag LastDecline = 0x0
+  Diag LastPhase = 303
+  Diag LastPhaseA = 159
+  Diag LastPhaseMs = 4187
+  Diag PhaseCount = 12
+  vcrctl info: {"cmd": "info", "ok": true, "version": "0.1", "build": 1, "backend": 1, "vendor": "121a", "device": "0009", "subsys": "0001121a", "rev": 1, "bus": 3, "slot": "0", "nchips": 4, "chip_slots": ["0", "20", "40", "60"], "mmio_phys": ["d0000000", "d2000000", "d4000000", "d6000000"], "lfb_phys": "c0000000", "lfb_len": 268435456, "mmio_len": 134217728, "io_base": "c000", "fb_per_chip": 33554432, "desktop_offset": 28311552, "cur_mode": 159, "cur": "1280x1024x32@85", "stride": 5120, "nmodes": 204, "boot_attempts": 1, "boot_good": 0, "sli_active": 0, "log_next_seq": 126, "flags": 0, "glide_chips": 4, "sl
+  evidence -> evidence/silicon/install3/192.168.1.124_20260926-121944_install
