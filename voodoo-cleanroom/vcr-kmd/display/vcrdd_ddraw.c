@@ -236,10 +236,16 @@ static DWORD APIENTRY Dd_Flip(PDD_FLIPDATA p)
 {
     VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
     ULONG off = (ULONG)p->lpSurfTarg->lpGbl->fpVidMem;
+    /* DDFLIP_NOVSYNC (D3D's PRESENT_INTERVAL_IMMEDIATE): the app does not wait
+     * for the retrace - the chip still latches whichever start address was
+     * written last at the next one, so frames may not all reach the screen,
+     * which is what the flag asks for. Holding such a flip pending capped
+     * d3dprobe perf --novsync at exactly the refresh (85.0 fps, .124). */
+    int novsync = (p->dwFlags & DDFLIP_NOVSYNC) != 0;
     vcr_dd_vblank v;
     DWORD rc;
     /* the previous flip has not reached the screen: DDFLIP_WAIT retries */
-    if (!flip_done(pd)) {
+    if (!novsync && !flip_done(pd)) {
         p->ddRVal = DDERR_WASSTILLDRAWING;
         return DDHAL_DRIVER_HANDLED;
     }
@@ -256,7 +262,7 @@ static DWORD APIENTRY Dd_Flip(PDD_FLIPDATA p)
           "Flip %u: show %x (surface %p), current %x (surface %p) flags %x", pd->dd_flips, off,
           p->lpSurfTarg, p->lpSurfCurr ? (ULONG)p->lpSurfCurr->lpGbl->fpVidMem : 0,
           p->lpSurfCurr, p->dwFlags);
-    pd->flip_pending = 1;
+    pd->flip_pending = !novsync;
     pd->flip_seen_active = vblank(pd, &v) && !v.in_vblank;
     pd->flip_from = p->lpSurfCurr ? (ULONG)p->lpSurfCurr->lpGbl->fpVidMem : 0xffffffffu;
     pd->flip_t0 = qpc();

@@ -93,3 +93,17 @@ def test_microsofts_ddi_headers_are_not_committed():
     assert "HAVE_DDI" in mk and "$(OUT)/ddi/.stamp" in mk
     stub = (KMD / "compat" / "ddrawint.h").read_text()
     assert "VCR_DDRAWINT_STUB" in stub and "DD_HALINFO\n" not in stub
+
+
+def test_a_novsync_flip_does_not_wait_for_the_retrace():
+    """D3D's PRESENT_INTERVAL_IMMEDIATE reaches the HAL as DDFLIP_NOVSYNC:
+    held pending like a vsync'd flip, d3dprobe perf --novsync ran at exactly
+    the refresh on .124 (85.0 fps at 85 Hz, 2026-09-26). A NOVSYNC flip is
+    neither refused while the previous one is in flight nor left pending."""
+    import re as _re
+    src = (KMD / "display" / "vcrdd_ddraw.c").read_text()
+    body = src[src.index("static DWORD APIENTRY Dd_Flip("):src.index("static DWORD APIENTRY Dd_GetFlipStatus(")]
+    assert "int novsync = (p->dwFlags & DDFLIP_NOVSYNC) != 0;" in body
+    assert _re.search(r"if \(!novsync && !flip_done\(pd\)\) \{", body)
+    assert "pd->flip_pending = !novsync;" in body
+    assert "pd->flip_pending = 1;" not in body
