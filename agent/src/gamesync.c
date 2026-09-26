@@ -42,6 +42,7 @@
 #include "../shared/gamegate.h"
 #include "../shared/lnkcheck.h"
 #include "../shared/gsresume.h"
+#include "../shared/audiofix.h"
 
 #include <windows.h>
 #include <string.h>
@@ -49,6 +50,7 @@
 #include <shlobj.h>
 #include <setupapi.h>
 #include <cfgmgr32.h>
+#include <mmsystem.h>
 
 #define LOG_GS "GAMESYNC"
 
@@ -2081,6 +2083,239 @@ static void gs_apply_driver_prefs(void)
         return;
     }
     gs_prefs_pass(1);
+}
+
+/* ---------------------------------------------------------------------- */
+/* a sound card with a driver and no wave device                           */
+/* ---------------------------------------------------------------------- */
+
+/* shared/audiofix.h has the 2026-09-26 Dell this exists for: SoundMAX
+ * installed and "working", no wave device, because the RunOnce entries that
+ * register XP's kernel audio stack were consumed without ever running. The
+ * repair re-applies the box's OWN wdmaudio.inf registration and runs exactly
+ * those RunOnce entries - nothing we wrote, nothing another INF queued.
+ *
+ * Runs on every NT startup (not only on a fresh image): whatever consumed the
+ * entries may do so at a later logon too, and on a healthy box the whole check
+ * is one waveOutGetNumDevs() call. */
+#define GS_AUDIOFIX_VALUE "AudioStackFix"
+#define GS_MEDIA_CLASS \
+    "SYSTEM\\CurrentControlSet\\Control\\Class\\{4d36e96c-e325-11ce-bfc1-08002be10318}"
+#define GS_RUNONCE "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+
+/* A MEDIA-class instance whose MatchingDeviceId names hardware and which
+ * carries a Drivers subkey (what a WDM sound INF's AddReg creates). Writes the
+ * first one's id into out for the log. */
+static int gs_audio_hw_bound(char *out, DWORD cch)
+{
+    HKEY cls, inst, drv;
+    char name[16], id[256];
+    DWORD i, n, sz, type;
+    int found = 0;
+
+    out[0] = 0;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, GS_MEDIA_CLASS, 0, KEY_READ, &cls) != ERROR_SUCCESS)
+        return 0;
+    for (i = 0; !found; i++) {
+        n = sizeof(name);
+        if (RegEnumKeyExA(cls, i, name, &n, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+            break;
+        if (RegOpenKeyExA(cls, name, 0, KEY_READ, &inst) != ERROR_SUCCESS)
+            continue;
+        sz = sizeof(id) - 1;
+        if (RegQueryValueExA(inst, "MatchingDeviceId", NULL, &type, (LPBYTE)id, &sz) == ERROR_SUCCESS
+                && type == REG_SZ) {
+            id[sz < sizeof(id) ? sz : sizeof(id) - 1] = 0;
+            if (audiofix_is_hw_id(id)
+                    && RegOpenKeyExA(inst, "Drivers", 0, KEY_READ, &drv) == ERROR_SUCCESS) {
+                RegCloseKey(drv);
+                lstrcpynA(out, id, (int)cch);
+                found = 1;
+            }
+        }
+        RegCloseKey(inst);
+    }
+    RegCloseKey(cls);
+    return found;
+}
+
+static int gs_key_exists(const char *path)
+{
+    HKEY h;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, path, 0, KEY_READ, &h) != ERROR_SUCCESS)
+        return 0;
+    RegCloseKey(h);
+    return 1;
+}
+
+static DWORD gs_retro_dword(const char *name, DWORD def)
+{
+    HKEY h;
+    DWORD v = def, sz = sizeof(v), type = 0;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, KEY_READ, &h) == ERROR_SUCCESS) {
+        if (RegQueryValueExA(h, name, NULL, &type, (LPBYTE)&v, &sz) != ERROR_SUCCESS
+                || type != REG_DWORD)
+            v = def;
+        RegCloseKey(h);
+    }
+    return v;
+}
+
+static void gs_retro_set_dword(const char *name, DWORD v)
+{
+    HKEY h;
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, NULL, 0,
+                        KEY_WRITE, NULL, &h, NULL) == ERROR_SUCCESS) {
+        RegSetValueExA(h, name, 0, REG_DWORD, (const BYTE *)&v, sizeof(v));
+        RegCloseKey(h);
+    }
+}
+
+typedef HINF (WINAPI *gs_openinf_t)(PCSTR, PCSTR, DWORD, PUINT);
+typedef BOOL (WINAPI *gs_infsect_t)(HWND, HINF, PCSTR, UINT, HKEY, PCSTR, UINT,
+                                    PSP_FILE_CALLBACK_A, PVOID, HDEVINFO, PSP_DEVINFO_DATA);
+typedef void (WINAPI *gs_closeinf_t)(HINF);
+
+/* Write wdmaudio.inf's registration RunOnce entries, exactly as the sound INF's
+ * Needs= would have. SPINST_REGISTRY only: its CopyFiles could prompt for
+ * media, and the software devices' own installs copy what they need. */
+static int gs_audio_rewrite_registration(char *why, size_t cch)
+{
+    static const char *sections[] = { "WDMAUDIO.Registration.NT", "WDMAUDIO.Registration" };
+    HMODULE sa = LoadLibraryA("setupapi.dll");
+    gs_openinf_t  openinf  = sa ? (gs_openinf_t)(void *)GetProcAddress(sa, "SetupOpenInfFileA") : NULL;
+    gs_infsect_t  infsect  = sa ? (gs_infsect_t)(void *)GetProcAddress(sa, "SetupInstallFromInfSectionA") : NULL;
+    gs_closeinf_t closeinf = sa ? (gs_closeinf_t)(void *)GetProcAddress(sa, "SetupCloseInfFile") : NULL;
+    char inf[MAX_PATH];
+    HINF h;
+    int i, ok = 0;
+
+    if (!openinf || !infsect || !closeinf) {
+        lstrcpynA(why, "setupapi INF functions unavailable", (int)cch);
+        return 0;
+    }
+    if (!GetWindowsDirectoryA(inf, sizeof(inf) - 20)) {
+        lstrcpynA(why, "no Windows directory", (int)cch);
+        return 0;
+    }
+    lstrcatA(inf, "\\inf\\wdmaudio.inf");
+    h = openinf(inf, NULL, INF_STYLE_WIN4, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        _snprintf(why, cch - 1, "cannot open %s (error %lu)", inf, GetLastError());
+        why[cch - 1] = 0;
+        return 0;
+    }
+    for (i = 0; i < 2 && !ok; i++)
+        ok = infsect(NULL, h, sections[i], SPINST_REGISTRY, NULL, NULL, 0,
+                     NULL, NULL, NULL, NULL) ? 1 : 0;
+    if (!ok) {
+        _snprintf(why, cch - 1, "%s: no registration section applied (error %lu)",
+                  inf, GetLastError());
+        why[cch - 1] = 0;
+    }
+    closeinf(h);
+    return ok;
+}
+
+/* Run - and remove - every RunOnce value that is a streamci registration.
+ * Anything else queued there is left for Windows. Returns how many ran. */
+static int gs_audio_run_streamci(int *failed)
+{
+    HKEY h;
+    char name[256], cmd[1024];
+    DWORD i, nlen, clen, type;
+    int ran = 0;
+
+    *failed = 0;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, GS_RUNONCE, 0, KEY_READ | KEY_WRITE, &h) != ERROR_SUCCESS)
+        return 0;
+    /* Re-enumerate from 0 after each delete: deleting shifts the indices. */
+    for (i = 0; ; ) {
+        STARTUPINFOA si;
+        PROCESS_INFORMATION pi;
+        DWORD code = 1;
+        nlen = sizeof(name);
+        clen = sizeof(cmd) - 1;
+        if (RegEnumValueA(h, i, name, &nlen, NULL, &type, (LPBYTE)cmd, &clen) != ERROR_SUCCESS)
+            break;
+        cmd[clen < sizeof(cmd) ? clen : sizeof(cmd) - 1] = 0;
+        if (type != REG_SZ || !audiofix_is_streamci_cmd(cmd)) {
+            i++;
+            continue;
+        }
+        RegDeleteValueA(h, name);          /* RunOnce semantics: gone before it runs */
+        memset(&si, 0, sizeof(si));
+        si.cb = sizeof(si);
+        memset(&pi, 0, sizeof(pi));
+        if (CreateProcessA(NULL, cmd, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+            if (WaitForSingleObject(pi.hProcess, 60000) == WAIT_OBJECT_0)
+                GetExitCodeProcess(pi.hProcess, &code);
+            CloseHandle(pi.hThread);
+            CloseHandle(pi.hProcess);
+            ran++;
+            if (code != 0) {
+                (*failed)++;
+                log_msg(LOG_GS, "audio stack: %s exited %lu", name, (unsigned long)code);
+            }
+        } else {
+            (*failed)++;
+            log_msg(LOG_GS, "audio stack: could not start %s (error %lu)", name, GetLastError());
+        }
+    }
+    RegCloseKey(h);
+    return ran;
+}
+
+static void gs_audio_stack_check(void)
+{
+    char hwid[256], why[256];
+    unsigned wave;
+    DWORD attempts;
+    int verdict, ran, failed, waited;
+
+    if (GetVersion() & 0x80000000UL)
+        return;                                        /* 9x: a different audio stack */
+    wave = waveOutGetNumDevs();
+    if (wave > 0)
+        return;                                        /* the normal case: one call */
+    attempts = gs_retro_dword(GS_AUDIOFIX_VALUE, 0);
+    verdict = audiofix_decide(1, wave, gs_audio_hw_bound(hwid, sizeof(hwid)),
+                              gs_key_exists(AUDIOFIX_SYSAUDIO_KEY), attempts);
+    if (verdict == AUDIOFIX_NONE)
+        return;
+    if (verdict == AUDIOFIX_OTHER_FAULT) {
+        log_msg(LOG_GS, "audio: %s has a driver but there is NO wave device, and the "
+                "kernel audio stack IS registered - not the missing-registration fault; left alone",
+                hwid);
+        return;
+    }
+    if (verdict == AUDIOFIX_GAVE_UP) {
+        log_msg(LOG_GS, "audio: %s has a driver but NO wave device and the kernel audio "
+                "stack is still unregistered after %lu attempt(s) - NO SOUND on this box "
+                "(HKLM\\Software\\RetroAgent\\%s=0 to try again)",
+                hwid, (unsigned long)attempts, GS_AUDIOFIX_VALUE);
+        return;
+    }
+    gs_retro_set_dword(GS_AUDIOFIX_VALUE, attempts + 1);
+    log_msg(LOG_GS, "audio: %s has a driver but NO wave device - the kernel audio stack "
+            "(sysaudio/kmixer/wdmaud) was never registered; re-running wdmaudio.inf's "
+            "registration (attempt %lu of %d)", hwid, (unsigned long)attempts + 1,
+            AUDIOFIX_MAX_ATTEMPTS);
+    why[0] = 0;
+    if (!gs_audio_rewrite_registration(why, sizeof(why))) {
+        log_msg(LOG_GS, "audio: repair FAILED - %s", why);
+        return;
+    }
+    ran = gs_audio_run_streamci(&failed);
+    /* The software devices install server-side after the registrations land;
+     * on the Dell that took about 12 s for all eight. */
+    for (waited = 0; waited < 90 && waveOutGetNumDevs() == 0; waited += 3)
+        Sleep(3000);
+    wave = waveOutGetNumDevs();
+    log_msg(LOG_GS, "audio: %d registration(s) run, %d failed; wave-out devices now %u%s",
+            ran, failed, wave, wave ? "" : " - STILL NO SOUND");
+    if (wave)
+        gs_retro_set_dword(GS_AUDIOFIX_VALUE, 0);
 }
 
 static void gs_reclaim_drivers(void)
@@ -4557,6 +4792,10 @@ DWORD WINAPI gamesync_thread(LPVOID param)
          * is the difference between three games and a dozen. */
         gs_reclaim_drivers();
     }
+    /* Every NT start, fresh image or not: a sound card whose driver installed
+     * while XP's kernel audio stack never registered has no wave device, and
+     * nothing else says so. One waveOutGetNumDevs() call when it is fine. */
+    gs_audio_stack_check();
 
     if (gs_file_exists(GS_MARKER)) {
         log_msg(LOG_GS, "already provisioned (%s present) - idle", GS_MARKER);

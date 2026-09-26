@@ -24,6 +24,15 @@
  *                          to what, from where - the post-condition, not "OK"
  *
  * Never on a modern Windows host (host policy): that clock is its owner's.
+ *
+ * NEVER past an unactivated XP box's activation grace (2026-09-26). A box
+ * whose CMOS clock is wrong DURING SETUP records its install - and starts its
+ * 30-day grace - in that wrong year. Correcting the clock afterwards spends
+ * the whole grace at once: a freshly imaged Dell went from "installed 2004" to
+ * "now 2026", WMI read RemainingGracePeriod=0, and its next reboot would have
+ * stopped at the logon-blocking activation screen. clk_activation_allows()
+ * asks Windows (shared/clockguard.h has the rule) and leaves the clock wrong,
+ * loudly, rather than lock the box.
  */
 
 #include "handlers.h"
@@ -31,7 +40,9 @@
 #include "util.h"
 #include "log.h"
 #include "hostpolicy.h"
+#include "wpawmi.h"
 #include "../shared/httpdate.h"
+#include "../shared/clockguard.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -122,6 +133,73 @@ static int clk_fetch(const char *host, hd_time_t *t)
     return ok;
 }
 
+static void clk_note(const char *note)
+{
+    HKEY h;
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, NULL, 0,
+                        KEY_WRITE, NULL, &h, NULL) == ERROR_SUCCESS) {
+        RegSetValueExA(h, "ClockFixed", 0, REG_SZ, (const BYTE *)note, (DWORD)strlen(note) + 1);
+        RegCloseKey(h);
+    }
+}
+
+/* Whole days from *from to *to (negative = backwards). */
+static long long clk_days_between(const SYSTEMTIME *from, const SYSTEMTIME *to)
+{
+    FILETIME a, b;
+    ULARGE_INTEGER ua, ub;
+    if (!SystemTimeToFileTime(from, &a) || !SystemTimeToFileTime(to, &b))
+        return 0;
+    ua.LowPart = a.dwLowDateTime; ua.HighPart = a.dwHighDateTime;
+    ub.LowPart = b.dwLowDateTime; ub.HighPart = b.dwHighDateTime;
+    return ((long long)ub.QuadPart - (long long)ua.QuadPart) / 864000000000LL;
+}
+
+/* Would moving the clock cost this box its logon? See shared/clockguard.h for
+ * the 2026-09-26 Dell that this exists for. 1 = go ahead. A refusal is logged
+ * loudly and written to ClockFixed, because a clock left in 2004 on purpose
+ * must never look like a clock nobody tried to fix. Once the box is activated
+ * the next agent start corrects it. */
+static int clk_activation_allows(const SYSTEMTIME *now, const SYSTEMTIME *target,
+                                 const char *host)
+{
+    DWORD required = 0, grace = 0;
+    char why[160], note[256];
+    int known, verdict;
+    long long jump = clk_days_between(now, target);
+
+    if (!wpa_logon_os())
+        return 1;
+    known = wpa_query(&required, &grace, why, sizeof(why));
+    verdict = clockguard_decide(1, known, required, grace, jump);
+    if (verdict == CLOCKGUARD_ALLOW) {
+        log_msg(LOG_CLK, "activation: %s (grace %lu day(s)) - moving the clock %lld day(s) is safe",
+                required ? "NOT activated" : "activated", (unsigned long)grace, jump);
+        return 1;
+    }
+    if (known)
+        _snprintf(note, sizeof(note) - 1,
+                  "REFUSED %04u-%02u-%02u -> %04u-%02u-%02u via http://%s/: Windows is not "
+                  "activated (grace %lu day(s)) and the move is %lld day(s) - activate, then "
+                  "restart the agent",
+                  now->wYear, now->wMonth, now->wDay, target->wYear, target->wMonth, target->wDay,
+                  host, (unsigned long)grace, jump);
+    else
+        _snprintf(note, sizeof(note) - 1,
+                  "REFUSED %04u-%02u-%02u -> %04u-%02u-%02u via http://%s/: %s: %s",
+                  now->wYear, now->wMonth, now->wDay, target->wYear, target->wMonth, target->wDay,
+                  host, clockguard_reason(verdict), why);
+    note[sizeof(note) - 1] = 0;
+    log_msg(LOG_CLK, "==================================================");
+    log_msg(LOG_CLK, "clock NOT set - %s", clockguard_reason(verdict));
+    log_msg(LOG_CLK, "%s", note);
+    log_msg(LOG_CLK, "moving an unactivated XP clock past its grace makes the NEXT reboot stop");
+    log_msg(LOG_CLK, "at the activation lockout, where the agent never starts");
+    log_msg(LOG_CLK, "==================================================");
+    clk_note(note);
+    return 0;
+}
+
 /* NT needs SE_SYSTEMTIME_NAME enabled in the token; Win9x has no tokens. */
 static void clk_enable_privilege(void)
 {
@@ -168,8 +246,10 @@ DWORD WINAPI clockfix_thread(LPVOID param)
     memset(&set, 0, sizeof(set));
     set.wYear = (WORD)t.year;   set.wMonth = (WORD)t.month;   set.wDay = (WORD)t.day;
     set.wHour = (WORD)t.hour;   set.wMinute = (WORD)t.minute; set.wSecond = (WORD)t.second;
-    clk_enable_privilege();
     GetSystemTime(&now);
+    if (!clk_activation_allows(&now, &set, host))
+        return 0;
+    clk_enable_privilege();
     if (!SetSystemTime(&set)) {
         log_msg(LOG_CLK, "SetSystemTime failed: %lu - clock NOT set", GetLastError());
         return 0;
@@ -180,13 +260,6 @@ DWORD WINAPI clockfix_thread(LPVOID param)
               t.year, t.month, t.day, t.hour, t.minute, t.second, host);
     note[sizeof(note) - 1] = 0;
     log_msg(LOG_CLK, "clock set %s", note);
-    {
-        HKEY h;
-        if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, NULL, 0,
-                            KEY_WRITE, NULL, &h, NULL) == ERROR_SUCCESS) {
-            RegSetValueExA(h, "ClockFixed", 0, REG_SZ, (const BYTE *)note, (DWORD)strlen(note) + 1);
-            RegCloseKey(h);
-        }
-    }
+    clk_note(note);
     return 0;
 }

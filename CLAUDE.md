@@ -125,8 +125,39 @@ logon, not blocking yet" — those two facts were never connected.
    `NT_STATUS_LOGON_FAILURE` over SMB is expected even when the password is
    right. Do not start guessing credentials.
 
-**Recovering a locked box** (needs someone at the screen — there is no remote
-path): the activation lockout itself offers **Yes → "telephone a customer
+### A dead CMOS battery during SETUP spends the whole grace (2026-09-26, agent 1.85.2)
+
+**A freshly imaged box can be one reboot from the lockout on day one.** The
+Dell Dimension 4600 (`.110`) was PXE-installed with its CMOS clock reading
+**2004-02-21**, so XP recorded the install — and started its 30-day grace — in
+2004 (`wmic os get InstallDate` → `20040221…`). At first logon the agent's
+`clockfix` saw a year before 2024 and set the clock from the NAS to 2026: WMI
+then read **`ActivationRequired=1, RemainingGracePeriod=0`**. LICSTATUS's
+Winlogon flag said "not present" throughout. `safe-reboot.py` refused only
+because `wpabaln.exe` happened to be running.
+
+- **1.85.2: `clockfix` asks Windows first** (`agent/shared/clockguard.h`): on
+  XP/2003 it moves the clock only if the box is activated or the jump fits inside
+  the remaining grace, and otherwise leaves it wrong **loudly** (a banner in the
+  log, `REFUSED …` in `HKLM\Software\RetroAgent\ClockFixed`). Unknown state →
+  refuse. Once the box is activated, the next agent start corrects the clock.
+- **Windows' own verdict is the one to trust:**
+  `wmic path Win32_WindowsProductActivation get /value` (read-only) — or
+  LICSTATUS's new **`wpa`** entry (`observed` = `required`/`activated`,
+  `grace_days`). `safe-reboot.py` now reads it (LICSTATUS on 1.85.2+, `wmic`
+  through `EXEC` on older agents) and refuses on `ActivationRequired=1` with the
+  days left in the message.
+- **A still-logged-in box can be activated with no keyboard.** On XP SP3 the WMI
+  class's methods are `GetInstallationID` and **`ActivateOffline(ConfirmationID)`**
+  — *not* `SetConfirmationID`, which the docs name and this build does not have;
+  and `wmic … call` cannot reach an instance method, so drive it from a VBScript
+  under `cscript`. The Confirmation ID comes from the private `xp-activation`
+  skill, which has the full procedure. It is the operator's decision — ask.
+  The Dell was activated this way (`ActivationRequired=0`, verified across a
+  reboot).
+
+**Recovering a locked box** (needs someone at the screen — once the lockout is
+up there is no remote path): the activation lockout itself offers **Yes → "telephone a customer
 service representative" → any country**, which displays the 54-digit
 Installation ID. Microsoft retired the XP activation servers, internet *and*
 phone, so the Confirmation ID is generated offline with the **`xp-activation`
@@ -2383,6 +2414,20 @@ exactly the devices it served. `agent/shared/drvmatch.h` + `gamesync.c` now:
 - leave `PREFER.TXT` devices to the preference pass, try each device on at most
   two boots (`HKLM\Software\RetroAgent\DriverFixes`), and decide keep/reclaim
   with `drvmatch_keeps_tree()`. Test: `tests/native/test_drvmatch.c`.
+
+**"Installed - device working" is not sound (agent 1.85.2).** On that same Dell
+the SoundMAX driver installed cleanly and `waveOutGetNumDevs()` stayed **0**
+across a reboot: `sysaudio.sys`, `kmixer.sys` and `wdmaud.sys` were not even on
+disk. A WDM sound INF `Needs=WDMAUDIO.Registration`, which queues
+`rundll32 streamci.dll,StreamingDeviceSetup …` entries in **HKLM RunOnce** to
+register XP's kernel audio stack with the software-device enumerator; RunOnce
+was empty and `Services\swenum\Devices` held none of them — consumed without
+running (by what is unproven). Running the box's own `wdmaudio.inf` entries
+installed eight `SW\{…}` devices and the wave device appeared with no reboot.
+`gs_audio_stack_check()` now does exactly that on every NT start when a sound
+card has a driver, there is no wave device and sysaudio is unregistered (two
+attempts, `AudioStackFix`), and says `NO SOUND` when it cannot
+(`agent/shared/audiofix.h`, `tests/native/test_audiofix.c`).
 
 **Open image bug:** `scripts/pxe/inject-drivers.sh` copies only each INF
 directory's top-level files (`find -maxdepth 1`), so payload subdirectories

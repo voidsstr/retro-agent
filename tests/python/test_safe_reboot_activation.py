@@ -124,3 +124,93 @@ def test_the_verdict_table(nag, is_xp, flag, expected, monkeypatch):
     assert risky is expected, "nag=%s is_xp=%s flag=%s -> %s (%s)" % (
         nag, is_xp, flag, risky, why)
     assert why, "every verdict must carry its reason, for the operator's log"
+
+
+# ---------------------------------------------------------------------------
+# 2026-09-26: Windows' OWN verdict, not just the nag and the Winlogon flag.
+#
+# A Dell Dimension 4600 was PXE-imaged with its CMOS clock in 2004; the agent's
+# clockfix then moved the clock to 2026 and spent the whole activation grace.
+# LICSTATUS's Winlogon flag read "not present"; WMI's Win32_WindowsProductActivation
+# said ActivationRequired=1, RemainingGracePeriod=0. safe-reboot refused only
+# because wpabaln.exe happened to be running. These pin the WMI path, which does
+# not depend on the nag being alive.
+# ---------------------------------------------------------------------------
+
+# Verbatim from the Dell (192.168.1.110), 2026-09-26 10:58, via EXEC.
+DELL_WMIC = """ActivationRequired=1
+Caption=
+Description=
+IsNotificationOn=1
+ProductID=76487-342-1415037-22042
+RemainingEvaluationPeriod=2147483647
+RemainingGracePeriod=0
+ServerName=nsc-5c5396faf9d
+SettingID=
+"""
+DELL_WMIC_AFTER = DELL_WMIC.replace("ActivationRequired=1", "ActivationRequired=0") \
+                           .replace("RemainingGracePeriod=0", "RemainingGracePeriod=2147483647")
+
+
+def test_wmic_output_parses_as_windows_reports_it():
+    assert sr.parse_wmic_wpa(DELL_WMIC) == (True, 0)
+    assert sr.parse_wmic_wpa(DELL_WMIC_AFTER) == (False, 0)
+    assert sr.parse_wmic_wpa("Node - X\nERROR:\nCode = 0x80041017\n") == (None, None)
+    assert sr.parse_wmic_wpa("") == (None, None)
+
+
+def _run(monkeypatch, lic_values, nag=False, wmic=None):
+    import asyncio
+    import json as _json
+
+    class FakeConn:
+        def __init__(self, *a, **k): pass
+        async def connect(self, *a, **k): return None
+        async def close(self): return None
+        async def command_text(self, cmd, timeout=None):
+            if cmd == "LICSTATUS":
+                return _json.dumps({"is_winxp": True, "values": lic_values})
+            if cmd == "EXEC tasklist":
+                return "wpabaln.exe\n" if nag else "explorer.exe\n"
+            if cmd.startswith("EXEC wmic path Win32_WindowsProductActivation get"):
+                if wmic is None:
+                    raise AssertionError("wmic asked although LICSTATUS already answered")
+                return wmic
+            raise AssertionError("unexpected command %r" % cmd)
+
+    monkeypatch.setattr(sr, "RetroConnection", FakeConn)
+    return asyncio.run(sr.activation_risk("192.0.2.1"))
+
+
+def test_the_dell_is_refused_even_without_the_nag(monkeypatch):
+    risky, why = _run(monkeypatch, [
+        {"id": "activation_required", "observed": "unknown"},
+        {"id": "wpa", "observed": "required", "activation_required": True, "grace_days": 0}])
+    assert risky is True
+    assert "WILL be refused" in why, why
+
+
+def test_an_older_agent_is_asked_through_wmic(monkeypatch):
+    risky, why = _run(monkeypatch, [{"id": "activation_required", "observed": "unknown"}],
+                      wmic=DELL_WMIC)
+    assert risky is True and "wmic" in why, why
+    risky, why = _run(monkeypatch, [{"id": "activation_required", "observed": "unknown"}],
+                      wmic=DELL_WMIC_AFTER)
+    assert risky is False, why
+
+
+def test_an_activated_box_is_allowed(monkeypatch):
+    risky, why = _run(monkeypatch, [
+        {"id": "activation_required", "observed": "unknown"},
+        {"id": "wpa", "observed": "activated", "activation_required": False, "grace_days": 0}])
+    assert risky is False and "activated" in why, why
+
+
+def test_the_probe_only_ever_READS_activation():
+    """Win32_WindowsProductActivation also has methods that CHANGE activation
+    (ActivateOffline, SetProductKey). A reboot tool must never reach them."""
+    src = _src()
+    assert "Win32_WindowsProductActivation get" in src
+    for forbidden in ("Win32_WindowsProductActivation call", "ActivateOffline",
+                      "SetProductKey", "SetConfirmationID"):
+        assert forbidden not in src, forbidden

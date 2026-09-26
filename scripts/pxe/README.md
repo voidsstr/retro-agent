@@ -250,6 +250,7 @@ While it is held (timed hold or `never_offer`), it is answered with a PXE boot m
 single item is type 0, "boot from local disk", and whose prompt timeout is 0. No boot file
 is offered. When it is not held, it gets the normal boot file, so `--release` still
 reinstalls it. Restart the service after editing. Test: `tests/test_pxe_localboot.py`.
+Verified on the Dell on 2026-09-26: a held reboot went straight to its disk with no key pressed.
 
 ## nForce2 boards need the boot disk OFF the onboard IDE
 

@@ -108,13 +108,58 @@ async def activation_risk(ip):
                 nag = 'wpabaln.exe is RUNNING (the activation nag)'
         except Exception:
             pass                                     # 9x has no tasklist; XP always does
+        required, grace, source = wpa_from_licstatus(lic)
+        if required is None:
+            try:
+                required, grace = parse_wmic_wpa(await c.command_text(
+                    'EXEC wmic path Win32_WindowsProductActivation get /value', timeout=60))
+                source = 'wmic'
+            except Exception:                        # noqa: BLE001
+                pass
+        if required:
+            return True, (f'Windows reports activation REQUIRED with {grace} grace day(s) left '
+                          f'({source})' + (' - logon WILL be refused after a reboot'
+                                           if grace == 0 else '') + (f'; {nag}' if nag else ''))
         if nag:
             return True, nag
         if seen.get('activation_required') == 'present':
             return True, 'Winlogon reports activation required'
-        return False, 'no activation nag and no activation-required flag'
+        if required is None:
+            return False, ('no activation nag and no activation-required flag '
+                           '(Windows\' own verdict could not be read)')
+        return False, f'activated ({source}), no activation nag'
     finally:
         await c.close()
+
+
+def wpa_from_licstatus(lic):
+    """Windows' own verdict from LICSTATUS's 'wpa' entry (agent 1.85.2+).
+
+    Returns (required, grace_days, source); required is None when the agent is
+    older or could not ask WMI. The Winlogon flag LICSTATUS also reports was
+    "not present" on the 2026-09-26 Dell while WMI said grace 0 - so this, not
+    the flag, is the answer when it is available."""
+    for v in lic.get('values', []):
+        if v.get('id') == 'wpa' and v.get('observed') in ('required', 'activated'):
+            return (v.get('observed') == 'required', int(v.get('grace_days', 0)),
+                    'LICSTATUS/WMI')
+    return None, None, None
+
+
+def parse_wmic_wpa(text):
+    """(required, grace_days) from `wmic path Win32_WindowsProductActivation get
+    /value`, a READ-ONLY query that works through any agent's EXEC. (None, None)
+    if the output carries no answer. `get`, never `call`: the class's methods
+    change activation, which is the operator's call, not a reboot tool's."""
+    vals = dict(re.findall(r'^\s*(\w+)=(\S*)\s*$', text or '', re.M))
+    if 'ActivationRequired' not in vals:
+        return None, None
+    required = vals['ActivationRequired'].strip() == '1'
+    try:
+        grace = int(vals.get('RemainingGracePeriod', '0') or 0)
+    except ValueError:
+        grace = 0
+    return required, (grace if required else 0)
 
 
 async def reboot(ip):

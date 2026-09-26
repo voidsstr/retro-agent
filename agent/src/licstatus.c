@@ -20,6 +20,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "wpawmi.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -269,6 +270,36 @@ static void report_activation_flags(json_t *j)
     json_object_end(j);
 }
 
+/* ---- report: Windows' own activation verdict, through WMI (read-only) ----
+ *
+ * The Winlogon flag above is often simply absent: on a freshly imaged Dell
+ * (2026-09-26) it read "not present" while Win32_WindowsProductActivation said
+ * ActivationRequired=1, RemainingGracePeriod=0 - a box one reboot away from a
+ * logon it could not pass. This is the number safe-reboot.py needs. */
+
+static void report_wpa_wmi(json_t *j)
+{
+    DWORD required = 0, grace = 0;
+    char why[160];
+
+    json_object_start(j);
+    json_kv_str(j, "id", "wpa");
+    json_kv_str(j, "description",
+                "Win32_WindowsProductActivation: ActivationRequired and RemainingGracePeriod (days)");
+    if (!wpa_logon_os()) {
+        json_kv_str(j, "observed", OBS_ABSENT);
+        json_kv_str(j, "detail", "not XP/2003 - activation does not block logon here");
+    } else if (!wpa_query(&required, &grace, why, sizeof(why))) {
+        json_kv_str(j, "observed", OBS_UNKNOWN);
+        json_kv_str(j, "detail", why);
+    } else {
+        json_kv_str(j, "observed", required ? "required" : "activated");
+        json_kv_bool(j, "activation_required", required != 0);
+        json_kv_uint(j, "grace_days", required ? grace : 0);
+    }
+    json_object_end(j);
+}
+
 /* ---- report: WGA presence (read-only) ---- */
 
 static void report_wga(json_t *j)
@@ -322,6 +353,7 @@ void handle_licstatus(SOCKET sock, const char *args)
     json_array_start(&j);
     report_oobe_timer(&j);
     report_activation_flags(&j);
+    report_wpa_wmi(&j);
     report_wga(&j);
     json_array_end(&j);
 

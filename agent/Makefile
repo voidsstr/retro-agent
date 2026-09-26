@@ -51,6 +51,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/dosstage.c \
           $(SRCDIR)/pcirescue.c \
           $(SRCDIR)/clockfix.c \
+          $(SRCDIR)/wpawmi.c \
           $(SRCDIR)/watchdog.c \
           $(SRCDIR)/monitor.c \
           $(SRCDIR)/gameres.c \

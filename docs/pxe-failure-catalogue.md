@@ -88,6 +88,7 @@ boot file is offered, so the machine cannot reinstall. It is what dnsmasq sends 
 The log says `HOLD -> <mac> (told to boot its local disk ...)`. This is opt-in per MAC
 because every held reboot on the fleet passes through this path and silence is proven on
 the other ROMs. Test: `tests/test_pxe_localboot.py`.
+**Verified on the Dell 2026-09-26 11:03:** a `safe-reboot.py` reboot logged `HOLD -> 00:0c:f1:d7:98:4a (told to boot its local disk ...)` and the box went straight to its disk; the agent answered 70 s later, no F12.
 
 ### The machine reinstalls itself unasked
 
@@ -273,6 +274,29 @@ addressing:
 Keep boot partitions under ~120 GB on this hardware.
 
 ---
+
+### Freshly imaged, working, and one reboot from the activation lockout
+
+**Check `InstallDate` on any box whose CMOS battery may be dead.** The Dell
+Dimension 4600 installed with its clock at 2004-02-21, so XP started its 30-day
+activation grace in 2004; the agent's clockfix then moved the clock to 2026 and
+the grace was gone (`wmic path Win32_WindowsProductActivation get /value` →
+`ActivationRequired=1`, `RemainingGracePeriod=0`). Everything worked while it
+stayed logged in. The next reboot would have stopped at the activation screen,
+where logon is refused and the agent never starts. Agent 1.85.2's clockfix no
+longer moves the clock of an unactivated XP box past its grace, and
+`safe-reboot.py` reads the WMI verdict. A box already in this state can still be
+activated remotely while it is logged in (CLAUDE.md, activation section).
+
+### The sound driver installed and there is no sound
+
+`waveOutGetNumDevs()` = 0 with the sound card's driver bound and no problem
+code: XP's kernel audio stack (sysaudio/kmixer/wdmaud) was never registered,
+because the `streamci` RunOnce entries the card's INF queued were consumed
+without running. Signature: `sysaudio.sys` absent from `system32\drivers`, and
+`HKLM\SYSTEM\CurrentControlSet\Services\swenum\Devices` holding no
+`{A7C7A5B0-…}` key. Agent 1.85.2 repairs it at startup from the box's own
+`wdmaudio.inf`; by hand, run that INF's `[DeviceRegistration]` commands.
 
 ## Driver installs that fail on a running machine
 
