@@ -138,14 +138,27 @@ def parse_driver(path):
             install_secs.append(rhs[0].lower())
             for hw in rhs[1:]:
                 hw = hw.strip()
-                # Only PCI ids matter here, and only the VEN&DEV part: setup
-                # matches the generic form, and listing every subsystem would
-                # bloat txtsetup.sif for no gain.
-                m = re.match(r'^PCI\\VEN_([0-9A-Fa-f]{4})&DEV_([0-9A-Fa-f]{4})',
+                # Only PCI ids matter here. &SUBSYS_ and &REV_ are dropped: they
+                # narrow to one board of the SAME chip in the SAME mode, and
+                # listing every subsystem would bloat txtsetup.sif for no gain.
+                #
+                # &CC_ IS KEPT. It names the controller's MODE, and dropping it
+                # made the entry claim the chip in every mode. dpsI2.inf names
+                # the ICH5 SATA controller only as PCI\VEN_8086&DEV_24D1&CC_0106
+                # (AHCI); written bare, "PCI\VEN_8086&DEV_24D1 = iaStor2" beat
+                # retail's PCI\CC_0101 = pciide for the same chip in IDE mode,
+                # text mode ran a Dell Dimension 4600's disk on Intel's RAID
+                # driver, never finished, and left the disk booting a setup
+                # loader that asked for txtsetup.sif (2026-09-25). 59 entries
+                # had the shape - ICH6 2651, nForce, Marvell. The PCI bus driver
+                # reports VEN&DEV&CC as a hardware id, so text mode matches it.
+                m = re.match(r'^PCI\\VEN_([0-9A-Fa-f]{4})&DEV_([0-9A-Fa-f]{4})(.*)$',
                              hw, re.I)
                 if m:
-                    ids.append('PCI\\VEN_%s&DEV_%s'
-                               % (m.group(1).upper(), m.group(2).upper()))
+                    cc = re.search(r'&CC_([0-9A-Fa-f]{4,6})', m.group(3), re.I)
+                    ids.append('PCI\\VEN_%s&DEV_%s%s'
+                               % (m.group(1).upper(), m.group(2).upper(),
+                                  '&CC_' + cc.group(1).upper() if cc else ''))
     if not ids:
         return None
 

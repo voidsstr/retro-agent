@@ -94,11 +94,49 @@ in `pxe_state.json`** — with `retry_grace_seconds` at 0, a negative age satisf
 
 ### "INF file txtsetup.sif is corrupt or missing, status 21"
 
+**First ask WHERE it came from - two unrelated causes print this.** Look at the
+log for that MAC around the moment the error appeared:
+
+- **Right after a `HOLD` line** (the ROM got no offer and fell through to the
+  hard disk): the loader is on the DISK. XP text mode leaves a restartable setup
+  loader behind while it runs, so a text mode that reboots before finishing
+  leaves the disk asking for a `txtsetup.sif` that only ever existed over TFTP.
+  The user sees "Setup is inspecting your computer's hardware configuration"
+  and then this. **Text mode died; find out why.** See the next entry.
+- **During the TFTP phase**, right after `GET ... txtsetup.sif` or with no GET
+  at all: the NAS. Read on.
+
 **The NAS was down.** TFTP serves the image through the symlink
 `/srv/retro-pxe/tftp/Files → /mnt/retro-share/Files`; when that mount dies the file cannot
 be resolved and setupldr aborts with a message that sounds like media corruption. Check
 `ping 192.168.1.122` and `ls /mnt/retro-share` before suspecting the image. Seen
 2026-09-01; the file was byte-identical throughout.
+
+### Text mode reboots after ~15 min, and the disk then asks for txtsetup.sif
+
+**A slipstreamed storage driver claimed the controller in the wrong MODE.** Found
+2026-09-25 on a Dell Dimension 4600 (865G + ICH5). Its SATA controller
+`PCI\VEN_8086&DEV_24D1` runs in IDE mode, where retail XP drives it through
+`PCI\CC_0101 = "pciide"`. `inject-massstorage.py` had written
+`PCI\VEN_8086&DEV_24D1 = "iaStor2"` from `M021\dpsI2.inf`, whose model line names
+the chip only as `...&DEV_24D1&CC_0106`, which is AHCI. The bare `VEN&DEV` is one of
+every PCI device's compatible ids and outranks the class fallback, so text mode ran
+the disk on Intel's RAID driver. It copied for 13-15 minutes, rebooted without
+finishing, and did it twice.
+
+The injector dropped `&CC_` from every id, so **59 injected entries** had this
+shape: ICH6 `2651 -> iaStor3`, nForce `nvgts`/`nvatabus4IN`, and Marvell
+`mv91xx`. The fix keeps the class qualifier (`parse_driver()`), and the live
+`TXTSETUP.SIF` was corrected in place. The pre-fix copy is
+`TXTSETUP.SIF.bak-pre-ccqualify`. The in-place edit was deliberate: the live file
+also carries hand fixes (`.bak-pre-nvatabus-removal`, `.bak-pre-sii-dedup`) and 14
+force-loaded `[SCSI.Load]` drivers that a regeneration from `.preinject` would
+drop. Test: `tests/test_pxe_massstorage_class.py`.
+
+**The tell, from the server side:** the setup loader's phase looks perfect,
+including BINL and every driver pulled, then silence, then one `HOLD`, and the
+box never reaches GUI setup. The screen shows the setup loader error, not a STOP
+screen, because the reboot happened before the error surfaced.
 
 ### setupldr fetches ntdetect.com, then dies without asking for winnt.sif
 

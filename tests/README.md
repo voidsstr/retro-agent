@@ -124,6 +124,11 @@ retro-agent/tests/
                                                   game's own ISO mount cannot throw a
                                                   modal over a fullscreen title
                           test_pxe_firewall.py    imaged with the firewall OFF
+                          test_pxe_massstorage_class.py  a slipstreamed storage
+                                                  driver claims a controller only in
+                                                  the MODE (&CC_) its INF names -
+                                                  bare 24D1=iaStor2 put an IDE-mode
+                                                  ICH5 disk on Intel's RAID driver
                           test_pxe_txtsetup.py, test_pxe_bind_device.py,
                           test_pxe_boot_hold.py, test_binl.py
 ```
