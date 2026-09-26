@@ -1,0 +1,20 @@
+[preflight]
+  driver signing policy (HKLM): {'Policy': '00'}
+[install]
+  DRVUPDATE: OK installed C:\vcr\vcrkmd.inf for PCI\VEN_121A&DEV_0005 (reboot required)
+[reboot]
+  reboot-cmd: guest down after 23s
+86Box restarted
+Running as unit: vcr86box.service; invocation ID: 29f4224098bf446aa2605ef45ff10e2b rc 0
+[verify] back after 130s
+  Diag BootCount = 56
+  Diag BootAttempts = 0
+  Diag GoodBoots = 51
+  Diag DeclinedBoots = 1
+  Diag LastDecline = 0x0
+  Diag LastPhase = 303
+  Diag LastPhaseA = 80
+  Diag LastPhaseMs = 12668
+  Diag PhaseCount = 6
+  vcrctl info: {"cmd": "info", "ok": true, "version": "0.1", "build": 1, "backend": 1, "vendor": "121a", "device": "0005", "subsys": "003a121a", "rev": 1, "bus": 1, "slot": "0", "nchips": 1, "chip_slots": ["0"], "mmio_phys": ["e0000000"], "lfb_phys": "de000000", "lfb_len": 33554432, "mmio_len": 33554432, "io_base": "d800", "fb_per_chip": 16777216, "desktop_offset": 15814656, "cur_mode": 80, "cur": "800x600x16@60", "stride": 1600, "nmodes": 210, "boot_attempts": 1, "boot_good": 1, "sli_active": 0, "log_next_seq": 89, "flags": 1, "glide_chips": 1, "sli_chips": 0, "sli_result": 0, "clock_6k_hz": 0, "chip_bar0":
+  evidence -> evidence/86box_v3/install25/127.0.0.1_20260926-125958_install

@@ -107,3 +107,6 @@ def test_a_novsync_flip_does_not_wait_for_the_retrace():
     assert _re.search(r"if \(!novsync && !flip_done\(pd\)\) \{", body)
     assert "pd->flip_pending = !novsync;" in body
     assert "pd->flip_pending = 1;" not in body
+    # and the HAL SAYS so - the runtime sends DDFLIP_NOVSYNC to no other
+    # (the first fix alone left perf --novsync at exactly 85.0 fps on .124)
+    assert "hal->ddCaps.dwCaps2 = DDCAPS2_FLIPNOVSYNC;" in src

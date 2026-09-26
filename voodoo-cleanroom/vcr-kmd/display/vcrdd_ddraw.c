@@ -99,6 +99,10 @@ BOOL APIENTRY DrvGetDirectDrawInfo(DHPDEV dhpdev, DD_HALINFO *hal, DWORD *nheaps
      * BLT | READSCANLINE | BLTCOLORFILL) - found by bisection in the VM,
      * 2026-09-26 */
     hal->ddCaps.dwCaps = DDCAPS_BLT | DDCAPS_BLTCOLORFILL | DDCAPS_READSCANLINE;
+    /* Dd_Flip honours DDFLIP_NOVSYNC - and the runtime only ever sends it to a
+     * HAL that says so: without this, D3D's PRESENT_INTERVAL_IMMEDIATE was
+     * quietly a vsync'd flip (d3dprobe perf --novsync 85.0 fps at 85 Hz) */
+    hal->ddCaps.dwCaps2 = DDCAPS2_FLIPNOVSYNC;
     hal->ddCaps.dwRops[SRCCOPY >> 21] |= 1u << ((SRCCOPY >> 16) & 31);  /* rop 0xCC */
     hal->ddCaps.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_OFFSCREENPLAIN |
                                  DDSCAPS_FLIP;
