@@ -67,7 +67,8 @@ class Agent:
 
     async def regvals(self, path):
         try:
-            j = json.loads(await self.text(f"REGREAD HKLM {path}"))
+            j = json.loads(await self.text(f'REGREAD HKLM "{path}"' if " " in path
+                                           else f"REGREAD HKLM {path}"))
         except (ValueError, json.JSONDecodeError):
             return None
         return {v["name"]: v.get("data") for v in j.get("values", [])}
@@ -246,8 +247,11 @@ async def rollback(a, args, evidence):
     r, _ = await drvupdate(a, args.hwid, inf)
     print("  DRVUPDATE:", r.strip()[:200])
     if args.ogl_dll:
-        await a.text(rf'REGWRITE HKLM {OGL} DLL REG_SZ {args.ogl_dll}')
-        print("  OpenGLDrivers\\3dfx:", await a.regvals(OGL))
+        # QUOTED: the path holds "Windows NT", and an unquoted REGWRITE splits
+        # it and writes nowhere useful (seen: the value stayed 3dfxOGL.dll)
+        await a.text(rf'REGWRITE HKLM "{OGL}" DLL REG_SZ {args.ogl_dll}')
+        got = (await a.regvals(OGL) or {}).get("DLL")
+        print(f"  OpenGLDrivers\\3dfx DLL = {got}" + ("" if got == args.ogl_dll else "  <-- NOT restored"))
     if not safe_reboot(a.ip):
         return 2
     took = await wait_back(a)

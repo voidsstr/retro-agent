@@ -135,6 +135,23 @@ same cell measured 147.9 fps over AmigaMerlin's kernel driver (README §13.3):
 the master's power-up PCI decode, a desktop that overlapped Glide's command
 FIFO, and a 3D engine left busy by a killed game (now reset automatically).
 
+**Glide on one chip, our kernel vs AmigaMerlin's (Quake II single-pass, our ICD
++ Glide):** 640x480 147.9 / 147.9, 800x600 101.1 / 101.1, 1024x768 63.6 / 63.6
+fps at 16 and 32 bpp - identical (`evidence/glide_q2_1chip_matrix_vcrkmd.csv`).
+At 1600x1200 ours measures 22.9 against 25.4, but that is NOT like for like:
+the live capture shows the vendor's "config 0" run with all four chips in SLI
+(identical SLI registers to config 5). The fair comparison is 4 chips vs 4.
+
+**The vendor's 4-chip SLI state, captured live** (`golden/sli_*`, via
+`tools/sli_golden.py`): slaves at BAR0 0xD2/D4/D6000000, BAR1 0xC4000000,
+command 0x0002; cfgInitEnable master 0x06000B01 / slaves 0x4BA07B01;
+cfgPciDecode slaves 0x0C011445; cfgVideoCtrl0 0x801 / 0x803; cfgVideoCtrl1 and
+cfgSliLfbCtrl carry the chip index and a band size that follows the
+resolution; cfgSliAAMisc 0x827 on slaves (the 39 px vsync offset); slaves'
+DAC powered down; tmuGbeInit 0x00500FF0 everywhere. **The HiNT bridge GPIO
+(0xC4) goes 0x00111101 -> 0x00222201: the vendor DOES program the V5 6000's
+external clock for SLI.**
+
 ## Findings (measured)
 
 - **The desktop must not sit in Glide's command FIFO.** On VSA-100 Glide
