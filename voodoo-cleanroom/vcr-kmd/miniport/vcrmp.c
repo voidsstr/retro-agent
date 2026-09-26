@@ -583,6 +583,25 @@ static BOOLEAN NTAPI VcrStartIO(PVOID ext, PVIDEO_REQUEST_PACKET rp)
         st = VideoPortUnmapMemory(ext, in->RequestedVirtualAddress, NULL);
         break;
     }
+    case IOCTL_VIDEO_GET_CHILD_STATE: {
+        /* the monitor child (vcrmp_ddc.c) is there and powered: XP polls this
+         * once a child is reported, and every refusal was a WARN in the log */
+        ULONG uid;
+        NEED_IN(sizeof(ULONG));
+        NEED_OUT(sizeof(ULONG));
+        uid = *(ULONG *)rp->InputBuffer;            /* one buffer: read first */
+        *(ULONG *)rp->OutputBuffer = VIDEO_CHILD_ACTIVE;
+        info = sizeof(ULONG);
+        VLOG(VCR_LV_TRACE, VCR_EV_CHILD, uid, VIDEO_CHILD_ACTIVE, 0, 0, "child %x state: active", uid);
+        break;
+    }
+    case IOCTL_VIDEO_SHARE_VIDEO_MEMORY:
+    case IOCTL_VIDEO_UNSHARE_VIDEO_MEMORY:
+    case IOCTL_VCR_DDFLIP:
+    case IOCTL_VCR_VBLANK:
+        st = VcrDdIoctl(x, code, rp->InputBuffer, rp->InputBufferLength, rp->OutputBuffer,
+                        rp->OutputBufferLength, &info);
+        break;
     case IOCTL_VIDEO_QUERY_POINTER_CAPABILITIES:
     case IOCTL_VIDEO_SET_POINTER_ATTR:
     case IOCTL_VIDEO_SET_POINTER_POSITION:

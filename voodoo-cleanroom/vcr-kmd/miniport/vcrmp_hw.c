@@ -585,7 +585,12 @@ static VP_STATUS bochs_program(VCR_EXT *x, const vcr_timing *t, ULONG bpp)
     DISPI(x, 2, t->h);
     DISPI(x, 3, bpp);
     DISPI(x, 6, t->w);                              /* virtual width */
-    DISPI(x, 7, t->h);
+    /* virtual height: all of video memory, so a DirectDraw flip can put the
+     * Y offset on any surface the heap holds (vcrmp_dd.c) */
+    {
+        ULONG stride = t->w * ((bpp + 7) / 8), vh = stride ? x->bochs_vram / stride : t->h;
+        DISPI(x, 7, vh > 0xffff ? 0xffff : (vh < t->h ? t->h : vh));
+    }
     DISPI(x, 8, 0);
     DISPI(x, 9, 0);
     DISPI(x, 4, 0x01 | 0x20 | 0x40);                /* on, 8-bit DAC, LFB */
@@ -634,6 +639,7 @@ VP_STATUS VcrHwSetMode(VCR_EXT *x, ULONG idx)
     x->cur_mode = (LONG)idx;
     x->cur_set = m;
     x->cur_stride = m.stride;
+    x->dd_scan = x->desktop_offset;     /* scanning out the primary again */
     VcrCursorApply(x);          /* a mode set rewrote vidProcCfg; Glide owned the memory */
     VLOG(VCR_LV_INFO, VCR_EV_MODESET_DONE, m.vidproccfg, m.vidscreensize, m.stride,
          (VcrMs() - t0) * 1000, "mode set done");

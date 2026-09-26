@@ -121,6 +121,7 @@
 /* status */
 #define VCR_STATUS_FIFOLEVEL_MASK   0x1f
 #define VCR_STATUS_BUSY             (1u << 9)
+#define VCR_STATUS_VRETRACE         (1u << 6)   /* in vertical retrace */
 
 /* ---- bits ------------------------------------------------------------------ */
 /* vidProcCfg */

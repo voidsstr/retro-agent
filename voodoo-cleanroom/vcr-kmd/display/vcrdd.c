@@ -20,6 +20,22 @@ static DRVFN g_drvfn[] = {
     { INDEX_DrvDisableDriver,  (PFN)0 },
     { INDEX_DrvSetPointerShape, (PFN)0 },
     { INDEX_DrvMovePointer,    (PFN)0 },
+    { INDEX_DrvBitBlt,         (PFN)0 },
+    { INDEX_DrvCopyBits,       (PFN)0 },
+    { INDEX_DrvTextOut,        (PFN)0 },
+    { INDEX_DrvStrokePath,     (PFN)0 },
+    { INDEX_DrvFillPath,       (PFN)0 },
+    { INDEX_DrvLineTo,         (PFN)0 },
+    { INDEX_DrvStretchBlt,     (PFN)0 },
+    { INDEX_DrvStretchBltROP,  (PFN)0 },
+    { INDEX_DrvAlphaBlend,     (PFN)0 },
+    { INDEX_DrvGradientFill,   (PFN)0 },
+    { INDEX_DrvTransparentBlt, (PFN)0 },
+#ifdef VCR_HAVE_DDI
+    { INDEX_DrvGetDirectDrawInfo, (PFN)0 },
+    { INDEX_DrvEnableDirectDraw,  (PFN)0 },
+    { INDEX_DrvDisableDirectDraw, (PFN)0 },
+#endif
 };
 
 /* the 20 colours Windows reserves in an 8 bpp palette (0-9 and 246-255) */
@@ -211,6 +227,12 @@ static void fill_devinfo(VCR_PDEV *pd, DEVINFO *di)
 {
     memset(di, 0, sizeof *di);
     di->flGraphicsCaps = GCAPS_OPAQUERECT | GCAPS_MONO_DITHER;
+#ifdef VCR_HAVE_DDI
+    /* Without this win32k probes our DirectDraw HAL at PDEV creation (info,
+     * enable, ten GetDriverInfo queries) and disables it again, and no
+     * application ever sees it (VM test bed, 2026-09-26). */
+    di->flGraphicsCaps |= GCAPS_DIRECTDRAW;
+#endif
     if (pd->bpp == 8)
         di->flGraphicsCaps |= GCAPS_PALMANAGED | GCAPS_COLOR_DITHER;
     set_font(&di->lfDefaultFont, 16, 7, 700, VARIABLE_PITCH | FF_DONTCARE, L"System");
@@ -357,6 +379,7 @@ HSURF APIENTRY DrvEnableSurface(DHPDEV dhpdev)
         return NULL;
     }
     pd->pvRamBase = vmi.VideoRamBase;
+    pd->cjVram = vmi.VideoRamLength;
     pd->pjScreen = (PUCHAR)vmi.FrameBufferBase;
     pd->cjFrameBuffer = vmi.FrameBufferLength;
     if ((ULONG)pd->lDelta * pd->cy > pd->cjFrameBuffer) {
@@ -366,15 +389,32 @@ HSURF APIENTRY DrvEnableSurface(DHPDEV dhpdev)
     }
     sizl.cx = pd->cx;
     sizl.cy = pd->cy;
-    hs = (HSURF)EngCreateBitmap(sizl, pd->lDelta, pd->iBitmapFormat, BMF_TOPDOWN,
-                                pd->pjScreen);
-    if (!hs) {
-        VcrDd(VCR_LV_ERROR, VCR_EV_DD_FAIL, 7, 0, 0, 0, "EngCreateBitmap failed");
+    /* The primary is an opaque DEVICE surface; GDI's drawing on it is hooked
+     * and handed to the DIB engine on a bitmap over the same frame buffer
+     * (vcrdd_punt.c). DirectDraw on XP will not run over a primary GDI draws
+     * into by itself: with the frame buffer handed to GDI as the primary -
+     * EngCreateBitmap, or a device surface EngModifySurface'd to expose its
+     * bits - win32k probed our HAL on every PDEV and switched it off again
+     * (the VM test bed, 2026-09-26). */
+    pd->hsurfBits = (HSURF)EngCreateBitmap(sizl, pd->lDelta, pd->iBitmapFormat, BMF_TOPDOWN,
+                                           pd->pjScreen);
+    if (!pd->hsurfBits || !EngAssociateSurface(pd->hsurfBits, pd->hdevEng, 0) ||
+        !(pd->psoBits = EngLockSurface(pd->hsurfBits))) {
+        VcrDd(VCR_LV_ERROR, VCR_EV_DD_FAIL, 7, 0, 0, 0, "frame buffer bitmap failed");
+        if (pd->hsurfBits)
+            EngDeleteSurface(pd->hsurfBits);
+        pd->hsurfBits = NULL;
         return NULL;
     }
-    if (!EngAssociateSurface(hs, pd->hdevEng, 0)) {
-        VcrDd(VCR_LV_ERROR, VCR_EV_DD_FAIL, 8, 0, 0, 0, "EngAssociateSurface failed");
-        EngDeleteSurface(hs);
+    hs = EngCreateDeviceSurface((DHSURF)pd, sizl, pd->iBitmapFormat);
+    if (!hs || !EngAssociateSurface(hs, pd->hdevEng, VCRDD_HOOKS)) {
+        VcrDd(VCR_LV_ERROR, VCR_EV_DD_FAIL, 8, 0, 0, 0, "device surface failed");
+        if (hs)
+            EngDeleteSurface(hs);
+        EngUnlockSurface(pd->psoBits);
+        EngDeleteSurface(pd->hsurfBits);
+        pd->psoBits = NULL;
+        pd->hsurfBits = NULL;
         return NULL;
     }
     pd->hsurfEng = hs;
@@ -392,6 +432,12 @@ VOID APIENTRY DrvDisableSurface(DHPDEV dhpdev)
     if (pd->hsurfEng)
         EngDeleteSurface(pd->hsurfEng);
     pd->hsurfEng = NULL;
+    if (pd->psoBits)
+        EngUnlockSurface(pd->psoBits);
+    pd->psoBits = NULL;
+    if (pd->hsurfBits)
+        EngDeleteSurface(pd->hsurfBits);
+    pd->hsurfBits = NULL;
     if (pd->pvRamBase) {
         vmem.RequestedVirtualAddress = pd->pvRamBase;
         VcrIoctl(pd->hDriver, IOCTL_VIDEO_UNMAP_VIDEO_MEMORY, &vmem, sizeof vmem, NULL, 0,
@@ -456,6 +502,22 @@ BOOL APIENTRY DrvEnableDriver(ULONG iEngineVersion, ULONG cj, DRVENABLEDATA *pde
     g_drvfn[9].pfn = (PFN)DrvDisableDriver;
     g_drvfn[10].pfn = (PFN)DrvSetPointerShape;
     g_drvfn[11].pfn = (PFN)DrvMovePointer;
+    g_drvfn[12].pfn = (PFN)DrvBitBlt;
+    g_drvfn[13].pfn = (PFN)DrvCopyBits;
+    g_drvfn[14].pfn = (PFN)DrvTextOut;
+    g_drvfn[15].pfn = (PFN)DrvStrokePath;
+    g_drvfn[16].pfn = (PFN)DrvFillPath;
+    g_drvfn[17].pfn = (PFN)DrvLineTo;
+    g_drvfn[18].pfn = (PFN)DrvStretchBlt;
+    g_drvfn[19].pfn = (PFN)DrvStretchBltROP;
+    g_drvfn[20].pfn = (PFN)DrvAlphaBlend;
+    g_drvfn[21].pfn = (PFN)DrvGradientFill;
+    g_drvfn[22].pfn = (PFN)DrvTransparentBlt;
+#ifdef VCR_HAVE_DDI
+    g_drvfn[23].pfn = (PFN)DrvGetDirectDrawInfo;
+    g_drvfn[24].pfn = (PFN)DrvEnableDirectDraw;
+    g_drvfn[25].pfn = (PFN)DrvDisableDirectDraw;
+#endif
     pded->pdrvfn = g_drvfn;
     pded->c = sizeof g_drvfn / sizeof g_drvfn[0];
     pded->iDriverVersion = DDI_DRIVER_VERSION_NT5;

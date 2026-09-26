@@ -70,6 +70,7 @@
     VCR_EVENT(VCR_EV_DD_FAIL,          508, "a=step b=code") \
     VCR_EVENT(VCR_EV_DD_SET_PALETTE,   509, "a=first b=count") \
     VCR_EVENT(VCR_EV_DD_FLUSH_STATS,   510, "a=flushes b=pixels (K)") \
+    VCR_EVENT(VCR_EV_DD_DDRAW,         511, "a=what (1 info 2 map 3 flip 4 excl 5 togdi 6 enable) b..d=values") \
     /* 6xx HWCEXT (Glide) */ \
     VCR_EVENT(VCR_EV_HWC_REQUEST,   600, "a=which b=pid c=resStatus d=return") \
     VCR_EVENT(VCR_EV_HWC_DEVCONFIG, 601, "a=device b=fbRam c=numChips") \

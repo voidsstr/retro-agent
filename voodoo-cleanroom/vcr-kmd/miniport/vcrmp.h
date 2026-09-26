@@ -140,6 +140,8 @@ typedef struct VCR_EXT {
     LONG      sli_result;           /* last vcr_sli_set() result */
     ULONG     clock_6k_hz;          /* last external clock programmed */
 
+    ULONG     dd_scan;              /* DirectDraw: offset being scanned out */
+
     /* the hardware cursor (vcrmp_cursor.c) */
     UCHAR     cur_pat[1024];
     ULONG     cur_valid, cur_on, cur_addr;
@@ -214,6 +216,10 @@ void    VcrSliOff(VCR_EXT *x, const char *why);       /* no-op when SLI is off *
 void    VcrMonitorInit(VCR_EXT *x);                   /* EDID over DDC, mode limits */
 VP_STATUS VcrMonitorChild(VCR_EXT *x, PVIDEO_CHILD_ENUM_INFO ci, PVIDEO_CHILD_TYPE type,
                           PUCHAR desc, PULONG uid);
+
+/* ---- vcrmp_dd.c: DirectDraw's needs ------------------------------------------ */
+VP_STATUS VcrDdIoctl(VCR_EXT *x, ULONG code, PVOID in, ULONG inlen, PVOID out, ULONG outlen,
+                     PULONG info);
 
 /* ---- vcrmp_cursor.c: the hardware cursor ------------------------------------- */
 void    VcrCursorApply(VCR_EXT *x);                   /* after every mode set */

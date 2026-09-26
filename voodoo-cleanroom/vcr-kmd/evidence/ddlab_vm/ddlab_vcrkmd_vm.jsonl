@@ -1,0 +1,7 @@
+{"mode": "caps", "hal_caps": "04020040", "hal_ddscaps": "00000250", "vidmem_total": 15548416, "vidmem_free": 15548416, "hel_caps": "f4c08241"}
+{"mode": "flip", "res": "640x480x16", "primary_in": "video", "frames": 120, "mismatch": 0, "lock_fail": 0, "flips_s": 7070.9, "vblank_hz": 18637.0, "scanline": 0, "hal_caps": "04020040"}
+{"mode": "flip", "res": "800x600x32", "primary_in": "video", "frames": 120, "mismatch": 0, "lock_fail": 0, "flips_s": 19839.5, "vblank_hz": 59892.0, "scanline": 0, "hal_caps": "04020040"}
+{"mode": "flip", "res": "640x480x8", "primary_in": "video", "frames": 120, "mismatch": 0, "lock_fail": 0, "flips_s": 9111.0, "vblank_hz": 30516.2, "scanline": 0, "hal_caps": "04020040"}
+{"mode": "blt", "res": "640x480x8", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "blts_s": 31925, "mpix_s": 2092.2, "hal_caps": "04020040"}
+{"mode": "blt", "res": "640x480x16", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "blts_s": 23017, "mpix_s": 1508.5, "hal_caps": "04020040"}
+{"mode": "blt", "res": "1024x768x32", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "blts_s": 18070, "mpix_s": 1184.3, "hal_caps": "04020040"}

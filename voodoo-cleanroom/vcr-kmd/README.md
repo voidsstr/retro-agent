@@ -92,6 +92,7 @@ that file, so names cannot drift.
 | `out/glidelab.exe` (`tools/glidelab.c`, `make glidelab GLIDE_SDK=...`) | our Glide test program, no game in the way: `fill` (Mpixel/s, flat or blended), `bands` (every scanline an exact RGB565 value read back through the LFB, bad lines per owning chip), `cycle` (open/close N times: SLI set up and torn down), `abandon` (exit without closing, as a killed game does) |
 | `tools/glidelab_run.py`, `tools/glidelab_sweep.py` | run one glidelab mode on a box / sweep fill + bands over SLI/AA configs (one boot each, or `--no-reboot` for ours), JSON lines in `evidence/glidelab/` |
 | `tools/cursor_golden.py` | the hardware cursor's registers and 1 KB pattern, read back (a screenshot cannot show a hardware cursor), compared against the vendor's |
+| `out/ddlab.exe` (`tools/ddlab.c`) + `tools/ddlab_run.py` | our DirectDraw test program: `caps` (HAL vs HEL, video memory), `flip` (a frame-numbered pattern written to the back buffer must read back from the FRONT after each flip), `blt` (copy, colour fill and an overlapping scroll between video-memory surfaces, read back) |
 
 Host tests: `tests/native/test_vcr_kmd_{log,fmt,modes,abi,sli,ics307}.c`,
 `tests/python/test_vcr_kmd_tools.py`, `tests/python/test_vcr_kmd_sli_glue.py`
@@ -205,7 +206,39 @@ list is a fixed 3dfx table (1600x1200 stops at 70 Hz whatever the monitor);
 ours offers what THIS monitor accepts. `Diag\Ddc`=0 / `Diag\EdidFilter`=0
 switch it off.
 
+**DIRECTDRAW (2026-09-26, proven in the VM test bed; on the V5 6000 next).**
+The display DLL carries a DirectDraw HAL (`display/vcrdd_ddraw.c`, built
+against Microsoft's public DDK headers from a local copy - `Makefile`
+`HAVE_DDI`, never committed): a heap in the video memory below the desktop,
+flips by scan-out address (`IOCTL_VCR_DDFLIP`: `vidDesktopStartAddr` on the
+Voodoo, the VBE Y offset in the VM), vertical blank and scan line
+(`IOCTL_VCR_VBLANK`), process views (`SHARE_VIDEO_MEMORY`), and software blits
+over video memory (copy / fill; anything else falls back to the HEL). The
+primary became an opaque device surface whose GDI drawing is hooked and punted
+to the DIB engine (`display/vcrdd_punt.c`) - the DDK samples' and VirtualBox's
+shape, and where the 2D engine plugs in. VM results (`evidence/ddlab_vm/`):
+HAL caps identical to XP's own Cirrus driver (0x04020040 / 0x250), flips at
+8/16/32 bpp with every frame read back correctly from the front buffer, blits
+correct at 8/16/32 bpp, and the GDI mode sweep 60/60 through the punt layer.
+Before it: no HAL - surfaces in system memory and **the primary could not be
+locked at all** (`DDERR_CANTLOCKSURFACE`), which alone breaks DirectDraw games
+that draw on the screen. This is the chassis the fxD3D Direct3D HAL
+(`scripts/3dfx/`) lives in next.
+
 ## Findings (measured)
+
+- **DirectDraw on XP is switched off, silently, by `DDCAPS_GDI`.** A HAL that
+  claims it is probed at every PDEV (info twice, enable, ten GetDriverInfo
+  queries) and disabled again, and applications get `DDCAPS_NOHARDWARE`. Found
+  by bisection against VirtualBox's minimal HAL; XP's Cirrus driver reports
+  BLT | READSCANLINE | BLTCOLORFILL. (`GCAPS_DIRECTDRAW` in the DEVINFO is
+  needed too.)
+- **The runtime passes Blt's raster op as `0x00CC0000`**, not GDI's SRCCOPY
+  (`0x00CC0020`); compare the ROP byte. A HAL that claims `DDCAPS_BLT` and
+  declines gets the application `E_NOTIMPL`, not a HEL fallback.
+- `EngModifySurface(..., MS_NOTSYSTEMMEMORY, ...)` is refused unless the
+  surface hooks something; a reported monitor child is polled with
+  `IOCTL_VIDEO_GET_CHILD_STATE`.
 
 - **METHOD_BUFFERED: an IOCTL's input and output are ONE buffer.** The first
   4-chip run zeroed the answer before reading Glide's request, so the enable

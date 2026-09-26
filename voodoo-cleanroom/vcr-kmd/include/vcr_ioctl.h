@@ -35,6 +35,8 @@
 #define IOCTL_VCR_CTX_DWORD     VCR_CTL(0xa0a)
 #define IOCTL_VCR_RESTORE_MODE  VCR_CTL(0xa0b)
 #define IOCTL_VCR_RESET_ENGINE  VCR_CTL(0xa0c)
+#define IOCTL_VCR_DDFLIP        VCR_CTL(0xa0d)
+#define IOCTL_VCR_VBLANK        VCR_CTL(0xa0e)
 
 #define VCR_ESC_BASE            0x56430000u     /* 'VC' */
 #define VCR_ESC_INFO            (VCR_ESC_BASE + 1)
@@ -137,6 +139,20 @@ typedef struct vcr_sli_res {
     vcr_u32 clock_6k_hz;
     vcr_u32 reserved;
 } vcr_sli_res;
+
+/* IOCTL_VCR_DDFLIP (in): scan out from this byte offset of video memory - a
+ * DirectDraw flip. The primary itself is at vcr_info.desktop_offset. */
+typedef struct vcr_dd_flip {
+    vcr_u32 offset;
+} vcr_dd_flip;
+
+/* IOCTL_VCR_VBLANK (out) */
+typedef struct vcr_dd_vblank {
+    vcr_u32 in_vblank;          /* 1 while in vertical retrace */
+    vcr_u32 scanline;           /* the line being scanned, 0 when unknown */
+    vcr_u32 scan_offset;        /* the offset now being scanned out */
+    vcr_u32 reserved;
+} vcr_dd_vblank;
 
 /* IOCTL_VCR_PCI_OP */
 #define VCR_PCI_TARGET_BRIDGE   0x10    /* the V5 6000 HiNT bridge */

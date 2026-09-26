@@ -69,8 +69,17 @@ VP_STATUS VcrCursorIoctl(VCR_EXT *x, ULONG code, PVOID in, ULONG inlen, PVOID ou
                          ULONG outlen, PULONG info)
 {
     *info = 0;
-    if (x->backend != VCR_HW_VOODOO || !VcrDiagGet(L"HwCursor", 1))
+    if (x->backend != VCR_HW_VOODOO || !VcrDiagGet(L"HwCursor", 1)) {
+        /* no hardware pointer here: say so as an ANSWER (size 0), not as a
+         * failed IOCTL - the display DLL asks at every surface enable */
+        if (code == IOCTL_VIDEO_QUERY_POINTER_CAPABILITIES &&
+            outlen >= sizeof(VIDEO_POINTER_CAPABILITIES)) {
+            VideoPortZeroMemory(out, sizeof(VIDEO_POINTER_CAPABILITIES));
+            *info = sizeof(VIDEO_POINTER_CAPABILITIES);
+            return NO_ERROR;
+        }
         return ERROR_INVALID_FUNCTION;
+    }
     switch (code) {
     case IOCTL_VIDEO_QUERY_POINTER_CAPABILITIES: {
         VIDEO_POINTER_CAPABILITIES *c = (VIDEO_POINTER_CAPABILITIES *)out;

@@ -31,7 +31,9 @@
 typedef struct VCR_PDEV {
     HANDLE      hDriver;            /* the miniport */
     HDEV        hdevEng;
-    HSURF       hsurfEng;
+    HSURF       hsurfEng;           /* the primary: an opaque DEVICE surface */
+    HSURF       hsurfBits;          /* the engine bitmap over the same frame buffer */
+    SURFOBJ    *psoBits;            /* ... locked; where every hooked call draws */
     HPALETTE    hpalDefault;
     PALETTEENTRY *pPal;             /* 8 bpp only */
     ULONG       ulMode;             /* miniport mode index */
@@ -44,6 +46,8 @@ typedef struct VCR_PDEV {
     ULONG       cjFrameBuffer;
     ULONG       exclusive_pid;      /* a Glide process owns the chip */
     ULONG       hwc_requests;
+    ULONG       cjVram;             /* all of video memory (MAP_VIDEO_MEMORY) */
+    ULONG       dd_enabled, dd_exclusive, dd_flips, dd_blts;    /* DirectDraw HAL */
     ULONG       hw_pointer;         /* the miniport offers the hardware cursor */
     ULONG       ptr_on;
     LONG        xHot, yHot;
@@ -58,6 +62,41 @@ DWORD VcrIoctl(HANDLE h, DWORD code, PVOID in, DWORD cin, PVOID out, DWORD cout,
 
 /* vcrdd.c */
 BOOL  VcrDdSetMode(VCR_PDEV *pd);
+
+/* vcrdd_ddraw.c (with the public DDK's DirectDraw headers) */
+#ifdef VCR_HAVE_DDI
+BOOL APIENTRY DrvGetDirectDrawInfo(DHPDEV dhpdev, DD_HALINFO *hal, DWORD *nheaps,
+                                   VIDEOMEMORY *vm, DWORD *nfourcc, DWORD *fourcc);
+BOOL APIENTRY DrvEnableDirectDraw(DHPDEV dhpdev, DD_CALLBACKS *cb, DD_SURFACECALLBACKS *scb,
+                                  DD_PALETTECALLBACKS *pcb);
+VOID APIENTRY DrvDisableDirectDraw(DHPDEV dhpdev);
+DWORD APIENTRY DdGetDriverInfo(PDD_GETDRIVERINFODATA p);
+#endif
+
+/* vcrdd_punt.c: the hooked drawing calls */
+#define VCRDD_HOOKS (HOOK_BITBLT | HOOK_COPYBITS | HOOK_TEXTOUT | HOOK_STROKEPATH | \
+                     HOOK_FILLPATH | HOOK_LINETO | HOOK_STRETCHBLT | HOOK_STRETCHBLTROP | \
+                     HOOK_ALPHABLEND | HOOK_GRADIENTFILL | HOOK_TRANSPARENTBLT)
+BOOL APIENTRY DrvBitBlt(SURFOBJ *, SURFOBJ *, SURFOBJ *, CLIPOBJ *, XLATEOBJ *, RECTL *,
+                        POINTL *, POINTL *, BRUSHOBJ *, POINTL *, ROP4);
+BOOL APIENTRY DrvCopyBits(SURFOBJ *, SURFOBJ *, CLIPOBJ *, XLATEOBJ *, RECTL *, POINTL *);
+BOOL APIENTRY DrvTextOut(SURFOBJ *, STROBJ *, FONTOBJ *, CLIPOBJ *, RECTL *, RECTL *,
+                         BRUSHOBJ *, BRUSHOBJ *, POINTL *, MIX);
+BOOL APIENTRY DrvStrokePath(SURFOBJ *, PATHOBJ *, CLIPOBJ *, XFORMOBJ *, BRUSHOBJ *, POINTL *,
+                            LINEATTRS *, MIX);
+BOOL APIENTRY DrvFillPath(SURFOBJ *, PATHOBJ *, CLIPOBJ *, BRUSHOBJ *, POINTL *, MIX, FLONG);
+BOOL APIENTRY DrvLineTo(SURFOBJ *, CLIPOBJ *, BRUSHOBJ *, LONG, LONG, LONG, LONG, RECTL *, MIX);
+BOOL APIENTRY DrvStretchBlt(SURFOBJ *, SURFOBJ *, SURFOBJ *, CLIPOBJ *, XLATEOBJ *,
+                            COLORADJUSTMENT *, POINTL *, RECTL *, RECTL *, POINTL *, ULONG);
+BOOL APIENTRY DrvStretchBltROP(SURFOBJ *, SURFOBJ *, SURFOBJ *, CLIPOBJ *, XLATEOBJ *,
+                               COLORADJUSTMENT *, POINTL *, RECTL *, RECTL *, POINTL *, ULONG,
+                               BRUSHOBJ *, DWORD);
+BOOL APIENTRY DrvAlphaBlend(SURFOBJ *, SURFOBJ *, CLIPOBJ *, XLATEOBJ *, RECTL *, RECTL *,
+                            BLENDOBJ *);
+BOOL APIENTRY DrvGradientFill(SURFOBJ *, CLIPOBJ *, XLATEOBJ *, TRIVERTEX *, ULONG, PVOID,
+                              ULONG, RECTL *, POINTL *, ULONG);
+BOOL APIENTRY DrvTransparentBlt(SURFOBJ *, SURFOBJ *, CLIPOBJ *, XLATEOBJ *, RECTL *, RECTL *,
+                                ULONG, ULONG);
 
 /* vcrdd_pointer.c */
 ULONG APIENTRY DrvSetPointerShape(SURFOBJ *pso, SURFOBJ *psoMask, SURFOBJ *psoColor,
