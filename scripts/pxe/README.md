@@ -67,8 +67,9 @@ silently: the client is handed a next-server it cannot reach and just waits.
 `install-task.ps1`, `setup-firewall.ps1` and `make-xp-source.ps1` still work,
 and the defaults follow the platform (`C:\development\pxe` there,
 `/srv/retro-pxe` here), so the same `pxe_config.json` is correct on both. Do not
-run BOTH at once on the same LAN - two proxyDHCP servers answering one DISCOVER
-is a race, and which boot file wins is down to timing.
+run BOTH at once on the same LAN - see "Failing over to another host" below;
+since 2026-09-25 the server detects a second responder and the Windows copy
+yields to it.
 
 ## proxyDHCP, not DHCP
 
@@ -121,8 +122,20 @@ is rebuilt from the NAS rather than copied. The one thing NOT recoverable from
 the vault is the XP media itself, which lives on the NAS at
 `Files/OS/XPSP3-PXE`.
 
-**Do not run two PXE hosts on one LAN.** Two proxyDHCP servers answering one
-DISCOVER is a race and which boot file wins is down to timing.
+**Do not run two PXE hosts on one LAN, and this is now checked, not just
+said.** Two proxyDHCP servers answering one DISCOVER is a race. Worse, whenever
+this one HOLDS a machine the other one simply boots it. On 2026-09-25 a stale
+copy still scheduled on whitebeast (`RetroPXE` task) turned three finished XP
+installs on a Dell into "txtsetup.sif is corrupt or missing, status 21".
+`pxe_server.py` now probes the /24 for another responder at startup and every
+10 minutes (`rogue_check_seconds`) and logs a banner when one appears. A copy
+with no `/proc/net/arp`, i.e. the Windows failover host, refuses to start beside
+another server unless `"allow_second_server": true`. Check by hand with
+`python3 scripts/pxe/pxe_rogue.py`; exit 1 names the other server.
+
+The Windows copy also used to be unable to arm a hold at all: `mac_for_ip()`
+only read Linux's `/proc/net/arp`, so it re-offered a boot file on every reboot.
+It now falls back to `arp -a`.
 
 ## Rebuilding the XP payload
 

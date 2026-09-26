@@ -29,6 +29,7 @@ DHCP_DISCOVER, DHCP_OFFER, DHCP_REQUEST, DHCP_ACK, DHCP_INFORM = 1, 2, 3, 5, 8
 # BINL lives beside us; a PXE-booted setupldr cannot install without it.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import binl                                                   # noqa: E402
+import pxe_rogue                                              # noqa: E402
 
 
 def log(msg):
@@ -120,6 +121,11 @@ def mac_for_ip(ip):
                 f = line.split()
                 if len(f) >= 4 and f[0] == ip and f[3] != '00:00:00:00:00:00':
                     return f[3].lower()
+    except FileNotFoundError:
+        # Windows has no /proc/net/arp. Returning None here meant the Windows
+        # copy of this server could NEVER arm a hold - it re-offered a boot file
+        # on every reboot, installed machines included, and nothing said so.
+        return pxe_rogue.mac_for_ip_windows(ip)
     except OSError:
         pass
     return None
@@ -427,6 +433,10 @@ class ProxyDHCP(threading.Thread):
             dest = self.dest_for(req, addr)
             try:
                 sock.sendto(reply, dest)
+                # Answer the rogue-server probe like any client - another copy of
+                # this code must stay detectable - but do not log it every sweep.
+                if req.mac == pxe_rogue.PROBE_MAC_TEXT:
+                    continue
                 log(f'proxyDHCP {"OFFER" if reply_type == DHCP_OFFER else "ACK"} '
                     f'-> {req.mac} arch={req.arch} via {dest[0]}:{dest[1]} file={bootfile}')
             except OSError as exc:
@@ -752,6 +762,44 @@ DEFAULT_CONFIG = {
 }
 
 
+class RogueWatch(threading.Thread):
+    """Re-probe for another PXE server every few minutes, and SAY so when one
+    appears or goes away. A startup check alone would have missed the actual
+    incident: whitebeast's copy came back on 2026-09-24, long after this server
+    started, and a Dell then failed three installs before anyone looked."""
+    daemon = True
+
+    def __init__(self, server_ip, interval, first=None):
+        super().__init__(name='rogue-watch')
+        self.server_ip, self.interval = server_ip, max(60, int(interval))
+        self.seen = set(first or ())
+
+    def run(self):
+        while True:
+            time.sleep(self.interval)
+            now = pxe_rogue.find_other_pxe_servers(self.server_ip)
+            if now is None:
+                log('rogue-watch: could not probe for another PXE server this pass')
+                continue
+            now = set(now)
+            for ip in sorted(now - self.seen):
+                announce_rogue([ip])
+            for ip in sorted(self.seen - now):
+                log(f'rogue-watch: the PXE server at {ip} has stopped answering')
+            self.seen = now
+
+
+def announce_rogue(ips):
+    log('!' * 72)
+    log(f'ANOTHER PXE SERVER IS ANSWERING ON THIS LAN: {", ".join(ips)}')
+    log('Two proxyDHCP servers race for every DISCOVER, and whenever this one')
+    log('HOLDS a machine the other one boots it instead. On 2026-09-25 that')
+    log('turned three finished XP installs into "INF file txtsetup.sif is corrupt')
+    log('or missing, status 21". Stop the other server (on whitebeast it is the')
+    log('RetroPXE scheduled task).')
+    log('!' * 72)
+
+
 def main():
     global LOGFILE
     ap = argparse.ArgumentParser()
@@ -862,12 +910,29 @@ def main():
 
     log('=' * 60)
     log(f'PXE server starting: proxyDHCP + TFTP on {cfg["server_ip"]}')
+    others = pxe_rogue.find_other_pxe_servers(cfg['server_ip'])
+    if others is None:
+        log('could not probe for another PXE server - NOT checked')
+        others = []
+    elif others:
+        announce_rogue(others)
+        # The Windows host is the failover copy: it must never run beside the
+        # primary. On the Linux primary keep serving - refusing would hand the
+        # LAN to the stale copy - but say it every time.
+        if not os.path.exists('/proc/net/arp') and not cfg.get('allow_second_server'):
+            log('FATAL: this copy yields to the PXE server already answering. '
+                'Set "allow_second_server": true in pxe_config.json to override.')
+            return 1
+    else:
+        log('no other PXE server answering on this LAN')
     log(f'boot file: {cfg["bootfile"]}   tftp root: {cfg["tftp_root"]}')
     if not os.path.isdir(cfg['tftp_root']):
         log(f'FATAL: tftp root {cfg["tftp_root"]} does not exist')
         return 1
 
-    threads = [TFTPServer(cfg), ProxyDHCP(cfg, 67), ProxyDHCP(cfg, 4011)]
+    threads = [TFTPServer(cfg), ProxyDHCP(cfg, 67), ProxyDHCP(cfg, 4011),
+               RogueWatch(cfg['server_ip'], cfg.get('rogue_check_seconds', 600),
+                          first=others)]
     for t in threads:
         t.start()
     try:

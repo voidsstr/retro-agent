@@ -129,6 +129,11 @@ retro-agent/tests/
                                                   the MODE (&CC_) its INF names -
                                                   bare 24D1=iaStor2 put an IDE-mode
                                                   ICH5 disk on Intel's RAID driver
+                          test_pxe_rogue.py       a SECOND PXE server on the LAN is
+                                                  found (a stale copy on whitebeast
+                                                  booted three finished installs into
+                                                  "txtsetup.sif ... status 21"), and
+                                                  the Windows copy can arm a hold
                           test_pxe_txtsetup.py, test_pxe_bind_device.py,
                           test_pxe_boot_hold.py, test_binl.py
 ```
