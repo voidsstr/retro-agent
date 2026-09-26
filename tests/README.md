@@ -134,6 +134,11 @@ retro-agent/tests/
                                                   booted three finished installs into
                                                   "txtsetup.sif ... status 21"), and
                                                   the Windows copy can arm a hold
+                          test_pxe_localboot.py   a held MAC in localboot_macs is
+                                                  ANSWERED with a "boot from local
+                                                  disk" menu (the Dell 4600's Intel
+                                                  ROM sat on DHCP given silence);
+                                                  other held MACs still get silence
                           test_pxe_txtsetup.py, test_pxe_bind_device.py,
                           test_pxe_boot_hold.py, test_binl.py
 ```
@@ -534,6 +539,7 @@ found — and move it up there.
 | **gameindex host pipeline + a real fleet-scope policy for the chat brain** (2026-08-25) — retro_brain_guard — the chat brain's fleet-scope policy | `python/test_brain_guard.py` |
 | **brain: publish queue files atomically - answers were being deleted mid-write** (2026-08-28) — The chat brain must never publish a queue file the daemon can read half-written | `python/test_chat_brain_atomic_outbox.py` |
 | **brain: stream the prompt; never blame accounts for an SDK crash** (2026-09-23) — a user on .171 was told "No Claude account on the brain is usable" while every account worked; a stale brain on an older SDK rejected the bare-string prompt (`can_use_tool callback requires streaming mode`) and the brain reported that as an account failure | `python/test_chat_brain_prompt_stream.py` |
+| **rawfloppy: a short or cached floppy write must fail loudly** (2026-09-24) — XP cannot make a bootable floppy from the command line, so an image built on the host is written sector-for-sector from a fleet box; `dir a:` lists files off a disk whose last track never landed, so the tool locks and dismounts the volume, treats `did != got` as a failure and names the byte offset | `python/test_rawfloppy.py` |
 | **brain: follow-up prompts resume their conversation** (2026-09-25) — a .184 user continuing the EPoX boot-floppy chat got "all accounts failed" on every follow-up: the claude-pool shim (first on PATH via a user-wide systemd drop-in) re-picked a profile per call, so `--resume` ran in an account without the transcript ("No conversation found"), and failover HOMEs saw no pool (exit 70). `_find_cli()` skips the shim, transcripts are copied to the resuming account, sessions persist across restarts | `python/test_chat_brain_session_resume.py` |
 | **tests: the chat daemon's shared connection must only be touched under its lock** (2026-08-28) — The chat daemon's shared send connection must only be touched under its lock. *Rewritten 2026-09-25 as behaviour*: every send-connection command now goes through `_send_cmd`, which refuses to run without the lock; concurrent text/status/tasks/keepalive against a fake agent deliver every line exactly once | `python/test_chat_daemon_conn_safety.py` |
 | **tests: reaping an offline box must not kill the whole chat daemon** (2026-08-28) — Reaping an offline box must not take the whole chat daemon down with it. *Rewritten 2026-09-25 as behaviour* against the reworked daemon (no host-task gather; done-callback reporting; a box that appears later is claimed) | `python/test_chat_daemon_reap_survival.py` |

@@ -236,6 +236,21 @@ PERMANENTLY BLOCKED section so it is visible rather than mysterious.
 `retry_grace_seconds` at 0 a negative age still satisfies `age < grace`, so the machine
 lands in the retry branch and is RE-OFFERED - the opposite of blocking it.
 
+## A ROM that does not fall through on silence: `localboot_macs`
+
+A held machine normally gets no reply, and its ROM moves on to the next boot device. The
+Intel Boot Agent on the Dell Dimension 4600 (`00:0c:f1:d7:98:4a`) does not: it sat on
+"DHCP" until someone pressed F12 (2026-09-26). List such a MAC in `localboot_macs`:
+
+```json
+"localboot_macs": ["00:0c:f1:d7:98:4a"]
+```
+
+While it is held (timed hold or `never_offer`), it is answered with a PXE boot menu whose
+single item is type 0, "boot from local disk", and whose prompt timeout is 0. No boot file
+is offered. When it is not held, it gets the normal boot file, so `--release` still
+reinstalls it. Restart the service after editing. Test: `tests/test_pxe_localboot.py`.
+
 ## nForce2 boards need the boot disk OFF the onboard IDE
 
 `inject-massstorage.py` binds the nForce2 IDE controller to NVIDIA's driver:

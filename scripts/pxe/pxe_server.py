@@ -315,11 +315,55 @@ class ProxyDHCP(threading.Thread):
         super().__init__(name=f'proxydhcp:{port}')
         self.cfg = cfg
         self.port = port
+        self.localboot_macs = {m.strip().lower()
+                               for m in cfg.get('localboot_macs', ())}
 
     def bootfile(self, req):
         """Pick the NBP for the client's architecture (option 93)."""
         arches = self.cfg.get('bootfile_by_arch', {})
         return arches.get(str(req.arch)) or self.cfg['bootfile']
+
+    def build_localboot_reply(self, req, msgtype):
+        """A proxyDHCP answer that tells the ROM to boot its LOCAL DISK.
+
+        WHY. A held machine used to get silence, and most ROMs read silence as
+        "no boot server" and fall through to the next boot device. The Intel Boot
+        Agent on a Dell Dimension 4600 does not: once no other PXE server was
+        answering (2026-09-26), it cycled DHCP DISCOVERs and sat on "DHCP" until
+        someone pressed F12. The PXE spec has an explicit answer for this: a
+        boot menu (option 43 sub-option 9) whose first item is type 0 - "boot
+        from local disk" - and a menu prompt (sub-option 10) with timeout 0,
+        which selects that item immediately without showing anything. It is
+        what dnsmasq sends for `pxe-service=x86PC,"...",` with no boot file.
+
+        No boot file (field and option 67 empty): nothing to download. Discovery
+        control 0x03 turns off broadcast/multicast server discovery, which a
+        type-0 item never needs. Opt-in per MAC (localboot_macs) until proven on
+        the ROMs this fleet has, because every held reboot passes through here.
+        """
+        server_ip = socket.inet_aton(self.cfg['server_ip'])
+        pkt = bytearray(240)
+        pkt[0], pkt[1], pkt[2], pkt[3] = 2, 1, 6, 0
+        pkt[4:8] = req.xid
+        pkt[10:12] = req.flags
+        pkt[12:16] = req.ciaddr
+        pkt[20:24] = server_ip
+        pkt[24:28] = req.giaddr
+        pkt[28:44] = req.chaddr
+        pkt[236:240] = MAGIC_COOKIE
+        desc = b'Boot from local disk'
+        menu = struct.pack('!HB', 0, len(desc)) + desc          # type 0 = local
+        prompt = b'\x00' + b'Local boot'                         # timeout 0
+        pxe = opt(6, b'\x03') + opt(9, menu) + opt(10, prompt) + b'\xff'
+        options = b''
+        options += opt(53, bytes([msgtype]))
+        options += opt(54, server_ip)
+        options += opt(60, b'PXEClient')
+        if 97 in req.opts:
+            options += opt(97, req.opts[97])
+        options += opt(43, pxe)
+        options += b'\xff'
+        return bytes(pkt) + options
 
     def build_reply(self, req, msgtype, bootfile):
         server_ip = socket.inet_aton(self.cfg['server_ip'])
@@ -423,8 +467,18 @@ class ProxyDHCP(threading.Thread):
                 continue
             hold = self.cfg.get('_hold')
             if hold is not None and hold.held(req.mac):
-                # Already installed from us once. Staying quiet is what lets the
-                # machine fall through to its own disk instead of reinstalling.
+                # Already installed from us once. Staying quiet is what lets
+                # most ROMs fall through to their own disk instead of
+                # reinstalling - but not all of them (see localboot_macs).
+                if req.mac in self.localboot_macs:
+                    try:
+                        sock.sendto(self.build_localboot_reply(req, reply_type),
+                                    self.dest_for(req, addr))
+                        log(f'proxyDHCP HOLD -> {req.mac} (told to boot its local '
+                            f'disk; --release {req.mac} to reinstall)')
+                    except OSError as exc:
+                        log(f'proxyDHCP send error to {req.mac}: {exc}')
+                    continue
                 log(f'proxyDHCP HOLD -> {req.mac} (already served; '
                     f'--release {req.mac} to reinstall)')
                 continue

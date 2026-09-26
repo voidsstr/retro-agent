@@ -65,11 +65,29 @@ Text-mode finishing and rebooting looks exactly like a failure from the server's
 
 **Almost always the boot hold, not the wire.** A held MAC gets *no reply at all* — the
 `HOLD` branch in `pxe_server.py` does a bare `continue` — and the ROM reports the silence as
-a discovery failure. Check `--list-holds` first.
+a discovery failure. Check `--list-holds` first. (A MAC in `localboot_macs` is answered
+with a local-boot menu instead; see below.)
 
 The genuine option-43 form of this error was fixed on 2026-08-26: discovery control was
 `0x07`, whose `0x04` bit means "accept only boot servers from PXE_BOOT_SERVERS", a list we
 never send. It is `0x0b` now.
+
+### A held machine sits on "DHCP" and never boots its disk
+
+Silence is how the hold normally works: most ROMs read "no boot server" and fall through to
+the next boot device. **The Intel Boot Agent on a Dell Dimension 4600 does not.** On
+2026-09-26, held after its text mode finished, it cycled DHCP DISCOVERs indefinitely
+(`HOLD -> 00:0c:f1:d7:98:4a` every ~16 s) until someone pressed F12 and picked the hard
+drive. While a second PXE server was still answering on the LAN, its offer had masked this.
+
+List such a machine in `localboot_macs` in `pxe_config.json`. A held MAC on that list is
+**answered** instead of ignored: option 43 with a boot menu whose only item is type 0
+("boot from local disk") and a menu prompt with timeout 0, which selects it at once. No
+boot file is offered, so the machine cannot reinstall. It is what dnsmasq sends for a
+`pxe-service` with no file. A machine that is not held still gets the normal boot file.
+The log says `HOLD -> <mac> (told to boot its local disk ...)`. This is opt-in per MAC
+because every held reboot on the fleet passes through this path and silence is proven on
+the other ROMs. Test: `tests/test_pxe_localboot.py`.
 
 ### The machine reinstalls itself unasked
 
