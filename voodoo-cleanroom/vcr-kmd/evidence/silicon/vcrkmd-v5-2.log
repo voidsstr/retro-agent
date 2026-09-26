@@ -1,0 +1,23 @@
+[12:12:43] plan: info, modes, cursor, gdi, ddraw, d3d, d3dperf - at most 22 mode switches = 44 timing changes on the cable (each switch passes through the driver's 31.5 kHz VGA reset, ~30 ms), 5s apart at least
+[12:12:43] == info
+[12:12:43]    monitor SNY1270 CPD-G200: H 30-96 kHz, V 48-120 Hz, <= 260 MHz - the driver filters its modes by it
+[12:12:43] == modes
+[12:13:21]    rc 0 (38s): ["      1024x768x16@85: ok", "     1024x768x32@100: ok", "     1600x1200x16@70: ok", "     1600x1200x32@70: ok", "modeseq: {\"cmd\": \"modeseq\", \"ok\": true, \"modes\": 7, \"ran\": 7, \"failed\": 0, \"stopped\": false, \"pace_ms\": 5000, \"restore\": 0}", "7/7 modes passed"]
+[12:13:21] == cursor
+[12:13:23]    rc 1 (2s): [{"label": "vcrkmd-v5-2", "pointer_at": [900, 600], "regs": {"vidProcCfg": "000c0081", "hwCurPatAddr": "01aff000", "hwCurLoc": "01260176", "hwCurC0": "00000000", "hwCurC1": "00ffffff"}}, {"pattern_identical": false, "register_differences": {"vidProcCfg": ["090c0081", "000c0081"], "hwCurLoc": ["07ff0
+[12:13:23] == gdi
+[12:13:25]    rc 0 (3s): [{"mode": "gdi", "bpp": 32, "rounds": 3, "bad_fill": 0, "bad_rop": 0, "bad_copy": 0, "bad_scroll": 0, "bad_clip": 0, "bad_sync": 0, "bad": 0}]
+[12:13:25] == ddraw
+[12:13:26]    rc 0 (0s): [{"mode": "caps", "hal_caps": "04020041", "hal_ddscaps": "00423250", "vidmem_total": 28307456, "vidmem_free": 28307456, "hel_caps": "f4c08241"}]
+[12:13:35]    rc 0 (4s): [{"mode": "flip", "res": "800x600x16", "primary_in": "video", "frames": 60, "frames_run": 60, "mismatch": 0, "lock_fail": 0, "flips_s": 42.1, "vblank_hz": 87.6, "scanline": 2293576, "hal_caps": "04020041", "focus_lost": false}]
+[12:13:44]    rc 0 (4s): [{"mode": "blt", "res": "800x600x16", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "bad_key": 0, "blts_s": 7128, "mpix_s": 467.2, "hal_caps": "04020041", "focus_lost": false}]
+[12:13:44]    rc 0 (1s): [{"mode": "caps", "hal_caps": "04020041", "hal_ddscaps": "00423250", "vidmem_total": 28307456, "vidmem_free": 28307456, "hel_caps": "f4c08241"}]
+[12:13:53]    rc 0 (4s): [{"mode": "flip", "res": "800x600x32", "primary_in": "video", "frames": 60, "frames_run": 60, "mismatch": 0, "lock_fail": 0, "flips_s": 86.3, "vblank_hz": 85.0, "scanline": 2293576, "hal_caps": "04020041", "focus_lost": false}]
+[12:14:02]    rc 0 (4s): [{"mode": "blt", "res": "800x600x32", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "bad_key": 0, "blts_s": 3420, "mpix_s": 224.1, "hal_caps": "04020041", "focus_lost": false}]
+[12:14:02] == d3d
+[12:14:03]    rc 0 (1s): [{"mode": "caps", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "driver": "vcrdd.dll", "desktop_fmt": 22, "hal": "00000000", "DevCaps": "0008ae50", "PrimitiveMiscCaps": "00000072", "RasterCaps": "00100191", "ZCmpCaps": "000000ff", "SrcBlendCaps": "00001f33", "DestBlendCaps": "0000003f", "AlphaCm
+[12:14:15]    rc 1 (7s): [{"mode": "render", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "window": "fullscreen", "fmt": 23, "checks": [{"test": "clear", "at": "corner", "x": 0, "y": 0, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "centre", "x": 128, "y": 128, "got": "ff0000", "want": "ff0000", 
+[12:14:15]    skip d3dprobe_run render --full --res 1024x768 --bpp 16 --timeout 180: not run: 'd3dprobe_run render --full --res 640x480 --bpp 16 --timeout 180' failed - no more mode switches this battery
+[12:14:15] == d3dperf
+[12:14:15]    skip d3dprobe_run perf --full --novsync --res 640x480 --frames 300 --timeout 180: not run: 'd3dprobe_run render --full --res 640x480 --bpp 16 --timeout 180' failed - no more mode switches this battery
+[12:14:15] done: 2 failing sub-step(s), 2 switching run(s) skipped after a failure or timeout -> /home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/evidence/silicon/vcrkmd-v5-2.jsonl

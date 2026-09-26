@@ -153,11 +153,21 @@ static BOOL vertex(VCR_PDEV *pd, const vcr3d_draw *d, const UCHAR *v)
 {
     const float *p = (const float *)v;          /* x, y, z, rhw: D3DFVF_XYZRHW */
     float oow = p[3];
-    if (!VcrDdRoom(pd, 6 + (d->textured ? 3 : 0) + (d->textured1 ? 3 : 0)))
+    ULONG argb = d->diff_off ? *(const ULONG *)(v + d->diff_off) : 0xffffffffu;
+    if (!VcrDdRoom(pd, 9 + (d->textured ? 3 : 0) + (d->textured1 ? 3 : 0)))
         return FALSE;
     wf(pd, V3D_SVX, p[0] + d->xy_bias);
     wf(pd, V3D_SVY, p[1] + d->xy_bias);
-    w3(pd, V3D_SARGB, d->diff_off ? *(const ULONG *)(v + d->diff_off) : 0xffffffffu);
+    /* The colour as four FLOATS (0..255), never the packed sARGB: on the
+     * V5 6000's VSA-100 silicon a gouraud triangle fed through sARGB kept
+     * its FIRST vertex's red across the whole triangle while green and blue
+     * interpolated (d3dprobe gouraud, .124, 2026-09-26; 86Box accepts
+     * sARGB). 3dfx's own h5 Glide is built GLIDE_PACKED_RGB=0 and feeds
+     * sRed/sGreen/sBlue/sAlpha (gxdraw.c) - the proven path. */
+    wf(pd, V3D_SRED, (float)((argb >> 16) & 0xff));
+    wf(pd, V3D_SGREEN, (float)((argb >> 8) & 0xff));
+    wf(pd, V3D_SBLUE, (float)(argb & 0xff));
+    wf(pd, V3D_SALPHA, (float)(argb >> 24));
     wf(pd, V3D_SVZ, p[2] * 65535.0f);
     if (d->fog_vertex) {
         /* the fog factor rides in the specular alpha (255 = no fog): the

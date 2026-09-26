@@ -1,0 +1,69 @@
+[preflight]
+  driver signing policy (HKLM): {'Policy': '00'}
+  rollback package ok: C:\vcr\am31 (9 files)
+[install]
+  clicked Continue Anyway at 661,627
+  DRVUPDATE: OK installed C:\vcr\vcrkmd.inf for PCI\VEN_121A&DEV_0009&SUBSYS_0001121A (reboot required)
+[reboot]
+  safe-reboot: activation ok: no activation nag and no activation-required flag |   192.168.1.124 MACs: 00:d0:b7:40:96:a9 |   hold armed for 00:d0:b7:40:96:a9 |   rebooting 192.168.1.124: OK
+[verify] back after 114s
+Traceback (most recent call last):
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 300, in <module>
+    main()
+    ~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 295, in main
+    rc = asyncio.run(fn(a, args, evidence))
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 250, in install
+    return 0 if await status(a, args, evidence) else 1
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 191, in status
+    d = await a.regvals(DIAG) or {}
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 71, in regvals
+    j = json.loads(await self.text(f'REGREAD HKLM "{path}"' if " " in path
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                   else f"REGREAD HKLM {path}"))
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 67, in text
+    return (await self.raw(cmd, timeout)).decode("ascii", "replace")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/voodoo-cleanroom/vcr-kmd/tools/deploy_box.py", line 56, in raw
+    await c.connect(SECRET, timeout=20)
+  File "/home/voidsstr/development/retro-agent/.claude/worktrees/vcr-kmd/client/retro_protocol.py", line 49, in connect
+    self._reader, self._writer = await asyncio.wait_for(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/usr/lib/python3.14/asyncio/tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/streams.py", line 48, in open_connection
+    transport, _ = await loop.create_connection(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda: protocol, host, port, **kwds)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 645, in sock_connect
+    return await fut
+           ^^^^^^^^^
+  File "/usr/lib/python3.14/asyncio/selector_events.py", line 685, in _sock_connect_cb
+    raise OSError(err, f'Connect call failed {address}')
+ConnectionRefusedError: [Errno 111] Connect call failed ('192.168.1.124', 9898)

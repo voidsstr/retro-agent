@@ -41,7 +41,11 @@
 #define V3D_SSETUPMODE          0x260
 #define V3D_SVX                 0x264
 #define V3D_SVY                 0x268
-#define V3D_SARGB               0x26c
+#define V3D_SARGB               0x26c   /* packed - NOT used: see vcrdd_3d.c vertex() */
+#define V3D_SRED                0x270   /* float, 0..255 */
+#define V3D_SGREEN              0x274
+#define V3D_SBLUE               0x278
+#define V3D_SALPHA              0x27c
 #define V3D_SVZ                 0x280
 #define V3D_SOOWFBI             0x284
 #define V3D_SOOW0               0x288

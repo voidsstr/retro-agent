@@ -163,3 +163,22 @@ def test_a_texture_the_cpu_wrote_is_flushed_before_the_tmu_samples_it():
     assert "!cur->lpGbl->fpVidMem" in ns and "handle_forget(NULL, cur)" in ns
     mp = (KMD / "miniport" / "vcrmp.h").read_text()
     assert "#define VCR_DD_MAP_LEN      0xa00000" in mp
+
+
+def test_vertex_colour_goes_to_the_setup_unit_as_floats_not_packed_sargb():
+    """On the V5 6000's VSA-100 silicon (.124, 2026-09-26) d3dprobe gouraud
+    failed 2 of 36: fed through the packed sARGB register, a triangle kept
+    its FIRST vertex's red everywhere (green corner read fffb00, blue corner
+    ff00ff) while green and blue interpolated; 86Box accepted sARGB. 3dfx's
+    h5 Glide is built GLIDE_PACKED_RGB=0 and writes sRed/sGreen/sBlue/sAlpha
+    as floats - so does vertex() now, and never sARGB."""
+    src = (KMD / "display" / "vcrdd_3d.c").read_text()
+    body = src[src.index("static BOOL vertex("):src.index("BOOL VcrDd3dTriangle(")]
+    code = re.sub(r"/\*.*?\*/", "", body, flags=re.S)
+    assert "V3D_SARGB" not in code
+    for reg, expr in (("V3D_SRED", r"\(argb >> 16\) & 0xff"), ("V3D_SGREEN", r"\(argb >> 8\) & 0xff"),
+                      ("V3D_SBLUE", r"argb & 0xff"), ("V3D_SALPHA", r"argb >> 24")):
+        assert re.search(rf"wf\(pd, {reg}, \(float\)\(?{expr}\)?\);", code), reg
+    regs = (KMD / "include" / "vcr_3dregs.h").read_text()
+    for name, off in (("SRED", 0x270), ("SGREEN", 0x274), ("SBLUE", 0x278), ("SALPHA", 0x27c)):
+        assert re.search(rf"#define V3D_{name}\s+0x{off:x}\b", regs), name
