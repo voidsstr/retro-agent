@@ -25,6 +25,7 @@ Run it through the agent: `EXECW 30 C:\RETRO_AGENT\FLEET9X.EXE attrib ...`, or `
 | `deskfix9x` | re-applies the registry display mode, restores the static palette and repaints everything - brought .243 back from a black/garbled desktop after GLQuake on its Voodoo 2 (link with `-lgdi32`) | `C:\RETRO_AGENT\DESKFIX.TXT` |
 | `hash9x <file> [file ...]` | MD5 and size of each file, read 64 KB at a time. The agent's `DOWNLOAD` buffers a whole file in one heap block, which is no way to check an 80 MB pak on a 127 MB box. Proved agent 1.84.2's resume wrote Hexen II's paks correctly | `C:\RETRO_AGENT\HASH9X.TXT` |
 | `ide9x identify` / `ide9x read <m|s> <lba> <count> <name>` | **read-only**, direct-port ATA IDENTIFY and READ SECTORS on the **secondary** IDE channel (170h-177h/376h), bypassing the BIOS and Win98's driver; never the primary channel, only commands ECh/20h, interrupts off while busy, NEW output files only. Identified the 80 GB disk the 1997 BIOS could not read on .243 | `C:\RETRO_AGENT\IDE9X.TXT`, `IDENT_M.BIN`, the named dump |
+| `idewrite9x zero <serial> <lba> <count>` / `put <serial> <lba> <file>` / `flush <serial>` | the **only write-capable** tool here: direct-port ATA WRITE SECTORS (30h) and FLUSH CACHE (E7h) to the secondary MASTER only. Every command first IDENTIFYs the drive and refuses unless its serial is byte-for-byte the one you named; writes are bounded by the drive's own capacity, at most 256 sectors a run, `put` at most 128 sectors. Never kill it mid-run - create `C:\RETRO_AGENT\IDEW9X.STP` and it stops between runs. Shares the `retro_ide_secondary` mutex with ide9x. Formatted .243's 80 GB disk, ~3.6 MB/s | `C:\RETRO_AGENT\IDEW9X.TXT` |
 | `disk9x info` / `disk9x read ...` | read-only VWIN32 INT 13h reader - **but VWIN32's INT 13h does not serve hard disks on 9x** (measured: even 80h, the boot disk, is refused), so it only proves that route is closed | `C:\RETRO_AGENT\DISK9X.TXT` |
 | `agentswap9x` | installs `retro_agent_new.exe` over a RUNNING agent (Win9x cannot replace a running exe). LAUNCH it, then send `QUIT`; it swaps, starts the new build, and rolls back if that build is not still running after 25 s | `C:\RETRO_AGENT\AGENTSWAP.TXT` |
 
@@ -52,3 +53,25 @@ NTFS volume from raw sectors fetched with `ide9x read` (boot sector, $MFT
 runlist, fixups, $INDEX_ROOT/$INDEX_ALLOCATION) and can `--list` a folder or
 `--cat` a file. Both tools were adversarially reviewed before first use and are
 pinned by `tests/python/test_ide9x_readonly.py` / `test_disk9x_readonly.py`.
+
+### Formatting it from Windows 98 anyway (2026-09-25)
+
+With no BIOS path and no Windows driver, the disk was formatted from the host:
+`mkfs.fat` (the reference implementation, then `fsck.fat -n`) builds an image of
+exactly the partition, only its non-zero sectors are shipped, and `idewrite9x`
+zeroes the metadata region and writes those sectors, the MBR last:
+
+- **FAT32, 32 KB clusters**, 64 reserved sectors, FATs of 19136 sectors, OEM
+  name patched to `MSWIN4.1` (what Win98's own FORMAT writes).
+- One partition at LBA 63, **cylinder-aligned** (156,296,322 sectors, ending at
+  cylinder 9728), which is what Win98 FDISK would have made.
+- Written as **type 1Ch (hidden FAT32 LBA) first**. A visible 0Ch partition on
+  a disk the BIOS mis-addresses risks IO.SYS mounting it through INT 13h at
+  boot, or Windows falling back to MS-DOS compatibility mode for it, and either
+  would write through the BIOS's wrong geometry. Flip it to 0Ch only once
+  `ESDI_506` has claimed the disk natively.
+- Also zeroed: the old MBR gap, the old NTFS $MFT (64 MB), $MFTMirr and backup
+  boot sector, so nothing finds a stale NTFS volume. The rest of the old data
+  is simply free space now.
+- Verified by reading back every written sector and both edges of every zeroed
+  range with `ide9x read` (24/24).

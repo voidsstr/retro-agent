@@ -114,6 +114,17 @@ static void outl(unsigned short port, unsigned long v)
     __asm__ __volatile__("outl %0, %1" : : "a"(v), "Nd"(port));
 }
 
+/* One process at a time on the secondary channel: ide9x and idewrite9x both
+ * take this named mutex and exit if the other holds it (their task-file
+ * writes must never interleave). */
+static HANDLE chan_lock(void)
+{
+    HANDLE m = CreateMutexA(NULL, TRUE, "retro_ide_secondary");
+    if (!m) return NULL;
+    if (GetLastError() == ERROR_ALREADY_EXISTS) { CloseHandle(m); return NULL; }
+    return m;
+}
+
 /* the 400 ns settle the ATA spec asks for (alternate status, 4 reads) */
 static void settle(void) { inb(IDE_CTRL); inb(IDE_CTRL); inb(IDE_CTRL); inb(IDE_CTRL); }
 
@@ -123,8 +134,14 @@ static int wait_notbusy(DWORD ms)
 {
     DWORD t0 = GetTickCount();
     for (;;) {
-        unsigned char s = inb(R_CMDSTAT);
-        if (s != 0xFF && !(s & ST_BSY)) return s;
+        unsigned char s = 0xFF;
+        int spin;
+        /* spin briefly first: a drive is BSY for microseconds after a block,
+         * and Sleep(1) on 9x costs a whole scheduler tick per sector */
+        for (spin = 0; spin < 2000; spin++) {
+            s = inb(R_CMDSTAT);
+            if (s != 0xFF && !(s & ST_BSY)) return s;
+        }
         if (GetTickCount() - t0 > ms) return -1;
         Sleep(1);
     }
@@ -436,6 +453,7 @@ void __stdcall start(void)
     SetFilePointer(logf, 0, NULL, FILE_END);
     wsprintfA(line, "--begin-- tick %lu: %.300s", GetTickCount(), GetCommandLineA());
     w(line);
+    if (!chan_lock()) { w("another ide9x/idewrite9x is using the secondary channel - exiting"); w("--end--"); ExitProcess(6); }
     lstrcpynA(cmdbuf, GetCommandLineA(), sizeof(cmdbuf));
     n = split(cmdbuf, tok, 8);
     if (n >= 2 && !lstrcmpiA(tok[1], "identify")) {
