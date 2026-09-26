@@ -123,10 +123,14 @@ Also found: every `sli_golden.py` capture before 03:20 ran Glide's DEFAULT
    (the vendor's hardware-cursor pattern: the reference for vcr-kmd's cursor).
 3. Vendor glidelab baselines, one boot each: `glidelab_sweep.py --label
    amigamerlin-3.1-r11 --cfgs 0,5` (fill + bands, 1024 and 1600, 60 Hz).
-4. `deploy_box.py install` (vcr-kmd with the hardware cursor, branch
-   `worktree-vcr-kmd`), then `cursor_golden.py --label vcrkmd --compare
-   amigamerlin-3.1-r11`, `glidelab_sweep.py --label vcrkmd --cfgs 0,2,5
-   --no-reboot`, `glidelab_run.py ... abandon --then fill`.
+4. `deploy_box.py install` (vcr-kmd from branch `worktree-vcr-kmd`: hardware
+   cursor + DirectDraw HAL + the primary as a hooked device surface, all
+   proven in the VM test bed), then: `mode_sweep.py --golden ...` (the GDI punt
+   layer on silicon), `cursor_golden.py --label vcrkmd --compare
+   amigamerlin-3.1-r11`, `ddlab_run.py 192.168.1.124 caps|flip|blt` (flip =
+   vidDesktopStartAddr on the chip), Quake II all-ours (Glide with a HAL
+   present), `glidelab_sweep.py --label vcrkmd --cfgs 0,2,5 --no-reboot`,
+   `glidelab_run.py ... abandon --then fill`. If all hold, land the branch.
 5. AA (cfg 1, 3, 6, 7, 8) on vcr-kmd ONE config at a time, ideally with someone
    near the box: `glidelab_run.py ... bands --cfg N` first (a register-level
    failure is logged by the flight recorder before the write that hangs).
