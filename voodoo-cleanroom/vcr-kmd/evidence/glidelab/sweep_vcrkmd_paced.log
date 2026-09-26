@@ -1,0 +1,8 @@
+[12:41:57] plan: 9 Glide sessions, 18 monitor re-syncs, 5 s before each
+[12:41:57]   monitor SNY1270 CPD-G200: H 30-96 kHz, V 48-120 Hz, <= 260 MHz
+[12:41:57]       1024x768x16@60   48.38 kHz  60.03 Hz   65.0 MHz
+[12:41:57] ===== cfg 0 =====
+[12:42:16]   {"mode": "fill", "error": "Glide opened 75 Hz, asked 60 - a mode the gate never checked (and: opened at 75 Hz, not the 60 Hz asked)", "opened_hz": 75, "halt": "Glide opened 75 Hz, asked 60 - a mode the gate never checked", "cleanup": {"images": ["glidelab.exe"], "found": [], "killed": [], "left": [], "spared": [], "gone": true, "pace_mark": true, "rested_s": 5.0}, "label": "vcrkmd-paced", "cfg": 0, "res": "1024x768", "refresh": 60, "taken": "2026-09-26T12:42:16"}
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+SWEEP STOPPED - no further Glide session: cfg 0 1024x768 fill: Glide opened 75 Hz, asked 60 - a mode the gate never checked (cleaned up: {"images": ["glidelab.exe"], "found": [], "killed": [], "left": [], "spared": [], "gone": true, "pace_mark": true, "rested_s": 5.0})
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

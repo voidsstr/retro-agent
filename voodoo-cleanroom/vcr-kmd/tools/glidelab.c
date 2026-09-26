@@ -280,6 +280,25 @@ static int pace_before(void)
     return go;
 }
 
+/* A setting for Glide, where Glide will SEE it. Its hwcGetenv() calls the C
+ * runtime's getenv(), which reads msvcrt's own copy of the environment taken
+ * when the process started - SetEnvironmentVariableA does not reach it. So
+ * every glidelab --cfg / --refresh set that way was invisible, and Glide
+ * fell through to the registry: on .124 the vendor's control panel had left
+ * FX_GLIDE_REFRESH=75 and SSTH3_SLI_AA_CONFIGURATION=5 under
+ * Services\3dfxvs\Device0\glide, so a "cfg 0 at 60 Hz" run opened cfg 5 at
+ * 75 Hz (caught by the opened_hz read-back, 2026-09-26). _putenv updates
+ * msvcrt's copy - glidelab and our mingw Glide share msvcrt.dll - and the
+ * Win32 block is set too for anything that asks the OS. */
+static void glide_env(const char *name, const char *value)
+{
+    char kv[96];
+    _snprintf(kv, sizeof kv, "%s=%s", name, value);
+    kv[sizeof kv - 1] = 0;
+    SetEnvironmentVariableA(name, value);
+    _putenv(kv);
+}
+
 /* The refresh the mode really opened at. FX_GLIDE_REFRESH and the HZ[] code
  * ask; the driver answers. */
 static int current_hz(void)
@@ -566,11 +585,11 @@ int main(int argc, char **argv)
      * pins another; set before the DLL loads, which may read it at attach */
     _snprintf(hz, sizeof hz, "%d", O.hz);
     hz[sizeof hz - 1] = 0;
-    SetEnvironmentVariableA("FX_GLIDE_REFRESH", hz);
+    glide_env("FX_GLIDE_REFRESH", hz);
     if (O.cfg >= 0) {
         char env[16];
         _snprintf(env, sizeof env, "%d", O.cfg);
-        SetEnvironmentVariableA("SSTH3_SLI_AA_CONFIGURATION", env);
+        glide_env("SSTH3_SLI_AA_CONFIGURATION", env);
     }
     g_dll = LoadLibraryA(O.dll);
     if (!g_dll || !bind_glide()) {

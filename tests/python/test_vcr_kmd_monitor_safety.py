@@ -955,7 +955,7 @@ def test_glidelab_opens_the_refresh_asked_or_fails_the_run():
     raw = _body(GLIDELAB, "main", strings=False)
     no_code = main.index("if (hzcode < 0) {")
     assert re.search(r"\breturn 2;", _block_after(main, no_code))
-    env = raw.index('SetEnvironmentVariableA("FX_GLIDE_REFRESH", hz)')
+    env = raw.index('glide_env("FX_GLIDE_REFRESH", hz)')
     assert re.search(r'_snprintf\(hz, sizeof hz, "%d", O\.hz\);', raw)
     assert no_code < env < main.index("LoadLibraryA(O.dll)") < main.index("p_grGlideInit()")
     ob = _body(GLIDELAB, "open_board")
@@ -3836,3 +3836,23 @@ def test_the_battery_keeps_the_monitor_model_but_never_its_serial():
     # a block with no serial descriptor is returned unchanged
     assert silicon_battery.blank_edid_serial('{"edid":"%s"}' % ("00" * 128)) == \
         '{"edid":"%s"}' % ("00" * 128)
+
+
+def test_glidelab_hands_glide_its_settings_where_glide_reads_them():
+    """Glide's hwcGetenv() calls the C runtime's getenv(), which reads
+    msvcrt's copy of the environment taken at process start: a setting made
+    with SetEnvironmentVariableA alone never reaches it, and Glide falls
+    through to the registry. On .124 (2026-09-26) the vendor's control panel
+    had left FX_GLIDE_REFRESH=75 and SSTH3_SLI_AA_CONFIGURATION=5 there, so a
+    "cfg 0 at 60 Hz" glidelab run opened cfg 5 at 75 Hz - a refresh the host
+    gate never checked (caught by the opened_hz read-back). Every setting for
+    Glide goes through glide_env(), which also _putenv()s it."""
+    code = _blank(GLIDELAB)
+    helper = _body(GLIDELAB, "glide_env", strings=False)
+    assert "_putenv(" in helper and "SetEnvironmentVariableA(" in helper
+    main = _body(GLIDELAB, "main", strings=False)
+    for var in ("FX_GLIDE_REFRESH", "SSTH3_SLI_AA_CONFIGURATION"):
+        assert re.search(rf'glide_env\("{var}"', main), var
+    # no Glide setting made the old way anywhere outside the helper
+    outside = code.replace(_body(GLIDELAB, "glide_env"), "")
+    assert "SetEnvironmentVariableA" not in outside
