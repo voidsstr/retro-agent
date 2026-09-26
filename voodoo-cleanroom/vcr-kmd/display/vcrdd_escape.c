@@ -37,7 +37,7 @@ static BOOL supported(ULONG esc)
     case VCR_EXT_HWC_WXP:
         return TRUE;
     }
-    return esc > VCR_ESC_BASE && esc <= VCR_ESC_DD_STATS;
+    return esc > VCR_ESC_BASE && esc <= VCR_ESC_RESET_ENGINE;
 }
 
 static BOOL get_info(VCR_PDEV *pd, vcr_info *v)
@@ -225,6 +225,9 @@ ULONG APIENTRY DrvEscape(SURFOBJ *pso, ULONG iEsc, ULONG cjIn, PVOID pvIn,
     case VCR_ESC_SNAPSHOT:
         rc = VcrIoctl(pd->hDriver, IOCTL_VCR_SNAPSHOT, NULL, 0, pvOut, cjOut, &got);
         return rc ? 0 : got;
+
+    case VCR_ESC_RESET_ENGINE:
+        return VcrIoctl(pd->hDriver, IOCTL_VCR_RESET_ENGINE, NULL, 0, NULL, 0, NULL) ? 0 : 1;
 
     case VCR_ESC_BOOT_OK:
         return VcrIoctl(pd->hDriver, IOCTL_VCR_BOOT_OK, NULL, 0, NULL, 0, NULL) ? 0 : 1;

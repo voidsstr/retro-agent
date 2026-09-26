@@ -304,7 +304,25 @@ TEST(the_mode_list_fits_the_miniport_array) {
     CHECK_EQ_U(n, vcr_ntimings * 3);        /* every timing at every depth */
 }
 
+
+/* The desktop's place in video memory: the TOP, as the vendor driver puts it
+ * (golden vidDesktopStartAddr: 1280x1024x32 0x01b00000, 640x480x16
+ * 0x01f60000 for its tiled desktop; its linear 640x480x8 0x01fb5000). It
+ * first sat at 1 MB, inside Glide's command FIFO (96 KB .. ~1116 KB): the
+ * repaint after a game's mode switch corrupted the command stream and hung
+ * the engine on the V5 6000. */
+TEST(the_desktop_sits_at_the_top_clear_of_glides_fifo) {
+    const vcr_u32 fb = 32u << 20;
+    CHECK_EQ_U(vcr_desktop_offset(fb, 1280 * 4, 1024), 0x01b00000);
+    CHECK_EQ_U(vcr_desktop_offset(fb, 640, 480), 0x01fb5000);
+    CHECK_EQ_U(vcr_desktop_offset(fb, 640 * 2, 480), 0x01f6a000);  /* linear: 4 KB, not 64 KB */
+    /* the largest mode we offer still leaves Glide's FIFO alone */
+    CHECK(vcr_desktop_offset(fb, 1920 * 4, 1440) >= 96u * 1024 + 0xff000, "above the FIFO");
+    CHECK_EQ_U(vcr_desktop_offset(fb, 8192 * 4, 2048), 0);        /* does not fit */
+}
+
 MUNIT_MAIN("vcr-kmd modes", {
+    RUN(the_desktop_sits_at_the_top_clear_of_glides_fifo);
     RUN(the_mode_list_fits_the_miniport_array);
     RUN(golden_vendor_crtc_byte_for_byte);
     RUN(golden_vendor_capture_agrees);

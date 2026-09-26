@@ -113,7 +113,8 @@ typedef struct VCR_EXT {
     ULONG     io_len;
     PUCHAR    lfb_kernel;           /* only mapped on demand (MAP_VIDEO_MEMORY) */
     ULONG     fb_per_chip;
-    ULONG     desktop_offset;       /* where the desktop starts in video memory */
+    ULONG     desktop_offset;       /* where the desktop starts (current mode) */
+    ULONG     desktop_fixed;        /* Diag\\DesktopOffset, 0 = top of memory */
     ULONG     lfbmemcfg_linear;     /* lfbMemoryConfig for a linear desktop */
     vcr_hwcaps caps;
 
@@ -180,6 +181,7 @@ void    VcrHwResetToVga(VCR_EXT *x);
 VP_STATUS VcrHwSetClut(VCR_EXT *x, const VIDEO_CLUT *clut, ULONG len);
 void    VcrHwSnapshot(VCR_EXT *x, vcr_snapshot *s);
 ULONG   VcrHwWaitIdle(VCR_EXT *x, ULONG chip, ULONG loops);
+ULONG   VcrHwResetEngine(VCR_EXT *x, ULONG chip, const char *why);
 void    VcrHwPower(VCR_EXT *x, ULONG state);
 
 /* ---- vcrmp_map.c: user mappings for Glide and GDI --------------------------- */

@@ -37,6 +37,7 @@
     VCR_EVENT(VCR_EV_CHIP_FOUND,    205, "a=chip b=slot (bus:dev:fn packed) c=bar0 d=bar1") \
     VCR_EVENT(VCR_EV_BRIDGE_FOUND,  206, "a=bus b=slot c=vendor:device") \
     VCR_EVENT(VCR_EV_MODES_BUILT,   207, "a=valid modes b=table size c=max pixclk kHz") \
+    VCR_EVENT(VCR_EV_PCI_DECODE,    208, "a=cfgPciDecode before b=written c=read back d=chip") \
     /* 3xx mode set */ \
     VCR_EVENT(VCR_EV_MODESET_BEGIN, 300, "a=width b=height c=bpp d=refresh") \
     VCR_EVENT(VCR_EV_MODESET_PLL,   301, "a=target kHz b=achieved kHz c=pllCtrl0 d=2x") \
@@ -46,6 +47,7 @@
     VCR_EVENT(VCR_EV_PALETTE,       305, "a=first b=count") \
     VCR_EVENT(VCR_EV_VGA_RESTORE,   306, "a=result") \
     VCR_EVENT(VCR_EV_IDLE_WAIT,     307, "a=status b=loops c=timed out") \
+    VCR_EVENT(VCR_EV_ENGINE_RESET,  308, "a=status before b=status after c=idle d=chip") \
     /* 4xx IOCTL */ \
     VCR_EVENT(VCR_EV_IOCTL,         400, "a=ioctl b=in len c=out len d=status") \
     VCR_EVENT(VCR_EV_IOCTL_UNKNOWN, 401, "a=ioctl") \

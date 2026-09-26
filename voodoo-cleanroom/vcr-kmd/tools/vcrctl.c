@@ -17,6 +17,7 @@
  *   log [after]            our driver: flight-recorder entries (TSV lines)
  *   mark <text>            our driver: write a mark into the recorder
  *   bootok                 our driver: clear the boot-attempt counter
+ *   reset-engine           our driver: reset a hung 3D engine / command stream
  *   snapshot               our driver: every register of every chip
  *   reg <hexoff>           our driver: read one memBase0 register
  *   crtc <hexidx>          our driver: read one CRTC register
@@ -847,6 +848,8 @@ int main(int argc, char **argv)
         rc = cmd_log(argc > 2 ? strtoul(argv[2], NULL, 0) : 0);
     else if (!strcmp(cmd, "mark"))
         rc = cmd_mark(argc > 2 ? argv[2] : "mark");
+    else if (!strcmp(cmd, "reset-engine"))
+        rc = cmd_simple("reset-engine", VCR_ESC_RESET_ENGINE);
     else if (!strcmp(cmd, "bootok"))
         rc = cmd_simple("bootok", VCR_ESC_BOOT_OK);
     else if (!strcmp(cmd, "snapshot"))

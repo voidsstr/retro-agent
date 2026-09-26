@@ -170,6 +170,35 @@ ULONG VcrHwWaitIdle(VCR_EXT *x, ULONG chip, ULONG loops)
     return 0;
 }
 
+/* ---- engine reset ------------------------------------------------------------------
+ * A Glide program that dies (or is killed) mid-frame leaves the 3D engine and
+ * the command stream BUSY, and they stay busy: measured on .124, status 0xa5f
+ * and a board that no later Glide program can open. This is the engine half of
+ * Glide GPL cinit's h3InitResetAll(): graphics core, FBI FIFO, 2D and command
+ * stream - NOT video, memory or VGA timing, so the desktop keeps scanning.
+ * The command FIFO fetch is stopped first. */
+ULONG VcrHwResetEngine(VCR_EXT *x, ULONG chip, const char *why)
+{
+    ULONG st0, mi0, mi1, idle;
+    const ULONG eng = VCR_MI0_GRX_RESET | VCR_MI0_FBI_FIFO_RESET | VCR_MI0_2D_RESET;
+    if (x->backend != VCR_HW_VOODOO || chip >= x->nchips || !x->chip[chip].regs)
+        return 0;
+    st0 = VcrRd(x, chip, VCR_R_STATUS);
+    mi0 = VcrRd(x, chip, VCR_R_MISCINIT0);
+    mi1 = VcrRd(x, chip, VCR_R_MISCINIT1);
+    VcrWr(x, chip, VCR_CMD_BASESIZE0, 0);                 /* stop FIFO fetch */
+    VcrWr(x, chip, VCR_R_MISCINIT1, mi1 | VCR_MI1_CMDSTREAM_RESET);
+    VcrWr(x, chip, VCR_R_MISCINIT0, mi0 | eng);
+    VideoPortStallExecution(10);
+    VcrWr(x, chip, VCR_R_MISCINIT0, mi0 & ~eng);
+    VcrWr(x, chip, VCR_R_MISCINIT1, mi1 & ~VCR_MI1_CMDSTREAM_RESET);
+    idle = VcrHwWaitIdle(x, chip, 20000);
+    VLOG(idle ? VCR_LV_WARN : VCR_LV_ERROR, VCR_EV_ENGINE_RESET, st0,
+         VcrRd(x, chip, VCR_R_STATUS), idle, chip, "engine reset (%s): %s", why,
+         idle ? "idle again" : "STILL BUSY");
+    return idle;
+}
+
 /* ---- discovery --------------------------------------------------------------------- */
 
 static ULONG voodoo_fb_bytes(VCR_EXT *x)
@@ -261,6 +290,25 @@ VP_STATUS VcrHwDiscover(VCR_EXT *x)
 
     find_slaves(x);
     find_hint_bridge(x);
+    /* The BIOS leaves a VSA-100 in its POWER-UP decode (membase0 128 MB,
+     * membase1 256 MB on the V5 6000: cfgPciDecode 0x10). The vendor driver
+     * and Glide's own GPL multi-chip code (dos_mode.c mapSlavePhysical:
+     * "the board is still in its powerup config and we need to fiddle with
+     * it") narrow it to 32 MB / 64 MB / 256 B (0x45) before 3D is used. Left
+     * wide, our first Glide run hung the engine (measured on .124). */
+    if (VCR_IS_NAPALM(x->device) && VcrDiagGet(L"FixPciDecode", 1)) {
+        ULONG dec = VcrPciRead(x, x->slot, VCR_CFG_PCIDECODE, 4), want;
+        if ((dec & VCR_PCIDEC_MB0_MASK) != VCR_PCIDEC_32MB) {
+            want = (dec & ~(VCR_PCIDEC_MB0_MASK | VCR_PCIDEC_MB1_MASK | VCR_PCIDEC_IO_MASK)) |
+                   VCR_PCIDEC_32MB | (VCR_PCIDEC_64MB << VCR_PCIDEC_MB1_SHIFT);
+            VcrPciWrite(x, x->slot, VCR_CFG_PCIDECODE, want, 4);
+            VLOG(VCR_LV_INFO, VCR_EV_PCI_DECODE, dec, want,
+                 VcrPciRead(x, x->slot, VCR_CFG_PCIDECODE, 4), 0,
+                 "master decode narrowed from power-up (32 MB / 64 MB / 256 B)");
+        } else {
+            VLOG(VCR_LV_DEBUG, VCR_EV_PCI_DECODE, dec, dec, dec, 0, "master decode already 32 MB");
+        }
+    }
     x->fb_per_chip = voodoo_fb_bytes(x);
 
     x->caps.device_id = x->device;
@@ -271,11 +319,16 @@ VP_STATUS VcrHwDiscover(VCR_EXT *x)
     x->caps.twox_above_khz = VCR_IS_NAPALM(x->device) ? 262000 : 160000;
     x->caps.twox_htotal_chars = VCR_IS_NAPALM(x->device) ? 261 : 0;
     x->caps.fb_bytes = x->fb_per_chip;
-    /* The desktop starts 1 MB in: Glide keeps its command FIFO at 96 KB, so a
-     * GDI write that lands while a game owns the chip can at worst touch a
-     * texture, never the FIFO. */
-    x->desktop_offset = VcrDiagGet(L"DesktopOffset", 0x100000) & ~0xfffu;
-    x->caps.fb_reserved = x->desktop_offset + (64u << 10);
+    /* The desktop sits at the TOP of video memory, per mode (the vendor's
+     * layout; vcr_desktop_offset()). It first sat at 1 MB - inside Glide's
+     * command FIFO, which spans 96 KB .. ~1116 KB on VSA-100 (minihwc.c:
+     * 96 KB pad + MAXFIFOSIZE_16MB): the desktop repaint after a game's mode
+     * switch wrote into the live command stream and the engine hung (the
+     * first Glide run on .124). Diag\\DesktopOffset (non-zero) pins it
+     * instead. Glide needs its FIFO below the desktop: reserve it. */
+    x->desktop_fixed = VcrDiagGet(L"DesktopOffset", 0) & ~0xfffu;
+    x->desktop_offset = x->desktop_fixed;
+    x->caps.fb_reserved = 0x118000;
     /* Overrides, so a golden-capture disagreement is fixed by a registry value
      * on the box before it is fixed in the table. */
     if ((over = VcrDiagGet(L"MaxPixclkKhz", 0)) != 0)
@@ -449,7 +502,11 @@ static VP_STATUS voodoo_program(VCR_EXT *x, const vcr_modeset *m)
 {
     ULONG i, v;
 
-    VcrHwWaitIdle(x, 0, 200000);
+    /* Still busy here means a 3D client died mid-stream (the display DLL
+     * never drives the engine): reset it, or no later Glide program can open
+     * the board. */
+    if (!VcrHwWaitIdle(x, 0, 200000))
+        VcrHwResetEngine(x, 0, "busy at mode set");
 
     VcrWr(x, 0, VCR_R_MISCINIT1, VcrRd(x, 0, VCR_R_MISCINIT1) | VCR_MI1_CLUT_INVERT);
     /* keep VGA decode and the VGA base-address bits; set the extension bits */
@@ -550,6 +607,9 @@ VP_STATUS VcrHwSetMode(VCR_EXT *x, ULONG idx)
          m.twox, "pll %u kHz -> %u kHz, refresh %u mHz", m.pix_khz_target,
          m.pix_khz_actual, m.refresh_mhz);
 
+    if (x->backend == VCR_HW_VOODOO)
+        x->desktop_offset = x->desktop_fixed ? x->desktop_fixed
+                          : vcr_desktop_offset(x->fb_per_chip, m.stride, t->h);
     st = x->backend == VCR_HW_BOCHS ? bochs_program(x, t, bpp) : voodoo_program(x, &m);
     if (st != NO_ERROR)
         return st;

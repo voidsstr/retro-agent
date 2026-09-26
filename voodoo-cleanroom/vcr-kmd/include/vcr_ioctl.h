@@ -34,6 +34,7 @@
 #define IOCTL_VCR_SNAPSHOT      VCR_CTL(0xa09)
 #define IOCTL_VCR_CTX_DWORD     VCR_CTL(0xa0a)
 #define IOCTL_VCR_RESTORE_MODE  VCR_CTL(0xa0b)
+#define IOCTL_VCR_RESET_ENGINE  VCR_CTL(0xa0c)
 
 #define VCR_ESC_BASE            0x56430000u     /* 'VC' */
 #define VCR_ESC_INFO            (VCR_ESC_BASE + 1)
@@ -44,6 +45,7 @@
 #define VCR_ESC_SNAPSHOT        (VCR_ESC_BASE + 6)
 #define VCR_ESC_BOOT_OK         (VCR_ESC_BASE + 7)
 #define VCR_ESC_DD_STATS        (VCR_ESC_BASE + 8)
+#define VCR_ESC_RESET_ENGINE    (VCR_ESC_BASE + 9)
 
 /* backends */
 #define VCR_HW_NONE             0

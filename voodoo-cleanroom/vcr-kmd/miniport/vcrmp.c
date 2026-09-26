@@ -352,7 +352,9 @@ static void mode_info(VCR_EXT *x, ULONG i, VIDEO_MODE_INFORMATION *m)
         m->BlueMask = 0x0000ff;
     }
     m->VideoMemoryBitmapWidth = t->w;
-    m->VideoMemoryBitmapHeight = (x->fb_per_chip - x->desktop_offset) / m->ScreenStride;
+    /* desktop at the top of memory: nothing below it belongs to GDI */
+    m->VideoMemoryBitmapHeight = x->desktop_fixed
+        ? (x->fb_per_chip - x->desktop_fixed) / m->ScreenStride : t->h;
 }
 
 static void fill_info(VCR_EXT *x, vcr_info *v)
@@ -631,6 +633,9 @@ static BOOLEAN NTAPI VcrStartIO(PVOID ext, PVIDEO_REQUEST_PACKET rp)
         break;
     case IOCTL_VCR_RESTORE_MODE:
         st = VcrHwRestoreMode(x);
+        break;
+    case IOCTL_VCR_RESET_ENGINE:
+        st = VcrHwResetEngine(x, 0, "requested") ? NO_ERROR : ERROR_BUSY;
         break;
     default:
         VLOG(VCR_LV_DEBUG, VCR_EV_IOCTL_UNKNOWN, code, rp->InputBufferLength,

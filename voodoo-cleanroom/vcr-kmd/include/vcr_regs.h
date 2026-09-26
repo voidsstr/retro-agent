@@ -153,10 +153,17 @@
 #define VCR_PLL(n, m, k)            (((n) << 8) | ((m) << 2) | (k))
 #define VCR_PLL_REF_KHZ             14318
 
+/* miscInit0 (h3defs.h) - resets */
+#define VCR_MI0_GRX_RESET           (1u << 0)
+#define VCR_MI0_FBI_FIFO_RESET      (1u << 1)
+#define VCR_MI0_VIDEO_RESET         (1u << 4)
+#define VCR_MI0_2D_RESET            (1u << 5)
+
 /* miscInit1 */
 #define VCR_MI1_CLUT_INVERT         (1u << 0)
 #define VCR_MI1_POWERDOWN_DAC       (1u << 8)
 #define VCR_MI1_DISABLE_2D_BLOCK_WRITE (1u << 15)
+#define VCR_MI1_CMDSTREAM_RESET     (1u << 19)
 
 /* dramInit0 / dramInit1 (memory sizing, tdfxfb do_lfb_size) */
 #define VCR_DI0_SGRAM_NUM_CHIPSETS  (1u << 26)
@@ -179,6 +186,14 @@
 /* ---- PCI config space (h3regs.h cfg*) --------------------------------------- */
 #define VCR_CFG_INITENABLE          0x40   /* cfgInitEnable_FabID */
 #define VCR_CFG_PCIDECODE           0x48
+/* cfgPciDecode fields (h3defs.h SST_PCI_*_DECODE): 0=128MB 1=256MB 2=512MB
+ * 3=1GB 4=64MB 5=32MB 6=16MB 7=8MB 8=4MB; ioBase0 bits 9:8, 0 = 256 bytes */
+#define VCR_PCIDEC_MB0_MASK         0xfu
+#define VCR_PCIDEC_MB1_SHIFT        4
+#define VCR_PCIDEC_MB1_MASK         (0xfu << 4)
+#define VCR_PCIDEC_IO_MASK          (0x3u << 8)
+#define VCR_PCIDEC_32MB             5u
+#define VCR_PCIDEC_64MB             4u
 #define VCR_CFG_VIDEOCTRL0          0x80
 #define VCR_CFG_VIDEOCTRL1          0x84
 #define VCR_CFG_VIDEOCTRL2          0x88

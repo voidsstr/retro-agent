@@ -127,7 +127,30 @@ drivers' PLL search picked N=174 M=0 K=3 for 157.5 MHz - a 1.26 GHz VCO where
 the vendor runs 315 MHz - fixed by the vendor's selection rules (exact
 `pllCtrl0` match in all 123 modes).
 
+**THE WHOLE STACK IS OURS (2026-09-26): Quake II on our ICD + our h5 Glide +
+our miniport + our display driver, 146.8 fps** at 640x480x16 on one VSA-100
+(timedemo demo1, `v56k_bench.py --titles quake2:allours --configs 0`) - the
+same cell measured 147.9 fps over AmigaMerlin's kernel driver (README §13.3):
+0.7 %, run-to-run noise. Getting there took three hardware findings (below):
+the master's power-up PCI decode, a desktop that overlapped Glide's command
+FIFO, and a 3D engine left busy by a killed game (now reset automatically).
+
 ## Findings (measured)
+
+- **The desktop must not sit in Glide's command FIFO.** On VSA-100 Glide
+  puts its FIFO at 96 KB .. ~1116 KB (minihwc.c: a 96 KB pad plus
+  MAXFIFOSIZE_16MB). Our desktop first started at 1 MB: the repaint after
+  each game mode switch wrote into the live command stream and the engine
+  hung (status 0xA5F). The desktop now sits at the TOP of memory, per mode -
+  the vendor's layout (0x01B00000 at 1280x1024x32, its exact value).
+- **The BIOS leaves the master in its power-up PCI decode** (membase0 128 MB,
+  membase1 256 MB, cfgPciDecode 0x10); the vendor and Glide's GPL dos_mode.c
+  narrow it to 32 MB / 64 MB / 256 B (0x45) before 3D. Our miniport does too.
+- **A game killed mid-frame leaves the 3D engine busy** and every later Glide
+  open fails. A mode set that finds the chip busy now resets the engine (the
+  engine half of Glide cinit's h3InitResetAll: graphics core, FBI FIFO, 2D,
+  command stream; video and memory timing untouched) - measured: 0xA5F ->
+  0x5F, desktop intact. `vcrctl reset-engine` does it on demand.
 
 - **The vendor programs sync start/end one unit EARLY** (CR04/05 and CR10/11
   one below textbook VGA) - tdfxfb's convention; X.org's is off by one here.

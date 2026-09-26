@@ -89,6 +89,13 @@ int vcr_mode_compute(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp,
  * Returns how many were written (<= max). */
 vcr_u32 vcr_modes_build(const vcr_hwcaps *hw, vcr_mode *out, vcr_u32 max);
 
+/* Where the desktop goes in video memory: the TOP, like the vendor driver
+ * (fb - stride * height, rounded down to 4 KB). Glide owns the bottom - its
+ * command FIFO spans 96 KB .. ~1116 KB - and a GDI write that lands while a
+ * game runs must hit a colour buffer, never the FIFO. Returns 0 if the
+ * desktop does not fit. */
+vcr_u32 vcr_desktop_offset(vcr_u32 fb_bytes, vcr_u32 stride, vcr_u32 height);
+
 /* Index into vcr_timings[] of the timing matching w x h @ refresh, or of the
  * lowest refresh at w x h when refresh is 0/1 ("default"), or -1. */
 int vcr_timing_find(vcr_u32 w, vcr_u32 h, vcr_u32 refresh);

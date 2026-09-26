@@ -355,6 +355,12 @@ vcr_u32 vcr_modes_build(const vcr_hwcaps *hw, vcr_mode *out, vcr_u32 max)
     return n;
 }
 
+vcr_u32 vcr_desktop_offset(vcr_u32 fb_bytes, vcr_u32 stride, vcr_u32 height)
+{
+    vcr_u32 size = (stride * height + 0xfffu) & ~0xfffu;
+    return size > fb_bytes ? 0 : fb_bytes - size;
+}
+
 int vcr_timing_find(vcr_u32 w, vcr_u32 h, vcr_u32 refresh)
 {
     vcr_u32 i;
