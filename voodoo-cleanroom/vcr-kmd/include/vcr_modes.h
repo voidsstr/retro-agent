@@ -39,6 +39,9 @@ typedef struct vcr_hwcaps {
     vcr_u32 fb_bytes;           /* local memory of the chip driving the display */
     vcr_u32 fb_reserved;        /* bytes the display cannot use (cursor, etc.) */
     vcr_u32 napalm_vpc_extra;   /* extra vidProcCfg bits on VSA-100 (see .c) */
+    /* the monitor's Display Range Limits (EDID 0xFD). mon_hmax_khz 0 = unknown:
+     * nothing is filtered (vcr_hwcaps_set_monitor, vcr_edid.h) */
+    vcr_u32 mon_hmin_khz, mon_hmax_khz, mon_vmin_hz, mon_vmax_hz, mon_max_pixclk_khz;
 } vcr_hwcaps;
 
 /* Everything a mode set writes. VGA arrays are in register-index order. */
@@ -81,6 +84,7 @@ vcr_u32 vcr_pll_khz(vcr_u32 pllctrl);
 #define VCR_MODE_E_PIXCLK   2
 #define VCR_MODE_E_MEMORY   3
 #define VCR_MODE_E_RANGE    4
+#define VCR_MODE_E_MONITOR  5   /* outside the monitor's EDID range limits */
 int vcr_mode_check(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp);
 int vcr_mode_compute(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp,
                      vcr_modeset *out);
@@ -88,6 +92,10 @@ int vcr_mode_compute(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp,
 /* Fill out[] with every (timing, bpp) the hardware can show, in table order.
  * Returns how many were written (<= max). */
 vcr_u32 vcr_modes_build(const vcr_hwcaps *hw, vcr_mode *out, vcr_u32 max);
+
+/* A timing's scan rates from its own numbers (nominal dot clock). */
+vcr_u32 vcr_timing_hfreq_hz(const vcr_timing *t);
+vcr_u32 vcr_timing_vfreq_mhz(const vcr_timing *t);
 
 /* Where the desktop goes in video memory: the TOP, like the vendor driver
  * (fb - stride * height, rounded down to 4 KB). Glide owns the bottom - its

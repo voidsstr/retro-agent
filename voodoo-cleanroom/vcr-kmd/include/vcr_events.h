@@ -38,6 +38,8 @@
     VCR_EVENT(VCR_EV_BRIDGE_FOUND,  206, "a=bus b=slot c=vendor:device") \
     VCR_EVENT(VCR_EV_MODES_BUILT,   207, "a=valid modes b=table size c=max pixclk kHz") \
     VCR_EVENT(VCR_EV_PCI_DECODE,    208, "a=cfgPciDecode/pciInit0 before b=written c=read back d=chip") \
+    VCR_EVENT(VCR_EV_DDC,           209, "a=EDID read ok b=vidSerialParallelPort before c=after d=bytes") \
+    VCR_EVENT(VCR_EV_EDID,          210, "a=pnp id (3x5 bits)|product<<16 b=hmin|hmax<<16 kHz c=vmin|vmax<<16 Hz d=max pixclk kHz") \
     /* 3xx mode set */ \
     VCR_EVENT(VCR_EV_MODESET_BEGIN, 300, "a=width b=height c=bpp d=refresh") \
     VCR_EVENT(VCR_EV_MODESET_PLL,   301, "a=target kHz b=achieved kHz c=pllCtrl0 d=2x") \

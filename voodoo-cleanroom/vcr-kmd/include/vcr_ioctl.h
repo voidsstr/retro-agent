@@ -87,6 +87,14 @@ typedef struct vcr_info {
     vcr_u32 sli_result;         /* last vcr_sli_set() result (int) */
     vcr_u32 clock_6k_hz;        /* last V5 6000 external clock programmed, 0 = never */
     vcr_u32 slave_bar0[VCR_MAX_CHIPS];
+    /* the monitor (appended) */
+    vcr_u32 edid_ok;            /* a valid EDID came over DDC */
+    vcr_u32 mon_filter;         /* the mode list honours its range limits */
+    vcr_u32 mon_hmin_khz, mon_hmax_khz, mon_vmin_hz, mon_vmax_hz, mon_max_pixclk_khz;
+    char    mon_pnp[4];         /* "SNY" */
+    vcr_u32 mon_product;
+    char    mon_name[16];
+    vcr_u8  edid[128];          /* the block as read */
 } vcr_info;
 #define VCR_INFO_F_ALLOW_POKE   0x1
 

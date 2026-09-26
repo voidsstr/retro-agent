@@ -100,7 +100,15 @@ static int cmd_info(void)
            v.glide_chips, v.sli_chips, (int)v.sli_result, v.clock_6k_hz);
     for (i = 0; i < (int)v.nchips && i < VCR_MAX_CHIPS; i++)
         printf("%s\"%08x\"", i ? "," : "", v.slave_bar0[i]);
-    printf("]}\n");
+    v.mon_pnp[3] = 0;
+    v.mon_name[15] = 0;
+    printf("],\"edid_ok\":%u,\"mon_filter\":%u,\"monitor\":\"%s%04x %s\","
+           "\"mon_h_khz\":[%u,%u],\"mon_v_hz\":[%u,%u],\"mon_max_pixclk_khz\":%u,\"edid\":\"",
+           v.edid_ok, v.mon_filter, v.mon_pnp, v.mon_product, v.mon_name, v.mon_hmin_khz,
+           v.mon_hmax_khz, v.mon_vmin_hz, v.mon_vmax_hz, v.mon_max_pixclk_khz);
+    for (i = 0; i < (int)sizeof v.edid; i++)
+        printf("%02x", v.edid[i]);
+    printf("\"}\n");
     return 0;
 }
 

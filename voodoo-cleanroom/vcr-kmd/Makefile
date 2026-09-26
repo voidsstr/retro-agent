@@ -22,8 +22,9 @@ KLDFLAGS := -nostdlib -nostartfiles -shared -Wl,--subsystem,native:5.01 \
 ATOMIC  := -D'VCR_LOG_NEXT_SEQ(p)=__sync_add_and_fetch((p),1u)'
 
 MP_SRC  := miniport/vcrmp.c miniport/vcrmp_log.c miniport/vcrmp_hw.c miniport/vcrmp_map.c miniport/vcrmp_clock.c \
-           miniport/vcrmp_multi.c miniport/vcrmp_sli.c \
-           common/vcr_log.c common/vcr_fmt.c common/vcr_modes.c common/vcr_ics307.c
+           miniport/vcrmp_multi.c miniport/vcrmp_sli.c miniport/vcrmp_ddc.c \
+           common/vcr_log.c common/vcr_fmt.c common/vcr_modes.c common/vcr_ics307.c \
+           common/vcr_edid.c
 DD_SRC  := display/vcrdd.c display/vcrdd_escape.c display/vcrdd_log.c \
            common/vcr_fmt.c common/vcr_crt.c
 

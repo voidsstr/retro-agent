@@ -187,6 +187,17 @@ again - the teardown a Glide client that died skips.
   rate on every chip. DDC/EDID filtering is next for that reason as much as
   for the monitor's sake.
 
+**THE MONITOR (2026-09-26).** At FindAdapter the miniport reads the EDID over
+the chip's DDC pair (`vidSerialParallelPort` bits 18-22, through videoprt's
+`VideoPortDDCMonitorHelper`) and builds the mode list inside the monitor's
+declared ranges (`common/vcr_edid.c`); the EDID goes to XP as the monitor
+child. On `.124`: the Sony CPD-G200 (H 30-96 kHz, V 48-120 Hz, 260 MHz), 210
+-> 204 modes (1600x1200@85 at 106 kHz is gone), no New Hardware wizard, and
+the agent's `GAMERES` sees the monitor again (native 1024x768@85). The vendor
+list is a fixed 3dfx table (1600x1200 stops at 70 Hz whatever the monitor);
+ours offers what THIS monitor accepts. `Diag\Ddc`=0 / `Diag\EdidFilter`=0
+switch it off.
+
 ## Findings (measured)
 
 - **METHOD_BUFFERED: an IOCTL's input and output are ONE buffer.** The first
@@ -254,7 +265,8 @@ again - the teardown a Glide client that died skips.
 2. ~~**Glide single chip**~~ — done 2026-09-26: the whole stack ours.
 3. ~~**Four-chip SLI**~~ — done 2026-09-26 (above). Next there: the AA
    configs (1, 3, 4, 6, 7, 8) against vendor goldens (`sli_golden_sweep.py`).
-4. **DDC/EDID** — monitor child + mode filtering (and EDID for GAMERES); also
-   what brings the refresh Glide gets in line with the vendor's.
+4. ~~**DDC/EDID**~~ — done 2026-09-26 (above). Benchmarks against the vendor
+   still need the refresh pinned: our list is the monitor's, the vendor's is
+   its own table.
 5. **2D acceleration + hardware cursor + tiled desktop.**
 6. **DirectDraw HAL**, then D3D.

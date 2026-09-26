@@ -68,6 +68,11 @@
 #define VCR_R_VIDINFORMAT               0x70
 #define VCR_R_VIDTVOUTBLANKHCOUNT       0x74
 #define VCR_R_VIDSERIALPARALLELPORT     0x78
+#define   VCR_SPP_DDC_EN                (1u << 18)   /* the monitor's DDC pair */
+#define   VCR_SPP_DDC_DCK_OUT           (1u << 19)   /* 1 = release (open drain) */
+#define   VCR_SPP_DDC_DDA_OUT           (1u << 20)
+#define   VCR_SPP_DDC_DCK_IN            (1u << 21)   /* the line as it is */
+#define   VCR_SPP_DDC_DDA_IN            (1u << 22)
 #define VCR_R_VIDPIXELBUFTHOLD          0x88
 #define VCR_R_VIDCHROMAMIN              0x8c
 #define VCR_R_VIDCHROMAMAX              0x90

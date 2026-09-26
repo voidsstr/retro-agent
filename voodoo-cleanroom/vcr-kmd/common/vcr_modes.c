@@ -176,7 +176,29 @@ int vcr_mode_check(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp)
     need = (vcr_u32)t->w * t->h * (bpp / 8);
     if (need + hw->fb_reserved > hw->fb_bytes)
         return VCR_MODE_E_MEMORY;
+    /* The monitor's declared ranges, with half a unit of slack for rounding
+     * (EDID stores whole kHz / Hz; a "75 Hz" timing runs at 75.03). */
+    if (hw->mon_hmax_khz) {
+        vcr_u32 hf = vcr_timing_hfreq_hz(t), vf = vcr_timing_vfreq_mhz(t);
+        if (hf + 500 < hw->mon_hmin_khz * 1000u || hf > hw->mon_hmax_khz * 1000u + 500 ||
+            vf + 500 < hw->mon_vmin_hz * 1000u || vf > hw->mon_vmax_hz * 1000u + 500 ||
+            (hw->mon_max_pixclk_khz && t->pixclk_khz > hw->mon_max_pixclk_khz))
+            return VCR_MODE_E_MONITOR;
+    }
     return 0;
+}
+
+vcr_u32 vcr_timing_hfreq_hz(const vcr_timing *t)
+{
+    vcr_u32 htot = (vcr_u32)t->w + t->hfp + t->hsync + t->hbp;
+    return htot ? t->pixclk_khz * 1000u / htot : 0;
+}
+
+vcr_u32 vcr_timing_vfreq_mhz(const vcr_timing *t)
+{
+    vcr_u32 vtot = (vcr_u32)t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) +
+                   t->vfp + t->vsync + t->vbp;
+    return vtot ? vcr_timing_hfreq_hz(t) * 1000u / vtot : 0;
 }
 
 int vcr_mode_compute(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp,

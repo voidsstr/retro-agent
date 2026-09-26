@@ -218,6 +218,7 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
     VcrHwSaveBootState(x);
     VcrHwSnapshotToLog(x, "boot");
     VcrMultiInit(x);            /* slaves placed + mapped, or Glide stays 1-chip */
+    VcrMonitorInit(x);          /* EDID over DDC: the mode list honours the monitor */
 
     x->nmodes = vcr_modes_build(&x->caps, x->modes, VCR_MAX_MODES);
     /* A full table means modes were DROPPED - it happened silently once
@@ -308,13 +309,11 @@ static VP_STATUS NTAPI VcrGetChildDescriptor(PVOID ext, PVIDEO_CHILD_ENUM_INFO c
                                              PVIDEO_CHILD_TYPE type, PUCHAR desc,
                                              PULONG uid, PULONG unused)
 {
-    (void)ext;
-    (void)type;
-    (void)desc;
-    (void)uid;
     (void)unused;
+    if (ci->ChildIndex == 1)
+        return VcrMonitorChild((VCR_EXT *)ext, ci, type, desc, uid);
     VLOG(VCR_LV_DEBUG, VCR_EV_CHILD, ci->ChildIndex, ERROR_NO_MORE_DEVICES, 0, 0,
-         "child enumeration (none reported yet)");
+         "child enumeration: no child %u", ci->ChildIndex);
     return ERROR_NO_MORE_DEVICES;
 }
 
@@ -403,6 +402,17 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
     v->clock_6k_hz = x->clock_6k_hz;
     for (c = 0; c < x->nchips && c < VCR_MAX_CHIPS; c++)
         v->slave_bar0[c] = x->chip[c].mmio_phys.LowPart;
+    v->edid_ok = x->edid_ok;
+    v->mon_filter = x->caps.mon_hmax_khz != 0;
+    v->mon_hmin_khz = x->mon.hmin_khz;
+    v->mon_hmax_khz = x->mon.hmax_khz;
+    v->mon_vmin_hz = x->mon.vmin_hz;
+    v->mon_vmax_hz = x->mon.vmax_hz;
+    v->mon_max_pixclk_khz = x->mon.max_pixclk_khz;
+    VideoPortMoveMemory(v->mon_pnp, x->mon.pnpid, sizeof v->mon_pnp);
+    v->mon_product = x->mon.product;
+    VideoPortMoveMemory(v->mon_name, x->mon.name, sizeof x->mon.name);
+    VideoPortMoveMemory(v->edid, x->edid, sizeof v->edid);
     v->log_next_seq = VcrLogNextSeq();
     v->flags = x->allow_poke ? VCR_INFO_F_ALLOW_POKE : 0;
     v->ogl_version = VcrDiagGet(L"OpenGLVersion", 2);
