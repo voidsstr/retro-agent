@@ -248,6 +248,19 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
     though ddpfSurface is filled; trust the format, not the flag.
   - **the TMU addresses a texture as if its LOD 0 (256 wide) came first**: a
     64x64's base is its address minus 160 KB (`common/vcr_texlod.c`).
+  - **a mipmap chain is one block** the driver allocates from DirectDraw's own
+    heap (`HeapVidMemAllocAligned` on the VIDEOMEMORY array it filled in
+    DrvGetDirectDrawInfo): XP creates every level with its own CreateSurface,
+    and the TMU walks the levels back to back. Without DDSCAPS_MIPMAP Unreal's
+    D3DDrv stops at "Failed to preallocate initial textures, 4x4:
+    DDERR_NOMIPMAPHW".
+  - **Unreal Gold's D3DDrv renders on it** - the intro flyby, fullscreen:
+    7,373 DrawPrimitives2, 1,096,654 triangles, 0 unparsed commands
+    (`evidence/86box_v3/unreal_gold_d3d_vcrkmd_*`). Mip LEVEL SELECTION cannot
+    be judged on 86Box: XP's in-box 3dfx driver samples level 0 at every size
+    there too.
+  - a windowed present is a clipped blit to the primary: done by the 2D
+    engine per clip rectangle (d3dprobe `present` reads it back from the screen).
 
 - **The 2D engine, on the 86Box Voodoo3 (2026-09-26).** `display/vcrdd_2d.c`
   drives it straight through the PCI FIFO (registers mapped for the display

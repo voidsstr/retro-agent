@@ -111,3 +111,17 @@ def test_the_display_driver_gets_the_registers_from_the_standard_ioctl():
     # system space only, and only the Voodoo has an engine
     assert "x->backend != VCR_HW_VOODOO || req.RequestedVirtualAddress" in q
     assert "case IOCTL_VIDEO_FREE_PUBLIC_ACCESS_RANGES:" in mp
+
+
+def test_a_clipped_blit_goes_to_the_engine_rect_by_rect():
+    """A windowed DirectDraw/Direct3D application presents with a CLIPPED
+    blit (back buffer -> primary through the window's clip list). Handed back
+    to the HEL, every frame is copied by the CPU out of video memory - the
+    slowest path the card has. Verified on the 86Box Voodoo3: d3dprobe
+    'present' reads the quad back from the screen through GDI."""
+    blt = func(DD, "static DWORD APIENTRY Dd_Blt(")
+    assert "if (p->IsClipped)\n        return clipped_blt(pd, p);" in blt
+    c = func(DD, "static DWORD clipped_blt(")
+    assert "p->prDestRects[i]" in c and "p->rOrigDest" in c and "p->rOrigSrc" in c
+    assert "s == d" in c                     # one surface onto itself: the HEL
+    assert "VcrDd2dCopy(" in c and "VcrDd2dFill(" in c

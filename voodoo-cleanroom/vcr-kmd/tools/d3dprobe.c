@@ -95,6 +95,7 @@ typedef struct { float x, y, z, rhw; DWORD c; float u, v; } VT;
 #define FVF_T (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
 static IDirect3DDevice8 *g_dev;
+static HWND g_hwnd;
 static D3DFORMAT g_fmt;
 static int g_w = 640, g_h = 480, g_bpp = 16, g_full, g_frames = 200, g_novsync;
 static int g_pass, g_fail;
@@ -364,6 +365,31 @@ static void run_test(const char *t)
         IDirect3DDevice8_SetTexture(g_dev, 0, NULL);
         IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MIPFILTER, D3DTEXF_NONE);
         IDirect3DTexture8_Release(tx);
+    } else if (!strcmp(t, "present")) {
+        /* what Present puts ON THE SCREEN: windowed, a clipped blit from the
+         * back buffer to the primary; read back through GDI from the window */
+        HDC dc;
+        COLORREF got;
+        DWORD gotrgb;
+        if (g_full) {
+            say("  present: windowed only");
+            return;
+        }
+        if (!frame_begin(0x00ff00ff)) return;
+        untextured();
+        quad_c(Q0, Q0, Q1, Q1, 0.5f, 0xff00ff00, 0xff00ff00, 0xff00ff00, 0xff00ff00);
+        frame_end();                                /* includes Present */
+        Sleep(200);
+        dc = GetDC(g_hwnd);
+        got = GetPixel(dc, 8, 8);
+        gotrgb = ((got & 0xff) << 16) | (got & 0xff00) | ((got >> 16) & 0xff);
+        g_px[8 * BB + 8] = gotrgb;
+        expect(t, "screen: clear colour", 8, 8, 0xff00ff, 12);
+        got = GetPixel(dc, 128, 128);
+        gotrgb = ((got & 0xff) << 16) | (got & 0xff00) | ((got >> 16) & 0xff);
+        g_px[128 * BB + 128] = gotrgb;
+        expect(t, "screen: the quad", 128, 128, 0x00ff00, 12);
+        ReleaseDC(g_hwnd, dc);
     } else if (!strcmp(t, "blend")) {
         if (!frame_begin(0x000000ff)) return;
         untextured();
@@ -396,7 +422,7 @@ static void run_test(const char *t)
 
 int main(int argc, char **argv)
 {
-    const char *mode = "caps", *tests = "clear,flat,gouraud,tex,modulate,blend,ztest,bigtex";
+    const char *mode = "caps", *tests = "clear,flat,gouraud,tex,modulate,blend,ztest,bigtex,present";
     IDirect3D8 *d3d;
     D3DADAPTER_IDENTIFIER8 id;
     D3DDISPLAYMODE dm;
@@ -491,6 +517,7 @@ int main(int argc, char **argv)
                          g_full ? g_w : rc.right - rc.left, g_full ? g_h : rc.bottom - rc.top,
                          NULL, NULL, wc.hInstance, NULL);
     pump();
+    g_hwnd = hwnd;
     memset(&pp, 0, sizeof pp);
     pp.Windowed = !g_full;
     pp.SwapEffect = g_full ? D3DSWAPEFFECT_FLIP : D3DSWAPEFFECT_COPY;

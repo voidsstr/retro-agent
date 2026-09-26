@@ -303,6 +303,72 @@ static int rect_inside(const RECTL *r, PDD_SURFACE_LOCAL s)
            r->bottom <= (LONG)s->lpGbl->wHeight && r->right > r->left && r->bottom > r->top;
 }
 
+/* A clipped blit - how a WINDOWED DirectDraw / Direct3D application presents:
+ * back buffer -> primary through the window's clip list. Same-size copies
+ * (keyed or not) and colour fills go to the 2D engine rectangle by rectangle;
+ * anything else - a stretch, one surface onto itself, a surface in system
+ * memory - goes back to the HEL, which would otherwise have done ALL of it by
+ * reading video memory with the CPU. */
+static DWORD clipped_blt(VCR_PDEV *pd, PDD_BLTDATA p)
+{
+    PDD_SURFACE_LOCAL d = p->lpDDDestSurface, s = p->lpDDSrcSurface;
+    DWORD keyed = p->dwFlags & (DDBLT_KEYSRC | DDBLT_KEYSRCOVERRIDE);
+    ULONG dmax, smax, bpp, i;
+    LONG dx, dy, w, h;
+    DDCOLORKEY ck = { 0, 0 };
+    int fill = (p->dwFlags & DDBLT_COLORFILL) != 0;
+    if (!pd->g2d_ok || pd->exclusive_pid || !p->prDestRects || !p->dwRectCnt ||
+        !surf_kva(pd, d, &dmax))
+        return DDHAL_DRIVER_NOTHANDLED;
+    bpp = surf_bytespp(pd, d);
+    if (fill) {
+        if (keyed)
+            return DDHAL_DRIVER_NOTHANDLED;
+    } else {
+        if (!s || s == d || !surf_kva(pd, s, &smax) || surf_bytespp(pd, s) != bpp ||
+            ((p->dwFlags & DDBLT_ROP) && ((p->bltFX.dwROP >> 16) & 0xff) != 0xcc))
+            return DDHAL_DRIVER_NOTHANDLED;
+        w = p->rOrigDest.right - p->rOrigDest.left;
+        h = p->rOrigDest.bottom - p->rOrigDest.top;
+        if (p->rOrigSrc.right - p->rOrigSrc.left != w || p->rOrigSrc.bottom - p->rOrigSrc.top != h)
+            return DDHAL_DRIVER_NOTHANDLED;         /* a stretch */
+        if (p->dwFlags & DDBLT_KEYSRCOVERRIDE)
+            ck = p->bltFX.ddckSrcColorkey;
+        else if (keyed)
+            ck = s->ddckCKSrcBlt;
+    }
+    dx = p->rOrigSrc.left - p->rOrigDest.left;
+    dy = p->rOrigSrc.top - p->rOrigDest.top;
+    for (i = 0; i < p->dwRectCnt; i++) {
+        RECTL r;
+        BOOL ok;
+        r.left = p->prDestRects[i].left > p->rOrigDest.left ? p->prDestRects[i].left : p->rOrigDest.left;
+        r.top = p->prDestRects[i].top > p->rOrigDest.top ? p->prDestRects[i].top : p->rOrigDest.top;
+        r.right = p->prDestRects[i].right < p->rOrigDest.right ? p->prDestRects[i].right : p->rOrigDest.right;
+        r.bottom = p->prDestRects[i].bottom < p->rOrigDest.bottom ? p->prDestRects[i].bottom : p->rOrigDest.bottom;
+        if (r.right <= r.left || r.bottom <= r.top)
+            continue;
+        if (!rect_inside(&r, d))
+            return DDHAL_DRIVER_NOTHANDLED;
+        if (fill)
+            ok = VcrDd2dFill(pd, (ULONG)d->lpGbl->fpVidMem, d->lpGbl->lPitch, bpp, r.left, r.top,
+                             r.right - r.left, r.bottom - r.top, p->bltFX.dwFillColor);
+        else
+            ok = VcrDd2dCopy(pd, (ULONG)d->lpGbl->fpVidMem, d->lpGbl->lPitch,
+                             (ULONG)s->lpGbl->fpVidMem, s->lpGbl->lPitch, bpp, r.left + dx,
+                             r.top + dy, r.left, r.top, r.right - r.left, r.bottom - r.top,
+                             keyed != 0, ck.dwColorSpaceLowValue, ck.dwColorSpaceHighValue);
+        if (!ok)
+            /* the engine refused before touching anything (i == 0) or gave up
+             * part-way: the HEL redraws every rectangle from the untouched
+             * source, which is correct for two different surfaces */
+            return DDHAL_DRIVER_NOTHANDLED;
+    }
+    pd->dd_blts++;
+    p->ddRVal = DD_OK;
+    return DDHAL_DRIVER_HANDLED;
+}
+
 static DWORD APIENTRY Dd_Blt(PDD_BLTDATA p)
 {
     VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
@@ -314,8 +380,10 @@ static DWORD APIENTRY Dd_Blt(PDD_BLTDATA p)
     ULONG dmax, smax, bpp, doff;
     LONG w, h, y, x, dpitch, spitch;
 
-    if (p->IsClipped || (p->dwFlags & ~ok_flags))
+    if (p->dwFlags & ~ok_flags)
         return DDHAL_DRIVER_NOTHANDLED;
+    if (p->IsClipped)
+        return clipped_blt(pd, p);
     if (!(dp = surf_kva(pd, d, &dmax)) || !rect_inside(&p->rDest, d))
         return DDHAL_DRIVER_NOTHANDLED;
     bpp = surf_bytespp(pd, d);
