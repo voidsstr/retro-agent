@@ -1,0 +1,39 @@
+{"mode": "gdi", "bpp": 8, "rounds": 1, "tests": "text,bench", "bad_fill": 0, "bad_rop": 0, "bad_copy": 0, "bad_scroll": 0, "bad_clip": 0, "bad_sync": 0, "bad_text": 0, "bad_text_cases": 0, "bad_text_path": 0, "bad_text_empty": 0, "text_cases": 29, "text_stats": true, "text_engine_calls": 30, "text_engine_glyphs": 767, "text_clipped": 92, "text_blits": 64, "text_software": 0, "bench": [{"name": "tahoma8 transparent", "glyphs_s": 101172, "calls": 5200, "chars": 39, "ms": 2005, "engine_glyphs": 202913, "fifo_waits": 12334}, {"name": "tahoma8 opaque", "glyphs_s": 100724, "calls": 5168, "chars": 39, "ms": 2001, "engine_glyphs": 201552, "fifo_waits": 17574}, {"name": "mssans8 opaque (raster)", "glyphs_s": 87646, "calls": 4512, "chars": 39, "ms": 2008, "engine_glyphs": 175968, "fifo_waits": 12754}, {"name": "courier13 opaque (fixed)", "glyphs_s": 90318, "calls": 5856, "chars": 31, "ms": 2010, "engine_glyphs": 181536, "fifo_waits": 18057}, {"name": "arial33b transparent (large)", "glyphs_s": 20650, "calls": 3776, "chars": 11, "ms": 2011, "engine_glyphs": 41583, "fifo_waits": 19530}], "bad": 0}
+gdilab: 8 bpp, 256x192 window, 1 rounds, tests text,bench
+display driver 2D counters: engine on, text path on (8 bpp)
+text mssans transparent                       0 bad    461 px drawn  engine counters: 1 call(s), 43 glyph(s), 0 clipped, 1 blit(s), 0 to software
+text mssans opaque                            0 bad   2775 px drawn  engine counters: 1 call(s), 43 glyph(s), 0 clipped, 1 blit(s), 0 to software
+text tahoma transparent                       0 bad    444 px drawn  engine counters: 1 call(s), 43 glyph(s), 0 clipped, 1 blit(s), 0 to software
+text tahoma opaque odd x                      0 bad   2890 px drawn  engine counters: 1 call(s), 43 glyph(s), 0 clipped, 1 blit(s), 0 to software
+text tahoma ETO_OPAQUE wide rect              0 bad   5179 px drawn  engine counters: 1 call(s), 43 glyph(s), 0 clipped, 1 blit(s), 0 to software
+text times italic transparent (overlap)       0 bad    597 px drawn  engine counters: 1 call(s), 35 glyph(s), 0 clipped, 1 blit(s), 0 to software
+text times italic opaque                      0 bad   4349 px drawn  engine counters: 1 call(s), 32 glyph(s), 1 clipped, 1 blit(s), 0 to software
+text courier fixed transparent                0 bad    464 px drawn  engine counters: 1 call(s), 32 glyph(s), 1 clipped, 1 blit(s), 0 to software
+text courier fixed opaque                     0 bad   3735 px drawn  engine counters: 1 call(s), 31 glyph(s), 0 clipped, 1 blit(s), 0 to software
+text fixedsys raster opaque                   0 bad   3752 px drawn  engine counters: 1 call(s), 32 glyph(s), 1 clipped, 1 blit(s), 0 to software
+text fixedsys raster transparent              0 bad    687 px drawn  engine counters: 1 call(s), 32 glyph(s), 1 clipped, 1 blit(s), 0 to software
+text arial33 bold transparent                 0 bad   2049 px drawn  engine counters: 1 call(s), 6 glyph(s), 0 clipped, 1 blit(s), 0 to software
+text arial33 bold opaque                      0 bad   5540 px drawn  engine counters: 1 call(s), 8 glyph(s), 0 clipped, 1 blit(s), 0 to software
+text arial56 transparent (wide glyphs)        0 bad   4057 px drawn  engine counters: 1 call(s), 5 glyph(s), 1 clipped, 1 blit(s), 0 to software
+text underline+strikeout transparent          0 bad    973 px drawn  engine counters: 1 call(s), 43 glyph(s), 1 clipped, 1 blit(s), 0 to software
+text underline+strikeout opaque               0 bad   3934 px drawn  engine counters: 1 call(s), 38 glyph(s), 1 clipped, 1 blit(s), 0 to software
+text ETO_CLIPPED through the glyphs           0 bad   1410 px drawn  engine counters: 1 call(s), 6 glyph(s), 6 clipped, 1 blit(s), 0 to software
+text ETO_CLIPPED + ETO_OPAQUE                 0 bad    691 px drawn  engine counters: 1 call(s), 15 glyph(s), 15 clipped, 1 blit(s), 0 to software
+text region with holes (complex)              0 bad   1265 px drawn  engine counters: 1 call(s), 10 glyph(s), 10 clipped, 5 blit(s), 0 to software
+text region with holes, opaque                0 bad   2236 px drawn  engine counters: 1 call(s), 19 glyph(s), 4 clipped, 3 blit(s), 0 to software
+text region comb (40 rectangles)              0 bad   4407 px drawn  engine counters: 1 call(s), 29 glyph(s), 29 clipped, 29 blit(s), 0 to software
+text cut by the left edge                     0 bad   5750 px drawn  engine counters: 1 call(s), 6 glyph(s), 1 clipped, 1 blit(s), 0 to software
+text cut by the top edge                      0 bad    570 px drawn  engine counters: 1 call(s), 34 glyph(s), 10 clipped, 1 blit(s), 0 to software
+text cut by the right edge                    0 bad   5486 px drawn  engine counters: 1 call(s), 2 glyph(s), 1 clipped, 1 blit(s), 0 to software
+text cut by the bottom edge                   0 bad    835 px drawn  engine counters: 1 call(s), 6 glyph(s), 6 clipped, 1 blit(s), 0 to software
+text long string (STROBJ batches)             0 bad   3309 px drawn  engine counters: 1 call(s), 44 glyph(s), 2 clipped, 1 blit(s), 0 to software
+text text, CPU pixels, text                   0 bad   3262 px drawn  engine counters: 2 call(s), 12 glyph(s), 0 clipped, 2 blit(s), 0 to software
+text tahoma default quality                   0 bad    542 px drawn  engine counters: 1 call(s), 43 glyph(s), 1 clipped, 1 blit(s), 0 to software
+text verdana antialiased                      0 bad   4526 px drawn  engine counters: 1 call(s), 32 glyph(s), 0 clipped, 1 blit(s), 0 to software
+bench tahoma8 transparent              101172 glyphs/s  (5200 calls x 39, 2005 ms; engine glyphs 202913, blits 5206, FIFO waits 12334)
+bench tahoma8 opaque                   100724 glyphs/s  (5168 calls x 39, 2001 ms; engine glyphs 201552, blits 5168, FIFO waits 17574)
+bench mssans8 opaque (raster)           87646 glyphs/s  (4512 calls x 39, 2008 ms; engine glyphs 175968, blits 4512, FIFO waits 12754)
+bench courier13 opaque (fixed)          90318 glyphs/s  (5856 calls x 31, 2010 ms; engine glyphs 181536, blits 5856, FIFO waits 18057)
+bench arial33b transparent (large)      20650 glyphs/s  (3776 calls x 11, 2011 ms; engine glyphs 41583, blits 3781, FIFO waits 19530)
+RESULT {"mode":"gdi","bpp":8,"rounds":1,"tests":"text,bench","bad_fill":0,"bad_rop":0,"bad_copy":0,"bad_scroll":0,"bad_clip":0,"bad_sync":0,"bad_text":0,"bad_text_cases":0,"bad_text_path":0,"bad_text_empty":0,"text_cases":29,"text_stats":true,"text_engine_calls":30,"text_engine_glyphs":767,"text_clipped":92,"text_blits":64,"text_software":0,"bench":[{"name":"tahoma8 transparent","glyphs_s":101172,"calls":5200,"chars":39,"ms":2005,"engine_glyphs":202913,"fifo_waits":12334},{"name":"tahoma8 opaque","glyphs_s":100724,"calls":5168,"chars":39,"ms":2001,"engine_glyphs":201552,"fifo_waits":17574},{"name":"mssans8 opaque (raster)","glyphs_s":87646,"calls":4512,"chars":39,"ms":2008,"engine_glyphs":175968,"fifo_waits":12754},{"name":"courier13 opaque (fixed)","glyphs_s":90318,"calls":5856,"chars":31,"ms":2010,"engine_glyphs":181536,"fifo_waits":18057},{"name":"arial33b transparent (large)","glyphs_s":20650,"calls":3776,"chars":11,"ms":2011,"engine_glyphs":41583,"fifo_waits":19530}],"bad":0}
+

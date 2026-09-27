@@ -1,0 +1,15 @@
+# reg delete Accel2DText:
+
+The operation completed successfully
+# read back (absent expected):
+
+! REG.EXE VERSION 3.0
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\vcrmp\Diag
+
+
+Error:  The system was unable to find the specified registry key or value
+# DISPLAYCFG set 800 600 16 60:
+{"status":"ok","width":800,"height":600,"bpp":16,"refresh":60}
+{"cmd":"pace-mark","ok":true}
+{"width":800,"height":600,"bpp":16,"refresh":60}

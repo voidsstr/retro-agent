@@ -1,0 +1,2 @@
+bea51bcf041fa00b09ec198fc7f54730  out/vcrdd.dll
+090eff16c8031cb123176699cf2bbd07  out/vcrmp.sys

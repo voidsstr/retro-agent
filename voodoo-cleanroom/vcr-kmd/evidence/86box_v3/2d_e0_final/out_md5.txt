@@ -1,0 +1,4 @@
+deb111a47874ba9d05529fae409eb7aa  out/vcrmp.sys
+3b912f42b151323f63f099600419ac88  out/vcrdd.dll
+24212c89e36f4357b5b02829959f0bdb  out/vcrctl.exe
+9b3c0d51547134bea670197c41e8ca9f  out/gdilab.exe

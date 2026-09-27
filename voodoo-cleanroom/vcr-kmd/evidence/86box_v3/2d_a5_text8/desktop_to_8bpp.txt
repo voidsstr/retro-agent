@@ -1,0 +1,8 @@
+# before:
+{"width":800,"height":600,"bpp":16,"refresh":60}
+# DISPLAYCFG set 800 600 8 60:
+{"status":"ok","width":800,"height":600,"bpp":8,"refresh":60}
+# vcrctl pace-mark:
+{"cmd":"pace-mark","ok":true}
+# after:
+{"width":800,"height":600,"bpp":8,"refresh":60}

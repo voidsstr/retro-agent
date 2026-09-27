@@ -48,6 +48,7 @@
 #define VCR_ESC_BOOT_OK         (VCR_ESC_BASE + 7)
 #define VCR_ESC_DD_STATS        (VCR_ESC_BASE + 8)
 #define VCR_ESC_RESET_ENGINE    (VCR_ESC_BASE + 9)
+#define VCR_ESC_2D_STATS        (VCR_ESC_BASE + 10)  /* vcr_2d_stats: the display driver's 2D counters */
 
 /* backends */
 #define VCR_HW_NONE             0
@@ -110,6 +111,36 @@ typedef struct vcr_info {
 /* default-OFF switches: a POSITIVE flag, so a miniport that predates one never arms it */
 #define VCR_INFO_F_D3D32        0x10    /* Diag\\D3D32 = 1: 32 bpp Direct3D targets on a VSA-100 */
 #define VCR_INFO_F_RESET3D      0x20    /* Diag\\Reset3D = 1: clear Glide's 3D state on chip 0 at release */
+/* default OFF like the two above (a positive flag), but read at every
+ * IOCTL_VCR_INFO: the display driver asks at each DrvEnableSurface, so a new
+ * PDEV - a mode change - picks it up, no reboot. OFF because the engine text
+ * path, though 0-bad on the 86Box bed, drew FEWER glyphs/s there than the
+ * software path it replaces and has never run on silicon (2026-09-27). */
+#define VCR_INFO_F_TEXT2D       0x40    /* Diag\\Accel2DText = 1: DrvTextOut on the 2D engine */
+
+/* VCR_ESC_2D_STATS: the display driver's 2D engine counters, since its PDEV
+ * was created (a mode change starts them again). Answered only when the
+ * caller's buffer holds the whole struct; `size` says how much was filled. */
+#define VCR_2DS_F_ENGINE        0x1     /* the 2D engine is in use */
+#define VCR_2DS_F_TEXT          0x2     /* the text path is on (Diag\\Accel2DText) */
+#define VCR_2DS_PUNT_SLOTS      10      /* = VCR_TEXT_R_MAX (vcr_text.h) */
+typedef struct vcr_2d_stats {
+    vcr_u32 size;
+    vcr_u32 flags;              /* VCR_2DS_F_* */
+    vcr_u32 bpp;
+    vcr_u32 ops;                /* engine operations of every kind */
+    vcr_u32 gdi_copies, gdi_fills;
+    vcr_u32 text_calls;         /* DrvTextOut calls the engine drew */
+    vcr_u32 text_glyphs;        /* glyph blits */
+    vcr_u32 text_clipped;       /* of those, cut by a clip rectangle */
+    vcr_u32 text_rects;         /* clip rectangles visited */
+    vcr_u32 text_blits;         /* engine blits for them (one per string and clip rectangle,
+                                 * or per glyph without the mask buffer) */
+    vcr_u32 text_fifo_waits;    /* times a text write found the PCI FIFO full and waited for
+                                 * the engine to drain it (the 86Box bed: ~100 us each) */
+    vcr_u32 text_punts;         /* DrvTextOut calls handed to EngTextOut */
+    vcr_u32 text_punt_why[VCR_2DS_PUNT_SLOTS];  /* by VCR_TEXT_R_* */
+} vcr_2d_stats;
 
 /* IOCTL_VCR_LOG_WRITE */
 typedef struct vcr_log_write_req {

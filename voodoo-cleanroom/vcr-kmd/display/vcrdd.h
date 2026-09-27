@@ -26,6 +26,7 @@
 #include "../include/vcr_hwcext.h"
 #include "../include/vcr_fmt.h"
 #include "../include/vcr_flip.h"
+#include "../include/vcr_text.h"
 
 #define VCRDD_TAG           0x44524356      /* 'VCRD' */
 
@@ -69,6 +70,12 @@ typedef struct VCR_PDEV {
     ULONG       fog_loaded[4];      /* the fog table on the chip: mode, start, end, density */
     ULONG       fog_valid;
     ULONG       g2d_ops, g2d_gdi_copies, g2d_gdi_fills;
+    /* the text path (vcrdd_punt.c DrvTextOut, include/vcr_text.h) */
+    ULONG       text_off;           /* not Diag\\Accel2DText = 1 (the default): EngTextOut as before */
+    ULONG       text_calls, text_glyphs, text_clipped, text_rects, text_blits, text_punts;
+    ULONG       text_fifo_waits;    /* a text write that had to wait for FIFO room */
+    PUCHAR      text_mask;          /* VCR_TEXT_MASK_BYTES: a string's glyphs, OR-ed (NULL: per glyph) */
+    ULONG       text_punt_why[VCR_TEXT_R_MAX];
     /* a DirectDraw flip the chip has not latched yet: the completion rule and
      * its counters (include/vcr_flip.h; vcrdd_ddraw.c is the glue) */
     vcr_flip_state flip;
@@ -95,6 +102,18 @@ BOOL  VcrDd2dCopy(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG src_off, L
                   ULONG ckey, ULONG ck_lo, ULONG ck_hi);
 BOOL  VcrDd2dFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LONG x, LONG y,
                   LONG w, LONG h, ULONG color);
+/* monochrome expansion (text): one per run of glyphs in one colour. Begin
+ * points the engine at the surface; each Glyph is a host-to-screen blit of
+ * one clipped glyph part (vcr_text.h), its data counted against the free PCI
+ * FIFO slots the last status read reported (credit), every wait bounded. */
+typedef struct VCR_MONO {
+    VCR_PDEV   *pd;
+    ULONG       xskip;              /* pixels between the 16-byte base and the surface */
+    ULONG       credit;             /* FIFO slots known free */
+} VCR_MONO;
+BOOL  VcrDd2dMonoBegin(VCR_PDEV *pd, VCR_MONO *m, ULONG dst_off, LONG dst_stride, ULONG bytespp,
+                       ULONG color);
+BOOL  VcrDd2dMonoGlyph(VCR_MONO *m, const BYTE *bits, ULONG cx, const vcr_glyph_part *p);
 /* the 3D state a Glide session leaves on chip 0, cleared when its owner gives
  * the chip back (VSA-100, Diag\\Reset3D = 1; vcr_3dseq.h) - only on an idle
  * chip with Glide's command FIFO off, bounded like the rest. Returns

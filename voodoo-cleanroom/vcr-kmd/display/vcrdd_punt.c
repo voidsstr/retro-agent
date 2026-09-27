@@ -17,8 +17,11 @@
  *
  * Taken over by the 2D engine (vcrdd_2d.c) so far: screen-to-screen copies
  * (window moves, scrolling) and solid fills, clip rectangle by clip
- * rectangle. Anything else - a ROP with a pattern, a translate, a mask, a
- * source in system memory - is punted exactly as before.
+ * rectangle, and text - opaque rectangle, 1 bpp glyphs by monochrome
+ * expansion, underline/strike-out (include/vcr_text.h; the text part is OFF
+ * unless Diag\Accel2DText = 1). Anything else - a ROP with a pattern, a
+ * translate, a mask, a source in system memory, anti-aliased glyphs - is
+ * punted exactly as before.
  */
 #include "vcrdd.h"
 
@@ -153,9 +156,269 @@ BOOL APIENTRY DrvCopyBits(SURFOBJ *dst, SURFOBJ *src, CLIPOBJ *co, XLATEOBJ *xo,
     return EngCopyBits(bits(dst), bits(src), co, xo, rd, ps);
 }
 
+/* ---- text: glyphs by monochrome expansion (include/vcr_text.h) ------------ */
+
+/* the DDI values vcr_text_gate compares with are winddi.h's */
+VCR_STATIC_ASSERT(fo_gray16, VCR_FO_GRAY16 == FO_GRAY16);
+VCR_STATIC_ASSERT(fo_ct_x, VCR_FO_CLEARTYPE_X == FO_CLEARTYPE_X);
+VCR_STATIC_ASSERT(fo_ct_y, VCR_FO_CLEARTYPE_Y == FO_CLEARTYPE_Y);
+VCR_STATIC_ASSERT(so_vertical, VCR_SO_VERTICAL == SO_VERTICAL);
+VCR_STATIC_ASSERT(so_reversed, VCR_SO_REVERSED == SO_REVERSED);
+VCR_STATIC_ASSERT(dc_trivial, VCR_DC_TRIVIAL == DC_TRIVIAL);
+VCR_STATIC_ASSERT(dc_rect, VCR_DC_RECT == DC_RECT);
+VCR_STATIC_ASSERT(dc_complex, VCR_DC_COMPLEX == DC_COMPLEX);
+VCR_STATIC_ASSERT(copypen, VCR_MIX_COPYPEN_BOTH == ((R2_COPYPEN << 8) | R2_COPYPEN));
+VCR_STATIC_ASSERT(rectl_is_vcr_rect, sizeof(RECTL) == sizeof(vcr_rect) &&
+                  offsetof(RECTL, right) == offsetof(vcr_rect, r) &&
+                  offsetof(RECTL, bottom) == offsetof(vcr_rect, b));
+VCR_STATIC_ASSERT(punt_slots, VCR_2DS_PUNT_SLOTS == VCR_TEXT_R_MAX);
+
+static vcr_rect vr(const RECTL *r)
+{
+    vcr_rect v;
+    v.l = r->left;
+    v.t = r->top;
+    v.r = r->right;
+    v.b = r->bottom;
+    return v;
+}
+
+/* the string's glyphs in order, whatever way GDI hands them over */
+typedef struct text_iter {
+    STROBJ     *str;
+    GLYPHPOS   *pgp;
+    ULONG       c, i, k;
+    BOOL        more;
+    vcr_i32     x0, y0;
+} text_iter;
+
+static void ti_start(text_iter *t, STROBJ *str)
+{
+    t->str = str;
+    t->i = t->k = 0;
+    if (str->pgp) {                 /* the whole string in one array */
+        t->pgp = str->pgp;
+        t->c = str->cGlyphs;
+        t->more = FALSE;
+    } else {
+        STROBJ_vEnumStart(str);
+        t->more = STROBJ_bEnum(str, &t->c, &t->pgp);
+    }
+}
+
+/* 1: *gb is the next glyph, its bitmap's top-left at (*gx, *gy); 0: no more;
+ * -1: GDI failed or a glyph has no bits */
+static int ti_next(text_iter *t, GLYPHBITS **gb, vcr_i32 *gx, vcr_i32 *gy)
+{
+    vcr_i32 x, y;
+    GLYPHPOS *g;
+    while (t->i >= t->c) {
+        if (t->more == (BOOL)DDI_ERROR)
+            return -1;
+        if (!t->more)
+            return 0;
+        t->more = STROBJ_bEnum(t->str, &t->c, &t->pgp);
+        t->i = 0;
+    }
+    g = &t->pgp[t->i++];
+    if (!g->pgdf || !(*gb = g->pgdf->pgb))
+        return -1;
+    if (t->k == 0) {
+        t->x0 = g->ptl.x;
+        t->y0 = g->ptl.y;
+    }
+    vcr_text_pos(t->str->ulCharInc, t->k++, t->x0, t->y0, g->ptl.x, g->ptl.y, &x, &y);
+    *gx = x + (*gb)->ptlOrigin.x;
+    *gy = y + (*gb)->ptlOrigin.y;
+    return 1;
+}
+
+/* a glyph the engine can take: 0 = blank (skip), 1 = yes, -1 = too large */
+static int glyph_ok(const GLYPHBITS *gb)
+{
+    if (gb->sizlBitmap.cx <= 0 || gb->sizlBitmap.cy <= 0)
+        return 0;
+    return gb->sizlBitmap.cx <= (LONG)VCR_TEXT_MAX_GLYPH &&
+           gb->sizlBitmap.cy <= (LONG)VCR_TEXT_MAX_GLYPH ? 1 : -1;
+}
+
+/* Every glyph of the string that shows in clip, in the text colour: the
+ * visible parts OR-ed into the PDEV's mask and sent as ONE blit per band of
+ * rows (vcr_text.h, "a whole string as ONE blit"); one blit per glyph when
+ * there is no mask buffer. VCR_TEXT_OK, or why it stopped (the caller
+ * redraws the whole call in software). */
+static ULONG text_glyphs(VCR_PDEV *pd, STROBJ *str, const vcr_rect *clip, ULONG color)
+{
+    VCR_MONO m;
+    text_iter t;
+    GLYPHBITS *gb;
+    vcr_glyph_part part, whole;
+    vcr_rect u, band;
+    vcr_i32 gx, gy, y0;
+    ULONG n = 0, cut = 0, rows, mst;
+    int r, ok;
+    /* pass 1: which glyphs show, and the union of what shows */
+    u.l = u.t = u.r = u.b = 0;
+    ti_start(&t, str);
+    while ((r = ti_next(&t, &gb, &gx, &gy)) > 0) {
+        if ((ok = glyph_ok(gb)) < 0)
+            return VCR_TEXT_R_GLYPH;
+        if (!ok || !vcr_glyph_clip(gx, gy, gb->sizlBitmap.cx, gb->sizlBitmap.cy, clip, &part))
+            continue;
+        if (!n++) {
+            u.l = part.x;
+            u.t = part.y;
+            u.r = part.x + (vcr_i32)part.w;
+            u.b = part.y + (vcr_i32)part.h;
+        } else {
+            u.l = part.x < u.l ? part.x : u.l;
+            u.t = part.y < u.t ? part.y : u.t;
+            u.r = part.x + (vcr_i32)part.w > u.r ? part.x + (vcr_i32)part.w : u.r;
+            u.b = part.y + (vcr_i32)part.h > u.b ? part.y + (vcr_i32)part.h : u.b;
+        }
+        if (part.w != (ULONG)gb->sizlBitmap.cx || part.h != (ULONG)gb->sizlBitmap.cy)
+            cut++;
+    }
+    if (r < 0)
+        return VCR_TEXT_R_GLYPH;
+    if (!n)
+        return VCR_TEXT_OK;
+    if (!VcrDd2dMonoBegin(pd, &m, desk_off(pd), pd->lDelta, pd->bpp / 8, color))
+        return VCR_TEXT_R_GAVEUP;
+    rows = pd->text_mask ? vcr_mask_rows((ULONG)(u.r - u.l), VCR_TEXT_MASK_BYTES) : 0;
+    if (!rows) {
+        /* no mask: one blit per visible glyph part */
+        ti_start(&t, str);
+        while (ti_next(&t, &gb, &gx, &gy) > 0) {
+            if (glyph_ok(gb) <= 0 ||
+                !vcr_glyph_clip(gx, gy, gb->sizlBitmap.cx, gb->sizlBitmap.cy, clip, &part))
+                continue;
+            if (!VcrDd2dMonoGlyph(&m, gb->aj, gb->sizlBitmap.cx, &part))
+                return pd->g2d_ok ? VCR_TEXT_R_GLYPH : VCR_TEXT_R_GAVEUP;
+            pd->text_blits++;
+        }
+    } else {
+        /* pass 2, per band of rows: the parts that show in it, OR-ed into
+         * the mask at their place in the union, then the mask as one blit */
+        mst = (ULONG)(u.r - u.l + 7) >> 3;
+        for (y0 = u.t; y0 < u.b; y0 += (vcr_i32)rows) {
+            band.l = u.l;
+            band.r = u.r;
+            band.t = y0;
+            band.b = y0 + (vcr_i32)rows < u.b ? y0 + (vcr_i32)rows : u.b;
+            memset(pd->text_mask, 0, mst * (ULONG)(band.b - band.t));
+            ti_start(&t, str);
+            while (ti_next(&t, &gb, &gx, &gy) > 0) {
+                if (glyph_ok(gb) <= 0 ||
+                    !vcr_glyph_clip(gx, gy, gb->sizlBitmap.cx, gb->sizlBitmap.cy, &band, &part))
+                    continue;
+                vcr_mask_or(pd->text_mask, mst, (ULONG)(part.x - u.l), (ULONG)(part.y - band.t),
+                            gb->aj, gb->sizlBitmap.cx, &part);
+            }
+            whole.x = u.l;
+            whole.y = band.t;
+            whole.w = (ULONG)(u.r - u.l);
+            whole.h = (ULONG)(band.b - band.t);
+            whole.col0 = whole.row0 = 0;
+            if (!VcrDd2dMonoGlyph(&m, pd->text_mask, whole.w, &whole))
+                return pd->g2d_ok ? VCR_TEXT_R_GLYPH : VCR_TEXT_R_GAVEUP;
+            pd->text_blits++;
+        }
+    }
+    pd->text_glyphs += n;
+    pd->text_clipped += cut;
+    return VCR_TEXT_OK;
+}
+
+/* One clip rectangle: the opaque rectangle, the glyphs, then the underline /
+ * strike-out rectangles - GDI's order - each cut to the clip. */
+static ULONG text_rect(VCR_PDEV *pd, STROBJ *str, const vcr_rect *clip, const RECTL *extra,
+                       const RECTL *opaque, ULONG fg, ULONG bg)
+{
+    ULONG bpp = pd->bpp / 8, off = desk_off(pd), why;
+    vcr_rect a, o;
+    pd->text_rects++;
+    if (opaque) {
+        o = vr(opaque);
+        if (vcr_rect_isect(&o, clip, &a) &&
+            !VcrDd2dFill(pd, off, pd->lDelta, bpp, a.l, a.t, a.r - a.l, a.b - a.t, bg))
+            return VCR_TEXT_R_GAVEUP;
+    }
+    why = text_glyphs(pd, str, clip, fg);
+    if (why)
+        return why;
+    for (; extra && (extra->left || extra->top || extra->right || extra->bottom); extra++) {
+        o = vr(extra);
+        if (vcr_rect_isect(&o, clip, &a) &&
+            !VcrDd2dFill(pd, off, pd->lDelta, bpp, a.l, a.t, a.r - a.l, a.b - a.t, fg))
+            return VCR_TEXT_R_GAVEUP;
+    }
+    return VCR_TEXT_OK;
+}
+
+/* the whole call on the engine, clip rectangle by clip rectangle; FALSE =
+ * nothing (or part) was drawn - the caller hands ALL of it to EngTextOut,
+ * which is correct after a partial draw because every accepted call is
+ * R2_COPYPEN (vcr_text.h) */
+static BOOL accel_text(VCR_PDEV *pd, STROBJ *str, FONTOBJ *fo, CLIPOBJ *co, RECTL *extra,
+                       RECTL *opaque, BRUSHOBJ *fore, BRUSHOBJ *back, MIX mix)
+{
+    struct { ULONG c; RECTL r[ENUM_MAX]; } e;
+    vcr_text_req q;
+    vcr_rect surf, clip, rb;
+    ULONG why, i, cplx = co ? co->iDComplexity : DC_TRIVIAL;
+    BOOL more;
+    q.off = pd->text_off;
+    q.engine = pd->g2d_ok && pd->pjRegs && !pd->exclusive_pid;
+    q.bpp = pd->bpp;
+    q.mix = mix;
+    q.fore = fore ? fore->iSolidColor : VCR_NO_BRUSH;
+    q.has_opaque = opaque != NULL;
+    q.opaque = opaque && back ? back->iSolidColor : VCR_NO_BRUSH;
+    q.font_type = fo ? fo->flFontType : 0;
+    q.char_inc = str ? str->ulCharInc : 0;
+    q.accel = str ? str->flAccel : 0;
+    q.extras = vcr_text_extra_count((const vcr_rect *)extra, VCR_TEXT_MAX_EXTRA);
+    why = str ? vcr_text_gate(&q) : VCR_TEXT_R_GLYPH;
+    surf.l = surf.t = 0;
+    surf.r = (LONG)pd->cx;
+    surf.b = (LONG)pd->cy;
+    if (!why) {
+        if (cplx != DC_COMPLEX) {
+            rb = co ? vr(&co->rclBounds) : surf;
+            why = vcr_text_clip_rect(cplx, &rb, &surf, &clip)
+                      ? text_rect(pd, str, &clip, extra, opaque, q.fore, q.opaque) : VCR_TEXT_OK;
+        } else {
+            CLIPOBJ_cEnumStart(co, FALSE, CT_RECTANGLES, CD_ANY, 0);
+            do {
+                more = CLIPOBJ_bEnum(co, sizeof e, (ULONG *)&e);
+                for (i = 0; i < e.c && !why; i++) {
+                    rb = vr(&e.r[i]);
+                    if (vcr_rect_isect(&rb, &surf, &clip))
+                        why = text_rect(pd, str, &clip, extra, opaque, q.fore, q.opaque);
+                }
+            } while (more && !why);
+        }
+    }
+    if (!why) {
+        pd->text_calls++;
+        return TRUE;
+    }
+    pd->text_punts++;
+    if (why < VCR_TEXT_R_MAX && pd->text_punt_why[why]++ == 0 && why != VCR_TEXT_R_OFF)
+        VcrDd(VCR_LV_DEBUG, VCR_EV_DD_2D, 10, why, mix, q.font_type,
+              "text to software (first time on this PDEV): %s", vcr_text_reason(why));
+    return FALSE;
+}
+
 BOOL APIENTRY DrvTextOut(SURFOBJ *pso, STROBJ *str, FONTOBJ *fo, CLIPOBJ *co, RECTL *extra,
                          RECTL *opaque, BRUSHOBJ *fore, BRUSHOBJ *back, POINTL *org, MIX mix)
 {
+    VCR_PDEV *pd = dev_of(pso);
+    if (pd && accel_text(pd, str, fo, co, extra, opaque, fore, back, mix))
+        return TRUE;
+    /* as before: the DIB engine on the frame buffer, after the engine is idle
+     * (bits() syncs) - also the redraw of a call the engine left half done */
     return EngTextOut(bits(pso), str, fo, co, extra, opaque, fore, back, org, mix);
 }
 

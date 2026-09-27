@@ -70,7 +70,7 @@ async def call_st(a, cmd, timeout=60):
 # the options each lab reads with a value (its own argv loop); anything else
 # that starts with '-' is a switch, anything that does not is the mode
 VALUE_OPTS = {"--res", "--bpp", "--frames", "--pace", "--log", "--tests", "--refresh", "--cfg",
-              "--layers", "--cycles", "--dll", "--origin", "--rounds"}
+              "--layers", "--cycles", "--dll", "--origin", "--rounds", "--bench-ms"}
 # the labs this runner knows, and their C defaults (ddlab.c / d3dprobe.c /
 # glidelab.c): what a run that names no --res / --bpp / --refresh opens
 LABS = {"gdilab": {}, "ddlab": {"mode": "caps"}, "d3dprobe": {"mode": "caps"},

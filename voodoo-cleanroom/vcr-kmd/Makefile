@@ -98,8 +98,8 @@ $(OUT)/ddlab.exe: tools/ddlab.c $(PACE_H) | $(OUT)
 	$(CC) -O1 -Wall -march=i586 tools/ddlab.c -o $@ -static -lddraw -ldxguid -lgdi32 -luser32
 $(OUT)/d3dprobe.exe: tools/d3dprobe.c $(PACE_H) | $(OUT)
 	$(CC) -O1 -Wall -march=i586 tools/d3dprobe.c -o $@ -static -ld3d8 -lgdi32 -luser32
-$(OUT)/gdilab.exe: tools/gdilab.c | $(OUT)
-	$(CC) -O1 -Wall -march=i586 tools/gdilab.c -o $@ -static -lgdi32 -luser32
+$(OUT)/gdilab.exe: tools/gdilab.c include/vcr_ioctl.h | $(OUT)
+	$(CC) -O1 -Wall -march=i586 -Iinclude tools/gdilab.c -o $@ -static -lgdi32 -luser32
 
 imports: all
 	python3 tools/check_imports.py $(OUT)/vcrmp.sys $(OUT)/vcrdd.dll $(OUT)/vcrprobe.sys

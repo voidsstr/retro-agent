@@ -1,0 +1,23 @@
+# DRVUPDATE the in-box INF:
+OK installed C:\WINDOWS\inf\3dfxvs2k.inf for PCI\VEN_121A&DEV_0005 (reboot required)
+# the service key for the device now:
+Cannot open key: error 0
+guest down after 23s
+Running as unit: vcr86box.service; invocation ID: f9bbf0b296c8400093e7840649b7b6da
+86Box restarted
+# after reboot:
+{"width":800,"height":600,"bpp":16,"refresh":60}
+{"adapters":[{"name":"Cirrus Logic 5446 Compatible Graphics Adapter","manufacturer":"Microsoft","pci_vendor_id":"0x1013","pci_device_id":"0x00b8","driver_version":"5.1.2535.0","driver_date":"7-1-2001","inf_path":"display.inf","hardware_id":"pci\\ven_1013&dev_00b8","registry_path":"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000","status":"OK","error_code":0},{"name":"vcr-kmd Bochs/QEMU VGA (test backend)","manufacturer":"vcr-kmd (retro-agent voodoo-cleanroom)","pci_vendor_id":"0x1234","pci_device_id":"0x1111","driver_version":"0.1.0.0","driver_date":"9-25-2026","inf_path":"oem0.inf","hardware_id":"pci\\ven_1234&dev_1111","registry_path":"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0001","status":"OK","error_code":0},{"name":"3dfx Voodoo3","manufacturer":"Microsoft","pci_vendor_id":"0x121a","pci_device_id":"0x0005","driver_version":"5.1.2001.0","driver_date":"6-6-2001","inf_path":"3dfxvs2k.inf","hardware_id":"pci\\ven_121a&dev_0005","registry_path":"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0002","status":"OK","error_code":0}],"display":{"resolution":"800x600","color_depth":16,"refresh_rate":60,"driver_desc":"3dfx Voodoo3"},"directx":{"version":"4.09.00.0904","registry_path":"HKLM\\SOFTWARE\\Microsoft\\DirectX"}}
+{"cmd":"info","ok":false,"error":"VCR_ESC_INFO refused - not the vcr-kmd driver?"}
+# DISPLAYCFG set 800 600 32 60:
+{"status":"ok","width":800,"height":600,"bpp":32,"refresh":60}
+{"cmd":"pace-mark","ok":true}
+{"width":800,"height":600,"bpp":32,"refresh":60}
+# DISPLAYCFG set 800 600 8 60:
+{"status":"ok","width":800,"height":600,"bpp":8,"refresh":60}
+{"cmd":"pace-mark","ok":true}
+{"width":800,"height":600,"bpp":8,"refresh":60}
+# DISPLAYCFG set 800 600 16 60:
+{"status":"ok","width":800,"height":600,"bpp":16,"refresh":60}
+{"cmd":"pace-mark","ok":true}
+{"width":800,"height":600,"bpp":16,"refresh":60}

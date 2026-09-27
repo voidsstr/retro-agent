@@ -39,7 +39,7 @@ static BOOL supported(ULONG esc)
     case VCR_EXT_HWC_WXP:
         return TRUE;
     }
-    return esc > VCR_ESC_BASE && esc <= VCR_ESC_RESET_ENGINE;
+    return esc > VCR_ESC_BASE && esc <= VCR_ESC_2D_STATS;
 }
 
 static BOOL get_info(VCR_PDEV *pd, vcr_info *v)
@@ -334,6 +334,33 @@ ULONG APIENTRY DrvEscape(SURFOBJ *pso, ULONG iEsc, ULONG cjIn, PVOID pvIn,
         ((ULONG *)pvOut)[2] = pd->hwc_requests;
         ((ULONG *)pvOut)[3] = (ULONG)(ULONG_PTR)pd->pjScreen;
         return 4 * sizeof(ULONG);
+
+    case VCR_ESC_2D_STATS: {
+        /* read only: what the 2D engine did on this PDEV (gdilab reads it
+         * around each text case, so a pass is known to be the engine's) */
+        vcr_2d_stats *st = (vcr_2d_stats *)pvOut;
+        ULONG i;
+        if (!pvOut || cjOut < sizeof *st)
+            return 0;
+        memset(st, 0, sizeof *st);
+        st->size = sizeof *st;
+        st->flags = (pd->g2d_ok ? VCR_2DS_F_ENGINE : 0) |
+                    (pd->g2d_ok && !pd->text_off ? VCR_2DS_F_TEXT : 0);
+        st->bpp = pd->bpp;
+        st->ops = pd->g2d_ops;
+        st->gdi_copies = pd->g2d_gdi_copies;
+        st->gdi_fills = pd->g2d_gdi_fills;
+        st->text_calls = pd->text_calls;
+        st->text_glyphs = pd->text_glyphs;
+        st->text_clipped = pd->text_clipped;
+        st->text_rects = pd->text_rects;
+        st->text_blits = pd->text_blits;
+        st->text_fifo_waits = pd->text_fifo_waits;
+        st->text_punts = pd->text_punts;
+        for (i = 0; i < VCR_2DS_PUNT_SLOTS; i++)
+            st->text_punt_why[i] = pd->text_punt_why[i];
+        return sizeof *st;
+    }
     }
     return 0;
 }

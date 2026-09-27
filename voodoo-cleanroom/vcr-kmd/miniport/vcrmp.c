@@ -430,7 +430,10 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
     v->flags = (x->allow_poke ? VCR_INFO_F_ALLOW_POKE : 0) |
                (x->accel2d ? 0 : VCR_INFO_F_NO_ACCEL2D) | (x->d3d ? 0 : VCR_INFO_F_NO_D3D) |
                (x->texport ? 0 : VCR_INFO_F_NO_TEXPORT) | (x->d3d32 ? VCR_INFO_F_D3D32 : 0) |
-               (x->reset3d ? VCR_INFO_F_RESET3D : 0);
+               (x->reset3d ? VCR_INFO_F_RESET3D : 0) |
+               /* read NOW, not at boot: the display driver asks at every
+                * DrvEnableSurface, so the next mode change picks it up */
+               (VcrDiagGet(L"Accel2DText", 0) ? VCR_INFO_F_TEXT2D : 0);
     v->ogl_version = VcrDiagGet(L"OpenGLVersion", 2);
     v->ogl_driver_version = VcrDiagGet(L"OpenGLDriverVersion", 1);
     if (!VcrDiagGetString(L"OpenGLName", v->ogl_name, 32)) {

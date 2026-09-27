@@ -38,6 +38,7 @@
 #define G_DSTSIZE           R2D(0x68)
 #define G_DSTXY             R2D(0x6c)
 #define G_COMMAND           R2D(0x70)
+#define G_LAUNCH            R2D(0x80)       /* launch area: a host blit's data */
 
 #define CMD_BLT             1u
 #define CMD_RECTFILL        5u
@@ -238,6 +239,95 @@ BOOL VcrDd2dFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LO
     return TRUE;
 }
 
+/* ---- monochrome expansion: text (include/vcr_text.h) -----------------------
+ *
+ * One host-to-screen blit per visible glyph part: dstSize, dstXY and the
+ * command (no GO - the first data write starts it), then exactly
+ * vcr_glyph_dwords() dwords to the launch area. The source rows are cut and
+ * shifted on the CPU (vcr_glyph_stream), so neither clip register nor source
+ * offset is involved: the engine only ever expands a whole bitmap.
+ *
+ * FIFO: a run of glyphs writes many dwords, so instead of a status read per
+ * write (VcrDdRoom) the free count one read reported is spent as credit and
+ * the status is read again only when it runs out - the engine only drains
+ * the FIFO in between, so what it said was free still is. Every wait is
+ * VcrDdRoom's: SPIN_CAP reads, then give_up() - acceleration off for the
+ * PDEV and FALSE, and the caller redraws the whole call in software. */
+static BOOL mono_room(VCR_MONO *m, ULONG n)
+{
+    VCR_PDEV *pd = m->pd;
+    ULONG i, s = 0, f;
+    if (m->credit >= n) {
+        m->credit -= n;
+        return TRUE;
+    }
+    for (i = 0; i < SPIN_CAP; i++) {
+        s = rd(pd, 0);
+        f = s & ST_FIFO_FREE;
+        if (f >= n) {
+            m->credit = f - n;
+            if (i)
+                pd->text_fifo_waits++;      /* the first read was not enough: we waited */
+            return TRUE;
+        }
+    }
+    m->credit = 0;
+    give_up(pd, 1, s);
+    return FALSE;
+}
+
+static int mono_put(void *ctx, vcr_u32 dw)
+{
+    VCR_MONO *m = (VCR_MONO *)ctx;
+    if (!mono_room(m, 1))
+        return 0;
+    wr(m->pd, G_LAUNCH, dw);
+    return 1;
+}
+
+BOOL VcrDd2dMonoBegin(VCR_PDEV *pd, VCR_MONO *m, ULONG dst_off, LONG dst_stride, ULONG bytespp,
+                      ULONG color)
+{
+    ULONG dbase;
+    m->pd = pd;
+    m->credit = 0;
+    if (!usable(pd) || dst_stride <= 0 || dst_stride > 0x3fff ||
+        (bytespp != 1 && bytespp != 2 && bytespp != 4))
+        return FALSE;
+    dbase = base_of(dst_off, bytespp, &m->xskip);
+    if (!VcrDdRoom(pd, 8))
+        return FALSE;
+    wr(pd, G_CLIP0MIN, 0);
+    wr(pd, G_CLIP0MAX, 0x1fff1fff);
+    wr(pd, G_DSTBASE, dbase);
+    wr(pd, G_DSTFORMAT, (ULONG)dst_stride | (fmt_bits(bytespp) << 16));
+    wr(pd, G_SRCFORMAT, VCR_TEXT_SRCFMT);
+    wr(pd, G_SRCXY, 0);
+    wr(pd, G_COMMANDEX, 0);                     /* no colour keys */
+    wr(pd, G_COLORFORE, color);                 /* a pixel in the destination's format */
+    return TRUE;
+}
+
+BOOL VcrDd2dMonoGlyph(VCR_MONO *m, const BYTE *bits, ULONG cx, const vcr_glyph_part *p)
+{
+    VCR_PDEV *pd = m->pd;
+    LONG x = p->x + (LONG)m->xskip;
+    ULONG want = vcr_glyph_dwords(p);
+    if (!pd->g2d_ok || x < 0 || p->y < 0 || !p->w || !p->h ||
+        x + (LONG)p->w > VCR_2D_MAX_XY || p->y + (LONG)p->h > VCR_2D_MAX_XY)
+        return FALSE;
+    if (!mono_room(m, 3))
+        return FALSE;
+    wr(pd, G_DSTSIZE, (p->h << 16) | p->w);
+    wr(pd, G_DSTXY, ((ULONG)p->y << 16) | ((ULONG)x & 0x1fff));
+    wr(pd, G_COMMAND, VCR_TEXT_CMD);
+    pd->g2d_busy = 1;
+    pd->g2d_ops++;
+    /* short = the FIFO wait gave up in the middle: acceleration is off, and
+     * the engine is left waiting for the rest - as stuck as the FIFO was */
+    return vcr_glyph_stream(bits, cx, p, mono_put, m) == want;
+}
+
 /* What a Glide session leaves in chip 0's 3D block - a chip mask that shuts
  * chip 0 out, AA jitter, an extended or two-pixels-per-clock combine,
  * stencil state - cleared for whoever draws next (vcr_3dseq.h has the list,
@@ -300,10 +390,12 @@ void VcrDd2dInit(VCR_PDEV *pd)
     DWORD rc;
     pd->pjRegs = NULL;
     pd->g2d_ok = pd->g2d_busy = 0;
+    pd->text_off = 1;               /* engine text only when the miniport says so */
     if (!VcrIoctl(pd->hDriver, IOCTL_VCR_INFO, NULL, 0, &info, sizeof info, NULL)) {
         pd->g2d_disabled = (info.flags & VCR_INFO_F_NO_ACCEL2D) ? 1 : 0;
         pd->d3d_disabled = (info.flags & VCR_INFO_F_NO_D3D) ? 1 : 0;
         pd->no_texport = (info.flags & VCR_INFO_F_NO_TEXPORT) ? 1 : 0;
+        pd->text_off = (info.flags & VCR_INFO_F_TEXT2D) ? 0 : 1;   /* default OFF */
         pd->napalm = info.device == 0x0009;
         /* default OFF (positive flags - an older miniport never sets them) */
         pd->rt32 = pd->napalm && (info.flags & VCR_INFO_F_D3D32) ? 1 : 0;
@@ -336,6 +428,12 @@ void VcrDd2dInit(VCR_PDEV *pd)
           pd->g2d_ok, "2D engine %s (registers at %p, FIFO free when empty %u)",
           pd->g2d_ok ? "on" : pd->g2d_disabled ? "off by registry" : "off: FIFO reads full",
           pd->pjRegs, pd->g2d_fifo_full);
+    if (pd->g2d_ok && !pd->text_off && !pd->text_mask)
+        pd->text_mask = (PUCHAR)EngAllocMem(0, VCR_TEXT_MASK_BYTES, VCRDD_TAG);
+    if (pd->g2d_ok)
+        VcrDd(VCR_LV_INFO, VCR_EV_DD_2D, 11, !pd->text_off, pd->bpp, pd->text_mask != NULL,
+              "text on the engine: %s", pd->text_off ? "off (Diag\\Accel2DText not 1, the default) - EngTextOut"
+              : pd->text_mask ? "on" : "on, one blit per glyph (no mask buffer)");
 }
 
 void VcrDd2dTerm(VCR_PDEV *pd)
@@ -351,4 +449,7 @@ void VcrDd2dTerm(VCR_PDEV *pd)
           pd->g2d_ops);
     pd->pjRegs = NULL;
     pd->g2d_ok = 0;
+    if (pd->text_mask)
+        EngFreeMem(pd->text_mask);
+    pd->text_mask = NULL;
 }

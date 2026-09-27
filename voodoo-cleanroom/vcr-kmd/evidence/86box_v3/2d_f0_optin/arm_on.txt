@@ -1,0 +1,5 @@
+# arm
+OK
+"name":"Accel2DText","type":"REG_DWORD","data":1
+# new PDEV at 32 bpp
+{"status":"ok","width":800,"height":600,"bpp":32,"refresh":60}

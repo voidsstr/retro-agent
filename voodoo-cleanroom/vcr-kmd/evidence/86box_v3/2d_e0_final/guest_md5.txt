@@ -1,0 +1,2 @@
+3b912f42b151323f63f099600419ac88  guest:C:\WINDOWS\system32\vcrdd.dll
+deb111a47874ba9d05529fae409eb7aa  guest:C:\WINDOWS\system32\drivers\vcrmp.sys

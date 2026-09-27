@@ -1,0 +1,38 @@
+{"mode": "gdi", "bpp": 8, "rounds": 1, "tests": "text,bench", "bad_fill": 0, "bad_rop": 0, "bad_copy": 0, "bad_scroll": 0, "bad_clip": 0, "bad_sync": 0, "bad_text": 0, "bad_text_cases": 0, "bad_text_path": 0, "bad_text_empty": 0, "text_cases": 28, "text_stats": false, "text_engine_calls": 0, "text_engine_glyphs": 0, "text_clipped": 0, "text_blits": 0, "text_software": 0, "bench": [{"name": "tahoma8 transparent", "glyphs_s": 252051, "calls": 12928, "chars": 39, "ms": 2000, "engine_glyphs": -1}, {"name": "tahoma8 opaque", "glyphs_s": 235532, "calls": 12096, "chars": 39, "ms": 2003, "engine_glyphs": -1}, {"name": "mssans8 opaque (raster)", "glyphs_s": 279539, "calls": 14336, "chars": 39, "ms": 2000, "engine_glyphs": -1}, {"name": "courier13 opaque (fixed)", "glyphs_s": 219229, "calls": 14176, "chars": 31, "ms": 2005, "engine_glyphs": -1}, {"name": "arial33b transparent (large)", "glyphs_s": 52666, "calls": 9600, "chars": 11, "ms": 2005, "engine_glyphs": -1}], "bad": 0}
+gdilab: 8 bpp, 256x192 window, 1 rounds, tests text,bench
+display driver 2D counters: not answered (not our driver)
+text mssans transparent                       0 bad    461 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text mssans opaque                            0 bad   2775 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text tahoma transparent                       0 bad    444 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text tahoma opaque odd x                      0 bad   2890 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text tahoma ETO_OPAQUE wide rect              0 bad   5179 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text times italic transparent (overlap)       0 bad    597 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text times italic opaque                      0 bad   4349 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text courier fixed transparent                0 bad    464 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text courier fixed opaque                     0 bad   3735 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text fixedsys raster opaque                   0 bad   3752 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text fixedsys raster transparent              0 bad    687 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text arial33 bold transparent                 0 bad   2049 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text arial33 bold opaque                      0 bad   5540 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text arial56 transparent (wide glyphs)        0 bad   4057 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text underline+strikeout transparent          0 bad    973 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text underline+strikeout opaque               0 bad   3934 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text ETO_CLIPPED through the glyphs           0 bad   1410 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text ETO_CLIPPED + ETO_OPAQUE                 0 bad    691 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text region with holes (complex)              0 bad   1265 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text region with holes, opaque                0 bad   2236 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text cut by the left edge                     0 bad   5750 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text cut by the top edge                      0 bad    570 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text cut by the right edge                    0 bad   5486 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text cut by the bottom edge                   0 bad    835 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text long string (STROBJ batches)             0 bad   3309 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text text, CPU pixels, text                   0 bad   3262 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text tahoma default quality                   0 bad    542 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+text verdana antialiased                      0 bad   4526 px drawn  engine (none): 0 call(s), 0 glyph(s), 0 clipped, 0 blit(s), 0 to software
+bench tahoma8 transparent              252051 glyphs/s  (12928 calls x 39, 2000 ms; engine glyphs n/a 0, blits 0)
+bench tahoma8 opaque                   235532 glyphs/s  (12096 calls x 39, 2003 ms; engine glyphs n/a 0, blits 0)
+bench mssans8 opaque (raster)          279539 glyphs/s  (14336 calls x 39, 2000 ms; engine glyphs n/a 0, blits 0)
+bench courier13 opaque (fixed)         219229 glyphs/s  (14176 calls x 31, 2005 ms; engine glyphs n/a 0, blits 0)
+bench arial33b transparent (large)      52666 glyphs/s  (9600 calls x 11, 2005 ms; engine glyphs n/a 0, blits 0)
+RESULT {"mode":"gdi","bpp":8,"rounds":1,"tests":"text,bench","bad_fill":0,"bad_rop":0,"bad_copy":0,"bad_scroll":0,"bad_clip":0,"bad_sync":0,"bad_text":0,"bad_text_cases":0,"bad_text_path":0,"bad_text_empty":0,"text_cases":28,"text_stats":false,"text_engine_calls":0,"text_engine_glyphs":0,"text_clipped":0,"text_blits":0,"text_software":0,"bench":[{"name":"tahoma8 transparent","glyphs_s":252051,"calls":12928,"chars":39,"ms":2000,"engine_glyphs":-1},{"name":"tahoma8 opaque","glyphs_s":235532,"calls":12096,"chars":39,"ms":2003,"engine_glyphs":-1},{"name":"mssans8 opaque (raster)","glyphs_s":279539,"calls":14336,"chars":39,"ms":2000,"engine_glyphs":-1},{"name":"courier13 opaque (fixed)","glyphs_s":219229,"calls":14176,"chars":31,"ms":2005,"engine_glyphs":-1},{"name":"arial33b transparent (large)","glyphs_s":52666,"calls":9600,"chars":11,"ms":2005,"engine_glyphs":-1}],"bad":0}
+

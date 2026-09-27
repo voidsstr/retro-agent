@@ -1,0 +1,6 @@
+# disarm (a VALUE: reg delete /v, never REGDELETE)
+
+The operation completed successfully
+0
+# back to the desktop mode
+{"status":"ok","width":800,"height":600,"bpp":16,"refresh":60}
