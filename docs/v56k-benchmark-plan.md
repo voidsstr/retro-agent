@@ -96,6 +96,29 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-27 17:00) - follow-ups and engine text landed; the account's weekly limit is spent
+
+Since 07:30, all on master, none on silicon:
+- **Follow-ups** (`f146917`..`231d8ee`): flip counters of a same-mode DirectDraw
+  session are logged once at DestroyDDLocal (verified on 86Box: 60 / 601, each in
+  its own process); `VcrDdRoom` returns at once after a 2D give-up (it spun a
+  SPIN_CAP per triangle); `d3dprobe_run --noz`; glidelab `--aa-lfb-read
+  --i-am-at-the-box` and `--maplog`; the 86Box `fast_frames` are a guest-clock
+  artefact, not early completion; CLAUDE.md: `REGDELETE` deletes a KEY.
+- **Engine text** (`e7ff9ee`): DrvTextOut by monochrome expansion, 0 bad on the
+  bed, but slower there than the software path, so OPT-IN: `Diag\Accel2DText = 1`
+  (read at the next mode change). Evidence `vcr-kmd/evidence/86box_v3/2d_*`.
+- **Not done:** 2D patterns and lines (the track never started); why XP's own
+  driver draws text 2.4x faster on the bed (suspect: a command FIFO instead of
+  PCI FIFO writes).
+
+Add to the supervised checklist below, after the step-16 regression:
+- **Text on silicon:** gdilab `--tests base,text,bench` at the desktop mode with
+  `Accel2DText` absent, then `REGWRITE ... Diag Accel2DText REG_DWORD 1`, one
+  paced mode change, the same run; compare glyphs/s. Keep it only if it beats the
+  software path; remove the value with `EXEC reg delete "<Diag key>" /v
+  Accel2DText /f` (never REGDELETE - it would erase the whole Diag key).
+
 ### Resume point (2026-09-27 07:30) — the AA safety net, the 32 bpp D3D hardening and the flip work are built, reviewed and 86Box-verified; nothing has touched silicon; the supervised checklist
 
 **Where the code is - NOT on master, NOT pushed:**
