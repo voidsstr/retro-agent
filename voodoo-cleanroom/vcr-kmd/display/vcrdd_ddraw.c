@@ -584,13 +584,16 @@ static DWORD APIENTRY Dd_CanCreateSurface(PDD_CANCREATESURFACEDATA p)
     VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
     DDSURFACEDESC *sd = p->lpDDSurfaceDesc;
     /* a 32-bit Z buffer (24+8, the 32 bpp 3D targets' aux buffer) exists on
-     * the VSA-100 only: a Banshee/Voodoo3 renders 16 bpp with a 16-bit Z */
-    if (pd && !pd->napalm && sd && (sd->ddsCaps.dwCaps & DDSCAPS_ZBUFFER)) {
+     * the VSA-100 only, and is offered only with Diag\\D3D32 = 1: a
+     * Banshee/Voodoo3 - or a VSA-100 without the switch - renders 16 bpp with
+     * a 16-bit Z */
+    if (pd && !pd->rt32 && sd && (sd->ddsCaps.dwCaps & DDSCAPS_ZBUFFER)) {
         DWORD zb = (sd->dwFlags & DDSD_PIXELFORMAT) ? sd->ddpfPixelFormat.dwZBufferBitDepth
                  : (sd->dwFlags & DDSD_ZBUFFERBITDEPTH) ? sd->dwZBufferBitDepth : 16;
         if (zb && zb != 16) {
-            VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 11, zb, 0, 0,
-                  "CanCreateSurface: %u-bit Z refused (16-bit Z only on this chip)", zb);
+            VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 11, zb, pd->napalm, 0,
+                  "CanCreateSurface: %u-bit Z refused (16-bit Z only: %s)", zb,
+                  pd->napalm ? "32 bpp 3D not armed, Diag\\D3D32" : "Banshee/Voodoo3");
             p->ddRVal = DDERR_INVALIDPIXELFORMAT;
             return DDHAL_DRIVER_HANDLED;
         }

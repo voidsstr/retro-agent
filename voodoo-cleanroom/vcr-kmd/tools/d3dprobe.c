@@ -3,14 +3,26 @@
  * driver's Direct3D HAL (and for any other driver, as the reference).
  *
  *   d3dprobe caps                   adapter, driver, D3DCAPS8 and the formats
- *                                   the HAL accepts - no device is created
- *   d3dprobe render [--full] [--res WxH] [--bpp 16|32] [--tests a,b,...]
+ *                                   the HAL accepts - no device is created,
+ *                                   no mode is switched. "zmatch": for the
+ *                                   X8R8G8B8 and R5G6B5 adapter/target formats,
+ *                                   CheckDeviceFormat and CheckDepthStencilMatch
+ *                                   of D24X8, D24S8 and D16 - how the runtime
+ *                                   maps the HAL's Z list before any device
+ *                                   exists - and "hal_fullscreen":
+ *                                   CheckDeviceType of a fullscreen HAL
+ *                                   device in each (0 for X8R8G8B8 on a
+ *                                   VSA-100: Diag\D3D32 is off)
+ *   d3dprobe render [--full] [--res WxH] [--bpp 16|32] [--noz] [--tests a,b,...]
  *             one HAL device, then each test draws into the back buffer, the
  *             back buffer is LOCKED and read back, and the pixels are compared
  *             with values computed here (the scene is analytic) - no golden
  *             screenshot and no timing: an emulated or slow box gets the same
  *             verdict as a fast one. Windowed by default (the desktop's depth);
  *             --full is exclusive fullscreen, which is how games run.
+ *             --noz: no depth buffer (EnableAutoDepthStencil FALSE) - the
+ *             colour path alone (renderMode + colour fastfill, no aux buffer
+ *             write); clears are TARGET only and ztest is skipped.
  *   d3dprobe perf [--full [--novsync]] [--res WxH] [--bpp N] [--frames N]
  *             textured triangles per second and frames per second (--novsync:
  *             fullscreen presents immediately, so the number is the chip's).
@@ -130,6 +142,7 @@ static IDirect3DDevice8 *g_dev;
 static HWND g_hwnd;
 static D3DFORMAT g_fmt;
 static int g_w = 640, g_h = 480, g_bpp = 16, g_full, g_frames = 200, g_novsync;
+static int g_noz;               /* --noz: no depth buffer at all */
 static int g_pass, g_fail;
 
 /* Releasing a fullscreen device is the switch back to the desktop: hold the
@@ -294,7 +307,9 @@ static int frame_begin(DWORD clear)
 {
     HRESULT hr;
     pump();
-    hr = IDirect3DDevice8_Clear(g_dev, 0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clear, 1.0f, 0);
+    /* no depth buffer (--noz): D3DCLEAR_ZBUFFER would fail the whole Clear */
+    hr = IDirect3DDevice8_Clear(g_dev, 0, NULL,
+                                D3DCLEAR_TARGET | (g_noz ? 0 : D3DCLEAR_ZBUFFER), clear, 1.0f, 0);
     if (FAILED(hr))
         say("  Clear %08lx", hr);
     hr = IDirect3DDevice8_BeginScene(g_dev);
@@ -573,6 +588,10 @@ static void run_test(const char *t)
         expect(t, "50% red over blue", 128, 128, 0x80007f, 20);
         expect(t, "outside", 8, 8, 0x0000ff, 8);
     } else if (!strcmp(t, "ztest")) {
+        if (g_noz) {
+            say("  ztest: skipped, no depth buffer (--noz)");
+            return;
+        }
         if (!frame_begin(0)) return;
         untextured();
         IDirect3DDevice8_SetRenderState(g_dev, D3DRS_ZENABLE, D3DZB_TRUE);
@@ -629,10 +648,12 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--log") && v) { strncpy(g_logpath, v, sizeof g_logpath - 1); i++; }
         else if (!strcmp(a, "--full")) g_full = 1;
         else if (!strcmp(a, "--novsync")) g_novsync = 1;
+        else if (!strcmp(a, "--noz")) g_noz = 1;
         else if (a[0] != '-') mode = a;
     }
     g_log = fopen(g_logpath, "w");
-    say("d3dprobe %s: %s %dx%dx%d", mode, g_full ? "fullscreen" : "windowed", g_w, g_h, g_bpp);
+    say("d3dprobe %s: %s %dx%dx%d%s", mode, g_full ? "fullscreen" : "windowed", g_w, g_h, g_bpp,
+        g_noz ? ", no depth buffer" : "");
     if (bad_pace) {
         say("RESULT {\"mode\":\"%s\",\"error\":\"--pace %s: decimal milliseconds, 0 to %u\"}",
             mode, bad_pace, VCR_PACE_MAX_MS);
@@ -664,8 +685,21 @@ int main(int argc, char **argv)
             { D3DFMT_P8, "texP8", 0, D3DRTYPE_TEXTURE },
             { D3DFMT_DXT1, "texDXT1", 0, D3DRTYPE_TEXTURE },
             { D3DFMT_D16, "z16", D3DUSAGE_DEPTHSTENCIL, D3DRTYPE_SURFACE },
+            { D3DFMT_D24X8, "z24x8", D3DUSAGE_DEPTHSTENCIL, D3DRTYPE_SURFACE },
             { D3DFMT_D24S8, "z24s8", D3DUSAGE_DEPTHSTENCIL, D3DRTYPE_SURFACE },
         };
+        /* the depth/stencil questions a D3D8 application asks before it
+         * creates a device, per adapter (= target) format: is the Z format
+         * there (CheckDeviceFormat) and does it pair with the target
+         * (CheckDepthStencilMatch). A DX7-DDI HAL's Z must match the target's
+         * size, so on the VSA-100 with Diag\\D3D32 the expected answer is
+         * D24X8/D24S8 for X8R8G8B8 and D16 for R5G6B5 - asked for BOTH
+         * adapter formats whatever the desktop is: no mode is switched. */
+        static const struct { D3DFORMAT f; const char *n; } zrt[] = {
+            { D3DFMT_X8R8G8B8, "X8R8G8B8" }, { D3DFMT_R5G6B5, "R5G6B5" } };
+        static const struct { D3DFORMAT f; const char *n; } zds[] = {
+            { D3DFMT_D24X8, "D24X8" }, { D3DFMT_D24S8, "D24S8" }, { D3DFMT_D16, "D16" } };
+        int j;
         js("{\"mode\":\"caps\",\"adapter\":\"%s\",\"driver\":\"%s\",\"desktop_fmt\":%u,"
            "\"hal\":\"%08lx\"", id.Description, id.Driver, dm.Format, hr);
         if (SUCCEEDED(hr))
@@ -688,6 +722,29 @@ int main(int argc, char **argv)
                                                      fm[i].rt, fm[i].f);
             say("format %s: %s", fm[i].n, SUCCEEDED(f) ? "yes" : "no");
             js("%s\"%s\":%d", i ? "," : "", fm[i].n, SUCCEEDED(f));
+        }
+        js("},\"hal_fullscreen\":{");
+        for (i = 0; i < (int)(sizeof zrt / sizeof zrt[0]); i++) {
+            HRESULT t = IDirect3D8_CheckDeviceType(d3d, 0, D3DDEVTYPE_HAL, zrt[i].f, zrt[i].f,
+                                                   FALSE);
+            say("fullscreen HAL device at %s: %s (%08lx)", zrt[i].n, SUCCEEDED(t) ? "yes" : "no", t);
+            js("%s\"%s\":%d", i ? "," : "", zrt[i].n, SUCCEEDED(t));
+        }
+        js("},\"zmatch\":{");
+        for (i = 0; i < (int)(sizeof zrt / sizeof zrt[0]); i++) {
+            js("%s\"%s\":{", i ? "," : "", zrt[i].n);
+            for (j = 0; j < (int)(sizeof zds / sizeof zds[0]); j++) {
+                HRESULT f = IDirect3D8_CheckDeviceFormat(d3d, 0, D3DDEVTYPE_HAL, zrt[i].f,
+                                                         D3DUSAGE_DEPTHSTENCIL, D3DRTYPE_SURFACE,
+                                                         zds[j].f);
+                HRESULT m = IDirect3D8_CheckDepthStencilMatch(d3d, 0, D3DDEVTYPE_HAL, zrt[i].f,
+                                                              zrt[i].f, zds[j].f);
+                say("depth %s with %s: format %s (%08lx), match %s (%08lx)", zds[j].n, zrt[i].n,
+                    SUCCEEDED(f) ? "yes" : "no", f, SUCCEEDED(m) ? "yes" : "no", m);
+                js("%s\"%s\":{\"format\":%d,\"match\":%d}", j ? "," : "", zds[j].n,
+                   SUCCEEDED(f), SUCCEEDED(m));
+            }
+            js("}");
         }
         js("}}");
         say("RESULT %s", g_json);
@@ -716,12 +773,15 @@ int main(int argc, char **argv)
     pp.BackBufferFormat = g_full ? (g_bpp == 32 ? D3DFMT_X8R8G8B8 : D3DFMT_R5G6B5) : dm.Format;
     pp.BackBufferWidth = g_full ? g_w : BB;
     pp.BackBufferHeight = g_full ? g_h : BB;
-    pp.EnableAutoDepthStencil = TRUE;
-    pp.AutoDepthStencilFormat = D3DFMT_D16;
+    /* --noz: no depth buffer - the first 32 bpp step on silicon exercises
+     * renderMode and the colour fastfill before anything writes the aux buffer */
+    pp.EnableAutoDepthStencil = !g_noz;
+    pp.AutoDepthStencilFormat = g_noz ? D3DFMT_UNKNOWN : D3DFMT_D16;
     /* a 32 bpp back buffer takes a Z of its own size where the HAL has one
      * (a DX7-DDI driver's Z must match the target's depth: the VSA-100 aux
      * buffer is 24+8 at 32 bpp) - D24X8, then D24S8; else D16 as before */
-    if (pp.BackBufferFormat == D3DFMT_X8R8G8B8 || pp.BackBufferFormat == D3DFMT_A8R8G8B8) {
+    if (!g_noz &&
+        (pp.BackBufferFormat == D3DFMT_X8R8G8B8 || pp.BackBufferFormat == D3DFMT_A8R8G8B8)) {
         static const D3DFORMAT z32[] = { D3DFMT_D24X8, D3DFMT_D24S8 };
         D3DFORMAT afmt = g_full ? pp.BackBufferFormat : dm.Format;
         int k;
@@ -740,9 +800,9 @@ int main(int argc, char **argv)
     if (g_full && g_novsync)        /* perf: measure the chip, not the refresh */
         pp.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
     g_fmt = pp.BackBufferFormat;
-    say("CreateDevice(HAL, %s, back buffer %ux%u fmt %u, z fmt %u)",
+    say("CreateDevice(HAL, %s, back buffer %ux%u fmt %u, z fmt %u%s)",
         g_full ? "fullscreen" : "windowed", pp.BackBufferWidth, pp.BackBufferHeight,
-        pp.BackBufferFormat, pp.AutoDepthStencilFormat);
+        pp.BackBufferFormat, pp.AutoDepthStencilFormat, g_noz ? " - none, --noz" : "");
     /* fullscreen: CreateDevice is the switch in (through vcr_pace.h). The
      * failure return below is a return from main, so the header's atexit hold
      * covers the revert XP makes as the process ends. Refused by the gate,
@@ -810,8 +870,8 @@ int main(int argc, char **argv)
     }
 
     js("{\"mode\":\"render\",\"adapter\":\"%s\",\"window\":\"%s\",\"fmt\":%u,\"zfmt\":%u,"
-       "\"checks\":[", id.Description, g_full ? "fullscreen" : "windowed", g_fmt,
-       (unsigned)pp.AutoDepthStencilFormat);
+       "\"noz\":%d,\"checks\":[", id.Description, g_full ? "fullscreen" : "windowed", g_fmt,
+       (unsigned)pp.AutoDepthStencilFormat, g_noz);
     {
         char list[512], *p, *save;
         strncpy(list, tests, sizeof list - 1);

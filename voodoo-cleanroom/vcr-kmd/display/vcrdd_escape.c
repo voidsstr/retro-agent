@@ -120,10 +120,26 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
         /* Glide reprogrammed the video processor, the LFB tiling and the Y
          * origin for itself: put the desktop mode back before GDI draws. */
         rc = VcrIoctl(pd->hDriver, IOCTL_VCR_RESTORE_MODE, NULL, 0, NULL, 0, NULL);
-        pd->exclusive_pid = 0;
         rs->resStatus = rc ? VCR_HWC_FAIL : VCR_HWC_OK;
-        VcrDd(VCR_LV_INFO, VCR_EV_HWC_EXCLUSIVE, 0, pid, rs->resStatus, rc,
+        VcrDd(rc ? VCR_LV_WARN : VCR_LV_INFO, VCR_EV_HWC_EXCLUSIVE, 0, pid, rs->resStatus, rc,
               "HWCRLSEXCLUSIVE");
+        if (rc) {
+            /* the desktop mode is NOT back (and SLI may still be on: the mode
+             * set is what turns it off) - the chip stays out of bounds to the
+             * 2D engine, DirectDraw and D3D. DrvAssertMode(TRUE) clears a
+             * stale owner, as for a Glide client that never released. */
+            VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 2, pd->exclusive_pid, 0, rc,
+                  "RESTORE_MODE failed (%u): exclusive owner %u kept", rc, pd->exclusive_pid);
+            break;
+        }
+        /* VSA-100 with Diag\\Reset3D = 1: what the session left on chip 0
+         * (chip mask, AA, combine, stencil) cleared for the next user */
+        if (pd->reset3d) {
+            BOOL ok = VcrDdGlideReset3d(pd);
+            VcrDd(ok ? VCR_LV_INFO : VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 3, pid, ok, pd->g2d_ok,
+                  "3D state after Glide %s", ok ? "reset" : "NOT reset - acceleration off");
+        }
+        pd->exclusive_pid = 0;
         break;
 
     case VCR_HWC_UNMAP_MEMORY:

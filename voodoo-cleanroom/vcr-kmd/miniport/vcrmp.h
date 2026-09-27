@@ -139,6 +139,8 @@ typedef struct VCR_EXT {
     ULONG     accel2d;              /* Diag\\Accel2D (default 1) */
     ULONG     d3d;                  /* Diag\\D3D (default 1) */
     ULONG     texport;              /* Diag\\TexPortFlush (default 1) */
+    ULONG     d3d32;                /* Diag\\D3D32 (default 0): 32 bpp D3D targets */
+    ULONG     reset3d;              /* Diag\\Reset3D (default 0): 3D state reset at Glide release */
     ULONG     bridge_bus, bridge_slot, bridge_found;
     ULONG     sli_active;           /* = sli_chips != 0 */
     ULONG     glide_chips;          /* chips Glide is told about (1 until slaves are mapped) */

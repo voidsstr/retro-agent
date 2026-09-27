@@ -107,6 +107,9 @@ typedef struct vcr_info {
 #define VCR_INFO_F_NO_TEXPORT   0x8     /* Diag\\TexPortFlush = 0: no texture-port write in the flush */
 #define VCR_INFO_F_NO_D3D       0x4     /* Diag\\D3D = 0: no Direct3D HAL */
 #define VCR_INFO_F_NO_ACCEL2D   0x2     /* Diag\\Accel2D = 0: the display driver draws in software */
+/* default-OFF switches: a POSITIVE flag, so a miniport that predates one never arms it */
+#define VCR_INFO_F_D3D32        0x10    /* Diag\\D3D32 = 1: 32 bpp Direct3D targets on a VSA-100 */
+#define VCR_INFO_F_RESET3D      0x20    /* Diag\\Reset3D = 1: clear Glide's 3D state on chip 0 at release */
 
 /* IOCTL_VCR_LOG_WRITE */
 typedef struct vcr_log_write_req {

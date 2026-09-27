@@ -60,7 +60,9 @@ typedef struct VCR_PDEV {
     ULONG       g2d_fifo_full;      /* status[4:0] with the PCI FIFO empty */
     ULONG       d3d_disabled;       /* Diag\\D3D = 0 */
     ULONG       no_texport;         /* Diag\\TexPortFlush = 0 */
-    ULONG       napalm;             /* a VSA-100 (Voodoo 4/5): renderMode, 32 bpp 3D */
+    ULONG       napalm;             /* a VSA-100 (Voodoo 4/5): renderMode, stencil, 32 bpp 3D */
+    ULONG       rt32;               /* 32 bpp D3D targets offered: napalm AND Diag\\D3D32 = 1 */
+    ULONG       reset3d;            /* Glide 3D state reset at release: napalm AND Diag\\Reset3D = 1 */
     PVOID       pvmList;            /* DirectDraw's VIDEOMEMORY heap list (it fills lpHeap) */
     ULONG       fog_loaded[4];      /* the fog table on the chip: mode, start, end, density */
     ULONG       fog_valid;
@@ -91,6 +93,9 @@ BOOL  VcrDd2dCopy(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG src_off, L
                   ULONG ckey, ULONG ck_lo, ULONG ck_hi);
 BOOL  VcrDd2dFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LONG x, LONG y,
                   LONG w, LONG h, ULONG color);
+/* the 3D state a Glide session leaves on chip 0, cleared when it gives the
+ * chip back (VSA-100, Diag\\Reset3D = 1; vcr_3dseq.h) - bounded like the rest */
+BOOL  VcrDdGlideReset3d(VCR_PDEV *pd);
 
 /* vcrdd_ddraw.c (with the public DDK's DirectDraw headers) */
 #ifdef VCR_HAVE_DDI

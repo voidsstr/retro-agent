@@ -231,6 +231,10 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
     x->accel2d = VcrDiagGet(L"Accel2D", 1);
     x->d3d = VcrDiagGet(L"D3D", 1);
     x->texport = VcrDiagGet(L"TexPortFlush", 1);
+    /* OFF unless set: neither has run on silicon (the display driver reads
+     * them through vcr_info.flags - vcrdd_2d.c VcrDd2dInit) */
+    x->d3d32 = VcrDiagGet(L"D3D32", 0);
+    x->reset3d = VcrDiagGet(L"Reset3D", 0);
     hwinfo(x);
 
     /* no VDM (full-screen DOS) support: the VGA driver keeps that role */
@@ -425,7 +429,8 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
     v->log_next_seq = VcrLogNextSeq();
     v->flags = (x->allow_poke ? VCR_INFO_F_ALLOW_POKE : 0) |
                (x->accel2d ? 0 : VCR_INFO_F_NO_ACCEL2D) | (x->d3d ? 0 : VCR_INFO_F_NO_D3D) |
-               (x->texport ? 0 : VCR_INFO_F_NO_TEXPORT);
+               (x->texport ? 0 : VCR_INFO_F_NO_TEXPORT) | (x->d3d32 ? VCR_INFO_F_D3D32 : 0) |
+               (x->reset3d ? VCR_INFO_F_RESET3D : 0);
     v->ogl_version = VcrDiagGet(L"OpenGLVersion", 2);
     v->ogl_driver_version = VcrDiagGet(L"OpenGLDriverVersion", 1);
     if (!VcrDiagGetString(L"OpenGLName", v->ogl_name, 32)) {

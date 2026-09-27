@@ -1,8 +1,9 @@
 /*
  * vcr_rtfmt.h - which Direct3D render targets the 3D engine can draw into,
  * and how a 32 bpp one is programmed. Integer only and Win32-free: the HAL
- * (vcrdd_d3d.c, -mgeneral-regs-only) decides with it, and the host test
- * compiles it as is.
+ * (vcrdd_d3d.c, -mgeneral-regs-only) decides with it, and the host tests
+ * (tests/python/test_vcr_kmd_d3d.py, tests/native/test_vcr_kmd_d3dseq.c)
+ * compile it as is.
  *
  * The chips:
  *   Banshee / Voodoo3  the 3D engine renders 16 bpp only (no renderMode
@@ -13,13 +14,34 @@
  *                      2 = 32 bpp (h5 h3defs.h SST_RM_16BPP/SST_RM_32BPP,
  *                      _grRenderMode in gsst.c). There is no separate format
  *                      for the aux (depth) buffer: in 32 bpp it is 32 bits a
- *                      pixel, 24 of depth under 8 of stencil (gglide.c
- *                      grBufferClear: "the depth buffer is 24bpp"; clears put
- *                      (stencil << 24) | depth) - so a 32 bpp target needs a
- *                      32-bit Z (D24X8 / D24S8) and a 16 bpp one a 16-bit Z.
- *                      A mismatch is refused, as the DX7-DDI runtime itself
- *                      treats a DX7 driver's Z (D3D8's CheckDepthStencilMatch
- *                      wants equal depths without the DX8 format op).
+ *                      pixel, 24 of depth under 8 of STENCIL (gglide.c
+ *                      grBufferClear: "the depth buffer is 24bpp") - so a
+ *                      32 bpp target needs a 32-bit Z (D24X8 / D24S8) and a
+ *                      16 bpp one a 16-bit Z. A mismatch is refused, as the
+ *                      DX7-DDI runtime itself treats a DX7 driver's Z (D3D8's
+ *                      CheckDepthStencilMatch wants equal depths without the
+ *                      DX8 format op).
+ *                      32 bpp targets are offered only when the miniport's
+ *                      Diag\D3D32 = 1 (default OFF, VCR_INFO_F_D3D32): the
+ *                      32 bpp path has not run on silicon, and .124's desktop
+ *                      is 32 bpp, so without the switch every windowed D3D
+ *                      client there would take it. Off, a VSA-100 answers
+ *                      exactly as the proven 16 bpp HAL did (DDBD_16, D16).
+ *
+ * STENCIL IS NOT SUPPORTED. The stencil byte of a 24+8 aux buffer is written
+ * and tested only through stencilMode/stencilOp (0x1e4/0x1e8, h3defs.h
+ * SST_STENCIL_*): with SST_STENCIL_ENABLE and the stencil write mask clear
+ * the chip neither reads nor writes those planes. The HAL writes both 0 at
+ * every target setup on a VSA-100 (vcr_3dseq.h), so a stencil state a
+ * Glide/OpenGL session left behind cannot fail or overwrite our draws.
+ * zaColor[31:24] is NOT the stencil clear value - it is the ALPHA field
+ * (h3defs.h SST_ZACOLOR_ALPHA, [23:0] SST_ZACOLOR_DEPTH); a stencil clear
+ * would be a fastfill with stencilMode's REF + WMASK set, which we never do:
+ * D3DCLEAR_STENCIL is dropped and dwStencilCaps is 0. D24S8 stays LISTED at
+ * 32 bpp anyway: D3D8 applications that ask for a stencil format by name
+ * (and CheckDepthStencilMatch) would otherwise find no 24-bit Z with the
+ * layout 3dfx's own V5 HAL publishes, and a D24S8 surface IS the same 32-bit
+ * storage as D24X8 - its stencil bits simply never change.
  *
  * Depth values: 16 bpp iterates and clears Z in 0..0xffff, 32 bpp in
  * 0..0xffffff (diget.c GR_ZDEPTH_MIN_MAX: NAPALM_ZDEPTHVALUE_NEAREST for a
@@ -35,14 +57,51 @@
 #define VCR_RT_32       32u
 
 /* the 3D pixel size for a colour target of rt_bits with a Z of z_bits
- * (0: no Z buffer), or VCR_RT_REFUSED */
-static __inline unsigned vcr_rt_format(unsigned napalm, unsigned rt_bits, unsigned z_bits)
+ * (0: no Z buffer), or VCR_RT_REFUSED. rt32: 32 bpp targets are allowed - a
+ * VSA-100 with Diag\D3D32 = 1 (never a Banshee/Voodoo3) */
+static __inline unsigned vcr_rt_format(unsigned rt32, unsigned rt_bits, unsigned z_bits)
 {
     if (rt_bits == 16)
         return (z_bits == 0 || z_bits == 16) ? VCR_RT_16 : VCR_RT_REFUSED;
-    if (rt_bits == 32 && napalm)
+    if (rt_bits == 32 && rt32)
         return (z_bits == 0 || z_bits == 32) ? VCR_RT_32 : VCR_RT_REFUSED;
-    return VCR_RT_REFUSED;          /* 8/24 bpp, or 32 bpp on a Banshee/Voodoo3 */
+    return VCR_RT_REFUSED;          /* 8/24 bpp, or 32 bpp not allowed here */
+}
+
+/* may the register writer program a target of this format? Anything but
+ * 16, or 32 where 32 is allowed, is refused on EVERY chip - VSA-100 too:
+ * renderMode would otherwise be written for a size nobody decided on */
+static __inline int vcr_rt_programmable(unsigned rt32, unsigned fmt)
+{
+    return fmt == VCR_RT_16 || (fmt == VCR_RT_32 && rt32);
+}
+
+/* why a colour/Z pair is not a target (VCR_RT_OK: it is) - the HAL logs it */
+#define VCR_RT_OK           0u
+#define VCR_RT_WHY_FORMAT   1u      /* the size pair: vcr_rt_format refused it */
+#define VCR_RT_WHY_ZOFF     2u      /* a Z surface with no video-memory offset */
+#define VCR_RT_WHY_ZPITCH   3u      /* Z pitch under a target row, not 16-aligned, or past 0x3fff */
+#define VCR_RT_WHY_ZSIZE    4u      /* the Z smaller than the target */
+
+/* the Z buffer against the target it serves. z_set: a Z surface is
+ * attached (whether or not it is usable); z_off: its offset in video memory
+ * (0 when it is not in video memory - the aux buffer would land at 0);
+ * z_pitch: bytes a row; z_w/z_h: its size. A target of width x height
+ * writes width * (fmt / 8) bytes of every Z row, over height rows. */
+static __inline unsigned vcr_rt_zcheck(unsigned fmt, unsigned width, unsigned height,
+                                       unsigned z_set, unsigned z_off, unsigned z_pitch,
+                                       unsigned z_w, unsigned z_h)
+{
+    unsigned bytes = fmt == VCR_RT_32 ? 4u : 2u;
+    if (!z_set)
+        return VCR_RT_OK;
+    if (!z_off)
+        return VCR_RT_WHY_ZOFF;
+    if (z_pitch < width * bytes || (z_pitch & 0xfu) || z_pitch > 0x3fffu)
+        return VCR_RT_WHY_ZPITCH;
+    if (z_w < width || z_h < height)
+        return VCR_RT_WHY_ZSIZE;
+    return VCR_RT_OK;
 }
 
 /* the largest depth value the aux buffer holds (a clear to 1.0 writes this) */
@@ -56,6 +115,19 @@ static __inline unsigned vcr_rt_zmax(unsigned fmt)
 static __inline unsigned vcr_rt_rendermode(unsigned fmt)
 {
     return (fmt == VCR_RT_32 ? RM_32BPP : RM_16BPP) | RM_RGBA_WRITE;
+}
+
+/* the Z formats GUID_ZPixelFormats answers, by the desktop depth: D16 at 16
+ * bpp (and on every Banshee/Voodoo3, and whenever 32 bpp is not allowed);
+ * the two 32-bit entries at 32 bpp with rt32. Never both - a DX7-DDI
+ * driver's Z must match the target, and listing the other size is what lets
+ * an application pick a pair ContextCreate then refuses. */
+#define VCR_ZL_D16      1u
+#define VCR_ZL_D24X8    2u
+#define VCR_ZL_D24S8    4u
+static __inline unsigned vcr_rt_zlist(unsigned rt32, unsigned desktop_bpp)
+{
+    return rt32 && desktop_bpp == 32 ? (VCR_ZL_D24X8 | VCR_ZL_D24S8) : VCR_ZL_D16;
 }
 
 #endif /* VCR_RTFMT_H */

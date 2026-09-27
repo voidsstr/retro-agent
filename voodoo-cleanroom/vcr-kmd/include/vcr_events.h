@@ -72,13 +72,13 @@
     VCR_EVENT(VCR_EV_DD_FLUSH_STATS,   510, "a=flushes b=pixels (K)") \
     VCR_EVENT(VCR_EV_DD_DDRAW,         511, "a=what (1 info 2 map 3 flip 4 excl 5 togdi 6 enable 12 flip stats: b=flips c=by retrace d=by deadline 13 flip timing: b=longest read us c=longest wait us d=deadline us) b..d=values") \
     VCR_EVENT(VCR_EV_DD_2D,            512, "a=what (1 init 2 term 3 gdi stats 9 gave up) b..d=values") \
-    VCR_EVENT(VCR_EV_DD_D3D,           513, "a=what (1 ctx 2 ctx gone 3 surface handle 5 unparsed 6 short 9 table full 12 target refused: b=rt bpp c=z bits d=napalm) b..d=values") \
+    VCR_EVENT(VCR_EV_DD_D3D,           513, "a=what (1 ctx 2 ctx gone 3 surface handle 5 unparsed 6 short 9 table full 12 target refused: b=rt bpp c=z bits d=napalm; 15 target Z refused: b=why (2 no offset 3 pitch 4 size) c=z pitch d=z offset; 16 armed: b=32 bpp D3D c=Glide 3D reset d=flags) b..d=values") \
     /* 6xx HWCEXT (Glide) */ \
     VCR_EVENT(VCR_EV_HWC_REQUEST,   600, "a=which b=pid c=resStatus d=return") \
     VCR_EVENT(VCR_EV_HWC_DEVCONFIG, 601, "a=device b=fbRam c=numChips") \
     VCR_EVENT(VCR_EV_HWC_LINADDR,   602, "a=base0 va b=base1 va c=base1 len") \
     VCR_EVENT(VCR_EV_HWC_SLAVE,     603, "a=chip b=io va c=cmd va d=3d va") \
-    VCR_EVENT(VCR_EV_HWC_EXCLUSIVE, 604, "a=set b=pid c=result") \
+    VCR_EVENT(VCR_EV_HWC_EXCLUSIVE, 604, "a=set (1 set, 0 release; 2 RESTORE_MODE failed, owner kept: b=pid d=rc; 3 Glide 3D state reset: c=ok d=2D on) b=pid c=result") \
     VCR_EVENT(VCR_EV_HWC_UNMAP,     605, "a=pid b=views") \
     VCR_EVENT(VCR_EV_HWC_CTXDWORD,  606, "a=user va b=pid") \
     VCR_EVENT(VCR_EV_HWC_SLIAA,     607, "a=chips b=sliEn c=aaEn d=nlines") \

@@ -20,6 +20,7 @@
  * software paths are always there to fall back to.
  */
 #include "vcrdd.h"
+#include "../include/vcr_3dseq.h"
 
 #define R2D(off)            (0x100000 + (off))
 #define G_CLIP0MIN          R2D(0x08)
@@ -213,6 +214,33 @@ BOOL VcrDd2dFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LO
     return TRUE;
 }
 
+/* What a Glide session leaves in chip 0's 3D block - a chip mask that shuts
+ * chip 0 out, AA jitter, an extended or two-pixels-per-clock combine,
+ * stencil state - cleared for whoever draws next (vcr_3dseq.h has the list,
+ * each register's source and the order). Called once the chip is ours again:
+ * exclusive mode released AND the desktop mode re-programmed (which turned
+ * SLI off). VSA-100 only, and only with Diag\\Reset3D = 1 - it has not run on
+ * silicon. Through the PCI FIFO like every other write here, in chunks the
+ * FIFO takes (VcrDdRoom is bounded: a chip that never drains turns
+ * acceleration off, it does not hang), then a bounded idle wait so a chip
+ * that does not settle is named HERE, not by the next GDI call. */
+BOOL VcrDdGlideReset3d(VCR_PDEV *pd)
+{
+    vcr_regw w[VCR_3D_RESET_MAX];
+    ULONG n, i;
+    if (!pd->reset3d || !pd->napalm || !pd->pjRegs || !pd->g2d_ok)
+        return FALSE;
+    n = vcr_3d_glide_reset_seq(w);
+    for (i = 0; i < n; i++) {
+        if ((i & 7) == 0 && !VcrDdRoom(pd, n - i < 8 ? n - i : 8))
+            return FALSE;
+        wr(pd, V3D_BASE + w[i].off, w[i].val);          /* chip 0's 3D block */
+    }
+    pd->g2d_busy = 1;
+    VcrDd2dSync(pd);
+    return pd->g2d_ok ? TRUE : FALSE;
+}
+
 /* the registers, from the miniport - Voodoo only (the Bochs test backend
  * has no engine, and answers ERROR_INVALID_FUNCTION) */
 void VcrDd2dInit(VCR_PDEV *pd)
@@ -228,6 +256,13 @@ void VcrDd2dInit(VCR_PDEV *pd)
         pd->d3d_disabled = (info.flags & VCR_INFO_F_NO_D3D) ? 1 : 0;
         pd->no_texport = (info.flags & VCR_INFO_F_NO_TEXPORT) ? 1 : 0;
         pd->napalm = info.device == 0x0009;
+        /* default OFF (positive flags - an older miniport never sets them) */
+        pd->rt32 = pd->napalm && (info.flags & VCR_INFO_F_D3D32) ? 1 : 0;
+        pd->reset3d = pd->napalm && (info.flags & VCR_INFO_F_RESET3D) ? 1 : 0;
+        if (pd->rt32 || pd->reset3d)
+            VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 16, pd->rt32, pd->reset3d, info.flags,
+                  "armed: 32 bpp Direct3D %s (Diag\\D3D32), Glide 3D reset %s (Diag\\Reset3D)",
+                  pd->rt32 ? "ON" : "off", pd->reset3d ? "ON" : "off");
     }
     req.RequestedVirtualAddress = NULL;
     rc = VcrIoctl(pd->hDriver, IOCTL_VIDEO_QUERY_PUBLIC_ACCESS_RANGES, &req, sizeof req, &r,

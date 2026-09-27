@@ -18,6 +18,7 @@
 #include "vcrdd.h"
 #include "vcrdd_3d.h"
 #include "../include/vcr_fog.h"
+#include "../include/vcr_3dseq.h"
 
 static void w3(VCR_PDEV *pd, ULONG off, ULONG v)
 {
@@ -42,22 +43,25 @@ static float fbits(ULONG u)
 
 BOOL VcrDd3dTarget(VCR_PDEV *pd, const vcr3d_target *t)
 {
-    if (!VcrDdRoom(pd, 7))
+    /* the writes are vcr_3dseq.h's, where the host test checks them one by
+     * one. VSA-100: the 3D pixel size (16, or 32 with a 32-bit 24+8 aux
+     * buffer - only with Diag\\D3D32) and every channel written, as
+     * _grRenderMode does, then stencilMode = stencilOp = 0: the stencil byte
+     * of a 32 bpp aux buffer is live, and whatever a Glide/OpenGL session
+     * left there must neither fail nor rewrite our pixels. A Banshee/Voodoo3
+     * has neither register and renders 16 bpp only. Any format but 16 (or 32
+     * where it is allowed) is refused on every chip, before a write. */
+    vcr_regw w[VCR_3D_TARGET_MAX];
+    ULONG n = vcr_3d_target_seq(pd->napalm, pd->rt32, t->fmt, t->rt_off, t->rt_pitch, t->z_off,
+                                t->z_pitch, t->width, t->height, w), i;
+    if (!n)
         return FALSE;
-    /* VSA-100: the 3D pixel size (16, or 32 with a 32-bit 24+8 aux buffer)
-     * and every channel written, as _grRenderMode does. A Banshee/Voodoo3
-     * has no renderMode and renders 16 bpp only - the HAL never hands it a
-     * 32 bpp target (vcr_rt_format), and this refuses one as well. */
-    if (pd->napalm)
-        w3(pd, V3D_RENDERMODE, vcr_rt_rendermode(t->fmt));
-    else if (t->fmt != VCR_RT_16)
+    /* 7: what a Banshee/Voodoo3 has always waited for (6 writes); a VSA-100
+     * waits for its 9 */
+    if (!VcrDdRoom(pd, n > 7 ? n : 7))
         return FALSE;
-    w3(pd, V3D_COLBUFFERADDR, t->rt_off);
-    w3(pd, V3D_COLBUFFERSTRIDE, BS_LINEAR_STRIDE(t->rt_pitch));
-    w3(pd, V3D_AUXBUFFERADDR, t->z_off);
-    w3(pd, V3D_AUXBUFFERSTRIDE, BS_LINEAR_STRIDE(t->z_pitch ? t->z_pitch : t->rt_pitch));
-    w3(pd, V3D_CLIPLEFTRIGHT, (0u << 16) | (t->width & 0xfff));
-    w3(pd, V3D_CLIPBOTTOMTOP, (0u << 16) | (t->height & 0xfff));
+    for (i = 0; i < n; i++)
+        w3(pd, w[i].off, w[i].val);
     pd->g2d_busy = 1;
     return TRUE;
 }
@@ -127,8 +131,10 @@ BOOL VcrDd3dClear(VCR_PDEV *pd, const vcr3d_target *t, ULONG what, ULONG argb, U
         mode |= FZ_ZAWRITE;
     z = fbits(zbits);
     z = z < 0.0f ? 0.0f : z > 1.0f ? 1.0f : z;
-    /* zaColor[23:0] is the depth: 16 bits of it at 16 bpp, all 24 at 32 bpp
-     * (and [31:24], the stencil of a 24+8 aux buffer, cleared to 0) */
+    /* zaColor[23:0] is the depth (h3defs.h SST_ZACOLOR_DEPTH): 16 bits of it
+     * at 16 bpp, all 24 at 32 bpp. [31:24] is SST_ZACOLOR_ALPHA - NOT the
+     * stencil: with stencilMode 0 (VcrDd3dTarget) a clear leaves the stencil
+     * byte of a 24+8 aux buffer untouched, and nothing here ever reads it */
     zv = t->fmt == VCR_RT_32 ? (ULONG)(z * 16777215.0f + 0.5f) : (ULONG)(z * 65535.0f + 0.5f);
     if (zv > vcr_rt_zmax(t->fmt))
         zv = vcr_rt_zmax(t->fmt);

@@ -557,11 +557,21 @@ BOOL APIENTRY DrvAssertMode(DHPDEV dhpdev, BOOL bEnable)
         /* GDI takes the display back. A Glide client that released exclusive
          * mode cleared this already; one that was killed never will, and a
          * stale owner would keep the hardware pointer switched off. */
-        if (pd->exclusive_pid)
+        ULONG stale = pd->exclusive_pid;
+        if (stale)
             VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 0, pd->exclusive_pid, 2, 0,
                   "exclusive owner %u never released - cleared on re-assert", pd->exclusive_pid);
         pd->exclusive_pid = 0;
         ok = VcrDdSetMode(pd);
+        /* ... and it left its 3D state on chip 0 as well - the case the
+         * release-time reset exists for (VSA-100, Diag\\Reset3D = 1; the mode
+         * set just made turned SLI off) */
+        if (ok && stale && pd->reset3d) {
+            BOOL r = VcrDdGlideReset3d(pd);
+            VcrDd(r ? VCR_LV_INFO : VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 3, stale, r, pd->g2d_ok,
+                  "3D state after a Glide client that never released %s",
+                  r ? "reset" : "NOT reset - acceleration off");
+        }
     } else {
 #ifdef VCR_HAVE_DDI
         /* the flips of a session that set this mode, before it leaves the

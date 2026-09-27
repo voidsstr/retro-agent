@@ -34,10 +34,19 @@
 #define V3D_C1                  0x148
 #define V3D_FOGTABLE            0x160
 #define V3D_RENDERMODE          0x1e0   /* VSA-100 only (reserved on Banshee/Voodoo3) */
+#define V3D_STENCILMODE         0x1e4   /* VSA-100 only: SST_STENCIL_* (h3defs.h) */
+#define V3D_STENCILOP           0x1e8   /* VSA-100 only: SST_STENCIL_*_OP */
 #define V3D_COLBUFFERADDR       0x1ec
 #define V3D_COLBUFFERSTRIDE     0x1f0
 #define V3D_AUXBUFFERADDR       0x1f4
 #define V3D_AUXBUFFERSTRIDE     0x1f8
+/* VSA-100 only, the multi-chip / extended-combine block (h5 h3regs.h SstRegs:
+ * fbiStencilFail 0x1fc, clipLeftRight1 0x200, clipBottomTop1 0x204, then
+ * these - offsetof(), computed against the GPL header, not transcribed) */
+#define V3D_COMBINEMODE         0x208   /* SST_CM_*: FBI and every TMU */
+#define V3D_SLICTRL             0x20c   /* not written by the display driver */
+#define V3D_AACTRL              0x210   /* SST_AA_CONTROL_* */
+#define V3D_CHIPMASK            0x214   /* bit n: chip n takes what follows */
 #define V3D_SSETUPMODE          0x260
 #define V3D_SVX                 0x264
 #define V3D_SVY                 0x268
