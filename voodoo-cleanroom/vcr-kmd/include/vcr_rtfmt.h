@@ -32,8 +32,10 @@
  * and tested only through stencilMode/stencilOp (0x1e4/0x1e8, h3defs.h
  * SST_STENCIL_*): with SST_STENCIL_ENABLE and the stencil write mask clear
  * the chip neither reads nor writes those planes. The HAL writes both 0 at
- * every target setup on a VSA-100 (vcr_3dseq.h), so a stencil state a
- * Glide/OpenGL session left behind cannot fail or overwrite our draws.
+ * every 32 bpp target setup (vcr_3dseq.h), so a stencil state a
+ * Glide/OpenGL session left behind cannot fail or overwrite our draws. A
+ * 16 bpp target has no stencil byte and keeps the proven sequence, write for
+ * write (the pair is also in the Diag\Reset3D release reset).
  * zaColor[31:24] is NOT the stencil clear value - it is the ALPHA field
  * (h3defs.h SST_ZACOLOR_ALPHA, [23:0] SST_ZACOLOR_DEPTH); a stencil clear
  * would be a fastfill with stencilMode's REF + WMASK set, which we never do:
@@ -82,6 +84,26 @@ static __inline int vcr_rt_programmable(unsigned rt32, unsigned fmt)
 #define VCR_RT_WHY_ZOFF     2u      /* a Z surface with no video-memory offset */
 #define VCR_RT_WHY_ZPITCH   3u      /* Z pitch under a target row, not 16-aligned, or past 0x3fff */
 #define VCR_RT_WHY_ZSIZE    4u      /* the Z smaller than the target */
+#define VCR_RT_WHY_RTPITCH  5u      /* the target's own pitch: under a row, not 16-aligned, or past 0x3fff */
+
+/* the colour target's own pitch, by the same rule as its Z (vcr_rt_zcheck):
+ * at least a row, a multiple of 16 bytes, inside the 14-bit stride field.
+ * The DP2 walk has refused to draw into an unaligned target since the first
+ * HAL (drawable needs (rt_pitch & 0xf) == 0), while Clear2 still fastfilled
+ * it and ContextCreate accepted it - three answers for one surface. Here it
+ * is ONE answer, at target_of, so ContextCreate, SETRENDERTARGET, DP2 and
+ * Clear2 all refuse the same target, and the refusal is logged (event 513
+ * what 15) instead of a device that silently draws nothing. The heap asks for
+ * no pitch alignment (vcrdd_ddraw.c), so a windowed client whose width is not
+ * a multiple of 8 pixels at 16 bpp reaches this; every proven size (the
+ * fullscreen modes, d3dprobe's 256x256 window) is a multiple of 16 bytes. */
+static __inline unsigned vcr_rt_rtcheck(unsigned fmt, unsigned width, unsigned rt_pitch)
+{
+    unsigned bytes = fmt == VCR_RT_32 ? 4u : 2u;
+    if (rt_pitch < width * bytes || (rt_pitch & 0xfu) || rt_pitch > 0x3fffu)
+        return VCR_RT_WHY_RTPITCH;
+    return VCR_RT_OK;
+}
 
 /* the Z buffer against the target it serves. z_set: a Z surface is
  * attached (whether or not it is usable); z_off: its offset in video memory
@@ -117,17 +139,24 @@ static __inline unsigned vcr_rt_rendermode(unsigned fmt)
     return (fmt == VCR_RT_32 ? RM_32BPP : RM_16BPP) | RM_RGBA_WRITE;
 }
 
-/* the Z formats GUID_ZPixelFormats answers, by the desktop depth: D16 at 16
- * bpp (and on every Banshee/Voodoo3, and whenever 32 bpp is not allowed);
- * the two 32-bit entries at 32 bpp with rt32. Never both - a DX7-DDI
- * driver's Z must match the target, and listing the other size is what lets
- * an application pick a pair ContextCreate then refuses. */
+/* the Z formats GUID_ZPixelFormats answers: the Z of every RENDER depth the
+ * HAL offers, not of the desktop. D16 always - 16 bpp targets exist on every
+ * chip, and a 16 bpp fullscreen device made from .124's 32 bpp desktop is the
+ * proven lane; the two 32-bit entries beside it with rt32 (DDBD_32 offered).
+ * The D3D8 runtime checks an application's depth format against the list it
+ * read AT THE DESKTOP MODE, before the fullscreen switch, so a list that
+ * followed the desktop (4a9793b: the 32-bit pair alone at a 32 bpp desktop
+ * with Diag\D3D32) took D16 away from exactly that proven device the moment
+ * the switch was armed. A pair of the wrong sizes an application may still
+ * pick costs nothing on the chip: D3D8's CheckDepthStencilMatch answers no
+ * for a DX7-DDI HAL, and ContextCreate refuses it (vcr_rt_format) before any
+ * register write. Without rt32: D16 alone, as the proven 16 bpp HAL. */
 #define VCR_ZL_D16      1u
 #define VCR_ZL_D24X8    2u
 #define VCR_ZL_D24S8    4u
-static __inline unsigned vcr_rt_zlist(unsigned rt32, unsigned desktop_bpp)
+static __inline unsigned vcr_rt_zlist(unsigned rt32)
 {
-    return rt32 && desktop_bpp == 32 ? (VCR_ZL_D24X8 | VCR_ZL_D24S8) : VCR_ZL_D16;
+    return VCR_ZL_D16 | (rt32 ? (VCR_ZL_D24X8 | VCR_ZL_D24S8) : 0u);
 }
 
 #endif /* VCR_RTFMT_H */

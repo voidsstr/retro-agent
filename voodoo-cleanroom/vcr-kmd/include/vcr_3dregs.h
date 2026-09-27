@@ -44,7 +44,7 @@
  * fbiStencilFail 0x1fc, clipLeftRight1 0x200, clipBottomTop1 0x204, then
  * these - offsetof(), computed against the GPL header, not transcribed) */
 #define V3D_COMBINEMODE         0x208   /* SST_CM_*: FBI and every TMU */
-#define V3D_SLICTRL             0x20c   /* not written by the display driver */
+#define V3D_SLICTRL             0x20c   /* the miniport's; the display driver writes only 0, in the Reset3D reset */
 #define V3D_AACTRL              0x210   /* SST_AA_CONTROL_* */
 #define V3D_CHIPMASK            0x214   /* bit n: chip n takes what follows */
 #define V3D_SSETUPMODE          0x260

@@ -4,23 +4,31 @@
  * VcrDdGlideReset3d) and of the target rules they rest on (vcr_rtfmt.h).
  *
  * The hardening of the 32 bpp render targets (commit 5be6a59) before any
- * deploy to the V5 6000 on .124 (2026-09-27), none of it run on silicon yet:
- *   - a VSA-100 target writes stencilMode = stencilOp = 0 after renderMode:
+ * deploy to the V5 6000 on .124 (2026-09-27, 4a9793b + its review), none of
+ * it run on silicon yet:
+ *   - a 32 bpp target writes stencilMode = stencilOp = 0 after renderMode:
  *     the stencil byte of a 32 bpp aux buffer is live, and nothing in vcr-kmd
  *     ever wrote those registers - a Glide/OpenGL session's stencil state
  *     would fail or overwrite every D3D pixel;
- *   - EVERYTHING ELSE is the old sequence, write for write: a Banshee/Voodoo3
- *     target is the 6 writes it always was, a VSA-100 16 bpp target is the
- *     old 7 plus exactly those two;
+ *   - EVERY 16 bpp TARGET IS THE OLD SEQUENCE, write for write: a
+ *     Banshee/Voodoo3 target is the 6 writes it always was, a VSA-100 16 bpp
+ *     target the 7 it was proven with (40/40 on .124), whatever Diag\D3D32
+ *     says (4a9793b added the stencil pair there too - new traffic on the
+ *     proven lane with no switch);
  *   - 32 bpp is programmed only with Diag\D3D32 (rt32) - master offered it on
  *     every VSA-100 - and a format that is neither 16 nor 32 is refused on
  *     every chip (master wrote renderMode 16 bpp for a REFUSED target);
  *   - the Z buffer must fit the target (offset, pitch, size) - master took
- *     any attached Z, and a Z not in video memory put the aux buffer at 0;
- *   - GUID_ZPixelFormats follows the desktop depth, D16 or the 32-bit pair,
- *     never both (master listed all three on a VSA-100);
- *   - the Glide release reset: chipMask first, Glide's 12-NOP 2PPC flush,
- *     then combineMode, aaCtrl, stencil - never sliCtrl or renderMode.
+ *     any attached Z, and a Z not in video memory put the aux buffer at 0 -
+ *     and the target's own pitch obeys the same rule (DP2 refused an
+ *     unaligned target, Clear2 fastfilled it, ContextCreate accepted it);
+ *   - GUID_ZPixelFormats follows the RENDER depths: D16 always, the 32-bit
+ *     pair beside it with D3D32 (4a9793b followed the desktop and dropped D16
+ *     at a 32 bpp desktop - the proven 16 bpp fullscreen device's Z);
+ *   - the Glide release reset: chipMask ALL first (4a9793b: 1), chip 0's
+ *     sliCtrl = 0 right after it (the miniport's SLI disable writes it with
+ *     no chipMask first), Glide's 12-NOP 2PPC flush, then combineMode,
+ *     aaCtrl, stencil - never renderMode, never a non-zero sliCtrl.
  * Offsets were computed with offsetof() over the GPL h5 h3regs.h SstRegs
  * (tests/python/test_vcr_kmd_d3d.py re-computes them when the clone is here).
  */
@@ -36,6 +44,27 @@ static unsigned old_target(unsigned napalm, vcr_regw *w, unsigned rt_off, unsign
     unsigned n = 0;
     if (napalm) {
         w[n].off = 0x1e0; w[n++].val = 0x001e0000;           /* RM_16BPP | RM_RGBA_WRITE */
+    }
+    w[n].off = 0x1ec; w[n++].val = rt_off;
+    w[n].off = 0x1f0; w[n++].val = rt_pitch & 0x3fff;
+    w[n].off = 0x1f4; w[n++].val = z_off;
+    w[n].off = 0x1f8; w[n++].val = (z_pitch ? z_pitch : rt_pitch) & 0x3fff;
+    w[n].off = 0x118; w[n++].val = width & 0xfff;
+    w[n].off = 0x11c; w[n++].val = height & 0xfff;
+    return n;
+}
+
+/* what 4a9793b's vcr_3d_target_seq wrote: the stencil pair on EVERY
+ * VSA-100 target, 16 bpp included - the defect the review found */
+static unsigned rev_4a9793b_target(unsigned napalm, unsigned fmt, vcr_regw *w, unsigned rt_off,
+                                   unsigned rt_pitch, unsigned z_off, unsigned z_pitch,
+                                   unsigned width, unsigned height)
+{
+    unsigned n = 0;
+    if (napalm) {
+        w[n].off = 0x1e0; w[n++].val = fmt == 32 ? 0x001e0002u : 0x001e0000u;
+        w[n].off = 0x1e4; w[n++].val = 0;
+        w[n].off = 0x1e8; w[n++].val = 0;
     }
     w[n].off = 0x1ec; w[n++].val = rt_off;
     w[n].off = 0x1f0; w[n++].val = rt_pitch & 0x3fff;
@@ -90,42 +119,49 @@ TEST(a_voodoo3_target_is_the_six_writes_it_always_was) {
     CHECK_EQ_U(vcr_3d_target_seq(0, 1, VCR_RT_32, 0x200000, 1024, 0, 0, 256, 256, w), 0u);
 }
 
-TEST(a_vsa100_16bpp_target_is_the_old_seven_plus_the_stencil_pair) {
-    vcr_regw w[VCR_3D_TARGET_MAX + 4], o[16], strip[16];
-    unsigned n, on, i, k = 0;
+TEST(a_vsa100_16bpp_target_is_the_proven_seven_whatever_d3d32_says) {
+    vcr_regw w[VCR_3D_TARGET_MAX + 4], o[16], r[16];
+    unsigned n, on, rn, i;
     int rt32;
     for (rt32 = 0; rt32 <= 1; rt32++) {         /* Diag\D3D32 does not touch 16 bpp */
         n = vcr_3d_target_seq(1, (unsigned)rt32, VCR_RT_16, 0x200000, 1600, 0x300000, 1600, 800,
                               600, w);
         on = old_target(1, o, 0x200000, 1600, 0x300000, 1600, 800, 600);
-        CHECK_EQ_U(n, 9u);
         CHECK_EQ_U(on, 7u);
+        CHECK_EQ_U(n, 7u);                                  /* the proven 7 */
+        CHECK(same(w, o, 7), "VSA-100 16 bpp: byte-identical to the proven VcrDd3dTarget");
         CHECK_EQ_U(w[0].off, V3D_RENDERMODE);
         CHECK_EQ_U(w[0].val, 0x001e0000u);                  /* the proven 16 bpp value */
-        CHECK_EQ_U(w[1].off, V3D_STENCILMODE);
-        CHECK_EQ_U(w[1].val, 0u);                           /* SST_STENCIL_MODE_DISABLE */
-        CHECK_EQ_U(w[2].off, V3D_STENCILOP);
-        CHECK_EQ_U(w[2].val, 0u);
-        k = 0;
         for (i = 0; i < n; i++)
-            if (w[i].off != V3D_STENCILMODE && w[i].off != V3D_STENCILOP)
-                strip[k++] = w[i];
-        CHECK_EQ_U(k, on);
-        CHECK(same(strip, o, on), "without the stencil pair: the old sequence exactly");
-        CHECK(n != on, "the old sequence never wrote stencilMode/stencilOp");
+            CHECK(w[i].off != V3D_STENCILMODE && w[i].off != V3D_STENCILOP,
+                  "no stencil write on a 16 bpp target (it has no stencil byte)");
+        /* 4a9793b wrote 9 here: the pair on the proven lane, with no switch */
+        rn = rev_4a9793b_target(1, 16, r, 0x200000, 1600, 0x300000, 1600, 800, 600);
+        CHECK_EQ_U(rn, 9u);
+        CHECK(n != rn, "not 4a9793b's 9");
+        /* no Z (d3dprobe --noz): also the old sequence */
+        n = vcr_3d_target_seq(1, (unsigned)rt32, VCR_RT_16, 0x200000, 512, 0, 0, 256, 256, w);
+        on = old_target(1, o, 0x200000, 512, 0, 0, 256, 256);
+        CHECK_EQ_U(n, on);
+        CHECK(same(w, o, n), "VSA-100 16 bpp without Z: identical");
     }
-    CHECK(VCR_3D_TARGET_MAX >= 9, "the array holds a VSA-100 target");
+    CHECK(VCR_3D_TARGET_MAX >= 9, "the array holds a 32 bpp target");
 }
 
 TEST(thirty_two_bpp_is_programmed_only_with_d3d32) {
     vcr_regw w[VCR_3D_TARGET_MAX + 4];
     unsigned n;
+    vcr_regw r[16];
     /* armed: 32 bpp renderMode (SST_RM_32BPP), the stencil pair, 4-byte strides */
     n = vcr_3d_target_seq(1, 1, VCR_RT_32, 0x200000, 3200, 0x400000, 3200, 800, 600, w);
     CHECK_EQ_U(n, 9u);
     CHECK_EQ_U(w[0].val, 0x001e0002u);
     CHECK_EQ_U(w[1].off, V3D_STENCILMODE);
+    CHECK_EQ_U(w[1].val, 0u);                               /* SST_STENCIL_MODE_DISABLE */
     CHECK_EQ_U(w[2].off, V3D_STENCILOP);
+    CHECK_EQ_U(w[2].val, 0u);
+    CHECK(rev_4a9793b_target(1, 32, r, 0x200000, 3200, 0x400000, 3200, 800, 600) == n &&
+          same(w, r, n), "32 bpp: the pair stays exactly where 4a9793b put it");
     CHECK_EQ_U(w[4].val, 3200u);                            /* colBufferStride, bytes */
     CHECK_EQ_U(w[6].val, 3200u);                            /* auxBufferStride */
     /* not armed: refused before any write - 5be6a59 programmed it on every
@@ -172,19 +208,54 @@ TEST(the_z_buffer_must_fit_the_target) {
     CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 256, 256, 1, 0x300000, 2048, 1024, 768), VCR_RT_OK);
 }
 
-TEST(the_z_list_follows_the_desktop_depth) {
-    /* not armed, or a Voodoo3 (rt32 0): D16 alone at every depth - what the
-     * proven 16 bpp HAL answered */
-    CHECK_EQ_U(vcr_rt_zlist(0, 16), VCR_ZL_D16);
-    CHECK_EQ_U(vcr_rt_zlist(0, 32), VCR_ZL_D16);
-    CHECK_EQ_U(vcr_rt_zlist(0, 8), VCR_ZL_D16);
-    /* armed: D16 at 16 bpp, the 32-bit pair at 32 - never both (5be6a59
-     * listed D16 + D24X8 + D24S8 on every VSA-100, whatever the depth) */
-    CHECK_EQ_U(vcr_rt_zlist(1, 16), VCR_ZL_D16);
-    CHECK_EQ_U(vcr_rt_zlist(1, 32), VCR_ZL_D24X8 | VCR_ZL_D24S8);
-    CHECK(!(vcr_rt_zlist(1, 32) & VCR_ZL_D16), "no D16 beside a 32 bpp desktop");
-    CHECK(vcr_rt_zlist(1, 32) != (VCR_ZL_D16 | VCR_ZL_D24X8 | VCR_ZL_D24S8), "not 5be6a59's list");
-    CHECK_EQ_U(vcr_rt_zlist(1, 24), VCR_ZL_D16);
+TEST(the_target_pitch_obeys_the_z_rule) {
+    /* the proven sizes pass: fullscreen modes at 16 and 32 bpp, d3dprobe's
+     * 256x256 window */
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_16, 640, 1280), VCR_RT_OK);
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_16, 800, 1600), VCR_RT_OK);
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_16, 1024, 2048), VCR_RT_OK);
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_16, 1152, 2304), VCR_RT_OK);
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_16, 1600, 3200), VCR_RT_OK);
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_16, 256, 512), VCR_RT_OK);
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_32, 1600, 6400), VCR_RT_OK);
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_16, 256, 1024), VCR_RT_OK);   /* wider pitch is fine */
+    /* a 300 px window at 16 bpp: 600 bytes a row, as the heap hands it out
+     * (no pitch alignment is requested). The Z of the same width was
+     * refused at ContextCreate while the target itself was accepted: the
+     * same answer now for both */
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_16, 300, 600), VCR_RT_WHY_RTPITCH);
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 300, 300, 1, 0x300000, 600, 300, 300), VCR_RT_WHY_ZPITCH);
+    CHECK((600u & 0xfu) != 0, "DP2's own drawable rule refused it all along");
+    /* short of a row, past the 14-bit stride field, negative */
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_32, 800, 1600), VCR_RT_WHY_RTPITCH);
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_16, 800, 0x4000), VCR_RT_WHY_RTPITCH);
+    CHECK_EQ_U(vcr_rt_rtcheck(VCR_RT_16, 800, (unsigned)-1600), VCR_RT_WHY_RTPITCH);
+    CHECK(VCR_RT_WHY_RTPITCH != VCR_RT_WHY_ZPITCH && VCR_RT_WHY_RTPITCH != VCR_RT_OK,
+          "its own reason in the log");
+}
+
+TEST(the_z_list_follows_the_render_depths_not_the_desktop) {
+    /* not armed, or a Voodoo3 (rt32 0): D16 alone - what the proven 16 bpp
+     * HAL answered at every desktop */
+    CHECK_EQ_U(vcr_rt_zlist(0), VCR_ZL_D16);
+    /* armed: D16 AND the 32-bit pair, at every desktop. 4a9793b gave the
+     * pair alone at a 32 bpp desktop - and the D3D8 runtime checks a
+     * fullscreen device's Z against the list it read AT THE DESKTOP, so the
+     * proven 16 bpp fullscreen device from .124's 32 bpp desktop lost D16
+     * the moment Diag\D3D32 was armed */
+    CHECK_EQ_U(vcr_rt_zlist(1), VCR_ZL_D16 | VCR_ZL_D24X8 | VCR_ZL_D24S8);
+    CHECK(vcr_rt_zlist(1) & VCR_ZL_D16, "D16 beside a 32 bpp desktop");
+    {
+        unsigned rev_4a9793b_at_32 = VCR_ZL_D24X8 | VCR_ZL_D24S8;   /* rt32 && desktop 32 */
+        CHECK(!(rev_4a9793b_at_32 & VCR_ZL_D16), "the old list had no D16 there");
+        CHECK(vcr_rt_zlist(1) != rev_4a9793b_at_32, "not 4a9793b's list");
+    }
+    /* a pair of the wrong sizes stays refused before any write: the list
+     * offering both sizes is safe because ContextCreate asks vcr_rt_format */
+    CHECK_EQ_U(vcr_rt_format(1, 32, 16), VCR_RT_REFUSED);
+    CHECK_EQ_U(vcr_rt_format(1, 16, 32), VCR_RT_REFUSED);
+    CHECK_EQ_U(vcr_rt_format(1, 16, 16), VCR_RT_16);
+    CHECK_EQ_U(vcr_rt_format(1, 32, 32), VCR_RT_32);
 }
 
 TEST(a_depth_clear_never_touches_the_top_byte) {
@@ -197,42 +268,55 @@ TEST(a_depth_clear_never_touches_the_top_byte) {
 
 TEST(the_glide_release_reset_is_exactly_this) {
     vcr_regw w[VCR_3D_RESET_MAX + 4];
-    unsigned n = vcr_3d_glide_reset_seq(w), i, nops = 0;
-    CHECK_EQ_U(n, 17u);
-    CHECK_EQ_U(VCR_3D_RESET_MAX, 17u);
-    /* chipMask first: a chip whose bit is clear ignores what follows */
+    unsigned n = vcr_3d_glide_reset_seq(w), i, nops = 0, sli = 0;
+    CHECK_EQ_U(n, 18u);
+    CHECK_EQ_U(VCR_3D_RESET_MAX, 18u);
+    /* chipMask first, ALL chips (h3defs.h SST_CHIP_MASK_ALL_CHIPS - Glide's
+     * init and clean-close value): it does not depend on chip 0's ID after
+     * an AA session that never tore down. 4a9793b wrote 1 */
     CHECK_EQ_U(w[0].off, V3D_CHIPMASK);
-    CHECK_EQ_U(w[0].val, 1u);
-    for (i = 1; i <= 12; i++) {
+    CHECK_EQ_U(w[0].val, 0xffffffffu);
+    CHECK(w[0].val != 1u, "not 4a9793b's chipMask = 1");
+    /* chip 0's sliCtrl = 0 right after the mask: the miniport's SLI disable
+     * wrote it while a killed client may have had chip 0 masked out */
+    CHECK_EQ_U(w[1].off, V3D_SLICTRL);
+    CHECK_EQ_U(w[1].val, 0u);
+    for (i = 2; i <= 13; i++) {
         CHECK_EQ_U(w[i].off, V3D_NOPCMD);
         CHECK_EQ_U(w[i].val, 0u);           /* not SST_NOP_RESET_*_STATS */
         nops++;
     }
     CHECK_EQ_U(nops, 12u);                  /* _grTex2ppc's flush, before combineMode */
-    CHECK_EQ_U(w[13].off, V3D_COMBINEMODE);
-    CHECK_EQ_U(w[13].val, 0u);
-    CHECK_EQ_U(w[14].off, V3D_AACTRL);
+    CHECK_EQ_U(w[14].off, V3D_COMBINEMODE);
     CHECK_EQ_U(w[14].val, 0u);
-    CHECK_EQ_U(w[15].off, V3D_STENCILMODE);
+    CHECK_EQ_U(w[15].off, V3D_AACTRL);
     CHECK_EQ_U(w[15].val, 0u);
-    CHECK_EQ_U(w[16].off, V3D_STENCILOP);
+    CHECK_EQ_U(w[16].off, V3D_STENCILMODE);
     CHECK_EQ_U(w[16].val, 0u);
+    CHECK_EQ_U(w[17].off, V3D_STENCILOP);
+    CHECK_EQ_U(w[17].val, 0u);
     for (i = 0; i < n; i++) {
-        CHECK(w[i].off != V3D_SLICTRL, "sliCtrl belongs to the miniport");
+        if (w[i].off == V3D_SLICTRL) {
+            sli++;
+            CHECK_EQ_U(w[i].val, 0u);       /* SLI stays the miniport's: never enabled here */
+            CHECK(i > 0 && w[i - 1].off == V3D_CHIPMASK, "sliCtrl only behind the chip mask");
+        }
         CHECK(w[i].off != V3D_RENDERMODE, "renderMode is the next target's");
-        CHECK((w[i].off & 0x3c00u) == 0, "chip field 0: FBI + every TMU (Glide's BROADCAST_ID)");
+        CHECK((w[i].off & 0x3c00u) == 0, "chip field 0: broadcast (grFlush's nopCMD 0 too)");
         CHECK(w[i].off < 0x400u, "inside the 3D register block");
     }
+    CHECK_EQ_U(sli, 1u);
 }
 
 MUNIT_MAIN("vcr-kmd 3D register sequences (targets, Glide release)", {
     RUN(the_offsets_are_the_gpl_headers);
     RUN(a_voodoo3_target_is_the_six_writes_it_always_was);
-    RUN(a_vsa100_16bpp_target_is_the_old_seven_plus_the_stencil_pair);
+    RUN(a_vsa100_16bpp_target_is_the_proven_seven_whatever_d3d32_says);
     RUN(thirty_two_bpp_is_programmed_only_with_d3d32);
     RUN(a_format_nobody_decided_on_is_never_programmed);
     RUN(the_z_buffer_must_fit_the_target);
-    RUN(the_z_list_follows_the_desktop_depth);
+    RUN(the_target_pitch_obeys_the_z_rule);
+    RUN(the_z_list_follows_the_render_depths_not_the_desktop);
     RUN(a_depth_clear_never_touches_the_top_byte);
     RUN(the_glide_release_reset_is_exactly_this);
 })

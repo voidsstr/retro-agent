@@ -10,8 +10,11 @@
  * Offsets are chip 0's 3D block (BAR0 + 0x200000, vcr_3dregs.h) with the
  * chip field (address bits [13:10]) 0: the FBI and every TMU at once - what
  * 3dfx's h5 Glide calls BROADCAST_ID (fxcmd.h eChipBroadcast = 0) and uses
- * for every register below (distate.c stencilMode/stencilOp, gsst.c
- * _grChipMask/_grAAOffsetValue, gtex.c _grTex2ppc's FBI combineMode).
+ * for stencilMode/stencilOp (distate.c), chipMask/aaCtrl/sliCtrl (gsst.c
+ * _grChipMask, _grAAOffsetValue, _grDisableSliCtrl) and the FBI combineMode
+ * (gtex.c _grTex2ppc). The one exception is the 2PPC flush's nopCMDs, which
+ * _grTex2ppc sends to eChipTMU0 | eChipTMU1 only: here they are broadcast
+ * (see the reset below).
  */
 #ifndef VCR_3DSEQ_H
 #define VCR_3DSEQ_H
@@ -24,12 +27,18 @@ typedef struct vcr_regw {
 } vcr_regw;
 
 /* ---- the target ------------------------------------------------------------------
- * VSA-100: renderMode, then stencilMode = stencilOp = 0 (SST_STENCIL_MODE_
- * DISABLE: test off, write mask 0 - h3defs.h: "we must also clear the write
- * mask, to avoid reading or writing the stencil planes when stencil is
- * disabled"; 3dfx's V5 D3D HAL does the same at every context and clear).
- * Then the buffers and the clip, as a Banshee/Voodoo3 has always written
- * them. Returns the number of writes, 0 when the format is refused. */
+ * VSA-100: renderMode. A 32 bpp target then writes stencilMode = stencilOp =
+ * 0 (SST_STENCIL_MODE_DISABLE: test off, write mask 0 - h3defs.h: "we must
+ * also clear the write mask, to avoid reading or writing the stencil planes
+ * when stencil is disabled"; 3dfx's V5 D3D HAL does the same at every
+ * context and clear): its aux buffer is 24 bits of depth under 8 of LIVE
+ * stencil. A 16 bpp target does NOT - its aux buffer has no stencil byte, and
+ * the 16 bpp lane (40/40 on .124) keeps the exact sequence it was proven
+ * with: renderMode + the six writes below, whatever Diag\D3D32 says (4a9793b
+ * put the pair on every VSA-100 target, 16 bpp included - new traffic on the
+ * proven lane with no switch; review 2026-09-27). Then the buffers and the
+ * clip, as a Banshee/Voodoo3 has always written them. Returns the number of
+ * writes, 0 when the format is refused. */
 #define VCR_3D_TARGET_MAX   9
 
 static __inline unsigned vcr_3d_target_seq(unsigned napalm, unsigned rt32, unsigned fmt,
@@ -42,8 +51,10 @@ static __inline unsigned vcr_3d_target_seq(unsigned napalm, unsigned rt32, unsig
         return 0;
     if (napalm) {
         w[n].off = V3D_RENDERMODE;  w[n++].val = vcr_rt_rendermode(fmt);
-        w[n].off = V3D_STENCILMODE; w[n++].val = 0;
-        w[n].off = V3D_STENCILOP;   w[n++].val = 0;
+        if (fmt == VCR_RT_32) {
+            w[n].off = V3D_STENCILMODE; w[n++].val = 0;
+            w[n].off = V3D_STENCILOP;   w[n++].val = 0;
+        }
     }
     w[n].off = V3D_COLBUFFERADDR;   w[n++].val = rt_off;
     w[n].off = V3D_COLBUFFERSTRIDE; w[n++].val = BS_LINEAR_STRIDE(rt_pitch);
@@ -61,35 +72,58 @@ static __inline unsigned vcr_3d_target_seq(unsigned napalm, unsigned rt32, unsig
  * not - and stencil state and an extended colour combine outlive even a clean
  * close. What the next Direct3D context would inherit, and what it assumes:
  *
- *   chipMask    = 1   FIRST: a chip whose bit is clear ignores the writes
- *                     after it (Glide's _grAAOffsetValue walks the chips with
- *                     _grChipMask(1 << chip)), and chipMask itself is always
- *                     taken. 1 = chip 0, the only chip the HAL draws on (the
- *                     vendor V5 HAL's own 1-unit value).
+ *   chipMask    = ALL FIRST: a chip whose bit is clear ignores the writes
+ *                     after it (Glide narrows it per chip - _grAAOffsetValue,
+ *                     _grDisableSliCtrl and the AA tLOD writes use
+ *                     _grChipMask(1 << chip) - and a client killed in between
+ *                     leaves it that way), and chipMask itself is always
+ *                     taken. SST_CHIP_MASK_ALL_CHIPS (0xFFFFFFFF, h3defs.h) is
+ *                     what Glide's own init and clean close write
+ *                     (assertDefaultState, grSstWinClose) - the state every
+ *                     proven D3D run so far started from - and it does not
+ *                     depend on which ID chip 0 answers to after an AA
+ *                     session whose teardown never ran. With snooping off
+ *                     (the mode set before this turned SLI off) only chip 0
+ *                     sees any of these writes. (4a9793b wrote 1: right only
+ *                     while chip 0 still identifies as chip 0.)
+ *   sliCtrl     = 0   SECOND, and chip 0's only: the mode set before this ran
+ *                     the miniport's SLI disable, which writes sliCtrl = 0 per
+ *                     chip - but WITHOUT a chipMask first, so a chip 0 a killed
+ *                     client left masked out ignored it, kept SLI_ENABLE and
+ *                     its compare mask, and every later D3D context would draw
+ *                     only chip 0's scanline bands. The same value the
+ *                     miniport writes; never a non-zero one (SLI stays the
+ *                     miniport's).
  *   nopCMD x 12       Glide's rule before leaving two-pixels-per-clock
  *                     (gtex.c _grTex2ppc: "flush the tmu pipeline going from
- *                     2ppc to 1ppc by sending 12 nopCMD"); its own init runs
- *                     the same sequence to reach a known state (gsst.c). The
- *                     value 0: SST_NOP_RESET_*_STATS clear. Harmless when 2PPC
- *                     was already off - the HAL's texture flush sends one.
+ *                     2ppc to 1ppc by sending 12 nopCMD"). Glide sends those
+ *                     to eChipTMU0 | eChipTMU1; these are BROADCAST (chip
+ *                     field 0), which reaches both TMUs and the FBI - nopCMD 0
+ *                     broadcast is what grFlush and grSstIsBusy send (gsst.c),
+ *                     and what the HAL's own texture flush sends, so it is no
+ *                     new traffic for the FBI. The value 0:
+ *                     SST_NOP_RESET_*_STATS clear. Harmless when 2PPC was
+ *                     already off.
  *   combineMode = 0   FBI and TMUs: SST_CM_USE_COMBINE_MODE off (the legacy
  *                     fbzColorPath / textureMode combine the HAL programs),
  *                     SST_CM_ENABLE_TWO_PIXELS_PER_CLOCK off. 0 is Glide's
  *                     own TMU shadow at init (gsst.c).
  *   aaCtrl      = 0   no AA_ENABLE, no jitter offsets - what the vendor HAL
  *                     sets per context and a single-sample Glide leaves.
- *   stencilMode = 0, stencilOp = 0   as at every target setup above.
+ *   stencilMode = 0, stencilOp = 0   as at every 32 bpp target setup above,
+ *                     here for whatever target comes next.
  *
- * sliCtrl is NOT here: the miniport owns SLI (every mode set runs VcrSliOff,
- * RESTORE_MODE included, before this runs). Nothing here is written to a
- * slave chip. */
+ * Nothing here is written to a slave chip, and nothing but sliCtrl = 0
+ * touches SLI. */
 #define VCR_3D_RESET_NOPS   12
-#define VCR_3D_RESET_MAX    (1 + VCR_3D_RESET_NOPS + 4)
+#define VCR_3D_RESET_MAX    (2 + VCR_3D_RESET_NOPS + 4)
+#define VCR_3D_CHIPMASK_ALL 0xffffffffu     /* h3defs.h SST_CHIP_MASK_ALL_CHIPS */
 
 static __inline unsigned vcr_3d_glide_reset_seq(vcr_regw *w)
 {
     unsigned n = 0, i;
-    w[n].off = V3D_CHIPMASK;    w[n++].val = 1;
+    w[n].off = V3D_CHIPMASK;    w[n++].val = VCR_3D_CHIPMASK_ALL;
+    w[n].off = V3D_SLICTRL;     w[n++].val = 0;
     for (i = 0; i < VCR_3D_RESET_NOPS; i++) {
         w[n].off = V3D_NOPCMD;  w[n++].val = 0;
     }

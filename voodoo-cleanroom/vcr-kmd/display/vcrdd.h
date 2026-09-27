@@ -46,6 +46,8 @@ typedef struct VCR_PDEV {
     PUCHAR      pjScreen;           /* the desktop: LFB + desktop offset */
     ULONG       cjFrameBuffer;
     ULONG       exclusive_pid;      /* a Glide process owns the chip */
+    ULONG       restore_failed;     /* its HWCRLSEXCLUSIVE came, RESTORE_MODE failed (the rc):
+                                     * the owner is kept, and DrvAssertMode(TRUE) says so */
     ULONG       hwc_requests;
     ULONG       cjVram;             /* all of video memory (MAP_VIDEO_MEMORY) */
     ULONG       dd_enabled, dd_exclusive, dd_flips, dd_blts;    /* DirectDraw HAL */

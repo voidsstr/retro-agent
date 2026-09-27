@@ -219,8 +219,11 @@ BOOL VcrDd2dFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LO
  * stencil state - cleared for whoever draws next (vcr_3dseq.h has the list,
  * each register's source and the order). Called once the chip is ours again:
  * exclusive mode released AND the desktop mode re-programmed (which turned
- * SLI off). VSA-100 only, and only with Diag\\Reset3D = 1 - it has not run on
- * silicon. Through the PCI FIFO like every other write here, in chunks the
+ * SLI off). VSA-100 only, only with Diag\\Reset3D = 1 - it has not run on
+ * silicon - and only while Direct3D is on: the HAL is the only user of what
+ * it resets (the 2D engine and DirectDraw never touch the 3D block, and the
+ * next Glide session programs all of it itself), so with Diag\\D3D = 0 it
+ * would be register traffic for nobody. Through the PCI FIFO like every other write here, in chunks the
  * FIFO takes (VcrDdRoom is bounded: a chip that never drains turns
  * acceleration off, it does not hang), then a bounded idle wait so a chip
  * that does not settle is named HERE, not by the next GDI call. */
@@ -228,7 +231,7 @@ BOOL VcrDdGlideReset3d(VCR_PDEV *pd)
 {
     vcr_regw w[VCR_3D_RESET_MAX];
     ULONG n, i;
-    if (!pd->reset3d || !pd->napalm || !pd->pjRegs || !pd->g2d_ok)
+    if (!pd->reset3d || pd->d3d_disabled || !pd->napalm || !pd->pjRegs || !pd->g2d_ok)
         return FALSE;
     n = vcr_3d_glide_reset_seq(w);
     for (i = 0; i < n; i++) {

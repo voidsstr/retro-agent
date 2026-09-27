@@ -556,21 +556,36 @@ BOOL APIENTRY DrvAssertMode(DHPDEV dhpdev, BOOL bEnable)
     if (bEnable) {
         /* GDI takes the display back. A Glide client that released exclusive
          * mode cleared this already; one that was killed never will, and a
-         * stale owner would keep the hardware pointer switched off. */
-        ULONG stale = pd->exclusive_pid;
-        if (stale)
-            VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 0, pd->exclusive_pid, 2, 0,
-                  "exclusive owner %u never released - cleared on re-assert", pd->exclusive_pid);
+         * stale owner would keep the hardware pointer switched off. A client
+         * that DID release but whose RESTORE_MODE failed kept its ownership
+         * (vcrdd_escape.c) - that is a different fault, and the log says
+         * which. */
+        ULONG stale = pd->exclusive_pid, failed = pd->restore_failed;
+        if (stale && failed)
+            VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 0, stale, 2, failed,
+                  "exclusive owner %u released, but its RESTORE_MODE had failed (%u) - "
+                  "cleared on re-assert", stale, failed);
+        else if (stale)
+            VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 0, stale, 2, 0,
+                  "exclusive owner %u never released - cleared on re-assert", stale);
         pd->exclusive_pid = 0;
+        pd->restore_failed = 0;
         ok = VcrDdSetMode(pd);
         /* ... and it left its 3D state on chip 0 as well - the case the
          * release-time reset exists for (VSA-100, Diag\\Reset3D = 1; the mode
-         * set just made turned SLI off) */
+         * set just made turned SLI off). THE OWNER IS ASSUMED GONE: a display
+         * driver cannot ask whether a process still lives. That assumption is
+         * not new - this path has always cleared the owner and re-programmed
+         * the mode under it - the reset only adds register writes to it, which
+         * is one reason Reset3D is OFF by default. Skipping the reset unless
+         * the owner had released would skip exactly the killed client it
+         * exists for. */
         if (ok && stale && pd->reset3d) {
             BOOL r = VcrDdGlideReset3d(pd);
-            VcrDd(r ? VCR_LV_INFO : VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 3, stale, r, pd->g2d_ok,
-                  "3D state after a Glide client that never released %s",
-                  r ? "reset" : "NOT reset - acceleration off");
+            VcrDd(r || pd->d3d_disabled ? VCR_LV_INFO : VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 3,
+                  stale, r, pd->g2d_ok, "3D state after a stale Glide owner %s", r ? "reset"
+                  : pd->d3d_disabled ? "not reset - Direct3D is off (Diag\\D3D = 0)"
+                  : "NOT reset - acceleration off");
         }
     } else {
 #ifdef VCR_HAVE_DDI

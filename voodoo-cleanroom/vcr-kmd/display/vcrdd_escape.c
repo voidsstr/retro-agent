@@ -112,6 +112,7 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
     case VCR_HWC_HWCSETEXCLUSIVE:
         VcrDd2dSync(pd);            /* the chip is Glide's from here: nothing of ours queued */
         pd->exclusive_pid = pid;
+        pd->restore_failed = 0;     /* a new session: an older failed release is not its story */
         rs->resStatus = VCR_HWC_OK;
         VcrDd(VCR_LV_INFO, VCR_EV_HWC_EXCLUSIVE, 1, pid, 1, 0, "HWCSETEXCLUSIVE");
         break;
@@ -126,20 +127,36 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
         if (rc) {
             /* the desktop mode is NOT back (and SLI may still be on: the mode
              * set is what turns it off) - the chip stays out of bounds to the
-             * 2D engine, DirectDraw and D3D. DrvAssertMode(TRUE) clears a
-             * stale owner, as for a Glide client that never released. */
+             * 2D engine, DirectDraw and D3D, and the hardware pointer stays
+             * hidden, until DrvAssertMode(TRUE) (the next mode change, lock
+             * or DOS switch) re-programs the mode and clears the owner. No
+             * retry here: a second mode set straight after a failed one is
+             * the rapid-fire switching a CRT must not get (vcr_pace.h); the
+             * owner's next HWCRLSEXCLUSIVE, if it sends one, tries again.
+             * restore_failed lets DrvAssertMode say the owner DID release. */
+            pd->restore_failed = rc;
             VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 2, pd->exclusive_pid, 0, rc,
                   "RESTORE_MODE failed (%u): exclusive owner %u kept", rc, pd->exclusive_pid);
             break;
         }
         /* VSA-100 with Diag\\Reset3D = 1: what the session left on chip 0
-         * (chip mask, AA, combine, stencil) cleared for the next user */
-        if (pd->reset3d) {
+         * (chip mask, SLI compare, AA, combine, stencil) cleared for the next
+         * user - for the OWNER's release only. Any process can send this
+         * escape; a release from another one (or with no owner at all) must
+         * not put register writes into the FIFO under a Glide command stream
+         * that may still be running. */
+        if (pd->reset3d && pid == pd->exclusive_pid) {
             BOOL ok = VcrDdGlideReset3d(pd);
-            VcrDd(ok ? VCR_LV_INFO : VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 3, pid, ok, pd->g2d_ok,
-                  "3D state after Glide %s", ok ? "reset" : "NOT reset - acceleration off");
+            VcrDd(ok || pd->d3d_disabled ? VCR_LV_INFO : VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 3, pid,
+                  ok, pd->g2d_ok, "3D state after Glide %s", ok ? "reset"
+                  : pd->d3d_disabled ? "not reset - Direct3D is off (Diag\\D3D = 0)"
+                  : "NOT reset - acceleration off");
+        } else if (pd->reset3d) {
+            VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 4, pid, pd->exclusive_pid, 0,
+                  "3D reset skipped: release from %u, the owner is %u", pid, pd->exclusive_pid);
         }
         pd->exclusive_pid = 0;
+        pd->restore_failed = 0;
         break;
 
     case VCR_HWC_UNMAP_MEMORY:

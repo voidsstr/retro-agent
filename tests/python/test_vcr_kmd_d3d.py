@@ -275,15 +275,15 @@ int main(void) {
     assert "w->drawable || (c->target.rt_off" not in walk          # a refused switch stops drawing
     hal = func(D3D, "void VcrDdD3dHalInfo(")
     assert "d->dwDeviceRenderBitDepth = DDBD_16 | (pd->rt32 ? DDBD_32 : 0);" in hal
-    # the Z depths follow the Z list: DDBD_16 alone unless 32 bpp is armed
-    # AND the desktop is 32 bpp (then DDBD_32 alone)
-    assert "ULONG zl = vcr_rt_zlist(pd->rt32, pd->bpp);" in hal
+    # the Z depths follow the Z list, which follows the RENDER depths:
+    # DDBD_16 always, DDBD_32 beside it where 32 bpp is armed
+    assert "ULONG zl = vcr_rt_zlist(pd->rt32);" in hal
     assert "((zl & VCR_ZL_D16) ? DDBD_16 : 0) |" in hal
     assert "((zl & (VCR_ZL_D24X8 | VCR_ZL_D24S8)) ? DDBD_32 : 0)" in hal
     assert "d->dwDeviceZBufferBitDepth = zbd;" in hal
     assert "hal->ddCaps.dwZBufferBitDepths = zbd;" in hal
     info = func(D3D, "int VcrDdD3dDriverInfo(")
-    assert "vcr_rt_zlist(pd->rt32, pd->bpp)" in info               # D16 alone on a Voodoo3
+    assert "vcr_rt_zlist(pd->rt32)" in info                        # D16 alone on a Voodoo3
     assert "dwStencilBitMask = 0xff000000;" in info and "0x00ffffff" in info
     can = func(DD, "static DWORD APIENTRY Dd_CanCreateSurface(")
     assert "!pd->rt32" in can and "DDSCAPS_ZBUFFER" in can and "DDERR_INVALIDPIXELFORMAT" in can
@@ -306,24 +306,28 @@ def code(src):
     return re.sub(r"/\*.*?\*/", "", src, flags=re.S)
 
 
-def test_every_vsa100_target_disables_stencil_and_the_comments_say_alpha():
+def test_every_32bpp_target_disables_stencil_and_16bpp_stays_the_proven_sequence():
     """(a) stencilMode (0x1e4) / stencilOp (0x1e8) were written NOWHERE in
     vcr-kmd, and at 32 bpp the aux buffer's top byte is live stencil: a
     Glide/OpenGL session's stencil state would fail or rewrite every D3D
-    pixel. Every VSA-100 target now writes both 0 right after renderMode (the
+    pixel. Every 32 bpp target now writes both 0 right after renderMode (the
     vendor V5 HAL does it per context and per clear), and the FIFO wait covers
-    the 9 writes. zaColor[31:24] is SST_ZACOLOR_ALPHA - the old comments
-    called it the stencil clear."""
+    its 9 writes. A 16 bpp target has no stencil byte and keeps the sequence
+    it was proven with on .124 - 4a9793b wrote the pair on every VSA-100
+    target, which was new traffic on the default lane (review 2026-09-27).
+    zaColor[31:24] is SST_ZACOLOR_ALPHA - the old comments called it the
+    stencil clear."""
     ts = func(SEQ, "static __inline unsigned vcr_3d_target_seq(")
-    napalm = ts[ts.index("if (napalm) {"):ts.index("}", ts.index("if (napalm) {"))]
+    napalm = ts[ts.index("if (napalm) {"):ts.index("w[n].off = V3D_COLBUFFERADDR;")]
     assert "V3D_RENDERMODE" in napalm and "V3D_STENCILMODE; w[n++].val = 0;" in napalm \
         and "V3D_STENCILOP;   w[n++].val = 0;" in napalm
-    assert napalm.index("V3D_RENDERMODE") < napalm.index("V3D_STENCILMODE") < napalm.index("V3D_STENCILOP")
+    assert napalm.index("V3D_RENDERMODE") < napalm.index("if (fmt == VCR_RT_32) {") < \
+        napalm.index("V3D_STENCILMODE") < napalm.index("V3D_STENCILOP")
     regs = (KMD / "include" / "vcr_3dregs.h").read_text()
     assert re.search(r"#define V3D_STENCILMODE\s+0x1e4\b", regs)
     assert re.search(r"#define V3D_STENCILOP\s+0x1e8\b", regs)
     tg = func(E3D, "BOOL VcrDd3dTarget(")
-    assert "VcrDdRoom(pd, n > 7 ? n : 7)" in tg                    # V3: 7 as ever, VSA-100: 9
+    assert "VcrDdRoom(pd, n > 7 ? n : 7)" in tg                    # 16 bpp: 7 as ever, 32 bpp: 9
     assert "#define VCR_3D_TARGET_MAX   9" in SEQ
     # the wrong claim is gone from both places, and the right one is stated
     assert "the stencil of a 24+8 aux buffer, cleared to 0" not in E3D
@@ -336,21 +340,29 @@ def test_every_vsa100_target_disables_stencil_and_the_comments_say_alpha():
     assert "dwStencilCaps" not in code(D3D) or "dwStencilCaps = 0" in code(D3D)
 
 
-def test_the_z_list_follows_the_desktop_depth():
-    """(b) GUID_ZPixelFormats: D16 at a 16 bpp desktop, the 32-bit pair
-    (D24X8, D24S8) at 32 bpp with Diag\\D3D32 - never both. 5be6a59 listed all
-    three on every VSA-100, so a game could pick a 24-bit Z for a 16 bpp mode
-    (or D16 for 32) and ContextCreate would refuse the pair. A mode change is
-    a new PDEV, so the runtime asks again at the new depth."""
+def test_the_z_list_follows_the_render_depths_not_the_desktop():
+    """(b) GUID_ZPixelFormats lists the Z of every render depth offered: D16
+    always, D24X8 + D24S8 beside it with Diag\\D3D32. 4a9793b followed the
+    desktop and dropped D16 at a 32 bpp desktop with the switch armed - but
+    DDBD_16 render is kept there for the proven 16 bpp fullscreen device made
+    from .124's 32 bpp desktop, and the D3D8 runtime checks that device's Z
+    against the list it read at the desktop mode, before the switch. A pair
+    of the wrong sizes is refused by ContextCreate before any write."""
     info = func(D3D, "int VcrDdD3dDriverInfo(")
     z = info[info.index("geq(&p->guidInfo, &zpf)"):info.index("geq(&p->guidInfo, &misc2)")]
-    assert "ULONG zl = vcr_rt_zlist(pd->rt32, pd->bpp);" in z
+    assert "ULONG zl = vcr_rt_zlist(pd->rt32);" in z
+    assert "pd->bpp" not in code(z)                                 # not by the desktop
     for flag in ("VCR_ZL_D16", "VCR_ZL_D24X8", "VCR_ZL_D24S8"):
         assert f"if (zl & {flag})" in z, flag
     assert "answer(p, &z, sizeof(DWORD) + z.n * sizeof(DDPIXELFORMAT));" in z
-    assert "z.n = pd->napalm ? 3 : 1;" not in z                    # 5be6a59's depth-blind list
+    assert "z.n = pd->napalm ? 3 : 1;" not in z                    # 5be6a59's napalm-only list
     zl = func(RT, "static __inline unsigned vcr_rt_zlist(")
-    assert "rt32 && desktop_bpp == 32 ? (VCR_ZL_D24X8 | VCR_ZL_D24S8) : VCR_ZL_D16" in zl
+    assert "return VCR_ZL_D16 | (rt32 ? (VCR_ZL_D24X8 | VCR_ZL_D24S8) : 0u);" in zl
+    assert "desktop_bpp" not in zl
+    hal = func(D3D, "void VcrDdD3dHalInfo(")
+    assert "pd->bpp" not in code(hal)
+    # d3dprobe's caps comment states the same expectation
+    assert "D16 must\n         * stay a format at a 32 bpp desktop" in PROBE
 
 
 def test_d3d32_is_a_default_off_switch():
@@ -381,10 +393,22 @@ def test_target_validation_refuses_what_it_cannot_draw():
     surface pointer, a Z the target had no offset for tested and wrote the
     aux buffer at offset 0."""
     to = func(D3D, "static ULONG target_of(")
-    assert "why = vcr_rt_zcheck(fmt, c->rt->lpGbl->wWidth, c->rt->lpGbl->wHeight, c->zb != NULL, z_off," in to
+    assert "why = vcr_rt_zcheck(fmt, c->rt->lpGbl->wWidth, c->rt->lpGbl->wHeight, c->zb != NULL," in to
     assert to.index("vcr_rt_zcheck(") < to.index("t->fmt = fmt;")
     assert "z_off = in_vidmem(c->zb) ? (ULONG)c->zb->lpGbl->fpVidMem : 0;" in to
     assert "c->target_why = why;" in to
+    # the target's own pitch obeys the Z's rule, at the one place every
+    # caller (ContextCreate, SETRENDERTARGET, DP2, Clear2) goes through
+    assert "why = vcr_rt_rtcheck(fmt, c->rt->lpGbl->wWidth, (ULONG)c->rt->lpGbl->lPitch);" in to
+    assert to.index("vcr_rt_rtcheck(") < to.index("vcr_rt_zcheck(") < to.index("t->fmt = fmt;")
+    rc = func(RT, "static __inline unsigned vcr_rt_rtcheck(")
+    assert "rt_pitch < width * bytes || (rt_pitch & 0xfu) || rt_pitch > 0x3fffu" in rc
+    c2 = code(func(D3D, "static DWORD APIENTRY D3d_Clear2("))
+    dp2 = code(func(D3D, "static DWORD APIENTRY D3d_DrawPrimitives2("))
+    rule = "(c->target.rt_pitch & 0xf) == 0;"
+    assert rule in c2 and rule in dp2                              # Clear2 = DP2's drawable rule
+    tr = func(D3D, "static void target_refused(")
+    assert "VCR_RT_WHY_RTPITCH" in tr and "VCR_EV_DD_D3D, 17," in tr
     zc = func(RT, "static __inline unsigned vcr_rt_zcheck(")
     assert "if (!z_off)\n        return VCR_RT_WHY_ZOFF;" in zc
     assert "z_pitch < width * bytes || (z_pitch & 0xfu) || z_pitch > 0x3fffu" in zc
@@ -398,7 +422,7 @@ def test_target_validation_refuses_what_it_cannot_draw():
     tr = func(D3D, "static void target_refused(")
     assert "VCR_EV_DD_D3D, 15, c->target_why" in tr
     ev = (KMD / "include" / "vcr_events.h").read_text()
-    assert "15 target Z refused" in ev and "16 armed" in ev
+    assert "15 target Z refused" in ev and "16 armed" in ev and "17 target pitch refused" in ev
 
 
 def test_the_glide_release_resets_3d_state_and_keeps_the_owner_on_failure():
@@ -407,43 +431,65 @@ def test_the_glide_release_resets_3d_state_and_keeps_the_owner_on_failure():
     and stencil state on chip 0 for the next D3D user. At HWCRLSEXCLUSIVE,
     after RESTORE_MODE (whose mode set turns SLI off), a VSA-100 with
     Diag\\Reset3D = 1 writes vcr_3dseq.h's reset through the bounded PCI-FIFO
-    path. Default OFF: it has not run on silicon. And when RESTORE_MODE fails
-    the owner is KEPT - the desktop mode is not back, SLI may still be on -
-    so the 2D engine, DirectDraw and D3D stay off the chip until
-    DrvAssertMode(TRUE) clears a stale owner."""
+    path - for the OWNER's release only, and only while D3D is on. Default
+    OFF: it has not run on silicon. And when RESTORE_MODE fails the owner is
+    KEPT - the desktop mode is not back, SLI may still be on - so the 2D
+    engine, DirectDraw and D3D stay off the chip until DrvAssertMode(TRUE)
+    clears it, and says the owner DID release (restore_failed) rather than
+    "never released"."""
     rel = ESC[ESC.index("case VCR_HWC_HWCRLSEXCLUSIVE:"):ESC.index("case VCR_HWC_UNMAP_MEMORY:")]
     body = code(rel)
     assert body.index("IOCTL_VCR_RESTORE_MODE") < body.index("if (rc) {") < \
         body.index("VcrDdGlideReset3d(pd)") < body.index("pd->exclusive_pid = 0;")
     fail = body[body.index("if (rc) {"):body.index("}", body.index("if (rc) {"))]
     assert "break;" in fail and "exclusive_pid = 0" not in fail   # the owner is kept
+    assert "pd->restore_failed = rc;" in fail                     # ... and why
     assert body.count("pd->exclusive_pid = 0;") == 1
-    assert "if (pd->reset3d) {" in body
+    # the owner's release only: any process can send this escape
+    assert "if (pd->reset3d && pid == pd->exclusive_pid) {" in body
+    assert not re.search(r"(?<!else )if \(pd->reset3d\) \{", body)     # no unconditional reset
+    assert "VCR_EV_HWC_EXCLUSIVE, 4, pid, pd->exclusive_pid" in body   # a skip is logged
+    assert body.index("pd->exclusive_pid = 0;") < body.index("pd->restore_failed = 0;")
+    setx = code(ESC[ESC.index("case VCR_HWC_HWCSETEXCLUSIVE:"):ESC.index("case VCR_HWC_HWCRLSEXCLUSIVE:")])
+    assert "pd->restore_failed = 0;" in setx                      # a new session starts clean
+    assert "restore_failed" in (KMD / "display" / "vcrdd.h").read_text()
     rs = func(E2D, "BOOL VcrDdGlideReset3d(")
-    assert "if (!pd->reset3d || !pd->napalm || !pd->pjRegs || !pd->g2d_ok)" in rs
+    assert "if (!pd->reset3d || pd->d3d_disabled || !pd->napalm || !pd->pjRegs || !pd->g2d_ok)" in rs
     assert "n = vcr_3d_glide_reset_seq(w);" in rs
     assert "VcrDdRoom(pd, n - i < 8 ? n - i : 8)" in rs            # bounded, in FIFO-sized chunks
     assert "wr(pd, V3D_BASE + w[i].off, w[i].val);" in rs          # chip 0's window only
     assert "VcrDd2dSync(pd);" in rs
     # a Glide client KILLED without releasing: its owner is cleared at
     # DrvAssertMode(TRUE), after the mode set - the reset runs there too
-    am = code(func((KMD / "display" / "vcrdd.c").read_text(), "BOOL APIENTRY DrvAssertMode("))
+    # (the owner is assumed gone, as this path always has)
+    amsrc = func((KMD / "display" / "vcrdd.c").read_text(), "BOOL APIENTRY DrvAssertMode(")
+    am = code(amsrc)
     assert am.index("ok = VcrDdSetMode(pd);") < am.index("if (ok && stale && pd->reset3d) {") < \
         am.index("VcrDdGlideReset3d(pd)")
+    assert "ULONG stale = pd->exclusive_pid, failed = pd->restore_failed;" in am
+    assert "its RESTORE_MODE had failed" in am and "never released" in am
+    assert am.index("if (stale && failed)") < am.index("never released")
+    assert am.count("pd->restore_failed = 0;") == 1
+    assert "THE OWNER IS ASSUMED GONE" in amsrc
     assert 'x->reset3d = VcrDiagGet(L"Reset3D", 0);' in MPC
     assert "(x->reset3d ? VCR_INFO_F_RESET3D : 0)" in MPC
     assert "pd->reset3d = pd->napalm && (info.flags & VCR_INFO_F_RESET3D) ? 1 : 0;" in E2D
     gs = func(SEQ, "static __inline unsigned vcr_3d_glide_reset_seq(")
-    order = [gs.index(r) for r in ("V3D_CHIPMASK", "V3D_NOPCMD", "V3D_COMBINEMODE", "V3D_AACTRL",
-                                   "V3D_STENCILMODE", "V3D_STENCILOP")]
+    order = [gs.index(r) for r in ("V3D_CHIPMASK", "V3D_SLICTRL", "V3D_NOPCMD", "V3D_COMBINEMODE",
+                                   "V3D_AACTRL", "V3D_STENCILMODE", "V3D_STENCILOP")]
     assert order == sorted(order)
-    assert "V3D_SLICTRL" not in gs and "V3D_RENDERMODE" not in gs
+    assert "w[n].off = V3D_CHIPMASK;    w[n++].val = VCR_3D_CHIPMASK_ALL;" in gs
+    assert re.search(r"#define VCR_3D_CHIPMASK_ALL\s+0xffffffffu", SEQ)
+    assert "w[n].off = V3D_SLICTRL;     w[n++].val = 0;" in gs     # 0 only: SLI stays the miniport's
+    assert "V3D_RENDERMODE" not in gs
     regs = (KMD / "include" / "vcr_3dregs.h").read_text()
     for name, off in (("COMBINEMODE", 0x208), ("SLICTRL", 0x20c), ("AACTRL", 0x210),
                       ("CHIPMASK", 0x214)):
         assert re.search(rf"#define V3D_{name}\s+0x{off:x}\b", regs), name
     vr = (KMD / "include" / "vcr_regs.h").read_text()
     assert re.search(r"#define VCR_3D_AACTRL\s+\(VCR_MB0_3D \+ 0x210\)", vr)   # the miniport agrees
+    ev = (KMD / "include" / "vcr_events.h").read_text()
+    assert "4 reset skipped, not the owner" in ev
 
 
 def test_the_register_offsets_are_computed_from_the_gpl_header():

@@ -46,18 +46,20 @@ BOOL VcrDd3dTarget(VCR_PDEV *pd, const vcr3d_target *t)
     /* the writes are vcr_3dseq.h's, where the host test checks them one by
      * one. VSA-100: the 3D pixel size (16, or 32 with a 32-bit 24+8 aux
      * buffer - only with Diag\\D3D32) and every channel written, as
-     * _grRenderMode does, then stencilMode = stencilOp = 0: the stencil byte
-     * of a 32 bpp aux buffer is live, and whatever a Glide/OpenGL session
-     * left there must neither fail nor rewrite our pixels. A Banshee/Voodoo3
-     * has neither register and renders 16 bpp only. Any format but 16 (or 32
-     * where it is allowed) is refused on every chip, before a write. */
+     * _grRenderMode does; a 32 bpp target then writes stencilMode =
+     * stencilOp = 0: the stencil byte of its aux buffer is live, and whatever
+     * a Glide/OpenGL session left there must neither fail nor rewrite our
+     * pixels. A 16 bpp target is the proven sequence, write for write. A
+     * Banshee/Voodoo3 has neither register and renders 16 bpp only. Any
+     * format but 16 (or 32 where it is allowed) is refused on every chip,
+     * before a write. */
     vcr_regw w[VCR_3D_TARGET_MAX];
     ULONG n = vcr_3d_target_seq(pd->napalm, pd->rt32, t->fmt, t->rt_off, t->rt_pitch, t->z_off,
                                 t->z_pitch, t->width, t->height, w), i;
     if (!n)
         return FALSE;
-    /* 7: what a Banshee/Voodoo3 has always waited for (6 writes); a VSA-100
-     * waits for its 9 */
+    /* 7: what every 16 bpp target has always waited for (6 writes on a
+     * Banshee/Voodoo3, 7 on a VSA-100); a 32 bpp target waits for its 9 */
     if (!VcrDdRoom(pd, n > 7 ? n : 7))
         return FALSE;
     for (i = 0; i < n; i++)
@@ -133,8 +135,9 @@ BOOL VcrDd3dClear(VCR_PDEV *pd, const vcr3d_target *t, ULONG what, ULONG argb, U
     z = z < 0.0f ? 0.0f : z > 1.0f ? 1.0f : z;
     /* zaColor[23:0] is the depth (h3defs.h SST_ZACOLOR_DEPTH): 16 bits of it
      * at 16 bpp, all 24 at 32 bpp. [31:24] is SST_ZACOLOR_ALPHA - NOT the
-     * stencil: with stencilMode 0 (VcrDd3dTarget) a clear leaves the stencil
-     * byte of a 24+8 aux buffer untouched, and nothing here ever reads it */
+     * stencil: with stencilMode 0 (VcrDd3dTarget writes it for every 32 bpp
+     * target, the only kind with a 24+8 aux buffer) a clear leaves the
+     * stencil byte untouched, and nothing here ever reads it */
     zv = t->fmt == VCR_RT_32 ? (ULONG)(z * 16777215.0f + 0.5f) : (ULONG)(z * 65535.0f + 0.5f);
     if (zv > vcr_rt_zmax(t->fmt))
         zv = vcr_rt_zmax(t->fmt);

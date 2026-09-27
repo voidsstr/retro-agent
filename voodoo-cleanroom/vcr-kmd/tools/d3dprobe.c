@@ -691,10 +691,14 @@ int main(int argc, char **argv)
         /* the depth/stencil questions a D3D8 application asks before it
          * creates a device, per adapter (= target) format: is the Z format
          * there (CheckDeviceFormat) and does it pair with the target
-         * (CheckDepthStencilMatch). A DX7-DDI HAL's Z must match the target's
-         * size, so on the VSA-100 with Diag\\D3D32 the expected answer is
-         * D24X8/D24S8 for X8R8G8B8 and D16 for R5G6B5 - asked for BOTH
-         * adapter formats whatever the desktop is: no mode is switched. */
+         * (CheckDepthStencilMatch). The HAL lists the Z of every render
+         * depth it offers, whatever the desktop is (vcr_rtfmt.h
+         * vcr_rt_zlist): D16 always, D24X8/D24S8 beside it with Diag\\D3D32.
+         * A DX7-DDI HAL's Z must match the target's size, so the expected
+         * MATCH is D24X8/D24S8 for X8R8G8B8 and D16 for R5G6B5 - and D16 must
+         * stay a format at a 32 bpp desktop with the switch armed, or the
+         * proven 16 bpp fullscreen device made from that desktop is refused.
+         * Asked for BOTH adapter formats: no mode is switched. */
         static const struct { D3DFORMAT f; const char *n; } zrt[] = {
             { D3DFMT_X8R8G8B8, "X8R8G8B8" }, { D3DFMT_R5G6B5, "R5G6B5" } };
         static const struct { D3DFORMAT f; const char *n; } zds[] = {

@@ -659,6 +659,10 @@ static void compute_regs(vcr_d3dctx *c)
  * way:
  *   - the sizes (vcr_rt_format): 32 bpp without Diag\\D3D32 or on a
  *     Banshee/Voodoo3, a Z of the other size, 8/24 bpp;
+ *   - the target's own pitch (vcr_rt_rtcheck): short of a row, not 16-byte
+ *     aligned or past the 14-bit stride field - the rule the Z has, so
+ *     ContextCreate, SETRENDERTARGET, DP2 and Clear2 give one answer (DP2
+ *     alone refused an unaligned target before, and Clear2 fastfilled it);
  *   - the Z (vcr_rt_zcheck): a Z surface is attached but has no video-memory
  *     offset, its pitch is short of a target row, not 16-byte aligned or past
  *     the 14-bit stride field, or it is smaller than the target.
@@ -685,8 +689,10 @@ static ULONG target_of(vcr_d3dctx *c)
         z_w = c->zb->lpGbl->wWidth;
         z_h = c->zb->lpGbl->wHeight;
     }
-    why = vcr_rt_zcheck(fmt, c->rt->lpGbl->wWidth, c->rt->lpGbl->wHeight, c->zb != NULL, z_off,
-                        z_pitch, z_w, z_h);
+    why = vcr_rt_rtcheck(fmt, c->rt->lpGbl->wWidth, (ULONG)c->rt->lpGbl->lPitch);
+    if (why == VCR_RT_OK)
+        why = vcr_rt_zcheck(fmt, c->rt->lpGbl->wWidth, c->rt->lpGbl->wHeight, c->zb != NULL,
+                            z_off, z_pitch, z_w, z_h);
     if (why != VCR_RT_OK) {
         c->target_why = why;
         return (zb << 16) | rtb;
@@ -701,10 +707,18 @@ static ULONG target_of(vcr_d3dctx *c)
     return (zb << 16) | rtb;
 }
 
-/* the one log line for an empty target: the sizes (what 12) or the Z (15) */
+/* the one log line for an empty target: the sizes (what 12), the target's
+ * own pitch (17) or the Z (15) */
 static void target_refused(vcr_d3dctx *c, ULONG bits, const char *where)
 {
-    if (c->target_why == VCR_RT_WHY_FORMAT)
+    if (c->target_why == VCR_RT_WHY_RTPITCH)
+        VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 17, c->rt && c->rt->lpGbl ? (ULONG)c->rt->lpGbl->lPitch : 0,
+              c->rt && c->rt->lpGbl ? c->rt->lpGbl->wWidth : 0, bits & 0xffff,
+              "%s refused: a %u bpp target %u wide with a pitch of %u bytes (the 3D engine "
+              "takes a 16-byte multiple up to 0x3fff)", where, bits & 0xffff,
+              c->rt && c->rt->lpGbl ? c->rt->lpGbl->wWidth : 0,
+              c->rt && c->rt->lpGbl ? (ULONG)c->rt->lpGbl->lPitch : 0);
+    else if (c->target_why == VCR_RT_WHY_FORMAT)
         VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 12, bits & 0xffff, bits >> 16, c->pd->napalm,
               "%s refused: %u bpp target with a %u-bit Z on %s", where, bits & 0xffff,
               bits >> 16, !c->pd->napalm ? "a Banshee/Voodoo3 (16 bpp 3D only)"
@@ -1388,7 +1402,10 @@ static DWORD APIENTRY D3d_Clear2(LPD3DNTHAL_CLEAR2DATA p)
     memset(&w, 0, sizeof w);
     w.c = c;
     target_of(c);
-    w.drawable = c->pd->g2d_ok && !c->pd->exclusive_pid && c->target.rt_off;
+    /* the DP2 walk's rule, word for word: target_of already empties a target
+     * whose pitch the engine cannot take, and this says so here as well */
+    w.drawable = c->pd->g2d_ok && !c->pd->exclusive_pid && c->target.rt_off &&
+                 (c->target.rt_pitch & 0xf) == 0;
     EngSaveFloatingPointState(c->fpu, g_fpu_size);
     for (i = 0; i < p->dwNumRects; i++) {
         RECTL r;
@@ -1532,9 +1549,10 @@ static void prim_caps(D3DPRIMCAPS *c)
 void VcrDdD3dHalInfo(VCR_PDEV *pd, DD_HALINFO *hal)
 {
     D3DNTHALDEVICEDESC_V1 *d = &g_gd.hwCaps;
-    /* the Z depths offered follow the Z list (GUID_ZPixelFormats): one size,
-     * the desktop's, where 32 bpp is armed - DDBD_16 alone otherwise */
-    ULONG zl = vcr_rt_zlist(pd->rt32, pd->bpp);
+    /* the Z depths offered follow the Z list (GUID_ZPixelFormats), which
+     * follows the RENDER depths: DDBD_16 always, DDBD_32 beside it where 32
+     * bpp is armed - never by the desktop (vcr_rt_zlist) */
+    ULONG zl = vcr_rt_zlist(pd->rt32);
     DWORD zbd = ((zl & VCR_ZL_D16) ? DDBD_16 : 0) |
                 ((zl & (VCR_ZL_D24X8 | VCR_ZL_D24S8)) ? DDBD_32 : 0);
     if (!pd->pjRegs || !pd->g2d_ok || pd->d3d_disabled)
@@ -1638,16 +1656,19 @@ int VcrDdD3dDriverInfo(VCR_PDEV *pd, PDD_GETDRIVERINFODATA p)
         return 1;
     }
     if (geq(&p->guidInfo, &zpf)) {
-        /* by the desktop depth (vcr_rt_zlist): D16 at 16 bpp, on every
-         * Banshee/Voodoo3 and whenever 32 bpp is not armed (Diag\\D3D32);
-         * at 32 bpp with it, the 32 bpp targets' aux buffer - 24 bits of
-         * depth under 8 of stencil, D24X8 and D24S8 as 3dfx's own V5 HAL
-         * lists them - and NOT D16: a DX7-DDI Z must match the target, and
-         * the other size listed is a pair ContextCreate refuses. D24S8's
-         * stencil is never written or tested (vcr_rtfmt.h). A mode change
-         * builds a new PDEV, so the runtime asks again at the new depth. */
+        /* by the RENDER depths offered (vcr_rt_zlist), not the desktop's:
+         * D16 always - on every Banshee/Voodoo3, and on a VSA-100 at any
+         * desktop, because the D3D8 runtime checks a fullscreen device's
+         * depth format against the list it read at the DESKTOP mode, and a
+         * 16 bpp fullscreen device made from .124's 32 bpp desktop is the
+         * proven lane. With Diag\\D3D32 the 32 bpp targets' aux buffer as
+         * well - 24 bits of depth under 8 of stencil, D24X8 and D24S8 as
+         * 3dfx's own V5 HAL lists them. A pair of the wrong sizes is refused
+         * by ContextCreate before any write (a DX7-DDI Z must match the
+         * target; D3D8's CheckDepthStencilMatch says so too). D24S8's
+         * stencil is never written or tested (vcr_rtfmt.h). */
         struct { DWORD n; DDPIXELFORMAT f[3]; } z;
-        ULONG zl = vcr_rt_zlist(pd->rt32, pd->bpp);
+        ULONG zl = vcr_rt_zlist(pd->rt32);
         memset(&z, 0, sizeof z);
         if (zl & VCR_ZL_D16) {
             z.f[z.n].dwSize = sizeof z.f[0];
