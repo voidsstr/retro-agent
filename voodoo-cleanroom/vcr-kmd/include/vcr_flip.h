@@ -85,7 +85,8 @@ typedef struct vcr_flip_state {
     vcr_u32   waiting;          /* a poll found it pending: a wait began at wait_t0 */
     vcr_ticks wait_t0;
     /* counters, per PDEV, until vcr_flip_stats_reset (logged when exclusive
-     * mode ends) */
+     * mode ends, the mode leaves the screen, DirectDraw is disabled, or the
+     * flipping process's DirectDraw object goes away - once per session) */
     vcr_u32   flips;            /* vsync'd flips begun */
     vcr_u32   by_retrace;       /* ... done by a retrace seen after the write */
     vcr_u32   by_deadline;      /* ... done because the deadline passed */
@@ -94,6 +95,8 @@ typedef struct vcr_flip_state {
     vcr_ticks max_poll;         /* the longest single vblank read (the IOCTL) */
     vcr_ticks max_wait;         /* the longest a caller was told "still drawing" */
     vcr_u32   carried;          /* flips counted by the last reset: one still in flight */
+    vcr_u32   owner;            /* the process of the last vsync'd flip since the reset
+                                 * (0: none) - whose session the counters are */
 } vcr_flip_state;
 
 /* The achieved rate to use, or 0 for the nominal rule. */
@@ -187,6 +190,16 @@ static inline void vcr_flip_stats_reset(vcr_flip_state *s)
     s->flips = s->carried = s->pending ? 1 : 0;
     s->by_retrace = s->by_deadline = s->superseded = s->polls = 0;
     s->max_poll = s->max_wait = 0;
+    s->owner = 0;
+}
+
+/* The process that made a vsync'd flip - the glue calls this right after
+ * vcr_flip_begin with the calling process's id (a NOVSYNC flip is not
+ * counted, so it does not name the session either). */
+static inline void vcr_flip_note_owner(vcr_flip_state *s, int novsync, vcr_u32 pid)
+{
+    if (!novsync)
+        s->owner = pid;
 }
 
 /* Has anything been counted since the last reset? The counters are logged at
@@ -198,6 +211,28 @@ static inline int vcr_flip_stats_any(const vcr_flip_state *s)
 {
     return s->flips != s->carried || s->by_retrace || s->by_deadline || s->superseded ||
            s->polls;
+}
+
+/* A process's DirectDraw local object is going away (DestroyDDLocal; `pid` is
+ * the process it runs in - the releasing process's own, as dxg is expected to
+ * call it from that process's release or exit: UNVERIFIED on XP. Were it
+ * another context, the pid would never match and the other points would log
+ * the session as before). Log the counters now? The END of a session that stayed
+ * in the desktop's own mode is seen nowhere else - XP does not call
+ * SetExclusiveMode(0) when such a session releases DirectDraw, and no mode
+ * leaves the screen - so its counters used to wait for the next mode change
+ * and merge with every same-mode session in between (the 86Box bed,
+ * 2026-09-27: "flips 661" = 1 carried + a 60-frame run + a 600-frame run).
+ * Yes when something is new since the last log (vcr_flip_stats_any: a
+ * session is logged once, whichever point comes first) and the flips were
+ * this process's - or nobody's (polls of a flip carried over a reset). The
+ * teardown of ANOTHER process's DirectDraw object does not cut a live
+ * session in two. A second DirectDraw object of the SAME process going away
+ * mid-session (a D3D8 enumeration object, say) does: the session is then
+ * logged in two parts, never merged with another and never lost. */
+static inline int vcr_flip_local_gone_logs(const vcr_flip_state *s, vcr_u32 pid)
+{
+    return vcr_flip_stats_any(s) && (!s->owner || s->owner == pid);
 }
 
 #endif /* VCR_FLIP_H */

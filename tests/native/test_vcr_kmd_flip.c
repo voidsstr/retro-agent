@@ -57,7 +57,20 @@
  *     than the rate sent would not (review of the flip track, 2026-09-27);
  *   - the counters are logged once per session although three points of a
  *     PDEV's life may log them (a mode-setting session's flips live in a PDEV
- *     that is gone before exclusive mode ends).
+ *     that is gone before exclusive mode ends);
+ *   - a session that stays in the desktop's own mode is logged when the
+ *     flipping process's DirectDraw object goes away (DestroyDDLocal): the
+ *     86Box bed's merged "flips 661" becomes 61 and 601, another process's
+ *     teardown does not cut a live session, nothing is logged twice
+ *     (2026-09-27 follow-up);
+ *   - the 86Box bed's "fast_frames" (2026-09-27): with 86Box's latch (flag
+ *     and latch on the vsync-start line, a write in the pulse waits for the
+ *     next one) and a uniform clock, ddlab's loop never completes more flips
+ *     than vsyncs - fast frames after a stall are legitimate and track the
+ *     deadline count - while a guest clock that reads one 10 ms timer period
+ *     ahead for a moment reproduces what the bed measured: deadline
+ *     completions before the latch, first-to-last above the refresh, and a
+ *     single vblank read of exactly one period (511/13's 9999 us).
  * The flip report's scratch model (flipsim*.c, a deleted scratchpad) is
  * preserved here.
  */
@@ -221,9 +234,23 @@ static long long latches_between(const crt *c, ns_t a, ns_t b)
     return (b - o) / c->frame - (a - o) / c->frame;
 }
 
+/* The guest's performance counter. Uniform unless a test turns on the STEPPING
+ * clock (a_qpc_that_steps_by_one_timer_period_...): then a read that lands in
+ * a short window, one every g_step_every ns from g_step_first, returns the
+ * time g_step_by AHEAD - a counter whose base has moved one timer period
+ * before its low part did. Off (0) for every other test. */
+static ns_t g_step_every, g_step_first, g_step_len, g_step_by;
+
+static ns_t qpc_ns(ns_t t)
+{
+    if (g_step_every && t >= g_step_first && (t - g_step_first) % g_step_every < g_step_len)
+        return t + g_step_by;
+    return t;
+}
+
 static vcr_ticks ticks(ns_t t)
 {
-    return (vcr_ticks)(t * QPF / 1000000000LL);
+    return (vcr_ticks)(qpc_ns(t) * QPF / 1000000000LL);
 }
 
 /* ---- the driver, as vcrdd_ddraw.c drives the header -------------------------- */
@@ -252,6 +279,7 @@ typedef struct drv {
     int     oracle_pending;
     /* what the model saw */
     long    done, early, retrace_done;
+    long    early_deadline;         /* ... of the early ones, how many by the deadline */
     ns_t    worst_late;             /* told done this long after the latch, at most */
     ns_t    worst_early;            /* told done this long BEFORE the latch, at most */
 } drv;
@@ -273,7 +301,7 @@ static int drv_poll(drv *d, ns_t *t)
 {
     ns_t sample, latch;
     int in, r;
-    vcr_u32 by_retrace0 = d->s.by_retrace;
+    vcr_u32 by_retrace0 = d->s.by_retrace, by_deadline0 = d->s.by_deadline;
     if (!drv_pending(d))
         return 1;
     if (d->avoid_pulse)
@@ -294,6 +322,8 @@ static int drv_poll(drv *d, ns_t *t)
         d->done++;
         if (sample < latch) {
             d->early++;
+            if (d->s.by_deadline != by_deadline0)
+                d->early_deadline++;
             if (latch - sample > d->worst_early)
                 d->worst_early = latch - sample;
         } else if (sample - latch > d->worst_late)
@@ -955,6 +985,275 @@ TEST(the_counters_are_logged_once_although_three_points_may_log) {
     CHECK_EQ_U(s.superseded, 1);
 }
 
+/* ---- the log points of one PDEV, as vcrdd_ddraw.c drives the header ----------- */
+
+typedef struct logged {
+    vcr_u32 flips, retrace, deadline, superseded, pending;
+    const char *at;
+} logged;
+
+typedef struct pdev_log {
+    logged  e[8];
+    int     n;
+} pdev_log;
+
+/* flip_stats_log(pd, at): log what is new, then counters from zero */
+static void log_point(vcr_flip_state *s, pdev_log *L, const char *at)
+{
+    if (!vcr_flip_stats_any(s))
+        return;
+    if (L->n < 8) {
+        logged *e = &L->e[L->n++];
+        e->flips = s->flips;
+        e->retrace = s->by_retrace;
+        e->deadline = s->by_deadline;
+        e->superseded = s->superseded;
+        e->pending = s->pending;
+        e->at = at;
+    }
+    vcr_flip_stats_reset(s);
+}
+
+/* VcrDdFlipLocalGone: DestroyDDLocal, in process `pid` */
+static void local_gone(vcr_flip_state *s, pdev_log *L, vcr_u32 pid)
+{
+    if (vcr_flip_local_gone_logs(s, pid))
+        log_point(s, L, "DD local gone");
+}
+
+/* Dd_Flip in process `pid`: the flip, then whose it is */
+static ns_t pdev_flip(drv *d, ns_t *t, vcr_u32 pid)
+{
+    ns_t w = drv_flip(d, t, 0);
+    vcr_flip_note_owner(&d->s, 0, pid);
+    return w;
+}
+
+/* ddlab flip in process `pid`, in the desktop's own mode: Lock(back) waits for
+ * the last flip, the pattern, Flip, the front-buffer check */
+static void ddlab_same_mode(drv *d, ns_t *t, int frames, vcr_u32 pid)
+{
+    int f;
+    for (f = 0; f < frames; f++) {
+        while (!drv_poll(d, t))
+            *t += GAP_NS;
+        *t += 100000;
+        pdev_flip(d, t, pid);
+        *t += 50000;
+    }
+}
+
+/* the earlier session: one flip, logged with it still in flight */
+static void one_flip_in_flight(drv *d, ns_t *t, pdev_log *L)
+{
+    drv_init(d, &MODES[1], RULE_NOMINAL);
+    *t = 3 * MODES[1].frame + 4321;
+    pdev_flip(d, t, 70);
+    log_point(&d->s, L, "exclusive end");
+}
+
+TEST(a_desktop_mode_session_is_logged_when_its_directdraw_object_goes) {
+    /* The 86Box bed, 2026-09-27: a DirectDraw session in the desktop's own
+     * mode ends with no SetExclusiveMode(0) (XP does not send it for such a
+     * release) and no mode change, so its counters waited for the NEXT mode
+     * change and merged with every same-mode session in between: "flips 661"
+     * = 1 carried + a 60-frame ddlab run + a 600-frame one. DestroyDDLocal -
+     * the flipping process's DirectDraw object going away - now logs them,
+     * once per session. */
+    drv d;
+    ns_t t;
+    pdev_log old, neu;
+    vcr_u32 done = 0;
+    int i;
+    /* OLD: the three points of before, none of which a same-mode session reaches */
+    memset(&old, 0, sizeof old);
+    one_flip_in_flight(&d, &t, &old);
+    CHECK_EQ_U(d.s.carried, 1);
+    ddlab_same_mode(&d, &t, 60, 100);
+    ddlab_same_mode(&d, &t, 600, 101);
+    log_point(&d.s, &old, "mode off");                  /* the next mode change */
+    CHECK_EQ_I(old.n, 2);
+    CHECK_EQ_U(old.e[1].flips, 661);                    /* the bed's merged number */
+    /* NEW: the same runs with DestroyDDLocal */
+    memset(&neu, 0, sizeof neu);
+    one_flip_in_flight(&d, &t, &neu);
+    ddlab_same_mode(&d, &t, 60, 100);
+    local_gone(&d.s, &neu, 999);        /* ANOTHER process's DirectDraw object: not this end */
+    CHECK_EQ_I(neu.n, 1);
+    local_gone(&d.s, &neu, 100);        /* ddlab 1 releases DirectDraw */
+    CHECK_EQ_I(neu.n, 2);
+    CHECK_EQ_U(neu.e[1].flips, 61);     /* its 60, and the flip carried into it */
+    CHECK(!strcmp(neu.e[1].at, "DD local gone"), "logged at DestroyDDLocal");
+    CHECK_EQ_U(d.s.owner, 0);           /* the reset forgets whose session it was */
+    local_gone(&d.s, &neu, 100);        /* its second DirectDraw object: nothing new */
+    ddlab_same_mode(&d, &t, 600, 101);
+    local_gone(&d.s, &neu, 101);
+    CHECK_EQ_I(neu.n, 3);
+    CHECK_EQ_U(neu.e[2].flips, 601);
+    log_point(&d.s, &neu, "mode off");  /* the next mode change and the disable: */
+    log_point(&d.s, &neu, "DD disabled");   /* nothing left to log */
+    CHECK_EQ_I(neu.n, 3);
+    /* every flip completed exactly once across the three logs: 60 + 600 + the
+     * first, less the one still in flight at the end */
+    for (i = 0; i < neu.n; i++) {
+        CHECK_EQ_U(neu.e[i].flips, neu.e[i].retrace + neu.e[i].deadline + neu.e[i].superseded +
+                                   neu.e[i].pending);
+        done += neu.e[i].retrace + neu.e[i].deadline + neu.e[i].superseded;
+    }
+    CHECK_EQ_U(done + neu.e[2].pending, 661);
+    CHECK_EQ_U(neu.e[2].pending, 1);
+}
+
+TEST(the_session_owner_is_the_flipping_process) {
+    vcr_flip_state s;
+    memset(&s, 0, sizeof s);
+    CHECK_EQ_I(vcr_flip_local_gone_logs(&s, 5), 0);         /* nothing counted */
+    vcr_flip_begin(&s, 1, 1, 0, 1000, 47376);               /* NOVSYNC: not counted, */
+    vcr_flip_note_owner(&s, 1, 5);                          /* names nobody */
+    CHECK_EQ_U(s.owner, 0);
+    vcr_flip_begin(&s, 0, 1, 0, 2000, 47376);
+    vcr_flip_note_owner(&s, 0, 5);
+    CHECK_EQ_U(s.owner, 5);
+    CHECK_EQ_I(vcr_flip_local_gone_logs(&s, 6), 0);         /* not process 6's session */
+    CHECK_EQ_I(vcr_flip_local_gone_logs(&s, 5), 1);
+    vcr_flip_stats_reset(&s);                               /* logged, flip still in flight */
+    CHECK_EQ_U(s.owner, 0);
+    CHECK_EQ_I(vcr_flip_local_gone_logs(&s, 5), 0);         /* the carried flip is not news */
+    /* polls of a flip carried over the reset are news, and nobody's session:
+     * any process's teardown logs them */
+    vcr_flip_note_poll(&s, 20);
+    CHECK_EQ_I(vcr_flip_local_gone_logs(&s, 6), 1);
+    /* the struct only grew at its end: the counters the log reads are where
+     * they were */
+    CHECK_EQ_U(offsetof(vcr_flip_state, owner) > offsetof(vcr_flip_state, carried), 1);
+}
+
+/* ---- the 86Box bed's "fast frames": the rule, the loop and the clock ------------ */
+
+typedef struct bed_run {
+    long    frames, fast, slow, latches, early, early_deadline, stalls;
+    double  rate;               /* first-to-last Flip returns, on the GUEST clock, / refresh */
+    vcr_u32 by_retrace, by_deadline;
+    vcr_ticks max_poll;
+} bed_run;
+
+/* ddlab flip as it ran on the 86Box bed: Lock(back, DDLOCK_WAIT) polls until
+ * the last flip is done, ~1 ms of pattern, Flip, ddlab's QPC read (ft), then
+ * `check` of front-buffer reads with no flip poll; every `stall_every` frames
+ * the thread is descheduled for `stall`. fast / slow: Flip-to-Flip under half
+ * / over one and a half refreshes, on the guest clock, as ddlab counts them. */
+static void bed_loop(const crt *c, int frames, ns_t check, int stall_every, ns_t stall, bed_run *r)
+{
+    drv d;
+    ns_t t = 3 * c->frame + 12345, w, w0 = 0, wl = 0;
+    vcr_ticks ft, ft0 = 0, ftp = 0;
+    int f;
+    memset(r, 0, sizeof *r);
+    drv_init(&d, c, RULE_NOMINAL);
+    for (f = 0; f < frames; f++) {
+        while (!drv_poll(&d, &t))
+            t += GAP_NS;
+        t += 1000000;
+        w = drv_flip(&d, &t, 0);
+        ft = ticks(t);
+        if (f) {
+            ns_t dt = (ns_t)((ft - ftp) * 1000000000LL / QPF);
+            if (dt * 2 < c->frame)
+                r->fast++;
+            if (dt * 2 > 3 * c->frame)
+                r->slow++;
+        } else {
+            w0 = w;
+            ft0 = ft;
+        }
+        ftp = ft;
+        wl = w;
+        t += check;
+        if (stall_every && f % stall_every == stall_every - 1) {
+            t += stall;
+            r->stalls++;
+        }
+    }
+    r->frames = frames;
+    r->latches = latches_between(c, w0, wl);
+    r->rate = (double)(frames - 1) * (double)c->frame /
+              ((double)(ftp - ft0) * 1e9 / (double)QPF);
+    r->early = d.early;
+    r->early_deadline = d.early_deadline;
+    r->by_retrace = d.s.by_retrace;
+    r->by_deadline = d.s.by_deadline;
+    r->max_poll = d.s.max_poll;
+}
+
+TEST(on_86boxs_latch_the_rule_never_lets_completions_outrun_the_refresh) {
+    /* 86Box (vid_svga.c svga_poll, vid_voodoo_banshee.c): the status flag
+     * rises at vc == vsyncstart and the scan-out address is taken from
+     * memaddr_latch on that same line; a vidDesktopStartAddr write only sets
+     * memaddr_latch (banshee_recalctimings) - a write in the pulse waits for
+     * the NEXT vsyncstart - and does not move the CRTC timer (svga_set_poll
+     * only enables a stopped one). That is this file's CRT. With a uniform
+     * guest clock, ddlab's loop with the bed's ~3 ms a frame outside the flip
+     * wait completes no flip before its latch, every flip has its own latch,
+     * and the first-to-last rate stays at the refresh. */
+    bed_run r;
+    bed_loop(&MODES[1], 600, 1500000, 0, 0, &r);
+    CHECK_EQ_I(r.early, 0);
+    CHECK_EQ_I(r.fast, 0);                      /* every write just after a latch */
+    CHECK_EQ_I(r.by_deadline, 0);
+    CHECK_EQ_I(r.latches, r.frames - 1);
+    CHECK(r.rate < 1.002, "completions outran the refresh");
+    /* the vblank reads themselves are short: the IOCTL's 6 us (21-22 ticks) */
+    CHECK(r.max_poll <= 22, "a vblank read measured long on a uniform clock");
+    /* Fast frames alone are NOT the fault: a descheduled check (5 ms, then a
+     * 21 ms stall every 23 frames) misses the pulse, the deadline completes
+     * the flip - after its latch - and the next write lands just before a
+     * vsync: one slow frame, then one fast, per stall. So fast_frames tracks
+     * the deadline count, as on the bed (26/27, 29/33, 22/33) - legitimately,
+     * with the rate still at the refresh. */
+    bed_loop(&MODES[1], 600, 5000000, 23, 21000000, &r);
+    CHECK_EQ_I(r.early, 0);
+    CHECK(r.by_deadline > 0, "the stalls miss pulses: those flips go by the deadline");
+    CHECK_EQ_I(r.fast, r.by_deadline);
+    CHECK_EQ_I(r.slow, r.fast);
+    CHECK(r.latches >= r.frames - 1, "two flips shared a latch");
+    CHECK(r.rate < 1.002, "completions outran the refresh");
+}
+
+TEST(a_qpc_that_steps_by_one_timer_period_reproduces_the_beds_fast_frames) {
+    /* What the bed measured that the loop above cannot produce
+     * (evidence/86box_v3/int_20260927/03_flip): 600-frame runs complete
+     * 61.2-62.3 flips/s first-to-last at 60.35 Hz - more completions than
+     * vsyncs - and 511/13's "longest read" of ONE status-register IOCTL is
+     * 9999 us in 12 runs and 4999 us in 4: one 10 ms (5 ms) timer period to
+     * within a microsecond, which neither the read nor a preemption
+     * produces. A guest clock that reads one period AHEAD for a moment does
+     * both: a poll in such a moment sees the 18.75 ms deadline pass 8.75 ms
+     * after the flip - before the latch - the next flip is written in the same
+     * frame and the chip latches only that one, so completions outrun the
+     * refresh, and the next Flip returns a few ms later (a fast frame). Every
+     * early completion is a DEADLINE completion: the retrace path does not
+     * read the clock. */
+    bed_run uni, stp;
+    const ns_t period = 10000000;           /* the 10 ms clock tick */
+    const vcr_ticks one = (vcr_ticks)(period * QPF / 1000000000LL);
+    bed_loop(&MODES[1], 600, 1500000, 0, 0, &uni);
+    g_step_every = 200000000;               /* a moment every 200 ms of guest time */
+    g_step_first = 3 * MODES[1].frame + 20000000;
+    g_step_len = 200000;
+    g_step_by = period;
+    bed_loop(&MODES[1], 600, 1500000, 0, 0, &stp);
+    g_step_every = g_step_first = g_step_len = g_step_by = 0;
+    CHECK_EQ_I(uni.early, 0);
+    CHECK(stp.early > 0, "a stepping clock completes flips before their latch");
+    CHECK_EQ_I(stp.early, stp.early_deadline);          /* all of them by the deadline */
+    CHECK(stp.latches < stp.frames - 1, "completions outrun the latches");
+    CHECK(stp.rate > 1.01, "first-to-last above the refresh, as on the bed");
+    CHECK(stp.fast > 0 && uni.fast == 0, "fast frames only with the stepping clock");
+    /* the vblank read that straddles a step is measured at one period */
+    CHECK(stp.max_poll >= one && stp.max_poll <= one + 30, "longest read = one timer period");
+    CHECK(uni.max_poll <= 22, "and a few us on a uniform clock");
+}
+
 TEST(the_vblank_ioctl_keeps_its_size_and_offsets) {
     /* refresh_mhz is the word that was `reserved`: either half of the driver
      * pair may be the older one */
@@ -983,5 +1282,9 @@ MUNIT_MAIN("vcr-kmd flip completion", {
     RUN(the_rate_sent_is_never_above_the_rate_the_chip_scans);
     RUN(never_early_where_the_crtc_scans_a_shorter_line_than_the_table);
     RUN(the_counters_are_logged_once_although_three_points_may_log);
+    RUN(a_desktop_mode_session_is_logged_when_its_directdraw_object_goes);
+    RUN(the_session_owner_is_the_flipping_process);
+    RUN(on_86boxs_latch_the_rule_never_lets_completions_outrun_the_refresh);
+    RUN(a_qpc_that_steps_by_one_timer_period_reproduces_the_beds_fast_frames);
     RUN(the_vblank_ioctl_keeps_its_size_and_offsets);
 })

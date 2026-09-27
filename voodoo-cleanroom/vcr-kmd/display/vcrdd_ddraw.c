@@ -265,10 +265,14 @@ static ULONG ticks_us(LONGLONG t, LONGLONG f)
  * that has left the screen by the time exclusive mode ends - ddlab restores
  * the mode BEFORE it releases DirectDraw, so the release reaches the desktop
  * PDEV, which counted nothing. So they are also logged when this PDEV's mode
- * leaves the screen (DrvAssertMode FALSE) and when its DirectDraw is disabled;
- * each point logs only what is new since the last (vcr_flip_stats_any). Log
- * IOCTLs only - no hardware access. */
-static void flip_stats_log(VCR_PDEV *pd)
+ * leaves the screen (DrvAssertMode FALSE) and when its DirectDraw is disabled.
+ * And a session that stays in the desktop's own mode ends with neither an
+ * exclusive-mode release (XP does not send SetExclusiveMode(0) for it) nor a
+ * mode change: it is logged when the flipping process's DirectDraw object goes
+ * away (DestroyDDLocal, VcrDdFlipLocalGone). Each point logs only what is new
+ * since the last (vcr_flip_stats_any), and the text names the point (`at`).
+ * Log IOCTLs only - no hardware access. */
+static void flip_stats_log(VCR_PDEV *pd, const char *at)
 {
     vcr_flip_state *s = &pd->flip;
     LONGLONG f;
@@ -276,8 +280,8 @@ static void flip_stats_log(VCR_PDEV *pd)
         return;
     EngQueryPerformanceFrequency(&f);
     VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 12, s->flips, s->by_retrace, s->by_deadline,
-          "flips %u: retrace %u, deadline %u, superseded %u, pending %u", s->flips,
-          s->by_retrace, s->by_deadline, s->superseded, s->pending);
+          "flips %u: retrace %u, deadline %u, superseded %u, pending %u (%s)", s->flips,
+          s->by_retrace, s->by_deadline, s->superseded, s->pending, at);
     VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 13, ticks_us(s->max_poll, f), ticks_us(s->max_wait, f),
           ticks_us(s->deadline, f), "flip reads %u: longest %u us; longest wait %u us; deadline %u us",
           s->polls, ticks_us(s->max_poll, f), ticks_us(s->max_wait, f), ticks_us(s->deadline, f));
@@ -287,7 +291,23 @@ static void flip_stats_log(VCR_PDEV *pd)
 /* vcrdd.c: DrvAssertMode(FALSE) - this PDEV's mode is leaving the screen */
 void VcrDdFlipStatsLog(VCR_PDEV *pd)
 {
-    flip_stats_log(pd);
+    flip_stats_log(pd, "mode off");
+}
+
+/* vcrdd_d3d.c: DestroyDDLocal - a process's DirectDraw object is going away,
+ * expected in that process's context (unverified on XP: the DEBUG line below,
+ * 511 a=14, records the pid it ran in, so the 86Box bed can settle it). The
+ * end of a session that stayed in the desktop's own mode: logged if the flips
+ * were this process's (vcr_flip_local_gone_logs). Log IOCTLs only. */
+void VcrDdFlipLocalGone(VCR_PDEV *pd)
+{
+    ULONG pid = (ULONG)(ULONG_PTR)EngGetCurrentProcessId();
+    int logs = vcr_flip_local_gone_logs(&pd->flip, pid);
+    VcrDd(VCR_LV_DEBUG, VCR_EV_DD_DDRAW, 14, pid, pd->flip.owner, (ULONG)logs,
+          "DestroyDDLocal: pid %u, flips of %u%s", pid, pd->flip.owner,
+          logs ? " - logged" : "");
+    if (logs)
+        flip_stats_log(pd, "DD local gone");
 }
 
 static DWORD APIENTRY Dd_Flip(PDD_FLIPDATA p)
@@ -331,6 +351,8 @@ static DWORD APIENTRY Dd_Flip(PDD_FLIPDATA p)
     EngQueryPerformanceFrequency(&f);
     vcr_flip_begin(&pd->flip, novsync, have, have && v.in_vblank, now,
                    vcr_flip_deadline(f, have ? v.refresh_mhz : 0, pd->freq));
+    /* whose session this is: DestroyDDLocal logs it for that process only */
+    vcr_flip_note_owner(&pd->flip, novsync, (ULONG)(ULONG_PTR)EngGetCurrentProcessId());
     pd->flip_from = p->lpSurfCurr ? (ULONG)p->lpSurfCurr->lpGbl->fpVidMem : 0xffffffffu;
     p->ddRVal = DD_OK;
     return DDHAL_DRIVER_HANDLED;
@@ -558,7 +580,7 @@ static DWORD APIENTRY Dd_SetExclusiveMode(PDD_SETEXCLUSIVEMODEDATA p)
     VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 4, p->dwEnterExcl, 0, 0,
           "DirectDraw exclusive %u", p->dwEnterExcl);
     if (!p->dwEnterExcl)
-        flip_stats_log(pd);         /* the session's flips, then counters from zero */
+        flip_stats_log(pd, "exclusive end");    /* the session's flips, then counters from zero */
     p->ddRVal = DD_OK;
     return DDHAL_DRIVER_HANDLED;
 }
@@ -706,7 +728,7 @@ BOOL APIENTRY DrvEnableDirectDraw(DHPDEV dhpdev, DD_CALLBACKS *cb, DD_SURFACECAL
 VOID APIENTRY DrvDisableDirectDraw(DHPDEV dhpdev)
 {
     VCR_PDEV *pd = (VCR_PDEV *)dhpdev;
-    flip_stats_log(pd);         /* the backstop: this PDEV's flips, if not logged yet */
+    flip_stats_log(pd, "DD disabled");  /* the backstop: this PDEV's flips, if not logged yet */
     pd->dd_enabled = 0;
     VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 6, 0, pd->dd_flips, 0, "DrvDisableDirectDraw");
 }

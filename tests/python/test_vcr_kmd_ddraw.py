@@ -221,7 +221,7 @@ def test_the_achieved_refresh_deadline_is_off_by_default():
 
 def test_flip_counters_are_logged_when_exclusive_mode_ends():
     excl = func(DD, "static DWORD APIENTRY Dd_SetExclusiveMode(")
-    assert "if (!p->dwEnterExcl)\n        flip_stats_log(pd);" in excl
+    assert 'if (!p->dwEnterExcl)\n        flip_stats_log(pd, "exclusive end");' in excl
     log = func(DD, "static void flip_stats_log(")
     for f in ("s->by_retrace", "s->by_deadline", "s->superseded", "s->max_poll",
               "s->max_wait", "vcr_flip_stats_reset(s);"):
@@ -246,10 +246,10 @@ def test_flip_counters_survive_a_session_that_changed_the_mode():
     assert "if (!s->flips && !s->polls)" not in log
     # the backstop: DirectDraw disabled on this PDEV, logged FIRST
     dis = _strip_c_comments(func(DD, "VOID APIENTRY DrvDisableDirectDraw("))
-    assert dis.index("flip_stats_log(pd);") < dis.index("pd->dd_enabled = 0;")
+    assert dis.index('flip_stats_log(pd, "DD disabled");') < dis.index("pd->dd_enabled = 0;")
     # this PDEV's mode leaving the screen: before the device reset
     wrap = func(DD, "void VcrDdFlipStatsLog(VCR_PDEV *pd)")
-    assert _strip_c_comments(wrap).split("{", 1)[1].split() == ["flip_stats_log(pd);"]
+    assert _strip_c_comments(wrap).split("{", 1)[1].split() == ['flip_stats_log(pd,', '"mode', 'off");']
     assert "void  VcrDdFlipStatsLog(VCR_PDEV *pd);" in (KMD / "display" / "vcrdd.h").read_text()
     am = func(DDC, "BOOL APIENTRY DrvAssertMode(")
     off = am[am.index("} else {"):]
@@ -259,6 +259,52 @@ def test_flip_counters_survive_a_session_that_changed_the_mode():
     # log only: no register or hardware IOCTL on that path
     for bad in ("VcrIoctl", "vblank(", "flip_to(", "pjRegs"):
         assert bad not in log, bad
+
+
+def test_flip_counters_are_logged_when_the_flipping_process_releases_directdraw():
+    """A DirectDraw session in the desktop's own mode ends with no
+    SetExclusiveMode(0) - XP does not send it for such a release - and no mode
+    change, so its counters used to wait for the next mode change and merge
+    with every same-mode session in between (86Box bed, 2026-09-27: "flips
+    661" = 1 carried + 60 + 600). DestroyDDLocal - the process's DirectDraw
+    object going away, called in its context - now logs them when the flips
+    were that process's (vcr_flip_local_gone_logs; the decision and the
+    once-per-session rule are driven in tests/native/test_vcr_kmd_flip.c).
+    Log IOCTLs only, and the 511/12 text names the point that logged it."""
+    flip = _strip_c_comments(func(DD, "static DWORD APIENTRY Dd_Flip("))
+    begin = flip.index("vcr_flip_begin(&pd->flip, novsync,")
+    owner = flip.index("vcr_flip_note_owner(&pd->flip, novsync, "
+                       "(ULONG)(ULONG_PTR)EngGetCurrentProcessId());")
+    assert begin < owner < flip.index("p->ddRVal = DD_OK;")
+    gone = _strip_c_comments(func(DD, "void VcrDdFlipLocalGone(VCR_PDEV *pd)"))
+    assert "ULONG pid = (ULONG)(ULONG_PTR)EngGetCurrentProcessId();" in gone
+    assert "int logs = vcr_flip_local_gone_logs(&pd->flip, pid);" in gone
+    assert 'if (logs)\n        flip_stats_log(pd, "DD local gone");' in gone
+    assert "VCR_EV_DD_DDRAW, 14, pid, pd->flip.owner, (ULONG)logs" in gone
+    for bad in ("VcrIoctl", "vblank(", "flip_to(", "pjRegs", "flip_sample("):
+        assert bad not in gone, bad
+    assert "void  VcrDdFlipLocalGone(VCR_PDEV *pd);" in (KMD / "display" / "vcrdd.h").read_text()
+    # the hook: the D3D half's DestroyDDLocal (Misc2 callbacks), BEFORE the
+    # handle table forgets the local, and only with a PDEV to log for
+    d3d = (KMD / "display" / "vcrdd_d3d.c").read_text()
+    ddl = _strip_c_comments(func(d3d, "static DWORD APIENTRY Dd_DestroyDDLocal("))
+    assert ("if (p->pDDLcl && p->pDDLcl->lpGbl && p->pDDLcl->lpGbl->dhpdev)\n"
+            "        VcrDdFlipLocalGone((VCR_PDEV *)p->pDDLcl->lpGbl->dhpdev);") in ddl
+    assert ddl.index("VcrDdFlipLocalGone(") < ddl.index("handle_forget(p->pDDLcl, NULL);")
+    assert "m.DestroyDDLocal = Dd_DestroyDDLocal;" in d3d and "DDHAL_MISC2CB32_DESTROYDDLOCAL" in d3d
+    # the four log points, each named in the 511/12 text
+    log = _strip_c_comments(func(DD, "static void flip_stats_log("))
+    assert "static void flip_stats_log(VCR_PDEV *pd, const char *at)" in DD
+    assert '"flips %u: retrace %u, deadline %u, superseded %u, pending %u (%s)"' in log
+    points = re.findall(r'flip_stats_log\(pd, "([^"]+)"\)', _strip_c_comments(DD))
+    assert sorted(points) == sorted(["exclusive end", "mode off", "DD disabled", "DD local gone"])
+    # the header: the decision, the owner reset with the counters
+    code = _strip_c_comments(FLIP_H)
+    assert "return vcr_flip_stats_any(s) && (!s->owner || s->owner == pid);" in code
+    reset = code[code.index("static inline void vcr_flip_stats_reset("):]
+    assert "s->owner = 0;" in reset[:reset.index("\n}\n")]
+    ev = (KMD / "include" / "vcr_events.h").read_text()
+    assert "14 DestroyDDLocal: b=pid c=flip owner d=1 when the counters were logged" in ev
 
 
 def test_ddlab_reports_the_frames_and_takes_work_us():

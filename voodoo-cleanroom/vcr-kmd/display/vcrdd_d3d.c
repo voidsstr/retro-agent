@@ -1495,8 +1495,16 @@ static DWORD APIENTRY Dd_GetDriverState(PDD_GETDRIVERSTATEDATA p)
     return DDHAL_DRIVER_HANDLED;
 }
 
+/* A process's DirectDraw object is going away. Also the only point that sees
+ * the END of a DirectDraw session that stayed in the desktop's own mode (XP
+ * sends no SetExclusiveMode(0) for it and no mode leaves the screen): its flip
+ * counters are logged here (vcrdd_ddraw.c VcrDdFlipLocalGone - log IOCTLs
+ * only). This callback exists only where the Direct3D half answers
+ * GUID_Miscellaneous2Callbacks; elsewhere the other log points remain. */
 static DWORD APIENTRY Dd_DestroyDDLocal(PDD_DESTROYDDLOCALDATA p)
 {
+    if (p->pDDLcl && p->pDDLcl->lpGbl && p->pDDLcl->lpGbl->dhpdev)
+        VcrDdFlipLocalGone((VCR_PDEV *)p->pDDLcl->lpGbl->dhpdev);
     handle_forget(p->pDDLcl, NULL);
     p->ddRVal = DD_OK;
     return DDHAL_DRIVER_HANDLED;
