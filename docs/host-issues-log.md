@@ -22,8 +22,8 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 
 | Item | State | Since |
 |---|---|---|
-| GPU power cap | **450 W** via `nvidia-power-cap.service` (enabled, runs `nvidia-smi -pl 450`; installed by `reusable-agents/install/configure-local-models.sh`, override with `GPU_POWER_LIMIT_W`) | 2026-09-24 23:30 |
-| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (now) | |
+| GPU power cap | **400 W** via `nvidia-power-cap.service` (enabled, runs `nvidia-smi -pl 400`; unit file rewritten 2026-09-26 23:22:44 by someone outside this session, originally from `reusable-agents/install/configure-local-models.sh`, override with `GPU_POWER_LIMIT_W`) | 2026-09-26 23:22 |
+| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now) | |
 | `kernel.hung_task_panic` | 0 (a GPU drop leaves the box up, just without a GPU) | 2026-09-16 |
 | `kernel.panic` / `hardlockup_panic` | 30 / 1 (`/etc/sysctl.d/60-lockup-panic.conf`) | 2026-09-08 |
 | kdump | enabled; dumps land in `/var/crash/` | |
@@ -93,6 +93,33 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 ---
 
 ## Incident log (newest first)
+
+### 2026-09-26 20:14:45: instant power-off at 450 W (signature 4)
+
+- **Boot IDs:** `e335b889…` (began 15:58:34) stops at 20:14:45 in the middle of
+  ollama prompt-cache log lines: no shutdown, no panic, no kdump output (the
+  newest `/var/crash` file is the 09-24 19:18 dump), no Xid/AER/MCE/thermal
+  line in the kernel log, and no BERT record in the next boot's kernel log.
+  `4b2b821c…` began 23:16:18, so the box was off about **3 h 1 min** until
+  someone pressed power.
+- **Cap in effect: 450 W.** `nvidia-power-cap.service` logged "set to 450.00 W"
+  at 15:58:46 in the dying boot. So 450 W did not prevent signature 4 (the
+  09-24 23:11 one was at 575 W).
+- **Load:** ollama was actively serving a generation (slot processing a new
+  prompt) at the cutoff. The retro-agent vcr-kmd sessions were doing offline
+  work and 86Box was not running. No Claude session touched host power, BIOS
+  or the GPU.
+- **Afterwards:** at 23:22:44 the unit file was rewritten to `-pl 400` and
+  re-run ("set to 400.00 W from 575.00 W"). That was not done from the
+  retro-agent vcr-kmd session. By 2026-09-27 00:10 the host was still on
+  192.168.1.196 but the NAS (.122:445) and `.124` answered again, so the fleet
+  LAN problem from the 15:58 entry is gone.
+- **Cause:** a PSU over-power/over-current trip from GPU power spikes is still
+  the most likely explanation; **unproven**, since there is no PSU or UPS
+  telemetry. Whether 400 W is enough is the open question. If the box powers
+  off again at 400 W, the physical items in "Current state" (12V-2x6
+  connector, separate PSU cables, PSU wattage, a logging UPS) come next.
+- **Response:** recorded here, and the current-state table updated to 400 W.
 
 ### 2026-09-26 15:58:13: orderly reboot, then the host moved to 192.168.1.196 and lost the fleet LAN
 
