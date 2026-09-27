@@ -61,6 +61,11 @@
  *      vendor driver's slaves carry (goldens cfg5 and cfg5_1600).
  *  11. SLI disable clears only the SLI/AA fields of cfgSliAAMisc (vsync
  *      offset, slave wait), not the undocumented power-up bit 11 (0x800).
+ *  12. An enable whose {chips, sli, aa, sampleHigh, analog} has no video-mux
+ *      branch is refused before the first write (VCR_SLI_R_COMBO,
+ *      vcr_sli_combo_ok). dos_mode.c discovers it inside the per-chip loop,
+ *      with snoop/swap/pciInit0/AA already in every chip, and goes on; that is
+ *      Glide's cfg 1 on a 4-chip board, which froze .124 (2026-09-26).
  *   8. After placing a slave's BARs, its BAR writes are turned off again.
  *      dos_mode.c leaves them on; the vendor driver does not (golden
  *      sli_amigamerlin-3.1-r11_cfg5_192.168.1.124.json: slave cfgInitEnable
@@ -139,8 +144,12 @@ static void vga_iw(const vcr_sli_io *io, vcr_u32 step, vcr_u32 chip, vcr_u32 por
 
 static int refuse(const vcr_sli_io *io, vcr_u32 reason, vcr_u32 val)
 {
-    lg(io, VCR_SLI_S_REFUSED, 0, reason, val, "request refused, nothing written");
-    return reason == VCR_SLI_R_NODEV ? VCR_SLI_ENODEV : VCR_SLI_EINVAL;
+    lg(io, VCR_SLI_S_REFUSED, 0, reason, val,
+       reason == VCR_SLI_R_COMBO ? "no video-mux branch for this chip/SLI/AA combination: "
+                                   "request refused, nothing written"
+                                 : "request refused, nothing written");
+    return reason == VCR_SLI_R_NODEV ? VCR_SLI_ENODEV
+         : reason == VCR_SLI_R_AA_OFF ? VCR_SLI_EDENIED : VCR_SLI_EINVAL;
 }
 
 static int io_ok(const vcr_sli_io *io)
@@ -834,6 +843,8 @@ static int video_mux(const vcr_sli_io *io, const sli_p *p, vcr_u32 c, vcr_u32 vi
             vc2(io, c, 0, 0);
         }
     } else {
+        /* Unreachable through vcr_sli_set, which refuses such a shape before
+         * its first write (vcr_sli_combo_ok). Reached anyway, it says so. */
         lg(io, VCR_SLI_S_NOMUX, c, 0, (sli) | (aa << 1) | (analog << 2) | (high << 4),
            "no cfgVideoCtrl branch: left as it was");
         return VCR_SLI_W_NOMUX;
@@ -1159,6 +1170,129 @@ int vcr_sli_reset_video(const vcr_sli_io *io, vcr_u32 n)
     return warn;
 }
 
+/* ---- the AA safety net (ours, 2026-09-27): pure decisions ---------------------
+ * No hardware and no logging here: the kernel asks these BEFORE anything is
+ * written, and tests/native/test_vcr_kmd_sli.c pins them - vcr_sli_combo_ok
+ * against video_mux() itself, shape by shape. */
+
+int vcr_sli_combo_ok(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high, vcr_u32 analog)
+{
+    sli = sli ? 1 : 0;
+    aa = aa ? 1 : 0;
+    analog = analog ? 1 : 0;
+    if (!aa)
+        high = 0;               /* the sample count means nothing without AA */
+    if ((!sli && !aa) || high > 2)
+        return 0;               /* a disable is not a combination; 16 samples do not exist */
+    switch (n) {
+    case 1:
+        /* one chip: 2-sample AA only (it has no partner for more), never SLI */
+        return !sli && high == 0;
+    case 2:
+        /* 2-way SLI alone or with 2-sample AA, digital or analog - never with
+         * 4-sample AA (that takes both chips); AA alone: 2 or 4 samples. Not
+         * 8: video_mux's 2-chip 4-sample branches test `high` as a boolean,
+         * so an 8-sample request would be programmed as 4-sample. */
+        return sli ? high == 0 : high <= 1;
+    case 4:
+        if (sli)                /* 4-way SLI, or two 2-way units with 2/4-sample AA */
+            return high <= 1;
+        /* AA across all four chips without SLI: 4 or 8 samples, analog only.
+         * {4,0,1,0,x} - Glide's cfg 1 laid out for four chips - has no mux. */
+        return analog && high >= 1;
+    }
+    return 0;
+}
+
+vcr_u32 vcr_sli_req_tuple(const vcr_sli_aa_req *r)
+{
+    vcr_u32 aa = r->ChipInfo.dwaaEn ? 1 : 0;
+    return VCR_SLI_TUPLE(r->ChipInfo.dwChips, r->ChipInfo.dwsliEn ? 1 : 0, aa,
+                         aa ? r->ChipInfo.dwaaSampleHigh : 0,
+                         r->ChipInfo.dwsliAaAnalog ? 1 : 0);
+}
+
+int vcr_sli_policy(const vcr_sli_aa_req *r, vcr_u32 aa_allowed)
+{
+    const vcr_sli_chipinfo *ci = &r->ChipInfo;
+    if (!ci->dwsliEn && !ci->dwaaEn)
+        return 0;               /* a disable always goes through */
+    if (ci->dwaaEn && !aa_allowed)
+        return VCR_SLI_R_AA_OFF;
+    if (!vcr_sli_combo_ok(ci->dwChips, ci->dwsliEn, ci->dwaaEn, ci->dwaaSampleHigh,
+                          ci->dwsliAaAnalog))
+        return VCR_SLI_R_COMBO;
+    return 0;
+}
+
+int vcr_sli_step_persists(vcr_u32 step, vcr_u32 persist_all)
+{
+    return persist_all || step % 100 == 0 || step == VCR_SLI_S_MAP_DONE ||
+           step == VCR_SLI_S_PCIINIT0 || step == VCR_SLI_S_CLOCK_6K ||
+           step == VCR_SLI_S_SLICTRL || step == VCR_SLI_S_NOMUX ||
+           step == VCR_SLI_S_SET_DONE || step == VCR_SLI_S_OFF_DONE || step >= 900;
+}
+
+vcr_u32 vcr_sli_phase_b(vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 val)
+{
+    switch (step) {
+    case VCR_SLI_S_REFUSED:
+        chip = reg;             /* the reason takes the chip byte (refusals are chip 0) */
+        /* fall through */
+    case VCR_SLI_S_SET_DONE:
+    case VCR_SLI_S_OFF_DONE:
+    case VCR_SLI_S_CLOCK_6K:
+    case VCR_SLI_S_NOMUX:
+        return (chip << 24) | VCR_SLI_PB_VALUE | (val & 0x7fffffu);
+    }
+    return (chip << 24) | (reg & 0xffffffu);
+}
+
+/* 0x40 -> slot 0, 0x48 -> slot 1, 0x80..0xac -> slots 2..13; -1 = not ours */
+static int owned_slot(vcr_u32 dword)
+{
+    if (dword == VCR_CFG_INITENABLE)
+        return 0;
+    if (dword == VCR_CFG_PCIDECODE)
+        return 1;
+    if (dword >= VCR_CFG_VIDEOCTRL0 && dword <= VCR_CFG_SLIAAMISC)
+        return 2 + (int)((dword - VCR_CFG_VIDEOCTRL0) >> 2);
+    return -1;
+}
+
+/* the first owned dword [off, off+size) touches, or -1 */
+static int owned_first(vcr_u32 off, vcr_u32 size)
+{
+    vcr_u32 d, end;
+    if (!size || off > 0xffu)
+        return -1;
+    end = off + size - 1;
+    for (d = off & ~3u; d <= end; d += 4) {
+        int s = owned_slot(d);
+        if (s >= 0)
+            return s;
+    }
+    return -1;
+}
+
+int vcr_sli_cfg_owned(vcr_u32 off, vcr_u32 size)
+{
+    return owned_first(off, size) >= 0;
+}
+
+int vcr_sli_poke_first(vcr_sli_poke_memo *m, vcr_u32 chip, vcr_u32 off, vcr_u32 size,
+                       vcr_u32 val)
+{
+    int s = owned_first(off, size);
+    if (!m || s < 0 || chip >= VCR_SLI_MAX_CHIPS)
+        return 1;               /* nothing to remember it by: persist it */
+    if ((m->seen[chip] & (1u << s)) && m->val[chip][s] == val)
+        return 0;
+    m->seen[chip] |= 1u << s;
+    m->val[chip][s] = val;
+    return 1;
+}
+
 /* ---- entry point --------------------------------------------------------------- */
 
 int vcr_sli_set(const vcr_sli_io *io, const vcr_sli_aa_req *r)
@@ -1202,6 +1336,14 @@ int vcr_sli_set(const vcr_sli_io *io, const vcr_sli_aa_req *r)
         return refuse(io, VCR_SLI_R_NLINES, p.nlines);
     if (p.aa && p.bpp != 15 && p.bpp != 16 && p.bpp != 32)
         return refuse(io, VCR_SLI_R_BPP, p.bpp);
+    /* ours (2026-09-27): a shape with no video-mux branch is refused HERE,
+     * before the first write. dos_mode.c (and the vendor's W2K miniport) find
+     * out only inside the per-chip loop, after snoop, swap sync, pciInit0 and
+     * the AA apertures are already in every chip - and then report success.
+     * That is cfg 1 on the V5 6000 ({4,0,1,0,1}): .124 froze in Glide's open
+     * right after SET_DONE, under AmigaMerlin's kernel and under ours. */
+    if (!vcr_sli_combo_ok(p.n, p.sli, p.aa, p.high, p.analog))
+        return refuse(io, VCR_SLI_R_COMBO, VCR_SLI_TUPLE(p.n, p.sli, p.aa, p.high, p.analog));
     if (!p.lb)
         p.nlines = 1;           /* AA only: band height unused (scan mask 0) */
 

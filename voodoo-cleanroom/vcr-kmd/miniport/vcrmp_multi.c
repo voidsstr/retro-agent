@@ -19,7 +19,11 @@
  *   log     VCR_EV_SLI_STEP, written BEFORE each register write
  *
  * Diag switches (Services\vcrmp\Diag): Sli = 0 keeps Glide single-chip and
- * leaves the slaves untouched; Sli6kClock = 0 skips the external clock.
+ * leaves the slaves untouched; Sli6kClock = 0 skips the external clock;
+ * SliAA = 1 lets an AA request through (absent/0: refused before any write -
+ * the AA kill switch, read per request); SliPersistAll = 1 makes every SLI
+ * step a flushed phase (supervised runs; slow). AllowPoke = 1 (vcrmp.c) is the
+ * only way a PCI_OP may write the SLI/AA config registers.
  */
 #include "vcrmp.h"
 #include "../include/vcr_sli.h"
@@ -75,23 +79,22 @@ static void k_stall(void *ctx, vcr_u32 us)
 /* The milestones of the sequence also go to the registry, FLUSHED (VcrPhase):
  * a wedge in the middle of an SLI/AA bring-up needs a power cycle, which
  * loses the in-memory flight recorder - Diag\LastPhase / PhaseLog survive and
- * say which step the box never got past (a = step, b = chip << 24 | register). */
-static int vcr_sli_step_persists(vcr_u32 step)
-{
-    return step % 100 == 0 || step == VCR_SLI_S_MAP_DONE || step == VCR_SLI_S_PCIINIT0 ||
-           step == VCR_SLI_S_CLOCK_6K || step == VCR_SLI_S_SLICTRL ||
-           step == VCR_SLI_S_SET_DONE || step == VCR_SLI_S_OFF_DONE || step >= 900;
-}
-
+ * say which step the box never got past. a = step; b = vcr_sli_phase_b()
+ * (chip << 24 | register, or - for SET_DONE / OFF_DONE / CLOCK_6K / NOMUX /
+ * REFUSED - the value that step exists to report: the warn mask, the clock
+ * result, the refusal reason and request shape). Which steps: the milestones
+ * (vcr_sli_step_persists), or every step while Diag\SliPersistAll = 1
+ * (x->sli_persist_all, read at FindAdapter and at every request). */
 static void k_log(void *ctx, vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 val,
                   const char *what)
 {
-    int keep = vcr_sli_step_persists(step);
-    ULONG lv = step >= 900 ? VCR_LV_WARN : keep ? VCR_LV_INFO : VCR_LV_DEBUG;
-    (void)ctx;
+    VCR_EXT *x = (VCR_EXT *)ctx;
+    int keep = vcr_sli_step_persists(step, x ? x->sli_persist_all : 0);
+    ULONG lv = step >= 900 ? VCR_LV_WARN : vcr_sli_step_persists(step, 0) ? VCR_LV_INFO
+                                                                          : VCR_LV_DEBUG;
     VLOG(lv, VCR_EV_SLI_STEP, step, chip, reg, val, "%s", what);
     if (keep)
-        VcrPhase(VCR_EV_SLI_STEP, step, (chip << 24) | (reg & 0xffffff), what);
+        VcrPhase(VCR_EV_SLI_STEP, step, vcr_sli_phase_b(step, chip, reg, val), what);
 }
 
 static void make_io(VCR_EXT *x, vcr_sli_io *io)
@@ -134,6 +137,8 @@ void VcrMultiInit(VCR_EXT *x)
     int rc;
 
     x->glide_chips = 1;
+    /* before the first step is logged: the slave placement below is steps too */
+    x->sli_persist_all = VcrDiagGet(L"SliPersistAll", 0);
     if (x->backend != VCR_HW_VOODOO || !VCR_IS_NAPALM(x->device) || n < 2)
         return;
     if (!VcrDiagGet(L"Sli", 1)) {
@@ -218,13 +223,26 @@ void VcrSliOff(VCR_EXT *x, const char *why)
          "SLI/AA off -> %d", rc);
 }
 
+/* THE AA KILL SWITCH. Every AA configuration tried on .124 froze the whole PC
+ * (cfg 3 in an LFB read, cfg 7 and cfg 1 inside Glide's open; 2026-09-26) and
+ * a frozen box needs a person at the power switch. So an AA request is refused
+ * - before a single register is written, before a live SLI session is torn
+ * down to make room - unless Services\vcrmp\Diag\SliAA (DWORD) is 1. Absent =
+ * 0. Read at every request, so a supervised session can arm it for one run and
+ * disarm it without a reboot. SLI-only requests and every disable are
+ * unaffected (vcr_sli_policy). */
+static int sli_aa_allowed(void)
+{
+    return VcrDiagGet(L"SliAA", 0) != 0;
+}
+
 VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out)
 {
     vcr_sli_aa_req rq;
     const vcr_sli_aa_req *r = &rq;
     vcr_sli_io io;
     ULONG n, en;
-    int rc;
+    int rc, why;
 
     /* METHOD_BUFFERED: `req` and `out` are the SAME system buffer. Take the
      * request before anything is written to the answer - zeroing `out` first
@@ -242,8 +260,23 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
     VLOG(VCR_LV_INFO, VCR_EV_HWC_SLIAA, n, r->ChipInfo.dwsliEn, r->ChipInfo.dwaaEn,
          r->ChipInfo.dwsli_nlines, "SLI_AA_REQUEST: %u chips, analog %u, sample %u, bpp %u",
          n, r->ChipInfo.dwsliAaAnalog, r->ChipInfo.dwaaSampleHigh, r->MemInfo.dwBpp);
+    x->sli_persist_all = VcrDiagGet(L"SliPersistAll", 0);
 
-    if (!en) {
+    /* The policy comes first, before anything below can write: a refused
+     * request leaves the board - and any live session - exactly as it was.
+     * The refusal is a persisted phase (k_log: REFUSED is a 9xx step), with
+     * the reason and the request's shape in b (vcr_sli_phase_b). */
+    why = en ? vcr_sli_policy(r, sli_aa_allowed()) : 0;
+    if (why) {
+        k_log(x, VCR_SLI_S_REFUSED, 0, (vcr_u32)why, vcr_sli_req_tuple(r),
+              why == VCR_SLI_R_AA_OFF
+                  ? "AA request refused before any write: Diag\\SliAA is 0 (the AA kill switch)"
+                  : "no video-mux branch for this chip/SLI/AA combination: refused before any write");
+        rc = why == VCR_SLI_R_AA_OFF ? VCR_SLI_EDENIED : VCR_SLI_EINVAL;
+        VLOG(VCR_LV_WARN, VCR_EV_SLI_DONE, 1, n, (ULONG)rc, vcr_sli_req_tuple(r),
+             "SLI/AA request refused (%d), reason %u, shape %05x - nothing written, %u chips live",
+             rc, why, vcr_sli_req_tuple(r), x->sli_chips);
+    } else if (!en) {
         /* A disable carries garbage in everything but dwChips. Undo what WE
          * enabled; with nothing enabled there is nothing to undo. */
         if (x->sli_chips)

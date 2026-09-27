@@ -100,13 +100,17 @@ typedef struct vcr_sli_io {
  *   0: done
  * > 0: done, but with the VCR_SLI_W_* conditions set - make them visible */
 #define VCR_SLI_OK           0
-#define VCR_SLI_EINVAL     (-1)     /* bad request / accessor table */
+#define VCR_SLI_EINVAL     (-1)     /* bad request / accessor table / unsupported combination */
 #define VCR_SLI_ENODEV     (-2)     /* a slave did not answer as a VSA-100 */
 #define VCR_SLI_ENOTIMPL   (-3)     /* vcr_sli_6k_clock(): not built in, switched off, or failed */
+#define VCR_SLI_EDENIED    (-4)     /* refused by policy: an AA request while Diag\SliAA = 0
+                                       (the kernel's AA kill switch, vcrmp_multi.c) */
 #define VCR_SLI_W_TIMEOUT   0x1     /* a bounded wait expired; the write it guarded was skipped */
 #define VCR_SLI_W_NOCLOCK   0x2     /* 4-chip board: the V5 6000 external clock was NOT programmed */
-#define VCR_SLI_W_NOMUX     0x4     /* no cfgVideoCtrl branch for this chip/SLI/AA combination
-                                       (dos_mode.c leaves those registers as they were) */
+#define VCR_SLI_W_NOMUX     0x4     /* no cfgVideoCtrl branch for this chip/SLI/AA combination.
+                                       UNREACHABLE since 2026-09-27: vcr_sli_set refuses such a
+                                       combination before its first write (VCR_SLI_R_COMBO).
+                                       Kept so a future branch-table edit cannot slip past. */
 #define VCR_SLI_W_READBACK  0x8     /* a slave BAR did not read back as written */
 
 /* Bound of every poll loop: polls x VCR_SLI_POLL_US. The original's
@@ -194,6 +198,19 @@ enum vcr_sli_step { VCR_SLI_STEP_TABLE VCR_SLI_S__END };
 #define VCR_SLI_R_SLI_1CHIP   6     /* SLI requested on a single chip */
 #define VCR_SLI_R_NODEV       7     /* chip (val) is not a VSA-100 */
 #define VCR_SLI_R_BARS        8     /* master BARs unusable (val = BAR0) */
+#define VCR_SLI_R_COMBO       9     /* no video-mux branch for {chips, sli, aa, sampleHigh, analog}
+                                       (val = VCR_SLI_TUPLE) - e.g. cfg 1 on a 4-chip board, which
+                                       Glide sends as {4,0,1,0,1} and which wedged .124 twice */
+#define VCR_SLI_R_AA_OFF     10     /* AA requested while Diag\SliAA = 0 (val = VCR_SLI_TUPLE) */
+
+/* The request's shape, one nibble per field, so a hex dump reads left to
+ * right as {chips, sli, aa, sampleHigh, analog}: cfg 1 as Glide sends it on
+ * the V5 6000 is 0x40101. Logs and persisted phases only - never decide on
+ * it (a nibble saturates at 0xf; vcr_sli_combo_ok takes the raw fields). */
+#define VCR_SLI_NIB(v)  ((vcr_u32)(v) > 0xfu ? 0xfu : (vcr_u32)(v))
+#define VCR_SLI_TUPLE(n, sli, aa, high, analog) \
+    ((VCR_SLI_NIB(n) << 16) | (VCR_SLI_NIB(sli) << 12) | (VCR_SLI_NIB(aa) << 8) | \
+     (VCR_SLI_NIB(high) << 4) | VCR_SLI_NIB(analog))
 
 /* ---- register map the sequence needs beyond vcr_regs.h ---------------------
  * From glide3x/h5/incsrc/h3defs.h / h3regs.h (Glide GPL). None of these names
@@ -321,8 +338,77 @@ int vcr_sli_map_slaves(const vcr_sli_io *io, vcr_u32 nchips,
 /* initSlave for chips 1..nchips-1 (vcr_sli_set's enable path does this too). */
 int vcr_sli_init_slaves(const vcr_sli_io *io, vcr_u32 nchips);
 
-/* hwcSetSLIAAMode: enable when r->ChipInfo.dwsliEn || dwaaEn, else disable. */
+/* hwcSetSLIAAMode: enable when r->ChipInfo.dwsliEn || dwaaEn, else disable.
+ * An enable whose combination has no video-mux branch is refused before the
+ * first write (VCR_SLI_R_COMBO -> VCR_SLI_EINVAL). */
 int vcr_sli_set(const vcr_sli_io *io, const vcr_sli_aa_req *r);
+
+/* ---- the AA safety net: pure decisions, no hardware ---------------------------
+ *
+ * vcr_sli_combo_ok: 1 when an ENABLE of this shape has a cfgVideoCtrl branch
+ * in the ported sequence (video_mux, D:928-1428) AND passes the sanity checks
+ * a vendor miniport applies to its input: a single chip does 2-sample AA only,
+ * two chips never combine SLI with 4-sample AA, 8-sample AA is 4 chips, no
+ * SLI, analog. sli/aa/analog are booleans (non-zero = on); high is the raw
+ * dwaaSampleHigh and means nothing without aa. A disable (no sli, no aa) is
+ * not a combination: 0. tests/native/test_vcr_kmd_sli.c pins this predicate
+ * to video_mux itself for every shape. */
+int vcr_sli_combo_ok(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high, vcr_u32 analog);
+
+/* The request normalised the way vcr_sli_set reads it, packed (VCR_SLI_TUPLE). */
+vcr_u32 vcr_sli_req_tuple(const vcr_sli_aa_req *r);
+
+/* What the kernel decides BEFORE it touches anything - before it even tears
+ * down a live session to make room (vcrmp_multi.c VcrSliRequest):
+ *   0                  go ahead (every disable; SLI-only; AA when allowed and valid)
+ *   VCR_SLI_R_AA_OFF   the request enables AA and aa_allowed (Diag\SliAA) is 0
+ *   VCR_SLI_R_COMBO    an enable with no video-mux branch */
+int vcr_sli_policy(const vcr_sli_aa_req *r, vcr_u32 aa_allowed);
+
+/* ---- what a flushed phase keeps of a step --------------------------------------
+ * The kernel's log callback persists some steps to Diag\PhaseLog (flushed, it
+ * survives the power cycle a wedge needs): VcrPhase(VCR_EV_SLI_STEP, a = step,
+ * b = vcr_sli_phase_b(step, chip, reg, val)).
+ *   vcr_sli_step_persists: the milestones (x00 steps, MAP_DONE, PCIINIT0,
+ *     CLOCK_6K, SLICTRL, NOMUX, SET_DONE, OFF_DONE, 9xx); with persist_all
+ *     (Diag\SliPersistAll = 1, supervised runs) EVERY step, so the last
+ *     phase names the exact write a wedge stopped at - at ~15-30 ms a flush,
+ *     a 4-chip enable then takes seconds, and the 64-slot history keeps the
+ *     last 64 steps.
+ *   vcr_sli_phase_b:
+ *     most steps       chip << 24 | (reg & 0xffffff)           (the value is dropped)
+ *     value steps      chip << 24 | VCR_SLI_PB_VALUE | (val & 0x7fffff)
+ *                      SET_DONE / OFF_DONE (the VCR_SLI_W_* mask), CLOCK_6K (the
+ *                      hook's result, 23-bit signed), NOMUX (its flags)
+ *     REFUSED          reason << 24 | VCR_SLI_PB_VALUE | (val & 0x7fffff)
+ *   Bit 23 marks the value form: a record written before 2026-09-27 kept only
+ *   chip << 24 | reg for those steps (reg 0 there), so tools/vcrphases.py can
+ *   tell "warn 0" from "not recorded". */
+#define VCR_SLI_PB_VALUE    0x00800000u
+int     vcr_sli_step_persists(vcr_u32 step, vcr_u32 persist_all);
+vcr_u32 vcr_sli_phase_b(vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 val);
+
+/* ---- the SLI/AA config registers belong to vcr_sli_set -----------------------
+ * cfgInitEnable (0x40), cfgPciDecode (0x48) and 0x80-0xAF (cfgVideoCtrl0/1/2,
+ * cfgSliLfbCtrl, cfgAADepthBufferAperture, cfgAALfbCtrl, ..., cfgSliAAMisc).
+ * The miniport refuses a HWCEXT PCI_OP / VCR_ESC_PCI WRITE that touches any
+ * byte of them unless Diag\AllowPoke is set: Glide's own single-chip AA path
+ * writes cfgVideoCtrl0 = EN|LOCALMUX|DIV2 into EVERY chip it counts, which on
+ * a 4-chip board would un-tristate the slaves' syncs behind the kernel's back.
+ * vcr_sli_cfg_owned: 1 when [off, off+size) overlaps one of them.
+ * vcr_sli_poke_first: 1 the first time this (chip, dword, value) is refused
+ *   since the memo was zeroed - the caller persists only those as phases, so
+ *   Glide's close-time zero writes (on every non-SLI close) cannot flush the
+ *   64-slot phase history away one close at a time; every refusal still goes
+ *   to the flight recorder. */
+#define VCR_SLI_OWNED_SLOTS 14      /* 0x40, 0x48, 0x80..0xac */
+typedef struct vcr_sli_poke_memo {
+    vcr_u32 val[VCR_SLI_MAX_CHIPS][VCR_SLI_OWNED_SLOTS];
+    vcr_u32 seen[VCR_SLI_MAX_CHIPS];            /* bit per slot */
+} vcr_sli_poke_memo;
+int vcr_sli_cfg_owned(vcr_u32 off, vcr_u32 size);
+int vcr_sli_poke_first(vcr_sli_poke_memo *m, vcr_u32 chip, vcr_u32 off, vcr_u32 size,
+                       vcr_u32 val);
 
 /* The pure values, for callers and tests. */
 vcr_u32 vcr_sli_slictrl(vcr_u32 nchips, vcr_u32 nlines, vcr_u32 aa_en,

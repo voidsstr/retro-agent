@@ -959,6 +959,276 @@ TEST(accepted_requests_write_exactly_what_they_wrote_before_the_safety_net) {
     }
 }
 
+/* ---- the AA safety net (2026-09-27) ------------------------------------------------
+ * cfg 1 on the V5 6000: Glide lays its buffers out for four chips and only then
+ * forces one, so the kernel receives {4 chips, SLI off, AA on, 2-sample,
+ * analog}. No video-mux branch exists for that shape anywhere; the port wrote
+ * snoop, swap sync, pciInit0 and the AA apertures into all four chips, found
+ * no mux, and answered success (W_NOMUX). .124 froze inside Glide's open right
+ * after SET_DONE (boot #18, evidence/glidelab/postmortem_20260927). */
+#define CFG1_OLD_RC     (VCR_SLI_W_NOCLOCK | VCR_SLI_W_NOMUX)   /* 097b1f7: "done" */
+#define CFG1_OLD_WRITES 430u                                    /* 097b1f7, this mock */
+
+static int last_refusal(const mock *m, vcr_u32 *reason, vcr_u32 *val)
+{
+    unsigned i;
+    for (i = m->nl; i-- > 0;)
+        if (m->l[i].step == VCR_SLI_S_REFUSED) {
+            *reason = m->l[i].reg;
+            *val = m->l[i].val;
+            return 1;
+        }
+    return 0;
+}
+
+TEST(cfg1_as_glide_sends_it_is_refused_with_nothing_on_the_bus) {
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_u32 analog, reason = 0, val = 0;
+    unsigned i;
+    for (analog = 0; analog < 2; analog++) {
+        vcr_sli_aa_req r = req(4, 0, 1, 0, analog, 8, 16);
+        int rc;
+        r.MemInfo.dwaaSecondaryDepthBufBegin = 0x01000000u;
+        r.MemInfo.dwaaSecondaryDepthBufEnd = 0x01180000u;
+        mapped(m, &io, 4);
+        m->nw = 0;
+        m->nl = 0;
+        rc = vcr_sli_set(&io, &r);
+        CHECK_EQ_I(rc, VCR_SLI_EINVAL);
+        CHECK(rc != CFG1_OLD_RC, "cfg 1 answered success again");
+        CHECK_EQ_U(m->nw, 0);                           /* was CFG1_OLD_WRITES */
+        CHECK(m->nw != CFG1_OLD_WRITES, "cfg 1 programmed the board again");
+        CHECK(last_refusal(m, &reason, &val), "cfg 1 refusal not logged");
+        CHECK_EQ_U(reason, VCR_SLI_R_COMBO);
+        CHECK_EQ_U(val, 0x40100u | analog);             /* {4,0,1,0,analog} */
+        /* refused before ANY step: not even SET_BEGIN or the clock hook */
+        for (i = 0; i < m->nl; i++)
+            CHECK(m->l[i].step == VCR_SLI_S_REFUSED, "a step was logged before the refusal");
+        CHECK(!has_step(m, VCR_SLI_S_NOMUX), "NOMUX reached");
+    }
+    no_bus_faults(m);
+}
+
+/* Does video_mux() have a branch for this shape? Asked of the sequence itself,
+ * on a scratch mock, so the predicate cannot drift from the branch table. */
+static int mux_branch_exists(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high, vcr_u32 analog)
+{
+    static mock scratch;
+    vcr_sli_io io;
+    sli_p p;
+    seed(&scratch, 4);
+    io = mkio(&scratch);
+    memset(&p, 0, sizeof p);
+    p.n = n;
+    p.sli = sli;
+    p.aa = aa;
+    p.high = aa ? high : 0;
+    p.analog = analog;
+    p.nlines = 32;
+    p.lb = log2_lines(32);
+    return video_mux(&io, &p, 0, 0) != VCR_SLI_W_NOMUX;
+}
+
+TEST(the_combination_predicate_is_the_video_mux_branch_table) {
+    static const vcr_u32 ns[3] = { 1, 2, 4 };
+    mock *m = &M;
+    vcr_u32 ni, sli, aa, high, analog, accepted = 0, refused = 0;
+    for (ni = 0; ni < 3; ni++)
+        for (sli = 0; sli < 2; sli++)
+            for (aa = 0; aa < 2; aa++)
+                for (high = 0; high < 3; high++)
+                    for (analog = 0; analog < 2; analog++) {
+                        vcr_u32 n = ns[ni];
+                        int ok, want, rc;
+                        vcr_sli_io io;
+                        vcr_sli_aa_req r;
+                        if (!sli && !aa) {
+                            CHECK(!vcr_sli_combo_ok(n, sli, aa, high, analog),
+                                  "a disable counted as a combination");
+                            continue;
+                        }
+                        ok = vcr_sli_combo_ok(n, sli, aa, high, analog);
+                        /* the branch table, plus the input checks a vendor
+                         * miniport applies: one chip = no SLI, 2-sample only;
+                         * two chips never SLI + 4-sample; 8-sample is 4 chips,
+                         * no SLI, analog. The last one is not academic:
+                         * video_mux's 2-chip 4-sample branch tests `high` as
+                         * a boolean, so {2,0,1,2,x} - 8-sample on two chips -
+                         * used to be programmed as 4-sample AA. */
+                        want = mux_branch_exists(n, sli, aa, high, analog) &&
+                               !(n == 1 && (sli || (aa && high))) &&
+                               !(n == 2 && sli && aa && high) &&
+                               !(aa && high == 2 && !(n == 4 && !sli && analog));
+                        if (ok != want) {
+                            munit_fails++;
+                            fprintf(stderr, "    FAIL shape {%u,%u,%u,%u,%u}: predicate %d, "
+                                    "mux table %d\n", n, sli, aa, high, analog, ok, want);
+                        }
+                        /* and through the entry point: accepted shapes run
+                         * (never to NOMUX), refused ones touch nothing */
+                        r = req(n, sli, aa, high, analog, 32, 16);
+                        mapped(m, &io, 4);
+                        m->nw = 0;
+                        rc = vcr_sli_set(&io, &r);
+                        if (ok) {
+                            accepted++;
+                            CHECK(rc >= 0, "an accepted shape was refused");
+                            CHECK(!(rc & VCR_SLI_W_NOMUX), "an accepted shape reached NOMUX");
+                        } else {
+                            refused++;
+                            CHECK(rc < 0, "a shape with no mux was programmed");
+                            CHECK_EQ_U(m->nw, 0);
+                        }
+                    }
+    /* counted per iteration (an SLI-only shape is walked once per unused
+     * sample value), so any edit to the table shows here: 2 one-chip, 12
+     * two-chip, 12 four-chip accepted; 28 refused, cfg 1's two among them */
+    CHECK_EQ_U(accepted, 26);
+    CHECK_EQ_U(refused, 28);
+    /* the two the vendor check adds over the branch table: they had a branch */
+    CHECK(mux_branch_exists(2, 0, 1, 2, 0) && mux_branch_exists(2, 0, 1, 2, 1),
+          "the 2-chip 8-sample shapes lost their (4-sample) branch - recount");
+    CHECK(!vcr_sli_combo_ok(2, 0, 1, 2, 0) && !vcr_sli_combo_ok(2, 0, 1, 2, 1),
+          "8-sample AA accepted on two chips");
+}
+
+TEST(sample_count_is_ignored_without_aa_and_out_of_range_with_it) {
+    /* Glide leaves dwaaSampleHigh as it likes when AA is off */
+    CHECK(vcr_sli_combo_ok(4, 1, 0, 7, 1), "SLI-only refused over an unused field");
+    CHECK(!vcr_sli_combo_ok(4, 0, 1, 3, 1), "16-sample AA accepted");
+    CHECK(!vcr_sli_combo_ok(4, 0, 1, 0x10, 1), "a sample count that packs to 0 accepted");
+    CHECK(!vcr_sli_combo_ok(3, 1, 0, 0, 1), "three chips accepted");
+    CHECK(!vcr_sli_combo_ok(0, 0, 1, 0, 0), "zero chips accepted");
+    /* booleans are booleans */
+    CHECK(vcr_sli_combo_ok(4, 5, 0, 0, 9), "non-0/1 flags misread");
+    CHECK_EQ_U(VCR_SLI_TUPLE(4, 0, 1, 0, 1), 0x40101u);
+    CHECK_EQ_U(VCR_SLI_TUPLE(4, 1, 1, 0x10, 1), 0x411f1u);     /* saturates, never wraps */
+}
+
+TEST(the_kill_switch_refuses_every_aa_request_and_nothing_else) {
+    vcr_sli_aa_req r;
+    /* SLI only - the proven cfg 2/5 - with the switch off and on */
+    r = req(4, 1, 0, 0, 1, 8, 16);
+    CHECK_EQ_I(vcr_sli_policy(&r, 0), 0);
+    CHECK_EQ_I(vcr_sli_policy(&r, 1), 0);
+    r = req(2, 1, 0, 0, 0, 16, 16);
+    CHECK_EQ_I(vcr_sli_policy(&r, 0), 0);
+    /* every disable, garbage and all */
+    memset(&r, 0xa5, sizeof r);
+    r.ChipInfo.dwChips = 4;
+    r.ChipInfo.dwsliEn = 0;
+    r.ChipInfo.dwaaEn = 0;
+    CHECK_EQ_I(vcr_sli_policy(&r, 0), 0);
+    /* every AA shape, supported or not, is refused while Diag\SliAA = 0 ... */
+    r = req(4, 1, 1, 0, 1, 8, 16);                              /* cfg 3 */
+    CHECK_EQ_I(vcr_sli_policy(&r, 0), VCR_SLI_R_AA_OFF);
+    CHECK_EQ_I(vcr_sli_policy(&r, 1), 0);
+    r = req(4, 0, 1, 1, 1, 8, 16);                              /* cfg 7 */
+    CHECK_EQ_I(vcr_sli_policy(&r, 0), VCR_SLI_R_AA_OFF);
+    CHECK_EQ_I(vcr_sli_policy(&r, 1), 0);
+    r = req(4, 0, 1, 0, 1, 8, 16);                              /* cfg 1 as sent */
+    CHECK_EQ_I(vcr_sli_policy(&r, 0), VCR_SLI_R_AA_OFF);
+    /* ... and an armed switch still cannot pass a shape with no mux */
+    CHECK_EQ_I(vcr_sli_policy(&r, 1), VCR_SLI_R_COMBO);
+    r = req(1, 0, 1, 0, 0, 8, 16);                              /* single-chip AA */
+    CHECK_EQ_I(vcr_sli_policy(&r, 0), VCR_SLI_R_AA_OFF);
+    CHECK_EQ_U(vcr_sli_req_tuple(&r), 0x10100u);
+    /* the kernel's answer for each */
+    CHECK_EQ_I(refuse(&(vcr_sli_io){ 0 }, VCR_SLI_R_AA_OFF, 0), VCR_SLI_EDENIED);
+    CHECK_EQ_I(refuse(&(vcr_sli_io){ 0 }, VCR_SLI_R_COMBO, 0), VCR_SLI_EINVAL);
+
+    /* every shape: with the switch at its default, NO request that enables AA
+     * gets past the policy (so VcrSliRequest never reaches the sequence and
+     * nothing is written), and every SLI-only request is judged exactly as
+     * the sequence itself would judge it */
+    {
+        static const vcr_u32 ns[4] = { 1, 2, 3, 4 };
+        vcr_u32 ni, sli, aa, high, analog;
+        for (ni = 0; ni < 4; ni++)
+            for (sli = 0; sli < 2; sli++)
+                for (aa = 0; aa < 2; aa++)
+                    for (high = 0; high < 4; high++)
+                        for (analog = 0; analog < 2; analog++) {
+                            r = req(ns[ni], sli, aa, high, analog, 32, 16);
+                            if (aa)
+                                CHECK_EQ_I(vcr_sli_policy(&r, 0), VCR_SLI_R_AA_OFF);
+                            else if (sli)
+                                CHECK_EQ_I(vcr_sli_policy(&r, 0),
+                                           vcr_sli_combo_ok(ns[ni], 1, 0, high, analog)
+                                               ? 0 : VCR_SLI_R_COMBO);
+                            else
+                                CHECK_EQ_I(vcr_sli_policy(&r, 0), 0);
+                        }
+    }
+}
+
+/* ---- what survives the power cycle ------------------------------------------------ */
+
+TEST(the_persisted_phase_keeps_the_warn_mask_the_clock_result_and_the_refusal) {
+    /* SET_DONE of a 4-chip enable with NOCLOCK|NOMUX: the phase used to keep
+     * chip << 24 | reg - 0x04000000, the warn mask gone (boot #18's read-back
+     * could not say whether NOMUX was set) */
+    CHECK_EQ_U(vcr_sli_phase_b(VCR_SLI_S_SET_DONE, 4, 0, 6), 0x04800006u);
+    CHECK(vcr_sli_phase_b(VCR_SLI_S_SET_DONE, 4, 0, 6) != 0x04000000u, "warn mask dropped");
+    CHECK_EQ_U(vcr_sli_phase_b(VCR_SLI_S_SET_DONE, 4, 0, 0), 0x04800000u);   /* "warn 0" != old */
+    CHECK_EQ_U(vcr_sli_phase_b(VCR_SLI_S_OFF_DONE, 4, 0, 1), 0x04800001u);
+    /* the clock hook's result, 23-bit signed */
+    CHECK_EQ_U(vcr_sli_phase_b(VCR_SLI_S_CLOCK_6K, 0, 0, (vcr_u32)VCR_SLI_ENOTIMPL), 0x00fffffdu);
+    CHECK_EQ_U(vcr_sli_phase_b(VCR_SLI_S_NOMUX, 2, 0, 0x6), 0x02800006u);
+    /* a refusal: the reason and the request's shape */
+    CHECK_EQ_U(vcr_sli_phase_b(VCR_SLI_S_REFUSED, 0, VCR_SLI_R_COMBO, 0x40101u), 0x09840101u);
+    CHECK_EQ_U(vcr_sli_phase_b(VCR_SLI_S_REFUSED, 0, VCR_SLI_R_AA_OFF, 0x41101u), 0x0a841101u);
+    /* every other step: unchanged, chip << 24 | register */
+    CHECK_EQ_U(vcr_sli_phase_b(VCR_SLI_S_PCIINIT0, 3, VCR_R_PCIINIT0, 0x303), 0x03000004u);
+    CHECK_EQ_U(vcr_sli_phase_b(VCR_SLI_S_SET_BEGIN, 4, 6, 8), 0x04000006u);
+
+    /* which steps persist: the milestones, now with NOMUX; every step with
+     * Diag\SliPersistAll */
+    CHECK(vcr_sli_step_persists(VCR_SLI_S_NOMUX, 0), "NOMUX not persisted (it used to be dropped)");
+    CHECK(vcr_sli_step_persists(VCR_SLI_S_SET_DONE, 0), "SET_DONE not persisted");
+    CHECK(vcr_sli_step_persists(VCR_SLI_S_REFUSED, 0), "a refusal not persisted");
+    CHECK(vcr_sli_step_persists(VCR_SLI_S_CLOCK_6K, 0), "CLOCK_6K not persisted");
+    CHECK(!vcr_sli_step_persists(VCR_SLI_S_MODE_VGA, 0), "every VGA write persisted by default");
+    CHECK(!vcr_sli_step_persists(VCR_SLI_S_AALFBCTRL, 0), "every config write persisted by default");
+    CHECK(vcr_sli_step_persists(VCR_SLI_S_MODE_VGA, 1), "SliPersistAll left a step out");
+    CHECK(vcr_sli_step_persists(VCR_SLI_S_AALFBCTRL, 1), "SliPersistAll left a step out");
+}
+
+TEST(glide_may_not_write_the_sli_aa_registers_behind_the_kernel) {
+    vcr_sli_poke_memo memo;
+    vcr_u32 off;
+    /* the old guard refused only the standard header (< 0x40) */
+    for (off = 0x40; off < 0x100; off += 4) {
+        int owned = off == 0x40 || off == 0x48 || (off >= 0x80 && off <= 0xac);
+        CHECK_EQ_I(vcr_sli_cfg_owned(off, 4), owned);
+    }
+    CHECK(!vcr_sli_cfg_owned(0x44, 4) && !vcr_sli_cfg_owned(0x4c, 4), "neighbours refused");
+    CHECK(!vcr_sli_cfg_owned(0x3c, 4) && !vcr_sli_cfg_owned(0xb0, 4), "outside refused");
+    /* a narrow or straddling write cannot slip a byte in */
+    CHECK(vcr_sli_cfg_owned(0x41, 1), "byte write to cfgInitEnable passed");
+    CHECK(vcr_sli_cfg_owned(0x4a, 2), "word write to cfgPciDecode passed");
+    CHECK(vcr_sli_cfg_owned(0x7e, 4), "straddling write into cfgVideoCtrl0 passed");
+    CHECK(vcr_sli_cfg_owned(0xaf, 1), "last byte of cfgSliAAMisc passed");
+    CHECK(!vcr_sli_cfg_owned(0x7c, 4), "0x7c refused");
+    CHECK(!vcr_sli_cfg_owned(0x80, 0), "empty write refused");
+
+    /* persisted once per (chip, register, value): Glide's per-close zeros
+     * cannot flush the phase history */
+    memset(&memo, 0, sizeof memo);
+    CHECK_EQ_I(vcr_sli_poke_first(&memo, 2, 0x80, 4, 0), 1);
+    CHECK_EQ_I(vcr_sli_poke_first(&memo, 2, 0x80, 4, 0), 0);
+    CHECK_EQ_I(vcr_sli_poke_first(&memo, 2, 0x80, 4, 0x1009), 1);   /* EN|LOCALMUX|DIV2 */
+    CHECK_EQ_I(vcr_sli_poke_first(&memo, 2, 0x80, 4, 0x1009), 0);
+    CHECK_EQ_I(vcr_sli_poke_first(&memo, 2, 0x80, 4, 0), 1);         /* changed back */
+    CHECK_EQ_I(vcr_sli_poke_first(&memo, 3, 0x80, 4, 0), 1);         /* another chip */
+    CHECK_EQ_I(vcr_sli_poke_first(&memo, 2, 0x94, 4, 0), 1);         /* another register */
+    CHECK_EQ_I(vcr_sli_poke_first(&memo, 2, 0xac, 4, 0), 1);
+    CHECK_EQ_I(vcr_sli_poke_first(&memo, 2, 0xac, 4, 0), 0);
+    CHECK_EQ_I(vcr_sli_poke_first(&memo, 7, 0x80, 4, 0), 1);         /* no slot: persist */
+    CHECK_EQ_I(vcr_sli_poke_first(NULL, 0, 0x80, 4, 0), 1);
+}
+
 TEST(step_codes_are_unique) {
 #define VCR_SLI_STEP(name, code, desc) code,
     static const int codes[] = { VCR_SLI_STEP_TABLE };
@@ -984,5 +1254,11 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(the_6000_clock_is_a_visible_placeholder);
     RUN(slictrl_values_follow_gsst);
     RUN(accepted_requests_write_exactly_what_they_wrote_before_the_safety_net);
+    RUN(cfg1_as_glide_sends_it_is_refused_with_nothing_on_the_bus);
+    RUN(the_combination_predicate_is_the_video_mux_branch_table);
+    RUN(sample_count_is_ignored_without_aa_and_out_of_range_with_it);
+    RUN(the_kill_switch_refuses_every_aa_request_and_nothing_else);
+    RUN(the_persisted_phase_keeps_the_warn_mask_the_clock_result_and_the_refusal);
+    RUN(glide_may_not_write_the_sli_aa_registers_behind_the_kernel);
     RUN(step_codes_are_unique);
 )

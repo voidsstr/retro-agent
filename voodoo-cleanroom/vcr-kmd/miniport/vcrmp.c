@@ -467,6 +467,24 @@ static VP_STATUS pci_op(VCR_EXT *x, vcr_pci_op *op)
             /* the standard header is not ours to rewrite casually */
             if (op->offset < 0x40 && !x->allow_poke)
                 return ERROR_ACCESS_DENIED;
+            /* Nor are the SLI/AA registers anyone's but vcr_sli_set's
+             * (2026-09-27): Glide's single-chip AA path writes cfgVideoCtrl0
+             * = EN|LOCALMUX|DIV2 into every chip it counts - on the 6000 that
+             * un-tristates three slaves' syncs - and its close writes zeros
+             * over whatever the kernel left. Refused unless Diag\AllowPoke;
+             * every refusal is in the ring, and each new (chip, register,
+             * value) is also a flushed phase, so a wedge after one is
+             * attributable - without Glide's per-close zeros flushing the
+             * 64-slot history away. */
+            if (!x->allow_poke && vcr_sli_cfg_owned(op->offset, size)) {
+                VLOG(VCR_LV_WARN, VCR_EV_SLI_POKE_REFUSED, op->target, op->offset, op->value,
+                     size, "PCI_OP write refused: chip %u cfg %02x <- %08x belongs to the SLI/AA "
+                     "sequence (Diag\\AllowPoke=0)", op->target, op->offset, op->value);
+                if (vcr_sli_poke_first(&x->poke_memo, op->target, op->offset, size, op->value))
+                    VcrPhase(VCR_EV_SLI_POKE_REFUSED, (op->target << 16) | (op->offset & 0xffff),
+                             op->value, "PCI_OP write to an SLI/AA register refused");
+                return ERROR_ACCESS_DENIED;
+            }
             VcrPciWrite(x, slot, op->offset, op->value, size);
         } else {
             op->value = VcrPciRead(x, slot, op->offset, size);

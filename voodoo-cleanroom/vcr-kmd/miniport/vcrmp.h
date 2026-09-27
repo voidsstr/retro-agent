@@ -26,6 +26,7 @@
 #include "../include/vcr_log.h"
 #include "../include/vcr_fmt.h"
 #include "../include/vcr_edid.h"
+#include "../include/vcr_sli.h"     /* vcr_sli_poke_memo */
 
 #ifndef ERROR_ACCESS_DENIED
 #define ERROR_ACCESS_DENIED 5L
@@ -144,6 +145,8 @@ typedef struct VCR_EXT {
     ULONG     sli_chips;            /* chips in the live SLI/AA session, 0 = none */
     LONG      sli_result;           /* last vcr_sli_set() result */
     ULONG     clock_6k_hz;          /* last external clock programmed */
+    ULONG     sli_persist_all;      /* Diag\\SliPersistAll: every SLI step is a flushed phase */
+    vcr_sli_poke_memo poke_memo;    /* PCI_OP refusals already persisted (vcr_sli_poke_first) */
 
     ULONG     dd_scan;              /* DirectDraw: offset being scanned out */
     ULONG     dd_refresh_mhz;       /* ... the achieved refresh the flip deadline may use:
