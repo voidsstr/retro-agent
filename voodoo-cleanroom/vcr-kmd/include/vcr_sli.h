@@ -87,7 +87,10 @@ typedef struct vcr_sli_io {
  *   ChipInfo.dwCfgSwapAlgorithm Glide always sends 1; dos_mode.c hard-codes
  *                               the swap-algorithm bit - we set it iff != 0
  *   MemInfo.dwTotalMemory, dwTileMark, dwTileCmpMark
- *                               bytes; logged, unused (as in dos_mode.c)
+ *                               bytes (Glide: h3Mem MB, colBuffStart0[0] twice);
+ *                               logged, unused as in dos_mode.c - except by the
+ *                               vendor AA recipe (vcr_sli_set_ex), which places
+ *                               the AA base and depth aperture with the first two
  *   MemInfo.dwaaSecondaryColorBufBegin / DepthBufBegin / DepthBufEnd
  *                               bytes (Glide: colBuffStart1[0], lfbBuffAddr0[n])
  *   MemInfo.dwBpp               15, 16 or 32 (needed only when AA is on)
@@ -150,7 +153,7 @@ typedef struct vcr_sli_io {
     VCR_SLI_STEP(VCR_SLI_S_MODE_REG,       303, "slave pllCtrl0/dacMode/vidProcCfg/vgaInit0") \
     VCR_SLI_STEP(VCR_SLI_S_MODE_COPY,      304, "master video-processor register copied to the slave") \
     /* 4xx SLI/AA enable, per chip (dos_mode.c:684-1482; sliCtrl gsst.c) */ \
-    VCR_SLI_STEP(VCR_SLI_S_SET_BEGIN,      400, "reg=sliEn|aaEn<<1|analog<<2|sampleHigh<<4 val=nlines") \
+    VCR_SLI_STEP(VCR_SLI_S_SET_BEGIN,      400, "reg=sliEn|aaEn<<1|analog<<2|sampleHigh<<4|vendorRecipe<<8 val=nlines") \
     VCR_SLI_STEP(VCR_SLI_S_PCIINIT0,       401, "pciInit0: read/write wait states, no retry interval") \
     VCR_SLI_STEP(VCR_SLI_S_TMUGBEINIT,     402, "tmuGbeInit: AA clock delay 2, inverted") \
     VCR_SLI_STEP(VCR_SLI_S_SWAP,           403, "cfgInitEnable: swap algorithm / swap master") \
@@ -171,7 +174,9 @@ typedef struct vcr_sli_io {
     VCR_SLI_STEP(VCR_SLI_S_CLOCK_6K,       418, "V5 6000 external clock hook: val=result") \
     VCR_SLI_STEP(VCR_SLI_S_NOMUX,          419, "no cfgVideoCtrl branch for this combination") \
     VCR_SLI_STEP(VCR_SLI_S_SET_DONE,       420, "val=result") \
-    VCR_SLI_STEP(VCR_SLI_S_SET_MEMINFO,    421, "request memory info, unused as in dos_mode.c: reg=totalMem val=tileMark") \
+    VCR_SLI_STEP(VCR_SLI_S_SET_MEMINFO,    421, "request memory info (the vendor AA recipe uses it): reg=totalMem val=tileMark") \
+    VCR_SLI_STEP(VCR_SLI_S_AA_STATE,       422, "config read-back into Diag\\SliAAState, config cycles only: chip (reg 0) before its reads, reg 1 = done") \
+    VCR_SLI_STEP(VCR_SLI_S_AAONLY_SLICTRL, 423, "3D sliCtrl = 0 on an AA-only request (vendor AA recipe)") \
     /* 5xx SLI/AA disable (dos_mode.c:1483-1512; sliCtrl gsst.c _grDisableSliCtrl) */ \
     VCR_SLI_STEP(VCR_SLI_S_OFF_BEGIN,      500, "val=nchips") \
     VCR_SLI_STEP(VCR_SLI_S_OFF_SLICTRL,    501, "3D sliCtrl = 0") \
@@ -202,6 +207,11 @@ enum vcr_sli_step { VCR_SLI_STEP_TABLE VCR_SLI_S__END };
                                        (val = VCR_SLI_TUPLE) - e.g. cfg 1 on a 4-chip board, which
                                        Glide sends as {4,0,1,0,1} and which wedged .124 twice */
 #define VCR_SLI_R_AA_OFF     10     /* AA requested while Diag\SliAA = 0 (val = VCR_SLI_TUPLE) */
+#define VCR_SLI_R_MEMINFO    11     /* vendor AA recipe: the request's tileMark / totalMemory cannot
+                                       place the AA base or the depth aperture (val = tileMark >> 12) */
+
+/* flags of vcr_sli_set_ex() - the kernel's per-request policy, not Glide's */
+#define VCR_SLI_F_VENDOR_AA  0x1u   /* Diag\SliAAVendorRecipe = 1: the vendor-style AA recipe (below) */
 
 /* The request's shape, one nibble per field, so a hex dump reads left to
  * right as {chips, sli, aa, sampleHigh, analog}: cfg 1 as Glide sends it on
@@ -262,7 +272,15 @@ enum vcr_sli_step { VCR_SLI_STEP_TABLE VCR_SLI_S__END };
 /* cfgAADepthBufferAperture / cfgAALfbCtrl */
 #define VCR_AADEPTH_BEGIN_SHIFT         0
 #define VCR_AADEPTH_END_SHIFT           16
-#define VCR_AALFB_SECONDARY_BASE_SHIFT  4
+/* The AA secondary buffer base is a BYTE ADDRESS, written as it is into
+ * bits 4-25 (the low nibble is not part of it): Glide's own single-chip AA
+ * path ORs the address in unshifted and reads it back the same way (minihwc.c,
+ * aaMark = cfgAALfbCtrl & ~0xfc00000f). dos_mode.c:871 shifts it left by 4;
+ * with a base of 0 - what Glide sends for every 1-sample-per-chip tuple, cfg
+ * 3/7 - the two agree, and with any real base the shift spills into
+ * CPU_WRITE_EN, READ_EN and the read format (0x01a00000 << 4 sets READ_EN).
+ * Masked, a base can never reach bit 26. vcr_sli_aalfb_base(). */
+#define VCR_AALFB_SECONDARY_BASE_MASK   0x03fffff0u
 #define VCR_AALFB_CPU_WRITE_EN          (1u << 26)
 #define VCR_AALFB_DISPATCH_WRITE_EN     (1u << 27)
 #define VCR_AALFB_READ_EN               (1u << 28)
@@ -340,8 +358,89 @@ int vcr_sli_init_slaves(const vcr_sli_io *io, vcr_u32 nchips);
 
 /* hwcSetSLIAAMode: enable when r->ChipInfo.dwsliEn || dwaaEn, else disable.
  * An enable whose combination has no video-mux branch is refused before the
- * first write (VCR_SLI_R_COMBO -> VCR_SLI_EINVAL). */
+ * first write (VCR_SLI_R_COMBO -> VCR_SLI_EINVAL).
+ * vcr_sli_set() is vcr_sli_set_ex(io, r, 0): the dos_mode.c-derived sequence,
+ * the one that ran cfg 0/2/5 on .124. */
 int vcr_sli_set(const vcr_sli_io *io, const vcr_sli_aa_req *r);
+
+/* The same, with the kernel's policy flags (VCR_SLI_F_*).
+ *
+ * VCR_SLI_F_VENDOR_AA - the vendor-style AA recipe, for supervised A/B runs
+ * only (Diag\SliAAVendorRecipe, default 0). It changes AA requests and
+ * nothing else - an SLI-only request or a disable writes exactly what it
+ * writes without it. Written from the register semantics (the vendor's W2K
+ * miniport was read for guidance, not copied):
+ *   - a tuple that stores ONE sample per chip (vcr_sli_samples_per_chip() ==
+ *     1: {2,0,1,0,x}, cfg 3 {4,1,1,0,1}, cfg 7 {4,0,1,1,1}): cfgAALfbCtrl
+ *     base = the request's tileMark (the primary buffers - there is no
+ *     secondary buffer to point at, and Glide sends base 0), AA LFB READ_EN
+ *     (the inter-chip read handshake a paired read needs) and RD_DIVIDE_BY_4;
+ *   - 4 chips, no SLI, 4- or 8-sample (cfg 7/8): the depth aperture covers
+ *     the whole tiled range [tileMark, totalMemory), so an LFB read of any
+ *     tiled buffer returns the master's (aliased) data instead of asking four
+ *     chips for a merge the hardware cannot do;
+ *   - AA without SLI: 3D sliCtrl = 0 on every chip (VCR_SLI_S_AAONLY_SLICTRL),
+ *     where dos_mode.c leaves whatever the chips held.
+ * A tuple that needs tileMark / totalMemory and gets values that cannot place
+ * a base or an aperture (0, not 4 KB aligned, tileMark >= totalMemory, over
+ * 64 MB) is refused before the first write (VCR_SLI_R_MEMINFO). */
+int vcr_sli_set_ex(const vcr_sli_io *io, const vcr_sli_aa_req *r, vcr_u32 flags);
+
+/* cfgAALfbCtrl's base field for a byte address: addr & bits 4-25, unshifted */
+vcr_u32 vcr_sli_aalfb_base(vcr_u32 addr);
+
+/* Samples each chip stores for an AA shape the sequence accepts: 1 or 2.
+ * 0 = not an AA request, or a shape vcr_sli_combo_ok refuses. The samples
+ * (2 << sampleHigh) spread over the chips of ONE SLI unit - the units
+ * cfgSliLfbCtrl splits the bands into: 2 on two chips, and on four chips 2
+ * when AA pairs them (analog 2-sample, or 4-sample), else 4. */
+vcr_u32 vcr_sli_samples_per_chip(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high, vcr_u32 analog);
+
+/* ---- what an AA request left in config space: Diag\SliAAState ---------------
+ * After an AA enable the kernel reads back every chip's SLI/AA config
+ * registers - by CONFIG CYCLES ONLY, nothing through a BAR - and writes this
+ * record, flushed, as REG_BINARY Diag\SliAAState. So a supervised AA run that
+ * wedges later still says exactly what the kernel had programmed: compare it
+ * with the expected tables in tests/native/test_vcr_kmd_sli.c; tools/
+ * vcrphases.py decodes it. Written only for an AA request that was programmed
+ * (vcr_sli_aa_state_wanted); a refusal or an SLI-only request leaves the last
+ * record as it was.
+ *   pciInit0 has no config-space alias (0x4c, cfgStatus, aliases the STATUS
+ *   register), so it is the value the sequence WROTE, captured from its own
+ *   log callback - flagged per chip by VCR_SLI_ST_PCI0(c). */
+#define VCR_SLI_STATE_MAGIC     0x31414153u     /* "SAA1" in memory order */
+#define VCR_SLI_STATE_NCFG      9               /* 0x40 0x48 0x80 0x84 0x88 0x8c 0x90 0x94 0xac */
+#define VCR_SLI_STATE_BYTES     224
+#define VCR_SLI_ST_PCI0(c)      (0x100u << (c)) /* flags: chip c's pciInit0 was recorded */
+typedef struct vcr_sli_aa_state {
+    vcr_u32 magic, size;        /* VCR_SLI_STATE_MAGIC, VCR_SLI_STATE_BYTES */
+    vcr_u32 boot, ms;           /* Diag\BootCount and the driver's clock at the read-back (kernel) */
+    vcr_u32 tuple;              /* VCR_SLI_TUPLE of the request */
+    vcr_u32 flags;              /* VCR_SLI_F_* it ran with | VCR_SLI_ST_PCI0(c) */
+    vcr_i32 result;             /* vcr_sli_set_ex() */
+    vcr_u32 nchips;             /* chips read back */
+    vcr_u32 nlines, bpp;        /* the request, as sent */
+    vcr_u32 tile, total, col, dbeg, dend;
+    vcr_u32 reserved;
+    struct {
+        vcr_u32 cfg[VCR_SLI_STATE_NCFG];    /* in the order of VCR_SLI_STATE_NCFG's comment */
+        vcr_u32 pciinit0;                   /* as written (see above) */
+    } chip[VCR_SLI_MAX_CHIPS];
+} vcr_sli_aa_state;
+VCR_STATIC_ASSERT(sli_aa_state_size, sizeof(vcr_sli_aa_state) == VCR_SLI_STATE_BYTES);
+
+/* 1 when an AA request was programmed (dwaaEn, result >= 0): the record's condition */
+int vcr_sli_aa_state_wanted(const vcr_sli_aa_req *r, int result);
+
+/* Fill `out` (always zeroed first) from io->cfg_rd ONLY - no BAR access, no
+ * write - for the request's chips, logging VCR_SLI_S_AA_STATE before each
+ * chip's reads (so a config read that hangs is named by the flight recorder).
+ * pciinit0[c] is taken when bit c of pciinit0_mask is set. Returns the chips
+ * read back; 0, touching nothing, unless vcr_sli_aa_state_wanted(). The
+ * caller fills boot and ms. */
+int vcr_sli_aa_readback(const vcr_sli_io *io, const vcr_sli_aa_req *r, int result,
+                        vcr_u32 flags, const vcr_u32 pciinit0[VCR_SLI_MAX_CHIPS],
+                        vcr_u32 pciinit0_mask, vcr_sli_aa_state *out);
 
 /* ---- the AA safety net: pure decisions, no hardware ---------------------------
  *
@@ -370,7 +469,8 @@ int vcr_sli_policy(const vcr_sli_aa_req *r, vcr_u32 aa_allowed);
  * survives the power cycle a wedge needs): VcrPhase(VCR_EV_SLI_STEP, a = step,
  * b = vcr_sli_phase_b(step, chip, reg, val)).
  *   vcr_sli_step_persists: the milestones (x00 steps, MAP_DONE, PCIINIT0,
- *     CLOCK_6K, SLICTRL, NOMUX, SET_DONE, OFF_DONE, 9xx); with persist_all
+ *     CLOCK_6K, SLICTRL, NOMUX, SET_DONE, AA_STATE, AAONLY_SLICTRL, OFF_DONE,
+ *     9xx); with persist_all
  *     (Diag\SliPersistAll = 1, supervised runs) EVERY step, so the last
  *     phase names the exact write a wedge stopped at - at ~15-30 ms a flush,
  *     a 4-chip enable then takes seconds, and the 64-slot history keeps the

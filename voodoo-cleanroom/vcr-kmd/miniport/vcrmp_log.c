@@ -122,6 +122,21 @@ void VcrDiagSet(PCWSTR name, ULONG value, BOOLEAN flush)
     ZwClose(h);
 }
 
+/* A REG_BINARY record (Diag\SliAAState): the same flush as a phase when asked */
+void VcrDiagSetBinary(PCWSTR name, const void *data, ULONG len, BOOLEAN flush)
+{
+    HANDLE h;
+    if (KeGetCurrentIrql() != VCR_PASSIVE_LEVEL || !(h = diag_open()))
+        return;
+    diag_write(h, name, 3 /* REG_BINARY */, (PVOID)data, len);
+    if (flush) {
+        NTSTATUS st = ZwFlushKey(h);
+        if (st < 0)
+            VLOG(VCR_LV_WARN, VCR_EV_REG_FLUSH, st, 0, 0, 0, "ZwFlushKey failed");
+    }
+    ZwClose(h);
+}
+
 void VcrPhase(ULONG code, ULONG a, ULONG b, const char *what)
 {
     HANDLE h;

@@ -50,7 +50,8 @@ def test_sli_milestones_are_phases():
     assert "VcrPhase(VCR_EV_SLI_STEP, step, vcr_sli_phase_b(step, chip, reg, val)" in log
     keep = body((KMD / "miniport" / "vcrmp_sli.c").read_text(), "int vcr_sli_step_persists(")
     for s in ("persist_all ||", "step % 100 == 0", "VCR_SLI_S_SET_DONE", "VCR_SLI_S_OFF_DONE",
-              "VCR_SLI_S_CLOCK_6K", "VCR_SLI_S_NOMUX", "step >= 900"):
+              "VCR_SLI_S_CLOCK_6K", "VCR_SLI_S_NOMUX", "step >= 900",
+              "VCR_SLI_S_AA_STATE", "VCR_SLI_S_AAONLY_SLICTRL"):
         assert s in keep
     req = body(src, "VP_STATUS VcrSliRequest(")
     assert "VcrPhase(VCR_EV_HWC_SLIAA" in req
@@ -138,3 +139,100 @@ def test_the_decoder_and_the_kernel_agree_on_the_encoding():
     # the poke-refusal phase: a = chip << 16 | offset, b = value
     mp = body((KMD / "miniport" / "vcrmp.c").read_text(), "static VP_STATUS pci_op(")
     assert "VcrPhase(VCR_EV_SLI_POKE_REFUSED, (op->target << 16) | (op->offset & 0xffff)," in mp
+
+
+# ---- step B (2026-09-27): the vendor AA recipe and Diag\SliAAState ---------------
+
+def test_the_decoder_names_the_recipe_the_read_back_and_a_memory_refusal():
+    out = phase_rows((1000, "SLI_STEP", 400, (4 << 24) | 0x116),   # SET_BEGIN, vendor recipe
+                     (1001, "SLI_STEP", 400, (4 << 24) | 0x016),   # SET_BEGIN, dos_mode.c
+                     (1002, "SLI_STEP", 423, 0x00000000 | (2 << 24) | 0x20c),
+                     (1003, "SLI_STEP", 422, (1 << 24)),            # AA_STATE reading chip 1
+                     (1004, "SLI_STEP", 422, (4 << 24) | 1),        # AA_STATE done, 4 chips
+                     (1005, "SLI_STEP", 901, 0x0b800000 | 0x1b7e))  # REFUSED MEMINFO
+    assert out[0].endswith("(vendor AA recipe)")
+    assert "vendor" not in out[1] and out[1].endswith("SET_BEGIN chip 4 reg 0x16")
+    assert "AAONLY_SLICTRL chip 2" in out[2]
+    assert out[3].endswith("AA_STATE reading chip 1 (config cycles)")
+    assert out[4].endswith("AA_STATE read back (4 chips)")
+    assert out[5].endswith("REFUSED MEMINFO tileMark 0x1b7e000 (vendor AA recipe)")
+
+
+def state_blob(tuple_, flags, result, chips, boot=19, ms=116500):
+    """A Diag\\SliAAState record laid out as vcr_sli.h's vcr_sli_aa_state."""
+    hdr = struct.pack("<16I", vcrphases.STATE_MAGIC, vcrphases.STATE_BYTES, boot, ms, tuple_,
+                      flags, result & 0xffffffff, len(chips), 8, 16, 0x01b7e000, 32 << 20,
+                      0, 0x01000000, 0x01180000, 0)
+    body = b"".join(struct.pack("<10I", *c) for c in chips)
+    body += bytes(40 * (4 - len(chips)))
+    return (hdr + body).hex()
+
+
+# cfg 7 {4,0,1,1,1}, vendor recipe - tests/native/test_vcr_kmd_sli.c k_aa_tables
+CFG7_VENDOR = [
+    (0x06000b01, 0x45, 0x2811, 0, 0, 0, 0x20001b7e, 0x9db7e000, 0x800, 0x303),
+    (0x4ba07b01, 0x0c011445, 0x02000803, 0xff000000, 0, 0, 0x20001b7e, 0x9db7e000, 0x82f, 0x303),
+    (0x4ba07b01, 0x0c011445, 0x02002843, 0, 0xff00, 0, 0x20001b7e, 0x8db7e000, 0x827, 0x303),
+    (0x4ba07b01, 0x0c011445, 0x02000803, 0xff000000, 0, 0, 0x20001b7e, 0x8db7e000, 0x82f, 0x303),
+]
+
+
+def test_the_state_record_decodes_register_by_register():
+    out = vcrphases.decode_state(state_blob(0x40111, 0x1 | 0xf00, 2, CFG7_VENDOR))
+    assert out[0] == ("SliAAState: boot #19 at 116.500s, request {4,0,1,1,1} nlines 8 bpp 16, "
+                      "recipe vendor, result 0x2 (NOCLOCK)")
+    assert "tileMark 0x01b7e000 total 0x02000000" in out[1] and "0x01000000-0x01180000" in out[1]
+    assert "aaLfb" in out[2] and "pciInit0" in out[2]
+    assert "9db7e000" in out[3] and "20001b7e" in out[3] and out[3].endswith("00000303 (written)")
+    assert "8db7e000" in out[5]
+    # the one register the recipe is about, spelled out: chips 0/1 read, 2/3 do not
+    assert out[7] == "  chip 0 aaLfbCtrl: base 0x1b7e000 cpuWr dispWr READ_EN div4 16bpp"
+    assert out[9] == "  chip 2 aaLfbCtrl: base 0x1b7e000 cpuWr dispWr div4 16bpp"
+    assert len(out) == 3 + 4 + 4
+
+
+def test_the_state_record_says_what_it_does_not_know():
+    # dos_mode.c recipe, one chip, pciInit0 not recorded, a refused-looking result
+    one = [(0x301, 0x45, 0x1009, 0, 0xff00, 0, 0x11801000, 0x0c000000, 0x800, 0)]
+    out = vcrphases.decode_state(state_blob(0x10100, 0, 0, one))
+    assert "recipe dos_mode" in out[0] and "result 0 (clean)" in out[0]
+    assert out[3].endswith("not recorded")
+    assert out[-1] == "  chip 0 aaLfbCtrl: base 0x0 cpuWr dispWr 16bpp"
+    assert "result -4 (refused)" in vcrphases.decode_state(state_blob(0x40111, 0, -4, one))[0]
+    # not a record at all: said, not guessed - a wrong magic, a short blob
+    good = state_blob(0x40111, 0, 0, one)
+    assert good[:8] == "53414131"                               # "SAA1"
+    wrong = "00000000" + good[8:]
+    assert vcrphases.decode_state(wrong)[0].startswith("SliAAState: not a vcr-kmd state record")
+    assert vcrphases.decode_state(good[:200])[0].startswith("SliAAState: not a vcr-kmd")   # truncated
+    assert vcrphases.decode_state("00" * 10)[0].startswith("SliAAState: 10 bytes")
+
+
+def test_the_decoder_and_the_kernel_agree_on_the_state_layout():
+    hdr = (KMD / "include" / "vcr_sli.h").read_text()
+    m = re.search(r"#define VCR_SLI_STATE_MAGIC\s+(0x[0-9a-fA-F]+)u", hdr)
+    assert m and int(m.group(1), 16) == vcrphases.STATE_MAGIC
+    assert struct.pack("<I", vcrphases.STATE_MAGIC) == b"SAA1"
+    m = re.search(r"#define VCR_SLI_STATE_BYTES\s+(\d+)", hdr)
+    assert int(m.group(1)) == vcrphases.STATE_BYTES == 16 * 4 + 4 * 10 * 4
+    m = re.search(r"#define VCR_SLI_F_VENDOR_AA\s+(0x[0-9a-fA-F]+)u", hdr)
+    assert int(m.group(1), 16) == vcrphases.F_VENDOR_AA
+    # the header fields, in order, as the struct declares them
+    struct_src = hdr[hdr.index("typedef struct vcr_sli_aa_state {"):hdr.index("} vcr_sli_aa_state;")]
+    head = struct_src[:struct_src.index("struct {")]
+    fields = []
+    for decl in re.findall(r"vcr_[iu]32 ([^;]+);", head):
+        fields += [f.strip() for f in decl.split(",")]
+    assert tuple(fields) == vcrphases.STATE_HDR
+    # the per-chip registers: the kernel's read order
+    sli = (KMD / "miniport" / "vcrmp_sli.c").read_text()
+    table = re.search(r"k_state_cfg\[VCR_SLI_STATE_NCFG\] = \{(.*?)\};", sli, re.S).group(1)
+    names = re.findall(r"VCR_CFG_\w+", table)
+    regs = (KMD / "include" / "vcr_regs.h").read_text()
+    offs = tuple(int(re.search(rf"#define {n}\s+(0x[0-9a-f]+)", regs).group(1), 16) for n in names)
+    assert offs == vcrphases.STATE_CFG
+    assert len(vcrphases.STATE_CFG_NAMES) == len(vcrphases.STATE_CFG) == 9
+    # and the tool prints it after the phases
+    tool = (KMD / "tools" / "vcrphases.py").read_text()
+    main = tool[tool.index("def main("):]
+    assert 'decode_state(values["SliAAState"])' in main

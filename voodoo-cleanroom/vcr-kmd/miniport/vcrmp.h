@@ -147,6 +147,8 @@ typedef struct VCR_EXT {
     ULONG     clock_6k_hz;          /* last external clock programmed */
     ULONG     sli_persist_all;      /* Diag\\SliPersistAll: every SLI step is a flushed phase */
     vcr_sli_poke_memo poke_memo;    /* PCI_OP refusals already persisted (vcr_sli_poke_first) */
+    vcr_u32   sli_pci0[VCR_SLI_MAX_CHIPS];  /* pciInit0 as the last enable WROTE it (k_log) */
+    vcr_u32   sli_pci0_mask;        /* bit c: sli_pci0[c] was written by that enable */
 
     ULONG     dd_scan;              /* DirectDraw: offset being scanned out */
     ULONG     dd_refresh_mhz;       /* ... the achieved refresh the flip deadline may use:
@@ -184,6 +186,7 @@ ULONG   VcrLogNextSeq(void);
 void    VcrPhase(ULONG code, ULONG a, ULONG b, const char *what);
 ULONG   VcrDiagGet(PCWSTR name, ULONG dflt);
 void    VcrDiagSet(PCWSTR name, ULONG value, BOOLEAN flush);
+void    VcrDiagSetBinary(PCWSTR name, const void *data, ULONG len, BOOLEAN flush);
 ULONG   VcrDiagGetString(PCWSTR name, USHORT *buf, ULONG maxchars);
 ULONG   VcrMs(void);
 extern  ULONG VcrBootAttempts;

@@ -18,6 +18,7 @@
  *   - a status register that can be stuck with no FIFO room, forever.
  * Every write must be announced by the log entry right before it.
  */
+#include <stddef.h>
 #include <string.h>
 #include "munit.h"
 #include "../../voodoo-cleanroom/vcr-kmd/miniport/vcrmp_sli.c"
@@ -46,6 +47,8 @@ typedef struct mock {
     int pend_valid, pend_stage;
     vcr_u32 pend_chip, pend_reg, pend_val;
     unsigned unlogged, vga_wrong_chip, vga_no_decoder, io_decode_overlap, slave_unmapped;
+    /* every access, by kind: the AA read-back must be config READS only */
+    unsigned long cfg_reads, bar_ops;
 } mock;
 
 static mock M;
@@ -107,6 +110,7 @@ static void m_log(void *ctx, vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 va
 static vcr_u32 m_cfg_rd(void *ctx, vcr_u32 chip, vcr_u32 off)
 {
     mock *m = ctx;
+    m->cfg_reads++;
     if (chip >= NCH || !m->present[chip])
         return 0xffffffffu;             /* nobody answers the config cycle */
     return m->cfg[chip][CFGI(off & 0xfc)];
@@ -143,6 +147,7 @@ static int slave_mapped(mock *m, vcr_u32 chip)
 static vcr_u32 m_io_rd(void *ctx, vcr_u32 chip, vcr_u32 off)
 {
     mock *m = ctx;
+    m->bar_ops++;
     if (chip >= NCH || !m->present[chip])
         return 0xffffffffu;
     if (!slave_mapped(m, chip))
@@ -163,6 +168,7 @@ static void m_io_wr(void *ctx, vcr_u32 chip, vcr_u32 off, vcr_u32 v)
 {
     mock *m = ctx;
     int s;
+    m->bar_ops++;
     take_log(m, chip, off, v);
     trace(m, 'i', chip, off, v);
     if (chip >= NCH || !m->present[chip])
@@ -205,7 +211,9 @@ static int vga_target(mock *m, vcr_u32 chip)
 static vcr_u8 m_vga_rd(void *ctx, vcr_u32 chip, vcr_u32 port)
 {
     mock *m = ctx;
-    int d = vga_target(m, chip);
+    int d;
+    m->bar_ops++;
+    d = vga_target(m, chip);
     if (d < 0)
         return 0xff;
     switch (port) {
@@ -222,6 +230,7 @@ static void m_vga_wr(void *ctx, vcr_u32 chip, vcr_u32 port, vcr_u8 v)
     mock *m = ctx;
     int d;
 
+    m->bar_ops++;
     /* logged? a plain write matches (port, v); an indexed pair matches the
      * index write against VCR_SLI_VGA_IDX(port, v) and the data write
      * against (port - 1, v). */
@@ -714,9 +723,12 @@ TEST(four_chip_4_sample_analog_aa_follows_the_vsync_and_mux_branches) {
     CHECK_EQ_I(vcr_sli_set(&io, &r), VCR_SLI_W_NOCLOCK);
     for (c = 0; c < 4; c++) {
         CHECK_EQ_U(CFG(m, c, VCR_CFG_SLILFBCTRL), 0);       /* SLI off, AA on */
-        /* D:871 as ported (byte address << 4 - UNVERIFIED, see vcrmp_sli.c),
-         * CPU + dispatch write, 32 bpp, divide by 4 */
-        CHECK_EQ_U(CFG(m, c, VCR_CFG_AALFBCTRL), 0x01000000u | 0x0c000000u | 0x40000000u | 0x80000000u);
+        /* the base as the byte address it is, in bits 4-25 (header difference
+         * 13), CPU + dispatch write, 32 bpp, divide by 4 */
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_AALFBCTRL), 0x00100000u | 0x0c000000u | 0x40000000u | 0x80000000u);
+        /* before 2026-09-27 (D:871's << 4) the same request wrote the base at
+         * 16 MB: 0xcd000000 */
+        CHECK(CFG(m, c, VCR_CFG_AALFBCTRL) != 0xcd000000u, "the AA base is shifted again");
         CHECK_EQ_U(CFG(m, c, VCR_CFG_AADEPTHBUFAPERTURE), 0x1000u | (0x1400u << 16));
         CHECK_EQ_U(m->slictrl_direct[c], 0);                /* no SLI: no sliCtrl */
     }
@@ -865,7 +877,10 @@ TEST(slictrl_values_follow_gsst) {
  * as it stood at 097b1f7 - the code that ran cfg 0/2/5 on .124 (4-chip SLI
  * parity with AmigaMerlin, 0 bad band lines) - BEFORE the AA safety net
  * (2026-09-27). The safety net may only ADD refusals; for every request it
- * accepts, the bus must see exactly what it saw before. */
+ * accepts, the bus must see exactly what it saw before. One deliberate
+ * exception, measured: the AA base fix (step B) changes cfg 8's cfgAALfbCtrl
+ * and nothing else - the only pinned request whose base is not 0. The vendor
+ * AA recipe (vcr_sli_set_ex flag) is OFF here: these are the defaults. */
 static vcr_u32 wr_hash(const mock *m)
 {
     vcr_u32 h = 2166136261u, i, k, v[4];
@@ -915,11 +930,15 @@ static const seq_case k_seq[] = {
       0, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 447, 0x12150b60u },
     { "cfg 7: 4 chips, no SLI, 4-sample analog AA", 4, 4, 0, 1, 1, 1, 8, 16,
       0, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 444, 0xf3ccf17eu },
+    /* the one pinned request with a real AA base: re-pinned 2026-09-27 for the
+     * base fix (header difference 13) - was 0xebcc4582 with the base shifted
+     * (cfgAALfbCtrl 0x8f000000: 0x00b00000 << 4 = 176 MB on a 32 MB chip).
+     * Every other write is unchanged: the_aa_base_fix_touches_only_cfgAALfbCtrl */
     { "cfg 8: 4 chips, no SLI, 8-sample analog AA", 4, 4, 0, 1, 2, 1, 8, 16,
-      0x00b00000u, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 444, 0xebcc4582u },
+      0x00b00000u, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 444, 0x8b5cc0ceu },
 };
 
-static void run_seq(mock *m, const seq_case *s, int *rc)
+static void run_seq_ex(mock *m, const seq_case *s, vcr_u32 flags, int *rc)
 {
     vcr_sli_io io;
     vcr_sli_aa_req r = req(s->n, s->sli, s->aa, s->high, s->analog, s->nlines, s->bpp);
@@ -939,7 +958,12 @@ static void run_seq(mock *m, const seq_case *s, int *rc)
     }
     m->nw = 0;
     m->unlogged = 0;
-    *rc = vcr_sli_set(&io, &r);
+    *rc = flags ? vcr_sli_set_ex(&io, &r, flags) : vcr_sli_set(&io, &r);
+}
+
+static void run_seq(mock *m, const seq_case *s, int *rc)
+{
+    run_seq_ex(m, s, 0, rc);
 }
 
 TEST(accepted_requests_write_exactly_what_they_wrote_before_the_safety_net) {
@@ -1229,6 +1253,470 @@ TEST(glide_may_not_write_the_sli_aa_registers_behind_the_kernel) {
     CHECK_EQ_I(vcr_sli_poke_first(NULL, 0, 0x80, 4, 0), 1);
 }
 
+/* ---- step B (2026-09-27): the AA base, a vendor-style recipe, the read-back -------- */
+
+/* the bus hash with the VALUES of one config register's writes blanked */
+static vcr_u32 wr_hash_blank(const mock *m, vcr_u32 cfg_off)
+{
+    vcr_u32 h = 2166136261u, i, k, v[4];
+    for (i = 0; i < m->nw; i++) {
+        v[0] = (vcr_u32)(unsigned char)m->w[i].kind;
+        v[1] = m->w[i].chip;
+        v[2] = m->w[i].off;
+        v[3] = (m->w[i].kind == 'c' && m->w[i].off == cfg_off) ? 0 : m->w[i].val;
+        for (k = 0; k < 16; k++) {
+            h ^= (v[k >> 2] >> ((k & 3) * 8)) & 0xffu;
+            h *= 16777619u;
+        }
+    }
+    return h;
+}
+
+/* (a) cfgAALfbCtrl's secondary base is a byte address in bits 4-25. */
+#define CFG8_BLANK94_OLD   0xb25fd70eu  /* cfg 8's bus hash, 0x94 values blanked - the OLD
+                                           code, measured before the fix (vcrmp_sli.c 412b03c) */
+#define CFG8_AALFB_OLD     0x8f000000u  /* 0x00b00000 << 4: base 176 MB on a 32 MB chip */
+#define CFG8_AALFB_NEW     0x8cb00000u  /* base 0x00b00000, CPU+dispatch write, 16 bpp, /4 */
+
+TEST(the_aa_base_fix_touches_only_cfgAALfbCtrl) {
+    mock *m = &M;
+    unsigned i, j, n94;
+    int rc;
+    /* the pure field: unshifted and masked to bits 4-25 */
+    CHECK_EQ_U(vcr_sli_aalfb_base(0x00b00000u), 0x00b00000u);
+    CHECK_EQ_U(vcr_sli_aalfb_base(0x01b7e000u), 0x01b7e000u);
+    CHECK_EQ_U(vcr_sli_aalfb_base(0x0000000fu), 0);             /* not part of the address */
+    CHECK_EQ_U(vcr_sli_aalfb_base(0xffffffffu), 0x03fffff0u);   /* never reaches bit 26 */
+    /* a base of 0 - what Glide sends for cfg 3 and cfg 7 - is written the same
+     * by the old and the new formula: no register of today's requests moves */
+    CHECK_EQ_U(vcr_sli_aalfb_base(0), 0u << 4);
+    for (i = 0; i < sizeof k_seq / sizeof k_seq[0]; i++) {
+        const seq_case *s = &k_seq[i];
+        run_seq(m, s, &rc);
+        for (j = 0, n94 = 0; j < m->nw; j++) {
+            if (m->w[j].kind != 'c' || m->w[j].off != VCR_CFG_AALFBCTRL || !s->aa)
+                continue;
+            n94++;
+            if (s->col == 0)                    /* cfg 3 / cfg 7: base 0, old == new */
+                CHECK_EQ_U(m->w[j].val & VCR_AALFB_SECONDARY_BASE_MASK, 0);
+            else {                              /* cfg 8 */
+                CHECK_EQ_U(m->w[j].val, CFG8_AALFB_NEW);
+                CHECK(m->w[j].val != CFG8_AALFB_OLD, "cfg 8's AA base is shifted again");
+            }
+        }
+        if (s->aa)
+            CHECK(n94 >= 4, "an AA request wrote cfgAALfbCtrl on fewer than 4 chips");
+        if (s->col) {
+            /* every OTHER write of cfg 8 is exactly what the old code wrote */
+            CHECK_EQ_U(wr_hash_blank(m, VCR_CFG_AALFBCTRL), CFG8_BLANK94_OLD);
+            CHECK_EQ_U(n94, 6);                 /* 4 + chips 2/3 AA reads off */
+        }
+    }
+}
+
+TEST(a_real_aa_base_cannot_spill_into_read_enable_or_the_format) {
+    static const struct { vcr_u32 col, old_chip0; } k[] = {
+        /* 0x01a00000 << 4 = 0x1a000000: READ_EN (bit 28) set on chips 0/1 -
+         * the scratch simulator's cfg-4-like case gave 0x9e000000 */
+        { 0x01a00000u, 0x9e000000u },
+        /* out of range: << 4 = 0x60000000, read format 3 (no such format) */
+        { 0x06000000u, 0xe0000000u | 0x0c000000u },
+    };
+    mock *m = &M;
+    vcr_sli_io io;
+    unsigned i;
+    vcr_u32 c, v;
+    for (i = 0; i < 2; i++) {
+        vcr_sli_aa_req r = req(4, 0, 1, 1, 1, 8, 16);           /* cfg 7's shape */
+        r.MemInfo.dwaaSecondaryColorBufBegin = k[i].col;
+        r.MemInfo.dwaaSecondaryDepthBufBegin = 0x01000000u;
+        r.MemInfo.dwaaSecondaryDepthBufEnd = 0x01180000u;
+        mapped(m, &io, 4);
+        CHECK_EQ_I(vcr_sli_set(&io, &r), VCR_SLI_W_NOCLOCK);
+        for (c = 0; c < 4; c++) {
+            v = CFG(m, c, VCR_CFG_AALFBCTRL);
+            CHECK_EQ_U(v & VCR_AALFB_READ_EN, 0);                /* the old spill set it */
+            CHECK_EQ_U(v & (3u << 29), VCR_AALFB_FMT_16BPP);     /* the format is 16 bpp */
+            CHECK_EQ_U(v & VCR_AALFB_SECONDARY_BASE_MASK, k[i].col & VCR_AALFB_SECONDARY_BASE_MASK);
+            CHECK_EQ_U(v & ~VCR_AALFB_SECONDARY_BASE_MASK,
+                       VCR_AALFB_CPU_WRITE_EN | VCR_AALFB_DISPATCH_WRITE_EN | VCR_AALFB_RD_DIVIDE_BY_4);
+        }
+        CHECK(CFG(m, 0, VCR_CFG_AALFBCTRL) != k[i].old_chip0, "the old spill is back");
+        /* what the old formula did to this very base */
+        CHECK(((k[i].col << 4) & (VCR_AALFB_READ_EN | (3u << 29))) != 0, "demo case spills nothing");
+        no_bus_faults(m);
+    }
+}
+
+/* Samples per chip, per shape. The 1-sample-per-chip set is what the vendor
+ * recipe keys on; the vendor's own condition for "base = the primary buffers",
+ * restated independently here, must pick the same three shapes. */
+TEST(one_sample_per_chip_is_exactly_the_three_paired_shapes) {
+    static const vcr_u32 ns[3] = { 1, 2, 4 };
+    vcr_u32 ni, sli, aa, high, analog, ones = 0;
+    for (ni = 0; ni < 3; ni++)
+        for (sli = 0; sli < 2; sli++)
+            for (aa = 0; aa < 2; aa++)
+                for (high = 0; high < 3; high++)
+                    for (analog = 0; analog < 2; analog++) {
+                        vcr_u32 n = ns[ni], spc = vcr_sli_samples_per_chip(n, sli, aa, high, analog);
+                        int vendor_primary = aa &&
+                            ((n == 2 && !sli && !high) ||
+                             (n == 4 && sli && !high && analog) ||
+                             (n == 4 && !sli && high == 1 && analog));
+                        if (!aa || !vcr_sli_combo_ok(n, sli, aa, high, analog)) {
+                            CHECK_EQ_U(spc, 0);
+                            continue;
+                        }
+                        CHECK(spc == 1 || spc == 2, "samples per chip out of range");
+                        CHECK_EQ_I(spc == 1, vendor_primary);
+                        ones += spc == 1;
+                    }
+    CHECK_EQ_U(ones, 4);                    /* {2,0,1,0,0}, {2,0,1,0,1}, cfg 3, cfg 7 */
+    /* the named ones, and Glide's own layout (gsst.c: samplesPerChip) */
+    CHECK_EQ_U(vcr_sli_samples_per_chip(4, 1, 1, 0, 1), 1);    /* cfg 3 */
+    CHECK_EQ_U(vcr_sli_samples_per_chip(4, 0, 1, 1, 1), 1);    /* cfg 7 */
+    CHECK_EQ_U(vcr_sli_samples_per_chip(4, 0, 1, 2, 1), 2);    /* cfg 8 */
+    CHECK_EQ_U(vcr_sli_samples_per_chip(1, 0, 1, 0, 0), 2);    /* single-chip AA */
+    CHECK_EQ_U(vcr_sli_samples_per_chip(4, 1, 1, 0, 0), 2);    /* 4-way digital + 2-sample */
+    CHECK_EQ_U(vcr_sli_samples_per_chip(4, 1, 1, 1, 1), 2);    /* 2-way SLI + 4-sample */
+    CHECK_EQ_U(vcr_sli_samples_per_chip(4, 0, 1, 0, 1), 0);    /* cfg 1 as sent: refused */
+    CHECK_EQ_U(vcr_sli_samples_per_chip(4, 1, 0, 0, 1), 0);    /* no AA */
+}
+
+/* (b) the flag changes AA requests and nothing else: every pinned SLI-only
+ * request and the disable write the identical bus sequence with it on */
+TEST(the_vendor_recipe_leaves_sli_only_requests_and_the_disable_alone) {
+    mock *m = &M;
+    unsigned i, checked = 0;
+    int rc;
+    for (i = 0; i < sizeof k_seq / sizeof k_seq[0]; i++) {
+        const seq_case *s = &k_seq[i];
+        if (s->aa)
+            continue;
+        run_seq_ex(m, s, VCR_SLI_F_VENDOR_AA, &rc);
+        if (rc != s->rc || m->nw != s->nw || wr_hash(m) != s->hash) {
+            munit_fails++;
+            fprintf(stderr, "    FAIL %s with the vendor recipe: rc %d nw %u hash 0x%08x\n",
+                    s->name, rc, m->nw, wr_hash(m));
+        }
+        checked++;
+    }
+    CHECK_EQ_U(checked, 6);                 /* cfg 5 x3, cfg 0's disable, 2-chip SLI x2 */
+}
+
+TEST(the_vendor_recipe_refuses_memory_info_it_cannot_place) {
+    static const struct { vcr_u32 tile, total; } bad[] = {
+        { 0, 32u << 20 },                   /* no tileMark (vcrctl without one) */
+        { 0x01b7e800u, 32u << 20 },         /* not on a 4 KB boundary */
+        { 32u << 20, 32u << 20 },           /* tileMark at the end of memory */
+        { 0x01b7e000u, 0 },                 /* no memory */
+        { 0x04000000u, 0x05000000u },       /* past the base field's 64 MB */
+    };
+    mock *m = &M;
+    vcr_sli_io io;
+    unsigned i, t;
+    vcr_u32 reason = 0, val = 0;
+    /* cfg 3 (base = tileMark), cfg 7 (both), cfg 8 (the depth aperture) */
+    static const vcr_u32 shapes[3][4] = { { 1, 1, 0, 1 }, { 0, 1, 1, 1 }, { 0, 1, 2, 1 } };
+    for (t = 0; t < 3; t++)
+        for (i = 0; i < sizeof bad / sizeof bad[0]; i++) {
+            vcr_sli_aa_req r = req(4, shapes[t][0], shapes[t][1], shapes[t][2], shapes[t][3], 8, 16);
+            r.MemInfo.dwTileMark = bad[i].tile;
+            r.MemInfo.dwTotalMemory = bad[i].total;
+            mapped(m, &io, 4);
+            m->nw = 0;
+            CHECK_EQ_I(vcr_sli_set_ex(&io, &r, VCR_SLI_F_VENDOR_AA), VCR_SLI_EINVAL);
+            CHECK_EQ_U(m->nw, 0);
+            CHECK(last_refusal(m, &reason, &val), "refusal not logged");
+            CHECK_EQ_U(reason, VCR_SLI_R_MEMINFO);
+            CHECK_EQ_U(val, bad[i].tile >> 12);
+            /* the default recipe never reads them: the same request runs */
+            mapped(m, &io, 4);
+            CHECK(vcr_sli_set(&io, &r) >= 0, "the default recipe refused over memory info");
+        }
+    /* shapes that do not use them run with the recipe on and no tileMark */
+    {
+        static const vcr_u32 fine[3][5] = {
+            { 1, 0, 1, 0, 0 },              /* single-chip AA: 2 samples per chip */
+            { 4, 1, 1, 1, 1 },              /* 2-way SLI + 4-sample: 2 per chip, SLI */
+            { 4, 1, 1, 0, 0 },              /* 4-way digital SLI + 2-sample */
+        };
+        for (t = 0; t < 3; t++) {
+            vcr_sli_aa_req r = req(fine[t][0], fine[t][1], fine[t][2], fine[t][3], fine[t][4], 8, 16);
+            mapped(m, &io, 4);
+            CHECK(vcr_sli_set_ex(&io, &r, VCR_SLI_F_VENDOR_AA) >= 0, "refused a shape that needs no tileMark");
+        }
+    }
+}
+
+/* (d) The expected config space of cfg 3, cfg 7 and cfg 1 on the V5 6000,
+ * for BOTH recipes - the table a supervised config read-back (`vcrctl pci`,
+ * Diag\SliAAState) is compared with.
+ *
+ * The dos_mode columns are the scratch simulator's (aa-hw, 2026-09-27: the
+ * old vcrmp_sli.c against a mock seeded from the AmigaMerlin cfg 0 golden,
+ * which reproduced golden sli_amigamerlin-3.1-r11_cfg5 exactly); this mock
+ * reproduces them - except the fab-ID byte of 0x40, which it keeps read-only
+ * like the chip (0x..01), and pciInit0, whose seed here is not the golden's.
+ * The vendor columns differ from them only where vcr_sli.h says they do.
+ * Request: nlines 8, 16 bpp, tileMark 0x01b7e000, 32 MB, col 0, depth
+ * 0x01000000-0x01180000 (representative values, not a measured request). */
+#define T_TILE      0x01b7e000u
+#define T_TOTAL     (32u << 20)
+#define T_WHOLE     ((T_TILE >> 12) | ((T_TOTAL >> 12) << 16))     /* 0x20001b7e */
+#define T_DEPTH     0x11801000u                                    /* 0x01000000-0x01180000 */
+#define T_VAA       0x9db7e000u     /* tileMark, CPU+dispatch write, READ_EN, 16 bpp, /4 */
+
+typedef struct {
+    vcr_u32 cfg[VCR_SLI_STATE_NCFG];    /* 0x40 0x48 0x80 0x84 0x88 0x8c 0x90 0x94 0xac */
+    vcr_u32 slictrl;
+    unsigned slictrl_writes;
+} chip_expect;
+
+typedef struct {
+    const char *name;
+    vcr_u32 n, sli, aa, high, analog, flags;
+    int rc;
+    chip_expect chip[4];
+} aa_table;
+
+#define IE0  0x06000b01u
+#define IES  0x4ba07b01u
+#define DEC0 0x00000045u
+#define DECS 0x0c011445u
+
+static const aa_table k_aa_tables[] = {
+    { "cfg 3 {4,1,1,0,1}, dos_mode.c recipe", 4, 1, 1, 0, 1, 0, VCR_SLI_W_NOCLOCK, {
+      { { IE0, DEC0, 0x00001811u, 0x00080008u, 0,       0x1d070008u, T_DEPTH, 0x0c000000u, 0x0800u }, 0x05070008u, 1 },
+      { { IES, DECS, 0x02000803u, 0xf8000008u, 0,       0x1d070008u, T_DEPTH, 0x0c000000u, 0x082fu }, 0x05070008u, 1 },
+      { { IES, DECS, 0x00001843u, 0x08080808u, 0xff00u, 0x1d070808u, T_DEPTH, 0x0c000000u, 0x0827u }, 0x05070808u, 1 },
+      { { IES, DECS, 0x02000803u, 0xf8000808u, 0,       0x1d070808u, T_DEPTH, 0x0c000000u, 0x182fu }, 0x05070808u, 1 } } },
+    { "cfg 3 {4,1,1,0,1}, vendor recipe", 4, 1, 1, 0, 1, VCR_SLI_F_VENDOR_AA, VCR_SLI_W_NOCLOCK, {
+      { { IE0, DEC0, 0x00001811u, 0x00080008u, 0,       0x1d070008u, T_DEPTH, T_VAA, 0x0800u }, 0x05070008u, 1 },
+      { { IES, DECS, 0x02000803u, 0xf8000008u, 0,       0x1d070008u, T_DEPTH, T_VAA, 0x082fu }, 0x05070008u, 1 },
+      { { IES, DECS, 0x00001843u, 0x08080808u, 0xff00u, 0x1d070808u, T_DEPTH, T_VAA, 0x0827u }, 0x05070808u, 1 },
+      { { IES, DECS, 0x02000803u, 0xf8000808u, 0,       0x1d070808u, T_DEPTH, T_VAA, 0x182fu }, 0x05070808u, 1 } } },
+    { "cfg 7 {4,0,1,1,1}, dos_mode.c recipe", 4, 0, 1, 1, 1, 0, VCR_SLI_W_NOCLOCK, {
+      { { IE0, DEC0, 0x00002811u, 0,           0,       0, T_DEPTH, 0x8c000000u, 0x0800u }, 0, 0 },
+      { { IES, DECS, 0x02000803u, 0xff000000u, 0,       0, T_DEPTH, 0x8c000000u, 0x082fu }, 0, 0 },
+      { { IES, DECS, 0x02002843u, 0,           0xff00u, 0, T_DEPTH, 0x8c000000u, 0x0827u }, 0, 0 },
+      { { IES, DECS, 0x02000803u, 0xff000000u, 0,       0, T_DEPTH, 0x8c000000u, 0x082fu }, 0, 0 } } },
+    /* chips 2/3: READ_EN set, then cleared by D:1439-1451 (AA reads off) */
+    { "cfg 7 {4,0,1,1,1}, vendor recipe", 4, 0, 1, 1, 1, VCR_SLI_F_VENDOR_AA, VCR_SLI_W_NOCLOCK, {
+      { { IE0, DEC0, 0x00002811u, 0,           0,       0, T_WHOLE, T_VAA,                         0x0800u }, 0, 1 },
+      { { IES, DECS, 0x02000803u, 0xff000000u, 0,       0, T_WHOLE, T_VAA,                         0x082fu }, 0, 1 },
+      { { IES, DECS, 0x02002843u, 0,           0xff00u, 0, T_WHOLE, T_VAA & ~VCR_AALFB_READ_EN,    0x0827u }, 0, 1 },
+      { { IES, DECS, 0x02000803u, 0xff000000u, 0,       0, T_WHOLE, T_VAA & ~VCR_AALFB_READ_EN,    0x082fu }, 0, 1 } } },
+    /* cfg 1 as LABELLED: one chip, 2 samples on it - 2 per chip, so the
+     * vendor recipe adds only sliCtrl = 0. (As Glide SENDS it - {4,0,1,0,1} -
+     * both recipes refuse it: cfg1_is_refused_by_both_recipes.) Chips 1-3 of
+     * the board are not part of the request and are not touched. */
+    { "cfg 1 as labelled {1,0,1,0,0}, dos_mode.c recipe", 1, 0, 1, 0, 0, 0, VCR_SLI_W_NOCLOCK, {
+      { { 0x00000301u, DEC0, 0x00001009u, 0, 0xff00u, 0, T_DEPTH, 0x0c000000u, 0x0800u }, 0, 0 } } },
+    { "cfg 1 as labelled {1,0,1,0,0}, vendor recipe", 1, 0, 1, 0, 0, VCR_SLI_F_VENDOR_AA, VCR_SLI_W_NOCLOCK, {
+      { { 0x00000301u, DEC0, 0x00001009u, 0, 0xff00u, 0, T_DEPTH, 0x0c000000u, 0x0800u }, 0, 1 } } },
+};
+
+static const vcr_u32 k_state_offs[VCR_SLI_STATE_NCFG] = {
+    0x40, 0x48, 0x80, 0x84, 0x88, 0x8c, 0x90, 0x94, 0xac
+};
+
+static vcr_sli_aa_req table_req(const aa_table *t)
+{
+    vcr_sli_aa_req r = req(t->n, t->sli, t->aa, t->high, t->analog, 8, 16);
+    r.MemInfo.dwTileMark = T_TILE;
+    r.MemInfo.dwTileCmpMark = T_TILE;
+    r.MemInfo.dwTotalMemory = T_TOTAL;
+    r.MemInfo.dwaaSecondaryDepthBufBegin = 0x01000000u;
+    r.MemInfo.dwaaSecondaryDepthBufEnd = 0x01180000u;
+    return r;
+}
+
+/* what the kernel's k_log captures: pciInit0 as each chip's PCIINIT0 step wrote it */
+static vcr_u32 logged_pciinit0(const mock *m, vcr_u32 pci0[4])
+{
+    unsigned i;
+    vcr_u32 mask = 0;
+    for (i = 0; i < m->nl; i++)
+        if (m->l[i].step == VCR_SLI_S_PCIINIT0 && m->l[i].chip < 4) {
+            pci0[m->l[i].chip] = m->l[i].val;
+            mask |= 1u << m->l[i].chip;
+        }
+    return mask;
+}
+
+TEST(aa_config_space_matches_the_expected_tables_for_both_recipes) {
+    mock *m = &M;
+    unsigned t, c, i;
+    for (t = 0; t < sizeof k_aa_tables / sizeof k_aa_tables[0]; t++) {
+        const aa_table *e = &k_aa_tables[t];
+        vcr_sli_io io;
+        vcr_sli_aa_req r = table_req(e);
+        int rc;
+        mapped(m, &io, 4);
+        rc = vcr_sli_set_ex(&io, &r, e->flags);
+        if (rc != e->rc) {
+            munit_fails++;
+            fprintf(stderr, "    FAIL %s: rc %d, expected %d\n", e->name, rc, e->rc);
+        }
+        for (c = 0; c < e->n; c++) {
+            for (i = 0; i < VCR_SLI_STATE_NCFG; i++)
+                if (CFG(m, c, k_state_offs[i]) != e->chip[c].cfg[i]) {
+                    munit_fails++;
+                    fprintf(stderr, "    FAIL %s: chip %u cfg %02x = %08x, table %08x\n", e->name,
+                            c, k_state_offs[i], CFG(m, c, k_state_offs[i]), e->chip[c].cfg[i]);
+                }
+            CHECK_EQ_U(m->slictrl[c], e->chip[c].slictrl);
+            CHECK_EQ_U(m->slictrl_direct[c], e->chip[c].slictrl_writes);
+            /* D:730-768 on every chip of the request */
+            CHECK_EQ_U(IOR(m, c, VCR_R_PCIINIT0), 0x00000303u);
+        }
+        for (; c < 4; c++)                  /* chips outside the request: untouched */
+            CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL0), 0);
+        CHECK(!has_step(m, VCR_SLI_S_NOMUX), "NOMUX reached");
+        no_bus_faults(m);
+    }
+}
+
+TEST(cfg1_is_refused_by_both_recipes) {
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_u32 flags;
+    for (flags = 0; flags <= VCR_SLI_F_VENDOR_AA; flags++) {
+        aa_table t = { "cfg 1 as sent", 4, 0, 1, 0, 1, 0, 0, { { { 0 }, 0, 0 } } };
+        vcr_sli_aa_req r = table_req(&t);
+        vcr_sli_aa_state st;
+        vcr_u32 reason = 0, val = 0;
+        mapped(m, &io, 4);
+        m->nw = 0;
+        m->nl = 0;
+        CHECK_EQ_I(vcr_sli_set_ex(&io, &r, flags), VCR_SLI_EINVAL);
+        CHECK_EQ_U(m->nw, 0);
+        CHECK(last_refusal(m, &reason, &val) && reason == VCR_SLI_R_COMBO, "not a COMBO refusal");
+        /* and a refused request is never read back */
+        m->cfg_reads = 0;
+        CHECK_EQ_I(vcr_sli_aa_readback(&io, &r, VCR_SLI_EINVAL, flags, NULL, 0, &st), 0);
+        CHECK_EQ_U(m->cfg_reads, 0);
+        CHECK_EQ_U(st.magic, 0);
+    }
+}
+
+/* (c) Diag\SliAAState: the read-back uses config cycles and nothing else,
+ * only after an AA enable, and records exactly the table's registers */
+TEST(the_aa_state_is_read_back_by_config_cycles_only) {
+    mock *m = &M;
+    unsigned t, c, i;
+    for (t = 0; t < sizeof k_aa_tables / sizeof k_aa_tables[0]; t++) {
+        const aa_table *e = &k_aa_tables[t];
+        vcr_sli_io io;
+        vcr_sli_aa_req r = table_req(e);
+        vcr_sli_aa_state st;
+        vcr_u32 pci0[4] = { 0 }, mask;
+        unsigned nw;
+        unsigned long bar;
+        int rc, n;
+        mapped(m, &io, 4);
+        m->nl = 0;
+        rc = vcr_sli_set_ex(&io, &r, e->flags);
+        mask = logged_pciinit0(m, pci0);
+        CHECK_EQ_U(mask, (1u << e->n) - 1);
+        nw = m->nw;
+        bar = m->bar_ops;
+        m->cfg_reads = 0;
+        m->nl = 0;
+        CHECK(vcr_sli_aa_state_wanted(&r, rc), "an AA enable not read back");
+        n = vcr_sli_aa_readback(&io, &r, rc, e->flags, pci0, mask, &st);
+        CHECK_EQ_I(n, (int)e->n);
+        CHECK_EQ_U(m->nw, nw);                              /* no write */
+        CHECK_EQ_U(m->bar_ops, bar);                        /* no BAR, no VGA */
+        CHECK_EQ_U(m->cfg_reads, e->n * VCR_SLI_STATE_NCFG); /* config reads, that's all */
+        /* each chip announced before its reads, then the end */
+        CHECK_EQ_U(m->nl, e->n + 1);
+        for (c = 0; c < e->n; c++)
+            CHECK(m->l[c].step == VCR_SLI_S_AA_STATE && m->l[c].chip == c && m->l[c].reg == 0,
+                  "chip not announced before its reads");
+        CHECK(m->l[e->n].step == VCR_SLI_S_AA_STATE && m->l[e->n].reg == 1, "no end step");
+        CHECK_EQ_U(st.magic, VCR_SLI_STATE_MAGIC);
+        CHECK_EQ_U(st.size, VCR_SLI_STATE_BYTES);
+        CHECK_EQ_U(st.tuple, vcr_sli_req_tuple(&r));
+        CHECK_EQ_U(st.flags, e->flags | (mask << 8));
+        CHECK_EQ_I(st.result, e->rc);
+        CHECK_EQ_U(st.nchips, e->n);
+        CHECK_EQ_U(st.tile, T_TILE);
+        CHECK_EQ_U(st.total, T_TOTAL);
+        CHECK_EQ_U(st.nlines, 8);
+        CHECK_EQ_U(st.bpp, 16);
+        CHECK_EQ_U(st.boot, 0);                             /* the kernel's to fill */
+        for (c = 0; c < 4; c++) {
+            for (i = 0; i < VCR_SLI_STATE_NCFG; i++)
+                CHECK_EQ_U(st.chip[c].cfg[i], c < e->n ? e->chip[c].cfg[i] : 0);
+            CHECK_EQ_U(st.chip[c].pciinit0, c < e->n ? 0x00000303u : 0);
+        }
+    }
+}
+
+TEST(no_state_record_without_an_aa_enable) {
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_sli_aa_state st;
+    vcr_sli_aa_req r = req(4, 1, 0, 0, 1, 8, 16);           /* cfg 5: SLI only */
+    vcr_u32 pci0[4] = { 1, 2, 3, 4 };
+    int rc;
+    mapped(m, &io, 4);
+    rc = vcr_sli_set(&io, &r);
+    CHECK(!vcr_sli_aa_state_wanted(&r, rc), "an SLI-only request wants a state record");
+    m->cfg_reads = 0;
+    memset(&st, 0xa5, sizeof st);
+    CHECK_EQ_I(vcr_sli_aa_readback(&io, &r, rc, 0, pci0, 0xf, &st), 0);
+    CHECK_EQ_U(m->cfg_reads, 0);
+    CHECK_EQ_U(st.magic, 0);                                /* zeroed, not left as it was */
+    CHECK_EQ_U(st.chip[3].pciinit0, 0);
+    /* an AA request that failed, and no request at all */
+    r = req(4, 0, 1, 1, 1, 8, 16);
+    CHECK(!vcr_sli_aa_state_wanted(&r, VCR_SLI_EDENIED), "a refused request wants a record");
+    CHECK(vcr_sli_aa_state_wanted(&r, VCR_SLI_W_NOCLOCK), "done-with-warnings is still done");
+    CHECK(!vcr_sli_aa_state_wanted(NULL, 0), "no request wants a record");
+    CHECK_EQ_I(vcr_sli_aa_readback(NULL, &r, 0, 0, pci0, 0xf, &st), 0);
+    CHECK_EQ_I(vcr_sli_aa_readback(&io, &r, 0, 0, pci0, 0xf, NULL), 0);
+    CHECK_EQ_U(sizeof(vcr_sli_aa_state), VCR_SLI_STATE_BYTES);
+    CHECK_EQ_U(offsetof(vcr_sli_aa_state, chip), 64);
+}
+
+TEST(the_recipe_is_visible_in_the_persisted_phases) {
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_sli_aa_req r = table_req(&k_aa_tables[3]);          /* cfg 7, vendor */
+    unsigned i;
+    int begin = 0, aaonly = 0;
+    mapped(m, &io, 4);
+    m->nl = 0;
+    CHECK(vcr_sli_set_ex(&io, &r, VCR_SLI_F_VENDOR_AA) >= 0, "cfg 7 vendor refused");
+    for (i = 0; i < m->nl; i++) {
+        if (m->l[i].step == VCR_SLI_S_SET_BEGIN) {
+            begin = 1;
+            CHECK(m->l[i].reg & 0x100, "SET_BEGIN does not say vendor recipe");
+            /* persisted as chip << 24 | reg: the bit survives */
+            CHECK(vcr_sli_phase_b(VCR_SLI_S_SET_BEGIN, m->l[i].chip, m->l[i].reg, m->l[i].val) & 0x100,
+                  "the recipe bit is not in the persisted phase");
+        }
+        aaonly += m->l[i].step == VCR_SLI_S_AAONLY_SLICTRL;
+    }
+    CHECK(begin, "no SET_BEGIN");
+    CHECK_EQ_I(aaonly, 4);
+    CHECK(vcr_sli_step_persists(VCR_SLI_S_AA_STATE, 0), "AA_STATE not persisted");
+    CHECK(vcr_sli_step_persists(VCR_SLI_S_AAONLY_SLICTRL, 0), "AAONLY_SLICTRL not persisted");
+    /* the default recipe logs SET_BEGIN exactly as before */
+    mapped(m, &io, 4);
+    m->nl = 0;
+    CHECK(vcr_sli_set(&io, &r) >= 0, "cfg 7 refused");
+    for (i = 0; i < m->nl; i++) {
+        CHECK(m->l[i].step != VCR_SLI_S_AAONLY_SLICTRL, "the default recipe wrote sliCtrl");
+        if (m->l[i].step == VCR_SLI_S_SET_BEGIN)
+            CHECK_EQ_U(m->l[i].reg, 0x2u | 0x4u | 0x10u);    /* aa, analog, sampleHigh 1 */
+    }
+}
+
 TEST(step_codes_are_unique) {
 #define VCR_SLI_STEP(name, code, desc) code,
     static const int codes[] = { VCR_SLI_STEP_TABLE };
@@ -1260,5 +1748,15 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(the_kill_switch_refuses_every_aa_request_and_nothing_else);
     RUN(the_persisted_phase_keeps_the_warn_mask_the_clock_result_and_the_refusal);
     RUN(glide_may_not_write_the_sli_aa_registers_behind_the_kernel);
+    RUN(the_aa_base_fix_touches_only_cfgAALfbCtrl);
+    RUN(a_real_aa_base_cannot_spill_into_read_enable_or_the_format);
+    RUN(one_sample_per_chip_is_exactly_the_three_paired_shapes);
+    RUN(the_vendor_recipe_leaves_sli_only_requests_and_the_disable_alone);
+    RUN(the_vendor_recipe_refuses_memory_info_it_cannot_place);
+    RUN(aa_config_space_matches_the_expected_tables_for_both_recipes);
+    RUN(cfg1_is_refused_by_both_recipes);
+    RUN(the_aa_state_is_read_back_by_config_cycles_only);
+    RUN(no_state_record_without_an_aa_enable);
+    RUN(the_recipe_is_visible_in_the_persisted_phases);
     RUN(step_codes_are_unique);
 )

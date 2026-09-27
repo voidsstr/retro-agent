@@ -66,6 +66,13 @@
  *      vcr_sli_combo_ok). dos_mode.c discovers it inside the per-chip loop,
  *      with snoop/swap/pciInit0/AA already in every chip, and goes on; that is
  *      Glide's cfg 1 on a 4-chip board, which froze .124 (2026-09-26).
+ *  13. The cfgAALfbCtrl secondary base is written as the byte address it is,
+ *      masked to bits 4-25 (VCR_AALFB_SECONDARY_BASE_MASK); D:871 shifts it
+ *      left by 4, which spills any real base into the control bits. Every
+ *      base Glide sends for cfg 3/7 is 0, where the two agree.
+ *  14. vcr_sli_set_ex(VCR_SLI_F_VENDOR_AA): a vendor-style AA recipe, off
+ *      unless the kernel asks for it (Diag\SliAAVendorRecipe) - see vcr_sli.h.
+ *      Without the flag the AA path is dos_mode.c's, plus difference 13.
  *   8. After placing a slave's BARs, its BAR writes are turned off again.
  *      dos_mode.c leaves them on; the vendor driver does not (golden
  *      sli_amigamerlin-3.1-r11_cfg5_192.168.1.124.json: slave cfgInitEnable
@@ -147,7 +154,9 @@ static int refuse(const vcr_sli_io *io, vcr_u32 reason, vcr_u32 val)
     lg(io, VCR_SLI_S_REFUSED, 0, reason, val,
        reason == VCR_SLI_R_COMBO ? "no video-mux branch for this chip/SLI/AA combination: "
                                    "request refused, nothing written"
-                                 : "request refused, nothing written");
+       : reason == VCR_SLI_R_MEMINFO ? "vendor AA recipe: tileMark/totalMemory unusable: "
+                                       "request refused, nothing written"
+                                     : "request refused, nothing written");
     return reason == VCR_SLI_R_NODEV ? VCR_SLI_ENODEV
          : reason == VCR_SLI_R_AA_OFF ? VCR_SLI_EDENIED : VCR_SLI_EINVAL;
 }
@@ -599,6 +608,8 @@ static void copy_video(const vcr_sli_io *io, vcr_u32 c)
 typedef struct sli_p {
     vcr_u32 n, sli, aa, high, analog, nlines, lb, nlog2, bpp, swap;
     vcr_u32 col, dbeg, dend, mem0, mem1;
+    vcr_u32 vendor;             /* VCR_SLI_F_VENDOR_AA: the vendor-style AA recipe */
+    vcr_u32 tile, total;        /* MemInfo.dwTileMark / dwTotalMemory (that recipe only) */
 } sli_p;
 
 static vcr_u32 log2_lines(vcr_u32 nlines)       /* D:684-700; 0 = invalid */
@@ -940,14 +951,33 @@ static int config_chip(const vcr_sli_io *io, const sli_p *p, vcr_u32 c)
     if (!(sli && !aa)) {
         vcr_u32 fmt = p->bpp == 15 ? VCR_AALFB_FMT_15BPP
                     : p->bpp == 32 ? VCR_AALFB_FMT_32BPP : VCR_AALFB_FMT_16BPP;
-        /* D:871 shifts a BYTE address left by 4; minihwc.c's single-chip AA
-         * path (HWC_GDX_INIT, ~l.5464) ORs it in unshifted. UNVERIFIED which
-         * one the hardware wants - ported as dos_mode.c has it. */
-        v = (p->col << VCR_AALFB_SECONDARY_BASE_SHIFT) | VCR_AALFB_CPU_WRITE_EN |
-            VCR_AALFB_DISPATCH_WRITE_EN | fmt | (high ? VCR_AALFB_RD_DIVIDE_BY_4 : 0);
-        cfg_w(io, VCR_SLI_S_AALFBCTRL, c, VCR_CFG_AALFBCTRL, v, "cfgAALfbCtrl");
-        v = ((p->dbeg >> 12) << VCR_AADEPTH_BEGIN_SHIFT) | ((p->dend >> 12) << VCR_AADEPTH_END_SHIFT);
-        cfg_w(io, VCR_SLI_S_AADEPTH, c, VCR_CFG_AADEPTHBUFAPERTURE, v, "cfgAADepthBufferAperture");
+        vcr_u32 base = p->col, rd = 0, div4 = high ? VCR_AALFB_RD_DIVIDE_BY_4 : 0;
+        vcr_u32 dbeg = p->dbeg, dend = p->dend, whole = 0;
+        const char *what = "cfgAALfbCtrl";
+        if (p->vendor && vcr_sli_samples_per_chip(n, sli, aa, high, analog) == 1) {
+            /* ours, vendor recipe (vcr_sli.h): one sample per chip means no
+             * secondary buffer - the base points at the primary buffers, the
+             * paired chips handshake an LFB read, and it is divided by 4 */
+            base = p->tile;
+            rd = VCR_AALFB_READ_EN;
+            div4 = VCR_AALFB_RD_DIVIDE_BY_4;
+            what = "cfgAALfbCtrl: base = tileMark, AA reads on, /4 (vendor recipe)";
+        }
+        if (p->vendor && n == 4 && !sli && aa && high) {
+            /* ours, vendor recipe: every tiled buffer reads as depth, so an
+             * LFB read returns the master's data rather than a 4-chip merge */
+            dbeg = p->tile;
+            dend = p->total;
+            whole = 1;
+        }
+        /* header difference 13: a byte address in bits 4-25, NOT D:871's << 4 */
+        v = vcr_sli_aalfb_base(base) | VCR_AALFB_CPU_WRITE_EN | VCR_AALFB_DISPATCH_WRITE_EN |
+            rd | fmt | div4;
+        cfg_w(io, VCR_SLI_S_AALFBCTRL, c, VCR_CFG_AALFBCTRL, v, what);
+        v = ((dbeg >> 12) << VCR_AADEPTH_BEGIN_SHIFT) | ((dend >> 12) << VCR_AADEPTH_END_SHIFT);
+        cfg_w(io, VCR_SLI_S_AADEPTH, c, VCR_CFG_AADEPTHBUFAPERTURE, v,
+              whole ? "cfgAADepthBufferAperture: the whole tiled range (vendor recipe)"
+                    : "cfgAADepthBufferAperture");
     }
 
     /* D:883-909 Set up vga_vsync_offset field in cfgSliAAMisc */
@@ -1034,8 +1064,8 @@ static int sli_enable(const vcr_sli_io *io, const sli_p *p)
     int warn = 0, rc;
 
     lg(io, VCR_SLI_S_SET_BEGIN, p->n,
-       p->sli | (p->aa << 1) | (p->analog << 2) | (p->high << 4), p->nlines,
-       "hwcSetSLIAAMode: enable");
+       p->sli | (p->aa << 1) | (p->analog << 2) | (p->high << 4) | (p->vendor << 8), p->nlines,
+       p->vendor ? "hwcSetSLIAAMode: enable (vendor AA recipe)" : "hwcSetSLIAAMode: enable");
 
     /* D:617-621 v56k has an external clock! (Glide keys this on the REAL chip
      * count, not the requested one.) */
@@ -1069,12 +1099,20 @@ static int sli_enable(const vcr_sli_io *io, const sli_p *p)
     /* G:3940-4003 sliCtrl, chip by chip. The master first: once snooping is
      * on, a write to the master's memBase0 also lands on every slave, so a
      * slave's own value must come after it. */
-    if (p->sli)
+    if (p->sli) {
         for (c = 0; c < p->n; c++) {
             vcr_u32 v = vcr_sli_slictrl(p->n, p->nlines, p->aa, p->high, c);
             if (v)
                 warn |= write_3d(io, VCR_SLI_S_SLICTRL, c, VCR_3D_SLICTRL, v, "sliCtrl");
         }
+    } else if (p->vendor) {
+        /* ours, vendor recipe: AA alone renders every line on every chip, so
+         * no chip may keep a band split from an earlier session - dos_mode.c
+         * leaves sliCtrl as it finds it. Master first, as above. */
+        for (c = 0; c < p->n; c++)
+            warn |= write_3d(io, VCR_SLI_S_AAONLY_SLICTRL, c, VCR_3D_SLICTRL, 0,
+                             "sliCtrl = 0: AA without SLI (vendor recipe)");
+    }
 
     lg(io, VCR_SLI_S_SET_DONE, p->n, 0, (vcr_u32)warn, "hwcSetSLIAAMode: enable done");
     return warn;
@@ -1204,6 +1242,29 @@ int vcr_sli_combo_ok(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high, vcr_u32 a
     return 0;
 }
 
+vcr_u32 vcr_sli_samples_per_chip(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high, vcr_u32 analog)
+{
+    vcr_u32 units;
+    if (!aa || !vcr_sli_combo_ok(n, sli, aa, high, analog))
+        return 0;
+    sli = sli ? 1 : 0;
+    analog = analog ? 1 : 0;
+    /* the SLI units cfgSliLfbCtrl splits the bands into (render mask
+     * (n - 1) or ((n >> 1) - 1), D:806-854); without SLI, one */
+    if (!sli)
+        units = 1;
+    else if (n == 4)
+        units = (high || analog) ? 2 : 4;
+    else
+        units = n;
+    return ((2u << high) * units) / n;
+}
+
+vcr_u32 vcr_sli_aalfb_base(vcr_u32 addr)
+{
+    return addr & VCR_AALFB_SECONDARY_BASE_MASK;
+}
+
 vcr_u32 vcr_sli_req_tuple(const vcr_sli_aa_req *r)
 {
     vcr_u32 aa = r->ChipInfo.dwaaEn ? 1 : 0;
@@ -1230,7 +1291,8 @@ int vcr_sli_step_persists(vcr_u32 step, vcr_u32 persist_all)
     return persist_all || step % 100 == 0 || step == VCR_SLI_S_MAP_DONE ||
            step == VCR_SLI_S_PCIINIT0 || step == VCR_SLI_S_CLOCK_6K ||
            step == VCR_SLI_S_SLICTRL || step == VCR_SLI_S_NOMUX ||
-           step == VCR_SLI_S_SET_DONE || step == VCR_SLI_S_OFF_DONE || step >= 900;
+           step == VCR_SLI_S_SET_DONE || step == VCR_SLI_S_AA_STATE ||
+           step == VCR_SLI_S_AAONLY_SLICTRL || step == VCR_SLI_S_OFF_DONE || step >= 900;
 }
 
 vcr_u32 vcr_sli_phase_b(vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 val)
@@ -1293,9 +1355,80 @@ int vcr_sli_poke_first(vcr_sli_poke_memo *m, vcr_u32 chip, vcr_u32 off, vcr_u32 
     return 1;
 }
 
+/* ---- Diag\SliAAState: config space after an AA enable ----------------------------
+ * CONFIG CYCLES ONLY. After an AA session is programmed the question is what
+ * the chips hold, and the answer must not cost the box: a BAR access is where
+ * the AA wedges happened (a read with two owners, 2026-09-26), a config read
+ * is not. */
+static const vcr_u8 k_state_cfg[VCR_SLI_STATE_NCFG] = {
+    VCR_CFG_INITENABLE, VCR_CFG_PCIDECODE, VCR_CFG_VIDEOCTRL0, VCR_CFG_VIDEOCTRL1,
+    VCR_CFG_VIDEOCTRL2, VCR_CFG_SLILFBCTRL, VCR_CFG_AADEPTHBUFAPERTURE, VCR_CFG_AALFBCTRL,
+    VCR_CFG_SLIAAMISC
+};
+
+int vcr_sli_aa_state_wanted(const vcr_sli_aa_req *r, int result)
+{
+    return r && r->ChipInfo.dwaaEn && result >= 0;
+}
+
+int vcr_sli_aa_readback(const vcr_sli_io *io, const vcr_sli_aa_req *r, int result,
+                        vcr_u32 flags, const vcr_u32 pciinit0[VCR_SLI_MAX_CHIPS],
+                        vcr_u32 pciinit0_mask, vcr_sli_aa_state *s)
+{
+    vcr_u32 c, i, n, *w = (vcr_u32 *)s;
+    if (!s)
+        return 0;
+    for (i = 0; i < sizeof *s / sizeof *w; i++)     /* no CRT in the kernel */
+        w[i] = 0;
+    if (!io || !io->cfg_rd || !vcr_sli_aa_state_wanted(r, result) ||
+        !chips_ok(r->ChipInfo.dwChips))
+        return 0;
+    n = r->ChipInfo.dwChips;
+    s->magic = VCR_SLI_STATE_MAGIC;
+    s->size = sizeof *s;
+    s->tuple = vcr_sli_req_tuple(r);
+    s->flags = flags & VCR_SLI_F_VENDOR_AA;
+    s->result = result;
+    s->nchips = n;
+    s->nlines = r->ChipInfo.dwsli_nlines;
+    s->bpp = r->MemInfo.dwBpp;
+    s->tile = r->MemInfo.dwTileMark;
+    s->total = r->MemInfo.dwTotalMemory;
+    s->col = r->MemInfo.dwaaSecondaryColorBufBegin;
+    s->dbeg = r->MemInfo.dwaaSecondaryDepthBufBegin;
+    s->dend = r->MemInfo.dwaaSecondaryDepthBufEnd;
+    for (c = 0; c < n; c++) {
+        /* before the reads: a config read that never completes is named */
+        lg(io, VCR_SLI_S_AA_STATE, c, 0, VCR_SLI_STATE_NCFG,
+           "SliAAState: reading the chip's SLI/AA config (config cycles only)");
+        for (i = 0; i < VCR_SLI_STATE_NCFG; i++)
+            s->chip[c].cfg[i] = cfg_r(io, c, k_state_cfg[i]);
+        if (pciinit0 && (pciinit0_mask & (1u << c))) {
+            s->chip[c].pciinit0 = pciinit0[c];
+            s->flags |= VCR_SLI_ST_PCI0(c);
+        }
+    }
+    lg(io, VCR_SLI_S_AA_STATE, n, 1, n, "SliAAState: read back");
+    return (int)n;
+}
+
 /* ---- entry point --------------------------------------------------------------- */
 
 int vcr_sli_set(const vcr_sli_io *io, const vcr_sli_aa_req *r)
+{
+    return vcr_sli_set_ex(io, r, 0);
+}
+
+/* The vendor recipe's memory info (vcr_sli.h VCR_SLI_R_MEMINFO): a 4 KB aligned
+ * tileMark below totalMemory, both inside the AA base field's 64 MB reach */
+static int meminfo_ok(vcr_u32 tile, vcr_u32 total)
+{
+    return tile && !(tile & 0xfffu) && tile < total &&
+           total <= VCR_AALFB_SECONDARY_BASE_MASK + 0x10u &&
+           vcr_sli_aalfb_base(tile) == tile;
+}
+
+int vcr_sli_set_ex(const vcr_sli_io *io, const vcr_sli_aa_req *r, vcr_u32 flags)
 {
     sli_p p;
     int bad;
@@ -1327,6 +1460,9 @@ int vcr_sli_set(const vcr_sli_io *io, const vcr_sli_aa_req *r)
     p.col = r->MemInfo.dwaaSecondaryColorBufBegin;
     p.dbeg = r->MemInfo.dwaaSecondaryDepthBufBegin;
     p.dend = r->MemInfo.dwaaSecondaryDepthBufEnd;
+    p.vendor = (flags & VCR_SLI_F_VENDOR_AA) ? 1 : 0;
+    p.tile = r->MemInfo.dwTileMark;
+    p.total = r->MemInfo.dwTotalMemory;
 
     if (p.high > 2)
         return refuse(io, VCR_SLI_R_SAMPLE, p.high);
@@ -1344,6 +1480,13 @@ int vcr_sli_set(const vcr_sli_io *io, const vcr_sli_aa_req *r)
      * right after SET_DONE, under AmigaMerlin's kernel and under ours. */
     if (!vcr_sli_combo_ok(p.n, p.sli, p.aa, p.high, p.analog))
         return refuse(io, VCR_SLI_R_COMBO, VCR_SLI_TUPLE(p.n, p.sli, p.aa, p.high, p.analog));
+    /* the vendor recipe places the AA base / depth aperture with the request's
+     * memory info: a tuple that uses it must have usable values, or nothing */
+    if (p.vendor && p.aa &&
+        (vcr_sli_samples_per_chip(p.n, p.sli, p.aa, p.high, p.analog) == 1 ||
+         (p.n == 4 && !p.sli && p.high)) &&
+        !meminfo_ok(p.tile, p.total))
+        return refuse(io, VCR_SLI_R_MEMINFO, p.tile >> 12);
     if (!p.lb)
         p.nlines = 1;           /* AA only: band height unused (scan mask 0) */
 

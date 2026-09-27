@@ -19,6 +19,12 @@ sampleHigh, analog}. A record without bit 23 predates that and says so rather
 than showing "warn 0". HWC_SLIAA (the request as it arrived) and
 SLI_POKE_REFUSED (a PCI_OP write to an SLI/AA register the kernel refused) are
 decoded too.
+
+Diag\\SliAAState, when present, is decoded after the phases: every chip's
+SLI/AA config space as the kernel read it back - by config cycles only - right
+after the last AA enable (vcr_sli.h vcr_sli_aa_state). It is not per boot: its
+own header says which boot wrote it. Compare it with the expected tables in
+tests/native/test_vcr_kmd_sli.c.
 """
 import argparse
 import asyncio
@@ -73,6 +79,11 @@ def warn_names(mask, warns):
 def sli_step_text(a, b, steps, warns, reasons):
     s = steps.get(a)
     name = s[0][10:] if s else str(a)
+    if name == "SET_BEGIN" and b & 0x100:
+        return f"SET_BEGIN chip {b >> 24} reg {b & 0xffffff:#x} (vendor AA recipe)"
+    if name == "AA_STATE":
+        return (f"AA_STATE read back ({b >> 24} chips)" if b & 1
+                else f"AA_STATE reading chip {b >> 24} (config cycles)")
     if name not in VALUE_STEPS:
         return f"{name} chip {b >> 24} reg {b & 0xffffff:#x}"
     if not b & PB_VALUE:
@@ -93,7 +104,58 @@ def sli_step_text(a, b, steps, warns, reasons):
     why = reasons.get(top, str(top))
     if why in ("COMBO", "AA_OFF"):
         return f"REFUSED {why} shape {shape(val)}"
+    if why == "MEMINFO":
+        return f"REFUSED MEMINFO tileMark {val << 12:#x} (vendor AA recipe)"
     return f"REFUSED {why} value {val:#x}"
+
+
+# ---- Diag\SliAAState (vcr_sli.h vcr_sli_aa_state) ----------------------------------
+STATE_MAGIC = 0x31414153          # VCR_SLI_STATE_MAGIC, "SAA1"
+STATE_BYTES = 224                 # VCR_SLI_STATE_BYTES
+STATE_HDR = ("magic", "size", "boot", "ms", "tuple", "flags", "result", "nchips",
+             "nlines", "bpp", "tile", "total", "col", "dbeg", "dend", "reserved")
+STATE_CFG = (0x40, 0x48, 0x80, 0x84, 0x88, 0x8c, 0x90, 0x94, 0xac)   # vcrmp_sli.c k_state_cfg
+STATE_CFG_NAMES = ("initEn", "pciDec", "vidCtrl0", "vidCtrl1", "vidCtrl2", "sliLfb",
+                   "aaDepth", "aaLfb", "sliAAMisc")
+F_VENDOR_AA = 0x1                 # VCR_SLI_F_VENDOR_AA
+
+
+def aalfb_text(v):
+    """cfgAALfbCtrl, field by field (vcr_sli.h): base bits 4-25, CPU/dispatch
+    write, AA read enable, read format, divide by 4."""
+    parts = [f"base {v & 0x03fffff0:#x}"]
+    parts += [n for bit, n in ((26, "cpuWr"), (27, "dispWr"), (28, "READ_EN"), (31, "div4"))
+              if v >> bit & 1]
+    parts.append(("16bpp", "15bpp", "32bpp", "fmt3?")[(v >> 29) & 3])
+    return " ".join(parts)
+
+
+def decode_state(blob_hex, warns=None):
+    """Diag\\SliAAState as lines; says so, rather than guessing, when it is not one."""
+    data = bytes.fromhex(blob_hex.replace(" ", ""))
+    if len(data) < 64:
+        return [f"SliAAState: {len(data)} bytes - too short for a vcr-kmd state record"]
+    h = dict(zip(STATE_HDR, struct.unpack_from("<16I", data, 0)))
+    if h["magic"] != STATE_MAGIC or h["size"] != STATE_BYTES or len(data) < STATE_BYTES:
+        return [f"SliAAState: not a vcr-kmd state record (magic {h['magic']:#010x}, "
+                f"size {h['size']}, {len(data)} bytes)"]
+    warns = warns if warns is not None else sli_defines("W")
+    result = h["result"] - (1 << 32) if h["result"] & 0x80000000 else h["result"]
+    recipe = "vendor" if h["flags"] & F_VENDOR_AA else "dos_mode"
+    res = warn_names(result, warns) if result >= 0 else f"{result} (refused)"
+    out = [f"SliAAState: boot #{h['boot']} at {h['ms'] / 1000:.3f}s, request {shape(h['tuple'])} "
+           f"nlines {h['nlines']} bpp {h['bpp']}, recipe {recipe}, result {res}",
+           f"  memory: tileMark {h['tile']:#010x} total {h['total']:#010x} col {h['col']:#010x} "
+           f"depth {h['dbeg']:#010x}-{h['dend']:#010x}",
+           "  chip  " + " ".join(f"{n:>10}" for n in STATE_CFG_NAMES) + "   pciInit0"]
+    n = min(h["nchips"], 4)
+    for c in range(n):
+        regs = struct.unpack_from("<10I", data, 64 + c * 40)
+        pci0 = (f"{regs[9]:08x} (written)" if h["flags"] & (0x100 << c) else "not recorded")
+        out.append(f"  {c:<4}  " + " ".join(f"  {v:08x}" for v in regs[:9]) + f"   {pci0}")
+    for c in range(n):
+        out.append(f"  chip {c} aaLfbCtrl: {aalfb_text(struct.unpack_from('<I', data, 64 + c * 40 + 28)[0])}")
+    return out
 
 
 def decode(values, prev):
@@ -148,8 +210,12 @@ def main():
     ap.add_argument("--prev", action="store_true", help="the previous boot (kept at DriverEntry)")
     ap.add_argument("--port", type=int, default=9898)
     a = ap.parse_args()
-    for ln in decode(asyncio.run(read_diag(a.host, a.port)), a.prev):
+    values = asyncio.run(read_diag(a.host, a.port))
+    for ln in decode(values, a.prev):
         print(ln)
+    if values.get("SliAAState"):
+        for ln in decode_state(values["SliAAState"]):
+            print(ln)
 
 
 if __name__ == "__main__":

@@ -24,6 +24,12 @@
  * the AA kill switch, read per request); SliPersistAll = 1 makes every SLI
  * step a flushed phase (supervised runs; slow). AllowPoke = 1 (vcrmp.c) is the
  * only way a PCI_OP may write the SLI/AA config registers.
+ * SliAAVendorRecipe = 1 runs an AA request with the vendor-style recipe
+ * (vcr_sli_set_ex, VCR_SLI_F_VENDOR_AA; absent/0 = the dos_mode.c-derived
+ * sequence), read per request - for supervised A/B runs only.
+ * Written, not read: SliAAState (REG_BINARY, flushed) - every chip's SLI/AA
+ * config space read back by config cycles after an AA enable
+ * (vcr_sli_aa_readback; tools/vcrphases.py decodes it).
  */
 #include "vcrmp.h"
 #include "../include/vcr_sli.h"
@@ -92,6 +98,12 @@ static void k_log(void *ctx, vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 va
     int keep = vcr_sli_step_persists(step, x ? x->sli_persist_all : 0);
     ULONG lv = step >= 900 ? VCR_LV_WARN : vcr_sli_step_persists(step, 0) ? VCR_LV_INFO
                                                                           : VCR_LV_DEBUG;
+    /* pciInit0 has no config-space alias, so Diag\SliAAState records the value
+     * the sequence writes - taken here, where the sequence announces it */
+    if (x && step == VCR_SLI_S_PCIINIT0 && chip < VCR_SLI_MAX_CHIPS) {
+        x->sli_pci0[chip] = val;
+        x->sli_pci0_mask |= 1u << chip;
+    }
     VLOG(lv, VCR_EV_SLI_STEP, step, chip, reg, val, "%s", what);
     if (keep)
         VcrPhase(VCR_EV_SLI_STEP, step, vcr_sli_phase_b(step, chip, reg, val), what);
@@ -236,6 +248,33 @@ static int sli_aa_allowed(void)
     return VcrDiagGet(L"SliAA", 0) != 0;
 }
 
+/* Diag\SliAAVendorRecipe (DWORD, absent = 0): the vendor-style AA recipe for
+ * THIS request (vcr_sli.h vcr_sli_set_ex). Read per request, like SliAA, so a
+ * supervised run A/Bs the two recipes one clean boot each without a rebuild.
+ * It changes nothing but AA requests, and those are refused unless SliAA = 1. */
+static vcr_u32 sli_recipe(void)
+{
+    return VcrDiagGet(L"SliAAVendorRecipe", 0) ? VCR_SLI_F_VENDOR_AA : 0;
+}
+
+/* After an AA enable: every chip's SLI/AA config space, read back by config
+ * cycles only, into Diag\SliAAState (REG_BINARY, flushed) - so a supervised
+ * run that wedges later still says what the kernel had programmed. */
+static void sli_aa_state(VCR_EXT *x, const vcr_sli_io *io, const vcr_sli_aa_req *r, int rc,
+                         vcr_u32 recipe)
+{
+    vcr_sli_aa_state st;
+    int n = vcr_sli_aa_readback(io, r, rc, recipe, x->sli_pci0, x->sli_pci0_mask, &st);
+    if (n <= 0)
+        return;
+    st.boot = VcrDiagGet(L"BootCount", 0);
+    st.ms = VcrMs();
+    VcrDiagSetBinary(L"SliAAState", &st, sizeof st, TRUE);
+    VLOG(VCR_LV_INFO, VCR_EV_SLI_DONE, 2, (ULONG)n, st.chip[0].cfg[7], st.flags,
+         "SLI/AA state: %d chips read back (config cycles) into Diag\\SliAAState, "
+         "chip 0 aaLfbCtrl %08x", n, st.chip[0].cfg[7]);
+}
+
 VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out)
 {
     vcr_sli_aa_req rq;
@@ -287,16 +326,22 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
         VLOG(VCR_LV_WARN, VCR_EV_SLI_DONE, 1, n, (ULONG)rc, x->glide_chips,
              "refused: %u chips asked, %u available", n, x->glide_chips);
     } else {
+        vcr_u32 recipe = sli_recipe();
         make_io(x, &io);
         if (x->sli_chips)
             VcrSliOff(x, "re-enable");
-        rc = vcr_sli_set(&io, r);
+        x->sli_pci0_mask = 0;           /* only THIS enable's pciInit0 writes count */
+        rc = vcr_sli_set_ex(&io, r, recipe);
         if (rc >= 0) {
             x->sli_chips = n;
             x->sli_active = 1;
         }
         VLOG(rc ? VCR_LV_WARN : VCR_LV_INFO, VCR_EV_SLI_DONE, 1, n, (ULONG)rc, x->clock_6k_hz,
-             "SLI/AA on: %u chips -> %d, clock %u Hz", n, rc, x->clock_6k_hz);
+             "SLI/AA on: %u chips -> %d, clock %u Hz%s", n, rc, x->clock_6k_hz,
+             recipe ? ", vendor AA recipe" : "");
+        /* after SET_DONE, AA only: config cycles, nothing through a BAR */
+        if (vcr_sli_aa_state_wanted(r, rc))
+            sli_aa_state(x, &io, r, rc, recipe);
     }
     x->sli_result = rc;
     out->result = (vcr_u32)rc;

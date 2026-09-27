@@ -103,7 +103,7 @@ def test_the_aa_kill_switch_is_asked_before_anything_can_write():
     policy = body.index("vcr_sli_policy(r, sli_aa_allowed())")
     # before the live session is torn down to make room, before the accessor
     # table exists, before the sequence runs - and before the disable branch
-    for later in ('VcrSliOff(x, "re-enable")', "make_io(x, &io)", "vcr_sli_set(&io, r)",
+    for later in ('VcrSliOff(x, "re-enable")', "make_io(x, &io)", "vcr_sli_set_ex(&io, r, recipe)",
                   'VcrSliOff(x, "Glide asked")'):
         assert policy < body.index(later), later
     # a refusal is a PERSISTED phase: through k_log as a 9xx step, with the
@@ -127,7 +127,9 @@ def test_diag_sliaa_defaults_to_off_and_is_read_per_request():
 
 def test_the_sequence_refuses_a_shape_with_no_mux_before_its_first_write():
     src = (KMD / "miniport" / "vcrmp_sli.c").read_text()
-    body = func_body(src, "int vcr_sli_set(")
+    # vcr_sli_set is vcr_sli_set_ex(io, r, 0) since step B; the checks live there
+    assert "return vcr_sli_set_ex(io, r, 0);" in func_body(src, "int vcr_sli_set(")
+    body = func_body(src, "int vcr_sli_set_ex(")
     combo = body.index("if (!vcr_sli_combo_ok(p.n, p.sli, p.aa, p.high, p.analog))")
     assert body.index("return refuse(io, VCR_SLI_R_COMBO,", combo) < body.index("sli_enable(io, &p)")
     assert combo < body.index("VCR_SLI_S_SET_MEMINFO")
@@ -161,3 +163,63 @@ def test_the_escape_hands_glide_a_failure_for_every_refusal():
     assert re.search(r"#define VCR_SLI_EDENIED\s+\(-4\)", hdr)
     assert re.search(r"#define VCR_SLI_R_COMBO\s+9\b", hdr)
     assert re.search(r"#define VCR_SLI_R_AA_OFF\s+10\b", hdr)
+
+
+# ---- step B (2026-09-27): the vendor-style AA recipe, Diag\SliAAState -----------
+# The register values are native-tested (tests/native/test_vcr_kmd_sli.c: the
+# expected cfg 3/7/1 tables for both recipes, the read-back by config cycles
+# only). These pin where the kernel uses them.
+
+def test_the_vendor_recipe_is_off_by_default_and_read_per_request():
+    src = (KMD / "miniport" / "vcrmp_multi.c").read_text()
+    recipe = func_body(src, "static vcr_u32 sli_recipe(")
+    assert 'VcrDiagGet(L"SliAAVendorRecipe", 0)' in recipe      # absent = 0 = dos_mode.c
+    assert "VCR_SLI_F_VENDOR_AA : 0" in recipe
+    req = func_body(src, "VP_STATUS VcrSliRequest(")
+    # read in the enable branch, after the policy - never cached at FindAdapter
+    assert req.index("vcr_sli_policy(r, sli_aa_allowed())") < req.index("sli_recipe()")
+    assert req.index("sli_recipe()") < req.index("vcr_sli_set_ex(&io, r, recipe)")
+    assert "SliAAVendorRecipe" not in func_body(src, "void VcrMultiInit(")
+    assert "SliAAVendorRecipe" not in (KMD / "miniport" / "vcrmp.c").read_text()
+    # the only caller of the sequence with a flag; the disable keeps the default
+    assert "return vcr_sli_set(&io, &r);" in func_body(src, "static int sli_disable(")
+
+
+def test_the_aa_state_is_recorded_after_the_enable_by_config_cycles_only():
+    multi = (KMD / "miniport" / "vcrmp_multi.c").read_text()
+    req = func_body(multi, "VP_STATUS VcrSliRequest(")
+    # only THIS enable's pciInit0 writes count, then the sequence, then the record
+    reset = req.index("x->sli_pci0_mask = 0;")
+    run = req.index("vcr_sli_set_ex(&io, r, recipe)")
+    gate = req.index("if (vcr_sli_aa_state_wanted(r, rc))")
+    assert reset < run < gate < req.index("sli_aa_state(x, &io, r, rc, recipe);")
+    st = func_body(multi, "static void sli_aa_state(")
+    assert "vcr_sli_aa_readback(io, r, rc, recipe, x->sli_pci0, x->sli_pci0_mask, &st)" in st
+    assert 'VcrDiagSetBinary(L"SliAAState", &st, sizeof st, TRUE);' in st     # flushed
+    assert 'st.boot = VcrDiagGet(L"BootCount", 0);' in st
+    # pciInit0 has no config alias: k_log takes the value the sequence writes
+    log = func_body(multi, "static void k_log(")
+    assert "step == VCR_SLI_S_PCIINIT0" in log and "x->sli_pci0[chip] = val;" in log
+    # the read-back itself: config reads and log lines, nothing else
+    sli = (KMD / "miniport" / "vcrmp_sli.c").read_text()
+    rb = func_body(sli, "int vcr_sli_aa_readback(")
+    for banned in ("reg_r(", "reg_w(", "vga_r(", "vga_w(", "vga_iw(", "cfg_w(", "write_3d(",
+                   "io->io_rd", "io->io_wr", "io->vga_rd", "io->vga_wr", "io->cfg_wr"):
+        assert banned not in rb, banned
+    assert "cfg_r(io, c, k_state_cfg[i])" in rb
+    # the binary writer flushes like a phase
+    lg = func_body((KMD / "miniport" / "vcrmp_log.c").read_text(), "void VcrDiagSetBinary(")
+    assert "3 /* REG_BINARY */" in lg and "ZwFlushKey(h)" in lg
+
+
+def test_the_state_record_layout_is_the_one_the_decoder_reads():
+    hdr = (KMD / "include" / "vcr_sli.h").read_text()
+    assert re.search(r"#define VCR_SLI_STATE_BYTES\s+224\b", hdr)
+    assert "VCR_STATIC_ASSERT(sli_aa_state_size, sizeof(vcr_sli_aa_state) == VCR_SLI_STATE_BYTES);" in hdr
+    sli = (KMD / "miniport" / "vcrmp_sli.c").read_text()
+    table = re.search(r"k_state_cfg\[VCR_SLI_STATE_NCFG\] = \{(.*?)\};", sli, re.S).group(1)
+    names = re.findall(r"VCR_CFG_\w+", table)
+    regs = (KMD / "include" / "vcr_regs.h").read_text()
+    offs = [int(re.search(rf"#define {n}\s+(0x[0-9a-f]+)", regs).group(1), 16) for n in names]
+    assert offs == [0x40, 0x48, 0x80, 0x84, 0x88, 0x8c, 0x90, 0x94, 0xac]
+
