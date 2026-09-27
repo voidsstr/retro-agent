@@ -1,0 +1,71 @@
+glidelab's on-box step logs, read after the cfg 7 wedge (boot #18, before any Glide app ran)
+=========================================================================================
+
+SOURCE
+  Session transcript dcb2b22d-469b-4351-ba8b-e191bd3007a8.jsonl
+  (~/.claude/projects/-home-voidsstr-development-retro-agent/), 0-based JSONL records:
+    rec 18100  the call, 2026-09-26 20:38:34Z (16:38:34 EDT, host local).
+               It ran agent DIRLIST C:\vcr\glidelab, then DOWNLOAD of every
+               *.log / *.txt there, printing the last 2500 chars of each.
+    rec 18101  its output.
+  The box had come back from the cfg 7 power cycle 12 s earlier (agent PING at
+  16:38:22 EDT, rec 18093). Only read-only commands had run in this boot:
+  PING, the vcrphases REGREADs (rec 18095), and this DIRLIST/DOWNLOAD.
+  Nothing was re-read from the box to make this file.
+
+TIMES
+  The agent's DIRLIST prints each file's last-write time through
+  FileTimeToSystemTime with no local-time conversion (agent/src/files.c:220),
+  so the times below are UTC. Host local time was EDT = UTC-4.
+
+----- directory listing, verbatim (rec 18101) ---------------------------------
+bands.log 278 2026-09-26 19:44:03
+fill.log 184 2026-09-26 20:25:25
+glidelab.exe 461179 2026-09-26 20:25:25
+----- end verbatim --------------------------------------------------------------
+
+  bands.log  19:44:03 UTC = 15:44:03 EDT, 26 s after the cfg 3 bands run started
+             (15:43:37 EDT, rec 18021). Boot #16.
+  fill.log   20:25:25 UTC = 16:25:25 EDT, 20 s after the cfg 7 run started
+             (16:25:05 EDT, rec 18079). Boot #17. The cfg 3 fill run at
+             16:24:35 EDT, in the same boot, also wrote fill.log; the cfg 7 run
+             overwrote it, so cfg 3 fill's step log was never read. Its host-side
+             RESULT line survives in aa_cfg3_fill.log.
+
+----- fill.log (cfg 7), verbatim (rec 18101) ----------------------------------
+glidelab fill: res=1024x768 refresh=60 cfg=7 dll=C:\Games\Quake2Complete\glide3x.dll
+step: grGlideInit
+GR_HARDWARE: Voodoo5 6000 (tm)
+step: grSstWinOpen 1024x768 60Hz origin upper
+----- end verbatim --------------------------------------------------------------
+
+  There is no `  -> context ...` line (compare bands.log below). glidelab prints
+  that line after grSstWinOpen returns (tools/glidelab.c:319-335). Between the
+  step line and the context line the code runs only a message pump, the pace
+  gate, grSstWinOpen itself, vcr_pace_after_switch() and EnumDisplaySettings.
+  The kernel's SET_DONE row (aa_cfg7_prev.txt) shows Glide's open had already
+  reached the SLI/AA escape. So the freeze came after SET_DONE and before
+  grSstWinOpen returned, or in the few user-mode lines that follow it. The cfg 1 run
+  at 16:39:16 EDT overwrote this file on the box. Its cfg 1 version, identical
+  except for `cfg=1` and also ending in grSstWinOpen, is committed as
+  postmortem_20260927/onbox_fill.log. This transcript record is the ONLY copy of
+  the cfg 7 step log.
+
+----- bands.log (cfg 3) - NOT repeated here ------------------------------------
+  Identical line for line to postmortem_20260927/onbox_bands.log (read back
+  again on 2026-09-27): same 7 lines, same 278 bytes, same 19:44:03 UTC mtime.
+  Its last line is
+      step: grLfbReadRegion back buffer 1024x768
+  preceded by `  -> context 0x6fcdf574, 60 Hz` and `chips in use: 4`. So the
+  cfg 3 bands run opened on 4 chips and froze in the LFB read-back.
+
+WHAT THIS PROVES ABOUT THE LOG ITSELF
+  glidelab writes each step with fflush() + FlushFileBuffers()
+  (tools/glidelab.c:78-79). Both logs came back intact after a hard freeze
+  (CPU locked, Num Lock dead) and a power cycle. The flushed step log therefore
+  survives this kind of wedge. This is measured, not assumed.
+
+SEE ALSO
+  aa_cfg3_prev.txt, aa_cfg7_prev.txt (kernel side of the same runs),
+  aa_run_order.md (which run came after which, and the confounds),
+  postmortem_20260927/ (cfg 1: phase log and step log, read back 2026-09-27).

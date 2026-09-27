@@ -1,0 +1,74 @@
+cfg 7 fill (4 chips, 4-sample AA, SLI off) - miniport flight recorder, boot #17 (TAIL ONLY)
+=========================================================================================
+
+SOURCE
+  Session transcript dcb2b22d-469b-4351-ba8b-e191bd3007a8.jsonl
+  (~/.claude/projects/-home-voidsstr-development-retro-agent/), 0-based JSONL records:
+    rec 18095  the call, 2026-09-26 20:38:24Z (16:38:24 EDT, host local)
+               tools/vcrphases.py 192.168.1.124 --prev 2>&1 | tail -14
+    rec 18096  its output. Copied VERBATIM below.
+  Nothing was re-read from the box to make this file.
+
+WHAT IS MISSING, AND WHY IT CANNOT BE RECOVERED
+  Only rows 70-82 of boot #17's 83-row history were printed, because `tail -14`
+  cut rows 0-69. Prev* keeps exactly one boot (miniport/vcrmp_log.c
+  keep_previous_boot), so boot #17's history was overwritten when boot #19
+  started (the power cycle after the cfg 1 wedge). The missing rows would have
+  held:
+    - cfg 7's own HWC_SLIAA and SET_BEGIN rows, so the tuple Glide actually sent
+      for cfg 7 is NOT OBSERVED;
+    - the whole cfg 3 fill session that ran EARLIER IN THIS SAME BOOT
+      (16:24:35-16:24:45 EDT; see aa_run_order.md), including whether its
+      close-time SLI/AA disable reached OFF_BEGIN/OFF_DONE. OFF_DONE is a
+      persisted step (vcr_sli_step_persists), so it would have been in those rows.
+      Whether it was there is UNKNOWN.
+
+WHEN
+  The cfg 7 run started at 16:25:05 EDT (rec 18073/18079), 20 s after the cfg 3
+  fill session in the same boot returned. The host's EXECW timed out, and the next
+  loop line was printed at 16:29:54 EDT (host log: aa_cfg7_fill.log). The box was
+  power-cycled, and the agent answered PING at 16:38:22 EDT (rec 18093), in
+  boot #18. This readout is boot #18's Prev* (= boot #17).
+
+----- verbatim (rec 18096) -----------------------------------------------------
+  70   228.609s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  71   228.625s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  72   228.656s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  73   228.671s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  74   228.687s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  75   228.718s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  76   228.734s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  77   228.750s  SLI_STEP         a=0x0000012c b=0x000003c4  MODE_INDEX chip 0 reg 0x3c4
+  78   228.781s  SLI_STEP         a=0x00000191 b=0x00000004  PCIINIT0 chip 0 reg 0x4
+  79   228.796s  SLI_STEP         a=0x00000191 b=0x01000004  PCIINIT0 chip 1 reg 0x4
+  80   228.812s  SLI_STEP         a=0x00000191 b=0x02000004  PCIINIT0 chip 2 reg 0x4
+  81   228.843s  SLI_STEP         a=0x00000191 b=0x03000004  PCIINIT0 chip 3 reg 0x4
+  82   228.859s  SLI_STEP         a=0x000001a4 b=0x04000000  SET_DONE chip 4 reg 0x0
+PrevLastPhase SLI_STEP, a=420, at 228859 ms, boot #17
+----- end verbatim --------------------------------------------------------------
+
+DECODE (source at the tree this file was committed in)
+  - The kernel's enable sequence reached SET_DONE (row 82) for a 4-chip request.
+    SET_DONE's chip field is p->n = 4.
+  - There are NO SLICTRL rows between PCIINIT0 (rows 78-81) and SET_DONE.
+    sli_enable (miniport/vcrmp_sli.c) writes sliCtrl only when sli=1, so this
+    matches an SLI-off request. Compare cfg 3 (aa_cfg3_prev.txt, rows 69-72:
+    four SLICTRL writes). The request's actual flags are not in the printed rows.
+  - SET_DONE's val (the warn mask, including W_NOMUX) is not persisted: k_log's
+    VcrPhase keeps only (chip<<24 | reg) (miniport/vcrmp_multi.c k_log).
+  - SET_DONE came 228.859 s into boot #17. The cfg 7 step log was created at
+    20:25:25 UTC = 16:25:25 EDT (aa_onbox_steplogs.txt). That places the start
+    of boot #17 at about 16:21:3x EDT, just before the user confirmed the
+    power cycle ("done", 16:22:55 EDT, rec 18053). This is an inference from two
+    clocks.
+
+OUTCOME
+  glidelab's flushed step log for this run ends at
+  `step: grSstWinOpen 1024x768 60Hz origin upper`, with no `-> context` line
+  (aa_onbox_steplogs.txt). The kernel logged SET_DONE, and the box then
+  hard-froze before grSstWinOpen returned, or in the few user-mode lines
+  glidelab runs before printing that line (see aa_onbox_steplogs.txt).
+
+  CONFOUNDED: this run followed a cfg 3 AA session in the same boot with no
+  reboot in between. That breaks ground rule 1, one setting per clean boot. So
+  the wedge cannot be attributed to cfg 7 alone. See aa_run_order.md.

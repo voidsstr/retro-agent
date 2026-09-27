@@ -1,0 +1,111 @@
+cfg 3 bands (4 chips, SLI + 2-sample AA) - miniport flight recorder, boot #16
+===========================================================================
+
+SOURCE
+  Session transcript dcb2b22d-469b-4351-ba8b-e191bd3007a8.jsonl
+  (~/.claude/projects/-home-voidsstr-development-retro-agent/), 0-based JSONL records:
+    rec 18063  the call, 2026-09-26 20:23:02Z (16:23:02 EDT, host local)
+               tools/vcrphases.py 192.168.1.124 --prev 2>&1 | tail -40
+    rec 18064  its output. Copied VERBATIM below, except the two lines above the
+               table: those came from a grep of tools/vcrphases.py, not from the box.
+  Nothing was re-read from the box to make this file.
+
+WHAT IS MISSING, AND WHY IT CANNOT BE RECOVERED
+  - Rows 0-34 of boot #16's 74-row history were never printed, because `tail -40`
+    cut them.
+  - Prev* keeps exactly one boot (miniport/vcrmp_log.c keep_previous_boot), so
+    boot #16's history was overwritten when boot #18 started.
+
+WHEN
+  The cfg 3 bands run started at 15:43:37 EDT (rec 18021/18029), and the host's
+  EXECW timed out at 15:48:18 EDT (host log: aa_cfg3.log). At 16:19:16 EDT the user
+  reported "it went blank and num lock is not responding" (rec 18036), then
+  power-cycled the box ("done", 16:22:55 EDT, rec 18053). The agent answered PING
+  at 16:22:59 (rec 18061). This readout came from the next boot (#17).
+
+----- verbatim (rec 18064) -----------------------------------------------------
+  35   208.953s  MODESET_DONE     a=0x0000009f b=0x00000000
+  36   215.453s  MODESET_BEGIN    a=0x028001e0 b=0x00100055
+  37   215.468s  MODESET_DONE     a=0x0000004c b=0x00000000
+  38   218.593s  MODESET_BEGIN    a=0x05000400 b=0x00200055
+  39   218.609s  MODESET_DONE     a=0x0000009f b=0x00000000
+  40  9507.640s  MODESET_BEGIN    a=0x04000300 b=0x0010003c
+  41  9507.656s  MODESET_DONE     a=0x00000052 b=0x00000000
+  42  9507.781s  HWC_SLIAA        a=0x00000004 b=0x00000103
+  43  9507.796s  SLI_STEP         a=0x00000190 b=0x04000007  SET_BEGIN chip 4 reg 0x7
+  44  9507.828s  SLI_STEP         a=0x000001a2 b=0x00000000  CLOCK_6K chip 0 reg 0x0
+  45  9507.859s  SLI_STEP         a=0x000000c8 b=0x01000000  INIT_BEGIN chip 1 reg 0x0
+  46  9507.875s  SLI_STEP         a=0x000000c8 b=0x02000000  INIT_BEGIN chip 2 reg 0x0
+  47  9507.890s  SLI_STEP         a=0x000000c8 b=0x03000000  INIT_BEGIN chip 3 reg 0x0
+  48  9507.921s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  49  9507.937s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  50  9507.953s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  51  9507.984s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  52  9508.000s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  53  9508.015s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  54  9508.046s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  55  9508.062s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  56  9508.078s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  57  9508.109s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  58  9508.125s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  59  9508.156s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  60  9508.171s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  61  9508.187s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  62  9508.218s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  63  9508.234s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  64  9508.250s  SLI_STEP         a=0x0000012c b=0x000003c4  MODE_INDEX chip 0 reg 0x3c4
+  65  9508.281s  SLI_STEP         a=0x00000191 b=0x00000004  PCIINIT0 chip 0 reg 0x4
+  66  9508.296s  SLI_STEP         a=0x00000191 b=0x01000004  PCIINIT0 chip 1 reg 0x4
+  67  9508.312s  SLI_STEP         a=0x00000191 b=0x02000004  PCIINIT0 chip 2 reg 0x4
+  68  9508.343s  SLI_STEP         a=0x00000191 b=0x03000004  PCIINIT0 chip 3 reg 0x4
+  69  9508.359s  SLI_STEP         a=0x000001a1 b=0x0020020c  SLICTRL chip 0 reg 0x20020c
+  70  9508.375s  SLI_STEP         a=0x000001a1 b=0x0120020c  SLICTRL chip 1 reg 0x20020c
+  71  9508.406s  SLI_STEP         a=0x000001a1 b=0x0220020c  SLICTRL chip 2 reg 0x20020c
+  72  9508.421s  SLI_STEP         a=0x000001a1 b=0x0320020c  SLICTRL chip 3 reg 0x20020c
+  73  9508.437s  SLI_STEP         a=0x000001a4 b=0x04000000  SET_DONE chip 4 reg 0x0
+PrevLastPhase SLI_STEP, a=420, at 9508437 ms, boot #16
+----- end verbatim --------------------------------------------------------------
+
+DECODE (source at the tree this file was committed in)
+  MODESET_BEGIN  a = width<<16 | height, b = bpp<<16 | refresh
+                 (miniport/vcrmp_hw.c:623). Row 40: 1024x768x16 @ 60 Hz, which is
+                 Glide's mode for this run. Rows 36/38: 640x480x16 @ 85, then back
+                 to the 1280x1024x32 @ 85 desktop.
+  HWC_SLIAA      a = dwChips, b = sliEn | aaEn<<1 | aaSampleHigh<<4 | analog<<8
+                 (miniport/vcrmp_multi.c, the SLI_AA_REQUEST escape handler).
+                 Row 42, b=0x103: sliEn=1, aaEn=1, sampleHigh=0, analog=1, 4 chips.
+                 This is the tuple Glide REQUESTED. A request does not prove the
+                 card produced AA samples.
+  SET_BEGIN      chip field = p->n, reg field = sli | aa<<1 | analog<<2 | high<<4
+                 (miniport/vcrmp_sli.c sli_enable). Row 43, reg 0x7 = the same tuple.
+  CLOCK_6K       the V5 6000 external-clock hook ran (row 44). Its result value is
+                 not persisted.
+  SLICTRL        rows 69-72. The reg field is the 3D sliCtrl offset. The values
+                 written are not persisted. sliCtrl is written only when sli=1
+                 (sli_enable), which matches cfg 3.
+  SET_DONE       row 73, 0.656 s after HWC_SLIAA. Its val (the warn mask,
+                 including W_NOMUX) is NOT persisted: k_log's VcrPhase keeps only
+                 (chip<<24 | reg) (miniport/vcrmp_multi.c k_log). So this readout
+                 cannot show whether the kernel raised a warning.
+
+WHAT THE BOOT HAD DONE BEFORE (why it was not a clean boot)
+  HWC_SLIAA at 9507.781 s means the AA request came 2 h 38 min (2.64 h) into
+  boot #16. Boot #16 was the install6 deploy reboot: the install started at
+  13:04:11 EDT (rec 17863), and the box was back 114 s later (13:06:11 EDT, rec
+  17870). From the transcript, the same boot then ran:
+    - the DirectDraw/D3D battery, 13:07:43-13:08:50 EDT
+      (evidence/silicon/vcrkmd-v5-6.log): caps, flip and blt at 800x600x16 and
+      800x600x32, D3D caps/render/perf, planned at "at most 14 mode switches".
+      Rows 35-39 (208.9-218.6 s, about 3.5 min into the boot) fall at that time.
+    - a hardware-cursor register read with UICLICKs, 13:09:44 EDT (rec 17959/17960).
+    - no further tool call from this session to .124 until the cfg 3 bands run at
+      15:43:37 EDT (rec 18021). Traffic from other sessions or daemons in that
+      window does not appear in this transcript.
+
+OUTCOME
+  The glidelab step log for this run ends at
+  `step: grLfbReadRegion back buffer 1024x768`. That log is committed as
+  postmortem_20260927/onbox_bands.log, and the copy read on 2026-09-26 16:38 EDT
+  (rec 18101) is identical line for line; see aa_onbox_steplogs.txt. The kernel
+  logged SET_DONE, and the box then hard-froze inside Glide's LFB read-back.
+  Run order and confounds: aa_run_order.md.
