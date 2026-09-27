@@ -8,6 +8,12 @@ shape is present.
 
 Context for anyone reading this later:
 
+  * (2026-09-26, agent 1.85.4) The 9x half of what follows was WRONG in the
+    end: the one reboot proven on Win98 hardware was the shell's
+    SHExitWindowsEx with the agent exiting normally mid-shutdown, and every
+    "stay alive and pump" REBOOT failed. The 9x path is now the shell's call
+    and nothing else; see the tests below. The NT half stands.
+
   * REBOOT returned OK on the Win98 box, the agent closed, and Windows never
     restarted. do_system_power() set g_running = 0 shortly after starting the
     shutdown thread, so the process died while Win9x was still negotiating
@@ -41,33 +47,43 @@ def func_body(src, signature):
 
 # ------------------------------------------------------------ reboot -------
 
-def test_win9x_reboot_does_not_kill_the_agent_first():
-    """The bug: the agent exited mid-negotiation and cancelled its own
-    shutdown. g_running must only be cleared on the NT path."""
-    body = func_body(read("handlers.c"), "static void do_system_power(")
+def test_win9x_power_goes_through_the_shell_and_nothing_else():
+    """The only reboot proven on Win98 hardware (.243, 2026-09-26) was
+    `rundll32.exe shell32.dll,SHExitWindowsEx 6` with the agent and retro_chat
+    running and nothing killed. Every REBOOT through the agent's own path -
+    kill the consoles, then stay alive pumping (g_power_pending) - left
+    Windows up with the agent gone. The 9x path must be exactly the proven
+    one: the shell's call, no kills, no g_power_pending, no exit of its own."""
+    src = read("handlers.c")
+    body = func_body(src, "static void do_system_power_9x(")
+    assert 'shell32.dll,SHExitWindowsEx %u' in body
+    assert "CREATE_SUSPENDED" in body, "OK and the log line must go out first"
+    assert body.index("log_flush()") < body.index("ResumeThread(pi.hThread)")
+    code = re.sub(r"/\*.*?\*/", "", body, flags=re.S)
+    for banned in ("kill_console_processes", "TerminateProcess", "g_power_pending", "g_running"):
+        assert banned not in code, "%s is back on the Win9x power path" % banned
 
-    assert "g_running = 0" in body, "NT still needs to stop the agent"
-    # the clear must be inside a platform test, not unconditional
-    nt_guard = body.index("VER_PLATFORM_WIN32_NT")
-    clear = body.index("g_running = 0")
-    assert nt_guard < clear, \
-        "g_running = 0 must be reached only on the NT branch"
-
-    # and the old unconditional "Sleep(500); g_running = 0;" tail is gone
-    assert not re.search(r"CreateThread\([^;]*system_shutdown_thread[^;]*;\s*"
-                         r"/\*[^*]*\*/\s*Sleep\(500\);\s*g_running = 0;",
-                         body, re.S), "the unconditional exit is back"
+    disp = func_body(src, "static void do_system_power(")
+    first = disp.index("if (is_win9x()) {")
+    assert first < disp.index("kill_console_processes()"), "9x must dispatch before any kill"
+    assert first < disp.index("g_power_pending = 1"), "9x must never set g_power_pending"
 
 
-def test_win9x_shutdown_thread_keeps_pumping_and_reports_failure():
-    body = func_body(read("handlers.c"), "static DWORD WINAPI system_shutdown_thread(")
-    assert "PeekMessageA" in body, "must pump messages for the negotiation"
-    assert "WIN9X_SHUTDOWN_WAIT_MS" in body
-    assert "STILL RUNNING" in body, \
+def test_win9x_reboot_that_did_not_take_says_so():
+    body = func_body(read("handlers.c"), "static DWORD WINAPI win9x_power_watch(")
+    assert "WIN9X_SHUTDOWN_WAIT_MS" in body and "STILL RUNNING" in body, \
         "a reboot that did not take must say so rather than look like success"
-    # wraparound-safe tick comparison, not "GetTickCount() < deadline"
-    assert re.search(r"\(long\)\(GetTickCount\(\) - deadline\) < 0", body), \
-        "tick comparison must be wraparound-safe"
+    assert "log_flush()" in body
+    assert "g_9x_power_started = 0" in body, "a failed attempt must allow another"
+
+
+def test_nt_power_path_is_unchanged():
+    """NT still hands off to shutdown.exe and stops the agent."""
+    src = read("handlers.c")
+    disp = func_body(src, "static void do_system_power(")
+    assert "g_power_pending = 1" in disp and "g_running = 0" in disp
+    thr = func_body(src, "static DWORD WINAPI system_shutdown_thread(")
+    assert "shutdown.exe /r /t 0 /f" in thr and "acquire_shutdown_privilege()" in thr
 
 
 def test_reboot_flushes_the_log_before_the_machine_goes_down():
@@ -76,12 +92,17 @@ def test_reboot_flushes_the_log_before_the_machine_goes_down():
         "the record that a reboot was requested must be on disk before it starts"
 
 
-def test_console_apps_that_can_veto_are_killed():
-    """On Win9x every top-level window gets a WM_QUERYENDSESSION vote, and our
-    own chat client is a console app too."""
+def test_consoles_are_killed_on_nt_only_and_the_chat_client_never():
+    """On Win98 a console app's console is a DOS VM (WINOA386.MOD, parented to
+    the app). TerminateProcess on the app does not close that VM cleanly, and a
+    DOS VM still running is what Win98 refuses to shut down over. So the kill
+    list is NT-only, and our own chat client is never on it - it closes itself
+    when Windows asks, as it did in the reboot that worked."""
     body = func_body(read("handlers.c"), "static void kill_console_processes(")
-    for exe in ("COMMAND.COM", "CMD.EXE", "RETRO_CHAT.EXE"):
-        assert exe in body, "%s can hold up a Win9x shutdown" % exe
+    for exe in ("COMMAND.COM", "CMD.EXE"):
+        assert exe in body
+    code = re.sub(r"/\*.*?\*/", "", body, flags=re.S).upper()
+    assert "RETRO_CHAT" not in code and "WINOA386" not in code
 
 
 def test_reboot_never_kills_the_console_host_it_runs_in():
@@ -91,7 +112,7 @@ def test_reboot_never_kills_the_console_host_it_runs_in():
     nothing: the machine stayed up and the agent was gone (2026-09-25/26)."""
     body = func_body(read("handlers.c"), "static void kill_console_processes(")
     code = re.sub(r"/\*.*?\*/", "", body, flags=re.S)
-    assert "CONAGENT" not in code.upper()
+    assert "CONAGENT" not in code.upper() and "WINOA386" not in code.upper()
 
 
 # ----------------------------------------------------------- logging -------
@@ -130,10 +151,10 @@ def test_crash_path_emits_pending_lines_without_touching_shared_state():
 
 
 def test_console_handler_does_not_cancel_our_own_reboot():
-    """The trap: CTRL_LOGOFF/CTRL_SHUTDOWN are exactly the events Win9x raises
-    while tearing the session down - including the teardown we asked for. If
-    the handler stops the agent then, it re-arms the reboot-cancellation bug
-    from a second direction. It must flush but NOT exit during a power op."""
+    """NT: while shutdown.exe runs, a logoff/shutdown event must not stop the
+    agent early (g_power_pending). Win9x never sets g_power_pending (1.85.4),
+    so there the handler stops the agent when Windows asks - which is exactly
+    what happened in the one Win98 reboot proven on hardware."""
     main = read("main.c")
     body = func_body(main, "static BOOL WINAPI console_handler(")
     assert "g_power_pending" in body, \

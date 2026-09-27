@@ -216,29 +216,44 @@ void handle_ping(SOCKET sock)
 }
 
 /*
- * Kill console/batch processes that can block ExitWindowsEx on Win9x.
- * Win98's EWX_FORCE doesn't reliably terminate COMMAND.COM/CMD.EXE instances
- * running batch files, and our own chat client is a console app too.
+ * WIN9x POWER: the one route proven on Win98 hardware is the SHELL's.
  *
- * NEVER CONAGENT.EXE. On Win9x that process hosts the console of every Win32
- * console app - including THIS agent's own ("tty" window). It was on this
- * list from the first commit, so REBOOT/SHUTDOWN killed the agent's console
- * right after logging "REBOOT: initiating": the agent died before it could
- * call ExitWindowsEx, and Windows never restarted. Seen twice on .243
- * (2026-09-25 22:21 and 2026-09-26 10:02): no ExitWindowsEx line, no 60 s
- * "STILL RUNNING" line, networking up, agent gone, and the next boot line
- * only when someone restarted it by hand. A console app we do not want is
- * killed directly by name; killing its conagent was only ever a way to kill
- * whatever console happened to be attached, which here was us.
+ * On .243 (Win98 SE, 2026-09-26) `rundll32.exe shell32.dll,SHExitWindowsEx 6`
+ * rebooted the machine with the agent and retro_chat both running - Windows
+ * asked each console app to close, both exited through their console
+ * handlers, and the box went down. Every REBOOT through this agent's own path
+ * failed the same way (2026-09-25 22:21, 09-26 10:02 and 22:21 box time):
+ * "REBOOT: initiating", the agent gone, Windows still up.
+ *
+ * That path killed RETRO_CHAT.EXE / COMMAND.COM / CMD.EXE with
+ * TerminateProcess first. On Win98 a Win32 console app's console lives in a
+ * DOS VM (WINOA386.MOD, parented to the app - PROCLIST on .243), and killing
+ * the app does not close that VM cleanly; a DOS VM that is still running is
+ * exactly what Win98 refuses to shut down over, FORCE or not. It then kept the
+ * agent deliberately alive (g_power_pending) on the theory that an exiting
+ * requester cancels its own shutdown - a theory the working shell reboot
+ * contradicts, since there the agent exited normally mid-shutdown.
+ * (CONAGENT.EXE, removed from the kill list in 1.85.3, does not even appear
+ * on this box: the console host is WINOA386.MOD.)
+ *
+ * So on 9x: start the shell's own ExitWindowsEx, kill nothing, and let
+ * Windows close us like any other console app. SHExitWindowsEx takes the EWX
+ * flags on its command line (1 shutdown, 2 reboot, 4 force, 8 power off).
+ * REBOOT (6) is hardware-proven; SHUTDOWN (13) takes the same route and has
+ * not been exercised on a box.
  */
-/* How long the Win9x shutdown thread keeps pumping before concluding the
- * reboot did not take. Generous: the Deskpro takes its time closing DOS
- * boxes, and the only cost of waiting is a later log line. */
-#define WIN9X_SHUTDOWN_WAIT_MS  60000
 
-/* See handlers.h: keeps the console control handler from stopping the agent
- * while Win9x is tearing the session down at our own request. */
+/* How long a 9x agent waits after starting the shell's shutdown before
+ * concluding it did not take. Windows closes us well inside this on a
+ * shutdown that proceeds; the only cost of a generous bound is a late line. */
+#define WIN9X_SHUTDOWN_WAIT_MS  90000
+
+/* See handlers.h. NT only: keeps the console control handler from stopping
+ * the agent while shutdown.exe is running. Never set on Win9x (above). */
 volatile int g_power_pending = 0;
+
+/* Win9x: one shell shutdown at a time; cleared again if it did not take. */
+static volatile int g_9x_power_started = 0;
 
 /* Is this a Win9x box? (Shutdown behaviour differs completely from NT.) */
 static int is_win9x(void)
@@ -249,32 +264,11 @@ static int is_win9x(void)
     return o.dwPlatformId != VER_PLATFORM_WIN32_NT;
 }
 
-/* Relaunch the chat client we killed to clear its shutdown veto. Only used
- * when the reboot did NOT take - otherwise the machine is going down anyway
- * and the Run key starts it again at the next logon. */
-static void restart_retro_chat(void)
-{
-    char path[MAX_PATH];
-    char *slash;
-    STARTUPINFOA si;
-    PROCESS_INFORMATION pi;
-
-    if (!GetModuleFileNameA(NULL, path, sizeof(path))) return;
-    slash = strrchr(path, '\\');
-    if (!slash) return;
-    safe_strncpy(slash + 1, "retro_chat.exe",
-                 (int)(sizeof(path) - (slash + 1 - path)));
-
-    memset(&si, 0, sizeof(si)); si.cb = sizeof(si);
-    memset(&pi, 0, sizeof(pi));
-    if (CreateProcessA(path, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-        log_msg(LOG_MAIN, "Shutdown: reboot did not take - restarted %s", path);
-    }
-}
-
-static void kill_console_processes(int kill_chat)
+/*
+ * NT only: kill console/batch processes that can hold up the shutdown.
+ * NEVER used on Win9x - see the block comment above.
+ */
+static void kill_console_processes(void)
 {
     HANDLE snap;
     PROCESSENTRY32 pe;
@@ -288,14 +282,8 @@ static void kill_console_processes(int kill_chat)
         do {
             HANDLE h;
             if (pe.th32ProcessID == my_pid) continue;
-
-            /* retro_chat is one of ours and it is a console app too, so on
-             * Win9x it gets a WM_QUERYENDSESSION vote like any other window
-             * and can hold the shutdown up. It restarts from the Run key. */
             if (_stricmp(pe.szExeFile, "COMMAND.COM") == 0 ||
-                _stricmp(pe.szExeFile, "CMD.EXE") == 0 ||
-                (kill_chat &&
-                 _stricmp(pe.szExeFile, "RETRO_CHAT.EXE") == 0)) {
+                _stricmp(pe.szExeFile, "CMD.EXE") == 0) {
                 h = OpenProcess(PROCESS_TERMINATE, FALSE, pe.th32ProcessID);
                 if (h) {
                     log_msg(LOG_MAIN, "Shutdown: killing %s (PID %lu)",
@@ -307,6 +295,72 @@ static void kill_console_processes(int kill_chat)
         } while (Process32Next(snap, &pe));
     }
     CloseHandle(snap);
+}
+
+/* Win9x: if we are still here long after the shell was asked to shut
+ * Windows down, it did not happen - say so, instead of looking like a
+ * successful reboot. param = the command label (a string literal). */
+static DWORD WINAPI win9x_power_watch(LPVOID param)
+{
+    Sleep(WIN9X_SHUTDOWN_WAIT_MS);
+    log_msg(LOG_MAIN, "%s: STILL RUNNING %lu ms after asking the shell to shut "
+            "Windows down - it did not take; look at the screen for a dialog "
+            "(a program that would not close)",
+            (const char *)param, (unsigned long)WIN9X_SHUTDOWN_WAIT_MS);
+    log_flush();
+    g_9x_power_started = 0;             /* allow another attempt */
+    return 0;
+}
+
+static void do_system_power_9x(SOCKET sock, const char *label, UINT ewx_flags)
+{
+    char cmd[80];
+    char msg[128];
+    STARTUPINFOA si;
+    PROCESS_INFORMATION pi;
+    HANDLE wt;
+    DWORD tid;
+
+    if (g_9x_power_started) {
+        send_text_response(sock, "OK (a power operation is already in flight)");
+        log_msg(LOG_MAIN, "%s: ignored - one is already in flight", label);
+        return;
+    }
+
+    _snprintf(cmd, sizeof(cmd) - 1, "rundll32.exe shell32.dll,SHExitWindowsEx %u",
+              ewx_flags);
+    cmd[sizeof(cmd) - 1] = '\0';
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    memset(&pi, 0, sizeof(pi));
+
+    /* Suspended, so "OK" and the log line are out before anything starts
+     * tearing the session down. */
+    if (!CreateProcessA(NULL, cmd, NULL, NULL, FALSE, CREATE_SUSPENDED,
+                        NULL, NULL, &si, &pi)) {
+        _snprintf(msg, sizeof(msg) - 1, "ERR %s failed: could not start \"%s\" (error %lu)",
+                  label, cmd, (unsigned long)GetLastError());
+        msg[sizeof(msg) - 1] = '\0';
+        log_msg(LOG_MAIN, "%s", msg);
+        log_flush();
+        send_text_response(sock, msg);
+        return;
+    }
+
+    send_text_response(sock, "OK");
+    log_msg(LOG_MAIN, "%s: initiating via \"%s\" (pid %lu); Windows will close "
+            "this agent like any console app", label, cmd,
+            (unsigned long)pi.dwProcessId);
+    log_flush();
+
+    g_9x_power_started = 1;
+    wt = CreateThread(NULL, 0, win9x_power_watch, (LPVOID)label, 0, &tid);
+    if (wt) CloseHandle(wt);
+
+    ResumeThread(pi.hThread);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    /* Deliberately nothing else: no kills, no g_power_pending. */
 }
 
 /*
@@ -328,15 +382,8 @@ static void acquire_shutdown_privilege(void)
 }
 
 /*
- * System shutdown/reboot thread.
- *
- * ExitWindowsEx on Win9x requires the calling thread to have a message
- * queue, otherwise shutdown messages are never dispatched and the call
- * silently fails.  We create a hidden window (gives us a msg queue),
- * call ExitWindowsEx, then pump messages.
- *
- * On NT, ExitWindowsEx works but shutdown.exe is more reliable as a
- * fallback (handles services, forced app termination, etc.).
+ * NT system shutdown/reboot thread: shutdown.exe, with ExitWindowsEx as the
+ * fallback. (Win9x never gets here - do_system_power_9x() above.)
  *
  * param = EWX_* flags cast to LPVOID.
  */
@@ -344,9 +391,6 @@ static DWORD WINAPI system_shutdown_thread(LPVOID param)
 {
     UINT flags = (UINT)(UINT_PTR)param;
     OSVERSIONINFOA osvi;
-    BOOL result;
-    MSG msg;
-    HWND hwnd;
 
     osvi.dwOSVersionInfoSize = sizeof(osvi);
     GetVersionExA(&osvi);
@@ -384,88 +428,24 @@ static DWORD WINAPI system_shutdown_thread(LPVOID param)
                 ExitWindowsEx(flags, 0);
             }
         }
-    } else {
-        /*
-         * Win9x. Three things have to be true or the machine simply stays up,
-         * which is what it did: REBOOT returned OK, the agent closed, and
-         * Windows never restarted.
-         *
-         *  1. The calling thread needs a message queue, or the shutdown
-         *     messages are never dispatched. The hidden popup provides one.
-         *  2. We must keep pumping until Windows kills us. Win9x sends
-         *     WM_QUERYENDSESSION round every top-level window and waits for
-         *     the answers; a process that stops pumping IS the veto.
-         *  3. THE AGENT MUST NOT EXIT. do_system_power() used to set
-         *     g_running = 0 half a second after starting this thread, so the
-         *     process died while the shutdown was still being negotiated and
-         *     took this thread with it - aborting the very shutdown it had
-         *     just asked for. On Win9x the caller now leaves g_running alone
-         *     and lets the OS terminate us.
-         */
-        DWORD deadline;
-
-        hwnd = CreateWindowA("STATIC", "", WS_POPUP,
-                             0, 0, 0, 0, NULL, NULL,
-                             GetModuleHandleA(NULL), NULL);
-
-        log_msg(LOG_MAIN, "Shutdown: ExitWindowsEx(%u) on Win9x", flags);
-        result = ExitWindowsEx(flags, 0);
-        log_msg(LOG_MAIN, "Shutdown: ExitWindowsEx = %d, err=%lu",
-                result, (unsigned long)GetLastError());
-        /* From here the machine may go at any moment; this verdict is the
-         * whole record of whether the call was accepted. */
-        log_flush();
-
-        if (!result) {
-            /* EWX_FORCE can be refused while a DOS box is still closing.
-             * Give the kills a moment, then try again without FORCE, which
-             * some Win9x builds accept when the forced form did not. */
-            Sleep(1000);
-            kill_console_processes(1);
-            Sleep(500);
-            result = ExitWindowsEx(flags & ~EWX_FORCE, 0);
-            log_msg(LOG_MAIN, "Shutdown: retry without FORCE = %d, err=%lu",
-                    result, (unsigned long)GetLastError());
-            log_flush();
-        }
-
-        /* Pump until the OS tears us down. The bound is a backstop only: if
-         * we are still alive after it, the reboot genuinely did not take and
-         * saying so in the log beats looking like a successful reboot. */
-        deadline = GetTickCount() + WIN9X_SHUTDOWN_WAIT_MS;
-        while ((long)(GetTickCount() - deadline) < 0) {
-            while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
-                TranslateMessage(&msg);
-                DispatchMessageA(&msg);
-            }
-            Sleep(50);
-        }
-
-        log_msg(LOG_MAIN, "Shutdown: STILL RUNNING after %lu ms - the reboot "
-                "did not take; the machine needs a manual restart",
-                (unsigned long)WIN9X_SHUTDOWN_WAIT_MS);
-        /* We killed the chat client to clear its veto and the machine is
-         * still here, so put it back rather than leaving the box without it
-         * until somebody logs on again. */
-        restart_retro_chat();
-        g_power_pending = 0;      /* allow another attempt */
-        log_flush();
-
-        if (hwnd) DestroyWindow(hwnd);
     }
 
     return 0;
 }
 
 /*
- * Initiate system shutdown or reboot.
- * Kills blocking console processes, then launches a helper thread
- * with a message pump to perform the actual ExitWindowsEx/shutdown.exe.
+ * Initiate system shutdown or reboot. Win9x: the shell's SHExitWindowsEx
+ * (do_system_power_9x). NT: kill stray consoles, then shutdown.exe from a
+ * helper thread, and stop the agent.
  */
 static void do_system_power(SOCKET sock, const char *label, UINT ewx_flags)
 {
-    OSVERSIONINFOA osvi;
     HANDLE th;
+
+    if (is_win9x()) {
+        do_system_power_9x(sock, label, ewx_flags);
+        return;
+    }
 
     if (g_power_pending) {
         /* Now that the agent survives a Win9x shutdown attempt, a repeated
@@ -508,9 +488,7 @@ static void do_system_power(SOCKET sock, const char *label, UINT ewx_flags)
      * for if it does not come back. */
     log_flush();
 
-    /* Only clear the chat client's shutdown veto on Win9x: on NT it has no
-     * vote, and killing it there is pure collateral damage. */
-    kill_console_processes(is_win9x());
+    kill_console_processes();
     Sleep(200);
 
     /* Announce the pending power operation BEFORE anything can start tearing
@@ -521,20 +499,9 @@ static void do_system_power(SOCKET sock, const char *label, UINT ewx_flags)
     ResumeThread(th);
     CloseHandle(th);                    /* fire-and-forget: don't leak it */
 
-    osvi.dwOSVersionInfoSize = sizeof(osvi);
-    GetVersionExA(&osvi);
-
-    if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-        /* NT hands off to shutdown.exe, which survives us exiting. */
-        Sleep(500);
-        g_running = 0;
-    }
-    /* Win9x: deliberately DO NOT stop the agent. Killing ourselves here is
-     * what broke REBOOT on Win98 - the shutdown is still being negotiated
-     * with every top-level window, and the process that requested it dying
-     * mid-negotiation cancels it. The result looked exactly like a working
-     * command: "OK" on the wire, retro_agent.exe closes... and Windows
-     * stays up. Let the OS terminate us instead. */
+    /* NT hands off to shutdown.exe, which survives us exiting. */
+    Sleep(500);
+    g_running = 0;
 }
 
 void handle_quit(SOCKET sock)
