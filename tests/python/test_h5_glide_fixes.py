@@ -44,6 +44,24 @@ def test_h5_sli_aa_result_is_recorded():
     assert "retVal = ExtEscape" in src("minihwc/minihwc.c").split("HWCEXT_SLI_AA_REQUEST ;", 1)[1][:3000]
 
 
+def test_sli_aa_request_is_traced_by_one_helper_call_just_before_the_escape():
+    """Fork AA-TRACE (2026-09-27): the SLI/AA request is written to the step
+    trace, flushed, before the escape that programs every chip. That dump sat
+    inline and pushed the escape out of the window above (3241 chars); it is
+    one call to a static helper now, between the request and the escape."""
+    c = src("minihwc/minihwc.c")
+    after = c.split("HWCEXT_SLI_AA_REQUEST ;", 1)[1]
+    call = after.index("hwcTraceSliAAReq(&ctxReq);")
+    esc = after.index("retVal = ExtEscape")
+    assert call < esc
+    # nothing that reaches the hardware between the trace and the escape
+    assert "ExtEscape" not in after[call:esc] and "HWC_IO_" not in after[call:esc]
+    assert "static void\nhwcTraceSliAAReq(const hwcExtRequest_t *q)" in c
+    # and the trace line itself is on the disk before the call returns
+    body = c.split("\nhwcTrace(const char *step, FxU32 reg, FxU32 val)", 1)[1][:900]
+    assert "fflush(f);" in body and "FlushFileBuffers(" in body
+
+
 def test_h6_xp_escape_probed_and_h7_bpp_condition():
     assert "EXT_HWC_WXP, sizeof(ctxReq)" in src("minihwc/minihwc.c")
     g = src("glide3/src/gpci.c")

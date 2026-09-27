@@ -47,6 +47,17 @@
  * the board wedges the box, the last line names the call). The final line is
  * `RESULT {json}`; the host reads the LAST one.
  *
+ * --trace N (0-2) turns on our h5 Glide's own step trace (fork AA-TRACE:
+ * FX_GLIDE_TRACE=N) into <log>.trace - each line flushed to the disk before
+ * the hardware access it names, level 2 also waiting after every FIFO step
+ * of the open until the chips have run it. That is what names the step
+ * INSIDE grSstWinOpen / grLfbReadRegion a deep wedge froze on, where this
+ * log can only name the call. For an AA configuration it also sets
+ * FX_GLIDE_NO_SPLASH=1 (no third-party splash plugin drawing inside the
+ * open). A traced run is a diagnosis, not a benchmark: its RESULT says
+ * "trace":N. A Glide that is not a traced build ignores it (the host sees
+ * no trace header).
+ *
  * Glide is late-bound (any glide3x.dll: --dll), as in glideprobe.c.
  *
  * Build: make glidelab (Makefile; needs the Glide SDK headers, GLIDE_SDK=).
@@ -64,9 +75,12 @@
 /* 2 open/close pairs already exercise enable -> disable -> enable; the 10 this
  * used to default to were 20 re-syncs of .124's CRT ~0.3 s apart (2026-09-26) */
 #define GLIDELAB_MAX_CYCLES 3
+/* FX_GLIDE_TRACE levels the fork knows: 1 steps, 2 steps + a sync per step */
+#define GLIDELAB_MAX_TRACE 2
 
 static FILE *g_log;
 static char  g_logpath[MAX_PATH] = "C:\\glidelab.log";
+static char  g_tracepath[MAX_PATH + 8];         /* <log>.trace, --trace only */
 
 static void say(const char *fmt, ...)
 {
@@ -211,8 +225,25 @@ static HWND make_window(int w, int h)
 /* ---- options ----------------------------------------------------------------------- */
 static struct {
     const char *mode, *dll, *res;
-    int w, h, hz, cfg, frames, layers, blend, cycles, lower;
-} O = { "fill", "glide3x.dll", "640x480", 640, 480, 60, -1, 200, 4, 0, 2, 0 };
+    int w, h, hz, cfg, frames, layers, blend, cycles, lower, trace;
+} O = { "fill", "glide3x.dll", "640x480", 640, 480, 60, -1, 200, 4, 0, 2, 0, 0 };
+
+/* SSTH3_SLI_AA_CONFIGURATION values that turn anti-aliasing on (Glide's
+ * gpci.c: 1 = 2-sample on one chip, 3/6 = 2-sample, 4/7 = 4-sample, 8 =
+ * 8-sample). 0/2/5 are single chip / SLI without AA; -1 = not given. */
+static int aa_config(int cfg)
+{
+    return cfg == 1 || cfg == 3 || cfg == 4 || cfg == 6 || cfg == 7 || cfg == 8;
+}
+
+/* --trace's value: decimal 0..GLIDELAB_MAX_TRACE, nothing else */
+static int parse_trace(const char *v, int *out)
+{
+    if (!v || v[0] < '0' || v[0] > '0' + GLIDELAB_MAX_TRACE || v[1])
+        return 0;
+    *out = v[0] - '0';
+    return 1;
+}
 
 static const struct { const char *name; int code; } RES[] = {
     { "640x480", GR_RESOLUTION_640x480 },   { "800x600", GR_RESOLUTION_800x600 },
@@ -290,13 +321,19 @@ static int pace_before(void)
  * 75 Hz (caught by the opened_hz read-back, 2026-09-26). _putenv updates
  * msvcrt's copy - glidelab and our mingw Glide share msvcrt.dll - and the
  * Win32 block is set too for anything that asks the OS. */
-static void glide_env(const char *name, const char *value)
+static int glide_env(const char *name, const char *value)
 {
-    char kv[96];
-    _snprintf(kv, sizeof kv, "%s=%s", name, value);
-    kv[sizeof kv - 1] = 0;
+    /* a path goes through here too (FX_GLIDE_TRACE_FILE): a truncated one
+     * would send Glide's trace somewhere nobody looks - refused instead */
+    char kv[MAX_PATH + 64];
+    int n = _snprintf(kv, sizeof kv, "%s=%s", name, value);
+    if (n < 0 || n >= (int)sizeof kv) {
+        say("glide_env: %s is too long - NOT set", name);
+        return 0;
+    }
     SetEnvironmentVariableA(name, value);
     _putenv(kv);
+    return 1;
 }
 
 /* The refresh the mode really opened at. FX_GLIDE_REFRESH and the HZ[] code
@@ -395,13 +432,34 @@ static int left_for_exit(const char *step)
  * focus was lost: the run was cut short, and its numbers are not a pass */
 static const char *tail_json(void)
 {
-    static char buf[160];
-    _snprintf(buf, sizeof buf, ",\"opened_hz\":%d%s", g_opened_hz,
+    static char buf[192];
+    char tr[24] = "";
+    /* a traced run flushes the disk at every step: its numbers are a
+     * diagnosis, not a benchmark, and the RESULT says so */
+    if (O.trace > 0)
+        _snprintf(tr, sizeof tr, ",\"trace\":%d", O.trace);
+    tr[sizeof tr - 1] = 0;
+    _snprintf(buf, sizeof buf, ",\"opened_hz\":%d%s%s", g_opened_hz, tr,
               g_focus_lost ? ",\"focus_lost\":true,\"error\":\"the window lost the foreground"
                              " while the board held the mode - run ended\""
                            : ",\"focus_lost\":false");
     buf[sizeof buf - 1] = 0;
     return buf;
+}
+
+/* --trace: did the Glide open the trace file? A Glide that is not a traced
+ * build ignores FX_GLIDE_TRACE; say so in the step log (the host checks the
+ * file's header as well) */
+static void trace_check(const char *when)
+{
+    WIN32_FILE_ATTRIBUTE_DATA fa;
+    if (O.trace <= 0)
+        return;
+    if (GetFileAttributesExA(g_tracepath, GetFileExInfoStandard, &fa))
+        say("trace: %s: %s is %lu bytes", when, g_tracepath, (unsigned long)fa.nFileSizeLow);
+    else
+        say("trace: %s: %s MISSING - this glide3x is not a traced build, or it could not "
+            "open the file", when, g_tracepath);
 }
 
 static int chips_in_use(void)
@@ -521,7 +579,7 @@ int main(int argc, char **argv)
     HWND hwnd;
     FxU32 ctx;
     DWORD pace;
-    const char *bad_pace = NULL;
+    const char *bad_pace = NULL, *bad_trace = NULL;
     char hz[16];
 
     /* A crash must die at once, not sit behind a Watson / "has encountered a
@@ -548,6 +606,11 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--dll") && v) { O.dll = v; i++; }
         else if (!strcmp(a, "--log") && v) { strncpy(g_logpath, v, sizeof g_logpath - 1); i++; }
         else if (!strcmp(a, "--origin") && v) { O.lower = !strcmp(v, "lower"); i++; }
+        else if (!strcmp(a, "--trace") && v) {
+            if (!parse_trace(v, &O.trace))
+                bad_trace = v;
+            i++;
+        }
         else if (!strcmp(a, "--blend")) O.blend = 1;
         else if (a[0] != '-') O.mode = a;
     }
@@ -571,6 +634,11 @@ int main(int argc, char **argv)
             O.mode, bad_pace, VCR_PACE_MAX_MS);
         return 2;
     }
+    if (bad_trace) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"--trace %s: 0 to %d\"}", O.mode, bad_trace,
+            GLIDELAB_MAX_TRACE);
+        return 2;
+    }
     if (rescode < 0) {
         say("RESULT {\"error\":\"no GR_RESOLUTION for %s\"}", O.res);
         return 2;
@@ -590,6 +658,30 @@ int main(int argc, char **argv)
         char env[16];
         _snprintf(env, sizeof env, "%d", O.cfg);
         glide_env("SSTH3_SLI_AA_CONFIGURATION", env);
+    }
+    /* the trace, before the DLL loads: Glide reads FX_GLIDE_TRACE once, at
+     * its first trace point, from the process environment only */
+    if (O.trace > 0) {
+        char lv[8];
+        int n = _snprintf(g_tracepath, sizeof g_tracepath, "%s.trace", g_logpath);
+        if (n < 0 || n >= (int)sizeof g_tracepath) {
+            say("RESULT {\"mode\":\"%s\",\"error\":\"--trace: the log path is too long for "
+                "<log>.trace\"}", O.mode);
+            return 2;
+        }
+        _snprintf(lv, sizeof lv, "%d", O.trace);
+        lv[sizeof lv - 1] = 0;
+        DeleteFileA(g_tracepath);               /* Glide appends: one run, one trace */
+        if (!glide_env("FX_GLIDE_TRACE_FILE", g_tracepath) ||
+            !glide_env("FX_GLIDE_TRACE", lv)) {
+            say("RESULT {\"mode\":\"%s\",\"error\":\"--trace: the Glide settings could not "
+                "be made\"}", O.mode);
+            return 2;
+        }
+        if (aa_config(O.cfg))
+            glide_env("FX_GLIDE_NO_SPLASH", "1");
+        say("trace: level %d -> %s%s", O.trace, g_tracepath,
+            aa_config(O.cfg) ? " (AA config: FX_GLIDE_NO_SPLASH=1)" : "");
     }
     g_dll = LoadLibraryA(O.dll);
     if (!g_dll || !bind_glide()) {
@@ -640,6 +732,7 @@ int main(int argc, char **argv)
             if (!g_focus_lost)
                 ok++;
         }
+        trace_check("after the cycles");
         /* seconds is the wall clock, pace included; paced_s is the part spent
          * waiting out vcr_pace.h's floor, so seconds - paced_s is the board's */
         if (refused)
@@ -685,6 +778,7 @@ int main(int argc, char **argv)
             return 11;
         }
         say("chips in use: %d", chips_in_use());
+        trace_check("after grSstWinOpen");
         if (!strcmp(O.mode, "fill")) {
             rc = do_fill();
         } else if (!strcmp(O.mode, "bands")) {

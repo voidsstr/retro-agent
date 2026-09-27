@@ -45,11 +45,32 @@ re-synced .124's 1998 Sony CRT ~250 times at two a second. So:
     `--then` does not follow it, and glidelab_sweep stops;
   - `--then` waits at least --pace before its session, and does not run at
     all when a survivor of the first could not be confirmed gone.
+
+THE GLIDE STEP TRACE (--trace N, --collect). Our h5 Glide (fork AA-TRACE)
+can write every step of grSstWinOpen, the LFB read and the close to a file,
+each line flushed to the disk before the hardware access it names, so after
+a deep wedge the file's LAST line is the step that froze (level 2 also waits
+after each FIFO step of the open until the chips have run it). `--trace N`
+passes it to glidelab.exe, which has Glide write <mode>.log.trace next to its
+own step log (and, for an AA config, turns the splash plugin off). The old
+trace is deleted before the session and DOWNLOADed after it, saved with the
+step log under evidence/glidelab/trace/ (or --save-dir); a trace without the
+"=== glidetrace" header - the DLL is not a traced build, or it could not
+open the file - is a "trace_error" and fails the run. What came back is in
+the result's "trace_file" (the last line: the step a wedge froze on); its
+"trace" is glidelab's own, the level. A traced run is a diagnosis, not a
+benchmark.
+
+A deep wedge takes the box with it, so nothing can be downloaded until it is
+power-cycled: then `--collect` DOWNLOADs the mode's step log, its trace and
+the fork's default trace file, saves them and prints what they end with -
+and does nothing else: no gate, no upload, no registry, no launch, no switch.
 """
 import argparse
 import asyncio
 import json
 import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -77,6 +98,60 @@ GLIDE_HZ = (60, 70, 72, 75, 85, 100, 120)
 # glidelab opens at 16 bpp (GR_COLORFORMAT_ARGB, a 16-bit colour buffer): the
 # mode the gate checks
 GLIDE_BPP = 16
+# glidelab.c --trace: 0 off, 1 steps, 2 steps + a sync after each FIFO step
+# (GLIDELAB_MAX_TRACE); the fork's own FX_GLIDE_TRACE levels
+TRACE_LEVELS = (0, 1, 2)
+# the first line a traced Glide writes into the file (fork minihwc.c hwcTraceOpen)
+TRACE_HEADER = "=== glidetrace"
+# where the fork writes when FX_GLIDE_TRACE_FILE is not given (HWC_TRACE_PATH)
+DEFAULT_TRACE = rf"{DIR}\glidetrace.log"
+
+
+def trace_path(log):
+    """The file glidelab --trace has Glide write: its own log's path plus
+    ".trace" (glidelab.c: "%s.trace", g_logpath)."""
+    return log + ".trace"
+
+
+def trace_summary(remote, data):
+    """What a downloaded trace says: present, has the header, how many
+    steps, and the LAST one - after a wedge, the step that froze. "error"
+    when there is no usable trace."""
+    if data is None:
+        return {"path": remote, "error": "no trace file - the glide3x is not a traced build, "
+                "the trace could not be opened, or it never reached a trace point"}
+    text = data.decode("latin1", "replace")
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    out = {"path": remote, "bytes": len(data), "lines": len(lines),
+           "header": any(ln.startswith(TRACE_HEADER) for ln in lines),
+           "last": lines[-1] if lines else None}
+    if not out["header"]:
+        out["error"] = (f"trace has no '{TRACE_HEADER}' header - not written by a traced "
+                        "glide3x (or truncated before its first line)")
+    return out
+
+
+def save_dir(a):
+    """Where downloaded logs and traces are kept: in the repo tree, never a
+    scratchpad (they are the only record of a wedge)."""
+    d = Path(a.save_dir) if getattr(a, "save_dir", None) else KMD / "evidence" / "glidelab" / "trace"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def save(a, mode, kind, data):
+    """data saved as <stamp>_<host>_<mode>.<kind>; the local path."""
+    f = save_dir(a) / f"{time.strftime('%Y%m%d_%H%M%S')}_{a.host}_{mode}.{kind}"
+    f.write_bytes(data)
+    return str(f)
+
+
+async def fetch(box, remote):
+    """(bytes | None, why-not-read | None): DOWNLOAD, never EXEC type."""
+    try:
+        return await box.download(remote), None
+    except Exception as e:   # a dead box, a dropped connection
+        return None, f"not read: {type(e).__name__}: {e}"
 
 
 def glide_modes(res_list, refresh):
@@ -122,9 +197,16 @@ async def run_mode(box, a, mode):
         args.append("--blend")
     if a.origin:
         args += ["--origin", a.origin]
+    level = getattr(a, "trace", 0) or 0
+    trace = trace_path(log) if level else None
+    if trace:
+        args += ["--trace", str(level)]
     cmd = (rf'cmd /c start "glidelab" /wait "{DIR}\glidelab.exe" ' + " ".join(args))
     budget = session_budget(mode, a.cycles, a.timeout)
     await box.exec_(rf'cmd /c del /f /q "{log}"')
+    if trace:
+        # Glide appends: a previous session's trace must not read as this one's
+        await box.exec_(rf'cmd /c del /f /q "{trace}"')
     # a glidelab.exe already running is not this session's: a cleanup never
     # kills it (None - PROCLIST did not answer - kills nothing, and says so).
     # Kept on `a` too, for a caller that must clean up after this raised.
@@ -137,8 +219,9 @@ async def run_mode(box, a, mode):
                        "tree (best effort - glidelab may still hold the board and the mode)")
     except Exception as e:  # the host gave up, the connection dropped, EXECW refused
         trouble = f"EXECW did not answer: {type(e).__name__}: {e}"
+    log_bytes = None
     try:
-        data = await box.download(log)
+        data = log_bytes = await box.download(log)
     except Exception as e:
         data = f"(log not read: {type(e).__name__}: {e})".encode()
     text = (data or b"").decode("latin1", "replace")
@@ -172,7 +255,61 @@ async def run_mode(box, a, mode):
             res["wedged"] = True
             ms.banner("GLIDELAB STILL RUNNING", f"a survivor of '{mode}' could not be confirmed "
                       f"gone ({rep.get('left') or rep.get('error')}) - no further session")
+    if trace:
+        # after the cleanup: a session that outlived its EXECW may still have
+        # been appending to it. Downloading switches nothing.
+        # "trace_file": glidelab's own RESULT already says "trace": <level>
+        res["trace_file"] = await collect_trace(box, a, mode, trace, log_bytes)
+        if res["trace_file"].get("error"):
+            res["trace_error"] = res["trace_file"]["error"]
+            ms.banner("NO GLIDE TRACE", f"--trace {level} was asked and {trace}: "
+                      f"{res['trace_error']}")
     return res
+
+
+async def collect_trace(box, a, mode, trace, log_data):
+    """DOWNLOAD the session's trace and keep it, with the step log, in the
+    repo tree. -> trace_summary() plus where it was saved."""
+    data, why = await fetch(box, trace)
+    out = trace_summary(trace, data)
+    if why:
+        out["error"] = why
+    if data:
+        out["saved"] = save(a, mode, "trace", data)
+    if log_data:
+        out["log_saved"] = save(a, mode, "log", log_data)
+    return out
+
+
+async def collect(box, a):
+    """--collect: after a wedge and a power cycle, DOWNLOAD what the last
+    session left on the box - the mode's step log, its trace and the fork's
+    default trace file - save them and print what they end with. Nothing is
+    uploaded, written, launched or switched, so no gate is needed."""
+    log = rf"{DIR}\{a.mode}.log"
+    out = {"mode": a.mode, "host": a.host, "collect": True}
+    for key, remote in (("log", log), ("trace", trace_path(log)),
+                        ("default_trace", DEFAULT_TRACE)):
+        data, why = await fetch(box, remote)
+        if why or data is None:
+            out[key] = {"path": remote, "error": why or "absent"}
+            continue
+        if key == "log":
+            text = data.decode("latin1", "replace")
+            lines = [ln for ln in text.splitlines() if ln.strip()]
+            info = {"path": remote, "bytes": len(data), "last": lines[-1] if lines else None}
+            results = [ln for ln in lines if ln.startswith("RESULT ")]
+            info["result"] = results[-1][7:] if results else None
+        else:
+            info = trace_summary(remote, data)
+        info["saved"] = save(a, a.mode, "log" if key == "log" else key.replace("default_", "default."),
+                             data)
+        out[key] = info
+    print(json.dumps(out), flush=True)
+    if "error" in out["log"]:
+        ms.banner("NOTHING COLLECTED", f"{log}: {out['log']['error']}")
+        return 1
+    return 0
 
 
 async def gate(box, a, modes):
@@ -185,6 +322,8 @@ async def gate(box, a, modes):
 
 async def main_async(a):
     box = vb.Box(a.host)
+    if getattr(a, "collect", False):
+        return await collect(box, a)
     a.pace = max(a.pace, ms.PACE_FLOOR_S)
     modes = glide_modes([a.res], a.refresh)      # --then opens the same mode
     runs = [a.mode] + ([a.then] if a.then else [])
@@ -227,7 +366,9 @@ async def main_async(a):
         with open(a.json_out, "a") as f:
             for r in out:
                 f.write(json.dumps(r) + "\n")
-    return 0 if all("error" not in r for r in out) else 1
+    # a trace that was asked for and not produced fails the run too: the
+    # diagnosis it was for did not happen
+    return 0 if all("error" not in r and "trace_error" not in r for r in out) else 1
 
 
 def main():
@@ -259,6 +400,14 @@ def main():
     ap.add_argument("--tool", default=VCRCTL,
                     help="vcrctl.exe on the box (info, modes, pace-kill, pace-mark)")
     ap.add_argument("--json-out")
+    ap.add_argument("--trace", type=int, choices=TRACE_LEVELS, default=0,
+                    help="our h5 Glide's step trace (FX_GLIDE_TRACE): 1 steps, 2 steps plus a "
+                         "sync after each FIFO step of the open; saved with the step log")
+    ap.add_argument("--collect", action="store_true",
+                    help="only DOWNLOAD the MODE's step log and trace left by the last session "
+                         "(after a wedge and power cycle) - nothing is run or switched")
+    ap.add_argument("--save-dir", help="where downloaded logs/traces are kept "
+                    "(default: evidence/glidelab/trace/)")
     a = ap.parse_args()
     if a.cycles > MAX_CYCLES:
         ap.error(f"--cycles {a.cycles} REFUSED: at most {MAX_CYCLES} (each open and each "
