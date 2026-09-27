@@ -301,6 +301,10 @@ def test_vcrctl_sliaa_gates_before_it_sends_and_sends_like_glide():
     assert cfg < pll < pace < excl < req < rls < after
     assert body.index("vid2x = sliaa_vid2x(&vpc);") < pll
     assert "if (c.off || !ok) {" in body[req:rls]
+    # `off` is a separate process from the enable: it must become the owner
+    # before its release, or the driver refuses a non-owner HWCRLSEXCLUSIVE
+    # (vcrdd_escape.c, 967b4aa) and the desktop mode is never restored
+    assert "if (!c.off) {" not in body[pace:excl]
     assert "vcr_pace_cancel();" in body[excl:req]          # exclusive refused: no switch
     assert body.index('return fail("sliaa", g_vcr_pace_why);') > pace
     assert "vcr_sliaa_fill(&c, chips, fb, &sent);" in body

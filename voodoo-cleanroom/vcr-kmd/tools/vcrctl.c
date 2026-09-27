@@ -790,7 +790,12 @@ static int cmd_sliaa(int argc, char **argv)
     vcr_sliaa_fill(&c, chips, fb, &sent);
     if (!vcr_pace_before_switch())
         return fail("sliaa", g_vcr_pace_why);
-    if (!c.off) {
+    /* `off` takes exclusive too: it runs as a NEW process, and the driver
+     * refuses an HWCRLSEXCLUSIVE from anyone but the owner while there is
+     * one (vcrdd_escape.c, 967b4aa) - the owner here is the `sliaa` enable
+     * that already exited. HWCSETEXCLUSIVE makes this process the owner, as a
+     * new Glide open would, so its release restores the desktop mode. */
+    {
         memset(&rq, 0, sizeof rq);
         memset(&rs, 0, sizeof rs);
         n = hwc(VCR_HWC_HWCSETEXCLUSIVE, &rq, &rs);

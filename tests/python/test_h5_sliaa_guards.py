@@ -471,8 +471,11 @@ def test_vcr_kmd_turns_sli_off_when_glide_releases_exclusive_mode():
     kmd = Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd"
     esc = (kmd / "display" / "vcrdd_escape.c").read_text()
     rls = esc[esc.index("case VCR_HWC_HWCRLSEXCLUSIVE:"):]
-    rls = rls[:rls.index("break;")]
+    rls = rls[:rls.index("case VCR_HWC_", len("case VCR_HWC_HWCRLSEXCLUSIVE:"))]
+    # the owner's own release (a non-owner's is refused first, 967b4aa) sets
+    # the desktop mode back and clears the owner
     assert "IOCTL_VCR_RESTORE_MODE" in rls and "pd->exclusive_pid = 0;" in rls
+    assert rls.index("pid != pd->exclusive_pid") < rls.index("IOCTL_VCR_RESTORE_MODE")
     mp = (kmd / "miniport" / "vcrmp.c").read_text()
     io = mp[mp.index("case IOCTL_VCR_RESTORE_MODE:"):]
     assert "VcrHwRestoreMode(x)" in io[:io.index("break;")]
