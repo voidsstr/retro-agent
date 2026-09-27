@@ -709,3 +709,135 @@ def test_collect_banners_an_armed_aa_value_and_restores_only_when_asked(monkeypa
     a, code = _parsed(["h", "fill", "--collect", "--restore-cfg", "7"])
     assert code == 2 and a is None
 
+
+
+# ---- our Glide's other opt-ins: RETRO_GLIDE_AA_LFB_READ and RETRO_GLIDE_MAPLOG --------
+# (2026-09-27, a tool gap from the v56k plan's supervised checklist). Our h5
+# Glide reads both with a plain getenv - the process environment only, never
+# the registry - so glidelab.exe sets them with glide_env before the DLL
+# loads. RETRO_GLIDE_AA_LFB_READ=1 re-enables the multi-chip AA LFB read that
+# froze .124 on cfg 3, so it takes --i-am-at-the-box, in glidelab_run.py AND
+# in glidelab.exe, and without the flag an inherited value is overridden.
+
+MAPLOG = LOG + ".maplog"
+MAPLOG_DATA = (b"pid=1212 chips=4 realChips=4\n"
+               b"  chip 0 base0 0xd0000000 state=MEM_COMMIT protect=0x204\n")
+
+
+def test_glidelab_sets_our_glides_opt_ins_in_its_environment_never_the_registry():
+    main = _func(GLIDELAB, "int main(int argc, char **argv)")
+    code = _blank(main)
+    load = main.index("LoadLibraryA(O.dll)")
+    for flag, dst in (('"--aa-lfb-read"', "g_aa_lfb_read = 1;"), ('"--i-am-at-the-box"', "g_at_box = 1;"),
+                      ('"--maplog"', "g_maplog = v; i++;")):
+        assert re.search(r"!strcmp\(a, " + re.escape(flag) + r"\)[^;]*\) \{? ?" + re.escape(dst.split(";")[0]),
+                         main), flag
+    # refused without the confirmation - rc 2, before the DLL loads or any window
+    refuse = main.index('aa_lfb_read_env(g_aa_lfb_read, g_at_box, getenv("RETRO_GLIDE_AA_LFB_READ"), '
+                        '&lfb_env) < 0')
+    assert refuse < load < main.index("hwnd = make_window(")
+    assert re.search(r"&lfb_env\) < 0\) \{[^}]*return 2;", code)
+    assert "--i-am-at-the-box: a multi-chip AA LFB read froze .124 (cfg 3)" in main
+    # both through glide_env (msvcrt's copy, which Glide's getenv reads), before the load
+    for var, val in (("RETRO_GLIDE_AA_LFB_READ", "lfb_env"), ("RETRO_GLIDE_MAPLOG", "g_maplog")):
+        assert main.index(f'glide_env("{var}", {val})') < load, var
+    # the fork appends to the mapping log: the old one goes first
+    assert main.index("DeleteFileA(g_maplog);") < main.index('glide_env("RETRO_GLIDE_MAPLOG"')
+    # never the registry: glidelab.c writes no key at all
+    for w in ("RegSetValue", "RegCreateKey", "RegDeleteValue", "RegDeleteKey", "SHSetValue"):
+        assert w not in _blank(GLIDELAB), w
+    # the RESULT says when AA LFB reads were let through
+    assert ',\\"aa_lfb_read\\":1' in _func(GLIDELAB, "static const char *tail_json(void)")
+    # the pass-throughs live outside O, whose layout the tests above pin
+    assert "static int         g_aa_lfb_read, g_at_box;" in GLIDELAB
+
+
+def test_glidelab_aa_lfb_read_decision_runs():
+    """aa_lfb_read_env, compiled from glidelab.c and run: "1" only when asked
+    AND confirmed; asked without the confirmation is refused; not asked, an
+    inherited value is overridden with "0" (the fork honours exactly "1")."""
+    cc = shutil.which("gcc") or shutil.which("cc")
+    if cc is None:
+        pytest.skip("no host C compiler - aa_lfb_read_env was NOT run")
+    import tempfile
+    body = "\n".join((
+        "#include <stdio.h>",
+        _func(GLIDELAB, "static int aa_lfb_read_env(int asked, int at_box, const char *inherited, "
+                        "const char **value)"),
+        "static void t(int a, int b, const char *in) { const char *v = (const char *)1;",
+        '  int rc = aa_lfb_read_env(a, b, in, &v);',
+        '  printf("%d%d%s=%d:%s\\n", a, b, in ? in : "N", rc, v ? v : "NULL"); }',
+        "int main(void) {",
+        '  t(0,0,0); t(0,0,"1"); t(0,0,""); t(0,1,"1"); t(0,1,0);',
+        '  t(1,0,0); t(1,0,"1"); t(1,1,0); t(1,1,"0"); t(1,1,"1");',
+        "  return 0; }"))
+    with tempfile.TemporaryDirectory() as d:
+        (Path(d) / "l.c").write_text(body)
+        r = subprocess.run([cc, "-Wall", "-Werror", "-o", str(Path(d) / "l"), str(Path(d) / "l.c")],
+                           capture_output=True, text=True)
+        assert r.returncode == 0, r.stderr
+        out = subprocess.run([str(Path(d) / "l")], capture_output=True, text=True).stdout
+    got = dict(ln.split("=", 1) for ln in out.splitlines())
+    assert got == {"00N": "0:NULL", "001": "0:0", "00": "0:NULL", "011": "0:0", "01N": "0:NULL",
+                   "10N": "-1:NULL", "101": "-1:NULL", "11N": "0:1", "110": "0:1", "111": "0:1"}
+
+
+def test_aa_lfb_read_needs_the_confirmation_before_anything_connects(monkeypatch, tmp_path, capsys):
+    a, code = _parsed(["h", "fill", "--aa-lfb-read"])
+    assert code == 2 and a is None                      # argparse: refused
+    a = _args(tmp_path, "--aa-lfb-read", "--i-am-at-the-box")
+    assert a.aa_lfb_read and a.i_am_at_the_box and not a.maplog
+    # a caller's own namespace without the confirmation: nothing is launched
+    a.i_am_at_the_box = False
+    box = FakeBox({LOG: GOOD_LOG})
+    res = asyncio.run(glidelab_run.run_mode(box, a, "fill"))
+    assert res["refused"] and "--i-am-at-the-box" in res["error"] and box.timeline == []
+    # nor through main_async: refused before the box is asked anything
+    a, code = _parsed(["h", "fill", "--aa-lfb-read", "--i-am-at-the-box"])
+    box = FakeBox({LOG: GOOD_LOG})
+    a.i_am_at_the_box = False
+    monkeypatch.setattr(glidelab_run.vb, "Box", lambda ip: box)
+    assert asyncio.run(glidelab_run.main_async(a)) == 2 and box.timeline == []
+
+
+def test_aa_lfb_read_is_passed_to_glidelab_only_when_confirmed(monkeypatch, tmp_path, capsys):
+    a = _args(tmp_path, "--aa-lfb-read", "--i-am-at-the-box")
+    box = FakeBox({LOG: GOOD_LOG})
+    res = asyncio.run(glidelab_run.run_mode(box, a, "fill"))
+    assert "error" not in res
+    assert "--aa-lfb-read --i-am-at-the-box" in box.timeline[box.at("EXECW")]
+    a = _args(tmp_path)
+    box = FakeBox({LOG: GOOD_LOG})
+    asyncio.run(glidelab_run.run_mode(box, a, "fill"))
+    ex = box.timeline[box.at("EXECW")]
+    assert "--aa-lfb-read" not in ex and "--i-am-at-the-box" not in ex and "--maplog" not in ex
+    # the plan says so, loudly
+    assert _main(monkeypatch, tmp_path, FakeBox({LOG: GOOD_LOG}),
+                 _aa_argv(tmp_path, "--aa-lfb-read", "--i-am-at-the-box")) == 0
+    assert "AA LFB READS ALLOWED" in capsys.readouterr().out
+
+
+def test_a_maplog_session_deletes_the_old_log_and_brings_the_new_one_home(tmp_path):
+    a = _args(tmp_path, "--maplog")
+    box = FakeBox({LOG: GOOD_LOG, MAPLOG: MAPLOG_DATA})
+    res = asyncio.run(glidelab_run.run_mode(box, a, "fill"))
+    ex = box.at("EXECW")
+    assert f"--maplog {MAPLOG}" in box.timeline[ex]
+    assert box.at(f'del /f /q "{MAPLOG}"') < ex < box.at(f"DOWNLOAD {MAPLOG}")
+    m = res["maplog_file"]
+    assert "maplog_error" not in res and "error" not in res
+    assert m["passes"] == 1 and m["lines"] == 2 and m["last"].startswith("  chip 0 base0")
+    assert Path(m["saved"]).read_bytes() == MAPLOG_DATA and Path(m["saved"]).parent == tmp_path / "saved"
+    assert glidelab_run.maplog_path(LOG) == MAPLOG
+
+
+@pytest.mark.parametrize("data", (None, b"", b"not a mapping log\n", OSError("dropped")),
+                         ids=("absent", "empty", "no-pid-line", "download-raised"))
+def test_a_maplog_asked_for_and_not_produced_fails_the_run(monkeypatch, tmp_path, data):
+    a = _args(tmp_path, "--maplog")
+    res = asyncio.run(glidelab_run.run_mode(FakeBox({LOG: GOOD_LOG, MAPLOG: data}), a, "fill"))
+    assert res["maplog_error"] and "error" not in res
+    argv = ["h", "fill", "--res", "1024x768", "--refresh", "85", "--maplog",
+            "--save-dir", str(tmp_path / "s")]
+    assert _main(monkeypatch, tmp_path, FakeBox({LOG: GOOD_LOG, MAPLOG: data}), argv) == 1
+    assert _main(monkeypatch, tmp_path, FakeBox({LOG: GOOD_LOG, MAPLOG: MAPLOG_DATA}), argv) == 0

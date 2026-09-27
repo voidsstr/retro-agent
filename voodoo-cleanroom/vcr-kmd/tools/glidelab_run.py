@@ -89,6 +89,22 @@ from the registry). An AA --cfg written to the registry is put back after the
 session - the value that was there if it was not AA, else --restore-cfg
 (default 5) - and read back; a box that cannot be reached for that gets a
 banner naming the command to run after the power cycle.
+
+OUR GLIDE'S OTHER OPT-INS (2026-09-27). Both reach Glide the only way it reads
+them - glidelab.exe puts them in its own process environment (glide_env)
+before the DLL loads; nothing is written to the registry:
+  - `--aa-lfb-read --i-am-at-the-box`: RETRO_GLIDE_AA_LFB_READ=1, which lets
+    our Glide READ the LFB in a multi-chip AA mode - the read that froze .124
+    on cfg 3 (2026-09-26). Refused without --i-am-at-the-box, here (before
+    anything connects) and by glidelab.exe itself; without the flag
+    glidelab.exe sets an inherited value to 0, so nothing left on the box can
+    opt a run in. The plan prints a banner, and the RESULT says
+    "aa_lfb_read":1.
+  - `--maplog`: RETRO_GLIDE_MAPLOG=<step log>.maplog - our Glide appends every
+    mapping it dereferences (base0, base1, the slaves' registers, with what
+    VirtualQuery says). Deleted before the session, DOWNLOADed after it (after
+    any cleanup) and saved beside the step log; a missing one, or one with no
+    "pid=" line, is a "maplog_error" that fails the run.
 """
 import argparse
 import asyncio
@@ -250,6 +266,38 @@ def trace_path(log):
     return log + ".trace"
 
 
+def maplog_path(log):
+    """The file glidelab --maplog has our Glide append its mappings to: the
+    step log's path plus ".maplog"."""
+    return log + ".maplog"
+
+
+def maplog_summary(remote, data):
+    """What a downloaded mapping log says: its size, the mapping passes it
+    records (fork minihwc.c hwcLogMappings: one "pid=N chips=.." line each)
+    and its last line. "error" when there is none."""
+    if data is None:
+        return {"path": remote, "error": "no mapping log - the glide3x is not one that reads "
+                "RETRO_GLIDE_MAPLOG, or it never mapped the board"}
+    text = data.decode("latin1", "replace")
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    out = {"path": remote, "bytes": len(data), "lines": len(lines),
+           "passes": sum(1 for ln in lines if ln.startswith("pid=")),
+           "last": lines[-1] if lines else None}
+    if not out["passes"]:
+        out["error"] = "mapping log with no 'pid=' line - not written by our glide3x"
+    return out
+
+
+def aa_lfb_read_refusal(a):
+    """None, or why --aa-lfb-read may not run: only with someone at the box."""
+    if getattr(a, "aa_lfb_read", False) and not getattr(a, "i_am_at_the_box", False):
+        return ("--aa-lfb-read REFUSED without --i-am-at-the-box: RETRO_GLIDE_AA_LFB_READ=1 "
+                "lets our Glide READ the LFB in a multi-chip AA mode - the read that froze "
+                ".124 on cfg 3 (2026-09-26). Only with someone at the box")
+    return None
+
+
 def trace_summary(remote, data):
     """What a downloaded trace says: present, has the header, how many
     steps, and the LAST one - after a wedge, the step that froze. "error"
@@ -340,12 +388,24 @@ async def run_mode(box, a, mode):
         args += ["--trace", str(level)]
         if getattr(a, "trace_cfg", False):
             args.append("--trace-cfg")
+    why = aa_lfb_read_refusal(a)
+    if why:
+        # the gate for a caller that built its own namespace: nothing launched
+        return {"mode": mode, "error": why, "refused": True}
+    if getattr(a, "aa_lfb_read", False):
+        # glidelab.exe refuses the first without the second as well
+        args += ["--aa-lfb-read", "--i-am-at-the-box"]
+    maplog = maplog_path(log) if getattr(a, "maplog", False) else None
+    if maplog:
+        args += ["--maplog", maplog]
     cmd =(rf'cmd /c start "glidelab" /wait "{DIR}\glidelab.exe" ' + " ".join(args))
     budget = session_budget(mode, a.cycles, a.timeout)
     await box.exec_(rf'cmd /c del /f /q "{log}"')
     if trace:
         # Glide appends: a previous session's trace must not read as this one's
         await box.exec_(rf'cmd /c del /f /q "{trace}"')
+    if maplog:
+        await box.exec_(rf'cmd /c del /f /q "{maplog}"')     # appended too
     # a glidelab.exe already running is not this session's: a cleanup never
     # kills it (None - PROCLIST did not answer - kills nothing, and says so).
     # Kept on `a` too, for a caller that must clean up after this raised.
@@ -403,6 +463,19 @@ async def run_mode(box, a, mode):
             res["trace_error"] = res["trace_file"]["error"]
             ms.banner("NO GLIDE TRACE", f"--trace {level} was asked and {trace}: "
                       f"{res['trace_error']}")
+    if maplog:
+        # after the cleanup too; downloading switches nothing
+        data, why_not = await fetch(box, maplog)
+        info = maplog_summary(maplog, data)
+        if why_not:
+            info["error"] = why_not
+        if data:
+            info["saved"] = save(a, mode, "maplog", data)
+        res["maplog_file"] = info
+        if info.get("error"):
+            res["maplog_error"] = info["error"]
+            ms.banner("NO GLIDE MAPPING LOG", f"--maplog was asked and {maplog}: "
+                      f"{res['maplog_error']}")
     return res
 
 
@@ -509,6 +582,10 @@ async def main_async(a):
     box = vb.Box(a.host)
     if getattr(a, "collect", False):
         return await collect(box, a)
+    why = aa_lfb_read_refusal(a)
+    if why:
+        ms.refuse(why)
+        return 2
     a.pace = max(a.pace, ms.PACE_FLOOR_S)
     modes = glide_modes([a.res], a.refresh)      # --then opens the same mode
     runs = [a.mode] + ([a.then] if a.then else [])
@@ -527,6 +604,10 @@ async def main_async(a):
     glide = await glide_identity(box, a.glide)
     print(f"plan: {len(runs)} glidelab run(s) at {modes[0]}  {ms.rates(calc, modes[0])}"
           f"\n  monitor {ms.describe(rng)}\n  {describe_glide(glide)}", flush=True)
+    if getattr(a, "aa_lfb_read", False):
+        ms.banner("AA LFB READS ALLOWED", "this run passes RETRO_GLIDE_AA_LFB_READ=1 to our "
+                  "Glide (process environment only): a READ lock in a multi-chip AA mode goes "
+                  "through - the read that froze .124 on cfg 3. --i-am-at-the-box was given")
     if a.cfg in AA_CFGS and not glide["guard"]:
         ms.refuse(f"--cfg {a.cfg} is an AA configuration and {a.glide} "
                   + (f"could not be read to confirm RETRO3DFX_SLIAA_GUARD ({glide['error']})"
@@ -557,7 +638,8 @@ async def main_async(a):
         return 1
     # a trace that was asked for and not produced fails the run too: the
     # diagnosis it was for did not happen
-    return 0 if all("error" not in r and "trace_error" not in r for r in out) else 1
+    return 0 if all("error" not in r and "trace_error" not in r and "maplog_error" not in r
+                    for r in out) else 1
 
 
 async def run_sessions(box, a, runs):
@@ -631,6 +713,16 @@ def main():
                     help="with --collect: write this where an AA SSTH3_SLI_AA_CONFIGURATION was "
                          "found, and read it back; for a run with an AA --cfg: what to put back "
                          "when the value before it was absent or AA (default 5)")
+    ap.add_argument("--aa-lfb-read", action="store_true",
+                    help="RETRO_GLIDE_AA_LFB_READ=1 in glidelab's environment: our Glide lets a "
+                         "READ lock through in a multi-chip AA mode (it froze .124 on cfg 3). "
+                         "Only with --i-am-at-the-box")
+    ap.add_argument("--i-am-at-the-box", action="store_true",
+                    help="the confirmation --aa-lfb-read needs: someone is at the box to "
+                         "power-cycle it")
+    ap.add_argument("--maplog", action="store_true",
+                    help="RETRO_GLIDE_MAPLOG=<step log>.maplog: our Glide's mapping log, "
+                         "brought home and saved beside the step log")
     ap.add_argument("--save-dir", help="where downloaded logs/traces are kept "
                     "(default: evidence/glidelab/trace/)")
     a = ap.parse_args()
@@ -639,7 +731,7 @@ def main():
                  "close re-syncs the monitor)")
     if a.trace_cfg and not a.trace:
         ap.error("--trace-cfg REFUSED without --trace 1 or 2 (the dumps are part of a trace)")
-    why = bad_refresh(a.refresh)
+    why = bad_refresh(a.refresh) or aa_lfb_read_refusal(a)
     if why:
         ap.error(why)
     sys.exit(asyncio.run(main_async(a)))

@@ -679,3 +679,46 @@ def test_d3dprobe_zfmt_asks_for_a_depth_format_the_hal_must_refuse():
     assert d3dprobe_run.lab_args(ns, "L").endswith(" --zfmt d24s8")
     run = (KMD / "tools" / "d3dprobe_run.py").read_text()
     assert 'choices=("d16", "d24x8", "d24s8")' in run
+
+
+def test_d3dprobe_run_passes_noz_and_refuses_it_before_anything_connects(monkeypatch, capsys):
+    """Plan step 16's first 32 bpp step on silicon is `render --noz` (the
+    colour path alone), and d3dprobe.exe has had --noz since the 32 bpp track
+    - but d3dprobe_run.py could not ask for it (a tool gap from the plan
+    checklist, 2026-09-27). It now passes --noz through; the command line is
+    unchanged without it; and --noz with --zfmt (which d3dprobe refuses, but
+    only after the upload) or with caps (no device) is refused before any
+    connection."""
+    import argparse
+    import asyncio
+    import sys
+    sys.path.insert(0, str(KMD / "tools"))
+    sys.path.insert(0, str(REPO))
+    import d3dprobe_run
+    base = dict(mode="render", res="640x480", bpp=32, frames=200, full=True, novsync=False,
+                tests="", zfmt=None, noz=False)
+    ns = argparse.Namespace(**base)
+    assert d3dprobe_run.lab_args(ns, "L") == \
+        "render --res 640x480 --bpp 32 --frames 200 --log L --full"          # as before
+    ns.noz = True
+    assert d3dprobe_run.lab_args(ns, "L") == \
+        "render --res 640x480 --bpp 32 --frames 200 --log L --full --noz"
+    assert d3dprobe_run.arg_refusal(ns) is None
+    # the flag d3dprobe.exe itself parses
+    assert 'else if (!strcmp(a, "--noz")) g_noz = 1;' in PROBE
+
+    async def no_box(*a, **k):
+        raise AssertionError("a refused run connected to the box")
+    monkeypatch.setattr(d3dprobe_run, "call", no_box)
+    monkeypatch.setattr(d3dprobe_run, "call_st", no_box)
+    for extra, why in (({"zfmt": "d24s8"}, "--noz with --zfmt"),
+                       ({"mode": "caps", "full": False}, "--noz with caps")):
+        a = argparse.Namespace(**dict(base, noz=True, host="127.0.0.1", port=19920, timeout=180,
+                                      tool="x", test_bed=True, **extra))
+        assert why in d3dprobe_run.arg_refusal(a)
+        assert asyncio.run(d3dprobe_run.main_async(a)) == 2
+        out = capsys.readouterr().out
+        assert '"refused": true' in out and why in out
+    # and argparse knows the flag
+    run = (KMD / "tools" / "d3dprobe_run.py").read_text()
+    assert 'ap.add_argument("--noz", action="store_true",' in run

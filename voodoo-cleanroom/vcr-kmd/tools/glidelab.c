@@ -67,6 +67,18 @@
  * add the guards were local-only, and a Glide built from origin before them
  * sent the request that froze .124 on cfg 1.
  *
+ * Two more of our Glide's opt-in settings, made where Glide reads them - the
+ * process environment (glide_env), never the registry, before the DLL loads:
+ *   --aa-lfb-read --i-am-at-the-box   RETRO_GLIDE_AA_LFB_READ=1: our Glide
+ *            then lets a READ lock through in a multi-chip AA mode - the read
+ *            that froze .124 on cfg 3 (fork SLIAA-GUARD, glfb.c). Refused
+ *            (rc 2, before anything loads) without the confirmation; without
+ *            the flag an INHERITED value is set to 0, so only this command
+ *            line can opt in. RESULT "aa_lfb_read":1 when it did.
+ *   --maplog PATH   RETRO_GLIDE_MAPLOG=PATH: our Glide appends every mapping
+ *            it dereferences (base0, base1, the slaves' registers, with what
+ *            VirtualQuery says) - the file is deleted first, one run one log.
+ *
  * Glide is late-bound (any glide3x.dll: --dll), as in glideprobe.c.
  *
  * Build: make glidelab (Makefile; needs the Glide SDK headers, GLIDE_SDK=).
@@ -236,6 +248,10 @@ static struct {
     const char *mode, *dll, *res;
     int w, h, hz, cfg, frames, layers, blend, cycles, lower, trace, trace_cfg;
 } O = { "fill", "glide3x.dll", "640x480", 640, 480, 60, -1, 200, 4, 0, 2, 0, 0, 0 };
+/* Glide environment pass-throughs (kept out of O, whose layout the host tests
+ * pin): --aa-lfb-read, its --i-am-at-the-box, --maplog PATH */
+static int         g_aa_lfb_read, g_at_box;
+static const char *g_maplog;
 
 /* SSTH3_SLI_AA_CONFIGURATION values that turn anti-aliasing on (Glide's
  * gpci.c: 1 = 2-sample on one chip, 3/6 = 2-sample, 4/7 = 4-sample, 8 =
@@ -354,6 +370,25 @@ static void effective_config(void)
               aa_set ? ", FX_GLIDE_AA_SAMPLE=" : "", aa_set ? v : "",
               aa_set ? " overrides the samples" : "", g_eff_aa ? "AA" : "no AA");
     g_eff_why[sizeof g_eff_why - 1] = 0;
+}
+
+/* RETRO_GLIDE_AA_LFB_READ for our Glide (fork glfb.c: a READ lock in a
+ * multi-chip AA mode is let through only for exactly "1", read from the
+ * process environment). asked = --aa-lfb-read, at_box = --i-am-at-the-box,
+ * inherited = the value glidelab started with. -> -1 refused (asked without
+ * the confirmation); 0 and *value = what to set, or NULL = leave it: "1" only
+ * when asked AND confirmed, "0" over any inherited value otherwise - so no
+ * environment left on the box can opt a glidelab run in. */
+static int aa_lfb_read_env(int asked, int at_box, const char *inherited, const char **value)
+{
+    *value = NULL;
+    if (asked && !at_box)
+        return -1;
+    if (asked)
+        *value = "1";
+    else if (inherited && *inherited)
+        *value = "0";
+    return 0;
 }
 
 /* --trace's value: decimal 0..GLIDELAB_MAX_TRACE, nothing else */
@@ -552,14 +587,16 @@ static int left_for_exit(const char *step)
  * focus was lost: the run was cut short, and its numbers are not a pass */
 static const char *tail_json(void)
 {
-    static char buf[192];
+    static char buf[256];
     char tr[24] = "";
     /* a traced run flushes the disk at every step: its numbers are a
      * diagnosis, not a benchmark, and the RESULT says so */
     if (O.trace > 0)
         _snprintf(tr, sizeof tr, ",\"trace\":%d", O.trace);
     tr[sizeof tr - 1] = 0;
-    _snprintf(buf, sizeof buf, ",\"opened_hz\":%d%s%s", g_opened_hz, tr,
+    /* ... as does a run that let multi-chip AA LFB reads through */
+    _snprintf(buf, sizeof buf, ",\"opened_hz\":%d%s%s%s", g_opened_hz, tr,
+              g_aa_lfb_read ? ",\"aa_lfb_read\":1" : "",
               g_focus_lost ? ",\"focus_lost\":true,\"error\":\"the window lost the foreground"
                              " while the board held the mode - run ended\""
                            : ",\"focus_lost\":false");
@@ -699,7 +736,7 @@ int main(int argc, char **argv)
     HWND hwnd;
     FxU32 ctx;
     DWORD pace;
-    const char *bad_pace = NULL, *bad_trace = NULL;
+    const char *bad_pace = NULL, *bad_trace = NULL, *lfb_env = NULL;
     char hz[16];
 
     /* A crash must die at once, not sit behind a Watson / "has encountered a
@@ -732,6 +769,9 @@ int main(int argc, char **argv)
             i++;
         }
         else if (!strcmp(a, "--trace-cfg")) O.trace_cfg = 1;
+        else if (!strcmp(a, "--aa-lfb-read")) g_aa_lfb_read = 1;
+        else if (!strcmp(a, "--i-am-at-the-box")) g_at_box = 1;
+        else if (!strcmp(a, "--maplog") && v) { g_maplog = v; i++; }
         else if (!strcmp(a, "--blend")) O.blend = 1;
         else if (a[0] != '-') O.mode = a;
     }
@@ -763,6 +803,17 @@ int main(int argc, char **argv)
     /* the config-space dumps are an addition to a trace, never on their own */
     if (O.trace_cfg && O.trace <= 0) {
         say("RESULT {\"mode\":\"%s\",\"error\":\"--trace-cfg needs --trace 1 or 2\"}", O.mode);
+        return 2;
+    }
+    /* a multi-chip AA LFB read froze .124 (cfg 3): opting our Glide back in
+     * takes the confirmation, and nothing but this command line can opt in */
+    if (aa_lfb_read_env(g_aa_lfb_read, g_at_box, getenv("RETRO_GLIDE_AA_LFB_READ"), &lfb_env) < 0) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"--aa-lfb-read REFUSED without "
+            "--i-am-at-the-box: a multi-chip AA LFB read froze .124 (cfg 3)\"}", O.mode);
+        return 2;
+    }
+    if (g_maplog && !*g_maplog) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"--maplog needs a file path\"}", O.mode);
         return 2;
     }
     if (rescode < 0) {
@@ -824,6 +875,27 @@ int main(int argc, char **argv)
         say("trace: level %d -> %s%s%s", O.trace, g_tracepath,
             g_eff_aa ? " (AA open: FX_GLIDE_NO_SPLASH=1 FX_GLIDE_NO_PLUGIN=1)" : "",
             O.trace_cfg ? " (FX_GLIDE_TRACE_CFG=1: config-space dumps)" : "");
+    }
+    /* our Glide's opt-ins, where it reads them - the process environment,
+     * never the registry - before the DLL loads */
+    if (lfb_env) {
+        if (!glide_env("RETRO_GLIDE_AA_LFB_READ", lfb_env)) {
+            say("RESULT {\"mode\":\"%s\",\"error\":\"RETRO_GLIDE_AA_LFB_READ could not be "
+                "set\"}", O.mode);
+            return 2;
+        }
+        say("aa lfb read: RETRO_GLIDE_AA_LFB_READ=%s%s", lfb_env, g_aa_lfb_read
+            ? " (--aa-lfb-read --i-am-at-the-box: a READ lock in multi-chip AA is let through)"
+            : " (an inherited value overridden: only --aa-lfb-read --i-am-at-the-box opts in)");
+    }
+    if (g_maplog) {
+        DeleteFileA(g_maplog);                  /* Glide appends: one run, one log */
+        if (!glide_env("RETRO_GLIDE_MAPLOG", g_maplog)) {
+            say("RESULT {\"mode\":\"%s\",\"error\":\"--maplog: the path is too long for "
+                "the environment\"}", O.mode);
+            return 2;
+        }
+        say("maplog: RETRO_GLIDE_MAPLOG=%s", g_maplog);
     }
     g_dll = LoadLibraryA(O.dll);
     if (!g_dll || !bind_glide()) {

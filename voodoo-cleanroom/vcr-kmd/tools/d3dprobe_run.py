@@ -4,6 +4,8 @@
     d3dprobe_run.py 127.0.0.1 --port 19920 caps
     d3dprobe_run.py 127.0.0.1 --port 19920 render [--full --res 800x600 --bpp 16]
     d3dprobe_run.py 127.0.0.1 --port 19920 render --zfmt d24s8     (a device the HAL must refuse)
+    d3dprobe_run.py 192.168.1.124 render --full --res 640x480 --bpp 32 --noz
+                                        (no depth buffer: the colour path alone)
     d3dprobe_run.py 192.168.1.124 perf --full --res 800x600 --frames 300
 
 Uploads out/d3dprobe.exe to C:\\vcr\\d3dprobe\\, runs it through `start /wait`
@@ -77,7 +79,8 @@ def refused(a, why):
 
 
 def lab_args(a, log):
-    """d3dprobe's command line: exactly today's unless --zfmt is asked for."""
+    """d3dprobe's command line: exactly today's unless --zfmt or --noz is
+    asked for."""
     args = f"{a.mode} --res {a.res} --bpp {a.bpp} --frames {a.frames} --log {log}"
     if a.full:
         args += " --full"
@@ -87,11 +90,28 @@ def lab_args(a, log):
         args += f" --tests {a.tests}"
     if getattr(a, "zfmt", None):
         args += f" --zfmt {a.zfmt}"
+    if getattr(a, "noz", False):
+        args += " --noz"
     return args
+
+
+def arg_refusal(a):
+    """None, or why this combination is refused before anything connects:
+    d3dprobe refuses --zfmt with --noz itself, but only after the upload and
+    with the run already counted - and caps makes no device at all."""
+    if getattr(a, "noz", False) and getattr(a, "zfmt", None):
+        return (f"--noz with --zfmt {a.zfmt}: --noz asks for NO depth buffer and --zfmt for "
+                "one of a given format - pick one")
+    if getattr(a, "noz", False) and a.mode == "caps":
+        return "--noz with caps: caps creates no device, so there is no depth buffer to leave out"
+    return None
 
 
 async def main_async(a):
     box = lambda cmd, t: call_st(a, cmd, t)  # noqa: E731
+    why = arg_refusal(a)
+    if why:
+        return refused(a, why)
     # caps creates no device; render / perf go fullscreen only with --full
     full = bool(a.full) and a.mode != "caps"
     budget = ms.execw_budget(2 if full else 0, a.timeout)
@@ -187,6 +207,10 @@ def main():
     ap.add_argument("--zfmt", choices=("d16", "d24x8", "d24s8"),
                     help="render/perf: ask for this depth format instead of d3dprobe's pick "
                          "(a 16 bpp device with d24s8 is one a Voodoo3 HAL must refuse)")
+    ap.add_argument("--noz", action="store_true",
+                    help="render/perf: no depth buffer at all (EnableAutoDepthStencil FALSE) - "
+                         "the colour path alone, clears TARGET only, ztest skipped; the first "
+                         "32 bpp step on silicon (plan step 16). Not with --zfmt or caps")
     ap.add_argument("--timeout", type=int, default=180,
                     help="seconds of WORK; the EXECW adds the pace gate's worst case per switch")
     ap.add_argument("--tool", default=r"C:\vcr\vcrctl.exe",
