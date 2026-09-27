@@ -17,8 +17,12 @@
  *   - a write that lands exactly on the vsync start is counted as MISSING that
  *     latch (the conservative reading for a never-early test).
  * The CRT runs at the PLL's ACHIEVED clock (vcr_mode_compute on the driver's
- * own timing table), and the driver's clock is QueryPerformanceCounter at
- * 3579545 Hz (the ACPI PM timer XP uses), quantised as the real one is.
+ * own timing table) over the totals DECODED FROM THE PROGRAMMED CRTC
+ * (crtc_decode) - what the chip scans, not the table's formula, which is what
+ * the rate the miniport sends (vcr_modeset.refresh_mhz) is computed from; the
+ * two differ in nine 2X modes, in the safe direction - and the driver's clock
+ * is QueryPerformanceCounter at 3579545 Hz (the ACPI PM timer XP uses),
+ * quantised as the real one is.
  *
  * What it proves (each against the real header):
  *   - NEVER EARLY: the write swept over every line and sub-line offset at
@@ -44,6 +48,13 @@
  *     against the real CRT is never early, for every timing in the table,
  *     while the old 1/16 band trusted rates 4-5.5% high that were early
  *     (review of the flip track, 2026-09-27);
+ *   - the rate sent is never above the rate the chip scans: for every timing,
+ *     both chips, every depth, the CRTC's vertical total and vsync start are
+ *     the table's and its horizontal total is never longer (shorter by < 16
+ *     px in the nine 2X modes whose half-total is not whole characters), and
+ *     the never-early sweeps pass on those 2X modes too; a round-up (one more
+ *     character) would still sit inside the 1/32 margin, a CRTC 4% slower
+ *     than the rate sent would not (review of the flip track, 2026-09-27);
  *   - the counters are logged once per session although three points of a
  *     PDEV's life may log them (a mode-setting session's flips live in a PDEV
  *     that is gone before exclusive mode ends).
@@ -70,6 +81,8 @@ typedef struct crt {
     int     lead;                   /* lines the flag rises BEFORE the latch (86Box: 0) */
     vcr_u32 refresh_mhz;            /* what the miniport computes and would send */
     vcr_u32 nominal;                /* the mode's nominal rate: pd->freq */
+    unsigned htot_px;               /* the line the CRTC scans (crtc_decode) */
+    vcr_u32 pix_khz;                /* the PLL's achieved dot clock */
 } crt;
 
 static vcr_hwcaps v5caps(void)
@@ -85,29 +98,107 @@ static vcr_hwcaps v5caps(void)
     return h;
 }
 
-static crt crt_make(const char *name, unsigned w, unsigned h, unsigned hz)
+/* the Voodoo 3's (miniport/vcrmp_hw.c VcrHwDiscover): 2X above 160 MHz */
+static vcr_hwcaps v3caps(void)
+{
+    vcr_hwcaps h = v5caps();
+    h.device_id = VCR_DEV_VOODOO3;
+    h.max_pixclk_khz = 300000;
+    h.twox_above_khz = 160000;
+    h.twox_htotal_chars = 0;
+    return h;
+}
+
+/* ---- what the chip scans: the PROGRAMMED CRTC, decoded ------------------------ */
+
+/* vcr_modeset.refresh_mhz - the rate Diag\FlipDeadline sends - is the PLL's
+ * achieved clock over the TIMING TABLE's totals (vcr_modes.c, the end of
+ * vcr_mode_compute). The chip scans the totals in the CRTC registers instead,
+ * and the two differ where the table's total is not a whole number of
+ * characters: in 2X mode the CRTC counts 16-pixel characters and the halved
+ * total is truncated, so 1600x1200 on the Voodoo 3 is 2088 px in the table
+ * and 130 characters x 16 = 2080 px scanned (CR00 = 125). The gap is in the
+ * SAFE direction today - the chip scans faster than the rate sent, so the
+ * achieved deadline is late, never early - and
+ * the_rate_sent_is_never_above_the_rate_the_chip_scans pins that direction
+ * for every timing. Decoded the way 86Box reads the
+ * registers (vid_svga.c svga_recalctimings: htotal = CR00 + 5, vtotal = CR06
+ * + 2, vsyncstart = CR10 + 1, plus CR07's overflow bits; vid_voodoo_banshee.c
+ * banshee_recalctimings: CR1A bit 0 = htotal bit 8, CR1B bit 0 / bit 6 =
+ * vtotal / vsync-start bit 10, 8-dot characters, doubled in 2X mode). */
+typedef struct crtc_scan {
+    unsigned htot_px;               /* pixels per line the CRTC scans */
+    unsigned vtot;                  /* lines per frame */
+    unsigned vss;                   /* the vsync-start (latch) line, 86Box's +1 included */
+} crtc_scan;
+
+static crtc_scan crtc_decode(const vcr_modeset *m)
+{
+    crtc_scan s;
+    unsigned ht = m->crtc[0x00] | ((m->crtc_ext[0] & 0x01u) << 8);
+    unsigned vt = m->crtc[0x06] | ((m->crtc[0x07] & 0x01u) << 8) |
+                  ((m->crtc[0x07] & 0x20u) << 4) | ((m->crtc_ext[1] & 0x01u) << 10);
+    unsigned vs = m->crtc[0x10] | ((m->crtc[0x07] & 0x04u) << 6) |
+                  ((m->crtc[0x07] & 0x80u) << 2) | ((m->crtc_ext[1] & 0x40u) << 4);
+    s.htot_px = (ht + 5) * 8 * (m->twox ? 2 : 1);
+    s.vtot = vt + 2;
+    s.vss = vs + 1;
+    return s;
+}
+
+static unsigned formula_htot(const vcr_timing *t)
+{
+    return (unsigned)t->w + t->hfp + t->hsync + t->hbp;
+}
+
+static unsigned formula_vtot(const vcr_timing *t)
+{
+    return (unsigned)t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) + t->vfp + t->vsync + t->vbp;
+}
+
+/* the rate the chip really scans at, milli-Hz: the PLL's achieved clock over
+ * the decoded CRTC totals (compare vcr_modeset.refresh_mhz, over the table's) */
+static vcr_u32 scanned_mhz(const vcr_modeset *m, crtc_scan s)
+{
+    return (vcr_u32)((unsigned long long)m->pix_khz_actual * 1000000ull /
+                     ((unsigned long long)s.htot_px * s.vtot));
+}
+
+/* The CRT runs what the chip is PROGRAMMED with - line length and frame from
+ * the decoded CRTC, not from the table - while refresh_mhz is what the
+ * miniport computes and would send. So a gap between the two is inside the
+ * model rather than hidden by it. */
+static crt crt_make_hw(const char *name, const vcr_hwcaps *hw, unsigned w, unsigned h,
+                       unsigned hz)
 {
     crt c;
-    vcr_hwcaps hw = v5caps();
     vcr_modeset m;
     int i = vcr_timing_find(w, h, hz);
     const vcr_timing *t;
-    unsigned htot;
+    crtc_scan s;
     memset(&c, 0, sizeof c);
     c.name = name;
-    if (i < 0 || vcr_mode_compute(&hw, &vcr_timings[i], 16, &m))
+    if (i < 0 || vcr_mode_compute(hw, &vcr_timings[i], 16, &m))
         return c;                           /* line 0: the caller's CHECK fails */
     t = &vcr_timings[i];
-    htot = (unsigned)t->w + t->hfp + t->hsync + t->hbp;
-    c.line = (ns_t)htot * 1000000 / m.pix_khz_actual;
+    s = crtc_decode(&m);
+    c.line = (ns_t)s.htot_px * 1000000 / m.pix_khz_actual;
     c.vdisp = t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1);
-    c.vss = c.vdisp + t->vfp;
-    c.vtot = c.vss + t->vsync + t->vbp;
+    c.vss = (int)s.vss;
+    c.vtot = (int)s.vtot;
     c.pulse = t->vsync;
     c.frame = c.line * c.vtot;
     c.refresh_mhz = m.refresh_mhz;
     c.nominal = t->refresh;
+    c.htot_px = s.htot_px;
+    c.pix_khz = m.pix_khz_actual;
     return c;
+}
+
+static crt crt_make(const char *name, unsigned w, unsigned h, unsigned hz)
+{
+    vcr_hwcaps hw = v5caps();
+    return crt_make_hw(name, &hw, w, h, hz);
 }
 
 static int flag_at(const crt *c, ns_t t)
@@ -346,6 +437,11 @@ TEST(the_timeline_is_the_drivers_own_modes) {
             CHECK(diff * 2000 < c->frame, "model frame vs refresh_mhz");
         }
     }
+    /* the three sweep modes are 1X on the VSA-100: the CRTC scans the table's
+     * totals exactly (the 2X modes where it does not have their own test) */
+    CHECK_EQ_U(MODES[0].htot_px, 1048);
+    CHECK_EQ_U(MODES[1].htot_px, 800);
+    CHECK_EQ_U(MODES[2].htot_px, 2088);
     /* 800x600@85: htotal 1048, vtotal 631, vsync 3 lines from line 601 */
     CHECK_EQ_I(MODES[0].vtot, 631);
     CHECK_EQ_I(MODES[0].vss, 601);
@@ -660,11 +756,14 @@ TEST(every_timing_keeps_the_achieved_rule_and_its_band_is_never_early) {
             const vcr_timing *t = &vcr_timings[i];
             vcr_modeset mm;
             long long htot, vtot;
+            crtc_scan sc;
             if (vcr_mode_compute(&hw, t, 16, &mm))
                 continue;
-            htot = (long long)t->w + t->hfp + t->hsync + t->hbp;
-            vtot = (long long)t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) + t->vfp + t->vsync +
-                   t->vbp;
+            /* the REAL frame is what the CRTC scans, not the table's formula
+             * (they differ in nine 2X modes: crtc_decode) */
+            sc = crtc_decode(&mm);
+            htot = sc.htot_px;
+            vtot = sc.vtot;
             CHECK(vcr_flip_trusted_mhz(mm.refresh_mhz, t->refresh) == mm.refresh_mhz,
                   "a table timing falls outside the trust band");
             for (q = 0; q < (int)(sizeof qpfs / sizeof qpfs[0]); q++) {
@@ -686,6 +785,133 @@ TEST(every_timing_keeps_the_achieved_rule_and_its_band_is_never_early) {
     }
     CHECK(checked > 400, "the whole table, both chips, five clocks");
     CHECK_EQ_I(old_short, checked);         /* the old band: short on every one */
+}
+
+TEST(the_rate_sent_is_never_above_the_rate_the_chip_scans) {
+    /* refresh_mhz comes from the table's totals; the chip scans the CRTC's.
+     * Every timing, both chips, every depth: the CRTC's vertical total and
+     * vsync start are the table's to the line, and its horizontal total is
+     * never LONGER than the table's - so the real rate is never below the rate
+     * Diag\FlipDeadline sends, and the deadline's whole 1/32 margin is left
+     * for what nothing here measures (a PLL that did not take its value). A
+     * change that makes the CRTC scan longer than the table (rounding the 2X
+     * half-total UP, say) fails here, where the sweeps over the formula could
+     * not see it. */
+    static const unsigned depths[3] = { 8, 16, 32 };
+    int dev, d;
+    vcr_u32 i, checked = 0, shorter[2] = { 0, 0 };
+    for (dev = 0; dev < 2; dev++) {
+        vcr_hwcaps hw = dev ? v3caps() : v5caps();
+        for (d = 0; d < 3; d++)
+            for (i = 0; i < vcr_ntimings; i++) {
+                const vcr_timing *t = &vcr_timings[i];
+                vcr_modeset m;
+                crtc_scan s;
+                if (vcr_mode_compute(&hw, t, depths[d], &m))
+                    continue;
+                s = crtc_decode(&m);
+                /* the decode's premise: 8-dot characters at the full dot
+                 * clock (SR01 bit 0 set, bit 3 clear) */
+                CHECK((m.seq[1] & 0x09) == 0x01, "SR01: 8-dot characters, full dot clock");
+                CHECK(s.vtot == formula_vtot(t), "CRTC vertical total != the table's");
+                CHECK(s.vss == (unsigned)t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) + t->vfp,
+                      "CRTC vsync start (the latch line) != the table's");
+                if (s.htot_px > formula_htot(t)) {
+                    CHECK(0, "the CRTC scans a LONGER line than refresh_mhz assumes: the "
+                             "achieved flip deadline would eat into its margin");
+                    return;
+                }
+                CHECK(m.refresh_mhz <= scanned_mhz(&m, s), "rate sent above the rate scanned");
+                if (s.htot_px < formula_htot(t)) {
+                    /* only where the 2X half-total is not whole characters,
+                     * and by less than one 2X character (16 px) */
+                    CHECK(m.twox, "a 1X CRTC total differs from the table's");
+                    CHECK(formula_htot(t) - s.htot_px < 16, "more than one 2X character short");
+                    if (d == 1)
+                        shorter[dev]++;
+                }
+                checked++;
+            }
+    }
+    CHECK(checked > 300, "the whole table, both chips, three depths");
+    /* today: 1920x1440@60 and 1920x1080@60 on the VSA-100; 1600x1200@65-85,
+     * 1600x1024@76/85 and 1920x1440@60 on the Voodoo 3 */
+    CHECK_EQ_U(shorter[0], 2);
+    CHECK_EQ_U(shorter[1], 7);
+    /* the case in point, both values: V3 1600x1200@75 is 2X, the table says
+     * 2088 px (261 characters), the CRTC scans 2080 (CR00 = 125); on the
+     * VSA-100 the same timing is 1X and exact */
+    {
+        vcr_hwcaps v3 = v3caps(), v5 = v5caps();
+        vcr_modeset m;
+        crtc_scan s;
+        const vcr_timing *t = &vcr_timings[vcr_timing_find(1600, 1200, 75)];
+        CHECK_EQ_I(vcr_mode_compute(&v3, t, 16, &m), 0);
+        s = crtc_decode(&m);
+        CHECK_EQ_U(m.twox, 1);
+        CHECK_EQ_U(formula_htot(t), 2088);
+        CHECK_EQ_U(s.htot_px, 2080);
+        CHECK_EQ_U(m.crtc[0x00], 125);
+        CHECK(scanned_mhz(&m, s) > m.refresh_mhz, "the chip scans faster than the rate sent");
+        /* rounding the half-total UP instead would scan 131 characters = 2096
+         * px: LONGER than the table, the direction pinned above */
+        m.crtc[0x00]++;
+        s = crtc_decode(&m);
+        CHECK_EQ_U(s.htot_px, 2096);
+        CHECK(s.htot_px > formula_htot(t), "a round-up scans longer than the table");
+        CHECK(scanned_mhz(&m, s) < m.refresh_mhz, "... and slower than the rate sent");
+        CHECK_EQ_I(vcr_mode_compute(&v5, t, 16, &m), 0);
+        s = crtc_decode(&m);
+        CHECK_EQ_U(m.twox, 0);
+        CHECK_EQ_U(s.htot_px, 2088);
+    }
+}
+
+TEST(never_early_where_the_crtc_scans_a_shorter_line_than_the_table) {
+    /* The never-early sweeps over the two kinds of 2X mode whose CRTC total
+     * is short of the table's, with the CRT running what the CRTC scans and
+     * the achieved rule fed the table's rate, as the miniport would. Then the
+     * margin, both ways: one 2X character LONGER than the table (a round-up)
+     * is still absorbed by the 1/32; a line 4% longer is not - which is why
+     * the direction above is pinned rather than left to the margin. */
+    vcr_hwcaps v3 = v3caps(), v5 = v5caps();
+    crt modes[2];
+    int m, r;
+    modes[0] = crt_make_hw("1600x1200@75 V3 2X", &v3, 1600, 1200, 75);
+    modes[1] = crt_make_hw("1920x1080@60 VSA-100 2X", &v5, 1920, 1080, 60);
+    for (m = 0; m < 2; m++) {
+        crt c = modes[m];
+        long retrace, n;
+        ns_t late, f_sent;
+        CHECK(c.line > 0, c.name);
+        if (c.line <= 0)
+            continue;
+        /* the chip's frame is 0.3-0.4% SHORTER than the one the rate sent implies */
+        f_sent = (ns_t)(1000000000000LL / c.refresh_mhz);
+        CHECK(c.frame < f_sent - f_sent / 400 && c.frame > f_sent - f_sent / 200,
+              "the scanned frame is 0.25-0.5% short of refresh_mhz's");
+        for (r = RULE_NOMINAL; r <= RULE_ACHIEVED; r++) {
+            CHECK_EQ_I(sweep(&c, r, 0, 0, &retrace, &n, &late), 0);   /* a spinner */
+            CHECK_EQ_I(n, (long)c.vtot * 5);
+            CHECK_EQ_I(sweep(&c, r, 0, 1, &retrace, &n, &late), 0);   /* deadline only */
+            CHECK_EQ_I(retrace, 0);
+            CHECK_EQ_I(n, (long)c.vtot * 5);
+        }
+        /* the round-up: one more 2X character (CR00 + 1), 8 px longer than
+         * the table - inside the 1/32 margin, so still never early */
+        c.line = (ns_t)(c.htot_px + 16) * 1000000 / c.pix_khz;
+        c.frame = c.line * c.vtot;
+        CHECK(c.frame > f_sent, "the round-up scans slower than the rate sent");
+        CHECK_EQ_I(sweep(&c, RULE_ACHIEVED, 0, 1, &retrace, &n, &late), 0);
+        /* 4% longer than the rate sent: the deadline completes flips early */
+        c = modes[m];
+        c.line = (ns_t)((double)f_sent * 1.04 / c.vtot);
+        c.frame = c.line * c.vtot;
+        CHECK(sweep(&c, RULE_ACHIEVED, 0, 1, &retrace, &n, &late) > 0,
+              "a CRTC 4% slower than the rate sent must show early completions");
+        /* ... which the nominal rule's 1/8 still covers */
+        CHECK_EQ_I(sweep(&c, RULE_NOMINAL, 0, 1, &retrace, &n, &late), 0);
+    }
 }
 
 TEST(the_counters_are_logged_once_although_three_points_may_log) {
@@ -754,6 +980,8 @@ MUNIT_MAIN("vcr-kmd flip completion", {
     RUN(the_one_assumption_the_flag_does_not_lead_the_latch);
     RUN(the_trust_band_is_narrower_than_the_margin);
     RUN(every_timing_keeps_the_achieved_rule_and_its_band_is_never_early);
+    RUN(the_rate_sent_is_never_above_the_rate_the_chip_scans);
+    RUN(never_early_where_the_crtc_scans_a_shorter_line_than_the_table);
     RUN(the_counters_are_logged_once_although_three_points_may_log);
     RUN(the_vblank_ioctl_keeps_its_size_and_offsets);
 })

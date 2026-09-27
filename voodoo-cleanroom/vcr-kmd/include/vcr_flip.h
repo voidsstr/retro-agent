@@ -34,8 +34,14 @@
  *       42112 + 5264 = 47376 ticks at 85 Hz, 59659 + 7457 = 67116 at 60 Hz
  *       (and the 60 Hz rule when the rate is unknown, 0 or 1).
  *   refresh_mhz != 0: frame + frame / 32 of the ACHIEVED rate the miniport
- *       computed from the programmed PLL and CRTC (vcr_modeset.refresh_mhz,
- *       sent in vcr_dd_vblank.refresh_mhz only when Diag\FlipDeadline = 1).
+ *       computed from the PLL's achieved clock over the timing TABLE's totals
+ *       (vcr_modeset.refresh_mhz, sent in vcr_dd_vblank.refresh_mhz only when
+ *       Diag\FlipDeadline = 1). The chip scans the CRTC's totals, which are
+ *       the table's except in nine 2X modes, where the halved total is
+ *       truncated to whole characters and the line is < 16 px SHORTER: the
+ *       chip runs 0.31-0.39% faster than the rate sent, so the deadline is
+ *       that much late, never early (pinned for every timing by the host
+ *       test, the_rate_sent_is_never_above_the_rate_the_chip_scans).
  *       The latch is at most one REAL frame after the write, and the clock
  *       starts after it, so the rule is never early while the sent rate is at
  *       most 1/32 above the real scan rate, and a D3D-pattern app at 1.05
