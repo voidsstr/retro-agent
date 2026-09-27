@@ -859,6 +859,106 @@ TEST(slictrl_values_follow_gsst) {
     CHECK_EQ_U(vcr_sli_slictrl(4, 32, 0, 0, 4), 0);     /* no such chip */
 }
 
+/* ---- the proven sequences, pinned byte for byte ------------------------------------
+ * Every bus write (kind, chip, offset, value) of a request, in order, folded
+ * into FNV-1a, plus the write count and the result. Recorded from vcrmp_sli.c
+ * as it stood at 097b1f7 - the code that ran cfg 0/2/5 on .124 (4-chip SLI
+ * parity with AmigaMerlin, 0 bad band lines) - BEFORE the AA safety net
+ * (2026-09-27). The safety net may only ADD refusals; for every request it
+ * accepts, the bus must see exactly what it saw before. */
+static vcr_u32 wr_hash(const mock *m)
+{
+    vcr_u32 h = 2166136261u, i, k, v[4];
+    for (i = 0; i < m->nw; i++) {
+        v[0] = (vcr_u32)(unsigned char)m->w[i].kind;
+        v[1] = m->w[i].chip;
+        v[2] = m->w[i].off;
+        v[3] = m->w[i].val;
+        for (k = 0; k < 16; k++) {
+            h ^= (v[k >> 2] >> ((k & 3) * 8)) & 0xffu;
+            h *= 16777619u;
+        }
+    }
+    return h;
+}
+
+typedef struct {
+    const char *name;
+    int board;                      /* chips on the mocked board */
+    vcr_u32 n, sli, aa, high, analog, nlines, bpp, col, dbeg, dend;
+    int then_disable;               /* pin Glide's disable after the enable instead */
+    int rc;
+    unsigned nw;
+    vcr_u32 hash;
+} seq_case;
+
+static const seq_case k_seq[] = {
+    /* cfg 2 and cfg 5 on the V5 6000 both arrive as 4-way analog SLI */
+    { "cfg 5: 4-way analog SLI, 8-line bands, 16 bpp", 4, 4, 1, 0, 0, 1, 8, 16, 0, 0, 0, 0,
+      VCR_SLI_W_NOCLOCK, 438, 0x0d69ff86u },
+    { "cfg 5: 4-way analog SLI, 32-line bands, 16 bpp", 4, 4, 1, 0, 0, 1, 32, 16, 0, 0, 0, 0,
+      VCR_SLI_W_NOCLOCK, 438, 0x873351e6u },
+    { "cfg 5: 4-way analog SLI, 8-line bands, 32 bpp", 4, 4, 1, 0, 0, 1, 8, 32, 0, 0, 0, 0,
+      VCR_SLI_W_NOCLOCK, 438, 0x0d69ff86u },
+    /* cfg 0 never enables; what it meets in the kernel is the teardown of the
+     * session before it (Glide's disable, garbage in all but dwChips) */
+    { "cfg 0 side: Glide's disable after a 4-way SLI session", 4, 4, 1, 0, 0, 1, 8, 16, 0, 0, 0, 1,
+      VCR_SLI_OK, 42, 0x66c316b2u },
+    /* a V5 5500 */
+    { "2-way digital SLI (2-chip board)", 2, 2, 1, 0, 0, 0, 16, 16, 0, 0, 0, 0,
+      VCR_SLI_OK, 163, 0x0a263f4du },
+    { "2-way analog SLI (2-chip board)", 2, 2, 1, 0, 0, 1, 16, 16, 0, 0, 0, 0,
+      VCR_SLI_OK, 163, 0x3f925814u },
+    /* the AA tuples that keep a video-mux branch: still accepted by the pure
+     * sequence (the kernel's Diag\SliAA gate stops them first by default) */
+    { "cfg 3: two 2-way analog SLI units, 2-sample AA", 4, 4, 1, 1, 0, 1, 8, 16,
+      0, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 447, 0x12150b60u },
+    { "cfg 7: 4 chips, no SLI, 4-sample analog AA", 4, 4, 0, 1, 1, 1, 8, 16,
+      0, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 444, 0xf3ccf17eu },
+    { "cfg 8: 4 chips, no SLI, 8-sample analog AA", 4, 4, 0, 1, 2, 1, 8, 16,
+      0x00b00000u, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 444, 0xebcc4582u },
+};
+
+static void run_seq(mock *m, const seq_case *s, int *rc)
+{
+    vcr_sli_io io;
+    vcr_sli_aa_req r = req(s->n, s->sli, s->aa, s->high, s->analog, s->nlines, s->bpp);
+    r.MemInfo.dwaaSecondaryColorBufBegin = s->col;
+    r.MemInfo.dwaaSecondaryDepthBufBegin = s->dbeg;
+    r.MemInfo.dwaaSecondaryDepthBufEnd = s->dend;
+    r.MemInfo.dwTileMark = 0x01b7e000u;
+    mapped(m, &io, s->board);
+    if (s->then_disable) {
+        vcr_sli_aa_req off;
+        CHECK(vcr_sli_set(&io, &r) >= 0, "enable before the disable failed");
+        memset(&off, 0xa5, sizeof off);
+        off.ChipInfo.dwChips = s->n;
+        off.ChipInfo.dwsliEn = 0;
+        off.ChipInfo.dwaaEn = 0;
+        r = off;
+    }
+    m->nw = 0;
+    m->unlogged = 0;
+    *rc = vcr_sli_set(&io, &r);
+}
+
+TEST(accepted_requests_write_exactly_what_they_wrote_before_the_safety_net) {
+    mock *m = &M;
+    unsigned i;
+    int rc;
+    for (i = 0; i < sizeof k_seq / sizeof k_seq[0]; i++) {
+        const seq_case *s = &k_seq[i];
+        run_seq(m, s, &rc);
+        if (rc != s->rc || m->nw != s->nw || wr_hash(m) != s->hash) {
+            munit_fails++;
+            fprintf(stderr, "    FAIL %s: rc %d nw %u hash 0x%08x, pinned rc %d nw %u hash 0x%08x\n",
+                    s->name, rc, m->nw, wr_hash(m), s->rc, s->nw, s->hash);
+        }
+        CHECK(!(rc > 0 && (rc & VCR_SLI_W_NOMUX)), "an accepted request reached NOMUX");
+        no_bus_faults(m);
+    }
+}
+
 TEST(step_codes_are_unique) {
 #define VCR_SLI_STEP(name, code, desc) code,
     static const int codes[] = { VCR_SLI_STEP_TABLE };
@@ -883,5 +983,6 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(bad_requests_are_refused_before_the_first_write);
     RUN(the_6000_clock_is_a_visible_placeholder);
     RUN(slictrl_values_follow_gsst);
+    RUN(accepted_requests_write_exactly_what_they_wrote_before_the_safety_net);
     RUN(step_codes_are_unique);
 )
