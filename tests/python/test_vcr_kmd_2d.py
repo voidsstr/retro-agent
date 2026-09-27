@@ -101,7 +101,13 @@ def test_a_flip_is_pending_until_the_chip_latched_it():
     status = func(DD, "static DWORD APIENTRY Dd_GetFlipStatus(")
     assert "flip_done(pd) ? DD_OK : DDERR_WASSTILLDRAWING" in status
     done = func(DD, "static int flip_done(")
-    assert "vcr_flip_poll(&pd->flip," in done
+    # The glue that hands the rule its sample, pinned WHOLE: `have &&
+    # !v.in_vblank` (retrace sense inverted - a flip begun in active display
+    # done at the first poll that sees active display, up to a frame early)
+    # and `1, v.in_vblank` (a failed read treated as a sample) both passed
+    # every test while only the prefix was pinned (review, 2026-09-27).
+    assert "return vcr_flip_poll(&pd->flip, have, have && v.in_vblank, now);" in done
+    assert "have = flip_sample(pd, &v, &now);" in done
     # The rule itself moved to include/vcr_flip.h (2026-09-27), where
     # tests/native/test_vcr_kmd_flip.c drives it over a CRT timeline: a
     # retrace that began after the flip, or the deadline - by default the

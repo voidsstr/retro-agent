@@ -99,6 +99,7 @@ BOOL APIENTRY DrvGetDirectDrawInfo(DHPDEV dhpdev, DD_HALINFO *hal, DWORD *nheaps
 BOOL APIENTRY DrvEnableDirectDraw(DHPDEV dhpdev, DD_CALLBACKS *cb, DD_SURFACECALLBACKS *scb,
                                   DD_PALETTECALLBACKS *pcb);
 VOID APIENTRY DrvDisableDirectDraw(DHPDEV dhpdev);
+void  VcrDdFlipStatsLog(VCR_PDEV *pd);  /* the flip counters, if anything is new */
 DWORD APIENTRY DdGetDriverInfo(PDD_GETDRIVERINFODATA p);
 /* vcrdd_d3d.c: the Direct3D half of the HAL */
 void  VcrDdD3dHalInfo(VCR_PDEV *pd, DD_HALINFO *hal);

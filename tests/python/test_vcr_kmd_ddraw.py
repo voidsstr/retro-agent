@@ -171,10 +171,30 @@ def test_getscanline_never_answers_garbage():
     driver said 0: dwScanLine was never set on the vertical-blank path."""
     gsl = func(DD, "static DWORD APIENTRY Dd_GetScanLine(")
     assert gsl.index("p->dwScanLine = 0;") < gsl.index("p->ddRVal")
-    # a line at or past the visible height (86Box: 0x7ff every read) is the blank
-    assert "} else if (v.in_vblank || v.scanline >= pd->cy) {" in gsl
-    blank = gsl[gsl.index("v.scanline >= pd->cy"):]
+    blank = gsl[gsl.index("} else if (v.in_vblank) {"):]
     assert blank.index("DDERR_VERTICALBLANKINPROGRESS") < blank.index("p->dwScanLine = v.scanline;")
+
+
+def test_getscanline_calls_only_the_retrace_flag_the_blank():
+    """"In the blank" is status[6]'s answer only, as it was before the flip
+    track. A reading past the visible height is NOT the blank (review,
+    2026-09-27): 86Box reads vidCurrentLine as 0x7ff on every read, so a
+    `scanline >= pd->cy` clause answered DDERR_VERTICALBLANKINPROGRESS forever
+    there (an app waiting for the blank to end never leaves), and a doublescan
+    mode (vdisp = 2 x the logical height pd->cy) whose counter runs in CRTC
+    lines would call the lower half of the picture the blank. The raw line goes
+    out with DD_OK, as it always has, until the register is measured on the
+    VSA-100."""
+    gsl = _strip_c_comments(func(DD, "static DWORD APIENTRY Dd_GetScanLine("))
+    assert "} else if (v.in_vblank) {" in gsl
+    # the reviewed-then-reverted clause, and any comparison with a height
+    assert "v.scanline >= pd->cy" not in gsl
+    assert "pd->cy" not in gsl and "pd->cx" not in gsl
+    ok = gsl[gsl.index("} else {"):]
+    assert "p->dwScanLine = v.scanline;" in ok and "p->ddRVal = DD_OK;" in ok
+    # the doublescan modes this protects exist at every depth
+    modes = (KMD / "common" / "vcr_modes.c").read_text()
+    assert "vcr_u32 vdisp = (vcr_u32)t->h * k;" in modes and "VCR_VPC_HALF_MODE" in modes
 
 
 def test_the_achieved_refresh_deadline_is_off_by_default():
@@ -208,6 +228,37 @@ def test_flip_counters_are_logged_when_exclusive_mode_ends():
         assert f in log, f
     # every flip-completion read is counted and timed
     assert "flip_sample(pd, &v, &now)" in func(DD, "static int flip_done(")
+
+
+def test_flip_counters_survive_a_session_that_changed_the_mode():
+    """The counters live in the PDEV of the mode the flips ran in. ddlab (and
+    d3dprobe --full) restore the mode BEFORE releasing DirectDraw, so the
+    exclusive-mode release reaches the NEW desktop PDEV, which counted nothing,
+    and the flipping PDEV's counters died unlogged (review, 2026-09-27). They
+    are also logged when that PDEV's mode leaves the screen and when its
+    DirectDraw is disabled - log IOCTLs only, and each point logs only what is
+    new (tests/native/test_vcr_kmd_flip.c the_counters_are_logged_once...)."""
+    lab = (KMD / "tools" / "ddlab.c").read_text()
+    tail = lab[lab.index('if (!restore_mode(dd, "flip"))'):]
+    assert tail.index("restore_mode(") < tail.index("IDirectDraw7_Release(dd);")
+    log = _strip_c_comments(func(DD, "static void flip_stats_log("))
+    assert "if (!vcr_flip_stats_any(s))\n        return;" in log
+    assert "if (!s->flips && !s->polls)" not in log
+    # the backstop: DirectDraw disabled on this PDEV, logged FIRST
+    dis = _strip_c_comments(func(DD, "VOID APIENTRY DrvDisableDirectDraw("))
+    assert dis.index("flip_stats_log(pd);") < dis.index("pd->dd_enabled = 0;")
+    # this PDEV's mode leaving the screen: before the device reset
+    wrap = func(DD, "void VcrDdFlipStatsLog(VCR_PDEV *pd)")
+    assert _strip_c_comments(wrap).split("{", 1)[1].split() == ["flip_stats_log(pd);"]
+    assert "void  VcrDdFlipStatsLog(VCR_PDEV *pd);" in (KMD / "display" / "vcrdd.h").read_text()
+    am = func(DDC, "BOOL APIENTRY DrvAssertMode(")
+    off = am[am.index("} else {"):]
+    assert off.index("#ifdef VCR_HAVE_DDI") < off.index("VcrDdFlipStatsLog(pd);") \
+        < off.index("#endif") < off.index("IOCTL_VIDEO_RESET_DEVICE")
+    assert "VcrDdFlipStatsLog" not in am[:am.index("} else {")]    # not on re-assert
+    # log only: no register or hardware IOCTL on that path
+    for bad in ("VcrIoctl", "vblank(", "flip_to(", "pjRegs"):
+        assert bad not in log, bad
 
 
 def test_ddlab_reports_the_frames_and_takes_work_us():

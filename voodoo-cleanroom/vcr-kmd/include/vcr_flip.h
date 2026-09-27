@@ -36,11 +36,24 @@
  *   refresh_mhz != 0: frame + frame / 32 of the ACHIEVED rate the miniport
  *       computed from the programmed PLL and CRTC (vcr_modeset.refresh_mhz,
  *       sent in vcr_dd_vblank.refresh_mhz only when Diag\FlipDeadline = 1).
- *       The latch is at most one achieved frame after the write, and the
- *       clock starts after it, so 1/32 of a frame (367 us at 85 Hz) is all
- *       margin: never early, and a D3D-pattern app at 1.05 refreshes a frame
- *       flips at ~0.95 of the refresh instead of 0.889. An achieved rate
- *       more than 1/16 away from the nominal is not trusted (nominal rule).
+ *       The latch is at most one REAL frame after the write, and the clock
+ *       starts after it, so the rule is never early while the sent rate is at
+ *       most 1/32 above the real scan rate, and a D3D-pattern app at 1.05
+ *       refreshes a frame flips at ~0.95 of the refresh instead of 0.889.
+ *   The trust band (VCR_FLIP_TRUST_SHIFT) is NARROWER than that margin: a sent
+ *       rate more than 1/64 away from the NOMINAL rate is not trusted
+ *       (nominal rule). Every timing in vcr_modes.c computes within +1.12% /
+ *       -0.29% of its nominal rate, so all of them keep the achieved rule. A
+ *       band as wide as 1/16 trusted a rate 4-6% above the real one - a PLL
+ *       that did not take its value, a formula error - and that completed
+ *       flips up to ~3% of a frame EARLY (tests/native/test_vcr_kmd_flip.c,
+ *       the_trust_band_is_narrower_than_the_margin). The band
+ *       compares with the nominal rate, not the real one, so it does not
+ *       bound a model error by itself: never early holds while the real scan
+ *       rate is at least 65/66 of the nominal (1 + 1/64 = 65/64, times 32/33).
+ *       Nothing measures the real rate here; before Diag\FlipDeadline = 1 on
+ *       a box, ddlab's vblank_hz at the target mode must agree with
+ *       refresh_mhz / 1000 to well under 1%.
  *
  * vidCurrentLine plays NO part here, by design: open Glide gives the field no
  * semantics, 86Box does not emulate it (reads 0x7ff), and on the VSA-100 it
@@ -54,8 +67,9 @@
 
 typedef long long vcr_ticks;        /* a QueryPerformanceCounter value or span */
 
-/* the achieved rate is trusted within 1/16 of the nominal one */
-#define VCR_FLIP_TRUST_SHIFT    4
+/* the achieved rate is trusted within 1/64 of the nominal one - narrower
+ * than the 1/32 margin of the deadline it feeds (was 1/16: see THE DEADLINE) */
+#define VCR_FLIP_TRUST_SHIFT    6
 
 typedef struct vcr_flip_state {
     vcr_u32   pending;          /* a vsync'd flip the chip may not have latched */
@@ -73,6 +87,7 @@ typedef struct vcr_flip_state {
     vcr_u32   polls;            /* vblank reads made for flip completion */
     vcr_ticks max_poll;         /* the longest single vblank read (the IOCTL) */
     vcr_ticks max_wait;         /* the longest a caller was told "still drawing" */
+    vcr_u32   carried;          /* flips counted by the last reset: one still in flight */
 } vcr_flip_state;
 
 /* The achieved rate to use, or 0 for the nominal rule. */
@@ -163,9 +178,20 @@ static inline int vcr_flip_poll(vcr_flip_state *s, int have_sample, int in_vblan
  * after a reset too. */
 static inline void vcr_flip_stats_reset(vcr_flip_state *s)
 {
-    s->flips = s->pending ? 1 : 0;
+    s->flips = s->carried = s->pending ? 1 : 0;
     s->by_retrace = s->by_deadline = s->superseded = s->polls = 0;
     s->max_poll = s->max_wait = 0;
+}
+
+/* Has anything been counted since the last reset? The counters are logged at
+ * more than one point of a PDEV's life (exclusive mode ends, the mode leaves
+ * the screen, DirectDraw is disabled) so that a session which changed the
+ * display mode is not lost; the flip carried over a reset still pending is
+ * not news, and must not make the next point log the same flip again. */
+static inline int vcr_flip_stats_any(const vcr_flip_state *s)
+{
+    return s->flips != s->carried || s->by_retrace || s->by_deadline || s->superseded ||
+           s->polls;
 }
 
 #endif /* VCR_FLIP_H */

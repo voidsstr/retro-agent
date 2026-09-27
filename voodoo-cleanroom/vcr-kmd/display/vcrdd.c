@@ -563,6 +563,11 @@ BOOL APIENTRY DrvAssertMode(DHPDEV dhpdev, BOOL bEnable)
         pd->exclusive_pid = 0;
         ok = VcrDdSetMode(pd);
     } else {
+#ifdef VCR_HAVE_DDI
+        /* the flips of a session that set this mode, before it leaves the
+         * screen (vcrdd_ddraw.c flip_stats_log: log only) */
+        VcrDdFlipStatsLog(pd);
+#endif
         VcrDd2dSync(pd);        /* nothing of ours in flight across the reset */
         VcrIoctl(pd->hDriver, IOCTL_VIDEO_RESET_DEVICE, NULL, 0, NULL, 0, NULL);
     }

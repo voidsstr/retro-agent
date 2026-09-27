@@ -181,10 +181,16 @@ static DWORD APIENTRY Dd_WaitForVerticalBlank(PDD_WAITFORVERTICALBLANKDATA p)
 }
 
 /* The one place vidCurrentLine is reported. Never an unset answer: ddlab read
- * 2293576 here (stack garbage) where XP's own driver says 0. A line at or past
- * the visible height is in the blank too - 86Box does not emulate the register
- * and every read is 0x7ff, and a counter that ran through the blank would be
- * there. Flip completion never looks at it (include/vcr_flip.h). */
+ * 2293576 here (stack garbage, the blank path left it unset) where XP's own
+ * driver says 0. "In the blank" is status[6]'s answer ONLY, as before: the
+ * register's own meaning is unmeasured. A line past the visible height is
+ * NOT called the blank - 86Box reads 0x7ff on every read, so that would
+ * answer DDERR_VERTICALBLANKINPROGRESS forever there (an app waiting for the
+ * blank to end would never leave), and a doublescan mode (320x200 .. 512x384,
+ * vdisp = 2 x height) whose counter runs in CRTC lines would call the lower
+ * half of the picture the blank. Such a line goes out raw with DD_OK, as it
+ * always has, until vidCurrentLine is measured on the VSA-100. Flip
+ * completion never looks at it (include/vcr_flip.h). */
 static DWORD APIENTRY Dd_GetScanLine(PDD_GETSCANLINEDATA p)
 {
     VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
@@ -192,7 +198,7 @@ static DWORD APIENTRY Dd_GetScanLine(PDD_GETSCANLINEDATA p)
     p->dwScanLine = 0;
     if (!vblank(pd, &v)) {
         p->ddRVal = DDERR_GENERIC;
-    } else if (v.in_vblank || v.scanline >= pd->cy) {
+    } else if (v.in_vblank) {
         p->ddRVal = DDERR_VERTICALBLANKINPROGRESS;
     } else {
         p->dwScanLine = v.scanline;
@@ -253,12 +259,20 @@ static ULONG ticks_us(LONGLONG t, LONGLONG f)
 
 /* How the flips of one exclusive session completed - the question the .124
  * 16 bpp half rate left open (by retrace, by deadline, a blocked IOCTL, a
- * long wait). flips = retrace + deadline + superseded + still pending. */
+ * long wait). flips = retrace + deadline + superseded + still pending.
+ * The counters live in the PDEV of the mode the flips ran in. A session that
+ * set its own mode (every ddlab flip/blt run, d3dprobe --full) flips in a PDEV
+ * that has left the screen by the time exclusive mode ends - ddlab restores
+ * the mode BEFORE it releases DirectDraw, so the release reaches the desktop
+ * PDEV, which counted nothing. So they are also logged when this PDEV's mode
+ * leaves the screen (DrvAssertMode FALSE) and when its DirectDraw is disabled;
+ * each point logs only what is new since the last (vcr_flip_stats_any). Log
+ * IOCTLs only - no hardware access. */
 static void flip_stats_log(VCR_PDEV *pd)
 {
     vcr_flip_state *s = &pd->flip;
     LONGLONG f;
-    if (!s->flips && !s->polls)
+    if (!vcr_flip_stats_any(s))
         return;
     EngQueryPerformanceFrequency(&f);
     VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 12, s->flips, s->by_retrace, s->by_deadline,
@@ -268,6 +282,12 @@ static void flip_stats_log(VCR_PDEV *pd)
           ticks_us(s->deadline, f), "flip reads %u: longest %u us; longest wait %u us; deadline %u us",
           s->polls, ticks_us(s->max_poll, f), ticks_us(s->max_wait, f), ticks_us(s->deadline, f));
     vcr_flip_stats_reset(s);
+}
+
+/* vcrdd.c: DrvAssertMode(FALSE) - this PDEV's mode is leaving the screen */
+void VcrDdFlipStatsLog(VCR_PDEV *pd)
+{
+    flip_stats_log(pd);
 }
 
 static DWORD APIENTRY Dd_Flip(PDD_FLIPDATA p)
@@ -683,6 +703,7 @@ BOOL APIENTRY DrvEnableDirectDraw(DHPDEV dhpdev, DD_CALLBACKS *cb, DD_SURFACECAL
 VOID APIENTRY DrvDisableDirectDraw(DHPDEV dhpdev)
 {
     VCR_PDEV *pd = (VCR_PDEV *)dhpdev;
+    flip_stats_log(pd);         /* the backstop: this PDEV's flips, if not logged yet */
     pd->dd_enabled = 0;
     VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 6, 0, pd->dd_flips, 0, "DrvDisableDirectDraw");
 }

@@ -38,7 +38,15 @@
  *   - the one silicon assumption: a retrace flag that asserted BEFORE the
  *     latch (from display end) would complete flips early - which is why
  *     vidCurrentLine (the report's P2, "in blank = line >= vdisp") is not
- *     used, and why it needs measuring on the VSA-100.
+ *     used, and why it needs measuring on the VSA-100;
+ *   - the achieved rule's trust band (1/64 of the nominal rate) is narrower
+ *     than its 1/32 margin: a sent rate skewed anywhere inside the band
+ *     against the real CRT is never early, for every timing in the table,
+ *     while the old 1/16 band trusted rates 4-5.5% high that were early
+ *     (review of the flip track, 2026-09-27);
+ *   - the counters are logged once per session although three points of a
+ *     PDEV's life may log them (a mode-setting session's flips live in a PDEV
+ *     that is gone before exclusive mode ends).
  * The flip report's scratch model (flipsim*.c, a deleted scratchpad) is
  * preserved here.
  */
@@ -138,7 +146,9 @@ static vcr_ticks ticks(ns_t t)
 #define PRE_NS     3000             /* the pre-write counterfactual: sampled this far BEFORE */
 #define POLL_NS    (IN_NS + OUT_NS + GAP_NS)
 
-enum { RULE_NOMINAL, RULE_ACHIEVED, RULE_ORACLE };
+/* RULE_RAW: frame + 1/32 of the SENT rate with no trust band - what a band
+ * too wide lets through (the counterfactual for the_trust_band_...) */
+enum { RULE_NOMINAL, RULE_ACHIEVED, RULE_ORACLE, RULE_RAW };
 
 typedef struct drv {
     vcr_flip_state s;
@@ -152,6 +162,7 @@ typedef struct drv {
     /* what the model saw */
     long    done, early, retrace_done;
     ns_t    worst_late;             /* told done this long after the latch, at most */
+    ns_t    worst_early;            /* told done this long BEFORE the latch, at most */
 } drv;
 
 static void drv_init(drv *d, const crt *c, int rule)
@@ -190,9 +201,11 @@ static int drv_poll(drv *d, ns_t *t)
     if (r) {
         latch = latch_after(d->c, d->last_w);
         d->done++;
-        if (sample < latch)
+        if (sample < latch) {
             d->early++;
-        else if (sample - latch > d->worst_late)
+            if (latch - sample > d->worst_early)
+                d->worst_early = latch - sample;
+        } else if (sample - latch > d->worst_late)
             d->worst_late = sample - latch;
         if (d->s.by_retrace != by_retrace0)
             d->retrace_done++;
@@ -202,6 +215,10 @@ static int drv_poll(drv *d, ns_t *t)
 
 static vcr_ticks drv_deadline(const drv *d)
 {
+    if (d->rule == RULE_RAW) {
+        vcr_ticks frame = QPF * 1000 / (vcr_ticks)d->c->refresh_mhz;
+        return frame + frame / 32;
+    }
     return vcr_flip_deadline(QPF, d->rule == RULE_ACHIEVED ? d->c->refresh_mhz : 0,
                              d->c->nominal);
 }
@@ -229,6 +246,8 @@ static ns_t drv_flip(drv *d, ns_t *t, int novsync)
 
 /* ---- scenarios ------------------------------------------------------------------ */
 
+static ns_t g_sweep_worst_early;     /* the last sweep's, for the band test */
+
 /* The write swept over every line and 5 offsets inside it; after each flip a
  * caller polls until done. Returns the early completions. */
 static long sweep(const crt *c, int rule, int prewrite, int avoid_pulse, long *retrace, long *n,
@@ -238,6 +257,7 @@ static long sweep(const crt *c, int rule, int prewrite, int avoid_pulse, long *r
     int l, k;
     *retrace = *n = 0;
     *worst_late = 0;
+    g_sweep_worst_early = 0;
     for (l = 0; l < c->vtot; l++)
         for (k = 0; k < 5; k++) {
             drv d;
@@ -254,6 +274,8 @@ static long sweep(const crt *c, int rule, int prewrite, int avoid_pulse, long *r
             *n += d.done;
             if (d.worst_late > *worst_late)
                 *worst_late = d.worst_late;
+            if (d.worst_early > g_sweep_worst_early)
+                g_sweep_worst_early = d.worst_early;
         }
     return early;
 }
@@ -560,6 +582,153 @@ TEST(the_one_assumption_the_flag_does_not_lead_the_latch) {
     CHECK_EQ_I(sweep(&c, RULE_NOMINAL, 0, 0, &retrace, &n, &late), 0);
 }
 
+/* the edges of the trust band around a nominal rate: the highest and lowest
+ * sent rate vcr_flip_trusted_mhz accepts with a given shift */
+static vcr_u32 band_hi(vcr_u32 nominal, int shift)
+{
+    vcr_u32 nom = nominal * 1000u;
+    return nom + (nom >> shift);
+}
+
+static vcr_u32 band_lo(vcr_u32 nominal, int shift)
+{
+    vcr_u32 nom = nominal * 1000u;
+    return nom - (nom >> shift);
+}
+
+TEST(the_trust_band_is_narrower_than_the_margin) {
+    /* The review's harness: the CRT runs at the real (computed) rate, the
+     * miniport SENDS a skewed one - a PLL that did not take its value, a
+     * formula error. Deadline-only polling (no poll ever sees the pulse), so
+     * the deadline alone decides. */
+    int m;
+    CHECK_EQ_I(VCR_FLIP_TRUST_SHIFT, 6);                    /* was 4 (1/16) */
+    for (m = 0; m < 3; m++) {
+        crt c = MODES[m];
+        long retrace, n, early;
+        ns_t late;
+        vcr_u32 real = MODES[m].refresh_mhz, hi = band_hi(c.nominal, VCR_FLIP_TRUST_SHIFT),
+                lo = band_lo(c.nominal, VCR_FLIP_TRUST_SHIFT), sk;
+        /* every edge of the new band is trusted, and never early */
+        CHECK_EQ_I(vcr_flip_trusted_mhz(hi, c.nominal), hi);
+        CHECK_EQ_I(vcr_flip_trusted_mhz(lo, c.nominal), lo);
+        CHECK_EQ_I(vcr_flip_trusted_mhz(hi + 1, c.nominal), 0);
+        CHECK_EQ_I(vcr_flip_trusted_mhz(lo - 1, c.nominal), 0);
+        c.refresh_mhz = hi;
+        CHECK_EQ_I(sweep(&c, RULE_ACHIEVED, 0, 1, &retrace, &n, &late), 0);
+        CHECK_EQ_I(n, (long)c.vtot * 5);
+        c.refresh_mhz = lo;
+        CHECK_EQ_I(sweep(&c, RULE_ACHIEVED, 0, 1, &retrace, &n, &late), 0);
+        /* the review's rows: +3%, +4%, +5.5% of the REAL rate */
+        sk = real + real * 3 / 100;
+        c.refresh_mhz = sk;
+        CHECK_EQ_I(sweep(&c, RULE_ACHIEVED, 0, 1, &retrace, &n, &late), 0);
+        CHECK_EQ_I(sweep(&c, RULE_RAW, 0, 1, &retrace, &n, &late), 0);   /* inside the margin */
+        for (sk = real + real * 4 / 100; sk <= real + real * 55 / 1000; sk += real * 15 / 1000) {
+            c.refresh_mhz = sk;
+            /* OLD: the 1/16 band trusted it ... */
+            CHECK(sk <= band_hi(c.nominal, 4), "the old band trusted this rate");
+            /* ... and with the rate trusted, flips completed before the latch */
+            early = sweep(&c, RULE_RAW, 0, 1, &retrace, &n, &late);
+            CHECK(early > 0, "a rate 4-5.5% high, trusted, is early");
+            CHECK(g_sweep_worst_early > 0 && g_sweep_worst_early < c.frame * 3 / 100,
+                  "early by under 3% of a frame");
+            /* NEW: not trusted, the nominal rule decides - never early */
+            CHECK_EQ_I(vcr_flip_trusted_mhz(sk, c.nominal), 0);
+            CHECK_EQ_I(sweep(&c, RULE_ACHIEVED, 0, 1, &retrace, &n, &late), 0);
+        }
+    }
+}
+
+TEST(every_timing_keeps_the_achieved_rule_and_its_band_is_never_early) {
+    /* Arithmetic over the WHOLE timing table, Voodoo 3 and VSA-100, at five
+     * clock rates: every computed rate lies inside the band (the opt-in rule
+     * applies to every mode), and the band's top edge still gives a deadline
+     * of at least one real frame. The old 1/16 edge gives LESS than one real
+     * frame on every timing. */
+    static const vcr_ticks qpfs[] = { 3579545, 1193182, 14318180, 2400000000LL, 1000000000LL };
+    vcr_hwcaps hw = v5caps();
+    vcr_u32 i, checked = 0, old_short = 0;
+    int dev, q;
+    for (dev = 0; dev < 2; dev++) {
+        if (dev) {
+            hw.device_id = VCR_DEV_VOODOO3;
+            hw.twox_above_khz = 160000;
+            hw.twox_htotal_chars = 0;
+        }
+        for (i = 0; i < vcr_ntimings; i++) {
+            const vcr_timing *t = &vcr_timings[i];
+            vcr_modeset mm;
+            long long htot, vtot;
+            if (vcr_mode_compute(&hw, t, 16, &mm))
+                continue;
+            htot = (long long)t->w + t->hfp + t->hsync + t->hbp;
+            vtot = (long long)t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) + t->vfp + t->vsync +
+                   t->vbp;
+            CHECK(vcr_flip_trusted_mhz(mm.refresh_mhz, t->refresh) == mm.refresh_mhz,
+                  "a table timing falls outside the trust band");
+            for (q = 0; q < (int)(sizeof qpfs / sizeof qpfs[0]); q++) {
+                long long den = (long long)mm.pix_khz_actual * 1000;
+                vcr_ticks real = (htot * vtot * qpfs[q] + den - 1) / den;   /* rounded up */
+                vcr_ticks f_new = qpfs[q] * 1000 / band_hi(t->refresh, VCR_FLIP_TRUST_SHIFT);
+                vcr_ticks f_old = qpfs[q] * 1000 / band_hi(t->refresh, 4);
+                CHECK(vcr_flip_deadline(qpfs[q], band_hi(t->refresh, VCR_FLIP_TRUST_SHIFT),
+                                        t->refresh) == f_new + f_new / 32, "the band edge");
+                if (f_new + f_new / 32 < real) {
+                    CHECK(0, "the band's top edge gives less than one real frame");
+                    return;
+                }
+                if (f_old + f_old / 32 < real)
+                    old_short++;
+                checked++;
+            }
+        }
+    }
+    CHECK(checked > 400, "the whole table, both chips, five clocks");
+    CHECK_EQ_I(old_short, checked);         /* the old band: short on every one */
+}
+
+TEST(the_counters_are_logged_once_although_three_points_may_log) {
+    /* flip_stats_log runs when exclusive mode ends, when the PDEV's mode
+     * leaves the screen and when its DirectDraw is disabled. It logs only when
+     * vcr_flip_stats_any says something is new since the last log. */
+    vcr_flip_state s;
+    memset(&s, 0, sizeof s);
+    CHECK_EQ_I(vcr_flip_stats_any(&s), 0);          /* a PDEV that never flipped */
+    vcr_flip_note_poll(&s, 20);
+    vcr_flip_begin(&s, 0, 1, 0, 1000, 47376);
+    CHECK_EQ_I(vcr_flip_stats_any(&s), 1);          /* a session: log it */
+    /* logged (DrvAssertMode FALSE) with the last flip still in flight */
+    vcr_flip_stats_reset(&s);
+    CHECK_EQ_U(s.flips, 1);
+    CHECK_EQ_U(s.carried, 1);
+    /* OLD check (`!flips && !polls` = nothing): it would log that same flip
+     * again at DrvDisableDirectDraw, as a second "session" */
+    CHECK_EQ_I(s.flips || s.polls, 1);
+    /* NEW: nothing new */
+    CHECK_EQ_I(vcr_flip_stats_any(&s), 0);
+    /* a poll of the carried flip is new; its completing is new */
+    vcr_flip_note_poll(&s, 20);
+    CHECK_EQ_I(vcr_flip_poll(&s, 1, 0, 2000), 0);   /* active display: still pending */
+    CHECK_EQ_I(vcr_flip_stats_any(&s), 1);
+    vcr_flip_stats_reset(&s);
+    CHECK_EQ_I(vcr_flip_stats_any(&s), 0);
+    CHECK_EQ_I(vcr_flip_poll(&s, 0, 0, 1000 + 47377), 1);   /* by the deadline */
+    CHECK_EQ_U(s.by_deadline, 1);
+    CHECK_EQ_I(vcr_flip_stats_any(&s), 1);
+    CHECK_EQ_U(s.flips, s.by_retrace + s.by_deadline + s.superseded + s.pending);
+    vcr_flip_stats_reset(&s);                       /* nothing in flight: all zero */
+    CHECK_EQ_U(s.carried, 0);
+    CHECK_EQ_I(vcr_flip_stats_any(&s), 0);
+    /* a carried flip replaced by a new one is new */
+    vcr_flip_begin(&s, 0, 1, 0, 3000, 47376);
+    vcr_flip_stats_reset(&s);
+    CHECK_EQ_I(vcr_flip_stats_any(&s), 0);
+    vcr_flip_begin(&s, 0, 1, 0, 4000, 47376);
+    CHECK_EQ_I(vcr_flip_stats_any(&s), 1);
+    CHECK_EQ_U(s.superseded, 1);
+}
+
 TEST(the_vblank_ioctl_keeps_its_size_and_offsets) {
     /* refresh_mhz is the word that was `reserved`: either half of the driver
      * pair may be the older one */
@@ -583,5 +752,8 @@ MUNIT_MAIN("vcr-kmd flip completion", {
     RUN(a_novsync_flip_is_never_pending);
     RUN(the_rule_without_a_retrace_bit_is_the_deadline);
     RUN(the_one_assumption_the_flag_does_not_lead_the_latch);
+    RUN(the_trust_band_is_narrower_than_the_margin);
+    RUN(every_timing_keeps_the_achieved_rule_and_its_band_is_never_early);
+    RUN(the_counters_are_logged_once_although_three_points_may_log);
     RUN(the_vblank_ioctl_keeps_its_size_and_offsets);
 })
