@@ -24,6 +24,9 @@
 #include "munit.h"
 #include "../../voodoo-cleanroom/vcr-kmd/miniport/vcrmp_sli.c"
 #include "../../voodoo-cleanroom/vcr-kmd/tools/vcr_sliaa.h"     /* `vcrctl sliaa` */
+/* VCR_PCI_CF8: what a raw slave config cycle keeps of an offset (the rest of
+ * the header is 32-bit kernel asm, never emitted here) */
+#include "../../voodoo-cleanroom/vcr-kmd/include/vcr_pciraw.h"
 
 #define NCH     4
 #define MAXW    8192
@@ -725,12 +728,14 @@ TEST(four_chip_4_sample_analog_aa_follows_the_vsync_and_mux_branches) {
     CHECK_EQ_I(vcr_sli_set(&io, &r), VCR_SLI_W_NOCLOCK);
     for (c = 0; c < 4; c++) {
         CHECK_EQ_U(CFG(m, c, VCR_CFG_SLILFBCTRL), 0);       /* SLI off, AA on */
-        /* the base as the byte address it is, in bits 4-25 (header difference
-         * 13), CPU + dispatch write, 32 bpp, divide by 4 */
-        CHECK_EQ_U(CFG(m, c, VCR_CFG_AALFBCTRL), 0x00100000u | 0x0c000000u | 0x40000000u | 0x80000000u);
-        /* before 2026-09-27 (D:871's << 4) the same request wrote the base at
-         * 16 MB: 0xcd000000 */
-        CHECK(CFG(m, c, VCR_CFG_AALFBCTRL) != 0xcd000000u, "the AA base is shifted again");
+        /* the DEFAULT recipe is D:871 as 097b1f7 ported it - the byte address
+         * << 4, CPU + dispatch write, 32 bpp, divide by 4 - the control arm of
+         * an AA A/B. (cebdf4f made the byte-address base unconditional:
+         * 0x4c100000 here; it is the vendor recipe's since, header difference
+         * 13 - the_aa_base_is_a_byte_address_in_the_vendor_recipe_only) */
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_AALFBCTRL), 0x01000000u | 0x0c000000u | 0x40000000u | 0x80000000u);
+        CHECK(CFG(m, c, VCR_CFG_AALFBCTRL) != (0x00100000u | 0x0c000000u | 0x40000000u | 0x80000000u),
+              "the default recipe writes the vendor recipe's base");
         CHECK_EQ_U(CFG(m, c, VCR_CFG_AADEPTHBUFAPERTURE), 0x1000u | (0x1400u << 16));
         CHECK_EQ_U(m->slictrl_direct[c], 0);                /* no SLI: no sliCtrl */
     }
@@ -879,10 +884,9 @@ TEST(slictrl_values_follow_gsst) {
  * as it stood at 097b1f7 - the code that ran cfg 0/2/5 on .124 (4-chip SLI
  * parity with AmigaMerlin, 0 bad band lines) - BEFORE the AA safety net
  * (2026-09-27). The safety net may only ADD refusals; for every request it
- * accepts, the bus must see exactly what it saw before. One deliberate
- * exception, measured: the AA base fix (step B) changes cfg 8's cfgAALfbCtrl
- * and nothing else - the only pinned request whose base is not 0. The vendor
- * AA recipe (vcr_sli_set_ex flag) is OFF here: these are the defaults. */
+ * accepts, the bus must see exactly what it saw before - no exception: the AA
+ * base fix is the vendor recipe's (header difference 13). The vendor AA
+ * recipe (vcr_sli_set_ex flag) is OFF here: these are the defaults. */
 static vcr_u32 wr_hash(const mock *m)
 {
     vcr_u32 h = 2166136261u, i, k, v[4];
@@ -917,9 +921,11 @@ static const seq_case k_seq[] = {
       VCR_SLI_W_NOCLOCK, 438, 0x873351e6u },
     { "cfg 5: 4-way analog SLI, 8-line bands, 32 bpp", 4, 4, 1, 0, 0, 1, 8, 32, 0, 0, 0, 0,
       VCR_SLI_W_NOCLOCK, 438, 0x0d69ff86u },
-    /* cfg 0 never enables; what it meets in the kernel is the teardown of the
-     * session before it (Glide's disable, garbage in all but dwChips) */
-    { "cfg 0 side: Glide's disable after a 4-way SLI session", 4, 4, 1, 0, 0, 1, 8, 16, 0, 0, 0, 1,
+    /* the close of a cfg 2/5 session: Glide's SLI_AA_REQUEST disable, garbage
+     * in all but dwChips. (cfg 0 never sends an SLI_AA_REQUEST at all: its
+     * close is 24 PCI_OP zero writes - cfg0_close_pci_op_zeros_reach_the_chips_
+     * as_before; this row was mislabelled "cfg 0 side" until 2026-09-27.) */
+    { "cfg 2/5 close: Glide's disable after a 4-way SLI session", 4, 4, 1, 0, 0, 1, 8, 16, 0, 0, 0, 1,
       VCR_SLI_OK, 42, 0x66c316b2u },
     /* a V5 5500 */
     { "2-way digital SLI (2-chip board)", 2, 2, 1, 0, 0, 0, 16, 16, 0, 0, 0, 0,
@@ -932,12 +938,13 @@ static const seq_case k_seq[] = {
       0, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 447, 0x12150b60u },
     { "cfg 7: 4 chips, no SLI, 4-sample analog AA", 4, 4, 0, 1, 1, 1, 8, 16,
       0, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 444, 0xf3ccf17eu },
-    /* the one pinned request with a real AA base: re-pinned 2026-09-27 for the
-     * base fix (header difference 13) - was 0xebcc4582 with the base shifted
-     * (cfgAALfbCtrl 0x8f000000: 0x00b00000 << 4 = 176 MB on a 32 MB chip).
-     * Every other write is unchanged: the_aa_base_fix_touches_only_cfgAALfbCtrl */
+    /* the one pinned request with a real AA base: 097b1f7's own sequence,
+     * D:871's << 4 and all (cfgAALfbCtrl 0x8f000000). cebdf4f re-pinned it to
+     * 0x8b5cc0ce by making the byte-address base unconditional; that base is
+     * the vendor recipe's alone since (header difference 13), so the default
+     * is 097b1f7's again. */
     { "cfg 8: 4 chips, no SLI, 8-sample analog AA", 4, 4, 0, 1, 2, 1, 8, 16,
-      0x00b00000u, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 444, 0x8b5cc0ceu },
+      0x00b00000u, 0x01000000u, 0x01180000u, 0, VCR_SLI_W_NOCLOCK, 444, 0xebcc4582u },
 };
 
 static void run_seq_ex(mock *m, const seq_case *s, vcr_u32 flags, int *rc)
@@ -1255,6 +1262,381 @@ TEST(glide_may_not_write_the_sli_aa_registers_behind_the_kernel) {
     CHECK_EQ_I(vcr_sli_poke_first(NULL, 0, 0x80, 4, 0), 1);
 }
 
+/* ---- PCI_OP writes, as Glide's NT build really sends them (review 2026-09-27) --------
+ * pci_op (vcrmp.c) over the mock: the flags it builds (SliAA asked only for a
+ * write that needs it), vcr_sli_poke_policy, the phase memo. poke_old() is the
+ * guard 412b03c shipped - every write touching 0x40/0x48/0x80-0xAF refused
+ * unless AllowPoke - kept to show what it did to the same traffic. */
+typedef struct {
+    unsigned passed, refused, phases;
+    int last_why;
+    vcr_sli_poke_memo memo;
+} poke_run;
+
+static void poke_reset(poke_run *pr)
+{
+    memset(pr, 0, sizeof *pr);
+}
+
+static void poke_land(mock *m, vcr_u32 chip, vcr_u32 off, vcr_u32 val)
+{
+    if (chip < NCH && off >= 0x40)
+        m->cfg[chip][CFGI(off)] = val;
+}
+
+static int poke_new(mock *m, poke_run *pr, vcr_u32 chip, vcr_u32 off, vcr_u32 val, int allow,
+                    int sliaa, vcr_u32 live)
+{
+    vcr_u32 flags = allow ? VCR_POKE_F_ALLOW : 0;
+    int why;
+    if (vcr_sli_poke_enables_aa(off, 4, val) && sliaa)
+        flags |= VCR_POKE_F_AA;
+    why = vcr_sli_poke_policy(chip, off, 4, val, flags, live);
+    pr->last_why = why;
+    if (why) {
+        pr->refused++;
+        if (why != VCR_POKE_R_HEADER && vcr_sli_poke_first(&pr->memo, chip, off, 4, val))
+            pr->phases++;
+        return 0;
+    }
+    poke_land(m, chip, off, val);
+    pr->passed++;
+    return 1;
+}
+
+static int poke_old(mock *m, poke_run *pr, vcr_u32 chip, vcr_u32 off, vcr_u32 val, int allow)
+{
+    if ((off < 0x40 || vcr_sli_cfg_owned(off, 4)) && !allow) {
+        pr->refused++;
+        if (off >= 0x40 && vcr_sli_poke_first(&pr->memo, chip, off, 4, val))
+            pr->phases++;
+        return 0;
+    }
+    poke_land(m, chip, off, val);
+    pr->passed++;
+    return 1;
+}
+
+/* hwcRestoreVideo (minihwc.c), a Napalm close that was not an SLI / multi-chip
+ * AA session - every cfg 0 close: per chip Glide counts, 0 into these, in
+ * this order (cfgVideoCtrl2 twice, as the source has it) */
+static const vcr_u32 k_close_offs[6] = {
+    VCR_CFG_SLILFBCTRL, VCR_CFG_AADEPTHBUFAPERTURE, VCR_CFG_AALFBCTRL,
+    VCR_CFG_VIDEOCTRL0, VCR_CFG_VIDEOCTRL2, VCR_CFG_VIDEOCTRL2
+};
+
+/* after a cfg 5 session and the kernel's disable: what a cfg 0 run meets */
+static void after_sli_session(mock *m, vcr_sli_io *io)
+{
+    vcr_sli_aa_req r = req(4, 1, 0, 0, 1, 8, 16), off;
+    mapped(m, io, 4);
+    CHECK(vcr_sli_set(io, &r) >= 0, "cfg 5 enable");
+    memset(&off, 0, sizeof off);
+    off.ChipInfo.dwChips = 4;
+    CHECK(vcr_sli_set(io, &off) >= 0, "cfg 5 disable");
+}
+
+TEST(cfg0_close_pci_op_zeros_reach_the_chips_as_before) {
+    mock *m = &M;
+    vcr_sli_io io;
+    poke_run pr;
+    vcr_u32 c, i;
+    /* the state the kernel's disable leaves: the slaves' syncs tristated */
+    after_sli_session(m, &io);
+    for (c = 1; c < 4; c++)
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL0), 0x03000000u);
+
+    /* NEW (the defaults: AllowPoke 0, SliAA 0, no live session): all 24 go
+     * through, exactly as under 097b1f7 - no refusal, no flushed phase */
+    poke_reset(&pr);
+    for (c = 0; c < 4; c++)
+        for (i = 0; i < 6; i++)
+            CHECK(poke_new(m, &pr, c, k_close_offs[i], 0, 0, 0, 0), "a close zero refused");
+    CHECK_EQ_U(pr.passed, 24);
+    CHECK_EQ_U(pr.refused, 0);
+    CHECK_EQ_U(pr.phases, 0);
+    for (c = 0; c < 4; c++) {                   /* 097b1f7's post-close state */
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL0), 0);
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL2), 0);
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_AALFBCTRL), 0);
+    }
+    /* the same zeros are the same answer with the switches up, too */
+    for (c = 0; c < 4; c++)
+        for (i = 0; i < 6; i++)
+            CHECK_EQ_I(vcr_sli_poke_policy(c, k_close_offs[i], 4, 0,
+                                           VCR_POKE_F_ALLOW | VCR_POKE_F_AA, 0), 0);
+
+    /* OLD (412b03c): all 24 refused, the slaves left tristated, and 20 flushed
+     * phases (5 registers x 4 chips; the second cfgVideoCtrl2 is a memo hit)
+     * on the first close of every boot - ~0.3-0.6 s of ZwFlushKey inside
+     * Glide's close, 20 of the 64 history slots, LastPhase SLI_POKE_REFUSED */
+    after_sli_session(m, &io);
+    poke_reset(&pr);
+    for (c = 0; c < 4; c++)
+        for (i = 0; i < 6; i++)
+            CHECK(!poke_old(m, &pr, c, k_close_offs[i], 0, 0), "the old guard let a zero through");
+    CHECK_EQ_U(pr.refused, 24);
+    CHECK_EQ_U(pr.phases, 20);
+    for (c = 1; c < 4; c++)
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL0), 0x03000000u);
+    /* a second close in the same boot: the memo keeps the old guard quiet */
+    pr.refused = pr.phases = 0;
+    for (c = 0; c < 4; c++)
+        for (i = 0; i < 6; i++)
+            poke_old(m, &pr, c, k_close_offs[i], 0, 0);
+    CHECK_EQ_U(pr.phases, 0);
+}
+
+/* minihwc.c, IS_NAPALM && h3pixelSample == 2 and no SLI_AA_REQUEST: per chip
+ * (every chip Glide counts upstream; the chips it drives with SLIAA-GUARD) */
+#define SCAA_AALFB   (VCR_AALFB_CPU_WRITE_EN | VCR_AALFB_DISPATCH_WRITE_EN | VCR_AALFB_READ_EN | \
+                      0x00c00000u /* colBuffStart1[0] */ | VCR_AALFB_FMT_16BPP)
+#define SCAA_DEPTH   (0x1000u | (0x1180u << 16))
+#define SCAA_VC0     (VCR_VC0_ENHANCED_VIDEO_EN | VCR_VC0_LOCALMUX_DESKTOP_PLUS_OVERLAY | VCR_VC0_DIVIDE_BY_2)
+static const struct { vcr_u32 off, val; int aa; } k_scaa[6] = {
+    { VCR_CFG_SLILFBCTRL, 0, 0 },
+    { VCR_CFG_AALFBCTRL, SCAA_AALFB, 1 },
+    { VCR_CFG_AADEPTHBUFAPERTURE, SCAA_DEPTH, 1 },
+    { VCR_CFG_VIDEOCTRL0, SCAA_VC0, 1 },
+    { VCR_CFG_VIDEOCTRL1, 0, 0 },
+    { VCR_CFG_VIDEOCTRL2, 0, 0 },
+};
+
+static void single_chip_aa(mock *m, poke_run *pr, int allow, int sliaa, vcr_u32 live)
+{
+    vcr_u32 c, i;
+    poke_reset(pr);
+    for (c = 0; c < 4; c++)
+        for (i = 0; i < 6; i++)
+            poke_new(m, pr, c, k_scaa[i].off, k_scaa[i].val, allow, sliaa, live);
+}
+
+TEST(single_chip_aa_pci_op_writes_need_diag_sliaa_even_with_allow_poke) {
+    mock *m = &M;
+    vcr_sli_io io;
+    poke_run pr;
+    vcr_u32 c, i;
+    CHECK_EQ_U(SCAA_VC0, 0x1009u);
+    for (i = 0; i < 6; i++)
+        CHECK_EQ_I(vcr_sli_poke_enables_aa(k_scaa[i].off, 4, k_scaa[i].val), k_scaa[i].aa);
+
+    /* the defaults: every AA value refused (AA_OFF), on every chip; the zeros
+     * (the same as the close's) land. No chip gets the video merge. */
+    mapped(m, &io, 4);
+    single_chip_aa(m, &pr, 0, 0, 0);
+    CHECK_EQ_U(pr.refused, 12);
+    CHECK_EQ_U(pr.passed, 12);
+    CHECK_EQ_U(pr.phases, 12);                  /* each (chip, register, value) once */
+    for (c = 0; c < 4; c++) {
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL0) & VCR_VC0_ENHANCED_VIDEO_EN, 0);
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_AALFBCTRL), 0);
+    }
+    CHECK_EQ_I(vcr_sli_poke_policy(0, VCR_CFG_VIDEOCTRL0, 4, SCAA_VC0, 0, 0), VCR_POKE_R_AA_OFF);
+    /* AllowPoke does NOT open it: the kill switch is Diag\SliAA */
+    mapped(m, &io, 4);
+    single_chip_aa(m, &pr, 1, 0, 0);
+    CHECK_EQ_U(pr.refused, 12);
+    CHECK_EQ_I(vcr_sli_poke_policy(0, VCR_CFG_VIDEOCTRL0, 4, SCAA_VC0, VCR_POKE_F_ALLOW, 0),
+               VCR_POKE_R_AA_OFF);
+    /* OLD (412b03c) with AllowPoke = 1: all 24 went through - AA programmed
+     * on four chips with Diag\SliAA = 0, the slaves' syncs un-tristated */
+    {
+        poke_run po;
+        mapped(m, &io, 4);
+        poke_reset(&po);
+        for (c = 0; c < 4; c++)
+            for (i = 0; i < 6; i++)
+                poke_old(m, &po, c, k_scaa[i].off, k_scaa[i].val, 1);
+        CHECK_EQ_U(po.passed, 24);
+        for (c = 0; c < 4; c++)
+            CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL0), SCAA_VC0);
+    }
+    /* Diag\SliAA = 1, AllowPoke 0: the master (the chip single-chip AA
+     * drives) is programmed; the slaves - outside any kernel session - are not */
+    mapped(m, &io, 4);
+    single_chip_aa(m, &pr, 0, 1, 0);
+    CHECK_EQ_U(CFG(m, 0, VCR_CFG_VIDEOCTRL0), SCAA_VC0);
+    CHECK_EQ_U(CFG(m, 0, VCR_CFG_AALFBCTRL), SCAA_AALFB);
+    for (c = 1; c < 4; c++)
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL0) & VCR_VC0_ENHANCED_VIDEO_EN, 0);
+    CHECK_EQ_U(pr.refused, 9);                  /* 3 AA values x 3 slaves */
+    CHECK_EQ_I(vcr_sli_poke_policy(2, VCR_CFG_VIDEOCTRL0, 4, SCAA_VC0, VCR_POKE_F_AA, 0),
+               VCR_POKE_R_SLAVE);
+    /* ... inside a live 4-chip kernel session, or with AllowPoke, they are */
+    CHECK_EQ_I(vcr_sli_poke_policy(2, VCR_CFG_VIDEOCTRL0, 4, SCAA_VC0, VCR_POKE_F_AA, 4), 0);
+    CHECK_EQ_I(vcr_sli_poke_policy(2, VCR_CFG_VIDEOCTRL0, 4, SCAA_VC0,
+                                   VCR_POKE_F_AA | VCR_POKE_F_ALLOW, 0), 0);
+    CHECK_EQ_I(vcr_sli_poke_policy(2, VCR_CFG_VIDEOCTRL0, 4, SCAA_VC0, VCR_POKE_F_AA, 2),
+               VCR_POKE_R_SLAVE);               /* chip 2 is outside a 2-chip session */
+    /* a byte or word write cannot slip an AA bit in */
+    CHECK_EQ_I(vcr_sli_poke_enables_aa(0x80, 1, 0x09), 1);
+    CHECK_EQ_I(vcr_sli_poke_enables_aa(0x81, 1, 0x10), 1);      /* DIVIDE_BY_2 */
+    CHECK_EQ_I(vcr_sli_poke_enables_aa(0x83, 1, 0x03), 0);      /* the tristate bits alone */
+    CHECK_EQ_I(vcr_sli_poke_enables_aa(0x96, 2, 0x0c00), 1);    /* CPU + dispatch write */
+    CHECK_EQ_I(vcr_sli_poke_enables_aa(0x97, 1, 0x10), 0);      /* READ_EN alone */
+    CHECK_EQ_I(vcr_sli_poke_enables_aa(0x92, 2, 0x0001), 1);    /* depth aperture end */
+    CHECK_EQ_I(vcr_sli_poke_enables_aa(0x8c, 4, 0x1d070008u), 0);  /* SLI LFB control */
+    CHECK_EQ_I(vcr_sli_poke_enables_aa(0xac, 4, 0x182fu), 0);
+    CHECK_EQ_I(vcr_sli_poke_enables_aa(0x80, 4, 0x03000000u), 0);
+}
+
+TEST(a0_read_toggles_in_a_live_sli_session_go_through) {
+    /* hwcSLIReadDisable/Enable (FX_GLIDE_A0_READ_ABORT, n-way SLI): read-
+     * modify-write of READ_EN in cfgSliLfbCtrl and cfgAALfbCtrl, while the
+     * kernel's cfg 5 session is live - never measured on .124 as set or unset,
+     * so it must keep 097b1f7's answer either way */
+    mock *m = &M;
+    vcr_sli_io io;
+    poke_run pr, po;
+    vcr_sli_aa_req r = req(4, 1, 0, 0, 1, 8, 16);
+    vcr_u32 c, sli;
+    mapped(m, &io, 4);
+    CHECK(vcr_sli_set(&io, &r) >= 0, "cfg 5");
+    poke_reset(&pr);
+    poke_reset(&po);
+    for (c = 0; c < 4; c++) {
+        sli = CFG(m, c, VCR_CFG_SLILFBCTRL);
+        /* disable: SLI read off, AA read on; enable: back */
+        CHECK(poke_new(m, &pr, c, VCR_CFG_SLILFBCTRL, sli & ~VCR_SLILFB_READ_EN, 0, 0, 4), "SLI read off");
+        CHECK(poke_new(m, &pr, c, VCR_CFG_AALFBCTRL, VCR_AALFB_READ_EN, 0, 0, 4), "AA read on");
+        CHECK(poke_new(m, &pr, c, VCR_CFG_SLILFBCTRL, sli, 0, 0, 4), "SLI read on");
+        CHECK(poke_new(m, &pr, c, VCR_CFG_AALFBCTRL, 0, 0, 0, 4), "AA read off");
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_SLILFBCTRL), sli);
+        /* OLD: every one refused */
+        CHECK(!poke_old(m, &po, c, VCR_CFG_SLILFBCTRL, sli & ~VCR_SLILFB_READ_EN, 0), "old");
+        CHECK(!poke_old(m, &po, c, VCR_CFG_AALFBCTRL, VCR_AALFB_READ_EN, 0), "old");
+    }
+    CHECK_EQ_U(pr.refused, 0);
+    CHECK_EQ_U(po.refused, 8);
+}
+
+TEST(pci_op_offsets_outside_the_config_header_are_refused) {
+    /* a slave is written by raw 0xCF8 cycles, which keep only offset bits
+     * 2-7: 0x140 is the slave's cfgVideoCtrl0, 0x104 its command register */
+    CHECK_EQ_U(VCR_PCI_CF8(3, 0, 1, 0x140) & 0xfc, 0x40);
+    CHECK_EQ_U(VCR_PCI_CF8(3, 0, 1, 0x180) & 0xfc, 0x80);
+    CHECK_EQ_U(VCR_PCI_CF8(3, 0, 1, 0x104) & 0xfc, 0x04);
+    /* OLD: neither guard saw them - owned_first() said "not ours" past 0xff
+     * and the header guard only looks below 0x40 */
+    CHECK_EQ_I(vcr_sli_cfg_owned(0x140, 4), 0);
+    CHECK_EQ_I(vcr_sli_cfg_owned(0x180, 4), 0);
+    CHECK(!(0x104 < 0x40), "0x104 below the header");
+    /* NEW: refused before either guard, reads too */
+    CHECK_EQ_I(vcr_cfg_access_ok(0x140, 4), 0);
+    CHECK_EQ_I(vcr_cfg_access_ok(0x104, 4), 0);
+    CHECK_EQ_I(vcr_cfg_access_ok(0x1ac, 4), 0);
+    CHECK_EQ_I(vcr_cfg_access_ok(0x100, 1), 0);
+    CHECK_EQ_I(vcr_cfg_access_ok(0xfc, 4), 1);
+    CHECK_EQ_I(vcr_cfg_access_ok(0xff, 1), 1);
+    CHECK_EQ_I(vcr_cfg_access_ok(0xfe, 4), 0);      /* past the end */
+    CHECK_EQ_I(vcr_cfg_access_ok(0x7e, 4), 0);      /* straddles into cfgVideoCtrl0 */
+    CHECK_EQ_I(vcr_cfg_access_ok(0x41, 2), 0);      /* misaligned word */
+    CHECK_EQ_I(vcr_cfg_access_ok(0x42, 2), 1);
+    CHECK_EQ_I(vcr_cfg_access_ok(0x80, 3), 0);
+    CHECK_EQ_I(vcr_cfg_access_ok(0x80, 0), 0);
+    CHECK_EQ_I(vcr_sli_poke_policy(1, 0x140, 4, 0x1009u, VCR_POKE_F_ALLOW | VCR_POKE_F_AA, 4),
+               VCR_POKE_R_BOUNDS);
+    CHECK_EQ_I(vcr_sli_poke_policy(1, 0x104, 4, 0, VCR_POKE_F_ALLOW, 0), VCR_POKE_R_BOUNDS);
+    /* the header (as ever) and the snoop/decode registers need AllowPoke */
+    CHECK_EQ_I(vcr_sli_poke_policy(0, 0x04, 4, 0, 0, 0), VCR_POKE_R_HEADER);
+    CHECK_EQ_I(vcr_sli_poke_policy(0, 0x04, 4, 0, VCR_POKE_F_ALLOW, 0), 0);
+    CHECK_EQ_I(vcr_sli_poke_policy(1, 0x40, 4, 0, 0, 0), VCR_POKE_R_SNOOP);
+    CHECK_EQ_I(vcr_sli_poke_policy(1, 0x49, 1, 0, 0, 4), VCR_POKE_R_SNOOP);
+    CHECK_EQ_I(vcr_sli_poke_policy(1, 0x48, 4, 0, VCR_POKE_F_ALLOW, 0), 0);
+    /* non-SLI registers above the header: as before */
+    CHECK_EQ_I(vcr_sli_poke_policy(0, 0x44, 4, 0, 0, 0), 0);
+    CHECK_EQ_I(vcr_sli_poke_policy(0, 0xb0, 4, 0xffffffffu, 0, 0), 0);
+}
+
+/* A Banshee or Voodoo 3 is VCR_HW_VOODOO too, and 0x80-0xAC are not its
+ * SLI/AA registers. dos_mode.c trusts its caller and slaves_present() asks
+ * only chips 1..n-1 - none for a 1-chip request - so `vcrctl sliaa 1 0 1 0 0`
+ * with Diag\SliAA = 1 on the 86Box Voodoo 3 bed ran the VSA-100 sequence. */
+#define V3_OLD_AA_WRITES     25u        /* before 2026-09-27, this mock, rc 0 */
+#define V3_OLD_OFF_WRITES     9u
+TEST(a_non_vsa100_master_is_refused_with_nothing_written) {
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_sli_aa_req r;
+    vcr_u32 reason = 0, val = 0, flags;
+    for (flags = 0; flags <= VCR_SLI_F_VENDOR_AA; flags++) {
+        seed(m, 1);
+        m->cfg[0][CFGI(0x00)] = 0x0005121au;            /* 121a:0005, a Voodoo 3 */
+        io = mkio(m);
+        r = req(1, 0, 1, 0, 0, 8, 16);
+        r.MemInfo.dwTileMark = 0x00800000u;
+        m->nw = 0;
+        CHECK_EQ_I(vcr_sli_set_ex(&io, &r, flags), VCR_SLI_ENODEV);
+        CHECK_EQ_U(m->nw, 0);
+        CHECK(m->nw != V3_OLD_AA_WRITES, "the VSA-100 sequence ran on a Voodoo 3");
+        CHECK(last_refusal(m, &reason, &val) && reason == VCR_SLI_R_NODEV && val == 0,
+              "not a NODEV refusal naming the master");
+    }
+    /* a disable too: nothing of ours is live on such a board */
+    seed(m, 1);
+    m->cfg[0][CFGI(0x00)] = 0x0005121au;
+    io = mkio(m);
+    memset(&r, 0, sizeof r);
+    r.ChipInfo.dwChips = 1;
+    m->nw = 0;
+    CHECK_EQ_I(vcr_sli_set(&io, &r), VCR_SLI_ENODEV);
+    CHECK_EQ_U(m->nw, 0);
+    CHECK(m->nw != V3_OLD_OFF_WRITES, "the disable ran on a Voodoo 3");
+    /* and a VSA-100 master still runs it (the pinned sequences cover the rest) */
+    mapped(m, &io, 1);
+    r = req(1, 0, 1, 0, 0, 8, 16);
+    CHECK(vcr_sli_set(&io, &r) >= 0, "a 1-chip VSA-100 AA request refused");
+}
+
+TEST(the_vendor_memory_refusal_is_policy_before_any_teardown) {
+    /* VcrSliRequest used to ask vcr_sli_policy (AA_OFF, COMBO) and then tear a
+     * live session down to make room - and only then did vcr_sli_set_ex
+     * refuse the vendor recipe's unusable memory info. policy_ex asks it first. */
+    vcr_sli_aa_req r = req(4, 1, 1, 0, 1, 8, 16);           /* cfg 3: base = tileMark */
+    r.MemInfo.dwTileMark = 0;                               /* vcrctl without one */
+    /* OLD: the policy passed it */
+    CHECK_EQ_I(vcr_sli_policy(&r, 1), 0);
+    /* NEW: refused before anything, with the vendor recipe - */
+    CHECK_EQ_I(vcr_sli_policy_ex(&r, 1, VCR_SLI_F_VENDOR_AA), VCR_SLI_R_MEMINFO);
+    /* - and only then: the default recipe never reads it, AA still needs the switch */
+    CHECK_EQ_I(vcr_sli_policy_ex(&r, 1, 0), 0);
+    CHECK_EQ_I(vcr_sli_policy_ex(&r, 0, VCR_SLI_F_VENDOR_AA), VCR_SLI_R_AA_OFF);
+    r.MemInfo.dwTileMark = 0x01b7e000u;
+    CHECK_EQ_I(vcr_sli_policy_ex(&r, 1, VCR_SLI_F_VENDOR_AA), 0);
+    /* cfg 8 (the aperture) needs it; a 2-sample-per-chip SLI shape does not */
+    r = req(4, 0, 1, 2, 1, 8, 16);
+    CHECK_EQ_I(vcr_sli_policy_ex(&r, 1, VCR_SLI_F_VENDOR_AA), VCR_SLI_R_MEMINFO);
+    r = req(4, 1, 1, 1, 1, 8, 16);
+    CHECK_EQ_I(vcr_sli_policy_ex(&r, 1, VCR_SLI_F_VENDOR_AA), 0);
+    /* SLI only and the disable: the flag changes nothing */
+    r = req(4, 1, 0, 0, 1, 8, 16);
+    CHECK_EQ_I(vcr_sli_policy_ex(&r, 0, VCR_SLI_F_VENDOR_AA), 0);
+    memset(&r, 0xa5, sizeof r);
+    r.ChipInfo.dwChips = 4;
+    r.ChipInfo.dwsliEn = r.ChipInfo.dwaaEn = 0;
+    CHECK_EQ_I(vcr_sli_policy_ex(&r, 0, VCR_SLI_F_VENDOR_AA), 0);
+    /* policy_ex and the sequence's backstop agree, shape by shape */
+    {
+        static const vcr_u32 ns[3] = { 1, 2, 4 };
+        mock *m = &M;
+        vcr_sli_io io;
+        vcr_u32 ni, sli, high, analog;
+        for (ni = 0; ni < 3; ni++)
+            for (sli = 0; sli < 2; sli++)
+                for (high = 0; high < 3; high++)
+                    for (analog = 0; analog < 2; analog++) {
+                        int pol, rc;
+                        r = req(ns[ni], sli, 1, high, analog, 8, 16);
+                        pol = vcr_sli_policy_ex(&r, 1, VCR_SLI_F_VENDOR_AA);
+                        if (pol == VCR_SLI_R_COMBO)
+                            continue;
+                        mapped(m, &io, 4);
+                        rc = vcr_sli_set_ex(&io, &r, VCR_SLI_F_VENDOR_AA);
+                        CHECK_EQ_I(pol == VCR_SLI_R_MEMINFO, rc == VCR_SLI_EINVAL);
+                    }
+    }
+}
+
 /* ---- step B (2026-09-27): the AA base, a vendor-style recipe, the read-back -------- */
 
 /* the bus hash with the VALUES of one config register's writes blanked */
@@ -1274,14 +1656,19 @@ static vcr_u32 wr_hash_blank(const mock *m, vcr_u32 cfg_off)
     return h;
 }
 
-/* (a) cfgAALfbCtrl's secondary base is a byte address in bits 4-25. */
-#define CFG8_BLANK94_OLD   0xb25fd70eu  /* cfg 8's bus hash, 0x94 values blanked - the OLD
-                                           code, measured before the fix (vcrmp_sli.c 412b03c) */
+/* (a) cfgAALfbCtrl's secondary base is a byte address in bits 4-25 - in the
+ * VENDOR recipe. The default recipe is dos_mode.c's, D:871's << 4 included:
+ * the control arm of an AA A/B, byte-identical to 097b1f7 (and reachable only
+ * with Diag\SliAA = 1). cebdf4f had made the byte address unconditional,
+ * which moved the default arm of every shape with a real base (critic plan
+ * step 12(a) put it behind the flag; review 2026-09-27). */
+#define CFG8_BLANK94_OLD   0xb25fd70eu  /* cfg 8's bus hash, 0x94 values blanked (412b03c) */
 #define CFG8_AALFB_OLD     0x8f000000u  /* 0x00b00000 << 4: base 176 MB on a 32 MB chip */
 #define CFG8_AALFB_NEW     0x8cb00000u  /* base 0x00b00000, CPU+dispatch write, 16 bpp, /4 */
 
-TEST(the_aa_base_fix_touches_only_cfgAALfbCtrl) {
+TEST(the_aa_base_is_a_byte_address_in_the_vendor_recipe_only) {
     mock *m = &M;
+    vcr_sli_io io;
     unsigned i, j, n94;
     int rc;
     /* the pure field: unshifted and masked to bits 4-25 */
@@ -1289,34 +1676,54 @@ TEST(the_aa_base_fix_touches_only_cfgAALfbCtrl) {
     CHECK_EQ_U(vcr_sli_aalfb_base(0x01b7e000u), 0x01b7e000u);
     CHECK_EQ_U(vcr_sli_aalfb_base(0x0000000fu), 0);             /* not part of the address */
     CHECK_EQ_U(vcr_sli_aalfb_base(0xffffffffu), 0x03fffff0u);   /* never reaches bit 26 */
+    CHECK_EQ_U(VCR_AALFB_SECONDARY_BASE_SHIFT, 4);              /* D:871 */
     /* a base of 0 - what Glide sends for cfg 3 and cfg 7 - is written the same
-     * by the old and the new formula: no register of today's requests moves */
-    CHECK_EQ_U(vcr_sli_aalfb_base(0), 0u << 4);
+     * by both formulas */
+    CHECK_EQ_U(vcr_sli_aalfb_base(0), 0u << VCR_AALFB_SECONDARY_BASE_SHIFT);
+    /* DEFAULT recipe: every pinned AA request writes D:871's value */
     for (i = 0; i < sizeof k_seq / sizeof k_seq[0]; i++) {
         const seq_case *s = &k_seq[i];
+        if (!s->aa)
+            continue;
         run_seq(m, s, &rc);
         for (j = 0, n94 = 0; j < m->nw; j++) {
-            if (m->w[j].kind != 'c' || m->w[j].off != VCR_CFG_AALFBCTRL || !s->aa)
+            if (m->w[j].kind != 'c' || m->w[j].off != VCR_CFG_AALFBCTRL)
                 continue;
             n94++;
-            if (s->col == 0)                    /* cfg 3 / cfg 7: base 0, old == new */
-                CHECK_EQ_U(m->w[j].val & VCR_AALFB_SECONDARY_BASE_MASK, 0);
-            else {                              /* cfg 8 */
-                CHECK_EQ_U(m->w[j].val, CFG8_AALFB_NEW);
-                CHECK(m->w[j].val != CFG8_AALFB_OLD, "cfg 8's AA base is shifted again");
+            CHECK_EQ_U(m->w[j].val & 0x3ffffff0u & ~VCR_AALFB_CPU_WRITE_EN & ~VCR_AALFB_DISPATCH_WRITE_EN,
+                       (s->col << 4) & 0x3ffffff0u & ~VCR_AALFB_CPU_WRITE_EN & ~VCR_AALFB_DISPATCH_WRITE_EN);
+            if (s->col) {                       /* cfg 8 */
+                CHECK_EQ_U(m->w[j].val, CFG8_AALFB_OLD);
+                CHECK(m->w[j].val != CFG8_AALFB_NEW, "the default recipe writes the vendor base");
             }
         }
-        if (s->aa)
-            CHECK(n94 >= 4, "an AA request wrote cfgAALfbCtrl on fewer than 4 chips");
+        CHECK(n94 >= 4, "an AA request wrote cfgAALfbCtrl on fewer than 4 chips");
         if (s->col) {
-            /* every OTHER write of cfg 8 is exactly what the old code wrote */
-            CHECK_EQ_U(wr_hash_blank(m, VCR_CFG_AALFBCTRL), CFG8_BLANK94_OLD);
             CHECK_EQ_U(n94, 6);                 /* 4 + chips 2/3 AA reads off */
+            CHECK_EQ_U(wr_hash_blank(m, VCR_CFG_AALFBCTRL), CFG8_BLANK94_OLD);
         }
+    }
+    /* VENDOR recipe: the same cfg 8 request writes the byte address */
+    {
+        vcr_sli_aa_req r = req(4, 0, 1, 2, 1, 8, 16);
+        r.MemInfo.dwaaSecondaryColorBufBegin = 0x00b00000u;
+        r.MemInfo.dwaaSecondaryDepthBufBegin = 0x01000000u;
+        r.MemInfo.dwaaSecondaryDepthBufEnd = 0x01180000u;
+        r.MemInfo.dwTileMark = 0x01b7e000u;
+        mapped(m, &io, 4);
+        m->nw = 0;
+        CHECK_EQ_I(vcr_sli_set_ex(&io, &r, VCR_SLI_F_VENDOR_AA), VCR_SLI_W_NOCLOCK);
+        for (j = 0, n94 = 0; j < m->nw; j++)
+            if (m->w[j].kind == 'c' && m->w[j].off == VCR_CFG_AALFBCTRL) {
+                n94++;
+                CHECK_EQ_U(m->w[j].val, CFG8_AALFB_NEW);
+            }
+        CHECK_EQ_U(n94, 6);
+        no_bus_faults(m);
     }
 }
 
-TEST(a_real_aa_base_cannot_spill_into_read_enable_or_the_format) {
+TEST(a_real_aa_base_cannot_spill_in_the_vendor_recipe) {
     static const struct { vcr_u32 col, old_chip0; } k[] = {
         /* 0x01a00000 << 4 = 0x1a000000: READ_EN (bit 28) set on chips 0/1 -
          * the scratch simulator's cfg-4-like case gave 0x9e000000 */
@@ -1329,12 +1736,27 @@ TEST(a_real_aa_base_cannot_spill_into_read_enable_or_the_format) {
     unsigned i;
     vcr_u32 c, v;
     for (i = 0; i < 2; i++) {
-        vcr_sli_aa_req r = req(4, 0, 1, 1, 1, 8, 16);           /* cfg 7's shape */
+        /* DEFAULT recipe, cfg 7's shape: dos_mode.c's spill, kept on purpose
+         * as the control arm - the value 097b1f7 wrote */
+        vcr_sli_aa_req r = req(4, 0, 1, 1, 1, 8, 16);
         r.MemInfo.dwaaSecondaryColorBufBegin = k[i].col;
         r.MemInfo.dwaaSecondaryDepthBufBegin = 0x01000000u;
         r.MemInfo.dwaaSecondaryDepthBufEnd = 0x01180000u;
         mapped(m, &io, 4);
         CHECK_EQ_I(vcr_sli_set(&io, &r), VCR_SLI_W_NOCLOCK);
+        CHECK_EQ_U(CFG(m, 0, VCR_CFG_AALFBCTRL), k[i].old_chip0);
+        /* what the old formula does to this very base */
+        CHECK(((k[i].col << 4) & (VCR_AALFB_READ_EN | (3u << 29))) != 0, "demo case spills nothing");
+        no_bus_faults(m);
+
+        /* VENDOR recipe, a shape that keeps the request's own base (two
+         * samples per chip: 2-way SLI + 4-sample): masked, no spill */
+        r = req(4, 1, 1, 1, 1, 8, 16);
+        r.MemInfo.dwaaSecondaryColorBufBegin = k[i].col;
+        r.MemInfo.dwaaSecondaryDepthBufBegin = 0x01000000u;
+        r.MemInfo.dwaaSecondaryDepthBufEnd = 0x01180000u;
+        mapped(m, &io, 4);
+        CHECK(vcr_sli_set_ex(&io, &r, VCR_SLI_F_VENDOR_AA) >= 0, "vendor 2-way SLI + 4-sample refused");
         for (c = 0; c < 4; c++) {
             v = CFG(m, c, VCR_CFG_AALFBCTRL);
             CHECK_EQ_U(v & VCR_AALFB_READ_EN, 0);                /* the old spill set it */
@@ -1342,10 +1764,8 @@ TEST(a_real_aa_base_cannot_spill_into_read_enable_or_the_format) {
             CHECK_EQ_U(v & VCR_AALFB_SECONDARY_BASE_MASK, k[i].col & VCR_AALFB_SECONDARY_BASE_MASK);
             CHECK_EQ_U(v & ~VCR_AALFB_SECONDARY_BASE_MASK,
                        VCR_AALFB_CPU_WRITE_EN | VCR_AALFB_DISPATCH_WRITE_EN | VCR_AALFB_RD_DIVIDE_BY_4);
+            CHECK(v != k[i].old_chip0, "the vendor recipe spills");
         }
-        CHECK(CFG(m, 0, VCR_CFG_AALFBCTRL) != k[i].old_chip0, "the old spill is back");
-        /* what the old formula did to this very base */
-        CHECK(((k[i].col << 4) & (VCR_AALFB_READ_EN | (3u << 29))) != 0, "demo case spills nothing");
         no_bus_faults(m);
     }
 }
@@ -1404,7 +1824,7 @@ TEST(the_vendor_recipe_leaves_sli_only_requests_and_the_disable_alone) {
         }
         checked++;
     }
-    CHECK_EQ_U(checked, 6);                 /* cfg 5 x3, cfg 0's disable, 2-chip SLI x2 */
+    CHECK_EQ_U(checked, 6);                 /* cfg 5 x3, the cfg 2/5 close, 2-chip SLI x2 */
 }
 
 TEST(the_vendor_recipe_refuses_memory_info_it_cannot_place) {
@@ -1467,8 +1887,9 @@ TEST(the_vendor_recipe_refuses_memory_info_it_cannot_place) {
  * cfg 8 (8-sample, two samples per chip, so it has a real secondary buffer:
  * col 0x00b00000) closes the table: it is the other half of the vendor
  * recipe's "4 chips, no SLI, 4- or 8-sample" depth-aperture rule, and the one
- * shape whose dos_mode.c row moved with the base fix (0x8f000000 ->
- * 0x8cb00000; the simulator, which ran the old code, printed 0x8f000000). */
+ * shape whose two rows differ in the BASE: dos_mode.c 0x8f000000 (D:871's
+ * << 4, what the simulator printed from the old code), vendor 0x8cb00000 (the
+ * byte address, header difference 13). */
 #define T_TILE      0x01b7e000u
 #define T_TOTAL     (32u << 20)
 #define T_WHOLE     ((T_TILE >> 12) | ((T_TOTAL >> 12) << 16))     /* 0x20001b7e */
@@ -1524,14 +1945,15 @@ static const aa_table k_aa_tables[] = {
       { { 0x00000301u, DEC0, 0x00001009u, 0, 0xff00u, 0, T_DEPTH, 0x0c000000u, 0x0800u }, 0, 0 } }, 0 },
     { "cfg 1 as labelled {1,0,1,0,0}, vendor recipe", 1, 0, 1, 0, 0, VCR_SLI_F_VENDOR_AA, VCR_SLI_W_NOCLOCK, {
       { { 0x00000301u, DEC0, 0x00001009u, 0, 0xff00u, 0, T_DEPTH, 0x0c000000u, 0x0800u }, 0, 1 } }, 0 },
-    /* cfg 8: the vendor recipe changes the depth aperture (whole tiled range)
-     * and sliCtrl only - two samples per chip keep the request's own base, no
-     * AA READ_EN; chips 2/3 still get D:1439's (no-op) READ_EN clear */
+    /* cfg 8: the vendor recipe writes the base as a byte address, the depth
+     * aperture as the whole tiled range and sliCtrl = 0 - two samples per chip
+     * keep the request's own base, no AA READ_EN; chips 2/3 still get
+     * D:1439's (no-op) READ_EN clear */
     { "cfg 8 {4,0,1,2,1}, dos_mode.c recipe", 4, 0, 1, 2, 1, 0, VCR_SLI_W_NOCLOCK, {
-      { { IE0, DEC0, 0x00003819u, 0,           0,       0, T_DEPTH, CFG8_AALFB_NEW, 0x0800u }, 0, 0 },
-      { { IES, DECS, 0x0200080bu, 0xff000000u, 0,       0, T_DEPTH, CFG8_AALFB_NEW, 0x082fu }, 0, 0 },
-      { { IES, DECS, 0x0200384bu, 0,           0xff00u, 0, T_DEPTH, CFG8_AALFB_NEW, 0x0827u }, 0, 0 },
-      { { IES, DECS, 0x0200080bu, 0xff000000u, 0,       0, T_DEPTH, CFG8_AALFB_NEW, 0x082fu }, 0, 0 } },
+      { { IE0, DEC0, 0x00003819u, 0,           0,       0, T_DEPTH, CFG8_AALFB_OLD, 0x0800u }, 0, 0 },
+      { { IES, DECS, 0x0200080bu, 0xff000000u, 0,       0, T_DEPTH, CFG8_AALFB_OLD, 0x082fu }, 0, 0 },
+      { { IES, DECS, 0x0200384bu, 0,           0xff00u, 0, T_DEPTH, CFG8_AALFB_OLD, 0x0827u }, 0, 0 },
+      { { IES, DECS, 0x0200080bu, 0xff000000u, 0,       0, T_DEPTH, CFG8_AALFB_OLD, 0x082fu }, 0, 0 } },
       0x00b00000u },
     { "cfg 8 {4,0,1,2,1}, vendor recipe", 4, 0, 1, 2, 1, VCR_SLI_F_VENDOR_AA, VCR_SLI_W_NOCLOCK, {
       { { IE0, DEC0, 0x00003819u, 0,           0,       0, T_WHOLE, CFG8_AALFB_NEW, 0x0800u }, 0, 1 },
@@ -1810,7 +2232,13 @@ static const char *sliaa(vcr_sliaa_cmd *c, int argc, ...)
     return vcr_sliaa_parse(argc, argv, c);
 }
 
-TEST(vcrctl_sliaa_refuses_aa_unless_a_person_is_at_the_box) {
+/* the gate ea90707 shipped: AA without the flag, nothing else */
+static const char *sliaa_gate_old(const vcr_sliaa_cmd *c)
+{
+    return (!c->off && c->aa && !c->at_box) ? "refused" : 0;
+}
+
+TEST(vcrctl_sliaa_refuses_every_enable_without_a_person_at_the_box) {
     vcr_sliaa_cmd c;
     vcr_sli_aa_req r;
     /* cfg 3 as a kernel probe: parses, and is REFUSED without the flag */
@@ -1820,12 +2248,60 @@ TEST(vcrctl_sliaa_refuses_aa_unless_a_person_is_at_the_box) {
     CHECK(vcr_sliaa_gate(&c) == 0, "the flag did not open the gate");
     CHECK(!sliaa(&c, 6, VCR_SLIAA_AT_BOX_FLAG, "4", "0", "1", "1", "1"), "flag first");
     CHECK(c.at_box && c.aa && vcr_sliaa_gate(&c) == 0, "flag position mattered");
-    /* SLI only (cfg 5) and the disable need no flag */
+    /* SLI only (cfg 5) reprograms the same scan-out clocks: NEW - refused
+     * without the flag; OLD - sent */
     CHECK(!sliaa(&c, 5, "4", "1", "0", "0", "1"), "cfg 5 did not parse");
-    CHECK(vcr_sliaa_gate(&c) == 0, "cfg 5 needs no person at the box");
+    CHECK(vcr_sliaa_gate(&c) != 0, "an SLI enable passed the gate with nobody at the box");
+    CHECK(sliaa_gate_old(&c) == 0, "the old gate is not the one that shipped");
+    CHECK(!sliaa(&c, 6, "4", "1", "0", "0", "1", VCR_SLIAA_AT_BOX_FLAG), "cfg 5 + flag");
+    CHECK(vcr_sliaa_gate(&c) == 0, "cfg 5 with a person at the box refused");
+    /* the way back needs no flag */
     CHECK(!sliaa(&c, 1, "off"), "off did not parse");
     CHECK(c.off && vcr_sliaa_gate(&c) == 0, "off refused");
     CHECK(!sliaa(&c, 2, "off", VCR_SLIAA_AT_BOX_FLAG), "off + flag");
+    /* a shape with no video mux is refused by the TOOL, flag or not: a vendor
+     * kernel has no refusal of its own (AmigaMerlin froze on cfg 1's) */
+    CHECK(!sliaa(&c, 6, "4", "0", "1", "0", "1", VCR_SLIAA_AT_BOX_FLAG), "cfg 1 as sent");
+    CHECK(vcr_sliaa_gate(&c) != 0, "cfg 1's {4,0,1,0,1} passed the tool");
+    CHECK(sliaa_gate_old(&c) == 0, "the old gate sent it");
+    CHECK(!sliaa(&c, 6, "2", "1", "1", "1", "0", VCR_SLIAA_AT_BOX_FLAG), "2-chip SLI + 4-sample");
+    CHECK(vcr_sliaa_gate(&c) != 0, "{2,1,1,1,0} passed the tool");
+    CHECK(!sliaa(&c, 6, "1", "1", "0", "0", "0", VCR_SLIAA_AT_BOX_FLAG), "1-chip SLI");
+    CHECK(vcr_sliaa_gate(&c) != 0, "1-chip SLI passed the tool");
+    /* ... and exactly the shapes the kernel accepts pass it */
+    {
+        static const char *const ns[3] = { "1", "2", "4" };
+        static const char *const d[3] = { "0", "1", "2" };
+        int ni, sl, aa, hi, an;
+        for (ni = 0; ni < 3; ni++)
+            for (sl = 0; sl < 2; sl++)
+                for (aa = 0; aa < 2; aa++)
+                    for (hi = 0; hi < 3; hi++)
+                        for (an = 0; an < 2; an++) {
+                            if (!sl && !aa)
+                                continue;
+                            CHECK(!sliaa(&c, 6, ns[ni], d[sl], d[aa], d[hi], d[an],
+                                         VCR_SLIAA_AT_BOX_FLAG), "a shape did not parse");
+                            CHECK_EQ_I(vcr_sliaa_gate(&c) == 0,
+                                       vcr_sli_combo_ok(c.n, c.sli, c.aa, c.high, c.analog));
+                        }
+    }
+    /* AA on a desktop PLL: refused unless the desktop is in 2x mode or the
+     * operator forces it; an unreadable vidProcCfg counts as not 2x. SLI only
+     * and `off` never ask. */
+    CHECK(!sliaa(&c, 6, "4", "0", "1", "1", "1", VCR_SLIAA_AT_BOX_FLAG), "cfg 7");
+    CHECK(vcr_sliaa_pll_gate(&c, 1) == 0, "cfg 7 on a 2x desktop refused");
+    CHECK(vcr_sliaa_pll_gate(&c, 0) != 0, "cfg 7 on a desktop PLL sent");
+    CHECK(vcr_sliaa_pll_gate(&c, VCR_SLIAA_2X_UNKNOWN) != 0, "cfg 7 with vidProcCfg unknown sent");
+    CHECK(!sliaa(&c, 7, "4", "0", "1", "1", "1", VCR_SLIAA_AT_BOX_FLAG, VCR_SLIAA_FORCE_PLL),
+          "cfg 7 forced");
+    CHECK(c.force_pll && vcr_sliaa_pll_gate(&c, 0) == 0, "--force-desktop-pll did not force it");
+    CHECK(vcr_sliaa_pll_gate(&c, VCR_SLIAA_2X_UNKNOWN) == 0, "--force-desktop-pll, unknown");
+    CHECK(!sliaa(&c, 6, "4", "1", "0", "0", "1", VCR_SLIAA_AT_BOX_FLAG), "cfg 5");
+    CHECK(vcr_sliaa_pll_gate(&c, 0) == 0, "an SLI-only enable asked about the PLL");
+    CHECK(!sliaa(&c, 1, "off"), "off");
+    CHECK(vcr_sliaa_pll_gate(&c, 0) == 0, "off asked about the PLL");
+    CHECK(sliaa(&c, 6, "4", "0", "1", "1", "1", "--force-desktop-pl") != 0, "a truncated force flag");
     /* a near-miss flag is not the flag */
     CHECK(sliaa(&c, 6, "4", "0", "1", "1", "1", "--i-am-at-the-bo") != 0, "a truncated flag accepted");
     CHECK(sliaa(&c, 6, "4", "0", "1", "1", "1", "--at-box") != 0, "an unknown option accepted");
@@ -1922,8 +2398,14 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(the_kill_switch_refuses_every_aa_request_and_nothing_else);
     RUN(the_persisted_phase_keeps_the_warn_mask_the_clock_result_and_the_refusal);
     RUN(glide_may_not_write_the_sli_aa_registers_behind_the_kernel);
-    RUN(the_aa_base_fix_touches_only_cfgAALfbCtrl);
-    RUN(a_real_aa_base_cannot_spill_into_read_enable_or_the_format);
+    RUN(cfg0_close_pci_op_zeros_reach_the_chips_as_before);
+    RUN(single_chip_aa_pci_op_writes_need_diag_sliaa_even_with_allow_poke);
+    RUN(a0_read_toggles_in_a_live_sli_session_go_through);
+    RUN(pci_op_offsets_outside_the_config_header_are_refused);
+    RUN(a_non_vsa100_master_is_refused_with_nothing_written);
+    RUN(the_vendor_memory_refusal_is_policy_before_any_teardown);
+    RUN(the_aa_base_is_a_byte_address_in_the_vendor_recipe_only);
+    RUN(a_real_aa_base_cannot_spill_in_the_vendor_recipe);
     RUN(one_sample_per_chip_is_exactly_the_three_paired_shapes);
     RUN(the_vendor_recipe_leaves_sli_only_requests_and_the_disable_alone);
     RUN(the_vendor_recipe_refuses_memory_info_it_cannot_place);
@@ -1932,6 +2414,6 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(the_aa_state_is_read_back_by_config_cycles_only);
     RUN(no_state_record_without_an_aa_enable);
     RUN(the_recipe_is_visible_in_the_persisted_phases);
-    RUN(vcrctl_sliaa_refuses_aa_unless_a_person_is_at_the_box);
+    RUN(vcrctl_sliaa_refuses_every_enable_without_a_person_at_the_box);
     RUN(step_codes_are_unique);
 )

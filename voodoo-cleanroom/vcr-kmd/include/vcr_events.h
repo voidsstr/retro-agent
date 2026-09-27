@@ -86,7 +86,7 @@
     VCR_EVENT(VCR_EV_SLI_STEP,      700, "a=step b=chip c=register/offset d=value") \
     VCR_EVENT(VCR_EV_SLI_DONE,      701, "a=enabled b=chips c=result") \
     VCR_EVENT(VCR_EV_CLOCK_6K,      702, "a=target Hz b=programmed Hz c=24-bit word d=gpio after") \
-    VCR_EVENT(VCR_EV_SLI_POKE_REFUSED, 703, "a=chip b=config offset c=value d=size (phase: a=chip<<16|offset b=value) - a PCI_OP write to an SLI/AA register, refused: Diag\\AllowPoke=0") \
+    VCR_EVENT(VCR_EV_SLI_POKE_REFUSED, 703, "a=chip b=config offset c=value d=reason (phase: a=reason<<24|chip<<16|offset b=value; reason 0 = a kernel before the fix, AllowPoke=0) - a PCI_OP write to an SLI/AA register refused: VCR_POKE_R_* in vcr_sli.h") \
     /* 8xx safety */ \
     VCR_EVENT(VCR_EV_SAFE_DECLINE,  800, "a=reason (1 disabled, 2 boot loop) b=attempts") \
     VCR_EVENT(VCR_EV_SAFE_MARK_OK,  801, "a=attempts cleared") \

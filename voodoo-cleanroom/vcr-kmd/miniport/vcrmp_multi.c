@@ -27,9 +27,10 @@
  * SliAAVendorRecipe = 1 runs an AA request with the vendor-style recipe
  * (vcr_sli_set_ex, VCR_SLI_F_VENDOR_AA; absent/0 = the dos_mode.c-derived
  * sequence), read per request - for supervised A/B runs only.
- * Written, not read: SliAAState (REG_BINARY, flushed) - every chip's SLI/AA
- * config space read back by config cycles after an AA enable
- * (vcr_sli_aa_readback; tools/vcrphases.py decodes it).
+ * SliAAReadback = 1: after an AA enable, every chip's SLI/AA config space is
+ * read back by config cycles into SliAAState (REG_BINARY, flushed;
+ * vcr_sli_aa_readback; tools/vcrphases.py decodes it). Absent/0 = no
+ * read-back: the AA path keeps the timing it had on 2026-09-26.
  */
 #include "vcrmp.h"
 #include "../include/vcr_sli.h"
@@ -248,6 +249,14 @@ static int sli_aa_allowed(void)
     return VcrDiagGet(L"SliAA", 0) != 0;
 }
 
+/* The same switch for pci_op (vcrmp.c): Glide's single-chip AA path programs
+ * AA through PCI_OP writes, not an SLI_AA_REQUEST - the kill switch covers
+ * those too (vcr_sli_poke_policy VCR_POKE_R_AA_OFF). */
+ULONG VcrSliAAAllowed(void)
+{
+    return sli_aa_allowed() ? 1 : 0;
+}
+
 /* Diag\SliAAVendorRecipe (DWORD, absent = 0): the vendor-style AA recipe for
  * THIS request (vcr_sli.h vcr_sli_set_ex). Read per request, like SliAA, so a
  * supervised run A/Bs the two recipes one clean boot each without a rebuild.
@@ -255,6 +264,18 @@ static int sli_aa_allowed(void)
 static vcr_u32 sli_recipe(void)
 {
     return VcrDiagGet(L"SliAAVendorRecipe", 0) ? VCR_SLI_F_VENDOR_AA : 0;
+}
+
+/* Diag\SliAAReadback (DWORD, absent = 0): after an AA enable, read every
+ * chip's SLI/AA config space back into Diag\SliAAState. OFF by default: it
+ * adds 9 config reads per chip, ~5 flushed phases and a flushed REG_BINARY
+ * write - 100-200 ms - between SET_DONE and Glide's next MMIO, so an AA run
+ * without it keeps the timing and traffic of the kernel that ran on
+ * 2026-09-26. Read per request, like SliAA. (Not "SliAAState": that name is
+ * the REG_BINARY record, and a DWORD switch under it would be overwritten.) */
+static int sli_aa_readback_wanted(void)
+{
+    return VcrDiagGet(L"SliAAReadback", 0) != 0;
 }
 
 /* After an AA enable: every chip's SLI/AA config space, read back by config
@@ -281,6 +302,7 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
     const vcr_sli_aa_req *r = &rq;
     vcr_sli_io io;
     ULONG n, en;
+    vcr_u32 recipe;
     int rc, why;
 
     /* METHOD_BUFFERED: `req` and `out` are the SAME system buffer. Take the
@@ -300,16 +322,23 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
          r->ChipInfo.dwsli_nlines, "SLI_AA_REQUEST: %u chips, analog %u, sample %u, bpp %u",
          n, r->ChipInfo.dwsliAaAnalog, r->ChipInfo.dwaaSampleHigh, r->MemInfo.dwBpp);
     x->sli_persist_all = VcrDiagGet(L"SliPersistAll", 0);
+    /* the vendor AA recipe changes AA requests only - read for those alone */
+    recipe = (en && r->ChipInfo.dwaaEn) ? sli_recipe() : 0;
 
     /* The policy comes first, before anything below can write: a refused
      * request leaves the board - and any live session - exactly as it was.
+     * That includes the vendor recipe's memory check (policy_ex): it used to
+     * run only inside the sequence, after the live session was torn down.
      * The refusal is a persisted phase (k_log: REFUSED is a 9xx step), with
      * the reason and the request's shape in b (vcr_sli_phase_b). */
-    why = en ? vcr_sli_policy(r, sli_aa_allowed()) : 0;
+    why = en ? vcr_sli_policy_ex(r, sli_aa_allowed(), recipe) : 0;
     if (why) {
-        k_log(x, VCR_SLI_S_REFUSED, 0, (vcr_u32)why, vcr_sli_req_tuple(r),
+        k_log(x, VCR_SLI_S_REFUSED, 0, (vcr_u32)why,
+              why == VCR_SLI_R_MEMINFO ? r->MemInfo.dwTileMark >> 12 : vcr_sli_req_tuple(r),
               why == VCR_SLI_R_AA_OFF
                   ? "AA request refused before any write: Diag\\SliAA is 0 (the AA kill switch)"
+              : why == VCR_SLI_R_MEMINFO
+                  ? "vendor AA recipe: tileMark/totalMemory unusable: refused before any write"
                   : "no video-mux branch for this chip/SLI/AA combination: refused before any write");
         rc = why == VCR_SLI_R_AA_OFF ? VCR_SLI_EDENIED : VCR_SLI_EINVAL;
         VLOG(VCR_LV_WARN, VCR_EV_SLI_DONE, 1, n, (ULONG)rc, vcr_sli_req_tuple(r),
@@ -321,12 +350,14 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
         if (x->sli_chips)
             VcrSliOff(x, "Glide asked");
         rc = x->sli_result = 0;
-    } else if (x->backend != VCR_HW_VOODOO || n < 1 || n > x->glide_chips) {
+    } else if (x->backend != VCR_HW_VOODOO || !VCR_IS_NAPALM(x->device) || n < 1 ||
+               n > x->glide_chips) {
+        /* VCR_HW_VOODOO is Banshee / Voodoo 3 as well: only a VSA-100 has
+         * SLI/AA registers (vcr_sli_set_ex asks chip 0 again, as a backstop) */
         rc = VCR_SLI_EINVAL;
         VLOG(VCR_LV_WARN, VCR_EV_SLI_DONE, 1, n, (ULONG)rc, x->glide_chips,
-             "refused: %u chips asked, %u available", n, x->glide_chips);
+             "refused: %u chips asked, %u available, device %04x", n, x->glide_chips, x->device);
     } else {
-        vcr_u32 recipe = sli_recipe();
         make_io(x, &io);
         if (x->sli_chips)
             VcrSliOff(x, "re-enable");
@@ -339,8 +370,9 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
         VLOG(rc ? VCR_LV_WARN : VCR_LV_INFO, VCR_EV_SLI_DONE, 1, n, (ULONG)rc, x->clock_6k_hz,
              "SLI/AA on: %u chips -> %d, clock %u Hz%s", n, rc, x->clock_6k_hz,
              recipe ? ", vendor AA recipe" : "");
-        /* after SET_DONE, AA only: config cycles, nothing through a BAR */
-        if (vcr_sli_aa_state_wanted(r, rc))
+        /* after SET_DONE, AA only, Diag\SliAAReadback only: config cycles,
+         * nothing through a BAR */
+        if (vcr_sli_aa_state_wanted(r, rc) && sli_aa_readback_wanted())
             sli_aa_state(x, &io, r, rc, recipe);
     }
     x->sli_result = rc;

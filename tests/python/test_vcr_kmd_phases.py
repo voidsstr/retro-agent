@@ -110,7 +110,10 @@ def test_the_decoder_names_refusals_clock_results_and_the_request_shape():
                      (115693, "SLI_STEP", 419, 0x02800006),     # NOMUX
                      (115694, "SLI_STEP", 901, 0x00000003),     # an old-kernel refusal
                      (115695, "SLI_POKE_REFUSED", (2 << 16) | 0x80, 0x1009),
-                     (115696, "SLI_STEP", 401, (3 << 24) | 0x04))
+                     (115696, "SLI_STEP", 401, (3 << 24) | 0x04),
+                     (115697, "SLI_POKE_REFUSED", (4 << 24) | (2 << 16) | 0x80, 0x1009),
+                     (115698, "SLI_POKE_REFUSED", (5 << 24) | (1 << 16) | 0x94, 0x1cc00000),
+                     (115699, "SLI_POKE_REFUSED", (3 << 24) | (1 << 16) | 0x40, 0))
     assert out[0].endswith("request {4,0,1,0,1}")
     assert out[1].endswith("REFUSED COMBO shape {4,0,1,0,1}")
     assert out[2].endswith("request {4,1,1,0,1}")
@@ -119,8 +122,14 @@ def test_the_decoder_names_refusals_clock_results_and_the_request_shape():
     assert out[5].endswith("CLOCK_6K result 0 (programmed)")
     assert out[6].endswith("NOMUX chip 2 sli 0 aa 1 analog 1 sampleHigh 0")
     assert out[7].endswith("REFUSED reason NLINES (value not recorded: kernel before 2026-09-27)")
-    assert out[8].endswith("chip 2 cfg 0x80 <- 0x00001009 refused")
+    # a record from the 412b03c kernel (no reason byte) says so ...
+    assert out[8].endswith("chip 2 cfg 0x80 <- 0x00001009 refused: "
+                           "AllowPoke=0 (kernel before 2026-09-27)")
     assert out[9].endswith("PCIINIT0 chip 3 reg 0x4")       # every other step: as before
+    # ... and a current one names the reason (vcr_sli.h VCR_POKE_R_*)
+    assert out[10].endswith("chip 2 cfg 0x80 <- 0x00001009 refused: AA_OFF")
+    assert out[11].endswith("chip 1 cfg 0x94 <- 0x1cc00000 refused: SLAVE")
+    assert out[12].endswith("chip 1 cfg 0x40 <- 0x00000000 refused: SNOOP")
 
 
 def test_the_decoder_and_the_kernel_agree_on_the_encoding():
@@ -136,9 +145,12 @@ def test_the_decoder_and_the_kernel_agree_on_the_encoding():
     for field, shift in (("n", 16), ("sli", 12), ("aa", 8), ("high", 4)):
         assert f"VCR_SLI_NIB({field}) << {shift}" in tup
     assert vcrphases.shape(0x40101) == "{4,0,1,0,1}"
-    # the poke-refusal phase: a = chip << 16 | offset, b = value
+    # the poke-refusal phase: a = reason << 24 | chip << 16 | offset, b = value
     mp = body((KMD / "miniport" / "vcrmp.c").read_text(), "static VP_STATUS pci_op(")
-    assert "VcrPhase(VCR_EV_SLI_POKE_REFUSED, (op->target << 16) | (op->offset & 0xffff)," in mp
+    assert "((ULONG)why << 24) | (op->target << 16) | (op->offset & 0xffff)," in mp
+    assert re.search(r"VcrPhase\(VCR_EV_SLI_POKE_REFUSED,\s*\n\s*\(\(ULONG\)why << 24\)", mp)
+    reasons = vcrphases.poke_defines()
+    assert reasons == {1: "BOUNDS", 2: "HEADER", 3: "SNOOP", 4: "AA_OFF", 5: "SLAVE"}
 
 
 # ---- step B (2026-09-27): the vendor AA recipe and Diag\SliAAState ---------------

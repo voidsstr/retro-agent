@@ -83,15 +83,19 @@
  *   probe-mem HEXPHYS LEN  vcrprobe.sys: physical memory, read only (<= 4 KB)
  *   (hwcregs/golden add the VGA file when vcrprobe.sys is loaded)
  *   sliaa N SLI AA HIGH ANALOG [NLINES BPP TILEMARK COL DEPTHLO DEPTHHI]
+ *         --i-am-at-the-box [--force-desktop-pll]
  *                          any HWCEXT driver: Glide's HWCEXT_SLI_AA_REQUEST, sent
- *                          through ExtEscape exactly as Glide sends it - the
- *                          kernel-only probe of an SLI/AA configuration (no
- *                          Glide open, no LFB). Answers the escape's status
- *                          and, on our driver, the kernel's result (sli_result,
- *                          sli_chips, clock_6k_hz). AA = 1 is REFUSED, before
- *                          anything is sent, unless --i-am-at-the-box is given:
- *                          every AA configuration froze .124 (tools/vcr_sliaa.h)
- *   sliaa off              Glide's disable (dwChips only)
+ *                          through ExtEscape exactly as Glide sends it, after
+ *                          HWCSETEXCLUSIVE - the kernel-only probe of an SLI/AA
+ *                          configuration (no Glide open, no LFB). A paced
+ *                          switch. Answers the escape's status and, on our
+ *                          driver, the kernel's result (sli_result, sli_chips,
+ *                          clock_6k_hz). REFUSED before anything is sent: any
+ *                          enable without --i-am-at-the-box, a shape with no
+ *                          video mux, and AA on a desktop not in 2x mode
+ *                          without --force-desktop-pll (tools/vcr_sliaa.h)
+ *   sliaa off              Glide's disable (dwChips only), then HWCRLSEXCLUSIVE
+ *                          (the desktop mode restored); paced
  *
  * Every command that changes the display mode (setmode, golden, modetest,
  * ddraw, modeseq, restore) goes through vcr_pace.h: at least 3 s since the
@@ -723,10 +727,30 @@ static void hwc_close(void)
     hwc(VCR_HWC_UNMAP_MEMORY, &rq, &rs);
 }
 
+/* The master's vidProcCfg 2x-mode bit, from our driver (VCR_ESC_REG, a read:
+ * no AllowPoke needed); VCR_SLIAA_2X_UNKNOWN from any other driver. */
+static int sliaa_vid2x(ULONG *vpc)
+{
+    vcr_reg_op op;
+    memset(&op, 0, sizeof op);
+    op.kind = VCR_REG_MMIO32;
+    op.offset = VCR_R_VIDPROCCFG;
+    *vpc = 0;
+    if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
+        return VCR_SLIAA_2X_UNKNOWN;
+    *vpc = op.value;
+    return (op.value & VCR_VPC_2X_MODE_EN) ? 1 : 0;
+}
+
 /* Glide's SLI_AA_REQUEST, sent the way Glide sends it (minihwc.c): its
  * payload (vcr_sliaa_fill), through the HWCEXT escape Glide probes for
- * (hwc()), after GETDEVICECONFIG told it the board's chips and memory. The
- * gate runs FIRST: a refused request opens no escape at all. */
+ * (hwc()), after GETDEVICECONFIG told it the board's chips and memory - and
+ * in Glide's ORDER: HWCSETEXCLUSIVE first (the 2D engine drained, GDI
+ * parked), then the request; `off` sends Glide's disable and then
+ * HWCRLSEXCLUSIVE (the desktop mode restored, GDI back). An enable
+ * reprograms the scan-out clocks, so the whole exchange is ONE paced switch
+ * (vcr_pace.h), as Glide's open or close would be. The gates run FIRST: a
+ * refused request opens no escape at all (vcr_sliaa.h). */
 static int cmd_sliaa(int argc, char **argv)
 {
     vcr_sliaa_cmd c;
@@ -735,8 +759,9 @@ static int cmd_sliaa(int argc, char **argv)
     vcr_sli_aa_req *r = &rq.opt.sliAA;
     vcr_info v;
     const char *why = vcr_sliaa_parse(argc, argv, &c);
-    int n, have_info;
-    ULONG chips, fb;
+    int n, have_info, vid2x = VCR_SLIAA_2X_UNKNOWN, ok, excl = 0, rls = -1;
+    ULONG chips, fb, vpc = 0;
+    vcr_sli_aa_req sent;
 
     if (!why)
         why = vcr_sliaa_gate(&c);
@@ -754,10 +779,44 @@ static int cmd_sliaa(int argc, char **argv)
     chips = rs.opt.deviceConfig.numChips;
     fb = rs.opt.deviceConfig.fbRam;
 
+    /* AA divides the video clock: only on a 2x desktop unless forced */
+    if (!c.off && c.aa) {
+        vid2x = sliaa_vid2x(&vpc);
+        why = vcr_sliaa_pll_gate(&c, vid2x);
+        if (why)
+            return fail("sliaa", why);
+    }
+
+    vcr_sliaa_fill(&c, chips, fb, &sent);
+    if (!vcr_pace_before_switch())
+        return fail("sliaa", g_vcr_pace_why);
+    if (!c.off) {
+        memset(&rq, 0, sizeof rq);
+        memset(&rs, 0, sizeof rs);
+        n = hwc(VCR_HWC_HWCSETEXCLUSIVE, &rq, &rs);
+        excl = n > 0 && rs.resStatus == VCR_HWC_OK;
+        if (!excl) {
+            vcr_pace_cancel();              /* nothing was switched */
+            return fail("sliaa", "HWCSETEXCLUSIVE refused - the chip is not ours to reprogram");
+        }
+    }
     memset(&rq, 0, sizeof rq);
     memset(&rs, 0, sizeof rs);
-    vcr_sliaa_fill(&c, chips, fb, r);
+    *r = sent;
     n = hwc(VCR_HWC_SLI_AA_REQUEST, &rq, &rs);
+    ok = n > 0 && rs.resStatus == VCR_HWC_OK;
+    /* `off`, or an enable the driver refused: give the chip back to GDI. The
+     * release restores the desktop mode - on our kernel that also turns any
+     * SLI/AA off - and is part of this same paced switch. An enable that was
+     * done keeps exclusive until `sliaa off`, as Glide keeps it until close. */
+    if (c.off || !ok) {
+        vcr_hwc_req rq2;
+        vcr_hwc_res rs2;
+        memset(&rq2, 0, sizeof rq2);
+        memset(&rs2, 0, sizeof rs2);
+        rls = hwc(VCR_HWC_HWCRLSEXCLUSIVE, &rq2, &rs2) > 0 && rs2.resStatus == VCR_HWC_OK;
+    }
+    vcr_pace_after_switch_ex(0);            /* nothing for XP to revert at exit */
 
     /* the escape answers only OK / FAIL; our driver's info says what the
      * kernel did (< 0 refused and nothing written, > 0 the VCR_SLI_W_* mask) */
@@ -766,19 +825,21 @@ static int cmd_sliaa(int argc, char **argv)
     printf("{\"cmd\":\"sliaa\",\"ok\":%s,\"escape\":\"%lx\",\"ret\":%d,\"resStatus\":%d,"
            "\"board_chips\":%lu,\"request\":{\"chips\":%u,\"sli\":%u,\"aa\":%u,\"high\":%u,"
            "\"analog\":%u,\"nlines\":%u,\"bpp\":%u,\"totalMemory\":\"%08x\",\"tileMark\":\"%08x\","
-           "\"col\":\"%08x\",\"depth\":[\"%08x\",\"%08x\"],\"at_box\":%s}",
-           n > 0 && rs.resStatus == VCR_HWC_OK ? "true" : "false", g_hwc_code, n,
-           (int)rs.resStatus, chips, r->ChipInfo.dwChips, r->ChipInfo.dwsliEn,
-           r->ChipInfo.dwaaEn, r->ChipInfo.dwaaSampleHigh, r->ChipInfo.dwsliAaAnalog,
-           r->ChipInfo.dwsli_nlines, r->MemInfo.dwBpp, r->MemInfo.dwTotalMemory,
-           r->MemInfo.dwTileMark, r->MemInfo.dwaaSecondaryColorBufBegin,
-           r->MemInfo.dwaaSecondaryDepthBufBegin, r->MemInfo.dwaaSecondaryDepthBufEnd,
-           c.at_box ? "true" : "false");
+           "\"col\":\"%08x\",\"depth\":[\"%08x\",\"%08x\"],\"at_box\":%s},\"paced\":true,"
+           "\"exclusive\":%s,\"released\":%s,\"vid2x\":%d,\"vidProcCfg\":\"%08lx\",\"forced_pll\":%s",
+           ok ? "true" : "false", g_hwc_code, n, (int)rs.resStatus, chips, sent.ChipInfo.dwChips,
+           sent.ChipInfo.dwsliEn, sent.ChipInfo.dwaaEn, sent.ChipInfo.dwaaSampleHigh,
+           sent.ChipInfo.dwsliAaAnalog, sent.ChipInfo.dwsli_nlines, sent.MemInfo.dwBpp,
+           sent.MemInfo.dwTotalMemory, sent.MemInfo.dwTileMark,
+           sent.MemInfo.dwaaSecondaryColorBufBegin, sent.MemInfo.dwaaSecondaryDepthBufBegin,
+           sent.MemInfo.dwaaSecondaryDepthBufEnd, c.at_box ? "true" : "false",
+           excl ? "true" : "false", rls < 0 ? "null" : rls ? "true" : "false", vid2x, vpc,
+           c.force_pll ? "true" : "false");
     if (have_info)
         printf(",\"sli_result\":%d,\"sli_chips\":%u,\"clock_6k_hz\":%u",
                (int)v.sli_result, v.sli_chips, v.clock_6k_hz);
     printf("}\n");
-    return n > 0 && rs.resStatus == VCR_HWC_OK ? 0 : 1;
+    return ok ? 0 : 1;
 }
 
 static int cmd_hwc(void)

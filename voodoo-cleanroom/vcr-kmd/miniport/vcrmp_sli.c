@@ -66,13 +66,19 @@
  *      vcr_sli_combo_ok). dos_mode.c discovers it inside the per-chip loop,
  *      with snoop/swap/pciInit0/AA already in every chip, and goes on; that is
  *      Glide's cfg 1 on a 4-chip board, which froze .124 (2026-09-26).
- *  13. The cfgAALfbCtrl secondary base is written as the byte address it is,
- *      masked to bits 4-25 (VCR_AALFB_SECONDARY_BASE_MASK); D:871 shifts it
- *      left by 4, which spills any real base into the control bits. Every
- *      base Glide sends for cfg 3/7 is 0, where the two agree.
+ *  13. With VCR_SLI_F_VENDOR_AA only: the cfgAALfbCtrl secondary base is
+ *      written as the byte address it is, masked to bits 4-25
+ *      (VCR_AALFB_SECONDARY_BASE_MASK); D:871 shifts it left by 4, which
+ *      spills any real base into the control bits. The DEFAULT recipe keeps
+ *      D:871's shift: it is the control arm of an AA A/B, what 097b1f7 wrote.
+ *      Every base Glide sends for cfg 3/7 is 0, where the two agree.
  *  14. vcr_sli_set_ex(VCR_SLI_F_VENDOR_AA): a vendor-style AA recipe, off
  *      unless the kernel asks for it (Diag\SliAAVendorRecipe) - see vcr_sli.h.
- *      Without the flag the AA path is dos_mode.c's, plus difference 13.
+ *      Without the flag the AA path is dos_mode.c's.
+ *  15. Every request is refused unless chip 0 is a VSA-100 (VCR_SLI_R_NODEV,
+ *      val 0): dos_mode.c trusts its caller; on a Banshee / Voodoo 3 the
+ *      sequence would write Napalm semantics into registers that are not the
+ *      SLI/AA ones.
  *   8. After placing a slave's BARs, its BAR writes are turned off again.
  *      dos_mode.c leaves them on; the vendor driver does not (golden
  *      sli_amigamerlin-3.1-r11_cfg5_192.168.1.124.json: slave cfgInitEnable
@@ -970,9 +976,11 @@ static int config_chip(const vcr_sli_io *io, const sli_p *p, vcr_u32 c)
             dend = p->total;
             whole = 1;
         }
-        /* header difference 13: a byte address in bits 4-25, NOT D:871's << 4 */
-        v = vcr_sli_aalfb_base(base) | VCR_AALFB_CPU_WRITE_EN | VCR_AALFB_DISPATCH_WRITE_EN |
-            rd | fmt | div4;
+        /* header difference 13: the vendor recipe writes a byte address in
+         * bits 4-25; the default recipe is D:871's << 4, exactly as 097b1f7
+         * (the control arm - it spills a real base into the control bits) */
+        v = (p->vendor ? vcr_sli_aalfb_base(base) : (base << VCR_AALFB_SECONDARY_BASE_SHIFT)) |
+            VCR_AALFB_CPU_WRITE_EN | VCR_AALFB_DISPATCH_WRITE_EN | rd | fmt | div4;
         cfg_w(io, VCR_SLI_S_AALFBCTRL, c, VCR_CFG_AALFBCTRL, v, what);
         v = ((dbeg >> 12) << VCR_AADEPTH_BEGIN_SHIFT) | ((dend >> 12) << VCR_AADEPTH_END_SHIFT);
         cfg_w(io, VCR_SLI_S_AADEPTH, c, VCR_CFG_AADEPTHBUFAPERTURE, v,
@@ -1213,34 +1221,7 @@ int vcr_sli_reset_video(const vcr_sli_io *io, vcr_u32 n)
  * written, and tests/native/test_vcr_kmd_sli.c pins them - vcr_sli_combo_ok
  * against video_mux() itself, shape by shape. */
 
-int vcr_sli_combo_ok(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high, vcr_u32 analog)
-{
-    sli = sli ? 1 : 0;
-    aa = aa ? 1 : 0;
-    analog = analog ? 1 : 0;
-    if (!aa)
-        high = 0;               /* the sample count means nothing without AA */
-    if ((!sli && !aa) || high > 2)
-        return 0;               /* a disable is not a combination; 16 samples do not exist */
-    switch (n) {
-    case 1:
-        /* one chip: 2-sample AA only (it has no partner for more), never SLI */
-        return !sli && high == 0;
-    case 2:
-        /* 2-way SLI alone or with 2-sample AA, digital or analog - never with
-         * 4-sample AA (that takes both chips); AA alone: 2 or 4 samples. Not
-         * 8: video_mux's 2-chip 4-sample branches test `high` as a boolean,
-         * so an 8-sample request would be programmed as 4-sample. */
-        return sli ? high == 0 : high <= 1;
-    case 4:
-        if (sli)                /* 4-way SLI, or two 2-way units with 2/4-sample AA */
-            return high <= 1;
-        /* AA across all four chips without SLI: 4 or 8 samples, analog only.
-         * {4,0,1,0,x} - Glide's cfg 1 laid out for four chips - has no mux. */
-        return analog && high >= 1;
-    }
-    return 0;
-}
+/* vcr_sli_combo_ok() is inline in vcr_sli.h: `vcrctl sliaa` applies the same rule. */
 
 vcr_u32 vcr_sli_samples_per_chip(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high, vcr_u32 analog)
 {
@@ -1273,16 +1254,46 @@ vcr_u32 vcr_sli_req_tuple(const vcr_sli_aa_req *r)
                          r->ChipInfo.dwsliAaAnalog ? 1 : 0);
 }
 
+/* The vendor recipe's memory info (vcr_sli.h VCR_SLI_R_MEMINFO): a 4 KB aligned
+ * tileMark below totalMemory, both inside the AA base field's 64 MB reach */
+static int meminfo_ok(vcr_u32 tile, vcr_u32 total)
+{
+    return tile && !(tile & 0xfffu) && tile < total &&
+           total <= VCR_AALFB_SECONDARY_BASE_MASK + 0x10u &&
+           vcr_sli_aalfb_base(tile) == tile;
+}
+
+/* The shapes the vendor recipe places by the request's memory info: one
+ * sample per chip (base = tileMark), and 4 chips / no SLI / 4- or 8-sample
+ * (the depth aperture = the whole tiled range). Booleans normalised. */
+static int vendor_uses_meminfo(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high, vcr_u32 analog)
+{
+    if (!aa)
+        return 0;
+    return vcr_sli_samples_per_chip(n, sli, aa, high, analog) == 1 || (n == 4 && !sli && high);
+}
+
 int vcr_sli_policy(const vcr_sli_aa_req *r, vcr_u32 aa_allowed)
 {
+    return vcr_sli_policy_ex(r, aa_allowed, 0);
+}
+
+int vcr_sli_policy_ex(const vcr_sli_aa_req *r, vcr_u32 aa_allowed, vcr_u32 flags)
+{
     const vcr_sli_chipinfo *ci = &r->ChipInfo;
-    if (!ci->dwsliEn && !ci->dwaaEn)
+    vcr_u32 sli = ci->dwsliEn ? 1 : 0, aa = ci->dwaaEn ? 1 : 0;
+    vcr_u32 high = aa ? ci->dwaaSampleHigh : 0, analog = ci->dwsliAaAnalog ? 1 : 0;
+    if (!sli && !aa)
         return 0;               /* a disable always goes through */
-    if (ci->dwaaEn && !aa_allowed)
+    if (aa && !aa_allowed)
         return VCR_SLI_R_AA_OFF;
-    if (!vcr_sli_combo_ok(ci->dwChips, ci->dwsliEn, ci->dwaaEn, ci->dwaaSampleHigh,
-                          ci->dwsliAaAnalog))
+    if (!vcr_sli_combo_ok(ci->dwChips, sli, aa, high, analog))
         return VCR_SLI_R_COMBO;
+    /* the vendor recipe's memory check, BEFORE a live session is torn down
+     * (vcr_sli_set_ex makes it again, as a backstop, before its first write) */
+    if ((flags & VCR_SLI_F_VENDOR_AA) && vendor_uses_meminfo(ci->dwChips, sli, aa, high, analog) &&
+        !meminfo_ok(r->MemInfo.dwTileMark, r->MemInfo.dwTotalMemory))
+        return VCR_SLI_R_MEMINFO;
     return 0;
 }
 
@@ -1355,6 +1366,66 @@ int vcr_sli_poke_first(vcr_sli_poke_memo *m, vcr_u32 chip, vcr_u32 off, vcr_u32 
     return 1;
 }
 
+/* ---- PCI_OP writes: judged by what they would turn on (vcr_sli.h) ------------- */
+
+int vcr_cfg_access_ok(vcr_u32 off, vcr_u32 size)
+{
+    if (size != 1 && size != 2 && size != 4)
+        return 0;
+    return off <= 0xffu && off + size <= 0x100u && !(off & (size - 1));
+}
+
+/* The bits of the AA / video-merge state, per dword; 0 = none (not an AA register) */
+static vcr_u32 aa_bits(vcr_u32 dword)
+{
+    switch (dword) {
+    case VCR_CFG_VIDEOCTRL0:        /* the merge, its mux, divider and PLL source */
+        return ~(VCR_VC0_DAC_HSYNC_TRISTATE | VCR_VC0_DAC_VSYNC_TRISTATE);
+    case VCR_CFG_VIDEOCTRL1:
+    case VCR_CFG_VIDEOCTRL2:
+    case VCR_CFG_AADEPTHBUFAPERTURE:
+        return 0xffffffffu;
+    case VCR_CFG_AALFBCTRL:         /* READ_EN alone is Glide's A0 read toggle */
+        return ~VCR_AALFB_READ_EN;
+    }
+    return 0;
+}
+
+int vcr_sli_poke_enables_aa(vcr_u32 off, vcr_u32 size, vcr_u32 val)
+{
+    vcr_u32 i;
+    if (!vcr_cfg_access_ok(off, size))
+        return 0;
+    /* an aligned access stays inside one dword: its bytes land at lane off & 3 */
+    for (i = 0; i < size; i++) {
+        vcr_u32 b = (val >> (8 * i)) & 0xffu, addr = off + i;
+        if (b & (aa_bits(addr & ~3u) >> (8 * (addr & 3u))))
+            return 1;
+    }
+    return 0;
+}
+
+int vcr_sli_poke_policy(vcr_u32 chip, vcr_u32 off, vcr_u32 size, vcr_u32 val, vcr_u32 flags,
+                        vcr_u32 live_chips)
+{
+    const int allow = (flags & VCR_POKE_F_ALLOW) != 0;
+    int s;
+    if (!vcr_cfg_access_ok(off, size))
+        return VCR_POKE_R_BOUNDS;
+    if (off < 0x40 && !allow)
+        return VCR_POKE_R_HEADER;
+    s = owned_first(off, size);
+    if ((s == 0 || s == 1) && !allow)       /* cfgInitEnable, cfgPciDecode */
+        return VCR_POKE_R_SNOOP;
+    if (vcr_sli_poke_enables_aa(off, size, val)) {
+        if (!(flags & VCR_POKE_F_AA))
+            return VCR_POKE_R_AA_OFF;
+        if (chip > 0 && chip >= live_chips && !allow)
+            return VCR_POKE_R_SLAVE;
+    }
+    return 0;
+}
+
 /* ---- Diag\SliAAState: config space after an AA enable ----------------------------
  * CONFIG CYCLES ONLY. After an AA session is programmed the question is what
  * the chips hold, and the answer must not cost the box: a BAR access is where
@@ -1419,15 +1490,6 @@ int vcr_sli_set(const vcr_sli_io *io, const vcr_sli_aa_req *r)
     return vcr_sli_set_ex(io, r, 0);
 }
 
-/* The vendor recipe's memory info (vcr_sli.h VCR_SLI_R_MEMINFO): a 4 KB aligned
- * tileMark below totalMemory, both inside the AA base field's 64 MB reach */
-static int meminfo_ok(vcr_u32 tile, vcr_u32 total)
-{
-    return tile && !(tile & 0xfffu) && tile < total &&
-           total <= VCR_AALFB_SECONDARY_BASE_MASK + 0x10u &&
-           vcr_sli_aalfb_base(tile) == tile;
-}
-
 int vcr_sli_set_ex(const vcr_sli_io *io, const vcr_sli_aa_req *r, vcr_u32 flags)
 {
     sli_p p;
@@ -1441,6 +1503,10 @@ int vcr_sli_set_ex(const vcr_sli_io *io, const vcr_sli_aa_req *r, vcr_u32 flags)
     p.n = r->ChipInfo.dwChips;
     if (!chips_ok(p.n))
         return refuse(io, VCR_SLI_R_CHIPS, p.n);
+    /* ours (header difference 15): the master first - slaves_present() only
+     * asks chips 1..n-1, and a 1-chip request asks none */
+    if (!is_vsa100(io, 0))
+        return refuse(io, VCR_SLI_R_NODEV, 0);
     if ((bad = slaves_present(io, p.n)) != 0)
         return refuse(io, VCR_SLI_R_NODEV, (vcr_u32)bad);
 
@@ -1482,9 +1548,7 @@ int vcr_sli_set_ex(const vcr_sli_io *io, const vcr_sli_aa_req *r, vcr_u32 flags)
         return refuse(io, VCR_SLI_R_COMBO, VCR_SLI_TUPLE(p.n, p.sli, p.aa, p.high, p.analog));
     /* the vendor recipe places the AA base / depth aperture with the request's
      * memory info: a tuple that uses it must have usable values, or nothing */
-    if (p.vendor && p.aa &&
-        (vcr_sli_samples_per_chip(p.n, p.sli, p.aa, p.high, p.analog) == 1 ||
-         (p.n == 4 && !p.sli && p.high)) &&
+    if (p.vendor && vendor_uses_meminfo(p.n, p.sli, p.aa, p.high, p.analog) &&
         !meminfo_ok(p.tile, p.total))
         return refuse(io, VCR_SLI_R_MEMINFO, p.tile >> 12);
     if (!p.lb)

@@ -100,19 +100,47 @@ def test_slaves_are_only_placed_inside_the_masters_own_windows():
 def test_the_aa_kill_switch_is_asked_before_anything_can_write():
     body = func_body((KMD / "miniport" / "vcrmp_multi.c").read_text(),
                      "VP_STATUS VcrSliRequest(")
-    policy = body.index("vcr_sli_policy(r, sli_aa_allowed())")
+    policy = body.index("vcr_sli_policy_ex(r, sli_aa_allowed(), recipe)")
     # before the live session is torn down to make room, before the accessor
-    # table exists, before the sequence runs - and before the disable branch
+    # table exists, before the sequence runs - and before the disable branch.
+    # policy_ex includes the vendor recipe's MEMINFO check, which used to run
+    # only inside the sequence, AFTER VcrSliOff(x, "re-enable") (review
+    # 2026-09-27): the recipe is read before the policy for that reason.
+    assert body.index("recipe = (en && r->ChipInfo.dwaaEn) ? sli_recipe() : 0;") < policy
     for later in ('VcrSliOff(x, "re-enable")', "make_io(x, &io)", "vcr_sli_set_ex(&io, r, recipe)",
                   'VcrSliOff(x, "Glide asked")'):
         assert policy < body.index(later), later
     # a refusal is a PERSISTED phase: through k_log as a 9xx step, with the
-    # reason and the request's shape
+    # reason and the request's shape (a MEMINFO refusal: the tileMark)
     refusal = body[policy:body.index("} else if (!en)")]
-    assert "k_log(x, VCR_SLI_S_REFUSED, 0, (vcr_u32)why, vcr_sli_req_tuple(r)," in refusal
+    assert "k_log(x, VCR_SLI_S_REFUSED, 0, (vcr_u32)why," in refusal
+    assert "why == VCR_SLI_R_MEMINFO ? r->MemInfo.dwTileMark >> 12 : vcr_sli_req_tuple(r)," in refusal
     assert "VCR_SLI_EDENIED" in refusal and "VCR_SLI_EINVAL" in refusal
     # only an enable is judged; a disable always goes through
-    assert "why = en ? vcr_sli_policy(" in body
+    assert "why = en ? vcr_sli_policy_ex(" in body
+    # vcr_sli_policy is policy_ex without the recipe's flag
+    sli = (KMD / "miniport" / "vcrmp_sli.c").read_text()
+    assert "return vcr_sli_policy_ex(r, aa_allowed, 0);" in func_body(sli, "int vcr_sli_policy(")
+    pol = func_body(sli, "int vcr_sli_policy_ex(")
+    assert "return VCR_SLI_R_MEMINFO;" in pol and "vendor_uses_meminfo(" in pol
+    # the sequence keeps the same check as a backstop, through the same helper
+    seq = func_body(sli, "int vcr_sli_set_ex(")
+    assert "p.vendor && vendor_uses_meminfo(p.n, p.sli, p.aa, p.high, p.analog)" in seq
+
+
+def test_only_a_vsa100_is_given_an_sli_aa_request():
+    """VCR_HW_VOODOO is Banshee / Voodoo 3 as well, and slaves_present() never
+    asks chip 0: a 1-chip AA request on the 86Box Voodoo 3 bed ran the VSA-100
+    sequence (review 2026-09-27). Refused in the kernel and in the sequence."""
+    body = func_body((KMD / "miniport" / "vcrmp_multi.c").read_text(),
+                     "VP_STATUS VcrSliRequest(")
+    chk = body.index("!VCR_IS_NAPALM(x->device)")
+    assert chk < body.index("make_io(x, &io)") < body.index('VcrSliOff(x, "re-enable")')
+    seq = func_body((KMD / "miniport" / "vcrmp_sli.c").read_text(), "int vcr_sli_set_ex(")
+    master = seq.index("if (!is_vsa100(io, 0))")
+    assert seq.index("return refuse(io, VCR_SLI_R_NODEV, 0);") > master
+    # before the disable branch and before anything is written
+    assert master < seq.index("return sli_disable(io, p.n);") < seq.index("sli_enable(io, &p)")
 
 
 def test_diag_sliaa_defaults_to_off_and_is_read_per_request():
@@ -135,19 +163,39 @@ def test_the_sequence_refuses_a_shape_with_no_mux_before_its_first_write():
     assert combo < body.index("VCR_SLI_S_SET_MEMINFO")
 
 
-def test_glide_pci_op_writes_to_sli_aa_registers_need_allow_poke():
+def test_pci_op_judges_a_write_by_what_it_would_turn_on():
+    """412b03c refused EVERY PCI_OP write touching 0x40/0x48/0x80-0xAF unless
+    Diag\\AllowPoke - including the 24 zero writes of every cfg 0 close and
+    Glide's A0 read toggles, the traffic 097b1f7 ran cfg 0/2/5 with - and still
+    let Glide's single-chip AA values through with AllowPoke = 1 while
+    Diag\\SliAA = 0 (review 2026-09-27). The decision is native-tested
+    (vcr_sli_poke_policy); this pins how pci_op asks it."""
     body = func_body((KMD / "miniport" / "vcrmp.c").read_text(), "static VP_STATUS pci_op(")
+    # the bounds, for reads and writes and every target, before anything else
+    bounds = body.index("if (!vcr_cfg_access_ok(op->offset, size))")
+    assert bounds < body.index("if (op->target == VCR_PCI_TARGET_BRIDGE)")
+    assert "return ERROR_INVALID_PARAMETER;" in body[bounds:body.index("if (op->target ==")]
     chip = body[body.index("slot = op->target ?"):]
-    guard = chip.index("if (!x->allow_poke && vcr_sli_cfg_owned(op->offset, size))")
+    # the flags: AllowPoke, and SliAA - read only for a write that needs it
+    flags = chip.index("ULONG flags = x->allow_poke ? VCR_POKE_F_ALLOW : 0;")
+    aa = chip.index("if (vcr_sli_poke_enables_aa(op->offset, size, op->value) && VcrSliAAAllowed())")
+    pol = chip.index("why = vcr_sli_poke_policy(op->target, op->offset, size, op->value, flags, "
+                     "x->sli_chips);")
     write = chip.index("VcrPciWrite(x, slot, op->offset, op->value, size)")
-    assert guard < write
-    refused = chip[guard:write]
+    assert flags < aa < pol < write
+    refused = chip[pol:write]
+    assert "if (why == VCR_POKE_R_HEADER)\n                return ERROR_ACCESS_DENIED;" in refused
     assert "return ERROR_ACCESS_DENIED;" in refused
     assert "VLOG(VCR_LV_WARN, VCR_EV_SLI_POKE_REFUSED" in refused      # every one, in the ring
     assert "vcr_sli_poke_first(&x->poke_memo," in refused              # each new one, flushed
     assert "VcrPhase(VCR_EV_SLI_POKE_REFUSED" in refused
-    # reads are never refused
+    # the old blanket guard is gone
+    assert "vcr_sli_cfg_owned(op->offset, size)" not in body
+    # reads are never refused past the bounds
     assert "op->value = VcrPciRead(x, slot, op->offset, size);" in chip
+    # the SliAA it asks is the kill switch's own, read per call
+    multi = (KMD / "miniport" / "vcrmp_multi.c").read_text()
+    assert "return sli_aa_allowed() ? 1 : 0;" in func_body(multi, "ULONG VcrSliAAAllowed(")
 
 
 def test_the_escape_hands_glide_a_failure_for_every_refusal():
@@ -176,9 +224,11 @@ def test_the_vendor_recipe_is_off_by_default_and_read_per_request():
     assert 'VcrDiagGet(L"SliAAVendorRecipe", 0)' in recipe      # absent = 0 = dos_mode.c
     assert "VCR_SLI_F_VENDOR_AA : 0" in recipe
     req = func_body(src, "VP_STATUS VcrSliRequest(")
-    # read in the enable branch, after the policy - never cached at FindAdapter
-    assert req.index("vcr_sli_policy(r, sli_aa_allowed())") < req.index("sli_recipe()")
+    # read per request, for an AA request only, BEFORE the policy (whose
+    # MEMINFO check needs it) - never cached at FindAdapter
+    assert req.index("sli_recipe()") < req.index("vcr_sli_policy_ex(r, sli_aa_allowed(), recipe)")
     assert req.index("sli_recipe()") < req.index("vcr_sli_set_ex(&io, r, recipe)")
+    assert "recipe = (en && r->ChipInfo.dwaaEn) ? sli_recipe() : 0;" in req
     assert "SliAAVendorRecipe" not in func_body(src, "void VcrMultiInit(")
     assert "SliAAVendorRecipe" not in (KMD / "miniport" / "vcrmp.c").read_text()
     # the only caller of the sequence with a flag; the disable keeps the default
@@ -191,8 +241,14 @@ def test_the_aa_state_is_recorded_after_the_enable_by_config_cycles_only():
     # only THIS enable's pciInit0 writes count, then the sequence, then the record
     reset = req.index("x->sli_pci0_mask = 0;")
     run = req.index("vcr_sli_set_ex(&io, r, recipe)")
-    gate = req.index("if (vcr_sli_aa_state_wanted(r, rc))")
+    # AND only with Diag\\SliAAReadback = 1: off by default, so an AA run
+    # keeps the timing and traffic of the kernel that ran on 2026-09-26
+    gate = req.index("if (vcr_sli_aa_state_wanted(r, rc) && sli_aa_readback_wanted())")
     assert reset < run < gate < req.index("sli_aa_state(x, &io, r, rc, recipe);")
+    wanted = func_body(multi, "static int sli_aa_readback_wanted(")
+    assert 'VcrDiagGet(L"SliAAReadback", 0)' in wanted                  # absent = 0
+    assert "SliAAReadback" not in func_body(multi, "void VcrMultiInit(")
+    assert "SliAAReadback" not in (KMD / "miniport" / "vcrmp.c").read_text()
     st = func_body(multi, "static void sli_aa_state(")
     assert "vcr_sli_aa_readback(io, r, rc, recipe, x->sli_pci0, x->sli_pci0_mask, &st)" in st
     assert 'VcrDiagSetBinary(L"SliAAState", &st, sizeof st, TRUE);' in st     # flushed
@@ -232,10 +288,27 @@ def test_vcrctl_sliaa_gates_before_it_sends_and_sends_like_glide():
     refuse = body.index('return fail("sliaa", why);')
     first_escape = min(body.index("hwc("), body.index("esc("))
     assert parse < gate < refuse < first_escape, "the at-the-box gate must run before any escape"
-    # Glide's route: GETDEVICECONFIG, then the request through the HWCEXT probe
-    assert body.index("hwc(VCR_HWC_GETDEVICECONFIG") < body.index("hwc(VCR_HWC_SLI_AA_REQUEST")
-    assert "vcr_sliaa_fill(&c, chips, fb, r);" in body
+    # Glide's route AND order (review 2026-09-27): GETDEVICECONFIG; for AA the
+    # 2x-mode gate; then ONE paced switch - HWCSETEXCLUSIVE (2D drained, GDI
+    # parked), the request, and for `off` or a refusal HWCRLSEXCLUSIVE
+    cfg = body.index("hwc(VCR_HWC_GETDEVICECONFIG")
+    pll = body.index("why = vcr_sliaa_pll_gate(&c, vid2x);")
+    pace = body.index("if (!vcr_pace_before_switch())")
+    excl = body.index("hwc(VCR_HWC_HWCSETEXCLUSIVE")
+    req = body.index("hwc(VCR_HWC_SLI_AA_REQUEST")
+    rls = body.index("hwc(VCR_HWC_HWCRLSEXCLUSIVE")
+    after = body.index("vcr_pace_after_switch_ex(0);")
+    assert cfg < pll < pace < excl < req < rls < after
+    assert body.index("vid2x = sliaa_vid2x(&vpc);") < pll
+    assert "if (c.off || !ok) {" in body[req:rls]
+    assert "vcr_pace_cancel();" in body[excl:req]          # exclusive refused: no switch
+    assert body.index('return fail("sliaa", g_vcr_pace_why);') > pace
+    assert "vcr_sliaa_fill(&c, chips, fb, &sent);" in body
+    assert "*r = sent;" in body[excl:req]
     assert "vcr_sli_aa_req *r = &rq.opt.sliAA;" in body
+    vid = func_body(tool, "static int sliaa_vid2x(")
+    assert "esc(VCR_ESC_REG," in vid and "VCR_VPC_2X_MODE_EN" in vid
+    assert "return VCR_SLIAA_2X_UNKNOWN;" in vid
     # the kernel's own answer, from our driver's info
     assert "esc(VCR_ESC_INFO" in body and "sli_result" in body
     main = func_body(tool, "int main(")
@@ -243,13 +316,32 @@ def test_vcrctl_sliaa_gates_before_it_sends_and_sends_like_glide():
     assert "--i-am-at-the-box" in tool[:tool.index("#define WIN32_LEAN_AND_MEAN")]   # usage says so
     hdr = (KMD / "tools" / "vcr_sliaa.h").read_text()
     assert '#define VCR_SLIAA_AT_BOX_FLAG   "--i-am-at-the-box"' in hdr
-    # the gate keys on AA, not on the request's other fields
+    # every enable needs the flag (ea90707 keyed it on AA alone), and the tool
+    # applies the kernel's own shape rule - inline in vcr_sli.h, not a copy
     gate_fn = func_body(hdr, "static const char *vcr_sliaa_gate(")
-    assert "c->aa && !c->at_box" in gate_fn
+    assert "if (!c->at_box)" in gate_fn and "c->aa && !c->at_box" not in gate_fn
+    assert "if (!vcr_sli_combo_ok(c->n, c->sli, c->aa, c->high, c->analog))" in gate_fn
+    assert '#include "../include/vcr_sli.h"' in hdr
+    vs = (KMD / "include" / "vcr_sli.h").read_text()
+    assert "static __inline int vcr_sli_combo_ok(" in vs
+    assert "int vcr_sli_combo_ok(" not in (KMD / "miniport" / "vcrmp_sli.c").read_text()
+    assert '#define VCR_SLIAA_FORCE_PLL     "--force-desktop-pll"' in hdr
     # an edit to the header alone rebuilds the tool
     mk = (KMD / "Makefile").read_text()
     rule = mk[mk.index("$(OUT)/vcrctl.exe:"):]
     assert "tools/vcr_sliaa.h" in rule[:rule.index("\n")]
+
+
+def test_the_escape_says_the_refusal_alone_needs_the_glide_guard():
+    """FAIL is all the kernel can send back: the request follows Glide's
+    exclusive and every escape an open checks. An old glide3x.dll ignores it
+    and opens its AA layout anyway - so the kernel's AA refusal protects .124
+    only with the SLIAA-GUARD Glide (fork 631221b) or a 0/2/5 registry
+    config (review 2026-09-27). The comment must not claim otherwise."""
+    esc = (KMD / "display" / "vcrdd_escape.c").read_text()
+    sli = esc[esc.index("case VCR_HWC_SLI_AA_REQUEST"):]
+    sli = sli[:sli.index("break;")]
+    assert "SLIAA-GUARD" in sli and "631221b" in sli and "0/2/5" in sli
 
 
 def test_the_escape_still_carries_a_refusal_back_as_fail():

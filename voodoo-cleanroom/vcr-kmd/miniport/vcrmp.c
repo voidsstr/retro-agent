@@ -444,8 +444,19 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
 static VP_STATUS pci_op(VCR_EXT *x, vcr_pci_op *op)
 {
     ULONG slot, size = op->size ? op->size : 4;
+    int why;
     if (size != 1 && size != 2 && size != 4)
         return ERROR_INVALID_PARAMETER;
+    /* Inside the 256-byte header and naturally aligned, reads and writes, for
+     * every target: a slave is reached by raw 0xCF8 cycles, which keep only
+     * offset bits 2-7, so 0x140 was the slave's cfgVideoCtrl0 and 0x104 its
+     * command register - past every guard below (2026-09-27). */
+    if (!vcr_cfg_access_ok(op->offset, size)) {
+        VLOG(VCR_LV_WARN, VCR_EV_PCI_OP, op->target, op->offset, op->value, op->write,
+             "pci %s refused: offset %x size %u outside the config header or misaligned",
+             op->write ? "write" : "read", op->offset, size);
+        return ERROR_INVALID_PARAMETER;
+    }
     if (op->target == VCR_PCI_TARGET_BRIDGE) {
         if (!x->bridge_found)
             return ERROR_DEV_NOT_EXIST;
@@ -464,24 +475,32 @@ static VP_STATUS pci_op(VCR_EXT *x, vcr_pci_op *op)
             return ERROR_INVALID_PARAMETER;
         slot = op->target ? x->chip[op->target].slot : x->slot;
         if (op->write) {
-            /* the standard header is not ours to rewrite casually */
-            if (op->offset < 0x40 && !x->allow_poke)
-                return ERROR_ACCESS_DENIED;
-            /* Nor are the SLI/AA registers anyone's but vcr_sli_set's
-             * (2026-09-27): Glide's single-chip AA path writes cfgVideoCtrl0
-             * = EN|LOCALMUX|DIV2 into every chip it counts - on the 6000 that
-             * un-tristates three slaves' syncs - and its close writes zeros
-             * over whatever the kernel left. Refused unless Diag\AllowPoke;
-             * every refusal is in the ring, and each new (chip, register,
-             * value) is also a flushed phase, so a wedge after one is
-             * attributable - without Glide's per-close zeros flushing the
-             * 64-slot history away. */
-            if (!x->allow_poke && vcr_sli_cfg_owned(op->offset, size)) {
+            /* Judged by what the write would TURN ON (vcr_sli.h
+             * vcr_sli_poke_policy): the standard header and the snoop/decode
+             * registers need Diag\AllowPoke; an AA / video-merge value needs
+             * Diag\SliAA - even with AllowPoke, because Glide's single-chip AA
+             * path programs AA through here and never sends an SLI_AA_REQUEST
+             * - and, into a slave outside a live kernel session, AllowPoke as
+             * well. Glide's close-time zeros (every cfg 0 close: 24 writes on
+             * the 6000) and its A0 read toggles go through as they always
+             * have. SliAA is read only for a write that needs it. */
+            ULONG flags = x->allow_poke ? VCR_POKE_F_ALLOW : 0;
+            if (vcr_sli_poke_enables_aa(op->offset, size, op->value) && VcrSliAAAllowed())
+                flags |= VCR_POKE_F_AA;
+            why = vcr_sli_poke_policy(op->target, op->offset, size, op->value, flags, x->sli_chips);
+            if (why == VCR_POKE_R_HEADER)
+                return ERROR_ACCESS_DENIED;     /* as ever: not logged */
+            if (why) {
+                /* every refusal in the ring; each new (chip, register, value)
+                 * also a flushed phase, so a wedge after one is attributable
+                 * without a repeated refusal flushing the 64-slot history */
                 VLOG(VCR_LV_WARN, VCR_EV_SLI_POKE_REFUSED, op->target, op->offset, op->value,
-                     size, "PCI_OP write refused: chip %u cfg %02x <- %08x belongs to the SLI/AA "
-                     "sequence (Diag\\AllowPoke=0)", op->target, op->offset, op->value);
+                     (ULONG)why, "PCI_OP write refused (reason %d): chip %u cfg %02x <- %08x "
+                     "(AllowPoke %u, SliAA %u, %u chips live)", why, op->target, op->offset,
+                     op->value, x->allow_poke, (flags & VCR_POKE_F_AA) ? 1 : 0, x->sli_chips);
                 if (vcr_sli_poke_first(&x->poke_memo, op->target, op->offset, size, op->value))
-                    VcrPhase(VCR_EV_SLI_POKE_REFUSED, (op->target << 16) | (op->offset & 0xffff),
+                    VcrPhase(VCR_EV_SLI_POKE_REFUSED,
+                             ((ULONG)why << 24) | (op->target << 16) | (op->offset & 0xffff),
                              op->value, "PCI_OP write to an SLI/AA register refused");
                 return ERROR_ACCESS_DENIED;
             }

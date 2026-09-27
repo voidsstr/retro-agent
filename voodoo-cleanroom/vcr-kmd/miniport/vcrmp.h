@@ -225,6 +225,7 @@ ULONG   VcrClock6k(VCR_EXT *x, ULONG pllctrl0);
 void    VcrMultiInit(VCR_EXT *x);                     /* place + map the slaves */
 VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out);
 void    VcrSliOff(VCR_EXT *x, const char *why);       /* no-op when SLI is off */
+ULONG   VcrSliAAAllowed(void);  /* Diag\SliAA (the AA kill switch), read now: 1 = AA allowed */
 /* vcrmp_sli.c: the video half of the SLI/AA disable, for the reset path (any
  * IRQL with any-IRQL accessors). Declared here because the miniport is its
  * only caller; its natural home is include/vcr_sli.h. */

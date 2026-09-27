@@ -154,7 +154,15 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
          * video mux (EINVAL), memory info the vendor AA recipe cannot place
          * (EINVAL), or AA while Diag\SliAA = 0 (EDENIED) - and Glide (or
          * `vcrctl sliaa`, which sends the same request) is told FAIL; > 0
-         * done with warnings - still done */
+         * done with warnings - still done.
+         * FAIL is all the kernel can do: this request comes AFTER Glide's
+         * HWCSETEXCLUSIVE and every escape an open checks, and Glide renders
+         * by MMIO from here on. A Glide that ignores the answer (upstream,
+         * and our fork before SLIAA-GUARD 631221b) carries on with its
+         * multi-chip AA buffer layout on a board the kernel left as it was -
+         * a state never measured. So the kernel's refusal protects .124 only
+         * TOGETHER with the SLIAA-GUARD glide3x.dll, or with the Glide AA
+         * configuration verified 0/2/5 before a Glide app runs. */
         rs->resStatus = (!rc && (LONG)sr.result >= 0) ? VCR_HWC_OK : VCR_HWC_FAIL;
         VcrDd(rs->resStatus == VCR_HWC_OK && !sr.result ? VCR_LV_INFO : VCR_LV_WARN,
               VCR_EV_HWC_SLIAA, ci->dwChips, ci->dwsliEn | (ci->dwaaEn << 1), sr.result,

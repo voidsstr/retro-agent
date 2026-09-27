@@ -734,7 +734,8 @@ static void rst_log(void *ctx, vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 
 /* Before the VGA restore: if the video path is SLI/AA's, give it back to the
  * master's own PLL. The HARDWARE is asked, not only x->sli_chips: a bugcheck
  * in the middle of an SLI enable (sli_chips is set when it returns), or an
- * SLI/AA the driver did not start (a Diag\AllowPoke config write), leaves
+ * SLI/AA the driver did not start (Glide's single-chip AA through PCI_OP
+ * with Diag\SliAA = 1, or a Diag\AllowPoke config write), leaves
  * the flag at 0 with the master off its own clock. Outside SLI/AA the
  * master's cfgVideoCtrl0 is 0 (golden cfg0, ours and the vendor's), so any
  * other value means the path is not the plain one. */

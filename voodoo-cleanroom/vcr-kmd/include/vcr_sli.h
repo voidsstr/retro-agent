@@ -279,7 +279,12 @@ enum vcr_sli_step { VCR_SLI_STEP_TABLE VCR_SLI_S__END };
  * with a base of 0 - what Glide sends for every 1-sample-per-chip tuple, cfg
  * 3/7 - the two agree, and with any real base the shift spills into
  * CPU_WRITE_EN, READ_EN and the read format (0x01a00000 << 4 sets READ_EN).
- * Masked, a base can never reach bit 26. vcr_sli_aalfb_base(). */
+ * Masked, a base can never reach bit 26. vcr_sli_aalfb_base().
+ * The byte-address form is part of the VENDOR recipe only (VCR_SLI_F_VENDOR_AA,
+ * vcr_sli_set_ex): the default recipe is the dos_mode.c control arm of an AA
+ * A/B and keeps D:871's shift, spill and all (VCR_AALFB_SECONDARY_BASE_SHIFT) -
+ * it is what 097b1f7 wrote, and it is reachable only with Diag\SliAA = 1. */
+#define VCR_AALFB_SECONDARY_BASE_SHIFT  4           /* D:871, the default recipe */
 #define VCR_AALFB_SECONDARY_BASE_MASK   0x03fffff0u
 #define VCR_AALFB_CPU_WRITE_EN          (1u << 26)
 #define VCR_AALFB_DISPATCH_WRITE_EN     (1u << 27)
@@ -380,10 +385,17 @@ int vcr_sli_set(const vcr_sli_io *io, const vcr_sli_aa_req *r);
  *     tiled buffer returns the master's (aliased) data instead of asking four
  *     chips for a merge the hardware cannot do;
  *   - AA without SLI: 3D sliCtrl = 0 on every chip (VCR_SLI_S_AAONLY_SLICTRL),
- *     where dos_mode.c leaves whatever the chips held.
+ *     where dos_mode.c leaves whatever the chips held;
+ *   - every AA base is written as the byte address it is (bits 4-25,
+ *     vcr_sli_aalfb_base), not D:871's << 4 - which changes cfgAALfbCtrl of
+ *     every shape that stores two samples per chip and so has a real
+ *     secondary base (cfg 8, 2-way SLI + 4-sample, the 1- and 2-chip shapes).
  * A tuple that needs tileMark / totalMemory and gets values that cannot place
  * a base or an aperture (0, not 4 KB aligned, tileMark >= totalMemory, over
- * 64 MB) is refused before the first write (VCR_SLI_R_MEMINFO). */
+ * 64 MB) is refused before the first write (VCR_SLI_R_MEMINFO) - and, in the
+ * kernel, before a live session is torn down (vcr_sli_policy_ex).
+ * Every request is refused (VCR_SLI_R_NODEV, val 0) unless chip 0 is a
+ * VSA-100: on a Banshee / Voodoo 3 0x80-0xAC are not the SLI/AA registers. */
 int vcr_sli_set_ex(const vcr_sli_io *io, const vcr_sli_aa_req *r, vcr_u32 flags);
 
 /* cfgAALfbCtrl's base field for a byte address: addr & bits 4-25, unshifted */
@@ -451,8 +463,40 @@ int vcr_sli_aa_readback(const vcr_sli_io *io, const vcr_sli_aa_req *r, int resul
  * SLI, analog. sli/aa/analog are booleans (non-zero = on); high is the raw
  * dwaaSampleHigh and means nothing without aa. A disable (no sli, no aa) is
  * not a combination: 0. tests/native/test_vcr_kmd_sli.c pins this predicate
- * to video_mux itself for every shape. */
-int vcr_sli_combo_ok(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high, vcr_u32 analog);
+ * to video_mux itself for every shape.
+ * Inline, so a user-mode tool applies the kernel's own rule without linking
+ * the sequence: `vcrctl sliaa` refuses such a shape before it sends anything,
+ * which is what protects a VENDOR kernel (AmigaMerlin's froze on cfg 1's
+ * {4,0,1,0,1}) that has no such refusal of its own. */
+static __inline int vcr_sli_combo_ok(vcr_u32 n, vcr_u32 sli, vcr_u32 aa, vcr_u32 high,
+                                     vcr_u32 analog)
+{
+    sli = sli ? 1 : 0;
+    aa = aa ? 1 : 0;
+    analog = analog ? 1 : 0;
+    if (!aa)
+        high = 0;               /* the sample count means nothing without AA */
+    if ((!sli && !aa) || high > 2)
+        return 0;               /* a disable is not a combination; 16 samples do not exist */
+    switch (n) {
+    case 1:
+        /* one chip: 2-sample AA only (it has no partner for more), never SLI */
+        return !sli && high == 0;
+    case 2:
+        /* 2-way SLI alone or with 2-sample AA, digital or analog - never with
+         * 4-sample AA (that takes both chips); AA alone: 2 or 4 samples. Not
+         * 8: video_mux's 2-chip 4-sample branches test `high` as a boolean,
+         * so an 8-sample request would be programmed as 4-sample. */
+        return sli ? high == 0 : high <= 1;
+    case 4:
+        if (sli)                /* 4-way SLI, or two 2-way units with 2/4-sample AA */
+            return high <= 1;
+        /* AA across all four chips without SLI: 4 or 8 samples, analog only.
+         * {4,0,1,0,x} - Glide's cfg 1 laid out for four chips - has no mux. */
+        return analog && high >= 1;
+    }
+    return 0;
+}
 
 /* The request normalised the way vcr_sli_set reads it, packed (VCR_SLI_TUPLE). */
 vcr_u32 vcr_sli_req_tuple(const vcr_sli_aa_req *r);
@@ -461,8 +505,14 @@ vcr_u32 vcr_sli_req_tuple(const vcr_sli_aa_req *r);
  * down a live session to make room (vcrmp_multi.c VcrSliRequest):
  *   0                  go ahead (every disable; SLI-only; AA when allowed and valid)
  *   VCR_SLI_R_AA_OFF   the request enables AA and aa_allowed (Diag\SliAA) is 0
- *   VCR_SLI_R_COMBO    an enable with no video-mux branch */
+ *   VCR_SLI_R_COMBO    an enable with no video-mux branch
+ *   VCR_SLI_R_MEMINFO  (vcr_sli_policy_ex with VCR_SLI_F_VENDOR_AA only) an AA
+ *                      shape the vendor recipe places by tileMark/totalMemory,
+ *                      with values that cannot place it - the same test
+ *                      vcr_sli_set_ex makes, asked before the teardown
+ * vcr_sli_policy(r, a) is vcr_sli_policy_ex(r, a, 0). */
 int vcr_sli_policy(const vcr_sli_aa_req *r, vcr_u32 aa_allowed);
+int vcr_sli_policy_ex(const vcr_sli_aa_req *r, vcr_u32 aa_allowed, vcr_u32 flags);
 
 /* ---- what a flushed phase keeps of a step --------------------------------------
  * The kernel's log callback persists some steps to Diag\PhaseLog (flushed, it
@@ -488,19 +538,47 @@ int vcr_sli_policy(const vcr_sli_aa_req *r, vcr_u32 aa_allowed);
 int     vcr_sli_step_persists(vcr_u32 step, vcr_u32 persist_all);
 vcr_u32 vcr_sli_phase_b(vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 val);
 
-/* ---- the SLI/AA config registers belong to vcr_sli_set -----------------------
- * cfgInitEnable (0x40), cfgPciDecode (0x48) and 0x80-0xAF (cfgVideoCtrl0/1/2,
- * cfgSliLfbCtrl, cfgAADepthBufferAperture, cfgAALfbCtrl, ..., cfgSliAAMisc).
- * The miniport refuses a HWCEXT PCI_OP / VCR_ESC_PCI WRITE that touches any
- * byte of them unless Diag\AllowPoke is set: Glide's own single-chip AA path
- * writes cfgVideoCtrl0 = EN|LOCALMUX|DIV2 into EVERY chip it counts, which on
- * a 4-chip board would un-tristate the slaves' syncs behind the kernel's back.
- * vcr_sli_cfg_owned: 1 when [off, off+size) overlaps one of them.
+/* ---- HWCEXT PCI_OP / VCR_ESC_PCI writes to a chip: what the miniport lets through
+ * The SLI/AA config registers - cfgInitEnable (0x40), cfgPciDecode (0x48) and
+ * 0x80-0xAF (cfgVideoCtrl0/1/2, cfgSliLfbCtrl, cfgAADepthBufferAperture,
+ * cfgAALfbCtrl, ..., cfgSliAAMisc) - are vcr_sli_set's. But Glide's NT build
+ * writes some of them through PCI_OP on paths that WORK and must keep working
+ * byte for byte (they ran cfg 0/2/5 on .124 under 097b1f7):
+ *   - hwcRestoreVideo, every Napalm close that was not an SLI / multi-chip AA
+ *     session (cfg 0): 0 into cfgSliLfbCtrl, cfgAADepthBufferAperture,
+ *     cfgAALfbCtrl, cfgVideoCtrl0 and cfgVideoCtrl2 (twice) of EVERY chip
+ *     Glide counts - 24 writes on the 6000;
+ *   - hwcSLIReadEnable/Disable (only with FX_GLIDE_A0_READ_ABORT, in n-way
+ *     SLI): cfgSliLfbCtrl and cfgAALfbCtrl with READ_EN toggled.
+ * So a write is judged by what it would TURN ON, not by where it lands
+ * (vcr_sli_poke_policy, the first reason that applies):
+ *   VCR_POKE_R_BOUNDS  past the 256-byte header, or not naturally aligned
+ *                      (reads too: vcr_cfg_access_ok). A slave is written by
+ *                      raw 0xCF8 cycles, which keep only offset bits 2-7 - so
+ *                      0x140 WAS cfgVideoCtrl0 and 0x104 the command register.
+ *   VCR_POKE_R_HEADER  the standard header (< 0x40) without Diag\AllowPoke
+ *                      (as ever)
+ *   VCR_POKE_R_SNOOP   cfgInitEnable / cfgPciDecode (snoop, swap, decode)
+ *                      without Diag\AllowPoke - no Glide NT path writes them
+ *   VCR_POKE_R_AA_OFF  an AA / video-merge value (vcr_sli_poke_enables_aa)
+ *                      while Diag\SliAA = 0 - EVEN WITH AllowPoke: the kill
+ *                      switch covers Glide's single-chip AA path, which never
+ *                      sends an SLI_AA_REQUEST (cfgAALfbCtrl CPU|DISPATCH|
+ *                      READ_EN|base, the depth aperture, cfgVideoCtrl0 =
+ *                      EN|LOCALMUX|DIV2)
+ *   VCR_POKE_R_SLAVE   such a value into a SLAVE the kernel has no live
+ *                      session on, without AllowPoke: single-chip AA programs
+ *                      the master; upstream Glide writes every chip it
+ *                      counts, which on the 6000 un-tristates three slaves'
+ *                      syncs behind the kernel's back
+ * Everything else goes through as it did before the safety net: zeros (the
+ * close reset), READ_EN toggles, cfgSliLfbCtrl, cfgSliAAMisc, 0x98-0xA8.
+ * vcr_sli_cfg_owned: 1 when [off, off+size) overlaps an SLI/AA register (the
+ *   poke memo's key; the 2026-09-27 guard refused ALL of them - see the test).
  * vcr_sli_poke_first: 1 the first time this (chip, dword, value) is refused
  *   since the memo was zeroed - the caller persists only those as phases, so
- *   Glide's close-time zero writes (on every non-SLI close) cannot flush the
- *   64-slot phase history away one close at a time; every refusal still goes
- *   to the flight recorder. */
+ *   a repeated refusal cannot flush the 64-slot phase history away; every
+ *   refusal still goes to the flight recorder. */
 #define VCR_SLI_OWNED_SLOTS 14      /* 0x40, 0x48, 0x80..0xac */
 typedef struct vcr_sli_poke_memo {
     vcr_u32 val[VCR_SLI_MAX_CHIPS][VCR_SLI_OWNED_SLOTS];
@@ -509,6 +587,25 @@ typedef struct vcr_sli_poke_memo {
 int vcr_sli_cfg_owned(vcr_u32 off, vcr_u32 size);
 int vcr_sli_poke_first(vcr_sli_poke_memo *m, vcr_u32 chip, vcr_u32 off, vcr_u32 size,
                        vcr_u32 val);
+
+#define VCR_POKE_F_ALLOW    0x1u    /* Diag\AllowPoke = 1 */
+#define VCR_POKE_F_AA       0x2u    /* Diag\SliAA = 1 */
+#define VCR_POKE_R_BOUNDS   1
+#define VCR_POKE_R_HEADER   2
+#define VCR_POKE_R_SNOOP    3
+#define VCR_POKE_R_AA_OFF   4
+#define VCR_POKE_R_SLAVE    5
+/* 1 when a config access of `size` (1, 2, 4) at `off` stays inside the
+ * 256-byte header and is naturally aligned */
+int vcr_cfg_access_ok(vcr_u32 off, vcr_u32 size);
+/* 1 when the bytes written would set an AA / video-merge bit: cfgVideoCtrl0
+ * anything but the two sync-tristate bits, cfgVideoCtrl1/2 or the depth
+ * aperture non-zero, cfgAALfbCtrl anything but READ_EN */
+int vcr_sli_poke_enables_aa(vcr_u32 off, vcr_u32 size, vcr_u32 val);
+/* 0 = write it; else VCR_POKE_R_*. flags VCR_POKE_F_*; live_chips = the
+ * kernel's live SLI/AA session (x->sli_chips, 0 = none) */
+int vcr_sli_poke_policy(vcr_u32 chip, vcr_u32 off, vcr_u32 size, vcr_u32 val, vcr_u32 flags,
+                        vcr_u32 live_chips);
 
 /* The pure values, for callers and tests. */
 vcr_u32 vcr_sli_slictrl(vcr_u32 nchips, vcr_u32 nlines, vcr_u32 aa_en,

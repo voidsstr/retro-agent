@@ -17,8 +17,8 @@ VCR_SLI_W_* warn mask, CLOCK_6K the clock hook's result, NOMUX its flags, and
 REFUSED the reason (in the chip byte) plus the request's shape {chips, sli, aa,
 sampleHigh, analog}. A record without bit 23 predates that and says so rather
 than showing "warn 0". HWC_SLIAA (the request as it arrived) and
-SLI_POKE_REFUSED (a PCI_OP write to an SLI/AA register the kernel refused) are
-decoded too.
+SLI_POKE_REFUSED (a PCI_OP write to an SLI/AA register the kernel refused, and
+why: SNOOP, AA_OFF, SLAVE - vcr_sli.h VCR_POKE_R_*) are decoded too.
 
 Diag\\SliAAState, when present, is decoded after the phases: every chip's
 SLI/AA config space as the kernel read it back - by config cycles only - right
@@ -54,6 +54,13 @@ def sli_defines(prefix):
     text = (KMD / "include" / "vcr_sli.h").read_text()
     return {int(v, 0): n for n, v in
             re.findall(rf"#define VCR_SLI_{prefix}_(\w+)\s+(0x[0-9a-fA-F]+|\d+)\b", text)}
+
+
+def poke_defines():
+    """{value: NAME} of vcr_sli.h's `#define VCR_POKE_R_NAME value` (why pci_op
+    refused a PCI_OP write)."""
+    text = (KMD / "include" / "vcr_sli.h").read_text()
+    return {int(v, 0): n for n, v in re.findall(r"#define VCR_POKE_R_(\w+)\s+(\d+)\b", text)}
 
 
 PB_VALUE = 0x00800000          # vcr_sli.h VCR_SLI_PB_VALUE
@@ -169,6 +176,7 @@ def decode(values, prev):
     events = vcrlog.load_events()
     steps = sli_steps()
     warns, reasons = sli_defines("W"), sli_defines("R")
+    poke_reasons = poke_defines()
     out = []
     for i in range(max(0, count - slots), count):
         ms, code, a, b = struct.unpack_from("<4I", data, (i % slots) * 16)
@@ -182,7 +190,12 @@ def decode(values, prev):
                  ((b >> 4) & 0xf) << 4 | ((b >> 8) & 0xf))
             extra = f"  request {shape(t)}"
         elif name == "SLI_POKE_REFUSED":
-            extra = f"  chip {a >> 16} cfg {a & 0xffff:#04x} <- {b:#010x} refused"
+            # vcrmp.c pci_op: a = reason << 24 | chip << 16 | offset, b = value.
+            # Reason 0: a kernel before 2026-09-27 (AllowPoke=0 refused them all).
+            why = a >> 24
+            reason = poke_reasons.get(why, str(why)) if why else "AllowPoke=0 (kernel before 2026-09-27)"
+            extra = (f"  chip {(a >> 16) & 0xff} cfg {a & 0xffff:#04x} <- {b:#010x} refused: "
+                     f"{reason}")
         out.append(f"{i:4d} {ms / 1000:9.3f}s  {name:<16} a={a:#010x} b={b:#010x}{extra}")
     last = values.get(f"{pre}LastPhase")
     out.append(f"{pre}LastPhase {events.get(last, (last,))[0]}, a={values.get(pre + 'LastPhaseA')}"
