@@ -2329,6 +2329,42 @@ restores it.
   loss may also stop POST at "163-Time & Date Not Set" waiting for F1 - not
   yet confirmed; warm reboots do not stop there.
 
+### `.243`'s second disk: a 1997 Compaq BIOS and an 80 GB drive (2026-09-27)
+
+**The Compaq Deskpro 2000 BIOS (586C, 04/25/97) translates a drive by doubling
+heads while cylinders > 1024, so any drive reporting more than 8,191 cylinders
+overflows to 256 heads** - every BIOS read above head 0 then fails, ESDI_506's
+verify read fails (`ESDI BIOS read failure` in IOS.LOG) and the WHOLE
+secondary IDE channel is torn down (Problem 10). What brought the ST380013A
+online, and what to keep in mind - full detail in
+`scripts/fleet/win9x/README.md`:
+
+- **An ATA Host Protected Area makes the drive REPORT 8,191 cylinders**
+  (`idewrite9x hpa 5JVQM4FT 8256527`, persistent; undo with the native max
+  156301487). Cost: ~4.2 GB usable instead of 80. ROMPaq **SP15800** (586C,
+  06/01/99) fixes the translation itself (by ROM disassembly, not yet flashed);
+  after it, the HPA can be removed.
+- The volume is FAT32, 4 KB clusters, **partition type 0Bh** ending at
+  cylinder 1021 - CHS FAT32, so a broken BIOS geometry makes DOS fail its read
+  cleanly instead of entering the BIOS extended-read path that divides by the
+  broken heads byte.
+- **A warm POST does not auto-type a drive; only a power-on does.** With CMOS
+  1Bh=00 a warm reboot leaves the BIOS without unit 81h and Windows' ESDI_506
+  claims the disk natively (`ESDI\GENERIC_IDE__DISK_TYPE00_`) - D: in Windows,
+  **invisible to real DOS** (and so to DOSGAME) until a power-on auto-types it
+  from IDENTIFY. Whether that power-on gives a clean 1023/128/63 BIOS unit is
+  not yet observed.
+- The SB16's IDE interface (`ISAPNP\CTL0024_DEV0001`) wants exactly
+  170h-177h/376h/IRQ15; it is disabled so it can never take the channel.
+- **NEVER run `ide9x`/`idewrite9x` once Windows owns the channel.** An
+  `ide9x identify` there (2026-09-27) left ESDI waiting on a masked interrupt:
+  every D: operation took ~30 s, the next reboot never completed and the box
+  needed a person. The tools now refuse (exit 7) - keep it that way.
+- The DOS fill: `scripts/dosgames/prep_fill.py` packs titles on the host into
+  `Files\Games\DOSFILL` (44 staged, incl. GTA 3Dfx and Wreckin Crew 3Dfx
+  with the V2 overlay); `scripts/dosgames/fill_243.py` expands them on the box
+  into `D:\GAMES`. DOSGAME shows at most 96 installed games (`MAX_LOCAL`).
+
 ## Win98 Known Issues & Fixes
 
 ### SYSFIX Command
