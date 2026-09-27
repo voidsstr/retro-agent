@@ -1439,7 +1439,10 @@ today. Compiled on 2026-09-23 from the fork histories, this repo's history,
 `retro-3dfx/FINDINGS.md`, and every date was re-checked against its source by a
 second reviewer. Measurements are Quake III `timedemo four` or Quake II
 `demo1`, 16-bit; "V3" = `.124`'s Voodoo 3 (Pentium III 845 MHz), "V2" =
-`.171`'s Voodoo 2 (Pentium 4 2.8 GHz).
+`.171`'s Voodoo 2 (Pentium 4 2.8 GHz). The 2026-09-24..27 rows (the h5 Glide
+on the Voodoo 5 6000 and our kernel driver `vcr-kmd`) were added on 2026-09-27
+from `git log`, the fork's log and [`vcr-kmd/README.md`](vcr-kmd/README.md);
+"V5 6000" = `.124`'s Voodoo 5 6000 (Athlon XP 2400+).
 
 **Status key:** ✅ in the current build · ⚙️ in the build, off by default ·
 ❌ rejected / reverted · ⚠️ **lost** — shipped once, in no source today ·
@@ -1484,6 +1487,15 @@ timeline
     09-12 : All Glide lanes rebuilt : glideprobe
     09-15 : Voodoo 5 6000 moved into .124
     09-23 : h5 TLS bug found : retro-3dfx opened for work : this page
+```
+
+```mermaid
+timeline
+    title September 24 to 27 · the whole stack is ours
+    09-24 : h5 Glide fixes H1 to H7 and G3 open the V5 6000 : ICD 0.1.62 to 0.1.66
+    09-25 : All ours on four chips : ICD 0.1.67 to 0.1.75
+    09-26 : vcr-kmd drives the V5 6000 in 123 of 123 modes : Quake II on our ICD, Glide and kernel : 4-chip SLI at parity : AA cfg 1, 3 and 7 wedge the box
+    09-27 : AA safety net in the kernel and the Glide fork : flip completion rule : integration build on the 86Box Voodoo 3
 ```
 
 ### 15.2 OpenGL ICD (MesaFX fork)
@@ -1536,6 +1548,10 @@ summarised in the 0.1.52 and 0.1.58 rows. `FX_PROFILE` first shipped in 0.1.52
 (`OPTIMIZATIONS-VOODOO2.md` says 0.1.53+), was extended to the whole frame in
 0.1.58 and to `glBegin`..`glEnd` in 0.1.60.
 
+0.1.62–0.1.75 (2026-09-24/25, the first Voodoo 5 6000 numbers through Quake II
+single-pass multitexture by default) are in [`CHANGELOG.md`](CHANGELOG.md) and
+§13.3; they are not tabulated here yet.
+
 ### 15.3 Glide fork and build pipeline
 
 | Date | Where | Change | Kind | Measured effect | Status |
@@ -1564,6 +1580,14 @@ summarised in the 0.1.52 and 0.1.58 rows. `FX_PROFILE` first shipped in 0.1.52
 | 2026-09-12 | working tree | h5 `hwcMapBoard` zero-base guard (uncommitted hand edit, compiled into the current `glide3x_h5.dll`) | fix | never run on hardware | 📝 |
 | 2026-09-12 | `out/` | All Glide lanes rebuilt; `glide3x.dll` is now 855,150 B | build | not yet run on hardware | ✅ |
 | 2026-09-23 | review | h5 TLS inline-asm bug (H1) and five more h5 init defects (H3–H7) | diagnostic | — | open (§16) |
+| 2026-09-24 | fork `839143c` | h5: TLS accessor (H1), `grGetString` guard, map/slave/SLI-AA guards, XP escape, `FX_GLIDE_BPP` (H1–H7) | fix | `glideprobe`: our h5 Glide initialises on the V5 6000 | ✅ |
+| 2026-09-24 | fork `694e2e3` | h5 G3: the FIFO `makeRoom` stall and `grSstIdle` busy-wait bounded | fix | a wedged chip is an error, not a hung process | ✅ |
+| 2026-09-24 | fork `215a9e7`, `468609e` | h5 audit: bounded idle wait, `FX_GLIDE_NUM_CHIPS` clamp, live-mapping validation, 32-bit escape field, swap-pending bookkeeping | fix | the 09-04 freeze claim corrected | ✅ |
+| 2026-09-25 | fork `c41b50d`, `5439bb8` | asm struct offsets from the target compiler; the app's error callback survives `grGlideInit`; unmap by the PID the mapping was filed under | fix | the `grGlideInit` "hang" explained and fixed (with ICD 0.1.67/0.1.68) | ✅ |
+| 2026-09-25 | fork `d161bd4` | `grTexDownloadMipMapLevelPartialRowExt` aligns `min_s` down; `RETRO3DFX_PARTIALROW` advertised | fix | Q2 single-pass +7–8 % (ICD 0.1.74) | ✅ |
+| 2026-09-26 | `tools/glidelab` | `glidelab`: fill / bands / cycle / abandon on any SLI/AA config; its settings reach Glide through `_putenv` (`68ef24c`) | tooling | our kernel + our h5 Glide = AmigaMerlin's fill: cfg 2/5 on four chips 1124.6 / 1122.4 vs 1124.5 / 1121.7 Mpix/s, 0 bad band lines (`c5d6817`) | ✅ |
+| 2026-09-27 | fork `0b21976` | AA-TRACE: opt-in, disk-flushed step trace of the SLI/AA open, LFB read and close (`FX_GLIDE_TRACE`); `glidelab --trace` / `--collect` bring it home | diagnostic | — | ⚙️ |
+| 2026-09-27 | fork `631221b`, `7736039`, `e767d89` | SLIAA-GUARD: refuse SLI/AA requests no kernel can program, honour the escape's answer, refuse multi-chip AA LFB reads (`RETRO_GLIDE_AA_LFB_READ=1` opts in), no master reset on a busy multi-chip board; `GR_EXTENSION` markers | fix | refusals proven on the 86Box bed; **not yet on silicon** | ✅ |
 
 ### 15.4 What was lost, and why
 
@@ -1612,6 +1636,19 @@ is exposed to exactly this today.
 | 2026-09-12 | `glideprobe`; finding that AmigaMerlin 3.1-R11's own OpenGL ICD is also MesaFX (Mesa 6.3) | ✅ |
 | 2026-09-15 | Voodoo 5 6000 moved into `.124` (the benchmark campaign's host 2) | 📌 |
 | 2026-09-23 | `retro-3dfx` opened for build/deploy/fix work; fxD3D `0x3DF3` escape collision found; this README rewritten from a code audit | ✅ |
+| 2026-09-26 | **`vcr-kmd`** — our XP miniport `vcrmp.sys` + display DLL `vcrdd.dll` (mingw, every import checked against XP SP3), flight recorder, flushed phases, boot-loop breaker, `Diag\Disable`; the safety net proven in the QEMU bed (`7a479e6`) | ✅ |
+| 2026-09-26 | Mode math byte-identical to AmigaMerlin's in all 123 modes; installed on `.124`: 123/123 vendor modes pass on silicon, registers read back = the vendor's (`e76a6bd`, `de52867`) | ✅ |
+| 2026-09-26 | **The whole stack ours**: Quake II on our ICD + h5 Glide + `vcr-kmd`, 146.8 fps at 640×480×16 on one chip (147.9 over AmigaMerlin's kernel) (`e54ae9c`) | 📌 |
+| 2026-09-26 | Four chips on our kernel: SLI config space identical to AmigaMerlin's, the HiNT bridge clock programmed; Quake II 201.3 vs 201.5 fps at 640×480 (`9837e88`); 173.4 fps at 1024×768×16 all open (`b1fd3f3`) | ✅ |
+| 2026-09-26 | DDC/EDID: the mode list inside the monitor's ranges, the monitor child for XP; `GAMERES` sees the monitor again (`dfc09a2`) | ✅ |
+| 2026-09-26 | DirectDraw HAL (VM), the 2D engine, flips latched at vsync, the 86Box Voodoo 3 bed; a DX7 Direct3D HAL - `d3dprobe` 26/26 on 86Box, Unreal Gold renders (`b5058d2` … `0e15a7f`) | ✅ |
+| 2026-09-26 | D3D HAL on VSA-100 silicon: 40/40 fullscreen (`0d361cc`); `DDCAPS2_FLIPNOVSYNC` - `d3dprobe perf --novsync` 85.0 → 151.2 fps (`f6ed831`, `eebb3da`) | ✅ |
+| 2026-09-26 | Live testing paced for `.124`'s 1998 CRT (`vcr_pace.h`: floor, cap, range gate) (`0594e6b`) | ✅ |
+| 2026-09-26 | AA cfg 1, 3 and 7 deep-wedge `.124` after our kernel's SLI/AA setup (cfg 3 fill renders: 4 chips 2-sample, 625 Mpix/s) (`904a145`; post-mortem `93fed90`, `2442117`) | 📌 |
+| 2026-09-26/27 | 32 bpp Direct3D targets on the VSA-100 (`5be6a59`), hardened and put behind `Diag\D3D32`, default off (`64829cb`, `f55e2f9`, `0ea0e87`) | ⚙️ untested on silicon |
+| 2026-09-27 | Kernel AA safety net: no-video-mux shapes refused, the `Diag\SliAA` kill switch, `PCI_OP` writes judged, the vendor AA recipe flag-gated, `vcrctl sliaa` (`3dd5629`, `bc04201`, `79718f3`, `8413e3c`) | ⚙️ refusals proven on 86Box only |
+| 2026-09-27 | Flip completion rule in `include/vcr_flip.h`, flip counters, the opt-in achieved-refresh deadline (`Diag\FlipDeadline`), `GetScanLine` never unset (`d0e6af7`, `556e2f9`, `8fdcd94`) | ✅ / ⚙️ |
+| 2026-09-27 | Integration build verified on the 86Box Voodoo 3 bed - plan steps 5, 7 and 13 (`2fc3de5`) | 📌 |
 
 ### 15.6 Corrections to earlier claims
 

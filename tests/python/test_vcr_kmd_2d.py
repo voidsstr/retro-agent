@@ -142,3 +142,32 @@ def test_a_clipped_blit_goes_to_the_engine_rect_by_rect():
     assert "p->prDestRects[i]" in c and "p->rOrigDest" in c and "p->rOrigSrc" in c
     assert "s == d" in c                     # one surface onto itself: the HEL
     assert "VcrDd2dCopy(" in c and "VcrDd2dFill(" in c
+
+
+def test_the_readme_safety_section_says_what_the_driver_does():
+    """The vcr-kmd README's Safety section said "No 2D engine, no command FIFO,
+    no interrupts in this version" and "The desktop starts 1 MB into video
+    memory" long after the 2D engine, the D3D setup unit and the top-of-memory
+    desktop landed (2026-09-26) - a safety claim a reader would lean on. It now
+    says what is true, and this pins the parts of it the code decides: every
+    engine wait is capped and gives acceleration up, the miniport has no
+    interrupt handler, and the desktop is placed at the top of memory."""
+    readme = (KMD / "README.md").read_text()
+    safety = readme[readme.index("## Safety"):readme.index("## Diag switches")]
+    assert "No 2D engine" not in safety and "starts 1 MB into video" not in safety
+    for claim in ("SPIN_CAP", "turns acceleration OFF", "no interrupt", "TOP of video memory",
+                  "vcr_desktop_offset"):
+        assert claim in safety, claim
+    two_d = (KMD / "display" / "vcrdd_2d.c").read_text()
+    assert "#define SPIN_CAP" in two_d
+    give_up = func(two_d, "static void give_up(")
+    assert "pd->g2d_ok = 0;" in give_up and "VCR_EV_DD_2D, 9," in give_up
+    room = func(two_d, "BOOL VcrDdRoom(")
+    assert "for (i = 0; i < SPIN_CAP; i++)" in room and "give_up(pd, 1, s);" in room
+    three_d = (KMD / "display" / "vcrdd_3d.c").read_text()
+    assert "VcrDdRoom(pd" in three_d
+    for f in sorted((KMD / "miniport").glob("*.c")):
+        src = f.read_text()
+        assert "HwInterrupt" not in src and "VideoPortEnableInterrupt" not in src, f.name
+    mp = (KMD / "miniport" / "vcrmp.c").read_text()
+    assert "/* desktop at the top of memory: nothing below it belongs to GDI */" in mp

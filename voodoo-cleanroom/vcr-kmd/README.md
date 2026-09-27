@@ -65,10 +65,25 @@ that file, so names cannot drift.
   reboot see a sane card.
 - Every poll loop is bounded and logs what it saw; every mode-set register is
   read back and logged.
-- No 2D engine, no command FIFO, no interrupts in this version — the usual
-  ways a display driver wedges a machine are simply not in it yet.
-- The desktop starts 1 MB into video memory: Glide keeps its command FIFO at
-  96 KB, so a GDI write during a game can hit a texture, never the FIFO.
+- The engines are driven, but never waited on without a bound: the 2D engine
+  (GDI copies and fills, DirectDraw blits) and the Direct3D HAL's setup unit
+  write straight to the chip's PCI FIFO (`display/vcrdd_2d.c`,
+  `vcrdd_3d.c`), and every FIFO-room and idle wait is capped (`SPIN_CAP`,
+  about a second of status reads); one that runs out logs the status it saw
+  (512 a=9) and turns acceleration OFF for that PDEV - the software paths
+  take over. A mode set that finds the 3D engine busy resets it
+  (`vcrctl reset-engine` on demand).
+- No command FIFO of our own and no interrupts: the CMDFIFO is Glide's alone
+  (the Glide 3D reset, `Diag\Reset3D`, writes nothing to a chip whose
+  `cmdFifo0` is on), and the miniport registers no interrupt handler. Glide's
+  SLI/AA request is programmed by the kernel (`miniport/vcrmp_sli.c`), behind
+  the refusals under "Diag switches".
+- The desktop sits at the TOP of video memory, per mode (`vcr_desktop_offset`,
+  the vendor's layout), with the hardware cursor one page under it: Glide's
+  command FIFO (96 KB .. ~1116 KB on the VSA-100) never shares memory with
+  it, so a GDI repaint during a game cannot write into the live command
+  stream. (The first layout started the desktop 1 MB in, inside that FIFO,
+  and hung the engine - Findings.)
 
 ## Diag switches — the controls for supervised runs
 
