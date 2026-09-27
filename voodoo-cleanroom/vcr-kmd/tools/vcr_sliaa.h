@@ -148,7 +148,8 @@ static const char *vcr_sliaa_gate(const vcr_sliaa_cmd *c)
 }
 
 /* Glide's request (minihwc.c): chips, the flags, band height, swap algorithm
- * 1, totalMemory = the chip's memory, tileMark = tileCmpMark, the secondary
+ * 1, totalMemory = the chip's memory in whole MB (Glide keeps h3Mem =
+ * fbRam >> 20 and sends h3Mem * 1 MB), tileMark = tileCmpMark, the secondary
  * buffers, bpp. `off` is Glide's disable: dwChips and nothing else. */
 static void vcr_sliaa_fill(const vcr_sliaa_cmd *c, vcr_u32 board_chips, vcr_u32 fb_bytes,
                            vcr_sli_aa_req *r)
@@ -167,7 +168,7 @@ static void vcr_sliaa_fill(const vcr_sliaa_cmd *c, vcr_u32 board_chips, vcr_u32 
     r->ChipInfo.dwsliAaAnalog = c->analog;
     r->ChipInfo.dwsli_nlines = c->nlines;
     r->ChipInfo.dwCfgSwapAlgorithm = 1;
-    r->MemInfo.dwTotalMemory = fb_bytes;
+    r->MemInfo.dwTotalMemory = (fb_bytes >> 20) << 20;
     r->MemInfo.dwTileMark = c->tile;
     r->MemInfo.dwTileCmpMark = c->tile;
     r->MemInfo.dwaaSecondaryColorBufBegin = c->col;
