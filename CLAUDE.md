@@ -2308,12 +2308,17 @@ restores it.
   shell32.dll,SHExitWindowsEx <flags>` (2 reboot, 4 force, 1 shutdown, 8
   power off), kills nothing, and lets Windows close the agent like any console
   app. Verified 2026-09-26 23:46: `REBOOT: initiating via "rundll32.exe
-  shell32.dll,SHExitWindowsEx 6"`, then `boot: AGENTRUN.BAT starting`, agent
-  back in under 2 minutes, nobody at the box. SHUTDOWN uses the same route and
-  is not yet exercised. (1.85.3 had only dropped `CONAGENT.EXE` from the kill
+  shell32.dll,SHExitWindowsEx 6"`, then `boot: AGENTRUN.BAT starting` - Windows
+  really restarted, which no earlier agent REBOOT on that box achieved.
+  **It was NOT unattended:** the operator pressed F1 at POST both times (see
+  the next point). SHUTDOWN uses the same route and is not yet exercised. (1.85.3 had only dropped `CONAGENT.EXE` from the kill
   list - harmless on that box, and not the fix.)
-- **A WARM reboot of `.243` comes back by itself** (twice, 2026-09-26: 1.5 min
-  and under 2 min).
+- **Every `.243` boot, warm or cold, stops at POST on `301-Keyboard Error`
+  and waits for F1** - with a PS/2 keyboard plugged in directly (operator,
+  2026-09-26). So no reboot of that box comes back unattended until that halt
+  is bypassed, and a box that "never came back" after a reboot there is most
+  likely sitting at that prompt, not in ScanDisk. (Tonight's two 90-second
+  returns were the operator pressing F1, not the box.)
 - **`.243`'s RTC backup is dead**: the clock reads 1980-01-04 at every cold
   boot (CMOS 0Eh bit 2 set) and `clockfix` resets it from the NAS. A power
   loss may also stop POST at "163-Time & Date Not Set" waiting for F1 - not
