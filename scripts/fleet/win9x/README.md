@@ -25,7 +25,7 @@ Run it through the agent: `EXECW 30 C:\RETRO_AGENT\FLEET9X.EXE attrib ...`, or `
 | `deskfix9x` | re-applies the registry display mode, restores the static palette and repaints everything - brought .243 back from a black/garbled desktop after GLQuake on its Voodoo 2 (link with `-lgdi32`) | `C:\RETRO_AGENT\DESKFIX.TXT` |
 | `hash9x <file> [file ...]` | MD5 and size of each file, read 64 KB at a time. The agent's `DOWNLOAD` buffers a whole file in one heap block, which is no way to check an 80 MB pak on a 127 MB box. Proved agent 1.84.2's resume wrote Hexen II's paks correctly | `C:\RETRO_AGENT\HASH9X.TXT` |
 | `ide9x identify` / `ide9x read <m|s> <lba> <count> <name>` | **read-only**, direct-port ATA IDENTIFY and READ SECTORS on the **secondary** IDE channel (170h-177h/376h), bypassing the BIOS and Win98's driver; never the primary channel, only commands ECh/20h, interrupts off while busy, NEW output files only. Identified the 80 GB disk the 1997 BIOS could not read on .243 | `C:\RETRO_AGENT\IDE9X.TXT`, `IDENT_M.BIN`, the named dump |
-| `idewrite9x zero <serial> <lba> <count>` / `put <serial> <lba> <file>` / `flush <serial>` | the **only write-capable** tool here: direct-port ATA WRITE SECTORS (30h) and FLUSH CACHE (E7h) to the secondary MASTER only. Every command first IDENTIFYs the drive and refuses unless its serial is byte-for-byte the one you named; writes are bounded by the drive's own capacity, at most 256 sectors a run, `put` at most 128 sectors. Never kill it mid-run - create `C:\RETRO_AGENT\IDEW9X.STP` and it stops between runs. Shares the `retro_ide_secondary` mutex with ide9x. Formatted .243's 80 GB disk, ~3.6 MB/s | `C:\RETRO_AGENT\IDEW9X.TXT` |
+| `idewrite9x zero <serial> <lba> <count>` / `put <serial> <lba> <file>` / `flush <serial>` / `hpa <serial> <maxlba>` | the **only write-capable** tool here: direct-port ATA WRITE SECTORS (30h), FLUSH CACHE (E7h) and the Host Protected Area pair READ NATIVE MAX (F8h) / SET MAX ADDRESS (F9h, kept across power cycles) on the secondary MASTER only. Every command first IDENTIFYs the drive and refuses unless its serial is byte-for-byte the one named; `hpa` accepts only the native max (undo) or whole 16x63 cylinders and reads the new size back. **Both IDE tools refuse to run while Windows owns the channel** (live devnode tree: MF\CHILD0001 at Problem 0, or any devnode on &CHILD0001&) - see below. Never kill it mid-run - create `C:\RETRO_AGENT\IDEW9X.STP`. Shares the `retro_ide_secondary` mutex with ide9x | `C:\RETRO_AGENT\IDEW9X.TXT` |
 | `cmosw9x postskip on\|off` / `none` / `restore` / `show` | the Compaq Deskpro 2000's CMOS from Windows: **`postskip on`** sets 2Dh bit 3 ("POST Error Handling: skip F1 message" - POST shows an error and boots on instead of waiting for F1); `none`/`restore` set 1Bh (the secondary IDE master type). Only 1Bh/2Dh/2Eh/2Fh can be changed; the checksum (sum of 10h-2Dh, the ROM's formula) is computed from the live bytes and must be valid before any change; writes are paced with `in al,84h`; the whole bank is re-read (0Ah/0Bh included) and put back to the snapshot on any difference | `C:\RETRO_AGENT\CMOSW9X.TXT`, `CMOSB.BIN`/`CMOSA.BIN` |
 | `disk9x info` / `disk9x read ...` | read-only VWIN32 INT 13h reader - **but VWIN32's INT 13h does not serve hard disks on 9x** (measured: even 80h, the boot disk, is refused), so it only proves that route is closed | `C:\RETRO_AGENT\DISK9X.TXT` |
 | `agentswap9x` | installs `retro_agent_new.exe` over a RUNNING agent (Win9x cannot replace a running exe). LAUNCH it, then send `QUIT`; it swaps, starts the new build, and rolls back if that build is not still running after 25 s | `C:\RETRO_AGENT\AGENTSWAP.TXT` |
@@ -98,3 +98,34 @@ and its Compaq BIOS ROM:
   00 (POST auto-typed the drive once already); only then flip it to 0Ch.
 - Pre-flight markers are written for the final check: LBA 156,296,384 (end of
   partition) and 78,148,223 (~40 GB), each a readable ASCII tag.
+
+## How .243's second disk came online (2026-09-27)
+
+The Compaq BIOS translates by doubling heads while cylinders > 1024, so any
+drive reporting more than 8191 cylinders overflows to 256 heads and every BIOS
+read above head 0 fails - which also makes ESDI_506 tear down the channel.
+
+1. `idewrite9x hpa 5JVQM4FT 8256527`: the Seagate now REPORTS 8,256,528
+   sectors, default CHS 8191/16/63 (BIOS translation 1023/128/63). Kept across
+   power cycles; the 80 GB behind it comes back with `hpa <serial> 156301487`.
+   Boundary checked: LBA 8,256,527 reads, 8,256,528 is refused (IDNF).
+2. New FAT32 of 4.2 GB (4 KB clusters, 32 reserved, backup boot at 6, OEM
+   MSWIN4.1), one partition LBA 63 .. 8,241,407 = cylinder 1021 (INT 13h AH=08
+   reports two cylinders fewer than the table), type **0Bh** (CHS FAT32), not
+   0Ch: if a power-on ever brings the broken geometry back, DOS's CHS read
+   fails cleanly on the BIOS head check instead of entering the extended-read
+   path that divides by the broken heads byte.
+3. CMOS 1Bh = 00 (`cmosw9x none`). **A warm POST does NOT auto-type the drive**
+   (measured), so after a warm reboot the BIOS has no unit 81h and Windows'
+   ESDI_506 claims the disk natively: `ESDI\GENERIC_IDE__DISK_TYPE00_\MF&CHILD0001`,
+   Problem 0. **A power-on auto-types** it from IDENTIFY; with 8191 cylinders
+   that should give a valid 1023/128/63 BIOS unit, so real DOS sees it too -
+   not yet observed.
+4. The SB16's own IDE interface (ISAPNP\CTL0024_DEV0001) asks for exactly
+   170h-177h/376h/IRQ15 and is disabled (ConfigFlags 01) so it can never take
+   the channel.
+5. **Never run ide9x/idewrite9x once Windows owns the channel.** Doing exactly
+   that (an `ide9x identify` in a check script) left the driver waiting on a
+   masked interrupt; the agent blocked on D: and died with nobody at the box.
+   Both tools now refuse (exit 7) when the live devnode tree shows the channel
+   or a disk on it.

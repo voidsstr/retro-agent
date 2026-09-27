@@ -109,7 +109,7 @@ def test_agentrun_does_not_rely_on_a_bare_unc_path():
     src = _read(os.path.join(DG, "AGENTRUN.BAT"))
     assert re.search(r"^net use ", src, re.M), \
         "AGENTRUN.BAT does not establish its own authenticated session"
-    assert re.search(r"SET AGSHARE=E:", src), \
+    assert re.search(r"SET AGSHARE=W:", src), \
         "AGENTRUN.BAT never prefers the mapped drive letter over the UNC path"
     assert "share not readable" in src, \
         "a skipped update is still invisible in the log"
@@ -179,8 +179,8 @@ def test_agentrun_waits_for_the_network_and_uses_the_long_share_name():
     old RETRO_~1 test never matched; and at logon the network is often not up
     yet, so one attempt was usually no attempt."""
     src = _read(os.path.join(DG, "AGENTRUN.BAT"))
-    assert not re.search(r"^if exist E:\\Utility\\RETRO_~1", src, re.M)
-    assert re.search(r'^if exist "E:\\Utility\\Retro Automation\\retro_agent\.exe\.ver" goto mapped',
+    assert not re.search(r"^if exist [EW]:\\Utility\\RETRO_~1", src, re.M)
+    assert re.search(r'^if exist "W:\\Utility\\Retro Automation\\retro_agent\.exe\.ver" goto mapped',
                      src, re.M)
     assert re.search(r"^goto mapit", src, re.M), "the share is retried, not tried once"
     assert re.search(r'^if "%AGTRY%"=="x+" goto nomap', src, re.M), "and the retry is bounded"
@@ -196,3 +196,15 @@ def test_agentrun_version_compare_does_not_trust_fc_errorlevel():
     assert "> " in lines[i], "FC output must go to a file FIND can read"
     assert lines[i + 1].startswith('find /i "no differences"')
     assert lines[i + 2] == "if not errorlevel 1 goto uptodate"
+
+
+def test_agentrun_share_letter_is_not_where_a_cd_can_land():
+    """A second hard disk takes D: and pushes the CD-ROM to E:. AGENTRUN used
+    to map the share to E:, and 'if exist E:\\...' on an empty CD drive stops
+    the Run-key batch at 'Not ready reading drive E - Abort, Retry, Fail?'
+    with no agent started (.243, 2026-09-27). It maps W: now."""
+    src = _read(os.path.join(DG, "AGENTRUN.BAT"))
+    code = [l for l in src.splitlines() if not l.strip().lower().startswith("rem")]
+    body = "\n".join(code)
+    assert re.search(r"(?im)^net use W: ", body)
+    assert not re.search(r"(?i)\bE:\\", body), "no E: path may remain outside comments"

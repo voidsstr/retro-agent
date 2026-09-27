@@ -49,17 +49,21 @@ rem     The network is often not up yet at logon, so keep trying for ~30s
 rem     before giving up. And use the LONG name, quoted: the NAS is Samba,
 rem     whose 8.3 alias for "Retro Automation" is a hash, not RETRO_~1 - so
 rem     the old RETRO_~1 test was never true and E: was never used.
+rem     W:, not E:: a second hard disk takes D: and pushes the CD-ROM to E:,
+rem     and 'if exist E:\...' on an empty CD drive stops this batch at
+rem     'Not ready reading drive E - Abort, Retry, Fail?' with no agent
+rem     started (.243, 2026-09-27). W: is above any local drive.
 SET AGTRY=
 :mapit
-net use E: \\192.168.1.122\files password /YES > nul
-if exist "E:\Utility\Retro Automation\retro_agent.exe.ver" goto mapped
+net use W: \\192.168.1.122\files password /YES > nul
+if exist "W:\Utility\Retro Automation\retro_agent.exe.ver" goto mapped
 if "%AGTRY%"=="xxxxxx" goto nomap
 SET AGTRY=%AGTRY%x
 ping -n 6 127.0.0.1 > nul
 goto mapit
 :mapped
-SET AGSHARE=E:\Utility\Retro Automation
-echo boot:   share via E: >> %AGLOG%
+SET AGSHARE=W:\Utility\Retro Automation
+echo boot:   share via W: >> %AGLOG%
 :nomap
 SET AGTRY=
 

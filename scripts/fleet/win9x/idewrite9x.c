@@ -7,6 +7,7 @@
  *   idewrite9x put   <serial> <lba> <name>    write C:\RETRO_AGENT\<name> (whole
  *                                             sectors, <= 64 KB) starting at <lba>
  *   idewrite9x flush <serial>                 ATA FLUSH CACHE
+ *   idewrite9x hpa <serial> <maxlba>          ATA SET MAX ADDRESS (a Host Protected Area)
  *   log: C:\RETRO_AGENT\IDEW9X.TXT
  *
  * Why it exists (.243, 2026-09-25): the operator asked for the second disk - an
@@ -55,6 +56,10 @@ void *memcpy(void *d, const void *s, unsigned n) { unsigned char *p = d; const u
 #define ATA_IDENTIFY       0xEC
 #define ATA_WRITE_SECTORS  0x30
 #define ATA_FLUSH_CACHE    0xE7
+#define ATA_READ_NATIVE_MAX 0xF8  /* HPA: read the drive's native max LBA      */
+#define ATA_SET_MAX        0xF9   /* HPA: set the max LBA the drive reports    */
+#define R_FEATURES (IDE_BASE + 1)  /* write side of the error register           */
+#define HPA_VV     0x01           /* SET MAX sector count bit 0: keep across power cycles */
 
 #define CTL_NIEN   0x02
 #define CTL_IDLE   0x08
@@ -109,6 +114,65 @@ static void outw(unsigned short port, unsigned short v)
     __asm__ __volatile__("outw %0, %1" : : "a"(v), "Nd"(port));
 }
 
+
+
+static int lstrcmpiA_prefix(const char *s, const char *prefix)
+{
+    char a, b;
+    for (; *prefix; s++, prefix++) {
+        a = *s; b = *prefix;
+        if (a >= 'a' && a <= 'z') a -= 32;
+        if (b >= 'a' && b <= 'z') b -= 32;
+        if (a != b) return 1;
+    }
+    return 0;
+}
+static int contains_ci(const char *s, const char *needle)
+{
+    for (; *s; s++) if (!lstrcmpiA_prefix(s, needle)) return 1;
+    return 0;
+}
+
+/* Is the secondary channel live under WINDOWS? Then no raw port access, ever.
+ * On .243 (2026-09-27) an IDENTIFY sent while Win98's ESDI_506 owned the
+ * channel (after the disk came online natively) left the driver waiting on an
+ * interrupt the tool had masked; the agent's next query of D: blocked and the
+ * agent died, with nobody at the box. Reads HKEY_DYN_DATA (the live devnode
+ * tree): refuses when MF\CHILD0001 has no problem code (the channel started),
+ * when any devnode hangs off &CHILD0001& (a disk Windows claimed there), or
+ * when the tree cannot be read at all (fail closed). */
+static int channel_owned_by_windows(char *why, int whylen)
+{
+    HKEY root, k;
+    char name[64], hw[256];
+    DWORD i, n, t, sz, problem;
+    if (RegOpenKeyExA((HKEY)(ULONG_PTR)0x80000006UL, "Config Manager\\Enum", 0, KEY_READ, &root) != ERROR_SUCCESS) {
+        lstrcpynA(why, "cannot read HKEY_DYN_DATA\\Config Manager\\Enum (not Win9x?)", whylen);
+        return 1;
+    }
+    for (i = 0;; i++) {
+        n = sizeof(name);
+        if (RegEnumKeyExA(root, i, name, &n, NULL, NULL, NULL, NULL) != ERROR_SUCCESS) break;
+        if (RegOpenKeyExA(root, name, 0, KEY_READ, &k) != ERROR_SUCCESS) continue;
+        sz = sizeof(hw);
+        if (RegQueryValueExA(k, "HardWareKey", NULL, &t, (BYTE *)hw, &sz) == ERROR_SUCCESS) {
+            hw[sizeof(hw) - 1] = 0;
+            problem = 0xFFFFFFFFUL; sz = sizeof(problem);
+            RegQueryValueExA(k, "Problem", NULL, &t, (BYTE *)&problem, &sz);
+            if (!lstrcmpiA_prefix(hw, "MF\\CHILD0001\\") && problem == 0) {
+                lstrcpynA(why, "the secondary IDE channel (MF\\CHILD0001) is running under Windows", whylen);
+                RegCloseKey(k); RegCloseKey(root); return 1;
+            }
+            if (contains_ci(hw, "&CHILD0001&")) {
+                wsprintfA(why, "Windows has a device on the secondary channel: %.120s", hw);
+                RegCloseKey(k); RegCloseKey(root); return 1;
+            }
+        }
+        RegCloseKey(k);
+    }
+    RegCloseKey(root);
+    return 0;
+}
 
 /* One process at a time on the secondary channel: ide9x and idewrite9x both
  * take this named mutex and exit if the other holds it (their task-file
@@ -331,6 +395,70 @@ static void do_put(const char *serial, const char *slba, const char *name)
     w(line);
 }
 
+/* READ NATIVE MAX ADDRESS: the drive's real last LBA (unaffected by any HPA).
+ * Returns -1 on failure. */
+static long read_native_max(unsigned long *out)
+{
+    unsigned long lba;
+    if (select_master(0) < 0) { w("hpa: master not idle"); return -1; }
+    outb(R_CMDSTAT, ATA_READ_NATIVE_MAX);
+    settle();
+    if (wait_done("READ NATIVE MAX") < 0) return -1;
+    lba = ((unsigned long)(inb(R_DEVHEAD) & 0x0F) << 24) | ((unsigned long)inb(R_LBA2) << 16) |
+          ((unsigned long)inb(R_LBA1) << 8) | inb(R_LBA0);
+    *out = lba;
+    return 0;
+}
+
+/*
+ * hpa <serial> <maxlba>: make the drive REPORT maxlba+1 sectors (a Host
+ * Protected Area), kept across power cycles. Why: .243's 1997 Compaq BIOS
+ * translates by doubling heads while cylinders > 1024, so the 80 GB drive's
+ * 16383 default cylinders overflow to 256 heads and every BIOS read above
+ * head 0 fails. At 8191 cylinders (maxlba 8,256,527) it translates to
+ * 1023/128/63, which BIOS, real DOS and Windows all handle. Reversible: run
+ * it again with maxlba = the native max it logs.
+ * Guards: exact serial first; the target must be the native max (undo) or a
+ * whole number of 16x63 cylinders no larger than 16383 of them; SET MAX is
+ * issued immediately after READ NATIVE MAX, as the ATA spec requires; the
+ * result is read back through IDENTIFY and reported, never assumed.
+ */
+static void do_hpa(const char *serial, const char *smax)
+{
+    unsigned long maxlba, native, want_sectors, cyl;
+    if (!verify_target(serial)) return;
+    if (!parse_dec(smax, &maxlba)) { w("hpa: bad max LBA - nothing written"); return; }
+    if (read_native_max(&native) < 0) { w("hpa: READ NATIVE MAX failed - nothing written"); return; }
+    wsprintfA(line, "hpa: native max LBA %lu (%lu sectors); drive currently reports %lu sectors",
+              native, native + 1, capacity);
+    w(line);
+    want_sectors = maxlba + 1;
+    cyl = want_sectors / (16UL * 63UL);
+    if (maxlba > native) { w("hpa: target beyond the native max - refused, nothing written"); return; }
+    if (maxlba != native && (want_sectors % (16UL * 63UL) != 0 || cyl == 0 || cyl > 16383)) {
+        w("hpa: target is neither the native max nor a whole number of 16x63 cylinders (<= 16383) - refused");
+        return;
+    }
+    if (want_sectors == capacity) { w("hpa: the drive already reports that size - nothing written"); return; }
+    /* SET MAX must directly follow READ NATIVE MAX: issue it again right here. */
+    if (read_native_max(&native) < 0) { w("hpa: READ NATIVE MAX (2) failed - nothing written"); return; }
+    outb(R_FEATURES, 0x00);                         /* 00 = SET MAX ADDRESS itself */
+    outb(R_COUNT, HPA_VV);
+    outb(R_LBA0, (unsigned char)(maxlba & 0xFF));
+    outb(R_LBA1, (unsigned char)((maxlba >> 8) & 0xFF));
+    outb(R_LBA2, (unsigned char)((maxlba >> 16) & 0xFF));
+    outb(R_DEVHEAD, (unsigned char)(DEV_MASTER_LBA | ((maxlba >> 24) & 0x0F)));
+    outb(R_CMDSTAT, ATA_SET_MAX);
+    settle();
+    if (wait_done("SET MAX ADDRESS") < 0) { w("hpa: SET MAX ADDRESS failed - check IDENTIFY"); }
+    /* the post-condition, from the drive itself */
+    if (!verify_target(serial)) { w("hpa: IDENTIFY after SET MAX failed"); return; }
+    wsprintfA(line, "hpa: drive now reports %lu sectors, default CHS %u/%u/%u (%s)",
+              capacity, ident[1], ident[3], ident[6],
+              capacity == want_sectors ? "as requested" : "NOT what was requested");
+    w(line);
+}
+
 static void do_flush(const char *serial)
 {
     if (!verify_target(serial)) return;
@@ -380,16 +508,24 @@ void __stdcall start(void)
     wsprintfA(line, "--begin-- tick %lu: %.300s", GetTickCount(), GetCommandLineA());
     w(line);
     if (!chan_lock()) { w("another ide9x/idewrite9x is using the secondary channel - exiting"); w("--end--"); ExitProcess(6); }
+    {
+        char why[200];
+        if (channel_owned_by_windows(why, sizeof(why))) {
+            w("REFUSED - no port access while Windows owns the channel:"); w(why); w("--end--"); ExitProcess(7);
+        }
+    }
     lstrcpynA(cmdbuf, GetCommandLineA(), sizeof(cmdbuf));
     n = split(cmdbuf, tok, 8);
     if (n >= 5 && !lstrcmpiA(tok[1], "zero"))
         { do_zero(tok[2], tok[3], tok[4]); restore(); }
     else if (n >= 5 && !lstrcmpiA(tok[1], "put"))
         { do_put(tok[2], tok[3], tok[4]); restore(); }
+    else if (n >= 4 && !lstrcmpiA(tok[1], "hpa"))
+        { do_hpa(tok[2], tok[3]); restore(); }
     else if (n >= 3 && !lstrcmpiA(tok[1], "flush"))
         { do_flush(tok[2]); restore(); }
     else
-        w("usage: idewrite9x zero <serial> <lba> <count> | put <serial> <lba> <name> | flush <serial>");
+        w("usage: idewrite9x zero <serial> <lba> <count> | put <serial> <lba> <name> | flush <serial> | hpa <serial> <maxlba>");
     w("--end--");
     CloseHandle(logf);
     ExitProcess(0);

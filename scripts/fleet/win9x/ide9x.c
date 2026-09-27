@@ -114,6 +114,65 @@ static void outl(unsigned short port, unsigned long v)
     __asm__ __volatile__("outl %0, %1" : : "a"(v), "Nd"(port));
 }
 
+
+static int lstrcmpiA_prefix(const char *s, const char *prefix)
+{
+    char a, b;
+    for (; *prefix; s++, prefix++) {
+        a = *s; b = *prefix;
+        if (a >= 'a' && a <= 'z') a -= 32;
+        if (b >= 'a' && b <= 'z') b -= 32;
+        if (a != b) return 1;
+    }
+    return 0;
+}
+static int contains_ci(const char *s, const char *needle)
+{
+    for (; *s; s++) if (!lstrcmpiA_prefix(s, needle)) return 1;
+    return 0;
+}
+
+/* Is the secondary channel live under WINDOWS? Then no raw port access, ever.
+ * On .243 (2026-09-27) an IDENTIFY sent while Win98's ESDI_506 owned the
+ * channel (after the disk came online natively) left the driver waiting on an
+ * interrupt the tool had masked; the agent's next query of D: blocked and the
+ * agent died, with nobody at the box. Reads HKEY_DYN_DATA (the live devnode
+ * tree): refuses when MF\CHILD0001 has no problem code (the channel started),
+ * when any devnode hangs off &CHILD0001& (a disk Windows claimed there), or
+ * when the tree cannot be read at all (fail closed). */
+static int channel_owned_by_windows(char *why, int whylen)
+{
+    HKEY root, k;
+    char name[64], hw[256];
+    DWORD i, n, t, sz, problem;
+    if (RegOpenKeyExA((HKEY)(ULONG_PTR)0x80000006UL, "Config Manager\\Enum", 0, KEY_READ, &root) != ERROR_SUCCESS) {
+        lstrcpynA(why, "cannot read HKEY_DYN_DATA\\Config Manager\\Enum (not Win9x?)", whylen);
+        return 1;
+    }
+    for (i = 0;; i++) {
+        n = sizeof(name);
+        if (RegEnumKeyExA(root, i, name, &n, NULL, NULL, NULL, NULL) != ERROR_SUCCESS) break;
+        if (RegOpenKeyExA(root, name, 0, KEY_READ, &k) != ERROR_SUCCESS) continue;
+        sz = sizeof(hw);
+        if (RegQueryValueExA(k, "HardWareKey", NULL, &t, (BYTE *)hw, &sz) == ERROR_SUCCESS) {
+            hw[sizeof(hw) - 1] = 0;
+            problem = 0xFFFFFFFFUL; sz = sizeof(problem);
+            RegQueryValueExA(k, "Problem", NULL, &t, (BYTE *)&problem, &sz);
+            if (!lstrcmpiA_prefix(hw, "MF\\CHILD0001\\") && problem == 0) {
+                lstrcpynA(why, "the secondary IDE channel (MF\\CHILD0001) is running under Windows", whylen);
+                RegCloseKey(k); RegCloseKey(root); return 1;
+            }
+            if (contains_ci(hw, "&CHILD0001&")) {
+                wsprintfA(why, "Windows has a device on the secondary channel: %.120s", hw);
+                RegCloseKey(k); RegCloseKey(root); return 1;
+            }
+        }
+        RegCloseKey(k);
+    }
+    RegCloseKey(root);
+    return 0;
+}
+
 /* One process at a time on the secondary channel: ide9x and idewrite9x both
  * take this named mutex and exit if the other holds it (their task-file
  * writes must never interleave). */
@@ -454,6 +513,12 @@ void __stdcall start(void)
     wsprintfA(line, "--begin-- tick %lu: %.300s", GetTickCount(), GetCommandLineA());
     w(line);
     if (!chan_lock()) { w("another ide9x/idewrite9x is using the secondary channel - exiting"); w("--end--"); ExitProcess(6); }
+    {
+        char why[200];
+        if (channel_owned_by_windows(why, sizeof(why))) {
+            w("REFUSED - no port access while Windows owns the channel:"); w(why); w("--end--"); ExitProcess(7);
+        }
+    }
     lstrcpynA(cmdbuf, GetCommandLineA(), sizeof(cmdbuf));
     n = split(cmdbuf, tok, 8);
     if (n >= 2 && !lstrcmpiA(tok[1], "identify")) {
