@@ -70,11 +70,55 @@ that file, so names cannot drift.
 - The desktop starts 1 MB into video memory: Glide keeps its command FIFO at
   96 KB, so a GDI write during a game can hit a texture, never the FIFO.
 
+## Diag switches — the controls for supervised runs
+
+`HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag`, DWORD. Every switch here
+is **off when absent**, and with all of them off the register traffic is what
+ran on silicon on 2026-09-26: cfg 0/2/5, 2-chip SLI and cfg 3/7/8 write the
+same bytes as 097b1f7, a 16 bpp D3D target is the proven sequence write for
+write, and the flip deadline is the nominal rule to the tick
+(`test_vcr_kmd_sli.c`, `test_vcr_kmd_d3dseq.c`, `test_vcr_kmd_flip.c` pin all
+three). They exist for supervised runs on `.124`: arm one, run, disarm.
+
+| value | read | what 1 does (default 0) |
+|---|---|---|
+| `SliAA` | at every SLI_AA_REQUEST | **allows AA.** At 0 an AA request is refused before any write, before a live SLI session is torn down (`VCR_SLI_EDENIED` -4, reason 10 AA_OFF, a persisted phase), and so is an AA value sent through HWCEXT `PCI_OP` (Glide's single-chip AA path), even with `AllowPoke` = 1. SLI-only requests and every disable are unaffected |
+| `SliPersistAll` | at every request | every SLI step becomes a flushed phase, so after a wedge the last phase names the write. Slow: ~440 flushes of 15-30 ms for a 4-chip enable; only the last 64 steps are kept |
+| `SliAAVendorRecipe` | at every AA request | the vendor-style AA recipe for that request: the cfgAALfbCtrl secondary base as a byte address masked to bits 4-25 (the default keeps `dos_mode.c:871`'s `<< 4`, spill included, as the control arm); base = tileMark + AA READ_EN + RD_DIVIDE_BY_4 for the one-sample-per-chip shapes (`{2,0,1,0,x}`, cfg 3, cfg 7); the whole tiled depth aperture for 4 chips without SLI at 4/8 samples (cfg 7, 8); 3D sliCtrl = 0 for AA without SLI. A tileMark / totalMemory it cannot place is refused before any write (reason 11 MEMINFO). One recipe per clean boot |
+| `SliAAReadback` | at every AA request | after an AA enable that succeeds, reads every chip's 0x40, 0x48, 0x80-0x94 and 0xAC back by config cycles only into `Diag\SliAAState` (REG_BINARY, flushed; `vcrphases.py` decodes it, its header names the boot that wrote it). It costs ~100-200 ms between SET_DONE and Glide's next MMIO, which is why it is off. pciInit0 in the record is the value written: a config cycle cannot read it (0x4C is the status register) |
+| `AllowPoke` | at boot (FindAdapter) | config writes through `PCI_OP` / `VCR_ESC_PCI` that the kernel otherwise refuses: below 0x40 (as before), and now also cfgInitEnable (0x40), cfgPciDecode (0x48), and an AA value into a slave outside the live kernel session. A write is judged by what it would turn ON: zero writes, cfgSliLfbCtrl, READ_EN-only toggles, cfgSliAAMisc and 0x98-0xA8 always pass (Glide's cfg 0 close makes 24 zero writes to the SLI/AA registers); an offset past 0xFF or misaligned never does (a slave's raw 0xCF8 cycle keeps only bits 2-7, so 0x140 reached its cfgVideoCtrl0). A refusal is event 703 SLI_POKE_REFUSED, a = reason<<24 \| chip<<16 \| offset (1 BOUNDS, 2 HEADER, 3 SNOOP, 4 AA_OFF, 5 SLAVE) |
+| `D3D32` | at boot | offers 32 bpp Direct3D targets on a VSA-100: DDBD_32, and the Z list D16 plus D24X8/D24S8 (see 32 bpp below). `vcr_info.flags` 0x10; event 513 what 16 when the display driver arms it |
+| `Reset3D` | at boot | clears what a Glide session left on chip 0 - chipMask = ALL, sliCtrl = 0, 12 nopCMD, combineMode, aaCtrl, stencilMode, stencilOp = 0 - at the exclusive OWNER's own HWCRLSEXCLUSIVE after a good RESTORE_MODE (VSA-100, D3D on), and only if chip 0 reads idle three times and cmdFifo0 has SST_CMDFIFOEN clear. Never at DrvAssertMode, so a KILLED Glide client still needs a cold boot before a 32 bpp D3D test. Event 604 a=3, c: 0 not run, 1 reset, 2 not idle, 3 command FIFO on, 4 gave up. Flags 0x20 |
+| `FlipDeadline` | at every mode set | the achieved-refresh flip deadline (Flip completion, below). Voodoo backend only |
+
+**Arm:** `REGWRITE HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag SliAA
+REG_DWORD 1`, then `REGREAD` it back (the agent answers OK to a malformed
+REGWRITE). `AllowPoke`, `D3D32` and `Reset3D` then need a reboot through
+`scripts/fleet/safe-reboot.py`; `FlipDeadline` a mode set (a DirectDraw
+application's own switch is one); the `Sli*` switches act on the next request,
+so they can be armed for one run without a reboot. **Disarm** as soon as the run
+ends: write 0, or `EXEC reg delete "HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag"
+/v SliAA /f` and read it back absent. The agent's `REGDELETE` deletes KEYS,
+never a value - never point it at `...\vcrmp\Diag`, which holds the phase
+history.
+
+**Default changes with no switch (2026-09-27):** an SLI/AA shape with no
+video-mux branch is refused before the first write (`VCR_SLI_EINVAL`, reason 9
+COMBO); only a VSA-100 is given an SLI_AA_REQUEST; a `PCI_OP` offset past 0xFF
+or misaligned is refused, reads included; a HWCRLSEXCLUSIVE from a process that
+is not the owner, while there is one, is refused before RESTORE_MODE (604 a=4 -
+any process can send that escape; the owner's own release and a release with
+no owner are unchanged); `exclusive_pid` survives a failed RESTORE_MODE (604
+a=2); a D3D target whose pitch is not a 16-byte multiple fails CreateDevice
+(`DDERR_INVALIDPIXELFORMAT`) instead of getting a device that never drew;
+GetScanLine never returns an unset line.
+
 ## Tools (reusable tests, run through the agent)
 
 | tool | proves |
 |---|---|
-| `vcrctl.exe` (on the box) | `info`, `log`, `mark`, `snapshot`, `reg`, `crtc`, `pci`, `bootok` on our driver; `modes`, `setmode`, `gdi`, `hwc`, `hwcregs`, `golden`, `restore` on ANY driver |
+| `vcrctl.exe` (on the box) | `info` (also the display driver's exclusive owner, `exclusive_pid`), `log`, `mark`, `snapshot`, `reg`, `crtc`, `pci`, `bootok` on our driver; `modes`, `setmode`, `gdi`, `hwc`, `hwcregs`, `golden`, `restore`, `sliaa` on ANY driver |
+| `vcrctl sliaa N SLI AA HIGH ANALOG [NLINES BPP TILEMARK COL DEPTHLO DEPTHHI] --i-am-at-the-box [--force-desktop-pll]` / `vcrctl sliaa off` | Glide's `HWCEXT_SLI_AA_REQUEST` as a kernel-only probe - no Glide open, no LFB. Sent as Glide sends it (GETDEVICECONFIG first, totalMemory in whole MB, tileMark = tileCmpMark), one paced switch in Glide's order: HWCSETEXCLUSIVE, then the request. Prints resStatus and, on our driver, `sli_result`/`sli_chips`/`clock_6k_hz`. Refused before anything is sent: any enable without `--i-am-at-the-box`, a shape with no video mux (the kernel's own `vcr_sli_combo_ok`), AA on a desktop not in 2x mode without `--force-desktop-pll`. An enable keeps exclusive, as Glide does, until `sliaa off` (Glide's disable, then HWCRLSEXCLUSIVE; it takes exclusive first, so it also clears a stale owner). With `Diag\SliAAVendorRecipe` on, pass the real tileMark or cfg 3/7/8 are refused (MEMINFO) |
 | `tools/golden_capture.py` | register dumps from the vendor driver per mode (through its own HWCEXT mapping; with `--probe`, the VGA register file and PCI config of every chip) |
 | `tools/golden_compare.py` | our mode math (the driver's own `vcr_modes.c`, host-built) against a capture, register by register |
 | `tools/golden_timings.py` | timing-table rows decoded from a capture's CRTC - modes the monitor is known to accept |
@@ -83,27 +127,60 @@ that file, so names cannot drift.
 | `tools/mode_sweep.py` | every mode: switch, current-mode read-back, GDI draw/read-back, no WARN/ERROR in the recorder |
 | `tools/qemu/run-vcrkmd-vm.sh` | the VM test bed: build VM disk through a throwaway overlay, std-vga, debugcon captured, agent on 127.0.0.1:19910 |
 | `tools/vcrlog.py`, `tools/vcrdump.py` | decode the recorder live / from a crash dump |
-| `tools/vcrphases.py [--prev]` | the FLUSHED phase history - this boot's, or (`--prev`) the boot before, which DriverEntry keeps as `Prev*`: after a wedge and a power cycle, the step the box never got past |
+| `tools/vcrphases.py [--prev]` | the FLUSHED phase history - this boot's, or (`--prev`) the boot before, which DriverEntry keeps as `Prev*`: after a wedge and a power cycle, the step the box never got past. SET_DONE reads `chips N warn 0x.. (NAMES)`, a refusal `COMBO`/`AA_OFF shape {n,sli,aa,high,analog}` (a record from before 2026-09-27: "value not recorded"); `Diag\SliAAState` is decoded after the phases |
 | `tools/check_imports.py` | the binaries will load on XP SP3 |
 | `tools/sli_golden.py` | the LIVE multi-chip state under N-chip SLI: every chip's PCI config (raw cycles), IO registers and 3D sliCtrl, the bridge's clock GPIO - Quake II looping on the all-ours lane, on whichever kernel driver is installed |
 | `tools/sli_compare.py` | two such captures diffed register by register (volatile registers and the unreadable VGA alias excluded) |
 | `tools/sli_golden_sweep.py` | a capture per SLI/AA config, one clean boot each (the vendor's rule), optionally diffed against a reference label |
 | `tools/sli_shot.py` | Quake II photographs itself through Glide's SLI LFB read - every chip's bands, with the mean luma of each chip's rows |
-| `out/glidelab.exe` (`tools/glidelab.c`, `make glidelab GLIDE_SDK=...`) | our Glide test program, no game in the way: `fill` (Mpixel/s, flat or blended), `bands` (every scanline an exact RGB565 value read back through the LFB, bad lines per owning chip), `cycle` (open/close N times: SLI set up and torn down), `abandon` (exit without closing, as a killed game does) |
-| `tools/glidelab_run.py`, `tools/glidelab_sweep.py` | run one glidelab mode on a box / sweep fill + bands over SLI/AA configs (one boot each, or `--no-reboot` for ours), JSON lines in `evidence/glidelab/` |
+| `out/glidelab.exe` (`tools/glidelab.c`, `make glidelab GLIDE_SDK=...`) | our Glide test program, no game in the way: `fill` (Mpixel/s, flat or blended), `bands` (every scanline an exact RGB565 value read back through the LFB, bad lines per owning chip), `cycle` (open/close N times: SLI set up and torn down), `abandon` (exit without closing, as a killed game does); `--trace N` / `--trace-cfg` (our h5 Glide's step trace, below) |
+| `tools/glidelab_run.py`, `tools/glidelab_sweep.py` | run one glidelab mode on a box / sweep fill + bands over SLI/AA configs (one boot each, or `--no-reboot` for ours), JSON lines in `evidence/glidelab/`; `glidelab_run.py --trace N` brings the trace home, `--collect [--restore-cfg 0\|2\|5]` reads what a wedged session left (below) |
 | `tools/cursor_golden.py` | the hardware cursor's registers and 1 KB pattern, read back (a screenshot cannot show a hardware cursor), compared against the vendor's |
-| `out/ddlab.exe` (`tools/ddlab.c`) + `tools/ddlab_run.py` | our DirectDraw test program: `caps` (HAL vs HEL, video memory), `flip` (a frame-numbered pattern written to the back buffer must read back from the FRONT after each flip), `blt` (copy, colour fill, an overlapping scroll and a SOURCE-COLOUR-KEYED copy between video-memory surfaces, read back), `zsurf --zbits 16|24|32` (one DirectDraw 7 Z surface - the request the HAL's CanCreateSurface judges; no mode switch) |
+| `out/ddlab.exe` (`tools/ddlab.c`) + `tools/ddlab_run.py` | our DirectDraw test program: `caps` (HAL vs HEL, video memory), `flip` (a frame-numbered pattern written to the back buffer must read back from the FRONT after each flip; RESULT adds `first_frame_ms`, `max_frame_ms`, `min_frame_ms`, `slow_frames` (> 1.5 refreshes), `fast_frames` (< half a refresh), `flips_s_first_last`; `--work-us N` busy-works after every Flip - the D3D pattern), `blt` (copy, colour fill, an overlapping scroll and a SOURCE-COLOUR-KEYED copy between video-memory surfaces, read back), `zsurf --zbits 16|24|32` (one DirectDraw 7 Z surface - the request the HAL's CanCreateSurface judges; no mode switch) |
 | `out/gdilab.exe` (`tools/gdilab.c`) | our GDI test program, self-checking against a per-pixel pattern: solid fills, BLACKNESS/WHITENESS, screen-to-screen copies (odd positions and sizes), overlapping scrolls in all four directions, a copy through a clip region with a hole, and the engine and the CPU interleaved on the same pixels |
-| `out/d3dprobe.exe` (`tools/d3dprobe.c`) + `tools/d3dprobe_run.py` | our Direct3D 8 test program: `caps` (adapter, D3DCAPS8, formats), `render` (clear, flat, gouraud, texture, modulate, blend, z-test, 256x256 texture - the back buffer LOCKED and compared with computed values, windowed or `--full`; `--zfmt d16|d24x8|d24s8` asks for that depth format, e.g. a device the HAL must refuse), `perf` |
+| `out/d3dprobe.exe` (`tools/d3dprobe.c`) + `tools/d3dprobe_run.py` | our Direct3D 8 test program: `caps` (adapter, D3DCAPS8, formats, `zmatch` per target/depth pair, `hal_fullscreen` per format), `render` (clear, flat, gouraud, texture, modulate, blend, z-test, 256x256 texture - the back buffer LOCKED and compared with computed values, windowed or `--full`; `--zfmt d16|d24x8|d24s8` asks for that depth format, e.g. a device the HAL must refuse; `--noz` renders with no depth buffer), `perf` |
 | `tools/lab_run.py <lab> <host>` | runs any of the labs on a box or test bed and fails on any `bad*`/`fail` count |
 | `make labs` | builds ddlab, d3dprobe, gdilab |
 | `tools/86box/` | **the Voodoo3 test bed**: 86Box emulating a real Voodoo3 3000 - the driver's Voodoo paths, recoverable by script. [`tools/86box/README.md`](tools/86box/README.md) |
 
-Host tests: `tests/native/test_vcr_kmd_{log,fmt,modes,abi,sli,ics307}.c`,
-`tests/python/test_vcr_kmd_tools.py`, `tests/python/test_vcr_kmd_sli_glue.py`,
-`tests/python/test_vcr_kmd_{ddraw,2d}.py` (all in `tests/run_all.sh`).
+Host tests: `tests/native/test_vcr_kmd_*.c` (among them `sli`, `d3dseq`,
+`flip`), `tests/python/test_vcr_kmd_*.py` (`sli_glue`, `d3d`, `ddraw`, `2d`,
+`phases`, `tools`), `tests/python/test_glidelab_trace.py`, and the Glide side of
+the AA guards, `tests/native/test_h5_sliaa_tuple.c` and
+`tests/python/test_h5_sliaa_guards.py` (all in `tests/run_all.sh`).
 
-## Status (2026-09-26)
+**Tracing our h5 Glide (the fork's AA-TRACE).** `glidelab --trace N` sets
+`FX_GLIDE_TRACE=N` - read from the process environment only; a registry value
+does nothing - and the fork writes `<log>.trace`, each line flushed before the
+hardware access it names. Level 1 is file writes only. Level 2 adds a bounded
+grFinish after each FIFO step inside `grSstWinOpen`, so the last line names the
+step the chips executed; it is not byte-identical to an untraced open, so a
+wedge that vanishes at level 2 is timing-sensitive, and that is a result.
+`--trace-cfg` adds the config-space dumps (`FX_GLIDE_TRACE_CFG=1`, 36 PCI_OP
+escapes per dump on the V5 6000). An AA open also gets `FX_GLIDE_NO_SPLASH=1`
+and `FX_GLIDE_NO_PLUGIN=1`: NO_SPLASH alone does not stop `3dfxspl3.dll`'s init
+from drawing through Glide inside the open. glidelab works out the
+configuration Glide will really open (`--cfg`, else env / HKCU / HKLM
+`Services\{3dfxvs|banshee}\Device0\glide`) and refuses an AA open (rc 13, before
+any window) on a Glide whose `GR_EXTENSION` lacks `RETRO3DFX_SLIAA_GUARD`.
+`glidelab_run.py --trace N` deletes the old trace, downloads the new one beside
+the step log (`evidence/glidelab/trace/`, or `--save-dir`) and fails the run on
+a missing or header-less trace; its plan line gives the staged DLL's md5 and
+markers, it refuses an AA `--cfg` on an unguarded DLL, and it puts the value
+back afterwards. After a wedge and a power cycle, `glidelab_run.py HOST MODE
+--collect` switches nothing: it downloads the step log and trace and reads
+every Glide registry location, with a banner if an AA value is armed;
+`--collect --restore-cfg 5` writes a safe value where one was found. A traced
+`bands` run flushes every scanline (768 at 1024x768): raise `--timeout` above
+180 s. **Registry trap:** `v56k_bench.apply_aa_config` writes
+`SSTH3_SLI_AA_CONFIGURATION` under the display class key
+(`Class\{4D36E968-...}\<inst>\Settings\Glide`), which our Glide never reads; it
+reads `Services\3dfxvs\Device0\glide` when `Services\3dfxvs\Device0` exists,
+else `Services\banshee\Device0\glide`. Only the in-process `--cfg` env reaches
+it (unverified on the box; the same trap made every `sli_golden` capture run
+Glide's default).
+
+## Status (2026-09-27)
 
 **Proven in the VM (QEMU std-vga, XP SP3):** installs through `DRVUPDATE`, PnP
 starts the miniport, XP boots onto `vcrdd`, and every mode we offer switches
@@ -261,6 +338,117 @@ locked at all** (`DDERR_CANTLOCKSURFACE`), which alone breaks DirectDraw games
 that draw on the screen. This is the chassis the fxD3D Direct3D HAL
 (`scripts/3dfx/`) lives in next.
 
+**THE AA SAFETY NET (2026-09-27; offline and on the 86Box bed, NOT yet on
+silicon).** The three AA wedges of 2026-09-26 (`docs/v56k-benchmark-plan.md`)
+are now refused on both sides before anything is written. Kernel: a shape
+with no video-mux branch is refused (COMBO) - Glide's cfg 1 on the V5 6000,
+`{4,0,1,0,1}`, used to cost ~430 writes reported as success; AA needs
+`Diag\SliAA` = 1; `PCI_OP` writes are judged by what they would turn on; the
+persisted SET_DONE keeps the warn mask, and refusals and NOMUX are phases.
+Glide (fork `631221b` + `7736039` + `e767d89`, the SLIAA-GUARD `glide3x.dll`):
+cfg 1 on more than 2 chips is refused; a request outside the kernel's shapes
+fails the open before the mode set and again just before the escape; the
+kernel's refusal is honoured and the display given back after a 3 s hold (the
+`vcr_pace` floor); a READ lock in multi-chip AA is refused unless
+`RETRO_GLIDE_AA_LFB_READ=1`; a busy multi-chip SLI/AA board gets no master
+reset. **The kernel's refusal protects `.124` only together with that
+`glide3x.dll`.** A Glide built from origin (`d161bd4`) ignores the escape's
+FAIL and opens its multi-chip AA layout anyway, and the kernel cannot stop it:
+the SLI request comes after HWCSETEXCLUSIVE, and the escapes after it are
+unchecked. The fork commits are local (`glide-devel-sezero` ahead 4 of
+origin): push them, rebuild with an explicit workdir (`bash
+voodoo-cleanroom/build-stack.sh <repo>/voodoo-cleanroom/build` - without it
+the script clones origin), and check the md5 of
+`C:\Games\Quake2Complete\glide3x.dll` (what glidelab loads) before any deploy.
+Otherwise confirm the AA configuration is 0/2/5 before any Glide app runs.
+
+**32 bpp DIRECT3D ON THE VSA-100: code done, default OFF, untested on
+silicon.** renderMode 32 bpp with a 24+8 aux buffer and Z scaled to 2^24-1
+(2026-09-26), hardened 2026-09-27 (`4a9793b` + `46eef4c` + `967b4aa`) and put
+behind `Diag\D3D32`, because `.124`'s desktop is 32 bpp and `5be6a59` had
+armed it for every windowed client. A 16 bpp target is the proven sequence
+write for write whatever the switch says (Voodoo3 6 writes, VSA-100 7). Only a
+32 bpp target writes stencilMode = stencilOp = 0: with SST_STENCIL_ENABLE
+clear the chip still does REPLACE under stencilMode's write mask, and
+vcr-kmd had never written either. Stencil is not supported - D24S8 is listed
+on D24X8's storage, and its stencil is never written or tested. The Z list is
+D16 always, plus D24X8/D24S8 with the switch. A target and its Z must fit
+(video memory, pitch, size), and video-memory offset 0 IS a surface: the
+DirectDraw heap starts there, because the desktop sits at the top. Recorder:
+513 what 12 target refused, 15 Z refused (b = 2 not in video memory, 3 pitch,
+4 size), 17 target pitch refused. Unproven premise: that the chip ignores a
+stale stencil enable at 16 bpp - plan step 16 tests it. On a Voodoo3 the D3D8
+runtime refuses a 32 bpp device and a D24S8 one from the caps, before the
+driver sees them; the driver's own CanCreateSurface guard (511/11) is reached
+only the DirectDraw 7 way (`ddlab zsurf`).
+
+**FLIP COMPLETION (2026-09-27, `include/vcr_flip.h`).** A flip writes
+`vidDesktopStartAddr`, and the chip latches it at the next vsync start.
+`vcr_flip.h` (Win32-free; the display DLL's flip_done/Dd_Flip are its IOCTL
+and QPC glue) calls a flip done once it has seen active display and then a
+retrace (`status[6]` clear) after the write, or once a deadline has passed.
+The retrace state is sampled AFTER the start-address write, so a write that
+races into the retrace is reported a frame late, never early; a sample taken
+before the write would be a frame early (the native test shows both). The
+default deadline is the nominal frame + 1/8 (47376 ticks at 85 Hz, 67116 at
+60 Hz, QPF 3579545), unchanged since the first silicon runs.
+`Diag\FlipDeadline` = 1 makes the miniport send the mode's achieved refresh
+(`vcr_modeset.refresh_mhz`: the PLL's clock over the timing table's totals)
+in `vcr_dd_vblank.refresh_mhz` (the old `reserved` word; size and offset
+unchanged), and the deadline becomes one achieved frame + 1/32. The sent rate
+is trusted only within 1/64 of nominal, narrower than that margin, so the rule
+stays never-early; every table timing computes within +1.12 %/-0.29 %. Nine 2X
+modes scan a line 8 px shorter than the table (the halved total truncates to
+whole characters), 0.31-0.39 % faster: the deadline is late there, never
+early, and the host test pins that direction for every timing. In the model a
+D3D-style application that works 1.05 refreshes per frame then flips at 0.95
+of the refresh instead of 0.889. It stays OFF until counters from real titles
+justify it; before setting it on a box, ddlab's `vblank_hz` at the target mode
+must agree with `refresh_mhz`/1000 to well under 1 %. `vidCurrentLine` plays no
+part in completion: 86Box reads 0x94 as 0x7ff, and on the VSA-100 it very
+probably reads 0 through the blank.
+- **Counters:** once per session - at the end of exclusive mode, at
+  DrvAssertMode(FALSE) (before the device reset, so a session that changed the
+  mode is not lost) or at DrvDisableDirectDraw - event 511 a=12 (b flips,
+  c done by retrace, d done by deadline; the text adds superseded and pending)
+  and a=13 (b longest vblank read, c longest wait, d the deadline, all in us).
+  Nearly every flip by deadline means the rule is failing; a long single read,
+  an IOCTL that blocked; a long wait with few deadline completions, a
+  preempted thread. A session in the desktop's own mode logs them only at the
+  next mode change: XP never calls SetExclusiveMode(0) at its release (86Box).
+- **GetScanLine** reports `vidCurrentLine & 0x7ff`. "In the blank" is
+  `status[6]` alone, and `dwScanLine` is 0 on every path that is not DD_OK
+  (ddlab read 2293576 of stack garbage). A line at or past the visible height
+  is returned raw with DD_OK: 86Box's 0x7ff would read as the blank forever,
+  and so would the lower half of a doublescan mode.
+
+**The integration build on the 86Box Voodoo3 bed (2026-09-27;
+`worktree-vk-int` 5e4ca36, `evidence/86box_v3/int_20260927/`).** Plan steps 5,
+7 and 13 - all pass except the deadline A/B, which the bed cannot show:
+- **install:** the guest's files = `out/`; DRIVER_ENTRY sizeof(VCR_EXT) 0x1388
+  (was 0x1278); no new declined boot over three installs. `vcrctl info`
+  reports `build 1` for both builds, so tell builds apart by file hash and
+  struct size.
+- **regression:** gdilab 0 bad; ddlab blt 0 bad, 2259 blts/s mean against 2298
+  for `5be6a59` reinstalled in the same session (-1.7 %, inside the spread);
+  ddlab flip 0 mismatch, scanline 0 (was 2293576); d3dprobe 42/0 windowed and
+  40/0 fullscreen at 640x480x16 and 800x600x16.
+- **flip:** no half rate at 16 or 32 bpp, on a 16 or a 32 bpp desktop, in
+  either order: 58.7-64.0 flips/s at 60.35 Hz, 89-96 % done by retrace at 600
+  frames. `FlipDeadline` = 1 moves the deadline 18749 -> 17086 us, but the
+  emulator's ~3 ms of per-frame overhead hides the 0.889x/0.95x ratio: that
+  A/B needs silicon. Open: completions outrun the refresh by 2-3 % at 600
+  frames (`fast_frames` 22-29 under half a refresh), on `5be6a59` too.
+- **D3D:** a 32 bpp device (windowed and fullscreen) and a 16 bpp device with
+  D24S8 are refused by the D3D8 runtime, cleanly, with no mode set;
+  `ddlab zsurf` 24- and 32-bit Z are refused by CanCreateSurface (511/11), the
+  16-bit Z is created in video memory.
+- **SLI/AA:** refused by the tool's gates, then EDENIED -4 (`SliAA` absent,
+  reason 10) and EINVAL -1 (`SliAA` = 1: one chip, device 0005); zero SLI
+  register writes in every run. `sliaa off` from a separate process takes a
+  stale owner's exclusive and gives the desktop back, while a plain non-owner
+  release is refused (604 a=4).
+
 ## Findings (measured)
 
 - **Direct3D: our own HAL on the 86Box Voodoo3 (2026-09-26)** —
@@ -317,15 +505,23 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
 - **A DirectDraw flip is latched at the next retrace**; until then Flip,
   GetFlipStatus and a Lock (or blit) of the buffer being taken off the screen
   answer `DDERR_WASSTILLDRAWING`. Before: 768 flips/s on a 60 Hz mode (no
-  vsync at all); after: 62.3, the in-box driver 60.9.
-  The integration build's counters on the 86Box bed (2026-09-27,
-  `evidence/86box_v3/int_20260927/`): no half rate at 16 or 32 bpp, on a 16 or
-  a 32 bpp desktop, in either order (58.7-64.0 flips/s at 60.35 Hz, 89-96 %
-  completed by retrace at 600 frames, the rest by the deadline after a missed
-  vsync); Diag\FlipDeadline = 1 moves the deadline 18749 -> 17086 us but the
-  emulator's ~3 ms of per-frame overhead hides the 0.889x/0.95x ratio, so that
-  A/B needs silicon. Open: completions exceed the refresh by 2-3 % there
-  (ddlab `fast_frames`), on the previous build too.
+  vsync at all); after: 62.3, the in-box driver 60.9. The completion rule and
+  the integration build's flip counters on the bed are under Status (FLIP
+  COMPLETION; the 86Box integration build).
+- **`.124`'s 16 bpp flip half rate is NOT the completion rule** (flip
+  analysis, 2026-09-27). flip_done's own deadline (1.125 nominal frames)
+  guarantees ~77 flips/s for a 60-frame ddlab run at 85 Hz even if every
+  retrace were missed; the 16 bpp runs measured 46.9 and 42.1, so 0.5-0.64 s
+  went outside the rule. The same box, build and timing ran 87.4 / 86.3 at
+  32 bpp, and the 16 bpp run is confounded (always the battery's first
+  fullscreen flip run and its only depth change). A scanline rule was
+  rejected: "in blank = vidCurrentLine >= vdisp" is always true on 86Box
+  (0x7ff) and very probably never true on the VSA-100 (0 through the blank;
+  32 golden readings, 4 zeros, none >= vdisp); a deadline from the scanline
+  needs 33 bits of CRTC data in a 32-bit field and cannot tell line 0 from the
+  blank. The rule's one unproven silicon assumption: `status[6]` does not rise
+  before the start-address latch (if it covered the whole blank, done could
+  come up to the front porch early - 1 line at 800x600@85, 10 at 640x480@60).
 
 - **DirectDraw on XP is switched off, silently, by `DDCAPS_GDI`.** A HAL that
   claims it is probed at every PDEV (info twice, enable, ten GetDriverInfo
@@ -405,8 +601,14 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
 
 1. ~~**V5 desktop**~~ — done 2026-09-26: 123/123 vendor modes.
 2. ~~**Glide single chip**~~ — done 2026-09-26: the whole stack ours.
-3. ~~**Four-chip SLI**~~ — done 2026-09-26 (above). Next there: the AA
-   configs (1, 3, 4, 6, 7, 8) against vendor goldens (`sli_golden_sweep.py`).
+3. ~~**Four-chip SLI**~~ — done 2026-09-26 (above). **AA** (cfg 1, 3, 4, 6,
+   7, 8): cfg 1/3/7 wedged `.124` on 2026-09-26; the safety net (kernel
+   refusals + `Diag\SliAA`, the SLIAA-GUARD Glide, `vcrctl sliaa`, the Glide
+   step trace, the flag-gated vendor recipe) is done offline and its refusals
+   are proven on the 86Box bed. Next, and only with the user at the box: plan
+   steps 15-20 in `docs/v56k-benchmark-plan.md` - the refusals on silicon, the
+   kernel state alone (`vcrctl sliaa`), a clean-boot traced cfg 7, the cfg 3
+   read-back, then vendor AA goldens (§4.1 of the plan).
 4. ~~**DDC/EDID**~~ — done 2026-09-26 (above). Benchmarks against the vendor
    still need the refresh pinned: our list is the monitor's, the vendor's is
    its own table.
@@ -417,9 +619,13 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
    vsync, engine blits). **Direct3D** — first light on the 86Box Voodoo3:
    d3dprobe 26/26 windowed and fullscreen. Next: games; mipmaps; fog;
    specular; lines/points; a second texture stage (Voodoo3 has two TMUs);
-   ~~32 bpp render targets on VSA-100~~ (code done 2026-09-26: renderMode
-   32 bpp with a 24+8 aux buffer, D24X8/D24S8 listed, Z scaled to 2^24-1;
-   a Banshee/Voodoo3 refuses 32 bpp targets and 32-bit Z - `include/vcr_rtfmt.h`,
-   86Box no regression in `evidence/86box_v3/rt32/`. **Untested on silicon**:
-   run `d3dprobe` at 640x480x32 on `.124` with someone at the box);
-   the CMDFIFO instead of PCI-FIFO writes.
+   32 bpp render targets on VSA-100 (code done 2026-09-26, hardened
+   2026-09-27 and **off by default** behind `Diag\D3D32` - see Status; a
+   Banshee/Voodoo3 refuses 32 bpp targets and 32-bit Z, `include/vcr_rtfmt.h`;
+   86Box: no regression, `evidence/86box_v3/rt32/` and `int_20260927/`.
+   **Untested on silicon**: plan step 16 - `D3D32` = 1 for one boot,
+   `d3dprobe caps`, then 640x480x32 `--noz` clear, with Z, the full list,
+   perf, with someone at the box); the CMDFIFO instead of PCI-FIFO writes.
+7. **Flip rate** - the completion rule is factored and pinned; the opt-in
+   achieved-refresh deadline (`Diag\FlipDeadline`) needs its A/B on silicon,
+   and `.124`'s 16 bpp half rate its per-frame counters (plan step 16).
