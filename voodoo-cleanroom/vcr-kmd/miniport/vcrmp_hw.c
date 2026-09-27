@@ -518,9 +518,9 @@ static VP_STATUS voodoo_program(VCR_EXT *x, const vcr_modeset *m)
 {
     ULONG i, v;
 
-    /* Still busy here means a 3D client died mid-stream (the display DLL
-     * never drives the engine): reset it, or no later Glide program can open
-     * the board. */
+    /* Still busy here means a 3D client died mid-stream (a Glide program -
+     * the display DLL's own 2D/D3D work is synced before every mode change):
+     * reset it, or no later Glide program can open the board. */
     if (!VcrHwWaitIdle(x, 0, 200000))
         VcrHwResetEngine(x, 0, "busy at mode set");
 

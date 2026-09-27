@@ -84,6 +84,12 @@ static void give_up(VCR_PDEV *pd, ULONG why, ULONG status)
 BOOL VcrDdRoom(VCR_PDEV *pd, ULONG n)
 {
     ULONG i, s = 0;
+    /* the engine was given up (a FIFO that never drained or never went idle):
+     * every caller checked g2d_ok when its batch began, so without this the
+     * rest of a D3D batch spun a whole SPIN_CAP on EVERY triangle after the
+     * give-up - seconds per batch on a wedged chip */
+    if (!pd->g2d_ok)
+        return FALSE;
     for (i = 0; i < SPIN_CAP; i++) {
         s = rd(pd, 0);
         if ((s & ST_FIFO_FREE) >= n)

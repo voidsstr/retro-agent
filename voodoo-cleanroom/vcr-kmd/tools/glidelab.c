@@ -771,7 +771,13 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--trace-cfg")) O.trace_cfg = 1;
         else if (!strcmp(a, "--aa-lfb-read")) g_aa_lfb_read = 1;
         else if (!strcmp(a, "--i-am-at-the-box")) g_at_box = 1;
-        else if (!strcmp(a, "--maplog") && v) { g_maplog = v; i++; }
+        else if (!strcmp(a, "--maplog")) {
+            /* no value, or another option where the path should be: refused
+             * below ("needs a file path") instead of silently dropped */
+            g_maplog = (v && v[0] != '-') ? v : "";
+            if (v && v[0] != '-')
+                i++;
+        }
         else if (!strcmp(a, "--blend")) O.blend = 1;
         else if (a[0] != '-') O.mode = a;
     }

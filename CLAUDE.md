@@ -2085,7 +2085,9 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
 - **REGDELETE root path** — deletes a **KEY, recursively** (subkeys and all:
   `SHDeleteKeyA`, `agent/src/registry.c`). **It cannot delete a value** —
   pointed at the key that holds one (`Services\vcrmp\Diag` for a Diag switch)
-  it erases the whole key, there the driver's flushed phase history. A value:
+  it erases the whole key: there the driver's flushed phase history AND every
+  other Diag switch - including kill switches set for safety (`Disable`,
+  `D3D=0`, `Accel2D=0`, `SliAA=0`), so one mistake silently re-arms them. A value:
   on NT `EXEC reg delete "<key>" /v <name> /f`; on Win9x a REGEDIT4 `.reg`
   with `"<name>"=-` under `[<key>]` (a `[-<key>]` line deletes the key). Read
   it back absent.

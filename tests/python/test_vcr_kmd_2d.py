@@ -164,6 +164,8 @@ def test_the_readme_safety_section_says_what_the_driver_does():
     assert "pd->g2d_ok = 0;" in give_up and "VCR_EV_DD_2D, 9," in give_up
     room = func(two_d, "BOOL VcrDdRoom(")
     assert "for (i = 0; i < SPIN_CAP; i++)" in room and "give_up(pd, 1, s);" in room
+    # after a give-up the rest of a batch must not spin a SPIN_CAP per call
+    assert room.index("if (!pd->g2d_ok)") < room.index("for (i = 0; i < SPIN_CAP; i++)")
     three_d = (KMD / "display" / "vcrdd_3d.c").read_text()
     assert "VcrDdRoom(pd" in three_d
     for f in sorted((KMD / "miniport").glob("*.c")):

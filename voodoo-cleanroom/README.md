@@ -1446,7 +1446,8 @@ from `git log`, the fork's log and [`vcr-kmd/README.md`](vcr-kmd/README.md);
 
 **Status key:** ✅ in the current build · ⚙️ in the build, off by default ·
 ❌ rejected / reverted · ⚠️ **lost** — shipped once, in no source today ·
-📝 written, not applied · 📌 historical event.
+📝 written, not applied · 📌 historical event · 🧩 in the fork's source, in no
+built or deployed DLL yet.
 
 ### 15.1 Timeline
 
@@ -1586,8 +1587,8 @@ single-pass multitexture by default) are in [`CHANGELOG.md`](CHANGELOG.md) and
 | 2026-09-25 | fork `c41b50d`, `5439bb8` | asm struct offsets from the target compiler; the app's error callback survives `grGlideInit`; unmap by the PID the mapping was filed under | fix | the `grGlideInit` "hang" explained and fixed (with ICD 0.1.67/0.1.68) | ✅ |
 | 2026-09-25 | fork `d161bd4` | `grTexDownloadMipMapLevelPartialRowExt` aligns `min_s` down; `RETRO3DFX_PARTIALROW` advertised | fix | Q2 single-pass +7–8 % (ICD 0.1.74) | ✅ |
 | 2026-09-26 | `tools/glidelab` | `glidelab`: fill / bands / cycle / abandon on any SLI/AA config; its settings reach Glide through `_putenv` (`68ef24c`) | tooling | our kernel + our h5 Glide = AmigaMerlin's fill: cfg 2/5 on four chips 1124.6 / 1122.4 vs 1124.5 / 1121.7 Mpix/s, 0 bad band lines (`c5d6817`) | ✅ |
-| 2026-09-27 | fork `0b21976` | AA-TRACE: opt-in, disk-flushed step trace of the SLI/AA open, LFB read and close (`FX_GLIDE_TRACE`); `glidelab --trace` / `--collect` bring it home | diagnostic | — | ⚙️ |
-| 2026-09-27 | fork `631221b`, `7736039`, `e767d89` | SLIAA-GUARD: refuse SLI/AA requests no kernel can program, honour the escape's answer, refuse multi-chip AA LFB reads (`RETRO_GLIDE_AA_LFB_READ=1` opts in), no master reset on a busy multi-chip board; `GR_EXTENSION` markers | fix | refusals proven on the 86Box bed; **not yet on silicon** | ✅ |
+| 2026-09-27 | fork `0b21976` | AA-TRACE: opt-in, disk-flushed step trace of the SLI/AA open, LFB read and close (`FX_GLIDE_TRACE`); `glidelab --trace` / `--collect` bring it home | diagnostic | — | 🧩 |
+| 2026-09-27 | fork `631221b`, `7736039`, `e767d89` | SLIAA-GUARD: refuse SLI/AA requests no kernel can program, honour the escape's answer, refuse multi-chip AA LFB reads (`RETRO_GLIDE_AA_LFB_READ=1` opts in), no master reset on a busy multi-chip board; `GR_EXTENSION` markers | fix | refusals proven on the 86Box bed; **not yet on silicon** | 🧩 |
 
 ### 15.4 What was lost, and why
 

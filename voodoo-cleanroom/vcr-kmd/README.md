@@ -429,8 +429,13 @@ probably reads 0 through the blank.
   and a=13 (b longest vblank read, c longest wait, d the deadline, all in us).
   Nearly every flip by deadline means the rule is failing; a long single read,
   an IOCTL that blocked; a long wait with few deadline completions, a
-  preempted thread. A session in the desktop's own mode logs them only at the
-  next mode change: XP never calls SetExclusiveMode(0) at its release (86Box).
+  preempted thread. A session in the desktop's own mode (XP never calls
+  SetExclusiveMode(0) at its release - seen on 86Box) is logged when its
+  process's DirectDraw object goes away (DestroyDDLocal), once: the 511/12 text
+  ends with where it was logged - "(exclusive end)", "(mode off)",
+  "(DD disabled)" or "(DD local gone)" - and 511 a=14 (DEBUG) records each
+  DestroyDDLocal with its pid. Before f146917 such sessions appeared merged at
+  the next mode change ("flips 661" for a 60- and a 600-frame run).
 - **GetScanLine** reports `vidCurrentLine & 0x7ff`. "In the blank" is
   `status[6]` alone, and `dwScanLine` is 0 on every path that is not DD_OK
   (ddlab read 2293576 of stack garbage). A line at or past the visible height

@@ -282,7 +282,10 @@ def maplog_summary(remote, data):
     text = data.decode("latin1", "replace")
     lines = [ln for ln in text.splitlines() if ln.strip()]
     out = {"path": remote, "bytes": len(data), "lines": len(lines),
-           "passes": sum(1 for ln in lines if ln.startswith("pid=")),
+           # a mapping pass is a "pid=N chips=.." line; the fork's fatal-error
+           # path writes "pid=N GLIDE FATAL: .." into the same file
+           "passes": sum(1 for ln in lines if ln.startswith("pid=") and " GLIDE FATAL" not in ln),
+           "fatal": [ln for ln in lines if " GLIDE FATAL" in ln],
            "last": lines[-1] if lines else None}
     if not out["passes"]:
         out["error"] = "mapping log with no 'pid=' line - not written by our glide3x"

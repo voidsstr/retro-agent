@@ -728,8 +728,8 @@ def test_glidelab_sets_our_glides_opt_ins_in_its_environment_never_the_registry(
     main = _func(GLIDELAB, "int main(int argc, char **argv)")
     code = _blank(main)
     load = main.index("LoadLibraryA(O.dll)")
-    for flag, dst in (('"--aa-lfb-read"', "g_aa_lfb_read = 1;"), ('"--i-am-at-the-box"', "g_at_box = 1;"),
-                      ('"--maplog"', "g_maplog = v; i++;")):
+    # (--maplog's parse is pinned by test_glidelab_maplog_without_a_path_is_refused_not_dropped)
+    for flag, dst in (('"--aa-lfb-read"', "g_aa_lfb_read = 1;"), ('"--i-am-at-the-box"', "g_at_box = 1;")):
         assert re.search(r"!strcmp\(a, " + re.escape(flag) + r"\)[^;]*\) \{? ?" + re.escape(dst.split(";")[0]),
                          main), flag
     # refused without the confirmation - rc 2, before the DLL loads or any window
@@ -831,8 +831,10 @@ def test_a_maplog_session_deletes_the_old_log_and_brings_the_new_one_home(tmp_pa
     assert glidelab_run.maplog_path(LOG) == MAPLOG
 
 
-@pytest.mark.parametrize("data", (None, b"", b"not a mapping log\n", OSError("dropped")),
-                         ids=("absent", "empty", "no-pid-line", "download-raised"))
+@pytest.mark.parametrize("data", (None, b"", b"not a mapping log\n", OSError("dropped"),
+                                  b"pid=12 GLIDE FATAL: grSstWinOpen failed\n"),
+                         ids=("absent", "empty", "no-pid-line", "download-raised",
+                              "fatal-only-is-not-a-mapping-pass"))
 def test_a_maplog_asked_for_and_not_produced_fails_the_run(monkeypatch, tmp_path, data):
     a = _args(tmp_path, "--maplog")
     res = asyncio.run(glidelab_run.run_mode(FakeBox({LOG: GOOD_LOG, MAPLOG: data}), a, "fill"))
@@ -841,3 +843,14 @@ def test_a_maplog_asked_for_and_not_produced_fails_the_run(monkeypatch, tmp_path
             "--save-dir", str(tmp_path / "s")]
     assert _main(monkeypatch, tmp_path, FakeBox({LOG: GOOD_LOG, MAPLOG: data}), argv) == 1
     assert _main(monkeypatch, tmp_path, FakeBox({LOG: GOOD_LOG, MAPLOG: MAPLOG_DATA}), argv) == 0
+
+
+def test_glidelab_maplog_without_a_path_is_refused_not_dropped():
+    """`--maplog` as the last argument, or followed by another option, used to
+    be skipped silently (the run went ahead with no map log); it now reaches
+    the 'needs a file path' refusal (review 2026-09-27)."""
+    src = (Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd" / "tools"
+           / "glidelab.c").read_text()
+    assert "g_maplog = (v && v[0] != '-') ? v : \"\";" in src
+    assert '!strcmp(a, "--maplog") && v)' not in src
+    assert src.index("g_maplog = (v && v[0] != '-')") < src.index("--maplog needs a file path")
