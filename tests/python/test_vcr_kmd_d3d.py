@@ -395,7 +395,8 @@ def test_target_validation_refuses_what_it_cannot_draw():
     to = func(D3D, "static ULONG target_of(")
     assert "why = vcr_rt_zcheck(fmt, c->rt->lpGbl->wWidth, c->rt->lpGbl->wHeight, c->zb != NULL," in to
     assert to.index("vcr_rt_zcheck(") < to.index("t->fmt = fmt;")
-    assert "z_off = in_vidmem(c->zb) ? (ULONG)c->zb->lpGbl->fpVidMem : 0;" in to
+    assert "z_vid = in_vidmem(c->zb);" in to
+    assert "z_off = z_vid ? (ULONG)c->zb->lpGbl->fpVidMem : 0;" in to
     assert "c->target_why = why;" in to
     # the target's own pitch obeys the Z's rule, at the one place every
     # caller (ContextCreate, SETRENDERTARGET, DP2, Clear2) goes through
@@ -410,11 +411,11 @@ def test_target_validation_refuses_what_it_cannot_draw():
     tr = func(D3D, "static void target_refused(")
     assert "VCR_RT_WHY_RTPITCH" in tr and "VCR_EV_DD_D3D, 17," in tr
     zc = func(RT, "static __inline unsigned vcr_rt_zcheck(")
-    assert "if (!z_off)\n        return VCR_RT_WHY_ZOFF;" in zc
+    assert "if (!z_vid)\n        return VCR_RT_WHY_ZOFF;" in zc
     assert "z_pitch < width * bytes || (z_pitch & 0xfu) || z_pitch > 0x3fffu" in zc
     assert "z_w < width || z_h < height" in zc
     cr = code(func(D3D, "static void compute_regs("))
-    assert "if (c->target.z_off && c->rs[D3DRENDERSTATE_ZENABLE] == D3DZB_TRUE)" in cr
+    assert "if (c->target.z_on && c->rs[D3DRENDERSTATE_ZENABLE] == D3DZB_TRUE)" in cr
     assert "c->zb &&" not in cr
     pr = func(RT, "static __inline int vcr_rt_programmable(")
     assert "fmt == VCR_RT_16 || (fmt == VCR_RT_32 && rt32)" in pr
@@ -424,6 +425,42 @@ def test_target_validation_refuses_what_it_cannot_draw():
     ev = (KMD / "include" / "vcr_events.h").read_text()
     assert "15 target Z refused" in ev and "16 armed" in ev and "17 target pitch refused" in ev
 
+
+def test_video_memory_offset_zero_is_a_place_not_none():
+    """The DirectDraw heap starts at video-memory offset 0 whenever the
+    desktop sits at the top (vcrdd_ddraw.c heap_range; .124's recorder says
+    "heap 0-1aff000"), so the first surface after a mode set can be there.
+    4a9793b tested the Z's OFFSET: a Z at 0 was refused at ContextCreate
+    (DDERR_INVALIDPIXELFORMAT) where the proven HAL drew with it, and depth
+    and the Z clear were gated on z_off != 0. The target itself was gated on
+    rt_off != 0 in all three drawable tests (pre-existing). Now: a Z exists
+    when z_on says so (attached, in video memory, fitting), a target when fmt
+    says so - never a zero test on an offset. A Z NOT in video memory is
+    still refused."""
+    hdr = (KMD / "display" / "vcrdd_3d.h").read_text()
+    assert "ULONG z_on;" in hdr and "OFFSET 0 IS A PLACE" in hdr
+    assert "z_off 0: none" not in hdr
+    to = code(func(D3D, "static ULONG target_of("))
+    assert "t->z_on = c->zb && z_vid;" in to
+    assert "t->z_pitch = t->z_on ? z_pitch : 0;" in to
+    assert "t->z_pitch = z_off ? z_pitch : 0;" not in to
+    assert "z_vid, z_pitch, z_w, z_h);" in to                      # the flag, not the offset
+    zc = func(RT, "static __inline unsigned vcr_rt_zcheck(")
+    assert "unsigned z_set, unsigned z_vid, unsigned z_pitch," in zc
+    assert "!z_off" not in code(zc)
+    # depth, the Z clear and every drawable test key on the flags
+    cr = code(func(D3D, "static void compute_regs("))
+    assert "c->target.z_on &&" in cr and "c->target.z_off &&" not in cr
+    clr = code(func(E3D, "BOOL VcrDd3dClear("))
+    assert "if ((what & VCR3D_CLEAR_Z) && t->z_on)" in clr and "t->z_off)" not in clr
+    body = code(D3D)
+    assert body.count("c->target.fmt && (c->target.rt_pitch & 0xf) == 0;") == 1   # SETRENDERTARGET
+    assert body.count("!c->pd->exclusive_pid && c->target.fmt &&") == 2          # DP2, Clear2
+    assert "c->target.rt_off &&" not in body
+    # ContextCreate's log names where the first surfaces landed, and whether
+    # the Z is in use (offset 0 would otherwise read as "none")
+    cc = func(D3D, "static DWORD APIENTRY D3d_ContextCreate(")
+    assert 'g_ctx[i].target.z_on ? "" : " (none)"' in cc
 
 def test_the_glide_release_resets_3d_state_and_keeps_the_owner_on_failure():
     """(e) A Glide client that dies without grSstWinClose leaves chipMask,
@@ -436,41 +473,83 @@ def test_the_glide_release_resets_3d_state_and_keeps_the_owner_on_failure():
     KEPT - the desktop mode is not back, SLI may still be on - so the 2D
     engine, DirectDraw and D3D stay off the chip until DrvAssertMode(TRUE)
     clears it, and says the owner DID release (restore_failed) rather than
-    "never released"."""
+    "never released".
+
+    Third review (2026-09-27): a release from a process that is NOT the
+    owner, while there is one, is refused BEFORE RESTORE_MODE (no mode set
+    under a live client's command stream - pre-existing, and 4a9793b's reset
+    rode on it for any pid); a release with no owner restores the mode as it
+    always has and resets nothing; and DrvAssertMode(TRUE) - which cannot
+    tell a killed owner from an alt-tabbed live one - no longer resets at
+    all. So the ONE reset call site is the owner's own release, after a
+    SUCCESSFUL mode set."""
     rel = ESC[ESC.index("case VCR_HWC_HWCRLSEXCLUSIVE:"):ESC.index("case VCR_HWC_UNMAP_MEMORY:")]
     body = code(rel)
-    assert body.index("IOCTL_VCR_RESTORE_MODE") < body.index("if (rc) {") < \
-        body.index("VcrDdGlideReset3d(pd)") < body.index("pd->exclusive_pid = 0;")
+    # the non-owner refusal comes first and writes nothing
+    guard = "if (pd->exclusive_pid && pid != pd->exclusive_pid) {"
+    assert body.index(guard) < body.index("IOCTL_VCR_RESTORE_MODE") < body.index("if (rc) {") < \
+        body.index("VcrDdGlideReset3d(pd, &detail)") < body.index("pd->exclusive_pid = 0;")
+    refused = body[body.index(guard):body.index("}", body.index(guard))]
+    assert "break;" in refused and "VCR_EV_HWC_EXCLUSIVE, 4, pid, pd->exclusive_pid" in refused
+    for never in ("VcrIoctl", "RESTORE_MODE", "VcrDdGlideReset3d", "exclusive_pid = 0",
+                  "resStatus = VCR_HWC_OK"):
+        assert never not in refused, never                        # no mode set, nothing written
     fail = body[body.index("if (rc) {"):body.index("}", body.index("if (rc) {"))]
     assert "break;" in fail and "exclusive_pid = 0" not in fail   # the owner is kept
     assert "pd->restore_failed = rc;" in fail                     # ... and why
     assert body.count("pd->exclusive_pid = 0;") == 1
-    # the owner's release only: any process can send this escape
-    assert "if (pd->reset3d && pid == pd->exclusive_pid) {" in body
-    assert not re.search(r"(?<!else )if \(pd->reset3d\) \{", body)     # no unconditional reset
-    assert "VCR_EV_HWC_EXCLUSIVE, 4, pid, pd->exclusive_pid" in body   # a skip is logged
+    # the owner's own release only
+    assert "if (pd->reset3d && pd->exclusive_pid && pid == pd->exclusive_pid) {" in body
+    assert body.count("VcrDdGlideReset3d(") == 1
+    assert "a release with no exclusive owner" in body            # no owner: logged, not reset
     assert body.index("pd->exclusive_pid = 0;") < body.index("pd->restore_failed = 0;")
     setx = code(ESC[ESC.index("case VCR_HWC_HWCSETEXCLUSIVE:"):ESC.index("case VCR_HWC_HWCRLSEXCLUSIVE:")])
     assert "pd->restore_failed = 0;" in setx                      # a new session starts clean
     assert "restore_failed" in (KMD / "display" / "vcrdd.h").read_text()
-    rs = func(E2D, "BOOL VcrDdGlideReset3d(")
+    # the reset: switches first, then the pre-check (reads only), THEN writes
+    rs = code(func(E2D, "ULONG VcrDdGlideReset3d("))
     assert "if (!pd->reset3d || pd->d3d_disabled || !pd->napalm || !pd->pjRegs || !pd->g2d_ok)" in rs
-    assert "n = vcr_3d_glide_reset_seq(w);" in rs
+    assert rs.index("return VCR_R3D_OFF;") < rs.index("run = idle_before_write(pd, &s);") < \
+        rs.index("cmd = rd(pd, VCR_CMD_BASESIZE0);") < rs.index("why = vcr_3d_reset_blocked(run, cmd);") \
+        < rs.index("if (why) {") < rs.index("n = vcr_3d_glide_reset_seq(w);") < rs.index("wr(pd, V3D_BASE")
+    pre = rs[:rs.index("n = vcr_3d_glide_reset_seq(w);")]
+    assert "wr(" not in pre and "VcrDdRoom(" not in pre           # nothing written before the gate
+    assert "if (run >= VCR_IDLE_READS)\n        cmd = rd(pd, VCR_CMD_BASESIZE0);" in rs
     assert "VcrDdRoom(pd, n - i < 8 ? n - i : 8)" in rs            # bounded, in FIFO-sized chunks
     assert "wr(pd, V3D_BASE + w[i].off, w[i].val);" in rs          # chip 0's window only
     assert "VcrDd2dSync(pd);" in rs
-    # a Glide client KILLED without releasing: its owner is cleared at
-    # DrvAssertMode(TRUE), after the mode set - the reset runs there too
-    # (the owner is assumed gone, as this path always has)
+    assert "return pd->g2d_ok ? VCR_R3D_DONE : VCR_R3D_GAVEUP;" in rs
+    # the pre-check is VcrDd2dSync's idle, not a new one - and VcrDd2dSync
+    # itself is untouched (test_vcr_kmd_2d.py pins its text)
+    ib = func(E2D, "static ULONG idle_before_write(")
+    assert "i < SPIN_CAP && run < VCR_IDLE_READS" in ib             # bounded
+    assert "run = vcr_idle_run(s, pd->g2d_fifo_full, run);" in ib
+    assert "give_up(" not in ib                                    # a refusal, not accel off
+    sync = func(E2D, "void VcrDd2dSync(")
+    assert "(s & ST_BUSY) || (s & ST_FIFO_FREE) < pd->g2d_fifo_full" in sync and "idle < 3" in sync
+    ir = func(SEQ, "static __inline unsigned vcr_idle_run(")
+    assert "(status & VCR_STATUS_BUSY) || (status & VCR_STATUS_FIFOLEVEL_MASK) < fifo_full" in ir
+    assert re.search(r"#define VCR_IDLE_READS\s+3u", SEQ)
+    assert re.search(r"#define ST_BUSY\s+\(1u << 9\)", E2D) and \
+        re.search(r"#define ST_FIFO_FREE\s+0x1fu", E2D)
+    vr = (KMD / "include" / "vcr_regs.h").read_text()
+    assert re.search(r"#define VCR_STATUS_BUSY\s+\(1u << 9\)", vr)
+    assert re.search(r"#define VCR_STATUS_FIFOLEVEL_MASK\s+0x1f\b", vr)
+    assert re.search(r"#define VCR_CMD_BASESIZE0\s+\(VCR_MB0_CMDAGP \+ 0x24\)", vr)
+    assert re.search(r"#define VCR_CMDFIFO_EN\s+\(1u << 8\)", SEQ)
+    gate = func(SEQ, "static __inline unsigned vcr_3d_reset_blocked(")
+    assert gate.index("VCR_R3D_BUSY") < gate.index("VCR_R3D_CMDFIFO")
+    # a Glide client KILLED without releasing: DrvAssertMode(TRUE) clears its
+    # owner after the mode set, as it always has - and does NOT reset: it
+    # cannot tell a killed owner from an alt-tabbed live one
     amsrc = func((KMD / "display" / "vcrdd.c").read_text(), "BOOL APIENTRY DrvAssertMode(")
     am = code(amsrc)
-    assert am.index("ok = VcrDdSetMode(pd);") < am.index("if (ok && stale && pd->reset3d) {") < \
-        am.index("VcrDdGlideReset3d(pd)")
+    assert "VcrDdGlideReset3d" not in am
+    assert "if (stale && pd->reset3d)" in am and "NOT reset: it cannot be shown to be gone" in am
     assert "ULONG stale = pd->exclusive_pid, failed = pd->restore_failed;" in am
     assert "its RESTORE_MODE had failed" in am and "never released" in am
     assert am.index("if (stale && failed)") < am.index("never released")
     assert am.count("pd->restore_failed = 0;") == 1
-    assert "THE OWNER IS ASSUMED GONE" in amsrc
     assert 'x->reset3d = VcrDiagGet(L"Reset3D", 0);' in MPC
     assert "(x->reset3d ? VCR_INFO_F_RESET3D : 0)" in MPC
     assert "pd->reset3d = pd->napalm && (info.flags & VCR_INFO_F_RESET3D) ? 1 : 0;" in E2D
@@ -486,10 +565,10 @@ def test_the_glide_release_resets_3d_state_and_keeps_the_owner_on_failure():
     for name, off in (("COMBINEMODE", 0x208), ("SLICTRL", 0x20c), ("AACTRL", 0x210),
                       ("CHIPMASK", 0x214)):
         assert re.search(rf"#define V3D_{name}\s+0x{off:x}\b", regs), name
-    vr = (KMD / "include" / "vcr_regs.h").read_text()
     assert re.search(r"#define VCR_3D_AACTRL\s+\(VCR_MB0_3D \+ 0x210\)", vr)   # the miniport agrees
     ev = (KMD / "include" / "vcr_events.h").read_text()
-    assert "4 reset skipped, not the owner" in ev
+    assert "4 release refused, not the owner - no mode set" in ev
+    assert "3 Glide 3D state reset: c=result (0 off/not run 1 reset 2 chip not idle 3 command FIFO on" in ev
 
 
 def test_the_register_offsets_are_computed_from_the_gpl_header():
@@ -509,13 +588,21 @@ def test_the_register_offsets_are_computed_from_the_gpl_header():
 #include <stddef.h>
 #include "3dfx.h"
 #include "h3regs.h"
-#include "vcr_3dregs.h"
+#include "h3defs.h"
+#include "vcr_3dseq.h"
 #define P(f, v) printf("%s %d\n", #f, (int)(offsetof(SstRegs, f) == (v)))
+#define Q(n, e) printf("%s %d\n", n, (int)(e))
 int main(void) {
     P(renderMode, V3D_RENDERMODE); P(stencilMode, V3D_STENCILMODE); P(stencilOp, V3D_STENCILOP);
     P(colBufferAddr, V3D_COLBUFFERADDR); P(auxBufferStride, V3D_AUXBUFFERSTRIDE);
     P(combineMode, V3D_COMBINEMODE); P(sliCtrl, V3D_SLICTRL); P(aaCtrl, V3D_AACTRL);
     P(chipMask, V3D_CHIPMASK); P(nopCMD, V3D_NOPCMD); P(zaColor, V3D_ZACOLOR);
+    /* the Glide 3D reset's pre-check (vcr_3dseq.h) and its chip mask */
+    Q("cmdFifo0.baseSize", offsetof(SstCRegs, cmdFifo0.baseSize) + VCR_MB0_CMDAGP == VCR_CMD_BASESIZE0);
+    Q("SST_CMDFIFOEN", SST_CMDFIFOEN == VCR_CMDFIFO_EN);
+    Q("SST_BUSY", SST_BUSY == VCR_STATUS_BUSY);
+    Q("SST_PCIFIFO_FREE", SST_PCIFIFO_FREE == VCR_STATUS_FIFOLEVEL_MASK);
+    Q("SST_CHIP_MASK_ALL_CHIPS", SST_CHIP_MASK_ALL_CHIPS == VCR_3D_CHIPMASK_ALL);
     return 0;
 }
 """

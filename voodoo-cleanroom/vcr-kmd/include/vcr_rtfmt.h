@@ -34,8 +34,12 @@
  * the chip neither reads nor writes those planes. The HAL writes both 0 at
  * every 32 bpp target setup (vcr_3dseq.h), so a stencil state a
  * Glide/OpenGL session left behind cannot fail or overwrite our draws. A
- * 16 bpp target has no stencil byte and keeps the proven sequence, write for
- * write (the pair is also in the Diag\Reset3D release reset).
+ * 16 bpp target keeps the proven sequence, write for write, and does not
+ * write them: its 16-bit aux buffer holds no stencil byte, and the chip is
+ * ASSUMED to ignore stencilMode at 16 bpp - UNPROVEN (Glide programs it with
+ * no pixel-size check, distate.c; vcr_3dseq.h has the supervised check and
+ * the remedy if the assumption fails). The pair is also in the Diag\Reset3D
+ * release reset.
  * zaColor[31:24] is NOT the stencil clear value - it is the ALPHA field
  * (h3defs.h SST_ZACOLOR_ALPHA, [23:0] SST_ZACOLOR_DEPTH); a stencil clear
  * would be a fastfill with stencilMode's REF + WMASK set, which we never do:
@@ -81,7 +85,7 @@ static __inline int vcr_rt_programmable(unsigned rt32, unsigned fmt)
 /* why a colour/Z pair is not a target (VCR_RT_OK: it is) - the HAL logs it */
 #define VCR_RT_OK           0u
 #define VCR_RT_WHY_FORMAT   1u      /* the size pair: vcr_rt_format refused it */
-#define VCR_RT_WHY_ZOFF     2u      /* a Z surface with no video-memory offset */
+#define VCR_RT_WHY_ZOFF     2u      /* a Z surface that is not in video memory */
 #define VCR_RT_WHY_ZPITCH   3u      /* Z pitch under a target row, not 16-aligned, or past 0x3fff */
 #define VCR_RT_WHY_ZSIZE    4u      /* the Z smaller than the target */
 #define VCR_RT_WHY_RTPITCH  5u      /* the target's own pitch: under a row, not 16-aligned, or past 0x3fff */
@@ -93,10 +97,18 @@ static __inline int vcr_rt_programmable(unsigned rt32, unsigned fmt)
  * it and ContextCreate accepted it - three answers for one surface. Here it
  * is ONE answer, at target_of, so ContextCreate, SETRENDERTARGET, DP2 and
  * Clear2 all refuse the same target, and the refusal is logged (event 513
- * what 15) instead of a device that silently draws nothing. The heap asks for
+ * what 17) instead of a device that silently draws nothing. The heap asks for
  * no pitch alignment (vcrdd_ddraw.c), so a windowed client whose width is not
  * a multiple of 8 pixels at 16 bpp reaches this; every proven size (the
- * fullscreen modes, d3dprobe's 256x256 window) is a multiple of 16 bytes. */
+ * fullscreen modes - every vcr_timings width is a multiple of 8 - and
+ * d3dprobe's 256x256 window) is a multiple of 16 bytes and passes.
+ * A DELIBERATE DEFAULT CHANGE, with no switch and not yet run anywhere: such
+ * a target used to get a context (CreateDevice succeeded) whose triangles
+ * never drew and whose Clear2 fastfilled through a colBufferStride the engine
+ * cannot take; now CreateDevice fails with DDERR_INVALIDPIXELFORMAT, which an
+ * application can fall back from (to a software device), where a black window
+ * gave it nothing to act on. A SETRENDERTARGET to one is refused the same way
+ * (that DP2 draws nothing more, and the refusal is logged). */
 static __inline unsigned vcr_rt_rtcheck(unsigned fmt, unsigned width, unsigned rt_pitch)
 {
     unsigned bytes = fmt == VCR_RT_32 ? 4u : 2u;
@@ -106,18 +118,24 @@ static __inline unsigned vcr_rt_rtcheck(unsigned fmt, unsigned width, unsigned r
 }
 
 /* the Z buffer against the target it serves. z_set: a Z surface is
- * attached (whether or not it is usable); z_off: its offset in video memory
- * (0 when it is not in video memory - the aux buffer would land at 0);
- * z_pitch: bytes a row; z_w/z_h: its size. A target of width x height
- * writes width * (fmt / 8) bytes of every Z row, over height rows. */
+ * attached (whether or not it is usable); z_vid: it is in video memory - a
+ * FLAG, not its offset: the DirectDraw heap starts at offset 0 when the
+ * desktop is at the top of memory (vcrdd_ddraw.c heap_range, the .124
+ * layout), so offset 0 is a Z the aux buffer can use. (4a9793b passed the
+ * offset and refused 0 as "no video memory", which would fail ContextCreate
+ * for a Z the first allocation after a mode set put there - one the proven
+ * HAL drew with.) A Z NOT in video memory is refused: its aux buffer would
+ * land at offset 0 over whatever surface is really there. z_pitch: bytes a
+ * row; z_w/z_h: its size. A target of width x height writes width *
+ * (fmt / 8) bytes of every Z row, over height rows. */
 static __inline unsigned vcr_rt_zcheck(unsigned fmt, unsigned width, unsigned height,
-                                       unsigned z_set, unsigned z_off, unsigned z_pitch,
+                                       unsigned z_set, unsigned z_vid, unsigned z_pitch,
                                        unsigned z_w, unsigned z_h)
 {
     unsigned bytes = fmt == VCR_RT_32 ? 4u : 2u;
     if (!z_set)
         return VCR_RT_OK;
-    if (!z_off)
+    if (!z_vid)
         return VCR_RT_WHY_ZOFF;
     if (z_pitch < width * bytes || (z_pitch & 0xfu) || z_pitch > 0x3fffu)
         return VCR_RT_WHY_ZPITCH;
@@ -148,9 +166,10 @@ static __inline unsigned vcr_rt_rendermode(unsigned fmt)
  * followed the desktop (4a9793b: the 32-bit pair alone at a 32 bpp desktop
  * with Diag\D3D32) took D16 away from exactly that proven device the moment
  * the switch was armed. A pair of the wrong sizes an application may still
- * pick costs nothing on the chip: D3D8's CheckDepthStencilMatch answers no
- * for a DX7-DDI HAL, and ContextCreate refuses it (vcr_rt_format) before any
- * register write. Without rt32: D16 alone, as the proven 16 bpp HAL. */
+ * pick costs nothing on the chip: ContextCreate refuses it (vcr_rt_format)
+ * before any register write. (D3D8's CheckDepthStencilMatch is EXPECTED to
+ * answer no for such a pair on a DX7-DDI HAL - unverified; d3dprobe caps
+ * zmatch reports it.) Without rt32: D16 alone, as the proven 16 bpp HAL. */
 #define VCR_ZL_D16      1u
 #define VCR_ZL_D24X8    2u
 #define VCR_ZL_D24S8    4u

@@ -129,7 +129,7 @@ BOOL VcrDd3dClear(VCR_PDEV *pd, const vcr3d_target *t, ULONG what, ULONG argb, U
     ULONG zv;
     if (what & VCR3D_CLEAR_COLOR)
         mode |= FZ_RGBWRITE;
-    if ((what & VCR3D_CLEAR_Z) && t->z_off)
+    if ((what & VCR3D_CLEAR_Z) && t->z_on)      /* z_on, not z_off: a Z may sit at 0 */
         mode |= FZ_ZAWRITE;
     z = fbits(zbits);
     z = z < 0.0f ? 0.0f : z > 1.0f ? 1.0f : z;

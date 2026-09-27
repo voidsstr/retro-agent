@@ -117,6 +117,24 @@ void VcrDd2dSync(VCR_PDEV *pd)
     pd->g2d_busy = 0;
 }
 
+/* the same "idle" as VcrDd2dSync, as a question asked BEFORE writing
+ * anything (the Glide 3D reset's pre-check): vcr_3dseq.h's vcr_idle_run is
+ * that rule, one status read at a time (the host tests pin the two
+ * together; VcrDd2dSync itself is left exactly as proven). Reads only, and
+ * bounded; unlike VcrDd2dSync it does not turn acceleration off - a chip
+ * that is not idle here is simply not reset. Returns the run it reached
+ * (VCR_IDLE_READS = idle) and the last status. */
+static ULONG idle_before_write(VCR_PDEV *pd, ULONG *last)
+{
+    ULONG i, s = 0, run = 0;
+    for (i = 0; i < SPIN_CAP && run < VCR_IDLE_READS; i++) {
+        s = rd(pd, 0);
+        run = vcr_idle_run(s, pd->g2d_fifo_full, run);
+    }
+    *last = s;
+    return run;
+}
+
 /* may the engine be used right now? */
 static BOOL usable(VCR_PDEV *pd)
 {
@@ -218,30 +236,52 @@ BOOL VcrDd2dFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LO
  * chip 0 out, AA jitter, an extended or two-pixels-per-clock combine,
  * stencil state - cleared for whoever draws next (vcr_3dseq.h has the list,
  * each register's source and the order). Called once the chip is ours again:
- * exclusive mode released AND the desktop mode re-programmed (which turned
- * SLI off). VSA-100 only, only with Diag\\Reset3D = 1 - it has not run on
- * silicon - and only while Direct3D is on: the HAL is the only user of what
- * it resets (the 2D engine and DirectDraw never touch the 3D block, and the
- * next Glide session programs all of it itself), so with Diag\\D3D = 0 it
- * would be register traffic for nobody. Through the PCI FIFO like every other write here, in chunks the
- * FIFO takes (VcrDdRoom is bounded: a chip that never drains turns
+ * the OWNER released exclusive mode AND its desktop mode was re-programmed
+ * (which turned SLI off) - never for an owner DrvAssertMode merely assumes is
+ * gone (vcr_3dseq.h says why). VSA-100 only, only with Diag\\Reset3D = 1 - it
+ * has not run on silicon - and only while Direct3D is on: the HAL is the only
+ * user of what it resets (the 2D engine and DirectDraw never touch the 3D
+ * block, and the next Glide session programs all of it itself), so with
+ * Diag\\D3D = 0 it would be register traffic for nobody.
+ *
+ * NOTHING is written unless the chip is idle FIRST - the bounded idle rule
+ * VcrDd2dSync uses - and Glide's command FIFO is off (cmdFifo0.baseSize,
+ * one read): a release can follow a Glide close whose own idle wait failed,
+ * and a kernel mode set that left the engine STILL BUSY reports success
+ * (vcr_3dseq.h). Then through the PCI FIFO like every other write here, in
+ * chunks the FIFO takes (VcrDdRoom is bounded: a chip that never drains turns
  * acceleration off, it does not hang), then a bounded idle wait so a chip
- * that does not settle is named HERE, not by the next GDI call. */
-BOOL VcrDdGlideReset3d(VCR_PDEV *pd)
+ * that does not settle is named HERE, not by the next GDI call.
+ * Returns VCR_R3D_*; *detail = the status (BUSY), cmdFifo0.baseSize
+ * (CMDFIFO) or g2d_ok, for the caller's log line. */
+ULONG VcrDdGlideReset3d(VCR_PDEV *pd, ULONG *detail)
 {
     vcr_regw w[VCR_3D_RESET_MAX];
-    ULONG n, i;
+    ULONG n, i, s, run, cmd = 0, why;
+    *detail = pd->g2d_ok;
     if (!pd->reset3d || pd->d3d_disabled || !pd->napalm || !pd->pjRegs || !pd->g2d_ok)
-        return FALSE;
+        return VCR_R3D_OFF;
+    /* the pre-check: reads only, before any write */
+    run = idle_before_write(pd, &s);
+    if (run >= VCR_IDLE_READS)
+        cmd = rd(pd, VCR_CMD_BASESIZE0);
+    why = vcr_3d_reset_blocked(run, cmd);
+    if (why) {
+        *detail = why == VCR_R3D_CMDFIFO ? cmd : s;
+        return why;
+    }
     n = vcr_3d_glide_reset_seq(w);
     for (i = 0; i < n; i++) {
-        if ((i & 7) == 0 && !VcrDdRoom(pd, n - i < 8 ? n - i : 8))
-            return FALSE;
+        if ((i & 7) == 0 && !VcrDdRoom(pd, n - i < 8 ? n - i : 8)) {
+            *detail = pd->g2d_ok;
+            return VCR_R3D_GAVEUP;
+        }
         wr(pd, V3D_BASE + w[i].off, w[i].val);          /* chip 0's 3D block */
     }
     pd->g2d_busy = 1;
     VcrDd2dSync(pd);
-    return pd->g2d_ok ? TRUE : FALSE;
+    *detail = pd->g2d_ok;
+    return pd->g2d_ok ? VCR_R3D_DONE : VCR_R3D_GAVEUP;
 }
 
 /* the registers, from the miniport - Voodoo only (the Bochs test backend

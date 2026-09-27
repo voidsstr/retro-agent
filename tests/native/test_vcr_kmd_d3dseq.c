@@ -28,7 +28,13 @@
  *   - the Glide release reset: chipMask ALL first (4a9793b: 1), chip 0's
  *     sliCtrl = 0 right after it (the miniport's SLI disable writes it with
  *     no chipMask first), Glide's 12-NOP 2PPC flush, then combineMode,
- *     aaCtrl, stencil - never renderMode, never a non-zero sliCtrl.
+ *     aaCtrl, stencil - never renderMode, never a non-zero sliCtrl;
+ *   - and (third review, 2026-09-27) that reset writes NOTHING unless the
+ *     chip reads idle first - VcrDd2dSync's rule, 3 reads in a row - and
+ *     Glide's command FIFO is off (4a9793b queued its writes straight into
+ *     whatever state the kernel's mode set left, STILL BUSY included);
+ *   - video-memory offset 0 is a place, not "none": a Z the heap put at 0 is
+ *     a Z (4a9793b refused it and failed ContextCreate for it).
  * Offsets were computed with offsetof() over the GPL h5 h3regs.h SstRegs
  * (tests/python/test_vcr_kmd_d3d.py re-computes them when the clone is here).
  */
@@ -96,6 +102,12 @@ TEST(the_offsets_are_the_gpl_headers) {
     CHECK_EQ_U(V3D_AACTRL, 0x210u);
     CHECK_EQ_U(V3D_CHIPMASK, 0x214u);
     CHECK_EQ_U(V3D_NOPCMD, 0x120u);
+    /* the reset's pre-check reads (vcr_regs.h; h3regs.h SstCRegs cmdFifo0,
+     * h3defs.h SST_BUSY / SST_PCIFIFO_FREE / SST_CMDFIFOEN) */
+    CHECK_EQ_U(VCR_CMD_BASESIZE0, 0x80024u);
+    CHECK_EQ_U(VCR_CMDFIFO_EN, 0x100u);
+    CHECK_EQ_U(VCR_STATUS_BUSY, 0x200u);
+    CHECK_EQ_U(VCR_STATUS_FIFOLEVEL_MASK, 0x1fu);
 }
 
 TEST(a_voodoo3_target_is_the_six_writes_it_always_was) {
@@ -187,25 +199,58 @@ TEST(a_format_nobody_decided_on_is_never_programmed) {
 }
 
 TEST(the_z_buffer_must_fit_the_target) {
-    /* 800x600: 1600 bytes a row at 16 bpp, 3200 at 32 */
+    /* 800x600: 1600 bytes a row at 16 bpp, 3200 at 32. The fifth argument
+     * is "in video memory" (a flag), not the offset */
     CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 0, 0, 0, 0, 0), VCR_RT_OK);   /* no Z */
-    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 0x300000, 1600, 800, 600), VCR_RT_OK);
-    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_32, 800, 600, 1, 0x400000, 3200, 800, 600), VCR_RT_OK);
-    /* attached but not in video memory (offset 0): master drew with depth
-     * on and the aux buffer at offset 0 */
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 1, 1600, 800, 600), VCR_RT_OK);
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_32, 800, 600, 1, 1, 3200, 800, 600), VCR_RT_OK);
+    /* attached but not in video memory: master drew with depth on and the
+     * aux buffer at offset 0, over whatever surface is really there */
     CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 0, 1600, 800, 600), VCR_RT_WHY_ZOFF);
     /* a row short (a 16-bit pitch under a 32 bpp target), unaligned, too wide */
-    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_32, 800, 600, 1, 0x400000, 1600, 800, 600), VCR_RT_WHY_ZPITCH);
-    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 100, 100, 1, 0x400000, 200, 100, 100), VCR_RT_WHY_ZPITCH);
-    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 0x400000, 0x4000, 800, 600),
-               VCR_RT_WHY_ZPITCH);
-    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 0x400000, (unsigned)-1600, 800, 600),
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_32, 800, 600, 1, 1, 1600, 800, 600), VCR_RT_WHY_ZPITCH);
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 100, 100, 1, 1, 200, 100, 100), VCR_RT_WHY_ZPITCH);
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 1, 0x4000, 800, 600), VCR_RT_WHY_ZPITCH);
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 1, (unsigned)-1600, 800, 600),
                VCR_RT_WHY_ZPITCH);                          /* a negative lPitch */
     /* smaller than the target: the clip would reach past its end */
-    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 0x300000, 1600, 640, 600), VCR_RT_WHY_ZSIZE);
-    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 0x300000, 1600, 800, 480), VCR_RT_WHY_ZSIZE);
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 1, 1600, 640, 600), VCR_RT_WHY_ZSIZE);
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 1, 1600, 800, 480), VCR_RT_WHY_ZSIZE);
     /* larger is fine (a windowed target inside a bigger Z) */
-    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 256, 256, 1, 0x300000, 2048, 1024, 768), VCR_RT_OK);
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 256, 256, 1, 1, 2048, 1024, 768), VCR_RT_OK);
+}
+
+/* 4a9793b's vcr_rt_zcheck was handed the Z's OFFSET and read 0 as "not in
+ * video memory" - its first gate, the only one that differs */
+static unsigned rev_4a9793b_zgate(unsigned z_set, unsigned z_off)
+{
+    return z_set && !z_off ? VCR_RT_WHY_ZOFF : VCR_RT_OK;
+}
+
+TEST(a_z_at_video_memory_offset_zero_is_a_z) {
+    vcr_regw w[VCR_3D_TARGET_MAX + 4], o[16];
+    unsigned n, on;
+    /* .124 and 86Box put the desktop at the TOP of video memory, so the
+     * DirectDraw heap is [0, desktop) and the first surface allocated after
+     * a mode set can sit at offset 0 (vcrdd_ddraw.c heap_range; the
+     * recorder's "heap 0-1aff000"). A Z there, in video memory and fitting
+     * the target, is accepted - 4a9793b refused it (ContextCreate failed
+     * with DDERR_INVALIDPIXELFORMAT for a Z the proven HAL drew with) */
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 1, 1600, 800, 600), VCR_RT_OK);
+    CHECK_EQ_U(rev_4a9793b_zgate(1, 0), VCR_RT_WHY_ZOFF);
+    CHECK(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 1, 1600, 800, 600) != rev_4a9793b_zgate(1, 0),
+          "offset 0 in video memory: accepted now, refused by 4a9793b");
+    /* ...and one that is NOT in video memory is still refused, whatever its
+     * offset field holds */
+    CHECK_EQ_U(vcr_rt_zcheck(VCR_RT_16, 800, 600, 1, 0, 1600, 800, 600), VCR_RT_WHY_ZOFF);
+    /* the aux buffer at 0 is programmed as the proven HAL programmed it:
+     * auxBufferAddr 0 with the Z's own stride */
+    n = vcr_3d_target_seq(1, 0, VCR_RT_16, 0x200000, 1600, 0, 1600, 800, 600, w);
+    on = old_target(1, o, 0x200000, 1600, 0, 1600, 800, 600);
+    CHECK_EQ_U(n, on);
+    CHECK(same(w, o, n), "a Z at 0: byte-identical to the proven sequence");
+    CHECK_EQ_U(w[3].off, V3D_AUXBUFFERADDR);
+    CHECK_EQ_U(w[3].val, 0u);
 }
 
 TEST(the_target_pitch_obeys_the_z_rule) {
@@ -308,6 +353,100 @@ TEST(the_glide_release_reset_is_exactly_this) {
     CHECK_EQ_U(sli, 1u);
 }
 
+/* the display driver's VcrDdGlideReset3d (vcrdd_2d.c), modelled on a
+ * sequence of status reads: the bounded pre-check (idle_before_write), then
+ * cmdFifo0.baseSize (read only once the chip reads idle), then the gate, then
+ * the writes. Returns the writes made; *result the VCR_R3D_* outcome. */
+static unsigned model_reset(const unsigned *st, unsigned nst, unsigned fifo_full,
+                            unsigned basesize, unsigned *result)
+{
+    vcr_regw w[VCR_3D_RESET_MAX];
+    unsigned i, run = 0, why;
+    for (i = 0; i < nst && run < VCR_IDLE_READS; i++)
+        run = vcr_idle_run(st[i], fifo_full, run);
+    why = vcr_3d_reset_blocked(run, run >= VCR_IDLE_READS ? basesize : 0);
+    if (why) {
+        *result = why;
+        return 0;
+    }
+    *result = VCR_R3D_DONE;
+    return vcr_3d_glide_reset_seq(w);
+}
+
+/* 4a9793b's reset: no pre-check at all - chipMask = 1, 12 nopCMD,
+ * combineMode, aaCtrl, stencilMode, stencilOp went into the FIFO whatever
+ * the chip was doing */
+static unsigned rev_4a9793b_reset_writes(const unsigned *st, unsigned nst)
+{
+    (void)st; (void)nst;
+    return 1u + 12u + 4u;
+}
+
+#define IDLE    0x1fu                       /* not busy, FIFO back at 31 free */
+#define BUSY    (0x200u | 0x1fu)            /* SST_BUSY with an empty FIFO */
+#define QUEUED  0x10u                       /* not busy yet, 16 writes still queued */
+
+TEST(the_idle_rule_is_vcr_dd2dsync_s) {
+    /* VcrDd2dSync: idle = !(s & ST_BUSY) && (s & ST_FIFO_FREE) >= fifo_full,
+     * three reads in a row (tests/python pins that expression to this one) */
+    CHECK_EQ_U(vcr_idle_run(IDLE, 0x1f, 0), 1u);
+    CHECK_EQ_U(vcr_idle_run(IDLE, 0x1f, 2), 3u);
+    CHECK_EQ_U(vcr_idle_run(BUSY, 0x1f, 2), 0u);            /* busy restarts the run */
+    CHECK_EQ_U(vcr_idle_run(QUEUED, 0x1f, 2), 0u);          /* not drained: not idle */
+    CHECK_EQ_U(vcr_idle_run(QUEUED, 0x10, 2), 3u);          /* the full count is learned */
+    CHECK_EQ_U(VCR_IDLE_READS, 3u);
+}
+
+TEST(the_reset_writes_nothing_into_a_chip_that_is_not_idle) {
+    unsigned r, n;
+    const unsigned busy[] = { BUSY, BUSY, BUSY, BUSY, BUSY, BUSY, BUSY, BUSY };
+    const unsigned flicker[] = { BUSY, IDLE, IDLE, BUSY, IDLE, IDLE, BUSY, IDLE };
+    const unsigned queued[] = { QUEUED, QUEUED, QUEUED, QUEUED, QUEUED, QUEUED };
+    const unsigned settles[] = { BUSY, BUSY, QUEUED, IDLE, IDLE, IDLE };
+    /* the chip Glide's hwcRestoreVideo left un-idled, and the kernel's mode
+     * set reset "STILL BUSY": nothing written (4a9793b wrote all 17) */
+    n = model_reset(busy, 8, 0x1f, 0, &r);
+    CHECK_EQ_U(n, 0u);
+    CHECK_EQ_U(r, VCR_R3D_BUSY);
+    CHECK_EQ_U(rev_4a9793b_reset_writes(busy, 8), 17u);
+    CHECK(n != rev_4a9793b_reset_writes(busy, 8), "not 4a9793b's blind writes");
+    /* busy dropping for a read or two between operations is not idle */
+    n = model_reset(flicker, 8, 0x1f, 0, &r);
+    CHECK_EQ_U(n, 0u);
+    CHECK_EQ_U(r, VCR_R3D_BUSY);
+    /* writes still queued in the PCI FIFO: not idle either */
+    n = model_reset(queued, 6, 0x1f, 0, &r);
+    CHECK_EQ_U(n, 0u);
+    CHECK_EQ_U(r, VCR_R3D_BUSY);
+    /* a chip that settles within the bound is reset, all 18 writes */
+    n = model_reset(settles, 6, 0x1f, 0, &r);
+    CHECK_EQ_U(r, VCR_R3D_DONE);
+    CHECK_EQ_U(n, VCR_3D_RESET_MAX);
+}
+
+TEST(the_reset_writes_nothing_while_glide_s_command_fifo_is_on) {
+    unsigned r, n;
+    const unsigned idle[] = { IDLE, IDLE, IDLE };
+    /* idle, but cmdFifo0.baseSize still has SST_CMDFIFOEN (Glide skipped
+     * its "disable the CMD fifo" store after a failed idle wait): refused */
+    n = model_reset(idle, 3, 0x1f, 0x100u | 0x0fu, &r);
+    CHECK_EQ_U(n, 0u);
+    CHECK_EQ_U(r, VCR_R3D_CMDFIFO);
+    CHECK_EQ_U(vcr_3d_reset_blocked(3, 0x100u), VCR_R3D_CMDFIFO);
+    CHECK_EQ_U(vcr_3d_reset_blocked(3, 0x300u | 0x7u), VCR_R3D_CMDFIFO);    /* AGP FIFO */
+    /* off (Glide's clean close stores 0; the size bits alone do not count) */
+    CHECK_EQ_U(vcr_3d_reset_blocked(3, 0), 0u);
+    CHECK_EQ_U(vcr_3d_reset_blocked(3, 0x0fu), 0u);
+    n = model_reset(idle, 3, 0x1f, 0, &r);
+    CHECK_EQ_U(r, VCR_R3D_DONE);
+    CHECK_EQ_U(n, 18u);
+    /* not idle is the first answer: the FIFO register is read only once the
+     * chip reads idle */
+    CHECK_EQ_U(vcr_3d_reset_blocked(2, 0x100u), VCR_R3D_BUSY);
+    CHECK(VCR_R3D_OFF == 0u && VCR_R3D_DONE == 1u && VCR_R3D_BUSY != VCR_R3D_CMDFIFO &&
+          VCR_R3D_GAVEUP != VCR_R3D_BUSY, "distinct outcomes in the log");
+}
+
 MUNIT_MAIN("vcr-kmd 3D register sequences (targets, Glide release)", {
     RUN(the_offsets_are_the_gpl_headers);
     RUN(a_voodoo3_target_is_the_six_writes_it_always_was);
@@ -315,8 +454,12 @@ MUNIT_MAIN("vcr-kmd 3D register sequences (targets, Glide release)", {
     RUN(thirty_two_bpp_is_programmed_only_with_d3d32);
     RUN(a_format_nobody_decided_on_is_never_programmed);
     RUN(the_z_buffer_must_fit_the_target);
+    RUN(a_z_at_video_memory_offset_zero_is_a_z);
     RUN(the_target_pitch_obeys_the_z_rule);
     RUN(the_z_list_follows_the_render_depths_not_the_desktop);
     RUN(a_depth_clear_never_touches_the_top_byte);
     RUN(the_glide_release_reset_is_exactly_this);
+    RUN(the_idle_rule_is_vcr_dd2dsync_s);
+    RUN(the_reset_writes_nothing_into_a_chip_that_is_not_idle);
+    RUN(the_reset_writes_nothing_while_glide_s_command_fifo_is_on);
 })

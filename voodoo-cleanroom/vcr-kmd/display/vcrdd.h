@@ -95,9 +95,11 @@ BOOL  VcrDd2dCopy(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG src_off, L
                   ULONG ckey, ULONG ck_lo, ULONG ck_hi);
 BOOL  VcrDd2dFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LONG x, LONG y,
                   LONG w, LONG h, ULONG color);
-/* the 3D state a Glide session leaves on chip 0, cleared when it gives the
- * chip back (VSA-100, Diag\\Reset3D = 1; vcr_3dseq.h) - bounded like the rest */
-BOOL  VcrDdGlideReset3d(VCR_PDEV *pd);
+/* the 3D state a Glide session leaves on chip 0, cleared when its owner gives
+ * the chip back (VSA-100, Diag\\Reset3D = 1; vcr_3dseq.h) - only on an idle
+ * chip with Glide's command FIFO off, bounded like the rest. Returns
+ * VCR_R3D_*; *detail is logged with it. */
+ULONG VcrDdGlideReset3d(VCR_PDEV *pd, ULONG *detail);
 
 /* vcrdd_ddraw.c (with the public DDK's DirectDraw headers) */
 #ifdef VCR_HAVE_DDI

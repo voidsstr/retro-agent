@@ -14,6 +14,7 @@
  * dos_mode.c sequence (vcrmp_sli.c) and programs the V5 6000's clock.
  */
 #include "vcrdd.h"
+#include "../include/vcr_3dseq.h"      /* VCR_R3D_*: the Glide 3D reset's outcome */
 
 #ifndef QUERYESCSUPPORT
 #define QUERYESCSUPPORT 8
@@ -44,6 +45,19 @@ static BOOL supported(ULONG esc)
 static BOOL get_info(VCR_PDEV *pd, vcr_info *v)
 {
     return VcrIoctl(pd->hDriver, IOCTL_VCR_INFO, NULL, 0, v, sizeof *v, NULL) == 0;
+}
+
+/* the Glide 3D reset's outcome, for the log line (VCR_R3D_*, vcr_3dseq.h) */
+static const char *r3d_what(VCR_PDEV *pd, ULONG r)
+{
+    switch (r) {
+    case VCR_R3D_DONE:      return "reset";
+    case VCR_R3D_BUSY:      return "NOT reset - the chip was not idle (nothing written)";
+    case VCR_R3D_CMDFIFO:   return "NOT reset - Glide's command FIFO is still on (nothing written)";
+    case VCR_R3D_GAVEUP:    return "NOT reset - the FIFO or the settle wait ran out, acceleration off";
+    }
+    return pd->d3d_disabled ? "not reset - Direct3D is off (Diag\\D3D = 0)"
+                            : "NOT reset - no 2D/3D engine (acceleration off)";
 }
 
 /* ---- HWCEXT ------------------------------------------------------------------ */
@@ -118,6 +132,33 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
         break;
 
     case VCR_HWC_HWCRLSEXCLUSIVE:
+        /* A release from a process that is NOT the owner, while there is
+         * one, is refused before anything else - no mode set, no register
+         * write, resStatus FAIL. Any process can send this escape (a second
+         * Glide program whose own open failed calls hwcRestoreVideo, which
+         * sends it), and RESTORE_MODE below is a full mode set plus the SLI
+         * disable: made under a live owner's command stream, it is exactly
+         * the mode set this driver must not make. The owner releases for
+         * itself, or DrvAssertMode(TRUE) clears it. The price: an owner that
+         * was KILLED in a mode change-free session (the Glide mode = the
+         * desktop mode) is no longer cleared as a side effect of another
+         * program's failed open - it stays until the next mode change, lock
+         * or DOS switch; and the refused program (whose open never reached
+         * HWCSETEXCLUSIVE - that would have made it the owner) skips Glide's
+         * own resetVideo, since hwcRestoreVideo returns on a failed release:
+         * its DirectDraw display mode is undone by the runtime when it exits.
+         * A hidden pointer until then beats a mode set and SLI disable under
+         * a live SLI/AA stream. A release with NO owner
+         * (a second release in one close, an open that failed before
+         * HWCSETEXCLUSIVE, an owner DrvAssertMode already cleared) goes on as
+         * it always has and restores the desktop mode - so the owner's own
+         * close is unchanged, write for write. */
+        if (pd->exclusive_pid && pid != pd->exclusive_pid) {
+            VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 4, pid, pd->exclusive_pid, 0,
+                  "HWCRLSEXCLUSIVE from %u refused: the chip is owned by %u - no mode set, "
+                  "nothing written", pid, pd->exclusive_pid);
+            break;
+        }
         /* Glide reprogrammed the video processor, the LFB tiling and the Y
          * origin for itself: put the desktop mode back before GDI draws. */
         rc = VcrIoctl(pd->hDriver, IOCTL_VCR_RESTORE_MODE, NULL, 0, NULL, 0, NULL);
@@ -141,19 +182,19 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
         }
         /* VSA-100 with Diag\\Reset3D = 1: what the session left on chip 0
          * (chip mask, SLI compare, AA, combine, stencil) cleared for the next
-         * user - for the OWNER's release only. Any process can send this
-         * escape; a release from another one (or with no owner at all) must
-         * not put register writes into the FIFO under a Glide command stream
-         * that may still be running. */
-        if (pd->reset3d && pid == pd->exclusive_pid) {
-            BOOL ok = VcrDdGlideReset3d(pd);
-            VcrDd(ok || pd->d3d_disabled ? VCR_LV_INFO : VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 3, pid,
-                  ok, pd->g2d_ok, "3D state after Glide %s", ok ? "reset"
-                  : pd->d3d_disabled ? "not reset - Direct3D is off (Diag\\D3D = 0)"
-                  : "NOT reset - acceleration off");
+         * user - at the OWNER's own release only (a non-owner's was refused
+         * above; one with no owner resets nothing: whoever programmed the
+         * chip is not known to be done with it), and only on an idle chip
+         * with Glide's command FIFO off (VcrDdGlideReset3d checks both before
+         * its first write). */
+        if (pd->reset3d && pd->exclusive_pid && pid == pd->exclusive_pid) {
+            ULONG detail, r = VcrDdGlideReset3d(pd, &detail);
+            VcrDd(r == VCR_R3D_DONE || (r == VCR_R3D_OFF && pd->d3d_disabled) ? VCR_LV_INFO
+                  : VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 3, pid, r, detail,
+                  "3D state after Glide %s", r3d_what(pd, r));
         } else if (pd->reset3d) {
-            VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 4, pid, pd->exclusive_pid, 0,
-                  "3D reset skipped: release from %u, the owner is %u", pid, pd->exclusive_pid);
+            VcrDd(VCR_LV_INFO, VCR_EV_HWC_EXCLUSIVE, 3, pid, VCR_R3D_OFF, 0,
+                  "3D state not reset: a release with no exclusive owner");
         }
         pd->exclusive_pid = 0;
         pd->restore_failed = 0;

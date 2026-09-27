@@ -606,10 +606,12 @@ static void compute_regs(vcr_d3dctx *c)
     r->fbzMode = FZ_RECTCLIP | FZ_RGBWRITE;
     if (c->rs[D3DRENDERSTATE_DITHERENABLE])
         r->fbzMode |= FZ_DITHER;
-    /* depth only with an aux buffer target_of accepted: a Z surface the
-     * target refused (or one not in video memory) has z_off 0, and depth
-     * enabled there would read and write the aux buffer at offset 0 */
-    if (c->target.z_off && c->rs[D3DRENDERSTATE_ZENABLE] == D3DZB_TRUE) {
+    /* depth only with an aux buffer target_of accepted (z_on): a Z surface
+     * not in video memory, or one that does not fit, leaves the target empty
+     * - depth enabled for it would read and write whatever sits at the aux
+     * address. NOT a test of z_off: offset 0 is a Z the heap can hand out
+     * (vcrdd_3d.h), and the proven HAL tested depth there */
+    if (c->target.z_on && c->rs[D3DRENDERSTATE_ZENABLE] == D3DZB_TRUE) {
         r->fbzMode |= FZ_DEPTH | FZ_ZFUNC(cmp(c->rs[D3DRENDERSTATE_ZFUNC]));
         if (c->rs[D3DRENDERSTATE_ZWRITEENABLE])
             r->fbzMode |= FZ_ZAWRITE;
@@ -663,15 +665,16 @@ static void compute_regs(vcr_d3dctx *c)
  *     aligned or past the 14-bit stride field - the rule the Z has, so
  *     ContextCreate, SETRENDERTARGET, DP2 and Clear2 give one answer (DP2
  *     alone refused an unaligned target before, and Clear2 fastfilled it);
- *   - the Z (vcr_rt_zcheck): a Z surface is attached but has no video-memory
- *     offset, its pitch is short of a target row, not 16-byte aligned or past
+ *   - the Z (vcr_rt_zcheck): a Z surface is attached but is not in video
+ *     memory, its pitch is short of a target row, not 16-byte aligned or past
  *     the 14-bit stride field, or it is smaller than the target.
- * Returns the rt's bits a pixel with the Z's in the high half, for the
- * callers' logs. */
+ * An accepted target has fmt set and an accepted Z has z_on set; either may
+ * sit at video-memory offset 0 (vcrdd_3d.h). Returns the rt's bits a pixel
+ * with the Z's in the high half, for the callers' logs. */
 static ULONG target_of(vcr_d3dctx *c)
 {
     vcr3d_target *t = &c->target;
-    ULONG rtb, zb, fmt, z_off = 0, z_pitch = 0, z_w = 0, z_h = 0, why;
+    ULONG rtb, zb, fmt, z_vid = 0, z_off = 0, z_pitch = 0, z_w = 0, z_h = 0, why;
     memset(t, 0, sizeof *t);
     c->target_why = VCR_RT_OK;
     if (!in_vidmem(c->rt))
@@ -684,7 +687,8 @@ static ULONG target_of(vcr_d3dctx *c)
         return (zb << 16) | rtb;
     }
     if (c->zb && c->zb->lpGbl) {
-        z_off = in_vidmem(c->zb) ? (ULONG)c->zb->lpGbl->fpVidMem : 0;
+        z_vid = in_vidmem(c->zb);
+        z_off = z_vid ? (ULONG)c->zb->lpGbl->fpVidMem : 0;
         z_pitch = (ULONG)c->zb->lpGbl->lPitch;
         z_w = c->zb->lpGbl->wWidth;
         z_h = c->zb->lpGbl->wHeight;
@@ -692,7 +696,7 @@ static ULONG target_of(vcr_d3dctx *c)
     why = vcr_rt_rtcheck(fmt, c->rt->lpGbl->wWidth, (ULONG)c->rt->lpGbl->lPitch);
     if (why == VCR_RT_OK)
         why = vcr_rt_zcheck(fmt, c->rt->lpGbl->wWidth, c->rt->lpGbl->wHeight, c->zb != NULL,
-                            z_off, z_pitch, z_w, z_h);
+                            z_vid, z_pitch, z_w, z_h);
     if (why != VCR_RT_OK) {
         c->target_why = why;
         return (zb << 16) | rtb;
@@ -702,8 +706,11 @@ static ULONG target_of(vcr_d3dctx *c)
     t->rt_pitch = (ULONG)c->rt->lpGbl->lPitch;
     t->width = c->rt->lpGbl->wWidth;
     t->height = c->rt->lpGbl->wHeight;
+    /* a Z exists when one is attached and zcheck took it - its offset may be
+     * 0 (the heap starts there), so z_on says it, never z_off */
+    t->z_on = c->zb && z_vid;
     t->z_off = z_off;
-    t->z_pitch = z_off ? z_pitch : 0;
+    t->z_pitch = t->z_on ? z_pitch : 0;
     return (zb << 16) | rtb;
 }
 
@@ -729,7 +736,7 @@ static void target_refused(vcr_d3dctx *c, ULONG bits, const char *where)
               c->zb && c->zb->lpGbl ? (ULONG)c->zb->lpGbl->lPitch : 0,
               c->zb && c->zb->lpGbl ? (ULONG)c->zb->lpGbl->fpVidMem : 0,
               "%s refused: the Z buffer (%s) does not fit a %u bpp target", where,
-              c->target_why == VCR_RT_WHY_ZOFF ? "no video-memory offset"
+              c->target_why == VCR_RT_WHY_ZOFF ? "not in video memory"
               : c->target_why == VCR_RT_WHY_ZPITCH ? "pitch" : "smaller than the target",
               bits & 0xffff);
 }
@@ -817,10 +824,13 @@ static DWORD APIENTRY D3d_ContextCreate(LPD3DNTHAL_CONTEXTCREATEDATA p)
     }
     p->dwhContext = i + 1;
     p->ddrval = DD_OK;
+    /* the offsets say where the first surfaces landed (0 is a place: the
+     * heap starts there - the text says whether the Z is in use) */
     VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 1, i + 1, g_ctx[i].target.rt_off, g_ctx[i].target.z_off,
-          "ContextCreate %u: target %x (%ux%u pitch %u, %u bpp 3D), z %x, pid %u", i + 1,
+          "ContextCreate %u: target %x (%ux%u pitch %u, %u bpp 3D), z %x%s, pid %u", i + 1,
           g_ctx[i].target.rt_off, g_ctx[i].target.width, g_ctx[i].target.height,
-          g_ctx[i].target.rt_pitch, g_ctx[i].target.fmt, g_ctx[i].target.z_off, p->dwPID);
+          g_ctx[i].target.rt_pitch, g_ctx[i].target.fmt, g_ctx[i].target.z_off,
+          g_ctx[i].target.z_on ? "" : " (none)", p->dwPID);
     return DDHAL_DRIVER_HANDLED;
 }
 
@@ -1274,11 +1284,12 @@ static HRESULT walk(dp2walk *w, const UCHAR *cmds, ULONG len, LPDWORD rstates, D
                     c->dirty = 1;
                     w->prepared = 0;
                     /* drawable follows the NEW target: one refused (or not in
-                     * video memory) is empty, and a walk that could draw
-                     * into the old one must not carry on at offset 0 */
+                     * video memory) is empty (fmt 0), and a walk that could
+                     * draw into the old one must not carry on into it. An
+                     * accepted target at offset 0 IS drawable - the heap
+                     * starts there (vcrdd_3d.h) */
                     w->drawable = c->pd->g2d_ok && !c->pd->exclusive_pid &&
-                                  c->target.fmt && c->target.rt_off &&
-                                  (c->target.rt_pitch & 0xf) == 0;
+                                  c->target.fmt && (c->target.rt_pitch & 0xf) == 0;
                 }
             }
             p += n * 8;
@@ -1376,7 +1387,9 @@ static DWORD APIENTRY D3d_DrawPrimitives2(LPD3DNTHAL_DRAWPRIMITIVES2DATA p)
             VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 8, was, c->target.rt_off, c->dp2s,
                   "DP2 %u: target %x -> %x (surface %p)", c->dp2s, was, c->target.rt_off, c->rt);
     }
-    w.drawable = c->pd->g2d_ok && !c->pd->exclusive_pid && c->target.rt_off &&
+    /* a target exists when target_of accepted one (fmt), whatever its offset:
+     * the heap starts at 0 (vcrdd_3d.h) */
+    w.drawable = c->pd->g2d_ok && !c->pd->exclusive_pid && c->target.fmt &&
                  (c->target.rt_pitch & 0xf) == 0;
     EngSaveFloatingPointState(c->fpu, g_fpu_size);
     VcrDd3dDrawInit(&w.d, &c->target);
@@ -1404,7 +1417,7 @@ static DWORD APIENTRY D3d_Clear2(LPD3DNTHAL_CLEAR2DATA p)
     target_of(c);
     /* the DP2 walk's rule, word for word: target_of already empties a target
      * whose pitch the engine cannot take, and this says so here as well */
-    w.drawable = c->pd->g2d_ok && !c->pd->exclusive_pid && c->target.rt_off &&
+    w.drawable = c->pd->g2d_ok && !c->pd->exclusive_pid && c->target.fmt &&
                  (c->target.rt_pitch & 0xf) == 0;
     EngSaveFloatingPointState(c->fpu, g_fpu_size);
     for (i = 0; i < p->dwNumRects; i++) {
@@ -1665,8 +1678,9 @@ int VcrDdD3dDriverInfo(VCR_PDEV *pd, PDD_GETDRIVERINFODATA p)
          * well - 24 bits of depth under 8 of stencil, D24X8 and D24S8 as
          * 3dfx's own V5 HAL lists them. A pair of the wrong sizes is refused
          * by ContextCreate before any write (a DX7-DDI Z must match the
-         * target; D3D8's CheckDepthStencilMatch says so too). D24S8's
-         * stencil is never written or tested (vcr_rtfmt.h). */
+         * target; D3D8's CheckDepthStencilMatch is expected to say so too -
+         * unverified, d3dprobe caps zmatch reports it). D24S8's stencil is
+         * never written or tested (vcr_rtfmt.h). */
         struct { DWORD n; DDPIXELFORMAT f[3]; } z;
         ULONG zl = vcr_rt_zlist(pd->rt32);
         memset(&z, 0, sizeof z);

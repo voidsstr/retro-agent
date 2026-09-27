@@ -12,11 +12,18 @@
 #include "../include/vcr_3dregs.h"
 #include "../include/vcr_rtfmt.h"
 
+/* OFFSET 0 IS A PLACE, NOT "NONE": the DirectDraw heap starts at video-memory
+ * offset 0 whenever the desktop sits at the top (vcrdd_ddraw.c heap_range -
+ * the .124 and 86Box layout), so the first surface allocated after a mode
+ * set can be there. Whether a target / a Z exists is fmt / z_on, never a
+ * zero test on an offset. */
 typedef struct vcr3d_target {
     ULONG rt_off, rt_pitch;         /* colour buffer: offset in video memory, bytes/row */
-    ULONG z_off, z_pitch;           /* depth buffer (z_off 0: none) */
+    ULONG z_off, z_pitch;           /* depth buffer: offset (may be 0), bytes/row */
+    ULONG z_on;                     /* a Z the target accepted: test, write and clear depth */
     ULONG width, height;
-    ULONG fmt;                      /* VCR_RT_16 / VCR_RT_32 (vcr_rtfmt.h; 32: VSA-100 only) */
+    ULONG fmt;                      /* VCR_RT_16 / VCR_RT_32 (vcr_rtfmt.h; 32: VSA-100 only);
+                                     * 0: no target - nothing is drawn */
 } vcr3d_target;
 
 typedef struct vcr3d_regs {

@@ -6,6 +6,7 @@
  * nothing here can wedge the 2D engine). The miniport owns every register.
  */
 #include "vcrdd.h"
+#include "../include/vcr_3dseq.h"      /* VCR_R3D_*: the Glide 3D reset's outcome codes */
 
 static DRVFN g_drvfn[] = {
     { INDEX_DrvEnablePDEV,     (PFN)0 },
@@ -571,22 +572,21 @@ BOOL APIENTRY DrvAssertMode(DHPDEV dhpdev, BOOL bEnable)
         pd->exclusive_pid = 0;
         pd->restore_failed = 0;
         ok = VcrDdSetMode(pd);
-        /* ... and it left its 3D state on chip 0 as well - the case the
-         * release-time reset exists for (VSA-100, Diag\\Reset3D = 1; the mode
-         * set just made turned SLI off). THE OWNER IS ASSUMED GONE: a display
-         * driver cannot ask whether a process still lives. That assumption is
-         * not new - this path has always cleared the owner and re-programmed
-         * the mode under it - the reset only adds register writes to it, which
-         * is one reason Reset3D is OFF by default. Skipping the reset unless
-         * the owner had released would skip exactly the killed client it
-         * exists for. */
-        if (ok && stale && pd->reset3d) {
-            BOOL r = VcrDdGlideReset3d(pd);
-            VcrDd(r || pd->d3d_disabled ? VCR_LV_INFO : VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 3,
-                  stale, r, pd->g2d_ok, "3D state after a stale Glide owner %s", r ? "reset"
-                  : pd->d3d_disabled ? "not reset - Direct3D is off (Diag\\D3D = 0)"
-                  : "NOT reset - acceleration off");
-        }
+        /* The Glide 3D reset (Diag\\Reset3D) does NOT run here. A display
+         * driver cannot tell a killed owner from a live one: an alt-tabbed
+         * DirectDraw-exclusive Glide game re-asserts its PDEV while its
+         * process lives and then resumes its command FIFO, and register
+         * writes of ours under that stream would corrupt it. (Clearing the
+         * owner and re-programming the mode here is what this path has
+         * always done; 4a9793b added the reset to it, the 2026-09-27 review
+         * took it back out.) So a Glide client that was KILLED still leaves
+         * its 3D state for the next D3D user - treat that as needing a cold
+         * boot before a 32 bpp D3D test - until the miniport can say whether
+         * the old owner's process has exited. Said in the log when armed. */
+        if (stale && pd->reset3d)
+            VcrDd(VCR_LV_WARN, VCR_EV_HWC_EXCLUSIVE, 3, stale, VCR_R3D_OFF, 0,
+                  "3D state after stale owner %u NOT reset: it cannot be shown to be gone "
+                  "(Diag\\Reset3D runs at the owner's own release only)", stale);
     } else {
 #ifdef VCR_HAVE_DDI
         /* the flips of a session that set this mode, before it leaves the
