@@ -1,0 +1,24 @@
+# d3dprobe_run.py caps -v  (rc 0; desktop 800x600x16@60)
+{"mode": "caps", "adapter": "vcr-kmd Voodoo 3 (open driver)", "driver": "vcrdd.dll", "desktop_fmt": 23, "hal": "00000000", "DevCaps": "0008ae50", "PrimitiveMiscCaps": "00000072", "RasterCaps": "00100191", "ZCmpCaps": "000000ff", "SrcBlendCaps": "00001f33", "DestBlendCaps": "0000003f", "AlphaCmpCaps": "000000ff", "ShadeCaps": "00004008", "TextureCaps": "00004007", "TextureFilterCaps": "03010317", "TextureAddressCaps": "00000015", "TextureOpCaps": "0000184f", "FVFCaps": "00000002", "MaxTexture": "256x256", "MaxTextureBlendStages": 2, "MaxSimultaneousTextures": 2, "MaxPrimitiveCount": 65535, "MaxVertexIndex": 65535, "VertexShaderVersion": "fffe0000", "formats": {"tex565": 1, "tex1555": 1, "tex4444": 1, "tex8888": 0, "texP8": 0, "texDXT1": 0, "z16": 1, "z24x8": 0, "z24s8": 0}, "hal_fullscreen": {"X8R8G8B8": 0, "R5G6B5": 1}, "zmatch": {"X8R8G8B8": {"D24X8": {"format": 0, "match": 0}, "D24S8": {"format": 0, "match": 0}, "D16": {"format": 0, "match": 0}}, "R5G6B5": {"D24X8": {"format": 0, "match": 0}, "D24S8": {"format": 0, "match": 0}, "D16": {"format": 1, "match": 1}}}}
+d3dprobe caps: windowed 640x480x16
+adapter "vcr-kmd Voodoo 3 (open driver)" driver vcrdd.dll 0.0.0.0; desktop 800x600 fmt 23
+GetDeviceCaps(HAL) 00000000
+format tex565: yes
+format tex1555: yes
+format tex4444: yes
+format tex8888: no
+format texP8: no
+format texDXT1: no
+format z16: yes
+format z24x8: no
+format z24s8: no
+fullscreen HAL device at X8R8G8B8: no (8876086a)
+fullscreen HAL device at R5G6B5: yes (00000000)
+depth D24X8 with X8R8G8B8: format no (8876086a), match no (8876086a)
+depth D24S8 with X8R8G8B8: format no (8876086a), match no (8876086a)
+depth D16 with X8R8G8B8: format no (8876086a), match no (8876086a)
+depth D24X8 with R5G6B5: format no (8876086a), match no (8876086c)
+depth D24S8 with R5G6B5: format no (8876086a), match no (8876086c)
+depth D16 with R5G6B5: format yes (00000000), match yes (00000000)
+RESULT {"mode":"caps","adapter":"vcr-kmd Voodoo 3 (open driver)","driver":"vcrdd.dll","desktop_fmt":23,"hal":"00000000","DevCaps":"0008ae50","PrimitiveMiscCaps":"00000072","RasterCaps":"00100191","ZCmpCaps":"000000ff","SrcBlendCaps":"00001f33","DestBlendCaps":"0000003f","AlphaCmpCaps":"000000ff","ShadeCaps":"00004008","TextureCaps":"00004007","TextureFilterCaps":"03010317","TextureAddressCaps":"00000015","TextureOpCaps":"0000184f","FVFCaps":"00000002","MaxTexture":"256x256","MaxTextureBlendStages":2,"MaxSimultaneousTextures":2,"MaxPrimitiveCount":65535,"MaxVertexIndex":65535,"VertexShaderVersion":"fffe0000","formats":{"tex565":1,"tex1555":1,"tex4444":1,"tex8888":0,"texP8":0,"texDXT1":0,"z16":1,"z24x8":0,"z24s8":0},"hal_fullscreen":{"X8R8G8B8":0,"R5G6B5":1},"zmatch":{"X8R8G8B8":{"D24X8":{"format":0,"match":0},"D24S8":{"format":0,"match":0},"D16":{"format":0,"match":0}},"R5G6B5":{"D24X8":{"format":0,"match":0},"D24S8":{"format":0,"match":0},"D16":{"format":1,"match":1}}}}
+

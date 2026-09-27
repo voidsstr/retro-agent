@@ -1,0 +1,7 @@
+# guest files after the final reinstall (DOWNLOAD from 127.0.0.1:19920) vs out/
+8496875762de313d9eaa2e84e798ba41  final/vcrctl.exe
+8702d7e77fe3fa5b7aeb52437d2660de  final/vcrdd.dll
+62a4169562eec8b203caf76d53063651  final/vcrmp.sys
+62a4169562eec8b203caf76d53063651  out/vcrmp.sys
+8702d7e77fe3fa5b7aeb52437d2660de  out/vcrdd.dll
+8496875762de313d9eaa2e84e798ba41  out/vcrctl.exe

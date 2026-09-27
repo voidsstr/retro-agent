@@ -1,0 +1,6 @@
+# EXEC C:\vcr\vcrctl.exe sliaa 4 0 1 0 1 --i-am-at-the-box --force-desktop-pll
+{"cmd":"sliaa","ok":false,"error":"no video-mux branch for this chip/SLI/AA shape (the kernel's own rule, vcr_sli_combo_ok): refused - a vendor kernel would program it anyway, and AmigaMerlin's froze on cfg 1's {4,0,1,0,1}"}
+
+# info before: {"cur": "800x600x16@60", "cur_mode": 80, "dd_mode": 80, "exclusive_pid": 0, "hwc_requests": 9, "sli_active": 0, "sli_chips": 0, "sli_result": 0, "glide_chips": 1, "log_next_seq": 4203}
+# info after:  {"cur": "800x600x16@60", "cur_mode": 80, "dd_mode": 80, "exclusive_pid": 0, "hwc_requests": 9, "sli_active": 0, "sli_chips": 0, "sli_result": 0, "glide_chips": 1, "log_next_seq": 4203}
+# DISPLAYCFG get after: {"width":800,"height":600,"bpp":16,"refresh":60}

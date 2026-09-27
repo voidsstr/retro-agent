@@ -360,3 +360,31 @@ def test_the_escape_still_carries_a_refusal_back_as_fail():
     assert re.search(r"#define VCR_SLI_R_MEMINFO\s+11\b", hdr)
     body = func_body((KMD / "miniport" / "vcrmp_sli.c").read_text(), "static int refuse(")
     assert "VCR_SLI_R_AA_OFF ? VCR_SLI_EDENIED : VCR_SLI_EINVAL" in body
+
+
+def test_vcrctl_info_reports_the_display_drivers_exclusive_owner():
+    """`vcrctl sliaa off` (a separate process from the enable) must leave NO
+    exclusive owner - that is the post-condition of the integration fix
+    (5e4ca36). The owner lives in the display driver's PDEV
+    (vcrdd_escape.c HWCSETEXCLUSIVE / HWCRLSEXCLUSIVE); vcr_info.exclusive_pid
+    is the miniport's and nothing fills it, so `vcrctl info` could not show an
+    owner at all (86Box bed, 2026-09-27). info asks VCR_ESC_DD_STATS for it,
+    and prints null - never 0, which reads as "no owner" - when the display
+    driver does not answer."""
+    tool = (KMD / "tools" / "vcrctl.c").read_text()
+    info = func_body(tool, "static int cmd_info(")
+    ddq = info.index("esc(VCR_ESC_DD_STATS, NULL, 0, dd, sizeof dd) >= (int)sizeof dd")
+    assert info.index('\\"mon_src\\":%u"') < ddq
+    ok = info[ddq:]
+    assert '\\"exclusive_pid\\":%lu' in ok and "dd[1]" in ok
+    assert '\\"exclusive_pid\\":null' in ok
+    # the escape answers the PDEV's owner in slot 1, 16 bytes in all
+    esc = (KMD / "display" / "vcrdd_escape.c").read_text()
+    st = esc[esc.index("case VCR_ESC_DD_STATS:"):]
+    st = st[:st.index("return 4 * sizeof(ULONG);")]
+    assert "((ULONG *)pvOut)[1] = pd->exclusive_pid;" in st
+    assert "cjOut < 4 * sizeof(ULONG)" in st
+    # and nothing in the miniport fills vcr_info's own field (if that changes,
+    # info should print it instead)
+    for f in (KMD / "miniport").glob("*.c"):
+        assert "exclusive_pid" not in f.read_text(), f.name

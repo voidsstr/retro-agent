@@ -1,0 +1,1 @@
+{"cmd":"setmode","ok":true,"result":0,"asked":"640x480x16@0","current":"640x480x16@60"}

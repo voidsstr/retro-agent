@@ -643,3 +643,39 @@ def test_d3dprobe_noz_and_the_depth_stencil_caps_report():
     assert '\\"hal_fullscreen\\":{' in caps
     # caps makes no device and switches nothing
     assert "CreateDevice" not in code(caps) and "vcr_pace_before_switch" not in caps
+
+
+def test_d3dprobe_zfmt_asks_for_a_depth_format_the_hal_must_refuse():
+    """--zfmt d24s8 on a 16 bpp device is how an application asks a
+    Banshee/Voodoo3 (or a VSA-100 without Diag\\D3D32) for a Z the HAL does
+    not have - the refusal case of the 32 bpp track, run on the 86Box bed
+    2026-09-27. The asked format replaces d3dprobe's own pick AFTER that pick
+    and BEFORE CreateDevice; an unknown name, or one with --noz, is refused
+    before any device or switch; a failed CreateDevice says which formats
+    were asked. d3dprobe_run passes --zfmt only when given: today's command
+    line is unchanged."""
+    import argparse
+    import sys
+    main = PROBE[PROBE.index("int main("):]
+    assert 'else if (!strcmp(a, "--zfmt") && v) {' in main
+    for name, fmt in (("d16", "D3DFMT_D16"), ("d24x8", "D3DFMT_D24X8"), ("d24s8", "D3DFMT_D24S8")):
+        zn = func(PROBE, "static D3DFORMAT zfmt_named(")
+        assert f'if (!strcmp(v, "{name}"))\n        return {fmt};' in zn
+    bad = main.index("if (bad_zfmt || (g_zfmt != D3DFMT_UNKNOWN && g_noz)) {")
+    assert bad < main.index("Direct3DCreate8(") < main.index("IDirect3D8_CreateDevice(")
+    pick = main.index("pp.AutoDepthStencilFormat = z32[k];")
+    force = main.index("pp.AutoDepthStencilFormat = g_zfmt;")
+    assert pick < force < main.index("IDirect3D8_CreateDevice(")
+    fail = main[main.index("if (FAILED(hr)) {\n        say(\"RESULT {\\\"mode\\\":\\\"%s\\\",\\\"error\\\":\\\"CreateDevice"):]
+    fail = fail[:fail.index("return 2;")]
+    assert '\\"zfmt\\":%u' in fail and '\\"fmt\\":%u' in fail
+    sys.path.insert(0, str(KMD / "tools"))
+    sys.path.insert(0, str(REPO))
+    import d3dprobe_run
+    ns = argparse.Namespace(mode="render", res="640x480", bpp=16, frames=200, full=False,
+                            novsync=False, tests="")
+    assert d3dprobe_run.lab_args(ns, "L") == "render --res 640x480 --bpp 16 --frames 200 --log L"
+    ns.zfmt = "d24s8"
+    assert d3dprobe_run.lab_args(ns, "L").endswith(" --zfmt d24s8")
+    run = (KMD / "tools" / "d3dprobe_run.py").read_text()
+    assert 'choices=("d16", "d24x8", "d24s8")' in run

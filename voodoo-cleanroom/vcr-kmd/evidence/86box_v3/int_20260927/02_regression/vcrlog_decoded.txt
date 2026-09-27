@@ -1,0 +1,592 @@
+# boot_count=59 version=1 next_seq=591 (591 entries)
+     1     0.010s   mp inf DRIVER_ENTRY       00000000 0000003c 00000001 00001388  vcrmp 0.1 build 1: VideoPortInitialize 0
+     2     2.183s   mp inf FIND_ENTER         00000001 00000002 00000000 00000000  PHASE find adapter
+     3     2.183s   mp inf PCI_ID             0000121a 00000005 003a121a 00000001  PCI 121a:0005 subsys 003a121a rev 1 at bus 1 slot 0
+     4     2.183s   mp inf ACCESS_RANGE       00000000 e0000000 02000000 00000000  range 0: e0000000 + 2000000 mem
+     5     2.183s   mp inf ACCESS_RANGE       00000001 de000000 02000000 00000000  range 1: de000000 + 2000000 mem
+     6     2.183s   mp inf ACCESS_RANGE       00000002 0000d800 00000100 00000001  range 2: 0000d800 + 100 io
+     7     2.183s   mp inf MAP                00000000 e0000000 00400000 f7d92000  registers mapped
+     8     2.183s   mp inf MAP                00000002 0000d800 00000100 0000d800  I/O BAR mapped
+     9     2.183s   mp inf FIND_DONE          00000001 00000001 00000000 00000000  PHASE discover
+    10     2.183s   mp inf MEMSIZE            0c1fa9e9 4056c601 01000000 02000000  fb 16 MB (8 parts x 2 MB), BAR1 32 MB
+    11     2.183s   mp dbg REG_SNAPSHOT       00000000 0000005f 00000000 00000000  boot chip0 status
+    12     2.183s   mp dbg REG_SNAPSHOT       00000004 0584fb04 00000000 00000000  boot chip0 pciInit0
+    13     2.183s   mp dbg REG_SNAPSHOT       0000000c 00001fff 00000000 00000000  boot chip0 lfbMemCfg
+    14     2.183s   mp dbg REG_SNAPSHOT       00000010 00000000 00000000 00000000  boot chip0 miscInit0
+    15     2.183s   mp dbg REG_SNAPSHOT       00000014 00008001 00000000 00000000  boot chip0 miscInit1
+    16     2.183s   mp dbg REG_SNAPSHOT       00000018 0c1fa9e9 00000000 00000000  boot chip0 dramInit0
+    17     2.183s   mp dbg REG_SNAPSHOT       0000001c 4056c601 00000000 00000000  boot chip0 dramInit1
+    18     2.183s   mp dbg REG_SNAPSHOT       00000020 0000049e 00000000 00000000  boot chip0 agpInit
+    19     2.183s   mp dbg REG_SNAPSHOT       00000024 ffffffff 00000000 00000000  boot chip0 tmuGbeInit
+    20     2.183s   mp dbg REG_SNAPSHOT       00000028 00000140 00000000 00000000  boot chip0 vgaInit0
+    21     2.183s   mp dbg REG_SNAPSHOT       0000002c 00000000 00000000 00000000  boot chip0 vgaInit1
+    22     2.183s   mp dbg REG_SNAPSHOT       00000038 00000040 00000000 00000000  boot chip0 strapInfo
+    23     2.183s   mp dbg REG_SNAPSHOT       00000040 00000000 00000000 00000000  boot chip0 pllCtrl0
+    24     2.183s   mp dbg REG_SNAPSHOT       00000044 0000720d 00000000 00000000  boot chip0 pllCtrl1
+    25     2.183s   mp dbg REG_SNAPSHOT       00000048 00000000 00000000 00000000  boot chip0 pllCtrl2
+    26     2.183s   mp dbg REG_SNAPSHOT       0000004c 00000000 00000000 00000000  boot chip0 dacMode
+    27     2.183s   mp dbg REG_SNAPSHOT       0000005c 00000000 00000000 00000000  boot chip0 vidProcCfg
+    28     2.183s   mp dbg REG_SNAPSHOT       00000098 001e0280 00000000 00000000  boot chip0 vidScreenSize
+    29     2.183s   mp dbg REG_SNAPSHOT       000000e4 00000000 00000000 00000000  boot chip0 deskStart
+    30     2.183s   mp dbg REG_SNAPSHOT       000000e8 00000050 00000000 00000000  boot chip0 deskStride
+    31     2.183s   mp dbg REG_SNAPSHOT       00000088 ffffffff 00000000 00000000  boot chip0 pixBufThold
+    32     2.183s   mp dbg REG_SNAPSHOT       0000001a 00000000 00000000 000003d4  boot CR1A
+    33     2.183s   mp dbg REG_SNAPSHOT       0000001b 00000000 00000000 000003d4  boot CR1B
+    34     2.203s   mp inf DDC                00000001 8f980000 8ffc0000 00000080  EDID read over DDC
+    35     2.203s   mp inf EDID               000009f8 0073001e 007d002d 000493e0  monitor 86Box Monitor BOX0000: H 30-115 kHz, V 45-125 Hz, 300 MHz
+    36     2.203s   mp inf MODES_BUILT        000000d2 00000046 000493e0 00027100  210 modes
+    37     2.203s   mp inf FIND_DONE          00000000 00000001 00000001 01000000  adapter ready: 1 chip(s), 16 MB each
+    38     2.203s   mp inf FIND_DONE          00000000 00000001 00000000 00000000  PHASE find done
+    39     4.997s   mp inf INIT_ENTER         00000001 00000000 00000000 00000000  PHASE initialize
+    40    11.266s   mp inf INIT_DONE          00000001 00000000 00000000 00000000  initialized; stable-boot timer on
+    41    11.326s   mp inf CHILD              00000001 000004de 00000080 00000100  monitor child, 128 EDID bytes
+    42    11.326s   mp dbg CHILD              00000002 000004e0 00000000 00000000  child enumeration: no child 2
+    43    11.877s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+    44    11.967s   dd inf DD_ENABLE_PDEV     00000320 00000258 00000010 0000003c  DrvEnablePDEV mode 80
+    45    11.967s   dd dbg DD_COMPLETE_PDEV   00000000 00000000 00000000 00000000  DrvCompletePDEV
+    46    11.967s   mp inf MODESET_BEGIN      03200258 0010003c 00000000 00000000  PHASE mode set
+    47    12.217s   mp inf MODESET_BEGIN      00000320 00000258 00000010 0000003c  mode 80: 800x600x16@60
+    48    12.217s   mp inf MODESET_PLL        00009c40 00009c59 0000f427 00000000  pll 40000 kHz -> 40025 kHz, refresh 60353 mHz
+    49    12.217s   mp dbg PALETTE            00000000 00000200 00000000 00000000  identity CLUT (both banks), 0 retries
+    50    12.217s   mp dbg MODESET_REG        0000005c 00040081 00040081 00000000  vidProcCfg ok
+    51    12.217s   mp dbg MODESET_REG        00000040 0000f427 0000f427 00000000  pllCtrl0 ok
+    52    12.217s   mp dbg MODESET_REG        0000004c 00000000 00000000 00000000  dacMode ok
+    53    12.217s   mp dbg MODESET_REG        00000098 00258320 00258320 00000000  vidScreenSize ok
+    54    12.217s   mp dbg MODESET_REG        000000e8 00000640 00000640 00000000  deskStride ok
+    55    12.217s   mp dbg MODESET_REG        00000300 0000007f 0000007f 00000000  CR00 ok
+    56    12.217s   mp dbg MODESET_REG        00000306 00000072 00000072 00000000  CR06 ok
+    57    12.217s   mp dbg MODESET_REG        0000031a 000000a0 000000a0 00000000  CR1a ok
+    58    12.217s   mp dbg MODESET_REG        0000031b 00000000 00000000 00000000  CR1b ok
+    59    12.237s   mp inf MODESET_DONE       00040081 00258320 00000640 00041eb0  mode set done
+    60    12.237s   mp inf MODESET_DONE       00000050 00000000 00000000 00000000  PHASE mode set done
+    61    12.377s   mp inf MAP                00000001 de000000 01000000 f6af3000  LFB mapped for the display driver
+    62    12.377s   mp inf MAP                00000002 e0000000 00a00000 f60f3000  registers mapped for the display driver
+    63    12.377s   dd inf DD_2D              00000001 0000001f f60f3000 00000001  2D engine on (registers at f60f3000, FIFO free when empty 31)
+    64    12.377s   dd inf DD_ENABLE_SURF     f7a08000 00000640 00000000 00000001  DrvEnableSurface 800x600x16
+    65    12.387s   dd inf DD_ENABLE_SURF     00000001 00000040 00000040 00000002  hardware pointer available
+    66    12.387s   dd inf DD_DDRAW           00000001 00000000 00f14000 00f15000  DirectDraw HAL: heap 0-f14000 (15440 KB), primary at f15000
+    67    12.387s   dd inf DD_DDRAW           00000001 00000000 00f14000 00f15000  DirectDraw HAL: heap 0-f14000 (15440 KB), primary at f15000
+    68    12.387s   dd inf DD_DDRAW           00000006 00000001 00000000 00000000  DrvEnableDirectDraw
+    69    12.387s   dd inf DD_DDRAW           00000008 ddf41230 00000018 00000000  GetDriverInfo ddf41230
+    70    12.387s   dd inf DD_DDRAW           00000008 2e04ffa0 00000000 00000000  GetDriverInfo 2e04ffa0
+    71    12.387s   dd inf DD_DDRAW           00000008 ffaa7540 0000000c 88760028  GetDriverInfo ffaa7540
+    72    12.387s   dd inf DD_DDRAW           00000008 efd60cc2 0000000c 88760028  GetDriverInfo efd60cc2
+    73    12.387s   dd inf DD_DDRAW           00000008 efd60cc0 0000000c 88760028  GetDriverInfo efd60cc0
+    74    12.387s   dd inf DD_DDRAW           00000008 406b2f00 00000018 00000000  GetDriverInfo 406b2f00
+    75    12.387s   dd inf DD_DDRAW           00000008 6fe9ecde 00000014 00000000  GetDriverInfo 6fe9ecde
+    76    12.387s   dd inf DD_DDRAW           00000008 880baf30 00000024 88760028  GetDriverInfo 880baf30
+    77    12.387s   dd inf DD_DDRAW           00000008 fad16a23 00000008 88760028  GetDriverInfo fad16a23
+    78    12.387s   dd inf DD_DDRAW           00000008 80863800 00000010 88760028  GetDriverInfo 80863800
+    79    12.387s   dd inf DD_DDRAW           00000008 b1122b40 00000030 88760028  GetDriverInfo b1122b40
+    80    12.387s   dd inf DD_DDRAW           00000008 42e02f16 0000008c 88760028  GetDriverInfo 42e02f16
+    81    12.387s   dd inf DD_DDRAW           00000008 3b8a0466 00000028 88760028  GetDriverInfo 3b8a0466
+    82    13.249s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+    83    13.249s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+    84    13.289s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+    85    18.736s   mp dbg POWER_GET          00000100 00000002 00000000 00000000  get power
+    86    18.736s   mp dbg POWER_GET          00000100 00000004 00000000 00000000  get power
+    87    18.746s   mp dbg POWER_GET          00000100 00000002 00000000 00000000  get power
+    88    18.746s   mp dbg POWER_GET          00000100 00000004 00000000 00000000  get power
+    89    70.771s   mp inf TIMER_STABLE       0000003c 00000000 00000000 00000000  stable-boot mark queued
+    90    70.911s   mp inf SAFE_MARK_OK       00000001 0000003c 00000000 00000000  stable for 60 s - boot counter cleared
+    91   183.654s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+    92   183.654s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+    93   183.674s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+    94   183.724s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+    95   183.724s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+    96   183.734s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+    97   183.734s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+    98   183.744s   dd dbg DD_DDRAW           00000007 00000001 00004040 00000000  CreateSurface
+    99   183.744s   dd dbg DD_DDRAW           00000007 00000001 00004040 00000000  CreateSurface
+   100   183.744s   mp inf USER_MAP           000000dd de000000 01000000 009c0000  DirectDraw video memory view: ok
+   101   183.744s   dd dbg DD_DDRAW           00000002 00000001 00000000 009c0000  MapMemory map -> 0
+   102   183.764s   dd inf DD_DDRAW           00000005 00000001 00000000 00000000  FlipToGDISurface
+   103   186.738s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   104   186.738s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   105   186.748s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   106   186.748s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   107   186.748s   mp dbg USER_UNMAP         009c0000 00000000 000000dd 00000000  DirectDraw view unmapped
+   108   186.748s   dd dbg DD_DDRAW           00000002 00000000 00000000 009c0000  MapMemory unmap -> 0
+   109   190.223s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   110   190.233s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   111   190.243s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   112   190.243s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   113   190.243s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+   114   190.253s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   115   190.263s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   116   190.263s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   117   190.263s   dd dbg DD_DDRAW           00000007 00000001 0000401c 00000000  CreateSurface
+   118   190.273s   mp inf USER_MAP           000000dd de000000 01000000 009c0000  DirectDraw video memory view: ok
+   119   190.273s   dd dbg DD_DDRAW           00000002 00000001 00000000 009c0000  MapMemory map -> 0
+   120   193.267s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   121   193.267s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   122   193.277s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   123   193.277s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   124   193.277s   mp dbg USER_UNMAP         009c0000 00000000 000000dd 00000000  DirectDraw view unmapped
+   125   193.277s   dd dbg DD_DDRAW           00000002 00000000 00000000 009c0000  MapMemory unmap -> 0
+   126   203.342s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   127   203.342s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   128   204.954s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   129   204.954s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   130   204.964s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   131   204.964s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   132   204.964s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+   133   204.974s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   134   204.974s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   135   204.974s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   136   204.974s   dd dbg DD_DDRAW           00000007 00000001 00004040 00000000  CreateSurface
+   137   204.974s   dd dbg DD_DDRAW           00000007 00000001 00004040 00000000  CreateSurface
+   138   204.974s   mp inf USER_MAP           000000dd de000000 01000000 009c0000  DirectDraw video memory view: ok
+   139   204.974s   dd dbg DD_DDRAW           00000002 00000001 00000000 009c0000  MapMemory map -> 0
+   140   204.994s   dd inf DD_DDRAW           00000005 00000001 00000000 00000078  FlipToGDISurface
+   141   207.979s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   142   207.979s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   143   207.989s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   144   207.989s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   145   207.989s   mp dbg USER_UNMAP         009c0000 00000000 000000dd 00000000  DirectDraw view unmapped
+   146   207.989s   dd dbg DD_DDRAW           00000002 00000000 00000000 009c0000  MapMemory unmap -> 0
+   147   211.243s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   148   211.243s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   149   211.253s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   150   211.253s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   151   211.253s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+   152   211.253s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   153   211.263s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   154   211.263s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   155   211.263s   dd dbg DD_DDRAW           00000007 00000001 00004040 00000000  CreateSurface
+   156   211.263s   dd dbg DD_DDRAW           00000007 00000001 00004040 00000000  CreateSurface
+   157   211.263s   mp inf USER_MAP           000000dd de000000 01000000 009c0000  DirectDraw video memory view: ok
+   158   211.263s   dd dbg DD_DDRAW           00000002 00000001 00000000 009c0000  MapMemory map -> 0
+   159   211.283s   dd inf DD_DDRAW           00000005 00000001 00000000 00000078  FlipToGDISurface
+   160   214.268s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   161   214.268s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   162   214.278s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   163   214.278s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   164   214.278s   mp dbg USER_UNMAP         009c0000 00000000 000000dd 00000000  DirectDraw view unmapped
+   165   214.278s   dd dbg DD_DDRAW           00000002 00000000 00000000 009c0000  MapMemory unmap -> 0
+   166   217.843s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   167   217.843s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   168   217.863s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   169   217.863s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   170   217.863s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+   171   217.873s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   172   217.873s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   173   217.873s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   174   217.873s   dd dbg DD_DDRAW           00000007 00000001 00004040 00000000  CreateSurface
+   175   217.873s   dd dbg DD_DDRAW           00000007 00000001 00004040 00000000  CreateSurface
+   176   217.873s   mp inf USER_MAP           000000dd de000000 01000000 009c0000  DirectDraw video memory view: ok
+   177   217.873s   dd dbg DD_DDRAW           00000002 00000001 00000000 009c0000  MapMemory map -> 0
+   178   217.903s   dd inf DD_DDRAW           00000005 00000001 00000000 00000078  FlipToGDISurface
+   179   220.877s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   180   220.877s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   181   220.887s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   182   220.887s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   183   220.887s   mp dbg USER_UNMAP         009c0000 00000000 000000dd 00000000  DirectDraw view unmapped
+   184   220.887s   dd dbg DD_DDRAW           00000002 00000000 00000000 009c0000  MapMemory unmap -> 0
+   185   230.922s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   186   230.922s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   187   236.109s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   188   236.109s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   189   236.109s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   190   236.109s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   191   236.109s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   192   236.109s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   193   236.109s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   194   236.109s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   195   236.109s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   196   236.149s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   197   236.149s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   198   236.149s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   199   236.149s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   200   236.149s   dd dbg DD_DDRAW           00000007 00000001 00006040 00000000  CreateSurface
+   201   236.149s   dd dbg DD_D3D             00000003 00000001 10006040 00020000  CreateSurfaceEx 1
+   202   236.149s   dd dbg DD_DDRAW           00000007 00000001 00024000 00000000  CreateSurface
+   203   236.149s   dd dbg DD_D3D             00000003 00000002 10024000 00040000  CreateSurfaceEx 2
+   204   236.149s   dd inf DD_D3D             00000001 00000001 00020000 00040000  ContextCreate 1: target 20000 (256x256 pitch 512, 16 bpp 3D), z 40000, pid 1276
+   205   236.149s   dd dbg DD_D3D             00000003 00000003 00800800 002642e0  CreateSurfaceEx 3
+   206   236.149s   dd dbg DD_D3D             00000003 00000004 00810800 00268400  CreateSurfaceEx 4
+   207   236.149s   dd dbg DD_D3D             00000003 00000005 00800800 002485c0  CreateSurfaceEx 5
+   208   236.149s   mp inf USER_MAP           000000dd de000000 01000000 00a20000  DirectDraw video memory view: ok
+   209   236.149s   dd dbg DD_DDRAW           00000002 00000001 00000000 00a20000  MapMemory map -> 0
+   210   236.229s   dd dbg DD_D3D             00000003 00000004 00810800 00000000  CreateSurfaceEx 4
+   211   236.229s   dd dbg DD_D3D             00000003 00000004 00800800 0027d540  CreateSurfaceEx 4
+   212   236.229s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   213   236.229s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   214   236.279s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   215   236.279s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   216   236.339s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   217   236.339s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   218   236.389s   dd dbg DD_D3D             00000003 00000006 00001800 00268400  CreateSurfaceEx 6
+   219   236.389s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   220   236.389s   dd dbg DD_D3D             00000003 00000007 10005000 00060000  CreateSurfaceEx 7
+   221   236.389s   dd dbg DD_D3D             0000000e 00000000 00000007 00000000  stage 0 texture 7
+   222   236.389s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   223   236.419s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   224   236.419s   dd dbg DD_D3D             00000003 00000006 00001800 00000000  CreateSurfaceEx 6
+   225   236.439s   dd dbg DD_D3D             00000003 00000007 00001800 00268400  CreateSurfaceEx 7
+   226   236.439s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   227   236.439s   dd dbg DD_D3D             00000003 00000006 10005000 00060000  CreateSurfaceEx 6
+   228   236.439s   dd dbg DD_D3D             0000000e 00000000 00000006 00000000  stage 0 texture 6
+   229   236.439s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   230   236.470s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   231   236.470s   dd dbg DD_D3D             00000003 00000007 00001800 00000000  CreateSurfaceEx 7
+   232   236.490s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   233   236.490s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   234   236.540s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   235   236.540s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   236   236.590s   dd dbg DD_D3D             00000003 00000006 00001800 0028d560  CreateSurfaceEx 6
+   237   236.590s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   238   236.590s   dd dbg DD_D3D             00000003 00000007 10005000 00060000  CreateSurfaceEx 7
+   239   236.590s   dd dbg DD_D3D             0000000e 00000000 00000007 00000000  stage 0 texture 7
+   240   236.590s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   241   236.620s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   242   236.620s   dd dbg DD_D3D             00000003 00000006 00001800 00000000  CreateSurfaceEx 6
+   243   236.660s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   244   236.660s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   245   236.900s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   246   236.900s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   247   236.950s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   248   236.950s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   249   237.000s   dd dbg DD_D3D             00000003 00000007 00001800 00268400  CreateSurfaceEx 7
+   250   237.000s   dd dbg DD_D3D             00000003 00000006 00001800 00249000  CreateSurfaceEx 6
+   251   237.000s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   252   237.000s   dd dbg DD_D3D             00000003 00000008 10005000 00060000  CreateSurfaceEx 8
+   253   237.000s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   254   237.000s   dd dbg DD_D3D             00000003 00000009 10005000 00062000  CreateSurfaceEx 9
+   255   237.000s   dd dbg DD_D3D             0000000e 00000000 00000008 00000000  stage 0 texture 8
+   256   237.000s   dd dbg DD_D3D             0000000e 00000001 00000009 00000000  stage 1 texture 9
+   257   237.030s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   258   237.030s   dd dbg DD_D3D             00000003 00000007 00001800 00000000  CreateSurfaceEx 7
+   259   237.030s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   260   237.030s   dd dbg DD_D3D             00000003 00000006 00001800 00000000  CreateSurfaceEx 6
+   261   237.050s   dd dbg DD_D3D             00000003 00000009 00001800 00268400  CreateSurfaceEx 9
+   262   237.050s   dd dbg DD_D3D             00000003 00000006 00001800 00249000  CreateSurfaceEx 6
+   263   237.050s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   264   237.050s   dd dbg DD_D3D             00000003 00000008 10005000 00060000  CreateSurfaceEx 8
+   265   237.050s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   266   237.050s   dd dbg DD_D3D             00000003 00000007 10005000 00062000  CreateSurfaceEx 7
+   267   237.050s   dd dbg DD_D3D             0000000e 00000000 00000008 00000000  stage 0 texture 8
+   268   237.050s   dd dbg DD_D3D             0000000e 00000001 00000007 00000000  stage 1 texture 7
+   269   237.080s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   270   237.080s   dd dbg DD_D3D             00000003 00000009 00001800 00000000  CreateSurfaceEx 9
+   271   237.080s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   272   237.080s   dd dbg DD_D3D             00000003 00000006 00001800 00000000  CreateSurfaceEx 6
+   273   237.110s   dd dbg DD_D3D             00000003 00000005 00800800 00000000  CreateSurfaceEx 5
+   274   237.110s   dd dbg DD_D3D             00000003 00000004 00800800 00000000  CreateSurfaceEx 4
+   275   237.110s   dd dbg DD_D3D             00000003 00000003 00800800 00000000  CreateSurfaceEx 3
+   276   237.110s   dd inf DD_D3D             00000002 00000001 0000001e 00000026  context 1 gone: 30 DrawPrimitives2, 38 triangles, 15 clears, 0 unparsed, 7 texture flushes
+   277   237.120s   mp dbg USER_UNMAP         00a20000 00000000 000000dd 00000000  DirectDraw view unmapped
+   278   237.120s   dd dbg DD_DDRAW           00000002 00000000 00000000 00a20000  MapMemory unmap -> 0
+   279   237.842s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   280   240.656s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   281   240.656s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   282   240.656s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   283   240.656s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   284   240.656s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   285   240.656s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   286   240.656s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   287   240.656s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   288   240.666s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   289   240.666s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   290   240.686s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   291   240.696s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   292   240.716s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   293   240.716s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   294   240.716s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   295   240.716s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   296   240.716s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   297   240.716s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+   298   240.716s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   299   240.726s   dd inf DD_DDRAW           0000000c 00000078 00000072 00000006  flips 120: retrace 114, deadline 6, superseded 0, pending 0
+   300   240.726s   dd inf DD_DDRAW           0000000d 0000270f 0000608c 0000493d  flip reads 101594: longest 9999 us; longest wait 24716 us; deadline 18749 us
+   301   240.726s   dd inf DD_ASSERT_MODE     00000000 00000001 00000000 00000000  DrvAssertMode
+   302   240.726s   dd inf DD_ENABLE_PDEV     00000280 000001e0 00000010 0000003c  DrvEnablePDEV mode 75
+   303   240.726s   dd dbg DD_COMPLETE_PDEV   00000000 00000000 00000000 00000000  DrvCompletePDEV
+   304   240.726s   mp inf MODESET_BEGIN      028001e0 0010003c 00000000 00000000  PHASE mode set
+   305   240.866s   mp inf MODESET_BEGIN      00000280 000001e0 00000010 0000003c  mode 75: 640x480x16@60
+   306   240.866s   mp inf MODESET_PLL        00006257 00006258 0000d137 00000000  pll 25175 kHz -> 25176 kHz, refresh 59942 mHz
+   307   240.866s   mp dbg PALETTE            00000000 00000200 00000000 00000000  identity CLUT (both banks), 0 retries
+   308   240.866s   mp dbg MODESET_REG        0000005c 00040081 00040081 00000000  vidProcCfg ok
+   309   240.866s   mp dbg MODESET_REG        00000040 0000d137 0000d137 00000000  pllCtrl0 ok
+   310   240.866s   mp dbg MODESET_REG        0000004c 00000000 00000000 00000000  dacMode ok
+   311   240.866s   mp dbg MODESET_REG        00000098 001e0280 001e0280 00000000  vidScreenSize ok
+   312   240.866s   mp dbg MODESET_REG        000000e8 00000500 00000500 00000000  deskStride ok
+   313   240.866s   mp dbg MODESET_REG        00000300 0000005f 0000005f 00000000  CR00 ok
+   314   240.866s   mp dbg MODESET_REG        00000306 0000000b 0000000b 00000000  CR06 ok
+   315   240.866s   mp dbg MODESET_REG        0000031a 00000000 00000000 00000000  CR1a ok
+   316   240.866s   mp dbg MODESET_REG        0000031b 00000000 00000000 00000000  CR1b ok
+   317   240.866s   mp dbg CURSOR             00000000 00f69000 016201c6 00040081  cursor applied
+   318   240.866s   mp inf MODESET_DONE       00040081 001e0280 00000500 000222e0  mode set done
+   319   240.866s   mp inf MODESET_DONE       0000004b 00000000 00000000 00000000  PHASE mode set done
+   320   240.996s   mp inf MAP                00000001 de000000 01000000 f6af3000  LFB mapped for the display driver
+   321   240.996s   mp inf MAP                00000002 e0000000 00a00000 f60f3000  registers mapped for the display driver
+   322   240.996s   dd inf DD_2D              00000001 0000001f f60f3000 00000001  2D engine on (registers at f60f3000, FIFO free when empty 31)
+   323   240.996s   dd inf DD_ENABLE_SURF     f7a5d000 00000500 00000000 00000001  DrvEnableSurface 640x480x16
+   324   240.996s   dd inf DD_ENABLE_SURF     00000001 00000040 00000040 00000002  hardware pointer available
+   325   240.996s   dd inf DD_DDRAW           00000001 00000000 00f69000 00f6a000  DirectDraw HAL: heap 0-f69000 (15780 KB), primary at f6a000
+   326   240.996s   dd inf DD_DDRAW           00000001 00000000 00f69000 00f6a000  DirectDraw HAL: heap 0-f69000 (15780 KB), primary at f6a000
+   327   240.996s   dd inf DD_DDRAW           00000006 00000001 00000000 00000000  DrvEnableDirectDraw
+   328   240.996s   dd inf DD_DDRAW           00000008 ddf41230 00000018 00000000  GetDriverInfo ddf41230
+   329   240.996s   dd inf DD_DDRAW           00000008 2e04ffa0 00000000 00000000  GetDriverInfo 2e04ffa0
+   330   240.996s   dd inf DD_DDRAW           00000008 ffaa7540 0000000c 88760028  GetDriverInfo ffaa7540
+   331   240.996s   dd inf DD_DDRAW           00000008 efd60cc2 0000000c 88760028  GetDriverInfo efd60cc2
+   332   240.996s   dd inf DD_DDRAW           00000008 efd60cc0 0000000c 88760028  GetDriverInfo efd60cc0
+   333   240.996s   dd inf DD_DDRAW           00000008 406b2f00 00000018 00000000  GetDriverInfo 406b2f00
+   334   240.996s   dd inf DD_DDRAW           00000008 6fe9ecde 00000014 00000000  GetDriverInfo 6fe9ecde
+   335   240.996s   dd inf DD_DDRAW           00000008 880baf30 00000024 88760028  GetDriverInfo 880baf30
+   336   240.996s   dd inf DD_DDRAW           00000008 fad16a23 00000008 88760028  GetDriverInfo fad16a23
+   337   240.996s   dd inf DD_DDRAW           00000008 80863800 00000010 88760028  GetDriverInfo 80863800
+   338   240.996s   dd inf DD_DDRAW           00000008 b1122b40 00000030 88760028  GetDriverInfo b1122b40
+   339   240.996s   dd inf DD_DDRAW           00000008 42e02f16 0000008c 88760028  GetDriverInfo 42e02f16
+   340   240.996s   dd inf DD_DDRAW           00000008 3b8a0466 00000028 88760028  GetDriverInfo 3b8a0466
+   341   240.996s   dd dbg DD_COMPLETE_PDEV   00000000 00000000 00000000 00000000  DrvCompletePDEV
+   342   240.996s   dd dbg DD_COMPLETE_PDEV   00000000 00000000 00000000 00000000  DrvCompletePDEV
+   343   240.996s   dd inf DD_DDRAW           00000006 00000000 00000078 00000000  DrvDisableDirectDraw
+   344   240.996s   dd dbg DD_DISABLE_SURF    00000000 00000000 00000000 00000000  DrvDisableSurface
+   345   240.996s   mp inf MAP                00000003 f60f3000 00000000 00000000  registers unmapped
+   346   240.996s   dd inf DD_2D              00000002 000089bc 00000000 00000000  2D engine released after 35260 ops
+   347   240.996s   dd dbg DD_DISABLE_PDEV    00000000 00000000 00000000 00000000  DrvDisablePDEV
+   348   241.076s   mp dbg CURSOR             00000001 00f69000 01260176 08040081  cursor applied
+   349   241.086s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   350   241.086s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   351   241.086s   dd dbg DD_DDRAW           00000007 00000001 1000601c 00000000  CreateSurface
+   352   241.086s   dd dbg DD_D3D             00000003 00000001 1000e238 00f6a000  CreateSurfaceEx 1
+   353   241.086s   dd dbg DD_D3D             00000003 00000002 1000601c 00096000  CreateSurfaceEx 2
+   354   241.086s   dd dbg DD_DDRAW           00000007 00000001 00024000 00000000  CreateSurface
+   355   241.086s   dd dbg DD_D3D             00000003 00000003 10024000 0012c000  CreateSurfaceEx 3
+   356   241.086s   dd inf DD_D3D             00000001 00000001 00096000 0012c000  ContextCreate 1: target 96000 (640x480 pitch 1280, 16 bpp 3D), z 12c000, pid 656
+   357   241.086s   dd dbg DD_D3D             00000003 00000004 00800800 002643e0  CreateSurfaceEx 4
+   358   241.086s   dd dbg DD_D3D             00000003 00000005 00810800 00268500  CreateSurfaceEx 5
+   359   241.086s   dd dbg DD_D3D             00000003 00000006 00800800 002485c0  CreateSurfaceEx 6
+   360   241.156s   mp inf USER_MAP           000000dd de000000 01000000 00a20000  DirectDraw video memory view: ok
+   361   241.156s   dd dbg DD_DDRAW           00000002 00000001 00000000 00a20000  MapMemory map -> 0
+   362   241.266s   dd dbg DD_D3D             00000003 00000005 00810800 00000000  CreateSurfaceEx 5
+   363   241.266s   dd dbg DD_D3D             00000003 00000005 00800800 0027d560  CreateSurfaceEx 5
+   364   241.266s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   365   241.266s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   366   241.387s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   367   241.387s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   368   241.487s   mp dbg CURSOR             00000001 00f69000 01260176 08040081  cursor applied
+   369   241.647s   mp dbg CURSOR             00000001 00f69000 01260176 08040081  cursor applied
+   370   241.647s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   371   241.647s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   372   241.697s   mp dbg CURSOR             00000001 00f69000 01260176 08040081  cursor applied
+   373   241.817s   mp dbg CURSOR             00000001 00f69000 01260176 08040081  cursor applied
+   374   241.837s   dd dbg DD_D3D             00000003 00000007 00001800 00268500  CreateSurfaceEx 7
+   375   241.837s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   376   241.837s   dd dbg DD_D3D             00000003 00000008 10005000 001c2000  CreateSurfaceEx 8
+   377   241.837s   dd dbg DD_D3D             0000000e 00000000 00000008 00000000  stage 0 texture 8
+   378   241.837s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   379   241.877s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   380   241.877s   dd dbg DD_D3D             00000003 00000007 00001800 00000000  CreateSurfaceEx 7
+   381   241.927s   dd dbg DD_D3D             00000003 00000008 00001800 00268500  CreateSurfaceEx 8
+   382   241.927s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   383   241.927s   dd dbg DD_D3D             00000003 00000007 10005000 001c2000  CreateSurfaceEx 7
+   384   241.927s   dd dbg DD_D3D             0000000e 00000000 00000007 00000000  stage 0 texture 7
+   385   241.927s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   386   241.957s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   387   241.957s   dd dbg DD_D3D             00000003 00000008 00001800 00000000  CreateSurfaceEx 8
+   388   241.967s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   389   241.967s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   390   241.997s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   391   241.997s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   392   242.048s   dd dbg DD_D3D             00000003 00000007 00001800 0028d5a0  CreateSurfaceEx 7
+   393   242.048s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   394   242.048s   dd dbg DD_D3D             00000003 00000008 10005000 001c2000  CreateSurfaceEx 8
+   395   242.048s   dd dbg DD_D3D             0000000e 00000000 00000008 00000000  stage 0 texture 8
+   396   242.058s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   397   242.088s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   398   242.088s   dd dbg DD_D3D             00000003 00000007 00001800 00000000  CreateSurfaceEx 7
+   399   242.098s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   400   242.098s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   401   242.138s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   402   242.138s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   403   242.188s   dd dbg DD_D3D             00000003 00000008 00001800 00268500  CreateSurfaceEx 8
+   404   242.188s   dd dbg DD_D3D             00000003 00000007 00001800 00249020  CreateSurfaceEx 7
+   405   242.188s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   406   242.188s   dd dbg DD_D3D             00000003 00000009 10005000 001c2000  CreateSurfaceEx 9
+   407   242.188s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   408   242.188s   dd dbg DD_D3D             00000003 0000000a 10005000 001c4000  CreateSurfaceEx 10
+   409   242.188s   dd dbg DD_D3D             0000000e 00000000 00000009 00000000  stage 0 texture 9
+   410   242.188s   dd dbg DD_D3D             0000000e 00000001 0000000a 00000000  stage 1 texture 10
+   411   242.218s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   412   242.218s   dd dbg DD_D3D             00000003 00000008 00001800 00000000  CreateSurfaceEx 8
+   413   242.218s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   414   242.218s   dd dbg DD_D3D             00000003 00000007 00001800 00000000  CreateSurfaceEx 7
+   415   242.228s   dd dbg DD_D3D             00000003 0000000a 00001800 00268500  CreateSurfaceEx 10
+   416   242.228s   dd dbg DD_D3D             00000003 00000007 00001800 00249020  CreateSurfaceEx 7
+   417   242.228s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   418   242.228s   dd dbg DD_D3D             00000003 00000009 10005000 001c2000  CreateSurfaceEx 9
+   419   242.238s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   420   242.238s   dd dbg DD_D3D             00000003 00000008 10005000 001c4000  CreateSurfaceEx 8
+   421   242.238s   dd dbg DD_D3D             0000000e 00000000 00000009 00000000  stage 0 texture 9
+   422   242.238s   dd dbg DD_D3D             0000000e 00000001 00000008 00000000  stage 1 texture 8
+   423   242.268s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   424   242.268s   dd dbg DD_D3D             00000003 0000000a 00001800 00000000  CreateSurfaceEx 10
+   425   242.268s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   426   242.268s   dd dbg DD_D3D             00000003 00000007 00001800 00000000  CreateSurfaceEx 7
+   427   244.090s   dd dbg DD_D3D             00000003 00000006 00800800 00000000  CreateSurfaceEx 6
+   428   244.090s   dd dbg DD_D3D             00000003 00000005 00800800 00000000  CreateSurfaceEx 5
+   429   244.090s   dd dbg DD_D3D             00000003 00000004 00800800 00000000  CreateSurfaceEx 4
+   430   244.090s   dd inf DD_D3D             00000002 00000001 0000001c 00000024  context 1 gone: 28 DrawPrimitives2, 36 triangles, 14 clears, 0 unparsed, 7 texture flushes
+   431   244.090s   dd inf DD_DDRAW           00000005 00000001 00000000 0000000e  FlipToGDISurface
+   432   244.090s   mp dbg USER_UNMAP         00a20000 00000000 000000dd 00000000  DirectDraw view unmapped
+   433   244.090s   dd dbg DD_DDRAW           00000002 00000000 00000000 00a20000  MapMemory unmap -> 0
+   434   244.090s   dd inf DD_DDRAW           0000000c 0000000e 00000004 00000009  flips 14: retrace 4, deadline 9, superseded 0, pending 1
+   435   244.090s   dd inf DD_DDRAW           0000000d 000006d3 00002731 0000493d  flip reads 1662: longest 1747 us; longest wait 10033 us; deadline 18749 us
+   436   244.090s   dd inf DD_ASSERT_MODE     00000000 00000001 00000000 00000000  DrvAssertMode
+   437   244.090s   dd inf DD_ENABLE_PDEV     00000320 00000258 00000010 0000003c  DrvEnablePDEV mode 80
+   438   244.090s   dd dbg DD_COMPLETE_PDEV   00000000 00000000 00000000 00000000  DrvCompletePDEV
+   439   244.090s   mp inf MODESET_BEGIN      03200258 0010003c 00000000 00000000  PHASE mode set
+   440   244.241s   mp inf MODESET_BEGIN      00000320 00000258 00000010 0000003c  mode 80: 800x600x16@60
+   441   244.241s   mp inf MODESET_PLL        00009c40 00009c59 0000f427 00000000  pll 40000 kHz -> 40025 kHz, refresh 60353 mHz
+   442   244.241s   mp dbg PALETTE            00000000 00000200 00000000 00000000  identity CLUT (both banks), 0 retries
+   443   244.241s   mp dbg MODESET_REG        0000005c 00040081 00040081 00000000  vidProcCfg ok
+   444   244.241s   mp dbg MODESET_REG        00000040 0000f427 0000f427 00000000  pllCtrl0 ok
+   445   244.241s   mp dbg MODESET_REG        0000004c 00000000 00000000 00000000  dacMode ok
+   446   244.241s   mp dbg MODESET_REG        00000098 00258320 00258320 00000000  vidScreenSize ok
+   447   244.241s   mp dbg MODESET_REG        000000e8 00000640 00000640 00000000  deskStride ok
+   448   244.241s   mp dbg MODESET_REG        00000300 0000007f 0000007f 00000000  CR00 ok
+   449   244.241s   mp dbg MODESET_REG        00000306 00000072 00000072 00000000  CR06 ok
+   450   244.241s   mp dbg MODESET_REG        0000031a 000000a0 000000a0 00000000  CR1a ok
+   451   244.241s   mp dbg MODESET_REG        0000031b 00000000 00000000 00000000  CR1b ok
+   452   244.241s   mp dbg CURSOR             00000000 00f14000 01260176 00040081  cursor applied
+   453   244.241s   mp inf MODESET_DONE       00040081 00258320 00000640 00024dd8  mode set done
+   454   244.241s   mp inf MODESET_DONE       00000050 00000000 00000000 00000000  PHASE mode set done
+   455   244.381s   mp inf MAP                00000001 de000000 01000000 f6af3000  LFB mapped for the display driver
+   456   244.381s   mp inf MAP                00000002 e0000000 00a00000 f60f3000  registers mapped for the display driver
+   457   244.381s   dd inf DD_2D              00000001 0000001f f60f3000 00000001  2D engine on (registers at f60f3000, FIFO free when empty 31)
+   458   244.381s   dd inf DD_ENABLE_SURF     f7a08000 00000640 00000000 00000001  DrvEnableSurface 800x600x16
+   459   244.381s   dd inf DD_ENABLE_SURF     00000001 00000040 00000040 00000002  hardware pointer available
+   460   244.381s   dd inf DD_DDRAW           00000001 00000000 00f14000 00f15000  DirectDraw HAL: heap 0-f14000 (15440 KB), primary at f15000
+   461   244.381s   dd inf DD_DDRAW           00000001 00000000 00f14000 00f15000  DirectDraw HAL: heap 0-f14000 (15440 KB), primary at f15000
+   462   244.381s   dd inf DD_DDRAW           00000006 00000001 00000000 00000000  DrvEnableDirectDraw
+   463   244.381s   dd inf DD_DDRAW           00000008 ddf41230 00000018 00000000  GetDriverInfo ddf41230
+   464   244.381s   dd inf DD_DDRAW           00000008 2e04ffa0 00000000 00000000  GetDriverInfo 2e04ffa0
+   465   244.381s   dd inf DD_DDRAW           00000008 ffaa7540 0000000c 88760028  GetDriverInfo ffaa7540
+   466   244.381s   dd inf DD_DDRAW           00000008 efd60cc2 0000000c 88760028  GetDriverInfo efd60cc2
+   467   244.381s   dd inf DD_DDRAW           00000008 efd60cc0 0000000c 88760028  GetDriverInfo efd60cc0
+   468   244.381s   dd inf DD_DDRAW           00000008 406b2f00 00000018 00000000  GetDriverInfo 406b2f00
+   469   244.381s   dd inf DD_DDRAW           00000008 6fe9ecde 00000014 00000000  GetDriverInfo 6fe9ecde
+   470   244.381s   dd inf DD_DDRAW           00000008 880baf30 00000024 88760028  GetDriverInfo 880baf30
+   471   244.381s   dd inf DD_DDRAW           00000008 fad16a23 00000008 88760028  GetDriverInfo fad16a23
+   472   244.381s   dd inf DD_DDRAW           00000008 80863800 00000010 88760028  GetDriverInfo 80863800
+   473   244.381s   dd inf DD_DDRAW           00000008 b1122b40 00000030 88760028  GetDriverInfo b1122b40
+   474   244.381s   dd inf DD_DDRAW           00000008 42e02f16 0000008c 88760028  GetDriverInfo 42e02f16
+   475   244.381s   dd inf DD_DDRAW           00000008 3b8a0466 00000028 88760028  GetDriverInfo 3b8a0466
+   476   244.381s   dd dbg DD_COMPLETE_PDEV   00000000 00000000 00000000 00000000  DrvCompletePDEV
+   477   244.381s   dd dbg DD_COMPLETE_PDEV   00000000 00000000 00000000 00000000  DrvCompletePDEV
+   478   244.381s   dd inf DD_DDRAW           00000006 00000000 0000000e 00000000  DrvDisableDirectDraw
+   479   244.381s   dd dbg DD_DISABLE_SURF    00000000 00000000 00000000 00000000  DrvDisableSurface
+   480   244.381s   mp inf MAP                00000003 f60f3000 00000000 00000000  registers unmapped
+   481   244.381s   dd inf DD_2D              00000002 00000014 00000000 00000000  2D engine released after 20 ops
+   482   244.381s   dd dbg DD_DISABLE_PDEV    00000000 00000000 00000000 00000000  DrvDisablePDEV
+   483   244.411s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   484   244.441s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   485   244.892s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   486   254.255s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   487   254.255s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   488   254.255s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   489   254.255s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   490   254.255s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   491   254.255s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   492   254.255s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   493   254.255s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   494   254.265s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   495   254.265s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   496   254.285s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   497   254.295s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   498   254.295s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   499   254.295s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   500   254.295s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   501   254.295s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   502   254.295s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   503   254.295s   dd inf DD_DDRAW           00000004 00000001 00000000 00000000  DirectDraw exclusive 1
+   504   254.295s   dd dbg DD_DDRAW           00000007 00000001 1000601c 00000000  CreateSurface
+   505   254.295s   dd dbg DD_D3D             00000003 00000001 1000e238 00f15000  CreateSurfaceEx 1
+   506   254.295s   dd dbg DD_D3D             00000003 00000002 1000601c 000ea600  CreateSurfaceEx 2
+   507   254.295s   dd dbg DD_DDRAW           00000007 00000001 00024000 00000000  CreateSurface
+   508   254.295s   dd dbg DD_D3D             00000003 00000003 10024000 001d4c00  CreateSurfaceEx 3
+   509   254.295s   dd inf DD_D3D             00000001 00000001 000ea600 001d4c00  ContextCreate 1: target ea600 (800x600 pitch 1600, 16 bpp 3D), z 1d4c00, pid 160
+   510   254.295s   dd dbg DD_D3D             00000003 00000004 00800800 002643e0  CreateSurfaceEx 4
+   511   254.295s   dd dbg DD_D3D             00000003 00000005 00810800 00268500  CreateSurfaceEx 5
+   512   254.295s   dd dbg DD_D3D             00000003 00000006 00800800 002485c0  CreateSurfaceEx 6
+   513   254.305s   mp inf USER_MAP           000000dd de000000 01000000 00a20000  DirectDraw video memory view: ok
+   514   254.305s   dd dbg DD_DDRAW           00000002 00000001 00000000 00a20000  MapMemory map -> 0
+   515   254.375s   dd dbg DD_D3D             00000003 00000005 00810800 00000000  CreateSurfaceEx 5
+   516   254.375s   dd dbg DD_D3D             00000003 00000005 00800800 0027d560  CreateSurfaceEx 5
+   517   254.375s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   518   254.375s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   519   254.415s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   520   254.415s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   521   254.485s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   522   254.485s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   523   254.525s   dd dbg DD_D3D             00000003 00000007 00001800 00268500  CreateSurfaceEx 7
+   524   254.525s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   525   254.525s   dd dbg DD_D3D             00000003 00000008 10005000 002bf200  CreateSurfaceEx 8
+   526   254.525s   dd dbg DD_D3D             0000000e 00000000 00000008 00000000  stage 0 texture 8
+   527   254.525s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   528   254.566s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   529   254.566s   dd dbg DD_D3D             00000003 00000007 00001800 00000000  CreateSurfaceEx 7
+   530   254.576s   dd dbg DD_D3D             00000003 00000008 00001800 00268500  CreateSurfaceEx 8
+   531   254.576s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   532   254.576s   dd dbg DD_D3D             00000003 00000007 10005000 002bf200  CreateSurfaceEx 7
+   533   254.576s   dd dbg DD_D3D             0000000e 00000000 00000007 00000000  stage 0 texture 7
+   534   254.576s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   535   254.606s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   536   254.606s   dd dbg DD_D3D             00000003 00000008 00001800 00000000  CreateSurfaceEx 8
+   537   254.616s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   538   254.616s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   539   254.656s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   540   254.656s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   541   254.706s   dd dbg DD_D3D             00000003 00000007 00001800 0028d5a0  CreateSurfaceEx 7
+   542   254.706s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   543   254.706s   dd dbg DD_D3D             00000003 00000008 10005000 002bf200  CreateSurfaceEx 8
+   544   254.706s   dd dbg DD_D3D             0000000e 00000000 00000008 00000000  stage 0 texture 8
+   545   254.706s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   546   254.736s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   547   254.736s   dd dbg DD_D3D             00000003 00000007 00001800 00000000  CreateSurfaceEx 7
+   548   254.746s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   549   254.746s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   550   254.786s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   551   254.786s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   552   254.836s   dd dbg DD_D3D             00000003 00000008 00001800 00268500  CreateSurfaceEx 8
+   553   254.836s   dd dbg DD_D3D             00000003 00000007 00001800 00249020  CreateSurfaceEx 7
+   554   254.836s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   555   254.836s   dd dbg DD_D3D             00000003 00000009 10005000 002bf200  CreateSurfaceEx 9
+   556   254.836s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   557   254.836s   dd dbg DD_D3D             00000003 0000000a 10005000 002c1200  CreateSurfaceEx 10
+   558   254.836s   dd dbg DD_D3D             0000000e 00000000 00000009 00000000  stage 0 texture 9
+   559   254.836s   dd dbg DD_D3D             0000000e 00000001 0000000a 00000000  stage 1 texture 10
+   560   254.866s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   561   254.866s   dd dbg DD_D3D             00000003 00000008 00001800 00000000  CreateSurfaceEx 8
+   562   254.866s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   563   254.866s   dd dbg DD_D3D             00000003 00000007 00001800 00000000  CreateSurfaceEx 7
+   564   254.876s   dd dbg DD_D3D             00000003 0000000a 00001800 00268500  CreateSurfaceEx 10
+   565   254.876s   dd dbg DD_D3D             00000003 00000007 00001800 00249020  CreateSurfaceEx 7
+   566   254.876s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   567   254.876s   dd dbg DD_D3D             00000003 00000009 10005000 002bf200  CreateSurfaceEx 9
+   568   254.876s   dd dbg DD_DDRAW           00000007 00000001 00005000 00000000  CreateSurface
+   569   254.876s   dd dbg DD_D3D             00000003 00000008 10005000 002c1200  CreateSurfaceEx 8
+   570   254.876s   dd dbg DD_D3D             0000000e 00000000 00000009 00000000  stage 0 texture 9
+   571   254.876s   dd dbg DD_D3D             0000000e 00000001 00000008 00000000  stage 1 texture 8
+   572   254.896s   dd inf DD_DDRAW           00000008 93869880 00000400 00000000  GetDriverInfo 93869880
+   573   254.896s   dd inf DD_DDRAW           00000008 7de41f80 00000074 00000000  GetDriverInfo 7de41f80
+   574   254.916s   dd dbg DD_D3D             0000000e 00000000 00000000 00000000  stage 0 texture 0
+   575   254.916s   dd dbg DD_D3D             00000003 0000000a 00001800 00000000  CreateSurfaceEx 10
+   576   254.916s   dd dbg DD_D3D             0000000e 00000001 00000000 00000000  stage 1 texture 0
+   577   254.916s   dd dbg DD_D3D             00000003 00000007 00001800 00000000  CreateSurfaceEx 7
+   578   257.299s   dd dbg DD_D3D             00000003 00000006 00800800 00000000  CreateSurfaceEx 6
+   579   257.299s   dd dbg DD_D3D             00000003 00000005 00800800 00000000  CreateSurfaceEx 5
+   580   257.299s   dd dbg DD_D3D             00000003 00000004 00800800 00000000  CreateSurfaceEx 4
+   581   257.299s   dd inf DD_D3D             00000002 00000001 0000001c 00000024  context 1 gone: 28 DrawPrimitives2, 36 triangles, 14 clears, 0 unparsed, 7 texture flushes
+   582   257.299s   dd inf DD_DDRAW           00000005 00000001 00000000 0000000e  FlipToGDISurface
+   583   257.299s   dd dbg DD_GET_MODES       000000d2 0000b478 00000000 00000000  DrvGetModes
+   584   257.299s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   585   257.299s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied
+   586   257.299s   dd inf DD_DDRAW           00000004 00000000 00000000 00000000  DirectDraw exclusive 0
+   587   257.299s   dd inf DD_DDRAW           0000000c 0000000e 00000004 00000009  flips 14: retrace 4, deadline 9, superseded 0, pending 1
+   588   257.299s   dd inf DD_DDRAW           0000000d 00001387 00003b99 0000493d  flip reads 2811: longest 4999 us; longest wait 15257 us; deadline 18749 us
+   589   257.299s   mp dbg USER_UNMAP         00a20000 00000000 000000dd 00000000  DirectDraw view unmapped
+   590   257.299s   dd dbg DD_DDRAW           00000002 00000000 00000000 00a20000  MapMemory unmap -> 0
+   591   257.410s   mp dbg CURSOR             00000001 00f14000 016201c6 08040081  cursor applied

@@ -288,3 +288,47 @@ def test_ddlab_reports_the_frames_and_takes_work_us():
     assert ddlab_run.work_refusal(ns)
     ns.frames, ns.work_us = 60, -1
     assert ddlab_run.work_refusal(ns)
+
+
+def test_ddlab_zsurf_reaches_cancreatesurface_without_a_switch():
+    """The D3D8 runtime refuses a depth format the HAL does not list before
+    any surface is created, so the display driver's own CanCreateSurface
+    refusal (event 511 a=11: a 32-bit Z on a chip that renders 16 bpp only)
+    is reachable only the DirectDraw 7 way - a Z surface with an explicit
+    DDPF_ZBUFFER pixel format, as a D3D7 game makes one. `ddlab zsurf` does
+    exactly that, at the normal cooperative level: no window, no exclusive
+    mode, no mode switch."""
+    lab = (KMD / "tools" / "ddlab.c").read_text()
+    z = lab[lab.index('if (!strcmp(mode, "zsurf")) {'):lab.index('if (!strcmp(mode, "flip")) {')]
+    assert "IDirectDraw7_SetCooperativeLevel(dd, NULL, DDSCL_NORMAL)" in z
+    zc = _strip_c_comments(z)
+    for bad in ("SetDisplayMode", "ChangeDisplaySettings", "DDSCL_EXCLUSIVE", "vcr_pace_before_switch",
+                "CreateWindow"):
+        assert bad not in zc, bad
+    assert "DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY" in z and "DDPF_ZBUFFER" in z
+    assert "if (g_zbits == 32) {" in z and "DDPF_STENCILBUFFER" in z
+    assert '\\"hr\\":\\"%08lx\\",\\"created\\":%d' in z
+    # the driver guard it is aimed at
+    ccs = func(DD, "static DWORD APIENTRY Dd_CanCreateSurface(")
+    assert "VCR_EV_DD_DDRAW, 11," in ccs and "DDERR_INVALIDPIXELFORMAT" in ccs
+    import sys
+    sys.path.insert(0, str(KMD / "tools"))
+    sys.path.insert(0, str(REPO))
+    import argparse
+    import ddlab_run
+    ns = argparse.Namespace(mode="zsurf", res="640x480", bpp=16, frames=120, timeout=120, zbits=32)
+    assert ddlab_run.lab_args(ns, "L") == "zsurf --res 640x480 --bpp 16 --frames 120 --zbits 32 --log L"
+    assert "zsurf" not in ddlab_run.FULLSCREEN          # no monitor gate: nothing switches
+
+
+def test_ddlab_flip_counts_frames_shorter_than_half_a_refresh():
+    """flips_s ran ~3% ABOVE vblank_hz at 600 frames on the 86Box bed
+    (2026-09-27; 62.3 flips/s at 60.35 Hz) - either a flip called done
+    before the chip could latch it (the retrace rule claims never early,
+    include/vcr_flip.h), or a vblank_hz measurement that missed a retrace.
+    min_frame_ms / fast_frames (flip to flip under HALF a measured refresh)
+    tell the two apart."""
+    lab = (KMD / "tools" / "ddlab.c").read_text()
+    for k in ("min_frame_ms", "fast_frames"):
+        assert f'\\"{k}\\":' in lab, k
+    assert "if (period > 0 && d < 0.5 * period)\n                    fast++;" in lab

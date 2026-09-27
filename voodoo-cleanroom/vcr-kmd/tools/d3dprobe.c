@@ -13,7 +13,8 @@
  *                                   CheckDeviceType of a fullscreen HAL
  *                                   device in each (0 for X8R8G8B8 on a
  *                                   VSA-100: Diag\D3D32 is off)
- *   d3dprobe render [--full] [--res WxH] [--bpp 16|32] [--noz] [--tests a,b,...]
+ *   d3dprobe render [--full] [--res WxH] [--bpp 16|32] [--noz] [--zfmt d16|d24x8|d24s8]
+ *             [--tests a,b,...]
  *             one HAL device, then each test draws into the back buffer, the
  *             back buffer is LOCKED and read back, and the pixels are compared
  *             with values computed here (the scene is analytic) - no golden
@@ -23,6 +24,11 @@
  *             --noz: no depth buffer (EnableAutoDepthStencil FALSE) - the
  *             colour path alone (renderMode + colour fastfill, no aux buffer
  *             write); clears are TARGET only and ztest is skipped.
+ *             --zfmt: ask for THIS depth format (EnableAutoDepthStencil on),
+ *             not the one d3dprobe would pick - a device a HAL must REFUSE
+ *             (a 16 bpp target with D24S8 on a Banshee/Voodoo3 or a VSA-100
+ *             without Diag\D3D32) is then asked for as an application would.
+ *             The RESULT says which format was asked ("zfmt") either way.
  *   d3dprobe perf [--full [--novsync]] [--res WxH] [--bpp N] [--frames N]
  *             textured triangles per second and frames per second (--novsync:
  *             fullscreen presents immediately, so the number is the chip's).
@@ -143,6 +149,19 @@ static HWND g_hwnd;
 static D3DFORMAT g_fmt;
 static int g_w = 640, g_h = 480, g_bpp = 16, g_full, g_frames = 200, g_novsync;
 static int g_noz;               /* --noz: no depth buffer at all */
+static D3DFORMAT g_zfmt = D3DFMT_UNKNOWN;   /* --zfmt: this depth format, not d3dprobe's pick */
+
+/* --zfmt's names; D3DFMT_UNKNOWN for anything else (refused, nothing created) */
+static D3DFORMAT zfmt_named(const char *v)
+{
+    if (!strcmp(v, "d16"))
+        return D3DFMT_D16;
+    if (!strcmp(v, "d24x8"))
+        return D3DFMT_D24X8;
+    if (!strcmp(v, "d24s8"))
+        return D3DFMT_D24S8;
+    return D3DFMT_UNKNOWN;
+}
 static int g_pass, g_fail;
 
 /* Releasing a fullscreen device is the switch back to the desktop: hold the
@@ -624,7 +643,7 @@ int main(int argc, char **argv)
     HRESULT hr;
     int i;
     DWORD pace;
-    const char *bad_pace = NULL;
+    const char *bad_pace = NULL, *bad_zfmt = NULL;
 
     /* A crash must die at once, not sit behind a Watson / "has encountered a
      * problem" box: that box keeps the process - and a fullscreen mode it
@@ -649,6 +668,11 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--full")) g_full = 1;
         else if (!strcmp(a, "--novsync")) g_novsync = 1;
         else if (!strcmp(a, "--noz")) g_noz = 1;
+        else if (!strcmp(a, "--zfmt") && v) {
+            if ((g_zfmt = zfmt_named(v)) == D3DFMT_UNKNOWN)
+                bad_zfmt = v;
+            i++;
+        }
         else if (a[0] != '-') mode = a;
     }
     g_log = fopen(g_logpath, "w");
@@ -657,6 +681,13 @@ int main(int argc, char **argv)
     if (bad_pace) {
         say("RESULT {\"mode\":\"%s\",\"error\":\"--pace %s: decimal milliseconds, 0 to %u\"}",
             mode, bad_pace, VCR_PACE_MAX_MS);
+        return 2;
+    }
+    /* before any device or switch: a format that is not named, or one asked
+     * for with no depth buffer at all */
+    if (bad_zfmt || (g_zfmt != D3DFMT_UNKNOWN && g_noz)) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"--zfmt %s: d16, d24x8 or d24s8, and not with "
+            "--noz\"}", mode, bad_zfmt ? bad_zfmt : "given");
         return 2;
     }
 
@@ -799,6 +830,10 @@ int main(int argc, char **argv)
                 break;
             }
     }
+    /* --zfmt: exactly what was asked, checked by nobody here - the runtime
+     * and the HAL decide, and the RESULT says which one refused it */
+    if (g_zfmt != D3DFMT_UNKNOWN)
+        pp.AutoDepthStencilFormat = g_zfmt;
     pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
     pp.hDeviceWindow = hwnd;
     if (g_full && g_novsync)        /* perf: measure the chip, not the refresh */
@@ -825,8 +860,9 @@ int main(int argc, char **argv)
     if (g_full)
         vcr_pace_after_switch();
     if (FAILED(hr)) {
-        say("RESULT {\"mode\":\"%s\",\"error\":\"CreateDevice %08lx\",\"adapter\":\"%s\"}", mode,
-            hr, id.Description);
+        say("RESULT {\"mode\":\"%s\",\"error\":\"CreateDevice %08lx\",\"adapter\":\"%s\","
+            "\"fmt\":%u,\"zfmt\":%u}", mode, hr, id.Description, (unsigned)pp.BackBufferFormat,
+            g_noz ? 0u : (unsigned)pp.AutoDepthStencilFormat);
         return 2;
     }
     g_held = g_full;

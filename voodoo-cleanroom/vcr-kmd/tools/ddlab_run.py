@@ -4,6 +4,7 @@
     ddlab_run.py 127.0.0.1 --port 19910 caps
     ddlab_run.py 192.168.1.124 flip --res 800x600 --bpp 16 --frames 120
     ddlab_run.py 127.0.0.1 --port 19920 flip --res 800x600 --bpp 16 --frames 600 --work-us 17400
+    ddlab_run.py 127.0.0.1 --port 19920 zsurf --zbits 32    (a 24+8 Z surface: CanCreateSurface)
 
 Uploads out/ddlab.exe to C:\\vcr\\ddlab\\, runs it through `start /wait` (a
 normal desktop window - exclusive mode needs one) under EXECW, and prints the
@@ -11,6 +12,9 @@ RESULT json from the flushed log. A flip RESULT also carries the per-frame
 summary (first_frame_ms, max_frame_ms, slow_frames, flips_s_first_last);
 --work-us N adds N microseconds of busy work after every Flip (the D3D
 pattern - render, then wait for the flip), passed to ddlab only when non-zero.
+`zsurf` creates one Z-buffer surface of --zbits bits through DirectDraw 7 (no
+window, no exclusive mode, no mode switch) - the request a HAL's
+CanCreateSurface judges; its RESULT is the HRESULT, not a pass/fail.
 
 `flip` and `blt` take the screen exclusively at --res x --bpp with refresh 0
 - the driver / XP picks the rate - so before anything is uploaded the mode is
@@ -101,6 +105,8 @@ def lab_args(a, log):
     work = getattr(a, "work_us", 0) or 0
     if work:
         args += f" --work-us {work}"
+    if a.mode == "zsurf":
+        args += f" --zbits {getattr(a, 'zbits', 32)}"
     return args + f" --log {log}"
 
 
@@ -192,7 +198,7 @@ async def main_async(a):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("host")
-    ap.add_argument("mode", choices=("caps", "flip", "blt"))
+    ap.add_argument("mode", choices=("caps", "flip", "blt", "zsurf"))
     ap.add_argument("--port", type=int, default=9898)
     ap.add_argument("--res", default="640x480")
     ap.add_argument("--bpp", type=int, default=16)
@@ -200,6 +206,8 @@ def main():
     ap.add_argument("--work-us", type=int, default=0,
                     help="flip: microseconds of busy work after every Flip, no DirectDraw call "
                          "(the D3D pattern; 0 = the plain loop)")
+    ap.add_argument("--zbits", type=int, choices=(16, 24, 32), default=32,
+                    help="zsurf: the Z surface's bits (32 = 24 depth + 8 stencil, D24S8)")
     ap.add_argument("--timeout", type=int, default=120,
                     help="seconds of WORK; the EXECW adds the pace gate's worst case per switch")
     ap.add_argument("--tool", default=r"C:\vcr\vcrctl.exe",

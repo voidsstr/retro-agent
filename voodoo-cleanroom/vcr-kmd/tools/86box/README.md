@@ -95,3 +95,31 @@ beforehand - each is otherwise a boot failure with nothing on the screen:
   option). The agent secret is the fleet's LAN convention; nothing else listens.
 - The emulator runs at ~100 % of a real Pentium II 450: boot to a PING-able
   agent is ~2 minutes, and `deploy_box.py`'s preflight should not start before.
+- **The guest's agent auto-updates itself from the share** (the guest reaches
+  the NAS through SLiRP) and restarts ~20 s after its first PING when the
+  share has a newer build - under `deploy_box.py`'s verify, which then died on
+  ConnectionResetError on an install that had worked (2026-09-27, 1.85.3 ->
+  1.85.4). The verify now retries a dropped connection (`status_after_boot`).
+- **A DirectDraw session in the desktop's own mode never logs its flip
+  counters** (event 511 a=12/13): XP does not call SetExclusiveMode(0) at its
+  release and no mode leaves the screen, so they surface at the next mode
+  change, merged with any later same-mode session. Flush them with one paced
+  switch (`vcrctl setmode 640 480 16`, reverted at exit), or run the lab at a
+  mode other than the desktop's.
+- **`REGDELETE` deletes KEYS, never a value** (SHDeleteKeyA on the whole
+  path): to remove a switch such as `Diag\FlipDeadline` use `EXEC reg delete
+  "HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag" /v FlipDeadline /f`
+  and read the key back. Never point REGDELETE at `...\vcrmp\Diag` itself.
+- **A D3D8 request for a format the HAL does not list never reaches the
+  driver**: on this Voodoo3 a 32 bpp device and a 16 bpp device with D24S8 are
+  refused by the runtime (CreateDevice 8876086c, nothing in the recorder). The
+  driver's own CanCreateSurface guard (511 a=11) is reached the DirectDraw 7
+  way: `ddlab_run.py ... zsurf --zbits 32`.
+- **A single chip cannot accept an SLI/AA enable**, so `sliaa off` never finds
+  an owner left by one here; `evidence/86box_v3/int_20260927/harness/
+  stale_owner.c` leaves one (HWCSETEXCLUSIVE, exit without a release) to test
+  it against. `vcrctl info` reports the owner (`exclusive_pid`).
+- **Flip completions outrun the refresh by 2-3 % at 600 frames** here (ddlab
+  `fast_frames` 22-29, min 1.0-1.6 ms), on the previous build too - open; see
+  `evidence/86box_v3/int_20260927/README.md` section 3 before reading flip
+  rates from this bed as silicon's.

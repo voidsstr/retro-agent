@@ -1,0 +1,8 @@
+# d3dprobe_run.py render -v  (rc 1; desktop 800x600x32@60)
+{"mode": "render", "error": "CreateDevice 8876086c", "adapter": "vcr-kmd Voodoo 3 (open driver)"}
+d3dprobe render: windowed 640x480x16
+adapter "vcr-kmd Voodoo 3 (open driver)" driver vcrdd.dll 0.0.0.0; desktop 800x600 fmt 22
+GetDeviceCaps(HAL) 00000000
+CreateDevice(HAL, windowed, back buffer 256x256 fmt 22, z fmt 80)
+RESULT {"mode":"render","error":"CreateDevice 8876086c","adapter":"vcr-kmd Voodoo 3 (open driver)"}
+

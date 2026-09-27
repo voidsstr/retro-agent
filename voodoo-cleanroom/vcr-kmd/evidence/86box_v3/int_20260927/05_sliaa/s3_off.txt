@@ -1,0 +1,6 @@
+# EXEC C:\vcr\vcrctl.exe sliaa off
+{"cmd":"sliaa","ok":true,"escape":"3df3","ret":1,"resStatus":1,"board_chips":1,"request":{"chips":1,"sli":0,"aa":0,"high":0,"analog":0,"nlines":0,"bpp":0,"totalMemory":"00000000","tileMark":"00000000","col":"00000000","depth":["00000000","00000000"],"at_box":false},"paced":true,"exclusive":true,"released":true,"vid2x":-1,"vidProcCfg":"00000000","forced_pll":false,"sli_result":0,"sli_chips":0,"clock_6k_hz":0}
+
+# info before: {"cur": "800x600x16@60", "cur_mode": 80, "dd_mode": 80, "exclusive_pid": 0, "hwc_requests": 5, "sli_active": 0, "sli_chips": 0, "sli_result": -4, "glide_chips": 1, "log_next_seq": 4176}
+# info after:  {"cur": "800x600x16@60", "cur_mode": 80, "dd_mode": 80, "exclusive_pid": 0, "hwc_requests": 9, "sli_active": 0, "sli_chips": 0, "sli_result": 0, "glide_chips": 1, "log_next_seq": 4203}
+# DISPLAYCFG get after: {"width":800,"height":600,"bpp":16,"refresh":60}

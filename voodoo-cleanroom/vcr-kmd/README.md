@@ -92,9 +92,9 @@ that file, so names cannot drift.
 | `out/glidelab.exe` (`tools/glidelab.c`, `make glidelab GLIDE_SDK=...`) | our Glide test program, no game in the way: `fill` (Mpixel/s, flat or blended), `bands` (every scanline an exact RGB565 value read back through the LFB, bad lines per owning chip), `cycle` (open/close N times: SLI set up and torn down), `abandon` (exit without closing, as a killed game does) |
 | `tools/glidelab_run.py`, `tools/glidelab_sweep.py` | run one glidelab mode on a box / sweep fill + bands over SLI/AA configs (one boot each, or `--no-reboot` for ours), JSON lines in `evidence/glidelab/` |
 | `tools/cursor_golden.py` | the hardware cursor's registers and 1 KB pattern, read back (a screenshot cannot show a hardware cursor), compared against the vendor's |
-| `out/ddlab.exe` (`tools/ddlab.c`) + `tools/ddlab_run.py` | our DirectDraw test program: `caps` (HAL vs HEL, video memory), `flip` (a frame-numbered pattern written to the back buffer must read back from the FRONT after each flip), `blt` (copy, colour fill, an overlapping scroll and a SOURCE-COLOUR-KEYED copy between video-memory surfaces, read back) |
+| `out/ddlab.exe` (`tools/ddlab.c`) + `tools/ddlab_run.py` | our DirectDraw test program: `caps` (HAL vs HEL, video memory), `flip` (a frame-numbered pattern written to the back buffer must read back from the FRONT after each flip), `blt` (copy, colour fill, an overlapping scroll and a SOURCE-COLOUR-KEYED copy between video-memory surfaces, read back), `zsurf --zbits 16|24|32` (one DirectDraw 7 Z surface - the request the HAL's CanCreateSurface judges; no mode switch) |
 | `out/gdilab.exe` (`tools/gdilab.c`) | our GDI test program, self-checking against a per-pixel pattern: solid fills, BLACKNESS/WHITENESS, screen-to-screen copies (odd positions and sizes), overlapping scrolls in all four directions, a copy through a clip region with a hole, and the engine and the CPU interleaved on the same pixels |
-| `out/d3dprobe.exe` (`tools/d3dprobe.c`) + `tools/d3dprobe_run.py` | our Direct3D 8 test program: `caps` (adapter, D3DCAPS8, formats), `render` (clear, flat, gouraud, texture, modulate, blend, z-test, 256x256 texture - the back buffer LOCKED and compared with computed values, windowed or `--full`), `perf` |
+| `out/d3dprobe.exe` (`tools/d3dprobe.c`) + `tools/d3dprobe_run.py` | our Direct3D 8 test program: `caps` (adapter, D3DCAPS8, formats), `render` (clear, flat, gouraud, texture, modulate, blend, z-test, 256x256 texture - the back buffer LOCKED and compared with computed values, windowed or `--full`; `--zfmt d16|d24x8|d24s8` asks for that depth format, e.g. a device the HAL must refuse), `perf` |
 | `tools/lab_run.py <lab> <host>` | runs any of the labs on a box or test bed and fails on any `bad*`/`fail` count |
 | `make labs` | builds ddlab, d3dprobe, gdilab |
 | `tools/86box/` | **the Voodoo3 test bed**: 86Box emulating a real Voodoo3 3000 - the driver's Voodoo paths, recoverable by script. [`tools/86box/README.md`](tools/86box/README.md) |
@@ -318,6 +318,14 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
   GetFlipStatus and a Lock (or blit) of the buffer being taken off the screen
   answer `DDERR_WASSTILLDRAWING`. Before: 768 flips/s on a 60 Hz mode (no
   vsync at all); after: 62.3, the in-box driver 60.9.
+  The integration build's counters on the 86Box bed (2026-09-27,
+  `evidence/86box_v3/int_20260927/`): no half rate at 16 or 32 bpp, on a 16 or
+  a 32 bpp desktop, in either order (58.7-64.0 flips/s at 60.35 Hz, 89-96 %
+  completed by retrace at 600 frames, the rest by the deadline after a missed
+  vsync); Diag\FlipDeadline = 1 moves the deadline 18749 -> 17086 us but the
+  emulator's ~3 ms of per-frame overhead hides the 0.889x/0.95x ratio, so that
+  A/B needs silicon. Open: completions exceed the refresh by 2-3 % there
+  (ddlab `fast_frames`), on the previous build too.
 
 - **DirectDraw on XP is switched off, silently, by `DDCAPS_GDI`.** A HAL that
   claims it is probed at every PDEV (info twice, enable, ten GetDriverInfo

@@ -212,6 +212,39 @@ async def status(a, args, evidence):
     return bool(info.get("ok"))
 
 
+async def status_after_boot(a, args, evidence, tries=3, wait=180):
+    """status(), surviving the agent restarting under it. A box's agent can
+    auto-update in its first minute - the 86Box bed's did, 1.85.3 -> 1.85.4,
+    20 s after it first answered PING (2026-09-27) - and the verify's REGREAD
+    then died on ConnectionResetError with a traceback, on an install that
+    had worked. A dropped connection is retried after the agent answers
+    again; anything else, and the last try, still fails loudly."""
+    for i in range(tries):
+        try:
+            return await status(a, args, evidence)
+        except (OSError, asyncio.TimeoutError) as e:    # ConnectionResetError is an OSError
+            if i + 1 == tries:
+                raise
+            print(f"  verify: the agent dropped the connection ({type(e).__name__}: {e}) - "
+                  f"waiting for it to answer again ({i + 1}/{tries - 1})")
+            await asyncio.sleep(10)
+            t0 = time.time()
+            while time.time() - t0 < wait and not await a.alive():
+                await asyncio.sleep(5)
+
+
+def exit_code(rc):
+    """main's exit status for an action's result: an int as is, a bool as
+    success (0) / failure (1). bool IS an int in Python, so `isinstance(rc,
+    int)` alone sent status()'s True out as exit status 1 - a successful
+    `status` read as a failure."""
+    if isinstance(rc, bool):
+        return 0 if rc else 1
+    if isinstance(rc, int):
+        return rc
+    return 0 if rc else 1
+
+
 async def install(a, args, evidence):
     print("[preflight]")
     if not await preflight(a, args):
@@ -247,7 +280,7 @@ async def install(a, args, evidence):
         print("  FAIL the box did not come back within 15 min - Diag phases are on its disk")
         return 3
     print(f"[verify] back after {took:.0f}s")
-    return 0 if await status(a, args, evidence) else 1
+    return 0 if await status_after_boot(a, args, evidence) else 1
 
 
 async def rollback(a, args, evidence):
@@ -293,7 +326,7 @@ def main():
     evidence = Path(args.evidence) / f"{args.ip}_{time.strftime('%Y%m%d-%H%M%S')}_{args.action}"
     fn = {"install": install, "rollback": rollback, "status": status}[args.action]
     rc = asyncio.run(fn(a, args, evidence))
-    sys.exit(rc if isinstance(rc, int) else (0 if rc else 1))
+    sys.exit(exit_code(rc))
 
 
 if __name__ == "__main__":

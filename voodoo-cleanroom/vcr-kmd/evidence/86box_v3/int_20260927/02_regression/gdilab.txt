@@ -1,0 +1,1 @@
+{"mode": "gdi", "bpp": 16, "rounds": 3, "bad_fill": 0, "bad_rop": 0, "bad_copy": 0, "bad_scroll": 0, "bad_clip": 0, "bad_sync": 0, "bad": 0}

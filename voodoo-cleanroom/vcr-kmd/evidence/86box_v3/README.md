@@ -13,3 +13,5 @@ evidence per install (recorder log, register snapshot, screenshot).
 | vcrkmd_d3d_caps_before.json | ours before the Direct3D HAL: GetDeviceCaps D3DERR_NOTAVAILABLE |
 | vcrkmd_d3d_render_windowed.json, vcrkmd_d3d_render_full_800x600x16.json | ours with the Direct3D HAL: d3dprobe render 26/26 windowed and fullscreen |
 | vcrkmd_battery_d3d1.jsonl | the whole battery on that build: gdilab 0 bad, ddlab blt/flip 0 bad, d3dprobe 26/26 x2 |
+| rt32/ | the 32 bpp render-target build (5be6a59): no 16 bpp regression, the Voodoo3 32 bpp refusal |
+| int_20260927/ | the integration build (worktree-vk-int 5e4ca36): install, regression vs these baselines (plus a same-session A/B against 5be6a59), the flip counters and the Diag\FlipDeadline A/B, the D3D refusal layers (runtime vs CanCreateSurface), the SLI/AA refusals and `sliaa off` against a stale owner - [README](int_20260927/README.md) |

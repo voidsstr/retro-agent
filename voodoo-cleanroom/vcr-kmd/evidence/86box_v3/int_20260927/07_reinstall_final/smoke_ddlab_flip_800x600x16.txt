@@ -1,0 +1,3 @@
+plan: ddlab flip at 800x600x16@85 (the highest refresh the driver lists there: refresh 0 lets it pick)   53.67 kHz  85.06 Hz   56.2 MHz
+  monitor BOX0000 86Box Monitor: H 30-115 kHz, V 45-125 Hz, <= 300 MHz
+{"mode": "flip", "res": "800x600x16", "primary_in": "video", "frames": 120, "frames_run": 120, "mismatch": 0, "lock_fail": 0, "flips_s": 57.3, "vblank_hz": 60.4, "scanline": 0, "hal_caps": "04020041", "work_us": 0, "first_frame_ms": 22.38, "max_frame_ms": 34.62, "slow_frames": 4, "min_frame_ms": 1.02, "fast_frames": 4, "flips_s_first_last": 57.5, "focus_lost": false}

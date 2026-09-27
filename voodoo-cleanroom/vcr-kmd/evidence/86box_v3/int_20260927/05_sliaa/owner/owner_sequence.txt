@@ -1,0 +1,17 @@
+O1 info before: {"cur": "800x600x16@60", "dd_mode": 80, "exclusive_pid": 0, "hwc_requests": 33, "sli_result": 0, "log_next_seq": 4368}
+O2 {"cmd":"stale_owner set","pid":1844,"ret":1,"resStatus":1}
+O2 info after the owner exited without a release: {"cur": "800x600x16@60", "dd_mode": 80, "exclusive_pid": 1844, "hwc_requests": 34, "sli_result": 0, "log_next_seq": 4370}
+O3 {"cmd":"stale_owner rls","pid":1540,"ret":1,"resStatus":0}
+O3 info after a NON-owner release: {"cur": "800x600x16@60", "dd_mode": 80, "exclusive_pid": 1844, "hwc_requests": 35, "sli_result": 0, "log_next_seq": 4372}
+O4 vcrctl sliaa off (separate process): {"cmd":"sliaa","ok":true,"escape":"3df3","ret":1,"resStatus":1,"board_chips":1,"request":{"chips":1,"sli":0,"aa":0,"high":0,"analog":0,"nlines":0,"bpp":0,"totalMemory":"00000000","tileMark":"00000000","col":"00000000","depth":["00000000","00000000"],"at_box":false},"paced":true,"exclusive":true,"released":true,"vid2x":-1,"vidProcCfg":"00000000","forced_pll":false,"sli_result":0,"sli_chips":0,"clock_6k_hz":0}
+O4 info after off: {"cur": "800x600x16@60", "dd_mode": 80, "exclusive_pid": 0, "hwc_requests": 39, "sli_result": 0, "log_next_seq": 4399}
+O4 DISPLAYCFG get: {"width":800,"height":600,"bpp":16,"refresh":60}
+      4369  2276.483s   dd inf HWC_EXCLUSIVE      00000001 00000734 00000001 00000000  HWCSETEXCLUSIVE
+      4371  2277.464s   dd WRN HWC_EXCLUSIVE      00000004 00000604 00000734 00000000  HWCRLSEXCLUSIVE from 1540 refused: the chip is owned by 1844 - no mode set, nothing written
+      4375  2278.436s   dd inf HWC_EXCLUSIVE      00000001 000000dc 00000001 00000000  HWCSETEXCLUSIVE
+      4377  2278.436s   mp inf HWC_SLIAA          00000001 00000000 00000000 00000000  PHASE SLI_AA_REQUEST disable
+      4378  2278.576s   mp inf HWC_SLIAA          00000001 00000000 00000000 00000000  SLI_AA_REQUEST: 1 chips, analog 0, sample 0, bpp 0
+      4379  2278.576s   dd inf HWC_SLIAA          00000001 00000000 00000000 00000000  SLI_AA_REQUEST -> ioctl 0, result 0, 0 chips live
+      4382  2278.576s   mp inf MODESET_BEGIN      03200258 0010003c 00000000 00000000  PHASE mode set
+      4383  2278.676s   mp inf MODESET_BEGIN      00000320 00000258 00000010 0000003c  mode 80: 800x600x16@60
+      4398  2278.776s   dd inf HWC_EXCLUSIVE      00000000 000000dc 00000001 00000000  HWCRLSEXCLUSIVE

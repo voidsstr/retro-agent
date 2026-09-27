@@ -1,0 +1,3 @@
+f4a53d193b0bb2a5d612a0488427aaf6  pre/vcrctl.exe
+11583d6e520bd71936c47e3fcbf9d2de  pre/vcrdd.dll
+7fe59d296208fc22837e71cee1969915  pre/vcrmp.sys

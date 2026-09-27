@@ -1208,8 +1208,8 @@ def test_vcrctl_info_says_whose_limits_are_in_force():
     NOT 0, which would read as "filter off", and not a guess either."""
     info = _body(VCRCTL, "cmd_info", strings=False)
     assert re.search(r"if \(v\.size >= FIELD_OFFSET\(vcr_info, mon_src\) \+ sizeof v\.mon_src\)\s*"
-                     r'printf\("\\",\\"mon_src\\":%u}\\n", v\.mon_src\);\s*else\s*'
-                     r'printf\("\\",\\"mon_src\\":null}\\n"\);', info)
+                     r'printf\("\\",\\"mon_src\\":%u", v\.mon_src\);\s*else\s*'
+                     r'printf\("\\",\\"mon_src\\":null"\);', info)
     assert info.index('\\"edid\\":\\"') < info.index("mon_src")
     # the EDID bytes go out too: --monitor-info is matched against the box's
     # registry by them

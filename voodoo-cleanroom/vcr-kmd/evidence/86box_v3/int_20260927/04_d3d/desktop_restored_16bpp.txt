@@ -1,0 +1,5 @@
+# restore the original desktop 800x600x16@60:
+{"status":"ok","width":800,"height":600,"bpp":16,"refresh":60}
+{"cmd":"pace-mark","ok":true}
+{"width":800,"height":600,"bpp":16,"refresh":60}
+vcrctl info cur: 800x600x16@60 cur_mode 80

@@ -186,9 +186,24 @@ static int cmd_info(void)
      * a shorter struct and says so in size: null then, not a 0 that would
      * read as "filter off" */
     if (v.size >= FIELD_OFFSET(vcr_info, mon_src) + sizeof v.mon_src)
-        printf("\",\"mon_src\":%u}\n", v.mon_src);
+        printf("\",\"mon_src\":%u", v.mon_src);
     else
-        printf("\",\"mon_src\":null}\n");
+        printf("\",\"mon_src\":null");
+    /* The Glide exclusive owner lives in the DISPLAY driver (the screen's
+     * PDEV, vcrdd_escape.c) - vcr_info.exclusive_pid is the miniport's and
+     * nothing fills it - so it is asked for separately (VCR_ESC_DD_STATS):
+     * whether a `sliaa off` or a Glide close left no owner behind is read
+     * here, not inferred. null from a display driver that does not answer,
+     * never a 0 that would read as "no owner". */
+    {
+        ULONG dd[4];
+        memset(dd, 0, sizeof dd);
+        if (esc(VCR_ESC_DD_STATS, NULL, 0, dd, sizeof dd) >= (int)sizeof dd)
+            printf(",\"dd_mode\":%lu,\"exclusive_pid\":%lu,\"hwc_requests\":%lu}\n", dd[0],
+                   dd[1], dd[2]);
+        else
+            printf(",\"dd_mode\":null,\"exclusive_pid\":null,\"hwc_requests\":null}\n");
+    }
     return 0;
 }
 

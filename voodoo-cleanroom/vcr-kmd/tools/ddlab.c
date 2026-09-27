@@ -21,6 +21,20 @@
  *             with no DirectDraw call - the D3D pattern (render, then wait for
  *             the flip), which a tighter flip deadline is for (include/
  *             vcr_flip.h). 0 (the default) is the loop as before.
+ *             fast_frames / min_frame_ms: flip to flip in UNDER half a refresh
+ *             - a flip the driver called done before the chip could have
+ *             latched it (the retrace rule is never early, include/
+ *             vcr_flip.h); flips_s above vblank_hz is otherwise unexplained.
+ *   ddlab zsurf [--zbits 16|24|32]
+ *             one Z-buffer surface (256x256, video memory) with an explicit
+ *             DDPF_ZBUFFER pixel format - 32 is 24 of depth + 8 of stencil
+ *             (D24S8) - asked for the way a DirectDraw 7 / Direct3D 7
+ *             application creates one: the request that reaches the HAL's
+ *             CanCreateSurface, which the D3D8 runtime never lets through for
+ *             a format the HAL does not list. Normal cooperative level, no
+ *             window, NO mode switch. RESULT: the HRESULT and whether it was
+ *             created (the recorder names the layer: event 511 a=11 is the
+ *             driver's CanCreateSurface refusal).
  *   ddlab blt [--res WxH] [--bpp N]
  *             two off-screen surfaces: a pattern blitted A -> B (SRCCOPY), a
  *             colour fill, and an OVERLAPPING blit inside one surface (a scroll,
@@ -114,6 +128,7 @@ static double now_s(void)
 
 static int g_w = 640, g_h = 480, g_bpp = 16, g_frames = 120;
 static long g_work_us;          /* --work-us: busy work after each Flip */
+static int g_zbits = 32;        /* zsurf --zbits: 16, 24 or 32 (24+8 stencil) */
 #define WORK_US_MAX 1000000
 
 /* spin, touching nothing - the application "rendering" */
@@ -193,7 +208,7 @@ int main(int argc, char **argv)
     HRESULT hr;
     int i;
     DWORD pace;
-    const char *bad_pace = NULL, *bad_work = NULL;
+    const char *bad_pace = NULL, *bad_work = NULL, *bad_zbits = NULL;
 
     /* A crash must die at once, not sit behind a Watson / "has encountered a
      * problem" box: that box keeps the process - and the exclusive mode it
@@ -212,6 +227,13 @@ int main(int argc, char **argv)
                 bad_work = v;
             else
                 g_work_us = n;
+            i++;
+        }
+        else if (!strcmp(a, "--zbits") && v) {
+            if (!strcmp(v, "16") || !strcmp(v, "24") || !strcmp(v, "32"))
+                g_zbits = atoi(v);
+            else
+                bad_zbits = v;
             i++;
         }
         else if (!strcmp(a, "--pace") && v) {
@@ -235,6 +257,10 @@ int main(int argc, char **argv)
     if (bad_work) {
         say("RESULT {\"mode\":\"%s\",\"error\":\"--work-us %s: decimal microseconds, 0 to %d\"}",
             mode, bad_work, WORK_US_MAX);
+        return 2;
+    }
+    if (bad_zbits) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"--zbits %s: 16, 24 or 32\"}", mode, bad_zbits);
         return 2;
     }
 
@@ -261,6 +287,44 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    if (!strcmp(mode, "zsurf")) {
+        /* no window, no exclusive mode, no SetDisplayMode: nothing switches */
+        LPDIRECTDRAWSURFACE7 z = NULL;
+        DDSURFACEDESC2 sd;
+        HRESULT coop = IDirectDraw7_SetCooperativeLevel(dd, NULL, DDSCL_NORMAL);
+        memset(&sd, 0, sizeof sd);
+        sd.dwSize = sizeof sd;
+        sd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+        sd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
+        sd.dwWidth = sd.dwHeight = 256;
+        sd.ddpfPixelFormat.dwSize = sizeof sd.ddpfPixelFormat;
+        sd.ddpfPixelFormat.dwFlags = DDPF_ZBUFFER;
+        sd.ddpfPixelFormat.dwZBufferBitDepth = (DWORD)g_zbits;
+        if (g_zbits == 32) {            /* D24S8: depth low, stencil in the top byte */
+            sd.ddpfPixelFormat.dwFlags |= DDPF_STENCILBUFFER;
+            sd.ddpfPixelFormat.dwStencilBitDepth = 8;
+            sd.ddpfPixelFormat.dwZBitMask = 0x00ffffff;
+            sd.ddpfPixelFormat.dwStencilBitMask = 0xff000000;
+        } else {
+            sd.ddpfPixelFormat.dwZBitMask = g_zbits == 24 ? 0x00ffffff : 0x0000ffff;
+        }
+        say("SetCooperativeLevel(NORMAL) -> %08lx", coop);
+        hr = IDirectDraw7_CreateSurface(dd, &sd, &z, NULL);
+        say("CreateSurface(Z %d bits, video memory) -> %08lx", g_zbits, hr);
+        if (SUCCEEDED(hr) && z) {
+            memset(&sd, 0, sizeof sd);
+            sd.dwSize = sizeof sd;
+            IDirectDrawSurface7_GetSurfaceDesc(z, &sd);
+        }
+        say("RESULT {\"mode\":\"zsurf\",\"zbits\":%d,\"hr\":\"%08lx\",\"created\":%d,"
+            "\"in\":\"%s\",\"hal_caps\":\"%08lx\"}", g_zbits, hr, SUCCEEDED(hr) && z ? 1 : 0,
+            SUCCEEDED(hr) && z ? where(sd.ddsCaps.dwCaps) : "none", hal.dwCaps);
+        if (z)
+            IDirectDrawSurface7_Release(z);
+        IDirectDraw7_Release(dd);
+        return 0;
+    }
+
     if (!strcmp(mode, "flip")) {
         WNDCLASSA wc;
         HWND hwnd;
@@ -275,8 +339,8 @@ int main(int argc, char **argv)
         DWORD scan = 0;
         /* when each Flip returned: the per-frame summary */
         double *ft = (double *)malloc(sizeof(double) * (size_t)(g_frames > 0 ? g_frames : 1));
-        int nft = 0, slow = -1;
-        double first_ms = 0, max_ms = 0, ff_rate = 0, period;
+        int nft = 0, slow = -1, fast = -1;
+        double first_ms = 0, max_ms = 0, min_ms = 0, ff_rate = 0, period;
 
         memset(&wc, 0, sizeof wc);
         wc.lpfnWndProc = wndproc;
@@ -387,13 +451,18 @@ int main(int argc, char **argv)
             first_ms = (ft[0] - t0) * 1000;
         if (nft > 1) {
             int k;
-            slow = period > 0 ? 0 : -1;
+            slow = fast = period > 0 ? 0 : -1;
+            min_ms = (ft[1] - ft[0]) * 1000;
             for (k = 1; k < nft; k++) {
                 double d = ft[k] - ft[k - 1];
                 if (d * 1000 > max_ms)
                     max_ms = d * 1000;
+                if (d * 1000 < min_ms)
+                    min_ms = d * 1000;
                 if (period > 0 && d > 1.5 * period)
                     slow++;
+                if (period > 0 && d < 0.5 * period)
+                    fast++;
             }
             if (ft[nft - 1] > ft[0])
                 ff_rate = (nft - 1) / (ft[nft - 1] - ft[0]);
@@ -402,10 +471,11 @@ int main(int argc, char **argv)
             "\"frames_run\":%d,\"mismatch\":%d,\"lock_fail\":%d,\"flips_s\":%.1f,"
             "\"vblank_hz\":%.1f,\"scanline\":%lu,\"hal_caps\":\"%08lx\",\"work_us\":%ld,"
             "\"first_frame_ms\":%.2f,\"max_frame_ms\":%.2f,\"slow_frames\":%d,"
+            "\"min_frame_ms\":%.2f,\"fast_frames\":%d,"
             "\"flips_s_first_last\":%.1f%s}",
             g_w, g_h, g_bpp, prim_in, g_frames, f, bad, lockfail, t > 0 ? f / t : 0.0,
-            vbn ? vbn / vbt : 0.0, scan, hal.dwCaps, g_work_us, first_ms, max_ms, slow, ff_rate,
-            focus_json());
+            vbn ? vbn / vbt : 0.0, scan, hal.dwCaps, g_work_us, first_ms, max_ms, slow, min_ms,
+            fast, ff_rate, focus_json());
         free(ft);
         /* the hold: a short run still sits the floor */
         if (!restore_mode(dd, "flip"))

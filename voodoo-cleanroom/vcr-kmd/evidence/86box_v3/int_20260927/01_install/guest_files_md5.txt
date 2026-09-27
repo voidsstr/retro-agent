@@ -1,0 +1,7 @@
+# guest files after install (DOWNLOAD from 127.0.0.1:19920) vs out/ of worktree-vk-int 5e4ca36
+ecea4048f7eac2030a199603df8a2649  post/vcrctl.exe
+8702d7e77fe3fa5b7aeb52437d2660de  post/vcrdd.dll
+62a4169562eec8b203caf76d53063651  post/vcrmp.sys
+62a4169562eec8b203caf76d53063651  out/vcrmp.sys
+8702d7e77fe3fa5b7aeb52437d2660de  out/vcrdd.dll
+ecea4048f7eac2030a199603df8a2649  out/vcrctl.exe

@@ -3,6 +3,7 @@
 
     d3dprobe_run.py 127.0.0.1 --port 19920 caps
     d3dprobe_run.py 127.0.0.1 --port 19920 render [--full --res 800x600 --bpp 16]
+    d3dprobe_run.py 127.0.0.1 --port 19920 render --zfmt d24s8     (a device the HAL must refuse)
     d3dprobe_run.py 192.168.1.124 perf --full --res 800x600 --frames 300
 
 Uploads out/d3dprobe.exe to C:\\vcr\\d3dprobe\\, runs it through `start /wait`
@@ -75,6 +76,20 @@ def refused(a, why):
     return 2
 
 
+def lab_args(a, log):
+    """d3dprobe's command line: exactly today's unless --zfmt is asked for."""
+    args = f"{a.mode} --res {a.res} --bpp {a.bpp} --frames {a.frames} --log {log}"
+    if a.full:
+        args += " --full"
+    if a.novsync:
+        args += " --novsync"
+    if a.tests:
+        args += f" --tests {a.tests}"
+    if getattr(a, "zfmt", None):
+        args += f" --zfmt {a.zfmt}"
+    return args
+
+
 async def main_async(a):
     box = lambda cmd, t: call_st(a, cmd, t)  # noqa: E731
     # caps creates no device; render / perf go fullscreen only with --full
@@ -107,13 +122,7 @@ async def main_async(a):
     await call(a, rf"UPLOAD {DIR}\d3dprobe.exe", (KMD / "out" / "d3dprobe.exe").read_bytes())
     log = rf"{DIR}\{a.mode}.log"
     await call(a, rf'EXEC cmd /c del /f /q "{log}"')
-    args = f"{a.mode} --res {a.res} --bpp {a.bpp} --frames {a.frames} --log {log}"
-    if a.full:
-        args += " --full"
-    if a.novsync:
-        args += " --novsync"
-    if a.tests:
-        args += f" --tests {a.tests}"
+    args = lab_args(a, log)
     # a d3dprobe.exe already running is not this run's: a cleanup never kills
     # it (None - PROCLIST did not answer - kills nothing, and says so)
     image = "d3dprobe.exe"
@@ -175,6 +184,9 @@ def main():
     ap.add_argument("--full", action="store_true")
     ap.add_argument("--novsync", action="store_true")
     ap.add_argument("--tests", default="")
+    ap.add_argument("--zfmt", choices=("d16", "d24x8", "d24s8"),
+                    help="render/perf: ask for this depth format instead of d3dprobe's pick "
+                         "(a 16 bpp device with d24s8 is one a Voodoo3 HAL must refuse)")
     ap.add_argument("--timeout", type=int, default=180,
                     help="seconds of WORK; the EXECW adds the pace gate's worst case per switch")
     ap.add_argument("--tool", default=r"C:\vcr\vcrctl.exe",

@@ -147,3 +147,58 @@ def test_the_built_drivers_load_on_xp(name):
     n, problems = check_imports.check(str(f))
     assert not problems, problems
     assert n > 5
+
+
+def test_deploy_box_exit_status_and_a_verify_that_survives_an_agent_restart(monkeypatch):
+    """Two defects hit installing the integration build on the 86Box bed
+    (2026-09-27): `deploy_box.py status` exited 1 after a SUCCESSFUL read
+    (status() returns True, and bool is an int, so main passed it straight
+    to sys.exit), and the install's verify died with a ConnectionResetError
+    traceback because the guest's agent auto-updated and restarted 20 s after
+    it first answered PING - on an install that had worked."""
+    import asyncio
+    import deploy_box
+    assert deploy_box.exit_code(True) == 0
+    assert deploy_box.exit_code(False) == 1
+    assert deploy_box.exit_code(0) == 0 and deploy_box.exit_code(2) == 2
+    assert deploy_box.exit_code(None) == 1
+    src = (KMD / "tools" / "deploy_box.py").read_text()
+    assert "sys.exit(exit_code(rc))" in src
+    assert "await status_after_boot(a, args, evidence)" in src
+
+    calls = {"status": 0, "alive": 0}
+
+    async def flaky_status(a, args, evidence):
+        calls["status"] += 1
+        if calls["status"] == 1:
+            raise ConnectionResetError(104, "Connection reset by peer")
+        return True
+
+    class FakeAgent:
+        async def alive(self):
+            calls["alive"] += 1
+            return calls["alive"] > 1       # down once, then back
+
+    async def no_sleep(_s):
+        return None
+
+    monkeypatch.setattr(deploy_box, "status", flaky_status)
+    monkeypatch.setattr(deploy_box.asyncio, "sleep", no_sleep)
+    assert asyncio.run(deploy_box.status_after_boot(FakeAgent(), None, None)) is True
+    assert calls["status"] == 2 and calls["alive"] >= 2
+
+    # a connection that never comes back still fails loudly on the last try
+    async def always_reset(a, args, evidence):
+        raise ConnectionResetError(104, "Connection reset by peer")
+
+    monkeypatch.setattr(deploy_box, "status", always_reset)
+    with pytest.raises(ConnectionResetError):
+        asyncio.run(deploy_box.status_after_boot(FakeAgent(), None, None, tries=2))
+
+    # anything that is not a dropped connection is not retried
+    async def broken(a, args, evidence):
+        raise ValueError("bad JSON")
+
+    monkeypatch.setattr(deploy_box, "status", broken)
+    with pytest.raises(ValueError):
+        asyncio.run(deploy_box.status_after_boot(FakeAgent(), None, None))

@@ -1,0 +1,9 @@
+# original desktop before the 32 bpp series:
+{"width":800,"height":600,"bpp":16,"refresh":60}
+# DISPLAYCFG set 800 600 32 60:
+{"status":"ok","width":800,"height":600,"bpp":32,"refresh":60}
+# vcrctl pace-mark:
+{"cmd":"pace-mark","ok":true}
+# after:
+{"width":800,"height":600,"bpp":32,"refresh":60}
+vcrctl info cur: 800x600x32@60 cur_mode 150

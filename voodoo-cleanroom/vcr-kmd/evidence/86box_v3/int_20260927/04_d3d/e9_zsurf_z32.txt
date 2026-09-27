@@ -1,0 +1,8 @@
+# ddlab_run.py zsurf --zbits 32 -v  (rc 0; desktop 800x600x16@60)
+{"mode": "zsurf", "zbits": 32, "hr": "88760091", "created": 0, "in": "none", "hal_caps": "04020041"}
+ddlab zsurf: 640x480x16 frames 120 work 0 us
+HAL caps 04020041 ddsCaps 00423250 vidmem 15679488/15810560; HEL caps f4c08241
+SetCooperativeLevel(NORMAL) -> 00000000
+CreateSurface(Z 32 bits, video memory) -> 88760091
+RESULT {"mode":"zsurf","zbits":32,"hr":"88760091","created":0,"in":"none","hal_caps":"04020041"}
+
