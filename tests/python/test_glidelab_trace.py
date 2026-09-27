@@ -144,15 +144,22 @@ def test_a_traced_result_says_so_and_the_step_log_says_whether_glide_wrote_it():
 
 def test_glidelab_aa_configs_are_glides_own():
     """aa_config() must name exactly the SSTH3_SLI_AA_CONFIGURATION values for
-    which Glide's gpci.c switch sets an AA sample count (fall-through
-    included: case 1 sets 2 samples and falls into case 0)."""
+    which Glide's switch sets an AA sample count (fall-through included: case 1
+    sets 2 samples and falls into case 0). Since the fork's SLIAA-GUARD
+    (2026-09-27) gpci.c hands the setting to h5SliAaConfigEnv() in
+    minihwc/h5sliaa.h, and the switch is read there."""
     listed = {int(x) for x in re.findall(r"cfg == (\d+)", _func(GLIDELAB, "static int aa_config(int cfg)"))}
     assert listed == {1, 3, 4, 6, 7, 8}
     if GPCI is None:
         pytest.skip("retro3dfx-glide clone absent - aa_config NOT checked against gpci.c")
     g = GPCI.read_text(encoding="latin-1")
-    sw = g[g.index('switch(GLIDE_GETENV("SSTH3_SLI_AA_CONFIGURATION", 2L))'):]
-    sw = _blank(sw[:sw.index("_GlideRoot.environment.outputBpp")])
+    if 'h5SliAaConfigEnv(GLIDE_GETENV("SSTH3_SLI_AA_CONFIGURATION", 2L)' in g:
+        hdr = (GPCI.parents[2] / "minihwc/h5sliaa.h").read_text(encoding="latin-1")
+        body = _func(hdr, "h5SliAaConfigEnv(long cfg")
+        sw = _blank(body[body.index("switch (cfg)"):])
+    else:
+        sw = g[g.index('switch(GLIDE_GETENV("SSTH3_SLI_AA_CONFIGURATION", 2L))'):]
+        sw = _blank(sw[:sw.index("_GlideRoot.environment.outputBpp")])
     aa, pending = set(), set()
     for m in re.finditer(r"\bcase\s+(\d+)\s*:|aaSample\s*=\s*(\d+)|\bbreak\b|\bdefault\s*:", sw):
         if m.group(1):
