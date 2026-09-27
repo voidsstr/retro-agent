@@ -92,9 +92,177 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | RtCW (`rtcw:openglv5`) | **116-127 fps @640x480 cfg 2** | sweeping | loads its bundled Wicked3D `gl/openglv5.dll` on the first launch after an `r_glDriver` change regardless of `+set`/config (mechanism not fully established). Removing the file to force the ICD WEDGED the box — the runner reads back which ICD loaded instead |
 | Serious Sam TFE / TSE (OpenGL) | not yet measured | not yet measured | the first harness bypassed the staged **disc-mount launcher** and got the CD check it exists to prevent — a harness fault. The bench launcher is now generated from the fleet mount template; untested on the box |
 | Unreal Gold / Deus Ex (Glide) | not run | not run | UE1 `-benchmark` never exits; needs the UTbench-style route |
-| AA settings cfg 1/3/4/6/7/8 | **blocked** — AA never engages via registry/env on AmigaMerlin's Glide; OUR Glide turns cfg 1 into a malformed 4-chip request and AmigaMerlin's kernel deep-wedges on it (2026-09-26 03:23); on vcr-kmd cfg 1/3/7 all wedged (2026-09-26 16:50) | — | supervised only, after the safety net (resume point 2026-09-27); vendor golden via §4.1 |
+| AA settings cfg 1/3/4/6/7/8 | **blocked** — AA never engages via registry/env on AmigaMerlin's Glide; OUR Glide turns cfg 1 into a malformed 4-chip request and AmigaMerlin's kernel deep-wedges on it (2026-09-26 03:23); on vcr-kmd cfg 1/3/7 all wedged (2026-09-26 16:50) | — | supervised only. The safety net is built and its refusals proven on 86Box, not on silicon and not on master (resume point 2026-09-27 07:30: deploy dependency + steps 15-20); vendor golden via §4.1 |
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
+
+### Resume point (2026-09-27 07:30) — the AA safety net, the 32 bpp D3D hardening and the flip work are built, reviewed and 86Box-verified; nothing has touched silicon; the supervised checklist
+
+**Where the code is - NOT on master, NOT pushed:**
+- retro-agent branch `worktree-vk-int` (`.claude/worktrees/vk-int`): the four
+  tracks merged (SLI/AA safety net, D3D32 hardening, flip, glidelab tracing),
+  `5e4ca36` integration fix, `a3b71de` 86Box verification, `a381451` docs.
+- Glide fork `voodoo-cleanroom/build/retro3dfx-glide`, branch
+  `glide-devel-sezero`, **ahead 4 of origin**: `0b21976` (AA-TRACE),
+  `631221b` + `7736039` (SLIAA-GUARD), `e767d89` (review fixes).
+- `retro-3dfx` branch `worktree-vk-findings` (`.worktrees/vk-findings`,
+  `e6b6ad6`): four FINDINGS entries for 2026-09-27.
+- What each switch does and how to arm it: `voodoo-cleanroom/vcr-kmd/README.md`
+  ("Diag switches", and Status: AA safety net, 32 bpp, flip completion, the
+  86Box integration build). 86Box evidence:
+  `vcr-kmd/evidence/86box_v3/int_20260927/`.
+
+**Critic plan, steps 1-14** (the 2026-09-27 critic plan; the numbers are the
+ones the supervised steps below continue):
+
+| step | what | status |
+|---|---|---|
+| 1 | commit the AA evidence that lived only in the transcript; correct the AA table | **done offline**, on master (`93fed90`, `2442117`, `2587bd3`) |
+| 2 | unbreak the shared Glide clone and the suite; harden the trace | **done offline** (fork `0b21976` + `e767d89`); the fork push is **pending** |
+| 3 | recover the four orphaned `.143` compat screenshots | **done** (`~/lan-proof/box143/`; `test_compat_evidence_survives.py` passes) |
+| 4 | guard `5be6a59` (32 bpp D3D) before any deploy | **done offline** (`4a9793b` + `46eef4c` + `967b4aa`; `Diag\D3D32` and `Diag\Reset3D` default off) |
+| 5 | 86Box: the 32 bpp refusals, D24S8 at 16 bpp, 16 bpp no-regression | **done on 86Box**: every 32 bpp and 16 bpp + D24S8 device is refused by the D3D8 runtime from the caps, before the driver; the HAL's CanCreateSurface guard (511/11) is reachable only the DirectDraw 7 way (`ddlab zsurf`: 24- and 32-bit Z refused), so step 5's "refused by CanCreateSurface" holds for DirectDraw 7 / D3D7 applications only. 16 bpp: gdilab 0 bad, blt -1.7 % (in the spread), d3dprobe 42/0 and 40/0 |
+| 6 | flip offline: `vcr_flip.h`, counters, GetScanLine, ddlab per-frame stats; NOT the scanline proposal | **done offline** (`e961bae` + `c664ce8` + `3526483`) |
+| 7 | flip on 86Box, 16 and 32 bpp, both orders | **done on 86Box**: no half rate (58.7-64.0 flips/s at 60.35 Hz, 89-96 % by retrace). The `FlipDeadline` 0.889x/0.95x A/B cannot be shown there (~3 ms of emulator overhead per frame) - it moves to step 16 |
+| 8 | housekeeping: the PXE pipeline fix + the host outage entry | host-issues-log entry **done** (`097b1f7`); the PXE DevicePath fix **not done** (`run_all.sh` still fails on it) |
+| 9 | kernel safety net | **done offline** (`412b03c` + `5fa2741`) |
+| 10 | Glide guards | **done offline** (fork `631221b` + `7736039` + `e767d89`, not pushed) |
+| 11 | trace coverage + `glidelab --trace` | **done offline** (fork `0b21976` + `e767d89`; retro-agent `b811d37` + `c2bde54`) |
+| 12 | flag-gated vendor recipe + read-back | **done offline** (`cebdf4f`, `eafe810`, `5fa2741`; the read-back has its own switch, `Diag\SliAAReadback`) |
+| 13 | `vcrctl sliaa` + the refusals on 86Box | **done on 86Box**: the tool's gates, then EDENIED -4 (`SliAA` absent) and EINVAL -1 (`SliAA` = 1: one chip); zero SLI register writes in every run; `sliaa off` from a separate process clears a stale owner (`5e4ca36`) |
+| 14 | research the 3dfx Tools route | **done offline** (§4.1) |
+
+**Deploy dependency - read before ANY deploy to `.124`:**
+1. **The kernel's AA refusal protects `.124` only together with the
+   SLIAA-GUARD `glide3x.dll`.** A Glide built from origin (`d161bd4`) ignores
+   the kernel's FAIL and opens its multi-chip AA layout anyway; the SLI
+   request comes after HWCSETEXCLUSIVE and the escapes after it are
+   unchecked, so nothing in the kernel can stop that open.
+2. **Push the fork first** (`glide-devel-sezero`, the four commits above),
+   then rebuild with an **explicit workdir**: `bash
+   voodoo-cleanroom/build-stack.sh
+   /home/voidsstr/development/retro-agent/voodoo-cleanroom/build`. Without it
+   the script clones origin and builds a Glide with none of the guards.
+3. Land `worktree-vk-int` on master before its `vcr-kmd` build goes to the
+   box, and identify the build by file md5 and the recorder's DRIVER_ENTRY
+   struct size (0x1388): `vcrctl info` says `build 1` for every build.
+4. On the box: the md5 of `C:\Games\Quake2Complete\glide3x.dll` (what glidelab
+   loads) must be the new build's, and `glidelab_run`'s plan line must say
+   `SLIAA-GUARD yes`. glidelab refuses an AA open on an unguarded Glide
+   (rc 13), but a game does not. Until then, confirm the Glide AA
+   configuration is 0/2/5 before any Glide app runs.
+
+**Supervised checklist - steps 15-20, with the user at the box.** LICSTATUS
+first; `safe-reboot.py` only; one config per CLEAN boot; every mode switch
+paced by `vcr_pace`. The `Diag` switches live in
+`HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag`: arm with
+`REGWRITE HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag <name> REG_DWORD 1`
+and REGREAD it back; disarm with 0 or `EXEC reg delete
+"HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag" /v <name> /f` (the agent's
+REGDELETE deletes keys - never point it at `Diag`). `Sli*` act on the next
+request; `D3D32`, `Reset3D`, `AllowPoke` at the next boot; `FlipDeadline` at
+the next mode set.
+
+15. **First contact, read-only - no Glide, no mode switch.** The boot #18
+    read-back itself was done at 00:15 (`93fed90`). Repeat the read-only part,
+    because the box may have been used since:
+    - `glidelab_run.py 192.168.1.124 fill --collect`: it reads every place
+      `SSTH3_SLI_AA_CONFIGURATION` can be (the display class key AND
+      `Services\3dfxvs|banshee\Device0\glide`, which is the one our Glide
+      reads). If it banners **AA CONFIGURATION ARMED**, run `--collect
+      --restore-cfg 5` before any Glide app.
+    - `REGREAD` `Services\vcrmp\Diag`: `SliAA`, `SliPersistAll`,
+      `SliAAVendorRecipe`, `SliAAReadback`, `D3D32`, `Reset3D` and
+      `FlipDeadline` absent or 0.
+    - `vcrphases.py 192.168.1.124 --prev`, and `xpminidump` over
+      `C:\WINDOWS\Minidump`. Commit what comes back.
+16. **Non-AA silicon: deploy, regression, 32 bpp D3D, flip.** No SLI/AA
+    config other than 0/2/5. Stop at the first event 512 a=9.
+    - Deploy (the dependency above), rollback copy kept. Every `Diag` switch
+      absent for the regression boot. Set `RETRO_GLIDE_MAPLOG` for the Glide
+      runs and look for `master reset skipped` and `SLI/AA disable escape NOT
+      sent`.
+    - Regression: glidelab cfg 0/2/5 fill + bands (1124.6 Mpix/s ±1 %, 0 bad
+      band lines), Quake II cfg 5 (~173 fps), ddlab and d3dprobe at 16 bpp (D3D
+      40/40). Read every 513 what 1 (ContextCreate) line and record whether a
+      target or a Z lands at video-memory offset 0 (the heap starts there);
+      the 16 bpp runs must pass either way.
+    - Flip: `ddlab_run.py 192.168.1.124 flip --res 800x600 --bpp 16|32
+      --frames 60|600`, 16 then 32 and the reverse, reading 511/12-13 after
+      each (a session in the desktop's own mode logs them only at the next mode
+      change - force one paced switch). Healthy, and the half-rate question
+      answered: done-by-retrace ≈ frames and `flips_s_first_last` ≈ the
+      refresh; `fast_frames` near 0 (86Box ran 2-3 % over the refresh with
+      22-29 fast frames per 600). Then the deadline A/B: first check ddlab's `vblank_hz` against
+      `refresh_mhz`/1000 (well under 1 %); `--work-us` ≈ 1.05 frames (12353 us
+      at 85 Hz); `FlipDeadline` absent vs 1 (picked up at the next mode set,
+      which ddlab's own switch provides). Expect ~0.889x vs ~0.95x of the
+      refresh. Disarm and read it back absent.
+    - 32 bpp D3D, its own boot: `D3D32` = 1, plus `Reset3D` = 1 if Glide runs
+      earlier in that boot; confirm 513 what 16 in the recorder. `d3dprobe
+      caps` (expect `hal_fullscreen.X8R8G8B8` = 1, `zmatch` X8R8G8B8 with
+      D24X8/D24S8 = match, R5G6B5 with D16 = format available and match);
+      fullscreen 640x480x32 clear without Z (`d3dprobe_run.py ... --tests
+      "clear --noz"` - the runner has no `--noz` flag yet), then with Z, flat +
+      ztest, the full list, perf, windowed last; and a 16 bpp fullscreen run
+      from the 32 bpp desktop with `D3D32` = 1. On any failure pull the
+      recorder: 513/12, 513/15, 513/17, 511/11.
+    - `Reset3D` = 1: after a clean Glide cfg 0 session the recorder must show
+      604 a=3 c=1; c=2 (chip not idle) or c=3 (Glide's command FIFO still on)
+      at release - stop and pull the recorder. A KILLED Glide client needs a
+      cold boot before any 32 bpp D3D step (`Reset3D` does not run for it).
+    - The unproven 16 bpp stencil premise: a 32 bpp OpenGL session with stencil
+      on (`Reset3D` = 0), exit it cleanly, then `d3dprobe render --full --bpp
+      16`. A failure where it passed from a cold boot means the chip honours a
+      stale stencil enable at 16 bpp; the remedy is `Reset3D` or a D3D-only
+      stencil clear behind its own switch, not a change to the default.
+    - Disarm `D3D32` and `Reset3D` afterwards.
+17. **Step A - the refusals on silicon.** `SliAA` absent, the SLIAA-GUARD Glide
+    deployed. ONE `glidelab_run.py 192.168.1.124 fill --res 1024x768 --refresh
+    60 --cfg 1 --trace 1`. Expect glidelab's RESULT error "grSstWinOpen not
+    made": our Glide refuses cfg 1 on 4 chips before any buffer or mode set, so
+    no escape and no HWC_SLIAA phase. The agent PINGs afterwards. Optional, on
+    its own clean boot: a shape Glide does send (cfg 7) with `SliAA` absent
+    proves the kernel's refusal and the give-back - PhaseLog `SLI_STEP REFUSED
+    AA_OFF` and no `SET_BEGIN`; the trace `open REFUSED after the mode set -
+    giving the display back`, a ~3 s hold, `release: HWCRLSEXCLUSIVE`; then
+    `vcrctl info` shows no exclusive owner, and 2D and the pointer are back.
+18. **Step B - kernel state alone** (moderate risk), cfg 3 then cfg 7, each on
+    its own clean boot: arm `SliAA` = 1, `SliPersistAll` = 1 (the last phase
+    names the write if it wedges) and `SliAAReadback` = 1 for that boot only.
+    `vcrctl sliaa 4 1 1 0 1 8 16 <tileMark> 0 <depthlo> <depthhi>
+    --i-am-at-the-box` (cfg 3) / `vcrctl sliaa 4 0 1 1 1 ...` (cfg 7). The tool
+    refuses AA on a desktop not in 2x mode unless `--force-desktop-pll`. Read
+    config space only: `vcrphases.py 192.168.1.124` decodes `Diag\SliAAState`
+    (each chip's 0x40, 0x48, 0x80-0x94, 0xAC), `vcrctl pci` for the bridge
+    (0x04, 0x1c, 0x3c, 0xC4). Hold 5 s, `vcrctl sliaa off`, read again,
+    disarm. Accept: the values match `k_aa_tables` in
+    `tests/native/test_vcr_kmd_sli.c` (the dos_mode.c arm; the old kernel's
+    cfg 1 state is `k_cfg1_sent_old`), and the box survives, or PhaseLog names
+    the last write. The vendor arm (`SliAAVendorRecipe` = 1, the REAL tileMark
+    or MEMINFO refuses it) is a further clean boot.
+19. **Step C - de-confound cfg 7** (high risk; expect a power cycle). A CLEAN
+    boot where cfg 7 is the first Glide app. `SliAA` = 1, `SliPersistAll` = 1;
+    `SliAAReadback` and `SliAAVendorRecipe` ABSENT, so cfg 7's register writes
+    are the ones that ran on 2026-09-26 (only SET_DONE's persisted value
+    changes). Check the plan line says `SLIAA-GUARD yes, AA-TRACE yes`, then
+    `glidelab_run.py 192.168.1.124 fill --res 1024x768 --refresh 60 --cfg 7
+    --trace 2`. The trace must show `splash: plugin load SKIPPED
+    (FX_GLIDE_NO_PLUGIN=1)` and `cfg dumps OFF` (no `--trace-cfg`). Pass: the
+    16:25 wedge was an artefact of the cfg 3 session; update this plan. Wedge:
+    power cycle, then `glidelab_run.py 192.168.1.124 fill --collect` (step log +
+    trace; the last line of `<mode>.log.trace` is the step), `--collect
+    --restore-cfg 5` if it banners an armed value, and `vcrphases.py --prev`.
+    Disarm `SliAA`.
+20. **Step D - the cfg 3 read-back**, one variable per clean boot. (a) Guard
+    on: `glidelab_run.py ... bands --cfg 3` must end "grLfbReadRegion refused",
+    not a wedge. (b) The opt-in read, `RETRO_GLIDE_AA_LFB_READ=1` in glidelab's
+    process environment (glidelab and glidelab_run have no flag for it yet),
+    with SLI READ_EN cleared on chips 1-3 (not built). (c) The vendor recipe,
+    `SliAAVendorRecipe` = 1 with the opt-in read. Traced `bands` flushes every
+    scanline (768 at 1024x768): raise `--timeout` above 180 s. Optional
+    afterwards: a vendor AA golden through the 3dfx Tools route (§4.1), and our
+    Glide's cfg 3 fill over AmigaMerlin's kernel.
 
 ### Resume point (2026-09-27 00:30) — AA post-mortem read back; the AA safety net is being built; AA stays supervised-only
 
@@ -180,7 +348,8 @@ clean-boot observation.**
    meaning unestablished.
 
 **The safety net, being built offline now (NOT on master yet; none of it has
-touched silicon):**
+touched silicon)** - *built and 86Box-verified since: see the 07:30 resume
+point above for the status and the checklist:*
 1. Kernel refuses unsupported tuples: a pure predicate in `vcr_sli_set` that
    accepts only combinations with a video-mux branch; anything else is refused
    (`VCR_SLI_R_COMBO`) **before the first write**, and the escape maps it to
