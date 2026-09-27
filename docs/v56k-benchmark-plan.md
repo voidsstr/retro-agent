@@ -92,9 +92,157 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | RtCW (`rtcw:openglv5`) | **116-127 fps @640x480 cfg 2** | sweeping | loads its bundled Wicked3D `gl/openglv5.dll` on the first launch after an `r_glDriver` change regardless of `+set`/config (mechanism not fully established). Removing the file to force the ICD WEDGED the box — the runner reads back which ICD loaded instead |
 | Serious Sam TFE / TSE (OpenGL) | not yet measured | not yet measured | the first harness bypassed the staged **disc-mount launcher** and got the CD check it exists to prevent — a harness fault. The bench launcher is now generated from the fleet mount template; untested on the box |
 | Unreal Gold / Deus Ex (Glide) | not run | not run | UE1 `-benchmark` never exits; needs the UTbench-style route |
-| AA settings cfg 1/3/4/6/7/8 | **blocked** — AA never engages via registry/env on AmigaMerlin's Glide; OUR Glide passes cfg 1 through and AmigaMerlin's kernel deep-wedges on it (2026-09-26 03:23) | — | unblock via §4, or on vcr-kmd (resume point 2026-09-26) |
+| AA settings cfg 1/3/4/6/7/8 | **blocked** — AA never engages via registry/env on AmigaMerlin's Glide; OUR Glide turns cfg 1 into a malformed 4-chip request and AmigaMerlin's kernel deep-wedges on it (2026-09-26 03:23); on vcr-kmd cfg 1/3/7 all wedged (2026-09-26 16:50) | — | supervised only, after the safety net (resume point 2026-09-27); vendor golden via §4.1 |
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
+
+### Resume point (2026-09-27 00:30) — AA post-mortem read back; the AA safety net is being built; AA stays supervised-only
+
+Path key for this section: kernel = `voodoo-cleanroom/vcr-kmd/`; Glide = the
+h5 fork (`retro3dfx-glide/glide3x/h5`), line numbers at fork HEAD `d161bd4`;
+vendor = `retro-3dfx/3dfx Driver Code/H5/W2K/Src/Video/Miniport/H5/` (read
+for guidance only, nothing copied).
+
+**What the read-back settled** (read-only, 2026-09-27 00:15:
+`vcr-kmd/evidence/glidelab/postmortem_20260927/README.md`). `.124` had booted
+once since the cfg 1 wedge, so the miniport's `Prev*` history still held
+boot #18 - the cfg 1 run:
+- `HWC_SLIAA a=4 b=0x102` - **4 chips**, SLI off, AA on, analog
+  (b = sliEn | aaEn<<1 | sampleHigh<<4 | analog<<8, `miniport/vcrmp_multi.c:239-241`).
+  Not a 1-chip request.
+- `SET_BEGIN` 115.750 s -> `CLOCK_6K` -> slave `INIT_BEGIN` x3 -> mode-index
+  writes -> `PCIINIT0` x4 -> **`SET_DONE` at 116.328 s, then nothing**. No
+  `SLICTRL` steps.
+- glidelab's flushed step log ends `step: grSstWinOpen 1024x768 60Hz origin
+  upper` with no `-> context` line: the box froze **inside Glide's open, after
+  the kernel reported SET_DONE**.
+- Armed state at read-back: `Services\3dfxvs\Device0\glide`
+  `SSTH3_SLI_AA_CONFIGURATION = 5`, so an unattended Glide app opens at cfg 5
+  (SLI, no AA). No minidump from any wedge: hard freezes, not bugchecks.
+- NOT settled: the kernel's warn mask (W_NOMUX). The persisted `SET_DONE`
+  phase drops the value (`k_log`, `vcrmp_multi.c:86-95`) and the NOMUX step is
+  not in the persisted set (`:79-84`). Safety-net item 3 below fixes that.
+
+**cfg 1 is a malformed request - code-proven (hypothesis 1).** Glide lays out
+samples for 4 chips (`glide3/src/gsst.c:1535`, the sample switch at
+`1737-1767`, `enableSecondaryBuffer=FALSE` at `1839`), applies
+`forceSingleChip` only afterwards (`2125-2128`), then sends
+`dwChips = pciInfo.numChips = 4` with sliEn 0, aaEn 1, sampleHigh 0, analog 1
+(`minihwc/minihwc.c:4927-4962`, analog forced at `4711-4713`). The kernel has
+no video-mux branch for that tuple (`miniport/vcrmp_sli.c:836-839` returns
+W_NOMUX), but by then it has written snoop, swap, pciInit0 and AA LFB control
+to all four chips, and the escape reports a warning as success
+(`display/vcrdd_escape.c:154`). The vendor miniport only logs the case
+(`SLIAA.C:3371-3373`), and the vendor display driver never sends it: on a
+4-chip board it rewrites cfg 1-4 to 0 (§4.1). AmigaMerlin's kernel wedged on
+the same request (resume point 2026-09-26 03:40). The freeze mechanism is
+unknown, but refusing the tuple before any write fixes it without knowing it.
+
+**cfg 7 is confounded.** It ran at 16:25:05, 20 s after the cfg 3 fill
+(16:24:35), in the SAME boot (#17), with no reboot between - ground rule 1
+broken. cfg 3's close-time disable (`vcrmp_sli.c:1077-1128`) does not restore
+pciInit0, the slave init or the 6000 clock, and whether it reached `OFF_DONE`
+cannot now be checked (boot #17 has rotated out of `Prev*`, which keeps one
+boot). cfg 3 bands wedged 2.6 h into busy boot #16. **Only cfg 1 was a
+clean-boot observation.**
+
+**AA hypotheses, ranked** (critic synthesis of the 2026-09-26 offline reviews):
+1. cfg 1 = the malformed 4-chip / no-SLI / 2-sample tuple above. Strongest:
+   code-proven trigger, reproduced on two kernels.
+2. cfg 3 LFB read-back hang = an ambiguous read owner. Chips 0/1 and 2/3 share
+   SLI compare masks with SLI READ_EN on (`vcrmp_sli.c:896-913`); AA LFB
+   READ_EN (the inter-chip read handshake) is never set (`935-937`), the
+   secondary base is 0, no DIV4, and chip 3 has RD_SLV_WAIT (`962-967`). The
+   vendor sets READ_EN, base=tileMark and DIV4 for exactly this tuple
+   (`SLIAA.C:2396-2449`). pciInit0 in both goldens has retry 0 / timeout off,
+   so a read that never completes may become a permanent bus hold. Register
+   state proven, mechanism HYPOTHESIS. For it: fill (no reads) completes; SLI
+   reads with unique masks work (cfg 2/5 bands, 0 bad lines).
+3. cfg 7 hang in `grSstWinOpen`: UNRESOLVED and confounded. Candidates, in
+   rough order: (a) state left by the cfg 3 session or its disable; (b) a
+   video-clock-domain stall at the first DAC access (`hwcGammaRGB`,
+   `minihwc.c:8594-8620`) after the kernel re-muxes to DIV4; (c) the SLI-off
+   4-chip state meeting Glide's open-time idle wait or slave `lfbMemoryConfig`
+   reads (`minihwc.c:5201-5310, 2720-2737`); (d) our deviations from the
+   vendor for this tuple (depth aperture, base 0, no READ_EN) - weaker, open
+   does no LFB access. A clean-boot, traced cfg 7 run is the discriminator.
+4. Our bounded idle wait (fork `215a9e7`) resets the master through
+   miscInit0/1 after ~2 s (`minihwc.c:2749-2764`); with slaves snooping init
+   registers the reset may reach them and turn a busy board into a hard
+   freeze. HYPOTHESIS from one review; nothing shows the branch ever ran.
+5. Secondary base 0 with CPU_WRITE_EN / DISPATCH_WRITE_EN set aliases
+   AA-duplicated LFB writes onto VGA and the command FIFO. Weak for these
+   wedges (glidelab writes no LFB); matters for LFB-writing games.
+6. Latent: the secondary base is shifted left 4 (`vcrmp_sli.c:932-937`,
+   marked UNVERIFIED) where the vendor and Glide use an unshifted byte address.
+   Harmless at base 0; fix together with any change that sends tileMark.
+7. Low: pciInit0 bit 11 (DISABLE_IO) is set by the vendor and clear on ours;
+   meaning unestablished.
+
+**The safety net, being built offline now (NOT on master yet; none of it has
+touched silicon):**
+1. Kernel refuses unsupported tuples: a pure predicate in `vcr_sli_set` that
+   accepts only combinations with a video-mux branch; anything else is refused
+   (`VCR_SLI_R_COMBO`) **before the first write**, and the escape maps it to
+   `VCR_HWC_FAIL`. cfg 0/2/5 write sequences must stay byte-identical.
+2. `Diag\SliAA` kill switch, **default 0** = every aaEn request refused before
+   writing. Set to 1 for one supervised boot at a time.
+3. Persist the warn mask and the NOMUX step, so a post-mortem can read them.
+   `HWCEXT PCI_OP` also refuses writes to 0x40, 0x48 and 0x80-0xAC unless
+   `allow_poke`.
+4. Glide guards (fork branch): cfg 1 on >2 chips sends the chips Glide drives,
+   or refuses; tuple check before the escape; honour `retVal`/`resStatus`;
+   refuse a READ_ONLY LFB lock at `grPixelSample>1 && chipCount>1` unless
+   `RETRO_GLIDE_AA_LFB_READ=1`; no miscInit0/1 reset in the idle wait on
+   multi-chip SLI/AA.
+5. Flushed Glide trace (plain `getenv`, default off; `glidelab --trace N`
+   also sets `FX_GLIDE_NO_SPLASH=1` and pulls the trace next to the mode log):
+   brackets on every hardware call between the escape and the first swap,
+   including `hwcGammaRGB`, the idle-reset branch and the close-time disable;
+   level 2 adds a bounded `grFinish` so the last line names the executed step.
+6. Vendor-recipe variant behind `Diag\SliAAVendorRecipe`, **default 0**:
+   unshifted masked secondary base; base=tileMark + AA READ_EN + DIV4 for
+   1-sample-per-chip tuples; the whole tiled depth aperture for cfg 7;
+   `sliCtrl=0` on AA-only requests; a flushed post-`SET_DONE` config readback
+   into `Diag\SliAAState`. The expected register tables for cfg 3/7/1 go into
+   `tests/native/test_vcr_kmd_sli.c` (both the dos_mode.c and vendor values).
+7. `vcrctl sliaa <tuple>` / `sliaa off`: a program-only probe that sends
+   `HWCEXT_SLI_AA_REQUEST` through ExtEscape with no Glide, no LFB and no MMIO
+   snapshot. Refusal paths are proven off silicon first.
+
+**Supervised sequence** (user at the box; one config per CLEAN boot;
+LICSTATUS first, `safe-reboot.py`, every mode switch paced by `vcr_pace`):
+0. First contact, read-only: confirm `SSTH3_SLI_AA_CONFIGURATION` is 0/2/5
+   before any Glide app runs (it was 5 at 00:15). Then deploy the safety-net
+   builds (rollback copy kept, `predeploy`, md5 of `vcrdd.dll`/`vcrmp.sys` and
+   of `C:\Games\Quake2Complete\glide3x.dll` - the DLL glidelab loads - checked
+   on the box) and prove no regression without AA: glidelab cfg 0/2/5 fill +
+   bands, Quake II cfg 5, ddlab/d3dprobe at 16 bpp. Parity: 1124.6 Mpix/s
+   ±1 %, 0 bad band lines, Quake II ~173 fps, D3D 40/40.
+1. **Step A - the refusals on silicon.** `Diag\SliAA=0`, Glide guards in, ONE
+   glidelab cfg 1 open. Accept: `grSstWinOpen` returns an error, PhaseLog
+   shows the refusal and no `SET_BEGIN`, the agent PINGs afterwards. Risk low:
+   nothing may be written.
+2. **Step B - kernel state alone.** cfg 3 then cfg 7, each on its own clean
+   boot, `Diag\SliAA=1` for that boot only: `vcrctl sliaa <exact tuple>`, read
+   config space only (each chip 0x04, 0x40, 0x48, 0x4c, 0x80-0x94, 0xac; the
+   bridge 0x04, 0x1c, 0x3c, 0xc4), hold 5 s, `sliaa off`, read again. Accept:
+   values match the item-6 tables, and the box survives (kernel state alone is
+   not the trigger) or PhaseLog names the last write. Risk moderate.
+3. **Step C - de-confound cfg 7.** A clean boot where cfg 7 is the FIRST Glide
+   app: glidelab fill at trace level 2, current (dos_mode) recipe. Pass -> the
+   16:25 wedge was an artefact of the cfg 3 session; update this plan. Wedge ->
+   the committed trace names the step and settles hypothesis 3. Risk high:
+   expect a power cycle.
+4. **Step D - the cfg 3 read-back, one variable per clean boot.** (a) guard on:
+   expect a clean refusal; (b) opt-in read with SLI READ_EN cleared on chips
+   1-3 (master only); (c) the vendor-recipe variant. Accept: bands completes,
+   or the trace names the scanline and band pair. Risk high for (b) and (c).
+5. Optional, after D: a vendor AA register golden through the 3dfx Tools route
+   under AmigaMerlin (§4.1: driver swap, 2 reboots, rollback required), and our
+   Glide cfg 3 fill over AmigaMerlin's kernel - the run that separates kernel
+   from Glide for the configs in dispute. Commit a
+   `golden/sli_amigamerlin_aa_cfgN.json` only with all three AA proofs (§4).
 
 ### Resume point (2026-09-26 16:50) — full open stack verified; AA wedges the box; AA work is OFFLINE until the user is present
 
@@ -107,18 +255,22 @@ SetEnvironmentVariableA - every earlier `--no-reboot` glidelab run used the
 registry's cfg 5).
 
 **AA (FSAA) - three deep wedges (CPU frozen, Num Lock dead, power cycle):**
-| cfg | kernel SLI/AA setup | result |
-|---|---|---|
-| 3 (4 chip, 2-sample) | SET_DONE | fill RENDERS (625 Mpix/s); `grLfbReadRegion` back buffer hangs |
-| 7 (4 chip, 4-sample) | SET_DONE | hangs inside `grSstWinOpen` |
-| 1 (1 chip, 2-sample) | SET_DONE | hangs (AmigaMerlin's kernel wedged here too) |
-Evidence `vcr-kmd/evidence/glidelab/aa_cfg*.log`; glidelab's own step log
-on the box (C:\vcr\glidelab\*.log) names the last step. **Rule (memory
-`aa-tests-need-user-present`): no AA config on `.124` unless the user is at
-the box.** Next: offline comparison of our h5 Glide's AA open / AA LFB paths
-with 3dfx's GPL Glide, flushed step logging in Glide, then ONE supervised run.
-Quake II at cfg 3 (no LFB reads) is the one AA test likely to pass - also
-supervised.
+(table corrected 2026-09-27 after the post-mortem read-back - see the
+2026-09-27 resume point above; the first version of this table was written
+before cfg 1 was read back and without the run order)
+| cfg | what reached the kernel | kernel SLI/AA setup | result |
+|---|---|---|---|
+| 3 (4 chip, 2-sample) | 4 chips, SLI on (2 units), AA on | SET_DONE (boot #16) | fill completed ONCE (625 Mpix/s - that number alone cannot tell 2-sample AA from 2-unit SLI; no frame checked); bands: `grLfbReadRegion` back buffer hangs, 2.6 h into a busy boot |
+| 7 (4 chip, 4-sample) | 4 chips, SLI off, AA on | SET_DONE (boot #17) | hangs inside `grSstWinOpen` - **CONFOUNDED: ran 20 s after the cfg 3 fill in the SAME boot** (ground rule 1 broken); unconfirmed on a clean boot |
+| 1 (meant as 1 chip, 2-sample) | **4 chips**, SLI off, AA on, 2-sample: `HWC_SLIAA a=4 b=0x102` - a malformed request | `SET_DONE` at 116.328 s (boot #18; **read back 2026-09-27**) | froze **inside `grSstWinOpen`** after the kernel reported SET_DONE (AmigaMerlin's kernel wedged on the same request) |
+
+Evidence: `vcr-kmd/evidence/glidelab/postmortem_20260927/` (boot #18's
+phase history, both on-box step logs); `aa_cfg*.log` beside it are host-side
+EXECW timeouts only. **Rule (memory `aa-tests-need-user-present`): no AA
+config on `.124` unless the user is at the box.** Retracted: "Quake II at
+cfg 3 (no LFB reads) is the one AA test likely to pass" - it rested on the one
+cfg 3 fill run, whose boot wedged 20 s later on cfg 7. Next steps: the
+2026-09-27 resume point.
 
 **Still open (safe):** 16 bpp DirectDraw flip at half the refresh; 32 bpp D3D
 render targets (windowed D3D on a 32 bpp desktop fails CreateDevice).
@@ -192,7 +344,9 @@ switch.**
 **Why it matters:** AA had never engaged on this box (ground rule 2: the
 registry/env route does nothing on AmigaMerlin's own Glide). OUR Glide does
 pass cfg 1 through (`gpci.c`: aaSample 2, forceSingleChip) - and AmigaMerlin's
-kernel wedges on the request. So there is no vendor AA state to capture this
+kernel wedges on the request. (2026-09-27: what reaches the kernel is not a
+single-chip request but 4 chips / no SLI / AA / 2-sample, a tuple the vendor
+never sends - resume point 2026-09-27.) So there is no vendor AA state to capture this
 way; AA on the V5 6000 is new ground for our kernel (vcr-kmd's `vcrmp_sli.c`
 has the dos_mode.c AA paths, untested on silicon).
 
@@ -505,6 +659,86 @@ whole display-class instance key before/after and diff; write whatever the
 panel wrote; then re-run `v56k_shots.py` on Quake III (md5 must change) and the
 UT99 edge count (must drop) and a timedemo (fps must fall). Accept an AA cell
 only when all three move.
+
+(2026-09-27, from the source - §4.1: of the keys above only
+`SSTH3_SLI_AA_CONFIGURATION` selects FSAA, and it is the only AA value the
+panel writes. `SSTH3_ANTIALIAS` is D3D edge AA, `SSTH3_DIGITAL_SLI_AA` is
+moot on a 4-chip board, `SSTH3_AAJITTER_FORCEFLAG` picks jitter tables.)
+
+### 4.1 What the 3dfx Tools route writes and programs (read 2026-09-27, offline)
+
+Read-only (critic plan step 14): the vintage W2K tree
+(`retro-3dfx/3dfx Driver Code/H5/W2K/Src/Video/`, guidance only) and the
+AmigaMerlin 3.1 R1 and R11 `driver2k\3dfxvs.inf` on the share
+(`Files\Drivers\3DFX\WinXP\`). R6, x86-secret's release, is not on the share;
+R1 and R11 carry identical AA entries. Bare file names below are in
+`Displays/H5/`, except `H3.C`, `H3.H`, `SLIAA.C` and `h3registry.c`
+(`Miniport/H5/`).
+
+- **The panel writes ONE AA value.** The 3dfx tab is built from the INF's
+  `[3dfxTools]` section; the Direct3D and OpenGL/Glide categories each have a
+  `QuadChipAASLI` combo writing `SSTH3_SLI_AA_CONFIGURATION` (REG_SZ) into the
+  `D3D` or `Glide` subkey of the adapter's software key, `Tweak Map
+  "0,5,6,7,8"` = Single Chip Only / Fastest / 2 / 4 / 8 Sample. **It never
+  offers cfg 1-4 on a 4-chip board.** 6000 install defaults
+  (`[3dfxTools_Voodoo6]`): `D3D\SSTH3_DIGITAL_SLI_AA="0"`,
+  `Glide\FX_GLIDE_ANALOG_SLI="1"`, `SSTH3_SLI_AA_CONFIGURATION="5"` in both.
+  Inside Glide 3 == 6 and 4 == 7 (Glide fork `glide3/src/gpci.c:1768-1785`), so the lab's
+  cfg 3 / 7 are the panel's "2 Sample" / "4 Sample"; cfg 1 has no panel
+  equivalent here.
+- **The display driver's D3D path** (`Compute_SLIAA_Config`,
+  `DDFXNT.C:3572`, run at 3D-surface creation, `DDSURF.C:452`), on
+  4 chips: rewrites cfg 1-4 to 0 (`3632-3639`) - **the vendor never sends cfg
+  1's tuple** (hypothesis 1); `DDSCAPS2_HINTANTIALIASING` promotes to cfg 8;
+  < 2 buffers -> 0 (`3816`); cfg 8 -> 7 with no secondary heap unless
+  `SSTH3_AA_ENABLE_OUTOFMEMORY=1` (`3823-3836`); every `QUAD_*` config forces
+  analog (`3868-3890`), so `SSTH3_DIGITAL_SLI_AA` is moot. `Promote_DeviceToSLIAA`
+  (`2952`) then sends a **real secondary colour buffer**
+  (`ddAAPrimaryStart`, `3053`) and `dwTileMark = ddTiledHeapStart` (`3038`):
+  cfg 6 -> {4 chips, SLI 1, AA 1, high 0, analog 1} (the tuple our Glide sends
+  for cfg 3), cfg 7 -> {4, 0, 1, 1, 1}, cfg 8 -> {4, 0, 1, 2, 1}. A failed later
+  allocation runs `BailOutOfAA` (`~3350-3495`): AA dropped, SLI kept, silently -
+  ground rule 2's three proofs stay mandatory.
+- **Both routes end in the same miniport call; the panel programs nothing.**
+  Glide: `HWCEXT_SLI_AA_REQUEST` -> `hwcSliAARequest` (`HWCEXT.C:2526`, needs
+  HWC exclusive mode) -> `IOCTL_3DFX_SLI_AA_ENABLE` (`2592`). D3D: the same
+  IOCTL (`DDFXNT.C:3072`). Miniport: `H3.C:4128` -> `EnableSLIAA`
+  (`SLIAA.C:3481`). The routes differ only in who fills the request (real
+  secondary buffer + tileMark vs our Glide's base 0, hypothesis 5), so a vendor
+  D3D capture at cfg 6 / 7 is the register reference for our Glide's cfg 3 / 7.
+  (That AmigaMerlin's binaries keep this structure is expected, not proven.)
+- **Not FSAA enables:** `SSTH3_ANTIALIAS` (`D3INIT.C:924-930`) only lets the
+  D3D render state `D3DRENDERSTATE_ANTIALIAS` through (`D3RSTATE.C:823`) - edge
+  AA; AmigaMerlin labels it "Edge-Aliasing (Reboot Required)". The miniport's
+  `DIGITAL_SLI_AA` (`h3registry.c:1204-1215` -> `H3.H:1876`) is
+  stored and never read there (other hit: `#if 0` default, `H3.C:606`).
+  `SSTH3_AAJITTER_FORCEFLAG` picks jitter tables (`D3INIT.C:1355`).
+- **Where the readers look:** Glide - environment, then
+  `HKCU\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide`, then the same
+  path in HKLM, REG_SZ only (Glide fork `minihwc/minihwc.c` `getRegPath`
+  ~1371-1410, `hwcGetenv` ~8961-9005) - **an HKCU copy shadows HKLM**. Display driver - miniport
+  query of `<DriverRegistryPath>\D3D`, then `<DriverRegistryPath>`, HKLM only
+  (`h3registry.c:1400-1404`, "the search order that the 3dfx tools property
+  sheet expects"), REG_SZ only (`ddgetenv`, `DDFXNT.C:1705`).
+  `DriverRegistryPath` comes from `ConfigInfo` (`H3.C:839`); on XP normally
+  `Control\Video\{GUID}\0000` - read it on the box.
+
+**Capture procedure** (supervised step 5; AmigaMerlin installed, vcr-kmd
+rollback kept, user at the box - the one AA request AmigaMerlin's kernel has
+seen on `.124` was our malformed cfg 1, and it wedged):
+1. Clean boot at cfg 5. `reg export` (via `EXEC`, then `DOWNLOAD`) the
+   adapter's `Control\Video\{GUID}\0000` subtree, `HKLM` and `HKCU`
+   `...\Services\3dfxvs\Device0` with subkeys, and any `HKCU\Software` key
+   the 3dfx Tools applet owns (search `3dfx` case-insensitively).
+2. 3dfx tab -> Direct3D -> Anti-Aliasing -> "2 Sample", Apply, export, diff.
+   Expected: `D3D\SSTH3_SLI_AA_CONFIGURATION` "5" -> "6" plus the combo's own
+   `Value`. Anything else is a finding.
+3. Reboot, read back, run a double-buffered fullscreen D3D app, and take
+   `sli_golden.py`'s capture while it runs (it drives Quake II through our Glide
+   today - it needs a D3D workload option first) plus the three proofs of §4.
+4. "4 Sample" (7) on its own clean boot; then the OpenGL/Glide tab.
+5. Diff against the expected cfg 3/7 tables and our kernel's
+   `Diag\SliAAState` for the same tuple. Roll back; commit the diffs + golden.
 
 ## 5. What "done" looks like for the second instalment
 
