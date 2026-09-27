@@ -154,12 +154,17 @@ typedef struct vcr_dd_flip {
     vcr_u32 offset;
 } vcr_dd_flip;
 
-/* IOCTL_VCR_VBLANK (out) */
+/* IOCTL_VCR_VBLANK (out). 16 bytes; refresh_mhz is the word that was
+ * `reserved` (always 0 from an older miniport), so either half of the driver
+ * pair can be older than the other. */
 typedef struct vcr_dd_vblank {
     vcr_u32 in_vblank;          /* 1 while in vertical retrace */
-    vcr_u32 scanline;           /* the line being scanned, 0 when unknown */
+    vcr_u32 scanline;           /* vidCurrentLine & 0x7ff - for GetScanLine ONLY, never
+                                 * for flip completion (include/vcr_flip.h) */
     vcr_u32 scan_offset;        /* the offset now being scanned out */
-    vcr_u32 reserved;
+    vcr_u32 refresh_mhz;        /* the current mode's ACHIEVED refresh (vcr_modeset.
+                                 * refresh_mhz), sent only with Diag\FlipDeadline = 1 on
+                                 * the Voodoo: 0 = the flip deadline keeps the nominal rule */
 } vcr_dd_vblank;
 
 /* IOCTL_VCR_PCI_OP */

@@ -180,13 +180,19 @@ static DWORD APIENTRY Dd_WaitForVerticalBlank(PDD_WAITFORVERTICALBLANKDATA p)
     return DDHAL_DRIVER_HANDLED;
 }
 
+/* The one place vidCurrentLine is reported. Never an unset answer: ddlab read
+ * 2293576 here (stack garbage) where XP's own driver says 0. A line at or past
+ * the visible height is in the blank too - 86Box does not emulate the register
+ * and every read is 0x7ff, and a counter that ran through the blank would be
+ * there. Flip completion never looks at it (include/vcr_flip.h). */
 static DWORD APIENTRY Dd_GetScanLine(PDD_GETSCANLINEDATA p)
 {
     VCR_PDEV *pd = (VCR_PDEV *)p->lpDD->dhpdev;
     vcr_dd_vblank v;
+    p->dwScanLine = 0;
     if (!vblank(pd, &v)) {
         p->ddRVal = DDERR_GENERIC;
-    } else if (v.in_vblank) {
+    } else if (v.in_vblank || v.scanline >= pd->cy) {
         p->ddRVal = DDERR_VERTICALBLANKINPROGRESS;
     } else {
         p->dwScanLine = v.scanline;
@@ -211,29 +217,57 @@ static LONGLONG qpc(void)
     return t;
 }
 
+/* One read of the retrace state for flip completion, timed: `*now` is the
+ * clock AFTER the read (what the rule compares), and the read's own length
+ * goes to the counters - a vblank IOCTL that blocks is one of the ways a
+ * flip loop loses time outside the rule. */
+static int flip_sample(VCR_PDEV *pd, vcr_dd_vblank *v, LONGLONG *now)
+{
+    LONGLONG a = qpc();
+    int have = vblank(pd, v);
+    *now = qpc();
+    vcr_flip_note_poll(&pd->flip, *now - a);
+    return have;
+}
+
 /* Has the chip taken the last flip? It latches the new start address at the
  * next vertical retrace, so a flip is done once a retrace has been seen that
- * began AFTER it (active display seen, then the blank), or once a whole frame
- * has gone by - which also covers a box whose retrace bit cannot be read. */
+ * began AFTER it (active display seen, then the blank), or once the deadline
+ * has passed - which also covers a box whose retrace bit cannot be read. The
+ * rule is include/vcr_flip.h; this is the IOCTL and the clock. */
 static int flip_done(VCR_PDEV *pd)
 {
     vcr_dd_vblank v;
-    LONGLONG f, frame;
-    if (!pd->flip_pending)
+    LONGLONG now;
+    int have;
+    if (!pd->flip.pending)
         return 1;
-    if (vblank(pd, &v)) {
-        if (!v.in_vblank)
-            pd->flip_seen_active = 1;
-        else if (pd->flip_seen_active)
-            pd->flip_pending = 0;
-    }
-    if (pd->flip_pending) {
-        EngQueryPerformanceFrequency(&f);
-        frame = f / (pd->freq > 1 ? pd->freq : 60);
-        if (qpc() - pd->flip_t0 > frame + frame / 8)
-            pd->flip_pending = 0;
-    }
-    return !pd->flip_pending;
+    have = flip_sample(pd, &v, &now);
+    return vcr_flip_poll(&pd->flip, have, have && v.in_vblank, now);
+}
+
+static ULONG ticks_us(LONGLONG t, LONGLONG f)
+{
+    return f > 0 && t > 0 ? (ULONG)(t * 1000000 / f) : 0;
+}
+
+/* How the flips of one exclusive session completed - the question the .124
+ * 16 bpp half rate left open (by retrace, by deadline, a blocked IOCTL, a
+ * long wait). flips = retrace + deadline + superseded + still pending. */
+static void flip_stats_log(VCR_PDEV *pd)
+{
+    vcr_flip_state *s = &pd->flip;
+    LONGLONG f;
+    if (!s->flips && !s->polls)
+        return;
+    EngQueryPerformanceFrequency(&f);
+    VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 12, s->flips, s->by_retrace, s->by_deadline,
+          "flips %u: retrace %u, deadline %u, superseded %u, pending %u", s->flips,
+          s->by_retrace, s->by_deadline, s->superseded, s->pending);
+    VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 13, ticks_us(s->max_poll, f), ticks_us(s->max_wait, f),
+          ticks_us(s->deadline, f), "flip reads %u: longest %u us; longest wait %u us; deadline %u us",
+          s->polls, ticks_us(s->max_poll, f), ticks_us(s->max_wait, f), ticks_us(s->deadline, f));
+    vcr_flip_stats_reset(s);
 }
 
 static DWORD APIENTRY Dd_Flip(PDD_FLIPDATA p)
@@ -247,6 +281,8 @@ static DWORD APIENTRY Dd_Flip(PDD_FLIPDATA p)
      * d3dprobe perf --novsync at exactly the refresh (85.0 fps, .124). */
     int novsync = (p->dwFlags & DDFLIP_NOVSYNC) != 0;
     vcr_dd_vblank v;
+    LONGLONG now, f;
+    int have;
     DWORD rc;
     /* the previous flip has not reached the screen: DDFLIP_WAIT retries */
     if (!novsync && !flip_done(pd)) {
@@ -266,10 +302,16 @@ static DWORD APIENTRY Dd_Flip(PDD_FLIPDATA p)
           "Flip %u: show %x (surface %p), current %x (surface %p) flags %x", pd->dd_flips, off,
           p->lpSurfTarg, p->lpSurfCurr ? (ULONG)p->lpSurfCurr->lpGbl->fpVidMem : 0,
           p->lpSurfCurr, p->dwFlags);
-    pd->flip_pending = !novsync;
-    pd->flip_seen_active = vblank(pd, &v) && !v.in_vblank;
+    /* The retrace state is read AFTER the start-address write, and the clock
+     * after that: a write racing into a retrace is then reported a frame
+     * late, never early (vcr_flip.h). The deadline is the nominal rate's
+     * frame + 1/8 unless the miniport sends the achieved rate
+     * (Diag\FlipDeadline = 1). */
+    have = flip_sample(pd, &v, &now);
+    EngQueryPerformanceFrequency(&f);
+    vcr_flip_begin(&pd->flip, novsync, have, have && v.in_vblank, now,
+                   vcr_flip_deadline(f, have ? v.refresh_mhz : 0, pd->freq));
     pd->flip_from = p->lpSurfCurr ? (ULONG)p->lpSurfCurr->lpGbl->fpVidMem : 0xffffffffu;
-    pd->flip_t0 = qpc();
     p->ddRVal = DD_OK;
     return DDHAL_DRIVER_HANDLED;
 }
@@ -495,6 +537,8 @@ static DWORD APIENTRY Dd_SetExclusiveMode(PDD_SETEXCLUSIVEMODEDATA p)
     pd->dd_exclusive = p->dwEnterExcl;
     VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 4, p->dwEnterExcl, 0, 0,
           "DirectDraw exclusive %u", p->dwEnterExcl);
+    if (!p->dwEnterExcl)
+        flip_stats_log(pd);         /* the session's flips, then counters from zero */
     p->ddRVal = DD_OK;
     return DDHAL_DRIVER_HANDLED;
 }

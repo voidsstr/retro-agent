@@ -2,7 +2,7 @@
  * ddlab.c - a DirectDraw test program for the kernel driver's DirectDraw HAL.
  *
  *   ddlab caps                      HAL vs HEL caps, video memory total / free
- *   ddlab flip [--res WxH] [--bpp N] [--frames N]
+ *   ddlab flip [--res WxH] [--bpp N] [--frames N] [--work-us N]
  *             exclusive fullscreen, a primary + 1 back buffer. Per frame: lock
  *             the back buffer, write a frame-numbered pattern, flip (DDFLIP_WAIT),
  *             lock the FRONT buffer and read the pattern back - so a flip that
@@ -10,6 +10,17 @@
  *             points at the wrong surface) is a counted mismatch, not a guess.
  *             Also: where the surfaces live (video memory = the HAL is in use),
  *             flips per second, and the vertical-blank period.
+ *             Per frame too (the .124 16 bpp half rate - was it one long first
+ *             frame, scattered long frames, or every frame two refreshes?):
+ *             first_frame_ms (loop start to the first Flip's return: the first
+ *             Lock maps video memory), max_frame_ms and slow_frames (flip to
+ *             flip, over 1.5 refreshes), and flips_s_first_last - the rate
+ *             between the first and the last flip, which, unlike flips_s,
+ *             does not count the first frame's setup as a flip period.
+ *             --work-us N: N microseconds of busy work right after each Flip,
+ *             with no DirectDraw call - the D3D pattern (render, then wait for
+ *             the flip), which a tighter flip deadline is for (include/
+ *             vcr_flip.h). 0 (the default) is the loop as before.
  *   ddlab blt [--res WxH] [--bpp N]
  *             two off-screen surfaces: a pattern blitted A -> B (SRCCOPY), a
  *             colour fill, and an OVERLAPPING blit inside one surface (a scroll,
@@ -102,6 +113,19 @@ static double now_s(void)
 }
 
 static int g_w = 640, g_h = 480, g_bpp = 16, g_frames = 120;
+static long g_work_us;          /* --work-us: busy work after each Flip */
+#define WORK_US_MAX 1000000
+
+/* spin, touching nothing - the application "rendering" */
+static void busy_us(long us)
+{
+    double end;
+    if (us <= 0)
+        return;
+    end = now_s() + us / 1e6;
+    while (now_s() < end)
+        ;
+}
 
 /* the pattern for frame f: every byte of row 0 and of the middle row */
 static unsigned char pat(int f, int x)
@@ -169,7 +193,7 @@ int main(int argc, char **argv)
     HRESULT hr;
     int i;
     DWORD pace;
-    const char *bad_pace = NULL;
+    const char *bad_pace = NULL, *bad_work = NULL;
 
     /* A crash must die at once, not sit behind a Watson / "has encountered a
      * problem" box: that box keeps the process - and the exclusive mode it
@@ -181,6 +205,15 @@ int main(int argc, char **argv)
         if (!strcmp(a, "--res") && v) { sscanf(v, "%dx%d", &g_w, &g_h); i++; }
         else if (!strcmp(a, "--bpp") && v) { g_bpp = atoi(v); i++; }
         else if (!strcmp(a, "--frames") && v) { g_frames = atoi(v); i++; }
+        else if (!strcmp(a, "--work-us") && v) {
+            char *end = NULL;
+            long n = strtol(v, &end, 10);
+            if (end == v || *end || n < 0 || n > WORK_US_MAX)
+                bad_work = v;
+            else
+                g_work_us = n;
+            i++;
+        }
         else if (!strcmp(a, "--pace") && v) {
             /* atoi("-1") was a floor of 0xFFFFFFFF ms: refused, not wrapped */
             if (vcr_pace_parse_ms(v, &pace))
@@ -193,10 +226,15 @@ int main(int argc, char **argv)
         else if (a[0] != '-') mode = a;
     }
     g_log = fopen(g_logpath, "w");
-    say("ddlab %s: %dx%dx%d frames %d", mode, g_w, g_h, g_bpp, g_frames);
+    say("ddlab %s: %dx%dx%d frames %d work %ld us", mode, g_w, g_h, g_bpp, g_frames, g_work_us);
     if (bad_pace) {
         say("RESULT {\"mode\":\"%s\",\"error\":\"--pace %s: decimal milliseconds, 0 to %u\"}",
             mode, bad_pace, VCR_PACE_MAX_MS);
+        return 2;
+    }
+    if (bad_work) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"--work-us %s: decimal microseconds, 0 to %d\"}",
+            mode, bad_work, WORK_US_MAX);
         return 2;
     }
 
@@ -235,6 +273,10 @@ int main(int argc, char **argv)
         double t0, t, vb0, vbt = 0;
         int vbn = 0;
         DWORD scan = 0;
+        /* when each Flip returned: the per-frame summary */
+        double *ft = (double *)malloc(sizeof(double) * (size_t)(g_frames > 0 ? g_frames : 1));
+        int nft = 0, slow = -1;
+        double first_ms = 0, max_ms = 0, ff_rate = 0, period;
 
         memset(&wc, 0, sizeof wc);
         wc.lpfnWndProc = wndproc;
@@ -306,6 +348,9 @@ int main(int argc, char **argv)
             write_pattern(&sd, f);
             IDirectDrawSurface7_Unlock(back, NULL);
             IDirectDrawSurface7_Flip(prim, NULL, DDFLIP_WAIT);
+            if (ft)
+                ft[nft++] = now_s();
+            busy_us(g_work_us);             /* --work-us: "render", no DirectDraw call */
             memset(&sd, 0, sizeof sd);
             sd.dwSize = sizeof sd;
             if (FAILED(lhr = IDirectDrawSurface7_Lock(prim, NULL, &sd, DDLOCK_WAIT, NULL))) {
@@ -335,11 +380,33 @@ int main(int argc, char **argv)
             vbt = now_s() - vb0;
             IDirectDraw7_GetScanLine(dd, &scan);
         }
+        /* flip to flip: the longest, and how many took over 1.5 refreshes
+         * (the refresh measured just above; -1 when it could not be) */
+        period = vbn && vbt > 0 ? vbt / vbn : 0;
+        if (nft)
+            first_ms = (ft[0] - t0) * 1000;
+        if (nft > 1) {
+            int k;
+            slow = period > 0 ? 0 : -1;
+            for (k = 1; k < nft; k++) {
+                double d = ft[k] - ft[k - 1];
+                if (d * 1000 > max_ms)
+                    max_ms = d * 1000;
+                if (period > 0 && d > 1.5 * period)
+                    slow++;
+            }
+            if (ft[nft - 1] > ft[0])
+                ff_rate = (nft - 1) / (ft[nft - 1] - ft[0]);
+        }
         say("RESULT {\"mode\":\"flip\",\"res\":\"%dx%dx%d\",\"primary_in\":\"%s\",\"frames\":%d,"
             "\"frames_run\":%d,\"mismatch\":%d,\"lock_fail\":%d,\"flips_s\":%.1f,"
-            "\"vblank_hz\":%.1f,\"scanline\":%lu,\"hal_caps\":\"%08lx\"%s}",
+            "\"vblank_hz\":%.1f,\"scanline\":%lu,\"hal_caps\":\"%08lx\",\"work_us\":%ld,"
+            "\"first_frame_ms\":%.2f,\"max_frame_ms\":%.2f,\"slow_frames\":%d,"
+            "\"flips_s_first_last\":%.1f%s}",
             g_w, g_h, g_bpp, prim_in, g_frames, f, bad, lockfail, t > 0 ? f / t : 0.0,
-            vbn ? vbn / vbt : 0.0, scan, hal.dwCaps, focus_json());
+            vbn ? vbn / vbt : 0.0, scan, hal.dwCaps, g_work_us, first_ms, max_ms, slow, ff_rate,
+            focus_json());
+        free(ft);
         /* the hold: a short run still sits the floor */
         if (!restore_mode(dd, "flip"))
             return 8;

@@ -91,9 +91,13 @@ VP_STATUS VcrDdIoctl(VCR_EXT *x, ULONG code, PVOID in, ULONG inlen, PVOID out, U
              * returns (status & SST_VRETRACE) == 0) - reading it the other way
              * waited for the END of the blank and tore every flip */
             v->in_vblank = (VcrRd(x, 0, VCR_R_STATUS) & VCR_STATUS_VRETRACE) ? 0 : 1;
+            /* GetScanLine's answer only - flip completion never reads it:
+             * 86Box does not emulate the register (0x7ff), and on the
+             * VSA-100 it very probably reads 0 through the blank */
             v->scanline = VcrRd(x, 0, VCR_R_VIDCURRENTLINE) & 0x7ff;
         }
         v->scan_offset = x->dd_scan;
+        v->refresh_mhz = x->dd_refresh_mhz;     /* 0 unless Diag\FlipDeadline = 1 */
         *info = sizeof *v;
         return NO_ERROR;
     }

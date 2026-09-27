@@ -24,6 +24,7 @@ REPO = Path(__file__).resolve().parents[2]
 KMD = REPO / "voodoo-cleanroom" / "vcr-kmd"
 DD = (KMD / "display" / "vcrdd_ddraw.c").read_text()
 DDC = (KMD / "display" / "vcrdd.c").read_text()
+FLIP_H = (KMD / "include" / "vcr_flip.h").read_text()
 
 
 def func(src, sig):
@@ -105,8 +106,134 @@ def test_a_novsync_flip_does_not_wait_for_the_retrace():
     body = src[src.index("static DWORD APIENTRY Dd_Flip("):src.index("static DWORD APIENTRY Dd_GetFlipStatus(")]
     assert "int novsync = (p->dwFlags & DDFLIP_NOVSYNC) != 0;" in body
     assert _re.search(r"if \(!novsync && !flip_done\(pd\)\) \{", body)
-    assert "pd->flip_pending = !novsync;" in body
-    assert "pd->flip_pending = 1;" not in body
+    assert "vcr_flip_begin(&pd->flip, novsync," in body
+    # the rule is include/vcr_flip.h's: a NOVSYNC flip is never pending
+    # (tests/native/test_vcr_kmd_flip.c a_novsync_flip_is_never_pending)
+    begin = func(FLIP_H, "static inline void vcr_flip_begin(")
+    assert "s->pending = novsync ? 0 : 1;" in begin
+    assert "s->pending = 1;" not in begin
     # and the HAL SAYS so - the runtime sends DDFLIP_NOVSYNC to no other
     # (the first fix alone left perf --novsync at exactly 85.0 fps on .124)
     assert "hal->ddCaps.dwCaps2 = DDCAPS2_FLIPNOVSYNC;" in src
+
+
+# ---- flip completion hardening (2026-09-27; include/vcr_flip.h) ----------------------
+# The .124 16 bpp flip half rate (46.9 / 42.1 flips/s at 85 Hz) is BELOW the
+# floor flip_done's own deadline guarantees (~77 flips/s even if every retrace
+# were missed), so it was not the completion rule; the rule was factored into a
+# pure header, instrumented, and pinned by tests/native/test_vcr_kmd_flip.c.
+# The scanline-based proposal (P1/P2) was rejected: see the header.
+
+
+def _strip_c_comments(src):
+    return re.sub(r"/\*.*?\*/|//[^\n]*", "", src, flags=re.S)
+
+
+def test_the_flip_rule_is_a_pure_header():
+    """Win32-free, so the host test compiles the code the DLL runs."""
+    includes = re.findall(r'#include\s+[<"]([^>"]+)[>"]', FLIP_H)
+    assert includes == ["vcr_types.h"], includes
+    code = _strip_c_comments(FLIP_H)
+    for w in ("LONGLONG", "EngQuery", "VcrIoctl", "IOCTL_", "float", "double"):
+        assert w not in code, w
+    assert '#include "../include/vcr_flip.h"' in (KMD / "display" / "vcrdd.h").read_text()
+    assert "vcr_flip_state flip;" in (KMD / "display" / "vcrdd.h").read_text()
+
+
+def test_vidcurrentline_never_reaches_flip_completion():
+    """86Box reads it as 0x7ff; on the VSA-100 it very probably reads 0 through
+    the blank. A rule built on it is always-in-blank in the bed (every flip by
+    deadline) and a no-op or early on silicon."""
+    code = _strip_c_comments(FLIP_H).lower()
+    assert "scanline" not in code and "vidcurrentline" not in code
+    for sig in ("static int flip_done(", "static int flip_sample(",
+                "static DWORD APIENTRY Dd_Flip("):
+        assert "scanline" not in _strip_c_comments(func(DD, sig)), sig
+
+
+def test_the_retrace_state_is_read_after_the_start_address_write():
+    """Sampled after the write, a write racing into a retrace is reported a
+    frame LATE; sampled before, a frame EARLY (the native test shows both)."""
+    flip = _strip_c_comments(func(DD, "static DWORD APIENTRY Dd_Flip("))
+    w = flip.index("rc = flip_to(pd, off);")
+    s = flip.index("have = flip_sample(pd, &v, &now);")
+    b = flip.index("vcr_flip_begin(&pd->flip, novsync, have, have && v.in_vblank, now,")
+    assert w < s < b
+    assert "vblank(pd" not in flip[:w]          # no retrace read before the write
+    sample = func(DD, "static int flip_sample(")
+    # the clock AFTER the read is what the rule compares; the read is timed
+    assert sample.index("LONGLONG a = qpc();") < sample.index("vblank(pd, v)") \
+        < sample.index("*now = qpc();") < sample.index("vcr_flip_note_poll(")
+
+
+def test_getscanline_never_answers_garbage():
+    """ddlab read 2293576 (stack garbage) from our GetScanLine where XP's own
+    driver said 0: dwScanLine was never set on the vertical-blank path."""
+    gsl = func(DD, "static DWORD APIENTRY Dd_GetScanLine(")
+    assert gsl.index("p->dwScanLine = 0;") < gsl.index("p->ddRVal")
+    # a line at or past the visible height (86Box: 0x7ff every read) is the blank
+    assert "} else if (v.in_vblank || v.scanline >= pd->cy) {" in gsl
+    blank = gsl[gsl.index("v.scanline >= pd->cy"):]
+    assert blank.index("DDERR_VERTICALBLANKINPROGRESS") < blank.index("p->dwScanLine = v.scanline;")
+
+
+def test_the_achieved_refresh_deadline_is_off_by_default():
+    """frame + 1/32 of the ACHIEVED rate is proven only in the model: until the
+    counters show how often the deadline decides on real titles, the default
+    stays the nominal 1/8 rule the silicon runs were measured with."""
+    hw = (KMD / "miniport" / "vcrmp_hw.c").read_text()
+    setm = func(hw, "VP_STATUS VcrHwSetMode(")
+    assert re.search(r'x->dd_refresh_mhz = x->backend == VCR_HW_VOODOO && '
+                     r'VcrDiagGet\(L"FlipDeadline", 0\)\s*\? m\.refresh_mhz : 0;', setm)
+    assert "x->dd_refresh_mhz = 0;" in func(hw, "void VcrHwResetToVga(")
+    mpdd = (KMD / "miniport" / "vcrmp_dd.c").read_text()
+    vb = mpdd[mpdd.index("case IOCTL_VCR_VBLANK:"):]
+    vb = vb[:vb.index("return NO_ERROR;")]
+    assert "v->refresh_mhz = x->dd_refresh_mhz;" in vb
+    flip = func(DD, "static DWORD APIENTRY Dd_Flip(")
+    assert "vcr_flip_deadline(f, have ? v.refresh_mhz : 0, pd->freq)" in flip
+    # the IOCTL word is the old `reserved`: same size, same offset
+    ioctl = (KMD / "include" / "vcr_ioctl.h").read_text()
+    vbs = ioctl[ioctl.index("typedef struct vcr_dd_vblank {"):ioctl.index("} vcr_dd_vblank;")]
+    fields = re.findall(r"vcr_u32 (\w+);", vbs)
+    assert fields == ["in_vblank", "scanline", "scan_offset", "refresh_mhz"], fields
+
+
+def test_flip_counters_are_logged_when_exclusive_mode_ends():
+    excl = func(DD, "static DWORD APIENTRY Dd_SetExclusiveMode(")
+    assert "if (!p->dwEnterExcl)\n        flip_stats_log(pd);" in excl
+    log = func(DD, "static void flip_stats_log(")
+    for f in ("s->by_retrace", "s->by_deadline", "s->superseded", "s->max_poll",
+              "s->max_wait", "vcr_flip_stats_reset(s);"):
+        assert f in log, f
+    # every flip-completion read is counted and timed
+    assert "flip_sample(pd, &v, &now)" in func(DD, "static int flip_done(")
+
+
+def test_ddlab_reports_the_frames_and_takes_work_us():
+    lab = (KMD / "tools" / "ddlab.c").read_text()
+    for k in ("first_frame_ms", "max_frame_ms", "slow_frames", "flips_s_first_last",
+              "work_us"):
+        assert f'\\"{k}\\":' in lab, k
+    assert '!strcmp(a, "--work-us")' in lab
+    # the busy work sits right after the Flip, before any other DirectDraw call
+    loop = lab[lab.index("IDirectDrawSurface7_Flip(prim, NULL, DDFLIP_WAIT);"):]
+    assert loop.index("busy_us(g_work_us);") < loop.index("IDirectDrawSurface7_Lock(")
+    run = (KMD / "tools" / "ddlab_run.py").read_text()
+    assert 'ap.add_argument("--work-us"' in run
+    import sys
+    sys.path.insert(0, str(KMD / "tools"))
+    sys.path.insert(0, str(REPO))
+    import argparse
+    import ddlab_run
+    ns = argparse.Namespace(mode="flip", res="800x600", bpp=16, frames=60, timeout=120)
+    # today's command line, byte for byte, unless --work-us is asked for
+    assert ddlab_run.lab_args(ns, "L") == "flip --res 800x600 --bpp 16 --frames 60 --log L"
+    ns.work_us = 17400
+    assert ddlab_run.lab_args(ns, "L") == ("flip --res 800x600 --bpp 16 --frames 60 "
+                                           "--work-us 17400 --log L")
+    assert ddlab_run.work_refusal(ns) is None
+    ns.frames = 10000                        # 174 s of busy work in a 120 s budget
+    assert ddlab_run.work_refusal(ns)
+    ns.frames, ns.work_us = 60, -1
+    assert ddlab_run.work_refusal(ns)

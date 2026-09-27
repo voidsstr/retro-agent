@@ -96,13 +96,21 @@ def test_a_flip_is_pending_until_the_chip_latched_it():
     assert "!flip_done(pd)" in flip and "DDERR_WASSTILLDRAWING" in flip
     # pending unless the app asked not to wait (DDFLIP_NOVSYNC - see
     # test_vcr_kmd_ddraw.py): a vsync'd flip still waits for the latch
-    assert "pd->flip_pending = !novsync;" in flip
+    assert "vcr_flip_begin(&pd->flip, novsync," in flip
     assert re.search(r"if \(!novsync && !flip_done\(pd\)\)", flip)
     status = func(DD, "static DWORD APIENTRY Dd_GetFlipStatus(")
     assert "flip_done(pd) ? DD_OK : DDERR_WASSTILLDRAWING" in status
     done = func(DD, "static int flip_done(")
-    # a retrace that began after the flip, or a whole frame gone by
-    assert "flip_seen_active" in done and "frame + frame / 8" in done
+    assert "vcr_flip_poll(&pd->flip," in done
+    # The rule itself moved to include/vcr_flip.h (2026-09-27), where
+    # tests/native/test_vcr_kmd_flip.c drives it over a CRT timeline: a
+    # retrace that began after the flip, or the deadline - by default the
+    # nominal rate's frame + frame / 8, exactly as before the move.
+    flip_h = (KMD / "include" / "vcr_flip.h").read_text()
+    poll = func(flip_h, "static inline int vcr_flip_poll(")
+    assert "s->seen_active" in poll and "s->deadline" in poll
+    dl = func(flip_h, "static inline vcr_ticks vcr_flip_deadline(")
+    assert "frame + frame / 8" in dl
 
 
 def test_the_display_driver_gets_the_registers_from_the_standard_ioctl():

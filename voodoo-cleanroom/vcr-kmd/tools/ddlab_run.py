@@ -3,10 +3,14 @@
 
     ddlab_run.py 127.0.0.1 --port 19910 caps
     ddlab_run.py 192.168.1.124 flip --res 800x600 --bpp 16 --frames 120
+    ddlab_run.py 127.0.0.1 --port 19920 flip --res 800x600 --bpp 16 --frames 600 --work-us 17400
 
 Uploads out/ddlab.exe to C:\\vcr\\ddlab\\, runs it through `start /wait` (a
 normal desktop window - exclusive mode needs one) under EXECW, and prints the
-RESULT json from the flushed log.
+RESULT json from the flushed log. A flip RESULT also carries the per-frame
+summary (first_frame_ms, max_frame_ms, slow_frames, flips_s_first_last);
+--work-us N adds N microseconds of busy work after every Flip (the D3D
+pattern - render, then wait for the flip), passed to ddlab only when non-zero.
 
 `flip` and `blt` take the screen exclusively at --res x --bpp with refresh 0
 - the driver / XP picks the rate - so before anything is uploaded the mode is
@@ -42,6 +46,8 @@ DIR = r"C:\vcr\ddlab"
 # the modes that take the screen exclusively: SetDisplayMode in, and the
 # restore (or XP, at the exit hold) out
 FULLSCREEN = ("flip", "blt")
+# ddlab.c's own bound on --work-us (WORK_US_MAX)
+WORK_US_MAX = 1000000
 
 
 async def call(a, cmd, payload=None, timeout=60):
@@ -76,11 +82,36 @@ def refused(a, why):
     return 2
 
 
+def work_refusal(a):
+    """--work-us is spent on every frame: a run whose busy work alone does not
+    fit in half its --timeout would end in the EXECW timeout (and a pace-kill
+    cleanup), so it is refused before anything is uploaded or switched."""
+    work = getattr(a, "work_us", 0) or 0
+    if work < 0 or work > WORK_US_MAX:
+        return f"--work-us {work}: 0 to {WORK_US_MAX} microseconds"
+    if work and a.mode == "flip" and work * a.frames / 1e6 > a.timeout / 2:
+        return (f"--work-us {work} x --frames {a.frames} is {work * a.frames / 1e6:.0f} s of busy "
+                f"work - more than half of --timeout {a.timeout}")
+    return None
+
+
+def lab_args(a, log):
+    """ddlab's command line: exactly today's unless --work-us is asked for."""
+    args = f"{a.mode} --res {a.res} --bpp {a.bpp} --frames {a.frames}"
+    work = getattr(a, "work_us", 0) or 0
+    if work:
+        args += f" --work-us {work}"
+    return args + f" --log {log}"
+
+
 async def main_async(a):
     box = lambda cmd, t: call_st(a, cmd, t)  # noqa: E731
     full = a.mode in FULLSCREEN
     budget = ms.execw_budget(2 if full else 0, a.timeout)
     why = ms.budget_refusal(budget, f"ddlab {a.mode} with --timeout {a.timeout}")
+    if why:
+        return refused(a, why)
+    why = work_refusal(a)
     if why:
         return refused(a, why)
     if getattr(a, "test_bed", False) and not ms.is_loopback(a.host):
@@ -107,7 +138,7 @@ async def main_async(a):
     await call(a, rf"UPLOAD {DIR}\ddlab.exe", (KMD / "out" / "ddlab.exe").read_bytes())
     log = rf"{DIR}\{a.mode}.log"
     await call(a, rf'EXEC cmd /c del /f /q "{log}"')
-    args = f"{a.mode} --res {a.res} --bpp {a.bpp} --frames {a.frames} --log {log}"
+    args = lab_args(a, log)
     # a ddlab.exe already running is not this run's: a cleanup never kills
     # it (None - PROCLIST did not answer - kills nothing, and says so)
     image = "ddlab.exe"
@@ -166,6 +197,9 @@ def main():
     ap.add_argument("--res", default="640x480")
     ap.add_argument("--bpp", type=int, default=16)
     ap.add_argument("--frames", type=int, default=120)
+    ap.add_argument("--work-us", type=int, default=0,
+                    help="flip: microseconds of busy work after every Flip, no DirectDraw call "
+                         "(the D3D pattern; 0 = the plain loop)")
     ap.add_argument("--timeout", type=int, default=120,
                     help="seconds of WORK; the EXECW adds the pace gate's worst case per switch")
     ap.add_argument("--tool", default=r"C:\vcr\vcrctl.exe",

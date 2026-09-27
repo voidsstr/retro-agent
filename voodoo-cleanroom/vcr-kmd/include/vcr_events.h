@@ -70,7 +70,7 @@
     VCR_EVENT(VCR_EV_DD_FAIL,          508, "a=step b=code") \
     VCR_EVENT(VCR_EV_DD_SET_PALETTE,   509, "a=first b=count") \
     VCR_EVENT(VCR_EV_DD_FLUSH_STATS,   510, "a=flushes b=pixels (K)") \
-    VCR_EVENT(VCR_EV_DD_DDRAW,         511, "a=what (1 info 2 map 3 flip 4 excl 5 togdi 6 enable) b..d=values") \
+    VCR_EVENT(VCR_EV_DD_DDRAW,         511, "a=what (1 info 2 map 3 flip 4 excl 5 togdi 6 enable 12 flip stats: b=flips c=by retrace d=by deadline 13 flip timing: b=longest read us c=longest wait us d=deadline us) b..d=values") \
     VCR_EVENT(VCR_EV_DD_2D,            512, "a=what (1 init 2 term 3 gdi stats 9 gave up) b..d=values") \
     VCR_EVENT(VCR_EV_DD_D3D,           513, "a=what (1 ctx 2 ctx gone 3 surface handle 5 unparsed 6 short 9 table full 12 target refused: b=rt bpp c=z bits d=napalm) b..d=values") \
     /* 6xx HWCEXT (Glide) */ \

@@ -1,0 +1,171 @@
+/*
+ * vcr_flip.h - when has the chip taken a DirectDraw flip? The completion rule
+ * of the display DLL's Dd_Flip / GetFlipStatus / Lock / Blt, as pure logic:
+ * no OS headers, no floating point, no hardware access. The display DLL
+ * (display/vcrdd_ddraw.c) is only the glue - the vblank IOCTL and
+ * EngQueryPerformanceCounter - and the host test (tests/native/
+ * test_vcr_kmd_flip.c) drives this same code over a CRT timeline.
+ *
+ * THE MODEL. A flip writes vidDesktopStartAddr; the chip latches it at the
+ * next vertical sync start, and status[6] reads "in retrace" (bit clear) for
+ * the vsync pulse. 86Box, the only bed that can run this driver's Voodoo
+ * path, does exactly that on the same scanline: the flag is set at
+ * vc == vsyncstart (vid_svga.c svga_poll) and the latch is taken in the
+ * vsync callback of that same line (vid_voodoo_banshee.c:
+ * desktop_addr = vidDesktopStartAddr). So a flip is DONE once a retrace has
+ * been seen that began after the write: active display seen, then the flag.
+ *
+ * THE ORDER THAT MAKES IT SAFE. The "active display seen" sample is taken
+ * AFTER the start-address write (vcr_flip_begin gets the retrace state read
+ * after the flip IOCTL). A write racing into a retrace can then only be
+ * reported one frame LATE, never early: sampled in the pulse, the flip waits
+ * for the next one. Sampled BEFORE the write, a write that lands just after
+ * the vsync start (and so misses this latch) would be declared done in the
+ * same pulse - a whole frame early (the host test demonstrates it).
+ * The one unproven silicon assumption, shared by every retrace-flag rule:
+ * status[6] does not assert before the latch. If the flag covered the blank
+ * from display end, done could come up to the front porch early.
+ *
+ * THE DEADLINE. A retrace the polls never see (none lands in a short pulse,
+ * or the app does not poll between a flip and its next wait - the D3D
+ * pattern) is covered by a timeout counted from the flip:
+ *   refresh_mhz == 0 (the default): frame + frame / 8 of the NOMINAL rate,
+ *       today's rule, exactly: at QueryPerformanceFrequency 3579545 that is
+ *       42112 + 5264 = 47376 ticks at 85 Hz, 59659 + 7457 = 67116 at 60 Hz
+ *       (and the 60 Hz rule when the rate is unknown, 0 or 1).
+ *   refresh_mhz != 0: frame + frame / 32 of the ACHIEVED rate the miniport
+ *       computed from the programmed PLL and CRTC (vcr_modeset.refresh_mhz,
+ *       sent in vcr_dd_vblank.refresh_mhz only when Diag\FlipDeadline = 1).
+ *       The latch is at most one achieved frame after the write, and the
+ *       clock starts after it, so 1/32 of a frame (367 us at 85 Hz) is all
+ *       margin: never early, and a D3D-pattern app at 1.05 refreshes a frame
+ *       flips at ~0.95 of the refresh instead of 0.889. An achieved rate
+ *       more than 1/16 away from the nominal is not trusted (nominal rule).
+ *
+ * vidCurrentLine plays NO part here, by design: open Glide gives the field no
+ * semantics, 86Box does not emulate it (reads 0x7ff), and on the VSA-100 it
+ * very probably reads 0 through the blank - see GetScanLine for the one place
+ * it is reported.
+ */
+#ifndef VCR_FLIP_H
+#define VCR_FLIP_H
+
+#include "vcr_types.h"
+
+typedef long long vcr_ticks;        /* a QueryPerformanceCounter value or span */
+
+/* the achieved rate is trusted within 1/16 of the nominal one */
+#define VCR_FLIP_TRUST_SHIFT    4
+
+typedef struct vcr_flip_state {
+    vcr_u32   pending;          /* a vsync'd flip the chip may not have latched */
+    vcr_u32   seen_active;      /* active display seen since (and after) the write */
+    vcr_ticks t0;               /* when the flip was begun (after its sample) */
+    vcr_ticks deadline;         /* ticks after t0 at which it counts as done anyway */
+    vcr_u32   waiting;          /* a poll found it pending: a wait began at wait_t0 */
+    vcr_ticks wait_t0;
+    /* counters, per PDEV, until vcr_flip_stats_reset (logged when exclusive
+     * mode ends) */
+    vcr_u32   flips;            /* vsync'd flips begun */
+    vcr_u32   by_retrace;       /* ... done by a retrace seen after the write */
+    vcr_u32   by_deadline;      /* ... done because the deadline passed */
+    vcr_u32   superseded;       /* ... still pending when another flip replaced it */
+    vcr_u32   polls;            /* vblank reads made for flip completion */
+    vcr_ticks max_poll;         /* the longest single vblank read (the IOCTL) */
+    vcr_ticks max_wait;         /* the longest a caller was told "still drawing" */
+} vcr_flip_state;
+
+/* The achieved rate to use, or 0 for the nominal rule. */
+static inline vcr_u32 vcr_flip_trusted_mhz(vcr_u32 refresh_mhz, vcr_u32 nominal_hz)
+{
+    vcr_u32 nom;
+    if (!refresh_mhz || nominal_hz <= 1 || nominal_hz > 1000)
+        return 0;
+    nom = nominal_hz * 1000u;
+    if (refresh_mhz > nom + (nom >> VCR_FLIP_TRUST_SHIFT) ||
+        refresh_mhz < nom - (nom >> VCR_FLIP_TRUST_SHIFT))
+        return 0;
+    return refresh_mhz;
+}
+
+/* Ticks after the flip at which it is done even with no retrace seen. */
+static inline vcr_ticks vcr_flip_deadline(vcr_ticks qpf, vcr_u32 refresh_mhz, vcr_u32 nominal_hz)
+{
+    vcr_ticks frame;
+    vcr_u32 mhz = vcr_flip_trusted_mhz(refresh_mhz, nominal_hz);
+    if (mhz) {
+        frame = qpf * 1000 / (vcr_ticks)mhz;
+        return frame + frame / 32;
+    }
+    frame = qpf / (vcr_ticks)(nominal_hz > 1 ? nominal_hz : 60);
+    return frame + frame / 8;
+}
+
+/* A flip was written. have_sample / in_vblank: the retrace state read AFTER
+ * the start-address write; now: the clock read after that. A NOVSYNC flip is
+ * never pending: the app asked not to wait, and the chip latches whichever
+ * address was written last. */
+static inline void vcr_flip_begin(vcr_flip_state *s, int novsync, int have_sample, int in_vblank,
+                                  vcr_ticks now, vcr_ticks deadline)
+{
+    if (s->pending)
+        s->superseded++;
+    s->pending = novsync ? 0 : 1;
+    s->seen_active = have_sample && !in_vblank;
+    s->t0 = now;
+    s->deadline = deadline;
+    s->waiting = 0;
+    if (!novsync)
+        s->flips++;
+}
+
+/* One vblank read took `ticks` (the glue brackets the IOCTL with the clock). */
+static inline void vcr_flip_note_poll(vcr_flip_state *s, vcr_ticks ticks)
+{
+    s->polls++;
+    if (ticks > s->max_poll)
+        s->max_poll = ticks;
+}
+
+/* Has the chip taken it? have_sample / in_vblank: a retrace state read just
+ * now; now: the clock read after it. Returns 1 when done. */
+static inline int vcr_flip_poll(vcr_flip_state *s, int have_sample, int in_vblank, vcr_ticks now)
+{
+    if (!s->pending)
+        return 1;
+    if (have_sample) {
+        if (!in_vblank) {
+            s->seen_active = 1;
+        } else if (s->seen_active) {
+            s->pending = 0;
+            s->by_retrace++;
+        }
+    }
+    if (s->pending && now - s->t0 > s->deadline) {
+        s->pending = 0;
+        s->by_deadline++;
+    }
+    if (s->pending) {
+        if (!s->waiting) {
+            s->waiting = 1;
+            s->wait_t0 = now;
+        }
+        return 0;
+    }
+    if (s->waiting && now - s->wait_t0 > s->max_wait)
+        s->max_wait = now - s->wait_t0;
+    s->waiting = 0;
+    return 1;
+}
+
+/* Clear the counters. A flip still in flight stays in flight and is counted
+ * again, so flips == by_retrace + by_deadline + superseded + pending holds
+ * after a reset too. */
+static inline void vcr_flip_stats_reset(vcr_flip_state *s)
+{
+    s->flips = s->pending ? 1 : 0;
+    s->by_retrace = s->by_deadline = s->superseded = s->polls = 0;
+    s->max_poll = s->max_wait = 0;
+}
+
+#endif /* VCR_FLIP_H */

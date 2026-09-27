@@ -146,6 +146,8 @@ typedef struct VCR_EXT {
     ULONG     clock_6k_hz;          /* last external clock programmed */
 
     ULONG     dd_scan;              /* DirectDraw: offset being scanned out */
+    ULONG     dd_refresh_mhz;       /* ... the achieved refresh the flip deadline may use:
+                                     * set at mode set with Diag\FlipDeadline = 1, else 0 */
 
     /* the hardware cursor (vcrmp_cursor.c) */
     UCHAR     cur_pat[1024];

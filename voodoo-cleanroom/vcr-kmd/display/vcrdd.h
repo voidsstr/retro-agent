@@ -25,6 +25,7 @@
 #include "../include/vcr_ioctl.h"
 #include "../include/vcr_hwcext.h"
 #include "../include/vcr_fmt.h"
+#include "../include/vcr_flip.h"
 
 #define VCRDD_TAG           0x44524356      /* 'VCRD' */
 
@@ -64,10 +65,10 @@ typedef struct VCR_PDEV {
     ULONG       fog_loaded[4];      /* the fog table on the chip: mode, start, end, density */
     ULONG       fog_valid;
     ULONG       g2d_ops, g2d_gdi_copies, g2d_gdi_fills;
-    /* a DirectDraw flip the chip has not latched yet */
-    ULONG       flip_pending, flip_seen_active;
+    /* a DirectDraw flip the chip has not latched yet: the completion rule and
+     * its counters (include/vcr_flip.h; vcrdd_ddraw.c is the glue) */
+    vcr_flip_state flip;
     ULONG       flip_from;          /* the old front buffer (fpVidMem): not to be drawn on yet */
-    LONGLONG    flip_t0;
 } VCR_PDEV;
 
 /* vcrdd_log.c */

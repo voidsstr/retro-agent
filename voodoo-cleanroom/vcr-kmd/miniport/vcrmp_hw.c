@@ -641,6 +641,13 @@ VP_STATUS VcrHwSetMode(VCR_EXT *x, ULONG idx)
     x->cur_set = m;
     x->cur_stride = m.stride;
     x->dd_scan = x->desktop_offset;     /* scanning out the primary again */
+    /* The flip deadline's achieved-refresh rule (include/vcr_flip.h) is OFF
+     * unless Diag\FlipDeadline = 1: the default keeps the nominal-rate rule
+     * the silicon runs were measured with. Read at every mode set, so a
+     * DirectDraw application's own mode switch picks a change up. Never on
+     * the VM backend - QEMU's std-vga has no PLL behind this number. */
+    x->dd_refresh_mhz = x->backend == VCR_HW_VOODOO && VcrDiagGet(L"FlipDeadline", 0)
+                        ? m.refresh_mhz : 0;
     VcrCursorApply(x);          /* a mode set rewrote vidProcCfg; Glide owned the memory */
     VLOG(VCR_LV_INFO, VCR_EV_MODESET_DONE, m.vidproccfg, m.vidscreensize, m.stride,
          (VcrMs() - t0) * 1000, "mode set done");
@@ -770,6 +777,7 @@ void VcrHwResetToVga(VCR_EXT *x)
 {
     VCR_BOOTSTATE *b = &x->boot;
     ULONG i;
+    x->dd_refresh_mhz = 0;          /* no mode of ours: no achieved refresh */
     if (x->backend == VCR_HW_BOCHS) {
         if (x->dispi)
             DISPI(x, 4, 0);
