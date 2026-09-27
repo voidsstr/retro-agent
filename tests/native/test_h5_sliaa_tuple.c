@@ -19,9 +19,11 @@
  *     checked against the kernel code itself, not a list;
  *  2. cfg 1 on 4 chips is refused before any request, and the old order sent
  *     exactly the tuple the kernel has no branch for;
- *  3. MIRROR: Glide's table (hwcSliAaTupleSupported) equals the set of tuples
- *     vcr_sli_set() programs without VCR_SLI_W_NOMUX, over the whole domain;
- *     a mutated table is shown to fail the comparison;
+ *  3. MIRROR: Glide's table (hwcSliAaTupleSupported) never accepts a tuple
+ *     vcr_sli_set() does not program with a video-mux branch, and equals that
+ *     set - exactly once the kernel carries its safety net (vcr_sli_combo_ok,
+ *     412b03c), and before it minus exactly the six shapes video_mux() would
+ *     program as another sample count; mutated tables are shown to fail;
  *  4. the other guards: single-chip AA PCI_OP loop bound, the READ lock in a
  *     multi-chip AA mode, the idle wait's master reset, chips driven;
  *  5. the refactored upstream decisions (control panel mapping, forced sample
@@ -329,9 +331,15 @@ TEST(cfg1_on_four_chips_is_refused_the_old_order_sent_the_wedge_tuple) {
     CHECK_EQ_U(old.chipCount, 1);
     CHECK_EQ_U(hwcSliAaTupleSupported(4, 0, 1, 0, 1), 0);
     CHECK_EQ_U(kernel_programs(4, 0, 1, 0, 1, &dis), 0);
-    /* on today's kernel that tuple is NOT refused: it is programmed without a
-     * video mux, every other SLI/AA register written - the wedge */
-    CHECK(K.set_begin && (K.nomux || K.refused), "the kernel logs NOMUX (or refuses)");
+    /* before the kernel safety net (vcr-kmd 412b03c) that tuple is NOT refused:
+     * it is programmed without a video mux, every other SLI/AA register
+     * written - the wedge. With the net it is refused before SET_BEGIN, with
+     * nothing written. */
+#ifdef VCR_SLI_R_COMBO
+    CHECK(K.refused && !K.set_begin && K.writes == 0, "the kernel refuses it before any write");
+#else
+    CHECK(K.set_begin && K.nomux && K.writes > 0, "the kernel programs it and logs NOMUX");
+#endif
     /* FX_GLIDE_AA_SAMPLE=4 with single chip: the same late order, a supported
      * tuple naming four chips while Glide drives one */
     old = glide_open(4, 0, 4, 0, 0, 0);
@@ -344,14 +352,43 @@ TEST(cfg1_on_four_chips_is_refused_the_old_order_sent_the_wedge_tuple) {
     CHECK_EQ_U(h5SliAaSingleChipOk(4, 1, 1), 1);        /* cfg 0 on 4 chips */
 }
 
-/* ---- 3. mirror: Glide's table = vcrmp_sli.c's branches ----------------------- */
+/* ---- 3. mirror: Glide's table = the kernel's set -------------------------------
+ * "The kernel" is vcrmp_sli.c's vcr_sli_set() itself, run against the mock.
+ * Two versions of it are in play:
+ *  - before the kernel safety net (vcr-kmd 412b03c): video_mux() decides, and
+ *    it also programs six shapes as a DIFFERENT sample count - 1 chip with a
+ *    4/8-sample field (its branch ignores the field: 2-sample) and 8 samples on
+ *    2 chips without SLI (the 4-sample branches test the field as a boolean);
+ *  - with the net (VCR_SLI_R_COMBO defined): vcr_sli_combo_ok() refuses every
+ *    shape outside its set before the first write, those six included.
+ * Glide's table must never accept a shape the kernel does not program (the
+ * safety half), and must otherwise equal it: exactly, with the net; before it,
+ * minus exactly those six. Glide sends none of the six from any setting. */
 
-static int mismatches(int (*pred)(unsigned long, unsigned long, unsigned long, unsigned long,
-                                  unsigned long), unsigned *supported, int quiet)
+static int reinterpreted(unsigned long n, unsigned long s, unsigned long a, unsigned long h,
+                         unsigned long an)
+{
+    (void)an;
+    if (!a)
+        return 0;
+    return !s && ((n == 1 && (h == 1 || h == 2)) || (n == 2 && h == 2));
+}
+
+typedef struct {
+    unsigned kernel, glide;     /* shapes each side accepts (disables excluded) */
+    unsigned extra;             /* Glide accepts, the kernel does not program - never allowed */
+    unsigned missing;           /* the kernel programs, Glide refuses */
+    unsigned missing_reinterp;  /* ...of which are the six documented shapes */
+    unsigned disable;           /* Glide accepts a disable as a mode - never allowed */
+} mirror_t;
+
+static mirror_t mirror(int (*pred)(unsigned long, unsigned long, unsigned long, unsigned long,
+                                   unsigned long), int quiet)
 {
     unsigned long n, s, a, h, an;
-    int bad = 0, dis;
-    *supported = 0;
+    mirror_t m;
+    int dis;
+    memset(&m, 0, sizeof m);
     for (n = 0; n <= 5; n++)
         for (s = 0; s <= 1; s++)
             for (a = 0; a <= 1; a++)
@@ -360,19 +397,29 @@ static int mismatches(int (*pred)(unsigned long, unsigned long, unsigned long, u
                         int k = kernel_programs(n, s, a, h, an, &dis);
                         int g = pred(n, s, a, h, an);
                         if (dis) {
-                            if (g)
-                                bad++;          /* a disable is never a mode */
+                            m.disable += (unsigned)(g != 0);
                             continue;
                         }
-                        *supported += (unsigned)k;
-                        if (k != g) {
-                            bad++;
-                            if (!quiet)
+                        m.kernel += (unsigned)k;
+                        m.glide += (unsigned)(g != 0);
+                        if (g && !k)
+                            m.extra++;
+                        if (k && !g) {
+                            m.missing++;
+                            m.missing_reinterp += (unsigned)reinterpreted(n, s, a, h, an);
+                        }
+                        /* print what is not expected: the six are, before the net */
+                        if (!quiet && (g != 0) != k) {
+                            int expected = k && !g && reinterpreted(n, s, a, h, an);
+#ifdef VCR_SLI_R_COMBO
+                            expected = 0;
+#endif
+                            if (!expected)
                                 fprintf(stderr, "    mirror: {%lu,%lu,%lu,%lu,%lu} kernel %d glide %d\n",
-                                        n, s, a, h, an, k, g);
+                                        n, s, a, h, an, k, g != 0);
                         }
                     }
-    return bad;
+    return m;
 }
 
 static int table_ok(unsigned long n, unsigned long s, unsigned long a, unsigned long h,
@@ -380,23 +427,78 @@ static int table_ok(unsigned long n, unsigned long s, unsigned long a, unsigned 
 {
     return hwcSliAaTupleSupported(n, s, a, h, an);
 }
+/* the table before 2026-09-27's narrowing: video_mux()'s set, six shapes wider */
+static int table_old(unsigned long n, unsigned long s, unsigned long a, unsigned long h,
+                     unsigned long an)
+{
+    return hwcSliAaTupleSupported(n, s, a, h, an) || reinterpreted(n, s, a, h, an);
+}
 /* a table that forgot cfg 1's missing branch - the mirror must catch it */
 static int table_mutant(unsigned long n, unsigned long s, unsigned long a, unsigned long h,
                         unsigned long an)
 {
     return hwcSliAaTupleSupported(n, s, a, h, an) || (n == 4 && !s && a && h == 0 && an);
 }
+/* a table that took 8 samples on 2 chips back - the mirror must catch it too */
+static int table_mutant8(unsigned long n, unsigned long s, unsigned long a, unsigned long h,
+                         unsigned long an)
+{
+    return hwcSliAaTupleSupported(n, s, a, h, an) || (n == 2 && !s && a && h == 2);
+}
 
-TEST(mirror_glide_tuple_table_equals_vcrmp_sli_video_mux_branches) {
-    unsigned sup = 0, sup2 = 0;
-    CHECK_EQ_I(mismatches(table_ok, &sup, 0), 0);
-    /* 12 AA branches of 2+ chips, two of which (2-chip 4-sample) test the
-     * sample field as a boolean and so also take 8 (+2); 4 SLI-only branches,
-     * each for all 4 values of the sample field the kernel ignores without AA;
-     * the 1-chip AA branch for each valid sample field (3) and analog bit (2).
+TEST(mirror_glide_tuple_table_equals_the_kernel_set) {
+    mirror_t m = mirror(table_ok, 0), old, mut;
+
+    /* fixed: never a shape the kernel does not program, never a disable, and
+     * 30 shapes: 12 AA branches of 2+ chips, 4 SLI-only branches for each of
+     * the 4 values of the sample field the kernel ignores without AA, the
+     * 1-chip 2-sample branch for either analog bit */
+    CHECK_EQ_U(m.extra, 0);
+    CHECK_EQ_U(m.disable, 0);
+    CHECK_EQ_U(m.glide, 12 + 4 * 4 + 2);
+#ifdef VCR_SLI_R_COMBO
+    /* the kernel with its safety net: exactly its set */
+    CHECK_EQ_U(m.missing, 0);
+    CHECK_EQ_U(m.kernel, 30);
+    {
+        unsigned long n, s, a, h, an;
+        unsigned diff = 0;
+        for (n = 0; n <= 5; n++)
+            for (s = 0; s <= 1; s++)
+                for (a = 0; a <= 1; a++)
+                    for (h = 0; h <= 3; h++)
+                        for (an = 0; an <= 1; an++)
+                            diff += (unsigned)(!vcr_sli_combo_ok((vcr_u32)n, (vcr_u32)s, (vcr_u32)a,
+                                                                 (vcr_u32)h, (vcr_u32)an) !=
+                                               !hwcSliAaTupleSupported(n, s, a, h, an));
+        CHECK_EQ_U(diff, 0);    /* the kernel's own predicate, shape for shape */
+    }
+#else
+    /* the kernel before its safety net: video_mux()'s 36 shapes, of which
+     * Glide refuses exactly the six it would program as another sample count.
      * The first draft of the table had 34 - this comparison caught the 8. */
-    CHECK_EQ_U(sup, 12 + 2 + 4 * 4 + 3 * 2);
-    CHECK_EQ_I(mismatches(table_mutant, &sup2, 1), 1);     /* the check can fail */
+    CHECK_EQ_U(m.kernel, 36);
+    CHECK_EQ_U(m.missing, 6);
+    CHECK_EQ_U(m.missing_reinterp, 6);
+#endif
+    /* old: the table accepted video_mux()'s whole set, 36 shapes */
+    old = mirror(table_old, 1);
+    CHECK_EQ_U(old.glide, 36);
+#ifdef VCR_SLI_R_COMBO
+    CHECK_EQ_U(old.extra, 6);   /* six shapes the kernel now refuses */
+#else
+    CHECK_EQ_U(old.extra, 0);
+    CHECK_EQ_U(old.missing, 0);
+#endif
+    /* the check can fail */
+    mut = mirror(table_mutant, 1);
+    CHECK(mut.extra == 1, "a table accepting cfg 1's {4,0,1,0,1} is caught");
+    mut = mirror(table_mutant8, 1);
+#ifdef VCR_SLI_R_COMBO
+    CHECK(mut.extra == 2, "a table accepting 8 samples on 2 chips is caught");
+#else
+    CHECK(mut.missing_reinterp == 4, "a table accepting 8 samples on 2 chips is caught");
+#endif
 }
 
 TEST(the_table_normalises_like_the_kernel) {
@@ -407,7 +509,10 @@ TEST(the_table_normalises_like_the_kernel) {
     CHECK_EQ_U(hwcSliAaTupleSupported(3, 1, 0, 0, 1), 0);    /* no 3-chip board */
     CHECK_EQ_U(hwcSliAaTupleSupported(1, 1, 1, 0, 0), 0);    /* SLI on one chip */
     CHECK_EQ_U(hwcSliAaTupleSupported(4, 0, 1, 1, 0), 0);    /* 4-sample digital, no SLI */
-    CHECK_EQ_U(hwcSliAaTupleSupported(2, 0, 1, 2, 0), 1);    /* 8 on 2 chips: the 4-sample branch (`high`) */
+    CHECK_EQ_U(hwcSliAaTupleSupported(2, 0, 1, 2, 0), 0);    /* 8 on 2 chips (old 1: video_mux took it as 4) */
+    CHECK_EQ_U(hwcSliAaTupleSupported(2, 0, 1, 1, 0), 1);    /* 4 on 2 chips */
+    CHECK_EQ_U(hwcSliAaTupleSupported(1, 0, 1, 1, 1), 0);    /* 4 on 1 chip (old 1: taken as 2) */
+    CHECK_EQ_U(hwcSliAaTupleSupported(1, 0, 1, 0, 1), 1);    /* 2 on 1 chip, either analog bit */
     CHECK_EQ_U(hwcSliAaTupleSupported(2, 1, 1, 1, 0), 0);    /* 4-sample + SLI on 2 chips */
     CHECK_EQ_U(hwcSliAaTupleSupported(4, 1, 1, 2, 1), 0);    /* 8-sample + SLI on 4 chips */
 }
@@ -515,7 +620,7 @@ MUNIT_MAIN("h5 Glide SLI/AA guards: request tuple vs vcr-kmd video mux (2026-09-
     RUN(every_request_glide_sends_is_programmed_by_the_kernel);
     RUN(the_request_per_config_at_1024x768_16bpp);
     RUN(cfg1_on_four_chips_is_refused_the_old_order_sent_the_wedge_tuple);
-    RUN(mirror_glide_tuple_table_equals_vcrmp_sli_video_mux_branches);
+    RUN(mirror_glide_tuple_table_equals_the_kernel_set);
     RUN(the_table_normalises_like_the_kernel);
     RUN(single_chip_aa_pci_op_loop_writes_only_the_chips_glide_drives);
     RUN(a_read_lock_in_multi_chip_aa_is_refused_unless_opted_in);
