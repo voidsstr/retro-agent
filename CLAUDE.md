@@ -2313,12 +2313,17 @@ restores it.
   **It was NOT unattended:** the operator pressed F1 at POST both times (see
   the next point). SHUTDOWN uses the same route and is not yet exercised. (1.85.3 had only dropped `CONAGENT.EXE` from the kill
   list - harmless on that box, and not the fix.)
-- **Every `.243` boot, warm or cold, stops at POST on `301-Keyboard Error`
-  and waits for F1** - with a PS/2 keyboard plugged in directly (operator,
-  2026-09-26). So no reboot of that box comes back unattended until that halt
-  is bypassed, and a box that "never came back" after a reboot there is most
-  likely sitting at that prompt, not in ScanDisk. (Tonight's two 90-second
-  returns were the operator pressing F1, not the box.)
+- **Every `.243` boot shows `301-Keyboard Error`** (PS/2 keyboard plugged in
+  directly) and until 2026-09-27 WAITED for F1 - so no reboot of that box came
+  back unattended, and a box that "never came back" there was most likely
+  sitting at that prompt, not in ScanDisk. **Fixed with CMOS 2Dh bit 3**
+  (Compaq "POST Error Handling: skip F1 message"; `cmosw9x postskip on`,
+  `scripts/fleet/win9x/`): POST now prints the error and boots on. VERIFIED on a
+  warm reboot (operator watching, no key pressed: 301 shown, POST continued,
+  agent back in 88 s). A power-on boot is not yet proven. Hard halts are not
+  covered by any CMOS bit: 303 (keyboard controller), 102, a non-bootable
+  diskette in A:, 162 (bad checksum - it still waits). Revert: `cmosw9x
+  postskip off`.
 - **`.243`'s RTC backup is dead**: the clock reads 1980-01-04 at every cold
   boot (CMOS 0Eh bit 2 set) and `clockfix` resets it from the NAS. A power
   loss may also stop POST at "163-Time & Date Not Set" waiting for F1 - not
