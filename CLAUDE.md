@@ -2109,6 +2109,11 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
   and `PCIRESCAN` returns it as `last_boot`. Read that, not the log: on a 9x box running
   `retro_chat` the log used to rotate the whole boot away within ~2 hours (the chat long-polls
   are now logged once per connection).
+- **POSTSKIP [apply]** (agent **v1.86.0+**, Win9x + the Compaq Deskpro 2000
+  04/25/97 ROM only) — reports CMOS 2Dh bit 3 ("skip F1 message") as JSON
+  (`applicable`, `state`, `skip_f1`, `checksum_valid`, `last_boot`); `apply`
+  sets it now. The startup pass does the same on every agent start. Anywhere
+  else it answers `applicable: false` and touches no port.
 - **SYSFIX [check|apply]** — check/apply Win98 system fixes
 
 ### Linux-Only
@@ -2332,6 +2337,34 @@ restores it.
   covered by any CMOS bit: 303 (keyboard controller), 102, a non-bootable
   diskette in A:, 162 (bad checksum - it still waits). Revert: `cmosw9x
   postskip off`.
+- **Agent 1.86.0 re-asserts that bit at every start** (`agent/src/postskip.c`,
+  decision in `agent/shared/postskip.h`), because the battery is dead and a
+  power loss can take the setting away. It acts ONLY on Win9x and ONLY on this
+  ROM (`COMPAQ` at F000:FFEA, `04/25/97` at F000:FFF5, `Compaq Deskpro 2000`
+  in F000 - a ROMPaq changes the date and switches it off until someone
+  re-proves the bit), waits for `clockfix` (the other RTC writer - it skips
+  loudly rather than run beside it), trusts a bank read only when two in a
+  row agree (0Ah's self-toggling UIP bit masked), refuses a bank that is not
+  populated (15h/16h must say 640 KB - an erased bank has a "valid" zero
+  checksum) or whose checksum is already bad, and makes **ONE** write per run
+  to whichever of 2Dh/2Eh/2Fh change. Anything unexpected ends the run:
+  restored to the snapshot where that is provable, the registers it cannot
+  account for named, **no retry** - two pre-release reviews showed a
+  "repair" from a torn snapshot corrupting 0Bh and a retry re-reading a lost
+  restore byte as the new truth. Every byte put on the port is logged, and
+  another register is only ever touched to take one of those bytes back out.
+  The port loop is Win32-free and runs under a simulated-RTC test.
+  **Why it is needed, measured 2026-09-27:** the box was powered off for ten
+  minutes to fit a USB card, and POST rebuilt the CMOS from Compaq defaults -
+  2Dh=00 (skip-F1 off), 1Bh=44 (the 80 GB disk auto-typed) - with a VALID
+  checksum (0434h), so the next boot waited at 301 for F1. A valid checksum
+  after a power loss is what lets the agent put the bit straight back.
+  `PostSkipBoot` reads `PENDING: ...` until this start's pass has finished,
+  so the previous boot's answer is never taken for today's. So: while the power
+  stays on, every reboot is unattended; after a power loss that spoils the
+  checksum, one F1 press and the next agent start restores the bit. Result in
+  `HKLM\Software\RetroAgent\PostSkipBoot`; `POSTSKIP` reports it, `POSTSKIP
+  apply` sets it now; `PostSkip`=0 disables the startup pass.
 - **`.243`'s RTC backup is dead**: the clock reads 1980-01-04 at every cold
   boot (CMOS 0Eh bit 2 set) and `clockfix` resets it from the NAS. A power
   loss may also stop POST at "163-Time & Date Not Set" waiting for F1 - not

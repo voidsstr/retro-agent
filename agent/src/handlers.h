@@ -192,11 +192,17 @@ void dosstage_run(int force);
 DWORD WINAPI dosstage_thread(LPVOID param);
 void handle_dosstage(SOCKET sock, const char *args);
 
+/* postskip.c - Compaq Deskpro 2000: keep CMOS 2Dh bit 3 (POST skips the F1 wait) set */
+DWORD WINAPI postskip_thread(LPVOID param);
+void handle_postskip(SOCKET sock, const char *args);
+
 /* pcirescue.c - Win9x: re-enumerate PCI when an installed device has no devnode */
 DWORD WINAPI pcirescue_thread(LPVOID param);
 
 /* clockfix.c - a clock that is YEARS wrong (dead CMOS battery) is set from the NAS */
 DWORD WINAPI clockfix_thread(LPVOID param);
+int clockfix_finished(void);   /* 1 once the startup clock pass has returned */
+void clockfix_mark_finished(void);  /* the clockfix thread never started */
 void handle_pcirescan(SOCKET sock, const char *args);
 
 /* Ceiling, in ms, on a long-poll that BLOCKS. 0 = no extra cap.

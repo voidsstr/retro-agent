@@ -1269,10 +1269,18 @@ void agent_run(void)
     /* A dead CMOS battery (.243) boots into 1980; set the clock from the NAS
      * first, so everything written afterwards carries a real date. */
     log_msg(LOG_MAIN, "startup: spawning clockfix thread");
-    spawn_helper(clockfix_thread, "clockfix");
+    if (!spawn_helper(clockfix_thread, "clockfix"))
+        clockfix_mark_finished();    /* or postskip would wait for it forever */
 
     log_msg(LOG_MAIN, "startup: spawning pcirescue thread");
     spawn_helper(pcirescue_thread, "pcirescue");
+
+    /* Win9x + the Compaq Deskpro 2000 ROM only: CMOS 2Dh bit 3 makes POST
+     * report an error and carry on instead of waiting for F1 (.243 shows
+     * 301-Keyboard Error at every boot, and its dead CMOS battery can lose
+     * the setting). Re-asserted at every start. See postskip.c. */
+    log_msg(LOG_MAIN, "startup: spawning postskip thread");
+    spawn_helper(postskip_thread, "postskip");
 
     /* The firewall exception, off the startup path: it used to run two netsh
      * processes (up to 5 s each) BEFORE listen() on every boot. */

@@ -215,6 +215,14 @@ static void clk_enable_privilege(void)
     CloseHandle(tok);
 }
 
+/* postskip.c writes the CMOS through the same 70h/71h pair SetSystemTime
+ * uses, so it waits for this pass to finish rather than race it. Every exit
+ * of clockfix_thread goes through `out:`, which raises the flag. */
+static volatile LONG g_clk_done = 0;
+int clockfix_finished(void) { return g_clk_done != 0; }
+/* main.c calls this when the clockfix thread could not be started at all. */
+void clockfix_mark_finished(void) { InterlockedExchange((LONG *)&g_clk_done, 1); }
+
 DWORD WINAPI clockfix_thread(LPVOID param)
 {
     SYSTEMTIME now, set;
@@ -224,9 +232,9 @@ DWORD WINAPI clockfix_thread(LPVOID param)
     (void)param;
 
     GetSystemTime(&now);
-    if (now.wYear >= CLOCKFIX_MIN_YEAR) return 0;          /* the normal case */
-    if (host_policy_skip("clockfix")) return 0;
-    if (!clk_enabled()) { log_msg(LOG_CLK, "clock reads %u - ClockFix=0, left alone", now.wYear); return 0; }
+    if (now.wYear >= CLOCKFIX_MIN_YEAR) goto out;          /* the normal case */
+    if (host_policy_skip("clockfix")) goto out;
+    if (!clk_enabled()) { log_msg(LOG_CLK, "clock reads %u - ClockFix=0, left alone", now.wYear); goto out; }
 
     clk_host(host, sizeof(host));
     log_msg(LOG_CLK, "clock reads %04u-%02u-%02u (dead CMOS battery?) - asking http://%s/",
@@ -237,22 +245,22 @@ DWORD WINAPI clockfix_thread(LPVOID param)
     }
     if (i == CLOCKFIX_TRIES) {
         log_msg(LOG_CLK, "no Date from http://%s/ after %d tries - clock NOT set", host, CLOCKFIX_TRIES);
-        return 0;
+        goto out;
     }
     if (t.year < CLOCKFIX_MIN_YEAR) {
         log_msg(LOG_CLK, "server says %04d - not plausible either, clock NOT set", t.year);
-        return 0;
+        goto out;
     }
     memset(&set, 0, sizeof(set));
     set.wYear = (WORD)t.year;   set.wMonth = (WORD)t.month;   set.wDay = (WORD)t.day;
     set.wHour = (WORD)t.hour;   set.wMinute = (WORD)t.minute; set.wSecond = (WORD)t.second;
     GetSystemTime(&now);
     if (!clk_activation_allows(&now, &set, host))
-        return 0;
+        goto out;
     clk_enable_privilege();
     if (!SetSystemTime(&set)) {
         log_msg(LOG_CLK, "SetSystemTime failed: %lu - clock NOT set", GetLastError());
-        return 0;
+        goto out;
     }
     _snprintf(note, sizeof(note) - 1,
               "from %04u-%02u-%02u %02u:%02u:%02u to %04d-%02d-%02d %02d:%02d:%02d UTC via http://%s/",
@@ -261,5 +269,7 @@ DWORD WINAPI clockfix_thread(LPVOID param)
     note[sizeof(note) - 1] = 0;
     log_msg(LOG_CLK, "clock set %s", note);
     clk_note(note);
+out:
+    InterlockedExchange((LONG *)&g_clk_done, 1);
     return 0;
 }

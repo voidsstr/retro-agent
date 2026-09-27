@@ -50,6 +50,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/retrowall.c \
           $(SRCDIR)/dosstage.c \
           $(SRCDIR)/pcirescue.c \
+          $(SRCDIR)/postskip.c \
           $(SRCDIR)/clockfix.c \
           $(SRCDIR)/wpawmi.c \
           $(SRCDIR)/watchdog.c \
