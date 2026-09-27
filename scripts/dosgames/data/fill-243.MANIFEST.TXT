@@ -1,0 +1,44 @@
+GRANDQZ2|Grand Theft Auto + London 1969 - 3Dfx|GTA3DFX.BAT|414|114983417|/mnt/retro-share/Files/Games/DOS/DOS Games Collection/D-L/Grand Theft Auto Include London 1969 (1997)(DMA Design).zip
+WRECK4N4|Wreckin Crew - 3Dfx|CREW3DFX.BAT|1810|24513488|/mnt/retro-share/Files/Games/DOS/DOS Games Collection/S-Z/Wreckin Crew (1997)(Telstar).zip
+SCREA9R9|Screamer 2|S2.BAT|104|94138556|/mnt/retro-share/Files/Games/DOS/DOS Games Collection/S-Z/Screamer 2 (1996)(Virgin).zip
+ALONEAR1|Alone In The Dark|CRACK.EXE|55|5700433|/mnt/retro-share/Files/Games/DOS/More Dos Games/Alone In The Dark (1992)(Interplay).zip
+ARKAN2E6|Arkanoid 1|ASOUND.EXE|11|281784|/mnt/retro-share/Files/Games/DOS/More Dos Games/Arkanoid 1 (1986)(Taito Corporation).zip
+BIO_M1DD|Bio Menace Compilation|BM-HELP.EXE|39|3465596|/mnt/retro-share/Files/Games/DOS/More Dos Games/Bio Menace Compilation (1993)(Apogee Software).zip
+BLAKE2GI|Blake Stone Aliens Of Gold|BS_AOG.EXE|19|8071404|/mnt/retro-share/Files/Games/DOS/More Dos Games/Blake Stone Aliens Of Gold (1993)(Apogee Software).zip
+BLUES6A0|Blues Brothers The|1.EXE|52|615905|/mnt/retro-share/Files/Games/DOS/More Dos Games/Blues Brothers The (1990)(Titus Interactive).zip
+CIVILOOH|Civilization Russian Edition|CIV.EXE|196|2673197|/mnt/retro-share/Files/Games/DOS/More Dos Games/Civilization Russian Edition (1991)(Microprose Software Inc).zip
+COMMADU3|Commander Keen 1 Marooned On Mars|KEEN1.EXE|45|352963|/mnt/retro-share/Files/Games/DOS/More Dos Games/Commander Keen 1 Marooned On Mars (1990)(Apogee Software).zip
+COMMA002|Commander Keen 4 Secret Of The Oracle|KEEN4E.EXE|8|724070|/mnt/retro-share/Files/Games/DOS/More Dos Games/Commander Keen 4 Secret Of The Oracle (1991)(Apogee Software Ltd).zip
+COMMAF1N|Commander Keen Dreams|KDREAMS.EXE|8|358528|/mnt/retro-share/Files/Games/DOS/More Dos Games/Commander Keen Dreams (1992)(Softdisk Publishing).zip
+DAY_OQ4V|Day Of The Tentacle|DOTT.EXE|68|14443130|/mnt/retro-share/Files/Games/DOS/More Dos Games/Day Of The Tentacle (1993)(Lucas Arts).zip
+DESTRB4Z|Destruction Derby 2|DD2.EXE|8|22995071|/mnt/retro-share/Files/Games/DOS/More Dos Games/Destruction Derby 2 (1996)(Psygnosis).zip
+DUNE_75M|Dune 2 The Building Of A Dynasty|DUNE2.EXE|14|7179116|/mnt/retro-share/Files/Games/DOS/More Dos Games/Dune 2 The Building Of A Dynasty (1992)(Westwood Studios).zip
+DYNABZIM|Dynablaster|DYNA.EXE|31|857255|/mnt/retro-share/Files/Games/DOS/More Dos Games/Dynablaster (1992)(Hudson Soft).zip
+EYE_ONL0|Eye of the Beholder 3 The Assault On Myt|AESOP.EXE|82|9466201|/mnt/retro-share/Files/Games/DOS/More Dos Games/Eye of the Beholder 3 The Assault On Myth Drannor (1992)(Strategic Simulations Inc).zip
+GOBLIG1R|Gobliins 2 The Prince Buffoon|LOADER.EXE|13|3086901|/mnt/retro-share/Files/Games/DOS/More Dos Games/Gobliins 2 The Prince Buffoon (1992)(Sierra Online).zip
+HERO_ANZ|Hero Quest|HERO.EXE|85|826863|/mnt/retro-share/Files/Games/DOS/More Dos Games/Hero Quest (1991)(Gremlin Interactive Ltd).zip
+HOLIDLWD|Holiday Lemmings|HOLLEM94.EXE|18|190723|/mnt/retro-share/Files/Games/DOS/More Dos Games/Holiday Lemmings (1994)(Psygnosis).zip
+INCREFL8|Incredible Machine|TIM.EXE|15|732887|/mnt/retro-share/Files/Games/DOS/More Dos Games/Incredible Machine (1993)(Sierra Online).zip
+LOTUS3NY|Lotus The Ultimate Challenge|LOTUS.EXE|4|1343872|/mnt/retro-share/Files/Games/DOS/More Dos Games/Lotus The Ultimate Challenge (1992)(Gremlin Interactive Ltd).zip
+MANIA8IB|Maniac Mansion|MANIAC.EXE|59|314533|/mnt/retro-share/Files/Games/DOS/More Dos Games/Maniac Mansion (1988)(Lucas Arts).zip
+MONKEWPR|Monkey Island 2 Lechucks Revenge|MONKEY2.EXE|9|9338011|/mnt/retro-share/Files/Games/DOS/More Dos Games/Monkey Island 2 Lechucks Revenge (1991)(Lucas Arts).zip
+MONKE0Z2|Monkey Island Vga|MONKEY.EXE|14|4594826|/mnt/retro-share/Files/Games/DOS/More Dos Games/Monkey Island Vga (1990)(Lucas Arts).zip
+MORTAG2E|Mortal Kombat|MK.EXE|69|7224078|/mnt/retro-share/Files/Games/DOS/More Dos Games/Mortal Kombat (1993)(Acclaim Entertainment Inc).zip
+MORTA566|Mortal Kombat 2|MK2.EXE|617|19987699|/mnt/retro-share/Files/Games/DOS/More Dos Games/Mortal Kombat 2 (1994)(Midway).zip
+OH_NOCIJ|Oh No More Lemmings|VGALEMMI.EXE|27|316185|/mnt/retro-share/Files/Games/DOS/More Dos Games/Oh No More Lemmings (1991)(Psygnosis).zip
+PACMAFCS|Pacman|DBD.EXE|4|140945|/mnt/retro-share/Files/Games/DOS/More Dos Games/Pacman (1984)(Rowan).zip
+PRINCT8Q|Prince Of Persia 1|PRINCE.EXE|34|518426|/mnt/retro-share/Files/Games/DOS/More Dos Games/Prince Of Persia 1 (1992)(Broderbund).zip
+QUAKEPRP|Quake|CWSDPMI.EXE|13|53404700|/mnt/retro-share/Files/Games/DOS/More Dos Games/Quake (1996)(Id Software).zip
+SCORC8J5|Scorched Earth|SCORCH.EXE|19|1148363|/mnt/retro-share/Files/Games/DOS/More Dos Games/Scorched Earth (1995)(Wendell Hicken).zip
+SECREUAK|Secret Agent Mission 1|SAM1.EXE|12|322669|/mnt/retro-share/Files/Games/DOS/More Dos Games/Secret Agent Mission 1 (1992)(Apogee Software Ltd).zip
+SECRE6CH|Secret Agent Mission 2|SAM1.EXE|53|1020222|/mnt/retro-share/Files/Games/DOS/More Dos Games/Secret Agent Mission 2 (1992)(Apogee Software Ltd).zip
+SPACEIU9|Space Crusade|CRUSADE.EXE|30|1130074|/mnt/retro-share/Files/Games/DOS/More Dos Games/Space Crusade (1992)(Gremlin Interactive Ltd).zip
+SPEARWDI|Spear Of Destiny|SPEAR.EXE|11|3265067|/mnt/retro-share/Files/Games/DOS/More Dos Games/Spear Of Destiny (1992)(Formgen).zip
+SPEAR9U4|Spear of Destiny Mission Packs|GAMEGEN.EXE|35|4729940|/mnt/retro-share/Files/Games/DOS/More Dos Games/Spear of Destiny Mission Packs (1994)(FormGen Inc).zip
+STREEMBC|Street Fighter II Championship Edition|SF2.EXE|162|4254109|/mnt/retro-share/Files/Games/DOS/More Dos Games/Street Fighter II Championship Edition (1992)(Capcom).zip
+STREEB1Z|Street Fighter II Hyper Fighting Edition|HYPSF190.EXE|106|1530212|/mnt/retro-share/Files/Games/DOS/More Dos Games/Street Fighter II Hyper Fighting Edition (1992)(Capcom).zip
+SUMME55C|Summer Challenge|SUMCRACK.EXE|22|1479614|/mnt/retro-share/Files/Games/DOS/More Dos Games/Summer Challenge (1992)(Accolade).zip
+UGH__0BY|Ugh|UGH.EXE|10|591589|/mnt/retro-share/Files/Games/DOS/More Dos Games/Ugh (1992)(Playbyte).zip
+WORMS0YR|Worms Plus|BLACK.EXE|235|21754893|/mnt/retro-share/Files/Games/DOS/More Dos Games/Worms Plus (1996)(Team 17).zip
+WWF_ERQL|Wwf European Rampage Tour|WWF.EXE|3|2644854|/mnt/retro-share/Files/Games/DOS/More Dos Games/Wwf European Rampage Tour (1995)(Acclaim Entertainment Inc).zip
+ZAK_MCN0|Zak Mckracken And The Alien Mindbenders|ZAK.EXE|72|481589|/mnt/retro-share/Files/Games/DOS/More Dos Games/Zak Mckracken And The Alien Mindbenders (1988)(Lucas Arts).zip

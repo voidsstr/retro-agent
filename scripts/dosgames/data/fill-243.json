@@ -1,0 +1,289 @@
+[
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/DOS Games Collection/D-L/Grand Theft Auto Include London 1969 (1997)(DMA Design).zip",
+  "title": "Grand Theft Auto + London 1969 - 3Dfx",
+  "launcher": "GTA3DFX.BAT",
+  "glide": true,
+  "ovl_dirs": [
+   "GTADOS"
+  ],
+  "batches": {
+   "GTA3DFX.BAT": "@echo off\nset FX_GLIDE_NO_SPLASH=1\ncd GTADOS\ngtafx\ncd ..\n",
+   "LON3DFX.BAT": "@echo off\nset FX_GLIDE_NO_SPLASH=1\ncd GTADOS\ngtafx_uk\ncd ..\n"
+  },
+  "drop_non83": true
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/DOS Games Collection/S-Z/Wreckin Crew (1997)(Telstar).zip",
+  "title": "Wreckin Crew - 3Dfx",
+  "launcher": "CREW3DFX.BAT",
+  "glide": true,
+  "ovl_dirs": [
+   ""
+  ],
+  "batches": {
+   "CREW3DFX.BAT": "@echo off\nset FX_GLIDE_NO_SPLASH=1\ncrew\n"
+  }
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/DOS Games Collection/S-Z/Screamer 2 (1996)(Virgin).zip",
+  "title": "Screamer 2",
+  "launcher": "S2.BAT",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Alone In The Dark (1992)(Interplay).zip",
+  "title": "Alone In The Dark",
+  "launcher": "CRACK.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Arkanoid 1 (1986)(Taito Corporation).zip",
+  "title": "Arkanoid 1",
+  "launcher": "ASOUND.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Bio Menace Compilation (1993)(Apogee Software).zip",
+  "title": "Bio Menace Compilation",
+  "launcher": "BM-HELP.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Blake Stone Aliens Of Gold (1993)(Apogee Software).zip",
+  "title": "Blake Stone Aliens Of Gold",
+  "launcher": "BS_AOG.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Blues Brothers The (1990)(Titus Interactive).zip",
+  "title": "Blues Brothers The",
+  "launcher": "1.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Civilization Russian Edition (1991)(Microprose Software Inc).zip",
+  "title": "Civilization Russian Edition",
+  "launcher": "CIV.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Commander Keen 1 Marooned On Mars (1990)(Apogee Software).zip",
+  "title": "Commander Keen 1 Marooned On Mars",
+  "launcher": "KEEN1.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Commander Keen 4 Secret Of The Oracle (1991)(Apogee Software Ltd).zip",
+  "title": "Commander Keen 4 Secret Of The Oracle",
+  "launcher": "KEEN4E.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Commander Keen Dreams (1992)(Softdisk Publishing).zip",
+  "title": "Commander Keen Dreams",
+  "launcher": "KDREAMS.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Day Of The Tentacle (1993)(Lucas Arts).zip",
+  "title": "Day Of The Tentacle",
+  "launcher": "DOTT.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Destruction Derby 2 (1996)(Psygnosis).zip",
+  "title": "Destruction Derby 2",
+  "launcher": "DD2.EXE",
+  "glide": false,
+  "drop_non83": true
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Dune 2 The Building Of A Dynasty (1992)(Westwood Studios).zip",
+  "title": "Dune 2 The Building Of A Dynasty",
+  "launcher": "DUNE2.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Dynablaster (1992)(Hudson Soft).zip",
+  "title": "Dynablaster",
+  "launcher": "DYNA.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Eye of the Beholder 3 The Assault On Myth Drannor (1992)(Strategic Simulations Inc).zip",
+  "title": "Eye of the Beholder 3 The Assault On Myt",
+  "launcher": "AESOP.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Gobliins 2 The Prince Buffoon (1992)(Sierra Online).zip",
+  "title": "Gobliins 2 The Prince Buffoon",
+  "launcher": "LOADER.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Hero Quest (1991)(Gremlin Interactive Ltd).zip",
+  "title": "Hero Quest",
+  "launcher": "HERO.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Holiday Lemmings (1994)(Psygnosis).zip",
+  "title": "Holiday Lemmings",
+  "launcher": "HOLLEM94.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Incredible Machine (1993)(Sierra Online).zip",
+  "title": "Incredible Machine",
+  "launcher": "TIM.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Lotus The Ultimate Challenge (1992)(Gremlin Interactive Ltd).zip",
+  "title": "Lotus The Ultimate Challenge",
+  "launcher": "LOTUS.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Maniac Mansion (1988)(Lucas Arts).zip",
+  "title": "Maniac Mansion",
+  "launcher": "MANIAC.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Monkey Island 2 Lechucks Revenge (1991)(Lucas Arts).zip",
+  "title": "Monkey Island 2 Lechucks Revenge",
+  "launcher": "MONKEY2.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Monkey Island Vga (1990)(Lucas Arts).zip",
+  "title": "Monkey Island Vga",
+  "launcher": "MONKEY.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Mortal Kombat (1993)(Acclaim Entertainment Inc).zip",
+  "title": "Mortal Kombat",
+  "launcher": "MK.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Mortal Kombat 2 (1994)(Midway).zip",
+  "title": "Mortal Kombat 2",
+  "launcher": "MK2.EXE",
+  "glide": false,
+  "drop_non83": true
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Oh No More Lemmings (1991)(Psygnosis).zip",
+  "title": "Oh No More Lemmings",
+  "launcher": "VGALEMMI.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Pacman (1984)(Rowan).zip",
+  "title": "Pacman",
+  "launcher": "DBD.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Prince Of Persia 1 (1992)(Broderbund).zip",
+  "title": "Prince Of Persia 1",
+  "launcher": "PRINCE.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Quake (1996)(Id Software).zip",
+  "title": "Quake",
+  "launcher": "CWSDPMI.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Scorched Earth (1995)(Wendell Hicken).zip",
+  "title": "Scorched Earth",
+  "launcher": "SCORCH.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Secret Agent Mission 1 (1992)(Apogee Software Ltd).zip",
+  "title": "Secret Agent Mission 1",
+  "launcher": "SAM1.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Secret Agent Mission 2 (1992)(Apogee Software Ltd).zip",
+  "title": "Secret Agent Mission 2",
+  "launcher": "SAM1.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Space Crusade (1992)(Gremlin Interactive Ltd).zip",
+  "title": "Space Crusade",
+  "launcher": "CRUSADE.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Spear Of Destiny (1992)(Formgen).zip",
+  "title": "Spear Of Destiny",
+  "launcher": "SPEAR.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Spear of Destiny Mission Packs (1994)(FormGen Inc).zip",
+  "title": "Spear of Destiny Mission Packs",
+  "launcher": "GAMEGEN.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Street Fighter II Championship Edition (1992)(Capcom).zip",
+  "title": "Street Fighter II Championship Edition",
+  "launcher": "SF2.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Street Fighter II Hyper Fighting Edition (1992)(Capcom).zip",
+  "title": "Street Fighter II Hyper Fighting Edition",
+  "launcher": "HYPSF190.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Summer Challenge (1992)(Accolade).zip",
+  "title": "Summer Challenge",
+  "launcher": "SUMCRACK.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Super Mario Bros (1995)(Anonymous).zip",
+  "title": "Super Mario Bros",
+  "launcher": "SUPERM~1.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Ugh (1992)(Playbyte).zip",
+  "title": "Ugh",
+  "launcher": "UGH.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Worms Plus (1996)(Team 17).zip",
+  "title": "Worms Plus",
+  "launcher": "BLACK.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Wwf European Rampage Tour (1995)(Acclaim Entertainment Inc).zip",
+  "title": "Wwf European Rampage Tour",
+  "launcher": "WWF.EXE",
+  "glide": false
+ },
+ {
+  "zip": "/mnt/retro-share/Files/Games/DOS/More Dos Games/Zak Mckracken And The Alien Mindbenders (1988)(Lucas Arts).zip",
+  "title": "Zak Mckracken And The Alien Mindbenders",
+  "launcher": "ZAK.EXE",
+  "glide": false,
+  "drop_non83": true
+ }
+]
