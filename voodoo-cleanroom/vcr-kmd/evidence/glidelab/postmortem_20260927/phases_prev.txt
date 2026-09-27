@@ -1,0 +1,43 @@
+   0     0.531s  FIND_ENTER       a=0x00000001 b=0x00000002
+   1     0.531s  FIND_DONE        a=0x00000001 b=0x00000001
+   2     0.546s  SLI_STEP         a=0x00000064 b=0x00000004  MAP_BEGIN chip 0 reg 0x4
+   3     0.546s  SLI_STEP         a=0x00000064 b=0x00000045  MAP_BEGIN chip 0 reg 0x45
+   4     0.546s  SLI_STEP         a=0x0000006c b=0x01000000  MAP_DONE chip 1 reg 0x0
+   5     0.546s  SLI_STEP         a=0x0000006c b=0x02000000  MAP_DONE chip 2 reg 0x0
+   6     0.546s  SLI_STEP         a=0x0000006c b=0x03000000  MAP_DONE chip 3 reg 0x0
+   7     0.546s  SLI_DONE         a=0x00000000 b=0x00000004
+   8     0.562s  FIND_DONE        a=0x00000000 b=0x00000004
+   9     2.484s  INIT_ENTER       a=0x00000001 b=0x00000000
+  10     3.265s  MODESET_BEGIN    a=0x05000400 b=0x00200055
+  11     3.359s  MODESET_DONE     a=0x0000009f b=0x00000000
+  12   115.593s  MODESET_BEGIN    a=0x04000300 b=0x0010003c
+  13   115.625s  MODESET_DONE     a=0x00000052 b=0x00000000
+  14   115.687s  HWC_SLIAA        a=0x00000004 b=0x00000102
+  15   115.750s  SLI_STEP         a=0x00000190 b=0x04000006  SET_BEGIN chip 4 reg 0x6
+  16   115.781s  SLI_STEP         a=0x000001a2 b=0x00000000  CLOCK_6K chip 0 reg 0x0
+  17   115.812s  SLI_STEP         a=0x000000c8 b=0x01000000  INIT_BEGIN chip 1 reg 0x0
+  18   115.828s  SLI_STEP         a=0x000000c8 b=0x02000000  INIT_BEGIN chip 2 reg 0x0
+  19   115.843s  SLI_STEP         a=0x000000c8 b=0x03000000  INIT_BEGIN chip 3 reg 0x0
+  20   115.875s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  21   115.890s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  22   115.921s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  23   115.937s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  24   115.953s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  25   115.984s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  26   116.000s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  27   116.031s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  28   116.046s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  29   116.062s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  30   116.093s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  31   116.109s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  32   116.140s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  33   116.156s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  34   116.187s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  35   116.203s  SLI_STEP         a=0x0000012c b=0x000003d4  MODE_INDEX chip 0 reg 0x3d4
+  36   116.218s  SLI_STEP         a=0x0000012c b=0x000003c4  MODE_INDEX chip 0 reg 0x3c4
+  37   116.250s  SLI_STEP         a=0x00000191 b=0x00000004  PCIINIT0 chip 0 reg 0x4
+  38   116.265s  SLI_STEP         a=0x00000191 b=0x01000004  PCIINIT0 chip 1 reg 0x4
+  39   116.281s  SLI_STEP         a=0x00000191 b=0x02000004  PCIINIT0 chip 2 reg 0x4
+  40   116.312s  SLI_STEP         a=0x00000191 b=0x03000004  PCIINIT0 chip 3 reg 0x4
+  41   116.328s  SLI_STEP         a=0x000001a4 b=0x04000000  SET_DONE chip 4 reg 0x0
+PrevLastPhase SLI_STEP, a=420, at 116328 ms, boot #18

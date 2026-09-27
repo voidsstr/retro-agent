@@ -1,0 +1,4 @@
+glidelab fill: res=1024x768 refresh=60 cfg=1 dll=C:\Games\Quake2Complete\glide3x.dll
+step: grGlideInit
+GR_HARDWARE: Voodoo5 6000 (tm)
+step: grSstWinOpen 1024x768 60Hz origin upper
