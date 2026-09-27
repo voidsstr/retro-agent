@@ -2296,20 +2296,28 @@ restores it.
   errorlevel 1`, and FC never sets ERRORLEVEL on DOS/Win9x, so every boot
   logged `already on the share's version`. It now `find`s FC's
   "no differences" line (FIND does set ERRORLEVEL on Win98).
-- **`REBOOT` killed the agent's own console.** `kill_console_processes()`
-  terminated every `CONAGENT.EXE`, which on Win9x hosts the console of every
-  Win32 console app - this agent included - so REBOOT logged `REBOOT:
-  initiating` and died before `ExitWindowsEx`; Windows stayed up with no
-  agent (twice on `.243`). 1.85.3 no longer kills it. **Not yet proven on
-  hardware** - the first 1.85.3 REBOOT on `.243` (2026-09-26 23:21) had not
-  brought the agent back 15 minutes later. Until it is, a remote reboot of a
-  9x box can be done with `LAUNCH rundll32.exe shell32.dll,SHExitWindowsEx 6`
-  (reboot + force) after arming the PXE hold by hand (`pxe_server.py --arm`)
-  - that worked on `.243` at 16:50.
-- **`.243`'s POST stops at a prompt after a power loss.** Its RTC backup is
-  dead (the clock reads 1980-01-04 at every cold boot, CMOS 0Eh bit 2 set), so
-  expect "163-Time & Date Not Set" and an F1 wait: an unattended cold boot of
-  that box does not come back by itself.
+- **Win9x `REBOOT`/`SHUTDOWN` go through the SHELL (1.85.4) - REBOOT
+  VERIFIED on `.243`.** Every earlier REBOOT there logged `REBOOT: initiating`
+  and left Windows up with the agent gone. The real blocker: the old path
+  `TerminateProcess`ed `RETRO_CHAT.EXE`/`COMMAND.COM` first, and on Win98 a
+  Win32 console app's console is a DOS VM (**`WINOA386.MOD`, parented to the
+  app** - not `CONAGENT.EXE`, which never even appears in `PROCLIST` there);
+  killing the app orphans that VM, and Win98 will not shut down while a DOS VM
+  is running, FORCE or not. It then kept itself alive (`g_power_pending`) on a
+  theory the working reboot contradicts. 1.85.4 starts `rundll32.exe
+  shell32.dll,SHExitWindowsEx <flags>` (2 reboot, 4 force, 1 shutdown, 8
+  power off), kills nothing, and lets Windows close the agent like any console
+  app. Verified 2026-09-26 23:46: `REBOOT: initiating via "rundll32.exe
+  shell32.dll,SHExitWindowsEx 6"`, then `boot: AGENTRUN.BAT starting`, agent
+  back in under 2 minutes, nobody at the box. SHUTDOWN uses the same route and
+  is not yet exercised. (1.85.3 had only dropped `CONAGENT.EXE` from the kill
+  list - harmless on that box, and not the fix.)
+- **A WARM reboot of `.243` comes back by itself** (twice, 2026-09-26: 1.5 min
+  and under 2 min).
+- **`.243`'s RTC backup is dead**: the clock reads 1980-01-04 at every cold
+  boot (CMOS 0Eh bit 2 set) and `clockfix` resets it from the NAS. A power
+  loss may also stop POST at "163-Time & Date Not Set" waiting for F1 - not
+  yet confirmed; warm reboots do not stop there.
 
 ## Win98 Known Issues & Fixes
 
