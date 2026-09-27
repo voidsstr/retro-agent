@@ -196,3 +196,79 @@ def test_the_colour_path_always_carries_parmadjust():
     assert len(re.findall(r"r->fbzColorPath = ", src)) == 1
     regs = (KMD / "include" / "vcr_3dregs.h").read_text()
     assert re.search(r"#define CP_PARMADJUST\s+\(1u << 26\)", regs)
+
+
+RTFMT = KMD / "include" / "vcr_rtfmt.h"
+
+
+def test_32bpp_targets_are_vsa100_only_and_refused_on_voodoo3():
+    """32 bpp Direct3D render targets (X8R8G8B8, with a 24+8 Z) exist on the
+    VSA-100 only: its renderMode[1:0] = 2 is 3dfx's h5 Glide's SST_RM_32BPP
+    (gsst.c _grRenderMode), and in 32 bpp the aux buffer is 32 bits a pixel
+    (gglide.c: "the depth buffer is 24bpp"). The Banshee/Voodoo3 3D engine is
+    16 bpp only, so there the caps offer none and a 32 bpp target is refused -
+    never drawn into memory laid out for another depth. A colour/Z size
+    mismatch is refused on both (no aux-format bit exists). Before this the
+    HAL offered DDBD_16 alone and windowed D3D on the V5 6000's 32 bpp
+    desktop failed CreateDevice with 0x8876086c. VSA-100 half UNPROVEN on
+    silicon until d3dprobe render --full --bpp 32 passes on the card."""
+    import shutil, subprocess, tempfile
+    cc = shutil.which("gcc") or shutil.which("cc")
+    if not cc:
+        import pytest
+        pytest.skip("no host C compiler")
+    prog = r'''
+#include <stdio.h>
+#include "vcr_rtfmt.h"
+int main(void) {
+    /* napalm, rt bits, z bits -> format */
+    printf("%u %u %u %u %u %u %u %u %u %u\n",
+        vcr_rt_format(0, 16, 16), vcr_rt_format(0, 16, 0),
+        vcr_rt_format(0, 32, 0),  vcr_rt_format(0, 32, 32),     /* Voodoo3: refused */
+        vcr_rt_format(1, 32, 32), vcr_rt_format(1, 32, 0),
+        vcr_rt_format(1, 32, 16), vcr_rt_format(1, 16, 32),     /* mismatch: refused */
+        vcr_rt_format(1, 16, 16), vcr_rt_format(1, 24, 0));
+    printf("%x %x %x %x\n", vcr_rt_rendermode(VCR_RT_16), vcr_rt_rendermode(VCR_RT_32),
+        vcr_rt_zmax(VCR_RT_16), vcr_rt_zmax(VCR_RT_32));
+    return 0;
+}
+'''
+    with tempfile.TemporaryDirectory() as d:
+        c = Path(d) / "t.c"
+        c.write_text(prog)
+        exe = Path(d) / "t"
+        subprocess.run([cc, "-Wall", "-Werror", "-I", str(KMD / "include"), str(c), "-o", str(exe)],
+                       check=True)
+        out = subprocess.run([str(exe)], check=True, capture_output=True, text=True).stdout.split("\n")
+    assert out[0].split() == ["16", "16", "0", "0", "32", "32", "0", "0", "16", "0"]
+    # renderMode: 16 bpp = 0, 32 bpp = 2 (SST_RM_32BPP), RGBA write enables bits 17..20
+    assert out[1].split() == ["1e0000", "1e0002", "ffff", "ffffff"]
+
+    e3d = (KMD / "display" / "vcrdd_3d.c").read_text()
+    tg = func(e3d, "BOOL VcrDd3dTarget(")
+    assert "w3(pd, V3D_RENDERMODE, vcr_rt_rendermode(t->fmt));" in tg
+    assert "else if (t->fmt != VCR_RT_16)" in tg                  # never 32 bpp on a Voodoo3
+    assert tg.index("if (pd->napalm)") < tg.index("V3D_RENDERMODE")
+    assert "BS_LINEAR_STRIDE(t->rt_pitch)" in tg                   # stride in BYTES
+    # Z spans the aux buffer: 16 bits, or 24 at 32 bpp - iterated and cleared
+    assert "wf(pd, V3D_SVZ, p[2] * d->z_scale);" in e3d
+    assert "t->fmt == VCR_RT_32 ? 16777215.0f : 65535.0f" in func(e3d, "void VcrDd3dDrawTarget(")
+    assert "z * 16777215.0f + 0.5f" in func(e3d, "BOOL VcrDd3dClear(")
+
+    to = func(D3D, "static ULONG target_of(")
+    assert "vcr_rt_format(c->pd->napalm, rtb, zb)" in to
+    assert to.index("if (fmt == VCR_RT_REFUSED)") < to.index("t->rt_off =")   # refused: empty
+    cc_ = func(D3D, "static DWORD APIENTRY D3d_ContextCreate(")
+    assert "DDERR_INVALIDPIXELFORMAT" in cc_ and "ContextCreate refused" in cc_
+    walk = func(D3D, "static HRESULT walk(")
+    assert "VcrDd3dDrawTarget(&w->d, &c->target);" in walk
+    assert "w->drawable || (c->target.rt_off" not in walk          # a refused switch stops drawing
+    hal = func(D3D, "void VcrDdD3dHalInfo(")
+    assert "d->dwDeviceRenderBitDepth = DDBD_16 | (pd->napalm ? DDBD_32 : 0);" in hal
+    assert "d->dwDeviceZBufferBitDepth = DDBD_16 | (pd->napalm ? DDBD_32 : 0);" in hal
+    assert "hal->ddCaps.dwZBufferBitDepths = DDBD_16 | (pd->napalm ? DDBD_32 : 0);" in hal
+    info = func(D3D, "int VcrDdD3dDriverInfo(")
+    assert "z.n = pd->napalm ? 3 : 1;" in info                     # D16 alone on a Voodoo3
+    assert "z.f[2].dwStencilBitMask = 0xff000000;" in info and "0x00ffffff" in info
+    can = func(DD, "static DWORD APIENTRY Dd_CanCreateSurface(")
+    assert "!pd->napalm" in can and "DDSCAPS_ZBUFFER" in can and "DDERR_INVALIDPIXELFORMAT" in can

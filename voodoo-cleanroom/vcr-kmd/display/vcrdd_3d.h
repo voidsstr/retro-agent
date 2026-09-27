@@ -10,11 +10,13 @@
 #define VCRDD_3D_H
 
 #include "../include/vcr_3dregs.h"
+#include "../include/vcr_rtfmt.h"
 
 typedef struct vcr3d_target {
     ULONG rt_off, rt_pitch;         /* colour buffer: offset in video memory, bytes/row */
     ULONG z_off, z_pitch;           /* depth buffer (z_off 0: none) */
     ULONG width, height;
+    ULONG fmt;                      /* VCR_RT_16 / VCR_RT_32 (vcr_rtfmt.h; 32: VSA-100 only) */
 } vcr3d_target;
 
 typedef struct vcr3d_regs {
@@ -38,6 +40,7 @@ typedef struct vcr3d_draw {
     float s_scale, t_scale;         /* u, v (0..1) -> S, T (the wider side spans 256) */
     float s_scale1, t_scale1;       /* the same for TMU1 */
     float xy_bias;                  /* added to x and y: the pixel-centre convention */
+    float z_scale;                  /* D3D z (0..1) -> sVz: 65535 at 16 bpp, 2^24-1 at 32 */
 } vcr3d_draw;
 
 #define VCR3D_CLEAR_COLOR   1
@@ -52,6 +55,7 @@ BOOL VcrDd3dTriangle(VCR_PDEV *pd, const vcr3d_draw *d, const UCHAR *a, const UC
 void VcrDd3dTexScale(vcr3d_draw *d, ULONG w, ULONG h);
 BOOL VcrDd3dTexFlush(VCR_PDEV *pd, ULONG base, ULONG addr);
 void VcrDd3dTexScale1(vcr3d_draw *d, ULONG w, ULONG h);
-void VcrDd3dDrawInit(vcr3d_draw *d);
+void VcrDd3dDrawInit(vcr3d_draw *d, const vcr3d_target *t);
+void VcrDd3dDrawTarget(vcr3d_draw *d, const vcr3d_target *t);
 
 #endif /* VCRDD_3D_H */

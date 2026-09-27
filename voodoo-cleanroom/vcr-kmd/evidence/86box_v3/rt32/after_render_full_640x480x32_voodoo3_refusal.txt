@@ -1,0 +1,3 @@
+plan: d3dprobe render fullscreen at 640x480x32@85 (the highest refresh the driver lists there: the default refresh lets it pick)   43.26 kHz  84.99 Hz   36.0 MHz
+  monitor BOX0000 86Box Monitor: H 30-115 kHz, V 45-125 Hz, <= 300 MHz
+{"mode": "render", "error": "CreateDevice 8876086c", "adapter": "vcr-kmd Voodoo 3 (open driver)"}

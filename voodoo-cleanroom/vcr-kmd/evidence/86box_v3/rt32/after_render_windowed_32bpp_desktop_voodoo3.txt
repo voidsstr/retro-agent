@@ -1,0 +1,1 @@
+{"mode": "render", "error": "CreateDevice 8876086c", "adapter": "vcr-kmd Voodoo 3 (open driver)"}

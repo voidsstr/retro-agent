@@ -718,13 +718,31 @@ int main(int argc, char **argv)
     pp.BackBufferHeight = g_full ? g_h : BB;
     pp.EnableAutoDepthStencil = TRUE;
     pp.AutoDepthStencilFormat = D3DFMT_D16;
+    /* a 32 bpp back buffer takes a Z of its own size where the HAL has one
+     * (a DX7-DDI driver's Z must match the target's depth: the VSA-100 aux
+     * buffer is 24+8 at 32 bpp) - D24X8, then D24S8; else D16 as before */
+    if (pp.BackBufferFormat == D3DFMT_X8R8G8B8 || pp.BackBufferFormat == D3DFMT_A8R8G8B8) {
+        static const D3DFORMAT z32[] = { D3DFMT_D24X8, D3DFMT_D24S8 };
+        D3DFORMAT afmt = g_full ? pp.BackBufferFormat : dm.Format;
+        int k;
+        for (k = 0; k < 2; k++)
+            if (SUCCEEDED(IDirect3D8_CheckDeviceFormat(d3d, 0, D3DDEVTYPE_HAL, afmt,
+                                                       D3DUSAGE_DEPTHSTENCIL, D3DRTYPE_SURFACE,
+                                                       z32[k])) &&
+                SUCCEEDED(IDirect3D8_CheckDepthStencilMatch(d3d, 0, D3DDEVTYPE_HAL, afmt,
+                                                            pp.BackBufferFormat, z32[k]))) {
+                pp.AutoDepthStencilFormat = z32[k];
+                break;
+            }
+    }
     pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
     pp.hDeviceWindow = hwnd;
     if (g_full && g_novsync)        /* perf: measure the chip, not the refresh */
         pp.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
     g_fmt = pp.BackBufferFormat;
-    say("CreateDevice(HAL, %s, back buffer %ux%u fmt %u, D16)", g_full ? "fullscreen" : "windowed",
-        pp.BackBufferWidth, pp.BackBufferHeight, pp.BackBufferFormat);
+    say("CreateDevice(HAL, %s, back buffer %ux%u fmt %u, z fmt %u)",
+        g_full ? "fullscreen" : "windowed", pp.BackBufferWidth, pp.BackBufferHeight,
+        pp.BackBufferFormat, pp.AutoDepthStencilFormat);
     /* fullscreen: CreateDevice is the switch in (through vcr_pace.h). The
      * failure return below is a return from main, so the header's atexit hold
      * covers the revert XP makes as the process ends. Refused by the gate,
@@ -791,8 +809,9 @@ int main(int argc, char **argv)
         return g_focus_lost ? 5 : 0;
     }
 
-    js("{\"mode\":\"render\",\"adapter\":\"%s\",\"window\":\"%s\",\"fmt\":%u,\"checks\":[",
-       id.Description, g_full ? "fullscreen" : "windowed", g_fmt);
+    js("{\"mode\":\"render\",\"adapter\":\"%s\",\"window\":\"%s\",\"fmt\":%u,\"zfmt\":%u,"
+       "\"checks\":[", id.Description, g_full ? "fullscreen" : "windowed", g_fmt,
+       (unsigned)pp.AutoDepthStencilFormat);
     {
         char list[512], *p, *save;
         strncpy(list, tests, sizeof list - 1);

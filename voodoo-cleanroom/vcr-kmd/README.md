@@ -409,5 +409,9 @@ that draw on the screen. This is the chassis the fxD3D Direct3D HAL
    vsync, engine blits). **Direct3D** — first light on the 86Box Voodoo3:
    d3dprobe 26/26 windowed and fullscreen. Next: games; mipmaps; fog;
    specular; lines/points; a second texture stage (Voodoo3 has two TMUs);
-   32 bpp render targets on VSA-100; the CMDFIFO instead of PCI-FIFO writes;
-   then `.124`.
+   ~~32 bpp render targets on VSA-100~~ (code done 2026-09-26: renderMode
+   32 bpp with a 24+8 aux buffer, D24X8/D24S8 listed, Z scaled to 2^24-1;
+   a Banshee/Voodoo3 refuses 32 bpp targets and 32-bit Z - `include/vcr_rtfmt.h`,
+   86Box no regression in `evidence/86box_v3/rt32/`. **Untested on silicon**:
+   run `d3dprobe` at 640x480x32 on `.124` with someone at the box);
+   the CMDFIFO instead of PCI-FIFO writes.

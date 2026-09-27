@@ -44,8 +44,14 @@ BOOL VcrDd3dTarget(VCR_PDEV *pd, const vcr3d_target *t)
 {
     if (!VcrDdRoom(pd, 7))
         return FALSE;
-    if (pd->napalm)             /* VSA-100: 16 bpp 3D, every channel written */
-        w3(pd, V3D_RENDERMODE, RM_16BPP | RM_RGBA_WRITE);
+    /* VSA-100: the 3D pixel size (16, or 32 with a 32-bit 24+8 aux buffer)
+     * and every channel written, as _grRenderMode does. A Banshee/Voodoo3
+     * has no renderMode and renders 16 bpp only - the HAL never hands it a
+     * 32 bpp target (vcr_rt_format), and this refuses one as well. */
+    if (pd->napalm)
+        w3(pd, V3D_RENDERMODE, vcr_rt_rendermode(t->fmt));
+    else if (t->fmt != VCR_RT_16)
+        return FALSE;
     w3(pd, V3D_COLBUFFERADDR, t->rt_off);
     w3(pd, V3D_COLBUFFERSTRIDE, BS_LINEAR_STRIDE(t->rt_pitch));
     w3(pd, V3D_AUXBUFFERADDR, t->z_off);
@@ -114,19 +120,23 @@ BOOL VcrDd3dClear(VCR_PDEV *pd, const vcr3d_target *t, ULONG what, ULONG argb, U
 {
     ULONG i, mode = FZ_RECTCLIP;
     float z;
-    ULONG z16;
+    ULONG zv;
     if (what & VCR3D_CLEAR_COLOR)
         mode |= FZ_RGBWRITE;
     if ((what & VCR3D_CLEAR_Z) && t->z_off)
         mode |= FZ_ZAWRITE;
     z = fbits(zbits);
     z = z < 0.0f ? 0.0f : z > 1.0f ? 1.0f : z;
-    z16 = (ULONG)(z * 65535.0f + 0.5f);
+    /* zaColor[23:0] is the depth: 16 bits of it at 16 bpp, all 24 at 32 bpp
+     * (and [31:24], the stencil of a 24+8 aux buffer, cleared to 0) */
+    zv = t->fmt == VCR_RT_32 ? (ULONG)(z * 16777215.0f + 0.5f) : (ULONG)(z * 65535.0f + 0.5f);
+    if (zv > vcr_rt_zmax(t->fmt))
+        zv = vcr_rt_zmax(t->fmt);
     if (!VcrDdRoom(pd, 3))
         return FALSE;
     w3(pd, V3D_FBZMODE, mode);
     w3(pd, V3D_C1, argb);
-    w3(pd, V3D_ZACOLOR, z16);
+    w3(pd, V3D_ZACOLOR, zv);
     for (i = 0; i < n; i++) {
         LONG l = rc[i].left < 0 ? 0 : rc[i].left, tp = rc[i].top < 0 ? 0 : rc[i].top;
         LONG r = rc[i].right > (LONG)t->width ? (LONG)t->width : rc[i].right;
@@ -167,7 +177,7 @@ static BOOL vertex(VCR_PDEV *pd, const vcr3d_draw *d, const UCHAR *v)
     wf(pd, V3D_SGREEN, (float)((argb >> 8) & 0xff));
     wf(pd, V3D_SBLUE, (float)(argb & 0xff));
     wf(pd, V3D_SALPHA, (float)(argb >> 24));
-    wf(pd, V3D_SVZ, p[2] * 65535.0f);
+    wf(pd, V3D_SVZ, p[2] * d->z_scale);
     if (d->fog_vertex) {
         /* the fog factor rides in the specular alpha (255 = no fog): the
          * chip's fog table is a ramp, and 1/W is chosen to land on it */
@@ -247,8 +257,17 @@ void VcrDd3dTexScale1(vcr3d_draw *d, ULONG w, ULONG h)
     d->t_scale1 = 256.0f * (float)h / (float)big;
 }
 
-void VcrDd3dDrawInit(vcr3d_draw *d)
+/* the depth the setup unit iterates spans the aux buffer: 16 bits, or 24 in
+ * 32 bpp (Glide's GR_ZDEPTH_MIN_MAX on a 4-byte pixel). Again at every
+ * SETRENDERTARGET: the new target may be the other size. */
+void VcrDd3dDrawTarget(vcr3d_draw *d, const vcr3d_target *t)
+{
+    d->z_scale = t && t->fmt == VCR_RT_32 ? 16777215.0f : 65535.0f;
+}
+
+void VcrDd3dDrawInit(vcr3d_draw *d, const vcr3d_target *t)
 {
     d->xy_bias = 0.0f;
     d->s_scale = d->t_scale = 256.0f;
+    VcrDd3dDrawTarget(d, t);
 }

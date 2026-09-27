@@ -175,6 +175,19 @@ static int in_vidmem(PDD_SURFACE_LOCAL s)
     return s && s->lpGbl && !(s->ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY);
 }
 
+/* a Z buffer's bits a pixel: its pixel format, else its pitch (bytes a row
+ * over the width) - the storage size is what the aux buffer must match */
+static ULONG surf_zbits(PDD_SURFACE_LOCAL z)
+{
+    if (!z || !z->lpGbl)
+        return 0;
+    if (z->lpGbl->ddpfSurface.dwZBufferBitDepth)
+        return z->lpGbl->ddpfSurface.dwZBufferBitDepth;
+    if (z->lpGbl->wWidth && (ULONG)z->lpGbl->lPitch >= 4u * z->lpGbl->wWidth)
+        return 32;
+    return 16;
+}
+
 /* ---- mipmap chains ------------------------------------------------------------------------
  * The TMU finds level n of a texture by adding the sizes of the levels above
  * it to the base, so a chain must be ONE block with its levels packed back to
@@ -636,12 +649,24 @@ static void compute_regs(vcr_d3dctx *c)
     c->dirty = 0;
 }
 
-static void target_of(vcr_d3dctx *c)
+/* the render target (and Z) the engine draws into, read from the surfaces.
+ * A colour/Z pair the 3D engine cannot render (vcr_rt_format: 32 bpp on a
+ * Banshee/Voodoo3, a Z of the other size, 8/24 bpp) leaves the target EMPTY,
+ * so nothing is drawn into memory laid out another way. Returns the rt's
+ * bits a pixel with the Z's in the high half, for the callers' logs. */
+static ULONG target_of(vcr_d3dctx *c)
 {
     vcr3d_target *t = &c->target;
+    ULONG rtb, zb, fmt;
     memset(t, 0, sizeof *t);
     if (!in_vidmem(c->rt))
-        return;
+        return 0;
+    rtb = surf_bpp(c->pd, c->rt);
+    zb = in_vidmem(c->zb) ? surf_zbits(c->zb) : 0;
+    fmt = vcr_rt_format(c->pd->napalm, rtb, zb);
+    if (fmt == VCR_RT_REFUSED)
+        return (zb << 16) | rtb;
+    t->fmt = fmt;
     t->rt_off = (ULONG)c->rt->lpGbl->fpVidMem;
     t->rt_pitch = (ULONG)c->rt->lpGbl->lPitch;
     t->width = c->rt->lpGbl->wWidth;
@@ -650,6 +675,7 @@ static void target_of(vcr_d3dctx *c)
         t->z_off = (ULONG)c->zb->lpGbl->fpVidMem;
         t->z_pitch = (ULONG)c->zb->lpGbl->lPitch;
     }
+    return (zb << 16) | rtb;
 }
 
 /* ---- contexts --------------------------------------------------------------------------- */
@@ -702,7 +728,7 @@ static DWORD APIENTRY D3d_ContextCreate(LPD3DNTHAL_CONTEXTCREATEDATA p)
 {
     PDD_DIRECTDRAW_LOCAL l = p->lpDDLcl;
     VCR_PDEV *pd = (VCR_PDEV *)l->lpGbl->dhpdev;
-    ULONG i;
+    ULONG i, bits;
     for (i = 0; i < MAX_CTX && g_ctx[i].in_use; i++)
         ;
     if (i == MAX_CTX) {
@@ -724,13 +750,24 @@ static DWORD APIENTRY D3d_ContextCreate(LPD3DNTHAL_CONTEXTCREATEDATA p)
     g_ctx[i].rt = p->lpDDSLcl;
     g_ctx[i].zb = p->lpDDSZLcl;
     ctx_defaults(&g_ctx[i]);
-    target_of(&g_ctx[i]);
+    bits = target_of(&g_ctx[i]);
+    if (in_vidmem(g_ctx[i].rt) && !g_ctx[i].target.fmt) {
+        /* a target the 3D engine cannot render: refused, not drawn wrong */
+        VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 12, bits & 0xffff, bits >> 16, pd->napalm,
+              "ContextCreate refused: %u bpp target with a %u-bit Z on %s", bits & 0xffff,
+              bits >> 16, pd->napalm ? "a VSA-100 (16/16 or 32/32 only)"
+                                     : "a Banshee/Voodoo3 (16 bpp 3D only)");
+        EngFreeMem(g_ctx[i].fpu);
+        memset(&g_ctx[i], 0, sizeof g_ctx[i]);
+        p->ddrval = DDERR_INVALIDPIXELFORMAT;
+        return DDHAL_DRIVER_HANDLED;
+    }
     p->dwhContext = i + 1;
     p->ddrval = DD_OK;
     VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 1, i + 1, g_ctx[i].target.rt_off, g_ctx[i].target.z_off,
-          "ContextCreate %u: target %x (%ux%u pitch %u), z %x, pid %u", i + 1,
+          "ContextCreate %u: target %x (%ux%u pitch %u, %u bpp 3D), z %x, pid %u", i + 1,
           g_ctx[i].target.rt_off, g_ctx[i].target.width, g_ctx[i].target.height,
-          g_ctx[i].target.rt_pitch, g_ctx[i].target.z_off, p->dwPID);
+          g_ctx[i].target.rt_pitch, g_ctx[i].target.fmt, g_ctx[i].target.z_off, p->dwPID);
     return DDHAL_DRIVER_HANDLED;
 }
 
@@ -1174,12 +1211,23 @@ static HRESULT walk(dp2walk *w, const UCHAR *cmds, ULONG len, LPDWORD rstates, D
                     VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 4, rd(p + i * 8), rd(p + i * 8 + 4), 0,
                           "SETRENDERTARGET: no surface for handle %u", rd(p + i * 8));
                 if (rt) {
+                    ULONG bits;
                     c->rt = rt;
                     c->zb = zb;
-                    target_of(c);
+                    bits = target_of(c);
+                    if (in_vidmem(rt) && !c->target.fmt)
+                        VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 12, bits & 0xffff, bits >> 16,
+                              c->pd->napalm, "SETRENDERTARGET refused: %u bpp target with a "
+                              "%u-bit Z - not drawn", bits & 0xffff, bits >> 16);
+                    VcrDd3dDrawTarget(&w->d, &c->target);   /* the Z scale follows it */
                     c->dirty = 1;
                     w->prepared = 0;
-                    w->drawable = w->drawable || (c->target.rt_off && w->stride);
+                    /* drawable follows the NEW target: one refused (or not in
+                     * video memory) is empty, and a walk that could draw
+                     * into the old one must not carry on at offset 0 */
+                    w->drawable = c->pd->g2d_ok && !c->pd->exclusive_pid &&
+                                  c->target.fmt && c->target.rt_off &&
+                                  (c->target.rt_pitch & 0xf) == 0;
                 }
             }
             p += n * 8;
@@ -1280,7 +1328,7 @@ static DWORD APIENTRY D3d_DrawPrimitives2(LPD3DNTHAL_DRAWPRIMITIVES2DATA p)
     w.drawable = c->pd->g2d_ok && !c->pd->exclusive_pid && c->target.rt_off &&
                  (c->target.rt_pitch & 0xf) == 0;
     EngSaveFloatingPointState(c->fpu, g_fpu_size);
-    VcrDd3dDrawInit(&w.d);
+    VcrDd3dDrawInit(&w.d, &c->target);
     w.d.diff_off = diff;
     w.d.tex_off = tex;
     w.d.spec_off = spec;
@@ -1462,8 +1510,11 @@ void VcrDdD3dHalInfo(VCR_PDEV *pd, DD_HALINFO *hal)
                    D3DDEVCAPS_HWRASTERIZATION;
     prim_caps(&d->dpcTriCaps);
     prim_caps(&d->dpcLineCaps);
-    d->dwDeviceRenderBitDepth = DDBD_16;
-    d->dwDeviceZBufferBitDepth = DDBD_16;
+    /* 16 bpp targets on every chip; 32 bpp (X8R8G8B8 / A8R8G8B8, with a
+     * 32-bit 24+8 Z) on the VSA-100 only - the Banshee/Voodoo3 3D engine has
+     * no 32 bpp mode (vcr_rtfmt.h) */
+    d->dwDeviceRenderBitDepth = DDBD_16 | (pd->napalm ? DDBD_32 : 0);
+    d->dwDeviceZBufferBitDepth = DDBD_16 | (pd->napalm ? DDBD_32 : 0);
     texfmt(&g_texfmt[0], 0, 0xf800, 0x07e0, 0x001f, 0);
     texfmt(&g_texfmt[1], DDPF_ALPHAPIXELS, 0x7c00, 0x03e0, 0x001f, 0x8000);
     texfmt(&g_texfmt[2], DDPF_ALPHAPIXELS, 0x0f00, 0x00f0, 0x000f, 0xf000);
@@ -1481,7 +1532,7 @@ void VcrDdD3dHalInfo(VCR_PDEV *pd, DD_HALINFO *hal)
     hal->ddCaps.dwCaps |= DDCAPS_3D;
     hal->ddCaps.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_TEXTURE | DDSCAPS_ZBUFFER |
                                   DDSCAPS_MIPMAP;
-    hal->ddCaps.dwZBufferBitDepths = DDBD_16;
+    hal->ddCaps.dwZBufferBitDepths = DDBD_16 | (pd->napalm ? DDBD_32 : 0);
 }
 
 static int geq(const GUID *a, const GUID *b)
@@ -1542,14 +1593,26 @@ int VcrDdD3dDriverInfo(VCR_PDEV *pd, PDD_GETDRIVERINFODATA p)
         return 1;
     }
     if (geq(&p->guidInfo, &zpf)) {
-        struct { DWORD n; DDPIXELFORMAT f; } z;
+        /* D16 everywhere; on the VSA-100 the 32 bpp targets' aux buffer too,
+         * 24 bits of depth under 8 of stencil (D24X8, D24S8 - as 3dfx's own
+         * V5 HAL lists them). A Banshee/Voodoo3 lists D16 alone. */
+        struct { DWORD n; DDPIXELFORMAT f[3]; } z;
         memset(&z, 0, sizeof z);
-        z.n = 1;
-        z.f.dwSize = sizeof z.f;
-        z.f.dwFlags = DDPF_ZBUFFER;
-        z.f.dwZBufferBitDepth = 16;
-        z.f.dwZBitMask = 0xffff;
-        answer(p, &z, sizeof z);
+        z.n = pd->napalm ? 3 : 1;
+        z.f[0].dwSize = sizeof z.f[0];
+        z.f[0].dwFlags = DDPF_ZBUFFER;
+        z.f[0].dwZBufferBitDepth = 16;
+        z.f[0].dwZBitMask = 0xffff;
+        z.f[1].dwSize = z.f[2].dwSize = sizeof z.f[0];
+        z.f[1].dwFlags = DDPF_ZBUFFER;
+        z.f[1].dwZBufferBitDepth = 32;
+        z.f[1].dwZBitMask = 0x00ffffff;
+        z.f[2].dwFlags = DDPF_ZBUFFER | DDPF_STENCILBUFFER;
+        z.f[2].dwZBufferBitDepth = 32;
+        z.f[2].dwStencilBitDepth = 8;
+        z.f[2].dwZBitMask = 0x00ffffff;
+        z.f[2].dwStencilBitMask = 0xff000000;
+        answer(p, &z, sizeof(DWORD) + z.n * sizeof(DDPIXELFORMAT));
         return 1;
     }
     if (geq(&p->guidInfo, &misc2)) {
