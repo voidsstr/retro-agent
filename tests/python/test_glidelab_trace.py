@@ -18,7 +18,18 @@ and brings the file home:
   the repo tree next to the step log; a trace without its header is a
   "trace_error" that fails the run; an untraced run is exactly as before;
 - --collect, for after the power cycle a wedge needs: three DOWNLOADs and
-  nothing else - no gate, no upload, no registry, no launch.
+  registry READS - no gate, no upload, no launch, and no registry write
+  unless --restore-cfg N is given (then only where an AA value was found,
+  read back);
+- (review 2026-09-27) the Glide on the box is identified (md5, and whether it
+  carries RETRO3DFX_SLIAA_GUARD / RETRO3DFX_AA_TRACE) and an AA open is
+  refused without the guard - by glidelab_run for an AA --cfg before
+  anything is written or launched, and by glidelab.exe itself from
+  GR_EXTENSION, for the configuration Glide will REALLY open (--cfg, or its
+  environment/registry chain); the splash plugin is kept out of a traced AA
+  open (FX_GLIDE_NO_PLUGIN, not only NO_SPLASH); --trace-cfg is the only way
+  to the config-space dumps; an AA --cfg written to the registry is put
+  back after the session.
 
 Nothing here touches the network: the agent is a fake.
 """
@@ -106,13 +117,22 @@ def test_glidelab_turns_the_trace_on_where_glide_reads_it_before_the_dll_loads()
     assert '"%s.trace", g_logpath' in main
     # every Glide setting through glide_env (msvcrt's copy, which Glide's
     # getenv reads), all before the DLL loads
-    for var in ("FX_GLIDE_TRACE_FILE", "FX_GLIDE_TRACE", "FX_GLIDE_NO_SPLASH"):
+    for var in ("FX_GLIDE_TRACE_FILE", "FX_GLIDE_TRACE", "FX_GLIDE_NO_SPLASH", "FX_GLIDE_NO_PLUGIN",
+                "FX_GLIDE_TRACE_CFG"):
         at = main.index(f'glide_env("{var}"')
         assert at < load, var
     assert "SetEnvironmentVariableA" not in code
-    # the splash plugin is turned off for an AA configuration only
+    # the splash AND its plugin are turned off for an AA open only - the one
+    # Glide will really open (effective_config), not only --cfg's
     ns = main.index('glide_env("FX_GLIDE_NO_SPLASH", "1")')
-    assert "if (aa_config(O.cfg))" in main[ns - 60:ns]
+    assert "if (g_eff_aa) {" in main[ns - 60:ns]
+    assert main.index('glide_env("FX_GLIDE_NO_PLUGIN", "1")') < main.index("}", ns)
+    assert "aa_config(O.cfg)" not in code
+    assert main.index("effective_config();") < main.index("if (O.trace > 0) {")
+    # the config dumps only when asked, and never without a trace
+    tc = main.index('glide_env("FX_GLIDE_TRACE_CFG", "1")')
+    assert "if (O.trace_cfg)" in main[tc - 40:tc]
+    assert re.search(r"if \(O\.trace_cfg && O\.trace <= 0\) \{[^}]*return 2;", code)
     # Glide appends: the old file goes first
     assert main.index("DeleteFileA(g_tracepath);") < main.index('glide_env("FX_GLIDE_TRACE_FILE"')
     # nothing of the trace happens without --trace
@@ -139,7 +159,7 @@ def test_a_traced_result_says_so_and_the_step_log_says_whether_glide_wrote_it():
     # the options struct grew at its END: `cycles` is still the 11th field
     m = re.search(r"\} O = \{([^}]*)\};", GLIDELAB)
     fields = [f.strip() for f in m.group(1).split(",")]
-    assert len(fields) == 13 and fields[10] == "2" and fields[12] == "0"
+    assert len(fields) == 14 and fields[10] == "2" and fields[12] == "0" and fields[13] == "0"
 
 
 def test_glidelab_aa_configs_are_glides_own():
@@ -246,6 +266,51 @@ class FakeBox:
 
     def at(self, needle):
         return next(i for i, c in enumerate(self.timeline) if needle in c)
+
+
+CLASS_KEY = glidelab_run.vb.GLIDE_KEY_TMPL.format(inst="0003")
+HWPROFILE = json.dumps({"video_cards": [{"attached_to_desktop": True, "instance": "0003"}]})
+BANSHEE = glidelab_run.GLIDE_SERVICE_KEYS[1]
+GUARDED = b"MZ\0 PIXEXT COMBINE TEXFMT RETRO3DFX_PARTIALROW RETRO3DFX_SLIAA_GUARD RETRO3DFX_AA_TRACE \0"
+UNGUARDED = b"MZ\0 PIXEXT COMBINE TEXFMT RETRO3DFX_PARTIALROW \0"
+
+
+class RegBox(FakeBox):
+    """FakeBox with a registry (REGREAD / REGWRITE on {(root, key): {name: data}})
+    and HWPROFILE; text() raises like v56k_bench.Box on an error status."""
+
+    def __init__(self, files=None, execw="", reg=None, write_fails=None):
+        super().__init__(files, execw)
+        self.reg = {k: dict(v) for k, v in (reg or {}).items()}
+        self.write_fails = write_fails          # None, "silent", or an exception
+
+    async def cmd(self, command, timeout=60.0):
+        if command == "HWPROFILE":
+            self.timeline.append(command)
+            return 0, HWPROFILE
+        if command.startswith("REGREAD "):
+            self.timeline.append(command)
+            _, root, key = command.split(" ", 2)
+            if (root, key) not in self.reg:
+                return 1, "cannot open key"
+            return 0, json.dumps({"values": [{"name": n, "type": "REG_SZ", "data": d}
+                                             for n, d in self.reg[(root, key)].items()]})
+        if command.startswith("REGWRITE "):
+            self.timeline.append(command)
+            if isinstance(self.write_fails, Exception):
+                raise self.write_fails
+            _, root, rest = command.split(" ", 2)
+            key, name, _typ, data = rest.rsplit(" ", 3)
+            if self.write_fails != "silent":
+                self.reg.setdefault((root, key), {})[name] = data
+            return 0, "OK"
+        return await super().cmd(command, timeout)
+
+    async def text(self, command, timeout=60.0):
+        st, out = await self.cmd(command, timeout)
+        if st != 0:
+            raise glidelab_run.vb.RetroProtocolError(out)
+        return out
 
 
 def _parsed(argv):
@@ -377,11 +442,14 @@ def test_collect_downloads_three_files_and_does_nothing_else(monkeypatch, tmp_pa
     files = {LOG: b"step: grSstWinOpen 1024x768 60Hz origin upper\n",
              TRACE: HEADER + b"9 SLI_AA_REQUEST: ExtEscape (kernel programs SLI/AA) reg=00000013 val=0\n",
              glidelab_run.DEFAULT_TRACE: None}
-    box = FakeBox(files)
+    box = RegBox(files, reg={(("HKLM", CLASS_KEY)): {"SSTH3_SLI_AA_CONFIGURATION": "5"}})
     rc = _main(monkeypatch, tmp_path, box, ["h", "fill", "--collect", "--save-dir", str(tmp_path / "c")])
     assert rc == 0
-    assert box.timeline == [f"DOWNLOAD {LOG}", f"DOWNLOAD {TRACE}",
-                            f"DOWNLOAD {glidelab_run.DEFAULT_TRACE}"]
+    # three DOWNLOADs, then registry READS only: no write, upload, launch
+    assert box.timeline[:3] == [f"DOWNLOAD {LOG}", f"DOWNLOAD {TRACE}",
+                                f"DOWNLOAD {glidelab_run.DEFAULT_TRACE}"]
+    assert all(c == "HWPROFILE" or c.startswith("REGREAD ") for c in box.timeline[3:])
+    assert not [c for c in box.timeline if c.split()[0] in ("REGWRITE", "UPLOAD", "EXECW", "EXEC")]
     out = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
     assert out["collect"] and out["log"]["last"].startswith("step: grSstWinOpen")
     assert out["trace"]["header"] and "SLI_AA_REQUEST: ExtEscape" in out["trace"]["last"]
@@ -390,8 +458,254 @@ def test_collect_downloads_three_files_and_does_nothing_else(monkeypatch, tmp_pa
     # the default path is the fork's HWC_TRACE_PATH
     assert glidelab_run.DEFAULT_TRACE == r"C:\vcr\glidelab\glidetrace.log"
     # no step log: nothing collected, and it says so
-    box = FakeBox({})
+    box = RegBox({})
     assert _main(monkeypatch, tmp_path, box, ["h", "fill", "--collect", "--save-dir",
                                               str(tmp_path / "c")]) == 1
-    assert all(c.startswith("DOWNLOAD ") for c in box.timeline)
+    assert all(c.startswith(("DOWNLOAD ", "REGREAD ")) or c == "HWPROFILE" for c in box.timeline)
     assert "NOTHING COLLECTED" in capsys.readouterr().out
+
+
+# ---- review 2026-09-27: the Glide on the box, the configuration it opens -------------------
+
+
+def _glidelab_unit():
+    """glidelab.c's configuration and guard helpers, compiled on the host
+    against a fake registry."""
+    return "\n".join((
+        "#include <stdio.h>", "#include <stdlib.h>", "#include <string.h>",
+        "typedef void *HKEY; typedef unsigned long DWORD; typedef long LONG;",
+        "typedef unsigned char BYTE;",
+        "#define ERROR_SUCCESS 0L", "#define KEY_READ 1", "#define REG_SZ 1", "#define REG_DWORD 4",
+        "#define _snprintf snprintf",
+        "#define HKEY_CURRENT_USER ((HKEY)1)", "#define HKEY_LOCAL_MACHINE ((HKEY)2)",
+        "static struct { int cfg; } O = { -1 };",
+        "struct fake { HKEY root; const char *key, *name; DWORD type; const char *val; };",
+        "static struct fake REG[8]; static int nreg, dev0;",
+        "static struct { HKEY root; char key[200]; } OPEN[16]; static int nopen;",
+        "static LONG RegOpenKeyExA(HKEY root, const char *key, DWORD o, DWORD a, HKEY *out)",
+        "{ int i, ok = dev0 && root == HKEY_LOCAL_MACHINE &&",
+        "      !strcmp(key, \"SYSTEM\\\\CurrentControlSet\\\\Services\\\\3dfxvs\\\\Device0\");",
+        "  (void) o; (void) a;",
+        "  for (i = 0; i < nreg; i++) if (REG[i].root == root && !strcmp(REG[i].key, key)) ok = 1;",
+        "  if (!ok) return 2;",
+        "  OPEN[nopen].root = root; snprintf(OPEN[nopen].key, 200, \"%s\", key);",
+        "  *out = (HKEY)(long)(100 + nopen++); return ERROR_SUCCESS; }",
+        "static LONG RegQueryValueExA(HKEY h, const char *name, DWORD *r, DWORD *type, BYTE *buf, DWORD *n)",
+        "{ int i, k = (int)(long)h - 100; (void) r;",
+        "  for (i = 0; i < nreg; i++)",
+        "    if (REG[i].root == OPEN[k].root && !strcmp(REG[i].key, OPEN[k].key) && !strcmp(REG[i].name, name)) {",
+        "      *type = REG[i].type; snprintf((char *)buf, *n, \"%s\", REG[i].val);",
+        "      *n = (DWORD)strlen(REG[i].val) + 1; return ERROR_SUCCESS; }",
+        "  return 2; }",
+        "static LONG RegCloseKey(HKEY h) { (void) h; return 0; }",
+        _func(GLIDELAB, "static const char *json_esc(char *dst, size_t n, const char *s)"),
+        _func(GLIDELAB, "static int aa_config(int cfg)"),
+        _func(GLIDELAB, "static int glide_guarded(const char *ext)"),
+        re.search(r"#define GLIDE_KEY_3DFXVS[^\n]*\n#define GLIDE_KEY_BANSHEE[^\n]*", GLIDELAB).group(0),
+        _func(GLIDELAB, "static int reg_sz(HKEY root, const char *key, const char *name, char *val, DWORD vlen)"),
+        _func(GLIDELAB, "static int glide_setting(const char *name, char *val, DWORD vlen, char *src, size_t slen)"),
+        "static int g_eff_cfg = 2, g_eff_aa;", "static char g_eff_why[400];",
+        _func(GLIDELAB, "static void effective_config(void)"),
+        "#define BAN \"SYSTEM\\\\CurrentControlSet\\\\Services\\\\banshee\\\\Device0\\\\glide\"",
+        "#define DFX \"SYSTEM\\\\CurrentControlSet\\\\Services\\\\3dfxvs\\\\Device0\\\\glide\"",
+        "static void add(HKEY r, const char *k, const char *n, DWORD t, const char *v)",
+        "{ REG[nreg].root = r; REG[nreg].key = k; REG[nreg].name = n; REG[nreg].type = t;",
+        "  REG[nreg++].val = v; }",
+        "static void reset(int cfg) { nreg = 0; dev0 = 0; nopen = 0; O.cfg = cfg;",
+        "  unsetenv(\"SSTH3_SLI_AA_CONFIGURATION\"); unsetenv(\"FX_GLIDE_AA_SAMPLE\"); }",
+        "static void show(const char *tag) { effective_config();",
+        "  printf(\"%s=%d %d|%s\\n\", tag, g_eff_cfg, g_eff_aa, g_eff_why); }",
+        "int main(void) { char b[64];",
+        "  reset(7); show(\"cfg\");",
+        "  reset(-1); setenv(\"SSTH3_SLI_AA_CONFIGURATION\", \"3\", 1); show(\"env\");",
+        "  reset(-1); add(HKEY_LOCAL_MACHINE, BAN, \"SSTH3_SLI_AA_CONFIGURATION\", REG_SZ, \"7\"); show(\"banshee\");",
+        "  printf(\"old_banshee=%d\\n\", aa_config(O.cfg));",
+        "  reset(-1); dev0 = 1; add(HKEY_CURRENT_USER, DFX, \"SSTH3_SLI_AA_CONFIGURATION\", REG_SZ, \"1\");",
+        "  add(HKEY_LOCAL_MACHINE, BAN, \"SSTH3_SLI_AA_CONFIGURATION\", REG_SZ, \"5\"); show(\"hkcu3dfx\");",
+        "  reset(-1); dev0 = 1; add(HKEY_LOCAL_MACHINE, BAN, \"SSTH3_SLI_AA_CONFIGURATION\", REG_SZ, \"7\"); show(\"dev0_skips_banshee\");",
+        "  reset(-1); show(\"none\");",
+        "  reset(-1); add(HKEY_LOCAL_MACHINE, BAN, \"SSTH3_SLI_AA_CONFIGURATION\", REG_DWORD, \"7\"); show(\"dword\");",
+        "  reset(7); setenv(\"FX_GLIDE_AA_SAMPLE\", \"0\", 1); show(\"samples0\");",
+        "  reset(5); setenv(\"FX_GLIDE_AA_SAMPLE\", \"4\", 1); show(\"samples4\");",
+        "  printf(\"g1=%d g2=%d g3=%d g4=%d\\n\",",
+        "    glide_guarded(\" PIXEXT RETRO3DFX_SLIAA_GUARD RETRO3DFX_AA_TRACE \"),",
+        "    glide_guarded(\" PIXEXT RETRO3DFX_SLIAA_GUARD_OLD \"), glide_guarded(0),",
+        "    glide_guarded(\" PIXEXT COMBINE TEXFMT RETRO3DFX_PARTIALROW \"));",
+        "  printf(\"esc=%s\\n\", json_esc(b, sizeof b, \"C:\\\\a\\\"b\"));",
+        "  return 0; }"))
+
+
+def test_glidelab_knows_the_configuration_glide_will_really_open(tmp_path):
+    """Without --cfg glidelab used aa_config(-1) - never AA - while Glide opened
+    whatever its environment / registry held: a traced AA open kept its splash
+    plugin, and nothing could refuse it. effective_config() follows our Glide's
+    own chain (hwcGetenv + getRegPath, NT 5.x)."""
+    cc = shutil.which("gcc") or shutil.which("cc")
+    if cc is None:
+        pytest.skip("no host C compiler - effective_config NOT run")
+    (tmp_path / "e.c").write_text(_glidelab_unit())
+    r = subprocess.run([cc, "-Wall", "-Werror", "-o", str(tmp_path / "e"), str(tmp_path / "e.c")],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    out = subprocess.run([str(tmp_path / "e")], capture_output=True, text=True).stdout
+    got = dict(ln.split("=", 1) for ln in out.splitlines())
+    def cfg(tag):
+        v, why = got[tag].split("|", 1)
+        return v, why
+    assert cfg("cfg") == ("7 1", "cfg 7 from --cfg -> AA")
+    assert cfg("env")[0] == "3 1" and "from environment" in cfg("env")[1]
+    assert cfg("banshee")[0] == "7 1" and "HKLM\\SYSTEM\\CurrentControlSet\\Services\\banshee" in cfg("banshee")[1]
+    assert got["old_banshee"] == "0"                 # the old decision: never AA without --cfg
+    assert cfg("hkcu3dfx")[0] == "1 1" and cfg("hkcu3dfx")[1].startswith("cfg 1 from HKCU\\") and "3dfxvs" in cfg("hkcu3dfx")[1]
+    assert cfg("dev0_skips_banshee")[0] == "2 0"     # 3dfxvs\Device0 exists: banshee is not read
+    assert cfg("none") == ("2 0", "cfg 2 from Glide's default -> no AA")
+    assert cfg("dword")[0] == "2 0"                  # REG_SZ only, as hwcGetenv
+    assert cfg("samples0")[0] == "7 0" and "FX_GLIDE_AA_SAMPLE=0" in cfg("samples0")[1]
+    assert cfg("samples4")[0] == "5 1"
+    assert got["g1"].split() == ["1", "g2=0", "g3=0", "g4=0"] or \
+        (got["g1"] == "1 g2=0 g3=0 g4=0")
+    assert got["esc"] == 'C:\\\\a\\"b'
+
+
+def test_glidelab_refuses_an_aa_open_on_a_glide_without_the_guard_before_any_window():
+    main = _func(GLIDELAB, "int main(int argc, char **argv)")
+    code = _blank(main)
+    init = code.index("p_grGlideInit();")
+    ext = code.index("p_grGetString(GR_EXTENSION)")
+    chk = code.index("if (g_eff_aa && !guarded) {")
+    win = code.index("hwnd = make_window(O.w, O.h);")
+    assert init < ext < chk < win < code.index("open_board(")
+    blk = main[main.index("if (g_eff_aa && !guarded) {"):main.index("hwnd = make_window(O.w, O.h);")]
+    assert "RESULT" in blk and "RETRO3DFX_SLIAA_GUARD" in blk and '\\"unguarded_glide\\":true' in blk
+    assert _blank(blk).index("shutdown_glide()") < _blank(blk).index("return 13;")
+    assert "json_esc(jd, sizeof jd, O.dll)" in blk     # a path in JSON is escaped
+    # the marker glidelab looks for is the fork's
+    assert glidelab_run.GUARD_MARKER.decode() in _func(GLIDELAB, "static int glide_guarded(const char *ext)")
+
+
+def test_the_host_aa_set_is_glidelabs():
+    listed = {int(x) for x in re.findall(r"cfg == (\d+)", _func(GLIDELAB, "static int aa_config(int cfg)"))}
+    assert glidelab_run.AA_CFGS == listed
+    assert not set(glidelab_run.SAFE_CFGS) & listed
+    for v, aa in (("7", True), (" 3 ", True), ("5", False), ("0", False), ("", False),
+                  (None, False), ("x", False)):
+        assert glidelab_run.is_aa(v) is aa, v
+    rv = glidelab_run.restore_value
+    assert rv("5", 5) == "5" and rv("0", 5) == "0" and rv("2", 0) == "2"
+    assert rv("7", 5) == "5" and rv(None, 5) == "5" and rv("", 0) == "0" and rv("junk", 5) == "5"
+
+
+def _aa_argv(tmp_path, *extra):
+    return ["h", "fill", "--res", "1024x768", "--refresh", "85",
+            "--save-dir", str(tmp_path / "s")] + list(extra)
+
+
+@pytest.mark.parametrize("dll", (UNGUARDED, None), ids=("unguarded", "unreadable"))
+def test_an_aa_cfg_is_refused_on_an_unguarded_glide_before_anything_is_written(
+        monkeypatch, tmp_path, capsys, dll):
+    box = RegBox({glidelab_run.OUR_GLIDE: dll, LOG: GOOD_LOG},
+                 reg={("HKLM", CLASS_KEY): {"SSTH3_SLI_AA_CONFIGURATION": "5"}})
+    assert _main(monkeypatch, tmp_path, box, _aa_argv(tmp_path, "--cfg", "7")) == 2
+    assert box.timeline == [f"DOWNLOAD {glidelab_run.OUR_GLIDE}"]
+    assert box.reg[("HKLM", CLASS_KEY)]["SSTH3_SLI_AA_CONFIGURATION"] == "5"
+    out = capsys.readouterr().out
+    assert "REFUSED" in out.upper() and "SLIAA_GUARD" in out
+
+
+def test_a_non_aa_cfg_still_runs_on_any_glide_and_the_plan_names_the_dll(monkeypatch, tmp_path, capsys):
+    box = RegBox({glidelab_run.OUR_GLIDE: UNGUARDED, LOG: UNTRACED_LOG},
+                 reg={("HKLM", CLASS_KEY): {"SSTH3_SLI_AA_CONFIGURATION": "2"}})
+    assert _main(monkeypatch, tmp_path, box, _aa_argv(tmp_path, "--cfg", "5")) == 0
+    out = capsys.readouterr().out
+    import hashlib
+    assert hashlib.md5(UNGUARDED).hexdigest() in out and "SLIAA-GUARD NO" in out
+    # a non-AA cfg is not put back: nothing but its own REGWRITE
+    assert [c for c in box.timeline if c.startswith("REGWRITE")] == \
+        [f"REGWRITE HKLM {CLASS_KEY} SSTH3_SLI_AA_CONFIGURATION REG_SZ 5"]
+    assert "aa_restore" not in out
+
+
+@pytest.mark.parametrize("before,extra,after", (("5", (), "5"), ("0", (), "0"), ("3", (), "5"),
+                                                (None, (), "5"), ("3", ("--restore-cfg", "2"), "2")),
+                         ids=("was-5", "was-0", "was-aa", "was-absent", "restore-cfg"))
+def test_an_aa_cfg_is_put_back_after_the_session(monkeypatch, tmp_path, capsys, before, extra, after):
+    """`--cfg 7` is a REGWRITE that survives every reboot: after the session
+    the value goes back - to what it was when that was not AA."""
+    reg = {("HKLM", CLASS_KEY): {"SSTH3_SLI_AA_CONFIGURATION": before}} if before else {}
+    box = RegBox({glidelab_run.OUR_GLIDE: GUARDED, LOG: GOOD_LOG}, reg=reg)
+    assert _main(monkeypatch, tmp_path, box, _aa_argv(tmp_path, "--cfg", "7", *extra)) == 0
+    writes = [i for i, c in enumerate(box.timeline) if c.startswith("REGWRITE")]
+    assert len(writes) == 2 and writes[0] < box.at("EXECW") < writes[1]
+    assert box.timeline[writes[1]].endswith(f"REG_SZ {after}")
+    assert box.reg[("HKLM", CLASS_KEY)]["SSTH3_SLI_AA_CONFIGURATION"] == after
+    rep = [json.loads(ln) for ln in capsys.readouterr().out.splitlines() if '"aa_restore"' in ln]
+    assert rep and rep[0]["aa_restore"]["ok"] and rep[0]["aa_restore"]["before"] == before
+
+
+@pytest.mark.parametrize("fails", ("silent", OSError("box gone")), ids=("no-readback", "dead"))
+def test_an_aa_cfg_that_cannot_be_put_back_fails_the_run_loudly(monkeypatch, tmp_path, capsys, fails):
+    box = RegBox({glidelab_run.OUR_GLIDE: GUARDED, LOG: GOOD_LOG},
+                 reg={("HKLM", CLASS_KEY): {"SSTH3_SLI_AA_CONFIGURATION": "5"}})
+
+    real = box.cmd
+
+    async def cmd(command, timeout=60.0):
+        # the first REGWRITE (the --cfg) lands; the put-back fails
+        if command.startswith("REGWRITE") and any(c.startswith("EXECW") for c in box.timeline):
+            box.write_fails = fails
+        return await real(command, timeout)
+    box.cmd = cmd
+    assert _main(monkeypatch, tmp_path, box, _aa_argv(tmp_path, "--cfg", "7")) == 1
+    out = capsys.readouterr().out
+    assert "AA CONFIGURATION LEFT ARMED" in out and "--collect --restore-cfg 5" in out
+
+
+def test_trace_cfg_is_passed_only_with_a_trace(tmp_path):
+    a, code = _parsed(["h", "fill", "--trace-cfg"])
+    assert code == 2 and a is None
+    a = _args(tmp_path, "--trace", "1", "--trace-cfg")
+    box = FakeBox({LOG: GOOD_LOG, TRACE: HEADER})
+    asyncio.run(glidelab_run.run_mode(box, a, "fill"))
+    assert "--trace 1 --trace-cfg" in box.timeline[box.at("EXECW")]
+    a = _args(tmp_path, "--trace", "1")
+    box = FakeBox({LOG: GOOD_LOG, TRACE: HEADER})
+    asyncio.run(glidelab_run.run_mode(box, a, "fill"))
+    assert "--trace-cfg" not in box.timeline[box.at("EXECW")]
+    # glidelab.exe refuses it without a trace too, before anything loads
+    main = _func(GLIDELAB, "int main(int argc, char **argv)")
+    assert '!strcmp(a, "--trace-cfg")' in main
+    assert main.index("if (O.trace_cfg && O.trace <= 0) {") < main.index("LoadLibraryA(O.dll)")
+
+
+def test_collect_banners_an_armed_aa_value_and_restores_only_when_asked(monkeypatch, tmp_path, capsys):
+    reg = {("HKLM", CLASS_KEY): {"SSTH3_SLI_AA_CONFIGURATION": "7"},
+           ("HKLM", BANSHEE): {"SSTH3_SLI_AA_CONFIGURATION": "3"},
+           ("HKCU", BANSHEE): {"SSTH3_SLI_AA_CONFIGURATION": "5"}}
+    files = {LOG: b"step: grSstWinOpen\n"}
+    box = RegBox(files, reg=reg)
+    rc = _main(monkeypatch, tmp_path, box, ["h", "fill", "--collect", "--save-dir", str(tmp_path / "c")])
+    assert rc == 1
+    text = capsys.readouterr().out
+    assert "AA CONFIGURATION ARMED" in text and "--collect --restore-cfg 5" in text
+    out = json.loads([ln for ln in text.splitlines() if ln.startswith("{")][-1])
+    armed = {(r["root"], r["key"]) for r in out["registry"] if r["aa"]}
+    assert armed == {("HKLM", CLASS_KEY), ("HKLM", BANSHEE)}
+    assert not [c for c in box.timeline if c.startswith("REGWRITE")]
+    # every place a Glide reads it from was looked at
+    for root, key in [("HKLM", CLASS_KEY)] + [(r, k) for k in glidelab_run.GLIDE_SERVICE_KEYS
+                                              for r in ("HKCU", "HKLM")]:
+        assert f"REGREAD {root} {key}" in box.timeline
+    # --restore-cfg 5: written where it was AA, and read back
+    box = RegBox(files, reg=reg)
+    rc = _main(monkeypatch, tmp_path, box, ["h", "fill", "--collect", "--restore-cfg", "5",
+                                            "--save-dir", str(tmp_path / "c")])
+    assert rc == 0
+    assert sorted(c for c in box.timeline if c.startswith("REGWRITE")) == sorted(
+        f"REGWRITE HKLM {k} SSTH3_SLI_AA_CONFIGURATION REG_SZ 5" for k in (CLASS_KEY, BANSHEE))
+    assert box.reg[("HKCU", BANSHEE)]["SSTH3_SLI_AA_CONFIGURATION"] == "5"     # untouched
+    out = json.loads([ln for ln in capsys.readouterr().out.splitlines() if ln.startswith("{")][-1])
+    assert all(r["ok"] for r in out["restored"])
+    # an AA value is not something --restore-cfg may write
+    a, code = _parsed(["h", "fill", "--collect", "--restore-cfg", "7"])
+    assert code == 2 and a is None
+

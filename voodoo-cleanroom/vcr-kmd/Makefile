@@ -88,7 +88,7 @@ $(OUT)/vcrctl.exe: tools/vcrctl.c $(PACE_H) tools/vcr_sliaa.h $(wildcard include
 GLIDE_SDK ?= ../out/sdk/include
 glidelab: $(OUT)/glidelab.exe
 $(OUT)/glidelab.exe: tools/glidelab.c $(PACE_H) | $(OUT)
-	$(CC) -O1 -Wall -march=i586 -I$(GLIDE_SDK) tools/glidelab.c -o $@ -static -lgdi32 -luser32
+	$(CC) -O1 -Wall -march=i586 -I$(GLIDE_SDK) tools/glidelab.c -o $@ -static -lgdi32 -luser32 -ladvapi32
 
 # the self-checking lab programs (Win32 user mode): DirectDraw, Direct3D 8, GDI.
 # Run with tools/lab_run.py (or ddlab_run.py / d3dprobe_run.py).

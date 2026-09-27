@@ -52,11 +52,20 @@
  * the hardware access it names, level 2 also waiting after every FIFO step
  * of the open until the chips have run it. That is what names the step
  * INSIDE grSstWinOpen / grLfbReadRegion a deep wedge froze on, where this
- * log can only name the call. For an AA configuration it also sets
- * FX_GLIDE_NO_SPLASH=1 (no third-party splash plugin drawing inside the
- * open). A traced run is a diagnosis, not a benchmark: its RESULT says
- * "trace":N. A Glide that is not a traced build ignores it (the host sees
- * no trace header).
+ * log can only name the call. For an AA open - by --cfg, or by what Glide
+ * reads without it (effective_config) - it also sets FX_GLIDE_NO_SPLASH=1 and
+ * FX_GLIDE_NO_PLUGIN=1: NO_SPLASH alone gates only grSplash(), and the
+ * third-party plugin's init still drew through Glide inside the open.
+ * --trace-cfg adds the fork's config-space dumps (FX_GLIDE_TRACE_CFG=1: 36
+ * PCI_OP escapes per dump on the V5 6000); without it a level-1 trace adds
+ * file writes only. A traced run is a diagnosis, not a benchmark: its RESULT
+ * says "trace":N. A Glide that is not a traced build ignores it (the host
+ * sees no trace header).
+ *
+ * An AA open is REFUSED (RESULT error, rc 13, before any window or mode) on a
+ * Glide whose GR_EXTENSION lacks RETRO3DFX_SLIAA_GUARD: the fork commits that
+ * add the guards were local-only, and a Glide built from origin before them
+ * sent the request that froze .124 on cfg 1.
  *
  * Glide is late-bound (any glide3x.dll: --dll), as in glideprobe.c.
  *
@@ -225,8 +234,8 @@ static HWND make_window(int w, int h)
 /* ---- options ----------------------------------------------------------------------- */
 static struct {
     const char *mode, *dll, *res;
-    int w, h, hz, cfg, frames, layers, blend, cycles, lower, trace;
-} O = { "fill", "glide3x.dll", "640x480", 640, 480, 60, -1, 200, 4, 0, 2, 0, 0 };
+    int w, h, hz, cfg, frames, layers, blend, cycles, lower, trace, trace_cfg;
+} O = { "fill", "glide3x.dll", "640x480", 640, 480, 60, -1, 200, 4, 0, 2, 0, 0, 0 };
 
 /* SSTH3_SLI_AA_CONFIGURATION values that turn anti-aliasing on (Glide's
  * gpci.c: 1 = 2-sample on one chip, 3/6 = 2-sample, 4/7 = 4-sample, 8 =
@@ -234,6 +243,117 @@ static struct {
 static int aa_config(int cfg)
 {
     return cfg == 1 || cfg == 3 || cfg == 4 || cfg == 6 || cfg == 7 || cfg == 8;
+}
+
+/* s as the inside of a JSON string: a registry key or a DLL path is full of
+ * backslashes, and a RESULT the host cannot parse reads as "unparsable" */
+static const char *json_esc(char *dst, size_t n, const char *s)
+{
+    size_t o = 0;
+    for (; s && *s && o + 2 < n; s++) {
+        if (*s == '\\' || *s == '"')
+            dst[o++] = '\\';
+        dst[o++] = ((unsigned char)*s < 0x20) ? ' ' : *s;
+    }
+    dst[o] = 0;
+    return dst;
+}
+
+/* 1 = the Glide says it carries the fork's SLIAA-GUARD (GR_EXTENSION, space-
+ * delimited as Glide lists it): it refuses an SLI/AA request no kernel can
+ * program and honours the kernel's refusal. A Glide without it - the fork
+ * before 631221b, which is what build-stack.sh builds from origin until the
+ * fork is pushed - sent cfg 1's {4 chips, no SLI, 2-sample AA} and froze .124
+ * on two kernels. An AA open is refused without it. */
+static int glide_guarded(const char *ext)
+{
+    return ext != NULL && strstr(ext, " RETRO3DFX_SLIAA_GUARD ") != NULL;
+}
+
+/* ---- the SLI/AA configuration Glide will really open ------------------------
+ * --cfg sets SSTH3_SLI_AA_CONFIGURATION in-process. Without it Glide takes its
+ * own chain - our fork's hwcGetenv() on NT 5.x (minihwc.c): the process
+ * environment, then HKCU, then HKLM under getRegPath()'s key (Services\3dfxvs\
+ * Device0\glide when Services\3dfxvs\Device0 exists, else Services\banshee\
+ * Device0\glide), REG_SZ only - and FX_GLIDE_AA_SAMPLE, through the same
+ * chain, overrides the sample count (gpci.c). The same lookups here, so what
+ * glidelab decides for an AA open (the splash plugin, the guard) follows what
+ * Glide will open, not only what --cfg said. */
+#define GLIDE_KEY_3DFXVS  "SYSTEM\\CurrentControlSet\\Services\\3dfxvs\\Device0"
+#define GLIDE_KEY_BANSHEE "SYSTEM\\CurrentControlSet\\Services\\banshee\\Device0\\glide"
+
+static int reg_sz(HKEY root, const char *key, const char *name, char *val, DWORD vlen)
+{
+    HKEY h;
+    DWORD type = 0, n = vlen - 1;
+    LONG rc;
+    if (RegOpenKeyExA(root, key, 0, KEY_READ, &h) != ERROR_SUCCESS)
+        return 0;
+    rc = RegQueryValueExA(h, name, NULL, &type, (BYTE *)val, &n);
+    RegCloseKey(h);
+    if (rc != ERROR_SUCCESS || type != REG_SZ)
+        return 0;
+    val[n < vlen ? n : vlen - 1] = 0;
+    return 1;
+}
+
+/* 1 = found; val = its text, src = where (for the step log) */
+static int glide_setting(const char *name, char *val, DWORD vlen, char *src, size_t slen)
+{
+    const char *e = getenv(name);
+    char key[128];
+    HKEY h;
+    if (e) {
+        _snprintf(val, vlen, "%s", e);
+        val[vlen - 1] = 0;
+        _snprintf(src, slen, "environment");
+    } else {
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, GLIDE_KEY_3DFXVS, 0, KEY_READ, &h) == ERROR_SUCCESS) {
+            RegCloseKey(h);
+            _snprintf(key, sizeof key, "%s\\glide", GLIDE_KEY_3DFXVS);
+        } else {
+            _snprintf(key, sizeof key, "%s", GLIDE_KEY_BANSHEE);
+        }
+        key[sizeof key - 1] = 0;
+        if (reg_sz(HKEY_CURRENT_USER, key, name, val, vlen))
+            _snprintf(src, slen, "HKCU\\%s", key);
+        else if (reg_sz(HKEY_LOCAL_MACHINE, key, name, val, vlen))
+            _snprintf(src, slen, "HKLM\\%s", key);
+        else
+            return 0;
+    }
+    src[slen - 1] = 0;
+    return 1;
+}
+
+/* the configuration Glide will open, and whether it anti-aliases; *why says
+ * where each came from */
+static int g_eff_cfg = 2, g_eff_aa;
+static char g_eff_why[400];
+
+static void effective_config(void)
+{
+    char v[64], src[180], asrc[180];
+    int aa_set = 0, aa_samples = 0;
+    if (O.cfg >= 0) {
+        g_eff_cfg = O.cfg;
+        _snprintf(src, sizeof src, "--cfg");
+    } else if (glide_setting("SSTH3_SLI_AA_CONFIGURATION", v, sizeof v, src, sizeof src)) {
+        g_eff_cfg = atoi(v);
+    } else {
+        g_eff_cfg = 2;                              /* GLIDE_GETENV(..., 2L) */
+        _snprintf(src, sizeof src, "Glide's default");
+    }
+    src[sizeof src - 1] = 0;
+    if (glide_setting("FX_GLIDE_AA_SAMPLE", v, sizeof v, asrc, sizeof asrc)) {
+        aa_set = 1;
+        aa_samples = atoi(v);
+    }
+    g_eff_aa = aa_set ? aa_samples > 1 : aa_config(g_eff_cfg);
+    _snprintf(g_eff_why, sizeof g_eff_why, "cfg %d from %s%s%s%s -> %s", g_eff_cfg, src,
+              aa_set ? ", FX_GLIDE_AA_SAMPLE=" : "", aa_set ? v : "",
+              aa_set ? " overrides the samples" : "", g_eff_aa ? "AA" : "no AA");
+    g_eff_why[sizeof g_eff_why - 1] = 0;
 }
 
 /* --trace's value: decimal 0..GLIDELAB_MAX_TRACE, nothing else */
@@ -611,6 +731,7 @@ int main(int argc, char **argv)
                 bad_trace = v;
             i++;
         }
+        else if (!strcmp(a, "--trace-cfg")) O.trace_cfg = 1;
         else if (!strcmp(a, "--blend")) O.blend = 1;
         else if (a[0] != '-') O.mode = a;
     }
@@ -639,6 +760,11 @@ int main(int argc, char **argv)
             GLIDELAB_MAX_TRACE);
         return 2;
     }
+    /* the config-space dumps are an addition to a trace, never on their own */
+    if (O.trace_cfg && O.trace <= 0) {
+        say("RESULT {\"mode\":\"%s\",\"error\":\"--trace-cfg needs --trace 1 or 2\"}", O.mode);
+        return 2;
+    }
     if (rescode < 0) {
         say("RESULT {\"error\":\"no GR_RESOLUTION for %s\"}", O.res);
         return 2;
@@ -659,6 +785,9 @@ int main(int argc, char **argv)
         _snprintf(env, sizeof env, "%d", O.cfg);
         glide_env("SSTH3_SLI_AA_CONFIGURATION", env);
     }
+    /* what Glide will open: --cfg, or its own environment/registry chain */
+    effective_config();
+    say("sli/aa: %s", g_eff_why);
     /* the trace, before the DLL loads: Glide reads FX_GLIDE_TRACE once, at
      * its first trace point, from the process environment only */
     if (O.trace > 0) {
@@ -678,10 +807,23 @@ int main(int argc, char **argv)
                 "be made\"}", O.mode);
             return 2;
         }
-        if (aa_config(O.cfg))
+        /* an AA open - by --cfg or by what Glide reads without it - is traced
+         * with no third-party splash plugin as a variable. FX_GLIDE_NO_SPLASH
+         * gates grSplash() only; the plugin's init (3dfxspl3.dll, drawing
+         * through Glide) still ran inside grSstWinOpen: FX_GLIDE_NO_PLUGIN=1
+         * (fork gsst.c doSplash) is what keeps it from loading. The trace's
+         * "splash: plugin present reg=0" line confirms it. */
+        if (g_eff_aa) {
             glide_env("FX_GLIDE_NO_SPLASH", "1");
-        say("trace: level %d -> %s%s", O.trace, g_tracepath,
-            aa_config(O.cfg) ? " (AA config: FX_GLIDE_NO_SPLASH=1)" : "");
+            glide_env("FX_GLIDE_NO_PLUGIN", "1");
+        }
+        /* the PCI config dumps (36 PCI_OP escapes a dump on the V5 6000),
+         * only when asked: without them a level-1 trace adds file writes only */
+        if (O.trace_cfg)
+            glide_env("FX_GLIDE_TRACE_CFG", "1");
+        say("trace: level %d -> %s%s%s", O.trace, g_tracepath,
+            g_eff_aa ? " (AA open: FX_GLIDE_NO_SPLASH=1 FX_GLIDE_NO_PLUGIN=1)" : "",
+            O.trace_cfg ? " (FX_GLIDE_TRACE_CFG=1: config-space dumps)" : "");
     }
     g_dll = LoadLibraryA(O.dll);
     if (!g_dll || !bind_glide()) {
@@ -694,6 +836,26 @@ int main(int argc, char **argv)
         p_grSstSelect(0);
     if (p_grGetString)
         say("GR_HARDWARE: %s", p_grGetString(GR_HARDWARE));
+    {
+        /* an AA open only on a Glide that says it carries the SLI/AA guards -
+         * checked here, after grGlideInit and before anything opens: the
+         * DLL on the box is whatever was staged, and nothing else checks it */
+        const char *ext = p_grGetString ? p_grGetString(GR_EXTENSION) : NULL;
+        const int guarded = glide_guarded(ext);
+        say("GR_EXTENSION:%s", ext ? ext : " (none)");
+        say("guard: RETRO3DFX_SLIAA_GUARD %s; RETRO3DFX_AA_TRACE %s", guarded ? "present" : "ABSENT",
+            ext && strstr(ext, " RETRO3DFX_AA_TRACE ") ? "present" : "ABSENT");
+        if (g_eff_aa && !guarded) {
+            char jd[2 * MAX_PATH], jw[2 * sizeof g_eff_why];
+            say("RESULT {\"mode\":\"%s\",\"error\":\"AA open refused: %s has no "
+                "RETRO3DFX_SLIAA_GUARD in GR_EXTENSION - a Glide without the SLI/AA guards "
+                "froze .124 on cfg 1 (%s)\",\"unguarded_glide\":true}", O.mode,
+                json_esc(jd, sizeof jd, O.dll), json_esc(jw, sizeof jw, g_eff_why));
+            if (!shutdown_glide())
+                return left_for_exit("grGlideShutdown");
+            return 13;
+        }
+    }
     hwnd = make_window(O.w, O.h);
 
     if (!strcmp(O.mode, "cycle")) {

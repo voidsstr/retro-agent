@@ -14,11 +14,16 @@ guards only REFUSE or NARROW; none adds a hardware access:
       hwcInitVideo (before the DirectDraw mode set) and again on the very bytes
       just before the escape - hwcSliAaTupleSupported() in minihwc/h5sliaa.h,
       pinned to vcr-kmd's video_mux() by tests/native/test_h5_sliaa_tuple.c;
-  (c) the escape's own answer (ExtEscape, resStatus) is honoured;
+  (c) the escape's own answer (ExtEscape, resStatus) is honoured - and a
+      refusal after HWCSETEXCLUSIVE gives the display back (HWCRLSEXCLUSIVE +
+      hwcResetVideo, through the helper hwcRestoreVideo's release uses), so
+      the kernel is not left with an exclusive owner until the process exits;
   (d) a READ lock in a multi-chip AA mode is refused before the SLI read
       toggle and the first FIFO write, unless RETRO_GLIDE_AA_LFB_READ=1;
   (e) the idle wait never resets the master of a multi-chip SLI/AA board (the
-      slaves snoop its init registers), and says which branch it took first.
+      slaves snoop its init registers), and says which branch it took first;
+      a close that finds such a board busy (cfg 5 included) skips the SLI/AA
+      disable escape and SAYS so - vcr-kmd's release turns SLI/AA off itself.
 
 The pure decisions are compiled and run by the native test; this file pins
 WHERE the Glide sources call them. Reads the fork clone under
@@ -233,11 +238,12 @@ def test_the_bytes_are_checked_just_before_the_escape_and_the_answer_is_honoured
     m = src("minihwc/minihwc.c")
     blk = m.split("HWCEXT_SLI_AA_REQUEST ;", 1)[1]
     blk = blk[:blk.index("OS is 9x")]
-    assert "if (!hwcSliAaReqOk(&ctxReq)) return FXFALSE;" in _ws(_blank(blk))
+    assert "if (!hwcSliAaReqOk(&ctxReq)) return hwcFailOpenAfterExclusive(bInfo);" in _ws(_blank(blk))
     tr, chk, ret, esc, ans, fail, store = _order(
-        blk, "hwcTraceSliAAReq(&ctxReq);", "if (!hwcSliAaReqOk(&ctxReq))", "return FXFALSE;",
+        blk, "hwcTraceSliAAReq(&ctxReq);", "if (!hwcSliAaReqOk(&ctxReq))",
+        "return hwcFailOpenAfterExclusive(bInfo);",
         "retVal = ExtEscape", "if ((FxI32) retVal <= 0 || ctxRes.resStatus != 1) {",
-        "return FXFALSE;", "HWC_IO_STORE(bInfo->regInfo, vidScreenSize")
+        "return hwcFailOpenAfterExclusive(bInfo);", "HWC_IO_STORE(bInfo->regInfo, vidScreenSize")
     # nothing reaches the hardware between the check and the escape
     assert "ExtEscape" not in blk[chk:esc] and "HWC_IO_" not in blk[chk:esc]
     # the refusal says why
@@ -319,3 +325,162 @@ def test_the_idle_wait_skips_the_master_reset_on_multi_chip_sliaa_and_traces_fir
     assert "hwcInitFifo: NOT idle - open fails" in m
     rv = _func(m, "hwcRestoreVideo(hwcBoardInfo *bInfo)")
     assert "goto hwcRestoreVideo_release;" in rv
+
+
+# ---- (c') a refusal after HWCSETEXCLUSIVE gives the display back (review 2026-09-27) -------
+
+
+def test_a_refusal_after_exclusive_mode_gives_the_display_back():
+    """By the SLI/AA escape hwcInitVideo has run setVideoMode, HWCSETEXCLUSIVE
+    and the master's video registers; grSstWinOpen returns 0 on its failure
+    WITHOUT hwcRestoreVideo. The first SLIAA-GUARD returned FXFALSE there, so
+    the kernel kept its exclusive owner (vcr-kmd: no 2D acceleration, no
+    hardware pointer, no D3D) and the CRT a mode nobody used, until the
+    process exited - and with vcr-kmd's Diag\\SliAA=0 default that is every
+    AA open. Every return after the request is built goes through
+    hwcFailOpenAfterExclusive, which releases through hwcReleaseDisplay."""
+    m = src("minihwc/minihwc.c")
+    iv = _func(m, "hwcInitVideo(hwcBoardInfo *bInfo, FxBool tiled")
+    b = _blank(iv)
+    excl = b.index("ctxReq.which = HWCEXT_HWCSETEXCLUSIVE;")
+    # the pre-check before the mode set needs no release: nothing is taken yet
+    assert b.index("if (!hwcSliAaOpenOk(bInfo))") < b.index("setVideoMode(") < excl
+    req = b.index("ctxReq.which = HWCEXT_SLI_AA_REQUEST ;")
+    # to the Win9x branch (its first declaration: code, not a comment or string)
+    end = b.index("DIOC_DATA DIOC_Data;", req)
+    returns = re.findall(r"return[^;]*;", b[req:end])
+    assert returns == ["return hwcFailOpenAfterExclusive(bInfo);"] * 2, returns
+    # the helper: the refusal kept for the app, the display released and reset
+    f = _func(m, "hwcFailOpenAfterExclusive(hwcBoardInfo *bInfo)")
+    fb = _blank(f)
+    _order(fb, "hwc_errncpy(why, errorString);", "hwcTrace(", "hwcReleaseDisplay(bInfo, FXTRUE)",
+           "hwc_errncpy(errorString, why);", "return FXFALSE;")
+    # ...and no SLI/AA disable: the kernel enabled nothing
+    assert "HWCEXT_SLI_AA_REQUEST" not in fb and "ExtEscape" not in fb
+    r = _func(m, "hwcReleaseDisplay(hwcBoardInfo *bInfo, FxBool resetAnyway)")
+    rb = _blank(r)
+    _order(rb, "ctxReq.which = HWCEXT_HWCRLSEXCLUSIVE;", "memset(&ctxRes, 0, sizeof(ctxRes));",
+           "ExtEscape(", "if (!released) {", "if (!resetAnyway)", "return FXFALSE;",
+           "hwcResetVideo(bInfo);", "return released;")
+    assert rb.count("ExtEscape(") == 1 and "SLI_AA" not in rb
+    # both are defined before hwcInitVideo (static, no prototype needed)
+    assert m.index("\nhwcReleaseDisplay(") < m.index("\nhwcFailOpenAfterExclusive(") < \
+        m.index("\nhwcInitVideo(hwcBoardInfo")
+
+
+def test_a_refused_open_holds_its_mode_for_the_pace_floor_before_giving_it_back():
+    """The release restores the desktop INSIDE grSstWinOpen, milliseconds after
+    setVideoMode - two re-syncs of .124's 1998 CRT back to back, invisible to
+    the tools' pace gate, which wraps the whole call. Before this fix the
+    refused mode stayed up until the process exited (paced by accident). The
+    helper now holds it until vcr_pace.h's floor has passed since the mode
+    set; the tick is taken when setVideoMode returns, before HWCSETEXCLUSIVE."""
+    m = src("minihwc/minihwc.c")
+    hold = int(re.search(r"#define HWC_REFUSAL_HOLD_MS (\d+)UL", m).group(1))
+    pace = (Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd" / "tools" /
+            "vcr_pace.h").read_text()
+    assert hold == int(re.search(r"#define VCR_PACE_MIN_MS\s+(\d+)u", pace).group(1))
+    f = _blank(_func(m, "hwcFailOpenAfterExclusive(hwcBoardInfo *bInfo)"))
+    _order(f, "GetTickCount() - hwcModeSetTick", "if (held < HWC_REFUSAL_HOLD_MS) {",
+           "Sleep(HWC_REFUSAL_HOLD_MS - held);", "hwcReleaseDisplay(bInfo, FXTRUE)")
+    iv = _blank(_func(m, "hwcInitVideo(hwcBoardInfo *bInfo, FxBool tiled"))
+    _order(iv, "setVideoMode( bInfo, refresh )", "hwcModeSetTick = GetTickCount();",
+           "ctxReq.which = HWCEXT_HWCSETEXCLUSIVE;", "hwcFailOpenAfterExclusive(bInfo)")
+    assert iv.count("hwcModeSetTick = GetTickCount();") == 1
+
+
+def test_the_close_releases_through_the_same_helper_with_upstreams_semantics():
+    """hwcRestoreVideo's release label is the shared helper; a release the
+    kernel does not confirm still fails the close with DirectDraw's mode left
+    alone (resetAnyway FALSE), as upstream's inline copy did."""
+    m = src("minihwc/minihwc.c")
+    rv = _func(m, "hwcRestoreVideo(hwcBoardInfo *bInfo)")
+    b = _blank(rv)
+    lbl = b.index("hwcRestoreVideo_release:")
+    assert "if (!hwcReleaseDisplay(bInfo, FXFALSE)) return FXFALSE;" in _ws(b[lbl:])
+    assert "HWCEXT_HWCRLSEXCLUSIVE" not in b          # one copy, in the helper
+    assert b[lbl:].count("hwcResetVideo(bInfo);") == 1   # the non-HWC_EXT_INIT branch only
+    assert m.count("ctxReq.which = HWCEXT_HWCRLSEXCLUSIVE;") == 1
+
+
+def test_the_old_early_return_is_what_the_placement_check_rejects():
+    """The check above can fail: the first SLIAA-GUARD's `return FXFALSE;`
+    after the kernel's refusal is caught."""
+    m = src("minihwc/minihwc.c")
+    old = m.replace("        return hwcFailOpenAfterExclusive(bInfo);\n      }\n\n      /* the w2k",
+                    "        return FXFALSE;\n      }\n\n      /* the w2k", 1)
+    assert old != m
+    iv = _blank(_func(old, "hwcInitVideo(hwcBoardInfo *bInfo, FxBool tiled"))
+    req = iv.index("ctxReq.which = HWCEXT_SLI_AA_REQUEST ;")
+    returns = re.findall(r"return[^;]*;", iv[req:iv.index("DIOC_DATA DIOC_Data;", req)])
+    assert returns != ["return hwcFailOpenAfterExclusive(bInfo);"] * 2
+    assert "return FXFALSE;" in returns
+
+
+# ---- (e') a busy close skips the SLI/AA disable - and says so ---------------------------
+
+
+def test_a_busy_multi_chip_close_skips_the_disable_escape_and_says_so():
+    """Since 631221b the idle wait no longer resets the master of a busy
+    multi-chip SLI/AA board, so a close on a board still busy past the bound -
+    cfg 5 (4-way SLI) and 2-chip SLI included - goes straight to the release,
+    past the SLI/AA disable escape (215a9e7's reset + re-check could still reach
+    it). Pinned here, with the trace and RETRO_GLIDE_MAPLOG lines that make it
+    visible."""
+    m = src("minihwc/minihwc.c")
+    rv = _func(m, "hwcRestoreVideo(hwcBoardInfo *bInfo)")
+    b = _blank(rv)
+    idle, need, log, go, dis = _order(
+        b, "if (!hwcIdleHardwareWithTimeout(bInfo)) {", "h5SliAaRequestNeeded(", "hwcLogLine(",
+        "goto hwcRestoreVideo_release;", "ctxReq.which = HWCEXT_SLI_AA_REQUEST ;")
+    blk = rv[idle:go]
+    assert "SLI/AA disable escape NOT sent" in blk and "hwcTrace(" in blk
+    assert "IS_NAPALM(bInfo->pciInfo.deviceID)" in blk
+    # the busy branch sends nothing itself
+    assert "ExtEscape" not in b[idle:go] and "HWC_IO_" not in b[idle:go]
+    # cfg 5 on the V5 6000 (4 chips, 4-way SLI, 1 sample): no master reset and
+    # an SLI/AA request that the close would have disabled
+    h = src("minihwc/h5sliaa.h")
+    if HCC is None:
+        pytest.skip("no host C compiler - the cfg 5 predicates NOT run")
+    import tempfile
+    code = h + """
+#include <stdio.h>
+int main(void) {
+  printf("%d %d %d %d\\n", h5SliAaIdleResetOk(4, 4, 1), h5SliAaRequestNeeded(4, 4, 1, 0),
+         h5SliAaIdleResetOk(2, 2, 1), h5SliAaIdleResetOk(1, 1, 2));
+  return 0; }
+"""
+    with tempfile.TemporaryDirectory() as d:
+        (Path(d) / "p.c").write_text(code)
+        r = subprocess.run([HCC, "-std=c99", "-Wall", "-o", str(Path(d) / "p"), str(Path(d) / "p.c")],
+                           capture_output=True, text=True)
+        assert r.returncode == 0, r.stderr
+        out = subprocess.run([str(Path(d) / "p")], capture_output=True, text=True).stdout.split()
+    # cfg 5: reset skipped, request needed -> the busy close logs "NOT sent";
+    # 2-chip SLI likewise; a single chip keeps upstream's reset
+    assert out == ["0", "1", "0", "1"]
+
+
+def test_vcr_kmd_turns_sli_off_when_glide_releases_exclusive_mode():
+    """What the busy close relies on: vcr-kmd's HWCRLSEXCLUSIVE restores the
+    desktop mode (IOCTL_VCR_RESTORE_MODE -> VcrHwRestoreMode -> VcrHwSetMode),
+    and the mode set turns SLI/AA off in the kernel BEFORE it programs the
+    mode, with no Glide MMIO. If this chain breaks, a busy cfg-5 close leaves
+    snoop / swap sync / the video mux programmed after the app exits."""
+    kmd = Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd"
+    esc = (kmd / "display" / "vcrdd_escape.c").read_text()
+    rls = esc[esc.index("case VCR_HWC_HWCRLSEXCLUSIVE:"):]
+    rls = rls[:rls.index("break;")]
+    assert "IOCTL_VCR_RESTORE_MODE" in rls and "pd->exclusive_pid = 0;" in rls
+    mp = (kmd / "miniport" / "vcrmp.c").read_text()
+    io = mp[mp.index("case IOCTL_VCR_RESTORE_MODE:"):]
+    assert "VcrHwRestoreMode(x)" in io[:io.index("break;")]
+    hw = (kmd / "miniport" / "vcrmp_hw.c").read_text()
+    rm = hw[hw.index("VP_STATUS VcrHwRestoreMode(VCR_EXT *x)"):]
+    assert "return VcrHwSetMode(x, (ULONG)x->cur_mode);" in rm[:rm.index("\n}\n")]
+    sm = hw[hw.index("VP_STATUS VcrHwSetMode(VCR_EXT *x, ULONG idx)"):]
+    sm = sm[:sm.index("\n}\n")]
+    assert 'VcrSliOff(x, "mode set");' in sm
+    assert sm.index('VcrSliOff(x, "mode set");') < sm.index("VCR_EV_MODESET_PLL")
+

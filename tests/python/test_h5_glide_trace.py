@@ -13,6 +13,14 @@ that never completed. These tests pin what makes that trace trustworthy:
   waits after each FIFO step of the open until the chips have run it),
   writes where FX_GLIDE_TRACE_FILE says, and SAYS when it cannot open the
   file instead of vanishing;
+- it changes nothing it observes that it does not have to (review,
+  2026-09-27): level 1 adds FILE WRITES ONLY - the PCI config dumps are
+  their own opt-in (FX_GLIDE_TRACE_CFG=1); level 2's syncs happen only inside
+  grSstWinOpen, once per per-chip loop with the chip mask restored, and stop
+  after the first that ends busy; FX_GLIDE_NO_PLUGIN=1 keeps the splash
+  plugin (whose init draws inside the open) from loading at all;
+- the DLL says what it carries: RETRO3DFX_SLIAA_GUARD / RETRO3DFX_AA_TRACE
+  in GR_EXTENSION, which glidelab and glidelab_run check before an AA open;
 - the tree compiles (the first version of these edits did not: two extra
   ')' in glfb.c) - an i686 -fsyntax-only compile of the three edited files;
 - every hardware step on the open path between the SLI/AA escape and the
@@ -183,7 +191,9 @@ def test_the_sli_aa_request_dump_is_one_helper_call_before_the_escape():
 OPEN_SYNCS = ("winopen: fifo leftOverlayBuf", "winopen: fifo swapbufferCMD", "winopen: fifo chipMask",
               "winopen: fifo colBufferAddr/auxBufferAddr (primary)",
               "winopen: fifo colBufferAddr/auxBufferAddr (SECONDARY)", "winopen: fifo renderMode",
-              "winopen: assertDefaultState", "aaCtrl: fifo write", "sliCtrl: fifo write",
+              "winopen: assertDefaultState",
+              "aaCtrl: fifo writes, every chip (chip mask restored)",
+              "sliCtrl: fifo writes, every chip (chip mask restored)",
               "clearBuffers: clear 1", "clearBuffers: swap 1", "clearBuffers: clear 2",
               "clearBuffers: swap 2", "clearBuffers: clear 3", "clearBuffers: swap 3",
               "clearBuffers: grRenderBuffer BACK", "splash: grSplash")
@@ -193,8 +203,8 @@ def test_level_2_waits_for_each_fifo_step_of_the_open_and_nothing_below_it():
     g = src("glide3/src/gsst.c")
     sync = _func(g, "\n_grTraceSync(const char *step)")
     # level 0/1: returns before touching anything
-    assert re.match(r"\{\s*char line\[160\];\s*FxU32 status;\s*if \(hwcTraceLevel\(\) < 2\)\s*return;",
-                    sync)
+    assert re.match(r"\{\s*char line\[160\];\s*FxU32 status;\s*if \(hwcTraceLevel\(\) < 2\)\s*return;"
+                    r"\s*if \(!trSyncInOpen \|\| trSyncGaveUp\)\s*return;", sync)
     # the wait is grFinish (bounded: 4M polls) and its outcome is written
     assert sync.index('"sync: grFinish after %.120s"') < sync.index("grFinish();") < \
         sync.index("_grSstStatus()") < sync.index('"executed: %.120s"')
@@ -207,14 +217,24 @@ def test_each_fifo_step_of_the_open_is_synced_right_after_it_is_queued():
     g = _blank(src("glide3/src/gsst.c"))
     raw = src("glide3/src/gsst.c")
     for write, step in (("REG_GROUP_SET(hw, swapbufferCMD, 0x0);", "winopen: fifo swapbufferCMD"),
-                        ("_grRenderMode(pixelformat);", "winopen: fifo renderMode"),
-                        ("REG_GROUP_SET(hw, aaCtrl, aaCtrl);", "aaCtrl: fifo write"),
-                        ("REG_GROUP_SET(hw, sliCtrl, sliCtrl);", "sliCtrl: fifo write")):
+                        ("_grRenderMode(pixelformat);", "winopen: fifo renderMode")):
         at = raw.index(write)
         nxt = raw.index(f'_grTraceSync("{step}")', at)
         between = g[at:nxt]
         # nothing but the group's end between the queued command and its sync
         assert re.fullmatch(r"[^;]*;\s*(REG_GROUP_END\(\);\s*)?", between), (step, between)
+    # a per-chip loop is synced ONCE, after it: nothing between the last
+    # queued write and the sync but the loop's end and the chip mask restore
+    # (fork, review 2026-09-27: never poll with one chip selected)
+    for write, step in (("REG_GROUP_SET(hw, aaCtrl, aaCtrl);",
+                         "aaCtrl: fifo writes, every chip (chip mask restored)"),
+                        ("REG_GROUP_SET(hw, sliCtrl, sliCtrl);",
+                         "sliCtrl: fifo writes, every chip (chip mask restored)")):
+        at = raw.index(write)
+        nxt = raw.index(f'_grTraceSync("{step}")', at)
+        between = g[at:nxt]
+        assert re.fullmatch(r"[^;]*;\s*REG_GROUP_END\(\);\s*\}\s*_grChipMask\( gc->chipmask \);\s*",
+                            between), (step, between)
 
 
 # ---- (d) the coverage gaps the post-mortem named -----------------------------------
@@ -225,6 +245,7 @@ def test_the_open_close_and_read_paths_name_every_black_box():
     need_g = ("winopen: hwcShareContextData (escape)", "winopen: hwcGammaRGB (master DAC)",
               "winopen: fifo swapbufferCMD 0 (immediate swap)",
               "splash: LoadLibrary 3dfxspl3.dll", "splash: plugin present",
+              "splash: plugin load SKIPPED (FX_GLIDE_NO_PLUGIN=1)",
               "splash: plugin init (draws through Glide)", "splash: grSplash (reg=noSplash)",
               "_grAAOffsetValue: aaCtrl for chips", "chipMask: fifo write (reg=old val=new)",
               "winopen: re-open - hwcInitRegisters (pciInit0)")
@@ -236,7 +257,10 @@ def test_the_open_close_and_read_paths_name_every_black_box():
               "hwcInitVideo: HWCSETEXCLUSIVE escape", "video regs: master programmed",
               "close: SLI_AA_REQUEST disable - ExtEscape (reg=chips)",
               "close: SLI_AA_REQUEST disable returned retVal / resStatus",
-              "close: HWCRLSEXCLUSIVE escape", "close: NOT idle - register restore skipped",
+              "release: HWCRLSEXCLUSIVE escape", "close: release exclusive + reset video",
+              "close: NOT idle - register restore skipped",
+              "close: NOT idle - SLI/AA disable escape NOT sent",
+              "hwcInitVideo: open REFUSED after the mode set - giving the display back",
               "sli read enable: FX_GLIDE_A0_READ_ABORT set / nwaySli",
               "sli read disable: FX_GLIDE_A0_READ_ABORT set / nwaySli")
     for s in need_g:
@@ -409,9 +433,192 @@ def test_the_mmx_read_loop_does_not_call_the_trace_with_live_mmx_state(tmp_path)
 
 def test_the_dri_build_gets_no_op_trace_stubs():
     lin = src("minihwc/linhwc.c")
-    for sig in ("int hwcTraceLevel(void)", "FxBool hwcTraceOn(void)",
+    for sig in ("int hwcTraceLevel(void)", "FxBool hwcTraceOn(void)", "FxBool hwcTraceCfgOn(void)",
                 "void hwcTrace(const char *step, FxU32 reg, FxU32 val)",
                 "void hwcTraceCfg(hwcBoardInfo *bInfo, const char *why)"):
         assert sig in lin, sig
     assert "return 0;" in _func(lin, "int hwcTraceLevel(void)")
     assert "return FXFALSE;" in _func(lin, "FxBool hwcTraceOn(void)")
+    assert "return FXFALSE;" in _func(lin, "FxBool hwcTraceCfgOn(void)")
+    assert "extern FxBool hwcTraceCfgOn(void);" in src("minihwc/minihwc.h")
+
+
+# ---- what the trace itself adds (review 2026-09-27) ----------------------------------------
+
+HCC = shutil.which("gcc") or shutil.which("cc")
+
+
+def _run_c(tmp_path, name, code, env=None):
+    """code compiled with the host compiler and run; its stdout."""
+    if HCC is None:
+        pytest.skip("no host C compiler - the extracted Glide code was NOT run")
+    c = tmp_path / f"{name}.c"
+    c.write_text(code)
+    exe = tmp_path / name
+    r = subprocess.run([HCC, "-std=c99", "-Wall", "-Werror", "-o", str(exe), str(c)],
+                       capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr + code
+    import os
+    e = {k: v for k, v in os.environ.items() if not k.startswith("FX_GLIDE_TRACE")}
+    e.update(env or {})
+    return subprocess.run([str(exe)], capture_output=True, text=True, env=e).stdout
+
+
+SYNC_GATE = "if (!trSyncInOpen || trSyncGaveUp)\n    return;"
+
+
+def _sync_unit(gsst):
+    """gsst.c's level-2 sync (its flags and _grTraceSync), with stubs."""
+    start = gsst.index("static int trSyncInOpen;")
+    end = gsst.index("\n}\n", gsst.index("_grTraceSync(const char *step)")) + 3
+    return (
+        "#include <stdio.h>\n#include <string.h>\n"
+        "typedef unsigned int FxU32;\n#define SST_BUSY (1u << 9)\n"
+        "static int level, finishes, lines; static FxU32 status_val; static char last[200];\n"
+        "static int hwcTraceLevel(void) { return level; }\n"
+        "static void hwcTrace(const char *s, FxU32 r, FxU32 v)\n"
+        "{ (void) r; (void) v; lines++; snprintf(last, sizeof last, \"%s\", s); }\n"
+        "static void grFinish(void) { finishes++; }\n"
+        "static FxU32 _grSstStatus(void) { return status_val; }\n"
+        + gsst[start:end] + "\n"
+        "static int run(int lv, int inOpen, FxU32 st, int calls)\n"
+        "{ int i; level = lv; trSyncInOpen = inOpen; trSyncGaveUp = 0; status_val = st;\n"
+        "  finishes = 0; for (i = 0; i < calls; i++) _grTraceSync(\"step\"); return finishes; }\n"
+        "int main(void) {\n"
+        "  printf(\"open_idle=%d\\n\", run(2, 1, 0, 3));\n"
+        "  printf(\"outside_open=%d\\n\", run(2, 0, 0, 3));\n"
+        "  printf(\"level1=%d\\n\", run(1, 1, 0, 3));\n"
+        "  printf(\"busy=%d\\n\", run(2, 1, SST_BUSY, 3));\n"
+        "  printf(\"busy_last=%s\\n\", last);\n"
+        "  return 0; }\n")
+
+
+def test_level_2_syncs_only_inside_the_open_and_stops_after_a_busy_one(tmp_path):
+    """The review found level 2 syncing inside _grAAOffsetValue/_grEnableSliCtrl
+    - reached from grEnable/grDisable(AA), texture-buffer switches, every SLI
+    READ lock/unlock and the close - and syncing on after grFinish gave up on a
+    busy board (4M polls x chips each time). The extracted _grTraceSync is run:
+    fixed, and with the new gate removed (the old function)."""
+    g = src("glide3/src/gsst.c")
+    unit = _sync_unit(g)
+    got = dict(ln.split("=", 1) for ln in _run_c(tmp_path, "sync_new", unit).splitlines())
+    assert got["open_idle"] == "3"                   # every step of the open synced
+    assert got["outside_open"] == "0"                # never outside it
+    assert got["level1"] == "0"                      # level 1: no sync at all
+    assert got["busy"] == "1"                        # one grFinish, then no more
+    assert "NO further syncs" in got["busy_last"]
+    old = unit.replace(SYNC_GATE, "")
+    old = re.sub(r"\n  if \(status & SST_BUSY\) \{.*?\n  \}\n", "\n", old, flags=re.S)
+    assert old != unit and "trSyncGaveUp = 1" not in old
+    was = dict(ln.split("=", 1) for ln in _run_c(tmp_path, "sync_old", old).splitlines())
+    assert was["outside_open"] == "3" and was["busy"] == "3"   # the old behaviour
+
+
+def test_the_sync_window_is_the_open_and_nothing_else():
+    g = src("glide3/src/gsst.c")
+    b = _blank(g)
+    op = g[g.index("GR_EXT_ENTRY(grSstWinOpenExt"):g.index("} /* grSstWinOpenExt */")]
+    ob = _blank(op)
+    # opened before the first thing the open does to the board, closed right
+    # before "winopen: done"
+    on = ob.index("trSyncInOpen = 1;")
+    assert on < ob.index("hwcInitVideo(") and on < ob.index("_grTraceSync(")
+    assert re.search(r"doSplash\(\);\s*trSyncInOpen = 0;\s*hwcTrace\(\"winopen: done\"", op)
+    assert ob.count("trSyncInOpen = 1;") == 1
+    # a close never syncs, also after an open that failed half-way
+    cl = _func(g, "GR_ENTRY(grSstWinClose, FxBool, (GrContext_t context))")
+    assert _blank(cl).index("trSyncInOpen = 0;") < _blank(cl).index("if (!gc)")
+    # the per-chip helpers are reached from outside the open - that is why
+    # the window exists
+    d = src("glide3/src/distate.c") + src("glide3/src/glfb.c")
+    assert "_grAAOffsetValue(" in d and "_grEnableSliCtrl()" in d
+    # no sync inside either per-chip loop
+    for fn in ("\n_grAAOffsetValue(FxU32 *xOffset", "\n_grEnableSliCtrl(void)"):
+        body = _blank(_func(g, fn))
+        loop = body[body.index("for (chipIndex"):body.index("_grChipMask( gc->chipmask );")]
+        assert "_grTraceSync(" not in loop, fn
+    assert b.count("trSyncGaveUp = 1;") == 1
+
+
+def _trace_env_unit(c):
+    """minihwc.c's trace switches (level, on, cfg), compiled with stubs."""
+    def fn(ret, sig):
+        return f"{ret} {sig}\n" + _func(c, "\n" + sig)
+    return ("#include <stdio.h>\n#include <stdlib.h>\n"
+            "typedef int FxBool;\n#define FXTRUE 1\n#define FXFALSE 0\n"
+            "static int   hwcTraceState = -1;\n"
+            + fn("int", "hwcTraceLevel(void)") + "\n" + fn("FxBool", "hwcTraceOn(void)") + "\n"
+            "static int hwcTraceCfgState = -1;\n" + fn("FxBool", "hwcTraceCfgOn(void)") + "\n"
+            "int main(void) { printf(\"on=%d cfg=%d\\n\", hwcTraceOn(), hwcTraceCfgOn()); return 0; }\n")
+
+
+@pytest.mark.parametrize("env,on,cfg", [
+    ({"FX_GLIDE_TRACE": "1"}, 1, 0),                          # level 1: file writes only
+    ({"FX_GLIDE_TRACE": "2"}, 1, 0),                          # level 2 does not imply it
+    ({"FX_GLIDE_TRACE": "1", "FX_GLIDE_TRACE_CFG": "1"}, 1, 1),
+    ({"FX_GLIDE_TRACE_CFG": "1"}, 0, 0),                      # never without a trace
+    ({"FX_GLIDE_TRACE": "1", "FX_GLIDE_TRACE_CFG": "0"}, 1, 0),
+], ids=("level1", "level2", "asked", "cfg-alone", "cfg-0"))
+def test_the_config_dumps_are_their_own_opt_in(tmp_path, env, on, cfg):
+    c = src("minihwc/minihwc.c")
+    out = _run_c(tmp_path, "tcfg", _trace_env_unit(c), env)
+    assert out.strip() == f"on={on} cfg={cfg}"
+    assert 'getenv("FX_GLIDE_TRACE_CFG")' in _func(c, "\nhwcTraceCfgOn(void)")
+
+
+def test_a_config_dump_reads_nothing_unless_asked_and_only_on_napalm():
+    """hwcTraceCfg issues 9 PCI_OP reads per chip (36 on the V5 6000) right
+    after the SLI/AA escape and inside every READ lock. It used to run at
+    level 1; now it returns before the first read unless FX_GLIDE_TRACE_CFG=1,
+    and the LFB-lock call only on a Napalm (this DLL also drives Banshee /
+    Voodoo3, which have no config offsets 0x80-0xAC)."""
+    c = src("minihwc/minihwc.c")
+    t = _blank(_func(c, "\nhwcTraceCfg(hwcBoardInfo *bInfo, const char *why)"))
+    gate = t.index("if (!hwcTraceCfgOn()) {")
+    assert gate < t.index("hwcReadConfigRegister(")
+    assert "return;" in t[gate:t.index("hwcReadConfigRegister(")]
+    # the old gate alone (hwcTraceOn) let a level-1 trace read
+    assert t.index("if (!hwcTraceOn() || !bInfo)") < gate
+    g = src("glide3/src/glfb.c")
+    at = g.index('hwcTraceCfg(gc->bInfo, "lfb read lock");')
+    assert re.search(r"if \(IS_NAPALM\(gc->bInfo->pciInfo\.deviceID\)\)\s*$", g[:at])
+
+
+def test_the_splash_plugin_can_be_kept_from_loading():
+    """FX_GLIDE_NO_SPLASH gates grSplash() only - the third-party plugin's init
+    (which draws through Glide) still ran inside grSstWinOpen. FX_GLIDE_NO_PLUGIN=1
+    (process environment, exactly "1") skips the LoadLibrary, which upstream
+    already handles as "no plugin"."""
+    g = src("glide3/src/gsst.c")
+    ds = _func(g, "\ndoSplash( void )")
+    b = _blank(ds)
+    skip = b.index("_grNoPlugin()")
+    load = b.index("LoadLibrary(")
+    assert skip < load
+    assert re.search(r"if \(gc->pluginInfo\.moduleHandle == NULL && _grNoPlugin\(\)\)\s*hwcTrace\(",
+                     ds)
+    assert re.search(r"else if \(gc->pluginInfo\.moduleHandle == NULL\) gc->pluginInfo\.moduleHandle = "
+                     r"LoadLibrary", ds)
+    # noSplash still gates only grSplash
+    assert re.search(r"if \(_GlideRoot\.environment\.noSplash == 0\) \{\s*grSplash\(", ds)
+    np = _func(g, "_grNoPlugin(void)")
+    assert 'getenv("FX_GLIDE_NO_PLUGIN")' in np and 'strcmp(e, "1") == 0' in np
+    assert "GETENV(" not in np
+
+
+def test_the_extension_string_says_what_this_glide_carries():
+    """glidelab and glidelab_run refuse an AA open on a Glide without the
+    SLI/AA guards; they recognise it by these GR_EXTENSION tokens, space-
+    delimited like every other (the ICD strstr()s " TOKEN ")."""
+    d = src("glide3/src/diget.c")
+    m = re.search(r'#define NAPALM_EXT_STR\s+"([^"]*)"', d)
+    toks = m.group(1)
+    assert toks.endswith(" ") and not toks.startswith(" ")
+    words = toks.split()
+    for w in ("PIXEXT", "COMBINE", "TEXFMT", "RETRO3DFX_PARTIALROW",
+              "RETRO3DFX_SLIAA_GUARD", "RETRO3DFX_AA_TRACE"):
+        assert w in words, w
+    # the Napalm list is " " BASE NAPALM ...: every token has a space both sides
+    assert 'rv = " " BASE_EXT_STR NAPALM_EXT_STR' in d
+    assert re.search(r'#define BASE_EXT_STR\s+"[^"]* "', d)
+

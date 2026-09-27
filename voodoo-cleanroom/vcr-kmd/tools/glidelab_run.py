@@ -61,13 +61,38 @@ the result's "trace_file" (the last line: the step a wedge froze on); its
 "trace" is glidelab's own, the level. A traced run is a diagnosis, not a
 benchmark.
 
+`--trace-cfg` (with --trace) adds the fork's PCI config-space dumps
+(FX_GLIDE_TRACE_CFG=1: 9 PCI_OP escapes per chip after the SLI/AA escape and
+at every READ lock); without it a level-1 trace adds file writes only. An AA
+open is traced with neither the splash nor the splash PLUGIN (glidelab sets
+FX_GLIDE_NO_SPLASH=1 and FX_GLIDE_NO_PLUGIN=1; the trace's
+"splash: plugin present reg=0" line confirms it).
+
 A deep wedge takes the box with it, so nothing can be downloaded until it is
 power-cycled: then `--collect` DOWNLOADs the mode's step log, its trace and
-the fork's default trace file, saves them and prints what they end with -
-and does nothing else: no gate, no upload, no registry, no launch, no switch.
+the fork's default trace file, saves them and prints what they end with, and
+READS every registry place a Glide takes SSTH3_SLI_AA_CONFIGURATION from - a
+banner when one holds an AA value, because the next Glide app to start opens
+it: the value that froze the box is still armed after the power cycle. That
+is all it does: no gate, no upload, no launch, no switch, and no registry
+write unless `--restore-cfg N` (0, 2 or 5) is given, which writes N where an
+AA value was found and reads it back.
+
+THE GLIDE ON THE BOX IS CHECKED (2026-09-27). The fork commits that add the
+SLI/AA guards were local-only, and build-stack.sh clones origin, so a DLL
+built anywhere else carries none of them - and one without them froze .124 on
+cfg 1. Every run DOWNLOADs `--glide`, prints its md5 and whether it carries
+RETRO3DFX_SLIAA_GUARD / RETRO3DFX_AA_TRACE in the plan line, and an AA --cfg
+is refused before anything is written or launched when the guard is absent
+(glidelab.exe checks GR_EXTENSION itself as well, for an AA value it reads
+from the registry). An AA --cfg written to the registry is put back after the
+session - the value that was there if it was not AA, else --restore-cfg
+(default 5) - and read back; a box that cannot be reached for that gets a
+banner naming the command to run after the power cycle.
 """
 import argparse
 import asyncio
+import hashlib
 import json
 import sys
 import time
@@ -105,6 +130,118 @@ TRACE_LEVELS = (0, 1, 2)
 TRACE_HEADER = "=== glidetrace"
 # where the fork writes when FX_GLIDE_TRACE_FILE is not given (HWC_TRACE_PATH)
 DEFAULT_TRACE = rf"{DIR}\glidetrace.log"
+# SSTH3_SLI_AA_CONFIGURATION values that turn anti-aliasing on - glidelab.c's
+# aa_config(), i.e. Glide's own table (h5SliAaConfigEnv)
+AA_CFGS = frozenset({1, 3, 4, 6, 7, 8})
+# what --restore-cfg may write: the configurations without AA
+SAFE_CFGS = (0, 2, 5)
+# GR_EXTENSION tokens of our fork (glide3/src/diget.c NAPALM_EXT_STR), found as
+# bytes in the DLL: a Glide without the guard froze .124 on cfg 1
+GUARD_MARKER = b"RETRO3DFX_SLIAA_GUARD"
+TRACE_MARKER = b"RETRO3DFX_AA_TRACE"
+AA_VALUE = "SSTH3_SLI_AA_CONFIGURATION"
+# where our Glide reads settings on XP (fork minihwc.c getRegPath: 3dfxvs when
+# Services\3dfxvs\Device0 exists, else banshee), HKCU before HKLM - besides the
+# display-class key v56k_bench.apply_aa_config (and --cfg) writes
+GLIDE_SERVICE_KEYS = (r"SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide",
+                      r"SYSTEM\CurrentControlSet\Services\banshee\Device0\glide")
+
+
+def is_aa(value):
+    """True when a registry string is an AA configuration."""
+    try:
+        return int(str(value).strip()) in AA_CFGS
+    except (TypeError, ValueError):
+        return False
+
+
+async def glide_identity(box, path):
+    """The Glide DLL on the box: size, md5 and whether it carries the SLI/AA
+    guard and the trace (their GR_EXTENSION tokens, found in its bytes).
+    DOWNLOAD only. "error" when it could not be read."""
+    data, why = await fetch(box, path)
+    if data is None:
+        return {"path": path, "error": why or "absent", "guard": False, "trace": False}
+    return {"path": path, "bytes": len(data), "md5": hashlib.md5(data).hexdigest(),
+            "guard": GUARD_MARKER in data, "trace": TRACE_MARKER in data}
+
+
+def describe_glide(g):
+    if g.get("error"):
+        return f"glide {g['path']}: NOT READ ({g['error']})"
+    return (f"glide {g['path']} md5 {g['md5']} ({g['bytes']} B): "
+            f"SLIAA-GUARD {'yes' if g['guard'] else 'NO'}, AA-TRACE {'yes' if g['trace'] else 'no'}")
+
+
+async def read_aa_value(box, root, key):
+    """(value | None, error | None): SSTH3_SLI_AA_CONFIGURATION under root\\key.
+    A key the agent cannot open is absent (None, None); a box that does not
+    answer is an error."""
+    try:
+        out = await box.text(f"REGREAD {root} {key}")
+    except vb.RetroProtocolError:
+        return None, None
+    except Exception as e:       # a dead box, a dropped connection
+        return None, f"not read: {type(e).__name__}: {e}"
+    try:
+        values = json.loads(out).get("values", [])
+    except (json.JSONDecodeError, AttributeError):
+        return None, f"unreadable REGREAD answer: {out[:80]!r}"
+    for v in values:
+        if str(v.get("name", "")).upper() == AA_VALUE:
+            return str(v.get("data", "")).strip(), None
+    return None, None
+
+
+async def aa_registry(box):
+    """Every place a Glide on the box takes SSTH3_SLI_AA_CONFIGURATION from:
+    the display-class key glidelab_run --cfg / v56k_bench write, and our
+    Glide's own keys. -> [{root, key, value, aa[, error]}]"""
+    keys = []
+    try:
+        inst, _ = await vb.find_display_instance(box)
+        keys.append(("HKLM", vb.GLIDE_KEY_TMPL.format(inst=inst)))
+    except Exception as e:
+        rows = [{"root": "HKLM", "key": "(display class)", "value": None, "aa": False,
+                 "error": f"HWPROFILE: {type(e).__name__}: {e}"}]
+    else:
+        rows = []
+    for k in GLIDE_SERVICE_KEYS:
+        keys += [("HKCU", k), ("HKLM", k)]
+    for root, key in keys:
+        value, err = await read_aa_value(box, root, key)
+        row = {"root": root, "key": key, "value": value, "aa": is_aa(value)}
+        if err:
+            row["error"] = err
+        rows.append(row)
+    return rows
+
+
+async def write_aa_value(box, root, key, cfg):
+    """Write cfg and read it back (never trust the OK). -> {..., ok}"""
+    rep = {"root": root, "key": key, "wrote": str(cfg)}
+    try:
+        await box.text(f"REGWRITE {root} {key} {AA_VALUE} REG_SZ {cfg}")
+    except Exception as e:
+        rep.update(ok=False, error=f"REGWRITE: {type(e).__name__}: {e}")
+        return rep
+    got, err = await read_aa_value(box, root, key)
+    rep.update(readback=got, ok=(got == str(cfg)))
+    if err:
+        rep["error"] = err
+    return rep
+
+
+def restore_value(before, fallback):
+    """What to put back after an AA --cfg run: the value that was there when
+    it was not AA, else the fallback (a configuration without AA)."""
+    if before is not None and str(before).strip() and not is_aa(before):
+        try:
+            int(str(before).strip())
+            return str(before).strip()
+        except ValueError:
+            pass
+    return str(fallback)
 
 
 def trace_path(log):
@@ -201,7 +338,9 @@ async def run_mode(box, a, mode):
     trace = trace_path(log) if level else None
     if trace:
         args += ["--trace", str(level)]
-    cmd = (rf'cmd /c start "glidelab" /wait "{DIR}\glidelab.exe" ' + " ".join(args))
+        if getattr(a, "trace_cfg", False):
+            args.append("--trace-cfg")
+    cmd =(rf'cmd /c start "glidelab" /wait "{DIR}\glidelab.exe" ' + " ".join(args))
     budget = session_budget(mode, a.cycles, a.timeout)
     await box.exec_(rf'cmd /c del /f /q "{log}"')
     if trace:
@@ -284,8 +423,11 @@ async def collect_trace(box, a, mode, trace, log_data):
 async def collect(box, a):
     """--collect: after a wedge and a power cycle, DOWNLOAD what the last
     session left on the box - the mode's step log, its trace and the fork's
-    default trace file - save them and print what they end with. Nothing is
-    uploaded, written, launched or switched, so no gate is needed."""
+    default trace file - save them and print what they end with, and READ the
+    SLI/AA configuration every Glide key holds (a banner when one is AA: the
+    next Glide app opens it). Nothing is uploaded, launched or switched, so no
+    gate is needed; the registry is written only with --restore-cfg N, and
+    only where an AA value was found."""
     log = rf"{DIR}\{a.mode}.log"
     out = {"mode": a.mode, "host": a.host, "collect": True}
     for key, remote in (("log", log), ("trace", trace_path(log)),
@@ -305,11 +447,54 @@ async def collect(box, a):
         info["saved"] = save(a, a.mode, "log" if key == "log" else key.replace("default_", "default."),
                              data)
         out[key] = info
+    # the configuration the box will open next: a wedge's AA value survives
+    # the power cycle in the registry (v56k_bench.apply_aa_config: REGWRITE)
+    out["registry"] = rows = await aa_registry(box)
+    armed = [r for r in rows if r["aa"]]
+    restore = getattr(a, "restore_cfg", None)
+    if armed and restore is not None:
+        out["restored"] = [await write_aa_value(box, r["root"], r["key"], restore) for r in armed]
     print(json.dumps(out), flush=True)
+    rc = 0
     if "error" in out["log"]:
         ms.banner("NOTHING COLLECTED", f"{log}: {out['log']['error']}")
-        return 1
-    return 0
+        rc = 1
+    if armed:
+        where = "; ".join(f"{r['root']}\\{r['key']} = {r['value']}" for r in armed)
+        if restore is None:
+            ms.banner("AA CONFIGURATION ARMED",
+                      f"{where} - the next Glide application opens it. Before any Glide app "
+                      f"runs: glidelab_run.py {a.host} {a.mode} --collect --restore-cfg 5")
+            rc = 1
+        elif not all(r.get("ok") for r in out["restored"]):
+            ms.banner("AA CONFIGURATION STILL ARMED",
+                      f"{where}: --restore-cfg {restore} did not read back - "
+                      + json.dumps(out["restored"]))
+            rc = 1
+    unread = [r for r in rows if r.get("error")]
+    if unread:
+        ms.banner("REGISTRY NOT READ", "; ".join(f"{r['root']}\\{r['key']}: {r['error']}"
+                                                for r in unread))
+        rc = 1
+    return rc
+
+
+async def put_back_aa(box, a, key, before):
+    """After an AA --cfg session: the display-class value back to what it was
+    (when that was not AA) or to --restore-cfg (default 5), read back. A box
+    that cannot be reached (a wedge) gets a banner naming the command for
+    after the power cycle. -> the write report"""
+    fallback = getattr(a, "restore_cfg", None)
+    target = restore_value(before, 5 if fallback is None else fallback)
+    rep = await write_aa_value(box, "HKLM", key, target)
+    rep["before"] = before
+    if not rep.get("ok"):
+        ms.banner("AA CONFIGURATION LEFT ARMED",
+                  f"HKLM\\{key} {AA_VALUE} = {a.cfg} could not be put back to {target} "
+                  f"({rep.get('error') or rep.get('readback')}). After the power cycle, before "
+                  f"any Glide app runs: glidelab_run.py {a.host} {a.mode} --collect "
+                  f"--restore-cfg {target}")
+    return rep
 
 
 async def gate(box, a, modes):
@@ -337,13 +522,47 @@ async def main_async(a):
     if why:
         ms.refuse(why)
         return 2
+    # the Glide that will be loaded, by md5 and by what it carries: the fork's
+    # guard commits were local-only, so a DLL built elsewhere has none of them
+    glide = await glide_identity(box, a.glide)
     print(f"plan: {len(runs)} glidelab run(s) at {modes[0]}  {ms.rates(calc, modes[0])}"
-          f"\n  monitor {ms.describe(rng)}", flush=True)
+          f"\n  monitor {ms.describe(rng)}\n  {describe_glide(glide)}", flush=True)
+    if a.cfg in AA_CFGS and not glide["guard"]:
+        ms.refuse(f"--cfg {a.cfg} is an AA configuration and {a.glide} "
+                  + (f"could not be read to confirm RETRO3DFX_SLIAA_GUARD ({glide['error']})"
+                     if glide.get("error") else
+                     f"(md5 {glide['md5']}) has no RETRO3DFX_SLIAA_GUARD")
+                  + " - a Glide without the SLI/AA guards froze .124 on cfg 1. Stage a guarded "
+                    "build (fork 631221b or later) first")
+        return 2
     await box.text(rf"MKDIR {DIR}")
     await box.upload(rf"{DIR}\glidelab.exe", (KMD / "out" / "glidelab.exe").read_bytes())
+    put_back = None
     if a.cfg is not None:
         inst, _ = await vb.find_display_instance(box)
-        await vb.apply_aa_config(box, vb.GLIDE_KEY_TMPL.format(inst=inst), a.cfg)
+        key = vb.GLIDE_KEY_TMPL.format(inst=inst)
+        # an AA value written here survives every reboot: note what was there,
+        # to put it back after the session (put_back_aa)
+        before, _ = await read_aa_value(box, "HKLM", key) if a.cfg in AA_CFGS else (None, None)
+        await vb.apply_aa_config(box, key, a.cfg)
+        if a.cfg in AA_CFGS:
+            put_back = (key, before)
+    try:
+        out = await run_sessions(box, a, runs)
+    finally:
+        if put_back:
+            rep = await put_back_aa(box, a, *put_back)
+            print(json.dumps({"host": a.host, "aa_restore": rep}), flush=True)
+    if put_back and not rep.get("ok"):
+        return 1
+    # a trace that was asked for and not produced fails the run too: the
+    # diagnosis it was for did not happen
+    return 0 if all("error" not in r and "trace_error" not in r for r in out) else 1
+
+
+async def run_sessions(box, a, runs):
+    """The glidelab session(s) of one run, in order; each RESULT printed as it
+    comes. -> the RESULTs"""
     out = []
     for i, mode in enumerate(runs):
         if i:
@@ -366,9 +585,7 @@ async def main_async(a):
         with open(a.json_out, "a") as f:
             for r in out:
                 f.write(json.dumps(r) + "\n")
-    # a trace that was asked for and not produced fails the run too: the
-    # diagnosis it was for did not happen
-    return 0 if all("error" not in r and "trace_error" not in r for r in out) else 1
+    return out
 
 
 def main():
@@ -403,15 +620,25 @@ def main():
     ap.add_argument("--trace", type=int, choices=TRACE_LEVELS, default=0,
                     help="our h5 Glide's step trace (FX_GLIDE_TRACE): 1 steps, 2 steps plus a "
                          "sync after each FIFO step of the open; saved with the step log")
+    ap.add_argument("--trace-cfg", action="store_true",
+                    help="with --trace: also the fork's PCI config-space dumps "
+                         "(FX_GLIDE_TRACE_CFG=1 - PCI_OP escapes of their own)")
     ap.add_argument("--collect", action="store_true",
                     help="only DOWNLOAD the MODE's step log and trace left by the last session "
-                         "(after a wedge and power cycle) - nothing is run or switched")
+                         "(after a wedge and power cycle) and READ the Glide SLI/AA registry "
+                         "values - nothing is run or switched")
+    ap.add_argument("--restore-cfg", type=int, choices=SAFE_CFGS,
+                    help="with --collect: write this where an AA SSTH3_SLI_AA_CONFIGURATION was "
+                         "found, and read it back; for a run with an AA --cfg: what to put back "
+                         "when the value before it was absent or AA (default 5)")
     ap.add_argument("--save-dir", help="where downloaded logs/traces are kept "
                     "(default: evidence/glidelab/trace/)")
     a = ap.parse_args()
     if a.cycles > MAX_CYCLES:
         ap.error(f"--cycles {a.cycles} REFUSED: at most {MAX_CYCLES} (each open and each "
                  "close re-syncs the monitor)")
+    if a.trace_cfg and not a.trace:
+        ap.error("--trace-cfg REFUSED without --trace 1 or 2 (the dumps are part of a trace)")
     why = bad_refresh(a.refresh)
     if why:
         ap.error(why)
