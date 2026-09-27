@@ -79,7 +79,7 @@ $(OUT)/vcrprobe.sys: probe/vcrprobe.c include/vcr_probe.h | $(OUT)
 # that paces the monitor - an edit to it alone must rebuild all of them
 PACE_H  := tools/vcr_pace.h
 
-$(OUT)/vcrctl.exe: tools/vcrctl.c $(PACE_H) $(wildcard include/*.h) | $(OUT)
+$(OUT)/vcrctl.exe: tools/vcrctl.c $(PACE_H) tools/vcr_sliaa.h $(wildcard include/*.h) | $(OUT)
 	$(CC) -O2 -Wall -Wextra -march=i586 -DWINVER=0x0501 -D_WIN32_WINNT=0x0501 -Iinclude tools/vcrctl.c -o $@ -static -lgdi32 -luser32
 
 # glidelab: Glide test program (fill / bands / cycle / abandon). Needs the

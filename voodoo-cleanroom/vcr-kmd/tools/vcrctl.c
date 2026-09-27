@@ -82,6 +82,16 @@
  *                          (raw = 0xCF8 cycles: the V5's slave functions)
  *   probe-mem HEXPHYS LEN  vcrprobe.sys: physical memory, read only (<= 4 KB)
  *   (hwcregs/golden add the VGA file when vcrprobe.sys is loaded)
+ *   sliaa N SLI AA HIGH ANALOG [NLINES BPP TILEMARK COL DEPTHLO DEPTHHI]
+ *                          any HWCEXT driver: Glide's HWCEXT_SLI_AA_REQUEST, sent
+ *                          through ExtEscape exactly as Glide sends it - the
+ *                          kernel-only probe of an SLI/AA configuration (no
+ *                          Glide open, no LFB). Answers the escape's status
+ *                          and, on our driver, the kernel's result (sli_result,
+ *                          sli_chips, clock_6k_hz). AA = 1 is REFUSED, before
+ *                          anything is sent, unless --i-am-at-the-box is given:
+ *                          every AA configuration froze .124 (tools/vcr_sliaa.h)
+ *   sliaa off              Glide's disable (dwChips only)
  *
  * Every command that changes the display mode (setmode, golden, modetest,
  * ddraw, modeseq, restore) goes through vcr_pace.h: at least 3 s since the
@@ -113,6 +123,7 @@
 /* vcr_pace.h's paced kill (pace-kill), which only this tool compiles */
 #define VCR_PACE_WANT_KILL
 #include "vcr_pace.h"
+#include "vcr_sliaa.h"          /* `sliaa`: parser, the at-the-box gate, Glide's request */
 
 static HDC g_dc;
 
@@ -710,6 +721,64 @@ static void hwc_close(void)
     memset(&rs, 0, sizeof rs);
     rq.opt.unmapMemory.procHandle = GetCurrentProcessId();
     hwc(VCR_HWC_UNMAP_MEMORY, &rq, &rs);
+}
+
+/* Glide's SLI_AA_REQUEST, sent the way Glide sends it (minihwc.c): its
+ * payload (vcr_sliaa_fill), through the HWCEXT escape Glide probes for
+ * (hwc()), after GETDEVICECONFIG told it the board's chips and memory. The
+ * gate runs FIRST: a refused request opens no escape at all. */
+static int cmd_sliaa(int argc, char **argv)
+{
+    vcr_sliaa_cmd c;
+    vcr_hwc_req rq;
+    vcr_hwc_res rs;
+    vcr_sli_aa_req *r = &rq.opt.sliAA;
+    vcr_info v;
+    const char *why = vcr_sliaa_parse(argc, argv, &c);
+    int n, have_info;
+    ULONG chips, fb;
+
+    if (!why)
+        why = vcr_sliaa_gate(&c);
+    if (why)
+        return fail("sliaa", why);
+
+    /* what Glide knows when it builds the request: the board's chips and the
+     * memory per chip (h3Mem) */
+    memset(&rq, 0, sizeof rq);
+    memset(&rs, 0, sizeof rs);
+    rq.opt.deviceConfig.dc = (ULONG)(ULONG_PTR)g_dc;
+    n = hwc(VCR_HWC_GETDEVICECONFIG, &rq, &rs);
+    if (n <= 0 || rs.resStatus != VCR_HWC_OK || rs.opt.deviceConfig.vendorID != VCR_PCI_VENDOR_3DFX)
+        return fail("sliaa", "GETDEVICECONFIG refused - not a 3dfx HWCEXT driver");
+    chips = rs.opt.deviceConfig.numChips;
+    fb = rs.opt.deviceConfig.fbRam;
+
+    memset(&rq, 0, sizeof rq);
+    memset(&rs, 0, sizeof rs);
+    vcr_sliaa_fill(&c, chips, fb, r);
+    n = hwc(VCR_HWC_SLI_AA_REQUEST, &rq, &rs);
+
+    /* the escape answers only OK / FAIL; our driver's info says what the
+     * kernel did (< 0 refused and nothing written, > 0 the VCR_SLI_W_* mask) */
+    memset(&v, 0, sizeof v);
+    have_info = esc(VCR_ESC_INFO, NULL, 0, &v, sizeof v) > 0;
+    printf("{\"cmd\":\"sliaa\",\"ok\":%s,\"escape\":\"%lx\",\"ret\":%d,\"resStatus\":%d,"
+           "\"board_chips\":%lu,\"request\":{\"chips\":%u,\"sli\":%u,\"aa\":%u,\"high\":%u,"
+           "\"analog\":%u,\"nlines\":%u,\"bpp\":%u,\"totalMemory\":\"%08x\",\"tileMark\":\"%08x\","
+           "\"col\":\"%08x\",\"depth\":[\"%08x\",\"%08x\"],\"at_box\":%s}",
+           n > 0 && rs.resStatus == VCR_HWC_OK ? "true" : "false", g_hwc_code, n,
+           (int)rs.resStatus, chips, r->ChipInfo.dwChips, r->ChipInfo.dwsliEn,
+           r->ChipInfo.dwaaEn, r->ChipInfo.dwaaSampleHigh, r->ChipInfo.dwsliAaAnalog,
+           r->ChipInfo.dwsli_nlines, r->MemInfo.dwBpp, r->MemInfo.dwTotalMemory,
+           r->MemInfo.dwTileMark, r->MemInfo.dwaaSecondaryColorBufBegin,
+           r->MemInfo.dwaaSecondaryDepthBufBegin, r->MemInfo.dwaaSecondaryDepthBufEnd,
+           c.at_box ? "true" : "false");
+    if (have_info)
+        printf(",\"sli_result\":%d,\"sli_chips\":%u,\"clock_6k_hz\":%u",
+               (int)v.sli_result, v.sli_chips, v.clock_6k_hz);
+    printf("}\n");
+    return n > 0 && rs.resStatus == VCR_HWC_OK ? 0 : 1;
 }
 
 static int cmd_hwc(void)
@@ -1335,6 +1404,8 @@ int main(int argc, char **argv)
                          argc > 5 ? atoi(argv[5]) : 0);
     else if (!strcmp(cmd, "hwc"))
         rc = cmd_hwc();
+    else if (!strcmp(cmd, "sliaa"))
+        rc = cmd_sliaa(argc - 2, argv + 2);
     else if (!strcmp(cmd, "hwcregs"))
         rc = cmd_hwcregs(argc > 2 ? argv[2] : "current");
     else if (!strcmp(cmd, "golden") && argc > 5)

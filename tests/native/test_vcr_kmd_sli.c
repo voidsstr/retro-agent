@@ -18,10 +18,12 @@
  *   - a status register that can be stuck with no FIFO room, forever.
  * Every write must be announced by the log entry right before it.
  */
+#include <stdarg.h>
 #include <stddef.h>
 #include <string.h>
 #include "munit.h"
 #include "../../voodoo-cleanroom/vcr-kmd/miniport/vcrmp_sli.c"
+#include "../../voodoo-cleanroom/vcr-kmd/tools/vcr_sliaa.h"     /* `vcrctl sliaa` */
 
 #define NCH     4
 #define MAXW    8192
@@ -1717,6 +1719,99 @@ TEST(the_recipe_is_visible_in_the_persisted_phases) {
     }
 }
 
+/* (e) `vcrctl sliaa`: the parser, the at-the-box gate, Glide's request */
+static const char *sliaa(vcr_sliaa_cmd *c, int argc, ...)
+{
+    static char buf[16][32];
+    char *argv[16];
+    va_list ap;
+    int i;
+    va_start(ap, argc);
+    for (i = 0; i < argc && i < 16; i++) {
+        strncpy(buf[i], va_arg(ap, const char *), sizeof buf[i] - 1);
+        buf[i][sizeof buf[i] - 1] = 0;
+        argv[i] = buf[i];
+    }
+    va_end(ap);
+    return vcr_sliaa_parse(argc, argv, c);
+}
+
+TEST(vcrctl_sliaa_refuses_aa_unless_a_person_is_at_the_box) {
+    vcr_sliaa_cmd c;
+    vcr_sli_aa_req r;
+    /* cfg 3 as a kernel probe: parses, and is REFUSED without the flag */
+    CHECK(!sliaa(&c, 5, "4", "1", "1", "0", "1"), "cfg 3 did not parse");
+    CHECK(vcr_sliaa_gate(&c) != 0, "an AA request passed the gate with nobody at the box");
+    CHECK(!sliaa(&c, 6, "4", "0", "1", "1", "1", VCR_SLIAA_AT_BOX_FLAG), "cfg 7 + flag");
+    CHECK(vcr_sliaa_gate(&c) == 0, "the flag did not open the gate");
+    CHECK(!sliaa(&c, 6, VCR_SLIAA_AT_BOX_FLAG, "4", "0", "1", "1", "1"), "flag first");
+    CHECK(c.at_box && c.aa && vcr_sliaa_gate(&c) == 0, "flag position mattered");
+    /* SLI only (cfg 5) and the disable need no flag */
+    CHECK(!sliaa(&c, 5, "4", "1", "0", "0", "1"), "cfg 5 did not parse");
+    CHECK(vcr_sliaa_gate(&c) == 0, "cfg 5 needs no person at the box");
+    CHECK(!sliaa(&c, 1, "off"), "off did not parse");
+    CHECK(c.off && vcr_sliaa_gate(&c) == 0, "off refused");
+    CHECK(!sliaa(&c, 2, "off", VCR_SLIAA_AT_BOX_FLAG), "off + flag");
+    /* a near-miss flag is not the flag */
+    CHECK(sliaa(&c, 6, "4", "0", "1", "1", "1", "--i-am-at-the-bo") != 0, "a truncated flag accepted");
+    CHECK(sliaa(&c, 6, "4", "0", "1", "1", "1", "--at-box") != 0, "an unknown option accepted");
+    CHECK(sliaa(&c, 6, "4", "0", "1", "1", "1", "-i-am-at-the-box") != 0, "a one-dash flag accepted");
+    /* nothing loose: every value decimal or 0x-hex, in range, the right count */
+    CHECK(sliaa(&c, 5, "-1", "1", "1", "0", "1") != 0, "-1 accepted");
+    CHECK(sliaa(&c, 4, "4", "1", "1", "0") != 0, "4 values accepted");
+    CHECK(sliaa(&c, 5, "3", "1", "0", "0", "1") != 0, "3 chips accepted");
+    CHECK(sliaa(&c, 5, "4", "2", "0", "0", "1") != 0, "sli 2 accepted");
+    CHECK(sliaa(&c, 5, "4", "0", "2", "0", "1") != 0, "aa 2 accepted (it would skip the gate's meaning)");
+    CHECK(sliaa(&c, 5, "4", "0", "1", "3", "1") != 0, "16-sample accepted");
+    CHECK(sliaa(&c, 5, "4", "1", "0", "0", "1x") != 0, "trailing garbage accepted");
+    CHECK(sliaa(&c, 5, "4", "1", "0", "0", "") != 0, "empty value accepted");
+    CHECK(sliaa(&c, 6, "4", "1", "0", "0", "1", "0x") != 0, "bare 0x accepted");
+    CHECK(sliaa(&c, 6, "4", "1", "0", "0", "1", "0x123456789") != 0, "33-bit hex accepted");
+    CHECK(sliaa(&c, 6, "4", "1", "0", "0", "1", "4294967296") != 0, "33-bit decimal accepted");
+    CHECK(!sliaa(&c, 6, "4", "1", "0", "0", "1", "4294967295"), "0xffffffff refused");
+    CHECK(sliaa(&c, 12, "4", "1", "0", "0", "1", "8", "16", "0", "0", "0", "0", "9") != 0,
+          "12 values accepted");
+    CHECK(sliaa(&c, 2, "off", "4") != 0, "off with a value accepted");
+    CHECK(sliaa(&c, 0) != 0, "nothing accepted");
+
+    /* Glide's request, field by field (minihwc.c HWC_MINIVDD_HACK) */
+    CHECK(!sliaa(&c, 12, "4", "0", "1", "1", "1", "8", "16", "0x01b7e000", "0", "0x01000000",
+                 "0x01180000", VCR_SLIAA_AT_BOX_FLAG), "the full form did not parse");
+    memset(&r, 0xa5, sizeof r);
+    vcr_sliaa_fill(&c, 4, 32u << 20, &r);
+    CHECK_EQ_U(r.ChipInfo.dwChips, 4);
+    CHECK_EQ_U(r.ChipInfo.dwsliEn, 0);
+    CHECK_EQ_U(r.ChipInfo.dwaaEn, 1);
+    CHECK_EQ_U(r.ChipInfo.dwaaSampleHigh, 1);
+    CHECK_EQ_U(r.ChipInfo.dwsliAaAnalog, 1);
+    CHECK_EQ_U(r.ChipInfo.dwsli_nlines, 8);
+    CHECK_EQ_U(r.ChipInfo.dwCfgSwapAlgorithm, 1);           /* Glide always sends 1 */
+    CHECK_EQ_U(r.MemInfo.dwTotalMemory, 32u << 20);         /* h3Mem * 1 MB */
+    CHECK_EQ_U(r.MemInfo.dwTileMark, 0x01b7e000u);
+    CHECK_EQ_U(r.MemInfo.dwTileCmpMark, 0x01b7e000u);       /* both colBuffStart0[0] */
+    CHECK_EQ_U(r.MemInfo.dwaaSecondaryColorBufBegin, 0);
+    CHECK_EQ_U(r.MemInfo.dwaaSecondaryDepthBufBegin, 0x01000000u);
+    CHECK_EQ_U(r.MemInfo.dwaaSecondaryDepthBufEnd, 0x01180000u);
+    CHECK_EQ_U(r.MemInfo.dwBpp, 16);
+    CHECK_EQ_U(vcr_sli_req_tuple(&r), 0x40111u);
+    /* the kernel reads it the way it reads Glide's: the table's cfg 7 */
+    CHECK_EQ_I(vcr_sli_policy(&r, 1), 0);
+    CHECK_EQ_I(vcr_sli_policy(&r, 0), VCR_SLI_R_AA_OFF);
+    /* the short form: defaults */
+    CHECK(!sliaa(&c, 5, "4", "1", "0", "0", "1"), "short form");
+    vcr_sliaa_fill(&c, 4, 32u << 20, &r);
+    CHECK_EQ_U(r.ChipInfo.dwsli_nlines, VCR_SLIAA_DEFAULT_NLINES);
+    CHECK_EQ_U(r.MemInfo.dwBpp, VCR_SLIAA_DEFAULT_BPP);
+    CHECK_EQ_U(r.MemInfo.dwTileMark, 0);
+    /* off: Glide's disable, dwChips = the board's, nothing else */
+    CHECK(!sliaa(&c, 1, "off"), "off");
+    memset(&r, 0xa5, sizeof r);
+    vcr_sliaa_fill(&c, 4, 32u << 20, &r);
+    CHECK_EQ_U(r.ChipInfo.dwChips, 4);
+    CHECK_EQ_U(r.ChipInfo.dwsliEn | r.ChipInfo.dwaaEn | r.MemInfo.dwBpp | r.MemInfo.dwTileMark, 0);
+    CHECK_EQ_I(vcr_sli_policy(&r, 0), 0);                   /* a disable always goes through */
+}
+
 TEST(step_codes_are_unique) {
 #define VCR_SLI_STEP(name, code, desc) code,
     static const int codes[] = { VCR_SLI_STEP_TABLE };
@@ -1758,5 +1853,6 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(the_aa_state_is_read_back_by_config_cycles_only);
     RUN(no_state_record_without_an_aa_enable);
     RUN(the_recipe_is_visible_in_the_persisted_phases);
+    RUN(vcrctl_sliaa_refuses_aa_unless_a_person_is_at_the_box);
     RUN(step_codes_are_unique);
 )

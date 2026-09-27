@@ -165,10 +165,10 @@ def test_the_escape_hands_glide_a_failure_for_every_refusal():
     assert re.search(r"#define VCR_SLI_R_AA_OFF\s+10\b", hdr)
 
 
-# ---- step B (2026-09-27): the vendor-style AA recipe, Diag\SliAAState -----------
+# ---- step B (2026-09-27): the vendor-style AA recipe, Diag\SliAAState, vcrctl sliaa --
 # The register values are native-tested (tests/native/test_vcr_kmd_sli.c: the
 # expected cfg 3/7/1 tables for both recipes, the read-back by config cycles
-# only). These pin where the kernel uses them.
+# only, the CLI gate). These pin where the kernel and the tool use them.
 
 def test_the_vendor_recipe_is_off_by_default_and_read_per_request():
     src = (KMD / "miniport" / "vcrmp_multi.c").read_text()
@@ -223,3 +223,44 @@ def test_the_state_record_layout_is_the_one_the_decoder_reads():
     offs = [int(re.search(rf"#define {n}\s+(0x[0-9a-f]+)", regs).group(1), 16) for n in names]
     assert offs == [0x40, 0x48, 0x80, 0x84, 0x88, 0x8c, 0x90, 0x94, 0xac]
 
+
+def test_vcrctl_sliaa_gates_before_it_sends_and_sends_like_glide():
+    tool = (KMD / "tools" / "vcrctl.c").read_text()
+    body = func_body(tool, "static int cmd_sliaa(")
+    parse = body.index("vcr_sliaa_parse(argc, argv, &c)")
+    gate = body.index("why = vcr_sliaa_gate(&c);")
+    refuse = body.index('return fail("sliaa", why);')
+    first_escape = min(body.index("hwc("), body.index("esc("))
+    assert parse < gate < refuse < first_escape, "the at-the-box gate must run before any escape"
+    # Glide's route: GETDEVICECONFIG, then the request through the HWCEXT probe
+    assert body.index("hwc(VCR_HWC_GETDEVICECONFIG") < body.index("hwc(VCR_HWC_SLI_AA_REQUEST")
+    assert "vcr_sliaa_fill(&c, chips, fb, r);" in body
+    assert "vcr_sli_aa_req *r = &rq.opt.sliAA;" in body
+    # the kernel's own answer, from our driver's info
+    assert "esc(VCR_ESC_INFO" in body and "sli_result" in body
+    main = func_body(tool, "int main(")
+    assert 'rc = cmd_sliaa(argc - 2, argv + 2);' in main
+    assert "--i-am-at-the-box" in tool[:tool.index("#define WIN32_LEAN_AND_MEAN")]   # usage says so
+    hdr = (KMD / "tools" / "vcr_sliaa.h").read_text()
+    assert '#define VCR_SLIAA_AT_BOX_FLAG   "--i-am-at-the-box"' in hdr
+    # the gate keys on AA, not on the request's other fields
+    gate_fn = func_body(hdr, "static const char *vcr_sliaa_gate(")
+    assert "c->aa && !c->at_box" in gate_fn
+    # an edit to the header alone rebuilds the tool
+    mk = (KMD / "Makefile").read_text()
+    rule = mk[mk.index("$(OUT)/vcrctl.exe:"):]
+    assert "tools/vcr_sliaa.h" in rule[:rule.index("\n")]
+
+
+def test_the_escape_still_carries_a_refusal_back_as_fail():
+    """vcrctl sliaa and Glide share the escape: a policy refusal (EDENIED),
+    a missing mux (EINVAL) or a vendor-recipe MEMINFO refusal (EINVAL) all
+    reach the caller as VCR_HWC_FAIL."""
+    esc = (KMD / "display" / "vcrdd_escape.c").read_text()
+    sli = esc[esc.index("case VCR_HWC_SLI_AA_REQUEST"):]
+    sli = sli[:sli.index("break;")]
+    assert "rs->resStatus = (!rc && (LONG)sr.result >= 0) ? VCR_HWC_OK : VCR_HWC_FAIL;" in sli
+    hdr = (KMD / "include" / "vcr_sli.h").read_text()
+    assert re.search(r"#define VCR_SLI_R_MEMINFO\s+11\b", hdr)
+    body = func_body((KMD / "miniport" / "vcrmp_sli.c").read_text(), "static int refuse(")
+    assert "VCR_SLI_R_AA_OFF ? VCR_SLI_EDENIED : VCR_SLI_EINVAL" in body

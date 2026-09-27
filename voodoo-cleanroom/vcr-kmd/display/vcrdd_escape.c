@@ -151,8 +151,10 @@ static void hwc(VCR_PDEV *pd, const vcr_hwc_req *rq, vcr_hwc_res *rs, ULONG cjOu
         rc = VcrIoctl(pd->hDriver, IOCTL_VCR_SLI, (PVOID)&rq->opt.sliAA,
                       sizeof rq->opt.sliAA, &sr, sizeof sr, NULL);
         /* < 0 refused, nothing written - a bad request, a shape with no
-         * video mux (EINVAL), or AA while Diag\SliAA = 0 (EDENIED) - and
-         * Glide is told FAIL; > 0 done with warnings - still done */
+         * video mux (EINVAL), memory info the vendor AA recipe cannot place
+         * (EINVAL), or AA while Diag\SliAA = 0 (EDENIED) - and Glide (or
+         * `vcrctl sliaa`, which sends the same request) is told FAIL; > 0
+         * done with warnings - still done */
         rs->resStatus = (!rc && (LONG)sr.result >= 0) ? VCR_HWC_OK : VCR_HWC_FAIL;
         VcrDd(rs->resStatus == VCR_HWC_OK && !sr.result ? VCR_LV_INFO : VCR_LV_WARN,
               VCR_EV_HWC_SLIAA, ci->dwChips, ci->dwsliEn | (ci->dwaaEn << 1), sr.result,
