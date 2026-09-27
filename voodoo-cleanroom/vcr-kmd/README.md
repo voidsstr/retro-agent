@@ -105,6 +105,7 @@ three). They exist for supervised runs on `.124`: arm one, run, disarm.
 | `D3D32` | at boot | offers 32 bpp Direct3D targets on a VSA-100: DDBD_32, and the Z list D16 plus D24X8/D24S8 (see 32 bpp below). `vcr_info.flags` 0x10; event 513 what 16 when the display driver arms it |
 | `Reset3D` | at boot | clears what a Glide session left on chip 0 - chipMask = ALL, sliCtrl = 0, 12 nopCMD, combineMode, aaCtrl, stencilMode, stencilOp = 0 - at the exclusive OWNER's own HWCRLSEXCLUSIVE after a good RESTORE_MODE (VSA-100, D3D on), and only if chip 0 reads idle three times and cmdFifo0 has SST_CMDFIFOEN clear. Never at DrvAssertMode, so a KILLED Glide client still needs a cold boot before a 32 bpp D3D test. Event 604 a=3, c: 0 not run, 1 reset, 2 not idle, 3 command FIFO on, 4 gave up. Flags 0x20 |
 | `FlipDeadline` | at every mode set | the achieved-refresh flip deadline (Flip completion, below). Voodoo backend only |
+| `Accel2DText` | at every mode change (IOCTL_VCR_INFO per PDEV) | DrvTextOut on the 2D engine: one 1 bpp mask per clip rectangle, sent as a host-to-screen blit (`include/vcr_text.h`). 0 bad on the 86Box bed at 8/16/32 bpp, but SLOWER there than the software path (~115k vs ~139k glyphs/s, in-box driver ~275k), so off until measured on silicon. `vcr_info.flags` 0x40 (positive); `VCR_ESC_2D_STATS` gives the counters; evidence `evidence/86box_v3/2d_*` |
 
 **Arm:** `REGWRITE HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag SliAA
 REG_DWORD 1`, then `REGREAD` it back (the agent answers OK to a malformed
