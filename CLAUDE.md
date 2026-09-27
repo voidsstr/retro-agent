@@ -2082,7 +2082,13 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
   and still answer `OK` while the real value is untouched
   (`agent/src/registry.c:284`). **Always read the value back — never trust the
   `OK`.** Cost an hour on .171 (2026-08-28).
-- **REGDELETE root path** — delete value or key
+- **REGDELETE root path** — deletes a **KEY, recursively** (subkeys and all:
+  `SHDeleteKeyA`, `agent/src/registry.c`). **It cannot delete a value** —
+  pointed at the key that holds one (`Services\vcrmp\Diag` for a Diag switch)
+  it erases the whole key, there the driver's flushed phase history. A value:
+  on NT `EXEC reg delete "<key>" /v <name> /f`; on Win9x a REGEDIT4 `.reg`
+  with `"<name>"=-` under `[<key>]` (a `[-<key>]` line deletes the key). Read
+  it back absent.
 
 ### Network (Windows)
 - **NETMAP unc [drive] [user] [password]** — map network share

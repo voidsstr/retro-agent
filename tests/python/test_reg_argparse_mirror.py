@@ -110,3 +110,25 @@ def test_every_handler_uses_the_new_parser(handler):
         "%s() does not use the quote-aware parser, so it still truncates paths "
         "at the first space" % handler
     )
+
+
+def test_regdelete_deletes_keys_only_and_claude_md_says_so():
+    """REGDELETE is a recursive KEY delete (SHDeleteKeyA, else a walk of
+    RegDeleteKeyA) and cannot delete a value. CLAUDE.md's command reference
+    said "delete value or key" (fixed 2026-09-27): pointed at the key that
+    holds a value - Services\\vcrmp\\Diag for one Diag switch - it erases the
+    whole key, there the driver's flushed phase history. If REGDELETE ever
+    learns values, this test must change with the reference, not silently."""
+    src = _read(SRC)
+    m = re.search(r"void handle_regdelete\(.*?\n\}\n", src, re.S)
+    assert m, "handle_regdelete() not found"
+    body = m.group(0)
+    assert "pfn_SHDeleteKeyA(root, path)" in body and "delete_key_recursive(root, path)" in body
+    assert "RegDeleteValue" not in src, "registry.c deletes values now: update CLAUDE.md"
+    doc = _read(os.path.join(REPO, "CLAUDE.md"))
+    line = next(ln for ln in doc.splitlines() if ln.startswith("- **REGDELETE root path**"))
+    assert "delete value or key" not in line
+    i = doc.index(line)
+    entry = doc[i:doc.index("\n- **", i + 1)]
+    assert "KEY, recursively" in entry and "cannot delete a value" in entry
+    assert 'reg delete "<key>" /v <name> /f' in entry and '"<name>"=-' in entry
