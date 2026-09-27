@@ -2281,6 +2281,36 @@ restores it.
   same build as `retro_agent_new.exe` lets `AGENTRUN.BAT` install it properly at
   the next boot.
 
+### Agent 1.85.3: three more Win9x traps that kept `.243` stranded (2026-09-26)
+
+- **A 9x update is STAGED, not swapped (verified on `.243`).** A Win9x process
+  can outlive `TerminateProcess` while one of its threads sits in a blocking
+  ring-0 call, so the exe stays locked, every rename in the swap batch fails
+  and the batch restarts the OLD build - it did so on every update. 1.85.3
+  copies the new build to `retro_agent_new.exe`, writes `agent.ver`, logs
+  `Win9x: staged version ...` and keeps running; `AGENTRUN.BAT` installs it at
+  the next logon (`boot: staged build installed`, seen on `.243` at 1.85.0 ->
+  1.85.3). **So on a 9x box a new version arrives at the next reboot, not
+  immediately.** To force one: stage it by `UPLOAD` and reboot.
+- **`AGENTRUN.BAT`'s version check never fired.** It used `fc` + `if not
+  errorlevel 1`, and FC never sets ERRORLEVEL on DOS/Win9x, so every boot
+  logged `already on the share's version`. It now `find`s FC's
+  "no differences" line (FIND does set ERRORLEVEL on Win98).
+- **`REBOOT` killed the agent's own console.** `kill_console_processes()`
+  terminated every `CONAGENT.EXE`, which on Win9x hosts the console of every
+  Win32 console app - this agent included - so REBOOT logged `REBOOT:
+  initiating` and died before `ExitWindowsEx`; Windows stayed up with no
+  agent (twice on `.243`). 1.85.3 no longer kills it. **Not yet proven on
+  hardware** - the first 1.85.3 REBOOT on `.243` (2026-09-26 23:21) had not
+  brought the agent back 15 minutes later. Until it is, a remote reboot of a
+  9x box can be done with `LAUNCH rundll32.exe shell32.dll,SHExitWindowsEx 6`
+  (reboot + force) after arming the PXE hold by hand (`pxe_server.py --arm`)
+  - that worked on `.243` at 16:50.
+- **`.243`'s POST stops at a prompt after a power loss.** Its RTC backup is
+  dead (the clock reads 1980-01-04 at every cold boot, CMOS 0Eh bit 2 set), so
+  expect "163-Time & Date Not Set" and an F1 wait: an unattended cold boot of
+  that box does not come back by itself.
+
 ## Win98 Known Issues & Fixes
 
 ### SYSFIX Command
