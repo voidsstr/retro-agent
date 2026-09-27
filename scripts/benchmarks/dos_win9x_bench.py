@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""Timedemo benchmarks for DOS titles on a Win98 box, run in a Win98 DOS box.
+
+Only titles whose -timedemo EXITS BY ITSELF are timed (Doom-engine family):
+each job is a small batch that feeds stdin from KEY.TXT (the Hexen "Press any
+key" screen otherwise blocks forever), redirects stdout to a file (the engine
+prints "timed N gametics in M realtics" there on exit) and writes an .END
+marker. The host LAUNCHes the batch, waits for the marker with agent-internal
+DOWNLOADs (never EXEC - see CLAUDE.md), and parses the result:
+
+    fps = gametics * 35 / realtics      (Doom's tic rate is 35 Hz)
+
+Rows are appended in the fleet's v56k CSV format with api "Win98 DOS box", so
+they never mix with real-DOS or Windows-native rows.
+
+    python3 scripts/benchmarks/dos_win9x_bench.py --host 192.168.1.243 \
+        --job "Doom (demo3)|C:\\DOOM|DOOM.EXE -timedemo demo3 -nosound -nomusic" --runs 2
+"""
+import argparse
+import asyncio
+import datetime
+import json
+import os
+import re
+import sys
+import time
+
+REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, REPO)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from client.retro_protocol import RetroConnection  # noqa: E402
+from glquake_win9x_bench import append_csv, cmd, kill_image, names  # noqa: E402
+
+TIMED_RE = re.compile(r"timed\s+(\d+)\s+gametics\s+in\s+(\d+)\s+realtics", re.I)
+BENCH = "C:\\BENCH"
+
+
+def job_bat(tag, directory, command):
+    drive = directory[:2]
+    return ("@echo off\r\n%s\r\ncd %s\r\n%s < %s\\KEY.TXT > %s\\RES\\%s.TXT\r\n"
+            "echo END> %s\\RES\\%s.END\r\n" % (drive, directory[2:] or "\\", command, BENCH, BENCH, tag, BENCH, tag))
+
+
+def parse(text):
+    m = TIMED_RE.search(text)
+    if not m:
+        return None
+    tics, real = int(m.group(1)), int(m.group(2))
+    return {"frames": tics, "seconds": round(real / 35.0, 2), "fps": round(tics * 35.0 / real, 1) if real else None}
+
+
+async def run_job(c, tag, directory, command, timeout):
+    await cmd(c, "DELETE %s\\RES\\%s.END" % (BENCH, tag))
+    await cmd(c, "DELETE %s\\RES\\%s.TXT" % (BENCH, tag))
+    await cmd(c, "UPLOAD %s\\%s.BAT" % (BENCH, tag), binary_payload=job_bat(tag, directory, command).encode("ascii"))
+    t0 = time.time()
+    st, d = await cmd(c, "LAUNCH %s\\%s.BAT" % (BENCH, tag))
+    if st != 0:
+        return {"error": "LAUNCH failed: " + d.decode("ascii", "replace")}
+    while time.time() - t0 < timeout:
+        await asyncio.sleep(5)
+        st, d = await cmd(c, "DOWNLOAD %s\\RES\\%s.END" % (BENCH, tag))
+        if st == 1:
+            break
+    else:
+        return {"error": "no .END after %d s - the job may be waiting on the screen" % timeout}
+    st, d = await cmd(c, "DOWNLOAD %s\\RES\\%s.TXT" % (BENCH, tag))
+    text = d.decode("latin-1") if st == 1 else ""
+    res = parse(text) or {"error": "no 'timed ... gametics' line", "tail": text[-300:]}
+    res["wall_s"] = round(time.time() - t0, 1)
+    return res
+
+
+async def main():
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--host", required=True)
+    ap.add_argument("--job", action="append", required=True,
+                    help='"title|C:\\dir|EXE args" (repeatable)')
+    ap.add_argument("--runs", type=int, default=2)
+    ap.add_argument("--timeout", type=int, default=300)
+    ap.add_argument("--csv", default=None)
+    ap.add_argument("--notes", default="")
+    a = ap.parse_args()
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    outdir = os.path.join(REPO, "scripts", "benchmarks", "results", "%s_dosbox_%s" % (a.host, stamp))
+    os.makedirs(outdir, exist_ok=True)
+    c = RetroConnection(a.host, 9898)
+    await c.connect(os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret"), timeout=60.0)
+    results, meta, chat = [], {}, False
+    try:
+        st, d = await cmd(c, "HWPROFILE"); meta["hwprofile"] = json.loads(d)
+        st, d = await cmd(c, "PROCLIST"); chat = "RETRO_CHAT.EXE" in names(d)
+        if chat:
+            await kill_image(c, "RETRO_CHAT.EXE")
+        await cmd(c, "MKDIR %s\\RES" % BENCH)
+        await cmd(c, "UPLOAD %s\\KEY.TXT" % BENCH, binary_payload=b"\r\n\r\n\r\n\r\n")
+        await asyncio.sleep(3)
+        st, d = await cmd(c, "PROCLIST"); meta["processes_during_run"] = sorted(set(names(d)))
+        for i, j in enumerate(a.job):
+            title, directory, command = j.split("|")
+            for r in range(a.runs):
+                tag = "J%dR%d" % (i, r)
+                res = await run_job(c, tag, directory, command, a.timeout)
+                res.update({"title": title, "dir": directory, "command": command, "run": r + 1})
+                results.append(res)
+                print(json.dumps(res), flush=True)
+                await asyncio.sleep(3)
+    finally:
+        try:
+            if chat:
+                await cmd(c, r"LAUNCH C:\RETRO_AGENT\retro_chat.exe")
+        finally:
+            await c.close()
+    hw = meta.get("hwprofile", {})
+    json.dump({"host": a.host, "when": stamp, "results": results, "meta": meta},
+              open(os.path.join(outdir, "results.json"), "w"), indent=2)
+    osd = hw.get("os") or {}
+    rows = [{
+        "stamp": stamp, "title": r["title"], "engine": r["command"].split()[0],
+        "api": "Win98 DOS box", "res": "320x200", "width": 320, "height": 200, "colordepth": 8,
+        "avg_fps": r.get("fps", ""), "frames": r.get("frames", ""), "seconds": r.get("seconds", ""),
+        "game_exe": r["dir"] + "\\" + r["command"].split()[0],
+        "os_build": "%s %s" % (osd.get("name", ""), osd.get("version", "")),
+        "agent_ver": hw.get("agent_version", ""), "gpu": "Cirrus GD5436 (VGA)",
+        "cpu_mhz": (hw.get("cpu") or {}).get("mhz", ""), "mem_avail_mb": hw.get("ram_mb", ""),
+        "status": "ok" if r.get("fps") else "fail",
+        "notes": "; ".join(x for x in ("run %d" % r["run"], r["command"], r.get("error", ""),
+                                        "retro_chat stopped" if chat else "", a.notes) if x),
+    } for r in results]
+    csv_path = a.csv or os.path.join(REPO, "scripts", "benchmarks", "results", "voodoo2_%s" % a.host, "results.csv")
+    append_csv(csv_path, rows)
+    print("csv:", csv_path)
+    for r in results:
+        print("%-28s run %d: %s" % (r["title"], r["run"], "%.1f fps" % r["fps"] if r.get("fps") else r.get("error")))
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

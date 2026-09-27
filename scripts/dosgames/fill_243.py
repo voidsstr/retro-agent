@@ -70,10 +70,10 @@ async def main(a):
         print("DOSGAME.CFG:", new)
 
         st, d = await cmd(c, "DIRLIST " + SHARE_FILL)
-        if st != 1:
+        if st != 0:          # text commands answer status 0 on success (DOWNLOAD answers 1)
             raise Stop("the share staging dir is not reachable as " + SHARE_FILL)
         await cmd(c, "DELETE D:\\GAMES\\FILL.LOG")
-        st, d = await cmd(c, "LAUNCH command.com /c %s\\FILL.BAT" % SHARE_FILL)
+        st, d = await cmd(c, "LAUNCH %s\\FILL.BAT" % SHARE_FILL)   # LAUNCH already wraps command.com /c on 9x
         print("FILL.BAT launched:", d[:120])
         t0 = time.time()
         while time.time() - t0 < 4 * 3600:
