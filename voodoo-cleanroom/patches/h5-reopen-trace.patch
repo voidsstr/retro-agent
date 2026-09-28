@@ -1,0 +1,398 @@
+From 53e3d9f569b1ef306d9631250691dbcc69d3ea54 Mon Sep 17 00:00:00 2001
+From: voidsstr <perrymb@gmail.com>
+Date: Mon, 28 Sep 2026 10:11:46 -0400
+Subject: [PATCH] h5: REOPEN-TRACE - split setVideoMode's DirectDraw calls, say
+ which close ran, name the messages that lose the context
+
+Unreal Gold on .124 (V5 6000) hung in its SECOND grSstWinOpen, made from inside
+UE1's WM_KILLFOCUS handler, with the display still at the desktop mode. AA-TRACE
+named the whole DirectDraw mode set as one step; this splits it (opt-in,
+FX_GLIDE_TRACE, file writes only - off, nothing new runs but hwcTraceOn()):
+
+- win_mode.c: a line BEFORE DirectDrawEnumerateExA, DirectDrawCreate,
+  SetCooperativeLevel, EnumDisplayModes and each SetDisplayMode, its HRESULT
+  after, the 8 bpp detour (Glide res == desktop res), a DirectDraw object kept
+  from an earlier open, every failure return, the window's standing
+  (foreground / iconic / visible / focus, no message sent to it) at enter and at
+  the cooperative-level call; resetVideo's RestoreDisplayMode / NORMAL /
+  Release.
+- gsst.c: grSstWinClose's entry state and WHICH branch it took (a lost context
+  skips idle, SLI/AA teardown and HWCRLSEXCLUSIVE) - read only with the trace on
+  and only from a gc that passed the whacked-pointer check; the unmap;
+  grSstWinOpenExt's request and whether the board is still mapped.
+- minihwc.c: the XP alt-tab hook installed / not installed / off, undone or LEFT
+  in the chain at hwcResetVideo, and every message it sees that can mark the
+  context lost, plus the focus pair.
+
+No behaviour change. Tests: retro-agent tests/python/test_h5_reopen_trace.py
+(all fail on e767d89). Built: glide3x_h5.dll, glide3x_h5_x86.dll.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ glide3x/h5/glide3/src/gsst.c  | 26 ++++++++++
+ glide3x/h5/minihwc/minihwc.c  | 29 +++++++++++
+ glide3x/h5/minihwc/win_mode.c | 92 ++++++++++++++++++++++++++++++++++-
+ 3 files changed, 146 insertions(+), 1 deletion(-)
+
+diff --git a/glide3x/h5/glide3/src/gsst.c b/glide3x/h5/glide3/src/gsst.c
+index 1bf4e4a..bb55e10 100644
+--- a/glide3x/h5/glide3/src/gsst.c
++++ b/glide3x/h5/glide3/src/gsst.c
+@@ -1587,6 +1587,16 @@ GR_EXT_ENTRY(grSstWinOpenExt, GrContext_t, ( FxU32                   hWnd,
+      * (_grTraceSync); a failed open leaves it for grSstWinClose/the next open */
+     trSyncInOpen = 1;
+ 
++    /* [retro3dfx REOPEN-TRACE] the request as the application made it, and
++     * whether the board is still mapped from an earlier open of this process
++     * (a close unmaps it: the open re-maps below) */
++    hwcTrace("winopen: enter (reg=resolution<<16|refresh val=nColBuffers<<8|nAuxBuffers)",
++             ((FxU32) resolution << 16) | ((FxU32) refresh & 0xffff),
++             ((FxU32) nColBuffers << 8) | ((FxU32) nAuxBuffers & 0xff));
++    if (gc && hwcTraceOn())
++      hwcTrace("winopen: board state (reg=gc->open val=isMapped)", gc->open,
++               gc->bInfo ? gc->bInfo->isMapped : 0xffffffffUL);
++
+     /*
+     ** check if the environment variable for triple buffering is on
+     */
+@@ -3249,15 +3259,28 @@ GR_ENTRY(grSstWinClose, FxBool, (GrContext_t context))
+   }
+ #endif
+ 
++  /* [retro3dfx REOPEN-TRACE] a close made after the window lost activation
++   * (the XP alt-tab hook marks the context lost on WM_ACTIVATEAPP(FALSE), a
++   * minimize, a hide, a WM_DISPLAYCHANGE) takes the lost-context branch below:
++   * no idle, no SLI/AA teardown, no HWCRLSEXCLUSIVE - DirectDraw's mode restore
++   * alone. Unreal Gold's re-open on .124 followed exactly such a close (UE1
++   * tears the render device down in WM_KILLFOCUS). Say which one ran - read
++   * only with the trace on, and only from a gc that passed the check below. */
++
+   /* Make sure that the user specified gc is not whacked */
+   if ((gc != NULL) &&
+       (gc >= _GlideRoot.GCs) &&
+       (gc <= _GlideRoot.GCs + MAX_NUM_SST)) {
++    if (hwcTraceOn())
++      hwcTrace("close: enter (reg=open val=*lostContext, ffffffff = no pointer)",
++               gc->open, (gc->lostContext ? *gc->lostContext : 0xffffffffUL));
+     if (gc->open) {
+ #if GLIDE_CHECK_CONTEXT
+       if (gc->lostContext && !*gc->lostContext)
+ #endif
+       {
++        hwcTrace("close: context live - orderly close (flush, SLI/AA off, idle, "
++                 "hwcRestoreVideo)", 0, 0);
+         grFlush();
+ 
+ #if GLIDE_INIT_HAL
+@@ -3312,6 +3335,8 @@ GR_ENTRY(grSstWinClose, FxBool, (GrContext_t context))
+       }
+ #if (GLIDE_OS & GLIDE_OS_WIN32)
+       else {
++        hwcTrace("close: context LOST - hwcResetVideo only (no idle, no SLI/AA teardown, "
++                 "no HWCRLSEXCLUSIVE)", 0, 0);
+         hwcResetVideo(gc->bInfo);
+       }
+ #endif
+@@ -3346,6 +3371,7 @@ GR_ENTRY(grSstWinClose, FxBool, (GrContext_t context))
+     ** to unmap the selected board
+     */
+     /*if ( hwcIsOSWin9x() ) {*/
++      hwcTrace("close: hwcUnmapMemory9x (the next open re-maps the board)", 0, 0);
+       hwcUnmapMemory9x( gc->bInfo );
+     /*} else {
+       hwcUnmapMemory();
+diff --git a/glide3x/h5/minihwc/minihwc.c b/glide3x/h5/minihwc/minihwc.c
+index e95e589..a6e7058 100644
+--- a/glide3x/h5/minihwc/minihwc.c
++++ b/glide3x/h5/minihwc/minihwc.c
+@@ -4722,7 +4722,17 @@ hwcInitVideo(hwcBoardInfo *bInfo, FxBool tiled, FxVideoTimingInfo *vidTiming,
+         if (curproc && curproc != (WNDPROC)_XPAltTabProc) {
+           GDBG_INFO(80, FN_NAME ":  Setting up alt-tab fix hack.\n");
+           wpWinProc = (WNDPROC)SetWindowLong((HWND)bInfo->vidInfo.hWnd, GWL_WNDPROC, (LONG)_XPAltTabProc);
++          /* [retro3dfx REOPEN-TRACE] from here WM_ACTIVATEAPP(FALSE),
++           * WM_DISPLAYCHANGE, a minimize, a hide mark the context LOST - and a
++           * lost context's grSstWinClose skips the whole orderly close */
++          hwcTrace("hwcInitVideo: XP alt-tab hook installed (reg=hwnd val=the proc it chains to)",
++                   bInfo->vidInfo.hWnd, (FxU32) wpWinProc);
++        } else {
++          hwcTrace("hwcInitVideo: XP alt-tab hook NOT installed (reg=hwnd val=current proc; "
++                   "already ours, or none)", bInfo->vidInfo.hWnd, (FxU32) curproc);
+         }
++      } else {
++        hwcTrace("hwcInitVideo: XP alt-tab hook off (FX_GLIDE_ALT_TAB_FIX=0)", 0, 0);
+       }
+     }
+ #endif
+@@ -6349,8 +6359,15 @@ hwcResetVideo(hwcBoardInfo *bInfo) {
+ 
+     if (curproc == (WNDPROC)_XPAltTabProc) {
+       GDBG_INFO(80, FN_NAME ":  Undoing alt-tab fix hack.\n");
++      hwcTrace("hwcResetVideo: XP alt-tab hook undone (reg=hwnd val=proc restored)",
++               bInfo->vidInfo.hWnd, (FxU32) wpWinProc);
+       SetWindowLong((HWND)bInfo->vidInfo.hWnd, GWL_WNDPROC, (LONG)wpWinProc);
+       wpWinProc = 0;
++    } else if (wpWinProc) {
++      /* [retro3dfx REOPEN-TRACE] someone subclassed the window on top of our
++       * hook: it stays in the chain (and wpWinProc with it) */
++      hwcTrace("hwcResetVideo: XP alt-tab hook NOT on top - LEFT in the chain (reg=hwnd "
++               "val=current proc)", bInfo->vidInfo.hWnd, (FxU32) curproc);
+     }
+   }
+ #endif
+@@ -9613,6 +9630,18 @@ static LRESULT CALLBACK _XPAltTabProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
+ {
+ #define FN_NAME "_XPAltTabProc"
+   
++  /* [retro3dfx REOPEN-TRACE] the messages that mark the context lost, and the
++   * focus pair around them (a UE1 WinDrv viewport tears its render device down
++   * in WM_KILLFOCUS). File writes only, and only with FX_GLIDE_TRACE. */
++  if (hwcTraceOn()) {
++    switch (uMsg) {
++    case WM_ACTIVATEAPP: case WM_DISPLAYCHANGE: case WM_SIZE: case WM_SHOWWINDOW:
++    case WM_STYLECHANGED: case WM_KILLFOCUS: case WM_SETFOCUS: case WM_ACTIVATE:
++      hwcTrace("alt-tab hook: message (reg=msg val=wParam)", uMsg, (FxU32) wParam);
++      break;
++    }
++  }
++
+   if (uMsg == WM_ACTIVATEAPP)
+     {
+       if (wParam == FALSE)
+diff --git a/glide3x/h5/minihwc/win_mode.c b/glide3x/h5/minihwc/win_mode.c
+index 76e9b32..f30f9bb 100644
+--- a/glide3x/h5/minihwc/win_mode.c
++++ b/glide3x/h5/minihwc/win_mode.c
+@@ -50,6 +50,47 @@ static int _set_exclusive_relaxed;
+ static int _set_vidmode_relaxed;
+ static FxBool _set_multirendering;
+ 
++/* [retro3dfx REOPEN-TRACE] Unreal Gold on .124 (2026-09-28) hung in its SECOND
++ * grSstWinOpen - made from inside UE1's WM_KILLFOCUS handler (WinDrv
++ * EndFullscreen -> TryRenderDevice(WindowedRenderDevice)) - with the display
++ * still at the desktop mode, i.e. before this file's DirectDraw mode set took
++ * effect. AA-TRACE named the whole mode set as ONE step ("hwcInitVideo:
++ * setVideoMode"); these lines split it into the DirectDraw calls that can
++ * block, each written BEFORE the call, plus the window's standing (a
++ * fullscreen open made while the window is not the foreground window is the
++ * case to see). File writes only (FX_GLIDE_TRACE, process environment); off,
++ * nothing here runs but hwcTraceOn(). */
++#define WIN_WND_FG        0x01u   /* GetForegroundWindow() == hwnd */
++#define WIN_WND_ICONIC    0x02u
++#define WIN_WND_VISIBLE   0x04u
++#define WIN_WND_FG_OURS   0x08u   /* the foreground window belongs to this thread */
++#define WIN_WND_VALID     0x10u   /* IsWindow(hwnd) */
++#define WIN_WND_FOCUS     0x20u   /* GetFocus() == hwnd (this thread's focus) */
++
++static FxU32
++winWndFlags(HWND hwnd)
++{
++  HWND fg = GetForegroundWindow();
++  FxU32 f = 0;
++
++  if (IsWindow(hwnd))                                  f |= WIN_WND_VALID;
++  if (fg && fg == hwnd)                                f |= WIN_WND_FG;
++  if (hwnd && IsIconic(hwnd))                          f |= WIN_WND_ICONIC;
++  if (hwnd && IsWindowVisible(hwnd))                   f |= WIN_WND_VISIBLE;
++  if (fg && GetWindowThreadProcessId(fg, NULL) == GetCurrentThreadId())
++                                                       f |= WIN_WND_FG_OURS;
++  if (hwnd && GetFocus() == hwnd)                      f |= WIN_WND_FOCUS;
++  return f;
++}
++
++static void
++winTraceWnd(const char *step, HWND hwnd)
++{
++  if (!hwcTraceOn())
++    return;
++  hwcTrace(step, (FxU32) hwnd, winWndFlags(hwnd));
++}
++
+ typedef struct _enumInfoStruct {
+   GUID guid;
+   HMONITOR hmon;
+@@ -177,6 +218,9 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+   if ((HWND)bInfo->vidInfo.hWnd == NULL)
+     bInfo->vidInfo.hWnd = (FxU32) GetActiveWindow();
+ 
++  winTraceWnd("setVideoMode: enter (reg=hwnd val=fg|iconic<<1|visible<<2|fgThreadOurs<<3"
++              "|valid<<4|focus<<5)", (HWND)bInfo->vidInfo.hWnd);
++
+   ddGuid = NULL;
+   ddraw = GetModuleHandle( "ddraw.dll" );
+   if ( ddraw != NULL ) {
+@@ -186,6 +230,7 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+       ZeroMemory(&enumInfo, sizeof(enumInfo));
+       ZeroMemory(&(enumInfo.guid), sizeof(GUID));
+       enumInfo.hmon = (HMONITOR)bInfo->hMon;
++      hwcTrace("setVideoMode: DirectDrawEnumerateExA", 0, 0);
+       ddEnumEx( ddEnumCbEx, &enumInfo, DDENUM_ATTACHEDSECONDARYDEVICES );
+       ddGuid = &(enumInfo.guid);
+       GDBG_INFO(80, "GUID %d-%d-%d-%d-%d%d%d%d\n",
+@@ -227,27 +272,43 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+   **  an 8-bit display, and fix up vidProcCfg in the minihwc.
+   */
+   /* KoolSmoky - what would happen if we run from 8bpp? */
++  hwcTrace("setVideoMode: desktop registry mode (reg=w<<16|h val=bpp)",
++           (devMode.dmPelsWidth << 16) | (devMode.dmPelsHeight & 0xffff), devMode.dmBitsPerPel);
+   if ((devMode.dmPelsWidth == (FxU32) bInfo->vidInfo.xRes) &&
+       (devMode.dmPelsHeight ==  (FxU32) bInfo->vidInfo.yRes)) {
+       GDBG_INFO(80, "DDraw communication hack: setting to 8bpp!\n");
++      /* [retro3dfx REOPEN-TRACE] the Glide mode IS the desktop's size: the
++       * DirectDraw mode set below goes through an 8 bpp desktop (two extra
++       * depth changes per open/close, a palettized desktop in between) */
++      hwcTrace("setVideoMode: Glide res == desktop res - DDraw 8 bpp detour (reg=w<<16|h)",
++               (bInfo->vidInfo.xRes << 16) | (bInfo->vidInfo.yRes & 0xffff), 8);
+       bpp = 8;
+   }
+   
+   if (bInfo->lpDD == NULL) {
+     /* only create directdraw object once */
++    hwcTrace("setVideoMode: DirectDrawCreate", 0, 0);
+     if ( DirectDrawCreate( ddGuid, &(bInfo->lpDD1), NULL ) != DD_OK) {
+       GDBG_INFO(80, "DDraw Obj Create Failed!\n");
+     }
+     else GDBG_INFO(80, "DDraw Obj created!\n");
++    hwcTrace("setVideoMode: DirectDrawCreate returned; QueryInterface IDirectDraw2 (reg=lpDD1)",
++             (FxU32) bInfo->lpDD1, 0);
+     if ( IDirectDraw_QueryInterface( bInfo->lpDD1, &IID_IDirectDraw2, 
+                                      (LPVOID*)&(bInfo->lpDD) ) != DD_OK ) {
+       IDirectDraw_Release( bInfo->lpDD1 );
+       bInfo->lpDD1 = NULL;
+       bInfo->lpDD  = NULL;
+       GDBG_INFO(80, "DDraw Obj Create Failed!\n");
++      hwcTrace("setVideoMode: IDirectDraw2 QueryInterface FAILED - open fails", 0, 0);
+       return FXFALSE;
+     }
+     else GDBG_INFO(80, "DDraw2 Obj created!\n");
++  } else {
++    /* [retro3dfx REOPEN-TRACE] a close whose release was not confirmed keeps
++     * its DirectDraw object (hwcReleaseDisplay returns before hwcResetVideo) */
++    hwcTrace("setVideoMode: DirectDraw object KEPT from an earlier open (reg=lpDD)",
++             (FxU32) bInfo->lpDD, 0);
+   }
+ 
+   /* Set Exclusive Mode, change resolution,  */
+@@ -262,7 +323,10 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+     
+     GDBG_INFO(80, "Calling IDD2_SetCoop: 0x%x, 0x%x, 0x%x\n", bInfo->lpDD, bInfo->vidInfo.hWnd, dwFlags );
+     
++    winTraceWnd("setVideoMode: SetCooperativeLevel EXCLUSIVE|FULLSCREEN (reg=hwnd val=window "
++                "flags as at enter)", (HWND)bInfo->vidInfo.hWnd);
+     hResult = IDirectDraw2_SetCooperativeLevel(bInfo->lpDD, (HWND)bInfo->vidInfo.hWnd, dwFlags);
++    hwcTrace("setVideoMode: SetCooperativeLevel returned (val=HRESULT)", dwFlags, (FxU32) hResult);
+     
+     if(hResult != DD_OK)
+     {
+@@ -287,8 +351,10 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+       if (hResult & DDERR_OUTOFMEMORY)
+         GDBG_INFO_MORE(80, "DDERR_OUTOFMEMORY\n" );
+       
+-      if (!_set_exclusive_relaxed)
++      if (!_set_exclusive_relaxed) {
++        hwcTrace("setVideoMode: no exclusive mode - open fails (val=HRESULT)", 0, (FxU32) hResult);
+         return FXFALSE;
++      }
+     }
+   }
+   GDBG_INFO(80, "FSEM Set\n" );
+@@ -310,8 +376,11 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+   emcData.modeOK = FXFALSE;
+   emcData.bpp = bpp;
+   
++  hwcTrace("setVideoMode: EnumDisplayModes", 0, 0);
+   hResult = IDirectDraw2_EnumDisplayModes(bInfo->lpDD, 0, &ddsd, 
+                                           (LPVOID) &emcData, enumModesCallback);
++  hwcTrace("setVideoMode: EnumDisplayModes returned (reg=modeOK val=HRESULT)",
++           emcData.modeOK, (FxU32) hResult);
+   
+   if (hResult != DD_OK) {
+     GDBG_INFO(80, "Warning:  EnumDisplayModes failed due to: \n");
+@@ -323,12 +392,19 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+   if (emcData.modeOK) {
+     GDBG_INFO(80, "Found mode %dx%d.  Attempting at %dHz\n", bInfo->vidInfo.xRes,
+               bInfo->vidInfo.yRes, refresh);
++    hwcTrace("setVideoMode: SetDisplayMode (reg=w<<16|h val=bpp<<16|refresh)",
++             (bInfo->vidInfo.xRes << 16) | (bInfo->vidInfo.yRes & 0xffff),
++             (bpp << 16) | (refresh & 0xffff));
+     hResult = IDirectDraw2_SetDisplayMode( bInfo->lpDD, bInfo->vidInfo.xRes, bInfo->vidInfo.yRes, bpp, refresh, 0);
++    hwcTrace("setVideoMode: SetDisplayMode returned (val=HRESULT)", 0, (FxU32) hResult);
+     if (hResult != DD_OK) {
+       GDBG_INFO(80, "Couldn't set display mode\n" );
+       msgModeSetFailure(hResult);
+       GDBG_INFO(80, "Retrying at default resolution\n");
++      hwcTrace("setVideoMode: SetDisplayMode retry at the default refresh (reg=w<<16|h val=bpp<<16)",
++               (bInfo->vidInfo.xRes << 16) | (bInfo->vidInfo.yRes & 0xffff), bpp << 16);
+       hResult = IDirectDraw2_SetDisplayMode( bInfo->lpDD, bInfo->vidInfo.xRes, bInfo->vidInfo.yRes, bpp, 0, 0 );
++      hwcTrace("setVideoMode: SetDisplayMode retry returned (val=HRESULT)", 0, (FxU32) hResult);
+       
+       if (hResult != DD_OK) {
+         GDBG_INFO(80, "Setting video mode %dx%d@default refresh failed!\n",
+@@ -337,6 +413,7 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+         
+         if (!_set_vidmode_relaxed) {
+           GDBG_INFO(80, "Returning FXFALSE\n");
++          hwcTrace("setVideoMode: no display mode - open fails (val=HRESULT)", 0, (FxU32) hResult);
+           return FXFALSE;
+         } else {
+           GDBG_INFO(80, "Continuing operation due to relaxation condition\n");
+@@ -349,7 +426,11 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+     GDBG_INFO(80, "Did not find mode %dx%d@any refresh\n", bInfo->vidInfo.xRes, bInfo->vidInfo.yRes);
+     GDBG_INFO(80, "Setting video mode %dx%d@default refresh\n", bInfo->vidInfo.xRes, bInfo->vidInfo.yRes);
+ 
++    hwcTrace("setVideoMode: mode not listed - SetDisplayMode at the default refresh "
++             "(reg=w<<16|h val=bpp<<16)",
++             (bInfo->vidInfo.xRes << 16) | (bInfo->vidInfo.yRes & 0xffff), bpp << 16);
+     hResult = IDirectDraw2_SetDisplayMode( bInfo->lpDD, bInfo->vidInfo.xRes, bInfo->vidInfo.yRes, bpp, 0, 0 );
++    hwcTrace("setVideoMode: SetDisplayMode returned (val=HRESULT)", 0, (FxU32) hResult);
+     
+     if (hResult != DD_OK) {
+       GDBG_INFO(80, "Failed!\n",
+@@ -357,6 +438,7 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+       msgModeSetFailure(hResult);
+       if (!_set_vidmode_relaxed) {
+         GDBG_INFO(80, "Returning FXFALSE\n");
++        hwcTrace("setVideoMode: no display mode - open fails (val=HRESULT)", 0, (FxU32) hResult);
+         return FXFALSE;
+       } else {
+         GDBG_INFO(80, "Continuing operation due to relaxation condition\n");
+@@ -364,6 +446,7 @@ setVideoMode( hwcBoardInfo *bInfo, int refresh )
+     }
+   }
+   
++  winTraceWnd("setVideoMode: done (reg=hwnd val=window flags)", (HWND)bInfo->vidInfo.hWnd);
+   return FXTRUE;
+   
+ } /* setVideoMode */
+@@ -375,15 +458,19 @@ resetVideo( hwcBoardInfo *bInfo )
+   
+   GDBG_INFO(80, "%s:  called!\n", FN_NAME);
+   
++  winTraceWnd("resetVideo: enter (reg=hwnd val=window flags)", (HWND)bInfo->vidInfo.hWnd);
+   if ( bInfo->lpDD != NULL ) {
+     GDBG_INFO(80, "%s:  has lpDD!\n", FN_NAME);
+ 
++    hwcTrace("resetVideo: RestoreDisplayMode (reg=lpDD)", (FxU32) bInfo->lpDD, 0);
+     IDirectDraw2_RestoreDisplayMode( bInfo->lpDD );
+     GDBG_INFO(80, "%s:  Restored Display Mode!\n", FN_NAME);
+     
++    hwcTrace("resetVideo: SetCooperativeLevel NORMAL", 0, 0);
+     IDirectDraw2_SetCooperativeLevel( bInfo->lpDD, (HWND)bInfo->vidInfo.hWnd, DDSCL_NORMAL );
+     GDBG_INFO(80, "%s:  Set cooperative level!\n", FN_NAME);
+     
++    hwcTrace("resetVideo: Release", 0, 0);
+     IDirectDraw2_Release( bInfo->lpDD );
+     GDBG_INFO(80, "%s:  Released lpDD!\n", FN_NAME);
+ 
+@@ -392,6 +479,9 @@ resetVideo( hwcBoardInfo *bInfo )
+       IDirectDraw_Release( bInfo->lpDD1 );
+       GDBG_INFO(80, "%s:  Released lpDD1!\n", FN_NAME);
+     }
++    hwcTrace("resetVideo: done", 0, 0);
++  } else {
++    hwcTrace("resetVideo: no DirectDraw object - nothing to restore", 0, 0);
+   }
+   
+   bInfo->lpDD  = NULL;
+-- 
+2.53.0
+
