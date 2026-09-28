@@ -221,6 +221,8 @@ Tracked in git:
 | `patches/mesafx-voodoo2-icd.patch` | **All ICD work from 0.1.41 to 0.1.60** (the Voodoo 2 lane). Applied to the fork clone by `build-stack.sh`; it is not in any fork commit |
 | `patches/h5-bringup-wip.patch` | Three h3 fixes ported to the h5 Glide tree. **Not applied by anything** (§16) |
 | `tools/glideprobe.c` | Step-by-step Glide bring-up probe that survives a machine lock-up ([§11.3](#113-glideprobe--which-glide-call-hung-the-machine)) |
+| `tools/glide2probe.c` | The Glide 2 API through `glide2x.dll` (on a V5: AmigaMerlin's translator over our glide3x), step by step, flushed. `--ue1` replays Unreal Gold's re-open (13:0 3+1 ABGR, then 8:0 2+1 inside `WM_KILLFOCUS`, as WinDrv's EndFullscreen does); logs every focus message; a watchdog dumps the stuck main thread's stack (`--timeout`, `--hard-timeout`); every switch paced by `vcr-kmd/tools/vcr_pace.h`. Header = the evidence |
+| `tools/glide2stub.c`, `tools/glide2probe_wine.sh` | A fake `glide2x.dll` and a Wine run (local `retro-wine` image) that check glide2probe's harness off the box - never a driver |
 | `deploy/deploy171.py` | Stages the ICD (and optionally our Voodoo 2 Glide) into Quake II's folder on `.171`, verifies each upload by md5, `--rollback` |
 | `deploy/q2bench171.py` | Quake II timedemo A/B on `.171`, quiesced, median of runs 2..N, writes JSON to `deploy/bench-results/` (gitignored) |
 | `deploy/q2bench.py` | Older Quake II timedemo runner (kills the game and deletes the log first, parses only the last session) |
