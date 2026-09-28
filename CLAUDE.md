@@ -3209,6 +3209,25 @@ two *different* bodies to the same `base\fleetres.cfg`. So `gr_w_cfg()` asks
 "are the bytes equal". A byte comparison would report a change on every sync
 forever and bury the one signal that detects a real fault.
 
+**GAMESYNC and GAMERES must not undo each other (fixed after 1.90.0).** Until
+then they did, on every box, on every sync: GAMERES rewrote `Thief2\cam.cfg`
+(or a dosbox conf, or `DESCENT.CFG`) for the monitor, the next sync's resume
+test saw "not the library's file" and copied the library's back, and GAMERES
+changed it again - and install.reg's constants (CounterStrike16 pins the GoldSrc
+key at 800x600) were re-merged and GAMERES put the box's values back. `.110`
+wrote 11-22 files and reported 23 values changed on every quiet sync, rebuilding
+the icons each time; `.243`'s "Descent1 - 2 value(s) set" every run was the same
+fight. **The `.191` "4 → 0 → 0" above was measured with `GAMERES APPLY`, which
+copies nothing - it cannot see this. Prove "settled" with two consecutive
+SYNCS.** The fix is a per-box ledger `C:\RETRO_AGENT\GRLEDGER.TXT`
+(`agent/shared/grledger.h`): for each file GAMERES rewrote, the library copy
+before and GAMERES's file after; `gs_copy_file()` keeps the file while both
+still hold, and copies as before when either changes (a library update, an edit
+on the box). It can only turn a copy into a skip - a missing or damaged ledger
+is the old behaviour. Registry values a GAMERES rule owns are captured before
+`regedit` and put back after it. The `gameres:` line now ends `N adjusted
+file(s) kept`; `GAMESYNC STATUS` carries `gameres_changed`/`gameres_kept`.
+
 ### The monitor's highest refresh rate, per resolution
 
 **A refresh constant is the same defect as a resolution constant, one field to

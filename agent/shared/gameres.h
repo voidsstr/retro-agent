@@ -960,6 +960,49 @@ GR_DATA const gr_rule_t gr_rules[] = {
 
 #define GR_RULE_COUNT ((int)(sizeof(gr_rules) / sizeof(gr_rules[0])))
 
+GR_FN int gr_ieq(const char *a, const char *b)
+{
+    while (*a && *b) {
+        int x = (unsigned char)*a, y = (unsigned char)*b;
+        if (x >= 'A' && x <= 'Z') x += 'a' - 'A';
+        if (y >= 'A' && y <= 'Z') y += 'a' - 'A';
+        if (x != y)
+            return 0;
+        a++;
+        b++;
+    }
+    return *a == *b;
+}
+
+/*
+ * Which title's rule OWNS this registry value, if any? root is "HKLM" or
+ * "HKCU", subkey below it, name the value name - all compared
+ * case-insensitively, as the registry does.
+ *
+ * WHY GAMESYNC ASKS. A staged install.reg is a byte-identical constant: the
+ * CounterStrike16 one pins HKCU\Software\Valve\Half-Life\Settings ScreenWidth
+ * at 800, HalfLife1's at 1024, MaxPayne's and HiddenAndDangerous's their
+ * Display Width at 800. gs_merge_reg() re-applied that constant on every sync
+ * and this pass then put the box's own value back - so a settled box reported
+ * "4 value(s) changed" for Counter-Strike (and 2 each for Max Payne and H&D)
+ * forever (.110, agent 1.90.0, 2026-09-28). A value a rule here owns is the
+ * box's, not the library's: the merge keeps what this pass last set.
+ */
+GR_FN const char *gr_reg_owner(const char *root, const char *subkey, const char *name)
+{
+    int i;
+    if (!root || !subkey || !name)
+        return NULL;
+    for (i = 0; i < GR_RULE_COUNT; i++) {
+        const gr_rule_t *r = &gr_rules[i];
+        if (r->op != GR_OP_REG || !r->file || !r->arg1 || !r->arg2)
+            continue;
+        if (gr_ieq(r->file, root) && gr_ieq(r->arg1, subkey) && gr_ieq(r->arg2, name))
+            return r->title;
+    }
+    return NULL;
+}
+
 /*
  * The bodies for GR_OP_CFG. Kept out of the table because they are multi-line
  * and shared between titles; arg1 names which one (NULL = the standard

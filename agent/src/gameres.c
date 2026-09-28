@@ -39,6 +39,7 @@
 #include "util.h"
 #include "../shared/edid.h"
 #include "../shared/gameres.h"
+#include "../shared/grledger.h"
 
 #ifndef ENUM_CURRENT_SETTINGS
 #define ENUM_CURRENT_SETTINGS ((DWORD)-1)
@@ -236,6 +237,207 @@ const gr_target_t *gameres_target(void)
 }
 
 /* ---------------------------------------------------------------------- */
+/* the ledger: which files THIS pass rewrote, so GAMESYNC keeps them        */
+/* ---------------------------------------------------------------------- */
+
+/*
+ * GAMESYNC AND THIS PASS USED TO UNDO EACH OTHER ON EVERY SYNC. The pass
+ * rewrites a title's config for this box's monitor, which leaves the file
+ * different from the library's copy - so GAMESYNC's resume test (size AND
+ * mtime) copied the library's copy back at the next sync, and this pass
+ * changed it again. On .110 (agent 1.90.0, 2026-09-28) five syncs with nothing
+ * else changing wrote 22/20/11/11/20 files, this pass reported 23 values
+ * changed every time, and every sync rebuilt the icon layout.
+ *
+ * So each file this pass rewrites is recorded here - its state before the
+ * write (the library's copy as GAMESYNC stamped it) and after - and
+ * gs_copy_file() leaves such a file alone while BOTH still hold. The rules,
+ * and why a missing or damaged ledger only ever costs one more copy, are in
+ * agent/shared/grledger.h.
+ *
+ * Kept in C:\RETRO_AGENT (per box, never staged), text, one checksummed record
+ * per line, rewritten through a temporary file with DeleteFileA + MoveFileA -
+ * MoveFileExA does not exist on Win9x.
+ */
+#define GR_LEDGER_PATH "C:\\RETRO_AGENT\\GRLEDGER.TXT"
+#define GR_LEDGER_TMP  "C:\\RETRO_AGENT\\GRLEDGER.TMP"
+
+static grl_t            g_grl;
+static CRITICAL_SECTION g_grl_lock;
+static volatile LONG    g_grl_ready;
+static int              g_grl_loaded;
+
+void gameres_init(void)
+{
+    if (!g_grl_ready) {
+        InitializeCriticalSection(&g_grl_lock);
+        g_grl_ready = 1;
+    }
+}
+
+static int gr_stat(const char *path, long long *size, long long *mtime)
+{
+    WIN32_FILE_ATTRIBUTE_DATA ad;
+    if (!GetFileAttributesExA(path, GetFileExInfoStandard, &ad)
+        || (ad.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+        return 0;
+    *size  = ((long long)ad.nFileSizeHigh << 32) | ad.nFileSizeLow;
+    *mtime = gsr_ft64(ad.ftLastWriteTime.dwHighDateTime,
+                      ad.ftLastWriteTime.dwLowDateTime);
+    return 1;
+}
+
+/* Caller holds g_grl_lock. Loaded once per process: this process is the only
+ * writer, so after that the table in memory is the truth. */
+static void gr_ledger_load_locked(void)
+{
+    HANDLE h;
+    DWORD  size, got = 0;
+    char  *buf;
+    int    n, bad = 0;
+
+    if (g_grl_loaded)
+        return;
+    g_grl_loaded = 1;
+    grl_reset(&g_grl);
+    h = CreateFileA(GR_LEDGER_PATH, GENERIC_READ, FILE_SHARE_READ, NULL,
+                    OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return;                         /* none yet: the old behaviour */
+    size = GetFileSize(h, NULL);
+    if (size == 0xFFFFFFFF || size > GRL_FILE_MAX) {
+        CloseHandle(h);
+        log_msg(LOG_GR, "ledger %s is not one of ours (%lu bytes) - ignored; "
+                        "adjusted files will be re-copied once",
+                GR_LEDGER_PATH, (unsigned long)size);
+        g_grl.dirty = 1;                /* rewritten clean at the next save */
+        return;
+    }
+    buf = (char *)HeapAlloc(GetProcessHeap(), 0, size + 1);
+    if (buf && !ReadFile(h, buf, size, &got, NULL))
+        got = 0;
+    CloseHandle(h);
+    if (!buf)
+        return;
+    buf[got] = 0;
+    n = grl_parse(&g_grl, buf, got, &bad);
+    HeapFree(GetProcessHeap(), 0, buf);
+    if (n < 0) {
+        log_msg(LOG_GR, "ledger %s is damaged (no header) - ignored; adjusted "
+                        "files will be re-copied once", GR_LEDGER_PATH);
+        g_grl.dirty = 1;
+    } else if (bad) {
+        log_msg(LOG_GR, "ledger %s: %d damaged record(s) dropped, %d kept - "
+                        "those files will be re-copied once", GR_LEDGER_PATH,
+                bad, n);
+    }
+}
+
+/* Is there a record for this destination? Copies it out, so the caller never
+ * holds a pointer into a table another thread may change. */
+int gameres_ledger_lookup(const char *dst, long long *base_size,
+                          long long *base_time, long long *out_size,
+                          long long *out_time)
+{
+    int i, found = 0;
+    gameres_init();
+    EnterCriticalSection(&g_grl_lock);
+    gr_ledger_load_locked();
+    i = grl_find(&g_grl, dst);
+    if (i >= 0) {
+        *base_size = g_grl.e[i].base_size;
+        *base_time = g_grl.e[i].base_time;
+        *out_size  = g_grl.e[i].out_size;
+        *out_time  = g_grl.e[i].out_time;
+        found = 1;
+    }
+    LeaveCriticalSection(&g_grl_lock);
+    return found;
+}
+
+void gameres_ledger_forget(const char *dst)
+{
+    gameres_init();
+    EnterCriticalSection(&g_grl_lock);
+    gr_ledger_load_locked();
+    grl_forget(&g_grl, dst);
+    LeaveCriticalSection(&g_grl_lock);
+}
+
+static void gr_ledger_note(const char *path, long long pre_size, long long pre_time)
+{
+    long long post_size, post_time;
+    if (!gr_stat(path, &post_size, &post_time))
+        return;
+    gameres_init();
+    EnterCriticalSection(&g_grl_lock);
+    gr_ledger_load_locked();
+    grl_note(&g_grl, path, pre_size, pre_time, post_size, post_time);
+    LeaveCriticalSection(&g_grl_lock);
+}
+
+/* Write the ledger if it changed. A failure is logged and costs nothing but
+ * one more copy of each adjusted file at the next sync. */
+void gameres_ledger_save(void)
+{
+    char  *buf;
+    int    len, i;
+    HANDLE h;
+    DWORD  wr = 0;
+    BOOL   ok;
+
+    gameres_init();
+    EnterCriticalSection(&g_grl_lock);
+    gr_ledger_load_locked();
+    /* A record for a file that is no longer there describes nothing. */
+    for (i = g_grl.n - 1; i >= 0; i--)
+        if (GetFileAttributesA(g_grl.e[i].path) == 0xFFFFFFFF)
+            grl_remove(&g_grl, i);
+    if (!g_grl.dirty) {
+        LeaveCriticalSection(&g_grl_lock);
+        return;
+    }
+    buf = (char *)HeapAlloc(GetProcessHeap(), 0, GRL_FILE_MAX + 1);
+    len = buf ? grl_format(&g_grl, buf, GRL_FILE_MAX + 1) : -1;
+    if (len < 0) {
+        if (buf)
+            HeapFree(GetProcessHeap(), 0, buf);
+        LeaveCriticalSection(&g_grl_lock);
+        log_msg(LOG_GR, "ledger: could not format %d record(s) - not saved",
+                g_grl.n);
+        return;
+    }
+    CreateDirectoryA("C:\\RETRO_AGENT", NULL);
+    h = CreateFileA(GR_LEDGER_TMP, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    ok = h != INVALID_HANDLE_VALUE
+      && WriteFile(h, buf, (DWORD)len, &wr, NULL) && wr == (DWORD)len;
+    if (h != INVALID_HANDLE_VALUE)
+        CloseHandle(h);
+    HeapFree(GetProcessHeap(), 0, buf);
+    if (ok) {
+        DeleteFileA(GR_LEDGER_PATH);
+        ok = MoveFileA(GR_LEDGER_TMP, GR_LEDGER_PATH);
+    }
+    if (ok) {
+        g_grl.dirty = 0;
+    } else {
+        DeleteFileA(GR_LEDGER_TMP);
+        log_msg(LOG_GR, "ledger: could not write %s (error %lu) - the files "
+                        "this pass adjusted will be re-copied at the next sync",
+                GR_LEDGER_PATH, (unsigned long)GetLastError());
+    }
+    LeaveCriticalSection(&g_grl_lock);
+}
+
+/* Which title's rule owns this registry value? NULL if none. */
+const char *gameres_reg_owner(const char *root, const char *subkey,
+                              const char *name)
+{
+    return gr_reg_owner(root, subkey, name);
+}
+
+/* ---------------------------------------------------------------------- */
 /* writers - each returns 1 when it CHANGED something, 0 when the value was  */
 /* already right, and -1 on a real failure.                                  */
 /* ---------------------------------------------------------------------- */
@@ -253,6 +455,11 @@ static int gr_w_ini(const char *file, const char *sec, const char *key,
         return 0;
     if (!WritePrivateProfileStringA(sec, key, val, file))
         return -1;
+    /* Win9x CACHES profile writes and flushes them when it pleases; all three
+     * NULL flushes now. Without it the file's size and time read back below
+     * for the ledger would be the OLD file's, and GAMESYNC would re-copy the
+     * real one at the next sync. Harmless on NT, which writes through. */
+    WritePrivateProfileStringA(NULL, NULL, NULL, file);
     return 1;
 }
 
@@ -644,6 +851,8 @@ int gameres_apply_title(const char *dst_dir, const char *title,
 {
     const gr_target_t *t = gameres_target();
     int i, changed = 0, absent = 0, failed = 0;
+    int have_pre;
+    long long pre_size = 0, pre_time = 0;
 
     for (i = 0; i < GR_RULE_COUNT; i++) {
         const gr_rule_t *r = &gr_rules[i];
@@ -674,6 +883,10 @@ int gameres_apply_title(const char *dst_dir, const char *title,
 
         _snprintf(path, sizeof(path) - 1, "%s\\%s", dst_dir, r->file);
         path[sizeof(path) - 1] = 0;
+
+        /* The file as it is BEFORE this rule writes it - normally the
+         * library's copy exactly as GAMESYNC stamped it - for the ledger. */
+        have_pre = gr_stat(path, &pre_size, &pre_time);
 
         switch (r->op) {
         case GR_OP_INI:
@@ -727,6 +940,13 @@ int gameres_apply_title(const char *dst_dir, const char *title,
             }
         } else {
             changed += rc;
+            /* Record what this rule did to a file the LIBRARY ships, so the
+             * next sync keeps it instead of copying the library's back and
+             * handing it to this pass again (grledger.h). A file that did not
+             * exist before (a fleetres.cfg this pass creates) has no library
+             * copy to protect, so nothing is recorded for it. */
+            if (rc > 0 && have_pre)
+                gr_ledger_note(path, pre_size, pre_time);
         }
     }
 
@@ -796,6 +1016,9 @@ void handle_gameres(SOCKET sock, const char *args)
                   titles, changed, absent, g_gr.t.w, g_gr.t.h,
                   g_gr.t.w43, g_gr.t.h43);
         json[sizeof(json) - 1] = 0;
+        /* What this pass rewrote must be on disk before the next sync looks,
+         * or that sync copies the library's files straight back. */
+        gameres_ledger_save();
         send_text_response(sock, json);
         return;
     }

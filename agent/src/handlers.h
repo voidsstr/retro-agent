@@ -100,6 +100,20 @@ void gameres_probe(void);
 int  gameres_apply_title(const char *dst_dir, const char *title,
                          int *absent_out);
 int  gameres_has_rules(const char *title);
+/* The ledger of files the pass rewrote (agent/shared/grledger.h): GAMESYNC
+ * keeps such a file instead of copying the library's back over it while
+ * neither the library's copy nor the box's has changed since. gameres_init()
+ * runs once at startup (gamesync_init) before any thread can use it. */
+void gameres_init(void);
+int  gameres_ledger_lookup(const char *dst, long long *base_size,
+                           long long *base_time, long long *out_size,
+                           long long *out_time);
+void gameres_ledger_forget(const char *dst);
+void gameres_ledger_save(void);
+/* The title whose rule owns this registry value (root "HKLM"/"HKCU"), or
+ * NULL. gs_merge_reg() leaves such a value as the pass last set it. */
+const char *gameres_reg_owner(const char *root, const char *subkey,
+                              const char *name);
 /* Raise the PERSISTED desktop refresh to the highest rate the monitor supports
  * at the mode it is already in - upward only, resolution untouched, and only
  * with an EDID to bound it. It is how the engines with no refresh setting of
