@@ -481,6 +481,224 @@ static int text_setup(void)
     return grab(g_bg, g_bgbm, g_px_bg);
 }
 
+/* ---- patterns and lines (2026-09-27) ------------------------------------------
+ * Each case draws the same thing on the screen (our driver) and into the
+ * software reference, and the two frames must agree pixel for pixel. The
+ * driver's counters say whether the engine drew it: the cases marked `accel`
+ * must reach the engine when the switch is on; the others (slanted, styled,
+ * XOR) must go to GDI. */
+typedef void (*pl_draw_fn)(HDC dc);
+typedef struct plcase { const char *name; pl_draw_fn draw; int kind; int accel; } plcase;
+enum { PL_PAT = 1, PL_LINE = 2 };
+
+static HBITMAP g_grey_bm;               /* 8x8 1 bpp 50 % grey: every drag rectangle */
+
+static void pl_hatches(HDC dc, int bk_transparent)
+{
+    int i;
+    SetBkMode(dc, bk_transparent ? TRANSPARENT : OPAQUE);
+    SetBkColor(dc, BG2);
+    for (i = 0; i < 6; i++) {
+        HBRUSH b = CreateHatchBrush(i, i & 1 ? FG2 : FG3);
+        HGDIOBJ o = SelectObject(dc, b);
+        PatBlt(dc, 6 + i * 41, 8 + (i & 1) * 3, 37, 70 + i * 5, PATCOPY);
+        SelectObject(dc, o);
+        DeleteObject(b);
+    }
+}
+static void pl_hatch_opaque(HDC dc) { pl_hatches(dc, 0); }
+static void pl_hatch_transparent(HDC dc) { pl_hatches(dc, 1); }
+
+static void pl_grey(HDC dc, DWORD rop, int ox, int oy)
+{
+    HBRUSH b = CreatePatternBrush(g_grey_bm);
+    HGDIOBJ o;
+    POINT prev;
+    SetTextColor(dc, FG1);
+    SetBkColor(dc, BG1);
+    SetBrushOrgEx(dc, ox, oy, &prev);
+    o = SelectObject(dc, b);
+    PatBlt(dc, 13, 21, 201, 3, rop);            /* the drag-frame strips */
+    PatBlt(dc, 13, 24, 3, 150, rop);
+    PatBlt(dc, 211, 24, 3, 150, rop);
+    PatBlt(dc, 13, 171, 201, 3, rop);
+    PatBlt(dc, 40, 60, 97, 51, rop);            /* and a block at odd x */
+    SelectObject(dc, o);
+    SetBrushOrgEx(dc, prev.x, prev.y, NULL);
+    DeleteObject(b);
+}
+static void pl_grey_copy(HDC dc) { pl_grey(dc, PATCOPY, 0, 0); }
+static void pl_grey_invert(HDC dc) { pl_grey(dc, PATINVERT, 0, 0); }
+static void pl_grey_origin(HDC dc) { pl_grey(dc, PATCOPY, 3, 5); }
+static void pl_grey_origin_invert(HDC dc) { pl_grey(dc, PATINVERT, 7, 1); }
+
+static void pl_hatch_clipped(HDC dc)
+{
+    HRGN r = CreateRectRgn(0, 30, 70, 150), b = CreateRectRgn(90, 10, 150, 60);
+    CombineRgn(r, r, b, RGN_OR);
+    DeleteObject(b);
+    b = CreateRectRgn(160, 80, 250, 200);
+    CombineRgn(r, r, b, RGN_OR);
+    DeleteObject(b);
+    SelectClipRgn(dc, r);
+    pl_hatches(dc, 0);
+    SelectClipRgn(dc, NULL);
+    DeleteObject(r);
+}
+
+static void pl_pen(HDC dc, int style, COLORREF c, int rop2, void (*body)(HDC))
+{
+    HPEN pen = CreatePen(style, 0, c);
+    HGDIOBJ o = SelectObject(dc, pen);
+    int prev = SetROP2(dc, rop2);
+    body(dc);
+    SetROP2(dc, prev);
+    SelectObject(dc, o);
+    DeleteObject(pen);
+}
+static void body_hv(HDC dc)
+{
+    int i;
+    for (i = 0; i < 20; i++) {
+        MoveToEx(dc, 5 + i * 3, 10 + i * 7, NULL);
+        LineTo(dc, 240 - i * 5, 10 + i * 7);        /* left to right */
+        MoveToEx(dc, 250 - i * 2, 14 + i * 7, NULL);
+        LineTo(dc, 9 + i, 14 + i * 7);              /* right to left */
+        MoveToEx(dc, 20 + i * 11, 160, NULL);
+        LineTo(dc, 20 + i * 11, 190 - i);           /* up */
+        MoveToEx(dc, 24 + i * 11, 150 - i * 2, NULL);
+        LineTo(dc, 24 + i * 11, 200);               /* down */
+    }
+    MoveToEx(dc, 100, 100, NULL);
+    LineTo(dc, 100, 100);                           /* zero length: nothing */
+}
+static void body_rects(HDC dc)
+{
+    int i;
+    HGDIOBJ ob = SelectObject(dc, GetStockObject(NULL_BRUSH));
+    for (i = 0; i < 12; i++)
+        Rectangle(dc, 4 + i * 9, 6 + i * 7, 250 - i * 11, 210 - i * 5);
+    SelectObject(dc, ob);
+}
+static void body_poly(HDC dc)
+{
+    POINT pt[24];
+    int i;
+    for (i = 0; i < 24; i++) {
+        pt[i].x = 8 + (i / 2) * 20;
+        pt[i].y = (i & 1) ? 30 + (i % 4) * 30 : 30 + ((i + 1) % 4) * 30;
+        if (i & 1)
+            pt[i].x += 20;
+    }
+    for (i = 1; i < 24; i++)                        /* a staircase: every step axis-aligned */
+        if (i & 1) pt[i].y = pt[i - 1].y; else pt[i].x = pt[i - 1].x;
+    Polyline(dc, pt, 24);
+}
+static void body_diag(HDC dc)
+{
+    int i;
+    for (i = 0; i < 16; i++) {
+        MoveToEx(dc, 5 + i * 7, 5, NULL);
+        LineTo(dc, 120 + i * 9, 200 - i * 3);
+    }
+}
+static void pl_lines(HDC dc) { pl_pen(dc, PS_SOLID, FG2, R2_COPYPEN, body_hv); }
+static void pl_rects(HDC dc) { pl_pen(dc, PS_SOLID, FG3, R2_COPYPEN, body_rects); }
+static void pl_poly(HDC dc) { pl_pen(dc, PS_SOLID, FG1, R2_COPYPEN, body_poly); }
+static void pl_lines_clipped(HDC dc)
+{
+    HRGN r = CreateRectRgn(0, 0, 90, 120), b = CreateRectRgn(120, 40, 256, 180);
+    CombineRgn(r, r, b, RGN_OR);
+    DeleteObject(b);
+    SelectClipRgn(dc, r);
+    pl_pen(dc, PS_SOLID, FG2, R2_COPYPEN, body_hv);
+    pl_pen(dc, PS_SOLID, FG3, R2_COPYPEN, body_rects);
+    SelectClipRgn(dc, NULL);
+    DeleteObject(r);
+}
+static void pl_diag(HDC dc) { pl_pen(dc, PS_SOLID, FG2, R2_COPYPEN, body_diag); }
+static void pl_dotted(HDC dc) { pl_pen(dc, PS_DOT, FG1, R2_COPYPEN, body_rects); }
+static void pl_xor(HDC dc) { pl_pen(dc, PS_SOLID, RGB(255, 255, 255), R2_XORPEN, body_hv); }
+
+static const plcase k_pl[] = {
+    { "hatches opaque (6 styles)", pl_hatch_opaque, PL_PAT, 1 },
+    { "hatches transparent", pl_hatch_transparent, PL_PAT, 1 },   /* ROP4 0xAAF0 */
+    { "hatches through a region", pl_hatch_clipped, PL_PAT, 1 },
+    { "grey PATCOPY", pl_grey_copy, PL_PAT, 1 },
+    { "grey PATINVERT (drag frame)", pl_grey_invert, PL_PAT, 1 },
+    { "grey PATCOPY, brush origin 3,5", pl_grey_origin, PL_PAT, 1 },
+    { "grey PATINVERT, brush origin 7,1", pl_grey_origin_invert, PL_PAT, 1 },
+    { "lines h/v both directions", pl_lines, PL_LINE, 1 },
+    { "rectangle outlines (StrokePath)", pl_rects, PL_LINE, 1 },
+    { "polyline staircase", pl_poly, PL_LINE, 1 },
+    { "lines + outlines through a region", pl_lines_clipped, PL_LINE, 1 },
+    { "slanted lines (GDI's)", pl_diag, PL_LINE, 0 },
+    { "dotted pen (GDI's)", pl_dotted, PL_LINE, 0 },
+    { "XOR pen (GDI's)", pl_xor, PL_LINE, 0 },
+};
+#define NPL ((int)(sizeof k_pl / sizeof k_pl[0]))
+
+typedef struct pltotal { int cases, bad, bad_cases, path_bad, pat, line, have; } pltotal;
+
+static void pl_case(const plcase *c, pltotal *t)
+{
+    vcr_2d_stats a, b;
+    int x, y, bad = 0, changed = 0, have, pat = 0, line = 0, eng;
+    BitBlt(g_wdc, 0, 0, W, H, g_bg, 0, 0, SRCCOPY);
+    BitBlt(g_ref, 0, 0, W, H, g_bg, 0, 0, SRCCOPY);
+    have = stats2d(&a);
+    c->draw(g_wdc);
+    have = stats2d(&b) && have;
+    c->draw(g_ref);
+    GdiFlush();
+    BitBlt(g_mem, 0, 0, W, H, g_wdc, 0, 0, SRCCOPY);
+    if (!grab(g_mem, g_bm, g_px_got) || !grab(g_ref, g_refbm, g_px_ref)) {
+        say("  %s: GetDIBits failed", c->name);
+        t->bad++;
+        t->bad_cases++;
+        return;
+    }
+    for (y = 0; y < H; y++)
+        for (x = 0; x < W; x++) {
+            DWORD g = g_px_got[y * W + x] & 0xffffff, r = g_px_ref[y * W + x] & 0xffffff;
+            changed += r != (g_px_bg[y * W + x] & 0xffffff);
+            if (g != r) {
+                if (!bad)
+                    say("  %s: first bad at (%d,%d) got %06lx want %06lx", c->name, x, y,
+                        (unsigned long)g, (unsigned long)r);
+                bad++;
+            }
+        }
+    if (have) {
+        pat = (int)(b.pat_fills - a.pat_fills);
+        line = (int)(b.line_fills - a.line_fills);
+    }
+    eng = c->kind == PL_PAT ? pat : line;
+    /* the switch on: an accel case must reach the engine, a GDI case must not */
+    if (have && (b.flags & (c->kind == PL_PAT ? VCR_2DS_F_PAT : VCR_2DS_F_LINE))) {
+        if ((c->accel && !eng) || (!c->accel && c->kind == PL_LINE && eng)) {
+            say("  %s: expected %s", c->name, c->accel ? "on the engine" : "in software");
+            t->path_bad++;
+        }
+    }
+    say("patline %-36s %5d bad  %5d px drawn  engine: %d pattern fill(s), %d line call(s)%s",
+        c->name, bad, changed, pat, line, changed ? "" : "  (the reference drew nothing!)");
+    t->cases++;
+    t->bad += bad;
+    t->bad_cases += bad ? 1 : 0;
+    t->pat += pat;
+    t->line += line;
+    t->have |= have;
+}
+
+static int pl_setup(void)
+{
+    static const BYTE grey[16] = { 0xaa, 0, 0x55, 0, 0xaa, 0, 0x55, 0, 0xaa, 0, 0x55, 0,
+                                   0xaa, 0, 0x55, 0 };
+    g_grey_bm = CreateBitmap(8, 8, 1, 1, grey);
+    return g_grey_bm != NULL;
+}
+
 /* ---- text throughput -------------------------------------------------------- */
 
 typedef struct bcase {
@@ -562,11 +780,14 @@ int main(int argc, char **argv)
     WNDCLASSA wc;
     HWND wnd;
     int i, rounds = 3, r, total = 0, fills = 0, rops = 0, copies = 0, scrolls = 0, clips = 0,
-        sync = 0, first = 0, bench_ms = 2000, require = 0, do_base, do_text, do_bench, tsetup = 1;
+        sync = 0, first = 0, bench_ms = 2000, require = 0, do_base, do_text, do_bench, tsetup = 1,
+        do_pl = 0;
+    pltotal pt;
     const char *tests = "base,text";
     vcr_2d_stats st;
     ttotal tt;
     memset(&tt, 0, sizeof tt);
+    memset(&pt, 0, sizeof pt);
     for (i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--log") && i + 1 < argc)
             strncpy(g_logpath, argv[++i], sizeof g_logpath - 1);
@@ -582,6 +803,7 @@ int main(int argc, char **argv)
     do_base = strstr(tests, "base") != NULL;
     do_text = strstr(tests, "text") != NULL;
     do_bench = strstr(tests, "bench") != NULL;
+    do_pl = strstr(tests, "patline") != NULL;
     if (bench_ms < 100)
         bench_ms = 100;
     if (bench_ms > 20000)
@@ -610,7 +832,7 @@ int main(int argc, char **argv)
             st.bpp);
     else
         say("display driver 2D counters: not answered (not our driver)");
-    if ((do_text || do_bench) && !(tsetup = text_setup()))
+    if ((do_text || do_bench || do_pl) && !(tsetup = text_setup() && (!do_pl || pl_setup())))
         say("text setup failed");
 
     for (r = 0; r < rounds && do_base; r++) {
@@ -722,20 +944,30 @@ int main(int argc, char **argv)
             text_case(&k_cases[c], &tt, require);
         pump();
     }
+    for (r = 0; r < rounds && do_pl && tsetup; r++) {
+        int c;
+        for (c = 0; c < NPL; c++)
+            pl_case(&k_pl[c], &pt);
+        pump();
+    }
     if (do_bench && tsetup)
         text_bench(bench_ms);
-    if ((do_text || do_bench) && !tsetup)
+    if ((do_text || do_bench || do_pl) && !tsetup)
         tt.bad++;                       /* a text run that could not start is not a pass */
-    total = fills + rops + copies + scrolls + clips + sync + tt.bad + tt.path_bad + tt.empty;
+    total = fills + rops + copies + scrolls + clips + sync + tt.bad + tt.path_bad + tt.empty +
+            pt.bad + pt.path_bad;
     say("RESULT {\"mode\":\"gdi\",\"bpp\":%d,\"rounds\":%d,\"tests\":\"%s\",\"bad_fill\":%d,"
         "\"bad_rop\":%d,\"bad_copy\":%d,\"bad_scroll\":%d,\"bad_clip\":%d,\"bad_sync\":%d,"
         "\"bad_text\":%d,\"bad_text_cases\":%d,\"bad_text_path\":%d,\"bad_text_empty\":%d,"
         "\"text_cases\":%d,\"text_stats\":%s,\"text_engine_calls\":%d,"
         "\"text_engine_glyphs\":%d,\"text_clipped\":%d,\"text_blits\":%d,\"text_software\":%d,"
+        "\"patline_cases\":%d,\"bad_patline\":%d,\"bad_patline_cases\":%d,"
+        "\"bad_patline_path\":%d,\"pat_engine_fills\":%d,\"line_engine_calls\":%d,"
         "\"bench\":[%s],\"bad\":%d}",
         g_bpp, rounds, tests, fills, rops, copies, scrolls, clips, sync, tt.bad, tt.bad_cases,
         tt.path_bad, tt.empty, tt.cases, tt.have_stats ? "true" : "false", tt.calls, tt.glyphs,
-        tt.clipped, tt.blits, tt.punts, g_benchjson, total);
+        tt.clipped, tt.blits, tt.punts, pt.cases, pt.bad, pt.bad_cases, pt.path_bad, pt.pat, pt.line,
+        g_benchjson, total);
     DeleteDC(g_mem);
     DeleteObject(g_bm);
     ReleaseDC(wnd, g_wdc);

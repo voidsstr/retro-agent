@@ -32,6 +32,7 @@ static DRVFN g_drvfn[] = {
     { INDEX_DrvAlphaBlend,     (PFN)0 },
     { INDEX_DrvGradientFill,   (PFN)0 },
     { INDEX_DrvTransparentBlt, (PFN)0 },
+    { INDEX_DrvRealizeBrush,   (PFN)0 },
 #ifdef VCR_HAVE_DDI
     { INDEX_DrvGetDirectDrawInfo, (PFN)0 },
     { INDEX_DrvEnableDirectDraw,  (PFN)0 },
@@ -648,10 +649,11 @@ BOOL APIENTRY DrvEnableDriver(ULONG iEngineVersion, ULONG cj, DRVENABLEDATA *pde
     g_drvfn[20].pfn = (PFN)DrvAlphaBlend;
     g_drvfn[21].pfn = (PFN)DrvGradientFill;
     g_drvfn[22].pfn = (PFN)DrvTransparentBlt;
+    g_drvfn[23].pfn = (PFN)DrvRealizeBrush;
 #ifdef VCR_HAVE_DDI
-    g_drvfn[23].pfn = (PFN)DrvGetDirectDrawInfo;
-    g_drvfn[24].pfn = (PFN)DrvEnableDirectDraw;
-    g_drvfn[25].pfn = (PFN)DrvDisableDirectDraw;
+    g_drvfn[24].pfn = (PFN)DrvGetDirectDrawInfo;
+    g_drvfn[25].pfn = (PFN)DrvEnableDirectDraw;
+    g_drvfn[26].pfn = (PFN)DrvDisableDirectDraw;
 #endif
     pded->pdrvfn = g_drvfn;
     pded->c = sizeof g_drvfn / sizeof g_drvfn[0];

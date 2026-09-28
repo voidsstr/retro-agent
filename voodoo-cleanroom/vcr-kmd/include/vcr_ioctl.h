@@ -117,12 +117,18 @@ typedef struct vcr_info {
  * path, though 0-bad on the 86Box bed, drew FEWER glyphs/s there than the
  * software path it replaces and has never run on silicon (2026-09-27). */
 #define VCR_INFO_F_TEXT2D       0x40    /* Diag\\Accel2DText = 1: DrvTextOut on the 2D engine */
+/* the same kind (positive, default OFF, read at every IOCTL_VCR_INFO) for the
+ * 8x8 mono pattern fills and the axis-aligned cosmetic lines (2026-09-27) */
+#define VCR_INFO_F_PAT2D        0x80    /* Diag\\Accel2DPattern = 1: mono brushes on the engine */
+#define VCR_INFO_F_LINE2D       0x100   /* Diag\\Accel2DLine = 1: horizontal/vertical lines */
 
 /* VCR_ESC_2D_STATS: the display driver's 2D engine counters, since its PDEV
  * was created (a mode change starts them again). Answered only when the
  * caller's buffer holds the whole struct; `size` says how much was filled. */
 #define VCR_2DS_F_ENGINE        0x1     /* the 2D engine is in use */
 #define VCR_2DS_F_TEXT          0x2     /* the text path is on (Diag\\Accel2DText) */
+#define VCR_2DS_F_PAT           0x4     /* mono pattern fills on (Diag\\Accel2DPattern) */
+#define VCR_2DS_F_LINE          0x8     /* axis-aligned lines on (Diag\\Accel2DLine) */
 #define VCR_2DS_PUNT_SLOTS      10      /* = VCR_TEXT_R_MAX (vcr_text.h) */
 typedef struct vcr_2d_stats {
     vcr_u32 size;
@@ -140,7 +146,12 @@ typedef struct vcr_2d_stats {
                                  * the engine to drain it (the 86Box bed: ~100 us each) */
     vcr_u32 text_punts;         /* DrvTextOut calls handed to EngTextOut */
     vcr_u32 text_punt_why[VCR_2DS_PUNT_SLOTS];  /* by VCR_TEXT_R_* */
+    /* appended 2026-09-27: a caller built before asks for VCR_2DS_SIZE_V1
+     * bytes and is answered with exactly those */
+    vcr_u32 pat_fills, pat_punts;   /* DrvBitBlt mono-pattern calls on the engine / to GDI */
+    vcr_u32 line_fills, line_punts; /* DrvLineTo + DrvStrokePath on the engine / to GDI */
 } vcr_2d_stats;
+#define VCR_2DS_SIZE_V1         (13 * 4 + VCR_2DS_PUNT_SLOTS * 4)   /* through text_punt_why[] */
 
 /* IOCTL_VCR_LOG_WRITE */
 typedef struct vcr_log_write_req {

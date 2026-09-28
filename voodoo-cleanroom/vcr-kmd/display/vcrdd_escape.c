@@ -337,15 +337,19 @@ ULONG APIENTRY DrvEscape(SURFOBJ *pso, ULONG iEsc, ULONG cjIn, PVOID pvIn,
 
     case VCR_ESC_2D_STATS: {
         /* read only: what the 2D engine did on this PDEV (gdilab reads it
-         * around each text case, so a pass is known to be the engine's) */
-        vcr_2d_stats *st = (vcr_2d_stats *)pvOut;
-        ULONG i;
-        if (!pvOut || cjOut < sizeof *st)
+         * around each text case, so a pass is known to be the engine's).
+         * A caller built before the pattern/line counters were appended asks
+         * for the shorter struct and gets exactly that much. */
+        vcr_2d_stats all, *st = &all;
+        ULONG i, n = cjOut < sizeof all ? cjOut : (ULONG)sizeof all;
+        if (!pvOut || n < VCR_2DS_SIZE_V1)
             return 0;
         memset(st, 0, sizeof *st);
-        st->size = sizeof *st;
+        st->size = n;
         st->flags = (pd->g2d_ok ? VCR_2DS_F_ENGINE : 0) |
-                    (pd->g2d_ok && !pd->text_off ? VCR_2DS_F_TEXT : 0);
+                    (pd->g2d_ok && !pd->text_off ? VCR_2DS_F_TEXT : 0) |
+                    (pd->g2d_ok && pd->pat_on ? VCR_2DS_F_PAT : 0) |
+                    (pd->g2d_ok && pd->line_on ? VCR_2DS_F_LINE : 0);
         st->bpp = pd->bpp;
         st->ops = pd->g2d_ops;
         st->gdi_copies = pd->g2d_gdi_copies;
@@ -359,7 +363,12 @@ ULONG APIENTRY DrvEscape(SURFOBJ *pso, ULONG iEsc, ULONG cjIn, PVOID pvIn,
         st->text_punts = pd->text_punts;
         for (i = 0; i < VCR_2DS_PUNT_SLOTS; i++)
             st->text_punt_why[i] = pd->text_punt_why[i];
-        return sizeof *st;
+        st->pat_fills = pd->pat_fills;
+        st->pat_punts = pd->pat_punts;
+        st->line_fills = pd->line_fills;
+        st->line_punts = pd->line_punts;
+        memcpy(pvOut, st, n);
+        return n;
     }
     }
     return 0;

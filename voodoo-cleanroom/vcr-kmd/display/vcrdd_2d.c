@@ -34,7 +34,10 @@
 #define G_COMMANDEX         R2D(0x38)
 #define G_SRCFORMAT         R2D(0x54)
 #define G_SRCXY             R2D(0x5c)
+#define G_COLORBACK         R2D(0x60)
 #define G_COLORFORE         R2D(0x64)
+#define G_PATTERN0          R2D(0x100)      /* mono pattern rows 0-3 */
+#define G_PATTERN1          R2D(0x104)      /* mono pattern rows 4-7 */
 #define G_DSTSIZE           R2D(0x68)
 #define G_DSTXY             R2D(0x6c)
 #define G_COMMAND           R2D(0x70)
@@ -45,6 +48,10 @@
 #define CMD_GO              (1u << 8)
 #define CMD_XDIR            (1u << 14)      /* right to left */
 #define CMD_YDIR            (1u << 15)      /* bottom to top */
+#define CMD_MONO_PATTERN    (1u << 13)      /* the pattern is 8x8 1 bpp: colorFore / colorBack */
+#define CMD_TRANSPARENT     (1u << 16)      /* a mono source/pattern's 0 bits leave the dest */
+#define CMD_PATX(x)         ((ULONG)((x) & 7) << 17)
+#define CMD_PATY(y)         ((ULONG)((y) & 7) << 20)
 #define CMD_ROP(r)          ((ULONG)(r) << 24)
 /* ROP operands on this engine: S is the source pixel - for a RECTFILL, the
  * colorFore register - and P the pattern (colorPattern[], or colorFore/Back
@@ -328,6 +335,46 @@ BOOL VcrDd2dMonoGlyph(VCR_MONO *m, const BYTE *bits, ULONG cx, const vcr_glyph_p
     return vcr_glyph_stream(bits, cx, p, mono_put, m) == want;
 }
 
+/* an 8x8 monochrome pattern fill (a realized hatch/dither brush): the
+ * rectangle fill with the mono pattern on, the pattern's 1 bits in `fore`,
+ * its 0 bits in `back` or - `transparent` - left alone. rop3 is the pattern
+ * ROP (PATCOPY 0xF0, PATINVERT 0x5A); patx/paty the pattern offsets
+ * (vcr_line.h vcr_pat_offset) relative to the engine's origin, which this
+ * adds the surface's 16-byte base skew to. xf86-video-tdfx drives the same
+ * registers for its Mono8x8PatternFill (MIT; register usage only). */
+BOOL VcrDd2dPatFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LONG x, LONG y,
+                    LONG w, LONG h, ULONG pat0, ULONG pat1, ULONG fore, ULONG back, ULONG rop3,
+                    BOOL transparent, ULONG patx, ULONG paty)
+{
+    ULONG dbase, dsk, cmd;
+    if (!usable(pd) || w <= 0 || h <= 0 || dst_stride <= 0 || dst_stride > 0x3fff ||
+        (bytespp != 1 && bytespp != 2 && bytespp != 4))
+        return FALSE;
+    dbase = base_of(dst_off, bytespp, &dsk);
+    x += dsk;
+    if (x + w > 8191 || y + h > 8191)
+        return FALSE;
+    if (!VcrDdRoom(pd, 12))
+        return FALSE;
+    cmd = CMD_RECTFILL | CMD_GO | CMD_MONO_PATTERN | CMD_ROP(rop3 & 0xff) |
+          CMD_PATX(patx - dsk) | CMD_PATY(paty) | (transparent ? CMD_TRANSPARENT : 0);
+    wr(pd, G_CLIP0MIN, 0);
+    wr(pd, G_CLIP0MAX, 0x1fff1fff);
+    wr(pd, G_DSTBASE, dbase);
+    wr(pd, G_DSTFORMAT, (ULONG)dst_stride | (fmt_bits(bytespp) << 16));
+    wr(pd, G_COMMANDEX, 0);
+    wr(pd, G_PATTERN0, pat0);
+    wr(pd, G_PATTERN1, pat1);
+    wr(pd, G_COLORBACK, back);
+    wr(pd, G_COLORFORE, fore);
+    wr(pd, G_DSTSIZE, ((ULONG)h << 16) | ((ULONG)w & 0x1fff));
+    wr(pd, G_DSTXY, ((ULONG)y << 16) | ((ULONG)x & 0x1fff));
+    wr(pd, G_COMMAND, cmd);
+    pd->g2d_busy = 1;
+    pd->g2d_ops++;
+    return TRUE;
+}
+
 /* What a Glide session leaves in chip 0's 3D block - a chip mask that shuts
  * chip 0 out, AA jitter, an extended or two-pixels-per-clock combine,
  * stencil state - cleared for whoever draws next (vcr_3dseq.h has the list,
@@ -391,11 +438,14 @@ void VcrDd2dInit(VCR_PDEV *pd)
     pd->pjRegs = NULL;
     pd->g2d_ok = pd->g2d_busy = 0;
     pd->text_off = 1;               /* engine text only when the miniport says so */
+    pd->pat_on = pd->line_on = 0;   /* likewise patterns and lines */
     if (!VcrIoctl(pd->hDriver, IOCTL_VCR_INFO, NULL, 0, &info, sizeof info, NULL)) {
         pd->g2d_disabled = (info.flags & VCR_INFO_F_NO_ACCEL2D) ? 1 : 0;
         pd->d3d_disabled = (info.flags & VCR_INFO_F_NO_D3D) ? 1 : 0;
         pd->no_texport = (info.flags & VCR_INFO_F_NO_TEXPORT) ? 1 : 0;
         pd->text_off = (info.flags & VCR_INFO_F_TEXT2D) ? 0 : 1;   /* default OFF */
+        pd->pat_on = (info.flags & VCR_INFO_F_PAT2D) ? 1 : 0;       /* default OFF */
+        pd->line_on = (info.flags & VCR_INFO_F_LINE2D) ? 1 : 0;     /* default OFF */
         pd->napalm = info.device == 0x0009;
         /* default OFF (positive flags - an older miniport never sets them) */
         pd->rt32 = pd->napalm && (info.flags & VCR_INFO_F_D3D32) ? 1 : 0;

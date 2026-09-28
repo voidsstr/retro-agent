@@ -433,7 +433,9 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
                (x->reset3d ? VCR_INFO_F_RESET3D : 0) |
                /* read NOW, not at boot: the display driver asks at every
                 * DrvEnableSurface, so the next mode change picks it up */
-               (VcrDiagGet(L"Accel2DText", 0) ? VCR_INFO_F_TEXT2D : 0);
+               (VcrDiagGet(L"Accel2DText", 0) ? VCR_INFO_F_TEXT2D : 0) |
+               (VcrDiagGet(L"Accel2DPattern", 0) ? VCR_INFO_F_PAT2D : 0) |
+               (VcrDiagGet(L"Accel2DLine", 0) ? VCR_INFO_F_LINE2D : 0);
     v->ogl_version = VcrDiagGet(L"OpenGLVersion", 2);
     v->ogl_driver_version = VcrDiagGet(L"OpenGLDriverVersion", 1);
     if (!VcrDiagGetString(L"OpenGLName", v->ogl_name, 32)) {

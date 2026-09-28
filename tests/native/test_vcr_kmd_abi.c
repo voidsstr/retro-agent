@@ -71,9 +71,29 @@ TEST(escape_codes_and_ioctls) {
     CHECK(((IOCTL_VCR_INFO >> 2) & 0xfff) >= 0x800, "vendor function range");
 }
 
+/* VCR_ESC_2D_STATS grew four counters on 2026-09-27 (pattern fills, lines);
+ * a gdilab built before asks for the old size and the display driver answers
+ * exactly that much (vcrdd_escape.c), so the old layout must stay a prefix */
+TEST(the_2d_stats_struct_only_ever_grows_at_the_end) {
+    CHECK_EQ_U(VCR_2DS_SIZE_V1, 92);
+    CHECK_EQ_U(OFF(vcr_2d_stats, pat_fills), VCR_2DS_SIZE_V1);
+    CHECK_EQ_U(OFF(vcr_2d_stats, text_punt_why[0]), 52);
+    CHECK_EQ_U(OFF(vcr_2d_stats, line_punts), VCR_2DS_SIZE_V1 + 12);
+    CHECK_EQ_U(sizeof(vcr_2d_stats), VCR_2DS_SIZE_V1 + 16);
+    /* the flags: new bits, the old ones where they were */
+    CHECK_EQ_U(VCR_2DS_F_ENGINE, 0x1);
+    CHECK_EQ_U(VCR_2DS_F_TEXT, 0x2);
+    CHECK_EQ_U(VCR_2DS_F_PAT, 0x4);
+    CHECK_EQ_U(VCR_2DS_F_LINE, 0x8);
+    CHECK_EQ_U(VCR_INFO_F_TEXT2D, 0x40);
+    CHECK_EQ_U(VCR_INFO_F_PAT2D, 0x80);
+    CHECK_EQ_U(VCR_INFO_F_LINE2D, 0x100);
+}
+
 MUNIT_MAIN("vcr-kmd HWCEXT ABI", {
     RUN(request_and_result_sizes);
     RUN(request_offsets_match_glide);
     RUN(result_offsets_match_glide);
     RUN(escape_codes_and_ioctls);
+    RUN(the_2d_stats_struct_only_ever_grows_at_the_end);
 })

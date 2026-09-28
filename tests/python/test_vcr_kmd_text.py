@@ -169,8 +169,10 @@ def test_the_ddi_values_are_asserted_against_winddi_at_compile_time():
 
 def test_the_stats_escape_is_read_only_and_answers_only_a_whole_struct():
     st = ESC[ESC.index("case VCR_ESC_2D_STATS: {"):]
-    st = st[:st.index("return sizeof *st;")]
-    assert "if (!pvOut || cjOut < sizeof *st)" in st
+    st = st[:st.index("return n;")]
+    # a whole struct: today's, or the one before the 2026-09-27 counters
+    # (test_vcr_kmd_patline.py; the layout is pinned in test_vcr_kmd_abi.c)
+    assert "if (!pvOut || n < VCR_2DS_SIZE_V1)" in st
     assert "st->text_calls = pd->text_calls;" in st and "st->text_fifo_waits" in st
     assert "pd->" in st and not re.search(r"pd->\w+\s*=[^=]", st), "the escape changes nothing"
     assert "return esc > VCR_ESC_BASE && esc <= VCR_ESC_2D_STATS;" in ESC

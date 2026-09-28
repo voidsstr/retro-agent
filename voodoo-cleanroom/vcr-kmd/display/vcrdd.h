@@ -72,6 +72,8 @@ typedef struct VCR_PDEV {
     ULONG       g2d_ops, g2d_gdi_copies, g2d_gdi_fills;
     /* the text path (vcrdd_punt.c DrvTextOut, include/vcr_text.h) */
     ULONG       text_off;           /* not Diag\\Accel2DText = 1 (the default): EngTextOut as before */
+    ULONG       pat_on, line_on;    /* Diag\\Accel2DPattern / Accel2DLine = 1 (default off) */
+    ULONG       pat_fills, line_fills, pat_punts, line_punts;
     ULONG       text_calls, text_glyphs, text_clipped, text_rects, text_blits, text_punts;
     ULONG       text_fifo_waits;    /* a text write that had to wait for FIFO room */
     PUCHAR      text_mask;          /* VCR_TEXT_MASK_BYTES: a string's glyphs, OR-ed (NULL: per glyph) */
@@ -102,6 +104,9 @@ BOOL  VcrDd2dCopy(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG src_off, L
                   ULONG ckey, ULONG ck_lo, ULONG ck_hi);
 BOOL  VcrDd2dFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LONG x, LONG y,
                   LONG w, LONG h, ULONG color);
+BOOL  VcrDd2dPatFill(VCR_PDEV *pd, ULONG dst_off, LONG dst_stride, ULONG bytespp, LONG x, LONG y,
+                     LONG w, LONG h, ULONG pat0, ULONG pat1, ULONG fore, ULONG back, ULONG rop3,
+                     BOOL transparent, ULONG patx, ULONG paty);
 /* monochrome expansion (text): one per run of glyphs in one colour. Begin
  * points the engine at the surface; each Glyph is a host-to-screen blit of
  * one clipped glyph part (vcr_text.h), its data counted against the free PCI

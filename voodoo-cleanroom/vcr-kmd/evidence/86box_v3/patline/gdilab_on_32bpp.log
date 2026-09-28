@@ -1,0 +1,31 @@
+gdilab: 32 bpp, 256x192 window, 1 rounds, tests base,patline
+display driver 2D counters: engine on, text path off (32 bpp)
+pattern (solid fills): 0 bad
+PatBlt BLACKNESS: 0 bad
+PatBlt WHITENESS: 0 bad
+BitBlt copy: 0 bad
+BitBlt copy, odd x/size: 0 bad
+16 small copies, odd x: 0 bad
+scroll (0,-8): 0 bad
+scroll (0,8): 0 bad
+scroll (-8,0): 0 bad
+scroll (8,0): 0 bad
+clipped overlapping copy: 0 bad
+engine/CPU interleave: 0 bad
+  hatches opaque (6 styles): expected on the engine
+patline hatches opaque (6 styles)                0 bad  18315 px drawn  engine: 0 pattern fill(s), 0 line call(s)
+patline hatches transparent                      0 bad  18315 px drawn  engine: 0 pattern fill(s), 0 line call(s)
+  hatches through a region: expected on the engine
+patline hatches through a region                 0 bad   7567 px drawn  engine: 0 pattern fill(s), 0 line call(s)
+patline grey PATCOPY                             0 bad   7035 px drawn  engine: 5 pattern fill(s), 0 line call(s)
+patline grey PATINVERT (drag frame)              0 bad   3508 px drawn  engine: 5 pattern fill(s), 0 line call(s)
+patline grey PATCOPY, brush origin 3,5           0 bad   7035 px drawn  engine: 5 pattern fill(s), 0 line call(s)
+patline grey PATINVERT, brush origin 7,1         0 bad   3508 px drawn  engine: 5 pattern fill(s), 0 line call(s)
+patline lines h/v both directions                0 bad   9001 px drawn  engine: 0 pattern fill(s), 81 line call(s)
+patline rectangle outlines (StrokePath)          0 bad   5588 px drawn  engine: 0 pattern fill(s), 12 line call(s)
+patline polyline staircase                       0 bad    900 px drawn  engine: 0 pattern fill(s), 1 line call(s)
+patline lines + outlines through a region        0 bad   8385 px drawn  engine: 0 pattern fill(s), 73 line call(s)
+patline slanted lines (GDI's)                    0 bad   2745 px drawn  engine: 0 pattern fill(s), 0 line call(s)
+patline dotted pen (GDI's)                       0 bad   5588 px drawn  engine: 0 pattern fill(s), 0 line call(s)
+patline XOR pen (GDI's)                          0 bad   8942 px drawn  engine: 0 pattern fill(s), 0 line call(s)
+RESULT {"mode":"gdi","bpp":32,"rounds":1,"tests":"base,patline","bad_fill":0,"bad_rop":0,"bad_copy":0,"bad_scroll":0,"bad_clip":0,"bad_sync":0,"bad_text":0,"bad_text_cases":0,"bad_text_path":0,"bad_text_empty":0,"text_cases":0,"text_stats":false,"text_engine_calls":0,"text_engine_glyphs":0,"text_clipped":0,"text_blits":0,"text_software":0,"patline_cases":14,"bad_patline":0,"bad_patline_cases":0,"bad_patline_path":2,"pat_engine_fills":20,"line_engine_calls":167,"bench":[],"bad":2}
