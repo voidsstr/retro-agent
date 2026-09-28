@@ -379,6 +379,15 @@ class SoF(IdTech2):
     exe = "SoF.exe"
     port = 28910
     shot_dir = "scrnshot"
+    shot_ext = "tga"
+
+    async def paths(self, box):
+        # SoF writes its log and screenshots under user\, not base\ - the
+        # 2026-09-28 night runs wrote user\sof.log and user\scrnshot\sofNN.tga
+        # while the harness looked in base\ and reported "no screenshot"
+        return {"log": rf"{self.root}\user\sof.log",
+                "shots": rf"{self.root}\user\scrnshot",
+                "cfg": rf"{self.root}\{self.mod}\lancheck.cfg"}
 
     def script(self, phase, soak_frames, shots, server=None):
         # no demo of ours and no SoF 1 server on the host: the menu and its
