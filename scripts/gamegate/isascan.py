@@ -10,6 +10,11 @@ count, look for dispatch symbols (GIsMMX, Sys_GetProcessorFeatures), and READ
 THE ACTUAL LINES before declaring a floor - refusing a title on a machine
 that runs it is as damaging as approving one that crashes.
 
+A non-zero sse/sse2 count here is a QUESTION for simdguard.py (same
+directory), which asks how control reaches that code: Halo 1.10's ~500 SSE2
+instructions were read as a floor from this count and are all runtime-
+dispatched (2026-09-28).
+
 
 A Pentium 1 has FPU and, on a P55C, MMX. It has NO CMOV (Pentium Pro and
 later), no SSE, no SSE2. Any of those in ordinary compiler-generated code is

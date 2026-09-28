@@ -200,6 +200,32 @@ gated on `GIsMMX`), GoldSrc's (`hl.exe` carries five `cpuid` sites), id Tech 3's
 `jamp.exe` and `quake3.exe`, and StarCraft's SSE2 double math, which begins
 0x4e bytes after the two `cpuid` instructions that select it.
 
+**Ask how control gets IN, not how many instructions there are:
+`scripts/gamegate/simdguard.py` (2026-09-28).** Halo 1.10 is the case that
+made this a tool. `halo.exe` carries ~500 SSE2 instructions — scalar-double
+`mulsd`/`addsd`/`movlpd`, which *look* like an `/arch:SSE2` build — and 19
+`cpuid` sites; the conservative reading won and `requires.json` refused Halo on
+every SSE-only box (`.124`'s Athlon XP). Traced, every one of them is behind a
+CPU decision: the MSVC 7.1 CRT's SSE2 libm opens each entry with
+`cmp [_sse2_mathfcns],0 / je <x87>` (a flag set only beside a `cpuid` that
+tested EDX bit 26), D3DX9 installs its SSE2 table only after
+`IsProcessorFeaturePresent(PF_3DNOW)` said no, and the rest are SEH probes.
+The same holds for `Keystone.dll`, `binkw32.dll`, `ksimeui.dll` and
+`msvcr71.dll`, and for retail 1.00 — the engine that shipped for 733 MHz
+Pentium IIIs. So `sse2` is **not** a Halo floor.
+
+`simdguard.py <pe>... [--class sse2|sse] [-v]` classifies every way into SIMD
+code — `flag_gate`, `cpu_decision`, `dispatch_only` (a caller itself reached
+only under a decision, e.g. a per-CPU table filler), `seh_probe`, `ignored`
+(jump-table data, ASCII, a branch into an x87 tail), `unreferenced` (a caller
+nothing reaches) — and exits 1 on any `UNGUARDED` way: a direct call from
+ordinary code, a vtable/callback pointer, an export, the entry point. It is
+conservative in that direction on purpose: UT99 469e's `Core.dll` (hundreds of
+unguarded ways) still reads FLOOR, and StarCraft and `quake3.exe` read
+DISPATCHED, matching the hand analysis above. It is a disassembly heuristic,
+not a proof — read the ways it prints (`-v`) before changing a floor, as the
+paragraph above says of any count. Tests: `tests/python/test_simdguard_halo.py`.
+
 **Side finding worth not re-deriving, CORRECTED 2026-08-30:** DXX-Rebirth is a
 real CMOV floor, and *not* where the first version of this note said. The
 launcher binaries themselves are clean — `d1x-rebirth.exe` and
