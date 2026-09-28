@@ -22,7 +22,11 @@ int main(void)
           "the NEC card disabled at boot (ConfigFlags bit 0) is left alone");
     CHECK(ST(22, 1, 0, 0, "hdc", "MF\\GOODSECONDARY", "Secondary IDE controller") == DRVST_DISABLED,
           "problem 22 is disabled");
-    CHECK(ST(0, 0, 0, 0, "", "", "PCI Universal Serial Bus") == DRVST_MISSING, "no driver bound is missing");
+    CHECK(ST(1, 0, 0, 0, "", "", "PCI Universal Serial Bus") == DRVST_MISSING, "no driver bound, problem 1: missing");
+    CHECK(ST(0, 0, 0, 0, "LegacyDriver", "", "tcpip") == DRVST_OK,
+          "an XP ROOT\\LEGACY_* service devnode (no class key, no problem) is ok - 1.88.0 called 28 of them missing on .110");
+    CHECK(ST(28, 0, 0, 0, "Unknown", "", "PCI Modem") == DRVST_MISSING, ".110's Intel PCI modem (problem 28) is missing");
+    CHECK(ST(0, 1, 0, 0, "Other", "", "Other device") == DRVST_MISSING, "NT's Other class is missing");
     CHECK(ST(28, 1, 0, 0, "USB", "", "USB controller") == DRVST_MISSING, "problem 28 is missing");
     CHECK(ST(10, 1, 0, 0, "Net", "PCI\\VEN_10EC&DEV_8139", "RTL8139") == DRVST_MISSING,
           "problem 10 (failed start) is driver-fixable");
@@ -41,6 +45,6 @@ int main(void)
     CHECK(ST(0, 1, 0, 0, "display", "pci\\cc_0300", "x") == DRVST_GENERIC, "class and id compare case-insensitively");
     CHECK(strcmp(drvst_name(DRVST_EXCLUDED), "excluded_3dfx") == 0 && strcmp(drvst_name(DRVST_GENERIC), "generic") == 0,
           "states are named for the JSON");
-    printf("-- drvplan (DRIVERS STATUS states, agent 1.88.0): %d/%d tests passed --\n", runs - fails, runs);
+    printf("-- drvplan (DRIVERS STATUS states, agent 1.88.1): %d/%d tests passed --\n", runs - fails, runs);
     return fails ? 1 : 0;
 }

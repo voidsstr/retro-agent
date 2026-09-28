@@ -9,9 +9,11 @@
  *   excluded_3dfx - agent/shared/drvsafe.h says so: never touched automatically
  *   disabled      - problem 22/29, or Win9x ConfigFlags bit 0: the operator's
  *                   (or hardware's) choice, left alone (.243's NEC USB card)
- *   missing       - no driver bound, a problem a driver can fix (1 10 18 28
- *                   31 37 39 - drvmatch_problem_driver_fixable), or bound to
- *                   Win9x's "Unknown" class (.243's SB16 "Unsupported Device")
+ *   missing       - a problem a driver can fix (1 10 18 28 31 37 39 -
+ *                   drvmatch_problem_driver_fixable), Win9x's "Unknown" / NT's
+ *                   "Other" class (.243's SB16 "Unsupported Device"), or no
+ *                   driver WITH a problem. No driver and no problem is ok: XP's
+ *                   ROOT\LEGACY_* service devnodes run exactly like that.
  *   problem       - any other problem code: not a driver's fault (12 = a
  *                   resource conflict), so no driver change is proposed
  *   generic       - a DISPLAY adapter on the stub driver ("Standard VGA",
@@ -111,8 +113,13 @@ DRVPLAN_API int drvplan_state(unsigned long problem, int driver_bound, int disab
 {
     if (excl3dfx) return DRVST_EXCLUDED;
     if (disabled || problem == 22 || problem == 29) return DRVST_DISABLED;
-    if (!driver_bound || drvplan_problem_driver_fixable(problem)) return DRVST_MISSING;
-    if (drvplan_ieq(cls, "Unknown")) return DRVST_MISSING;  /* 9x: "Unsupported Device" etc. */
+    if (drvplan_problem_driver_fixable(problem)) return DRVST_MISSING;
+    if (drvplan_ieq(cls, "Unknown") || drvplan_ieq(cls, "Other"))
+        return DRVST_MISSING;               /* 9x "Unsupported Device"; NT "Other devices" */
+    /* No class key but no problem either: a device that RUNS without one - XP's
+     * ROOT\LEGACY_* service devnodes (tcpip, ndis, AFD ... 28 of them on .110)
+     * and raw PDOs. Counting those as "missing" was 1.88.0's first bug. */
+    if (!driver_bound && problem) return DRVST_MISSING;
     if (problem) return DRVST_PROBLEM;
     if (drvplan_display_stub(cls, matching, desc)) return DRVST_GENERIC;
     return DRVST_OK;
