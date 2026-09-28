@@ -44,7 +44,7 @@ index a6c0ab5..e837af1 100644
  else
  ifeq ($(ICD),1)
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..f54d8a5 100644
+index 350f075..7bad19f 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
 @@ -83,13 +83,34 @@ static GrHwConfiguration glbHWConfig;
@@ -205,16 +205,34 @@ index 350f075..f54d8a5 100644
  }
  
  
-@@ -828,7 +933,7 @@ fxMesaCreateContext(GLuint win,
+@@ -767,6 +872,9 @@ fxMesaCreateContext(GLuint win,
+        grLoadGammaTable(n, rr, gg, bb);
+        END_BOARD_LOCK();
+        fxMesa->haveDefaultGamma = GL_TRUE;
++#if defined(__WIN32__)
++       fxWglNoteGamma(n, rr, gg, bb);   /* 0.1.77: what Get3DFX must report */
++#endif
+     }
+     if (!getenv("FX_DITHER") || atoi(getenv("FX_DITHER")) != 0) {
+        BEGIN_BOARD_LOCK();
+@@ -828,7 +936,7 @@ fxMesaCreateContext(GLuint win,
                        fxMesa->snapVertices ? "" : "no ");
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.76]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.77]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
-@@ -1029,12 +1134,18 @@ fxMesaDestroyContext(fxMesaContext fxMesa)
+@@ -1024,17 +1132,26 @@ fxMesaDestroyContext(fxMesaContext fxMesa)
+       BEGIN_BOARD_LOCK();
+       grLoadGammaTable(n, rr, gg, bb);
+       END_BOARD_LOCK();
++#if defined(__WIN32__)
++      fxWglNoteGamma(n, rr, gg, bb);    /* 0.1.77: identity is back in the DAC */
++#endif
+    }
+ 
     /* close the hardware first,
      * so we can debug atexit problems (memory leaks, etc).
      */
@@ -233,7 +251,7 @@ index 350f075..f54d8a5 100644
     fxCloseHardware();
  
     fxDDDestroyFxMesaContext(fxMesa); /* must be before _mesa_destroy_context */
-@@ -1047,6 +1158,7 @@ fxMesaDestroyContext(fxMesaContext fxMesa)
+@@ -1047,6 +1164,7 @@ fxMesaDestroyContext(fxMesaContext fxMesa)
  
     if (fxMesa == fxMesaCurrentCtx)
        fxMesaCurrentCtx = NULL;
@@ -241,7 +259,7 @@ index 350f075..f54d8a5 100644
  }
  
  
-@@ -1106,6 +1218,37 @@ fxMesaMakeCurrent(fxMesaContext fxMesa)
+@@ -1106,6 +1224,37 @@ fxMesaMakeCurrent(fxMesaContext fxMesa)
  void GLAPIENTRY
  fxMesaSwapBuffers(void)
  {
@@ -279,7 +297,7 @@ index 350f075..f54d8a5 100644
     if (TDFX_DEBUG & VERBOSE_DRIVER) {
        fprintf(stderr, "fxMesaSwapBuffers()\n");
     }
-@@ -1120,7 +1263,21 @@ fxMesaSwapBuffers(void)
+@@ -1120,7 +1269,21 @@ fxMesaSwapBuffers(void)
  	    /* [retro3dfx] present the offscreen surface to the window (no page
  	     * flip in windowed mode). grBufferSwap is completed first inside the
  	     * board so the render is finished before we Blt it out. */
@@ -302,7 +320,7 @@ index 350f075..f54d8a5 100644
  	    fxWinSwap(fxMesaCurrentCtx);
  	 } else
  #endif
-@@ -1165,8 +1322,10 @@ fxCloseHardware(void)
+@@ -1165,8 +1328,10 @@ fxCloseHardware(void)
  	  * board is still released by grSstWinClose, and the process teardown (atexit
  	  * cleangraphics / OS) reclaims Glide on final exit. FX_GLIDE_SHUTDOWN=1
  	  * restores the old shutdown-on-last-context behaviour for A/B testing. */
@@ -411,10 +429,20 @@ index 1418d51..d35b25f 100644
        fxTexInvalidate(ctx, texObj);
  }
 diff --git a/src/mesa/drivers/glide/fxdrv.h b/src/mesa/drivers/glide/fxdrv.h
-index 1939489..1b9d4fb 100644
+index 1939489..93b5932 100644
 --- a/src/mesa/drivers/glide/fxdrv.h
 +++ b/src/mesa/drivers/glide/fxdrv.h
-@@ -678,6 +678,8 @@ extern void fxTMMoveOutTM(fxMesaContext, struct gl_texture_object *);
+@@ -566,6 +566,9 @@ extern GrContext_t fxWinOpen(fxMesaContext fxMesa, FxU32 hWnd, int w, int h, int
+ extern void fxWinSwap(fxMesaContext fxMesa);
+ extern void fxWinClose(fxMesaContext fxMesa);
+ extern void fxMesaRequestWindowed(int w, int h);  /* fxapi.c; set before create */
++/* [retro3dfx] 0.1.77: tell WGL_3DFX_gamma_control which ramp the ICD itself
++ * just loaded, so wglGetDeviceGammaRamp3DFX reports the DAC, not zeros */
++extern void fxWglNoteGamma(int n, const FxU32 *r, const FxU32 *g, const FxU32 *b);
+ #endif
+ extern void fxSetupDDPointers(GLcontext *);
+ 
+@@ -678,6 +681,8 @@ extern void fxTMMoveOutTM(fxMesaContext, struct gl_texture_object *);
  extern void fxTMFreeTexture(fxMesaContext, struct gl_texture_object *);
  extern void fxTMReloadMipMapLevel(fxMesaContext, struct gl_texture_object *,
  				  GLint);
@@ -423,7 +451,7 @@ index 1939489..1b9d4fb 100644
  extern void fxTMReloadSubMipMapLevel(fxMesaContext,
  				     struct gl_texture_object *, GLint, GLint,
  				     GLint);
-@@ -788,4 +790,9 @@ extern int TDFX_DEBUG;
+@@ -788,4 +793,9 @@ extern int TDFX_DEBUG;
  #define FX_RESCALE_BIG_TEXURES_HACK   1
  #define FX_COMPRESS_S3TC_AS_FXT1_HACK 1
  
@@ -1205,10 +1233,48 @@ index f8a6db0..6cb456a 100644
  
  
 diff --git a/src/mesa/drivers/glide/fxwgl.c b/src/mesa/drivers/glide/fxwgl.c
-index 6ad6fc9..1faa29f 100644
+index 6ad6fc9..4a38a8a 100644
 --- a/src/mesa/drivers/glide/fxwgl.c
 +++ b/src/mesa/drivers/glide/fxwgl.c
-@@ -258,13 +258,19 @@ static void rgl_first_entry(const char *fn)
+@@ -71,7 +71,37 @@ struct __pixelformat__
+    GLint mesaAttr[MAX_MESA_ATTRS];
+ };
+ 
++/* [retro3dfx] 0.1.77: the ramp WGL_3DFX_gamma_control reports. Until 0.1.76
++ * this was zero-filled until the game's first Set, while the DAC really held
++ * our FX_GAMMA ramp (fxapi.c) or Glide's identity. id Tech 3 saves what Get
++ * returns as the "original" gamma (WG_CheckHardwareGamma) and loads it back in
++ * GLimp_Shutdown (WG_RestoreGamma), so every vid_restart and every quit loaded
++ * an ALL-ZERO CLUT: black until the next Set, or until our own identity
++ * restore at context destroy (none when FX_GAMMA=1.0). Soldier of Fortune II
++ * MP does exactly this: sof2mp.exe 0x4de050 saves, 0x4de330 restores. Now the
++ * table tracks every ramp this ICD loads: identity before the first (what
++ * Glide's board open leaves unless SSTH3_*GAMMA is set), then
++ * fxWglNoteGamma() and wglSetDeviceGammaRamp3DFX. */
+ static GLushort gammaTable[3*256];
++static GLboolean gammaTableKnown = GL_FALSE;
++
++/* An n-entry 8-bit Glide ramp (what grLoadGammaTable takes) as the 3 x 256
++ * 16-bit WGL ramp: entry i of 256 comes from Glide entry i*n/256, the inverse
++ * of wglSetDeviceGammaRamp3DFX's index = i * (256/n), widened v -> v*0x101. */
++void
++fxWglNoteGamma(int n, const FxU32 *r, const FxU32 *g, const FxU32 *b)
++{
++ int i, k;
++ if (n <= 0 || n > 256 || !r || !g || !b)
++    return;
++ for (i = 0; i < 256; i++) {
++     k = i * n / 256;
++     gammaTable[i]       = (GLushort)((r[k] & 0xff) * 0x101);
++     gammaTable[256 + i] = (GLushort)((g[k] & 0xff) * 0x101);
++     gammaTable[512 + i] = (GLushort)((b[k] & 0xff) * 0x101);
++ }
++ gammaTableKnown = GL_TRUE;
++}
+ 
+ static struct __pixelformat__ pix[] = {
+    /* 16bit RGB565 single buffer with depth */
+@@ -258,13 +288,19 @@ static void rgl_first_entry(const char *fn)
  BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID reserved)
  {
     (void) hInst;
@@ -1229,7 +1295,7 @@ index 6ad6fc9..1faa29f 100644
     }
     return TRUE;
  }
-@@ -387,12 +393,48 @@ wglCreateContext(HDC hdc)
+@@ -387,12 +423,48 @@ wglCreateContext(HDC hdc)
        * the game thread enters grSstWinOpen without pumping, it deadlocks. Q3's
        * window is already settled, which is why it never hit this. Pump so the
        * WM_ACTIVATE/WM_SETFOCUS get dispatched and the window is truly active. */
@@ -1283,7 +1349,7 @@ index 6ad6fc9..1faa29f 100644
       }
          GetClientRect(hWnd, &cliRect);
          rgl_log("wglCreateContext: hWnd=%p GetClientRect=%ldx%ld curPFD=%d "
-@@ -451,6 +493,7 @@ GLAPI BOOL GLAPIENTRY
+@@ -451,6 +523,7 @@ GLAPI BOOL GLAPIENTRY
  wglDeleteContext(HGLRC hglrc)
  {
     if (ctx && hglrc == (HGLRC) 1) {
@@ -1291,7 +1357,7 @@ index 6ad6fc9..1faa29f 100644
  
        fxMesaDestroyContext(ctx);
  
-@@ -458,6 +501,7 @@ wglDeleteContext(HGLRC hglrc)
+@@ -458,6 +531,7 @@ wglDeleteContext(HGLRC hglrc)
  
        ctx = NULL;
        hDC = 0;
@@ -1299,7 +1365,29 @@ index 6ad6fc9..1faa29f 100644
        return (TRUE);
     }
  
-@@ -660,10 +704,64 @@ wglGetExtensionsStringARB (HDC hdc)
+@@ -511,6 +585,13 @@ GLAPI BOOL GLAPIENTRY
+ wglGetDeviceGammaRamp3DFX (HDC hdc, LPVOID arrays)
+ {
+  /* gammaTable should be per-context */
++ if (!gammaTableKnown) {
++    /* no ramp loaded by us or the game yet: report identity, never zeros */
++    GLint i;
++    for (i = 0; i < 256; i++)
++       gammaTable[i] = gammaTable[256 + i] = gammaTable[512 + i] = (GLushort)(i * 0x101);
++    gammaTableKnown = GL_TRUE;
++ }
+  memcpy(arrays, gammaTable, 3*256*sizeof(GLushort));
+  return TRUE;
+ }
+@@ -524,6 +605,7 @@ wglSetDeviceGammaRamp3DFX (HDC hdc, LPVOID arrays)
+ 
+  /* gammaTable should be per-context */
+  memcpy(gammaTable, arrays, 3*256*sizeof(GLushort));
++ gammaTableKnown = GL_TRUE;
+ 
+  tableSize = FX_grGetInteger(GR_GAMMA_TABLE_ENTRIES);
+  inc = 256 / tableSize;
+@@ -660,10 +742,64 @@ wglGetExtensionsStringARB (HDC hdc)
   return wglGetExtensionsStringEXT();
  }
  
@@ -1364,7 +1452,7 @@ index 6ad6fc9..1faa29f 100644
         {"wglGetExtensionsStringARB",    (PROC)wglGetExtensionsStringARB},
         {"wglGetExtensionsStringEXT",    (PROC)wglGetExtensionsStringEXT},
         {"wglSwapIntervalEXT",           (PROC)wglSwapIntervalEXT},
-@@ -693,18 +791,29 @@ wglGetProcAddress(LPCSTR lpszProc)
+@@ -693,18 +829,29 @@ wglGetProcAddress(LPCSTR lpszProc)
     int i;
     PROC p;
     rgl_first_entry("wglGetProcAddress");
@@ -1399,7 +1487,7 @@ index 6ad6fc9..1faa29f 100644
     SetLastError(0);
     return (NULL);
  }
-@@ -730,6 +839,7 @@ wglMakeCurrent(HDC hdc, HGLRC hglrc)
+@@ -730,6 +877,7 @@ wglMakeCurrent(HDC hdc, HGLRC hglrc)
     hDC = hdc;
  
     fxMesaMakeCurrent(ctx);
@@ -1407,7 +1495,7 @@ index 6ad6fc9..1faa29f 100644
  
     return (TRUE);
  }
-@@ -1113,6 +1223,7 @@ wglSwapBuffers(HDC hdc)
+@@ -1113,6 +1261,7 @@ wglSwapBuffers(HDC hdc)
     }
  
     fxMesaSwapBuffers();

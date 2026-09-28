@@ -73,6 +73,8 @@ typedef struct VCR_PDEV {
     /* the text path (vcrdd_punt.c DrvTextOut, include/vcr_text.h) */
     ULONG       text_off;           /* not Diag\\Accel2DText = 1 (the default): EngTextOut as before */
     ULONG       pat_on, line_on;    /* Diag\\Accel2DPattern / Accel2DLine (default on; 0 = off) */
+    ULONG       gamma_off;          /* Diag\\GdiGamma = 0: DrvIcmSetDeviceGammaRamp refuses */
+    ULONG       gamma_sets, gamma_fails;
     ULONG       pat_fills, line_fills, pat_punts, line_punts;
     ULONG       text_calls, text_glyphs, text_clipped, text_rects, text_blits, text_punts;
     ULONG       text_fifo_waits;    /* a text write that had to wait for FIFO room */

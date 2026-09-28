@@ -92,7 +92,7 @@ $(OUT)/glidelab.exe: tools/glidelab.c $(PACE_H) | $(OUT)
 
 # the self-checking lab programs (Win32 user mode): DirectDraw, Direct3D 8, GDI.
 # Run with tools/lab_run.py (or ddlab_run.py / d3dprobe_run.py).
-LABS := $(OUT)/ddlab.exe $(OUT)/d3dprobe.exe $(OUT)/gdilab.exe
+LABS := $(OUT)/ddlab.exe $(OUT)/d3dprobe.exe $(OUT)/gdilab.exe $(OUT)/gammaprobe.exe
 labs: $(LABS)
 $(OUT)/ddlab.exe: tools/ddlab.c $(PACE_H) | $(OUT)
 	$(CC) -O1 -Wall -march=i586 tools/ddlab.c -o $@ -static -lddraw -ldxguid -lgdi32 -luser32
@@ -100,6 +100,8 @@ $(OUT)/d3dprobe.exe: tools/d3dprobe.c $(PACE_H) | $(OUT)
 	$(CC) -O1 -Wall -march=i586 tools/d3dprobe.c -o $@ -static -ld3d8 -lgdi32 -luser32
 $(OUT)/gdilab.exe: tools/gdilab.c include/vcr_ioctl.h | $(OUT)
 	$(CC) -O1 -Wall -march=i586 -Iinclude tools/gdilab.c -o $@ -static -lgdi32 -luser32
+$(OUT)/gammaprobe.exe: tools/gammaprobe.c | $(OUT)
+	$(CC) -O2 -Wall -march=i586 -DWINVER=0x0501 -D_WIN32_WINNT=0x0501 tools/gammaprobe.c -o $@ -static -lgdi32 -luser32
 
 imports: all
 	python3 tools/check_imports.py $(OUT)/vcrmp.sys $(OUT)/vcrdd.dll $(OUT)/vcrprobe.sys

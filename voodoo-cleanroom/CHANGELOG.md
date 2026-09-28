@@ -12,6 +12,23 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.77 — `wglGetDeviceGammaRamp3DFX` reports the ramp in the DAC, never zeros (2026-09-28)
+
+**Problem (found reading `sof2mp.exe` while chasing Soldier of Fortune II's
+dark picture on `.124`):** the WGL_3DFX_gamma_control Get returned a static
+table that stayed zero-filled until the game's first Set, while the DAC really
+held our `FX_GAMMA` ramp (`fxapi.c`, default 1.3) or Glide's identity. id Tech
+3 saves what Get returns as the "original" ramp (`WG_CheckHardwareGamma`,
+sof2mp.exe 0x4de050) and loads it back first thing in `GLimp_Shutdown`
+(0x4de330) — so every `vid_restart` and every quit loaded an **all-zero
+colour table**, black until the next Set (or our identity restore at context
+destroy, which does not run when `FX_GAMMA` = 1.0).
+
+**Fix (`fxwgl.c`, `fxapi.c`):** the table tracks every ramp this ICD loads
+(`fxWglNoteGamma()` at create and destroy, and every Set); before any, Get
+reports identity. Not the cause of SoF2's steady-state darkness — that is the
+engine's `r_overBrightBits` 0 default, fixed in the staged tree.
+
 ## 0.1.76 — the context-creation pump can no longer spin on WM_PAINT (2026-09-28)
 
 **Problem (found on `.124`, the V5 6000, all-ours stack):** Unreal Tournament

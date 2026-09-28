@@ -8,6 +8,7 @@
 #include "vcrdd.h"
 #include "../include/vcr_modeorder.h"
 #include "../include/vcr_3dseq.h"      /* VCR_R3D_*: the Glide 3D reset's outcome codes */
+#include "../include/vcr_gamma.h"      /* GDI gamma ramp -> colour table */
 
 static DRVFN g_drvfn[] = {
     { INDEX_DrvEnablePDEV,     (PFN)0 },
@@ -34,6 +35,7 @@ static DRVFN g_drvfn[] = {
     { INDEX_DrvGradientFill,   (PFN)0 },
     { INDEX_DrvTransparentBlt, (PFN)0 },
     { INDEX_DrvRealizeBrush,   (PFN)0 },
+    { INDEX_DrvIcmSetDeviceGammaRamp, (PFN)0 },
 #ifdef VCR_HAVE_DDI
     { INDEX_DrvGetDirectDrawInfo, (PFN)0 },
     { INDEX_DrvEnableDirectDraw,  (PFN)0 },
@@ -341,6 +343,10 @@ static void fill_devinfo(VCR_PDEV *pd, DEVINFO *di)
 #endif
     if (pd->bpp == 8)
         di->flGraphicsCaps |= GCAPS_PALMANAGED | GCAPS_COLOR_DITHER;
+    /* SetDeviceGammaRamp reaches DrvIcmSetDeviceGammaRamp only with this;
+     * without it win32k refused every ramp (include/vcr_gamma.h) */
+    if (vcr_gamma_depth_ok(pd->bpp))
+        di->flGraphicsCaps2 |= GCAPS2_CHANGEGAMMARAMP;
     set_font(&di->lfDefaultFont, 16, 7, 700, VARIABLE_PITCH | FF_DONTCARE, L"System");
     set_font(&di->lfAnsiVarFont, 12, 9, 400, VARIABLE_PITCH | FF_DONTCARE, L"MS Sans Serif");
     set_font(&di->lfAnsiFixFont, 12, 9, 400, FIXED_PITCH | FF_DONTCARE, L"Courier");
@@ -627,6 +633,48 @@ BOOL APIENTRY DrvSetPalette(DHPDEV dhpdev, PALOBJ *ppalo, FLONG fl, ULONG iStart
     return TRUE;
 }
 
+/* GDI's SetDeviceGammaRamp (include/vcr_gamma.h): the ramp into chip 0's
+ * colour table bank 0, which the desktop and a Glide game's overlay both
+ * read at 16/32 bpp. The miniport writes it with its read-back retry. */
+BOOL APIENTRY DrvIcmSetDeviceGammaRamp(DHPDEV dhpdev, ULONG iFormat, LPVOID lpRamp)
+{
+    VCR_PDEV *pd = (VCR_PDEV *)dhpdev;
+    UCHAR buf[sizeof(VIDEO_CLUT) + VCR_GAMMA_ENTRIES * sizeof(ULONG)];
+    VIDEO_CLUT *c = (VIDEO_CLUT *)buf;
+    ULONG i, v;
+    DWORD rc;
+    if (!pd || iFormat != IGRF_RGB_256WORDS || !lpRamp || pd->gamma_off ||
+        !vcr_gamma_depth_ok(pd->bpp)) {
+        if (pd && pd->gamma_fails++ < 8)
+            VcrDd(VCR_LV_INFO, VCR_EV_DD_SET_PALETTE, iFormat, pd->bpp, pd->gamma_off, 1,
+                  "gamma ramp refused (format %u, %u bpp, Diag\\GdiGamma off %u)",
+                  iFormat, pd->bpp, pd->gamma_off);
+        return FALSE;
+    }
+    c->NumEntries = VCR_GAMMA_ENTRIES;
+    c->FirstEntry = 0;
+    for (i = 0; i < VCR_GAMMA_ENTRIES; i++) {
+        v = vcr_gamma_entry((const unsigned short *)lpRamp, i);
+        c->LookupTable[i].RgbArray.Red = (UCHAR)(v >> 16);
+        c->LookupTable[i].RgbArray.Green = (UCHAR)(v >> 8);
+        c->LookupTable[i].RgbArray.Blue = (UCHAR)v;
+        c->LookupTable[i].RgbArray.Unused = 0;
+    }
+    rc = VcrIoctl(pd->hDriver, IOCTL_VIDEO_SET_COLOR_REGISTERS, c,
+                  sizeof(VIDEO_CLUT) - sizeof(ULONG) + VCR_GAMMA_ENTRIES * sizeof(ULONG),
+                  NULL, 0, NULL);
+    /* entry 128 says what kind of ramp it was: 808080 identity, ffffff an
+     * id Tech 3 overbright ramp */
+    if (pd->gamma_sets++ < 16 || rc)
+        VcrDd(rc ? VCR_LV_ERROR : VCR_LV_INFO, VCR_EV_DD_SET_PALETTE,
+              vcr_gamma_entry((const unsigned short *)lpRamp, 64),
+              vcr_gamma_entry((const unsigned short *)lpRamp, 128), rc, 2,
+              "gamma ramp %s (entry 64 %06x, 128 %06x)", rc ? "FAILED" : "loaded",
+              vcr_gamma_entry((const unsigned short *)lpRamp, 64),
+              vcr_gamma_entry((const unsigned short *)lpRamp, 128));
+    return rc == 0;
+}
+
 VOID APIENTRY DrvDisableDriver(VOID)
 {
 }
@@ -660,10 +708,11 @@ BOOL APIENTRY DrvEnableDriver(ULONG iEngineVersion, ULONG cj, DRVENABLEDATA *pde
     g_drvfn[21].pfn = (PFN)DrvGradientFill;
     g_drvfn[22].pfn = (PFN)DrvTransparentBlt;
     g_drvfn[23].pfn = (PFN)DrvRealizeBrush;
+    g_drvfn[24].pfn = (PFN)DrvIcmSetDeviceGammaRamp;
 #ifdef VCR_HAVE_DDI
-    g_drvfn[24].pfn = (PFN)DrvGetDirectDrawInfo;
-    g_drvfn[25].pfn = (PFN)DrvEnableDirectDraw;
-    g_drvfn[26].pfn = (PFN)DrvDisableDirectDraw;
+    g_drvfn[25].pfn = (PFN)DrvGetDirectDrawInfo;
+    g_drvfn[26].pfn = (PFN)DrvEnableDirectDraw;
+    g_drvfn[27].pfn = (PFN)DrvDisableDirectDraw;
 #endif
     pded->pdrvfn = g_drvfn;
     pded->c = sizeof g_drvfn / sizeof g_drvfn[0];

@@ -57,6 +57,8 @@ retro-agent/tests/
     test_crypto.c         TRUE-SOURCE: compiles agent/src/crypto.c, XOR keystream
     test_fx_pack_ub.c     MesaFX ICD 0.1.2: SSE float->ubyte color clamp (fxvbtmp.h)
     test_icd_exit_shutdown.c  MesaFX ICD 0.1.62: grGlideShutdown at process exit, kept across vid_restart (fxapi.c)
+    test_icd_gamma_report.c   MesaFX ICD 0.1.77: wglGetDeviceGammaRamp3DFX reports the DAC ramp, not zeros (fxwgl.c)
+    test_vcr_kmd_gamma.c  TRUE-SOURCE: vcr-kmd include/vcr_gamma.h, a GDI gamma ramp as the colour table
     test_chatcore.c       TRUE-SOURCE: agent/shared/chatcore.c — the chat-proxy state
                           engine shared by the Windows agent and the DOS DOSCHAT build
                           (absolute log offsets, prompt take/ack/requeue, LOG_APPEND2
@@ -247,6 +249,8 @@ Fixes in **OUR stack** (MesaFX ICD `retro3dfx-gl` 0.1.x, agent, client):
 | h5 Glide swap bookkeeping (2026-09-24): `bufferSwaps` loops no longer index one past the array (a stray match wrapped the unsigned `swapsPending` and hung the swap wait forever), both swap waits and `_grBufferNumPending` bounded — fork `468609e` | Glide h5 | `native/test_h5_glide_guards.c` + `python/test_h5_glide_fixes.py` |
 | h5 Glide audit fixes (2026-09-24): bounded idle wait that reports, FX_GLIDE_NUM_CHIPS only 1 or real, live-mapping validation before MMIO, 32-bit escape field — fork `215a9e7` | Glide h5 | `native/test_h5_glide_guards.c` + `python/test_h5_glide_fixes.py` |
 | h5 Glide H1–H7 (TLS accessor, grGetString guard, board/slave-reg map guards, SLI/AA result, XP escape, FX_GLIDE_BPP) — fork `839143c` | Glide h5 | `python/test_h5_glide_fixes.py` |
+| 0.1.77 `wglGetDeviceGammaRamp3DFX` reports the ramp in the DAC (identity / our FX_GAMMA ramp) instead of a zero table - id Tech 3 saved it and loaded it back at every `vid_restart`/quit = an all-zero CLUT (found reading sof2mp.exe 0x4de050/0x4de330 while chasing SoF2's dark picture) | MesaFX ICD | `native/test_icd_gamma_report.c` + `python/test_cleanroom_gamma_report.py` |
+| vcr-kmd GDI gamma (2026-09-28, clean-room lane): `GCAPS2_CHANGEGAMMARAMP` + `DrvIcmSetDeviceGammaRamp` load a `SetDeviceGammaRamp` ramp into colour-table bank 0 at 16/24/32 bpp (the high byte of each word); `Diag\GdiGamma` = 0 refuses again. Until then win32k refused every ramp - Jedi Academy logged "SetDeviceGammaRamp failed." on .124 and the id Tech 3 family ran on software gamma with overbright forced to 0 | vcr-kmd | `native/test_vcr_kmd_gamma.c` + `python/test_vcr_kmd_gamma.py` |
 | 0.1.66 Mesa's per-span scratch arrays on the heap (SiN Gold stack overflow in an 80 KB `_mesa_unpack_color_span_chan` frame) | MesaFX ICD | `python/test_cleanroom_heap_span_arrays.py` |
 | 0.1.65 `wglCreateContext`'s activation pump is bounded and never dispatches WM_PAINT (ioquake3 hung forever on the system ICD) | MesaFX ICD | `python/test_cleanroom_activation_pump.py` |
 | 0.1.64 fullscreen refresh = the monitor's best, re-implemented in SOURCE (`fxBestRefresh`, bug I1) | MesaFX ICD | `python/test_cleanroom_refresh_source.py` + `native/test_fx_best_refresh.c` |

@@ -48,9 +48,11 @@ def test_both_switches_default_on_and_are_read_at_every_info_query():
 def test_drvrealizebrush_is_hooked_and_takes_only_8x8_1bpp_brushes():
     assert "{ INDEX_DrvRealizeBrush,   (PFN)0 }," in VCRDD
     assert "g_drvfn[23].pfn = (PFN)DrvRealizeBrush;" in VCRDD
-    # the DirectDraw entries moved up one, and nothing else shares 23
-    assert "g_drvfn[24].pfn = (PFN)DrvGetDirectDrawInfo;" in VCRDD
-    assert "g_drvfn[26].pfn = (PFN)DrvDisableDirectDraw;" in VCRDD
+    # the DirectDraw entries moved up one (and again for
+    # DrvIcmSetDeviceGammaRamp, 2026-09-28), and nothing else shares 23
+    assert "g_drvfn[24].pfn = (PFN)DrvIcmSetDeviceGammaRamp;" in VCRDD
+    assert "g_drvfn[25].pfn = (PFN)DrvGetDirectDrawInfo;" in VCRDD
+    assert "g_drvfn[27].pfn = (PFN)DrvDisableDirectDraw;" in VCRDD
     assert VCRDD.count("g_drvfn[23]") == 1
     rb = func(PUNT, "BOOL APIENTRY DrvRealizeBrush(")
     assert "pat->iBitmapFormat != BMF_1BPP" in rb

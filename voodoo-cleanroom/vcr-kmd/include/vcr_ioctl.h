@@ -122,6 +122,7 @@ typedef struct vcr_info {
  * in the miniport since 2026-09-28 - an older miniport never sets them) */
 #define VCR_INFO_F_PAT2D        0x80    /* Diag\\Accel2DPattern = 1: mono brushes on the engine */
 #define VCR_INFO_F_LINE2D       0x100   /* Diag\\Accel2DLine = 1: horizontal/vertical lines */
+#define VCR_INFO_F_NO_GDIGAMMA  0x4000  /* Diag\\GdiGamma = 0: refuse GDI's SetDeviceGammaRamp (include/vcr_gamma.h) */
 
 /* VCR_ESC_2D_STATS: the display driver's 2D engine counters, since its PDEV
  * was created (a mode change starts them again). Answered only when the
