@@ -15,6 +15,8 @@ import io
 import json
 import sys
 import zipfile
+
+import pytest
 from pathlib import Path
 
 DG = Path(__file__).resolve().parents[2] / "scripts" / "dosgames"
@@ -68,3 +70,54 @@ def test_fill_bat_resumes_and_logs():
     assert "if exist D:\\GAMES\\ABCDE123\\FILL.OK goto done_ABCDE123" in bat
     assert "C:\\DOSGAME\\UNZIP.EXE -qq -o W:\\FILES\\GAMES\\DOSFILL\\ABCDE123.ZIP -d D:\\GAMES\\ABCDE123" in bat
     assert "FAIL ABCDE123" in bat and bat.endswith("\r\n")
+
+
+def test_fill_bat_sets_tz_and_fails_only_on_an_unzip_error():
+    """The staged DJGPP UnZip 6.00 exits 1 (Info-ZIP's WARNING) on EVERY run
+    when TZ is unset - 'TZ environment variable not found, cannot use UTC
+    times!!' - even after a perfect extract. The first .243 fill (2026-09-27)
+    logged every title FAIL that way, ARKAN2E6's 11 files sitting right there.
+    Reproduced in DOSBox 2026-09-28; `set TZ` makes a good extract return 0."""
+    bat = pf.fill_bat([{"stem": "ABCDE123", "files": 3, "bytes": 10}], "W:\\FILES\\GAMES\\DOSFILL", "D:\\GAMES")
+    lines = bat.split("\r\n")
+    tz = lines.index("set TZ=" + pf.FILL_TZ)
+    unzip = next(i for i, l in enumerate(lines) if "UNZIP.EXE" in l)
+    assert tz < unzip, "TZ must be set before the first UNZIP"
+    assert "if errorlevel 2 echo FAIL ABCDE123>> D:\\GAMES\\FILL.LOG" in lines
+    assert "if errorlevel 2 goto done_ABCDE123" in lines
+    assert "if errorlevel 1 echo FAIL ABCDE123>> D:\\GAMES\\FILL.LOG" not in lines, \
+        "errorlevel 1 is a warning with the files extracted, not a failure"
+    assert any(l.startswith("if errorlevel 1 echo WARN ABCDE123") for l in lines), "a warning is still visible"
+
+
+def test_bat_only_rebuilds_from_the_manifest(tmp_path, monkeypatch):
+    man = tmp_path / "M.TXT"
+    man.write_text("ABCDE123|Some Game|GAME.EXE|3|10|/src/a.zip\nXYZ00001|Other|RUN.BAT|5|99|/src/b.zip\n")
+    monkeypatch.setattr(pf.sys, "argv", ["prep_fill.py", "--out", str(tmp_path / "o"), "--bat-only", str(man)])
+    pf.main()
+    bat = (tmp_path / "o" / "FILL.BAT").read_bytes().decode()
+    assert "echo 3 10> D:\\GAMES\\ABCDE123\\FILL.OK" in bat and "echo 5 99> D:\\GAMES\\XYZ00001\\FILL.OK" in bat
+
+
+def test_the_staged_unzip_needs_tz_in_dosbox(tmp_path):
+    """The real UNZIP.EXE, in DOSBox, when both are available: without TZ a
+    perfect extract is errorlevel 1; with the batch's TZ it is 0."""
+    import shutil, subprocess, os
+    unz = os.environ.get("DOSFILL_UNZIP", "")
+    dpmi = os.path.join(os.path.dirname(unz), "CWSDPMI.EXE")
+    if not (unz and shutil.which("dosbox") and os.path.exists(unz) and os.path.exists(dpmi)):
+        pytest.skip("SKIPPED LOUDLY: no dosbox or no staged DJGPP UNZIP.EXE+CWSDPMI.EXE (DOSFILL_UNZIP=...) - "
+                    "the TZ errorlevel behaviour is not re-measured here")
+    shutil.copy(unz, tmp_path / "UNZIP.EXE")
+    shutil.copy(dpmi, tmp_path / "CWSDPMI.EXE")
+    z = zipfile.ZipFile(tmp_path / "T.ZIP", "w", zipfile.ZIP_DEFLATED)
+    z.writestr("A.TXT", b"hello\r\n")
+    z.close()
+    (tmp_path / "T.BAT").write_bytes((
+        "@echo off\r\nUNZIP.EXE -qq -o T.ZIP -d O1\r\nif errorlevel 1 echo NOTZ1> R.TXT\r\n"
+        "set TZ=%s\r\nUNZIP.EXE -qq -o T.ZIP -d O2\r\nif not errorlevel 1 echo TZ0>> R.TXT\r\n" % pf.FILL_TZ).encode())
+    env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy")
+    subprocess.run(["timeout", "60", "dosbox", "-c", "mount c %s" % tmp_path, "-c", "c:", "-c", "T.BAT",
+                    "-c", "exit"], env=env, capture_output=True)
+    r = (tmp_path / "R.TXT").read_text().split()
+    assert r == ["NOTZ1", "TZ0"], r
