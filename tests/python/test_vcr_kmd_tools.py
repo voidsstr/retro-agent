@@ -228,3 +228,17 @@ def test_high_memory_labs_exist_and_ddlab_vidmem_switches_nothing():
     assert 'rc = do_texmem();' in gl
     glr = (kmd / "tools" / "glidelab_run.py").read_text()
     assert '"texmem"' in glr
+
+
+def test_glidelab_edges_is_for_a_person_to_look_at_and_reads_nothing_back():
+    """glidelab edges (2026-09-27): thin slanted triangles held on screen so a
+    person at the box can compare AA and no-AA edges. It must never read the
+    LFB - the AA read-back is what froze cfg 3 on 2026-09-26."""
+    gl = (Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd" / "tools"
+          / "glidelab.c").read_text()
+    ed = gl[gl.index("static int do_edges(void)"):gl.index("static unsigned line_code(int y)")]
+    assert "grLfbReadRegion" not in ed and "p_grBufferSwap(1);" in ed
+    assert 'rc = do_edges();' in gl
+    glr = (Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd" / "tools"
+           / "glidelab_run.py").read_text()
+    assert '"edges"' in glr

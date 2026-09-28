@@ -833,6 +833,37 @@ static int do_texmem(void)
     return (g_focus_lost ? 12 : (bad || !total) ? 1 : 0);
 }
 
+/* edges: thin slanted white triangles on black, held on screen for about
+ * --frames / 60 s, for a person to LOOK at - stair-stepped edges without AA,
+ * smoothed with it. No LFB read (the AA read-back is what froze cfg 3 on
+ * 2026-09-26); the proof is the observer's, recorded with the run. */
+static int do_edges(void)
+{
+    int f, i;
+    flat_state();
+    say("step: edges held for %d frames", O.frames);
+    for (f = 0; f < O.frames && !g_focus_lost; f++) {
+        p_grBufferClear(0, 0, 0xffff);
+        p_grConstantColorValue(0xffffffffu);
+        for (i = 0; i < 24; i++) {
+            float x = 20.0f + i * (float)(O.w - 40) / 24.0f, w = 3.0f + (i % 4);
+            vtx a = { x, 20.0f }, b = { x + w, 20.0f }, c = { x + w + O.h * 0.35f, (float)O.h - 20 };
+            p_grDrawTriangle(&a, &b, &c);
+        }
+        for (i = 0; i < 12; i++) {
+            float y = 40.0f + i * (float)(O.h - 80) / 12.0f;
+            vtx a = { 20.0f, y }, b = { (float)O.w - 20, y + 9.0f + i }, c = { 20.0f, y + 2.0f };
+            p_grDrawTriangle(&a, &b, &c);
+        }
+        p_grBufferSwap(1);
+        pump();
+    }
+    p_grFinish();
+    say("RESULT {\"mode\":\"edges\",\"res\":\"%s\",\"cfg\":%d,\"chips\":%d,\"frames\":%d,"
+        "\"frames_run\":%d%s}", O.res, O.cfg, chips_in_use(), O.frames, f, tail_json());
+    return g_focus_lost ? 12 : 0;
+}
+
 static unsigned line_code(int y)
 {
     unsigned v = (unsigned)y * 40503u + 0x2d1u;
@@ -1190,6 +1221,8 @@ int main(int argc, char **argv)
             rc = do_bands();
         } else if (!strcmp(O.mode, "texmem")) {
             rc = do_texmem();
+        } else if (!strcmp(O.mode, "edges")) {
+            rc = do_edges();
         } else if (!strcmp(O.mode, "abandon")) {
             int f;
             flat_state();

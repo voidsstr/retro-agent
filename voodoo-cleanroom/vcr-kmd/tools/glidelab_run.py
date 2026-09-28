@@ -676,7 +676,7 @@ async def run_sessions(box, a, runs):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("host")
-    ap.add_argument("mode", choices=("fill", "bands", "texmem", "cycle", "abandon"))
+    ap.add_argument("mode", choices=("fill", "bands", "texmem", "edges", "cycle", "abandon"))
     ap.add_argument("--res", default="640x480")
     ap.add_argument("--refresh", type=int, default=60,
                     help=f"one of {', '.join(map(str, GLIDE_HZ))} (glidelab.c's table)")

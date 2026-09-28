@@ -1,0 +1,5 @@
+plan: 1 glidelab run(s) at 1024x768x16@60   48.38 kHz  60.03 Hz   65.0 MHz
+  monitor HWP22d3 HP P1120: H 30-121 kHz, V 48-160 Hz, <= 300 MHz
+  glide C:\Games\Quake2Complete\glide3x.dll md5 38a891e81ea58379a0c22be6d7c0d6fb (1025320 B): SLIAA-GUARD yes, AA-TRACE yes
+{"mode": "fill", "error": "grSstWinOpen refused", "cleanup": {"images": ["glidelab.exe"], "found": [], "killed": [], "left": [], "spared": [], "gone": true, "pace_mark": true, "rested_s": 5.0}, "trace_file": {"path": "C:\\vcr\\glidelab\\fill.log.trace", "bytes": 209, "lines": 2, "header": true, "last": "1076828 winopen: REFUSED - single chip with AA on a multi-chip board (reg=numChips val=pixelSample) reg=00000004 val=00000002", "saved": "evidence/glidelab/aa_supervised/stepA_cfg1/20260927_232130_192.168.1.124_fill.trace", "log_saved": "evidence/glidelab/aa_supervised/stepA_cfg1/20260927_232130_192.168.1.124_fill.log"}, "host": "192.168.1.124"}
+{"host": "192.168.1.124", "aa_restore": {"root": "HKLM", "key": "SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0001\\Settings\\Glide", "wrote": "5", "readback": "5", "ok": true, "before": "5"}}

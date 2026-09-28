@@ -1,0 +1,10 @@
+glidelab fill: res=1024x768 refresh=60 cfg=1 dll=C:\Games\Quake2Complete\glide3x.dll
+sli/aa: cfg 1 from --cfg -> AA
+trace: level 2 -> C:\vcr\glidelab\fill.log.trace (AA open: FX_GLIDE_NO_SPLASH=1 FX_GLIDE_NO_PLUGIN=1)
+step: grGlideInit
+GR_HARDWARE: Voodoo5 6000 (tm)
+GR_EXTENSION: CHROMARANGE TEXCHROMA TEXMIRROR TEXUMA PALETTE6666 FOGCOORD SURFACE COMMAND_TRANSPORT TEXTUREBUFFER GETGAMMA GETREGISTRY ALPHAFOG PIXEXT COMBINE TEXFMT RETRO3DFX_PARTIALROW RETRO3DFX_SLIAA_GUARD RETRO3DFX_AA_TRACE 
+guard: RETRO3DFX_SLIAA_GUARD present; RETRO3DFX_AA_TRACE present
+step: grSstWinOpen 1024x768 60Hz origin upper
+  -> context 0x0, 0 Hz
+RESULT {"mode":"fill","error":"grSstWinOpen refused"}

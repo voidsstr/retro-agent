@@ -1,0 +1,2 @@
+=== glidetrace pid=1104 tick=1076828 level=2 file=C:\vcr\glidelab\fill.log.trace
+1076828 winopen: REFUSED - single chip with AA on a multi-chip board (reg=numChips val=pixelSample) reg=00000004 val=00000002
