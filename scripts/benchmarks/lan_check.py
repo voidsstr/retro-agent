@@ -53,6 +53,28 @@ def _load_bench():
 
 
 bench = _load_bench()
+
+
+def _load_gameservers():
+    spec = importlib.util.spec_from_file_location(
+        "gameservers", HERE.parent / "game-servers" / "gameservers.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def server_humans(t, server):
+    """The fleet server's own count of HUMAN players (ping 0 = a bot), or None.
+    Evidence a client got into the game that does not depend on the client's
+    log saying so - Jedi Academy's never does."""
+    kind = getattr(t, "server_probe", None)
+    if not kind or not server:
+        return None
+    try:
+        r = getattr(_load_gameservers(), f"probe_{kind}")(t.port, timeout=2.0, host=server)
+    except Exception:
+        return None
+    return None if not r else max(0, r.get("players", 0) - r.get("bots", 0))
 Box = bench.Box
 DRWTSN = r"C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\drwtsn32.log"
 
@@ -178,6 +200,7 @@ class IdTech3:
     port = 27961
     demo = "four"
     homepath = "appdata"          # ioquake3 on XP: %APPDATA%\Quake3
+    shot_cmd = "screenshotJPEG"   # SoF2 MP: "Unknown command" - its `screenshot` writes the jpg
     # the fleet server's rotation twice over, and the two biggest maps again
     map_cycle = ["q3dm7", "q3dm17", "q3tourney2", "q3dm6", "q3ctf1",
                  "q3dm7", "q3dm17", "q3tourney2", "q3dm6", "q3ctf1", "q3dm13", "q3dm7"]
@@ -216,14 +239,14 @@ class IdTech3:
             # (the q3 soak of 2026-09-28 did), so it proves nothing about this.
             lines = ['set timedemo 0']
             for m in self.map_cycle:
-                lines += [f'map {m}', 'wait 900', 'screenshotJPEG']
+                lines += [f'map {m}', 'wait 900', self.shot_cmd]
             self.maps_expected = len(self.map_cycle)
             return lines + ['wait 60', 'quit']
         # soak: connect FIRST - anything after `+exec` on the command line
         # waits behind this script, which ends in `quit`
         lines = ['set timedemo 0', f'connect {server}:{self.port}', 'wait 600']
         for _ in range(shots):
-            lines += [f'wait {max(1, soak_frames // shots)}', 'screenshotJPEG']
+            lines += [f'wait {max(1, soak_frames // shots)}', self.shot_cmd]
         return lines + ['disconnect', 'wait 60', 'quit']
 
     async def paths(self, box):
@@ -308,6 +331,114 @@ class RTCW(IdTech3):
         p = await super().paths(box)
         p["log"] = rf"{self.root}\{self.mod}\rtcwconsole.log"
         return p
+
+
+class SoF2MP(IdTech3):
+    """Soldier of Fortune II multiplayer as its shortcut runs it
+    (Play Soldier of Fortune II - Multiplayer.bat): sof2mp.exe -> opengl32 ->
+    the system ICD, r_mode from FLEETRES (the fork has no r_mode -1), the fleet
+    server's port 20100. The MP binary needs no disc (SoF2.exe single player
+    does - it is gated on disc_mount)."""
+    tid = "sof2"
+    name = "Soldier of Fortune II MP (shortcut: sof2mp.exe -> system ICD)"
+    root = r"C:\Games\SoldierOfFortune2"
+    mod = r"base\mp"
+    exe = "sof2mp.exe"
+    port = 20100
+    demo = None
+    homepath = "root"
+    # the fleet server's rotation, twice
+    map_cycle = ["mp_shop", "mp_kam3", "mp_hos1", "mp_shop", "mp_kam3", "mp_hos1"]
+    shot_cmd = "screenshot"       # measured on .124: screenshotJPEG is unknown to sof2mp
+
+    def launcher_args(self, env):
+        return f"+set r_mode {env['FR_Q3MODE']} +set r_fullscreen 1 +set cg_fov {env.get('FR_FOV', '90')}"
+
+    def fleetres_cfg(self, env):
+        return None         # the launcher writes base\fleetres.cfg; see prepare()
+
+    async def prepare(self, box, env):
+        await box.upload(rf"{self.root}\base\fleetres.cfg", "\r\n".join([
+            "// written by the launcher at every start - do not edit",
+            f'seta r_mode "{env["FR_Q3MODE"]}"', 'seta r_fullscreen "1"',
+            f'seta r_displayRefresh "{env.get("FR_HZ", "0")}"', f'seta cg_fov "{env.get("FR_FOV", "90")}"', ""]))
+
+    def script(self, phase, soak_frames, shots, server=None):
+        if phase in ("timedemo", "shot"):
+            return []
+        if phase == "soak":
+            # NOT a wait chain: frames drawn while connecting count against `wait`
+            # at an unknown rate and the gamestate load (CL_InitCGame, 16-26 s on
+            # .124) draws none, so two runs spent every wait before the player was
+            # in - their shots fired while connecting and the script's disconnect
+            # came straight after "entered the game". The host presses the keys.
+            return [f'bind F10 "{self.shot_cmd}"', 'bind F9 "disconnect; quit"',
+                    'set timedemo 0', f'connect {server}:{self.port}']
+        return super().script(phase, soak_frames, shots, server)
+
+    def host_keys(self, phase, soak, shots):
+        if phase != "soak":
+            return []
+        keys = [(60 + (i + 1) * max(10, (soak - 60) // (shots + 1)), "F10") for i in range(shots)]
+        return keys + [(soak, "F9")]
+
+
+class JediAcademyMP(SoF2MP):
+    """Jedi Academy multiplayer as its shortcut runs it (Play Jedi Academy -
+    Multiplayer.bat): the disc image mounted first (jamp.exe scans for the
+    JEDIACAD disc before anything else), then jamp.exe -> opengl32 -> the system
+    ICD at r_mode -1 with the launcher's custom size, the fleet server on 29070."""
+    tid = "jka"
+    name = "Jedi Academy MP (shortcut: mount + jamp.exe -> system ICD)"
+    root = r"C:\Games\JediAcademy"
+    mod = "base"
+    exe = "jamp.exe"
+    port = 29070
+    map_cycle = ["mp/ffa1", "mp/ffa3", "mp/ffa5", "mp/ffa1", "mp/ffa3", "mp/ffa5"]
+    shot_cmd = "screenshot"
+    image = r"C:\Games\JediAcademy\_disc\JediAcademy_CD1.iso"
+    mounter = r"C:\Program Files\WinCDEmu\batchmnt.exe"
+    server_probe = "q3"     # the client log never says "entered the game"
+
+    def parse(self, raw):
+        r = super().parse(raw)
+        # JA prints no "...loaded N faces": a map is in once its cgame loads
+        r["maps_loaded"] = len(re.findall(r"^Server: \S+[\s\S]*?Loading dll file cgame", raw, re.M))
+        return r
+
+    def host_keys(self, phase, soak, shots):
+        # JA opens its Player Configuration menu on joining (measured on .124:
+        # the first map-cycle shot shows it), and a menu takes the keys - F10
+        # and F9 did nothing for a whole soak. Escape closes it first.
+        keys = super().host_keys(phase, soak, shots)
+        return [(55, "ESC")] + keys if keys else keys
+
+    def launcher_args(self, env):
+        return (f"+set r_mode -1 +set r_customwidth {env['FR_W']} +set r_customheight {env['FR_H']} "
+                f"+set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 "
+                f"+set cg_fov {env.get('FR_FOV', '90')}")
+
+    async def prepare(self, box, env):
+        await box.upload(rf"{self.root}\base\fleetres.cfg", "\r\n".join([
+            "// written by the launcher at every start - do not edit",
+            f'seta r_customwidth "{env["FR_W"]}"', f'seta r_customheight "{env["FR_H"]}"',
+            f'seta r_displayRefresh "{env.get("FR_HZ", "0")}"', f'seta cg_fov "{env.get("FR_FOV", "90")}"', ""]))
+        # the disc, as the launcher mounts it; the label decides it is mounted
+        vol = await box.exec_('cmd /c for %d in (D E F G H I J K L M N O P) do @vol %d: 2>nul | find "JEDIACAD"', timeout=60)
+        if "JEDIACAD" not in vol:
+            # cmd /c strips the OUTER pair of quotes when the line holds more
+            # than two, so two quoted paths need one more pair around the lot:
+            # without it cmd ran `C:\Program`, the mounter never started, and
+            # jamp.exe sat at its "insert the disc" prompt (2026-09-28)
+            out = await box.exec_(f'cmd /c ""{self.mounter}" "{self.image}" /wait"', timeout=60)
+            log(f"    mount: {out.strip()[:120]}")
+            for _ in range(15):
+                await asyncio.sleep(2)
+                vol = await box.exec_('cmd /c for %d in (D E F G H I J K L M N O P) do @vol %d: 2>nul | find "JEDIACAD"', timeout=60)
+                if "JEDIACAD" in vol:
+                    break
+        if "JEDIACAD" not in vol:
+            return f"disc image not mounted - no JEDIACAD volume after {self.mounter}"
 
 
 def wait_chain(frames):
@@ -718,7 +849,7 @@ class Turok2(Launcher):
     shots_at = (45, 75)
 
 
-TITLES = {"q3": IdTech3, "rtcw": RTCW, "q2": IdTech2, "sof": SoF, "cs16": GoldSrc, "ut99": UT99,
+TITLES = {"q3": IdTech3, "rtcw": RTCW, "sof2": SoF2MP, "jka": JediAcademyMP, "q2": IdTech2, "sof": SoF, "cs16": GoldSrc, "ut99": UT99,
           "q1": GLQuake, "q1voodoo": GLQuakeVoodoo, "ra2": RedAlert2, "turok2": Turok2}
 
 
@@ -746,7 +877,10 @@ async def run_phase(box, t, env, phase, args, outdir):
     if fcfg is not None:
         await box.upload(rf"{t.root}\{t.mod}\fleetres.cfg", fcfg)
     if hasattr(t, "prepare"):
-        await t.prepare(box, env)
+        err = await t.prepare(box, env)
+        if err:
+            rec["error"] = err
+            return rec
     if p.get("cfg"):
         await box.upload(p["cfg"], "\r\n".join(lines) + "\r\n")
     await box.exec_(f'cmd /c del /f /q "{p["log"]}" 2>nul')
@@ -766,8 +900,15 @@ async def run_phase(box, t, env, phase, args, outdir):
     keys = list(t.host_keys(phase, args.soak, args.shots)) if hasattr(t, "host_keys") else []
     rec["keys_sent"] = []
     done_re = getattr(t, "done_re", {}).get(phase)
+    polled = 0.0
     while True:
         await asyncio.sleep(5)
+        if phase == "soak" and time.time() - polled >= 30:
+            polled = time.time()
+            h = await asyncio.to_thread(server_humans, t, args.server)
+            if h is not None:
+                rec.setdefault("server_humans", []).append(f"{int(polled - started)}s:{h}")
+                rec["server_humans_max"] = max(rec.get("server_humans_max", 0), h)
         if done_re and time.time() - started > 15:
             part = (await box.download(p["log"]) or b"").decode("latin-1", errors="replace")
             if re.search(done_re, part):
@@ -801,6 +942,8 @@ async def run_phase(box, t, env, phase, args, outdir):
     raw = (await box.download(p["log"]) or b"").decode("latin-1", errors="replace")
     (outdir / f"{t.tid}_{phase}.log").write_text(raw)
     rec.update(t.parse(raw))
+    if rec.get("server_humans_max"):
+        rec["connected"] = True     # the server saw a human player on it
     if phase == "maps":
         rec["maps_expected"] = getattr(t, "maps_expected", 0)
     rec["log_bytes"] = len(raw)
