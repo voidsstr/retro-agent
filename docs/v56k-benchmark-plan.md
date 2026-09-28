@@ -96,6 +96,35 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-28 13:10) - the requested titles on the all-ours stack; four fixes landed; Halo in progress
+
+**State:** vcr-kmd = the `integ-vcrkmd` build (master + D3DBigTex/DdHeapFloor/fbshot
+integration, all new switches default OFF, EXIT fix, vcrdd.dll version 6.14.1.1),
+**`Diag\D3D32`=1 and `Diag\D3DBigTex`=7 ARMED for the Halo test - disarm and reboot
+before the party**, GoodBoots 35. ICD **0.1.78** (system + Q2/Q3/RtCW game-local;
+0.1.76 kept as `*.0176`), our h5 Glide 38a891e8. Evidence:
+`scripts/benchmarks/results/v56k_lan_192.168.1.124/day/` (runs + `fbshots/`).
+
+| title | result |
+|---|---|
+| Soldier of Fortune II MP | PASS soak + 6-map cycle on the fleet server; "very dark" = the engine's `r_overBrightBits 0` default - staged `base\mp\autoexec.cfg` now overbright 1 + picmip 0, redeployed to .124 and .110; luma 47 -> 65. Its startup "0 overbright bits" line is printed before the value is computed |
+| Jedi Academy MP | PASS: server-side ClientBegin -> clean disconnect (4.5 min) + 6-map cycle; disc mounts through WinCDEmu (the "needs DAEMON Tools" was a harness quoting bug); GDI gamma now reaches the card |
+| Carmageddon 2 | PASS in a race (Glide via the translator, fbshot of the 4-chip overlay) |
+| Deathmatch Classic | crashed on 0.1.76 (glapi stub for glPNTrianglesiATI) - **ICD 0.1.78 fixes it**; renders dmc_dm2 1280x960 |
+| Team Fortress Classic | renders 2fort 1280x960 |
+| Unreal Gold | PASS at 1024x768 (library launcher now picks an exact 4:3 Glide 2 mode); **multiplayer** PASS after the fleet server was replaced by a 226 server (the library client is 226; the 227k server refused it) |
+| Jedi Knight DF2 | Direct3D crashed in D3DIM - **vcr-kmd DP2 D3DOP_EXIT fix**; now plays 1280x960x16 D3D, clean quit |
+| Mysteries of the Sith | PASS in D3D 1280x960 (7,014 DP2, 342k tris, 0 unparsed), clean quit |
+| Halo | tree hand-deployed (gate refuses the GPU); big textures/DXT/A8R8G8B8 verified on silicon by d3dprobe; Halo stops at its own FATAL "video driver known to have serious issues" - trigger under analysis |
+
+**Found and fixed:** vcr-kmd GDI gamma (DrvIcmSetDeviceGammaRamp); ICD 0.1.77 (3DFX
+gamma Get never zeros) and 0.1.78 (no synthesized GL stubs); vcr-kmd DP2 EXIT;
+Unreal Gold launcher 4:3 Glide mode; 226 Unreal Gold server; lan_check (JA/DMC/TFC,
+server-side join proof, Dr. Watson settle). **Open:** Halo's InvalidDriver check;
+`.124` <-> NAS SMB runs at 0.5-0.8 MB/s while .124 <-> host (11 MB/s) and .110 <-> NAS
+(9.6 MB/s) are fine - physical path to check; SoF2 ignores WM_CLOSE (quit via menu);
+disarm D3D32/D3DBigTex.
+
 ### Resume point (2026-09-28 07:30) - the night's LAN-party checks on `.124`; box left on the known-good state
 
 **State:** vcr-kmd from master, `Diag\D3D32` ABSENT (armed for one boot, verified,
