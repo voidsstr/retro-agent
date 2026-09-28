@@ -150,7 +150,17 @@
 #define   TF_RGB565             10u
 #define   TF_ARGB1555           11u
 #define   TF_ARGB4444           12u
-#define   TF_ARGB8888           0x12u   /* VSA-100 only: textureMode[11:8] + tLOD ext bit */
+/* VSA-100 only (h5 h3defs.h SST_ARGB8888 = 15 << SST_TFORMAT_SHIFT). 0x12 is
+ * Glide's API token GR_TEXFMT_ARGB_8888, which grTexSource translates to 15
+ * before it writes textureMode - never the register value */
+#define   TF_ARGB8888           15u
+/* VSA-100 compressed textures: textureMode bit 31 set, then the format field
+ * says which (h5 h3defs.h SST_COMPRESSED_TEXTURES, SST_FXT1/SST_DXT1..5) */
+#define TM_COMPRESSED           (1u << 31)
+#define   TF_CMP_FXT1           0u
+#define   TF_CMP_DXT1           1u
+#define   TF_CMP_DXT23          2u      /* DXT2 and DXT3: explicit 4-bit alpha */
+#define   TF_CMP_DXT45          3u      /* DXT4 and DXT5: interpolated alpha */
 /* the TMU's own combine: local = its texture, other = the TMU upstream's
  * output. REPLACE: local; PASS: other; MULT: other x local; ADD: other + local.
  * (h3defs.h SST_TC_* / SST_TCA_*: zero_other 12/21, mselect 14/23 (1 = clocal),
@@ -169,6 +179,7 @@
 #define TL_LODMAX(l)            ((unsigned)(l) << 8)
 #define TL_S_IS_WIDER           (1u << 20)
 #define TL_ASPECT(a)            ((unsigned)(a) << 21)       /* log2 of the aspect ratio */
+#define TL_TBIG                 (1u << 30)  /* VSA-100: LODs count from 2048 (h5 SST_TBIG) */
 
 /* sSetupMode */
 #define SM_RGB                  (1u << 0)

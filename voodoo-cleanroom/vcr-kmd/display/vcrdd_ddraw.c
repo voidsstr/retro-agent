@@ -64,11 +64,12 @@ BOOL APIENTRY DrvGetDirectDrawInfo(DHPDEV dhpdev, DD_HALINFO *hal, DWORD *nheaps
 {
     VCR_PDEV *pd = (VCR_PDEV *)dhpdev;
     ULONG hs, he;
-    (void)fourcc;
     if (!pd || !pd->pvRamBase || !pd->cjVram)
         return FALSE;
     heap_range(pd, &hs, &he);
-    *nfourcc = 0;
+    /* none, unless Diag\\D3DBigTex arms the VSA-100's DXT1/3/5 textures
+     * (vcrdd_d3d.c): the count first, the codes on the second call */
+    *nfourcc = VcrDdD3dFourCC(pd, fourcc);
     *nheaps = he > hs ? 1 : 0;
     if (vm && *nheaps) {             /* the second call hands us the array */
         memset(vm, 0, sizeof *vm);
@@ -108,6 +109,7 @@ BOOL APIENTRY DrvGetDirectDrawInfo(DHPDEV dhpdev, DD_HALINFO *hal, DWORD *nheaps
                                  DDSCAPS_FLIP;
     hal->ddCaps.dwVidMemTotal = he - hs;
     hal->ddCaps.dwVidMemFree = he - hs;
+    hal->ddCaps.dwNumFourCCCodes = *nfourcc;
     hal->GetDriverInfo = DdGetDriverInfo;
     hal->dwFlags = DDHALINFO_GETDRIVERINFOSET;
     VcrDdD3dHalInfo(pd, hal);           /* Direct3D, where the 3D engine is */
@@ -478,6 +480,10 @@ static DWORD APIENTRY Dd_Blt(PDD_BLTDATA p)
           s ? s->ddsCaps.dwCaps : 0, p->dwFlags, "Blt");
     if (p->dwFlags & ~ok_flags)
         return DDHAL_DRIVER_NOTHANDLED;
+    /* a compressed (FOURCC) surface is blocks, not pixels: never ours to blit
+     * (they exist only with Diag\\D3DBigTex bit 1, vcrdd_d3d.c) */
+    if (pd->tex_dxt && (VcrDdD3dIsFourCC(d) || (s && VcrDdD3dIsFourCC(s))))
+        return DDHAL_DRIVER_NOTHANDLED;
     if (p->IsClipped)
         return clipped_blt(pd, p);
     if (!(dp = surf_kva(pd, d, &dmax)) || !rect_inside(&p->rDest, d))
@@ -632,6 +638,9 @@ static DWORD APIENTRY Dd_CreateSurface(PDD_CREATESURFACEDATA p)
     /* a mipmap chain must be ONE block, packed as the TMU walks it */
     if (VcrDdD3dCreateMipChain(pd, p))
         return DDHAL_DRIVER_HANDLED;
+    /* a compressed texture (Diag\\D3DBigTex bit 1): sized here, placed by
+     * DirectDraw - still NOTHANDLED */
+    VcrDdD3dCreateTexSurface(pd, p);
     return DDHAL_DRIVER_NOTHANDLED;
 }
 

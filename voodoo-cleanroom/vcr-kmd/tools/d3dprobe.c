@@ -49,6 +49,17 @@
  * every size too - the emulator's LOD, not a driver fault - so it is not in
  * the default gate; it is the check to run on silicon)
  *
+ * The VSA-100 texture path (vcr-kmd Diag\D3DBigTex; explicit, never in the
+ * default list): tex512 tex1024 tex2048 (an 8x8-cell R5G6B5 texture of that
+ * size, its LAST cell green - a chip that samples only part of it never shows
+ * green), mip2048 (a full 2048 chain, one colour a level, levels 0-4 selected
+ * by texel:pixel ratio - before, at and after the 256 level TBIG's base names),
+ * tex8888 (A8R8G8B8), dxt1 dxt3 dxt5 (128x128, solid 4x4 blocks; the log
+ * reports LockRect's pitch against a block row's), texhigh (~20 MB of textures
+ * first, so the probe texture lands above 16 MB). Each is SKIPPED, not failed,
+ * when the HAL does not offer its size or format; the RESULT counts
+ * "skipped" and gives "max_texture".
+ *
  * Every step is flushed to the log before the next, so a driver that hangs
  * the machine leaves the step it hung in. The final line is `RESULT {json}`;
  * the host reads the LAST one.
@@ -163,6 +174,15 @@ static D3DFORMAT zfmt_named(const char *v)
     return D3DFMT_UNKNOWN;
 }
 static int g_pass, g_fail;
+static int g_skip;              /* checks not run: the HAL does not offer what they need */
+
+static int g_nent;              /* entries written into the RESULT's checks */
+
+/* the separator before a RESULT check entry - called once per entry */
+static const char *sep(void)
+{
+    return g_nent++ ? "," : "";
+}
 
 /* Releasing a fullscreen device is the switch back to the desktop: hold the
  * mode for vcr_pace.h's floor first (2026-09-26, .124: every switch re-syncs
@@ -317,7 +337,7 @@ static int expect(const char *test, const char *what, int x, int y, DWORD want, 
     say("  %s %s (%d,%d): got %06lx want %06lx tol %d -> %s", test, what, x, y, got, want, tol,
         ok ? "ok" : "FAIL");
     js("%s{\"test\":\"%s\",\"at\":\"%s\",\"x\":%d,\"y\":%d,\"got\":\"%06lx\",\"want\":\"%06lx\","
-       "\"ok\":%d}", g_pass + g_fail ? "," : "", test, what, x, y, got, want, ok);
+       "\"ok\":%d}", sep(), test, what, x, y, got, want, ok);
     if (ok) g_pass++; else g_fail++;
     return ok;
 }
@@ -388,6 +408,273 @@ static IDirect3DTexture8 *checker(int size, DWORD c0, DWORD c1)
  * stretched over [Q0,Q1) */
 static int tpx(int t, int size) { return Q0 + (int)((t + 0.5) * (Q1 - Q0) / size); }
 
+/* ---- the VSA-100 texture path (vcr-kmd Diag\D3DBigTex) ------------------------------
+ * tex512/tex1024/tex2048, mip2048, tex8888, dxt1/dxt3/dxt5, texhigh: each is
+ * SKIPPED - not failed - when the HAL does not offer what it needs (a
+ * MaxTextureWidth under the size, a format CheckDeviceFormat refuses), so the
+ * same list runs on any driver and says what it could not check. */
+static D3DCAPS8 g_caps;
+static IDirect3D8 *g_d3d;
+static D3DFORMAT g_adfmt;       /* the adapter format the device runs at */
+
+static void skipped(const char *test, const char *why)
+{
+    say("  %s: skipped - %s", test, why);
+    js("%s{\"test\":\"%s\",\"skipped\":\"%s\"}", sep(), test, why);
+    g_skip++;
+}
+
+static void failed(const char *test, const char *what, HRESULT hr)
+{
+    say("  %s: %s %08lx", test, what, hr);
+    js("%s{\"test\":\"%s\",\"error\":\"%s %08lx\",\"ok\":0}", sep(), test, what, hr);
+    g_fail++;
+}
+
+static int tex_format_ok(D3DFORMAT f)
+{
+    return SUCCEEDED(IDirect3D8_CheckDeviceFormat(g_d3d, 0, D3DDEVTYPE_HAL, g_adfmt, 0,
+                                                  D3DRTYPE_TEXTURE, f));
+}
+
+static WORD rgb565(DWORD c)
+{
+    return (WORD)(((c >> 19 & 31) << 11) | ((c >> 10 & 63) << 5) | (c >> 3 & 31));
+}
+
+/* cell (cx, cy) of an 8 x 8 cell pattern: a c0/c1 checker whose LAST cell is
+ * green - a chip that samples only part of a big texture never shows it */
+static DWORD cell_colour(int cx, int cy, DWORD c0, DWORD c1)
+{
+    if (cx == 7 && cy == 7)
+        return 0xff00ff00;
+    return ((cx + cy) & 1) ? c1 : c0;
+}
+
+/* one solid 4x4 block: colour0 = colour1 = c, every index 0 (DXT1's
+ * 3-colour mode picks colour0 - opaque); DXT3 alpha all 15, DXT5 alpha0 =
+ * alpha1 = 255 */
+static void dxt_block(unsigned char *p, D3DFORMAT f, DWORD c)
+{
+    WORD v = rgb565(c);
+    unsigned char *col = p;
+    if (f == D3DFMT_DXT3) {
+        memset(p, 0xff, 8);
+        col = p + 8;
+    } else if (f == D3DFMT_DXT5) {
+        p[0] = p[1] = 0xff;
+        memset(p + 2, 0, 6);
+        col = p + 8;
+    }
+    col[0] = col[2] = (unsigned char)(v & 0xff);
+    col[1] = col[3] = (unsigned char)(v >> 8);
+    memset(col + 4, 0, 4);
+}
+
+static int g_lock_pitch;        /* what the last cells() LockRect answered */
+
+/* a size x size one-level MANAGED texture of format f (R5G6B5, A8R8G8B8,
+ * DXT1/3/5) holding the 8 x 8 cells. A DXT level is written as D3D8
+ * documents it - rows of 4x4 blocks, (size / 4) x block bytes apart - and the
+ * runtime's own Pitch is only reported (g_lock_pitch): writing at a pitch
+ * that is not a block row's would run past the runtime's buffer */
+static IDirect3DTexture8 *cells(const char *t, int size, D3DFORMAT f, DWORD c0, DWORD c1)
+{
+    IDirect3DTexture8 *tx = NULL;
+    D3DLOCKED_RECT lr;
+    HRESULT hr;
+    int x, y, cell = size / 8;
+    hr = IDirect3DDevice8_CreateTexture(g_dev, size, size, 1, 0, f, D3DPOOL_MANAGED, &tx);
+    if (FAILED(hr)) {
+        failed(t, "CreateTexture", hr);
+        return NULL;
+    }
+    hr = IDirect3DTexture8_LockRect(tx, 0, &lr, NULL, 0);
+    if (FAILED(hr)) {
+        failed(t, "LockRect", hr);
+        IDirect3DTexture8_Release(tx);
+        return NULL;
+    }
+    g_lock_pitch = lr.Pitch;
+    if (f == D3DFMT_DXT1 || f == D3DFMT_DXT3 || f == D3DFMT_DXT5) {
+        int blk = f == D3DFMT_DXT1 ? 8 : 16, bw = size / 4;
+        say("  %s: LockRect pitch %d (a block row is %d)", t, lr.Pitch, bw * blk);
+        for (y = 0; y < size / 4; y++)
+            for (x = 0; x < bw; x++)
+                dxt_block((unsigned char *)lr.pBits + y * bw * blk + x * blk, f,
+                          cell_colour(x * 4 / cell, y * 4 / cell, c0, c1));
+    } else {
+        for (y = 0; y < size; y++) {
+            char *row = (char *)lr.pBits + y * lr.Pitch;
+            for (x = 0; x < size; x++) {
+                DWORD c = cell_colour(x / cell, y / cell, c0, c1);
+                if (f == D3DFMT_A8R8G8B8)
+                    ((DWORD *)row)[x] = c | 0xff000000;
+                else
+                    ((WORD *)row)[x] = rgb565(c);
+            }
+        }
+    }
+    IDirect3DTexture8_UnlockRect(tx, 0);
+    return tx;
+}
+
+/* the cells texture drawn over [Q0,Q1) - 24 px a cell - and five cells read */
+static void draw_cells(const char *t, IDirect3DTexture8 *tx)
+{
+    int cc[8], i;
+    for (i = 0; i < 8; i++)
+        cc[i] = Q0 + (int)((i + 0.5) * (Q1 - Q0) / 8);
+    if (!frame_begin(0))
+        return;
+    IDirect3DDevice8_SetTexture(g_dev, 0, (IDirect3DBaseTexture8 *)tx);
+    IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+    IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+    IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+    IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MINFILTER, D3DTEXF_POINT);
+    IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MAGFILTER, D3DTEXF_POINT);
+    IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MIPFILTER, D3DTEXF_NONE);
+    quad_t(Q0, Q0, Q1, Q1, 0xffffffff, 1.0f);
+    frame_end();
+    IDirect3DDevice8_SetTexture(g_dev, 0, NULL);
+    expect(t, "cell (0,0)", cc[0], cc[0], 0xff0000, 12);
+    expect(t, "cell (1,0)", cc[1], cc[0], 0x0000ff, 12);
+    expect(t, "cell (2,3)", cc[2], cc[3], 0x0000ff, 12);
+    expect(t, "cell (6,7)", cc[6], cc[7], 0x0000ff, 12);
+    expect(t, "last cell (7,7)", cc[7], cc[7], 0x00ff00, 12);
+}
+
+/* tex512 / tex1024 / tex2048 / tex8888 / dxt1 / dxt3 / dxt5 */
+static void test_cells(const char *t, int size, D3DFORMAT f)
+{
+    IDirect3DTexture8 *tx;
+    char why[96];
+    if ((int)g_caps.MaxTextureWidth < size || (int)g_caps.MaxTextureHeight < size) {
+        _snprintf(why, sizeof why, "MaxTexture %lux%lu", g_caps.MaxTextureWidth,
+                  g_caps.MaxTextureHeight);
+        why[sizeof why - 1] = 0;
+        skipped(t, why);
+        return;
+    }
+    if (!tex_format_ok(f)) {
+        _snprintf(why, sizeof why, "format %lu not offered", (unsigned long)f);
+        why[sizeof why - 1] = 0;
+        skipped(t, why);
+        return;
+    }
+    if ((tx = cells(t, size, f, 0xffff0000, 0xff0000ff)) == NULL)
+        return;
+    draw_cells(t, tx);
+    IDirect3DTexture8_Release(tx);
+}
+
+/* mip2048: a full 2048 chain, each level one colour - 0 red, 1 green, 2 blue,
+ * 3 yellow (the 256 level: where TBIG's texBaseAddr points), 4 magenta, the
+ * rest cyan - drawn 192 px wide at 0.8, 2.4, 4.8, 9.6 and 19.2 texels a pixel
+ * (LOD n + 0.26: floor and round agree) with point mip filtering: levels
+ * before, AT and after the base must all come out */
+static void test_mip2048(const char *t)
+{
+    static const DWORD lc[6] = { 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffffff00, 0xffff00ff,
+                                 0xff00ffff };
+    static const struct { float ratio; DWORD want; const char *what; } q[5] = {
+        { 0.8f, 0xff0000, "level 0 (2048)" }, { 2.4f, 0x00ff00, "level 1 (1024)" },
+        { 4.8f, 0x0000ff, "level 2 (512)" }, { 9.6f, 0xffff00, "level 3 (256, the base)" },
+        { 19.2f, 0xff00ff, "level 4 (128)" } };
+    IDirect3DTexture8 *tx = NULL;
+    HRESULT hr;
+    DWORD lv, n;
+    int i;
+    if (g_caps.MaxTextureWidth < 2048 || g_caps.MaxTextureHeight < 2048) {
+        skipped(t, "MaxTexture under 2048");
+        return;
+    }
+    hr = IDirect3DDevice8_CreateTexture(g_dev, 2048, 2048, 0, 0, D3DFMT_R5G6B5, D3DPOOL_MANAGED, &tx);
+    if (FAILED(hr)) {
+        failed(t, "CreateTexture(2048, full chain)", hr);
+        return;
+    }
+    n = IDirect3DTexture8_GetLevelCount(tx);
+    say("  %lu levels", n);
+    for (lv = 0; lv < n; lv++) {
+        D3DLOCKED_RECT lr;
+        D3DSURFACE_DESC ld;
+        WORD v = rgb565(lc[lv < 5 ? lv : 5]);
+        DWORD x, y;
+        IDirect3DTexture8_GetLevelDesc(tx, lv, &ld);
+        if (FAILED(IDirect3DTexture8_LockRect(tx, lv, &lr, NULL, 0)))
+            continue;
+        for (y = 0; y < ld.Height; y++)
+            for (x = 0; x < ld.Width; x++)
+                ((WORD *)((char *)lr.pBits + y * lr.Pitch))[x] = v;
+        IDirect3DTexture8_UnlockRect(tx, lv);
+    }
+    for (i = 0; i < 5; i++) {
+        if (!frame_begin(0))
+            break;
+        IDirect3DDevice8_SetTexture(g_dev, 0, (IDirect3DBaseTexture8 *)tx);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MINFILTER, D3DTEXF_POINT);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MAGFILTER, D3DTEXF_POINT);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MIPFILTER, D3DTEXF_POINT);
+        quad_t(Q0, Q0, Q1, Q1, 0xffffffff, (float)(Q1 - Q0) * q[i].ratio / 2048.0f);
+        frame_end();
+        expect(t, q[i].what, 128, 128, q[i].want, 12);
+    }
+    IDirect3DDevice8_SetTexture(g_dev, 0, NULL);
+    IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_MIPFILTER, D3DTEXF_NONE);
+    IDirect3DTexture8_Release(tx);
+}
+
+/* texhigh: ~20 MB of 256x256 grey textures drawn first (so each is placed in
+ * video memory), then the 64x64 cells texture - which lands above 16 MB on
+ * .124's 27 MB heap. A Voodoo3-width texture address (bits 23:4) samples it
+ * 16 MB lower and the cells come out wrong; the VSA-100 path's 26 bits read
+ * it right. The fill stops early on any failure and says how far it got */
+#define HIGH_FILL_KB    (20 * 1024)
+static void test_texhigh(const char *t)
+{
+    static IDirect3DTexture8 *fill[HIGH_FILL_KB / 128];
+    IDirect3DTexture8 *tx;
+    int nf = 0, i;
+    char what[64];
+    for (nf = 0; nf < HIGH_FILL_KB / 128; nf++) {
+        D3DLOCKED_RECT lr;
+        int y, x;
+        if (FAILED(IDirect3DDevice8_CreateTexture(g_dev, 256, 256, 1, 0, D3DFMT_R5G6B5,
+                                                  D3DPOOL_MANAGED, &fill[nf])))
+            break;
+        if (SUCCEEDED(IDirect3DTexture8_LockRect(fill[nf], 0, &lr, NULL, 0))) {
+            for (y = 0; y < 256; y++)
+                for (x = 0; x < 256; x++)
+                    ((WORD *)((char *)lr.pBits + y * lr.Pitch))[x] = rgb565(0x808080);
+            IDirect3DTexture8_UnlockRect(fill[nf], 0);
+        }
+        if (!frame_begin(0)) {                  /* drawn once: placed in video memory now */
+            IDirect3DTexture8_Release(fill[nf]);
+            break;
+        }
+        IDirect3DDevice8_SetTexture(g_dev, 0, (IDirect3DBaseTexture8 *)fill[nf]);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+        IDirect3DDevice8_SetTextureStageState(g_dev, 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        quad_t(0, 0, 8, 8, 0xffffffff, 1.0f);
+        IDirect3DDevice8_EndScene(g_dev);
+        IDirect3DDevice8_Present(g_dev, NULL, NULL, NULL, NULL);
+    }
+    IDirect3DDevice8_SetTexture(g_dev, 0, NULL);
+    say("  texhigh: %d fill textures, %d KB drawn before the probe", nf, nf * 128);
+    _snprintf(what, sizeof what, "after %d KB", nf * 128);
+    what[sizeof what - 1] = 0;
+    if ((tx = cells(t, 64, D3DFMT_R5G6B5, 0xffff0000, 0xff0000ff)) != NULL) {
+        draw_cells(t, tx);
+        IDirect3DTexture8_Release(tx);
+    }
+    js("%s{\"test\":\"%s\",\"note\":\"%s\"}", sep(), t, what);    /* neither pass nor fail */
+    for (i = 0; i < nf; i++)
+        IDirect3DTexture8_Release(fill[i]);
+}
+
 static void run_test(const char *t)
 {
     int i;
@@ -436,8 +723,8 @@ static void run_test(const char *t)
         DWORD red = !strcmp(t, "modulate") ? 0x800000 : 0xff0000;
         DWORD blue = !strcmp(t, "modulate") ? 0x000080 : 0x0000ff;
         if (!tx) {
+            js("%s{\"test\":\"%s\",\"error\":\"texture\",\"ok\":0}", sep(), t);
             g_fail++;
-            js("%s{\"test\":\"%s\",\"error\":\"texture\",\"ok\":0}", g_pass + g_fail > 1 ? "," : "", t);
             return;
         }
         if (!frame_begin(0)) return;
@@ -473,7 +760,7 @@ static void run_test(const char *t)
         if (FAILED(hr)) {
             say("  CreateTexture(64, full chain) %08lx", hr);
             js("%s{\"test\":\"mip\",\"error\":\"CreateTexture %08lx\",\"ok\":0}",
-               g_pass + g_fail ? "," : "", hr);
+               sep(), hr);
             g_fail++;
             return;
         }
@@ -624,6 +911,24 @@ static void run_test(const char *t)
         frame_end();
         expect(t, "far quad hidden", 180, 128, 0x00ff00, 8);
         expect(t, "near quad drawn", 64, 128, 0x0000ff, 8);
+    } else if (!strcmp(t, "tex512")) {
+        test_cells(t, 512, D3DFMT_R5G6B5);
+    } else if (!strcmp(t, "tex1024")) {
+        test_cells(t, 1024, D3DFMT_R5G6B5);
+    } else if (!strcmp(t, "tex2048")) {
+        test_cells(t, 2048, D3DFMT_R5G6B5);
+    } else if (!strcmp(t, "tex8888")) {
+        test_cells(t, 64, D3DFMT_A8R8G8B8);
+    } else if (!strcmp(t, "dxt1")) {
+        test_cells(t, 128, D3DFMT_DXT1);
+    } else if (!strcmp(t, "dxt3")) {
+        test_cells(t, 128, D3DFMT_DXT3);
+    } else if (!strcmp(t, "dxt5")) {
+        test_cells(t, 128, D3DFMT_DXT5);
+    } else if (!strcmp(t, "mip2048")) {
+        test_mip2048(t);
+    } else if (!strcmp(t, "texhigh")) {
+        test_texhigh(t);
     } else {
         say("  unknown test %s", t);
     }
@@ -715,6 +1020,8 @@ int main(int argc, char **argv)
             { D3DFMT_A8R8G8B8, "tex8888", 0, D3DRTYPE_TEXTURE },
             { D3DFMT_P8, "texP8", 0, D3DRTYPE_TEXTURE },
             { D3DFMT_DXT1, "texDXT1", 0, D3DRTYPE_TEXTURE },
+            { D3DFMT_DXT3, "texDXT3", 0, D3DRTYPE_TEXTURE },
+            { D3DFMT_DXT5, "texDXT5", 0, D3DRTYPE_TEXTURE },
             { D3DFMT_D16, "z16", D3DUSAGE_DEPTHSTENCIL, D3DRTYPE_SURFACE },
             { D3DFMT_D24X8, "z24x8", D3DUSAGE_DEPTHSTENCIL, D3DRTYPE_SURFACE },
             { D3DFMT_D24S8, "z24s8", D3DUSAGE_DEPTHSTENCIL, D3DRTYPE_SURFACE },
@@ -867,6 +1174,13 @@ int main(int argc, char **argv)
     }
     g_held = g_full;
     say("device created");
+    /* what the texture tests ask before they run (skipped, not failed, when
+     * the HAL does not offer it): the caps, and formats at the device's mode */
+    g_d3d = d3d;
+    g_adfmt = g_full ? pp.BackBufferFormat : dm.Format;
+    memset(&g_caps, 0, sizeof g_caps);
+    IDirect3DDevice8_GetDeviceCaps(g_dev, &g_caps);
+    say("MaxTexture %lux%lu", g_caps.MaxTextureWidth, g_caps.MaxTextureHeight);
     IDirect3DDevice8_SetRenderState(g_dev, D3DRS_LIGHTING, FALSE);
     IDirect3DDevice8_SetRenderState(g_dev, D3DRS_CULLMODE, D3DCULL_NONE);
     IDirect3DDevice8_SetRenderState(g_dev, D3DRS_ZENABLE, D3DZB_FALSE);
@@ -921,8 +1235,8 @@ int main(int argc, char **argv)
             run_test(p);
     }
     pump();                             /* a deactivation still queued is seen now */
-    js("],\"readback\":\"%s\",\"pass\":%d,\"fail\":%d%s}", g_readvia, g_pass, g_fail,
-       focus_json());
+    js("],\"readback\":\"%s\",\"pass\":%d,\"fail\":%d,\"skipped\":%d,\"max_texture\":%lu%s}",
+       g_readvia, g_pass, g_fail, g_skip, g_caps.MaxTextureWidth, focus_json());
     if (!release_device()) {
         say("RESULT %s", g_json);       /* the checks as they stood ... */
         say_not_released("render");     /* ... and, last, why the run failed */
