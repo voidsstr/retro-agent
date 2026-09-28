@@ -77,6 +77,15 @@ supports. These are the corrected claims.
    console write that blocks stalls every logging thread. That is still the case on
    master at `58af178`. It is a plausible way for the agent to wedge. It is **not**
    proven to be what happened here.
+
+   **Fixed on branch `worktree-fix-log-console-wedge` (agent 1.89.2 when
+   released):** no thread that logs or serves calls into the console any more.
+   Lines go into a bounded ring and one idle-priority thread writes them out
+   with no lock held (`agent/shared/conring.h`, `log.c` `log_echo_thread()`).
+   The fix also closes the diagnostic gap. A console call that has not returned
+   for 30 s is now logged (`console: a console call has not returned for N s`),
+   and so is its recovery, so the next wedge of this shape names its cause in
+   `agent.log`. QuickEdit is also cleared on the agent's console on NT.
 4. **The box-to-host clock offset is 6h05m02s, not 6h04m41s.** The agent's clockfix
    set the clock at box `2013-09-26 01:45:38.65 UTC` to `2026-09-26 19:40:57 UTC`
    (event 1). About 16 s later, at box 19:41:13.15, something stepped the clock
@@ -235,7 +244,10 @@ Notification mode does not block logon, so activation is not the reboot risk her
    `agent/src/log.c` `raw_out()` outside `g_log_cs`, or make it non-blocking, so
    a stuck console cannot stall every logging thread. Add a source-invariant test.
    Consider hiding or minimising the console on NT so people stop closing it.
-   Worth doing whether or not it caused this wedge.
+   Worth doing whether or not it caused this wedge. **Done (1.89.2, see point 3
+   above)**, with tests `native/test_conring.c`, `native/test_log_echo_thread.c`
+   and `python/test_log_console_echo.py`. Hiding or minimising the console is
+   still open.
 5. **Host-side visibility:** a periodic *fresh-connection* `PING` (which goes
    through the logged accept path) would have flagged this box at about 23:48
    instead of never.
