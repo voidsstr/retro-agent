@@ -512,6 +512,19 @@ static VP_STATUS pci_op(VCR_EXT *x, vcr_pci_op *op)
                              op->value, "PCI_OP write to an SLI/AA register refused");
                 return ERROR_ACCESS_DENIED;
             }
+            {
+                /* an idle slave keeps its syncs tristated (vcr_sli.h
+                 * vcr_sli_poke_adjust): Glide's close-time zero to every
+                 * chip's cfgVideoCtrl0 un-tristated them and the monitor lost
+                 * sync (.124, 2026-09-27) */
+                ULONG v = vcr_sli_poke_adjust(op->target, op->offset, size, op->value,
+                                              x->sli_chips);
+                if (v != op->value)
+                    VLOG(VCR_LV_WARN, VCR_EV_PCI_OP, op->target, op->offset, v, op->value,
+                         "idle slave %u keeps its syncs tristated: cfg %02x <- %08x (asked %08x)",
+                         op->target, op->offset, v, op->value);
+                op->value = v;
+            }
             VcrPciWrite(x, slot, op->offset, op->value, size);
         } else {
             op->value = VcrPciRead(x, slot, op->offset, size);

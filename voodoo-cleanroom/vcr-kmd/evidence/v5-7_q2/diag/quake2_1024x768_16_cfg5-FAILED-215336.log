@@ -1,0 +1,9 @@
+Winsock Initialized
+Console initialized.
+------- Loading ref_gl.dll -------
+ref_gl version: GL 0.01
+Initializing OpenGL display
+...setting mode 6: 1024 768 FS
+...attempting fullscreen
+...using gl_bitdepth of 16
+...calling CDS: ok

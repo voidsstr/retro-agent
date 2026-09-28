@@ -1391,7 +1391,8 @@ static int poke_new(mock *m, poke_run *pr, vcr_u32 chip, vcr_u32 off, vcr_u32 va
             pr->phases++;
         return 0;
     }
-    poke_land(m, chip, off, val);
+    /* the kernel's pci_op: an idle slave keeps its syncs tristated */
+    poke_land(m, chip, off, vcr_sli_poke_adjust(chip, off, 4, val, live));
     pr->passed++;
     return 1;
 }
@@ -1428,6 +1429,32 @@ static void after_sli_session(mock *m, vcr_sli_io *io)
     CHECK(vcr_sli_set(io, &off) >= 0, "cfg 5 disable");
 }
 
+TEST(an_idle_slave_keeps_its_syncs_tristated_whatever_a_pci_op_writes) {
+    const vcr_u32 keep = VCR_VC0_DAC_HSYNC_TRISTATE | VCR_VC0_DAC_VSYNC_TRISTATE;
+    vcr_u32 c;
+    CHECK_EQ_U(keep, 0x03000000u);
+    for (c = 1; c < 4; c++) {
+        /* idle (no live session): the tristate bits forced on, the rest kept */
+        CHECK_EQ_U(vcr_sli_poke_adjust(c, VCR_CFG_VIDEOCTRL0, 4, 0, 0), keep);
+        CHECK_EQ_U(vcr_sli_poke_adjust(c, VCR_CFG_VIDEOCTRL0, 4, 0x00000105u, 0), keep | 0x105u);
+        /* a byte / word write that covers bits 24-25 */
+        CHECK_EQ_U(vcr_sli_poke_adjust(c, VCR_CFG_VIDEOCTRL0 + 3, 1, 0, 0), 0x03u);
+        CHECK_EQ_U(vcr_sli_poke_adjust(c, VCR_CFG_VIDEOCTRL0 + 2, 2, 0, 0), 0x0300u);
+        /* ... and one that does not */
+        CHECK_EQ_U(vcr_sli_poke_adjust(c, VCR_CFG_VIDEOCTRL0, 2, 0, 0), 0);
+        CHECK_EQ_U(vcr_sli_poke_adjust(c, VCR_CFG_VIDEOCTRL0, 1, 0, 0), 0);
+        /* a slave IN a live session is Glide's to program: unchanged */
+        CHECK_EQ_U(vcr_sli_poke_adjust(c, VCR_CFG_VIDEOCTRL0, 4, 0, 4), 0);
+        /* any other register: unchanged */
+        CHECK_EQ_U(vcr_sli_poke_adjust(c, VCR_CFG_VIDEOCTRL2, 4, 0, 0), 0);
+        CHECK_EQ_U(vcr_sli_poke_adjust(c, VCR_CFG_AALFBCTRL, 4, 0, 0), 0);
+    }
+    /* the master drives the monitor: never touched */
+    CHECK_EQ_U(vcr_sli_poke_adjust(0, VCR_CFG_VIDEOCTRL0, 4, 0, 0), 0);
+    /* out of bounds: unchanged (the policy refuses it anyway) */
+    CHECK_EQ_U(vcr_sli_poke_adjust(1, 0x81, 4, 0, 0), 0);
+}
+
 TEST(cfg0_close_pci_op_zeros_reach_the_chips_as_before) {
     mock *m = &M;
     vcr_sli_io io;
@@ -1439,7 +1466,9 @@ TEST(cfg0_close_pci_op_zeros_reach_the_chips_as_before) {
         CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL0), 0x03000000u);
 
     /* NEW (the defaults: AllowPoke 0, SliAA 0, no live session): all 24 go
-     * through, exactly as under 097b1f7 - no refusal, no flushed phase */
+     * through - no refusal, no flushed phase - but an idle slave's
+     * cfgVideoCtrl0 lands with its syncs still tristated (2026-09-27: the
+     * zeros un-tristated them and .124's monitor lost sync) */
     poke_reset(&pr);
     for (c = 0; c < 4; c++)
         for (i = 0; i < 6; i++)
@@ -1447,8 +1476,9 @@ TEST(cfg0_close_pci_op_zeros_reach_the_chips_as_before) {
     CHECK_EQ_U(pr.passed, 24);
     CHECK_EQ_U(pr.refused, 0);
     CHECK_EQ_U(pr.phases, 0);
-    for (c = 0; c < 4; c++) {                   /* 097b1f7's post-close state */
-        CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL0), 0);
+    for (c = 0; c < 4; c++) {                   /* the post-close state */
+        /* master 0 as ever; slaves tristated - 097b1f7 left them 0, driving */
+        CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL0), c ? 0x03000000u : 0);
         CHECK_EQ_U(CFG(m, c, VCR_CFG_VIDEOCTRL2), 0);
         CHECK_EQ_U(CFG(m, c, VCR_CFG_AALFBCTRL), 0);
     }
@@ -2495,6 +2525,7 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(the_kill_switch_refuses_every_aa_request_and_nothing_else);
     RUN(the_persisted_phase_keeps_the_warn_mask_the_clock_result_and_the_refusal);
     RUN(glide_may_not_write_the_sli_aa_registers_behind_the_kernel);
+    RUN(an_idle_slave_keeps_its_syncs_tristated_whatever_a_pci_op_writes);
     RUN(cfg0_close_pci_op_zeros_reach_the_chips_as_before);
     RUN(single_chip_aa_pci_op_writes_need_diag_sliaa_even_with_allow_poke);
     RUN(a0_read_toggles_in_a_live_sli_session_go_through);

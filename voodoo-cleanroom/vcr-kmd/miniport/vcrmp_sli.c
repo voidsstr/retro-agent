@@ -1414,6 +1414,20 @@ int vcr_sli_poke_enables_aa(vcr_u32 off, vcr_u32 size, vcr_u32 val)
     return 0;
 }
 
+vcr_u32 vcr_sli_poke_adjust(vcr_u32 chip, vcr_u32 off, vcr_u32 size, vcr_u32 val,
+                            vcr_u32 live_chips)
+{
+    const vcr_u32 keep = VCR_VC0_DAC_HSYNC_TRISTATE | VCR_VC0_DAC_VSYNC_TRISTATE;
+    vcr_u32 shift;
+    if (chip == 0 || chip < live_chips || !vcr_cfg_access_ok(off, size))
+        return val;
+    if (off < VCR_CFG_VIDEOCTRL0 || off + size > VCR_CFG_VIDEOCTRL0 + 4)
+        return val;
+    shift = (off - VCR_CFG_VIDEOCTRL0) * 8;
+    /* the tristate bits as this write's own bits; none if it does not cover them */
+    return size >= 4 ? (val | keep) : (val | ((keep >> shift) & (size == 1 ? 0xffu : 0xffffu)));
+}
+
 int vcr_sli_poke_policy(vcr_u32 chip, vcr_u32 off, vcr_u32 size, vcr_u32 val, vcr_u32 flags,
                         vcr_u32 live_chips)
 {

@@ -412,3 +412,22 @@ def test_memBase1_follows_the_chips_memory_for_the_256mb_vbios_mode():
     assert "vcr_pcidec_index(2ul * io->fb_bytes)" in body
     assert "(mb1_want << VCR_PCIDEC_MB1_SHIFT)" in body
     assert "(VCR_PCIDEC_64MB << VCR_PCIDEC_MB1_SHIFT)" not in body
+
+
+def test_idle_slaves_keep_their_syncs_tristated():
+    """.124, 2026-09-27: after Glide's close wrote 0 to every chip's
+    cfgVideoCtrl0 through HWCEXT_PCI_OP (a zero the guard lets through), the
+    slaves drove HSYNC/VSYNC against the master and the monitor lost sync - a
+    dark screen with the PC running. The kernel's pci_op now lands a slave's
+    cfgVideoCtrl0 through vcr_sli_poke_adjust (tristate kept while idle), and
+    every mode set with no SLI session re-tristates a slave found driving."""
+    mp = (KMD / "miniport" / "vcrmp.c").read_text()
+    adj = mp.index("vcr_sli_poke_adjust(op->target, op->offset, size, op->value,")
+    write = mp.index("VcrPciWrite(x, slot, op->offset, op->value, size);")
+    policy = mp.index("why = vcr_sli_poke_policy(op->target")
+    assert policy < adj < write
+    hw = func_body((KMD / "miniport" / "vcrmp_hw.c").read_text(), "VP_STATUS VcrHwSetMode(")
+    off = hw.index('VcrSliOff(x, "mode set");')
+    fix = hw.index("VcrPciWrite(x, x->chip[c].slot, VCR_CFG_VIDEOCTRL0, v | keep, 4);")
+    assert off < fix < hw.index("voodoo_program(x, &m)")
+    assert "!x->sli_chips" in hw[off:fix]

@@ -638,6 +638,24 @@ VP_STATUS VcrHwSetMode(VCR_EXT *x, ULONG idx)
     /* whoever takes the display now, the slaves stop merging into it - this
      * is also the teardown of a Glide client that died with SLI on */
     VcrSliOff(x, "mode set");
+    /* and with no SLI session, every slave keeps its DAC syncs tristated: a
+     * slave driving HSYNC/VSYNC fights the master's and the monitor loses sync
+     * (.124, 2026-09-27: Glide's close wrote 0 to each chip's cfgVideoCtrl0 -
+     * dark screen, PC alive). The PCI_OP path now keeps the bits, and this
+     * repairs whatever else left them clear. Reads only, unless one is wrong. */
+    if (x->backend == VCR_HW_VOODOO && VCR_IS_NAPALM(x->device) && !x->sli_chips) {
+        const ULONG keep = VCR_VC0_DAC_HSYNC_TRISTATE | VCR_VC0_DAC_VSYNC_TRISTATE;
+        ULONG c, v;
+        for (c = 1; c < x->nchips && c < VCR_MAX_CHIPS; c++) {
+            v = VcrPciRead(x, x->chip[c].slot, VCR_CFG_VIDEOCTRL0, 4);
+            if ((v & keep) != keep && v != 0xffffffffu) {
+                VcrPciWrite(x, x->chip[c].slot, VCR_CFG_VIDEOCTRL0, v | keep, 4);
+                VLOG(VCR_LV_WARN, VCR_EV_PCI_OP, c, VCR_CFG_VIDEOCTRL0, v | keep, v,
+                     "slave %u was driving its syncs (cfgVideoCtrl0 %08x) - tristated again",
+                     c, v);
+            }
+        }
+    }
     VLOG(VCR_LV_INFO, VCR_EV_MODESET_BEGIN, t->w, t->h, bpp, t->refresh,
          "mode %u: %ux%ux%u@%u", idx, t->w, t->h, bpp, t->refresh);
     VLOG(VCR_LV_INFO, VCR_EV_MODESET_PLL, m.pix_khz_target, m.pix_khz_actual, m.pllctrl0,

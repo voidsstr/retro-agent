@@ -607,6 +607,17 @@ int vcr_cfg_access_ok(vcr_u32 off, vcr_u32 size);
 int vcr_sli_poke_enables_aa(vcr_u32 off, vcr_u32 size, vcr_u32 val);
 /* 0 = write it; else VCR_POKE_R_*. flags VCR_POKE_F_*; live_chips = the
  * kernel's live SLI/AA session (x->sli_chips, 0 = none) */
+/* An IDLE slave - one outside a live kernel SLI session (chip >= live_chips) -
+ * must keep its DAC syncs tristated: its video processor and DAC are off, and
+ * a slave driving HSYNC/VSYNC fights the master's, so the monitor loses sync
+ * (the screen goes dark while the PC runs on - .124, 2026-09-27, after Glide's
+ * close wrote 0 to every chip's cfgVideoCtrl0). The value a PCI_OP write to a
+ * slave's cfgVideoCtrl0 lands as: `val` with both tristate bits forced on while
+ * the slave is idle; `val` unchanged for the master, a live slave or any other
+ * register. Byte and word writes that cover bits 24-25 are adjusted too. */
+vcr_u32 vcr_sli_poke_adjust(vcr_u32 chip, vcr_u32 off, vcr_u32 size, vcr_u32 val,
+                            vcr_u32 live_chips);
+
 int vcr_sli_poke_policy(vcr_u32 chip, vcr_u32 off, vcr_u32 size, vcr_u32 val, vcr_u32 flags,
                         vcr_u32 live_chips);
 

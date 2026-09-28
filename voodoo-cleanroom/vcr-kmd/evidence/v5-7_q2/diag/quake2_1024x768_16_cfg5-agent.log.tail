@@ -1,0 +1,1058 @@
+auth on socket 1576
+[21:51:18][PROTO] AUTH: success
+[21:51:18][MAIN ] Client authenticated
+[21:51:18][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\glide3x.dll" (44 bytes)
+[21:51:18][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\glide3x.dll") = OK
+[21:51:18][FILE ] DOWNLOAD: GetFileSize = 1025320 bytes
+[21:51:18][PROTO] frame_send: 1025321 bytes
+[21:51:18][MAIN ] Client disconnected
+[21:51:18][MAIN ] Connection from 192.168.1.196:35348
+[21:51:18][MAIN ] handle_client: starting auth on socket 1588
+[21:51:18][PROTO] AUTH: success
+[21:51:18][MAIN ] Client authenticated
+[21:51:18][MAIN ] CMD: "MKDIR C:\vcr\glidelab" (21 bytes)
+[21:51:18][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[21:51:18][FILE ] MKDIR: CreateDirectoryA("C:\vcr") = 183
+[21:51:18][FILE ] MKDIR: CreateDirectoryA("C:\vcr\glidelab") final = OK
+[21:51:18][MAIN ] Client disconnected
+[21:51:18][MAIN ] Connection from 192.168.1.196:35358
+[21:51:18][MAIN ] handle_client: starting auth on socket 1620
+[21:51:18][PROTO] AUTH: success
+[21:51:18][MAIN ] Client authenticated
+[21:51:18][MAIN ] CMD: "UPLOAD C:\vcr\glidelab\glidelab.exe" (35 bytes)
+[21:51:18][PROTO] frame_recv: 469510 bytes
+[21:51:18][FILE ] UPLOAD: CreateFileA("C:\vcr\glidelab\glidelab.exe") = OK
+[21:51:18][FILE ] UPLOAD: Complete, 469510 bytes to "C:\vcr\glidelab\glidelab.exe"
+[21:51:18][MAIN ] Client disconnected
+[21:51:18][MAIN ] Connection from 192.168.1.196:35372
+[21:51:18][MAIN ] handle_client: starting auth on socket 1576
+[21:51:18][PROTO] AUTH: success
+[21:51:18][MAIN ] Client authenticated
+[21:51:18][MAIN ] CMD: "HWPROFILE" (9 bytes)
+[21:51:18][HWPROFILE] hash=3f81323b851f8aed cpu="AuthenticAMD" 2004MHz(registry) x1 ram=255MB gpu=121A:0009 "vcr-kmd Voodoo 5 6000 (open driver)" vram=32MB level=fixed os=winxp caps=2
+[21:51:18][PROTO] frame_send: 1911 bytes
+[21:51:18][MAIN ] Client disconnected
+[21:51:18][MAIN ] Connection from 192.168.1.196:35380
+[21:51:18][MAIN ] handle_client: starting auth on socket 1728
+[21:51:18][PROTO] AUTH: success
+[21:51:18][MAIN ] Client authenticated
+[21:51:18][MAIN ] CMD: "REGWRITE HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08"... (147 bytes)
+[21:51:18][REG  ] REGWRITE: key="HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide" name="SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ
+[21:51:18][REG  ] REGWRITE: RegSetValueExA = OK
+[21:51:18][MAIN ] Client disconnected
+[21:51:18][MAIN ] Connection from 192.168.1.196:35394
+[21:51:18][MAIN ] handle_client: starting auth on socket 1588
+[21:51:18][PROTO] AUTH: success
+[21:51:18][MAIN ] Client authenticated
+[21:51:18][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-080"... (110 bytes)
+[21:51:18][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide") = OK
+[21:51:18][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[21:51:18][MAIN ] Client disconnected
+[21:51:18][MAIN ] Connection from 192.168.1.196:35402
+[21:51:18][MAIN ] handle_client: starting auth on socket 1732
+[21:51:18][PROTO] AUTH: success
+[21:51:18][MAIN ] Client authenticated
+[21:51:18][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\vcr\glidelab\fill.log"" (48 bytes)
+[21:51:18][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\vcr\glidelab\fill.log""
+[21:51:18][EXEC ] CreateProcessA OK, PID=2036
+[21:51:18][EXEC ] Process 2036 exited: code=0, output=0 bytes, 78ms elapsed
+[21:51:18][MAIN ] Client disconnected
+[21:51:18][MAIN ] Connection from 192.168.1.196:35408
+[21:51:18][MAIN ] handle_client: starting auth on socket 1728
+[21:51:18][PROTO] AUTH: success
+[21:51:18][MAIN ] Client authenticated
+[21:51:18][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:51:18][PROTO] frame_send: 1445 bytes
+[21:51:18][MAIN ] Client disconnected
+[21:51:18][MAIN ] Connection from 192.168.1.196:35422
+[21:51:18][MAIN ] handle_client: starting auth on socket 1588
+[21:51:18][PROTO] AUTH: success
+[21:51:18][MAIN ] Client authenticated
+[21:51:18][MAIN ] CMD: "EXECW 236 cmd /c start "glidelab" /wait "C:\vcr\glidelab\glidelab.exe" fill --re"... (219 bytes)
+[21:51:18][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c start "glidelab" /wait "C:\vcr\glidelab\glidelab.exe" fill --res 1024x768 --refresh 60 --dll C:\Games\Quake2Complete\glide3x.dll --log C:\vcr\glidelab\fill.log --frames 200 --layers 4 --cycles 2 --cfg 5"
+[21:51:18][EXEC ] CreateProcessA OK, PID=1292
+[21:51:27][EXEC ] Process 1292 exited: code=0, output=0 bytes, 8671ms elapsed
+[21:51:27][MAIN ] Client disconnected
+[21:51:27][MAIN ] Connection from 192.168.1.196:41142
+[21:51:27][MAIN ] handle_client: starting auth on socket 1732
+[21:51:27][PROTO] AUTH: success
+[21:51:27][MAIN ] Client authenticated
+[21:51:27][MAIN ] CMD: "DOWNLOAD C:\vcr\glidelab\fill.log" (33 bytes)
+[21:51:27][FILE ] DOWNLOAD: CreateFileA("C:\vcr\glidelab\fill.log") = OK
+[21:51:27][FILE ] DOWNLOAD: GetFileSize = 838 bytes
+[21:51:27][MAIN ] Client disconnected
+[21:51:32][MAIN ] Connection from 192.168.1.196:41144
+[21:51:32][MAIN ] handle_client: starting auth on socket 1728
+[21:51:32][PROTO] AUTH: success
+[21:51:32][MAIN ] Client authenticated
+[21:51:32][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\vcr\glidelab\bands.log"" (49 bytes)
+[21:51:32][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\vcr\glidelab\bands.log""
+[21:51:32][EXEC ] CreateProcessA OK, PID=1024
+[21:51:32][EXEC ] Process 1024 exited: code=0, output=0 bytes, 62ms elapsed
+[21:51:32][MAIN ] Client disconnected
+[21:51:32][MAIN ] Connection from 192.168.1.196:41152
+[21:51:32][MAIN ] handle_client: starting auth on socket 1560
+[21:51:32][PROTO] AUTH: success
+[21:51:32][MAIN ] Client authenticated
+[21:51:32][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:51:32][PROTO] frame_send: 1445 bytes
+[21:51:32][MAIN ] Client disconnected
+[21:51:32][MAIN ] Connection from 192.168.1.196:41156
+[21:51:32][MAIN ] handle_client: starting auth on socket 1732
+[21:51:32][PROTO] AUTH: success
+[21:51:32][MAIN ] Client authenticated
+[21:51:32][MAIN ] CMD: "EXECW 236 cmd /c start "glidelab" /wait "C:\vcr\glidelab\glidelab.exe" bands --r"... (221 bytes)
+[21:51:32][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c start "glidelab" /wait "C:\vcr\glidelab\glidelab.exe" bands --res 1024x768 --refresh 60 --dll C:\Games\Quake2Complete\glide3x.dll --log C:\vcr\glidelab\bands.log --frames 200 --layers 4 --cycles 2 --cfg 5"
+[21:51:32][EXEC ] CreateProcessA OK, PID=268
+[21:51:35][MAIN ] Connection from 192.168.1.196:41162
+[21:51:35][MAIN ] handle_client: starting auth on socket 1540
+[21:51:35][PROTO] AUTH: success
+[21:51:35][MAIN ] Client authenticated
+[21:51:35][MAIN ] Client disconnected
+[21:51:40][EXEC ] Process 268 exited: code=0, output=0 bytes, 8360ms elapsed
+[21:51:40][MAIN ] Client disconnected
+[21:51:40][MAIN ] Connection from 192.168.1.196:34406
+[21:51:40][MAIN ] handle_client: starting auth on socket 1728
+[21:51:40][PROTO] AUTH: success
+[21:51:40][MAIN ] Client authenticated
+[21:51:40][MAIN ] CMD: "DOWNLOAD C:\vcr\glidelab\bands.log" (34 bytes)
+[21:51:40][FILE ] DOWNLOAD: CreateFileA("C:\vcr\glidelab\bands.log") = OK
+[21:51:40][FILE ] DOWNLOAD: GetFileSize = 844 bytes
+[21:51:40][MAIN ] Client disconnected
+[21:51:47][MAIN ] Connection from 192.168.1.196:53668
+[21:51:47][MAIN ] handle_client: starting auth on socket 1548
+[21:51:47][PROTO] AUTH: success
+[21:51:47][MAIN ] Client authenticated
+[21:51:47][MAIN ] CMD: "EXEC C:\vcr\vcrctl.exe info" (27 bytes)
+[21:51:47][EXEC ] EXEC: cmdline="cmd.exe /c C:\vcr\vcrctl.exe info"
+[21:51:47][EXEC ] CreateProcessA OK, PID=1876
+[21:51:47][EXEC ] Process 1876 exited: code=0, output=1095 bytes, 31ms elapsed
+[21:51:47][PROTO] frame_send: 1096 bytes
+[21:51:47][MAIN ] Client disconnected
+[21:51:47][MAIN ] Connection from 192.168.1.196:53670
+[21:51:47][MAIN ] handle_client: starting auth on socket 1732
+[21:51:47][PROTO] AUTH: success
+[21:51:47][MAIN ] Client authenticated
+[21:51:47][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\glide3x.dll" (44 bytes)
+[21:51:47][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\glide3x.dll") = OK
+[21:51:47][FILE ] DOWNLOAD: GetFileSize = 1025320 bytes
+[21:51:47][PROTO] frame_send: 1025321 bytes
+[21:51:47][MAIN ] Client disconnected
+[21:51:47][MAIN ] Connection from 192.168.1.196:53678
+[21:51:47][MAIN ] handle_client: starting auth on socket 1728
+[21:51:47][PROTO] AUTH: success
+[21:51:47][MAIN ] Client authenticated
+[21:51:47][MAIN ] CMD: "MKDIR C:\vcr\glidelab" (21 bytes)
+[21:51:47][FILE ] MKDIR: CreateDirectoryA("C:") = 183
+[21:51:47][FILE ] MKDIR: CreateDirectoryA("C:\vcr") = 183
+[21:51:47][FILE ] MKDIR: CreateDirectoryA("C:\vcr\glidelab") final = OK
+[21:51:47][MAIN ] Client disconnected
+[21:51:47][MAIN ] Connection from 192.168.1.196:53690
+[21:51:47][MAIN ] handle_client: starting auth on socket 1548
+[21:51:47][PROTO] AUTH: success
+[21:51:47][MAIN ] Client authenticated
+[21:51:47][MAIN ] CMD: "UPLOAD C:\vcr\glidelab\glidelab.exe" (35 bytes)
+[21:51:47][PROTO] frame_recv: 469510 bytes
+[21:51:47][FILE ] UPLOAD: CreateFileA("C:\vcr\glidelab\glidelab.exe") = OK
+[21:51:47][FILE ] UPLOAD: Complete, 469510 bytes to "C:\vcr\glidelab\glidelab.exe"
+[21:51:47][MAIN ] Client disconnected
+[21:51:47][MAIN ] Connection from 192.168.1.196:53696
+[21:51:47][MAIN ] handle_client: starting auth on socket 1732
+[21:51:47][PROTO] AUTH: success
+[21:51:47][MAIN ] Client authenticated
+[21:51:47][MAIN ] CMD: "HWPROFILE" (9 bytes)
+[21:51:47][HWPROFILE] hash=3f81323b851f8aed cpu="AuthenticAMD" 2004MHz(registry) x1 ram=255MB gpu=121A:0009 "vcr-kmd Voodoo 5 6000 (open driver)" vram=32MB level=fixed os=winxp caps=2
+[21:51:47][PROTO] frame_send: 1911 bytes
+[21:51:47][MAIN ] Client disconnected
+[21:51:47][MAIN ] Connection from 192.168.1.196:53710
+[21:51:47][MAIN ] handle_client: starting auth on socket 1560
+[21:51:47][PROTO] AUTH: success
+[21:51:47][MAIN ] Client authenticated
+[21:51:47][MAIN ] CMD: "REGWRITE HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08"... (147 bytes)
+[21:51:47][REG  ] REGWRITE: key="HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide" name="SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ
+[21:51:47][REG  ] REGWRITE: RegSetValueExA = OK
+[21:51:47][MAIN ] Client disconnected
+[21:51:47][MAIN ] Connection from 192.168.1.196:53712
+[21:51:47][MAIN ] handle_client: starting auth on socket 1728
+[21:51:47][PROTO] AUTH: success
+[21:51:47][MAIN ] Client authenticated
+[21:51:47][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-080"... (110 bytes)
+[21:51:47][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide") = OK
+[21:51:47][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[21:51:47][MAIN ] Client disconnected
+[21:51:47][MAIN ] Connection from 192.168.1.196:53724
+[21:51:47][MAIN ] handle_client: starting auth on socket 1524
+[21:51:47][PROTO] AUTH: success
+[21:51:47][MAIN ] Client authenticated
+[21:51:47][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\vcr\glidelab\fill.log"" (48 bytes)
+[21:51:47][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\vcr\glidelab\fill.log""
+[21:51:47][EXEC ] CreateProcessA OK, PID=516
+[21:51:47][EXEC ] Process 516 exited: code=0, output=0 bytes, 47ms elapsed
+[21:51:47][MAIN ] Client disconnected
+[21:51:47][MAIN ] Connection from 192.168.1.196:53728
+[21:51:47][MAIN ] handle_client: starting auth on socket 1560
+[21:51:47][PROTO] AUTH: success
+[21:51:47][MAIN ] Client authenticated
+[21:51:47][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:51:47][PROTO] frame_send: 1445 bytes
+[21:51:47][MAIN ] Client disconnected
+[21:51:47][MAIN ] Connection from 192.168.1.196:53744
+[21:51:47][MAIN ] handle_client: starting auth on socket 1728
+[21:51:47][PROTO] AUTH: success
+[21:51:47][MAIN ] Client authenticated
+[21:51:47][MAIN ] CMD: "EXECW 236 cmd /c start "glidelab" /wait "C:\vcr\glidelab\glidelab.exe" fill --re"... (219 bytes)
+[21:51:47][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c start "glidelab" /wait "C:\vcr\glidelab\glidelab.exe" fill --res 1024x768 --refresh 60 --dll C:\Games\Quake2Complete\glide3x.dll --log C:\vcr\glidelab\fill.log --frames 200 --layers 4 --cycles 2 --cfg 0"
+[21:51:47][EXEC ] CreateProcessA OK, PID=764
+[21:51:55][EXEC ] Process 764 exited: code=0, output=0 bytes, 7765ms elapsed
+[21:51:55][MAIN ] Client disconnected
+[21:51:55][MAIN ] Connection from 192.168.1.196:53748
+[21:51:55][MAIN ] handle_client: starting auth on socket 1524
+[21:51:55][PROTO] AUTH: success
+[21:51:55][MAIN ] Client authenticated
+[21:51:55][MAIN ] CMD: "DOWNLOAD C:\vcr\glidelab\fill.log" (33 bytes)
+[21:51:55][FILE ] DOWNLOAD: CreateFileA("C:\vcr\glidelab\fill.log") = OK
+[21:51:55][FILE ] DOWNLOAD: GetFileSize = 837 bytes
+[21:51:55][MAIN ] Client disconnected
+[21:52:00][MAIN ] Connection from 192.168.1.196:34590
+[21:52:00][MAIN ] handle_client: starting auth on socket 1588
+[21:52:00][PROTO] AUTH: success
+[21:52:00][MAIN ] Client authenticated
+[21:52:00][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\vcr\glidelab\bands.log"" (49 bytes)
+[21:52:00][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\vcr\glidelab\bands.log""
+[21:52:00][EXEC ] CreateProcessA OK, PID=1172
+[21:52:00][EXEC ] Process 1172 exited: code=0, output=0 bytes, 46ms elapsed
+[21:52:00][MAIN ] Client disconnected
+[21:52:00][MAIN ] Connection from 192.168.1.196:34594
+[21:52:00][MAIN ] handle_client: starting auth on socket 1728
+[21:52:00][PROTO] AUTH: success
+[21:52:00][MAIN ] Client authenticated
+[21:52:00][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:52:00][PROTO] frame_send: 1445 bytes
+[21:52:00][MAIN ] Client disconnected
+[21:52:00][MAIN ] Connection from 192.168.1.196:34608
+[21:52:00][MAIN ] handle_client: starting auth on socket 1524
+[21:52:00][PROTO] AUTH: success
+[21:52:00][MAIN ] Client authenticated
+[21:52:00][MAIN ] CMD: "EXECW 236 cmd /c start "glidelab" /wait "C:\vcr\glidelab\glidelab.exe" bands --r"... (221 bytes)
+[21:52:00][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c start "glidelab" /wait "C:\vcr\glidelab\glidelab.exe" bands --res 1024x768 --refresh 60 --dll C:\Games\Quake2Complete\glide3x.dll --log C:\vcr\glidelab\bands.log --frames 200 --layers 4 --cycles 2 --cfg 0"
+[21:52:00][EXEC ] CreateProcessA OK, PID=1728
+[21:52:08][EXEC ] Process 1728 exited: code=0, output=0 bytes, 7750ms elapsed
+[21:52:08][MAIN ] Client disconnected
+[21:52:08][MAIN ] Connection from 192.168.1.196:55966
+[21:52:08][MAIN ] handle_client: starting auth on socket 1588
+[21:52:08][PROTO] AUTH: success
+[21:52:08][MAIN ] Client authenticated
+[21:52:08][MAIN ] CMD: "DOWNLOAD C:\vcr\glidelab\bands.log" (34 bytes)
+[21:52:08][FILE ] DOWNLOAD: CreateFileA("C:\vcr\glidelab\bands.log") = OK
+[21:52:08][FILE ] DOWNLOAD: GetFileSize = 844 bytes
+[21:52:08][MAIN ] Client disconnected
+[21:52:23][MAIN ] Connection from 192.168.1.196:33716
+[21:52:23][MAIN ] handle_client: starting auth on socket 1728
+[21:52:23][PROTO] AUTH: success
+[21:52:23][MAIN ] Client authenticated
+[21:52:23][MAIN ] Client disconnected
+[21:52:34][MAIN ] Connection from 192.168.1.196:59198
+[21:52:34][MAIN ] handle_client: starting auth on socket 1524
+[21:52:34][PROTO] AUTH: success
+[21:52:34][MAIN ] Client authenticated
+[21:52:34][MAIN ] CMD: "PING" (4 bytes)
+[21:52:34][MAIN ] CMD: "GAMESYNC STATUS" (15 bytes)
+[21:52:34][MAIN ] Client disconnected
+[21:52:35][MAIN ] Connection from 192.168.1.196:50988
+[21:52:35][MAIN ] handle_client: starting auth on socket 1728
+[21:52:35][PROTO] AUTH: success
+[21:52:35][MAIN ] Client authenticated
+[21:52:35][MAIN ] CMD: "HWPROFILE" (9 bytes)
+[21:52:35][HWPROFILE] hash=3f81323b851f8aed cpu="AuthenticAMD" 2004MHz(registry) x1 ram=255MB gpu=121A:0009 "vcr-kmd Voodoo 5 6000 (open driver)" vram=32MB level=fixed os=winxp caps=2
+[21:52:35][PROTO] frame_send: 1911 bytes
+[21:52:35][MAIN ] Client disconnected
+[21:52:35][MAIN ] Connection from 192.168.1.196:50992
+[21:52:35][MAIN ] handle_client: starting auth on socket 1560
+[21:52:35][PROTO] AUTH: success
+[21:52:35][MAIN ] Client authenticated
+[21:52:35][MAIN ] CMD: "EXEC cmd /c reg add "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v DoRepor"... (102 bytes)
+[21:52:35][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg add "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v DoReport /t REG_DWORD /d 0 /f"
+[21:52:35][EXEC ] CreateProcessA OK, PID=1792
+[21:52:35][EXEC ] Process 1792 exited: code=0, output=40 bytes, 203ms elapsed
+[21:52:35][MAIN ] Client disconnected
+[21:52:35][MAIN ] Connection from 192.168.1.196:51006
+[21:52:35][MAIN ] handle_client: starting auth on socket 1732
+[21:52:35][PROTO] AUTH: success
+[21:52:35][MAIN ] Client authenticated
+[21:52:35][MAIN ] CMD: "EXEC cmd /c reg add "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v ShowUI "... (100 bytes)
+[21:52:35][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg add "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v ShowUI /t REG_DWORD /d 0 /f"
+[21:52:35][EXEC ] CreateProcessA OK, PID=1076
+[21:52:35][EXEC ] Process 1076 exited: code=0, output=40 bytes, 62ms elapsed
+[21:52:35][MAIN ] Client disconnected
+[21:52:35][MAIN ] Connection from 192.168.1.196:51020
+[21:52:35][MAIN ] handle_client: starting auth on socket 1572
+[21:52:35][PROTO] AUTH: success
+[21:52:35][MAIN ] Client authenticated
+[21:52:35][MAIN ] CMD: "EXEC cmd /c reg add "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /v ErrorMode"... (101 bytes)
+[21:52:35][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg add "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /v ErrorMode /t REG_DWORD /d 2 /f"
+[21:52:35][EXEC ] CreateProcessA OK, PID=2016
+[21:52:35][EXEC ] Process 2016 exited: code=0, output=40 bytes, 62ms elapsed
+[21:52:35][MAIN ] Client disconnected
+[21:52:35][MAIN ] Connection from 192.168.1.196:51032
+[21:52:35][MAIN ] handle_client: starting auth on socket 1560
+[21:52:35][PROTO] AUTH: success
+[21:52:35][MAIN ] Client authenticated
+[21:52:35][MAIN ] CMD: "EXEC cmd /c reg add "HKLM\SOFTWARE\Microsoft\DrWatson" /v VisualNotification /t "... (97 bytes)
+[21:52:35][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg add "HKLM\SOFTWARE\Microsoft\DrWatson" /v VisualNotification /t REG_DWORD /d 0 /f"
+[21:52:35][EXEC ] CreateProcessA OK, PID=1056
+[21:52:36][EXEC ] Process 1056 exited: code=0, output=40 bytes, 62ms elapsed
+[21:52:36][MAIN ] Client disconnected
+[21:52:36][MAIN ] Connection from 192.168.1.196:51036
+[21:52:36][MAIN ] handle_client: starting auth on socket 1732
+[21:52:36][PROTO] AUTH: success
+[21:52:36][MAIN ] Client authenticated
+[21:52:36][MAIN ] CMD: "EXEC cmd /c reg query "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v DoRep"... (89 bytes)
+[21:52:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg query "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v DoReport 2>nul"
+[21:52:36][EXEC ] CreateProcessA OK, PID=896
+[21:52:36][EXEC ] Process 896 exited: code=0, output=120 bytes, 94ms elapsed
+[21:52:36][MAIN ] Client disconnected
+[21:52:36][MAIN ] Connection from 192.168.1.196:51046
+[21:52:36][MAIN ] handle_client: starting auth on socket 1572
+[21:52:36][PROTO] AUTH: success
+[21:52:36][MAIN ] Client authenticated
+[21:52:36][MAIN ] CMD: "EXEC cmd /c reg query "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v ShowU"... (87 bytes)
+[21:52:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg query "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v ShowUI 2>nul"
+[21:52:36][EXEC ] CreateProcessA OK, PID=148
+[21:52:36][EXEC ] Process 148 exited: code=0, output=118 bytes, 63ms elapsed
+[21:52:36][MAIN ] Client disconnected
+[21:52:36][MAIN ] Connection from 192.168.1.196:51060
+[21:52:36][MAIN ] handle_client: starting auth on socket 1560
+[21:52:36][PROTO] AUTH: success
+[21:52:36][MAIN ] Client authenticated
+[21:52:36][MAIN ] CMD: "EXEC cmd /c reg query "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /v ErrorMo"... (88 bytes)
+[21:52:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg query "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /v ErrorMode 2>nul"
+[21:52:36][EXEC ] CreateProcessA OK, PID=236
+[21:52:36][EXEC ] Process 236 exited: code=0, output=119 bytes, 63ms elapsed
+[21:52:36][MAIN ] Client disconnected
+[21:52:36][MAIN ] Connection from 192.168.1.196:51076
+[21:52:36][MAIN ] handle_client: starting auth on socket 1732
+[21:52:36][PROTO] AUTH: success
+[21:52:36][MAIN ] Client authenticated
+[21:52:36][MAIN ] CMD: "EXEC cmd /c reg query "HKLM\SOFTWARE\Microsoft\DrWatson" /v VisualNotification 2"... (84 bytes)
+[21:52:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg query "HKLM\SOFTWARE\Microsoft\DrWatson" /v VisualNotification 2>nul"
+[21:52:36][EXEC ] CreateProcessA OK, PID=1276
+[21:52:36][EXEC ] Process 1276 exited: code=0, output=115 bytes, 62ms elapsed
+[21:52:36][MAIN ] Client disconnected
+[21:52:36][MAIN ] Connection from 192.168.1.196:51086
+[21:52:36][MAIN ] handle_client: starting auth on socket 1572
+[21:52:36][PROTO] AUTH: success
+[21:52:36][MAIN ] Client authenticated
+[21:52:36][MAIN ] CMD: "AI_DISABLE" (10 bytes)
+[21:52:36][FILE ] AI: engine DISABLED via AI_DISABLE
+[21:52:36][MAIN ] Client disconnected
+[21:52:36][MAIN ] Connection from 192.168.1.196:51088
+[21:52:36][MAIN ] handle_client: starting auth on socket 1560
+[21:52:36][PROTO] AUTH: success
+[21:52:36][MAIN ] Client authenticated
+[21:52:36][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "retro-infer.exe"" (45 bytes)
+[21:52:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "retro-infer.exe""
+[21:52:36][EXEC ] CreateProcessA OK, PID=1612
+[21:52:36][EXEC ] Process 1612 exited: code=128, output=49 bytes, 94ms elapsed
+[21:52:36][MAIN ] Client disconnected
+[21:52:36][MAIN ] Connection from 192.168.1.196:51100
+[21:52:36][MAIN ] handle_client: starting auth on socket 1732
+[21:52:36][PROTO] AUTH: success
+[21:52:36][MAIN ] Client authenticated
+[21:52:36][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "rotate_wall.exe"" (45 bytes)
+[21:52:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "rotate_wall.exe""
+[21:52:36][EXEC ] CreateProcessA OK, PID=1208
+[21:52:36][EXEC ] Process 1208 exited: code=128, output=49 bytes, 110ms elapsed
+[21:52:36][MAIN ] Client disconnected
+[21:52:36][MAIN ] Connection from 192.168.1.196:51108
+[21:52:36][MAIN ] handle_client: starting auth on socket 1572
+[21:52:36][PROTO] AUTH: success
+[21:52:36][MAIN ] Client authenticated
+[21:52:36][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "wuauclt.exe"" (41 bytes)
+[21:52:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "wuauclt.exe""
+[21:52:36][EXEC ] CreateProcessA OK, PID=1236
+[21:52:36][EXEC ] Process 1236 exited: code=0, output=141 bytes, 110ms elapsed
+[21:52:36][MAIN ] Client disconnected
+[21:52:36][MAIN ] Connection from 192.168.1.196:51124
+[21:52:36][MAIN ] handle_client: starting auth on socket 1560
+[21:52:36][PROTO] AUTH: success
+[21:52:36][MAIN ] Client authenticated
+[21:52:36][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "3dfxMan.exe"" (41 bytes)
+[21:52:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "3dfxMan.exe""
+[21:52:36][EXEC ] CreateProcessA OK, PID=692
+[21:52:36][EXEC ] Process 692 exited: code=128, output=45 bytes, 110ms elapsed
+[21:52:36][MAIN ] Client disconnected
+[21:52:36][MAIN ] Connection from 192.168.1.196:51138
+[21:52:36][MAIN ] handle_client: starting auth on socket 1732
+[21:52:36][PROTO] AUTH: success
+[21:52:36][MAIN ] Client authenticated
+[21:52:36][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "daemon.exe"" (40 bytes)
+[21:52:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "daemon.exe""
+[21:52:36][EXEC ] CreateProcessA OK, PID=1656
+[21:52:37][EXEC ] Process 1656 exited: code=128, output=44 bytes, 94ms elapsed
+[21:52:37][MAIN ] Client disconnected
+[21:52:37][MAIN ] Connection from 192.168.1.196:51148
+[21:52:37][MAIN ] handle_client: starting auth on socket 1572
+[21:52:37][PROTO] AUTH: success
+[21:52:37][MAIN ] Client authenticated
+[21:52:37][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "wmiprvse.exe"" (42 bytes)
+[21:52:37][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "wmiprvse.exe""
+[21:52:37][EXEC ] CreateProcessA OK, PID=1640
+[21:52:37][EXEC ] Process 1640 exited: code=0, output=72 bytes, 109ms elapsed
+[21:52:37][MAIN ] Client disconnected
+[21:52:37][MAIN ] Connection from 192.168.1.196:51154
+[21:52:37][MAIN ] handle_client: starting auth on socket 1560
+[21:52:37][PROTO] AUTH: success
+[21:52:37][MAIN ] Client authenticated
+[21:52:37][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "dwwin.exe"" (39 bytes)
+[21:52:37][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "dwwin.exe""
+[21:52:37][EXEC ] CreateProcessA OK, PID=1140
+[21:52:37][EXEC ] Process 1140 exited: code=128, output=43 bytes, 188ms elapsed
+[21:52:37][MAIN ] Client disconnected
+[21:52:37][MAIN ] Connection from 192.168.1.196:51166
+[21:52:37][MAIN ] handle_client: starting auth on socket 1732
+[21:52:37][PROTO] AUTH: success
+[21:52:37][MAIN ] Client authenticated
+[21:52:37][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "dumprep.exe"" (41 bytes)
+[21:52:37][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "dumprep.exe""
+[21:52:37][EXEC ] CreateProcessA OK, PID=1804
+[21:52:37][EXEC ] Process 1804 exited: code=128, output=45 bytes, 110ms elapsed
+[21:52:37][MAIN ] Client disconnected
+[21:52:37][MAIN ] Connection from 192.168.1.196:51172
+[21:52:37][MAIN ] handle_client: starting auth on socket 1572
+[21:52:37][PROTO] AUTH: success
+[21:52:37][MAIN ] Client authenticated
+[21:52:37][MAIN ] CMD: "EXEC cmd /c taskkill /f /fi "windowtitle eq Found New Hardware Wizard"" (70 bytes)
+[21:52:37][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /fi "windowtitle eq Found New Hardware Wizard""
+[21:52:37][EXEC ] CreateProcessA OK, PID=156
+[21:52:37][EXEC ] Process 156 exited: code=0, output=53 bytes, 110ms elapsed
+[21:52:37][MAIN ] Client disconnected
+[21:52:37][MAIN ] Connection from 192.168.1.196:51176
+[21:52:37][MAIN ] handle_client: starting auth on socket 1560
+[21:52:37][PROTO] AUTH: success
+[21:52:37][MAIN ] Client authenticated
+[21:52:37][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\glide3x.dll" (for %I in ("C:\WINDOWS\s"... (130 bytes)
+[21:52:37][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\glide3x.dll" (for %I in ("C:\WINDOWS\system32\glide3x.dll") do @echo %~zI) else (echo -)"
+[21:52:37][EXEC ] CreateProcessA OK, PID=1416
+[21:52:37][EXEC ] Process 1416 exited: code=0, output=8 bytes, 63ms elapsed
+[21:52:37][MAIN ] Client disconnected
+[21:52:37][MAIN ] Connection from 192.168.1.196:51182
+[21:52:37][MAIN ] handle_client: starting auth on socket 1732
+[21:52:37][PROTO] AUTH: success
+[21:52:37][MAIN ] Client authenticated
+[21:52:37][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\glide3x.dll" (40 bytes)
+[21:52:37][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\glide3x.dll") = OK
+[21:52:37][FILE ] DOWNLOAD: GetFileSize = 344064 bytes
+[21:52:37][PROTO] frame_send: 344065 bytes
+[21:52:37][MAIN ] Client disconnected
+[21:52:37][MAIN ] Connection from 192.168.1.196:51184
+[21:52:37][MAIN ] handle_client: starting auth on socket 1572
+[21:52:37][PROTO] AUTH: success
+[21:52:37][MAIN ] Client authenticated
+[21:52:37][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\glide2x.dll" (for %I in ("C:\WINDOWS\s"... (130 bytes)
+[21:52:37][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\glide2x.dll" (for %I in ("C:\WINDOWS\system32\glide2x.dll") do @echo %~zI) else (echo -)"
+[21:52:37][EXEC ] CreateProcessA OK, PID=1224
+[21:52:37][EXEC ] Process 1224 exited: code=0, output=7 bytes, 47ms elapsed
+[21:52:37][MAIN ] Client disconnected
+[21:52:37][MAIN ] Connection from 192.168.1.196:51186
+[21:52:37][MAIN ] handle_client: starting auth on socket 1560
+[21:52:37][PROTO] AUTH: success
+[21:52:37][MAIN ] Client authenticated
+[21:52:37][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\glide2x.dll" (40 bytes)
+[21:52:37][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\glide2x.dll") = OK
+[21:52:37][FILE ] DOWNLOAD: GetFileSize = 94208 bytes
+[21:52:37][PROTO] frame_send: 94209 bytes
+[21:52:37][MAIN ] Client disconnected
+[21:52:37][MAIN ] Connection from 192.168.1.196:51190
+[21:52:37][MAIN ] handle_client: starting auth on socket 1732
+[21:52:37][PROTO] AUTH: success
+[21:52:37][MAIN ] Client authenticated
+[21:52:37][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\3dfxOGL.dll" (for %I in ("C:\WINDOWS\s"... (130 bytes)
+[21:52:37][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\3dfxOGL.dll" (for %I in ("C:\WINDOWS\system32\3dfxOGL.dll") do @echo %~zI) else (echo -)"
+[21:52:37][EXEC ] CreateProcessA OK, PID=264
+[21:52:37][EXEC ] Process 264 exited: code=0, output=9 bytes, 47ms elapsed
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51194
+[21:52:38][MAIN ] handle_client: starting auth on socket 1576
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\3dfxOGL.dll" (40 bytes)
+[21:52:38][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\3dfxOGL.dll") = OK
+[21:52:38][FILE ] DOWNLOAD: GetFileSize = 2646009 bytes
+[21:52:38][PROTO] frame_send: 2646010 bytes
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51208
+[21:52:38][MAIN ] handle_client: starting auth on socket 1560
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\3dfxvs.dll" (for %I in ("C:\WINDOWS\sy"... (128 bytes)
+[21:52:38][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\3dfxvs.dll" (for %I in ("C:\WINDOWS\system32\3dfxvs.dll") do @echo %~zI) else (echo -)"
+[21:52:38][EXEC ] CreateProcessA OK, PID=1732
+[21:52:38][EXEC ] Process 1732 exited: code=0, output=8 bytes, 47ms elapsed
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51218
+[21:52:38][MAIN ] handle_client: starting auth on socket 1732
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\3dfxvs.dll" (39 bytes)
+[21:52:38][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\3dfxvs.dll") = OK
+[21:52:38][FILE ] DOWNLOAD: GetFileSize = 610240 bytes
+[21:52:38][PROTO] frame_send: 610241 bytes
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51220
+[21:52:38][MAIN ] handle_client: starting auth on socket 1576
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\drivers\3dfxvsm.sys" (for %I in ("C:\W"... (146 bytes)
+[21:52:38][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\drivers\3dfxvsm.sys" (for %I in ("C:\WINDOWS\system32\drivers\3dfxvsm.sys") do @echo %~zI) else (echo -)"
+[21:52:38][EXEC ] CreateProcessA OK, PID=896
+[21:52:38][EXEC ] Process 896 exited: code=0, output=8 bytes, 47ms elapsed
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51222
+[21:52:38][MAIN ] handle_client: starting auth on socket 1560
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\drivers\3dfxvsm.sys" (48 bytes)
+[21:52:38][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\drivers\3dfxvsm.sys") = OK
+[21:52:38][FILE ] DOWNLOAD: GetFileSize = 174720 bytes
+[21:52:38][PROTO] frame_send: 174721 bytes
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51234
+[21:52:38][MAIN ] handle_client: starting auth on socket 1732
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\vcrdd.dll" (for %I in ("C:\WINDOWS\sys"... (126 bytes)
+[21:52:38][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\vcrdd.dll" (for %I in ("C:\WINDOWS\system32\vcrdd.dll") do @echo %~zI) else (echo -)"
+[21:52:38][EXEC ] CreateProcessA OK, PID=840
+[21:52:38][EXEC ] Process 840 exited: code=0, output=7 bytes, 47ms elapsed
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51244
+[21:52:38][MAIN ] handle_client: starting auth on socket 1576
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\vcrdd.dll" (38 bytes)
+[21:52:38][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\vcrdd.dll") = OK
+[21:52:38][FILE ] DOWNLOAD: GetFileSize = 89897 bytes
+[21:52:38][PROTO] frame_send: 89898 bytes
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51248
+[21:52:38][MAIN ] handle_client: starting auth on socket 1560
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\drivers\vcrmp.sys" (for %I in ("C:\WIN"... (142 bytes)
+[21:52:38][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\drivers\vcrmp.sys" (for %I in ("C:\WINDOWS\system32\drivers\vcrmp.sys") do @echo %~zI) else (echo -)"
+[21:52:38][EXEC ] CreateProcessA OK, PID=1188
+[21:52:38][EXEC ] Process 1188 exited: code=0, output=8 bytes, 47ms elapsed
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51264
+[21:52:38][MAIN ] handle_client: starting auth on socket 1732
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\drivers\vcrmp.sys" (46 bytes)
+[21:52:38][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\drivers\vcrmp.sys") = OK
+[21:52:38][FILE ] DOWNLOAD: GetFileSize = 119832 bytes
+[21:52:38][PROTO] frame_send: 119833 bytes
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51280
+[21:52:38][MAIN ] handle_client: starting auth on socket 1576
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "HWPROFILE" (9 bytes)
+[21:52:38][HWPROFILE] hash=3f81323b851f8aed cpu="AuthenticAMD" 2004MHz(registry) x1 ram=255MB gpu=121A:0009 "vcr-kmd Voodoo 5 6000 (open driver)" vram=32MB level=fixed os=winxp caps=2
+[21:52:38][PROTO] frame_send: 1911 bytes
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51286
+[21:52:38][MAIN ] handle_client: starting auth on socket 1728
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-080"... (95 bytes)
+[21:52:38][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001") = OK
+[21:52:38][REG  ]   Value: "InfPath" type=REG_SZ size=9
+[21:52:38][REG  ]   Value: "InfSection" type=REG_SZ size=4
+[21:52:38][REG  ]   Value: "ProviderName" type=REG_SZ size=39
+[21:52:38][REG  ]   Value: "DriverDateData" type=REG_BINARY size=8
+[21:52:38][REG  ]   Value: "DriverDate" type=REG_SZ size=10
+[21:52:38][REG  ]   Value: "DriverVersion" type=REG_SZ size=8
+[21:52:38][REG  ]   Value: "MatchingDeviceId" type=REG_SZ size=38
+[21:52:38][REG  ]   Value: "DriverDesc" type=REG_SZ size=36
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51296
+[21:52:38][MAIN ] handle_client: starting auth on socket 1560
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "EXEC cmd /c if exist "C:\Games\Quake2Complete\quake2.exe" (for %I in ("C:\Games\"... (136 bytes)
+[21:52:38][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\Games\Quake2Complete\quake2.exe" (for %I in ("C:\Games\Quake2Complete\quake2.exe") do @echo %~zI) else (echo -)"
+[21:52:38][EXEC ] CreateProcessA OK, PID=932
+[21:52:38][EXEC ] Process 932 exited: code=0, output=8 bytes, 47ms elapsed
+[21:52:38][MAIN ] Client disconnected
+[21:52:38][MAIN ] Connection from 192.168.1.196:51302
+[21:52:38][MAIN ] handle_client: starting auth on socket 1564
+[21:52:38][PROTO] AUTH: success
+[21:52:38][MAIN ] Client authenticated
+[21:52:38][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\quake2.exe" (43 bytes)
+[21:52:38][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\quake2.exe") = OK
+[21:52:38][FILE ] DOWNLOAD: GetFileSize = 362496 bytes
+[21:52:39][PROTO] frame_send: 362497 bytes
+[21:52:39][MAIN ] Client disconnected
+[21:52:39][MAIN ] Connection from 192.168.1.196:51318
+[21:52:39][MAIN ] handle_client: starting auth on socket 1728
+[21:52:39][PROTO] AUTH: success
+[21:52:39][MAIN ] Client authenticated
+[21:52:39][MAIN ] CMD: "EXEC cmd /c dir /s /b /-c "C:\Games\Quake2Complete\glide2x.dll" "C:\Games\Quake2"... (106 bytes)
+[21:52:39][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c dir /s /b /-c "C:\Games\Quake2Complete\glide2x.dll" "C:\Games\Quake2Complete\glide3x.dll" 2>&1"
+[21:52:39][EXEC ] CreateProcessA OK, PID=664
+[21:52:39][EXEC ] Process 664 exited: code=0, output=37 bytes, 421ms elapsed
+[21:52:39][MAIN ] Client disconnected
+[21:52:39][MAIN ] Connection from 192.168.1.196:51328
+[21:52:39][MAIN ] handle_client: starting auth on socket 1560
+[21:52:39][PROTO] AUTH: success
+[21:52:39][MAIN ] Client authenticated
+[21:52:39][MAIN ] CMD: "EXEC cmd /c for %I in ("C:\Games\Quake2Complete\glide3x.dll") do @echo %~zI" (75 bytes)
+[21:52:39][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c for %I in ("C:\Games\Quake2Complete\glide3x.dll") do @echo %~zI"
+[21:52:39][EXEC ] CreateProcessA OK, PID=1612
+[21:52:39][EXEC ] Process 1612 exited: code=0, output=9 bytes, 47ms elapsed
+[21:52:39][MAIN ] Client disconnected
+[21:52:39][MAIN ] Connection from 192.168.1.196:51332
+[21:52:39][MAIN ] handle_client: starting auth on socket 1564
+[21:52:39][PROTO] AUTH: success
+[21:52:39][MAIN ] Client authenticated
+[21:52:39][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\3dfxOGL.dll" (for %I in ("C:\WINDOWS\s"... (130 bytes)
+[21:52:39][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\3dfxOGL.dll" (for %I in ("C:\WINDOWS\system32\3dfxOGL.dll") do @echo %~zI) else (echo -)"
+[21:52:39][EXEC ] CreateProcessA OK, PID=812
+[21:52:39][EXEC ] Process 812 exited: code=0, output=9 bytes, 46ms elapsed
+[21:52:39][MAIN ] Client disconnected
+[21:52:39][MAIN ] Connection from 192.168.1.196:51344
+[21:52:39][MAIN ] handle_client: starting auth on socket 1728
+[21:52:39][PROTO] AUTH: success
+[21:52:39][MAIN ] Client authenticated
+[21:52:39][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\3dfxOGL.dll" (40 bytes)
+[21:52:39][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\3dfxOGL.dll") = OK
+[21:52:39][FILE ] DOWNLOAD: GetFileSize = 2646009 bytes
+[21:52:39][PROTO] frame_send: 2646010 bytes
+[21:52:39][MAIN ] Client disconnected
+[21:52:39][MAIN ] Connection from 192.168.1.196:51354
+[21:52:39][MAIN ] handle_client: starting auth on socket 1560
+[21:52:39][PROTO] AUTH: success
+[21:52:39][MAIN ] Client authenticated
+[21:52:39][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\glide3x.dll" (for %I in ("C:\WINDOWS\s"... (130 bytes)
+[21:52:39][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\glide3x.dll" (for %I in ("C:\WINDOWS\system32\glide3x.dll") do @echo %~zI) else (echo -)"
+[21:52:39][EXEC ] CreateProcessA OK, PID=484
+[21:52:39][EXEC ] Process 484 exited: code=0, output=8 bytes, 46ms elapsed
+[21:52:39][MAIN ] Client disconnected
+[21:52:39][MAIN ] Connection from 192.168.1.196:51356
+[21:52:39][MAIN ] handle_client: starting auth on socket 1564
+[21:52:39][PROTO] AUTH: success
+[21:52:39][MAIN ] Client authenticated
+[21:52:39][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\glide3x.dll" (40 bytes)
+[21:52:39][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\glide3x.dll") = OK
+[21:52:39][FILE ] DOWNLOAD: GetFileSize = 344064 bytes
+[21:52:39][PROTO] frame_send: 344065 bytes
+[21:52:40][MAIN ] Client disconnected
+[21:52:40][MAIN ] Connection from 192.168.1.196:51358
+[21:52:40][MAIN ] handle_client: starting auth on socket 1728
+[21:52:40][PROTO] AUTH: success
+[21:52:40][MAIN ] Client authenticated
+[21:52:40][MAIN ] CMD: "SYSINFO" (7 bytes)
+[21:52:45][MAIN ] Client disconnected
+[21:52:45][MAIN ] Connection from 192.168.1.196:43244
+[21:52:45][MAIN ] handle_client: starting auth on socket 1560
+[21:52:45][PROTO] AUTH: success
+[21:52:45][MAIN ] Client authenticated
+[21:52:45][MAIN ] CMD: "REGWRITE HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08"... (147 bytes)
+[21:52:45][REG  ] REGWRITE: key="HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide" name="SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ
+[21:52:45][REG  ] REGWRITE: RegSetValueExA = OK
+[21:52:45][MAIN ] Client disconnected
+[21:52:45][MAIN ] Connection from 192.168.1.196:43252
+[21:52:45][MAIN ] handle_client: starting auth on socket 1564
+[21:52:45][PROTO] AUTH: success
+[21:52:45][MAIN ] Client authenticated
+[21:52:45][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-080"... (110 bytes)
+[21:52:45][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide") = OK
+[21:52:45][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[21:52:45][MAIN ] Client disconnected
+[21:52:45][MAIN ] Connection from 192.168.1.196:43256
+[21:52:45][MAIN ] handle_client: starting auth on socket 1728
+[21:52:45][PROTO] AUTH: success
+[21:52:45][MAIN ] Client authenticated
+[21:52:45][MAIN ] CMD: "EXEC cmd /c if exist "C:\Games\Quake2Complete\glide3x.dll" del /f /q "C:\Games\Q"... (106 bytes)
+[21:52:45][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\Games\Quake2Complete\glide3x.dll" del /f /q "C:\Games\Quake2Complete\glide3x.dll""
+[21:52:45][EXEC ] CreateProcessA OK, PID=884
+[21:52:45][EXEC ] Process 884 exited: code=0, output=0 bytes, 47ms elapsed
+[21:52:45][MAIN ] Client disconnected
+[21:52:45][MAIN ] Connection from 192.168.1.196:43268
+[21:52:45][MAIN ] handle_client: starting auth on socket 1560
+[21:52:45][PROTO] AUTH: success
+[21:52:45][MAIN ] Client authenticated
+[21:52:45][MAIN ] CMD: "UPLOAD C:\Games\Quake2Complete\baseq2\fleetres.cfg" (50 bytes)
+[21:52:45][FILE ] UPLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\fleetres.cfg") = OK
+[21:52:45][FILE ] UPLOAD: Complete, 228 bytes to "C:\Games\Quake2Complete\baseq2\fleetres.cfg"
+[21:52:45][MAIN ] Client disconnected
+[21:52:45][MAIN ] Connection from 192.168.1.196:43282
+[21:52:45][MAIN ] handle_client: starting auth on socket 1564
+[21:52:45][PROTO] AUTH: success
+[21:52:45][MAIN ] Client authenticated
+[21:52:45][MAIN ] CMD: "UPLOAD C:\Games\Quake2Complete\baseq2\bench.cfg" (47 bytes)
+[21:52:45][FILE ] UPLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\bench.cfg") = OK
+[21:52:45][FILE ] UPLOAD: Complete, 196 bytes to "C:\Games\Quake2Complete\baseq2\bench.cfg"
+[21:52:45][MAIN ] Client disconnected
+[21:52:45][MAIN ] Connection from 192.168.1.196:43294
+[21:52:45][MAIN ] handle_client: starting auth on socket 1728
+[21:52:45][PROTO] AUTH: success
+[21:52:45][MAIN ] Client authenticated
+[21:52:45][MAIN ] CMD: "UPLOAD C:\Games\Quake2Complete\V56KBENCH.BAT" (44 bytes)
+[21:52:45][FILE ] UPLOAD: CreateFileA("C:\Games\Quake2Complete\V56KBENCH.BAT") = OK
+[21:52:45][FILE ] UPLOAD: Complete, 285 bytes to "C:\Games\Quake2Complete\V56KBENCH.BAT"
+[21:52:45][MAIN ] Client disconnected
+[21:52:45][MAIN ] Connection from 192.168.1.196:43306
+[21:52:45][MAIN ] handle_client: starting auth on socket 1560
+[21:52:45][PROTO] AUTH: success
+[21:52:45][MAIN ] Client authenticated
+[21:52:45][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\Games\Quake2Complete\baseq2\qconsole.log"" (67 bytes)
+[21:52:45][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\Games\Quake2Complete\baseq2\qconsole.log""
+[21:52:45][EXEC ] CreateProcessA OK, PID=384
+[21:52:45][EXEC ] Process 384 exited: code=0, output=0 bytes, 46ms elapsed
+[21:52:45][MAIN ] Client disconnected
+[21:52:45][MAIN ] Connection from 192.168.1.196:43314
+[21:52:45][MAIN ] handle_client: starting auth on socket 1564
+[21:52:45][PROTO] AUTH: success
+[21:52:45][MAIN ] Client authenticated
+[21:52:45][MAIN ] CMD: "EXEC cmd /c taskkill /im "quake2.exe" 2>nul" (43 bytes)
+[21:52:45][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /im "quake2.exe" 2>nul"
+[21:52:45][EXEC ] CreateProcessA OK, PID=1216
+[21:52:45][EXEC ] Process 1216 exited: code=128, output=0 bytes, 94ms elapsed
+[21:52:45][MAIN ] Client disconnected
+[21:52:45][MAIN ] Connection from 192.168.1.196:43316
+[21:52:45][MAIN ] handle_client: starting auth on socket 1588
+[21:52:45][PROTO] AUTH: success
+[21:52:45][MAIN ] Client authenticated
+[21:52:45][MAIN ] CMD: "EXEC cmd /c tasklist /fi "imagename eq quake2.exe" /nh" (54 bytes)
+[21:52:45][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c tasklist /fi "imagename eq quake2.exe" /nh"
+[21:52:45][EXEC ] CreateProcessA OK, PID=1172
+[21:52:46][EXEC ] Process 1172 exited: code=0, output=53 bytes, 110ms elapsed
+[21:52:46][MAIN ] Client disconnected
+[21:52:48][MAIN ] Connection from 192.168.1.196:43332
+[21:52:48][MAIN ] handle_client: starting auth on socket 1560
+[21:52:48][PROTO] AUTH: success
+[21:52:48][MAIN ] Client authenticated
+[21:52:48][MAIN ] CMD: "DOWNLOAD C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watso"... (94 bytes)
+[21:52:48][FILE ] DOWNLOAD: CreateFileA("C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\drwtsn32.log") failed, error 2
+[21:52:48][MAIN ] Client disconnected
+[21:52:48][MAIN ] Connection from 192.168.1.196:43338
+[21:52:48][MAIN ] handle_client: starting auth on socket 1564
+[21:52:48][PROTO] AUTH: success
+[21:52:48][MAIN ] Client authenticated
+[21:52:48][MAIN ] CMD: "DOWNLOAD C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watso"... (90 bytes)
+[21:52:48][FILE ] DOWNLOAD: CreateFileA("C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\user.dmp") failed, error 2
+[21:52:48][MAIN ] Client disconnected
+[21:52:48][MAIN ] Connection from 192.168.1.196:43350
+[21:52:48][MAIN ] handle_client: starting auth on socket 1588
+[21:52:48][PROTO] AUTH: success
+[21:52:48][MAIN ] Client authenticated
+[21:52:48][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\Documents and Settings\All Users\Application Data\Micr"... (209 bytes)
+[21:52:48][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\drwtsn32.log" "C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\user.dmp" 2>nul & echo ok"
+[21:52:48][EXEC ] CreateProcessA OK, PID=752
+[21:52:48][EXEC ] Process 752 exited: code=0, output=4 bytes, 63ms elapsed
+[21:52:48][MAIN ] Client disconnected
+[21:52:48][MAIN ] Connection from 192.168.1.196:43354
+[21:52:48][MAIN ] handle_client: starting auth on socket 1560
+[21:52:48][PROTO] AUTH: success
+[21:52:48][MAIN ] Client authenticated
+[21:52:48][MAIN ] CMD: "LAUNCH C:\Games\Quake2Complete\V56KBENCH.BAT" (44 bytes)
+[21:52:48][EXEC ] LAUNCH: cmdline="cmd.exe /c C:\Games\Quake2Complete\V56KBENCH.BAT"
+[21:52:48][EXEC ] LAUNCH OK, PID=488
+[21:52:48][MAIN ] Client disconnected
+[21:53:00][MAIN ] Connection from 192.168.1.196:59638
+[21:53:00][MAIN ] handle_client: starting auth on socket 1524
+[21:53:00][PROTO] AUTH: success
+[21:53:00][MAIN ] Client authenticated
+[21:53:00][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\baseq2\qconsole.log" (52 bytes)
+[21:53:00][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\qconsole.log") = OK
+[21:53:00][FILE ] DOWNLOAD: GetFileSize = 239 bytes
+[21:53:00][MAIN ] Client disconnected
+[21:53:06][MAIN ] Connection from 192.168.1.196:47960
+[21:53:06][MAIN ] handle_client: starting auth on socket 1588
+[21:53:06][PROTO] AUTH: success
+[21:53:06][MAIN ] Client authenticated
+[21:53:06][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\baseq2\qconsole.log" (52 bytes)
+[21:53:06][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\qconsole.log") = OK
+[21:53:06][FILE ] DOWNLOAD: GetFileSize = 239 bytes
+[21:53:06][MAIN ] Client disconnected
+[21:53:11][MAIN ] Connection from 192.168.1.196:47968
+[21:53:11][MAIN ] handle_client: starting auth on socket 1560
+[21:53:11][PROTO] AUTH: success
+[21:53:11][MAIN ] Client authenticated
+[21:53:11][MAIN ] Client disconnected
+[21:53:12][MAIN ] Connection from 192.168.1.196:47972
+[21:53:12][MAIN ] handle_client: starting auth on socket 1524
+[21:53:12][PROTO] AUTH: success
+[21:53:12][MAIN ] Client authenticated
+[21:53:12][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\baseq2\qconsole.log" (52 bytes)
+[21:53:12][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\qconsole.log") = OK
+[21:53:12][FILE ] DOWNLOAD: GetFileSize = 239 bytes
+[21:53:12][MAIN ] Client disconnected
+[21:53:12][MAIN ] Connection from 192.168.1.196:47974
+[21:53:12][MAIN ] handle_client: starting auth on socket 1588
+[21:53:12][PROTO] AUTH: success
+[21:53:12][MAIN ] Client authenticated
+[21:53:12][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:53:12][PROTO] frame_send: 1380 bytes
+[21:53:12][MAIN ] Client disconnected
+[21:53:12][MAIN ] Connection from 192.168.1.196:47986
+[21:53:12][MAIN ] handle_client: starting auth on socket 1560
+[21:53:12][PROTO] AUTH: success
+[21:53:12][MAIN ] Client authenticated
+[21:53:12][MAIN ] CMD: "EXEC cmd /c taskkill /im "quake2.exe" 2>nul" (43 bytes)
+[21:53:12][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /im "quake2.exe" 2>nul"
+[21:53:12][EXEC ] CreateProcessA OK, PID=1744
+[21:53:12][EXEC ] Process 1744 exited: code=128, output=0 bytes, 109ms elapsed
+[21:53:12][MAIN ] Client disconnected
+[21:53:12][MAIN ] Connection from 192.168.1.196:47988
+[21:53:12][MAIN ] handle_client: starting auth on socket 1524
+[21:53:12][PROTO] AUTH: success
+[21:53:12][MAIN ] Client authenticated
+[21:53:12][MAIN ] CMD: "EXEC cmd /c tasklist /fi "imagename eq quake2.exe" /nh" (54 bytes)
+[21:53:12][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c tasklist /fi "imagename eq quake2.exe" /nh"
+[21:53:12][EXEC ] CreateProcessA OK, PID=1224
+[21:53:12][EXEC ] Process 1224 exited: code=0, output=53 bytes, 109ms elapsed
+[21:53:12][MAIN ] Client disconnected
+[21:53:15][MAIN ] Connection from 192.168.1.196:54916
+[21:53:15][MAIN ] handle_client: starting auth on socket 1588
+[21:53:15][PROTO] AUTH: success
+[21:53:15][MAIN ] Client authenticated
+[21:53:15][MAIN ] CMD: "EXEC cmd /c if not exist "C:\RETRO_AGENT\v56k-deploy" mkdir "C:\RETRO_AGENT\v56k"... (88 bytes)
+[21:53:15][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if not exist "C:\RETRO_AGENT\v56k-deploy" mkdir "C:\RETRO_AGENT\v56k-deploy""
+[21:53:15][EXEC ] CreateProcessA OK, PID=1488
+[21:53:15][EXEC ] Process 1488 exited: code=0, output=0 bytes, 47ms elapsed
+[21:53:15][MAIN ] Client disconnected
+[21:53:15][MAIN ] Connection from 192.168.1.196:54918
+[21:53:15][MAIN ] handle_client: starting auth on socket 1560
+[21:53:15][PROTO] AUTH: success
+[21:53:15][MAIN ] Client authenticated
+[21:53:15][MAIN ] CMD: "EXEC cmd /c for %I in ("C:\RETRO_AGENT\v56k-deploy\fxscan2.exe") do @echo %~zI" (78 bytes)
+[21:53:15][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c for %I in ("C:\RETRO_AGENT\v56k-deploy\fxscan2.exe") do @echo %~zI"
+[21:53:15][EXEC ] CreateProcessA OK, PID=244
+[21:53:15][EXEC ] Process 244 exited: code=0, output=8 bytes, 78ms elapsed
+[21:53:15][MAIN ] Client disconnected
+[21:53:15][MAIN ] Connection from 192.168.1.196:54922
+[21:53:15][MAIN ] handle_client: starting auth on socket 1524
+[21:53:15][PROTO] AUTH: success
+[21:53:15][MAIN ] Client authenticated
+[21:53:15][MAIN ] CMD: "EXECW 40 C:\RETRO_AGENT\v56k-deploy\fxscan2.exe dump" (52 bytes)
+[21:53:15][EXEC ] EXEC: cmdline="cmd.exe /c C:\RETRO_AGENT\v56k-deploy\fxscan2.exe dump"
+[21:53:15][EXEC ] CreateProcessA OK, PID=1860
+[21:53:15][EXEC ] Process 1860 exited: code=3, output=267 bytes, 109ms elapsed
+[21:53:15][MAIN ] Client disconnected
+[21:53:15][MAIN ] Connection from 192.168.1.196:54926
+[21:53:15][MAIN ] handle_client: starting auth on socket 1588
+[21:53:15][PROTO] AUTH: success
+[21:53:15][MAIN ] Client authenticated
+[21:53:15][MAIN ] CMD: "DOWNLOAD C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watso"... (94 bytes)
+[21:53:15][FILE ] DOWNLOAD: CreateFileA("C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\drwtsn32.log") = OK
+[21:53:15][FILE ] DOWNLOAD: GetFileSize = 22570 bytes
+[21:53:15][PROTO] frame_send: 22571 bytes
+[21:53:15][MAIN ] Client disconnected
+[21:53:15][MAIN ] Connection from 192.168.1.196:54932
+[21:53:15][MAIN ] handle_client: starting auth on socket 1560
+[21:53:15][PROTO] AUTH: success
+[21:53:15][MAIN ] Client authenticated
+[21:53:15][MAIN ] CMD: "DOWNLOAD C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watso"... (90 bytes)
+[21:53:15][FILE ] DOWNLOAD: CreateFileA("C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\user.dmp") = OK
+[21:53:15][FILE ] DOWNLOAD: GetFileSize = 15957 bytes
+[21:53:15][PROTO] frame_send: 15958 bytes
+[21:53:15][MAIN ] Client disconnected
+[21:53:15][MAIN ] Connection from 192.168.1.196:54934
+[21:53:15][MAIN ] handle_client: starting auth on socket 1524
+[21:53:15][PROTO] AUTH: success
+[21:53:15][MAIN ] Client authenticated
+[21:53:15][MAIN ] CMD: "DOWNLOAD C:\RETRO_AGENT\agent.log" (33 bytes)
+[21:53:15][FILE ] DOWNLOAD: CreateFileA("C:\RETRO_AGENT\agent.log") = OK
+[21:53:15][FILE ] DOWNLOAD: GetFileSize = 335312 bytes
+[21:53:15][PROTO] frame_send: 335313 bytes
+[21:53:15][MAIN ] Client disconnected
+[21:53:15][MAIN ] Connection from 192.168.1.196:54938
+[21:53:15][MAIN ] handle_client: starting auth on socket 1588
+[21:53:15][PROTO] AUTH: success
+[21:53:15][MAIN ] Client authenticated
+[21:53:15][MAIN ] CMD: "HWPROFILE" (9 bytes)
+[21:53:15][HWPROFILE] hash=3f81323b851f8aed cpu="AuthenticAMD" 2004MHz(registry) x1 ram=255MB gpu=121A:0009 "vcr-kmd Voodoo 5 6000 (open driver)" vram=32MB level=fixed os=winxp caps=2
+[21:53:15][PROTO] frame_send: 1911 bytes
+[21:53:15][MAIN ] Client disconnected
+[21:53:15][MAIN ] Connection from 192.168.1.196:54952
+[21:53:15][MAIN ] handle_client: starting auth on socket 1552
+[21:53:15][PROTO] AUTH: success
+[21:53:15][MAIN ] Client authenticated
+[21:53:15][MAIN ] CMD: "EXEC cmd /c reg query "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E32"... (132 bytes)
+[21:53:15][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg query "HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide" 2>nul"
+[21:53:15][EXEC ] CreateProcessA OK, PID=1876
+[21:53:15][EXEC ] Process 1876 exited: code=0, output=186 bytes, 63ms elapsed
+[21:53:15][MAIN ] Client disconnected
+[21:53:25][MAIN ] Connection from 192.168.1.196:56066
+[21:53:25][MAIN ] handle_client: starting auth on socket 1560
+[21:53:25][PROTO] AUTH: success
+[21:53:25][MAIN ] Client authenticated
+[21:53:25][MAIN ] CMD: "SYSINFO" (7 bytes)
+[21:53:31][MAIN ] Client disconnected
+[21:53:31][MAIN ] Connection from 192.168.1.196:56072
+[21:53:31][MAIN ] handle_client: starting auth on socket 1632
+[21:53:31][PROTO] AUTH: success
+[21:53:31][MAIN ] Client authenticated
+[21:53:31][MAIN ] CMD: "REGWRITE HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08"... (147 bytes)
+[21:53:31][REG  ] REGWRITE: key="HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide" name="SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ
+[21:53:31][REG  ] REGWRITE: RegSetValueExA = OK
+[21:53:31][MAIN ] Client disconnected
+[21:53:31][MAIN ] Connection from 192.168.1.196:56074
+[21:53:31][MAIN ] handle_client: starting auth on socket 1552
+[21:53:31][PROTO] AUTH: success
+[21:53:31][MAIN ] Client authenticated
+[21:53:31][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-080"... (110 bytes)
+[21:53:31][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide") = OK
+[21:53:31][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[21:53:31][MAIN ] Client disconnected
+[21:53:31][MAIN ] Connection from 192.168.1.196:56086
+[21:53:31][MAIN ] handle_client: starting auth on socket 1560
+[21:53:31][PROTO] AUTH: success
+[21:53:31][MAIN ] Client authenticated
+[21:53:31][MAIN ] CMD: "EXEC cmd /c if exist "C:\Games\Quake2Complete\glide3x.dll" del /f /q "C:\Games\Q"... (106 bytes)
+[21:53:31][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\Games\Quake2Complete\glide3x.dll" del /f /q "C:\Games\Quake2Complete\glide3x.dll""
+[21:53:31][EXEC ] CreateProcessA OK, PID=392
+[21:53:31][EXEC ] Process 392 exited: code=0, output=0 bytes, 94ms elapsed
+[21:53:31][MAIN ] Client disconnected
+[21:53:31][MAIN ] Connection from 192.168.1.196:56090
+[21:53:31][MAIN ] handle_client: starting auth on socket 1632
+[21:53:31][PROTO] AUTH: success
+[21:53:31][MAIN ] Client authenticated
+[21:53:31][MAIN ] CMD: "UPLOAD C:\Games\Quake2Complete\baseq2\fleetres.cfg" (50 bytes)
+[21:53:31][FILE ] UPLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\fleetres.cfg") = OK
+[21:53:31][FILE ] UPLOAD: Complete, 228 bytes to "C:\Games\Quake2Complete\baseq2\fleetres.cfg"
+[21:53:31][MAIN ] Client disconnected
+[21:53:31][MAIN ] Connection from 192.168.1.196:56100
+[21:53:31][MAIN ] handle_client: starting auth on socket 1528
+[21:53:31][PROTO] AUTH: success
+[21:53:31][MAIN ] Client authenticated
+[21:53:31][MAIN ] CMD: "UPLOAD C:\Games\Quake2Complete\baseq2\bench.cfg" (47 bytes)
+[21:53:31][FILE ] UPLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\bench.cfg") = OK
+[21:53:31][FILE ] UPLOAD: Complete, 196 bytes to "C:\Games\Quake2Complete\baseq2\bench.cfg"
+[21:53:31][MAIN ] Client disconnected
+[21:53:31][MAIN ] Connection from 192.168.1.196:56110
+[21:53:31][MAIN ] handle_client: starting auth on socket 1560
+[21:53:31][PROTO] AUTH: success
+[21:53:31][MAIN ] Client authenticated
+[21:53:31][MAIN ] CMD: "UPLOAD C:\Games\Quake2Complete\V56KBENCH.BAT" (44 bytes)
+[21:53:31][FILE ] UPLOAD: CreateFileA("C:\Games\Quake2Complete\V56KBENCH.BAT") = OK
+[21:53:31][FILE ] UPLOAD: Complete, 285 bytes to "C:\Games\Quake2Complete\V56KBENCH.BAT"
+[21:53:31][MAIN ] Client disconnected
+[21:53:31][MAIN ] Connection from 192.168.1.196:56126
+[21:53:31][MAIN ] handle_client: starting auth on socket 1632
+[21:53:31][PROTO] AUTH: success
+[21:53:31][MAIN ] Client authenticated
+[21:53:31][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\Games\Quake2Complete\baseq2\qconsole.log"" (67 bytes)
+[21:53:31][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\Games\Quake2Complete\baseq2\qconsole.log""
+[21:53:31][EXEC ] CreateProcessA OK, PID=944
+[21:53:31][EXEC ] Process 944 exited: code=0, output=0 bytes, 187ms elapsed
+[21:53:31][MAIN ] Client disconnected
+[21:53:31][MAIN ] Connection from 192.168.1.196:56136
+[21:53:31][MAIN ] handle_client: starting auth on socket 1528
+[21:53:31][PROTO] AUTH: success
+[21:53:31][MAIN ] Client authenticated
+[21:53:31][MAIN ] CMD: "EXEC cmd /c taskkill /im "quake2.exe" 2>nul" (43 bytes)
+[21:53:31][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /im "quake2.exe" 2>nul"
+[21:53:31][EXEC ] CreateProcessA OK, PID=1992
+[21:53:31][EXEC ] Process 1992 exited: code=128, output=0 bytes, 125ms elapsed
+[21:53:31][MAIN ] Client disconnected
+[21:53:31][MAIN ] Connection from 192.168.1.196:56146
+[21:53:31][MAIN ] handle_client: starting auth on socket 1560
+[21:53:31][PROTO] AUTH: success
+[21:53:31][MAIN ] Client authenticated
+[21:53:31][MAIN ] CMD: "EXEC cmd /c tasklist /fi "imagename eq quake2.exe" /nh" (54 bytes)
+[21:53:31][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c tasklist /fi "imagename eq quake2.exe" /nh"
+[21:53:31][EXEC ] CreateProcessA OK, PID=1032
+[21:53:32][EXEC ] Process 1032 exited: code=0, output=53 bytes, 125ms elapsed
+[21:53:32][MAIN ] Client disconnected
+[21:53:34][MAIN ] Connection from 192.168.1.196:56152
+[21:53:34][MAIN ] handle_client: starting auth on socket 1632
+[21:53:34][PROTO] AUTH: success
+[21:53:34][MAIN ] Client authenticated
+[21:53:34][MAIN ] CMD: "DOWNLOAD C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watso"... (94 bytes)
+[21:53:34][FILE ] DOWNLOAD: CreateFileA("C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\drwtsn32.log") = OK
+[21:53:34][FILE ] DOWNLOAD: GetFileSize = 22570 bytes
+[21:53:34][PROTO] frame_send: 22571 bytes
+[21:53:34][MAIN ] Client disconnected
+[21:53:34][MAIN ] Connection from 192.168.1.196:56160
+[21:53:34][MAIN ] handle_client: starting auth on socket 1528
+[21:53:34][PROTO] AUTH: success
+[21:53:34][MAIN ] Client authenticated
+[21:53:34][MAIN ] CMD: "DOWNLOAD C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watso"... (90 bytes)
+[21:53:34][FILE ] DOWNLOAD: CreateFileA("C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\user.dmp") = OK
+[21:53:34][FILE ] DOWNLOAD: GetFileSize = 15957 bytes
+[21:53:34][PROTO] frame_send: 15958 bytes
+[21:53:34][MAIN ] Client disconnected
+[21:53:34][MAIN ] Connection from 192.168.1.196:56174
+[21:53:34][MAIN ] handle_client: starting auth on socket 1560
+[21:53:34][PROTO] AUTH: success
+[21:53:34][MAIN ] Client authenticated
+[21:53:34][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\Documents and Settings\All Users\Application Data\Micr"... (209 bytes)
+[21:53:34][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\drwtsn32.log" "C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\user.dmp" 2>nul & echo ok"
+[21:53:34][EXEC ] CreateProcessA OK, PID=1624
+[21:53:34][EXEC ] Process 1624 exited: code=0, output=4 bytes, 47ms elapsed
+[21:53:34][MAIN ] Client disconnected
+[21:53:34][MAIN ] Connection from 192.168.1.196:56184
+[21:53:34][MAIN ] handle_client: starting auth on socket 1632
+[21:53:34][PROTO] AUTH: success
+[21:53:34][MAIN ] Client authenticated
+[21:53:34][MAIN ] CMD: "LAUNCH C:\Games\Quake2Complete\V56KBENCH.BAT" (44 bytes)
+[21:53:34][EXEC ] LAUNCH: cmdline="cmd.exe /c C:\Games\Quake2Complete\V56KBENCH.BAT"
+[21:53:34][EXEC ] LAUNCH OK, PID=1328
+[21:53:34][MAIN ] Client disconnected
+[21:53:46][MAIN ] Connection from 192.168.1.196:59522
+[21:53:46][MAIN ] handle_client: starting auth on socket 1528
+[21:53:46][PROTO] AUTH: success
+[21:53:46][MAIN ] Client authenticated
+[21:53:46][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\baseq2\qconsole.log" (52 bytes)
+[21:53:46][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\qconsole.log") = OK
+[21:53:46][FILE ] DOWNLOAD: GetFileSize = 239 bytes
+[21:53:46][MAIN ] Client disconnected
+[21:53:52][MAIN ] Connection from 192.168.1.196:59524
+[21:53:52][MAIN ] handle_client: starting auth on socket 1560
+[21:53:52][PROTO] AUTH: success
+[21:53:52][MAIN ] Client authenticated
+[21:53:52][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\baseq2\qconsole.log" (52 bytes)
+[21:53:52][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\qconsole.log") = OK
+[21:53:52][FILE ] DOWNLOAD: GetFileSize = 239 bytes
+[21:53:52][MAIN ] Client disconnected
+[21:53:58][MAIN ] Connection from 192.168.1.196:48542
+[21:53:58][MAIN ] handle_client: starting auth on socket 1564
+[21:53:58][PROTO] AUTH: success
+[21:53:58][MAIN ] Client authenticated
+[21:53:58][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\baseq2\qconsole.log" (52 bytes)
+[21:53:58][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\qconsole.log") = OK
+[21:53:58][FILE ] DOWNLOAD: GetFileSize = 239 bytes
+[21:53:58][MAIN ] Client disconnected
+[21:53:58][MAIN ] Connection from 192.168.1.196:48552
+[21:53:58][MAIN ] handle_client: starting auth on socket 1528
+[21:53:58][PROTO] AUTH: success
+[21:53:58][MAIN ] Client authenticated
+[21:53:58][MAIN ] CMD: "PROCLIST" (8 bytes)
+[21:53:58][PROTO] frame_send: 1380 bytes
+[21:53:58][MAIN ] Client disconnected
+[21:53:58][MAIN ] Connection from 192.168.1.196:48558
+[21:53:58][MAIN ] handle_client: starting auth on socket 1560
+[21:53:58][PROTO] AUTH: success
+[21:53:58][MAIN ] Client authenticated
+[21:53:58][MAIN ] CMD: "EXEC cmd /c taskkill /im "quake2.exe" 2>nul" (43 bytes)
+[21:53:58][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /im "quake2.exe" 2>nul"
+[21:53:58][EXEC ] CreateProcessA OK, PID=1372
+[21:53:58][EXEC ] Process 1372 exited: code=128, output=0 bytes, 109ms elapsed
+[21:53:58][MAIN ] Client disconnected
+[21:53:58][MAIN ] Connection from 192.168.1.196:48574
+[21:53:58][MAIN ] handle_client: starting auth on socket 1564
+[21:53:58][PROTO] AUTH: success
+[21:53:58][MAIN ] Client authenticated
+[21:53:58][MAIN ] CMD: "EXEC cmd /c tasklist /fi "imagename eq quake2.exe" /nh" (54 bytes)
+[21:53:58][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c tasklist /fi "imagename eq quake2.exe" /nh"
+[21:53:58][EXEC ] CreateProcessA OK, PID=912
+[21:53:58][EXEC ] Process 912 exited: code=0, output=53 bytes, 94ms elapsed
+[21:53:58][MAIN ] Client disconnected
+[21:53:59][MAIN ] Connection from 192.168.1.196:48590
+[21:53:59][MAIN ] handle_client: starting auth on socket 1528
+[21:53:59][PROTO] AUTH: success
+[21:53:59][MAIN ] Client authenticated
+[21:53:59][MAIN ] Client disconnected

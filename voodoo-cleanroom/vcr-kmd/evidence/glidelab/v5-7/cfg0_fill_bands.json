@@ -1,0 +1,2 @@
+{"mode": "fill", "res": "1024x768", "cfg": 0, "chips": 1, "frames": 200, "frames_run": 200, "layers": 4, "blend": 0, "seconds": 1.9055, "fps": 104.96, "mpix_s": 330.2, "opened_hz": 60, "focus_lost": false, "host": "192.168.1.124"}
+{"mode": "bands", "res": "1024x768", "cfg": 0, "chips": 1, "origin": "upper", "band_lines": 8, "bad_lines": 0, "bad_per_chip": [0, 0, 0, 0], "first_bad": -1, "opened_hz": 60, "focus_lost": false, "host": "192.168.1.124"}

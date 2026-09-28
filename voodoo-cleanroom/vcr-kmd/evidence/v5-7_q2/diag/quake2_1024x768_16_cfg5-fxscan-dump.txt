@@ -1,0 +1,9 @@
+escape       0x3df3
+vendor/dev   121A:0009 rev 1
+fbRam        33554432 (32 MB)
+numChips     4
+ddTilePitch  0   ddTileStride 0   ddTileMark 00000000h
+BAR0 regs    009A0000h
+BAR1 lfb     029A0000h
+IO base      00000000h
+ERR GET_SLAVE_REGS(0) failed (status 0)

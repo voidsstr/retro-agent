@@ -1,0 +1,5 @@
+plan: 2 glidelab run(s) at 1024x768x16@60   48.38 kHz  60.03 Hz   65.0 MHz
+  monitor SNY1270 CPD-G200: H 30-96 kHz, V 48-120 Hz, <= 260 MHz
+  glide C:\Games\Quake2Complete\glide3x.dll md5 38a891e81ea58379a0c22be6d7c0d6fb (1025320 B): SLIAA-GUARD yes, AA-TRACE yes
+{"mode": "fill", "res": "1024x768", "cfg": 5, "chips": 4, "frames": 200, "frames_run": 200, "layers": 4, "blend": 0, "seconds": 0.5595, "fps": 357.44, "mpix_s": 1124.4, "opened_hz": 60, "focus_lost": false, "host": "192.168.1.124"}
+{"mode": "bands", "res": "1024x768", "cfg": 5, "chips": 4, "origin": "upper", "band_lines": 8, "bad_lines": 0, "bad_per_chip": [0, 0, 0, 0], "first_bad": -1, "opened_hz": 60, "focus_lost": false, "host": "192.168.1.124"}
