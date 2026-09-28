@@ -170,8 +170,8 @@ TEST(limits_refuse_what_the_hardware_cannot_show) {
 
 TEST(the_mode_list_and_lookup) {
     vcr_hwcaps h = v5();
-    vcr_mode list[256];
-    vcr_u32 n = vcr_modes_build(&h, list, 256), i, got8 = 0, got32 = 0;
+    vcr_mode list[400];               /* the miniport's VCR_MAX_MODES */
+    vcr_u32 n = vcr_modes_build(&h, list, 400), i, got8 = 0, got32 = 0;
     CHECK(n > 60, "a full list on a 32 MB chip");
     for (i = 0; i < n; i++) {
         const vcr_timing *t = &vcr_timings[list[i].timing];
@@ -321,6 +321,103 @@ TEST(the_desktop_sits_at_the_top_clear_of_glides_fifo) {
     CHECK_EQ_U(vcr_desktop_offset(fb, 8192 * 4, 2048), 0);        /* does not fit */
 }
 
+/* 2X halves every horizontal CRTC value (vcr_mode_compute), so a 2X character
+ * is 16 pixels: the display end CR01 of a width that is not whole 16-pixel
+ * characters falls on the character below, and the blank starts there. GTF's
+ * 1800x1440 - HP's rated maximum for the P1120 - is 2X at every rate the tube
+ * accepts (htotal > 261 characters) and would show 1792 columns; DMT's
+ * 1400x1050@85 is 2X on a Voodoo 3 (179.5 MHz > 160) and would show 1392.
+ * vcr_mode_check refuses both (2026-09-27); every older row is in 16s. */
+TEST(two_x_needs_a_width_in_whole_16_pixel_characters) {
+    vcr_hwcaps h = v5();
+    vcr_modeset m;
+    /* GTF 1800x1440@60 (tools/vesa_timings.py gtf 1800 1440 60) */
+    const vcr_timing gtf1800 = { 1800, 1440, 60, 219570, 128, 200, 328, 1, 3, 46, VCR_T_HNEG };
+    vcr_timing t = gtf1800;
+    unsigned dev, d, i;
+    static const unsigned depths[3] = { 8, 16, 32 };
+    CHECK_EQ_I(vcr_mode_check(&h, &gtf1800, 16), VCR_MODE_E_RANGE);
+    /* old: it computed, with the display end one character short */
+    h.twox_htotal_chars = 0;                        /* force 1X: it is only 2X's problem */
+    CHECK_EQ_I(vcr_mode_check(&h, &gtf1800, 16), 0);
+    h = v5();
+    CHECK_EQ_U(((1800u >> 1) >> 3) * 16, 1792);     /* what 2X would have shown */
+    /* the same porches at 1792 are whole characters: listed, full width */
+    t.w = 1792;
+    CHECK_EQ_I(vcr_mode_compute(&h, &t, 16, &m), 0);
+    CHECK_EQ_U(m.twox, 1);
+    CHECK_EQ_U(m.crtc[0x01], 1792 / 16 - 1);
+    /* 1400x1050@85: 1X on the VSA-100 (239 characters, 179.5 MHz), 2X on a
+     * Voodoo 3 */
+    CHECK_EQ_I(vcr_mode_compute(&h, T(1400, 1050, 85), 16, &m), 0);
+    CHECK_EQ_U(m.twox, 0);
+    CHECK_EQ_U(m.crtc[0x01], 1400 / 8 - 1);
+    h.device_id = VCR_DEV_VOODOO3;
+    h.max_pixclk_khz = 300000;
+    h.twox_above_khz = 160000;
+    h.twox_htotal_chars = 0;
+    CHECK_EQ_I(vcr_mode_check(&h, T(1400, 1050, 85), 16), VCR_MODE_E_RANGE);
+    CHECK_EQ_I(vcr_mode_check(&h, T(1400, 1050, 75), 16), 0);  /* 156 MHz: 1X there too */
+    /* every timing the table lists, on both chips, at every depth: a 2X mode
+     * shows its whole width */
+    for (dev = 0; dev < 2; dev++) {
+        h = v5();
+        h.fb_bytes = 64u << 20;
+        if (dev) {
+            h.device_id = VCR_DEV_VOODOO3;
+            h.max_pixclk_khz = 300000;
+            h.twox_above_khz = 160000;
+            h.twox_htotal_chars = 0;
+        }
+        for (d = 0; d < 3; d++)
+            for (i = 0; i < vcr_ntimings; i++) {
+                if (vcr_mode_compute(&h, &vcr_timings[i], depths[d], &m) || !m.twox)
+                    continue;
+                CHECK_EQ_U(vcr_timings[i].w % 16, 0);
+                CHECK_EQ_U(m.crtc[0x01] + 1u, vcr_timings[i].w / 16u);
+            }
+    }
+}
+
+/* The HP P1120's rows (vcr_modes.c, 2026-09-27) on the V5 6000 as .124 runs
+ * it now - 64 MB a chip: the big ones are 2X and scan the table's own line
+ * (every GTF row there is whole 2X characters), and the desktop still sits
+ * above Glide's command FIFO at 2048x1536x32. */
+TEST(the_p1120_rows_on_the_v5_6000) {
+    vcr_hwcaps h = v5();
+    vcr_modeset m;
+    h.fb_bytes = 64u << 20;
+    CHECK_EQ_I(vcr_mode_compute(&h, T(2048, 1536, 65), 32, &m), 0);
+    CHECK_EQ_U(m.twox, 1);
+    CHECK(m.dacmode & VCR_DAC_MODE_2X, "dacMode 2X");
+    CHECK_EQ_U(m.crtc[0x00], 2816 / 16 - 5);         /* the whole line, halved */
+    CHECK_EQ_U(m.crtc[0x01], 2048 / 16 - 1);
+    CHECK_EQ_U(m.stride, 8192);
+    CHECK_EQ_U(m.vidscreensize, 2048u | (1536u << 12));
+    CHECK(m.pix_khz_actual <= 300000, "under the P1120's 300 MHz");
+    CHECK(vcr_desktop_offset(h.fb_bytes, m.stride, 1536) >= 96u * 1024 + 0xff000,
+          "above Glide's FIFO");
+    /* 1024x768@140: 1X, 164 MHz, 116.5 kHz as programmed */
+    CHECK_EQ_I(vcr_mode_compute(&h, T(1024, 768, 140), 16, &m), 0);
+    CHECK_EQ_U(m.twox, 0);
+    CHECK(m.hfreq_hz > 116000 && m.hfreq_hz <= 121000, "under 121 kHz");
+    /* 640x480@160: the clock is the PLL step inside 160 Hz (GTF's 72852 kHz
+     * programs 160.085) */
+    CHECK_EQ_I(vcr_mode_compute(&h, T(640, 480, 160), 16, &m), 0);
+    CHECK_EQ_U(m.pix_khz_actual, 72784);
+    CHECK(m.refresh_mhz <= 160000 && m.refresh_mhz > 159500, "159.85 Hz");
+    {
+        vcr_u32 got;
+        vcr_pll_calc(72852, &got);
+        CHECK_EQ_U(got, 72892);                     /* old: GTF's own clock */
+    }
+    /* 1600x1200 keeps its vendor-shaped 1X rows; 1792x1344@85 is the fastest
+     * 2X row the P1120 takes */
+    CHECK_EQ_I(vcr_mode_compute(&h, T(1792, 1344, 85), 32, &m), 0);
+    CHECK_EQ_U(m.twox, 1);
+    CHECK(m.hfreq_hz <= 121000 && m.pix_khz_actual <= 300000, "inside the P1120");
+}
+
 MUNIT_MAIN("vcr-kmd modes", {
     RUN(the_desktop_sits_at_the_top_clear_of_glides_fifo);
     RUN(the_mode_list_fits_the_miniport_array);
@@ -335,4 +432,6 @@ MUNIT_MAIN("vcr-kmd modes", {
     RUN(doublescan_modes_use_half_mode_and_double_the_lines);
     RUN(limits_refuse_what_the_hardware_cannot_show);
     RUN(the_mode_list_and_lookup);
+    RUN(two_x_needs_a_width_in_whole_16_pixel_characters);
+    RUN(the_p1120_rows_on_the_v5_6000);
 })

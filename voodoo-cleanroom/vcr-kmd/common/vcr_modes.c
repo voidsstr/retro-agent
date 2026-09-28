@@ -6,7 +6,8 @@
 #include "../include/vcr_regs.h"
 
 /*
- * VESA DMT (and CEA-861 / CVT where DMT has no entry) timings.
+ * VESA DMT (and CEA-861 / CVT where DMT has no entry) timings, the vendor's
+ * decoded from its CRTC, and GTF in the HP P1120 section at the end.
  *   w, h, Hz, pixclk kHz, hfp, hsync, hbp, vfp, vsync, vbp, flags
  * Doublescan rows: `h` is LOGICAL rows (each scanned twice), but vfp/vsync/vbp
  * are PHYSICAL lines - the vendor's 320x200 has an odd 449-line total.
@@ -97,6 +98,51 @@ const vcr_timing vcr_timings[] = {
     { 1680,1050, 60, 146250, 104, 176, 280,  3, 6, 30, N },
     { 1920,1080, 60, 148500,  88,  44, 148,  4, 5, 36, 0 },
     { 1920,1200, 60, 154000,  48,  32,  80,  3, 6, 26, V },
+    /* HP P1120 (HWP22D3), the 21" tube on .124 since 2026-09-27: H 30-121 kHz,
+     * V 48-160 Hz, under 300 MHz - its EDID and HP's manual agree. The rest
+     * of its range at the 4:3 / 5:4 resolutions of a 21" tube and the rates
+     * a mode list offers (60/70/75/85/100/120/140/150/160; 2048x1536 also 65).
+     * Only from the standards: VESA DMT where it has the mode, else VESA GTF
+     * (default parameters) - tools/vesa_timings.py prints this section and
+     * tests/python/test_vcr_kmd_p1120_modes.py holds every row to it. The
+     * rows are filtered like any other by the EDID in force, so a monitor
+     * whose range stops short never sees them (tests/native/
+     * test_vcr_kmd_edid.c). Appended, so no older row's index moves. No
+     * 1800x1440 (HP's rated maximum): it needs 2X, and 1800 px is not whole
+     * 2X characters (vcr_mode_check). */
+    {  640, 480,  70,  28560,  24,  64,  88,  1, 3,  16, N },   /* GTF  35.00 kHz */
+    {  640, 480, 140,  63020,  40,  72, 112,  1, 3,  37, N },   /* GTF  72.94 kHz */
+    {  640, 480, 150,  67910,  40,  72, 112,  1, 3,  40, N },   /* GTF  78.60 kHz */
+    {  640, 480, 160,  72784,  40,  72, 112,  1, 3,  43, N },   /* GTF  84.24 kHz, 159.85 Hz:
+                                                                 * GTF's 72852 kHz lands the PLL
+                                                                 * at 160.085 Hz, so the clock is
+                                                                 * the PLL step inside 160 */
+    {  800, 600,  70,  45500,  40,  80, 120,  1, 3,  21, N },   /* GTF  43.75 kHz */
+    {  800, 600, 140,  99160,  56,  88, 144,  1, 3,  47, N },   /* GTF  91.14 kHz */
+    {  800, 600, 150, 106896,  56,  88, 144,  1, 3,  51, N },   /* GTF  98.25 kHz */
+    {  800, 600, 160, 116406,  64,  88, 152,  1, 3,  55, N },   /* GTF 105.44 kHz */
+    { 1024, 768, 120, 139054,  80, 112, 192,  1, 3,  51, N },   /* GTF  98.76 kHz */
+    { 1024, 768, 140, 164201,  80, 112, 192,  1, 3,  61, N },   /* GTF 116.62 kHz */
+    { 1152, 864, 120, 176014,  88, 128, 216,  1, 3,  58, N },   /* GTF 111.12 kHz */
+    { 1280, 960,  70, 120839,  88, 136, 224,  1, 3,  35, N },   /* GTF  69.93 kHz */
+    { 1280, 960, 100, 178992,  96, 144, 240,  1, 3,  53, N },   /* GTF 101.70 kHz */
+    { 1280,1024,  70, 128943,  88, 136, 224,  1, 3,  38, N },   /* GTF  74.62 kHz */
+    { 1280,1024, 100, 190960,  96, 144, 240,  1, 3,  57, N },   /* GTF 108.50 kHz */
+    { 1400,1050,  60, 121750,  88, 144, 232,  3, 4,  32, N },   /* DMT  65.32 kHz */
+    { 1400,1050,  70, 145063,  96, 152, 248,  1, 3,  39, N },   /* GTF  76.51 kHz */
+    { 1400,1050,  75, 156000, 104, 144, 248,  3, 4,  42, N },   /* DMT  82.28 kHz */
+    { 1400,1050,  85, 179500, 104, 152, 256,  3, 4,  48, N },   /* DMT  93.88 kHz */
+    { 1400,1050, 100, 214394, 112, 152, 264,  1, 3,  58, N },   /* GTF 111.20 kHz */
+    { 1792,1344,  60, 204750, 128, 200, 328,  1, 3,  46, N },   /* DMT  83.64 kHz */
+    { 1792,1344,  70, 239733, 136, 192, 328,  1, 3,  51, N },   /* GTF  97.93 kHz */
+    { 1792,1344,  75, 261000,  96, 216, 352,  1, 3,  69, N },   /* DMT 106.27 kHz */
+    { 1792,1344,  85, 295520, 136, 200, 336,  1, 3,  63, N },   /* GTF 119.94 kHz */
+    { 1856,1392,  60, 218250,  96, 224, 352,  1, 3,  43, N },   /* DMT  86.33 kHz */
+    { 1856,1392,  70, 258038, 144, 200, 344,  1, 3,  53, N },   /* GTF 101.43 kHz */
+    { 1856,1392,  75, 288000, 128, 224, 352,  1, 3, 104, N },   /* DMT 112.50 kHz */
+    { 1920,1440,  70, 277015, 152, 208, 360,  1, 3,  55, N },   /* GTF 104.93 kHz */
+    { 2048,1536,  60, 266952, 152, 224, 376,  1, 3,  49, N },   /* GTF  95.34 kHz */
+    { 2048,1536,  65, 291766, 160, 224, 384,  1, 3,  54, N },   /* GTF 103.61 kHz */
 };
 #undef N
 #undef V
@@ -159,6 +205,17 @@ vcr_u32 vcr_pll_calc(vcr_u32 khz, vcr_u32 *actual)
 
 /* ------------------------------------------------------------------------ */
 
+/* 2X exactly as the vendor decides it (H5 h3modeset.c): VSA-100 above
+ * 262 MHz at width >= 1280, OR when htotal exceeds 261 characters, because
+ * horizontal blank end is only 6 bits; older chips above 160 MHz at width
+ * >= 1280. */
+static int vcr_twox(const vcr_hwcaps *hw, const vcr_timing *t)
+{
+    vcr_u32 htot = (vcr_u32)t->w + t->hfp + t->hsync + t->hbp;
+    return (t->pixclk_khz > hw->twox_above_khz && t->w >= 1280) ||
+           (hw->twox_htotal_chars && (htot >> 3) > hw->twox_htotal_chars);
+}
+
 int vcr_mode_check(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp)
 {
     vcr_u32 need;
@@ -172,6 +229,14 @@ int vcr_mode_check(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp)
     /* CRTC field widths: 9-bit horizontal chars, 11-bit vertical lines */
     if (t->w + t->hfp + t->hsync + t->hbp > 4096 ||
         (vcr_u32)t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) + t->vfp + t->vsync + t->vbp > 2048)
+        return VCR_MODE_E_RANGE;
+    /* 2X halves every horizontal CRTC value, so its character is 16 pixels:
+     * a width that is not whole 16-pixel characters is cut to the character
+     * below by the display end (CR01) and the blank start with it - 1800 px
+     * would show 1792 columns, 1400 px 1392. Every row before the P1120's
+     * has a width in 16s; 1800x1440 would need 2X at every rate the P1120
+     * accepts, and 1400x1050@85 is 2X on a Voodoo 3. */
+    if ((t->w & 15) && vcr_twox(hw, t))
         return VCR_MODE_E_RANGE;
     need = (vcr_u32)t->w * t->h * (bpp / 8);
     if (need + hw->fb_reserved > hw->fb_bytes)
@@ -232,12 +297,8 @@ int vcr_mode_compute(const vcr_hwcaps *hw, const vcr_timing *t, unsigned bpp,
     hss = hdisp + t->hfp;
     hse = hss + t->hsync;
     htot = hse + t->hbp;
-    /* 2X exactly as the vendor decides it (H5 h3modeset.c): VSA-100 above
-     * 262 MHz at width >= 1280, OR when htotal exceeds 261 characters,
-     * because horizontal blank end is only 6 bits; older chips above 160 MHz
-     * at width >= 1280. */
-    if ((t->pixclk_khz > hw->twox_above_khz && t->w >= 1280) ||
-        (hw->twox_htotal_chars && (htot >> 3) > hw->twox_htotal_chars)) {
+    /* 2X (vcr_twox): two pixels per CRTC clock, horizontal values halved */
+    if (vcr_twox(hw, t)) {
         o->twox = 1;
         o->dacmode |= VCR_DAC_MODE_2X;
         o->vidproccfg |= VCR_VPC_2X_MODE_EN;

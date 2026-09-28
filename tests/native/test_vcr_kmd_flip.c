@@ -865,9 +865,11 @@ TEST(the_rate_sent_is_never_above_the_rate_the_chip_scans) {
     }
     CHECK(checked > 300, "the whole table, both chips, three depths");
     /* today: 1920x1440@60 and 1920x1080@60 on the VSA-100; 1600x1200@65-85,
-     * 1600x1024@76/85 and 1920x1440@60 on the Voodoo 3 */
-    CHECK_EQ_U(shorter[0], 2);
-    CHECK_EQ_U(shorter[1], 7);
+     * 1600x1024@76/85 and 1920x1440@60 on the Voodoo 3; and on both, DMT's
+     * 1792x1344@75 (htotal 2456, the HP P1120 rows 2026-09-27 - every GTF row
+     * there is whole 2X characters, DMT's own numbers are kept as they are) */
+    CHECK_EQ_U(shorter[0], 3);
+    CHECK_EQ_U(shorter[1], 8);
     /* the case in point, both values: V3 1600x1200@75 is 2X, the table says
      * 2088 px (261 characters), the CRTC scans 2080 (CR00 = 125); on the
      * VSA-100 the same timing is 1X and exact */

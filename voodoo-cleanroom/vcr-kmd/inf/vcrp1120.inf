@@ -1,0 +1,68 @@
+; vcrp1120.inf - the HP P1120 21" CRT (EDID HWP22D3, HP part D8915) as a
+; Windows XP monitor, for the vcr-kmd display driver on .124. Our own file.
+;
+; WHAT IT CHANGES. XP already matches this monitor: its own monitor3.inf
+; (section D8915, "HP D8915 HP P1120 21-inch Monitor", Microsoft, 2001) is
+; what .124 runs, with MaxResolution 1800,1440 and MODES\1800,1440 Mode1
+; "30.0-121.0,48.0-160.0,+,+". The scan ranges below are the same ones - they
+; are the monitor's own (EDID range descriptor H 30-121 kHz, V 48-160 Hz,
+; 300 MHz; HP's manual: 30-121 kHz, 48-160 Hz, < 300 MHz). Only the
+; resolution cap differs: 2048,1536 instead of HP's rated 1800,1440, so XP's
+; mode pruning ("Hide modes that this monitor cannot display") keeps
+; 1856x1392, 1920x1440 and 2048x1536, which vcr-kmd offers inside those ranges
+; (common/vcr_modes.c, the HP P1120 section). Past ~1600 columns the 0.24 mm
+; aperture grille (about 1617 stripes across the 388 mm image) cannot resolve
+; every pixel - the tube syncs and draws them, softly. The driver's own mode
+; list does not depend on this file: it filters by the EDID it reads (mon_src 1).
+;
+; No files are copied (no colour profile): registry values only, no reboot
+; expected for a monitor-class driver - but the installer's answer is the
+; word; read DRVUPDATE's reboot flag.
+;
+; Unsigned: XP ranks it below the signed monitor3.inf match, so install it
+; forced with the agent's DRVUPDATE (UpdateDriverForPlugAndPlayDevices +
+; INSTALLFLAG_FORCE):
+;   UPLOAD C:\vcr\vcrp1120.inf, then  DRVUPDATE MONITOR\HWP22D3 C:\vcr\vcrp1120.inf
+; Roll back to XP's own the same way:
+;   DRVUPDATE MONITOR\HWP22D3 C:\WINDOWS\inf\monitor3.inf
+; Verify: REGREAD HKLM SYSTEM\CurrentControlSet\Enum\DISPLAY\HWP22D3\<instance>
+; -> Driver, then that Class\{4D36E96E-...}\NNNN key: MaxResolution "2048,1536",
+; InfPath oemNN.inf. tests/python/test_vcr_kmd_p1120_modes.py holds this file
+; to the EDID fixture and to the driver's table.
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = Monitor
+ClassGUID   = {4D36E96E-E325-11CE-BFC1-08002BE10318}
+Provider    = %Provider%
+DriverVer   = 09/27/2026,0.1.0.0
+
+[DestinationDirs]
+DefaultDestDir = 23
+
+[Manufacturer]
+%Mfg% = vcr.Monitors
+
+[vcr.Monitors]
+%HWP22D3.Desc% = HWP22D3.Install, Monitor\HWP22D3
+
+[HWP22D3.Install]
+DelReg = HWP22D3.DelReg
+AddReg = HWP22D3.AddReg
+
+[HWP22D3.DelReg]
+HKR,MODES
+HKR,,MaxResolution
+HKR,,DPMS
+HKR,,ICMProfile
+
+; DPMS: the EDID's feature byte (0xE8) declares standby, suspend and active-off
+[HWP22D3.AddReg]
+HKR,,MaxResolution,,"2048,1536"
+HKR,,DPMS,,1
+HKR,"MODES\2048,1536",Mode1,,"30.0-121.0,48.0-160.0,+,+"
+
+[Strings]
+Provider     = "retro-agent vcr-kmd"
+Mfg          = "Hewlett-Packard"
+HWP22D3.Desc = "HP P1120 21-inch Monitor (vcr-kmd, to 2048x1536)"

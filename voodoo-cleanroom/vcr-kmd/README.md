@@ -18,6 +18,7 @@ at boot costs a reboot, not a trip to the box.
 | `common/` | code shared by kernel, DLL and host tests: log ring, formatter, mode math, mini CRT |
 | `include/` | the contracts: registers, IOCTLs/escapes, HWCEXT ABI, event codes, log format |
 | `inf/vcrkmd.inf` | install (DRVUPDATE) |
+| `inf/vcrp1120.inf` | the HP P1120 monitor, its full range (see THE MONITOR) |
 | `tools/` | the harness — see below |
 | `golden/` | register captures from the vendor driver, the reference our math is checked against |
 | `docs/` | surveys of the vendor driver, our Glide's contract, toolchain research |
@@ -138,6 +139,7 @@ GetScanLine never returns an unset line.
 | `tools/golden_capture.py` | register dumps from the vendor driver per mode (through its own HWCEXT mapping; with `--probe`, the VGA register file and PCI config of every chip) |
 | `tools/golden_compare.py` | our mode math (the driver's own `vcr_modes.c`, host-built) against a capture, register by register |
 | `tools/golden_timings.py` | timing-table rows decoded from a capture's CRTC - modes the monitor is known to accept |
+| `tools/vesa_timings.py` | the other source of rows: VESA DMT, else VESA GTF (default parameters, equal to X.org's `gtf`); `p1120` prints the HP P1120 section of `common/vcr_modes.c`, which the suite holds to it |
 | `probe/vcrprobe.sys` | a read-mostly NT driver loaded on the fly (`sc start vcrprobe`): VGA file, PCI config (incl. raw 0xCF8 cycles), physical memory read |
 | `tools/deploy_box.py` | install / rollback / status on a real box: preflight (activation, kernel dumps, a complete rollback package), DRVUPDATE + read-back, safe-reboot, evidence; `--port 19910 --reboot-cmd ...` for the VM test bed |
 | `tools/mode_sweep.py` | every mode: switch, current-mode read-back, GDI draw/read-back, no WARN/ERROR in the recorder |
@@ -334,6 +336,64 @@ takes the largest listed mode inside it (then any depth, then 640x480) and
 logs the swap at WARN. And a bugcheck or shutdown in 4-chip SLI first gives
 the master back its own video clock (cfgVideoCtrl0, raw config cycles legal
 at any IRQL), so the HAL's text screen is not scanned from the SLI clock.
+
+**THE HP P1120 (2026-09-27; offline - the rows are not yet shown on the
+tube).** `.124` now has an HP P1120 21" FD Trinitron (EDID `HWP22D3`, HP part
+D8915). Its range is **H 30-121 kHz, V 48-160 Hz, under 300 MHz** - the EDID's
+range descriptor, HP's manual (maximum resolution 1800x1440@80, recommended
+1600x1200@85) and XP's own `monitor3.inf` (section D8915, Mode1
+`30.0-121.0,48.0-160.0`) all say so. **160 Hz is the ceiling; nothing about
+this tube reaches 200 Hz**, and the driver will not exceed what its EDID
+states (`mon_src` 1). The table stopped far below that range - 640x480 and
+800x600 at 120 Hz, 1024x768 at 100, 1280x1024 at 85, nothing past 1920x1440 -
+so `common/vcr_modes.c` gained a section of 30 standard timings, appended so
+no older row's index moves: VESA DMT where the standard has the mode, else
+VESA GTF (`tools/vesa_timings.py`; the suite holds every row to it and GTF to
+X.org's `gtf`):
+
+| resolution | added | top rate on the P1120 |
+|---|---|---|
+| 640x480, 800x600 | 70, 140, 150, 160 Hz (GTF) | 160 Hz (84.2 / 105.4 kHz) |
+| 1024x768 | 120, 140 (GTF) | 140 Hz, 116.5 kHz (150 would be 125.7) |
+| 1152x864 | 120 (GTF) | 120 Hz, 111.2 kHz |
+| 1280x960, 1280x1024 | 70, 100 (GTF) | 100 Hz, 101.7 / 108.5 kHz (120 would be 131) |
+| 1400x1050 | 60, 75, 85 (DMT); 70, 100 (GTF) | 100 Hz, 111.4 kHz |
+| 1600x1200 | - (the vendor-shaped 1X rows, 60-85) | 85 Hz, its recommended mode |
+| 1792x1344 | 60, 75 (DMT); 70, 85 (GTF) | 85 Hz, 119.9 kHz, 295.3 MHz |
+| 1856x1392 | 60, 75 (DMT); 70 (GTF) | 75 Hz, 112.6 kHz |
+| 1920x1440 | 70 (GTF); 60, 75 were there (DMT) | 75 Hz, 297.1 MHz |
+| 2048x1536 | 60, 65 (GTF) | 65 Hz, 291.7 MHz (70 would be 315) |
+
+Every one of the P1120's 300 modes PROGRAMS inside 30-121 kHz / 48-160 Hz /
+300 MHz with no slack - the PLL's real clock, and in 2X the CRTC's own line
+(`test_vcr_kmd_edid.c`). GTF's 640x480@160 put the PLL at 160.085 Hz, so that
+row carries the PLL step inside instead (72784 kHz, 159.85 Hz). **No
+1800x1440**, HP's rated maximum: every timing for it inside the range is 2X,
+2X halves the horizontal CRTC, and 1800 px is 112.5 two-X characters - the
+display end would fall at 1792. `vcr_mode_check` now refuses any 2X timing
+whose width is not whole 16-pixel characters (every older row is; it also
+keeps 1400x1050@85 off a Voodoo 3, where it is 2X). The narrower monitors are
+untouched outside their ranges: the Sony gains 640x480/800x600/1280x960/
+1280x1024@70, 1400x1050@60-85, 1792x1344@60 and 1856x1392@60, the Dell
+640x480/800x600/1280x960/1280x1024@70 and 1400x1050@60-75, the default only
+640x480@70 and 800x600@70.
+
+Two cautions. **No 2X mode has run on the VSA-100 on record** - the vendor
+never offered one on `.124` (its golden and our 123-mode sweep are all 1X),
+and nothing in `evidence/` switched to 1920x1440, 1680x1050 or 1920x1080 (in
+the list since 2026-09-26) - so those and every new mode of 1792 px and up
+are an untested register path until the paced live test. And **our ICD asks for the highest refresh listed**
+at a game's resolution: with this monitor that is 160 Hz at 640x480 and
+800x600, 140 Hz at 1024x768 - pin the refresh for benchmarks, as before.
+
+`inf/vcrp1120.inf` is the monitor INF for it: the same ranges as XP's
+`monitor3.inf` but MaxResolution `2048,1536` instead of HP's `1800,1440`, so
+XP's mode pruning ("Hide modes that this monitor cannot display") keeps
+1856x1392, 1920x1440 and 2048x1536. Registry only, no files. Unsigned, so
+install it forced: `UPLOAD C:\vcr\vcrp1120.inf`, then `DRVUPDATE
+MONITOR\HWP22D3 C:\vcr\vcrp1120.inf`, and read back
+`Class\{4D36E96E-...}\NNNN` `MaxResolution`; roll back with `DRVUPDATE
+MONITOR\HWP22D3 C:\WINDOWS\inf\monitor3.inf`. Not installed yet.
 
 **DIRECTDRAW (2026-09-26, proven in the VM test bed; on the V5 6000 next).**
 The display DLL carries a DirectDraw HAL (`display/vcrdd_ddraw.c`, built
@@ -593,7 +653,9 @@ probably reads 0 through the blank.
   vendor's blank-end value), not of `htotal - 1` as both open drivers write it
   - they disagree with the vendor in 37 of 51 modes.
 - **2X mode (VSA-100): above 262 MHz at width >= 1280, OR htotal > 261
-  characters** (blank end is only 6 bits). The vendor's 1600x1200 is not DMT:
+  characters** (blank end is only 6 bits). A 2X character is 16 pixels, so a
+  2X width must be a multiple of 16 or the display end is cut to the one below
+  (1800 -> 1792); `vcr_mode_check` refuses such a timing (2026-09-27). The vendor's 1600x1200 is not DMT:
   DMT porches with the back porch cut to htotal 2088 = 261 chars (156.6 MHz at
   60 Hz), which keeps it in 1X.
 - Misc is `0x0F | polarity` (no page bit), CR13 0x28, CR17 0x80; doublescan

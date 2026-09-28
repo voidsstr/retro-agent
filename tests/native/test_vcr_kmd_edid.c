@@ -7,7 +7,9 @@
  * the vendor ran 60 - measured 4-5 % slower at fill-bound resolutions on the
  * V5 6000 (2026-09-26) - and a monitor whose range stops short of a listed
  * rate is driven out of range. Fixtures: the three monitors .124's registry
- * holds EDIDs for (serials blanked).
+ * held EDIDs for, and the HP P1120 read live from it on 2026-09-27 (serials
+ * blanked) - whose 121 kHz / 160 Hz range the table's P1120 section fills
+ * without handing any of it to the narrower three.
  *
  * And the fallback (vcr_mon_select / vcr_mon_boot, miniport/vcrmp_ddc.c
  * VcrMonitorInit): the list used to be UNFILTERED whenever the EDID could not
@@ -72,6 +74,21 @@ static const vcr_u8 k_sony_cpd_g200[128] = {
     0x60, 0x1a, 0x00, 0x0a, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00, 0x00, 0xfc, 0x00, 0x43,
     0x50, 0x44, 0x2d, 0x47, 0x32, 0x30, 0x30, 0x0a, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00, 0x00, 0xff,
     0x00, 0x30, 0x0a, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0xd1,
+};
+
+/* HP P1120 (HWP22D3), the 21" FD Trinitron on .124 since 2026-09-27: read
+ * live by `vcrctl info`, serial numbers blanked (the ID serial and the 0xFF
+ * descriptor) and the checksum recomputed. EDID 1.2, range descriptor
+ * H 30-121 kHz / V 48-160 Hz / 300 MHz - what HP's manual states too. */
+static const vcr_u8 k_hp_p1120[128] = {
+    0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x22, 0xf0, 0xd3, 0x22, 0x00, 0x00, 0x00, 0x00,
+    0x07, 0x0b, 0x01, 0x02, 0x0e, 0x28, 0x1e, 0x96, 0xe8, 0x0c, 0xc9, 0xa0, 0x57, 0x47, 0x9b, 0x27,
+    0x12, 0x48, 0x4c, 0x24, 0x43, 0x00, 0xc2, 0x94, 0xa9, 0x4f, 0x81, 0x99, 0x61, 0x59, 0x45, 0x59,
+    0x31, 0x59, 0x01, 0x01, 0x01, 0x01, 0xa6, 0x59, 0x40, 0x30, 0x62, 0xb0, 0x32, 0x40, 0x40, 0xc0,
+    0x13, 0x00, 0x84, 0x23, 0x11, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0xfc, 0x00, 0x48, 0x50, 0x20,
+    0x50, 0x31, 0x31, 0x32, 0x30, 0x0a, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00, 0x00, 0xff, 0x00, 0x30,
+    0x0a, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00, 0x00, 0xfd,
+    0x00, 0x30, 0xa0, 0x1e, 0x79, 0x1e, 0x00, 0x0a, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0xd5,
 };
 
 static const vcr_hwcaps k_v5 = { VCR_DEV_VSA100, 350000, 262000, 261, 32u << 20, 0x118000, 0,
@@ -691,6 +708,243 @@ TEST(vcr_info_reports_the_source_at_its_end) {
     CHECK_EQ_U(VCR_MON_SRC_DEFAULT, 4);
 }
 
+/* ---- the HP P1120 (2026-09-27) --------------------------------------------------- */
+
+/* The rows the P1120 section of vcr_timings[] adds: VESA DMT where the
+ * standard has the mode, else GTF (tools/vesa_timings.py). */
+static const unsigned k_p1120_rows[][3] = {
+    { 640, 480, 70 }, { 640, 480, 140 }, { 640, 480, 150 }, { 640, 480, 160 },
+    { 800, 600, 70 }, { 800, 600, 140 }, { 800, 600, 150 }, { 800, 600, 160 },
+    { 1024, 768, 120 }, { 1024, 768, 140 }, { 1152, 864, 120 },
+    { 1280, 960, 70 }, { 1280, 960, 100 }, { 1280, 1024, 70 }, { 1280, 1024, 100 },
+    { 1400, 1050, 60 }, { 1400, 1050, 70 }, { 1400, 1050, 75 }, { 1400, 1050, 85 },
+    { 1400, 1050, 100 },
+    { 1792, 1344, 60 }, { 1792, 1344, 70 }, { 1792, 1344, 75 }, { 1792, 1344, 85 },
+    { 1856, 1392, 60 }, { 1856, 1392, 70 }, { 1856, 1392, 75 },
+    { 1920, 1440, 70 }, { 2048, 1536, 60 }, { 2048, 1536, 65 },
+};
+#define N_P1120_ROWS (sizeof k_p1120_rows / sizeof k_p1120_rows[0])
+
+/* .124 as it runs now: the V5 6000 in its 256 MB mode, 64 MB a chip */
+static vcr_hwcaps v5_256(void)
+{
+    vcr_hwcaps h = k_v5;
+    h.fb_bytes = 64u << 20;
+    return h;
+}
+
+static vcr_hwcaps with_monitor(const vcr_u8 *edid)
+{
+    vcr_edid_info e;
+    vcr_hwcaps h = v5_256();
+    vcr_edid_parse(edid, 128, &e);
+    vcr_hwcaps_set_monitor(&h, &e);
+    return h;
+}
+
+static unsigned top_refresh(const vcr_hwcaps *h, unsigned w, unsigned hh)
+{
+    vcr_mode m[400];
+    vcr_u32 n = vcr_modes_build(h, m, 400), i;
+    unsigned top = 0;
+    for (i = 0; i < n; i++) {
+        const vcr_timing *t = &vcr_timings[m[i].timing];
+        if (t->w == w && t->h == hh && t->refresh > top)
+            top = t->refresh;
+    }
+    return top;
+}
+
+TEST(the_hp_p1120_parses) {
+    vcr_edid_info p, s, d, g;
+    CHECK(vcr_edid_parse(k_hp_p1120, 128, &p), "HP P1120");
+    CHECK(!strcmp(p.pnpid, "HWP") && p.product == 0x22d3, "HWP22D3 - XP's MONITOR\\HWP22D3");
+    CHECK(!strcmp(p.name, "HP P1120"), "name");
+    CHECK_EQ_U(p.version, 1); CHECK_EQ_U(p.revision, 2);
+    CHECK(!p.digital, "analog");
+    CHECK_EQ_U(p.width_cm, 40); CHECK_EQ_U(p.height_cm, 30);
+    /* the range descriptor - and HP's manual: 30-121 kHz, 48-160 Hz, < 300 MHz */
+    CHECK(p.has_range, "declares ranges");
+    CHECK_EQ_U(p.vmin_hz, 48); CHECK_EQ_U(p.vmax_hz, 160);
+    CHECK_EQ_U(p.hmin_khz, 30); CHECK_EQ_U(p.hmax_khz, 121);
+    CHECK_EQ_U(p.max_pixclk_khz, 300000);
+    /* its preferred timing: DMT 1600x1200@85, 229.5 MHz, 106.25 kHz */
+    CHECK_EQ_U(p.pref_w, 1600); CHECK_EQ_U(p.pref_h, 1200);
+    CHECK_EQ_U(p.pref_pixclk_khz, 229500);
+    CHECK_EQ_U(p.pref_hfreq_hz, 106250);
+    CHECK(p.pref_refresh_mhz > 84990 && p.pref_refresh_mhz < 85010, "85 Hz");
+    /* the fixture carries no serial number: the ID serial and the 0xFF text */
+    CHECK(!k_hp_p1120[12] && !k_hp_p1120[13] && !k_hp_p1120[14] && !k_hp_p1120[15], "ID serial");
+    CHECK(k_hp_p1120[90 + 3] == 0xff && k_hp_p1120[90 + 5] == '0' && k_hp_p1120[90 + 6] == 0x0a,
+          "0xFF descriptor blanked as the other fixtures");
+    /* a monitor of its own, not one the envelope has met */
+    vcr_edid_parse(k_sony_cpd_g200, 128, &s);
+    vcr_edid_parse(k_dell_e2414h, 128, &d);
+    vcr_edid_parse(k_gateway_vx1120, 128, &g);
+    CHECK_EQ_U(vcr_mon_id(&p), (0x22f0u & 0x7fff) | (0x22d3u << 16));
+    CHECK(vcr_mon_id(&p) != vcr_mon_id(&s) && vcr_mon_id(&p) != vcr_mon_id(&d) &&
+          vcr_mon_id(&p) != vcr_mon_id(&g), "distinct");
+    {
+        vcr_mon_range r;
+        CHECK_EQ_U(vcr_mon_select(&p, NULL, 0, &r), VCR_MON_SRC_EDID);   /* mon_src 1 */
+        CHECK(r.hmax_khz == 121 && r.vmax_hz == 160 && r.max_pixclk_khz == 300000, "in force");
+    }
+}
+
+TEST(the_hp_p1120_gets_its_whole_range) {
+    vcr_hwcaps h = with_monitor(k_hp_p1120);
+    vcr_mode m[400];
+    vcr_u32 n = vcr_modes_build(&h, m, 400), i;
+    unsigned b, k;
+    static const unsigned depths[3] = { 8, 16, 32 };
+    CHECK_EQ_U(h.mon_hmax_khz, 121);
+    CHECK_EQ_U(h.mon_vmax_hz, 160);
+    /* every row the section adds, at every depth */
+    for (k = 0; k < N_P1120_ROWS; k++) {
+        CHECK(vcr_timing_find(k_p1120_rows[k][0], k_p1120_rows[k][1], k_p1120_rows[k][2]) >= 0,
+              "the row is in the table");
+        for (b = 0; b < 3; b++)
+            if (!offered(&h, k_p1120_rows[k][0], k_p1120_rows[k][1], k_p1120_rows[k][2],
+                         depths[b])) {
+                fprintf(stderr, "    %ux%ux%u@%u not offered to the P1120\n",
+                        k_p1120_rows[k][0], k_p1120_rows[k][1], depths[b], k_p1120_rows[k][2]);
+                munit_fails++;
+            }
+    }
+    /* the top of each resolution: fixed. Old (the table before this section):
+     * 640x480 and 800x600 stopped at 120 Hz, 1024x768 at 100, 1280x1024 at
+     * 85, and nothing past 1920x1440 */
+    CHECK_EQ_U(top_refresh(&h, 640, 480), 160);
+    CHECK_EQ_U(top_refresh(&h, 800, 600), 160);
+    CHECK_EQ_U(top_refresh(&h, 1024, 768), 140);        /* 150 Hz is 125.7 kHz */
+    CHECK_EQ_U(top_refresh(&h, 1152, 864), 120);
+    CHECK_EQ_U(top_refresh(&h, 1280, 960), 100);
+    CHECK_EQ_U(top_refresh(&h, 1280, 1024), 100);       /* 120 Hz is 131 kHz */
+    CHECK_EQ_U(top_refresh(&h, 1400, 1050), 100);
+    CHECK_EQ_U(top_refresh(&h, 1600, 1200), 85);        /* its recommended mode */
+    CHECK_EQ_U(top_refresh(&h, 1792, 1344), 85);
+    CHECK_EQ_U(top_refresh(&h, 1856, 1392), 75);
+    CHECK_EQ_U(top_refresh(&h, 1920, 1440), 75);
+    CHECK_EQ_U(top_refresh(&h, 2048, 1536), 65);        /* 70 Hz is 315 MHz */
+    /* no 1800x1440 (HP's rated maximum): 2X at every rate, and 1800 px is not
+     * whole 2X characters (test_vcr_kmd_modes.c) */
+    CHECK_EQ_I(vcr_timing_find(1800, 1440, 0), -1);
+    /* 32 bpp at 2048x1536 on a 64 MB chip */
+    CHECK(offered(&h, 2048, 1536, 65, 32), "12 MB of desktop");
+    /* This tube accepts every row the table has, at every depth. */
+    CHECK_EQ_U(n, vcr_ntimings * 3);
+    /* And by what the chip will PROGRAM - the PLL's clock, and the CRTC's own
+     * line, which in 2X can be a character shorter than the table's - every
+     * mode is inside the monitor's word with NO slack: the driver's half-unit
+     * allowance for EDID rounding is not needed on this monitor anywhere. */
+    for (i = 0; i < n; i++) {
+        const vcr_timing *t = &vcr_timings[m[i].timing];
+        vcr_modeset s;
+        vcr_u32 chars, px, vtot, hscan, vscan;
+        CHECK_EQ_I(vcr_mode_compute(&h, t, m[i].bpp, &s), 0);
+        chars = (s.crtc[0] | ((vcr_u32)(s.crtc_ext[0] & 1) << 8)) + 5;
+        px = chars * (s.twox ? 16 : 8);
+        vtot = (vcr_u32)t->h * ((t->flags & VCR_T_DBLSCAN) ? 2 : 1) + t->vfp + t->vsync + t->vbp;
+        hscan = s.pix_khz_actual * 1000u / px;
+        vscan = (vcr_u32)((unsigned long long)hscan * 1000u / vtot);
+        if (s.pix_khz_actual > 300000 || s.hfreq_hz > 121000 || s.hfreq_hz < 30000 ||
+            s.refresh_mhz > 160000 || s.refresh_mhz < 48000 || hscan > 121000 ||
+            vscan > 160000) {
+            fprintf(stderr, "    %ux%u@%u programs %u kHz / %u Hz H / %u mHz (scan %u / %u)\n",
+                    t->w, t->h, t->refresh, s.pix_khz_actual, s.hfreq_hz, s.refresh_mhz, hscan,
+                    vscan);
+            munit_fails++;
+        }
+    }
+}
+
+TEST(the_p1120_rows_stay_off_every_narrower_monitor) {
+    /* the Sony CPD-G200 (96 kHz / 120 Hz / 260 MHz) and the Dell E2414H
+     * (83 kHz / 76 Hz / 170 MHz) gain only rows inside their own ranges */
+    static const unsigned sony_yes[][3] = {
+        { 640, 480, 70 }, { 800, 600, 70 }, { 1280, 960, 70 }, { 1280, 1024, 70 },
+        { 1400, 1050, 60 }, { 1400, 1050, 70 }, { 1400, 1050, 75 }, { 1400, 1050, 85 },
+        { 1792, 1344, 60 }, { 1856, 1392, 60 },
+    };
+    static const unsigned dell_yes[][3] = {
+        { 640, 480, 70 }, { 800, 600, 70 }, { 1280, 960, 70 }, { 1280, 1024, 70 },
+        { 1400, 1050, 60 }, { 1400, 1050, 70 }, { 1400, 1050, 75 },
+    };
+    static const unsigned default_yes[][3] = { { 640, 480, 70 }, { 800, 600, 70 } };
+    static const struct {
+        const char *name;
+        const vcr_u8 *edid;
+        const unsigned (*yes)[3];
+        unsigned nyes;
+        vcr_u32 hmin, hmax, vmin, vmax, pix;
+    } mon[] = {
+        { "Sony CPD-G200", k_sony_cpd_g200, sony_yes, sizeof sony_yes / sizeof sony_yes[0],
+          30, 96, 48, 120, 260000 },
+        { "Dell E2414H", k_dell_e2414h, dell_yes, sizeof dell_yes / sizeof dell_yes[0],
+          30, 83, 56, 76, 170000 },
+        { "default", NULL, default_yes, sizeof default_yes / sizeof default_yes[0],
+          VCR_MON_DEF_HMIN_KHZ, VCR_MON_DEF_HMAX_KHZ, VCR_MON_DEF_VMIN_HZ,
+          VCR_MON_DEF_VMAX_HZ, VCR_MON_DEF_PIXCLK_KHZ },
+    };
+    unsigned k, j, x;
+    for (k = 0; k < sizeof mon / sizeof mon[0]; k++) {
+        vcr_hwcaps h;
+        vcr_mode m[400];
+        vcr_u32 n, i;
+        if (mon[k].edid) {
+            h = with_monitor(mon[k].edid);
+        } else {
+            vcr_mon_range r;
+            vcr_mon_select(NULL, NULL, 0, &r);
+            h = v5_256();
+            vcr_hwcaps_set_range(&h, &r);
+        }
+        CHECK_EQ_U(h.mon_hmax_khz, mon[k].hmax);
+        /* each P1120 row: offered exactly where this monitor's range takes it */
+        for (j = 0; j < N_P1120_ROWS; j++) {
+            int yes = 0, got = offered(&h, k_p1120_rows[j][0], k_p1120_rows[j][1],
+                                       k_p1120_rows[j][2], 16);
+            for (x = 0; x < mon[k].nyes; x++)
+                if (mon[k].yes[x][0] == k_p1120_rows[j][0] &&
+                    mon[k].yes[x][1] == k_p1120_rows[j][1] &&
+                    mon[k].yes[x][2] == k_p1120_rows[j][2])
+                    yes = 1;
+            if (got != yes) {
+                fprintf(stderr, "    %s: %ux%u@%u %s\n", mon[k].name, k_p1120_rows[j][0],
+                        k_p1120_rows[j][1], k_p1120_rows[j][2],
+                        got ? "offered, outside its range" : "refused, inside its range");
+                munit_fails++;
+            }
+            if (!yes)
+                CHECK(refused_by_monitor(&h, k_p1120_rows[j][0], k_p1120_rows[j][1],
+                                         k_p1120_rows[j][2]), "refused as the MONITOR's limit");
+        }
+        /* and nothing in its list, old row or new, is outside its range */
+        n = vcr_modes_build(&h, m, 400);
+        for (i = 0; i < n; i++) {
+            const vcr_timing *t = &vcr_timings[m[i].timing];
+            vcr_u32 hf = vcr_timing_hfreq_hz(t), vf = vcr_timing_vfreq_mhz(t);
+            if (hf > mon[k].hmax * 1000 + 500 || hf + 500 < mon[k].hmin * 1000 ||
+                vf > mon[k].vmax * 1000 + 500 || vf + 500 < mon[k].vmin * 1000 ||
+                t->pixclk_khz > mon[k].pix) {
+                fprintf(stderr, "    %s: %ux%u@%u outside its range\n", mon[k].name, t->w, t->h,
+                        t->refresh);
+                munit_fails++;
+            }
+        }
+    }
+    /* The Gateway VX1120 - the same range as the P1120 but a 360 MHz dot
+     * clock and a 50 Hz floor - gets exactly the P1120's list. */
+    {
+        vcr_hwcaps hp = with_monitor(k_hp_p1120), gw = with_monitor(k_gateway_vx1120);
+        vcr_mode a[400], b[400];
+        vcr_u32 na = vcr_modes_build(&hp, a, 400), nb = vcr_modes_build(&gw, b, 400), i;
+        CHECK_EQ_U(na, nb);
+        for (i = 0; i < na && i < nb; i++)
+            CHECK(a[i].timing == b[i].timing && a[i].bpp == b[i].bpp, "same list");
+    }
+}
+
 MUNIT_MAIN("vcr-kmd EDID + monitor mode filter", {
     RUN(the_three_monitors_parse);
     RUN(a_broken_edid_gives_no_limits_of_its_own);
@@ -711,4 +965,7 @@ MUNIT_MAIN("vcr-kmd EDID + monitor mode filter", {
     RUN(the_dell_panel_stops_at_76_hz_and_170_mhz);
     RUN(a_75_hz_timing_at_75_03_is_not_refused_by_rounding);
     RUN(vcr_info_reports_the_source_at_its_end);
+    RUN(the_hp_p1120_parses);
+    RUN(the_hp_p1120_gets_its_whole_range);
+    RUN(the_p1120_rows_stay_off_every_narrower_monitor);
 })
