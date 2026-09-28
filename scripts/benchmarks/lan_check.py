@@ -113,6 +113,21 @@ async def running(box, image):
     return image.lower() in out.lower()
 
 
+async def drwatson_settle(box, limit=60):
+    """Wait for Dr. Watson to finish with a crashed process. While drwtsn32 /
+    dwwin hold it, a crashed game can be missing from tasklist and then come
+    back: on 2026-09-28 Deathmatch Classic's hl.exe crashed, read as "not
+    running", and the next title was launched over it - WON Half-Life is
+    single-instance, so that run watched the crashed process for 5 minutes."""
+    t0 = time.time()
+    while time.time() - t0 < limit:
+        out = (await box.exec_('cmd /c tasklist /nh', timeout=30)).lower()
+        if not re.search(r"(?m)^(drwtsn32|dwwin|dumprep)\.exe\s", out):
+            return round(time.time() - t0)
+        await asyncio.sleep(3)
+    return None
+
+
 async def games_running(box):
     """Every game image this harness (or lan_sweep's titles) is known to start
     that is running now. A run must not start on top of one: on 2026-09-28 a
@@ -372,7 +387,10 @@ class SoF2MP(IdTech3):
             # .124) draws none, so two runs spent every wait before the player was
             # in - their shots fired while connecting and the script's disconnect
             # came straight after "entered the game". The host presses the keys.
-            return [f'bind F10 "{self.shot_cmd}"', 'bind F9 "disconnect; quit"',
+            # F9 is `quit` alone: with "disconnect; quit" sof2mp ran the
+            # disconnect, opened its server browser and dropped the quit
+            # (2026-09-28, 0.1.78 run) - a menu takes what is left of a bind
+            return [f'bind F10 "{self.shot_cmd}"', 'bind F9 "quit"',
                     'set timedemo 0', f'connect {server}:{self.port}']
         return super().script(phase, soak_frames, shots, server)
 
@@ -625,6 +643,61 @@ class GoldSrc(IdTech2):
         return r
 
 
+class WonHLMod(GoldSrc):
+    r"""A WON Half-Life mod as its shortcut runs it (HalfLife1\<Mod>.bat):
+    hl.exe -nosierra -full -gl -w/-h from FLEETRES' 4:3 pair -game <mod>. The
+    fleet has no dedicated server for these, so it is a LOCAL listen server on
+    a stock map: `+map` on the command line and a cfg that only binds keys -
+    in GoldSrc anything still pending in the one command buffer sits in front
+    of the listen server's own `connect local` and holds it at "Loading..."
+    (the CS 1.6 finding). The host presses F10 (snapshot) and F9 (quit)."""
+    root = r"C:\Games\HalfLife1"
+    port = 0
+    start_map = ""
+    close_after_soak = False
+
+    def launcher_args(self, env):
+        return (f"-nosierra -full -gl -w {env.get('FR_W43', env['FR_W'])} "
+                f"-h {env.get('FR_H43', env['FR_H'])} -toconsole -game {self.mod} -condebug")
+
+    def env_lines(self):
+        return []
+
+    def command(self, env, phase, server):
+        return f'{self.exe} {self.launcher_args(env)} +exec lancheck.cfg +map {self.start_map}'
+
+    def script(self, phase, soak_frames, shots, server=None):
+        if phase != "soak":
+            return []
+        return ['bind F10 "snapshot"', 'bind F9 "quit"']
+
+    def host_keys(self, phase, soak, shots):
+        if phase != "soak":
+            return []
+        keys = [(45 + (i + 1) * max(10, (soak - 45) // (shots + 1)), "F10") for i in range(shots)]
+        return keys + [(soak, "F9")]
+
+    def parse(self, raw):
+        r = super().parse(raw)
+        # a listen server: the map is in once its serverinfo arrives
+        r["connected"] = r.get("maps_loaded", 0) > 0 or r.get("connected", False)
+        return r
+
+
+class DMC(WonHLMod):
+    tid = "dmc"
+    name = "Deathmatch Classic (shortcut: WON hl.exe -gl -> system ICD, listen server dmc_dm2)"
+    mod = "dmc"
+    start_map = "dmc_dm2"
+
+
+class TFC(WonHLMod):
+    tid = "tfc"
+    name = "Team Fortress Classic (shortcut: WON hl.exe -gl -> system ICD, listen server 2fort)"
+    mod = "tfc"
+    start_map = "2fort"
+
+
 class UT99(IdTech3):
     """Unreal Tournament 436 as its shortcut runs it: System\\UnrealTournament.exe
     with the staged ini (the launcher patches only the viewport and fullscreen),
@@ -849,7 +922,7 @@ class Turok2(Launcher):
     shots_at = (45, 75)
 
 
-TITLES = {"q3": IdTech3, "rtcw": RTCW, "sof2": SoF2MP, "jka": JediAcademyMP, "q2": IdTech2, "sof": SoF, "cs16": GoldSrc, "ut99": UT99,
+TITLES = {"q3": IdTech3, "rtcw": RTCW, "sof2": SoF2MP, "jka": JediAcademyMP, "dmc": DMC, "tfc": TFC, "q2": IdTech2, "sof": SoF, "cs16": GoldSrc, "ut99": UT99,
           "q1": GLQuake, "q1voodoo": GLQuakeVoodoo, "ra2": RedAlert2, "turok2": Turok2}
 
 
@@ -868,6 +941,7 @@ async def run_phase(box, t, env, phase, args, outdir):
     if await running(box, img):
         rec["error"] = f"{img} already running - not started"
         return rec
+    await drwatson_settle(box)
     others = await games_running(box)
     if others:
         rec["error"] = f"another game still running ({', '.join(others)}) - not started"
@@ -960,6 +1034,16 @@ async def run_phase(box, t, env, phase, args, outdir):
     dr_after = await file_size(box, DRWTSN)
     if dr_after != dr_before:
         rec["drwatson_grew"] = dr_after - dr_before
+        # a crash: let Dr. Watson finish, then look again - the process can
+        # outlive the crash (stuck in its own error path) and must not be
+        # left for the next title to be launched over
+        rec["drwatson_settled_s"] = await drwatson_settle(box)
+        if await running(box, img):
+            rec["crash_left_process"] = True
+            log(f"    {img} survived its crash - TerminateProcess (it is past rendering), then pace-mark")
+            await box.exec_(f'cmd /c taskkill /f /im "{img}" 2>nul', timeout=30)
+            await box.exec_(r'C:\vcr\vcrctl.exe pace-mark', timeout=30)
+            await asyncio.sleep(5)
     after = await dir_stamps(box, p["shots"], ext)
     new = sorted(n for n, st in after.items() if shots_before.get(n) != st)
     rec["shots"] = []

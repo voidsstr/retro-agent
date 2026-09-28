@@ -455,6 +455,38 @@ def glide_swap(*rels):
 
 
 # --------------------------------------------------------------------------
+# UE1's GlideDrv maps the viewport to a Glide 2 resolution by <= tests
+# (512x384, 640x480, 800x600, 1024x768, 1280x1024, else 1600x1200) and then
+# resizes the viewport to what Glide opened. FLEETRES' 4:3 pair on a
+# 1280x1024 desktop is 1280x960, which has no Glide 2 mode, so Unreal Gold
+# opened 1280x1024 - 5:4 on a 4:3 tube, and the desktop's own size, so through
+# Glide's 8 bpp DirectDraw detour - and hung in its second Glide open on .124
+# (V5 6000). At 1024x768 it starts in 6.8 s, renders and exits cleanly
+# (verified 2026-09-28). So a box that renders UE1 through GlideDrv gets the
+# largest EXACT 4:3 Glide 2 mode inside FR_W43 x FR_H43. The render devices are
+# deliberately NOT touched here: WindowedRenderDevice=SoftDrv would strand the
+# game on the software rasterizer after Unreal's own splash takes the focus
+# (retro-3dfx/FINDINGS.md, .171). Single-line ifs only: cmd.exe expands %VAR%
+# in a ( ) block when the block is parsed.
+# --------------------------------------------------------------------------
+UE1_GLIDE_DEV = "GlideDrv.GlideRenderDevice"
+UE1_GLIDE_LADDER = [(640, 480), (800, 600), (1024, 768), (1600, 1200)]
+
+
+def ue1_glide_viewport(ini):
+    e = '"%~dp0FLEETRES.EXE"'
+    i = '"%%~dp0%s"' % ini
+    g = 'if /i "%%FR_UE1DEV%%"=="%s" if exist %s' % (UE1_GLIDE_DEV, e)
+    out = ['set UE1G2W=%d' % UE1_GLIDE_LADDER[0][0], 'set UE1G2H=%d' % UE1_GLIDE_LADDER[0][1]]
+    for w, h in UE1_GLIDE_LADDER[1:]:
+        out.append('if %%FR_W43%% GEQ %d if %%FR_H43%% GEQ %d set UE1G2W=%d' % (w, h, w))
+        out.append('if %%FR_W43%% GEQ %d if %%FR_H43%% GEQ %d set UE1G2H=%d' % (w, h, h))
+    out.append('%s %s -ini %s WinDrv.WindowsClient FullscreenViewportX %%UE1G2W%%' % (g, e, i))
+    out.append('%s %s -ini %s WinDrv.WindowsClient FullscreenViewportY %%UE1G2H%%' % (g, e, i))
+    return out
+
+
+# --------------------------------------------------------------------------
 # Turok 2 keeps its mode as one BOOLEAN PER MODE in Data\config.ned, chosen
 # from a fixed list: 320x240, 512x384, 640x480, 800x600, 1024x768, 1280x1024.
 # There is no width/height pair and no 1080p entry, so the honest best is the
@@ -846,7 +878,7 @@ TITLES = {
                 '  "%~dp0FLEETRES.EXE" -ini "%~dp0System\\Unreal.ini" '
                 'Engine.Engine RenderDevice %FR_UE1DEV%',
                 ')',
-            ],
+            ] + ue1_glide_viewport("System\\Unreal.ini"),
         }],
     },
     "Carmageddon2": {
