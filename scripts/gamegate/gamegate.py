@@ -189,16 +189,52 @@ def decide_title(profile, title, shortcut, cache, judge, model,
     return d, False
 
 
-def plan(profile, titles, cache, judge, model, use_llm=True, refresh=False):
+OVERRIDES_PATH = HERE / "overrides.txt"
+
+
+def load_overrides(path=None):
+    """{(profile_hash, title_lower): (verdict_int, reason)} from overrides.txt.
+    A malformed line is an ERROR, not a skip: an override that silently did
+    nothing would publish the very verdict the operator overrode."""
+    path = Path(path) if path else OVERRIDES_PATH
+    out = {}
+    if not path.exists():
+        return out
+    for n, line in enumerate(path.read_text().splitlines(), 1):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        parts = line.split("\t")
+        if len(parts) != 4 or parts[2] not in rules.VERDICT_VALUE:
+            raise SystemExit(f"{path}:{n}: want <profile_hash> TAB <title> TAB "
+                             f"<run|marginal|no> TAB <reason>, got {line!r}")
+        out[(parts[0].strip(), parts[1].strip().lower())] = (
+            rules.VERDICT_VALUE[parts[2]], parts[3].strip())
+    return out
+
+
+def apply_override(profile, title_name, d, overrides):
+    """The operator's verdict for this profile and title, or d unchanged."""
+    ov = overrides.get((profile.profile_hash, title_name.lower()))
+    if not ov:
+        return d
+    return rules.Decision(verdict=ov[0], limiting="-", reason="operator override: " + ov[1],
+                          decided_by="override")
+
+
+def plan(profile, titles, cache, judge, model, use_llm=True, refresh=False,
+         overrides=None):
     """Decide every title, and every shortcut that has its own rules.
 
     The TITLE decision governs the copy. A shortcut decision only ever
     suppresses that one shortcut - see the capability note in rules.py.
     """
     rows = []
+    if overrides is None:
+        overrides = load_overrides()
     for t in titles:
         d, hit = decide_title(profile, t, "", cache, judge, model,
                               use_llm, refresh)
+        d = apply_override(profile, t.name, d, overrides)
         per_shortcut = []
         req = t.requirements()
         if req.shortcuts:
@@ -251,7 +287,7 @@ def print_plan(profile, rows, cache, judge):
     nofile = []
     for t, d, hit, subs in rows:
         n[d.name] += 1
-        mark = "cached" if hit else d.decided_by
+        mark = d.decided_by if d.decided_by == "override" or not hit else "cached"
         print(f"  {C[d.name]}{d.name:<9}{C['off']} {t.name:<{width}}  "
               f"{C['dim']}{mark:<6}{C['off']} {d.reason}")
         for cap in d.missing_cap_names():

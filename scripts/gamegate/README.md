@@ -214,6 +214,31 @@ is permanently "newest".
 * **`decided_by`** (`rule` / `llm`) is stored so the cache is auditable at all —
   without it, "why is Doom 3 not on that box" has no answer.
 
+## Operator overrides — `overrides.txt` (2026-09-28)
+
+**A driver switch can change what a card offers where `HWPROFILE` cannot see
+it.** `.124`'s Voodoo 5 6000 reports `fixed` and the rules correctly refuse
+Halo (`sm1.x`) - yet on our open `vcr-kmd` driver, with its `D3D32` and
+`D3DBigTex` Diag switches armed and the staged `config.txt`'s
+`DisableRenderTargets` for `0x121a:0x0009`, Halo 1.10 reaches a textured main
+menu. The operator chose to keep those switches armed for the LAN party, so the
+gate has to say `run` there - and only there.
+
+    <profile_hash> TAB <title> TAB <run|marginal|no> TAB <reason>
+
+* Keyed on the **hardware profile**, exactly like the cache, so a re-imaged box
+  keeps it and a box with a different card loses it.
+* Applied **after** the rules and the model, and **never cached**: delete the
+  line and the next `publish_all.py` returns to the rule verdict.
+* Published as `[override]` with the reason prefixed `operator override:`, so a
+  verdict file says who decided.
+* **A malformed line stops the run.** An override that silently did nothing
+  would publish the very verdict the operator overrode.
+
+An override records a state of the BOX that the profile cannot see (here, two
+registry switches). If that state changes - the switches are disarmed - the
+override is wrong and must be removed in the same change.
+
 ## Model choice: `qwen3:14b`
 
 Measured on this host's RTX 5090 against five real fleet/title pairs, with
@@ -249,6 +274,7 @@ permissive gate on the fleet, invisibly.
 | `cache.py` | SQLite verdict cache |
 | `library.py` | reading the staged library |
 | `gamegate.py` | the CLI |
+| `overrides.txt` | per-profile operator verdicts (above) |
 
 ## Tests
 
@@ -259,3 +285,5 @@ permissive gate on the fleet, invisibly.
   every answer against `rules.py`, so the two copies cannot drift.
 * `tests/python/test_gamegate_host.py` — the cache's key behaviour, the LLM
   reply validator, and the escalation gate.
+* `tests/python/test_gamegate_overrides.py` — an override applies only to its
+  own profile and title, and a malformed line is an error, not a skip.

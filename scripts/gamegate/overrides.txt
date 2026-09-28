@@ -1,0 +1,9 @@
+# gamegate operator overrides - <profile_hash> TAB <title> TAB <verdict> TAB <reason>
+#
+# The rules and the model decide from what HWPROFILE can SEE. Some facts it
+# cannot: a driver switch that changes what the card offers. An override says
+# "on THIS hardware profile, THIS title's verdict is X", is published into that
+# box's _gamegate\<profile_hash>.txt, and survives every re-publish. Keep it
+# rare, give the reason in full, and delete the line when the reason goes.
+#
+dec95d42ad08a34d	Halo	run	V5 6000 on vcr-kmd with Diag D3D32 + D3DBigTex armed and config.txt DisableRenderTargets - menu verified 2026-09-28, kept armed for the LAN party
