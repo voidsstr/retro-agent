@@ -1451,7 +1451,7 @@ void agent_run(void)
                  * It was a bare printf until 1.89.1, and a console write can
                  * block - on Win9x the console is a DOS VM that a DOS child or
                  * a text selection can hold (.243, 74 minutes, 2026-09-28).
-                 * con_printf() only queues it for log.c's echo thread (1.89.2),
+                 * con_printf() only queues it for log.c's echo thread (1.90.0),
                  * and the log line above says the same anyway. */
                 if (!agent_console_quiet())
                     con_printf("Connection from %s:%d\n",

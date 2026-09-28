@@ -78,8 +78,8 @@ supports. These are the corrected claims.
    master at `58af178`. It is a plausible way for the agent to wedge. It is **not**
    proven to be what happened here.
 
-   **Fixed on branch `worktree-fix-log-console-wedge` (agent 1.89.2 when
-   released):** no thread that logs or serves calls into the console any more.
+   **Fixed in agent 1.90.0 (branch `worktree-fix-log-console-wedge`,
+   released 2026-09-28):** no thread that logs or serves calls into the console any more.
    Lines go into a bounded ring and one idle-priority thread writes them out
    with no lock held (`agent/shared/conring.h`, `log.c` `log_echo_thread()`).
    The fix also closes the diagnostic gap. A console call that has not returned
@@ -244,7 +244,7 @@ Notification mode does not block logon, so activation is not the reboot risk her
    `agent/src/log.c` `raw_out()` outside `g_log_cs`, or make it non-blocking, so
    a stuck console cannot stall every logging thread. Add a source-invariant test.
    Consider hiding or minimising the console on NT so people stop closing it.
-   Worth doing whether or not it caused this wedge. **Done (1.89.2, see point 3
+   Worth doing whether or not it caused this wedge. **Done (1.90.0, see point 3
    above)**, with tests `native/test_conring.c`, `native/test_log_echo_thread.c`
    and `python/test_log_console_echo.py`. Hiding or minimising the console is
    still open.

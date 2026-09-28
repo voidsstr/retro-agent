@@ -1,6 +1,6 @@
 /*
  * deskset.h - which desktop shortcuts a GAMESYNC run may take away, and did the
- * SET of desktop icons change? (agent 1.89.x, "sweep at the END")
+ * SET of desktop icons change? (agent 1.90.0, "sweep at the END")
  *
  * THE DEFECT THIS FIXES (.110, XP P4, 2026-09-28). gs_run() used to begin by
  * moving EVERY .lnk/.pif/.url off both desktops into C:\retro-desktop-backup

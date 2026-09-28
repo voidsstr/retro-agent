@@ -321,7 +321,7 @@ have used anyway.
 
 **A gated or skipped title still gets the icons of an install it already has.**
 `gs_run()` moves every `.lnk`/`.pif`/`.url` it did not put back off both
-desktops (at the END of the run since agent 1.89.x - before the copy loop until
+desktops (at the END of the run since agent 1.90.0 - before the copy loop until
 then), and shortcuts used to be rebuilt only inside the *copy* branch — so the first
 sync that gated or skipped an already-installed title deleted its icons for good
 (this was "i dont see any games on the desktop" on `.243`). Both `continue` paths

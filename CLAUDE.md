@@ -1213,6 +1213,10 @@ it satisfies all of this:
    satisfaction, install paths, video config. **`REGEDIT4`** merges everywhere;
    `Windows Registry Editor Version 5.00` is XP+ only and does nothing at all,
    silently, on Win9x.
+   **Until agent 1.90.0 no Win9x box merged ANY `install.reg`**: GAMESYNC's
+   `regedit` launch failed on Win98 with error 0. It now starts
+   `%windir%\REGEDIT.EXE` on the 8.3 path, then reads every value back and
+   writes whatever regedit did not land, loudly (`agent/shared/regmerge.h`).
    **A per-INSTALLATION value cannot live here** — install.reg is copied
    byte-identically to every box, so a network serial or machine GUID must be
    generated on the box by the launcher (see Red Alert 2).
@@ -1810,7 +1814,7 @@ done: 35/37 title(s) copied, 0 skipped, 2 gated, 0 file error(s),
 > difference resolved at the end (`gs_desk_settle_lnks()`), so sweeping 81
 > shortcuts and rewriting the same 81 is correctly *no change*.
 
-**The sweep now runs LAST (agent 1.89.x).** Sweeping first left `.110` with two
+**The sweep now runs LAST (agent 1.90.0).** Sweeping first left `.110` with two
 icons where 97 had been for ~100 minutes while a CPU-starved run (a minimized
 ioquake3 at 96%; GAMESYNC is idle-priority) sat at "enumerating library", and a
 run that failed, was aborted or died left the desktop empty until a later one
@@ -2329,6 +2333,16 @@ process *dies* rather than exits.
 > timeout by design - keep 9x `EXEC` to short commands. Before calling a 9x agent
 > dead, check whether it is merely busy: the agent log (or the share's
 > `agent logs\<HOST>-agent.log` mirror) shows a gap, not a restart.
+>
+> **Agent 1.90.0 takes the console off every serving and logging thread**, on
+> NT too: a line is only queued in a bounded ring (`agent/shared/conring.h`)
+> and one idle-priority thread writes it with no lock held, so a console that
+> stops accepting output (a QuickEdit selection, a hung conhost/csrss - ADMIN-PC
+> went deaf for 35 h after a display TDR, 2026-09-26) stalls that thread alone
+> and the dropped lines are counted. QuickEdit is cleared on NT, and the console
+> now starts MINIMIZED (NT: the agent minimizes itself; Win9x: `START /m` in
+> `AGENTRUN.BAT` and in RESTART's batch) so it no longer covers the icons or
+> invites the click that closes it.
 
 **Recovery on Win9x needs a person** — nothing supervises the agent there (the
 `HKLM\...\Run\RetroAgent` value fires only at logon), exactly as with a bare

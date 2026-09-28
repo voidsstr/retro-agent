@@ -72,7 +72,7 @@ WIN9X_ABSENT = (
     "CloseServiceHandle",
     "ChangeServiceConfigA",
     "CM_Get_DevNode_Status",
-    # 1.89.x: GAMESYNC's starvation check reads whole-machine CPU times. The
+    # 1.90.0: GAMESYNC's starvation check reads whole-machine CPU times. The
     # entry point exists only from XP SP1 - not on 9x, NT4, 2000 or XP RTM -
     # so it goes through ntdyn_GetSystemTimes(), never a direct call.
     "GetSystemTimes",

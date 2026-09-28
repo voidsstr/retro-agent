@@ -49,7 +49,7 @@
  * discipline can protect, short of the per-line flush we are deliberately
  * removing. LOG_FLUSH_MS bounds that window.
  *
- * THE CONSOLE IS NEVER WRITTEN WHILE THE LOG LOCK IS HELD (agent 1.89.2)
+ * THE CONSOLE IS NEVER WRITTEN WHILE THE LOG LOCK IS HELD (agent 1.90.0)
  * ---------------------------------------------------------------------
  * raw_out() used to echo each line with WriteFile(stderr) under g_log_cs. A
  * console write blocks for as long as the console is not being serviced - a

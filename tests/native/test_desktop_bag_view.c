@@ -45,7 +45,7 @@ static unsigned long old_bag_slot(int found, unsigned long nodeslot)
 static unsigned old_autoarrange_cmd(int is_9x, unsigned major, unsigned minor)
 {
     (void)major; (void)minor;
-    return is_9x ? 0x7041u : 0x7051u;           /* 1.84.1 - 1.89.x */
+    return is_9x ? 0x7041u : 0x7051u;           /* 1.84.1 - 1.89.1 */
 }
 static int old_live_is_icon_view(unsigned long style, long lvview)
 {

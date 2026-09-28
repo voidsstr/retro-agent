@@ -597,7 +597,7 @@ static long g_gs_desk_lnks;    /* net change in the set of desktop icons   */
  * is sampled before the run writes anything and compared at the end. A box that
  * rewrites the same 81 shortcuts has not changed.
  *
- * SINCE 1.89.x THE SAME SAMPLE DECIDES WHAT THE SWEEP MAY REMOVE, AND THE SWEEP
+ * SINCE 1.90.0 THE SAME SAMPLE DECIDES WHAT THE SWEEP MAY REMOVE, AND THE SWEEP
  * RUNS LAST (agent/shared/deskset.h). Sweeping first emptied the desktop for as
  * long as the run took to reach each title again - ~100 minutes on .110 while a
  * game starved the idle-priority worker, and FOREVER on every run that failed,
@@ -3341,7 +3341,7 @@ static void gs_desk_settle_lnks(void)
  * .url go - real files someone left on the desktop are left exactly where they
  * are.
  *
- * WHY LAST (1.89.x). This used to run FIRST and take every icon away, the
+ * WHY LAST (1.90.0). This used to run FIRST and take every icon away, the
  * run's own included, and each came back only when the copy loop reached its
  * title. .110 showed what that costs: a run starved of CPU by a game sat at
  * "enumerating library" for ~100 minutes and the box had two icons the whole
@@ -3974,7 +3974,7 @@ static void gs_make_game_shortcut(const char *dst_dir, const char *title)
  * not claim. Without this, a game that is sitting on the disk and runs
  * perfectly loses its shortcuts on the first sync that gates or skips it, and
  * never gets them back, because the only other call to gs_make_game_shortcut()
- * is inside the copy branch. (Until 1.89.x the sweep ran FIRST, so these icons
+ * is inside the copy branch. (Until 1.90.0 the sweep ran FIRST, so these icons
  * were missing from the start of the run until this call - see deskset.h.)
  *
  * THIS IS WHAT "I DON'T SEE ANY GAMES ON THE DESKTOP" TURNED OUT TO BE on .243
@@ -5148,7 +5148,7 @@ static void gs_run(const char *library)
 
     /* Sample the icon set BEFORE this run writes a single shortcut.
      *
-     * AND SWEEP NOTHING HERE. Until 1.89.x the next line moved every icon on
+     * AND SWEEP NOTHING HERE. Until 1.90.0 the next line moved every icon on
      * the desktop into C:\retro-desktop-backup, and each game's icon came back
      * only when the copy loop reached that title. On .110 (2026-09-28) a run
      * starved of CPU by a running game sat in "enumerating library" for ~100

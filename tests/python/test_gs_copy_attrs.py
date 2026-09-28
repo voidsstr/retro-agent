@@ -98,7 +98,7 @@ def test_failed_file_is_json_escaped():
     )
     # the raw field must not appear in the _snprintf argument list
     call = src[src.index("_snprintf(json, sizeof(json) - 1,"):]
-    # The message is formatted from a local copy (`msg`) since 1.89.x: it can
+    # The message is formatted from a local copy (`msg`) since 1.90.0: it can
     # carry the stall explanation (gs_stall_describe) appended to s.message.
     call = call[:call.index("\n        msg);") + 14]
     # NB word boundary: "s.failed_files" (the COUNT) legitimately appears here

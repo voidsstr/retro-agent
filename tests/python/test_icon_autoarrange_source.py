@@ -210,7 +210,7 @@ def test_a_skipped_file_and_a_rewritten_lnk_are_not_counted_as_changes():
     The honest question is whether the SET of desktop icons changed, so the set
     must be sampled BEFORE the run writes any shortcut and compared at the end.
 
-    Since 1.89.x the sweep runs LAST (gs_sweep_unclaimed, after every shortcut
+    Since 1.90.0 the sweep runs LAST (gs_sweep_unclaimed, after every shortcut
     is written) - sweeping first left .110 with two icons for ~100 minutes while
     a starved run sized the library. The ordering that matters for this gate is
     unchanged: reset, snapshot, then the first shortcut write; and the sweep's

@@ -1,5 +1,5 @@
 /* test_conring.c - TRUE-SOURCE: compiles the REAL agent/shared/conring.h, the
- * queue between the agent's loggers and its console (agent 1.89.2,
+ * queue between the agent's loggers and its console (agent 1.90.0,
  * agent/src/log.c echo_push_locked / log_echo_thread).
  *
  * THE OLD-BUGGY BEHAVIOUR (agent <= 1.89.1, log.c raw_out): every log line
@@ -314,7 +314,7 @@ TEST(init_uses_a_power_of_two_and_tolerates_nothing)
     CHECK_EQ_U(g, 1);
 }
 
-MUNIT_MAIN("console echo ring (agent/shared/conring.h, agent 1.89.2)",
+MUNIT_MAIN("console echo ring (agent/shared/conring.h, agent 1.90.0)",
     RUN(lines_come_out_whole_and_in_order);
     RUN(the_ring_wraps_without_corrupting_the_stream);
     RUN(the_position_counters_survive_2_to_the_32);

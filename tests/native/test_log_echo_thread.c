@@ -11,7 +11,7 @@
  * old_shape_* below runs that exact shape in this harness and shows the next
  * logger stuck: the OLD-BUGGY value.
  *
- * THE FIX (agent 1.89.2): loggers copy into a ring and one echo thread writes
+ * THE FIX (agent 1.90.0): loggers copy into a ring and one echo thread writes
  * the console with no lock held (agent/shared/conring.h; ring logic in
  * test_conring.c). Here: 4 threads log 6,000 lines into a FROZEN console and
  * all of them finish, agent.log gets every line, the console shows a clean
@@ -401,7 +401,7 @@ TEST(no_console_means_no_echo_thread_and_file_logging_unchanged)
     run_isolated("no_console", scen_no_console, 10);
 }
 
-MUNIT_MAIN("log.c console echo on real threads (agent 1.89.2)",
+MUNIT_MAIN("log.c console echo on real threads (agent 1.90.0)",
     RUN(old_shape_a_console_write_under_the_lock_stalls_the_next_logger);
     RUN(a_frozen_console_stalls_no_logger);
     RUN(shutdown_is_bounded_when_the_console_is_frozen);

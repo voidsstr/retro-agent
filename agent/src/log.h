@@ -85,7 +85,7 @@ void log_console_title(const char *title);
 /* 1 when the serving path should not even queue console chatter (transfer
  * progress, per-connection lines): the service has no console, and in
  * multiplex mode (every Win9x agent) a DOS-VM console is slow enough that the
- * queue would mostly drop it. Since 1.89.2 this is tidiness, not safety -
+ * queue would mostly drop it. Since 1.90.0 this is tidiness, not safety -
  * con_printf() cannot block either way (.243 went 74 minutes deaf on
  * 2026-09-28 when it could). Defined in main.c. */
 int agent_console_quiet(void);

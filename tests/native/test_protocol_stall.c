@@ -21,7 +21,7 @@ void log_msg(const char *tag, const char *fmt, ...) { (void)tag; (void)fmt; }
 #define printf(...) ((void)0)
 /* protocol.c asks main.c whether it may write to the console */
 int agent_console_quiet(void) { return 1; }
-/* ...and since 1.89.2 queues its progress for log.c's echo thread */
+/* ...and since 1.90.0 queues its progress for log.c's echo thread */
 void con_printf(const char *fmt, ...) { (void)fmt; }
 #include "../../agent/src/protocol.c"
 #undef printf

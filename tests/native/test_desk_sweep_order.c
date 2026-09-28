@@ -1,7 +1,7 @@
 /* test_desk_sweep_order.c - TRUE-SOURCE: compiles the REAL
  * agent/shared/deskset.h (what GAMESYNC's desktop sweep may remove, and did the
  * icon set change?) and agent/shared/gsstall.h (is the run moving, and if not,
- * is it starved of CPU?). agent 1.89.x.
+ * is it starved of CPU?). agent 1.90.0.
  *
  * THE DEFECT (.110, XP P4, 2026-09-28). gs_run() began with gs_sweep_desktop(),
  * which moved EVERY .lnk/.pif/.url off both desktops, and each game icon came

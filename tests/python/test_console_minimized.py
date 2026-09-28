@@ -205,7 +205,14 @@ def test_main_minimizes_before_anything_can_share_the_console():
     set and before WSAStartup and before any thread or process exists."""
     body = function_body(read(MAIN_C), "void agent_run(void)")
     call = body.index("consolewin_startup(g_service_mode)")
-    assert body.index("SetConsoleTitleA(title)") < call
+    # Since 1.90.0 (the console-echo wedge fix) the title is QUEUED for log.c's
+    # echo thread with log_console_title() - agent_run() never calls
+    # SetConsoleTitleA itself (tests/python/test_log_console_echo.py). The
+    # minimize still follows the title step. log_init's echo thread already
+    # exists by then, but it starts no process, so it cannot inflate the
+    # console's process count this call reads.
+    assert "SetConsoleTitleA(" not in body
+    assert body.index("log_console_title(title)") < call
     for later in ("WSAStartup(", "CreateThread(", "spawn_helper(", "CreateProcess"):
         if later in body:
             assert call < body.index(later), "%s runs before the minimize" % later

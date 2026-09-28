@@ -448,7 +448,8 @@ def test_the_shipped_roster_parses_and_carries_no_measurements():
 # On 2026-09-26 DHCP moved the Windows 7 box ADMIN-PC from 192.168.1.246 to
 # 192.168.1.195 during a network re-cabling. Two days later three places still
 # named .246: this roster, scripts/fleet/autodeploy.py BOXES (the running
-# retro-autodeploy service) and scripts/gamegate/publish_all.py FLEET (the
+# retro-autodeploy service; since the same day it DISCOVERS boxes instead - see
+# _autodeploy_problems) and scripts/gamegate/publish_all.py FLEET (the
 # verdict-file publisher). Nothing errored: both tools treat a box that does not
 # answer as switched off, which is normal on a fleet powered on demand, so each
 # silently skipped the Win7 box. publish_all.py also never listed .243, so a
@@ -500,9 +501,43 @@ def test_the_roster_has_admin_pc_at_its_new_address():
     assert "192.168.1.246" not in _roster_ips()
 
 
-def test_autodeploy_boxes_match_the_roster():
-    boxes = _module_list(AUTODEPLOY_SRC, "BOXES")
-    assert _mismatch(boxes, _roster_ips()) == ([], [])
+def _autodeploy_problems(src, roster):
+    """What is wrong with autodeploy.py's way of finding boxes, [] if nothing.
+
+    Since the autodeploy generation fix (2026-09-28) the tool keeps NO address
+    list: it sweeps SUBNET.1-254 for agents and keys each box by hostname,
+    reading fleet-roster.txt only to migrate and veto old IP-keyed records. A
+    list cannot drift if there is none, so what is pinned is that none comes
+    back, that the sweep's /24 reaches every rostered address, and that the
+    roster it reads is this file."""
+    tree = ast.parse(src)
+    consts = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for t in node.targets:
+                if isinstance(t, ast.Name):
+                    consts[t.id] = node.value
+    problems = []
+    if "BOXES" in consts:
+        problems.append("a hardcoded BOXES list is back")
+    subnet = consts.get("SUBNET")
+    subnet = ast.literal_eval(subnet) if subnet is not None else None
+    for ip in roster:
+        net, last = ip.rsplit(".", 1)
+        if net != subnet or not 1 <= int(last) <= 254:
+            problems.append("the sweep of %s.1-254 misses %s" % (subnet, ip))
+    if 'os.path.join(HERE, "fleet-roster.txt")' not in src:
+        problems.append("it does not read fleet-roster.txt")
+    return problems
+
+
+def test_autodeploy_discovers_every_roster_address_and_keeps_no_list():
+    src = open(AUTODEPLOY_SRC, encoding="utf-8").read()
+    assert _autodeploy_problems(src, _roster_ips()) == []
+    # ...and the pre-fix shape (a hand-kept list, no sweep) fails that check.
+    old_src = "BOXES = %r\n" % OLD_AUTODEPLOY_BOXES
+    assert "a hardcoded BOXES list is back" in _autodeploy_problems(
+        old_src, _roster_ips())
 
 
 def test_publish_all_fleet_matches_the_roster():

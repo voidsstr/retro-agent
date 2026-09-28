@@ -1,4 +1,4 @@
-"""GAMESYNC must never empty the desktop before it can rebuild it (agent 1.89.x).
+"""GAMESYNC must never empty the desktop before it can rebuild it (agent 1.90.0).
 
 THE DEFECT (.110, XP P4, 2026-09-28)
 ------------------------------------

@@ -16,7 +16,7 @@ from 2026-09-26 23:46 until a person held the power button 35 hours later
 `printf("Connection from ...")` would have blocked the same way even without
 the log lock.
 
-THE FIX (agent 1.89.2)
+THE FIX (agent 1.90.0)
 ----------------------
 Loggers only COPY a line into a bounded ring (`agent/shared/conring.h`, logic
 tested natively by `tests/native/test_conring.c`); ONE idle-priority thread,
