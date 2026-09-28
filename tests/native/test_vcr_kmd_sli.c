@@ -460,6 +460,98 @@ TEST(map_narrows_a_master_still_in_its_power_up_decode) {
     no_bus_faults(m);
 }
 
+/* ---- the 256 MB VBIOS mode (64 MB a chip), 2026-09-27 ------------------------------
+ * memBase1 decodes TWICE a chip's memory. dos_mode.c (and vcr-kmd until
+ * 2026-09-27) hard-coded 64 MB - the 32 MB/chip board's value - so on the
+ * 6000's 256 MB mode the tiled half was cut off and every slave's shared
+ * memBase1 (master + mb1) landed on the master's upper 64 MB. */
+TEST(the_decode_index_is_twice_the_memory_as_a_cfgPciDecode_index) {
+    CHECK_EQ_I(vcr_pcidec_index(2ul * (32u << 20)), 4);     /* 128 MB board: 64 MB */
+    CHECK_EQ_I(vcr_pcidec_index(2ul * (64u << 20)), 0);     /* 256 MB mode: 128 MB */
+    CHECK_EQ_I(vcr_pcidec_index(2ul * (16u << 20)), 5);
+    CHECK_EQ_I(vcr_pcidec_index(256ul << 20), 1);
+    CHECK_EQ_I(vcr_pcidec_index(4ul << 20), 8);
+    CHECK_EQ_I(vcr_pcidec_index(48ul << 20), -1);           /* not a power of two */
+    CHECK_EQ_I(vcr_pcidec_index((64ul << 20) + 4096), -1);
+    CHECK_EQ_I(vcr_pcidec_index(2ul << 20), -1);            /* below the field */
+    CHECK_EQ_I(vcr_pcidec_index(0), -1);
+}
+
+TEST(an_explicit_32mb_chip_maps_exactly_as_the_legacy_default) {
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_u32 b0[4], b1[4];
+    seed(m, 4);
+    m->cfg[0][CFGI(0x48)] = 0x10;
+    io = mkio(m);
+    io.fb_bytes = 32u << 20;
+    CHECK_EQ_I(vcr_sli_map_slaves(&io, 4, b0, b1), VCR_SLI_OK);
+    CHECK_EQ_U(CFG(m, 0, 0x48), 0x45u);
+    CHECK_EQ_U(CFG(m, 3, 0x48), 0x00011445u);
+    CHECK_EQ_U(b1[3], 0xc0000000u + (64u << 20));
+    no_bus_faults(m);
+}
+
+TEST(a_64mb_chip_decodes_128mb_and_the_slaves_sit_128mb_above_the_master) {
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_u32 b0[4], b1[4];
+    int c;
+    seed(m, 4);
+    m->cfg[0][CFGI(0x48)] = 0x10;           /* power-up decode */
+    io = mkio(m);
+    io.fb_bytes = 64u << 20;
+    CHECK_EQ_I(vcr_sli_map_slaves(&io, 4, b0, b1), VCR_SLI_OK);
+    /* master: 32 MB memBase0, 128 MB (index 0) memBase1, 256 B I/O */
+    CHECK_EQ_U(CFG(m, 0, 0x48), 0x05u);
+    for (c = 1; c < 4; c++) {
+        CHECK_EQ_U(b0[c], 0xd0000000u + (32u << 20) * (vcr_u32)c);   /* registers unchanged */
+        CHECK_EQ_U(b1[c], 0xc0000000u + (128u << 20));                /* was + 64 MB */
+        CHECK_EQ_U(CFG(m, c, 0x14) & ~0xfu, 0xc8000000u);
+        /* snoop memBase0 32 MB (5 << 10), snoop memBase1 128 MB (0 << 14) */
+        CHECK_EQ_U(CFG(m, c, 0x48), 0x00001405u);
+    }
+    no_bus_faults(m);
+}
+
+TEST(a_decode_narrowed_for_32mb_is_widened_for_a_64mb_chip) {
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_u32 b0[4], b1[4];
+    seed(m, 4);
+    /* what vcr-kmd before 2026-09-27 left at boot on ANY board: 32 / 64 MB */
+    m->cfg[0][CFGI(0x48)] = 0x45;
+    io = mkio(m);
+    io.fb_bytes = 64u << 20;
+    CHECK_EQ_I(vcr_sli_map_slaves(&io, 4, b0, b1), VCR_SLI_OK);
+    CHECK_EQ_U(count_w(m, 'c', 0, 0x48), 1);
+    CHECK_EQ_U(CFG(m, 0, 0x48), 0x05u);
+    CHECK_EQ_U(b1[1], 0xc8000000u);
+    /* the legacy default (fb_bytes 0) leaves the same 0x45 alone - the old
+     * value, kept exactly for a 32 MB board */
+    seed(m, 4);
+    m->cfg[0][CFGI(0x48)] = 0x45;
+    io = mkio(m);
+    CHECK_EQ_I(vcr_sli_map_slaves(&io, 4, b0, b1), VCR_SLI_OK);
+    CHECK_EQ_U(count_w(m, 'c', 0, 0x48), 0);
+    CHECK_EQ_U(b1[1], 0xc4000000u);
+    no_bus_faults(m);
+}
+
+TEST(a_memory_size_the_decode_cannot_express_is_refused_with_nothing_written) {
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_u32 b0[4], b1[4], c;
+    seed(m, 4);
+    m->cfg[0][CFGI(0x48)] = 0x10;
+    io = mkio(m);
+    io.fb_bytes = 48u << 20;
+    CHECK(vcr_sli_map_slaves(&io, 4, b0, b1) < 0, "48 MB a chip accepted");
+    for (c = 0; c < 4; c++)
+        CHECK_EQ_U(count_w(m, 'c', c, 0x48), 0);
+    CHECK_EQ_U(CFG(m, 0, 0x48), 0x10u);
+}
+
 TEST(map_refuses_a_missing_slave_and_writes_nothing) {
     mock *m = &M;
     vcr_sli_io io;
@@ -2380,6 +2472,11 @@ TEST(step_codes_are_unique) {
 MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(map_puts_each_slave_32mb_above_the_last_and_all_bar1s_above_the_master);
     RUN(map_narrows_a_master_still_in_its_power_up_decode);
+    RUN(the_decode_index_is_twice_the_memory_as_a_cfgPciDecode_index);
+    RUN(an_explicit_32mb_chip_maps_exactly_as_the_legacy_default);
+    RUN(a_64mb_chip_decodes_128mb_and_the_slaves_sit_128mb_above_the_master);
+    RUN(a_decode_narrowed_for_32mb_is_widened_for_a_64mb_chip);
+    RUN(a_memory_size_the_decode_cannot_express_is_refused_with_nothing_written);
     RUN(map_refuses_a_missing_slave_and_writes_nothing);
     RUN(init_copies_the_master_and_hands_the_io_bar_back_every_time);
     RUN(four_chip_analog_sli_programs_every_chip);

@@ -202,6 +202,33 @@
 #define VCR_PCIDEC_IO_MASK          (0x3u << 8)
 #define VCR_PCIDEC_32MB             5u
 #define VCR_PCIDEC_64MB             4u
+#define VCR_PCIDEC_128MB            0u
+
+/* The cfgPciDecode index for a window of `bytes` - a power of two from 4 MB
+ * to 1 GB - or -1. memBase1 decodes TWICE a chip's memory (the linear half,
+ * then the tiled half), so a chip with fb bytes wants
+ * vcr_pcidec_index(2 * fb): 32 MB/chip (the 128 MB V5 6000) -> 64 MB, index 4;
+ * 64 MB/chip (its 256 MB VBIOS mode) -> 128 MB, index 0. dos_mode.c and
+ * vcr-kmd before 2026-09-27 hard-coded 64 MB - the 32 MB board's value - which
+ * at 64 MB/chip would cut off the tiled half and put the slaves' shared
+ * memBase1 over the master's upper 64 MB. */
+static __inline int vcr_pcidec_index(unsigned long bytes)
+{
+    if (bytes & 0xfffffUL)
+        return -1;
+    switch (bytes >> 20) {
+    case 128:  return 0;
+    case 256:  return 1;
+    case 512:  return 2;
+    case 1024: return 3;
+    case 64:   return 4;
+    case 32:   return 5;
+    case 16:   return 6;
+    case 8:    return 7;
+    case 4:    return 8;
+    }
+    return -1;
+}
 #define VCR_CFG_VIDEOCTRL0          0x80
 #define VCR_CFG_VIDEOCTRL1          0x84
 #define VCR_CFG_VIDEOCTRL2          0x88

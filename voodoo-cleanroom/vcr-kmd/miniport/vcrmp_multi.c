@@ -121,6 +121,7 @@ static void make_io(VCR_EXT *x, vcr_sli_io *io)
     io->vga_wr = k_vga_wr;
     io->stall_us = k_stall;
     io->log = k_log;
+    io->fb_bytes = x->fb_per_chip;      /* memBase1 = 2 x this (the 256 MB VBIOS mode: 64 MB) */
 }
 
 /* The hook vcrmp_sli.c calls for a 4-chip board (built with
@@ -164,10 +165,13 @@ void VcrMultiInit(VCR_EXT *x)
         return;
     }
     /* The slaves go INSIDE the master's own windows (master + 32 MB * chip,
-     * and master LFB + 64 MB), which PnP sized from the power-up decode (128 MB
-     * and 256 MB on the 6000). Outside our resources the bridge may not route
-     * them at all - refuse rather than guess. */
-    if (x->mmio_len < n * MB32 || x->lfb_len < 4 * MB32) {
+     * and master LFB + 2 x memory, shared by every slave), which PnP sized
+     * from the power-up decode (128 MB and 256 MB on the 6000). The LFB
+     * window must hold the master's 2 x memory and the slaves' 2 x memory:
+     * 128 MB at 32 MB/chip, 256 MB at 64 MB/chip (the 256 MB VBIOS mode).
+     * Outside our resources the bridge may not route them at all - refuse
+     * rather than guess. */
+    if (x->mmio_len < n * MB32 || x->lfb_len < 4 * (x->fb_per_chip ? x->fb_per_chip : MB32)) {
         VLOG(VCR_LV_WARN, VCR_EV_SLI_DONE, 0, n, x->mmio_len, x->lfb_len,
              "BAR windows too small for %u chips - Glide stays single-chip", n);
         return;

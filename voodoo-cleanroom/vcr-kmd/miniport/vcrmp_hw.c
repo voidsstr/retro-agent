@@ -297,17 +297,32 @@ VP_STATUS VcrHwDiscover(VCR_EXT *x)
      * "the board is still in its powerup config and we need to fiddle with
      * it") narrow it to 32 MB / 64 MB / 256 B (0x45) before 3D is used. Left
      * wide, our first Glide run hung the engine (measured on .124). */
+    /* memBase1 decodes TWICE the chip's memory (linear half + tiled half):
+     * 64 MB for 32 MB/chip, 128 MB in the V5 6000's 256 MB VBIOS mode (64 MB
+     * a chip) - so the memory is sized FIRST (dramInit0/1 through memBase0,
+     * which the narrowing does not move). It was narrowed to a fixed 64 MB,
+     * which at 64 MB/chip would cut the tiled half off. A size the decode
+     * cannot express leaves the power-up decode alone, loudly. */
+    x->fb_per_chip = voodoo_fb_bytes(x);
     if (VCR_IS_NAPALM(x->device) && VcrDiagGet(L"FixPciDecode", 1)) {
         ULONG dec = VcrPciRead(x, x->slot, VCR_CFG_PCIDECODE, 4), want;
-        if ((dec & VCR_PCIDEC_MB0_MASK) != VCR_PCIDEC_32MB) {
+        int mb1 = vcr_pcidec_index(2ul * x->fb_per_chip);
+        if (mb1 < 0 || x->fb_per_chip > (512u << 20)) {
+            VLOG(VCR_LV_WARN, VCR_EV_PCI_DECODE, dec, dec, x->fb_per_chip, 0,
+                 "master decode left at power-up: %u MB a chip has no 2x decode", 
+                 x->fb_per_chip >> 20);
+        } else if ((dec & VCR_PCIDEC_MB0_MASK) != VCR_PCIDEC_32MB ||
+                   ((dec & VCR_PCIDEC_MB1_MASK) >> VCR_PCIDEC_MB1_SHIFT) != (ULONG)mb1) {
             want = (dec & ~(VCR_PCIDEC_MB0_MASK | VCR_PCIDEC_MB1_MASK | VCR_PCIDEC_IO_MASK)) |
-                   VCR_PCIDEC_32MB | (VCR_PCIDEC_64MB << VCR_PCIDEC_MB1_SHIFT);
+                   VCR_PCIDEC_32MB | ((ULONG)mb1 << VCR_PCIDEC_MB1_SHIFT);
             VcrPciWrite(x, x->slot, VCR_CFG_PCIDECODE, want, 4);
             VLOG(VCR_LV_INFO, VCR_EV_PCI_DECODE, dec, want,
-                 VcrPciRead(x, x->slot, VCR_CFG_PCIDECODE, 4), 0,
-                 "master decode narrowed from power-up (32 MB / 64 MB / 256 B)");
+                 VcrPciRead(x, x->slot, VCR_CFG_PCIDECODE, 4), x->fb_per_chip,
+                 "master decode narrowed (32 MB / %u MB = 2 x %u MB / 256 B)",
+                 x->fb_per_chip >> 19, x->fb_per_chip >> 20);
         } else {
-            VLOG(VCR_LV_DEBUG, VCR_EV_PCI_DECODE, dec, dec, dec, 0, "master decode already 32 MB");
+            VLOG(VCR_LV_DEBUG, VCR_EV_PCI_DECODE, dec, dec, dec, x->fb_per_chip,
+                 "master decode already 32 MB / 2 x memory");
         }
     }
     /* pciInit0's PCI FIFO low-water threshold: the BIOS leaves 8, the vendor
@@ -325,8 +340,6 @@ VP_STATUS VcrHwDiscover(VCR_EXT *x)
                  (p0 >> VCR_PI0_LOWTHRESH_SHIFT) & 0x1f, th);
         }
     }
-    x->fb_per_chip = voodoo_fb_bytes(x);
-
     x->caps.device_id = x->device;
     x->caps.max_pixclk_khz = VCR_IS_NAPALM(x->device) ? 350000
                              : x->device == VCR_DEV_VOODOO3 ? 300000 : 270000;

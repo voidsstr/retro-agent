@@ -73,6 +73,9 @@ typedef struct vcr_sli_io {
     void    (*vga_wr)(void *ctx, vcr_u32 chip, vcr_u32 port, vcr_u8 v);
     void    (*stall_us)(void *ctx, vcr_u32 us);
     void    (*log)(void *ctx, vcr_u32 step, vcr_u32 chip, vcr_u32 reg, vcr_u32 val, const char *what);
+    /* memory per chip, bytes (vcrmp_hw.c voodoo_fb_bytes): memBase1 decodes
+     * twice this. 0 = the 32 MB/chip board dos_mode.c assumes (64 MB). */
+    vcr_u32 fb_bytes;
 } vcr_sli_io;
 
 /*

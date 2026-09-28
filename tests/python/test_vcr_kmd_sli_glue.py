@@ -388,3 +388,27 @@ def test_vcrctl_info_reports_the_display_drivers_exclusive_owner():
     # info should print it instead)
     for f in (KMD / "miniport").glob("*.c"):
         assert "exclusive_pid" not in f.read_text(), f.name
+
+
+def test_memBase1_follows_the_chips_memory_for_the_256mb_vbios_mode():
+    """The V5 6000's 256 MB VBIOS mode gives each chip 64 MB. memBase1 decodes
+    TWICE a chip's memory, so the boot path must size the memory FIRST and
+    narrow memBase1 to 2 x that (vcr_pcidec_index) - it was a fixed 64 MB (the
+    32 MB/chip value, dos_mode.c's), placed before the sizing. The SLI slave
+    placement gets the same size through vcr_sli_io.fb_bytes, and the LFB
+    window must hold 4 x the memory (2026-09-27)."""
+    hw = (KMD / "miniport" / "vcrmp_hw.c").read_text()
+    size = hw.index("x->fb_per_chip = voodoo_fb_bytes(x);")
+    narrow = hw.index("int mb1 = vcr_pcidec_index(2ul * x->fb_per_chip);")
+    assert size < narrow
+    assert hw.count("x->fb_per_chip = voodoo_fb_bytes(x);") == 1
+    assert "(VCR_PCIDEC_64MB << VCR_PCIDEC_MB1_SHIFT)" not in hw   # the old fixed 64 MB
+    assert "((ULONG)mb1 << VCR_PCIDEC_MB1_SHIFT)" in hw
+    multi = (KMD / "miniport" / "vcrmp_multi.c").read_text()
+    assert "io->fb_bytes = x->fb_per_chip;" in func_body(multi, "static void make_io(")
+    assert "x->lfb_len < 4 * (x->fb_per_chip ? x->fb_per_chip : MB32)" in multi
+    sli = (KMD / "miniport" / "vcrmp_sli.c").read_text()
+    body = func_body(sli, "int vcr_sli_map_slaves(")
+    assert "vcr_pcidec_index(2ul * io->fb_bytes)" in body
+    assert "(mb1_want << VCR_PCIDEC_MB1_SHIFT)" in body
+    assert "(VCR_PCIDEC_64MB << VCR_PCIDEC_MB1_SHIFT)" not in body

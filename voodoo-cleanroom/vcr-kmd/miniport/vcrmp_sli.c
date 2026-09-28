@@ -264,8 +264,8 @@ static const vcr_u16 k_mem_decode_mb[16] = {
 int vcr_sli_map_slaves(const vcr_sli_io *io, vcr_u32 nchips,
                        vcr_u32 slave_bar0[4], vcr_u32 slave_bar1[4])
 {
-    vcr_u32 dec, dec0, m0, m1, mio, mb1_idx, mb1_bytes, c, v;
-    int warn = 0, bad;
+    vcr_u32 dec, dec0, m0, m1, mio, mb1_idx, mb1_bytes, c, v, mb1_want;
+    int warn = 0, bad, want;
 
     if (!io_ok(io))
         return io ? refuse(io, VCR_SLI_R_ACCESSORS, 0) : VCR_SLI_EINVAL;
@@ -277,16 +277,25 @@ int vcr_sli_map_slaves(const vcr_sli_io *io, vcr_u32 nchips,
         return refuse(io, VCR_SLI_R_NODEV, (vcr_u32)bad);
 
     /* D:237-239 First, make sure the master has been reconfigured to only
-     * decode 32MB for memBase0, 64MB for memBase1, and 256B for ioBase0. */
+     * decode 32MB for memBase0, 64MB for memBase1, and 256B for ioBase0.
+     * Ours: memBase1 is TWICE the chip's memory - 64 MB is the 32 MB/chip
+     * board's value, the 256 MB VBIOS mode (64 MB/chip) needs 128 MB
+     * (vcr_regs.h vcr_pcidec_index). io->fb_bytes 0 = the 32 MB board. */
+    want = io->fb_bytes ? vcr_pcidec_index(2ul * io->fb_bytes) : (int)VCR_PCIDEC_64MB;
+    if (want < 0 || io->fb_bytes > MB(512))
+        return refuse(io, VCR_SLI_R_BARS, io->fb_bytes);
+    mb1_want = (vcr_u32)want;
     dec0 = dec = cfg_r(io, 0, VCR_CFG_PCIDECODE);
     /* D:241-243 If memBase0 is not set to 32MB then the board is still in its
      * powerup config and we need to fiddle with it. (D:246-260, a chip-count
-     * guess whose result is never used, is not ported - see the header.) */
-    if ((dec & VCR_PCIDEC_MB0_MASK) != VCR_PCIDEC_32MB) {
+     * guess whose result is never used, is not ported - see the header.)
+     * Ours: also when memBase1 is not the size this chip's memory needs - a
+     * decode narrowed for a 32 MB/chip board on a 64 MB/chip one. */
+    if ((dec & VCR_PCIDEC_MB0_MASK) != VCR_PCIDEC_32MB ||
+        (io->fb_bytes && ((dec & VCR_PCIDEC_MB1_MASK) >> VCR_PCIDEC_MB1_SHIFT) != mb1_want)) {
         /* D:263-266 remap master to make room for slaves */
         dec &= ~(VCR_PCIDEC_MB0_MASK | VCR_PCIDEC_MB1_MASK | VCR_PCIDEC_IO_MASK);
-        dec |= VCR_PCIDEC_32MB | VCR_PCIDEC_IO_256 |
-               (VCR_PCIDEC_64MB << VCR_PCIDEC_MB1_SHIFT);
+        dec |= VCR_PCIDEC_32MB | VCR_PCIDEC_IO_256 | (mb1_want << VCR_PCIDEC_MB1_SHIFT);
     }
 
     /* D:270-273 the master's physical addresses. Narrowing the decode only
@@ -307,7 +316,7 @@ int vcr_sli_map_slaves(const vcr_sli_io *io, vcr_u32 nchips,
     lg(io, VCR_SLI_S_MAP_BEGIN, 0, dec0, nchips, "mapSlavePhysical");
     if (dec != dec0)
         cfg_w(io, VCR_SLI_S_MAP_MASTER_DEC, 0, VCR_CFG_PCIDECODE, dec,
-              "master decode 32 MB / 64 MB / 256 B (was power-up)");
+              "master decode 32 MB / 2 x memory / 256 B (was power-up or another size)");
 
     for (c = 1; c < nchips; c++) {
         /* D:285-290 Calculate desired slave addresses. All slaves share the
