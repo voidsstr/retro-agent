@@ -715,6 +715,18 @@ void handle_drivers(SOCKET sock, const char *args)
     GUID *pguid = NULL;
     char filter[128] = "";
 
+    /* 1.88.0: DRIVERS STATUS / DRIVERS PLAN - every device with ONE driver
+     * state (agent/shared/drvplan.h), 3dfx excluded by the one rule. Report
+     * only. Any other argument keeps meaning a class filter. */
+    if (args && (_strnicmp(args, "STATUS", 6) == 0 || _strnicmp(args, "PLAN", 4) == 0)) {
+        int plan = _strnicmp(args, "PLAN", 4) == 0;
+        if (GetVersion() & 0x80000000UL)
+            drv9x_status(sock, plan);
+        else
+            gs_drivers_status(sock, plan);
+        return;
+    }
+
     if (args && args[0]) {
         safe_strncpy(filter, args, sizeof(filter));
         /* If it looks like a GUID, parse it */

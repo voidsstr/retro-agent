@@ -40,6 +40,7 @@
 #include "../shared/drvprefs.h"
 #include "../shared/drvmatch.h"
 #include "../shared/drvsafe.h"
+#include "../shared/drvplan.h"
 #include "../shared/gamegate.h"
 #include "../shared/lnkcheck.h"
 #include "../shared/gsresume.h"
@@ -4990,6 +4991,137 @@ DWORD WINAPI gamesync_thread(LPVOID param)
  * With no INF given it searches the staged tree, so "DRVUPDATE PCI\VEN_10DE&DEV_0150"
  * is enough once the right driver is in the image.
  */
+/* ---- DRIVERS STATUS / PLAN on NT (1.88.0) -------------------------------- *
+ * Report-only: every present device, its driver, and ONE state from
+ * agent/shared/drvplan.h. PLAN also ranks C:\D candidates for the missing and
+ * generic ones, the same way the install pass would (3dfx INFs never count). */
+typedef struct {
+    char          id[200], desc[128], cls[32], prov[64], date[24], ver[40], inf[32], match[160];
+    unsigned long problem;
+    int           state, excl, pd;
+} gs_drvrec;
+
+#define GS_DRVREC_MAX 400
+
+void gs_drivers_status(SOCKET sock, int plan)
+{
+    HDEVINFO        set;
+    SP_DEVINFO_DATA dev;
+    DWORD           i;
+    gs_drvrec      *rec;
+    gs_probdev     *pd = NULL, *one;
+    int             n = 0, npd = 0, k, counts[DRVST_COUNT], truncated = 0, scan = 1;
+    int             store = gs_file_exists(GS_DRIVER_DIR);
+    json_t          j;
+    char           *out;
+
+    memset(counts, 0, sizeof(counts));
+    set = SetupDiGetClassDevsA(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
+    if (set == INVALID_HANDLE_VALUE) {
+        send_error_response(sock, "DRIVERS STATUS: cannot enumerate devices");
+        return;
+    }
+    rec = (gs_drvrec *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, GS_DRVREC_MAX * sizeof(gs_drvrec));
+    one = (gs_probdev *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(gs_probdev));
+    if (plan && store)
+        pd = (gs_probdev *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, GS_MAX_PROBDEV * sizeof(gs_probdev));
+    if (!rec || !one || (plan && store && !pd)) {
+        if (rec) HeapFree(GetProcessHeap(), 0, rec);
+        if (one) HeapFree(GetProcessHeap(), 0, one);
+        if (pd) HeapFree(GetProcessHeap(), 0, pd);
+        SetupDiDestroyDeviceInfoList(set);
+        send_error_response(sock, "DRIVERS STATUS: out of memory");
+        return;
+    }
+    memset(&dev, 0, sizeof(dev));
+    dev.cbSize = sizeof(dev);
+    for (i = 0; SetupDiEnumDeviceInfo(set, i, &dev); i++) {
+        gs_drvrec *r;
+        char       drvkey[200];
+        DWORD      status = 0, problem = 0;
+
+        if (n >= GS_DRVREC_MAX) { truncated = 1; break; }
+        r = &rec[n];
+        r->pd = -1;
+        if (!SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_FRIENDLYNAME, NULL, (PBYTE)r->desc, sizeof(r->desc) - 1, NULL))
+            SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_DEVICEDESC, NULL, (PBYTE)r->desc, sizeof(r->desc) - 1, NULL);
+        SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_CLASS, NULL, (PBYTE)r->cls, sizeof(r->cls) - 1, NULL);
+        drvkey[0] = 0;
+        SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_DRIVER, NULL, (PBYTE)drvkey, sizeof(drvkey) - 1, NULL);
+        drvkey[sizeof(drvkey) - 1] = 0;
+        if (ntdyn_CM_Get_Device_IDA(dev.DevInst, r->id, sizeof(r->id), 0) != CR_SUCCESS)
+            r->id[0] = 0;
+        ntdyn_CM_Get_DevNode_Status(&status, &problem, dev.DevInst, 0);
+        r->problem = problem;
+        gs_class_value(drvkey, "ProviderName", r->prov, sizeof(r->prov));
+        gs_class_value(drvkey, "DriverDate", r->date, sizeof(r->date));
+        gs_class_value(drvkey, "DriverVersion", r->ver, sizeof(r->ver));
+        gs_class_value(drvkey, "InfPath", r->inf, sizeof(r->inf));
+        gs_class_value(drvkey, "MatchingDeviceId", r->match, sizeof(r->match));
+        one->dev = dev;
+        gs_device_ids(set, one);
+        r->excl = gs_device_3dfx(set, &dev, one->hw, one->compat);
+        r->state = drvplan_state(problem, drvkey[0] != 0, 0, r->excl, r->cls, r->match, r->desc);
+        counts[r->state]++;
+        if (pd && (r->state == DRVST_MISSING || r->state == DRVST_GENERIC) && npd < GS_MAX_PROBDEV) {
+            memcpy(&pd[npd], one, sizeof(gs_probdev));
+            pd[npd].nids = drvmatch_collect(pd[npd].hw, pd[npd].compat, pd[npd].ids, DRVMATCH_MAX_IDS);
+            r->pd = npd++;
+        }
+        n++;
+    }
+    if (pd && npd)
+        scan = gs_scan_driver_tree(pd, npd) == 0;
+
+    json_init(&j);
+    json_object_start(&j);
+    json_kv_str(&j, "os", "nt");
+    json_kv_bool(&j, "plan", plan);
+    json_kv_str(&j, "store", store ? GS_DRIVER_DIR : "none");
+    json_kv_bool(&j, "truncated", truncated);
+    json_key(&j, "counts");
+    json_object_start(&j);
+    for (k = 0; k < DRVST_COUNT; k++)
+        json_kv_int(&j, drvst_name(k), counts[k]);
+    json_object_end(&j);
+    json_key(&j, "devices");
+    json_array_start(&j);
+    for (k = 0; k < n; k++) {
+        gs_drvrec *r = &rec[k];
+        json_object_start(&j);
+        json_kv_str(&j, "id", r->id);
+        json_kv_str(&j, "desc", r->desc);
+        json_kv_str(&j, "class", r->cls);
+        json_kv_str(&j, "state", drvst_name(r->state));
+        json_kv_uint(&j, "problem", r->problem);
+        json_kv_str(&j, "provider", r->prov);
+        json_kv_str(&j, "date", r->date);
+        json_kv_str(&j, "version", r->ver);
+        json_kv_str(&j, "inf", r->inf);
+        json_kv_str(&j, "matching", r->match);
+        if (r->excl)
+            json_kv_str(&j, "excluded", drvsafe_reason_name(r->excl));
+        if (r->pd >= 0) {
+            json_kv_str(&j, "candidate", !scan ? "(could not search the store)"
+                                         : pd[r->pd].cand.n ? pd[r->pd].cand.path[0] : "");
+        }
+        json_object_end(&j);
+    }
+    json_array_end(&j);
+    json_object_end(&j);
+    out = json_finish(&j);
+    if (out) {
+        send_text_response(sock, out);
+        HeapFree(GetProcessHeap(), 0, out);
+    } else {
+        send_error_response(sock, "DRIVERS STATUS: out of memory");
+    }
+    HeapFree(GetProcessHeap(), 0, rec);
+    HeapFree(GetProcessHeap(), 0, one);
+    if (pd) HeapFree(GetProcessHeap(), 0, pd);
+    SetupDiDestroyDeviceInfoList(set);
+}
+
 /* Copy `args` without its standalone ALLOW3DFX token(s). */
 static void gs_strip_allow(const char *args, char *out, size_t cap)
 {
