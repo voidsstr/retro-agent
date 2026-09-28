@@ -473,16 +473,36 @@ def glide_swap(*rels):
 #    device that can run in a window - SoftDrv - and a focus loss drops the
 #    game to it; UE1 re-enters Glide fullscreen when the window is restored.
 #
+# 2. GlideDrv picks the Glide 2 resolution by <= tests on the viewport
+#    (<=512 wide 512x384, <=640x480, <=800x600, <=1024x768, <=1280x1024, else
+#    1600x1200) and then resizes the viewport to what Glide opened. FLEETRES'
+#    4:3 pair on a 1280x1024 desktop is 1280x960 - no Glide 2 mode - so the game
+#    opened 1280x1024 (5:4, squashed on a 4:3 tube) and, as that is the
+#    desktop's size, through Glide's 8 bpp DirectDraw detour. The last run that
+#    stayed up on .124 was at 1024x768. So a Glide box gets the largest exact
+#    4:3 Glide 2 mode inside FR_W43 x FR_H43.
+#
+#    THE AGENT WRITES THESE KEYS TOO: GAMERES (agent/shared/gameres.h) sets
+#    FullscreenViewportX/Y = %W%/%H% at every GAMESYNC, and UE1 itself saves
+#    the size Glide really opened (WinDrv's ResizeViewport -> SaveConfig) - so
+#    on a Glide box the two writers disagreed BEFORE this change as well
+#    (1280x960 asked, 1280x1024 saved). Only teaching gameres.h the same
+#    ladder for a box that renders UE1 through Glide (GlideRender + 3dfx
+#    silicon, as fleetres.c decides FR_UE1DEV) ends that; until then a
+#    GAMERES pass on such a box reports these two values as changed.
+#
 # NB its log line "grSstOpen Res=%i Ref=%i" prints the two numbers SWAPPED:
 # "Res=0 Ref=13" is 1280x1024 at 60 Hz, not 320x200 (UT's GlideDrv prints
 # them in order: "Res=13 Ref=0 ... (X: 1280 Y: 960)").
 #
-# The device is decided on lines OUTSIDE the ( ) block that uses it: cmd.exe
-# expands %VAR% in a block when the block is parsed, so a set and a use in
-# one block see the old value.
+# Every line is a single-line `if` outside a ( ) block, or reads only
+# variables set on an EARLIER line: cmd.exe expands %VAR% in a block when the
+# block is parsed, so a set and a use in one block see the old value.
 # --------------------------------------------------------------------------
 UE1_GLIDE_DEV = "GlideDrv.GlideRenderDevice"
 UE1_WINDOWED_FALLBACK = "SoftDrv.SoftwareRenderDevice"
+# the exact 4:3 Glide 2 modes GlideDrv's own <= ladder lands on unchanged
+UE1_GLIDE_LADDER = [(640, 480), (800, 600), (1024, 768), (1600, 1200)]
 
 
 def ue1_render_device(ini):
@@ -490,12 +510,19 @@ def ue1_render_device(ini):
     i = '"%%~dp0%s"' % ini
     g = 'if /i "%%FR_UE1DEV%%"=="%s"' % UE1_GLIDE_DEV
     out = ['set "UE1WDEV=%FR_UE1DEV%"',
-           '%s set "UE1WDEV=%s"' % (g, UE1_WINDOWED_FALLBACK)]
+           '%s set "UE1WDEV=%s"' % (g, UE1_WINDOWED_FALLBACK),
+           'set UE1G2W=%d' % UE1_GLIDE_LADDER[0][0],
+           'set UE1G2H=%d' % UE1_GLIDE_LADDER[0][1]]
+    for w, h in UE1_GLIDE_LADDER[1:]:
+        out.append('if %%FR_W43%% GEQ %d if %%FR_H43%% GEQ %d set UE1G2W=%d' % (w, h, w))
+        out.append('if %%FR_W43%% GEQ %d if %%FR_H43%% GEQ %d set UE1G2H=%d' % (w, h, h))
     out += [
         'if exist "%~dp0FLEETRES.EXE" (',
         '  %s -ini %s Engine.Engine GameRenderDevice %%FR_UE1DEV%%' % (e, i),
         '  %s -ini %s Engine.Engine WindowedRenderDevice %%UE1WDEV%%' % (e, i),
         '  %s -ini %s Engine.Engine RenderDevice %%UE1WDEV%%' % (e, i),
+        '  %s %s -ini %s WinDrv.WindowsClient FullscreenViewportX %%UE1G2W%%' % (g, e, i),
+        '  %s %s -ini %s WinDrv.WindowsClient FullscreenViewportY %%UE1G2H%%' % (g, e, i),
         ')',
     ]
     return out
@@ -880,8 +907,8 @@ TITLES = {
         # is. The staged Unreal.ini asks for SoftDrv in a window and D3DDrv
         # fullscreen; FR_UE1DEV picks the right one for THIS box and the swap
         # stops the game-local nGlide wrapper shadowing real Glide silicon.
-        # GlideDrv is fullscreen-only: it never becomes the WINDOWED device
-        # (ue1_render_device).
+        # GlideDrv is fullscreen-only: it never becomes the WINDOWED device,
+        # and it gets an exact Glide 2 mode (ue1_render_device).
         "post": [{
             "file": "Play Unreal Gold.bat",
             "marker": "FR_GLIDE",

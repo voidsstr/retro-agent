@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Unreal Gold on a Glide box: GlideDrv is fullscreen-only
-(scripts/fleet/stage-fleetres.py ue1_render_device, 2026-09-28).
+"""Unreal Gold on a Glide box: GlideDrv is fullscreen-only, and it gets an exact
+Glide 2 mode (scripts/fleet/stage-fleetres.py ue1_render_device, 2026-09-28).
 
 WHAT HAPPENED. On .124 (Voodoo 5 6000, our h5 glide3x under AmigaMerlin's
 Glide2->Glide3 translator) Unreal Gold opened Glide, shut it down, and hung in
@@ -178,10 +178,34 @@ def test_the_generated_lines_never_write_the_game_device_as_the_windowed_one():
     assert 'Engine.Engine RenderDevice %FR_UE1DEV%' not in text
 
 
+def test_a_glide_box_gets_an_exact_4_3_glide2_mode():
+    for why, w, h, w43, h43 in BOXES:
+        out = launch(w, h, w43, h43, GLIDE)
+        x = int(out[('WinDrv.WindowsClient', 'FullscreenViewportX')])
+        y = int(out[('WinDrv.WindowsClient', 'FullscreenViewportY')])
+        # GlideDrv opens exactly the viewport's size: no resize to 5:4
+        assert GLIDE2_SIZE[glidedrv_res(x, y)] == (x, y), (why, x, y)
+        assert x * 3 == y * 4, (why, x, y)
+        assert x <= w43 and y <= h43, (why, x, y)
 
 
+def test_the_glide_mode_is_the_largest_that_fits():
+    want = {(1280, 960): (1024, 768), (1440, 1080): (1024, 768), (1600, 1200): (1600, 1200),
+            (800, 600): (800, 600), (1024, 768): (1024, 768), (640, 480): (640, 480)}
+    for why, w, h, w43, h43 in BOXES:
+        out = launch(w, h, w43, h43, GLIDE)
+        got = (int(out[('WinDrv.WindowsClient', 'FullscreenViewportX')]),
+               int(out[('WinDrv.WindowsClient', 'FullscreenViewportY')]))
+        assert got == want[(w43, h43)], (why, got)
 
 
+def test_on_124_the_old_pair_opened_a_5_4_mode_the_new_one_does_not():
+    # the defect, stated: 1280x960 has no Glide 2 mode, GlideDrv opens 1280x1024
+    assert GLIDE2_SIZE[glidedrv_res(1280, 960)] == (1280, 1024)
+    out = launch(1280, 960, 1280, 960, GLIDE)
+    x = int(out[('WinDrv.WindowsClient', 'FullscreenViewportX')])
+    y = int(out[('WinDrv.WindowsClient', 'FullscreenViewportY')])
+    assert GLIDE2_SIZE[glidedrv_res(x, y)] == (1024, 768)
 
 
 def test_a_d3d_box_is_unchanged():
@@ -219,7 +243,7 @@ def test_no_block_uses_a_variable_it_sets():
 
 def test_the_model_catches_the_old_launcher():
     """The same model run over the block this replaces reports GlideDrv as the
-    windowed device - so the tests above can tell them apart."""
+    windowed device and the 5:4 open - so the tests above can tell them apart."""
     old = sf.ue_ini("System\\Unreal.ini") + [
         'if exist "%~dp0FLEETRES.EXE" (',
         '  "%~dp0FLEETRES.EXE" -ini "%~dp0System\\Unreal.ini" Engine.Engine GameRenderDevice %FR_UE1DEV%',
@@ -230,6 +254,9 @@ def test_the_model_catches_the_old_launcher():
     env = {'FR_W': '1280', 'FR_H': '960', 'FR_W43': '1280', 'FR_H43': '960', 'FR_UE1DEV': GLIDE}
     out = run_lines(old, env)
     assert out[('Engine.Engine', 'WindowedRenderDevice')] == GLIDE
+    x = int(out[('WinDrv.WindowsClient', 'FullscreenViewportX')])
+    y = int(out[('WinDrv.WindowsClient', 'FullscreenViewportY')])
+    assert GLIDE2_SIZE[glidedrv_res(x, y)] != (x, y)
 
 
 def test_the_block_keeps_its_first_line_so_a_stale_copy_is_refreshed():
