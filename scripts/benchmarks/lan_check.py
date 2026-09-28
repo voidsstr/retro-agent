@@ -390,14 +390,15 @@ class SoF(IdTech2):
                 "cfg": rf"{self.root}\{self.mod}\lancheck.cfg"}
 
     def script(self, phase, soak_frames, shots, server=None):
-        # no demo of ours and no SoF 1 server on the host: the menu and its
-        # attract loop, photographed, then a local deathmatch map
-        head, w = wait_chain(400)
-        if phase == "timedemo":
+        # no demo of ours and no SoF 1 server on the host. SINGLE PLAYER: any
+        # multiplayer map ('deathmatch 1') hits the WON check "Please insert the
+        # SOF CD" on every fleet box, disc mounted or not (requires.json); the
+        # 2026-09-28 soak asked for dm/nycdm1 and photographed a black screen.
+        # The menu 'shot' phase only ever caught the intro cinematic (black), so
+        # the soak's host-key screenshots in nyc1 are the render evidence.
+        if phase in ("timedemo", "shot"):
             return []
-        if phase == "shot":
-            return head + w + ['screenshot'] + w + ['screenshot', 'quit']
-        return self.soak_binds() + ['deathmatch 1', 'map dm/nycdm1']
+        return self.soak_binds() + ['deathmatch 0', 'map nyc1']
 
 
 class GoldSrc(IdTech2):
