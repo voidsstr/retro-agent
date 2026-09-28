@@ -196,18 +196,24 @@ def probe_ut(port, timeout=DEFAULT_TIMEOUT, host=None):
     return out
 
 
-def probe_unreal227(port, timeout=DEFAULT_TIMEOUT, host=None):
-    r"""Unreal 227 (Unreal Gold) — `\info\`, NOT the UT family's `\status\`.
+def _ue1_info(port, timeout=DEFAULT_TIMEOUT, host=None):
+    r"""Unreal engine 1 `\info\` — NOT the UT family's `\status\`.
 
     UT99 and UT2004 answer `\status\` with hostname, maptitle and numplayers.
-    Unreal 227's UdpServerQuery answers that SAME packet with only the *basic*
-    block — `\gamename\unreal\gamever\227k\mingamever\224\location\0` —
-    no hostname, no map, no count. Reusing probe_ut here would therefore report
-    a perfectly healthy server as `? | map=? | 0 players`, which is the exact
-    class of mistake this module exists to stop: a probe that guesses.
+    Unreal 226/227 and Deus Ex answer that SAME packet with the *basic* block
+    first — `\gamename\unreal\gamever\226\mingamever\224\location\0` — and
+    227k sends nothing else, so a probe that reads one `\status\` datagram
+    reports a perfectly healthy server as `? | map=? | 0 players`: the exact
+    class of mistake this module exists to stop. `\info\` carries hostname,
+    map, the counts AND `gamever`, in one datagram.
+
+    `version` is the reply's own `gamever`, reported as seen: which clients can
+    join a UE1 server is decided by that number, and a probe that dropped it is
+    how a 227k server passed for the fleet's Unreal Gold server while no staged
+    client could join it.
 
     Unreal's DeathMatchGame runs no bots unless MultiplayerBots is set, and
-    this server leaves it False, so `numplayers` is a human count.
+    the fleet's server leaves it False, so `numplayers` is a human count.
     """
     data, rtt = _ask(port, b"\\info\\", timeout, host)
     if not data:
@@ -217,6 +223,7 @@ def probe_unreal227(port, timeout=DEFAULT_TIMEOUT, host=None):
         return None
     out = {"name": info["hostname"],
            "map": info.get("mapname", "?"),
+           "version": info.get("gamever") or None,
            "rtt_ms": rtt}
     for src, dst in (("numplayers", "players"), ("maxplayers", "max_players")):
         if src in info:
@@ -224,6 +231,64 @@ def probe_unreal227(port, timeout=DEFAULT_TIMEOUT, host=None):
                 out[dst] = int(info[src])
             except ValueError:
                 pass
+    return out
+
+
+def probe_unreal227(port, timeout=DEFAULT_TIMEOUT, host=None):
+    r"""Any UE1 server that answers `\info\` — today, Deus Ex.
+
+    The name is historical: it was written for the OldUnreal 227k Unreal Gold
+    server, which the fleet no longer runs (see probe_unreal226). It judges
+    only "is it answering", and reports the `gamever` it saw.
+    """
+    return _ue1_info(port, timeout, host)
+
+
+# The staged UnrealGold tree is retail Unreal Gold patched to 226 Final
+# (Games-Library/_patches/README.txt). Its client joins ONLY a server of the
+# same package generation: measured on .124 on 2026-09-28, a 226 client
+# connecting to the OldUnreal 227k server logged
+#     Warning: Failed to load 'UnrealI': Package 'UnrealI' version mismatch
+# although that server advertised `mingamever\224`. mingamever is only the
+# version-NUMBER floor; the package GENERATION check runs regardless. So the
+# question is "is it 226", not "is it at least 224".
+UNREAL_GOLD_CLIENT_GAMEVER = 226
+
+
+def unreal_gold_join_problem(gamever):
+    """None if the staged Unreal Gold client can join a server reporting
+    `gamever`, else one line saying why not. A version we cannot read is a
+    problem too: "we could not tell" must never render as "joinable"."""
+    if not gamever:
+        return ("reply carries no gamever - cannot tell whether the staged "
+                f"{UNREAL_GOLD_CLIENT_GAMEVER} client can join")
+    m = re.match(r"\s*(\d+)", gamever)
+    if not m:
+        return f"gamever {gamever!r} is not a version number"
+    if int(m.group(1)) != UNREAL_GOLD_CLIENT_GAMEVER:
+        return (f"gamever {gamever}: the staged {UNREAL_GOLD_CLIENT_GAMEVER} "
+                "client cannot join it (different package generation - "
+                "'Package UnrealI version mismatch')")
+    return None
+
+
+def probe_unreal226(port, timeout=DEFAULT_TIMEOUT, host=None):
+    r"""The fleet's Unreal Gold server — `\info\`, AND a `gamever` the staged
+    226 client can actually join.
+
+    Answering is not enough here, because the failure this probe exists for
+    answered perfectly: the 227k server replied to every query with a name, a
+    map and 0/12 players, the wall showed it green, and no fleet box could get
+    in. So a reply whose `gamever` is not 226 comes back carrying a `problem`,
+    which collect() reports as NOT up — and which the watchdog leaves alone,
+    because restarting the wrong server version cannot make it the right one.
+    """
+    out = _ue1_info(port, timeout, host)
+    if not out:
+        return None
+    problem = unreal_gold_join_problem(out.get("version"))
+    if problem:
+        out["problem"] = problem
     return out
 
 
@@ -418,6 +483,7 @@ PROBES = {
     "qw": probe_qw,
     "ut": probe_ut,
     "unreal227": probe_unreal227,
+    "unreal226": probe_unreal226,
     "idtech4": probe_idtech4,
     "t2": probe_t2,
     "nq": probe_nq,
@@ -494,12 +560,17 @@ SERVERS = [
      "probe": "ut",  "port": 7798,  "join": 7797},
     {"unit": "ut2004-server",      "label": "UT2004",          "engine": "ut2k4",
      "probe": "ut",  "port": 7787,  "join": 7777},
-    # Unreal Gold on OldUnreal 227k. NOT the UT probe -- see probe_unreal227.
-    # 7807/7808 because 7777 is UT2004 and 7797 is UT99; the server advertises
-    # mingamever 224, so the staged 227k client joins it.
+    # Unreal Gold 226: the staged tree's OWN System\UCC.exe under Wine in
+    # Docker (scripts/game-servers/unrealgold/), since 2026-09-28. It replaced
+    # an OldUnreal 227k Linux server that this row once claimed "the staged
+    # 227k client joins" -- there is no 227k client: the staged tree is 226
+    # Final, and a 226 client refuses 227 packages ("Package 'UnrealI' version
+    # mismatch", measured on .124) even though 227k advertises mingamever 224.
+    # So the probe checks the reply's gamever, not just that it answered.
+    # 7807/7808 because 7777 is UT2004 and 7797 is UT99.
     {"unit": "unrealgold-server",  "label": "Unreal Gold",     "engine": "unreal",
-     "probe": "unreal227", "port": 7808, "join": 7807},
-    # Deus Ex. Same `\info\` probe as Unreal 227 and the same +1 query port
+     "probe": "unreal226", "port": 7808, "join": 7807, "slow_start_sec": 120},
+    # Deus Ex. Same `\info\` probe as Unreal Gold and the same +1 query port
     # (7790 -> 7791); probing 7776/7777 times out and reads as "no server".
     {"unit": "deusex-server",      "label": "Deus Ex",         "engine": "unreal",
      "probe": "unreal227", "port": 7791, "join": 7790, "slow_start_sec": 120},
@@ -786,6 +857,12 @@ def collect(servers=None, proxies=None, timeout=DEFAULT_TIMEOUT, host=None):
             "map": None,
             "name": None,
             "ping_ms": None,
+            # What the server says it IS (a UE1 `gamever`), when the probe can
+            # read one -- and, if the answer rules out the fleet's clients,
+            # why. An answering server with a `problem` is not up: the fleet
+            # cannot use it. See probe_unreal226.
+            "version": None,
+            "problem": None,
         }
         # Not installed is not a fault, and probing a port nothing listens on
         # just spends the timeout.
@@ -805,7 +882,9 @@ def collect(servers=None, proxies=None, timeout=DEFAULT_TIMEOUT, host=None):
             info = None
         if info:
             rec.update({
-                "up": True,
+                "up": not info.get("problem"),
+                "version": info.get("version"),
+                "problem": info.get("problem"),
                 "name": info.get("name"),
                 "map": info.get("map"),
                 "players": info.get("players"),
@@ -865,12 +944,15 @@ def main():
         if not r.get("installed"):
             print(f"  --  {r['label']:<18} not installed")
             continue
-        mark = "OK " if r["up"] else "DOWN"
+        mark = "OK " if r["up"] else ("BAD " if r.get("problem") else "DOWN")
         players = "-" if r["players"] is None else \
             f"{r['players']}/{r['max_players'] or '?'}"
         ping = "-" if r["ping_ms"] is None else f"{r['ping_ms']}ms"
+        ver = f"  [gamever {r['version']}]" if r.get("version") else ""
         print(f"  {mark} {r['label']:<18} {r['unit_state']:<10} "
-              f"{players:>6} {ping:>8}  {r['map'] or ''}")
+              f"{players:>6} {ping:>8}  {r['map'] or ''}{ver}")
+        if r.get("problem"):
+            print(f"       {'':<18} ^ answering, but {r['problem']}")
     for p in snap["proxies"]:
         if p["installed"]:
             print(f"  {'OK ' if p['up'] else 'DOWN'} {p['label']:<18} {p['unit_state']}")

@@ -120,24 +120,35 @@ every bound of the restart policy).
 | QuakeWorld | `quakeworld-server` | **27502** | `~/qw-server` |
 | UT99 (469e) | `ut99-server` | **7797** (query 7798) | `~/ut99-server` |
 | UT2004 | `ut2004-server` | **7777** (query 7787) | `~/ut2004-server` |
+| Unreal Gold **226** | `unrealgold-server` | **7807** (query 7808, beacon 7775) | `~/unrealgold-server` — the staged tree's own `UCC.exe` under Wine; see [`unrealgold/`](unrealgold/README.md) |
 | Tribes 2 | `tribes2-server` (docker) | **28000** | `retro-agent-private/.../tribes2-docker` |
 
-### Two engines whose server can only run ON A FLEET BOX — not here (2026-08-31)
+### Deus Ex and Unreal Gold 226 — once fleet-box-only, now Wine on this host
 
-`healthcheck.py` will never list these, and that is correct:
+> **Superseded.** This section was written on 2026-08-31, when this host had
+> no Wine and both servers could only run on a fleet box. Both now run here
+> under Wine in docker: `deusex-server` (2026-09-01) and, since
+> **2026-09-28**, `unrealgold-server` as **Unreal 226** — the staged tree's
+> own `System\UCC.exe` ([`unrealgold/`](unrealgold/README.md)). The box-hosted
+> launchers below still work and are still the LAN fallback.
 
-| Game | Where the server runs | Ports (UDP) | Launcher |
+| Game | Box-hosted fallback | Ports (UDP) | Launcher |
 |---|---|---|---|
 | Deus Ex | any fleet box | **7790** (query 7791) | `Games-Library/DeusEx/Host Deus Ex Multiplayer.bat` |
 | Unreal Gold 226 | any fleet box | **7777** (query 7778, LAN beacon 7775) | `Games-Library/UnrealGold/Host Unreal Gold LAN.bat` |
 
-Neither engine has a Linux build, and there is no wine on this host. **The
-OldUnreal 227k Linux server DOES run here** — `ucc-bin-amd64` over the staged
-Unreal Gold data — but a retail **226 client cannot join it**, so it is not
-installed as a unit: a server nobody can join is worse than no server, because
-it reports itself healthy. The server advertises `\mingamever\224`, which reads
-as "224 and up are welcome" and is only the version-NUMBER floor; the package
-GENERATION check still runs and the client aborts with
+**The 227k trap, which cost this server twice.** The OldUnreal 227k Linux
+server (`ucc-bin-amd64` over the staged Unreal Gold data) runs here happily,
+and a retail **226 client cannot join it**. It was recorded as such on
+2026-08-31, installed as `unrealgold-server` anyway on 2026-09-01 with a
+comment claiming "the staged 227k client joins it" (there is no staged 227k
+client), and re-measured failing on `.124` on 2026-09-28 before it was
+replaced. A server nobody can join is worse than no server, because it
+reports itself healthy — which is why `probe_unreal226` now checks `gamever`
+and not merely that the server answered. The server advertises
+`\mingamever\224`, which reads as "224 and up are welcome" and is only the
+version-NUMBER floor; the package GENERATION check still runs and the client
+aborts with
 
 ```
 DevNet: PendingLevel received: CHALLENGE VER=226 RVER=227 ...
@@ -531,6 +542,7 @@ container is the whole reason these exist at all rather than costing a fleet box
 |---|---|---|---|
 | `descent3-server` | Descent 3 (`main.exe -dedicated Dedicated.cfg`) | TCP+UDP **2092** | `retro-wine:bookworm` |
 | `farcry-server` | Far Cry 1.4 (`Bin32\FarCry_WinSV.exe`) | UDP **49001** | `retro-wine:bookworm` |
+| `unrealgold-server` (2026-09-28) | Unreal Gold 226 (`System\UCC.exe server`) | UDP **7807** (query 7808, beacon 7775) | `retro-wine:bookworm` — no Xvfb (console program), runs as the tree's owner; [`unrealgold/`](unrealgold/README.md) |
 
 Trees: `~/descent3-server` (494 MB — movies, Mercenary and the editor excluded)
 and `~/farcry-server` (3.6 GB). Launch scripts live in each tree's `_run/`.

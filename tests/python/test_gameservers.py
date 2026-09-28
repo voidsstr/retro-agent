@@ -833,9 +833,130 @@ def test_every_wine_in_docker_server_declares_a_slow_start():
     """These are the rows the grace exists for; a new one must not forget it."""
     slow = {s["unit"]: s.get("slow_start_sec", 0) for s in gameservers.SERVERS}
     for unit in ("doom3-server", "deusex-server", "ssam-tfe-server",
-                 "ssam-tse-server", "shogo-server"):
+                 "ssam-tse-server", "shogo-server", "unrealgold-server"):
         assert slow.get(unit, 0) >= 120, (
             "%s runs a Windows server under Wine in docker and needs a "
             "start-up grace, or the watchdog restarts it mid-boot" % unit)
     assert slow["shogo-server"] >= 180, (
         "Shogo's wizard alone takes ~70s before the port is bound")
+
+
+# ---------------------------------------------------------------------------
+# Unreal Gold 226 (2026-09-28). The fleet's Unreal Gold server was OldUnreal
+# 227k, which answered every query perfectly while no staged client could
+# join it: the staged tree is 226 Final, and a 226 client connecting to it on
+# .124 logged "Package 'UnrealI' version mismatch". It was replaced by the
+# staged tree's own UCC.exe under Wine, and the probe now checks gamever.
+# ---------------------------------------------------------------------------
+
+# Captured from the live 226 server (unrealgold-server, :7808), 2026-09-28.
+UNREAL226_INFO = (
+    b"\\hostname\\NSC Retro Fleet Arena (Unreal Gold)\\shortname\\NSC Unreal"
+    b"\\hostport\\7807\\mapname\\DMDeck16\\gametype\\DeathMatch"
+    b"\\numplayers\\0\\maxplayers\\12\\gamemode\\openplaying"
+    b"\\gamever\\226\\mingamever\\224\\final\\\\queryid\\18.1"
+)
+
+
+def test_unreal226_accepts_the_staged_clients_version(canned):
+    canned(UNREAL226_INFO)
+    r = gameservers.probe_unreal226(7808)
+    assert r["name"] == "NSC Retro Fleet Arena (Unreal Gold)"
+    assert r["map"] == "DMDeck16"
+    assert r["version"] == "226"
+    assert (r["players"], r["max_players"]) == (0, 12)
+    assert "problem" not in r
+
+
+def test_unreal226_flags_the_227k_server_that_answered_perfectly(canned):
+    """The regression this probe exists for. The 227k reply has a name, a map
+    and a player count -- every field the old probe asked for -- and not one
+    staged client could join. It must come back saying WHAT it saw and why
+    that rules it out, not as a healthy row and not as a silent None."""
+    canned(UNREAL227_INFO)
+    r = gameservers.probe_unreal226(7808)
+    assert r is not None, "it answered; say what it said"
+    assert r["version"] == "227k"
+    assert r["name"] == "NSC Retro Fleet Arena (Unreal Gold)"
+    assert "227k" in r["problem"] and "226" in r["problem"]
+
+
+def test_the_generic_ue1_probe_reports_gamever_without_judging_it(canned):
+    """Deus Ex rides probe_unreal227; its gamever (1100) is not a fault."""
+    canned(UNREAL227_INFO)
+    r = gameservers.probe_unreal227(7808)
+    assert r["version"] == "227k"
+    assert "problem" not in r
+
+
+@pytest.mark.parametrize("gamever,ok", [
+    ("226", True),
+    ("226b", True),          # a lettered 226 is still the 226 generation
+    ("227k", False),         # OldUnreal: the version that stranded the fleet
+    ("227", False),
+    ("225", False),          # mingamever-style "at least 224" is NOT the rule
+    ("224", False),
+    ("", False),             # could not tell != joinable
+    (None, False),
+    ("final", False),
+])
+def test_unreal_gold_join_rule(gamever, ok):
+    assert (gameservers.unreal_gold_join_problem(gamever) is None) is ok
+
+
+def _unrealgold_snapshot(monkeypatch, reply):
+    monkeypatch.setattr(gameservers, "unit_states",
+                        lambda units, *a: {"unrealgold-server": {"state": "active"}})
+    monkeypatch.setattr(gameservers, "_ask", lambda *a, **k: (reply, 3.0))
+    return gameservers.collect(servers=[
+        {"unit": "unrealgold-server", "label": "Unreal Gold", "engine": "unreal",
+         "probe": "unreal226", "port": 7808, "join": 7807}], proxies=[])
+
+
+def test_a_wrong_version_server_is_not_up_and_says_why(monkeypatch):
+    snap = _unrealgold_snapshot(monkeypatch, UNREAL227_INFO)
+    row = snap["servers"][0]
+    assert row["up"] is False
+    assert row["version"] == "227k"
+    assert row["problem"] and "cannot join" in row["problem"]
+    assert row["name"] == "NSC Retro Fleet Arena (Unreal Gold)"   # still says what it saw
+    assert snap["down"] == ["unrealgold-server"]
+
+
+def test_a_right_version_server_is_up_with_its_version(monkeypatch):
+    snap = _unrealgold_snapshot(monkeypatch, UNREAL226_INFO)
+    row = snap["servers"][0]
+    assert row["up"] is True and row["problem"] is None
+    assert row["version"] == "226"
+    assert snap["down"] == []
+
+
+def test_the_watchdog_does_not_bounce_a_wrong_version_server():
+    """A restart brings back the same binary with the same gamever. Restarting
+    it every cooldown would bury the finding under 'restarted' forever."""
+    w = watch.Watch()
+    row = _row(unit="unrealgold-server", up=False,
+               problem="gamever 227k: the staged 226 client cannot join it")
+    w.mute_streak["unrealgold-server"] = watch.PROBE_FAIL_LIMIT * 10
+    should, why = w.decide(row, 100000.0)
+    assert should is False
+    assert "227k" in why and "needs a human" in why
+
+
+def test_a_dead_unit_is_still_restarted_whatever_its_last_answer_was():
+    """The version rule must not shelter a server that has actually died."""
+    w = watch.Watch()
+    row = _row(unit="unrealgold-server", up=False, unit_state="failed",
+               problem="gamever 227k: the staged 226 client cannot join it")
+    should, why = w.decide(row, 100000.0)
+    assert should is True and "failed" in why
+
+
+def test_the_unreal_gold_row_checks_the_version():
+    row = next(s for s in gameservers.SERVERS if s["unit"] == "unrealgold-server")
+    assert row["probe"] == "unreal226"
+    assert row["probe"] in gameservers.PROBES
+    # Same ports the 227k server had: every client's favourites point there.
+    assert (row["port"], row["join"]) == (7808, 7807)
+    deus = next(s for s in gameservers.SERVERS if s["unit"] == "deusex-server")
+    assert deus["probe"] == "unreal227", "Deus Ex is not a 226 client"

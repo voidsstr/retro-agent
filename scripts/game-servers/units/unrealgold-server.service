@@ -1,16 +1,24 @@
 [Unit]
-Description=Unreal Gold Dedicated Server (OldUnreal 227k) - NSC Retro Fleet Arena
-After=network-online.target
+Description=Unreal Gold 226 Dedicated Server (staged UCC.exe, Wine in Docker) - NSC Retro Fleet Arena
+After=network-online.target docker.service
 Wants=network-online.target
 
+# The staged UnrealGold tree's own System\UCC.exe over its own packages, so the
+# fleet's 226 Final clients can join. This REPLACED the OldUnreal 227k Linux
+# server on 2026-09-28: a 226 client refuses a 227 server's packages
+# ("Package 'UnrealI' version mismatch"). The 227k unit is kept, disabled, as
+# unrealgold227-server.service -- see scripts/game-servers/unrealgold/README.md
+# for the rollback. Same ports as before (join 7807, query 7808, beacon 7775)
+# so every client's favourites and retro-gameindex stay valid.
 [Service]
 Type=simple
-WorkingDirectory=/home/voidsstr/unreal-server/System64
-ExecStart=/home/voidsstr/unreal-server/System64/ucc-bin-amd64 server DmDeck16.unr?game=UnrealShare.DeathMatchGame?maxplayers=12 -ini=UnrealServer.ini -nohomedir
+WorkingDirectory=/home/voidsstr/unrealgold-server
+ExecStart=/home/voidsstr/unrealgold-server/_run/run-ug-server.sh
+ExecStop=/usr/bin/docker stop -t 10 ugsrv
 Restart=always
-RestartSec=10
-StandardOutput=append:/home/voidsstr/unreal-server/server.log
-StandardError=append:/home/voidsstr/unreal-server/server.log
+RestartSec=20
+StandardOutput=append:/home/voidsstr/unrealgold-server/server.log
+StandardError=append:/home/voidsstr/unrealgold-server/server.log
 
 [Install]
 WantedBy=default.target

@@ -4,9 +4,11 @@
 Each engine family needs its OWN query packet -- probing them all with Quake's
 `getstatus` produces false "down" reports (Q2, UT and Tribes 2 all ignore it).
 """
-import socket, re, struct, sys
+import os, socket, re, struct, sys
 
-HOST = "192.168.1.132"
+# Same override as gameservers.py, so the check can be pointed at 127.0.0.1
+# (or the host's current LAN address) without editing the file.
+HOST = os.environ.get("RETRO_GAMESERVER_HOST", "192.168.1.132")
 
 def ask(port, payload, timeout=3.0, host=None):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.settimeout(timeout)
@@ -76,7 +78,25 @@ def unreal227(port):
     t = r.decode('latin-1', 'replace')
     n = re.search(r'\\hostname\\([^\\]+)', t); m = re.search(r'\\mapname\\([^\\]+)', t)
     if not n: return None
-    return "%s | map=%s" % (n.group(1), m.group(1) if m else '?')
+    v = re.search(r'\\gamever\\([^\\]+)', t)
+    return "%s | map=%s | gamever=%s" % (n.group(1), m.group(1) if m else '?',
+                                         v.group(1) if v else '?')
+
+def unreal226(port):
+    r"""The fleet's Unreal Gold server: `\info\` AND gamever 226.
+
+    The staged UnrealGold tree is 226 Final, and a 226 client refuses a 227
+    server's packages ("Package 'UnrealI' version mismatch", measured on .124
+    2026-09-28) even though 227k advertises mingamever 224. A 227k server
+    answered this check perfectly for weeks while no fleet box could join it,
+    so an answer with the wrong gamever is a FAILURE here, not an OK.
+    """
+    res = unreal227(port)
+    if res is None: return None
+    v = re.search(r'gamever=(\d+)', res)
+    if not v or int(v.group(1)) != 226:
+        return False, res + " -- NOT 226: the staged client cannot join"
+    return res
 
 def nq(port, game=b"QUAKE"):        # NetQuake control protocol: Quake 1, Hexen II
     """Quake 1 / Hexen II answer NEITHER `getstatus` NOR `status` -- they speak
@@ -188,8 +208,10 @@ CHECKS = [
     ("quakeworld-server",  "QuakeWorld",          27502, qw),
     ("ut99-server",        "UT99 (query 7798)",    7798, ut),
     ("ut2004-server",      "UT2004 (query 7787)",  7787, ut),
-    ("unrealgold-server",  "Unreal Gold (query 7808)", 7808, unreal227),
-    # Deus Ex answers `\info\` like Unreal 227, NOT `\status\`. Query port
+    # Unreal Gold 226 -- the staged tree's own UCC.exe under Wine (2026-09-28;
+    # it replaced a 227k server the staged 226 client could not join).
+    ("unrealgold-server",  "Unreal Gold (query 7808)", 7808, unreal226),
+    # Deus Ex answers `\info\` like Unreal Gold, NOT `\status\`. Query port
     # is the game port + 1 (7790 -> 7791); probing 7776/7777 times out and
     # reads as "no server at all".
     ("deusex-server",      "Deus Ex (query 7791)", 7791, unreal227),
@@ -215,6 +237,9 @@ for unit, label, port, fn in CHECKS:
     if res is None:
         fail += 1
         print("  [DOWN] %-20s %-22s :%-6d NO RESPONSE" % (unit, label, port))
+    elif isinstance(res, tuple):        # (False, why): it answered, and the answer is wrong
+        fail += 1
+        print("  [BAD ] %-20s %-22s :%-6d %s" % (unit, label, port, res[1]))
     else:
         print("  [ OK ] %-20s %-22s :%-6d %s" % (unit, label, port, res))
 print("\n%d/%d responding" % (len(CHECKS) - fail, len(CHECKS)))

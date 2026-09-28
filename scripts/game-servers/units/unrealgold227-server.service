@@ -1,0 +1,25 @@
+[Unit]
+Description=Unreal Gold Dedicated Server (OldUnreal 227k) - ROLLBACK ONLY, keep disabled
+After=network-online.target
+Wants=network-online.target
+
+# RETIRED 2026-09-28 and kept only so it can be restored. This was
+# unrealgold-server.service until the fleet's staged 226 Final clients were
+# measured failing to join it on .124:
+#     Warning: Failed to load 'UnrealI': Package 'UnrealI' version mismatch
+# It binds the SAME ports as the 226 server that replaced it (7807 / 7808 /
+# 7775), so the two must never run at once -- and do NOT `enable --now` this
+# unit to roll back: the watchdog restarts unrealgold-server as soon as it
+# reads inactive. The rollback installs THIS file AS unrealgold-server.service;
+# see scripts/game-servers/unrealgold/README.md.
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/unreal-server/System64
+ExecStart=/home/voidsstr/unreal-server/System64/ucc-bin-amd64 server DmDeck16.unr?game=UnrealShare.DeathMatchGame?maxplayers=12 -ini=UnrealServer.ini -nohomedir
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/voidsstr/unreal-server/server.log
+StandardError=append:/home/voidsstr/unreal-server/server.log
+
+[Install]
+WantedBy=default.target

@@ -101,10 +101,13 @@ LOCAL_SERVERS = [
          name="NSC Retro Fleet Arena - UT99"),
     dict(engine="ut2k4", port=7777, query_port=7787, gamename="ut2004",
          name="NSC Retro Fleet Arena - UT2004"),
-    # Unreal Gold on OldUnreal 227k. gamename "unreal" (not "ut") is what the
-    # UdpServerQuery reports and is what `accepts` matches on, so a UT99 box is
-    # never handed it. NOTE the query is `\info\`, not the UT family's
-    # `\status\` -- see masters._unreal_probe.
+    # Unreal Gold 226 -- the staged tree's own UCC.exe under Wine since
+    # 2026-09-28 (it replaced an OldUnreal 227k server that the staged 226
+    # clients could not join; same ports, so this row did not change).
+    # gamename "unreal" (not "ut") is what the UdpServerQuery reports and is
+    # what `accepts` matches on, so a UT99 box is never handed it. NOTE the
+    # hostname is in the `\info\` reply, not the first `\status\` datagram --
+    # see masters._gamespy_status.
     dict(engine="unreal", port=7807, query_port=7808, gamename="unreal",
          name="NSC Retro Fleet Arena - Unreal Gold"),
     # Deus Ex. Same UE1 GameSpy shape as Unreal/UT99 and the same +1 query

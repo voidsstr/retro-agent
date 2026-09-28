@@ -127,6 +127,15 @@ class Watch:
         elif row["up"]:
             self.mute_streak[unit] = 0
             return False, None
+        elif row.get("problem"):
+            # It ANSWERED, and the answer rules it out -- e.g. an Unreal Gold
+            # server of a package generation the staged clients refuse. A
+            # restart brings back the same binary with the same version, so
+            # bouncing it every five minutes would only add churn to the
+            # journal and hide the real finding under "restarted".
+            self.mute_streak[unit] = 0
+            return False, (f"answering, but {row['problem']} — a restart "
+                           f"cannot fix this; needs a human")
         else:
             # A server that is STILL STARTING is not a wedged one. Three mute
             # cycles is 60s, and the Wine-in-docker servers legitimately take
