@@ -1,0 +1,2 @@
+{"mode": "fill", "error": "unparsable RESULT line", "raw": "RESULT {\"error\":\"cannot load C:\\Games\\Quake2Complete\\glide3x.dll (126)\"}", "cleanup": {"images": ["glidelab.exe"], "found": [], "killed": [], "left": [], "spared": [], "gone": true, "pace_mark": true, "rested_s": 5.0}, "host": "192.168.1.124"}
+{"mode": "fill", "res": "1024x768", "cfg": 0, "chips": 1, "frames": 200, "frames_run": 200, "layers": 4, "blend": 0, "seconds": 1.9054, "fps": 104.96, "mpix_s": 330.2, "opened_hz": 60, "focus_lost": false, "host": "192.168.1.124"}
