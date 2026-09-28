@@ -1,0 +1,41 @@
+/* vcrdd.rc - the display driver's version resource.
+ *
+ * DirectX reports a display driver's FILE VERSION as the adapter's
+ * DriverVersion (D3DADAPTER_IDENTIFIER8 / DDDEVICEIDENTIFIER). With no
+ * VERSIONINFO at all vcrdd.dll read as 0.0.0.0, and Halo 1.10 refused the V5
+ * 6000 with a FATAL "your video driver is known to have serious issues"
+ * (.124, 2026-09-28) - games check that number. 6.14 is the major/minor every
+ * XP (NT 5.1) display driver carries; the last two words are vcr-kmd's own
+ * build, bumped with the driver. */
+#include <winver.h>
+
+#define VCR_VER_BIN 6,14,1,1
+#define VCR_VER_STR "6.14.1.1\0"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     VCR_VER_BIN
+PRODUCTVERSION  VCR_VER_BIN
+FILEFLAGSMASK   0x3fL
+FILEFLAGS       0x0L
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_DRV
+FILESUBTYPE     VFT2_DRV_DISPLAY
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName",      "retro-agent clean-room project\0"
+            VALUE "FileDescription",  "vcr-kmd display driver (Voodoo 3/4/5, open source)\0"
+            VALUE "FileVersion",      VCR_VER_STR
+            VALUE "InternalName",     "vcrdd\0"
+            VALUE "OriginalFilename", "vcrdd.dll\0"
+            VALUE "ProductName",      "vcr-kmd\0"
+            VALUE "ProductVersion",   VCR_VER_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

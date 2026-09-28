@@ -64,8 +64,10 @@ $(OUT)/vcrdd_3d.o: display/vcrdd_3d.c $(wildcard include/*.h display/*.h) $(DD_D
 $(OUT)/vcr_fog.o: common/vcr_fog.c include/vcr_fog.h | $(OUT)
 	$(CC) $(filter-out -mgeneral-regs-only,$(KCFLAGS)) -c common/vcr_fog.c -o $@
 
-$(OUT)/vcrdd.dll: $(DD_SRC) $(OUT)/vcrdd_3d.o $(OUT)/vcr_fog.o display/vcrdd.def $(wildcard include/*.h display/*.h) $(DD_DDI_DEP) | $(OUT)
-	$(CC) $(DD_DDI) $(KCFLAGS) $(DD_SRC) $(OUT)/vcrdd_3d.o $(OUT)/vcr_fog.o display/vcrdd.def -o $@ $(KLDFLAGS) \
+$(OUT)/vcrdd_res.o: display/vcrdd.rc | $(OUT)
+	$(CROSS)windres -O coff display/vcrdd.rc -o $@
+$(OUT)/vcrdd.dll: $(DD_SRC) $(OUT)/vcrdd_3d.o $(OUT)/vcr_fog.o $(OUT)/vcrdd_res.o display/vcrdd.def $(wildcard include/*.h display/*.h) $(DD_DDI_DEP) | $(OUT)
+	$(CC) $(DD_DDI) $(KCFLAGS) $(DD_SRC) $(OUT)/vcrdd_3d.o $(OUT)/vcr_fog.o $(OUT)/vcrdd_res.o display/vcrdd.def -o $@ $(KLDFLAGS) \
 	      -Wl,--entry,_DrvEnableDriver@12 -lwin32k -lgcc
 
 # vcrprobe.sys: a plain NT driver (not a miniport), loaded on the fly for captures
