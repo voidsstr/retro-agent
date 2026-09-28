@@ -49,7 +49,39 @@ def parse(text):
     return {"frames": tics, "seconds": round(real / 35.0, 2), "fps": round(tics * 35.0 / real, 1) if real else None}
 
 
-async def run_job(c, tag, directory, command, timeout):
+class Link:
+    """The agent connection, re-opened when a poll times out. A Win9x agent
+    before 1.89.1 runs a LAUNCHed DOS job INSIDE its own console and goes deaf
+    for the job's whole run the moment another client connects (measured on
+    .243 2026-09-28) - it answers again when the job ends. So a timed-out poll
+    is a reason to reconnect and keep waiting for the .END marker, not to die."""
+
+    def __init__(self, host):
+        self.host, self.c, self.stalls = host, None, 0
+
+    async def open(self, deadline):
+        while True:
+            try:
+                c = RetroConnection(self.host, 9898)
+                await c.connect(os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret"), timeout=20.0)
+                self.c = c
+                return c
+            except Exception:
+                if time.time() > deadline:
+                    raise
+                await asyncio.sleep(10)
+
+    async def drop(self):
+        try:
+            if self.c:
+                await self.c.close()
+        except Exception:
+            pass
+        self.c = None
+
+
+async def run_job(link, tag, directory, command, timeout):
+    c = link.c
     await cmd(c, "DELETE %s\\RES\\%s.END" % (BENCH, tag))
     await cmd(c, "DELETE %s\\RES\\%s.TXT" % (BENCH, tag))
     await cmd(c, "UPLOAD %s\\%s.BAT" % (BENCH, tag), binary_payload=job_bat(tag, directory, command).encode("ascii"))
@@ -57,17 +89,28 @@ async def run_job(c, tag, directory, command, timeout):
     st, d = await cmd(c, "LAUNCH %s\\%s.BAT" % (BENCH, tag))
     if st != 0:
         return {"error": "LAUNCH failed: " + d.decode("ascii", "replace")}
+    stalled = 0
     while time.time() - t0 < timeout:
         await asyncio.sleep(5)
-        st, d = await cmd(c, "DOWNLOAD %s\\RES\\%s.END" % (BENCH, tag))
+        try:
+            st, d = await cmd(link.c, "DOWNLOAD %s\\RES\\%s.END" % (BENCH, tag))
+        except Exception:
+            stalled += 1
+            link.stalls += 1
+            await link.drop()
+            await link.open(t0 + timeout)
+            continue
         if st == 1:
             break
     else:
         return {"error": "no .END after %d s - the job may be waiting on the screen" % timeout}
+    c = link.c
     st, d = await cmd(c, "DOWNLOAD %s\\RES\\%s.TXT" % (BENCH, tag))
     text = d.decode("latin-1") if st == 1 else ""
     res = parse(text) or {"error": "no 'timed ... gametics' line", "tail": text[-300:]}
     res["wall_s"] = round(time.time() - t0, 1)
+    if stalled:
+        res["agent_stalled_polls"] = stalled
     return res
 
 
@@ -84,8 +127,8 @@ async def main():
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     outdir = os.path.join(REPO, "scripts", "benchmarks", "results", "%s_dosbox_%s" % (a.host, stamp))
     os.makedirs(outdir, exist_ok=True)
-    c = RetroConnection(a.host, 9898)
-    await c.connect(os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret"), timeout=60.0)
+    link = Link(a.host)
+    c = await link.open(time.time() + 60)
     results, meta, chat = [], {}, False
     try:
         st, d = await cmd(c, "HWPROFILE"); meta["hwprofile"] = json.loads(d)
@@ -100,7 +143,8 @@ async def main():
             title, directory, command = j.split("|")
             for r in range(a.runs):
                 tag = "J%dR%d" % (i, r)
-                res = await run_job(c, tag, directory, command, a.timeout)
+                res = await run_job(link, tag, directory, command, a.timeout)
+                c = link.c
                 res.update({"title": title, "dir": directory, "command": command, "run": r + 1})
                 results.append(res)
                 print(json.dumps(res), flush=True)
@@ -108,9 +152,9 @@ async def main():
     finally:
         try:
             if chat:
-                await cmd(c, r"LAUNCH C:\RETRO_AGENT\retro_chat.exe")
+                await cmd(link.c, r"LAUNCH C:\RETRO_AGENT\retro_chat.exe")
         finally:
-            await c.close()
+            await link.drop()
     hw = meta.get("hwprofile", {})
     json.dump({"host": a.host, "when": stamp, "results": results, "meta": meta},
               open(os.path.join(outdir, "results.json"), "w"), indent=2)

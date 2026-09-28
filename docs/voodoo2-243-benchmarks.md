@@ -50,6 +50,32 @@ was printed: the demo ends with its own level change (to `base2`), which
 overrides the harness's `nextserver "killserver; quit"`. The score line is
 written before that, and the next run started cleanly each time.
 
+## DOS titles in a Win98 DOS box — Doom-engine `-timedemo` (2026-09-28)
+
+Tool: [`scripts/benchmarks/dos_win9x_bench.py`](../scripts/benchmarks/dos_win9x_bench.py)
+(`LAUNCH`es a batch, waits for its `.END` marker with `DOWNLOAD`s, parses
+`timed N gametics in M realtics`; fps = N × 35 / M). 320x200, VGA through the
+Cirrus 5436, `-nosound -nomusic`, `retro_chat.exe` stopped for the run.
+
+| title | demo | run 1 | run 2 |
+|---|---|---|---|
+| Doom 1.9 shareware (`C:\DOOM`) | demo1 | 70.7 | 70.4 (**70.6**) |
+| | demo2 | 71.9 | 74.1 (**73.0**) |
+| | demo3 | 68.8 | 69.7 (**69.3**) |
+| Hexen 1.1 (`C:\GAMES\HEXEN`) | demo1 | 104.1\* | 113.7 |
+
+- **Doom ran its saved settings** (`DEFAULT.CFG`: `screenblocks 10` = full width
+  with the status bar, `detaillevel 0` = high). **Hexen has no `HEXEN.CFG`**, so it
+  ran on the engine's built-in defaults. Different engines, different demos: the
+  two titles' numbers are not comparable with each other.
+- \* Hexen's first run is the cold one (the WAD read through the Win98 cache).
+- An earlier, aborted pass read Doom demo1 at 72.1 (5026 gametics / 2439 realtics).
+- **Agent 1.86.1 went deaf for every run** (a `LAUNCH`ed DOS child shared its
+  console VM - fixed in 1.89.1); the tool now reconnects through the stall
+  (`agent_stalled_polls` in `results.json`) instead of dying. The scores are the
+  engine's own tic counts and are not affected.
+- Heretic is present only as its installer (`C:\HERETIC\HTIC_V10.EXE`); not run.
+
 ## Verified in-game on the Voodoo (F11 frames from the Voodoo framebuffer)
 
 | title | shortcut | evidence |
