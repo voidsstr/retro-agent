@@ -342,8 +342,8 @@ def test_the_icon_is_a_real_icon():
     _skip_unless_share()
     for name in TITLES:
         tree = os.path.join(LIB, name)
-        ico = os.path.join(tree, 'SeriousSam.ico')
-        assert os.path.isfile(ico), '%s has no SeriousSam.ico' % name
+        ico = os.path.join(tree, 'SeriousSamLogo.ico')
+        assert os.path.isfile(ico), '%s has no SeriousSamLogo.ico' % name
         d = _read(ico)
         reserved, kind, count = struct.unpack_from('<HHH', d, 0)
         assert (reserved, kind) == (0, 1), '%s: not an ICO file' % name
@@ -352,6 +352,12 @@ def test_the_icon_is_a_real_icon():
         for i in range(count):
             w, h = d[6 + i * 16], d[7 + i * 16]
             sizes.add((w or 256, h or 256))
+        # Every image must be a BMP (DIB) entry: XP cannot decode a PNG one
+        # and drew a blank page for this icon on every box until 2026-09-28.
+        for i in range(count):
+            off = struct.unpack_from('<I', d, 6 + i * 16 + 12)[0]
+            assert d[off:off + 4] != b'\x89PNG', \
+                '%s: icon image %d is PNG - XP cannot draw it' % (name, i)
         assert (16, 16) in sizes and (32, 32) in sizes, \
             '%s: icon lacks the sizes the shell actually draws: %s' % (name, sizes)
         for exe in ('SeriousSam.exe', 'DedicatedServer.exe'):

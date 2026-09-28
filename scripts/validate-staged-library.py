@@ -114,6 +114,80 @@ def pe_subsystem_version(path):
         return None
 
 
+# An explicit icon that EXISTS can still draw as a blank generic page, and it
+# did, on every XP box, for four titles (measured on .123, 2026-09-28):
+#   * a Vista-format .ico whose every image is PNG-compressed. XP's icon
+#     loader cannot decode a PNG entry, so it has nothing to draw. The GOG
+#     icons (Warcraft I/II) and Serious Sam's were all PNG-only;
+#   * an .exe with no icon resource. Carmageddon 1's MAINPROG.EXE is a
+#     DOS4GW/LE binary - no PE, no resources, so no icon to take.
+# Windows 7 draws the PNG entries fine, which is how this hid: the file is
+# there, the path resolves, and only the XP desktop shows a blank page.
+# Returns None when the icon is drawable, else (severity, reason).
+def icon_xp_problem(path):
+    try:
+        with open(path, "rb") as fh:
+            data = fh.read()
+    except OSError as exc:
+        return ("fail", "cannot be read: %s" % exc)
+    low = path.lower()
+    if low.endswith(".ico"):
+        if len(data) < 6:
+            return ("fail", "is too short to be an icon")
+        reserved, kind, count = struct.unpack_from("<HHH", data, 0)
+        if reserved != 0 or kind != 1 or count == 0:
+            head = "a BMP" if data[:2] == b"BM" else "not an icon (no ICONDIR)"
+            return ("warn", "is %s renamed .ico - XP happens to draw a BMP, "
+                            "but it is not an icon; convert it" % head)
+        bitmaps = 0
+        for i in range(count):
+            ent = 6 + 16 * i
+            if ent + 16 > len(data):
+                return ("fail", "has a truncated icon directory")
+            off = struct.unpack_from("<I", data, ent + 12)[0]
+            if data[off:off + 4] != b"\x89PNG":
+                bitmaps += 1
+        if bitmaps == 0:
+            return ("fail", "holds only PNG-compressed images, which XP cannot "
+                            "decode - every XP box shows a blank generic icon. "
+                            "Re-save it with BMP entries (16/24/32/48)")
+        return None
+    if low.endswith((".exe", ".dll")):
+        return None if pe_has_icon(data) else (
+            "fail", "carries no icon resource (a DOS binary or an icon-less "
+                    "PE) - the shortcut shows a blank generic icon everywhere")
+    return None
+
+
+def pe_has_icon(data):
+    """True if a PE image has an RT_GROUP_ICON (14) resource."""
+    if data[:2] != b"MZ" or len(data) < 0x40:
+        return False
+    pe = struct.unpack_from("<I", data, 0x3C)[0]
+    if data[pe:pe + 4] != b"PE\0\0":
+        return False
+    nsec = struct.unpack_from("<H", data, pe + 6)[0]
+    optsz = struct.unpack_from("<H", data, pe + 20)[0]
+    opt = pe + 24
+    magic = struct.unpack_from("<H", data, opt)[0]
+    dd = opt + (96 if magic == 0x10B else 112)
+    rva, size = struct.unpack_from("<II", data, dd + 2 * 8)
+    if not rva or not size:
+        return False
+    sec = opt + optsz
+    for i in range(nsec):
+        vsz, va, rawsz, raw = struct.unpack_from("<IIII", data, sec + 40 * i + 8)
+        if va <= rva < va + max(vsz, rawsz):
+            root = raw + (rva - va)
+            named, ids = struct.unpack_from("<HH", data, root + 12)
+            for j in range(named + ids):
+                name = struct.unpack_from("<I", data, root + 16 + 8 * j)[0]
+                if name == 14:
+                    return True
+            return False
+    return False
+
+
 def mz_kind(path):
     """'PE' | 'NE' | 'LE' | 'LX' | 'MZ' for an MZ image, else None.
 
@@ -303,6 +377,11 @@ def check_title(lib, title):
                 fail("icon", "launch.txt names icon %r which is not in the "
                              "tree — it degrades silently to the auto-resolved "
                              "icon" % icon)
+            else:
+                prob = icon_xp_problem(ipath)
+                if prob:
+                    (fail if prob[0] == "fail" else warn)(
+                        "icon", "icon %r %s" % (icon, prob[1]))
 
     # --- install.reg: merged after copying; malformed = silently not merged --
     rpath = os.path.join(tdir, "install.reg")

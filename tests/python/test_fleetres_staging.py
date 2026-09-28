@@ -33,6 +33,7 @@ equivalents live in scripts/validate-staged-library.py (suite [6]).
 """
 import importlib.util
 import os
+import struct
 import re
 import sys
 
@@ -304,6 +305,13 @@ def test_launch_txt_rows_carry_an_explicit_icon():
 
 vl = _load('validate_staged_library', VALIDATOR)
 
+# A minimal icon XP can draw (one 32x32 DIB entry). The validator refuses an
+# empty or PNG-only .ico since 2026-09-28 (see test_staged_icon_xp.py), so a
+# fixture that is not ABOUT icons must still stage a real one.
+TINY_ICO = (struct.pack('<HHH', 0, 1, 1)
+            + struct.pack('<BBBBHHII', 32, 32, 0, 0, 1, 32, 40, 22)
+            + struct.pack('<IiiHH', 40, 32, 64, 1, 32) + b'\0' * 24)
+
 
 def _title(tmp_path, name, files):
     d = tmp_path / name
@@ -330,7 +338,7 @@ def test_validator_rejects_a_dosbox_conf_nobody_rewrites(tmp_path):
     _title(tmp_path, 'D', {
         'launch.txt': 'Play D.bat\tD\td.ico\r\n',
         'Play D.bat': '@echo off\r\nDOSBox.exe -conf "..\\d.conf"\r\n',
-        'd.ico': '',
+        'd.ico': TINY_ICO,
         'd.conf': '[sdl]\r\nfullscreen=true\r\nfullresolution=original\r\n',
     })
     probs = vl.check_title(str(tmp_path), 'D')
@@ -344,7 +352,7 @@ def test_validator_accepts_the_rewritten_form(tmp_path):
                        'if exist "%~dp0FLEETRES.EXE" "%~dp0FLEETRES.EXE" -ini '
                        '"%~dp0d.conf" sdl fullresolution %FR_DOSFULLRES%\r\n'
                        'DOSBox.exe -conf "..\\d.conf"\r\n'),
-        'd.ico': '',
+        'd.ico': TINY_ICO,
         'd.conf': '[sdl]\r\nfullscreen=true\r\nfullresolution=original\r\n',
         'FLEETRES.EXE': '',
         'FLEETRES.BAT': sf.FLEETRES_BAT,
@@ -539,7 +547,7 @@ def _glide_title(tmp_path, name, block):
         'launch.txt': 'Play G.bat\tG\tg.ico\r\n',
         'Play G.bat': ('@echo off\r\ncall "%~dp0FLEETRES.BAT"\r\n' + block
                        + 'start "" g.exe\r\n'),
-        'g.ico': '',
+        'g.ico': TINY_ICO,
         'g.exe': '',
         'glide2x.dll': '',
         'FLEETRES.EXE': '',

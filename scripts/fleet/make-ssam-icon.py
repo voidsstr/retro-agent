@@ -83,7 +83,7 @@ def build_icon(logo):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('library', help='Games-Library root (the writable gvfs path)')
-    ap.add_argument('--name', default='SeriousSam.ico',
+    ap.add_argument('--name', default='SeriousSamLogo.ico',
                     help='icon filename written into each title tree')
     ap.add_argument('--check', action='store_true',
                     help='report whether each icon is present and current, write nothing')
@@ -104,7 +104,12 @@ def main():
                 rc = 1
             continue
         frames = build_icon(decode_logo(os.path.join(tree, gro)))
-        frames[0].save(out, format='ICO',
+        # bitmap_format='bmp': Pillow otherwise writes every image as PNG,
+        # which only Vista+ can decode - XP drew a blank white page for this
+        # icon on every box until 2026-09-28. The filename changed then too
+        # (SeriousSam.ico -> SeriousSamLogo.ico) because the shell caches an
+        # icon by PATH and kept serving the blank after the file was fixed.
+        frames[0].save(out, format='ICO', bitmap_format='bmp',
                        sizes=[(f.width, f.height) for f in frames])
         print('%-28s wrote %s (%d bytes, sizes %s)'
               % (title, out, os.path.getsize(out),

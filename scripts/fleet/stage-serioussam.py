@@ -136,7 +136,7 @@ TITLES = {
     Do NOT "fix" the menu art. It is what the disc ships.'''),
 }
 
-ICON = 'SeriousSam.ico'
+ICON = 'SeriousSamLogo.ico'
 
 #: Files the CD's Install\ directory contains that MUST NOT be staged, because
 #: they are PER-BOX STATE the engine rewrites on exit.
@@ -402,7 +402,7 @@ def launch_txt(t):
         '# shortcuts reach the same two binaries, so auto-resolution could not',
         '# tell them apart - and it would find no icon at all either way:',
         '# SeriousSam.exe and DedicatedServer.exe both have an EMPTY PE',
-        '# resource directory. SeriousSam.ico is generated from the game\'s own',
+        '# resource directory. SeriousSamLogo.ico is generated from the game\'s own',
         '# menu-logo texture by scripts/fleet/make-ssam-icon.py.',
         '',
     ]
