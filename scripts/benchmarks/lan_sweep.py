@@ -94,9 +94,14 @@ async def run_one(box, sc, outdir, shots_at, grace):
     dr0 = await lc.file_size(box, lc.DRWTSN)
     wd = sc["wd"] or str(Path(sc["target"]).parent)
     tgt = sc["target"]
-    cmd = f'cmd /c cd /d "{wd}" && "{tgt}" {sc["args"]}'.strip()
+    # a wrapper .bat: a one-line `cmd /c cd /d X && Y` does not change
+    # directory under the agent, and a shortcut's working dir is what the
+    # game's relative paths assume
+    wrap = r"C:\RETRO_AGENT\lansweep.bat"
+    call = "call " if tgt.lower().endswith((".bat", ".cmd")) else "start \"\" "
+    await box.upload(wrap, "\r\n".join(["@echo off", f'cd /d "{wd}"', f'{call}"{tgt}" {sc["args"]}'.rstrip(), ""]))
     started = time.time()
-    await box.text(f"LAUNCH {cmd}")
+    await box.text(f"LAUNCH {wrap}")
     rec["samples"] = []
     new = {}
     for at in shots_at:

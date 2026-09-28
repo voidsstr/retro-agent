@@ -100,7 +100,11 @@ async def drvupdate(a, hwid, inf):
     path - XP guards it with a hash (measured on .124). So a second connection
     watches for the dialog and clicks the button, at its fixed offset in the
     dialog, while the install waits."""
-    task = asyncio.ensure_future(a.text(rf"DRVUPDATE {hwid} {inf}", timeout=300))
+    # ALLOW3DFX: agent 1.89.0+ changes a 3dfx device's driver only on this
+    # explicit request, and without it answers "refused" - which this tool used
+    # to print and then reboot anyway, with the old driver still installed
+    # (2026-09-28, .124: a wasted reboot). Agent 1.87.0 already parses the token.
+    task = asyncio.ensure_future(a.text(rf"DRVUPDATE {hwid} {inf} ALLOW3DFX", timeout=300))
     clicks = 0
     while not task.done():
         await asyncio.sleep(4)
@@ -264,6 +268,10 @@ async def install(a, args, evidence):
             return 2
     r, _ = await drvupdate(a, args.hwid, rf"{args.dir}\vcrkmd.inf")
     print("  DRVUPDATE:", r.strip()[:200])
+    if "OK installed" not in r:
+        # a refusal or failure is NOT an install: never reboot into the old driver
+        print("  FAIL DRVUPDATE did not install the package - NOT rebooting")
+        return 2
     svc = await a.regvals(r"SYSTEM\CurrentControlSet\Services\vcrmp")
     if not svc or "ImagePath" not in svc:
         print("  FAIL no vcrmp service key after DRVUPDATE")

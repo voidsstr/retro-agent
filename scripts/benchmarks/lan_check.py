@@ -570,7 +570,12 @@ class Launcher:
         dr_before = await file_size(box, DRWTSN)
         log(f"--- {self.tid} smoke: {self.bat}")
         started = time.time()
-        await box.text(f'LAUNCH cmd /c cd /d "{self.root}" && "{self.bat}"')
+        # a one-line `cmd /c cd /d X && Y` does not change directory under the
+        # agent (FLEETRES, SoF and this route all hit it): a wrapper .bat that
+        # cd's first and CALLs the launcher, as the shortcut's working dir does
+        wrap = r"C:\RETRO_AGENT\lanlaunch.bat"
+        await box.upload(wrap, "\r\n".join(["@echo off", f'cd /d "{self.root}"', f'call "{self.bat}"', ""]))
+        await box.text(f"LAUNCH {wrap}")
         events = sorted([(t, "key", k) for t, k in self.keys] + [(t, "shot", None) for t in self.shots_at])
         rec["shots"], rec["keys_sent"], rec["alive"] = [], [], []
         for at, kind, k in events:
