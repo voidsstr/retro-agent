@@ -85,6 +85,11 @@ char g_logfile[256] = "";
 #define MODE_THREADED   2   /* default: thread per client (truly concurrent) */
 static int g_client_mode = MODE_THREADED;
 
+int agent_console_quiet(void)
+{
+    return g_service_mode || g_client_mode == MODE_MULTIPLEX;
+}
+
 /* Multiplexed client slots */
 /* Concurrent client slots. Four was not enough for a box that runs the chat
  * client locally: retro_chat holds THREE connections of its own (command,
@@ -1434,7 +1439,11 @@ void agent_run(void)
                 log_msg(LOG_MAIN, "Connection from %s:%d",
                         inet_ntoa(client_addr.sin_addr),
                         ntohs(client_addr.sin_port));
-                if (!g_service_mode)
+                /* Not in multiplex mode: this thread serves EVERY client,
+                 * and a console write can block - on Win9x the console is a
+                 * DOS VM that a DOS child or a text selection can hold (.243,
+                 * 74 minutes, 2026-09-28). The log line above says the same. */
+                if (!agent_console_quiet())
                     printf("Connection from %s:%d\n",
                            inet_ntoa(client_addr.sin_addr),
                            ntohs(client_addr.sin_port));

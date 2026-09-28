@@ -64,4 +64,13 @@ void log_shutdown(void);
 #define LOG_VIDEO "VIDEO"
 #define LOG_PROTO "PROTO"
 
+/* 1 when nothing may be written to the console from the serving path: the
+ * service has none, and in multiplex mode (every Win9x agent) ONE thread
+ * serves every client - a console write that blocks (on 9x the console is a
+ * DOS VM a DOS child or a text selection can hold; .243 went 74 minutes
+ * deaf on 2026-09-28) stops them all. Defined in main.c. */
+int agent_console_quiet(void);
+#define CON_PRINTF(...) do { if (!agent_console_quiet()) printf(__VA_ARGS__); } while (0)
+#define CON_FLUSH()     do { if (!agent_console_quiet()) fflush(stdout); } while (0)
+
 #endif /* LOG_H */

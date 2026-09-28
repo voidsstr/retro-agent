@@ -324,8 +324,19 @@ void handle_launch(SOCKET sock, const char *args)
 
     memset(&pi, 0, sizeof(pi));
 
+    /* Win9x: the child gets its OWN console. Without CREATE_NEW_CONSOLE,
+     * command.com runs inside the agent's console - which on 9x is a DOS VM -
+     * and every console write of the agent's (the accept loop's "Connection
+     * from" line, in the ONE thread that serves every client) blocks until the
+     * DOS program ends. Measured on .243 2026-09-28: a LAUNCHed FILL.BAT ran
+     * DJGPP UNZIP for 74 minutes and the agent answered nobody for exactly
+     * those 74 minutes - 9898 refused, 9897 accepted and never answered, the
+     * "dead agent" signature. A GUI program launched the same way (ScanDisk)
+     * never stalled it: command.com hands it off and returns. NT consoles are
+     * serviced by csrss, so NT keeps its old flags. */
     success = CreateProcessA(NULL, cmdline, NULL, NULL, FALSE,
-                             0, NULL, "C:\\", &si, &pi);
+                             (GetVersion() & 0x80000000UL) ? CREATE_NEW_CONSOLE : 0,
+                             NULL, "C:\\", &si, &pi);
 
     if (!success) {
         char err[256];

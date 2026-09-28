@@ -151,7 +151,7 @@ int frame_recv_timed(SOCKET sock, char **out_buf, DWORD *out_len,
         if (payload_len > 65536) {
             DWORD total = 0;
             int last_pct = -1;
-            printf("  Receiving: %lu KB\n", (unsigned long)(payload_len / 1024));
+            CON_PRINTF("  Receiving: %lu KB\n", (unsigned long)(payload_len / 1024));
             while (total < payload_len) {
                 DWORD want = payload_len - total;
                 int n;
@@ -166,13 +166,13 @@ int frame_recv_timed(SOCKET sock, char **out_buf, DWORD *out_len,
                     int pct = (int)((total * 100UL) / payload_len);
                     pct = (pct / 5) * 5;
                     if (pct > last_pct) {
-                        printf("  Receiving: %d%%\r", pct);
-                        fflush(stdout);
+                        CON_PRINTF("  Receiving: %d%%\r", pct);
+                        CON_FLUSH();
                         last_pct = pct;
                     }
                 }
             }
-            printf("  Receiving: 100%% done              \n");
+            CON_PRINTF("  Receiving: 100%% done              \n");
         } else {
             if (recv_exact(sock, buf, (int)payload_len, RECV_STALL_MS) != 0) {
                 HeapFree(GetProcessHeap(), 0, buf);

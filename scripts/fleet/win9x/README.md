@@ -22,6 +22,7 @@ Run it through the agent: `EXECW 30 C:\RETRO_AGENT\FLEET9X.EXE attrib ...`, or `
 | `devctl9x disable\|enable\|status\|persistoff\|persiston <id>... \| @file` | live `CM_Disable_DevNode`/`CM_Enable_DevNode`, or (`persist*`) ONLY `HKLM\Enum\<id>` ConfigFlags 01/00 + `RegFlushKey`, touching no devnode - for a box that freezes before a lazily flushed REGEDIT change reaches the disk (.243 with its NEC USB card, 2026-09-27). Ids from a file because COMMAND.COM caps a line at ~127 chars | `C:\RETRO_AGENT\DEVCTL.TXT` |
 | `reenum9x` | `CM_Reenumerate_DevNode` on the PCI bus (what agent 1.83.0's `PCIRESCAN` does) | `C:\RETRO_AGENT\REENUM.TXT` |
 | `regdump9x <HKDD\|HKLM\|HKCC> <key> <out>` | recursive registry dump. Reads `HKEY_DYN_DATA`, the live devnode tree, which the agent's `REGREAD` cannot | the file you name |
+| `usb9x [out]` / `usb9x watch <secs> [out]` | **read-only** UHCI probe: each controller's PCI command/status and interrupt line, USBCMD/USBSTS (running, halted, host-system-error), whether the frame number advances, and PORTSC1/2 - is a device **connected**, is the port **enabled**; plus the PIIX PIRQA-D routing, the ELCR (a PCI IRQ must be level) and the IMR. `watch` logs every register change at millisecond resolution. Only writes 0xCF8, restored; never a UHCI register | `C:\RETRO_AGENT\USB9X.TXT`, `USBWATCH.TXT` |
 | `wintext9x` | dumps every visible `#32770` dialog's controls: class, id, text, enabled, checked, rect. Lets you drive a wizard when 8-bpp screenshots are unreadable | `C:\RETRO_AGENT\WINTEXT.TXT` |
 | `deskfix9x` | re-applies the registry display mode, restores the static palette and repaints everything - brought .243 back from a black/garbled desktop after GLQuake on its Voodoo 2 (link with `-lgdi32`) | `C:\RETRO_AGENT\DESKFIX.TXT` |
 | `hash9x <file> [file ...]` | MD5 and size of each file, read 64 KB at a time. The agent's `DOWNLOAD` buffers a whole file in one heap block, which is no way to check an 80 MB pak on a 127 MB box. Proved agent 1.84.2's resume wrote Hexen II's paks correctly | `C:\RETRO_AGENT\HASH9X.TXT` |
@@ -130,3 +131,34 @@ read above head 0 fails - which also makes ESDI_506 tear down the channel.
    masked interrupt; the agent blocked on D: and died with nobody at the box.
    Both tools now refuse (exit 7) when the live devnode tree shows the channel
    or a disk on it.
+
+## A USB mouse on .243 (2026-09-28): connected, never enabled - restart the controller
+
+The VIA VT83C572 card's root hub read problem 0 and **nothing** appeared below it
+- no device, not even "Unknown Device" - with a wireless mouse plugged in.
+`usb9x` showed why: the controller was running (frames advancing, not halted),
+PORTSC2 = `01A1` (**connected, low-speed, enabled = 0**) and its connect-change
+bit already clear. Win98's hub driver acts on change bits, so a device whose
+change was consumed without the port ever being reset is ignored for good; a
+root-hub disable/enable (`devctl9x`) changed nothing (`usb9x watch` saw no port
+activity at all). **A controller disable/enable did it**: the controller reset
+re-detects the device with a fresh connect-change, and the hub enumerated it at
+once.
+
+The receiver (`USB\VID_30FA&PID_1040`) is **composite** (device class 0):
+- the parent matches `USB\COMPOSITE` in `USB.INF` only by a compatible id, so
+  Win98 opens the Add New Hardware Wizard instead of installing silently. Enter
+  through it; then answer **No** to "System Settings Change" (Yes is the
+  default and reboots the box) - no restart was needed, every node came up;
+- its two interfaces then install `HIDDEV.INF` (USB Human Interface Device) and
+  `MSMOUSE.INF` / keyboard (HID-compliant mouse, HID-compliant keyboard,
+  consumer and system control) - another wizard;
+- Setup copies from `SourcePath` (`C:\WINDOWS\OPTIONS\CABS`): stage
+  `HIDCI.DLL`, `MOUSE.DRV` and `MSMOUSE.VXD` there from `C:\WINDOWS\SYSTEM`
+  first (they were missing, so it would prompt for the CD);
+- **`hidserv.exe`** (the media-key service for the consumer-control collection)
+  is on no share and in no pack here - press **Skip File** (`wintext9x` read
+  the prompt; `UIKEY ALT+S`). The mouse and keyboard are unaffected.
+
+Drive the wizards with `UIKEY RETURN` only while `WINLIST`'s top window is a
+Setup dialog; 8-bpp screenshots on this box are unreadable, `wintext9x` is not.

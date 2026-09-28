@@ -19,6 +19,8 @@ void log_msg(const char *tag, const char *fmt, ...) { (void)tag; (void)fmt; }
 
 /* protocol.c prints transfer progress; keep the test output readable */
 #define printf(...) ((void)0)
+/* protocol.c asks main.c whether it may write to the console */
+int agent_console_quiet(void) { return 1; }
 #include "../../agent/src/protocol.c"
 #undef printf
 

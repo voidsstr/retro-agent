@@ -47,7 +47,7 @@ void handle_upload(SOCKET sock, const char *args)
         DWORD total = 0;
         int last_pct = -1;
         if (data_len > 65536)
-            printf("UPLOAD %s (%lu KB)\n", args, (unsigned long)(data_len / 1024));
+            CON_PRINTF("UPLOAD %s (%lu KB)\n", args, (unsigned long)(data_len / 1024));
         while (total < data_len) {
             DWORD chunk = data_len - total;
             if (chunk > 65536) chunk = 65536;
@@ -64,14 +64,14 @@ void handle_upload(SOCKET sock, const char *args)
                 int pct = (int)((total * 100UL) / data_len);
                 pct = (pct / 5) * 5;  /* round down to nearest 5 */
                 if (pct > last_pct) {
-                    printf("  Writing: %d%%\r", pct);
-                    fflush(stdout);
+                    CON_PRINTF("  Writing: %d%%\r", pct);
+                    CON_FLUSH();
                     last_pct = pct;
                 }
             }
         }
         if (data_len > 65536)
-            printf("  Writing: 100%% done (%lu KB)      \n",
+            CON_PRINTF("  Writing: 100%% done (%lu KB)      \n",
                    (unsigned long)(data_len / 1024));
     }
 
@@ -135,7 +135,7 @@ void handle_download(SOCKET sock, const char *args)
         DWORD total = 0;
         int last_pct = -1;
         if (file_size > 65536)
-            printf("DOWNLOAD %s (%lu KB)\n", args, (unsigned long)(file_size / 1024));
+            CON_PRINTF("DOWNLOAD %s (%lu KB)\n", args, (unsigned long)(file_size / 1024));
         while (total < file_size) {
             DWORD chunk = file_size - total;
             if (chunk > 65536) chunk = 65536;
@@ -149,21 +149,21 @@ void handle_download(SOCKET sock, const char *args)
                 int pct = (int)((total * 100UL) / file_size);
                 pct = (pct / 5) * 5;
                 if (pct > last_pct) {
-                    printf("  Reading: %d%%\r", pct);
-                    fflush(stdout);
+                    CON_PRINTF("  Reading: %d%%\r", pct);
+                    CON_FLUSH();
                     last_pct = pct;
                 }
             }
         }
         if (file_size > 65536)
-            printf("  Reading: 100%% done, sending...    \n");
+            CON_PRINTF("  Reading: 100%% done, sending...    \n");
         file_size = total;
     }
 
     CloseHandle(hFile);
     send_binary_response(sock, buf, file_size);
     if (file_size > 65536)
-        printf("  Sent %lu KB\n", (unsigned long)(file_size / 1024));
+        CON_PRINTF("  Sent %lu KB\n", (unsigned long)(file_size / 1024));
     HeapFree(GetProcessHeap(), 0, buf);
 }
 

@@ -2272,6 +2272,22 @@ Probe with a protocol-level `PING`. This is the same shape recorded for
 pre-1.20.0 shutdowns, and the fixed shutdown path does **not** help when the
 process *dies* rather than exits.
 
+> **⚠️ BUT THAT SIGNATURE IS ALSO A *STALLED* AGENT (measured 2026-09-28).** On
+> `.243`, a `LAUNCH`ed `FILL.BAT` ran DOS programs for 74 minutes and the ports
+> read exactly this - 9898 refused, 9897 accepting and never answering - while
+> the agent was alive: `LAUNCH` started `command.com` with creation flags 0, so
+> on Win9x the DOS child ran **inside the agent's own console, a DOS VM**, and the
+> one thread that serves every client blocked in its next console write
+> (`printf("Connection from")`) until the batch ended. It resumed by itself the
+> second the batch finished. The 2026-08-31 `EXEC command.com /c find ...`
+> "deaths" were very likely the same mechanism. **Agent 1.89.1** gives a 9x
+> `LAUNCH` child its own console and removes every console write from the
+> multiplex serving path (`agent_console_quiet()`). `EXEC` still runs its child
+> in the agent's console and still blocks the serving thread for its whole
+> timeout by design - keep 9x `EXEC` to short commands. Before calling a 9x agent
+> dead, check whether it is merely busy: the agent log (or the share's
+> `agent logs\<HOST>-agent.log` mirror) shows a gap, not a restart.
+
 **Recovery on Win9x needs a person** — nothing supervises the agent there (the
 `HKLM\...\Run\RetroAgent` value fires only at logon), exactly as with a bare
 `QUIT`. The machine is otherwise healthy; a reboot or double-clicking the exe
@@ -2430,6 +2446,12 @@ online, and what to keep in mind - full detail in
   (unofficial SP3.56 `SP3.CAB`; NUSB 3.3 lacks the USB 1.1 layer) with
   `MOUHID.VXD`/`KBDHID.VXD` staged so a USB mouse needs no CD. Recipe:
   fleetbook `win98se-usb-card-no-cd`.
+- **A USB mouse (a composite wireless receiver) works on `.243` (2026-09-28)**
+  after one controller restart: the port read connected-but-never-enabled with
+  its change bit already consumed, which Win98's hub driver ignores; a
+  `devctl9x` disable/enable of the VIA controller re-detected it. The procedure,
+  the Setup source files to stage, and the one file to skip (`hidserv.exe`) are
+  in `scripts/fleet/win9x/README.md`; `usb9x` reads the port state.
 - **The hard freezes cost a registry rollback.** Win98 writes its registry
   lazily; the next Registry Checker found it damaged and restored the 05:18
   backup (`SYSBCKUP\rb003.cab`; the bad one is `RBBAD.CAB`). That silently
