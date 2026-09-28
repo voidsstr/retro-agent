@@ -656,9 +656,19 @@ probably reads 0 through the blank.
    2026-09-27 and **off by default** behind `Diag\D3D32` - see Status; a
    Banshee/Voodoo3 refuses 32 bpp targets and 32-bit Z, `include/vcr_rtfmt.h`;
    86Box: no regression, `evidence/86box_v3/rt32/` and `int_20260927/`.
-   **Untested on silicon**: plan step 16 - `D3D32` = 1 for one boot,
-   `d3dprobe caps`, then 640x480x32 `--noz` clear, with Z, the full list,
-   perf, with someone at the box); the CMDFIFO instead of PCI-FIFO writes.
+   **Verified on silicon 2026-09-28** (`.124`, V5 6000, plan step 16, one
+   armed boot, `evidence/silicon/d3d32_step16/`): 513/16 armed; d3dprobe
+   X8R8G8B8 + D24X8 fullscreen 640x480 40/40 and 1024x768 40/40, windowed
+   on the 32 bpp desktop 42/42, 16 bpp fullscreen 40/40, `--noz` clear 3/3,
+   perf 84.2 fps (the 85 Hz vsync); Hidden & Dangerous Deluxe, which forces
+   32 bpp and failed "Unable to initialize graphics", starts. **Still OFF by
+   default**: Rainbow Six raised its own error with it armed (confounded - a
+   Thief II run had just stranded the desktop at 640x480), Thief II (NewDark,
+   D3D9) still refuses, `Reset3D` after a Glide session is unproven, and the
+   box is a LAN-party machine. Next: the R6 A/B on a clean desktop, then a
+   default flip. UT2004's device opens and dies at CreateTexture: the HAL
+   still advertises the Voodoo3's 256x256 limit and no FOURCC (the VSA-100
+   does 2048 and DXTn/FXT1). The CMDFIFO instead of PCI-FIFO writes.
 7. **Flip rate** - the completion rule is factored and pinned; the opt-in
    achieved-refresh deadline (`Diag\FlipDeadline`) needs its A/B on silicon,
    and `.124`'s 16 bpp half rate its per-frame counters (plan step 16).

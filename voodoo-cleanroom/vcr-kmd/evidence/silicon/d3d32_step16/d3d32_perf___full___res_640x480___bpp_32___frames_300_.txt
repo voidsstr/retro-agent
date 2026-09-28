@@ -1,0 +1,3 @@
+plan: d3dprobe perf fullscreen at 640x480x32@85 (the highest refresh the driver lists there: the default refresh lets it pick)   43.26 kHz  84.99 Hz   36.0 MHz
+  monitor HWP22d3 HP P1120: H 30-121 kHz, V 48-160 Hz, <= 300 MHz
+{"mode": "perf", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "frames": 300, "frames_run": 300, "tris_per_frame": 200, "fps": 84.2, "tris_s": 16842, "focus_lost": false}

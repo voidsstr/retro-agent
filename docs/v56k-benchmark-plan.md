@@ -96,6 +96,37 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-28 07:30) - the night's LAN-party checks on `.124`; box left on the known-good state
+
+**State:** vcr-kmd from master, `Diag\D3D32` ABSENT (armed for one boot, verified,
+disarmed), BootAttempts 0 / GoodBoots 31, desktop 1280x1024x32@85, our h5 Glide,
+ICD 0.1.76, `HKLM\Software\RetroAgent\GlideRender` = 1 (new: the V5 drives the
+screen). Evidence: `voodoo-cleanroom/vcr-kmd/evidence/lan_20260928/night/`,
+`.../silicon/d3d32_step16/`, `scripts/3dfx/3dfxctl/evidence/20260928/`.
+
+| check | result |
+|---|---|
+| Quake III MP soak (fleet server) | PASS 20 min, 8 engine shots; server never rotated |
+| Quake III map cycle | PASS 12 loads; a revisited map photographs identical |
+| CS 1.6 MP soak v2 (fleet server) | PASS 30 min, **4 maps** (the v1 soak's "PASS" was a harness fault - fixed) |
+| UT99 436 MP soak (fleet UT server) | PASS 30 min, **4 map changes**, clean exit |
+| Quake II MP soak | PASS 30 min (q2dm1, no rotation) |
+| RtCW MP soak / map cycle | PASS 20 min / 12 loads, in game on mp_village |
+| Quake (GLQuake) soak | renders; the harness could not quit it (Quake's quit menu - fixed) |
+| SoF | menus render at 1280x960; **no level loads on any fleet box** (WON CD check, single player too - library, not driver) |
+| Quake / Hexen II "- 3dfx Voodoo" | FIXED in the library: a VSA-100 runs the main launcher (Enum\PCI prefix match) |
+| Unreal Gold | GlideRender=1 -> GlideDrv opens Glide 2.70 (translator) then HANGS in its second open; open |
+| Desktop sweep, 36 launches one boot | board healthy after every one; agent never died |
+| 32 bpp Direct3D (step 16) | verified on silicon (d3dprobe 40/40, 42/42); default stays off (see vcr-kmd README) |
+| 3dfx Control Panel | 2D rows showed OFF while ON - fixed, deployed, Apply-without-reboot verified |
+| `vcrctl fbshot` (new) | desktop layer verified (matches GDI); Warcraft II menu seen where GDI is black; overlay (Glide) decode not right yet |
+
+**Open, in order:** Unreal Gold's Glide re-open hang (translator + our glide3x);
+Rainbow Six with D3D32 on a clean desktop; Thief II NewDark (D3D9);
+UT2004 (HAL texture limit 256 -> 2048, FOURCC); Descent DOSBox ddraw at 640x400
+scans out black; fbshot's overlay/SLI decode; the host address (.196 vs .132);
+AA and the P1120 branch with the user.
+
 ### Resume point (2026-09-28 03:00) - LAN-party pass: the priority titles run on the all-ours stack; AA untouched (user away)
 
 **State of `.124` (V5 6000, 256 MB mode, HP P1120):** vcr-kmd from master

@@ -1646,7 +1646,7 @@ is exposed to exactly this today.
 | 2026-09-26 | D3D HAL on VSA-100 silicon: 40/40 fullscreen (`0d361cc`); `DDCAPS2_FLIPNOVSYNC` - `d3dprobe perf --novsync` 85.0 → 151.2 fps (`f6ed831`, `eebb3da`) | ✅ |
 | 2026-09-26 | Live testing paced for `.124`'s 1998 CRT (`vcr_pace.h`: floor, cap, range gate) (`0594e6b`) | ✅ |
 | 2026-09-26 | AA cfg 1, 3 and 7 deep-wedge `.124` after our kernel's SLI/AA setup (cfg 3 fill renders: 4 chips 2-sample, 625 Mpix/s) (`904a145`; post-mortem `93fed90`, `2442117`) | 📌 |
-| 2026-09-26/27 | 32 bpp Direct3D targets on the VSA-100 (`5be6a59`), hardened and put behind `Diag\D3D32`, default off (`64829cb`, `f55e2f9`, `0ea0e87`) | ⚙️ untested on silicon |
+| 2026-09-26/27 | 32 bpp Direct3D targets on the VSA-100 (`5be6a59`), hardened and put behind `Diag\D3D32`, default off (`64829cb`, `f55e2f9`, `0ea0e87`) | ✅ verified on silicon 2026-09-28 (d3dprobe 40/40 fullscreen 640x480x32 and 1024x768x32, 42/42 windowed; H&D Deluxe starts) - still default off (vcr-kmd README §roadmap 6) |
 | 2026-09-27 | Kernel AA safety net: no-video-mux shapes refused, the `Diag\SliAA` kill switch, `PCI_OP` writes judged, the vendor AA recipe flag-gated, `vcrctl sliaa` (`3dd5629`, `bc04201`, `79718f3`, `8413e3c`) | ⚙️ refusals proven on 86Box only |
 | 2026-09-27 | Flip completion rule in `include/vcr_flip.h`, flip counters, the opt-in achieved-refresh deadline (`Diag\FlipDeadline`), `GetScanLine` never unset (`d0e6af7`, `556e2f9`, `8fdcd94`) | ✅ / ⚙️ |
 | 2026-09-27 | Integration build verified on the 86Box Voodoo 3 bed - plan steps 5, 7 and 13 (`2fc3de5`) | 📌 |

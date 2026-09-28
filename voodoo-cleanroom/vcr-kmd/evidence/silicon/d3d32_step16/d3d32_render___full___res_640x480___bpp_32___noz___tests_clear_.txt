@@ -1,0 +1,3 @@
+plan: d3dprobe render fullscreen at 640x480x32@85 (the highest refresh the driver lists there: the default refresh lets it pick)   43.26 kHz  84.99 Hz   36.0 MHz
+  monitor HWP22d3 HP P1120: H 30-121 kHz, V 48-160 Hz, <= 300 MHz
+{"mode": "render", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "window": "fullscreen", "fmt": 22, "zfmt": 0, "noz": 1, "checks": [{"test": "clear", "at": "corner", "x": 0, "y": 0, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "centre", "x": 128, "y": 128, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "second clear", "x": 200, "y": 60, "got": "0000ff", "want": "0000ff", "ok": 1}], "readback": "backbuffer", "pass": 3, "fail": 0, "focus_lost": false}
