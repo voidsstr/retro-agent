@@ -10,7 +10,7 @@ host event happens or a mitigation changes** (see "Updating this log" at the
 bottom).
 
 Host: `voidsstr-OMEN-by-HP-45L-Gaming-Desktop-GT22-3xxx`, 192.168.1.132.
-Ubuntu, kernel 7.0.0-31-generic, 24-core Intel Arrow Lake-S, RTX 5090 (32 GB),
+Ubuntu, kernel 7.0.0-34-generic (since the 09-26 15:58 boot; 7.0.0-31 before), 24-core Intel Arrow Lake-S, RTX 5090 (32 GB),
 NVIDIA 595.91.07 open kernel module. BIOS F.20. Only disk: SATA Fanxiang
 S101Q 4 TB (no NVMe). **No UPS.** The GPU tenants are `ollama` (about 15–21 GB
 VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
@@ -22,13 +22,14 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 
 | Item | State | Since |
 |---|---|---|
-| GPU power cap | **400 W** via `nvidia-power-cap.service` (enabled, runs `nvidia-smi -pl 400`; unit file rewritten 2026-09-26 23:22:44 by someone outside this session, originally from `reusable-agents/install/configure-local-models.sh`, override with `GPU_POWER_LIMIT_W`) | 2026-09-26 23:22 |
-| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now) | |
+| GPU power cap | **400 W** via `nvidia-power-cap.service` (enabled, runs `nvidia-smi -pl 400`; originally from `reusable-agents/install/configure-local-models.sh`, override with `GPU_POWER_LIMIT_W`). The unit was rewritten 2026-09-26 23:22:44 by a `sudo sed` run from `~/development/reusable-agents` (commit `2637516`) and applied at 23:22:45 (`set to 400.00 W from 575.00 W`). It has been re-applied at every boot since; `nvidia-smi` reads 400 W on 09-28 12:18 | 2026-09-26 23:22 |
+| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; an Xid 79 happened under it on 09-28 10:59) | |
 | `kernel.hung_task_panic` | 0 (a GPU drop leaves the box up, just without a GPU) | 2026-09-16 |
 | `kernel.panic` / `hardlockup_panic` | 30 / 1 (`/etc/sysctl.d/60-lockup-panic.conf`) | 2026-09-08 |
 | kdump | enabled; dumps land in `/var/crash/` | |
 | `pcie_aspm=off` in GRUB | present, **no effect** (the link can't use ASPM) | 2026-09-16 |
-| PCIe link width | **x8 on an x16 slot**, on every boot since the first one retained (Aug 17). Not the crash cause (see 09-23) | |
+| PCIe link width | **x16** since the 09-24 17:39 boot (`392ee1f9`, the first boot after the 09-24 mains loss). The kernel's `limited by 32.0 GT/s PCIe x8 link at 0000:00:06.0` line is on every retained boot through 09-23 18:30 (`504edd27`) and on none from 09-24 17:39 on, and sysfs `current_link_width` reads 16 on 09-28. The 09-24 19:18 MCE, both power-offs and the 09-28 Xid 79 all happened at x16, which confirms x8 was not the crash cause (see 09-23) | 2026-09-24 17:39 |
+| Host IP | **192.168.1.196** (DHCP, gateway .254; see 09-26 15:58 and 09-28 00:36), not .132. `host-duties.py` still probes .132 and reports the game servers DOWN; they answer on loopback | 2026-09-26 |
 | Open physical items | 12V-2x6 connector at both ends; separate PSU cables vs daisy-chain; PSU wattage; a UPS/meter with logging | |
 
 ---
@@ -47,12 +48,21 @@ Intel iGPU (gnome-shell comes back on i915). ollama errors with
 - `local-image-gen` `/healthz` still reports ok from cached values. **It is
   wrong**; prove the GPU with a real `POST /generate`.
 
-**2. Hung shutdown after a GPU drop.** Clicking Restart in GNOME with a dead
-GPU deadlocks on `nvidia-modeset` (`nvEvoMakeRoom`/`nvkms_yield`, "Error
-while waiting for GPU progress" every 5 s, `nvidia-persistenced` stop timeout).
-The box sat half shut down for 3 h 38 m (09-21) and 10 h 32 m (09-22).
-**Don't use GNOME Restart when the GPU is dead**; use `systemctl reboot -ff`,
-SysRq `b`, or the power button.
+**2. Hung shutdown after a GPU drop.** Any ordinary reboot with a dead GPU
+deadlocks in `nvidia-modeset`. That includes GNOME Restart (09-21, 09-22) and
+**`sudo reboot` (09-28)**. The 09-21/09-22 form showed `nvEvoMakeRoom`/`nvkms_yield`
+and "Error while waiting for GPU progress" every 5 s. The 09-28 form logged no
+such line. There, `systemd-logind` spun in `EvoCheckNotifier` (under
+`ApplyProposedModeSetStateOneApiHeadShutDown`, reached from `fbcon_blank` →
+the `drm_fb_helper` restore → `nv_drm_atomic_commit`) while holding
+`console_lock`. `plymouth-reboot` and every `tty_open` then blocked behind it,
+and systemd's timeouts and SIGKILLs could not end it. Both forms end with
+`nvidia-persistenced` stop timeouts. The box sat half shut down for 3 h 38 m
+(09-21) and 10 h 32 m (09-22). **Don't do an ordinary reboot when the GPU is
+dead.** A warm reboot doesn't revive the card anyway (signature 1), so use the
+power button. Remotely, use SysRq `b` (`echo b | sudo tee /proc/sysrq-trigger`).
+`systemctl reboot -ff` skips logind and plymouth but still runs the drivers'
+shutdown hooks; it is untested here with a dead GPU.
 
 **3. MCE panic.** `mce: CPUs not responding to MCE broadcast ... Kernel
 panic - not syncing: Timeout: Not all CPUs entered broadcast exception
@@ -94,32 +104,62 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
-### 2026-09-26 20:14:45: instant power-off at 450 W (signature 4)
+### 2026-09-28 10:59:35: Xid 79 at 400 W and x16, then `sudo reboot` hung for 4 min (signatures 1+2)
 
-- **Boot IDs:** `e335b889…` (began 15:58:34) stops at 20:14:45 in the middle of
-  ollama prompt-cache log lines: no shutdown, no panic, no kdump output (the
-  newest `/var/crash` file is the 09-24 19:18 dump), no Xid/AER/MCE/thermal
-  line in the kernel log, and no BERT record in the next boot's kernel log.
-  `4b2b821c…` began 23:16:18, so the box was off about **3 h 1 min** until
-  someone pressed power.
-- **Cap in effect: 450 W.** `nvidia-power-cap.service` logged "set to 450.00 W"
-  at 15:58:46 in the dying boot. So 450 W did not prevent signature 4 (the
-  09-24 23:11 one was at 575 W).
-- **Load:** ollama was actively serving a generation (slot processing a new
-  prompt) at the cutoff. The retro-agent vcr-kmd sessions were doing offline
-  work and 86Box was not running. No Claude session touched host power, BIOS
-  or the GPU.
-- **Afterwards:** at 23:22:44 the unit file was rewritten to `-pl 400` and
-  re-run ("set to 400.00 W from 575.00 W"). That was not done from the
-  retro-agent vcr-kmd session. By 2026-09-27 00:10 the host was still on
-  192.168.1.196 but the NAS (.122:445) and `.124` answered again, so the fleet
-  LAN problem from the 15:58 entry is gone.
-- **Cause:** a PSU over-power/over-current trip from GPU power spikes is still
-  the most likely explanation; **unproven**, since there is no PSU or UPS
-  telemetry. Whether 400 W is enough is the open question. If the box powers
-  off again at 400 W, the physical items in "Current state" (12V-2x6
-  connector, separate PSU cables, PSU wattage, a logging UPS) come next.
-- **Response:** recorded here, and the current-state table updated to 400 W.
+- **Boot IDs:** `4b2b821c…` (up since 09-26 23:16:18, 35 h 43 m) ends at
+  11:07:30 mid-shutdown. `520bf9f1…` began 11:09:30.
+- **Fault:** `10:59:35.680206 NVRM: Xid (PCI:0000:01:00): 79, pid=6540, name=KMS
+  thread, GPU has fallen off the bus`, then `Xid ... 154, GPU recovery action
+  changed from 0x0 (None) to 0x2 (Node Reboot Required)` 1.4 ms later. There is
+  no `PCIe Bus Error`/AER line, no MCE and no kdump, and the next boot has no BERT
+  record. The only new `/var/crash` file is `_usr_bin_Xwayland.1000.crash` from 10:59.
+- **Knock-on:** `GNOME Shell crashed with signal 6` at 10:59:36. The user session
+  closed at 10:59:59, which is when every Claude session's `.jsonl` stopped
+  writing. `gnome-remote-desktop` core-dumped. ollama hit `CUDA error:
+  unspecified launch failure` → `ggml_abort`, and the log shows `uvm encountered
+  global fatal error 0x60, requiring os reboot`. The greeter came back without the GPU
+  (`nvidia-modeset: ERROR: GPU:0: Failed detecting connected display devices`).
+- **Load:** ollama had just started a 1729-token prompt: it created a context
+  checkpoint at 10:59:35.445, **0.24 s before the Xid**, and the failing call
+  was `cudaStreamSynchronize`. So this is another drop at the start of a
+  generation burst, under routine agent traffic.
+- **Cap in effect: 400 W**, applied at 09-26 23:22:45 in this boot (see Current
+  state). The PCIe link was x16. The kernel was 7.0.0-34. This is the first Xid 79
+  since 09-23 13:16. Xid 79s have now happened at 400 W on both x8 (09-21, 09-22,
+  09-23) and x16, so neither the cap nor the link width stops them.
+- **Shutdown:** user `remote` (uid 1001, not the `voidsstr` account the Claude
+  sessions use) logged in through GDM at 11:00:26, while Chrome Remote Desktop was
+  connected. At 11:03:27 it ran `sudo /usr/sbin/reboot` from `/dev/pts/1`.
+  `systemd-logind` logged `Removed session c2` (the greeter on the dead GPU) at
+  11:03:27.86 and nothing after that. Its watchdog fired at 11:06:00, SIGABRT did
+  nothing, and SIGKILL at 11:07:30 is the last line of the journal. The hung-task
+  report at 11:06:43 shows why:
+  - logind was **running** and holding `console_lock`, in `vt_k_ioctl` →
+    `do_unblank_screen` → `fbcon_blank` → the `drm_fb_helper` restore →
+    `nv_drm_atomic_commit` → `nvSetDispModeEvo` →
+    `ApplyProposedModeSetStateOneApiHeadShutDown` → `EvoCheckNotifier`. That is a
+    modeset polling for a notifier from a GPU that is gone.
+  - `plymouthd` (from `plymouth-reboot`, which timed out at 11:04:57) was blocked
+    on `console_lock`. So was every stop helper that reached `tty_open`, which is
+    why `nvidia-persistenced`, `tailscaled`, `user-runtime-dir@*` and
+    `systemd-user-sessions` all timed out.
+  - gnome-shell's DRM closes queued behind the modeset lock too.
+
+  Most likely, logind was switching the greeter's VT back to text mode. That part is
+  inferred from the stack; the deadlock chain itself is in the log.
+- **Recovery:** the next boot started 2 min after the journal ended, with the card
+  healthy (BAR 0 assigned, x16, no Xid, `nvidia-smi` answers). A warm reboot
+  doesn't revive a dropped card (signature 1), so this was most likely a **cold**
+  power cycle by hand. That is unproven.
+- **After the boot (12:18):** the cap is 400 W, the GPU is idle at x16, and
+  there is no Xid. All host units are `active`. 24/25 game servers answer on
+  127.0.0.1. CS:Source is still `activating`; it was crash-looping (`status=100`,
+  restart counter 7233) before the drop, so that is not a host fault.
+  `host-duties.py --quiet` reports "game servers 1/28 responding" only because it
+  probes .132 (see 09-28 00:36).
+- **Response:** logged here. Signature 2 now covers `sudo reboot` and the
+  logind/`console_lock` form, and the Current state table has the link width
+  (x16 since 09-24), host IP and kernel.
 
 ### 2026-09-28 00:36: still on 192.168.1.196 - the game-server watchdog was restarting healthy servers ~88x/hour
 
@@ -153,6 +193,33 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   `20-target-loopback.conf` repoint them at `127.0.0.1` (relay and hlds share the
   host - correct whatever the LAN address). Verified: an A2S_INFO to
   `192.168.1.196:27015` answers "NSC Retro Fleet Arena (CS 1.6)".
+
+### 2026-09-26 20:14:45: instant power-off at 450 W (signature 4)
+
+- **Boot IDs:** `e335b889…` (began 15:58:34) stops at 20:14:45 in the middle of
+  ollama prompt-cache log lines: no shutdown, no panic, no kdump output (the
+  newest `/var/crash` file is the 09-24 19:18 dump), no Xid/AER/MCE/thermal
+  line in the kernel log, and no BERT record in the next boot's kernel log.
+  `4b2b821c…` began 23:16:18, so the box was off about **3 h 1 min** until
+  someone pressed power.
+- **Cap in effect: 450 W.** `nvidia-power-cap.service` logged "set to 450.00 W"
+  at 15:58:46 in the dying boot. So 450 W did not prevent signature 4 (the
+  09-24 23:11 one was at 575 W).
+- **Load:** ollama was actively serving a generation (slot processing a new
+  prompt) at the cutoff. The retro-agent vcr-kmd sessions were doing offline
+  work and 86Box was not running. No Claude session touched host power, BIOS
+  or the GPU.
+- **Afterwards:** at 23:22:44 the unit file was rewritten to `-pl 400` and
+  re-run ("set to 400.00 W from 575.00 W"). That was not done from the
+  retro-agent vcr-kmd session. By 2026-09-27 00:10 the host was still on
+  192.168.1.196 but the NAS (.122:445) and `.124` answered again, so the fleet
+  LAN problem from the 15:58 entry is gone.
+- **Cause:** a PSU over-power/over-current trip from GPU power spikes is still
+  the most likely explanation; **unproven**, since there is no PSU or UPS
+  telemetry. Whether 400 W is enough is the open question. If the box powers
+  off again at 400 W, the physical items in "Current state" (12V-2x6
+  connector, separate PSU cables, PSU wattage, a logging UPS) come next.
+- **Response:** recorded here, and the current-state table updated to 400 W.
 
 ### 2026-09-26 15:58:13: orderly reboot, then the host moved to 192.168.1.196 and lost the fleet LAN
 
@@ -206,7 +273,9 @@ Timeline check: x8 appears on the **first retained boot (Aug 17)**, 8 days
 before GPU load began (Aug 25) and 11 days before the first crash (Aug 28). So x8
 has been there from day one and **is not the crash cause**. It does cost about half the host bandwidth
 (22.3 GB/s measured). The BIOS PCIe settings can't be reached from Linux
-(`hp-bioscfg` exposes nothing).
+(`hp-bioscfg` exposes nothing). *Later:* the link has trained at x16 since the
+09-24 17:39 boot, after the mains power loss, and the crashes continued there
+(see Current state).
 
 ### 2026-09-23 13:16:48: Xid 79 after about 3 h 20 m of agent load (signature 1)
 ollama had been restarted 10:03. The drop came with **no precursor**: 0 AER
