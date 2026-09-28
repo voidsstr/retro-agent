@@ -174,7 +174,8 @@ def test_dispatch_enforces_the_flag():
 
 @pytest.mark.parametrize(
     "path,func,readonly_mode",
-    [("sysfix.c", "handle_sysfix", "check"), ("display.c", "handle_displaycfg", "get")],
+    [("sysfix.c", "handle_sysfix", "check"), ("display.c", "handle_displaycfg", "get"),
+     ("video.c", "handle_drivers", "STATUS")],
 )
 def test_dual_mode_commands_guard_only_their_write_branch(path, func, readonly_mode):
     """SYSFIX check and DISPLAYCFG get are diagnostics and must keep working."""

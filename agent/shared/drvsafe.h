@@ -151,6 +151,32 @@ DRVSAFE_API const char *drvsafe_text_hit(const char *s)
 
 DRVSAFE_API int drvsafe_text_3dfx(const char *s) { return drvsafe_text_hit(s) != NULL; }
 
+/* An INF's whole text needs a NARROWER list: "Voodoo" is also Adaptec's
+ * codename for its RAID 5xxx line (M003\arcsas.inf: adptVoodoo40 = "Adaptec
+ * RAID 5405"), found when the store indexer skipped two SAS INFs in 2026-09.
+ * Every real 3dfx INF also names VEN_121A or 3DFX, so VOODOO stays a marker for
+ * a bound driver's strings (a "Voodoo2 Accelerator" description) but not here. */
+DRVSAFE_API const char *drvsafe_inf_text_hit(const char *s)
+{
+    const char *hit = drvsafe_text_hit(s);
+    if (hit && strcmp(hit, "VOODOO") == 0) {
+        static const char *const w[] = { "3DFX", "AMIGAMERLIN", "GLIDE2X", "GLIDE3X", "VCR-KMD",
+                                         "VCRMP", "VCRDD", "FXGPIO", NULL };
+        const char *p = s;
+        int i;
+        while ((p = drvsafe_stristr(p, "VEN_121A")) != NULL) {
+            if (!drvsafe_is_hex((unsigned char)p[8])) return "VEN_121A";
+            p += 8;
+        }
+        for (i = 0; w[i]; i++)
+            if (drvsafe_stristr(s, w[i])) return w[i];
+        return NULL;
+    }
+    return hit;
+}
+
+DRVSAFE_API int drvsafe_inf_is_3dfx(const char *s) { return drvsafe_inf_text_hit(s) != NULL; }
+
 /* A bound driver's strings: any 3dfx word in any of them. */
 DRVSAFE_API int drvsafe_driver_is_3dfx(const char *provider, const char *mfg, const char *desc,
                                   const char *infpath, const char *service)

@@ -194,6 +194,7 @@ void handle_dosstage(SOCKET sock, const char *args);
 
 /* DRIVERS STATUS / PLAN (1.88.0): gamesync.c on NT, drv9x.c on Win9x */
 void gs_drivers_status(SOCKET sock, int plan);
+void gs_drivers_update(SOCKET sock, const char *args);
 void drv9x_status(SOCKET sock, int plan);
 
 /* postskip.c - Compaq Deskpro 2000: keep CMOS 2Dh bit 3 (POST skips the F1 wait) set */

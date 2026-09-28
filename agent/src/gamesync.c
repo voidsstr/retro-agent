@@ -41,6 +41,7 @@
 #include "../shared/drvmatch.h"
 #include "../shared/drvsafe.h"
 #include "../shared/drvplan.h"
+#include "../shared/drvstore.h"
 #include "../shared/gamegate.h"
 #include "../shared/lnkcheck.h"
 #include "../shared/gsresume.h"
@@ -979,6 +980,26 @@ static int g_gs_ndv;
  * console. Nothing may be reclaimed or forced again this boot. */
 static int g_gs_install_hung;
 
+/* ONE driver install at a time. The startup passes, DRIVERS UPDATE and
+ * DRVUPDATE all end in UpdateDriverForPlugAndPlayDevices, and the passes flip
+ * the driver-signing policy and SetupAPI's non-interactive mode around it - two
+ * at once would restore each other's saved state. Whoever finds it held says so
+ * and does nothing. */
+static volatile LONG g_gs_drv_busy;
+static int  gs_drv_busy_enter(void) { return InterlockedExchange(&g_gs_drv_busy, 1) == 0; }
+static void gs_drv_busy_leave(void) { InterlockedExchange(&g_gs_drv_busy, 0); }
+/* The startup thread waits (up to 15 min: a forced install's watchdog is 10). */
+static int gs_drv_busy_wait(void)
+{
+    int i;
+    for (i = 0; i < 900; i++) {
+        if (gs_drv_busy_enter())
+            return 1;
+        Sleep(1000);
+    }
+    return 0;
+}
+
 static int gs_dv_lookup(const char *id)
 {
     int i;
@@ -1139,7 +1160,7 @@ static int gs_inf_is_3dfx(const char *path)
     if (!buf)
         return 0;
     if (gs_read_inf(path, buf))
-        yes = drvsafe_text_3dfx(buf);
+        yes = drvsafe_inf_is_3dfx(buf);
     HeapFree(GetProcessHeap(), 0, buf);
     return yes;
 }
@@ -1285,7 +1306,7 @@ static int gs_scan_driver_tree(gs_probdev *d, int n)
             infp[sizeof(infp) - 1] = 0;
             if (!gs_read_inf(infp, buf))
                 continue;
-            if (drvsafe_text_3dfx(buf))
+            if (drvsafe_inf_is_3dfx(buf))
                 continue;               /* a 3dfx INF is never an automatic candidate */
             drvmatch_prepare(buf);      /* model-line id fields only */
             for (k = 0; k < n; k++) {
@@ -4887,6 +4908,8 @@ static void gs_log_image_flag(void)
     CloseHandle(h);
 }
 
+static void gs_drivers_autopass(void);   /* DRIVERS UPDATE, below */
+
 DWORD WINAPI gamesync_thread(LPVOID param)
 {
     int fresh;
@@ -4946,11 +4969,16 @@ DWORD WINAPI gamesync_thread(LPVOID param)
         /* Finish the driver work GUI setup left undone, THEN decide whether the
          * staged tree is still needed. Order matters: reclaiming first would
          * delete the drivers this is about to install. */
-        gs_install_missing_drivers();
-        /* Then the drivers Windows DID configure, badly. This must come before
-         * the reclaim: a preference cannot be applied from a tree we have
-         * already deleted. */
-        gs_apply_driver_prefs();
+        if (gs_drv_busy_wait()) {
+            gs_install_missing_drivers();
+            /* Then the drivers Windows DID configure, badly. This must come
+             * before the reclaim: a preference cannot be applied from a tree
+             * we have already deleted. */
+            gs_apply_driver_prefs();
+            gs_drv_busy_leave();
+        } else {
+            log_msg(LOG_GS, "DRIVER INSTALL SKIPPED: another driver install held the lock for 15 min");
+        }
         /* Before the marker check, and before any copying: on a small disk this
          * is the difference between three games and a dozen. */
         gs_reclaim_drivers();
@@ -4959,6 +4987,15 @@ DWORD WINAPI gamesync_thread(LPVOID param)
      * while XP's kernel audio stack never registered has no wave device, and
      * nothing else says so. One waveOutGetNumDevs() call when it is fine. */
     gs_audio_stack_check();
+    /* 1.89.0: every NT start, a device whose driver is missing gets one from
+     * the share's driver store - never display, never 3dfx, at most two boots
+     * per device (DriverUpdate=0 switches it off). NOT gated on !fresh:
+     * nothing ever deletes newimage.flag, so every boot of a PXE-imaged box is
+     * "fresh" (.110, imaged weeks ago) and a !fresh gate would never fire on
+     * the boxes this exists for. A device the image pass above already judged
+     * this boot is left to it (skip_seen), so nothing is forced twice. */
+    if (!(GetVersion() & 0x80000000UL))
+        gs_drivers_autopass();
 
     if (gs_file_exists(GS_MARKER)) {
         log_msg(LOG_GS, "already provisioned (%s present) - idle", GS_MARKER);
@@ -4991,6 +5028,493 @@ DWORD WINAPI gamesync_thread(LPVOID param)
  * With no INF given it searches the staged tree, so "DRVUPDATE PCI\VEN_10DE&DEV_0150"
  * is enough once the right driver is in the image.
  */
+/* ---- DRIVERS UPDATE (1.89.0) ---------------------------------------------- *
+ * The user's "keep every driver on the box correct, except 3dfx", for XP.
+ * Targets: devices whose problem a driver can fix, plus (tier generic) display
+ * adapters on the VGA stub. Never 3dfx (drvsafe), never the operator's
+ * disabled devices, at most two boots per device (DriverFixes).
+ * Candidates: PREFER.TXT first (it names the build the fleet wants - the
+ * ranking alone gives a GeForce2 the 270.61 MOBILE driver), then the local
+ * C:\D when a fresh image still has it, else the share's store through its
+ * index (scripts/fleet/driverstore.py: DRVINDEX\<bucket>.TXT, built with the
+ * agent's own matcher) - only the candidate's DIRECTORY is copied, never 3,700
+ * INFs. Every candidate is still payload-checked and confirmed by Windows
+ * (gs_candidate_ok) before the same forced, non-interactive, watchdogged
+ * install the fresh-image pass uses. */
+#define GS_STORE_DEF   "\\\\192.168.1.122\\files\\Files\\OS\\XPSP3-FLEET\\$OEM$\\$1\\D"
+#define GS_INDEX_DEF   "\\\\192.168.1.122\\files\\Files\\OS\\XPSP3-FLEET\\DRVINDEX"
+#define GS_LSTORE      "C:\\RETRO_AGENT\\DRVSTORE"
+#define GS_BUCKET_MAX  24
+#define GS_UPD_MAX     GS_MAX_PROBDEV
+
+typedef struct { char name[16]; char *text; } gs_bucket;
+
+typedef struct {
+    char        desc[128], id[200], inf[MAX_PATH];
+    const char *outcome;
+    int         reboot;
+} gs_updres;
+
+static void gs_agent_str(const char *name, const char *def, char *out, DWORD cch)
+{
+    HKEY  k;
+    DWORD type = 0, sz = cch;
+    lstrcpynA(out, def, cch);
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, KEY_READ, &k) != ERROR_SUCCESS)
+        return;
+    if (RegQueryValueExA(k, name, NULL, &type, (LPBYTE)out, &sz) != ERROR_SUCCESS || type != REG_SZ || !out[0])
+        lstrcpynA(out, def, cch);
+    out[cch - 1] = 0;
+    RegCloseKey(k);
+}
+
+static const char *gs_bucket_text(gs_bucket *c, int *nc, const char *index_root, const char *bucket)
+{
+    char path[MAX_PATH];
+    int  i;
+    for (i = 0; i < *nc; i++)
+        if (strcmp(c[i].name, bucket) == 0)
+            return c[i].text;
+    if (*nc >= GS_BUCKET_MAX)
+        return NULL;
+    _snprintf(path, sizeof(path) - 1, "%s\\%s.TXT", index_root, bucket);
+    path[sizeof(path) - 1] = 0;
+    lstrcpynA(c[*nc].name, bucket, sizeof(c[*nc].name));
+    c[*nc].text = gs_slurp(path, 4 * 1024 * 1024);
+    return c[(*nc)++].text;
+}
+
+static void gs_cand_add_unique(drvmatch_cands *c, int idx, const char *path)
+{
+    int i;
+    for (i = 0; i < c->n; i++)
+        if (_stricmp(c->path[i], path) == 0)
+            return;
+    drvmatch_cand_add(c, idx, path);
+}
+
+/* Candidates for one device from the store index: every line whose id equals
+ * one of the device's ids, ranked by id specificity then index order. Paths are
+ * store-relative "DIR\INF". */
+static void gs_store_candidates(gs_probdev *d, gs_bucket *c, int *nc, const char *index_root)
+{
+    int i;
+    d->cand.n = 0;
+    for (i = 0; i < d->nids; i++) {
+        char        b[16], rel[MAX_PATH];
+        const char *t;
+        drvstore_bucket(d->ids[i], b);
+        t = gs_bucket_text(c, nc, index_root, b);
+        while (t && drvstore_match(&t, d->ids[i], rel, sizeof(rel)))
+            if (drvstore_rel_ok(rel))
+                gs_cand_add_unique(&d->cand, i, rel);
+    }
+}
+
+/* PREFER.TXT (from the local C:\D or the store) names this device? Then its
+ * INF goes first, and the id forced is the PREFERENCE's id - the one the INF
+ * names (gs_apply_driver_prefs does the same). Its lines say C:\D\DIR\INF: kept
+ * as-is for the local tree, made store-relative ("DIR\INF") for the store. */
+static void gs_prefer_first(gs_probdev *d, const char *prefer_txt, int local,
+                            char *pref_id, size_t pref_cch)
+{
+    const char *line, *next, *p;
+    char        devids[2200];
+    size_t      len = 0;
+    int         pass;
+
+    pref_id[0] = 0;
+    if (!prefer_txt)
+        return;
+    devids[len++] = '\n';
+    for (pass = 0; pass < 2; pass++)
+        for (p = pass ? d->compat : d->hw; *p; p += strlen(p) + 1) {
+            size_t m = strlen(p);
+            if (len + m + 2 >= sizeof(devids))
+                break;
+            memcpy(devids + len, p, m);
+            len += m;
+            devids[len++] = '\n';
+        }
+    devids[len] = 0;
+    for (line = prefer_txt; *line; line = next) {
+        char   buf[600], *hw = NULL, *inf = NULL, hwid[256];
+        size_t n;
+        next = strchr(line, '\n');
+        next = next ? next + 1 : line + strlen(line);
+        n = (size_t)(next - line) < sizeof(buf) - 1 ? (size_t)(next - line) : sizeof(buf) - 1;
+        memcpy(buf, line, n);
+        buf[n] = 0;
+        if (!drvpref_split(buf, &hw, &inf))
+            continue;
+        lstrcpynA(hwid, hw, sizeof(hwid));
+        CharUpperA(hwid);
+        if (drvpref_present(devids, hwid)) {
+            const char    *rel = inf;
+            drvmatch_cands keep = d->cand;
+            int            k;
+            if (!local && _strnicmp(rel, "C:\\D\\", 5) == 0)
+                rel += 5;
+            d->cand.n = 0;
+            drvmatch_cand_add(&d->cand, -1, rel);         /* ranks above every id */
+            for (k = 0; k < keep.n; k++)
+                if (_stricmp(keep.path[k], rel) != 0)
+                    drvmatch_cand_add(&d->cand, keep.idx[k], keep.path[k]);
+            lstrcpynA(pref_id, hwid, (int)pref_cch);
+            return;
+        }
+    }
+}
+
+/* Copy one store directory (files only - the store is flat) to the local
+ * store; local INF path into out. 1 when the INF is there. */
+static int gs_store_fetch(const char *store_root, const char *rel, char *out, size_t cap)
+{
+    char             dir[64], src[MAX_PATH], dst[MAX_PATH], pat[MAX_PATH];
+    const char      *bs = strchr(rel, '\\');
+    WIN32_FIND_DATAA fd;
+    HANDLE           h;
+    size_t           dl;
+
+    if (!drvstore_rel_ok(rel) || !bs || (dl = (size_t)(bs - rel)) == 0 || dl >= sizeof(dir))
+        return 0;
+    memcpy(dir, rel, dl);
+    dir[dl] = 0;
+    CreateDirectoryA(GS_LSTORE, NULL);
+    _snprintf(dst, sizeof(dst) - 1, "%s\\%s", GS_LSTORE, dir);
+    dst[sizeof(dst) - 1] = 0;
+    CreateDirectoryA(dst, NULL);
+    _snprintf(pat, sizeof(pat) - 1, "%s\\%s\\*", store_root, dir);
+    pat[sizeof(pat) - 1] = 0;
+    h = FindFirstFileA(pat, &fd);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    do {
+        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            continue;
+        _snprintf(src, sizeof(src) - 1, "%s\\%s\\%s", store_root, dir, fd.cFileName);
+        src[sizeof(src) - 1] = 0;
+        _snprintf(dst, sizeof(dst) - 1, "%s\\%s\\%s", GS_LSTORE, dir, fd.cFileName);
+        dst[sizeof(dst) - 1] = 0;
+        if (gs_file_exists(dst)) {
+            WIN32_FILE_ATTRIBUTE_DATA a;
+            if (GetFileAttributesExA(dst, GetFileExInfoStandard, &a) && a.nFileSizeLow == fd.nFileSizeLow
+                    && a.nFileSizeHigh == fd.nFileSizeHigh)
+                continue;
+        }
+        CopyFileA(src, dst, FALSE);
+    } while (FindNextFileA(h, &fd));
+    FindClose(h);
+    _snprintf(out, cap - 1, "%s\\%s", GS_LSTORE, rel);
+    out[cap - 1] = 0;
+    return gs_file_exists(out);
+}
+
+/* The core. want_generic: also display adapters on the VGA stub. allow_display:
+ * display-class devices may be touched at all (never by the automatic pass).
+ * dry: decide and report, change nothing. Returns installs made. */
+static int gs_drivers_update_locked(int want_generic, int allow_display, int dry, int skip_seen,
+                                    gs_updres *res, int maxres, int *nres, char *note, int cch)
+{
+    HDEVINFO         set;
+    SP_DEVINFO_DATA  dev;
+    gs_probdev      *pd;
+    gs_bucket        cache[GS_BUCKET_MAX];
+    HMODULE          newdev = NULL;
+    updrv_fn         update = NULL;
+    char            *buf, *prefer = NULL, *prefid;
+    char             store[MAX_PATH], index_root[MAX_PATH];
+    BOOL             was_nonint = FALSE;
+    gs_signing_saved signing;
+    int              n = 0, k, i, nc = 0, truncated = 0, local = gs_file_exists(GS_DRIVER_DIR), done = 0;
+    DWORD            j;
+
+    *nres = 0;
+    note[0] = 0;
+    memset(cache, 0, sizeof(cache));
+    if (!dry) {
+        newdev = LoadLibraryA("newdev.dll");
+        update = newdev ? (updrv_fn)GetProcAddress(newdev, "UpdateDriverForPlugAndPlayDevicesA") : NULL;
+        if (!update) {
+            if (newdev) FreeLibrary(newdev);
+            lstrcpynA(note, "newdev.dll unavailable (Win9x has no driver installer here yet)", cch);
+            return 0;
+        }
+    }
+    gs_agent_str("DriverStore", GS_STORE_DEF, store, sizeof(store));
+    gs_agent_str("DriverIndex", GS_INDEX_DEF, index_root, sizeof(index_root));
+    set = SetupDiGetClassDevsA(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
+    pd = (gs_probdev *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, GS_UPD_MAX * sizeof(gs_probdev));
+    buf = (char *)HeapAlloc(GetProcessHeap(), 0, GS_INF_READ_MAX + 2);
+    prefid = (char *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, GS_UPD_MAX * 256);
+    if (set == INVALID_HANDLE_VALUE || !pd || !buf || !prefid) {
+        if (set != INVALID_HANDLE_VALUE) SetupDiDestroyDeviceInfoList(set);
+        if (pd) HeapFree(GetProcessHeap(), 0, pd);
+        if (buf) HeapFree(GetProcessHeap(), 0, buf);
+        if (prefid) HeapFree(GetProcessHeap(), 0, prefid);
+        if (newdev) FreeLibrary(newdev);
+        lstrcpynA(note, "cannot enumerate devices", cch);
+        return 0;
+    }
+
+    /* targets: problem devices a driver can fix ... */
+    n = gs_problem_devices(set, pd, GS_UPD_MAX, &truncated);
+    for (k = 0; k < n; ) {
+        char cls[32] = "";
+        SetupDiGetDeviceRegistryPropertyA(set, &pd[k].dev, SPDRP_CLASS, NULL, (PBYTE)cls, sizeof(cls) - 1, NULL);
+        int seen = skip_seen && gs_dv_lookup(pd[k].hw) != DRVMATCH_V_UNSEEN;
+        if (!pd[k].excl && drvmatch_problem_driver_fixable(pd[k].problem)
+                && (allow_display || _stricmp(cls, "Display") != 0) && !seen) {
+            k++;
+            continue;
+        }
+        if (*nres < maxres) {                   /* reported, not touched */
+            gs_updres *r = &res[(*nres)++];
+            lstrcpynA(r->desc, pd[k].desc[0] ? pd[k].desc : pd[k].hw, sizeof(r->desc));
+            lstrcpynA(r->id, pd[k].hw, sizeof(r->id));
+            r->outcome = pd[k].excl ? "excluded_3dfx" : !drvmatch_problem_driver_fixable(pd[k].problem)
+                       ? "problem_not_driver_fixable" : seen ? "left_to_image_pass" : "display_explicit_only";
+        }
+        memmove(&pd[k], &pd[k + 1], (size_t)(n - k - 1) * sizeof(gs_probdev));
+        n--;
+        for (i = k; i < n; i++)                  /* ids point into hw/compat: re-point */
+            pd[i].nids = drvmatch_collect(pd[i].hw, pd[i].compat, pd[i].ids, DRVMATCH_MAX_IDS);
+    }
+    /* ... and, for tier generic, display adapters on the stub */
+    if (want_generic && allow_display) {
+        memset(&dev, 0, sizeof(dev));
+        dev.cbSize = sizeof(dev);
+        for (j = 0; n < GS_UPD_MAX && SetupDiEnumDeviceInfo(set, j, &dev); j++) {
+            char cls[32] = "", drvkey[200] = "", match[160], desc[128] = "";
+            SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_CLASS, NULL, (PBYTE)cls, sizeof(cls) - 1, NULL);
+            if (_stricmp(cls, "Display") != 0)
+                continue;
+            SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_DRIVER, NULL, (PBYTE)drvkey, sizeof(drvkey) - 1, NULL);
+            SetupDiGetDeviceRegistryPropertyA(set, &dev, SPDRP_DEVICEDESC, NULL, (PBYTE)desc, sizeof(desc) - 1, NULL);
+            gs_class_value(drvkey, "MatchingDeviceId", match, sizeof(match));
+            if (!drvplan_display_stub(cls, match, desc))
+                continue;
+            memset(&pd[n], 0, sizeof(gs_probdev));
+            pd[n].dev = dev;
+            lstrcpynA(pd[n].desc, desc, sizeof(pd[n].desc));
+            gs_device_ids(set, &pd[n]);
+            pd[n].excl = gs_device_3dfx(set, &dev, pd[n].hw, pd[n].compat);
+            if (pd[n].excl)
+                continue;
+            n++;
+        }
+    }
+
+    /* candidates */
+    if (local) {
+        prefer = gs_slurp(GS_PREFER_FILE, 262144);
+        if (n && gs_scan_driver_tree(pd, n) < 0)
+            lstrcpynA(note, "could not search C:\\D", cch);
+    } else {
+        char pp[MAX_PATH];
+        _snprintf(pp, sizeof(pp) - 1, "%s\\PREFER.TXT", store);
+        pp[sizeof(pp) - 1] = 0;
+        prefer = gs_slurp(pp, 262144);
+        for (k = 0; k < n; k++)
+            gs_store_candidates(&pd[k], cache, &nc, index_root);
+    }
+    for (k = 0; k < n; k++)
+        gs_prefer_first(&pd[k], prefer, local, prefid + k * 256, 256);
+
+    if (!dry) {
+        gs_sdi_resolve();
+        if (g_sdi_nonint)
+            was_nonint = g_sdi_nonint(TRUE);
+        gs_signing_relax(&signing);
+    }
+    for (k = 0; k < n && !g_gs_install_hung && *nres < maxres; k++) {
+        gs_updres *r = &res[(*nres)++];
+        int        c, bumped = 0;
+        lstrcpynA(r->desc, pd[k].desc[0] ? pd[k].desc : pd[k].hw, sizeof(r->desc));
+        lstrcpynA(r->id, pd[k].hw, sizeof(r->id));
+        r->outcome = pd[k].cand.n ? "no_candidate_confirmed" : "no_candidate";
+        if (!dry && gs_drvfix_attempts(pd[k].hw, 0) >= 2) {
+            r->outcome = "tried_out";
+            continue;
+        }
+        for (c = 0; c < pd[k].cand.n; c++) {
+            const char *id = pd[k].cand.idx[c] >= 0 ? pd[k].ids[pd[k].cand.idx[c]] : prefid + k * 256;
+            char        inf[MAX_PATH];
+            BOOL        reboot = FALSE;
+            DWORD       err = 0, status = 0, problem = 0;
+            int         ok, rc;
+
+            if (!id[0])
+                continue;
+            if (local) {
+                lstrcpynA(inf, pd[k].cand.path[c], sizeof(inf));
+            } else if (!gs_store_fetch(store, pd[k].cand.path[c], inf, sizeof(inf))) {
+                continue;
+            }
+            if (gs_inf_is_3dfx(inf))
+                continue;                       /* belt and braces: the index already drops them */
+            ok = gs_candidate_ok(set, &pd[k].dev, inf, id, r->desc, buf);
+            if (ok == 0)
+                continue;
+            lstrcpynA(r->inf, inf, sizeof(r->inf));
+            if (dry) {
+                r->outcome = "would_install";
+                break;
+            }
+            if (!bumped++)
+                gs_drvfix_attempts(pd[k].hw, 1);     /* one per device per run */
+            log_msg(LOG_GS, "DRIVERS UPDATE: installing %s for %s (matched %s)", inf, r->desc, id);
+            rc = gs_force_install(update, id, inf, &reboot, &err);
+            if (rc < 0) {
+                g_gs_install_hung = 1;
+                r->outcome = "hung";
+                break;
+            }
+            if (!rc) {
+                r->outcome = "failed";
+                continue;
+            }
+            if (reboot) {
+                r->outcome = "installed_reboot";
+                r->reboot = 1;
+                done++;
+                break;
+            }
+            Sleep(2000);
+            if (ntdyn_CM_Get_DevNode_Status(&status, &problem, pd[k].dev.DevInst, 0) == CR_SUCCESS
+                    && (problem != 0 || (status & DN_HAS_PROBLEM)) && drvmatch_problem_driver_fixable(problem)) {
+                r->outcome = "installed_still_problem";
+                continue;
+            }
+            r->outcome = "installed";
+            done++;
+            break;
+        }
+        log_msg(LOG_GS, "DRIVERS UPDATE: %s -> %s %s", r->desc, r->outcome, r->inf);
+    }
+    if (!dry) {
+        gs_signing_restore(&signing);
+        if (g_sdi_nonint)
+            g_sdi_nonint(was_nonint);
+    }
+    for (i = 0; i < nc; i++)
+        if (cache[i].text)
+            HeapFree(GetProcessHeap(), 0, cache[i].text);
+    if (prefer)
+        HeapFree(GetProcessHeap(), 0, prefer);
+    if (!note[0])
+        _snprintf(note, cch - 1, "store %s%s", local ? GS_DRIVER_DIR : store, truncated ? "; device list truncated" : "");
+    note[cch - 1] = 0;
+    HeapFree(GetProcessHeap(), 0, prefid);
+    HeapFree(GetProcessHeap(), 0, buf);
+    HeapFree(GetProcessHeap(), 0, pd);
+    SetupDiDestroyDeviceInfoList(set);
+    if (newdev)
+        FreeLibrary(newdev);
+    return done;
+}
+
+static int gs_drivers_update_core(int want_generic, int allow_display, int dry, int skip_seen,
+                                  gs_updres *res, int maxres, int *nres, char *note, int cch)
+{
+    int done;
+    if (!gs_drv_busy_enter()) {
+        *nres = 0;
+        lstrcpynA(note, "another driver install is running - nothing done", cch);
+        return 0;
+    }
+    done = gs_drivers_update_locked(want_generic, allow_display, dry, skip_seen, res, maxres, nres, note, cch);
+    gs_drv_busy_leave();
+    return done;
+}
+
+/* DRIVERS UPDATE [missing|generic|all] [dry] - NT. host policy is enforced by
+ * handle_drivers (video.c) before this is reached. */
+void gs_drivers_update(SOCKET sock, const char *args)
+{
+    gs_updres *res;
+    int        nres = 0, k, want_generic, dry, done;
+    char       note[300];
+    json_t     j;
+    char      *out;
+
+    want_generic = drvplan_icontains(args, "generic") || drvplan_icontains(args, "all");
+    dry = drvplan_icontains(args, "dry");
+    res = (gs_updres *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 2 * GS_UPD_MAX * sizeof(gs_updres));
+    if (!res) {
+        send_error_response(sock, "DRIVERS UPDATE: out of memory");
+        return;
+    }
+    done = gs_drivers_update_core(want_generic, 1, dry, 0, res, 2 * GS_UPD_MAX, &nres, note, sizeof(note));
+    json_init(&j);
+    json_object_start(&j);
+    json_kv_bool(&j, "dry", dry);
+    json_kv_str(&j, "tier", want_generic ? "missing+generic" : "missing");
+    json_kv_str(&j, "note", note);
+    json_kv_int(&j, "installed", done);
+    json_key(&j, "devices");
+    json_array_start(&j);
+    for (k = 0; k < nres; k++) {
+        json_object_start(&j);
+        json_kv_str(&j, "desc", res[k].desc);
+        json_kv_str(&j, "id", res[k].id);
+        json_kv_str(&j, "outcome", res[k].outcome ? res[k].outcome : "");
+        json_kv_str(&j, "inf", res[k].inf);
+        json_kv_bool(&j, "reboot", res[k].reboot);
+        json_object_end(&j);
+    }
+    json_array_end(&j);
+    json_object_end(&j);
+    out = json_finish(&j);
+    if (out) {
+        send_text_response(sock, out);
+        HeapFree(GetProcessHeap(), 0, out);
+    } else {
+        send_error_response(sock, "DRIVERS UPDATE: out of memory");
+    }
+    HeapFree(GetProcessHeap(), 0, res);
+}
+
+/* The automatic pass at startup (not on a fresh image, whose own pass already
+ * ran from C:\D): missing drivers only, never display, never 3dfx. Switch:
+ * HKLM\Software\RetroAgent DriverUpdate = 0. Outcome in DriverUpdateBoot. */
+static void gs_drivers_autopass(void)
+{
+    gs_updres *res;
+    int        nres = 0, done, k;
+    DWORD      on = 1, sz = sizeof(on), type = 0;
+    HKEY       key;
+    char       note[300], summary[400];
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, KEY_READ, &key) == ERROR_SUCCESS) {
+        if (RegQueryValueExA(key, "DriverUpdate", NULL, &type, (LPBYTE)&on, &sz) != ERROR_SUCCESS || type != REG_DWORD)
+            on = 1;
+        RegCloseKey(key);
+    }
+    if (!on) {
+        log_msg(LOG_GS, "driver update pass: disabled by DriverUpdate=0");
+        return;
+    }
+    res = (gs_updres *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 2 * GS_UPD_MAX * sizeof(gs_updres));
+    if (!res)
+        return;
+    done = gs_drivers_update_core(0, 0, 0, 1, res, 2 * GS_UPD_MAX, &nres, note, sizeof(note));
+    _snprintf(summary, sizeof(summary) - 1, "%d installed, %d device(s) looked at; %s", done, nres, note);
+    summary[sizeof(summary) - 1] = 0;
+    for (k = 0; k < nres; k++) {
+        size_t l = strlen(summary);
+        if (l + 80 >= sizeof(summary)) break;
+        _snprintf(summary + l, sizeof(summary) - l - 1, "; %.40s: %s", res[k].desc, res[k].outcome ? res[k].outcome : "");
+    }
+    summary[sizeof(summary) - 1] = 0;
+    log_msg(LOG_GS, "driver update pass: %s", summary);
+    if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, NULL, 0, KEY_WRITE, NULL, &key, NULL) == ERROR_SUCCESS) {
+        RegSetValueExA(key, "DriverUpdateBoot", 0, REG_SZ, (const BYTE *)summary, (DWORD)strlen(summary) + 1);
+        RegCloseKey(key);
+    }
+    HeapFree(GetProcessHeap(), 0, res);
+}
+
 /* ---- DRIVERS STATUS / PLAN on NT (1.88.0) -------------------------------- *
  * Report-only: every present device, its driver, and ONE state from
  * agent/shared/drvplan.h. PLAN also ranks C:\D candidates for the missing and
@@ -5146,7 +5670,7 @@ void handle_drvupdate(SOCKET sock, const char *args_in)
     char     hwid[256], inf[MAX_PATH], argsbuf[600];
     HMODULE  newdev;
     updrv_fn update;
-    BOOL     reboot = FALSE;
+    BOOL     reboot = FALSE, ok;
     const char *sp, *args = argsbuf;
     int      allow3dfx, why3dfx;
 
@@ -5258,8 +5782,15 @@ void handle_drvupdate(SOCKET sock, const char *args_in)
         send_error_response(sock, "newdev.dll unavailable");
         return;
     }
+    if (!gs_drv_busy_enter()) {
+        FreeLibrary(newdev);
+        send_error_response(sock, "DRVUPDATE: another driver install is running - try again later");
+        return;
+    }
     log_msg(LOG_GS, "DRVUPDATE %s -> %s", hwid, inf);
-    if (update(NULL, hwid, inf, INSTALLFLAG_FORCE_, &reboot)) {
+    ok = update(NULL, hwid, inf, INSTALLFLAG_FORCE_, &reboot);
+    gs_drv_busy_leave();
+    if (ok) {
         char msg[512];
         _snprintf(msg, sizeof(msg) - 1, "OK installed %s for %s%s", inf, hwid,
                   reboot ? " (reboot required)" : "");

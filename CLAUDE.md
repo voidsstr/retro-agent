@@ -2114,6 +2114,10 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
   (`applicable`, `state`, `skip_f1`, `checksum_valid`, `last_boot`); `apply`
   sets it now. The startup pass does the same on every agent start. Anywhere
   else it answers `applicable: false` and touches no port.
+- **DRIVERS [STATUS|PLAN|UPDATE ...]** — `STATUS`/`PLAN` (agent 1.88.0): every device's driver
+  state as JSON; `UPDATE [missing|generic|all] [dry]` (1.89.0, NT): install from the
+  store, never 3dfx. See "Keeping every other driver current". Any other argument is
+  the old class filter.
 - **SYSFIX [check|apply]** — check/apply Win98 system fixes
 
 ### Linux-Only
@@ -2541,6 +2545,60 @@ Voodoo - `I003\3dfxvs2k.inf` for a V5, `I002\voodoo2.inf` for a Voodoo 2.
   persisted "allow" is exactly the automatic behaviour the user forbade, and a
   test pins its absence. Hand-driven 3dfx work (the voodoo* skills, vcr-kmd
   deploys) is explicit by definition and unaffected.
+
+## Keeping every other driver current — DRIVERS STATUS / UPDATE (agent 1.88.0 / 1.89.0)
+
+The rest of the same directive: *"update all of the drivers on the box"*.
+
+- **`DRIVERS STATUS`** (and `DRIVERS PLAN`, which adds the ranked candidates)
+  gives every device ONE state from `agent/shared/drvplan.h`, judged in this
+  order: `excluded_3dfx`, `disabled` (22/29, 9x ConfigFlags bit 0 - the
+  operator's choice), `missing` (a driver-fixable problem, an Unknown/Other
+  class, or no driver WITH a problem - XP's `ROOT\LEGACY_*` devnodes run with
+  no class key and are `ok`), `problem` (not a driver's fault), `generic` (a
+  DISPLAY adapter on the VGA stub), `ok`. NT and Win9x (`drv9x.c` reads
+  `HKEY_DYN_DATA\Config Manager\Enum`). Report-only.
+- **`DRIVERS UPDATE [missing|generic|all] [dry]`** (NT only; refused on a
+  modern host and on Win9x) installs for the `missing` devices, plus the
+  `generic` display adapters when asked. Candidates: `PREFER.TXT` first (it
+  names the build; the ranking alone hands a GeForce2 the 270.61 MOBILE
+  driver), then the local `C:\D` if a fresh image still has it, else the
+  **share's store** (`Files\OS\XPSP3-FLEET\$OEM$\$1\D`) looked up through
+  its **index** (`Files\OS\XPSP3-FLEET\DRVINDEX\<bucket>.TXT`). Only the
+  chosen candidate's directory is copied, to `C:\RETRO_AGENT\DRVSTORE`; each
+  is payload-checked and **confirmed by Windows** before the same forced,
+  non-interactive, 10-minute-watchdogged install the fresh-image pass uses;
+  two boots per device at most (`DriverFixes`). `dry` decides and reports
+  (it still copies the candidate so Windows can confirm it). Returns each
+  device's outcome, not `OK`.
+- **A startup pass** runs the `missing` tier on every NT start - never
+  display, never 3dfx - after the fresh-image pass, leaving it any device that
+  pass already judged this boot. (**Not** gated on "not fresh": nothing ever
+  deletes `newimage.flag`, so every boot of a PXE-imaged box counts as fresh -
+  `.110`, imaged weeks earlier, still does.) `HKLM\Software\RetroAgent\DriverUpdate`=0 switches it
+  off; `DriverUpdateBoot` records what it did. **Verified 2026-09-28** in a
+  throwaway overlay of the build VM with an extra e1000 (retail XP has no
+  driver for it): the pass found `L025\e1000325.inf` through the index, copied
+  that one directory, and installed Intel PRO/1000 MT 8.10.3.0 in 3 s, no UI,
+  device at problem 0. On `.110` it reports the Intel PCI modem as
+  `no_candidate` - the store has nothing for `8086:1080`.
+- **One driver install at a time**: the startup passes, `DRIVERS UPDATE` and
+  `DRVUPDATE` share one guard; whoever finds it held says so and does nothing
+  (the passes flip the signing policy and non-interactive mode around each
+  install, so two at once would restore each other's saved state).
+- A `LegacyDriver` devnode with a problem (XP's `ROOT\LEGACY_VGASAVE`,
+  problem 24) is a stopped service: `problem`, never `missing`.
+- **The index is built with the agent's own code**: `scripts/fleet/drvindex.c`
+  compiles `drvmatch.h` (model lines only) and `drvsafe.h` (3dfx INFs listed
+  as `#skip3dfx` and left out), and `python3 scripts/fleet/driverstore.py
+  publish` buckets it (`drvstore.h`, the one function both sides call),
+  publishes each file verified through `/mnt`, `MANIFEST.TXT` last. **Rebuild
+  and publish it whenever the image's driver tree changes** (`check` says
+  whether the share is current). It lives OUTSIDE `$OEM$`, so imaging never
+  copies it onto a box.
+- **An INF is judged 3dfx without the word VOODOO**: the Adaptec RAID INFs
+  (`arcsas.inf`) name their codename "Voodoo" and were being skipped. Device
+  and bound-driver checks still use it.
 
 ## The image can ship a driver and still not install it (XP driver ranking)
 

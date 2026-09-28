@@ -119,7 +119,11 @@ DRVPLAN_API int drvplan_state(unsigned long problem, int driver_bound, int disab
     /* No class key but no problem either: a device that RUNS without one - XP's
      * ROOT\LEGACY_* service devnodes (tcpip, ndis, AFD ... 28 of them on .110)
      * and raw PDOs. Counting those as "missing" was 1.88.0's first bug. */
-    if (!driver_bound && problem) return DRVST_MISSING;
+    /* ...but a LegacyDriver devnode WITH a problem is a service that is not
+     * running (XP's ROOT\LEGACY_VGASAVE, problem 24, on a box whose display
+     * driver is loaded - seen in the build VM, 2026-09-28): no driver to
+     * install, so "problem", never "missing". */
+    if (!driver_bound && problem && !drvplan_ieq(cls, "LegacyDriver")) return DRVST_MISSING;
     if (problem) return DRVST_PROBLEM;
     if (drvplan_display_stub(cls, matching, desc)) return DRVST_GENERIC;
     return DRVST_OK;

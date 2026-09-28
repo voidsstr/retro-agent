@@ -45,6 +45,10 @@ int main(void)
     CHECK(ST(0, 1, 0, 0, "display", "pci\\cc_0300", "x") == DRVST_GENERIC, "class and id compare case-insensitively");
     CHECK(strcmp(drvst_name(DRVST_EXCLUDED), "excluded_3dfx") == 0 && strcmp(drvst_name(DRVST_GENERIC), "generic") == 0,
           "states are named for the JSON");
+    CHECK(drvplan_state(24, 0, 0, 0, "LegacyDriver", "", "VgaSave") == DRVST_PROBLEM,
+          "a stopped LegacyDriver service (VgaSave, problem 24) is a problem, not a missing driver (1.89.0)");
+    CHECK(drvplan_state(24, 0, 0, 0, "", "", "Ethernet Controller") == DRVST_MISSING,
+          "a real device with no driver and a problem is still missing");
     printf("-- drvplan (DRIVERS STATUS states, agent 1.88.1): %d/%d tests passed --\n", runs - fails, runs);
     return fails ? 1 : 0;
 }

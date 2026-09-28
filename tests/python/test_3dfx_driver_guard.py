@@ -50,7 +50,7 @@ def test_the_install_loop_never_touches_a_3dfx_device():
 
 def test_a_3dfx_inf_is_never_a_candidate():
     scan = body(GS, "static int gs_scan_driver_tree(")
-    assert scan.index("if (drvsafe_text_3dfx(buf))") < scan.index("drvmatch_prepare(buf);"), \
+    assert scan.index("if (drvsafe_inf_is_3dfx(buf))") < scan.index("drvmatch_prepare(buf);"), \
         "the WHOLE text is checked, before it is cut down to model lines"
     assert "if (d[k].excl)" in scan
 

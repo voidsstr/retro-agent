@@ -5,6 +5,7 @@
  */
 
 #include "handlers.h"
+#include "hostpolicy.h"
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
@@ -726,15 +727,27 @@ void handle_drivers(SOCKET sock, const char *args)
             gs_drivers_status(sock, plan);
         return;
     }
-
-    if (args && args[0]) {
-        safe_strncpy(filter, args, sizeof(filter));
-        /* If it looks like a GUID, parse it */
-        if (filter[0] == '{') {
-            /* Try SetupDiClassGuidsFromNameA if it's a class name instead */
-            /* For now, just list all and filter display */
+    /* 1.89.0: DRIVERS UPDATE [missing|generic|all] [dry] - install what the
+     * store has for devices whose driver is missing (and, asked for, display
+     * adapters on the VGA stub). Never 3dfx. It changes the host, so it obeys
+     * the host policy here: DRIVERS itself stays a diagnostic everywhere. */
+    if (args && _strnicmp(args, "UPDATE", 6) == 0) {
+        if (!host_manages_this_box()) {
+            send_error_response(sock, "DRIVERS UPDATE: refused - this is a modern Windows box the "
+                                      "agent does not manage (ManageModernWindows=1 overrides)");
+            return;
         }
+        if (GetVersion() & 0x80000000UL) {
+            send_error_response(sock, "DRIVERS UPDATE: not on Win9x yet - there is no Win9x driver "
+                                      "store; use DRIVERS STATUS");
+            return;
+        }
+        gs_drivers_update(sock, args + 6);
+        return;
     }
+
+    if (args && args[0])
+        safe_strncpy(filter, args, sizeof(filter));
 
     json_init(&j);
     json_array_start(&j);

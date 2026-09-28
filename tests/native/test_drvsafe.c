@@ -60,6 +60,14 @@ int main(void)
     CHECK(drvsafe_text_3dfx("CopyFiles=glide3x.dll"), "an INF that ships glide3x");
     CHECK(!drvsafe_text_3dfx("[Version]\r\nProvider=%NVIDIA%\r\n%NV15%=nv4,PCI\\VEN_10DE&DEV_0150"), "an NVIDIA INF is not");
     CHECK(strcmp(drvsafe_text_hit("x Voodoo y"), "VOODOO") == 0, "the hit names the word (for the log)");
+    CHECK(!drvsafe_inf_is_3dfx("%adptVoodoo40.DeviceDesc% = arcsas_Inst, PCI\\VEN_9005&DEV_0285\r\n"
+                               "adptVoodoo40.DeviceDesc = \"Adaptec RAID 5405\""),
+          "Adaptec's RAID 'Voodoo' codename (M003\\arcsas.inf) is NOT a 3dfx INF");
+    CHECK(drvsafe_inf_is_3dfx("Voodoo2 driver\r\n%V2%=V2, PCI\\VEN_121A&DEV_0002"),
+          "... but an INF naming VEN_121A still is");
+    CHECK(drvsafe_inf_is_3dfx("[Strings]\r\nVoodoo=\"3dfx Voodoo3\""), "... and one naming 3DFX");
+    CHECK(drvsafe_driver_is_3dfx(NULL, NULL, "Voodoo2 Accelerator", NULL, NULL),
+          "a bound driver DESCRIBED as Voodoo is still 3dfx (the narrower list is for INF text only)");
 
     /* ---- bridges ---- */
     CHECK(drvsafe_is_pci_bridge(msz(a, sizeof(a), "PCI\\VEN_3388&DEV_0021"), msz(b, sizeof(b), "PCI\\VEN_3388|PCI\\CC_060400|PCI\\CC_0604")),
