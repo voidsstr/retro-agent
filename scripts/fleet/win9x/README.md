@@ -33,7 +33,8 @@ Run it through the agent: `EXECW 30 C:\RETRO_AGENT\FLEET9X.EXE attrib ...`, or `
 | `idewrite9x zero <serial> <lba> <count>` / `put <serial> <lba> <file>` / `flush <serial>` / `hpa <serial> <maxlba>` | the **only write-capable** tool here: direct-port ATA WRITE SECTORS (30h), FLUSH CACHE (E7h) and the Host Protected Area pair READ NATIVE MAX (F8h) / SET MAX ADDRESS (F9h, kept across power cycles) on the secondary MASTER only. Every command first IDENTIFYs the drive and refuses unless its serial is byte-for-byte the one named; `hpa` accepts only the native max (undo) or whole 16x63 cylinders and reads the new size back. **Both IDE tools refuse to run while Windows owns the channel** (live devnode tree: MF\CHILD0001 at Problem 0, or any devnode on &CHILD0001&) - see below. Never kill it mid-run - create `C:\RETRO_AGENT\IDEW9X.STP`. Shares the `retro_ide_secondary` mutex with ide9x | `C:\RETRO_AGENT\IDEW9X.TXT` |
 | `cmosw9x postskip on\|off` / `none` / `restore` / `show` | the Compaq Deskpro 2000's CMOS from Windows: **`postskip on`** sets 2Dh bit 3 ("POST Error Handling: skip F1 message" - POST shows an error and boots on instead of waiting for F1); `none`/`restore` set 1Bh (the secondary IDE master type). Only 1Bh/2Dh/2Eh/2Fh can be changed; the checksum (sum of 10h-2Dh, the ROM's formula) is computed from the live bytes and must be valid before any change; writes are paced with `in al,84h`; the whole bank is re-read (0Ah/0Bh included) and put back to the snapshot on any difference. **Since agent 1.86.0 the agent re-asserts `postskip on` itself at every start** (`agent/src/postskip.c`, same guards, this ROM only), so the tool is needed only for `off`, `none`/`restore` and diagnosis. **Known limit (found by the 1.86.0 reviews): this tool's repair path restores every differing register from ONE snapshot read and compares 0Ah's self-toggling UIP bit** - so run it only with nothing else touching the RTC (the agent's `clockfix` finished, no time change in progress) and read `CMOSB.BIN`/`CMOSA.BIN` afterwards; the agent's loop (`agent/shared/postskip.h`: double reads, UIP masked, logged-byte attribution) is the model to port if it is used again | `C:\RETRO_AGENT\CMOSW9X.TXT`, `CMOSB.BIN`/`CMOSA.BIN` |
 | `disk9x info` / `disk9x read ...` | read-only VWIN32 INT 13h reader - **but VWIN32's INT 13h does not serve hard disks on 9x** (measured: even 80h, the boot disk, is refused), so it only proves that route is closed | `C:\RETRO_AGENT\DISK9X.TXT` |
-| `agentswap9x` | installs `retro_agent_new.exe` over a RUNNING agent (Win9x cannot replace a running exe). LAUNCH it, then send `QUIT`; it swaps, starts the new build, and rolls back if that build is not still running after 25 s | `C:\RETRO_AGENT\AGENTSWAP.TXT` |
+| `agentswap9x` | installs `retro_agent_new.exe` over a RUNNING agent (Win9x cannot replace a running exe). LAUNCH it, then send `QUIT`; it swaps, starts the new build, and rolls back if that build is not still running after 25 s. **It does not work with `RESTART`** - see handoff9x | `C:\RETRO_AGENT\AGENTSWAP.TXT` |
+| `handoff9x take <exe>` / `handoff9x watch <exe>` | gets a 9x box onto a build across a **`RESTART`** - no `QUIT`, no reboot. `LAUNCH C:\RETRO_AGENT\HANDOFF9.EXE take C:\RETRO_AGENT\RA190.EXE`, check `HANDOFF.TXT` says `mutex seen held`, then `RESTART`: it takes the agent's single-instance mutex the moment the old agent lets go, so RESTART's own relaunch exits, then starts `<exe>` minimized and falls back to `retro_agent.exe` if that is not running 25 s later. `watch` changes nothing unless no agent comes back within 90 s of the restart. Run the new build under ANOTHER name (`RA190.EXE`) and leave it staged as `retro_agent_new.exe` for `AGENTRUN.BAT` | `C:\RETRO_AGENT\HANDOFF.TXT` |
 
 All of them build with the same command (add `-ladvapi32` for regdump9x). GUI-subsystem exes are not waited for by `EXEC` on 9x, so poll `PROCLIST` until the process is gone, then `DOWNLOAD` the output.
 
@@ -46,6 +47,34 @@ All of them build with the same command (add `-ladvapi32` for regdump9x). GUI-su
 ## Caution
 
 `reboot` is a forced reboot. On .243 on 2026-09-24 it went through (the agent's connection was reset as the session ended), but the machine did not come back without a person, exactly as a forced reboot did on 2026-08-31. The cause is not known: it may be the Win98 shutdown, or the new Voodoo 2, which hangs the PCI bus whenever software probes it. Arm the PXE hold first (`scripts/pxe/pxe_server.py --arm <mac>`) and do not use it on a box nobody can reach.
+
+## Updating a running 9x agent without QUIT or a reboot (.243, 2026-09-28)
+
+A 9x auto-update only STAGES the new build (`retro_agent_new.exe` + `agent.ver`);
+`AGENTRUN.BAT` installs it at the next logon, so `RESTART` alone brings the OLD
+build back - measured: 1.86.1 restarted, logged `Win9x: staged version 1.90.0`,
+and kept running 1.86.1. Three things were measured on the way to 1.90.0:
+
+- **agentswap9x + RESTART cannot swap.** The old agent released its mutex
+  within ~3 s but stayed in the process list with 3 threads (its console DOS VM
+  still hosted `retro_chat.exe`) and kept `retro_agent.exe` mapped; restart.bat
+  started the same exe ~8 s after RESTART and that instance took the mutex.
+  `AGENTSWAP.TXT`: `agent still running after 120 s - NOT swapping`.
+- **handoff9x does it** by watching the mutex, not the process: 1.86.1 ->
+  1.90.0 (`mutex freed after 3794 ms` ... `RA190.EXE still running after 25 s`),
+  and back and forth twice more the same way.
+- **A batch LAUNCHed by a pre-1.89.1 agent does not wait for `ping`.** It runs
+  in the agent's own console DOS VM, and there `ping -n 241` returned at once:
+  the batch's next line started the agent 11 s after the LAUNCH, not 240 s
+  (`another retro_agent is already running`). So "LAUNCH a batch that pings
+  for 5 s and starts the new build" (the RA-named swap) does not sleep at all
+  on those agents. RESTART's own batch runs in a NEW console, where `ping -n 4`
+  does wait.
+
+Measured with 1.90.0 on the box: RESTART's batch is `start /m C:\RETRO_~1\RA190.EXE`
+and the relaunched console came back minimized (`tty` at 3000,3000-3160,3024),
+which is also the first proof on this box that Win98's `START /m` works - the
+syntax `AGENTRUN.BAT` now uses at every boot.
 
 ## Identifying a disk Win98 cannot read (.243, 2026-09-25)
 
