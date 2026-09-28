@@ -101,4 +101,27 @@ static __inline unsigned long vcr_fb_rgb(unsigned fmt, const unsigned char *p,
     }
 }
 
+/* THE OVERLAY LAYER - what a fullscreen Glide game is shown through. Quake III
+ * on .124 (4-chip SLI, 2026-09-28 06:55): vidProcCfg 026c0101 = desktop OFF,
+ * overlay ON and tiled; stride register 00280028 (the overlay's is the high
+ * half, 0x28 = 40 tiles = 5120 bytes); the scanned-out buffer is
+ * vidCurrOverlayStartAddr. The overlay's own format code is not trusted here:
+ * bytes per pixel come from the pitch over the width, 2 or 4, else 0 (refuse).
+ * In SLI the master's memory holds only its own bands of the frame. */
+static __inline unsigned long vcr_fb_overlay_stride(unsigned long stride_reg)
+{
+    return (stride_reg >> 16) & 0x7fffu;
+}
+
+static __inline unsigned vcr_fb_overlay_bytespp(unsigned long pitch, unsigned w)
+{
+    if (!w)
+        return 0;
+    if (pitch >= (unsigned long)w * 4 && pitch < (unsigned long)w * 4 + VCR_FB_TILE_W)
+        return 4;
+    if (pitch >= (unsigned long)w * 2 && pitch < (unsigned long)w * 2 + VCR_FB_TILE_W)
+        return 2;
+    return 0;
+}
+
 #endif /* VCR_FBSHOT_H */

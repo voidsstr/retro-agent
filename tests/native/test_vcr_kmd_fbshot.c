@@ -97,10 +97,26 @@ TEST(pixels_decode_to_rgb)
     CHECK(vcr_fb_bytespp(4) == 0 && vcr_fb_rgb(4, p32, NULL) == 0, "an unknown format is refused");
 }
 
+TEST(the_overlay_layer_of_a_glide_game)
+{
+    /* Quake III, 4-chip SLI, 1280x960x32: vidProcCfg 026c0101, stride 00280028 */
+    unsigned long vpc = 0x026c0101ul, stride = 0x00280028ul;
+    unsigned long ost = vcr_fb_overlay_stride(stride);
+    CHECK(!(vpc & VCR_VPC_DESKTOP_EN) && (vpc & VCR_VPC_OVERLAY_EN), "desktop off, overlay on");
+    CHECK((vpc & VCR_VPC_OVERLAY_TILED_EN) != 0, "the overlay is tiled");
+    CHECK(ost == 0x28 && vcr_fb_pitch(ost, 1) == 5120, "40 tiles = 5120 bytes");
+    CHECK(vcr_fb_overlay_bytespp(5120, 1280) == 4, "5120 bytes over 1280 px = 32 bpp");
+    CHECK(vcr_fb_overlay_bytespp(2560, 1280) == 2, "16 bpp");
+    CHECK(vcr_fb_overlay_bytespp(1664, 800) == 2, "800 px x 2 = 1600 bytes, rounded up to 13 tiles");
+    CHECK(vcr_fb_overlay_bytespp(3840, 1280) == 0, "24 bpp is not an overlay format here: refuse");
+    CHECK(vcr_fb_overlay_bytespp(5120, 0) == 0, "no width");
+}
+
 MUNIT_MAIN("vcr-kmd fbshot decoding (include/vcr_fbshot.h)", {
     RUN(the_124_desktop_registers_decode);
     RUN(the_start_address_keeps_every_bit_a_64mb_chip_needs);
     RUN(linear_offsets_are_y_times_stride_plus_x);
     RUN(tiled_offsets_walk_128x32_tiles);
     RUN(pixels_decode_to_rgb);
+    RUN(the_overlay_layer_of_a_glide_game);
 })

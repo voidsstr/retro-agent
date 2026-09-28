@@ -901,6 +901,7 @@ static int cmd_fbshot(const char *path)
     ULONG vpc, start, stride, ss, w, h, fmt, bpp, need, lfb_len, rowbytes, x, y, xb;
     double luma = 0;
     int tiled, overlay, have_clut = 0, sli = -1;
+    const char *layer = "desktop";
     unsigned char *line, *bmp;
     FILE *f;
     vcr_info v;
@@ -922,12 +923,24 @@ static int cmd_fbshot(const char *path)
     bpp = vcr_fb_bytespp(fmt);
     tiled = (vpc & VCR_VPC_DESKTOP_TILED_EN) != 0;
     overlay = (vpc & VCR_VPC_OVERLAY_EN) != 0;
+    if (!(vpc & VCR_VPC_DESKTOP_EN) && overlay) {
+        /* a fullscreen Glide game: its front buffer is scanned out through
+         * the overlay (include/vcr_fbshot.h) */
+        layer = "overlay";
+        start = vcr_fb_start(*(volatile ULONG *)(regs + VCR_R_VIDCURROVERLAYSTARTADDR));
+        tiled = (vpc & VCR_VPC_OVERLAY_TILED_EN) != 0;
+        stride = vcr_fb_overlay_stride(stride);
+        bpp = vcr_fb_overlay_bytespp(vcr_fb_pitch(stride, tiled), w);
+        fmt = bpp == 4 ? VCR_VPC_FMT_RGB32 : bpp == 2 ? VCR_VPC_FMT_RGB565 : 7;
+    }
     need = vcr_fb_extent(w, h, bpp, stride, tiled);
     lfb_len = VirtualQuery((LPCVOID)lfb, &mbi, sizeof mbi) ? (ULONG)mbi.RegionSize : 0;
     printf("{\"cmd\":\"fbshot\",\"vidProcCfg\":\"%08lx\",\"start\":\"%08lx\",\"stride\":\"%08lx\","
            "\"w\":%lu,\"h\":%lu,\"fmt\":%lu,\"tiled\":%d,\"overlay\":%d,\"sli_active\":%d,"
-           "\"lfb_view\":%lu,", vpc, start, stride, w, h, fmt, tiled, overlay, sli, lfb_len);
-    if (!(vpc & VCR_VPC_DESKTOP_EN) || !bpp || !w || !h || w > 2048 || h > 2048 ||
+           "\"lfb_view\":%lu,\"layer\":\"%s\",", vpc, start, stride, w, h, fmt, tiled, overlay, sli,
+           lfb_len, layer);
+    if (!((vpc & VCR_VPC_DESKTOP_EN) || !strcmp(layer, "overlay")) || !bpp || !w || !h ||
+        w > 2048 || h > 2048 ||
         !lfb_len || start + need > lfb_len) {
         printf("\"ok\":false,\"error\":\"scanout outside the mapped view or not a desktop format\"}\n");
         hwc_close();
