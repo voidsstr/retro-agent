@@ -37,11 +37,26 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, REPO)
+sys.path.insert(0, HERE)
+from boxkey import boxkey_path, dpid_fp_from_reg   # noqa: E402
 
 HALO_KEY = "SOFTWARE\\Microsoft\\Microsoft Games\\Halo"
-DEFAULT_BOXES = ["192.168.1.123", "192.168.1.124", "192.168.1.133",
-                 "192.168.1.143", "192.168.1.145", "192.168.1.171",
-                 "192.168.1.240", "192.168.1.243", "192.168.1.246"]
+ROSTER = os.path.join(REPO, "scripts", "fleet", "fleet-roster.txt")
+
+
+def roster_boxes(path=ROSTER):
+    """The fleet roster's IPs. A hardcoded list here named .246 for weeks
+    after that box moved to .195 (2026-09-26 re-cabling) - the roster is the
+    one list that gets corrected."""
+    try:
+        with open(path) as f:
+            return [ln.split("\t")[0].strip() for ln in f
+                    if ln.strip() and not ln.startswith("#")]
+    except OSError:
+        return []
+
+
+DEFAULT_BOXES = roster_boxes()
 
 
 async def read_box(ip, secret, timeout):
@@ -65,21 +80,43 @@ async def read_box(ip, secret, timeout):
             installed = "HALO-PRESENT" in probe
         except Exception:
             installed = False
-        out = await c.command_text("REGREAD HKLM " + HALO_KEY, timeout=25.0)
+        # The box-local copy is what the launcher applies at every start
+        # (boxkey.py); it decides which key the box PLAYS on.
         try:
+            path = await boxkey_path(c)
+            local_fp = dpid_fp_from_reg(
+                (await c.command_binary("DOWNLOAD " + path, timeout=25.0))
+                .decode("latin-1"))
+        except Exception:
+            local_fp = None
+        # An ABSENT key makes the agent answer with an error, which
+        # command_text raises - that is "no Halo registry key", not
+        # "unreachable" (.124 read as unreachable on 2026-09-28 for exactly
+        # this, one command after answering the install probe).
+        try:
+            out = await c.command_text("REGREAD HKLM " + HALO_KEY, timeout=25.0)
             values = json.loads(out).get("values", [])
         except ValueError:
-            # the key is absent -> the agent answers with an error, not JSON
-            return "no-halo", None, installed, out.strip()[:60]
+            out, values = "the registry answer was not JSON", []
+        except Exception as e:
+            if type(e).__name__ != "RetroProtocolError":
+                raise
+            out, values = "no Halo registry key", []
+        reg_fp = None
+        detail = ("%d value(s), no DigitalProductID" % len(values)
+                  if values else out.strip()[:60])
         for v in values:
             if v.get("name", "").lower() == "digitalproductid":
                 hexs = re.sub(r"[^0-9a-fA-F]", "", str(v.get("data", ""))).lower()
                 if not hexs:
-                    return "no-key", None, installed, "DigitalProductID is empty"
-                fp = hashlib.sha256(hexs.encode()).hexdigest()[:10]
-                return "ok", fp, installed, "%d bytes" % (len(hexs) // 2)
-        return ("no-key", None, installed,
-                "%d value(s), no DigitalProductID" % len(values))
+                    detail = "DigitalProductID is empty"
+                    break
+                reg_fp = hashlib.sha256(hexs.encode()).hexdigest()[:10]
+                detail = "%d bytes" % (len(hexs) // 2)
+        fp, source = effective_key(reg_fp, local_fp)
+        if not fp:
+            return ("no-key" if values else "no-halo"), None, installed, detail
+        return "ok", fp, installed, detail + ", " + source
     except Exception as e:
         return "unreachable", None, False, type(e).__name__
     finally:
@@ -87,6 +124,24 @@ async def read_box(ip, secret, timeout):
             await c.close()      # graceful: an abrupt close crashes Win98
         except Exception:
             pass
+
+
+def effective_key(reg_fp, local_fp):
+    """(fingerprint the box PLAYS on, how we know).
+
+    The staged Play Halo.bat re-applies the box-local key at every launch, so
+    where one exists it wins over the registry - which can hold the library
+    key between a GAMESYNC and the next launch. A box with ONLY a registry key
+    is reported as such: its per-box key survives only until the next sync."""
+    if local_fp:
+        if reg_fp and reg_fp != local_fp:
+            return local_fp, ("box-local (registry holds %s until the next "
+                              "launch re-applies it)" % reg_fp)
+        return local_fp, "box-local"
+    if reg_fp:
+        return reg_fp, ("registry only - NO box-local copy, the next GAMESYNC "
+                        "reverts it to the library key")
+    return None, ""
 
 
 def classify_duplicates(by_fp):

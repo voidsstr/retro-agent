@@ -3413,12 +3413,23 @@ alphabet `BCDFGHJKMPQRTVWXY2346789`, which deliberately omits every look-alike
 be a Halo key and needs no hardware test — one supplied key was ruled out that
 way in seconds.
 
-Assign them with:
+Assign them with the box→key map (`scripts/halo/box-keys.txt`, keyed on
+the hostname the box reports, vault NAMES only):
 
 ```bash
-python3 scripts/halo/assign_keys.py --keys-file keys.txt \
-        --boxes 192.168.1.145,192.168.1.240,192.168.1.123
+python3 scripts/halo/assign_keys.py --map --boxes 192.168.1.124,192.168.1.145
 ```
+
+> **⚠️ GAMESYNC PUTS EVERY BOX BACK ON ONE KEY — the launcher undoes it
+> (2026-09-28).** GAMESYNC merges a title's `install.reg` every time it walks
+> the title, and Halo's carries the library key (`fleet-gamekey-halo-pc`):
+> `.145` and `.240`, given distinct keys on 09-01, were measured back on the
+> SAME key. So `assign_keys.py` also writes the box's key to
+> `%ALLUSERSPROFILE%\RetroFleet\halo-key.reg` (outside the tree, so a purge
+> keeps it), and the staged `Play Halo.bat` `reg import`s it at every launch
+> (`stage-fleetres.py` `halo_boxkey()`). `audit_keys.py` reports the key a box
+> PLAYS on and flags `registry only` - a box whose key the next sync reverts.
+> Boxes still to assign when next powered on: `.145`, `.240`, `.123`, `.195`.
 
 It builds each box's `DigitalProductID` with `make_dpid.py`, **reads the blob
 back to verify**, never echoes a key (fingerprints only), and **refuses a

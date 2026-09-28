@@ -496,6 +496,33 @@ NEWDARK_ERR_BAT = "%~dp0" + NEWDARK_ERR
 VCRKMD_SERVICE = "vcrmp"
 
 
+# --------------------------------------------------------------------------
+# Halo PC allows ONE simultaneous player per CD key and reports the second box
+# as "Your CD Key is invalid" (CLAUDE.md, measured 2026-08-31), so every box
+# needs its own key - scripts/halo/assign_keys.py sets one. But GAMESYNC merges
+# a title's install.reg every time it walks the title, and Halo's carries the
+# library's single DigitalProductID: measured 2026-09-28, .145 and .240 - given
+# distinct keys on 09-01 - were back on the SAME key, so the two could not be
+# in one game. assign_keys.py therefore also keeps the box's key OUTSIDE the
+# game tree (a purge of C:\Games\Halo must not take it), and the launcher
+# re-applies it on every start. `reg import`, not `regedit /s`: it takes the
+# REGEDIT4 file on XP (verified on .124) and can never raise a UAC prompt on a
+# Windows 7 box - there it fails quietly and the box keeps what it has.
+# scripts/halo/assign_keys.py and audit_keys.py name the same path
+# (tests/python/test_halo_boxkey.py pins the three together).
+# --------------------------------------------------------------------------
+HALO_BOXKEY_BAT = r"%ALLUSERSPROFILE%\RetroFleet\halo-key.reg"
+
+
+def halo_boxkey():
+    k = HALO_BOXKEY_BAT
+    return ['rem ---- per-box HALO_BOXKEY - see stage-fleetres.py ----------------',
+            'if exist "%s" reg import "%s" >nul 2>&1' % (k, k),
+            'if not exist "%s" echo NO PER-BOX HALO KEY - this box plays on the '
+            'library key, and a second box on it is refused. Assign one with '
+            'scripts/halo/assign_keys.py' % k]
+
+
 def newdark_display_swap():
     r"""Move NewDark's cam_ext.cfg aside where vcr-kmd drives the screen.
 
@@ -1022,6 +1049,12 @@ TITLES = {
                 ('-vidmode %FR_W%,%FR_H%,60', '-vidmode %FR_W%,%FR_H%,%FR_HZ%'),
             ],
         },
+        "post": [{
+            "file": "Play Halo.bat",
+            "marker": "HALO_BOXKEY",
+            "before": 'start "" halo.exe',
+            "lines": halo_boxkey(),
+        }],
     },
     "HalfLife1": {
         # GoldSrc, same engine as the already-proven Counter-Strike launcher.
