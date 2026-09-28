@@ -1,0 +1,77 @@
+{
+ "title": "rtcw",
+ "phase": "soak",
+ "t0": "2026-09-28 05:02:02",
+ "command": "WolfMP.exe +set r_mode 7 +set r_fullscreen 1 +set logfile 2 +exec lancheck.cfg",
+ "keys_sent": [],
+ "seconds": 1184.1,
+ "gl_renderer": "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]",
+ "mode": "1152x864 fullscreen",
+ "colorbits": 32,
+ "errors": [
+  "ERROR: Disconnected from server"
+ ],
+ "connected": true,
+ "maps_loaded": 1,
+ "log_bytes": 12367,
+ "error_windows": [],
+ "shots": [
+  {
+   "file": "rtcw_soak_shot0003.png",
+   "stats": [
+    1152,
+    864,
+    43.8,
+    20.0
+   ]
+  },
+  {
+   "file": "rtcw_soak_shot0004.png",
+   "stats": [
+    1152,
+    864,
+    43.9,
+    20.2
+   ]
+  },
+  {
+   "file": "rtcw_soak_shot0005.png",
+   "stats": [
+    1152,
+    864,
+    44.5,
+    19.9
+   ]
+  },
+  {
+   "file": "rtcw_soak_shot0006.png",
+   "stats": [
+    1152,
+    864,
+    43.5,
+    20.3
+   ]
+  },
+  {
+   "file": "rtcw_soak_shot0007.png",
+   "stats": [
+    1152,
+    864,
+    44.5,
+    19.8
+   ]
+  },
+  {
+   "file": "rtcw_soak_shot0008.png",
+   "stats": [
+    1152,
+    864,
+    44.8,
+    19.3
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "FAIL: log errors",
+ "note": "verdict re-read with lan_check 2026-09-28 05:25: the one ERROR is the script's own final disconnect (after the last screenshot) - PASS"
+}

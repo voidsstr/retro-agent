@@ -1,0 +1,78 @@
+{
+ "title": "ut99",
+ "phase": "soak",
+ "t0": "2026-09-28 04:01:08",
+ "command": "cd System && UnrealTournament.exe 192.168.1.196:7797 -log=lancheck.log",
+ "keys_sent": [
+  "F11@292s:OK",
+  "F11@546s:OK",
+  "F11@793s:OK",
+  "F11@1045s:OK",
+  "F11@1295s:OK",
+  "F11@1551s:OK",
+  "F10@1801s:OK"
+ ],
+ "seconds": 1812.5,
+ "gl_renderer": "): Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]",
+ "connected": true,
+ "log_bytes": 46446,
+ "error_windows": [],
+ "shots": [
+  {
+   "file": "ut99_soak_Shot0007.png",
+   "stats": [
+    1280,
+    960,
+    23.1,
+    31.7
+   ]
+  },
+  {
+   "file": "ut99_soak_Shot0008.png",
+   "stats": [
+    1280,
+    960,
+    23.1,
+    31.7
+   ]
+  },
+  {
+   "file": "ut99_soak_Shot0009.png",
+   "stats": [
+    1280,
+    960,
+    25.5,
+    36.1
+   ]
+  },
+  {
+   "file": "ut99_soak_Shot0010.png",
+   "stats": [
+    1280,
+    960,
+    36.3,
+    34.6
+   ]
+  },
+  {
+   "file": "ut99_soak_Shot0011.png",
+   "stats": [
+    1280,
+    960,
+    13.9,
+    24.5
+   ]
+  },
+  {
+   "file": "ut99_soak_Shot0012.png",
+   "stats": [
+    1280,
+    960,
+    103.9,
+    17.2
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "PASS"
+}

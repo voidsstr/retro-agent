@@ -1,0 +1,177 @@
+{
+ "title": "cs16",
+ "phase": "soak",
+ "t0": "2026-09-28 03:50:07",
+ "command": "hl.exe -game cstrike -full -gl -w 1280 -h 960 -condebug +exec lancheck.cfg",
+ "keys_sent": [],
+ "seconds": 635.5,
+ "connected": true,
+ "log_bytes": 476275,
+ "error_windows": [],
+ "shots": [
+  {
+   "file": "cs16_soak_cs_7470000.png",
+   "stats": [
+    1280,
+    960,
+    16.0,
+    31.9
+   ]
+  },
+  {
+   "file": "cs16_soak_cs_7470001.png",
+   "stats": [
+    1280,
+    960,
+    16.0,
+    31.9
+   ]
+  },
+  {
+   "file": "cs16_soak_cs_7470002.png",
+   "stats": [
+    1280,
+    960,
+    14.0,
+    11.1
+   ]
+  },
+  {
+   "file": "cs16_soak_cs_7470003.png",
+   "stats": [
+    1280,
+    960,
+    13.9,
+    11.2
+   ]
+  },
+  {
+   "file": "cs16_soak_cs_7470004.png",
+   "stats": [
+    1280,
+    960,
+    14.0,
+    11.2
+   ]
+  },
+  {
+   "file": "cs16_soak_cs_7470005.png",
+   "stats": [
+    1280,
+    960,
+    14.0,
+    11.1
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0000.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0001.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0002.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0003.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0004.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0005.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0006.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0007.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0008.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0009.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0010.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  },
+  {
+   "file": "cs16_soak_Snapshot0011.png",
+   "stats": [
+    1280,
+    960,
+    47.4,
+    29.2
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "PASS"
+}

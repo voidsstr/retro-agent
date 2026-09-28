@@ -1,0 +1,90 @@
+{
+ "title": "q3",
+ "phase": "soak",
+ "t0": "2026-09-28 03:29:45",
+ "command": "ioquake3.x86.exe +set r_mode -1 +set r_customwidth 1280 +set r_customheight 960 +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov 90 +set logfile 2 +exec lancheck.cfg",
+ "keys_sent": [],
+ "seconds": 1216.3,
+ "gl_renderer": "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]",
+ "mode": "1280x960 fullscreen",
+ "colorbits": 32,
+ "connected": true,
+ "log_bytes": 10815,
+ "error_windows": [],
+ "shots": [
+  {
+   "file": "q3_soak_shot0010.png",
+   "stats": [
+    1280,
+    960,
+    54.0,
+    36.4
+   ]
+  },
+  {
+   "file": "q3_soak_shot0011.png",
+   "stats": [
+    1280,
+    960,
+    55.1,
+    36.1
+   ]
+  },
+  {
+   "file": "q3_soak_shot0012.png",
+   "stats": [
+    1280,
+    960,
+    54.3,
+    36.3
+   ]
+  },
+  {
+   "file": "q3_soak_shot0013.png",
+   "stats": [
+    1280,
+    960,
+    55.7,
+    35.8
+   ]
+  },
+  {
+   "file": "q3_soak_shot0014.png",
+   "stats": [
+    1280,
+    960,
+    52.9,
+    37.0
+   ]
+  },
+  {
+   "file": "q3_soak_shot0015.png",
+   "stats": [
+    1280,
+    960,
+    53.6,
+    36.5
+   ]
+  },
+  {
+   "file": "q3_soak_shot0016.png",
+   "stats": [
+    1280,
+    960,
+    57.1,
+    35.9
+   ]
+  },
+  {
+   "file": "q3_soak_shot0017.png",
+   "stats": [
+    1280,
+    960,
+    54.4,
+    36.0
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "PASS"
+}

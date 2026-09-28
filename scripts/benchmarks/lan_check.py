@@ -233,6 +233,16 @@ class IdTech3:
             r["errors"] = errs[:12]
         r["connected"] = bool(re.search(r"CL_InitCGame|entered the game", raw))
         r["maps_loaded"] = len(re.findall(r"\.\.\.loaded \d+ faces", raw))
+        # the soak script ends `disconnect`, which RtCW (and Q2) report as
+        # "ERROR: Disconnected from server": ours when it follows the last
+        # screenshot the script took, a real drop anywhere else
+        if r.get("errors"):
+            last_shot = raw.rfind("Wrote screenshots")
+            drop = raw.rfind("Disconnected from server")
+            if last_shot >= 0 and drop > last_shot and raw.count("Disconnected from server") == 1:
+                r["errors"] = [e for e in r["errors"] if "Disconnected from server" not in e]
+                if not r["errors"]:
+                    del r["errors"]
         return r
 
 
