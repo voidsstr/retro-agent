@@ -222,6 +222,13 @@ static const ctl_choice ctl_c_2d[] = {
     { "Off - GDI draws it (default)", NULL },
     { "On - the 2D engine draws it", "1" },
     { NULL, NULL } };
+/* pattern fills and lines: ON by default since vcr-kmd 2026-09-28 (the
+ * miniport reads Diag\Accel2DPattern / Accel2DLine with a default of 1), so
+ * ABSENT means on and the off switch is an explicit 0 */
+static const ctl_choice ctl_c_2d_on[] = {
+    { "On - the 2D engine draws it (default)", NULL },
+    { "Off - GDI draws it", "0" },
+    { NULL, NULL } };
 
 /* vintage lane (carried over from the first 3dfxctl) */
 static const ctl_choice ctl_c_v_clock[] = {
@@ -332,14 +339,15 @@ static const ctl_row ctl_rows[] = {
       "2D acceleration (experimental)", "Text on the 2D engine",
       "Draws text with the 2D engine. Correct on the emulated test bed but slower there than "
       "the software path; not yet measured on this board." },
-    { CTL_ID_2D_PAT, CTL_LANE_VCR, CTL_TAB_DISPLAY, CTL_ST_DIAG, "Accel2DPattern", CTL_K_CHECK, CTL_WHEN_NOW, CTL_F_R_KERNEL | CTL_F_EXPERIMENTAL, ctl_c_2d, 0, 0, 0,
-      "2D acceleration (experimental)", "Pattern fills on the 2D engine",
-      "Hatched brushes and the grey of a drag rectangle drawn by the 2D engine. Correct on "
-      "the test bed; not yet run on this board." },
-    { CTL_ID_2D_LINE, CTL_LANE_VCR, CTL_TAB_DISPLAY, CTL_ST_DIAG, "Accel2DLine", CTL_K_CHECK, CTL_WHEN_NOW, CTL_F_R_KERNEL | CTL_F_EXPERIMENTAL, ctl_c_2d, 0, 0, 0,
-      "2D acceleration (experimental)", "Straight lines on the 2D engine",
-      "Horizontal and vertical lines drawn by the 2D engine. Correct on the test bed; not "
-      "yet run on this board." },
+    { CTL_ID_2D_PAT, CTL_LANE_VCR, CTL_TAB_DISPLAY, CTL_ST_DIAG, "Accel2DPattern", CTL_K_CHECK, CTL_WHEN_NOW, CTL_F_R_KERNEL, ctl_c_2d_on, 0, 0, 0,
+      "2D acceleration", "Pattern fills on the 2D engine",
+      "Hatched brushes and the grey of a drag rectangle drawn by the 2D engine. On by "
+      "default: verified on the Voodoo 5 6000 (pixel-exact against Windows' own drawing, "
+      "7-23 times faster). Turn it off only to rule it out." },
+    { CTL_ID_2D_LINE, CTL_LANE_VCR, CTL_TAB_DISPLAY, CTL_ST_DIAG, "Accel2DLine", CTL_K_CHECK, CTL_WHEN_NOW, CTL_F_R_KERNEL, ctl_c_2d_on, 0, 0, 0,
+      "2D acceleration", "Straight lines on the 2D engine",
+      "Horizontal and vertical lines drawn by the 2D engine. On by default: verified on the "
+      "Voodoo 5 6000 (pixel-exact, 1.2-1.8 times faster). Turn it off only to rule it out." },
 
     /* ===== the VINTAGE 3dfxvs driver (first 3dfxctl, unchanged values) ===== */
     { CTL_ID_V_CLOCK, CTL_LANE_VINTAGE, CTL_TAB_DISPLAY, CTL_ST_V_DEV0, "GraphicsClocking", CTL_K_CHOICE, CTL_WHEN_REBOOT, CTL_F_DWORD, ctl_c_v_clock, 0, 0, 0,

@@ -318,8 +318,16 @@ TEST(t_table_is_well_formed)
                 CHECK_EQ_I(r->when, CTL_WHEN_EXPLORER);
             if (r->store == CTL_ST_DIAG || r->store == CTL_ST_DISPLAY)
                 CHECK_EQ_I(r->when, CTL_WHEN_NOW);
-            if (r->store == CTL_ST_DIAG)
+            /* a kernel switch is experimental unless it is one of the two the
+             * driver turned ON by default after silicon verification
+             * (2026-09-28: pattern fills and lines, whose off switch is 0) */
+            if (r->store == CTL_ST_DIAG && r->choices != ctl_c_2d_on)
                 CHECK(r->flags & CTL_F_EXPERIMENTAL, "a kernel switch row not marked experimental");
+            if (r->choices == ctl_c_2d_on) {
+                CHECK(r->id == CTL_ID_2D_PAT || r->id == CTL_ID_2D_LINE, "default-on row");
+                CHECK(r->choices[0].value == NULL && strcmp(r->choices[1].value, "0") == 0,
+                      "default-on: absent = on, the off switch is 0");
+            }
             CHECK(r->flags & (CTL_F_R_GLIDE | CTL_F_R_ICD | CTL_F_R_KERNEL) ||
                   r->store == CTL_ST_DISPLAY, "an our-stack row names no reader");
         }

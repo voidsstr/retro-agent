@@ -747,9 +747,17 @@ static void rows_load(void)
         case CTL_ST_DIAG: {
             DWORD d = 0;
             e = reg_get_dword(HKEY_LOCAL_MACHINE, CTL_KEY_DIAG, r->name, &d);
-            if (e == ERROR_SUCCESS && d) {
-                s->present = 1;
-                strcpy(s->cur, "1");
+            if (e == ERROR_SUCCESS) {
+                if (r->choices == ctl_c_2d_on) {
+                    /* default ON: only an explicit 0 is a setting */
+                    if (!d) {
+                        s->present = 1;
+                        strcpy(s->cur, "0");
+                    }
+                } else if (d) {
+                    s->present = 1;
+                    strcpy(s->cur, "1");
+                }
             }
             break;
         }
@@ -2193,7 +2201,8 @@ static void apply_all(void)
                 unsigned bit = r->id == CTL_ID_2D_TEXT ? VCR_2DS_F_TEXT
                              : r->id == CTL_ID_2D_PAT ? VCR_2DS_F_PAT : VCR_2DS_F_LINE;
                 want2d_mask |= bit;
-                if (val)
+                /* the row's own default: absent is ON for pattern/line */
+                if (r->choices == ctl_c_2d_on ? (!val || strcmp(val, "0") != 0) : (val != NULL))
                     want2d_flags |= bit;
             }
         }
