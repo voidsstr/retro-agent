@@ -1198,9 +1198,14 @@ it satisfies all of this:
    Half-Life lambda; System Shock 2 resolved to `clokspl.exe`, a CD-Cops loader.
    **Give the third field explicitly for every shortcut**, pointing at an `.ico`
    or an exe **inside the staged tree**, so the artwork deploys with the game
-   and a fresh box gets it with no extra step. If a title genuinely ships no
-   artwork (Carmageddon 1 has none — no `.ico`, and a DOS4GW binary carries no
-   PE resources), **say so in the tree's notes**; a dull icon beats a wrong one.
+   and a fresh box gets it with no extra step. If a title ships no icon, make
+   one from **the game's own art** (Carmageddon 1: Max Damage from its pratcam
+   FLI; Serious Sam: its menu-logo texture) — never the emulator's. **An icon
+   XP can draw is an `.ico` with BMP entries**: a Vista PNG-only `.ico` (every
+   GOG one, and anything Pillow writes without `bitmap_format='bmp'`) and an
+   exe with no icon resource both show a blank page on XP while the path
+   resolves fine. The validator fails both since 2026-09-28. Replacing a
+   broken icon? **Give it a new filename** — the shell caches icons by path.
 4. **`install.reg`** for every registry key the game needs — CD-check
    satisfaction, install paths, video config. **`REGEDIT4`** merges everywhere;
    `Windows Registry Editor Version 5.00` is XP+ only and does nothing at all,
