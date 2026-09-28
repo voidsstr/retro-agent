@@ -1139,8 +1139,8 @@ static void build_row(HWND page, ROWSTATE *s, int idx, int *y, int w)
         s->hctl = mk(page, "BUTTON", r->label, BS_AUTOCHECKBOX | WS_TABSTOP, 14, *y + 2,
                      cx + cw - 14, 18, id, NULL);
         SendMessageA(s->hctl, BM_SETCHECK,
-                     s->pend_present && streq(s->pend, r->choices[1].value) ? BST_CHECKED
-                                                                            : BST_UNCHECKED, 0);
+                     ctl_value_matches(r->choices[ctl_check_index(r->choices)].value,
+                                       s->pend_present, s->pend) ? BST_CHECKED : BST_UNCHECKED, 0);
     } else {
         lab = mk(page, "STATIC", r->label, SS_LEFT | SS_NOPREFIX, 14, *y + 4, cx - 18, 16, 0, NULL);
         switch (r->kind) {
@@ -2624,7 +2624,8 @@ static INT_PTR CALLBACK PageProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
         }
         if (s && code == BN_CLICKED && s->row->kind == CTL_K_CHECK) {
             int on = IsDlgButtonChecked(h, id) == BST_CHECKED;
-            set_pend(s, s->row->choices[on ? 1 : 0].value);
+            int ci = ctl_check_index(s->row->choices);
+            set_pend(s, s->row->choices[on ? ci : 1 - ci].value);
             ui_update_buttons();
             return TRUE;
         }

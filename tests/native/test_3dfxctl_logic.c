@@ -349,6 +349,26 @@ TEST(t_table_is_well_formed)
     CHECK(n >= 17, "the table lost rows");
 }
 
+/* 2026-09-28, .124: the Display & 2D tab showed "Pattern fills" and "Straight
+ * lines" UNTICKED while the driver reported both ON - the box was ticked only
+ * for choices[1], which on a default-ON row is the OFF value "0". */
+TEST(t_a_default_on_checkbox_is_ticked_when_absent)
+{
+    int ci = ctl_check_index(ctl_c_2d_on);
+    CHECK(ci == 0, "the tick of a default-on row is choices[0]");
+    CHECK(ctl_value_matches(ctl_c_2d_on[ci].value, 0, ""), "absent (on) shows ticked");
+    CHECK(!ctl_value_matches(ctl_c_2d_on[ci].value, 1, "0"), "an explicit 0 (off) shows unticked");
+    CHECK(ctl_c_2d_on[1 - ci].value && strcmp(ctl_c_2d_on[1 - ci].value, "0") == 0,
+          "unticking writes 0");
+    CHECK(ctl_c_2d_on[ci].value == NULL, "ticking clears the value (absent = on)");
+    /* the old rule, on the same state, was wrong both ways */
+    CHECK(!ctl_value_matches(ctl_c_2d_on[1].value, 0, ""), "old rule: absent showed unticked");
+    /* an ordinary off-by-default row is unchanged */
+    CHECK(ctl_check_index(ctl_c_2d) == 1, "text on the engine: the tick is choices[1]");
+    CHECK(!ctl_value_matches(ctl_c_2d[1].value, 0, ""), "absent (off) shows unticked");
+    CHECK(ctl_value_matches(ctl_c_2d[1].value, 1, "1"), "1 shows ticked");
+}
+
 MUNIT_MAIN("3dfxctl logic (the 3dfx Control Panel's decisions, true source)",
     RUN(t_no_preset_ever_selects_aa);
     RUN(t_aa_modes_are_listed_only_when_allowed);
@@ -360,4 +380,5 @@ MUNIT_MAIN("3dfxctl logic (the 3dfx Control Panel's decisions, true source)",
     RUN(t_the_glide_key_follows_getregpath);
     RUN(t_floats_default_to_absent_and_clamp);
     RUN(t_table_is_well_formed);
+    RUN(t_a_default_on_checkbox_is_ticked_when_absent);
 )

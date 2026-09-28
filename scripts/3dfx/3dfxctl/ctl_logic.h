@@ -230,6 +230,25 @@ static const ctl_choice ctl_c_2d_on[] = {
     { "Off - GDI draws it", "0" },
     { NULL, NULL } };
 
+/* Which choice a CHECKBOX row's tick means. Normally choices[1] (off by
+ * default, "1" when on); for a default-ON row (ctl_c_2d_on) the tick is
+ * choices[0] - "On", stored as ABSENT - and choices[1] ("0") is the untick.
+ * The 2.0 panel ticked a box only for choices[1], so on .124 (2026-09-28) both
+ * 2D rows showed UNTICKED while the driver reported patterns and lines ON, and
+ * ticking one would have written 0 - turning the engine OFF. */
+static __inline int ctl_check_index(const ctl_choice *c)
+{
+    return c == ctl_c_2d_on ? 0 : 1;
+}
+
+/* a choice's value against a row's pending state; NULL means absent */
+static __inline int ctl_value_matches(const char *want, int present, const char *have)
+{
+    if (!want)
+        return !present;
+    return present && have && !strcmp(want, have);
+}
+
 /* vintage lane (carried over from the first 3dfxctl) */
 static const ctl_choice ctl_c_v_clock[] = {
     { "Auto (BIOS / stock 166 MHz)", "0" }, { "143 MHz (conservative)", "143" },
