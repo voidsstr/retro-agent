@@ -433,18 +433,25 @@ def setline_cfg(conf, entries):
 # no 3dfx card. Both directions matter: a tree that only ever renames one way
 # would strand the wrapper aside after the card came out.
 # --------------------------------------------------------------------------
-def glide_swap(rel):
-    """rel = the game-local wrapper's path relative to the title root."""
-    w = '%~dp0' + rel
-    return [
-        'rem ---- per-box RENDER DEVICE (see stage-fleetres.py) --------------',
-        'if "%FR_GLIDE%"=="1" (',
-        '  if exist "%s" move /y "%s" "%s.nglide" >nul' % (w, w, w),
-        ') else (',
-        '  if not exist "%s" if exist "%s.nglide" move /y "%s.nglide" "%s" >nul'
-        % (w, w, w, w),
-        ')',
-    ]
+def glide_swap(*rels):
+    """rels = the game-local wrapper files, relative to the title root.
+
+    EVERY Glide DLL of the wrapper, not only the one the game imports: on a
+    box with real silicon the game falls through to system32's glide2x.dll,
+    which on a Voodoo 4/5 is the Glide2-to-Glide3 translator - and it loads
+    glide3x.dll BY NAME, application directory first. Carmageddon2 ships
+    nGlide's glide3x.dll (and glide.dll) beside glide2x.dll, so moving only
+    glide2x aside handed the translator nGlide's glide3x, and BRender stopped
+    with "Unable to allocate Main Front Screen" (.124, V5 6000, 2026-09-28)."""
+    ws = ['%~dp0' + rel for rel in rels]
+    out = ['rem ---- per-box RENDER DEVICE (see stage-fleetres.py) --------------',
+           'if "%FR_GLIDE%"=="1" (']
+    out += ['  if exist "%s" move /y "%s" "%s.nglide" >nul' % (w, w, w) for w in ws]
+    out.append(') else (')
+    out += ['  if not exist "%s" if exist "%s.nglide" move /y "%s.nglide" "%s" >nul'
+            % (w, w, w, w) for w in ws]
+    out.append(')')
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -854,7 +861,8 @@ TITLES = {
             "file": "Play Carmageddon 2.bat",
             "marker": "FR_GLIDE",
             "before": 'start "" CARMA2_HW.EXE',
-            "lines": glide_swap("glide2x.dll"),
+            # all three nGlide DLLs (glide_swap's docstring)
+            "lines": glide_swap("glide2x.dll", "glide3x.dll", "glide.dll"),
         }],
     },
     "Halo": {
@@ -1598,14 +1606,35 @@ class Runner:
                       % (title, pb["file"]))
             return
         body = read(path)
+        nl = "\r\n" if "\r\n" in body else "\n"
+        flat = body.replace("\r\n", "\n")
+        block = "\n".join(pb["lines"])
         if pb["marker"] in body:
-            self.skipped += 1
+            if block in flat:
+                self.skipped += 1
+                return
+            # An OLDER version of this block: the marker alone used to mean
+            # "done", so a changed recipe (Carmageddon2's full nGlide set,
+            # 2026-09-28) never reached a launcher that had the first one.
+            # Replace it in place - from its first line up to the anchor.
+            start = flat.find(pb["lines"][0])
+            end = flat.find(pb["before"], start) if start >= 0 else -1
+            if start < 0 or end < 0:
+                self.fail("%s/%s: a %s block that is not this recipe's - not "
+                          "touched" % (title, pb["file"], pb["marker"]))
+                return
+            if self.check:
+                self.fail("%s/%s: the %s block is stale" % (title, pb["file"], pb["marker"]))
+                return
+            flat = flat[:start] + block + "\n\n" + flat[end:]
+            out = flat.replace("\n", nl) if nl == "\r\n" else flat
+            if not self.dry:
+                write(path, out)
+            self.note("%s/%s [%s refreshed]" % (title, pb["file"], pb["marker"]))
             return
         if self.check:
             self.fail("%s/%s: no %s block" % (title, pb["file"], pb["marker"]))
             return
-        nl = "\r\n" if "\r\n" in body else "\n"
-        flat = body.replace("\r\n", "\n")
         if pb["before"] not in flat:
             self.fail("%s/%s: anchor %r not found - the launcher changed under "
                       "us, so this recipe is stale"

@@ -414,6 +414,26 @@ def test_glide_swap_renames_in_both_directions():
            lines.index('") else ('.replace('") else (', 'else (')) or True
 
 
+def test_carmageddon2_moves_the_whole_nglide_set_aside():
+    """On a Voodoo 4/5 the game falls through to system32's glide2x.dll - the
+    Glide2-to-Glide3 translator - which loads glide3x.dll by name, application
+    directory first. Carmageddon2 ships nGlide's glide3x.dll too, so moving only
+    glide2x.dll aside handed the translator the wrapper and BRender died with
+    "Unable to allocate Main Front Screen" (.124, 2026-09-28)."""
+    text = "\n".join(l for pb in sf.TITLES["Carmageddon2"]["post"] for l in pb["lines"])
+    for dll in ("glide2x.dll", "glide3x.dll", "glide.dll"):
+        assert 'move /y "%%~dp0%s" "%%~dp0%s.nglide"' % (dll, dll) in text, dll
+        assert 'move /y "%%~dp0%s.nglide" "%%~dp0%s"' % (dll, dll) in text, dll
+    # one block, both directions, the aside-moves before the else
+    assert text.count('if "%FR_GLIDE%"=="1" (') == 1
+    assert text.index('glide3x.dll.nglide" >nul') < text.index(") else (")
+
+
+def test_a_single_file_swap_is_unchanged():
+    lines = sf.glide_swap("System\\glide2x.dll")
+    assert len(lines) == 6 and lines[1] == 'if "%FR_GLIDE%"=="1" (' and lines[3] == ') else ('
+
+
 def test_glide_swap_is_driven_by_the_measurement_not_the_default():
     """FR_GLIDE defaults to 0, so a box where FLEETRES.EXE is missing keeps the
     wrapper. Inverting that default would break six boxes to help two."""
@@ -950,3 +970,28 @@ def test_farcry_writes_quoted_values():
             "Far Cry's System.cfg quotes every value; an unquoted r_Width is "
             "not parsed at all, and nothing reports an error. FLEETRES turns a "
             "backtick into a double quote - keep them. Line was: %r" % line)
+
+
+def test_a_stale_post_block_is_refreshed_not_skipped(tmp_path):
+    """The marker alone used to mean "done", so Carmageddon2's widened nGlide
+    swap (2026-09-28) never reached a launcher that already carried the
+    glide2x-only block. A block that differs from the recipe is now replaced
+    in place; --check reports it as stale."""
+    tdir = tmp_path / "Carmageddon2"
+    tdir.mkdir()
+    old = "\r\n".join(["@echo off", 'call "%~dp0FLEETRES.BAT"', 'cd /d "%~dp0"']
+                      + sf.glide_swap("glide2x.dll") + ["", 'start "" CARMA2_HW.EXE', "exit", ""])
+    (tdir / "Play Carmageddon 2.bat").write_bytes(old.encode("latin1"))
+    pb = sf.TITLES["Carmageddon2"]["post"][0]
+    chk = sf.Runner(str(tmp_path), dry=False, check=True)
+    chk.post_block(str(tdir), "Carmageddon2", pb)
+    assert chk.errors and "stale" in chk.errors[0]
+    run = sf.Runner(str(tmp_path), dry=False, check=False)
+    run.post_block(str(tdir), "Carmageddon2", pb)
+    new = (tdir / "Play Carmageddon 2.bat").read_bytes().decode("latin1")
+    assert not run.errors and "glide3x.dll.nglide" in new and "\r\n" in new
+    assert new.count('if "%FR_GLIDE%"=="1" (') == 1          # replaced, not added
+    assert new.index("glide3x.dll.nglide") < new.index('start "" CARMA2_HW.EXE')
+    again = sf.Runner(str(tmp_path), dry=False, check=True)
+    again.post_block(str(tdir), "Carmageddon2", pb)
+    assert not again.errors and again.skipped == 1

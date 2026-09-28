@@ -55,6 +55,21 @@ Next
 '''
 
 
+async def agent_back(box, limit=180):
+    """Wait for the agent to answer again (a restart takes ~20 s; the Run-key
+    watchdog relaunches a dead one). True when it answers within `limit`."""
+    t = time.time()
+    while time.time() - t < limit:
+        try:
+            st, out = await box.cmd("PING", timeout=15)
+            if "PONG" in out.upper():
+                return True
+        except Exception:
+            pass
+        await asyncio.sleep(5)
+    return False
+
+
 async def shortcuts(box):
     await box.upload(r"C:\RETRO_AGENT\lnk.vbs", LNK_VBS)
     out = await box.exec_(r"cscript //nologo C:\RETRO_AGENT\lnk.vbs", timeout=90)
@@ -67,7 +82,13 @@ async def shortcuts(box):
 
 
 async def processes(box):
-    st, out = await box.cmd("PROCLIST", timeout=60)
+    try:
+        st, out = await box.cmd("PROCLIST", timeout=60)
+    except Exception:
+        # the agent restarted under us: wait for it, then ask again
+        if not await agent_back(box):
+            raise
+        st, out = await box.cmd("PROCLIST", timeout=60)
     try:
         j = json.loads(out)
     except Exception:
@@ -110,7 +131,7 @@ async def run_one(box, sc, outdir, shots_at, grace):
             await asyncio.sleep(w)
         now = await processes(box)
         new.update({p: n for p, n in now.items() if p not in before and n.lower() not in
-                    ("cmd.exe", "conhost.exe", "wmiprvse.exe", "dwwin.exe", "dumprep.exe")})
+                    ("cmd.exe", "conhost.exe", "wmiprvse.exe", "dwwin.exe", "dumprep.exe", "wuauclt.exe", "ping.exe")})
         alive = sorted({n for p, n in new.items() if p in now})
         data = await screenshot(box)
         safe = re.sub(r"[^A-Za-z0-9]+", "_", sc["name"]).strip("_")[:60]
@@ -123,13 +144,33 @@ async def run_one(box, sc, outdir, shots_at, grace):
     rec["running_at_end"] = sorted(set(left.values()))
     for p in left:
         await box.exec_(f"cmd /c taskkill /pid {p} 2>nul", timeout=30)
-    t = time.time()
-    while time.time() - t < grace:
-        await asyncio.sleep(3)
-        now = await processes(box)
-        left = {p: n for p, n in left.items() if p in now}
-        if not left:
-            break
+    rec["close_via"] = "WM_CLOSE"
+
+    async def settle(secs):
+        nonlocal left
+        t = time.time()
+        while time.time() - t < secs:
+            await asyncio.sleep(3)
+            now = await processes(box)
+            left = {p: n for p, n in left.items() if p in now}
+            if not left:
+                return True
+        return False
+
+    # a game that ignores WM_CLOSE: ALT+F4, then the id/GoldSrc console quit.
+    # Keys only while the game is still alive - a key that misses a dead game
+    # lands on the desktop (a RETURN there opens the selected icon).
+    if not await settle(grace) and left:
+        await box.cmd("UIKEY ALT+F4", timeout=30)
+        rec["close_via"] = "ALT+F4"
+        if not await settle(10) and left:
+            for k in ("TILDE", "TEXT:quit", "RETURN"):
+                now = await processes(box)
+                if not any(p in now for p in left):
+                    break
+                await box.cmd(f"UIKEY {k}", timeout=30)
+            rec["close_via"] = "console quit"
+            await settle(10)
     if left:
         rec["forced"] = sorted(set(left.values()))
         for p in left:
