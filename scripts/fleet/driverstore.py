@@ -117,9 +117,28 @@ def publish(files, local_dir):
             print(("OK   " if ok else "FAIL ") + name)
             if not ok:
                 bad.append(name)
+        # A bucket the new build no longer produces must go: the agent reads
+        # any <bucket>.TXT it finds, and a stale one offers INFs the store may
+        # no longer hold. Only after the new set (manifest included) is whole.
+        for name in stale_files(files) if not bad else []:
+            subprocess.run(["smbclient", "//192.168.1.122/files", "-A", auth, "-m", "SMB3", "-c",
+                            f'cd "{remote_dir}"; del "{name}"'], capture_output=True)
+            gone = not (MNT / INDEX_REL / name).exists()
+            print(("DEL  " if gone else "FAIL del ") + name)
+            if not gone:
+                bad.append(name)
     finally:
         os.unlink(auth)
     return bad
+
+
+def stale_files(files):
+    """Index files on the share that this build does not produce."""
+    d = MNT / INDEX_REL
+    if not d.is_dir():
+        return []
+    return sorted(p.name for p in d.iterdir()
+                  if p.is_file() and p.name.upper().endswith(".TXT") and p.name not in files)
 
 
 def check(files):
@@ -128,7 +147,7 @@ def check(files):
         p = MNT / INDEX_REL / name
         if not p.exists() or p.read_bytes() != data:
             stale.append(name)
-    return stale
+    return stale + [f"extra:{n}" for n in stale_files(files)]
 
 
 def main():

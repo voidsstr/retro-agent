@@ -58,6 +58,15 @@ INF_3DFX = (
 )
 # The Adaptec RAID INF that 1.88.x's word list wrongly called 3dfx: its
 # codename is "Voodoo". INF text is judged without that word (drvsafe.h).
+# nForce: a brace id, a %KEY% id expanded from [Strings], a commented and a
+# "DriverVersion" decoy around the real [Version] DriverVer.
+INF_NVNET = (
+    '[Version]\r\nSignature="$Windows NT$"\r\nClass=Net\r\n; DriverVer=01/01/1999,0.0.0.1\r\n'
+    "DriverVer = 03/02/2006, 5.10.2.0\r\n\r\n[Manufacturer]\r\n%M%=Models\r\n\r\n[Models]\r\n"
+    "%D%=N, {1A3E09BE-1E45-494B-9174-D7385B45BBF5}\\NVNET_DEV0057, PCI\\VEN_10DE&DEV_0057\r\n"
+    "%E%=N, %DEVX%\r\n\r\n"
+    '[Strings]\r\nM="NVIDIA"\r\nD="nForce"\r\nE="x"\r\nDEVX="PCI\\VEN_10DE&DEV_0373"\r\nDriverVersion="9.9"\r\n'
+)
 INF_ADAPTEC = (
     '[Version]\r\nSignature="$Windows NT$"\r\nClass=SCSIAdapter\r\n\r\n'
     "[Manufacturer]\r\n%M%=Models\r\n\r\n[Models]\r\n%D%=R, PCI\\VEN_9005&DEV_0285\r\n\r\n"
@@ -72,7 +81,7 @@ def indexed(tmp_path_factory):
         pytest.skip("SKIPPED LOUDLY: no host C compiler - drvindex.c is untested")
     d = tmp_path_factory.mktemp("store")
     for sub, name, text in (("A001", "rtl.inf", INF_RTL), ("V001", "voodoo.inf", INF_3DFX),
-                            ("R001", "arcsas.inf", INF_ADAPTEC)):
+                            ("R001", "arcsas.inf", INF_ADAPTEC), ("N001", "nvnet.inf", INF_NVNET)):
         (d / sub).mkdir()
         (d / sub / name).write_bytes(text.encode("latin-1"))
     exe = d / "drvindex"
@@ -98,6 +107,21 @@ def test_indexer_never_offers_a_3dfx_inf(indexed):
 
 def test_indexer_keeps_the_adaptec_voodoo_codename(indexed):
     assert "PCI_9005\tPCI\\VEN_9005&DEV_0285\tR001\\arcsas.inf\t-" in indexed
+
+
+def test_indexer_keeps_a_brace_id_whole(indexed):
+    """drvmatch_idch has no braces; splitting there indexed '\\NVNET_DEV0057',
+    which no device carries, so the store could never serve an nForce NIC."""
+    assert "OTHER\t{1A3E09BE-1E45-494B-9174-D7385B45BBF5}\\NVNET_DEV0057\tN001\\nvnet.inf\t03/02/2006,5.10.2.0" in indexed
+    assert not any(ln.split("\t")[1:2] == ["\\NVNET_DEV0057"] for ln in indexed)
+
+
+def test_indexer_expands_a_strings_key_id(indexed):
+    assert "PCI_10DE\tPCI\\VEN_10DE&DEV_0373\tN001\\nvnet.inf\t03/02/2006,5.10.2.0" in indexed
+
+
+def test_driverver_comes_from_the_version_section_only(indexed):
+    assert not any("01/01/1999" in ln or ln.endswith("\t9.9") for ln in indexed)
 
 
 def test_indexer_compiles_the_agent_headers_not_a_copy():
@@ -133,13 +157,30 @@ def test_group_buckets_and_keeps_the_3dfx_skips():
     assert skipped == ["V001\\voodoo.inf\tVEN_121A"]
 
 
+def test_stale_buckets_are_found_and_check_flags_them(tmp_path, monkeypatch):
+    ds = _driverstore()
+    monkeypatch.setattr(ds, "MNT", tmp_path)
+    d = tmp_path / ds.INDEX_REL
+    d.mkdir(parents=True)
+    (d / "PCI_10EC.TXT").write_bytes(b"x\r\n")
+    (d / "PCI_DEAD.TXT").write_bytes(b"old\r\n")
+    (d / "MANIFEST.TXT").write_bytes(b"m\r\n")
+    files = {"PCI_10EC.TXT": b"x\r\n", "MANIFEST.TXT": b"m\r\n"}
+    assert ds.stale_files(files) == ["PCI_DEAD.TXT"]
+    assert ds.check(files) == ["extra:PCI_DEAD.TXT"], "a bucket the build no longer makes is not 'current'"
+
+
 def test_manifest_is_published_last_and_each_file_verified():
     b = read(ROOT / "scripts/fleet/driverstore.py")
     assert '+ ["MANIFEST.TXT"]' in b, "the manifest must go last: it is what says the index is whole"
     assert "MNT / INDEX_REL / name" in b, "each file is hashed back through /mnt before the next"
+    assert "stale_files(files) if not bad" in b, "stale buckets go only once the new set is whole"
 
 
 # ---------------------------------------------------------------- the agent
+GS = SRC / "gamesync.c"
+
+
 def test_update_obeys_the_host_policy_and_refuses_win9x():
     b = body(read(SRC / "video.c"), "handle_drivers")
     i = b.index('"UPDATE"')
@@ -148,52 +189,119 @@ def test_update_obeys_the_host_policy_and_refuses_win9x():
     assert "0x80000000" in upd, "Win9x has no driver store yet: it must refuse, not half-run"
 
 
-def test_update_core_never_touches_3dfx_or_an_unfixable_problem():
-    b = body(read(SRC / "gamesync.c"), "gs_drivers_update_locked")
-    assert "pd[k].excl" in b and '"excluded_3dfx"' in b
+def test_update_is_xp_only():
+    """The store holds XP x86 drivers; Windows 7 accepts an undecorated XP
+    models section, so without this an XP driver is forced onto .246."""
+    s = read(GS)
+    ok = body(s, "gs_drvupd_os_ok")
+    assert "LOBYTE(LOWORD(v)) == 5" in ok and "HIBYTE(LOWORD(v)) == 1" in ok
+    assert "gs_drvupd_os_ok()" in body(s, "gs_drivers_update")
+    assert "gs_drvupd_os_ok()" in body(s, "gs_drivers_autopass")
+
+
+def test_arguments_are_whole_words():
+    b = body(read(GS), "gs_drivers_update")
+    assert "drvplan_parse_update(" in b and "drvplan_icontains" not in b
+
+
+def test_targets_never_3dfx_disabled_or_display_automatically():
+    b = body(read(GS), "gs_drivers_update_locked")
+    assert 'why = "excluded_3dfx"' in b
     assert "drvmatch_problem_driver_fixable(pd[k].problem)" in b
-    assert 'allow_display || _stricmp(cls, "Display") != 0' in b
-    # the stub-display tier also asks the 3dfx rule
-    gen = b[b.index("want_generic && allow_display"):]
-    assert "gs_device_3dfx" in gen[:gen.index("/* candidates */")]
+    assert "!o->allow_display && gs_drv_is_display(cls, &pd[k])" in b
+    gen = b[b.index("o->want_generic && o->allow_display"):b.index("/* candidates */")]
+    assert "gs_device_3dfx" in gen and '"excluded_3dfx"' in gen, "a 3dfx stub display is reported, not dropped"
+    assert "problem == 22 || problem == 29" in gen, "a disabled display adapter is left alone"
+    assert "pd[i].dev.DevInst == dev.DevInst" in gen, "a device already targeted is not added twice"
+
+
+def test_a_display_adapter_without_a_driver_is_still_display():
+    """With no driver XP files it under Other devices, class not 'Display'."""
+    b = body(read(GS), "gs_drv_is_display")
+    assert '"PCI\\\\CC_03"' in b
+
+
+def test_the_automatic_pass_refuses_a_display_class_inf():
+    b = body(read(GS), "gs_drivers_update_locked")
+    assert "!o->allow_display && gs_inf_is_display_class(inf, buf)" in b
 
 
 def test_every_candidate_is_checked_before_it_is_forced():
-    b = body(read(SRC / "gamesync.c"), "gs_drivers_update_locked")
+    b = body(read(GS), "gs_drivers_update_locked")
     force = b.index("gs_force_install(")
-    assert b.index("gs_inf_is_3dfx(inf)") < force
+    assert b.index("gs_inf_is_3dfx(inf) || gs_hwid_touches_3dfx(id)") < force, \
+        "the forced id reaches EVERY present device carrying it - each must pass the 3dfx rule"
     assert b.index("gs_candidate_ok(") < force
     assert b.index('"tried_out"') < force, "at most two boots per device"
-    assert "gs_signing_restore" in b and "g_sdi_nonint(was_nonint)" in b
+    assert "!o->retry" in b[:force], "a manual `retry` may pass the cap; nothing else"
+    assert b.index('"same_as_earlier_device"') < force, "one forced install covers identical devices"
+    assert b.index('"fixed_by_earlier_install"') < force
 
 
-def test_store_paths_are_validated_before_joining():
-    s = read(SRC / "gamesync.c")
-    assert "drvstore_rel_ok(rel)" in body(s, "gs_store_fetch")
+def test_dry_run_changes_nothing():
+    b = body(read(GS), "gs_drivers_update_locked")
+    loop = b[b.index("for (c = 0; c < pd[k].cand.n; c++)"):]
+    assert loop.index("} else if (o->dry) {") < loop.index("gs_store_fetch("), "a dry run copies nothing"
+    assert "if (!o->dry && !hung_before) {\n        newdev = LoadLibraryA" in b, "a dry run loads no installer"
+    assert "if (!o->dry && !hung_before) {\n        gs_sdi_resolve();" in b, "no signing/non-interactive flip"
+    assert "if (!bumped++)" in loop and loop.index('r->outcome = "would_install"') < loop.index("if (!bumped++)")
+
+
+def test_a_hung_install_is_not_pulled_out_from_under():
+    s = read(GS)
+    b = body(s, "gs_drivers_update_locked")
+    assert "if (g_sdi_nonint && !g_gs_install_hung)" in b, "prompts stay off under a hung install"
+    assert "if (newdev && !g_gs_install_hung)" in b, "newdev.dll stays loaded while a thread is inside it"
+    assert '"skipped_install_hung"' in b, "devices after a hang are listed, not dropped"
+    core = body(s, "gs_drivers_update_core")
+    assert "if (!g_gs_install_hung)\n        gs_drv_busy_leave();" in core
+    assert "if (g_gs_install_hung) {" in body(s, "handle_drvupdate")
+
+
+def test_failures_are_visible():
+    b = body(read(GS), "gs_drivers_update_locked")
+    for outcome in ('"index_unreachable"', '"fetch_failed"', '"skipped_install_hung"', '"hung"', '"failed"'):
+        assert outcome in b
+    assert "MANIFEST.TXT" in b and "DRIVER-STORE INDEX UNREACHABLE" in b
+    assert "INDEX CACHE FULL" in b and "DEVICE LIST TRUNCATED" in b
+
+
+def test_store_fetch_is_size_and_mtime_checked_and_cleaned_up():
+    s = read(GS)
+    f = body(s, "gs_store_fetch")
+    assert "drvstore_rel_ok(rel)" in f
+    assert "CompareFileTime(&a.ftLastWriteTime, &fd.ftLastWriteTime) == 0" in f, \
+        "size alone hides an edit (the v1.62.0 GAMESYNC lesson)"
+    assert "if (!CopyFileA(src, dst, FALSE))" in f
+    assert "gs_free_bytes(" in f and "gs_free_margin()" in f
+    assert "gs_store_drop(" in body(s, "gs_drivers_update_locked")
     assert "drvstore_rel_ok(rel)" in body(s, "gs_store_candidates")
 
 
 def test_autopass_is_missing_only_non_display_and_switchable():
-    s = read(SRC / "gamesync.c")
+    s = read(GS)
     b = body(s, "gs_drivers_autopass")
-    assert "gs_drivers_update_core(0, 0, 0, 1," in b, \
-        "automatic = no generic tier, no display, not dry, and devices the image pass judged are left to it"
-    assert '"DriverUpdate"' in b and '"DriverUpdateBoot"' in b
+    assert "memset(&o, 0, sizeof(o));" in b and "o.skip_seen = 1;" in b
+    for f in ("want_generic", "allow_display", "dry", "retry"):
+        assert f"o.{f} = 1" not in b, f"the automatic pass must not set {f}"
+    assert '"DriverUpdate"' in b
+    assert 'gs_drvupd_record("PENDING' in b, "the last boot's record is never read as today's"
+    assert '"DriverUpdateBoot"' in body(s, "gs_drvupd_record") and "GetLocalTime" in body(s, "gs_drvupd_record")
     t = body(s, "gamesync_thread")
     call = t.index("gs_drivers_autopass()")
     assert t.index("host_manages_this_box") < call
-    guard = t[t.rfind("if", 0, call):call]
-    assert "0x80000000" in guard
     # newimage.flag is never deleted, so "fresh" is true on every boot of a
     # PXE-imaged box: a !fresh gate would never fire where it is needed (.110)
-    assert "!fresh" not in guard
+    before = t[:call].rstrip()
+    assert before.endswith("*/"), "the automatic pass is an unconditional statement"
+    stmt = before[:before.rindex("/*")].rstrip()
+    assert stmt.endswith(";") or stmt.endswith("}"), "no if() gates it (a !fresh gate never fires on an imaged box)"
     assert t.index("gs_install_missing_drivers();") < call, "the image pass judges first"
-    core = body(s, "gs_drivers_update_locked")
-    assert "skip_seen && gs_dv_lookup(pd[k].hw) != DRVMATCH_V_UNSEEN" in core
+    assert "o->skip_seen && gs_dv_lookup(pd[k].hw) != DRVMATCH_V_UNSEEN" in body(s, "gs_drivers_update_locked")
 
 
 def test_no_registry_switch_allows_3dfx():
-    s = read(SRC / "gamesync.c")
+    s = read(GS)
     for name in ("DriverUpdate3dfx", "Allow3dfx", "AllowThreeDfx"):
         assert name not in s
 
@@ -202,7 +310,7 @@ def test_one_driver_install_at_a_time():
     """The startup passes, DRIVERS UPDATE and DRVUPDATE all force installs; the
     passes also flip the signing policy and SetupAPI's non-interactive mode
     around them. Two at once would restore each other's saved state."""
-    s = read(SRC / "gamesync.c")
+    s = read(GS)
     core = body(s, "gs_drivers_update_core")
     assert "gs_drv_busy_enter()" in core and "gs_drv_busy_leave()" in core
     assert "gs_drivers_update_locked(" in core

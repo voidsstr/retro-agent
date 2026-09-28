@@ -40,23 +40,43 @@ static int ends_inf(const char *n)
         && toupper((unsigned char)n[l - 2]) == 'N' && toupper((unsigned char)n[l - 1]) == 'F';
 }
 
-/* DriverVer=MM/DD/YYYY[,a.b.c.d] from [Version], before prepare blanks it. */
+/* DriverVer=MM/DD/YYYY[,a.b.c.d] from the [Version] section only (not a
+ * "DriverVersion" string, not a comment), before prepare blanks it. */
 static void driver_ver(const char *buf, char *out, size_t cap)
 {
-    const char *p = strstr(buf, "DRIVERVER");
-    size_t k = 0;
+    const char *line, *next;
+    int in_ver = 0;
     out[0] = '-'; out[1] = 0;
-    if (!p) return;
-    p = strchr(p, '=');
-    if (!p) return;
-    p++;
-    while (*p == ' ' || *p == '\t') p++;
-    while (*p && *p != '\r' && *p != '\n' && *p != ';' && k + 1 < cap) {
-        if (*p != ' ' && *p != '\t') out[k++] = *p;
+    for (line = buf; *line; line = next) {
+        const char *p = line;
+        size_t k = 0;
+        next = strchr(line, '\n');
+        next = next ? next + 1 : line + strlen(line);
+        while (p < next && (*p == ' ' || *p == '\t')) p++;
+        if (*p == '[') { in_ver = strncmp(p, "[VERSION]", 9) == 0; continue; }
+        if (!in_ver || strncmp(p, "DRIVERVER", 9) != 0) continue;
+        p += 9;
+        while (p < next && (*p == ' ' || *p == '\t')) p++;
+        if (*p != '=') continue;
         p++;
+        while (p < next && *p != '\r' && *p != '\n' && *p != ';' && k + 1 < cap) {
+            if (*p != ' ' && *p != '\t' && *p != '"') out[k++] = *p;
+            p++;
+        }
+        out[k] = 0;
+        if (!k) { out[0] = '-'; out[1] = 0; }
+        return;
     }
-    out[k] = 0;
-    if (!k) { out[0] = '-'; out[1] = 0; }
+}
+
+/* What separates the id fields drvmatch_prepare leaves on a model line
+ * ("   id1, id2") and the [Strings] values it keeps for %KEY% ids. Everything
+ * else is part of an id - including '{' '}': "{1A3E09BE-...}\NVNET_DEV0057" is
+ * ONE id, and splitting at the brace (drvmatch_idch's set) indexed it as
+ * "\NVNET_DEV0057", which no device carries. */
+static int id_sep(char c)
+{
+    return c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == ',' || c == '"' || c == '=';
 }
 
 static void index_inf(const char *root, const char *dir, const char *name, char *buf)
@@ -84,8 +104,8 @@ static void index_inf(const char *root, const char *dir, const char *name, char 
     driver_ver(buf, ver, sizeof(ver));
     drvmatch_prepare(buf);
     for (p = buf; *p; ) {
-        if (!drvmatch_idch(*p)) { p++; continue; }
-        for (k = 0; *p && drvmatch_idch(*p); p++)
+        if (id_sep(*p)) { p++; continue; }
+        for (k = 0; *p && !id_sep(*p); p++)
             if (k + 1 < sizeof(tok)) tok[k++] = *p;
         tok[k] = 0;
         /* a hardware id has a bus prefix or is a *PNP / EISA style id */

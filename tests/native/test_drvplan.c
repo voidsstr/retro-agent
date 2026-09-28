@@ -49,6 +49,22 @@ int main(void)
           "a stopped LegacyDriver service (VgaSave, problem 24) is a problem, not a missing driver (1.89.0)");
     CHECK(drvplan_state(24, 0, 0, 0, "", "", "Ethernet Controller") == DRVST_MISSING,
           "a real device with no driver and a problem is still missing");
+    {
+        int g, d, r;
+        char bad[32];
+        CHECK(drvplan_parse_update("", &g, &d, &r, bad, sizeof(bad)) && !g && !d && !r,
+              "update args: none = the missing tier, a real run");
+        CHECK(drvplan_parse_update(" all  DRY ", &g, &d, &r, bad, sizeof(bad)) && g && d && !r,
+              "update args: 'all dry' (any case, extra spaces)");
+        CHECK(drvplan_parse_update("missing retry", &g, &d, &r, bad, sizeof(bad)) && !g && !d && r,
+              "update args: 'missing retry'");
+        CHECK(!drvplan_parse_update("ALLOW3DFX", &g, &d, &r, bad, sizeof(bad)) && !strcmp(bad, "ALLOW3DFX"),
+              "update args: ALLOW3DFX is refused, not read as 'all' (the substring bug)");
+        CHECK(!drvplan_parse_update("status", &g, &d, &r, bad, sizeof(bad)),
+              "update args: an unknown word is refused - it never becomes a real install");
+        CHECK(!drvplan_parse_update("dry install", &g, &d, &r, bad, sizeof(bad)) && !strcmp(bad, "install"),
+              "update args: 'install' is not 'all'");
+    }
     printf("-- drvplan (DRIVERS STATUS states, agent 1.88.1): %d/%d tests passed --\n", runs - fails, runs);
     return fails ? 1 : 0;
 }

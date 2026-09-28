@@ -2115,8 +2115,8 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
   sets it now. The startup pass does the same on every agent start. Anywhere
   else it answers `applicable: false` and touches no port.
 - **DRIVERS [STATUS|PLAN|UPDATE ...]** — `STATUS`/`PLAN` (agent 1.88.0): every device's driver
-  state as JSON; `UPDATE [missing|generic|all] [dry]` (1.89.0, NT): install from the
-  store, never 3dfx. See "Keeping every other driver current". Any other argument is
+  state as JSON; `UPDATE [missing|generic|all] [dry] [retry]` (1.89.0, XP): install from
+  the store, never 3dfx. See "Keeping every other driver current". Any other argument is
   the old class filter.
 - **SYSFIX [check|apply]** — check/apply Win98 system fixes
 
@@ -2558,19 +2558,35 @@ The rest of the same directive: *"update all of the drivers on the box"*.
   no class key and are `ok`), `problem` (not a driver's fault), `generic` (a
   DISPLAY adapter on the VGA stub), `ok`. NT and Win9x (`drv9x.c` reads
   `HKEY_DYN_DATA\Config Manager\Enum`). Report-only.
-- **`DRIVERS UPDATE [missing|generic|all] [dry]`** (NT only; refused on a
-  modern host and on Win9x) installs for the `missing` devices, plus the
-  `generic` display adapters when asked. Candidates: `PREFER.TXT` first (it
-  names the build; the ranking alone hands a GeForce2 the 270.61 MOBILE
-  driver), then the local `C:\D` if a fresh image still has it, else the
-  **share's store** (`Files\OS\XPSP3-FLEET\$OEM$\$1\D`) looked up through
-  its **index** (`Files\OS\XPSP3-FLEET\DRVINDEX\<bucket>.TXT`). Only the
-  chosen candidate's directory is copied, to `C:\RETRO_AGENT\DRVSTORE`; each
-  is payload-checked and **confirmed by Windows** before the same forced,
-  non-interactive, 10-minute-watchdogged install the fresh-image pass uses;
-  two boots per device at most (`DriverFixes`). `dry` decides and reports
-  (it still copies the candidate so Windows can confirm it). Returns each
-  device's outcome, not `OK`.
+- **`DRIVERS UPDATE [missing|generic|all] [dry] [retry]`** (**Windows XP
+  only** - the store holds XP x86 drivers, and Windows 7 would accept an
+  undecorated XP models section; refused on a modern host and on Win9x)
+  installs for the `missing` devices, plus the `generic` display adapters when
+  asked. Arguments are **whole words** - an unknown word (`status`,
+  `ALLOW3DFX`, `install`) is refused, never read as `all` and never run as a
+  real install. Candidates: `PREFER.TXT` first (it names the build; the
+  ranking alone hands a GeForce2 the 270.61 MOBILE driver), then the local
+  `C:\D` if a fresh image still has it, else the **share's store**
+  (`Files\OS\XPSP3-FLEET\$OEM$\$1\D`) looked up through its **index**
+  (`Files\OS\XPSP3-FLEET\DRVINDEX\<bucket>.TXT`). A real install copies only
+  the chosen candidate's directory to `C:\RETRO_AGENT\DRVSTORE` (size **and**
+  write time, every copy checked, free space checked first) and deletes it
+  again afterwards; each candidate is payload-checked and **confirmed by
+  Windows**, and its forced id must not reach any 3dfx device, before the same
+  forced, non-interactive, 10-minute-watchdogged install the fresh-image pass
+  uses. Two boots per device at most (`DriverFixes`); a manual `retry` may
+  pass that cap. `dry` judges the INF **where it sits on the share** and
+  changes nothing. Every device gets an outcome that says what happened -
+  `index_unreachable`, `fetch_failed`, `hung`, `skipped_install_hung`,
+  `same_as_earlier_device` are never reported as "no candidate".
+- **A hung install is left alone**: newdev.dll stays loaded, prompts stay
+  off, the install lock stays held and `DRVUPDATE` refuses until the agent
+  restarts - unloading the DLL under the stuck thread kills the agent when the
+  dialog is dismissed.
+- **"Never display" means the device AND the INF**: a video card with no
+  driver sits under Other devices with a class that is not `Display`, so the
+  automatic pass also refuses any `PCI\CC_03xx` device and any
+  `Class=Display` INF.
 - **A startup pass** runs the `missing` tier on every NT start - never
   display, never 3dfx - after the fresh-image pass, leaving it any device that
   pass already judged this boot. (**Not** gated on "not fresh": nothing ever
@@ -2580,8 +2596,10 @@ The rest of the same directive: *"update all of the drivers on the box"*.
   throwaway overlay of the build VM with an extra e1000 (retail XP has no
   driver for it): the pass found `L025\e1000325.inf` through the index, copied
   that one directory, and installed Intel PRO/1000 MT 8.10.3.0 in 3 s, no UI,
-  device at problem 0. On `.110` it reports the Intel PCI modem as
-  `no_candidate` - the store has nothing for `8086:1080`.
+  device at problem 0. Re-verified on a fresh overlay after the review fixes
+  (the local copy gone afterwards, the dry run copying nothing). On `.110` it
+  reports the Intel PCI modem as `no_candidate` - the store has nothing for
+  `8086:1080`.
 - **One driver install at a time**: the startup passes, `DRIVERS UPDATE` and
   `DRVUPDATE` share one guard; whoever finds it held says so and does nothing
   (the passes flip the signing policy and non-interactive mode around each
@@ -2594,8 +2612,11 @@ The rest of the same directive: *"update all of the drivers on the box"*.
   publish` buckets it (`drvstore.h`, the one function both sides call),
   publishes each file verified through `/mnt`, `MANIFEST.TXT` last. **Rebuild
   and publish it whenever the image's driver tree changes** (`check` says
-  whether the share is current). It lives OUTSIDE `$OEM$`, so imaging never
-  copies it onto a box.
+  whether the share is current, and flags a bucket the build no longer makes;
+  `publish` deletes those once the new set is whole). It lives OUTSIDE
+  `$OEM$`, so imaging never copies it onto a box. Ids are indexed WHOLE,
+  braces included - `{GUID}\NVNET_DEV0057` split at the brace would never
+  match an nForce NIC.
 - **An INF is judged 3dfx without the word VOODOO**: the Adaptec RAID INFs
   (`arcsas.inf`) name their codename "Voodoo" and were being skipped. Device
   and bound-driver checks still use it.

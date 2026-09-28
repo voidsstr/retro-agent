@@ -129,4 +129,42 @@ DRVPLAN_API int drvplan_state(unsigned long problem, int driver_bound, int disab
     return DRVST_OK;
 }
 
+/* DRIVERS UPDATE's arguments, as WHOLE words (agent 1.89.0):
+ *   missing (default) | generic | all   dry   retry
+ * Returns 1, or 0 with the first unknown word in bad. A substring test once
+ * read "ALLOW3DFX" and "install" as "all", and ran any unknown word ("status",
+ * "preview") as a REAL install, because dry was opt-in by substring. */
+DRVPLAN_API int drvplan_parse_update(const char *args, int *want_generic, int *dry, int *retry,
+                                     char *bad, size_t bad_cap)
+{
+    char        tok[32];
+    const char *p = args ? args : "";
+    *want_generic = *dry = *retry = 0;
+    if (bad_cap) bad[0] = 0;
+    for (;;) {
+        size_t k = 0;
+        while (*p == ' ' || *p == '\t') p++;
+        if (!*p) return 1;
+        while (*p && *p != ' ' && *p != '\t') {
+            if (k + 1 < sizeof(tok)) tok[k++] = *p;
+            p++;
+        }
+        tok[k] = 0;
+        if (drvplan_ieq(tok, "missing"))
+            ;
+        else if (drvplan_ieq(tok, "generic") || drvplan_ieq(tok, "all"))
+            *want_generic = 1;
+        else if (drvplan_ieq(tok, "dry"))
+            *dry = 1;
+        else if (drvplan_ieq(tok, "retry"))
+            *retry = 1;
+        else {
+            size_t i;
+            for (i = 0; tok[i] && i + 1 < bad_cap; i++) bad[i] = tok[i];
+            if (bad_cap) bad[i] = 0;
+            return 0;
+        }
+    }
+}
+
 #endif
