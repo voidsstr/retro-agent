@@ -333,6 +333,45 @@ TEST(what_the_vsa100_path_refuses) {
     CHECK(vcr_texlod_compute_ext(96, 64, VCR_TEXK_RGB16, 192, 0, both, &t) != 0, "not a power of two");
 }
 
+/* Integration review (2026-09-28): the flush's texture-port write-back on the
+ * VSA-100 path fires only where the default path's did - a 16 bpp texture no
+ * wider than 256 BELOW 16 MB. The default path's 24-bit base is 16 MB low
+ * above that line, so its range test (VcrDd3dTexFlush: addr - lin < 2 MB)
+ * never passed there; with the 26-bit base any D3DBigTex bit made it pass,
+ * and a port write of a texture above 16 MB has never run on the card. */
+TEST(the_write_back_stays_where_the_default_path_proved_it) {
+    const unsigned both = VCR_TEXF_NAPALM | VCR_TEXF_BIG;
+    vcr_texlod_ext x;
+    vcr_texlod t;
+    unsigned long lin;
+    CHECK_EQ_U(VCR_TEX_WRITEBACK_LIMIT, 0x1000000u);
+    CHECK_EQ_U(vcr_tex_writeback_addr(VCR_TEXK_RGB16, 0, 0x00100000u), 0x00100000u);
+    CHECK_EQ_U(vcr_tex_writeback_addr(VCR_TEXK_RGB16, 0, 0x00fffff0u), 0x00fffff0u);
+    /* the fix: at and above 16 MB, none */
+    CHECK_EQ_U(vcr_tex_writeback_addr(VCR_TEXK_RGB16, 0, 0x01000000u), ~0u);
+    CHECK_EQ_U(vcr_tex_writeback_addr(VCR_TEXK_RGB16, 0, 0x01a00000u), ~0u);
+    /* never for TBIG, 32-bit or compressed, wherever they are */
+    CHECK_EQ_U(vcr_tex_writeback_addr(VCR_TEXK_RGB16, 1, 0x00100000u), ~0u);
+    CHECK_EQ_U(vcr_tex_writeback_addr(VCR_TEXK_ARGB32, 0, 0x00100000u), ~0u);
+    CHECK_EQ_U(vcr_tex_writeback_addr(VCR_TEXK_DXT1, 0, 0x00100000u), ~0u);
+    CHECK_EQ_U(vcr_tex_writeback_addr(VCR_TEXK_DXT35, 0, 0x00100000u), ~0u);
+    /* why: a 64x64 16 bpp texture at 26 MB. The OLD guard (RGB16 and not
+     * TBIG) handed its address on, and VcrDd3dTexFlush's range test - addr
+     * against the unmunged 26-bit base - passed: the write would fire */
+    CHECK(vcr_texlod_compute_ext(64, 64, VCR_TEXK_RGB16, 128, 0x01a00000u, both, &x) == 0, "fits");
+    lin = vcr_tex_unmunge(x.t.base);
+    CHECK(0x01a00000ul >= lin && 0x01a00000ul - lin < 0x200000ul, "the old guard let it through");
+    CHECK_EQ_U(vcr_tex_writeback_addr(VCR_TEXK_RGB16, x.tbig, 0x01a00000u), ~0u);
+    /* ...while the default path's 24-bit base puts it 16 MB away: no write */
+    CHECK(vcr_texlod_compute(64, 64, 2, 128, 0x01a00000u, &t) == 0, "fits");
+    CHECK(!(0x01a00000u >= t.base && 0x01a00000u - t.base < 0x200000u), "the default never wrote");
+    /* below 16 MB both paths agree, base and write-back alike */
+    CHECK(vcr_texlod_compute_ext(64, 64, VCR_TEXK_RGB16, 128, 0x00a00000u, both, &x) == 0, "fits");
+    CHECK(vcr_texlod_compute(64, 64, 2, 128, 0x00a00000u, &t) == 0, "fits");
+    CHECK_EQ_U(x.t.base, t.base);
+    CHECK_EQ_U(vcr_tex_writeback_addr(VCR_TEXK_RGB16, x.tbig, 0x00a00000u), 0x00a00000u);
+}
+
 MUNIT_MAIN("vcr-kmd texture LOD / base address", {
     RUN(a_256_texture_is_lod_0_at_its_own_address);
     RUN(a_smaller_texture_is_based_before_itself);
@@ -347,4 +386,5 @@ MUNIT_MAIN("vcr-kmd texture LOD / base address", {
     RUN(compressed_bases_are_3dfxs);
     RUN(a_chain_is_packed_and_bounded_as_the_tmu_walks_it);
     RUN(what_the_vsa100_path_refuses);
+    RUN(the_write_back_stays_where_the_default_path_proved_it);
 })

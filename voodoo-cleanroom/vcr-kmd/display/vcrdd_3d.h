@@ -14,9 +14,16 @@
 
 /* OFFSET 0 IS A PLACE, NOT "NONE": the DirectDraw heap starts at video-memory
  * offset 0 whenever the desktop sits at the top (vcrdd_ddraw.c heap_range -
- * the .124 and 86Box layout), so the first surface allocated after a mode
- * set can be there. Whether a target / a Z exists is fmt / z_on, never a
- * zero test on an offset. */
+ * the .124 and 86Box layout). What happens to the block there is NOT that a
+ * surface lives in it: HeapVidMemAllocAligned returns 0 for a failed
+ * allocation, so the caller that is handed offset 0 reads it as "no memory"
+ * and the block is lost until the next mode set (include/vcr_ddheap.h; ddlab
+ * vidmem on .124: 120 of 121 slots, the one at 0 missing). With
+ * Diag\DdHeapFloor = 1 the heap starts a page up and nothing can be placed
+ * there. The rule stands regardless - a surface some other path does put at
+ * 0 must still be drawn with: whether a target / a Z exists is fmt / z_on,
+ * never a zero test on an offset. (Reconciled 2026-09-28: this comment used
+ * to say the first surface after a mode set "can be there".) */
 typedef struct vcr3d_target {
     ULONG rt_off, rt_pitch;         /* colour buffer: offset in video memory, bytes/row */
     ULONG z_off, z_pitch;           /* depth buffer: offset (may be 0), bytes/row */

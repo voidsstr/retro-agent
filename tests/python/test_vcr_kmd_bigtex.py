@@ -130,7 +130,11 @@ def test_the_texture_port_write_back_stays_where_it_was_proven():
     tLOD). The VSA-100 path passes ~0 - no write - for TBIG, 32-bit and
     compressed textures, and the port offset comes from the LINEAR base."""
     fw = func(D3D, "static void flush_written(")
-    assert "kind == VCR_TEXK_RGB16 && !x.tbig ?" in fw and "~0u" in fw
+    # the decision is vcr_tex_writeback_addr (common/vcr_texlod.c, run by
+    # native/test_vcr_kmd_texlod.c): RGB16, not TBIG, and below 16 MB
+    assert "vcr_tex_writeback_addr(kind, x.tbig, (ULONG)s->lpGbl->fpVidMem)" in fw
+    assert "kind == VCR_TEXK_RGB16 && !tbig && addr < VCR_TEX_WRITEBACK_LIMIT ? addr : ~0u" in \
+        (KMD / "common" / "vcr_texlod.c").read_text()
     fl = func(E3D, "BOOL VcrDd3dTexFlush(")
     assert "addr >= lin && addr - lin < 0x200000" in fl
 

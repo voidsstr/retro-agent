@@ -91,6 +91,18 @@ vcr_u32 vcr_tex_chain_usable(vcr_u32 kind, vcr_u32 w, vcr_u32 h, vcr_u32 have);
 vcr_u32 vcr_tex_munge(vcr_u32 lin);
 vcr_u32 vcr_tex_unmunge(vcr_u32 reg);
 
+/* The flush's texture-port write-back target on this path (display/vcrdd_d3d.c
+ * flush_written -> vcrdd_3d.c VcrDd3dTexFlush): `addr`, or ~0 for none. Only
+ * what the default path has always been proven on gets it - a 16 bpp texture
+ * no wider than 256 whose video-memory offset is below 16 MB. Above 16 MB the
+ * default path never writes back (its 24-bit base is 16 MB lower, so the
+ * write-back's range test fails), and the port write of a VSA-100 texture
+ * there has never run on the card: with a D3DBigTex bit set it must not start
+ * firing for the old kind of texture only because the base now has 26 bits
+ * (integration review, 2026-09-28). */
+#define VCR_TEX_WRITEBACK_LIMIT 0x1000000u
+vcr_u32 vcr_tex_writeback_addr(vcr_u32 kind, vcr_u32 tbig, vcr_u32 addr);
+
 /* 0 on success; -1 if the chip cannot sample it: not a power of two, wider
  * than 256 without VCR_TEXF_BIG (2048 with it), an aspect beyond 8:1, a row
  * pitch that is not width * bytes (uncompressed; a compressed level's pitch

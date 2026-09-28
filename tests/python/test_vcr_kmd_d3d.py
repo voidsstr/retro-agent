@@ -432,8 +432,11 @@ def test_target_validation_refuses_what_it_cannot_draw():
 def test_video_memory_offset_zero_is_a_place_not_none():
     """The DirectDraw heap starts at video-memory offset 0 whenever the
     desktop sits at the top (vcrdd_ddraw.c heap_range; .124's recorder says
-    "heap 0-1aff000"), so the first surface after a mode set can be there.
-    4a9793b tested the Z's OFFSET: a Z at 0 was refused at ContextCreate
+    "heap 0-1aff000"), so offset 0 is an address a surface could have.
+    (Reconciled 2026-09-28: HeapVidMemAllocAligned answers 0 for a failed
+    allocation, so the heap manager hands the block at 0 out and loses it -
+    include/vcr_ddheap.h - rather than leaving a surface there; the rule
+    stands as a defence.) 4a9793b tested the Z's OFFSET: a Z at 0 was refused at ContextCreate
     (DDERR_INVALIDPIXELFORMAT) where the proven HAL drew with it, and depth
     and the Z clear were gated on z_off != 0. The target itself was gated on
     rt_off != 0 in all three drawable tests (pre-existing). Now: a Z exists

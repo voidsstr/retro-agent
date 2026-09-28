@@ -365,7 +365,19 @@ static int mipchain_ext(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
     if ((top->ddsCaps.dwCaps & (DDSCAPS_TEXTURE | DDSCAPS_MIPMAP)) !=
             (DDSCAPS_TEXTURE | DDSCAPS_MIPMAP) || (top->ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY))
         return 0;
-    if (sd && (sd->dwFlags & DDSD_PIXELFORMAT)) {
+    /* The storage the chain is PACKED as must be the one every later reader
+     * takes: ext_layout (sampling), texblt / texblt_dxt_level (the copies) and
+     * the Blt guard all read the surface's OWN ddpfSurface (surf_fcc,
+     * has_pixfmt). So that comes first; the CreateSurface descriptor only when
+     * the surface carries no format of its own. A DXT chain created without
+     * DDSD_PIXELFORMAT was packed from the desktop's depth - as R5G6B5 at 16
+     * bpp, 2 bytes a 1x1 level - while TEXBLT copied whole 8/16-byte blocks
+     * into it: past the end of the chain's block (integration review,
+     * 2026-09-28). */
+    if (top->lpGbl && ((top->lpGbl->ddpfSurface.dwFlags & DDPF_FOURCC) ||
+                       top->lpGbl->ddpfSurface.dwRGBBitCount)) {
+        pf = top->lpGbl->ddpfSurface;
+    } else if (sd && (sd->dwFlags & DDSD_PIXELFORMAT)) {
         pf = sd->ddpfPixelFormat;
     } else {
         memset(&pf, 0, sizeof pf);              /* no format: the desktop's depth, as before */
@@ -389,6 +401,11 @@ static int mipchain_ext(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
         ULONG k = ilog2(big_side(w0, h0)) - ilog2(big_side(s->lpGbl->wWidth, s->lpGbl->wHeight));
         ULONG ew = w0 >> k, eh = h0 >> k;
         if (s->lpGbl->wWidth != (ew ? ew : 1) || s->lpGbl->wHeight != (eh ? eh : 1) || k >= 12)
+            return 0;
+        /* ...and stored as the chain is packed: a level whose own FOURCC is
+         * not the chain's would be copied block-wise into a slot sized for
+         * another storage. Not placed here: the runtime places it. */
+        if (surf_fcc(s) != ((pf.dwFlags & DDPF_FOURCC) ? pf.dwFourCC : 0))
             return 0;
         if (k + 1 > levels)
             levels = k + 1;
@@ -1213,13 +1230,14 @@ static void flush_written(vcr_d3dctx *c, PDD_SURFACE_LOCAL s)
     if (c->pd->tex_ext) {
         /* the VSA-100 path: the register base (munged), and the texture-port
          * write-back only for what it has always been proven on - a 16 bpp
-         * texture no wider than 256 (~0: none) */
+         * texture no wider than 256, below 16 MB (~0: none; include/
+         * vcr_texlod.h vcr_tex_writeback_addr) */
         vcr_texlod_ext x;
         ULONG kind, tmfmt;
         if (!ext_layout(c->pd, s, &kind, &tmfmt, &x))
             return;
-        VcrDd3dTexFlush(c->pd, x.t.base, kind == VCR_TEXK_RGB16 && !x.tbig ?
-                                         (ULONG)s->lpGbl->fpVidMem : ~0u);
+        VcrDd3dTexFlush(c->pd, x.t.base,
+                        vcr_tex_writeback_addr(kind, x.tbig, (ULONG)s->lpGbl->fpVidMem));
         c->tex_flushes++;
         return;
     }

@@ -121,10 +121,17 @@ static __inline unsigned vcr_rt_rtcheck(unsigned fmt, unsigned width, unsigned r
  * attached (whether or not it is usable); z_vid: it is in video memory - a
  * FLAG, not its offset: the DirectDraw heap starts at offset 0 when the
  * desktop is at the top of memory (vcrdd_ddraw.c heap_range, the .124
- * layout), so offset 0 is a Z the aux buffer can use. (4a9793b passed the
- * offset and refused 0 as "no video memory", which would fail ContextCreate
- * for a Z the first allocation after a mode set put there - one the proven
- * HAL drew with.) A Z NOT in video memory is refused: its aux buffer would
+ * layout), so offset 0 is an address a Z could have, and 0 must never be
+ * read as "no video memory". (4a9793b passed the offset and refused 0 that
+ * way.) In practice the heap manager does not leave a surface there:
+ * HeapVidMemAllocAligned returns 0 for a failed allocation, so the block at
+ * 0 is handed out, read as a failure and lost until the next mode set
+ * (include/vcr_ddheap.h, measured with ddlab vidmem on .124), and with
+ * Diag\DdHeapFloor = 1 the heap starts a page up. The flag stays the test
+ * either way. (Reconciled 2026-09-28: this comment used to say the first
+ * allocation after a mode set put a Z at 0 that the proven HAL drew with -
+ * no evidence of that exists, and the heap manager's contract says
+ * otherwise.) A Z NOT in video memory is refused: its aux buffer would
  * land at offset 0 over whatever surface is really there. z_pitch: bytes a
  * row; z_w/z_h: its size. A target of width x height writes width *
  * (fmt / 8) bytes of every Z row, over height rows. */

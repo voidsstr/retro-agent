@@ -10,7 +10,9 @@
 
 Uploads out/d3dprobe.exe to C:\\vcr\\d3dprobe\\, runs it through `start /wait`
 (a normal desktop window - a device needs one) under EXECW, and prints the
-RESULT json from the flushed log. Exit 1 when a check failed or no RESULT.
+RESULT json from the flushed log. Exit 1 when a check failed or no RESULT -
+and, with an explicit --tests list, when any of them was SKIPPED (a check
+that was asked for and did not run is not a pass).
 
 `render` and `perf` with --full create a fullscreen device at --res x --bpp
 with the default refresh - the driver / XP picks the rate - so before
@@ -187,10 +189,38 @@ async def main_async(a):
         # hold, so XP reverted its mode unstamped): nothing else switches
         # until it is gone and the box's pace file says "just now"
         res["cleanup"] = await ms.reap(box, [image], a.tool, ms.PACE_FLOOR_S, spare=spare)
+    skip_note = named_skips(a, res)
+    if skip_note:
+        res["skipped_named"] = skip_note
     print(json.dumps(res))
     if a.verbose:
         print(text)
-    return 0 if "error" not in res and not res.get("fail") else 1
+    return exit_code(a, res)
+
+
+def named_skips(a, res):
+    """A check named with --tests that did not run is not a pass: the caller
+    asked for exactly that check. d3dprobe SKIPS a VSA-100 texture test the
+    HAL does not offer (MaxTextureWidth under the size, a format
+    CheckDeviceFormat refuses) so the same list runs on any driver - which,
+    with Diag\\D3DBigTex off or a miniport that predates it, turns
+    `--tests tex2048,dxt1` into an all-skipped run that read as green
+    (integration review, 2026-09-28). A default run (no --tests) keeps
+    reporting skips without failing on them."""
+    try:
+        n = int(res.get("skipped") or 0)
+    except (TypeError, ValueError):
+        n = 1                   # an unreadable count is not a clean run
+    if not getattr(a, "tests", "") or n <= 0:
+        return None
+    return (f"{n} of the checks named with --tests did not run (skipped) - not a pass; "
+            "is Diag\\D3DBigTex armed on a VSA-100?")
+
+
+def exit_code(a, res):
+    if "error" in res or res.get("fail"):
+        return 1
+    return 1 if named_skips(a, res) else 0
 
 
 def main():

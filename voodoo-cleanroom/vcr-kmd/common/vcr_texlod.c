@@ -86,6 +86,11 @@ vcr_u32 vcr_tex_unmunge(vcr_u32 reg)
     return (reg & 0x01fffff0u) | ((reg & 0x2u) << 24);
 }
 
+vcr_u32 vcr_tex_writeback_addr(vcr_u32 kind, vcr_u32 tbig, vcr_u32 addr)
+{
+    return kind == VCR_TEXK_RGB16 && !tbig && addr < VCR_TEX_WRITEBACK_LIMIT ? addr : ~0u;
+}
+
 int vcr_texlod_compute_ext(vcr_u32 w, vcr_u32 h, vcr_u32 kind, vcr_u32 pitch, vcr_u32 offset,
                            vcr_u32 flags, vcr_texlod_ext *out)
 {
