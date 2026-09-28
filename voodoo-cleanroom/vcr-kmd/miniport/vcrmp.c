@@ -235,6 +235,9 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
      * them through vcr_info.flags - vcrdd_2d.c VcrDd2dInit) */
     x->d3d32 = VcrDiagGet(L"D3D32", 0);
     x->reset3d = VcrDiagGet(L"Reset3D", 0);
+    /* ON unless set to 0: a READ of one CLUT entry (reg_op, VCR_REG_CLUT) -
+     * reachable only by a tool asking for it (vcrctl fbshot / clut) */
+    x->clut_read = VcrDiagGet(L"ClutRead", 1);
     hwinfo(x);
 
     /* no VDM (full-screen DOS) support: the VGA driver keeps that role */
@@ -431,6 +434,7 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
                (x->accel2d ? 0 : VCR_INFO_F_NO_ACCEL2D) | (x->d3d ? 0 : VCR_INFO_F_NO_D3D) |
                (x->texport ? 0 : VCR_INFO_F_NO_TEXPORT) | (x->d3d32 ? VCR_INFO_F_D3D32 : 0) |
                (x->reset3d ? VCR_INFO_F_RESET3D : 0) |
+               (x->clut_read && x->backend == VCR_HW_VOODOO ? VCR_INFO_F_CLUT_READ : 0) |
                /* read NOW, not at boot: the display driver asks at every
                 * DrvEnableSurface, so the next mode change picks it up */
                (VcrDiagGet(L"Accel2DText", 0) ? VCR_INFO_F_TEXT2D : 0) |
@@ -542,10 +546,30 @@ static VP_STATUS pci_op(VCR_EXT *x, vcr_pci_op *op)
 
 static VP_STATUS reg_op(VCR_EXT *x, vcr_reg_op *op)
 {
+    int gate;
     if (op->chip >= x->nchips)
         return ERROR_INVALID_PARAMETER;
-    if (op->write && !x->allow_poke)
+    /* vcr_clutread.h: every write of the old kinds needs Diag\AllowPoke; the
+     * CLUT kind is a read and needs none */
+    gate = vcr_regop_gate(op->kind, op->write, op->chip, op->offset, x->allow_poke != 0,
+                          x->clut_read != 0, x->backend == VCR_HW_VOODOO);
+    if (gate == VCR_REGOP_DENIED)
         return ERROR_ACCESS_DENIED;
+    if (gate == VCR_REGOP_INVALID)
+        return ERROR_INVALID_PARAMETER;
+    if (op->kind == VCR_REG_CLUT) {
+        /* one CLUT entry, dacAddr put back, serialised with every kernel CLUT
+         * write by StartIO. A read has to WRITE dacAddr, which is why the
+         * MMIO path refused vcrctl's CLUT read on a box with AllowPoke = 0 -
+         * Warcraft II's menu came out greyscale (2026-09-28). vga_index
+         * returns the VCR_CLUT_* bits. */
+        ULONG rgb = 0, rc = VcrHwClutRead(x, op->offset, &rgb);
+        op->vga_index = rc;
+        if (rc & (VCR_CLUT_E_INDEX | VCR_CLUT_E_ADDR))
+            return ERROR_BUSY;                  /* dacAddr would not hold the index */
+        op->value = rgb;
+        return NO_ERROR;
+    }
     if (op->kind != VCR_REG_MMIO32 && op->chip != 0)
         return ERROR_INVALID_PARAMETER;
     switch (op->kind) {

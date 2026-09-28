@@ -90,10 +90,28 @@ TEST(the_2d_stats_struct_only_ever_grows_at_the_end) {
     CHECK_EQ_U(VCR_INFO_F_LINE2D, 0x100);
 }
 
+/* 2026-09-28: the read-only CLUT kind (include/vcr_clutread.h). A new kind
+ * and a new positive flag - vcr_reg_op itself must not move, or an old vcrctl
+ * talking to a new miniport (or the reverse) reads the wrong fields. */
+TEST(the_clut_read_kind_leaves_the_reg_op_as_it_was) {
+    CHECK_EQ_U(sizeof(vcr_reg_op), 24);
+    CHECK_EQ_U(OFF(vcr_reg_op, value), 12);
+    CHECK_EQ_U(OFF(vcr_reg_op, vga_index), 16);
+    CHECK_EQ_U(OFF(vcr_reg_op, kind), 20);
+    CHECK_EQ_U(VCR_REG_VGA_PORT, 5);
+    CHECK_EQ_U(VCR_REG_CLUT, 6);
+    CHECK_EQ_U(VCR_INFO_F_CLUT_READ, 0x200);
+    CHECK((VCR_INFO_F_CLUT_READ & (VCR_INFO_F_ALLOW_POKE | VCR_INFO_F_NO_ACCEL2D | VCR_INFO_F_NO_D3D |
+                                   VCR_INFO_F_NO_TEXPORT | VCR_INFO_F_D3D32 | VCR_INFO_F_RESET3D |
+                                   VCR_INFO_F_TEXT2D | VCR_INFO_F_PAT2D | VCR_INFO_F_LINE2D)) == 0,
+          "a bit of its own");
+}
+
 MUNIT_MAIN("vcr-kmd HWCEXT ABI", {
     RUN(request_and_result_sizes);
     RUN(request_offsets_match_glide);
     RUN(result_offsets_match_glide);
     RUN(escape_codes_and_ioctls);
     RUN(the_2d_stats_struct_only_ever_grows_at_the_end);
+    RUN(the_clut_read_kind_leaves_the_reg_op_as_it_was);
 })

@@ -122,6 +122,9 @@ typedef struct vcr_info {
  * in the miniport since 2026-09-28 - an older miniport never sets them) */
 #define VCR_INFO_F_PAT2D        0x80    /* Diag\\Accel2DPattern = 1: mono brushes on the engine */
 #define VCR_INFO_F_LINE2D       0x100   /* Diag\\Accel2DLine = 1: horizontal/vertical lines */
+/* positive like the rest: IOCTL_VCR_REG answers kind VCR_REG_CLUT (a Voodoo,
+ * Diag\\ClutRead not 0). An older miniport never sets it. (2026-09-28) */
+#define VCR_INFO_F_CLUT_READ    0x200
 
 /* VCR_ESC_2D_STATS: the display driver's 2D engine counters, since its PDEV
  * was created (a mode change starts them again). Answered only when the
@@ -238,6 +241,11 @@ typedef struct vcr_reg_op {
 #define VCR_REG_VGA_GFX         3
 #define VCR_REG_VGA_ATTR        4
 #define VCR_REG_VGA_PORT        5   /* offset = port (0x3c0..0x3df), 8 bit */
+/* offset = CLUT index 0..511, chip 0, READ ONLY - no Diag\\AllowPoke; value =
+ * 0x00RRGGBB, vga_index = the VCR_CLUT_* bits (vcr_clutread.h). Refused with
+ * Diag\\ClutRead = 0; a miniport that predates it answers INVALID_PARAMETER,
+ * and one that has it sets VCR_INFO_F_CLUT_READ. (2026-09-28) */
+#define VCR_REG_CLUT            6
 
 /* IOCTL_VCR_SNAPSHOT: every video register of every chip, for golden
  * comparisons against the vendor driver. */

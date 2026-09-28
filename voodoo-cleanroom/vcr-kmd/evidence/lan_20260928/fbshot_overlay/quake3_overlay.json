@@ -1,0 +1,4 @@
+{
+ "label": "Quake3_overlay",
+ "fbshot": "{\"cmd\":\"fbshot\",\"vidProcCfg\":\"026c0101\",\"start\":\"03c3e000\",\"stride\":\"00000028\",\"w\":1280,\"h\":960,\"fmt\":3,\"tiled\":1,\"overlay\":1,\"sli_active\":1,\"lfb_view\":268435456,\"layer\":\"overlay\",\"ok\":true,\"clut\":0,\"mean_luma\":18.2,\"path\":\"C:\\\\vcr\\\\fbshot.bmp\"}"
+}
