@@ -197,4 +197,58 @@ DWORD ntdyn_CM_Get_DevNode_Status(PULONG status, PULONG problem,
     return g_cm_status(status, problem, devinst, flags);
 }
 
+/* ---- the devnode tree ---- */
+typedef DWORD (WINAPI *pfn_cm_rel_t)(PDWORD, DWORD, ULONG);
+typedef DWORD (WINAPI *pfn_cm_id_t)(DWORD, char *, ULONG, ULONG);
+static pfn_cm_rel_t g_cm_parent, g_cm_child, g_cm_sibling;
+static pfn_cm_id_t  g_cm_devid;
+static int g_cm_tree_loaded = 0;
+
+static void cm_tree_load(void)
+{
+    static const char *const dlls[] = { "cfgmgr32.dll", "setupapi.dll" };
+    int i;
+    if (g_cm_tree_loaded)
+        return;
+    g_cm_tree_loaded = 1;
+    for (i = 0; i < 2 && !(g_cm_parent && g_cm_child && g_cm_sibling && g_cm_devid); i++) {
+        HMODULE hmod = LoadLibraryA(dlls[i]);
+        if (!hmod)
+            continue;
+        g_cm_parent  = (pfn_cm_rel_t)GetProcAddress(hmod, "CM_Get_Parent");
+        g_cm_child   = (pfn_cm_rel_t)GetProcAddress(hmod, "CM_Get_Child");
+        g_cm_sibling = (pfn_cm_rel_t)GetProcAddress(hmod, "CM_Get_Sibling");
+        g_cm_devid   = (pfn_cm_id_t)GetProcAddress(hmod, "CM_Get_Device_IDA");
+    }
+    if (!(g_cm_parent && g_cm_child && g_cm_sibling && g_cm_devid))
+        log_msg(LOG_VIDEO, "CM devnode-tree entry points not all available");
+}
+
+DWORD ntdyn_CM_Get_Parent(PDWORD parent, DWORD devinst, ULONG flags)
+{
+    cm_tree_load();
+    return g_cm_parent ? g_cm_parent(parent, devinst, flags) : CR_FAILURE;
+}
+
+DWORD ntdyn_CM_Get_Child(PDWORD child, DWORD devinst, ULONG flags)
+{
+    cm_tree_load();
+    return g_cm_child ? g_cm_child(child, devinst, flags) : CR_FAILURE;
+}
+
+DWORD ntdyn_CM_Get_Sibling(PDWORD sibling, DWORD devinst, ULONG flags)
+{
+    cm_tree_load();
+    return g_cm_sibling ? g_cm_sibling(sibling, devinst, flags) : CR_FAILURE;
+}
+
+DWORD ntdyn_CM_Get_Device_IDA(DWORD devinst, char *buf, ULONG len, ULONG flags)
+{
+    cm_tree_load();
+    if (!g_cm_devid || !buf || !len)
+        return CR_FAILURE;
+    buf[0] = 0;
+    return g_cm_devid(devinst, buf, len, flags);
+}
+
 #pragma GCC diagnostic pop

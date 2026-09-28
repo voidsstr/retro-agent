@@ -2486,6 +2486,40 @@ async def try_host(ip):
         pass
 ```
 
+## 3dfx DRIVERS ARE NEVER CHANGED AUTOMATICALLY (agent 1.87.0+) (REQUIRED)
+
+**User directive, 2026-09-27: the agent keeps a box's drivers correct "except
+for 3dfx since those drivers should not be touched unless explicitly asked by
+the chat".** Until 1.87.0 nothing enforced that: the XP missing-driver pass had
+no vendor filter, and the image's `C:\D` carries four 3dfx INFs (I001-I003
+from DriverPacks, V001 AmigaMerlin) that the agent's own matcher picked for a
+Voodoo - `I003\3dfxvs2k.inf` for a V5, `I002\voodoo2.inf` for a Voodoo 2.
+
+- **One rule, `agent/shared/drvsafe.h`.** A device is 3dfx if its ids carry
+  `VEN_121A` (bounded) or `3DFX` (the V3 TV-out child is `DISPLAY\3dfxV3TV`,
+  no vendor id at all), if it sits BELOW a 3dfx device, if it is a PCI bridge
+  with one below it (the V5 6000's HiNT bridge - vcr-kmd drives the board
+  clock through its GPIO), or if its bound driver names 3dfx/Voodoo/
+  AmigaMerlin/vcr-kmd. An INF is 3dfx if ANY of its text does - I001/I003/V001
+  also register a global `OpenGLdrivers\3dfx` ICD. `GLIDE` alone is not a
+  marker (Alps GlidePoint touchpads).
+- **Every driver path obeys it**: the missing-driver install, the `C:\D` tree
+  scan and keep/reclaim guard, PREFER.TXT, `DRVUPDATE`, and on Win9x the PCI
+  rescue: no re-enumeration while a 3dfx card **on the bus** has no installed
+  (or disabled) driver - a re-enumeration lets Windows install one. The rescue
+  reads **PCI config space** for this, because a Voodoo Win98 never enumerated
+  has no registry key at all (.243's Voodoo 2, 2026-09-24); an unreadable
+  config space refuses. A ghost key of a removed card, or a card the operator
+  disabled, does NOT block the Voodoo 2 rescue (that rescue is what keeps Glide
+  from mapping the board over RAM).
+- **The one way past it: `ALLOW3DFX`**, one device, an explicit INF -
+  `DRVUPDATE <id> <inf> ALLOW3DFX` (`PCIRESCAN force ALLOW3DFX` on 9x). The
+  chat brain gates that token like REBOOT (`confirm=true` only when the user
+  asked for that 3dfx change). **There is deliberately no registry switch** - a
+  persisted "allow" is exactly the automatic behaviour the user forbade, and a
+  test pins its absence. Hand-driven 3dfx work (the voodoo* skills, vcr-kmd
+  deploys) is explicit by definition and unaffected.
+
 ## The image can ship a driver and still not install it (XP driver ranking)
 
 **On XP, `DriverSigningPolicy=Ignore` suppresses the signature DIALOG, not the

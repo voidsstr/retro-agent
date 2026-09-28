@@ -67,4 +67,12 @@ int ntdyn_cm_available(void);
 DWORD ntdyn_CM_Get_DevNode_Status(PULONG status, PULONG problem,
                                   DWORD devinst, ULONG flags);
 
+/* The devnode tree (1.87.0, the 3dfx rule in agent/shared/drvsafe.h needs a
+ * device's parents and a bridge's children). Same homes, same fallback:
+ * CR_FAILURE when unavailable, which every caller treats as "no more". */
+DWORD ntdyn_CM_Get_Parent(PDWORD parent, DWORD devinst, ULONG flags);
+DWORD ntdyn_CM_Get_Child(PDWORD child, DWORD devinst, ULONG flags);
+DWORD ntdyn_CM_Get_Sibling(PDWORD sibling, DWORD devinst, ULONG flags);
+DWORD ntdyn_CM_Get_Device_IDA(DWORD devinst, char *buf, ULONG len, ULONG flags);
+
 #endif /* NTDYN_H */

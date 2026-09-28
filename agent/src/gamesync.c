@@ -39,6 +39,7 @@
 #include "gameindex.h"
 #include "../shared/drvprefs.h"
 #include "../shared/drvmatch.h"
+#include "../shared/drvsafe.h"
 #include "../shared/gamegate.h"
 #include "../shared/lnkcheck.h"
 #include "../shared/gsresume.h"
@@ -961,6 +962,7 @@ typedef struct {
     const char     *ids[DRVMATCH_MAX_IDS];
     int             nids;
     drvmatch_cands  cand;
+    int             excl;           /* DRVSAFE_* reason: 3dfx, never automatic */
 } gs_probdev;
 
 #define GS_MAX_PROBDEV   32
@@ -1051,6 +1053,135 @@ static void gs_device_ids(HDEVINFO set, gs_probdev *pd)
     pd->nids = drvmatch_collect(pd->hw, pd->compat, pd->ids, DRVMATCH_MAX_IDS);
 }
 
+/* ---- the 3dfx rule (1.87.0, agent/shared/drvsafe.h) --------------------- */
+
+static int gs_read_inf(const char *path, char *buf);
+
+/* Is any devnode below `dn` (to a few levels) a 3dfx device? */
+static int gs_subtree_3dfx(DWORD dn, int depth)
+{
+    DWORD child, next;
+    char  id[512];
+
+    if (depth > 4 || ntdyn_CM_Get_Child(&child, dn, 0) != CR_SUCCESS)
+        return 0;
+    for (;;) {
+        if (ntdyn_CM_Get_Device_IDA(child, id, sizeof(id), 0) == CR_SUCCESS && drvsafe_id_is_3dfx(id))
+            return 1;
+        if (gs_subtree_3dfx(child, depth + 1))
+            return 1;
+        if (ntdyn_CM_Get_Sibling(&next, child, 0) != CR_SUCCESS)
+            return 0;
+        child = next;
+    }
+}
+
+/* Read one string from the device's class ("driver") key. */
+static void gs_class_value(const char *drvkey, const char *name, char *out, DWORD cch)
+{
+    char  path[300];
+    HKEY  k;
+    DWORD type = 0, sz = cch;
+
+    out[0] = 0;
+    if (!drvkey[0])
+        return;
+    _snprintf(path, sizeof(path) - 1, "SYSTEM\\CurrentControlSet\\Control\\Class\\%s", drvkey);
+    path[sizeof(path) - 1] = 0;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, path, 0, KEY_READ, &k) != ERROR_SUCCESS)
+        return;
+    if (RegQueryValueExA(k, name, NULL, &type, (LPBYTE)out, &sz) != ERROR_SUCCESS || type != REG_SZ)
+        out[0] = 0;
+    out[cch - 1] = 0;
+    RegCloseKey(k);
+}
+
+/* Why this device must never be touched automatically (a DRVSAFE_* reason), or
+ * DRVSAFE_OK. hw/compat are the device's id lists (REG_MULTI_SZ). */
+static int gs_device_3dfx(HDEVINFO set, SP_DEVINFO_DATA *dev, const char *hw, const char *compat)
+{
+    char  drvkey[200], service[128], mfg[128], prov[128], desc[160], infp[64], id[512];
+    DWORD dn, parent;
+    int   depth;
+
+    if (drvsafe_ids_3dfx(hw, compat))
+        return DRVSAFE_3DFX_ID;
+
+    drvkey[0] = service[0] = mfg[0] = 0;
+    SetupDiGetDeviceRegistryPropertyA(set, dev, SPDRP_DRIVER, NULL, (PBYTE)drvkey, sizeof(drvkey) - 1, NULL);
+    SetupDiGetDeviceRegistryPropertyA(set, dev, SPDRP_SERVICE, NULL, (PBYTE)service, sizeof(service) - 1, NULL);
+    SetupDiGetDeviceRegistryPropertyA(set, dev, SPDRP_MFG, NULL, (PBYTE)mfg, sizeof(mfg) - 1, NULL);
+    drvkey[sizeof(drvkey) - 1] = service[sizeof(service) - 1] = mfg[sizeof(mfg) - 1] = 0;
+    gs_class_value(drvkey, "ProviderName", prov, sizeof(prov));
+    gs_class_value(drvkey, "DriverDesc", desc, sizeof(desc));
+    gs_class_value(drvkey, "InfPath", infp, sizeof(infp));
+    if (drvsafe_driver_is_3dfx(prov, mfg, desc, infp, service))
+        return DRVSAFE_3DFX_DRIVER;
+
+    for (dn = dev->DevInst, depth = 0; depth < 12 && ntdyn_CM_Get_Parent(&parent, dn, 0) == CR_SUCCESS;
+         depth++, dn = parent)
+        if (ntdyn_CM_Get_Device_IDA(parent, id, sizeof(id), 0) == CR_SUCCESS && drvsafe_id_is_3dfx(id))
+            return DRVSAFE_3DFX_ANCESTOR;
+
+    if (drvsafe_is_pci_bridge(hw, compat) && gs_subtree_3dfx(dev->DevInst, 0))
+        return DRVSAFE_3DFX_BRIDGE;
+    return DRVSAFE_OK;
+}
+
+/* Is this INF 3dfx? Its WHOLE text, not the model lines: I001/I003/V001 also
+ * register a global OpenGLdrivers\3dfx ICD. Unreadable = not refused here (the
+ * caller's own read will fail the same way). */
+static int gs_inf_is_3dfx(const char *path)
+{
+    char *buf = (char *)HeapAlloc(GetProcessHeap(), 0, GS_INF_READ_MAX + 2);
+    int   yes = 0;
+    if (!buf)
+        return 0;
+    if (gs_read_inf(path, buf))
+        yes = drvsafe_text_3dfx(buf);
+    HeapFree(GetProcessHeap(), 0, buf);
+    return yes;
+}
+
+/* Does `hwid` (a line-start prefix, as DRVUPDATE and PREFER.TXT use it) reach a
+ * PRESENT device the 3dfx rule protects? Its own ids, its bound driver, its
+ * parents or - for a bridge - its children: the HiNT bridge of a V5 6000 has no
+ * 3dfx id of its own. Returns the DRVSAFE_* reason. */
+static int gs_hwid_touches_3dfx(const char *hwid)
+{
+    HDEVINFO        set;
+    SP_DEVINFO_DATA dev;
+    DWORD           i;
+    gs_probdev     *pd;
+    size_t          n = strlen(hwid);
+    int             why = DRVSAFE_OK;
+    const char     *p;
+
+    if (drvsafe_id_is_3dfx(hwid))
+        return DRVSAFE_3DFX_ID;
+    set = SetupDiGetClassDevsA(NULL, NULL, NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
+    if (set == INVALID_HANDLE_VALUE)
+        return DRVSAFE_OK;
+    pd = (gs_probdev *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(gs_probdev));
+    memset(&dev, 0, sizeof(dev));
+    dev.cbSize = sizeof(dev);
+    for (i = 0; pd && why == DRVSAFE_OK && SetupDiEnumDeviceInfo(set, i, &dev); i++) {
+        int hit = 0;
+        pd->dev = dev;
+        gs_device_ids(set, pd);
+        for (p = pd->hw; *p && !hit; p += strlen(p) + 1)
+            hit = _strnicmp(p, hwid, n) == 0;
+        for (p = pd->compat; *p && !hit; p += strlen(p) + 1)
+            hit = _strnicmp(p, hwid, n) == 0;
+        if (hit)
+            why = gs_device_3dfx(set, &dev, pd->hw, pd->compat);
+    }
+    if (pd)
+        HeapFree(GetProcessHeap(), 0, pd);
+    SetupDiDestroyDeviceInfoList(set);
+    return why;
+}
+
 /* Every present device carrying a problem code, into out[] (zeroed by caller).
  * *truncated is set when there were more than `max` - a caller deciding whether
  * C:\D may be deleted must then treat the answer as unknown. */
@@ -1083,6 +1214,7 @@ static int gs_problem_devices(HDEVINFO set, gs_probdev *out, int max,
                                           (PBYTE)out[n].desc, sizeof(out[n].desc),
                                           NULL);
         gs_device_ids(set, &out[n]);
+        out[n].excl = gs_device_3dfx(set, &dev, out[n].hw, out[n].compat);
         n++;
     }
     return n;
@@ -1152,9 +1284,14 @@ static int gs_scan_driver_tree(gs_probdev *d, int n)
             infp[sizeof(infp) - 1] = 0;
             if (!gs_read_inf(infp, buf))
                 continue;
+            if (drvsafe_text_3dfx(buf))
+                continue;               /* a 3dfx INF is never an automatic candidate */
             drvmatch_prepare(buf);      /* model-line id fields only */
             for (k = 0; k < n; k++) {
-                int idx = drvmatch_best(buf, d[k].ids, d[k].nids);
+                int idx;
+                if (d[k].excl)
+                    continue;
+                idx = drvmatch_best(buf, d[k].ids, d[k].nids);
                 if (idx >= 0)
                     drvmatch_cand_add(&d[k].cand, idx, infp);
             }
@@ -1512,6 +1649,13 @@ static void gs_install_missing_drivers(void)
 
         if (gs_dv_lookup(pd[k].hw) != DRVMATCH_V_UNSEEN)
             continue;                   /* an identical device, already handled */
+        if (pd[k].excl) {
+            log_msg(LOG_GS, "unconfigured %s (problem %lu): %s - NOT touched (3dfx "
+                            "drivers change only on an explicit ALLOW3DFX request)",
+                    name, pd[k].problem, drvsafe_reason_name(pd[k].excl));
+            gs_dv_record(pd[k].hw, DRVMATCH_V_EXCLUDED);
+            continue;
+        }
         if (gs_prefer_claims(&pd[k])) {
             log_msg(LOG_GS, "unconfigured %s: PREFER.TXT names it - leaving it to "
                             "the driver-preference pass", name);
@@ -1661,7 +1805,7 @@ static int gs_devices_unconfigured(void)
         bad++;
     }
     for (k = 0; k < n; k++)
-        if (gs_dv_lookup(pd[k].hw) == DRVMATCH_V_UNSEEN)
+        if (!pd[k].excl && gs_dv_lookup(pd[k].hw) == DRVMATCH_V_UNSEEN)
             need_scan = 1;
     if (need_scan)
         scan = gs_scan_driver_tree(pd, n);
@@ -1670,6 +1814,12 @@ static int gs_devices_unconfigured(void)
         const char *name = pd[k].desc[0] ? pd[k].desc : "(unnamed)";
         int         v = gs_dv_lookup(pd[k].hw), confirmed = 0, c = 0;
 
+        if (pd[k].excl) {
+            log_msg(LOG_GS, "device not configured (problem %lu): %s - %s, never "
+                            "installed automatically; not a reason to keep the tree",
+                    pd[k].problem, name, drvsafe_reason_name(pd[k].excl));
+            continue;
+        }
         if (v == DRVMATCH_V_UNSEEN && scan == 0) {
             for (c = 0; c < pd[k].cand.n; c++)
                 if (gs_candidate_ok(set, &pd[k].dev, pd[k].cand.path[c],
@@ -2013,6 +2163,18 @@ static int gs_prefs_pass(int apply)
 
         if (!drvpref_present(ids, hwid))
             continue;               /* not this machine's hardware */
+        {
+            int why = gs_hwid_touches_3dfx(hwid);
+            if (why == DRVSAFE_OK && gs_file_exists(inf) && gs_inf_is_3dfx(inf))
+                why = DRVSAFE_3DFX_INF;
+            if (why != DRVSAFE_OK) {
+                if (apply)
+                    log_msg(LOG_GS, "driver preference %s -> %s: %s - NOT applied "
+                                    "(3dfx drivers change only on an explicit request)",
+                            hwid, inf, drvsafe_reason_name(why));
+                continue;           /* not blocking either: it will never run */
+            }
+        }
         seen++;
 
         {
@@ -4828,18 +4990,42 @@ DWORD WINAPI gamesync_thread(LPVOID param)
  * With no INF given it searches the staged tree, so "DRVUPDATE PCI\VEN_10DE&DEV_0150"
  * is enough once the right driver is in the image.
  */
-void handle_drvupdate(SOCKET sock, const char *args)
+/* Copy `args` without its standalone ALLOW3DFX token(s). */
+static void gs_strip_allow(const char *args, char *out, size_t cap)
 {
-    char     hwid[256], inf[MAX_PATH];
+    size_t o = 0, n = strlen(DRVSAFE_ALLOW_TOKEN);
+    const char *p = args;
+    while (*p && o + 1 < cap) {
+        const char *s = p;
+        while (*p && *p != ' ' && *p != '\t') p++;
+        if ((size_t)(p - s) == n && _strnicmp(s, DRVSAFE_ALLOW_TOKEN, n) == 0) {
+            while (*p == ' ' || *p == '\t') p++;
+            continue;                   /* drop the token and its trailing blanks */
+        }
+        while (s < p && o + 1 < cap) out[o++] = *s++;
+        while ((*p == ' ' || *p == '\t') && o + 1 < cap) out[o++] = *p++;
+    }
+    while (o && (out[o - 1] == ' ' || out[o - 1] == '\t')) o--;
+    out[o] = 0;
+}
+
+void handle_drvupdate(SOCKET sock, const char *args_in)
+{
+    char     hwid[256], inf[MAX_PATH], argsbuf[600];
     HMODULE  newdev;
     updrv_fn update;
     BOOL     reboot = FALSE;
-    const char *sp;
+    const char *sp, *args = argsbuf;
+    int      allow3dfx, why3dfx;
 
+    /* ALLOW3DFX is the chat's explicit "yes, this 3dfx device" - one device,
+     * never ALL, never persisted (agent/shared/drvsafe.h). */
+    allow3dfx = drvsafe_args_allow(args_in);
+    gs_strip_allow(args_in, argsbuf, sizeof(argsbuf));
     while (*args == ' ')
         args++;
     if (!*args) {
-        send_error_response(sock, "usage: DRVUPDATE <hardware-id> [inf-path]");
+        send_error_response(sock, "usage: DRVUPDATE <hardware-id> [inf-path] [ALLOW3DFX]");
         return;
     }
     sp = strchr(args, ' ');
@@ -4857,6 +5043,23 @@ void handle_drvupdate(SOCKET sock, const char *args)
         inf[0] = 0;
     }
     CharUpperA(hwid);
+
+    why3dfx = gs_hwid_touches_3dfx(hwid);
+    if (why3dfx != DRVSAFE_OK && !allow3dfx) {
+        char msg[300];
+        _snprintf(msg, sizeof(msg) - 1, "refused: %s is a %s - 3dfx drivers are changed "
+                  "only on an explicit request (DRVUPDATE <id> <inf> ALLOW3DFX)",
+                  hwid, drvsafe_reason_name(why3dfx));
+        msg[sizeof(msg) - 1] = 0;
+        log_msg(LOG_GS, "DRVUPDATE %s", msg);
+        send_error_response(sock, msg);
+        return;
+    }
+    if (allow3dfx && !inf[0]) {
+        send_error_response(sock, "ALLOW3DFX needs an explicit INF path: a 3dfx INF is "
+                                  "never chosen automatically");
+        return;
+    }
 
     if (!inf[0]) {
         /* No device handle here, so no gs_inf_serves(): the text ranking alone
@@ -4905,6 +5108,14 @@ void handle_drvupdate(SOCKET sock, const char *args)
         send_error_response(sock, "INF not found");
         return;
     }
+    if (!allow3dfx && gs_inf_is_3dfx(inf)) {
+        log_msg(LOG_GS, "DRVUPDATE refused: %s is a 3dfx INF", inf);
+        send_error_response(sock, "refused: that is a 3dfx INF - 3dfx drivers are changed "
+                                  "only on an explicit request (add ALLOW3DFX, one device)");
+        return;
+    }
+    if (allow3dfx)
+        log_msg(LOG_GS, "DRVUPDATE: *** EXPLICIT 3dfx REQUEST (ALLOW3DFX) *** %s -> %s", hwid, inf);
 
     newdev = LoadLibraryA("newdev.dll");
     update = newdev ? (updrv_fn)GetProcAddress(newdev,

@@ -110,7 +110,16 @@ void __stdcall start(void)
             continue;
         }
         cr = loc(&dn, id, 0);
-        wsprintfA(line, "%s: locate cr=%lu", id, cr);
+        if (cr) {
+            /* A devnode disabled at boot (ConfigFlags bit 0) is not "present":
+             * CM_LOCATE_DEVNODE_PHANTOM (1) still finds it, and CM_Enable_DevNode
+             * then starts it - a bus re-enumeration does not. */
+            DWORD cr2 = loc(&dn, id, 1);
+            wsprintfA(line, "%s: locate cr=%lu, as phantom cr=%lu", id, cr, cr2);
+            cr = cr2;
+        } else {
+            wsprintfA(line, "%s: locate cr=%lu", id, cr);
+        }
         w(line);
         if (cr) { bad++; continue; }
         status(sta, dn, "before");

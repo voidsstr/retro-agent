@@ -601,8 +601,10 @@ enum {
     DRVMATCH_V_FAILED,          /* every candidate refused, or tried out */
     DRVMATCH_V_PREFER,          /* PREFER.TXT owns it (gates the reclaim itself) */
     DRVMATCH_V_UNSEARCHED,      /* C:\D could not be searched, or an install hung */
-    DRVMATCH_V_ERRORED          /* installs could not RUN (an error, not a broken
+    DRVMATCH_V_ERRORED,         /* installs could not RUN (an error, not a broken
                                    device) and another boot's attempt remains */
+    DRVMATCH_V_EXCLUDED         /* 3dfx (agent/shared/drvsafe.h): never installed
+                                   automatically, so never a reason to keep C:\D */
 };
 
 /* Can installing a driver clear this CM_PROB_* code? Used after a forced
@@ -655,6 +657,8 @@ static int drvmatch_keeps_tree(int verdict, int scan_ok, int confirmed)
         return 1;
     case DRVMATCH_V_UNSEEN:
         return !scan_ok || confirmed;
+    case DRVMATCH_V_EXCLUDED:       /* no automatic path will ever use the tree for it */
+        return 0;
     default:
         return 0;
     }

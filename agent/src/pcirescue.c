@@ -45,6 +45,7 @@
 #include "util.h"
 #include "log.h"
 #include <string.h>
+#include "../shared/drvsafe.h"
 #include <stdio.h>
 
 #define LOG_PCIR "PCIRESCUE"
@@ -85,6 +86,8 @@ static int pcir_load(pcir_locate_t *loc, pcir_reenum_t *ren)
 
 /* Collect "PCI\<device>\<instance>" for every installed PCI instance whose
  * devnode Config Manager cannot locate. Returns the number found. */
+static int pcir_inst_disabled(HKEY hinst);
+
 static int pcir_find_missing(pcir_locate_t loc, char out[][PCIR_ID], int *installed)
 {
     HKEY hpci;
@@ -114,8 +117,14 @@ static int pcir_find_missing(pcir_locate_t loc, char out[][PCIR_ID], int *instal
             if (RegQueryValueExA(hinst, "Driver", NULL, &type, (LPBYTE)drv, &dl) != ERROR_SUCCESS
                     || type != REG_SZ)
                 drv[0] = 0;
+            /* 1.87.0: a device the operator DISABLED (ConfigFlags bit 0 - .243's
+             * NEC USB card, which froze the box when set up at boot) has no
+             * devnode on purpose. Counting it as "missing" re-enumerated the bus
+             * at every start for nothing. */
+            if (pcir_inst_disabled(hinst))
+                drv[0] = 0;
             RegCloseKey(hinst);
-            if (!drv[0]) continue;                          /* never installed */
+            if (!drv[0]) continue;                          /* never installed, or disabled */
             if (installed) (*installed)++;
             _snprintf(id, sizeof(id) - 1, "PCI\\%s\\%s", dev, inst);
             id[sizeof(id) - 1] = 0;
@@ -162,8 +171,130 @@ static void pcir_reenumerate_buses(pcir_locate_t loc, pcir_reenum_t ren, pcir_re
     }
 }
 
-static void pcir_run(pcir_result_t *r, int force)
+/* 1.87.0 - the 3dfx rule (agent/shared/drvsafe.h). A re-enumeration lets
+ * Windows choose a driver for any devnode that has none, so it must not run
+ * while a 3dfx function ON THE BUS has no installed driver: that would be the
+ * agent installing a 3dfx driver nobody asked for. .243's BIOS leaves its
+ * Voodoo 2 unconfigured and Win98's boot enumeration misses it - a card can be
+ * on the bus with no Enum\PCI key at all (seen there 2026-09-24) - so the
+ * registry alone cannot answer this. PCI config space can: mechanism #1, from
+ * ring 3, which Win9x allows (scripts/fleet/win9x/pci9x.c proved it on .243;
+ * pcir_run() has already returned on NT). A ghost key of a removed card, or a
+ * card the operator disabled (ConfigFlags bit 0 - a re-enumeration leaves it
+ * alone), does not block the Voodoo 2 rescue, which is what keeps Glide from
+ * mapping that board over RAM. An unreadable config space refuses. */
+static unsigned long pcir_inl(unsigned short p)
 {
+    unsigned long v;
+    __asm__ __volatile__("inl %w1, %0" : "=a"(v) : "Nd"(p));
+    return v;
+}
+static void pcir_outl(unsigned long v, unsigned short p)
+{
+    __asm__ __volatile__("outl %0, %w1" : : "a"(v), "Nd"(p));
+}
+
+/* One config dword, or 0xFFFFFFFF when the address did not hold (another
+ * accessor moved CF8 under us) - read again rather than trust it. */
+static unsigned long pcir_cfg(unsigned b, unsigned d, unsigned f, unsigned reg)
+{
+    unsigned long addr = 0x80000000UL | ((unsigned long)b << 16) | ((unsigned long)d << 11)
+                       | ((unsigned long)f << 8) | (reg & 0xFC);
+    unsigned long saved = pcir_inl(0xCF8), v, check;
+    pcir_outl(addr, 0xCF8);
+    v = pcir_inl(0xCFC);
+    check = pcir_inl(0xCF8);
+    pcir_outl(saved, 0xCF8);
+    return check == addr ? v : 0xFFFFFFFFUL;
+}
+
+/* Is the instance key `inst` of Enum\PCI\<dev> installed (a Driver) or disabled? */
+static int pcir_inst_disabled(HKEY hinst)
+{
+    BYTE  cf[4] = { 0, 0, 0, 0 };
+    DWORD cfl = sizeof(cf), cft = 0;
+    return RegQueryValueExA(hinst, "ConfigFlags", NULL, &cft, cf, &cfl) == ERROR_SUCCESS
+        && cfl >= 1 && (cf[0] & 0x01);
+}
+
+/* 1 when the 3dfx function at b:d.f is safe from a re-enumeration: some
+ * Enum\PCI\VEN_121A&DEV_<did>* key has the instance BUS_bb&DEV_dd&FUNC_ff with a
+ * Driver, or that instance is disabled. */
+static int pcir_3dfx_slot_covered(unsigned did, unsigned b, unsigned d, unsigned f)
+{
+    HKEY  hpci;
+    DWORD i;
+    char  pre[32], inst[40];
+    int   ok = 0;
+
+    _snprintf(pre, sizeof(pre) - 1, "VEN_121A&DEV_%04X", did);
+    pre[sizeof(pre) - 1] = 0;
+    _snprintf(inst, sizeof(inst) - 1, "BUS_%02X&DEV_%02X&FUNC_%02X", b, d, f);
+    inst[sizeof(inst) - 1] = 0;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Enum\\PCI", 0, KEY_READ, &hpci) != ERROR_SUCCESS)
+        return 0;
+    for (i = 0; i < 256 && !ok; i++) {
+        char  dev[96], drv[128];
+        DWORD cch = sizeof(dev), dl = sizeof(drv), type = 0;
+        HKEY  hdev, hinst;
+        if (RegEnumKeyExA(hpci, i, dev, &cch, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
+            break;
+        if (_strnicmp(dev, pre, strlen(pre)) != 0) continue;
+        if (RegOpenKeyExA(hpci, dev, 0, KEY_READ, &hdev) != ERROR_SUCCESS) continue;
+        if (RegOpenKeyExA(hdev, inst, 0, KEY_READ, &hinst) == ERROR_SUCCESS) {
+            drv[0] = 0;
+            if (RegQueryValueExA(hinst, "Driver", NULL, &type, (LPBYTE)drv, &dl) != ERROR_SUCCESS
+                    || type != REG_SZ)
+                drv[0] = 0;
+            ok = drv[0] != 0 || pcir_inst_disabled(hinst);
+            RegCloseKey(hinst);
+        }
+        RegCloseKey(hdev);
+    }
+    RegCloseKey(hpci);
+    return ok;
+}
+
+/* Scan the bus: 1 (and where, in id_out) when a 3dfx function is present
+ * without an installed or disabled Enum instance, or when config space cannot
+ * be read at all. */
+static int pcir_3dfx_unprotected(char *id_out, int cch)
+{
+    unsigned b, d, f;
+    unsigned long v = pcir_cfg(0, 0, 0, 0);
+
+    if (v == 0xFFFFFFFFUL || (v & 0xFFFF) == 0xFFFF) {
+        v = pcir_cfg(0, 0, 0, 0);               /* once more: a moved CF8 is transient */
+        if (v == 0xFFFFFFFFUL || (v & 0xFFFF) == 0xFFFF) {
+            lstrcpynA(id_out, "PCI config space unreadable - cannot rule out a 3dfx card", cch);
+            return 1;
+        }
+    }
+    for (b = 0; b < 256; b++)
+        for (d = 0; d < 32; d++) {
+            unsigned long hdr;
+            unsigned nf = 1;
+            v = pcir_cfg(b, d, 0, 0);
+            if ((v & 0xFFFF) == 0xFFFF) continue;
+            hdr = pcir_cfg(b, d, 0, 0x0C);
+            if (hdr != 0xFFFFFFFFUL && ((hdr >> 16) & 0x80)) nf = 8;   /* multi-function */
+            for (f = 0; f < nf; f++) {
+                if (f) v = pcir_cfg(b, d, f, 0);
+                if ((v & 0xFFFF) != 0x121A) continue;
+                if (!pcir_3dfx_slot_covered((unsigned)(v >> 16), b, d, f)) {
+                    _snprintf(id_out, cch - 1, "3dfx %04lX at %02X:%02X.%u has no installed driver",
+                              v >> 16, b, d, f);
+                    id_out[cch - 1] = 0;
+                    return 1;
+                }
+            }
+        }
+    return 0;
+}
+
+static void pcir_run(pcir_result_t *r, int force, int allow3dfx)
+{
+    char dfx[PCIR_ID];
     pcir_locate_t loc = NULL;
     pcir_reenum_t ren = NULL;
     int i;
@@ -180,6 +311,16 @@ static void pcir_run(pcir_result_t *r, int force)
         return;
     }
 
+    if (!allow3dfx && pcir_3dfx_unprotected(dfx, sizeof(dfx))) {
+        log_msg(LOG_PCIR, "NOT re-enumerating: %s - a re-enumeration would let Windows "
+                          "install a 3dfx driver; 3dfx drivers change only on an explicit "
+                          "request (PCIRESCAN force ALLOW3DFX)", dfx);
+        r->error = "refused: a 3dfx card on the bus has no installed driver - re-enumerating "
+                   "would install one (explicit request only: PCIRESCAN force ALLOW3DFX)";
+        r->n_missing_after = r->n_missing_before;               /* nothing was re-enumerated */
+        memcpy(r->missing_after, r->missing_before, sizeof(r->missing_after));
+        return;
+    }
     pcir_reenumerate_buses(loc, ren, r);
     Sleep(3000);                        /* let Config Manager settle */
     r->n_missing_after = pcir_find_missing(loc, r->missing_after, NULL);
@@ -269,7 +410,7 @@ DWORD WINAPI pcirescue_thread(LPVOID param)
         return 0;
     }
     if (InterlockedExchange((LONG *)&g_pcir_busy, 1)) return 0;
-    pcir_run(&r, 0);
+    pcir_run(&r, 0, 0);          /* the startup pass never allows 3dfx */
     InterlockedExchange((LONG *)&g_pcir_busy, 0);
     pcir_summary(&r, summary, sizeof(summary));
     pcir_store_boot(summary);
@@ -291,13 +432,23 @@ void handle_pcirescan(SOCKET sock, const char *args)
     pcir_result_t r;
     json_t j;
     char *out;
-    int i, force = args && _stricmp(args, "force") == 0;
+    int i, force = 0, allow3dfx = drvsafe_args_allow(args);
+    const char *t;
+
+    /* "force" as a word, alongside an optional ALLOW3DFX */
+    for (t = args; t && *t; ) {
+        const char *w;
+        while (*t == ' ') t++;
+        w = t;
+        while (*t && *t != ' ') t++;
+        if (t - w == 5 && _strnicmp(w, "force", 5) == 0) force = 1;
+    }
 
     if (InterlockedExchange((LONG *)&g_pcir_busy, 1)) {
         send_error_response(sock, "PCIRESCAN already running");
         return;
     }
-    pcir_run(&r, force);
+    pcir_run(&r, force, allow3dfx);
     InterlockedExchange((LONG *)&g_pcir_busy, 0);
 
     json_init(&j);
@@ -315,7 +466,7 @@ void handle_pcirescan(SOCKET sock, const char *args)
     }
     json_array_end(&j);
     pcir_emit_list(&j, "missing_after", r.missing_after, r.n_missing_after);
-    json_kv_bool(&j, "rescued", r.n_missing_before > 0 && r.n_missing_after < r.n_missing_before);
+    json_kv_bool(&j, "rescued", !r.error && r.n_missing_before > 0 && r.n_missing_after < r.n_missing_before);
     pcir_load_boot(last_boot, sizeof(last_boot));
     json_kv_str(&j, "last_boot", last_boot);
     json_object_end(&j);

@@ -73,6 +73,21 @@ _GATED_SHELL_PATTERNS = (
 )
 
 
+# 3dfx drivers are changed only when the user explicitly asks for a 3dfx
+# driver change on that machine (user directive 2026-09-27). The agent refuses
+# any automatic or unmarked change (agent/shared/drvsafe.h); the one way past
+# it is the literal ALLOW3DFX token, so a command carrying it - or a driver
+# command naming a 3dfx id - needs confirm=true like any destructive verb.
+_DRIVER_VERBS = {"DRVUPDATE", "PCIRESCAN", "DRIVERS"}
+_3DFX_WORDS = ("VEN_121A", "3DFX", "VOODOO", "AMIGAMERLIN")
+# Raw routes to a 3dfx driver change (an installer via EXEC, a service Start
+# via REGWRITE): the agent cannot see intent in them, so the gate looks for the
+# driver's own identifiers. Plain mentions ("dir C:\3dfx") are not gated.
+_RAW_VERBS = {"EXEC", "EXECW", "LAUNCH", "REGWRITE", "REGDELETE", "SERVICE"}
+_3DFX_DRIVER_IDS = ("VEN_121A", "VOODOO2.INF", "VOODOO.INF", "3DFXVS", "3DFXV2", "FXGPIO",
+                    "FXPTL", "AMIGAMERLIN", "VCRMP", "VCRDD")
+
+
 def _gate_reason(command):
     """Return a human reason if `command` is a gated destructive action, else None."""
     if not command:
@@ -80,6 +95,13 @@ def _gate_reason(command):
     verb = command.split(None, 1)[0].upper()
     if verb in _GATED_VERBS:
         return f"{verb} is irreversible or needs physical access to recover"
+    up = command.upper()
+    if "ALLOW3DFX" in up.split():
+        return "ALLOW3DFX changes a 3dfx driver - only on the user's explicit request for that machine"
+    if verb in _DRIVER_VERBS and any(w in up for w in _3DFX_WORDS):
+        return f"{verb} names a 3dfx device or driver - 3dfx drivers change only on the user's explicit request"
+    if verb in _RAW_VERBS and any(w in up for w in _3DFX_DRIVER_IDS):
+        return f"{verb} touches a 3dfx driver - 3dfx drivers change only on the user's explicit request"
     low = " " + command.lower()
     for pat in _GATED_SHELL_PATTERNS:
         if pat in low:

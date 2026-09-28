@@ -83,3 +83,19 @@ def test_startup_result_is_persisted_not_only_logged():
     assert 'json_kv_str(&j, "last_boot", last_boot)' in handler
     # both outcomes are spelled out, so a failure cannot read as a success
     assert '"RESCUED" : "NOT rescued"' in s
+
+
+def test_an_operator_disabled_device_is_not_counted_missing():
+    """1.87.0: .243's NEC USB card is disabled at boot (ConfigFlags bit 0) because
+    it froze the box when set up at boot; counting it as 'installed but missing'
+    re-enumerated the PCI bus at every start for nothing."""
+    import re as _re
+    from pathlib import Path as _P
+    src = (_P(__file__).resolve().parents[2] / "agent" / "src" / "pcirescue.c").read_text()
+    code = _re.sub(r"/\*.*?\*/", "", src, flags=_re.S)
+    start = code.index("static int pcir_find_missing(pcir_locate_t")
+    fm = code[start:code.index("\n}\n", start)]
+    assert fm.index("if (pcir_inst_disabled(hinst))") < fm.index("if (!drv[0]) continue;")
+    dis = code[code.index("static int pcir_inst_disabled(HKEY hinst)\n{"):]
+    dis = dis[:dis.index("\n}\n")]
+    assert '"ConfigFlags"' in dis and "(cf[0] & 0x01)" in dis

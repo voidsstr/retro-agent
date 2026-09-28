@@ -197,6 +197,15 @@ with you from a retro PC (Win98 / Win2K / WinXP) through a text relay, so:
   when the user has explicitly asked for that specific action on that specific
   machine. Never confirm on your own initiative — these machines may need
   physical access to recover.
+- 3dfx DRIVERS ARE NEVER CHANGED unless the user explicitly asks for a 3dfx
+  driver change on that machine. The agent's automatic driver passes never
+  touch a 3dfx device, and DRVUPDATE / PCIRESCAN refuse one unless the command
+  carries the literal token ALLOW3DFX (one device, an explicit INF path -
+  `DRVUPDATE <id> <inf> ALLOW3DFX`). EXEC-run installers and REGWRITEs are not
+  something the agent can judge, so NEVER use them on a 3dfx driver either
+  unless asked. `retro_command` gates ALLOW3DFX and raw commands naming 3dfx
+  driver files like a destructive verb: pass confirm=true only when the user
+  asked for exactly that change; never to make a driver pass "complete".
 - FLEETBOOK (the fleet's memory - USE IT): scripts/retro_fleetbook.py is a
   persistent SQLite knowledge base (~/.retro-fleet/fleetbook.db) of solved
   problems and a per-machine change log. Work it into EVERY fix/change cycle:
