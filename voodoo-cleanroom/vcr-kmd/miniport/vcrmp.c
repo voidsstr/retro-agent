@@ -235,6 +235,11 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
      * them through vcr_info.flags - vcrdd_2d.c VcrDd2dInit) */
     x->d3d32 = VcrDiagGet(L"D3D32", 0);
     x->reset3d = VcrDiagGet(L"Reset3D", 0);
+    /* OFF unless set, not yet run on silicon: bit 0 textures up to 2048, bit 1
+     * DXT1/3/5, bit 2 A8R8G8B8 (VSA-100 only; vcrdd_2d.c VcrDd2dInit). At boot,
+     * like D3D32: the texture caps a D3D application reads at its desktop must
+     * be the ones its fullscreen mode's PDEV has */
+    x->d3dbigtex = VcrDiagGet(L"D3DBigTex", 0);
     hwinfo(x);
 
     /* no VDM (full-screen DOS) support: the VGA driver keeps that role */
@@ -431,6 +436,9 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
                (x->accel2d ? 0 : VCR_INFO_F_NO_ACCEL2D) | (x->d3d ? 0 : VCR_INFO_F_NO_D3D) |
                (x->texport ? 0 : VCR_INFO_F_NO_TEXPORT) | (x->d3d32 ? VCR_INFO_F_D3D32 : 0) |
                (x->reset3d ? VCR_INFO_F_RESET3D : 0) |
+               ((x->d3dbigtex & 1) ? VCR_INFO_F_BIGTEX : 0) |
+               ((x->d3dbigtex & 2) ? VCR_INFO_F_TEXDXT : 0) |
+               ((x->d3dbigtex & 4) ? VCR_INFO_F_TEX32 : 0) |
                /* read NOW, not at boot: the display driver asks at every
                 * DrvEnableSurface, so the next mode change picks it up */
                (VcrDiagGet(L"Accel2DText", 0) ? VCR_INFO_F_TEXT2D : 0) |

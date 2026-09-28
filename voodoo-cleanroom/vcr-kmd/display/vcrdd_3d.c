@@ -19,6 +19,7 @@
 #include "vcrdd_3d.h"
 #include "../include/vcr_fog.h"
 #include "../include/vcr_3dseq.h"
+#include "../include/vcr_texlod.h"
 
 static void w3(VCR_PDEV *pd, ULONG off, ULONG v)
 {
@@ -97,6 +98,17 @@ BOOL VcrDd3dState(VCR_PDEV *pd, const vcr3d_regs *r)
         pd->fog_valid = 1;
         if (!VcrDdRoom(pd, 4))
             return FALSE;
+    }
+    /* a compressed texture (VSA-100, Diag\\D3DBigTex bit 1): 3dfx's h5 Glide
+     * idles the TMUs first - "a minor hardware bug when switching from a
+     * non-compressed texture to a compressed one" (gtex.c grTexSource: nopCMD
+     * to TMU0|TMU1). Before EVERY compressed state write here, which covers
+     * each such switch. Never on a Voodoo3: nothing sets TM_COMPRESSED there */
+    if ((r->textured && (r->textureMode & TM_COMPRESSED)) ||
+        (r->textured1 && (r->textureMode1 & TM_COMPRESSED))) {
+        if (!VcrDdRoom(pd, 5))
+            return FALSE;
+        w3(pd, V3D_TMU0 + V3D_TMU1 + V3D_NOPCMD, 0);
     }
     if (r->textured) {
         w3(pd, V3D_TMU0 + V3D_TEXTUREMODE, r->textureMode);
@@ -232,9 +244,15 @@ BOOL VcrDd3dTriangle(VCR_PDEV *pd, const vcr3d_draw *d, const UCHAR *a, const UC
  * one dword written back through the texture port at the texture's first
  * texel - the write 86Box's texture cache watches (it ignores LFB writes).
  * The port decodes linearly from TMU0's texBaseAddr on Banshee and later, so
- * the written-back dword lands exactly where it was read. */
+ * the written-back dword lands exactly where it was read.
+ * `base` is the REGISTER value; on the VSA-100 texture path (Diag\\D3DBigTex)
+ * that is the munged 26-bit form (vcr_texlod.h), so the port offset is taken
+ * from its linear address `lin` - on every other path the two are one value.
+ * addr ~0: no port write (the VSA-100 path passes it for what the write has
+ * never been proven on: a TBIG, 32-bit or compressed texture). */
 BOOL VcrDd3dTexFlush(VCR_PDEV *pd, ULONG base, ULONG addr)
 {
+    ULONG lin = pd->tex_ext ? vcr_tex_unmunge(base) : base;
     if (!VcrDdRoom(pd, 7))
         return FALSE;
     *(volatile ULONG *)(pd->pjRegs + 0x100070) = 0x100;         /* 2D: NOP | GO */
@@ -242,10 +260,10 @@ BOOL VcrDd3dTexFlush(VCR_PDEV *pd, ULONG base, ULONG addr)
     w3(pd, V3D_NOPCMD, 0);
     w3(pd, V3D_TEXBASEADDR, base);
     *(volatile ULONG *)(pd->pjRegs + 0x100070) = 0x100;
-    if (!pd->no_texport && addr >= base && addr - base < 0x200000) {
+    if (!pd->no_texport && addr >= lin && addr - lin < 0x200000) {
         ULONG v = *(volatile ULONG *)((PUCHAR)pd->pvRamBase + addr);
         w3(pd, V3D_TMU0 + V3D_TEXBASEADDR, base);
-        *(volatile ULONG *)(pd->pjRegs + 0x600000 + (addr - base)) = v;
+        *(volatile ULONG *)(pd->pjRegs + 0x600000 + (addr - lin)) = v;
     }
     pd->g2d_busy = 1;
     return TRUE;

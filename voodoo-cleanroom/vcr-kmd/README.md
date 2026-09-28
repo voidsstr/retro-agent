@@ -105,6 +105,7 @@ three). They exist for supervised runs on `.124`: arm one, run, disarm.
 | `SliAAFeederLead` | at every AA request | **cfg 3 ghost arm, off by default.** Bit 0 = chip 1, bit 1 = chip 3: that feeder's cfgSliAAMisc vga_vsync_offset 47 px (chars 5) -> 39 px (chars 4), the value every slave runs in the clean cfg 5. Chars 3 (31 px, froze the board) is unreachable by construction. SET_BEGIN phase bits 10-11; `SliAAState.flags` 0x4/0x8 |
 | `AllowPoke` | at boot (FindAdapter) | config writes through `PCI_OP` / `VCR_ESC_PCI` that the kernel otherwise refuses: below 0x40 (as before), and now also cfgInitEnable (0x40), cfgPciDecode (0x48), and an AA value into a slave outside the live kernel session. A write is judged by what it would turn ON: zero writes, cfgSliLfbCtrl, READ_EN-only toggles, cfgSliAAMisc and 0x98-0xA8 always pass (Glide's cfg 0 close makes 24 zero writes to the SLI/AA registers); an offset past 0xFF or misaligned never does (a slave's raw 0xCF8 cycle keeps only bits 2-7, so 0x140 reached its cfgVideoCtrl0). A refusal is event 703 SLI_POKE_REFUSED, a = reason<<24 \| chip<<16 \| offset (1 BOUNDS, 2 HEADER, 3 SNOOP, 4 AA_OFF, 5 SLAVE) |
 | `D3D32` | at boot | offers 32 bpp Direct3D targets on a VSA-100: DDBD_32, and the Z list D16 plus D24X8/D24S8 (see 32 bpp below). `vcr_info.flags` 0x10; event 513 what 16 when the display driver arms it |
+| `D3DBigTex` | at boot | **the VSA-100 texture path (2026-09-28, NOT yet on silicon), bit by bit:** 1 = textures up to 2048x2048 (tLOD TBIG, LODs from 2048, texBaseAddr still at the 256-level with the bigger levels before it - h5 Glide `grTexSource`/`_grMipMapOffset`), 2 = DXT1/DXT3/DXT5 FOURCC textures (textureMode bit 31 + format 1/2/3; DirectDraw allocates the blocks we size; a DXT1 level narrower than 8 is never sampled - the TMU reads DXT1 in 8x4 units), 4 = A8R8G8B8 (format 15). Any bit also gives texBaseAddr its 26 bits (bits 24:4 + address bit 25 in bit 1): the Voodoo3 field the HAL writes otherwise samples a texture above 16 MB 16 MB lower, and `.124`'s heap is 27 MB. Off, every Banshee/Voodoo3, and 16 bpp textures to 256 are the proven path call for call. `vcr_info.flags` 0x200/0x400/0x800; event 513 what 18 when armed (19 a compressed texture sized, 20 a chain placed). 7 = all three. Verify with `d3dprobe render --tests tex512,tex1024,tex2048,mip2048,tex8888,dxt1,dxt3,dxt5,texhigh` (below) |
 | `Reset3D` | at boot | clears what a Glide session left on chip 0 - chipMask = ALL, sliCtrl = 0, 12 nopCMD, combineMode, aaCtrl, stencilMode, stencilOp = 0 - at the exclusive OWNER's own HWCRLSEXCLUSIVE after a good RESTORE_MODE (VSA-100, D3D on), and only if chip 0 reads idle three times and cmdFifo0 has SST_CMDFIFOEN clear. Never at DrvAssertMode, so a KILLED Glide client still needs a cold boot before a 32 bpp D3D test. Event 604 a=3, c: 0 not run, 1 reset, 2 not idle, 3 command FIFO on, 4 gave up. Flags 0x20 |
 | `FlipDeadline` | at every mode set | the achieved-refresh flip deadline (Flip completion, below). Voodoo backend only |
 | `Accel2DText` | at every mode change (IOCTL_VCR_INFO per PDEV) | DrvTextOut on the 2D engine: one 1 bpp mask per clip rectangle, sent as a host-to-screen blit (`include/vcr_text.h`). 0 bad on the 86Box bed at 8/16/32 bpp, but SLOWER there than the software path (~115k vs ~139k glyphs/s, in-box driver ~275k), so off until measured on silicon. `vcr_info.flags` 0x40 (positive); `VCR_ESC_2D_STATS` gives the counters; evidence `evidence/86box_v3/2d_*` |
@@ -114,7 +115,7 @@ three). They exist for supervised runs on `.124`: arm one, run, disarm.
 
 **Arm:** `REGWRITE HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag SliAA
 REG_DWORD 1`, then `REGREAD` it back (the agent answers OK to a malformed
-REGWRITE). `AllowPoke`, `D3D32` and `Reset3D` then need a reboot through
+REGWRITE). `AllowPoke`, `D3D32`, `D3DBigTex` and `Reset3D` then need a reboot through
 `scripts/fleet/safe-reboot.py`; `FlipDeadline` a mode set (a DirectDraw
 application's own switch is one); the `Sli*` switches act on the next request,
 so they can be armed for one run without a reboot. **Disarm** as soon as the run
@@ -167,7 +168,7 @@ GetScanLine never returns an unset line.
 | `tools/cursor_golden.py` | the hardware cursor's registers and 1 KB pattern, read back (a screenshot cannot show a hardware cursor), compared against the vendor's |
 | `out/ddlab.exe` (`tools/ddlab.c`) + `tools/ddlab_run.py` | our DirectDraw test program: `caps` (HAL vs HEL, video memory), `flip` (a frame-numbered pattern written to the back buffer must read back from the FRONT after each flip; RESULT adds `first_frame_ms`, `max_frame_ms`, `min_frame_ms`, `slow_frames` (> 1.5 refreshes), `fast_frames` (< half a refresh), `flips_s_first_last`; `--work-us N` busy-works after every Flip - the D3D pattern), `blt` (copy, colour fill, an overlapping scroll and a SOURCE-COLOUR-KEYED copy between video-memory surfaces, read back), `zsurf --zbits 16|24|32` (one DirectDraw 7 Z surface - the request the HAL's CanCreateSurface judges; no mode switch) |
 | `out/gdilab.exe` (`tools/gdilab.c`) | our GDI test program, self-checking against a per-pixel pattern: solid fills, BLACKNESS/WHITENESS, screen-to-screen copies (odd positions and sizes), overlapping scrolls in all four directions, a copy through a clip region with a hole, and the engine and the CPU interleaved on the same pixels |
-| `out/d3dprobe.exe` (`tools/d3dprobe.c`) + `tools/d3dprobe_run.py` | our Direct3D 8 test program: `caps` (adapter, D3DCAPS8, formats, `zmatch` per target/depth pair, `hal_fullscreen` per format), `render` (clear, flat, gouraud, texture, modulate, blend, z-test, 256x256 texture - the back buffer LOCKED and compared with computed values, windowed or `--full`; `--zfmt d16|d24x8|d24s8` asks for that depth format, e.g. a device the HAL must refuse; `--noz` renders with no depth buffer), `perf` |
+| `out/d3dprobe.exe` (`tools/d3dprobe.c`) + `tools/d3dprobe_run.py` | our Direct3D 8 test program: `caps` (adapter, D3DCAPS8, formats, `zmatch` per target/depth pair, `hal_fullscreen` per format), `render` (clear, flat, gouraud, texture, modulate, blend, z-test, 256x256 texture - the back buffer LOCKED and compared with computed values, windowed or `--full`; `--zfmt d16|d24x8|d24s8` asks for that depth format, e.g. a device the HAL must refuse; `--noz` renders with no depth buffer; the `D3DBigTex` checks, explicit only: `tex512` `tex1024` `tex2048` (8x8 cells, the last one green), `mip2048` (levels 0-4 of a 2048 chain by texel:pixel ratio), `tex8888`, `dxt1` `dxt3` `dxt5` (128x128; logs LockRect's pitch), `texhigh` (~20 MB of textures first, so the probe lands above 16 MB) - each SKIPPED, not failed, where the HAL does not offer it; RESULT adds `skipped` and `max_texture`), `perf` |
 | `tools/lab_run.py <lab> <host>` | runs any of the labs on a box or test bed and fails on any `bad*`/`fail` count |
 | `make labs` | builds ddlab, d3dprobe, gdilab |
 | `tools/86box/` | **the Voodoo3 test bed**: 86Box emulating a real Voodoo3 3000 - the driver's Voodoo paths, recoverable by script. [`tools/86box/README.md`](tools/86box/README.md) |
@@ -410,6 +411,30 @@ stale stencil enable at 16 bpp - plan step 16 tests it. On a Voodoo3 the D3D8
 runtime refuses a 32 bpp device and a D24S8 one from the caps, before the
 driver sees them; the driver's own CanCreateSurface guard (511/11) is reached
 only the DirectDraw 7 way (`ddlab zsurf`).
+
+**BIG, 32-BIT AND DXT TEXTURES ON THE VSA-100: code done, default OFF,
+untested on silicon (2026-09-28, `Diag\D3DBigTex`).** UT2004's D3D8 device
+opened on our HAL and died at `CreateTexture failed (D3DERR_INVALIDCALL)`: the
+HAL said 256x256 and no FOURCC. Everything is from 3dfx's GPL h5 Glide: a
+texture wider than 256 sets tLOD TBIG (bit 30) and counts its LODs from 2048,
+and texBaseAddr still names the 256-level - the levels above it lie BEFORE the
+base (`_grTexCalcBaseAddress` with `_grMipMapOffset`'s negative entries), so
+base = the texture's address + the sizes of its levels wider than 256. S and T
+still span 256 on the wide side (Glide's s_scale, MesaFX's `fxTexGetInfo`).
+DXT data is the D3D block stream as is, but the TMU sizes DXT1 levels in 8x4
+units (`_grMipMapOffsetCmp4Bit`): a DXT1 level narrower than 8 is not D3D's
+layout (3dfx's own HAL pads it), so such a texture is refused and a chain is
+sampled down to its last level 8 wide. A compressed texture's state is preceded
+by a TMU nopCMD (Glide's workaround for a switch to compressed). The math is
+host-tested against Glide's tables (`tests/native/test_vcr_kmd_texlod.c`),
+including that the Banshee/Voodoo3 answers do not move. **Latent, switch
+off:** the default path writes the Voodoo3's 24-bit texBaseAddr field; on a
+64 MB VSA-100 a D3D texture placed above 16 MB (`.124`'s heap is 0 - 27 MB)
+is sampled 16 MB lower. Any `D3DBigTex` bit writes all 26 bits; `d3dprobe
+--tests texhigh` shows the difference on the card. Open: whether XP's D3D8
+runtime reports a DXT LockRect pitch as the block row (d3dprobe logs it), and
+whether the chip's texture-port write-back behaves for these textures (not
+issued for them).
 
 **FLIP COMPLETION (2026-09-27, `include/vcr_flip.h`).** A flip writes
 `vidDesktopStartAddr`, and the chip latches it at the next vsync start.

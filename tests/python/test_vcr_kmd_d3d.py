@@ -154,7 +154,10 @@ def test_a_texture_the_cpu_wrote_is_flushed_before_the_tmu_samples_it():
     e3d = (KMD / "display" / "vcrdd_3d.c").read_text()
     fl = func(e3d, "BOOL VcrDd3dTexFlush(")
     assert "~base & 0x00fffff0u" in fl and "V3D_NOPCMD" in fl
-    assert "pd->pjRegs + 0x600000 + (addr - base)" in fl and "!pd->no_texport" in fl
+    # the port offset is from the texture's LINEAR base: the register value on
+    # every Banshee/Voodoo3 (lin = base), the unmunged one on the VSA-100 path
+    assert "pd->pjRegs + 0x600000 + (addr - lin)" in fl and "!pd->no_texport" in fl
+    assert "ULONG lin = pd->tex_ext ? vcr_tex_unmunge(base) : base;" in fl
     dd = (KMD / "display" / "vcrdd_ddraw.c").read_text()
     assert "VcrDdD3dTexWritten(p->lpDDSurface);" in func(dd, "static DWORD APIENTRY Dd_Unlock(")
     pr = func(D3D, "static BOOL prepare(")

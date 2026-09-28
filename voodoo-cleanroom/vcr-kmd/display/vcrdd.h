@@ -66,6 +66,12 @@ typedef struct VCR_PDEV {
     ULONG       napalm;             /* a VSA-100 (Voodoo 4/5): renderMode, stencil, 32 bpp 3D */
     ULONG       rt32;               /* 32 bpp D3D targets offered: napalm AND Diag\\D3D32 = 1 */
     ULONG       reset3d;            /* Glide 3D state reset at release: napalm AND Diag\\Reset3D = 1 */
+    /* the VSA-100 texture path, napalm AND Diag\\D3DBigTex (vcrdd_d3d.c,
+     * include/vcr_texlod.h); all 0 on a Banshee/Voodoo3 and by default */
+    ULONG       tex_big;            /* bit 0: textures up to 2048 (TBIG) */
+    ULONG       tex_dxt;            /* bit 1: DXT1/DXT3/DXT5 FOURCC textures */
+    ULONG       tex_32;             /* bit 2: A8R8G8B8 textures */
+    ULONG       tex_ext;            /* any of them: 26-bit texBaseAddr, the ext texture views */
     PVOID       pvmList;            /* DirectDraw's VIDEOMEMORY heap list (it fills lpHeap) */
     ULONG       fog_loaded[4];      /* the fog table on the chip: mode, start, end, density */
     ULONG       fog_valid;
@@ -144,6 +150,12 @@ void  VcrDdD3dSurfaceGone(PDD_SURFACE_LOCAL s);
 int   VcrDdD3dCreateMipChain(VCR_PDEV *pd, PDD_CREATESURFACEDATA p);
 int   VcrDdD3dFreeMipChain(VCR_PDEV *pd, PDD_SURFACE_LOCAL s);
 void  VcrDdD3dTexWritten(PDD_SURFACE_LOCAL s);
+/* the VSA-100 texture path (Diag\\D3DBigTex): the FOURCC codes DirectDraw
+ * lists (count; codes filled when non-NULL), the placement of a compressed
+ * texture DirectDraw allocates, and whether a surface is one */
+ULONG VcrDdD3dFourCC(VCR_PDEV *pd, DWORD *codes);
+int   VcrDdD3dCreateTexSurface(VCR_PDEV *pd, PDD_CREATESURFACEDATA p);
+int   VcrDdD3dIsFourCC(PDD_SURFACE_LOCAL s);
 #endif
 
 /* vcrdd_punt.c: the hooked drawing calls */

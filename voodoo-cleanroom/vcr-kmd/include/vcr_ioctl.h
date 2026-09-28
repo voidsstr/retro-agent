@@ -122,6 +122,13 @@ typedef struct vcr_info {
  * in the miniport since 2026-09-28 - an older miniport never sets them) */
 #define VCR_INFO_F_PAT2D        0x80    /* Diag\\Accel2DPattern = 1: mono brushes on the engine */
 #define VCR_INFO_F_LINE2D       0x100   /* Diag\\Accel2DLine = 1: horizontal/vertical lines */
+/* Diag\\D3DBigTex (read at boot, default 0 - positive flags, so a miniport
+ * that predates them never arms them): the VSA-100 texture path, one bit
+ * each. Any of them also gives the HAL's texBaseAddr its whole 26 bits
+ * (include/vcr_texlod.h); a Banshee/Voodoo3 display driver ignores all three */
+#define VCR_INFO_F_BIGTEX       0x200   /* D3DBigTex bit 0: textures up to 2048x2048 */
+#define VCR_INFO_F_TEXDXT       0x400   /* D3DBigTex bit 1: DXT1/DXT3/DXT5 (FOURCC) textures */
+#define VCR_INFO_F_TEX32        0x800   /* D3DBigTex bit 2: A8R8G8B8 textures */
 #define VCR_INFO_F_NO_GDIGAMMA  0x4000  /* Diag\\GdiGamma = 0: refuse GDI's SetDeviceGammaRamp (include/vcr_gamma.h) */
 
 /* VCR_ESC_2D_STATS: the display driver's 2D engine counters, since its PDEV

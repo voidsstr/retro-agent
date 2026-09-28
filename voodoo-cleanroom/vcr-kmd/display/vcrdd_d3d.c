@@ -241,6 +241,242 @@ static ULONG mip_offset(ULONG w, ULONG h, ULONG k)
     return off;
 }
 
+/* ---- the VSA-100 texture path (Diag\\D3DBigTex, include/vcr_texlod.h) ------------------
+ * Reached only with pd->tex_ext - a VSA-100 whose miniport armed one of the
+ * three bits. Without it (the default, and every Banshee/Voodoo3) the
+ * functions above and tex_view below are the texture path, unchanged:
+ *   bit 0  textures wider than 256, up to 2048 (tLOD TBIG);
+ *   bit 1  DXT1/DXT3/DXT5 - FOURCC surfaces DirectDraw allocates as blocks we
+ *          size, the TMU's compressed formats (textureMode bit 31);
+ *   bit 2  A8R8G8B8 (ARGB8888, format 15).
+ * Any of them gives texBaseAddr its whole 26 bits: on a 64 MB VSA-100 a
+ * texture above 16 MB is otherwise sampled 16 MB lower. */
+
+#define FCC(a, b, c, d) ((DWORD)(UCHAR)(a) | ((DWORD)(UCHAR)(b) << 8) | \
+                         ((DWORD)(UCHAR)(c) << 16) | ((DWORD)(UCHAR)(d) << 24))
+#define FCC_DXT1        FCC('D', 'X', 'T', '1')
+#define FCC_DXT3        FCC('D', 'X', 'T', '3')
+#define FCC_DXT5        FCC('D', 'X', 'T', '5')
+#define KIND_NONE       0xffu
+#define TMFMT_NONE      0xffffffffu
+
+/* a surface's FOURCC, 0 for none */
+static DWORD surf_fcc(PDD_SURFACE_LOCAL s)
+{
+    return s && s->lpGbl && (s->lpGbl->ddpfSurface.dwFlags & DDPF_FOURCC) ?
+           s->lpGbl->ddpfSurface.dwFourCC : 0;
+}
+
+int VcrDdD3dIsFourCC(PDD_SURFACE_LOCAL s)
+{
+    return surf_fcc(s) != 0;
+}
+
+/* the storage (VCR_TEXK_*) of a texture format on this PDEV: KIND_NONE for a
+ * format the armed bits do not offer */
+static ULONG pf_kind(VCR_PDEV *pd, const DDPIXELFORMAT *pf)
+{
+    if (pf->dwFlags & DDPF_FOURCC) {
+        if (!pd->tex_dxt)
+            return KIND_NONE;
+        if (pf->dwFourCC == FCC_DXT1)
+            return VCR_TEXK_DXT1;
+        if (pf->dwFourCC == FCC_DXT3 || pf->dwFourCC == FCC_DXT5)
+            return VCR_TEXK_DXT35;
+        return KIND_NONE;
+    }
+    if (pf->dwRGBBitCount == 16)
+        return VCR_TEXK_RGB16;
+    if (pf->dwRGBBitCount == 32 && pd->tex_32)
+        return VCR_TEXK_ARGB32;
+    return KIND_NONE;
+}
+
+/* textureMode's format bits (and the compressed bit) for a format of a kind */
+static ULONG pf_tmfmt(const DDPIXELFORMAT *pf, ULONG kind)
+{
+    switch (kind) {
+    case VCR_TEXK_RGB16:
+        return pf->dwRBitMask == 0xf800 ? TM_FORMAT(TF_RGB565)
+             : pf->dwRBitMask == 0x7c00 ? TM_FORMAT(TF_ARGB1555)
+             : pf->dwRBitMask == 0x0f00 ? TM_FORMAT(TF_ARGB4444) : TMFMT_NONE;
+    case VCR_TEXK_ARGB32:
+        return pf->dwRBitMask == 0x00ff0000 && pf->dwRGBAlphaBitMask == 0xff000000u ?
+               TM_FORMAT(TF_ARGB8888) : TMFMT_NONE;
+    case VCR_TEXK_DXT1:
+        return TM_COMPRESSED | TM_FORMAT(TF_CMP_DXT1);
+    case VCR_TEXK_DXT35:
+        return TM_COMPRESSED | TM_FORMAT(pf->dwFourCC == FCC_DXT3 ? TF_CMP_DXT23 : TF_CMP_DXT45);
+    default:
+        return TMFMT_NONE;
+    }
+}
+
+static ULONG ext_flags(VCR_PDEV *pd)
+{
+    return VCR_TEXF_NAPALM | (pd->tex_big ? VCR_TEXF_BIG : 0);
+}
+
+/* a DXT level as D3D stores it: whole 4x4 blocks, row after row */
+static ULONG dxt_block(DWORD fcc)
+{
+    return fcc == FCC_DXT1 ? 8 : 16;
+}
+
+static ULONG dxt_d3d_bytes(DWORD fcc, ULONG w, ULONG h)
+{
+    return ((w + 3) / 4) * ((h + 3) / 4) * dxt_block(fcc);
+}
+
+/* the TMU's view of a texture surface on this path: its storage, textureMode
+ * format bits and layout (vcr_texlod_compute_ext). FALSE: not sampleable */
+static BOOL ext_layout(VCR_PDEV *pd, PDD_SURFACE_LOCAL s, ULONG *kind, ULONG *tmfmt,
+                       vcr_texlod_ext *t)
+{
+    DDPIXELFORMAT *pf;
+    if (!in_vidmem(s) || (!has_pixfmt(s) && !surf_fcc(s)))
+        return FALSE;
+    pf = &s->lpGbl->ddpfSurface;
+    *kind = pf_kind(pd, pf);
+    if (*kind == KIND_NONE || (*tmfmt = pf_tmfmt(pf, *kind)) == TMFMT_NONE)
+        return FALSE;
+    return !vcr_texlod_compute_ext(s->lpGbl->wWidth, s->lpGbl->wHeight, *kind,
+                                   (ULONG)s->lpGbl->lPitch, (ULONG)s->lpGbl->fpVidMem,
+                                   ext_flags(pd), t);
+}
+
+/* a mipmap chain on this path: the Voodoo3 function's rules (one block, from
+ * DirectDraw's heap, levels halving back to back), with the level sizes the
+ * TMU walks for the storage - 16/32 bpp, or the compressed units */
+static int mipchain_ext(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
+{
+    VIDEOMEMORY *vm = (VIDEOMEMORY *)pd->pvmList;
+    PDD_SURFACE_LOCAL top;
+    DDSURFACEDESC *sd = (DDSURFACEDESC *)p->lpDDSurfaceDesc;
+    DDPIXELFORMAT pf;
+    ULONG i, w0, h0, levels = 0, kind, total;
+    FLATPTR base;
+    vcr_surfalign al;
+    vcr_texlod_ext t;
+    LONG pitch = 0;
+    if (!p->dwSCnt || !pd->pjRegs || !pd->g2d_ok || pd->d3d_disabled)
+        return 0;
+    top = p->lplpSList[0];
+    if ((top->ddsCaps.dwCaps & (DDSCAPS_TEXTURE | DDSCAPS_MIPMAP)) !=
+            (DDSCAPS_TEXTURE | DDSCAPS_MIPMAP) || (top->ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY))
+        return 0;
+    if (sd && (sd->dwFlags & DDSD_PIXELFORMAT)) {
+        pf = sd->ddpfPixelFormat;
+    } else {
+        memset(&pf, 0, sizeof pf);              /* no format: the desktop's depth, as before */
+        pf.dwFlags = DDPF_RGB;
+        pf.dwRGBBitCount = pd->bpp;
+    }
+    kind = pf_kind(pd, &pf);
+    w0 = top->lpGbl->wWidth;
+    h0 = top->lpGbl->wHeight;
+    if (kind == KIND_NONE ||
+        vcr_texlod_compute_ext(w0, h0, kind, kind == VCR_TEXK_RGB16 ? w0 * 2 :
+                               kind == VCR_TEXK_ARGB32 ? w0 * 4 : 0, 0, ext_flags(pd), &t))
+        return 0;                       /* the chip cannot sample it: the runtime places it */
+    if (!vm || !vm->lpHeap) {
+        VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 10, (ULONG)(ULONG_PTR)vm, 0, 0,
+              "mipmap chain: no DirectDraw heap to allocate from (list %p)", vm);
+        return 0;
+    }
+    for (i = 0; i < p->dwSCnt; i++) {   /* every level must be a halving of the top */
+        PDD_SURFACE_LOCAL s = p->lplpSList[i];
+        ULONG k = ilog2(big_side(w0, h0)) - ilog2(big_side(s->lpGbl->wWidth, s->lpGbl->wHeight));
+        ULONG ew = w0 >> k, eh = h0 >> k;
+        if (s->lpGbl->wWidth != (ew ? ew : 1) || s->lpGbl->wHeight != (eh ? eh : 1) || k >= 12)
+            return 0;
+        if (k + 1 > levels)
+            levels = k + 1;
+    }
+    total = vcr_tex_chain_offset(kind, w0, h0, levels);
+    memset(&al, 0, sizeof al);
+    al.dwStartAlignment = 16;
+    al.dwPitchAlignment = 16;
+    base = HeapVidMemAllocAligned(vm, total, 1, &al, &pitch);
+    if (!base) {
+        VcrDd(VCR_LV_WARN, VCR_EV_DD_D3D, 10, w0, h0, levels,
+              "mipmap chain %ux%u x%u (%u bytes): out of video memory", w0, h0, levels, total);
+        p->ddRVal = DDERR_OUTOFVIDEOMEMORY;
+        return 1;
+    }
+    for (i = 0; i < p->dwSCnt; i++) {
+        PDD_SURFACE_LOCAL s = p->lplpSList[i];
+        ULONG k = ilog2(big_side(w0, h0)) - ilog2(big_side(s->lpGbl->wWidth, s->lpGbl->wHeight));
+        ULONG w = s->lpGbl->wWidth, h = s->lpGbl->wHeight;
+        s->lpGbl->fpVidMem = base + vcr_tex_chain_offset(kind, w0, h0, k);
+        /* a compressed level's "pitch" is its linear size (DDSD_LINEARSIZE) */
+        s->lpGbl->lPitch = (LONG)(kind == VCR_TEXK_RGB16 ? w * 2 : kind == VCR_TEXK_ARGB32 ? w * 4
+                                  : dxt_d3d_bytes(pf.dwFourCC, w, h));
+        s->lpGbl->dwReserved1 = (ULONG_PTR)vm->lpHeap;
+        s->dwReserved1 = s == top ? MIP_TOP : MIP_LEVEL;
+        s->ddsCaps.dwCaps = (s->ddsCaps.dwCaps & ~DDSCAPS_SYSTEMMEMORY) | DDSCAPS_VIDEOMEMORY |
+                            DDSCAPS_LOCALVIDMEM;
+    }
+    VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 20, (ULONG)base, (w0 << 16) | h0, (kind << 16) | levels,
+          "mipmap chain %ux%u, %u levels, kind %u, %u bytes at %x (tbig %u)", w0, h0, levels,
+          kind, total, (ULONG)base, t.tbig);
+    p->ddRVal = DD_OK;
+    return 1;
+}
+
+/* A compressed texture DirectDraw allocates (not a chain mipchain_ext took):
+ * DirectDraw cannot size a FOURCC surface, so each one gets a linear block of
+ * the larger of D3D's size and the TMU's (DDHAL_PLEASEALLOC_BLOCKSIZE,
+ * dwBlockSizeY 1) and its linear size as the "pitch". The caller then returns
+ * DDHAL_DRIVER_NOTHANDLED: DirectDraw's own heap does the allocation. */
+int VcrDdD3dCreateTexSurface(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
+{
+    ULONG i, n = 0;
+    if (!pd || !pd->tex_dxt || !p->dwSCnt)
+        return 0;
+    for (i = 0; i < p->dwSCnt; i++) {
+        PDD_SURFACE_LOCAL s = p->lplpSList[i];
+        DWORD fcc = surf_fcc(s);
+        ULONG w, h, d3d, hw;
+        if ((fcc != FCC_DXT1 && fcc != FCC_DXT3 && fcc != FCC_DXT5) ||
+            (s->ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY))
+            continue;
+        w = s->lpGbl->wWidth;
+        h = s->lpGbl->wHeight;
+        d3d = dxt_d3d_bytes(fcc, w, h);
+        hw = vcr_tex_level_bytes(fcc == FCC_DXT1 ? VCR_TEXK_DXT1 : VCR_TEXK_DXT35, w, h);
+        s->lpGbl->dwBlockSizeX = ((hw > d3d ? hw : d3d) + 15) & ~15u;
+        s->lpGbl->dwBlockSizeY = 1;
+        s->lpGbl->lPitch = (LONG)d3d;
+        s->lpGbl->fpVidMem = DDHAL_PLEASEALLOC_BLOCKSIZE;
+        n++;
+        VcrDd(VCR_LV_DEBUG, VCR_EV_DD_D3D, 19, fcc, (w << 16) | h, s->lpGbl->dwBlockSizeX,
+              "compressed texture %ux%u: %u bytes (DirectDraw allocates)", w, h,
+              s->lpGbl->dwBlockSizeX);
+    }
+    if (!n)
+        return 0;
+    if (p->lpDDSurfaceDesc) {
+        p->lpDDSurfaceDesc->lPitch = p->lplpSList[0]->lpGbl->lPitch;
+        p->lpDDSurfaceDesc->dwFlags |= DDSD_LINEARSIZE;
+    }
+    p->ddRVal = DD_OK;
+    return 1;
+}
+
+/* the FOURCC codes DirectDraw lists: DXT1/3/5 with bit 1, none otherwise */
+ULONG VcrDdD3dFourCC(VCR_PDEV *pd, DWORD *codes)
+{
+    if (!pd || !pd->tex_dxt || !pd->pjRegs || !pd->g2d_ok || pd->d3d_disabled)
+        return 0;
+    if (codes) {
+        codes[0] = FCC_DXT1;
+        codes[1] = FCC_DXT3;
+        codes[2] = FCC_DXT5;
+    }
+    return 3;
+}
+
 int VcrDdD3dCreateMipChain(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
 {
     VIDEOMEMORY *vm = (VIDEOMEMORY *)pd->pvmList;
@@ -251,6 +487,8 @@ int VcrDdD3dCreateMipChain(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
     vcr_surfalign al;
     vcr_texlod t;
     LONG pitch = 0;
+    if (pd->tex_ext)
+        return mipchain_ext(pd, p);     /* the VSA-100 texture path (Diag\\D3DBigTex) */
     if (!p->dwSCnt || !pd->pjRegs || !pd->g2d_ok || pd->d3d_disabled)
         return 0;
     top = p->lplpSList[0];
@@ -518,6 +756,50 @@ static BOOL tex_view(const DWORD *tss, PDD_SURFACE_LOCAL s, tmu_view *v)
     return TRUE;
 }
 
+/* tex_view on the VSA-100 texture path (Diag\\D3DBigTex): the same state
+ * mapping, with ext_layout's storage, TBIG and 26-bit base, and a chain's
+ * sampled levels bounded by what the TMU can walk (vcr_tex_chain_usable: a
+ * DXT1 level narrower than 8 is not D3D's layout) and by its last LOD
+ * (8, or 11 with TBIG) */
+static BOOL tex_view_ext(VCR_PDEV *pd, const DWORD *tss, PDD_SURFACE_LOCAL s, tmu_view *v)
+{
+    vcr_texlod_ext t;
+    ULONG kind, tmfmt;
+    if (!ext_layout(pd, s, &kind, &tmfmt, &t))
+        return FALSE;
+    v->texBaseAddr = t.t.base;
+    v->tLOD = t.t.tlod;
+    if (SF_IS(s, SF_MIP_TOP) && tss[D3DTSS_MIPFILTER] > D3DTFP_NONE) {
+        PDD_SURFACE_LOCAL m = s;
+        ULONG n = 1, lodmax;
+        while ((m = next_mip(m)) != NULL && n < 12)
+            n++;
+        n = vcr_tex_chain_usable(kind, s->lpGbl->wWidth, s->lpGbl->wHeight, n);
+        lodmax = t.t.lod + (n ? n - 1 : 0);
+        if (lodmax > t.lod_limit)
+            lodmax = t.lod_limit;
+        v->tLOD = (v->tLOD & ~(0x3fu << 6)) | TL_LODMAX(lodmax);
+    }
+    v->textureMode = TM_PERSPECTIVE | TM_CLAMPW | tmfmt;
+    if (tss[D3DTSS_MAGFILTER] >= D3DTFG_LINEAR)
+        v->textureMode |= TM_MAGFILTER;
+    if (tss[D3DTSS_MINFILTER] >= D3DTFN_LINEAR)
+        v->textureMode |= TM_MINFILTER;
+    if (tss[D3DTSS_ADDRESSU] == D3DTADDRESS_CLAMP)
+        v->textureMode |= TM_CLAMPS;
+    if (tss[D3DTSS_ADDRESSV] == D3DTADDRESS_CLAMP)
+        v->textureMode |= TM_CLAMPT;
+    v->w = s->lpGbl->wWidth;
+    v->h = s->lpGbl->wHeight;
+    return TRUE;
+}
+
+/* which view: the proven one, or the VSA-100 path's with its switch */
+static BOOL view_of(VCR_PDEV *pd, const DWORD *tss, PDD_SURFACE_LOCAL s, tmu_view *v)
+{
+    return pd->tex_ext ? tex_view_ext(pd, tss, s, v) : tex_view(tss, s, v);
+}
+
 /* stage 1 on TMU0, combining its texture (local) with TMU1's = stage 0's
  * (other). D3D's CURRENT also carries stage 0's diffuse term; here the
  * diffuse is applied after, in the colour combine - identical for MODULATE,
@@ -555,9 +837,9 @@ static void compute_regs(vcr_d3dctx *c)
     PDD_SURFACE_LOCAL t = handle_get(c->ddlcl, c->tex_handle),
                       t1 = handle_get(c->ddlcl, c->tex_handle1);
     tmu_view v0, v1;
-    int tex = c->tex_handle && tex_view(c->tss, t, &v0);
+    int tex = c->tex_handle && view_of(c->pd, c->tss, t, &v0);
     int two = tex && c->tss1[D3DTSS_COLOROP] != D3DTOP_DISABLE && c->tex_handle1 &&
-              tex_view(c->tss1, t1, &v1);
+              view_of(c->pd, c->tss1, t1, &v1);
     DWORD cull = c->rs[D3DRENDERSTATE_CULLMODE];
 
     if (c->tex_handle && !tex && c->tex_handle != c->tex_refused) {
@@ -926,8 +1208,23 @@ static void flush_written(vcr_d3dctx *c, PDD_SURFACE_LOCAL s)
             dirty = 1;
             m->dwReserved1 &= ~SF_DIRTY;
         }
-    if (!dirty || vcr_texlod_compute(s->lpGbl->wWidth, s->lpGbl->wHeight, 2,
-                                     (ULONG)s->lpGbl->lPitch, (ULONG)s->lpGbl->fpVidMem, &t))
+    if (!dirty)
+        return;
+    if (c->pd->tex_ext) {
+        /* the VSA-100 path: the register base (munged), and the texture-port
+         * write-back only for what it has always been proven on - a 16 bpp
+         * texture no wider than 256 (~0: none) */
+        vcr_texlod_ext x;
+        ULONG kind, tmfmt;
+        if (!ext_layout(c->pd, s, &kind, &tmfmt, &x))
+            return;
+        VcrDd3dTexFlush(c->pd, x.t.base, kind == VCR_TEXK_RGB16 && !x.tbig ?
+                                         (ULONG)s->lpGbl->fpVidMem : ~0u);
+        c->tex_flushes++;
+        return;
+    }
+    if (vcr_texlod_compute(s->lpGbl->wWidth, s->lpGbl->wHeight, 2,
+                           (ULONG)s->lpGbl->lPitch, (ULONG)s->lpGbl->fpVidMem, &t))
         return;
     VcrDd3dTexFlush(c->pd, t.base, (ULONG)s->lpGbl->fpVidMem);
     c->tex_flushes++;
@@ -1062,6 +1359,52 @@ static void texblt_level(VCR_PDEV *pd, PDD_SURFACE_LOCAL d, PDD_SURFACE_LOCAL s,
         memcpy(dp + y * d->lpGbl->lPitch, sp + y * s->lpGbl->lPitch, bytes);
 }
 
+/* one level of a compressed TEXBLT (Diag\\D3DBigTex bit 1): whole 4x4 blocks
+ * in D3D's order on both sides - the rectangle rounded out to blocks, the
+ * destination moved by the same amount, every row bounded by both levels and
+ * by video memory. A rectangle whose destination is not block-aligned with
+ * its source is not copied (never at a wrong place). */
+static void texblt_dxt_level(VCR_PDEV *pd, PDD_SURFACE_LOCAL d, PDD_SURFACE_LOCAL s, LONG dx,
+                             LONG dy, const RECTL *r)
+{
+    DWORD fcc = surf_fcc(d);
+    ULONG blk = dxt_block(fcc), dbw, dbh, sbw, sbh, rows, bytes, dstride, sstride, y;
+    LONG bx0, by0, bx1, by1, dbx, dby;
+    PUCHAR dp, sp;
+    if (fcc != surf_fcc(s) || (fcc != FCC_DXT1 && fcc != FCC_DXT3 && fcc != FCC_DXT5) ||
+        r->left < 0 || r->top < 0 || r->right <= r->left || r->bottom <= r->top ||
+        r->right > (LONG)s->lpGbl->wWidth || r->bottom > (LONG)s->lpGbl->wHeight ||
+        dx < 0 || dy < 0 || ((dx - r->left) & 3) || ((dy - r->top) & 3))
+        return;
+    dbw = (d->lpGbl->wWidth + 3) / 4;
+    dbh = (d->lpGbl->wHeight + 3) / 4;
+    sbw = (s->lpGbl->wWidth + 3) / 4;
+    sbh = (s->lpGbl->wHeight + 3) / 4;
+    bx0 = r->left / 4;
+    by0 = r->top / 4;
+    bx1 = (r->right + 3) / 4;
+    by1 = (r->bottom + 3) / 4;
+    dbx = dx / 4;
+    dby = dy / 4;
+    if (bx1 > (LONG)sbw || by1 > (LONG)sbh || dbx + (bx1 - bx0) > (LONG)dbw ||
+        dby + (by1 - by0) > (LONG)dbh)
+        return;
+    rows = (ULONG)(by1 - by0);
+    bytes = (ULONG)(bx1 - bx0) * blk;
+    dstride = dbw * blk;
+    sstride = sbw * blk;
+    if ((ULONG)d->lpGbl->fpVidMem + (dby + rows - 1) * dstride + dbx * blk + bytes > pd->cjVram)
+        return;
+    dp = (PUCHAR)pd->pvRamBase + (ULONG)d->lpGbl->fpVidMem + dby * dstride + dbx * blk;
+    if (in_vidmem(s))
+        sp = (PUCHAR)pd->pvRamBase + (ULONG)s->lpGbl->fpVidMem;
+    else
+        sp = (PUCHAR)s->lpGbl->fpVidMem;        /* system memory: a pointer in the caller */
+    sp += by0 * sstride + bx0 * blk;
+    for (y = 0; y < rows; y++)
+        memcpy(dp + y * dstride, sp + y * sstride, bytes);
+}
+
 /* TEXBLT copies the rectangle of the top level and the matching rectangle of
  * every smaller level the two chains share */
 static void texblt(dp2walk *w, const D3DNTHAL_DP2TEXBLT *t)
@@ -1075,6 +1418,28 @@ static void texblt(dp2walk *w, const D3DNTHAL_DP2TEXBLT *t)
     ULONG n = 0;
     if (!d || !s || !in_vidmem(d) || !d->lpGbl || !s->lpGbl)
         return;                                 /* dest 0 = a preload hint */
+    if (pd->tex_dxt && (surf_fcc(d) || surf_fcc(s))) {
+        /* compressed (Diag\\D3DBigTex bit 1): by blocks, level by level; the
+         * rectangle halves as below, the blocks round it out */
+        VcrDd2dSync(pd);
+        VcrDdD3dTexWritten(d);
+        while (d && s && n++ < 12) {
+            texblt_dxt_level(pd, d, s, dx, dy, &r);
+            d = next_mip(d);
+            s = next_mip(s);
+            r.left >>= 1;
+            r.top >>= 1;
+            r.right = r.right > 1 ? r.right >> 1 : 1;
+            r.bottom = r.bottom > 1 ? r.bottom >> 1 : 1;
+            if (r.right <= r.left)
+                r.right = r.left + 1;
+            if (r.bottom <= r.top)
+                r.bottom = r.top + 1;
+            dx >>= 1;
+            dy >>= 1;
+        }
+        return;
+    }
     VcrDd2dSync(pd);                            /* queued triangles may still sample it */
     VcrDdD3dTexWritten(d);
     while (d && s && n++ < 12) {
@@ -1527,7 +1892,7 @@ static DWORD APIENTRY Dd_DestroyDDLocal(PDD_DESTROYDDLOCALDATA p)
 
 static D3DNTHAL_GLOBALDRIVERDATA g_gd;
 static D3DNTHAL_CALLBACKS g_cb;
-static DDSURFACEDESC g_texfmt[3];
+static DDSURFACEDESC g_texfmt[7];          /* 3 16 bpp; + A8R8G8B8 and DXT1/3/5 (D3DBigTex) */
 
 static void texfmt(DDSURFACEDESC *d, DWORD flags, DWORD r, DWORD g, DWORD b, DWORD a)
 {
@@ -1542,6 +1907,18 @@ static void texfmt(DDSURFACEDESC *d, DWORD flags, DWORD r, DWORD g, DWORD b, DWO
     d->ddpfPixelFormat.dwGBitMask = g;
     d->ddpfPixelFormat.dwBBitMask = b;
     d->ddpfPixelFormat.dwRGBAlphaBitMask = a;
+}
+
+/* a compressed texture format, as DX7 HALs list them (DDPF_FOURCC) */
+static void texfmt_fcc(DDSURFACEDESC *d, DWORD fcc)
+{
+    memset(d, 0, sizeof *d);
+    d->dwSize = sizeof *d;
+    d->dwFlags = DDSD_CAPS | DDSD_PIXELFORMAT;
+    d->ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+    d->ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+    d->ddpfPixelFormat.dwFlags = DDPF_FOURCC;
+    d->ddpfPixelFormat.dwFourCC = fcc;
 }
 
 static void prim_caps(D3DPRIMCAPS *c)
@@ -1616,6 +1993,18 @@ void VcrDdD3dHalInfo(VCR_PDEV *pd, DD_HALINFO *hal)
     texfmt(&g_texfmt[1], DDPF_ALPHAPIXELS, 0x7c00, 0x03e0, 0x001f, 0x8000);
     texfmt(&g_texfmt[2], DDPF_ALPHAPIXELS, 0x0f00, 0x00f0, 0x000f, 0xf000);
     g_gd.dwNumTextureFormats = 3;
+    /* the VSA-100 texture path, only with its bits (Diag\\D3DBigTex): without
+     * them the list is the proven 16 bpp one, entry for entry */
+    if (pd->tex_32) {
+        texfmt(&g_texfmt[g_gd.dwNumTextureFormats], DDPF_ALPHAPIXELS, 0x00ff0000, 0x0000ff00,
+               0x000000ff, 0xff000000u);
+        g_texfmt[g_gd.dwNumTextureFormats++].ddpfPixelFormat.dwRGBBitCount = 32;
+    }
+    if (pd->tex_dxt) {
+        texfmt_fcc(&g_texfmt[g_gd.dwNumTextureFormats++], FCC_DXT1);
+        texfmt_fcc(&g_texfmt[g_gd.dwNumTextureFormats++], FCC_DXT3);
+        texfmt_fcc(&g_texfmt[g_gd.dwNumTextureFormats++], FCC_DXT5);
+    }
     g_gd.lpTextureFormats = g_texfmt;
 
     memset(&g_cb, 0, sizeof g_cb);
@@ -1673,7 +2062,9 @@ int VcrDdD3dDriverInfo(VCR_PDEV *pd, PDD_GETDRIVERINFODATA p)
         memset(&x, 0, sizeof x);
         x.dwSize = sizeof x;
         x.dwMinTextureWidth = x.dwMinTextureHeight = 1;
-        x.dwMaxTextureWidth = x.dwMaxTextureHeight = 256;
+        /* the VSA-100's 2048 only with Diag\\D3DBigTex bit 0 (tLOD TBIG,
+         * vcr_texlod_compute_ext); 256 - the Voodoo3's - otherwise */
+        x.dwMaxTextureWidth = x.dwMaxTextureHeight = pd->tex_big ? 2048 : 256;
         x.dwMaxTextureAspectRatio = 8;
         x.dwMaxAnisotropy = 1;
         (void)guard;

@@ -72,7 +72,7 @@
     VCR_EVENT(VCR_EV_DD_FLUSH_STATS,   510, "a=flushes b=pixels (K)") \
     VCR_EVENT(VCR_EV_DD_DDRAW,         511, "a=what (1 info 2 map 3 flip 4 excl 5 togdi 6 enable 12 flip stats: b=flips c=by retrace d=by deadline 13 flip timing: b=longest read us c=longest wait us d=deadline us 14 DestroyDDLocal: b=pid c=flip owner d=1 when the counters were logged) b..d=values") \
     VCR_EVENT(VCR_EV_DD_2D,            512, "a=what (1 init 2 term 3 gdi stats 9 gave up) b..d=values") \
-    VCR_EVENT(VCR_EV_DD_D3D,           513, "a=what (1 ctx 2 ctx gone 3 surface handle 5 unparsed 6 short 9 table full 12 target refused: b=rt bpp c=z bits d=napalm; 15 target Z refused: b=why (2 not in video memory 3 pitch 4 size) c=z pitch d=z offset; 16 armed: b=32 bpp D3D c=Glide 3D reset d=flags; 17 target pitch refused: b=pitch c=width d=bpp) b..d=values") \
+    VCR_EVENT(VCR_EV_DD_D3D,           513, "a=what (1 ctx 2 ctx gone 3 surface handle 5 unparsed 6 short 9 table full 12 target refused: b=rt bpp c=z bits d=napalm; 15 target Z refused: b=why (2 not in video memory 3 pitch 4 size) c=z pitch d=z offset; 16 armed: b=32 bpp D3D c=Glide 3D reset d=flags; 17 target pitch refused: b=pitch c=width d=bpp; 18 armed D3DBigTex: b=to 2048 c=DXT d=A8R8G8B8; 19 compressed texture sized: b=fourcc c=w<<16|h d=bytes; 20 VSA-100 mip chain: b=base c=w<<16|h d=kind<<16|levels) b..d=values") \
     /* 6xx HWCEXT (Glide) */ \
     VCR_EVENT(VCR_EV_HWC_REQUEST,   600, "a=which b=pid c=resStatus d=return") \
     VCR_EVENT(VCR_EV_HWC_DEVCONFIG, 601, "a=device b=fbRam c=numChips") \

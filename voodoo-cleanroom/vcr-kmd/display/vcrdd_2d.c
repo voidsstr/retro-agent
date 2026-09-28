@@ -439,6 +439,7 @@ void VcrDd2dInit(VCR_PDEV *pd)
     pd->g2d_ok = pd->g2d_busy = 0;
     pd->text_off = 1;               /* engine text only when the miniport says so */
     pd->pat_on = pd->line_on = 0;   /* likewise patterns and lines */
+    pd->tex_big = pd->tex_dxt = pd->tex_32 = pd->tex_ext = 0;  /* and the VSA-100 textures */
     if (!VcrIoctl(pd->hDriver, IOCTL_VCR_INFO, NULL, 0, &info, sizeof info, NULL)) {
         pd->g2d_disabled = (info.flags & VCR_INFO_F_NO_ACCEL2D) ? 1 : 0;
         pd->d3d_disabled = (info.flags & VCR_INFO_F_NO_D3D) ? 1 : 0;
@@ -455,6 +456,16 @@ void VcrDd2dInit(VCR_PDEV *pd)
             VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 16, pd->rt32, pd->reset3d, info.flags,
                   "armed: 32 bpp Direct3D %s (Diag\\D3D32), Glide 3D reset %s (Diag\\Reset3D)",
                   pd->rt32 ? "ON" : "off", pd->reset3d ? "ON" : "off");
+        /* Diag\\D3DBigTex, bit by bit - VSA-100 only, like D3D32 */
+        pd->tex_big = pd->napalm && (info.flags & VCR_INFO_F_BIGTEX) ? 1 : 0;
+        pd->tex_dxt = pd->napalm && (info.flags & VCR_INFO_F_TEXDXT) ? 1 : 0;
+        pd->tex_32 = pd->napalm && (info.flags & VCR_INFO_F_TEX32) ? 1 : 0;
+        pd->tex_ext = pd->tex_big | pd->tex_dxt | pd->tex_32;
+        if (pd->tex_ext)
+            VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 18, pd->tex_big, pd->tex_dxt, pd->tex_32,
+                  "armed (Diag\\D3DBigTex): textures to %u, DXT1/3/5 %s, A8R8G8B8 %s, "
+                  "26-bit texture addresses", pd->tex_big ? 2048 : 256,
+                  pd->tex_dxt ? "ON" : "off", pd->tex_32 ? "ON" : "off");
     }
     req.RequestedVirtualAddress = NULL;
     rc = VcrIoctl(pd->hDriver, IOCTL_VIDEO_QUERY_PUBLIC_ACCESS_RANGES, &req, sizeof req, &r,
