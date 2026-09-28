@@ -410,13 +410,19 @@ class GoldSrc(IdTech2):
             head, w = wait_chain(300)
             return head + ['playdemo cs16_bench'] + w + ['snapshot'] + w + w + ['snapshot', 'quit']
         # no host keys: this build ignores injected input (and a RETURN that
-        # misses the game lands on the desktop). In-script waits instead - the
-        # log shows whether the server's commands still got through.
-        head, w = wait_chain(max(100, soak_frames // max(1, shots)))
-        lines = head + [f'connect {server}:{self.port}']
-        for _ in range(shots):
-            lines += w + ['snapshot']
-        return lines + ['disconnect', 'quit']
+        # misses the game lands on the desktop), so the snapshots are scripted.
+        # But ANY script still pending sits in front of the server's commands
+        # in GoldSrc's one command buffer - the map-change "reconnect" is
+        # appended behind it - so the 2026-09-28 soak, which kept its quit
+        # behind a 30-minute wait chain, froze at "Loading..." at the first
+        # map change (and overflowed the buffer 17,474 times). So: two
+        # snapshots in the first two minutes, then the script is DONE and the
+        # rest of the soak - map changes included - runs with an empty buffer.
+        # The harness closes the game at the deadline (close_after_soak).
+        head, w = wait_chain(3000)
+        return head + [f'connect {server}:{self.port}'] + w + w + ['snapshot'] + w + ['snapshot']
+
+    close_after_soak = True
 
     def host_keys(self, phase, soak, shots):
         return []
@@ -433,6 +439,11 @@ class GoldSrc(IdTech2):
         # this build prints "Connection accepted by <server>"; the server's
         # own log is where "entered the game" appears
         r["connected"] = bool(re.search(r"Connection accepted by|entered the game", raw, re.I))
+        # one serverinfo per map: "BUILD 10211 SERVER (0 CRC)"
+        r["maps_loaded"] = len(re.findall(r"^BUILD \d+ SERVER", raw, re.M))
+        n = len(re.findall(r"Cbuf_\w+: overflow", raw))
+        if n:
+            r["harness_fault"] = f"command buffer overflowed {n}x - a pending script blocks the server's commands"
         return r
 
 
@@ -691,7 +702,8 @@ async def run_phase(box, t, env, phase, args, outdir):
     log(f"--- {t.tid} {phase}: {rec['command']}")
     started = time.time()
     await box.text(f"LAUNCH {bat}")
-    budget = args.soak + 180 if phase == "soak" else args.max_run
+    planned_close = phase == "soak" and getattr(t, "close_after_soak", False)
+    budget = args.soak if planned_close else args.soak + 180 if phase == "soak" else args.max_run
     seen, hung = False, False
     keys = list(t.host_keys(phase, args.soak, args.shots)) if hasattr(t, "host_keys") else []
     rec["keys_sent"] = []
@@ -718,7 +730,8 @@ async def run_phase(box, t, env, phase, args, outdir):
         if not alive and (seen or el > 30):
             break
         if el > budget:
-            hung = True
+            hung = not planned_close
+            rec["closed_by_harness"] = planned_close
             break
     rec["seconds"] = round(time.time() - started, 1)
     raw = (await box.download(p["log"]) or b"").decode("latin-1", errors="replace")
@@ -727,10 +740,12 @@ async def run_phase(box, t, env, phase, args, outdir):
     if phase == "maps":
         rec["maps_expected"] = getattr(t, "maps_expected", 0)
     rec["log_bytes"] = len(raw)
-    if hung:
-        rec["hung"] = True
+    if hung or rec.get("closed_by_harness"):
+        if hung:
+            rec["hung"] = True
         rec["error_windows"] = await error_windows(box)
-        log(f"    still running after {budget}s - WM_CLOSE only (no TerminateProcess)")
+        log(f"    still running after {budget}s - WM_CLOSE only (no TerminateProcess)"
+            + (" - the planned end of this soak" if rec.get("closed_by_harness") else ""))
         await box.exec_(f'cmd /c taskkill /im "{img}" 2>nul', timeout=30)
         await asyncio.sleep(15)
         rec["alive_after_close"] = await running(box, img)
@@ -769,6 +784,15 @@ def verdict(rec):
         bad.append("error window")
     if rec.get("errors"):
         bad.append("log errors")
+    if rec.get("harness_fault"):
+        bad.append("HARNESS: " + rec["harness_fault"])
+    if rec.get("closed_by_harness") and rec.get("alive_after_close"):
+        bad.append("would not close at the end of the soak")
+    # the fleet CS server changes map every 20 minutes (mp_timelimit 20):
+    # a longer soak that saw one map proves nothing about the change
+    if (rec.get("closed_by_harness") and rec.get("seconds", 0) > 1500
+            and rec.get("maps_loaded", 0) < 2):
+        bad.append(f"no map change seen in {rec.get('seconds')}s (maps_loaded {rec.get('maps_loaded', 0)})")
     if rec["phase"] == "timedemo" and not rec.get("fps") and not rec.get("shots"):
         bad.append("no timedemo result")
     if rec["phase"] == "maps" and rec.get("maps_loaded", 0) < rec.get("maps_expected", 1):
