@@ -53,7 +53,10 @@
  *
  * NEVER read memBase1 while a multi-chip AA session is live: "on the V5 6000
  * in cfg 3 the first such read froze the box" (our Glide fork's h5sliaa.h
- * rule 11, which refuses Glide's own READ locks there). vcr_fb_mb1_gate().
+ * rule 11, which refuses Glide's own READ locks there). vcr_fb_mb1_gate_board():
+ * on a multi-chip board the master's SLI/AA registers are read whatever the
+ * kernel's session count, and vcr_fb_mb1_recheck() asks again at every flip
+ * and every 64 lines of a read, which stops the moment it says no.
  */
 #ifndef VCR_FBSHOT_H
 #define VCR_FBSHOT_H
@@ -272,6 +275,7 @@ static __inline unsigned long vcr_fb_ap_addr(unsigned long phys, const vcr_fb_ap
 #define VCR_FB_R_STRADDLE   (-5)    /* a raw tiled buffer runs into the aperture */
 #define VCR_FB_R_SLI_LINEAR (-6)    /* a linear surface in the aperture under SLI */
 #define VCR_FB_R_RANGE      (-7)    /* past the mapped view or memBase1's decode */
+#define VCR_FB_R_SLI_RAW    (-8)    /* raw memory while the chips deal lines in SLI bands */
 
 typedef struct vcr_fb_layer {
     unsigned long start;        /* the start register, vcr_fb_start()ed */
@@ -309,7 +313,12 @@ static __inline int vcr_fb_plan_make(vcr_fb_plan *p, const vcr_fb_layer *l,
     raw_end = l->start + vcr_fb_extent(l->w, l->h, l->bpp, l->stride, l->tiled);
 
     if (raw_end <= ap->base) {
-        /* all of it below the aperture: the chip's raw memory */
+        /* all of it below the aperture: the chip's raw memory - ONE chip's.
+         * Under SLI the master's raw memory holds its own bands only (8 of
+         * Quake III's 30), so a raw read is not the frame; the aperture is the
+         * only whole-frame read (integration review, 2026-09-28) */
+        if (ap->sli_shift)
+            return p->method = VCR_FB_R_SLI_RAW;
         p->method = l->tiled ? VCR_FB_M_TILED : VCR_FB_M_LINEAR;
         p->first = l->start;
         p->line = l->tiled ? 0 : (l->stride & 0x7fff);
@@ -382,6 +391,7 @@ static __inline const char *vcr_fb_method_name(int m)
     case VCR_FB_R_STRADDLE:   return "refused: a raw tiled buffer runs into the aperture";
     case VCR_FB_R_SLI_LINEAR: return "refused: a linear surface inside the aperture under SLI";
     case VCR_FB_R_RANGE:      return "refused: past the mapped view or memBase1's decode";
+    case VCR_FB_R_SLI_RAW:    return "refused: raw memory under SLI is one chip's bands, not the frame";
     }
     return "?";
 }
@@ -396,17 +406,64 @@ static __inline const char *vcr_fb_method_name(int m)
 #define VCR_FB_G_CFG_UNKNOWN    1   /* the master's config space could not be read */
 #define VCR_FB_G_AA             2   /* multi-chip AA is live */
 #define VCR_FB_G_SLI_NOREAD     3   /* SLI without the hardware's SLI read */
-static __inline int vcr_fb_mb1_gate(unsigned long sli_chips, int have_cfg,
-                                    unsigned long sli_lfb_ctrl, unsigned long aa_lfb_ctrl)
+#define VCR_FB_G_SLI_CHANGED    4   /* the SLI units changed under a read (re-check) */
+
+/* The gate by the BOARD (integration review, 2026-09-28): on a multi-chip
+ * board the master's cfgSliLfbCtrl / cfgAALfbCtrl are ALWAYS read and an AA
+ * write/read enable refuses - whatever the kernel's session count says.
+ * `sli_chips` is what OUR kernel set up; Glide can also program the chips
+ * through PCI_OP, another driver says nothing at all, and an AA read hand-off
+ * the kernel does not know about freezes the board just the same.
+ * board_chips: the chips on the card (vcr_info.nchips, or the HWC device's
+ * count); sli_chips: the kernel's live session (0 = none, ~0 = unknown). */
+static __inline int vcr_fb_mb1_gate_board(unsigned long board_chips, unsigned long sli_chips,
+                                          int have_cfg, unsigned long sli_lfb_ctrl,
+                                          unsigned long aa_lfb_ctrl)
 {
-    if (sli_chips <= 1)
+    if (board_chips <= 1 && sli_chips <= 1)
         return 0;
     if (!have_cfg)
         return VCR_FB_G_CFG_UNKNOWN;
     if (aa_lfb_ctrl & VCR_FB_AALFB_ACTIVE)
         return VCR_FB_G_AA;
-    if (!(sli_lfb_ctrl & VCR_FB_SLILFB_READ_EN))
-        return VCR_FB_G_SLI_NOREAD;     /* includes "neither SLI nor AA": not a state we know */
+    /* SLI - the kernel's, or units the registers say are dealt - with the
+     * hardware's SLI read off; with sli_chips > 1 this includes "neither SLI
+     * nor AA": not a state we know */
+    if ((sli_chips > 1 || vcr_fb_sli_shift(sli_lfb_ctrl)) &&
+        !(sli_lfb_ctrl & VCR_FB_SLILFB_READ_EN))
+        return VCR_FB_G_SLI_NOREAD;
+    return 0;
+}
+
+/* the original form: the kernel's session count alone (the board = the
+ * session). Kept for the answers pinned before the board gate. */
+static __inline int vcr_fb_mb1_gate(unsigned long sli_chips, int have_cfg,
+                                    unsigned long sli_lfb_ctrl, unsigned long aa_lfb_ctrl)
+{
+    return vcr_fb_mb1_gate_board(sli_chips, sli_chips, have_cfg, sli_lfb_ctrl, aa_lfb_ctrl);
+}
+
+/* A read takes a whole frame, and a game can enable AA (or leave SLI) in the
+ * middle of it. So the gate is asked AGAIN - the master's two registers read
+ * afresh - before the first line, at every flip the read follows and every
+ * VCR_FB_RECHECK_LINES lines, and the read STOPS the moment it is not 0.
+ * `planned_shift` is the SLI units the plan was made with: a change means
+ * the aperture lines no longer mean what the plan says. */
+#define VCR_FB_RECHECK_LINES    64u
+static __inline int vcr_fb_recheck_due(unsigned long y, int flipped)
+{
+    return flipped || y % VCR_FB_RECHECK_LINES == 0;
+}
+
+static __inline int vcr_fb_mb1_recheck(unsigned long board_chips, unsigned long sli_chips,
+                                       int have_cfg, unsigned long sli_lfb_ctrl,
+                                       unsigned long aa_lfb_ctrl, unsigned planned_shift)
+{
+    int g = vcr_fb_mb1_gate_board(board_chips, sli_chips, have_cfg, sli_lfb_ctrl, aa_lfb_ctrl);
+    if (g)
+        return g;
+    if ((board_chips > 1 || sli_chips > 1) && vcr_fb_sli_shift(sli_lfb_ctrl) != planned_shift)
+        return VCR_FB_G_SLI_CHANGED;
     return 0;
 }
 
@@ -417,6 +474,7 @@ static __inline const char *vcr_fb_gate_name(int g)
     case VCR_FB_G_CFG_UNKNOWN:  return "refused: SLI/AA session live and its config unreadable";
     case VCR_FB_G_AA:           return "refused: multi-chip AA is live - an LFB read froze the V5 6000 (h5sliaa.h rule 11)";
     case VCR_FB_G_SLI_NOREAD:   return "refused: a multi-chip session without cfgSliLfbCtrl READ_EN";
+    case VCR_FB_G_SLI_CHANGED:  return "stopped: the SLI units changed during the read";
     }
     return "?";
 }

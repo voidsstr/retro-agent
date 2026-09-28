@@ -91,7 +91,11 @@
  *                          the whole SLI frame through lfbMemoryConfig's tile
  *                          aperture - following flips line by line. Read only;
  *                          refused while multi-chip AA is live (an LFB read
- *                          froze the V5 6000 there). include/vcr_fbshot.h
+ *                          froze the V5 6000 there) - on a multi-chip board
+ *                          the master's SLI/AA registers are read again at
+ *                          every flip and every 64 lines, and the read stops
+ *                          the moment they say AA. Black lines = ok:false,
+ *                          partial:true. include/vcr_fbshot.h
  *   sliaa N SLI AA HIGH ANALOG [NLINES BPP TILEMARK COL DEPTHLO DEPTHHI]
  *         --i-am-at-the-box [--force-desktop-pll]
  *                          any HWCEXT driver: Glide's HWCEXT_SLI_AA_REQUEST, sent
@@ -956,7 +960,14 @@ static int pci_rd(ULONG target, ULONG off, ULONG *val)
  * The start register is read again before every line: when the game flips,
  * the rest of the picture comes from the new front buffer (counted in
  * "flips"), so no line is taken from a buffer being drawn. Writes a 24-bit
- * BMP to `path`. Nothing is read from memBase1 while multi-chip AA is live. */
+ * BMP to `path`. Nothing is read from memBase1 while multi-chip AA is live:
+ * on a multi-chip board the master's cfgSliLfbCtrl / cfgAALfbCtrl are read
+ * whatever the kernel's session count says, and read AGAIN before the first
+ * line, at every flip followed and every VCR_FB_RECHECK_LINES lines - the
+ * read stops ("ok":false, "stopped_at_line") the moment the gate says no
+ * (an LFB read in an AA configuration once froze this board hard). A frame
+ * with lines left black (a buffer flipped to that did not plan) is written
+ * but reported "ok":false, "partial":true. (integration review, 2026-09-28) */
 static int cmd_fbshot(const char *path)
 {
     static unsigned long clut[256];
@@ -964,9 +975,10 @@ static int cmd_fbshot(const char *path)
     MEMORY_BASIC_INFORMATION mbi;
     volatile UCHAR *regs, *lfb;
     ULONG vpc, lmc, stride_reg, ss, fmt, start_off, cur, x, y, xb, rowbytes, lfb_len, limit;
-    ULONG sli_ctrl = 0, aa_ctrl = 0, sli_chips, bufs[4];
+    ULONG sli_ctrl = 0, aa_ctrl = 0, sli_chips, board_chips, bufs[4], stop_line = 0;
     double luma = 0;
     int overlay, have_info, have_cfg = 0, gate, flips = 0, unmapped = 0, nbufs = 0, planned, i;
+    int multi, rechecks = 0, stop_gate = 0;
     unsigned pitch_bpp = 0;
     const char *layer, *clut_src = NULL, *clut_why = NULL;
     unsigned char *line, *bmp;
@@ -983,9 +995,16 @@ static int cmd_fbshot(const char *path)
     /* the chips in a live SLI/AA session: our kernel says; any other driver
      * on a multi-chip board is an unknown (refused below) */
     sli_chips = have_info ? v.sli_chips : (st.nchips > 1 ? 0xffffffffUL : 0);
-    if (sli_chips > 1 && have_info)
+    /* the chips on the CARD: on a multi-chip Napalm board the master's two
+     * SLI/AA registers are read whatever the kernel's session count says -
+     * an AA read hand-off it did not set up freezes the board the same */
+    board_chips = have_info ? v.nchips : 0;
+    if ((ULONG)st.nchips > board_chips)
+        board_chips = st.nchips;
+    multi = board_chips > 1 || sli_chips > 1;
+    if (multi && have_info)
         have_cfg = pci_rd(0, VCR_CFG_SLILFBCTRL, &sli_ctrl) && pci_rd(0, VCR_CFG_AALFBCTRL, &aa_ctrl);
-    gate = vcr_fb_mb1_gate(sli_chips, have_cfg, sli_ctrl, aa_ctrl);
+    gate = vcr_fb_mb1_gate_board(board_chips, sli_chips, have_cfg, sli_ctrl, aa_ctrl);
 
     regs = (volatile UCHAR *)(ULONG_PTR)st.base0;
     lfb = (volatile UCHAR *)(ULONG_PTR)st.base1;
@@ -1035,12 +1054,13 @@ static int cmd_fbshot(const char *path)
     printf("{\"cmd\":\"fbshot\",\"vidProcCfg\":\"%08lx\",\"start\":\"%08lx\",\"stride\":\"%08lx\","
            "\"w\":%u,\"h\":%u,\"fmt\":%lu,\"tiled\":%d,\"overlay\":%d,\"sli_active\":%d,"
            "\"lfb_view\":%lu,\"layer\":\"%s\",\"lfbMemoryConfig\":\"%08lx\",\"ap_base\":\"%08lx\","
-           "\"ap_line\":%lu,\"ap_tiles\":%lu,\"sli_chips\":%ld,\"cfgSliLfbCtrl\":\"%08lx\","
+           "\"ap_line\":%lu,\"ap_tiles\":%lu,\"board_chips\":%lu,\"sli_chips\":%ld,\"cfgSliLfbCtrl\":\"%08lx\","
            "\"cfgAALfbCtrl\":\"%08lx\",\"sli_shift\":%u,\"pitch_bpp\":%u,\"gate\":\"%s\","
            "\"method\":\"%s\",\"mb1_first\":\"%08lx\",\"mb1_end\":\"%08lx\",\"limit\":\"%08lx\",",
            vpc, l.start, l.stride, l.w, l.h, fmt, l.tiled, overlay,
            have_info ? (int)v.sli_active : -1, lfb_len, layer, lmc, ap.base, ap.lfb_stride,
-           ap.tile_stride, sli_chips == 0xffffffffUL ? -1L : (long)sli_chips, sli_ctrl, aa_ctrl,
+           ap.tile_stride, board_chips, sli_chips == 0xffffffffUL ? -1L : (long)sli_chips,
+           sli_ctrl, aa_ctrl,
            ap.sli_shift, pitch_bpp, vcr_fb_gate_name(gate), vcr_fb_method_name(plan.method),
            plan.first, plan.end, limit);
     if (gate || plan.method <= 0 || !strcmp(layer, "none")) {
@@ -1069,7 +1089,8 @@ static int cmd_fbshot(const char *path)
     for (y = 0; y < l.h; y++) {
         ULONG s = vcr_fb_start(*(volatile ULONG *)(regs + start_off));
         unsigned char *row = bmp + (l.h - 1 - y) * ((l.w * 3 + 3) & ~3u);
-        if (s != cur) {
+        int flipped = s != cur;
+        if (flipped) {
             /* a flip: follow the new front buffer from this line on */
             flips++;
             cur = s;
@@ -1081,6 +1102,20 @@ static int cmd_fbshot(const char *path)
                 ;
             if (i == nbufs && nbufs < 4)
                 bufs[nbufs++] = s;
+        }
+        if (multi && vcr_fb_recheck_due(y, flipped)) {
+            /* the gate again, from the registers as they are NOW - before
+             * this line's memBase1 read (include/vcr_fbshot.h) */
+            ULONG s2 = 0, a2 = 0;
+            int hc = pci_rd(0, VCR_CFG_SLILFBCTRL, &s2) && pci_rd(0, VCR_CFG_AALFBCTRL, &a2);
+            rechecks++;
+            stop_gate = vcr_fb_mb1_recheck(board_chips, sli_chips, hc, s2, a2, ap.sli_shift);
+            if (stop_gate) {
+                stop_line = y;
+                sli_ctrl = s2;
+                aa_ctrl = a2;
+                break;
+            }
         }
         if (!planned) {
             unmapped++;         /* left black: the new buffer did not plan */
@@ -1102,6 +1137,15 @@ static int cmd_fbshot(const char *path)
         }
     }
     hwc_close();
+    if (stop_gate) {
+        /* nothing more was read: no picture of a frame that was not taken */
+        free(line);
+        free(bmp);
+        printf("\"ok\":false,\"stopped_at_line\":%lu,\"rechecks\":%d,\"flips\":%d,"
+               "\"cfgSliLfbCtrl_now\":\"%08lx\",\"cfgAALfbCtrl_now\":\"%08lx\",\"error\":\"%s\"}\n",
+               stop_line, rechecks, flips, sli_ctrl, aa_ctrl, vcr_fb_gate_name(stop_gate));
+        return 1;
+    }
     f = fopen(path, "wb");
     if (!f) {
         printf("\"ok\":false,\"error\":\"cannot write the BMP\"}\n");
@@ -1128,7 +1172,10 @@ static int cmd_fbshot(const char *path)
     fclose(f);
     free(line);
     free(bmp);
-    printf("\"ok\":true,\"flips\":%d,\"buffers\":[", flips);
+    /* a line left black is not a picture of the frame: written, and said */
+    printf("\"ok\":%s,%s\"flips\":%d,\"rechecks\":%d,\"buffers\":[", unmapped ? "false" : "true",
+           unmapped ? "\"partial\":true,\"error\":\"lines left black: a buffer the game flipped "
+                      "to did not plan\"," : "", flips, rechecks);
     for (i = 0; i < nbufs; i++)
         printf("%s\"%08lx\"", i ? "," : "", bufs[i]);
     printf("],\"unmapped_lines\":%d,\"clut\":%d,\"clut_source\":\"%s\",", unmapped,
@@ -1139,7 +1186,7 @@ static int cmd_fbshot(const char *path)
     for (; *path; path++)
         printf(*path == '\\' ? "\\\\" : "%c", *path);
     printf("\"}\n");
-    return 0;
+    return unmapped ? 1 : 0;
 }
 
 static int cmd_hwc(void)

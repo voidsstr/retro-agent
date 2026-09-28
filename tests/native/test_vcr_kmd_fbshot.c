@@ -563,6 +563,127 @@ TEST(membase1_is_not_read_while_multichip_aa_is_live)
     CHECK(vcr_fb_gate_name(VCR_FB_G_AA)[0] == 'r', "a refusal says so");
 }
 
+/* Integration review (2026-09-28), (e): on a multi-chip board the master's
+ * SLI/AA registers decide, not the kernel's session count. The old gate let
+ * a read through whenever OUR kernel had no session (sli_chips 0 or 1) -
+ * even with the AA write/read enables set by something else. */
+TEST(the_board_not_the_kernels_count_decides_the_gate)
+{
+    /* the hole: .124 (4 chips), the kernel's count 0, AA enables set */
+    CHECK_EQ_I(vcr_fb_mb1_gate(0, 1, 0, 0x1c000000ul), 0);          /* old form: let through */
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(4, 0, 1, 0, 0x1c000000ul), VCR_FB_G_AA);
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(4, 1, 1, 0, 0x04000000ul), VCR_FB_G_AA);  /* CPU write en */
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(4, 0, 1, 0, 0x10000000ul), VCR_FB_G_AA);  /* read en alone */
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(2, 0, 1, 0, 0x08000000ul), VCR_FB_G_AA);  /* a V5 5500 */
+    /* a multi-chip board whose registers cannot be read: refuse */
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(4, 0, 0, 0, 0), VCR_FB_G_CFG_UNKNOWN);
+    /* the desktop on .124 with no session: both registers 0 - read */
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(4, 0, 1, 0, 0), 0);
+    /* SLI units dealt that the kernel does not know about, with no SLI read */
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(4, 0, 1, 0x0e1f0060ul, 0), VCR_FB_G_SLI_NOREAD);
+    /* ...and Quake III's SLI as logged, READ_EN on: read */
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(4, 4, 1, 0x1e1f0060ul, 0), 0);
+    /* a single-chip card is never asked (Voodoo3, one-chip VSA-100) */
+    CHECK_EQ_I(vcr_fb_mb1_gate_board(1, 0, 0, 0, 0xfffffffful), 0);
+    /* the original form keeps every answer it had */
+    CHECK_EQ_I(vcr_fb_mb1_gate(4, 1, 0x1e1f0060ul, 0x0c000000ul), VCR_FB_G_AA);
+    CHECK_EQ_I(vcr_fb_mb1_gate(4, 1, 0, 0), VCR_FB_G_SLI_NOREAD);
+}
+
+/* (d): the gate is asked again during the read - before line 0, at every
+ * flip followed and every 64 lines - and the read stops the moment it says
+ * no. A model of vcrctl's loop over 960 lines with AA switched on after
+ * line 100 stops at line 128, having read nothing past it; switched on at a
+ * flip, it stops AT the flip. */
+static unsigned long run_reader(unsigned long h, unsigned long aa_on_at, unsigned long flip_at,
+                                unsigned long *lines_read, int *rechecks)
+{
+    unsigned long y, aa;
+    *lines_read = 0;
+    *rechecks = 0;
+    for (y = 0; y < h; y++) {
+        int flipped = y == flip_at;
+        if (vcr_fb_recheck_due(y, flipped)) {
+            (*rechecks)++;
+            aa = y >= aa_on_at ? 0x0c000000ul : 0;
+            if (vcr_fb_mb1_recheck(4, 4, 1, 0x1e1f0060ul, aa, 2))
+                return y;
+        }
+        (*lines_read)++;            /* the memBase1 read of line y */
+    }
+    return h;
+}
+
+TEST(a_read_stops_at_the_next_recheck_after_aa_goes_live)
+{
+    unsigned long lines, stop;
+    int n;
+    CHECK_EQ_U(VCR_FB_RECHECK_LINES, 64);
+    CHECK(vcr_fb_recheck_due(0, 0), "before the first line");
+    CHECK(vcr_fb_recheck_due(64, 0) && vcr_fb_recheck_due(128, 0), "every 64 lines");
+    CHECK(!vcr_fb_recheck_due(63, 0) && !vcr_fb_recheck_due(65, 0), "not in between");
+    CHECK(vcr_fb_recheck_due(77, 1), "at a flip");
+    /* no AA: the whole frame, 15 rechecks for 960 lines */
+    stop = run_reader(960, 100000, 100000, &lines, &n);
+    CHECK_EQ_U(stop, 960);
+    CHECK_EQ_U(lines, 960);
+    CHECK_EQ_I(n, 15);
+    /* AA after line 100: stopped at 128, lines 0-127 read, none after */
+    stop = run_reader(960, 101, 100000, &lines, &n);
+    CHECK_EQ_U(stop, 128);
+    CHECK_EQ_U(lines, 128);
+    /* AA with a flip at line 77: stopped at the flip */
+    stop = run_reader(960, 77, 77, &lines, &n);
+    CHECK_EQ_U(stop, 77);
+    CHECK_EQ_U(lines, 77);
+    /* AA already live: nothing read */
+    stop = run_reader(960, 0, 100000, &lines, &n);
+    CHECK_EQ_U(stop, 0);
+    CHECK_EQ_U(lines, 0);
+    /* the SLI units changing under the read also stop it */
+    CHECK_EQ_I(vcr_fb_mb1_recheck(4, 4, 1, 0x1d1f0020ul, 0, 2), VCR_FB_G_SLI_CHANGED);
+    CHECK_EQ_I(vcr_fb_mb1_recheck(4, 4, 1, 0x1e1f0060ul, 0, 2), 0);
+    CHECK_EQ_I(vcr_fb_mb1_recheck(4, 4, 0, 0x1e1f0060ul, 0, 2), VCR_FB_G_CFG_UNKNOWN);
+    CHECK_EQ_I(vcr_fb_mb1_recheck(1, 0, 0, 0, 0, 0), 0);             /* one chip: never */
+    CHECK(vcr_fb_gate_name(VCR_FB_G_SLI_CHANGED)[0] == 's', "a stop says so");
+}
+
+/* (f): under SLI the master's raw memory is its own bands only - a raw read
+ * (below the aperture) is not the frame, so it is refused, not guessed. */
+TEST(raw_reads_are_refused_under_sli)
+{
+    vcr_fb_aperture ap;
+    vcr_fb_layer l;
+    vcr_fb_plan p;
+    memset(&ap, 0, sizeof ap);
+    ap.base = 0x03c3e000ul;
+    ap.lfb_stride = 8192;
+    ap.tile_stride = 40;
+    memset(&l, 0, sizeof l);
+    l.start = 0x03000000ul;                 /* below the aperture */
+    l.stride = 0x28;
+    l.tiled = 1;
+    l.w = 1280;
+    l.h = 960;
+    l.bpp = 4;
+    CHECK_EQ_I(vcr_fb_plan_make(&p, &l, &ap, 0), VCR_FB_M_TILED);
+    ap.sli_shift = 2;
+    CHECK_EQ_I(vcr_fb_plan_make(&p, &l, &ap, 0), VCR_FB_R_SLI_RAW);
+    l.tiled = 0;
+    l.stride = 5120;
+    l.start = 0x02000000ul;
+    CHECK_EQ_I(vcr_fb_plan_make(&p, &l, &ap, 0), VCR_FB_R_SLI_RAW);
+    ap.sli_shift = 0;
+    CHECK_EQ_I(vcr_fb_plan_make(&p, &l, &ap, 0), VCR_FB_M_LINEAR);
+    /* the aperture read under SLI is unchanged */
+    ap.sli_shift = 2;
+    l.start = 0x03c3e000ul;
+    l.stride = 0x28;
+    l.tiled = 1;
+    CHECK_EQ_I(vcr_fb_plan_make(&p, &l, &ap, 0), VCR_FB_M_APERTURE);
+    CHECK(vcr_fb_method_name(VCR_FB_R_SLI_RAW)[0] == 'r', "a refusal has a name");
+}
+
 MUNIT_MAIN("vcr-kmd fbshot decoding (include/vcr_fbshot.h)", {
     RUN(the_124_desktop_registers_decode);
     RUN(the_start_address_keeps_every_bit_a_64mb_chip_needs);
@@ -579,4 +700,7 @@ MUNIT_MAIN("vcr-kmd fbshot decoding (include/vcr_fbshot.h)", {
     RUN(the_verified_desktop_reads_stay_raw);
     RUN(what_the_plan_refuses);
     RUN(membase1_is_not_read_while_multichip_aa_is_live);
+    RUN(the_board_not_the_kernels_count_decides_the_gate);
+    RUN(a_read_stops_at_the_next_recheck_after_aa_goes_live);
+    RUN(raw_reads_are_refused_under_sli);
 })
