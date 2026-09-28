@@ -47,6 +47,7 @@
 #include "../shared/gsresume.h"
 #include "../shared/audiofix.h"
 #include "../shared/regmerge.h"
+#include "../shared/deskview.h"
 
 #include <windows.h>
 #include <string.h>
@@ -3870,8 +3871,12 @@ static void gs_restore_shortcuts_if_installed(const char *title)
  * window, so the shell would write the old value back over us. It is therefore
  * the FALLBACK, for the case seen on .143 where the toggle did not take at all.
  *
- * PERSISTENCE. The desktop's view state lives in the shell bag
- * HKCU\Software\Microsoft\Windows\Shell\Bags\1\Desktop, value FFlags - the
+ * PERSISTENCE. The desktop's view state lives in its shell bag
+ * HKCU\Software\Microsoft\Windows\Shell\Bags\<slot>\Desktop, where <slot> is
+ * the NodeSlot value on HKCU\...\Shell\BagMRU (the namespace root = the
+ * desktop). It is 1 on every XP box measured and 4 on Win7's .195 - where this
+ * code wrote to a hardcoded Bags\1 that nothing read (agent/shared/deskview.h,
+ * gs_desktop_bag()). Value FFlags is the
  * FOLDERFLAGS word, in which bit 0 (FWF_AUTOARRANGE) is this setting and bit 2
  * (FWF_SNAPTOGRID) is "align to grid". Measured on .143 before this change:
  * FFlags = 0x220 (FWF_DESKTOP|FWF_NOCLIENTEDGE), both bits clear, exactly what
@@ -3911,22 +3916,34 @@ static void gs_restore_shortcuts_if_installed(const char *title)
 #define LVM_SETEXSTYLE_      (LVM_FIRST_ + 54)
 #define LVM_GETEXSTYLE_      (LVM_FIRST_ + 55)
 #define LVA_DEFAULT_         0x0000
-/* The shell's "Auto Arrange" menu command. NOT one constant: read from each
- * OS's own SHELL32.DLL menu resources (2026-09-24) -
+#define LVM_SETVIEW_         (LVM_FIRST_ + 142)   /* comctl32 6 */
+#define LVM_GETVIEW_         (LVM_FIRST_ + 143)   /* comctl32 6 */
+/* The shell's "Auto Arrange" menu command. NOT one constant, and NOT one per
+ * platform family either: read from each OS's own SHELL32 menu resources -
  *     Win98 SE shell32 4.72:  0x7041 "&Auto Arrange"   (0x7051 is "&Help Topics")
- *     XP SP3 shell32 6.0:     0x7051 "&Auto Arrange"
+ *     XP SP3 shell32 6.0:     0x7051 "&Auto Arrange"   (0x7071 is "Help and Support")
+ *     Win7 6.1 shell32.mui:   0x7071 "&Auto arrange"   (0x7051 is "&List" !)
  * This used to be a single 0x7031, which is no menu command on EITHER, so the
  * toggle was a silent no-op everywhere - the "shell toggle silently failed on
- * .171 and .143" in CLAUDE.md. XP was rescued by the style-bit fallback; Win98
- * was not (.243's desktop never auto-arranged and new icons landed
- * off-screen). Never "fix" it to 0x7051 unconditionally: on Win98 that opens
- * Windows Help on the desktop. */
-#define FCIDM_AUTOARRANGE_WIN9X_  0x7041
-#define FCIDM_AUTOARRANGE_NT_     0x7051
+ * .171 and .143" in CLAUDE.md. Its replacement (1.84.1) split only 9x from NT
+ * and posted XP's 0x7051 on Windows 7, where it is the "List" view command: on
+ * every boot that found auto-arrange clear it put .195's desktop into List
+ * view (8 of 117 icons visible), logged "shell toggle did not take", set the
+ * style bit and reported success. So the table lives in deskview.h keyed on
+ * the exact version, and a version nobody has read the menus of gets 0 - post
+ * NOTHING, use the style bit. Measured 2026-09-28 (Win7 .195, XP .110). */
+static void gs_winver(int *is9x, unsigned *major, unsigned *minor)
+{
+    DWORD v = GetVersion();
+    *is9x  = (v & 0x80000000UL) ? 1 : 0;
+    *major = (unsigned)LOBYTE(LOWORD(v));
+    *minor = (unsigned)HIBYTE(LOWORD(v));
+}
 static WPARAM gs_autoarrange_cmd(void)
 {
-    return (GetVersion() & 0x80000000UL) ? FCIDM_AUTOARRANGE_WIN9X_
-                                         : FCIDM_AUTOARRANGE_NT_;
+    int is9x; unsigned major, minor;
+    gs_winver(&is9x, &major, &minor);
+    return (WPARAM)dv_autoarrange_cmd(is9x, major, minor);
 }
 #ifndef LVS_AUTOARRANGE
 #define LVS_AUTOARRANGE 0x0100
@@ -3935,11 +3952,12 @@ static WPARAM gs_autoarrange_cmd(void)
 #define LVS_EX_SNAPTOGRID 0x00080000
 #endif
 
-/* The persisted desktop view state, and the two FOLDERFLAGS bits we care
- * about. These are the shell's own values, not ours - do not renumber. */
-#define GS_DESKTOP_BAG   "Software\\Microsoft\\Windows\\Shell\\Bags\\1\\Desktop"
-#define GS_FWF_AUTOARRANGE 0x00000001u
-#define GS_FWF_SNAPTOGRID  0x00000004u
+/* The persisted desktop view state lives in the bag BagMRU's NodeSlot names -
+ * see gs_desktop_bag(). There is deliberately no fixed path here any more.
+ * The two FOLDERFLAGS bits we care about are the shell's own values - do not
+ * renumber. */
+#define GS_FWF_AUTOARRANGE DV_FWF_AUTOARRANGE
+#define GS_FWF_SNAPTOGRID  DV_FWF_SNAPTOGRID
 #define GS_ICON_KEY      "Software\\RetroAgent"
 #define GS_ICON_VALUE    "IconAutoArrange"
 
@@ -4036,50 +4054,278 @@ static int gs_want_autoarrange(void)
     return val != 0;
 }
 
+/* ---- the desktop's shell bag ---------------------------------------------
+ *
+ * WHICH bag. The desktop is the shell namespace root, so its bag is the slot
+ * the BagMRU ROOT key's NodeSlot value names. It is not always 1: measured
+ * 2026-09-28, XP (.124, .110) Shell\BagMRU NodeSlot = 1, Win7 .195 = 4. This
+ * used to be a fixed "Shell\Bags\1\Desktop", so on .195 every FFlags write
+ * landed in a key nothing reads (the agent even created it: "Win7's .246 had
+ * no Desktop subkey under Bags\1" - because its desktop was never in slot 1)
+ * and ICONARRANGE reported that key's value as the desktop's. No NodeSlot at
+ * all (Win98 has no BagMRU; a fresh profile before Explorer's first save)
+ * falls back to 1, which is what every earlier agent used. */
+typedef struct {
+    char          path[96];
+    unsigned long slot;
+    int           from_mru;   /* 1 = BagMRU NodeSlot named it; 0 = fallback */
+} gs_bag_t;
+
+static int gs_reg_dword(HKEY hk, const char *name, DWORD *out)
+{
+    DWORD v = 0, sz = sizeof(v), ty = 0;
+    if (RegQueryValueExA(hk, name, NULL, &ty, (LPBYTE)&v, &sz) != ERROR_SUCCESS
+            || ty != REG_DWORD || sz != sizeof(v))
+        return 0;
+    *out = v;
+    return 1;
+}
+
+static void gs_desktop_bag(gs_bag_t *b)
+{
+    HKEY  hk;
+    DWORD v = 0;
+    int   found = 0;
+
+    if (RegOpenKeyExA(HKEY_CURRENT_USER, DV_BAGMRU_KEY, 0, KEY_QUERY_VALUE,
+                      &hk) == ERROR_SUCCESS) {
+        found = gs_reg_dword(hk, DV_BAGMRU_VALUE, &v);
+        RegCloseKey(hk);
+    }
+    b->slot = dv_bag_slot(found, (unsigned long)v);
+    b->from_mru = found && b->slot == (unsigned long)v;
+    if (!dv_bag_path(b->path, sizeof(b->path), b->slot))
+        dv_bag_path(b->path, sizeof(b->path), DV_SLOT_DEFAULT);
+}
+
+/* Write one REG_DWORD and READ IT BACK. Returns 1 only when the value now
+ * holds what we wrote - never on the strength of RegSetValueEx's return. */
+static int gs_reg_set_dword_verified(HKEY hk, const char *bagpath,
+                                     const char *name, DWORD val)
+{
+    DWORD got = 0;
+    RegSetValueExA(hk, name, 0, REG_DWORD, (const BYTE *)&val, sizeof(val));
+    if (gs_reg_dword(hk, name, &got) && got == val)
+        return 1;
+    log_msg(LOG_GS, "READ-BACK MISMATCH: wrote %s\\%s = %lu, it reads %lu - "
+                    "the persisted desktop view is NOT what was asked for",
+            bagpath, name, (unsigned long)val, (unsigned long)got);
+    return 0;
+}
+
 /* Persist the setting in the desktop's shell bag so it survives a reboot even
  * if the agent's startup pass has not run yet. Read-modify-write: FFlags
  * carries several unrelated bits (FWF_DESKTOP, FWF_NOCLIENTEDGE...) and
  * stamping a whole word over it would change things nobody asked about.
  *
- * The key may not exist at all - Win7's .246 had no Desktop subkey under
- * Bags\1 until the desktop view state was first saved - so create it. */
+ * The key may not exist at all (a fresh profile before Explorer has saved the
+ * desktop), so create it - in the slot BagMRU names, see gs_desktop_bag(). */
 static void gs_bag_autoarrange(int on)
 {
+    gs_bag_t bag;
     HKEY  hk;
-    DWORD flags = 0, sz = sizeof(flags), ty = REG_DWORD, disp = 0;
-    DWORD before;
+    DWORD flags = 0, disp = 0;
+    unsigned long before, after;
+    int   have;
     LONG  rc;
 
-    rc = RegCreateKeyExA(HKEY_CURRENT_USER, GS_DESKTOP_BAG, 0, NULL,
+    gs_desktop_bag(&bag);
+    rc = RegCreateKeyExA(HKEY_CURRENT_USER, bag.path, 0, NULL,
                          REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE | KEY_SET_VALUE,
                          NULL, &hk, &disp);
     if (rc != ERROR_SUCCESS) {
         log_msg(LOG_GS, "shell bag %s not writable (error %ld) - auto-arrange "
                         "is still applied live, just not persisted here",
-                GS_DESKTOP_BAG, (long)rc);
+                bag.path, (long)rc);
         return;
     }
-    if (RegQueryValueExA(hk, "FFlags", NULL, &ty, (LPBYTE)&flags, &sz)
-            != ERROR_SUCCESS || ty != REG_DWORD)
-        flags = 0x220;   /* the shell's own desktop default: FWF_DESKTOP|NOCLIENTEDGE */
-    before = flags;
+    have   = gs_reg_dword(hk, "FFlags", &flags);
+    before = have ? (unsigned long)flags : DV_FFLAGS_DESKTOP_DEF;
+    after  = dv_fflags_autoarrange(have, (unsigned long)flags, on);
 
-    if (on)
-        flags |= GS_FWF_AUTOARRANGE;
-    else
-        flags &= ~GS_FWF_AUTOARRANGE;
-
-    if (flags != before) {
-        RegSetValueExA(hk, "FFlags", 0, REG_DWORD, (const BYTE *)&flags,
-                       sizeof(flags));
-        log_msg(LOG_GS, "persisted auto-arrange %s: %s\\FFlags 0x%lx -> 0x%lx",
-                on ? "ON" : "OFF", GS_DESKTOP_BAG,
-                (unsigned long)before, (unsigned long)flags);
+    if (after != before) {
+        if (gs_reg_set_dword_verified(hk, bag.path, "FFlags", (DWORD)after))
+            log_msg(LOG_GS, "persisted auto-arrange %s: %s\\FFlags 0x%lx -> 0x%lx "
+                            "(slot %lu from %s)",
+                    on ? "ON" : "OFF", bag.path, before, after, bag.slot,
+                    bag.from_mru ? "BagMRU NodeSlot" : "the default - no NodeSlot");
     } else {
-        log_msg(LOG_GS, "auto-arrange already persisted (%s\\FFlags 0x%lx)",
-                GS_DESKTOP_BAG, (unsigned long)flags);
+        log_msg(LOG_GS, "auto-arrange already persisted (%s\\FFlags 0x%lx%s)",
+                bag.path, before, have ? "" : ", absent = the shell default");
     }
     RegCloseKey(hk);
+}
+
+/* ---- the desktop's VIEW --------------------------------------------------
+ *
+ * The desktop must be in ICON view. .195 (Win7) was found in List view -
+ * Mode=3, LogicalViewMode=4, IconSize=16 in its bag - with 8 of 117 icons
+ * visible in one row, while ICONARRANGE said "autoarrange":true,"icons":119:
+ * auto-arrange means nothing in List view, and neither report looked at the
+ * view. The agent put it there itself (0x7051 is "List" on Win7, see
+ * gs_autoarrange_cmd), but a person or a game can too, so this checks and
+ * repairs rather than merely no longer causing it.
+ *
+ * It is a SET and it is conditional: a desktop already in icon view is left
+ * completely alone (no post, no write), so a settled box changes nothing.
+ * Live first, through the shell's OWN icon-view command where one has been
+ * read from that Windows' menus - that updates Explorer's internal state, which
+ * it writes back to the bag at logoff - then LVM_SETVIEW / the style bits if it
+ * did not take. Then the persisted Mode/LogicalViewMode/IconSize, each read
+ * back. Returns what it changed: bit 0 live, bit 1 persisted, bit 2 = the live
+ * view is STILL wrong. */
+#define GS_VIEW_LIVE_FIXED  1
+#define GS_VIEW_BAG_FIXED   2
+#define GS_VIEW_LIVE_FAILED 4
+
+typedef struct {
+    gs_bag_t      bag;
+    unsigned long style;      /* live listview style, after the pass */
+    long          lvview;     /* live LVM_GETVIEW after the pass, -1 = not asked */
+    int           bag_open;   /* the bag key exists */
+    dv_bagview_t  bv;         /* persisted Mode/LogicalViewMode/IconSize, after */
+    int           result;     /* GS_VIEW_* */
+} gs_view_t;
+
+static long gs_lv_getview(HWND lv)
+{
+    int is9x; unsigned major, minor;
+    DWORD_PTR r = 0;
+
+    gs_winver(&is9x, &major, &minor);
+    if (!dv_has_comctl6(is9x, major, minor))
+        return -1;
+    if (!SendMessageTimeoutA(lv, LVM_GETVIEW_, 0, 0,
+                             SMTO_ABORTIFHUNG | SMTO_BLOCK, 2000, &r))
+        return -1;
+    return (long)r;
+}
+
+static void gs_bag_view_read(HKEY hk, dv_bagview_t *v)
+{
+    DWORD d = 0;
+    memset(v, 0, sizeof(*v));
+    if (gs_reg_dword(hk, "Mode", &d))            { v->has_mode = 1; v->mode = d; }
+    if (gs_reg_dword(hk, "LogicalViewMode", &d)) { v->has_lvm = 1;  v->lvm = d; }
+    if (gs_reg_dword(hk, "IconSize", &d))        { v->has_size = 1; v->icon_size = d; }
+}
+
+static int gs_desktop_view_fix(HWND defview, HWND lv, gs_view_t *out)
+{
+    int      is9x, vista, ok = 1;
+    unsigned major, minor;
+    HKEY     hk;
+    gs_view_t r;
+
+    memset(&r, 0, sizeof(r));
+    gs_winver(&is9x, &major, &minor);
+    vista = !is9x && major >= 6;
+    gs_desktop_bag(&r.bag);
+
+    r.style  = (unsigned long)GetWindowLongA(lv, GWL_STYLE);
+    r.lvview = gs_lv_getview(lv);
+    if (!dv_live_is_icon_view(r.style, r.lvview)) {
+        WPARAM cmd = (WPARAM)dv_iconview_cmd(is9x, major, minor);
+        log_msg(LOG_GS, "desktop is in %s view, not icons (style 0x%lx, "
+                        "LVM_GETVIEW %ld) - restoring icon view",
+                dv_view_name(r.style, r.lvview), r.style, r.lvview);
+        if (defview && cmd) {
+            /* The shell's own radio item - a SET, and it updates Explorer's
+             * internal view state, not just the window. */
+            PostMessageA(defview, WM_COMMAND, cmd, 0);
+            Sleep(600);
+            r.style  = (unsigned long)GetWindowLongA(lv, GWL_STYLE);
+            r.lvview = gs_lv_getview(lv);
+        }
+        if (!dv_live_is_icon_view(r.style, r.lvview)) {
+            DWORD_PTR dummy = 0;
+            if (dv_has_comctl6(is9x, major, minor))
+                SendMessageTimeoutA(lv, LVM_SETVIEW_, DV_LV_VIEW_ICON, 0,
+                                    SMTO_ABORTIFHUNG | SMTO_BLOCK, 2000, &dummy);
+            r.style = (unsigned long)GetWindowLongA(lv, GWL_STYLE);
+            if ((r.style & DV_LVS_TYPEMASK) != DV_LVS_ICON)
+                SetWindowLongA(lv, GWL_STYLE,
+                               (LONG)(r.style & ~DV_LVS_TYPEMASK) | DV_LVS_ICON);
+            Sleep(200);
+            r.style  = (unsigned long)GetWindowLongA(lv, GWL_STYLE);
+            r.lvview = gs_lv_getview(lv);
+            log_msg(LOG_GS, "%s - set the listview's view directly (now %s)",
+                    cmd ? "the shell's icon-view command did not take"
+                        : "no measured shell icon-view command on this Windows",
+                    dv_view_name(r.style, r.lvview));
+        } else {
+            log_msg(LOG_GS, "icon view restored via the shell (command 0x%x)",
+                    (unsigned)cmd);
+        }
+        if (dv_live_is_icon_view(r.style, r.lvview))
+            r.result |= GS_VIEW_LIVE_FIXED;
+        else {
+            r.result |= GS_VIEW_LIVE_FAILED;
+            log_msg(LOG_GS, "DESKTOP STILL NOT IN ICON VIEW (%s) - icons may be "
+                            "hidden; restart Explorer or set View > Medium icons",
+                    dv_view_name(r.style, r.lvview));
+        }
+    }
+
+    /* Persisted: open, never create - a bag with no view values is already
+     * the default icon view and there is nothing to repair. */
+    if (RegOpenKeyExA(HKEY_CURRENT_USER, r.bag.path, 0,
+                      KEY_QUERY_VALUE | KEY_SET_VALUE, &hk) == ERROR_SUCCESS) {
+        dv_bagview_t fixed;
+        r.bag_open = 1;
+        gs_bag_view_read(hk, &r.bv);
+        if (dv_bag_view_repair(&r.bv, vista, &fixed)) {
+            log_msg(LOG_GS, "persisted desktop view in %s is not icons "
+                            "(Mode %ld, LogicalViewMode %ld, IconSize %ld) - "
+                            "restoring it",
+                    r.bag.path,
+                    r.bv.has_mode ? (long)r.bv.mode : -1L,
+                    r.bv.has_lvm ? (long)r.bv.lvm : -1L,
+                    r.bv.has_size ? (long)r.bv.icon_size : -1L);
+            if (fixed.has_mode && (!r.bv.has_mode || fixed.mode != r.bv.mode))
+                ok &= gs_reg_set_dword_verified(hk, r.bag.path, "Mode",
+                                                (DWORD)fixed.mode);
+            if (fixed.has_lvm && (!r.bv.has_lvm || fixed.lvm != r.bv.lvm))
+                ok &= gs_reg_set_dword_verified(hk, r.bag.path, "LogicalViewMode",
+                                                (DWORD)fixed.lvm);
+            if (fixed.has_size &&
+                    (!r.bv.has_size || fixed.icon_size != r.bv.icon_size))
+                ok &= gs_reg_set_dword_verified(hk, r.bag.path, "IconSize",
+                                                (DWORD)fixed.icon_size);
+            gs_bag_view_read(hk, &r.bv);   /* report what is there now */
+            if (ok && !dv_bag_view_is_bad(&r.bv)) {
+                r.result |= GS_VIEW_BAG_FIXED;
+                log_msg(LOG_GS, "persisted desktop view restored: Mode %ld, "
+                                "LogicalViewMode %ld, IconSize %ld",
+                        r.bv.has_mode ? (long)r.bv.mode : -1L,
+                        r.bv.has_lvm ? (long)r.bv.lvm : -1L,
+                        r.bv.has_size ? (long)r.bv.icon_size : -1L);
+            }
+        }
+        RegCloseKey(hk);
+    }
+    if (out)
+        *out = r;
+    return r.result;
+}
+
+/* The same facts, read only - ICONARRANGE's post-condition. */
+static void gs_desktop_view_read(HWND lv, gs_view_t *r)
+{
+    HKEY hk;
+    int  result = r->result;
+
+    memset(r, 0, sizeof(*r));
+    r->result = result;
+    gs_desktop_bag(&r->bag);
+    r->style  = (unsigned long)GetWindowLongA(lv, GWL_STYLE);
+    r->lvview = gs_lv_getview(lv);
+    if (RegOpenKeyExA(HKEY_CURRENT_USER, r->bag.path, 0, KEY_QUERY_VALUE,
+                      &hk) == ERROR_SUCCESS) {
+        r->bag_open = 1;
+        gs_bag_view_read(hk, &r->bv);
+        RegCloseKey(hk);
+    }
 }
 
 /* Turn Auto Arrange ON, deterministically, and say whether it took.
@@ -4097,9 +4343,10 @@ static void gs_apply_autoarrange(HWND defview, HWND lv, int force)
         log_msg(LOG_GS, "auto-arrange already on - left alone (posting the "
                         "shell toggle here would turn it OFF)");
     } else {
-        if (defview) {
+        if (defview && gs_autoarrange_cmd()) {
             /* PostMessage, not Send: a synchronous send into the shell can
-             * block the agent indefinitely. */
+             * block the agent indefinitely. Only with a MEASURED command id
+             * for this Windows - 0x7051 is "List" on Win7. */
             PostMessageA(defview, WM_COMMAND, gs_autoarrange_cmd(), 0);
             Sleep(600);
             style = GetWindowLongA(lv, GWL_STYLE);
@@ -4114,8 +4361,9 @@ static void gs_apply_autoarrange(HWND defview, HWND lv, int force)
             SetWindowLongA(lv, GWL_STYLE, style | LVS_AUTOARRANGE);
             Sleep(200);
             style = GetWindowLongA(lv, GWL_STYLE);
-            log_msg(LOG_GS, "shell toggle did not take - set LVS_AUTOARRANGE "
-                            "directly (now %s)",
+            log_msg(LOG_GS, "%s - set LVS_AUTOARRANGE directly (now %s)",
+                    gs_autoarrange_cmd() ? "shell toggle did not take"
+                        : "no measured Auto Arrange command on this Windows",
                     (style & LVS_AUTOARRANGE) ? "on" : "STILL OFF");
         } else {
             log_msg(LOG_GS, "auto-arrange turned on via the shell");
@@ -4163,14 +4411,16 @@ static void gs_arrange_bay(HWND defview, HWND lv)
     /* Auto Arrange must be OFF or the shell snaps every icon back to the
      * top-left grid and our positions never stick. Same toggle rule in
      * reverse: fire the WM_COMMAND only when the bit is SET. */
-    if (defview) {
+    {
         LONG style = GetWindowLongA(lv, GWL_STYLE);
         if (style & LVS_AUTOARRANGE) {
             log_msg(LOG_GS, "icon bay: auto-arrange is on - turning it off so "
                             "icon positions stick");
-            PostMessageA(defview, WM_COMMAND, gs_autoarrange_cmd(), 0);
-            Sleep(600);
-            style = GetWindowLongA(lv, GWL_STYLE);
+            if (defview && gs_autoarrange_cmd()) {
+                PostMessageA(defview, WM_COMMAND, gs_autoarrange_cmd(), 0);
+                Sleep(600);
+                style = GetWindowLongA(lv, GWL_STYLE);
+            }
             if (style & LVS_AUTOARRANGE) {
                 SetWindowLongA(lv, GWL_STYLE, style & ~LVS_AUTOARRANGE);
                 Sleep(200);
@@ -4244,13 +4494,18 @@ void gs_desktop_icons_apply_ex(int force)
 {
     HWND defview = NULL;
     HWND lv = gs_desktop_listview(&defview);
+    int  view;
 
     if (!lv) {
         log_msg(LOG_GS, "desktop listview not found - icons left as they are");
         return;
     }
+    /* The VIEW first: auto-arrange and the bay both mean nothing in List or
+     * Details view (Win7 greys "Auto arrange" out there), and a view the shell
+     * has just changed needs re-packing. */
+    view = gs_desktop_view_fix(defview, lv, NULL);
     if (gs_want_autoarrange())
-        gs_apply_autoarrange(defview, lv, force);
+        gs_apply_autoarrange(defview, lv, force || (view & GS_VIEW_LIVE_FIXED));
     else
         gs_arrange_bay(defview, lv);
 }
@@ -6467,19 +6722,41 @@ void handle_drvupdate(SOCKET sock, const char *args_in)
  * LVS_AUTOARRANGE bit, the persisted FFlags word and the icon count, which is
  * what a fleet-wide verification sweep actually needs.
  *
+ * And the VIEW, and WHERE it read the persisted state from. On .195 this
+ * answered "autoarrange":true,"icons":119,"fflags":545 while 8 of the 117
+ * icons were visible: the desktop was in List view, and 545 came from a
+ * Bags\1\Desktop nothing reads (the real bag was Bags\4). So the reply also
+ * names the bag (path + slot + whether BagMRU's NodeSlot named it), the live
+ * view (style type bits and LVM_GETVIEW, and a name), the persisted
+ * Mode/LogicalViewMode/IconSize (null when absent), and whether THIS call had
+ * to repair the view live or persisted. A settled box answers
+ * "view":"icon","view_repaired":false,"bag_view_repaired":false.
+ *
  * The optional argument overrides the box's stored preference for this call
  * only: "bay" runs the legacy wallpaper-bay layout once, "auto" forces
  * auto-arrange. With no argument it follows
  * HKLM\Software\RetroAgent\IconAutoArrange (default: auto). */
+static void gs_json_opt_dword(char *out, size_t cap, int have, unsigned long v)
+{
+    if (have)
+        _snprintf(out, cap - 1, "%lu", v);
+    else
+        _snprintf(out, cap - 1, "null");
+    out[cap - 1] = '\0';
+}
+
 void handle_iconarrange(SOCKET sock, const char *args)
 {
     HWND  defview = NULL;
     HWND  lv;
-    char  msg[512];
+    char  msg[1024];
+    char  bagesc[sizeof(((gs_bag_t *)0)->path) * 2 + 1];
+    char  jmode[16], jlvm[16], jsize[16];
     LONG  style;
-    DWORD flags = 0, sz = sizeof(flags), ty = REG_DWORD;
+    DWORD flags = 0;
     HKEY  hk;
-    int   count;
+    int   count, have_flags = 0, view_result;
+    gs_view_t view;
     const char *mode;
 
     lv = gs_desktop_listview(&defview);
@@ -6488,6 +6765,9 @@ void handle_iconarrange(SOCKET sock, const char *args)
                                  "running in this session?");
         return;
     }
+
+    /* The view first, for every mode - see gs_desktop_icons_apply_ex(). */
+    view_result = gs_desktop_view_fix(defview, lv, NULL);
 
     if (args && (str_starts_with(args, "bay") || str_starts_with(args, "BAY"))) {
         mode = "bay";
@@ -6501,22 +6781,43 @@ void handle_iconarrange(SOCKET sock, const char *args)
         gs_desktop_icons_apply_ex(1);
     }
 
+    /* Post-condition: read everything again, after the pass. */
+    view.result = view_result;
+    gs_desktop_view_read(lv, &view);
     style = GetWindowLongA(lv, GWL_STYLE);
     count = (int)SendMessageA(lv, LVM_GETITEMCOUNT_, 0, 0);
-    if (RegOpenKeyExA(HKEY_CURRENT_USER, GS_DESKTOP_BAG, 0, KEY_QUERY_VALUE,
+    if (RegOpenKeyExA(HKEY_CURRENT_USER, view.bag.path, 0, KEY_QUERY_VALUE,
                       &hk) == ERROR_SUCCESS) {
-        RegQueryValueExA(hk, "FFlags", NULL, &ty, (LPBYTE)&flags, &sz);
+        have_flags = gs_reg_dword(hk, "FFlags", &flags);
         RegCloseKey(hk);
     }
+    gs_json_escape(view.bag.path, bagesc, sizeof(bagesc));
+    gs_json_opt_dword(jmode, sizeof(jmode), view.bv.has_mode, view.bv.mode);
+    gs_json_opt_dword(jlvm, sizeof(jlvm), view.bv.has_lvm, view.bv.lvm);
+    gs_json_opt_dword(jsize, sizeof(jsize), view.bv.has_size, view.bv.icon_size);
     _snprintf(msg, sizeof(msg) - 1,
               "{\"mode\":\"%s\",\"autoarrange\":%s,\"fflags\":%lu,"
-              "\"fflags_autoarrange\":%s,\"icons\":%d,\"screen\":\"%dx%d\"}",
+              "\"fflags_autoarrange\":%s,\"icons\":%d,\"screen\":\"%dx%d\","
+              "\"bag\":\"HKCU\\\\%s\",\"bag_slot\":%lu,\"bag_slot_source\":\"%s\","
+              "\"bag_exists\":%s,\"view\":\"%s\",\"lv_style_type\":%lu,"
+              "\"lv_view\":%ld,\"bag_mode\":%s,\"bag_logical_view_mode\":%s,"
+              "\"bag_icon_size\":%s,\"view_repaired\":%s,"
+              "\"bag_view_repaired\":%s,\"view_still_wrong\":%s}",
               mode,
               (style & LVS_AUTOARRANGE) ? "true" : "false",
               (unsigned long)flags,
-              (flags & GS_FWF_AUTOARRANGE) ? "true" : "false",
+              (have_flags && (flags & GS_FWF_AUTOARRANGE)) ? "true" : "false",
               count,
-              GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
+              GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
+              bagesc, view.bag.slot,
+              view.bag.from_mru ? "BagMRU NodeSlot" : "default",
+              view.bag_open ? "true" : "false",
+              dv_view_name(view.style, view.lvview),
+              view.style & DV_LVS_TYPEMASK, view.lvview,
+              jmode, jlvm, jsize,
+              (view_result & GS_VIEW_LIVE_FIXED) ? "true" : "false",
+              (view_result & GS_VIEW_BAG_FIXED) ? "true" : "false",
+              dv_live_is_icon_view(view.style, view.lvview) ? "false" : "true");
     msg[sizeof(msg) - 1] = '\0';
     send_text_response(sock, msg);
 }

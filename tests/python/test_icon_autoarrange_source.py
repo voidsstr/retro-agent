@@ -412,17 +412,34 @@ def test_the_shortcut_counter_is_readable_during_a_run():
 def test_the_autoarrange_command_id_is_chosen_per_platform():
     """0x7031 was no menu command on Win98 OR XP, so the toggle never fired.
 
-    Read from each OS's own SHELL32.DLL menu resources on 2026-09-24: Win98 SE
-    has "&Auto Arrange" at 0x7041 (and 0x7051 is "&Help Topics"); XP SP3 has it
-    at 0x7051. One constant is wrong somewhere by construction.
+    Read from each OS's own SHELL32 menu resources: Win98 SE has "&Auto
+    Arrange" at 0x7041 (and 0x7051 is "&Help Topics"); XP SP3 has it at 0x7051
+    (and 0x7071 is "Help and Support Center"); Windows 7 has it at 0x7071 - and
+    0x7051 there is "&List". One constant is wrong somewhere by construction,
+    and so is one constant per platform FAMILY: the 1.84.1 table split only
+    9x from NT and put .195's Win7 desktop into List view on every boot
+    (2026-09-28). The table is now per VERSION, in agent/shared/deskview.h, and
+    tests/native/test_desktop_bag_view.c asserts its values.
     """
     src = GAMESYNC.read_text(errors="replace")
-    assert "#define FCIDM_AUTOARRANGE_WIN9X_  0x7041" in src
-    assert "#define FCIDM_AUTOARRANGE_NT_     0x7051" in src
-    assert "0x7031" not in _strip_comments(src), "0x7031 is not Auto Arrange anywhere"
+    code = _strip_comments(src)
+    assert "0x7031" not in code, "0x7031 is not Auto Arrange anywhere"
+    assert "FCIDM_AUTOARRANGE_NT_" not in code, (
+        "one command id for every NT version is the bug that put Win7's desktop "
+        "into List view (0x7051 = List on Win7)"
+    )
     fn = src[src.index("static WPARAM gs_autoarrange_cmd(void)"):]
     fn = fn[:fn.index("\n}\n")]
-    assert "0x80000000" in fn and "FCIDM_AUTOARRANGE_WIN9X_" in fn and "FCIDM_AUTOARRANGE_NT_" in fn
+    assert "dv_autoarrange_cmd(" in fn and "gs_winver(" in fn, (
+        "gs_autoarrange_cmd() must choose by the exact Windows version via "
+        "deskview.h's measured table"
+    )
+    hdr = (REPO / "agent" / "shared" / "deskview.h").read_text(errors="replace")
+    for name, val in (("DV_CMD_AUTOARRANGE_WIN98", "0x7041u"),
+                      ("DV_CMD_AUTOARRANGE_XP", "0x7051u"),
+                      ("DV_CMD_AUTOARRANGE_WIN7", "0x7071u")):
+        assert re.search(r"#define\s+%s\s+%s\b" % (name, val), hdr), (
+            "%s must stay %s - read from that Windows' own shell32 menus" % (name, val))
 
 
 def test_icons_are_packed_even_when_autoarrange_cannot_be_set():

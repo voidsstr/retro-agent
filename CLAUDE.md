@@ -1707,12 +1707,32 @@ clear**, the bit is read back afterwards, and `SetWindowLongA` is the fallback.
 > changed nothing on a quarter of the fleet — this project's recurring
 > "reported success and was believed" shape. Always read the bit back.
 
-**Persistence** is `HKCU\Software\Microsoft\Windows\Shell\Bags\1\Desktop`
+**Persistence** is `HKCU\Software\Microsoft\Windows\Shell\Bags\<slot>\Desktop`
 → `FFlags`, a FOLDERFLAGS word: **bit 0 = `FWF_AUTOARRANGE`**, bit 2 =
 `FWF_SNAPTOGRID` ("align to grid"). It must be **read-modify-written**, never
 stamped: the fleet is not uniform — `.143` read `0x220` and `.171` read `0x224`
 — so a constant would silently change align-to-grid on some boxes and not
-others.
+others. **`<slot>` is the `NodeSlot` value on `HKCU\...\Shell\BagMRU`** — 1 on
+the XP boxes measured (`.124`, `.110`; XP's `ShellNoRoam\BagMRU` root has no
+`NodeSlot`), **4 on Win7 `.195`**. Until the fix below the agent hardcoded
+`Bags\1`, so on `.195` it wrote to a key nothing reads.
+
+> **THE DESKTOP MUST BE IN ICON VIEW, AND ON WIN7 THE AGENT TOOK IT OUT
+> (found 2026-09-28 on `.195`).** 8 of 117 icons showed, one row, while
+> `ICONARRANGE` said `"autoarrange":true,"icons":119`: the bag held `Mode=3
+> LogicalViewMode=4 IconSize=16` — **List view**. The command IDs come from
+> each Windows' own shell32 menus and they MOVE: `0x7051` is **Auto Arrange on
+> XP and "List" on Windows 7** (Win7's Auto arrange is `0x7071`, which is "Help
+> and Support Center" on XP). The agent posted `0x7051` on every NT box, so every
+> boot on `.195` that found auto-arrange clear switched the desktop to List,
+> logged "shell toggle did not take" and reported success. The fix
+> (`agent/shared/deskview.h`): IDs are per **version** (a version whose menus
+> were never read gets **none** — the style bit only); the bag slot comes from
+> `BagMRU`; and a non-icon view is **repaired** live (the shell's own "Medium
+> icons"/"Icons" command, then `LVM_SETVIEW`/style bits) and persisted
+> (`Mode=1 LogicalViewMode=3 IconSize=48`, each read back) — only when it is
+> not already icon view, so a settled box changes nothing. The `.133` finding
+> below may be the same wrong-slot fault; its `NodeSlot` was never read.
 
 > **THE REGISTRY ALONE IS NOT ENOUGH — the every-startup re-apply is what
 > actually delivers the guarantee.** Measured on `.133` across a real power
@@ -1734,9 +1754,11 @@ run turns the fleet-wide setting back off. `deploy_rotation.py` renames any
 stale copy aside; the source carries a `SUPERSEDED` banner.
 
 On demand: **`ICONARRANGE [auto|bay]`** — applies the layout now and returns the
-**post-condition** (live style bit, persisted `FFlags`, icon count, screen mode)
-rather than `OK`, because a log line saying we set auto-arrange is not evidence
-that auto-arrange is set.
+**post-condition** (live style bit, persisted `FFlags`, icon count, screen mode,
+**the bag path and slot it used, the live view and the persisted
+`Mode`/`LogicalViewMode`/`IconSize`**) rather than `OK`, because a log line
+saying we set auto-arrange is not evidence that auto-arrange is set — and
+`autoarrange:true` in List view is not a usable desktop.
 
 #### The icon layout is rebuilt ONLY when the desktop changed (v1.73.0)
 
@@ -2046,8 +2068,13 @@ directions.
   the box's `HKLM\Software\RetroAgent\IconAutoArrange` setting (absent = auto).
   Returns the **post-condition** as JSON — `autoarrange` (the live
   `LVS_AUTOARRANGE` bit), `fflags`/`fflags_autoarrange` (what is persisted),
-  `icons` and `screen` — not `OK`. Use it to verify a box rather than trusting
-  the agent log. See "Desktop icons: AUTO ARRANGE is the fleet default".
+  `icons`, `screen`, `bag`/`bag_slot`/`bag_slot_source` (which
+  `Shell\Bags\<n>\Desktop` it read), `view` (`icon`/`list`/...) with
+  `lv_style_type`/`lv_view`, `bag_mode`/`bag_logical_view_mode`/`bag_icon_size`,
+  and `view_repaired`/`bag_view_repaired`/`view_still_wrong` — not `OK`. A
+  settled box: `"view":"icon"`, both `*_repaired` false. Use it to verify a box
+  rather than trusting the agent log. See "Desktop icons: AUTO ARRANGE is the
+  fleet default".
 
 > ### ⚠️ TRIAGE FIRST: IS THE MENU KEYBOARD-NAVIGABLE?
 > **A menu that moves its own cursor by RELATIVE MOUSE DELTAS cannot be driven
