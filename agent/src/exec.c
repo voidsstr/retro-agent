@@ -7,6 +7,7 @@
 #include "protocol.h"
 #include "util.h"
 #include "log.h"
+#include "../shared/launchline.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -305,15 +306,23 @@ void handle_launch(SOCKET sock, const char *args)
         return;
     }
 
-    /* Build shell command - use command.com on Win9x, cmd.exe on NT */
+    /* Build shell command - use command.com on Win9x, cmd.exe on NT. On Win9x
+     * an .exe goes DIRECT (agent/shared/launchline.h): with CREATE_NEW_CONSOLE
+     * below, Win98 refuses any command.com line over its 127-character tail
+     * (CreateProcess error 31), and a Win32 program needs no shell. */
     {
         OSVERSIONINFOA osvi;
         const char *shell;
+        char exe[MAX_PATH];
         osvi.dwOSVersionInfoSize = sizeof(osvi);
         GetVersionExA(&osvi);
         shell = (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
                 ? "cmd.exe /c " : "command.com /c ";
+        if (osvi.dwPlatformId != VER_PLATFORM_WIN32_NT && launchline_direct_exe(args, exe, sizeof(exe))
+                && GetFileAttributesA(exe) != INVALID_FILE_ATTRIBUTES)
+            shell = "";
         _snprintf(cmdline, sizeof(cmdline), "%s%s", shell, args);
+        cmdline[sizeof(cmdline) - 1] = 0;
     }
     log_msg(LOG_EXEC, "LAUNCH: cmdline=\"%s\"", cmdline);
 

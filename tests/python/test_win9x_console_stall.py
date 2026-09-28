@@ -77,3 +77,14 @@ def test_exec_keeps_its_console_flags_on_9x_until_proven():
     s = (SRC / "exec.c").read_text()
     d = body(s, "do_exec")
     assert "CREATE_NO_WINDOW" in d
+
+
+def test_a_9x_launch_of_an_exe_skips_command_com():
+    """1.89.1's CREATE_NEW_CONSOLE made Win98 refuse every 'command.com /c'
+    LAUNCH line over 127 characters (CreateProcess error 31, .243 2026-09-28 -
+    every Quake II benchmark launch). An .exe goes direct on 9x; EXEC is
+    unchanged."""
+    s = (SRC / "exec.c").read_text()
+    launch = body(s, "handle_launch")
+    assert "launchline_direct_exe(" in launch and 'shell = "";' in launch
+    assert "launchline_direct_exe(" not in body(s, "do_exec"), "EXEC keeps command.com"

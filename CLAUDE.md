@@ -2328,7 +2328,11 @@ process *dies* rather than exits.
 > second the batch finished. The 2026-08-31 `EXEC command.com /c find ...`
 > "deaths" were very likely the same mechanism. **Agent 1.89.1** gives a 9x
 > `LAUNCH` child its own console and removes every console write from the
-> multiplex serving path (`agent_console_quiet()`). `EXEC` still runs its child
+> multiplex serving path (`agent_console_quiet()`). **1.90.1:** with its own
+> console, Win98 refuses any `command.com /c` LAUNCH line over 127 characters
+> (CreateProcess error 31 - every Quake II benchmark launch), so a 9x LAUNCH
+> whose first token is an existing `.exe` now skips command.com
+> (`agent/shared/launchline.h`). `EXEC` still runs its child
 > in the agent's console and still blocks the serving thread for its whole
 > timeout by design - keep 9x `EXEC` to short commands. Before calling a 9x agent
 > dead, check whether it is merely busy: the agent log (or the share's
