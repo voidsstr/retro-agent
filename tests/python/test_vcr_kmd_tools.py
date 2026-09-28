@@ -256,7 +256,7 @@ def test_glidelab_aa_jitter_zero_is_process_environment_only():
     for v in ("FX_GLIDE_AA2_OFFSET_X0", "FX_GLIDE_AA2_OFFSET_X1", "FX_GLIDE_AA2_OFFSET_Y0",
               "FX_GLIDE_AA2_OFFSET_Y1"):
         assert f'"{v}"' in blk, v
-    assert 'glide_env(k_aa2[c], "-0.5")' in blk and "Reg" not in blk
+    assert blk.count('", "-0.5")') == 4 and "Reg" not in blk
     # set before the DLL is loaded
     assert gl.index("    if (g_aa_jitter_zero) {") < gl.index("LoadLibrary")
     assert '",\\"aa_jitter\\":\\"zero\\""' in gl

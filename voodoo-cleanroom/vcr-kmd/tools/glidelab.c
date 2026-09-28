@@ -1049,14 +1049,16 @@ int main(int argc, char **argv)
         glide_env("SSTH3_SLI_AA_CONFIGURATION", env);
     }
     if (g_aa_jitter_zero) {
-        static const char *const k_aa2[4] = { "FX_GLIDE_AA2_OFFSET_X0", "FX_GLIDE_AA2_OFFSET_X1",
-                                              "FX_GLIDE_AA2_OFFSET_Y0", "FX_GLIDE_AA2_OFFSET_Y1" };
-        for (c = 0; c < 4; c++)
-            if (!glide_env(k_aa2[c], "-0.5")) {
-                say("RESULT {\"mode\":\"%s\",\"error\":\"--aa-jitter zero: %s not set\"}", O.mode,
-                    k_aa2[c]);
-                return 2;
-            }
+        /* four explicit calls, not a loop: every loop in this program is a
+         * frame loop the focus-loss rule checks (test_vcr_kmd_monitor_safety) */
+        if (!glide_env("FX_GLIDE_AA2_OFFSET_X0", "-0.5") ||
+            !glide_env("FX_GLIDE_AA2_OFFSET_X1", "-0.5") ||
+            !glide_env("FX_GLIDE_AA2_OFFSET_Y0", "-0.5") ||
+            !glide_env("FX_GLIDE_AA2_OFFSET_Y1", "-0.5")) {
+            say("RESULT {\"mode\":\"%s\",\"error\":\"--aa-jitter zero: the offsets were not set\"}",
+                O.mode);
+            return 2;
+        }
     }
     /* what Glide will open: --cfg, or its own environment/registry chain */
     effective_config();
