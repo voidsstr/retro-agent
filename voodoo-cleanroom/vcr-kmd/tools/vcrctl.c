@@ -913,7 +913,7 @@ static int cmd_fbshot(const char *path)
     regs = (volatile UCHAR *)(ULONG_PTR)st.base0;
     lfb = (volatile UCHAR *)(ULONG_PTR)st.base1;
     vpc = *(volatile ULONG *)(regs + VCR_R_VIDPROCCFG);
-    start = *(volatile ULONG *)(regs + VCR_R_VIDDESKTOPSTARTADDR) & 0xffffff;
+    start = vcr_fb_start(*(volatile ULONG *)(regs + VCR_R_VIDDESKTOPSTARTADDR));
     stride = *(volatile ULONG *)(regs + VCR_R_VIDDESKTOPOVERLAYSTRIDE);
     ss = *(volatile ULONG *)(regs + VCR_R_VIDSCREENSIZE);
     w = ss & 0xfff;

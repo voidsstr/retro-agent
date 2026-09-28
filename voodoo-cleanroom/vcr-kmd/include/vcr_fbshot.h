@@ -28,6 +28,16 @@
 #define VCR_FB_TILE_W       128u       /* bytes */
 #define VCR_FB_TILE_H       32u        /* lines */
 
+/* vidDesktopStartAddr -> a byte offset in the chip's memory. NOT 24 bits: the
+ * VSA-100 with 64 MB a chip puts .124's desktop at 0x3b00000, and the first
+ * fbshot build masked 0xffffff, read 0xb00000 - texture memory - and wrote a
+ * picture of RtCW's textures as "the desktop" (2026-09-28 06:52). */
+#define VCR_FB_START_MASK   0x0fffffffUL
+static __inline unsigned long vcr_fb_start(unsigned long reg)
+{
+    return reg & VCR_FB_START_MASK;
+}
+
 /* bytes per pixel for vidProcCfg's desktop format (bits 20:18), 0 = unknown */
 static __inline unsigned vcr_fb_bytespp(unsigned fmt)
 {

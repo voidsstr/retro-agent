@@ -41,6 +41,16 @@ TEST(the_124_desktop_registers_decode)
     CHECK(vcr_fb_extent(640, 480, 1, 0x280, 0) == 479ul * 640 + 640, "8 bpp extent");
 }
 
+TEST(the_start_address_keeps_every_bit_a_64mb_chip_needs)
+{
+    /* .124's desktop (recorder: "primary at 3b00000") and Warcraft II's
+     * 640x480x8 primary (3fb5000) */
+    CHECK(vcr_fb_start(0x03b00000ul) == 0x03b00000ul, "the desktop");
+    CHECK(vcr_fb_start(0x03fb5000ul) == 0x03fb5000ul, "a DirectDraw primary");
+    CHECK((0x03b00000ul & 0xfffffful) == 0x00b00000ul && vcr_fb_start(0x03b00000ul) != 0x00b00000ul,
+          "the first build's 24-bit mask read texture memory");
+}
+
 TEST(linear_offsets_are_y_times_stride_plus_x)
 {
     CHECK(vcr_fb_offset(0, 0, 0x1400, 0) == 0, "origin");
@@ -89,6 +99,7 @@ TEST(pixels_decode_to_rgb)
 
 MUNIT_MAIN("vcr-kmd fbshot decoding (include/vcr_fbshot.h)", {
     RUN(the_124_desktop_registers_decode);
+    RUN(the_start_address_keeps_every_bit_a_64mb_chip_needs);
     RUN(linear_offsets_are_y_times_stride_plus_x);
     RUN(tiled_offsets_walk_128x32_tiles);
     RUN(pixels_decode_to_rgb);
