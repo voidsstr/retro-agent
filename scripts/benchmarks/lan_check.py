@@ -151,6 +151,9 @@ class IdTech3:
     port = 27961
     demo = "four"
     homepath = "appdata"          # ioquake3 on XP: %APPDATA%\Quake3
+    # the fleet server's rotation twice over, and the two biggest maps again
+    map_cycle = ["q3dm7", "q3dm17", "q3tourney2", "q3dm6", "q3ctf1",
+                 "q3dm7", "q3dm17", "q3tourney2", "q3dm6", "q3ctf1", "q3dm13", "q3dm7"]
 
     def launcher_args(self, env):
         # Play Quake III Arena.bat, verbatim
@@ -179,6 +182,16 @@ class IdTech3:
         if phase == "shot":
             return ['set timedemo 0', f'demo {self.demo}', 'wait 400', 'screenshotJPEG',
                     'wait 400', 'screenshotJPEG', 'wait 30', 'quit']
+        if phase == "maps":
+            # texture churn: a local game walks the maps a LAN evening does,
+            # and each load frees and re-uploads every texture through the
+            # ICD and Glide. A 20-minute soak on one server map loads ONE map
+            # (the q3 soak of 2026-09-28 did), so it proves nothing about this.
+            lines = ['set timedemo 0']
+            for m in self.map_cycle:
+                lines += [f'map {m}', 'wait 900', 'screenshotJPEG']
+            self.maps_expected = len(self.map_cycle)
+            return lines + ['wait 60', 'quit']
         # soak: connect FIRST - anything after `+exec` on the command line
         # waits behind this script, which ends in `quit`
         lines = ['set timedemo 0', f'connect {server}:{self.port}', 'wait 600']
@@ -219,6 +232,7 @@ class IdTech3:
         if errs:
             r["errors"] = errs[:12]
         r["connected"] = bool(re.search(r"CL_InitCGame|entered the game", raw))
+        r["maps_loaded"] = len(re.findall(r"\.\.\.loaded \d+ faces", raw))
         return r
 
 
@@ -231,6 +245,8 @@ class RTCW(IdTech3):
     port = 27963
     demo = None
     homepath = "root"
+    map_cycle = ["mp_beach", "mp_village", "mp_assault", "mp_base", "mp_depot", "mp_sub",
+                 "mp_beach", "mp_village", "mp_assault", "mp_base"]
 
     def launcher_args(self, env):
         return f"+set r_mode {env['FR_Q3MODE']} +set r_fullscreen 1"
@@ -708,6 +724,8 @@ async def run_phase(box, t, env, phase, args, outdir):
     raw = (await box.download(p["log"]) or b"").decode("latin-1", errors="replace")
     (outdir / f"{t.tid}_{phase}.log").write_text(raw)
     rec.update(t.parse(raw))
+    if phase == "maps":
+        rec["maps_expected"] = getattr(t, "maps_expected", 0)
     rec["log_bytes"] = len(raw)
     if hung:
         rec["hung"] = True
@@ -753,7 +771,9 @@ def verdict(rec):
         bad.append("log errors")
     if rec["phase"] == "timedemo" and not rec.get("fps") and not rec.get("shots"):
         bad.append("no timedemo result")
-    if rec["phase"] in ("shot", "soak"):
+    if rec["phase"] == "maps" and rec.get("maps_loaded", 0) < rec.get("maps_expected", 1):
+        bad.append(f"loaded {rec.get('maps_loaded', 0)} of {rec.get('maps_expected')} maps")
+    if rec["phase"] in ("shot", "soak", "maps"):
         if not rec.get("shots"):
             bad.append("no screenshot")
         for s in rec.get("shots", []):
