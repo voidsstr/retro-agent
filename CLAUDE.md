@@ -2360,7 +2360,17 @@ restores it.
   checksum (0434h), so the next boot waited at 301 for F1. A valid checksum
   after a power loss is what lets the agent put the bit straight back.
   `PostSkipBoot` reads `PENDING: ...` until this start's pass has finished,
-  so the previous boot's answer is never taken for today's. So: while the power
+  so the previous boot's answer is never taken for today's.
+- **Agent 1.86.1 also clears a stale 0Eh bit 2 ("time invalid", POST 163).**
+  A power loss makes POST's RTC check (F000:227C) fail and set it, and
+  NOTHING in POST clears it again - so every later POST, warm or cold, said
+  163, reset the clock to 1980 and the CMOS to defaults (2Dh=00) and waited for
+  F1: five boots in a row on 2026-09-27, with 1.86.0 dutifully logging
+  `set now; 2Dh 00 -> 08` at each. clockfix sets the time through Windows,
+  which never touches 0Eh. The agent now clears bit 2 (only bit 2; 0Eh is not
+  checksummed) once the RTC passes the ROM's own check and reads 2024 or
+  later, i.e. after clockfix. **So after a power loss: one F1, and from the
+  next agent start every reboot is unattended again.** So: while the power
   stays on, every reboot is unattended; after a power loss that spoils the
   checksum, one F1 press and the next agent start restores the bit. Result in
   `HKLM\Software\RetroAgent\PostSkipBoot`; `POSTSKIP` reports it, `POSTSKIP

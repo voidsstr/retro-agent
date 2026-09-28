@@ -19,6 +19,7 @@ Run it through the agent: `EXECW 30 C:\RETRO_AGENT\FLEET9X.EXE attrib ...`, or `
 | tool | what it does | output |
 |---|---|---|
 | `pci9x [out] [noio]` | read-only PCI bus-0 config scan (mechanism #1: it only ever writes 0xCF8, never 0xCFC); reports each function's command register and BARs, with a verdict on any 3dfx BAR0 | `C:\RETRO_AGENT\PCI9X.TXT` |
+| `devctl9x disable\|enable\|status\|persistoff\|persiston <id>... \| @file` | live `CM_Disable_DevNode`/`CM_Enable_DevNode`, or (`persist*`) ONLY `HKLM\Enum\<id>` ConfigFlags 01/00 + `RegFlushKey`, touching no devnode - for a box that freezes before a lazily flushed REGEDIT change reaches the disk (.243 with its NEC USB card, 2026-09-27). Ids from a file because COMMAND.COM caps a line at ~127 chars | `C:\RETRO_AGENT\DEVCTL.TXT` |
 | `reenum9x` | `CM_Reenumerate_DevNode` on the PCI bus (what agent 1.83.0's `PCIRESCAN` does) | `C:\RETRO_AGENT\REENUM.TXT` |
 | `regdump9x <HKDD\|HKLM\|HKCC> <key> <out>` | recursive registry dump. Reads `HKEY_DYN_DATA`, the live devnode tree, which the agent's `REGREAD` cannot | the file you name |
 | `wintext9x` | dumps every visible `#32770` dialog's controls: class, id, text, enabled, checked, rect. Lets you drive a wizard when 8-bpp screenshots are unreadable | `C:\RETRO_AGENT\WINTEXT.TXT` |

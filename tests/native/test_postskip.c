@@ -276,6 +276,21 @@ static void loop_tests(void)
     CHECK(o.failed && m.reg[0x40] == orig[0x40] && o.strays_undone == 1,
           "sim: a byte of ours found in another register fails the run and is taken back out");
 
+    /* 1.86.1 end to end: .243 after a 163 boot - 0Eh=04, 2Dh=00. */
+    sim_init(&m); m.reg[0x0E] = 0x04; memcpy(orig, m.reg, 128);
+    o = sim_run(&m, 1);
+    CHECK(!o.failed && m.reg[0x0E] == 0x00 && m.reg[0x2D] == 0x08 && ps_cs_valid(m.reg) && m.data_writes == 3,
+          "sim: 163 flag cleared and skip-F1 set in one run (three writes: 0Eh, 2Dh, 2Fh)");
+    {
+        int k, others = 0;
+        for (k = 0; k < 128; k++) if (k != 0x0E && k != 0x2D && k != 0x2F && m.reg[k] != orig[k]) others++;
+        CHECK(others == 0 && o.now_0e == 0x00 && o.before_0e == 0x04, "sim: ... nothing else changed, and it is reported");
+    }
+    sim_init(&m); m.reg[0x0E] = 0x04; sim_lose(&m, 1, 0x0B);            /* the 0Eh write strays into 0Bh */
+    memcpy(orig, m.reg, 128);
+    o = sim_run(&m, 1);
+    CHECK(o.failed && restored(&m, orig), "sim: a lost 0Eh byte is taken back out of 0Bh, bank = snapshot");
+
     /* A cell that never takes: one run, one write, restored, no retry loop. */
     sim_init(&m); memcpy(orig, m.reg, 128); m.drop_reg = 0x2D; m.drop_count = -1;
     o = sim_run(&m, 1);
@@ -345,8 +360,38 @@ int main(void)
     CHECK(ps_bank_sane(cmos), "the box's own bank reports 640 KB base memory");
 
     for (i = 0, only_three = 0; i < 128; i++) only_three += ps_writable(i);
-    CHECK(only_three == 3 && ps_writable(0x2D) && ps_writable(0x2E) && ps_writable(0x2F),
-          "only 2Dh/2Eh/2Fh are writable");
+    CHECK(only_three == 4 && ps_writable(0x0E) && ps_writable(0x2D) && ps_writable(0x2E) && ps_writable(0x2F),
+          "only 0Eh/2Dh/2Eh/2Fh are writable (1.86.1 adds 0Eh)");
+
+    /* 1.86.1: 0Eh bit 2 ("time invalid", POST 163). POST sets it when its RTC
+     * check fails and never clears it, so every later POST stops at 163 and
+     * resets the CMOS - five boots on .243 after one power loss. */
+    build_cmos(); cmos[0x0E] = 0x04;                                  /* .243 tonight: 2Dh=00 too */
+    CHECK(ps_rtc_time_valid(cmos), "the box's RTC (2026-09-26 22:49:54, BCD 24h) passes the ROM's check");
+    p = ps_plan(cmos, want);
+    CHECK(p == PS_APPLY && want[0x0E] == 0x00 && want[0x2D] == 0x08 && want[0x2E] == 0x04 && want[0x2F] == 0x3C,
+          "0Eh=04 + 2Dh=00: clear bit 2 AND set skip-F1 (the checksum does not cover 0Eh)");
+    build_cmos(); cmos[0x0E] = 0x04; cmos[0x2D] = 0x08; cmos[0x2F] = 0x3C;
+    p = ps_plan(cmos, want);
+    CHECK(p == PS_APPLY && want[0x0E] == 0x00 && want[0x2D] == 0x08 && want[0x2F] == 0x3C,
+          "skip-F1 already set: the stale 163 flag alone is still worth a run");
+    build_cmos(); cmos[0x0E] = 0x84;
+    p = ps_plan(cmos, want);
+    CHECK(p == PS_APPLY && want[0x0E] == 0x80, "only bit 2 is cleared - 'RTC lost power' (bit 7) is not ours");
+    build_cmos(); cmos[0x0E] = 0x04; cmos[0x2D] = 0x08; cmos[0x2F] = 0x3C;
+    cmos[0x32] = 0x19; cmos[0x09] = 0x80; cmos[0x08] = 0x01; cmos[0x07] = 0x04;   /* the 1980-01-04 a power loss leaves */
+    CHECK(!ps_rtc_time_valid(cmos) && ps_plan(cmos, want) == PS_ALREADY,
+          "the 1980 default is a time nobody set: bit 2 stays (and ALREADY is reported as a failure)");
+    build_cmos(); cmos[0x0E] = 0x04; cmos[0x09] = 0x23;
+    CHECK(!ps_rtc_time_valid(cmos), "a year before 2024 is not 'set by clockfix'");
+    build_cmos(); cmos[0x0E] = 0x04; cmos[0x07] = 0x00;
+    CHECK(!ps_rtc_time_valid(cmos), "date 00 fails the ROM's own check");
+    build_cmos(); cmos[0x0E] = 0x04; cmos[0x02] = 0x5A;
+    CHECK(!ps_rtc_time_valid(cmos), "a non-BCD minute fails");
+    build_cmos(); cmos[0x0E] = 0x04; cmos[0x0B] = 0x06;
+    CHECK(!ps_rtc_time_valid(cmos), "binary mode (0Bh bit 2) is not judged");
+    build_cmos(); cmos[0x0E] = 0x04; cmos[0x0B] = 0x00;
+    CHECK(!ps_rtc_time_valid(cmos), "12-hour mode is not judged");
     CHECK(!ps_writable(0x1B), "1Bh (the secondary drive type) is never written by the agent");
     CHECK(!ps_writable(0x0B) && !ps_writable(0x0A), "the RTC control registers are never written");
 
@@ -384,6 +429,6 @@ int main(void)
         CHECK(out[0] == 0, "UIP alone is not a change");
     }
 
-    printf("-- postskip (Compaq Deskpro 2000 skip-F1, agent 1.86.0): %d/%d tests passed --\n", runs - fails, runs);
+    printf("-- postskip (Compaq Deskpro 2000 skip-F1 + 163 flag, agent 1.86.1): %d/%d tests passed --\n", runs - fails, runs);
     return fails ? 1 : 0;
 }

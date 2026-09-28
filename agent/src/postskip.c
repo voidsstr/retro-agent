@@ -1,5 +1,6 @@
 /*
- * postskip.c - keep a Compaq Deskpro 2000's POST from waiting for F1 (1.86.0)
+ * postskip.c - keep a Compaq Deskpro 2000's POST from waiting for F1 (1.86.0;
+ * 1.86.1 also clears a stale 0Eh bit 2, POST 163 - see agent/shared/postskip.h)
  *
  * .243 (Compaq Deskpro 2000, 586C BIOS 04/25/97, Win98 SE) reports
  * "301-Keyboard Error" at every POST and, unless CMOS 2Dh bit 3 is set, waits
@@ -101,7 +102,7 @@ static void ps_run(ps_result_t *r, int apply)
     static const ps_io_t io = { ps_io_inb, ps_io_outb, ps_io_sleep, NULL };
     const char *why;
     memset(r, 0, sizeof(*r));
-    r->o.before_2d = r->o.now_2d = -1;
+    r->o.before_2d = r->o.now_2d = r->o.before_0e = r->o.now_0e = -1;
     r->o.failed = 1;
     if (!ps_applicable(&why)) { r->o.state = why; return; }
     r->applicable = 1;
@@ -111,9 +112,11 @@ static void ps_run(ps_result_t *r, int apply)
 static void ps_summary(const ps_result_t *r, char *out, int cch)
 {
     const ps_outcome_t *o = &r->o;
-    _snprintf(out, cch - 1, "%s; 2Dh %s%02X -> %s%02X; checksum %s%s%s%s",
+    _snprintf(out, cch - 1, "%s; 2Dh %s%02X -> %s%02X; 0Eh %s%02X -> %s%02X; checksum %s%s%s%s",
               o->state, o->before_2d < 0 ? "?" : "", o->before_2d < 0 ? 0 : o->before_2d,
               o->now_2d < 0 ? "?" : "", o->now_2d < 0 ? 0 : o->now_2d,
+              o->before_0e < 0 ? "?" : "", o->before_0e < 0 ? 0 : o->before_0e,
+              o->now_0e < 0 ? "?" : "", o->now_0e < 0 ? 0 : o->now_0e,
               !r->applicable || o->now_2d < 0 ? "n/a" : o->cs_now ? "valid" : "INVALID",
               o->strays_undone ? "; stray bytes undone" : "",
               o->changed[0] ? "; changed: " : "", o->changed);
@@ -222,7 +225,7 @@ void handle_postskip(SOCKET sock, const char *args)
     int apply = args && _stricmp(args, "apply") == 0;
 
     memset(&r, 0, sizeof(r));
-    r.o.before_2d = r.o.now_2d = -1;
+    r.o.before_2d = r.o.now_2d = r.o.before_0e = r.o.now_0e = -1;
     r.o.failed = 1;
     if (!ps_applicable(&why)) {
         r.o.state = why;                        /* applicable:false - no port touched */
@@ -247,6 +250,8 @@ void handle_postskip(SOCKET sock, const char *args)
     json_kv_int(&j, "cmos_2d_now", r.o.now_2d);
     json_kv_bool(&j, "skip_f1", r.o.now_2d >= 0 && (r.o.now_2d & PS_SKIP_F1) != 0);
     json_kv_bool(&j, "checksum_valid", r.o.now_2d >= 0 && r.o.cs_now);
+    json_kv_int(&j, "cmos_0e_now", r.o.now_0e);
+    json_kv_bool(&j, "time_invalid_flag", r.o.now_0e >= 0 && (r.o.now_0e & PS_DIAG_TIME_BAD) != 0);
     json_kv_int(&j, "write_attempts", r.o.attempts);
     json_kv_int(&j, "strays_undone", r.o.strays_undone);
     json_kv_str(&j, "registers_changed", r.o.changed);

@@ -31,6 +31,8 @@
 #define PS_REG_CSHI   0x2E
 #define PS_REG_CSLO   0x2F
 #define PS_SKIP_F1    0x08
+#define PS_REG_DIAG   0x0E                  /* diagnostic status byte - NOT checksummed */
+#define PS_DIAG_TIME_BAD 0x04               /* "time/date invalid": POST 163 */
 
 /* The ROM this applies to, as offsets in the 64 KB F000 segment. */
 #define PS_ROM_VENDOR_OFF 0xFFEA            /* "COMPAQ"   */
@@ -79,19 +81,56 @@ static int ps_cs_valid(const unsigned char *cmos)
     return (((unsigned)cmos[PS_REG_CSHI] << 8) | cmos[PS_REG_CSLO]) == ps_sum10_2d(cmos);
 }
 
+/* Does the RTC hold a time the ROM would accept, and one that was really SET?
+ *
+ * 1.86.1: POST sets 0Eh bit 2 when its own RTC check fails (F000:2180 calls
+ * the check at F000:227C: date and month nonzero, every field valid BCD in
+ * range) and NOTHING in POST ever clears it - the other `and al,0FBh` sites
+ * are PIC masks. So after one power loss on the dead battery every later POST
+ * says "163-Time & Date Not Set", reloads the clock and the CMOS defaults
+ * (wiping 2Dh bit 3 before its F1 decision) and waits for F1 - measured on
+ * .243 2026-09-27, five boots running. Windows' SetSystemTime (clockfix)
+ * writes the RTC but never touches 0Eh. The bit may be cleared only when the
+ * RTC passes that same check AND reads 2024 or later - the 1980 default a
+ * power loss leaves is a time nobody set. BCD, 24-hour mode only (0Bh = what
+ * .243 runs); anything else is not judged. */
+static int ps_bcd_ok(unsigned v, unsigned max) { return (v & 0x0F) <= 9 && (v >> 4) <= 9 && v <= max; }
+
+static int ps_rtc_time_valid(const unsigned char *c)
+{
+    if ((c[0x0B] & 0x04) || !(c[0x0B] & 0x02)) return 0;    /* binary or 12-hour mode */
+    if (!ps_bcd_ok(c[0x00], 0x59) || !ps_bcd_ok(c[0x02], 0x59) || !ps_bcd_ok(c[0x04], 0x23)) return 0;
+    if (!c[0x07] || !ps_bcd_ok(c[0x07], 0x31) || !c[0x08] || !ps_bcd_ok(c[0x08], 0x12)) return 0;
+    if (!ps_bcd_ok(c[0x09], 0x99) || c[0x32] != 0x20 || c[0x09] < 0x24) return 0;
+    return 1;
+}
+
+/* Is a set 0Eh bit 2 one this code may clear? */
+static int ps_diag_clearable(const unsigned char *cmos)
+{
+    return (cmos[PS_REG_DIAG] & PS_DIAG_TIME_BAD) && ps_rtc_time_valid(cmos);
+}
+
 /* Decide, and when the answer is PS_APPLY fill `want` with the whole intended
- * bank: 2Dh with bit 3 set and the checksum recomputed from the LIVE bytes. */
+ * bank: 2Dh with bit 3 set and the checksum recomputed from the LIVE bytes,
+ * and/or 0Eh without bit 2 (outside the checksum). */
 static enum ps_plan ps_plan(const unsigned char *cmos, unsigned char *want)
 {
     unsigned cs;
+    int skip, diag;
     if (!ps_bank_sane(cmos)) return PS_NOT_CMOS;
     if (!ps_cs_valid(cmos)) return PS_BAD_CHECKSUM;
-    if (cmos[PS_REG_FLAGS] & PS_SKIP_F1) return PS_ALREADY;
+    skip = !(cmos[PS_REG_FLAGS] & PS_SKIP_F1);
+    diag = ps_diag_clearable(cmos);
+    if (!skip && !diag) return PS_ALREADY;
     memcpy(want, cmos, 128);
-    want[PS_REG_FLAGS] = (unsigned char)(cmos[PS_REG_FLAGS] | PS_SKIP_F1);
-    cs = ps_sum10_2d(want);
-    want[PS_REG_CSHI] = (unsigned char)(cs >> 8);
-    want[PS_REG_CSLO] = (unsigned char)(cs & 0xFF);
+    if (skip) {
+        want[PS_REG_FLAGS] = (unsigned char)(cmos[PS_REG_FLAGS] | PS_SKIP_F1);
+        cs = ps_sum10_2d(want);
+        want[PS_REG_CSHI] = (unsigned char)(cs >> 8);
+        want[PS_REG_CSLO] = (unsigned char)(cs & 0xFF);
+    }
+    if (diag) want[PS_REG_DIAG] = (unsigned char)(cmos[PS_REG_DIAG] & ~PS_DIAG_TIME_BAD);
     return PS_APPLY;
 }
 
@@ -119,14 +158,20 @@ static int ps_diff(const unsigned char *got, const unsigned char *expect)
     return n;
 }
 
-/* The only registers the write path may change. */
-static int ps_writable(int idx) { return idx == PS_REG_FLAGS || idx == PS_REG_CSHI || idx == PS_REG_CSLO; }
+/* The only registers the write path may change: 0Eh, 2Dh, 2Eh, 2Fh. */
+static const int ps_regs[4] = { PS_REG_DIAG, PS_REG_FLAGS, PS_REG_CSHI, PS_REG_CSLO };
+static int ps_writable(int idx)
+{
+    return idx == PS_REG_DIAG || idx == PS_REG_FLAGS || idx == PS_REG_CSHI || idx == PS_REG_CSLO;
+}
 
-/* Do 2Dh/2Eh/2Fh of `got` equal `expect`'s? */
+/* Do this code's registers of `got` equal `expect`'s? */
 static int ps_ours_equal(const unsigned char *got, const unsigned char *expect)
 {
-    return got[PS_REG_FLAGS] == expect[PS_REG_FLAGS] && got[PS_REG_CSHI] == expect[PS_REG_CSHI]
-        && got[PS_REG_CSLO] == expect[PS_REG_CSLO];
+    int k;
+    for (k = 0; k < 4; k++)
+        if (got[ps_regs[k]] != expect[ps_regs[k]]) return 0;
+    return 1;
 }
 
 /* Every byte this run put on the data port - the change, a restore and an
@@ -181,6 +226,7 @@ typedef struct {
     const char *state;              /* static string */
     char changed[100];              /* registers left different: "0Bh 02>34 ..." */
     int before_2d, now_2d;          /* -1 = not read / not verified */
+    int before_0e, now_0e;          /* the diagnostic byte, same convention */
     int cs_before, cs_now;          /* checksum valid: at the start / at the last VERIFIED read */
     int attempts;                   /* 0 or 1: writes are never retried within a run */
     int strays_undone;              /* our bytes taken back out of other registers */
@@ -274,6 +320,7 @@ static void ps_list_changes(const unsigned char *got, const unsigned char *ref, 
 
 static void ps_note_now(ps_outcome_t *r, const unsigned char *b)
 {
+    r->now_0e = b[PS_REG_DIAG];
     r->now_2d = b[PS_REG_FLAGS];
     r->cs_now = ps_cs_valid(b);
 }
@@ -284,10 +331,10 @@ static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
 {
     unsigned char before[128], want[128], after[128];
     ps_wlog_t wl;
-    int i, pass;
+    int i, k, pass;
     memset(r, 0, sizeof(*r));
     memset(&wl, 0, sizeof(wl));
-    r->before_2d = r->now_2d = -1;
+    r->before_2d = r->now_2d = r->before_0e = r->now_0e = -1;
     r->failed = 1;
 
     if (!ps_read_stable(io, before)) {
@@ -296,6 +343,7 @@ static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
         return;
     }
     r->before_2d = before[PS_REG_FLAGS];
+    r->before_0e = before[PS_REG_DIAG];
     r->cs_before = ps_cs_valid(before);
     ps_note_now(r, before);
     switch (ps_plan(before, want)) {
@@ -308,6 +356,12 @@ static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
         r->refused = 1;
         return;
     case PS_ALREADY:
+        if (before[PS_REG_DIAG] & PS_DIAG_TIME_BAD) {
+            /* Skip-F1 is set, but 163 will reset the CMOS before POST asks. */
+            r->state = "skip-F1 set, but 0Eh says the time is invalid and the RTC does not hold a plausible "
+                       "set time (clockfix?) - the next POST will stop at 163";
+            return;
+        }
         r->state = "already set";
         r->failed = 0;
         return;
@@ -318,12 +372,14 @@ static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
 
     /* The change: only the registers whose value actually changes. */
     r->attempts = 1;
-    for (i = PS_REG_FLAGS; i <= PS_REG_CSLO; i++)
+    for (k = 0; k < 4; k++) {
+        i = ps_regs[k];
         if (want[i] != before[i]) ps_put(io, &wl, &wl, i, want[i], before, before);
+    }
     ps_done(io);
 
     if (!ps_read_stable(io, after)) {
-        r->now_2d = -1;
+        r->now_2d = r->now_0e = -1;
         r->state = "NOT VERIFIED: CMOS reads disagree after the write - state unknown, do not reboot";
         return;
     }
@@ -351,7 +407,7 @@ static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
         }
         ps_done(io);
         if (!ps_read_stable(io, after)) {
-            r->now_2d = -1;
+            r->now_2d = r->now_0e = -1;
             r->state = "FAILED AND NOT VERIFIED: CMOS reads disagree after the restore - state unknown, do not reboot";
             return;
         }
