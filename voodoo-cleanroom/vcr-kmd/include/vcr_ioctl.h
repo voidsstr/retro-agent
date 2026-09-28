@@ -122,6 +122,11 @@ typedef struct vcr_info {
  * in the miniport since 2026-09-28 - an older miniport never sets them) */
 #define VCR_INFO_F_PAT2D        0x80    /* Diag\\Accel2DPattern = 1: mono brushes on the engine */
 #define VCR_INFO_F_LINE2D       0x100   /* Diag\\Accel2DLine = 1: horizontal/vertical lines */
+/* default OFF, a positive flag read at every IOCTL_VCR_INFO (the next mode
+ * change picks it up): the DirectDraw heap starts one page up instead of at
+ * video-memory offset 0, which the heap manager answers for "no memory"
+ * (include/vcr_ddheap.h, 2026-09-28) */
+#define VCR_INFO_F_DDHEAPFLOOR  0x200   /* Diag\\DdHeapFloor = 1: no DirectDraw block at offset 0 */
 
 /* VCR_ESC_2D_STATS: the display driver's 2D engine counters, since its PDEV
  * was created (a mode change starts them again). Answered only when the

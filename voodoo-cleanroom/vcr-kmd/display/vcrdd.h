@@ -26,6 +26,7 @@
 #include "../include/vcr_hwcext.h"
 #include "../include/vcr_fmt.h"
 #include "../include/vcr_flip.h"
+#include "../include/vcr_ddheap.h"
 #include "../include/vcr_text.h"
 
 #define VCRDD_TAG           0x44524356      /* 'VCRD' */
@@ -67,6 +68,7 @@ typedef struct VCR_PDEV {
     ULONG       rt32;               /* 32 bpp D3D targets offered: napalm AND Diag\\D3D32 = 1 */
     ULONG       reset3d;            /* Glide 3D state reset at release: napalm AND Diag\\Reset3D = 1 */
     PVOID       pvmList;            /* DirectDraw's VIDEOMEMORY heap list (it fills lpHeap) */
+    ULONG       dd_heap_floor;      /* Diag\\DdHeapFloor = 1: the heap starts off offset 0 (vcr_ddheap.h) */
     ULONG       fog_loaded[4];      /* the fog table on the chip: mode, start, end, density */
     ULONG       fog_valid;
     ULONG       g2d_ops, g2d_gdi_copies, g2d_gdi_fills;

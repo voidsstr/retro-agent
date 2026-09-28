@@ -438,7 +438,11 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
                 * 1.2-23x the software path there (evidence/silicon/patline);
                 * Diag = 0 turns either back off at the next mode change */
                (VcrDiagGet(L"Accel2DPattern", 1) ? VCR_INFO_F_PAT2D : 0) |
-               (VcrDiagGet(L"Accel2DLine", 1) ? VCR_INFO_F_LINE2D : 0);
+               (VcrDiagGet(L"Accel2DLine", 1) ? VCR_INFO_F_LINE2D : 0) |
+               /* default OFF (unproven on silicon): the DirectDraw heap starts
+                * one page up, off offset 0 (include/vcr_ddheap.h) - read now,
+                * so the next mode change (a new PDEV) picks it up */
+               (VcrDiagGet(L"DdHeapFloor", 0) ? VCR_INFO_F_DDHEAPFLOOR : 0);
     v->ogl_version = VcrDiagGet(L"OpenGLVersion", 2);
     v->ogl_driver_version = VcrDiagGet(L"OpenGLDriverVersion", 1);
     if (!VcrDiagGetString(L"OpenGLName", v->ogl_name, 32)) {
