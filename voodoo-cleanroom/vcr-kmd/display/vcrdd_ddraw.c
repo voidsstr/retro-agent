@@ -43,20 +43,19 @@ static void fill_pixfmt(VCR_PDEV *pd, DDPIXELFORMAT *pf)
 }
 
 /* [heap_start, heap_end): below the desktop and the cursor page, or - where the
- * desktop is at offset 0 (the VM) - above it */
+ * desktop is at offset 0 (the VM) - above it. The arithmetic is
+ * include/vcr_ddheap.h's (host-tested): with Diag\DdHeapFloor = 1 the heap
+ * starts one page up, because offset 0 is what the heap manager answers for
+ * "no memory" - the first block of a heap at 0 is lost, and a single-pass
+ * allocation of it fails. Absent/0: the layout as it has always been. */
 static void heap_range(VCR_PDEV *pd, ULONG *start, ULONG *end)
 {
-    ULONG desk = (ULONG)(pd->pjScreen - (PUCHAR)pd->pvRamBase);
-    ULONG size = (ULONG)pd->lDelta * pd->cy;
-    if (desk >= 0x2000) {
-        *start = 0;
-        *end = (desk - 0x1000) & ~0xfffu;
-    } else {
-        *start = (desk + size + 0xfff) & ~0xfffu;
-        *end = pd->cjVram & ~0xfffu;
-    }
-    if (*end < *start)
-        *end = *start;
+    vcr_u32 s, e;
+    vcr_dd_heap_range((vcr_u32)(pd->pjScreen - (PUCHAR)pd->pvRamBase),
+                      (vcr_u32)pd->lDelta * pd->cy, pd->cjVram,
+                      pd->dd_heap_floor ? VCR_DD_HEAP_FLOOR : 0, &s, &e);
+    *start = s;
+    *end = e;
 }
 
 BOOL APIENTRY DrvGetDirectDrawInfo(DHPDEV dhpdev, DD_HALINFO *hal, DWORD *nheaps,
@@ -114,8 +113,9 @@ BOOL APIENTRY DrvGetDirectDrawInfo(DHPDEV dhpdev, DD_HALINFO *hal, DWORD *nheaps
     hal->dwFlags = DDHALINFO_GETDRIVERINFOSET;
     VcrDdD3dHalInfo(pd, hal);           /* Direct3D, where the 3D engine is */
     VcrDd(VCR_LV_INFO, VCR_EV_DD_DDRAW, 1, hs, he, (ULONG)hal->vmiData.fpPrimary,
-          "DirectDraw HAL: heap %x-%x (%u KB), primary at %x", hs, he, (he - hs) >> 10,
-          (ULONG)hal->vmiData.fpPrimary);
+          "DirectDraw HAL: heap %x-%x (%u KB), primary at %x%s", hs, he, (he - hs) >> 10,
+          (ULONG)hal->vmiData.fpPrimary,
+          pd->dd_heap_floor ? " (Diag\\DdHeapFloor: the heap starts off offset 0)" : "");
     return TRUE;
 }
 

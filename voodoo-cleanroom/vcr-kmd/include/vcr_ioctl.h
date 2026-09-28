@@ -129,6 +129,11 @@ typedef struct vcr_info {
 #define VCR_INFO_F_BIGTEX       0x200   /* D3DBigTex bit 0: textures up to 2048x2048 */
 #define VCR_INFO_F_TEXDXT       0x400   /* D3DBigTex bit 1: DXT1/DXT3/DXT5 (FOURCC) textures */
 #define VCR_INFO_F_TEX32        0x800   /* D3DBigTex bit 2: A8R8G8B8 textures */
+/* default OFF, a positive flag read at every IOCTL_VCR_INFO (the next mode
+ * change picks it up): the DirectDraw heap starts one page up instead of at
+ * video-memory offset 0, which the heap manager answers for "no memory"
+ * (include/vcr_ddheap.h, 2026-09-28) */
+#define VCR_INFO_F_DDHEAPFLOOR  0x1000  /* Diag\\DdHeapFloor = 1: no DirectDraw block at offset 0 */
 #define VCR_INFO_F_NO_GDIGAMMA  0x4000  /* Diag\\GdiGamma = 0: refuse GDI's SetDeviceGammaRamp (include/vcr_gamma.h) */
 
 /* VCR_ESC_2D_STATS: the display driver's 2D engine counters, since its PDEV

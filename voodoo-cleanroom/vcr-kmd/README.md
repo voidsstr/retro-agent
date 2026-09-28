@@ -111,6 +111,7 @@ three). They exist for supervised runs on `.124`: arm one, run, disarm.
 | `Accel2DText` | at every mode change (IOCTL_VCR_INFO per PDEV) | DrvTextOut on the 2D engine: one 1 bpp mask per clip rectangle, sent as a host-to-screen blit (`include/vcr_text.h`). 0 bad on the 86Box bed at 8/16/32 bpp, but SLOWER there than the software path (~115k vs ~139k glyphs/s, in-box driver ~275k), so off until measured on silicon. `vcr_info.flags` 0x40 (positive); `VCR_ESC_2D_STATS` gives the counters; evidence `evidence/86box_v3/2d_*` |
 | `Accel2DPattern` | at every mode change | **default ON (absent = 1; 0 = off) since 2026-09-28.** 8x8 1 bpp brushes (hatches, the 50 % grey of drag rectangles) realized by DrvRealizeBrush and filled by the engine's mono-pattern rectangle fill - PATCOPY/PATINVERT opaque, PATCOPY transparent (`include/vcr_line.h`). 0 bad on `.124` at 16/32 bpp and on the 86Box bed at 8/16/32; on `.124` at 1280x1024x32 hatch fills 64x64 14.1k -> 92.6k/s, grey drag frames 2.0k -> 47.7k/s (gdilab plbench). `vcr_info.flags` 0x80; evidence `evidence/silicon/patline`, `evidence/86box_v3/patline` |
 | `GdiGamma` | at every mode change | **default ON (absent = 1; 0 = refuse).** GDI's `SetDeviceGammaRamp` reaches `DrvIcmSetDeviceGammaRamp` (`GCAPS2_CHANGEGAMMARAMP` at 16/24/32 bpp) and loads colour-table bank 0, which the desktop and a Glide game's overlay both read (`include/vcr_gamma.h`). Until 2026-09-28 win32k refused every ramp: Jedi Academy logged "SetDeviceGammaRamp failed." and the id Tech 3 family ran on software gamma with overbright forced to 0 - the dark picture. Verified on `.124`: `tools/gammaprobe.c` (identity, gamma 1.3 and a doubled overbright ramp accepted, each recorded as `gamma ramp loaded`), and Jedi Academy's own ramps land with no failure line. A mode set still reloads the identity table. `vcr_info.flags` 0x4000 (NO_GDIGAMMA) |
+| `DdHeapFloor` | at every mode change | the DirectDraw heap starts one page up instead of at video-memory offset 0 (`include/vcr_ddheap.h`). Offset 0 is what `HeapVidMemAllocAligned` answers for "no memory", so the first block of every heap is handed out at 0, read as a failure and lost until the next mode set - `ddlab vidmem` on `.124` made 120 of the 121 512 KB surfaces that fit, the one at 0 missing - and the D3D HAL's single-pass mipmap-chain allocator can get `DDERR_OUTOFVIDEOMEMORY` for it. The runtime's own second pass hides it from applications. Default OFF (unproven on silicon); with it on, `ddlab vidmem` on the same desktop should report 121, the lowest at +4 KB. `vcr_info.flags` 0x1000 |
 | `Accel2DLine` | at every mode change | **default ON since 2026-09-28.** Solid cosmetic COPYPEN horizontal/vertical lines (DrvLineTo, and DrvStrokePath paths made only of them) as engine rectangle fills of exactly GDI's pixels; slanted/styled/XOR stay GDI's. 0 bad on `.124` and the bed; on `.124` 200 px h-lines 287k -> 520k/s, v-lines 81k -> 100k/s, 200x150 outlines 38k -> 61k/s. `vcr_info.flags` 0x100 |
 
 **Arm:** `REGWRITE HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag SliAA
@@ -166,7 +167,7 @@ GetScanLine never returns an unset line.
 | `out/glidelab.exe` (`tools/glidelab.c`, `make glidelab GLIDE_SDK=...`) | our Glide test program, no game in the way: `fill` (Mpixel/s, flat or blended), `bands` (every scanline an exact RGB565 value read back through the LFB, bad lines per owning chip), `cycle` (open/close N times: SLI set up and torn down), `abandon` (exit without closing, as a killed game does); `--trace N` / `--trace-cfg` (our h5 Glide's step trace, below) |
 | `tools/glidelab_run.py`, `tools/glidelab_sweep.py` | run one glidelab mode on a box / sweep fill + bands over SLI/AA configs (one boot each, or `--no-reboot` for ours), JSON lines in `evidence/glidelab/`; `glidelab_run.py --trace N` brings the trace home, `--collect [--restore-cfg 0\|2\|5]` reads what a wedged session left (below) |
 | `tools/cursor_golden.py` | the hardware cursor's registers and 1 KB pattern, read back (a screenshot cannot show a hardware cursor), compared against the vendor's |
-| `out/ddlab.exe` (`tools/ddlab.c`) + `tools/ddlab_run.py` | our DirectDraw test program: `caps` (HAL vs HEL, video memory), `flip` (a frame-numbered pattern written to the back buffer must read back from the FRONT after each flip; RESULT adds `first_frame_ms`, `max_frame_ms`, `min_frame_ms`, `slow_frames` (> 1.5 refreshes), `fast_frames` (< half a refresh), `flips_s_first_last`; `--work-us N` busy-works after every Flip - the D3D pattern), `blt` (copy, colour fill, an overlapping scroll and a SOURCE-COLOUR-KEYED copy between video-memory surfaces, read back), `zsurf --zbits 16|24|32` (one DirectDraw 7 Z surface - the request the HAL's CanCreateSurface judges; no mode switch) |
+| `out/ddlab.exe` (`tools/ddlab.c`) + `tools/ddlab_run.py` | our DirectDraw test program: `caps` (HAL vs HEL, video memory), `flip` (a frame-numbered pattern written to the back buffer must read back from the FRONT after each flip; RESULT adds `first_frame_ms`, `max_frame_ms`, `min_frame_ms`, `slow_frames` (> 1.5 refreshes), `fast_frames` (< half a refresh), `flips_s_first_last`; `--work-us N` busy-works after every Flip - the D3D pattern), `blt` (copy, colour fill, an overlapping scroll and a SOURCE-COLOUR-KEYED copy between video-memory surfaces, read back), `zsurf --zbits 16|24|32` (one DirectDraw 7 Z surface - the request the HAL's CanCreateSurface judges; no mode switch), `sdlddraw [--src WxH] [--direct]` (DOSBox 0.74's `output=ddraw` through SDL 1.2.13's DirectX 5 backend, call for call - IDirectDraw2, SDL's refresh pick, the foreground wait, the lone primary, a `--src` blit surface with an explicit pitch and format, a per-frame Lock/write/Blt stretched onto the primary and read back; every step's HRESULT, and `dosbox`: "ddraw" or "surface-fallback:<step>"; `--direct` = the output=surface fallback) |
 | `out/gdilab.exe` (`tools/gdilab.c`) | our GDI test program, self-checking against a per-pixel pattern: solid fills, BLACKNESS/WHITENESS, screen-to-screen copies (odd positions and sizes), overlapping scrolls in all four directions, a copy through a clip region with a hole, and the engine and the CPU interleaved on the same pixels |
 | `out/d3dprobe.exe` (`tools/d3dprobe.c`) + `tools/d3dprobe_run.py` | our Direct3D 8 test program: `caps` (adapter, D3DCAPS8, formats, `zmatch` per target/depth pair, `hal_fullscreen` per format), `render` (clear, flat, gouraud, texture, modulate, blend, z-test, 256x256 texture - the back buffer LOCKED and compared with computed values, windowed or `--full`; `--zfmt d16|d24x8|d24s8` asks for that depth format, e.g. a device the HAL must refuse; `--noz` renders with no depth buffer; the `D3DBigTex` checks, explicit only: `tex512` `tex1024` `tex2048` (8x8 cells, the last one green), `mip2048` (levels 0-4 of a 2048 chain by texel:pixel ratio), `tex8888`, `dxt1` `dxt3` `dxt5` (128x128; logs LockRect's pitch), `texhigh` (~20 MB of textures first, so the probe lands above 16 MB) - each SKIPPED, not failed, where the HAL does not offer it; RESULT adds `skipped` and `max_texture`), `perf` |
 | `tools/lab_run.py <lab> <host>` | runs any of the labs on a box or test bed and fails on any `bad*`/`fail` count |
@@ -509,6 +510,27 @@ probably reads 0 through the blank.
   release is refused (604 a=4).
 
 ## Findings (measured)
+
+- **Descent's "black" 640x400 is a DOSBox fallback, not a scan-out fault
+  (2026-09-28, offline from the night's evidence).** `vcrctl fbshot` at
+  640x400x32 read `start 03f06000, stride 0a00`: exactly the primary at the
+  top of chip 0's 64 MB (0x4000000 - 640*400*4) at 640*4 bytes a line, and
+  the frame there is DOSBox's blank 80x25 screen right after the autoexec's
+  `cls` - 16 pixels, the cursor at row 0 (lines 13-14, 0xAAAAAA) - with GDI's
+  capture identical (diff 0.0). DOSBox's `output=ddraw` with `aspect=true`
+  and `fullresolution=original` never asks for 640x400: it sets 640x480 and
+  stretches its 640x400 picture into it (`src/gui/sdlmain.cpp`
+  GFX_SetupSurfaceScaled, scaley 1.2) - the 06:53 run did, its frame 320x200
+  content with every column doubled and rows 2 or 3 times. Only GFX_SetSize's
+  fallback ("Failed to create ddraw surface, back to normal surface.") sets
+  width x height = 640x400, so in the 02:47 and 06:57 runs one DirectDraw
+  call of SDL's DirectX 5 setup failed, and DOSBox then showed nothing past
+  that `cls` for 70 s (the host's own DOSBox prints the DOS/4GW banner within
+  2 s of it). Which call is not in the evidence (the recorder ring had
+  wrapped); `ddlab sdlddraw` replays the sequence and names the step. The one
+  way this HAL's heap differs from a stock driver's on that path - its first
+  block at offset 0 - is `Diag\DdHeapFloor` (default off; A/B it with
+  `ddlab vidmem` and `sdlddraw`).
 
 - **Direct3D: our own HAL on the 86Box Voodoo3 (2026-09-26)** —
   `display/vcrdd_d3d.c` (DX7-level NT DDI: caps, contexts, CreateSurfaceEx

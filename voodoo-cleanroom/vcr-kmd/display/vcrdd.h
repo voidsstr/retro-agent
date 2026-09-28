@@ -26,6 +26,7 @@
 #include "../include/vcr_hwcext.h"
 #include "../include/vcr_fmt.h"
 #include "../include/vcr_flip.h"
+#include "../include/vcr_ddheap.h"
 #include "../include/vcr_text.h"
 
 #define VCRDD_TAG           0x44524356      /* 'VCRD' */
@@ -73,6 +74,7 @@ typedef struct VCR_PDEV {
     ULONG       tex_32;             /* bit 2: A8R8G8B8 textures */
     ULONG       tex_ext;            /* any of them: 26-bit texBaseAddr, the ext texture views */
     PVOID       pvmList;            /* DirectDraw's VIDEOMEMORY heap list (it fills lpHeap) */
+    ULONG       dd_heap_floor;      /* Diag\\DdHeapFloor = 1: the heap starts off offset 0 (vcr_ddheap.h) */
     ULONG       fog_loaded[4];      /* the fog table on the chip: mode, start, end, density */
     ULONG       fog_valid;
     ULONG       g2d_ops, g2d_gdi_copies, g2d_gdi_fills;

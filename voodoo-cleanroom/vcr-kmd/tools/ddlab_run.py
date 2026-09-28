@@ -5,6 +5,8 @@
     ddlab_run.py 192.168.1.124 flip --res 800x600 --bpp 16 --frames 120
     ddlab_run.py 127.0.0.1 --port 19920 flip --res 800x600 --bpp 16 --frames 600 --work-us 17400
     ddlab_run.py 127.0.0.1 --port 19920 zsurf --zbits 32    (a 24+8 Z surface: CanCreateSurface)
+    ddlab_run.py 192.168.1.124 sdlddraw --res 640x480 --bpp 32 --src 640x400 --frames 120
+    ddlab_run.py 192.168.1.124 sdlddraw --res 640x400 --bpp 32 --direct --frames 120
 
 Uploads out/ddlab.exe to C:\\vcr\\ddlab\\, runs it through `start /wait` (a
 normal desktop window - exclusive mode needs one) under EXECW, and prints the
@@ -12,6 +14,12 @@ RESULT json from the flushed log. A flip RESULT also carries the per-frame
 summary (first_frame_ms, max_frame_ms, slow_frames, flips_s_first_last);
 --work-us N adds N microseconds of busy work after every Flip (the D3D
 pattern - render, then wait for the flip), passed to ddlab only when non-zero.
+`sdlddraw` replays DOSBox 0.74's output=ddraw through SDL 1.2's DirectX 5
+backend (Descent's staged conf) step by step - see ddlab.c do_sdlddraw(); its
+RESULT names every step's HRESULT and, in "dosbox", what DOSBox would have
+done. It may switch up to twice on the way in (SDL's refresh, then 0) and once
+out, so its EXECW budget counts three switches. `--direct` replays the
+output=surface fallback instead.
 `zsurf` creates one Z-buffer surface of --zbits bits through DirectDraw 7 (no
 window, no exclusive mode, no mode switch) - the request a HAL's
 CanCreateSurface judges; its RESULT is the HRESULT, not a pass/fail.
@@ -49,7 +57,10 @@ import mode_sweep as ms  # noqa: E402  (the cleanup every tool that launches a l
 DIR = r"C:\vcr\ddlab"
 # the modes that take the screen exclusively: SetDisplayMode in, and the
 # restore (or XP, at the exit hold) out
-FULLSCREEN = ("flip", "blt")
+FULLSCREEN = ("flip", "blt", "sdlddraw")
+# paced switches a fullscreen mode may make: in and out; sdlddraw retries the
+# mode at refresh 0 when SDL's own rate is refused, as SDL does
+SWITCHES = {"flip": 2, "blt": 2, "sdlddraw": 3}
 # ddlab.c's own bound on --work-us (WORK_US_MAX)
 WORK_US_MAX = 1000000
 
@@ -107,13 +118,17 @@ def lab_args(a, log):
         args += f" --work-us {work}"
     if a.mode == "zsurf":
         args += f" --zbits {getattr(a, 'zbits', 32)}"
+    if a.mode == "sdlddraw":
+        args += f" --src {getattr(a, 'src', '640x400')}"
+        if getattr(a, "direct", False):
+            args += " --direct"
     return args + f" --log {log}"
 
 
 async def main_async(a):
     box = lambda cmd, t: call_st(a, cmd, t)  # noqa: E731
     full = a.mode in FULLSCREEN
-    budget = ms.execw_budget(2 if full else 0, a.timeout)
+    budget = ms.execw_budget(SWITCHES.get(a.mode, 0), a.timeout)
     why = ms.budget_refusal(budget, f"ddlab {a.mode} with --timeout {a.timeout}")
     if why:
         return refused(a, why)
@@ -192,13 +207,15 @@ async def main_async(a):
     print(json.dumps(res))
     if a.verbose:
         print(text)
-    return 0 if "error" not in res and not any(res.get(k) for k in ("mismatch", "lock_fail", "bad_copy", "bad_fill", "bad_scroll", "bad_key")) else 1
+    return 0 if "error" not in res and not any(res.get(k) for k in (
+        "mismatch", "lock_fail", "bad_copy", "bad_fill", "bad_scroll", "bad_key", "bad_rows",
+        "blt_fail", "fill_bad", "lost")) else 1
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("host")
-    ap.add_argument("mode", choices=("caps", "flip", "blt", "zsurf", "vidmem"))
+    ap.add_argument("mode", choices=("caps", "flip", "blt", "zsurf", "vidmem", "sdlddraw"))
     ap.add_argument("--port", type=int, default=9898)
     ap.add_argument("--res", default="640x480")
     ap.add_argument("--bpp", type=int, default=16)
@@ -208,6 +225,12 @@ def main():
                          "(the D3D pattern; 0 = the plain loop)")
     ap.add_argument("--zbits", type=int, choices=(16, 24, 32), default=32,
                     help="zsurf: the Z surface's bits (32 = 24 depth + 8 stencil, D24S8)")
+    ap.add_argument("--src", default="640x400",
+                    help="sdlddraw: DOSBox's blit surface (640x400: 80x25 text or 320x200 "
+                         "doubled); --res is the display mode (640x480 with aspect=true)")
+    ap.add_argument("--direct", action="store_true",
+                    help="sdlddraw: the output=surface fallback (the primary locked and "
+                         "written every frame at --res) instead of the ddraw path")
     ap.add_argument("--timeout", type=int, default=120,
                     help="seconds of WORK; the EXECW adds the pace gate's worst case per switch")
     ap.add_argument("--tool", default=r"C:\vcr\vcrctl.exe",

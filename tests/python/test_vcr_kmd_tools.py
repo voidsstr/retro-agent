@@ -218,7 +218,8 @@ def test_high_memory_labs_exist_and_ddlab_vidmem_switches_nothing():
     assert "vcr_pace_before_switch" not in vm
     assert "DDBLT_COLORFILL" in vm and "Blt(s[i - 1], NULL, s[i]" in vm
     run = (kmd / "tools" / "ddlab_run.py").read_text()
-    assert '"vidmem"' in run and 'FULLSCREEN = ("flip", "blt")' in run
+    assert '"vidmem"' in run and 'FULLSCREEN = ("flip", "blt", "sdlddraw")' in run
+    assert '"vidmem"' not in run[run.index("FULLSCREEN = "):run.index("SWITCHES = ")]
     gl = (kmd / "tools" / "glidelab.c").read_text()
     tm = gl[gl.index("static int do_texmem(void)"):gl.index("static unsigned line_code(int y)")]
     dl = tm.index("p_grTexDownloadMipMap(tmu, a,")

@@ -452,6 +452,9 @@ void VcrDd2dInit(VCR_PDEV *pd)
         /* default OFF (positive flags - an older miniport never sets them) */
         pd->rt32 = pd->napalm && (info.flags & VCR_INFO_F_D3D32) ? 1 : 0;
         pd->reset3d = pd->napalm && (info.flags & VCR_INFO_F_RESET3D) ? 1 : 0;
+        /* read here - DrvEnableSurface, before DrvGetDirectDrawInfo asks for
+         * the heap - for every backend (default OFF: a positive flag) */
+        pd->dd_heap_floor = (info.flags & VCR_INFO_F_DDHEAPFLOOR) ? 1 : 0;
         if (pd->rt32 || pd->reset3d)
             VcrDd(VCR_LV_INFO, VCR_EV_DD_D3D, 16, pd->rt32, pd->reset3d, info.flags,
                   "armed: 32 bpp Direct3D %s (Diag\\D3D32), Glide 3D reset %s (Diag\\Reset3D)",

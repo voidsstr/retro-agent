@@ -378,3 +378,110 @@ def test_ddlab_flip_counts_frames_shorter_than_half_a_refresh():
     for k in ("min_frame_ms", "fast_frames"):
         assert f'\\"{k}\\":' in lab, k
     assert "if (period > 0 && d < 0.5 * period)\n                    fast++;" in lab
+
+
+def test_the_heap_range_is_the_host_tested_header_and_its_floor_is_a_default_off_switch():
+    """2026-09-28 (Descent's DOSBox output=ddraw on .124). The heap started at
+    video-memory offset 0 - the address HeapVidMemAllocAligned answers for
+    "no memory" - so the first block of every heap was handed out AT 0, read as
+    a failure and lost (ddlab vidmem on .124: 120 of 121 512 KB slots, the one
+    at 0 missing), and the D3D HAL's single-pass mipmap allocator can take
+    DDERR_OUTOFVIDEOMEMORY for it. heap_range is now include/vcr_ddheap.h's
+    arithmetic (tests/native/test_vcr_kmd_ddheap.c); Diag\\DdHeapFloor = 1
+    starts the heap one page up. Unproven on silicon, so the default - the
+    switch absent - is the layout every silicon run used."""
+    hr = func(DD, "static void heap_range(")
+    assert "vcr_dd_heap_range(" in hr
+    assert "pd->dd_heap_floor ? VCR_DD_HEAP_FLOOR : 0" in hr
+    assert "*start = 0;" not in hr                   # the arithmetic lives in the header now
+    hdr = (KMD / "include" / "vcr_ddheap.h").read_text()
+    assert "#define VCR_DD_HEAP_FLOOR   0x1000u" in hdr
+    assert "#include <" not in hdr                   # Win32-free: the host test runs it
+    ioctl = (KMD / "include" / "vcr_ioctl.h").read_text()
+    assert "#define VCR_INFO_F_DDHEAPFLOOR  0x1000" in ioctl
+    flags = [int(v, 16) for v in re.findall(r"#define VCR_INFO_F_\w+\s+(0x[0-9a-fA-F]+)", ioctl)]
+    assert len(flags) == len(set(flags)), "two vcr_info flags share a bit"
+    mp = (KMD / "miniport" / "vcrmp.c").read_text()
+    assert '(VcrDiagGet(L"DdHeapFloor", 0) ? VCR_INFO_F_DDHEAPFLOOR : 0)' in mp   # default OFF
+    d2 = (KMD / "display" / "vcrdd_2d.c").read_text()
+    init = func(d2, "void VcrDd2dInit(")
+    assert "pd->dd_heap_floor = (info.flags & VCR_INFO_F_DDHEAPFLOOR) ? 1 : 0;" in init
+    # read before the register window is asked for: every backend, the VM too
+    assert init.index("dd_heap_floor") < init.index("IOCTL_VIDEO_QUERY_PUBLIC_ACCESS_RANGES")
+    # DrvEnableSurface (which calls VcrDd2dInit) runs before DrvGetDirectDrawInfo
+    assert "VcrDd2dInit(pd);" in func(DDC, "HSURF APIENTRY DrvEnableSurface(")
+    readme = (KMD / "README.md").read_text()
+    assert "| `DdHeapFloor` |" in readme
+
+
+def test_ddlab_sdlddraw_replays_sdl_dx5_and_dosbox_ddraw_call_for_call():
+    """Descent's staged DOSBox (output=ddraw, aspect=true, fullresolution=
+    original) scanned out a blank DOS screen at 640x400x32 in 2 of 3 runs on
+    .124 - a size that path never asks for: it sets 640x480 and stretches
+    DOSBox's 640x400 picture into it; only its fallback ("Failed to create
+    ddraw surface, back to normal surface.") sets 640x400. `ddlab sdlddraw`
+    replays SDL 1.2.13's DirectX 5 backend + DOSBox 0.74's ddraw output step by
+    step, so the HAL can be judged without DOSBox's timing, and names the
+    step that would have sent DOSBox to its fallback."""
+    lab = (KMD / "tools" / "ddlab.c").read_text()
+    body = lab[lab.index("static int do_sdlddraw("):lab.index("int main(int argc, char **argv)")]
+    code = _strip_c_comments(body)
+    # the DirectX 5 interfaces, made the way SDL makes them
+    assert "DirectDrawCreate(NULL, &dd1, NULL)" in code
+    assert "&IID_IDirectDraw2" in code and "&IID_IDirectDrawSurface3" in code
+    assert "IDirectDraw7" not in code
+    assert "DDEDM_REFRESHRATES" in code and "sdl_enum_modes" in code
+    assert "DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE |" in code and "DDSCL_ALLOWREBOOT);" in code
+    # SDL's refresh, then 0 - each switch paced, the foreground wait bounded
+    assert "IDirectDraw2_SetDisplayMode(dd2, g_w, g_h, g_bpp, rate, 0)" in code
+    assert "IDirectDraw2_SetDisplayMode(dd2, g_w, g_h, g_bpp, 0, 0)" in code
+    assert code.count("vcr_pace_before_switch()") == 2
+    assert code.count("IDirectDraw2_SetDisplayMode(") == 2
+    assert "fg_ms < 10000" in code and "SetForegroundWindow(hwnd)" in code
+    order = [code.index(k) for k in ("IDirectDraw2_SetCooperativeLevel(", "SetForegroundWindow(hwnd)",
+                                     "IDirectDraw2_SetDisplayMode(")]
+    assert order == sorted(order), "SDL's order: cooperative level, foreground, mode"
+    # the primary alone (fulldouble=false), locked the way SDL checks it
+    assert "DDSCAPS_PRIMARYSURFACE | DDSCAPS_VIDEOMEMORY" in code
+    assert "DDSD_BACKBUFFERCOUNT" not in code and "DDSCAPS_FLIP" not in code
+    assert "DDLOCK_NOSYSLOCK | DDLOCK_WAIT" in code
+    assert "prim_w != g_w || prim_h != g_h" in code
+    # SDL_ClearSurface's fill, with the rest of the DDBLTFX left as garbage
+    assert "memset(&fx, 0xcc, sizeof fx);" in code
+    assert "DDBLT_COLORFILL | DDBLT_WAIT" in code
+    # the blit surface as DX5_AllocDDSurface creates it: a pitch and a format
+    assert "DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS | DDSD_PITCH | DDSD_PIXELFORMAT" in code
+    assert "DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY" in code
+    assert "sd.lPitch = (g_sw * bytes + 3) & ~3;" in code
+    # GFX_EndUpdate's blit: the whole source, the (0,0,--res) rectangle, DDBLT_WAIT
+    assert "IDirectDrawSurface3_Blt(prim, &r, blit, NULL, DDBLT_WAIT, NULL)" in code
+    # the readback, and what DOSBox would have done
+    assert "sdl_row_ok(" in code
+    for k in ("dosbox", "blit_from_primary", "bad_rows", "setmode", "setmode0", "foreground",
+              "primary_size", "first_blt", "fill_bad"):
+        assert f'\\"{k}\\":' in body, k
+    assert 'verdict = g_direct ? "setup failed" : "surface-fallback";' in code
+    # SDL's foreground wait never ends: a lab that never got the foreground
+    # says DOSBox would HANG there - and still goes on to judge the HAL
+    assert '"hang:foreground - SDL waits for it forever"' in code
+    fg = code[code.index("for (fg_ms = 0;"):code.index("IDirectDraw2_SetDisplayMode(")]
+    assert "failed =" not in fg
+    assert '!strcmp(a, "--src")' in lab and '!strcmp(a, "--direct")' in lab
+    assert 'if (!strcmp(mode, "sdlddraw")) {' in lab
+    import sys
+    sys.path.insert(0, str(KMD / "tools"))
+    sys.path.insert(0, str(REPO))
+    import argparse
+    import ddlab_run
+    assert "sdlddraw" in ddlab_run.FULLSCREEN            # the monitor gate applies
+    assert ddlab_run.SWITCHES["sdlddraw"] == 3 and ddlab_run.SWITCHES["flip"] == 2
+    ns = argparse.Namespace(mode="sdlddraw", res="640x480", bpp=32, frames=120, timeout=120,
+                            src="640x400", direct=False)
+    assert ddlab_run.lab_args(ns, "L") == \
+        "sdlddraw --res 640x480 --bpp 32 --frames 120 --src 640x400 --log L"
+    ns.direct, ns.res = True, "640x400"
+    assert ddlab_run.lab_args(ns, "L") == \
+        "sdlddraw --res 640x400 --bpp 32 --frames 120 --src 640x400 --direct --log L"
+    # the other modes' command lines are untouched
+    ns = argparse.Namespace(mode="blt", res="800x600", bpp=16, frames=60, timeout=120)
+    assert ddlab_run.lab_args(ns, "L") == "blt --res 800x600 --bpp 16 --frames 60 --log L"

@@ -35,6 +35,19 @@
  *             window, NO mode switch. RESULT: the HRESULT and whether it was
  *             created (the recorder names the layer: event 511 a=11 is the
  *             driver's CanCreateSurface refusal).
+ *   ddlab sdlddraw [--res WxH] [--bpp 16|32] [--src WxH] [--frames N] [--direct]
+ *             DOSBox 0.74's [sdl] output=ddraw through SDL 1.2.13's DirectX 5
+ *             backend, call for call (IDirectDraw2 / IDirectDrawSurface3):
+ *             exclusive fullscreen at --res with SDL's own refresh pick, the
+ *             primary alone, a --src blit surface in video memory with an
+ *             explicit pitch and pixel format, then per frame Lock/write/
+ *             Unlock it and Blt it onto the primary (a stretch when --src !=
+ *             --res: DOSBox with aspect=true, 640x400 -> 640x480) and read
+ *             the primary back. Every step's HRESULT is in the RESULT, and
+ *             "dosbox" says what DOSBox would have done ("ddraw", or
+ *             "surface-fallback:<step>" - the 640x400 Descent took on .124).
+ *             --direct: that fallback instead (the primary locked and
+ *             written every frame, at --res). See do_sdlddraw().
  *   ddlab blt [--res WxH] [--bpp N]
  *             two off-screen surfaces: a pattern blitted A -> B (SRCCOPY), a
  *             colour fill, and an OVERLAPPING blit inside one surface (a scroll,
@@ -198,6 +211,521 @@ static int restore_mode(LPDIRECTDRAW7 dd, const char *mode)
     return 1;
 }
 
+/* ---- sdlddraw: DOSBox 0.74's [sdl] output=ddraw, call for call ---------------------
+ *
+ * Descent (Games-Library/Descent1/dosboxD1.conf: output=ddraw, aspect=true,
+ * fullresolution=original, fulldouble=false) scanned out a blank DOS screen
+ * at 640x400x32 on .124 in 2 of 3 runs (2026-09-28 02:47, 06:57). 640x400 is
+ * a mode that path never asks for: with aspect=true the ddraw output sets
+ * 640x480 and STRETCHES DOSBox's 640x400 picture into it (the working 06:53
+ * run's frame: 320x200 content, columns doubled, rows 2 or 3 times). Only its
+ * fallback - "Failed to create ddraw surface, back to normal surface." in
+ * GFX_SetSize (src/gui/sdlmain.cpp) - sets width x height = 640x400. So one of
+ * the DirectDraw calls below failed there, and DOSBox then made no progress.
+ *
+ * This replays that path through the same interfaces SDL 1.2.13's DirectX 5
+ * backend uses (src/video/windx5/SDL_dx5video.c) - IDirectDraw2 and
+ * IDirectDrawSurface3, DDSURFACEDESC v1 - so the HAL can be judged without
+ * DOSBox's own timing, and every step's HRESULT is in the RESULT:
+ *   DX5_VideoInit     DirectDrawCreate + IDirectDraw2; EnumDisplayModes with
+ *                     refresh rates, SDL's EnumModes2 rule for each mode's rate
+ *   DX5_SetVideoMode  SetCooperativeLevel(FULLSCREEN|EXCLUSIVE|ALLOWREBOOT);
+ *                     the window over the screen and SDL's foreground wait
+ *                     (SDL loops FOREVER; bounded here, reported); SetDisplayMode
+ *                     at that rate, then at 0; the primary (PRIMARYSURFACE |
+ *                     VIDEOMEMORY, no back buffer: fulldouble=false); its Lock
+ *                     (NOSYSLOCK|WAIT) must report the size and format asked
+ *                     (DX5_AllocDDSurface); SDL_ClearSurface's colour fill
+ *   GFX_SetSize       the blit surface: OFFSCREENPLAIN|VIDEOMEMORY at --src,
+ *                     created WITH a pitch and a pixel format, checked in video
+ *                     memory, locked once (DX5_AllocDDSurface again)
+ *   every frame       Lock it (NOSYSLOCK|WAIT), write, Unlock, and
+ *                     Blt(primary, (0,0,--res), blit, NULL, DDBLT_WAIT) - a
+ *                     stretch when --src != --res - then the primary is read
+ *                     back: each row must be a source row at most one off
+ *                     the ideal mapping, pixel for sampled pixel.
+ * --direct: the output=surface path DOSBox falls back to (SDL's shadow surface
+ * copied into the locked primary each frame, SDL_UpdateRects) at --res - no
+ * blit surface. `dosbox` in the RESULT names what DOSBox would have done:
+ * "ddraw", or "surface-fallback:<the step that failed>". */
+
+typedef struct { int w, h, bpp, rate; } sdl_mode;
+#define SDL_MODES_MAX 512
+static sdl_mode g_sdl_modes[SDL_MODES_MAX];
+static int g_sdl_nmodes;
+static DEVMODEA g_sdl_desk;
+static int g_sw = 640, g_sh = 400, g_direct;
+
+/* SDL_dx5video.c EnumModes2, rule for rule: a mode's refresh is the first one
+ * enumerated for it, raised to a later one that is higher but not above the
+ * desktop's refresh (85 for a mode larger than the desktop) - and only while
+ * it is still the newest entry of its depth. */
+static HRESULT WINAPI sdl_enum_modes(LPDDSURFACEDESC d, LPVOID ctx)
+{
+    int bpp = (int)d->ddpfPixelFormat.dwRGBBitCount, rate = (int)d->dwRefreshRate, maxr, i;
+    (void)ctx;
+    if (bpp != 8 && bpp != 16 && bpp != 24 && bpp != 32)
+        return DDENUMRET_OK;
+    maxr = d->dwWidth <= g_sdl_desk.dmPelsWidth && d->dwHeight <= g_sdl_desk.dmPelsHeight ?
+           (int)g_sdl_desk.dmDisplayFrequency : 85;
+    for (i = g_sdl_nmodes - 1; i >= 0 && g_sdl_modes[i].bpp != bpp; i--)
+        ;
+    if (i >= 0 && g_sdl_modes[i].w == (int)d->dwWidth && g_sdl_modes[i].h == (int)d->dwHeight) {
+        if (rate > g_sdl_modes[i].rate && rate <= maxr)
+            g_sdl_modes[i].rate = rate;
+        return DDENUMRET_OK;
+    }
+    if (g_sdl_nmodes < SDL_MODES_MAX) {
+        g_sdl_modes[g_sdl_nmodes].w = (int)d->dwWidth;
+        g_sdl_modes[g_sdl_nmodes].h = (int)d->dwHeight;
+        g_sdl_modes[g_sdl_nmodes].bpp = bpp;
+        g_sdl_modes[g_sdl_nmodes].rate = rate;
+        g_sdl_nmodes++;
+    }
+    return DDENUMRET_OK;
+}
+
+/* DX5_SetVideoMode's rate: the depth's list from its newest entry down, the
+ * first w x h. Not listed: SDL_GetVideoMode would not even try the mode. */
+static int sdl_mode_rate(int w, int h, int bpp, int *listed)
+{
+    int i;
+    for (i = g_sdl_nmodes - 1; i >= 0; i--)
+        if (g_sdl_modes[i].bpp == bpp && g_sdl_modes[i].w == w && g_sdl_modes[i].h == h) {
+            *listed = 1;
+            return g_sdl_modes[i].rate;
+        }
+    *listed = 0;
+    return 0;
+}
+
+/* frame f's pixel at (x, row) of the picture DOSBox draws: every row and
+ * column different, so a row taken from the wrong place is seen */
+static DWORD sdl_px(int f, int row, int x, int bpp)
+{
+    DWORD v = (DWORD)row * 2654435761u + (DWORD)x * 40503u + (DWORD)f * 97u;
+    return bpp == 16 ? (v & 0xffffu) : (v & 0x00ffffffu);
+}
+
+static DWORD sdl_get(const unsigned char *row, int x, int bpp)
+{
+    return bpp == 16 ? ((const USHORT *)row)[x] : (((const DWORD *)row)[x] & 0x00ffffffu);
+}
+
+static void sdl_draw(unsigned char *p, long pitch, int w, int h, int f, int bpp)
+{
+    int x, y;
+    for (y = 0; y < h; y++, p += pitch)
+        for (x = 0; x < w; x++) {
+            if (bpp == 16)
+                ((USHORT *)p)[x] = (USHORT)sdl_px(f, y, x, bpp);
+            else
+                ((DWORD *)p)[x] = sdl_px(f, y, x, bpp);
+        }
+}
+
+/* Is destination row `row` (of dw x dh) some source row within one of the
+ * ideal row, at the sampled columns, each within one of its ideal column?
+ * Same size: the row itself, exactly. */
+static int sdl_row_ok(const unsigned char *row, int dw, int dh, int sw, int sh, int dy, int f,
+                      int bpp)
+{
+    const int cols[6] = { 0, 1, dw / 3, dw / 2, dw - 2, dw - 1 };
+    int k, cand, ys, y0 = (int)((long)dy * sh / dh);
+    for (cand = -1; cand <= 1; cand++) {
+        int good = 1;
+        ys = y0 + cand;
+        if (ys < 0 || ys >= sh || ((sw == dw && sh == dh) && cand))
+            continue;
+        for (k = 0; k < 6 && good; k++) {
+            int dx = cols[k];
+            int xs0 = (int)((long)dx * sw / dw), c, hit = 0;
+            DWORD v = sdl_get(row, dx, bpp);
+            for (c = -1; c <= 1 && !hit; c++) {
+                int xs = xs0 + c;
+                if (xs < 0 || xs >= sw || ((sw == dw && sh == dh) && c))
+                    continue;
+                hit = v == sdl_px(f, ys, xs, bpp);
+            }
+            good = hit;
+        }
+        if (good)
+            return 1;
+    }
+    return 0;
+}
+
+/* the paced give-back for the DirectDraw 2 object (restore_mode's twin) */
+static int restore_mode2(LPDIRECTDRAW2 dd2)
+{
+    if (!vcr_pace_before_switch()) {
+        say("RESULT {\"mode\":\"sdlddraw\",\"error\":\"RestoreDisplayMode not made: %s - the "
+            "mode is left for the exit hold\"}", g_vcr_pace_why);
+        return 0;
+    }
+    g_held = 0;
+    IDirectDraw2_RestoreDisplayMode(dd2);
+    vcr_pace_after_restore();
+    return 1;
+}
+
+static int do_sdlddraw(DWORD hal_caps)
+{
+    WNDCLASSA wc;
+    HWND hwnd;
+    LPDIRECTDRAW dd1 = NULL;
+    LPDIRECTDRAW2 dd2 = NULL;
+    LPDIRECTDRAWSURFACE s1 = NULL;
+    LPDIRECTDRAWSURFACE3 prim = NULL, blit = NULL;
+    DDSURFACEDESC sd;
+    DDPIXELFORMAT pf;
+    DDSCAPS caps;
+    DDBLTFX fx;
+    RECT r;
+    HRESULT hr, hr_coop = 0, hr_mode = 0, hr_mode0 = 0, hr_prim = 0, hr_plock = 0, hr_fill = 0;
+    HRESULT hr_blit = 0, hr_block = 0, hr_first_blt = 0, hr_first_lock = 0;
+    const char *failed = NULL, *blit_in = "none", *verdict;
+    int rate, listed, fg_ok = 0, fg_ms = 0, f, bad_rows = 0, lock_fail = 0, blt_fail = 0;
+    int lost = 0, fill_bad = 0, prim_w = 0, prim_h = 0, prim_bpp = 0, bytes = g_bpp / 8, y;
+    long ppitch = 0, bpitch = 0, from_primary = 0;
+    unsigned char *pp = NULL, *pb = NULL;
+    double t0, t = 0;
+
+    if (g_bpp != 16 && g_bpp != 32) {
+        say("RESULT {\"mode\":\"sdlddraw\",\"error\":\"--bpp %d: DOSBox's ddraw output draws "
+            "15/16 or 32 bpp - use 16 or 32\"}", g_bpp);
+        return 2;
+    }
+    if (g_sw <= 0 || g_sh <= 0 || g_sw > 2048 || g_sh > 2048) {
+        say("RESULT {\"mode\":\"sdlddraw\",\"error\":\"--src %dx%d\"}", g_sw, g_sh);
+        return 2;
+    }
+    /* DX5_VideoInit: DirectDrawCreate, then the DirectDraw 2 interface */
+    hr = DirectDrawCreate(NULL, &dd1, NULL);
+    if (SUCCEEDED(hr)) {
+        hr = IDirectDraw_QueryInterface(dd1, &IID_IDirectDraw2, (void **)&dd2);
+        IDirectDraw_Release(dd1);
+    }
+    if (FAILED(hr) || !dd2) {
+        say("RESULT {\"mode\":\"sdlddraw\",\"error\":\"DirectDrawCreate/IDirectDraw2 %08lx\"}", hr);
+        return 3;
+    }
+    memset(&g_sdl_desk, 0, sizeof g_sdl_desk);
+    g_sdl_desk.dmSize = sizeof g_sdl_desk;
+    EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &g_sdl_desk);
+    IDirectDraw2_EnumDisplayModes(dd2, DDEDM_REFRESHRATES, NULL, NULL, sdl_enum_modes);
+    rate = sdl_mode_rate(g_w, g_h, g_bpp, &listed);
+    say("desktop %lux%lux%lu@%lu; %d modes; %dx%dx%d %s, SDL's rate %d", g_sdl_desk.dmPelsWidth,
+        g_sdl_desk.dmPelsHeight, g_sdl_desk.dmBitsPerPel, g_sdl_desk.dmDisplayFrequency,
+        g_sdl_nmodes, g_w, g_h, g_bpp, listed ? "listed" : "NOT LISTED", rate);
+    if (!listed) {
+        say("RESULT {\"mode\":\"sdlddraw\",\"res\":\"%dx%dx%d\",\"listed\":false,"
+            "\"dosbox\":\"surface-fallback:mode not listed\",\"error\":\"%dx%dx%d is not in "
+            "the driver's mode list\"}", g_w, g_h, g_bpp, g_w, g_h, g_bpp);
+        IDirectDraw2_Release(dd2);
+        return 4;
+    }
+
+    memset(&wc, 0, sizeof wc);
+    wc.lpfnWndProc = wndproc;
+    wc.hInstance = GetModuleHandleA(NULL);
+    wc.lpszClassName = "ddlab_sdl";
+    RegisterClassA(&wc);
+    hwnd = CreateWindowExA(0, "ddlab_sdl", "ddlab sdlddraw", WS_POPUP, 0, 0, g_w, g_h, NULL,
+                           NULL, wc.hInstance, NULL);
+    /* DX5_SetVideoMode: the cooperative level first, then the window over the
+     * screen and the wait for the foreground, then the mode */
+    hr_coop = IDirectDraw2_SetCooperativeLevel(dd2, hwnd, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE |
+                                               DDSCL_ALLOWREBOOT);
+    say("SetCooperativeLevel -> %08lx", hr_coop);
+    if (FAILED(hr_coop))
+        failed = "SetCooperativeLevel";
+    if (!failed) {
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, GetSystemMetrics(SM_CXSCREEN),
+                     GetSystemMetrics(SM_CYSCREEN), SWP_NOCOPYBITS);
+        ShowWindow(hwnd, SW_SHOW);
+        /* SDL: while (GetForegroundWindow() != SDL_Window) { SetForegroundWindow;
+         * SDL_Delay(100); } - with no bound. 10 s here, and said. */
+        for (fg_ms = 0; fg_ms < 10000; fg_ms += 100) {
+            pump();
+            if (GetForegroundWindow() == hwnd) {
+                fg_ok = 1;
+                break;
+            }
+            SetForegroundWindow(hwnd);
+            Sleep(100);
+        }
+        say("foreground: %s after %d ms", fg_ok ? "yes" : "NO (SDL would wait here forever)",
+            fg_ms);
+        /* DOSBox would stop HERE, for good; the lab goes on, so the HAL's
+         * own steps are still judged - the verdict says "hang" */
+    }
+    if (!failed) {
+        if (!vcr_pace_before_switch()) {
+            say("RESULT {\"mode\":\"sdlddraw\",\"error\":\"SetDisplayMode not made: %s\"}",
+                g_vcr_pace_why);
+            return 4;
+        }
+        hr_mode = IDirectDraw2_SetDisplayMode(dd2, g_w, g_h, g_bpp, rate, 0);
+        vcr_pace_after_switch();
+        g_held = 1;
+        say("SetDisplayMode(%dx%dx%d @%d) -> %08lx", g_w, g_h, g_bpp, rate, hr_mode);
+        if (FAILED(hr_mode) && rate) {
+            if (!vcr_pace_before_switch()) {
+                say("RESULT {\"mode\":\"sdlddraw\",\"error\":\"SetDisplayMode (rate 0) not made:"
+                    " %s\"}", g_vcr_pace_why);
+                return 4;
+            }
+            hr_mode0 = IDirectDraw2_SetDisplayMode(dd2, g_w, g_h, g_bpp, 0, 0);
+            vcr_pace_after_switch();
+            say("SetDisplayMode(%dx%dx%d @0) -> %08lx", g_w, g_h, g_bpp, hr_mode0);
+            if (FAILED(hr_mode0))
+                failed = "SetDisplayMode (SDL tries a window)";
+        } else if (FAILED(hr_mode)) {
+            failed = "SetDisplayMode (SDL tries a window)";
+        }
+    }
+    if (!failed) {
+        memset(&sd, 0, sizeof sd);
+        sd.dwSize = sizeof sd;
+        sd.dwFlags = DDSD_CAPS;
+        sd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_VIDEOMEMORY;
+        hr_prim = IDirectDraw2_CreateSurface(dd2, &sd, &s1, NULL);
+        if (SUCCEEDED(hr_prim)) {
+            hr_prim = IDirectDrawSurface_QueryInterface(s1, &IID_IDirectDrawSurface3,
+                                                        (void **)&prim);
+            IDirectDrawSurface_Release(s1);
+        }
+        say("CreateSurface(primary) -> %08lx", hr_prim);
+        if (FAILED(hr_prim) || !prim)
+            failed = "CreateSurface(primary)";
+    }
+    memset(&pf, 0, sizeof pf);
+    if (!failed) {
+        memset(&sd, 0, sizeof sd);
+        sd.dwSize = sizeof sd;
+        sd.dwFlags = DDSD_PIXELFORMAT | DDSD_CAPS;
+        hr = IDirectDrawSurface3_GetSurfaceDesc(prim, &sd);
+        pf = sd.ddpfPixelFormat;
+        if (FAILED(hr) || !(pf.dwFlags & DDPF_RGB))
+            failed = "primary not RGB";
+        else if (!(sd.ddsCaps.dwCaps & DDSCAPS_VIDEOMEMORY))
+            failed = "primary not in video memory";
+    }
+    if (!failed) {
+        /* DX5_AllocDDSurface on the primary: one Lock, and it must say what
+         * was asked */
+        memset(&sd, 0, sizeof sd);
+        sd.dwSize = sizeof sd;
+        hr_plock = IDirectDrawSurface3_Lock(prim, NULL, &sd, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, NULL);
+        if (SUCCEEDED(hr_plock)) {
+            pp = (unsigned char *)sd.lpSurface;
+            ppitch = sd.lPitch;
+            prim_w = (int)sd.dwWidth;
+            prim_h = (int)sd.dwHeight;
+            prim_bpp = (int)sd.ddpfPixelFormat.dwRGBBitCount;
+            IDirectDrawSurface3_Unlock(prim, NULL);
+        }
+        say("primary Lock -> %08lx: %dx%dx%d pitch %ld at %p", hr_plock, prim_w, prim_h, prim_bpp,
+            ppitch, pp);
+        if (FAILED(hr_plock))
+            failed = "primary Lock";
+        else if (prim_w != g_w || prim_h != g_h)
+            failed = "primary size (DDraw created surface with wrong size)";
+        else if (prim_bpp != g_bpp)
+            failed = "primary depth";
+    }
+    if (!failed) {
+        /* SDL_ClearSurface: DX5_FillHWRect, a DDBLTFX with only its size and
+         * colour set - the rest is whatever was on SDL's stack */
+        memset(&fx, 0xcc, sizeof fx);
+        fx.dwSize = sizeof fx;
+        fx.dwFillColor = 0;
+        SetRect(&r, 0, 0, g_w, g_h);
+        hr_fill = IDirectDrawSurface3_Blt(prim, &r, NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &fx);
+        say("Blt COLORFILL (SDL_ClearSurface) -> %08lx", hr_fill);
+        memset(&sd, 0, sizeof sd);
+        sd.dwSize = sizeof sd;
+        if (SUCCEEDED(IDirectDrawSurface3_Lock(prim, NULL, &sd, DDLOCK_NOSYSLOCK | DDLOCK_WAIT,
+                                               NULL))) {
+            for (y = 0; y < g_h; y += 7) {
+                const unsigned char *row = (const unsigned char *)sd.lpSurface + y * sd.lPitch;
+                if (sdl_get(row, 0, g_bpp) || sdl_get(row, g_w / 2, g_bpp) ||
+                    sdl_get(row, g_w - 1, g_bpp))
+                    fill_bad++;
+            }
+            IDirectDrawSurface3_Unlock(prim, NULL);
+        }
+    }
+    if (!failed && !g_direct) {
+        /* GFX_SetSize, SCREEN_SURFACE_DDRAW: SDL_CreateRGBSurface(SDL_HWSURFACE)
+         * -> DX5_AllocDDSurface: width, height, caps, a PITCH and a pixel format */
+        memset(&sd, 0, sizeof sd);
+        sd.dwSize = sizeof sd;
+        sd.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS | DDSD_PITCH | DDSD_PIXELFORMAT;
+        sd.dwWidth = g_sw;
+        sd.dwHeight = g_sh;
+        sd.lPitch = (g_sw * bytes + 3) & ~3;            /* SDL_CalculatePitch */
+        sd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
+        sd.ddpfPixelFormat.dwSize = sizeof sd.ddpfPixelFormat;
+        sd.ddpfPixelFormat.dwFlags = DDPF_RGB;
+        sd.ddpfPixelFormat.dwRGBBitCount = g_bpp;
+        sd.ddpfPixelFormat.dwRBitMask = pf.dwRBitMask;
+        sd.ddpfPixelFormat.dwGBitMask = pf.dwGBitMask;
+        sd.ddpfPixelFormat.dwBBitMask = pf.dwBBitMask;
+        hr_blit = IDirectDraw2_CreateSurface(dd2, &sd, &s1, NULL);
+        if (SUCCEEDED(hr_blit)) {
+            hr_blit = IDirectDrawSurface_QueryInterface(s1, &IID_IDirectDrawSurface3,
+                                                        (void **)&blit);
+            IDirectDrawSurface_Release(s1);
+        }
+        say("CreateSurface(blit %dx%d, video) -> %08lx", g_sw, g_sh, hr_blit);
+        if (FAILED(hr_blit) || !blit) {
+            failed = "CreateSurface(blit)";
+        } else {
+            memset(&caps, 0, sizeof caps);
+            IDirectDrawSurface3_GetCaps(blit, &caps);
+            blit_in = where(caps.dwCaps);
+            if (!(caps.dwCaps & DDSCAPS_VIDEOMEMORY))
+                failed = "blit not in video memory (No room in video memory)";
+        }
+    }
+    if (!failed && !g_direct) {
+        memset(&sd, 0, sizeof sd);
+        sd.dwSize = sizeof sd;
+        hr_block = IDirectDrawSurface3_Lock(blit, NULL, &sd, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, NULL);
+        if (SUCCEEDED(hr_block)) {
+            pb = (unsigned char *)sd.lpSurface;
+            bpitch = sd.lPitch;
+            if ((int)sd.dwWidth != g_sw || (int)sd.dwHeight != g_sh)
+                failed = "blit size";
+            else if ((int)sd.ddpfPixelFormat.dwRGBBitCount != g_bpp ||
+                     sd.ddpfPixelFormat.dwRBitMask != pf.dwRBitMask ||
+                     sd.ddpfPixelFormat.dwGBitMask != pf.dwGBitMask ||
+                     sd.ddpfPixelFormat.dwBBitMask != pf.dwBBitMask)
+                failed = "blit format (DDraw didn't use SDL surface description)";
+            IDirectDrawSurface3_Unlock(blit, NULL);
+        } else {
+            failed = "blit Lock";
+        }
+        /* where the runtime put it: relative to the primary (at the top) */
+        from_primary = pp && pb ? (long)(pb - pp) : 0;
+        say("blit Lock -> %08lx: pitch %ld at %p (%+ld from the primary)", hr_block, bpitch, pb,
+            from_primary);
+    }
+
+    t0 = now_s();
+    for (f = 0; !failed && f < g_frames && !g_focus_lost; f++) {
+        memset(&sd, 0, sizeof sd);
+        sd.dwSize = sizeof sd;
+        if (g_direct) {
+            /* the fallback: SDL_UpdateRects copies the shadow into the
+             * locked primary */
+            hr = IDirectDrawSurface3_Lock(prim, NULL, &sd, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, NULL);
+            if (FAILED(hr)) {
+                if (!lock_fail++)
+                    hr_first_lock = hr;
+                if (hr == DDERR_SURFACELOST) {
+                    lost++;
+                    IDirectDrawSurface3_Restore(prim);
+                }
+                continue;
+            }
+            sdl_draw((unsigned char *)sd.lpSurface, sd.lPitch, g_w, g_h, f, g_bpp);
+            IDirectDrawSurface3_Unlock(prim, NULL);
+        } else {
+            /* GFX_StartUpdate: SDL_LockSurface(blit) */
+            hr = IDirectDrawSurface3_Lock(blit, NULL, &sd, DDLOCK_NOSYSLOCK | DDLOCK_WAIT, NULL);
+            if (FAILED(hr)) {
+                if (!lock_fail++)
+                    hr_first_lock = hr;
+                if (hr == DDERR_SURFACELOST) {
+                    lost++;
+                    IDirectDrawSurface3_Restore(blit);
+                }
+                continue;
+            }
+            sdl_draw((unsigned char *)sd.lpSurface, sd.lPitch, g_sw, g_sh, f, g_bpp);
+            IDirectDrawSurface3_Unlock(blit, NULL);
+            /* GFX_EndUpdate: the blit to the primary, DDBLT_WAIT, no source rect */
+            SetRect(&r, 0, 0, g_w, g_h);
+            hr = IDirectDrawSurface3_Blt(prim, &r, blit, NULL, DDBLT_WAIT, NULL);
+            if (FAILED(hr)) {
+                if (!blt_fail++)
+                    hr_first_blt = hr;
+                if (hr == DDERR_SURFACELOST) {      /* what DOSBox does */
+                    lost++;
+                    IDirectDrawSurface3_Restore(blit);
+                    IDirectDrawSurface3_Restore(prim);
+                }
+                continue;
+            }
+        }
+        /* the check: the primary is what is scanned out */
+        memset(&sd, 0, sizeof sd);
+        sd.dwSize = sizeof sd;
+        if (FAILED(hr = IDirectDrawSurface3_Lock(prim, NULL, &sd, DDLOCK_NOSYSLOCK | DDLOCK_WAIT,
+                                                 NULL))) {
+            if (!lock_fail++)
+                hr_first_lock = hr;
+            continue;
+        }
+        for (y = 0; y < g_h; y++) {
+            const unsigned char *row = (const unsigned char *)sd.lpSurface + y * sd.lPitch;
+            if (!(g_direct ? sdl_row_ok(row, g_w, g_h, g_w, g_h, y, f, g_bpp)
+                           : sdl_row_ok(row, g_w, g_h, g_sw, g_sh, y, f, g_bpp))) {
+                if (!bad_rows)
+                    say("  frame %d row %d: not the picture (%08lx at x 0)", f, y,
+                        sdl_get(row, 0, g_bpp));
+                bad_rows++;
+            }
+        }
+        IDirectDrawSurface3_Unlock(prim, NULL);
+        if ((f & 15) == 0)
+            pump();
+    }
+    t = now_s() - t0;
+    pump();
+    /* what DOSBox would have done: SDL's foreground wait comes before
+     * everything after SetCooperativeLevel, and never ends */
+    if (SUCCEEDED(hr_coop) && !fg_ok)
+        verdict = "hang:foreground - SDL waits for it forever";
+    else if (failed)
+        verdict = g_direct ? "setup failed" : "surface-fallback";
+    else
+        verdict = g_direct ? "surface" : "ddraw";
+    if (SUCCEEDED(hr_coop) && !fg_ok && !failed)
+        failed = "foreground never came (SDL hangs)";
+    say("RESULT {\"mode\":\"sdlddraw\",\"path\":\"%s\",\"res\":\"%dx%dx%d\",\"src\":\"%dx%d\","
+        "\"desktop\":\"%lux%lux%lu@%lu\",\"rate\":%d,\"coop\":\"%08lx\",\"foreground\":%s,"
+        "\"foreground_ms\":%d,\"setmode\":\"%08lx\",\"setmode0\":\"%08lx\",\"primary\":\"%08lx\","
+        "\"primary_lock\":\"%08lx\",\"primary_size\":\"%dx%dx%d\",\"primary_pitch\":%ld,"
+        "\"fill\":\"%08lx\",\"fill_bad\":%d,\"blit\":\"%08lx\",\"blit_in\":\"%s\","
+        "\"blit_lock\":\"%08lx\",\"blit_pitch\":%ld,\"blit_from_primary\":%ld,"
+        "\"frames\":%d,\"frames_run\":%d,\"bad_rows\":%d,\"lock_fail\":%d,\"first_lock\":\"%08lx\","
+        "\"blt_fail\":%d,\"first_blt\":\"%08lx\",\"lost\":%d,\"fps\":%.1f,\"hal_caps\":\"%08lx\","
+        "\"dosbox\":\"%s%s%s\"%s%s%s%s}",
+        g_direct ? "surface" : "ddraw", g_w, g_h, g_bpp, g_sw, g_sh, g_sdl_desk.dmPelsWidth,
+        g_sdl_desk.dmPelsHeight, g_sdl_desk.dmBitsPerPel, g_sdl_desk.dmDisplayFrequency, rate,
+        hr_coop, fg_ok ? "true" : "false", fg_ms, hr_mode, hr_mode0, hr_prim, hr_plock, prim_w,
+        prim_h, prim_bpp, ppitch, hr_fill, fill_bad, hr_blit, blit_in, hr_block, bpitch,
+        from_primary, g_frames, f, bad_rows, lock_fail, hr_first_lock, blt_fail, hr_first_blt,
+        lost, t > 0 ? f / t : 0.0, hal_caps,
+        verdict, failed && !strchr(verdict, ':') ? ":" : "",
+        failed && !strchr(verdict, ':') ? failed : "", failed ? ",\"error\":\"" : "",
+        failed ? failed : "", failed ? "\"" : "", focus_json());
+    if (blit)
+        IDirectDrawSurface3_Release(blit);
+    if (prim)
+        IDirectDrawSurface3_Release(prim);
+    if (g_held && !restore_mode2(dd2))
+        return 8;
+    IDirectDraw2_SetCooperativeLevel(dd2, hwnd, DDSCL_NORMAL);
+    IDirectDraw2_Release(dd2);
+    DestroyWindow(hwnd);
+    return g_focus_lost ? 9 : failed ? 5 : bad_rows || lock_fail || blt_fail || fill_bad ? 7 : 0;
+}
+
 int main(int argc, char **argv)
 {
     const char *mode = "caps";
@@ -220,6 +748,8 @@ int main(int argc, char **argv)
         if (!strcmp(a, "--res") && v) { sscanf(v, "%dx%d", &g_w, &g_h); i++; }
         else if (!strcmp(a, "--bpp") && v) { g_bpp = atoi(v); i++; }
         else if (!strcmp(a, "--frames") && v) { g_frames = atoi(v); i++; }
+        else if (!strcmp(a, "--src") && v) { sscanf(v, "%dx%d", &g_sw, &g_sh); i++; }
+        else if (!strcmp(a, "--direct")) g_direct = 1;
         else if (!strcmp(a, "--work-us") && v) {
             char *end = NULL;
             long n = strtol(v, &end, 10);
@@ -285,6 +815,14 @@ int main(int argc, char **argv)
             hal.dwCaps, hal.ddsCaps.dwCaps, total, freem, hel.dwCaps);
         IDirectDraw7_Release(dd);
         return 0;
+    }
+
+    if (!strcmp(mode, "sdlddraw")) {
+        DWORD hc = hal.dwCaps;
+        /* SDL makes ONE DirectDraw object, through DirectDrawCreate and the
+         * DirectDraw 2 interface: this DirectDraw 7 one goes first */
+        IDirectDraw7_Release(dd);
+        return do_sdlddraw(hc);
     }
 
     if (!strcmp(mode, "vidmem")) {

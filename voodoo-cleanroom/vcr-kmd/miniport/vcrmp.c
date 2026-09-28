@@ -450,7 +450,11 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
                /* default ON (2026-09-28): GDI gamma ramps into the colour
                 * table; Diag\GdiGamma = 0 refuses them again (read at the
                 * next DrvEnableSurface) */
-               (VcrDiagGet(L"GdiGamma", 1) ? 0 : VCR_INFO_F_NO_GDIGAMMA);
+               (VcrDiagGet(L"GdiGamma", 1) ? 0 : VCR_INFO_F_NO_GDIGAMMA) |
+               /* default OFF (unproven on silicon): the DirectDraw heap starts
+                * one page up, off offset 0 (include/vcr_ddheap.h) - read now,
+                * so the next mode change (a new PDEV) picks it up */
+               (VcrDiagGet(L"DdHeapFloor", 0) ? VCR_INFO_F_DDHEAPFLOOR : 0);
     v->ogl_version = VcrDiagGet(L"OpenGLVersion", 2);
     v->ogl_driver_version = VcrDiagGet(L"OpenGLDriverVersion", 1);
     if (!VcrDiagGetString(L"OpenGLName", v->ogl_name, 32)) {
