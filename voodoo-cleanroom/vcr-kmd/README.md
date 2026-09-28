@@ -122,6 +122,14 @@ ends: write 0, or `EXEC reg delete "HKLM\SYSTEM\CurrentControlSet\Services\vcrmp
 never a value - never point it at `...\vcrmp\Diag`, which holds the phase
 history.
 
+**"At every mode change" means a NEW display surface (measured 2026-09-28,
+QEMU bed):** a same-mode `ChangeDisplaySettingsEx(CDS_RESET)` is only
+`DrvAssertMode(FALSE/TRUE)` on the same PDEV - no `DrvEnableSurface`, so the
+`Accel2D*` switches are not re-read. Pass through another listed mode and
+back (two paced switches), as the 3dfx Control Panel does
+(`scripts/3dfx/3dfxctl`, which writes only `SliAA` and the three `Accel2D*`
+switches, never a key; evidence in `scripts/3dfx/3dfxctl/evidence/`).
+
 **Default changes with no switch (2026-09-27):** an SLI/AA shape with no
 video-mux branch is refused before the first write (`VCR_SLI_EINVAL`, reason 9
 COMBO); only a VSA-100 is given an SLI_AA_REQUEST; a `PCI_OP` offset past 0xFF
