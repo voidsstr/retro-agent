@@ -67,6 +67,13 @@
  * add the guards were local-only, and a Glide built from origin before them
  * sent the request that froze .124 on cfg 1.
  *
+ * --aa-jitter zero: FX_GLIDE_AA2_OFFSET_X0/X1/Y0/Y1 = -0.5 in this process
+ *            only, so every chip's aaCtrl encodes to 0 (offset*16 + 8, masked,
+ *            gpci.c) - the cfg 3 ghost A/B's render-side arm: the pair's
+ *            samples then sit on the same point. Glide itself writes aaCtrl 0
+ *            at every close. Never the registry: Glide reads its HKCU/HKLM
+ *            keys too, and the value would reach every game.
+ *
  * Two more of our Glide's opt-in settings, made where Glide reads them - the
  * process environment (glide_env), never the registry, before the DLL loads:
  *   --aa-lfb-read --i-am-at-the-box   RETRO_GLIDE_AA_LFB_READ=1: our Glide
@@ -264,6 +271,7 @@ static struct {
 /* Glide environment pass-throughs (kept out of O, whose layout the host tests
  * pin): --aa-lfb-read, its --i-am-at-the-box, --maplog PATH */
 static int         g_aa_lfb_read, g_at_box;
+static int         g_aa_jitter_zero;    /* --aa-jitter zero */
 static const char *g_maplog;
 
 /* SSTH3_SLI_AA_CONFIGURATION values that turn anti-aliasing on (Glide's
@@ -608,8 +616,9 @@ static const char *tail_json(void)
         _snprintf(tr, sizeof tr, ",\"trace\":%d", O.trace);
     tr[sizeof tr - 1] = 0;
     /* ... as does a run that let multi-chip AA LFB reads through */
-    _snprintf(buf, sizeof buf, ",\"opened_hz\":%d%s%s%s", g_opened_hz, tr,
+    _snprintf(buf, sizeof buf, ",\"opened_hz\":%d%s%s%s%s", g_opened_hz, tr,
               g_aa_lfb_read ? ",\"aa_lfb_read\":1" : "",
+              g_aa_jitter_zero ? ",\"aa_jitter\":\"zero\"" : "",
               g_focus_lost ? ",\"focus_lost\":true,\"error\":\"the window lost the foreground"
                              " while the board held the mode - run ended\""
                            : ",\"focus_lost\":false");
@@ -966,6 +975,7 @@ int main(int argc, char **argv)
         }
         else if (!strcmp(a, "--trace-cfg")) O.trace_cfg = 1;
         else if (!strcmp(a, "--aa-lfb-read")) g_aa_lfb_read = 1;
+        else if (!strcmp(a, "--aa-jitter") && v && !strcmp(v, "zero")) { g_aa_jitter_zero = 1; i++; }
         else if (!strcmp(a, "--i-am-at-the-box")) g_at_box = 1;
         else if (!strcmp(a, "--maplog")) {
             /* no value, or another option where the path should be: refused
@@ -1037,6 +1047,16 @@ int main(int argc, char **argv)
         char env[16];
         _snprintf(env, sizeof env, "%d", O.cfg);
         glide_env("SSTH3_SLI_AA_CONFIGURATION", env);
+    }
+    if (g_aa_jitter_zero) {
+        static const char *const k_aa2[4] = { "FX_GLIDE_AA2_OFFSET_X0", "FX_GLIDE_AA2_OFFSET_X1",
+                                              "FX_GLIDE_AA2_OFFSET_Y0", "FX_GLIDE_AA2_OFFSET_Y1" };
+        for (c = 0; c < 4; c++)
+            if (!glide_env(k_aa2[c], "-0.5")) {
+                say("RESULT {\"mode\":\"%s\",\"error\":\"--aa-jitter zero: %s not set\"}", O.mode,
+                    k_aa2[c]);
+                return 2;
+            }
     }
     /* what Glide will open: --cfg, or its own environment/registry chain */
     effective_config();

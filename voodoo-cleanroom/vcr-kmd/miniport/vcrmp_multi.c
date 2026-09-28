@@ -270,6 +270,17 @@ static vcr_u32 sli_recipe(void)
     return VcrDiagGet(L"SliAAVendorRecipe", 0) ? VCR_SLI_F_VENDOR_AA : 0;
 }
 
+/* Diag\SliAAFifoGate (DWORD) and Diag\SliAAFeederLead (DWORD, bit 0 = chip
+ * 1, bit 1 = chip 3): the cfg 3 ghost arms (vcr_sli.h). Read per request like
+ * SliAA, for AA requests only, so a supervised run A/Bs them one clean boot
+ * each without a rebuild. They change nothing outside the cfg 3 shape. */
+static vcr_u32 sli_cfg3_arms(void)
+{
+    vcr_u32 lead = VcrDiagGet(L"SliAAFeederLead", 0);
+    return (VcrDiagGet(L"SliAAFifoGate", 0) ? VCR_SLI_F_AAFIFO_GATE : 0) |
+           ((lead & 1) ? VCR_SLI_F_FEEDER_LEAD_C1 : 0) | ((lead & 2) ? VCR_SLI_F_FEEDER_LEAD_C3 : 0);
+}
+
 /* Diag\SliAAReadback (DWORD, absent = 0): after an AA enable, read every
  * chip's SLI/AA config space back into Diag\SliAAState. OFF by default: it
  * adds 9 config reads per chip, ~5 flushed phases and a flushed REG_BINARY
@@ -327,7 +338,7 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
          n, r->ChipInfo.dwsliAaAnalog, r->ChipInfo.dwaaSampleHigh, r->MemInfo.dwBpp);
     x->sli_persist_all = VcrDiagGet(L"SliPersistAll", 0);
     /* the vendor AA recipe changes AA requests only - read for those alone */
-    recipe = (en && r->ChipInfo.dwaaEn) ? sli_recipe() : 0;
+    recipe = (en && r->ChipInfo.dwaaEn) ? (sli_recipe() | sli_cfg3_arms()) : 0;
 
     /* The policy comes first, before anything below can write: a refused
      * request leaves the board - and any live session - exactly as it was.
@@ -372,8 +383,10 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
             x->sli_active = 1;
         }
         VLOG(rc ? VCR_LV_WARN : VCR_LV_INFO, VCR_EV_SLI_DONE, 1, n, (ULONG)rc, x->clock_6k_hz,
-             "SLI/AA on: %u chips -> %d, clock %u Hz%s", n, rc, x->clock_6k_hz,
-             recipe ? ", vendor AA recipe" : "");
+             "SLI/AA on: %u chips -> %d, clock %u Hz%s%s%s", n, rc, x->clock_6k_hz,
+             (recipe & VCR_SLI_F_VENDOR_AA) ? ", vendor AA recipe" : "",
+             (recipe & VCR_SLI_F_AAFIFO_GATE) ? ", AA-FIFO gate arm" : "",
+             (recipe & (VCR_SLI_F_FEEDER_LEAD_C1 | VCR_SLI_F_FEEDER_LEAD_C3)) ? ", feeder-lead arm" : "");
         /* after SET_DONE, AA only, Diag\SliAAReadback only: config cycles,
          * nothing through a BAR */
         if (vcr_sli_aa_state_wanted(r, rc) && sli_aa_readback_wanted())

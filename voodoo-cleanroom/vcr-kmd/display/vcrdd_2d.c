@@ -444,8 +444,8 @@ void VcrDd2dInit(VCR_PDEV *pd)
         pd->d3d_disabled = (info.flags & VCR_INFO_F_NO_D3D) ? 1 : 0;
         pd->no_texport = (info.flags & VCR_INFO_F_NO_TEXPORT) ? 1 : 0;
         pd->text_off = (info.flags & VCR_INFO_F_TEXT2D) ? 0 : 1;   /* default OFF */
-        pd->pat_on = (info.flags & VCR_INFO_F_PAT2D) ? 1 : 0;       /* default OFF */
-        pd->line_on = (info.flags & VCR_INFO_F_LINE2D) ? 1 : 0;     /* default OFF */
+        pd->pat_on = (info.flags & VCR_INFO_F_PAT2D) ? 1 : 0;       /* the miniport's call */
+        pd->line_on = (info.flags & VCR_INFO_F_LINE2D) ? 1 : 0;
         pd->napalm = info.device == 0x0009;
         /* default OFF (positive flags - an older miniport never sets them) */
         pd->rt32 = pd->napalm && (info.flags & VCR_INFO_F_D3D32) ? 1 : 0;

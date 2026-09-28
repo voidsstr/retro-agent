@@ -106,7 +106,7 @@ def test_the_aa_kill_switch_is_asked_before_anything_can_write():
     # policy_ex includes the vendor recipe's MEMINFO check, which used to run
     # only inside the sequence, AFTER VcrSliOff(x, "re-enable") (review
     # 2026-09-27): the recipe is read before the policy for that reason.
-    assert body.index("recipe = (en && r->ChipInfo.dwaaEn) ? sli_recipe() : 0;") < policy
+    assert body.index("recipe = (en && r->ChipInfo.dwaaEn) ? (sli_recipe() | sli_cfg3_arms()) : 0;") < policy
     for later in ('VcrSliOff(x, "re-enable")', "make_io(x, &io)", "vcr_sli_set_ex(&io, r, recipe)",
                   'VcrSliOff(x, "Glide asked")'):
         assert policy < body.index(later), later
@@ -228,7 +228,7 @@ def test_the_vendor_recipe_is_off_by_default_and_read_per_request():
     # MEMINFO check needs it) - never cached at FindAdapter
     assert req.index("sli_recipe()") < req.index("vcr_sli_policy_ex(r, sli_aa_allowed(), recipe)")
     assert req.index("sli_recipe()") < req.index("vcr_sli_set_ex(&io, r, recipe)")
-    assert "recipe = (en && r->ChipInfo.dwaaEn) ? sli_recipe() : 0;" in req
+    assert "recipe = (en && r->ChipInfo.dwaaEn) ? (sli_recipe() | sli_cfg3_arms()) : 0;" in req
     assert "SliAAVendorRecipe" not in func_body(src, "void VcrMultiInit(")
     assert "SliAAVendorRecipe" not in (KMD / "miniport" / "vcrmp.c").read_text()
     # the only caller of the sequence with a flag; the disable keeps the default
@@ -431,3 +431,27 @@ def test_idle_slaves_keep_their_syncs_tristated():
     fix = hw.index("VcrPciWrite(x, x->chip[c].slot, VCR_CFG_VIDEOCTRL0, v | keep, 4);")
     assert off < fix < hw.index("voodoo_program(x, &m)")
     assert "!x->sli_chips" in hw[off:fix]
+
+
+def test_the_cfg3_ghost_arms_are_read_per_request_for_aa_only_and_default_off():
+    """The cfg 3 ghost arms (2026-09-28, vcr_sli.h VCR_SLI_F_AAFIFO_GATE /
+    FEEDER_LEAD_C1/_C3): Diag switches read per request like SliAA, absent =
+    0, and passed to the sequence only with an AA enable - so an SLI-only
+    request and a disable never see them, and neither does a box that has not
+    been armed."""
+    multi = (KMD / "miniport" / "vcrmp_multi.c").read_text()
+    arms = func_body(multi, "static vcr_u32 sli_cfg3_arms(void)")
+    assert 'VcrDiagGet(L"SliAAFifoGate", 0)' in arms
+    assert 'VcrDiagGet(L"SliAAFeederLead", 0)' in arms
+    req = func_body(multi, "VP_STATUS VcrSliRequest(")
+    assert "recipe = (en && r->ChipInfo.dwaaEn) ? (sli_recipe() | sli_cfg3_arms()) : 0;" in req
+    # the policy (kill switch first) still runs before any write
+    assert req.index("sli_cfg3_arms()") < req.index("vcr_sli_policy_ex(r, sli_aa_allowed(), recipe)")
+    sli = (KMD / "miniport" / "vcrmp_sli.c").read_text()
+    # the arms reach the cfg 3 branch and the vsync block, nothing else
+    assert sli.count("p->fifogate") == 5          # gr, gc, the chip 2 branch, SET_BEGIN x2
+    lead = sli[sli.index("/* the feeder-lead arm (vcr_sli.h)"):]
+    lead = lead[:lead.index("cfg_w(io, VCR_SLI_S_VSYNC_OFFSET")]
+    assert "n == 4 && sli && aa && !high && analog && chars == 5" in lead
+    assert "chars = 4;" in lead and "chars = 3" not in lead
+    assert "s->flags = flags & (VCR_SLI_F_VENDOR_AA | VCR_SLI_F_CFG3_ARMS);" in sli

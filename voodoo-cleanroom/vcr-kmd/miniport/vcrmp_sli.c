@@ -624,6 +624,8 @@ typedef struct sli_p {
     vcr_u32 n, sli, aa, high, analog, nlines, lb, nlog2, bpp, swap;
     vcr_u32 col, dbeg, dend, mem0, mem1;
     vcr_u32 vendor;             /* VCR_SLI_F_VENDOR_AA: the vendor-style AA recipe */
+    vcr_u32 fifogate;           /* VCR_SLI_F_AAFIFO_GATE (cfg 3 only) */
+    vcr_u32 lead;               /* bit 0 / 1: VCR_SLI_F_FEEDER_LEAD_C1 / _C3 (cfg 3 only) */
     vcr_u32 tile, total;        /* MemInfo.dwTileMark / dwTotalMemory (that recipe only) */
 } sli_p;
 
@@ -751,15 +753,24 @@ static int video_mux(const vcr_sli_io *io, const sli_p *p, vcr_u32 c, vcr_u32 vi
         }
     } else if (n == 4 && sli && aa && !high && analog) {
         /* D:1101-1139 Four chip, 2-sample AA. two units of 2 chip analog SLI,
-         * with 1 subsample per unit. */
+         * with 1 subsample per unit. The AA-FIFO gate arm (vcr_sli.h
+         * VCR_SLI_F_AAFIFO_GATE, default off) makes every chip's AA-FIFO
+         * equation its fetch band - band 0 for chips 0/1, band 1 for 2/3 -
+         * and moves chip 2's sum to the TRUE mux; off, gr = gc = 0 and the
+         * writes are the vendor's, byte for byte. */
+        const vcr_u32 gr = p->fifogate ? 0x01u << L : 0, gc = p->fifogate ? (c >> 1) << L : 0;
         if (c == 0) {
             vc0(io, c, EN | DIV2, PAA, 0);
             vc1(io, c, 0x01 << L, 0x00 << L, 0x01 << L, 0x00 << L);
-            vc2(io, c, 0, 0);
+            vc2(io, c, gr, gc);
         } else if (c == 1 || c == 3) {
             vc0(io, c, EN | SLV | HTRI | DIV1, PIPE, 0);
             vc1(io, c, 0x01 << L, (c >> 1) << L, 0x00 << L, 0xffu << L);
-            vc2(io, c, 0, 0);
+            vc2(io, c, gr, gc);
+        } else if (p->fifogate) {
+            vc0(io, c, EN | SLV | DIV2, PAA, 0);
+            vc1(io, c, 0x01 << L, 0x01 << L, 0x01 << L, 0x01 << L);
+            vc2(io, c, gr, gc);
         } else {
             vc0(io, c, EN | SLV | DIV2, 0, PAA);
             vc1(io, c, 0x01 << L, 0x01 << L, 0x01 << L, 0x01 << L);
@@ -1007,6 +1018,11 @@ static int config_chip(const vcr_sli_io *io, const sli_p *p, vcr_u32 c)
             chars = 4;      /* four chips, 2-way analog SLI with digital 4-sample AA... */
         else
             chars = 5;      /* Run slave 8 clocks ahead */
+        /* the feeder-lead arm (vcr_sli.h): cfg 3 only, a feeder's 47 px -> 39 px;
+         * chars 4 is the only value this can produce (chars 3 froze the board) */
+        if (n == 4 && sli && aa && !high && analog && chars == 5 &&
+            ((c == 1 && (p->lead & 1)) || (c == 3 && (p->lead & 2))))
+            chars = 4;
         v = cfg_r(io, c, VCR_CFG_SLIAAMISC) & ~VCR_SLIAA_VSYNC_OFFSET;
         v |= (pixels << VCR_SLIAA_VSYNC_PIXELS_SHIFT) | (chars << VCR_SLIAA_VSYNC_CHARS_SHIFT) |
              (hxtra << VCR_SLIAA_VSYNC_HXTRA_SHIFT);
@@ -1081,8 +1097,10 @@ static int sli_enable(const vcr_sli_io *io, const sli_p *p)
     int warn = 0, rc;
 
     lg(io, VCR_SLI_S_SET_BEGIN, p->n,
-       p->sli | (p->aa << 1) | (p->analog << 2) | (p->high << 4) | (p->vendor << 8), p->nlines,
-       p->vendor ? "hwcSetSLIAAMode: enable (vendor AA recipe)" : "hwcSetSLIAAMode: enable");
+       p->sli | (p->aa << 1) | (p->analog << 2) | (p->high << 4) | (p->vendor << 8) |
+           (p->fifogate << 9) | (p->lead << 10), p->nlines,
+       p->fifogate || p->lead ? "hwcSetSLIAAMode: enable (cfg 3 arm: AA-FIFO gate / feeder lead)"
+       : p->vendor ? "hwcSetSLIAAMode: enable (vendor AA recipe)" : "hwcSetSLIAAMode: enable");
 
     /* D:617-621 v56k has an external clock! (Glide keys this on the REAL chip
      * count, not the requested one.) */
@@ -1481,7 +1499,7 @@ int vcr_sli_aa_readback(const vcr_sli_io *io, const vcr_sli_aa_req *r, int resul
     s->magic = VCR_SLI_STATE_MAGIC;
     s->size = sizeof *s;
     s->tuple = vcr_sli_req_tuple(r);
-    s->flags = flags & VCR_SLI_F_VENDOR_AA;
+    s->flags = flags & (VCR_SLI_F_VENDOR_AA | VCR_SLI_F_CFG3_ARMS);
     s->result = result;
     s->nchips = n;
     s->nlines = r->ChipInfo.dwsli_nlines;
@@ -1550,6 +1568,8 @@ int vcr_sli_set_ex(const vcr_sli_io *io, const vcr_sli_aa_req *r, vcr_u32 flags)
     p.dbeg = r->MemInfo.dwaaSecondaryDepthBufBegin;
     p.dend = r->MemInfo.dwaaSecondaryDepthBufEnd;
     p.vendor = (flags & VCR_SLI_F_VENDOR_AA) ? 1 : 0;
+    p.fifogate = (flags & VCR_SLI_F_AAFIFO_GATE) ? 1 : 0;
+    p.lead = ((flags & VCR_SLI_F_FEEDER_LEAD_C1) ? 1 : 0) | ((flags & VCR_SLI_F_FEEDER_LEAD_C3) ? 2 : 0);
     p.tile = r->MemInfo.dwTileMark;
     p.total = r->MemInfo.dwTotalMemory;
 

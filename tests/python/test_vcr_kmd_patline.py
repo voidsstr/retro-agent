@@ -32,10 +32,12 @@ def func(src, sig):
     return src[i:src.index("\n}\n", i)]
 
 
-def test_both_switches_default_off_and_are_read_at_every_info_query():
+def test_both_switches_default_on_and_are_read_at_every_info_query():
+    """Default ON since 2026-09-28 (0 bad on .124 at 16/32 bpp, faster than
+    the software path in every gdilab plbench case); Diag = 0 turns it off."""
     fill = func(MP, "static void fill_info(")
-    assert '(VcrDiagGet(L"Accel2DPattern", 0) ? VCR_INFO_F_PAT2D : 0)' in fill
-    assert '(VcrDiagGet(L"Accel2DLine", 0) ? VCR_INFO_F_LINE2D : 0)' in fill
+    assert '(VcrDiagGet(L"Accel2DPattern", 1) ? VCR_INFO_F_PAT2D : 0)' in fill
+    assert '(VcrDiagGet(L"Accel2DLine", 1) ? VCR_INFO_F_LINE2D : 0)' in fill
     init = func(G2D, "void VcrDd2dInit(")
     # cleared BEFORE the query, so a failed IOCTL leaves them off
     assert init.index("pd->pat_on = pd->line_on = 0;") < init.index("IOCTL_VCR_INFO")
@@ -152,7 +154,7 @@ def test_the_stats_escape_reports_the_new_counters_and_still_answers_an_old_call
 
 
 def test_gdilab_patline_compares_with_gdi_and_knows_who_drew_it():
-    assert 'do_pl = strstr(tests, "patline") != NULL;' in GDILAB
+    assert 'do_pl = has_test(tests, "patline");' in GDILAB
     case = func(GDILAB, "static void pl_case(")
     assert "c->draw(g_wdc);" in case and "c->draw(g_ref);" in case
     assert "(c->accel && !eng) || (!c->accel && c->kind == PL_LINE && eng)" in case
@@ -164,5 +166,9 @@ def test_gdilab_patline_compares_with_gdi_and_knows_who_drew_it():
         assert name in GDILAB, name
     assert '"\\"bad_patline_path\\":%d,\\"pat_engine_fills\\":%d,\\"line_engine_calls\\":%d,"' \
         in GDILAB
+    # the throughput bench: its own token ("plbench" must not also run "bench")
+    assert 'do_plb = has_test(tests, "plbench");' in GDILAB
+    assert 'do_bench = has_test(tests, "bench");' in GDILAB
+    assert "if (do_plb && tsetup)\n        pl_bench(bench_ms);" in GDILAB
     # a patline failure fails the run
     assert "pt.bad + pt.path_bad;" in GDILAB

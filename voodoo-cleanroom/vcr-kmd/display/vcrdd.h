@@ -72,7 +72,7 @@ typedef struct VCR_PDEV {
     ULONG       g2d_ops, g2d_gdi_copies, g2d_gdi_fills;
     /* the text path (vcrdd_punt.c DrvTextOut, include/vcr_text.h) */
     ULONG       text_off;           /* not Diag\\Accel2DText = 1 (the default): EngTextOut as before */
-    ULONG       pat_on, line_on;    /* Diag\\Accel2DPattern / Accel2DLine = 1 (default off) */
+    ULONG       pat_on, line_on;    /* Diag\\Accel2DPattern / Accel2DLine (default on; 0 = off) */
     ULONG       pat_fills, line_fills, pat_punts, line_punts;
     ULONG       text_calls, text_glyphs, text_clipped, text_rects, text_blits, text_punts;
     ULONG       text_fifo_waits;    /* a text write that had to wait for FIFO room */

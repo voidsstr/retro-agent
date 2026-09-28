@@ -398,6 +398,8 @@ async def run_mode(box, a, mode):
     if getattr(a, "aa_lfb_read", False):
         # glidelab.exe refuses the first without the second as well
         args += ["--aa-lfb-read", "--i-am-at-the-box"]
+    if getattr(a, "aa_jitter", None) == "zero":
+        args += ["--aa-jitter", "zero"]
     maplog = maplog_path(log) if getattr(a, "maplog", False) else None
     if maplog:
         args += ["--maplog", maplog]
@@ -720,6 +722,10 @@ def main():
                     help="RETRO_GLIDE_AA_LFB_READ=1 in glidelab's environment: our Glide lets a "
                          "READ lock through in a multi-chip AA mode (it froze .124 on cfg 3). "
                          "Only with --i-am-at-the-box")
+    ap.add_argument("--aa-jitter", choices=("zero",),
+                    help="zero: FX_GLIDE_AA2_OFFSET_X0/X1/Y0/Y1=-0.5 in glidelab's own "
+                         "environment, so every chip's aaCtrl is 0 (the cfg 3 ghost's "
+                         "render-side arm); never written to the registry")
     ap.add_argument("--i-am-at-the-box", action="store_true",
                     help="the confirmation --aa-lfb-read needs: someone is at the box to "
                          "power-cycle it")

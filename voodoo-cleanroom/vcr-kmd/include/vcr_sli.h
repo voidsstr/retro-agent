@@ -215,6 +215,25 @@ enum vcr_sli_step { VCR_SLI_STEP_TABLE VCR_SLI_S__END };
 
 /* flags of vcr_sli_set_ex() - the kernel's per-request policy, not Glide's */
 #define VCR_SLI_F_VENDOR_AA  0x1u   /* Diag\SliAAVendorRecipe = 1: the vendor-style AA recipe (below) */
+/* Supervised arms for the cfg 3 ghost on the V5 6000 (2026-09-28), both
+ * default OFF and both confined to the cfg 3 shape {4 chips, SLI, AA,
+ * 2-sample, analog} - every other shape writes exactly what it did before.
+ *   AAFIFO_GATE (Diag\SliAAFifoGate = 1): each chip's AA-FIFO equation
+ *     (cfgVideoCtrl2, Databook 11.5: a feeder drives aa_vld/aa_clk/aa_data,
+ *     a summer takes its other-mux TRUE branch, when (line & rmask) == cmask)
+ *     becomes its fetch band - a feeder drives only the lines it fetched, a
+ *     summer sums only on its own band (chip 2's sum moves to the TRUE mux).
+ *     The vendor code drives the bus on every line in this shape alone; 3dfx's
+ *     "Video SLI AA Configs" sheet gates it to the band.
+ *   FEEDER_LEAD_C1 / _C3 (Diag\SliAAFeederLead bit 0 / bit 1): that feeder's
+ *     vga_vsync_offset 47 px (chars 5, "run slave 8 clocks ahead") becomes
+ *     39 px (chars 4) - the value every slave runs in the clean cfg 5 on the
+ *     same board. Only chars 4 is reachable: 31 px (chars 3) hard-froze the
+ *     board (retro-3dfx FINDINGS.md). */
+#define VCR_SLI_F_AAFIFO_GATE     0x2u
+#define VCR_SLI_F_FEEDER_LEAD_C1  0x4u
+#define VCR_SLI_F_FEEDER_LEAD_C3  0x8u
+#define VCR_SLI_F_CFG3_ARMS  (VCR_SLI_F_AAFIFO_GATE | VCR_SLI_F_FEEDER_LEAD_C1 | VCR_SLI_F_FEEDER_LEAD_C3)
 
 /* The request's shape, one nibble per field, so a hex dump reads left to
  * right as {chips, sli, aa, sampleHigh, analog}: cfg 1 as Glide sends it on

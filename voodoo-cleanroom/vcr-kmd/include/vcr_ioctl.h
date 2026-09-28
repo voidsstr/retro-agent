@@ -117,8 +117,9 @@ typedef struct vcr_info {
  * path, though 0-bad on the 86Box bed, drew FEWER glyphs/s there than the
  * software path it replaces and has never run on silicon (2026-09-27). */
 #define VCR_INFO_F_TEXT2D       0x40    /* Diag\\Accel2DText = 1: DrvTextOut on the 2D engine */
-/* the same kind (positive, default OFF, read at every IOCTL_VCR_INFO) for the
- * 8x8 mono pattern fills and the axis-aligned cosmetic lines (2026-09-27) */
+/* the same kind (positive, read at every IOCTL_VCR_INFO) for the 8x8 mono
+ * pattern fills and the axis-aligned cosmetic lines (2026-09-27; default ON
+ * in the miniport since 2026-09-28 - an older miniport never sets them) */
 #define VCR_INFO_F_PAT2D        0x80    /* Diag\\Accel2DPattern = 1: mono brushes on the engine */
 #define VCR_INFO_F_LINE2D       0x100   /* Diag\\Accel2DLine = 1: horizontal/vertical lines */
 

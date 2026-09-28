@@ -242,3 +242,23 @@ def test_glidelab_edges_is_for_a_person_to_look_at_and_reads_nothing_back():
     glr = (Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd" / "tools"
            / "glidelab_run.py").read_text()
     assert '"edges"' in glr
+
+
+def test_glidelab_aa_jitter_zero_is_process_environment_only():
+    """--aa-jitter zero (2026-09-28): the cfg 3 ghost's render-side arm sets
+    FX_GLIDE_AA2_OFFSET_X0/X1/Y0/Y1 = -0.5 (aaCtrl 0 on every chip) through
+    glide_env - this process only - before the Glide DLL loads. Glide also
+    reads its HKCU/HKLM keys, so a registry write would reach every game."""
+    tools = Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd" / "tools"
+    gl = (tools / "glidelab.c").read_text()
+    blk = gl[gl.index("    if (g_aa_jitter_zero) {"):]
+    blk = blk[:blk.index("\n    }\n") + 6]
+    for v in ("FX_GLIDE_AA2_OFFSET_X0", "FX_GLIDE_AA2_OFFSET_X1", "FX_GLIDE_AA2_OFFSET_Y0",
+              "FX_GLIDE_AA2_OFFSET_Y1"):
+        assert f'"{v}"' in blk, v
+    assert 'glide_env(k_aa2[c], "-0.5")' in blk and "Reg" not in blk
+    # set before the DLL is loaded
+    assert gl.index("    if (g_aa_jitter_zero) {") < gl.index("LoadLibrary")
+    assert '",\\"aa_jitter\\":\\"zero\\""' in gl
+    glr = (tools / "glidelab_run.py").read_text()
+    assert 'args += ["--aa-jitter", "zero"]' in glr

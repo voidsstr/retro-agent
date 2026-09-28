@@ -775,13 +775,130 @@ static void text_bench(int ms)
     }
 }
 
+/* ---- patterns and lines: throughput (--tests plbench) ---------------------------
+ * The same primitives as the patline cases, timed: engine or GDI, whichever
+ * the driver's switches choose, so an on/off pair of runs is the comparison.
+ * Each case draws for bench_ms and reads a pixel back at the end (which waits
+ * for the engine), so queued work is inside the time. */
+typedef struct plbcase { const char *name; int kind; } plbcase;
+enum { PLB_HATCH, PLB_GREYFRAME, PLB_HLINE, PLB_VLINE, PLB_RECT };
+static const plbcase k_plb[] = {
+    { "hatch PatBlt 64x64 opaque", PLB_HATCH },
+    { "grey PATINVERT drag frame 400x300", PLB_GREYFRAME },
+    { "horizontal line 200 px", PLB_HLINE },
+    { "vertical line 200 px", PLB_VLINE },
+    { "Rectangle outline 200x150", PLB_RECT },
+};
+#define NPLB ((int)(sizeof k_plb / sizeof k_plb[0]))
+static char g_plbjson[1024];
+
+/* --tests is a comma list: "plbench" must not also mean "bench" */
+static int has_test(const char *tests, const char *name)
+{
+    size_t n = strlen(name);
+    const char *p = tests;
+    while ((p = strstr(p, name)) != NULL) {
+        if ((p == tests || p[-1] == ',') && (p[n] == 0 || p[n] == ','))
+            return 1;
+        p += n;
+    }
+    return 0;
+}
+
+static void pl_bench(int ms)
+{
+    LARGE_INTEGER f, t0, t1;
+    int b;
+    char *o = g_plbjson;
+    size_t left = sizeof g_plbjson;
+    HBRUSH hatch = CreateHatchBrush(HS_DIAGCROSS, FG2), grey = CreatePatternBrush(g_grey_bm);
+    HPEN pen = CreatePen(PS_SOLID, 0, FG3);
+    QueryPerformanceFrequency(&f);
+    *o = 0;
+    for (b = 0; b < NPLB; b++) {
+        const plbcase *c = &k_plb[b];
+        vcr_2d_stats s0, s1;
+        int ops = 0, have, k;
+        double el, rate;
+        HGDIOBJ ob = SelectObject(g_wdc, c->kind == PLB_GREYFRAME ? grey : hatch);
+        HGDIOBJ op = SelectObject(g_wdc, pen);
+        HGDIOBJ onb = NULL;
+        BitBlt(g_wdc, 0, 0, W, H, g_bg, 0, 0, SRCCOPY);
+        SetBkMode(g_wdc, OPAQUE);
+        SetBkColor(g_wdc, BG2);
+        SetTextColor(g_wdc, FG1);
+        if (c->kind == PLB_RECT)
+            onb = SelectObject(g_wdc, GetStockObject(NULL_BRUSH));
+        have = stats2d(&s0);
+        QueryPerformanceCounter(&t0);
+        do {
+            for (k = 0; k < 32; k++, ops++) {
+                int x = (ops * 7) % (W - 210), y = (ops * 13) % (H - 160);
+                switch (c->kind) {
+                case PLB_HATCH:
+                    PatBlt(g_wdc, x, y, 64, 64, PATCOPY);
+                    break;
+                case PLB_GREYFRAME:
+                    x %= W > 400 ? W - 400 : 1;
+                    y %= H > 300 ? H - 300 : 1;
+                    PatBlt(g_wdc, x, y, 400, 1, PATINVERT);
+                    PatBlt(g_wdc, x, y + 1, 1, 298, PATINVERT);
+                    PatBlt(g_wdc, x + 399, y + 1, 1, 298, PATINVERT);
+                    PatBlt(g_wdc, x, y + 299, 400, 1, PATINVERT);
+                    break;
+                case PLB_HLINE:
+                    MoveToEx(g_wdc, x, y, NULL);
+                    LineTo(g_wdc, x + 200, y);
+                    break;
+                case PLB_VLINE:
+                    MoveToEx(g_wdc, x, y % (H - 200 > 0 ? H - 200 : 1), NULL);
+                    LineTo(g_wdc, x, y % (H - 200 > 0 ? H - 200 : 1) + 200);
+                    break;
+                case PLB_RECT:
+                    Rectangle(g_wdc, x, y, x + 200, y + 150);
+                    break;
+                }
+            }
+            QueryPerformanceCounter(&t1);
+        } while ((t1.QuadPart - t0.QuadPart) * 1000 / f.QuadPart < ms);
+        GdiFlush();
+        GetPixel(g_wdc, 1, 1);          /* read back: waits for the engine to finish */
+        QueryPerformanceCounter(&t1);
+        have = stats2d(&s1) && have;
+        if (onb)
+            SelectObject(g_wdc, onb);
+        SelectObject(g_wdc, op);
+        SelectObject(g_wdc, ob);
+        el = (double)(t1.QuadPart - t0.QuadPart) / (double)f.QuadPart;
+        rate = el > 0 ? (double)ops / el : 0;
+        say("plbench %-36s %9.0f ops/s  (%d ops, %.0f ms; engine: %s%d pattern fill(s), %d line "
+            "call(s))", c->name, rate, ops, el * 1000, have ? "" : "n/a ",
+            have ? (int)(s1.pat_fills - s0.pat_fills) : 0,
+            have ? (int)(s1.line_fills - s0.line_fills) : 0);
+        if (left > 160) {
+            int w = _snprintf(o, left, "%s{\"name\":\"%s\",\"ops_s\":%.0f,\"ops\":%d,\"ms\":%.0f,"
+                              "\"engine_pat\":%d,\"engine_line\":%d}", b ? "," : "", c->name, rate,
+                              ops, el * 1000, have ? (int)(s1.pat_fills - s0.pat_fills) : -1,
+                              have ? (int)(s1.line_fills - s0.line_fills) : -1);
+            if (w > 0) {
+                o += w;
+                left -= (size_t)w;
+            }
+        }
+        pump();
+    }
+    DeleteObject(hatch);
+    DeleteObject(grey);
+    DeleteObject(pen);
+}
+
 int main(int argc, char **argv)
 {
     WNDCLASSA wc;
     HWND wnd;
     int i, rounds = 3, r, total = 0, fills = 0, rops = 0, copies = 0, scrolls = 0, clips = 0,
         sync = 0, first = 0, bench_ms = 2000, require = 0, do_base, do_text, do_bench, tsetup = 1,
-        do_pl = 0;
+        do_pl = 0, do_plb = 0;
     pltotal pt;
     const char *tests = "base,text";
     vcr_2d_stats st;
@@ -800,10 +917,11 @@ int main(int argc, char **argv)
         else if (!strcmp(argv[i], "--require-text-accel"))
             require = 1;
     }
-    do_base = strstr(tests, "base") != NULL;
-    do_text = strstr(tests, "text") != NULL;
-    do_bench = strstr(tests, "bench") != NULL;
-    do_pl = strstr(tests, "patline") != NULL;
+    do_base = has_test(tests, "base");
+    do_text = has_test(tests, "text");
+    do_bench = has_test(tests, "bench");
+    do_pl = has_test(tests, "patline");
+    do_plb = has_test(tests, "plbench");
     if (bench_ms < 100)
         bench_ms = 100;
     if (bench_ms > 20000)
@@ -832,7 +950,8 @@ int main(int argc, char **argv)
             st.bpp);
     else
         say("display driver 2D counters: not answered (not our driver)");
-    if ((do_text || do_bench || do_pl) && !(tsetup = text_setup() && (!do_pl || pl_setup())))
+    if ((do_text || do_bench || do_pl || do_plb) &&
+        !(tsetup = text_setup() && (!(do_pl || do_plb) || pl_setup())))
         say("text setup failed");
 
     for (r = 0; r < rounds && do_base; r++) {
@@ -952,7 +1071,9 @@ int main(int argc, char **argv)
     }
     if (do_bench && tsetup)
         text_bench(bench_ms);
-    if ((do_text || do_bench || do_pl) && !tsetup)
+    if (do_plb && tsetup)
+        pl_bench(bench_ms);
+    if ((do_text || do_bench || do_pl || do_plb) && !tsetup)
         tt.bad++;                       /* a text run that could not start is not a pass */
     total = fills + rops + copies + scrolls + clips + sync + tt.bad + tt.path_bad + tt.empty +
             pt.bad + pt.path_bad;
@@ -963,11 +1084,11 @@ int main(int argc, char **argv)
         "\"text_engine_glyphs\":%d,\"text_clipped\":%d,\"text_blits\":%d,\"text_software\":%d,"
         "\"patline_cases\":%d,\"bad_patline\":%d,\"bad_patline_cases\":%d,"
         "\"bad_patline_path\":%d,\"pat_engine_fills\":%d,\"line_engine_calls\":%d,"
-        "\"bench\":[%s],\"bad\":%d}",
+        "\"bench\":[%s],\"plbench\":[%s],\"bad\":%d}",
         g_bpp, rounds, tests, fills, rops, copies, scrolls, clips, sync, tt.bad, tt.bad_cases,
         tt.path_bad, tt.empty, tt.cases, tt.have_stats ? "true" : "false", tt.calls, tt.glyphs,
         tt.clipped, tt.blits, tt.punts, pt.cases, pt.bad, pt.bad_cases, pt.path_bad, pt.pat, pt.line,
-        g_benchjson, total);
+        g_benchjson, g_plbjson, total);
     DeleteDC(g_mem);
     DeleteObject(g_bm);
     ReleaseDC(wnd, g_wdc);

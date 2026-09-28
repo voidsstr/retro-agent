@@ -2083,6 +2083,26 @@ static const aa_table k_aa_tables[] = {
       { { IES, DECS, 0x0200384bu, 0,           0xff00u, 0, T_WHOLE, CFG8_AALFB_NEW, 0x0827u }, 0, 1 },
       { { IES, DECS, 0x0200080bu, 0xff000000u, 0,       0, T_WHOLE, CFG8_AALFB_NEW, 0x082fu }, 0, 1 } },
       0x00b00000u },
+    /* the cfg 3 ghost arms (2026-09-28, vcr_sli.h): the AA-FIFO gate changes
+     * only 0x88 on every chip (each chip's fetch band: 0x08/0 for chips 0/1,
+     * 0x08/0x08 for chips 2/3 at 8-line bands) and chip 2's sum mux (0x1843
+     * -> 0x1813); the feeder lead only a feeder's 0xAC chars 5 -> 4 */
+    { "cfg 3 {4,1,1,0,1}, AA-FIFO gate arm", 4, 1, 1, 0, 1, VCR_SLI_F_AAFIFO_GATE, VCR_SLI_W_NOCLOCK, {
+      { { IE0, DEC0, 0x00001811u, 0x00080008u, 0x0008u, 0x1d070008u, T_DEPTH, 0x0c000000u, 0x0800u }, 0x05070008u, 1 },
+      { { IES, DECS, 0x02000803u, 0xf8000008u, 0x0008u, 0x1d070008u, T_DEPTH, 0x0c000000u, 0x082fu }, 0x05070008u, 1 },
+      { { IES, DECS, 0x00001813u, 0x08080808u, 0x0808u, 0x1d070808u, T_DEPTH, 0x0c000000u, 0x0827u }, 0x05070808u, 1 },
+      { { IES, DECS, 0x02000803u, 0xf8000808u, 0x0808u, 0x1d070808u, T_DEPTH, 0x0c000000u, 0x182fu }, 0x05070808u, 1 } }, 0 },
+    { "cfg 3 {4,1,1,0,1}, feeder-lead arm, chip 1 only", 4, 1, 1, 0, 1, VCR_SLI_F_FEEDER_LEAD_C1, VCR_SLI_W_NOCLOCK, {
+      { { IE0, DEC0, 0x00001811u, 0x00080008u, 0,       0x1d070008u, T_DEPTH, 0x0c000000u, 0x0800u }, 0x05070008u, 1 },
+      { { IES, DECS, 0x02000803u, 0xf8000008u, 0,       0x1d070008u, T_DEPTH, 0x0c000000u, 0x0827u }, 0x05070008u, 1 },
+      { { IES, DECS, 0x00001843u, 0x08080808u, 0xff00u, 0x1d070808u, T_DEPTH, 0x0c000000u, 0x0827u }, 0x05070808u, 1 },
+      { { IES, DECS, 0x02000803u, 0xf8000808u, 0,       0x1d070808u, T_DEPTH, 0x0c000000u, 0x182fu }, 0x05070808u, 1 } }, 0 },
+    { "cfg 3 {4,1,1,0,1}, feeder-lead arm, chips 1 and 3", 4, 1, 1, 0, 1,
+      VCR_SLI_F_FEEDER_LEAD_C1 | VCR_SLI_F_FEEDER_LEAD_C3, VCR_SLI_W_NOCLOCK, {
+      { { IE0, DEC0, 0x00001811u, 0x00080008u, 0,       0x1d070008u, T_DEPTH, 0x0c000000u, 0x0800u }, 0x05070008u, 1 },
+      { { IES, DECS, 0x02000803u, 0xf8000008u, 0,       0x1d070008u, T_DEPTH, 0x0c000000u, 0x0827u }, 0x05070008u, 1 },
+      { { IES, DECS, 0x00001843u, 0x08080808u, 0xff00u, 0x1d070808u, T_DEPTH, 0x0c000000u, 0x0827u }, 0x05070808u, 1 },
+      { { IES, DECS, 0x02000803u, 0xf8000808u, 0,       0x1d070808u, T_DEPTH, 0x0c000000u, 0x1827u }, 0x05070808u, 1 } }, 0 },
 };
 
 static const vcr_u32 k_state_offs[VCR_SLI_STATE_NCFG] = {
@@ -2337,6 +2357,86 @@ TEST(the_recipe_is_visible_in_the_persisted_phases) {
     }
 }
 
+/* (f) the cfg 3 ghost arms change the cfg 3 shape and nothing else: every
+ * other pinned request, and the disable, write the identical bus sequence
+ * with all of them on - and cfg 3 with them off is the pinned sequence */
+TEST(the_cfg3_arms_leave_every_other_shape_and_the_disable_alone) {
+    mock *m = &M;
+    unsigned i, checked = 0;
+    int rc;
+    for (i = 0; i < sizeof k_seq / sizeof k_seq[0]; i++) {
+        const seq_case *s = &k_seq[i];
+        int cfg3 = s->n == 4 && s->sli && s->aa && !s->high && s->analog && !s->then_disable;
+        run_seq_ex(m, s, VCR_SLI_F_CFG3_ARMS, &rc);
+        if (cfg3) {
+            /* the same number of writes (an arm replaces values, adds none) */
+            CHECK_EQ_U(m->nw, s->nw);
+            CHECK(wr_hash(m) != s->hash, "the cfg 3 arms changed nothing");
+            continue;
+        }
+        if (rc != s->rc || m->nw != s->nw || wr_hash(m) != s->hash) {
+            munit_fails++;
+            fprintf(stderr, "    FAIL %s with the cfg 3 arms: rc %d nw %u hash 0x%08x\n",
+                    s->name, rc, m->nw, wr_hash(m));
+        }
+        checked++;
+    }
+    CHECK_EQ_U(checked, 8);     /* cfg 5 x3, the close, 2-chip SLI x2, cfg 7, cfg 8 */
+}
+
+/* the arm is named in SET_BEGIN (bit 9 = gate, bits 10-11 = feeder lead), in
+ * the persisted phase too; without an arm SET_BEGIN is what it was */
+TEST(the_cfg3_arms_are_visible_in_the_persisted_phases) {
+    static const vcr_u32 arms[3] = { VCR_SLI_F_AAFIFO_GATE, VCR_SLI_F_FEEDER_LEAD_C1,
+                                     VCR_SLI_F_FEEDER_LEAD_C1 | VCR_SLI_F_FEEDER_LEAD_C3 };
+    static const vcr_u32 bits[3] = { 0x200u, 0x400u, 0xc00u };
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_sli_aa_req r = table_req(&k_aa_tables[0]);          /* cfg 3, dos_mode.c */
+    unsigned a, i;
+    for (a = 0; a < 3; a++) {
+        int begin = 0;
+        mapped(m, &io, 4);
+        m->nl = 0;
+        CHECK(vcr_sli_set_ex(&io, &r, arms[a]) >= 0, "cfg 3 with an arm refused");
+        for (i = 0; i < m->nl; i++)
+            if (m->l[i].step == VCR_SLI_S_SET_BEGIN) {
+                begin = 1;
+                CHECK_EQ_U(m->l[i].reg & 0xe00u, bits[a]);
+                CHECK_EQ_U(vcr_sli_phase_b(VCR_SLI_S_SET_BEGIN, m->l[i].chip, m->l[i].reg,
+                                           m->l[i].val) & 0xe00u, bits[a]);
+            }
+        CHECK(begin, "no SET_BEGIN");
+    }
+    mapped(m, &io, 4);
+    m->nl = 0;
+    CHECK(vcr_sli_set(&io, &r) >= 0, "cfg 3 refused");
+    for (i = 0; i < m->nl; i++)
+        if (m->l[i].step == VCR_SLI_S_SET_BEGIN)
+            CHECK_EQ_U(m->l[i].reg, 0x1u | 0x2u | 0x4u);    /* sli, aa, analog */
+}
+
+/* no arm, alone or together, on any shape, can put a vga_vsync_offset of
+ * pixels 7 / chars 3 (31 px, 0x1f) in any chip: it hard-froze the V5 6000 */
+TEST(no_arm_can_reach_the_vsync_offset_that_froze_the_board) {
+    mock *m = &M;
+    unsigned i, c, f;
+    int rc;
+    for (f = 0; f <= VCR_SLI_F_CFG3_ARMS; f += 2)
+        for (i = 0; i < sizeof k_seq / sizeof k_seq[0]; i++) {
+            const seq_case *s = &k_seq[i];
+            if (s->then_disable)
+                continue;
+            run_seq_ex(m, s, f | VCR_SLI_F_VENDOR_AA, &rc);
+            for (c = 1; c < s->n; c++) {
+                vcr_u32 chars = (CFG(m, c, VCR_CFG_SLIAAMISC) & VCR_SLIAA_VSYNC_OFFSET) >>
+                                VCR_SLIAA_VSYNC_CHARS_SHIFT;
+                if (rc >= 0 && (s->aa || s->sli))
+                    CHECK(chars == 4 || chars == 5, "a vsync offset other than 39/47 px");
+            }
+        }
+}
+
 /* (e) `vcrctl sliaa`: the parser, the at-the-box gate, Glide's request */
 static const char *sliaa(vcr_sliaa_cmd *c, int argc, ...)
 {
@@ -2542,6 +2642,9 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(the_aa_state_is_read_back_by_config_cycles_only);
     RUN(no_state_record_without_an_aa_enable);
     RUN(the_recipe_is_visible_in_the_persisted_phases);
+    RUN(the_cfg3_arms_leave_every_other_shape_and_the_disable_alone);
+    RUN(the_cfg3_arms_are_visible_in_the_persisted_phases);
+    RUN(no_arm_can_reach_the_vsync_offset_that_froze_the_board);
     RUN(vcrctl_sliaa_refuses_every_enable_without_a_person_at_the_box);
     RUN(step_codes_are_unique);
 )
