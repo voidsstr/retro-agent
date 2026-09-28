@@ -1,0 +1,831 @@
+#!/usr/bin/env python3
+"""
+lan_check.py - is each staged title STABLE on this box's driver stack, run the
+way its desktop shortcut runs it?
+
+v56k_bench.py answers a different question (how fast is a named driver lane
+at a named resolution) and deliberately builds its own command lines - its
+Quake III route is retail quake3.exe on AmigaMerlin's ICD, which is not what
+the "Quake III Arena" shortcut on .124 starts (ioquake3 -> opengl32 -> the
+system ICD). Before a LAN party what matters is the shortcut's path, so every
+check here:
+
+  * asks the box's own FLEETRES.BAT for the values the launcher will use
+    (FR_W/FR_H/FR_HZ/FR_Q2MODE/FR_Q3MODE/...), and writes the same per-run
+    files the launcher writes (fleetres.cfg);
+  * starts the same exe with the launcher's own arguments, adding only an
+    engine script: a timedemo (the render loop completes, and a number), an
+    engine screenshot (the engine composes it from the frame it drew - an
+    agent GDI capture of a Glide surface is not evidence), and a multiplayer
+    soak on the fleet server (bots, so there is something to draw);
+  * ends the game through its own `quit`, never TerminateProcess: a killed
+    Glide process never unmaps its board mapping (v56k_bench.graceful_kill);
+  * reports the post-condition: exit on time, the log's renderer line and
+    fps, errors in the log, a new Dr. Watson entry, an error window, board
+    health (glideprobe --noopen) and agent liveness afterwards.
+
+Evidence (logs, shots as PNG, a JSON per run) goes under --outdir in the repo
+tree, never the scratchpad.
+
+    python3 scripts/benchmarks/lan_check.py --host 192.168.1.124 --titles q3 \
+        --server 192.168.1.196 --soak 300 \
+        --outdir scripts/benchmarks/results/v56k_lan_192.168.1.124
+"""
+import argparse
+import asyncio
+import importlib.util
+import io
+import json
+import re
+import sys
+import time
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+
+
+def _load_bench():
+    spec = importlib.util.spec_from_file_location("v56k_bench", HERE / "v56k_bench.py")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["v56k_bench"] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+bench = _load_bench()
+Box = bench.Box
+DRWTSN = r"C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\drwtsn32.log"
+
+
+def log(m):
+    print(time.strftime("[%H:%M:%S] ") + m, flush=True)
+
+
+# --------------------------------------------------------------------------- #
+# box helpers
+# --------------------------------------------------------------------------- #
+
+async def fleetres_env(box, root, extra=""):
+    """The values the title's own launcher computes: run its FLEETRES.BAT on
+    the box and read FR_* back. Through a .bat of its own: a one-line
+    `cmd /c cd ... && call FLEETRES.BAT` under EXEC never finds the file."""
+    bat = r"C:\RETRO_AGENT\lanfr.bat"
+    await box.upload(bat, "\r\n".join(["@echo off", f'cd /d "{root}"',
+                                         f'call "{root}\\FLEETRES.BAT" {extra} >nul 2>&1', "set FR_", ""]))
+    out = await box.exec_(bat, timeout=90)
+    env = {}
+    for line in out.splitlines():
+        m = re.match(r"(FR_\w+)=(.*)", line.strip())
+        if m:
+            env[m.group(1)] = m.group(2).strip()
+    return env
+
+
+async def appdata(box):
+    out = await box.exec_("cmd /c echo %APPDATA%", timeout=30)
+    return out.strip().splitlines()[-1].strip()
+
+
+async def running(box, image):
+    out = await box.exec_(f'cmd /c tasklist /fi "imagename eq {image}" /nh', timeout=30)
+    return image.lower() in out.lower()
+
+
+async def dir_names(box, path, pattern="*"):
+    out = await box.exec_(f'cmd /c dir /b /o:d "{path}\\{pattern}" 2>nul', timeout=30)
+    return [l.strip() for l in out.splitlines() if l.strip() and "File Not Found" not in l]
+
+
+async def file_size(box, path):
+    out = await box.exec_(f'cmd /c for %I in ("{path}") do @echo %~zI', timeout=30)
+    try:
+        return int(out.strip().splitlines()[-1])
+    except (ValueError, IndexError):
+        return 0
+
+
+async def error_windows(box):
+    """Visible windows whose title says a program failed."""
+    try:
+        st, out = await box.cmd("WINLIST", timeout=30)
+        wins = json.loads(out)
+    except Exception:
+        return []
+    bad = []
+    for w in wins if isinstance(wins, list) else wins.get("windows", []):
+        t = (w.get("title") or "") if isinstance(w, dict) else str(w)
+        if re.search(r"error|has encountered|not responding|fatal|exception|dr\.? watson", t, re.I):
+            bad.append(t)
+    return bad
+
+
+def shot_stats(data):
+    """(width, height, mean luma, stddev) of an image, or None."""
+    try:
+        from PIL import Image, ImageStat
+        im = Image.open(io.BytesIO(data)).convert("L")
+        st = ImageStat.Stat(im)
+        return im.size[0], im.size[1], round(st.mean[0], 1), round(st.stddev[0], 1)
+    except Exception:
+        return None
+
+
+def save_png(data, path):
+    from PIL import Image
+    Image.open(io.BytesIO(data)).convert("RGB").save(path, optimize=True)
+
+
+# --------------------------------------------------------------------------- #
+# titles
+# --------------------------------------------------------------------------- #
+
+class IdTech3:
+    """ioquake3 / retail Quake III / RtCW MP: an exec'd script with `wait N`
+    (frames) and screenshotJPEG, qconsole.log via `logfile 2`."""
+
+    tid = "q3"
+    name = "Quake III Arena (shortcut: ioquake3 -> system ICD)"
+    root = r"C:\Games\Quake3-TeamArena"
+    mod = "baseq3"
+    exe = "ioquake3.x86.exe"
+    port = 27961
+    demo = "four"
+    homepath = "appdata"          # ioquake3 on XP: %APPDATA%\Quake3
+
+    def launcher_args(self, env):
+        # Play Quake III Arena.bat, verbatim
+        return (f"+set r_mode -1 +set r_customwidth {env['FR_W']} +set r_customheight {env['FR_H']} "
+                f"+set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 "
+                f"+set cg_fov {env.get('FR_FOV', '90')}")
+
+    def fleetres_cfg(self, env):
+        # what the launcher writes (FLEETGL.BAT adds nothing on a box with no 3dfxvgl.dll)
+        return "\r\n".join([
+            "// written by the launcher at every start - do not edit",
+            'seta r_mode "-1"',
+            f'seta r_customwidth "{env["FR_W"]}"',
+            f'seta r_customheight "{env["FR_H"]}"',
+            'seta r_customaspect "1"',
+            'seta r_customPixelAspect "1"',
+            'seta r_fullscreen "1"',
+            f'seta r_displayRefresh "{env.get("FR_HZ", "0")}"',
+            f'seta cg_fov "{env.get("FR_FOV", "90")}"',
+            "",
+        ])
+
+    def script(self, phase, soak_frames, shots, server=None):
+        if phase == "timedemo":
+            return ['set timedemo 1', 'set nextdemo "quit"', f'demo {self.demo}']
+        if phase == "shot":
+            return ['set timedemo 0', f'demo {self.demo}', 'wait 400', 'screenshotJPEG',
+                    'wait 400', 'screenshotJPEG', 'wait 30', 'quit']
+        # soak: connect FIRST - anything after `+exec` on the command line
+        # waits behind this script, which ends in `quit`
+        lines = ['set timedemo 0', f'connect {server}:{self.port}', 'wait 600']
+        for _ in range(shots):
+            lines += [f'wait {max(1, soak_frames // shots)}', 'screenshotJPEG']
+        return lines + ['disconnect', 'wait 60', 'quit']
+
+    async def paths(self, box):
+        base = self.root if self.homepath == "root" else (await appdata(box)) + r"\Quake3"
+        return {"log": rf"{base}\{self.mod}\qconsole.log",
+                "shots": rf"{base}\{self.mod}\screenshots",
+                "cfg": rf"{self.root}\{self.mod}\lancheck.cfg"}
+
+    def command(self, env, phase, server):
+        return f'{self.exe} {self.launcher_args(env)} +set logfile 2 +exec lancheck.cfg'
+
+    def parse(self, raw):
+        r = {}
+        m = None
+        for m in re.finditer(r"(\d+) frames,?\s*([\d.]+) seconds?:?\s*([\d.]+) fps", raw):
+            pass
+        if m:
+            r["fps"] = float(m.group(3))
+            r["frames"] = int(m.group(1))
+        g = re.findall(r"GL_RENDERER:\s*(.+)", raw)
+        if g:
+            r["gl_renderer"] = g[-1].strip()
+        mo = re.findall(r"MODE:\s*(-?\d+),\s*(\d+)\s*x\s*(\d+)\s*(\w*)", raw)
+        if mo:
+            r["mode"] = "x".join(mo[-1][1:3]) + (" " + mo[-1][3] if mo[-1][3] else "")
+        cb = re.findall(r"PIXELFORMAT:\s*color\((\d+)-bits\)", raw)
+        if cb:
+            r["colorbits"] = int(cb[-1])
+        errs = [l.strip() for l in raw.splitlines()
+                if re.search(r"^\s*(\*+\s*)?(ERROR|FATAL)|Sys_Error|Hunk_Alloc failed|"
+                             r"could not set|failed hard|R_Init failed|GLW_StartOpenGL|"
+                             r"exception", l, re.I)]
+        if errs:
+            r["errors"] = errs[:12]
+        r["connected"] = bool(re.search(r"CL_InitCGame|entered the game", raw))
+        return r
+
+
+class RTCW(IdTech3):
+    tid = "rtcw"
+    name = "Return to Castle Wolfenstein MP (shortcut: RTCW Multiplayer / Join LAN)"
+    root = r"C:\Games\ReturnToCastleWolfenstein"
+    mod = "Main"
+    exe = "WolfMP.exe"
+    port = 27963
+    demo = None
+    homepath = "root"
+
+    def launcher_args(self, env):
+        return f"+set r_mode {env['FR_Q3MODE']} +set r_fullscreen 1"
+
+    def fleetres_cfg(self, env):
+        return "\r\n".join([
+            "// written by the launcher at every start - do not edit",
+            f'seta r_mode "{env["FR_Q3MODE"]}"',
+            'seta r_fullscreen "1"',
+            f'seta r_displayRefresh "{env.get("FR_HZ", "0")}"',
+            "",
+        ])
+
+    def script(self, phase, soak_frames, shots, server=None):
+        if phase in ("timedemo", "shot"):
+            # the MP binary has no demo of ours; the soak carries the test
+            return []
+        return super().script(phase, soak_frames, shots, server)
+
+
+def wait_chain(frames):
+    """`wait` that takes no argument (id Tech 2, GoldSrc, NetQuake): N frames
+    as alias expansions - a flat chain of thousands overflows the buffer."""
+    out = ['alias lw10 "wait;wait;wait;wait;wait;wait;wait;wait;wait;wait"',
+           'alias lw100 "lw10;lw10;lw10;lw10;lw10;lw10;lw10;lw10;lw10;lw10"']
+    return out, ["lw100"] * max(1, frames // 100)
+
+
+class IdTech2(IdTech3):
+    """Quake II 3.20: gl_driver opengl32 (the staged autoexec) -> the system
+    ICD. `wait` is one frame; `screenshot` writes baseq2\\scrnshot\\*.tga."""
+    tid = "q2"
+    name = "Quake II (shortcut: quake2.exe gl_driver opengl32 -> system ICD)"
+    root = r"C:\Games\Quake2Complete"
+    mod = "baseq2"
+    exe = "quake2.exe"
+    port = 27910
+    homepath = "root"
+    shot_ext = "tga"
+    shot_dir = "scrnshot"
+
+    def launcher_args(self, env):
+        return f"+set gl_mode {env['FR_Q2MODE']}"
+
+    def fleetres_cfg(self, env):
+        return "\r\n".join(["// written by the launcher at every start - do not edit",
+                             f'set gl_mode "{env["FR_Q2MODE"]}"', 'set vid_fullscreen "1"', ""])
+
+    async def paths(self, box):
+        return {"log": rf"{self.root}\{self.mod}\qconsole.log",
+                "shots": rf"{self.root}\{self.mod}\{self.shot_dir}",
+                "cfg": rf"{self.root}\{self.mod}\lancheck.cfg"}
+
+    def script(self, phase, soak_frames, shots, server=None):
+        head, w = wait_chain(300)
+        if phase == "timedemo":
+            return ['set timedemo "1"', 'demomap demo1.dm2', 'set nextserver "killserver; quit"']
+        if phase == "shot":
+            # the demo's end must quit, not load base2 (CM_InlineModel: bad
+            # number - the engine loading a map over a demo, not the driver)
+            # a real map, not the demo: at normal speed demo1.dm2 hands over
+            # to base2 at once and the ENGINE errors (CM_InlineModel)
+            return head + ['set timedemo "0"', 'map base1'] + w * 3 + ['screenshot'] + w + \
+                ['screenshot', 'quit']
+        # NO wait chain here: a joining client is driven by commands the
+        # server appends to the same command buffer (precache, begin), and a
+        # long `wait` chain in front of them kept the client on the loading
+        # console for the whole soak. The host presses the keys instead.
+        return self.soak_binds() + [f'connect {server}:{self.port}']
+
+    def soak_binds(self):
+        return ['bind F10 "screenshot"', 'bind F9 "disconnect; quit"']
+
+    def host_keys(self, phase, soak, shots):
+        if phase != "soak":
+            return []
+        keys = [(30 + (i + 1) * max(10, (soak - 30) // (shots + 1)), "F10") for i in range(shots)]
+        return keys + [(soak, "F9")]
+
+    def parse(self, raw):
+        r = super().parse(raw)
+        mo = re.findall(r"setting mode (\d+):\s*(\d+)\s+(\d+)", raw)
+        if mo:
+            r["mode"] = f"{mo[-1][1]}x{mo[-1][2]} (mode {mo[-1][0]})"
+        # the client_connect answer, and no drop before our own disconnect
+        r["connected"] = "client_connect" in raw or "entered the game" in raw
+        if r.get("errors"):
+            # `disconnect` in id Tech 2 IS Com_Error(ERR_DROP, "Disconnected
+            # from server") - the soak's own exit, not a fault
+            r["errors"] = [e for e in r["errors"] if "Disconnected from server" not in e] or None
+            if not r["errors"]:
+                del r["errors"]
+        return r
+
+
+class SoF(IdTech2):
+    tid = "sof"
+    name = "Soldier of Fortune (shortcut: SoF.exe ref_gl -> gl_driver)"
+    root = r"C:\Games\SoldierOfFortune"
+    mod = "base"
+    exe = "SoF.exe"
+    port = 28910
+    shot_dir = "scrnshot"
+
+    def script(self, phase, soak_frames, shots, server=None):
+        # no demo of ours and no SoF 1 server on the host: the menu and its
+        # attract loop, photographed, then a local deathmatch map
+        head, w = wait_chain(400)
+        if phase == "timedemo":
+            return []
+        if phase == "shot":
+            return head + w + ['screenshot'] + w + ['screenshot', 'quit']
+        return self.soak_binds() + ['deathmatch 1', 'map dm/nycdm1']
+
+
+class GoldSrc(IdTech2):
+    """Counter-Strike 1.6: hl.exe -game cstrike -full -gl -w -h (MESA_FORCE_SSE=1),
+    EngineGLDriver Default -> opengl32 -> the system ICD. -condebug writes
+    qconsole.log in the ROOT. BCShield blocks timerefresh; `snapshot` writes
+    cstrike\\<map>NNNN.bmp."""
+    tid = "cs16"
+    name = "Counter-Strike 1.6 (shortcut: hl.exe -gl -> system ICD)"
+    root = r"C:\Games\CounterStrike16"
+    mod = "cstrike"
+    exe = "hl.exe"
+    port = 27015
+    shot_ext = "bmp"
+
+    def launcher_args(self, env):
+        return f"-game cstrike -full -gl -w {env['FR_W']} -h {env['FR_H']} -condebug"
+
+    def fleetres_cfg(self, env):
+        return None
+
+    async def paths(self, box):
+        return {"log": rf"{self.root}\qconsole.log", "shots": rf"{self.root}\{self.mod}",
+                "cfg": rf"{self.root}\{self.mod}\lancheck.cfg"}
+
+    def command(self, env, phase, server):
+        return f'{self.exe} {self.launcher_args(env)} +exec lancheck.cfg'
+
+    def env_lines(self):
+        return ["set MESA_FORCE_SSE=1"]
+
+    def script(self, phase, soak_frames, shots, server=None):
+        if phase == "timedemo":
+            # GoldSrc stays at the console after a timedemo, and this build
+            # (BCShield) ignores injected keys - so a frame-counted quit
+            # (the demo is ~1,050 frames; waits count them too)
+            head, w = wait_chain(100)
+            return head + ['timedemo cs16_bench'] + w * 25 + ['quit']
+        if phase == "shot":
+            # demo playback: no MOTD / team menu holding the keyboard (a
+            # listen server's VGUI swallowed every bound key)
+            head, w = wait_chain(300)
+            return head + ['playdemo cs16_bench'] + w + ['snapshot'] + w + w + ['snapshot', 'quit']
+        # no host keys: this build ignores injected input (and a RETURN that
+        # misses the game lands on the desktop). In-script waits instead - the
+        # log shows whether the server's commands still got through.
+        head, w = wait_chain(max(100, soak_frames // max(1, shots)))
+        lines = head + [f'connect {server}:{self.port}']
+        for _ in range(shots):
+            lines += w + ['snapshot']
+        return lines + ['disconnect', 'quit']
+
+    def host_keys(self, phase, soak, shots):
+        return []
+
+    def soak_binds(self):
+        return ['bind F10 "snapshot"', 'bind F9 "disconnect; quit"']
+
+    # a real result: GoldSrc prints "-1 frames 1.000 seconds -1.000 fps" while a demo loads
+    done_re = {"timedemo": r"(?<![-\d])[1-9]\d* frames\s+[\d.]+ seconds\s+\d[\d.]* fps"}
+    quit_key = "F9"
+
+    def parse(self, raw):
+        r = super().parse(raw)
+        # this build prints "Connection accepted by <server>"; the server's
+        # own log is where "entered the game" appears
+        r["connected"] = bool(re.search(r"Connection accepted by|entered the game", raw, re.I))
+        return r
+
+
+class UT99(IdTech3):
+    """Unreal Tournament 436 as its shortcut runs it: System\\UnrealTournament.exe
+    with the staged ini (the launcher patches only the viewport and fullscreen),
+    so the ini's GameRenderDevice decides the renderer. UE1 takes synthetic keys
+    in exclusive fullscreen: F11=Shot (System\\ShotNNNN.bmp), F10=Exit - the clean
+    exit that flushes the log and leaves no Running.ini. The timedemo is
+    v56k_bench's UTbench route (ut99:<api>), not repeated here."""
+    tid = "ut99"
+    name = "Unreal Tournament 436 (shortcut: ini GameRenderDevice)"
+    root = r"C:\Games\UnrealTournament436"
+    mod = "System"
+    exe = "UnrealTournament.exe"
+    port = 7797
+    shot_ext = "bmp"
+
+    def fleetres_cfg(self, env):
+        return None
+
+    async def paths(self, box):
+        return {"log": rf"{self.root}\System\lancheck.log", "shots": rf"{self.root}\System",
+                "cfg": None}
+
+    async def prepare(self, box, env):
+        ini = rf"{self.root}\System\UnrealTournament.ini"
+        for k, v in (("FullscreenViewportX", env["FR_W"]), ("FullscreenViewportY", env["FR_H"]),
+                     ("StartupFullscreen", "True")):
+            await box.exec_(f'"{self.root}\\FLEETRES.EXE" -ini "{ini}" WinDrv.WindowsClient {k} {v}',
+                            timeout=60)
+        uini = rf"{self.root}\System\User.ini"
+        txt = (await box.download(uini) or b"").decode("latin-1")
+        new = re.sub(r"(?m)^F10=.*$", "F10=Exit", txt, count=1)
+        new = re.sub(r"(?m)^F11=.*$", "F11=Shot", new, count=1)
+        if txt and new != txt:
+            await box.upload(uini, new.encode("latin-1"))
+        await box.exec_(f'cmd /c del /q "{self.root}\\System\\Running.ini" 2>nul')
+
+    def script(self, phase, soak_frames, shots, server=None):
+        return ["(host keys)"] if phase in ("shot", "soak") else []
+
+    def command(self, env, phase, server):
+        url = f"{server}:{self.port} " if phase == "soak" else ""
+        return f'cd System && {self.exe} {url}-log=lancheck.log'
+
+    def host_keys(self, phase, soak, shots):
+        if phase == "shot":
+            return [(40, "F11"), (55, "F11"), (65, "F10")]
+        keys = [(40 + (i + 1) * max(10, (soak - 40) // (shots + 1)), "F11") for i in range(shots)]
+        return keys + [(soak, "F10")]
+
+    def parse(self, raw):
+        r = {}
+        m = re.findall(r"(?i)Log: (?:Using|Initializing) (\w+Drv[^\r\n]*)", raw)
+        if m:
+            r["gl_renderer"] = m[-1].strip()
+        g = re.findall(r"GL_RENDERER\s*:?\s*(.+)", raw)
+        if g:
+            r["gl_renderer"] = g[-1].strip()
+        mo = re.findall(r"(?i)(?:Setting|SetRes)[^\r\n]*?(\d{3,4})x(\d{3,4})", raw)
+        if mo:
+            r["mode"] = "x".join(mo[-1])
+        errs = [l.strip() for l in raw.splitlines()
+                if re.search(r"Critical:|General protection fault|Exit: .*failed|appError", l)]
+        if errs:
+            r["errors"] = errs[:12]
+        r["connected"] = bool(re.search(r"(?i)LoadMap: DM-|Joined|Welcome", raw)) and \
+            bool(re.search(r"(?i)Browse: \d+\.\d+", raw))
+        return r
+
+
+class GLQuake(IdTech2):
+    """Quake 1, the "Quake" shortcut: root GLQUAKE.EXE -> opengl32 -> the
+    system ICD, at the launcher's 4:3 mode (FLEETRES -cap 1280 960) in 32 bpp.
+    No -condebug: the ICD's extension string overruns Con_DebugLog's static
+    1 KB buffer (v56k plan), so the evidence is engine screenshots - the demo
+    running, and the console after the timedemo, which shows the fps line."""
+    tid = "q1"
+    name = "Quake (shortcut: GLQUAKE.EXE -> system ICD)"
+    root = r"C:\Games\Quake1"
+    mod = "id1"
+    exe = "GLQUAKE.EXE"
+    port = 26000
+    fleetres_extra = "-cap 1280 960"
+
+    def launcher_args(self, env):
+        return f"-width {env['FR_W43']} -height {env['FR_H43']} -bpp 32"
+
+    def fleetres_cfg(self, env):
+        return None
+
+    async def paths(self, box):
+        return {"log": rf"{self.root}\{self.mod}\qconsole.log",
+                "shots": rf"{self.root}\{self.mod}", "cfg": rf"{self.root}\{self.mod}\lancheck.cfg"}
+
+    def command(self, env, phase, server):
+        return f'{self.exe} {self.launcher_args(env)} +exec lancheck.cfg'
+
+    def script(self, phase, soak_frames, shots, server=None):
+        head, w = wait_chain(500)
+        if phase == "timedemo":
+            # the result is printed on the console; photograph it
+            return head + ['timedemo demo1'] + w * 5 + ['screenshot'] + w + ['quit']
+        if phase == "shot":
+            return head + ['playdemo demo2'] + w + ['screenshot'] + w + ['screenshot', 'quit']
+        return self.soak_binds() + [f'connect {server}:{self.port}']
+
+    def parse(self, raw):
+        return {"connected": True} if not raw else super().parse(raw)
+
+
+class GLQuakeVoodoo(GLQuake):
+    """Quake 1, the "Quake - 3dfx Voodoo" shortcut: VOODOO\\GLQUAKE.EXE
+    -width 640 -height 480 -bpp 16 with the staged 3dfx MiniGL (VOODOO\\
+    OPENGL32.DLL) -> glide2x (the Glide2-to-Glide3 translator) -> our glide3x."""
+    tid = "q1voodoo"
+    name = "Quake (shortcut: VOODOO\\GLQUAKE.EXE -> 3dfx MiniGL -> Glide)"
+    fleetres_extra = ""
+
+    def launcher_args(self, env):
+        return "-width 640 -height 480 -bpp 16"
+
+    def command(self, env, phase, server):
+        return f'VOODOO\\{self.exe} {self.launcher_args(env)} +exec lancheck.cfg'
+
+
+class Launcher:
+    """A title driven only through its own desktop launcher: the shortcut's
+    .bat is started UNCHANGED, the agent's GDI SCREENSHOT is the picture (a
+    DirectDraw / Direct3D title's primary on our driver is the GDI surface),
+    and the game must still be running, with no error window, when the time is
+    up; it is then closed with WM_CLOSE only (and reported if it would not go).
+    Phase "smoke" only."""
+    tid = "launcher"
+    name = "a launcher"
+    root = None
+    bat = None
+    images = ()            # the process image(s) the launcher starts
+    keys = ()              # (seconds, UIKEY) to get past intros, e.g. ESC
+    shots_at = (45, 90)
+
+    async def run(self, box, args, outdir):
+        rec = {"title": self.tid, "phase": "smoke", "t0": time.strftime("%Y-%m-%d %H:%M:%S"),
+               "command": self.bat}
+        for img in self.images:
+            if await running(box, img):
+                rec["error"] = f"{img} already running - not started"
+                return rec
+        await bench.quiesce(box)
+        dr_before = await file_size(box, DRWTSN)
+        log(f"--- {self.tid} smoke: {self.bat}")
+        started = time.time()
+        await box.text(f'LAUNCH cmd /c cd /d "{self.root}" && "{self.bat}"')
+        events = sorted([(t, "key", k) for t, k in self.keys] + [(t, "shot", None) for t in self.shots_at])
+        rec["shots"], rec["keys_sent"], rec["alive"] = [], [], []
+        for at, kind, k in events:
+            wait = started + at - time.time()
+            if wait > 0:
+                await asyncio.sleep(wait)
+            if kind == "key":
+                st, out = await box.cmd(f"UIKEY {k}", timeout=30)
+                rec["keys_sent"].append(f"{k}@{at}s:{out.strip()[:16]}")
+                continue
+            alive = [img for img in self.images if await running(box, img)]
+            rec["alive"].append({"at": at, "running": alive})
+            try:
+                data = await box.cmd_binary("SCREENSHOT 0") if hasattr(box, "cmd_binary") else None
+            except Exception:
+                data = None
+            if data is None:
+                from client.retro_protocol import RetroConnection
+                c = RetroConnection(box.ip, 9898)
+                await c.connect(bench.SECRET, timeout=20)
+                try:
+                    data = await c.command_binary("SCREENSHOT 0", timeout=90)
+                finally:
+                    await c.close()
+            png = outdir / f"{self.tid}_smoke_{at}s.png"
+            save_png(data, png)
+            rec["shots"].append({"file": png.name, "stats": shot_stats(data), "at": at})
+        rec["error_windows"] = await error_windows(box)
+        rec["running_at_end"] = [img for img in self.images if await running(box, img)]
+        for img in rec["running_at_end"]:
+            await box.exec_(f'cmd /c taskkill /im "{img}" 2>nul', timeout=30)
+        await asyncio.sleep(15)
+        rec["alive_after_close"] = [img for img in self.images if await running(box, img)]
+        dr_after = await file_size(box, DRWTSN)
+        if dr_after != dr_before:
+            rec["drwatson_grew"] = dr_after - dr_before
+        rec["agent_alive"] = await bench.agent_alive(box)
+        rec["seconds"] = round(time.time() - started, 1)
+        return rec
+
+
+class RedAlert2(Launcher):
+    tid = "ra2"
+    name = "Command & Conquer: Red Alert 2 (shortcut: Launch Red Alert 2.bat, DirectDraw)"
+    root = r"C:\Games\RedAlert2"
+    bat = r"C:\Games\RedAlert2\Launch Red Alert 2.bat"
+    images = ("Ra2.exe", "game.exe")
+    keys = ((20, "ESCAPE"), (28, "ESCAPE"))
+    shots_at = (40, 70)
+
+
+class Turok2(Launcher):
+    tid = "turok2"
+    name = "Turok 2 (shortcut: Play Turok 2.bat, Direct3D)"
+    root = r"C:\Games\Turok2"
+    bat = r"C:\Games\Turok2\Play Turok 2.bat"
+    images = ("Turok2English.exe",)
+    keys = ((25, "ESCAPE"), (35, "ESCAPE"))
+    shots_at = (45, 75)
+
+
+TITLES = {"q3": IdTech3, "rtcw": RTCW, "q2": IdTech2, "sof": SoF, "cs16": GoldSrc, "ut99": UT99,
+          "q1": GLQuake, "q1voodoo": GLQuakeVoodoo, "ra2": RedAlert2, "turok2": Turok2}
+
+
+# --------------------------------------------------------------------------- #
+# one run
+# --------------------------------------------------------------------------- #
+
+async def run_phase(box, t, env, phase, args, outdir):
+    rec = {"title": t.tid, "phase": phase, "env": env, "t0": time.strftime("%Y-%m-%d %H:%M:%S")}
+    lines = t.script(phase, args.soak_frames, args.shots, args.server)
+    if not lines:
+        rec["skipped"] = "no script for this phase"
+        return rec
+    p = await t.paths(box)
+    img = t.exe
+    if await running(box, img):
+        rec["error"] = f"{img} already running - not started"
+        return rec
+    await bench.quiesce(box)
+    fcfg = t.fleetres_cfg(env)
+    if fcfg is not None:
+        await box.upload(rf"{t.root}\{t.mod}\fleetres.cfg", fcfg)
+    if hasattr(t, "prepare"):
+        await t.prepare(box, env)
+    if p.get("cfg"):
+        await box.upload(p["cfg"], "\r\n".join(lines) + "\r\n")
+    await box.exec_(f'cmd /c del /f /q "{p["log"]}" 2>nul')
+    ext = getattr(t, "shot_ext", "jpg")
+    shots_before = set(await dir_names(box, p["shots"], f"*.{ext}"))
+    dr_before = await file_size(box, DRWTSN)
+    bat = rf"{t.root}\LANCHECK.BAT"
+    await box.upload(bat, "\r\n".join(["@echo off"] + (t.env_lines() if hasattr(t, "env_lines") else []) +
+                                      [f'cd /d "{t.root}"', t.command(env, phase, args.server), ""]))
+    rec["command"] = t.command(env, phase, args.server)
+    log(f"--- {t.tid} {phase}: {rec['command']}")
+    started = time.time()
+    await box.text(f"LAUNCH {bat}")
+    budget = args.soak + 180 if phase == "soak" else args.max_run
+    seen, hung = False, False
+    keys = list(t.host_keys(phase, args.soak, args.shots)) if hasattr(t, "host_keys") else []
+    rec["keys_sent"] = []
+    done_re = getattr(t, "done_re", {}).get(phase)
+    while True:
+        await asyncio.sleep(5)
+        if done_re and time.time() - started > 15:
+            part = (await box.download(p["log"]) or b"").decode("latin-1", errors="replace")
+            if re.search(done_re, part):
+                st, out = await box.cmd(f"UIKEY {t.quit_key}", timeout=30)
+                rec["keys_sent"].append(f"{t.quit_key}@done:{out.strip()[:20]}")
+                done_re = None
+        el0 = time.time() - started
+        while keys and el0 >= keys[0][0]:
+            at, k = keys.pop(0)
+            try:
+                st, out = await box.cmd(f"UIKEY {k}", timeout=30)
+                rec["keys_sent"].append(f"{k}@{int(el0)}s:{out.strip()[:20]}")
+            except Exception as e:
+                rec["keys_sent"].append(f"{k}@{int(el0)}s:ERR {e}")
+        alive = await running(box, img)
+        seen = seen or alive
+        el = time.time() - started
+        if not alive and (seen or el > 30):
+            break
+        if el > budget:
+            hung = True
+            break
+    rec["seconds"] = round(time.time() - started, 1)
+    raw = (await box.download(p["log"]) or b"").decode("latin-1", errors="replace")
+    (outdir / f"{t.tid}_{phase}.log").write_text(raw)
+    rec.update(t.parse(raw))
+    rec["log_bytes"] = len(raw)
+    if hung:
+        rec["hung"] = True
+        rec["error_windows"] = await error_windows(box)
+        log(f"    still running after {budget}s - WM_CLOSE only (no TerminateProcess)")
+        await box.exec_(f'cmd /c taskkill /im "{img}" 2>nul', timeout=30)
+        await asyncio.sleep(15)
+        rec["alive_after_close"] = await running(box, img)
+    rec["error_windows"] = rec.get("error_windows") or await error_windows(box)
+    dr_after = await file_size(box, DRWTSN)
+    if dr_after != dr_before:
+        rec["drwatson_grew"] = dr_after - dr_before
+    new = [s for s in await dir_names(box, p["shots"], f"*.{ext}") if s not in shots_before]
+    rec["shots"] = []
+    for s in new:
+        data = await box.download(rf"{p['shots']}\{s}")
+        if not data:
+            continue
+        png = outdir / f"{t.tid}_{phase}_{Path(s).stem}.png"
+        try:
+            save_png(data, png)
+        except Exception as e:
+            rec.setdefault("shot_errors", []).append(f"{s}: {e}")
+            continue
+        rec["shots"].append({"file": png.name, "stats": shot_stats(data)})
+    rec["agent_alive"] = await bench.agent_alive(box)
+    return rec
+
+
+def verdict(rec):
+    bad = []
+    if rec.get("skipped"):
+        return "skipped"
+    if rec.get("error"):
+        bad.append(rec["error"])
+    if rec.get("hung"):
+        bad.append("did not exit")
+    if rec.get("drwatson_grew"):
+        bad.append("Dr. Watson entry")
+    if rec.get("error_windows"):
+        bad.append("error window")
+    if rec.get("errors"):
+        bad.append("log errors")
+    if rec["phase"] == "timedemo" and not rec.get("fps") and not rec.get("shots"):
+        bad.append("no timedemo result")
+    if rec["phase"] in ("shot", "soak"):
+        if not rec.get("shots"):
+            bad.append("no screenshot")
+        for s in rec.get("shots", []):
+            st = s.get("stats")
+            if not st or st[3] < 4:
+                bad.append(f"blank shot {s['file']}")
+    if rec["phase"] == "soak" and not rec.get("connected"):
+        bad.append("never entered the game")
+    if not rec.get("agent_alive", True):
+        bad.append("AGENT DEAD")
+    return "PASS" if not bad else "FAIL: " + "; ".join(bad)
+
+
+async def amain(a):
+    box = Box(a.host)
+    outroot = Path(a.outdir) / time.strftime("%Y%m%d_%H%M%S")
+    outroot.mkdir(parents=True, exist_ok=True)
+    summary = []
+    for tid in a.titles.split(","):
+        t = TITLES[tid]()
+        od = outroot / tid
+        od.mkdir(exist_ok=True)
+        if isinstance(t, Launcher):
+            rec = await t.run(box, a, od)
+            bad = [x for x in ("error", "drwatson_grew") if rec.get(x)]
+            if rec.get("error_windows"):
+                bad.append("error window")
+            if not rec.get("running_at_end"):
+                bad.append("not running at the end")
+            if rec.get("alive_after_close"):
+                bad.append("would not close")
+            if not rec.get("agent_alive", True):
+                bad.append("AGENT DEAD")
+            rec["verdict"] = "PASS" if not bad else "FAIL: " + "; ".join(bad)
+            (od / "smoke.json").write_text(json.dumps(rec, indent=1))
+            log(f"    smoke: {rec['verdict']}  alive={rec.get('alive')}  shots={[x['stats'] for x in rec.get('shots', [])]}")
+            summary.append({"title": tid, "phase": "smoke", "verdict": rec["verdict"]})
+            continue
+        env = await fleetres_env(box, t.root, getattr(t, "fleetres_extra", ""))
+        log(f"=== {t.name}: FLEETRES {env}")
+        if not env.get("FR_W"):
+            summary.append({"title": tid, "verdict": "FAIL: FLEETRES.BAT gave no FR_W"})
+            continue
+        for phase in a.phases.split(","):
+            rec = await run_phase(box, t, env, phase, a, od)
+            rec["verdict"] = verdict(rec)
+            (od / f"{phase}.json").write_text(json.dumps(rec, indent=1))
+            log(f"    {phase}: {rec['verdict']}  fps={rec.get('fps')}  renderer={rec.get('gl_renderer')}  "
+                f"mode={rec.get('mode')}  {rec.get('seconds')}s  shots={[s['stats'] for s in rec.get('shots', [])]}")
+            summary.append({"title": tid, "phase": phase, "verdict": rec["verdict"], "fps": rec.get("fps"),
+                            "renderer": rec.get("gl_renderer"), "mode": rec.get("mode")})
+            if not rec.get("agent_alive", True):
+                log("agent dead - stopping")
+                break
+            health = await bench.board_alive(box)
+            rec["board_after"] = health
+            if health is False:
+                log("board no longer brings Glide up - stopping")
+                summary.append({"title": tid, "phase": phase, "verdict": "BOARD WEDGED after this run"})
+                (outroot / "summary.json").write_text(json.dumps(summary, indent=1))
+                return 2
+    (outroot / "summary.json").write_text(json.dumps(summary, indent=1))
+    log(f"summary -> {outroot / 'summary.json'}")
+    for s in summary:
+        log(f"  {s}")
+    return 0
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--host", required=True)
+    ap.add_argument("--titles", default="q3")
+    ap.add_argument("--phases", default="timedemo,shot,soak")
+    ap.add_argument("--server", default="192.168.1.196", help="the fleet game-server host")
+    ap.add_argument("--soak", type=int, default=300, help="seconds connected (soak phase)")
+    ap.add_argument("--soak-fps", type=int, default=90, help="expected fps, to turn --soak into frames")
+    ap.add_argument("--shots", type=int, default=4, help="screenshots during the soak")
+    ap.add_argument("--max-run", type=int, default=300)
+    ap.add_argument("--outdir", default=str(HERE / "results" / "v56k_lan_192.168.1.124"))
+    a = ap.parse_args()
+    a.soak_frames = a.soak * a.soak_fps
+    sys.exit(asyncio.run(amain(a)))
+
+
+if __name__ == "__main__":
+    main()

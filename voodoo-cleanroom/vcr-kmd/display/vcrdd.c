@@ -6,6 +6,7 @@
  * nothing here can wedge the 2D engine). The miniport owns every register.
  */
 #include "vcrdd.h"
+#include "../include/vcr_modeorder.h"
 #include "../include/vcr_3dseq.h"      /* VCR_R3D_*: the Glide 3D reset's outcome codes */
 
 static DRVFN g_drvfn[] = {
@@ -203,39 +204,48 @@ static LONG pick_mode(const VIDEO_MODE_INFORMATION *m, ULONG n, const DEVMODEW *
 ULONG APIENTRY DrvGetModes(HANDLE hDriver, ULONG cjSize, DEVMODEW *pdm)
 {
     VIDEO_MODE_INFORMATION *m;
-    ULONG n, i, need;
+    ULONG n, i, need, nmax, o, r;
     g_hDriver = hDriver;
     m = query_modes(hDriver, &n);
     if (!m)
         return 0;
     need = n * sizeof(DEVMODEW);
+    nmax = n;
     if (!pdm) {
         EngFreeMem(m);
         return need;
     }
     if (cjSize < need)
-        n = cjSize / sizeof(DEVMODEW);
-    for (i = 0; i < n; i++) {
-        DEVMODEW *d = &pdm[i];
-        static const WCHAR name[] = L"vcrdd";
-        ULONG k;
-        memset(d, 0, sizeof *d);
-        for (k = 0; name[k]; k++)
-            d->dmDeviceName[k] = name[k];
-        d->dmSpecVersion = DM_SPECVERSION;
-        d->dmDriverVersion = DM_SPECVERSION;
-        d->dmSize = sizeof(DEVMODEW);
-        d->dmBitsPerPel = m[i].NumberOfPlanes * m[i].BitsPerPlane;
-        d->dmPelsWidth = m[i].VisScreenWidth;
-        d->dmPelsHeight = m[i].VisScreenHeight;
-        d->dmDisplayFrequency = m[i].Frequency;
-        d->dmDisplayFlags = 0;
-        d->dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT |
-                      DM_DISPLAYFREQUENCY | DM_DISPLAYFLAGS;
-    }
-    VcrDd(VCR_LV_DEBUG, VCR_EV_DD_GET_MODES, n, n * sizeof(DEVMODEW), 0, 0, "DrvGetModes");
+        nmax = cjSize / sizeof(DEVMODEW);
+    /* listed standard modes first at every depth, then the rest
+     * (include/vcr_modeorder.h: a 30-slot mode list like GLQuake's must reach
+     * every 4:3 mode at 32 bpp); a mode is still set by its fields */
+    for (r = 0, o = 0; r < VCR_MODE_RANKS && o < nmax; r++)
+        for (i = 0; i < n && o < nmax; i++) {
+            DEVMODEW *d;
+            static const WCHAR name[] = L"vcrdd";
+            ULONG k;
+            if (vcr_mode_rank(m[i].VisScreenWidth, m[i].VisScreenHeight,
+                              m[i].NumberOfPlanes * m[i].BitsPerPlane) != r)
+                continue;
+            d = &pdm[o++];
+            memset(d, 0, sizeof *d);
+            for (k = 0; name[k]; k++)
+                d->dmDeviceName[k] = name[k];
+            d->dmSpecVersion = DM_SPECVERSION;
+            d->dmDriverVersion = DM_SPECVERSION;
+            d->dmSize = sizeof(DEVMODEW);
+            d->dmBitsPerPel = m[i].NumberOfPlanes * m[i].BitsPerPlane;
+            d->dmPelsWidth = m[i].VisScreenWidth;
+            d->dmPelsHeight = m[i].VisScreenHeight;
+            d->dmDisplayFrequency = m[i].Frequency;
+            d->dmDisplayFlags = 0;
+            d->dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT |
+                          DM_DISPLAYFREQUENCY | DM_DISPLAYFLAGS;
+        }
+    VcrDd(VCR_LV_DEBUG, VCR_EV_DD_GET_MODES, o, o * sizeof(DEVMODEW), 0, 0, "DrvGetModes");
     EngFreeMem(m);
-    return n * sizeof(DEVMODEW);
+    return o * sizeof(DEVMODEW);
 }
 
 /* ---- PDEV ------------------------------------------------------------------- */

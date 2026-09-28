@@ -121,6 +121,39 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   connector, separate PSU cables, PSU wattage, a logging UPS) come next.
 - **Response:** recorded here, and the current-state table updated to 400 W.
 
+### 2026-09-28 00:36: still on 192.168.1.196 - the game-server watchdog was restarting healthy servers ~88x/hour
+
+- **Boot ID:** unchanged since 2026-09-26 23:16:17 (`uptime -s`); DHCP lease
+  renewed 2026-09-27 23:16:36 as **192.168.1.196** (gateway .254). Nothing on
+  the LAN answers ARP for .132 now.
+- **Signature:** `gameservers.py` (probing `RETRO_GAMESERVER_HOST`, default
+  .132) reported 1/25 up and `host-duties.py` 1/28 responding, while every
+  server answered on 127.0.0.1 and `ss -ulpn` showed them bound to 0.0.0.0.
+  `retro-gameservers-watch` read that as "active but mute" and restarted
+  servers: **528 restarts in the 6 h to 00:36** - each one drops every
+  connected player.
+- **Also affected, not changed:** every staged "Join ... fleet server"
+  launcher, the favourites DB and the in-game server lists point at .132, so
+  from the fleet the servers are unreachable at the address they expect. The
+  2026-09-26 entry records the operator creating the NM profile by hand; the
+  host's own address is the operator's decision (fix options: a static
+  192.168.1.132 as the profile's first address with gateway .254, or a DHCP
+  reservation for .132 on the new router).
+- **Response:** drop-in
+  `~/.config/systemd/user/retro-gameservers-watch.service.d/20-probe-loopback.conf`
+  sets `RETRO_GAMESERVER_HOST=127.0.0.1` for the watchdog, restarted 00:36:53:
+  24/25 answer on loopback (Tribes 2 mute, CS:Source still activating). No
+  network settings were changed. Remove the drop-in once the host is back on
+  .132 if the LAN-side probe is wanted again.
+- **Also found and fixed (01:15):** the three GoldSrc A2S relays
+  (`a2s-proxy-cs16` 27015, `a2s-proxy-cs16-public` 27016, `a2s-proxy-hldm`
+  27020, from retro-agent-private's `install-a2s-proxy.sh`) had
+  `--target 192.168.1.132:<hlds port>` baked into their units, so every CS 1.6 /
+  HLDM join through the advertised port dead-ended. Drop-ins
+  `20-target-loopback.conf` repoint them at `127.0.0.1` (relay and hlds share the
+  host - correct whatever the LAN address). Verified: an A2S_INFO to
+  `192.168.1.196:27015` answers "NSC Retro Fleet Arena (CS 1.6)".
+
 ### 2026-09-26 15:58:13: orderly reboot, then the host moved to 192.168.1.196 and lost the fleet LAN
 
 - **Boot IDs:** `68aeaf02…` ended 15:58:13 with a normal `systemd-reboot.service`
