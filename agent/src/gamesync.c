@@ -46,6 +46,7 @@
 #include "../shared/lnkcheck.h"
 #include "../shared/gsresume.h"
 #include "../shared/audiofix.h"
+#include "../shared/regmerge.h"
 
 #include <windows.h>
 #include <string.h>
@@ -4273,22 +4274,265 @@ void gs_desktop_icons_apply(void)
  * as a mysteriously broken game weeks later.
  *
  * Merging is best-effort by design: a game that fails to register is still
- * worth having on disk, and refusing to continue would cost the other twenty. */
-static void gs_merge_reg(const char *dst_dir, const char *title)
+ * worth having on disk, and refusing to continue would cost the other twenty.
+ * Best-effort is not silent, though: the result is checked value by value
+ * against the live registry and the log says exactly what landed.
+ *
+ * WINDOWS 9x (agent 1.86.1 on .243 logged "HexenII: cannot run regedit (0)"
+ * - no Win9x box had EVER had an install.reg merged). The launch, the wait,
+ * the verification and the fallback are explained in agent/shared/regmerge.h;
+ * the logic that can be tested off-box lives there. */
+
+/* install.reg files are a few KB; anything past this is not one of ours. */
+#define GS_REG_MAX_BYTES (256 * 1024)
+
+/* regedit /s is quick; never wait forever on it. */
+#define GS_REGEDIT_WAIT_MS 60000
+
+enum {
+    GS_REGEDIT_OK = 0,      /* ran and exited 0                        */
+    GS_REGEDIT_NOSTART,     /* could not be started                    */
+    GS_REGEDIT_EXITCODE,    /* ran, exited non-zero                    */
+    GS_REGEDIT_TIMEOUT      /* still running after GS_REGEDIT_WAIT_MS  */
+};
+
+static HKEY gs_rm_hkey(int root)
 {
-    char reg_path[MAX_PATH];
-    char cmd[MAX_PATH + 64];
+    switch (root) {
+    case RM_HKLM: return HKEY_LOCAL_MACHINE;
+    case RM_HKCU: return HKEY_CURRENT_USER;
+    case RM_HKCR: return HKEY_CLASSES_ROOT;
+    case RM_HKU:  return HKEY_USERS;
+    case RM_HKCC: return HKEY_CURRENT_CONFIG;
+    case RM_HKDD: return HKEY_DYN_DATA;
+    default:      return NULL;
+    }
+}
+
+/* Read the whole .reg into a heap buffer (NUL-terminated). */
+static char *gs_reg_load(const char *path, DWORD *len)
+{
+    HANDLE h;
+    DWORD size, got = 0;
+    char *buf;
+
+    *len = 0;
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return NULL;
+    size = GetFileSize(h, NULL);
+    if (size == 0xFFFFFFFF || size > GS_REG_MAX_BYTES) {
+        CloseHandle(h);
+        return NULL;
+    }
+    buf = (char *)HeapAlloc(GetProcessHeap(), 0, size + 1);
+    if (buf && !ReadFile(h, buf, size, &got, NULL))
+        got = 0;
+    CloseHandle(h);
+    if (buf) {
+        buf[got] = 0;
+        *len = got;
+    }
+    return buf;
+}
+
+/* 1 = the registry now holds what the entry says, 0 = it does not,
+ * -1 = cannot be judged here (an UNKNOWN line, a root we cannot open). */
+static int gs_reg_entry_holds(const rm_entry_t *e)
+{
+    HKEY root = gs_rm_hkey(e->root), k;
+    unsigned char buf[RM_DATA_MAX + 4];
+    DWORD type = 0, len = sizeof(buf);
+    LONG rc;
+
+    if (e->op == RM_OP_UNKNOWN || !root)
+        return -1;
+    rc = RegOpenKeyExA(root, e->key, 0, KEY_QUERY_VALUE, &k);
+    if (e->op == RM_OP_DELKEY) {
+        if (rc == ERROR_SUCCESS)
+            RegCloseKey(k);
+        return rc != ERROR_SUCCESS;
+    }
+    if (rc != ERROR_SUCCESS)
+        return e->op == RM_OP_DELVALUE;     /* no key: no value either */
+    rc = RegQueryValueExA(k, e->name[0] ? e->name : NULL, NULL, &type, buf, &len);
+    RegCloseKey(k);
+    if (e->op == RM_OP_DELVALUE)
+        return rc == ERROR_FILE_NOT_FOUND;
+    if (rc == ERROR_MORE_DATA)
+        return 0;                           /* bigger than anything we would write */
+    return rm_value_matches(e, rc == ERROR_SUCCESS, (unsigned)type, buf,
+                            rc == ERROR_SUCCESS ? (unsigned)len : 0);
+}
+
+/* Write one entry ourselves. 1 = written, 0 = failed (*err = the error),
+ * -1 = not something we write (UNKNOWN, or a whole-key delete). */
+static int gs_reg_entry_apply(const rm_entry_t *e, LONG *err)
+{
+    HKEY root = gs_rm_hkey(e->root), k;
+    DWORD disp;
+    LONG rc;
+
+    *err = 0;
+    if (!root || (e->op != RM_OP_SET && e->op != RM_OP_DELVALUE))
+        return -1;
+    if (e->op == RM_OP_DELVALUE) {
+        rc = RegOpenKeyExA(root, e->key, 0, KEY_SET_VALUE, &k);
+        if (rc != ERROR_SUCCESS)
+            return 1;                       /* no key: the value is already gone */
+        rc = RegDeleteValueA(k, e->name[0] ? e->name : NULL);
+        RegCloseKey(k);
+        if (rc == ERROR_SUCCESS || rc == ERROR_FILE_NOT_FOUND)
+            return 1;
+        *err = rc;
+        return 0;
+    }
+    rc = RegCreateKeyExA(root, e->key, 0, NULL, 0, KEY_SET_VALUE, NULL, &k, &disp);
+    if (rc != ERROR_SUCCESS) {
+        *err = rc;
+        return 0;
+    }
+    rc = RegSetValueExA(k, e->name[0] ? e->name : NULL, 0, e->type, e->data,
+                        e->type == RM_REG_SZ ? e->len + 1 : e->len);
+    RegCloseKey(k);
+    if (rc != ERROR_SUCCESS) {
+        *err = rc;
+        return 0;
+    }
+    return 1;
+}
+
+typedef struct {
+    int total;          /* entries the file asks for                       */
+    int holds;          /* ...the registry satisfies                        */
+    int unknown;        /* ...this reader could not judge                   */
+    int dialect;        /* RM_DIALECT_* of the file                         */
+    char first_miss[RM_KEY_MAX + RM_NAME_MAX + 16];
+} gs_reg_tally_t;
+
+/* Check every entry. With apply != 0, first write each one that does not
+ * hold; *written counts the writes that succeeded. */
+static void gs_reg_verify(const char *text, DWORD len, int apply,
+                          gs_reg_tally_t *t, int *written, LONG *last_err)
+{
+    rm_parser_t *ps = (rm_parser_t *)HeapAlloc(GetProcessHeap(), 0, sizeof(rm_parser_t));
+    rm_entry_t  *e  = (rm_entry_t *)HeapAlloc(GetProcessHeap(), 0, sizeof(rm_entry_t));
+
+    memset(t, 0, sizeof(*t));
+    if (written)
+        *written = 0;
+    if (!ps || !e) {
+        if (ps) HeapFree(GetProcessHeap(), 0, ps);
+        if (e)  HeapFree(GetProcessHeap(), 0, e);
+        t->unknown = -1;
+        return;
+    }
+    rm_init(ps, text, len);
+    while (rm_next(ps, e)) {
+        int ok;
+        t->total++;
+        ok = gs_reg_entry_holds(e);
+        if (ok < 0) {
+            t->unknown++;
+            continue;
+        }
+        if (!ok && apply) {
+            LONG err = 0;
+            if (gs_reg_entry_apply(e, &err) == 1) {
+                if (written)
+                    (*written)++;
+                ok = gs_reg_entry_holds(e);
+            } else if (err && last_err) {
+                *last_err = err;
+            }
+        }
+        if (ok > 0) {
+            t->holds++;
+        } else if (!t->first_miss[0]) {
+            _snprintf(t->first_miss, sizeof(t->first_miss) - 1, "%s\\%s\\%s (line %d)",
+                      rm_root_name(e->root), e->key,
+                      e->op == RM_OP_DELKEY ? "[-key]" : (e->name[0] ? e->name : "@"),
+                      e->lineno);
+            t->first_miss[sizeof(t->first_miss) - 1] = 0;
+        }
+    }
+    t->dialect = ps->dialect;
+    HeapFree(GetProcessHeap(), 0, ps);
+    HeapFree(GetProcessHeap(), 0, e);
+}
+
+/* Wait for a process while pumping this thread's messages. The sync thread
+ * is a COM apartment (CoInitialize in gs_worker), so it owns a hidden window;
+ * a child that broadcast a message and waited on it would otherwise hang for
+ * the whole timeout. Returns 1 if the process ended, 0 on timeout. */
+static int gs_wait_pumping(HANDLE h, DWORD timeout_ms)
+{
+    DWORD start = GetTickCount();
+    for (;;) {
+        DWORD spent = GetTickCount() - start;
+        DWORD r;
+        MSG msg;
+        if (spent >= timeout_ms)
+            return WaitForSingleObject(h, 0) == WAIT_OBJECT_0;
+        r = MsgWaitForMultipleObjects(1, &h, FALSE, timeout_ms - spent, QS_ALLINPUT);
+        if (r == WAIT_OBJECT_0)
+            return 1;
+        if (r != WAIT_OBJECT_0 + 1)
+            return WaitForSingleObject(h, 0) == WAIT_OBJECT_0;
+        while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessageA(&msg);
+        }
+    }
+}
+
+/* Run regedit /s on the file. The command line and flags come from
+ * rm_build_cmd() (agent/shared/regmerge.h). why receives the log text for any
+ * outcome but GS_REGEDIT_OK. */
+static int gs_run_regedit(const char *reg_path, int is_9x, char *why, size_t why_cch)
+{
+    char regedit[MAX_PATH], arg[MAX_PATH], windir[MAX_PATH];
+    char cmd[2 * MAX_PATH + 16];
+    const char *cwd = NULL;
+    unsigned flags = 0;
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
-    DWORD code = 0;
+    DWORD code = 0, gle;
+    HANDLE me = GetCurrentThread();
+    int prio = THREAD_PRIORITY_ERROR_RETURN, rc;
 
-    _snprintf(reg_path, sizeof(reg_path) - 1, "%s\\install.reg", dst_dir);
-    reg_path[sizeof(reg_path) - 1] = 0;
-    if (!gs_file_exists(reg_path))
-        return;
-
-    _snprintf(cmd, sizeof(cmd) - 1, "regedit /s \"%s\"", reg_path);
-    cmd[sizeof(cmd) - 1] = 0;
+    why[0] = 0;
+    regedit[0] = 0;
+    lstrcpynA(arg, reg_path, sizeof(arg));
+    if (is_9x) {
+        UINT n = GetWindowsDirectoryA(windir, sizeof(windir));
+        char shortp[MAX_PATH];
+        if (!n || n >= sizeof(windir)) {
+            _snprintf(why, why_cch - 1, "GetWindowsDirectory failed, error %lu",
+                      (unsigned long)GetLastError());
+            why[why_cch - 1] = 0;
+            return GS_REGEDIT_NOSTART;
+        }
+        _snprintf(regedit, sizeof(regedit) - 1, "%s%sREGEDIT.EXE", windir,
+                  windir[n - 1] == '\\' ? "" : "\\");
+        regedit[sizeof(regedit) - 1] = 0;
+        if (!gs_file_exists(regedit)) {
+            _snprintf(why, why_cch - 1, "no %s on this box", regedit);
+            why[why_cch - 1] = 0;
+            return GS_REGEDIT_NOSTART;
+        }
+        /* The 8.3 form, unquoted - the shape proven through EXEC on .243.
+         * If there is none (8.3 names disabled), rm_build_cmd quotes it. */
+        n = GetShortPathNameA(reg_path, shortp, sizeof(shortp));
+        if (n && n < sizeof(shortp))
+            lstrcpynA(arg, shortp, sizeof(arg));
+        cwd = windir;
+    }
+    if (rm_build_cmd(is_9x, regedit, arg, cmd, sizeof(cmd), &flags) < 0) {
+        _snprintf(why, why_cch - 1, "command line too long for %s", reg_path);
+        why[why_cch - 1] = 0;
+        return GS_REGEDIT_NOSTART;
+    }
 
     memset(&si, 0, sizeof(si));
     si.cb = sizeof(si);
@@ -4296,20 +4540,120 @@ static void gs_merge_reg(const char *dst_dir, const char *title)
     si.wShowWindow = SW_HIDE;
     memset(&pi, 0, sizeof(pi));
 
-    if (!CreateProcessA(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
-        log_msg(LOG_GS, "%s: cannot run regedit (%lu) - game may not launch",
-                title, GetLastError());
-        return;
+    /* The sync thread runs at THREAD_PRIORITY_IDLE (thread_background()).
+     * On 9x, run the few seconds of the merge at normal priority - one of the
+     * four ways the failing 1.86.1 call differed from every start proven on
+     * that box (regmerge.h). Restored below. */
+    if (is_9x) {
+        prio = GetThreadPriority(me);
+        SetThreadPriority(me, THREAD_PRIORITY_NORMAL);
     }
-    /* regedit /s is quick, but never wait forever on it. */
-    if (WaitForSingleObject(pi.hProcess, 60000) == WAIT_TIMEOUT)
-        log_msg(LOG_GS, "%s: regedit still running after 60s, leaving it", title);
-    else if (GetExitCodeProcess(pi.hProcess, &code) && code != 0)
-        log_msg(LOG_GS, "%s: regedit exited %lu", title, code);
-    else
-        log_msg(LOG_GS, "%s: merged install.reg", title);
+
+    if (!CreateProcessA(NULL, cmd, NULL, NULL, FALSE, (DWORD)flags, NULL, cwd, &si, &pi)) {
+        gle = GetLastError();               /* before ANY other call */
+        _snprintf(why, why_cch - 1, "CreateProcess(\"%s\") failed, error %lu%s", cmd,
+                  (unsigned long)gle,
+                  gle ? "" : " (Windows gave no reason)");
+        why[why_cch - 1] = 0;
+        rc = GS_REGEDIT_NOSTART;
+        goto out;
+    }
+    if ((flags & RM_CREATE_SUSPENDED) && ResumeThread(pi.hThread) == (DWORD)-1) {
+        gle = GetLastError();
+        TerminateProcess(pi.hProcess, 1);
+        _snprintf(why, why_cch - 1, "ResumeThread on \"%s\" failed, error %lu", cmd,
+                  (unsigned long)gle);
+        why[why_cch - 1] = 0;
+        rc = GS_REGEDIT_NOSTART;
+    } else if (!gs_wait_pumping(pi.hProcess, GS_REGEDIT_WAIT_MS)) {
+        /* A regedit still up after a minute is sitting on a dialog nobody
+         * will answer - and on 9x an orphaned dialog blocks shutdown. */
+        TerminateProcess(pi.hProcess, 1);
+        _snprintf(why, why_cch - 1, "\"%s\" still running after %d s - killed it",
+                  cmd, GS_REGEDIT_WAIT_MS / 1000);
+        why[why_cch - 1] = 0;
+        rc = GS_REGEDIT_TIMEOUT;
+    } else if (GetExitCodeProcess(pi.hProcess, &code) && code != 0) {
+        _snprintf(why, why_cch - 1, "\"%s\" exited %lu", cmd, (unsigned long)code);
+        why[why_cch - 1] = 0;
+        rc = GS_REGEDIT_EXITCODE;
+    } else {
+        rc = GS_REGEDIT_OK;
+    }
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
+out:
+    if (is_9x && prio != THREAD_PRIORITY_ERROR_RETURN)
+        SetThreadPriority(me, prio);
+    return rc;
+}
+
+static void gs_merge_reg(const char *dst_dir, const char *title)
+{
+    char reg_path[MAX_PATH];
+    char why[3 * MAX_PATH];
+    char *text;
+    DWORD len = 0;
+    int is_9x = (GetVersion() & 0x80000000UL) != 0;
+    int ran, written = 0;
+    LONG werr = 0;
+    gs_reg_tally_t t;
+
+    _snprintf(reg_path, sizeof(reg_path) - 1, "%s\\install.reg", dst_dir);
+    reg_path[sizeof(reg_path) - 1] = 0;
+    if (!gs_file_exists(reg_path))
+        return;
+
+    ran = gs_run_regedit(reg_path, is_9x, why, sizeof(why));
+    if (ran == GS_REGEDIT_NOSTART)
+        log_msg(LOG_GS, "%s: cannot run regedit: %s", title, why);
+    else if (ran != GS_REGEDIT_OK)
+        log_msg(LOG_GS, "%s: regedit did not finish cleanly: %s", title, why);
+
+    /* The post-condition: every value the file names, read back. */
+    text = gs_reg_load(reg_path, &len);
+    if (!text) {
+        log_msg(LOG_GS, "%s: install.reg could not be read back - merge %s",
+                title, ran == GS_REGEDIT_OK ? "NOT VERIFIED" : "FAILED");
+        return;
+    }
+    gs_reg_verify(text, len, 0, &t, NULL, NULL);
+
+    if (t.total > 0 && t.holds + t.unknown == t.total) {
+        if (ran == GS_REGEDIT_OK)
+            log_msg(LOG_GS, "%s: merged install.reg via regedit - %d/%d value(s) verified%s",
+                    title, t.holds, t.total, t.unknown ? " (some not checkable)" : "");
+        else
+            log_msg(LOG_GS, "%s: install.reg values already present (%d/%d verified) "
+                    "although regedit failed", title, t.holds, t.total);
+    } else if (t.total == 0 && t.dialect != RM_DIALECT_NONE) {
+        /* BF1942 and Turok2 ship an install.reg that is all comments, on
+         * purpose ("THIS FILE DELIBERATELY WRITES NOTHING"). */
+        log_msg(LOG_GS, "%s: install.reg sets no values - nothing to verify", title);
+    } else if (t.total <= 0) {
+        log_msg(LOG_GS, "%s: install.reg has no entries this agent can read "
+                "(no REGEDIT4 header?) - merge %s",
+                title, ran == GS_REGEDIT_OK ? "NOT VERIFIED" : "FAILED");
+    } else if (ran != GS_REGEDIT_OK || is_9x) {
+        /* regedit did not land them. Write them ourselves - loudly: on Win9x
+         * this is the path every title took until 1.86.1 was diagnosed, and
+         * it must never again read as a success. NT, where regedit ran and
+         * still left something out, only reports - see below. */
+        int missing = t.total - t.holds - t.unknown;
+        gs_reg_verify(text, len, 1, &t, &written, &werr);
+        log_msg(LOG_GS, "%s: REGEDIT DID NOT MERGE install.reg (%d value(s) missing) - "
+                "agent wrote %d itself; now %d/%d verified%s%s", title, missing,
+                written, t.holds, t.total,
+                t.holds + t.unknown == t.total ? "" : " - GAME MAY NOT LAUNCH, first: ",
+                t.holds + t.unknown == t.total ? "" : t.first_miss);
+        if (werr)
+            log_msg(LOG_GS, "%s: a registry write failed, error %ld", title, (long)werr);
+    } else {
+        log_msg(LOG_GS, "%s: INSTALL.REG NOT FULLY MERGED - regedit exited 0 but %d of %d "
+                "value(s) are missing or different (first: %s) - game may not launch",
+                title, t.total - t.holds - t.unknown, t.total, t.first_miss);
+    }
+    HeapFree(GetProcessHeap(), 0, text);
 }
 
 /* ---------------------------------------------------------------------- */
