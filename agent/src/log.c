@@ -48,6 +48,30 @@
  * MACHINE dies (power loss, hard hang) - which no amount of buffering
  * discipline can protect, short of the per-line flush we are deliberately
  * removing. LOG_FLUSH_MS bounds that window.
+ *
+ * THE CONSOLE IS NEVER WRITTEN WHILE THE LOG LOCK IS HELD (agent 1.89.2)
+ * ---------------------------------------------------------------------
+ * raw_out() used to echo each line with WriteFile(stderr) under g_log_cs. A
+ * console write blocks for as long as the console is not being serviced - a
+ * QuickEdit/Mark selection in the agent's window, a hung conhost/csrss, a hung
+ * display - and the thread stuck in it kept the lock, so every thread that
+ * logs (the accept loop, every command handler, the flusher) queued behind it
+ * and the agent went deaf while the OS was fine. ADMIN-PC (Win7) sat like that
+ * for 35 hours after its Radeon hung, 2026-09-26.
+ *
+ * Now the loggers only COPY the line into a bounded ring (agent/shared/
+ * conring.h) and ONE low-priority thread, log_echo_thread(), writes the ring
+ * to the console with no lock held. A console that stops accepting output
+ * stalls that thread alone: the ring fills, further lines are dropped and
+ * counted (never waited for), and a notice marks the gap when the console
+ * recovers. The file path is untouched - agent.log still gets every line.
+ * Every other console touch the agent makes (the startup/progress printf's via
+ * con_printf(), the window title) goes the same way, so no thread that serves
+ * or logs ever calls into the console. On NT the echo thread also clears
+ * QuickEdit on the agent's console, so a stray click cannot start a selection.
+ * Tests: tests/native/test_conring.c (the ring), tests/native/
+ * test_log_echo_thread.c (this file on real threads with a console that
+ * freezes) and tests/python/test_log_console_echo.py (source invariants).
  */
 
 #include <windows.h>
@@ -56,6 +80,7 @@
 #include <string.h>
 
 #include "log.h"
+#include "../shared/conring.h"
 
 static CRITICAL_SECTION g_log_cs;
 static int    g_log_initialized = 0;
@@ -86,6 +111,30 @@ static volatile LONG g_write_seq = 0;
 static volatile LONG g_rotate_seq = 0;
 static HANDLE g_flush_evt = NULL;     /* set by log_shutdown to stop the flusher */
 static volatile int g_flush_stop = 0;
+
+/* ---- console echo (see the header: never written under g_log_cs) ------ */
+/* 8 KB is a screenful and a half of lines for a person watching the window:
+ * enough to ride out a burst, small next to the Deskpro's 31 MB. */
+#define ECHO_RING_BYTES 8192
+/* How much the echo thread moves per pass - one full-size log line. */
+#define ECHO_CHUNK      2048
+/* A console write that has not returned after this long is reported. The
+ * echo thread runs at IDLE, so this must comfortably exceed the time NT's
+ * balance-set manager (~4 s) takes to boost a starved thread. */
+#define ECHO_STALL_MS   30000
+
+static char      g_echo_store[ECHO_RING_BYTES];
+static conring_t g_echo;                  /* guarded by g_log_cs */
+static HANDLE    g_echo_h = INVALID_HANDLE_VALUE;  /* console output */
+static HANDLE    g_echo_evt = NULL;       /* auto-reset: "the ring has work" */
+static HANDLE    g_echo_thread = NULL;
+static volatile int g_echo_on = 0;        /* 1 while lines are queued for it */
+static volatile int g_echo_stop = 0;
+/* GetTickCount()|1 while the echo thread is inside a console call, else 0.
+ * Read lock-free by the flusher to report a console that stopped answering. */
+static volatile DWORD g_echo_busy_since = 0;
+static char g_echo_title[128];            /* guarded by g_log_cs */
+static int  g_echo_title_pending = 0;     /* guarded by g_log_cs */
 
 /* Local strcpy (no util.h dependency, safe from the crash logger). */
 static void log_strcpy(char *dst, const char *src, int cap)
@@ -185,14 +234,26 @@ static void flush_locked(void)
     }
 }
 
+/* Queue a line for the console echo thread. Caller holds g_log_cs. This is a
+ * memcpy into the ring and, when the ring was empty, one SetEvent: it cannot
+ * wait for the console, whatever state the console is in. A full ring drops
+ * the line (the file still gets it) - see conring.h. */
+static void echo_push_locked(const char *s, DWORD len)
+{
+    if (!g_echo_on)
+        return;
+    if ((conring_push(&g_echo, s, (unsigned int)len) & CONRING_WAKE)
+            && g_echo_evt)
+        SetEvent(g_echo_evt);
+}
+
 /* Append a formatted line: into the pending buffer when buffered, straight to
- * disk when not. Always echoes to the console immediately -- the console is
- * free, and somebody watching the agent's window should see it live. */
+ * disk when not, and queue it for the console. The console is NOT written
+ * here: this runs under g_log_cs, and a console write can block for as long
+ * as the console is frozen (agent <= 1.89.1 did exactly that - see the
+ * header). log_echo_thread() shows it a moment later. */
 static void raw_out(const char *s, DWORD len)
 {
-    DWORD wr;
-    HANDLE e;
-
     if (g_buffered && g_log_h != INVALID_HANDLE_VALUE) {
         if (g_buf_len + (int)len > LOG_BUF_BYTES)
             flush_locked();
@@ -206,11 +267,7 @@ static void raw_out(const char *s, DWORD len)
         disk_out(s, len);
     }
 
-    /* Best-effort console echo; guarded so an invalid handle (GUI launch)
-     * can never fault us. */
-    e = GetStdHandle(STD_ERROR_HANDLE);
-    if (e != NULL && e != INVALID_HANDLE_VALUE)
-        WriteFile(e, s, len, &wr, NULL);
+    echo_push_locked(s, len);
 }
 
 static void rotate_files(const char *path)
@@ -240,6 +297,9 @@ static void open_log(void)
         SetFilePointer(g_log_h, 0, NULL, FILE_END);
     }
 }
+
+static void echo_prepare(void);
+static void echo_launch(void);
 
 void log_init(const char *logfile)
 {
@@ -276,10 +336,20 @@ void log_init(const char *logfile)
         }
     }
 
+    /* The console echo's ring comes up before the first line so that line
+     * reaches the window too; its thread starts right after it. */
+    echo_prepare();
+
     /* Immediate proof-of-write marker: if THIS line is present but nothing
      * after it, the failure is very early; if the file is truly empty, the
-     * handle never opened (check the path/permissions). */
-    raw_out("--- log opened (raw win32) ---\r\n", 31);
+     * handle never opened (check the path/permissions). sizeof-1, not a
+     * hand count: the string is 32 bytes and a hand-written 31 dropped its
+     * '\n' for years ("---\r[04:45:45]..." in every agent.log - the same
+     * slip the close marker below once had). */
+    raw_out("--- log opened (raw win32) ---\r\n",
+            sizeof("--- log opened (raw win32) ---\r\n") - 1);
+
+    echo_launch();
 }
 
 const char *log_path(void)
@@ -397,6 +467,297 @@ void log_flush(void)
     log_unlift(lifted);
 }
 
+/* ======================================================================
+ * CONSOLE ECHO - the only code in the agent that writes to the console.
+ *
+ * Everything here that calls into the console (WriteFile on the console
+ * handle, SetConsoleTitleA, Get/SetConsoleMode) runs on log_echo_thread() and
+ * with g_log_cs NOT held. Everything else only touches the ring, under the
+ * lock, which is a memcpy. tests/python/test_log_console_echo.py pins both.
+ *
+ * WIN9x / MULTIPLEX: this thread is exactly as safe there as on NT, and it is
+ * the better answer there too. A 9x console is a DOS VM that a DOS child or a
+ * selection can hold for as long as it likes (.243 went 74 minutes deaf on
+ * 2026-09-28 when the accept loop's printf sat behind one); now only this
+ * thread waits, while the single thread that serves every client keeps
+ * serving. There is no non-blocking console write to fall back on - console
+ * handles take no overlapped I/O on either family - so if the thread cannot
+ * be created (CreateThread genuinely fails on the 31 MB Deskpro) the echo is
+ * switched OFF, never done inline: agent.log is the record, the console is a
+ * courtesy, and a cosmetic feature must never cost a box its agent.
+ * ====================================================================== */
+
+#ifndef ENABLE_QUICK_EDIT_MODE
+#define ENABLE_QUICK_EDIT_MODE 0x0040
+#endif
+#ifndef ENABLE_EXTENDED_FLAGS
+#define ENABLE_EXTENDED_FLAGS  0x0080
+#endif
+
+/* Bracket every console call so the flusher can see one that never returns. */
+static void echo_busy_begin(void)
+{
+    g_echo_busy_since = GetTickCount() | 1;
+}
+
+static void echo_busy_end(const char *what)
+{
+    DWORD since = g_echo_busy_since;
+    DWORD took = GetTickCount() - since;
+    g_echo_busy_since = 0;
+    if (since && took >= (DWORD)ECHO_STALL_MS)
+        log_msg(LOG_MAIN, "console: %s returned after %lu s - the console is "
+                "accepting output again", what, (unsigned long)(took / 1000));
+}
+
+/* Echo thread only, no lock held. */
+static void echo_write(const char *s, DWORD len)
+{
+    DWORD wr = 0;
+    echo_busy_begin();
+    WriteFile(g_echo_h, s, len, &wr, NULL);
+    echo_busy_end("a console write");
+}
+
+/* NT: a click in a console window with QuickEdit on starts a selection, and
+ * a console with a selection accepts no output until it ends - which used to
+ * stop the whole agent (see the header). Clear it on our console so a stray
+ * click cannot do that. Win9x consoles have no QuickEdit. Echo thread only:
+ * Get/SetConsoleMode are calls into the console like any other. The window's
+ * Edit > Mark menu can still start a selection by hand; that now stalls this
+ * thread alone. The setting is not restored at exit: that would be one more
+ * console call on the exit path, which must never wait on the console. */
+static void console_quickedit_off(void)
+{
+    HANDLE in;
+    DWORD before = 0, after = 0;
+    BOOL got, set;
+
+    if (GetVersion() & 0x80000000) {
+        log_msg(LOG_MAIN, "console: Win9x - no QuickEdit to clear");
+        return;
+    }
+    in = GetStdHandle(STD_INPUT_HANDLE);
+    if (in == NULL || in == INVALID_HANDLE_VALUE) {
+        log_msg(LOG_MAIN, "console: no console input - QuickEdit not applicable");
+        return;
+    }
+    echo_busy_begin();
+    got = GetConsoleMode(in, &before);
+    set = got && SetConsoleMode(in, (before | ENABLE_EXTENDED_FLAGS)
+                                    & ~(DWORD)ENABLE_QUICK_EDIT_MODE);
+    if (got)
+        GetConsoleMode(in, &after);     /* the post-condition, not the call */
+    echo_busy_end("a console mode change");
+
+    if (!got)
+        log_msg(LOG_MAIN, "console: standard input is not a console (%lu) - "
+                "QuickEdit not applicable", (unsigned long)GetLastError());
+    else if (!set || (after & ENABLE_QUICK_EDIT_MODE))
+        log_msg(LOG_MAIN, "console: could not clear QuickEdit (input mode "
+                "0x%04lx -> 0x%04lx) - a click in the window can still pause "
+                "console output; the agent is unaffected either way",
+                (unsigned long)before, (unsigned long)after);
+    else
+        log_msg(LOG_MAIN, "console: QuickEdit off (input mode 0x%04lx -> "
+                "0x%04lx) - a click in the agent's window cannot start a "
+                "selection", (unsigned long)before, (unsigned long)after);
+}
+
+/* The one thread that talks to the console. IDLE, like every background
+ * helper (bgwork.h): echo is for a person watching the window, and must never
+ * compete with a game. It lifts itself (log_lift) for the memcpy it does under
+ * g_log_cs, so being starved can never leave the lock held. */
+static DWORD WINAPI log_echo_thread(LPVOID unused)
+{
+    char chunk[ECHO_CHUNK];
+    char title[sizeof(g_echo_title)];
+    (void)unused;
+
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_IDLE);
+    console_quickedit_off();
+
+    for (;;) {
+        unsigned int n, gap = 0;
+        unsigned long total = 0;
+        int have_title = 0, lifted;
+
+        lifted = log_lift();
+        EnterCriticalSection(&g_log_cs);
+        n = conring_take(&g_echo, chunk, sizeof(chunk), &gap);
+        total = g_echo.total_dropped;
+        if (g_echo_title_pending) {
+            log_strcpy(title, g_echo_title, sizeof(title));
+            g_echo_title_pending = 0;
+            have_title = 1;
+        }
+        LeaveCriticalSection(&g_log_cs);
+        log_unlift(lifted);
+
+        /* ---- from here on no lock is held: the console may block us ---- */
+        if (have_title) {
+            echo_busy_begin();
+            SetConsoleTitleA(title);
+            echo_busy_end("a console title change");
+        }
+        if (n)
+            echo_write(chunk, n);
+        if (gap) {
+            char note[200];
+            int k = _snprintf(note, sizeof(note) - 1,
+                              "[console: %u line(s) not shown here - the "
+                              "console stopped accepting output; agent.log "
+                              "has every line]\r\n", gap);
+            if (k < 0 || k >= (int)sizeof(note)) k = (int)sizeof(note) - 1;
+            note[k] = '\0';
+            echo_write(note, (DWORD)k);
+            log_msg(LOG_MAIN, "console: %u line(s) were not shown on the "
+                    "console while it was not accepting output (all are in "
+                    "this log; %lu since start)", gap, total);
+        }
+        if (!n && !gap && !have_title) {
+            if (g_echo_stop)
+                break;
+            if (WaitForSingleObject(g_echo_evt, INFINITE) == WAIT_FAILED)
+                break;
+        }
+    }
+    return 0;
+}
+
+/* Called from log_init before the first line: pick the console handle and
+ * arm the ring. No console (an NT service, a detached start) = no echo. */
+static void echo_prepare(void)
+{
+    HANDLE h;
+    if (g_echo_on || g_echo_thread)
+        return;
+    h = GetStdHandle(STD_ERROR_HANDLE);           /* where the echo always went */
+    if (h == NULL || h == INVALID_HANDLE_VALUE)
+        h = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (h == NULL || h == INVALID_HANDLE_VALUE)
+        return;
+    g_echo_evt = CreateEventA(NULL, FALSE, FALSE, NULL);   /* auto-reset */
+    if (!g_echo_evt)
+        return;
+    g_echo_h = h;
+    conring_init(&g_echo, g_echo_store, sizeof(g_echo_store));
+    g_echo_on = 1;
+}
+
+/* Called from log_init after the first line: start the echo thread, and say
+ * which way it went - this line is how a box proves it runs the fix. */
+static void echo_launch(void)
+{
+    DWORD tid;
+    if (!g_echo_on || g_echo_thread)
+        return;
+    g_echo_stop = 0;
+    /* &tid, not NULL: Win9x rejects a NULL lpThreadId (error 87). */
+    g_echo_thread = CreateThread(NULL, 0, log_echo_thread, NULL, 0, &tid);
+    if (!g_echo_thread) {
+        DWORD err = GetLastError();
+        EnterCriticalSection(&g_log_cs);
+        g_echo_on = 0;          /* never fall back to writing inline */
+        LeaveCriticalSection(&g_log_cs);
+        log_msg(LOG_MAIN, "log: no console echo thread (%lu) - console echo "
+                "is OFF; agent.log has every line", (unsigned long)err);
+        return;
+    }
+    log_msg(LOG_MAIN, "log: console echo on its own thread (%u-byte ring, "
+            "idle priority) - a console that stops accepting output drops "
+            "echo lines and cannot stall the agent", g_echo.cap);
+}
+
+/* Flusher, every LOG_FLUSH_MS: report - once - a console call that has not
+ * returned for ECHO_STALL_MS. Lock-free read; the echo thread may be stuck.
+ * (The flusher starts with batching, ~2 min after startup; a stall before
+ * that is reported by echo_busy_end() when the call finally returns.) */
+static void echo_stall_check(void)
+{
+    static DWORD reported = 0;     /* the busy stamp last reported */
+    DWORD since = g_echo_busy_since;
+    DWORD held;
+    if (!since || since == reported)
+        return;
+    held = GetTickCount() - since;
+    if (held < (DWORD)ECHO_STALL_MS)
+        return;
+    reported = since;
+    log_msg(LOG_MAIN, "console: a console call has not returned for %lu s - "
+            "the console is not being serviced (a selection/Mark in its "
+            "window, or a hung console or display). The agent is unaffected: "
+            "it keeps serving, and logging here; the window catches up when "
+            "the console recovers", (unsigned long)(held / 1000));
+    log_flush();
+}
+
+/* Stop the echo thread, letting it drain first - but bounded: a frozen
+ * console keeps it inside WriteFile, and exiting must no more wait on the
+ * console than logging may. Must be called WITHOUT g_log_cs held (the thread
+ * needs it to drain). */
+static void echo_stop(void)
+{
+    if (!g_echo_thread)
+        return;
+    g_echo_stop = 1;
+    if (g_echo_evt)
+        SetEvent(g_echo_evt);
+    if (WaitForSingleObject(g_echo_thread, 1000) == WAIT_OBJECT_0) {
+        CloseHandle(g_echo_thread);
+        g_echo_thread = NULL;
+    }
+    /* else: left running inside the console; the process ends it. The event
+     * is never closed, so if that thread does come back it waits on a live
+     * handle rather than a dead (or recycled) one. */
+}
+
+/* printf for the console, from any thread: formats and queues, never waits.
+ * `\n` becomes `\r\n` as msvcrt's text-mode stdout did. */
+void con_printf(const char *fmt, ...)
+{
+    char msg[1024];
+    char out[2048];
+    int n, i, k = 0, lifted;
+    va_list ap;
+
+    if (!g_log_initialized || !g_echo_on)
+        return;
+    va_start(ap, fmt);
+    n = _vsnprintf(msg, sizeof(msg) - 1, fmt, ap);
+    va_end(ap);
+    if (n < 0 || n > (int)sizeof(msg) - 1)
+        n = (int)sizeof(msg) - 1;
+    msg[n] = '\0';
+    for (i = 0; i < n && k < (int)sizeof(out) - 2; i++) {
+        if (msg[i] == '\n' && (i == 0 || msg[i - 1] != '\r'))
+            out[k++] = '\r';
+        out[k++] = msg[i];
+    }
+
+    lifted = log_lift();
+    EnterCriticalSection(&g_log_cs);
+    echo_push_locked(out, (DWORD)k);
+    LeaveCriticalSection(&g_log_cs);
+    log_unlift(lifted);
+}
+
+/* SetConsoleTitleA, done by the echo thread. */
+void log_console_title(const char *title)
+{
+    int lifted;
+    if (!g_log_initialized || !g_echo_on)
+        return;
+    lifted = log_lift();
+    EnterCriticalSection(&g_log_cs);
+    log_strcpy(g_echo_title, title ? title : "", sizeof(g_echo_title));
+    g_echo_title_pending = 1;
+    LeaveCriticalSection(&g_log_cs);
+    log_unlift(lifted);
+    if (g_echo_evt)
+        SetEvent(g_echo_evt);
+}
+
 /* Periodic flusher: bounds how much routine logging a power cut can cost.
  *
  * It WAITS on an event rather than polling. It used to wake every 250 ms -
@@ -414,6 +775,7 @@ static DWORD WINAPI log_flush_thread(LPVOID unused)
             Sleep(LOG_FLUSH_MS);   /* no event: log_shutdown's 2 s wait times
                                     * out and it flushes itself - still safe */
         log_flush();
+        echo_stall_check();
     }
     return 0;
 }
@@ -457,6 +819,11 @@ void log_set_buffered(int on)
 void log_shutdown(void)
 {
     if (!g_log_initialized) return;
+
+    /* The console first, and never under g_log_cs: the echo thread needs the
+     * lock to drain what is left (e.g. "Shutting down..."), and a frozen
+     * console costs this at most a second. */
+    echo_stop();
 
     g_flush_stop = 1;
     if (g_flush_evt)

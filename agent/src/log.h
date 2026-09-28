@@ -3,7 +3,8 @@
 
 /*
  * log.h - Thread-safe verbose logging
- * Output to stderr + optional log file.
+ * Output to the log file (always) and the console (echoed by a background
+ * thread - no caller ever waits on the console; see log.c).
  * Format: [HH:MM:SS][TAG] message
  */
 
@@ -64,13 +65,30 @@ void log_shutdown(void);
 #define LOG_VIDEO "VIDEO"
 #define LOG_PROTO "PROTO"
 
-/* 1 when nothing may be written to the console from the serving path: the
- * service has none, and in multiplex mode (every Win9x agent) ONE thread
- * serves every client - a console write that blocks (on 9x the console is a
- * DOS VM a DOS child or a text selection can hold; .243 went 74 minutes
- * deaf on 2026-09-28) stops them all. Defined in main.c. */
+/*
+ * THE CONSOLE. Nothing in the agent writes to its console directly: a console
+ * write blocks for as long as the console is not being serviced (a
+ * QuickEdit/Mark selection, a hung conhost/csrss or display on NT; a DOS VM
+ * held by a DOS child on 9x), and a thread stuck there stops serving. So all
+ * console output is QUEUED and written by log.c's echo thread alone:
+ *
+ *   con_printf()        - printf for the console; formats, queues, returns.
+ *                         A full queue drops the text, never waits.
+ *   log_console_title() - SetConsoleTitleA, done by the echo thread.
+ *
+ * Never call printf/puts/WriteConsole/SetConsoleTitle in agent code;
+ * tests/python/test_log_console_echo.py fails the suite if you do.
+ */
+void con_printf(const char *fmt, ...);
+void log_console_title(const char *title);
+
+/* 1 when the serving path should not even queue console chatter (transfer
+ * progress, per-connection lines): the service has no console, and in
+ * multiplex mode (every Win9x agent) a DOS-VM console is slow enough that the
+ * queue would mostly drop it. Since 1.89.2 this is tidiness, not safety -
+ * con_printf() cannot block either way (.243 went 74 minutes deaf on
+ * 2026-09-28 when it could). Defined in main.c. */
 int agent_console_quiet(void);
-#define CON_PRINTF(...) do { if (!agent_console_quiet()) printf(__VA_ARGS__); } while (0)
-#define CON_FLUSH()     do { if (!agent_console_quiet()) fflush(stdout); } while (0)
+#define CON_PRINTF(...) do { if (!agent_console_quiet()) con_printf(__VA_ARGS__); } while (0)
 
 #endif /* LOG_H */

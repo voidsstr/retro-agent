@@ -427,8 +427,8 @@ DWORD WINAPI ai_status_thread(LPVOID param)
     /* Opt-in gate: do NOT stage or probe (which would spawn) the engine at boot
      * unless it has been explicitly enabled. Keeps the vintage boxes idle. */
     if (!ai_engine_enabled()) {
-        printf("AI: engine disabled by default - enable via AI_ENABLE "
-               "(retro chat)\n");
+        con_printf("AI: engine disabled by default - enable via AI_ENABLE "
+                   "(retro chat)\n");
         log_msg(LOG_MAIN, "AI: engine disabled by default (AIEngine reg flag 0)");
         return 0;
     }
@@ -437,16 +437,16 @@ DWORD WINAPI ai_status_thread(LPVOID param)
     host_gpu_json(gpu, sizeof(gpu));
     if (infer_roundtrip("HELLO", NULL, 0, &reply, &reply_len) == 0) {
         /* reply[0] is the status byte; the rest is the caps JSON */
-        printf("AI: READY for fleet AI requests\n");
+        con_printf("AI: READY for fleet AI requests\n");
         if (reply_len > 1)
-            printf("AI: engine %.*s\n", (int)(reply_len - 1 > 300 ? 300 :
-                                              reply_len - 1), reply + 1);
-        printf("AI: host%s\n", gpu + 1);   /* skip leading comma */
+            con_printf("AI: engine %.*s\n", (int)(reply_len - 1 > 300 ? 300 :
+                                                  reply_len - 1), reply + 1);
+        con_printf("AI: host%s\n", gpu + 1);   /* skip leading comma */
         log_msg(LOG_MAIN, "AI: engine ready%s", gpu);
         HeapFree(GetProcessHeap(), 0, reply);
     } else {
-        printf("AI: engine NOT available (retro-infer.exe not staged next "
-               "to the agent?) - AI commands will fail\n");
+        con_printf("AI: engine NOT available (retro-infer.exe not staged next "
+                   "to the agent?) - AI commands will fail\n");
         log_msg(LOG_MAIN, "AI: engine not available at startup");
     }
     return 0;

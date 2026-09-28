@@ -65,7 +65,6 @@ void handle_upload(SOCKET sock, const char *args)
                 pct = (pct / 5) * 5;  /* round down to nearest 5 */
                 if (pct > last_pct) {
                     CON_PRINTF("  Writing: %d%%\r", pct);
-                    CON_FLUSH();
                     last_pct = pct;
                 }
             }
@@ -150,7 +149,6 @@ void handle_download(SOCKET sock, const char *args)
                 pct = (pct / 5) * 5;
                 if (pct > last_pct) {
                     CON_PRINTF("  Reading: %d%%\r", pct);
-                    CON_FLUSH();
                     last_pct = pct;
                 }
             }

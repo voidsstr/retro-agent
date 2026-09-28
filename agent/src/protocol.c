@@ -167,7 +167,6 @@ int frame_recv_timed(SOCKET sock, char **out_buf, DWORD *out_len,
                     pct = (pct / 5) * 5;
                     if (pct > last_pct) {
                         CON_PRINTF("  Receiving: %d%%\r", pct);
-                        CON_FLUSH();
                         last_pct = pct;
                     }
                 }

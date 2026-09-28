@@ -63,7 +63,9 @@ def test_transfer_progress_never_writes_to_the_console_in_multiplex():
         assert not bare, f"{f}: a bare printf on the serving path"
         assert "fflush(stdout)" not in s, f"{f}: a bare fflush(stdout)"
     h = (SRC / "log.h").read_text()
-    assert "if (!agent_console_quiet()) printf(" in h
+    # 1.89.2: the macro queues for log.c's echo thread instead of printf'ing
+    # (tests/python/test_log_console_echo.py) - and is still guarded
+    assert "if (!agent_console_quiet()) con_printf(" in h
 
 
 def test_exec_keeps_its_console_flags_on_9x_until_proven():

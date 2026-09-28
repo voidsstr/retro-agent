@@ -1128,15 +1128,17 @@ void agent_run(void)
         char title[128];
         _snprintf(title, sizeof(title),
                   "Retro Remote Agent Version %s", AGENT_VERSION);
-        SetConsoleTitleA(title);
-        printf("%s\n", title);
+        /* Both go through the echo thread: a console call can block while
+         * the console is frozen, and this thread is about to start serving. */
+        log_console_title(title);
+        con_printf("%s\n", title);
     }
 
     /* Init Winsock 2 */
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
         log_msg(LOG_MAIN, "WSAStartup failed: %d", WSAGetLastError());
         if (!g_service_mode)
-            printf("WSAStartup failed: %d\n", WSAGetLastError());
+            con_printf("WSAStartup failed: %d\n", WSAGetLastError());
         return;
     }
 
@@ -1151,8 +1153,8 @@ void agent_run(void)
     log_msg(LOG_MAIN, "Hostname=%s IP=%s OS=%s RAM=%luMB",
             g_hostname, g_local_ip, g_os_str, (unsigned long)g_ram_mb);
     if (!g_service_mode)
-        printf("Hostname: %s  IP: %s  OS: %s  RAM: %luMB\n",
-               g_hostname, g_local_ip, g_os_str, (unsigned long)g_ram_mb);
+        con_printf("Hostname: %s  IP: %s  OS: %s  RAM: %luMB\n",
+                   g_hostname, g_local_ip, g_os_str, (unsigned long)g_ram_mb);
 
     /* Start discovery broadcaster */
     {
@@ -1171,7 +1173,7 @@ void agent_run(void)
     if (listen_sock == INVALID_SOCKET) {
         log_msg(LOG_MAIN, "socket() failed: %d", WSAGetLastError());
         if (!g_service_mode)
-            printf("socket() failed: %d\n", WSAGetLastError());
+            con_printf("socket() failed: %d\n", WSAGetLastError());
         WSACleanup();
         return;
     }
@@ -1196,7 +1198,7 @@ void agent_run(void)
              sizeof(server_addr)) == SOCKET_ERROR) {
         log_msg(LOG_MAIN, "bind() failed: %d", WSAGetLastError());
         if (!g_service_mode)
-            printf("bind() failed: %d\n", WSAGetLastError());
+            con_printf("bind() failed: %d\n", WSAGetLastError());
         closesocket(listen_sock);
         WSACleanup();
         return;
@@ -1205,7 +1207,7 @@ void agent_run(void)
     if (listen(listen_sock, 4) == SOCKET_ERROR) {
         log_msg(LOG_MAIN, "listen() failed: %d", WSAGetLastError());
         if (!g_service_mode)
-            printf("listen() failed: %d\n", WSAGetLastError());
+            con_printf("listen() failed: %d\n", WSAGetLastError());
         closesocket(listen_sock);
         WSACleanup();
         return;
@@ -1241,10 +1243,10 @@ void agent_run(void)
                 listen_sock_alt != INVALID_SOCKET ? "+:9897" : "",
                 AGENT_UDP_PORT, mode_str);
         if (!g_service_mode)
-            printf("Listening on TCP :%d%s, discovery on UDP :%d (%s)\n",
-                   AGENT_TCP_PORT,
-                   listen_sock_alt != INVALID_SOCKET ? "+:9897" : "",
-                   AGENT_UDP_PORT, mode_str);
+            con_printf("Listening on TCP :%d%s, discovery on UDP :%d (%s)\n",
+                       AGENT_TCP_PORT,
+                       listen_sock_alt != INVALID_SOCKET ? "+:9897" : "",
+                       AGENT_UDP_PORT, mode_str);
     }
 
     /* Signal service manager that we're fully initialized */
@@ -1439,14 +1441,16 @@ void agent_run(void)
                 log_msg(LOG_MAIN, "Connection from %s:%d",
                         inet_ntoa(client_addr.sin_addr),
                         ntohs(client_addr.sin_port));
-                /* Not in multiplex mode: this thread serves EVERY client,
-                 * and a console write can block - on Win9x the console is a
-                 * DOS VM that a DOS child or a text selection can hold (.243,
-                 * 74 minutes, 2026-09-28). The log line above says the same. */
+                /* Not in multiplex mode: this thread serves EVERY client.
+                 * It was a bare printf until 1.89.1, and a console write can
+                 * block - on Win9x the console is a DOS VM that a DOS child or
+                 * a text selection can hold (.243, 74 minutes, 2026-09-28).
+                 * con_printf() only queues it for log.c's echo thread (1.89.2),
+                 * and the log line above says the same anyway. */
                 if (!agent_console_quiet())
-                    printf("Connection from %s:%d\n",
-                           inet_ntoa(client_addr.sin_addr),
-                           ntohs(client_addr.sin_port));
+                    con_printf("Connection from %s:%d\n",
+                               inet_ntoa(client_addr.sin_addr),
+                               ntohs(client_addr.sin_port));
 
                 if (g_client_mode == MODE_SINGLE) {
                     handle_client(client);
@@ -1522,7 +1526,7 @@ void agent_run(void)
     clients_cleanup();
 
     if (!g_service_mode)
-        printf("Shutting down...\n");
+        con_printf("Shutting down...\n");
     log_msg(LOG_MAIN, "Shutting down");
     closesocket(listen_sock);
     /* The alt listener used to be left bound. A QUIT then produced a
@@ -1631,7 +1635,7 @@ int main(int argc, char *argv[])
                 "rather than fighting it for the ports");
         log_flush();
         if (!g_service_mode)
-            printf("A retro_agent is already running on this machine.\n");
+            con_printf("A retro_agent is already running on this machine.\n");
         CloseHandle(g_instance_mutex);
         g_instance_mutex = NULL;
         log_shutdown();
@@ -1641,7 +1645,7 @@ int main(int argc, char *argv[])
     log_msg(LOG_MAIN, "retro_agent v%s: main() entered", AGENT_VERSION);
     log_msg(LOG_MAIN, "log file: %s (rotating, ~512KB x2)", log_path());
     if (!g_service_mode)
-        printf("Logging to %s\n", log_path());
+        con_printf("Logging to %s\n", log_path());
 
     /* Win9x: GCC __thread TLS may not initialize properly in CreateThread
      * threads, causing handler threads to crash silently.  Fall back to
