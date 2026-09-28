@@ -153,3 +153,17 @@ def test_the_map_is_keyed_case_insensitively(tmp_path):
 def test_the_audit_audits_the_roster_not_a_stale_list():
     assert AUDIT.DEFAULT_BOXES == AUDIT.roster_boxes()
     assert "192.168.1.195" in AUDIT.DEFAULT_BOXES   # ADMIN-PC, was .246
+
+
+def test_halo_skips_its_intro_movies_only_where_vcr_kmd_drives_the_screen():
+    """The Bink intros ran >13 minutes on .124's vcr-kmd (2026-09-28)."""
+    post = [p for p in SF.TITLES["Halo"]["post"] if p["marker"] == "HALO_NOVIDEO"]
+    assert len(post) == 1
+    text = "\n".join(post[0]["lines"])
+    assert 'sc query %s 2>nul | find /i "RUNNING"' % SF.VCRKMD_SERVICE in text
+    assert "set HALO_NOVIDEO=\n" in text + "\n"      # cleared first: never inherited
+    # the start line carries it, and the block must not sit inside the span a
+    # HALO_BOXKEY refresh replaces (its first line up to the start line)
+    assert post[0]["before"] != 'start "" halo.exe'
+    fixes = dict(SF.TITLES["Halo"]["fix"]["Play Halo.bat"])
+    assert fixes['start "" halo.exe -vidmode'] == 'start "" halo.exe %HALO_NOVIDEO% -vidmode'

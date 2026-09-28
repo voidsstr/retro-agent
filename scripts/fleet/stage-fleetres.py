@@ -523,6 +523,25 @@ def halo_boxkey():
             'scripts/halo/assign_keys.py' % k]
 
 
+def halo_novideo():
+    """Halo's intro movies are skipped where vcr-kmd drives the screen.
+
+    MEASURED on .124 (V5 6000, vcr-kmd, D3D32 + D3DBigTex armed) 2026-09-28:
+    the three Bink intros (mgs.bik, bungie.bik, gearbox.bik - 2 to 4.5 MB
+    each, about a minute together) were still playing THIRTEEN minutes after
+    launch, halo.exe at ~100% CPU; Escape skipped each and the textured main
+    menu then came up and ran normally. The movie path's cost on this driver
+    is not yet explained. `-novideo` is Halo's own switch for exactly this.
+    Every other box keeps its intros; a probe that cannot run (no sc.exe)
+    leaves them on - the library's own behaviour. Same RUNNING test as
+    newdark_display_swap, for the same reason: a vcrmp key left behind by a
+    rollback must not count. DELETE the day the movies play at speed there."""
+    return ['rem ---- per-box HALO_NOVIDEO - see stage-fleetres.py halo_novideo ----',
+            'set HALO_NOVIDEO=',
+            'sc query %s 2>nul | find /i "RUNNING" >nul && set HALO_NOVIDEO=-novideo'
+            % VCRKMD_SERVICE]
+
+
 def newdark_display_swap():
     r"""Move NewDark's cam_ext.cfg aside where vcr-kmd drives the screen.
 
@@ -1047,6 +1066,7 @@ TITLES = {
             # same defect as the resolution, one field to the right.
             "Play Halo.bat": [
                 ('-vidmode %FR_W%,%FR_H%,60', '-vidmode %FR_W%,%FR_H%,%FR_HZ%'),
+                ('start "" halo.exe -vidmode', 'start "" halo.exe %HALO_NOVIDEO% -vidmode'),
             ],
         },
         "post": [{
@@ -1054,6 +1074,14 @@ TITLES = {
             "marker": "HALO_BOXKEY",
             "before": 'start "" halo.exe',
             "lines": halo_boxkey(),
+        }, {
+            # anchored on the cd, NOT on the start line: a refresh of the
+            # block above replaces everything from its first line to ITS
+            # anchor, and would take this block with it
+            "file": "Play Halo.bat",
+            "marker": "HALO_NOVIDEO",
+            "before": 'cd /d "%~dp0"',
+            "lines": halo_novideo(),
         }],
     },
     "HalfLife1": {
