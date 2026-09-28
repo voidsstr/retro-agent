@@ -55,3 +55,21 @@ def test_a_timed_out_poll_reconnects_and_keeps_waiting(monkeypatch):
     assert res.get("fps") == 72.1, res
     assert res.get("agent_stalled_polls") == 1, "a stall is recorded, not hidden"
     assert calls["opens"] == 1 and link.stalls == 1
+
+
+def test_dos_quake_score_is_parsed_from_its_console_log():
+    m = load()
+    r = m.parse("Playing demo from demo1.dem.\n969 frames 30.5 seconds 31.8 fps\n")
+    assert r == {"frames": 969, "seconds": 30.5, "fps": 31.8}
+    assert m.parse("timed 5026 gametics in 2439 realtics")["fps"] == 72.1, "Doom still parses"
+
+
+def test_quake_cfg_quits_after_the_timedemo():
+    """DOS Quake never exits after a timedemo, and a DOS program cannot be
+    killed safely on Win9x - so the cfg itself must end with quit, after
+    enough waits to outlast the demo."""
+    m = load()
+    cfg = m.quake_cfg("demo2", waits=4000).split("\r\n")
+    assert cfg.index("timedemo demo2") < cfg.index("quit")
+    assert cfg.count("w1000") == 4
+    assert cfg[-2] == "quit"

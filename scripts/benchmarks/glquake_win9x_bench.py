@@ -157,15 +157,27 @@ async def one_run_q2(c, a, w, h, demo):
                            'set cl_maxfps "1000"', 'set gl_swapinterval "0"',
                            'set timedemo "1"', 'set nextserver "killserver; quit"',
                            "demomap %s.dm2" % demo, ""]).encode("ascii")
-    fleetres = "\r\n".join(["// written per run by glquake_win9x_bench.py (the launcher rewrites it)",
-                              'set vid_ref "gl"', 'set gl_driver "%s"' % a.gl_driver,
-                              'set gl_mode "%d"' % mode, 'set vid_fullscreen "1"', ""]).encode("ascii")
+    if a.ref == "soft":
+        # ref_soft: DirectDraw, its own mode cvar; no gl_driver, no MiniGL
+        fleetres = "\r\n".join(["// written per run by glquake_win9x_bench.py (the launcher rewrites it)",
+                                  'set vid_ref "soft"', 'set sw_mode "%d"' % mode,
+                                  'set vid_fullscreen "1"', ""]).encode("ascii")
+        refargs = "+set vid_ref soft +set sw_mode %d" % mode
+    else:
+        fleetres = "\r\n".join(["// written per run by glquake_win9x_bench.py (the launcher rewrites it)",
+                                  'set vid_ref "gl"', 'set gl_driver "%s"' % a.gl_driver,
+                                  'set gl_mode "%d"' % mode, 'set vid_fullscreen "1"', ""]).encode("ascii")
+        refargs = "+set vid_ref gl +set gl_driver %s +set gl_mode %d" % (a.gl_driver, mode)
     await cmd(c, "DELETE " + log)
     await cmd(c, "UPLOAD %s\\baseq2\\bench.cfg" % base, binary_payload=bench)
     await cmd(c, "UPLOAD %s\\baseq2\\fleetres.cfg" % base, binary_payload=fleetres)
-    line = ("LAUNCH %s\\quake2.exe +set basedir %s +set vid_ref gl +set gl_driver %s "
-            "+set gl_mode %d +set vid_fullscreen 1 +set logfile 2 +exec bench.cfg"
-            % (base, base, a.gl_driver, mode))
+    # Keep it under COMMAND.COM's 127-character tail: on Win9x, agent 1.89.1+
+    # gives a LAUNCH child its own console and Windows then REFUSES a longer
+    # line (CreateProcess error 31, measured on .243 2026-09-28). The renderer
+    # needs no switches here - fleetres.cfg above carries it, and the staged
+    # autoexec.cfg execs that file last.
+    line = ("LAUNCH %s\\quake2.exe +set basedir %s +set logfile 2 +exec bench.cfg" % (base, base))
+    del refargs
     t0 = time.time()
     st, d = await cmd(c, line)
     if st != 0:
@@ -213,6 +225,8 @@ async def main():
     ap.add_argument("--game", choices=("glquake", "quake2"), default="glquake")
     ap.add_argument("--gl-driver", dest="gl_driver", default="3dfxgl",
                     help="quake2: gl_driver (3dfxgl = the MiniGL beside quake2.exe)")
+    ap.add_argument("--ref", choices=("gl", "soft"), default="gl",
+                    help="quake2: renderer - gl (the MiniGL in --gl-driver) or soft (ref_soft, DirectDraw)")
     ap.add_argument("--basedir", default=r"C:\GAMES\Quake1")
     ap.add_argument("--exe", default=r"VOODOO\GLQUAKE.EXE")
     ap.add_argument("--bpp", type=int, default=16)
@@ -279,9 +293,11 @@ async def main():
         w, h, bpp = r["asked"].split("x")
         rows.append({
             "stamp": stamp,
-            "title": ("Quake II (%s)" if a.game == "quake2" else "GLQuake (%s)") % r["demo"],
+            "title": (("Quake II software (%s)" if a.ref == "soft" else "Quake II (%s)") if a.game == "quake2"
+                      else "GLQuake (%s)") % r["demo"],
             "engine": "quake2.exe (3.20)" if a.game == "quake2" else a.exe,
-            "api": ("ref_gl -> %s (3dfx MiniGL)" % a.gl_driver) if a.game == "quake2"
+            "api": ("ref_soft (software, DirectDraw)" if a.ref == "soft" else
+                    "ref_gl -> %s (3dfx MiniGL)" % a.gl_driver) if a.game == "quake2"
                    else "MiniGL (3dfxgl, Quake II 3.20)",
             "res": "%sx%s" % (w, h), "mode_line": r.get("mode_ran") or "",
             "width": w, "height": h, "colordepth": bpp, "chips": 1, "aa_label": "off",

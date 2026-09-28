@@ -41,7 +41,28 @@ def job_bat(tag, directory, command):
             "echo END> %s\\RES\\%s.END\r\n" % (drive, directory[2:] or "\\", command, BENCH, BENCH, tag, BENCH, tag))
 
 
+# Quake 1 (DOS QUAKE.EXE): "969 frames 30.5 seconds 31.8 fps" - written to
+# id1\qconsole.log with -condebug (it prints nothing to stdout), so a Quake job
+# names that log as its result file (the 4th field of --job).
+QUAKE_RE = re.compile(r"(\d+)\s+frames\s+([\d.]+)\s+seconds\s+([\d.]+)\s+fps", re.I)
+
+
+def quake_cfg(demo, waits=4000):
+    """A cfg that timedemos `demo` and then QUITS: DOS Quake returns to its
+    console after a timedemo and never exits by itself, and killing a DOS
+    program on Win9x is not an option. Each `wait` holds the rest of the
+    buffer one host frame; the chain outlasts the demo, then `quit` runs."""
+    lines = ['alias w10 "wait;wait;wait;wait;wait;wait;wait;wait;wait;wait"',
+             'alias w100 "w10;w10;w10;w10;w10;w10;w10;w10;w10;w10"',
+             'alias w1000 "w100;w100;w100;w100;w100;w100;w100;w100;w100;w100"',
+             "timedemo %s" % demo] + ["w1000"] * (waits // 1000) + ["quit", ""]
+    return "\r\n".join(lines)
+
+
 def parse(text):
+    q = QUAKE_RE.search(text)
+    if q:
+        return {"frames": int(q.group(1)), "seconds": float(q.group(2)), "fps": float(q.group(3))}
     m = TIMED_RE.search(text)
     if not m:
         return None
@@ -80,10 +101,12 @@ class Link:
         self.c = None
 
 
-async def run_job(link, tag, directory, command, timeout):
+async def run_job(link, tag, directory, command, timeout, result_file=None):
     c = link.c
     await cmd(c, "DELETE %s\\RES\\%s.END" % (BENCH, tag))
     await cmd(c, "DELETE %s\\RES\\%s.TXT" % (BENCH, tag))
+    if result_file:
+        await cmd(c, "DELETE %s\\%s" % (directory, result_file))
     await cmd(c, "UPLOAD %s\\%s.BAT" % (BENCH, tag), binary_payload=job_bat(tag, directory, command).encode("ascii"))
     t0 = time.time()
     st, d = await cmd(c, "LAUNCH %s\\%s.BAT" % (BENCH, tag))
@@ -105,7 +128,8 @@ async def run_job(link, tag, directory, command, timeout):
     else:
         return {"error": "no .END after %d s - the job may be waiting on the screen" % timeout}
     c = link.c
-    st, d = await cmd(c, "DOWNLOAD %s\\RES\\%s.TXT" % (BENCH, tag))
+    st, d = await cmd(c, "DOWNLOAD %s\\%s" % (directory, result_file) if result_file
+                      else "DOWNLOAD %s\\RES\\%s.TXT" % (BENCH, tag))
     text = d.decode("latin-1") if st == 1 else ""
     res = parse(text) or {"error": "no 'timed ... gametics' line", "tail": text[-300:]}
     res["wall_s"] = round(time.time() - t0, 1)
@@ -140,10 +164,12 @@ async def main():
         await asyncio.sleep(3)
         st, d = await cmd(c, "PROCLIST"); meta["processes_during_run"] = sorted(set(names(d)))
         for i, j in enumerate(a.job):
-            title, directory, command = j.split("|")
+            parts = j.split("|")
+            title, directory, command = parts[:3]
+            result_file = parts[3] if len(parts) > 3 and parts[3] else None
             for r in range(a.runs):
                 tag = "J%dR%d" % (i, r)
-                res = await run_job(link, tag, directory, command, a.timeout)
+                res = await run_job(link, tag, directory, command, a.timeout, result_file)
                 c = link.c
                 res.update({"title": title, "dir": directory, "command": command, "run": r + 1})
                 results.append(res)
