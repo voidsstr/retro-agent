@@ -1,0 +1,74 @@
+3dfx Control Panel 2.0.0 - smoke test on real Windows XP SP3 (2026-09-28)
+=========================================================================
+
+Where: a THROWAWAY copy-on-write overlay of the vcr-kmd QEMU test bed disk
+(~/retro-vm/vcrkmd/overlay.qcow2 -> xp3.qcow2; neither was written), std-vga,
+vcr-kmd's Bochs backend (build 1 of 2026-09-26: no 2D engine, no 2D report),
+agent 1.88.1 on 127.0.0.1:19931, the fleet's dark classic theme. Not .124:
+nothing here touched a fleet box.
+
+What was exercised, through the agent (UICLICK / UIKEY / SCREENSHOT / REGREAD):
+- the exe loads on XP SP3; `3dfxctl.exe /report` lane "vcr-kmd (our stack)",
+  Glide key HKLM\...\banshee\Device0\glide (3dfxvs\Device0 absent there);
+- every tab renders (vm_overview.png, vm_3d_glide.png);
+- "Allow EXPERIMENTAL anti-aliasing": the warning found an unguarded
+  C:\Games\Carmageddon2\glide3x.dll (the nGlide wrapper) and its default
+  button is No (ENTER left the box unticked); Yes listed the AA mode; Apply
+  wrote SSTH3_SLI_AA_CONFIGURATION=1 AND Diag\SliAA=1 (reg query 0x1), header
+  turned red; "Disarm AA now" deleted SliAA (reg query: value not found)
+  (vm_aa_confirm.png);
+- "Maximum quality" preset + Apply: HKCU\Environment FX_GLIDE_SWAPINTERVAL=1,
+  Glide key FX_GLIDE_LOD_DITHER=1, SSTH3_ALPHADITHERMODE=3, all read back;
+  "Driver defaults" + Apply removed every one of them again;
+- two planted overrides (HKCU\Environment FX_GLIDE_AA_SAMPLE=2, per-user
+  Glide key FX_GLIDE_LOD_DITHER=0) were listed in red and removed on Apply
+  (values deleted, keys left);
+- desktop refresh 60 -> 70 Hz: one paced switch, the keep-or-revert dialog
+  counted down and put 60 Hz back (DISPLAYCFG get: 70, then 60)
+  (vm_keep_refresh.png).
+
+THE FINDING: a same-mode CDS_RESET does not build a new display surface
+-----------------------------------------------------------------------
+First design: apply Diag\Accel2D* with ChangeDisplaySettingsEx(current mode,
+CDS_RESET). The vcr-kmd flight recorder (`vcrctl log`) after that Apply:
+
+  82  DrvGetModes
+  83  DrvAssertMode        a=0 b=1
+  84  PHASE mode set
+  85  mode 154: 1024x768x32@60
+  86  pll 65000 kHz -> 65028 kHz, refresh 60028 mHz
+  89  mode set done
+  91  DrvAssertMode        a=1 b=1
+
+Only DrvAssertMode(FALSE)/(TRUE) on the SAME PDEV - no DrvEnablePDEV, no
+DrvEnableSurface - so VcrDd2dInit (vcrdd_2d.c, called from DrvEnableSurface)
+never re-read IOCTL_VCR_INFO and the switches were never read.
+
+Second design (shipped): pass through another listed mode at the same
+resolution and back, two switches through tools/vcr_pace.h:
+
+  96  DrvEnablePDEV mode 155            (495602 ms)
+  99  mode 155: 1024x768x32@70
+ 106  DrvEnableSurface 1024x768x32      <- new surface, flags re-read
+ 126  DrvDisableSurface / 127 DrvDisablePDEV
+ 129  DrvEnablePDEV mode 154            (498667 ms: 3.065 s later - the pace floor)
+ 132  mode 154: 1024x768x32@60
+ 139  DrvEnableSurface 1024x768x32      <- back at the original mode, new surface
+
+Summary line of that Apply: "[OK] display passed through 32-bit 70 Hz and is
+back at 1024x768 32-bit 60 Hz (paced, read back)" (vm_apply_2d_bounce.png).
+The driver in the bed predates the 2D report, so the panel said
+[UNCONFIRMED] for the switch itself - which is the honest answer there.
+
+Final build (the one committed), a second throwaway overlay, same bed:
+- `RETRO_AGENT_PORT=19931 push_3dfxctl.py 127.0.0.1 --deploy --no-share`:
+  uploaded, copied, DOWNLOADed back with the same md5, both shortcuts
+  present, /report printed (vm_desktop_shortcut.png: the icon on the desktop).
+  The first try failed honestly ("Cannot open file: error 2" on the report):
+  a quoted `EXEC "exe" /report "file"` is mangled by cmd /c's quote
+  stripping; the script now passes the (space-free) paths unquoted.
+- Pattern fills on + Apply, through the final paced_switch() helper:
+    85  DrvEnablePDEV mode 155 (1024x768x32@70)   109056 ms
+    95  DrvEnableSurface 1024x768x32
+   118  DrvEnablePDEV mode 154 (1024x768x32@60)   112111 ms  (+3.055 s, the floor)
+   128  DrvEnableSurface 1024x768x32
