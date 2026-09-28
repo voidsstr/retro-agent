@@ -455,6 +455,53 @@ def glide_swap(*rels):
 
 
 # --------------------------------------------------------------------------
+# The UE1 render devices, when THIS box renders through Glide (FR_UE1DEV =
+# GlideDrv). Unreal Gold hung on .124 (V5 6000, 2026-09-28) in its SECOND
+# Glide open; read from the staged tree's own binaries (GlideDrv.dll and
+# WinDrv.dll, disassembled - the evidence is in the header of
+# voodoo-cleanroom/tools/glide2probe.c, whose --ue1 replays the sequence):
+#
+# 1. GlideDrv is FullscreenOnly. WinDrv's WM_KILLFOCUS handler, in fullscreen,
+#    calls EndFullscreen, which re-creates the render device from
+#    WindowedRenderDevice at the WINDOWED size with Fullscreen=0 - and this
+#    launcher used to write GlideDrv there too. A windowed GlideDrv Init still
+#    opens the hardware fullscreen (grSstWinOpen at 800x600, 2 buffers), from
+#    INSIDE the focus change, and then fails by design for a Voodoo (SetRes
+#    returns FALSE unless the board is an SST-96), after which EndFullscreen's
+#    check(RenDev) asserts. On .124 it never got that far: it hung in that
+#    open. So WindowedRenderDevice (and the editor's RenderDevice) stay a
+#    device that can run in a window - SoftDrv - and a focus loss drops the
+#    game to it; UE1 re-enters Glide fullscreen when the window is restored.
+#
+# NB its log line "grSstOpen Res=%i Ref=%i" prints the two numbers SWAPPED:
+# "Res=0 Ref=13" is 1280x1024 at 60 Hz, not 320x200 (UT's GlideDrv prints
+# them in order: "Res=13 Ref=0 ... (X: 1280 Y: 960)").
+#
+# The device is decided on lines OUTSIDE the ( ) block that uses it: cmd.exe
+# expands %VAR% in a block when the block is parsed, so a set and a use in
+# one block see the old value.
+# --------------------------------------------------------------------------
+UE1_GLIDE_DEV = "GlideDrv.GlideRenderDevice"
+UE1_WINDOWED_FALLBACK = "SoftDrv.SoftwareRenderDevice"
+
+
+def ue1_render_device(ini):
+    e = '"%~dp0FLEETRES.EXE"'
+    i = '"%%~dp0%s"' % ini
+    g = 'if /i "%%FR_UE1DEV%%"=="%s"' % UE1_GLIDE_DEV
+    out = ['set "UE1WDEV=%FR_UE1DEV%"',
+           '%s set "UE1WDEV=%s"' % (g, UE1_WINDOWED_FALLBACK)]
+    out += [
+        'if exist "%~dp0FLEETRES.EXE" (',
+        '  %s -ini %s Engine.Engine GameRenderDevice %%FR_UE1DEV%%' % (e, i),
+        '  %s -ini %s Engine.Engine WindowedRenderDevice %%UE1WDEV%%' % (e, i),
+        '  %s -ini %s Engine.Engine RenderDevice %%UE1WDEV%%' % (e, i),
+        ')',
+    ]
+    return out
+
+
+# --------------------------------------------------------------------------
 # Turok 2 keeps its mode as one BOOLEAN PER MODE in Data\config.ned, chosen
 # from a fixed list: 320x240, 512x384, 640x480, 800x600, 1024x768, 1280x1024.
 # There is no width/height pair and no 1080p entry, so the honest best is the
@@ -833,20 +880,14 @@ TITLES = {
         # is. The staged Unreal.ini asks for SoftDrv in a window and D3DDrv
         # fullscreen; FR_UE1DEV picks the right one for THIS box and the swap
         # stops the game-local nGlide wrapper shadowing real Glide silicon.
+        # GlideDrv is fullscreen-only: it never becomes the WINDOWED device
+        # (ue1_render_device).
         "post": [{
             "file": "Play Unreal Gold.bat",
             "marker": "FR_GLIDE",
             "before": 'cd /d "%~dp0System"',
-            "lines": glide_swap("System\\glide2x.dll") + [
-                'if exist "%~dp0FLEETRES.EXE" (',
-                '  "%~dp0FLEETRES.EXE" -ini "%~dp0System\\Unreal.ini" '
-                'Engine.Engine GameRenderDevice %FR_UE1DEV%',
-                '  "%~dp0FLEETRES.EXE" -ini "%~dp0System\\Unreal.ini" '
-                'Engine.Engine WindowedRenderDevice %FR_UE1DEV%',
-                '  "%~dp0FLEETRES.EXE" -ini "%~dp0System\\Unreal.ini" '
-                'Engine.Engine RenderDevice %FR_UE1DEV%',
-                ')',
-            ],
+            "lines": glide_swap("System\\glide2x.dll") +
+                     ue1_render_device("System\\Unreal.ini"),
         }],
     },
     "Carmageddon2": {
