@@ -12,6 +12,22 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.78 — `wglGetProcAddress` never hands out a synthesized stub (2026-09-28)
+
+**Problem (Deathmatch Classic on `.124`, the V5 6000):** WON Half-Life's
+`hw.dll` asks for `glPNTrianglesiATI` (ATI TruForm) and calls it if the
+pointer is non-NULL. We do not advertise `GL_ATI_pn_triangles`, but Mesa's
+`_glapi_get_proc_address()` **synthesizes a dispatch stub at offset ~0** for
+any unknown `gl*` name, and our `wglGetProcAddress` passed it on. DMC died
+~20 s in with `eip 0x010c01d9` (a heap stub) called from `hw.dll+0x76d3c`
+with `(0x87f2, 0x87f6)`; the crashed process then took DirectDraw exclusive at
+640x480x16 and stranded the desktop.
+
+**Fix (`fxwgl.c` wglGetProcAddress):** a name glapi has no dispatch offset for
+answers NULL before glapi is asked, so no stub is ever made. Everything we
+implement has an offset (static table or `_glapi_add_entrypoint`). Verified on
+`.124`: DMC on a `dmc_dm2` listen server ran 15+ minutes, no Dr. Watson entry.
+
 ## 0.1.77 — `wglGetDeviceGammaRamp3DFX` reports the ramp in the DAC, never zeros (2026-09-28)
 
 **Problem (found reading `sof2mp.exe` while chasing Soldier of Fortune II's

@@ -44,7 +44,7 @@ index a6c0ab5..e837af1 100644
  else
  ifeq ($(ICD),1)
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..7bad19f 100644
+index 350f075..d9e26a2 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
 @@ -83,13 +83,34 @@ static GrHwConfiguration glbHWConfig;
@@ -220,7 +220,7 @@ index 350f075..7bad19f 100644
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.77]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.78]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
@@ -1233,7 +1233,7 @@ index f8a6db0..6cb456a 100644
  
  
 diff --git a/src/mesa/drivers/glide/fxwgl.c b/src/mesa/drivers/glide/fxwgl.c
-index 6ad6fc9..4a38a8a 100644
+index 6ad6fc9..1feea93 100644
 --- a/src/mesa/drivers/glide/fxwgl.c
 +++ b/src/mesa/drivers/glide/fxwgl.c
 @@ -71,7 +71,37 @@ struct __pixelformat__
@@ -1452,7 +1452,7 @@ index 6ad6fc9..4a38a8a 100644
         {"wglGetExtensionsStringARB",    (PROC)wglGetExtensionsStringARB},
         {"wglGetExtensionsStringEXT",    (PROC)wglGetExtensionsStringEXT},
         {"wglSwapIntervalEXT",           (PROC)wglSwapIntervalEXT},
-@@ -693,18 +829,29 @@ wglGetProcAddress(LPCSTR lpszProc)
+@@ -693,18 +829,45 @@ wglGetProcAddress(LPCSTR lpszProc)
     int i;
     PROC p;
     rgl_first_entry("wglGetProcAddress");
@@ -1478,6 +1478,22 @@ index 6ad6fc9..4a38a8a 100644
         }
     }
  
++   /* [retro3dfx] 0.1.78: a name glapi holds no dispatch slot for is a
++    * function this ICD does not implement - answer NULL. Asked for it,
++    * _glapi_get_proc_address() SYNTHESIZES a stub at dispatch offset ~0
++    * ("If that never happens, and the user calls this function, he'll
++    * segfault" - its own comment), and an application that trusts a
++    * non-NULL pointer calls straight into it. WON Half-Life's hw.dll does
++    * exactly that with glPNTrianglesiATI (ATI TruForm, enums 0x87F0-0x87F7),
++    * which we do not advertise: Deathmatch Classic on .124 (V5 6000,
++    * 2026-09-28) died with eip 0x010c01d9 - a heap stub - called from
++    * hw.dll+0x76d3c. Every function we do implement has an offset (the
++    * static table, or _glapi_add_entrypoint at context creation). */
++   if (_glapi_get_proc_offset((const char *) lpszProc) < 0) {
++      SetLastError(0);
++      return (NULL);
++   }
++
 +   p = (PROC) _glapi_get_proc_address((const char *) lpszProc);
 +
 +   /* we can't BlendColor. work around buggy applications */
@@ -1487,7 +1503,7 @@ index 6ad6fc9..4a38a8a 100644
     SetLastError(0);
     return (NULL);
  }
-@@ -730,6 +877,7 @@ wglMakeCurrent(HDC hdc, HGLRC hglrc)
+@@ -730,6 +893,7 @@ wglMakeCurrent(HDC hdc, HGLRC hglrc)
     hDC = hdc;
  
     fxMesaMakeCurrent(ctx);
@@ -1495,7 +1511,7 @@ index 6ad6fc9..4a38a8a 100644
  
     return (TRUE);
  }
-@@ -1113,6 +1261,7 @@ wglSwapBuffers(HDC hdc)
+@@ -1113,6 +1277,7 @@ wglSwapBuffers(HDC hdc)
     }
  
     fxMesaSwapBuffers();
