@@ -38,6 +38,9 @@
 #include "../include/vcr_texlod.h"
 #include "../include/vcr_fog.h"
 
+/* the DX5 execute buffer's last instruction (d3dtypes.h D3DOP_EXIT) */
+#define VCR_D3DOP_EXIT 11
+
 #define MAX_CTX         32
 #define MAX_HANDLES     4096            /* power of two */
 #define RS_MAX          256
@@ -1313,6 +1316,16 @@ static HRESULT walk(dp2walk *w, const UCHAR *cmds, ULONG len, LPDWORD rstates, D
             }
             p += n * sizeof(D3DNTHAL_DP2TEXBLT);
             break;
+        case VCR_D3DOP_EXIT:
+            /* DX5 execute-buffer EXIT (D3DOP_EXIT = 11): DP2 reuses the execute
+             * buffer's opcode numbers (1/2/3/8 are the same instructions), so
+             * an execute-buffer title's stream arrives here ending in EXIT.
+             * It ends the stream - it is not an unknown command. Answering
+             * COMMAND_UNPARSED at it sent Jedi Knight (DX5) down D3DIM's
+             * fallback, which reallocated the buffer and crashed in a rep
+             * movsd to 0xbf7ffffc (.124, V5 6000, 2026-09-28); every one of
+             * the 47 "unparsed" was 4 bytes before the end of its stream. */
+            return DD_OK;
         case D3DNTDP2OP_EXT:
             NEED(8);
             sz = rd(p + 4);
