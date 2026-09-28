@@ -91,6 +91,19 @@ async def running(box, image):
     return image.lower() in out.lower()
 
 
+async def games_running(box):
+    """Every game image this harness (or lan_sweep's titles) is known to start
+    that is running now. A run must not start on top of one: on 2026-09-28 a
+    GLQuake left sitting at its own "Confirm Exit" box had SoF launched over it."""
+    out = (await box.exec_('cmd /c tasklist /nh', timeout=30)).lower()
+    names = {t.exe.lower() for t in TITLES.values() if getattr(t, "exe", None)}
+    for t in TITLES.values():
+        names.update(i.lower() for i in getattr(t, "images", ()) or ())
+    names.update(("sof.exe", "hl.exe", "quake2.exe", "glquake.exe", "wolfmp.exe", "unreal.exe",
+                  "unrealtournament.exe", "ioquake3.x86.exe", "quake3.exe", "dosbox.exe"))
+    return sorted(n for n in names if n and re.search(r"(?m)^" + re.escape(n) + r"\s", out))
+
+
 async def dir_names(box, path, pattern="*"):
     out = await box.exec_(f'cmd /c dir /b /o:d "{path}\\{pattern}" 2>nul', timeout=30)
     return [l.strip() for l in out.splitlines() if l.strip() and "File Not Found" not in l]
@@ -562,6 +575,13 @@ class GLQuake(IdTech2):
             return head + ['playdemo demo2'] + w + ['screenshot'] + w + ['screenshot', 'quit']
         return self.soak_binds() + [f'connect {server}:{self.port}']
 
+    def host_keys(self, phase, soak, shots):
+        # a bound `quit` during play is Host_Quit_f -> M_Menu_Quit_f, the
+        # "really quit? y/n" menu; the 2026-09-28 soak sat there, then its
+        # WM_CLOSE raised WinQuake's own "Confirm Exit" box on top
+        keys = list(super().host_keys(phase, soak, shots))
+        return keys + [(soak + 4, "?Y")] if keys else keys
+
     def parse(self, raw):
         return {"connected": True} if not raw else super().parse(raw)
 
@@ -693,6 +713,10 @@ async def run_phase(box, t, env, phase, args, outdir):
     if await running(box, img):
         rec["error"] = f"{img} already running - not started"
         return rec
+    others = await games_running(box)
+    if others:
+        rec["error"] = f"another game still running ({', '.join(others)}) - not started"
+        return rec
     await bench.quiesce(box)
     fcfg = t.fleetres_cfg(env)
     if fcfg is not None:
@@ -729,6 +753,12 @@ async def run_phase(box, t, env, phase, args, outdir):
         el0 = time.time() - started
         while keys and el0 >= keys[0][0]:
             at, k = keys.pop(0)
+            if k.startswith("?"):
+                # only into a live game: a key that misses it lands on the desktop
+                k = k[1:]
+                if not await running(box, img):
+                    rec["keys_sent"].append(f"{k}@{int(el0)}s:skipped, game gone")
+                    continue
             try:
                 st, out = await box.cmd(f"UIKEY {k}", timeout=30)
                 rec["keys_sent"].append(f"{k}@{int(el0)}s:{out.strip()[:20]}")
