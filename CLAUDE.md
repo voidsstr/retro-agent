@@ -2411,6 +2411,28 @@ online, and what to keep in mind - full detail in
   `ide9x identify` there (2026-09-27) left ESDI waiting on a masked interrupt:
   every D: operation took ~30 s, the next reboot never completed and the box
   needed a person. The tools now refuse (exit 7) - keep it that way.
+- **USB on `.243` (2026-09-27): an NEC uPD720101 card froze the box ~100 s
+  after EVERY boot where Windows set it up** (Num Lock dead, no ARP; the BIOS
+  never configures an add-in card here), EHCI or not - yet it ran 15 minutes
+  when first detected at runtime. Once disabled at boot, Win98 will not start
+  it later in a session (`CM_Enable_DevNode` -> `CR_INVALID_DEVNODE`). It was
+  swapped for a **VIA VT83C572 (1106:3038) UHCI card, which works from boot**:
+  controller + root hub problem 0, installed silently from the U98SEUSB stack
+  (unofficial SP3.56 `SP3.CAB`; NUSB 3.3 lacks the USB 1.1 layer) with
+  `MOUHID.VXD`/`KBDHID.VXD` staged so a USB mouse needs no CD. Recipe:
+  fleetbook `win98se-usb-card-no-cd`.
+- **The hard freezes cost a registry rollback.** Win98 writes its registry
+  lazily; the next Registry Checker found it damaged and restored the 05:18
+  backup (`SYSBCKUP\rb003.cab`; the bad one is `RBBAD.CAB`). That silently
+  re-disabled the PIIX3 secondary IDE channel (`IDEOFF` had been applied at
+  05:16, `IDEON` at 05:21), leaving D: on MS-DOS compatibility mode - re-enabled
+  with `devctl9x persiston` (`ConfigFlags=00`, takes effect next boot). **After
+  any Registry Checker restore on this box, re-check `Enum\MF\CHILD0001`.**
+  A file uploaded seconds before a freeze read back as another file's old
+  clusters - run ScanDisk on C: and D:.
+- **The Sound Blaster 16 is an ISA card the user pulls and refits.** Its IDE
+  port (`ISAPNP\CTL0024_DEV0001`) stays DISABLED (`ConfigFlags=01`) so it can
+  never take the secondary channel's 170h/376h/IRQ15.
 - The DOS fill: `scripts/dosgames/prep_fill.py` packs titles on the host into
   `Files\Games\DOSFILL` (44 staged, incl. GTA 3Dfx and Wreckin Crew 3Dfx
   with the V2 overlay); `scripts/dosgames/fill_243.py` expands them on the box
