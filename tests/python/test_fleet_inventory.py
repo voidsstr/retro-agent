@@ -440,3 +440,88 @@ def test_the_shipped_roster_parses_and_carries_no_measurements():
     for ip, host, _note in rows:
         assert ip.count(".") == 3, ip
         assert host, "every roster row names the box"
+
+
+# --------------------------------------------------------------------------
+# Host tools that walk the fleet must walk the ROSTER's addresses.
+#
+# On 2026-09-26 DHCP moved the Windows 7 box ADMIN-PC from 192.168.1.246 to
+# 192.168.1.195 during a network re-cabling. Two days later three places still
+# named .246: this roster, scripts/fleet/autodeploy.py BOXES (the running
+# retro-autodeploy service) and scripts/gamegate/publish_all.py FLEET (the
+# verdict-file publisher). Nothing errored: both tools treat a box that does not
+# answer as switched off, which is normal on a fleet powered on demand, so each
+# silently skipped the Win7 box. publish_all.py also never listed .243, so a
+# default run never refreshed .243's verdict file, which was found covering 46
+# of the library's 52 titles.
+#
+# The roster is the one hand-kept list of the addresses the fleet expects, so
+# the two tools are pinned to it, and the OLD lists must FAIL the same check so
+# the check cannot pass vacuously. Source is parsed, never imported.
+# --------------------------------------------------------------------------
+
+import ast  # noqa: E402
+
+ROSTER_FILE = os.path.join(REPO, "scripts", "fleet", "fleet-roster.txt")
+AUTODEPLOY_SRC = os.path.join(REPO, "scripts", "fleet", "autodeploy.py")
+PUBLISH_ALL_SRC = os.path.join(REPO, "scripts", "gamegate", "publish_all.py")
+
+OLD_AUTODEPLOY_BOXES = ["192.168.1.123", "192.168.1.124", "192.168.1.133",
+                        "192.168.1.143", "192.168.1.145", "192.168.1.171",
+                        "192.168.1.240", "192.168.1.243", "192.168.1.246"]
+OLD_PUBLISH_FLEET = ["192.168.1.123", "192.168.1.124", "192.168.1.133",
+                     "192.168.1.143", "192.168.1.145", "192.168.1.171",
+                     "192.168.1.240", "192.168.1.246"]
+
+
+def _roster_ips():
+    return [r[0] for r in inventory.load_roster(ROSTER_FILE)]
+
+
+def _module_list(path, name):
+    """A module-level `NAME = [...]` literal, read without importing."""
+    tree = ast.parse(open(path, encoding="utf-8").read())
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(
+                isinstance(t, ast.Name) and t.id == name for t in node.targets):
+            return list(ast.literal_eval(node.value))
+    raise AssertionError("%s has no module-level %s list" % (path, name))
+
+
+def _mismatch(listed, roster):
+    """(on the roster but missing from the tool, in the tool but not rostered)"""
+    return (sorted(set(roster) - set(listed)), sorted(set(listed) - set(roster)))
+
+
+def test_the_roster_has_admin_pc_at_its_new_address():
+    rows = [r for r in inventory.load_roster(ROSTER_FILE) if r[1] == "ADMIN-PC"]
+    assert [r[0] for r in rows] == ["192.168.1.195"], rows
+    # The old address survives only in the note that says it moved.
+    assert "192.168.1.246" not in _roster_ips()
+
+
+def test_autodeploy_boxes_match_the_roster():
+    boxes = _module_list(AUTODEPLOY_SRC, "BOXES")
+    assert _mismatch(boxes, _roster_ips()) == ([], [])
+
+
+def test_publish_all_fleet_matches_the_roster():
+    fleet = _module_list(PUBLISH_ALL_SRC, "FLEET")
+    assert _mismatch(fleet, _roster_ips()) == ([], [])
+
+
+def test_the_pre_fix_lists_fail_the_same_check():
+    roster = _roster_ips()
+    assert _mismatch(OLD_AUTODEPLOY_BOXES, roster) == (
+        ["192.168.1.195"], ["192.168.1.246"])
+    assert _mismatch(OLD_PUBLISH_FLEET, roster) == (
+        ["192.168.1.195", "192.168.1.243"], ["192.168.1.246"])
+
+
+def test_publish_all_never_picks_the_win9x_box_as_its_writer():
+    # Choosing a writer EXECs cmd.exe on it, and EXEC has killed the
+    # single-threaded Win98 agent on .243 twice (CLAUDE.md).
+    writers = _module_list(PUBLISH_ALL_SRC, "WRITER_CANDIDATES")
+    assert "192.168.1.243" not in writers
+    assert "192.168.1.246" not in writers
+    assert set(writers) <= set(_roster_ips())

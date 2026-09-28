@@ -62,7 +62,8 @@ LIBRARY = "/mnt/retro-share/Files/Games-Library"
 SECRET = "retro-agent-secret"
 BOXES = ["192.168.1.123", "192.168.1.124", "192.168.1.133", "192.168.1.143",
          "192.168.1.145", "192.168.1.171", "192.168.1.240", "192.168.1.243",
-         "192.168.1.246"]
+         # ADMIN-PC (Win7) was .246 until DHCP moved it on 2026-09-26.
+         "192.168.1.195"]
 INTERVAL = 60.0
 REFUSAL_RETRIES = 3
 REFUSAL_BACKOFF = 4.0

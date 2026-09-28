@@ -52,8 +52,10 @@ SECRET = "retro-agent-secret"
 # needs a mapped share and a working agent; it does not have to be any
 # particular machine.
 WRITER = os.getenv("RETRO_GAMEGATE_WRITER", "")
+# XP/Win7 boxes only: picking a writer EXECs cmd.exe on it, which is never
+# done to the single-threaded Win9x agent on .243 (CLAUDE.md).
 WRITER_CANDIDATES = ["192.168.1.124", "192.168.1.123", "192.168.1.133",
-                     "192.168.1.143", "192.168.1.240", "192.168.1.246"]
+                     "192.168.1.143", "192.168.1.240", "192.168.1.195"]
 
 
 async def _pick_writer():
@@ -88,8 +90,13 @@ async def _pick_writer():
         "with the share mapped - an agent that merely answers is not enough. "
         "Set RETRO_GAMEGATE_WRITER to override the candidate list." % SHARE_DIR)
 SHARE_DIR = "Z:\\Files\\Games-Library\\_gamegate"
+# Every box on scripts/fleet/fleet-roster.txt (tests/python/test_fleet_inventory.py
+# keeps the two in step). ADMIN-PC was .246 until DHCP moved it
+# on 2026-09-26, and .243 was missing, so a default run never refreshed .243's
+# file. Only HWPROFILE is sent to these boxes - agent-internal, safe on Win9x.
 FLEET = ["192.168.1.123", "192.168.1.124", "192.168.1.133", "192.168.1.143",
-         "192.168.1.145", "192.168.1.171", "192.168.1.240", "192.168.1.246"]
+         "192.168.1.145", "192.168.1.171", "192.168.1.240", "192.168.1.195",
+         "192.168.1.243"]
 
 
 async def _write(conn, name, text):

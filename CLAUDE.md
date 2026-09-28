@@ -86,7 +86,10 @@ so the account password and `DefaultPassword` always match — that's what preve
 
 **Per-box console accounts (2026-07):** .124/ADMIN=voidsstr (Voodoo3 ref, leave as-is) ·
 .143/1GHZ (Voodoo5, untouched during driver session) · .123/2004-XP=Administrator ·
-.240/USER-41EA3B3330=User · .145/DELL=voidsstr.
+.240/USER-41EA3B3330=User · .145/DELL=voidsstr ·
+.195/ADMIN-PC=admin (Windows 7; was .246 until DHCP moved it during the 2026-09-26
+network re-cabling; read back 2026-09-28: `AutoAdminLogon`=1, `ForceAutoLogon`=1,
+`DefaultDomainName`=ADMIN-PC; `admin` is real - the box's own 1074 events name `admin-PC\admin`).
 
 **Gotchas (hard-won):**
 - `DefaultUserName` MUST be a real local account — set it from `echo %USERNAME%` (the
@@ -2741,9 +2744,14 @@ image until the script copies subdirectories and the `$OEM$` tree is rebuilt.
 
 ## Remote Driver Installation
 
-See the case studies in `docs/case-studies/` for detailed real-world examples of:
+See the case studies in `docs/case-studies/` (index: [`docs/case-studies/README.md`](docs/case-studies/README.md)) for detailed real-world examples of:
 - Ghost PCI device cleanup and driver installation (Voodoo3)
 - vcache diagnosis and NVIDIA driver installation (GeForce2 GTS)
+- A Win7 box that "crashes": display TDRs (0x117 live dumps in
+  `LiveKernelReports\WATCHDOG`, not a BSOD) ended by the power button, and a wedged
+  agent. The study separates what is proven from what is not
+  ([`2026-09-win7-admin-pc-freezes.md`](docs/case-studies/2026-09-win7-admin-pc-freezes.md);
+  fleetbook recipe `win7-box-crashes-check-for-a-tdr-before-calling-it-a-bsod`)
 
 General pattern:
 1. `SYSFIX apply` (always first on Win98)
