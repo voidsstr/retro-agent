@@ -1271,4 +1271,44 @@ GG_FN int gg_verdict_declared(const char *text)
     return 0;
 }
 
+/*
+ * Does a SHORTCUT's hardware "no" stand, given the host's published verdict
+ * for its TITLE? Returns 1 to suppress the shortcut.
+ *
+ * WHY (2026-09-28, .124): the title gate lets the published verdict win
+ * (gs_gate_allows_title), but the shortcut gate re-ran the local rules on the
+ * title's requirements plus the shortcut's own, and never looked at that file.
+ * So a title the host approved - here an operator override
+ * (scripts/gamegate/overrides.txt: Halo on the V5 6000 with vcr-kmd's D3D32 +
+ * D3DBigTex armed) - was COPIED and then lost its icon:
+ *     Halo: SHORTCUT SUPPRESSED "Halo Combat Evolved" (Play Halo.bat)
+ *           - cpu_features: CPU lacks sse2
+ * an installed game with no way to start it: the Far Cry `disk` case again,
+ * at the same second call site.
+ *
+ * The published verdict judges the TITLE's requirements, not a shortcut's own
+ * stricter block (Battlefield 1942's single player wants a disc its LAN
+ * launchers do not). So the "no" is dropped only when the host's title verdict
+ * is not "no" AND the title's requirements alone give the same "no" (same
+ * limiting field) - the shortcut adds nothing the host did not already judge.
+ * No published row (`published_title_v` < 0): the local rules stand.
+ */
+GG_FN int gg_shortcut_no_stands(int published_title_v,
+                                const gg_decision_t *title_d,
+                                const gg_decision_t *sc_d)
+{
+    const char *a, *b;
+
+    if (!sc_d || sc_d->verdict != GG_V_NO)
+        return 0;
+    if (published_title_v < 0 || published_title_v == GG_V_NO)
+        return 1;
+    if (!title_d || title_d->verdict != GG_V_NO)
+        return 1;                       /* the shortcut's own block said no */
+    a = title_d->limiting ? title_d->limiting : "";
+    b = sc_d->limiting ? sc_d->limiting : "";
+    while (*a && *a == *b) { a++; b++; }
+    return *a != *b;
+}
+
 #endif /* RETRO_GAMEGATE_H */

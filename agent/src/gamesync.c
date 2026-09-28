@@ -3759,7 +3759,6 @@ static int gs_gate_allows_shortcut(const char *dst_dir, const char *title,
     gg_decision_t d;
     int ok = 1;
 
-    (void)title;
     if (why && why_cch)
         why[0] = 0;
     if (!g_gate_on || !g_gate_ready)
@@ -3770,6 +3769,26 @@ static int gs_gate_allows_shortcut(const char *dst_dir, const char *title,
         return 1;
     gg_req_parse_shortcut(json, target, &r);
     gg_decide(&g_gate_profile, &r, &d);
+    if (d.verdict == GG_V_NO) {
+        /* The host's published TITLE verdict wins here too, as it does for
+         * the copy - unless the "no" comes from this shortcut's own block
+         * (gg_shortcut_no_stands, agent/shared/gamegate.h). Without this an
+         * approved title copied and then lost its only icon (.124 Halo,
+         * 2026-09-28). */
+        gg_req_t       rt;
+        gg_decision_t  td;
+        int            pub = gs_gate_published(title, NULL, 0);
+
+        gg_req_parse(json, &rt);
+        gg_decide(&g_gate_profile, &rt, &td);
+        if (!gg_shortcut_no_stands(pub, &td, &d)) {
+            log_msg(LOG_GS, "%s: \"%s\" - local rules say no (%s: %s), the "
+                            "host's published verdict says %s - shortcut kept",
+                    title, target, d.limiting[0] ? d.limiting : "-", d.reason,
+                    pub == GG_V_RUN ? "run" : "marginal");
+            d.verdict = pub;
+        }
+    }
     HeapFree(GetProcessHeap(), 0, json);
 
     if (d.missing_caps) {

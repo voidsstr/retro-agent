@@ -823,6 +823,62 @@ TEST(a_published_file_reports_how_much_it_covers)
 }
 
 
+/* A title the HOST approved keeps its shortcut (2026-09-28, agent 1.90.2).
+ * .124: the published file said Halo=run (an operator override: the V5 6000
+ * with vcr-kmd's D3D32 + D3DBigTex armed), the tree copied, and then the
+ * shortcut gate re-ran the local rules and logged "SHORTCUT SUPPRESSED ...
+ * cpu_features: CPU lacks sse2" - an installed game with no icon. */
+TEST(a_published_title_verdict_keeps_its_shortcut)
+{
+    static const char HALO[] =
+        "{ \"requirements_version\": 1, \"min_cpu_mhz\": 733,\n"
+        "  \"cpu_features\": [\"mmx\", \"sse\", \"sse2\"],\n"
+        "  \"shortcuts\": { \"Strict.bat\": { \"min_ram_mb\": 4096 } } }\n";
+    gg_req_t r;
+    gg_decision_t title_d, sc_d;
+    gg_profile_t p = box_124();                 /* SSE, no SSE2 */
+
+    gg_req_parse(HALO, &r);
+    gg_decide(&p, &r, &title_d);
+    CHECK_EQ_I(title_d.verdict, GG_V_NO);       /* the rules alone: no SSE2 */
+    gg_req_parse_shortcut(HALO, "Play Halo.bat", &r);
+    gg_decide(&p, &r, &sc_d);
+    CHECK_EQ_I(sc_d.verdict, GG_V_NO);
+
+    /* the host said run (or marginal): the title's own "no" does not stand */
+    CHECK_EQ_I(gg_shortcut_no_stands(GG_V_RUN, &title_d, &sc_d), 0);
+    CHECK_EQ_I(gg_shortcut_no_stands(GG_V_MARGINAL, &title_d, &sc_d), 0);
+    /* ...the OLD behaviour: no published row, or a published "no" - it does */
+    CHECK_EQ_I(gg_shortcut_no_stands(-1, &title_d, &sc_d), 1);
+    CHECK_EQ_I(gg_shortcut_no_stands(GG_V_NO, &title_d, &sc_d), 1);
+
+    /* A shortcut's OWN stricter block is not what the host judged: it still
+     * suppresses. Here the title passes (profile with SSE2) and the shortcut's
+     * RAM floor alone says no. */
+    p.cpu_features |= GG_CPU_SSE2;
+    gg_req_parse(HALO, &r);
+    gg_decide(&p, &r, &title_d);
+    CHECK_EQ_I(title_d.verdict, GG_V_RUN);
+    gg_req_parse_shortcut(HALO, "Strict.bat", &r);
+    gg_decide(&p, &r, &sc_d);
+    CHECK_EQ_I(sc_d.verdict, GG_V_NO);
+    CHECK_EQ_I(gg_shortcut_no_stands(GG_V_RUN, &title_d, &sc_d), 1);
+
+    /* ...and so does a "no" on a DIFFERENT field than the title's own */
+    p.cpu_features &= ~GG_CPU_SSE2;
+    gg_decide(&p, &r, &sc_d);                   /* Strict.bat, no SSE2 either */
+    gg_req_parse(HALO, &r);
+    gg_decide(&p, &r, &title_d);
+    CHECK(title_d.verdict == GG_V_NO && sc_d.verdict == GG_V_NO, "both no");
+    if (strcmp(title_d.limiting, sc_d.limiting) != 0)
+        CHECK_EQ_I(gg_shortcut_no_stands(GG_V_RUN, &title_d, &sc_d), 1);
+
+    /* a shortcut that is not "no" is never suppressed by this */
+    sc_d.verdict = GG_V_RUN;
+    CHECK_EQ_I(gg_shortcut_no_stands(-1, &title_d, &sc_d), 0);
+}
+
+
 MUNIT_MAIN("gamegate (hardware capability gate)",
     RUN(fail_open_on_absent_data);
     RUN(rules_decide_the_obvious_alone);
@@ -840,4 +896,5 @@ MUNIT_MAIN("gamegate (hardware capability gate)",
     RUN(a_hardware_floor_outranks_the_disk_floor);
     RUN(a_published_file_reports_how_much_it_covers);
     RUN(a_2d_only_adapter_is_none_and_that_is_binary);
+    RUN(a_published_title_verdict_keeps_its_shortcut);
 )
