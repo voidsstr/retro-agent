@@ -1,0 +1,48 @@
+{
+ "title": "ra2",
+ "phase": "smoke",
+ "t0": "2026-09-28 01:54:43",
+ "command": "C:\\Games\\RedAlert2\\Launch Red Alert 2.bat",
+ "shots": [
+  {
+   "file": "ra2_smoke_40s.png",
+   "stats": [
+    1280,
+    1024,
+    18.2,
+    49.5
+   ],
+   "at": 40
+  },
+  {
+   "file": "ra2_smoke_70s.png",
+   "stats": [
+    1280,
+    1024,
+    18.1,
+    49.5
+   ],
+   "at": 70
+  }
+ ],
+ "keys_sent": [
+  "ESCAPE@20s:OK",
+  "ESCAPE@28s:OK"
+ ],
+ "alive": [
+  {
+   "at": 40,
+   "running": []
+  },
+  {
+   "at": 70,
+   "running": []
+  }
+ ],
+ "error_windows": [],
+ "running_at_end": [],
+ "alive_after_close": [],
+ "agent_alive": true,
+ "seconds": 87.5,
+ "verdict": "FAIL: not running at the end"
+}

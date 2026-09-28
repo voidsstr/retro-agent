@@ -1,0 +1,68 @@
+{
+ "title": "rtcw",
+ "phase": "soak",
+ "env": {
+  "FR_ASPECT": "4:3",
+  "FR_BPP": "32",
+  "FR_DESK_H": "1024",
+  "FR_DESK_W": "1280",
+  "FR_DOSFULLRES": "original",
+  "FR_EDID": "1",
+  "FR_FOV": "90",
+  "FR_GLIDE": "1",
+  "FR_GLIDEDEV": "VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01",
+  "FR_H": "960",
+  "FR_H43": "960",
+  "FR_HZ": "85",
+  "FR_LIVE_H": "1024",
+  "FR_LIVE_W": "1280",
+  "FR_MON": "HP P1120",
+  "FR_NATIVE_H": "1200",
+  "FR_NATIVE_W": "1600",
+  "FR_PANEL": "CRT",
+  "FR_Q2MODE": "8",
+  "FR_Q3MODE": "7",
+  "FR_UE1DEV": "D3DDrv.D3DRenderDevice",
+  "FR_W": "1280",
+  "FR_W43": "1280",
+  "FR_WIDE": "0"
+ },
+ "t0": "2026-09-28 01:28:29",
+ "command": "WolfMP.exe +set r_mode 7 +set r_fullscreen 1 +set logfile 2 +exec lancheck.cfg",
+ "keys_sent": [],
+ "seconds": 194.8,
+ "connected": false,
+ "log_bytes": 0,
+ "error_windows": [],
+ "shots": [
+  {
+   "file": "rtcw_soak_shot0000.png",
+   "stats": [
+    1152,
+    864,
+    43.4,
+    20.2
+   ]
+  },
+  {
+   "file": "rtcw_soak_shot0001.png",
+   "stats": [
+    1152,
+    864,
+    43.9,
+    19.9
+   ]
+  },
+  {
+   "file": "rtcw_soak_shot0002.png",
+   "stats": [
+    1152,
+    864,
+    44.2,
+    20.0
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "FAIL: never entered the game"
+}

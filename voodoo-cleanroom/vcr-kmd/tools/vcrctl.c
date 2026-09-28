@@ -123,6 +123,7 @@
 #include "vcr_hwcext.h"
 #include "vcr_regs.h"
 #include "vcr_probe.h"
+#include "vcr_fbshot.h"
 #include <tlhelp32.h>
 /* vcr_pace.h's paced kill (pace-kill), which only this tool compiles */
 #define VCR_PACE_WANT_KILL
@@ -862,6 +863,135 @@ static int cmd_sliaa(int argc, char **argv)
     return ok ? 0 : 1;
 }
 
+/* ---- fbshot: the frame the video processor is scanning out ------------------ */
+
+/* 256 CLUT entries from `first` (0 or 256: the bank vidProcCfg selects), the
+ * same dacAddr/dacData escape `clut` uses */
+static int clut_read(ULONG first, unsigned long *out)
+{
+    vcr_reg_op op;
+    ULONG i;
+    for (i = 0; i < 256; i++) {
+        memset(&op, 0, sizeof op);
+        op.kind = VCR_REG_MMIO32;
+        op.offset = VCR_R_DACADDR;
+        op.value = first + i;
+        op.write = 1;
+        if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
+            return 0;
+        memset(&op, 0, sizeof op);
+        op.kind = VCR_REG_MMIO32;
+        op.offset = VCR_R_DACDATA;
+        if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
+            return 0;
+        out[i] = op.value & 0xffffff;
+    }
+    return 1;
+}
+
+/* Read-only: registers through the HWC mapping, then the scanned-out memory
+ * through the linear half of memBase1 (include/vcr_fbshot.h says what the
+ * picture is and is not). Writes a 24-bit BMP to `path`. */
+static int cmd_fbshot(const char *path)
+{
+    static unsigned long clut[256];
+    hwc_state st;
+    MEMORY_BASIC_INFORMATION mbi;
+    volatile UCHAR *regs, *lfb;
+    ULONG vpc, start, stride, ss, w, h, fmt, bpp, need, lfb_len, rowbytes, x, y, xb;
+    double luma = 0;
+    int tiled, overlay, have_clut = 0, sli = -1;
+    unsigned char *line, *bmp;
+    FILE *f;
+    vcr_info v;
+
+    memset(&v, 0, sizeof v);
+    if (esc(VCR_ESC_INFO, NULL, 0, &v, sizeof v) > 0)
+        sli = (int)v.sli_active;
+    if (!hwc_open(&st, 0))
+        return fail("fbshot", "HWCEXT mapping refused");
+    regs = (volatile UCHAR *)(ULONG_PTR)st.base0;
+    lfb = (volatile UCHAR *)(ULONG_PTR)st.base1;
+    vpc = *(volatile ULONG *)(regs + VCR_R_VIDPROCCFG);
+    start = *(volatile ULONG *)(regs + VCR_R_VIDDESKTOPSTARTADDR) & 0xffffff;
+    stride = *(volatile ULONG *)(regs + VCR_R_VIDDESKTOPOVERLAYSTRIDE);
+    ss = *(volatile ULONG *)(regs + VCR_R_VIDSCREENSIZE);
+    w = ss & 0xfff;
+    h = ss >> 12 & 0xfff;
+    fmt = (vpc & VCR_VPC_DESKTOP_FMT_MASK) >> VCR_VPC_DESKTOP_FMT_SHIFT;
+    bpp = vcr_fb_bytespp(fmt);
+    tiled = (vpc & VCR_VPC_DESKTOP_TILED_EN) != 0;
+    overlay = (vpc & VCR_VPC_OVERLAY_EN) != 0;
+    need = vcr_fb_extent(w, h, bpp, stride, tiled);
+    lfb_len = VirtualQuery((LPCVOID)lfb, &mbi, sizeof mbi) ? (ULONG)mbi.RegionSize : 0;
+    printf("{\"cmd\":\"fbshot\",\"vidProcCfg\":\"%08lx\",\"start\":\"%08lx\",\"stride\":\"%08lx\","
+           "\"w\":%lu,\"h\":%lu,\"fmt\":%lu,\"tiled\":%d,\"overlay\":%d,\"sli_active\":%d,"
+           "\"lfb_view\":%lu,", vpc, start, stride, w, h, fmt, tiled, overlay, sli, lfb_len);
+    if (!(vpc & VCR_VPC_DESKTOP_EN) || !bpp || !w || !h || w > 2048 || h > 2048 ||
+        !lfb_len || start + need > lfb_len) {
+        printf("\"ok\":false,\"error\":\"scanout outside the mapped view or not a desktop format\"}\n");
+        hwc_close();
+        return 1;
+    }
+    if (fmt == VCR_VPC_FMT_PAL8)
+        have_clut = clut_read(vpc & VCR_VPC_DESKTOP_CLUT_SELECT ? 256 : 0, clut);
+    rowbytes = (w * 3 + 3) & ~3u;
+    line = (unsigned char *)malloc(w * bpp);
+    bmp = (unsigned char *)calloc(rowbytes, h);
+    if (!line || !bmp) {
+        printf("\"ok\":false,\"error\":\"out of memory\"}\n");
+        hwc_close();
+        return 1;
+    }
+    for (y = 0; y < h; y++) {
+        for (xb = 0; xb < w * bpp;) {
+            ULONG n = w * bpp - xb;
+            if (tiled && n > VCR_FB_TILE_W - xb % VCR_FB_TILE_W)
+                n = VCR_FB_TILE_W - xb % VCR_FB_TILE_W;
+            memcpy(line + xb, (const void *)(lfb + start + vcr_fb_offset(xb, y, stride, tiled)), n);
+            xb += n;
+        }
+        for (x = 0; x < w; x++) {
+            unsigned long c = vcr_fb_rgb(fmt, line + x * bpp, have_clut ? clut : NULL);
+            unsigned char *d = bmp + (h - 1 - y) * rowbytes + x * 3;
+            d[0] = (unsigned char)c;
+            d[1] = (unsigned char)(c >> 8);
+            d[2] = (unsigned char)(c >> 16);
+            luma += (0.299 * (c >> 16 & 255) + 0.587 * (c >> 8 & 255) + 0.114 * (c & 255));
+        }
+    }
+    hwc_close();
+    f = fopen(path, "wb");
+    if (!f) {
+        printf("\"ok\":false,\"error\":\"cannot write the BMP\"}\n");
+        return 1;
+    }
+    {
+        ULONG img = rowbytes * h;
+        unsigned char hd[54];
+        memset(hd, 0, sizeof hd);
+        hd[0] = 'B'; hd[1] = 'M';
+        *(ULONG *)(hd + 2) = 54 + img;
+        *(ULONG *)(hd + 10) = 54;
+        *(ULONG *)(hd + 14) = 40;
+        *(LONG *)(hd + 18) = (LONG)w;
+        *(LONG *)(hd + 22) = (LONG)h;
+        *(USHORT *)(hd + 26) = 1;
+        *(USHORT *)(hd + 28) = 24;
+        *(ULONG *)(hd + 34) = img;
+        fwrite(hd, 1, sizeof hd, f);
+        fwrite(bmp, 1, img, f);
+    }
+    fclose(f);
+    free(line);
+    free(bmp);
+    printf("\"ok\":true,\"clut\":%d,\"mean_luma\":%.1f,\"path\":\"", have_clut, luma / ((double)w * h));
+    for (; *path; path++)
+        printf(*path == '\\' ? "\\\\" : "%c", *path);
+    printf("\"}\n");
+    return 0;
+}
+
 static int cmd_hwc(void)
 {
     hwc_state st;
@@ -1474,6 +1604,8 @@ int main(int argc, char **argv)
         rc = cmd_regop("reg", VCR_REG_MMIO32, strtoul(argv[2], NULL, 16), 0);
     else if (!strcmp(cmd, "clut"))
         rc = cmd_clut(argc > 2 ? strtoul(argv[2], NULL, 0) : 0, argc > 3 ? strtoul(argv[3], NULL, 0) : 256);
+    else if (!strcmp(cmd, "fbshot"))
+        rc = cmd_fbshot(argc > 2 ? argv[2] : "C:\\vcr\\fbshot.bmp");
     else if (!strcmp(cmd, "crtc") && argc > 2)
         rc = cmd_regop("crtc", VCR_REG_VGA_CRTC, 0, strtoul(argv[2], NULL, 16));
     else if (!strcmp(cmd, "pci") && argc > 3)
