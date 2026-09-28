@@ -134,6 +134,10 @@ typedef struct vcr_info {
  * video-memory offset 0, which the heap manager answers for "no memory"
  * (include/vcr_ddheap.h, 2026-09-28) */
 #define VCR_INFO_F_DDHEAPFLOOR  0x1000  /* Diag\\DdHeapFloor = 1: no DirectDraw block at offset 0 */
+/* default OFF, positive like the rest: IOCTL_VCR_REG answers kind
+ * VCR_REG_CLUT (a Voodoo, Diag\\ClutRead = 1 - read at boot; unproven on
+ * silicon). An older miniport never sets it. (2026-09-28) */
+#define VCR_INFO_F_CLUT_READ    0x2000  /* Diag\\ClutRead = 1: IOCTL_VCR_REG kind VCR_REG_CLUT */
 #define VCR_INFO_F_NO_GDIGAMMA  0x4000  /* Diag\\GdiGamma = 0: refuse GDI's SetDeviceGammaRamp (include/vcr_gamma.h) */
 
 /* VCR_ESC_2D_STATS: the display driver's 2D engine counters, since its PDEV
@@ -251,6 +255,12 @@ typedef struct vcr_reg_op {
 #define VCR_REG_VGA_GFX         3
 #define VCR_REG_VGA_ATTR        4
 #define VCR_REG_VGA_PORT        5   /* offset = port (0x3c0..0x3df), 8 bit */
+/* offset = CLUT index 0..511, chip 0, READ ONLY - no Diag\\AllowPoke; value =
+ * 0x00RRGGBB, vga_index = the VCR_CLUT_* bits (vcr_clutread.h). Refused
+ * unless Diag\\ClutRead = 1 (default 0, read at boot); a miniport that
+ * predates it answers INVALID_PARAMETER,
+ * and one that has it sets VCR_INFO_F_CLUT_READ. (2026-09-28) */
+#define VCR_REG_CLUT            6
 
 /* IOCTL_VCR_SNAPSHOT: every video register of every chip, for golden
  * comparisons against the vendor driver. */

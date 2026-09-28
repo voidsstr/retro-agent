@@ -485,6 +485,40 @@ static void clut_identity(VCR_EXT *x)
          "identity CLUT (both banks), %u retries", retries);
 }
 
+static vcr_u32 dac_rd(void *ctx, vcr_u32 off)
+{
+    return VcrRd((VCR_EXT *)ctx, 0, off);
+}
+
+static void dac_wr(void *ctx, vcr_u32 off, vcr_u32 v)
+{
+    VcrWr((VCR_EXT *)ctx, 0, off, v);
+}
+
+/* One CLUT entry, READ ONLY, dacAddr put back (vcr_clutread.h). Runs in
+ * StartIO, so no kernel CLUT write (SET_COLOR_REGISTERS, the mode set) can
+ * interleave. A failure is logged; a clean read is not (256 of them a shot). */
+ULONG VcrHwClutRead(VCR_EXT *x, ULONG index, ULONG *rgb)
+{
+    vcr_dac_io io;
+    vcr_u32 v = 0;
+    int rc;
+    io.ctx = x;
+    io.rd = dac_rd;
+    io.wr = dac_wr;
+    rc = vcr_clut_read_entry(&io, index, &v);
+    if (rc)
+        VLOG(VCR_LV_WARN, VCR_EV_PALETTE, index, 1, (ULONG)rc, 1,
+             "CLUT read of entry %u: %s%s", index,
+             (rc & VCR_CLUT_E_ADDR) ? "dacAddr would not hold the index " : "",
+             (rc & VCR_CLUT_E_RESTORE) ? "dacAddr NOT restored" : "");
+    else
+        *rgb = v;
+    if (rc == VCR_CLUT_E_RESTORE)
+        *rgb = v;               /* the entry is good; the log says what is not */
+    return (ULONG)rc;
+}
+
 VP_STATUS VcrHwSetClut(VCR_EXT *x, const VIDEO_CLUT *clut, ULONG len)
 {
     ULONG i, retries = 0;

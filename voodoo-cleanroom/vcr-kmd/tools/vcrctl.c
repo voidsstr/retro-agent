@@ -82,6 +82,16 @@
  *                          (raw = 0xCF8 cycles: the V5's slave functions)
  *   probe-mem HEXPHYS LEN  vcrprobe.sys: physical memory, read only (<= 4 KB)
  *   (hwcregs/golden add the VGA file when vcrprobe.sys is loaded)
+ *   clut [first] [count]   our driver: the CLUT as the DAC holds it - through
+ *                          the miniport's read-only kind when it has one
+ *                          (VCR_INFO_F_CLUT_READ, no AllowPoke), else the
+ *                          dacAddr/dacData pokes (AllowPoke = 1)
+ *   fbshot [path.bmp]      the frame the video processor scans out, as a BMP:
+ *                          the desktop, or a fullscreen Glide game's overlay -
+ *                          the whole SLI frame through lfbMemoryConfig's tile
+ *                          aperture - following flips line by line. Read only;
+ *                          refused while multi-chip AA is live (an LFB read
+ *                          froze the V5 6000 there). include/vcr_fbshot.h
  *   sliaa N SLI AA HIGH ANALOG [NLINES BPP TILEMARK COL DEPTHLO DEPTHHI]
  *         --i-am-at-the-box [--force-desktop-pll]
  *                          any HWCEXT driver: Glide's HWCEXT_SLI_AA_REQUEST, sent
@@ -333,31 +343,41 @@ static int cmd_pci(ULONG target, ULONG off)
 }
 
 
-/* the CLUT as the card holds it: dacAddr <- i, read dacData. Bank 0 is what a
- * non-bypassed desktop at 16/32 bpp looks every channel up in, so anything but
- * an identity ramp there is the scan-out's colours, not GDI's. */
+static int clut_entry(ULONG index, int kernel, unsigned long *rgb);
+
+/* the CLUT as the card holds it. Bank 0 is what a non-bypassed desktop at
+ * 16/32 bpp looks every channel up in, so anything but an identity ramp there
+ * is the scan-out's colours, not GDI's. Through the miniport's read-only kind
+ * when it has one (VCR_INFO_F_CLUT_READ, no AllowPoke - include/
+ * vcr_clutread.h), else dacAddr <- i / read dacData, which needs AllowPoke. */
 static int cmd_clut(ULONG first, ULONG count)
 {
-    vcr_reg_op op;
+    vcr_info v;
     ULONG i, nonid = 0;
-    printf("{\"cmd\":\"clut\",\"first\":%lu,\"entries\":[", first);
+    unsigned long rgb;
+    int kernel;
+    memset(&v, 0, sizeof v);
+    kernel = esc(VCR_ESC_INFO, NULL, 0, &v, sizeof v) > 0 && (v.flags & VCR_INFO_F_CLUT_READ);
     for (i = first; i < first + count && i < 512; i++) {
-        memset(&op, 0, sizeof op);
-        op.kind = VCR_REG_MMIO32;
-        op.offset = 0x50;                       /* dacAddr */
-        op.value = i;
-        op.write = 1;
-        if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
-            return fail("clut", "dacAddr write refused");
-        memset(&op, 0, sizeof op);
-        op.kind = VCR_REG_MMIO32;
-        op.offset = 0x54;                       /* dacData */
-        if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
-            return fail("clut", "dacData read refused");
-        if ((op.value & 0xffffff) != ((i & 0xff) * 0x010101))
+        if (!clut_entry(i, kernel, &rgb)) {
+            if (i > first)
+                printf("],\"ok\":false,\"error\":\"entry %lu refused\"}\n", i);
+            else if (kernel)
+                fail("clut", "the miniport's read-only CLUT read failed");
+            else
+                fail("clut", "dacAddr write refused (no read-only CLUT kind - Diag\\\\ClutRead = 1 arms it; "
+                             "the old path needs Diag\\\\AllowPoke)");
+            return 1;
+        }
+        if (i == first)
+            printf("{\"cmd\":\"clut\",\"source\":\"%s\",\"first\":%lu,\"entries\":[",
+                   kernel ? "kernel" : "poke", first);
+        if (rgb != ((i & 0xff) * 0x010101))
             nonid++;
-        printf("%s\"%06x\"", i > first ? "," : "", op.value & 0xffffff);
+        printf("%s\"%06lx\"", i > first ? "," : "", rgb);
     }
+    if (i == first)
+        printf("{\"cmd\":\"clut\",\"first\":%lu,\"entries\":[", first);
     printf("],\"not_identity\":%lu}\n", nonid);
     return 0;
 }
@@ -865,108 +885,216 @@ static int cmd_sliaa(int argc, char **argv)
 
 /* ---- fbshot: the frame the video processor is scanning out ------------------ */
 
-/* 256 CLUT entries from `first` (0 or 256: the bank vidProcCfg selects), the
- * same dacAddr/dacData escape `clut` uses */
-static int clut_read(ULONG first, unsigned long *out)
+/* one CLUT entry: the kernel's READ-ONLY kind when the miniport has it
+ * (VCR_INFO_F_CLUT_READ - no Diag\AllowPoke, dacAddr put back, serialised
+ * with the kernel's own CLUT writes; include/vcr_clutread.h), else the old
+ * dacAddr-write + dacData-read pair, which needs Diag\AllowPoke = 1 and leaves
+ * dacAddr moved. 1 = read. */
+static int clut_entry(ULONG index, int kernel, unsigned long *rgb)
 {
     vcr_reg_op op;
-    ULONG i;
-    for (i = 0; i < 256; i++) {
-        memset(&op, 0, sizeof op);
-        op.kind = VCR_REG_MMIO32;
-        op.offset = VCR_R_DACADDR;
-        op.value = first + i;
-        op.write = 1;
+    memset(&op, 0, sizeof op);
+    if (kernel) {
+        op.kind = VCR_REG_CLUT;
+        op.offset = index;
         if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
             return 0;
-        memset(&op, 0, sizeof op);
-        op.kind = VCR_REG_MMIO32;
-        op.offset = VCR_R_DACDATA;
-        if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
-            return 0;
-        out[i] = op.value & 0xffffff;
+        *rgb = op.value & 0xffffff;
+        return 1;
     }
+    op.kind = VCR_REG_MMIO32;
+    op.offset = VCR_R_DACADDR;
+    op.value = index;
+    op.write = 1;
+    if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
+        return 0;
+    memset(&op, 0, sizeof op);
+    op.kind = VCR_REG_MMIO32;
+    op.offset = VCR_R_DACDATA;
+    if (esc(VCR_ESC_REG, &op, sizeof op, &op, sizeof op) <= 0)
+        return 0;
+    *rgb = op.value & 0xffffff;
     return 1;
 }
 
-/* Read-only: registers through the HWC mapping, then the scanned-out memory
- * through the linear half of memBase1 (include/vcr_fbshot.h says what the
- * picture is and is not). Writes a 24-bit BMP to `path`. */
+/* 256 CLUT entries from `first` (0 or 256: the bank vidProcCfg selects).
+ * Returns the source: "kernel", "poke", or NULL with *why set. */
+static const char *clut_read(ULONG first, int kernel, unsigned long *out, const char **why)
+{
+    ULONG i;
+    for (i = 0; i < 256; i++) {
+        if (!clut_entry(first + i, kernel, &out[i])) {
+            *why = kernel ? "the miniport's read-only CLUT read failed (dacAddr would not "
+                            "hold the index)"
+                          : "refused: this miniport offers no read-only CLUT read (vcr-kmd "
+                            "before 2026-09-28, or Diag\\\\ClutRead not 1 - the default) "
+                            "and the old path writes dacAddr, which needs "
+                            "Diag\\\\AllowPoke = 1";
+            return NULL;
+        }
+    }
+    return kernel ? "kernel" : "poke";
+}
+
+static int pci_rd(ULONG target, ULONG off, ULONG *val)
+{
+    vcr_pci_op op;
+    memset(&op, 0, sizeof op);
+    op.target = target;
+    op.offset = off;
+    op.size = 4;
+    if (esc(VCR_ESC_PCI, &op, sizeof op, &op, sizeof op) <= 0)
+        return 0;
+    *val = op.value;
+    return 1;
+}
+
+/* Read-only: registers through the HWC mapping and config reads, then the
+ * scanned-out memory through memBase1 as include/vcr_fbshot.h plans it - raw
+ * memory below lfbMemoryConfig's tile aperture, and a tiled Glide buffer
+ * through the aperture, where the chips hand over their SLI bands themselves.
+ * The start register is read again before every line: when the game flips,
+ * the rest of the picture comes from the new front buffer (counted in
+ * "flips"), so no line is taken from a buffer being drawn. Writes a 24-bit
+ * BMP to `path`. Nothing is read from memBase1 while multi-chip AA is live. */
 static int cmd_fbshot(const char *path)
 {
     static unsigned long clut[256];
     hwc_state st;
     MEMORY_BASIC_INFORMATION mbi;
     volatile UCHAR *regs, *lfb;
-    ULONG vpc, start, stride, ss, w, h, fmt, bpp, need, lfb_len, rowbytes, x, y, xb;
+    ULONG vpc, lmc, stride_reg, ss, fmt, start_off, cur, x, y, xb, rowbytes, lfb_len, limit;
+    ULONG sli_ctrl = 0, aa_ctrl = 0, sli_chips, bufs[4];
     double luma = 0;
-    int tiled, overlay, have_clut = 0, sli = -1;
-    const char *layer = "desktop";
+    int overlay, have_info, have_cfg = 0, gate, flips = 0, unmapped = 0, nbufs = 0, planned, i;
+    unsigned pitch_bpp = 0;
+    const char *layer, *clut_src = NULL, *clut_why = NULL;
     unsigned char *line, *bmp;
     FILE *f;
     vcr_info v;
+    vcr_fb_layer l;
+    vcr_fb_aperture ap;
+    vcr_fb_plan plan, next;
 
     memset(&v, 0, sizeof v);
-    if (esc(VCR_ESC_INFO, NULL, 0, &v, sizeof v) > 0)
-        sli = (int)v.sli_active;
+    have_info = esc(VCR_ESC_INFO, NULL, 0, &v, sizeof v) > 0;
     if (!hwc_open(&st, 0))
         return fail("fbshot", "HWCEXT mapping refused");
+    /* the chips in a live SLI/AA session: our kernel says; any other driver
+     * on a multi-chip board is an unknown (refused below) */
+    sli_chips = have_info ? v.sli_chips : (st.nchips > 1 ? 0xffffffffUL : 0);
+    if (sli_chips > 1 && have_info)
+        have_cfg = pci_rd(0, VCR_CFG_SLILFBCTRL, &sli_ctrl) && pci_rd(0, VCR_CFG_AALFBCTRL, &aa_ctrl);
+    gate = vcr_fb_mb1_gate(sli_chips, have_cfg, sli_ctrl, aa_ctrl);
+
     regs = (volatile UCHAR *)(ULONG_PTR)st.base0;
     lfb = (volatile UCHAR *)(ULONG_PTR)st.base1;
     vpc = *(volatile ULONG *)(regs + VCR_R_VIDPROCCFG);
-    start = vcr_fb_start(*(volatile ULONG *)(regs + VCR_R_VIDDESKTOPSTARTADDR));
-    stride = *(volatile ULONG *)(regs + VCR_R_VIDDESKTOPOVERLAYSTRIDE);
+    lmc = *(volatile ULONG *)(regs + VCR_R_LFBMEMORYCONFIG);
+    stride_reg = *(volatile ULONG *)(regs + VCR_R_VIDDESKTOPOVERLAYSTRIDE);
     ss = *(volatile ULONG *)(regs + VCR_R_VIDSCREENSIZE);
-    w = ss & 0xfff;
-    h = ss >> 12 & 0xfff;
-    fmt = (vpc & VCR_VPC_DESKTOP_FMT_MASK) >> VCR_VPC_DESKTOP_FMT_SHIFT;
-    bpp = vcr_fb_bytespp(fmt);
-    tiled = (vpc & VCR_VPC_DESKTOP_TILED_EN) != 0;
     overlay = (vpc & VCR_VPC_OVERLAY_EN) != 0;
+    memset(&l, 0, sizeof l);
+    l.w = ss & 0xfff;
+    l.h = ss >> 12 & 0xfff;
     if (!(vpc & VCR_VPC_DESKTOP_EN) && overlay) {
         /* a fullscreen Glide game: its front buffer is scanned out through
          * the overlay (include/vcr_fbshot.h) */
         layer = "overlay";
-        start = vcr_fb_start(*(volatile ULONG *)(regs + VCR_R_VIDCURROVERLAYSTARTADDR));
-        tiled = (vpc & VCR_VPC_OVERLAY_TILED_EN) != 0;
-        stride = vcr_fb_overlay_stride(stride);
-        bpp = vcr_fb_overlay_bytespp(vcr_fb_pitch(stride, tiled), w);
-        fmt = bpp == 4 ? VCR_VPC_FMT_RGB32 : bpp == 2 ? VCR_VPC_FMT_RGB565 : 7;
+        start_off = VCR_R_VIDCURROVERLAYSTARTADDR;
+        l.tiled = (vpc & VCR_VPC_OVERLAY_TILED_EN) != 0;
+        l.stride = vcr_fb_overlay_stride(stride_reg);
+        fmt = vcr_fb_overlay_fmt(vpc);
+        pitch_bpp = vcr_fb_overlay_bytespp(vcr_fb_pitch(l.stride, l.tiled), l.w);
+    } else {
+        layer = (vpc & VCR_VPC_DESKTOP_EN) ? "desktop" : "none";
+        start_off = VCR_R_VIDDESKTOPSTARTADDR;
+        l.tiled = (vpc & VCR_VPC_DESKTOP_TILED_EN) != 0;
+        l.stride = stride_reg & 0x7fff;
+        fmt = (vpc & VCR_VPC_DESKTOP_FMT_MASK) >> VCR_VPC_DESKTOP_FMT_SHIFT;
     }
-    need = vcr_fb_extent(w, h, bpp, stride, tiled);
+    l.bpp = vcr_fb_bytespp(fmt);
+    cur = l.start = vcr_fb_start(*(volatile ULONG *)(regs + start_off));
+    bufs[nbufs++] = cur;
+
+    memset(&ap, 0, sizeof ap);
+    ap.base = vcr_fb_ap_base(lmc);
+    ap.lfb_stride = vcr_fb_ap_lfb_stride(lmc);
+    ap.tile_stride = vcr_fb_ap_tile_stride(lmc);
+    ap.sli_shift = have_cfg ? vcr_fb_sli_shift(sli_ctrl) : 0;
+
+    /* memBase1 decodes twice the memory a chip has (vcr_sli.h fb_bytes) */
     lfb_len = VirtualQuery((LPCVOID)lfb, &mbi, sizeof mbi) ? (ULONG)mbi.RegionSize : 0;
+    limit = lfb_len;
+    if (have_info && v.fb_per_chip && v.fb_per_chip * 2 < limit)
+        limit = v.fb_per_chip * 2;
+    vcr_fb_plan_make(&plan, &l, &ap, limit);
+    if (!lfb_len)
+        plan.method = VCR_FB_R_RANGE;
+
     printf("{\"cmd\":\"fbshot\",\"vidProcCfg\":\"%08lx\",\"start\":\"%08lx\",\"stride\":\"%08lx\","
-           "\"w\":%lu,\"h\":%lu,\"fmt\":%lu,\"tiled\":%d,\"overlay\":%d,\"sli_active\":%d,"
-           "\"lfb_view\":%lu,\"layer\":\"%s\",", vpc, start, stride, w, h, fmt, tiled, overlay, sli,
-           lfb_len, layer);
-    if (!((vpc & VCR_VPC_DESKTOP_EN) || !strcmp(layer, "overlay")) || !bpp || !w || !h ||
-        w > 2048 || h > 2048 ||
-        !lfb_len || start + need > lfb_len) {
-        printf("\"ok\":false,\"error\":\"scanout outside the mapped view or not a desktop format\"}\n");
+           "\"w\":%u,\"h\":%u,\"fmt\":%lu,\"tiled\":%d,\"overlay\":%d,\"sli_active\":%d,"
+           "\"lfb_view\":%lu,\"layer\":\"%s\",\"lfbMemoryConfig\":\"%08lx\",\"ap_base\":\"%08lx\","
+           "\"ap_line\":%lu,\"ap_tiles\":%lu,\"sli_chips\":%ld,\"cfgSliLfbCtrl\":\"%08lx\","
+           "\"cfgAALfbCtrl\":\"%08lx\",\"sli_shift\":%u,\"pitch_bpp\":%u,\"gate\":\"%s\","
+           "\"method\":\"%s\",\"mb1_first\":\"%08lx\",\"mb1_end\":\"%08lx\",\"limit\":\"%08lx\",",
+           vpc, l.start, l.stride, l.w, l.h, fmt, l.tiled, overlay,
+           have_info ? (int)v.sli_active : -1, lfb_len, layer, lmc, ap.base, ap.lfb_stride,
+           ap.tile_stride, sli_chips == 0xffffffffUL ? -1L : (long)sli_chips, sli_ctrl, aa_ctrl,
+           ap.sli_shift, pitch_bpp, vcr_fb_gate_name(gate), vcr_fb_method_name(plan.method),
+           plan.first, plan.end, limit);
+    if (gate || plan.method <= 0 || !strcmp(layer, "none")) {
+        printf("\"ok\":false,\"error\":\"%s\"}\n",
+               gate ? vcr_fb_gate_name(gate)
+               : !strcmp(layer, "none") ? "neither the desktop nor the overlay is on"
+               : vcr_fb_method_name(plan.method));
         hwc_close();
         return 1;
     }
-    if (fmt == VCR_VPC_FMT_PAL8)
-        have_clut = clut_read(vpc & VCR_VPC_DESKTOP_CLUT_SELECT ? 256 : 0, clut);
-    rowbytes = (w * 3 + 3) & ~3u;
-    line = (unsigned char *)malloc(w * bpp);
-    bmp = (unsigned char *)calloc(rowbytes, h);
+    fflush(stdout);             /* what it was about to read, should the read go wrong */
+
+    if (fmt == VCR_VPC_FMT_PAL8) {
+        int kernel = have_info && (v.flags & VCR_INFO_F_CLUT_READ);
+        clut_src = clut_read(vpc & VCR_VPC_DESKTOP_CLUT_SELECT ? 256 : 0, kernel, clut, &clut_why);
+    }
+    rowbytes = plan.rowbytes;
+    line = (unsigned char *)calloc(rowbytes, 1);
+    bmp = (unsigned char *)calloc((l.w * 3 + 3) & ~3u, l.h);
     if (!line || !bmp) {
         printf("\"ok\":false,\"error\":\"out of memory\"}\n");
         hwc_close();
         return 1;
     }
-    for (y = 0; y < h; y++) {
-        for (xb = 0; xb < w * bpp;) {
-            ULONG n = w * bpp - xb;
-            if (tiled && n > VCR_FB_TILE_W - xb % VCR_FB_TILE_W)
-                n = VCR_FB_TILE_W - xb % VCR_FB_TILE_W;
-            memcpy(line + xb, (const void *)(lfb + start + vcr_fb_offset(xb, y, stride, tiled)), n);
-            xb += n;
+    planned = 1;
+    for (y = 0; y < l.h; y++) {
+        ULONG s = vcr_fb_start(*(volatile ULONG *)(regs + start_off));
+        unsigned char *row = bmp + (l.h - 1 - y) * ((l.w * 3 + 3) & ~3u);
+        if (s != cur) {
+            /* a flip: follow the new front buffer from this line on */
+            flips++;
+            cur = s;
+            l.start = s;
+            planned = vcr_fb_plan_make(&next, &l, &ap, limit) > 0;
+            if (planned)
+                plan = next;
+            for (i = 0; i < nbufs && bufs[i] != s; i++)
+                ;
+            if (i == nbufs && nbufs < 4)
+                bufs[nbufs++] = s;
         }
-        for (x = 0; x < w; x++) {
-            unsigned long c = vcr_fb_rgb(fmt, line + x * bpp, have_clut ? clut : NULL);
-            unsigned char *d = bmp + (h - 1 - y) * rowbytes + x * 3;
+        if (!planned) {
+            unmapped++;         /* left black: the new buffer did not plan */
+            continue;
+        }
+        for (xb = 0; xb < rowbytes;) {
+            ULONG run;
+            ULONG off = vcr_fb_plan_addr(&plan, xb, y, &run);
+            memcpy(line + xb, (const void *)(lfb + off), run);
+            xb += run;
+        }
+        for (x = 0; x < l.w; x++) {
+            unsigned long c = vcr_fb_rgb(fmt, line + x * l.bpp, clut_src ? clut : NULL);
+            unsigned char *d = row + x * 3;
             d[0] = (unsigned char)c;
             d[1] = (unsigned char)(c >> 8);
             d[2] = (unsigned char)(c >> 16);
@@ -977,18 +1105,20 @@ static int cmd_fbshot(const char *path)
     f = fopen(path, "wb");
     if (!f) {
         printf("\"ok\":false,\"error\":\"cannot write the BMP\"}\n");
+        free(line);
+        free(bmp);
         return 1;
     }
     {
-        ULONG img = rowbytes * h;
+        ULONG img = ((l.w * 3 + 3) & ~3u) * l.h;
         unsigned char hd[54];
         memset(hd, 0, sizeof hd);
         hd[0] = 'B'; hd[1] = 'M';
         *(ULONG *)(hd + 2) = 54 + img;
         *(ULONG *)(hd + 10) = 54;
         *(ULONG *)(hd + 14) = 40;
-        *(LONG *)(hd + 18) = (LONG)w;
-        *(LONG *)(hd + 22) = (LONG)h;
+        *(LONG *)(hd + 18) = (LONG)l.w;
+        *(LONG *)(hd + 22) = (LONG)l.h;
         *(USHORT *)(hd + 26) = 1;
         *(USHORT *)(hd + 28) = 24;
         *(ULONG *)(hd + 34) = img;
@@ -998,7 +1128,14 @@ static int cmd_fbshot(const char *path)
     fclose(f);
     free(line);
     free(bmp);
-    printf("\"ok\":true,\"clut\":%d,\"mean_luma\":%.1f,\"path\":\"", have_clut, luma / ((double)w * h));
+    printf("\"ok\":true,\"flips\":%d,\"buffers\":[", flips);
+    for (i = 0; i < nbufs; i++)
+        printf("%s\"%08lx\"", i ? "," : "", bufs[i]);
+    printf("],\"unmapped_lines\":%d,\"clut\":%d,\"clut_source\":\"%s\",", unmapped,
+           clut_src != NULL, clut_src ? clut_src : fmt == VCR_VPC_FMT_PAL8 ? "none" : "n/a");
+    if (clut_why)
+        printf("\"clut_error\":\"%s\",", clut_why);
+    printf("\"mean_luma\":%.1f,\"path\":\"", luma / ((double)l.w * l.h));
     for (; *path; path++)
         printf(*path == '\\' ? "\\\\" : "%c", *path);
     printf("\"}\n");

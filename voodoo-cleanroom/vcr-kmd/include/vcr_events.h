@@ -47,7 +47,7 @@
     VCR_EVENT(VCR_EV_MODESET_REG,   302, "a=register b=value written c=value read back") \
     VCR_EVENT(VCR_EV_MODESET_DONE,  303, "a=vidProcCfg b=vidScreenSize c=stride d=elapsed us") \
     VCR_EVENT(VCR_EV_MODESET_FAIL,  304, "a=mode index b=reason") \
-    VCR_EVENT(VCR_EV_PALETTE,       305, "a=first b=count") \
+    VCR_EVENT(VCR_EV_PALETTE,       305, "a=first b=count c=retries (d=1: a failed CLUT READ of entry a, c=VCR_CLUT_* bits)") \
     VCR_EVENT(VCR_EV_VGA_RESTORE,   306, "a=result") \
     VCR_EVENT(VCR_EV_IDLE_WAIT,     307, "a=status b=loops c=timed out") \
     VCR_EVENT(VCR_EV_ENGINE_RESET,  308, "a=status before b=status after c=idle d=chip") \

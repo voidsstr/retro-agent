@@ -240,6 +240,12 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
      * like D3D32: the texture caps a D3D application reads at its desktop must
      * be the ones its fullscreen mode's PDEV has */
     x->d3dbigtex = VcrDiagGet(L"D3DBigTex", 0);
+    /* OFF unless set to 1 (unproven on silicon, like every other kernel
+     * behaviour of this lane until it has run on the card): a READ of one CLUT
+     * entry (reg_op, VCR_REG_CLUT) - reachable only by a tool asking for it
+     * (vcrctl fbshot / clut); with it off vcrctl falls back to the AllowPoke
+     * MMIO path, which is itself refused unless Diag\AllowPoke = 1 */
+    x->clut_read = VcrDiagGet(L"ClutRead", 0);
     hwinfo(x);
 
     /* no VDM (full-screen DOS) support: the VGA driver keeps that role */
@@ -439,6 +445,7 @@ static void fill_info(VCR_EXT *x, vcr_info *v)
                ((x->d3dbigtex & 1) ? VCR_INFO_F_BIGTEX : 0) |
                ((x->d3dbigtex & 2) ? VCR_INFO_F_TEXDXT : 0) |
                ((x->d3dbigtex & 4) ? VCR_INFO_F_TEX32 : 0) |
+               (x->clut_read && x->backend == VCR_HW_VOODOO ? VCR_INFO_F_CLUT_READ : 0) |
                /* read NOW, not at boot: the display driver asks at every
                 * DrvEnableSurface, so the next mode change picks it up */
                (VcrDiagGet(L"Accel2DText", 0) ? VCR_INFO_F_TEXT2D : 0) |
@@ -558,10 +565,30 @@ static VP_STATUS pci_op(VCR_EXT *x, vcr_pci_op *op)
 
 static VP_STATUS reg_op(VCR_EXT *x, vcr_reg_op *op)
 {
+    int gate;
     if (op->chip >= x->nchips)
         return ERROR_INVALID_PARAMETER;
-    if (op->write && !x->allow_poke)
+    /* vcr_clutread.h: every write of the old kinds needs Diag\AllowPoke; the
+     * CLUT kind is a read and needs none */
+    gate = vcr_regop_gate(op->kind, op->write, op->chip, op->offset, x->allow_poke != 0,
+                          x->clut_read != 0, x->backend == VCR_HW_VOODOO);
+    if (gate == VCR_REGOP_DENIED)
         return ERROR_ACCESS_DENIED;
+    if (gate == VCR_REGOP_INVALID)
+        return ERROR_INVALID_PARAMETER;
+    if (op->kind == VCR_REG_CLUT) {
+        /* one CLUT entry, dacAddr put back, serialised with every kernel CLUT
+         * write by StartIO. A read has to WRITE dacAddr, which is why the
+         * MMIO path refused vcrctl's CLUT read on a box with AllowPoke = 0 -
+         * Warcraft II's menu came out greyscale (2026-09-28). vga_index
+         * returns the VCR_CLUT_* bits. */
+        ULONG rgb = 0, rc = VcrHwClutRead(x, op->offset, &rgb);
+        op->vga_index = rc;
+        if (rc & (VCR_CLUT_E_INDEX | VCR_CLUT_E_ADDR))
+            return ERROR_BUSY;                  /* dacAddr would not hold the index */
+        op->value = rgb;
+        return NO_ERROR;
+    }
     if (op->kind != VCR_REG_MMIO32 && op->chip != 0)
         return ERROR_INVALID_PARAMETER;
     switch (op->kind) {

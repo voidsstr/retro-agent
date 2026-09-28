@@ -148,12 +148,12 @@ screen). Evidence: `voodoo-cleanroom/vcr-kmd/evidence/lan_20260928/night/`,
 | Desktop sweep, 36 launches one boot | board healthy after every one; agent never died |
 | 32 bpp Direct3D (step 16) | verified on silicon (d3dprobe 40/40, 42/42); default stays off (see vcr-kmd README) |
 | 3dfx Control Panel | 2D rows showed OFF while ON - fixed, deployed, Apply-without-reboot verified |
-| `vcrctl fbshot` (new) | desktop layer verified (matches GDI); Warcraft II menu seen where GDI is black; overlay (Glide) decode not right yet |
+| `vcrctl fbshot` (new) | desktop layer verified (matches GDI); Warcraft II menu seen where GDI is black; overlay (Glide) decode **fixed offline, not yet on the card** (branch of 2026-09-28 09:00): memBase1 above lfbMemoryConfig's begin page is a linear tile aperture that merges the SLI bands - inverting the old read on the saved PNG gives the Quake III main menu; 8 bpp CLUT via a read-only miniport kind (the greyscale was reg_op's AllowPoke gate, not exclusive mode) |
 
 **Open, in order:** Unreal Gold's Glide re-open hang (translator + our glide3x);
 Rainbow Six with D3D32 on a clean desktop; Thief II NewDark (D3D9);
 UT2004 (HAL texture limit 256 -> 2048, FOURCC); Descent DOSBox ddraw at 640x400
-scans out black; fbshot's overlay/SLI decode; the host address (.196 vs .132);
+scans out black; fbshot's overlay/SLI decode (fixed offline - verify on the card); the host address (.196 vs .132);
 AA and the P1120 branch with the user.
 
 ### Resume point (2026-09-28 03:00) - LAN-party pass: the priority titles run on the all-ours stack; AA untouched (user away)

@@ -90,10 +90,59 @@ TEST(the_2d_stats_struct_only_ever_grows_at_the_end) {
     CHECK_EQ_U(VCR_INFO_F_LINE2D, 0x100);
 }
 
+/* 2026-09-28: the read-only CLUT kind (include/vcr_clutread.h). A new kind
+ * and a new positive flag - vcr_reg_op itself must not move, or an old vcrctl
+ * talking to a new miniport (or the reverse) reads the wrong fields. */
+TEST(the_clut_read_kind_leaves_the_reg_op_as_it_was) {
+    CHECK_EQ_U(sizeof(vcr_reg_op), 24);
+    CHECK_EQ_U(OFF(vcr_reg_op, value), 12);
+    CHECK_EQ_U(OFF(vcr_reg_op, vga_index), 16);
+    CHECK_EQ_U(OFF(vcr_reg_op, kind), 20);
+    CHECK_EQ_U(VCR_REG_VGA_PORT, 5);
+    CHECK_EQ_U(VCR_REG_CLUT, 6);
+    /* 0x200 on its own branch; renumbered at the integration (2026-09-28):
+     * D3DBigTex holds 0x200-0x800 and DdHeapFloor 0x1000 */
+    CHECK_EQ_U(VCR_INFO_F_CLUT_READ, 0x2000);
+    CHECK((VCR_INFO_F_CLUT_READ & (VCR_INFO_F_ALLOW_POKE | VCR_INFO_F_NO_ACCEL2D | VCR_INFO_F_NO_D3D |
+                                   VCR_INFO_F_NO_TEXPORT | VCR_INFO_F_D3D32 | VCR_INFO_F_RESET3D |
+                                   VCR_INFO_F_TEXT2D | VCR_INFO_F_PAT2D | VCR_INFO_F_LINE2D)) == 0,
+          "a bit of its own");
+}
+
+/* 2026-09-28 integration of three branches that each took 0x200 for their own
+ * switch (D3DBigTex, DdHeapFloor, ClutRead). vcr_info.flags crosses the
+ * miniport -> display driver -> vcrctl boundary: two switches on one bit would
+ * arm one of them whenever the other is set - DdHeapFloor = 1 would have
+ * turned on 2048 textures. The whole map is pinned, and every flag must own
+ * exactly one bit no other flag has. */
+TEST(every_vcr_info_flag_owns_one_bit) {
+    static const unsigned f[] = {
+        VCR_INFO_F_ALLOW_POKE, VCR_INFO_F_NO_ACCEL2D, VCR_INFO_F_NO_D3D, VCR_INFO_F_NO_TEXPORT,
+        VCR_INFO_F_D3D32, VCR_INFO_F_RESET3D, VCR_INFO_F_TEXT2D, VCR_INFO_F_PAT2D,
+        VCR_INFO_F_LINE2D, VCR_INFO_F_BIGTEX, VCR_INFO_F_TEXDXT, VCR_INFO_F_TEX32,
+        VCR_INFO_F_DDHEAPFLOOR, VCR_INFO_F_CLUT_READ, VCR_INFO_F_NO_GDIGAMMA,
+    };
+    unsigned i, seen = 0;
+    CHECK_EQ_U(VCR_INFO_F_BIGTEX, 0x200);
+    CHECK_EQ_U(VCR_INFO_F_TEXDXT, 0x400);
+    CHECK_EQ_U(VCR_INFO_F_TEX32, 0x800);
+    CHECK_EQ_U(VCR_INFO_F_DDHEAPFLOOR, 0x1000);
+    CHECK_EQ_U(VCR_INFO_F_CLUT_READ, 0x2000);
+    CHECK_EQ_U(VCR_INFO_F_NO_GDIGAMMA, 0x4000);
+    for (i = 0; i < sizeof f / sizeof f[0]; i++) {
+        CHECK(f[i] != 0 && (f[i] & (f[i] - 1)) == 0, "a flag is one bit");
+        CHECK((seen & f[i]) == 0, "no two flags share a bit");
+        seen |= f[i];
+    }
+    CHECK_EQ_U(seen, 0x7fffu);
+}
+
 MUNIT_MAIN("vcr-kmd HWCEXT ABI", {
     RUN(request_and_result_sizes);
     RUN(request_offsets_match_glide);
     RUN(result_offsets_match_glide);
     RUN(escape_codes_and_ioctls);
     RUN(the_2d_stats_struct_only_ever_grows_at_the_end);
+    RUN(the_clut_read_kind_leaves_the_reg_op_as_it_was);
+    RUN(every_vcr_info_flag_owns_one_bit);
 })

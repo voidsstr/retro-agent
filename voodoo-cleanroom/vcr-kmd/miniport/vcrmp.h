@@ -27,6 +27,7 @@
 #include "../include/vcr_fmt.h"
 #include "../include/vcr_edid.h"
 #include "../include/vcr_sli.h"     /* vcr_sli_poke_memo */
+#include "../include/vcr_clutread.h"
 
 #ifndef ERROR_ACCESS_DENIED
 #define ERROR_ACCESS_DENIED 5L
@@ -142,6 +143,7 @@ typedef struct VCR_EXT {
     ULONG     d3d32;                /* Diag\\D3D32 (default 0): 32 bpp D3D targets */
     ULONG     reset3d;              /* Diag\\Reset3D (default 0): 3D state reset at Glide release */
     ULONG     d3dbigtex;            /* Diag\\D3DBigTex (default 0): VSA-100 texture path, bits 0-2 */
+    ULONG     clut_read;            /* Diag\\ClutRead (default 0): IOCTL_VCR_REG kind VCR_REG_CLUT */
     ULONG     bridge_bus, bridge_slot, bridge_found;
     ULONG     sli_active;           /* = sli_chips != 0 */
     ULONG     glide_chips;          /* chips Glide is told about (1 until slaves are mapped) */
@@ -215,6 +217,7 @@ VP_STATUS VcrHwSetMode(VCR_EXT *x, ULONG mode_index);
 VP_STATUS VcrHwRestoreMode(VCR_EXT *x);
 void    VcrHwResetToVga(VCR_EXT *x);
 VP_STATUS VcrHwSetClut(VCR_EXT *x, const VIDEO_CLUT *clut, ULONG len);
+ULONG   VcrHwClutRead(VCR_EXT *x, ULONG index, ULONG *rgb);   /* VCR_CLUT_* (vcr_clutread.h) */
 void    VcrHwSnapshot(VCR_EXT *x, vcr_snapshot *s);
 ULONG   VcrHwWaitIdle(VCR_EXT *x, ULONG chip, ULONG loops);
 ULONG   VcrHwResetEngine(VCR_EXT *x, ULONG chip, const char *why);
