@@ -96,6 +96,40 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-28 03:00) - LAN-party pass: the priority titles run on the all-ours stack; AA untouched (user away)
+
+**State of `.124` (V5 6000, 256 MB mode, HP P1120):** vcr-kmd from master
+(2D patterns/lines on by default, standard modes listed first), our guarded h5
+Glide in `system32\glide3x.dll` (md5 38a891e8; AmigaMerlin's kept as
+`glide3x_am31.dll`), MesaFX ICD **0.1.76** as the system ICD and as the
+game-local `retrogl.dll` in Q2/Q3/RtCW, the 3dfx Control Panel 2.0
+(`C:\RETRO_AGENT\3dfxctl.exe`, Start Menu). Glide's settings key on this box is
+`Services\3dfxvs\Device0\glide` (cfg 5, FX_GLIDE_REFRESH 75).
+
+**LAN check** (`scripts/benchmarks/lan_check.py`, each title as its desktop
+shortcut runs it; evidence `voodoo-cleanroom/vcr-kmd/evidence/lan_20260928`):
+| title | path | result |
+|---|---|---|
+| Quake III | ioquake3 -> system ICD, 1280x960x32 | timedemo 84.7, MP soak on the fleet server |
+| Quake II | quake2 gl_driver opengl32, 1280x960 | timedemo 138.5, MP soak |
+| CS 1.6 | hl.exe -gl -> system ICD | timedemo 93.1, MP soak (server: entered the game) |
+| RtCW MP | WolfMP retrogl 0.1.76, 1152x864@75 | MP soak (spectator in game) |
+| UT99 436 | OpenGLDrv -> ICD, 1280x960x16 | startup 220 s -> 5.9 s with 0.1.76; MP soak (DM-Deck16][) |
+| Quake (GLQuake) | system ICD, 1280x960x32 | after the mode-order fix: renders, MP soak on NetQuake |
+| Quake - 3dfx Voodoo | 3dfx MiniGL (Q2 3.20 build) | the MiniGL cannot drive a VSA-100 (wglCreateContext fails before grSstWinOpen; the Glide 2 path under it works: glide2probe). **Library fix 03:10**: on an NT box with PCI 121A:0009 the launcher runs `Play Quake.bat` (same for Hexen II's Voodoo shortcut); on-box test queued in the night batch |
+| SoF | ref_gl, 1280x960x32 | menu renders; F11 crash fixed in the library (`user\scrnshot`) |
+| Red Alert 2 | aqrit ddraw wrapper | main menu renders; skirmish not driven |
+| Turok 2 MP | T2-Glide3, 640x480x16, 4 chips | hosted LAN game runs; SP needs a CD image the fleet lacks |
+| Carmageddon 2 | Glide (translator) | fixed: the whole nGlide set moves aside; Glide opens on 4 chips |
+
+**Against AmigaMerlin, same demos, 1280x960x32:** Quake III 84.7 vs 75.1-78.5,
+Quake II 138.5 vs 84.7, CS 1.6 93.1 vs 52.7-54.5 (`v56k_titles` rows).
+
+The rest of the desktop is in `lan_sweep.py`'s run (scripts/benchmarks/results,
+gitignored). Next: finish the sweep's follow-ups, the Voodoo-Quake MiniGL, the
+host address (the fleet's "Join" launchers point at .132; the host is .196),
+then AA with the user at the box (arms in master: SliAAFifoGate first).
+
 ### Resume point (2026-09-27 17:00) - follow-ups and engine text landed; the account's weekly limit is spent
 
 Since 07:30, all on master, none on silicon:

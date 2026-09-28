@@ -38,7 +38,10 @@ import lan_check as lc  # noqa: E402  (loads v56k_bench too)
 bench = lc.bench
 SKIP = re.compile(r"(?i)setup|sound|host .*lan|join .*lan|lan game|join the fleet|join fleet|"
                   r"fleet server|retro agent|retro chat|network config|online|multiplayer server|"
-                  r"collection menu|control panel|3dfx")
+                  r"collection menu|control panel")
+# NOT "3dfx": that once skipped the Glide titles themselves ("Quake - 3dfx
+# Voodoo", "Hexen II - 3dfx Voodoo") along with the 3dfx Control Panel, which
+# "control panel" already covers.
 
 LNK_VBS = r'''Set sh = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
@@ -97,6 +100,23 @@ async def processes(box):
     return {int(x.get("pid")): (x.get("name") or x.get("exe") or "") for x in items if x.get("pid")}
 
 
+async def dialogs(box):
+    """{hwnd: title} of every visible standard dialog (#32770). A game's own
+    error box carries the GAME's name as its title - Hidden & Dangerous
+    Deluxe's "Unable to initialize graphics ... requires DirectX 8" was titled
+    just "Hidden & Dangerous Deluxe" and passed error_windows()'s title test
+    - so a dialog that was not there before the launch is reported whatever
+    it is called."""
+    try:
+        st, out = await box.cmd("WINLIST", timeout=30)
+        wins = json.loads(out)
+    except Exception:
+        return {}
+    wins = wins if isinstance(wins, list) else wins.get("windows", [])
+    return {w.get("hwnd"): (w.get("title") or "(untitled)") for w in wins
+            if isinstance(w, dict) and w.get("class") == "#32770" and w.get("visible", True)}
+
+
 async def screenshot(box):
     from client.retro_protocol import RetroConnection
     c = RetroConnection(box.ip, 9898)
@@ -112,6 +132,8 @@ async def run_one(box, sc, outdir, shots_at, grace):
            "t0": time.strftime("%H:%M:%S")}
     await bench.quiesce(box)
     before = await processes(box)
+    dlg0 = await dialogs(box)
+    rec["dialogs"] = {}
     dr0 = await lc.file_size(box, lc.DRWTSN)
     wd = sc["wd"] or str(Path(sc["target"]).parent)
     tgt = sc["target"]
@@ -138,6 +160,7 @@ async def run_one(box, sc, outdir, shots_at, grace):
         png = outdir / f"{safe}_{at}s.png"
         lc.save_png(data, png)
         rec["samples"].append({"at": at, "alive": alive, "stats": lc.shot_stats(data), "file": png.name})
+        rec["dialogs"].update({h: t for h, t in (await dialogs(box)).items() if h not in dlg0})
     rec["error_windows"] = await lc.error_windows(box)
     now = await processes(box)
     left = {p: n for p, n in new.items() if p in now}
@@ -188,6 +211,8 @@ async def run_one(box, sc, outdir, shots_at, grace):
         bad.append("exited before the last sample")
     if rec["error_windows"]:
         bad.append("error window: " + "; ".join(rec["error_windows"])[:120])
+    if rec["dialogs"]:
+        bad.append("dialog: " + "; ".join(sorted(set(rec["dialogs"].values())))[:120])
     if rec.get("drwatson_grew"):
         bad.append("Dr. Watson entry")
     if rec.get("forced"):
@@ -205,10 +230,12 @@ async def amain(a):
     out = Path(a.outdir) / time.strftime("%Y%m%d_%H%M%S")
     out.mkdir(parents=True, exist_ok=True)
     rows = await shortcuts(box)
-    todo = [r for r in rows if not SKIP.search(r["name"])]
     if a.only:
+        # an explicit --only is a request for exactly those shortcuts, SKIP or not
         pat = re.compile(a.only, re.I)
-        todo = [r for r in todo if pat.search(r["name"])]
+        todo = [r for r in rows if pat.search(r["name"])]
+    else:
+        todo = [r for r in rows if not SKIP.search(r["name"])]
     if a.exclude:
         pat = re.compile(a.exclude, re.I)
         todo = [r for r in todo if not pat.search(r["name"])]
