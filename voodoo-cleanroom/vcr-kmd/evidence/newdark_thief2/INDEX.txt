@@ -1,0 +1,57 @@
+Thief II (NewDark 1.26) vs vcr-kmd's Direct3D HAL - static evidence, 2026-09-28
+================================================================================
+
+Symptom (.124, V5 6000, vcr-kmd): "Your video hardware is not supported or no
+supported video mode was found", with Diag\D3D32 absent AND armed (plan step 16,
+../silicon/d3d32_step16/). Offline analysis of the staged
+Games-Library\Thief2\Thief2.exe, md5 1109955d4d0a7855592b33d954abcb76.
+
+  newdark_dis.py   reproduces excerpts.asm from the exe (pefile + capstone)
+  excerpts.asm     the twelve functions/paths below, strings annotated
+
+What NewDark's Direct3D 9 display (cam_ext.cfg: use_d3d_display) asks for:
+  - device validation (0x601150): ShadeCaps COLORGOURAUDRGB, TextureCaps ALPHA,
+    DevCaps TEXTURESYSTEM|VIDEOMEMORY, table or vertex fog, 2 stages for
+    multi-texture (a log line only). vcr-kmd PASSES all of it.
+  - modes (0x6014c0): EnumAdapterModes on R5G6B5 and X8R8G8B8, matched against
+    an internal 167-entry list (320x200 .. 5120x3200, both depths). PASSES.
+  - StartMode (0x681ca0): back buffer X8R8G8B8 only (force_32bit is implied);
+    CreateDevice HAL with HW vertex processing, then SW VP (no T&L needed);
+    multisample stepped down to NONE; refresh 0; depth D32/D24S8/D24X4S4/
+    D24X8/D16/D15S1 via CheckDeviceFormat + CheckDepthStencilMatch.
+      D3D32 absent: no X8R8G8B8 target -> CreateDevice fails -> return 0.
+  - then the 2D layer (0x682853), in every d3d_disp_2d_surf_mode:
+      CreateTexture(pow2(W), pow2(H), 1 level, fmt, pool) with fmt X8R8G8B8 in
+      2D / A8R8G8B8 in 3D, pool MANAGED in mode 0 (0x681d25: forced whenever
+      the device reports POW2, 0x681681) or DEFAULT in modes 2/3/4 (0x6831f0,
+      DYNAMIC / RENDERTARGET usage). 640x480 -> 1024x512, 1024x768 ->
+      1024x1024, 1280x1024 -> 2048x1024.
+      vcr-kmd: MaxTexture 256x256, texture formats 565/1555/4444 only
+      (display/vcrdd_d3d.c VcrDdD3dHalInfo / GUID_D3DExtendedCaps) -> the D3D9
+      runtime refuses it (UT2004 on the same HAL: CreateTexture
+      D3DERR_INVALIDCALL) -> "failed to create secondary surf" -> return 0.
+  - a failed StartMode is retried at the fallback mode (0x5c88db) and then
+    raises exactly the dialog seen (0x5c891f, string 0x72ce18).
+  - past that (not reached): texture-stage setups checked with ValidateDevice
+    (0x6050e0; d3d_disp_forcevalid overrides), 32-bit world textures with
+    force_32bit_textures, an A8 / A8L8 / A8R8G8B8 alpha-texture probe.
+
+What the legacy DX6 display (use_d3d_display absent) asks for (0x5e8be2): a HW
+device, DDBD_16 or DDBD_32 render, RGB, gouraud, alpha textures, texture
+memory, table or vertex fog - the original Dark engine's checks, every one of
+which vcr-kmd's HAL reports. cam_ext.cfg is loaded before cam.cfg and its own
+header says "remove/rename file to go old school".
+SEEN IN GAME on .124 (V5 6000, vcr-kmd) 2026-09-28 with cam_ext.cfg moved aside
+by hand: main menu, New Game -> "Running Interference" in mission, clean Quit.
+It opened 640x480 although cam.cfg asks 1280x960 (not yet explained).
+
+Fix (library, per box; staged to the share 2026-09-28): scripts/fleet/stage-fleetres.py
+newdark_display_swap - where `sc query vcrmp` says RUNNING the launcher moves
+cam_ext.cfg to cam_ext.cfg.d3d9 (and back when it does not). Test:
+tests/python/test_newdark_display.py.
+
+For NewDark's Direct3D 9 display to open on vcr-kmd itself, the HAL needs at
+least: 32 bpp targets by default (Diag\D3D32), X8R8G8B8 AND A8R8G8B8 texture
+formats (VSA-100 ARGB8888, h5 Glide gtex.c SST_ARGB8888), textures up to
+2048x1024 (VSA-100 "big" LODs, gtex.c SST_TBIG / _g3LodXlat base 2048), and
+ValidateDevice acceptance of NewDark's two-stage lightmap setups - unproven.

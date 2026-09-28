@@ -485,6 +485,110 @@ def ue1_glide_viewport(ini):
     out.append('%s %s -ini %s WinDrv.WindowsClient FullscreenViewportY %%UE1G2H%%' % (g, e, i))
     return out
 
+# The per-box DISPLAY SYSTEM for NewDark (Thief II 1.26). Same shape as the
+# render-device block above: one staged tree, and a display path that is right
+# on every GPU the fleet has EXCEPT the one whose Direct3D HAL is ours.
+# --------------------------------------------------------------------------
+NEWDARK_EXT = "cam_ext.cfg"
+NEWDARK_ASIDE = "cam_ext.cfg.d3d9"
+NEWDARK_ERR = "nd_dx6-error.txt"
+NEWDARK_ERR_BAT = "%~dp0" + NEWDARK_ERR
+VCRKMD_SERVICE = "vcrmp"
+
+
+def newdark_display_swap():
+    r"""Move NewDark's cam_ext.cfg aside where vcr-kmd drives the screen.
+
+    WHY (static analysis of the staged Thief2.exe, NewDark 1.26,
+    md5 1109955d4d0a7855592b33d954abcb76 - evidence and the disassembler in
+    voodoo-cleanroom/vcr-kmd/evidence/newdark_thief2/):
+
+    cam_ext.cfg carries `use_d3d_display` (NewDark's Direct3D 9 display, which
+    "automatically also enables force_32bit") and `force_32bit`. Every mode
+    set on that path (D3DProvider StartMode, VA 0x681ca0) does, in order:
+      * backbuffer X8R8G8B8 - 32 bpp is the only depth `use_d3d_display` has;
+      * CreateDevice HAL with HARDWARE vertex processing, then SOFTWARE (the
+        "CreateDevice (SW VP)" retry) - so no T&L is needed;
+      * multisampling stepped down from `multisampletype` to NONE, a refresh
+        of 0, a depth format from D32/D24S8/D24X4S4/D24X8/D16/D15S1 - all
+        tolerant;
+      * then the 2D layer, in EVERY d3d_disp_2d_surf_mode: ONE texture the
+        size of the screen rounded UP to a power of two (the device reports
+        POW2 textures), format X8R8G8B8 in 2D (menus) / A8R8G8B8 in 3D, pool
+        MANAGED in mode 0 - the mode a POW2-only device always gets - or
+        DEFAULT in the hardware modes. At 640x480 that is 1024x512, at
+        1280x1024 it is 2048x1024.
+    A failure there makes StartMode return 0, the screen loop's fallback mode
+    fails the same way, and it shows exactly the dialog `.124` shows: "Your
+    video hardware is not supported or no supported video mode was found".
+
+    vcr-kmd's DX7-level HAL (display/vcrdd_d3d.c) lists three 16-bit texture
+    formats (565/1555/4444) and 256x256 as the largest texture, so the D3D9
+    runtime refuses that CreateTexture (UT2004 on the same HAL:
+    "CreateTexture failed (D3DERR_INVALIDCALL)"). With Diag\D3D32 off it
+    fails one step earlier - no X8R8G8B8 back buffer at all. That is why
+    Thief II refused with D3D32 OFF and ON (step 16). No cam_ext.cfg option
+    lowers it: the 32-bit screen-sized texture is unconditional.
+
+    NewDark still ships the legacy DirectX 6 display ("Enumerating DX6
+    adapters..."), whose device validation (VA 0x5e8be2) asks only for what
+    the original Dark engine asked, all of which vcr-kmd's HAL reports: a HW
+    device, a 16- or 32-bit render depth, RGB, gouraud, alpha textures,
+    texture memory, table or vertex fog; the textures are the game's own
+    1999-era power-of-two art. cam_ext.cfg is "loaded prior to cam.cfg" and
+    its own header says "remove/rename file to go old school": without it
+    the staged cam.cfg (game_screen_depth 16, no
+    use_d3d_display) is the original 16 bpp DX6 game - vcr-kmd's default
+    lane, because its 32 bpp Direct3D stays OFF by default. NOT YET SEEN IN
+    GAME on vcr-kmd: Thief Gold (same Dark DX6 renderer) was only ever
+    swept to its intro movie there - the on-box check is to play Thief II.
+
+    THE TEST is whether the vcr-kmd miniport service is RUNNING. Not whether
+    its key exists: a rollback to the vendor driver leaves the vcrmp key
+    behind with the device bound elsewhere, and that box must get Direct3D 9
+    back. Detection that cannot run (no sc.exe) leaves ND_DX6=0, i.e. the
+    library's own behaviour - no box is made worse by a probe that fails.
+
+    TWO-WAY, like glide_swap: a box whose driver changes gets cam_ext.cfg
+    back at its next launch. GAMESYNC never deletes and does restore a missing
+    file, so on a vcr-kmd box the next sync puts cam_ext.cfg back and the next
+    launch moves it aside again (`move /y` replaces the old aside copy) - the
+    same per-launch churn cam.cfg already has from its -setline.
+
+    VERIFIED on .124 (V5 6000, vcr-kmd) 2026-09-28 with cam_ext.cfg moved aside
+    by hand: menus, New Game -> "Running Interference" in mission, clean Quit
+    back to the desktop. It opened 640x480 although cam.cfg asks 1280x960 -
+    the DX6 path's mode choice, not yet explained.
+
+    DELETE THIS BLOCK (and its tests) the day vcr-kmd's HAL offers X8R8G8B8
+    and A8R8G8B8 textures up to 2048x2048 and 32 bpp targets by default -
+    then NewDark's Direct3D 9 display can open there too.
+    """
+    ext = '%~dp0' + NEWDARK_EXT
+    aside = '%~dp0' + NEWDARK_ASIDE
+    return [
+        'rem ---- per-box DISPLAY SYSTEM - see stage-fleetres.py newdark_display_swap ----',
+        'rem NewDark\'s Direct3D 9 display needs a screen-sized 32-bit texture;',
+        'rem vcr-kmd\'s HAL has 16-bit textures of at most 256x256. Where vcr-kmd',
+        'rem drives the screen cam_ext.cfg is moved aside and NewDark runs its',
+        'rem legacy DirectX 6 display at 16 bpp, which that HAL can host.',
+        'set ND_DX6=0',
+        'sc query %s 2>nul | find /i "RUNNING" >nul && set ND_DX6=1' % VCRKMD_SERVICE,
+        'if "%ND_DX6%"=="1" (',
+        '  if exist "%s" move /y "%s" "%s" >nul' % (ext, ext, aside),
+        ') else (',
+        '  if not exist "%s" if exist "%s" move /y "%s" "%s" >nul'
+        % (ext, aside, aside, ext),
+        ')',
+        # a failed move is SAID, not swallowed: the game would open its D3D9
+        # display and show the same "not supported" dialog with nothing
+        # pointing back here (review of this block, 2026-09-28)
+        'if exist "%s" del /q "%s" >nul 2>&1' % (NEWDARK_ERR_BAT, NEWDARK_ERR_BAT),
+        'if "%%ND_DX6%%"=="1" if exist "%s" echo cam_ext.cfg could not be moved aside - '
+        'Thief II will try its Direct3D 9 display on vcr-kmd and refuse to start> "%s"'
+        % (ext, NEWDARK_ERR_BAT),
+    ]
+
 
 # --------------------------------------------------------------------------
 # Turok 2 keeps its mode as one BOOLEAN PER MODE in Data\config.ned, chosen
@@ -1130,6 +1234,15 @@ TITLES = {
                  '"%~dp0cam.cfg" game_screen_size game_screen_size '
                  '%FR_W% %FR_H%']),
         },
+        # Direct3D 9 everywhere except where vcr-kmd's DX7-level HAL is the
+        # display driver: there NewDark's DX6 display (newdark_display_swap).
+        # "Your video hardware is not supported..." on .124, 2026-09-28.
+        "post": [{
+            "file": "Play Thief 2.bat",
+            "marker": "ND_DX6",
+            "before": 'start "" Thief2.exe',
+            "lines": newdark_display_swap(),
+        }],
     },
     "Descent3": {
         "launchers": {
