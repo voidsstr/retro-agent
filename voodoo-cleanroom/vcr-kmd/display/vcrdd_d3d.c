@@ -255,8 +255,23 @@ static ULONG mip_offset(ULONG w, ULONG h, ULONG k)
 #define FCC(a, b, c, d) ((DWORD)(UCHAR)(a) | ((DWORD)(UCHAR)(b) << 8) | \
                          ((DWORD)(UCHAR)(c) << 16) | ((DWORD)(UCHAR)(d) << 24))
 #define FCC_DXT1        FCC('D', 'X', 'T', '1')
+#define FCC_DXT2        FCC('D', 'X', 'T', '2')
 #define FCC_DXT3        FCC('D', 'X', 'T', '3')
+#define FCC_DXT4        FCC('D', 'X', 'T', '4')
 #define FCC_DXT5        FCC('D', 'X', 'T', '5')
+
+/* DXT2 and DXT4 are DXT3's and DXT5's blocks with premultiplied colour - the
+ * same bits, the same hardware formats (h5 h3defs.h: format 2 = DXT2/3, 3 =
+ * DXT4/5). Halo 1.10 stores its compressed alpha textures as DXT2/DXT4
+ * (halo.exe 0x65e040), and with only DXT1/3/5 listed they came back NULL and
+ * its menu drew white (.124, 2026-09-28). 0 = not a DXT code, else the
+ * TF_CMP_* the TMU is given. */
+static ULONG dxt_class(DWORD fcc)
+{
+    return fcc == FCC_DXT1 ? TF_CMP_DXT1
+         : fcc == FCC_DXT2 || fcc == FCC_DXT3 ? TF_CMP_DXT23
+         : fcc == FCC_DXT4 || fcc == FCC_DXT5 ? TF_CMP_DXT45 : 0;
+}
 #define KIND_NONE       0xffu
 #define TMFMT_NONE      0xffffffffu
 
@@ -281,7 +296,7 @@ static ULONG pf_kind(VCR_PDEV *pd, const DDPIXELFORMAT *pf)
             return KIND_NONE;
         if (pf->dwFourCC == FCC_DXT1)
             return VCR_TEXK_DXT1;
-        if (pf->dwFourCC == FCC_DXT3 || pf->dwFourCC == FCC_DXT5)
+        if (dxt_class(pf->dwFourCC))
             return VCR_TEXK_DXT35;
         return KIND_NONE;
     }
@@ -306,7 +321,7 @@ static ULONG pf_tmfmt(const DDPIXELFORMAT *pf, ULONG kind)
     case VCR_TEXK_DXT1:
         return TM_COMPRESSED | TM_FORMAT(TF_CMP_DXT1);
     case VCR_TEXK_DXT35:
-        return TM_COMPRESSED | TM_FORMAT(pf->dwFourCC == FCC_DXT3 ? TF_CMP_DXT23 : TF_CMP_DXT45);
+        return TM_COMPRESSED | TM_FORMAT(dxt_class(pf->dwFourCC));
     default:
         return TMFMT_NONE;
     }
@@ -455,8 +470,7 @@ int VcrDdD3dCreateTexSurface(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
         PDD_SURFACE_LOCAL s = p->lplpSList[i];
         DWORD fcc = surf_fcc(s);
         ULONG w, h, d3d, hw;
-        if ((fcc != FCC_DXT1 && fcc != FCC_DXT3 && fcc != FCC_DXT5) ||
-            (s->ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY))
+        if (!dxt_class(fcc) || (s->ddsCaps.dwCaps & DDSCAPS_SYSTEMMEMORY))
             continue;
         w = s->lpGbl->wWidth;
         h = s->lpGbl->wHeight;
@@ -481,17 +495,19 @@ int VcrDdD3dCreateTexSurface(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
     return 1;
 }
 
-/* the FOURCC codes DirectDraw lists: DXT1/3/5 with bit 1, none otherwise */
+/* the FOURCC codes DirectDraw lists: DXT1-5 with bit 1, none otherwise */
 ULONG VcrDdD3dFourCC(VCR_PDEV *pd, DWORD *codes)
 {
     if (!pd || !pd->tex_dxt || !pd->pjRegs || !pd->g2d_ok || pd->d3d_disabled)
         return 0;
     if (codes) {
         codes[0] = FCC_DXT1;
-        codes[1] = FCC_DXT3;
-        codes[2] = FCC_DXT5;
+        codes[1] = FCC_DXT2;
+        codes[2] = FCC_DXT3;
+        codes[3] = FCC_DXT4;
+        codes[4] = FCC_DXT5;
     }
-    return 3;
+    return 5;
 }
 
 int VcrDdD3dCreateMipChain(VCR_PDEV *pd, PDD_CREATESURFACEDATA p)
@@ -1389,7 +1405,7 @@ static void texblt_dxt_level(VCR_PDEV *pd, PDD_SURFACE_LOCAL d, PDD_SURFACE_LOCA
     ULONG blk = dxt_block(fcc), dbw, dbh, sbw, sbh, rows, bytes, dstride, sstride, y;
     LONG bx0, by0, bx1, by1, dbx, dby;
     PUCHAR dp, sp;
-    if (fcc != surf_fcc(s) || (fcc != FCC_DXT1 && fcc != FCC_DXT3 && fcc != FCC_DXT5) ||
+    if (fcc != surf_fcc(s) || !dxt_class(fcc) ||
         r->left < 0 || r->top < 0 || r->right <= r->left || r->bottom <= r->top ||
         r->right > (LONG)s->lpGbl->wWidth || r->bottom > (LONG)s->lpGbl->wHeight ||
         dx < 0 || dy < 0 || ((dx - r->left) & 3) || ((dy - r->top) & 3))
@@ -1910,7 +1926,7 @@ static DWORD APIENTRY Dd_DestroyDDLocal(PDD_DESTROYDDLOCALDATA p)
 
 static D3DNTHAL_GLOBALDRIVERDATA g_gd;
 static D3DNTHAL_CALLBACKS g_cb;
-static DDSURFACEDESC g_texfmt[7];          /* 3 16 bpp; + A8R8G8B8 and DXT1/3/5 (D3DBigTex) */
+static DDSURFACEDESC g_texfmt[9];          /* 3 16 bpp; + A8R8G8B8 and DXT1-5 (D3DBigTex) */
 
 static void texfmt(DDSURFACEDESC *d, DWORD flags, DWORD r, DWORD g, DWORD b, DWORD a)
 {
@@ -2020,7 +2036,9 @@ void VcrDdD3dHalInfo(VCR_PDEV *pd, DD_HALINFO *hal)
     }
     if (pd->tex_dxt) {
         texfmt_fcc(&g_texfmt[g_gd.dwNumTextureFormats++], FCC_DXT1);
+        texfmt_fcc(&g_texfmt[g_gd.dwNumTextureFormats++], FCC_DXT2);
         texfmt_fcc(&g_texfmt[g_gd.dwNumTextureFormats++], FCC_DXT3);
+        texfmt_fcc(&g_texfmt[g_gd.dwNumTextureFormats++], FCC_DXT4);
         texfmt_fcc(&g_texfmt[g_gd.dwNumTextureFormats++], FCC_DXT5);
     }
     g_gd.lpTextureFormats = g_texfmt;
