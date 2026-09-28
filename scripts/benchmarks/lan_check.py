@@ -104,6 +104,20 @@ async def games_running(box):
     return sorted(n for n in names if n and re.search(r"(?m)^" + re.escape(n) + r"\s", out))
 
 
+async def dir_stamps(box, path, ext):
+    """{name: (size, modified)} of the *.ext files in `path`, from the agent's
+    DIRLIST. A NAME is not enough to tell a new screenshot: RtCW numbers its
+    shots from 0000 again each session and overwrites, so the 2026-09-28 map
+    cycle wrote nine fresh shots and a name diff found none."""
+    try:
+        st, out = await box.cmd(f"DIRLIST {path}", timeout=60)
+        rows = json.loads(out)
+    except Exception:
+        return {}
+    return {r["name"]: (r.get("size"), r.get("modified")) for r in rows
+            if isinstance(r, dict) and not r.get("is_dir") and r.get("name", "").lower().endswith("." + ext)}
+
+
 async def dir_names(box, path, pattern="*"):
     out = await box.exec_(f'cmd /c dir /b /o:d "{path}\\{pattern}" 2>nul', timeout=30)
     return [l.strip() for l in out.splitlines() if l.strip() and "File Not Found" not in l]
@@ -737,7 +751,7 @@ async def run_phase(box, t, env, phase, args, outdir):
         await box.upload(p["cfg"], "\r\n".join(lines) + "\r\n")
     await box.exec_(f'cmd /c del /f /q "{p["log"]}" 2>nul')
     ext = getattr(t, "shot_ext", "jpg")
-    shots_before = set(await dir_names(box, p["shots"], f"*.{ext}"))
+    shots_before = await dir_stamps(box, p["shots"], ext)
     dr_before = await file_size(box, DRWTSN)
     bat = rf"{t.root}\LANCHECK.BAT"
     await box.upload(bat, "\r\n".join(["@echo off"] + (t.env_lines() if hasattr(t, "env_lines") else []) +
@@ -803,7 +817,8 @@ async def run_phase(box, t, env, phase, args, outdir):
     dr_after = await file_size(box, DRWTSN)
     if dr_after != dr_before:
         rec["drwatson_grew"] = dr_after - dr_before
-    new = [s for s in await dir_names(box, p["shots"], f"*.{ext}") if s not in shots_before]
+    after = await dir_stamps(box, p["shots"], ext)
+    new = sorted(n for n, st in after.items() if shots_before.get(n) != st)
     rec["shots"] = []
     for s in new:
         data = await box.download(rf"{p['shots']}\{s}")

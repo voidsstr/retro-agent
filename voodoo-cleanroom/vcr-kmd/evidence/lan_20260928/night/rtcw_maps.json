@@ -1,0 +1,20 @@
+{
+ "title": "rtcw",
+ "phase": "maps",
+ "t0": "2026-09-28 06:41:10",
+ "command": "WolfMP.exe +set r_mode 7 +set r_fullscreen 1 +set logfile 2 +exec lancheck.cfg",
+ "keys_sent": [],
+ "seconds": 263.2,
+ "gl_renderer": "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]",
+ "mode": "1152x864 fullscreen",
+ "colorbits": 32,
+ "connected": true,
+ "maps_loaded": 12,
+ "maps_expected": 10,
+ "log_bytes": 90278,
+ "error_windows": [],
+ "shots": [],
+ "agent_alive": true,
+ "verdict": "FAIL: no screenshot",
+ "note": "nine fresh screenshots were written (shot0000-0008, 06:41-06:44) over older same-named ones; the name-diff harness missed them - fixed the same morning (dir_stamps)"
+}

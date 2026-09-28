@@ -1,0 +1,45 @@
+Found paletted texture extension.
+ARB Multitexture extensions found.
+Using secondary sound buffer
+Server module initialized.
+World module initialized.
+Can't "cmd", not connected
+NET Ports:  server 27015, client 27005
+Server IP address 192.168.1.124:27015
+|--------------[BCShield 2.5]---------------|
+|-------Project by HLDS-Project------------|
+|------------WWW.BCS16.RO------------|
+|----------------------------------------------|
+Connecting to 192.168.1.196:27015
+...
+Connection accepted by 192.168.1.196:27015
+
+BUILD 10211 SERVER (0 CRC)
+Server # 17
+[SVC_STUFFTEXT] Server tried to send invalid command: upload "!MD578583230916aff438e22cff1d2076195"
+
+RevCrew connected
+Connecting to 192.168.1.196:27015
+...
+Connection accepted by 192.168.1.196:27015
+
+BUILD 10211 SERVER (0 CRC)
+Server # 17
+[SVC_STUFFTEXT] Server tried to send invalid command: upload "!MD578583230916aff438e22cff1d2076195"
+
+RevCrew connected
+Connecting to 192.168.1.196:27015
+...
+Connection accepted by 192.168.1.196:27015
+
+BUILD 10211 SERVER (0 CRC)
+Server # 17
+[SVC_STUFFTEXT] Server tried to send invalid command: upload "!MD578583230916aff438e22cff1d2076195"
+
+RevCrew connected
+
+BUILD 10211 SERVER (0 CRC)
+Server # 18
+[SVC_STUFFTEXT] Server tried to send invalid command: upload "!MD578583230916aff438e22cff1d2076195"
+
+RevCrew connected

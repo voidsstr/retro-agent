@@ -1,0 +1,128 @@
+{
+ "title": "q3",
+ "phase": "maps",
+ "t0": "2026-09-28 06:38:51",
+ "command": "ioquake3.x86.exe +set r_mode -1 +set r_customwidth 1280 +set r_customheight 960 +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov 90 +set logfile 2 +exec lancheck.cfg",
+ "keys_sent": [],
+ "seconds": 129.9,
+ "gl_renderer": "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]",
+ "mode": "1280x960 fullscreen",
+ "colorbits": 32,
+ "connected": true,
+ "maps_loaded": 12,
+ "maps_expected": 12,
+ "log_bytes": 78609,
+ "error_windows": [],
+ "shots": [
+  {
+   "file": "q3_maps_shot0018.png",
+   "stats": [
+    1280,
+    960,
+    55.2,
+    29.4
+   ]
+  },
+  {
+   "file": "q3_maps_shot0019.png",
+   "stats": [
+    1280,
+    960,
+    24.0,
+    32.5
+   ]
+  },
+  {
+   "file": "q3_maps_shot0020.png",
+   "stats": [
+    1280,
+    960,
+    47.0,
+    28.5
+   ]
+  },
+  {
+   "file": "q3_maps_shot0021.png",
+   "stats": [
+    1280,
+    960,
+    42.4,
+    24.5
+   ]
+  },
+  {
+   "file": "q3_maps_shot0022.png",
+   "stats": [
+    1280,
+    960,
+    48.0,
+    27.4
+   ]
+  },
+  {
+   "file": "q3_maps_shot0023.png",
+   "stats": [
+    1280,
+    960,
+    62.3,
+    34.2
+   ]
+  },
+  {
+   "file": "q3_maps_shot0024.png",
+   "stats": [
+    1280,
+    960,
+    24.0,
+    32.5
+   ]
+  },
+  {
+   "file": "q3_maps_shot0025.png",
+   "stats": [
+    1280,
+    960,
+    47.0,
+    28.5
+   ]
+  },
+  {
+   "file": "q3_maps_shot0026.png",
+   "stats": [
+    1280,
+    960,
+    42.4,
+    24.5
+   ]
+  },
+  {
+   "file": "q3_maps_shot0027.png",
+   "stats": [
+    1280,
+    960,
+    48.4,
+    33.3
+   ]
+  },
+  {
+   "file": "q3_maps_shot0028.png",
+   "stats": [
+    1280,
+    960,
+    51.5,
+    25.1
+   ]
+  },
+  {
+   "file": "q3_maps_shot0029.png",
+   "stats": [
+    1280,
+    960,
+    51.4,
+    31.8
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "PASS"
+}

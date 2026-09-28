@@ -1,0 +1,64 @@
+{
+ "title": "sof",
+ "phase": "soak",
+ "t0": "2026-09-28 06:28:37",
+ "command": "SoF.exe +set gl_mode 8 +set logfile 2 +exec lancheck.cfg",
+ "keys_sent": [
+  "F10@148s:OK",
+  "F10@262s:OK",
+  "F10@375s:OK",
+  "F10@489s:OK",
+  "F9@602s:OK"
+ ],
+ "seconds": 608.4,
+ "gl_renderer": "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.76]",
+ "errors": [
+  "ERROR: Please insert the SOF CD and try again."
+ ],
+ "connected": true,
+ "maps_loaded": 0,
+ "mode": "1280x960 (mode 8)",
+ "log_bytes": 3519,
+ "error_windows": [],
+ "shots": [
+  {
+   "file": "sof_soak_sof08.png",
+   "stats": [
+    1280,
+    960,
+    0.3,
+    6.6
+   ]
+  },
+  {
+   "file": "sof_soak_sof09.png",
+   "stats": [
+    1280,
+    960,
+    0.3,
+    6.6
+   ]
+  },
+  {
+   "file": "sof_soak_sof10.png",
+   "stats": [
+    1280,
+    960,
+    0.3,
+    6.6
+   ]
+  },
+  {
+   "file": "sof_soak_sof11.png",
+   "stats": [
+    1280,
+    960,
+    0.3,
+    6.6
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "FAIL: log errors",
+ "note": "SoF: no level loads without the CD check satisfied (WON Error), single player included - a library/copy-protection wall, not the driver; menus render at 1280x960 on our stack"
+}

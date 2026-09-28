@@ -1,0 +1,72 @@
+{
+ "title": "cs16",
+ "phase": "soak",
+ "t0": "2026-09-28 05:58:02",
+ "command": "hl.exe -game cstrike -full -gl -w 1280 -h 960 -condebug +exec lancheck.cfg",
+ "keys_sent": [],
+ "closed_by_harness": true,
+ "seconds": 1801.2,
+ "connected": true,
+ "maps_loaded": 4,
+ "log_bytes": 1363,
+ "error_windows": [],
+ "alive_after_close": false,
+ "shots": [
+  {
+   "file": "cs16_soak_de_train0000.png",
+   "stats": [
+    1280,
+    960,
+    37.2,
+    50.4
+   ]
+  },
+  {
+   "file": "cs16_soak_de_train0001.png",
+   "stats": [
+    1280,
+    960,
+    33.0,
+    43.8
+   ]
+  },
+  {
+   "file": "cs16_soak_de_train0002.png",
+   "stats": [
+    1280,
+    960,
+    37.2,
+    50.4
+   ]
+  },
+  {
+   "file": "cs16_soak_de_train0003.png",
+   "stats": [
+    1280,
+    960,
+    9.4,
+    20.7
+   ]
+  },
+  {
+   "file": "cs16_soak_de_train0004.png",
+   "stats": [
+    1280,
+    960,
+    37.2,
+    50.4
+   ]
+  },
+  {
+   "file": "cs16_soak_de_train0005.png",
+   "stats": [
+    1280,
+    960,
+    9.4,
+    20.7
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "PASS"
+}
