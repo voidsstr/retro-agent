@@ -10,7 +10,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
+
+/* NO <math.h> here: sqrt() links mingw's STATIC _sqrt out of libmsvcrt.a,
+ * prebuilt for i686, and it executes FUCOMI - a Pentium Pro instruction a
+ * Pentium 1 faults on. See ../shared/dragsteps.h. */
+#include "../shared/dragsteps.h"
 
 #define LOG_INPUT "INPUT"
 #define MAX_WINDOWS 64
@@ -228,15 +232,12 @@ void handle_uidrag(SOCKET sock, const char *args)
 
     log_msg(LOG_INPUT, "UIDRAG: (%d,%d) -> (%d,%d)", x1, y1, x2, y2);
 
-    /* Calculate steps — one step per ~4 pixels, capped at 100 */
+    /* One step per ~4 pixels, clamped to [5,100] - INTEGER math only. This
+     * called sqrt() until 2026-09-28, which linked mingw's static _sqrt and
+     * its P6-only FUCOMI: 0xC000001D on every UIDRAG on .243 (Pentium P54C). */
     dx = x2 - x1;
     dy = y2 - y1;
-    {
-        double dist = sqrt((double)(dx * dx + dy * dy));
-        steps = (int)(dist / 4.0);
-        if (steps < 5) steps = 5;
-        if (steps > 100) steps = 100;
-    }
+    steps = drag_steps(dx, dy);
 
     /* Mouse-down at start position */
     SetCursorPos(x1, y1);
