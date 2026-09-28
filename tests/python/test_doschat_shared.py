@@ -175,7 +175,9 @@ def test_restart_batch_speaks_win9x_start_on_win9x():
     win9x, nt = body.split("GetVersion() & 0x80000000", 1)[1].split("} else {", 1)
     assert "GetShortPathNameA" in win9x
     emitted_9x = [ln for ln in win9x.splitlines() if "fprintf(f," in ln]
-    assert emitted_9x == ['        fprintf(f, "start %s\\r\\n", shortp);'], emitted_9x
+    # /m (minimized) since the console-covers-icons fix: see
+    # tests/python/test_console_minimized.py. Still no title, still 8.3.
+    assert emitted_9x == ['        fprintf(f, "start /m %s\\r\\n", shortp);'], emitted_9x
     assert '\\"\\"' not in "\n".join(emitted_9x), "no empty title on Win9x"
     assert 'start \\"\\" \\"%s\\"' in nt.split("fclose(f)")[0], (
         "NT keeps the quoted form - a long path with spaces needs it there")

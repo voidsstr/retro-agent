@@ -62,7 +62,8 @@ AGENT_EXE = AGENT_DIR / "retro_agent.exe"
 CHAT_EXE = AGENT_DIR / "tools" / "retro_chat.exe"
 CC = "i686-w64-mingw32-gcc"
 
-# The seven names that made 1.78.0 unloadable on Win98SE.
+# The seven names that made 1.78.0 unloadable on Win98SE, plus NT-only names
+# added since that must stay dynamic (ntdyn.c).
 WIN9X_ABSENT = (
     "OpenSCManagerA",
     "OpenServiceA",
@@ -75,6 +76,10 @@ WIN9X_ABSENT = (
     # entry point exists only from XP SP1 - not on 9x, NT4, 2000 or XP RTM -
     # so it goes through ntdyn_GetSystemTimes(), never a direct call.
     "GetSystemTimes",
+    # Added with the console minimize (consolewin.c): Win98's kernel32 exports
+    # neither. GetConsoleWindow is Windows 2000+, GetConsoleProcessList XP+.
+    "GetConsoleWindow",
+    "GetConsoleProcessList",
 )
 
 # Present in 1.30.0 too, and that binary runs on .243. The control group: if a

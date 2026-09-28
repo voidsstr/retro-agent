@@ -559,11 +559,16 @@ void handle_restart(SOCKET sock)
          * never comes back - which is what RESTART left on .243 (Win98 SE,
          * 2026-09-24): networking up, 9898 refused, nobody to relaunch it.
          * Use the 8.3 path, which needs no quotes, exactly as the auto-update
-         * batch (hardware-proven on the Deskpro) does. */
+         * batch (hardware-proven on the Deskpro) does.
+         *
+         * /m starts it MINIMIZED, as AGENTRUN.BAT does at boot: a restored
+         * console opens over the desktop icon bay and invites the click that
+         * closes the agent. Win9x has no GetConsoleWindow, so the agent cannot
+         * minimize itself there (consolewin.c does it on NT). */
         char shortp[MAX_PATH];
         if (!GetShortPathNameA(exe, shortp, sizeof(shortp)))
             safe_strncpy(shortp, exe, sizeof(shortp));
-        fprintf(f, "start %s\r\n", shortp);
+        fprintf(f, "start /m %s\r\n", shortp);
     } else {
         fprintf(f, "start \"\" \"%s\"\r\n", exe);
     }

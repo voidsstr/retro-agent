@@ -275,4 +275,52 @@ int ntdyn_GetSystemTimes(FILETIME *idle, FILETIME *kernel, FILETIME *user)
     return g_st_fn(idle, kernel, user) ? 1 : 0;
 }
 
+/* ================================================================
+ * Console window (kernel32; GetConsoleWindow is 2000+, the list XP+)
+ * ================================================================ */
+
+typedef HWND  (WINAPI *pfn_GetConsoleWindow_t)(void);
+typedef DWORD (WINAPI *pfn_GetConsoleProcessList_t)(LPDWORD, DWORD);
+
+static pfn_GetConsoleWindow_t      g_con_window = NULL;
+static pfn_GetConsoleProcessList_t g_con_plist  = NULL;
+static int g_con_loaded = 0;
+
+static void con_load(void)
+{
+    HMODULE h;
+
+    if (g_con_loaded)
+        return;
+    g_con_loaded = 1;
+
+    /* kernel32 is mapped into every Win32 process; no LoadLibrary needed. */
+    h = GetModuleHandleA("kernel32.dll");
+    if (!h)
+        return;
+    g_con_window = (pfn_GetConsoleWindow_t)GetProcAddress(h, "GetConsoleWindow");
+    g_con_plist  = (pfn_GetConsoleProcessList_t)
+        GetProcAddress(h, "GetConsoleProcessList");
+}
+
+int ntdyn_console_window_available(void)
+{
+    con_load();
+    return g_con_window != NULL;
+}
+
+HWND ntdyn_GetConsoleWindow(void)
+{
+    con_load();
+    return g_con_window ? g_con_window() : NULL;
+}
+
+DWORD ntdyn_GetConsoleProcessList(LPDWORD list, DWORD count)
+{
+    con_load();
+    if (!g_con_plist || !list || !count)
+        return 0;
+    return g_con_plist(list, count);
+}
+
 #pragma GCC diagnostic pop

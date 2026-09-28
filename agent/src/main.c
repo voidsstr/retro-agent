@@ -70,6 +70,7 @@
 #include "util.h"
 #include "log.h"
 #include "chatproxy.h"
+#include "consolewin.h"
 
 #ifndef AGENT_VERSION
 #define AGENT_VERSION "0.0.0"
@@ -1133,6 +1134,11 @@ void agent_run(void)
         log_console_title(title);
         con_printf("%s\n", title);
     }
+    /* Minimize our own console so it cannot cover the desktop icons or be
+     * closed by a stray click (consolewin.c). HERE, before WSAStartup and
+     * before any thread or child exists: it asks whether another process
+     * shares this console, and a child of ours must not be that answer. */
+    consolewin_startup(g_service_mode);
 
     /* Init Winsock 2 */
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {

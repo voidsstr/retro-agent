@@ -82,4 +82,22 @@ DWORD ntdyn_CM_Get_Device_IDA(DWORD devinst, char *buf, ULONG len, ULONG flags);
  * NT4, 2000, XP RTM) - callers treat 0 as "CPU load unknown", never as idle. */
 int ntdyn_GetSystemTimes(FILETIME *idle, FILETIME *kernel, FILETIME *user);
 
+/* ---- Console window (kernel32.dll) ----
+ *
+ * GetConsoleWindow is Windows 2000+ and GetConsoleProcessList is XP+: Win98's
+ * kernel32 exports neither, so a direct call makes the EXE unloadable there
+ * (consolewin.c: the agent minimizes its own console at startup). */
+
+/* Non-zero when GetConsoleWindow resolved - i.e. this is NT, not Win9x. */
+int  ntdyn_console_window_available(void);
+
+/* The console window, or NULL when unavailable OR when there is no console;
+ * ntdyn_console_window_available() tells those two apart. */
+HWND ntdyn_GetConsoleWindow(void);
+
+/* How many processes are attached to this console, or 0 when that cannot be
+ * asked (9x, Windows 2000). `list` may be NULL only if `count` is 0 - so pass
+ * a small buffer; the return value is the total even when it overflows. */
+DWORD ntdyn_GetConsoleProcessList(LPDWORD list, DWORD count);
+
 #endif /* NTDYN_H */

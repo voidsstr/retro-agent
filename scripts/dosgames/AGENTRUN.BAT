@@ -121,5 +121,10 @@ echo boot:   retro_agent.exe still locked - keeping the old build >> %AGLOG%
 
 :runit
 rem No -l: the agent defaults to C:\RETRO_AGENT\agent.log on its own.
-echo boot:   starting the agent >> %AGLOG%
-start %AGDIR%\retro_agent.exe
+rem /m = MINIMIZED (Win98 START.EXE; cmd.exe spells it /min). The agent's
+rem console used to open over the desktop icon bay at every boot - on this
+rem box it covered all of it (22,22-674,381) - and a click on it can close
+rem the agent or freeze it. Minimized, it is still on the taskbar. Win9x
+rem has no GetConsoleWindow, so the agent cannot do this for itself here.
+echo boot:   starting the agent - minimized >> %AGLOG%
+start /m %AGDIR%\retro_agent.exe
