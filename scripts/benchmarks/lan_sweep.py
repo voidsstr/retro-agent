@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+"""
+lan_sweep.py - smoke-test EVERY game shortcut on a box's desktop the way a
+person starts it: the .lnk's own target, unchanged.
+
+For each shortcut (setup / sound-config / LAN host-join ones skipped: they
+need a partner or a person): launch it, find the processes it started by
+diffing the process list, and at fixed times take the agent's GDI screenshot
+and note which of them are alive; then close them with WM_CLOSE, and force
+only after a grace period - recorded, because a forced exit of a fullscreen
+Glide game can leave the board mapped (v56k_bench.graceful_kill). After each
+title the board is asked whether it can still bring Glide up
+(glideprobe --noopen); a wedged board stops the sweep, so one bad title is
+not blamed on the next.
+
+A GDI screenshot of an exclusive-fullscreen Glide/OpenGL game on our driver
+shows the desktop surface, not the game: for those titles the verdict rests
+on "still running, no error window, board healthy" - say so, never call the
+picture evidence. lan_check.py is the deep route (engine screenshots,
+timedemo, multiplayer) for the priority titles.
+
+    python3 scripts/benchmarks/lan_sweep.py --host 192.168.1.124 \
+        --outdir scripts/benchmarks/results/v56k_lan_192.168.1.124/sweep
+"""
+import argparse
+import asyncio
+import io
+import json
+import re
+import sys
+import time
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import lan_check as lc  # noqa: E402  (loads v56k_bench too)
+
+bench = lc.bench
+SKIP = re.compile(r"(?i)setup|sound|host .*lan|join .*lan|lan game|join the fleet|join fleet|"
+                  r"fleet server|retro agent|retro chat|network config|online|multiplayer server|"
+                  r"collection menu|control panel|3dfx")
+
+LNK_VBS = r'''Set sh = CreateObject("WScript.Shell")
+Set fso = CreateObject("Scripting.FileSystemObject")
+For Each d In Array(sh.SpecialFolders("AllUsersDesktop"), sh.SpecialFolders("Desktop"))
+  If fso.FolderExists(d) Then
+    For Each f In fso.GetFolder(d).Files
+      If LCase(fso.GetExtensionName(f.Name)) = "lnk" Then
+        Set l = sh.CreateShortcut(f.Path)
+        WScript.Echo f.Name & vbTab & l.TargetPath & vbTab & l.Arguments & vbTab & l.WorkingDirectory
+      End If
+    Next
+  End If
+Next
+'''
+
+
+async def shortcuts(box):
+    await box.upload(r"C:\RETRO_AGENT\lnk.vbs", LNK_VBS)
+    out = await box.exec_(r"cscript //nologo C:\RETRO_AGENT\lnk.vbs", timeout=90)
+    rows = []
+    for line in out.splitlines():
+        p = line.split("\t")
+        if len(p) >= 4 and p[0].lower().endswith(".lnk"):
+            rows.append({"name": p[0][:-4], "target": p[1], "args": p[2], "wd": p[3]})
+    return rows
+
+
+async def processes(box):
+    st, out = await box.cmd("PROCLIST", timeout=60)
+    try:
+        j = json.loads(out)
+    except Exception:
+        return {}
+    items = j if isinstance(j, list) else j.get("processes", [])
+    return {int(x.get("pid")): (x.get("name") or x.get("exe") or "") for x in items if x.get("pid")}
+
+
+async def screenshot(box):
+    from client.retro_protocol import RetroConnection
+    c = RetroConnection(box.ip, 9898)
+    await c.connect(bench.SECRET, timeout=20)
+    try:
+        return await c.command_binary("SCREENSHOT 0", timeout=90)
+    finally:
+        await c.close()
+
+
+async def run_one(box, sc, outdir, shots_at, grace):
+    rec = {"shortcut": sc["name"], "target": sc["target"], "args": sc["args"],
+           "t0": time.strftime("%H:%M:%S")}
+    await bench.quiesce(box)
+    before = await processes(box)
+    dr0 = await lc.file_size(box, lc.DRWTSN)
+    wd = sc["wd"] or str(Path(sc["target"]).parent)
+    tgt = sc["target"]
+    cmd = f'cmd /c cd /d "{wd}" && "{tgt}" {sc["args"]}'.strip()
+    started = time.time()
+    await box.text(f"LAUNCH {cmd}")
+    rec["samples"] = []
+    new = {}
+    for at in shots_at:
+        w = started + at - time.time()
+        if w > 0:
+            await asyncio.sleep(w)
+        now = await processes(box)
+        new.update({p: n for p, n in now.items() if p not in before and n.lower() not in
+                    ("cmd.exe", "conhost.exe", "wmiprvse.exe", "dwwin.exe", "dumprep.exe")})
+        alive = sorted({n for p, n in new.items() if p in now})
+        data = await screenshot(box)
+        safe = re.sub(r"[^A-Za-z0-9]+", "_", sc["name"]).strip("_")[:60]
+        png = outdir / f"{safe}_{at}s.png"
+        lc.save_png(data, png)
+        rec["samples"].append({"at": at, "alive": alive, "stats": lc.shot_stats(data), "file": png.name})
+    rec["error_windows"] = await lc.error_windows(box)
+    now = await processes(box)
+    left = {p: n for p, n in new.items() if p in now}
+    rec["running_at_end"] = sorted(set(left.values()))
+    for p in left:
+        await box.exec_(f"cmd /c taskkill /pid {p} 2>nul", timeout=30)
+    t = time.time()
+    while time.time() - t < grace:
+        await asyncio.sleep(3)
+        now = await processes(box)
+        left = {p: n for p, n in left.items() if p in now}
+        if not left:
+            break
+    if left:
+        rec["forced"] = sorted(set(left.values()))
+        for p in left:
+            await box.exec_(f"cmd /c taskkill /f /pid {p} 2>nul", timeout=30)
+        await asyncio.sleep(5)
+    dr1 = await lc.file_size(box, lc.DRWTSN)
+    if dr1 != dr0:
+        rec["drwatson_grew"] = dr1 - dr0
+    rec["agent_alive"] = await bench.agent_alive(box)
+    rec["board"] = await bench.board_alive(box)
+    bad = []
+    if not new:
+        bad.append("started no process")
+    elif not rec["running_at_end"]:
+        bad.append("exited before the last sample")
+    if rec["error_windows"]:
+        bad.append("error window: " + "; ".join(rec["error_windows"])[:120])
+    if rec.get("drwatson_grew"):
+        bad.append("Dr. Watson entry")
+    if rec.get("forced"):
+        bad.append("had to be forced closed")
+    if rec["board"] is False:
+        bad.append("BOARD WEDGED")
+    if not rec["agent_alive"]:
+        bad.append("AGENT DEAD")
+    rec["verdict"] = "PASS" if not bad else "CHECK: " + "; ".join(bad)
+    return rec
+
+
+async def amain(a):
+    box = bench.Box(a.host)
+    out = Path(a.outdir) / time.strftime("%Y%m%d_%H%M%S")
+    out.mkdir(parents=True, exist_ok=True)
+    rows = await shortcuts(box)
+    todo = [r for r in rows if not SKIP.search(r["name"])]
+    if a.only:
+        pat = re.compile(a.only, re.I)
+        todo = [r for r in todo if pat.search(r["name"])]
+    if a.exclude:
+        pat = re.compile(a.exclude, re.I)
+        todo = [r for r in todo if not pat.search(r["name"])]
+    lc.log(f"{len(rows)} shortcuts, {len(todo)} to sweep: {[r['name'] for r in todo]}")
+    results = []
+    for sc in todo:
+        lc.log(f"--- {sc['name']}: {sc['target']} {sc['args']}")
+        rec = await run_one(box, sc, out, a.shots, a.grace)
+        results.append(rec)
+        (out / "sweep.json").write_text(json.dumps(results, indent=1))
+        lc.log(f"    {rec['verdict']}  samples={[(s['at'], s['alive'], s['stats']) for s in rec['samples']]}")
+        if rec["board"] is False or not rec["agent_alive"]:
+            lc.log("stopping: board or agent down")
+            break
+    lc.log(f"results -> {out / 'sweep.json'}")
+    return 0
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--host", required=True)
+    ap.add_argument("--outdir", default=str(HERE / "results" / "v56k_lan_192.168.1.124" / "sweep"))
+    ap.add_argument("--only", help="regex over shortcut names to include")
+    ap.add_argument("--exclude", help="regex over shortcut names to leave out")
+    ap.add_argument("--shots", type=lambda s: [int(x) for x in s.split(",")], default=[30, 60])
+    ap.add_argument("--grace", type=int, default=25)
+    a = ap.parse_args()
+    sys.exit(asyncio.run(amain(a)))
+
+
+if __name__ == "__main__":
+    main()

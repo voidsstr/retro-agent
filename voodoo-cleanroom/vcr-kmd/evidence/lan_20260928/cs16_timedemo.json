@@ -1,0 +1,18 @@
+{
+ "title": "cs16",
+ "phase": "timedemo",
+ "t0": "2026-09-28 01:14:08",
+ "command": "hl.exe -game cstrike -full -gl -w 1280 -h 960 -condebug +exec lancheck.cfg",
+ "keys_sent": [
+  "F9@done:OK"
+ ],
+ "seconds": 44.3,
+ "fps": 93.104,
+ "frames": 1045,
+ "connected": false,
+ "log_bytes": 677,
+ "error_windows": [],
+ "shots": [],
+ "agent_alive": true,
+ "verdict": "PASS"
+}

@@ -12,6 +12,25 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.76 — the context-creation pump can no longer spin on WM_PAINT (2026-09-28)
+
+**Problem (found on `.124`, the V5 6000, all-ours stack):** Unreal Tournament
+436 through OpenGLDrv took **220 s** to start (`Log: Startup time`, against
+10.7 s in an earlier `bench.log`). The driver's flight recorder showed nothing
+at all for 195 s between UT's mode set and Glide's `grSstWinOpen`, and
+`C:\retrogl.log` named the place: `wglCreateContext: activation pump
+dispatched=46 paints-validated=87500081`. The 0.1.65 fix bounded the pump's
+DISPATCHED messages at 256 and validated `WM_PAINT` instead of dispatching it,
+but a validated paint did not count against anything - so a window whose paint
+`ValidateRect` does not end spun the inner loop until something else cleared
+it (here ~450,000 paints a second for 195 s; on another window, forever).
+
+**Fix (`fxwgl.c` wglCreateContext):** a validated paint counts against the
+pump's budget too - after `RGL_PUMP_PAINTS` (64) the pump stops. Safe for the
+purpose the pump exists for (the idTech2 activation deadlock): `PeekMessage`
+returns `WM_PAINT` only when no other message is queued, so every activation
+message has been dispatched before the first paint is seen.
+
 ## 0.1.75 — Quake II single-pass multitexture is the default (2026-09-25)
 
 `GL_SGIS_multitexture` is now advertised unless `FX_SGIS_MULTITEXTURE` starts

@@ -1,0 +1,42 @@
+{
+ "title": "cs16",
+ "phase": "soak",
+ "t0": "2026-09-28 01:15:42",
+ "command": "hl.exe -game cstrike -full -gl -w 1280 -h 960 -condebug +exec lancheck.cfg",
+ "keys_sent": [],
+ "seconds": 258.5,
+ "connected": false,
+ "log_bytes": 783,
+ "error_windows": [],
+ "shots": [
+  {
+   "file": "cs16_soak_cs_havana0000.png",
+   "stats": [
+    1280,
+    960,
+    22.8,
+    32.6
+   ]
+  },
+  {
+   "file": "cs16_soak_cs_havana0001.png",
+   "stats": [
+    1280,
+    960,
+    22.8,
+    32.6
+   ]
+  },
+  {
+   "file": "cs16_soak_cs_havana0002.png",
+   "stats": [
+    1280,
+    960,
+    22.8,
+    32.6
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "FAIL: never entered the game"
+}

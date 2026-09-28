@@ -1,0 +1,18 @@
+{
+ "title": "q3",
+ "phase": "timedemo",
+ "t0": "2026-09-28 00:40:24",
+ "command": "ioquake3.x86.exe +set r_mode -1 +set r_customwidth 1280 +set r_customheight 960 +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov 90 +set logfile 2 +exec lancheck.cfg",
+ "seconds": 32.9,
+ "fps": 84.7,
+ "frames": 1260,
+ "gl_renderer": "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.75]",
+ "mode": "1280x960 fullscreen",
+ "colorbits": 32,
+ "connected": true,
+ "log_bytes": 8921,
+ "error_windows": [],
+ "shots": [],
+ "agent_alive": true,
+ "verdict": "PASS"
+}

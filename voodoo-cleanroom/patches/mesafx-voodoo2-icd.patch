@@ -44,7 +44,7 @@ index a6c0ab5..e837af1 100644
  else
  ifeq ($(ICD),1)
 diff --git a/src/mesa/drivers/glide/fxapi.c b/src/mesa/drivers/glide/fxapi.c
-index 350f075..63b27ff 100644
+index 350f075..f54d8a5 100644
 --- a/src/mesa/drivers/glide/fxapi.c
 +++ b/src/mesa/drivers/glide/fxapi.c
 @@ -83,13 +83,34 @@ static GrHwConfiguration glbHWConfig;
@@ -210,7 +210,7 @@ index 350f075..63b27ff 100644
     }
  
 -  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.33]",
-+  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.75]",
++  sprintf(fxMesa->rendererString, "Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.76]",
            grGetString(GR_RENDERER),
            grGetString(GR_HARDWARE),
            ((fxMesa->type < GR_SSTTYPE_Voodoo4) && (voodoo->numChips > 1)) ? " SLI" : "");
@@ -1205,7 +1205,7 @@ index f8a6db0..6cb456a 100644
  
  
 diff --git a/src/mesa/drivers/glide/fxwgl.c b/src/mesa/drivers/glide/fxwgl.c
-index 6ad6fc9..30dc475 100644
+index 6ad6fc9..1faa29f 100644
 --- a/src/mesa/drivers/glide/fxwgl.c
 +++ b/src/mesa/drivers/glide/fxwgl.c
 @@ -258,13 +258,19 @@ static void rgl_first_entry(const char *fn)
@@ -1229,7 +1229,7 @@ index 6ad6fc9..30dc475 100644
     }
     return TRUE;
  }
-@@ -387,12 +393,38 @@ wglCreateContext(HDC hdc)
+@@ -387,12 +393,48 @@ wglCreateContext(HDC hdc)
        * the game thread enters grSstWinOpen without pumping, it deadlocks. Q3's
        * window is already settled, which is why it never hit this. Pump so the
        * WM_ACTIVATE/WM_SETFOCUS get dispatched and the window is truly active. */
@@ -1247,10 +1247,20 @@ index 6ad6fc9..30dc475 100644
 +      * ACTIVATION messages through (idTech2 ref_gl deadlock, see above), so:
 +      * validate WM_PAINT instead of dispatching it (the game repaints every
 +      * frame anyway), cap the total, and never swallow a WM_QUIT. */
++     /* [retro3dfx 0.1.76] ...and the WM_PAINT branch was itself unbounded: a
++      * paint that ValidateRect does not end (Unreal Tournament's OpenGLDrv
++      * viewport on .124, 2026-09-28) spun this loop 87,500,081 times - 195 s
++      * of a 220 s startup, and on another window it could be forever. So a
++      * validated paint counts against the pump's budget too: after
++      * RGL_PUMP_PAINTS of them, stop pumping (the activation messages this
++      * exists for arrive first, and the game repaints every frame anyway). */
 +     {
++#define RGL_PUMP_PAINTS 64
 +        int dispatched = 0, painted = 0, quit = 0;
-+        for (pumpI = 0; pumpI < 40 && dispatched < 256 && !quit; pumpI++) {
-+           while (dispatched < 256 && PeekMessage(&pumpMsg, NULL, 0, 0, PM_REMOVE)) {
++        for (pumpI = 0; pumpI < 40 && dispatched < 256 && painted < RGL_PUMP_PAINTS && !quit;
++             pumpI++) {
++           while (dispatched < 256 && painted < RGL_PUMP_PAINTS &&
++                  PeekMessage(&pumpMsg, NULL, 0, 0, PM_REMOVE)) {
 +              if (pumpMsg.message == WM_QUIT) {
 +                 PostQuitMessage((int) pumpMsg.wParam);   /* hand it back */
 +                 quit = 1;
@@ -1273,7 +1283,7 @@ index 6ad6fc9..30dc475 100644
       }
          GetClientRect(hWnd, &cliRect);
          rgl_log("wglCreateContext: hWnd=%p GetClientRect=%ldx%ld curPFD=%d "
-@@ -451,6 +483,7 @@ GLAPI BOOL GLAPIENTRY
+@@ -451,6 +493,7 @@ GLAPI BOOL GLAPIENTRY
  wglDeleteContext(HGLRC hglrc)
  {
     if (ctx && hglrc == (HGLRC) 1) {
@@ -1281,7 +1291,7 @@ index 6ad6fc9..30dc475 100644
  
        fxMesaDestroyContext(ctx);
  
-@@ -458,6 +491,7 @@ wglDeleteContext(HGLRC hglrc)
+@@ -458,6 +501,7 @@ wglDeleteContext(HGLRC hglrc)
  
        ctx = NULL;
        hDC = 0;
@@ -1289,7 +1299,7 @@ index 6ad6fc9..30dc475 100644
        return (TRUE);
     }
  
-@@ -660,10 +694,64 @@ wglGetExtensionsStringARB (HDC hdc)
+@@ -660,10 +704,64 @@ wglGetExtensionsStringARB (HDC hdc)
   return wglGetExtensionsStringEXT();
  }
  
@@ -1354,7 +1364,7 @@ index 6ad6fc9..30dc475 100644
         {"wglGetExtensionsStringARB",    (PROC)wglGetExtensionsStringARB},
         {"wglGetExtensionsStringEXT",    (PROC)wglGetExtensionsStringEXT},
         {"wglSwapIntervalEXT",           (PROC)wglSwapIntervalEXT},
-@@ -693,18 +781,29 @@ wglGetProcAddress(LPCSTR lpszProc)
+@@ -693,18 +791,29 @@ wglGetProcAddress(LPCSTR lpszProc)
     int i;
     PROC p;
     rgl_first_entry("wglGetProcAddress");
@@ -1389,7 +1399,7 @@ index 6ad6fc9..30dc475 100644
     SetLastError(0);
     return (NULL);
  }
-@@ -730,6 +829,7 @@ wglMakeCurrent(HDC hdc, HGLRC hglrc)
+@@ -730,6 +839,7 @@ wglMakeCurrent(HDC hdc, HGLRC hglrc)
     hDC = hdc;
  
     fxMesaMakeCurrent(ctx);
@@ -1397,7 +1407,7 @@ index 6ad6fc9..30dc475 100644
  
     return (TRUE);
  }
-@@ -1113,6 +1213,7 @@ wglSwapBuffers(HDC hdc)
+@@ -1113,6 +1223,7 @@ wglSwapBuffers(HDC hdc)
     }
  
     fxMesaSwapBuffers();

@@ -1,0 +1,34 @@
+{
+ "title": "q2",
+ "phase": "shot",
+ "t0": "2026-09-28 00:52:06",
+ "command": "quake2.exe +set gl_mode 8 +set logfile 2 +exec lancheck.cfg",
+ "seconds": 21.2,
+ "gl_renderer": "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.75]",
+ "connected": true,
+ "mode": "1280x960 (mode 8)",
+ "log_bytes": 7963,
+ "error_windows": [],
+ "shots": [
+  {
+   "file": "q2_shot_quake05.png",
+   "stats": [
+    1280,
+    960,
+    13.7,
+    10.4
+   ]
+  },
+  {
+   "file": "q2_shot_quake06.png",
+   "stats": [
+    1280,
+    960,
+    13.8,
+    10.7
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "PASS"
+}

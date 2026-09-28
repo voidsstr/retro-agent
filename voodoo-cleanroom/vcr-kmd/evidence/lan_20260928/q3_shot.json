@@ -1,0 +1,35 @@
+{
+ "title": "q3",
+ "phase": "shot",
+ "t0": "2026-09-28 00:40:59",
+ "command": "ioquake3.x86.exe +set r_mode -1 +set r_customwidth 1280 +set r_customheight 960 +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov 90 +set logfile 2 +exec lancheck.cfg",
+ "seconds": 23.2,
+ "gl_renderer": "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.75]",
+ "mode": "1280x960 fullscreen",
+ "colorbits": 32,
+ "connected": true,
+ "log_bytes": 7557,
+ "error_windows": [],
+ "shots": [
+  {
+   "file": "q3_shot_shot0000.png",
+   "stats": [
+    1280,
+    960,
+    57.8,
+    27.1
+   ]
+  },
+  {
+   "file": "q3_shot_shot0001.png",
+   "stats": [
+    1280,
+    960,
+    70.8,
+    44.2
+   ]
+  }
+ ],
+ "agent_alive": true,
+ "verdict": "PASS"
+}

@@ -250,6 +250,12 @@ class RTCW(IdTech3):
             return []
         return super().script(phase, soak_frames, shots, server)
 
+    async def paths(self, box):
+        # RtCW names its console log rtcwconsole.log, not qconsole.log
+        p = await super().paths(box)
+        p["log"] = rf"{self.root}\{self.mod}\rtcwconsole.log"
+        return p
+
 
 def wait_chain(frames):
     """`wait` that takes no argument (id Tech 2, GoldSrc, NetQuake): N frames
