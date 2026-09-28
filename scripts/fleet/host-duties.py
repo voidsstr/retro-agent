@@ -51,6 +51,12 @@ USER_UNITS = [
     ("retro-gameindex",         "favourites agent - keeps in-game server lists live"),
     ("retro-gameservers-watch", "watchdog - restarts game servers that die"),
     ("retro-dosgames-http",     "HTTP bridge for the DOS game catalog"),
+    # Missing until 2026-09-28, while it ran: the only thing that carries a
+    # newly staged title, or a _deploy_generation.txt bump, to a box that is
+    # already provisioned (the agent's startup GAMESYNC idles on the marker).
+    # Dead or not enabled, nothing else notices - the library grows and the
+    # boxes silently stop following it.
+    ("retro-autodeploy",        "carries library changes to each box as it comes online"),
 ]
 # GAME SERVERS ARE NOT LISTED HERE. They are read from
 # `scripts/game-servers/gameservers.py`, which is the one place that declares

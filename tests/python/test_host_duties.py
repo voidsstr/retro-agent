@@ -181,6 +181,58 @@ def test_every_duty_in_CLAUDE_md_s_host_services_table_is_covered():
         assert required in covered, "%s is a documented host duty" % required
 
 
+def _repo_retro_units():
+    """Every retro-*.service unit file tracked in the repo.
+
+    `git ls-files`, not a recursive glob: the main tree holds dozens of
+    worktrees under .claude/, and walking them would be slow and would count
+    other branches' files.
+    """
+    import subprocess
+    files = subprocess.run(["git", "-C", REPO, "ls-files", "*retro-*.service"],
+                           capture_output=True, text=True, check=True).stdout
+    return {os.path.basename(p)[:-len(".service")]
+            for p in files.splitlines() if os.path.basename(p).startswith("retro-")}
+
+
+def _uncovered(user_units, system_units):
+    covered = {u for u, _ in user_units} | {u for u, _ in system_units}
+    return _repo_retro_units() - covered
+
+
+def test_every_retro_unit_the_repo_ships_is_a_checked_host_duty():
+    """A retro-* service the repo installs must be one host-duties checks.
+
+    retro-autodeploy ran on this host from 2026-09 without appearing here, so
+    the command you run after a reboot to ask "is the host back?" would have
+    answered ALL HOST DUTIES UP with it dead or never re-enabled - and it is
+    the only thing that carries a newly staged title (or a deploy-generation
+    bump) to a box that is already provisioned. Asserted against the unit
+    FILES rather than a second hand-kept list, so the next new unit cannot be
+    forgotten the same way.
+    """
+    units = _repo_retro_units()
+    assert "retro-autodeploy" in units, (
+        "scripts/game-servers/units/retro-autodeploy.service should exist; "
+        "the glob is broken if it cannot see it")
+    # The pre-2026-09-28 list: the check below must have been able to see the gap.
+    old_user_units = [r for r in hd.USER_UNITS if r[0] != "retro-autodeploy"]
+    assert _uncovered(old_user_units, hd.SYSTEM_UNITS) == {"retro-autodeploy"}
+    # And the fixed list covers every one of them.
+    assert _uncovered(hd.USER_UNITS, hd.SYSTEM_UNITS) == set(), (
+        "retro-* unit(s) installed from the repo but never checked by "
+        "host-duties: %s" % sorted(_uncovered(hd.USER_UNITS, hd.SYSTEM_UNITS)))
+
+
+def test_autodeploy_is_a_user_unit_and_a_dead_one_is_a_fault():
+    """It is a --user unit (so it also rides on linger), and down means DOWN."""
+    assert "retro-autodeploy" in {u for u, _ in hd.USER_UNITS}
+    hd._systemctl = _stub_systemctl({("retro-autodeploy", "is-active"): "failed",
+                                     ("retro-autodeploy", "is-enabled"): "enabled"})
+    r = hd.check_unit("retro-autodeploy", True, "retro-autodeploy", "why")
+    assert r["state"] == "down", r
+
+
 def test_game_servers_come_from_gameservers_py_not_a_second_hand_kept_list():
     """One source of truth for what this host runs.
 
