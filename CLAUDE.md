@@ -1802,13 +1802,25 @@ done: 35/37 title(s) copied, 0 skipped, 2 gated, 0 file error(s),
 ```
 
 > **This instrumentation immediately found that the gate was defeated.**
-> `gs_run()` begins with `gs_sweep_desktop()`, which moves **every** `.lnk` off
+> `gs_run()` then began with `gs_sweep_desktop()`, which moved **every** `.lnk` off
 > the desktop — so by the time each title's shortcut is written nothing is ever
 > "already there", every shortcut counted as new, and the gate was true on every
 > box on every sync while reporting itself as working. Fixed in **v1.76.0**: the
 > icon **set** is sampled before the sweep (`gs_desk_snapshot()`) and the net
 > difference resolved at the end (`gs_desk_settle_lnks()`), so sweeping 81
 > shortcuts and rewriting the same 81 is correctly *no change*.
+
+**The sweep now runs LAST (agent 1.89.x).** Sweeping first left `.110` with two
+icons where 97 had been for ~100 minutes while a CPU-starved run (a minimized
+ioquake3 at 96%; GAMESYNC is idle-priority) sat at "enumerating library", and a
+run that failed, was aborted or died left the desktop empty until a later one
+finished. Shortcuts are now rewritten in place and `gs_sweep_unclaimed()` moves
+only what was on the desktop at the start and was not put back - and only after
+a run that considered every title (`agent/shared/deskset.h`). A stalled run says
+why: `GAMESYNC STATUS` carries `since_progress_s`/`stalled_s`/`starved_s`/
+`cpu_busy_pct` and the message reads `STARVED OF CPU: ...` when the CPU was
+saturated (`agent/shared/gsstall.h`). Tests: `tests/python/test_gamesync_sweep_order.py`,
+`tests/native/test_desk_sweep_order.c`.
 
 **VERIFIED ON HARDWARE (.171, agent 1.77.0, quiet library):**
 

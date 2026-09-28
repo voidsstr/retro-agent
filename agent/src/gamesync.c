@@ -48,6 +48,8 @@
 #include "../shared/audiofix.h"
 #include "../shared/regmerge.h"
 #include "../shared/deskview.h"
+#include "../shared/deskset.h"
+#include "../shared/gsstall.h"
 
 #include <windows.h>
 #include <string.h>
@@ -121,6 +123,17 @@ typedef struct {
     DWORD   started;
     double  mbps;
     char    message[256];
+    /* Is the run MOVING? (agent/shared/gsstall.h) `beat` is the tick of the
+     * worker's last progress point; `stall` accumulates the gaps between them,
+     * and whether the CPU was saturated across each (then it was starved - the
+     * worker runs at THREAD_PRIORITY_IDLE). The cpu_* fields are the last
+     * GetSystemTimes sample, so GAMESYNC STATUS can judge the gap still open. */
+    DWORD   beat;
+    gsst_t  stall;
+    int     last_busy;          /* CPU busy % over the last closed stall, -1 */
+    int     cpu_ok;
+    DWORD   cpu_tick;
+    unsigned __int64 cpu_idle, cpu_kernel, cpu_user;
 } gs_state_t;
 
 static CRITICAL_SECTION g_gs_lock;
@@ -170,6 +183,139 @@ static void gs_json_escape(const char *in, char *out, size_t cap)
 }
 
 
+/* ---------------------------------------------------------------------- */
+/* progress heartbeat: is the run moving - and if not, is it starved?       */
+/* ---------------------------------------------------------------------- */
+
+/* WHY. The worker runs at THREAD_PRIORITY_IDLE (bgwork.h) so it never takes
+ * the CPU from a game. On .110 (XP, one P4 core, 2026-09-28) a minimized
+ * ioquake3 held 96% of the CPU and a run sat at "enumerating library" for
+ * ~100 minutes - titles_total 0, elapsed_s climbing, the log creeping forward a
+ * line every 5-20 s - and nothing anywhere said why. The decision is in
+ * agent/shared/gsstall.h; this is the plumbing: every progress point calls
+ * gs_beat(), a gap between two beats is a stall, and GetSystemTimes says
+ * whether the CPU was saturated across it (starved) or not (the share or the
+ * disk was slow). Reported in GAMESYNC STATUS and logged. */
+#define GS_CPU_SAMPLE_MS  250UL       /* resample CPU times this often      */
+#define GS_STALL_LOG_MS   600000UL    /* repeat a stall line every 10 min   */
+
+static DWORD g_gs_stall_logged;       /* worker only                        */
+static int   g_gs_stall_logged_v;
+
+static unsigned __int64 gs_ft_u64(const FILETIME *ft)
+{
+    return ((unsigned __int64)ft->dwHighDateTime << 32) | ft->dwLowDateTime;
+}
+
+/* A whole-machine CPU sample. 0 where Windows has no GetSystemTimes (9x,
+ * 2000): then nothing is ever called "starved", only "stalled". */
+static int gs_cpu_sample(unsigned __int64 *idle, unsigned __int64 *kern,
+                         unsigned __int64 *user)
+{
+    FILETIME fi, fk, fu;
+    if (!ntdyn_GetSystemTimes(&fi, &fk, &fu))
+        return 0;
+    *idle = gs_ft_u64(&fi);
+    *kern = gs_ft_u64(&fk);
+    *user = gs_ft_u64(&fu);
+    return 1;
+}
+
+/* CPU busy % between an earlier sample and now; -1 = unknown. */
+static int gs_cpu_busy_since(int have, unsigned __int64 i0, unsigned __int64 k0,
+                             unsigned __int64 u0)
+{
+    unsigned __int64 i1, k1, u1;
+    if (!have || !gs_cpu_sample(&i1, &k1, &u1))
+        return -1;
+    if (i1 < i0 || k1 < k0 || u1 < u0)
+        return -1;
+    return gsst_busy_pct(i1 - i0, k1 - k0, u1 - u0);
+}
+
+static void gs_stall_describe(char *out, size_t cap, int v, unsigned long lost,
+                              unsigned long span, int busy)
+{
+    char cpu[24];
+
+    out[0] = 0;
+    if (busy >= 0)
+        _snprintf(cpu, sizeof(cpu) - 1, "CPU %d%% busy", busy);
+    else
+        lstrcpynA(cpu, "CPU saturated", sizeof(cpu));
+    cpu[sizeof(cpu) - 1] = 0;
+    if (v == GSST_STARVED)
+        _snprintf(out, cap - 1,
+                  "STARVED OF CPU: no progress for %lu s of the last %lu s, "
+                  "%s - GAMESYNC runs at idle priority by design, so a busy "
+                  "CPU (a running game is the usual cause) stops it until the "
+                  "CPU frees up",
+                  lost / 1000, span / 1000, cpu);
+    else if (v == GSST_SLOW && busy >= 0)
+        _snprintf(out, cap - 1,
+                  "STALLED: no progress for %lu s of the last %lu s with the "
+                  "CPU only %d%% busy - not CPU starvation; the share or the "
+                  "disk is slow",
+                  lost / 1000, span / 1000, busy);
+    else if (v == GSST_SLOW)
+        _snprintf(out, cap - 1,
+                  "STALLED: no progress for %lu s of the last %lu s (this "
+                  "Windows cannot report CPU load, so a busy CPU and a slow "
+                  "share look the same here)",
+                  lost / 1000, span / 1000);
+    out[cap - 1] = 0;
+}
+
+/* A progress point. Called by the WORKER from the walks, the copy loop and
+ * gs_set_msg(); a no-op outside a run. The fast path is one GetTickCount(). */
+static void gs_beat(void)
+{
+    DWORD now, gap;
+    int   st = g_gs.state;
+
+    if (st != GS_SIZING && st != GS_COPYING)
+        return;
+    now = GetTickCount();
+    gap = now - g_gs.beat;
+    if (gap >= GSST_GAP_MS) {
+        unsigned long lost = 0, span = 0;
+        int  busy, v;
+        char line[320];
+
+        EnterCriticalSection(&g_gs_lock);
+        busy = gs_cpu_busy_since(g_gs.cpu_ok, g_gs.cpu_idle, g_gs.cpu_kernel,
+                                 g_gs.cpu_user);
+        gsst_note_gap(&g_gs.stall, now, gap, busy);
+        g_gs.last_busy = busy;
+        v = gsst_verdict(&g_gs.stall, now, &lost, &span);
+        g_gs.cpu_ok = gs_cpu_sample(&g_gs.cpu_idle, &g_gs.cpu_kernel,
+                                    &g_gs.cpu_user);
+        g_gs.cpu_tick = now;
+        g_gs.beat = now;
+        LeaveCriticalSection(&g_gs_lock);
+
+        if (v == GSST_OK)
+            g_gs_stall_logged_v = GSST_OK;  /* recovered: say it again next time */
+        else if (v != g_gs_stall_logged_v ||
+                 now - g_gs_stall_logged >= GS_STALL_LOG_MS) {
+            g_gs_stall_logged = now;
+            g_gs_stall_logged_v = v;
+            gs_stall_describe(line, sizeof(line), v, lost, span, busy);
+            log_msg(LOG_GS, "%s", line);
+        }
+        return;
+    }
+    if (now - g_gs.cpu_tick >= GS_CPU_SAMPLE_MS) {
+        EnterCriticalSection(&g_gs_lock);
+        gsst_roll(&g_gs.stall, now);
+        g_gs.cpu_ok = gs_cpu_sample(&g_gs.cpu_idle, &g_gs.cpu_kernel,
+                                    &g_gs.cpu_user);
+        g_gs.cpu_tick = now;
+        LeaveCriticalSection(&g_gs_lock);
+    }
+    g_gs.beat = now;
+}
+
 static void gs_set_msg(const char *fmt, ...)
 {
     va_list ap;
@@ -179,6 +325,7 @@ static void gs_set_msg(const char *fmt, ...)
     va_end(ap);
     g_gs.message[sizeof(g_gs.message) - 1] = 0;
     LeaveCriticalSection(&g_gs_lock);
+    gs_beat();
 }
 
 static int gs_file_exists(const char *path)
@@ -337,6 +484,7 @@ static __int64 gs_dir_size(const char *dir, int *files)
     if (h == INVALID_HANDLE_VALUE)
         return 0;
     do {
+        gs_beat();
         if (fd.cFileName[0] == '.' &&
             (fd.cFileName[1] == 0 || (fd.cFileName[1] == '.' && fd.cFileName[2] == 0)))
             continue;
@@ -382,6 +530,7 @@ static void gs_note_progress2(__int64 added, __int64 transferred)
     lstrcpynA(title, g_gs.title, sizeof(title));
     lstrcpynA(file,  g_gs.file,  sizeof(file));
     LeaveCriticalSection(&g_gs_lock);
+    gs_beat();
 
     g_win_bytes += transferred;
     dt = now - g_win_tick;
@@ -441,36 +590,40 @@ static long g_gs_desk_lnks;    /* net change in the set of desktop icons   */
 /* THE SET OF ICONS, SAMPLED BEFORE ANY OF THIS RUN TOUCHES THE DESKTOP.
  *
  * Counting "a .lnk was created that did not exist a moment ago" is WRONG here,
- * and it silently defeated the whole gate in v1.73.0/1.74.x. gs_run() begins by
- * calling gs_sweep_desktop(), which moves EVERY .lnk off the desktop into a
- * backup directory - so by the time each title's shortcut is written, nothing
- * is ever "already there" and every single shortcut counted as new. The gate
- * was therefore true on every box on every sync and suppressed nothing, while
- * reporting itself as working. Found within minutes of shipping the counters,
- * which is exactly why the counters exist.
+ * and it silently defeated the whole gate in v1.73.0/1.74.x: gs_run() then began
+ * by sweeping EVERY .lnk off the desktop, so by the time each title's shortcut
+ * was written nothing was ever "already there" and every shortcut counted as
+ * new. The honest question is "did the SET of desktop icons change?", so the set
+ * is sampled before the run writes anything and compared at the end. A box that
+ * rewrites the same 81 shortcuts has not changed.
  *
- * The honest question is "did the SET of desktop icons change?", so sample the
- * set before the sweep and compare against what exists at the end. A box that
- * sweeps 81 shortcuts and recreates the same 81 has not changed. */
-#define GS_LNK_MAX   256
-#define GS_LNK_NAME  96
-static char g_gs_prelnk[GS_LNK_MAX][GS_LNK_NAME];
-static char g_gs_prelnk_seen[GS_LNK_MAX];
-static int  g_gs_prelnk_n;
-static long g_gs_lnk_new;      /* created that were not in the pre-set     */
+ * SINCE 1.89.x THE SAME SAMPLE DECIDES WHAT THE SWEEP MAY REMOVE, AND THE SWEEP
+ * RUNS LAST (agent/shared/deskset.h). Sweeping first emptied the desktop for as
+ * long as the run took to reach each title again - ~100 minutes on .110 while a
+ * game starved the idle-priority worker, and FOREVER on every run that failed,
+ * was aborted or was killed before then (library unreachable: re-swept every two
+ * minutes). Now shortcuts are rewritten in place and only what was on the
+ * desktop at the start and was NOT put back by this run is moved away, once the
+ * run has considered every title. The final desktop is unchanged; the empty
+ * window is gone. */
+static ds_set_t g_gs_dset;
+static char     g_gs_desk_common[MAX_PATH];   /* where the sample was taken */
+static char     g_gs_desk_user[MAX_PATH];
 
 static void gs_desk_reset(void)
 {
     g_gs_desk_files = 0;
     g_gs_desk_lnks = 0;
-    g_gs_prelnk_n = 0;
-    g_gs_lnk_new = 0;
+    ds_reset(&g_gs_dset);
+    g_gs_desk_common[0] = 0;
+    g_gs_desk_user[0] = 0;
 }
 static void gs_desk_note_file(void) { g_gs_desk_files++; }
 
 /* Defined below, next to the desktop enumeration they need; declared here
  * because gs_place_tool_shortcuts() writes a .lnk earlier in the file. */
 static void gs_desk_note_lnk_written(const char *lnk_path);
+static void gs_desk_note_lnk_kept(const char *lnk_path);
 static void gs_desk_snapshot(void);
 static void gs_desk_settle_lnks(void);
 static int  gs_desk_changed(void)
@@ -2912,6 +3065,16 @@ static int gs_make_shortcut(const char *target, const char *workdir,
 
     hr = sl->lpVtbl->QueryInterface(sl, &GS_IID_IPersistFile, (void **)&pf);
     if (SUCCEEDED(hr) && pf) {
+        /* The shortcut is written OVER the existing one (the desktop is no
+         * longer swept first - see gs_sweep_unclaimed), and a CREATE_ALWAYS
+         * over a read-only, hidden or system file fails. The sweep used to
+         * clear those bits before moving the file away; clear them here so
+         * the rewrite lands exactly where the old sweep-then-create did. */
+        DWORD a = GetFileAttributesA(lnk_path);
+        if (a != 0xFFFFFFFF && (a & (FILE_ATTRIBUTE_READONLY |
+                                     FILE_ATTRIBUTE_HIDDEN |
+                                     FILE_ATTRIBUTE_SYSTEM)))
+            SetFileAttributesA(lnk_path, FILE_ATTRIBUTE_NORMAL);
         MultiByteToWideChar(CP_ACP, 0, lnk_path, -1, wpath, MAX_PATH);
         if (SUCCEEDED(pf->lpVtbl->Save(pf, wpath, TRUE)))
             ok = 1;
@@ -3013,9 +3176,13 @@ static void gs_tool_shortcut(const char *exe, const char *name)
     _snprintf(lnk, sizeof(lnk) - 1, "%s\\%s.lnk", desktop, name);
     lnk[sizeof(lnk) - 1] = 0;
 
-    /* Already there and pointing at this exe: nothing to do, and no COM. */
-    if (gs_lnk_points_at(lnk, exe))
+    /* Already there and pointing at this exe: nothing to do, and no COM -
+     * but CLAIM it, or the end-of-run sweep takes the operator's own icons
+     * away because this run never wrote them. */
+    if (gs_lnk_points_at(lnk, exe)) {
+        gs_desk_note_lnk_kept(lnk);
         return;
+    }
 
     lstrcpynA(workdir, exe, sizeof(workdir));
     slash = workdir + lstrlenA(workdir);
@@ -3069,8 +3236,99 @@ void gs_place_tool_shortcuts(void)
         g_gs_CoUninitialize();
 }
 
+/* --- the desktop icon set: sample, claim, sweep (agent/shared/deskset.h) --- */
+
+static const char *gs_basename(const char *p)
+{
+    const char *b = p + lstrlenA(p);
+    while (b > p && *(b - 1) != '\\')
+        b--;
+    return b;
+}
+
+static void gs_desk_scan_dir(const char *desk, unsigned where)
+{
+    WIN32_FIND_DATAA fd;
+    HANDLE h;
+    char   pat[MAX_PATH];
+
+    _snprintf(pat, sizeof(pat) - 1, "%s\\*", desk);
+    pat[sizeof(pat) - 1] = 0;
+    h = FindFirstFileA(pat, &fd);
+    if (h == INVALID_HANDLE_VALUE)
+        return;
+    do {
+        /* ds_add() keeps only .lnk/.pif/.url - the kinds the sweep takes -
+         * and compares the WHOLE name, case-insensitively. */
+        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+            ds_add(&g_gs_dset, fd.cFileName, where);
+    } while (FindNextFileA(h, &fd));
+    FindClose(h);
+}
+
+/* Sample the desktop BEFORE this run writes a single shortcut. Must be called
+ * first in gs_run(), after gs_desk_reset(). It records both what the rebuild
+ * gate compares against and the ONLY things the end-of-run sweep may remove. */
+static void gs_desk_snapshot(void)
+{
+    char desk[MAX_PATH], userdesk[MAX_PATH];
+
+    if (gs_desktop_dir(desk, sizeof(desk))) {
+        lstrcpynA(g_gs_desk_common, desk, sizeof(g_gs_desk_common));
+        gs_desk_scan_dir(desk, DS_COMMON);
+    } else {
+        desk[0] = 0;
+    }
+    if (gs_user_desktop_dir(userdesk, sizeof(userdesk)) &&
+        lstrcmpiA(userdesk, desk) != 0) {
+        lstrcpynA(g_gs_desk_user, userdesk, sizeof(g_gs_desk_user));
+        gs_desk_scan_dir(userdesk, DS_USER);
+    }
+}
+
+/* Which desktop does this .lnk path sit on? The agent writes to All Users, so
+ * anything that is not the user's own desktop counts as that. */
+static unsigned gs_desk_where(const char *lnk_path)
+{
+    char dir[MAX_PATH];
+    const char *name = gs_basename(lnk_path);
+    int n = (int)(name - lnk_path);
+
+    if (n <= 1 || n > (int)sizeof(dir) || !g_gs_desk_user[0])
+        return DS_COMMON;
+    lstrcpynA(dir, lnk_path, n);            /* up to, not including, the '\' */
+    return lstrcmpiA(dir, g_gs_desk_user) == 0 ? DS_USER : DS_COMMON;
+}
+
+/* A shortcut was written. It is only a CHANGE if that icon was not on the
+ * desktop when this run started - otherwise we have merely rewritten it in
+ * place. Either way it is CLAIMED: the end-of-run sweep leaves it alone. */
+static void gs_desk_note_lnk_written(const char *lnk_path)
+{
+    if (ds_claim(&g_gs_dset, gs_basename(lnk_path), gs_desk_where(lnk_path), 1))
+        /* Publish the running total so GAMESYNC STATUS is meaningful DURING a
+         * run, not only after gs_desk_settle_lnks(). Reading 0 mid-run when the
+         * final answer is 81 is worse than useless. */
+        g_gs_desk_lnks = g_gs_dset.added;
+}
+
+/* A shortcut was found already correct and deliberately NOT rewritten
+ * (gs_tool_shortcut). Claimed - so the sweep keeps it - and never a change. */
+static void gs_desk_note_lnk_kept(const char *lnk_path)
+{
+    ds_claim(&g_gs_dset, gs_basename(lnk_path), gs_desk_where(lnk_path), 0);
+}
+
+/* Net change in the icon set: icons added, plus icons that were there at the
+ * start and really went. Call once, after the sweep (or instead of it). */
+static void gs_desk_settle_lnks(void)
+{
+    g_gs_desk_lnks = ds_changed(&g_gs_dset);
+}
+
 /*
- * Clear the desktop of everything that is not one of ours.
+ * Clear the desktop of everything that is not one of ours - at the END of the
+ * run, and only what this run did not put back.
  *
  * A provisioned box should show the staged games and nothing else - not the
  * leftovers of whatever was installed on it before, not vendor advertising, not
@@ -3082,151 +3340,70 @@ void gs_place_tool_shortcuts(void)
  * costs somebody a look in a folder rather than their work. Only .lnk, .pif and
  * .url go - real files someone left on the desktop are left exactly where they
  * are.
+ *
+ * WHY LAST (1.89.x). This used to run FIRST and take every icon away, the
+ * run's own included, and each came back only when the copy loop reached its
+ * title. .110 showed what that costs: a run starved of CPU by a game sat at
+ * "enumerating library" for ~100 minutes and the box had two icons the whole
+ * time; a run that failed (share unreachable), was aborted or was killed left
+ * the desktop empty until some later run finished. Now it moves only entries
+ * of the pre-run sample that the run neither rewrote nor confirmed - so no
+ * icon the run is going to put back is ever missing - and gs_run() calls it
+ * only when ds_run_may_sweep() says the run considered every title.
  */
-/* --- desktop icon-set snapshot (see g_gs_prelnk above) --- */
-
-static const char *gs_basename(const char *p)
+static void gs_sweep_unclaimed(void)
 {
-    const char *b = p + lstrlenA(p);
-    while (b > p && *(b - 1) != '\\')
-        b--;
-    return b;
-}
+    char     src[MAX_PATH], dst[MAX_PATH];
+    int      i, moved = 0, failed = 0, made_dir = 0;
+    unsigned bit;
 
-static void gs_prelnk_add(const char *name)
-{
-    int i;
-    if (g_gs_prelnk_n >= GS_LNK_MAX)
-        return;                          /* full: treated as "was there" below */
-    for (i = 0; i < g_gs_prelnk_n; i++)
-        if (lstrcmpiA(g_gs_prelnk[i], name) == 0)
-            return;                      /* both desktops can hold the same name */
-    lstrcpynA(g_gs_prelnk[g_gs_prelnk_n], name, GS_LNK_NAME);
-    g_gs_prelnk_seen[g_gs_prelnk_n] = 0;
-    g_gs_prelnk_n++;
-}
+    for (i = 0; i < g_gs_dset.n; i++) {
+        ds_entry_t *e = &g_gs_dset.e[i];
+        unsigned    todo = ds_sweep_bits(e);
 
-static void gs_prelnk_scan_dir(const char *desk)
-{
-    WIN32_FIND_DATAA fd;
-    HANDLE h;
-    char   pat[MAX_PATH];
-
-    _snprintf(pat, sizeof(pat) - 1, "%s\\*.lnk", desk);
-    pat[sizeof(pat) - 1] = 0;
-    h = FindFirstFileA(pat, &fd);
-    if (h == INVALID_HANDLE_VALUE)
-        return;
-    do {
-        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            gs_prelnk_add(fd.cFileName);
-    } while (FindNextFileA(h, &fd));
-    FindClose(h);
-}
-
-/* Sample the desktop BEFORE the sweep. Must be called first in gs_run(). */
-static void gs_desk_snapshot(void)
-{
-    char desk[MAX_PATH], userdesk[MAX_PATH];
-
-    if (gs_desktop_dir(desk, sizeof(desk)))
-        gs_prelnk_scan_dir(desk);
-    if (gs_user_desktop_dir(userdesk, sizeof(userdesk)) &&
-        lstrcmpiA(userdesk, desk) != 0)
-        gs_prelnk_scan_dir(userdesk);
-}
-
-/* A shortcut was written. It is only a CHANGE if that icon was not on the
- * desktop when this run started - otherwise we have merely put back what our
- * own sweep removed a moment ago. */
-static void gs_desk_note_lnk_written(const char *lnk_path)
-{
-    const char *name = gs_basename(lnk_path);
-    int i;
-
-    for (i = 0; i < g_gs_prelnk_n; i++) {
-        if (lstrcmpiA(g_gs_prelnk[i], name) == 0) {
-            g_gs_prelnk_seen[i] = 1;     /* restored, not new */
-            return;
+        for (bit = DS_COMMON; bit <= DS_USER; bit <<= 1) {
+            const char *desk = (bit == DS_COMMON) ? g_gs_desk_common
+                                                  : g_gs_desk_user;
+            if (!(todo & bit) || !desk[0])
+                continue;
+            /* A path that does not fit is never guessed at: left in place. */
+            if (lstrlenA(desk) + 1 + lstrlenA(e->name) >= MAX_PATH ||
+                lstrlenA(GS_DESK_BACKUP) + 1 + lstrlenA(e->name) >= MAX_PATH)
+                continue;
+            _snprintf(src, sizeof(src) - 1, "%s\\%s", desk, e->name);
+            _snprintf(dst, sizeof(dst) - 1, "%s\\%s", GS_DESK_BACKUP, e->name);
+            src[sizeof(src) - 1] = dst[sizeof(dst) - 1] = 0;
+            if (!gs_file_exists(src)) {
+                ds_mark_gone(e, bit);     /* somebody removed it mid-run */
+                continue;
+            }
+            if (!made_dir) {
+                CreateDirectoryA(GS_DESK_BACKUP, NULL);
+                made_dir = 1;
+            }
+            SetFileAttributesA(src, FILE_ATTRIBUTE_NORMAL);
+            DeleteFileA(dst);                  /* MoveFile will not overwrite */
+            if (MoveFileA(src, dst) || DeleteFileA(src)) {
+                ds_mark_gone(e, bit);
+                moved++;
+            } else {
+                failed++;
+            }
         }
     }
-    if (g_gs_prelnk_n >= GS_LNK_MAX)
-        return;      /* snapshot overflowed - do not invent a change */
-    g_gs_lnk_new++;
-    /* Publish the running total so GAMESYNC STATUS is meaningful DURING a run,
-     * not only after gs_desk_settle_lnks(). Reading 0 mid-run when the final
-     * answer is 81 is worse than useless - it reads as "the fix is working". */
-    g_gs_desk_lnks = g_gs_lnk_new;
-}
-
-/* Net change in the icon set: icons added, plus icons that were there at the
- * start and are not there now. Call once, after every shortcut is written. */
-static void gs_desk_settle_lnks(void)
-{
-    int i;
-    long gone = 0;
-    for (i = 0; i < g_gs_prelnk_n; i++)
-        if (!g_gs_prelnk_seen[i])
-            gone++;
-    g_gs_desk_lnks = g_gs_lnk_new + gone;
-}
-
-static int gs_sweep_desktop_dir(const char *desk)
-{
-    WIN32_FIND_DATAA fd;
-    HANDLE           h;
-    char             pat[MAX_PATH], src[MAX_PATH], dst[MAX_PATH];
-    int              moved = 0;
-
-    _snprintf(pat, sizeof(pat) - 1, "%s\\*", desk);
-    pat[sizeof(pat) - 1] = 0;
-    h = FindFirstFileA(pat, &fd);
-    if (h == INVALID_HANDLE_VALUE)
-        return 0;
-    do {
-        const char *ext;
-        if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            continue;
-        ext = fd.cFileName + lstrlenA(fd.cFileName);
-        while (ext > fd.cFileName && *ext != '.')
-            ext--;
-        if (lstrcmpiA(ext, ".lnk") != 0 && lstrcmpiA(ext, ".pif") != 0 &&
-            lstrcmpiA(ext, ".url") != 0)
-            continue;
-
-        _snprintf(src, sizeof(src) - 1, "%s\\%s", desk, fd.cFileName);
-        _snprintf(dst, sizeof(dst) - 1, "%s\\%s", GS_DESK_BACKUP, fd.cFileName);
-        src[sizeof(src) - 1] = dst[sizeof(dst) - 1] = 0;
-        SetFileAttributesA(src, FILE_ATTRIBUTE_NORMAL);
-        DeleteFileA(dst);                      /* MoveFile will not overwrite */
-        if (MoveFileA(src, dst) || DeleteFileA(src))
-            moved++;
-    } while (FindNextFileA(h, &fd));
-    FindClose(h);
-    return moved;
-}
-
-static void gs_sweep_desktop(void)
-{
-    char desk[MAX_PATH], userdesk[MAX_PATH];
-    int  moved = 0;
-
-    CreateDirectoryA(GS_DESK_BACKUP, NULL);
-    /* Both desktops: shortcuts land in All Users or in the logged-on user's
-     * profile depending on who installed what, and a sweep that only does one
-     * leaves half the clutter behind. */
-    if (gs_desktop_dir(desk, sizeof(desk)))
-        moved += gs_sweep_desktop_dir(desk);
-    if (gs_user_desktop_dir(userdesk, sizeof(userdesk)) &&
-        lstrcmpiA(userdesk, desk) != 0)
-        moved += gs_sweep_desktop_dir(userdesk);
     if (moved)
-        log_msg(LOG_GS, "desktop swept: %d shortcut(s) moved to %s",
-                moved, GS_DESK_BACKUP);
-    /* The sweep deliberately does NOT count as a change. It removes every .lnk
-     * including the ones this same run is about to write straight back, so
-     * counting it made the icon-rebuild gate true on every sync forever. What
-     * counts is the net difference against gs_desk_snapshot(). */
+        log_msg(LOG_GS, "desktop swept: %d shortcut(s) this run did not put "
+                        "back moved to %s", moved, GS_DESK_BACKUP);
+    if (failed)
+        log_msg(LOG_GS, "desktop sweep: %d shortcut(s) could NOT be moved to %s "
+                        "and are still on the desktop", failed, GS_DESK_BACKUP);
+    if (g_gs_dset.overflow)
+        log_msg(LOG_GS, "desktop sweep: the desktop held more than %d "
+                        "shortcuts (or a name too long to hold) - the ones not "
+                        "sampled were left where they are", DS_MAX);
+    /* A move counts as a change only through gs_desk_settle_lnks(): an entry
+     * whose every original copy went, and whose name this run did not put
+     * back, is an icon that is gone. */
 }
 
 /*
@@ -3793,10 +3970,12 @@ static void gs_make_game_shortcut(const char *dst_dir, const char *title)
 
 /*
  * A title this run is NOT going to copy may still be INSTALLED on the box - and
- * gs_sweep_desktop() has just taken every icon off the desktop. Without this, a
- * game that is sitting on the disk and runs perfectly loses its shortcuts on
- * the first sync that gates or skips it, and never gets them back, because the
- * only call to gs_make_game_shortcut() is inside the copy branch.
+ * the end-of-run sweep (gs_sweep_unclaimed) takes away every icon this run did
+ * not claim. Without this, a game that is sitting on the disk and runs
+ * perfectly loses its shortcuts on the first sync that gates or skips it, and
+ * never gets them back, because the only other call to gs_make_game_shortcut()
+ * is inside the copy branch. (Until 1.89.x the sweep ran FIRST, so these icons
+ * were missing from the start of the run until this call - see deskset.h.)
  *
  * THIS IS WHAT "I DON'T SEE ANY GAMES ON THE DESKTOP" TURNED OUT TO BE on .243
  * (2026-08-31). The engine index had found `c:\games\HexenII` installed on that
@@ -3819,7 +3998,7 @@ static void gs_restore_shortcuts_if_installed(const char *title)
     have[sizeof(have) - 1] = 0;
     if (!gs_file_exists(have))
         return;
-    log_msg(LOG_GS, "%s is installed but not copied this run - restoring its "
+    log_msg(LOG_GS, "%s is installed but not copied this run - keeping its "
                     "desktop shortcut(s)", title);
     gs_make_game_shortcut(have, title);
 }
@@ -4949,6 +5128,7 @@ static void gs_run(const char *library)
     char   gated_why[GS_MAX_TITLES][192];
     int    n = 0, i, files = 0, ok_titles = 0, capped = 0, n_gated = 0;
     int    gr_titles = 0, gr_changed = 0, gr_absent_t = 0;
+    int    listing_complete = 0;
     DWORD  enum_err = 0;
     __int64 grand = 0, freeb, margin;
 
@@ -4957,13 +5137,6 @@ static void gs_run(const char *library)
     g_win_bytes = 0;
     g_last_log = 0;
 
-    /* Clear the desktop and make sure the wallpapers are on disk BEFORE any
-     * shortcut is written, so what the sweep removes is only what was already
-     * there. Doing it afterwards would take our own game icons straight back
-     * off again.
-     *
-     * Both run on every provision, imaged box or not: a hand-built machine is
-     * exactly the one that has a cluttered desktop and no C:\retro-wall. */
     /* RESET FIRST, THEN SNAPSHOT. Ordering matters and getting it wrong is
      * silent: gs_desk_reset() clears the snapshot as well as the counters, so
      * calling it after gs_desk_snapshot() throws the sampled icon set away and
@@ -4973,12 +5146,20 @@ static void gs_run(const char *library)
      * at all. tests/python/test_icon_autoarrange_source.py pins the order. */
     gs_desk_reset();
 
-    /* Sample the icon set BEFORE the sweep removes it - the sweep takes every
-     * .lnk off the desktop, so after it nothing is ever "already there". */
+    /* Sample the icon set BEFORE this run writes a single shortcut.
+     *
+     * AND SWEEP NOTHING HERE. Until 1.89.x the next line moved every icon on
+     * the desktop into C:\retro-desktop-backup, and each game's icon came back
+     * only when the copy loop reached that title. On .110 (2026-09-28) a run
+     * starved of CPU by a running game sat in "enumerating library" for ~100
+     * minutes with two icons on the desktop where 97 had been; a run that fails
+     * below (library unreachable, retried every 2 minutes) left it that way for
+     * good. The sweep is now gs_sweep_unclaimed(), after the copy loop: it
+     * removes only what this run did not put back, and only when the run
+     * considered every title. tests/python/test_gamesync_sweep_order.py. */
     gs_desk_snapshot();
-    gs_sweep_desktop();
-    /* Immediately after the sweep, so the tools the operator needs are never
-     * missing between the sweep and the next agent start. */
+    /* The operator's own tools: rewritten in place if they moved, otherwise
+     * claimed as they are - either way the end-of-run sweep keeps them. */
     gs_place_tool_shortcuts();
     gs_stage_wallpapers(library);
 
@@ -4986,12 +5167,23 @@ static void gs_run(const char *library)
     memset(&g_gs, 0, sizeof(g_gs));
     g_gs.state   = GS_SIZING;
     g_gs.started = GetTickCount();
+    /* The progress heartbeat starts now (gs_beat, agent/shared/gsstall.h). */
+    g_gs.beat      = g_gs.started;
+    g_gs.cpu_tick  = g_gs.started;
+    g_gs.last_busy = -1;
+    gsst_reset(&g_gs.stall, g_gs.started);
+    g_gs.cpu_ok = gs_cpu_sample(&g_gs.cpu_idle, &g_gs.cpu_kernel, &g_gs.cpu_user);
     /* NB: gs_desk_reset() is deliberately NOT here - it must run before
      * gs_desk_snapshot() above, or it wipes the icon set we just sampled. */
     LeaveCriticalSection(&g_gs_lock);
+    g_gs_stall_logged = 0;
+    g_gs_stall_logged_v = GSST_OK;
 
     log_msg(LOG_GS, "library: %s", library);
-    gs_set_msg("enumerating library");
+    /* Say which step the run is on. "enumerating library" used to cover
+     * everything up to the end of the sizing walk, so a run stuck anywhere in
+     * it looked the same. */
+    gs_set_msg("profiling this machine for the capability gate");
 
     /* Build this machine's hardware profile and load any verdict file the host
      * published for it, BEFORE the sizing pass - the per-title decision below
@@ -5003,6 +5195,7 @@ static void gs_run(const char *library)
      * fetch plus a full mode enumeration, and the answer cannot change
      * mid-sync. The log line it emits is also the only place an operator can
      * see WHY a box was given the resolution it was given. */
+    gs_set_msg("reading the monitor");
     gameres_probe();
     /* Raise the desktop to the panel's best refresh BEFORE any title is
      * written: the id Tech 3 configs carry the persisted rate so they agree
@@ -5012,10 +5205,14 @@ static void gs_run(const char *library)
      * library is most of them. */
     gameres_apply_display();
 
+    gs_set_msg("enumerating library");
     _snprintf(pat, sizeof(pat) - 1, "%s\\*", library);
     pat[sizeof(pat) - 1] = 0;
     h = FindFirstFileA(pat, &fd);
     if (h == INVALID_HANDLE_VALUE) {
+        /* Nothing has been swept: the desktop is exactly as this run found it,
+         * which is the point - this path is retried every two minutes while
+         * the NAS is down, and each retry used to empty the desktop again. */
         log_msg(LOG_GS, "cannot reach library (%lu): %s", GetLastError(), library);
         EnterCriticalSection(&g_gs_lock);
         g_gs.state = GS_FAILED;
@@ -5076,6 +5273,10 @@ static void gs_run(const char *library)
                         "(error %lu) - the library is bigger than this and "
                         "everything past that point was NEVER considered",
                 n, enum_err);
+    /* A run that did not see the whole library must not sweep the desktop at
+     * the end: the icons of the titles it never looked at would go with it. */
+    listing_complete = !capped &&
+                       (enum_err == 0 || enum_err == ERROR_NO_MORE_FILES);
 
     /* Sized below, after the gate - see there. The ordering pass moves these
      * along with the names, so they must start defined. */
@@ -5192,6 +5393,7 @@ static void gs_run(const char *library)
             n_gated++;
             continue;
         }
+        gs_set_msg("sizing %s (%d of %d)", titles[i], i + 1, n);
         _snprintf(src, sizeof(src) - 1, "%s\\%s", library, titles[i]);
         src[sizeof(src) - 1] = 0;
         sizes[i] = gs_dir_size(src, &files);
@@ -5347,6 +5549,19 @@ static void gs_run(const char *library)
     i = g_gs.failed_files;
     LeaveCriticalSection(&g_gs_lock);
 
+    /* NOW - and only now - take off the desktop what was there when the run
+     * started and was not put back by it: stale shortcuts to games no longer
+     * staged, a title the gate now refuses, vendor clutter. Only a run that
+     * considered EVERY title may do it (ds_run_may_sweep): an aborted run, or
+     * one whose library listing was cut short or capped, never looked at some
+     * titles, and sweeping would take their icons with it. */
+    if (ds_run_may_sweep(g_gs_abort != 0, listing_complete))
+        gs_sweep_unclaimed();
+    else
+        log_msg(LOG_GS, "desktop NOT swept: this run %s, so some titles were "
+                        "never considered - every icon stays where it is",
+                g_gs_abort ? "was aborted" : "saw an incomplete library listing");
+
     /* Arrange AFTER every shortcut exists: the shell creates a listview item
      * per .lnk asynchronously, so arranging per title would keep re-sorting a
      * list that is still growing.
@@ -5359,7 +5574,7 @@ static void gs_run(const char *library)
      * it is what the staged-game fix loop depends on, and suppressing it would
      * leave a freshly deployed game's icon unplaced. */
     /* Resolve the icon set against the pre-run snapshot before anything reads
-     * the counter: icons added, plus icons that were there and now are not. */
+     * the counter: icons added, plus icons that were there and really went. */
     gs_desk_settle_lnks();
 
     if (gs_desk_changed()) {
@@ -5392,6 +5607,21 @@ static void gs_run(const char *library)
     log_msg(LOG_GS, "gameres: %d title(s) have resolution rules, "
                     "%d value(s) changed, %d target(s) absent from this build",
             gr_titles, gr_changed, gr_absent_t);
+    /* How much of the run went waiting, and why - on the line after `done:`,
+     * so a slow sync explains itself (see gs_beat). Silent when it never
+     * stalled. */
+    {
+        unsigned long stall_ms, starved_ms;
+        EnterCriticalSection(&g_gs_lock);
+        stall_ms = g_gs.stall.total_stall_ms;
+        starved_ms = g_gs.stall.total_starved_ms;
+        LeaveCriticalSection(&g_gs_lock);
+        if (stall_ms >= GSST_GAP_MS)
+            log_msg(LOG_GS, "progress: %lu s of this run went waiting between "
+                            "progress points, %lu s of it with the CPU "
+                            "saturated (starved - GAMESYNC runs at idle "
+                            "priority)", stall_ms / 1000, starved_ms / 1000);
+    }
     gs_gate_free();
     gs_set_msg("complete - %d title(s)", ok_titles);
 
@@ -6825,7 +7055,15 @@ void handle_iconarrange(SOCKET sock, const char *args)
 void handle_gamesync(SOCKET sock, const char *args)
 {
     const char *a = str_skip_spaces(args ? args : "");
-    char   json[1024];
+    /* 2 KB: failed_file alone escapes to 520 bytes, and the message can now
+     * carry a stall explanation - a truncated reply is not valid JSON. */
+    char   json[2048];
+    char   msg[640];
+    char   why[320];
+    gsst_t st;
+    unsigned long since_ms = 0, lost = 0, span = 0;
+    int    running, verdict = GSST_OK, busy;
+    DWORD  now;
     /* twice the source plus the terminator: every byte can double */
     char    esc_failed[sizeof(((gs_state_t *)0)->failed_file) * 2 + 1];
     gs_state_t s;
@@ -6867,6 +7105,32 @@ void handle_gamesync(SOCKET sock, const char *args)
     pct = s.total_bytes > 0 ? (int)((s.done_bytes * 100) / s.total_bytes) : 0;
     elapsed = s.started ? (int)((GetTickCount() - s.started) / 1000) : 0;
 
+    /* IS IT MOVING? The worker's own accounting covers every gap that has
+     * CLOSED; a worker starved right now cannot close one, so the gap still
+     * open is judged here, on this (normal-priority) thread, from the same CPU
+     * sample. See gs_beat() and agent/shared/gsstall.h. */
+    now = GetTickCount();
+    running = (s.state == GS_SIZING || s.state == GS_COPYING);
+    st = s.stall;
+    busy = s.started ? s.last_busy : -1;    /* no run yet: nothing measured */
+    if (running) {
+        since_ms = now - s.beat;
+        if (since_ms >= GSST_GAP_MS) {
+            int open_busy = gs_cpu_busy_since(s.cpu_ok, s.cpu_idle,
+                                              s.cpu_kernel, s.cpu_user);
+            gsst_note_gap(&st, now, since_ms, open_busy);
+            if (open_busy >= 0)
+                busy = open_busy;
+        }
+        verdict = gsst_verdict(&st, now, &lost, &span);
+    }
+    lstrcpynA(msg, s.message, sizeof(msg));
+    if (verdict != GSST_OK) {
+        gs_stall_describe(why, sizeof(why), verdict, lost, span, busy);
+        _snprintf(msg, sizeof(msg) - 1, "%s - %s", s.message, why);
+        msg[sizeof(msg) - 1] = 0;
+    }
+
     gs_json_escape(s.failed_file, esc_failed, sizeof(esc_failed));
 
     _snprintf(json, sizeof(json) - 1,
@@ -6883,6 +7147,12 @@ void handle_gamesync(SOCKET sock, const char *args)
          * files_written every pass has a file that re-copies forever, which
          * defeats the gate silently. See gs_desk_files(). */
         "\"files_written\":%ld,\"shortcuts_changed\":%ld,"
+        /* Is the run MOVING? since_progress_s is how long ago the worker last
+         * made progress; stalled_s is time lost in gaps of >= 3 s, starved_s
+         * the part of it with the CPU saturated (idle priority; a running game
+         * stops the sync). cpu_busy_pct is -1 where Windows cannot say. */
+        "\"since_progress_s\":%lu,\"stalled_s\":%lu,\"starved_s\":%lu,"
+        "\"cpu_busy_pct\":%d,"
         "\"new_image\":%s,\"message\":\"%s\"}",
         names[(s.state >= 0 && s.state <= GS_SKIPPED) ? s.state : 0],
         pct, s.done_titles, s.total_titles, s.skipped_titles, s.gated_titles,
@@ -6890,8 +7160,10 @@ void handle_gamesync(SOCKET sock, const char *args)
         s.title, s.file, s.failed_files, esc_failed, elapsed,
         gs_file_exists(GS_MARKER) ? "true" : "false",
         gs_desk_files(), gs_desk_lnks(),
+        since_ms / 1000, st.total_stall_ms / 1000, st.total_starved_ms / 1000,
+        busy,
         gs_file_exists(GS_NEWIMAGE_FLAG) ? "true" : "false",
-        s.message);
+        msg);
     /* new_image is deliberately reported alongside provisioned: together they
      * distinguish "fresh box, not yet done" from "old box someone reset". */
     json[sizeof(json) - 1] = 0;

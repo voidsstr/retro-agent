@@ -251,4 +251,28 @@ DWORD ntdyn_CM_Get_Device_IDA(DWORD devinst, char *buf, ULONG len, ULONG flags)
     return g_cm_devid(devinst, buf, len, flags);
 }
 
+/* ================================================================
+ * CPU accounting (GetSystemTimes: Windows XP SP1 and later)
+ * ================================================================ */
+
+/* Not in Windows 9x, NT4 or Windows 2000 at all, and absent from XP RTM -
+ * a static import would stop the agent loading on every one of them. */
+typedef BOOL (WINAPI *pfn_GetSystemTimes_t)(LPFILETIME, LPFILETIME, LPFILETIME);
+
+static int                  g_st_loaded;
+static pfn_GetSystemTimes_t g_st_fn;
+
+int ntdyn_GetSystemTimes(FILETIME *idle, FILETIME *kernel, FILETIME *user)
+{
+    if (!g_st_loaded) {
+        HMODULE k = GetModuleHandleA("kernel32.dll");
+        if (k)
+            g_st_fn = (pfn_GetSystemTimes_t)GetProcAddress(k, "GetSystemTimes");
+        g_st_loaded = 1;
+    }
+    if (!g_st_fn || !idle || !kernel || !user)
+        return 0;
+    return g_st_fn(idle, kernel, user) ? 1 : 0;
+}
+
 #pragma GCC diagnostic pop

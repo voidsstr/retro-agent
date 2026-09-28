@@ -75,4 +75,11 @@ DWORD ntdyn_CM_Get_Child(PDWORD child, DWORD devinst, ULONG flags);
 DWORD ntdyn_CM_Get_Sibling(PDWORD sibling, DWORD devinst, ULONG flags);
 DWORD ntdyn_CM_Get_Device_IDA(DWORD devinst, char *buf, ULONG len, ULONG flags);
 
+/* ---- CPU accounting (kernel32.dll; Windows XP SP1+ only) ---- */
+
+/* GetSystemTimes: whole-machine idle / kernel (INCLUDING idle) / user time.
+ * Returns 1 on success, 0 where this Windows has no such entry point (9x,
+ * NT4, 2000, XP RTM) - callers treat 0 as "CPU load unknown", never as idle. */
+int ntdyn_GetSystemTimes(FILETIME *idle, FILETIME *kernel, FILETIME *user);
+
 #endif /* NTDYN_H */

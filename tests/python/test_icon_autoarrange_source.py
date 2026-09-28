@@ -200,15 +200,22 @@ def test_a_skipped_file_and_a_rewritten_lnk_are_not_counted_as_changes():
 
     The second one silently defeated the whole gate in v1.73.0-1.74.x and is the
     reason this test is specific about the mechanism rather than just "something
-    counts shortcuts". gs_run() begins with gs_sweep_desktop(), which moves
+    counts shortcuts". gs_run() then BEGAN with gs_sweep_desktop(), which moved
     EVERY .lnk off the desktop into a backup directory. So by the time a title's
-    shortcut is written, nothing is ever "already there" - a
+    shortcut was written, nothing was ever "already there" - a
     `gs_file_exists(lnk)` check before the write is always false, every shortcut
     counts as new, and the gate is true on every box on every sync while
     reporting itself as working.
 
     The honest question is whether the SET of desktop icons changed, so the set
-    must be sampled BEFORE the sweep and compared at the end.
+    must be sampled BEFORE the run writes any shortcut and compared at the end.
+
+    Since 1.89.x the sweep runs LAST (gs_sweep_unclaimed, after every shortcut
+    is written) - sweeping first left .110 with two icons for ~100 minutes while
+    a starved run sized the library. The ordering that matters for this gate is
+    unchanged: reset, snapshot, then the first shortcut write; and the sweep's
+    removals must be settled before the gate reads the count.
+    tests/python/test_gamesync_sweep_order.py pins the sweep order itself.
     """
     code = _strip_comments(GAMESYNC.read_text(errors="replace"))
 
@@ -229,7 +236,8 @@ def test_a_skipped_file_and_a_rewritten_lnk_are_not_counted_as_changes():
     run = code.split("static void gs_run(", 1)[1]
     reset = run.index("gs_desk_reset()")
     snap = run.index("gs_desk_snapshot()")
-    sweep = run.index("gs_sweep_desktop()")
+    first_write = run.index("gs_place_tool_shortcuts()")
+    sweep = run.index("gs_sweep_unclaimed()")
     assert reset < snap, (
         "gs_desk_reset() must run BEFORE gs_desk_snapshot(). It clears the "
         "snapshot as well as the counters, so resetting afterwards throws away "
@@ -237,18 +245,27 @@ def test_a_skipped_file_and_a_rewritten_lnk_are_not_counted_as_changes():
         "the exact bug the snapshot exists to fix. Measured on .171: "
         "shortcuts_changed=81 on a box whose icons had not changed."
     )
-    assert snap < sweep, (
-        "gs_desk_snapshot() must run BEFORE gs_sweep_desktop(). The sweep moves "
-        "every .lnk off the desktop, so a set sampled after it is empty and "
-        "every recreated shortcut looks new - which is exactly how this gate "
-        "was defeated silently before."
+    assert snap < first_write < sweep, (
+        "gs_desk_snapshot() must run BEFORE the first shortcut is written "
+        "(gs_place_tool_shortcuts) and the sweep must come after both. A set "
+        "sampled after the run has touched the desktop makes rewritten icons "
+        "look new - which is exactly how this gate was defeated silently before."
+    )
+    assert "gs_sweep_desktop" not in code, (
+        "the sweep-FIRST function is gone for a reason: it emptied the desktop "
+        "for the whole run (.110, 2026-09-28)"
     )
 
-    # The sweep itself must not count: it removes what we put straight back.
-    swp = code.split("static void gs_sweep_desktop(void)", 1)[1].split("\nstatic ", 1)[0]
+    # The sweep itself must not count a write: it only removes, and what it
+    # removed is settled against the snapshot by gs_desk_settle_lnks().
+    swp = code.split("static void gs_sweep_unclaimed(void)", 1)[1].split("\nstatic ", 1)[0]
     assert "gs_desk_note_lnk" not in swp, (
-        "gs_sweep_desktop() must not count its own removals as a change - it "
-        "removes the very shortcuts this run is about to rewrite"
+        "gs_sweep_unclaimed() must not claim or count shortcuts - it removes "
+        "only what the run did not claim"
+    )
+    assert sweep < run.index("gs_desk_settle_lnks()"), (
+        "the sweep's removals must be settled into the count before the gate "
+        "reads it"
     )
 
     # A written shortcut is judged against the snapshot, not against the disk.

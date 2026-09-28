@@ -48,8 +48,14 @@ def test_an_existing_tool_shortcut_is_not_rebuilt():
     b = body(gs(), "gs_tool_shortcut")
     check = b.index("if (gs_lnk_points_at(lnk, exe))")
     assert check < b.index("gs_make_shortcut("), "check before the COM rebuild"
-    after = b[check:check + 80]
+    after = b[check:check + 120]
     assert "return;" in after, "an existing, correct shortcut must end the call"
+    # ...but it must CLAIM the shortcut first (1.89.x): the desktop sweep now
+    # runs at the END of a run and removes whatever the run did not claim, so
+    # an untouched-because-correct Retro Agent icon would otherwise be swept.
+    assert "gs_desk_note_lnk_kept(lnk)" in after[:after.index("return;")], (
+        "an existing, correct tool shortcut must be claimed as kept before the "
+        "early return, or the end-of-run sweep moves it to the backup folder")
     # and an untouched shortcut is not counted as a desktop change
     assert b.index("gs_desk_note_lnk_written(") > b.index("gs_make_shortcut(")
 
