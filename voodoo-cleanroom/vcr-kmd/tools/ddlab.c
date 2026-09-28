@@ -287,6 +287,156 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    if (!strcmp(mode, "vidmem")) {
+        /* No window, no exclusive mode, no SetDisplayMode: nothing switches.
+         * Fills video memory with offscreen surfaces until it runs out, then
+         * checks every one through the CPU (Lock) and through the 2D engine
+         * (a colour fill, then a copy from its neighbour): the addresses
+         * above 32 MB a chip that the V5 6000's 256 MB mode puts in reach -
+         * a 25-bit address anywhere on that path shows up as bad surfaces
+         * at the top of the heap only (2026-09-27). */
+        enum { VM_MAX = 128, VW = 512, VH = 256 };
+        static LPDIRECTDRAWSURFACE7 s[VM_MAX];
+        static unsigned char *ptr[VM_MAX];
+        static long pitch[VM_MAX];
+        LPDIRECTDRAWSURFACE7 prim = NULL;
+        DDSURFACEDESC2 sd;
+        DDBLTFX fx;
+        RECT r;
+        unsigned char *pp = NULL;
+        long lo = 0, hi = 0, off;
+        int n = 0, i, x, y, bpp_b = 0, bad_cpu = 0, bad_fill = 0, bad_copy = 0, blt_fail = 0;
+        int bad_surf_cpu = 0, bad_surf_eng = 0;
+        HRESULT coop = IDirectDraw7_SetCooperativeLevel(dd, NULL, DDSCL_NORMAL);
+#define VM_PAT(i, x, y) ((unsigned char)((i) * 37 + (x) * 7 + (y) * 13))
+        memset(&sd, 0, sizeof sd);
+        sd.dwSize = sizeof sd;
+        sd.dwFlags = DDSD_CAPS;
+        sd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+        if (SUCCEEDED(IDirectDraw7_CreateSurface(dd, &sd, &prim, NULL))) {
+            memset(&sd, 0, sizeof sd);
+            sd.dwSize = sizeof sd;
+            if (SUCCEEDED(IDirectDrawSurface7_Lock(prim, NULL, &sd, DDLOCK_WAIT, NULL))) {
+                pp = sd.lpSurface;
+                bpp_b = (int)sd.ddpfPixelFormat.dwRGBBitCount / 8;
+                IDirectDrawSurface7_Unlock(prim, NULL);
+            }
+        }
+        for (n = 0; n < VM_MAX; n++) {
+            memset(&sd, 0, sizeof sd);
+            sd.dwSize = sizeof sd;
+            sd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
+            sd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
+            sd.dwWidth = VW;
+            sd.dwHeight = VH;
+            if (FAILED(IDirectDraw7_CreateSurface(dd, &sd, &s[n], NULL)))
+                break;
+            memset(&sd, 0, sizeof sd);
+            sd.dwSize = sizeof sd;
+            if (FAILED(IDirectDrawSurface7_Lock(s[n], NULL, &sd, DDLOCK_WAIT, NULL))) {
+                IDirectDrawSurface7_Release(s[n]);
+                break;
+            }
+            ptr[n] = sd.lpSurface;
+            pitch[n] = sd.lPitch;
+            if (!bpp_b)
+                bpp_b = (int)sd.ddpfPixelFormat.dwRGBBitCount / 8;
+            /* the CPU writes surface n's own pattern */
+            for (y = 0; y < VH; y++)
+                for (x = 0; x < VW * bpp_b; x++)
+                    ptr[n][y * pitch[n] + x] = VM_PAT(n, x, y);
+            IDirectDrawSurface7_Unlock(s[n], NULL);
+            if (pp) {
+                off = (long)(ptr[n] - pp);
+                if (!n || off < lo) lo = off;
+                if (!n || off > hi) hi = off;
+            }
+        }
+        say("vidmem: %d surfaces of %dx%d x %d bytes (coop %08lx), offsets from the primary "
+            "%ld .. %ld", n, VW, VH, bpp_b, coop, lo, hi);
+        /* 1. every surface read back through the CPU */
+        for (i = 0; i < n; i++) {
+            int b0 = bad_cpu;
+            memset(&sd, 0, sizeof sd);
+            sd.dwSize = sizeof sd;
+            IDirectDrawSurface7_Lock(s[i], NULL, &sd, DDLOCK_WAIT, NULL);
+            for (y = 0; y < VH; y++)
+                for (x = 0; x < VW * bpp_b; x += 3)
+                    if (((unsigned char *)sd.lpSurface)[y * sd.lPitch + x] != VM_PAT(i, x, y))
+                        bad_cpu++;
+            IDirectDrawSurface7_Unlock(s[i], NULL);
+            if (bad_cpu != b0) {
+                bad_surf_cpu++;
+                say("  surface %d (+%ld from the primary): %d bad CPU bytes", i,
+                    pp ? (long)(ptr[i] - pp) : 0, bad_cpu - b0);
+            }
+        }
+        /* 2. the engine fills a rectangle of every surface */
+        memset(&fx, 0, sizeof fx);
+        fx.dwSize = sizeof fx;
+        fx.dwFillColor = 0x5a5a5a5au;
+        SetRect(&r, 32, 32, 96, 64);
+        for (i = 0; i < n; i++)
+            if (FAILED(IDirectDrawSurface7_Blt(s[i], &r, NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &fx)))
+                blt_fail++;
+        for (i = 0; i < n; i++) {
+            int b0 = bad_fill;
+            memset(&sd, 0, sizeof sd);
+            sd.dwSize = sizeof sd;
+            IDirectDrawSurface7_Lock(s[i], NULL, &sd, DDLOCK_WAIT, NULL);
+            for (y = 0; y < VH; y += 2)
+                for (x = 0; x < VW * bpp_b; x += 3) {
+                    int in = y >= 32 && y < 64 && x >= 32 * bpp_b && x < 96 * bpp_b;
+                    unsigned char v = ((unsigned char *)sd.lpSurface)[y * sd.lPitch + x];
+                    if (in ? v != 0x5a : v != VM_PAT(i, x, y))
+                        bad_fill++;
+                }
+            IDirectDrawSurface7_Unlock(s[i], NULL);
+            if (bad_fill != b0) {
+                bad_surf_eng++;
+                say("  surface %d (+%ld): %d bad bytes after the engine's fill", i,
+                    pp ? (long)(ptr[i] - pp) : 0, bad_fill - b0);
+            }
+        }
+        /* 3. the engine copies surface i into surface i-1, in rising order,
+         * so each source is still its own when it is read */
+        for (i = 1; i < n; i++)
+            if (FAILED(IDirectDrawSurface7_Blt(s[i - 1], NULL, s[i], NULL, DDBLT_WAIT, NULL)))
+                blt_fail++;
+        for (i = 1; i < n; i++) {
+            int b0 = bad_copy;
+            memset(&sd, 0, sizeof sd);
+            sd.dwSize = sizeof sd;
+            IDirectDrawSurface7_Lock(s[i - 1], NULL, &sd, DDLOCK_WAIT, NULL);
+            for (y = 0; y < VH; y += 2)
+                for (x = 0; x < VW * bpp_b; x += 3) {
+                    int in = y >= 32 && y < 64 && x >= 32 * bpp_b && x < 96 * bpp_b;
+                    unsigned char v = ((unsigned char *)sd.lpSurface)[y * sd.lPitch + x];
+                    if (in ? v != 0x5a : v != VM_PAT(i, x, y))
+                        bad_copy++;
+                }
+            IDirectDrawSurface7_Unlock(s[i - 1], NULL);
+            if (bad_copy != b0) {
+                bad_surf_eng++;
+                say("  surface %d <- %d (+%ld <- +%ld): %d bad bytes after the engine's copy",
+                    i - 1, i, pp ? (long)(ptr[i - 1] - pp) : 0, pp ? (long)(ptr[i] - pp) : 0,
+                    bad_copy - b0);
+            }
+        }
+        say("RESULT {\"mode\":\"vidmem\",\"surfaces\":%d,\"surface_bytes\":%d,\"bpp\":%d,"
+            "\"from_primary_lo\":%ld,\"from_primary_hi\":%ld,\"vidmem_total\":%lu,"
+            "\"bad_cpu\":%d,\"bad_fill\":%d,\"bad_copy\":%d,\"blt_fail\":%d,"
+            "\"bad_surfaces_cpu\":%d,\"bad_surfaces_engine\":%d}",
+            n, VW * VH * bpp_b, bpp_b * 8, lo, hi, total, bad_cpu, bad_fill, bad_copy, blt_fail,
+            bad_surf_cpu, bad_surf_eng);
+        for (i = 0; i < n; i++)
+            IDirectDrawSurface7_Release(s[i]);
+        if (prim)
+            IDirectDrawSurface7_Release(prim);
+        IDirectDraw7_Release(dd);
+        return (n && !bad_cpu && !bad_fill && !bad_copy && !blt_fail) ? 0 : 1;
+    }
+
     if (!strcmp(mode, "zsurf")) {
         /* no window, no exclusive mode, no SetDisplayMode: nothing switches */
         LPDIRECTDRAWSURFACE7 z = NULL;

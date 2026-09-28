@@ -1,0 +1,24 @@
+[23:10:01] plan: info, modes, cursor, gdi, ddraw, d3d, d3dperf - at most 22 mode switches = 44 timing changes on the cable (each switch passes through the driver's 31.5 kHz VGA reset, ~30 ms), 5s apart at least
+[23:10:01] == info
+[23:10:02]    monitor HWP22d3 HP P1120: H 30-121 kHz, V 48-160 Hz, <= 300 MHz - the driver filters its modes by it
+[23:10:02] == modes
+[23:10:40]    rc 0 (38s): ["      1024x768x16@85: ok", "     1024x768x32@100: ok", "     1600x1200x16@70: ok", "     1600x1200x32@70: ok", "modeseq: {\"cmd\": \"modeseq\", \"ok\": true, \"modes\": 7, \"ran\": 7, \"failed\": 0, \"stopped\": false, \"pace_ms\": 5000, \"restore\": 0}", "7/7 modes passed"]
+[23:10:40] == cursor
+[23:10:41]    rc 1 (2s): [{"label": "vcrkmd-256-1", "pointer_at": [900, 600], "regs": {"vidProcCfg": "000c0081", "hwCurPatAddr": "03cff000", "hwCurLoc": "01260176", "hwCurC0": "00000000", "hwCurC1": "00ffffff"}}, {"pattern_identical": false, "register_differences": {"vidProcCfg": ["090c0081", "000c0081"], "hwCurLoc": ["07ff
+[23:10:41] == gdi
+[23:10:48]    rc 0 (6s): [{"mode": "gdi", "bpp": 32, "rounds": 3, "tests": "base,text", "bad_fill": 0, "bad_rop": 0, "bad_copy": 0, "bad_scroll": 0, "bad_clip": 0, "bad_sync": 0, "bad_text": 0, "bad_text_cases": 0, "bad_text_path": 0, "bad_text_empty": 0, "text_cases": 87, "text_stats": true, "text_engine_calls": 0, "text_e
+[23:10:48] == ddraw
+[23:10:48]    rc 0 (0s): [{"mode": "caps", "hal_caps": "04020041", "hal_ddscaps": "00423250", "vidmem_total": 63959040, "vidmem_free": 63959040, "hel_caps": "f4c08241"}]
+[23:10:57]    rc 0 (4s): [{"mode": "flip", "res": "800x600x16", "primary_in": "video", "frames": 60, "frames_run": 60, "mismatch": 0, "lock_fail": 0, "flips_s": 102.6, "vblank_hz": 100.2, "scanline": 0, "hal_caps": "04020041", "work_us": 0, "first_frame_ms": 1.61, "max_frame_ms": 10.15, "slow_frames": 0, "min_frame_ms": 3.5
+[23:11:06]    rc 0 (4s): [{"mode": "blt", "res": "800x600x16", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "bad_key": 0, "blts_s": 7107, "mpix_s": 465.8, "hal_caps": "04020041", "focus_lost": false}]
+[23:11:06]    rc 0 (1s): [{"mode": "caps", "hal_caps": "04020041", "hal_ddscaps": "00423250", "vidmem_total": 63959040, "vidmem_free": 63959040, "hel_caps": "f4c08241"}]
+[23:11:15]    rc 0 (4s): [{"mode": "flip", "res": "800x600x32", "primary_in": "video", "frames": 60, "frames_run": 60, "mismatch": 0, "lock_fail": 0, "flips_s": 101.8, "vblank_hz": 100.2, "scanline": 0, "hal_caps": "04020041", "work_us": 0, "first_frame_ms": 1.29, "max_frame_ms": 9.99, "slow_frames": 0, "min_frame_ms": 7.53
+[23:11:24]    rc 0 (4s): [{"mode": "blt", "res": "800x600x32", "surfaces_in": "video", "bad_copy": 0, "bad_fill": 0, "bad_scroll": 0, "bad_key": 0, "blts_s": 3369, "mpix_s": 220.8, "hal_caps": "04020041", "focus_lost": false}]
+[23:11:24] == d3d
+[23:11:24]    rc 0 (1s): [{"mode": "caps", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "driver": "vcrdd.dll", "desktop_fmt": 22, "hal": "00000000", "DevCaps": "0008ae50", "PrimitiveMiscCaps": "00000072", "RasterCaps": "00100191", "ZCmpCaps": "000000ff", "SrcBlendCaps": "00001f33", "DestBlendCaps": "0000003f", "AlphaCm
+[23:11:35]    rc 0 (5s): [{"mode": "render", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "window": "fullscreen", "fmt": 23, "zfmt": 80, "noz": 0, "checks": [{"test": "clear", "at": "corner", "x": 0, "y": 0, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "centre", "x": 128, "y": 128, "got": "ff000
+[23:11:44]    rc 0 (4s): [{"mode": "render", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "window": "fullscreen", "fmt": 23, "zfmt": 80, "noz": 0, "checks": [{"test": "clear", "at": "corner", "x": 0, "y": 0, "got": "ff0000", "want": "ff0000", "ok": 1}, {"test": "clear", "at": "centre", "x": 128, "y": 128, "got": "ff000
+[23:11:44] == d3dperf
+[23:11:52]    rc 0 (4s): [{"mode": "perf", "adapter": "vcr-kmd Voodoo 5 6000 (open driver)", "frames": 300, "frames_run": 300, "tris_per_frame": 200, "fps": 150.9, "tris_s": 30182, "focus_lost": false}]
+[23:11:52] done: 1 failing sub-step(s), 0 switching run(s) skipped after a failure or timeout -> /home/voidsstr/development/retro-agent/.claude/worktrees/v56k-bench/voodoo-cleanroom/vcr-kmd/evidence/silicon/vcrkmd-256-1.jsonl
+EXIT 1

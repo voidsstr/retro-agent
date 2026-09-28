@@ -172,6 +172,17 @@ GFN(void, grDepthMask, (FxBool))
 GFN(void, grCullMode, (GrCullMode_t))
 GFN(void, grSstOrigin, (GrOriginLocation_t))
 GFN(FxBool, grLfbReadRegion, (GrBuffer_t, FxU32, FxU32, FxU32, FxU32, FxU32, void *))
+/* texmem only (optional at bind time) */
+GFN(FxU32, grTexMinAddress, (GrChipID_t))
+GFN(FxU32, grTexMaxAddress, (GrChipID_t))
+GFN(FxU32, grTexTextureMemRequired, (FxU32, GrTexInfo *))
+GFN(void, grTexDownloadMipMap, (GrChipID_t, FxU32, FxU32, GrTexInfo *))
+GFN(void, grTexSource, (GrChipID_t, FxU32, FxU32, GrTexInfo *))
+GFN(void, grTexCombine, (GrChipID_t, GrCombineFunction_t, GrCombineFactor_t, GrCombineFunction_t,
+                         GrCombineFactor_t, FxBool, FxBool))
+GFN(void, grTexFilterMode, (GrChipID_t, GrTextureFilterMode_t, GrTextureFilterMode_t))
+GFN(void, grTexMipMapMode, (GrChipID_t, GrMipMapMode_t, FxBool))
+GFN(void, grTexClampMode, (GrChipID_t, GrTextureClampMode_t, GrTextureClampMode_t))
 
 static int bind_glide(void)
 {
@@ -181,6 +192,8 @@ static int bind_glide(void)
     B(grVertexLayout); B(grDrawTriangle); B(grColorCombine); B(grAlphaCombine);
     B(grConstantColorValue); B(grDitherMode); B(grAlphaBlendFunction);
     B(grDepthBufferMode); B(grDepthMask); B(grCullMode); B(grSstOrigin); B(grLfbReadRegion);
+    B(grTexMinAddress); B(grTexMaxAddress); B(grTexTextureMemRequired); B(grTexDownloadMipMap);
+    B(grTexSource); B(grTexCombine); B(grTexFilterMode); B(grTexMipMapMode); B(grTexClampMode);
 #undef B
     if (!p_grGlideInit || !p_grSstWinOpen || !p_grSstWinClose || !p_grDrawTriangle ||
         !p_grVertexLayout || !p_grColorCombine || !p_grConstantColorValue ||
@@ -668,6 +681,158 @@ static int do_fill(void)
     return g_focus_lost ? 12 : 0;
 }
 
+/* texmem: every TMU's texture memory, min address to max, in 256x256 RGB565
+ * textures of one solid colour each - ALL downloaded first, then each drawn
+ * into its own 16x16 tile and read back. A texture base with an address bit
+ * missing (the V5 6000's 256 MB mode puts texture memory above 32 MB a chip)
+ * shows as a tile with ANOTHER slot's colour (it was overwritten) or garbage;
+ * a clean run proves every 128 KB slot of the range is addressed as itself. */
+typedef struct { float x, y, oow, s, t; } tvtx;
+
+static unsigned slot_code(int tmu, int slot)
+{
+    unsigned v = (unsigned)(tmu * 4099 + slot) * 2654435761u;
+    v = (v ^ (v >> 13)) & 0xffff;
+    return v ? v : 0x1234;          /* never black - the cleared background */
+}
+
+static int do_texmem(void)
+{
+    enum { TW = 256, TS = 16 };
+    static unsigned short tex[TW * TW];
+    unsigned short *fb;
+    GrTexInfo info;
+    FxI32 ntmu = 1;
+    int tmu, tiles_x = O.w / TS, tiles_y = O.h / TS, tiles = tiles_x * tiles_y;
+    int total = 0, bad = 0, first_bad_tmu = -1, first_bad_slot = -1;
+    unsigned first_bad_addr = 0, first_bad_got = 0, first_bad_want = 0, top = 0;
+    char per[256];
+    size_t pl = 0;
+    if (!p_grTexMinAddress || !p_grTexMaxAddress || !p_grTexTextureMemRequired ||
+        !p_grTexDownloadMipMap || !p_grTexSource || !p_grTexCombine) {
+        say("RESULT {\"mode\":\"texmem\",\"error\":\"a texture entry point is missing\"}");
+        return 9;
+    }
+    fb = (unsigned short *)malloc((size_t)O.w * O.h * 2);
+    if (!fb)
+        return 9;
+    if (p_grGet)
+        p_grGet(GR_NUM_TMU, sizeof ntmu, &ntmu);
+    if (ntmu < 1 || ntmu > 2)
+        ntmu = 1;
+    memset(&info, 0, sizeof info);
+    info.smallLodLog2 = info.largeLodLog2 = GR_LOD_LOG2_256;
+    info.aspectRatioLog2 = GR_ASPECT_LOG2_1x1;
+    info.format = GR_TEXFMT_RGB_565;
+    info.data = tex;
+    flat_state();
+    p_grVertexLayout(GR_PARAM_XY, 0, GR_PARAM_ENABLE);
+    p_grVertexLayout(GR_PARAM_Q, 8, GR_PARAM_ENABLE);
+    p_grVertexLayout(GR_PARAM_ST0, 12, GR_PARAM_ENABLE);
+    p_grVertexLayout(GR_PARAM_ST1, 12, GR_PARAM_ENABLE);
+    p_grColorCombine(GR_COMBINE_FUNCTION_SCALE_OTHER, GR_COMBINE_FACTOR_ONE,
+                     GR_COMBINE_LOCAL_NONE, GR_COMBINE_OTHER_TEXTURE, FXFALSE);
+    per[0] = 0;
+    for (tmu = 0; tmu < ntmu && !g_focus_lost; tmu++) {
+        FxU32 lo = p_grTexMinAddress(tmu), hi = p_grTexMaxAddress(tmu);
+        FxU32 need = p_grTexTextureMemRequired(GR_MIPMAPLEVELMASK_BOTH, &info), a;
+        int n, i, x, y, tb = 0;
+        FxU32 *addr;
+        lo = (lo + need - 1) / need * need;          /* never across a 2 MB page */
+        n = hi > lo ? (int)((hi - lo) / need) : 0;
+        if (n > tiles)
+            n = tiles;
+        addr = (FxU32 *)malloc(sizeof(FxU32) * (n ? n : 1));
+        if (!addr)
+            break;
+        say("step: TMU %d texture memory %08lx .. %08lx: %d slots of %lu bytes", tmu,
+            (unsigned long)p_grTexMinAddress(tmu), (unsigned long)hi, n, (unsigned long)need);
+        /* 1. download every slot */
+        for (i = 0; i < n; i++) {
+            unsigned c = slot_code(tmu, i);
+            for (x = 0; x < TW * TW; x++)
+                tex[x] = (unsigned short)c;
+            a = lo + (FxU32)i * need;
+            addr[i] = a;
+            p_grTexDownloadMipMap(tmu, a, GR_MIPMAPLEVELMASK_BOTH, &info);
+            if (a + need > top)
+                top = a + need;
+            if ((i & 31) == 0)
+                pump();
+        }
+        p_grFinish();
+        say("step: TMU %d drawing %d tiles", tmu, n);
+        /* 2. draw each slot into its tile: this TMU samples, the other passes */
+        p_grBufferClear(0, 0, 0xffff);
+        if (p_grTexFilterMode)
+            p_grTexFilterMode(tmu, GR_TEXTUREFILTER_POINT_SAMPLED, GR_TEXTUREFILTER_POINT_SAMPLED);
+        if (p_grTexMipMapMode)
+            p_grTexMipMapMode(tmu, GR_MIPMAP_DISABLE, FXFALSE);
+        if (p_grTexClampMode)
+            p_grTexClampMode(tmu, GR_TEXTURECLAMP_CLAMP, GR_TEXTURECLAMP_CLAMP);
+        p_grTexCombine(tmu, GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_NONE,
+                       GR_COMBINE_FUNCTION_LOCAL, GR_COMBINE_FACTOR_NONE, FXFALSE, FXFALSE);
+        if (tmu == 1)
+            p_grTexCombine(GR_TMU0, GR_COMBINE_FUNCTION_SCALE_OTHER, GR_COMBINE_FACTOR_ONE,
+                           GR_COMBINE_FUNCTION_SCALE_OTHER, GR_COMBINE_FACTOR_ONE, FXFALSE, FXFALSE);
+        for (i = 0; i < n; i++) {
+            float x0 = (float)((i % tiles_x) * TS), y0 = (float)((i / tiles_x) * TS);
+            tvtx v0 = { x0, y0, 1.0f, 8.0f, 8.0f }, v1 = { x0 + TS, y0, 1.0f, 248.0f, 8.0f };
+            tvtx v2 = { x0 + TS, y0 + TS, 1.0f, 248.0f, 248.0f };
+            tvtx v3 = { x0, y0 + TS, 1.0f, 8.0f, 248.0f };
+            p_grTexSource(tmu, addr[i], GR_MIPMAPLEVELMASK_BOTH, &info);
+            if (tmu == 1)
+                p_grTexSource(GR_TMU0, addr[0], GR_MIPMAPLEVELMASK_BOTH, &info);
+            p_grDrawTriangle(&v0, &v1, &v2);
+            p_grDrawTriangle(&v0, &v2, &v3);
+        }
+        p_grFinish();
+        if (!p_grLfbReadRegion(GR_BUFFER_BACKBUFFER, 0, 0, O.w, O.h, O.w * 2, fb)) {
+            say("RESULT {\"mode\":\"texmem\",\"error\":\"grLfbReadRegion refused\"}");
+            free(addr);
+            free(fb);
+            return 6;
+        }
+        /* 3. every tile: 3 x 3 samples inside it */
+        for (i = 0; i < n; i++) {
+            int tx = (i % tiles_x) * TS, ty = (i / tiles_x) * TS, ok = 1;
+            unsigned want = slot_code(tmu, i), got = 0;
+            for (y = 4; y < TS && ok; y += 4)
+                for (x = 4; x < TS && ok; x += 4) {
+                    got = fb[(size_t)(ty + y) * O.w + tx + x];
+                    if (got != want)
+                        ok = 0;
+                }
+            if (!ok) {
+                tb++;
+                if (first_bad_slot < 0) {
+                    first_bad_tmu = tmu;
+                    first_bad_slot = i;
+                    first_bad_addr = addr[i];
+                    first_bad_got = got;
+                    first_bad_want = want;
+                    say("  first bad: TMU %d slot %d at %08lx read %04x, wanted %04x", tmu, i,
+                        (unsigned long)addr[i], got, want);
+                }
+            }
+        }
+        total += n;
+        bad += tb;
+        pl += (size_t)_snprintf(per + pl, sizeof per - pl, "%s{\"tmu\":%d,\"lo\":\"%08lx\",\"hi\":\"%08lx\","
+                                "\"slots\":%d,\"bad\":%d}", tmu ? "," : "", tmu, (unsigned long)lo,
+                                (unsigned long)hi, n, tb);
+        free(addr);
+    }
+    free(fb);
+    pump();
+    say("RESULT {\"mode\":\"texmem\",\"res\":\"%s\",\"cfg\":%d,\"chips\":%d,\"tmus\":[%s],"
+        "\"slots\":%d,\"bad_slots\":%d,\"top\":\"%08x\",\"first_bad\":{\"tmu\":%d,\"slot\":%d,"
+        "\"addr\":\"%08x\",\"got\":\"%04x\",\"want\":\"%04x\"}%s}",
+        O.res, O.cfg, chips_in_use(), per, total, bad, top, first_bad_tmu, first_bad_slot,
+        first_bad_addr, first_bad_got, first_bad_want, tail_json());
+    return (g_focus_lost ? 12 : (bad || !total) ? 1 : 0);
+}
+
 static unsigned line_code(int y)
 {
     unsigned v = (unsigned)y * 40503u + 0x2d1u;
@@ -1023,6 +1188,8 @@ int main(int argc, char **argv)
             rc = do_fill();
         } else if (!strcmp(O.mode, "bands")) {
             rc = do_bands();
+        } else if (!strcmp(O.mode, "texmem")) {
+            rc = do_texmem();
         } else if (!strcmp(O.mode, "abandon")) {
             int f;
             flat_state();

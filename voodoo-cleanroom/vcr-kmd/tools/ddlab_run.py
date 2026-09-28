@@ -198,7 +198,7 @@ async def main_async(a):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("host")
-    ap.add_argument("mode", choices=("caps", "flip", "blt", "zsurf"))
+    ap.add_argument("mode", choices=("caps", "flip", "blt", "zsurf", "vidmem"))
     ap.add_argument("--port", type=int, default=9898)
     ap.add_argument("--res", default="640x480")
     ap.add_argument("--bpp", type=int, default=16)

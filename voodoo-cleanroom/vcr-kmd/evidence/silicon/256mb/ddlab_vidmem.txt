@@ -1,0 +1,1 @@
+{"mode": "vidmem", "surfaces": 120, "surface_bytes": 524288, "bpp": 32, "from_primary_lo": -63438848, "from_primary_hi": -1048576, "vidmem_total": 63959040, "bad_cpu": 0, "bad_fill": 0, "bad_copy": 0, "blt_fail": 0, "bad_surfaces_cpu": 0, "bad_surfaces_engine": 0}

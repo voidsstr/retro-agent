@@ -1,0 +1,88 @@
+{
+  "probed": "2026-09-28T03:15:00.005469+00:00",
+  "files": {
+    "glide3x": {
+      "path": "C:\\WINDOWS\\system32\\glide3x.dll",
+      "size": "344064",
+      "md5": "8c376063b95fa9a4d05a03626a2a1e5c"
+    },
+    "glide2x": {
+      "path": "C:\\WINDOWS\\system32\\glide2x.dll",
+      "size": "94208",
+      "md5": "a0d0841a178acda0dfc200ef9e31f5db"
+    },
+    "icd": {
+      "path": "C:\\WINDOWS\\system32\\3dfxOGL.dll",
+      "size": "2646009",
+      "md5": "8912a1388a15a8f6b3a75b6a1a344ee9"
+    },
+    "display": {
+      "path": "C:\\WINDOWS\\system32\\3dfxvs.dll",
+      "size": "610240",
+      "md5": "95634e870d73a33e64ddd138074f523b"
+    },
+    "miniport": {
+      "path": "C:\\WINDOWS\\system32\\drivers\\3dfxvsm.sys",
+      "size": "174720",
+      "md5": "83ee5503255fd9f9c2291253221cb466"
+    },
+    "vcr_display": {
+      "path": "C:\\WINDOWS\\system32\\vcrdd.dll",
+      "size": "89897",
+      "md5": "bef275d4717564507ce8abcde36244e5"
+    },
+    "vcr_miniport": {
+      "path": "C:\\WINDOWS\\system32\\drivers\\vcrmp.sys",
+      "size": "120401",
+      "md5": "4011b9c28816bb649a28f64387502903"
+    }
+  },
+  "agent_ver": "1.86.1",
+  "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "service_pack": "Service Pack 3",
+    "level": "winxp",
+    "level_num": 3
+  },
+  "os_str": "Windows XP 5.1.2600 Service Pack 3",
+  "hostname": "NSC-C543575F526",
+  "cpu_mhz": 2004,
+  "cpu": "AMD Athlon(tm) XP 2400+",
+  "gpu": {
+    "name": "vcr-kmd Voodoo 5 6000 (open driver)",
+    "driver_version": "0.1.0.0",
+    "vram_mb": null,
+    "pci": "0x121A:0x0009"
+  },
+  "display_class": {
+    "InfPath": "oem6.inf",
+    "ProviderName": "vcr-kmd (retro-agent voodoo-cleanroom)",
+    "DriverDate": "9-25-2026",
+    "DriverVersion": "0.1.0.0",
+    "DriverDesc": "vcr-kmd Voodoo 5 6000 (open driver)"
+  },
+  "titles": {
+    "quake2:allours": {
+      "path": "C:\\Games\\Quake2Complete\\quake2.exe",
+      "size": "362496",
+      "md5": "57dd2cf4ba176f3e6ae72fccc94c38b4",
+      "engine": "quake2.exe (3.20)"
+    }
+  },
+  "effective": {
+    "quake2:allours": {
+      "lane": "opengl-allours-0.1.75",
+      "icd": {
+        "path": "C:\\Games\\Quake2Complete\\retrogl.dll",
+        "size": "2773020",
+        "md5": "890b4506d29ce5e21cecd24492b8887f"
+      },
+      "glide3x": {
+        "path": "C:\\Games\\Quake2Complete\\glide3x.dll",
+        "size": "1025320",
+        "md5": "38a891e81ea58379a0c22be6d7c0d6fb"
+      }
+    }
+  }
+}

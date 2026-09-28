@@ -676,7 +676,7 @@ async def run_sessions(box, a, runs):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("host")
-    ap.add_argument("mode", choices=("fill", "bands", "cycle", "abandon"))
+    ap.add_argument("mode", choices=("fill", "bands", "texmem", "cycle", "abandon"))
     ap.add_argument("--res", default="640x480")
     ap.add_argument("--refresh", type=int, default=60,
                     help=f"one of {', '.join(map(str, GLIDE_HZ))} (glidelab.c's table)")
@@ -687,7 +687,7 @@ def main():
     ap.add_argument("--blend", action="store_true")
     ap.add_argument("--origin", choices=("upper", "lower"))
     ap.add_argument("--glide", default=OUR_GLIDE)
-    ap.add_argument("--then", choices=("fill", "bands", "cycle"))
+    ap.add_argument("--then", choices=("fill", "bands", "texmem", "cycle"))
     ap.add_argument("--timeout", type=int, default=180,
                     help="seconds of WORK per session; the EXECW adds the pace gate's worst case "
                          "for every open and close")

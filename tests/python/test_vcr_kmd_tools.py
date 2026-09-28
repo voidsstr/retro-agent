@@ -202,3 +202,29 @@ def test_deploy_box_exit_status_and_a_verify_that_survives_an_agent_restart(monk
     monkeypatch.setattr(deploy_box, "status", broken)
     with pytest.raises(ValueError):
         asyncio.run(deploy_box.status_after_boot(FakeAgent(), None, None))
+
+
+def test_high_memory_labs_exist_and_ddlab_vidmem_switches_nothing():
+    """The V5 6000's 256 MB mode (64 MB a chip) puts memory above 32 MB in
+    reach; the labs had nothing that touched it. ddlab vidmem fills video
+    memory with offscreen surfaces at DDSCL_NORMAL (no mode switch) and checks
+    each through the CPU, an engine fill and an engine copy; glidelab texmem
+    downloads every 128 KB slot of each TMU's texture memory BEFORE drawing
+    any, so an address bit that aliases two slots shows (2026-09-27)."""
+    kmd = Path(__file__).resolve().parents[2] / "voodoo-cleanroom" / "vcr-kmd"
+    dd = (kmd / "tools" / "ddlab.c").read_text()
+    vm = dd[dd.index('if (!strcmp(mode, "vidmem")) {'):dd.index('if (!strcmp(mode, "zsurf")) {')]
+    assert "DDSCL_NORMAL" in vm and "IDirectDraw7_SetDisplayMode(" not in vm
+    assert "vcr_pace_before_switch" not in vm
+    assert "DDBLT_COLORFILL" in vm and "Blt(s[i - 1], NULL, s[i]" in vm
+    run = (kmd / "tools" / "ddlab_run.py").read_text()
+    assert '"vidmem"' in run and 'FULLSCREEN = ("flip", "blt")' in run
+    gl = (kmd / "tools" / "glidelab.c").read_text()
+    tm = gl[gl.index("static int do_texmem(void)"):gl.index("static unsigned line_code(int y)")]
+    dl = tm.index("p_grTexDownloadMipMap(tmu, a,")
+    draw = tm.index("p_grTexSource(tmu, addr[i],")
+    assert dl < draw                    # every slot downloaded before any is drawn
+    assert "grTexMinAddress" in tm and "p_grTexMaxAddress(tmu)" in tm
+    assert 'rc = do_texmem();' in gl
+    glr = (kmd / "tools" / "glidelab_run.py").read_text()
+    assert '"texmem"' in glr

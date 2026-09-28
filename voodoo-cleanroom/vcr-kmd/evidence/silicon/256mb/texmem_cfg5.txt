@@ -1,0 +1,4 @@
+plan: 1 glidelab run(s) at 1024x768x16@60   48.38 kHz  60.03 Hz   65.0 MHz
+  monitor HWP22d3 HP P1120: H 30-121 kHz, V 48-160 Hz, <= 300 MHz
+  glide C:\Games\Quake2Complete\glide3x.dll md5 38a891e81ea58379a0c22be6d7c0d6fb (1025320 B): SLIAA-GUARD yes, AA-TRACE yes
+{"mode": "texmem", "res": "1024x768", "cfg": 5, "chips": 4, "tmus": [{"tmu": 0, "lo": "00000000", "hi": "01ee37f0", "slots": 247, "bad": 0}, {"tmu": 1, "lo": "00000000", "hi": "01ee37f0", "slots": 247, "bad": 0}], "slots": 494, "bad_slots": 0, "top": "01ee0000", "first_bad": {"tmu": -1, "slot": -1, "addr": "00000000", "got": "0000", "want": "0000"}, "opened_hz": 60, "focus_lost": false, "host": "192.168.1.124"}
