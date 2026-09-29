@@ -137,6 +137,16 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   `NETDEV WATCHDOG ... transmit queue 0 timed out` followed about 25-35 s later. No DMAR/IOMMU fault
   was logged against `81:00.0`, so this is not the GPU's signature 6. **Only the full power-off is
   left**: shut down, remove power (or switch the PSU off) for about 30 s, then start again.
+- **17:46: the gateway says the fault is the SWITCH on its LAN-3 port, not this NIC (likely, strongly
+  supported).** The AT&T gateway (192.168.1.254, `/cgi-bin/devices.ha`, readable without login) lists
+  **every** device on `Ethernet LAN-3` as `off`: all 25, including the NAS `.122` (MediaServer), every fleet box
+  and this host's own wired MAC `d0:ad:08:dc:0e:92`. Their last activity is 16:32-16:50. Whitebeast
+  (`.249`, on another LAN port) stays `on` and **is reachable from this host over Wi-Fi**, so the gateway
+  bridges Wi-Fi and wired and has no client isolation to change. The host's link to the switch still reads
+  1000 Mb/s with carrier, but no frames get through; that also fits the tx timeouts. With `enp129s0` held
+  down, the /24 routed over Wi-Fi reaches the gateway and `.249` and still gets no ARP reply from `.122`
+  or any fleet box. **Remedy: power-cycle the switch on LAN-3 (and reseat its uplink to the gateway)**,
+  not the host. `Profile 1` was left on autoconnect so the host comes back on 192.168.1.132 by itself.
 
 ### 2026-09-29 16:45:53: requested reboot (clean, not a fault)
 
