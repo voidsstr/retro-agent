@@ -3359,12 +3359,17 @@ and Serious Engine takes `gfx_iRefreshRate`.
 
 **What cannot reach 1080p, and it is the engine, not this pass:** WON Half-Life
 (4:3-only — handed 16:9 it falls to 400x300 and takes the desktop with it,
-measured on `.240`), Quake II / SiN / Soldier of Fortune (id Tech 2's fixed
-table has no 16:9 entry), Quake 1's GLQuake (refuses above 1280x960, measured),
-SoF2 and RTCW (their id Tech 3 fork has no `r_mode -1` branch — it renders
-640x480 rather than erroring), Turok 2, StarCraft, the Sith-engine Jedi Knights,
-and the pre-NewDark Dark engine. Those get the largest correctly-proportioned
-mode they can reach. `provisioning/fleetres/PER-TITLE-STATUS.md` is the register,
+measured on `.240`), Quake 1's GLQuake (refuses above 1280x960, measured),
+Turok 2, StarCraft, the Sith-engine Jedi Knights, and the pre-NewDark Dark
+engine. Those get the largest correctly-proportioned mode they can reach.
+**No longer on this list (2026-09-29, agent 1.95.0):** Quake II / SiN / Soldier
+of Fortune run at 1920x1080 through a patched mode-table entry 9 (`FR_Q2WIDE`,
+`provisioning/patches/idtech2`), and SoF2 / RTCW through `r_mode -1` (their fork
+*does* have the branch; sof2mp's registered minimum was the blocker -
+`provisioning/patches/idtech3-kin`). Measured on `.240`: every one of them
+fullscreen 1920x1080, Quake II's Video menu reading `[1920 1080]`.
+`GAMERES VERIFY` answers the same question per installed title on any box.
+`provisioning/fleetres/PER-TITLE-STATUS.md` is the register,
 per title, with the measurement behind each answer.
 
 ## One Staged Tree, Eight Monitors — the resolution is PER BOX (REQUIRED)
