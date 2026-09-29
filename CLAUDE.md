@@ -1723,6 +1723,15 @@ staged into `C:\retro-wall\`:
   (regedit writes `HKCU\Control Panel\Colors`, then `setsyscolors.exe` pushes
   them live via `SetSysColors` so it takes effect without a re-logon)
 - ~~`arrange_icons.exe`~~ → **superseded, and must NOT be run** (see below)
+- **the monitor never sleeps - the screensaver is what an idle box shows**
+  (agent **1.96.0**, `agent/src/monpower.c`, decision `agent/shared/monpower.h`):
+  every start sets the ACTIVE power scheme's monitor, standby and hibernate
+  timeouts (AC and DC) to never and clears `SPI_SETPOWEROFFACTIVE`/`LOWPOWERACTIVE`
+  on 98/XP. powrprof is **LoadLibrary'd** (98/XP: `ReadPwrScheme`/`WritePwrScheme`,
+  Vista+: `Power*ValueIndex`). Compare first, read back; `MonitorPowerBoot` holds
+  the last result, `MONPOWER` reports (`apply` = now), `MonitorNeverSleep`=0
+  switches it off. Before it `.184` turned the monitor off at 20 min and `.243`
+  at 15 min (standby at 20) under the 10-minute screensaver.
 
 Each step is a **no-op if its asset isn't staged** — but the icon layout and the
 theme are applied **regardless**, because neither needs a staged asset. Note the
@@ -2253,6 +2262,9 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
   the store, never 3dfx. See "Keeping every other driver current". Any other argument is
   the old class filter.
 - **SYSFIX [check|apply]** — check/apply Win98 system fixes
+- **MONPOWER [apply]** (agent 1.96.0) — the active power scheme's monitor/standby/
+  hibernate timeouts (AC+DC, 0 = never), the live policy, the pre-Vista SPI power-off
+  flags and `last_pass` as JSON; `apply` enforces them now (refused on a modern host).
 
 ### Linux-Only
 - **PKGINSTALL name** — install package (auto-detects apt/yum/pacman)

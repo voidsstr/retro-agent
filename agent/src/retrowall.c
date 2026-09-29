@@ -799,6 +799,10 @@ void retrowall_apply_startup(void)
      * staged assets first, then return if the rotation is genuinely absent. */
     apply_hacker_theme();
     set_starfield_screensaver();
+    /* The screensaver is what an idle box shows - so the monitor must never be
+     * powered off under it (1.96.0, agent/src/monpower.c). Same place, same
+     * reason as the two calls above: it needs nothing staged. */
+    monpower_apply_startup();
 
     /* The DESKTOP ICON LAYOUT needs nothing staged either, and it MUST be
      * applied above the early returns below.

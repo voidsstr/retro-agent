@@ -113,6 +113,9 @@ def test_win7_and_older_stay_managed():
         ("autoupdate.c", "update_retro_chat", "installing and launching the chat client"),
         # 1.85.0: sets the system clock when it reads a year before 2024.
         ("clockfix.c", "clockfix_thread", "setting the system clock from the NAS"),
+        # 1.96.0: sets the power scheme's monitor/standby/hibernate timeouts to never.
+        ("monpower.c", "monpower_apply_startup", "the monitor power-off / standby timeouts"),
+        ("monpower.c", "handle_monpower", "MONPOWER apply"),
     ],
 )
 def test_startup_appliers_are_guarded(path, func, what):
