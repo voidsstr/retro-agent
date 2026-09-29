@@ -1610,7 +1610,10 @@ deployed **0.1.78** as uncommitted edits (fork HEAD was still `492a0d8`, 0.1.33)
 They are now committed and pushed as fork **`a30d353`** - the source exactly as
 built into the 0.1.78 `opengl32.dll` on `.124` (no source file newer than the
 build). The clone's remote is HTTPS with no credentials, which is how the push
-kept being skipped; its push URL is now SSH. 0.1.34/0.1.35 are still lost.
+kept being skipped; its push URL is now SSH. That commit also carries a restored
+`fxBestRefresh` (0.1.34's monitor-max refresh, `fxapi.c`), so the 0.1.34 row
+above is no longer lost; 0.1.35's `fxDrawCursorOverlay`/`FX_DUMP_FRONT` is still
+in no source.
 
 **Lesson, now a rule:** a fork change is not done until it is pushed to the
 fork or captured in `patches/`; `build-stack.sh` builds whatever is checked out
