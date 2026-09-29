@@ -115,6 +115,22 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-09-29 13:16:55: instant power-off (no kdump, no BERT/MCE), 400 W + 2400 MHz lock in force
+
+- **Boot IDs:** `843e7fbc…` (11:49:09 → 13:16:55, 88 min) ended mid-log - the last line is ollama printing
+  `tg = 117.57 t/s` for a generation at 13:16:55; no shutdown sequence, no kernel error of any kind before it.
+  Next boot `d08f865b…` at 13:18:26.
+- **Evidence it was a power-off, not a panic:** kdump saved NOTHING (`/var/crash/` newest dump is still
+  `202609291127`), and the new boot's kernel log has no BERT / `Hardware Error` / MCE record. That is signature
+  of the 09-26 20:14 power-off, not the kdump-captured panics of 06:14 and 11:26. *Cause unproven.*
+- **Load:** ollama inference at ~118 t/s on the 5090 (GPU-heavy), fleet sessions idle-ish (a retro session was
+  planning `.243` boot-sector work; no VM running - the 86Box Win98 VM was stopped at ~12:55).
+- **Mitigations in effect:** `nvidia-power-cap.service` 400 W and the 210-2400 MHz lock, both re-applied at
+  13:18:38 this boot (journal: `GPU clocks set to "(gpuClkMin 210, gpuClkMax 2400)"`). Link x16.
+- **Response:** none beyond recording it. This is the fourth abnormal end in ~24 h and the first power-off
+  under the clock lock, which argues against a GPU-boost-transient-only explanation and toward the open
+  physical items (12V-2x6 connector, PSU cabling/capacity) - still *likely/unproven*.
+
 ### 2026-09-29 11:26:35: kdump-captured panic (third in ~20 h, 400 W + 2400 MHz lock), a short wedged-card boot, then an orderly reboot at 11:48
 
 - **Boot IDs:** `8cd5be88…` (10:20:51 → 11:26:35, 66 min) ended abruptly mid-log (hlds lines at 11:26:35, no
