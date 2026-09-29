@@ -861,6 +861,346 @@ TEST(t_fr_hz_is_one_formula_for_both_writers)
     }
 }
 
+/* ------------------------------------------------------------------ */
+/* GAMERES VERIFY - the checks APPLY and VERIFY share (2026-09-29)      */
+/* ------------------------------------------------------------------ */
+
+/* The writer's own transformation of a body: '\n' -> CRLF (gr_w_cfg). */
+static void crlf(const char *in, char *out, size_t cap)
+{
+    size_t o = 0;
+    for (; *in && o + 2 < cap; in++) {
+        if (*in == '\n') { out[o++] = '\r'; out[o++] = '\n'; }
+        else out[o++] = *in;
+    }
+    out[o] = 0;
+}
+
+/*
+ * A SETLINE / KV target: after the write APPLY makes (the rule's expanded
+ * line in place of the first line carrying its key) VERIFY must say ok; the
+ * same key with another value is wrong and reports it; a file without the
+ * key is wrong with nothing found (APPLY would append it). Every SETLINE and
+ * KV rule in the table, expanded for a 1080p box - so a rule whose line the
+ * check cannot recognise as its own fails here, not on a box.
+ */
+TEST(t_verify_line_agrees_with_the_writer)
+{
+    gr_modes_t l; gr_target_t t; gr_panel_t pan = panel_1080p();
+    int i, n = 0;
+    modes_lcd1080(&l);
+    gr_decide(&pan, &l, 1920, 1080, 60, 32, 0, 0, &t);
+
+    for (i = 0; i < GR_RULE_COUNT; i++) {
+        const gr_rule_t *r = &gr_rules[i];
+        char key[512], val[512], line[1024], file[4096], found[512];
+        int present = -1, kv = r->op == GR_OP_KV;
+        if (r->op != GR_OP_SETLINE && r->op != GR_OP_KV) continue;
+        n++;
+        CHECK_EQ_I(gr_expand(r->arg1, &t, key, sizeof key), 0);
+        CHECK_EQ_I(gr_expand(r->arg2, &t, val, sizeof val), 0);
+        if (kv) CHECK_EQ_I(gr_kv_line(key, val, line, sizeof line), 0);
+        else    strcpy(line, val);
+
+        /* what APPLY leaves: other lines kept, ours in place, CRLF */
+        snprintf(file, sizeof file, "// header\r\nother 1\r\n%s\r\ntail 2\r\n", line);
+        CHECK(gr_line_check(file, strlen(file), key, line, kv, found,
+                            sizeof found, &present) == GR_ST_OK,
+              "a file carrying the rule's own line must verify ok");
+        CHECK_EQ_I(present, 1);
+        CHECK(strcmp(found, line) == 0, "found must be the line on disk");
+
+        /* the same key, a different value (the staged 1024x768) */
+        snprintf(file, sizeof file, "other 1\r\n%s 1024 768\r\n", kv ? "" : key);
+        if (kv) snprintf(file, sizeof file, "other 1\r\n%s=1024\r\n", key);
+        CHECK(gr_line_check(file, strlen(file), key, line, kv, found,
+                            sizeof found, &present) == GR_ST_WRONG,
+              "a different value must verify wrong");
+        CHECK_EQ_I(present, 1);
+        CHECK(found[0] != 0, "wrong must say what it found");
+
+        /* no such line: APPLY appends, so VERIFY says wrong, found empty */
+        strcpy(file, "unrelated 1\r\n");
+        CHECK(gr_line_check(file, strlen(file), key, line, kv, found,
+                            sizeof found, &present) == GR_ST_WRONG,
+              "a missing key must verify wrong");
+        CHECK_EQ_I(present, 0);
+        CHECK_EQ_I((int)strlen(found), 0);
+    }
+    CHECK(n > 10, "the SETLINE/KV rules were not reached");
+}
+
+/* Only the FIRST line carrying the key counts - the writer replaces only the
+ * first, so a later correct duplicate must not make VERIFY say ok. And a KV
+ * key must never match a comment or a line that is not key=value. */
+TEST(t_verify_line_first_match_and_kv_shape)
+{
+    const char *f1 = "ResolutionX=1024\r\nResolutionX=1920\r\n";
+    const char *f2 = "; ResolutionX=1920\r\n[ResolutionX]\r\n1920\r\n";
+    const char *f3 = "  ResolutionX = 1920  \r\n";
+    char found[64];
+    int present;
+    CHECK_EQ_I(gr_line_check(f1, strlen(f1), "ResolutionX", "ResolutionX=1920",
+                             1, found, sizeof found, &present), GR_ST_WRONG);
+    CHECK(strcmp(found, "ResolutionX=1024") == 0, "first match is reported");
+    CHECK_EQ_I(gr_line_check(f2, strlen(f2), "ResolutionX", "ResolutionX=1920",
+                             1, found, sizeof found, &present), GR_ST_WRONG);
+    CHECK_EQ_I(present, 0);
+    /* spaced key=value IS the key, and IS NOT the exact line: the writer
+     * rewrites it to the canonical form, so VERIFY reports it as wrong */
+    CHECK_EQ_I(gr_line_check(f3, strlen(f3), "resolutionx", "ResolutionX=1920",
+                             1, found, sizeof found, &present), GR_ST_WRONG);
+    CHECK_EQ_I(present, 1);
+    CHECK(strcmp(found, "ResolutionX = 1920") == 0, "found is trimmed");
+    /* a file whose last line has no newline */
+    {
+        const char *f4 = "a 1\nr_Width = \"1920\"";
+        CHECK_EQ_I(gr_line_check(f4, strlen(f4), "r_Width",
+                                 "r_Width = \"1920\"", 0, NULL, 0, NULL), GR_ST_OK);
+    }
+}
+
+/*
+ * A CFG target: the body APPLY writes (CRLF) verifies ok; the launcher's
+ * version of the same file - its own banner, and extra lines - verifies ok
+ * too (that tolerance is WHY it is not a byte compare); one setting at the
+ * wrong value is wrong and names the missing line; no file is wrong.
+ */
+TEST(t_verify_cfg_agrees_with_the_writer)
+{
+    gr_modes_t l; gr_target_t t; gr_panel_t pan = panel_1080p();
+    char body[1024], disk[2048], missing[256];
+    const char *kinds[] = { NULL, "idtech3-custom-nofov", "idtech2", "ssam" };
+    int k;
+    modes_lcd1080(&l);
+    gr_decide(&pan, &l, 1920, 1080, 60, 32, 0, 0, &t);
+
+    for (k = 0; k < 4; k++) {
+        CHECK_EQ_I(gr_expand(gr_cfg_body(kinds[k]), &t, body, sizeof body), 0);
+        crlf(body, disk, sizeof disk);
+        CHECK(gr_cfg_check(disk, body, missing, sizeof missing) == GR_ST_OK,
+              "the body APPLY writes must verify ok");
+        CHECK(gr_cfg_check(NULL, body, missing, sizeof missing) == GR_ST_WRONG,
+              "no file must verify wrong (APPLY creates it)");
+        CHECK(missing[0] != 0, "no file: the first needed line is named");
+    }
+
+    /* the launcher's copy of the id Tech 3 file: another banner, an extra
+     * setting SoF2's single-player launcher adds - still ok */
+    CHECK_EQ_I(gr_expand(gr_cfg_body(NULL), &t, body, sizeof body), 0);
+    snprintf(disk, sizeof disk,
+             "// written by the launcher at every start - do not edit\r\n"
+             "seta r_mode \"-1\"\r\nseta r_customwidth \"1920\"\r\n"
+             "seta r_customheight \"1080\"\r\nseta r_customaspect \"1\"\r\n"
+             "seta r_customPixelAspect \"1\"\r\nseta r_fullscreen \"1\"\r\n"
+             "seta cg_fov \"%d\"\r\nseta r_displayRefresh \"%d\"\r\n"
+             "seta com_hunkmegs \"128\"\r\n", t.fov, t.fr_hz);
+    CHECK(gr_cfg_check(disk, body, missing, sizeof missing) == GR_ST_OK,
+          "the launcher's version of the file must verify ok");
+
+    /* the staged 1024x768 */
+    snprintf(disk, sizeof disk,
+             "seta r_mode \"-1\"\r\nseta r_customwidth \"1024\"\r\n"
+             "seta r_customheight \"768\"\r\nseta r_customaspect \"1\"\r\n"
+             "seta r_customPixelAspect \"1\"\r\nseta r_fullscreen \"1\"\r\n"
+             "seta cg_fov \"%d\"\r\nseta r_displayRefresh \"%d\"\r\n",
+             t.fov, t.fr_hz);
+    CHECK(gr_cfg_check(disk, body, missing, sizeof missing) == GR_ST_WRONG,
+          "a cfg at 1024x768 must verify wrong on a 1080p box");
+    CHECK(strcmp(missing, "seta r_customwidth \"1920\"") == 0,
+          "wrong must name the first setting that is not there");
+
+    /* id Tech 2: gl_mode 9 (patched 1920x1080) on the 1080p box */
+    CHECK_EQ_I(gr_expand(gr_cfg_body("idtech2"), &t, body, sizeof body), 0);
+    CHECK(gr_cfg_check("set gl_mode \"8\"\r\nset vid_fullscreen \"1\"\r\n", body,
+                       missing, sizeof missing) == GR_ST_WRONG,
+          "the stock gl_mode 8 is wrong where the patched 9 is the answer");
+    CHECK(strcmp(missing, "set gl_mode \"9\"") == 0, "missing names gl_mode 9");
+}
+
+/* A registry target: type AND value, as gr_w_reg decides. */
+TEST(t_verify_reg_compare)
+{
+    char found[64];
+    CHECK_EQ_I(gr_reg_cmp("dword:1920", 1, 1, 0, 4, 1920, NULL, found, sizeof found), GR_ST_OK);
+    CHECK(strcmp(found, "dword:1920") == 0, "found spells the value like the rule");
+    CHECK_EQ_I(gr_reg_cmp("dword:1920", 1, 1, 0, 4, 1024, NULL, found, sizeof found), GR_ST_WRONG);
+    CHECK(strcmp(found, "dword:1024") == 0, "found is the value on the box");
+    /* the right number as a string is still wrong: the engine reads a DWORD */
+    CHECK_EQ_I(gr_reg_cmp("dword:1920", 1, 0, 1, 1, 0, "1920", found, sizeof found), GR_ST_WRONG);
+    CHECK_EQ_I(gr_reg_cmp("dword:1920", 0, 0, 0, 0, 0, NULL, found, sizeof found), GR_ST_WRONG);
+    CHECK_EQ_I((int)strlen(found), 0);
+    CHECK_EQ_I(gr_reg_cmp("sz:Default", 1, 0, 1, 1, 0, "Default", found, sizeof found), GR_ST_OK);
+    CHECK_EQ_I(gr_reg_cmp("sz:Default", 1, 0, 1, 1, 0, "3dfxgl.dll", found, sizeof found), GR_ST_WRONG);
+    CHECK(strcmp(found, "sz:3dfxgl.dll") == 0, "found for an sz");
+    CHECK_EQ_I(gr_reg_cmp("hex:00", 1, 1, 0, 4, 0, NULL, NULL, 0), -1);   /* a rule bug */
+}
+
+/* TUROK 2's pick is the LAUNCHER's ladder, and exactly one mode is on.
+ * Before 2026-09-29 the rows used %SEL43%, which on a 1080p box (4:3 target
+ * 1280x960 - not on Turok's list) switched EVERY mode off while the launcher
+ * switched 1024x768 on: config.ned was rewritten by each writer in turn. */
+TEST(t_turok2_matches_the_launcher)
+{
+    gr_modes_t l; gr_target_t t;
+    gr_panel_t lcd = panel_1080p(), crt = panel_crt43();
+    int pass;
+
+    CHECK_EQ_I(gr_turok2_sel(1280), 1024);
+    CHECK_EQ_I(gr_turok2_sel(1024), 1024);
+    CHECK_EQ_I(gr_turok2_sel(960), 800);
+    CHECK_EQ_I(gr_turok2_sel(800), 800);
+    CHECK_EQ_I(gr_turok2_sel(640), 640);
+
+    for (pass = 0; pass < 2; pass++) {
+        int i, on = 0, on_w = 0;
+        if (pass == 0) {
+            modes_lcd1080(&l);
+            gr_decide(&lcd, &l, 1920, 1080, 60, 32, 0, 0, &t);
+        } else {                        /* .171: capped at 800x600 */
+            modes_crt(&l);
+            gr_decide(&crt, &l, 1280, 1024, 85, 32, 800, 600, &t);
+        }
+        for (i = 0; i < GR_RULE_COUNT; i++) {
+            char out[256];
+            const char *sp;
+            if (strcmp(gr_rules[i].title, "Turok2") != 0) continue;
+            CHECK_EQ_I(gr_expand(gr_rules[i].arg2, &t, out, sizeof out), 0);
+            sp = strrchr(out, ' ');
+            if (sp && !strcmp(sp, " 1")) {
+                on++;
+                on_w = atoi(strrchr(gr_rules[i].arg1, '\\') + 1);
+            }
+        }
+        CHECK_EQ_I(on, 1);
+        CHECK_EQ_I(on_w, pass == 0 ? 1024 : 800);
+        /* the old token, for the record: no mode on a 1080p box */
+        if (pass == 0) {
+            char out[16];
+            gr_expand("%SEL43:1024x768%", &t, out, sizeof out);
+            CHECK(strcmp(out, "0") == 0, "SEL43 is why this was broken");
+        }
+    }
+}
+
+/*
+ * WHAT A TITLE IS SUPPOSED TO GET, and when that is the ENGINE's limit.
+ * Read off the rules (so it cannot disagree with APPLY) and resolved per box.
+ */
+TEST(t_verify_title_kinds_and_engine_caps)
+{
+    gr_modes_t l; gr_target_t t; gr_res_t r;
+    gr_panel_t lcd = panel_1080p(), crt = panel_crt43();
+
+    CHECK_EQ_I(gr_rules_kind("Quake2Complete"), GR_TK_Q2WIDE);
+    CHECK_EQ_I(gr_rules_kind("SiNGold"), GR_TK_Q2WIDE);
+    CHECK_EQ_I(gr_rules_kind("SoldierOfFortune2"), GR_TK_WIDE);  /* r_mode -1 */
+    CHECK_EQ_I(gr_rules_kind("ReturnToCastleWolfenstein"), GR_TK_WIDE);
+    CHECK_EQ_I(gr_rules_kind("CounterStrike16"), GR_TK_WIDE);
+    CHECK_EQ_I(gr_rules_kind("Turok2"), GR_TK_TUROK);
+    CHECK_EQ_I(gr_rules_kind("Descent1"), GR_TK_WIDE);   /* Rebirth beats DOSBox */
+    CHECK_EQ_I(gr_rules_kind("Carmageddon1"), GR_TK_DOS);
+    CHECK_EQ_I(gr_rules_kind("quake1"), GR_TK_NONE);     /* launcher-only title */
+
+    /* the 1080p LCD */
+    modes_lcd1080(&l);
+    gr_decide(&lcd, &l, 1920, 1080, 60, 32, 0, 0, &t);
+    r = gr_kind_res(GR_TK_Q2WIDE, &t);
+    CHECK(r.w == 1920 && r.h == 1080, "patched id Tech 2 reaches 1920x1080: not capped");
+    r = gr_kind_res(GR_TK_WIDE, &t);
+    CHECK(r.w == 1920 && r.h == 1080, "SoF2/RTCW via r_mode -1: 1920x1080");
+    r = gr_kind_res(GR_TK_TUROK, &t);
+    CHECK(r.w == 1024 && r.h == 768, "Turok 2 is capped at 1024x768");
+    r = gr_kind_res(GR_TK_43, &t);
+    CHECK(r.w == 1280 && r.h == 960, "a 4:3-only engine: 1280x960");
+    r = gr_kind_res(GR_TK_Q3MODE, &t);
+    CHECK(r.w == 1152 && r.h == 864, "q3mode index 7 resolves to 1152x864");
+    r = gr_kind_res(GR_TK_DOS, &t);
+    CHECK(r.w == 0 && r.h == 0, "DOSBox has no WxH of its own");
+    CHECK(gr_kind_cap_reason(GR_TK_TUROK)[0] != 0, "a cap has a reason");
+
+    /* a 4:3 tube at 1280x960: id Tech 2 lands on 1280x960, which IS the
+     * box's target - so that title is not engine-capped there */
+    modes_crt(&l);
+    gr_decide(&crt, &l, 1280, 1024, 85, 32, 0, 0, &t);
+    r = gr_kind_res(GR_TK_Q2WIDE, &t);
+    CHECK(r.w == t.w && r.h == t.h, "id Tech 2 on a 4:3 tube: the box's own target");
+
+    /* the incapable register */
+    CHECK(gr_incapable_for("starcraft") != NULL, "StarCraft is a measured engine limit");
+    CHECK(gr_incapable_for("JediKnightMotS") != NULL, "the Sith engine too");
+    CHECK(gr_incapable_for("Quake2Complete") == NULL, "Quake II is not incapable any more");
+    CHECK(gr_incapable_for("SoldierOfFortune2") == NULL, "nor is SoF2 (r_mode -1)");
+}
+
+/* A launcher counts when it CALLS FLEETRES.BAT on a live line; the FR_*
+ * variable it passes says what mode it asks for; -cap is its ceiling. */
+TEST(t_verify_launcher_scan)
+{
+    gr_lscan_t sc;
+    int cw, ch;
+    const char *hl =
+        "@echo off\r\nrem call FLEETRES.BAT is how this works\r\n"
+        "call \"%~dp0FLEETRES.BAT\"\r\n"
+        "start \"\" hl.exe -nosierra -full -gl -w %FR_W43% -h %FR_H43% -toconsole\r\n";
+    const char *q1 =
+        "call \"%~dp0FLEETRES.BAT\" -cap 1280 960\r\n"
+        "start \"\" GLQUAKE.EXE -width %FR_W43% -height %FR_H43% -bpp 32\r\n";
+    const char *remonly =
+        "REM call \"%~dp0FLEETRES.BAT\"\r\n:: call FLEETRES.BAT\r\n"
+        "\"%~dp0FLEETRES.EXE\" -ini a.ini sdl fullresolution desktop\r\n"
+        "start game.exe -w %FR_W%\r\n";
+    const char *q2 =
+        "call \"%~dp0fleetres.bat\"\r\n"
+        ">>\"%~dp0baseq2\\fleetres.cfg\" echo set gl_mode \"%FR_Q2WIDE%\"\r\n";
+
+    gr_launcher_scan(hl, &sc);
+    CHECK_EQ_I(sc.calls, 1);
+    CHECK_EQ_I(sc.cap_w, 0);
+    CHECK_EQ_I(gr_launcher_kind(sc.uses), GR_TK_43);
+
+    gr_launcher_scan(q1, &sc);
+    CHECK_EQ_I(sc.calls, 1);
+    CHECK_EQ_I(sc.cap_w, 1280);
+    CHECK_EQ_I(sc.cap_h, 960);
+
+    gr_launcher_scan(remonly, &sc);
+    CHECK_EQ_I(sc.calls, 0);            /* comments and FLEETRES.EXE don't count */
+
+    gr_launcher_scan(q2, &sc);
+    CHECK_EQ_I(sc.calls, 1);            /* case-insensitive, as cmd.exe is */
+    CHECK_EQ_I(gr_launcher_kind(sc.uses), GR_TK_Q2WIDE);
+
+    /* the per-box ResCap wins when it is the smaller (fleetres.c) */
+    gr_launch_cap(1280, 960, 800, 600, &cw, &ch);
+    CHECK(cw == 800 && ch == 600, "ResCap 800x600 beats a 1280x960 launcher cap");
+    gr_launch_cap(1280, 960, 0, 0, &cw, &ch);
+    CHECK(cw == 1280 && ch == 960, "no ResCap: the launcher's cap");
+    gr_launch_cap(0, 0, 800, 600, &cw, &ch);
+    CHECK(cw == 800 && ch == 600, "no launcher cap: ResCap");
+}
+
+/* launch.txt read the way the shortcut maker reads it. */
+TEST(t_verify_launch_txt)
+{
+    const char *txt =
+        "Play Quake.bat\tQuake\tGLQUAKE.EXE\r\n"
+        "  # a comment\r\n\r\n"
+        "VOODOO\\GLQUAKE.EXE\tQuake - Voodoo\r\n"
+        "Play Quake - DOS.bat\tQuake - DOS\r\n";
+    const char *p = txt;
+    char one[128];
+    int n = 0, bats = 0;
+    while (gr_launch_txt_next(&p, one, sizeof one)) {
+        n++;
+        if (gr_is_bat(one)) bats++;
+        if (n == 1) CHECK(strcmp(one, "Play Quake.bat") == 0, "first field only");
+    }
+    CHECK_EQ_I(n, 3);
+    CHECK_EQ_I(bats, 2);
+    CHECK_EQ_I(gr_is_bat("FLEETRES.BAT"), 1);
+}
+
 MUNIT_MAIN("gameres (per-box monitor detection and per-title resolution)",
     RUN(t_lcd_gets_native);
     RUN(t_q2_q3_tables_differ);
@@ -884,4 +1224,12 @@ MUNIT_MAIN("gameres (per-box monitor detection and per-title resolution)",
     RUN(t_target_rate_on_win98_without_edid);
     RUN(t_listed_rates_respect_the_cap);
     RUN(t_fr_hz_is_one_formula_for_both_writers);
+    RUN(t_verify_line_agrees_with_the_writer);
+    RUN(t_verify_line_first_match_and_kv_shape);
+    RUN(t_verify_cfg_agrees_with_the_writer);
+    RUN(t_verify_reg_compare);
+    RUN(t_turok2_matches_the_launcher);
+    RUN(t_verify_title_kinds_and_engine_caps);
+    RUN(t_verify_launcher_scan);
+    RUN(t_verify_launch_txt);
 )

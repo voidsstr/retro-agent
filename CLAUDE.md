@@ -2151,7 +2151,13 @@ directions.
   pair, refresh, hor+ FOV, id Tech 2 and id Tech 3 mode indices, DOSBox
   `fullresolution`). Reports the post-condition, not `OK`.
   **`GAMERES APPLY [title]`** runs the pass now over every installed title, or
-  one, and answers with how many values it CHANGED — a settled box must say 0.
+  one, and answers with how many values it CHANGED — a settled box must say 0 —
+  plus the post-apply `verify` counts (`wrong` must be 0).
+  **`GAMERES VERIFY [title]`** (read-only) answers, for EVERY installed title,
+  whether it is actually set to the resolution it should get here: per config
+  target `expected`/`found`/`ok` (`true`/`false`/`"absent"`), whether each
+  launcher calls `FLEETRES.BAT`, the title's `target` and `engine_cap` where
+  the engine is the limit. See "GAMERES VERIFY" below.
 - **ICONARRANGE [auto|bay]** — apply the desktop icon layout now. Defaults to
   the box's `HKLM\Software\RetroAgent\IconAutoArrange` setting (absent = auto).
   Returns the **post-condition** as JSON — `autoarrange` (the live
@@ -3209,7 +3215,63 @@ those two calls silently restores the bug.
   key=value / registry / cfg writers.
 - **Command:** `GAMERES` reports the panel, **every mode the driver offers**,
   and the target, as JSON — the post-condition, not `OK`. `GAMERES APPLY [title]`
-  runs the pass now.
+  runs the pass now. `GAMERES VERIFY [title]` checks every installed title
+  (below).
+
+### GAMERES VERIFY — is every installed title ACTUALLY at its resolution?
+
+`APPLY`'s `values_changed` says the pass ran; it does not say a box is right,
+and it never looked at the command-line titles at all. **`GAMERES VERIFY
+[title]`** is read-only (registry opened `KEY_READ`, nothing written) and walks
+**every directory in the games folder**, one JSON entry per title:
+
+- `mechanism`: `config` (the title has `gr_rules`), `launcher` (no rules, but a
+  `launch.txt` `.bat` or `Play*.bat` **calls** `FLEETRES.BAT` on a live line),
+  or `none`. `launchers_with_fleetres` / `launchers_without` list them — a
+  launcher that skips FLEETRES on a title with a mechanism is a finding
+  (`summary.launcher_gaps`), though some are legitimate (software/DOS builds).
+- `targets` (config titles): per rule `expected` (expanded for this box),
+  `found` (on disk, trimmed; `null` = not set) and `ok` — `true`, `false`, or
+  `"absent"`. **Defined by what APPLY would do:** `false` = APPLY would write it,
+  `"absent"` = APPLY counts it in `targets_absent` (file not in this build, mod
+  directory not installed). A cfg reports its setting lines as arrays and the
+  first `missing` one.
+- `target` + `kind`: what the title should get here — `wide` (the panel's own),
+  `four_three`, `idtech2_q2wide` (gl_mode 9 → 1920x1080 on the patched exes),
+  `turok2_list`, `dosbox:<desktop|original>` — read off the title's own rules,
+  or for a launcher title off the `FR_*` variable its launcher passes, re-decided
+  with the launcher's `-cap` exactly as FLEETRES.EXE does. **`engine_cap: true`
+  + `cap_reason`** marks an answer below the panel's target that is the
+  engine's limit (Turok 2 1024x768, a 4:3-only engine, a launcher `-cap`, the
+  measured-incapable register `gr_incapable[]`) — not a failure.
+- `summary`: `titles`, `ok`/`wrong`/`absent` (**config targets**),
+  `launcher_only`, `unmanaged`, `config_titles`, `titles_wrong`,
+  `launcher_gaps`; `box`: panel, `wide`, `four_three`, `idtech2_q2wide`,
+  `turok2`, `cap`. ~27 KB for 55 titles (heap `json_t`).
+
+**APPLY and VERIFY cannot disagree:** the writers decide "already right" with the
+same functions VERIFY reports from (`gr_line_check`, `gr_cfg_check`,
+`gr_reg_cmp` in `gameres.h`; `gr_ini_check`/`gr_reg_check` in `gameres.c`), so
+after an APPLY with no failure `wrong` is 0. **Every GAMESYNC run verifies once
+at the end** (not on an abort): a `GAMERES verify:` summary line plus one line
+per wrong/absent target (first 40), and `GAMESYNC STATUS` carries
+`gameres_verify_wrong` / `gameres_verify_absent` (`-1` = not verified yet). It
+never fails the sync. **A settled box reads `gameres_verify_wrong: 0`.**
+
+It found two things on its first read of the library (2026-09-29):
+- **Turok 2's rules and launcher fought.** The rows used `%SEL43:WxH%` ("1" only
+  when WxH *is* the 4:3 target); a 1080p box's 4:3 target is 1280x960, which is
+  not on Turok's list, so GAMERES switched **every** mode off while the
+  launcher switched 1024x768 on. The rows now use `%T2SEL:<w>%` — the
+  launcher's own ladder (`gr_turok2_sel`: 640, 800, 1024 as `W43` reaches them).
+- **A launcher `-cap` shrinks a 4:3 title below the cap on a 16:9 panel.**
+  `Quake1`'s `-cap 1280 960` first caps the *widescreen* target to the largest
+  16:9 mode inside it (1280x720 where the driver lists it) and the 4:3 ladder
+  must then fit inside *that*: GLQuake gets **800x600** on the 1080p boxes, not
+  the 1280x960 PER-TITLE-STATUS records. Same `gr_decide` in FLEETRES.EXE, so
+  VERIFY reports what the launcher really does; the fix belongs in the cap
+  logic of both (and a FLEETRES.EXE re-stage). `HexenII`'s launchers now carry
+  `-cap 1024 768` (a 4:3 1024x768 on a 16:9 panel) against a measured 1080p.
 
 **It covers PERSISTENT config only** — a file in the tree or a registry value.
 A title whose mode is set purely on a command line (Quake 1's `GLQUAKE.EXE

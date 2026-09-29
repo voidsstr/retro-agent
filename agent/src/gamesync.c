@@ -146,6 +146,10 @@ typedef struct {
      * settled box reads gr_changed 0 - see the `gameres:` log line. */
     int     gr_changed;
     long    gr_kept;
+    /* GAMERES VERIFY at the end of the last finished run: config targets
+     * still WRONG (a settled box: 0) and ABSENT from this build.
+     * gr_verified 0 = no run has verified yet - reported as -1. */
+    int     gr_vwrong, gr_vabsent, gr_verified;
 } gs_state_t;
 
 static CRITICAL_SECTION g_gs_lock;
@@ -5488,6 +5492,7 @@ static void gs_run(const char *library)
     char   gated_why[GS_MAX_TITLES][192];
     int    n = 0, i, files = 0, ok_titles = 0, capped = 0, n_gated = 0;
     int    gr_titles = 0, gr_changed = 0, gr_absent_t = 0;
+    int    gr_vok = -1, gr_vwrong = 0, gr_vabsent = 0;
     int    listing_complete = 0;
     DWORD  enum_err = 0;
     __int64 grand = 0, freeb, margin;
@@ -5925,11 +5930,25 @@ static void gs_run(const char *library)
      * records it holds are true whether or not every title was reached. */
     gameres_ledger_save();
 
+    /* ...and then the POST-CONDITION: is every installed title actually set
+     * to its resolution now? Read-only, the same checks the writers made,
+     * and never a reason to fail the sync - it reports, it does not judge.
+     * Before `state` turns done, so a STATUS that reads done carries it.
+     * Skipped on an aborted run, which never reached every title. */
+    gr_vok = -1;
+    if (!g_gs_abort)
+        gr_vok = gameres_verify_sync(&gr_vwrong, &gr_vabsent);
+
     EnterCriticalSection(&g_gs_lock);
     g_gs.state = g_gs_abort ? GS_FAILED : GS_DONE;
     i = g_gs.failed_files;
     g_gs.gr_changed = gr_changed;
     g_gs.gr_kept    = g_gs_gr_kept;
+    if (gr_vok >= 0) {
+        g_gs.gr_vwrong   = gr_vwrong;
+        g_gs.gr_vabsent  = gr_vabsent;
+        g_gs.gr_verified = 1;
+    }
     LeaveCriticalSection(&g_gs_lock);
 
     /* NOW - and only now - take off the desktop what was there when the run
@@ -7551,6 +7570,9 @@ void handle_gamesync(SOCKET sock, const char *args)
         /* The resolution pass of the last finished run: values it changed
          * (a settled box: 0) and files it had adjusted that the copy kept. */
         "\"gameres_changed\":%d,\"gameres_kept\":%ld,"
+        /* GAMERES VERIFY after the last finished run: targets still wrong
+         * (a settled box: 0) and absent from this build; -1 = not yet. */
+        "\"gameres_verify_wrong\":%d,\"gameres_verify_absent\":%d,"
         /* Is the run MOVING? since_progress_s is how long ago the worker last
          * made progress; stalled_s is time lost in gaps of >= 3 s, starved_s
          * the part of it with the CPU saturated (idle priority; a running game
@@ -7565,6 +7587,7 @@ void handle_gamesync(SOCKET sock, const char *args)
         gs_file_exists(GS_MARKER) ? "true" : "false",
         gs_desk_files(), gs_desk_lnks(),
         s.gr_changed, s.gr_kept,
+        s.gr_verified ? s.gr_vwrong : -1, s.gr_verified ? s.gr_vabsent : -1,
         since_ms / 1000, st.total_stall_ms / 1000, st.total_starved_ms / 1000,
         busy,
         gs_file_exists(GS_NEWIMAGE_FLAG) ? "true" : "false",
