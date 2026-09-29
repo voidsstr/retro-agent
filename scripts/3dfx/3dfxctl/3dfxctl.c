@@ -24,6 +24,15 @@
  * every display-mode change it makes goes through tools/vcr_pace.h (the
  * monitor is a 1998-era CRT: at least 3 s between switches, box-wide).
  *
+ * THE GRAPHICS CLOCK (the Clock tab, vcr-kmd only) is set LIVE through the
+ * driver's VCR_ESC_CLOCK: the master chip moves at once, in <= 5 MHz steps,
+ * and every game start carries it to the other chips. An overclock asks to be
+ * kept within 15 s or goes back by itself. "Use this clock again after
+ * Windows restarts" re-applies it at logon (3dfxctl.exe /startup, a Run
+ * value) ONLY after a clean shutdown - Windows' own ShutdownTime stamp must
+ * have moved since the clock was set (ctl_clock_startup); after a crash the
+ * card stays at stock and the Clock tab says why.
+ *
  * ANTI-ALIASING is experimental on the V5 6000 (a hard freeze, a ghost image,
  * modes never run). It is off unless a person ticks "allow experimental AA",
  * reads the warning and says yes; only then are AA modes listed, and choosing
@@ -33,6 +42,7 @@
  *   3dfxctl.exe /report FILE    write what the panel sees (stack, every value,
  *                               overrides) to FILE and exit - for the agent
  *   3dfxctl.exe /vintage | /vcr force a lane (testing only)
+ *   3dfxctl.exe /startup        the logon half of "use this clock again" (no window)
  *
  * Build: make (i686-w64-mingw32-gcc, static, GUI subsystem; see Makefile).
  */
@@ -53,6 +63,7 @@
 
 #include "vcr_types.h"
 #include "vcr_ioctl.h"
+#include "vcr_clock.h"          /* the words the driver will write: the clock actually given */
 
 static void ctl_log(const char *fmt, ...);
 /* the gate reports into the panel's log - a GUI program has no stderr */
@@ -60,7 +71,7 @@ static void ctl_log(const char *fmt, ...);
 #include "vcr_pace.h"
 #include "ctl_logic.h"
 
-#define CTL_VERSION     "2.0.0"
+#define CTL_VERSION     "2.1.0"
 #define APP_TITLE       "3dfx Control Panel"
 
 /* ---- control ids ------------------------------------------------------------------ */
@@ -82,10 +93,18 @@ static void ctl_log(const char *fmt, ...);
 #define IDC_DISP_PROPS  130
 #define IDC_2D_STATE    131
 #define IDC_RM_OVERRIDE 140
+#define IDC_CLK_BAR     150
+#define IDC_CLK_SET     151
+#define IDC_CLK_PERSIST 152
+#define IDC_CLK_P_STOCK 153
+#define IDC_CLK_P_150   154
+#define IDC_CLK_P_175   155
+#define IDC_CLK_P_183   156
 #define IDC_ROW_BASE    1000            /* + row index * 4 (+0 control, +1 value label) */
 
 #define WM_APP_DISPDONE (WM_APP + 1)
 #define WM_APP_REBUILD  (WM_APP + 2)        /* wp 1 = re-read the machine, 0 = redraw pages */
+#define WM_APP_CLOCKDONE (WM_APP + 3)       /* lp = the CLOCKJOB */
 #define TIMER_LIVE      1
 #define TIMER_COUNTDOWN 2
 
@@ -243,6 +262,30 @@ static LONG reg_set_dword(HKEY root, const char *path, const char *name, DWORD v
     return r;
 }
 
+static LONG reg_set_bin(HKEY root, const char *path, const char *name, const BYTE *v, DWORD n)
+{
+    HKEY h;
+    LONG r = RegCreateKeyExA(root, path, 0, NULL, 0, KEY_SET_VALUE, NULL, &h, NULL);
+    if (r != ERROR_SUCCESS)
+        return r;
+    r = RegSetValueExA(h, name, 0, REG_BINARY, v, n);
+    RegCloseKey(h);
+    return r;
+}
+
+/* the bytes of a REG_BINARY value (at most n); 0 = absent or not binary */
+static int reg_get_bin(HKEY root, const char *path, const char *name, BYTE *buf, DWORD n)
+{
+    HKEY h;
+    DWORD type = 0, cb = n;
+    LONG r = RegOpenKeyExA(root, path, 0, KEY_READ, &h);
+    if (r != ERROR_SUCCESS)
+        return 0;
+    r = RegQueryValueExA(h, name, NULL, &type, buf, &cb);
+    RegCloseKey(h);
+    return r == ERROR_SUCCESS && type == REG_BINARY ? (int)cb : 0;
+}
+
 /* Deletes a VALUE - never a key. Absent already = success. */
 static LONG reg_del_value(HKEY root, const char *path, const char *name)
 {
@@ -306,6 +349,8 @@ typedef struct {
     int         sliaa_present;
     DWORD       sliaa;
     int         themed;
+    int         have_clock;         /* the driver answers VCR_ESC_CLOCK for a Voodoo */
+    vcr_clock_res clk;              /* its last answer: every chip's word, read back */
 } STACK;
 static STACK G;
 
@@ -318,6 +363,27 @@ static int esc_call(ULONG code, void *out, int cout)
     n = ExtEscape(dc, (int)code, 0, NULL, cout, (LPSTR)out);
     ReleaseDC(NULL, dc);
     return n;
+}
+
+/* the graphics clock (VCR_ESC_CLOCK): 1 = the driver answered with a whole
+ * vcr_clock_res (its result says what happened); 0 = no answer at all (a
+ * vcr-kmd older than the live clock, or not vcr-kmd) */
+static int clock_call(ULONG op, ULONG khz, vcr_clock_res *res)
+{
+    HDC dc = GetDC(NULL);
+    vcr_clock_req rq;
+    int n;
+    memset(res, 0, sizeof *res);
+    if (!dc)
+        return 0;
+    memset(&rq, 0, sizeof rq);
+    rq.size = sizeof rq;
+    rq.op = op;
+    rq.target_khz = khz;
+    n = ExtEscape(dc, (int)VCR_ESC_CLOCK, (int)sizeof rq, (LPCSTR)&rq, (int)sizeof *res,
+                  (LPSTR)res);
+    ReleaseDC(NULL, dc);
+    return n >= (int)sizeof *res && res->size >= sizeof *res;
 }
 
 /* 1 = our driver's mode list is NOT limited to what the monitor accepts
@@ -350,6 +416,10 @@ static void stack_live(void)
     G.sliaa = 0;
     G.sliaa_present = reg_get_dword(HKEY_LOCAL_MACHINE, CTL_KEY_DIAG, "SliAA", &G.sliaa) ==
                       ERROR_SUCCESS;
+    /* the clock: a GET only reads registers (the driver writes nothing) */
+    G.have_clock = G.have_info && G.info.backend == VCR_HW_VOODOO &&
+                   clock_call(VCR_CLOCK_OP_GET, 0, &G.clk) && G.clk.result == VCR_CLOCK_R_OK &&
+                   G.clk.boot_khz;
 }
 
 /* the whole file, for a marker search (a Glide or ICD DLL: a few MB) */
@@ -1353,6 +1423,291 @@ static void twod_state_text(char *b, size_t n)
     scat(b, n, ".");
 }
 
+static int write_value(HKEY root, const char *path, const char *name, const char *val, int dword,
+                       char *why, size_t whyn);
+
+/* ---- the graphics clock: what the Clock tab shows (vcr-kmd VCR_ESC_CLOCK) ------------- */
+static HWND g_clk_now, g_clk_chips, g_clk_bar, g_clk_val, g_clk_tier, g_clk_set, g_clk_msg,
+            g_clk_persist;
+static unsigned g_clk_pend_khz;             /* what the slider / a preset chose */
+static int g_clk_pend_stock;                /* ... the VBIOS's own word: a RESTORE */
+static char g_clk_msgtext[400];             /* the last result, kept across page rebuilds */
+static int g_clk_msgcol = COL_NONE;
+
+static void mhz_text(unsigned khz, char *b, size_t n)
+{
+    unsigned tenths = (khz + 50) / 100;
+    _snprintf(b, n, "%u.%u MHz", tenths / 10, tenths % 10);
+    b[n - 1] = 0;
+}
+
+/* the clock the card really gets for a target: the PLL's nearest word
+ * (include/vcr_clock.h, the rule the driver itself applies) */
+static unsigned clk_actual(unsigned khz)
+{
+    vcr_u32 got = 0;
+    return vcr_clock_pll(khz, &got) ? got : 0;
+}
+
+static int clk_tier_col(int t)
+{
+    return t == CTL_CLK_STOCK ? COL_GREEN : t == CTL_CLK_UNDER ? COL_BLUE
+         : t == CTL_CLK_MILD ? COL_ORANGE : COL_RED;
+}
+
+static void clk_tier_text(unsigned khz, char *b, size_t n)
+{
+    long boot = G.clk.boot_khz ? (long)G.clk.boot_khz : (long)CTL_CLK_NOMINAL_KHZ;
+    long pct = ((long)khz - boot) * 100;
+    pct = (pct >= 0 ? pct + boot / 2 : pct - boot / 2) / boot;
+    switch (ctl_clock_tier(khz, G.clk.boot_khz)) {
+    case CTL_CLK_STOCK:
+        _snprintf(b, n, "Stock - the clock this card's own BIOS sets at every power-on");
+        break;
+    case CTL_CLK_UNDER:
+        _snprintf(b, n, "Below stock (%ld %%) - cooler and a little slower; always safe", pct);
+        break;
+    case CTL_CLK_MILD:
+        _snprintf(b, n, "Mild overclock (+%ld %%) - usually fine; sparkles or a lock-up mean too "
+                  "fast", pct);
+        break;
+    default:
+        _snprintf(b, n, "Strong overclock (+%ld %%) - the memory runs well past its rating; "
+                  "expect sparkles or a lock-up", pct);
+        break;
+    }
+    b[n - 1] = 0;
+}
+
+static const char *clk_result_text(ULONG r)
+{
+    switch (r) {
+    case VCR_CLOCK_R_OK:          return "done";
+    case VCR_CLOCK_R_RANGE:       return "the driver refused a clock outside its range - nothing written";
+    case VCR_CLOCK_R_BUSY:        return "the card never went idle - stopped at the last good step";
+    case VCR_CLOCK_R_NOT_VOODOO:  return "the driver runs no Voodoo here";
+    case VCR_CLOCK_R_READBACK:    return "the card read back another value - stopped there";
+    case VCR_CLOCK_R_CHIPS:       return "the driver could not read the card's own clock at boot";
+    case VCR_CLOCK_R_DISABLED:    return "the driver's clock switch is off (Diag\\CoreClock = 0)";
+    case VCR_CLOCK_R_BAD_REQUEST: return "the driver did not understand the request";
+    case VCR_CLOCK_R_EXCLUSIVE:   return "a 3D game holds the card - close it, then set the clock";
+    }
+    return "an unknown answer from the driver";
+}
+
+static int get_col(HWND h)
+{
+    int i;
+    for (i = 0; i < g_ncs; i++)
+        if (g_cs[i].h == h)
+            return g_cs[i].color;
+    return COL_NONE;
+}
+
+/* Text and colour only when one of them changed (the live timer calls this
+ * every 2 s), and erase behind it: these statics draw transparently on a
+ * themed page, so a new text would land on the old one. */
+static void set_text_if(HWND c, const char *t, int color)
+{
+    char old[512];
+    RECT rc;
+    int same_text;
+    if (!c)
+        return;
+    GetWindowTextA(c, old, sizeof old);
+    same_text = strcmp(old, t) == 0;
+    if (same_text && get_col(c) == color)
+        return;
+    set_col(c, color);
+    if (!same_text)
+        SetWindowTextA(c, t);
+    GetWindowRect(c, &rc);
+    MapWindowPoints(NULL, GetParent(c), (POINT *)&rc, 2);
+    InvalidateRect(GetParent(c), &rc, TRUE);
+}
+
+static void clk_msg(int color, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    _vsnprintf(g_clk_msgtext, sizeof g_clk_msgtext, fmt, ap);
+    va_end(ap);
+    g_clk_msgtext[sizeof g_clk_msgtext - 1] = 0;
+    g_clk_msgcol = color;
+    ctl_log("clock: %s", g_clk_msgtext);
+    set_text_if(g_clk_msg, g_clk_msgtext, color);
+}
+
+static void clk_update_ui(void)
+{
+    char b[400], m1[24], m2[24];
+    unsigned c, n, act, same_boot = 1, same_master = 1;
+    vcr_u32 want = 0;
+    int stock_now, same, ex;
+    if (!g_clk_now || !G.have_clock)
+        return;
+    n = G.clk.nchips < VCR_MAX_CHIPS ? G.clk.nchips : VCR_MAX_CHIPS;
+    mhz_text(G.clk.cur_khz, m1, sizeof m1);
+    mhz_text(G.clk.boot_khz, m2, sizeof m2);
+    stock_now = G.clk.cur_pll[0] == G.clk.boot_pll[0];
+    if (stock_now)
+        _snprintf(b, sizeof b, "%s  -  stock", m1);
+    else
+        _snprintf(b, sizeof b, "%s  -  stock is %s", m1, m2);
+    b[sizeof b - 1] = 0;
+    set_text_if(g_clk_now, b, clk_tier_col(ctl_clock_tier(G.clk.cur_khz, G.clk.boot_khz)));
+
+    for (c = 1; c < n; c++) {
+        if (G.clk.cur_pll[c] != G.clk.boot_pll[c])
+            same_boot = 0;
+        if (G.clk.cur_pll[c] != G.clk.cur_pll[0])
+            same_master = 0;
+    }
+    if (n <= 1)
+        _snprintf(b, sizeof b, "One chip: it runs at this clock.");
+    else if (same_master)
+        _snprintf(b, sizeof b, "Chip 0 sets the clock; chips 1-%u run at it too (given to them "
+                  "when the last game started on all %u chips).", n - 1, n);
+    else if (same_boot)
+        _snprintf(b, sizeof b, "Chip 0 changes at once. Chips 1-%u idle until a game starts on all "
+                  "%u chips - every game start gives them chip 0's clock.", n - 1, n);
+    else {
+        char m3[24];
+        mhz_text(vcr_clock_pll_khz(G.clk.cur_pll[1]), m3, sizeof m3);
+        _snprintf(b, sizeof b, "Chip 0 changes at once. Chips 1-%u are still at %s from the last "
+                  "game - the next game start gives them chip 0's clock.", n - 1, m3);
+    }
+    b[sizeof b - 1] = 0;
+    set_text_if(g_clk_chips, b, COL_GRAY);
+
+    if (!g_clk_pend_khz) {
+        g_clk_pend_stock = stock_now;
+        g_clk_pend_khz = stock_now ? G.clk.boot_khz : G.clk.cur_khz;
+    }
+    act = g_clk_pend_stock ? G.clk.boot_khz : clk_actual(g_clk_pend_khz);
+    if (!g_clk_pend_stock)
+        want = vcr_clock_pll(g_clk_pend_khz, NULL);
+    if (g_clk_pend_stock)
+        _snprintf(b, sizeof b, "Stock (%s)", m2);
+    else if (g_clk_pend_khz % 1000) {                  /* the card's own clock, not a choice */
+        mhz_text(g_clk_pend_khz, m1, sizeof m1);
+        _snprintf(b, sizeof b, "%s", m1);
+    } else if (act && (act + 50 < g_clk_pend_khz || act > g_clk_pend_khz + 50)) {
+        mhz_text(act, m1, sizeof m1);
+        _snprintf(b, sizeof b, "%u MHz (gives %s)", g_clk_pend_khz / 1000, m1);
+    } else
+        _snprintf(b, sizeof b, "%u MHz", g_clk_pend_khz / 1000);
+    b[sizeof b - 1] = 0;
+    set_text_if(g_clk_val, b, COL_NONE);
+    clk_tier_text(act, b, sizeof b);
+    set_text_if(g_clk_tier, b, clk_tier_col(ctl_clock_tier(act, G.clk.boot_khz)));
+
+    ex = G.clk.exclusive_pid != 0;
+    same = g_clk_pend_stock ? stock_now : (want && want == G.clk.cur_pll[0]);
+    if (ex)
+        _snprintf(b, sizeof b, "A 3D game holds the card");
+    else if (same)
+        _snprintf(b, sizeof b, "This is the clock now");
+    else if (g_clk_pend_stock)
+        _snprintf(b, sizeof b, "Set stock now");
+    else
+        _snprintf(b, sizeof b, "Set %u MHz now", g_clk_pend_khz / 1000);
+    b[sizeof b - 1] = 0;
+    {
+        char cur[96];
+        GetWindowTextA(g_clk_set, cur, sizeof cur);
+        if (strcmp(cur, b) != 0)
+            SetWindowTextA(g_clk_set, b);
+    }
+    EnableWindow(g_clk_set, !g_busy && !ex && !same);
+    EnableWindow(g_clk_bar, !g_busy);
+    if (ex && !g_busy)
+        set_text_if(g_clk_msg, "A 3D game holds the card: the clock cannot change under it. "
+                    "Close the game, then set the clock.", COL_ORANGE);
+    else
+        set_text_if(g_clk_msg, g_clk_msgtext, g_clk_msgcol);
+}
+
+/* ---- "use this clock again after Windows restarts" (ctl_clock_startup) ------------- */
+static int shutdown_stamp(BYTE out[8])
+{
+    return reg_get_bin(HKEY_LOCAL_MACHINE, CTL_KEY_WINDOWS, "ShutdownTime", out, 8) == 8 ? 8 : 0;
+}
+
+/* on = a saved clock AND the logon Run value that re-applies it */
+static int clk_persist_on(DWORD *khz)
+{
+    char run[MAX_PATH + 40];
+    *khz = 0;
+    if (reg_get_dword(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupClock", khz) != ERROR_SUCCESS ||
+        !*khz)
+        return 0;
+    return reg_get_sz(HKEY_LOCAL_MACHINE, CTL_KEY_RUN, CTL_RUN_CLOCK, run, sizeof run) ==
+           ERROR_SUCCESS;
+}
+
+/* Save `khz` to re-apply at logon, stamped with Windows' CURRENT shutdown
+ * record: THIS session has to end in a clean shutdown before it is used.
+ * Every value read back. */
+static int clk_persist_write(unsigned khz, char *why, size_t n)
+{
+    BYTE st[8], back[8];
+    char exe[MAX_PATH], line[MAX_PATH + 40], got[MAX_PATH + 40], v[16];
+    if (!shutdown_stamp(st)) {
+        scpy(why, "Windows keeps no ShutdownTime record here, so a clean shutdown cannot be "
+             "told from a crash - nothing saved", n);
+        return 0;
+    }
+    if (reg_set_bin(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupSeen", st, 8) != ERROR_SUCCESS ||
+        reg_get_bin(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupSeen", back, 8) != 8 ||
+        memcmp(st, back, 8) != 0) {
+        scpy(why, "could not record Windows' shutdown stamp - nothing saved", n);
+        return 0;
+    }
+    _snprintf(v, sizeof v, "%u", khz);
+    v[sizeof v - 1] = 0;
+    if (!write_value(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupClock", v, 1, why, n))
+        return 0;
+    GetModuleFileNameA(NULL, exe, sizeof exe);
+    _snprintf(line, sizeof line, "\"%s\" /startup", exe);
+    line[sizeof line - 1] = 0;
+    if (reg_set_sz(HKEY_LOCAL_MACHINE, CTL_KEY_RUN, CTL_RUN_CLOCK, line) != ERROR_SUCCESS ||
+        reg_get_sz(HKEY_LOCAL_MACHINE, CTL_KEY_RUN, CTL_RUN_CLOCK, got, sizeof got) !=
+            ERROR_SUCCESS || strcmp(got, line) != 0) {
+        scpy(why, "could not write the logon entry that re-applies it", n);
+        return 0;
+    }
+    ctl_log("clock: %u kHz saved for the next Windows start (after a clean shutdown); Run %s",
+            khz, line);
+    return 1;
+}
+
+/* off: the Run value first - from then on nothing re-applies anything */
+static int clk_persist_clear(char *why, size_t n)
+{
+    int ok = write_value(HKEY_LOCAL_MACHINE, CTL_KEY_RUN, CTL_RUN_CLOCK, NULL, 0, why, n);
+    ok = write_value(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupClock", NULL, 1, why, n) && ok;
+    reg_del_value(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupSeen");
+    return ok;
+}
+
+static void clk_note_last(const char *fmt, ...)
+{
+    char b[300], t[360];
+    SYSTEMTIME st;
+    va_list ap;
+    va_start(ap, fmt);
+    _vsnprintf(b, sizeof b, fmt, ap);
+    va_end(ap);
+    b[sizeof b - 1] = 0;
+    GetLocalTime(&st);
+    _snprintf(t, sizeof t, "%04u-%02u-%02u %02u:%02u  %s", st.wYear, st.wMonth, st.wDay,
+              st.wHour, st.wMinute, b);
+    t[sizeof t - 1] = 0;
+    reg_set_sz(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupClockLast", t);
+    ctl_log("startup clock: %s", b);
+}
+
 static int page_build(int tab, HWND page, int w, int h)
 {
     int y = 10, i;
@@ -1576,6 +1931,104 @@ static int page_build(int tab, HWND page, int w, int h)
         }
         break;
     }
+    case CTL_TAB_CLOCK: {
+        static const struct { int id; const char *text; const char *tip; } pre[] = {
+            { IDC_CLK_P_STOCK, "Stock\nthe card's own",
+              "The clock this card's BIOS sets at every power-on - the exact value, put back." },
+            { IDC_CLK_P_150, "Cool\n150 MHz",
+              "About 10 % below stock: cooler and a little slower. Always safe." },
+            { IDC_CLK_P_175, "Quick\n175 MHz",
+              "About 5 % above stock. Usually fine; asks to be kept." },
+            { IDC_CLK_P_183, "Fast\n183 MHz",
+              "About 10 % above stock - where a mild overclock ends. Watch for sparkles." },
+        };
+        DWORD pk = 0;
+        int bw = (w - 28 - 3 * 10) / 4, k, pos;
+        char t[400];
+        section(page, "Graphics clock - the chips and their memory, set live", &y, w);
+        g_clk_now = mk_col(page, "", 14, y, w - 28, 26, COL_NONE, g_big);
+        y += 30;
+        g_clk_chips = mk_col(page, "", 14, y, w - 28, 30, COL_GRAY, g_small);
+        y += 36;
+        mk_col(page, "133", 14, y + 9, 26, 14, COL_GRAY, g_small);
+        g_clk_bar = CreateWindowExA(0, TRACKBAR_CLASSA, "", WS_CHILD | WS_VISIBLE | WS_TABSTOP |
+                                    TBS_HORZ | TBS_AUTOTICKS | TBS_BOTTOM, 40, y, w - 28 - 26 - 190,
+                                    30, page, (HMENU)(INT_PTR)IDC_CLK_BAR, g_hi, NULL);
+        SendMessageA(g_clk_bar, TBM_SETRANGE, FALSE, MAKELPARAM(CTL_CLK_MIN_MHZ, CTL_CLK_MAX_MHZ));
+        SendMessageA(g_clk_bar, TBM_SETTICFREQ, 5, 0);
+        SendMessageA(g_clk_bar, TBM_SETLINESIZE, 0, 1);
+        SendMessageA(g_clk_bar, TBM_SETPAGESIZE, 0, 5);
+        mk_col(page, "200", w - 14 - 190 + 2, y + 9, 26, 14, COL_GRAY, g_small);
+        g_clk_val = mk_col(page, "", w - 14 - 160, y + 6, 160, 18, COL_NONE, g_bold);
+        tip_add(page, g_clk_bar, "Drag, or use the arrow keys (1 MHz) and Page Up/Down (5 MHz). "
+                "Nothing changes until you press Set.");
+        y += 36;
+        g_clk_tier = mk_col(page, "", 14, y, w - 28, 16, COL_NONE, NULL);
+        y += 24;
+        for (k = 0; k < 4; k++) {
+            HWND bt = mk(page, "BUTTON", pre[k].text, BS_PUSHBUTTON | BS_MULTILINE | WS_TABSTOP,
+                         14 + k * (bw + 10), y, bw, 38, pre[k].id, NULL);
+            if (pre[k].id == IDC_CLK_P_STOCK) {
+                char m[24];
+                mhz_text(G.clk.boot_khz, m, sizeof m);
+                _snprintf(t, sizeof t, "Stock\n%s", m);
+                t[sizeof t - 1] = 0;
+                SetWindowTextA(bt, t);
+            }
+            tip_add(page, bt, pre[k].tip);
+        }
+        y += 48;
+        g_clk_set = mk(page, "BUTTON", "Set clock now", BS_PUSHBUTTON | WS_TABSTOP, 14, y, 170, 30,
+                       IDC_CLK_SET, g_bold);
+        tip_add(page, g_clk_set, "Applies at once - no reboot, nothing to restart. The driver "
+                "moves the clock in small steps while the card is idle and reads it back. A clock "
+                "above stock asks to be kept, and goes back by itself after 15 seconds.");
+        g_clk_msg = mk_col(page, g_clk_msgtext, 194, y, w - 14 - 194, 32, g_clk_msgcol, g_small);
+        y += 40;
+        g_clk_persist = mk(page, "BUTTON", "Use this clock again after Windows restarts",
+                           BS_AUTOCHECKBOX | WS_TABSTOP, 14, y, w - 28, 18, IDC_CLK_PERSIST, NULL);
+        CheckDlgButton(page, IDC_CLK_PERSIST, clk_persist_on(&pk) ? BST_CHECKED : BST_UNCHECKED);
+        tip_add(page, g_clk_persist, "Re-applies the clock the card has at logon - but only after "
+                "a clean shutdown. If Windows stops unexpectedly while it runs (a crash, a lock-up, "
+                "the power), the next start stays at stock and this page says so.");
+        y += 20;
+        mk_col(page, "Only after a clean shutdown: if Windows stops unexpectedly while this clock "
+               "runs, the next start stays at stock and this page says why. Off: every "
+               "power-on starts at stock.", 32, y, w - 46, 28, COL_GRAY, g_small);
+        y += 32;
+        if (reg_get_sz(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupClockLast", t, sizeof t) ==
+                ERROR_SUCCESS && t[0]) {
+            char u[460];
+            _snprintf(u, sizeof u, "Last logon: %s", t);
+            u[sizeof u - 1] = 0;
+            mk_col(page, u, 32, y, w - 46, 28, ci_strstr(t, "NOT re-applied") ? COL_ORANGE
+                                                                             : COL_GRAY, g_small);
+            y += 32;
+        }
+        section(page, "How it works", &y, w);
+        mk_col(page, "One clock drives each chip's core and its memory. Chip 0 changes the moment "
+               "you press Set; the other chips are given chip 0's clock every time a game starts "
+               "on all of them, so a game always runs every chip at the same clock.", 14, y,
+               w - 28, 30, COL_GRAY, g_small);
+        y += 34;
+        mk_col(page, "The clock cannot change under a running 3D game - the driver refuses. Set "
+               "it on the desktop, then start the game. The other tabs' Apply and OK do not "
+               "touch the clock.", 14, y, w - 28, 30, COL_GRAY, g_small);
+        y += 34;
+        mk_col(page, "Too fast shows as sparkles, missing textures or a lock-up: press Stock and "
+               "Set. A lock-up needs the reset button, and the card starts at stock again.", 14, y,
+               w - 28, 30, COL_GRAY, g_small);
+        y += 34;
+        if (!g_clk_pend_khz) {
+            g_clk_pend_stock = G.clk.cur_pll[0] == G.clk.boot_pll[0];
+            g_clk_pend_khz = g_clk_pend_stock ? G.clk.boot_khz : G.clk.cur_khz;
+        }
+        pos = (int)((g_clk_pend_khz + 500) / 1000);
+        SendMessageA(g_clk_bar, TBM_SETPOS, TRUE, pos < CTL_CLK_MIN_MHZ ? CTL_CLK_MIN_MHZ
+                                                  : pos > CTL_CLK_MAX_MHZ ? CTL_CLK_MAX_MHZ : pos);
+        clk_update_ui();
+        break;
+    }
     case CTL_TAB_ADV: {
         const char *grp = NULL;
         int k;
@@ -1720,6 +2173,8 @@ static void pages_destroy(void)
     g_ncs = 0;
     g_log_edit = NULL;
     g_aa_live = g_2d_state = NULL;
+    g_clk_now = g_clk_chips = g_clk_bar = g_clk_val = g_clk_tier = g_clk_set = g_clk_msg =
+        g_clk_persist = NULL;
 }
 
 static void pages_build(void)
@@ -2321,6 +2776,8 @@ static void center_on_main(HWND h)
 
 /* ---- the keep-or-revert dialog ------------------------------------------------------- */
 static int g_countdown;
+static char g_keep_text[480];               /* what is being kept - the caller writes it */
+static const char *g_keep_back = "&Revert (%d)";
 
 static INT_PTR CALLBACK KeepProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
 {
@@ -2328,18 +2785,15 @@ static INT_PTR CALLBACK KeepProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
     (void)lp;
     switch (m) {
     case WM_INITDIALOG: {
-        RECT rc = { 0, 0, 420, 130 };
+        RECT rc = { 0, 0, 440, 150 };
         AdjustWindowRectEx(&rc, GetWindowLongA(h, GWL_STYLE), FALSE, GetWindowLongA(h, GWL_EXSTYLE));
         SetWindowPos(h, HWND_TOPMOST, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE);
         center_on_main(h);
-        _snprintf(b, sizeof b, "The desktop now runs at %lu Hz.\n\nKeep this refresh rate? It "
-                  "goes back to %lu Hz in 15 seconds if you do nothing.",
-                  g_job.dm.dmDisplayFrequency, g_job.old.dmDisplayFrequency);
+        mk(h, "STATIC", g_keep_text, SS_LEFT | SS_NOPREFIX, 16, 14, 410, 84, 200, NULL);
+        mk(h, "BUTTON", "&Keep it", BS_PUSHBUTTON | WS_TABSTOP, 206, 110, 100, 26, IDOK, NULL);
+        _snprintf(b, sizeof b, g_keep_back, 15);
         b[sizeof b - 1] = 0;
-        mk(h, "STATIC", b, SS_LEFT | SS_NOPREFIX, 16, 14, 390, 60, 200, NULL);
-        mk(h, "BUTTON", "&Keep it", BS_PUSHBUTTON | WS_TABSTOP, 196, 90, 100, 26, IDOK, NULL);
-        mk(h, "BUTTON", "&Revert (15)", BS_DEFPUSHBUTTON | WS_TABSTOP, 306, 90, 100, 26, IDCANCEL,
-           NULL);
+        mk(h, "BUTTON", b, BS_DEFPUSHBUTTON | WS_TABSTOP, 316, 110, 110, 26, IDCANCEL, NULL);
         g_countdown = 15;
         SetTimer(h, TIMER_COUNTDOWN, 1000, NULL);
         SetFocus(GetDlgItem(h, IDCANCEL));
@@ -2350,7 +2804,8 @@ static INT_PTR CALLBACK KeepProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
             KillTimer(h, TIMER_COUNTDOWN);
             EndDialog(h, IDCANCEL);
         } else {
-            _snprintf(b, sizeof b, "&Revert (%d)", g_countdown);
+            _snprintf(b, sizeof b, g_keep_back, g_countdown);
+            b[sizeof b - 1] = 0;
             SetDlgItemTextA(h, IDCANCEL, b);
         }
         return TRUE;
@@ -2424,7 +2879,14 @@ static void on_disp_done(WPARAM wp, DISPJOB *j)
                         j->revert ? "put back to" : "refresh rate set to", want, j->cur_hz,
                         j->reg_hz, G.have_info ? ", driver agrees" : "");
                 if (!j->revert) {
-                    int keep = (int)DialogBoxIndirectParamA(
+                    int keep;
+                    _snprintf(g_keep_text, sizeof g_keep_text, "The desktop now runs at %lu Hz."
+                              "\n\nKeep this refresh rate? It goes back to %lu Hz in 15 "
+                              "seconds if you do nothing.", j->dm.dmDisplayFrequency,
+                              j->old.dmDisplayFrequency);
+                    g_keep_text[sizeof g_keep_text - 1] = 0;
+                    g_keep_back = "&Revert (%d)";
+                    keep = (int)DialogBoxIndirectParamA(
                         g_hi, dlg_template(tmpl, 256, WS_POPUP | WS_CAPTION | DS_MODALFRAME |
                                            DS_CENTER, WS_EX_TOPMOST, 280, 100,
                                            APP_TITLE " - keep this refresh rate?"),
@@ -2503,6 +2965,114 @@ static void on_disp_done(WPARAM wp, DISPJOB *j)
         EndDialog(g_main, IDOK);
 }
 
+/* ---- the graphics clock: set it, and put an overclock back unless it is kept ----------- */
+typedef struct {
+    ULONG    op;                /* VCR_CLOCK_OP_SET or VCR_CLOCK_OP_RESTORE */
+    unsigned target_khz;        /* SET: what was asked */
+    unsigned prev_khz;          /* the clock before this change */
+    int      prev_stock;        /* ... and it was the VBIOS's own word: back = RESTORE */
+    int      revert;            /* this job puts back an overclock nobody kept */
+    int      answered;          /* the driver answered with a whole vcr_clock_res */
+    vcr_clock_res res;
+} CLOCKJOB;
+static CLOCKJOB g_cjob;
+
+static DWORD WINAPI clock_worker(LPVOID arg)
+{
+    CLOCKJOB *j = (CLOCKJOB *)arg;
+    j->answered = clock_call(j->op, j->target_khz, &j->res);
+    PostMessageA(g_main, WM_APP_CLOCKDONE, 0, (LPARAM)j);
+    return 0;
+}
+
+static void clock_start(ULONG op, unsigned khz, int revert)
+{
+    HANDLE t;
+    memset(&g_cjob, 0, sizeof g_cjob);
+    g_cjob.op = op;
+    g_cjob.target_khz = khz;
+    g_cjob.revert = revert;
+    g_cjob.prev_khz = G.clk.cur_khz;
+    g_cjob.prev_stock = G.clk.cur_pll[0] == G.clk.boot_pll[0];
+    ctl_log("clock: %s %u kHz requested (now %u kHz%s)", op == VCR_CLOCK_OP_RESTORE ? "restore"
+            : revert ? "put back" : "set", op == VCR_CLOCK_OP_RESTORE ? G.clk.boot_khz : khz,
+            G.clk.cur_khz, g_cjob.prev_stock ? ", stock" : "");
+    g_busy = 1;
+    ui_update_buttons();
+    clk_update_ui();
+    ui_set_status(revert ? "Putting the clock back..." : "Setting the clock...");
+    t = CreateThread(NULL, 0, clock_worker, &g_cjob, 0, NULL);
+    if (t) {
+        CloseHandle(t);
+        return;
+    }
+    g_busy = 0;
+    clk_msg(COL_RED, "Could not start the change (error %lu) - nothing was written",
+            GetLastError());
+    ui_update_buttons();
+    clk_update_ui();
+}
+
+static void on_clock_done(const CLOCKJOB *jp)
+{
+    static WORD tmpl[256] __attribute__((aligned(4)));
+    CLOCKJOB j = *jp;                   /* a put-back reuses g_cjob */
+    char now[24], was[24], why[200];
+    DWORD pk = 0;
+    g_busy = 0;
+    stack_live();                       /* the post-condition: every chip read back */
+    mhz_text(j.answered ? j.res.cur_khz : G.clk.cur_khz, now, sizeof now);
+    mhz_text(j.prev_khz, was, sizeof was);
+    if (!j.answered) {
+        clk_msg(COL_RED, "The display driver did not answer - nothing changed (a vcr-kmd older "
+                "than the live clock?)");
+    } else if (j.res.result != VCR_CLOCK_R_OK) {
+        clk_msg(COL_RED, "Not set: %s. The card reads %s.", clk_result_text(j.res.result), now);
+    } else if (j.revert) {
+        clk_msg(COL_ORANGE, "Not kept - put back to %s (read back from the card).", now);
+    } else {
+        if (ctl_clock_confirm(j.res.cur_khz, j.res.boot_khz)) {
+            int keep;
+            clk_update_ui();            /* the panel behind the question shows the new clock */
+            InvalidateRect(g_header, NULL, FALSE);
+            UpdateWindow(g_main);
+            _snprintf(g_keep_text, sizeof g_keep_text, "The graphics clock is now %s (it was %s)."
+                      "\n\nLook at the screen: sparkles, garbage or flicker mean it is too fast. "
+                      "Keep this clock? It goes back to %s in 15 seconds if you do nothing.",
+                      now, was, was);
+            g_keep_text[sizeof g_keep_text - 1] = 0;
+            g_keep_back = "&Go back (%d)";
+            keep = (int)DialogBoxIndirectParamA(
+                g_hi, dlg_template(tmpl, 256, WS_POPUP | WS_CAPTION | DS_MODALFRAME | DS_CENTER,
+                                   WS_EX_TOPMOST, 290, 110, APP_TITLE " - keep this clock?"),
+                g_main, KeepProc, 0);
+            g_keep_back = "&Revert (%d)";
+            if (keep != IDOK) {
+                clk_msg(COL_ORANGE, "Not kept - putting %s back...", was);
+                clock_start(j.prev_stock ? VCR_CLOCK_OP_RESTORE : VCR_CLOCK_OP_SET, j.prev_khz, 1);
+                return;
+            }
+        }
+        clk_msg(COL_GREEN, "Set: chip 0 runs at %s now (read back %08x). The other chips get it "
+                "when the next game starts.", now, j.res.cur_pll[0]);
+        if (clk_persist_on(&pk)) {
+            if (clk_persist_write(j.res.cur_khz, why, sizeof why))
+                scat(g_clk_msgtext, sizeof g_clk_msgtext, " Saved for the next Windows start.");
+            else
+                scat(g_clk_msgtext, sizeof g_clk_msgtext, " NOT saved for restarts: %s.", why);
+        }
+    }
+    g_clk_pend_khz = 0;                 /* the slider follows the card again */
+    ui_update_buttons();
+    if (g_clk_bar) {
+        int pos = (int)((G.clk.cur_khz + 500) / 1000);
+        SendMessageA(g_clk_bar, TBM_SETPOS, TRUE, pos < CTL_CLK_MIN_MHZ ? CTL_CLK_MIN_MHZ
+                                                  : pos > CTL_CLK_MAX_MHZ ? CTL_CLK_MAX_MHZ : pos);
+    }
+    clk_update_ui();
+    InvalidateRect(g_header, NULL, FALSE);
+}
+
 /* ---- the page procedure ------------------------------------------------------------ */
 static ROWSTATE *row_by_ctl(int id)
 {
@@ -2577,7 +3147,14 @@ static INT_PTR CALLBACK PageProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
         return FALSE;
     }
     case WM_HSCROLL: {
-        ROWSTATE *s = row_by_ctl(GetDlgCtrlID((HWND)lp));
+        ROWSTATE *s;
+        if (lp && (HWND)lp == g_clk_bar) {
+            g_clk_pend_khz = (unsigned)SendMessageA(g_clk_bar, TBM_GETPOS, 0, 0) * 1000u;
+            g_clk_pend_stock = 0;
+            clk_update_ui();
+            return TRUE;
+        }
+        s = row_by_ctl(GetDlgCtrlID((HWND)lp));
         if (s && (s->row->kind == CTL_K_FLOAT || s->row->kind == CTL_K_V_GAMMA)) {
             int pos = (int)SendMessageA(s->hctl, TBM_GETPOS, 0, 0);
             char b[16];
@@ -2698,6 +3275,47 @@ static INT_PTR CALLBACK PageProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
         case IDC_DISP_PROPS:
             WinExec("control.exe desk.cpl,,3", SW_SHOWNORMAL);
             return TRUE;
+        case IDC_CLK_P_STOCK:
+        case IDC_CLK_P_150:
+        case IDC_CLK_P_175:
+        case IDC_CLK_P_183: {
+            int mhz = id == IDC_CLK_P_150 ? 150 : id == IDC_CLK_P_175 ? 175 : 183;
+            g_clk_pend_stock = id == IDC_CLK_P_STOCK;
+            g_clk_pend_khz = g_clk_pend_stock ? G.clk.boot_khz : (unsigned)mhz * 1000u;
+            if (g_clk_bar)
+                SendMessageA(g_clk_bar, TBM_SETPOS, TRUE, g_clk_pend_stock
+                             ? (LPARAM)((G.clk.boot_khz + 500) / 1000) : (LPARAM)mhz);
+            clk_update_ui();
+            return TRUE;
+        }
+        case IDC_CLK_SET:
+            if (g_busy || !G.have_clock)
+                return TRUE;
+            if (g_clk_pend_stock)
+                clock_start(VCR_CLOCK_OP_RESTORE, G.clk.boot_khz, 0);
+            else if (ctl_clock_mhz_ok((long)(g_clk_pend_khz / 1000)))
+                clock_start(VCR_CLOCK_OP_SET, g_clk_pend_khz, 0);
+            return TRUE;
+        case IDC_CLK_PERSIST: {
+            char why[200];
+            int on = IsDlgButtonChecked(h, IDC_CLK_PERSIST) == BST_CHECKED;
+            if (on && !clk_persist_write(G.clk.cur_khz, why, sizeof why)) {
+                CheckDlgButton(h, IDC_CLK_PERSIST, BST_UNCHECKED);
+                clk_msg(COL_RED, "Not turned on: %s.", why);
+            } else if (on) {
+                char m[24];
+                mhz_text(G.clk.cur_khz, m, sizeof m);
+                clk_msg(COL_GREEN, "Windows will start at %s again - after a clean shutdown only. "
+                        "A clock you set later is saved too.", m);
+            } else if (!clk_persist_clear(why, sizeof why)) {
+                CheckDlgButton(h, IDC_CLK_PERSIST, BST_CHECKED);
+                clk_msg(COL_RED, "Not turned off: %s.", why);
+            } else {
+                clk_msg(COL_NONE, "Off: every power-on starts at the stock clock.");
+            }
+            clk_update_ui();
+            return TRUE;
+        }
         case IDC_RM_OVERRIDE:
             g_rm_overrides = IsDlgButtonChecked(h, IDC_RM_OVERRIDE) == BST_CHECKED;
             ui_update_buttons();
@@ -2750,6 +3368,12 @@ static void header_draw(DRAWITEMSTRUCT *d)
                   G.cur.dmDisplayFrequency,
                   G.info.sli_chips ? "active" : (G.have_dd && G.dd[1]) ? "Glide running" : "idle",
                   armed ? "EXPERIMENTAL AA ARMED" : "off (kernel switch safe)");
+        if (G.have_clock) {
+            char m[24];
+            mhz_text(G.clk.cur_khz, m, sizeof m);
+            scat(stat, sizeof stat, "    Clock: %s%s", m,
+                 G.clk.cur_pll[0] == G.clk.boot_pll[0] ? " (stock)" : "");
+        }
     } else if (G.lane == CTL_LANE_VINTAGE) {
         _snprintf(title, sizeof title, "%s", G.adapter[0] ? G.adapter : "3dfx");
         _snprintf(sub, sizeof sub, "vintage 3dfxvs driver%s", G.forced ? " (lane forced)" : "");
@@ -2804,7 +3428,7 @@ static INT_PTR CALLBACK MainProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
         RECT rc = { 0, 0, MAIN_W, MAIN_H };
         static const char *const names[CTL_NTABS] = { "Overview", "3D && Glide",
                                                       "Anti-aliasing && SLI", "OpenGL",
-                                                      "Display && 2D", "Advanced" };
+                                                      "Display && 2D", "Clock", "Advanced" };
         TCITEMA ti;
         int t, i;
         g_main = h;
@@ -2833,7 +3457,8 @@ static INT_PTR CALLBACK MainProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
         SendMessageA(g_tip, TTM_SETDELAYTIME, TTDT_AUTOPOP, 30000);
         g_ntabs = 0;
         for (t = 0; t < CTL_NTABS; t++) {
-            int has = t == CTL_TAB_OVERVIEW || t == CTL_TAB_ADV;
+            int has = t == CTL_TAB_OVERVIEW || t == CTL_TAB_ADV ||
+                      (t == CTL_TAB_CLOCK && G.lane == CTL_LANE_VCR && G.have_clock);
             for (i = 0; i < NR && !has; i++)
                 if (R[i].row->tab == t)
                     has = 1;
@@ -2889,9 +3514,12 @@ static INT_PTR CALLBACK MainProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
             unsigned sli = G.info.sli_chips;
             ULONG ex = G.dd[1];
             DWORD hz = G.cur.dmDisplayFrequency;
+            vcr_u32 clk = G.clk.cur_pll[0];
             stack_live();
-            if (sli != G.info.sli_chips || ex != G.dd[1] || hz != G.cur.dmDisplayFrequency)
+            if (sli != G.info.sli_chips || ex != G.dd[1] || hz != G.cur.dmDisplayFrequency ||
+                clk != G.clk.cur_pll[0])
                 InvalidateRect(g_header, NULL, FALSE);
+            clk_update_ui();
             if (g_aa_live) {
                 char old[600];
                 aa_live_text(b, sizeof b);
@@ -2909,6 +3537,9 @@ static INT_PTR CALLBACK MainProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
         return TRUE;
     case WM_APP_DISPDONE:
         on_disp_done(wp, (DISPJOB *)lp);
+        return TRUE;
+    case WM_APP_CLOCKDONE:
+        on_clock_done((const CLOCKJOB *)lp);
         return TRUE;
     case WM_APP_REBUILD:
         if (wp) {
@@ -2941,7 +3572,8 @@ static INT_PTR CALLBACK MainProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
         case IDC_DEFAULTS:
             if (MessageBoxA(h, "Fill every tab with the driver's defaults? Every value this "
                             "panel manages will be removed when you press Apply (the desktop "
-                            "refresh rate is left alone).", APP_TITLE,
+                            "refresh rate and the graphics clock are left alone - the Clock "
+                            "tab's Stock button puts the clock back).", APP_TITLE,
                             MB_YESNO | MB_ICONQUESTION) == IDYES)
                 preset_apply(CTL_PRESET_DEFAULTS);
             return TRUE;
@@ -2993,6 +3625,27 @@ static int write_report(const char *path)
     fprintf(f, "system ICD: %s %s\n", G.icd_present ? G.icd_dll : "(none)", G.icd_ver);
     fprintf(f, "splash plugin: %s\n", G.plugin_present ? G.plugin_path : "(absent)");
     fprintf(f, "Diag\\SliAA: %s\n", G.sliaa_present ? (G.sliaa ? "1 (ARMED)" : "0") : "absent");
+    if (G.have_clock) {
+        unsigned c;
+        DWORD pk = 0;
+        char last[400];
+        fprintf(f, "clock: chip 0 %u kHz (pllCtrl1 %08x), stock %u kHz (%08x)%s\n",
+                G.clk.cur_khz, G.clk.cur_pll[0], G.clk.boot_khz, G.clk.boot_pll[0],
+                G.clk.exclusive_pid ? " - a Glide program holds the board" : "");
+        for (c = 1; c < G.clk.nchips && c < VCR_MAX_CHIPS; c++)
+            fprintf(f, "  chip %u: %u kHz (%08x) - takes chip 0's clock at every SLI enable\n",
+                    c, vcr_clock_pll_khz(G.clk.cur_pll[c]), G.clk.cur_pll[c]);
+        fprintf(f, "clock at logon: %s", clk_persist_on(&pk) ? "on" : "off");
+        if (pk)
+            fprintf(f, " (%lu kHz saved)", (unsigned long)pk);
+        fprintf(f, "\n");
+        if (reg_get_sz(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupClockLast", last, sizeof last) ==
+            ERROR_SUCCESS)
+            fprintf(f, "last logon: %s\n", last);
+    } else {
+        fprintf(f, "clock: not offered (%s)\n", G.lane != CTL_LANE_VCR ? "not our stack"
+                : "the driver does not answer VCR_ESC_CLOCK");
+    }
     fprintf(f, "settings:\n");
     for (i = 0; i < NR; i++)
         fprintf(f, "  %-28s %-34s %s = %s%s%s\n", R[i].row->label, store_where(R[i].row->store),
@@ -3004,6 +3657,72 @@ static int write_report(const char *path)
         fprintf(f, "  %s\\%s %s = %s (%s)\n", OV[i].root == HKEY_CURRENT_USER ? "HKCU" : "HKLM",
                 OV[i].path, OV[i].name, OV[i].value, OV[i].what);
     fclose(f);
+    return 0;
+}
+
+/* ---- 3dfxctl.exe /startup: the logon half of "use this clock again" ------------------ */
+/* No window. Re-applies the saved clock ONLY when Windows has shut down
+ * cleanly since it was set (ctl_clock_startup - Windows' ShutdownTime stamp
+ * must have moved); otherwise forgets it, so the card stays at stock, and
+ * leaves a note the Clock tab shows. */
+static int clock_startup(void)
+{
+    DWORD saved = 0;
+    BYTE now[8], seen[8], back[8];
+    int nnow, nseen, i, answered = 0;
+    vcr_clock_res r;
+    char why[200], a[24], b[24];
+
+    reg_get_dword(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupClock", &saved);
+    nnow = shutdown_stamp(now);
+    nseen = reg_get_bin(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupSeen", seen, 8);
+    mhz_text(saved, a, sizeof a);
+    switch (ctl_clock_startup(saved, now, nnow, seen, nseen)) {
+    case CTL_CLK_START_NONE:
+        clk_persist_clear(why, sizeof why);         /* a logon entry with nothing to apply */
+        return 0;
+    case CTL_CLK_START_UNCLEAN:
+        clk_persist_clear(why, sizeof why);
+        clk_note_last("NOT re-applied: Windows did not shut down cleanly after %s was set - the "
+                      "card is at its stock clock. Set it again on the Clock tab if the clock "
+                      "was not the cause.", a);
+        return 0;
+    case CTL_CLK_START_UNKNOWN:
+        clk_persist_clear(why, sizeof why);
+        clk_note_last("NOT re-applied: no record proves a clean shutdown since %s was set - the "
+                      "card is at its stock clock", a);
+        return 0;
+    case CTL_CLK_START_RANGE:
+        clk_persist_clear(why, sizeof why);
+        clk_note_last("NOT re-applied: the saved clock (%lu kHz) is outside %u-%u MHz",
+                      (unsigned long)saved, CTL_CLK_MIN_MHZ, CTL_CLK_MAX_MHZ);
+        return 0;
+    }
+    /* APPLY. The stamp is consumed BEFORE the clock moves: if this session
+     * ends in a crash, Windows' stamp is still this one at the next logon. */
+    if (reg_set_bin(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupSeen", now, 8) != ERROR_SUCCESS ||
+        reg_get_bin(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupSeen", back, 8) != 8 ||
+        memcmp(now, back, 8) != 0) {
+        clk_note_last("NOT re-applied: could not record Windows' shutdown stamp first");
+        return 1;
+    }
+    for (i = 0; i < 10 && !answered; i++) {         /* the desktop may still be settling */
+        answered = clock_call(VCR_CLOCK_OP_SET, saved, &r);
+        if (!answered)
+            Sleep(3000);
+    }
+    if (!answered) {
+        clk_note_last("NOT re-applied: the display driver does not answer the clock request (not "
+                      "vcr-kmd, or older than the live clock)");
+        return 1;
+    }
+    mhz_text(r.cur_khz, b, sizeof b);
+    if (r.result != VCR_CLOCK_R_OK) {
+        clk_note_last("NOT re-applied: %s (chip 0 reads %s)", clk_result_text(r.result), b);
+        return 1;
+    }
+    clk_note_last("re-applied %s after a clean shutdown - chip 0 reads %s; the other chips get "
+                  "it when a game starts", a, b);
     return 0;
 }
 
@@ -3023,6 +3742,8 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR cmd, int show)
         strcpy(p + 1, "3dfxctl.log");
     else
         g_logpath[0] = 0;
+    if (ci_strstr(cmd, "/startup"))
+        return clock_startup();
     if (ci_strstr(cmd, "/vintage"))
         force = CTL_LANE_VINTAGE;
     else if (ci_strstr(cmd, "/vcr"))

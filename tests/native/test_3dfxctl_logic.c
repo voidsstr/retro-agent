@@ -23,6 +23,11 @@
  *  5. The Glide registry key is chosen exactly as minihwc.c getRegPath does.
  *  6. Float values: the stack default is written as ABSENT (deleted), not as
  *     a number; values are clamped, never wrapped.
+ *  7. THE GRAPHICS CLOCK (2026-09-29, the Clock tab, vcr-kmd VCR_ESC_CLOCK):
+ *     an overclock asks to be kept, stock and below never do; the panel's
+ *     range is 133-200 MHz; and a saved clock is re-applied at logon ONLY
+ *     when Windows' ShutdownTime stamp moved since it was set - a crash, a
+ *     missing stamp or an out-of-range value never re-applies it.
  */
 #include <stdio.h>
 #include <string.h>
@@ -369,6 +374,58 @@ TEST(t_a_default_on_checkbox_is_ticked_when_absent)
     CHECK(ctl_value_matches(ctl_c_2d[1].value, 1, "1"), "1 shows ticked");
 }
 
+/* ---- 7. the graphics clock ------------------------------------------------------------ */
+
+/* .124's VBIOS clock: pllCtrl1 0xE721 = 166.806 MHz (measured 2026-09-29) */
+#define BOOT 166806u
+
+TEST(t_an_overclock_asks_to_be_kept_stock_and_below_never)
+{
+    CHECK_EQ_I(ctl_clock_tier(BOOT, BOOT), CTL_CLK_STOCK);
+    CHECK_EQ_I(ctl_clock_tier(167000u, BOOT), CTL_CLK_STOCK);  /* the slider's 167 is stock */
+    CHECK_EQ_I(ctl_clock_tier(149744u, BOOT), CTL_CLK_UNDER);  /* 150's real PLL clock */
+    CHECK_EQ_I(ctl_clock_tier(175000u, BOOT), CTL_CLK_MILD);
+    CHECK_EQ_I(ctl_clock_tier(183000u, BOOT), CTL_CLK_MILD);
+    CHECK_EQ_I(ctl_clock_tier(190000u, BOOT), CTL_CLK_STRONG);
+    CHECK(!ctl_clock_confirm(BOOT, BOOT), "stock does not ask");
+    CHECK(!ctl_clock_confirm(150000u, BOOT), "an underclock does not ask");
+    CHECK(ctl_clock_confirm(175000u, BOOT), "an overclock asks to be kept");
+    CHECK(ctl_clock_confirm(200000u, BOOT), "a strong overclock asks to be kept");
+    /* a driver that could not read the VBIOS word: the nominal 166 MHz is the reference */
+    CHECK(ctl_clock_confirm(180000u, 0), "unknown stock: still asks above 166");
+    CHECK(!ctl_clock_confirm(150000u, 0), "unknown stock: below 166 does not ask");
+}
+
+TEST(t_the_panel_offers_133_to_200_mhz)
+{
+    CHECK(!ctl_clock_mhz_ok(132) && ctl_clock_mhz_ok(133), "the floor");
+    CHECK(ctl_clock_mhz_ok(200) && !ctl_clock_mhz_ok(201), "the ceiling");
+    CHECK(!ctl_clock_mhz_ok(219), "the driver's 219 is not offered");
+    CHECK(!ctl_clock_mhz_ok(120), "the driver's 120 is not offered");
+}
+
+TEST(t_a_saved_clock_is_reapplied_only_after_a_clean_shutdown)
+{
+    static const unsigned char set_at[8] = { 0x84, 0xFE, 0x50, 0x1D, 0xCE, 0x4F, 0xDD, 0x01 };
+    static const unsigned char later[8]  = { 0xC4, 0x45, 0x2B, 0x90, 0xCF, 0x4F, 0xDD, 0x01 };
+    static const unsigned char earlier[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x01 };
+    /* the two stamps .124 wrote at two agent reboots, 04:50:56 and 05:01:18 UTC */
+    CHECK_EQ_I(ctl_clock_startup(175000u, later, 8, set_at, 8), CTL_CLK_START_APPLY);
+    /* the stamp did not move: the session that ran the clock never shut down cleanly */
+    CHECK_EQ_I(ctl_clock_startup(175000u, set_at, 8, set_at, 8), CTL_CLK_START_UNCLEAN);
+    /* equality only - an OLDER stamp (the RTC reset after a power loss) still moved */
+    CHECK_EQ_I(ctl_clock_startup(175000u, earlier, 8, set_at, 8), CTL_CLK_START_APPLY);
+    /* no stamp on either side is no proof */
+    CHECK_EQ_I(ctl_clock_startup(175000u, NULL, 0, set_at, 8), CTL_CLK_START_UNKNOWN);
+    CHECK_EQ_I(ctl_clock_startup(175000u, later, 8, NULL, 0), CTL_CLK_START_UNKNOWN);
+    CHECK_EQ_I(ctl_clock_startup(175000u, later, 4, set_at, 8), CTL_CLK_START_UNKNOWN);
+    /* nothing saved, and a value nobody could have set */
+    CHECK_EQ_I(ctl_clock_startup(0u, later, 8, set_at, 8), CTL_CLK_START_NONE);
+    CHECK_EQ_I(ctl_clock_startup(219000u, later, 8, set_at, 8), CTL_CLK_START_RANGE);
+    CHECK_EQ_I(ctl_clock_startup(120000u, later, 8, set_at, 8), CTL_CLK_START_RANGE);
+    CHECK_EQ_I(ctl_clock_startup(BOOT, later, 8, set_at, 8), CTL_CLK_START_APPLY);
+}
+
 MUNIT_MAIN("3dfxctl logic (the 3dfx Control Panel's decisions, true source)",
     RUN(t_no_preset_ever_selects_aa);
     RUN(t_aa_modes_are_listed_only_when_allowed);
@@ -381,4 +438,7 @@ MUNIT_MAIN("3dfxctl logic (the 3dfx Control Panel's decisions, true source)",
     RUN(t_floats_default_to_absent_and_clamp);
     RUN(t_table_is_well_formed);
     RUN(t_a_default_on_checkbox_is_ticked_when_absent);
+    RUN(t_an_overclock_asks_to_be_kept_stock_and_below_never);
+    RUN(t_the_panel_offers_133_to_200_mhz);
+    RUN(t_a_saved_clock_is_reapplied_only_after_a_clean_shutdown);
 )

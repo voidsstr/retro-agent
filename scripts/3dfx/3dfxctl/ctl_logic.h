@@ -57,8 +57,8 @@
 #define CTL_LANE_VCR        0x1     /* OUR stack: vcr-kmd + h5 Glide + MesaFX ICD */
 #define CTL_LANE_VINTAGE    0x2     /* the vintage 3dfxvs driver (retro-3dfx / AmigaMerlin) */
 
-enum { CTL_TAB_OVERVIEW, CTL_TAB_3D, CTL_TAB_AA, CTL_TAB_GL, CTL_TAB_DISPLAY, CTL_TAB_ADV,
-       CTL_NTABS };
+enum { CTL_TAB_OVERVIEW, CTL_TAB_3D, CTL_TAB_AA, CTL_TAB_GL, CTL_TAB_DISPLAY, CTL_TAB_CLOCK,
+       CTL_TAB_ADV, CTL_NTABS };
 
 enum {
     CTL_ST_GLIDE = 1,       /* HKLM\<glide key> REG_SZ */
@@ -145,6 +145,13 @@ enum {
 #define CTL_KEY_V_DEV0       CTL_KEY_3DFXVS_DEV0
 #define CTL_KEY_V_D3D        "SYSTEM\\CurrentControlSet\\Services\\3dfxvs\\Device0\\D3D"
 #define CTL_KEY_V_GLIDE      CTL_KEY_GLIDE_3DFXVS
+/* the live clock's "use it again after a restart" (ctl_clock_startup): the
+ * panel's own key, the logon Run value that re-applies it, and Windows' own
+ * record of its last ORDERLY shutdown */
+#define CTL_KEY_PANEL        "SOFTWARE\\3dfxctl"
+#define CTL_KEY_RUN          "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+#define CTL_RUN_CLOCK        "3dfxctlClock"
+#define CTL_KEY_WINDOWS      "SYSTEM\\CurrentControlSet\\Control\\Windows"
 
 /* The key our Glide reads on XP, decided the way it decides it. */
 CTL_FN const char *ctl_glide_regpath(int has_3dfxvs_device0)
@@ -911,6 +918,76 @@ CTL_FN const char *ctl_float_value(float v, float dflt, char *buf)
     buf[3] = (char)('0' + c % 10);
     buf[4] = 0;
     return buf;
+}
+
+/* ---- the graphics clock, LIVE (vcr-kmd VCR_ESC_CLOCK) ----------------------------------
+ * voodoo-cleanroom/vcr-kmd/include/vcr_clock.h is the driver's rule: it moves
+ * the MASTER chip's clock at once, in <= 5 MHz steps, and every SLI enable
+ * (each game start) copies it to the slave chips; it refuses outside 120-219
+ * MHz and while a Glide program holds the board. The panel offers a narrower
+ * 133-200 MHz: nothing below is worth having, and above it a 4-chip board's
+ * memory - which runs from the same clock - is a fifth past its rating. */
+#define CTL_CLK_MIN_MHZ         133
+#define CTL_CLK_MAX_MHZ         200
+#define CTL_CLK_NOMINAL_KHZ     166000u     /* a VSA-100 board's stock clock, when the
+                                             * driver could not read the VBIOS's */
+#define CTL_CLK_SAME_KHZ        500u        /* this close to stock IS stock */
+#define CTL_CLK_MILD_MAX_KHZ    184000u     /* up to ~183 MHz (+10 %): a mild overclock */
+
+enum { CTL_CLK_STOCK, CTL_CLK_UNDER, CTL_CLK_MILD, CTL_CLK_STRONG };
+
+CTL_FN int ctl_clock_tier(unsigned khz, unsigned boot_khz)
+{
+    unsigned ref = boot_khz ? boot_khz : CTL_CLK_NOMINAL_KHZ;
+    if (khz + CTL_CLK_SAME_KHZ >= ref && khz <= ref + CTL_CLK_SAME_KHZ)
+        return CTL_CLK_STOCK;
+    if (khz < ref)
+        return CTL_CLK_UNDER;
+    return khz <= CTL_CLK_MILD_MAX_KHZ ? CTL_CLK_MILD : CTL_CLK_STRONG;
+}
+
+/* An overclock asks "keep it?" with a countdown that puts the old clock back:
+ * a garbled screen cannot be read to find the button. Stock and below do not
+ * ask - that is the direction a person goes to get away from a problem. */
+CTL_FN int ctl_clock_confirm(unsigned new_khz, unsigned boot_khz)
+{
+    int t = ctl_clock_tier(new_khz, boot_khz);
+    return t == CTL_CLK_MILD || t == CTL_CLK_STRONG;
+}
+
+CTL_FN int ctl_clock_mhz_ok(long mhz)
+{
+    return mhz >= CTL_CLK_MIN_MHZ && mhz <= CTL_CLK_MAX_MHZ;
+}
+
+/* "Use this clock again after Windows restarts": the CRASH GUARD.
+ * A saved clock is re-applied at logon only when Windows has shut down
+ * CLEANLY since it was set. The proof is Windows' own record,
+ * HKLM\SYSTEM\CurrentControlSet\Control\Windows ShutdownTime - 8 bytes, a
+ * FILETIME written at every orderly shutdown (measured on .124, 2026-09-29:
+ * an agent REBOOT wrote it too, 04:50:56 UTC). The panel keeps the stamp it
+ * saw when the clock was set, and again just BEFORE each re-apply; if
+ * Windows' stamp is still that one at the next logon, the session that ran
+ * the clock ended in a crash, a hang or a power loss, so the card stays at
+ * stock and the saved clock is forgotten (a person turns it back on). Only
+ * EQUALITY is compared, never order: .124's clock resets after a power loss,
+ * and a time comparison could wave a crash through. No stamp on either side
+ * is no proof - never a re-apply. */
+enum { CTL_CLK_START_NONE, CTL_CLK_START_APPLY, CTL_CLK_START_UNCLEAN,
+       CTL_CLK_START_UNKNOWN, CTL_CLK_START_RANGE };
+
+CTL_FN int ctl_clock_startup(unsigned saved_khz, const unsigned char *now, int now_len,
+                             const unsigned char *seen, int seen_len)
+{
+    if (!saved_khz)
+        return CTL_CLK_START_NONE;
+    if (saved_khz < CTL_CLK_MIN_MHZ * 1000u || saved_khz > CTL_CLK_MAX_MHZ * 1000u)
+        return CTL_CLK_START_RANGE;
+    if (!now || now_len != 8 || !seen || seen_len != 8)
+        return CTL_CLK_START_UNKNOWN;
+    if (memcmp(now, seen, 8) == 0)
+        return CTL_CLK_START_UNCLEAN;
+    return CTL_CLK_START_APPLY;
 }
 
 /* ---- the card ------------------------------------------------------------------------ */

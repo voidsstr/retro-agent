@@ -120,7 +120,7 @@ async def amain(args):
                    f'  l.TargetPath = "{TARGET}"\r\n'
                    f'  l.WorkingDirectory = "{BOXDIR}"\r\n'
                    f'  l.IconLocation = "{TARGET},0"\r\n'
-                   '  l.Description = "3dfx Control Panel - vsync, SLI/AA, gamma, 2D, refresh"\r\n'
+                   '  l.Description = "3dfx Control Panel - vsync, SLI/AA, gamma, 2D, refresh, clock"\r\n'
                    '  l.Save\r\n'
                    'Next\r\n')
             await conn.send_command(f"UPLOAD {STAGE}\\mk3dfxlnk.vbs",

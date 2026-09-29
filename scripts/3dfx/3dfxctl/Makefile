@@ -26,7 +26,7 @@ LDFLAGS  = -mwindows -static -lcomctl32 -lgdi32 -luser32 -ladvapi32
 
 # the gate and the driver contract are compiled in: rebuild when they change
 DEPS     = 3dfxctl.c ctl_logic.h $(VCRKMD)/tools/vcr_pace.h $(VCRKMD)/include/vcr_ioctl.h \
-           $(VCRKMD)/include/vcr_types.h $(VCRKMD)/include/vcr_log.h
+           $(VCRKMD)/include/vcr_types.h $(VCRKMD)/include/vcr_log.h $(VCRKMD)/include/vcr_clock.h
 
 all: 3dfxctl.exe
 
