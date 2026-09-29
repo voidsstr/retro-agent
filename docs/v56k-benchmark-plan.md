@@ -96,6 +96,39 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-29 00:00) - Halo + Thief II D3D9 on the armed configuration; agent 1.91.0; full-desktop sweep running
+
+**State (the party configuration):** vcr-kmd `integ-vcrkmd` build with **`Diag\D3D32`=1
+and `Diag\D3DBigTex`=7 ARMED BY OPERATOR DECISION** ("keep armed for Halo"; Rainbow Six
+fails with them), ICD 0.1.78, our h5 Glide 38a891e8, **agent 1.91.0**, desktop
+1280x1024x32@85. Evidence: `scripts/benchmarks/results/v56k_lan_192.168.1.124/`
+(`day/fbshots/halo_*`, `thief2_*`; `sweep_armed/`; `crash_avp/`).
+
+| title | result |
+|---|---|
+| Halo 1.10 | **PASS to the textured main menu from the LIBRARY tree** (purged + GAMESYNC, 119 files / 1,496,651,991 B), fullscreen 1280x960, no dialog; desktop shortcut created by agent 1.90.2 from the published override; the box's own key (`fleet-gamekey-halo-pc-8`) re-applied by the launcher after every sync; `-novideo` where vcr-kmd runs (the Bink intros took 13+ min); exits clean on WM_CLOSE. **Gameplay needs a person** (the menu ignores synthetic input) |
+| Thief II | **PASS in mission at 1280x960x32 through NewDark's Direct3D 9 display** (was DX6 at 640x480); the library launcher keeps `cam_ext.cfg` where the switches are armed; quit through its menu (ignores WM_CLOSE in mission) |
+| Aliens vs Predator | **CHECK, pre-existing** (same before arming, 02:26 sweep): the mode goes to 640x480 but the game's window never shows - the desktop, garbled - and it has to be force-closed. Its unfocused window is what let the 23:21 sweep's ALT+F4 reach the desktop |
+| Battlefield 1942 SP | "Cannot locate the CD-ROM" - the known SafeDisc 2.80 wall; the LAN launchers are the path |
+
+**Landed tonight:** agent 1.90.2 (shortcut gate honours the published verdict), 1.91.0
+(UIKEY refuses ALT+F4 to the shell / keys into the shut-down dialog; WINLIST
+`foreground` + per-window `pid`; the 4294967-second console log flood); gamegate
+operator overrides; Halo per-box keys that survive GAMESYNC; Halo `-novideo` and Thief
+II D3D9 launchers; `lan_sweep.py` types only into the game's own focused window.
+
+**Why .124 restarted at 23:24:** the sweep's ALT+F4 reached the desktop ("Shut Down
+Windows") and its console-quit RETURN confirmed it - EventLog 6006, no bugcheck. The
+only minidump on the box has `3dfxvs.dll` on its stack: an OLD vintage-driver crash,
+dated 2003 because the RTC resets. Check the module list before blaming a dump.
+
+**Open:** full-desktop sweep of the armed configuration (running - results below when
+done); agent 1.91.1 (refuse close/break keys into the agent's own console - ready,
+released after the sweep); Halo keys for `.145`, `.240`, `.123`, `.195` when they are
+powered on (`assign_keys.py --map`); GAMESYNC <-> GAMERES rewrite 22 files / 36 values on
+every `.124` sync; `.124` <-> NAS 0.55-0.83 MB/s with zero NIC errors (physical path);
+AvP on vcr-kmd; Halo's slow Bink path; SoF2 on `.110` unverified (box off).
+
 ### Resume point (2026-09-28 13:10) - the requested titles on the all-ours stack; four fixes landed; Halo in progress
 
 **State:** vcr-kmd = the `integ-vcrkmd` build (master + D3DBigTex/DdHeapFloor/fbshot

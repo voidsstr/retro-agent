@@ -84,7 +84,8 @@ Full doc: [`docs/fleet-auto-login.md`](docs/fleet-auto-login.md).
 (Re)apply with `net user <account> password` **and** the five Winlogon values together
 so the account password and `DefaultPassword` always match — that's what prevents a lockout.
 
-**Per-box console accounts (2026-07):** .124/ADMIN=voidsstr (Voodoo3 ref, leave as-is) ·
+**Per-box console accounts (2026-07):** .124/NSC-C543575F526=Administrator (re-imaged; read back
+2026-09-28 with AutoAdminLogon=1, ForceAutoLogon=1 - the old ADMIN=voidsstr entry is gone) ·
 .143/1GHZ (Voodoo5, untouched during driver session) · .123/2004-XP=Administrator ·
 .240/USER-41EA3B3330=User · .145/DELL=voidsstr ·
 .195/ADMIN-PC=admin (Windows 7; was .246 until DHCP moved it during the 2026-09-26
