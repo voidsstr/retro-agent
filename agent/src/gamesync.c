@@ -3369,6 +3369,12 @@ void gs_place_tool_shortcuts(void)
 
     gs_tool_shortcut("C:\\RETRO_AGENT\\retro_chat.exe", "Retro Chat");
 
+    /* The 3dfx Control Panel (scripts/3dfx/3dfxctl, push_3dfxctl.py). Only a
+     * box it was pushed to has the exe, so this is a no-op everywhere else.
+     * Without it, push_3dfxctl's desktop shortcut lasted only until the next
+     * sync's sweep - .124 lost it to two quiet GAMESYNCs on 2026-09-29. */
+    gs_tool_shortcut("C:\\RETRO_AGENT\\3dfxctl.exe", "3dfx Control Panel");
+
     if (we_initialised && g_gs_CoUninitialize)
         g_gs_CoUninitialize();
 }
