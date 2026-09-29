@@ -22,3 +22,4 @@ DELL	fleet-gamekey-halo-pc-7
 USER-41EA3B3330	fleet-gamekey-halo-pc-6
 NSC-B20C188E96D	fleet-gamekey-halo-pc-5
 ADMIN-PC	fleet-gamekey-halo-pc-4
+NSC-5C5396FAF9D	fleet-gamekey-halo-pc-3
