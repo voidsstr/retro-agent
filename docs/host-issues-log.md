@@ -23,7 +23,7 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 | Item | State | Since |
 |---|---|---|
 | GPU power cap | **400 W** via `nvidia-power-cap.service` (enabled, runs `nvidia-smi -pl 400`; originally from `reusable-agents/install/configure-local-models.sh`, override with `GPU_POWER_LIMIT_W`). The unit was rewritten 2026-09-26 23:22:44 by a `sudo sed` run from `~/development/reusable-agents` (commit `2637516`) and applied at 23:22:45 (`set to 400.00 W from 575.00 W`). It has been re-applied at every boot since; `nvidia-smi` reads 400 W on 09-28 12:18 | 2026-09-26 23:22 |
-| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; under it: Xid 79 on 09-28 10:59, an MCE panic on 09-28 15:48, then a 7 h post-reboot fault storm) | |
+| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; under it: Xid 79 on 09-28 10:59, MCE panics on 09-28 15:48 and 09-29 06:13 (the second under the clock lock), each followed by a wedged-card boot) | |
 | GPU clock lock | **210–2400 MHz** graphics (`nvidia-smi -lgc 210,2400`; stock boost reaches 3090 MHz). Added to `nvidia-power-cap.service` (ExecStart; `-rgc` on stop) and to `reusable-agents/install/configure-local-models.sh` (`GPU_CLOCK_LOCK_MHZ`, empty disables it). Applied live 09-28 23:3x after the 15:48 MCE panic at the 400 W floor; under load the clock peaks at 2385 MHz | 2026-09-28 |
 | `kernel.hung_task_panic` | 0 (a GPU drop leaves the box up, just without a GPU) | 2026-09-16 |
 | `kernel.panic` / `hardlockup_panic` | 30 / 1 (`/etc/sysctl.d/60-lockup-panic.conf`) | 2026-09-08 |
@@ -114,6 +114,21 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 ---
 
 ## Incident log (newest first)
+
+### 2026-09-29 06:13:55: MCE panic under the 2400 MHz clock lock, then another wedged-card boot until ~10:07 (signatures 3 + 6)
+
+- **Boot IDs:** `ed800384…` (09-28 22:53:12 → 09-29 06:13:55, 7 h 21 m) ended in a kdump-captured panic,
+  `/var/crash/202609290614`: `mce: CPUs not responding to MCE broadcast (may include false positives):
+  0,2,5,7` → `Kernel panic - not syncing: Timeout: Not all CPUs entered broadcast exception handler`. The
+  journal ends mid-generation (ollama `n_gen = 434, tg = 143.50 t/s` at 06:13:55).
+- **Mitigations in effect:** 400 W cap **and** the new graphics clock lock (210–2400 MHz, applied 09-28 ~23:30).
+  **The clock lock did not prevent it.** This is the second MCE panic in about 14 h.
+- **Wedged-card boot again:** the kdump warm reboot started `0643ac04…` at 06:14:20 and the IOMMU rejected
+  GPU DMA from its first second (**904,771** faults). The boot logged only 357 non-kernel journal lines in
+  3 h 53 m, so the fleet was dark again. The journal stops at 10:07:23. The next boot, `8cd5be88…`, began
+  10:20:51 after a 13-minute gap (a power cycle, likely manual) and is clean (0 faults).
+- **Takeaway:** as on 09-28, `kernel.panic=30` plus kdump turns every MCE panic into hours of outage,
+  because the warm reboot leaves the card wedged until someone power-cycles it.
 
 ### 2026-09-28 23:55: 192.168.1.132 restored as the host's primary LAN address (no reboot)
 
