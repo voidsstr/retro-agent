@@ -119,9 +119,10 @@ typedef struct {
     int  hz43;                  /* rate for a title at w43 x h43 (FR_HZ43)   */
     int  hzq2, hzq3;            /* the same at the id Tech 2 / id Tech 3
                                  * INDEX mode (gr_q2tab[q2mode],
-                                 * gr_q3tab[q3mode]) - SoF2 and RTCW render
-                                 * there, not at w43 x h43 (1152x864 vs
-                                 * 1280x960 on the 1080p boxes)             */
+                                 * gr_q3tab[q3mode]) - an index engine
+                                 * renders there, not at w43 x h43 (1152x864
+                                 * vs 1280x960 on the 1080p boxes). SoF2 and
+                                 * RTCW left the index on 2026-09-29.        */
     int  hz_src;                /* where hz/hz43/hzq2/hzq3 came from:
                                  * GR_HZSRC_EDID / _PERSISTED / _NONE         */
     int  desk_hz;               /* best real rate at the persisted desktop   */
@@ -830,14 +831,22 @@ GR_DATA const gr_rule_t gr_rules[] = {
 { "Quake3-TeamArena", GR_OP_CFG, "missionpack\\fleetres.cfg", NULL, NULL, NULL },
 { "JediAcademy",      GR_OP_CFG, "base\\fleetres.cfg", NULL, NULL, NULL },
 
-/* --- id Tech 3 forks with NO r_mode -1 BRANCH ---------------------------
- * The cvar table is NOT evidence: SoF2 and RTCW both carry r_customwidth and
- * honour neither. Measured on .145 with an identical config, quake3.exe/jasp/
- * jamp gave 1920x1080 and sof2mp.exe gave 640x480 - it does not error, it
- * renders small. So these get a plain mode INDEX, and it must be Q3MODE:
- * id Tech 3's table entry 8 is 1280x1024 where id Tech 2's is 1280x960. */
-{ "SoldierOfFortune2",          GR_OP_CFG, "base\\fleetres.cfg", "idtech3-index", NULL, NULL },
-{ "ReturnToCastleWolfenstein",  GR_OP_CFG, "Main\\fleetres.cfg", "idtech3-index-nofov", NULL, NULL },
+/* --- SoF2 and RTCW: r_mode -1 too (2026-09-29) --------------------------
+ * These two sat on a plain Q3MODE index for a month on the reading that their
+ * fork has no -1 branch. Both measurements were real and both readings wrong:
+ * sof2mp.exe's 640x480 was r_mode's registered MINIMUM of 3.0 (file 0xBA614,
+ * patched to -1.0 in the staged exe by provisioning/patches/idtech3-kin), and
+ * RTCW's was the first-run Com_SetRecommended pass, which the launchers now
+ * skip with +set com_recommendedSet 1. All four exes verified at 1920x1080 on
+ * .240 through -1.
+ *
+ * SoF2 takes the STANDARD body - both of its launchers write exactly it, where
+ * until now SP and MP wrote two different bodies to this one file. RTCW's is
+ * the same minus cg_fov, the verified .240 configuration; gr_w_cfg() checks
+ * each line for presence, so it must stay a subset of what ALL FOUR RTCW
+ * launchers echo into Main\\fleetres.cfg. */
+{ "SoldierOfFortune2",          GR_OP_CFG, "base\\fleetres.cfg", NULL, NULL, NULL },
+{ "ReturnToCastleWolfenstein",  GR_OP_CFG, "Main\\fleetres.cfg", "idtech3-custom-nofov", NULL, NULL },
 
 /* --- id Tech 2: a FIXED 4:3 table indexed by gl_mode, no custom mode and no
  *     16:9 entry anywhere, so the honest best is a correctly proportioned 4:3
@@ -1036,19 +1045,16 @@ GR_FN const char *gr_cfg_body(const char *kind)
                "seta r_fullscreen \"1\"\n"
                "seta cg_fov \"%FOV%\"\n"
                "seta r_displayRefresh \"%FRHZ%\"\n";
-    if (!strcmp(kind, "idtech3-index"))
+    /* The standard body minus cg_fov - RTCW, verified at 1920x1080 on .240
+     * without one (its default 90 is vert- at 16:9; a value is an untested
+     * follow-up). */
+    if (!strcmp(kind, "idtech3-custom-nofov"))
         return "// written by GAMESYNC for this box's monitor - do not edit\n"
-               "// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,\n"
-               "// and Q3MODE not Q2MODE: idTech3 mode 8 is 1280x1024.\n"
-               "seta r_mode \"%Q3MODE%\"\n"
-               "seta r_fullscreen \"1\"\n"
-               "seta cg_fov \"%FOV%\"\n"
-               "seta r_displayRefresh \"%FRHZ%\"\n";
-    if (!strcmp(kind, "idtech3-index-nofov"))
-        return "// written by GAMESYNC for this box's monitor - do not edit\n"
-               "// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,\n"
-               "// and Q3MODE not Q2MODE: idTech3 mode 8 is 1280x1024.\n"
-               "seta r_mode \"%Q3MODE%\"\n"
+               "seta r_mode \"-1\"\n"
+               "seta r_customwidth \"%W%\"\n"
+               "seta r_customheight \"%H%\"\n"
+               "seta r_customaspect \"1\"\n"
+               "seta r_customPixelAspect \"1\"\n"
                "seta r_fullscreen \"1\"\n"
                "seta r_displayRefresh \"%FRHZ%\"\n";
     if (!strcmp(kind, "idtech2"))

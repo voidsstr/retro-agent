@@ -381,9 +381,10 @@ def test_sof2_skips_its_agp_warning_on_the_command_line():
         spec = json.load(f)
     args = spec['vars']['GAMEARGS']
     assert '+set sys_agpmemchecked 1' in args
-    # the old value really lacked it - this is the line the fix changed
-    old = '+set r_mode %FR_Q3MODE% +set r_fullscreen 1 +set cg_fov %FR_FOV%'
-    assert 'sys_agpmemchecked' not in old and args.startswith(old)
+    # the resolution half is JediAcademy's -1 idiom (2026-09-29); the AGP
+    # cvar rides after it and must survive any change to that half
+    assert args.startswith('+set r_mode -1 +set r_customwidth %FR_W% ')
+    assert args.endswith(' +set sys_agpmemchecked 1')
     staged = os.path.join(LIBRARY, 'SoldierOfFortune2', 'base', 'autoexec.cfg')
     if os.path.exists(staged):
         with open(staged, 'rb') as f:

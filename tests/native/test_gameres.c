@@ -433,13 +433,21 @@ TEST(t_idtech3_split)
     CHECK(strstr(out, "seta cg_fov \"106\"") != NULL,
           "id Tech 3 is vert-, so 16:9 needs the hor+ FOV or you see LESS");
 
-    /* SoF2's fork has no -1 branch: measured, it renders 640x480 rather than
-     * erroring. It gets an INDEX, and from the id Tech 3 table. */
-    CHECK_EQ_I(gr_expand(gr_cfg_body("idtech3-index"), &t, out, sizeof(out)), 0);
-    CHECK(strstr(out, "\"-1\"") == NULL,
-          "a fork without the custom-mode branch must NOT be handed -1");
-    CHECK(strstr(out, "seta r_mode \"7\"") != NULL,
-          "it gets id Tech 3 index 7 = 1152x864, not index 8 = 1280x1024");
+    /* RTCW: the same custom mode, WITHOUT cg_fov - the configuration verified
+     * at 1920x1080 on .240. (SoF2 and RTCW sat on an id Tech 3 INDEX until
+     * 2026-09-29; sof2mp.exe's 640x480 was r_mode's registered minimum, now
+     * patched, and RTCW's the first-run preset pass - not a missing branch.) */
+    CHECK_EQ_I(gr_expand(gr_cfg_body("idtech3-custom-nofov"), &t, out, sizeof(out)), 0);
+    CHECK(strstr(out, "seta r_mode \"-1\"") != NULL,
+          "RTCW renders 1920x1080 through r_mode -1");
+    CHECK(strstr(out, "seta r_customwidth \"1920\"") != NULL,
+          "and the panel's full width");
+    CHECK(strstr(out, "seta r_customheight \"1080\"") != NULL,
+          "and the panel's full height");
+    CHECK(strstr(out, "cg_fov") == NULL,
+          "RTCW was verified without a cg_fov line - none may be written");
+    CHECK(gr_cfg_body("idtech3-index") == NULL,
+          "no rule may still hand an id Tech 3 title a mode index");
 
     /* id Tech 2 has neither: a fixed table, no custom mode, no 16:9 entry. */
     CHECK_EQ_I(gr_expand(gr_cfg_body("idtech2"), &t, out, sizeof(out)), 0);

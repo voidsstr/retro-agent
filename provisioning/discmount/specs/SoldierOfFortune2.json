@@ -1,16 +1,16 @@
 {
   "title": "Soldier of Fortune II: Gold - single player",
-  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_mode \"%FR_Q3MODE%\"\r\nrem r_customwidth/r_customheight are NOT written: this engine\r\nrem has no r_mode -1 branch, so they would be inert and would\r\nrem say the opposite of what is true. Measured on .145.\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customaspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customPixelAspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_fullscreen \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_displayRefresh \"%FR_HZ%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta cg_fov \"%FR_FOV%\"",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0base\\fleetres.cfg\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_mode \"-1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customwidth \"%FR_W%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customheight \"%FR_H%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customaspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_customPixelAspect \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_fullscreen \"1\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta r_displayRefresh \"%FR_HZ%\"\r\n>>\"%~dp0base\\fleetres.cfg\" echo seta cg_fov \"%FR_FOV%\"",
   "vars": {
     "GTITLE": "Soldier of Fortune II: Gold - single player",
     "IMAGE": "%~dp0_disc\\sofii_1.iso",
     "VOLID": "sofii_1",
     "MARKER": "SOF2Video.avi",
     "GAME": "%~dp0SoF2.exe",
-    "GAMEARGS": "+set r_mode %FR_Q3MODE% +set r_fullscreen 1 +set cg_fov %FR_FOV% +set sys_agpmemchecked 1",
+    "GAMEARGS": "+set r_mode -1 +set r_customwidth %FR_W% +set r_customheight %FR_H% +set r_customaspect 1 +set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov %FR_FOV% +set sys_agpmemchecked 1",
     "REQUIREDISC": "1"
   },
   "autokill": "AUTORUN.EXE demo32.exe",
   "prelaunch": "rem (none)",
-  "_note": "sys_agpmemchecked 1 ON THE COMMAND LINE (2026-09-29): SoF2.exe asks DirectDraw for AGP (non-local) video memory at startup and shows the 'No AGP memory detected' message box until that cvar is set - measured on .124, whose vcr-kmd reports none. The check runs BEFORE the configs: seta in base/autoexec.cfg did nothing (tried and removed); +set on the command line skipped it. Second round-trip fixture. Two independently hand-written launchers reproducing from one template is what shows the template is not overfitted to Red Faction."
+  "_note": "sys_agpmemchecked 1 ON THE COMMAND LINE (2026-09-29): SoF2.exe asks DirectDraw for AGP (non-local) video memory at startup and shows the 'No AGP memory detected' message box until that cvar is set - measured on .124, whose vcr-kmd reports none. The check runs BEFORE the configs: seta in base/autoexec.cfg did nothing (tried and removed); +set on the command line skipped it. Second round-trip fixture. Two independently hand-written launchers reproducing from one template is what shows the template is not overfitted to Red Faction. RESOLUTION (2026-09-29): r_mode -1 at the panel size, the same fleetres_block and GAMEARGS as JediAcademy.json plus sys_agpmemchecked - SoF2.exe has the -1 branch, verified 1920x1080 on .240; the old mode-index block rested on the sof2mp.exe measurement, whose cause was r_mode's registered minimum, not a missing branch."
 }
