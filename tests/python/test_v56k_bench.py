@@ -336,6 +336,23 @@ def test_the_watchdog_batch_is_crlf(watchdog):
     assert "\n" not in watchdog.WATCHDOG.replace("\r\n", "")
 
 
+def test_the_watchdog_starts_minimized_and_never_twice(watchdog):
+    """Measured on .124 (2026-09-29): a bare .cmd in the Run key opened the loop
+    in a normal console window at every logon, over the desktop icons. The Run
+    data starts it minimized, install() reads the DATA back (the old bare path
+    is still "present" by name), and a running loop is not started twice."""
+    import inspect
+    assert watchdog.RUN_DATA == r"cmd /c start /min " + watchdog.WD_PATH
+    src = inspect.getsource(watchdog.install)
+    assert "REG_SZ {RUN_DATA}" in src and "if got != RUN_DATA:" in src
+    assert src.index("if await loop_running(ip):") < src.index('LAUNCH {RUN_DATA}')
+    # remove() deletes the VALUE: the agent's REGDELETE only deletes keys
+    rm = inspect.getsource(watchdog.remove)
+    assert "REGDELETE HKLM" not in rm and "reg delete" in rm and "/v {RUN_VAL}" in rm
+    assert watchdog.run_data_of('{"values":[{"name":"RetroAgentWD","data":"x"}]}') == "x"
+    assert watchdog.run_data_of('{"values":[]}') is None
+
+
 def test_the_watchdog_logs_every_restart(watchdog):
     """A supervisor that silently fixes things hides how often the driver
     wedges - which is the measurement this campaign is actually for."""

@@ -50,6 +50,12 @@ SECRET = "retro-agent-secret"
 WD_PATH = r"C:\RETRO_AGENT\agentwd.cmd"
 RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 RUN_VAL = "RetroAgentWD"
+# MINIMIZED. A bare .cmd in the Run key opens a normal console window at every
+# logon - measured on .124 (2026-09-29): after a reboot the loop's window sat
+# un-minimised on the desktop, over the icons, inviting the click that closes
+# it (and with it the supervision). `start /min` gives the loop its own
+# minimized console; no quotes needed, the path has no spaces.
+RUN_DATA = r"cmd /c start /min " + WD_PATH
 
 # `start ""` so the loop does not block on the agent, and a ping-based sleep
 # because XP's shell has no `timeout` command.
@@ -127,17 +133,44 @@ async def check(ip):
     return installed
 
 
+def run_data_of(regread_text):
+    """RUN_VAL's data from a REGREAD answer, or None when the value is absent."""
+    import json
+    try:
+        vals = json.loads(regread_text).get("values", [])
+    except (ValueError, AttributeError):
+        return None
+    for v in vals:
+        if str(v.get("name", "")).lower() == RUN_VAL.lower():
+            return v.get("data")
+    return None
+
+
+async def loop_running(ip):
+    """1 when a watchdog loop already runs (a cmd.exe whose command line names
+    agentwd.cmd). A second one would double every restart."""
+    st, out = await cmd(ip, "EXEC wmic process where \"name='cmd.exe'\" get CommandLine")
+    return "agentwd.cmd" in out.lower()
+
+
 async def install(ip):
     await upload(ip, WD_PATH, WATCHDOG)
-    st, out = await cmd(ip, f"REGWRITE HKLM {RUN_KEY} {RUN_VAL} REG_SZ {WD_PATH}")
+    st, out = await cmd(ip, f"REGWRITE HKLM {RUN_KEY} {RUN_VAL} REG_SZ {RUN_DATA}")
     # Never trust the OK: REGWRITE answers OK for a write that made a subkey.
+    # Read the DATA back, not just the name - the old value (a bare path) is
+    # still "present".
     st, run = await cmd(ip, f"REGREAD HKLM {RUN_KEY}")
-    if RUN_VAL not in run:
-        print("FAILED: the Run value did not stick")
+    got = run_data_of(run)
+    if got != RUN_DATA:
+        print(f"FAILED: the Run value reads {got!r}, not {RUN_DATA!r}")
         return 2
-    # Start it now rather than waiting for the next logon.
-    await cmd(ip, f'LAUNCH cmd /c start "" {WD_PATH}')
-    print(f"  installed and started: {WD_PATH}")
+    # Start it now rather than waiting for the next logon - unless one runs.
+    if await loop_running(ip):
+        print(f"  a watchdog loop already runs - not starting a second; the new Run value "
+              f"(minimized) applies at the next logon")
+    else:
+        await cmd(ip, f"LAUNCH {RUN_DATA}")
+        print(f"  installed and started (minimized): {WD_PATH}")
     print(f"  Run value {RUN_VAL} set (survives reboots via auto-login)")
     st, ex = await cmd(ip, f'EXEC cmd /c if exist {WD_PATH} (echo present) else (echo MISSING)')
     print(f"  script on disk: {ex.strip()}")
@@ -145,10 +178,12 @@ async def install(ip):
 
 
 async def remove(ip):
-    await cmd(ip, f"REGDELETE HKLM {RUN_KEY}\\{RUN_VAL}")
+    # A VALUE: `reg delete /v`. The agent's REGDELETE deletes KEYS - pointed at
+    # Run\RetroAgentWD it found no such key and the value stayed (CLAUDE.md).
+    await cmd(ip, f'EXEC reg delete "HKLM\\{RUN_KEY}" /v {RUN_VAL} /f')
     st, run = await cmd(ip, f"REGREAD HKLM {RUN_KEY}")
     print(f"  Run value {RUN_VAL}: "
-          f"{'STILL PRESENT' if RUN_VAL in run else 'removed'}")
+          f"{'STILL PRESENT' if run_data_of(run) is not None else 'removed'}")
     print("  note: the running loop keeps going until the next reboot or a "
           "taskkill of its cmd.exe")
     return 0
