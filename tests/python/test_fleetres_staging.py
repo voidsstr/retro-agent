@@ -1190,3 +1190,32 @@ def test_validator_passes_a_userini_that_has_bindings(tmp_path):
     })
     assert not [p for p in vl.check_title(str(tmp_path), "UT2004") if p.check == "user.ini"]
     assert vl.ue_userini_problem(str(tmp_path / "UT2004" / "System")) is None
+
+
+# UT99's trees staged an empty System\UNREALTOURNAMENT.log. The running game
+# holds it open, so every box syncing during a UT99 game ended with
+# failed_files 1 (2026-09-29, seven boxes). The validator now fails it; a log
+# that is not <exe>.log (UT's Detected.log) stays allowed.
+def test_validator_fails_a_staged_ue_runtime_log(tmp_path):
+    _title(tmp_path, "UnrealTournament", {
+        "launch.txt": "Play UT.bat\tUT\tSystem\\UnrealTournament.exe\r\n",
+        "Play UT.bat": "@echo off\r\n",
+        "System/UnrealTournament.exe": b"MZ",
+        "System/Core.u": b"x",
+        "System/UNREALTOURNAMENT.log": b"",
+        "System/Detected.log": b"x",
+    })
+    probs = vl.check_title(str(tmp_path), "UnrealTournament")
+    hits = [p for p in probs if p.check == "runtime-log"]
+    assert hits and hits[0].severity == "fail", [(p.check, p.detail) for p in probs]
+    assert "UNREALTOURNAMENT.log" in hits[0].detail and "Detected.log" not in hits[0].detail
+
+
+def test_validator_ignores_logs_outside_an_unreal_system_dir(tmp_path):
+    _title(tmp_path, "Other", {
+        "launch.txt": "Play.bat\tO\tSystem\\game.exe\r\n",
+        "Play.bat": "@echo off\r\n",
+        "System/game.exe": b"MZ",
+        "System/game.log": b"",          # no Core.u / Core.dll: not Unreal
+    })
+    assert not [p for p in vl.check_title(str(tmp_path), "Other") if p.check == "runtime-log"]

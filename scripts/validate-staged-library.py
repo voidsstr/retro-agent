@@ -299,6 +299,33 @@ def ue_userini_problem(sysdir):
                 "when it is MISSING, so every key and mouse button is unbound")
     return None
 
+def ue_runtime_log_problem(sysdir):
+    """An Unreal Engine title must not stage the engine's own <exe>.log.
+
+    The engine writes System\\<ExeName>.log while it runs and holds it open, so
+    a staged copy cannot be overwritten on any box where the game is running:
+    GAMESYNC ends with failed_files 1 and skips its completion marker. Found
+    2026-09-29 - the UT99 trees shipped an empty UNREALTOURNAMENT.log and every
+    box syncing during a UT99 game failed on it."""
+    try:
+        names = os.listdir(sysdir)
+    except OSError:
+        return None
+    low = {n.lower(): n for n in names}
+    if "core.u" not in low and "core.dll" not in low:
+        return None                      # not an Unreal Engine System dir
+    hits = []
+    for n in names:
+        stem, ext = os.path.splitext(n)
+        if ext.lower() == ".exe" and (stem.lower() + ".log") in low:
+            hits.append(low[stem.lower() + ".log"])
+    if hits:
+        return ("System\\%s is the engine's own runtime log - the game rewrites "
+                "it and holds it open, so a staged copy fails GAMESYNC on every "
+                "box where the game is running; remove it from the library"
+                % ", System\\".join(sorted(hits)))
+    return None
+
 def find_ci_path(base, relpath):
     """Case-insensitive lookup of a MULTI-COMPONENT relative path.
 
@@ -491,6 +518,9 @@ def check_title(lib, title):
             why = ue_userini_problem(sysdir)
             if why:
                 fail("user.ini", why)
+            why = ue_runtime_log_problem(sysdir)
+            if why:
+                fail("runtime-log", why)
             break
 
     # --- install.reg: merged after copying; malformed = silently not merged --
