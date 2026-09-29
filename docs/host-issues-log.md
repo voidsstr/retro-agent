@@ -115,6 +115,23 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-09-29 16:47:51: wired NIC wedged from first boot - host fell back to Wi-Fi and lost the fleet and the NAS
+
+- **Boot:** `d3bc0e94…` from 16:47:20 (after the 16:45 requested reboot). The RTL8125B (`r8169`, `enp129s0`)
+  linked at 16:47:31 (1 Gbps full) and **20 s later** logged `NETDEV WATCHDOG: CPU: 12: transmit queue 0
+  timed out 5185 ms` + `rtl_rxtx_empty_cond == 0`. That repeated 28 times through 17:08, and it recurs
+  immediately after `nmcli connection up "Profile 1"`.
+- **Effect:** NetworkManager failed `Profile 1` (`ip-config-unavailable`, 16:48:16) and routed the /24 over
+  **Wi-Fi** (`wlp128s20f3`, 192.168.1.129), which has **no route to the fleet or the NAS**. So
+  `/mnt/retro-share` (autofs) returns "No such device", the chat daemon claims only whitebeast, and every fleet
+  box reads unreachable. A re-activation briefly shows 192.168.1.132 on `enp129s0` but no traffic passes.
+- **Cause: likely/unproven.** The NIC was left wedged by the warm reboot; the previous boots on the same card
+  were fine.
+- **Response:** logged; `nmcli connection up` did not help. The remedy needs root: reload the driver
+  (`sudo modprobe -r r8169 && sudo modprobe r8169`, then `nmcli connection up "Profile 1"`), or a full power-off
+  (not a warm reboot) so the NIC resets. Check afterwards with `ip route get 192.168.1.122` (must be
+  `dev enp129s0 src 192.168.1.132`) and `ls /mnt/retro-share`.
+
 ### 2026-09-29 16:45:53: requested reboot (clean, not a fault)
 
 - **Boot IDs:** `d08f865b…` (13:18:26 → 16:47:01) → `d3bc0e94…` from 16:47:20.
