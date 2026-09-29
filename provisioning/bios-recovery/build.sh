@@ -78,17 +78,36 @@ cp fdconfig.sys config.sys
 # recovery path intact. No /F (that means "use the ORIGINAL BIOS's flash
 # routines" - the corrupt thing). No /tiny (it destroys the BIOSLock
 # signature). /R because nothing can press F1 on a blind machine.
+# The flash command lives in FLASH.BAT, called from AUTOEXEC.BAT, so that the
+# automatic path and the typed-by-hand path CANNOT diverge.  They did once:
+# an earlier ad-hoc disk taught the operator to type FLASH, this disk had no
+# FLASH.BAT, and the board answered "awdflash not found" (2026-09-24).
+#
+# Every line here is defence against being run from somewhere other than the
+# root of A:.  Bare `AWDFLASH` resolves only via the current directory or PATH,
+# and neither is guaranteed: FreeDOS is started with COMMAND.COM living in
+# \FREEDOS\BIN, a board whose boot order prefers the hard disk never makes A:
+# current at all, and a DOS box opened inside Windows starts on C:.
+printf '%s\r\n' \
+ '@ECHO OFF' \
+ 'ECHO EP-8RDA+ BIOS FLASH - DO NOT POWER OFF' \
+ 'SET PATH=A:\' \
+ 'A:' \
+ 'CD \' \
+ 'A:\AWDFLASH.EXE A:\8RDA4729.BIN /py /sn /sb /cc /cd /cp /R' \
+ 'ECHO If you can read this, the flash did NOT start.' \
+ > flash.bat
+
 printf '%s\r\n' \
  '@ECHO OFF' \
  'ECHO EP-8RDA+ BOOTBLOCK RECOVERY' \
- 'ECHO Flashing 8RDA4729.BIN - DO NOT POWER OFF' \
- 'AWDFLASH 8RDA4729.BIN /py /sn /sb /cc /cd /cp /R' \
- 'ECHO If you can read this, the flash did NOT start.' \
+ 'CALL A:\FLASH.BAT' \
  > autoexec.bat
 
 mcopy -i "$OUT" -o fdconfig.sys ::/FDCONFIG.SYS
 mcopy -i "$OUT" -o config.sys   ::/CONFIG.SYS
 mcopy -i "$OUT" -o autoexec.bat ::/AUTOEXEC.BAT
+mcopy -i "$OUT" -o flash.bat    ::/FLASH.BAT
 mcopy -i "$OUT" -o "$AWD_PICK"  ::/AWDFLASH.EXE
 mcopy -i "$OUT" -o 8rda4729.bin ::/8RDA4729.BIN
 mcopy -i "$OUT" -n ::/FREEDOS/BIN/COMMAND.COM . 2>/dev/null || true
