@@ -111,7 +111,14 @@ rem  FR_W43  / FR_H43  resolution for an engine that is 4:3-only
 rem  FR_HZ             refresh of the PERSISTED desktop mode, for an engine
 rem                    whose mode switch takes one (Halo's -vidmode w,h,hz).
 rem                    A hardcoded 60 there is wrong on every CRT box.
+rem  FR_SE1HZ          Serious Engine 1's gfx_iRefreshRate: FR_HZ before
+rem                    Vista, 0 on Windows 7 - where any rate there makes
+rem                    the game die with "Cannot set display mode!"
 rem  FR_Q2MODE         id Tech 2 gl_mode index matching FR_W43/FR_H43
+rem  FR_Q2WIDE         gl_mode for the PATCHED id Tech 2 exes - Quake II, SiN,
+rem                    Soldier of Fortune - whose entry 9 is 1920x1080: 9 on a
+rem                    16:9 box that offers 1920x1080, else the FR_Q2MODE
+rem                    selector capped at entry 8. Never hand it a stock exe.
 rem  FR_Q3MODE         id Tech 3 r_mode index - a DIFFERENT TABLE: id Tech 2's
 rem                    mode 8 is 1280x960 (4:3), id Tech 3's is 1280x1024 (5:4),
 rem                    so handing FR_Q2MODE to a Quake III-family engine asks a
@@ -133,10 +140,12 @@ set FR_W43=
 set FR_H43=
 set FR_FOV=
 set FR_Q2MODE=
+set FR_Q2WIDE=
 set FR_DOSFULLRES=
 set FR_PANEL=
 set FR_Q3MODE=
 set FR_HZ=
+set FR_SE1HZ=
 set FR_EDID=
 set FR_GLIDE=
 set FR_UE1DEV=
@@ -151,8 +160,12 @@ if not defined FR_W43 set FR_W43=1024
 if not defined FR_H43 set FR_H43=768
 if not defined FR_FOV set FR_FOV=90
 if not defined FR_Q2MODE set FR_Q2MODE=6
+if not defined FR_Q2WIDE set FR_Q2WIDE=6
 if not defined FR_Q3MODE set FR_Q3MODE=6
 if not defined FR_HZ set FR_HZ=60
+rem 0 = "ask for no rate", which starts Serious Sam on every Windows; only a
+rem working FLEETRES.EXE can say a box is old enough for a rate to be safe.
+if not defined FR_SE1HZ set FR_SE1HZ=0
 if not defined FR_EDID set FR_EDID=0
 if not defined FR_DOSFULLRES set FR_DOSFULLRES=original
 rem FR_GLIDE defaults to 0 - "no 3dfx silicon" - deliberately. The wrong way
@@ -163,7 +176,7 @@ if not defined FR_UE1DEV set FR_UE1DEV=D3DDrv.D3DRenderDevice
 """
 
 
-def idtech3_cfg(mod, wide=True):
+def idtech3_cfg(mod, wide=True, fov=True):
     """The cfg the staged autoexec.cfg execs, written fresh at every launch.
 
     r_mode / r_customwidth / r_customheight / r_fullscreen are CVAR_LATCH: they
@@ -197,7 +210,10 @@ def idtech3_cfg(mod, wide=True):
         # including the engines with no refresh setting of their own.
         '>>%s echo seta r_displayRefresh "%%FR_HZ%%"' % p,
     ]
-    if wide:
+    # fov=False is RTCW: verified at 1920x1080 on .240 WITHOUT a cg_fov line,
+    # and the default 90 there is vert- at 16:9 - a cg_fov value for it is an
+    # untested, optional follow-up, not something to ship blind.
+    if wide and fov:
         # id Tech 3 is vert-: at 16:9 with the default FOV you see LESS
         # vertically, not more horizontally. FR_FOV restores the 4:3 vertical
         # field of view (106 at 16:9, 90 at 4:3).
@@ -207,6 +223,11 @@ def idtech3_cfg(mod, wide=True):
 
 def idtech3_modecfg(mod, fov=True):
     """For an id Tech 3 fork with NO r_mode -1 BRANCH.
+
+    NO TITLE USES THIS TODAY (2026-09-29): the two forks it was written for,
+    SoF2 and RTCW, turned out to have the branch - see IDTECH3_NO_CUSTOM_MODE.
+    The 640x480 described below was sof2mp.exe's r_mode MINIMUM of 3.0, which
+    the staged exe is now patched past. Kept for a fork that really lacks it.
 
     `r_mode -1` + r_customwidth/r_customheight is the standard idiom and it is
     NOT universal: measured on .145 with an identical fleetres.cfg,
@@ -238,18 +259,27 @@ def idtech3_modecfg(mod, fov=True):
     return out
 
 
-# MEASURED ON HARDWARE, NOT INFERRED. These id Tech 3 forks accept a plain
-# r_mode INDEX and silently REJECT r_mode -1, falling back to mode 3 (640x480).
-# The trap is that they still carry r_customwidth / r_customheight /
-# r_customaspect as cvars, still SAVE the values you set, and print no error -
-# so every artefact you can inspect says the resolution was applied.
+# EMPTY SINCE 2026-09-29 - NEITHER FORK LACKS THE r_mode -1 BRANCH AFTER ALL.
 #
-# Return to Castle Wolfenstein 1.41 (the GOG build), measured on .246
-# 2026-08-31: with fleetres.cfg asking for r_mode -1 + 1920x1080, the game came
-# up 640x480 and wrote back `seta r_mode "3"` beside an intact
-# `seta r_customwidth "1920"`. Repeated at 1280x1024 with r_colorbits 32 - also
-# 640x480. A plain `seta r_mode "8"` on the same box came up 1280x1024 at once.
-IDTECH3_NO_CUSTOM_MODE = {"ReturnToCastleWolfenstein", "SoldierOfFortune2"}
+# This set once held ReturnToCastleWolfenstein and SoldierOfFortune2 on the
+# reading that both "silently REJECT r_mode -1, falling back to mode 3". Both
+# measurements were real; both conclusions were wrong, and each had its own
+# cause:
+#
+#   * RTCW (.246, 2026-08-31, came up 640x480 and wrote back `seta r_mode "3"`)
+#     was the FIRST-RUN Com_SetRecommended pass: with no wolfconfig_mp.cfg the
+#     engine execs highVidhighCPU.cfg, which sets mode 3 over the -1. The
+#     launchers now pass `+set com_recommendedSet 1`, which skips that pass.
+#   * sof2mp.exe (.145/.123, 640x480) was r_mode's registered MINIMUM of 3.0f
+#     (R_Register, file 0xBA614): -1 was clamped up to 3. The staged sof2mp.exe
+#     carries the idtech3-kin patch that lowers that minimum to -1.0f. A STOCK
+#     sof2mp.exe with the -1 launcher still renders 640x480.
+#
+# Verified on .240 through r_mode -1 at 1920x1080: WolfSP, WolfMP, SoF2.exe and
+# the patched sof2mp.exe (provisioning/patches/idtech3-kin). The branch in
+# new_launcher() that consumes this set stays, so a NEW measurement of a fork
+# that really lacks the branch has somewhere to go.
+IDTECH3_NO_CUSTOM_MODE = set()
 
 # ...AND FR_Q3MODE USED TO NAME A MODE THE BOX COULD NOT SET, which this
 # engine answered by running in a WINDOW rather than by failing.
@@ -355,13 +385,17 @@ def doom3_args(extra=""):
 
 def q2_cfg(mod):
     """id Tech 2 has a FIXED mode table indexed by gl_mode and no custom mode:
-    0=320x240 ... 6=1024x768 ... 9=1600x1200, no 16:9 entry anywhere. So the
-    honest best on a 16:9 panel is a correctly proportioned 4:3 mode, which is
-    what FR_Q2MODE indexes."""
+    0=320x240 ... 6=1024x768 ... 9=1600x1200, no 16:9 entry in a STOCK exe.
+    The staged quake2.exe / sin.exe / SoF.exe are PATCHED so entry 9 is
+    1920x1080 (provisioning/patches/idtech2), and FR_Q2WIDE is the index for
+    them: 9 on a 16:9 box that offers 1920x1080, else the correctly
+    proportioned 4:3 entry FR_Q2MODE would pick, capped at 8 - never 9, which
+    on a patched exe is no longer 1600x1200. GAMERES writes the same line
+    (%Q2WIDE%, agent/shared/gameres.h)."""
     p = '"%%~dp0%s\\fleetres.cfg"' % mod
     return [
         '> %s echo // written by the launcher at every start - do not edit' % p,
-        '>>%s echo set gl_mode "%%FR_Q2MODE%%"' % p,
+        '>>%s echo set gl_mode "%%FR_Q2WIDE%%"' % p,
         '>>%s echo set vid_fullscreen "1"' % p,
     ]
 
@@ -735,16 +769,27 @@ def ssam_startup_ini():
     titles rewrite fleetres.cfg. Serious Engine's console syntax needs the
     trailing semicolons.
 
+    gfx_iRefreshRate IS FR_SE1HZ, NOT FR_HZ (2026-09-29). With a non-zero
+    rate the engine's mode switch hands ChangeDisplaySettings a refresh AND
+    dmDisplayFlags 4 (DMDISPLAYFLAGS_TEXTMODE). XP ignores the flag; Windows 7
+    refuses that request at every resolution, and the game dies before any
+    window with "Cannot set display mode! Serious Sam was unable to find
+    display mode with OpenGL acceleration" - which looks like a broken ICD and
+    is not one. Proven on .195 (Win7, Radeon HD 5450, Catalyst 15.7.1): a test
+    program failed only with the flag and a rate together, and the game ran
+    fullscreen 1920x1080 on the AMD ICD with gfx_iRefreshRate=0. FR_SE1HZ is
+    agent/shared/gameres.h gr_se1_hz() - 0 on NT 6+, FR_HZ before - so XP's
+    CRTs keep their 85/100 Hz and GAMERES writes the same number.
+
     THE LAUNCHER DELIBERATELY DOES NOT WRITE sam_iDriver. It used to pin it to
-    0 (OpenGL), and that is a renderer choice this tool cannot make: measured on
-    .246 (Win7, Radeon HD 5450) the OpenGL path dies before any window with
-    "Cannot set display mode! Serious Sam was unable to find display mode with
-    OpenGL acceleration", and the same box runs fine on sam_iDriver=1
-    (Direct3D). Pinning 0 at every launch also overwrote the engine's OWN
-    persisted answer, so a box fixed by hand was un-fixed on its next start.
-    The engine auto-detects a renderer on first run and saves it to
-    PersistentSymbols.ini - which is no longer staged, so that answer now
-    survives. This block owns the PANEL; the engine owns the API.
+    0 (OpenGL), and that is a renderer choice this tool cannot make. In this
+    build sam_iDriver=1 is the 3dfx MiniGL (3DFXVGL.DLL), NOT Direct3D, as an
+    earlier version of this note said; the .246 "OpenGL path dies" finding it
+    was based on was the refresh fault above. Pinning 0 at every launch also
+    overwrote the engine's OWN persisted answer, so a box fixed by hand was
+    un-fixed on its next start. The engine auto-detects a renderer on first run
+    and saves it to PersistentSymbols.ini - which is no longer staged, so that
+    answer now survives. This block owns the PANEL; the engine owns the API.
     """
     p = '"%~dp0Scripts\\Game_startup.ini"'
     return [
@@ -754,7 +799,7 @@ def ssam_startup_ini():
         '>>%s echo sam_bFullScreen=1;' % p,
         '>>%s echo sam_iScreenSizeI=%%FR_W%%;' % p,
         '>>%s echo sam_iScreenSizeJ=%%FR_H%%;' % p,
-        '>>%s echo gfx_iRefreshRate=%%FR_HZ%%;' % p,
+        '>>%s echo gfx_iRefreshRate=%%FR_SE1HZ%%;' % p,
     ]
 
 
@@ -783,6 +828,38 @@ def q3(mod, exe, extra=""):
                (old, 'start "" %s%s %s' % (exe, extra, args)))
 
 
+# The PATCHED id Tech 2 exes (provisioning/patches/idtech2): mode 9 is
+# 1920x1080, selected by FR_Q2WIDE. These pairs move a launcher that already
+# carries the FLEETRES block - patch_launcher skips those - from FR_Q2MODE to
+# FR_Q2WIDE: the fleetres.cfg line and the +set on the start line. Only for
+# a GL launcher; ref_soft's sw_mode stays on FR_Q2MODE.
+def _q2wide_fix(mod):
+    cfg = '>>"%%~dp0%s\\fleetres.cfg" echo set gl_mode ' % mod
+    return [(cfg + '"%FR_Q2MODE%"', cfg + '"%FR_Q2WIDE%"'),
+            ('+set gl_mode %FR_Q2MODE%', '+set gl_mode %FR_Q2WIDE%')]
+
+
+# RTCW's hand-written LAN pair - "Host RTCW - LAN.bat" / "Join RTCW - LAN.bat" -
+# moved from the mode index to r_mode -1 exactly as new_launcher() writes the
+# two Play launchers: the same five cfg lines, the same command line. CRLF and
+# exact; each OLD is gone once applied, so a re-run is "already applied".
+_RTCW_CFG = '>>"%~dp0Main\\fleetres.cfg" echo '
+_RTCW_LAN_FIX = [
+    (_RTCW_CFG + '// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,\r\n'
+     + _RTCW_CFG + '// and FR_Q3MODE not FR_Q2MODE: idTech3 mode 8 is 1280x1024.\r\n'
+     + _RTCW_CFG + 'seta r_mode "%FR_Q3MODE%"\r\n',
+     _RTCW_CFG + 'seta r_mode "-1"\r\n'
+     + _RTCW_CFG + 'seta r_customwidth "%FR_W%"\r\n'
+     + _RTCW_CFG + 'seta r_customheight "%FR_H%"\r\n'
+     + _RTCW_CFG + 'seta r_customaspect "1"\r\n'
+     + _RTCW_CFG + 'seta r_customPixelAspect "1"\r\n'),
+    ('+set r_mode %FR_Q3MODE% +set r_fullscreen 1',
+     '+set com_recommendedSet 1 +set r_mode -1 +set r_customwidth %FR_W% '
+     '+set r_customheight %FR_H% +set r_customaspect 1 '
+     '+set r_customPixelAspect 1 +set r_fullscreen 1'),
+]
+
+
 TITLES = {
     # SERIOUS SAM - both Encounters. Croteam Serious Engine 1.
     #
@@ -794,8 +871,10 @@ TITLES = {
     # titles need, is put FLEETRES.EXE and FLEETRES.BAT in the tree.
     #
     # ssam_startup_ini() is therefore the SOURCE OF TRUTH for the block that is
-    # copied into those specs. If you change it here, regenerate the six
-    # launchers - nothing checks that for you yet.
+    # copied into those specs. If you change it here, update the six specs and
+    # regenerate the launchers - test_serioussam_staging.py
+    # test_every_ssam_spec_carries_the_stagers_startup_block now fails when a
+    # spec and this function disagree (it did not until 2026-09-29).
     #
     # The anchor is the `cd /d` the template emits: the engine resolves its
     # .gro files against the CURRENT DIRECTORY, so a launcher that does not cd
@@ -817,10 +896,9 @@ TITLES = {
         },
     },
     "ReturnToCastleWolfenstein": {
-        # id Tech 3, and it is one of the forks with NO r_mode -1 BRANCH -
-        # see IDTECH3_NO_CUSTOM_MODE, which records the measurement. The cvar
-        # table was NOT evidence: WolfMP.exe carries r_customwidth,
-        # r_customheight and r_customaspect and honours none of them.
+        # id Tech 3, r_mode -1 at the panel size plus com_recommendedSet 1 -
+        # see new_launcher() and IDTECH3_NO_CUSTOM_MODE for why this title sat
+        # on a mode index until 2026-09-29 and why that reading was wrong.
         # Main\autoexec.cfg ships from GOG carrying
         # `set devdll 1` and is exec'd by BOTH WolfSP.exe and WolfMP.exe, so
         # one `exec fleetres.cfg` appended there serves both engines.
@@ -829,7 +907,39 @@ TITLES = {
         # dedicated/listen server and a +connect client need arguments this
         # tool has no vocabulary for) and each carries the same
         # `call FLEETRES.BAT` plus the same cfg writes inline, exactly as
-        # RedneckRampage's LAN pair does.
+        # RedneckRampage's LAN pair does. No recipe ever rewrites them, so the
+        # 'fix' pairs below are what moves them off the mode index.
+        "fix": {
+            "Host RTCW - LAN.bat": _RTCW_LAN_FIX + [(
+                'rem RESOLUTION: a plain r_mode INDEX, not r_mode -1. Measured on .246\r\n'
+                'rem 2026-08-31: this engine SAVES r_customwidth/r_customheight and IGNORES\r\n'
+                'rem them, falling back to mode 3 (640x480) and writing `seta r_mode "3"` back\r\n'
+                'rem over your -1 - with no error anywhere. See stage-fleetres.py\'s\r\n'
+                'rem IDTECH3_NO_CUSTOM_MODE. cg_fov is deliberately left at the engine\'s 90:\r\n'
+                'rem\r\n'
+                'rem The block is called with NO -cap. It briefly carried\r\n'
+                'rem -cap 1024 768, because FR_Q3MODE could name a mode the box cannot\r\n'
+                'rem set. fleetres.c now checks the adapter\'s enumerated mode list, and\r\n'
+                'rem with that fix the cap became the defect: on .123 and .240 it drove\r\n'
+                'rem FR_Q3MODE to 3 - 640x480, the floor - because those adapters do not\r\n'
+                'rem enumerate 1024x768 at the queried depth. See IDTECH3_MODE_CAP.\r\n'
+                'rem every mode in this table except 11 is 4:3, so the 106 a 16:9 panel earns\r\n'
+                'rem would widen an already-correct picture.\r\n',
+                'rem RESOLUTION: r_mode -1 at the panel size, from FLEETRES - verified at\r\n'
+                'rem 1920x1080 on .240 on 2026-09-29. The 640x480 measured on .246 on\r\n'
+                'rem 2026-08-31 was NOT a missing -1 branch: it was the first-run preset\r\n'
+                'rem pass. With no wolfconfig_mp.cfg yet the engine execs highVidhighCPU.cfg,\r\n'
+                'rem which sets mode 3 over the -1. +set com_recommendedSet 1 skips that\r\n'
+                'rem pass. See stage-fleetres.py\'s IDTECH3_NO_CUSTOM_MODE.\r\n'
+                'rem\r\n'
+                'rem The block is called with NO -cap - see IDTECH3_MODE_CAP.\r\n'
+                'rem cg_fov is left at the engine\'s 90, as in the verified run; a 16:9\r\n'
+                'rem value for it is an untested follow-up.\r\n')],
+            "Join RTCW - LAN.bat": _RTCW_LAN_FIX + [(
+                'rem RESOLUTION: a plain r_mode INDEX - see "Host RTCW - LAN.bat".\r\n',
+                'rem RESOLUTION: r_mode -1 at the panel size, with com_recommendedSet 1\r\n'
+                'rem - see "Host RTCW - LAN.bat".\r\n')],
+        },
         "new": {
             "Play Return to Castle Wolfenstein.bat": ("WolfSP.exe", "Main"),
             "Play RTCW Multiplayer.bat": ("WolfMP.exe", "Main"),
@@ -947,47 +1057,91 @@ TITLES = {
         },
     },
     "SoldierOfFortune2": {
-        # THE ONLY idTech3 TITLE HERE WITH NO r_mode -1 BRANCH. See
-        # idtech3_modecfg(). Both binaries are the same engine, so both get the
-        # index - the single-player launcher was still on -1 and was therefore
-        # silently 640x480 too.
+        # r_mode -1 at the panel size, like every other id Tech 3 title - and
+        # for sof2mp.exe ONLY because the staged exe is patched: r_mode's
+        # registered minimum was 3.0f (file 0xBA614), which clamped -1 up to
+        # 640x480; provisioning/patches/idtech3-kin lowers it to -1.0f. SoF2.exe
+        # takes -1 as shipped. Both verified at 1920x1080 on .240 (2026-09-29).
+        #
+        # Neither recipe below reaches the share any more: the MP launcher is
+        # hand-written and already CALLs FLEETRES (patch_launcher skips it -
+        # the 'fix' pairs move it), and the SP launcher is a DISC-MOUNT
+        # launcher generated from provisioning/discmount/specs/
+        # SoldierOfFortune2.json. They are kept truthful for a fresh tree.
         "launchers": {
             "Play Soldier of Fortune II - Multiplayer.bat": rec(
-                'cd /d "%~dp0"', [CALL] + idtech3_modecfg("base"),
+                'cd /d "%~dp0"', [CALL] + idtech3_cfg("base"),
                 (re.escape('start "" "%~dp0sof2mp.exe"'),
-                 'start "" "%%~dp0sof2mp.exe" %s' % idtech3_modeargs())),
+                 'start "" "%%~dp0sof2mp.exe" %s' % idtech3_args())),
             # NB the substitution target is `set "GAMEARGS="`, not the GAME=
             # line above it: this launcher CLEARS GAMEARGS after setting GAME,
             # so appending there is silently wiped one line later. Found by
             # reading the generated file rather than trusting the patch.
             "Play Soldier of Fortune II.bat": rec(
-                'cd /d "%~dp0"', [CALL] + idtech3_modecfg("base"),
+                'cd /d "%~dp0"', [CALL] + idtech3_cfg("base"),
                 (re.escape('set "GAMEARGS="'),
-                 'set "GAMEARGS=%s"' % idtech3_modeargs())),
+                 'set "GAMEARGS=%s"' % idtech3_args())),
         },
+        # MP ONLY. The earlier pairs here moved the launchers the other way -
+        # onto FR_Q3MODE, and the SP one's r_customwidth/height echoes into
+        # rem lines - and must stay gone: against the -1 launchers they are
+        # "neither old nor new present" and would fail the run, or revert the
+        # regenerated SP launcher to -1 with no size. The _REFRESH loop below
+        # re-adds the r_displayRefresh pair for both launchers.
         "fix": {
-            # The MP launcher was moved off -1 by the library-qa sweep, but onto
-            # FR_Q2MODE - the wrong table. The SP one was never moved at all.
             "Play Soldier of Fortune II - Multiplayer.bat": [
-                ('r_mode "%FR_Q2MODE%"', 'r_mode "%FR_Q3MODE%"'),
-                ('+set r_mode %FR_Q2MODE%', '+set r_mode %FR_Q3MODE%'),
-            ],
-            "Play Soldier of Fortune II.bat": [
-                ('seta r_mode "-1"', 'seta r_mode "%FR_Q3MODE%"'),
-                # These two are inert once the -1 branch is gone, and leaving
-                # them in the generated cfg says the opposite of what is true.
-                # The replacement is a rem rather than nothing, because an EMPTY
-                # replacement is always "already present" and would make
-                # repair()'s stale-recipe check unfireable.
-                ('>>"%~dp0base\\fleetres.cfg" echo seta r_customwidth "%FR_W%"\r\n'
-                 '>>"%~dp0base\\fleetres.cfg" echo seta r_customheight "%FR_H%"\r\n',
-                 'rem r_customwidth/r_customheight are NOT written: this engine\r\n'
-                 'rem has no r_mode -1 branch, so they would be inert and would\r\n'
-                 'rem say the opposite of what is true. Measured on .145.\r\n'),
-                ('+set r_mode -1 +set r_customwidth %FR_W% '
+                ('>>"%~dp0base\\fleetres.cfg" echo seta r_mode "%FR_Q3MODE%"\r\n',
+                 '>>"%~dp0base\\fleetres.cfg" echo seta r_mode "-1"\r\n'
+                 '>>"%~dp0base\\fleetres.cfg" echo seta r_customwidth "%FR_W%"\r\n'
+                 '>>"%~dp0base\\fleetres.cfg" echo seta r_customheight "%FR_H%"\r\n'
+                 '>>"%~dp0base\\fleetres.cfg" echo seta r_customaspect "1"\r\n'
+                 '>>"%~dp0base\\fleetres.cfg" echo seta r_customPixelAspect "1"\r\n'),
+                ('start "" "%~dp0sof2mp.exe" +set r_mode %FR_Q3MODE% '
+                 '+set r_fullscreen 1 +set cg_fov %FR_FOV%',
+                 'start "" "%~dp0sof2mp.exe" +set r_mode -1 +set r_customwidth %FR_W% '
                  '+set r_customheight %FR_H% +set r_customaspect 1 '
-                 '+set r_customPixelAspect 1 +set r_fullscreen 1',
-                 '+set r_mode %FR_Q3MODE% +set r_fullscreen 1'),
+                 '+set r_customPixelAspect 1 +set r_fullscreen 1 +set cg_fov %FR_FOV%'),
+                ('rem  RESOLUTION: r_mode -1 DOES NOT WORK IN THIS ENGINE. Measured on .123,\r\n'
+                 'rem  2026-08-30. r_customwidth / r_customheight / r_customaspect are all\r\n'
+                 "rem  registered cvars in sof2mp.exe's string table, so mode -1 looks supported\r\n"
+                 'rem  and this launcher used to ask for it - but the renderer has no mode -1\r\n'
+                 'rem  branch, so the mode is invalid and it falls back to 640x480. That is why\r\n'
+                 'rem  the box came up 640x480 on a 1920x1080 panel while fleetres.cfg correctly\r\n'
+                 'rem  said 1920. A plain mode INDEX works: r_mode 8 gave 1280x1024 and r_mode 7\r\n'
+                 'rem  gave 1152x864 on the same box, same launch path.\r\n'
+                 'rem\r\n'
+                 "rem  sof2mp.exe's own mode table:\r\n"
+                 'rem     0 320x240  1 400x300  2 512x384  3 640x480   4 800x600  5 960x720\r\n'
+                 'rem     6 1024x768 7 1152x864 8 1280x1024 9 1600x1200 10 2048x1536\r\n'
+                 'rem    11 856x480 (wide)\r\n'
+                 'rem  There is NO 1920x1080 entry and the only widescreen mode is 856x480, so\r\n'
+                 'rem  1920x1080 is NOT ATTAINABLE for SoF2 - an engine limit, not a staging\r\n'
+                 'rem  gap. Mode 8 (1280x1024) is the largest that fits a 1080p panel; 9 and 10\r\n'
+                 'rem  are taller than 1080.\r\n'
+                 'rem\r\n'
+                 'rem  FR_Q2MODE is the right variable to use even though it is named for id\r\n'
+                 "rem  Tech 2: SoF2's table is identical to Quake II's at every index except 8\r\n"
+                 'rem  (1280x1024 here vs 1280x960 there), and both of those fit a 1080p panel.\r\n'
+                 'rem  So no new FLEETRES variable is needed for this title.\r\n'
+                 'rem\r\n'
+                 'rem  NOTE FOR THE FLEETRES OWNER: this is a deliberate, title-specific\r\n'
+                 'rem  departure from the r_mode -1 pattern the other idTech3 launchers use.\r\n'
+                 'rem  Do not "restore" it to r_mode -1 - that is the bug. SoF2 is not Quake III\r\n'
+                 'rem  1.32 and does not carry the custom-resolution code that was added there.\r\n',
+                 'rem  RESOLUTION: r_mode -1 at the panel size, from FLEETRES. Verified at\r\n'
+                 'rem  1920x1080 on .240, 2026-09-29.\r\n'
+                 'rem\r\n'
+                 'rem  This launcher used to pass a mode INDEX, on the reading that the engine\r\n'
+                 'rem  had no r_mode -1 branch: .123 came up 640x480 with -1 on 2026-08-30.\r\n'
+                 'rem  The branch was never missing. R_Register registers r_mode with a\r\n'
+                 'rem  MINIMUM of 3.0 - the float at file offset 0xBA614 - so -1 was clamped\r\n'
+                 'rem  up to mode 3, 640x480, with no error anywhere.\r\n'
+                 'rem\r\n'
+                 'rem  The staged sof2mp.exe carries the idtech3-kin patch at 0xBA61A that\r\n'
+                 'rem  lowers that minimum to -1.0 - provisioning/patches/idtech3-kin in the\r\n'
+                 'rem  retro-agent repo. A STOCK sof2mp.exe with this launcher renders\r\n'
+                 'rem  640x480: restore the stock exe and this line has to go back to an\r\n'
+                 'rem  index, FR_Q3MODE, never FR_Q2MODE.\r\n'),
             ],
         },
         "cfg_strip": ["base/autoexec.cfg"],
@@ -1343,29 +1497,45 @@ TITLES = {
         },
     },
     "Quake2Complete": {
+        # Already staged and carrying MARK, so a recipe change never reaches
+        # them: the 'fix' pairs move them to FR_Q2WIDE. Quake2Win9x keeps the
+        # STOCK exe and FR_Q2MODE - it is not in this table at all.
+        "fix": {
+            "Quake II.bat": _q2wide_fix("baseq2"),
+            "Quake II - The Reckoning.bat": _q2wide_fix("xatrix"),
+            "Quake II - Ground Zero.bat": _q2wide_fix("rogue"),
+            "Quake II - ThreeWave CTF.bat": _q2wide_fix("ctf"),
+        },
         "launchers": {
             "Quake II.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("baseq2"),
                 (re.escape('start "" quake2.exe') + r'(?!\s*\+set game)',
-                 'start "" quake2.exe +set gl_mode %FR_Q2MODE%')),
+                 'start "" quake2.exe +set gl_mode %FR_Q2WIDE%')),
             "Quake II - The Reckoning.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("xatrix"),
                 (re.escape('start "" quake2.exe +set game xatrix'),
-                 'start "" quake2.exe +set game xatrix +set gl_mode %FR_Q2MODE%')),
+                 'start "" quake2.exe +set game xatrix +set gl_mode %FR_Q2WIDE%')),
             "Quake II - Ground Zero.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("rogue"),
                 (re.escape('start "" quake2.exe +set game rogue'),
-                 'start "" quake2.exe +set game rogue +set gl_mode %FR_Q2MODE%')),
+                 'start "" quake2.exe +set game rogue +set gl_mode %FR_Q2WIDE%')),
             "Quake II - ThreeWave CTF.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("ctf"),
                 (re.escape('start "" quake2.exe +set game ctf'),
-                 'start "" quake2.exe +set game ctf +set gl_mode %FR_Q2MODE%')),
+                 'start "" quake2.exe +set game ctf +set gl_mode %FR_Q2WIDE%')),
         },
         "cfg_exec": ["baseq2/autoexec.cfg", "xatrix/autoexec.cfg",
                      "rogue/autoexec.cfg", "ctf/autoexec.cfg"],
     },
     "SiNGold": {
         "new": {"Play SiN Gold.bat": ("sin.exe", "base")},
+        # 'new' launchers are rewritten whole; Wages of SiN is patched, so it
+        # needs a repair pair. The software launcher is deliberately absent.
+        # NB SiN's GL path is recorded as crashing on .145 - nothing here
+        # special-cases that box, before or after this change.
+        "fix": {
+            "Play Wages of SiN.bat": _q2wide_fix("2015"),
+        },
         "launch_txt_line0": ("Play SiN Gold.bat", "SiN", "sin.exe"),
         # The mission pack is a SEPARATE mod directory with its own autoexec.cfg
         # and its own `set gl_mode "6"`, so covering base/ alone left half the
@@ -1376,11 +1546,16 @@ TITLES = {
             "Play Wages of SiN.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("2015"),
                 (re.escape('start "" sin.exe +set game 2015'),
-                 'start "" sin.exe +set game 2015 +set gl_mode %FR_Q2MODE%')),
+                 'start "" sin.exe +set game 2015 +set gl_mode %FR_Q2WIDE%')),
             # The SOFTWARE renderer indexes the same table with sw_mode. It
             # exists for a box with no usable 3D, and 1024x768 in software was
             # still a staged constant - wrong on .171, which is capped at
             # 800x600 by its Voodoo 2 and would be asked for more.
+            # It keeps FR_Q2MODE, NOT FR_Q2WIDE: ref_soft must never be sent
+            # to mode 9 (1920x1080 on the patched sin.exe; its buffers are
+            # sized for 1600). Safe today because no box resolves FR_Q2MODE
+            # to 9 and base\autoexec.cfg's sw_mode "6" wins anyway - if this
+            # sw_mode is ever made to stick, cap it at 8.
             "Play SiN - software renderer.bat": rec(
                 'cd /d "%~dp0"', [CALL],
                 (re.escape('+set sw_mode 6'), '+set sw_mode %FR_Q2MODE%')),
@@ -1657,14 +1832,16 @@ rem This .bat exists because launch.txt used to point straight at the exe, and a
 rem desktop shortcut cannot carry arguments - so there was nowhere to run
 rem FLEETRES and the game was pinned to gl_mode 6 (1024x768) on every monitor.
 rem
-rem id Tech 2 has a FIXED mode table and no custom mode: 0=320x240 ... 6=1024x768
-rem ... 9=1600x1200, with no 16:9 entry at all. A correctly proportioned 4:3 mode
-rem is the honest best on a widescreen panel; stretching it is worse.
+rem id Tech 2 has a FIXED mode table and no custom mode. The staged exe is
+rem PATCHED so its entry 9 is 1920x1080, not 1600x1200: FR_Q2WIDE is 9 on a 16:9
+rem box that offers 1920x1080, else the largest correctly proportioned 4:3 mode
+rem up to 1280x960 - stretching a 4:3 mode is worse. See
+rem provisioning/patches/idtech2 in the retro-agent repo.
 cd /d "%~dp0"
 
 {block}
 
-start "" {exe} +set gl_mode %FR_Q2MODE%
+start "" {exe} +set gl_mode %FR_Q2WIDE%
 
 exit
 """
@@ -1916,6 +2093,16 @@ class Runner:
         elif title in ("SiNGold", "SoldierOfFortune"):
             block = "\n".join([CALL] + q2_cfg(mod))
             text = NEW_Q2.format(title=disp, exe=exe, block=block)
+        elif title == "ReturnToCastleWolfenstein":
+            # r_mode -1 at the panel size, and com_recommendedSet 1 so a box
+            # with no wolfconfig_mp.cfg yet does not run the first-run preset
+            # pass that sets mode 3 over the -1 - the .246 640x480 that kept
+            # this title on an index for a month (see IDTECH3_NO_CUSTOM_MODE).
+            # No cg_fov: the verified .240 run had none.
+            block = "\n".join([CALL] + idtech3_cfg(mod, fov=False))
+            text = NEW_IDTECH3.format(
+                title=disp, exe=exe, block=block,
+                args="+set com_recommendedSet 1 " + idtech3_args(fov=False))
         elif title in IDTECH3_NO_CUSTOM_MODE:
             cap = IDTECH3_MODE_CAP.get(title)
             head = call_cap(cap[0], cap[1]) if cap else CALL

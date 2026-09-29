@@ -1723,6 +1723,15 @@ staged into `C:\retro-wall\`:
   (regedit writes `HKCU\Control Panel\Colors`, then `setsyscolors.exe` pushes
   them live via `SetSysColors` so it takes effect without a re-logon)
 - ~~`arrange_icons.exe`~~ → **superseded, and must NOT be run** (see below)
+- **the monitor never sleeps - the screensaver is what an idle box shows**
+  (agent **1.96.0**, `agent/src/monpower.c`, decision `agent/shared/monpower.h`):
+  every start sets the ACTIVE power scheme's monitor, standby and hibernate
+  timeouts (AC and DC) to never and clears `SPI_SETPOWEROFFACTIVE`/`LOWPOWERACTIVE`
+  on 98/XP. powrprof is **LoadLibrary'd** (98/XP: `ReadPwrScheme`/`WritePwrScheme`,
+  Vista+: `Power*ValueIndex`). Compare first, read back; `MonitorPowerBoot` holds
+  the last result, `MONPOWER` reports (`apply` = now), `MonitorNeverSleep`=0
+  switches it off. Before it `.184` turned the monitor off at 20 min and `.243`
+  at 15 min (standby at 20) under the 10-minute screensaver.
 
 Each step is a **no-op if its asset isn't staged** — but the icon layout and the
 theme are applied **regardless**, because neither needs a staged asset. Note the
@@ -2151,7 +2160,13 @@ directions.
   pair, refresh, hor+ FOV, id Tech 2 and id Tech 3 mode indices, DOSBox
   `fullresolution`). Reports the post-condition, not `OK`.
   **`GAMERES APPLY [title]`** runs the pass now over every installed title, or
-  one, and answers with how many values it CHANGED — a settled box must say 0.
+  one, and answers with how many values it CHANGED — a settled box must say 0 —
+  plus the post-apply `verify` counts (`wrong` must be 0).
+  **`GAMERES VERIFY [title]`** (read-only) answers, for EVERY installed title,
+  whether it is actually set to the resolution it should get here: per config
+  target `expected`/`found`/`ok` (`true`/`false`/`"absent"`), whether each
+  launcher calls `FLEETRES.BAT`, the title's `target` and `engine_cap` where
+  the engine is the limit. See "GAMERES VERIFY" below.
 - **ICONARRANGE [auto|bay]** — apply the desktop icon layout now. Defaults to
   the box's `HKLM\Software\RetroAgent\IconAutoArrange` setting (absent = auto).
   Returns the **post-condition** as JSON — `autoarrange` (the live
@@ -2247,6 +2262,9 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
   the store, never 3dfx. See "Keeping every other driver current". Any other argument is
   the old class filter.
 - **SYSFIX [check|apply]** — check/apply Win98 system fixes
+- **MONPOWER [apply]** (agent 1.96.0) — the active power scheme's monitor/standby/
+  hibernate timeouts (AC+DC, 0 = never), the live policy, the pre-Vista SPI power-off
+  flags and `last_pass` as JSON; `apply` enforces them now (refused on a modern host).
 
 ### Linux-Only
 - **PKGINSTALL name** — install package (auto-detects apt/yum/pacman)
@@ -2564,9 +2582,25 @@ online, and what to keep in mind - full detail in
   sector read back. **The price: MS-DOS mode and the boot menu no longer see
   D:/E:** - DOS games there run from Windows. **After a power loss** the dead
   battery resets 1Bh to auto (44h), POST types the drive with the broken
-  translation and Windows drops the channel: agent **1.92.0**
-  (`CmosIde2Type`=0 on this box) restores 1Bh in its POSTSKIP pass and warm-
-  reboots once (never twice within 20 min). The logon share mapping moved
+  translation and **IO.SYS HANGS AT A BLINKING CURSOR** probing BIOS unit
+  81h - measured 2026-09-29: drive removed boots, drive fitted after a
+  power-off hangs, so agent 1.92.0's `CmosIde2Type` restore (which needs
+  Windows up) never got to run. **Fixed below the OS by `cmosmbr`**
+  (`scripts/fleet/win9x/cmosmbr/`): a 440-byte stage in the boot disk's MBR
+  code area that, on this ROM only, sets 1Bh=00 and 2Dh bit 3 with the
+  checksum, reads them back and warm-resets once (a warm POST does not
+  auto-type), then chains the original Win98 MBR saved at **LBA 32** (LBA
+  1-2 hold an OLD DOS MBR with a stale table - left alone). Installed and
+  proven on `.243` 2026-09-29: 1Bh set to 44 by `cmosw9x restore`, one
+  reboot, the agent found 00. So a power loss costs ONE F1 (POST forgets the
+  skip bit before any code runs), then the box boots itself. Install/remove
+  with `CMOSINST` in REAL DOS - on this box a guarded AUTOEXEC.BAT line runs
+  `C:\CMOSMBR\ONCE.BAT` while `C:\CMOSMBR\ONCE.FLG` exists. **Not an
+  MS-DOS-mode PIF: the agent's own console is a DOS VM, and Win98 will not
+  exit to MS-DOS mode while it runs** (it asks to quit the agent; cancelling
+  left ExitWindowsEx dead until a manual restart). Recovery if the disk ever
+  will not boot: `CMOSINST REMOVE`, or `FDISK /MBR` from a Win98 boot disk.
+  The agent's 1.92.0 pass stays as a second line. The logon share mapping moved
   from E: to **S:** (`MAPSHARE.BAT`). A new CMOS battery would make the
   reboot unnecessary. (History: the HPA had capped the drive at 8,191
   cylinders / 4.2 GB; ROMPaq SP15800 - not on the share - may fix the
@@ -2659,7 +2693,11 @@ Win9x DOS launcher therefore ends with `cls` after the game;
 `scripts/fleet/win9x/mkpif9x` sets the PIF bit for a shortcut made outside
 GAMESYNC. **To see a full-screen DOS game from the agent**, `UIKEY ALT+RETURN`
 puts it in a window that `SCREENSHOT` captures - a full-screen one reads back
-as noise.
+as noise. **Only for a VGA mode-13h game:** on an SVGA title it page-faulted
+WINOLDAP in `VGAFULL.3GR` and stalled the single-threaded agent until a person
+dismissed the dialog (2026-09-29). Never send it in an unattended sweep - judge
+a DOS title alive from its window (a full-screen DOS box sits at (3000,3000),
+iconic) and close it with the "Windows cannot shut down this program" Yes.
 
 ### Win98 RST Crash
 
@@ -2702,6 +2740,28 @@ async def try_host(ip):
     except Exception:
         pass
 ```
+
+## The 3dfx Control Panel deploys itself (agent 1.94.0)
+
+**User directive, 2026-09-29: the 3dfx Control Panel must be on the desktop,
+wearing the 3dfx logo, on every box with an applicable 3dfx card, put there by
+the agent when it loads.** `fxpanel_ensure()` (`agent/src/fxpanel.c`, decision
+`agent/shared/fxpanel.h`) runs in the gamesync startup thread after the
+modern-host guard: on Windows 2000/XP with a PRESENT Banshee/Voodoo3/4/5
+(`121A:0003/0004/0005/0009`, driver installed - a Voodoo 1/2 is 3D-only and does
+not qualify) it copies `3dfxctl.exe` + `3dfxlogo.ico` from
+`\\192.168.1.122\files\Utility\Retro Automation\3dfx\` into `C:\RETRO_AGENT`
+when missing or different, then `gs_place_tool_shortcuts()` places and CLAIMS the
+"3dfx Control Panel" desktop shortcut, so GAMESYNC's end sweep keeps it.
+`HKLM\Software\RetroAgent\FxPanel`=0 switches it off; `FxPanelBoot` records
+each start (`ok: 0 copied, 2 current` on a settled box). **So a new panel build
+reaches the fleet by publishing it there** (`push_3dfxctl.py`, or
+`sharewrite.py put`), not by touching boxes. The icon is 3dfx's own logo
+(AmigaMerlin 3.1's `Driver Setup.exe`, `make_icon.py`); it lives in a separate
+`3dfxlogo.ico` because XP caches icons by PATH. Copying an application changes
+no driver or setting, so this is outside the rule below. Verified on `.124`:
+files removed, restart -> both copied, logo on the desktop; second restart ->
+nothing copied, shortcut untouched.
 
 ## 3dfx DRIVERS ARE NEVER CHANGED AUTOMATICALLY (agent 1.87.0+) (REQUIRED)
 
@@ -3183,7 +3243,63 @@ those two calls silently restores the bug.
   key=value / registry / cfg writers.
 - **Command:** `GAMERES` reports the panel, **every mode the driver offers**,
   and the target, as JSON — the post-condition, not `OK`. `GAMERES APPLY [title]`
-  runs the pass now.
+  runs the pass now. `GAMERES VERIFY [title]` checks every installed title
+  (below).
+
+### GAMERES VERIFY — is every installed title ACTUALLY at its resolution?
+
+`APPLY`'s `values_changed` says the pass ran; it does not say a box is right,
+and it never looked at the command-line titles at all. **`GAMERES VERIFY
+[title]`** is read-only (registry opened `KEY_READ`, nothing written) and walks
+**every directory in the games folder**, one JSON entry per title:
+
+- `mechanism`: `config` (the title has `gr_rules`), `launcher` (no rules, but a
+  `launch.txt` `.bat` or `Play*.bat` **calls** `FLEETRES.BAT` on a live line),
+  or `none`. `launchers_with_fleetres` / `launchers_without` list them — a
+  launcher that skips FLEETRES on a title with a mechanism is a finding
+  (`summary.launcher_gaps`), though some are legitimate (software/DOS builds).
+- `targets` (config titles): per rule `expected` (expanded for this box),
+  `found` (on disk, trimmed; `null` = not set) and `ok` — `true`, `false`, or
+  `"absent"`. **Defined by what APPLY would do:** `false` = APPLY would write it,
+  `"absent"` = APPLY counts it in `targets_absent` (file not in this build, mod
+  directory not installed). A cfg reports its setting lines as arrays and the
+  first `missing` one.
+- `target` + `kind`: what the title should get here — `wide` (the panel's own),
+  `four_three`, `idtech2_q2wide` (gl_mode 9 → 1920x1080 on the patched exes),
+  `turok2_list`, `dosbox:<desktop|original>` — read off the title's own rules,
+  or for a launcher title off the `FR_*` variable its launcher passes, re-decided
+  with the launcher's `-cap` exactly as FLEETRES.EXE does. **`engine_cap: true`
+  + `cap_reason`** marks an answer below the panel's target that is the
+  engine's limit (Turok 2 1024x768, a 4:3-only engine, a launcher `-cap`, the
+  measured-incapable register `gr_incapable[]`) — not a failure.
+- `summary`: `titles`, `ok`/`wrong`/`absent` (**config targets**),
+  `launcher_only`, `unmanaged`, `config_titles`, `titles_wrong`,
+  `launcher_gaps`; `box`: panel, `wide`, `four_three`, `idtech2_q2wide`,
+  `turok2`, `cap`. ~27 KB for 55 titles (heap `json_t`).
+
+**APPLY and VERIFY cannot disagree:** the writers decide "already right" with the
+same functions VERIFY reports from (`gr_line_check`, `gr_cfg_check`,
+`gr_reg_cmp` in `gameres.h`; `gr_ini_check`/`gr_reg_check` in `gameres.c`), so
+after an APPLY with no failure `wrong` is 0. **Every GAMESYNC run verifies once
+at the end** (not on an abort): a `GAMERES verify:` summary line plus one line
+per wrong/absent target (first 40), and `GAMESYNC STATUS` carries
+`gameres_verify_wrong` / `gameres_verify_absent` (`-1` = not verified yet). It
+never fails the sync. **A settled box reads `gameres_verify_wrong: 0`.**
+
+It found two things on its first read of the library (2026-09-29):
+- **Turok 2's rules and launcher fought.** The rows used `%SEL43:WxH%` ("1" only
+  when WxH *is* the 4:3 target); a 1080p box's 4:3 target is 1280x960, which is
+  not on Turok's list, so GAMERES switched **every** mode off while the
+  launcher switched 1024x768 on. The rows now use `%T2SEL:<w>%` — the
+  launcher's own ladder (`gr_turok2_sel`: 640, 800, 1024 as `W43` reaches them).
+- **A launcher `-cap` shrinks a 4:3 title below the cap on a 16:9 panel.**
+  `Quake1`'s `-cap 1280 960` first caps the *widescreen* target to the largest
+  16:9 mode inside it (1280x720 where the driver lists it) and the 4:3 ladder
+  must then fit inside *that*: GLQuake gets **800x600** on the 1080p boxes, not
+  the 1280x960 PER-TITLE-STATUS records. Same `gr_decide` in FLEETRES.EXE, so
+  VERIFY reports what the launcher really does; the fix belongs in the cap
+  logic of both (and a FLEETRES.EXE re-stage). `HexenII`'s launchers now carry
+  `-cap 1024 768` (a 4:3 1024x768 on a 16:9 panel) against a measured 1080p.
 
 **It covers PERSISTENT config only** — a file in the tree or a registry value.
 A title whose mode is set purely on a command line (Quake 1's `GLQUAKE.EXE
@@ -3208,6 +3324,25 @@ two *different* bodies to the same `base\fleetres.cfg`. So `gr_w_cfg()` asks
 "are the settings I need already present", line by line, comments excluded — not
 "are the bytes equal". A byte comparison would report a change on every sync
 forever and bury the one signal that detects a real fault.
+
+**GAMESYNC and GAMERES must not undo each other (fixed in agent 1.93.2).** Until
+then they did, on every box, on every sync: GAMERES rewrote `Thief2\cam.cfg`
+(or a dosbox conf, or `DESCENT.CFG`) for the monitor, the next sync's resume
+test saw "not the library's file" and copied the library's back, and GAMERES
+changed it again - and install.reg's constants (CounterStrike16 pins the GoldSrc
+key at 800x600) were re-merged and GAMERES put the box's values back. `.110`
+wrote 11-22 files and reported 23 values changed on every quiet sync, rebuilding
+the icons each time; `.243`'s "Descent1 - 2 value(s) set" every run was the same
+fight. **The `.191` "4 → 0 → 0" above was measured with `GAMERES APPLY`, which
+copies nothing - it cannot see this. Prove "settled" with two consecutive
+SYNCS.** The fix is a per-box ledger `C:\RETRO_AGENT\GRLEDGER.TXT`
+(`agent/shared/grledger.h`): for each file GAMERES rewrote, the library copy
+before and GAMERES's file after; `gs_copy_file()` keeps the file while both
+still hold, and copies as before when either changes (a library update, an edit
+on the box). It can only turn a copy into a skip - a missing or damaged ledger
+is the old behaviour. Registry values a GAMERES rule owns are captured before
+`regedit` and put back after it. The `gameres:` line now ends `N adjusted
+file(s) kept`; `GAMESYNC STATUS` carries `gameres_changed`/`gameres_kept`. **Verified on `.124` (2026-09-29):** 1.93.1 wrote 21 files and changed 36 values on a quiet sync; 1.93.2 wrote 18 once (the transition that fills the ledger), then 0 files / 0 values twice, "18 adjusted file(s) kept", icons left alone.
 
 ### The monitor's highest refresh rate, per resolution
 
@@ -3252,12 +3387,17 @@ and Serious Engine takes `gfx_iRefreshRate`.
 
 **What cannot reach 1080p, and it is the engine, not this pass:** WON Half-Life
 (4:3-only — handed 16:9 it falls to 400x300 and takes the desktop with it,
-measured on `.240`), Quake II / SiN / Soldier of Fortune (id Tech 2's fixed
-table has no 16:9 entry), Quake 1's GLQuake (refuses above 1280x960, measured),
-SoF2 and RTCW (their id Tech 3 fork has no `r_mode -1` branch — it renders
-640x480 rather than erroring), Turok 2, StarCraft, the Sith-engine Jedi Knights,
-and the pre-NewDark Dark engine. Those get the largest correctly-proportioned
-mode they can reach. `provisioning/fleetres/PER-TITLE-STATUS.md` is the register,
+measured on `.240`), Quake 1's GLQuake (refuses above 1280x960, measured),
+Turok 2, StarCraft, the Sith-engine Jedi Knights, and the pre-NewDark Dark
+engine. Those get the largest correctly-proportioned mode they can reach.
+**No longer on this list (2026-09-29, agent 1.95.0):** Quake II / SiN / Soldier
+of Fortune run at 1920x1080 through a patched mode-table entry 9 (`FR_Q2WIDE`,
+`provisioning/patches/idtech2`), and SoF2 / RTCW through `r_mode -1` (their fork
+*does* have the branch; sof2mp's registered minimum was the blocker -
+`provisioning/patches/idtech3-kin`). Measured on `.240`: every one of them
+fullscreen 1920x1080, Quake II's Video menu reading `[1920 1080]`.
+`GAMERES VERIFY` answers the same question per installed title on any box.
+`provisioning/fleetres/PER-TITLE-STATUS.md` is the register,
 per title, with the measurement behind each answer.
 
 ## One Staged Tree, Eight Monitors — the resolution is PER BOX (REQUIRED)

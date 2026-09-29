@@ -56,4 +56,39 @@ LNKC_UNUSED static int lnk_bytes_name_path(const unsigned char *buf, size_t len,
     return 0;
 }
 
+/* Does buf[0..len) hold `s` as a shell-link StringData entry - a 16-bit
+ * character count followed by that many UTF-16LE characters (ASCII,
+ * case-insensitive)? XP's IShellLink saves the icon location this way
+ * (IsUnicode), so a shortcut that points at the right exe but still names an
+ * OLD icon is told apart from a current one. The count must equal the length:
+ * "3dfxlogo.ico" does not match inside "3dfxlogo.ico.bak". (agent 1.94.0) */
+LNKC_UNUSED static int lnk_bytes_counted_wstr(const unsigned char *buf, size_t len,
+                                              const char *s)
+{
+    size_t n = 0, i, j;
+    if (!buf || !s)
+        return 0;
+    while (s[n])
+        n++;
+    if (!n || n > 0xFFFF || len < 2 + 2 * n)
+        return 0;
+    for (i = 0; i + 2 + 2 * n <= len; i++) {
+        if ((size_t)(buf[i] | (buf[i + 1] << 8)) != n)
+            continue;
+        for (j = 0; j < n; j++) {
+            unsigned char lo = buf[i + 2 + 2 * j], hi = buf[i + 3 + 2 * j];
+            unsigned char y = (unsigned char)s[j];
+            if (hi != 0)
+                break;
+            if (lo >= 'A' && lo <= 'Z') lo = (unsigned char)(lo - 'A' + 'a');
+            if (y >= 'A' && y <= 'Z') y = (unsigned char)(y - 'A' + 'a');
+            if (lo != y)
+                break;
+        }
+        if (j == n)
+            return 1;
+    }
+    return 0;
+}
+
 #endif /* RETRO_LNKCHECK_H */

@@ -375,13 +375,14 @@ def test_the_icon_is_a_real_icon():
 def test_the_launcher_does_not_pin_the_renderer():
     """sam_iDriver is a choice this tool cannot make, and it broke a box.
 
-    Serious Engine 1 has an OpenGL path (0) and a Direct3D path (1). Measured
-    on .246 (Win7, Radeon HD 5450) 2026-08-31: sam_iDriver=0 dies before any
-    window with "Cannot set display mode! ... unable to find display mode with
-    OpenGL acceleration"; the same tree on sam_iDriver=1 runs. The launcher
-    used to write 0 at EVERY start, which additionally overwrote the engine's
-    own auto-detected answer - so a box fixed by hand was un-fixed on its next
-    launch. The engine owns the API; the launcher owns the panel.
+    Serious Engine 1 here has OpenGL (0) and the 3dfx MiniGL, 3DFXVGL.DLL (1)
+    - not Direct3D, as this docstring used to say. The Win7 "Cannot set display
+    mode! ... unable to find display mode with OpenGL acceleration" once blamed
+    on the OpenGL path was gfx_iRefreshRate (see
+    test_gfx_irefreshrate_is_zero_on_windows7_and_the_desktop_rate_on_xp). The
+    launcher used to write 0 at EVERY start, which additionally overwrote the
+    engine's own auto-detected answer - so a box fixed by hand was un-fixed on
+    its next launch. The engine owns the API; the launcher owns the panel.
     """
     src = _text(FLEETRES)
     i = src.index('def ssam_startup_ini')
@@ -390,8 +391,7 @@ def test_the_launcher_does_not_pin_the_renderer():
     assert 'echo sam_iDriver' not in body, (
         'the launcher pins sam_iDriver again. That overrides the engine\'s own '
         'auto-detected renderer at every start, and pinning 0 makes the title '
-        'unstartable on .246 - which has no working OpenGL path for this '
-        'engine. Put a per-box override in that box\'s PersistentSymbols.ini.')
+        'unstartable on some boxes. Put a per-box override in that box\'s PersistentSymbols.ini.')
     if os.path.isdir(LIB):
         for name, t in TITLES.items():
             for lname in (t['play'], t['host'], t['join']):
@@ -616,3 +616,83 @@ def test_launch_txt_fits_the_agents_1023_byte_read():
                 % (name, target))
             assert os.path.isfile(os.path.join(LIB, name, target)), \
                 '%s: launch.txt names %r, which is not in the tree' % (name, target)
+
+
+# ---------------------------------------------------------------------------
+# gfx_iRefreshRate on Windows 7 (fix 2026-09-29)
+# ---------------------------------------------------------------------------
+
+def _stage_fleetres():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('stage_fleetres_ssam', FLEETRES)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def test_gfx_irefreshrate_is_zero_on_windows7_and_the_desktop_rate_on_xp():
+    """A non-zero gfx_iRefreshRate makes Serious Engine 1 pass a refresh with
+    dmDisplayFlags 4 (DMDISPLAYFLAGS_TEXTMODE) to ChangeDisplaySettings. XP
+    ignores the flag; Windows 7 refuses it at every resolution, and the game
+    dies with "Cannot set display mode! Serious Sam was unable to find display
+    mode with OpenGL acceleration" - proven on .195 (Win7, Radeon HD 5450) on
+    2026-09-29, where gfx_iRefreshRate=0 ran fullscreen 1920x1080.
+
+    So the launcher writes FR_SE1HZ (FLEETRES.EXE: gr_se1_hz = 0 on NT 6+,
+    FR_HZ before) and NOT FR_HZ, which is the pre-fix line and the bug."""
+    sf = _stage_fleetres()
+    lines = sf.ssam_startup_ini()
+    rr = [l for l in lines if 'gfx_iRefreshRate' in l]
+    assert len(rr) == 1, rr
+    assert rr[0].endswith('echo gfx_iRefreshRate=%FR_SE1HZ%;'), rr[0]
+    assert '%FR_HZ%' not in rr[0], (
+        'gfx_iRefreshRate=%FR_HZ% is the Windows 7 "Cannot set display mode!" '
+        'bug: FR_HZ is a real rate on every box, and Win7 refuses it.')
+    # FLEETRES.BAT clears it and falls back to 0 (safe on every Windows)
+    bat = sf.FLEETRES_BAT
+    assert '\nset FR_SE1HZ=\n' in bat
+    assert 'if not defined FR_SE1HZ set FR_SE1HZ=0' in bat
+    # and FLEETRES.EXE publishes it from the agent's own function
+    c = _text(os.path.join(REPO, 'provisioning', 'fleetres', 'fleetres.c'))
+    assert 'FR_SE1HZ=%d' in c and 'gr_se1_hz(gr_fr_hz(reg_hz), os_major())' in c
+    h = _text(os.path.join(REPO, 'agent', 'shared', 'gameres.h'))
+    assert '"gfx_iRefreshRate=%SE1HZ%;\\n"' in h, (
+        'GAMERES must write the same number the launcher does (%SE1HZ% = '
+        'FR_SE1HZ), or the two rewrite Game_startup.ini forever')
+    assert '"gfx_iRefreshRate=%FRHZ%;\\n"' not in h
+
+
+def test_every_ssam_spec_carries_the_stagers_startup_block():
+    """ssam_startup_ini() is the source of truth for the block embedded in
+    the six specs' fleetres_block, and until 2026-09-29 nothing checked that
+    they agree ("regenerate the six launchers - nothing checks that for you
+    yet"). A spec that kept gfx_iRefreshRate=%FR_HZ% would regenerate a
+    launcher that cannot start on Windows 7."""
+    sf = _stage_fleetres()
+    want = '\r\n'.join(['call "%~dp0FLEETRES.BAT"'] + sf.ssam_startup_ini()) \
+        .replace('"%~dp0Scripts\\Game_startup.ini"', 'X')
+    problems = []
+    for f in sorted(os.listdir(SPECS)):
+        if not f.startswith('SeriousSam') or not f.endswith('.json'):
+            continue
+        blk = json.load(open(os.path.join(SPECS, f)))['fleetres_block']
+        norm = blk.replace('"%~dp0Scripts\\Game_startup.ini"', 'X')
+        # the Join specs put their HOSTIP block between the CALL and the ini
+        tail = '\r\n'.join(want.split('\r\n')[1:])
+        if not norm.startswith('call "%~dp0FLEETRES.BAT"') or not norm.endswith(tail):
+            problems.append(f)
+        if 'gfx_iRefreshRate=%FR_HZ%' in blk:
+            problems.append(f + ' (still the pre-fix FR_HZ)')
+    assert len([f for f in os.listdir(SPECS) if f.startswith('SeriousSam')]) == 6
+    assert not problems, problems
+
+
+def test_shipped_ssam_launchers_write_fr_se1hz():
+    """The share side: every one of the six generated launchers must carry
+    the fix, or a box syncing the library gets the Win7 bug back."""
+    _skip_unless_share()
+    for name, t in TITLES.items():
+        for lname in (t['play'], t['host'], t['join']):
+            lb = _text(os.path.join(LIB, name, lname))
+            assert 'gfx_iRefreshRate=%FR_SE1HZ%;' in lb, '%s/%s' % (name, lname)
+            assert 'gfx_iRefreshRate=%FR_HZ%;' not in lb, '%s/%s' % (name, lname)

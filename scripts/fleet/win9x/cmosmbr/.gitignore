@@ -1,0 +1,7 @@
+*.o
+cmosmbr_test.bin
+cmosmbr_rom.bin
+# built by the tests; test/mbr243.bin and test/lba1-243.bin are .243 fixtures and ARE tracked
+test/origmbr.bin
+test/vbr.bin
+test/prep.bin

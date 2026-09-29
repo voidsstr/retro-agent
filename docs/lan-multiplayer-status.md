@@ -246,7 +246,7 @@ control protocol, and a Hexen II host replies only to the game string
 | **Soldier of Fortune 1** | multiplayer refused **even with the disc** — see below | a disassembly, or the 1.07f patch. NOT a mounter |
 | **BF1942** | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works | a mounter whose emulation covers SafeDisc 2.80 — a kernel driver and a reboot per box, so a **user decision** |
 | **Far Cry** | server hosts unattended; CryEngine takes DirectInput exclusively | one click: Multiplayer → LAN |
-| **Halo** | **JOINING is automated; HOSTING is not**, and as of 2026-09-01 the **CD keys were also duplicated** — see "Halo — the keys were the second problem" below. `halo.exe -connect <ip>:<port>` skips the menu, so a client needs nobody; a HOST does. | one person to start the game at the host's menu — OR `haloded.exe`, which is a free official download and is not on the share |
+| **Halo** | **JOINING is automated; HOSTING is not**, and as of 2026-09-01 the **CD keys were also duplicated** — see "Halo — the keys were the second problem" below. `halo.exe -connect <ip>:<port>` skips the menu, so a client needs nobody; a HOST does. | **SOLVED 2026-09-29:** `haloded.exe` (on the share at `Files\tmp\halo-build\_patch\`) with `sv_public 0` hosts unattended - see the section below; not yet staged as a library launcher |
 | **Carmageddon 1 / 2** | tunnel proven both ends; the front end ignores click *and* key | click **HOST GAME** / **NETWORK GAME** |
 | **Hidden & Dangerous** | launcher bug fixed; stops at profile creation | create a profile, then copy `Savegame\*.bin` into the tree |
 | **Aliens vs Predator** | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black | drive its menus at the keyboard |
@@ -259,6 +259,37 @@ control protocol, and a Hexen II host replies only to the game string
 `UICLICK` sets an *absolute* pointer such menus do not follow. Descent 3, SoF2,
 Deus Ex and Far Cry are all in that class. Recognising it early is worth
 more than another hour of clicking.
+
+### SOLVED 2026-09-29: `haloded.exe` hosts a LAN game with nobody at a keyboard - six boxes in one game
+
+**`haloded.exe` IS on the share after all**, at `Files\tmp\halo-build\_patch\haloded.exe`. Its version is
+1.00.10.0621, the same build as the staged `halo.exe`, and it needs only the Halo tree's `MAPS`. It was run
+from `C:\Games\Halo` on `.145` with:
+
+    haloded.exe -path C:\Games\Halo\ded -port 2302 -exec dedinit.txt
+    ; dedinit.txt:
+    sv_public 0
+    sv_name "Retro Fleet LAN"
+    sv_maxplayers 16
+    sv_map bloodgulch slayer
+
+Its console printed `Dedicated server is running on map bloodgulch (0 / 16 players)`. Two traps each cost a
+full relaunch of the fleet:
+
+- **`sv_public 0` is REQUIRED.** In public mode (the default, `sv_public_value: 1`) the server checks every key
+  against GameSpy's authorisation service, which no longer exists. So ALL SIX boxes, each on a distinct valid
+  key, were refused with **"Your CD Key is invalid"**. That is the same wording as a real bad key and as a
+  shared key. After `sv_public 0` every box joined.
+- **A client on the host box must use other ports.** Started plainly, `.145`'s own `halo.exe` bound UDP
+  2302/2303 alongside the server (netstat showed both PIDs on both ports) and took its packets, so every box
+  got **"Unable to join game."** Launch that client with `-port 2304 -cport 2305 -connect <host>:2302`.
+
+Result (screenshots in `.claude/evidence-halo/`, untracked): `.145` (host + client), `.123`, `.195` (Win7),
+`.110`, `.240` and `.171` all in one Blood Gulch slayer game. Each ran a box-local `JOINDED.BAT`: the staged
+`Play Halo.bat` plus `-connect 192.168.1.145:2302`. Keys: `.110` was assigned `fleet-gamekey-halo-pc-3`
+(`box-keys.txt`), and `.171` is the only box left on the library key. **Not yet staged:** `haloded.exe`, the
+host batch and the join batch live only on the boxes. A library host/join pair needs a fixed host address,
+for example the dedicated server on the dev host the way Descent 3 and Far Cry run under Wine.
 
 ### Retail `halo.exe` cannot host headlessly — REFUTED 2026-09-01, on hardware
 
@@ -401,7 +432,7 @@ official 1.07f patch — **not another image**.
 | **Jedi Academy on `.124`/`.240`** | a **reboot** of those two boxes, to clear the locked DAEMON Tools unit. Everything else is staged and proven — it plays on `.143` and `.246`, and on a locked box the launcher now says so in `mount-error.txt` instead of hanging. |
 | **Soldier of Fortune 1 multiplayer** | **engineering**, not media — see above. |
 | **Far Cry, Carmageddon 1/2, AvP, Shogo, Descent 3, Deus Ex** | a **person at the keyboard**, once: their menus are driven by relative mouse deltas, which `UICLICK` cannot reach at all. |
-| **Halo** | a person **at the HOST only**, to start the game from its menu. Every client is automated by `-connect`. Or put `haloded.exe` on the share and no person is needed at all. |
+| **Halo** | **nobody** since 2026-09-29: `haloded.exe` + `sv_public 0` hosts, every client `-connect`s (six boxes proven). Remaining: stage the host/join pair in the library. |
 | **Hidden & Dangerous** | a person to create a profile once; then `Savegame\*.bin` is staged. |
 | **Turok 2** | investigation: host and browse work, `+connect` answers "Unable to contact the GameManager." |
 | **Red Faction** | investigation, with two untested leads recorded in its tree: `rf.exe` has **no `-connect`/`+connect` switch at all** (so "Add Server" is the only manual route) but it does have **`-trackerip`**, and the fleet's own favourites agent already records that RF LAN games are found by **broadcast** — a different control from the Get Servers / Add Server path everything has been tried on. Its dedicated server works and needs no disc. |

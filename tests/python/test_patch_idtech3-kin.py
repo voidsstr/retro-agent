@@ -599,6 +599,54 @@ def test_publish_stops_on_the_first_failed_put(tmp_path, fake_share, monkeypatch
     assert len(calls) == 1
 
 
+def _exe_share(share, monkeypatch, live, backup=None):
+    """A fake share holding sof2mp.exe = `live` (and its backup), with the
+    pins pointed at a synthetic original so the real md5s are not needed."""
+    orig = _fake_exe()
+    monkeypatch.setattr(A, "ORIGINALS", {A.SOF2MP: (len(orig), _md5(orig))})
+    monkeypatch.setattr(A, "PATCHED_MD5", {A.SOF2MP: _md5(A.patch_exe_bytes(orig))})
+    lib = share / "Files" / "Games-Library"
+    exe = lib / A.SOF2MP
+    exe.parent.mkdir(parents=True, exist_ok=True)
+    exe.write_bytes(live(orig))
+    if backup is not None:
+        b = lib / A.backup_rel_of(A.SOF2MP)
+        b.parent.mkdir(parents=True, exist_ok=True)
+        b.write_bytes(backup(orig))
+    return orig
+
+
+def test_a_stock_exe_is_its_own_original(fake_share, monkeypatch):
+    share, _ = fake_share
+    orig = _exe_share(share, monkeypatch, lambda o: o)
+    assert A.load_exe_original(A.SOF2MP) == (orig, "stock (original)")
+
+
+def test_a_deployed_exe_rebuilds_from_its_verified_backup(fake_share, monkeypatch):
+    share, _ = fake_share
+    orig = _exe_share(share, monkeypatch, A.patch_exe_bytes, backup=lambda o: o)
+    data, state = A.load_exe_original(A.SOF2MP)
+    assert data == orig and state.startswith("ALREADY PATCHED")
+    assert A.backup_rel_of(A.SOF2MP) in state
+
+
+@pytest.mark.parametrize("backup", [None, lambda o: o[:-1], lambda o: b"x" + o[1:],
+                                    A.patch_exe_bytes], ids=["missing", "truncated",
+                                                             "changed", "patched"])
+def test_a_deployed_exe_without_a_verified_backup_is_refused(fake_share, monkeypatch, backup):
+    share, _ = fake_share
+    _exe_share(share, monkeypatch, A.patch_exe_bytes, backup=backup)
+    with pytest.raises(ValueError, match="ALREADY PATCHED"):
+        A.load_exe_original(A.SOF2MP)
+
+
+def test_a_foreign_exe_is_refused_even_with_a_backup(fake_share, monkeypatch):
+    share, _ = fake_share
+    _exe_share(share, monkeypatch, lambda o: o[:-1] + b"?", backup=lambda o: o)
+    with pytest.raises(ValueError, match="neither the original nor the patched"):
+        A.load_exe_original(A.SOF2MP)
+
+
 def test_install_server_skips_a_non_pure_server(tmp_path, monkeypatch, capsys):
     srv = tmp_path / "srv"
     srv.mkdir()
@@ -651,6 +699,26 @@ def test_build_reproduces_the_reviewed_outputs(tmp_path):
     exe = [o for o in man["outputs"] if o["share_path"].endswith("sof2mp.exe")][0]
     assert exe["original_md5"] == A.ORIGINALS[A.SOF2MP][1]
     assert exe["md5"] == A.SOF2MP_PATCHED_MD5
+
+
+def test_share_is_in_the_deployed_state():
+    """sof2mp.exe was published 2026-09-29: the share holds the patched md5 and
+    its backup is the pinned original. A zz_fleet_video.pk3 on the share must be
+    the reviewed build - JKA's is published; SoF2's and RTCW's may not be yet."""
+    _need_share()
+    size, want = A.ORIGINALS[A.SOF2MP]
+    assert A.md5_file(A.share_path(A.SOF2MP)) == A.SOF2MP_PATCHED_MD5
+    bp = A.share_path(A.backup_rel_of(A.SOF2MP))
+    assert os.path.getsize(bp) == size and A.md5_file(bp) == want
+    assert A.load_exe_original(A.SOF2MP)[1].startswith("ALREADY PATCHED")
+    for rel, reviewed in A.REVIEWED_BUILD.items():
+        if not rel.endswith(A.PK3_NAME):
+            continue
+        p = A.share_path(rel)
+        if not os.path.isfile(p):
+            assert not rel.startswith("JediAcademy/"), "%s is published - now missing" % rel
+            continue
+        assert A.md5_file(p) == reviewed, rel
 
 
 # The font each engine DRAWS the Video Mode value with, stated independently of

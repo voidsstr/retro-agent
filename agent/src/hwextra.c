@@ -41,6 +41,7 @@
  * report anything when one probe fails is how a box ends up undocumented.
  */
 
+#include "../shared/fxpanel.h"
 #include "handlers.h"
 #include "hwextra.h"
 #include "util.h"
@@ -260,7 +261,8 @@ static int hx_count_instances(HKEY hdev, char *first, DWORD firstsz)
  */
 typedef DWORD (WINAPI *hx_locate_t)(DWORD *, const char *, ULONG);
 
-int hwextra_glide_installed(char *why, DWORD why_cch)
+/* `accept` filters by PCI device id (NULL = any 3dfx device). */
+static int hx_find_present_3dfx(int (*accept)(unsigned dev), char *why, DWORD why_cch)
 {
     static const char *const roots[] = {
         "SYSTEM\\CurrentControlSet\\Enum\\PCI",   /* NT family */
@@ -284,6 +286,8 @@ int hwextra_glide_installed(char *why, DWORD why_cch)
             if (RegEnumKeyExA(hpci, i, dkey, &cch, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
                 break;
             if (!hx_parse_ven_dev(dkey, &ven, &dev) || ven != VEN_3DFX)
+                continue;
+            if (accept && !accept(dev))
                 continue;
             _snprintf(full, sizeof(full) - 1, "%s\\%s", roots[r], dkey);
             full[sizeof(full) - 1] = 0;
@@ -316,6 +320,18 @@ int hwextra_glide_installed(char *why, DWORD why_cch)
     }
     if (cm) FreeLibrary(cm);
     return found;
+}
+
+int hwextra_glide_installed(char *why, DWORD why_cch)
+{
+    return hx_find_present_3dfx(NULL, why, why_cch);
+}
+
+/* A present Banshee/Voodoo3/4/5 with a driver installed: the cards the 3dfx
+ * Control Panel serves (agent/shared/fxpanel.h). */
+int hwextra_3dfx_panel_card(char *why, DWORD why_cch)
+{
+    return hx_find_present_3dfx(fxpanel_dev_has_panel, why, why_cch);
 }
 
 void hwextra_emit_accelerators(json_t *j)

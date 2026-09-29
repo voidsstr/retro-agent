@@ -46,9 +46,9 @@ def gs():
 
 def test_an_existing_tool_shortcut_is_not_rebuilt():
     b = body(gs(), "gs_tool_shortcut")
-    check = b.index("if (gs_lnk_points_at(lnk, exe))")
+    check = b.index("if (gs_lnk_points_at(lnk, exe) && (!icon || gs_lnk_has_icon(lnk, icon)))")
     assert check < b.index("gs_make_shortcut("), "check before the COM rebuild"
-    after = b[check:check + 120]
+    after = b[check:check + 200]
     assert "return;" in after, "an existing, correct shortcut must end the call"
     # ...but it must CLAIM the shortcut first (1.90.0): the desktop sweep now
     # runs at the END of a run and removes whatever the run did not claim, so
@@ -76,9 +76,24 @@ def test_the_resume_test_reads_the_destination_once_and_asks_the_source_rarely()
     assert head.count("GetFileAttributesExA(dst") == 1
     assert "gs_file_size(dst)" not in head, "the second destination read is back"
     assert "gsr_decide(" in head
-    ask = head.index("if (verdict == GSR_ASK_SOURCE)")
-    assert head.index("gs_get_mtime(src") > ask, \
-        "the source may be asked ONLY when the listing's time disagrees"
+    # The source may be asked ONLY when the listing's time disagrees - by the
+    # resume test (GSR_ASK_SOURCE) or, for a file GAMERES rewrote, by the
+    # ledger (GRL_ASK_SOURCE, agent/shared/grledger.h: same rule, sizes agree
+    # and the listing's time does not). Every ask sits directly under one of
+    # those two conditions, and it happens at most once per file.
+    asks = [m.start() for m in re.finditer(r"gs_get_mtime\(src", head)]
+    assert asks, "the source is never asked at all?"
+    for at in asks:
+        cond = head.rfind("if (", 0, at)
+        line = head[cond:head.index("\n", cond)]
+        assert line in ("if (verdict == GSR_ASK_SOURCE) {",
+                        "if (lv == GRL_ASK_SOURCE) {",
+                        "if (!asked_src) {"), \
+            "the source may be asked ONLY when the listing's time disagrees: " + line
+        if line == "if (!asked_src) {":
+            outer = head.rfind("if (", 0, cond)
+            assert head[outer:].startswith("if (verdict == GSR_ASK_SOURCE)")
+    assert "asked_src = 1;" in head, "the source must be asked at most once per file"
 
 
 def test_the_tree_walk_hands_over_the_listing_time():

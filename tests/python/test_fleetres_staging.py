@@ -211,9 +211,11 @@ def test_stripping_the_autoexec_requires_the_launcher_to_supply_the_mode():
 
 
 def test_command_line_uses_custom_mode_not_a_mode_index():
-    """For the forks that HAVE the branch, r_mode must be -1: the fixed table
-    has no 1920x1080 entry, so an index cannot express what half this fleet
-    needs. (SoF2 is the measured exception and uses idtech3_modeargs.)"""
+    """r_mode must be -1: the fixed table has no 1920x1080 entry, so an index
+    cannot express what half this fleet needs. Since 2026-09-29 that holds for
+    EVERY id Tech 3 title here - SoF2 and RTCW, the two once thought to lack
+    the branch, render 1920x1080 through it on .240 (sof2mp.exe patched past
+    r_mode's 3.0 minimum; RTCW with com_recommendedSet 1)."""
     args = sf.idtech3_args()
     assert '+set r_mode -1' in args
     assert '+set r_customwidth %FR_W%' in args
@@ -243,10 +245,62 @@ def test_appended_exec_is_the_last_thing_the_autoexec_does():
 
 def test_idtech2_uses_the_fixed_mode_table():
     """id Tech 2 (Quake II, SiN, Soldier of Fortune) has gl_mode indices and NO
-    custom mode and no 16:9 entry, so it gets the 4:3 answer, never FR_W."""
+    custom mode, so it never gets FR_W. The staged exes are PATCHED so entry 9
+    is 1920x1080 (provisioning/patches/idtech2) and the index is FR_Q2WIDE."""
     cfg = '\n'.join(sf.q2_cfg('baseq2'))
-    assert 'set gl_mode "%FR_Q2MODE%"' in cfg
+    assert 'set gl_mode "%FR_Q2WIDE%"' in cfg
+    assert '%FR_Q2MODE%' not in cfg
     assert '%FR_W%' not in cfg and '%FR_H%' not in cfg
+
+
+def test_patched_idtech2_gl_launchers_all_take_q2wide():
+    """provisioning/patches/idtech2 README: nothing selects mode 9 until the
+    launchers change. Every GL launcher of the three patched titles - fresh
+    recipe AND repair pair for the ones already on the share - must end up on
+    FR_Q2WIDE in both places, the fleetres.cfg line and the +set."""
+    # the recipes: Quake2Complete's four and Wages of SiN
+    for title, names in (('Quake2Complete', ('Quake II.bat',
+                          'Quake II - The Reckoning.bat',
+                          'Quake II - Ground Zero.bat',
+                          'Quake II - ThreeWave CTF.bat')),
+                         ('SiNGold', ('Play Wages of SiN.bat',))):
+        for n in names:
+            t = _pre(title, n)
+            assert 'set gl_mode "%FR_Q2WIDE%"' in t and '+set gl_mode %FR_Q2WIDE%' in t, n
+            assert '%FR_Q2MODE%' not in t, n
+            # ...and the launcher already on the share carries MARK, so only a
+            # repair pair moves it
+            news = [nw for _, nw in sf.TITLES[title]['fix'][n]]
+            assert any('echo set gl_mode "%FR_Q2WIDE%"' in x for x in news), n
+            assert '+set gl_mode %FR_Q2WIDE%' in news, n
+    # the 'new' launchers are rewritten whole from NEW_Q2 + q2_cfg
+    assert '+set gl_mode %FR_Q2WIDE%' in sf.NEW_Q2
+    assert '%FR_Q2MODE%' not in sf.NEW_Q2
+    for t in ('SiNGold', 'SoldierOfFortune'):
+        assert sf.TITLES[t]['new']
+
+
+def test_sin_software_renderer_never_gets_mode_9():
+    """ref_soft must never be sent to mode 9 - 1920x1080 on the patched sin.exe,
+    with warp buffers sized for 1600. It keeps FR_Q2MODE, and no repair pair
+    may move it."""
+    t = _pre('SiNGold', 'Play SiN - software renderer.bat')
+    assert '+set sw_mode %FR_Q2MODE%' in t
+    assert 'Q2WIDE' not in t
+    assert 'Play SiN - software renderer.bat' not in sf.TITLES['SiNGold'].get('fix', {})
+
+
+def test_q2wide_is_published_and_has_a_fallback():
+    src = open(FLEETRES_C, encoding='latin1').read()
+    assert 'printf("set \\"FR_Q2WIDE=%d\\"\\n",   q2w);' in src
+    assert 'static int q2_wide_for(' in src
+    # the capped branch RE-RUNS the selector - never min(FR_Q2MODE, 8)
+    assert 'return q2_mode_for(w43 < q2tab[8].w ? w43 : q2tab[8].w,' in src
+    assert 'mode_offered(GR_Q2WIDE_W, GR_Q2WIDE_H)' in src
+    assert 'aspect_class_mode((double)tw / (double)th) == 169' in src
+    # a box where FLEETRES.EXE is missing gets the same as FR_Q2MODE's default
+    assert 'if not defined FR_Q2WIDE set FR_Q2WIDE=6' in sf.FLEETRES_BAT
+    assert 'set FR_Q2WIDE=\n' in sf.FLEETRES_BAT
 
 
 # ---------------------------------------------------------------------------
@@ -523,9 +577,11 @@ def test_four_three_only_engines_never_get_the_widescreen_variable():
     assert '%FR_W%' not in sf.NEW_GLQUAKE.replace('%FR_W43%', ''), (
         'GLQuake is 4:3-only but is being handed the widescreen mode')
     for mod in ('baseq2', 'base'):
-        assert '%FR_Q2MODE%' in "\n".join(sf.q2_cfg(mod)), (
-            'id Tech 2 has a fixed 4:3 mode table topping out at 1600x1200 - '
-            'gl_mode is the only lever and there is no 16:9 entry')
+        cfg = "\n".join(sf.q2_cfg(mod))
+        assert '%FR_Q2WIDE%' in cfg, (
+            'id Tech 2 has a fixed mode table - gl_mode is the only lever, and '
+            'on the patched exes its entry 9 is 1920x1080')
+        assert '%FR_W%' not in cfg and '%FR_H%' not in cfg
 
 
 # ---------------------------------------------------------------------------
@@ -836,34 +892,67 @@ def test_q3_table_exists_and_skips_the_five_four_mode():
 
 
 def test_sof2_uses_a_mode_index_and_the_right_table():
-    """`r_mode -1` is the standard id Tech 3 idiom and IS NOT UNIVERSAL.
-    Measured on .145 with one identical fleetres.cfg (-1 + custom 1920x1080):
+    """SoF2 now takes r_mode -1 and the panel's own size, NOT a mode index.
 
-        quake3.exe   -> 1920x1080     jasp.exe -> 1920x1080
-        jamp.exe     -> 1920x1080     sof2mp.exe -> **640x480**
-
-    SoF2's fork never implemented the -1 branch. It does not error; it renders
-    small. Both SoF2 binaries are the same engine, so both take a plain index —
-    and it must be FR_Q3MODE, because id Tech 3's mode 8 is 1280x1024 (5:4)
-    where id Tech 2's is 1280x960 (4:3)."""
+    For a month it was the measured exception - sof2mp.exe came up 640x480 on
+    .145/.123 through -1 while quake3/jasp/jamp gave 1920x1080 - read as "the
+    fork has no -1 branch". The cause was r_mode's registered MINIMUM of 3.0f
+    (R_Register, file 0xBA614), which clamped -1 up to mode 3. The staged
+    sof2mp.exe is patched to -1.0f (provisioning/patches/idtech3-kin, 0xBA61A);
+    SoF2.exe takes -1 as shipped. Verified at 1920x1080 on .240: P1 (SoF2.exe)
+    and S2 (the patched sof2mp.exe). The name is kept so the idtech3-kin
+    manifest's pointer to it still resolves."""
     t = _pre('SoldierOfFortune2')
-    assert '%FR_Q3MODE%' in t
-    assert '%FR_Q2MODE%' not in t, (
-        'SoF2 is being handed the id Tech 2 table, whose mode 8 is a different '
-        'resolution — 1280x1024 on a 16:9 panel is the squashed picture')
-    assert 'r_mode "-1"' not in t and '+set r_mode -1' not in t, (
-        'SoF2 has no r_mode -1 branch; this silently renders 640x480')
+    assert 'seta r_mode "-1"' in t and '+set r_mode -1' in t
+    assert '%FR_W%' in t and '%FR_H%' in t
+    assert '%FR_Q3MODE%' not in t and '%FR_Q2MODE%' not in t, (
+        'SoF2 is back on a mode index - it renders 1920x1080 through -1')
+    # the MP launcher on the share is hand-written: only 'fix' pairs move it,
+    # and every NEW side must be the -1 idiom, never an index
+    mp = sf.TITLES['SoldierOfFortune2']['fix'][
+        'Play Soldier of Fortune II - Multiplayer.bat']
+    news = "\n".join(n for _, n in mp)
+    assert '%FR_Q3MODE%' not in news and '%FR_Q2MODE%' not in news
+    assert '+set r_mode -1 +set r_customwidth %FR_W%' in news
+    assert '(' not in news and ')' not in news
+    # the SP launcher is a disc-mount launcher regenerated from its spec, so
+    # NO pair may target it except the shared refresh one - the old ones would
+    # revert it to an index / drop its size
+    sp = sf.TITLES['SoldierOfFortune2']['fix'].get('Play Soldier of Fortune II.bat', [])
+    assert sp == sf._refresh_fix('base', 'fov')
     for name in sf.TITLES['SoldierOfFortune2']['fix']:
         assert name in sf.TITLES['SoldierOfFortune2']['launchers']
+
+
+def test_rtcw_lan_pair_is_moved_to_the_custom_mode():
+    """RTCW's LAN pair is hand-written and never rewritten by a recipe, so the
+    'fix' pairs are the only thing that moves it - to exactly the cfg lines and
+    command line new_launcher() gives the two Play launchers."""
+    fix = sf.TITLES['ReturnToCastleWolfenstein']['fix']
+    for name in ('Host RTCW - LAN.bat', 'Join RTCW - LAN.bat'):
+        news = "\n".join(l for _, n in fix[name] for l in n.splitlines()
+                         if not l.startswith('rem'))
+        assert 'echo seta r_mode "-1"' in news
+        assert 'echo seta r_customwidth "%FR_W%"' in news
+        assert '+set com_recommendedSet 1 +set r_mode -1' in news
+        assert '%FR_Q3MODE%' not in news and 'cg_fov' not in news
+        assert '(' not in news and ')' not in news
+    assert not sf.IDTECH3_NO_CUSTOM_MODE
 
 
 def test_the_engines_that_do_have_the_minus_one_branch_keep_it():
     """Quake III and Jedi Academy were measured at a real 1920x1080 through the
     -1 branch on the same box that refused it for SoF2. Do not generalise
     SoF2's exception back onto them."""
-    for title in ('Quake3-TeamArena', 'JediAcademy'):
+    for title in ('Quake3-TeamArena', 'JediAcademy', 'SoldierOfFortune2'):
         blob = _pre(title) + "\n".join(sf.idtech3_cfg('base'))
         assert 'r_customwidth' in blob or '%FR_W%' in blob
+    # RTCW's launchers are 'new' recipes: check what new_launcher writes
+    assert 'ReturnToCastleWolfenstein' not in sf.IDTECH3_NO_CUSTOM_MODE
+    src = open(STAGER, encoding='utf-8').read()
+    assert 'elif title == "ReturnToCastleWolfenstein":' in src
+    assert 'idtech3_cfg(mod, fov=False)' in src
+    assert '"+set com_recommendedSet 1 " + idtech3_args(fov=False)' in src
 
 
 def test_no_title_carries_a_hand_pasted_block():

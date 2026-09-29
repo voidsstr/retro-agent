@@ -61,8 +61,13 @@ def test_each_published_rate_comes_from_gr_target_hz_at_its_own_resolution():
     }
     for var, rx in want.items():
         assert re.search(rx, src), "%s is not gr_target_hz() at its own resolution" % var
+    # the patched id Tech 2 exes render at gr_q2wide_res(FR_Q2WIDE), which is
+    # 1920x1080 (60 Hz) where FR_HZQ2's 1280x960 is listed at 75
+    assert re.search(r"hzq2w\s*=\s*gr_target_hz\(&gp,\s*&rl,\s*gr_q2wide_res\(q2w\)\.w,"
+                     r"\s*gr_q2wide_res\(q2w\)\.h,", src)
     for fr, var in (("FR_HZW", "hzw"), ("FR_HZ43", "hz43"),
-                    ("FR_HZQ2", "hzq2"), ("FR_HZQ3", "hzq3")):
+                    ("FR_HZQ2", "hzq2"), ("FR_HZQ3", "hzq3"),
+                    ("FR_HZQ2WIDE", "hzq2w")):
         m = re.search(r'printf\("set \\"%s=%%d\\"\\n",\s*(\w+)\)' % fr, src)
         assert m, "%s is not printed" % fr
         assert m.group(1) == var, "%s prints %s, not %s" % (fr, m.group(1), var)
@@ -112,7 +117,8 @@ def test_gameres_decides_every_published_rate_with_the_same_function():
     dec = dec[:dec.index("\n}\n")]
     for field, args in (("t->hz ", "t->w, t->h"), ("t->hz43", "t->w43, t->h43"),
                         ("t->hzq2", "gr_q2tab[t->q2mode].w"),
-                        ("t->hzq3", "gr_q3tab[t->q3mode].w")):
+                        ("t->hzq3", "gr_q3tab[t->q3mode].w"),
+                        ("t->hzq2wide", "gr_q2wide_res(t->q2wide).w")):
         m = re.search(re.escape(field) + r"\s*=\s*gr_target_hz\(p, l, " + re.escape(args), dec)
         assert m, "gr_decide: %s is not gr_target_hz() at its own mode" % field.strip()
 
@@ -122,7 +128,7 @@ def test_every_rate_token_has_the_launchers_name():
     on; a rate token without an FR_ twin could never be written identically."""
     h = _src(GAMERES_H)
     fr = _src(FLEETRES)
-    for tok in ("HZW", "HZ43", "HZQ2", "HZQ3", "HZSRC"):
+    for tok in ("HZW", "HZ43", "HZQ2", "HZQ3", "HZSRC", "HZQ2WIDE"):
         assert '"%s"' % tok in h, "gr_expand does not know %%%s%%" % tok
         assert "FR_%s=" % tok in fr, "FLEETRES does not publish FR_%s" % tok
 
@@ -170,3 +176,26 @@ def test_no_edid_never_claims_the_drivers_unclamped_best():
     assert "gr_has_rate(l, w, h, reg_hz)" in fn
     assert "w <= reg_w && h <= reg_h" in fn
     assert "return 0;" in fn
+
+
+def test_serious_engine_rate_is_one_function_and_one_os_test():
+    """Game_startup.ini's gfx_iRefreshRate (fix 2026-09-29): 0 on Windows 7,
+    where a rate makes Serious Sam's mode switch fail at every resolution, and
+    the persisted desktop rate on XP. Both writers must reach it through
+    gr_se1_hz(), fed by the SAME OS question - RtlGetVersion, else
+    GetVersionEx - or one writes 0 and the other 60 and they fight forever."""
+    h = _strip_comments(_src(GAMERES_H))
+    assert re.search(r"GR_FN int gr_se1_hz\(int fr_hz, int os_major\)\s*\{\s*"
+                     r"return os_major >= GR_SE1_NO_RATE_FROM_NT_MAJOR \? 0 : fr_hz;", h)
+    assert "#define GR_SE1_NO_RATE_FROM_NT_MAJOR 6" in h
+    assert 'gr_se1_hz(t->fr_hz, t->os_major)' in h
+
+    fr = _strip_comments(_src(FLEETRES))
+    assert 'gr_se1_hz(gr_fr_hz(reg_hz), os_major())' in fr
+    assert '"RtlGetVersion"' in fr and "GetVersionExA" in fr
+    # never a static import of ntdll - FLEETRES.EXE runs on Win9x
+    assert 'LoadLibraryA("ntdll.dll")' in fr
+
+    c = _strip_comments(_src(GAMERES_C))
+    assert "host_os_version(&maj, &mnr, &bld)" in c
+    assert "g_gr.t.os_major = (int)maj;" in c

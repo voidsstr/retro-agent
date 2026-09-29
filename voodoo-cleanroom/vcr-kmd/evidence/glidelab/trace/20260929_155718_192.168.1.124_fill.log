@@ -1,0 +1,14 @@
+glidelab fill: res=640x480 refresh=60 cfg=5 dll=C:\Games\Quake2Complete\glide3x.dll
+sli/aa: cfg 5 from --cfg -> no AA
+step: grGlideInit
+GR_HARDWARE: Voodoo5 6000 (tm)
+GR_EXTENSION: CHROMARANGE TEXCHROMA TEXMIRROR TEXUMA PALETTE6666 FOGCOORD SURFACE COMMAND_TRANSPORT TEXTUREBUFFER GETGAMMA GETREGISTRY ALPHAFOG PIXEXT COMBINE TEXFMT RETRO3DFX_PARTIALROW RETRO3DFX_SLIAA_GUARD RETRO3DFX_AA_TRACE 
+guard: RETRO3DFX_SLIAA_GUARD present; RETRO3DFX_AA_TRACE present
+step: grSstWinOpen 640x480 60Hz origin upper
+  -> context 0x6fce3574, 60 Hz
+chips in use: 4
+step: 200 frames x 4 layers
+RESULT {"mode":"fill","res":"640x480","cfg":5,"chips":4,"frames":200,"frames_run":200,"layers":4,"blend":0,"seconds":0.2213,"fps":903.86,"mpix_s":1110.7,"opened_hz":60,"focus_lost":false}
+step: grSstWinClose
+step: grGlideShutdown
+done rc=0

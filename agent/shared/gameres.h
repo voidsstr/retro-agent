@@ -52,6 +52,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 #if defined(__GNUC__)
@@ -119,9 +120,15 @@ typedef struct {
     int  hz43;                  /* rate for a title at w43 x h43 (FR_HZ43)   */
     int  hzq2, hzq3;            /* the same at the id Tech 2 / id Tech 3
                                  * INDEX mode (gr_q2tab[q2mode],
-                                 * gr_q3tab[q3mode]) - SoF2 and RTCW render
-                                 * there, not at w43 x h43 (1152x864 vs
-                                 * 1280x960 on the 1080p boxes)             */
+                                 * gr_q3tab[q3mode]) - an index engine
+                                 * renders there, not at w43 x h43 (1152x864
+                                 * vs 1280x960 on the 1080p boxes). SoF2 and
+                                 * RTCW left the index on 2026-09-29.        */
+    int  hzq2wide;              /* the same at the mode q2wide selects on a
+                                 * PATCHED id Tech 2 exe (gr_q2wide_res) -
+                                 * 1920x1080 where q2wide is 9. The 1080p
+                                 * boxes list 1920x1080 at 60 and 1280x960 at
+                                 * 75, so hzq2 would ask 1920x1080 for 75.  */
     int  hz_src;                /* where hz/hz43/hzq2/hzq3 came from:
                                  * GR_HZSRC_EDID / _PERSISTED / _NONE         */
     int  desk_hz;               /* best real rate at the persisted desktop   */
@@ -129,9 +136,17 @@ typedef struct {
                                  * FLEETRES publishes as FR_HZ. Used only
                                  * where a launcher writes the same file, so
                                  * the two writers agree byte for byte.       */
+    int  os_major;              /* the RUNNING Windows' major version, set by
+                                 * the caller AFTER gr_decide (which cannot
+                                 * know it): 4 = 9x/NT4, 5 = 2000/XP, 6+ =
+                                 * Vista and later. 0 = not known, treated
+                                 * like 5. Read only by gr_se1_hz (%SE1HZ%). */
     int  bpp;
     int  fov;                   /* hor+ FOV preserving the 4:3 vertical FOV  */
     int  q2mode, q3mode;        /* id Tech 2 / id Tech 3 mode-table indices  */
+    int  q2wide;                /* gl_mode for the PATCHED id Tech 2 exes,
+                                 * whose entry 9 is 1920x1080 - see
+                                 * gr_q2_wide_for() (FR_Q2WIDE)              */
     int  d3ar;                  /* id Tech 4 r_aspectRatio 0=4:3 1=16:9 2=16:10 */
     int  wide;                  /* 1 when the target is wider than 4:3       */
     int  lcd;                   /* 1 = flat panel, 0 = tube                  */
@@ -323,6 +338,36 @@ GR_FN int gr_fr_hz(int reg_hz)
 }
 
 /*
+ * SERIOUS ENGINE 1's gfx_iRefreshRate - %SE1HZ% / FR_SE1HZ. One function,
+ * called by GAMERES and by FLEETRES.EXE, for the one file both write
+ * (Scripts\Game_startup.ini).
+ *
+ * ON WINDOWS 7 A NON-ZERO RATE MAKES THE GAME UNSTARTABLE. With
+ * gfx_iRefreshRate != 0 the engine's mode switch passes a refresh together
+ * with dmDisplayFlags value 4 (DMDISPLAYFLAGS_TEXTMODE) to ChangeDisplaySettings.
+ * XP ignores the flag; Windows 7 rejects that request for EVERY resolution, so
+ * the engine finds no usable mode and dies before a window with
+ *     Fatal Error: Cannot set display mode! Serious Sam was unable to find
+ *     display mode with OpenGL acceleration.
+ * which reads as a broken ICD and is not one. Measured 2026-09-29 on .195
+ * (ADMIN-PC, Win7 build 7600, Radeon HD 5450, Catalyst 15.7.1): a test program
+ * failed only when the flag AND a refresh were both set, and the game rendered
+ * fullscreen 1920x1080 on the AMD ICD with gfx_iRefreshRate=0.
+ *
+ * So: Vista and later (NT major >= 6, the WDDM display model; only Win7 is
+ * measured, there is no Vista box) get 0 - "the engine asks for no rate" - and
+ * everything older keeps fr_hz, the persisted desktop rate, so XP's CRTs keep
+ * their 85/100 Hz. The test is `>= 6` on purpose: GetVersionEx's shim reports
+ * 6.2 on 8.1/10/11 and RtlGetVersion the truth, and both are >= 6, so the two
+ * writers agree whichever of them each one uses.
+ */
+#define GR_SE1_NO_RATE_FROM_NT_MAJOR 6
+GR_FN int gr_se1_hz(int fr_hz, int os_major)
+{
+    return os_major >= GR_SE1_NO_RATE_FROM_NT_MAJOR ? 0 : fr_hz;
+}
+
+/*
  * Is a mode one we may ask for?
  *
  * A SHORT LIST IS TREATED AS NO LIST, DELIBERATELY. Some drivers answer
@@ -417,7 +462,9 @@ GR_FN int gr_d3_aspect(int w, int h)
 /* ------------------------------------------------------------------ */
 
 /* Quake II / SiN / Soldier of Fortune share id Tech 2's table. No custom mode
- * and no 16:9 entry anywhere - 1600x1200 is the ceiling. */
+ * and no 16:9 entry in the STOCK exes - 1600x1200 is their ceiling. The staged
+ * exes are patched so entry 9 is 1920x1080: see gr_q2_wide_for(). This table
+ * stays the stock one - it is what q2mode (and Quake2Win9x) index. */
 GR_DATA const gr_res_t gr_q2tab[] = {
     {320,240},{400,300},{512,384},{640,480},{800,600},
     {960,720},{1024,768},{1152,864},{1280,960},{1600,1200}
@@ -451,6 +498,52 @@ GR_FN int gr_q2_mode_for(const gr_modes_t *l, int w, int h)
     if (best > 3) return best;
     return gr_mode_offered(l, gr_q2tab[best_fit].w, gr_q2tab[best_fit].h)
          ? best : best_fit;
+}
+
+/*
+ * THE PATCHED id Tech 2 EXES (Quake II 3.20, SiN 1.11, Soldier of Fortune -
+ * provisioning/patches/idtech2) rewrite table entry 9 from 1600x1200 to
+ * 1920x1080. So on those three titles gl_mode 9 means 1920x1080, and the
+ * index they are handed is NOT q2mode:
+ *
+ *   9   when the target (after ResCap) is 16:9, at least 1920x1080, and the
+ *       driver offers 1920x1080;
+ *   gr_q2_mode_for(min(w43,1280), min(h43,960))   otherwise - the SAME
+ *       selector q2mode uses with the table capped at entry 8. That is q2mode
+ *       exactly wherever q2mode <= 8 (every box today), and it can never be 9:
+ *       a 4:3 box whose q2mode would be 9 must not be handed a 16:9 mode. It
+ *       RE-RUNS the selector rather than clamping the index to 8: a 1600x1200
+ *       tube that does not list 1280x960 would be asked for a mode its driver
+ *       refuses, and id Tech 2's ref_gl answers that with a WINDOW.
+ *
+ * FLEETRES.EXE's q2_wide_for() is the same rule (FR_Q2WIDE); the reference is
+ * provisioning/patches/idtech2/apply.py fr_q2wide(), and the per-box answers
+ * are pinned in tests/python/test_patch_idtech2.py. Quake2Win9x keeps the stock
+ * exe and is not a consumer.
+ */
+#define GR_Q2WIDE_W 1920
+#define GR_Q2WIDE_H 1080
+
+GR_FN int gr_q2_wide_for(const gr_modes_t *l, int tgt_w, int tgt_h,
+                         int w43, int h43)
+{
+    if (tgt_h > 0 && gr_aspect_mode((double)tgt_w / (double)tgt_h) == 169 &&
+        tgt_w >= GR_Q2WIDE_W && tgt_h >= GR_Q2WIDE_H &&
+        gr_mode_offered(l, GR_Q2WIDE_W, GR_Q2WIDE_H))
+        return 9;
+    return gr_q2_mode_for(l, w43 < gr_q2tab[8].w ? w43 : gr_q2tab[8].w,
+                             h43 < gr_q2tab[8].h ? h43 : gr_q2tab[8].h);
+}
+
+/* The resolution a PATCHED exe sets for gl_mode q2wide - what a refresh for
+ * these three titles has to be asked at (apply.py q2wide_res()). */
+GR_FN gr_res_t gr_q2wide_res(int q2wide)
+{
+    gr_res_t r;
+    if (q2wide == 9) { r.w = GR_Q2WIDE_W; r.h = GR_Q2WIDE_H; }
+    else if (q2wide >= 0 && q2wide < GR_Q2TAB_N) r = gr_q2tab[q2wide];
+    else { r.w = 640; r.h = 480; }
+    return r;
 }
 
 GR_FN int gr_q3_mode_for(const gr_modes_t *l, int w, int h)
@@ -599,17 +692,36 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
     t->fov    = gr_horplus_fov(tgt_w, tgt_h);
     t->q2mode = gr_q2_mode_for(l, t->w43, t->h43);
     t->q3mode = gr_q3_mode_for(l, t->w43, t->h43);
+    t->q2wide = gr_q2_wide_for(l, tgt_w, tgt_h, t->w43, t->h43);
     /* the index engines render at their TABLE's mode, which is not always the
      * 4:3 target (q3mode 7 = 1152x864 where w43 is 1280x960) */
     t->hzq2 = gr_target_hz(p, l, gr_q2tab[t->q2mode].w, gr_q2tab[t->q2mode].h,
                            reg_w, reg_h, reg_hz, NULL);
     t->hzq3 = gr_target_hz(p, l, gr_q3tab[t->q3mode].w, gr_q3tab[t->q3mode].h,
                            reg_w, reg_h, reg_hz, NULL);
+    t->hzq2wide = gr_target_hz(p, l, gr_q2wide_res(t->q2wide).w,
+                               gr_q2wide_res(t->q2wide).h,
+                               reg_w, reg_h, reg_hz, NULL);
     t->d3ar   = gr_d3_aspect(tgt_w, tgt_h);
     t->wide   = (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0;
     t->lcd    = lcd;
     t->edid   = p->ok ? 1 : 0;
     gr_aspect_str(tgt_w, tgt_h, t->aspect, sizeof(t->aspect));
+}
+
+/*
+ * TUROK 2's pick, the SAME ladder the launcher runs (stage-fleetres.py
+ * turok2_mode(): `set T2SEL=640`, then 800 / 1024 when FR_W43 reaches them).
+ * Its compiled-in list is 320x240 512x384 640x480 800x600 1024x768 1280x1024;
+ * 1280x1024 is 5:4 and never chosen, the two smallest are never worth it, so
+ * the answer is the largest of 640/800/1024 that the 4:3 target reaches - on
+ * the 1080p boxes (4:3 target 1280x960) that is 1024x768.
+ */
+GR_FN int gr_turok2_sel(int w43)
+{
+    if (w43 >= 1024) return 1024;
+    if (w43 >= 800)  return 800;
+    return 640;
 }
 
 /* ------------------------------------------------------------------ */
@@ -625,21 +737,30 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
  *   %W43% %H43%      the 4:3-only target
  *   %HZW% %HZ43%     the refresh a title AT that target asks for
  *   %HZQ2% %HZQ3%    ... at the id Tech 2 / id Tech 3 index mode
+ *   %HZQ2WIDE%       ... at the mode %Q2WIDE% selects on a patched exe
  *                    - per target, because a rate is offered per resolution;
  *                    0 = leave it alone (gr_target_hz). %HZ% = %HZW%.
  *   %HZSRC%          edid | persisted | none - what vouches for them
  *   %DESKHZ%         the same, at the persisted desktop mode
  *   %FRHZ%           the persisted mode's OWN rate - exactly what FLEETRES
  *                    publishes as FR_HZ, for a file both writers touch
+ *   %SE1HZ%          Serious Engine 1's gfx_iRefreshRate: %FRHZ% before
+ *                    Vista, 0 on NT 6+ (gr_se1_hz) - FLEETRES's FR_SE1HZ
  *   %HZOVERRIDE%     "True" when a rate is known, else "False"
  *   %BPP%
  *   %FOV%            hor+ FOV
  *   %Q2MODE% %Q3MODE%
+ *   %Q2WIDE%         gl_mode for the PATCHED id Tech 2 exes (9 = 1920x1080)
  *   %D3AR%           id Tech 4 r_aspectRatio
  *   %DOSFULLRES%     DOSBox [sdl] fullresolution: desktop on an LCD,
  *                    original on a CRT
- *   %SEL43:WxH%      "1" when WxH is exactly the 4:3 target, else "0" - for
- *                    an engine that keeps one BOOLEAN PER MODE (Turok 2)
+ *   %SEL43:WxH%      "1" when WxH is exactly the 4:3 target, else "0"
+ *   %T2SEL:W%        "1" when W is the Turok 2 ladder's pick for this box
+ *                    (gr_turok2_sel), else "0" - for an engine that keeps
+ *                    one BOOLEAN PER MODE. NOT %SEL43%: Turok 2's list has no
+ *                    1280x960, so on a 1080p box (4:3 target 1280x960) SEL43
+ *                    turned EVERY mode off while the launcher turned 1024x768
+ *                    on - two writers of config.ned that disagreed.
  *
  * Returns 0 on success, non-zero when the output would not fit (which is a
  * bug in the rule, not a runtime condition, so the caller must treat it as a
@@ -674,9 +795,12 @@ GR_FN int gr_expand(const char *tmpl, const gr_target_t *t,
                     else if (!strcmp(tok, "HZ43"))    sprintf(val, "%d", t->hz43);
                     else if (!strcmp(tok, "HZQ2"))    sprintf(val, "%d", t->hzq2);
                     else if (!strcmp(tok, "HZQ3"))    sprintf(val, "%d", t->hzq3);
+                    else if (!strcmp(tok, "HZQ2WIDE")) sprintf(val, "%d", t->hzq2wide);
                     else if (!strcmp(tok, "HZSRC"))   strcpy(val, gr_hz_src_name(t->hz_src));
                     else if (!strcmp(tok, "DESKHZ"))  sprintf(val, "%d", t->desk_hz);
                     else if (!strcmp(tok, "FRHZ"))    sprintf(val, "%d", t->fr_hz);
+                    else if (!strcmp(tok, "SE1HZ"))
+                        sprintf(val, "%d", gr_se1_hz(t->fr_hz, t->os_major));
                     /* True only when a rate is actually KNOWN. An engine told
                      * to override the desktop refresh with 0 overrides it with
                      * nothing, which is worse than not overriding. */
@@ -686,9 +810,13 @@ GR_FN int gr_expand(const char *tmpl, const gr_target_t *t,
                     else if (!strcmp(tok, "FOV"))     sprintf(val, "%d", t->fov);
                     else if (!strcmp(tok, "Q2MODE"))  sprintf(val, "%d", t->q2mode);
                     else if (!strcmp(tok, "Q3MODE"))  sprintf(val, "%d", t->q3mode);
+                    else if (!strcmp(tok, "Q2WIDE"))  sprintf(val, "%d", t->q2wide);
                     else if (!strcmp(tok, "D3AR"))    sprintf(val, "%d", t->d3ar);
                     else if (!strcmp(tok, "DOSFULLRES"))
                         strcpy(val, t->lcd ? "desktop" : "original");
+                    else if (!strncmp(tok, "T2SEL:", 6))
+                        strcpy(val, atoi(tok + 6) == gr_turok2_sel(t->w43)
+                                    ? "1" : "0");
                     else if (!strncmp(tok, "SEL43:", 6)) {
                         char want[24];
                         sprintf(want, "%dx%d", t->w43, t->h43);
@@ -830,18 +958,28 @@ GR_DATA const gr_rule_t gr_rules[] = {
 { "Quake3-TeamArena", GR_OP_CFG, "missionpack\\fleetres.cfg", NULL, NULL, NULL },
 { "JediAcademy",      GR_OP_CFG, "base\\fleetres.cfg", NULL, NULL, NULL },
 
-/* --- id Tech 3 forks with NO r_mode -1 BRANCH ---------------------------
- * The cvar table is NOT evidence: SoF2 and RTCW both carry r_customwidth and
- * honour neither. Measured on .145 with an identical config, quake3.exe/jasp/
- * jamp gave 1920x1080 and sof2mp.exe gave 640x480 - it does not error, it
- * renders small. So these get a plain mode INDEX, and it must be Q3MODE:
- * id Tech 3's table entry 8 is 1280x1024 where id Tech 2's is 1280x960. */
-{ "SoldierOfFortune2",          GR_OP_CFG, "base\\fleetres.cfg", "idtech3-index", NULL, NULL },
-{ "ReturnToCastleWolfenstein",  GR_OP_CFG, "Main\\fleetres.cfg", "idtech3-index-nofov", NULL, NULL },
+/* --- SoF2 and RTCW: r_mode -1 too (2026-09-29) --------------------------
+ * These two sat on a plain Q3MODE index for a month on the reading that their
+ * fork has no -1 branch. Both measurements were real and both readings wrong:
+ * sof2mp.exe's 640x480 was r_mode's registered MINIMUM of 3.0 (file 0xBA614,
+ * patched to -1.0 in the staged exe by provisioning/patches/idtech3-kin), and
+ * RTCW's was the first-run Com_SetRecommended pass, which the launchers now
+ * skip with +set com_recommendedSet 1. All four exes verified at 1920x1080 on
+ * .240 through -1.
+ *
+ * SoF2 takes the STANDARD body - both of its launchers write exactly it, where
+ * until now SP and MP wrote two different bodies to this one file. RTCW's is
+ * the same minus cg_fov, the verified .240 configuration; gr_w_cfg() checks
+ * each line for presence, so it must stay a subset of what ALL FOUR RTCW
+ * launchers echo into Main\\fleetres.cfg. */
+{ "SoldierOfFortune2",          GR_OP_CFG, "base\\fleetres.cfg", NULL, NULL, NULL },
+{ "ReturnToCastleWolfenstein",  GR_OP_CFG, "Main\\fleetres.cfg", "idtech3-custom-nofov", NULL, NULL },
 
-/* --- id Tech 2: a FIXED 4:3 table indexed by gl_mode, no custom mode and no
- *     16:9 entry anywhere, so the honest best is a correctly proportioned 4:3
- *     mode. Every mod directory needs its own copy - covering base/ alone left
+/* --- id Tech 2: a FIXED table indexed by gl_mode, no custom mode. The staged
+ *     exes are PATCHED so entry 9 is 1920x1080 (provisioning/patches/idtech2),
+ *     so the body writes %Q2WIDE% - 9 on a 16:9 box that offers 1920x1080,
+ *     else the largest correctly proportioned 4:3 entry up to 8, never 9.
+ *     Every mod directory needs its own copy - covering base/ alone left
  *     Wages of SiN pinned at 1024x768 on every box. */
 { "Quake2Complete", GR_OP_CFG, "baseq2\\fleetres.cfg", "idtech2", NULL, NULL },
 { "Quake2Complete", GR_OP_CFG, "xatrix\\fleetres.cfg", "idtech2", NULL, NULL },
@@ -855,8 +993,11 @@ GR_DATA const gr_rule_t gr_rules[] = {
  * PersistentSymbols.ini is where the engine SAVES on exit, so anything staged
  * there is overwritten by the first box that runs the game. Game_startup.ini
  * is the engine's own documented hook. sam_iDriver is deliberately NOT written
- * - that is a renderer choice the engine makes for itself (.246 cannot open
- * OpenGL at all and runs on Direct3D). */
+ * - that is a renderer choice the engine makes for itself. (In this build
+ * sam_iDriver=1 is the 3dfx MiniGL, 3DFXVGL.DLL - NOT Direct3D, as this
+ * comment used to say. The Win7 "unable to find display mode with OpenGL
+ * acceleration" that was blamed on the OpenGL path was gfx_iRefreshRate:
+ * see gr_se1_hz.) */
 { "SeriousSamFirstEncounter",  GR_OP_CFG, "Scripts\\Game_startup.ini", "ssam", NULL, NULL },
 { "SeriousSamSecondEncounter", GR_OP_CFG, "Scripts\\Game_startup.ini", "ssam", NULL, NULL },
 
@@ -948,17 +1089,64 @@ GR_DATA const gr_rule_t gr_rules[] = {
  *     list the box can drive - which is exactly "offer the resolutions the
  *     monitor supports" for an engine that enumerates rather than accepts.
  *     1280x1024 is deliberately never selected: it is 5:4, and a 5:4 mode on
- *     a 4:3 or 16:9 panel is the squashed picture this mechanism removes. */
-{ "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\320^x^240",   "Acclaim\\Turok\\VideoD3D\\320^x^240 %SEL43:320x240%",   NULL },
-{ "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\512^x^384",   "Acclaim\\Turok\\VideoD3D\\512^x^384 %SEL43:512x384%",   NULL },
-{ "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\640^x^480",   "Acclaim\\Turok\\VideoD3D\\640^x^480 %SEL43:640x480%",   NULL },
-{ "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\800^x^600",   "Acclaim\\Turok\\VideoD3D\\800^x^600 %SEL43:800x600%",   NULL },
-{ "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\1024^x^768",  "Acclaim\\Turok\\VideoD3D\\1024^x^768 %SEL43:1024x768%", NULL },
+ *     a 4:3 or 16:9 panel is the squashed picture this mechanism removes.
+ *     The pick is gr_turok2_sel() - the launcher's own ladder. Until
+ *     2026-09-29 these rows used %SEL43%, which on a 1080p box (4:3 target
+ *     1280x960, not on Turok's list) switched EVERY mode off, while the
+ *     launcher switched 1024x768 on: the two rewrote config.ned in turn. */
+{ "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\320^x^240",   "Acclaim\\Turok\\VideoD3D\\320^x^240 0",                 NULL },
+{ "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\512^x^384",   "Acclaim\\Turok\\VideoD3D\\512^x^384 0",                 NULL },
+{ "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\640^x^480",   "Acclaim\\Turok\\VideoD3D\\640^x^480 %T2SEL:640%",       NULL },
+{ "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\800^x^600",   "Acclaim\\Turok\\VideoD3D\\800^x^600 %T2SEL:800%",       NULL },
+{ "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\1024^x^768",  "Acclaim\\Turok\\VideoD3D\\1024^x^768 %T2SEL:1024%",     NULL },
 { "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\1280^x^1024", "Acclaim\\Turok\\VideoD3D\\1280^x^1024 0",               NULL },
 { "Turok2", GR_OP_SETLINE, "Data\\config.ned", "Acclaim\\Turok\\VideoD3D\\Windowed",    "Acclaim\\Turok\\VideoD3D\\Windowed 0",                  NULL }
 };
 
 #define GR_RULE_COUNT ((int)(sizeof(gr_rules) / sizeof(gr_rules[0])))
+
+GR_FN int gr_ieq(const char *a, const char *b)
+{
+    while (*a && *b) {
+        int x = (unsigned char)*a, y = (unsigned char)*b;
+        if (x >= 'A' && x <= 'Z') x += 'a' - 'A';
+        if (y >= 'A' && y <= 'Z') y += 'a' - 'A';
+        if (x != y)
+            return 0;
+        a++;
+        b++;
+    }
+    return *a == *b;
+}
+
+/*
+ * Which title's rule OWNS this registry value, if any? root is "HKLM" or
+ * "HKCU", subkey below it, name the value name - all compared
+ * case-insensitively, as the registry does.
+ *
+ * WHY GAMESYNC ASKS. A staged install.reg is a byte-identical constant: the
+ * CounterStrike16 one pins HKCU\Software\Valve\Half-Life\Settings ScreenWidth
+ * at 800, HalfLife1's at 1024, MaxPayne's and HiddenAndDangerous's their
+ * Display Width at 800. gs_merge_reg() re-applied that constant on every sync
+ * and this pass then put the box's own value back - so a settled box reported
+ * "4 value(s) changed" for Counter-Strike (and 2 each for Max Payne and H&D)
+ * forever (.110, agent 1.90.0, 2026-09-28). A value a rule here owns is the
+ * box's, not the library's: the merge keeps what this pass last set.
+ */
+GR_FN const char *gr_reg_owner(const char *root, const char *subkey, const char *name)
+{
+    int i;
+    if (!root || !subkey || !name)
+        return NULL;
+    for (i = 0; i < GR_RULE_COUNT; i++) {
+        const gr_rule_t *r = &gr_rules[i];
+        if (r->op != GR_OP_REG || !r->file || !r->arg1 || !r->arg2)
+            continue;
+        if (gr_ieq(r->file, root) && gr_ieq(r->arg1, subkey) && gr_ieq(r->arg2, name))
+            return r->title;
+    }
+    return NULL;
+}
 
 /*
  * The bodies for GR_OP_CFG. Kept out of the table because they are multi-line
@@ -980,6 +1168,10 @@ GR_DATA const gr_rule_t gr_rules[] = {
  * engines that have no refresh setting at all. Quake II and GoldSrc were
  * checked: their binaries carry no refresh cvar, only `timerefresh` and
  * `r_norefresh`.
+ *
+ * The ssam body is the one exception, and it still uses a number FLEETRES
+ * publishes: %SE1HZ% = FR_SE1HZ, which is %FRHZ% except on Windows Vista and
+ * later, where a refresh makes Serious Engine 1 unstartable (gr_se1_hz).
  */
 GR_FN const char *gr_cfg_body(const char *kind)
 {
@@ -993,24 +1185,21 @@ GR_FN const char *gr_cfg_body(const char *kind)
                "seta r_fullscreen \"1\"\n"
                "seta cg_fov \"%FOV%\"\n"
                "seta r_displayRefresh \"%FRHZ%\"\n";
-    if (!strcmp(kind, "idtech3-index"))
+    /* The standard body minus cg_fov - RTCW, verified at 1920x1080 on .240
+     * without one (its default 90 is vert- at 16:9; a value is an untested
+     * follow-up). */
+    if (!strcmp(kind, "idtech3-custom-nofov"))
         return "// written by GAMESYNC for this box's monitor - do not edit\n"
-               "// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,\n"
-               "// and Q3MODE not Q2MODE: idTech3 mode 8 is 1280x1024.\n"
-               "seta r_mode \"%Q3MODE%\"\n"
-               "seta r_fullscreen \"1\"\n"
-               "seta cg_fov \"%FOV%\"\n"
-               "seta r_displayRefresh \"%FRHZ%\"\n";
-    if (!strcmp(kind, "idtech3-index-nofov"))
-        return "// written by GAMESYNC for this box's monitor - do not edit\n"
-               "// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,\n"
-               "// and Q3MODE not Q2MODE: idTech3 mode 8 is 1280x1024.\n"
-               "seta r_mode \"%Q3MODE%\"\n"
+               "seta r_mode \"-1\"\n"
+               "seta r_customwidth \"%W%\"\n"
+               "seta r_customheight \"%H%\"\n"
+               "seta r_customaspect \"1\"\n"
+               "seta r_customPixelAspect \"1\"\n"
                "seta r_fullscreen \"1\"\n"
                "seta r_displayRefresh \"%FRHZ%\"\n";
     if (!strcmp(kind, "idtech2"))
         return "// written by GAMESYNC for this box's monitor - do not edit\n"
-               "set gl_mode \"%Q2MODE%\"\n"
+               "set gl_mode \"%Q2WIDE%\"\n"
                "set vid_fullscreen \"1\"\n";
     if (!strcmp(kind, "ssam"))
         return "// written by GAMESYNC for this box's monitor - do not edit\n"
@@ -1019,8 +1208,492 @@ GR_FN const char *gr_cfg_body(const char *kind)
                "sam_bFullScreen=1;\n"
                "sam_iScreenSizeI=%W%;\n"
                "sam_iScreenSizeJ=%H%;\n"
-               "gfx_iRefreshRate=%FRHZ%;\n";
+               "gfx_iRefreshRate=%SE1HZ%;\n";
     return NULL;
+}
+
+/* ================================================================== */
+/* VERIFY - is each installed title ACTUALLY set to its resolution?     */
+/* ================================================================== */
+
+/*
+ * THE COMPARISONS BELOW ARE THE WRITERS' OWN. GAMERES APPLY decides "does
+ * this value need writing" and GAMERES VERIFY decides "is this value right";
+ * if those were two pieces of code they would drift, and a box could report
+ * `0 value(s) changed` and `wrong: 3` at once - or the reverse, which is worse.
+ * So gameres.c's writers call these same functions to decide whether to write
+ * at all, and VERIFY calls them to report. One answer, two consumers.
+ *
+ * The three states, and they are defined by what APPLY would do:
+ *   OK      APPLY would change nothing.
+ *   WRONG   APPLY would write this (a different value, a missing line or key,
+ *           a missing fleetres.cfg in a mod directory that exists).
+ *   ABSENT  APPLY would count it in `targets_absent`: the file a rule edits
+ *           is not in this build, or a cfg's mod directory is not installed.
+ * So on a box where APPLY just ran without a failure, WRONG must be 0.
+ */
+#define GR_ST_OK     0
+#define GR_ST_WRONG  1
+#define GR_ST_ABSENT 2
+
+GR_FN const char *gr_st_name(int st)
+{
+    return st == GR_ST_OK ? "ok" : st == GR_ST_ABSENT ? "absent" : "wrong";
+}
+
+/* The first whitespace-delimited token of a line, quotes stripped. Stops at
+ * CR/LF as well as NUL, so it can be pointed into a whole buffer. */
+GR_FN int gr_first_token(const char *line, char *out, int cap)
+{
+    int n = 0;
+    while (*line == ' ' || *line == '\t') line++;
+    while (*line && *line != ' ' && *line != '\t' && *line != '\r'
+           && *line != '\n') {
+        if (*line != '"' && n < cap - 1) out[n++] = *line;
+        line++;
+    }
+    out[n] = 0;
+    return n;
+}
+
+/*
+ * Like gr_first_token, but for the key=value configs where the whole
+ * "ResolutionX=1024" is ONE whitespace token and a first-token match therefore
+ * never fires. Returns 0 for any line that is not key=value, so a comment or a
+ * [section] header can never be overwritten.
+ */
+GR_FN int gr_first_key(const char *line, char *out, int cap)
+{
+    int n = 0;
+    while (*line == ' ' || *line == '\t') line++;
+    while (*line && *line != '=' && *line != ' ' && *line != '\t'
+           && *line != '\r' && *line != '\n') {
+        if (*line != '"' && n < cap - 1) out[n++] = *line;
+        line++;
+    }
+    while (*line == ' ' || *line == '\t') line++;
+    if (*line != '=' || n == 0) { out[0] = 0; return 0; }
+    out[n] = 0;
+    return n;
+}
+
+/* Is this the line a SETLINE (kv=0) or KV (kv=1) rule for `key` owns?
+ * Case-insensitive, as the files' own engines read them. */
+GR_FN int gr_line_key_is(const char *line, const char *key, int kv)
+{
+    char tok[160];
+    if (kv) gr_first_key(line, tok, (int)sizeof(tok));
+    else    gr_first_token(line, tok, (int)sizeof(tok));
+    return tok[0] && gr_ieq(tok, key);
+}
+
+/* Copy [s, s+n) into out trimmed of surrounding blanks; always terminated. */
+GR_FN void gr_copy_trim(const char *s, size_t n, char *out, size_t cap)
+{
+    if (!out || !cap) return;
+    while (n && (*s == ' ' || *s == '\t')) { s++; n--; }
+    while (n && (s[n - 1] == ' ' || s[n - 1] == '\t' || s[n - 1] == '\r'))
+        n--;
+    if (n >= cap) n = cap - 1;
+    memcpy(out, s, n);
+    out[n] = 0;
+}
+
+/*
+ * SETLINE / KV: the FIRST line whose key matches must be exactly `line`.
+ * `buf` is the whole file (len bytes). found gets that first line, trimmed,
+ * and *present says whether there was one. A missing key is WRONG - APPLY
+ * would append it. This is exactly the test gr_w_line() writes on.
+ */
+GR_FN int gr_line_check(const char *buf, size_t len, const char *key,
+                        const char *line, int kv, char *found, size_t fcap,
+                        int *present)
+{
+    size_t ls = 0, i, ll = strlen(line);
+    if (found && fcap) found[0] = 0;
+    if (present) *present = 0;
+    for (i = 0; i <= len; i++) {
+        if (i == len || buf[i] == '\n') {
+            size_t body = i;
+            if (body > ls && buf[body - 1] == '\r') body--;
+            /* the tokenizers stop at CR/LF, so they can read in place */
+            if (i > ls && gr_line_key_is(buf + ls, key, kv)) {
+                gr_copy_trim(buf + ls, body - ls, found, fcap);
+                if (present) *present = 1;
+                return (body - ls == ll && memcmp(buf + ls, line, ll) == 0)
+                     ? GR_ST_OK : GR_ST_WRONG;
+            }
+            ls = i + 1;
+        }
+    }
+    return GR_ST_WRONG;
+}
+
+/* Does `hay` contain `line` as a WHOLE line? */
+GR_FN int gr_has_line(const char *hay, const char *line)
+{
+    const char *p = hay;
+    size_t n = strlen(line);
+
+    if (!n) return 1;
+    while ((p = strstr(p, line)) != NULL) {
+        int at_start = (p == hay) || p[-1] == '\n' || p[-1] == '\r';
+        char after = p[n];
+        if (at_start && (after == 0 || after == '\r' || after == '\n'))
+            return 1;
+        p += n;
+    }
+    return 0;
+}
+
+/*
+ * CFG: are the settings `body` needs already present, line by line, comments
+ * excluded? NOT a byte comparison - see gr_w_cfg() for why (two writers, two
+ * banners). cur == NULL means the file is missing or unreadable: WRONG, APPLY
+ * would write it. missing gets the first required line not present.
+ */
+GR_FN int gr_cfg_check(const char *cur, const char *body, char *missing,
+                       size_t mcap)
+{
+    const char *l = body;
+    if (missing && mcap) missing[0] = 0;
+    while (*l) {
+        const char *e = strchr(l, '\n');
+        size_t n = e ? (size_t)(e - l) : strlen(l);
+        char one[512];
+        if (n && n < sizeof(one) && !(n >= 2 && l[0] == '/' && l[1] == '/')) {
+            memcpy(one, l, n);
+            one[n] = 0;
+            if (!cur || !gr_has_line(cur, one)) {
+                gr_copy_trim(one, n, missing, mcap);
+                return GR_ST_WRONG;
+            }
+        }
+        if (!e) break;
+        l = e + 1;
+    }
+    return cur ? GR_ST_OK : GR_ST_WRONG;    /* no file: APPLY would write it */
+}
+
+/*
+ * REG: a rule's "dword:<n>" / "sz:<text>" against what the value holds.
+ * have = the value exists; is_dword/is_sz its type; dv/sv its data. found
+ * gets the same spelling back ("dword:1024", "sz:Default", "type:3"), or ""
+ * when absent. Returns -1 for a spec that is neither form (a rule bug) -
+ * gr_w_reg() refuses the same spec. A missing value is WRONG: APPLY creates it.
+ */
+GR_FN int gr_reg_cmp(const char *spec, int have, int type_is_dword,
+                     int type_is_sz, int type_raw, unsigned long dv,
+                     const char *sv, char *found, size_t fcap)
+{
+    if (found && fcap) {
+        found[0] = 0;
+        if (have) {
+            char tmp[300];
+            if (type_is_dword)   sprintf(tmp, "dword:%lu", dv);
+            else if (type_is_sz) { strcpy(tmp, "sz:"); strncat(tmp, sv ? sv : "", 256); }
+            else                 sprintf(tmp, "type:%d", type_raw);
+            gr_copy_trim(tmp, strlen(tmp), found, fcap);
+        }
+    }
+    if (strncmp(spec, "dword:", 6) == 0) {
+        unsigned long want = strtoul(spec + 6, NULL, 0);
+        return (have && type_is_dword && dv == want) ? GR_ST_OK : GR_ST_WRONG;
+    }
+    if (strncmp(spec, "sz:", 3) == 0)
+        return (have && type_is_sz && sv && strcmp(sv, spec + 3) == 0)
+             ? GR_ST_OK : GR_ST_WRONG;
+    return -1;
+}
+
+/* ------------------------------------------------------------------ */
+/* what resolution a TITLE is supposed to get on this box               */
+/* ------------------------------------------------------------------ */
+
+/*
+ * The KIND of target a title is on, from the mechanism that sets its mode:
+ * the rule tokens for a config title, the FR_* variable its launcher passes
+ * for a launcher title. The kind resolves to a WxH per box (gr_kind_res).
+ */
+enum {
+    GR_TK_NONE = 0,     /* no resolution to speak of                        */
+    GR_TK_WIDE,         /* %W%x%H% / FR_W FR_H - the panel's own target      */
+    GR_TK_43,           /* %W43% / FR_W43 - a 4:3-only engine               */
+    GR_TK_Q2WIDE,       /* gl_mode %Q2WIDE% on a PATCHED id Tech 2 exe      */
+    GR_TK_Q2MODE,       /* FR_Q2MODE - a stock id Tech 2 exe                */
+    GR_TK_Q3MODE,       /* FR_Q3MODE - an id Tech 3 index                   */
+    GR_TK_TUROK,        /* Turok 2's one-boolean-per-mode list              */
+    GR_TK_DOS           /* DOSBox fullresolution - no WxH of its own        */
+};
+
+GR_FN const char *gr_kind_name(int k)
+{
+    switch (k) {
+    case GR_TK_WIDE:   return "wide";
+    case GR_TK_43:     return "four_three";
+    case GR_TK_Q2WIDE: return "idtech2_q2wide";
+    case GR_TK_Q2MODE: return "idtech2_q2mode";
+    case GR_TK_Q3MODE: return "idtech3_q3mode";
+    case GR_TK_TUROK:  return "turok2_list";
+    case GR_TK_DOS:    return "dosbox";
+    default:           return "none";
+    }
+}
+
+/* A config title's kind, read off ITS OWN RULES - so it can never disagree
+ * with what APPLY writes. The most specific mechanism wins: a title with
+ * both a native-engine rule (%W%) and a DOSBox rule (Descent 1) is WIDE. */
+GR_FN int gr_rules_kind(const char *title)
+{
+    int i, q2 = 0, turok = 0, wide = 0, w43 = 0, dos = 0;
+    for (i = 0; i < GR_RULE_COUNT; i++) {
+        const gr_rule_t *r = &gr_rules[i];
+        const char *a[3];
+        int k;
+        if (!gr_ieq(r->title, title)) continue;
+        if (r->op == GR_OP_CFG) {
+            if (r->arg1 && !strcmp(r->arg1, "idtech2")) q2 = 1;
+            else wide = 1;          /* the id Tech 3 bodies and ssam: %W% */
+            continue;
+        }
+        a[0] = r->arg1; a[1] = r->arg2; a[2] = r->arg3;
+        for (k = 0; k < 3; k++) {
+            if (!a[k]) continue;
+            if (strstr(a[k], "%Q2WIDE%"))    q2 = 1;
+            if (strstr(a[k], "%T2SEL:"))     turok = 1;
+            if (strstr(a[k], "%W%") || strstr(a[k], "%H%")) wide = 1;
+            if (strstr(a[k], "%W43%") || strstr(a[k], "%H43%")) w43 = 1;
+            if (strstr(a[k], "%DOSFULLRES%")) dos = 1;
+        }
+    }
+    return q2 ? GR_TK_Q2WIDE : turok ? GR_TK_TUROK : wide ? GR_TK_WIDE
+         : w43 ? GR_TK_43 : dos ? GR_TK_DOS : GR_TK_NONE;
+}
+
+/* The WxH a kind means on this box. 0x0 for DOS/NONE. */
+GR_FN gr_res_t gr_kind_res(int kind, const gr_target_t *t)
+{
+    gr_res_t r;
+    r.w = 0; r.h = 0;
+    switch (kind) {
+    case GR_TK_WIDE:   r.w = t->w;   r.h = t->h;   break;
+    case GR_TK_43:     r.w = t->w43; r.h = t->h43; break;
+    case GR_TK_Q2WIDE: r = gr_q2wide_res(t->q2wide); break;
+    case GR_TK_Q2MODE:
+        if (t->q2mode >= 0 && t->q2mode < GR_Q2TAB_N) r = gr_q2tab[t->q2mode];
+        break;
+    case GR_TK_Q3MODE:
+        if (t->q3mode >= 0 && t->q3mode < GR_Q3TAB_N) r = gr_q3tab[t->q3mode];
+        break;
+    case GR_TK_TUROK:
+        r.w = gr_turok2_sel(t->w43); r.h = r.w * 3 / 4; break;
+    default: break;
+    }
+    return r;
+}
+
+/* Why a kind can land below the panel's own target - said per MECHANISM, so
+ * a 4:3 or capped answer is read as the engine's limit, not as a failure. */
+GR_FN const char *gr_kind_cap_reason(int kind)
+{
+    switch (kind) {
+    case GR_TK_43:
+        return "4:3-only engine: gets the largest classic 4:3 mode the box offers";
+    case GR_TK_Q2WIDE:
+        return "id Tech 2 fixed mode table: patched entry 9 is 1920x1080 on a "
+               "16:9 panel that offers it, else the largest 4:3 entry up to 1280x960";
+    case GR_TK_Q2MODE:
+        return "stock id Tech 2 fixed mode table: no 16:9 entry, 1600x1200 at most";
+    case GR_TK_Q3MODE:
+        return "id Tech 3 mode index: fixed table, no custom mode";
+    case GR_TK_TUROK:
+        return "Turok 2's mode list (Video_D3D.dll) stops at 1024x768 4:3; "
+               "1280x1024 is 5:4 and never chosen";
+    case GR_TK_DOS:
+        return "DOSBox title: the DOS mode is scaled - fullresolution=desktop "
+               "on an LCD, original on a CRT";
+    default:
+        return "";
+    }
+}
+
+/*
+ * THE TITLES THAT CANNOT BE CONFIGURED AT ALL (PER-TITLE-STATUS.md
+ * "incapable"). A register of measurements, not a decision: it only changes
+ * how VERIFY words its answer, so a 640x480-only engine is reported as the
+ * engine's limit and not as an unmanaged title nobody looked at.
+ */
+typedef struct { const char *title; const char *target; const char *why; } gr_incap_t;
+
+GR_DATA const gr_incap_t gr_incapable[] = {
+    { "StarCraft",      "640x480", "StarCraft 1.16.1 is hard-locked to 640x480" },
+    { "SystemShock2",   "640x480", "Dark engine without NewDark: 640x480, no resolution cvar" },
+    { "ThiefGold",      "640x480", "Dark engine without NewDark: 640x480, no resolution cvar" },
+    { "JediKnightDF2",  NULL,      "Sith engine: a displayMode index into the 3D device's own list; no width/height to set" },
+    { "JediKnightMotS", NULL,      "Sith engine: a displayMode index into the 3D device's own list; no width/height to set" },
+    { "Carmageddon2",   NULL,      "Glide-era title: its modes come from the Glide device (512x384/640x480/800x600)" }
+};
+#define GR_INCAPABLE_N ((int)(sizeof(gr_incapable) / sizeof(gr_incapable[0])))
+
+GR_FN const gr_incap_t *gr_incapable_for(const char *title)
+{
+    int i;
+    for (i = 0; i < GR_INCAPABLE_N; i++)
+        if (gr_ieq(gr_incapable[i].title, title))
+            return &gr_incapable[i];
+    return NULL;
+}
+
+/* ------------------------------------------------------------------ */
+/* launchers: does each one CALL FLEETRES.BAT, and with what?           */
+/* ------------------------------------------------------------------ */
+
+/* The FR_* variables a launcher can hand an engine. */
+#define GR_FRV_W       0x01u
+#define GR_FRV_W43     0x02u
+#define GR_FRV_Q2MODE  0x04u
+#define GR_FRV_Q2WIDE  0x08u
+#define GR_FRV_Q3MODE  0x10u
+#define GR_FRV_DOS     0x20u
+
+typedef struct {
+    int      calls;         /* a live line `call ... FLEETRES.BAT`            */
+    int      cap_w, cap_h;  /* its `-cap W H`, 0 when none                    */
+    unsigned uses;          /* GR_FRV_* seen on live lines                    */
+} gr_lscan_t;
+
+/* case-insensitive strstr */
+GR_FN const char *gr_istrstr(const char *hay, const char *needle)
+{
+    size_t n = strlen(needle);
+    if (!n) return hay;
+    for (; *hay; hay++) {
+        size_t k;
+        for (k = 0; k < n; k++) {
+            int x = (unsigned char)hay[k], y = (unsigned char)needle[k];
+            if (!x) return NULL;
+            if (x >= 'A' && x <= 'Z') x += 'a' - 'A';
+            if (y >= 'A' && y <= 'Z') y += 'a' - 'A';
+            if (x != y) break;
+        }
+        if (k == n) return hay;
+    }
+    return NULL;
+}
+
+/* Is this batch line a comment (REM / ::), after any leading '@' and blanks? */
+GR_FN int gr_bat_is_comment(const char *l)
+{
+    while (*l == ' ' || *l == '\t' || *l == '@') l++;
+    if (l[0] == ':' && l[1] == ':') return 1;
+    if ((l[0] == 'r' || l[0] == 'R') && (l[1] == 'e' || l[1] == 'E') &&
+        (l[2] == 'm' || l[2] == 'M') &&
+        (l[3] == 0 || l[3] == ' ' || l[3] == '\t' || l[3] == '.' ||
+         l[3] == '\r' || l[3] == '\n'))
+        return 1;
+    return 0;
+}
+
+/*
+ * Read a launcher .bat. CALLING FLEETRES.BAT is what counts - a comment that
+ * names it, or a FLEETRES.EXE line on its own, sets no FR_* variable. The
+ * -cap on that call line is the engine ceiling the launcher asks for
+ * (`call "%~dp0FLEETRES.BAT" -cap 1280 960`), which FLEETRES combines with
+ * the box's ResCap exactly as gr_launch_cap() does.
+ */
+GR_FN void gr_launcher_scan(const char *text, gr_lscan_t *o)
+{
+    const char *p = text;
+    memset(o, 0, sizeof(*o));
+    while (p && *p) {
+        const char *e = p;
+        char line[1024];
+        size_t n;
+        while (*e && *e != '\n') e++;
+        n = (size_t)(e - p);
+        if (n >= sizeof(line)) n = sizeof(line) - 1;
+        memcpy(line, p, n);
+        line[n] = 0;
+        if (!gr_bat_is_comment(line)) {
+            const char *f = gr_istrstr(line, "FLEETRES.BAT");
+            if (f && gr_istrstr(line, "call")) {
+                const char *c = gr_istrstr(f, "-cap");
+                o->calls = 1;
+                if (c) {
+                    int w = 0, h = 0;
+                    if (sscanf(c + 4, "%d %d", &w, &h) == 2 && w > 0 && h > 0) {
+                        o->cap_w = w; o->cap_h = h;
+                    }
+                }
+            }
+            if (gr_istrstr(line, "%FR_W%") || gr_istrstr(line, "%FR_H%"))
+                o->uses |= GR_FRV_W;
+            if (gr_istrstr(line, "%FR_W43%") || gr_istrstr(line, "%FR_H43%"))
+                o->uses |= GR_FRV_W43;
+            if (gr_istrstr(line, "%FR_Q2MODE%"))    o->uses |= GR_FRV_Q2MODE;
+            if (gr_istrstr(line, "%FR_Q2WIDE%"))    o->uses |= GR_FRV_Q2WIDE;
+            if (gr_istrstr(line, "%FR_Q3MODE%"))    o->uses |= GR_FRV_Q3MODE;
+            if (gr_istrstr(line, "%FR_DOSFULLRES%")) o->uses |= GR_FRV_DOS;
+        }
+        p = *e ? e + 1 : e;
+    }
+}
+
+/* The kind a launcher's FR_* use means, most specific first. */
+GR_FN int gr_launcher_kind(unsigned uses)
+{
+    if (uses & GR_FRV_Q2WIDE) return GR_TK_Q2WIDE;
+    if (uses & GR_FRV_Q2MODE) return GR_TK_Q2MODE;
+    if (uses & GR_FRV_Q3MODE) return GR_TK_Q3MODE;
+    if (uses & GR_FRV_W)      return GR_TK_WIDE;
+    if (uses & GR_FRV_W43)    return GR_TK_43;
+    if (uses & GR_FRV_DOS)    return GR_TK_DOS;
+    return GR_TK_NONE;
+}
+
+/* FLEETRES.EXE's combination of a launcher -cap with the per-box ResCap
+ * (fleetres.c: the registry cap wins when it is the smaller). */
+GR_FN void gr_launch_cap(int cap_w, int cap_h, int box_w, int box_h,
+                         int *out_w, int *out_h)
+{
+    if (box_w && box_h && (!cap_w || box_w < cap_w)) { cap_w = box_w; cap_h = box_h; }
+    *out_w = cap_w;
+    *out_h = cap_h;
+}
+
+/*
+ * One launch.txt data line's first field (the target), in the agent's own
+ * reading of the file: blank lines and '#' comments skipped, the field ends
+ * at a TAB. *p advances past the line. Returns 0 at the end.
+ */
+GR_FN int gr_launch_txt_next(const char **p, char *out, size_t cap)
+{
+    while (**p) {
+        const char *l = *p, *e = l, *f;
+        size_t n;
+        while (*e && *e != '\r' && *e != '\n') e++;
+        *p = e;
+        while (**p == '\r' || **p == '\n') (*p)++;
+        while (*l == ' ' || *l == '\t') l++;
+        if (l >= e || *l == '#') continue;
+        f = l;
+        while (f < e && *f != '\t') f++;
+        n = (size_t)(f - l);
+        while (n && (l[n - 1] == ' ')) n--;
+        if (!n) continue;
+        if (n >= cap) n = cap - 1;
+        memcpy(out, l, n);
+        out[n] = 0;
+        return 1;
+    }
+    return 0;
+}
+
+/* ends in .bat, case-insensitively */
+GR_FN int gr_is_bat(const char *s)
+{
+    size_t n = strlen(s);
+    return n >= 4 && gr_ieq(s + n - 4, ".bat");
 }
 
 #endif /* RETRO_GAMERES_H */

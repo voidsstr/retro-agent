@@ -289,9 +289,10 @@ def test_a_shared_cfg_is_written_identically_by_both_writers():
     # (tests/python/test_fleetres_refresh_mirror.py).
     tok = {"%W%": "%FR_W%", "%H%": "%FR_H%", "%W43%": "%FR_W43%",
            "%H43%": "%FR_H43%", "%FOV%": "%FR_FOV%", "%Q2MODE%": "%FR_Q2MODE%",
+           "%Q2WIDE%": "%FR_Q2WIDE%", "%HZQ2WIDE%": "%FR_HZQ2WIDE%",
            "%Q3MODE%": "%FR_Q3MODE%", "%FRHZ%": "%FR_HZ%", "%HZ%": "%FR_HZW%",
            "%HZW%": "%FR_HZW%", "%HZ43%": "%FR_HZ43%", "%HZQ2%": "%FR_HZQ2%",
-           "%HZQ3%": "%FR_HZQ3%"}
+           "%HZQ3%": "%FR_HZQ3%", "%SE1HZ%": "%FR_SE1HZ%"}
 
     problems = []
     for r in RULES:
@@ -315,3 +316,75 @@ def test_a_shared_cfg_is_written_identically_by_both_writers():
                                 "echoes it — the two will rewrite each other "
                                 "on every sync" % (r["title"], r["file"], want))
     assert not problems, "\n  " + "\n  ".join(problems)
+
+
+def _turok_rules():
+    return [r for r in RULES if r["title"] == "Turok2"]
+
+
+def test_turok2_rules_use_the_launchers_ladder_not_sel43():
+    """Turok 2 keeps one boolean per mode, and TWO writers set them: the
+    launcher (stage-fleetres.py turok2_mode: T2SEL = 640, then 800 / 1024 as
+    FR_W43 reaches them) and GAMERES. Until 2026-09-29 the rules used
+    %SEL43:WxH% - "1" only when WxH IS the 4:3 target - and a 1080p box's 4:3
+    target is 1280x960, which is not on Turok's list: GAMERES switched every
+    mode OFF and the launcher switched 1024x768 ON, each undoing the other.
+    The rows must carry %T2SEL:<w>% for exactly the launcher's ladder and a
+    literal 0 for every other mode."""
+    rows = _turok_rules()
+    assert rows, "no Turok2 rules parsed"
+    sel = {}
+    for r in rows:
+        assert "%SEL43:" not in (r["arg2"] or ""), \
+            "%s still uses %%SEL43%% - see the docstring" % r["arg1"]
+        m = re.search(r"%T2SEL:(\d+)%", r["arg2"] or "")
+        if m:
+            sel[int(m.group(1))] = r["arg1"]
+    assert sorted(sel) == [640, 800, 1024], sel
+
+
+@pytest.mark.skipif(not os.path.isdir(LIB),
+                    reason="LOUD SKIP: %s is not mounted" % LIB)
+def test_turok2_ladder_matches_the_staged_launchers():
+    """The same ladder, read from what is actually staged: every Turok 2
+    launcher's `if "%T2SEL%"=="<w>"` values are the agent's T2SEL set."""
+    want = {int(m.group(1)) for r in _turok_rules()
+            for m in [re.search(r"%T2SEL:(\d+)%", r["arg2"] or "")] if m}
+    tdir = os.path.join(LIB, "Turok2")
+    seen = 0
+    for b in os.listdir(tdir):
+        if not b.lower().endswith(".bat") or b.lower() == "fleetres.bat":
+            continue
+        txt = open(os.path.join(tdir, b), encoding="utf-8",
+                   errors="replace").read()
+        got = {int(x) for x in re.findall(r'"%T2SEL%"=="(\d+)"', txt)}
+        if got:
+            seen += 1
+            assert got == want, "%s: launcher ladder %s, agent %s" % (b, got, want)
+    assert seen, "no staged Turok 2 launcher carries the T2SEL ladder"
+
+
+def _incapable_titles():
+    src = open(HEADER, encoding="utf-8").read()
+    body = src[src.index("gr_incapable[] = {"):]
+    body = body[:body.index("};")]
+    return re.findall(r'\{\s*"([^"]+)"', body)
+
+
+def test_incapable_titles_have_no_rules():
+    """The incapable register only words VERIFY's answer for titles with
+    NOTHING to write. A title that gains a rule has left it - delete its row,
+    or VERIFY keeps calling a configurable title an engine limit."""
+    inc = _incapable_titles()
+    assert len(inc) >= 5, "gr_incapable[] parsed to %r" % inc
+    ruled = {r["title"].lower() for r in RULES}
+    for t in inc:
+        assert t.lower() not in ruled, "%s has rules AND is registered incapable" % t
+
+
+@pytest.mark.skipif(not os.path.isdir(LIB),
+                    reason="LOUD SKIP: %s is not mounted" % LIB)
+def test_incapable_titles_are_staged():
+    have = {d.lower() for d in os.listdir(LIB)}
+    for t in _incapable_titles():
+        assert t.lower() in have, "%s is not a staged title" % t

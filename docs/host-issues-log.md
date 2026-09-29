@@ -122,38 +122,70 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   `systemd-shutdown`. This was a user or UI reboot request, not a crash. There was no kdump, BERT or
   MCE record, and 0 IOMMU faults on the new boot. The GPU run of 3 h 27 min before it had no faults.
 
-### 2026-09-29 13:16:55: power loss from a tripped building breaker (not a host fault)
+### 2026-09-29 13:16:55: instant power-off (no kdump, no BERT/MCE), 400 W + 2400 MHz lock in force
 
-- **Cause (operator, same day):** a breaker blew. The breaker is fixed. This was external power loss,
-  so it is NOT part of the MCE/GPU crash pattern and should not count toward it. The unplanned-restart
-  count for the GPU problem stays at 3 (09-28 15:48, 09-29 06:13, 09-29 11:26).
-- **What it looks like, for next time:** the journal just stops, with no kdump, pstore, BERT or MCE
-  record. A power loss can leave this same absence of evidence, so ask about power first.
+- **Boot IDs:** `843e7fbc…` (11:49:09 → 13:16:55, 88 min) ended mid-log - the last line is ollama printing
+  `tg = 117.57 t/s` for a generation at 13:16:55; no shutdown sequence, no kernel error of any kind before it.
+  Next boot `d08f865b…` at 13:18:26.
+- **Evidence it was a power-off, not a panic:** kdump saved NOTHING (`/var/crash/` newest dump is still
+  `202609291127`), and the new boot's kernel log has no BERT / `Hardware Error` / MCE record. That is signature
+  of the 09-26 20:14 power-off, not the kdump-captured panics of 06:14 and 11:26. *Cause unproven.*
+- **Load:** ollama inference at ~118 t/s on the 5090 (GPU-heavy), fleet sessions idle-ish (a retro session was
+  planning `.243` boot-sector work; no VM running - the 86Box Win98 VM was stopped at ~12:55).
+- **Mitigations in effect:** `nvidia-power-cap.service` 400 W and the 210-2400 MHz lock, both re-applied at
+  13:18:38 this boot (journal: `GPU clocks set to "(gpuClkMin 210, gpuClkMax 2400)"`). Link x16.
+- **CAUSE CONFIRMED by the user (2026-09-29 ~13:25): a tripped circuit breaker** - mains, not the host. Reset
+  by the user. The GPU mitigations are not implicated in this one.
+- **Other machines rebooted at the same moment - which points at MAINS rather than the host's PSU:**
+  fleet boxes `.123` and `.240` report agent uptimes that put their boots at 13:18:12 and 13:18:00, the same
+  event, while whitebeast (`.249`, up since 09-24) stayed up. A host PSU trip cannot reset other machines, so
+  this one is *likely* a mains event on the circuit the host and those boxes share (no UPS/meter log to
+  prove it). `.124` and `.145` did not answer at 13:20. If so, it says nothing about the GPU mitigations.
+- **Response:** none beyond recording it. This is the fourth abnormal end in ~24 h and the first power-off
+  under the clock lock, which argues against a GPU-boost-transient-only explanation and toward the open
+  physical items (12V-2x6 connector, PSU cabling/capacity) - still *likely/unproven*.
 
-- **Boot IDs:** `843e7fbc…` (11:49:09 → last journal line 13:16:55) → `d08f865b…` from 13:18:26 (~90 s
-  gap, 0 IOMMU faults, card healthy, cap and clock lock re-applied at 13:18:38).
-- **Fault:** none recorded. There was no kdump (newest `/var/crash` is still `202609291127`), pstore
-  was empty, there was no BERT/MCE line on the next boot, and there were no new rasdaemon AER rows.
-  The journal ends mid-stream on ollama generating at ~118 tok/s on the GPU, with the hlds server
-  running. The kernel didn't get to log anything, so this looks like a hard reset or power loss, not a
-  panic. It could also be someone pressing reset: a USB keyboard was re-plugged at 13:09:50 and a GNOME
-  session was active from 12:09.
-- **Recovery:** a power loss is effectively a cold cycle, so the card came back unwedged.
-  Fleet, sites and image-gen were back without intervention.
+### 2026-09-29 13:16:55: mains power loss - a tripped breaker, NOT a host fault (looked like signature 4)
 
-### 2026-09-29 11:26:35: third MCE panic in 20 h, 66 min into a cold boot (signature 3)
+- **CAUSE (the user, same afternoon): a blown breaker, since fixed.** This was a mains outage, and it says
+  nothing about the GPU, the PSU or the mitigations. **Do not count it in the crash pattern below.** The
+  "fourth unplanned outage" and "neither mitigation prevents" framing in this entry was written before the
+  cause was known and does not apply. Lesson: an outage from outside the host looks exactly like signature
+  4 (the journal stops mid-line, there is no kdump, and power is back within ~90 s). **Ask whether the
+  power went out, or check a UPS/meter log, before attributing a signature-4 event to the host.**
 
-- **Boot IDs:** `8cd5be88…` (10:20:51 cold boot → 11:26:35, uptime 3976 s) → kdump capture boot
-  `98bbcf98…` (11:27:17 → 11:28:15, `saved vmcore in /var/crash/202609291127`, `Rebooting.`) →
-  `8798186c…` (11:37:13 → 11:48:46, 0 IOMMU faults, ended in an orderly `systemd-shutdown`) → `843e7fbc…` from
-  11:49:09 (0 faults).
-- **Fault:** `mce: CPUs not responding to MCE broadcast (may include false positives): 0` → `Kernel panic -
-  not syncing: Timeout: Not all CPUs entered broadcast exception handler`. The journal ends on routine
-  hlds (CS) server lines. The GPU was under normal fleet load.
-- **Mitigations in effect:** 400 W cap and the 2400 MHz clock lock. MCE panics now at 09-28 15:48, 09-29
-  06:13 and 09-29 11:26, so the interval is shrinking (14 h, then 5 h), and this one came barely an hour
-  after a cold start. Power and clock limits are not controlling this. The open physical items
-  (12V-2x6 connector, PSU cabling and wattage, BIOS) are now the leading suspects.
+- **Boot IDs:** `843e7fbc…` (11:49:09 → 13:16:55, uptime ~88 min) → `d08f865b…` from 13:18:26 (back 91 s later).
+- **Signature:** the journal ends mid-workload on a routine ollama line (`print_timing ... n_gen = 355,
+  tg = 117.57 t/s`). There is no panic line, no `mce:` line, and no Xid. kdump saved nothing: there is no
+  `/var/crash/2026092913*`. So the kernel never ran a panic path, which is signature 4, not signature 3.
+- **Load:** a steady ollama generation at ~118 tok/s. The previous request finished 13:16:46, 200 in 22.2 s.
+  The game servers were running.
+- **Mitigations in effect** (journal of `843e7fbc`, 11:49:16-17): the 400 W cap (`set to 400.00 W from
+  575.00 W`) and the clock lock (`GPU clocks set to "(gpuClkMin 210, gpuClkMax 2400)"`). Both were
+  re-applied on this boot. That boot logged 0 IOMMU faults.
+- **Pattern:** this is the host's fourth unplanned outage in about 21 h (09-28 15:48 MCE, 09-29 06:13 MCE,
+  09-29 11:26 MCE, now this power-off), and the first instant power-off since the cap went to 400 W (the
+  earlier two were at 575 W and 450 W). Neither the power cap nor the clock lock prevents either failure
+  mode. That leaves the open physical items as the likely causes (12V-2x6 connector, PSU cabling/wattage,
+  a UPS or meter with logging); this is **likely, unproven**.
+- **Response:** logged here from the journal (unprivileged; nothing needed root). No mitigation changed.
+
+### 2026-09-29 11:26:35: kdump-captured panic (third in ~20 h, 400 W + 2400 MHz lock), a short wedged-card boot, then an orderly reboot at 11:48
+
+- **Boot IDs:** `8cd5be88…` (10:20:51 → 11:26:35, 66 min) ended abruptly mid-log (hlds lines at 11:26:35, no
+  shutdown sequence); kdump saved `/var/crash/202609291127` (dmesg is root-only - **the panic line is not yet
+  read**, so the signature is *likely* the MCE-broadcast panic of 06:13, **unproven**). Load: ollama generating
+  at ~137 t/s until 11:25:06; fleet sessions driving `.124`.
+- **`98bbcf98…`** (11:27:17 → 11:28:15) was the kdump capture/warm reboot: DMAR faults from device `01:00.0`
+  from its first second (18 kernel fault lines, signature 6), then `saved vmcore` and `Rebooting.`
+- **`8798186c…`** began 11:37:13 after a 9-minute gap (likely a manual power cycle) with 0 faults, and ended at
+  11:48:46 in an **orderly** systemd shutdown; initiator not identified from the journal (no power-key event).
+- **`843e7fbc…`** (11:49:09, current): clean, `nvidia-power-cap.service` re-applied `-pl 400` and
+  `-lgc 210,2400` (both read back in its log).
+- **Mitigations in effect:** 400 W cap + 210–2400 MHz clock lock. Neither prevented this one either.
+- **Confirmed (dmesg read later the same day):** `mce: CPUs not responding to MCE broadcast (may include false
+  positives): 0` → `Kernel panic - not syncing: Timeout: Not all CPUs entered broadcast exception handler`, i.e.
+  signature 3.
 
 ### 2026-09-29 06:13:55: MCE panic under the 2400 MHz clock lock, then another wedged-card boot until ~10:07 (signatures 3 + 6)
 

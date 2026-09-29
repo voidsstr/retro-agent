@@ -1,6 +1,6 @@
 {
   "title": "Serious Sam - The Second Encounter - host a LAN game",
-  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0Scripts\\Game_startup.ini\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo // PersistentSymbols.ini is NOT the place for this: the engine\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo // rewrites that file on exit and would overwrite the mode.\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_bFullScreen=1;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_iScreenSizeI=%FR_W%;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_iScreenSizeJ=%FR_H%;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo gfx_iRefreshRate=%FR_HZ%;",
+  "fleetres_block": "call \"%~dp0FLEETRES.BAT\"\r\n> \"%~dp0Scripts\\Game_startup.ini\" echo // written by the launcher at every start - do not edit\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo // PersistentSymbols.ini is NOT the place for this: the engine\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo // rewrites that file on exit and would overwrite the mode.\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_bFullScreen=1;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_iScreenSizeI=%FR_W%;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo sam_iScreenSizeJ=%FR_H%;\r\n>>\"%~dp0Scripts\\Game_startup.ini\" echo gfx_iRefreshRate=%FR_SE1HZ%;",
   "vars": {
     "GTITLE": "Serious Sam - The Second Encounter - Host LAN",
     "GAME": "%~dp0Bin\\DedicatedServer.exe",

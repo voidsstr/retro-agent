@@ -71,7 +71,7 @@ static void ctl_log(const char *fmt, ...);
 #include "vcr_pace.h"
 #include "ctl_logic.h"
 
-#define CTL_VERSION     "2.1.0"
+#define CTL_VERSION     "2.1.1"
 #define APP_TITLE       "3dfx Control Panel"
 
 /* ---- control ids ------------------------------------------------------------------ */

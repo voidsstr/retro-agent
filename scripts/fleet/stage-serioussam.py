@@ -355,25 +355,32 @@ THE ICON
 
 THE RENDERER IS THE ENGINE'S CHOICE, NOT THE LAUNCHER'S
     The launcher writes the RESOLUTION and deliberately does NOT write
-    sam_iDriver. Serious Engine 1 has an OpenGL path (0) and a Direct3D path
-    (1), it auto-detects on first run, and it saves the answer in
-    Scripts\PersistentSymbols.ini.
-
-    That matters because the OpenGL path is not universal here. Measured on
-    .246 (Windows 7, Radeon HD 5450) 2026-08-31: with sam_iDriver=0 the game
-    dies before opening a window -
-
-        Fatal Error: Cannot set display mode!
-        Serious Sam was unable to find display mode with OpenGL acceleration.
-
-    - and the identical tree with sam_iDriver=1 starts and renders. An earlier
-    version of the launcher pinned sam_iDriver=0 at EVERY start, which also
-    overwrote the engine's own persisted answer, so a box fixed by hand was
-    un-fixed on its next launch.
+    sam_iDriver. The engine auto-detects its renderer on first run and saves
+    the answer in Scripts\PersistentSymbols.ini. In this build sam_iDriver=0
+    is OpenGL and sam_iDriver=1 is the 3dfx MiniGL (3DFXVGL.DLL) - NOT
+    Direct3D, as an earlier version of these notes said. An earlier launcher
+    pinned sam_iDriver=0 at EVERY start, which also overwrote the engine's own
+    persisted answer, so a box fixed by hand was un-fixed on its next launch.
 
     To pin a renderer on one box, put it in THAT BOX'S
     Scripts\PersistentSymbols.ini - that file is per-box state and is
     deliberately not staged, so it survives GAMESYNC.
+
+WINDOWS 7: gfx_iRefreshRate MUST BE 0
+    On Windows 7 the game used to die before opening a window with
+
+        Fatal Error: Cannot set display mode!
+        Serious Sam was unable to find display mode with OpenGL acceleration.
+
+    That is NOT the display driver or the OpenGL ICD. With a non-zero
+    gfx_iRefreshRate the engine hands ChangeDisplaySettings a refresh together
+    with dmDisplayFlags 4; XP ignores the flag and Windows 7 refuses the
+    request at every resolution. Proven 2026-09-29 on .195 (Win7, Radeon HD
+    5450, Catalyst 15.7.1): a test program failed only with the flag AND a
+    rate, and the game ran fullscreen 1920x1080 with gfx_iRefreshRate=0.
+    The launcher therefore writes FR_SE1HZ - 0 on Vista and later, the
+    persisted desktop refresh on XP, so CRTs keep 85/100 Hz - and GAMERES
+    writes the same number (agent/shared/gameres.h gr_se1_hz).
 
 RESOLUTION
     Scripts\Game_startup.ini, which the engine documents as "executed each time

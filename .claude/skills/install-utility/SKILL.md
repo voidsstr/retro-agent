@@ -21,7 +21,7 @@ cannot:
 |---|---|---|
 | PowerStrip 3.90 | Gentee | **No** — the stub does not even import `GetCommandLineA`, so it never reads argv. No silent switch exists. |
 | 7-Zip | NSIS | Yes — `/S` |
-| Daemon Tools 3.47 | InstallShield | Partly — `/s /v"/qn"` |
+| Daemon Tools 3.47 | own EULA page, then MSI wizard | **No** — `/s /v"/qn"` is ignored (measured on .124, 2026-09-29). Click through: EULA **Install**, MSI **Next** ×3, **Close**, answer **No** to its restart and reboot with `safe-reboot.py`. Verify after the reboot: `sc query d347prt` RUNNING, `wmic cdrom` shows *Generic DVD-ROM SCSI CdRom Device*, a test `daemon.exe -mount 0,<cue>` reads back the volume label, then `-unmount 0` (don't leave a SafeDisc disc parked). |
 | Motherboard Monitor 5.3.7 | SFX | **No** — and see the warning below |
 
 A utility whose installer cannot be automated is installed **once in the build

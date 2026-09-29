@@ -105,14 +105,14 @@ def test_a_title_built_from_a_zip(tmp_path):
     names = sorted(os.path.relpath(os.path.join(d, f), root)
                    for d, _, fs in os.walk(root) for f in fs)
     assert names == sorted(["FALCON3.EXE", os.path.join("SOUND", "SB.CFG"),
-                            "Play Falcon 3.0.bat", "ICON.ICO", "launch.txt",
+                            "Play Falcon 3.0.bat", "FALCON3.ICO", "launch.txt",
                             "requires.json"])
     launch = open(os.path.join(root, "launch.txt"), "rb").read().decode("latin-1")
-    assert launch.split("\r\n")[0] == "Play Falcon 3.0.bat\tFalcon 3.0\tICON.ICO"
+    assert launch.split("\r\n")[0] == "Play Falcon 3.0.bat\tFalcon 3.0\tFALCON3.ICO"
     req = json.load(open(os.path.join(root, "requires.json")))
     assert req["max_os"] == "win9x", "no DOSBox is staged: an NT box must not get it"
     assert req["title"] == "Flight-Falcon3" and req["disk_mb"] >= 1
-    assert set(mine) == {"Play Falcon 3.0.bat", "ICON.ICO", "launch.txt", "requires.json"}
+    assert set(mine) == {"Play Falcon 3.0.bat", "FALCON3.ICO", "launch.txt", "requires.json"}
 
 
 def test_a_title_built_from_a_prepared_tree(tmp_path):
@@ -198,3 +198,80 @@ def test_descent_s_dos_launcher_fixes_the_irq_only_while_it_is_wrong():
         "DESCENT.SB5 must be DESCENT.CFG with only the IRQ changed"
     bat = open(os.path.join(d, "Play Descent - DOS.bat"), "rb").read().decode("latin-1")
     assert 'find "DigiIrq=7" DESCENT.CFG > nul\r\nif not errorlevel 1 copy DESCENT.SB5 DESCENT.CFG > nul' in bat
+
+
+# --- a title that runs ONLY in MS-DOS mode -------------------------------------
+
+def _pif(tmp_path, msdos):
+    b = bytearray(967)
+    b[0x1AF] = 0x82 if msdos else 0x02      # Exit To Dos.pif vs an ordinary PIF
+    p = tmp_path / ("PRIVDOS.PIF" if msdos else "PLAIN.PIF")
+    p.write_bytes(bytes(b))
+    return str(p)
+
+
+def _real_dos_title(tmp_path, pif):
+    tree = tmp_path / "stage"
+    tree.mkdir(exist_ok=True)
+    (tree / "PRIV.EXE").write_bytes(b"MZ")
+    (tree / "JEMM.OVL").write_bytes(b"x")
+    return _spec(tmp_path, lib="Flight-Privateer", title="Privateer", tree=str(tree),
+                 launch=["PRIV.EXE"], real_dos={"dir": "PRIV", "pif": pif})
+
+
+def test_a_real_dos_title_copies_to_c_and_starts_its_msdos_pif(tmp_path):
+    """Privateer's JEMM and USNF's Phar Lap TNT refuse Windows outright, and
+    MS-DOS mode cannot see .243's E:. So: GAME\\ under the title, copied to
+    C:\\GAMES\\PRIV by xcopy /D, and an MS-DOS mode PIF that runs GAME\\RUN.BAT."""
+    t = _real_dos_title(tmp_path, _pif(tmp_path, True))
+    work = tmp_path / "work"
+    work.mkdir()
+    root, mine = sw.build(t, str(work))
+    assert os.path.isfile(os.path.join(root, "GAME", "PRIV.EXE"))
+    assert not os.path.exists(os.path.join(root, "PRIV.EXE")), "the game lives under GAME\\"
+    assert os.path.isfile(os.path.join(root, "PRIVDOS.PIF"))
+    bat = open(os.path.join(root, "Play Privateer.bat"), "rb").read().decode("ascii")
+    cmds = [l for l in bat.split("\r\n") if l and not l.lower().startswith("rem")]
+    assert cmds == ["@echo off", "xcopy GAME C:\\GAMES\\PRIV\\ /E /I /D /Y /Q > nul",
+                    "start PRIVDOS.PIF", "cls"]
+    run = open(os.path.join(root, "GAME", "RUN.BAT"), "rb").read().decode("ascii")
+    assert run.split("\r\n")[:4] == ["@echo off", "C:", "cd \\GAMES\\PRIV", "PRIV.EXE"]
+    assert "PRIVDOS.PIF" in mine and os.path.join("GAME", "RUN.BAT") in mine
+    req = json.load(open(os.path.join(root, "requires.json")))
+    assert req["max_os"] == "win9x" and "MS-DOS MODE" in req["notes"]
+
+
+def test_a_pif_without_the_msdos_mode_bit_is_refused(tmp_path):
+    t = _real_dos_title(tmp_path, _pif(tmp_path, False))
+    work = tmp_path / "work"
+    work.mkdir()
+    with pytest.raises(SystemExit, match="not an MS-DOS mode PIF"):
+        sw.build(t, str(work))
+
+
+def test_every_title_ships_its_icon_under_its_own_name(tmp_path):
+    """.243, 2026-09-29: 39 Flight-* titles each shipped ICON.ICO, at 39
+    different paths, and Windows 98 drew F-14 Fleet Defender's art on every
+    one of them - its shell caches an icon by FILE NAME. Uniquely named icons
+    (DESCENT9.ICO, hexen2.ico, Q2.ico) drew correctly on the same desktop."""
+    assert sw.icon_file_name({"lib": "Flight-Falcon3"}) == "FALCON3.ICO"
+    assert sw.icon_file_name({"lib": "Flight-PacificAirWar1942"}) == "PACIFICA.ICO"
+    assert sw.icon_file_name({"lib": "DOS-Duke3D"}) == "DUKE3D.ICO"
+    assert sw.icon_file_name({"lib": "X", "icon_name": "pstrike.ico"}) == "PSTRIKE.ICO"
+    with pytest.raises(AssertionError):
+        sw.icon_file_name({"lib": "X", "icon_name": "ICON.ICO"})
+    src = open(os.path.join(REPO, "scripts", "dosgames", "stage_win9x_dos.py")).read()
+    assert "would both ship %s" in src, "two titles in one spec may not share an icon name"
+
+
+def test_the_icon_never_overwrites_a_file_the_game_ships(tmp_path):
+    # Flight-F14 ships F14.ICO and Flight-Longbow LONGBOW.ICO of their own.
+    tree = tmp_path / "stage"
+    tree.mkdir()
+    (tree / "F14.COM").write_bytes(b"x")
+    (tree / "F14.ICO").write_bytes(b"the game's own")
+    t = _spec(tmp_path, lib="Flight-F14", tree=str(tree), launch=["F14.COM"])
+    work = tmp_path / "work"
+    work.mkdir()
+    with pytest.raises(SystemExit, match="already has a file F14.ICO"):
+        sw.build(t, str(work))

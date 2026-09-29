@@ -8,8 +8,8 @@
 1 24 "3dfxctl.manifest"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,0,0,0
- PRODUCTVERSION 2,0,0,0
+ FILEVERSION 2,1,1,0
+ PRODUCTVERSION 2,1,1,0
  FILEOS 0x40004
  FILETYPE 0x1
 BEGIN
@@ -19,11 +19,11 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "retro-agent"
       VALUE "FileDescription", "3dfx Control Panel"
-      VALUE "FileVersion", "2.0.0"
+      VALUE "FileVersion", "2.1.1"
       VALUE "InternalName", "3dfxctl"
       VALUE "OriginalFilename", "3dfxctl.exe"
       VALUE "ProductName", "3dfx Control Panel (vcr-kmd / h5 Glide / MesaFX)"
-      VALUE "ProductVersion", "2.0.0"
+      VALUE "ProductVersion", "2.1.1"
     END
   END
   BLOCK "VarFileInfo"

@@ -144,8 +144,8 @@ def test_the_gate_is_settled_after_the_sweep():
 
 def test_every_shortcut_the_run_keeps_is_claimed():
     code = _code()
-    tool = _body(code, "static void gs_tool_shortcut(const char *exe, const char *name)")
-    check = tool.index("if (gs_lnk_points_at(lnk, exe))")
+    tool = _body(code, "static void gs_tool_shortcut(const char *exe, const char *name, const char *icon)")
+    check = tool.index("if (gs_lnk_points_at(lnk, exe) && (!icon || gs_lnk_has_icon(lnk, icon)))")
     early = tool[check:tool.index("return;", check)]
     assert "gs_desk_note_lnk_kept(lnk)" in early, (
         "an already-correct Retro Agent/Retro Chat icon is not rewritten, so it "

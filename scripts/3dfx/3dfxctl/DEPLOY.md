@@ -192,6 +192,17 @@ The comctl32 v6 manifest (XP visual styles) and the icon (`make icon` →
 `make_icon.py`, DIB entries XP can read) are resources. Rebuilds when
 `vcr_pace.h` or `vcr_ioctl.h` change.
 
+## The agent deploys it (agent 1.94.0+)
+
+Every XP/2000 box with a present Banshee/Voodoo3/4/5 gets `3dfxctl.exe` and
+`3dfxlogo.ico` (the 3dfx logo - `make_icon.py` builds `3dfxctl.ico` from
+`3dfx_logo_src.ico`, 3dfx's own artwork) copied from the share's
+`Utility\Retro Automation\3dfx\` at agent start, plus a "3dfx Control Panel"
+desktop shortcut wearing the logo that GAMESYNC keeps. To ship a new build:
+`make`, then publish BOTH files there (`push_3dfxctl.py <ip>` does it through a
+box's Z:, or `sharewrite.py put`); each box picks it up at its next agent start.
+`FxPanelBoot` in `HKLM\Software\RetroAgent` says what the last start did.
+
 ## Deploy to `.124` and verify (the owning session; nothing here was run on `.124`)
 
 Preconditions: the V5 6000 on vcr-kmd, the user at the box (the panel is for a

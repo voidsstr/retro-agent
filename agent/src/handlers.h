@@ -88,7 +88,14 @@ void handle_iconarrange(SOCKET sock, const char *args);
  *                        POST-CONDITION rather than "OK", for the same reason
  *                        ICONARRANGE does: a log line saying we set a mode is
  *                        not evidence that the mode is set.
- *   GAMERES APPLY [t]    run the pass now over every installed title, or one.
+ *   GAMERES APPLY [t]    run the pass now over every installed title, or one;
+ *                        the reply carries the post-apply VERIFY counts.
+ *   GAMERES VERIFY [t]   READ-ONLY: every installed title (every directory in
+ *                        the games folder), per config target expected vs
+ *                        found and ok/wrong/absent, whether each launcher
+ *                        calls FLEETRES.BAT, and the resolution the title is
+ *                        meant to get here (engine_cap where the engine, not
+ *                        the pass, is the limit).
  *
  * gamesync.c calls gameres_apply_title() at the end of each title's sync -
  * after gs_merge_reg(), because a staged install.reg is a constant shipped to
@@ -100,6 +107,24 @@ void gameres_probe(void);
 int  gameres_apply_title(const char *dst_dir, const char *title,
                          int *absent_out);
 int  gameres_has_rules(const char *title);
+/* The VERIFY pass at the end of a GAMESYNC run: logs a summary and one line
+ * per wrong/absent target, returns the title count (-1: games folder
+ * unusable) and the wrong/absent target counts for GAMESYNC STATUS. */
+int  gameres_verify_sync(int *wrong, int *absent);
+/* The ledger of files the pass rewrote (agent/shared/grledger.h): GAMESYNC
+ * keeps such a file instead of copying the library's back over it while
+ * neither the library's copy nor the box's has changed since. gameres_init()
+ * runs once at startup (gamesync_init) before any thread can use it. */
+void gameres_init(void);
+int  gameres_ledger_lookup(const char *dst, long long *base_size,
+                           long long *base_time, long long *out_size,
+                           long long *out_time);
+void gameres_ledger_forget(const char *dst);
+void gameres_ledger_save(void);
+/* The title whose rule owns this registry value (root "HKLM"/"HKCU"), or
+ * NULL. gs_merge_reg() leaves such a value as the pass last set it. */
+const char *gameres_reg_owner(const char *root, const char *subkey,
+                              const char *name);
 /* Raise the PERSISTED desktop refresh to the highest rate the monitor supports
  * at the mode it is already in - upward only, resolution untouched, and only
  * with an EDID to bound it. It is how the engines with no refresh setting of
@@ -200,6 +225,10 @@ void handle_dosstage(SOCKET sock, const char *args);
 void gs_drivers_status(SOCKET sock, int plan);
 void gs_drivers_update(SOCKET sock, const char *args);
 void drv9x_status(SOCKET sock, int plan);
+
+/* monpower.c - the monitor never powers off; the screensaver runs (1.96.0) */
+void monpower_apply_startup(void);
+void handle_monpower(SOCKET sock, const char *args);
 
 /* postskip.c - Compaq Deskpro 2000: keep CMOS 2Dh bit 3 (POST skips the F1 wait) set */
 DWORD WINAPI postskip_thread(LPVOID param);

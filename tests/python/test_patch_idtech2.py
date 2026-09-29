@@ -447,42 +447,33 @@ def test_share_quake2win9x_exe_is_still_stock(work):
     assert P.md5(open(p, "rb").read()) == "57dd2cf4ba176f3e6ae72fccc94c38b4"
 
 
-def test_publish_plan_backs_up_each_replaced_original_first(work, tmp_path, monkeypatch):
-    """--publish is NOT run in the build phase: sharewrite is replaced by a
-    recorder, so this only proves the ORDER and the backup paths (no write)."""
-    assert P.cmd_build(LIB, str(tmp_path)) == 0
-    calls = []
-    monkeypatch.setattr(P, "sharewrite", lambda local, dest, dry: calls.append((local, dest)) or 0)
-    assert P.cmd_publish(LIB, str(tmp_path), dry=True) == 0
-    dests = [d for _l, d in calls]
-    pre = "Files/Games-Library/"
-    assert dests == [
-        pre + "_patches/Quake2Complete/originals-2026-09-29/quake2.exe",
-        pre + "Quake2Complete/quake2.exe",
-        pre + "_patches/SiNGold/originals-2026-09-29/sin.exe",
-        pre + "SiNGold/sin.exe",
-        pre + "_patches/SoldierOfFortune/originals-2026-09-29/SoF.exe",
-        pre + "SoldierOfFortune/SoF.exe",
-        pre + "SiNGold/base/menus/main.mnu",
-        pre + "SiNGold/2015/menus/main.mnu",
-        pre + "SiNGold/ctf/menus/main.mnu",
-        pre + "SoldierOfFortune/base/pak2.pak",
-    ]
-    # each backup is the STAGED original, each put is our built output
-    assert calls[0][0].startswith(LIB) and calls[1][0].startswith(str(tmp_path))
-
-
-def test_publish_stops_on_the_first_failure(work, tmp_path, monkeypatch):
-    assert P.cmd_build(LIB, str(tmp_path)) == 0
-    calls = []
-    monkeypatch.setattr(P, "sharewrite", lambda local, dest, dry: calls.append(dest) or 3)
-    assert P.cmd_publish(LIB, str(tmp_path), dry=True) == 2
-    assert len(calls) == 1
+def test_share_is_in_the_deployed_state():
+    """Published 2026-09-29: every exe on the share is our patched md5, its
+    backup under _patches/ is the pinned original, and every new file is our
+    output - and --check reports exactly that, not a failure."""
+    need_share()
+    for s in P.EXES:
+        live = P.ci_path(LIB, "%s/%s" % (s["title"], s["rel"]))
+        assert P.md5(open(live, "rb").read()) == EXPECTED_OUTPUT_MD5[(s["title"], s["rel"])]
+        b = P.ci_path(LIB, P.backup_rel_of(s["title"], s["rel"]))
+        assert b, "no backup of %s/%s" % (s["title"], s["rel"])
+        bdata = open(b, "rb").read()
+        assert len(bdata) == s["size"] and P.md5(bdata) == s["md5"]
+    for d in P.DERIVED:
+        live = P.ci_path(LIB, "%s/%s" % (d["title"], d["rel"]))
+        assert live and P.md5(open(live, "rb").read()) == EXPECTED_OUTPUT_MD5[(d["title"], d["rel"])]
+    states = {(w["title"], w["rel"]): w["state"] for w in P.load_originals(LIB)}
+    assert all(states[(s["title"], s["rel"])] == "ALREADY PATCHED on the share; backup verified"
+               for s in P.EXES)
+    assert all(states[(d["title"], d["rel"])] == "ALREADY PUBLISHED on the share" for d in P.DERIVED)
+    assert P.cmd_check(LIB) == 0
 
 
 # ---------------------------------------------------------------------------
-# resuming after a put that died half way (a synthetic library of links to the
-# share's files - nothing is written to the share)
+# the publish mechanics, on a synthetic PRE-deploy library of links to the
+# share's files (nothing is written to the share). The share now holds the
+# patched exes, so each exe slot gets its STOCK original - the verified backup
+# under _patches/ - and the new files are left out, as they were before deploy.
 # ---------------------------------------------------------------------------
 
 SYNTH_LINKS = ["Quake2Complete/quake2.exe", "SiNGold/sin.exe", "SoldierOfFortune/SoF.exe",
@@ -491,15 +482,29 @@ SYNTH_LINKS = ["Quake2Complete/quake2.exe", "SiNGold/sin.exe", "SoldierOfFortune
               ["SiNGold/base/pak%d.sin" % i for i in range(6)]
 
 
+def stock_source(rel):
+    """The share file for `rel`, or - for an exe the share holds patched - its
+    backup, which must be the pinned original (never a guess)."""
+    src = P.ci_path(LIB, rel)
+    assert src, "%s missing from the share (case-insensitive)" % rel
+    s = next((s for s in P.EXES if "%s/%s" % (s["title"], s["rel"]) == rel), None)
+    if s is None or P.md5(open(src, "rb").read()) == s["md5"]:
+        return src
+    b = P.ci_path(LIB, P.backup_rel_of(s["title"], s["rel"]))
+    assert b, "%s is not stock on the share and has no backup" % rel
+    assert P.md5(open(b, "rb").read()) == s["md5"], "%s: backup is not the pinned original" % b
+    return b
+
+
 @pytest.fixture
 def synth(tmp_path):
-    """tmp_path/lib mirrors what load_originals reads, as symlinks to the real
-    share files; quake2.exe is a private COPY so a test can damage it."""
+    """tmp_path/lib mirrors what load_originals read BEFORE the deploy, as
+    symlinks to the real share files (stock exes from their backups);
+    quake2.exe is a private COPY so a test can damage it."""
     need_share()
     lib = tmp_path / "lib"
     for rel in SYNTH_LINKS:
-        src = P.ci_path(LIB, rel)
-        assert src, "%s missing from the share (case-insensitive)" % rel
+        src = stock_source(rel)
         dst = lib / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         if rel == "Quake2Complete/quake2.exe":
@@ -520,8 +525,48 @@ def backup(synth, data):
 
 
 def test_synth_library_is_a_faithful_stand_in(synth):
-    got = {(w["title"], w["rel"]): (P.md5(w["data"]), w["damaged"]) for w in P.load_originals(str(synth))}
+    work = P.load_originals(str(synth))
+    got = {(w["title"], w["rel"]): (P.md5(w["data"]), w["damaged"]) for w in work}
     assert got == {k: (v, None) for k, v in EXPECTED_OUTPUT_MD5.items()}
+    # the pre-deploy state: stock exes, no new file yet
+    assert {w["state"] for w in work} == {"stock (original)", "absent (new file)"}
+
+
+def test_publish_plan_backs_up_each_replaced_original_first(synth, tmp_path, monkeypatch):
+    """--publish is NOT run in the build phase: sharewrite is replaced by a
+    recorder, so this only proves the ORDER and the backup paths (no write)."""
+    out = str(tmp_path / "o")
+    assert P.cmd_build(str(synth), out) == 0
+    calls = []
+    monkeypatch.setattr(P, "sharewrite", lambda local, dest, dry: calls.append((local, dest)) or 0)
+    assert P.cmd_publish(str(synth), out, dry=True) == 0
+    dests = [d for _l, d in calls]
+    pre = "Files/Games-Library/"
+    assert dests == [
+        pre + "_patches/Quake2Complete/originals-2026-09-29/quake2.exe",
+        pre + "Quake2Complete/quake2.exe",
+        pre + "_patches/SiNGold/originals-2026-09-29/sin.exe",
+        pre + "SiNGold/sin.exe",
+        pre + "_patches/SoldierOfFortune/originals-2026-09-29/SoF.exe",
+        pre + "SoldierOfFortune/SoF.exe",
+        pre + "SiNGold/base/menus/main.mnu",
+        pre + "SiNGold/2015/menus/main.mnu",
+        pre + "SiNGold/ctf/menus/main.mnu",
+        pre + "SoldierOfFortune/base/pak2.pak",
+    ]
+    # each backup is the STAGED original, each put is our built output
+    assert calls[0][0].startswith(str(synth)) and calls[1][0].startswith(out)
+    for (local, _d), s in zip(calls[0:6:2], P.EXES):      # the backups are stock
+        assert P.md5(open(local, "rb").read()) == s["md5"]
+
+
+def test_publish_stops_on_the_first_failure(synth, tmp_path, monkeypatch):
+    out = str(tmp_path / "o")
+    assert P.cmd_build(str(synth), out) == 0
+    calls = []
+    monkeypatch.setattr(P, "sharewrite", lambda local, dest, dry: calls.append(dest) or 3)
+    assert P.cmd_publish(str(synth), out, dry=True) == 2
+    assert len(calls) == 1
 
 
 @pytest.mark.parametrize("damage", ["missing", "truncated-output", "truncated-original"])
@@ -540,6 +585,25 @@ def test_a_half_published_exe_is_recovered_from_its_verified_backup(synth, damag
     assert P.md5(w["data"]) == EXPECTED_OUTPUT_MD5[("Quake2Complete", "quake2.exe")]
     assert w["orig_path"] is None, "the backup is the original now - never re-back-up damage"
     assert P.cmd_check(str(synth)) == 2, "a damaged share must never read CHECK OK"
+
+
+def test_a_deployed_exe_reports_its_backup_and_refuses_a_wrong_one(synth):
+    """The deployed state: the share holds OUR patch. The original is rebuilt by
+    reversing the edits (pinned md5); the backup must BE that original."""
+    orig = q2(synth).read_bytes()
+    out = P.apply_edits(orig, P.exe_edits(P.EXES[0]))
+    q2(synth).write_bytes(out)
+    load = lambda: {(x["title"], x["rel"]): x for x in  # noqa: E731
+                    P.load_originals(str(synth))}[("Quake2Complete", "quake2.exe")]
+    w = load()
+    assert w["state"].startswith("ALREADY PATCHED on the share; NO backup")
+    assert P.md5(w["data"]) == EXPECTED_OUTPUT_MD5[("Quake2Complete", "quake2.exe")]
+    assert w["orig_path"] is None and not w["damaged"]
+    backup(synth, orig)
+    assert load()["state"] == "ALREADY PATCHED on the share; backup verified"
+    backup(synth, out)                            # a backup that is not the original
+    with pytest.raises(P.PatchError, match="backup"):
+        load()
 
 
 def test_a_half_published_exe_without_a_backup_is_refused(synth):

@@ -344,6 +344,30 @@ static int q2_mode_for(int w, int h)
                               ? best : best_fit);
 }
 
+/* FR_Q2WIDE - gl_mode for the PATCHED id Tech 2 exes (Quake II, SiN, Soldier
+ * of Fortune; provisioning/patches/idtech2), whose table entry 9 is rewritten
+ * from 1600x1200 to 1920x1080. A port of agent/shared/gameres.h
+ * gr_q2_wide_for() - keep them in step; the reference is apply.py fr_q2wide():
+ *
+ *   9 when the target (after -cap / ResCap) is 16:9, at least 1920x1080, and
+ *     the driver offers 1920x1080;
+ *   else q2_mode_for() with the 4:3 target capped at entry 8 (1280x960) - a
+ *     RE-RUN of the selector, never a clamp of FR_Q2MODE to 8: a 1600x1200
+ *     tube that does not list 1280x960 would be handed a mode its driver
+ *     refuses, and id Tech 2's ref_gl answers that by opening a WINDOW.
+ *
+ * It is FR_Q2MODE on every box whose FR_Q2MODE is not 9, and it is never 9 on
+ * a 4:3 box, where 9 on a patched exe would now mean a 16:9 mode. */
+static int q2_wide_for(int tw, int th, int w43, int h43)
+{
+    if (th > 0 && aspect_class_mode((double)tw / (double)th) == 169 &&
+        tw >= GR_Q2WIDE_W && th >= GR_Q2WIDE_H &&
+        mode_offered(GR_Q2WIDE_W, GR_Q2WIDE_H))
+        return 9;
+    return q2_mode_for(w43 < q2tab[8].w ? w43 : q2tab[8].w,
+                       h43 < q2tab[8].h ? h43 : q2tab[8].h);
+}
+
 /* id TECH 3 HAS A DIFFERENT TABLE FROM id TECH 2, AND THE DIFFERENCE BITES AT
  * INDEX 8: id Tech 2's mode 8 is 1280x960 (4:3), id Tech 3's is 1280x1024
  * (5:4).  Handing FR_Q2MODE to a Quake III-family engine therefore asks a 16:9
@@ -562,6 +586,37 @@ static int do_reg(const char *root, const char *sub, const char *val,
     return 0;
 }
 
+/*
+ * The running Windows' MAJOR version, for gr_se1_hz() (FR_SE1HZ). The same
+ * source the agent uses (agent/src/hostpolicy.c host_os_version): ntdll's
+ * RtlGetVersion through GetProcAddress - never a static import, this exe runs
+ * on Win9x, whose ntdll has no such export - else GetVersionEx. The only
+ * question asked of it is `>= 6`, which GetVersionEx's 6.2 shim on 8.1/10/11
+ * cannot change, so both routes and both writers give the same answer.
+ * 0 = could not ask (treated as pre-Vista, i.e. the old behaviour).
+ */
+typedef struct { ULONG sz, maj, mnr, bld, plat; WCHAR csd[128]; } FR_RTLOSV;
+typedef LONG (WINAPI *fr_rtlgetversion_t)(FR_RTLOSV *);
+static int os_major(void)
+{
+    OSVERSIONINFOA vi;
+    HMODULE nt = LoadLibraryA("ntdll.dll");
+    if (nt) {
+        fr_rtlgetversion_t f = (fr_rtlgetversion_t)GetProcAddress(nt, "RtlGetVersion");
+        if (f) {
+            FR_RTLOSV r;
+            memset(&r, 0, sizeof(r));
+            r.sz = sizeof(r);
+            if (f(&r) == 0) { FreeLibrary(nt); return (int)r.maj; }
+        }
+        FreeLibrary(nt);
+    }
+    memset(&vi, 0, sizeof(vi));
+    vi.dwOSVersionInfoSize = sizeof(vi);
+    if (GetVersionExA(&vi)) return (int)vi.dwMajorVersion;
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     DEVMODEA dm;
@@ -579,6 +634,7 @@ int main(int argc, char **argv)
     static gr_modes_t rl;              /* the same list gameres.c builds, WITH rates */
     gr_panel_t gp;
     int hzw = 0, hz43 = 0, hzq2 = 0, hzq3 = 0, src_w = 0, src_43 = 0;
+    int q2w = 3, hzq2w = 0;
     char asp[16], nasp[16];
     const char *mode = "-cmd";
 
@@ -871,6 +927,12 @@ int main(int argc, char **argv)
                         q2tab[q2_mode_for(t43_w, t43_h)].h, reg_w, reg_h, reg_hz, NULL);
     hzq3 = gr_target_hz(&gp, &rl, q3tab[q3_mode_for(t43_w, t43_h)].w,
                         q3tab[q3_mode_for(t43_w, t43_h)].h, reg_w, reg_h, reg_hz, NULL);
+    /* the patched id Tech 2 exes render at gr_q2wide_res(FR_Q2WIDE) - on the
+     * 1080p boxes 1920x1080, which the driver lists at 60 Hz where 1280x960
+     * (FR_HZQ2's resolution) is listed at 75 */
+    q2w   = q2_wide_for(tgt_w, tgt_h, t43_w, t43_h);
+    hzq2w = gr_target_hz(&gp, &rl, gr_q2wide_res(q2w).w, gr_q2wide_res(q2w).h,
+                         reg_w, reg_h, reg_hz, NULL);
 
     if (_stricmp(mode, "-info") == 0) {
         printf("panel      : %s  pnp=%s  %s\n",
@@ -892,9 +954,13 @@ int main(int argc, char **argv)
                q3_mode_for(t43_w, t43_h),
                q3tab[q3_mode_for(t43_w, t43_h)].w,
                q3tab[q3_mode_for(t43_w, t43_h)].h);
+        printf("patched Q2 : q2wide %d (%dx%d)  %d Hz\n", q2w,
+               gr_q2wide_res(q2w).w, gr_q2wide_res(q2w).h, hzq2w);
         printf("refresh    : %d Hz at %dx%d, %d Hz at %dx%d, id Tech 2/3 index %d/%d Hz"
                "  (%s; 0 = left alone)\n", hzw, tgt_w, tgt_h, hz43, t43_w, t43_h,
                hzq2, hzq3, gr_hz_src_name(src_w > src_43 ? src_w : src_43));
+        printf("windows    : NT major %d  Serious Engine gfx_iRefreshRate %d\n",
+               os_major(), gr_se1_hz(gr_fr_hz(reg_hz), os_major()));
         printf("glide      : %s%s%s  render device %s\n",
                glide_n ? "3dfx silicon PRESENT " : "no 3dfx silicon",
                glide_n ? glide_dev : "",
@@ -938,6 +1004,13 @@ int main(int argc, char **argv)
      * fleetres.cfg (r_displayRefresh) fought forever there. 0/1 and nonsense
      * from a driver are still never passed on: gr_hz_is_real() is 50..199. */
     printf("set \"FR_HZ=%d\"\n", gr_fr_hz(reg_hz));
+    /* SERIOUS ENGINE 1's gfx_iRefreshRate (Scripts\Game_startup.ini, which
+     * GAMERES writes too): FR_HZ before Vista, 0 on NT 6+. A rate there makes
+     * the engine's ChangeDisplaySettings carry DMDISPLAYFLAGS_TEXTMODE with
+     * it, which Windows 7 refuses at every resolution - "Cannot set display
+     * mode! ... unable to find display mode with OpenGL acceleration"
+     * (.195, 2026-09-29). gr_se1_hz() is the agent's own function. */
+    printf("set \"FR_SE1HZ=%d\"\n", gr_se1_hz(gr_fr_hz(reg_hz), os_major()));
     /* THE PER-TARGET RATES (agent/shared/gameres.h gr_target_hz). A title
      * asks for the one that matches the resolution IT runs at: FR_HZW at
      * FR_W x FR_H, FR_HZ43 at FR_W43 x FR_H43, FR_HZQ2 / FR_HZQ3 at the
@@ -949,6 +1022,8 @@ int main(int argc, char **argv)
     printf("set \"FR_HZ43=%d\"\n", hz43);
     printf("set \"FR_HZQ2=%d\"\n", hzq2);
     printf("set \"FR_HZQ3=%d\"\n", hzq3);
+    /* ...and at the mode FR_Q2WIDE selects on a PATCHED id Tech 2 exe */
+    printf("set \"FR_HZQ2WIDE=%d\"\n", hzq2w);
     printf("set \"FR_HZSRC=%s\"\n", gr_hz_src_name(src_w > src_43 ? src_w : src_43));
     printf("set \"FR_ASPECT=%s\"\n",   asp);
     printf("set \"FR_PANEL=%s\"\n",    lcd ? "LCD" : "CRT");
@@ -962,6 +1037,7 @@ int main(int argc, char **argv)
     printf("set \"FR_W43=%d\"\n",      t43_w);
     printf("set \"FR_H43=%d\"\n",      t43_h);
     printf("set \"FR_Q2MODE=%d\"\n",   q2_mode_for(t43_w, t43_h));
+    printf("set \"FR_Q2WIDE=%d\"\n",   q2w);
     printf("set \"FR_Q3MODE=%d\"\n",   q3_mode_for(t43_w, t43_h));
     printf("set \"FR_WIDE=%d\"\n",     (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0);
     printf("set \"FR_DOSFULLRES=%s\"\n", lcd ? "desktop" : "original");

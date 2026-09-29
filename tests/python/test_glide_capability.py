@@ -19,7 +19,12 @@ def _fn(src, name):
 
 
 def test_detector_needs_a_driver_and_a_present_device_on_both_roots():
-    body = _fn((SRC / "hwextra.c").read_text(), "int hwextra_glide_installed")
+    src = (SRC / "hwextra.c").read_text()
+    # since agent 1.94.0 the scan is shared with the 3dfx Control Panel's card
+    # check (a device-id filter); the Glide capability accepts every 3dfx device
+    assert "return hx_find_present_3dfx(NULL, why, why_cch);" in \
+        _fn(src, "int hwextra_glide_installed")
+    body = _fn(src, "static int hx_find_present_3dfx")
     assert '"SYSTEM\\\\CurrentControlSet\\\\Enum\\\\PCI"' in body and '"Enum\\\\PCI"' in body
     assert '"Driver"' in body, "a Voodoo with no driver installed cannot run Glide"
     assert "ven != VEN_3DFX" in body

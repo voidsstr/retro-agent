@@ -32,6 +32,7 @@
 #include "handlers.h"
 #include "protocol.h"
 #include "util.h"
+#include "fxpanel.h"
 #include "log.h"
 #include "ntdyn.h"
 #include "hostpolicy.h"
@@ -45,6 +46,7 @@
 #include "../shared/gamegate.h"
 #include "../shared/lnkcheck.h"
 #include "../shared/gsresume.h"
+#include "../shared/grledger.h"
 #include "../shared/audiofix.h"
 #include "../shared/regmerge.h"
 #include "../shared/deskview.h"
@@ -138,6 +140,16 @@ typedef struct {
     int     cpu_ok;
     DWORD   cpu_tick;
     unsigned __int64 cpu_idle, cpu_kernel, cpu_user;
+    /* The resolution pass, as the last FINISHED run left it (0 while a run is
+     * in progress): values it changed, and files it had adjusted that the
+     * copy kept rather than taking the library's again (grledger.h). A
+     * settled box reads gr_changed 0 - see the `gameres:` log line. */
+    int     gr_changed;
+    long    gr_kept;
+    /* GAMERES VERIFY at the end of the last finished run: config targets
+     * still WRONG (a settled box: 0) and ABSENT from this build.
+     * gr_verified 0 = no run has verified yet - reported as -1. */
+    int     gr_vwrong, gr_vabsent, gr_verified;
 } gs_state_t;
 
 static CRITICAL_SECTION g_gs_lock;
@@ -770,6 +782,9 @@ static long long gs_ft64(const FILETIME *f)
  * source file). A directory listing that was open across one of these cannot
  * be trusted - see gs_copy_tree. */
 static volatile LONG g_gs_net_resets = 0;
+/* Files GAMERES had adjusted that this run KEPT instead of copying the
+ * library's copy back over them (agent/shared/grledger.h). Reset per run. */
+static volatile LONG g_gs_gr_kept = 0;
 
 /* src_list_ft: the source's last-write time as the directory listing
  * reported it, or NULL when the caller has none (then the source is asked). */
@@ -785,6 +800,12 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size,
     WIN32_FILE_ATTRIBUTE_DATA dad;
     int    dst_exists, verdict;
     long long dst_size = -1, dst_time = 0;
+    /* the source's own time, asked over the network AT MOST once per file */
+    int    asked_src = 0, have_src = 0;
+    long long src_time = 0;
+    FILETIME src_ft;
+    /* nonzero if GAMERES recorded this destination: why it is not kept */
+    int    gr_entry = 0;
 
     /* Resume: a destination that matches in BOTH size and last-write time is
      * treated as done. Size alone is NOT enough - see gs_same_mtime() above for
@@ -808,15 +829,66 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size,
     verdict = gsr_decide(dst_exists, dst_size, dst_time, (long long)src_size,
                          src_list_ft != NULL,
                          src_list_ft ? gs_ft64(src_list_ft) : 0);
+    /*
+     * NOT THE LIBRARY'S FILE - BUT PERHAPS DELIBERATELY SO. GAMERES rewrites a
+     * title's config for this box's monitor after every copy, which leaves it
+     * different from the library's; copying the library's back at the next
+     * sync and letting GAMERES change it again was a fight neither side could
+     * win: on .110 (1.90.0) every sync wrote 11-22 files, GAMERES changed 23
+     * values and the icons were rebuilt, forever. So when GAMERES recorded
+     * this destination (agent/shared/grledger.h), and the box's file is still
+     * exactly what it left and the library's is still the one it adjusted,
+     * the file is kept. Either side changing - the library shipped a new
+     * version, or the file was edited here - and it is copied as before, and
+     * GAMERES adjusts the new copy.
+     *
+     * The ledger can only turn a copy into a skip, never the reverse: it is
+     * asked only after the resume test declined to skip, and "no record" or
+     * "no opinion" leaves the resume test's verdict exactly as it was.
+     */
+    if (verdict != GSR_SKIP && dst_exists) {
+        grl_entry_t le;
+        memset(&le, 0, sizeof(le));
+        if (gameres_ledger_lookup(dst, &le.base_size, &le.base_time,
+                                  &le.out_size, &le.out_time)) {
+            int lv = grl_decide(&le, dst_size, dst_time, (long long)src_size,
+                                src_list_ft != NULL,
+                                src_list_ft ? gs_ft64(src_list_ft) : 0);
+            gr_entry = 1;
+            if (lv == GRL_ASK_SOURCE) {
+                asked_src = 1;
+                have_src = gs_get_mtime(src, &src_ft);
+                src_time = have_src ? gs_ft64(&src_ft) : 0;
+                lv = grl_decide_source(&le, have_src, src_time);
+            }
+            if (lv == GRL_SKIP) {
+                InterlockedIncrement((LONG *)&g_gs_gr_kept);
+                gs_note_progress2(src_size, 0);
+                return 1;
+            }
+            gr_entry = lv;              /* why it is NOT kept - said below */
+        }
+    }
     if (verdict == GSR_ASK_SOURCE) {
-        FILETIME src_ft;
-        int have = gs_get_mtime(src, &src_ft);
-        verdict = gsr_decide_source(have, have ? gs_ft64(&src_ft) : 0, dst_time);
+        if (!asked_src) {
+            asked_src = 1;
+            have_src = gs_get_mtime(src, &src_ft);
+            src_time = have_src ? gs_ft64(&src_ft) : 0;
+        }
+        verdict = gsr_decide_source(have_src, src_time, dst_time);
     }
     if (verdict == GSR_SKIP) {
         gs_note_progress2(src_size, 0);   /* counted, but nothing crossed the wire */
         return 1;
     }
+    /* A file GAMERES had adjusted is about to be replaced: say why, once -
+     * this is the rare case (a library update, an edit on the box), and it is
+     * the one that explains a non-zero `file(s) written` on a quiet box. */
+    if (gr_entry)
+        log_msg(LOG_GS, "%s: %s since GAMERES adjusted it - taking the "
+                "library's copy again", dst,
+                gr_entry == GRL_SRC_CHANGED ? "the library's copy changed"
+                                            : "the file was changed on this box");
 
     hs = CreateFileA(src, GENERIC_READ, FILE_SHARE_READ, NULL,
                      OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -943,6 +1015,11 @@ static int gs_copy_file(const char *src, const char *dst, __int64 src_size,
         gs_desk_note_file();   /* a REAL write - the resume early-out returned
                                 * long before here, so this run changed the box
                                 * and the desktop is worth re-arranging */
+    /* The box now holds the library's file (or none): GAMERES's record of the
+     * old one describes nothing. If GAMERES adjusts the new copy it records
+     * it afresh. */
+    if (gr_entry)
+        gameres_ledger_forget(dst);
     return ok;
 }
 
@@ -3219,7 +3296,26 @@ static int gs_lnk_points_at(const char *lnk, const char *exe)
     return 0;
 }
 
-static void gs_tool_shortcut(const char *exe, const char *name)
+/* Does the .lnk at `lnk` name `icon` as its icon location? (agent 1.94.0) */
+static int gs_lnk_has_icon(const char *lnk, const char *icon)
+{
+    unsigned char buf[8192];
+    DWORD  got = 0;
+    HANDLE h = CreateFileA(lnk, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                           NULL, OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    if (!ReadFile(h, buf, sizeof(buf), &got, NULL))
+        got = 0;
+    CloseHandle(h);
+    return got && (lnk_bytes_counted_wstr(buf, got, icon) ||
+                   lnk_bytes_name_path(buf, got, icon));
+}
+
+/* `icon`: NULL = the exe's own icon. Otherwise an icon file that must exist,
+ * and an existing shortcut is "already correct" only if it names that icon -
+ * so a shortcut made before the icon changed is rewritten once. */
+static void gs_tool_shortcut(const char *exe, const char *name, const char *icon)
 {
     char desktop[MAX_PATH], lnk[MAX_PATH], workdir[MAX_PATH];
     char *slash;
@@ -3244,7 +3340,9 @@ static void gs_tool_shortcut(const char *exe, const char *name)
     /* Already there and pointing at this exe: nothing to do, and no COM -
      * but CLAIM it, or the end-of-run sweep takes the operator's own icons
      * away because this run never wrote them. */
-    if (gs_lnk_points_at(lnk, exe)) {
+    if (icon && !gs_file_exists(icon))
+        icon = NULL;                   /* fall back to the exe's own icon */
+    if (gs_lnk_points_at(lnk, exe) && (!icon || gs_lnk_has_icon(lnk, icon))) {
         gs_desk_note_lnk_kept(lnk);
         return;
     }
@@ -3255,7 +3353,7 @@ static void gs_tool_shortcut(const char *exe, const char *name)
         slash--;
     *slash = 0;
 
-    if (gs_make_shortcut(exe, workdir, lnk, name, NULL)) {
+    if (gs_make_shortcut(exe, workdir, lnk, name, icon)) {
         log_msg(LOG_GS, "desktop shortcut -> %s", name);
         gs_desk_note_lnk_written(lnk);
     } else {
@@ -3293,9 +3391,18 @@ void gs_place_tool_shortcuts(void)
      * volume), so asking Windows beats assuming C:\RETRO_AGENT. */
     n = GetModuleFileNameA(NULL, exe, sizeof(exe));
     if (n > 0 && n < sizeof(exe))
-        gs_tool_shortcut(exe, "Retro Agent");
+        gs_tool_shortcut(exe, "Retro Agent", NULL);
 
-    gs_tool_shortcut("C:\\RETRO_AGENT\\retro_chat.exe", "Retro Chat");
+    gs_tool_shortcut("C:\\RETRO_AGENT\\retro_chat.exe", "Retro Chat", NULL);
+
+    /* The 3dfx Control Panel (scripts/3dfx/3dfxctl), wearing the 3dfx logo.
+     * fxpanel_ensure() copies it onto a box whose card it serves; everywhere
+     * else the exe is absent and this is a no-op. Without this line the
+     * desktop shortcut lasted only until the next sync's sweep - .124 lost it
+     * to two quiet GAMESYNCs on 2026-09-29. The icon is a separate file with
+     * a new name because XP caches icons by path (3dfxctl.exe's old icon). */
+    gs_tool_shortcut("C:\\RETRO_AGENT\\3dfxctl.exe", "3dfx Control Panel",
+                     "C:\\RETRO_AGENT\\3dfxlogo.ico");
 
     if (we_initialised && g_gs_CoUninitialize)
         g_gs_CoUninitialize();
@@ -4944,10 +5051,126 @@ static int gs_reg_entry_apply(const rm_entry_t *e, LONG *err)
     return 1;
 }
 
+/*
+ * A VALUE THE RESOLUTION PASS OWNS IS THE BOX'S, NOT THE LIBRARY'S.
+ *
+ * install.reg is one byte-identical constant for eight monitors: the
+ * CounterStrike16 one pins HKCU\Software\Valve\Half-Life\Settings
+ * ScreenWidth at 800, HalfLife1's at 1024, MaxPayne's and
+ * HiddenAndDangerous's their Display Width at 800. This merge re-applied that
+ * constant on EVERY sync and GAMERES then put the box's own value back, so a
+ * settled box reported "4 value(s) changed" for Counter-Strike and 2 each for
+ * Max Payne and H&D forever (.110, agent 1.90.0, 2026-09-28) - and the
+ * "a settled box must report 0 value(s) changed" signal was dead.
+ *
+ * So a value a GAMERES rule owns (agent/shared/gameres.h gr_reg_owner), for a
+ * title that is installed here, is (a) read before regedit runs and put back
+ * afterwards if regedit changed it, and (b) neither verified against nor
+ * written from install.reg by the 9x fallback below. A value that does not
+ * exist yet is left to install.reg, and GAMERES then sets the box's own and
+ * says so. regedit itself still runs exactly as before - every key it
+ * creates and everything else it sets is untouched.
+ */
+static int gs_reg_entry_owned(const rm_entry_t *e)
+{
+    const char *owner;
+    char dir[MAX_PATH];
+
+    if (e->op != RM_OP_SET || (e->root != RM_HKLM && e->root != RM_HKCU))
+        return 0;
+    owner = gameres_reg_owner(rm_root_name(e->root), e->key, e->name);
+    if (!owner)
+        return 0;
+    /* Only while the owning title is here: HalfLife1's install.reg names the
+     * key CounterStrike16's rule owns, and on a box without Counter-Strike
+     * nothing else would ever set it. */
+    _snprintf(dir, sizeof(dir) - 1, "%s\\%s", g_gs_dest, owner);
+    dir[sizeof(dir) - 1] = 0;
+    return gs_file_exists(dir);
+}
+
+#define GS_REG_KEEP_MAX   32
+#define GS_REG_KEEP_DATA  256
+
+typedef struct {
+    int      root;
+    char     key[RM_KEY_MAX];
+    char     name[RM_NAME_MAX];
+    DWORD    type, len;
+    unsigned char data[GS_REG_KEEP_DATA];
+} gs_reg_keep_t;
+
+/* BEFORE regedit: the current value of every entry GAMERES owns. A value
+ * that does not exist (or is bigger than anything GAMERES writes) is not
+ * captured. Returns how many were. */
+static int gs_reg_keep_snapshot(const char *text, DWORD len, gs_reg_keep_t *keep,
+                                int max)
+{
+    rm_parser_t *ps = (rm_parser_t *)HeapAlloc(GetProcessHeap(), 0, sizeof(rm_parser_t));
+    rm_entry_t  *e  = (rm_entry_t *)HeapAlloc(GetProcessHeap(), 0, sizeof(rm_entry_t));
+    int n = 0;
+
+    if (ps && e) {
+        rm_init(ps, text, len);
+        while (n < max && rm_next(ps, e)) {
+            HKEY root, k;
+            DWORD type = 0, dl = GS_REG_KEEP_DATA;
+            if (!gs_reg_entry_owned(e))
+                continue;
+            root = gs_rm_hkey(e->root);
+            if (!root || RegOpenKeyExA(root, e->key, 0, KEY_QUERY_VALUE, &k) != ERROR_SUCCESS)
+                continue;
+            if (RegQueryValueExA(k, e->name[0] ? e->name : NULL, NULL, &type,
+                                 keep[n].data, &dl) == ERROR_SUCCESS) {
+                keep[n].root = e->root;
+                lstrcpynA(keep[n].key, e->key, sizeof(keep[n].key));
+                lstrcpynA(keep[n].name, e->name, sizeof(keep[n].name));
+                keep[n].type = type;
+                keep[n].len  = dl;
+                n++;
+            }
+            RegCloseKey(k);
+        }
+    }
+    if (ps) HeapFree(GetProcessHeap(), 0, ps);
+    if (e)  HeapFree(GetProcessHeap(), 0, e);
+    return n;
+}
+
+/* AFTER regedit: put back each captured value regedit changed. Returns how
+ * many it had to put back. */
+static int gs_reg_keep_restore(const gs_reg_keep_t *keep, int n)
+{
+    int i, restored = 0;
+
+    for (i = 0; i < n; i++) {
+        HKEY root = gs_rm_hkey(keep[i].root), k;
+        unsigned char cur[GS_REG_KEEP_DATA];
+        DWORD type = 0, cl = sizeof(cur), disp;
+        const char *name = keep[i].name[0] ? keep[i].name : NULL;
+        LONG rc;
+
+        if (!root || RegCreateKeyExA(root, keep[i].key, 0, NULL, 0,
+                                     KEY_QUERY_VALUE | KEY_SET_VALUE, NULL, &k,
+                                     &disp) != ERROR_SUCCESS)
+            continue;
+        rc = RegQueryValueExA(k, name, NULL, &type, cur, &cl);
+        if (rc != ERROR_SUCCESS || type != keep[i].type || cl != keep[i].len
+            || memcmp(cur, keep[i].data, cl) != 0) {
+            if (RegSetValueExA(k, name, 0, keep[i].type, keep[i].data,
+                               keep[i].len) == ERROR_SUCCESS)
+                restored++;
+        }
+        RegCloseKey(k);
+    }
+    return restored;
+}
+
 typedef struct {
     int total;          /* entries the file asks for                       */
     int holds;          /* ...the registry satisfies                        */
     int unknown;        /* ...this reader could not judge                   */
+    int kept;           /* ...GAMERES owns: the box's, not the library's    */
     int dialect;        /* RM_DIALECT_* of the file                         */
     char first_miss[RM_KEY_MAX + RM_NAME_MAX + 16];
 } gs_reg_tally_t;
@@ -4973,6 +5196,10 @@ static void gs_reg_verify(const char *text, DWORD len, int apply,
     while (rm_next(ps, e)) {
         int ok;
         t->total++;
+        if (gs_reg_entry_owned(e)) {
+            t->kept++;          /* GAMERES sets it - never install.reg's constant */
+            continue;
+        }
         ok = gs_reg_entry_holds(e);
         if (ok < 0) {
             t->unknown++;
@@ -5134,17 +5361,28 @@ static void gs_merge_reg(const char *dst_dir, const char *title)
 {
     char reg_path[MAX_PATH];
     char why[3 * MAX_PATH];
+    char kept_note[96];
     char *text;
     DWORD len = 0;
     int is_9x = (GetVersion() & 0x80000000UL) != 0;
-    int ran, written = 0;
+    int ran, written = 0, nkeep = 0, restored = 0;
     LONG werr = 0;
     gs_reg_tally_t t;
+    gs_reg_keep_t *keep = NULL;
 
     _snprintf(reg_path, sizeof(reg_path) - 1, "%s\\install.reg", dst_dir);
     reg_path[sizeof(reg_path) - 1] = 0;
     if (!gs_file_exists(reg_path))
         return;
+
+    /* Read the file FIRST: the values GAMERES owns are captured before
+     * regedit writes the library's constants over them (gs_reg_entry_owned). */
+    text = gs_reg_load(reg_path, &len);
+    if (text)
+        keep = (gs_reg_keep_t *)HeapAlloc(GetProcessHeap(), 0,
+                                          GS_REG_KEEP_MAX * sizeof(gs_reg_keep_t));
+    if (keep)
+        nkeep = gs_reg_keep_snapshot(text, len, keep, GS_REG_KEEP_MAX);
 
     ran = gs_run_regedit(reg_path, is_9x, why, sizeof(why));
     if (ran == GS_REGEDIT_NOSTART)
@@ -5152,22 +5390,39 @@ static void gs_merge_reg(const char *dst_dir, const char *title)
     else if (ran != GS_REGEDIT_OK)
         log_msg(LOG_GS, "%s: regedit did not finish cleanly: %s", title, why);
 
+    /* ...and put back what regedit changed of them. */
+    if (nkeep)
+        restored = gs_reg_keep_restore(keep, nkeep);
+    if (keep)
+        HeapFree(GetProcessHeap(), 0, keep);
+
     /* The post-condition: every value the file names, read back. */
-    text = gs_reg_load(reg_path, &len);
     if (!text) {
         log_msg(LOG_GS, "%s: install.reg could not be read back - merge %s",
                 title, ran == GS_REGEDIT_OK ? "NOT VERIFIED" : "FAILED");
         return;
     }
     gs_reg_verify(text, len, 0, &t, NULL, NULL);
+    kept_note[0] = 0;
+    if (t.kept) {
+        _snprintf(kept_note, sizeof(kept_note) - 1,
+                  "; %d per-box value(s) left to GAMERES (%d put back)",
+                  t.kept, restored);
+        kept_note[sizeof(kept_note) - 1] = 0;
+    }
 
-    if (t.total > 0 && t.holds + t.unknown == t.total) {
-        if (ran == GS_REGEDIT_OK)
-            log_msg(LOG_GS, "%s: merged install.reg via regedit - %d/%d value(s) verified%s",
-                    title, t.holds, t.total, t.unknown ? " (some not checkable)" : "");
+    if (t.total > 0 && t.holds + t.unknown + t.kept == t.total) {
+        if (t.kept == t.total)
+            log_msg(LOG_GS, "%s: install.reg sets only per-box values - all %d left "
+                    "to GAMERES (%d put back after regedit)", title, t.kept, restored);
+        else if (ran == GS_REGEDIT_OK)
+            log_msg(LOG_GS, "%s: merged install.reg via regedit - %d/%d value(s) verified%s%s",
+                    title, t.holds, t.total - t.kept,
+                    t.unknown ? " (some not checkable)" : "", kept_note);
         else
-            log_msg(LOG_GS, "%s: install.reg values already present (%d/%d verified) "
-                    "although regedit failed", title, t.holds, t.total);
+            log_msg(LOG_GS, "%s: install.reg values already present (%d/%d verified%s) "
+                    "although regedit failed", title, t.holds, t.total - t.kept,
+                    kept_note);
     } else if (t.total == 0 && t.dialect != RM_DIALECT_NONE) {
         /* BF1942 and Turok2 ship an install.reg that is all comments, on
          * purpose ("THIS FILE DELIBERATELY WRITES NOTHING"). */
@@ -5181,19 +5436,20 @@ static void gs_merge_reg(const char *dst_dir, const char *title)
          * this is the path every title took until 1.86.1 was diagnosed, and
          * it must never again read as a success. NT, where regedit ran and
          * still left something out, only reports - see below. */
-        int missing = t.total - t.holds - t.unknown;
+        int missing = t.total - t.holds - t.unknown - t.kept;
         gs_reg_verify(text, len, 1, &t, &written, &werr);
         log_msg(LOG_GS, "%s: REGEDIT DID NOT MERGE install.reg (%d value(s) missing) - "
-                "agent wrote %d itself; now %d/%d verified%s%s", title, missing,
-                written, t.holds, t.total,
-                t.holds + t.unknown == t.total ? "" : " - GAME MAY NOT LAUNCH, first: ",
-                t.holds + t.unknown == t.total ? "" : t.first_miss);
+                "agent wrote %d itself; now %d/%d verified%s%s%s", title, missing,
+                written, t.holds, t.total - t.kept, kept_note,
+                t.holds + t.unknown + t.kept == t.total ? "" : " - GAME MAY NOT LAUNCH, first: ",
+                t.holds + t.unknown + t.kept == t.total ? "" : t.first_miss);
         if (werr)
             log_msg(LOG_GS, "%s: a registry write failed, error %ld", title, (long)werr);
     } else {
         log_msg(LOG_GS, "%s: INSTALL.REG NOT FULLY MERGED - regedit exited 0 but %d of %d "
                 "value(s) are missing or different (first: %s) - game may not launch",
-                title, t.total - t.holds - t.unknown, t.total, t.first_miss);
+                title, t.total - t.holds - t.unknown - t.kept, t.total - t.kept,
+                t.first_miss);
     }
     HeapFree(GetProcessHeap(), 0, text);
 }
@@ -5236,11 +5492,13 @@ static void gs_run(const char *library)
     char   gated_why[GS_MAX_TITLES][192];
     int    n = 0, i, files = 0, ok_titles = 0, capped = 0, n_gated = 0;
     int    gr_titles = 0, gr_changed = 0, gr_absent_t = 0;
+    int    gr_vok = -1, gr_vwrong = 0, gr_vabsent = 0;
     int    listing_complete = 0;
     DWORD  enum_err = 0;
     __int64 grand = 0, freeb, margin;
 
     g_gs_abort = 0;
+    InterlockedExchange((LONG *)&g_gs_gr_kept, 0);
     g_win_tick = GetTickCount();
     g_win_bytes = 0;
     g_last_log = 0;
@@ -5666,9 +5924,31 @@ static void gs_run(const char *library)
         LeaveCriticalSection(&g_gs_lock);
     }
 
+    /* What GAMERES rewrote this run has to be on disk before the next sync
+     * looks, or that sync copies the library's files straight back and the
+     * two fight again (agent/shared/grledger.h). Also on an aborted run: the
+     * records it holds are true whether or not every title was reached. */
+    gameres_ledger_save();
+
+    /* ...and then the POST-CONDITION: is every installed title actually set
+     * to its resolution now? Read-only, the same checks the writers made,
+     * and never a reason to fail the sync - it reports, it does not judge.
+     * Before `state` turns done, so a STATUS that reads done carries it.
+     * Skipped on an aborted run, which never reached every title. */
+    gr_vok = -1;
+    if (!g_gs_abort)
+        gr_vok = gameres_verify_sync(&gr_vwrong, &gr_vabsent);
+
     EnterCriticalSection(&g_gs_lock);
     g_gs.state = g_gs_abort ? GS_FAILED : GS_DONE;
     i = g_gs.failed_files;
+    g_gs.gr_changed = gr_changed;
+    g_gs.gr_kept    = g_gs_gr_kept;
+    if (gr_vok >= 0) {
+        g_gs.gr_vwrong   = gr_vwrong;
+        g_gs.gr_vabsent  = gr_vabsent;
+        g_gs.gr_verified = 1;
+    }
     LeaveCriticalSection(&g_gs_lock);
 
     /* NOW - and only now - take off the desktop what was there when the run
@@ -5726,9 +6006,14 @@ static void gs_run(const char *library)
      * A box that reports the same non-zero count on consecutive no-change
      * syncs is announcing that something rewrites a config forever, which is
      * this project's signature invisible fault one directory along. */
+    /* ...and it says how many of the files it had adjusted were KEPT rather
+     * than copied back from the library. On a settled box that is every such
+     * file and `value(s) changed` is 0; until 1.90.x the two undid each other
+     * on every sync and neither number could ever settle (grledger.h). */
     log_msg(LOG_GS, "gameres: %d title(s) have resolution rules, "
-                    "%d value(s) changed, %d target(s) absent from this build",
-            gr_titles, gr_changed, gr_absent_t);
+                    "%d value(s) changed, %d target(s) absent from this build, "
+                    "%ld adjusted file(s) kept (library copy unchanged)",
+            gr_titles, gr_changed, gr_absent_t, (long)g_gs_gr_kept);
     /* How much of the run went waiting, and why - on the line after `done:`,
      * so a slow sync explains itself (see gs_beat). Silent when it never
      * stalled. */
@@ -5833,6 +6118,10 @@ void gamesync_init(void)
         InitializeCriticalSection(&g_gs_lock);
         g_gs_lock_ready = 1;
     }
+    /* GAMERES's ledger lock: gs_copy_file() reads the ledger and the GAMERES
+     * command writes it, from different threads. Made here, at startup on the
+     * main thread, before either can run. */
+    gameres_init();
 }
 
 /* Report what the image left behind, so the log says which build a box came
@@ -5895,7 +6184,11 @@ DWORD WINAPI gamesync_thread(LPVOID param)
      * AFTER the delay, not before: the first attempt ran the moment the thread
      * started, when the shell has not finished coming up, so SHGetFolderPath
      * had no desktop to give and the whole thing returned without placing
-     * anything or saying so. */
+     * anything or saying so.
+     *
+     * The 3dfx Control Panel is copied onto a box with a card it serves FIRST
+     * (agent 1.94.0, src/fxpanel.c), so the shortcut pass below finds it. */
+    fxpanel_ensure();
     gs_place_tool_shortcuts();
 
     /* Two independent signals, and they answer different questions.
@@ -7177,9 +7470,10 @@ void handle_iconarrange(SOCKET sock, const char *args)
 void handle_gamesync(SOCKET sock, const char *args)
 {
     const char *a = str_skip_spaces(args ? args : "");
-    /* 2 KB: failed_file alone escapes to 520 bytes, and the message can now
-     * carry a stall explanation - a truncated reply is not valid JSON. */
-    char   json[2048];
+    /* 3 KB: failed_file alone escapes to 520 bytes, the message can carry a
+     * stall explanation, and with every string field full the reply is ~2.2
+     * KB - a truncated reply is not valid JSON. */
+    char   json[3072];
     char   msg[640];
     char   why[320];
     gsst_t st;
@@ -7273,6 +7567,12 @@ void handle_gamesync(SOCKET sock, const char *args)
          * files_written every pass has a file that re-copies forever, which
          * defeats the gate silently. See gs_desk_files(). */
         "\"files_written\":%ld,\"shortcuts_changed\":%ld,"
+        /* The resolution pass of the last finished run: values it changed
+         * (a settled box: 0) and files it had adjusted that the copy kept. */
+        "\"gameres_changed\":%d,\"gameres_kept\":%ld,"
+        /* GAMERES VERIFY after the last finished run: targets still wrong
+         * (a settled box: 0) and absent from this build; -1 = not yet. */
+        "\"gameres_verify_wrong\":%d,\"gameres_verify_absent\":%d,"
         /* Is the run MOVING? since_progress_s is how long ago the worker last
          * made progress; stalled_s is time lost in gaps of >= 3 s, starved_s
          * the part of it with the CPU saturated (idle priority; a running game
@@ -7286,6 +7586,8 @@ void handle_gamesync(SOCKET sock, const char *args)
         s.title, s.file, s.failed_files, esc_failed, elapsed,
         gs_file_exists(GS_MARKER) ? "true" : "false",
         gs_desk_files(), gs_desk_lnks(),
+        s.gr_changed, s.gr_kept,
+        s.gr_verified ? s.gr_vwrong : -1, s.gr_verified ? s.gr_vabsent : -1,
         since_ms / 1000, st.total_stall_ms / 1000, st.total_starved_ms / 1000,
         busy,
         gs_file_exists(GS_NEWIMAGE_FLAG) ? "true" : "false",

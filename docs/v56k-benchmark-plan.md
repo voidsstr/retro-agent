@@ -129,7 +129,7 @@ launcher; MP verified 09-28). The CHECKs, by kind:
 |---|---|---|
 | rendered, then force-closed (not focused / ignores WM_CLOSE) | Yuri's Revenge, SiN software, SoF2 MP, Thief Gold, Thief II, Unreal Gold | the sweep's close path, not the game |
 | the title's own launcher dialog | Max Payne v1.05, Shogo "via launcher" | waits for a click (the direct Shogo shortcut PASSES) |
-| disc / copy protection | System Shock 2 (SafeDisc v1), Serious Sam TFE + TSE (CD check) | `.124` mounts with **WinCDEmu**, which emulates no protection; the user asked for Daemon Tools here - not yet installed |
+| disc / copy protection | System Shock 2 (SafeDisc v1), Serious Sam TFE + TSE (CD check) | **DAEMON Tools 3.47 installed on `.124` 2026-09-29** (click-through, safe-reboot; d347prt RUNNING, virtual drive D:, a System Shock 2 test mount read back `SYSTEMSHOCK2`). Jedi Academy through its launcher after that: disc `JEDIACAD_1` mounted, menu fullscreen 1280x960 4-chip SLI (`vcr-kmd/evidence/lan_20260929_sweep/jediacademy_daemontools_fbshot.png`). **All re-run 2026-09-29 13:35-13:55 after the breaker trip, each through its own staged launcher, fullscreen:** System Shock 2 (SafeDisc v1, disc SYSTEMSHOCK2, menu 640x480, quit via its menu), Max Payne (SafeDisc 2.51, 1280x960 on our D3D HAL; menu takes no synthetic input - WM_CLOSE exits it; `vcrctl fbshot` never finishes under its D3D exclusive mode, SCREENSHOT works), Serious Sam TFE + TSE (4-chip SLI 1280x960; TSE's logo says 'The First Encounter' because the RETAIL disc's SE1_00.gro carries TFE's menu logo - staged file byte-identical to the disc). Evidence `vcr-kmd/evidence/lan_20260929_sweep/*_dt_*`; compat DB updated |
 | SoF2 "No AGP memory detected" | SoF2 SP | **FIXED in the library and verified on `.124`**: SoF2.exe asks DirectDraw for AGP memory BEFORE it reads any config, so a `seta` in `base/autoexec.cfg` changed nothing (tried, removed); `+set sys_agpmemchecked 1` in the launcher spec's GAMEARGS skips it. Through the launcher after GAMESYNC: no AGP box, the disc mounted, one first-run "New Video card detected" notice (shown until the game's config is saved by a normal exit), the menu at 1152x864@85 (`evidence/lan_20260929_sweep/sof2_menu_fbshot.png`). SoF2 does not exit on WM_CLOSE - quit from its menu |
 | Rainbow Six "RAINBOW SIX ERROR" | Rainbow Six | the known cost of the armed D3D switches |
 | black frame at 640x480 | Red Faction | **the SCANNED-OUT frame is black too** (`vcrctl fbshot`, desktop layer at 640x480x16@85, extrema 0/0 after 40 s; `evidence/lan_20260929_sweep/redfaction_fbshot.png`) - not a capture artifact: the game draws nothing visible through our D3D HAL. No dialog, no crash; it ignores WM_CLOSE (force-closed, desktop restored). A D3D-HAL investigation, not a party title |
@@ -141,7 +141,7 @@ Shift (SecuROM), BF1942 SP (SafeDisc 2.80), AvP (pre-existing). Quake II closed 
 WM_CLOSE shows "GLimp_EndFrame() - SwapBuffers() failed!": Quake II's own shutdown
 deletes the context before its last frame - quit from the console/menu is clean.
 
-**Open:** Daemon Tools on `.124` (SafeDisc/SecuROM/CD-check titles); Red Faction's
+**Open:** (the SafeDisc/CD-check titles are done - all four pass under DAEMON Tools, 2026-09-29); Red Faction's
 black frame; Descent II Win95; Halo keys for `.145`/`.240`/`.123`/`.195` when on;
 GAMESYNC/GAMERES churn; the `.124` <-> NAS link speed; Halo's slow Bink path.
 
@@ -179,6 +179,12 @@ every `.124` sync; `.124` <-> NAS 0.55-0.83 MB/s with zero NIC errors (physical 
 AvP on vcr-kmd; Halo's slow Bink path; SoF2 on `.110` unverified (box off).
 
 ### Resume point (2026-09-28 13:10) - the requested titles on the all-ours stack; four fixes landed; Halo in progress
+
+**State (2026-09-29 12:35, verified by `3dfxctl /report`):** 4-chip SLI (`SSTH3_SLI_AA_CONFIGURATION`=5),
+ICD 0.1.78, our h5 Glide 38a891e8, vcr-kmd = the live-clock build (clock stock 0xE721 on all four chips),
+`D3D32`=1/`D3DBigTex`=7 still armed for Halo (user's call), agent 1.93.3. **3dfx Control Panel 2.1.0** at
+`C:\RETRO_AGENT\3dfxctl.exe` with Start Menu + desktop shortcuts; agent 1.93.3 re-places and claims the
+desktop one at every GAMESYNC (two consecutive syncs: present, 0 shortcut changes).
 
 **State:** vcr-kmd = the `integ-vcrkmd` build (master + D3DBigTex/DdHeapFloor/fbshot
 integration, all new switches default OFF, EXIT fix, vcrdd.dll version 6.14.1.1),
