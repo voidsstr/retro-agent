@@ -127,6 +127,11 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   planning `.243` boot-sector work; no VM running - the 86Box Win98 VM was stopped at ~12:55).
 - **Mitigations in effect:** `nvidia-power-cap.service` 400 W and the 210-2400 MHz lock, both re-applied at
   13:18:38 this boot (journal: `GPU clocks set to "(gpuClkMin 210, gpuClkMax 2400)"`). Link x16.
+- **Other machines rebooted at the same moment - which points at MAINS rather than the host's PSU:**
+  fleet boxes `.123` and `.240` report agent uptimes that put their boots at 13:18:12 and 13:18:00, the same
+  event, while whitebeast (`.249`, up since 09-24) stayed up. A host PSU trip cannot reset other machines, so
+  this one is *likely* a mains event on the circuit the host and those boxes share (no UPS/meter log to
+  prove it). `.124` and `.145` did not answer at 13:20. If so, it says nothing about the GPU mitigations.
 - **Response:** none beyond recording it. This is the fourth abnormal end in ~24 h and the first power-off
   under the clock lock, which argues against a GPU-boost-transient-only explanation and toward the open
   physical items (12V-2x6 connector, PSU cabling/capacity) - still *likely/unproven*.
