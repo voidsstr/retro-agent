@@ -323,6 +323,97 @@ GR_FN int gr_fr_hz(int reg_hz)
 }
 
 /*
+ * FR_HZWHI / %HZWHI%: a per-target rate, but only when it is ABOVE 60 - else
+ * 0, "name no rate". For an engine where naming a rate can HURT and naming 60
+ * gains nothing. Serious Engine 1 is that engine: its mode set passes
+ * DM_DISPLAYFLAGS with DMDISPLAYFLAGS_TEXTMODE (CDS_FULLSCREEN misused) and
+ * adds DM_DISPLAYFREQUENCY when gfx_/gap_iRefreshRate > 0; on .195 (Windows
+ * 7) TFE with a 60 there got BADMODE for every mode and never started, while
+ * TSE - whose line was dead (wrong cvar name) - started fine
+ * (evidence-refresh rverify-contemporaries, 2026-09-29). On XP a no-rate mode
+ * set lands on 60 anyway (measured: the build VM, ForceWare 71.89, vcr-kmd),
+ * so dropping a 60 costs nothing anywhere.
+ */
+GR_FN int gr_hz_hi(int hz)
+{
+    return hz > 60 ? hz : 0;
+}
+
+/*
+ * THE REFRESH A GLIDE TITLE IS HANDED - FR_GLIDEHZ (FLEETRES.EXE), per launch
+ * as an environment variable only, never a 3dfx registry value:
+ *   Voodoo Banshee/3/4/5 (Glide 3, h3/h5)   FX_GLIDE_REFRESH=<hz>
+ *   Voodoo 1/2 (Glide 2.56, SST-1/SST-2)    SSTV2_SCREENREFRESH=<hz>
+ * Both REPLACE the rate the application passed to grSstWinOpen (h5
+ * minihwc.c hwcInitVideo; cvg video.c sst1InitFindVideoTimingStruct), and
+ * getenv beats the 3dfx panel's registry copy of the same name.
+ *
+ * WHY A RULE OF ITS OWN and not gr_target_hz(): a pass-through Voodoo 1/2
+ * generates its OWN video timing, so the 2D card's mode list says nothing
+ * about which rates the Voodoo can drive at its mode - on .243 (Win98, Cirrus
+ * 5436 + Voodoo 2) that list is 640x480@0 800x600@0 1024x768@75. And the
+ * operator can declare the answer outright. In order:
+ *
+ *  1. declared >= 0 - HKLM\Software\RetroAgent GlideRefreshHz (REG_DWORD),
+ *     read by FLEETRES; -1 = absent. 0 = "leave the refresh to Glide and the
+ *     3dfx panel" (the kill switch). A real rate is used as given, still
+ *     capped at a measured EDID maximum: an operator may lower a claim, never
+ *     push one past what the monitor says it syncs.
+ *  2. with an EDID ceiling: the best rate the driver lists at w x h (already
+ *     capped at insert). For a Voodoo 4/5 that list IS the Glide list; for a
+ *     pass-through Voodoo it is the same monitor's.
+ *  3. otherwise the persisted desktop's own rate, when w x h is no bigger than
+ *     the desktop. The tube is demonstrably syncing that VERTICAL rate at a
+ *     HIGHER horizontal frequency (more lines at the same rate), so the same
+ *     rate over fewer lines is inside what it has been seen to take: .243
+ *     shows 1024x768@75 (~60 kHz) all day, and 640x480@75 is ~37.5 kHz.
+ *     Unlike gr_target_hz, no "listed at w x h" test: the Voodoo's timings are
+ *     not in any Windows list, which is the whole reason for this function.
+ *  4. else 0 - leave it alone, never 60.
+ *
+ * Then SNAPPED DOWN to what the card accepts - Glide 2.56 honours only
+ * 75/85/120 in SSTV2_SCREENREFRESH (anything else silently means 60), and
+ * h3/h5 Glide 3 knows 60/70/72/75/80/85/90/100/120 (refConstToRefreshHz) - so
+ * a rate is never rounded UP past what was vouched for. A snap that lands
+ * below the card's lowest (a Voodoo 2 at 72) is 0: Glide's own 60 stays.
+ */
+#define GR_GLIDE_SST 1          /* Voodoo Graphics / Voodoo 2 - Glide 2.x    */
+#define GR_GLIDE_H3  3          /* Banshee / Voodoo 3 / 4 / 5 - Glide 3.x    */
+
+GR_FN int gr_glide_snap(int hz, int fam)
+{
+    static const int sst[] = { 120, 85, 75 };
+    static const int h3[]  = { 120, 100, 90, 85, 80, 75, 72, 70, 60 };
+    const int *t = (fam == GR_GLIDE_SST) ? sst : h3;
+    int n = (fam == GR_GLIDE_SST) ? 3 : 9, i;
+    if (!gr_hz_is_real(hz))
+        return 0;
+    for (i = 0; i < n; i++)
+        if (t[i] <= hz)
+            return t[i];
+    return 0;
+}
+
+GR_FN int gr_glide_hz(const gr_panel_t *p, const gr_modes_t *l, int w, int h,
+                      int reg_w, int reg_h, int reg_hz, int declared, int fam)
+{
+    int hz = 0;
+    if (declared == 0)
+        return 0;                               /* the operator's "hands off" */
+    if (declared > 0) {
+        hz = gr_hz_is_real(declared) ? declared : 0;
+    } else {
+        if (gr_have_ceiling(p))
+            hz = gr_best_hz(l, w, h);
+        if (!hz && gr_hz_is_real(reg_hz) && w <= reg_w && h <= reg_h)
+            hz = reg_hz;
+    }
+    if (hz && gr_have_ceiling(p) && hz > p->vmax)
+        hz = p->vmax;
+    return gr_glide_snap(hz, fam);
+}
+
+/*
  * Is a mode one we may ask for?
  *
  * A SHORT LIST IS TREATED AS NO LIST, DELIBERATELY. Some drivers answer
@@ -627,6 +718,8 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
  *   %HZQ2% %HZQ3%    ... at the id Tech 2 / id Tech 3 index mode
  *                    - per target, because a rate is offered per resolution;
  *                    0 = leave it alone (gr_target_hz). %HZ% = %HZW%.
+ *   %HZWHI%          %HZW% when it is above 60, else 0 (gr_hz_hi) - for an
+ *                    engine where naming a rate can hurt (Serious Engine)
  *   %HZSRC%          edid | persisted | none - what vouches for them
  *   %DESKHZ%         the same, at the persisted desktop mode
  *   %FRHZ%           the persisted mode's OWN rate - exactly what FLEETRES
@@ -671,6 +764,7 @@ GR_FN int gr_expand(const char *tmpl, const gr_target_t *t,
                     /* HZ is kept as the old name of HZW */
                     else if (!strcmp(tok, "HZ") || !strcmp(tok, "HZW"))
                                                       sprintf(val, "%d", t->hz);
+                    else if (!strcmp(tok, "HZWHI"))   sprintf(val, "%d", gr_hz_hi(t->hz));
                     else if (!strcmp(tok, "HZ43"))    sprintf(val, "%d", t->hz43);
                     else if (!strcmp(tok, "HZQ2"))    sprintf(val, "%d", t->hzq2);
                     else if (!strcmp(tok, "HZQ3"))    sprintf(val, "%d", t->hzq3);
@@ -857,8 +951,11 @@ GR_DATA const gr_rule_t gr_rules[] = {
  * is the engine's own documented hook. sam_iDriver is deliberately NOT written
  * - that is a renderer choice the engine makes for itself (.246 cannot open
  * OpenGL at all and runs on Direct3D). */
+/* ...and the two Encounters do NOT share a refresh cvar: TSE's Engine.dll
+ * declares only `gap_iRefreshRate`, and answers `gfx_iRefreshRate=...;` with
+ * "not declared" (the .123/.195/.240 logs), so TSE gets its own body. */
 { "SeriousSamFirstEncounter",  GR_OP_CFG, "Scripts\\Game_startup.ini", "ssam", NULL, NULL },
-{ "SeriousSamSecondEncounter", GR_OP_CFG, "Scripts\\Game_startup.ini", "ssam", NULL, NULL },
+{ "SeriousSamSecondEncounter", GR_OP_CFG, "Scripts\\Game_startup.ini", "ssam-tse", NULL, NULL },
 
 /* --- Unreal Engine 1 / 2. The engine rewrites its .ini on exit, so the
  *     launcher writes it too; this makes it right before the first launch. */
@@ -868,12 +965,26 @@ GR_DATA const gr_rule_t gr_rules[] = {
 { "UnrealTournament",    GR_OP_INI, "System\\UnrealTournament.ini",  "WinDrv.WindowsClient", "FullscreenViewportX", "%W%" },
 { "UnrealTournament",    GR_OP_INI, "System\\UnrealTournament.ini",  "WinDrv.WindowsClient", "FullscreenViewportY", "%H%" },
 { "UnrealTournament",    GR_OP_INI, "System\\UnrealTournament.ini",  "WinDrv.WindowsClient", "StartupFullscreen",   "True" },
+/* UT 469e names a rate in BOTH its hardware devices (D3D9Drv: pp.
+ * FullScreen_RefreshRateInHz when non-zero; OpenGLDrv: DM_DISPLAYFREQUENCY
+ * when non-zero, and each retries at the default if the driver refuses).
+ * %HZW% is the rate AT the viewport above; 0 = the default. The launcher
+ * writes the same two values (stage-fleetres.py ut469_refresh). */
+{ "UnrealTournament",    GR_OP_INI, "System\\UnrealTournament.ini",  "D3D9Drv.D3D9RenderDevice",     "RefreshRate", "%HZW%" },
+{ "UnrealTournament",    GR_OP_INI, "System\\UnrealTournament.ini",  "OpenGLDrv.OpenGLRenderDevice", "RefreshRate", "%HZW%" },
 { "UnrealTournament436", GR_OP_INI, "System\\UnrealTournament.ini",  "WinDrv.WindowsClient", "FullscreenViewportX", "%W%" },
 { "UnrealTournament436", GR_OP_INI, "System\\UnrealTournament.ini",  "WinDrv.WindowsClient", "FullscreenViewportY", "%H%" },
 { "UnrealTournament436", GR_OP_INI, "System\\UnrealTournament.ini",  "WinDrv.WindowsClient", "StartupFullscreen",   "True" },
 { "UT2004",              GR_OP_INI, "System\\UT2004.ini",            "WinDrv.WindowsClient", "FullscreenViewportX", "%W%" },
 { "UT2004",              GR_OP_INI, "System\\UT2004.ini",            "WinDrv.WindowsClient", "FullscreenViewportY", "%H%" },
 { "UT2004",              GR_OP_INI, "System\\UT2004.ini",            "WinDrv.WindowsClient", "StartupFullscreen",   "True" },
+/* UT2004's D3DDrv wants a rate only when DesiredRefreshRate > 60 OR
+ * OverrideDesktopRefreshRate is set, and then matches it among the ENUMERATED
+ * modes. %HZOVERRIDE% is True exactly when %HZW% is non-zero, so 0 is still
+ * "the default". Both launchers write the same (stage-fleetres.py
+ * ut2004_refresh). There is no D3D9Drv.dll in this tree. */
+{ "UT2004",              GR_OP_INI, "System\\UT2004.ini",            "D3DDrv.D3DRenderDevice", "DesiredRefreshRate",         "%HZW%" },
+{ "UT2004",              GR_OP_INI, "System\\UT2004.ini",            "D3DDrv.D3DRenderDevice", "OverrideDesktopRefreshRate", "%HZOVERRIDE%" },
 { "DeusEx",              GR_OP_INI, "SYSTEM\\DeusEx.ini",            "WinDrv.WindowsClient", "FullscreenViewportX", "%W%" },
 { "DeusEx",              GR_OP_INI, "SYSTEM\\DeusEx.ini",            "WinDrv.WindowsClient", "FullscreenViewportY", "%H%" },
 { "DeusEx",              GR_OP_INI, "SYSTEM\\DeusEx.ini",            "WinDrv.WindowsClient", "StartupFullscreen",   "True" },
@@ -966,20 +1077,33 @@ GR_DATA const gr_rule_t gr_rules[] = {
  * id Tech 3 custom-mode file).
  */
 /*
- * NOTE ON REFRESH IN THESE BODIES. They use %FRHZ% - the PERSISTED desktop
- * mode's own rate, which is exactly what FLEETRES publishes as FR_HZ - and
- * NOT %HZ%, the highest rate the panel supports at the target. That looks like
- * the weaker choice and is the correct one: the title's launcher rewrites this
- * same file at every start, so a body carrying a different number from the
- * launcher's would be rewritten by each writer in turn, forever, and the
- * "0 value(s) changed" contract that catches real faults would be dead.
+ * NOTE ON REFRESH IN THESE BODIES (2026-09-29, refresh phase 2).
  *
- * The highest supported rate is delivered instead by raising the PERSISTED
- * DESKTOP refresh itself (gameres_raise_refresh) - after which FR_HZ *is* the
- * highest the monitor supports, for every consumer at once, including the
- * engines that have no refresh setting at all. Quake II and GoldSrc were
- * checked: their binaries carry no refresh cvar, only `timerefresh` and
- * `r_norefresh`.
+ * Each body names the rate AT THE RESOLUTION THAT TITLE RUNS AT - gr_target_hz
+ * via %HZW% (r_mode -1 at %W%x%H%) or %HZQ3% (the id Tech 3 index mode) - and
+ * FLEETRES.EXE publishes the same numbers as FR_HZW / FR_HZQ3 from the same
+ * function over a list built the same way (test_fleetres_refresh_mirror.py).
+ * That is what lets a file BOTH writers touch carry a per-target rate: the
+ * title's launcher rewrites it at every start, the agent at every sync, and a
+ * one-number difference would make each rewrite the other's copy forever and
+ * kill the "0 value(s) changed" signal. Until phase 2 these bodies used %FRHZ%,
+ * the persisted desktop's own rate, as the one number both could reproduce -
+ * which undershot every title that does not run at the desktop's size (SoF2
+ * and RTCW at 1152x864 on the 1080p boxes: 60 where 75 is listed).
+ *
+ * "RAISE THE DESKTOP AND EVERY ENGINE INHERITS IT" IS FALSE. This note used to
+ * say Quake II and GoldSrc "take whatever the desktop is on". Measured: a mode
+ * set that names no rate lands on the ADAPTER DEFAULT, 60, whatever the
+ * desktop, the registry or the current mode says - ForceWare 71.89 (.124
+ * 2026-08-25: desktop 1024x768@100 -> Quake II at the same size -> 60), the
+ * XP SP3 build VM (CDS with no rate: 60 at every size that lists 60, and
+ * DISP_CHANGE_FAILED where 60 is not listed), and vcr-kmd (.124 2026-09-29:
+ * Quake 2, GLQuake and Half-Life at 1280x960@60 on a 1280x1024@85 desktop).
+ * gameres_raise_refresh still raises the persisted desktop, which serves the
+ * desktop itself and the titles that run AT it; a title with no refresh knob
+ * running at another size needs the launcher's refreshkeep watcher
+ * (stage-fleetres.py refreshkeep_line) - and a title WITH a knob gets its
+ * per-target rate from these bodies and its launcher.
  */
 GR_FN const char *gr_cfg_body(const char *kind)
 {
@@ -992,7 +1116,7 @@ GR_FN const char *gr_cfg_body(const char *kind)
                "seta r_customPixelAspect \"1\"\n"
                "seta r_fullscreen \"1\"\n"
                "seta cg_fov \"%FOV%\"\n"
-               "seta r_displayRefresh \"%FRHZ%\"\n";
+               "seta r_displayRefresh \"%HZW%\"\n";
     if (!strcmp(kind, "idtech3-index"))
         return "// written by GAMESYNC for this box's monitor - do not edit\n"
                "// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,\n"
@@ -1000,14 +1124,14 @@ GR_FN const char *gr_cfg_body(const char *kind)
                "seta r_mode \"%Q3MODE%\"\n"
                "seta r_fullscreen \"1\"\n"
                "seta cg_fov \"%FOV%\"\n"
-               "seta r_displayRefresh \"%FRHZ%\"\n";
+               "seta r_displayRefresh \"%HZQ3%\"\n";
     if (!strcmp(kind, "idtech3-index-nofov"))
         return "// written by GAMESYNC for this box's monitor - do not edit\n"
                "// r_mode -1 DOES NOT EXIST IN THIS ENGINE - a plain index,\n"
                "// and Q3MODE not Q2MODE: idTech3 mode 8 is 1280x1024.\n"
                "seta r_mode \"%Q3MODE%\"\n"
                "seta r_fullscreen \"1\"\n"
-               "seta r_displayRefresh \"%FRHZ%\"\n";
+               "seta r_displayRefresh \"%HZQ3%\"\n";
     if (!strcmp(kind, "idtech2"))
         return "// written by GAMESYNC for this box's monitor - do not edit\n"
                "set gl_mode \"%Q2MODE%\"\n"
@@ -1019,7 +1143,16 @@ GR_FN const char *gr_cfg_body(const char *kind)
                "sam_bFullScreen=1;\n"
                "sam_iScreenSizeI=%W%;\n"
                "sam_iScreenSizeJ=%H%;\n"
-               "gfx_iRefreshRate=%FRHZ%;\n";
+               "gfx_iRefreshRate=%HZWHI%;\n";
+    /* TSE: the same file and mode, and the refresh under ITS name. */
+    if (!strcmp(kind, "ssam-tse"))
+        return "// written by GAMESYNC for this box's monitor - do not edit\n"
+               "// PersistentSymbols.ini is NOT the place for this: the engine\n"
+               "// rewrites that file on exit and would overwrite the mode.\n"
+               "sam_bFullScreen=1;\n"
+               "sam_iScreenSizeI=%W%;\n"
+               "sam_iScreenSizeJ=%H%;\n"
+               "gap_iRefreshRate=%HZWHI%;\n";
     return NULL;
 }
 

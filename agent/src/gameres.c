@@ -531,13 +531,19 @@ static int gr_w_cfg(const char *file, const char *body)
  * Raise the PERSISTED desktop refresh to the highest rate this monitor
  * supports at the resolution it is already set to.
  *
- * WHY THIS AND NOT A CVAR PER GAME. Most of the library has no refresh setting
- * to write. Quake II's and GoldSrc's binaries were searched and carry no
- * refresh cvar at all - only `timerefresh` and `r_norefresh` - and Unreal
- * Engine 1 keeps `RefreshRate` solely under `[GlideDrv.GlideRenderDevice]`,
- * which is not the device these boxes render on. Those engines take whatever
- * the desktop is on, so the desktop IS the setting for them, and raising it
- * is the only thing that reaches every title at once.
+ * WHAT THIS DOES AND DOES NOT REACH. It raises the DESKTOP, which serves the
+ * desktop itself and a title that runs AT the desktop's mode without changing
+ * it. It does NOT reach a title that sets a mode of its own and names no rate:
+ * XP lands that mode set on the adapter default, 60, whatever the desktop is
+ * on (measured: ForceWare 71.89 on .124 2026-08-25, 1024x768@100 desktop ->
+ * Quake II at 60; the XP build VM, 60 or DISP_CHANGE_FAILED; vcr-kmd on .124
+ * 2026-09-29, Quake 2 / GLQuake / Half-Life at 1280x960@60 on a 1280x1024@85
+ * desktop). This comment used to say Quake II and GoldSrc "take whatever the
+ * desktop is on" - that was false. Those titles get their rate from the
+ * launcher instead: a knob where the engine has one (gr_cfg_body's
+ * r_displayRefresh, Counter-Strike's -freq, Soldier of Fortune's
+ * gl_displayrefresh) and the refreshkeep watcher where it has none
+ * (stage-fleetres.py refreshkeep_line).
  *
  * THREE RULES, EACH OF WHICH IS A WAY THIS COULD GO WRONG:
  *
