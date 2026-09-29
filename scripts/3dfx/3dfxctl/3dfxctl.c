@@ -3311,6 +3311,8 @@ static INT_PTR CALLBACK PageProc(HWND h, UINT m, WPARAM wp, LPARAM lp)
                 CheckDlgButton(h, IDC_CLK_PERSIST, BST_CHECKED);
                 clk_msg(COL_RED, "Not turned off: %s.", why);
             } else {
+                /* the last logon's note answered a question nobody asks any more */
+                reg_del_value(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupClockLast");
                 clk_msg(COL_NONE, "Off: every power-on starts at the stock clock.");
             }
             clk_update_ui();
@@ -3669,7 +3671,8 @@ static int clock_startup(void)
 {
     DWORD saved = 0;
     BYTE now[8], seen[8], back[8];
-    int nnow, nseen, i, answered = 0;
+    int nnow, nseen, i, answered = 0, has_it;
+    vcr_u32 want;
     vcr_clock_res r;
     char why[200], a[24], b[24];
 
@@ -3677,9 +3680,17 @@ static int clock_startup(void)
     nnow = shutdown_stamp(now);
     nseen = reg_get_bin(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupSeen", seen, 8);
     mhz_text(saved, a, sizeof a);
-    switch (ctl_clock_startup(saved, now, nnow, seen, nseen)) {
+    /* does the card still run it? (a logoff/logon, or a saved stock clock) */
+    want = saved ? vcr_clock_pll(saved, NULL) : 0;
+    has_it = want && clock_call(VCR_CLOCK_OP_GET, 0, &r) && r.result == VCR_CLOCK_R_OK &&
+             r.cur_pll[0] == want;
+    switch (ctl_clock_startup(saved, has_it, now, nnow, seen, nseen)) {
     case CTL_CLK_START_NONE:
         clk_persist_clear(why, sizeof why);         /* a logon entry with nothing to apply */
+        return 0;
+    case CTL_CLK_START_RUNNING:
+        ctl_log("startup clock: the card still runs %s - no reboot since it was set, nothing "
+                "to do", a);
         return 0;
     case CTL_CLK_START_UNCLEAN:
         clk_persist_clear(why, sizeof why);

@@ -972,17 +972,26 @@ CTL_FN int ctl_clock_mhz_ok(long mhz)
  * stock and the saved clock is forgotten (a person turns it back on). Only
  * EQUALITY is compared, never order: .124's clock resets after a power loss,
  * and a time comparison could wave a crash through. No stamp on either side
- * is no proof - never a re-apply. */
+ * is no proof - never a re-apply.
+ *
+ * A LOGON IS NOT A BOOT: the Run value fires at every logon, a logoff/logon
+ * too, and then the stamp has not moved although nothing crashed. So first:
+ * when the card STILL RUNS the saved clock (card_has_it: its pllCtrl1 is the
+ * saved clock's word - the VBIOS puts its own back at every power-on and
+ * reset), there was no reboot since it was set - nothing to apply and nothing
+ * to judge. A saved STOCK clock is the same case at every boot. */
 enum { CTL_CLK_START_NONE, CTL_CLK_START_APPLY, CTL_CLK_START_UNCLEAN,
-       CTL_CLK_START_UNKNOWN, CTL_CLK_START_RANGE };
+       CTL_CLK_START_UNKNOWN, CTL_CLK_START_RANGE, CTL_CLK_START_RUNNING };
 
-CTL_FN int ctl_clock_startup(unsigned saved_khz, const unsigned char *now, int now_len,
-                             const unsigned char *seen, int seen_len)
+CTL_FN int ctl_clock_startup(unsigned saved_khz, int card_has_it, const unsigned char *now,
+                             int now_len, const unsigned char *seen, int seen_len)
 {
     if (!saved_khz)
         return CTL_CLK_START_NONE;
     if (saved_khz < CTL_CLK_MIN_MHZ * 1000u || saved_khz > CTL_CLK_MAX_MHZ * 1000u)
         return CTL_CLK_START_RANGE;
+    if (card_has_it)
+        return CTL_CLK_START_RUNNING;
     if (!now || now_len != 8 || !seen || seen_len != 8)
         return CTL_CLK_START_UNKNOWN;
     if (memcmp(now, seen, 8) == 0)
