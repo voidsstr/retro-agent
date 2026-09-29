@@ -760,7 +760,7 @@ void handle_gameres(SOCKET sock, const char *args)
 
     if (str_starts_with(a, "APPLY")) {
         const char *want = str_skip_spaces(a + 5);
-        char  dir[MAX_PATH];
+        char  dir[MAX_PATH], root[160];
         int   titles = 0, changed = 0, absent = 0, absent1;
         char  done[64][64];
         int   ndone = 0;
@@ -777,7 +777,9 @@ void handle_gameres(SOCKET sock, const char *args)
                 break;              /* more distinct titles than we can track */
             lstrcpynA(done[ndone++], gr_rules[i].title, sizeof(done[0]));
 
-            _snprintf(dir, sizeof(dir) - 1, "C:\\Games\\%s", gr_rules[i].title);
+            if (!gs_games_dir(root, sizeof(root)))
+                break;                  /* GamesDir set but unusable: nothing is "installed" */
+            _snprintf(dir, sizeof(dir) - 1, "%s\\%s", root, gr_rules[i].title);
             dir[sizeof(dir) - 1] = 0;
             if (GetFileAttributesA(dir) == 0xFFFFFFFF)
                 continue;               /* not installed on this box */

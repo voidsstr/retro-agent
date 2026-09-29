@@ -1010,6 +1010,20 @@ Two ways to manufacture the same mixed install by hand, both seen here:
 - **GAMESYNC cannot overwrite a running `.exe`** and will skip the marker — one
   box hit `failed_files: 5` on `SiNGold\sin.exe` because a test had it running.
 
+### GamesDir: titles on another local disk (agent 1.93.0)
+
+`GAMESYNC` copied to a hard-coded `C:\Games`. **`HKLM\Software\RetroAgent\GamesDir`**
+(REG_SZ, a local `X:\folder` on a fixed disk) moves every title - the copy, the
+per-title fit check and margin, the gate's `disk_mb` measurement, `GAMERES`'s
+install scan and the desktop shortcuts - to that folder; `GAMESYNC STATUS`
+reports it as `dest`. `.243` uses `E:\GAMES` (C: 1.2 GB, E: 72 GB). **A value
+that is set but unusable - malformed, or its drive missing - makes GAMESYNC
+REFUSE (`NOT SYNCING: ...`), never fall back to C:**: `.243`'s E: is exactly
+that after a power loss, until the CMOS 1Bh reboot. Changing it on a
+provisioned box means `GAMESYNC RESET` + `START`; the old copies under
+`C:\Games` stay (GAMESYNC never deletes). The title table grew 96 -> 256 in
+the same release. Tests: `native/test_gamesdir.c`, `python/test_gamesdir_agent.py`.
+
 ## LAN / TCP Multiplayer Is Part of a Staged Game (REQUIRED)
 
 **User directive, 2026-08-29:** games that only offer IPX out of the box must be

@@ -233,8 +233,11 @@ def test_gamesync_deploys_where_the_dos_menu_looks():
     """
     gs = open(os.path.join(REPO, 'agent', 'src', 'gamesync.c'),
               encoding='utf-8', errors='replace').read()
-    assert '#define GS_DEST            "C:\\\\Games"' in gs, \
-        'GAMESYNC no longer deploys to C:\\Games - update DOSGAME.EXE\'s scan root'
+    # 1.93.0: the destination is GamesDir when a box sets one (.243: E:\\GAMES,
+    # which real DOS cannot see anyway - its titles are launched from Windows);
+    # the DEFAULT is still the folder DOSGAME scans.
+    assert '#define GS_DEST_DEFAULT    "C:\\\\Games"' in gs, \
+        'GAMESYNC no longer deploys to C:\\Games by default - update DOSGAME.EXE\'s scan root'
     dg = open(DOSGAME_C, encoding='utf-8', errors='replace').read()
     assert 'cfg_scan[MAX_PATH_L * 2] = "C:\\\\GAMES;C:\\\\"' in dg, \
         'DOSGAME.EXE no longer scans C:\\GAMES by default - the staged games ' \

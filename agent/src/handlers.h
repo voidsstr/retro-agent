@@ -32,6 +32,9 @@ void handle_quit(SOCKET sock);
 void handle_shutdown(SOCKET sock);
 void handle_reboot(SOCKET sock);
 void agent_self_reboot_9x(const char *label);
+/* 1.93.0: the folder GAMESYNC installs titles in (GamesDir, else C:\Games);
+ * 0 when a configured GamesDir is unusable. */
+int gs_games_dir(char *out, size_t cch);
 void handle_netmap(SOCKET sock, const char *args);
 void handle_netunmap(SOCKET sock, const char *args);
 void handle_filecopy(SOCKET sock, const char *args);

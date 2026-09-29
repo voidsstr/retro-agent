@@ -59,13 +59,15 @@
 #include <cfgmgr32.h>
 #include <mmsystem.h>
 
+#include "../shared/gamesdir.h"
+
 #define LOG_GS "GAMESYNC"
 
 /* The library the fleet publishes pre-installed game trees to. Overridable -
  * see gs_library_path() - because an address baked into a binary is a promise
  * we cannot keep across a NAS move. */
 #define GS_DEFAULT_LIBRARY "\\\\192.168.1.122\\files\\Files\\Games-Library"
-#define GS_DEST            "C:\\Games"
+#define GS_DEST_DEFAULT    "C:\\Games"
 #define GS_MARKER          "C:\\RETRO_AGENT\\gamesync.done"
 /* Written into the image by stage-oem.sh. Its PRESENCE is what says
  * "this machine was just imaged" - see gs_new_image(). */
@@ -74,8 +76,10 @@
 
 /* How many titles gs_run() can hold. The library was 46 on 2026-08-31 and it
  * grows; overflowing this used to be a silent truncation, so it is named, it is
- * logged when hit, and it has headroom. */
-#define GS_MAX_TITLES      96
+ * logged when hit, and it has headroom. 1.93.0: 96 -> 256 (the Win9x DOS
+ * titles for .243 alone add dozens). The per-title arrays live on gs_run's
+ * stack (~85 KB at 256) - the worker threads have the default 2 MB. */
+#define GS_MAX_TITLES      256
 
 #define GS_CHUNK           (64u * 1024u)
 /* Leave the OS room to breathe; filling C: to the last byte breaks XP in
@@ -397,6 +401,58 @@ static __int64 gs_total_bytes(const char *root)
     return -1;
 }
 
+/* ---- where titles are copied (1.93.0) --------------------------------------
+ * HKLM\Software\RetroAgent\GamesDir (REG_SZ) overrides C:\Games for a box
+ * whose C: is too small: .243's C: is 1.2 GB with 333 MB free while its second
+ * disk has a 72 GB E:. Only a local "X:\folder" path on a FIXED drive is taken.
+ * A value that is configured but unusable - malformed, or its drive missing,
+ * which is exactly .243's E: after a power loss until the 1Bh reboot - makes
+ * GAMESYNC REFUSE, never fall back: falling back would pour the library onto
+ * the small C: the setting exists to protect. Absent = C:\Games, as always. */
+static char g_gs_dest[160] = GS_DEST_DEFAULT;
+static char g_gs_dest_root[4] = "C:\\";
+
+/* 1 = usable (out = the folder, root = "X:\"), 0 = not configured (out =
+ * C:\Games), -1 = configured but unusable (why says why). */
+static int gs_dest_resolve(char *out, size_t cch, char *root, char *why, size_t why_cch)
+{
+    HKEY  h;
+    char  v[200], norm[200];
+    DWORD type = 0, sz = sizeof(v) - 1;
+    int   have = 0;
+
+    lstrcpynA(out, GS_DEST_DEFAULT, (int)cch);
+    lstrcpynA(root, "C:\\", 4);
+    if (why_cch) why[0] = 0;
+    memset(v, 0, sizeof(v));
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, KEY_READ, &h) == ERROR_SUCCESS) {
+        have = RegQueryValueExA(h, "GamesDir", NULL, &type, (LPBYTE)v, &sz) == ERROR_SUCCESS && type == REG_SZ;
+        RegCloseKey(h);
+    }
+    if (!have) return 0;
+    v[sizeof(v) - 1] = 0;
+    if (!gamesdir_normalise(v, norm, sizeof(norm), root)) {
+        _snprintf(why, why_cch - 1, "GamesDir \"%.120s\" is not a local X:\\folder path", v);
+        why[why_cch - 1] = 0;
+        return -1;
+    }
+    if (GetDriveTypeA(root) != DRIVE_FIXED) {
+        _snprintf(why, why_cch - 1, "GamesDir %s: drive %s is not a fixed disk right now (missing?)", norm, root);
+        why[why_cch - 1] = 0;
+        return -1;
+    }
+    lstrcpynA(out, norm, (int)cch);
+    return 1;
+}
+
+/* For gameres.c and anyone else: the folder titles are installed in, or 0 when
+ * a configured GamesDir is unusable (then nothing is "installed"). */
+int gs_games_dir(char *out, size_t cch)
+{
+    char root[4], why[200];
+    return gs_dest_resolve(out, cch, root, why, sizeof(why)) >= 0;
+}
+
 /* How much of C: GAMESYNC always leaves free: the smaller margin only on a
  * volume under 4 GB, the XP-era 300 MB everywhere else. An unmeasurable
  * volume keeps the larger margin - the safe direction. */
@@ -408,6 +464,12 @@ static __int64 gs_margin_for_disk(__int64 total)
 static __int64 gs_free_margin(void)
 {
     return gs_margin_for_disk(gs_total_bytes("C:\\"));
+}
+
+/* The same margin, for the volume the titles go to. */
+static __int64 gs_free_margin_for(const char *root)
+{
+    return gs_margin_for_disk(gs_total_bytes(root));
 }
 
 static void gs_mkdir_p(const char *path)
@@ -3559,11 +3621,15 @@ static void gs_gate_init(const char *library)
     /* The hash is taken BEFORE free_mb is filled in, which costs nothing (the
      * field is not one of the hashed ten) but makes the ordering explicit:
      * the hash names the machine, and free space is not part of its identity.
-     * Games land on C:, so that is the volume the disk_mb floor is measured
-     * against; a negative return (the call failed) stays 0 and fails open. */
+     * The disk_mb floor is measured against the volume titles land on
+     * (GamesDir, 1.93.0; C: without it); a negative return (the call failed)
+     * stays 0 and fails open. */
     gg_profile_hash(&g_gate_profile, g_gate_hash);
     {
-        __int64 fb = gs_free_bytes("C:\\");
+        char dest[160], root[4], why[200];
+        __int64 fb;
+        (void)gs_dest_resolve(dest, sizeof(dest), root, why, sizeof(why));
+        fb = gs_free_bytes(root);
         g_gate_profile.free_mb = fb > 0 ? (unsigned)(fb / 1048576) : 0u;
     }
     g_gate_ready = 1;
@@ -4013,7 +4079,7 @@ static void gs_restore_shortcuts_if_installed(const char *title)
 {
     char have[MAX_PATH];
 
-    _snprintf(have, sizeof(have) - 1, "%s\\%s", GS_DEST, title);
+    _snprintf(have, sizeof(have) - 1, "%s\\%s", g_gs_dest, title);
     have[sizeof(have) - 1] = 0;
     if (!gs_file_exists(have))
         return;
@@ -5224,6 +5290,20 @@ static void gs_run(const char *library)
      * library is most of them. */
     gameres_apply_display();
 
+    {
+        char why[200];
+        if (gs_dest_resolve(g_gs_dest, sizeof(g_gs_dest), g_gs_dest_root, why, sizeof(why)) < 0) {
+            /* Refuse, loudly: see gs_dest_resolve() - never fall back to C:. */
+            log_msg(LOG_GS, "NOT SYNCING: %s", why);
+            EnterCriticalSection(&g_gs_lock);
+            g_gs.state = GS_FAILED;
+            LeaveCriticalSection(&g_gs_lock);
+            gs_set_msg("NOT SYNCING: %s", why);
+            return;
+        }
+        log_msg(LOG_GS, "titles go to %s", g_gs_dest);
+    }
+
     gs_set_msg("enumerating library");
     _snprintf(pat, sizeof(pat) - 1, "%s\\*", library);
     pat[sizeof(pat) - 1] = 0;
@@ -5419,10 +5499,10 @@ static void gs_run(const char *library)
         grand += sizes[i];
     }
 
-    freeb = gs_free_bytes("C:\\");
+    freeb = gs_free_bytes(g_gs_dest_root);
     log_msg(LOG_GS, "%d title(s) (%d gated, not walked), %d file(s), "
-            "%I64d MB to copy; C: has %I64d MB free",
-            n, n_gated, files, grand / 1048576,
+            "%I64d MB to copy; %c: has %I64d MB free",
+            n, n_gated, files, grand / 1048576, g_gs_dest_root[0],
             freeb < 0 ? (__int64)-1 : freeb / 1048576);
 
     /*
@@ -5459,7 +5539,7 @@ static void gs_run(const char *library)
     g_gs.total_bytes  = grand;
     LeaveCriticalSection(&g_gs_lock);
 
-    gs_mkdir_p(GS_DEST);
+    gs_mkdir_p(g_gs_dest);
 
     for (i = 0; i < n; i++) {
         if (g_gs_abort) {
@@ -5483,8 +5563,8 @@ static void gs_run(const char *library)
 
         /* Re-measure per title: earlier titles have just consumed space, and
          * on a period disk the difference decides whether this one fits. */
-        freeb = gs_free_bytes("C:\\");
-        margin = gs_free_margin();
+        freeb = gs_free_bytes(g_gs_dest_root);
+        margin = gs_free_margin_for(g_gs_dest_root);
         /* The credit below walks the INSTALLED tree, so take it only when it
          * can change the answer: if the title fits without it, it fits with it
          * (the credit is never negative). Same verdict, and a box with room to
@@ -5501,7 +5581,7 @@ static void gs_run(const char *library)
             char  have[MAX_PATH];
             int   nfiles = 0;
             __int64 existing;
-            _snprintf(have, sizeof(have) - 1, "%s\\%s", GS_DEST, titles[i]);
+            _snprintf(have, sizeof(have) - 1, "%s\\%s", g_gs_dest, titles[i]);
             have[sizeof(have) - 1] = 0;
             if (gs_file_exists(have)) {
                 existing = gs_dir_size(have, &nfiles);
@@ -5529,7 +5609,7 @@ static void gs_run(const char *library)
         log_msg(LOG_GS, "==> %s (%I64d MB)", titles[i], sizes[i] / 1048576);
 
         _snprintf(src, sizeof(src) - 1, "%s\\%s", library, titles[i]);
-        _snprintf(dst, sizeof(dst) - 1, "%s\\%s", GS_DEST, titles[i]);
+        _snprintf(dst, sizeof(dst) - 1, "%s\\%s", g_gs_dest, titles[i]);
         src[sizeof(src) - 1] = 0;
         dst[sizeof(dst) - 1] = 0;
 
@@ -7085,6 +7165,7 @@ void handle_gamesync(SOCKET sock, const char *args)
     DWORD  now;
     /* twice the source plus the terminator: every byte can double */
     char    esc_failed[sizeof(((gs_state_t *)0)->failed_file) * 2 + 1];
+    char    dest_raw[160], dest_esc[330];
     gs_state_t s;
     const char *names[] = { "idle", "sizing", "copying", "done", "failed", "skipped" };
     int    pct, elapsed;
@@ -7151,6 +7232,9 @@ void handle_gamesync(SOCKET sock, const char *args)
     }
 
     gs_json_escape(s.failed_file, esc_failed, sizeof(esc_failed));
+    if (!gs_games_dir(dest_raw, sizeof(dest_raw)))
+        lstrcpynA(dest_raw, "(GamesDir set but unusable - see the log)", sizeof(dest_raw));
+    gs_json_escape(dest_raw, dest_esc, sizeof(dest_esc));
 
     _snprintf(json, sizeof(json) - 1,
         "{\"state\":\"%s\",\"percent\":%d,"
@@ -7172,7 +7256,7 @@ void handle_gamesync(SOCKET sock, const char *args)
          * stops the sync). cpu_busy_pct is -1 where Windows cannot say. */
         "\"since_progress_s\":%lu,\"stalled_s\":%lu,\"starved_s\":%lu,"
         "\"cpu_busy_pct\":%d,"
-        "\"new_image\":%s,\"message\":\"%s\"}",
+        "\"new_image\":%s,\"dest\":\"%s\",\"message\":\"%s\"}",
         names[(s.state >= 0 && s.state <= GS_SKIPPED) ? s.state : 0],
         pct, s.done_titles, s.total_titles, s.skipped_titles, s.gated_titles,
         s.done_bytes / 1048576, s.total_bytes / 1048576, s.mbps,
@@ -7182,7 +7266,7 @@ void handle_gamesync(SOCKET sock, const char *args)
         since_ms / 1000, st.total_stall_ms / 1000, st.total_starved_ms / 1000,
         busy,
         gs_file_exists(GS_NEWIMAGE_FLAG) ? "true" : "false",
-        msg);
+        dest_esc, msg);
     /* new_image is deliberately reported alongside provisioned: together they
      * distinguish "fresh box, not yet done" from "old box someone reset". */
     json[sizeof(json) - 1] = 0;

@@ -79,7 +79,7 @@ def test_the_names_are_collected_then_sized_afterwards():
     code = _strip_comments(GAMESYNC.read_text(errors="replace"))
     body = _gs_run(code)
     close_at = body.index("FindClose(h)")
-    after = body[close_at:body.index("gs_mkdir_p(GS_DEST)", close_at)]
+    after = body[close_at:body.index("gs_mkdir_p(g_gs_dest)", close_at)]
     assert "gs_dir_size" in after, \
         "the per-title sizing pass has gone missing after FindClose"
     assert "sizes[i]" in after and "grand" in after, \

@@ -100,7 +100,9 @@ def test_failed_file_is_json_escaped():
     call = src[src.index("_snprintf(json, sizeof(json) - 1,"):]
     # The message is formatted from a local copy (`msg`) since 1.90.0: it can
     # carry the stall explanation (gs_stall_describe) appended to s.message.
-    call = call[:call.index("\n        msg);") + 14]
+    # (1.93.0: `dest_esc, msg);` - GamesDir joined the tail - so find the
+    # end of the argument list by the word, not by its line layout.)
+    call = call[:re.search(r"\bmsg\);", call).end()]
     # NB word boundary: "s.failed_files" (the COUNT) legitimately appears here
     # and contains "s.failed_file" as a substring.
     assert not re.search(r"s\.failed_file\b", call), (
