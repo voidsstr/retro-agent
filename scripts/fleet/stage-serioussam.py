@@ -81,6 +81,9 @@ import argparse
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import libwrite  # noqa: E402  (one verified file per write - see libwrite.py)
+
 # --------------------------------------------------------------------------
 # Per-title facts. Everything that differs between the two Encounters is here;
 # the templates below are shared.
@@ -477,8 +480,22 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('library')
     ap.add_argument('--check', action='store_true')
+    libwrite.add_arguments(ap)
     args = ap.parse_args()
 
+    # A library on the read-only /mnt share (or --via-smb) is published one
+    # verified file at a time; the first write that does not land ends the run.
+    writer = libwrite.writer_for(args.library, via_smb=args.via_smb)
+    try:
+        with writer:
+            rc = _stage(args, writer)
+    except libwrite.LibWriteError as e:
+        print(libwrite.failure_banner(e, writer), file=sys.stderr)
+        rc = 3
+    raise SystemExit(rc)
+
+
+def _stage(args, writer):
     rc = 0
     for name, t in sorted(TITLES.items()):
         tree = os.path.join(args.library, name)
@@ -493,7 +510,7 @@ def main():
                     print('%-28s %-46s MUST NOT BE STAGED' % (name, rel))
                     rc = 1
                 else:
-                    os.remove(sp)
+                    writer.remove(sp)
                     print('%-28s %-46s removed (per-box state)' % (name, rel))
             else:
                 print('%-28s %-46s absent (correct)' % (name, rel))
@@ -505,7 +522,7 @@ def main():
                     print('%-28s %-46s SUPERSEDED, still present' % (name, fn))
                     rc = 1
                 else:
-                    os.remove(sp)
+                    writer.remove(sp)
                     print('%-28s %-46s removed (superseded by the generator)'
                           % (name, fn))
 
@@ -541,10 +558,9 @@ def main():
                 print('%-28s %-46s STALE/ABSENT' % (name, fn))
                 rc = 1
                 continue
-            with open(p, 'wb') as fh:
-                fh.write(want)
+            writer.write_bytes(p, want)
             print('%-28s %-46s written (%d bytes)' % (name, fn, len(want)))
-    raise SystemExit(rc)
+    return rc
 
 
 if __name__ == '__main__':

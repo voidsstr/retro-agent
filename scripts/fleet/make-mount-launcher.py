@@ -36,6 +36,8 @@ launcher "find" a mounted StarCraft disc and start the game against it.
 import argparse, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import libwrite  # noqa: E402  (one verified file per write - see libwrite.py)
 DEFAULT_TEMPLATE = os.path.join(
     HERE, '..', '..', 'provisioning', 'discmount', 'mount-launcher-template.bat')
 
@@ -120,6 +122,7 @@ def main():
     ap.add_argument('--out')
     ap.add_argument('--check', metavar='BAT',
                     help='compare an existing launcher against what the spec would generate')
+    libwrite.add_arguments(ap)
     args = ap.parse_args()
 
     with open(args.spec) as f:
@@ -141,9 +144,25 @@ def main():
     if '(' in os.path.basename(args.out) or ')' in os.path.basename(args.out):
         raise SystemExit('refusing: a generated filename must not contain ( or ) - '
                          'the agent cannot launch it (CLAUDE.md)')
-    with open(args.out, 'w', encoding='latin-1', newline='') as f:
-        f.write(text)
-    print('wrote %s (%d bytes)' % (args.out, len(text)))
+    data = text.encode('latin-1')
+    # An unchanged launcher is left alone: rewriting identical bytes still
+    # bumps its write time, and GAMESYNC would then recopy it to every box.
+    if os.path.isfile(args.out):
+        with open(args.out, 'rb') as f:
+            if f.read() == data:
+                print('unchanged %s (%d bytes)' % (args.out, len(data)))
+                return 0
+    # args.out on the read-only /mnt share (or --via-smb) publishes through
+    # sharewrite.py and is verified through /mnt before this returns.
+    try:
+        with libwrite.writer_for(os.path.dirname(os.path.abspath(args.out)),
+                                 via_smb=args.via_smb) as w:
+            w.write_bytes(args.out, data)
+            kind = w.kind
+    except libwrite.LibWriteError as e:
+        print(libwrite.failure_banner(e), file=sys.stderr)
+        return 3
+    print('wrote %s (%d bytes, %s backend)' % (args.out, len(data), kind))
     return 0
 
 

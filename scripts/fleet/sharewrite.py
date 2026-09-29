@@ -99,78 +99,130 @@ def smb(auth, commands):
     return r.returncode, out
 
 
-def cmd_put(a):
-    if not os.path.isfile(a.local):
-        raise SystemExit("no such local file: %s" % a.local)
-    dirs, name = share_parts(a.dest)
-    want = md5_of(a.local)
-    size = os.path.getsize(a.local)
-    mnt_path = os.path.join(MNT, *dirs, name)
-    print("put %s (%d B, md5 %s) -> %s" % (a.local, size, want, "/".join(dirs + [name])))
-    if a.dry_run:
-        print("dry-run: nothing written")
-        return 0
-    with Auth() as auth:
-        # create each parent (a collision on an existing one is fine)
-        path = ""
-        mk = []
-        for d in dirs:
-            path = d if not path else path + "/" + d
-            mk.append("mkdir %s" % smb_quote(path))
-        cd = "cd %s" % smb_quote("/".join(dirs)) if dirs else ""
-        seq = "; ".join(mk + ([cd] if cd else []) +
-                        ["put %s %s" % (smb_quote(a.local), smb_quote(name)),
-                         "allinfo %s" % smb_quote(name)])
-        rc, out = smb(auth, seq)
-    put_ok = "putting file" in out and "NT_STATUS_ACCESS_DENIED" not in out
-    if not put_ok:
-        print(out)
-        print("FAILED: smbclient did not report the put")
-        return 2
-    # post-condition 1: the bytes, read back through the OTHER mount
+def wait_md5(mnt_path, size, want, wait_s=VERIFY_WAIT_S):
+    """Poll the /mnt copy until it reads back as `want`; return what it read."""
     got = None
-    deadline = time.time() + VERIFY_WAIT_S
-    while time.time() < deadline:
+    deadline = time.time() + wait_s
+    while True:
         try:
             if os.path.getsize(mnt_path) == size:
                 got = md5_of(mnt_path)
                 if got == want:
-                    break
+                    return got
         except OSError:
             pass
+        if time.time() >= deadline:
+            return got
         time.sleep(2)
+
+
+def verify_landed(mnt_path, size, want, log=print):
+    """The post-condition of a write, read through /mnt: bytes AND a fresh mtime.
+    Returns 0 or a non-zero code (3 = wrong bytes, 4 = stale write time)."""
+    got = wait_md5(mnt_path, size, want)
     if got != want:
-        print("FAILED: %s reads back as %s (want %s)" % (mnt_path, got, want))
+        log("FAILED: %s reads back as %s (want %s)" % (mnt_path, got, want))
         return 3
-    # post-condition 2: a fresh write time (GAMESYNC compares size AND mtime)
+    # GAMESYNC compares size AND mtime, so a stale stamp can hide an edit forever
     age = time.time() - os.path.getmtime(mnt_path)
     if abs(age) > MTIME_SLACK_S:
-        print("FAILED: %s has write time %s (%.0f s from now) - GAMESYNC may skip it"
-              % (mnt_path, time.ctime(os.path.getmtime(mnt_path)), age))
+        log("FAILED: %s has write time %s (%.0f s from now) - GAMESYNC may skip it"
+            % (mnt_path, time.ctime(os.path.getmtime(mnt_path)), age))
         return 4
-    print("OK: md5 verified through %s, mtime %s" % (MNT, time.ctime(os.path.getmtime(mnt_path))))
     return 0
 
 
-def cmd_rm(a):
-    dirs, name = share_parts(a.dest)
+def put(local, dest, auth, dry_run=False, log=print):
+    """Write ONE local file to share path `dest` and prove it landed.
+
+    `auth` is the path of an smbclient auth file (an open Auth()). Returns 0
+    only when the md5 read back through /mnt matches and the write time is
+    fresh; the caller must treat anything else as the end of the run."""
+    if not os.path.isfile(local):
+        log("FAILED: no such local file: %s" % local)
+        return 1
+    dirs, name = share_parts(dest)
+    want = md5_of(local)
+    size = os.path.getsize(local)
     mnt_path = os.path.join(MNT, *dirs, name)
-    print("rm %s" % "/".join(dirs + [name]))
-    if a.dry_run:
-        print("dry-run: nothing deleted")
+    log("put %s (%d B, md5 %s) -> %s" % (local, size, want, "/".join(dirs + [name])))
+    if dry_run:
+        log("dry-run: nothing written")
         return 0
-    with Auth() as auth:
-        cd = "cd %s; " % smb_quote("/".join(dirs)) if dirs else ""
-        rc, out = smb(auth, cd + "del %s" % smb_quote(name))
+    # create each parent (a collision on an existing one is fine)
+    path = ""
+    mk = []
+    for d in dirs:
+        path = d if not path else path + "/" + d
+        mk.append("mkdir %s" % smb_quote(path))
+    cd = "cd %s" % smb_quote("/".join(dirs)) if dirs else ""
+    seq = "; ".join(mk + ([cd] if cd else []) +
+                    ["put %s %s" % (smb_quote(local), smb_quote(name)),
+                     "allinfo %s" % smb_quote(name)])
+    rc, out = smb(auth, seq)
+    put_ok = "putting file" in out and "NT_STATUS_ACCESS_DENIED" not in out
+    if not put_ok:
+        log(out)
+        log("FAILED: smbclient did not report the put")
+        return 2
+    rc = verify_landed(mnt_path, size, want, log)
+    if rc == 0:
+        log("OK: md5 verified through %s, mtime %s"
+            % (MNT, time.ctime(os.path.getmtime(mnt_path))))
+    return rc
+
+
+def rm(dest, auth, dry_run=False, log=print):
+    """Delete ONE share file; 0 only once /mnt no longer shows it."""
+    dirs, name = share_parts(dest)
+    mnt_path = os.path.join(MNT, *dirs, name)
+    log("rm %s" % "/".join(dirs + [name]))
+    if dry_run:
+        log("dry-run: nothing deleted")
+        return 0
+    cd = "cd %s; " % smb_quote("/".join(dirs)) if dirs else ""
+    rc, out = smb(auth, cd + "del %s" % smb_quote(name))
+    return _wait_gone(mnt_path, out, log)
+
+
+def rmdir(dest, auth, dry_run=False, log=print):
+    """Remove ONE empty share directory; 0 only once /mnt no longer shows it."""
+    dirs, name = share_parts(dest)
+    mnt_path = os.path.join(MNT, *dirs, name)
+    log("rmdir %s" % "/".join(dirs + [name]))
+    if dry_run:
+        log("dry-run: nothing removed")
+        return 0
+    rc, out = smb(auth, "rmdir %s" % smb_quote("/".join(dirs + [name])))
+    return _wait_gone(mnt_path, out, log)
+
+
+def _wait_gone(mnt_path, out, log):
     deadline = time.time() + VERIFY_WAIT_S
     while time.time() < deadline:
-        if not os.path.exists(mnt_path):
-            print("OK: gone (verified through %s)" % MNT)
+        if not os.path.lexists(mnt_path):
+            log("OK: gone (verified through %s)" % MNT)
             return 0
         time.sleep(2)
-    print(out)
-    print("FAILED: %s still exists" % mnt_path)
+    log(out)
+    log("FAILED: %s still exists" % mnt_path)
     return 3
+
+
+def cmd_put(a):
+    if not os.path.isfile(a.local):
+        raise SystemExit("no such local file: %s" % a.local)
+    if a.dry_run:
+        return put(a.local, a.dest, None, dry_run=True)
+    with Auth() as auth:
+        return put(a.local, a.dest, auth)
+
+
+def cmd_rm(a):
+    if a.dry_run:
+        return rm(a.dest, None, dry_run=True)
+    with Auth() as auth:
+        return rm(a.dest, auth)
 
 
 def main(argv=None):

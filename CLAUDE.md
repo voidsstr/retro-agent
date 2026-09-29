@@ -1115,6 +1115,15 @@ So, when writing to `/mnt/retro-share`:
   is NOT recoverable that way; be correspondingly more careful with it.
 * **`validate-staged-library.py` is the check that a title is whole again.**
   Run it after any write to the library, not just after staging a new title.
+* **The library GENERATORS do this for you, headless (2026-09-29).**
+  `stage-fleetres.py`, `make-mount-launcher.py`, `stage-serioussam.py` and
+  `stage-dosnative.py` write through `scripts/fleet/libwrite.py`: pointed at
+  the read-only `/mnt/retro-share` (their default) or given `--via-smb`, every
+  write - launchers, configs, `FLEETRES.EXE` - is ONE `sharewrite.py` put, read
+  back through `/mnt` (md5 + a fresh mtime) before the next, and the first
+  failure stops the run with a `PUBLISH FAILED` banner. A generator that gained
+  a plain `open(..., 'wb')` fails `tests/python/test_libwrite.py`. Round-trip
+  check: `python3 scripts/fleet/libwrite.py selftest`.
 
 A related trap from the same day: **a template change is not finished until the
 launchers ship.** `test_shipped_launcher_matches_its_spec` reads the SHARE, and

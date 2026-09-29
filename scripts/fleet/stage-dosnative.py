@@ -62,6 +62,9 @@ import os
 import struct
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import libwrite  # noqa: E402  (one verified file per write - see libwrite.py)
+
 LIB_READ = "/mnt/retro-share/Files/Games-Library"
 LIB_WRITE = ("/run/user/1000/gvfs/smb-share:server=192.168.1.122,"
              "share=files,user=voidsstr/Files/Games-Library")
@@ -190,15 +193,20 @@ def rendered(launcher, title, why):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--library", default=None,
-                    help="staged library root to WRITE (default: the gvfs mount)")
+                    help="staged library root (default: the gvfs mount when it "
+                         "is present, else /mnt/retro-share published over SMB)")
     ap.add_argument("--check", action="store_true",
                     help="exit 1 if the share is not current; write nothing")
     ap.add_argument("--dry-run", action="store_true")
+    libwrite.add_arguments(ap)
     args = ap.parse_args()
 
     lib = args.library
     if lib is None:
-        lib = LIB_READ if (args.check or args.dry_run) else LIB_WRITE
+        # The gvfs mount exists only while someone is logged into the desktop.
+        # Headless, write to the /mnt path: libwrite publishes that over SMB.
+        lib = LIB_READ if (args.check or args.dry_run
+                           or not os.path.isdir(LIB_WRITE)) else LIB_WRITE
     if not os.path.isdir(lib):
         print("staged library not mounted at %s" % lib, file=sys.stderr)
         if args.check:
@@ -206,6 +214,20 @@ def main():
             return 0
         return 2
 
+    try:
+        writer = libwrite.writer_for(lib, via_smb=args.via_smb)
+    except libwrite.LibWriteError as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    try:
+        with writer:
+            return _stage(args, lib, writer)
+    except libwrite.LibWriteError as e:
+        print(libwrite.failure_banner(e, writer), file=sys.stderr)
+        return 3
+
+
+def _stage(args, lib, writer):
     problems = 0
     changed = 0
     for title in sorted(DECLARE):
@@ -250,8 +272,7 @@ def main():
         if args.dry_run:
             print("would %-16s write %s -> %s" % (title, DECL_FILE, launcher))
             continue
-        with open(dest, "wb") as f:
-            f.write(want.encode("ascii"))
+        writer.write_bytes(dest, want.encode("ascii"))
         print("WROTE %-16s %s -> %s (%s)" % (title, DECL_FILE, launcher, kind))
 
     for title, (launcher, why) in sorted(WITHHELD.items()):

@@ -37,5 +37,24 @@ class SharePaths(unittest.TestCase):
                 sw.smb_quote(bad)
 
 
+class Reusable(unittest.TestCase):
+    """put()/rm() are what libwrite.py calls per file - they must be usable
+    without argparse and must not touch the network on a dry run."""
+
+    def test_dry_run_needs_no_credentials(self):
+        import tempfile
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(b"x")
+            f.flush()
+            self.assertEqual(sw.put(f.name, "Files/Games-Library/_patches/x.txt",
+                                    None, dry_run=True, log=lambda m: None), 0)
+        self.assertEqual(sw.rm("Files/Games-Library/_patches/x.txt", None,
+                               dry_run=True, log=lambda m: None), 0)
+
+    def test_a_missing_local_file_is_a_failure_not_a_put(self):
+        self.assertEqual(sw.put("/nonexistent/zz", "Files/x", None,
+                                log=lambda m: None), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
