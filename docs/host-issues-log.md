@@ -115,6 +115,12 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-09-29 16:47:01: ORDERLY reboot (not a crash)
+
+- `d08f865b…` (13:18:26 → 16:47:01) ended in a normal systemd shutdown (`systemd-shutdown: Sending SIGTERM to remaining
+  processes`, `Journal stopped`); no panic, no kdump, no Xid/MCE. `d3bc0e94…` began 16:47:20. Initiator not identified
+  from the journal. Recorded so it is not later read as a fault.
+
 ### 2026-09-29 16:45:53: requested reboot (clean, not a fault)
 
 - **Boot IDs:** `d08f865b…` (13:18:26 → 16:47:01) → `d3bc0e94…` from 16:47:20.
