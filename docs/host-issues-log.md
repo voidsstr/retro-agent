@@ -115,6 +115,20 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-09-29 11:26:35: third MCE panic in 20 h, 66 min into a cold boot (signature 3)
+
+- **Boot IDs:** `8cd5be88…` (10:20:51 cold boot → 11:26:35, uptime 3976 s) → kdump capture boot
+  `98bbcf98…` (11:27:17 → 11:28:15, `saved vmcore in /var/crash/202609291127`, `Rebooting.`) →
+  `8798186c…` (11:37:13 → 11:48:46, 0 IOMMU faults, ended in an orderly `systemd-shutdown`) → `843e7fbc…` from
+  11:49:09 (0 faults).
+- **Fault:** `mce: CPUs not responding to MCE broadcast (may include false positives): 0` → `Kernel panic -
+  not syncing: Timeout: Not all CPUs entered broadcast exception handler`. The journal ends on routine
+  hlds (CS) server lines. The GPU was under normal fleet load.
+- **Mitigations in effect:** 400 W cap and the 2400 MHz clock lock. MCE panics now at 09-28 15:48, 09-29
+  06:13 and 09-29 11:26, so the interval is shrinking (14 h, then 5 h), and this one came barely an hour
+  after a cold start. Power and clock limits are not controlling this. The open physical items
+  (12V-2x6 connector, PSU cabling and wattage, BIOS) are now the leading suspects.
+
 ### 2026-09-29 06:13:55: MCE panic under the 2400 MHz clock lock, then another wedged-card boot until ~10:07 (signatures 3 + 6)
 
 - **Boot IDs:** `ed800384…` (09-28 22:53:12 → 09-29 06:13:55, 7 h 21 m) ended in a kdump-captured panic,
