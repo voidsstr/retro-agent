@@ -147,6 +147,17 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   down, the /24 routed over Wi-Fi reaches the gateway and `.249` and still gets no ARP reply from `.122`
   or any fleet box. **Remedy: power-cycle the switch on LAN-3 (and reseat its uplink to the gateway)**,
   not the host. `Profile 1` was left on autoconnect so the host comes back on 192.168.1.132 by itself.
+- **17:58-18:20: the operator moved the uplink LAN-3 -> LAN-1, then replaced the first switch with a new
+  one. The NIC still times out on transmit on the NEW switch** (`NETDEV WATCHDOG ... transmit queue 0`
+  at 18:00:49, 18:03:13 and 18:04:21), so the fault travels with this host's RTL8125B, not with a switch
+  or a router port. On the new switch the router saw `.110`, `.123`, `.243` and this host's wired MAC once
+  at 18:02:31, the moment of the swap, and none of them answered again once the NIC started stalling.
+  That fits a wedged NIC flooding 802.3x pause frames and freezing whatever switch it is plugged into.
+  This is **likely, unproven**: no frame capture was taken. With the NIC unplugged and one switch powered,
+  `.197` (admin-PC) answered a protocol `PING` over Wi-Fi at 18:16. **State left:** `Profile 1`
+  autoconnect is OFF and the device is disconnected; the host runs on Wi-Fi `.129`. Before turning it
+  back on (`nmcli connection modify "Profile 1" connection.autoconnect yes`), power the host OFF at the
+  PSU for 30 s, so the NIC resets.
 
 ### 2026-09-29 16:45:53: requested reboot (clean, not a fault)
 
