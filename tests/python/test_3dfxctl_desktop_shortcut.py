@@ -22,7 +22,8 @@ def _body(name):
 
 def test_the_agent_places_and_claims_the_panel_shortcut():
     body = _body("gs_place_tool_shortcuts")
-    assert 'gs_tool_shortcut("C:\\\\RETRO_AGENT\\\\3dfxctl.exe", "3dfx Control Panel");' in body
+    assert re.search(r'gs_tool_shortcut\("C:\\\\RETRO_AGENT\\\\3dfxctl\.exe", "3dfx Control Panel",\s*'
+                     r'"C:\\\\RETRO_AGENT\\\\3dfxlogo\.ico"\);', body)
 
 
 def test_same_name_and_path_as_the_push_tool():
@@ -35,3 +36,26 @@ def test_absent_exe_means_no_shortcut():
     i = GS.index("static void gs_tool_shortcut(")
     body = GS[i:GS.index("\n}\n", i)]
     assert body.index("if (!gs_file_exists(exe))") < body.index("gs_make_shortcut(")
+
+
+def test_an_existing_shortcut_must_also_name_the_logo():
+    i = GS.index("static void gs_tool_shortcut(")
+    body = GS[i:GS.index("\n}\n", i)]
+    assert "gs_lnk_points_at(lnk, exe) && (!icon || gs_lnk_has_icon(lnk, icon))" in body
+    assert "gs_make_shortcut(exe, workdir, lnk, name, icon)" in body
+
+
+def test_the_panel_is_copied_before_the_shortcuts_on_a_managed_box_only():
+    i = GS.index("DWORD WINAPI gamesync_thread(")
+    body = GS[i:GS.index("\n}\n", i)]
+    guard = body.index("if (!host_manages_this_box())")
+    ensure = body.index("fxpanel_ensure();")
+    place = body.index("gs_place_tool_shortcuts();", ensure)
+    assert guard < ensure < place
+
+
+def test_the_agent_deploys_the_files_the_push_tool_publishes():
+    src = (REPO / "agent" / "src" / "fxpanel.c").read_text()
+    assert '{ "3dfxctl.exe", "3dfxlogo.ico" }' in src
+    assert 'Utility\\\\Retro Automation\\\\3dfx' in src
+    assert '"3dfxlogo.ico"' in PUSH or "3dfxlogo.ico" in PUSH

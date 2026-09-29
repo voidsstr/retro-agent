@@ -136,4 +136,4 @@ def test_the_clock_tab_is_for_our_stack_with_a_driver_that_answers():
 
 
 def test_the_version_says_the_clock_is_in():
-    assert '#define CTL_VERSION     "2.1.0"' in SRC
+    assert '#define CTL_VERSION     "2.1.1"' in SRC

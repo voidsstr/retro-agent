@@ -57,6 +57,7 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/watchdog.c \
           $(SRCDIR)/monitor.c \
           $(SRCDIR)/gameres.c \
+          $(SRCDIR)/fxpanel.c \
           $(SRCDIR)/ntdyn.c \
           $(SRCDIR)/consolewin.c \
           $(SRCDIR)/bgwork.c \

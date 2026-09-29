@@ -13,11 +13,13 @@ push_3dfxctl.py - put the 3dfx Control Panel on a box, and prove it landed.
   2. UPLOADs the exe to C:\RETRO_AGENT\stage\, copies it to
      C:\RETRO_AGENT\3dfxctl.exe, and DOWNLOADs it back to compare md5 - the
      post-condition, not the copy's return;
-  3. makes "3dfx Control Panel" shortcuts in the All Users Start Menu and on
-     the All Users desktop (icon from the exe) and checks both files exist.
-     NB: GAMESYNC sweeps every desktop .lnk it did not write itself (it keeps
-     only the game icons, "Retro Agent" and "Retro Chat"), so the DESKTOP
-     shortcut lasts until the next GAMESYNC run; the Start Menu one stays;
+  3. puts the 3dfx logo beside it as C:\RETRO_AGENT\3dfxlogo.ico (the same
+     artwork as the exe's icon, 3dfxctl.ico, under a NEW path - XP caches
+     icons by path) and makes "3dfx Control Panel" shortcuts wearing it in the
+     All Users Start Menu and on the All Users desktop, and checks both exist.
+     Agent 1.94.0+ does steps 2-3 by itself at every start on a box whose card
+     the panel serves (agent/src/fxpanel.c), from the SHARE copy this script
+     publishes - and every GAMESYNC keeps the desktop shortcut;
   4. runs `3dfxctl.exe /report` there and prints what the panel sees (the
      driver stack, every setting, every override) - DOWNLOAD, never `type`.
 
@@ -39,10 +41,13 @@ from client.retro_protocol import RetroConnection  # noqa: E402
 SECRET = os.environ.get("RETRO_AGENT_SECRET", "retro-agent-secret")
 PORT = int(os.environ.get("RETRO_AGENT_PORT", "9898"))
 EXE = HERE / "3dfxctl.exe"
+ICO = HERE / "3dfxctl.ico"                   # the 3dfx logo (make_icon.py)
+ICO_NAME = "3dfxlogo.ico"                    # its name on the box and the share
 SHARE_DIR = r"Z:\Utility\Retro Automation\3dfx"
 STAGE = r"C:\RETRO_AGENT\stage"
 BOXDIR = r"C:\RETRO_AGENT"
 TARGET = BOXDIR + r"\3dfxctl.exe"
+ICON_TARGET = BOXDIR + "\\" + ICO_NAME
 REPORT = BOXDIR + r"\3dfxctl-report.txt"
 LNK_NAME = "3dfx Control Panel"
 
@@ -88,6 +93,11 @@ async def amain(args):
                                                binary_payload=data, timeout=120)
         if status == 0xFF:
             sys.exit("UPLOAD failed: " + resp.decode("ascii", "replace"))
+        ico = ICO.read_bytes()
+        status, resp = await conn.send_command(f"UPLOAD {STAGE}\\{ICO_NAME}",
+                                               binary_payload=ico, timeout=60)
+        if status == 0xFF:
+            sys.exit("UPLOAD of the icon failed: " + resp.decode("ascii", "replace"))
         print("uploaded to stage.")
 
         if not args.no_share:
@@ -99,6 +109,10 @@ async def amain(args):
                 d = await txt(conn, f'EXEC cmd /c dir "{SHARE_DIR}\\3dfxctl.exe"')
                 ok = f"{len(data):,}" in d or str(len(data)) in d
                 print(f"share copy: {'OK - size matches' if ok else 'NOT VERIFIED'}\n{d.strip()}")
+                await txt(conn, f'EXEC cmd /c copy /Y "{STAGE}\\{ICO_NAME}" "{SHARE_DIR}\\{ICO_NAME}"')
+                d = await txt(conn, f'EXEC cmd /c dir "{SHARE_DIR}\\{ICO_NAME}"')
+                ok = f"{len(ico):,}" in d or str(len(ico)) in d
+                print(f"share icon: {'OK - size matches' if ok else 'NOT VERIFIED'}")
             else:
                 print("share Z: is down - share copy skipped (rerun with the NAS online).")
 
@@ -113,13 +127,18 @@ async def amain(args):
             if got != md5:
                 sys.exit(f"{TARGET} on the box has md5 {got}, not {md5} - NOT deployed")
             print(f"deployed: {TARGET} md5 {got} (read back)")
+            await txt(conn, f'EXEC cmd /c copy /Y "{STAGE}\\{ICO_NAME}" "{ICON_TARGET}"')
+            back = await conn.command_binary(f"DOWNLOAD {ICON_TARGET}", timeout=60)
+            if back != ico:
+                sys.exit(f"{ICON_TARGET} on the box does not match {ICO.name} - NOT deployed")
+            print(f"deployed: {ICON_TARGET} (read back)")
             # the shortcuts: a VBS uploaded as a FILE - an echo'd one-liner breaks on '&'
             vbs = ('Set s = CreateObject("WScript.Shell")\r\n'
                    'For Each f In Array("AllUsersPrograms", "AllUsersDesktop")\r\n'
                    f'  Set l = s.CreateShortcut(s.SpecialFolders(f) & "\\{LNK_NAME}.lnk")\r\n'
                    f'  l.TargetPath = "{TARGET}"\r\n'
                    f'  l.WorkingDirectory = "{BOXDIR}"\r\n'
-                   f'  l.IconLocation = "{TARGET},0"\r\n'
+                   f'  l.IconLocation = "{ICON_TARGET},0"\r\n'
                    '  l.Description = "3dfx Control Panel - vsync, SLI/AA, gamma, 2D, refresh, clock"\r\n'
                    '  l.Save\r\n'
                    'Next\r\n')

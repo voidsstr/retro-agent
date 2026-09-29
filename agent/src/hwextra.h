@@ -32,6 +32,10 @@ void hwextra_emit_accelerators(json_t *j);
  * its Enum instance path in `why`. Used for the gate's `glide` capability. */
 int hwextra_glide_installed(char *why, DWORD why_cch);
 
+/* A present Banshee/Voodoo3/4/5 (PCI 121A:0003/0004/0005/0009) with a driver
+ * installed - the cards the 3dfx Control Panel serves. */
+int hwextra_3dfx_panel_card(char *why, DWORD why_cch);
+
 /* "network": the box's own addresses and MAC, so a record on the share can be
  * matched back to the machine that wrote it - a computer name is not an
  * identity. */

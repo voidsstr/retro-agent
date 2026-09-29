@@ -32,6 +32,7 @@
 #include "handlers.h"
 #include "protocol.h"
 #include "util.h"
+#include "fxpanel.h"
 #include "log.h"
 #include "ntdyn.h"
 #include "hostpolicy.h"
@@ -3291,7 +3292,26 @@ static int gs_lnk_points_at(const char *lnk, const char *exe)
     return 0;
 }
 
-static void gs_tool_shortcut(const char *exe, const char *name)
+/* Does the .lnk at `lnk` name `icon` as its icon location? (agent 1.94.0) */
+static int gs_lnk_has_icon(const char *lnk, const char *icon)
+{
+    unsigned char buf[8192];
+    DWORD  got = 0;
+    HANDLE h = CreateFileA(lnk, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                           NULL, OPEN_EXISTING, 0, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return 0;
+    if (!ReadFile(h, buf, sizeof(buf), &got, NULL))
+        got = 0;
+    CloseHandle(h);
+    return got && (lnk_bytes_counted_wstr(buf, got, icon) ||
+                   lnk_bytes_name_path(buf, got, icon));
+}
+
+/* `icon`: NULL = the exe's own icon. Otherwise an icon file that must exist,
+ * and an existing shortcut is "already correct" only if it names that icon -
+ * so a shortcut made before the icon changed is rewritten once. */
+static void gs_tool_shortcut(const char *exe, const char *name, const char *icon)
 {
     char desktop[MAX_PATH], lnk[MAX_PATH], workdir[MAX_PATH];
     char *slash;
@@ -3316,7 +3336,9 @@ static void gs_tool_shortcut(const char *exe, const char *name)
     /* Already there and pointing at this exe: nothing to do, and no COM -
      * but CLAIM it, or the end-of-run sweep takes the operator's own icons
      * away because this run never wrote them. */
-    if (gs_lnk_points_at(lnk, exe)) {
+    if (icon && !gs_file_exists(icon))
+        icon = NULL;                   /* fall back to the exe's own icon */
+    if (gs_lnk_points_at(lnk, exe) && (!icon || gs_lnk_has_icon(lnk, icon))) {
         gs_desk_note_lnk_kept(lnk);
         return;
     }
@@ -3327,7 +3349,7 @@ static void gs_tool_shortcut(const char *exe, const char *name)
         slash--;
     *slash = 0;
 
-    if (gs_make_shortcut(exe, workdir, lnk, name, NULL)) {
+    if (gs_make_shortcut(exe, workdir, lnk, name, icon)) {
         log_msg(LOG_GS, "desktop shortcut -> %s", name);
         gs_desk_note_lnk_written(lnk);
     } else {
@@ -3365,15 +3387,18 @@ void gs_place_tool_shortcuts(void)
      * volume), so asking Windows beats assuming C:\RETRO_AGENT. */
     n = GetModuleFileNameA(NULL, exe, sizeof(exe));
     if (n > 0 && n < sizeof(exe))
-        gs_tool_shortcut(exe, "Retro Agent");
+        gs_tool_shortcut(exe, "Retro Agent", NULL);
 
-    gs_tool_shortcut("C:\\RETRO_AGENT\\retro_chat.exe", "Retro Chat");
+    gs_tool_shortcut("C:\\RETRO_AGENT\\retro_chat.exe", "Retro Chat", NULL);
 
-    /* The 3dfx Control Panel (scripts/3dfx/3dfxctl, push_3dfxctl.py). Only a
-     * box it was pushed to has the exe, so this is a no-op everywhere else.
-     * Without it, push_3dfxctl's desktop shortcut lasted only until the next
-     * sync's sweep - .124 lost it to two quiet GAMESYNCs on 2026-09-29. */
-    gs_tool_shortcut("C:\\RETRO_AGENT\\3dfxctl.exe", "3dfx Control Panel");
+    /* The 3dfx Control Panel (scripts/3dfx/3dfxctl), wearing the 3dfx logo.
+     * fxpanel_ensure() copies it onto a box whose card it serves; everywhere
+     * else the exe is absent and this is a no-op. Without this line the
+     * desktop shortcut lasted only until the next sync's sweep - .124 lost it
+     * to two quiet GAMESYNCs on 2026-09-29. The icon is a separate file with
+     * a new name because XP caches icons by path (3dfxctl.exe's old icon). */
+    gs_tool_shortcut("C:\\RETRO_AGENT\\3dfxctl.exe", "3dfx Control Panel",
+                     "C:\\RETRO_AGENT\\3dfxlogo.ico");
 
     if (we_initialised && g_gs_CoUninitialize)
         g_gs_CoUninitialize();
@@ -6140,7 +6165,11 @@ DWORD WINAPI gamesync_thread(LPVOID param)
      * AFTER the delay, not before: the first attempt ran the moment the thread
      * started, when the shell has not finished coming up, so SHGetFolderPath
      * had no desktop to give and the whole thing returned without placing
-     * anything or saying so. */
+     * anything or saying so.
+     *
+     * The 3dfx Control Panel is copied onto a box with a card it serves FIRST
+     * (agent 1.94.0, src/fxpanel.c), so the shortcut pass below finds it. */
+    fxpanel_ensure();
     gs_place_tool_shortcuts();
 
     /* Two independent signals, and they answer different questions.

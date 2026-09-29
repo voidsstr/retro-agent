@@ -146,9 +146,13 @@ def test_launch_txt_supports_an_explicit_icon_field():
 def test_tool_shortcuts_still_compile_against_the_new_signature():
     """Retro Agent / Retro Chat target .exe files and need no icon."""
     src = _src()
-    assert "gs_make_shortcut(exe, workdir, lnk, name, NULL)" in src, (
+    assert "gs_make_shortcut(exe, workdir, lnk, name, icon)" in src, (
         "the tool-shortcut caller must pass the new argument"
     )
+    # Retro Agent / Retro Chat keep the exe's own icon (NULL); only the 3dfx
+    # Control Panel names a separate icon file (agent 1.94.0)
+    assert 'gs_tool_shortcut(exe, "Retro Agent", NULL);' in src
+    assert '"Retro Chat", NULL);' in src
 
 
 @pytest.mark.parametrize("fn", ["gs_resolve_icon", "gs_bat_names_exe"])
