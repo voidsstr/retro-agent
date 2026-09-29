@@ -23,7 +23,7 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 | Item | State | Since |
 |---|---|---|
 | GPU power cap | **400 W** via `nvidia-power-cap.service` (enabled, runs `nvidia-smi -pl 400`; originally from `reusable-agents/install/configure-local-models.sh`, override with `GPU_POWER_LIMIT_W`). The unit was rewritten 2026-09-26 23:22:44 by a `sudo sed` run from `~/development/reusable-agents` (commit `2637516`) and applied at 23:22:45 (`set to 400.00 W from 575.00 W`). It has been re-applied at every boot since; `nvidia-smi` reads 400 W on 09-28 12:18 | 2026-09-26 23:22 |
-| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; an Xid 79 happened under it on 09-28 10:59) | |
+| Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; under it: Xid 79 on 09-28 10:59, an MCE panic on 09-28 15:48, then a 7 h post-reboot fault storm) | |
 | `kernel.hung_task_panic` | 0 (a GPU drop leaves the box up, just without a GPU) | 2026-09-16 |
 | `kernel.panic` / `hardlockup_panic` | 30 / 1 (`/etc/sysctl.d/60-lockup-panic.conf`) | 2026-09-08 |
 | kdump | enabled; dumps land in `/var/crash/` | |
@@ -79,6 +79,16 @@ dump (e.g. after a driver/library mismatch or a GPU drop). **Check `uptime` /
 `journalctl --list-boots` before believing the kernel rebooted.** The 20 s and
 17 s "boots" around a panic are the kdump capture kernel, not extra crashes.
 
+**6. Card wedged after a warm reboot (IOMMU fault storm).** From the first
+second of a boot, the kernel logs `DMAR: [DMA Write|Read NO_PASID] Request device
+[01:00.0] ... fault reason 0x71` plus thousands of `dmar_fault: N callbacks
+suppressed` every 5 s, and nothing on top of the kernel runs (the journal holds
+only those lines, agents never fire). Seen 09-28 15:48 → 22:52 after the MCE
+panic's automatic warm reboot. **A cold power cycle clears it** (09-28 22:52);
+a warm reboot evidently does not. Count it:
+`journalctl -b 0 -k | awk '/DMA (Read|Write).*Request device/{n++} /dmar_fault: [0-9]+ callbacks suppressed/{for(i=1;i<=NF;i++) if($i=="dmar_fault:") n+=$(i+1)} END{print n+0}'`
+— non-zero means the card needs a cold cycle before the fleet will run.
+
 ### Triage commands
 
 ```bash
@@ -127,6 +137,54 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   `20-target-loopback.conf`) remain; loopback stays correct for both, so they
   were left in place. A DHCP reservation for .132 on the router is still the
   cleaner long-term answer.
+
+### 2026-09-28 15:48:25 → 22:52:36: after the panic's warm reboot the GPU faulted for 7 h and the fleet never ran (signature 6)
+
+- **Boot IDs:** `a9388ad8…` (15:48:24 → 22:52:36, 7 h 04 m). `ed800384…` began
+  22:53:12, 36 s later.
+- **Fault:** from **15:48:25, one second into the boot**, the IOMMU rejected DMA
+  from the GPU nonstop: `DMAR: [DMA Write NO_PASID] Request device [01:00.0] fault
+  addr 0xf7eff000 [fault reason 0x71] SM: Present bit in first-level paging entry
+  is clear` (reads too), about 3,400 `dmar_fault: N callbacks suppressed` every
+  5 s. **18,393,353 faults** in total until the journal ends.
+- **Fleet impact:** this boot's journal holds only those kernel lines (5,760 an
+  hour) and **no userland entries at all**, and the reusable-agents run history
+  has **zero agent runs from 15:48 to 22:52** (e.g. the 10-minute
+  `aisleprompt-recipe-image-verifier` never ran). The kernel was up but nothing
+  on top of it ran for 7 h: no agents, no articles, no price refresh. Where boot
+  stalled is unproven (the journal has nothing to show it).
+- **End:** the journal stops at 22:52:36 (next boot: `system.journal corrupted
+  or uncleanly shut down`). There is no kdump, no BERT record and no panic line,
+  and the host was back 36 s later, so it was an external reset or power cycle
+  (who or what is unknown).
+- **After:** the `ed800384…` boot has **0** DMAR faults, `lspci` shows Region 0
+  mapped and `LnkSta: Speed 32GT/s, Width x16`, and ollama serves on the GPU. So
+  whatever reset the box at 22:52 also revived the card, while the kdump warm
+  reboot at 15:48 did not.
+- **Takeaway (likely, consistent with signature 1):** the panic path
+  (`kernel.panic=30` → kdump → warm reboot) can bring the box back with the card
+  still wedged, and then nothing runs until someone cold-cycles it. The
+  reusable-agents KTLO sweep now reports `gpu_iommu_faults_this_boot` and
+  `boots_24h` so a faulting card is caught on the next tick.
+
+### 2026-09-28 15:48:03: MCE panic at 400 W and x16 (signature 3)
+
+- **Boot IDs:** `520bf9f1…` (11:09:30 → 15:48:03, 4 h 38 m).
+- **Fault:** kdump `/var/crash/202609281548/dmesg.202609281548`, at uptime
+  16726 s: `mce: CPUs not responding to MCE broadcast (may include false
+  positives): 0` then `Kernel panic - not syncing: Timeout: Not all CPUs entered
+  broadcast exception handler`. Nothing hardware-related precedes it in that
+  dmesg (no bank decode, no Xid, no AER), and the next boot has **no BERT
+  record**, unlike the pattern described in signature 3.
+- **Load:** ollama was mid-generation (last journal line 15:47:59, `n_gen = 1127,
+  tg = 124.55 t/s`) and three agent units were starting at 15:48:03. Opus
+  authoring had just resumed on the claude-pool (implementer runs at 15:05 and
+  15:26).
+- **Cap in effect: 400 W** (the card's minimum), PCIe x16, kernel 7.0.0-34,
+  driver 595.91.07. This is the third MCE panic with kdump evidence (08-30,
+  09-24 19:18, 09-28 15:48) and the second at 400 W.
+- **Response:** `kernel.panic=30` rebooted it automatically at 15:48:24, and the
+  card came back faulting (see the entry above).
 
 ### 2026-09-28 10:59:35: Xid 79 at 400 W and x16, then `sudo reboot` hung for 4 min (signatures 1+2)
 
