@@ -136,6 +136,24 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   under the clock lock, which argues against a GPU-boost-transient-only explanation and toward the open
   physical items (12V-2x6 connector, PSU cabling/capacity) - still *likely/unproven*.
 
+### 2026-09-29 13:16:55: instant power-off at 400 W with the 2400 MHz clock lock on (signature 4)
+
+- **Boot IDs:** `843e7fbc…` (11:49:09 → 13:16:55, uptime ~88 min) → `d08f865b…` from 13:18:26 (back 91 s later).
+- **Signature:** the journal ends mid-workload on a routine ollama line (`print_timing ... n_gen = 355,
+  tg = 117.57 t/s`). There is no panic line, no `mce:` line, and no Xid. kdump saved nothing: there is no
+  `/var/crash/2026092913*`. So the kernel never ran a panic path, which is signature 4, not signature 3.
+- **Load:** a steady ollama generation at ~118 tok/s. The previous request finished 13:16:46, 200 in 22.2 s.
+  The game servers were running.
+- **Mitigations in effect** (journal of `843e7fbc`, 11:49:16-17): the 400 W cap (`set to 400.00 W from
+  575.00 W`) and the clock lock (`GPU clocks set to "(gpuClkMin 210, gpuClkMax 2400)"`). Both were
+  re-applied on this boot. That boot logged 0 IOMMU faults.
+- **Pattern:** this is the host's fourth unplanned outage in about 21 h (09-28 15:48 MCE, 09-29 06:13 MCE,
+  09-29 11:26 MCE, now this power-off), and the first instant power-off since the cap went to 400 W (the
+  earlier two were at 575 W and 450 W). Neither the power cap nor the clock lock prevents either failure
+  mode. That leaves the open physical items as the likely causes (12V-2x6 connector, PSU cabling/wattage,
+  a UPS or meter with logging); this is **likely, unproven**.
+- **Response:** logged here from the journal (unprivileged; nothing needed root). No mitigation changed.
+
 ### 2026-09-29 11:26:35: kdump-captured panic (third in ~20 h, 400 W + 2400 MHz lock), a short wedged-card boot, then an orderly reboot at 11:48
 
 - **Boot IDs:** `8cd5be88…` (10:20:51 → 11:26:35, 66 min) ended abruptly mid-log (hlds lines at 11:26:35, no
