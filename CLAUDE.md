@@ -2176,7 +2176,12 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
   04/25/97 ROM only) — reports CMOS 2Dh bit 3 ("skip F1 message") as JSON
   (`applicable`, `state`, `skip_f1`, `checksum_valid`, `last_boot`); `apply`
   sets it now. The startup pass does the same on every agent start. Anywhere
-  else it answers `applicable: false` and touches no port.
+  else it answers `applicable: false` and touches no port. **1.92.0:** with
+  `HKLM\Software\RetroAgent\CmosIde2Type` set, the same one-write pass also
+  holds CMOS 1Bh (the secondary IDE master type) at that value
+  (`cmos_1b_before`/`_now`/`_want`), and after a start that had to restore it
+  - with the disk not running under Windows - reboots once (`CmosIde2Last`,
+  `CmosIde2Reboot`=0 to never reboot). Absent = 1Bh is never touched.
 - **DRIVERS [STATUS|PLAN|UPDATE ...]** — `STATUS`/`PLAN` (agent 1.88.0): every device's driver
   state as JSON; `UPDATE [missing|generic|all] [dry] [retry]` (1.89.0, XP): install from
   the store, never 3dfx. See "Keeping every other driver current". Any other argument is
@@ -2487,21 +2492,35 @@ secondary IDE channel is torn down (Problem 10). What brought the ST380013A
 online, and what to keep in mind - full detail in
 `scripts/fleet/win9x/README.md`:
 
-- **An ATA Host Protected Area makes the drive REPORT 8,191 cylinders**
-  (`idewrite9x hpa 5JVQM4FT 8256527`, persistent; undo with the native max
-  156301487). Cost: ~4.2 GB usable instead of 80. ROMPaq **SP15800** (586C,
-  06/01/99) fixes the translation itself (by ROM disassembly, not yet flashed);
-  after it, the HPA can be removed.
+- **2026-09-29: ALL 80 GB, natively under Windows (the user's choice).** The
+  HPA is gone (`idewrite9x hpa 5JVQM4FT 156301487` = the native max), CMOS
+  **1Bh = 00** so POST never types the drive, and Windows' ESDI_506 drives it
+  natively (`ESDI\GENERIC_IDE__DISK_TYPE00_`): **D:** = partition 1 (4.2 GB,
+  the DOS games, untouched) + **E:** = partition 2 (72 GB FAT32, 32 KB
+  clusters - 16 KB would pass Win98's 16 MB FAT limit - type **0Bh** with
+  1023/254/63 CHS placeholders, so a real-mode boot that finds a BIOS-typed
+  drive fails its reads cleanly). Built on the host with `mkfs.fat` and
+  written with `idewrite9x` in a boot where the channel was disabled; every
+  sector read back. **The price: MS-DOS mode and the boot menu no longer see
+  D:/E:** - DOS games there run from Windows. **After a power loss** the dead
+  battery resets 1Bh to auto (44h), POST types the drive with the broken
+  translation and Windows drops the channel: agent **1.92.0**
+  (`CmosIde2Type`=0 on this box) restores 1Bh in its POSTSKIP pass and warm-
+  reboots once (never twice within 20 min). The logon share mapping moved
+  from E: to **S:** (`MAPSHARE.BAT`). A new CMOS battery would make the
+  reboot unnecessary. (History: the HPA had capped the drive at 8,191
+  cylinders / 4.2 GB; ROMPaq SP15800 - not on the share - may fix the
+  translation itself, which would give real DOS the disk back.)
 - The volume is FAT32, 4 KB clusters, **partition type 0Bh** ending at
   cylinder 1021 - CHS FAT32, so a broken BIOS geometry makes DOS fail its read
   cleanly instead of entering the BIOS extended-read path that divides by the
   broken heads byte.
 - **A warm POST does not auto-type a drive; only a power-on does.** With CMOS
   1Bh=00 a warm reboot leaves the BIOS without unit 81h and Windows' ESDI_506
-  claims the disk natively (`ESDI\GENERIC_IDE__DISK_TYPE00_`) - D: in Windows,
-  **invisible to real DOS** (and so to DOSGAME) until a power-on auto-types it
-  from IDENTIFY. Whether that power-on gives a clean 1023/128/63 BIOS unit is
-  not yet observed.
+  claims the disk natively (`ESDI\GENERIC_IDE__DISK_TYPE00_`). **With 1Bh=44
+  and the HPA'd disk the BIOS STILL had no unit 81h** (2026-09-29: INT 13h
+  AH=08 for 81h failed after a power-on), so the "a power-on gives real DOS
+  the disk" hope was never true on this box.
 - The SB16's IDE interface (`ISAPNP\CTL0024_DEV0001`) wants exactly
   170h-177h/376h/IRQ15; it is disabled so it can never take the channel.
 - **NEVER run `ide9x`/`idewrite9x` once Windows owns the channel.** An

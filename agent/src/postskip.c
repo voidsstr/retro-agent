@@ -34,9 +34,21 @@
  * register (00h-09h) cannot be told from the ticking clock, and a legitimate
  * change that happens to equal one of our bytes would be "undone".
  *
+ * 1.92.0 - CMOS 1Bh, the secondary IDE master type, on request. .243's 80 GB
+ * disk runs natively under Windows' ESDI_506 only while POST leaves it alone
+ * (1Bh = 00); a power loss resets 1Bh to auto (44h), POST types the drive,
+ * the ROM's translation overflows to 256 heads and Windows drops the channel.
+ * With CmosIde2Type set, the same one-write pass puts 1Bh back, and when it had
+ * to - and the disk is not running natively - the agent reboots ONCE through
+ * the shell (never twice within 20 minutes), so the next POST leaves the disk
+ * to Windows. Nothing here runs without CmosIde2Type.
+ *
  * Registry (HKLM\Software\RetroAgent):
- *   PostSkip      REG_DWORD  0 = do not run at startup (POSTSKIP still reports)
- *   PostSkipBoot  REG_SZ     what the startup pass found and did
+ *   PostSkip        REG_DWORD  0 = do not run at startup (POSTSKIP still reports)
+ *   PostSkipBoot    REG_SZ     what the startup pass found and did
+ *   CmosIde2Type    REG_DWORD  what CMOS 1Bh must hold (0 on .243); absent = never touched
+ *   CmosIde2Reboot  REG_DWORD  0 = restore 1Bh but never reboot for it
+ *   CmosIde2Last    REG_DWORD  when the agent last rebooted for it (time())
  * Command: POSTSKIP [apply] - the live state as JSON (and set it now).
  */
 
@@ -47,13 +59,68 @@
 #include "../shared/postskip.h"
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #define LOG_PS "POSTSKIP"
+#define PS_IDE2_REBOOT_GAP_S 1200L  /* never reboot for 1Bh twice within 20 min */
 
 typedef struct {
     int applicable;
+    int ide2_want;                  /* -1 = CmosIde2Type absent: 1Bh never touched */
     ps_outcome_t o;
 } ps_result_t;
+
+static DWORD ps_reg_dword(const char *name, DWORD dflt, int *present)
+{
+    HKEY h;
+    DWORD v = dflt, sz = sizeof(v), type = 0;
+    if (present) *present = 0;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, KEY_READ, &h) != ERROR_SUCCESS)
+        return dflt;
+    if (RegQueryValueExA(h, name, NULL, &type, (LPBYTE)&v, &sz) != ERROR_SUCCESS || type != REG_DWORD)
+        v = dflt;
+    else if (present)
+        *present = 1;
+    RegCloseKey(h);
+    return v;
+}
+
+static int ps_ide2_want(void)
+{
+    int present;
+    DWORD v = ps_reg_dword("CmosIde2Type", 0, &present);
+    return present && v <= 0xFF ? (int)v : -1;
+}
+
+/* Is a disk on the secondary channel running under Windows right now - an ESDI
+ * devnode on &CHILD0001& with no problem? (What a BIOS-typed 80 GB disk takes
+ * away: ESDI_506's BIOS verify read fails and the channel is torn down.) */
+static int ps_ide2_disk_native(void)
+{
+    HKEY root, k;
+    char name[64], hw[256];
+    DWORD i, n, t, sz, problem;
+    int ok = 0;
+    if (RegOpenKeyExA(HKEY_DYN_DATA, "Config Manager\\Enum", 0, KEY_READ, &root) != ERROR_SUCCESS)
+        return 0;
+    for (i = 0; !ok; i++) {
+        n = sizeof(name);
+        if (RegEnumKeyExA(root, i, name, &n, NULL, NULL, NULL, NULL) != ERROR_SUCCESS) break;
+        if (RegOpenKeyExA(root, name, 0, KEY_READ, &k) != ERROR_SUCCESS) continue;
+        memset(hw, 0, sizeof(hw));
+        sz = sizeof(hw) - 1;
+        if (RegQueryValueExA(k, "HardWareKey", NULL, &t, (BYTE *)hw, &sz) == ERROR_SUCCESS
+                && _strnicmp(hw, "ESDI\\", 5) == 0 && strstr(hw, "&CHILD0001&")) {
+            problem = 0xFFFFFFFFUL;
+            sz = sizeof(problem);
+            RegQueryValueExA(k, "Problem", NULL, &t, (BYTE *)&problem, &sz);
+            ok = problem == 0;
+        }
+        RegCloseKey(k);
+    }
+    RegCloseKey(root);
+    return ok;
+}
 
 #define PS_CLOCK_WAIT_MS 1200000    /* clockfix worst case: 12 x (connect timeout + 10 s gap) */
 #define PS_BUSY_WAIT_MS  60000      /* a POSTSKIP command holds the CMOS for seconds at most */
@@ -102,11 +169,13 @@ static void ps_run(ps_result_t *r, int apply)
     static const ps_io_t io = { ps_io_inb, ps_io_outb, ps_io_sleep, NULL };
     const char *why;
     memset(r, 0, sizeof(*r));
-    r->o.before_2d = r->o.now_2d = r->o.before_0e = r->o.now_0e = -1;
+    r->o.before_2d = r->o.now_2d = r->o.before_0e = r->o.now_0e = r->o.before_1b = r->o.now_1b = -1;
     r->o.failed = 1;
+    r->ide2_want = -1;
     if (!ps_applicable(&why)) { r->o.state = why; return; }
     r->applicable = 1;
-    ps_cmos_run(&io, apply, &r->o);
+    r->ide2_want = ps_ide2_want();
+    ps_cmos_run2(&io, apply, r->ide2_want, &r->o);
 }
 
 static void ps_summary(const ps_result_t *r, char *out, int cch)
@@ -121,6 +190,20 @@ static void ps_summary(const ps_result_t *r, char *out, int cch)
               o->strays_undone ? "; stray bytes undone" : "",
               o->changed[0] ? "; changed: " : "", o->changed);
     out[cch - 1] = 0;
+    if (r->ide2_want >= 0) {
+        size_t len = strlen(out);
+        _snprintf(out + len, cch - 1 - len, "; 1Bh %s%02X -> %s%02X (want %02X)",
+                  o->before_1b < 0 ? "?" : "", o->before_1b < 0 ? 0 : o->before_1b,
+                  o->now_1b < 0 ? "?" : "", o->now_1b < 0 ? 0 : o->now_1b, r->ide2_want);
+        out[cch - 1] = 0;
+    }
+}
+
+/* Did this run put 1Bh back to what CmosIde2Type asks for - verified? */
+static int ps_ide2_fixed(const ps_result_t *r)
+{
+    return r->applicable && r->ide2_want >= 0 && !r->o.failed && r->o.before_1b >= 0
+        && r->o.before_1b != r->ide2_want && r->o.now_1b == r->ide2_want;
 }
 
 static void ps_store_boot(const char *s)
@@ -210,6 +293,35 @@ DWORD WINAPI postskip_thread(LPVOID param)
     ps_run(&r, 1);
     InterlockedExchange((LONG *)&g_ps_busy, 0);
     ps_summary(&r, summary, sizeof(summary));
+    if (ps_ide2_fixed(&r)) {
+        /* The POST that just ran typed the secondary disk. */
+        int native = ps_ide2_disk_native(), want_reboot = ps_reg_dword("CmosIde2Reboot", 1, NULL) != 0;
+        DWORD last = ps_reg_dword("CmosIde2Last", 0, NULL), now = (DWORD)time(NULL);
+        long since = last ? (long)(now - last) : -1;
+        size_t len = strlen(summary);
+        if (want_reboot && ps_ide2_should_reboot(1, native, since, PS_IDE2_REBOOT_GAP_S)) {
+            HKEY h;
+            _snprintf(summary + len, sizeof(summary) - 1 - len,
+                      "; secondary disk NOT running under Windows - REBOOTING once so POST leaves it alone");
+            summary[sizeof(summary) - 1] = 0;
+            log_msg(LOG_PS, "%s", summary);
+            ps_store_boot(summary);
+            if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, "Software\\RetroAgent", 0, NULL, 0, KEY_WRITE, NULL, &h, NULL)
+                    == ERROR_SUCCESS) {
+                RegSetValueExA(h, "CmosIde2Last", 0, REG_DWORD, (const BYTE *)&now, sizeof(now));
+                RegFlushKey(h);                 /* Win9x writes the registry lazily */
+                RegCloseKey(h);
+            }
+            log_flush();
+            agent_self_reboot_9x("POSTSKIP 1Bh");
+            return 0;
+        }
+        _snprintf(summary + len, sizeof(summary) - 1 - len, "; %s",
+                  native ? "the disk is running under Windows anyway - no reboot"
+                  : !want_reboot ? "NOT rebooting (CmosIde2Reboot=0) - D:/E: return at the next reboot"
+                  : "NOT rebooting: the agent already rebooted for 1Bh less than 20 minutes ago - does the CMOS keep 1Bh?");
+        summary[sizeof(summary) - 1] = 0;
+    }
     log_msg(LOG_PS, "%s", summary);
     ps_store_boot(summary);
     return 0;
@@ -225,8 +337,9 @@ void handle_postskip(SOCKET sock, const char *args)
     int apply = args && _stricmp(args, "apply") == 0;
 
     memset(&r, 0, sizeof(r));
-    r.o.before_2d = r.o.now_2d = r.o.before_0e = r.o.now_0e = -1;
+    r.o.before_2d = r.o.now_2d = r.o.before_0e = r.o.now_0e = r.o.before_1b = r.o.now_1b = -1;
     r.o.failed = 1;
+    r.ide2_want = -1;
     if (!ps_applicable(&why)) {
         r.o.state = why;                        /* applicable:false - no port touched */
     } else if (!clockfix_finished()) {
@@ -252,6 +365,9 @@ void handle_postskip(SOCKET sock, const char *args)
     json_kv_bool(&j, "checksum_valid", r.o.now_2d >= 0 && r.o.cs_now);
     json_kv_int(&j, "cmos_0e_now", r.o.now_0e);
     json_kv_bool(&j, "time_invalid_flag", r.o.now_0e >= 0 && (r.o.now_0e & PS_DIAG_TIME_BAD) != 0);
+    json_kv_int(&j, "cmos_1b_before", r.o.before_1b);
+    json_kv_int(&j, "cmos_1b_now", r.o.now_1b);
+    json_kv_int(&j, "cmos_1b_want", r.ide2_want);
     json_kv_int(&j, "write_attempts", r.o.attempts);
     json_kv_int(&j, "strays_undone", r.o.strays_undone);
     json_kv_str(&j, "registers_changed", r.o.changed);

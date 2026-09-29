@@ -132,6 +132,15 @@ static ps_outcome_t sim_run(sim_t *m, int apply)
     return o;
 }
 
+static ps_outcome_t sim_run2(sim_t *m, int apply, int ide2_want)
+{
+    ps_io_t io;
+    ps_outcome_t o;
+    io.inb = sim_inb; io.outb = sim_outb; io.sleep_ms = sim_sleep; io.ctx = m;
+    ps_cmos_run2(&io, apply, ide2_want, &o);
+    return o;
+}
+
 static int only_ours_changed(const sim_t *m, const unsigned char *orig)
 {
     int i;
@@ -296,6 +305,36 @@ static void loop_tests(void)
     o = sim_run(&m, 1);
     CHECK(o.failed && o.attempts == 1 && restored(&m, orig) && ps_cs_valid(m.reg),
           "sim: a dead 2Dh cell -> restored (checksum valid, no 162), reported, not retried");
+
+    /* 1.92.0: CMOS 1Bh on request. .243 after a power loss: POST's defaults
+     * put 2Dh=00 and 1Bh=44 (auto) back - the test bank IS that state. */
+    sim_init(&m); memcpy(orig, m.reg, 128);
+    o = sim_run2(&m, 1, 0x00);
+    CHECK(!o.failed && m.reg[0x1B] == 0x00 && m.reg[0x2D] == 0x08 && m.reg[0x2E] == 0x03 && m.reg[0x2F] == 0xF8
+          && ps_cs_valid(m.reg), "sim 1Bh: 1Bh=44 + 2Dh=00 -> ONE write pass: 1Bh=00, 2Dh=08, checksum 03F8h (what cmosw9x none left on .243)");
+    CHECK(only_ours_changed(&m, orig) && m.data_writes == 4 && m.writes_to[0x1B] == 1,
+          "sim 1Bh: 1Bh/2Dh/2Eh/2Fh written once each, nothing else touched");
+    CHECK(o.before_1b == 0x44 && o.now_1b == 0x00, "sim 1Bh: the outcome reports 1Bh before and after");
+    m.data_writes = 0;
+    o = sim_run2(&m, 1, 0x00);
+    CHECK(strcmp(o.state, "already set") == 0 && m.data_writes == 0, "sim 1Bh: a second start finds nothing to do");
+
+    sim_init(&m); memcpy(orig, m.reg, 128);
+    o = sim_run(&m, 1);
+    CHECK(!o.failed && m.reg[0x1B] == 0x44 && m.writes_to[0x1B] == 0,
+          "sim 1Bh: WITHOUT CmosIde2Type (ide2_want -1) 1Bh stays 44h, never written");
+
+    sim_init(&m); m.reg[0x2D] = 0x08; m.reg[0x2F] = 0x3C; memcpy(orig, m.reg, 128);
+    o = sim_run2(&m, 1, 0x00);
+    CHECK(!o.failed && m.reg[0x1B] == 0x00 && m.reg[0x2D] == 0x08 && ps_cs_valid(m.reg) && m.writes_to[0x2D] == 0,
+          "sim 1Bh: skip-F1 already set - 1Bh alone is still worth a run (2Dh not rewritten)");
+
+    /* The first data write (1Bh's 00h) loses its index into 0Bh. */
+    sim_init(&m); memcpy(orig, m.reg, 128); sim_lose(&m, 1, 0x0B);
+    o = sim_run2(&m, 1, 0x00);
+    CHECK(o.failed && restored(&m, orig) && ps_cs_valid(m.reg),
+          "sim 1Bh: our 00h lost into 0Bh -> taken back out, bank = snapshot (1Bh 44h, checksum valid), reported");
+    CHECK(o.now_1b == 0x44, "sim 1Bh: ... and the report says 1Bh is still 44h");
 }
 
 int main(void)
@@ -360,8 +399,33 @@ int main(void)
     CHECK(ps_bank_sane(cmos), "the box's own bank reports 640 KB base memory");
 
     for (i = 0, only_three = 0; i < 128; i++) only_three += ps_writable(i);
-    CHECK(only_three == 4 && ps_writable(0x0E) && ps_writable(0x2D) && ps_writable(0x2E) && ps_writable(0x2F),
-          "only 0Eh/2Dh/2Eh/2Fh are writable (1.86.1 adds 0Eh)");
+    CHECK(only_three == 5 && ps_writable(0x0E) && ps_writable(0x1B) && ps_writable(0x2D) && ps_writable(0x2E)
+          && ps_writable(0x2F), "only 0Eh/1Bh/2Dh/2Eh/2Fh are writable (1.86.1 adds 0Eh, 1.92.0 1Bh)");
+
+    /* 1.92.0: 1Bh moves ONLY when a plan is asked for it (CmosIde2Type). */
+    build_cmos();                                              /* 1Bh=44, 2Dh=00, 0434h */
+    p = ps_plan2(cmos, want, -1);
+    CHECK(p == PS_APPLY && want[0x1B] == 0x44 && want[0x2D] == 0x08,
+          "no CmosIde2Type: the plan keeps 1Bh (44h) exactly as it was");
+    p = ps_plan2(cmos, want, 0x00);
+    CHECK(p == PS_APPLY && want[0x1B] == 0x00 && want[0x2D] == 0x08 && want[0x2E] == 0x03 && want[0x2F] == 0xF8
+          && ps_cs_valid(want), "CmosIde2Type=0 after a power loss: 1Bh 44h->00h and 2Dh in one plan, checksum 03F8h");
+    for (i = 0, only_three = 1; i < 128; i++)
+        if (i != 0x1B && i != 0x2D && i != 0x2E && i != 0x2F && want[i] != cmos[i]) only_three = 0;
+    CHECK(only_three, "... and it changes nothing but 1Bh/2Dh/2Eh/2Fh");
+    build_cmos(); cmos[0x1B] = 0x00; cmos[0x2D] = 0x08; cmos[0x2E] = 0x03; cmos[0x2F] = 0xF8;
+    memset(want, 0xAA, sizeof(want));
+    CHECK(ps_plan2(cmos, want, 0x00) == PS_ALREADY && want[0] == 0xAA, "1Bh already 00h and the bit set: nothing to do");
+    build_cmos(); cmos[0x2F] ^= 1;
+    CHECK(ps_plan2(cmos, want, 0x00) == PS_BAD_CHECKSUM, "a bad checksum refuses the 1Bh plan too");
+    build_cmos();
+    CHECK(ps_plan2(cmos, want, 0x100) == PS_APPLY && want[0x1B] == 0x44, "an out-of-range CmosIde2Type is ignored");
+
+    CHECK(ps_ide2_should_reboot(1, 0, -1, 1200), "1Bh fixed, disk not native, never rebooted for it: reboot once");
+    CHECK(!ps_ide2_should_reboot(0, 0, -1, 1200), "1Bh not changed: no reboot");
+    CHECK(!ps_ide2_should_reboot(1, 1, -1, 1200), "the disk is running under Windows anyway: no reboot");
+    CHECK(!ps_ide2_should_reboot(1, 0, 300, 1200), "rebooted for it 5 minutes ago: no second reboot (no loop)");
+    CHECK(ps_ide2_should_reboot(1, 0, 7200, 1200), "rebooted for it 2 hours ago (another power loss): reboot again");
 
     /* 1.86.1: 0Eh bit 2 ("time invalid", POST 163). POST sets it when its RTC
      * check fails and never clears it, so every later POST stops at 163 and
@@ -392,7 +456,8 @@ int main(void)
     CHECK(!ps_rtc_time_valid(cmos), "binary mode (0Bh bit 2) is not judged");
     build_cmos(); cmos[0x0E] = 0x04; cmos[0x0B] = 0x00;
     CHECK(!ps_rtc_time_valid(cmos), "12-hour mode is not judged");
-    CHECK(!ps_writable(0x1B), "1Bh (the secondary drive type) is never written by the agent");
+    CHECK(ps_writable(0x1B) && ps_plan(cmos, want) != PS_BAD_CHECKSUM,
+          "1Bh is writable since 1.92.0 - but ps_plan() (no CmosIde2Type) never moves it (see above)");
     CHECK(!ps_writable(0x0B) && !ps_writable(0x0A), "the RTC control registers are never written");
 
     CHECK(ps_volatile_reg(0x00) && ps_volatile_reg(0x09) && ps_volatile_reg(0x0C) && ps_volatile_reg(0x0D),
@@ -429,6 +494,6 @@ int main(void)
         CHECK(out[0] == 0, "UIP alone is not a change");
     }
 
-    printf("-- postskip (Compaq Deskpro 2000 skip-F1 + 163 flag, agent 1.86.1): %d/%d tests passed --\n", runs - fails, runs);
+    printf("-- postskip (Compaq Deskpro 2000 skip-F1 + 163 flag + 1Bh, agent 1.92.0): %d/%d tests passed --\n", runs - fails, runs);
     return fails ? 1 : 0;
 }

@@ -70,10 +70,10 @@ def test_port_io_is_paced_and_leaves_the_index_at_0d():
 
 
 def test_one_write_per_run_planned_from_a_stable_read():
-    run = body(HCODE, "static void ps_cmos_run")
+    run = body(HCODE, "static void ps_cmos_run2")
     first_write = run.index("ps_put(io, &wl, &wl, i, want[i], before, before)")
     order = [run.index("ps_read_stable(io, before)"),
-             run.index("switch (ps_plan(before, want))"),
+             run.index("switch (ps_plan2(before, want, ide2_want))"),
              first_write]
     assert order == sorted(order), order
     for case in ("case PS_NOT_CMOS:", "case PS_BAD_CHECKSUM:", "case PS_ALREADY:"):
@@ -97,7 +97,8 @@ def test_the_win32_half_guards_before_the_loop():
              app.index("ps_rom_matches((const unsigned char *)0xF0000")]
     assert order == sorted(order), order
     run = body(CODE, "static void ps_run")
-    assert run.index("if (!ps_applicable(&why))") < run.index("ps_cmos_run(&io, apply, &r->o)")
+    assert run.index("if (!ps_applicable(&why))") < run.index("ps_ide2_want()") \
+        < run.index("ps_cmos_run2(&io, apply, r->ide2_want, &r->o)")
 
 
 def test_startup_thread_is_win9x_only_never_races_clockfix_and_has_an_off_switch():
@@ -161,3 +162,30 @@ def test_wired_into_the_agent():
     handlers = (ROOT / "agent" / "src" / "handlers.c").read_text()
     assert re.search(r'\{\s*"POSTSKIP",\s*1,\s*NULL,\s*handle_postskip,\s*0\s*\}', handlers)
     assert "$(SRCDIR)/postskip.c" in (ROOT / "agent" / "Makefile").read_text()
+
+
+def test_1bh_is_moved_only_on_request_and_its_reboot_is_guarded():
+    """1.92.0: .243's 80 GB disk runs natively only while POST leaves it alone
+    (CMOS 1Bh = 00). The agent restores 1Bh after a power loss ONLY when
+    CmosIde2Type asks, and reboots once - never twice within 20 minutes, never
+    when the disk is running anyway - so a CMOS that will not keep 1Bh cannot
+    become a reboot loop."""
+    want = body(CODE, "static int ps_ide2_want")
+    assert '"CmosIde2Type"' in want and "present && v <= 0xFF ? (int)v : -1" in want
+    plan = body(HCODE, "static enum ps_plan ps_plan2")
+    assert "ide2_want >= 0 && ide2_want <= 0xFF" in plan
+    th = body(CODE, "DWORD WINAPI postskip_thread")
+    fix = th.index("if (ps_ide2_fixed(&r))")
+    seg = th[fix:]
+    assert seg.index("ps_ide2_disk_native()") < seg.index("ps_ide2_should_reboot(1, native, since, PS_IDE2_REBOOT_GAP_S)")
+    # the guard is recorded AND flushed (Win9x writes its registry lazily) before the reboot
+    assert seg.index('"CmosIde2Last"') < seg.index("RegFlushKey(h)") < seg.index("agent_self_reboot_9x(")
+    assert '"CmosIde2Reboot"' in seg
+    rule = body(HCODE, "static int ps_ide2_should_reboot")
+    assert "if (!ide2_fixed || disk_native_ok) return 0;" in rule
+    assert "secs_since_last >= 0 && secs_since_last < min_gap_s" in rule
+    fixed = body(CODE, "static int ps_ide2_fixed")
+    assert "!r->o.failed" in fixed and "r->o.now_1b == r->ide2_want" in fixed
+    h = (ROOT / "agent" / "src" / "handlers.c").read_text()
+    sr = body(h, "void agent_self_reboot_9x")
+    assert "if (is_win9x())" in sr and "INVALID_SOCKET" in sr

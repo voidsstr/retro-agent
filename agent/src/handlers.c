@@ -323,7 +323,7 @@ static void do_system_power_9x(SOCKET sock, const char *label, UINT ewx_flags)
     DWORD tid;
 
     if (g_9x_power_started) {
-        send_text_response(sock, "OK (a power operation is already in flight)");
+        if (sock != INVALID_SOCKET) send_text_response(sock, "OK (a power operation is already in flight)");
         log_msg(LOG_MAIN, "%s: ignored - one is already in flight", label);
         return;
     }
@@ -344,11 +344,11 @@ static void do_system_power_9x(SOCKET sock, const char *label, UINT ewx_flags)
         msg[sizeof(msg) - 1] = '\0';
         log_msg(LOG_MAIN, "%s", msg);
         log_flush();
-        send_text_response(sock, msg);
+        if (sock != INVALID_SOCKET) send_text_response(sock, msg);
         return;
     }
 
-    send_text_response(sock, "OK");
+    if (sock != INVALID_SOCKET) send_text_response(sock, "OK");
     log_msg(LOG_MAIN, "%s: initiating via \"%s\" (pid %lu); Windows will close "
             "this agent like any console app", label, cmd,
             (unsigned long)pi.dwProcessId);
@@ -604,4 +604,13 @@ void handle_shutdown(SOCKET sock)
 void handle_reboot(SOCKET sock)
 {
     do_system_power(sock, "REBOOT", EWX_REBOOT | EWX_FORCE);
+}
+
+/* A reboot the agent decides on by itself - no client asked, nobody to answer
+ * (1.92.0: POSTSKIP after putting CMOS 1Bh back). Win9x only, through the same
+ * shell route REBOOT uses; a no-op anywhere else. */
+void agent_self_reboot_9x(const char *label)
+{
+    if (is_win9x())
+        do_system_power_9x(INVALID_SOCKET, label, EWX_REBOOT | EWX_FORCE);
 }

@@ -134,6 +134,33 @@ read above head 0 fails - which also makes ESDI_506 tear down the channel.
    Both tools now refuse (exit 7) when the live devnode tree shows the channel
    or a disk on it.
 
+## .243's 80 GB for Windows (2026-09-29): HPA removed, a second partition, CMOS 1Bh=00
+
+The operator chose all 80 GB for Windows over real-DOS access to the disk.
+The sequence, every step read back:
+
+1. `cmosw9x none` (1Bh 44h -> 00h, checksum 043Ch -> 03F8h) and
+   `devctl9x persistoff @IDE2IDS.TXT` (MF\CHILD0001 ConfigFlags 01), then a
+   warm reboot: the channel came up disabled (problem 22) and D: was gone.
+2. `ide9x identify` (8,256,528 sectors - the HPA) and `ide9x read m 0 1`: the
+   MBR equal to the 09-27 `MBR0B.BIN`; kept in `~/.retro-fleet/bench243/`.
+3. `idewrite9x hpa 5JVQM4FT 156301487` - the native max: 156,301,488 sectors.
+4. Partition 2's FAT32 built on the host: `mkfs.fat -a -F 32 -s 64 -S 512 -R 32
+   -f 2 -h 8241408 -g 255/63 -M 0xF8 -D 0x80 -n GAMES` on a sparse image of
+   148,060,080 sectors, OEM ID patched to MSWIN4.1, `fsck.fat` clean. Only
+   7 sectors are non-zero (0, 1, 6, 7, 32, 18102, 36172): `idewrite9x zero` of
+   the 36,236-sector metadata region (5 s) and 7 `put`s, each read back equal.
+5. MBR entry 2: type 0Bh, LBA 8,241,408, 148,060,080 sectors, CHS fields
+   1023/254/63 (a BIOS-typed drive then fails the read cleanly in real mode;
+   Windows uses the LBA fields). Written, read back, `flush`.
+6. `devctl9x persiston`, warm reboot: `ESDI\GENERIC_IDE__DISK_TYPE00_` problem 0,
+   D: 4,016 MB (the DOS games intact) and E: 72,277 MB; a 1 MB write/read on
+   E: byte-identical.
+
+After a power loss POST resets 1Bh to auto and the channel drops; agent 1.92.0
+(`CmosIde2Type`=0) puts 1Bh back and reboots once. The HPA can be put back
+with `idewrite9x hpa 5JVQM4FT 8256527` (needs the same disabled-channel boot).
+
 ## A USB mouse on .243 (2026-09-28): connected, never enabled - restart the controller
 
 The VIA VT83C572 card's root hub read problem 0 and **nothing** appeared below it

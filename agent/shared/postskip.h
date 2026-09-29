@@ -32,6 +32,15 @@
 #define PS_REG_CSLO   0x2F
 #define PS_SKIP_F1    0x08
 #define PS_REG_DIAG   0x0E                  /* diagnostic status byte - NOT checksummed */
+/* 1.92.0: the secondary IDE master's drive type, inside the checksum. With
+ * .243's 80 GB disk the ROM's own translation overflows to 256 heads the
+ * moment POST types the drive, and Windows then tears down the whole channel;
+ * with 1Bh = 00 POST leaves the disk alone and Windows' ESDI_506 drives all
+ * 80 GB natively. A power loss on the dead battery resets it to auto (44h).
+ * Changed ONLY when HKLM\Software\RetroAgent\CmosIde2Type says what it must
+ * be (ide2_want >= 0) - every other box, and this one without the value,
+ * keeps its 1Bh exactly as it was. */
+#define PS_REG_IDE2   0x1B
 #define PS_DIAG_TIME_BAD 0x04               /* "time/date invalid": POST 163 */
 
 /* The ROM this applies to, as offsets in the 64 KB F000 segment. */
@@ -112,26 +121,49 @@ static int ps_diag_clearable(const unsigned char *cmos)
 }
 
 /* Decide, and when the answer is PS_APPLY fill `want` with the whole intended
- * bank: 2Dh with bit 3 set and the checksum recomputed from the LIVE bytes,
- * and/or 0Eh without bit 2 (outside the checksum). */
-static enum ps_plan ps_plan(const unsigned char *cmos, unsigned char *want)
+ * bank: 2Dh with bit 3 set and/or 1Bh = ide2_want (when >= 0), the checksum
+ * recomputed from the LIVE bytes, and/or 0Eh without bit 2 (outside the
+ * checksum). */
+static enum ps_plan ps_plan2(const unsigned char *cmos, unsigned char *want, int ide2_want)
 {
     unsigned cs;
-    int skip, diag;
+    int skip, diag, ide;
     if (!ps_bank_sane(cmos)) return PS_NOT_CMOS;
     if (!ps_cs_valid(cmos)) return PS_BAD_CHECKSUM;
     skip = !(cmos[PS_REG_FLAGS] & PS_SKIP_F1);
     diag = ps_diag_clearable(cmos);
-    if (!skip && !diag) return PS_ALREADY;
+    ide = ide2_want >= 0 && ide2_want <= 0xFF && cmos[PS_REG_IDE2] != (unsigned char)ide2_want;
+    if (!skip && !diag && !ide) return PS_ALREADY;
     memcpy(want, cmos, 128);
-    if (skip) {
-        want[PS_REG_FLAGS] = (unsigned char)(cmos[PS_REG_FLAGS] | PS_SKIP_F1);
+    if (skip) want[PS_REG_FLAGS] = (unsigned char)(cmos[PS_REG_FLAGS] | PS_SKIP_F1);
+    if (ide) want[PS_REG_IDE2] = (unsigned char)ide2_want;
+    if (skip || ide) {
         cs = ps_sum10_2d(want);
         want[PS_REG_CSHI] = (unsigned char)(cs >> 8);
         want[PS_REG_CSLO] = (unsigned char)(cs & 0xFF);
     }
     if (diag) want[PS_REG_DIAG] = (unsigned char)(cmos[PS_REG_DIAG] & ~PS_DIAG_TIME_BAD);
     return PS_APPLY;
+}
+
+#if defined(__GNUC__)
+__attribute__((unused))
+#endif
+static enum ps_plan ps_plan(const unsigned char *cmos, unsigned char *want)
+{
+    return ps_plan2(cmos, want, -1);
+}
+
+/* After a start that had to put 1Bh back, reboot once - the POST that just
+ * ran typed the drive, so Windows has probably dropped the channel - unless
+ * the disk is running natively anyway, and never twice within min_gap_s
+ * (secs_since_last < 0 = never): a CMOS that will not keep 1Bh must not turn
+ * into a reboot loop. */
+static int ps_ide2_should_reboot(int ide2_fixed, int disk_native_ok, long secs_since_last, long min_gap_s)
+{
+    if (!ide2_fixed || disk_native_ok) return 0;
+    if (secs_since_last >= 0 && secs_since_last < min_gap_s) return 0;
+    return 1;
 }
 
 /* Registers a comparison must ignore: the running clock and the RTC's
@@ -158,18 +190,23 @@ static int ps_diff(const unsigned char *got, const unsigned char *expect)
     return n;
 }
 
-/* The only registers the write path may change: 0Eh, 2Dh, 2Eh, 2Fh. */
-static const int ps_regs[4] = { PS_REG_DIAG, PS_REG_FLAGS, PS_REG_CSHI, PS_REG_CSLO };
+/* The only registers the write path may change: 0Eh, 1Bh, 2Dh, 2Eh, 2Fh.
+ * (1Bh only moves when a plan asked for it - otherwise want[1Bh] is its own
+ * snapshot value, and a byte of ours landing there is put back like any
+ * other difference in these registers.) */
+#define PS_NREGS 5
+static const int ps_regs[PS_NREGS] = { PS_REG_DIAG, PS_REG_IDE2, PS_REG_FLAGS, PS_REG_CSHI, PS_REG_CSLO };
 static int ps_writable(int idx)
 {
-    return idx == PS_REG_DIAG || idx == PS_REG_FLAGS || idx == PS_REG_CSHI || idx == PS_REG_CSLO;
+    return idx == PS_REG_DIAG || idx == PS_REG_IDE2 || idx == PS_REG_FLAGS || idx == PS_REG_CSHI
+        || idx == PS_REG_CSLO;
 }
 
 /* Do this code's registers of `got` equal `expect`'s? */
 static int ps_ours_equal(const unsigned char *got, const unsigned char *expect)
 {
     int k;
-    for (k = 0; k < 4; k++)
+    for (k = 0; k < PS_NREGS; k++)
         if (got[ps_regs[k]] != expect[ps_regs[k]]) return 0;
     return 1;
 }
@@ -227,6 +264,7 @@ typedef struct {
     char changed[100];              /* registers left different: "0Bh 02>34 ..." */
     int before_2d, now_2d;          /* -1 = not read / not verified */
     int before_0e, now_0e;          /* the diagnostic byte, same convention */
+    int before_1b, now_1b;          /* the secondary IDE master type, same convention */
     int cs_before, cs_now;          /* checksum valid: at the start / at the last VERIFIED read */
     int attempts;                   /* 0 or 1: writes are never retried within a run */
     int strays_undone;              /* our bytes taken back out of other registers */
@@ -320,21 +358,23 @@ static void ps_list_changes(const unsigned char *got, const unsigned char *ref, 
 
 static void ps_note_now(ps_outcome_t *r, const unsigned char *b)
 {
+    r->now_1b = b[PS_REG_IDE2];
     r->now_0e = b[PS_REG_DIAG];
     r->now_2d = b[PS_REG_FLAGS];
     r->cs_now = ps_cs_valid(b);
 }
 
-/* Read, decide and (apply=1) set the bit. The caller has already proven this
- * is Win9x on the Deskpro 2000 04/25/97 ROM, and that clockfix is finished. */
-static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
+/* Read, decide and (apply=1) set the bit - and 1Bh to ide2_want when that is
+ * >= 0. The caller has already proven this is Win9x on the Deskpro 2000
+ * 04/25/97 ROM, and that clockfix is finished. */
+static void ps_cmos_run2(const ps_io_t *io, int apply, int ide2_want, ps_outcome_t *r)
 {
     unsigned char before[128], want[128], after[128];
     ps_wlog_t wl;
     int i, k, pass;
     memset(r, 0, sizeof(*r));
     memset(&wl, 0, sizeof(wl));
-    r->before_2d = r->now_2d = r->before_0e = r->now_0e = -1;
+    r->before_2d = r->now_2d = r->before_0e = r->now_0e = r->before_1b = r->now_1b = -1;
     r->failed = 1;
 
     if (!ps_read_stable(io, before)) {
@@ -344,9 +384,10 @@ static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
     }
     r->before_2d = before[PS_REG_FLAGS];
     r->before_0e = before[PS_REG_DIAG];
+    r->before_1b = before[PS_REG_IDE2];
     r->cs_before = ps_cs_valid(before);
     ps_note_now(r, before);
-    switch (ps_plan(before, want)) {
+    switch (ps_plan2(before, want, ide2_want)) {
     case PS_NOT_CMOS:
         r->state = "REFUSED: the CMOS bank does not look populated (base memory at 15h/16h is not 640 KB) - not writing";
         r->refused = 1;
@@ -372,14 +413,14 @@ static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
 
     /* The change: only the registers whose value actually changes. */
     r->attempts = 1;
-    for (k = 0; k < 4; k++) {
+    for (k = 0; k < PS_NREGS; k++) {
         i = ps_regs[k];
         if (want[i] != before[i]) ps_put(io, &wl, &wl, i, want[i], before, before);
     }
     ps_done(io);
 
     if (!ps_read_stable(io, after)) {
-        r->now_2d = r->now_0e = -1;
+        r->now_2d = r->now_0e = r->now_1b = -1;
         r->state = "NOT VERIFIED: CMOS reads disagree after the write - state unknown, do not reboot";
         return;
     }
@@ -407,7 +448,7 @@ static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
         }
         ps_done(io);
         if (!ps_read_stable(io, after)) {
-            r->now_2d = r->now_0e = -1;
+            r->now_2d = r->now_0e = r->now_1b = -1;
             r->state = "FAILED AND NOT VERIFIED: CMOS reads disagree after the restore - state unknown, do not reboot";
             return;
         }
@@ -422,6 +463,14 @@ static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
         return;
     }
     r->state = "FAILED: the write did not land cleanly - CMOS restored to the snapshot; the bit is NOT set";
+}
+
+#if defined(__GNUC__)
+__attribute__((unused))
+#endif
+static void ps_cmos_run(const ps_io_t *io, int apply, ps_outcome_t *r)
+{
+    ps_cmos_run2(io, apply, -1, r);
 }
 
 #endif

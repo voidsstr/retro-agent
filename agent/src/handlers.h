@@ -31,6 +31,7 @@ void handle_prockill(SOCKET sock, const char *args);
 void handle_quit(SOCKET sock);
 void handle_shutdown(SOCKET sock);
 void handle_reboot(SOCKET sock);
+void agent_self_reboot_9x(const char *label);
 void handle_netmap(SOCKET sock, const char *args);
 void handle_netunmap(SOCKET sock, const char *args);
 void handle_filecopy(SOCKET sock, const char *args);
