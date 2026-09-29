@@ -114,6 +114,7 @@ three). They exist for supervised runs on `.124`: arm one, run, disarm.
 | `GdiGamma` | at every mode change | **default ON (absent = 1; 0 = refuse).** GDI's `SetDeviceGammaRamp` reaches `DrvIcmSetDeviceGammaRamp` (`GCAPS2_CHANGEGAMMARAMP` at 16/24/32 bpp) and loads colour-table bank 0, which the desktop and a Glide game's overlay both read (`include/vcr_gamma.h`). Until 2026-09-28 win32k refused every ramp: Jedi Academy logged "SetDeviceGammaRamp failed." and the id Tech 3 family ran on software gamma with overbright forced to 0 - the dark picture. Verified on `.124`: `tools/gammaprobe.c` (identity, gamma 1.3 and a doubled overbright ramp accepted, each recorded as `gamma ramp loaded`), and Jedi Academy's own ramps land with no failure line. A mode set still reloads the identity table. `vcr_info.flags` 0x4000 (NO_GDIGAMMA) |
 | `DdHeapFloor` | at every mode change | the DirectDraw heap starts one page up instead of at video-memory offset 0 (`include/vcr_ddheap.h`). Offset 0 is what `HeapVidMemAllocAligned` answers for "no memory", so the first block of every heap is handed out at 0, read as a failure and lost until the next mode set - `ddlab vidmem` on `.124` made 120 of the 121 512 KB surfaces that fit, the one at 0 missing - and the D3D HAL's single-pass mipmap-chain allocator can get `DDERR_OUTOFVIDEOMEMORY` for it. The runtime's own second pass hides it from applications. Default OFF (unproven on silicon); with it on, `ddlab vidmem` on the same desktop should report 121, the lowest at +4 KB. `vcr_info.flags` 0x1000 |
 | `Accel2DLine` | at every mode change | **default ON since 2026-09-28.** Solid cosmetic COPYPEN horizontal/vertical lines (DrvLineTo, and DrvStrokePath paths made only of them) as engine rectangle fills of exactly GDI's pixels; slanted/styled/XOR stay GDI's. 0 bad on `.124` and the bed; on `.124` 200 px h-lines 287k -> 520k/s, v-lines 81k -> 100k/s, 200x150 outlines 38k -> 61k/s. `vcr_info.flags` 0x100 |
+| `CoreClock` | at every `IOCTL_VCR_CLOCK` SET/RESTORE | **a KILL switch, default ON (absent = 1; 0 = refuse), 2026-09-29.** It only permits an explicit request - the driver never writes the clock unasked, and nothing is persisted, so every boot is the VBIOS's clock. 0 answers `VCR_CLOCK_R_DISABLED`; a GET still reads every chip. See "The graphics clock, live" below |
 
 **Arm:** `REGWRITE HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag SliAA
 REG_DWORD 1`, then `REGREAD` it back (the agent answers OK to a malformed
@@ -151,6 +152,7 @@ GetScanLine never returns an unset line.
 |---|---|
 | `vcrctl.exe` (on the box) | `info` (also the display driver's exclusive owner, `exclusive_pid`), `log`, `mark`, `snapshot`, `reg`, `crtc`, `pci`, `bootok` on our driver; `modes`, `setmode`, `gdi`, `hwc`, `hwcregs`, `golden`, `restore`, `sliaa` on ANY driver; **`fbshot [path.bmp]`** (2026-09-28) writes the frame the video processor is SCANNING OUT, because a GDI screenshot of a fullscreen Glide/GL/D3D game on our driver photographs the old desktop memory instead. The desktop layer (verified: matches GDI), or - a fullscreen Glide game, desktop off - the OVERLAY: vidCurrOverlayStartAddr, tiled. **Above lfbMemoryConfig's tile begin page memBase1 is a linear APERTURE over the tiled memory, not raw memory**: Glide puts the begin page at its first colour buffer, lines 8 KB apart, and with cfgSliLfbCtrl READ_EN the chips answer their own SLI bands, so the whole 4-chip frame reads from the master (a buffer's aperture line is its chip-local line << log2(units), minihwc.c hwcBufferLfbAddr). Reading raw tile offsets through it was the first overlay build's column blocks. The start register is re-read each line (flips followed, counted); 8 bpp goes through the CLUT via the read-only kind (`ClutRead`), else the AllowPoke pokes; memBase1 is never read while multi-chip AA is live (the V5 6000 froze on an LFB read in cfg 3): on a multi-chip board the master's cfgSliLfbCtrl/cfgAALfbCtrl are read whatever the kernel's session count says, read AGAIN before line 0, at every flip and every 64 lines, and the read stops (`ok:false`, `stopped_at_line`) the moment an AA enable appears; raw reads under SLI (one chip's bands) are refused, and a frame with lines left black is `ok:false, partial:true` (integration review 2026-09-28). Decoding: `include/vcr_fbshot.h`, tests `tests/native/test_vcr_kmd_fbshot.c` (a model of the 4-chip aperture), `test_vcr_kmd_clutread.c` |
 | `vcrctl sliaa N SLI AA HIGH ANALOG [NLINES BPP TILEMARK COL DEPTHLO DEPTHHI] --i-am-at-the-box [--force-desktop-pll]` / `vcrctl sliaa off` | Glide's `HWCEXT_SLI_AA_REQUEST` as a kernel-only probe - no Glide open, no LFB. Sent as Glide sends it (GETDEVICECONFIG first, totalMemory in whole MB, tileMark = tileCmpMark), one paced switch in Glide's order: HWCSETEXCLUSIVE, then the request. Prints resStatus and, on our driver, `sli_result`/`sli_chips`/`clock_6k_hz`. Refused before anything is sent: any enable without `--i-am-at-the-box`, a shape with no video mux (the kernel's own `vcr_sli_combo_ok`), AA on a desktop not in 2x mode without `--force-desktop-pll`. An enable keeps exclusive, as Glide does, until `sliaa off` (Glide's disable, then HWCRLSEXCLUSIVE; it takes exclusive first, so it also clears a stale owner). With `Diag\SliAAVendorRecipe` on, pass the real tileMark or cfg 3/7/8 are refused (MEMINFO) |
+| `vcrctl clock [get \| set <MHz> \| restore]` | the graphics clock through `VCR_ESC_CLOCK` (2026-09-29): every chip's pllCtrl1 word and MHz, as the VBIOS left it and now; `set` moves the MASTER in <= 5 MHz steps (read back), `restore` ends on the VBIOS's own word. Exit 2 with the driver's `why` on any refusal. The 3dfx Control Panel's Clock tab (`scripts/3dfx/3dfxctl`) is the same escape with a keep-or-revert |
 | `tools/golden_capture.py` | register dumps from the vendor driver per mode (through its own HWCEXT mapping; with `--probe`, the VGA register file and PCI config of every chip) |
 | `tools/golden_compare.py` | our mode math (the driver's own `vcr_modes.c`, host-built) against a capture, register by register |
 | `tools/golden_timings.py` | timing-table rows decoded from a capture's CRTC - modes the monitor is known to accept |
@@ -211,6 +213,59 @@ reads `Services\3dfxvs\Device0\glide` when `Services\3dfxvs\Device0` exists,
 else `Services\banshee\Device0\glide`. Only the in-process `--cfg` env reaches
 it (unverified on the box; the same trap made every `sli_golden` capture run
 Glide's default).
+
+## The graphics clock, live (2026-09-29)
+
+The user asked for 3dfx clock settings that apply in real time. Nothing in the
+stack could move the clock before: Glide's `SSTH3_GRXCLOCK` path is compiled out
+of the Windows build (`minihwc.c`, `HWC_ACCESS_DDRAW`) and the kernel never wrote
+`pllCtrl1`. Now `IOCTL_VCR_CLOCK` / `VCR_ESC_CLOCK` (`include/vcr_ioctl.h`) read
+and set it live; `miniport/vcrmp_clock.c` `VcrCoreClock` is the hardware half and
+`include/vcr_clock.h` the rule, Win32-free (`tests/native/test_vcr_clock.c`).
+
+- **What is clocked.** A VSA-100 has three PLLs: `pllCtrl0` the pixel clock,
+  `pllCtrl1` the graphics core - and its SDRAM runs from it - and `pllCtrl2`.
+  Measured on `.124`, chip 0 as the VBIOS left it: `pllCtrl1` 0xE721 = N 231
+  M 8 K 1 = **166.8 MHz**, `pllCtrl0` 0x4005 = 157.5 MHz (1280x1024@85),
+  `pllCtrl2` 0xBF01 (691 MHz by the same formula - not a memory clock). ONE clock
+  moves core and memory together.
+- **Only the MASTER is written.** At boot chips 1-3 read their **reset word
+  0x0C01 (50.1 MHz) with reset DRAM timings** (dramInit0 0x58579d29 against the
+  master's 0x607eadf9, tmuGbeInit 0xffb against 0xff0) - nothing initializes a
+  slave until a game asks for SLI. Every SLI enable (`vcrmp_sli.c` `sli_enable` ->
+  `init_slave`, as the vendor's `InitializeSlaveChipsInitRegs` and Glide's
+  `initSlave` do) copies the master's `pllCtrl1` and DRAM timings into every
+  slave, so the next game start carries a new clock to all four chips. The first
+  build wrote all four, which would have jumped an uninitialized slave's PLL from
+  50 to ~162 MHz for nothing.
+- **Never under a running game.** The display driver turns a SET/RESTORE into a
+  GET and answers `VCR_CLOCK_R_EXCLUSIVE` while a Glide program holds the board
+  (`exclusive_pid`) - every 2D path already stands back then - so no chip ever
+  renders at a clock the others do not have.
+- **The rule.** K = 1 (VCO = 2f, the vendor table's 100-440 MHz VCO), M 1..10,
+  N+2 <= 257, the lowest error; **120-219 MHz, refused outside, never clamped**
+  (219 is the vendor's own "< 220"; the floor keeps well inside the refresh count
+  0x18 the vendor ran from Banshee's 100 MHz to the Voodoo3 3500's 183 MHz).
+- **How it moves.** In steps of at most 5 MHz. Each step waits (PASSIVE_LEVEL)
+  until every chip reads idle three times, raises to DISPATCH_LEVEL for a last
+  idle check and the write (`KfRaiseIrql`/`KfLowerIrql`, HAL - on a 1-CPU box no
+  thread runs in between), gives the PLL 1 ms and reads the word back; anything
+  unexpected stops the ramp there and says which `VCR_CLOCK_R_*`. RESTORE ends on
+  the VBIOS's exact word, captured in `FindAdapter` after `VcrMultiInit` and
+  never after our own first write (`core_changed`). Every step is recorder event
+  704 `VCR_EV_CORE_CLOCK`.
+- **Nothing persisted by the driver** - a reboot is always the VBIOS's clock. The
+  3dfx Control Panel's "use this clock again after Windows restarts" re-applies
+  one at logon, ONLY after a clean shutdown (Windows' `ShutdownTime` stamp must
+  have moved since it was set; `scripts/3dfx/3dfxctl/DEPLOY.md`).
+- **Verified on `.124` (2026-09-29):** 166.8 -> 150 MHz in 4 steps, 0 idle
+  retries, master 0xF929 = 149.7 MHz read back, the desktop drawn normally at 150;
+  RESTORE -> 0xE721 exactly; through the panel 175.0 MHz (0xDA1D) kept, and not
+  kept -> put back by its countdown. Evidence `evidence/2026-09-29-clock-live/`,
+  the panel's in `scripts/3dfx/3dfxctl/evidence/20260929/`. **Not yet measured:**
+  a Glide fill rate at two clocks (the proof the core really runs slower/faster,
+  not only the word).
+- Tests: `tests/native/test_vcr_clock.c`, `tests/python/test_vcr_kmd_core_clock.py`.
 
 ## Status (2026-09-27)
 

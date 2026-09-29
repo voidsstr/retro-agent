@@ -5,17 +5,20 @@ it, writes only values that stack reads, and applies them **without a reboot**.
 
 | lane | detected by | writes |
 |---|---|---|
-| **our stack** (clean-room: `vcr-kmd` kernel pair + our h5 Glide + our MesaFX ICD) — the V5 6000 in `.124` | the display driver answers `VCR_ESC_INFO` (`include/vcr_ioctl.h`) | the Glide registry key, the user environment, 4 kernel `Diag` switches, the desktop refresh |
+| **our stack** (clean-room: `vcr-kmd` kernel pair + our h5 Glide + our MesaFX ICD) — the V5 6000 in `.124` | the display driver answers `VCR_ESC_INFO` (`include/vcr_ioctl.h`) | the Glide registry key, the user environment, 4 kernel `Diag` switches, the desktop refresh, **the graphics clock** (live, through the driver's `VCR_ESC_CLOCK`) |
 | **vintage** (`3dfxvs`: retro-3dfx H5 source / AmigaMerlin) | `Services\3dfxvs` exists and the primary adapter is a 3dfx | `...\3dfxvs\Device0`, `\D3D`, `\glide` — the first 3dfxctl's rows, unchanged |
 
 `3dfxctl.exe /vcr` or `/vintage` forces a lane (testing only);
-`3dfxctl.exe /report FILE` writes what the panel sees and exits (for the agent).
+`3dfxctl.exe /report FILE` writes what the panel sees and exits (for the agent);
+`3dfxctl.exe /startup` is the logon half of "use this clock again" (no window, below).
 
 Tabs: **Overview** (driver stack, monitor, presets, alerts) · **3D & Glide** ·
-**Anti-aliasing & SLI** · **OpenGL** · **Display & 2D** · **Advanced** (where
+**Anti-aliasing & SLI** · **OpenGL** · **Display & 2D** · **Clock** (2.1.0; only
+when the driver answers `VCR_ESC_CLOCK` for a Voodoo) · **Advanced** (where
 settings live, overrides found elsewhere, driver details, the panel's log). A
 header shows the card, chips, memory per chip (and the 256/128 MB VBIOS mode),
-the desktop mode and refresh, SLI and AA state, refreshed every 2 s. Every
+the desktop mode and refresh, SLI and AA state and the graphics clock, refreshed
+every 2 s. Every
 control has a tooltip and a "when it applies" tag. Presets (Maximum quality /
 Maximum speed / Driver defaults) only fill the tabs; nothing is written until
 **Apply** / **OK**. Every write is read back and listed in an Apply summary
@@ -58,6 +61,7 @@ environment (`HKCU\Environment`).
 | Texture sharpness | `HKCU\Environment` `FX_LOD_BIAS` = absent (-0.5) / -1.0 / 0 / 0.5 | ICD `fxsetup.c:566, 612` | same ¹ |
 | Desktop refresh rate | the display mode (`ChangeDisplaySettingsEx`, `CDS_UPDATEREGISTRY`), only rates the driver lists for the current resolution/depth, none when the list is not filtered by the monitor | vcr-kmd mode set | **now**: one paced switch, a 15 s keep-or-revert dialog, read back (current, saved, and the driver's `cur_hz`) |
 | Text / Pattern fills / Straight lines on the 2D engine | `HKLM\...\Services\vcrmp\Diag` `Accel2DText` / `Accel2DPattern` / `Accel2DLine` = absent / 1 (REG_DWORD) | kernel `vcrmp.c:436-438` (`fill_info`, answering `IOCTL_VCR_INFO`, `vcrmp.c:741-747`) → display `vcrdd_2d.c:446-448` (`VcrDd2dInit`, called from `DrvEnableSurface`, `vcrdd.c:524`) | **now**: two paced switches (below), confirmed from the driver's `VCR_ESC_2D_STATS` |
+| Graphics clock (the Clock tab) | nothing in the registry: `VCR_ESC_CLOCK` SET/RESTORE, 133-200 MHz, presets Stock / 150 / 175 / 183 | vcr-kmd `vcrmp_clock.c` `VcrCoreClock` (the master chip, <= 5 MHz steps, read back); every SLI enable copies it to the other chips (`vcrmp_sli.c` `init_slave`) | **now**: one press of Set; an overclock asks to be kept and goes back by itself after 15 s; chips 1-3 at the next game start |
 
 ¹ The environment is per process and copied from the parent: Explorer re-reads
 it on the `WM_SETTINGCHANGE("Environment")` the panel broadcasts, so a game you
@@ -87,7 +91,39 @@ included** — keeps that parent's old environment until the parent restarts.
   display, nothing is switched and the summary says the switches apply at the
   next mode change (a fullscreen game starting or ending) or the next boot.
 - **Desktop refresh**: applied at once (one paced switch), 15 s to keep it.
+- **Graphics clock**: applied at once on the Clock tab's own **Set** button (the
+  bottom Apply/OK never touch it). Chip 0 moves the moment Set is pressed; chips
+  1-3 are given chip 0's clock at every game start on all four chips - between
+  games they idle at their reset word (0x0C01) or the last game's clock, and the
+  tab says which. Refused while a 3D game holds the card (the driver refuses as
+  well: `VCR_CLOCK_R_EXCLUSIVE`).
 - Nothing the panel offers needs a reboot. Boot-time switches are not offered.
+
+### The Clock tab - live, kept or put back, and "use this clock again"
+
+- **Range 133-200 MHz** (the driver takes 120-219): below is nothing worth
+  having, above it the 4-chip board's memory - which runs from the same clock -
+  is a fifth past its rating. The value label shows what the PLL really gives
+  (`vcr_clock.h`, the driver's own rule): 150 -> 149.7 MHz.
+- **An overclock goes back by itself.** Above stock (`ctl_clock_confirm`) a
+  topmost "keep this clock?" counts down 15 s with **Go back** as the default
+  button, then sets the previous clock again (RESTORE if that was stock). Stock
+  and below never ask - that is the direction a person goes to get away from a
+  problem. **Stock** ends on the VBIOS's exact word, not a recomputed one.
+- **"Use this clock again after Windows restarts"** (off by default) saves the
+  card's clock in `HKLM\SOFTWARE\3dfxctl` `StartupClock`, stamped with Windows'
+  own record of its last orderly shutdown (`HKLM\SYSTEM\CurrentControlSet\
+  Control\Windows` `ShutdownTime` -> `StartupSeen`), and adds
+  `HKLM\...\Run\3dfxctlClock` = `"<exe>" /startup`. At logon `/startup`
+  re-applies the clock **only if Windows' stamp moved since** - i.e. the session
+  that ran the clock ended in a clean shutdown - and consumes the stamp BEFORE the
+  clock moves, so a crash in the next session is caught the same way. If the stamp
+  did not move (a crash, a lock-up, the power) or either stamp is missing, it
+  forgets the saved clock, removes the Run value, and leaves a note the Clock tab
+  shows ("Last logon: NOT re-applied: ..."). Equality only, never order: `.124`'s
+  clock resets after a power loss. Measured on `.124`: an agent REBOOT through
+  `safe-reboot.py` writes `ShutdownTime` too (04:50:56 and 05:01:18 UTC, two
+  reboots). A clock set later while the box is ticked is saved only once KEPT.
 
 ### Anti-aliasing (experimental — read this)
 
@@ -128,6 +164,8 @@ unproven on our stack and labelled so.
   (`gtex.c:2455`) — for most Glide games it does nothing.
 - `SSTH3_GRXCLOCK` / `SSTH3_MEMCLOCK`: read, but the PLL programming is compiled
   out of the Windows build (`HWC_ACCESS_DDRAW=1`, the `#if` at `minihwc.c:2360`).
+  The clock is offered on the Clock tab instead, through the driver.
+- `Diag\CoreClock`: the driver's clock kill switch - the panel never writes it.
 - `FX_GLIDE_ANALOG_SLI`: forced to 1 on a 4-way board (`h5sliaa.h` `h5SliAaAnalog`).
 - `FX_GLIDE_NO_SPLASH`: on Win32 `grSplash` draws only through `3dfxspl3.dll`;
   "Skip the splash plugin" (`FX_GLIDE_NO_PLUGIN`) is the switch that works.
@@ -208,7 +246,19 @@ the user at the box").
    header is red. Then choose SLI → Apply (or "Disarm AA now") and verify
    `SliAA` is **gone** (`reg query` says it cannot find the value) and the value
    is 5. Never `REGDELETE` the Diag key.
-8. `DOWNLOAD C:\RETRO_AGENT\3dfxctl.log` — every change the panel made, with
+8. **Clock** (the Clock tab; verified on `.124` 2026-09-29, evidence
+   `evidence/20260929/`): Cool 150 -> Set: the message quotes the word read back
+   (0000f929) and `C:\vcr\vcrctl.exe clock` agrees; Quick 175 -> Set -> leave the
+   "keep this clock?" alone: 15 s later the card reads the old clock again; again
+   and **Keep it**: it stays (0000da1d); Stock -> Set: 0000e721 exactly. Tick "use
+   this clock again": `REGREAD HKLM SOFTWARE\3dfxctl` shows `StartupClock` and
+   `StartupSeen` = Windows' current `ShutdownTime`, and the Run value exists.
+   `EXEC C:\RETRO_AGENT\3dfxctl.exe /startup` in the SAME session must refuse
+   (the stamp has not moved): the three values gone and `StartupClockLast`
+   "NOT re-applied: Windows did not shut down cleanly ...". Across a real
+   `safe-reboot.py` it must say "re-applied ..." and the card read the clock.
+   Leave the box at Stock with the box unticked.
+9. `DOWNLOAD C:\RETRO_AGENT\3dfxctl.log` — every change the panel made, with
    its read-back and pace-gate result.
 
 Rollback: delete `C:\RETRO_AGENT\3dfxctl.exe` and the two shortcuts; the
@@ -231,5 +281,7 @@ this change. Its AA values also need the experimental confirmation.
 `tests/native/test_3dfxctl_logic.c` (the table and every decision, true source),
 `tests/python/test_3dfxctl_settings.py` (every name against the Glide / ICD /
 kernel source that reads it), `tests/python/test_3dfxctl_panel.py` (pace gate,
-Diag writes, AA gating, XP imports, manifest, icon, a fresh build).
+Diag writes, AA gating, XP imports, manifest, icon, a fresh build),
+`tests/python/test_3dfxctl_clock.py` (the Clock tab: the escape only, the range,
+keep-or-revert, the logon re-apply's stamp order).
 Evidence from the QEMU test bed: `evidence/`.
