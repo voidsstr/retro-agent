@@ -2582,9 +2582,25 @@ online, and what to keep in mind - full detail in
   sector read back. **The price: MS-DOS mode and the boot menu no longer see
   D:/E:** - DOS games there run from Windows. **After a power loss** the dead
   battery resets 1Bh to auto (44h), POST types the drive with the broken
-  translation and Windows drops the channel: agent **1.92.0**
-  (`CmosIde2Type`=0 on this box) restores 1Bh in its POSTSKIP pass and warm-
-  reboots once (never twice within 20 min). The logon share mapping moved
+  translation and **IO.SYS HANGS AT A BLINKING CURSOR** probing BIOS unit
+  81h - measured 2026-09-29: drive removed boots, drive fitted after a
+  power-off hangs, so agent 1.92.0's `CmosIde2Type` restore (which needs
+  Windows up) never got to run. **Fixed below the OS by `cmosmbr`**
+  (`scripts/fleet/win9x/cmosmbr/`): a 440-byte stage in the boot disk's MBR
+  code area that, on this ROM only, sets 1Bh=00 and 2Dh bit 3 with the
+  checksum, reads them back and warm-resets once (a warm POST does not
+  auto-type), then chains the original Win98 MBR saved at **LBA 32** (LBA
+  1-2 hold an OLD DOS MBR with a stale table - left alone). Installed and
+  proven on `.243` 2026-09-29: 1Bh set to 44 by `cmosw9x restore`, one
+  reboot, the agent found 00. So a power loss costs ONE F1 (POST forgets the
+  skip bit before any code runs), then the box boots itself. Install/remove
+  with `CMOSINST` in REAL DOS - on this box a guarded AUTOEXEC.BAT line runs
+  `C:\CMOSMBR\ONCE.BAT` while `C:\CMOSMBR\ONCE.FLG` exists. **Not an
+  MS-DOS-mode PIF: the agent's own console is a DOS VM, and Win98 will not
+  exit to MS-DOS mode while it runs** (it asks to quit the agent; cancelling
+  left ExitWindowsEx dead until a manual restart). Recovery if the disk ever
+  will not boot: `CMOSINST REMOVE`, or `FDISK /MBR` from a Win98 boot disk.
+  The agent's 1.92.0 pass stays as a second line. The logon share mapping moved
   from E: to **S:** (`MAPSHARE.BAT`). A new CMOS battery would make the
   reboot unnecessary. (History: the HPA had capped the drive at 8,191
   cylinders / 4.2 GB; ROMPaq SP15800 - not on the share - may fix the
