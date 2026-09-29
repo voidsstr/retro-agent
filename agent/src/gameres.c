@@ -39,6 +39,7 @@
 #include "util.h"
 #include "../shared/edid.h"
 #include "../shared/gameres.h"
+#include "hostpolicy.h"
 #include "../shared/grledger.h"
 
 #ifndef ENUM_CURRENT_SETTINGS
@@ -209,6 +210,16 @@ void gameres_probe(void)
     g_gr.gp = p;
     gr_decide(&p, &g_gr.modes, g_gr.reg_w, g_gr.reg_h, g_gr.reg_hz,
               g_gr.live_bpp, g_gr.cap_w, g_gr.cap_h, &g_gr.t);
+    /* The OS is not the monitor, so gr_decide cannot know it - but Serious
+     * Engine 1's gfx_iRefreshRate depends on it (gr_se1_hz: a rate makes the
+     * game unstartable on Windows 7). host_os_version is RtlGetVersion, else
+     * GetVersionEx on 9x; FLEETRES.EXE asks the same way, and the test is
+     * major >= 6, which the GetVersionEx shim (6.2 on 10/11) cannot flip. */
+    {
+        DWORD maj = 0, mnr = 0, bld = 0;
+        if (host_os_version(&maj, &mnr, &bld))
+            g_gr.t.os_major = (int)maj;
+    }
     g_gr.probed = 1;
 
     log_msg(LOG_GR, "panel %s %s%s  native %dx%d@%d  persisted %dx%d"
@@ -231,6 +242,11 @@ void gameres_probe(void)
             g_gr.t.desk_hz, g_gr.reg_w, g_gr.reg_h,
             g_gr.panel.vmax, g_gr.panel.ok ? "" : " - NOT MEASURED",
             g_gr.t.fr_hz);
+    log_msg(LOG_GR, "Serious Engine gfx_iRefreshRate: %d (Windows NT major %d%s)",
+            gr_se1_hz(g_gr.t.fr_hz, g_gr.t.os_major), g_gr.t.os_major,
+            g_gr.t.os_major >= GR_SE1_NO_RATE_FROM_NT_MAJOR
+                ? " - no rate: Windows 7 refuses the engine's mode switch with one"
+                : "");
 }
 
 const gr_target_t *gameres_target(void)

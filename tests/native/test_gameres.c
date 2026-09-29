@@ -688,6 +688,62 @@ TEST(t_shared_files_use_the_launchers_number)
 }
 
 
+/* SERIOUS ENGINE 1 ON WINDOWS 7 (fix 2026-09-29, agent 1.93.x; gameres.h
+ * gr_se1_hz + the "ssam" body, FLEETRES.EXE FR_SE1HZ). With a non-zero
+ * gfx_iRefreshRate the engine's ChangeDisplaySettings carries
+ * DMDISPLAYFLAGS_TEXTMODE (4) with the rate; Windows 7 refuses it at every
+ * resolution and the game dies with "Cannot set display mode! ... unable to
+ * find display mode with OpenGL acceleration" (.195, Radeon HD 5450). XP
+ * ignores the flag, so XP must KEEP the rate - a CRT at 85 Hz must not fall to
+ * the engine's default. */
+TEST(t_ssam_refresh_is_zero_on_nt6_and_the_desktop_rate_before)
+{
+    gr_modes_t l; gr_target_t t; gr_panel_t pan = panel_crt43();
+    char out[1024];
+    int maj;
+    modes_crt(&l);
+    gr_decide(&pan, &l, 1280, 1024, 85, 32, 0, 0, &t);
+    CHECK_EQ_I(t.fr_hz, 85);
+
+    /* the function itself, across every Windows the fleet runs */
+    CHECK_EQ_I(gr_se1_hz(85, 0), 85);      /* unknown -> the old behaviour   */
+    CHECK_EQ_I(gr_se1_hz(85, 4), 85);      /* Win9x                          */
+    CHECK_EQ_I(gr_se1_hz(85, 5), 85);      /* 2000 / XP: KEEP the CRT's rate */
+    CHECK_EQ_I(gr_se1_hz(60, 6), 0);       /* Vista / Win7 (.195 = 6.1)      */
+    CHECK_EQ_I(gr_se1_hz(60, 10), 0);      /* RtlGetVersion on 10/11         */
+    /* GetVersionEx's shim says 6.2 on 8.1/10/11 - same side of the line */
+    CHECK_EQ_I(gr_se1_hz(60, 6) == gr_se1_hz(60, 10), 1);
+
+    /* XP: the body carries the persisted desktop rate (the fixed AND the old
+     * behaviour agree here - this is what must not regress) */
+    t.os_major = 5;
+    CHECK_EQ_I(gr_expand(gr_cfg_body("ssam"), &t, out, sizeof(out)), 0);
+    CHECK(strstr(out, "gfx_iRefreshRate=85;") != NULL,
+          "XP keeps its best refresh in Game_startup.ini");
+
+    /* Windows 7: the FIXED body asks for no rate at all */
+    t.os_major = 6;
+    CHECK_EQ_I(gr_expand(gr_cfg_body("ssam"), &t, out, sizeof(out)), 0);
+    CHECK(strstr(out, "gfx_iRefreshRate=0;") != NULL,
+          "Win7 must get gfx_iRefreshRate=0 or Serious Sam cannot set a mode");
+    CHECK(strstr(out, "gfx_iRefreshRate=85;") == NULL,
+          "a rate on Win7 is the fatal 'Cannot set display mode!'");
+
+    /* ...and the OLD body (gfx_iRefreshRate=%FRHZ%) is exactly the bug: it
+     * hands Win7 the desktop rate. */
+    CHECK_EQ_I(gr_expand("gfx_iRefreshRate=%FRHZ%;", &t, out, sizeof(out)), 0);
+    CHECK(strcmp(out, "gfx_iRefreshRate=85;") == 0,
+          "the pre-fix token gives Win7 a rate - the defect this pins");
+
+    /* the token tracks a raised desktop rate on XP, as FR_HZ does */
+    for (maj = 4; maj <= 5; maj++) {
+        t.os_major = maj;
+        t.fr_hz = 100;
+        CHECK_EQ_I(gr_expand("%SE1HZ%", &t, out, sizeof(out)), 0);
+        CHECK(strcmp(out, "100") == 0, "SE1HZ follows FRHZ before Vista");
+    }
+}
+
 /*
  * THE RATE A TITLE IS TOLD TO ASK FOR, PER TARGET - gr_target_hz(), the one
  * function GAMERES and FLEETRES.EXE both call (FR_HZW / FR_HZ43 / FR_HZQ2 /
@@ -1232,4 +1288,5 @@ MUNIT_MAIN("gameres (per-box monitor detection and per-title resolution)",
     RUN(t_verify_title_kinds_and_engine_caps);
     RUN(t_verify_launcher_scan);
     RUN(t_verify_launch_txt);
+    RUN(t_ssam_refresh_is_zero_on_nt6_and_the_desktop_rate_before);
 )

@@ -136,6 +136,11 @@ typedef struct {
                                  * FLEETRES publishes as FR_HZ. Used only
                                  * where a launcher writes the same file, so
                                  * the two writers agree byte for byte.       */
+    int  os_major;              /* the RUNNING Windows' major version, set by
+                                 * the caller AFTER gr_decide (which cannot
+                                 * know it): 4 = 9x/NT4, 5 = 2000/XP, 6+ =
+                                 * Vista and later. 0 = not known, treated
+                                 * like 5. Read only by gr_se1_hz (%SE1HZ%). */
     int  bpp;
     int  fov;                   /* hor+ FOV preserving the 4:3 vertical FOV  */
     int  q2mode, q3mode;        /* id Tech 2 / id Tech 3 mode-table indices  */
@@ -330,6 +335,36 @@ GR_FN const char *gr_hz_src_name(int src)
 GR_FN int gr_fr_hz(int reg_hz)
 {
     return gr_hz_is_real(reg_hz) ? reg_hz : 60;
+}
+
+/*
+ * SERIOUS ENGINE 1's gfx_iRefreshRate - %SE1HZ% / FR_SE1HZ. One function,
+ * called by GAMERES and by FLEETRES.EXE, for the one file both write
+ * (Scripts\Game_startup.ini).
+ *
+ * ON WINDOWS 7 A NON-ZERO RATE MAKES THE GAME UNSTARTABLE. With
+ * gfx_iRefreshRate != 0 the engine's mode switch passes a refresh together
+ * with dmDisplayFlags value 4 (DMDISPLAYFLAGS_TEXTMODE) to ChangeDisplaySettings.
+ * XP ignores the flag; Windows 7 rejects that request for EVERY resolution, so
+ * the engine finds no usable mode and dies before a window with
+ *     Fatal Error: Cannot set display mode! Serious Sam was unable to find
+ *     display mode with OpenGL acceleration.
+ * which reads as a broken ICD and is not one. Measured 2026-09-29 on .195
+ * (ADMIN-PC, Win7 build 7600, Radeon HD 5450, Catalyst 15.7.1): a test program
+ * failed only when the flag AND a refresh were both set, and the game rendered
+ * fullscreen 1920x1080 on the AMD ICD with gfx_iRefreshRate=0.
+ *
+ * So: Vista and later (NT major >= 6, the WDDM display model; only Win7 is
+ * measured, there is no Vista box) get 0 - "the engine asks for no rate" - and
+ * everything older keeps fr_hz, the persisted desktop rate, so XP's CRTs keep
+ * their 85/100 Hz. The test is `>= 6` on purpose: GetVersionEx's shim reports
+ * 6.2 on 8.1/10/11 and RtlGetVersion the truth, and both are >= 6, so the two
+ * writers agree whichever of them each one uses.
+ */
+#define GR_SE1_NO_RATE_FROM_NT_MAJOR 6
+GR_FN int gr_se1_hz(int fr_hz, int os_major)
+{
+    return os_major >= GR_SE1_NO_RATE_FROM_NT_MAJOR ? 0 : fr_hz;
 }
 
 /*
@@ -709,6 +744,8 @@ GR_FN int gr_turok2_sel(int w43)
  *   %DESKHZ%         the same, at the persisted desktop mode
  *   %FRHZ%           the persisted mode's OWN rate - exactly what FLEETRES
  *                    publishes as FR_HZ, for a file both writers touch
+ *   %SE1HZ%          Serious Engine 1's gfx_iRefreshRate: %FRHZ% before
+ *                    Vista, 0 on NT 6+ (gr_se1_hz) - FLEETRES's FR_SE1HZ
  *   %HZOVERRIDE%     "True" when a rate is known, else "False"
  *   %BPP%
  *   %FOV%            hor+ FOV
@@ -762,6 +799,8 @@ GR_FN int gr_expand(const char *tmpl, const gr_target_t *t,
                     else if (!strcmp(tok, "HZSRC"))   strcpy(val, gr_hz_src_name(t->hz_src));
                     else if (!strcmp(tok, "DESKHZ"))  sprintf(val, "%d", t->desk_hz);
                     else if (!strcmp(tok, "FRHZ"))    sprintf(val, "%d", t->fr_hz);
+                    else if (!strcmp(tok, "SE1HZ"))
+                        sprintf(val, "%d", gr_se1_hz(t->fr_hz, t->os_major));
                     /* True only when a rate is actually KNOWN. An engine told
                      * to override the desktop refresh with 0 overrides it with
                      * nothing, which is worse than not overriding. */
@@ -954,8 +993,11 @@ GR_DATA const gr_rule_t gr_rules[] = {
  * PersistentSymbols.ini is where the engine SAVES on exit, so anything staged
  * there is overwritten by the first box that runs the game. Game_startup.ini
  * is the engine's own documented hook. sam_iDriver is deliberately NOT written
- * - that is a renderer choice the engine makes for itself (.246 cannot open
- * OpenGL at all and runs on Direct3D). */
+ * - that is a renderer choice the engine makes for itself. (In this build
+ * sam_iDriver=1 is the 3dfx MiniGL, 3DFXVGL.DLL - NOT Direct3D, as this
+ * comment used to say. The Win7 "unable to find display mode with OpenGL
+ * acceleration" that was blamed on the OpenGL path was gfx_iRefreshRate:
+ * see gr_se1_hz.) */
 { "SeriousSamFirstEncounter",  GR_OP_CFG, "Scripts\\Game_startup.ini", "ssam", NULL, NULL },
 { "SeriousSamSecondEncounter", GR_OP_CFG, "Scripts\\Game_startup.ini", "ssam", NULL, NULL },
 
@@ -1126,6 +1168,10 @@ GR_FN const char *gr_reg_owner(const char *root, const char *subkey, const char 
  * engines that have no refresh setting at all. Quake II and GoldSrc were
  * checked: their binaries carry no refresh cvar, only `timerefresh` and
  * `r_norefresh`.
+ *
+ * The ssam body is the one exception, and it still uses a number FLEETRES
+ * publishes: %SE1HZ% = FR_SE1HZ, which is %FRHZ% except on Windows Vista and
+ * later, where a refresh makes Serious Engine 1 unstartable (gr_se1_hz).
  */
 GR_FN const char *gr_cfg_body(const char *kind)
 {
@@ -1162,7 +1208,7 @@ GR_FN const char *gr_cfg_body(const char *kind)
                "sam_bFullScreen=1;\n"
                "sam_iScreenSizeI=%W%;\n"
                "sam_iScreenSizeJ=%H%;\n"
-               "gfx_iRefreshRate=%FRHZ%;\n";
+               "gfx_iRefreshRate=%SE1HZ%;\n";
     return NULL;
 }
 

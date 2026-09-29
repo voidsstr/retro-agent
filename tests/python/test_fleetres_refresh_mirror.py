@@ -176,3 +176,26 @@ def test_no_edid_never_claims_the_drivers_unclamped_best():
     assert "gr_has_rate(l, w, h, reg_hz)" in fn
     assert "w <= reg_w && h <= reg_h" in fn
     assert "return 0;" in fn
+
+
+def test_serious_engine_rate_is_one_function_and_one_os_test():
+    """Game_startup.ini's gfx_iRefreshRate (fix 2026-09-29): 0 on Windows 7,
+    where a rate makes Serious Sam's mode switch fail at every resolution, and
+    the persisted desktop rate on XP. Both writers must reach it through
+    gr_se1_hz(), fed by the SAME OS question - RtlGetVersion, else
+    GetVersionEx - or one writes 0 and the other 60 and they fight forever."""
+    h = _strip_comments(_src(GAMERES_H))
+    assert re.search(r"GR_FN int gr_se1_hz\(int fr_hz, int os_major\)\s*\{\s*"
+                     r"return os_major >= GR_SE1_NO_RATE_FROM_NT_MAJOR \? 0 : fr_hz;", h)
+    assert "#define GR_SE1_NO_RATE_FROM_NT_MAJOR 6" in h
+    assert 'gr_se1_hz(t->fr_hz, t->os_major)' in h
+
+    fr = _strip_comments(_src(FLEETRES))
+    assert 'gr_se1_hz(gr_fr_hz(reg_hz), os_major())' in fr
+    assert '"RtlGetVersion"' in fr and "GetVersionExA" in fr
+    # never a static import of ntdll - FLEETRES.EXE runs on Win9x
+    assert 'LoadLibraryA("ntdll.dll")' in fr
+
+    c = _strip_comments(_src(GAMERES_C))
+    assert "host_os_version(&maj, &mnr, &bld)" in c
+    assert "g_gr.t.os_major = (int)maj;" in c

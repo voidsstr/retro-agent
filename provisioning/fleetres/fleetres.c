@@ -586,6 +586,37 @@ static int do_reg(const char *root, const char *sub, const char *val,
     return 0;
 }
 
+/*
+ * The running Windows' MAJOR version, for gr_se1_hz() (FR_SE1HZ). The same
+ * source the agent uses (agent/src/hostpolicy.c host_os_version): ntdll's
+ * RtlGetVersion through GetProcAddress - never a static import, this exe runs
+ * on Win9x, whose ntdll has no such export - else GetVersionEx. The only
+ * question asked of it is `>= 6`, which GetVersionEx's 6.2 shim on 8.1/10/11
+ * cannot change, so both routes and both writers give the same answer.
+ * 0 = could not ask (treated as pre-Vista, i.e. the old behaviour).
+ */
+typedef struct { ULONG sz, maj, mnr, bld, plat; WCHAR csd[128]; } FR_RTLOSV;
+typedef LONG (WINAPI *fr_rtlgetversion_t)(FR_RTLOSV *);
+static int os_major(void)
+{
+    OSVERSIONINFOA vi;
+    HMODULE nt = LoadLibraryA("ntdll.dll");
+    if (nt) {
+        fr_rtlgetversion_t f = (fr_rtlgetversion_t)GetProcAddress(nt, "RtlGetVersion");
+        if (f) {
+            FR_RTLOSV r;
+            memset(&r, 0, sizeof(r));
+            r.sz = sizeof(r);
+            if (f(&r) == 0) { FreeLibrary(nt); return (int)r.maj; }
+        }
+        FreeLibrary(nt);
+    }
+    memset(&vi, 0, sizeof(vi));
+    vi.dwOSVersionInfoSize = sizeof(vi);
+    if (GetVersionExA(&vi)) return (int)vi.dwMajorVersion;
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     DEVMODEA dm;
@@ -928,6 +959,8 @@ int main(int argc, char **argv)
         printf("refresh    : %d Hz at %dx%d, %d Hz at %dx%d, id Tech 2/3 index %d/%d Hz"
                "  (%s; 0 = left alone)\n", hzw, tgt_w, tgt_h, hz43, t43_w, t43_h,
                hzq2, hzq3, gr_hz_src_name(src_w > src_43 ? src_w : src_43));
+        printf("windows    : NT major %d  Serious Engine gfx_iRefreshRate %d\n",
+               os_major(), gr_se1_hz(gr_fr_hz(reg_hz), os_major()));
         printf("glide      : %s%s%s  render device %s\n",
                glide_n ? "3dfx silicon PRESENT " : "no 3dfx silicon",
                glide_n ? glide_dev : "",
@@ -971,6 +1004,13 @@ int main(int argc, char **argv)
      * fleetres.cfg (r_displayRefresh) fought forever there. 0/1 and nonsense
      * from a driver are still never passed on: gr_hz_is_real() is 50..199. */
     printf("set \"FR_HZ=%d\"\n", gr_fr_hz(reg_hz));
+    /* SERIOUS ENGINE 1's gfx_iRefreshRate (Scripts\Game_startup.ini, which
+     * GAMERES writes too): FR_HZ before Vista, 0 on NT 6+. A rate there makes
+     * the engine's ChangeDisplaySettings carry DMDISPLAYFLAGS_TEXTMODE with
+     * it, which Windows 7 refuses at every resolution - "Cannot set display
+     * mode! ... unable to find display mode with OpenGL acceleration"
+     * (.195, 2026-09-29). gr_se1_hz() is the agent's own function. */
+    printf("set \"FR_SE1HZ=%d\"\n", gr_se1_hz(gr_fr_hz(reg_hz), os_major()));
     /* THE PER-TARGET RATES (agent/shared/gameres.h gr_target_hz). A title
      * asks for the one that matches the resolution IT runs at: FR_HZW at
      * FR_W x FR_H, FR_HZ43 at FR_W43 x FR_H43, FR_HZQ2 / FR_HZQ3 at the

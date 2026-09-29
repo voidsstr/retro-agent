@@ -292,7 +292,7 @@ def test_a_shared_cfg_is_written_identically_by_both_writers():
            "%Q2WIDE%": "%FR_Q2WIDE%", "%HZQ2WIDE%": "%FR_HZQ2WIDE%",
            "%Q3MODE%": "%FR_Q3MODE%", "%FRHZ%": "%FR_HZ%", "%HZ%": "%FR_HZW%",
            "%HZW%": "%FR_HZW%", "%HZ43%": "%FR_HZ43%", "%HZQ2%": "%FR_HZQ2%",
-           "%HZQ3%": "%FR_HZQ3%"}
+           "%HZQ3%": "%FR_HZQ3%", "%SE1HZ%": "%FR_SE1HZ%"}
 
     problems = []
     for r in RULES:

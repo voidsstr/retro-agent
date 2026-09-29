@@ -111,6 +111,9 @@ rem  FR_W43  / FR_H43  resolution for an engine that is 4:3-only
 rem  FR_HZ             refresh of the PERSISTED desktop mode, for an engine
 rem                    whose mode switch takes one (Halo's -vidmode w,h,hz).
 rem                    A hardcoded 60 there is wrong on every CRT box.
+rem  FR_SE1HZ          Serious Engine 1's gfx_iRefreshRate: FR_HZ before
+rem                    Vista, 0 on Windows 7 - where any rate there makes
+rem                    the game die with "Cannot set display mode!"
 rem  FR_Q2MODE         id Tech 2 gl_mode index matching FR_W43/FR_H43
 rem  FR_Q2WIDE         gl_mode for the PATCHED id Tech 2 exes - Quake II, SiN,
 rem                    Soldier of Fortune - whose entry 9 is 1920x1080: 9 on a
@@ -142,6 +145,7 @@ set FR_DOSFULLRES=
 set FR_PANEL=
 set FR_Q3MODE=
 set FR_HZ=
+set FR_SE1HZ=
 set FR_EDID=
 set FR_GLIDE=
 set FR_UE1DEV=
@@ -159,6 +163,9 @@ if not defined FR_Q2MODE set FR_Q2MODE=6
 if not defined FR_Q2WIDE set FR_Q2WIDE=6
 if not defined FR_Q3MODE set FR_Q3MODE=6
 if not defined FR_HZ set FR_HZ=60
+rem 0 = "ask for no rate", which starts Serious Sam on every Windows; only a
+rem working FLEETRES.EXE can say a box is old enough for a rate to be safe.
+if not defined FR_SE1HZ set FR_SE1HZ=0
 if not defined FR_EDID set FR_EDID=0
 if not defined FR_DOSFULLRES set FR_DOSFULLRES=original
 rem FR_GLIDE defaults to 0 - "no 3dfx silicon" - deliberately. The wrong way
@@ -762,16 +769,27 @@ def ssam_startup_ini():
     titles rewrite fleetres.cfg. Serious Engine's console syntax needs the
     trailing semicolons.
 
+    gfx_iRefreshRate IS FR_SE1HZ, NOT FR_HZ (2026-09-29). With a non-zero
+    rate the engine's mode switch hands ChangeDisplaySettings a refresh AND
+    dmDisplayFlags 4 (DMDISPLAYFLAGS_TEXTMODE). XP ignores the flag; Windows 7
+    refuses that request at every resolution, and the game dies before any
+    window with "Cannot set display mode! Serious Sam was unable to find
+    display mode with OpenGL acceleration" - which looks like a broken ICD and
+    is not one. Proven on .195 (Win7, Radeon HD 5450, Catalyst 15.7.1): a test
+    program failed only with the flag and a rate together, and the game ran
+    fullscreen 1920x1080 on the AMD ICD with gfx_iRefreshRate=0. FR_SE1HZ is
+    agent/shared/gameres.h gr_se1_hz() - 0 on NT 6+, FR_HZ before - so XP's
+    CRTs keep their 85/100 Hz and GAMERES writes the same number.
+
     THE LAUNCHER DELIBERATELY DOES NOT WRITE sam_iDriver. It used to pin it to
-    0 (OpenGL), and that is a renderer choice this tool cannot make: measured on
-    .246 (Win7, Radeon HD 5450) the OpenGL path dies before any window with
-    "Cannot set display mode! Serious Sam was unable to find display mode with
-    OpenGL acceleration", and the same box runs fine on sam_iDriver=1
-    (Direct3D). Pinning 0 at every launch also overwrote the engine's OWN
-    persisted answer, so a box fixed by hand was un-fixed on its next start.
-    The engine auto-detects a renderer on first run and saves it to
-    PersistentSymbols.ini - which is no longer staged, so that answer now
-    survives. This block owns the PANEL; the engine owns the API.
+    0 (OpenGL), and that is a renderer choice this tool cannot make. In this
+    build sam_iDriver=1 is the 3dfx MiniGL (3DFXVGL.DLL), NOT Direct3D, as an
+    earlier version of this note said; the .246 "OpenGL path dies" finding it
+    was based on was the refresh fault above. Pinning 0 at every launch also
+    overwrote the engine's OWN persisted answer, so a box fixed by hand was
+    un-fixed on its next start. The engine auto-detects a renderer on first run
+    and saves it to PersistentSymbols.ini - which is no longer staged, so that
+    answer now survives. This block owns the PANEL; the engine owns the API.
     """
     p = '"%~dp0Scripts\\Game_startup.ini"'
     return [
@@ -781,7 +799,7 @@ def ssam_startup_ini():
         '>>%s echo sam_bFullScreen=1;' % p,
         '>>%s echo sam_iScreenSizeI=%%FR_W%%;' % p,
         '>>%s echo sam_iScreenSizeJ=%%FR_H%%;' % p,
-        '>>%s echo gfx_iRefreshRate=%%FR_HZ%%;' % p,
+        '>>%s echo gfx_iRefreshRate=%%FR_SE1HZ%%;' % p,
     ]
 
 
@@ -853,8 +871,10 @@ TITLES = {
     # titles need, is put FLEETRES.EXE and FLEETRES.BAT in the tree.
     #
     # ssam_startup_ini() is therefore the SOURCE OF TRUTH for the block that is
-    # copied into those specs. If you change it here, regenerate the six
-    # launchers - nothing checks that for you yet.
+    # copied into those specs. If you change it here, update the six specs and
+    # regenerate the launchers - test_serioussam_staging.py
+    # test_every_ssam_spec_carries_the_stagers_startup_block now fails when a
+    # spec and this function disagree (it did not until 2026-09-29).
     #
     # The anchor is the `cd /d` the template emits: the engine resolves its
     # .gro files against the CURRENT DIRECTORY, so a launcher that does not cd
