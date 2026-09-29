@@ -1316,10 +1316,15 @@ staged only when ALL of the following are true:
    `DOSBOX\` first, so the conf's relative `mount C ".."` resolves wherever the
    tree lands. Carmageddon, System Shock, Descent and Redneck Rampage all follow
    this one pattern - do not invent a second.
-6. **Multiplayer titles are patched to the version our servers run.** UT99 must
-   be OldUnreal 469e because `ut99-server` is 469e and a 436 client cannot join
-   at all. See `Games-Library/_patches/README.txt` for what is applied and what
-   still needs a Windows box.
+6. **Multiplayer titles are patched to the version our servers run.** UT99's
+   server is OldUnreal 469e and SSE2 boxes get the 469e client. **A retail 436
+   client DOES join it** (measured two-box 2026-08-30: the join is a version
+   handshake and the server sets `MinClientVersion=432`), so the
+   `UnrealTournament436` tree is the UT99 client for every box without SSE2
+   (469e dies with #UD there) and for Win98 - the "436 cannot join" line that
+   stood here was an inference nobody had measured; both `requires.json` notes
+   carry the evidence. See `Games-Library/_patches/README.txt` for what is
+   applied and what still needs a Windows box.
 
 **Support directories in the library root start with `_`** and are NOT games:
 `_desktop/` (fleet wallpapers), `_patches/` (the patch record), `_priority.txt`
