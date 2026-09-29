@@ -2052,6 +2052,13 @@ directions.
   (the game console key) and `PRINTSCREEN` — the last is how you get a frame
   out of a game whose fullscreen surface `SCREENSHOT` cannot capture.
   Modifier combos work: `UIKEY CTRL+SHIFT+A`.
+- **UIKEY refuses the keys that shut Windows down (agent 1.91.0+):** ALT+F4
+  while the desktop/taskbar (or no window) has the focus, and any key but
+  ESCAPE into the Shut Down / Log Off dialog, answer an error instead of
+  typing (`agent/shared/uiguard.h`). Measured 2026-09-28: a sweep's ALT+F4
+  meant for an unfocused game opened "Shut Down Windows" on `.124`, its next
+  RETURN confirmed it, and the box restarted — with "Shut down" preselected it
+  would have powered off. Keys go to the FOCUSED window, not the one you mean.
 - **UIKEY TEXT:&lt;string&gt;** — **type a whole string**, character by character,
   via `VkKeyScanA` (so it handles shifted characters). This mode is easy to
   miss — it was in `input.c` for a long time before anyone found it, and was
@@ -2071,7 +2078,9 @@ directions.
   > reach a menu whose cursor is driven by relative mouse deltas** rather than
   > the OS pointer (`+set in_mouse 0` does not change this). At that point the
   > honest answer is a physical keyboard, not more automation.
-- **WINLIST** — JSON list of visible windows
+- **WINLIST** — JSON list of visible windows, each with its owning `pid`, plus
+  `foreground` (hwnd, pid, class, title) — where a keystroke would land right
+  now (agent **1.91.0+**). **A tool that types must check it first.**
 - **GAMERES** — the monitor and the resolution every staged game is set to, as
   JSON: the EDID panel (name, native timing, physical size, LCD/CRT), the
   persisted **and** live desktop modes, the per-box `ResCapW`/`ResCapH`, **every

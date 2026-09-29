@@ -15,6 +15,7 @@
  * prebuilt for i686, and it executes FUCOMI - a Pentium Pro instruction a
  * Pentium 1 faults on. See ../shared/dragsteps.h. */
 #include "../shared/dragsteps.h"
+#include "../shared/uiguard.h"
 
 #define LOG_INPUT "INPUT"
 #define MAX_WINDOWS 64
@@ -26,6 +27,7 @@ typedef struct {
     char  title[256];
     char  classname[128];
     RECT  rect;
+    DWORD pid;
 } win_info_t;
 
 static win_info_t g_windows[MAX_WINDOWS];
@@ -55,9 +57,29 @@ static BOOL CALLBACK enum_windows_cb(HWND hwnd, LPARAM lParam)
 
     GetClassNameA(hwnd, w->classname, sizeof(w->classname));
     GetWindowRect(hwnd, &w->rect);
+    w->pid = 0;
+    GetWindowThreadProcessId(hwnd, &w->pid);
 
     g_window_count++;
     return TRUE;
+}
+
+/* The window keystrokes go to. GetWindowTextA on another process's window
+ * reads the system's copy of the caption and sends no message, so a hung game
+ * cannot block this. */
+static void fg_window(HWND *h, char *cls, int ncls, char *title, int ntitle,
+                      DWORD *pid)
+{
+    HWND f = GetForegroundWindow();
+
+    *h = f;
+    cls[0] = title[0] = '\0';
+    *pid = 0;
+    if (!f)
+        return;
+    GetClassNameA(f, cls, ncls);
+    GetWindowTextA(f, title, ntitle);
+    GetWindowThreadProcessId(f, pid);
 }
 
 void handle_winlist(SOCKET sock)
@@ -65,6 +87,9 @@ void handle_winlist(SOCKET sock)
     json_t j;
     int i;
     char hwnd_hex[16];
+    HWND fh;
+    char fcls[128], ftitle[256];
+    DWORD fpid;
 
     g_window_count = 0;
     EnumWindows(enum_windows_cb, 0);
@@ -94,10 +119,24 @@ void handle_winlist(SOCKET sock)
         json_object_end(&j);
 
         json_kv_bool(&j, "visible", 1);
+        json_kv_int(&j, "pid", (int)w->pid);
         json_object_end(&j);
     }
 
     json_array_end(&j);
+
+    /* Where a keystroke would land RIGHT NOW (agent 1.91.0): a tool must not
+     * send ALT+F4 or RETURN unless this is the window it means (uiguard.h). */
+    fg_window(&fh, fcls, sizeof(fcls), ftitle, sizeof(ftitle), &fpid);
+    _snprintf(hwnd_hex, sizeof(hwnd_hex), "%08lX", (unsigned long)(DWORD)(DWORD_PTR)fh);
+    json_key(&j, "foreground");
+    json_object_start(&j);
+    json_kv_str(&j, "hwnd", hwnd_hex);
+    json_kv_int(&j, "pid", (int)fpid);
+    json_kv_str(&j, "class", fcls);
+    json_kv_str(&j, "title", ftitle);
+    json_object_end(&j);
+
     json_object_end(&j);
 
     {
@@ -434,6 +473,26 @@ void handle_uikey(SOCKET sock, const char *args)
     }
 
     log_msg(LOG_INPUT, "UIKEY: spec=\"%s\"", args);
+
+    /* Keys go to whatever window has the focus, and the sender cannot see which
+     * (uiguard.h: an ALT+F4 that reached the desktop restarted .124). */
+    {
+        HWND fh;
+        char fcls[128], ftitle[256];
+        DWORD fpid;
+        int r;
+
+        fg_window(&fh, fcls, sizeof(fcls), ftitle, sizeof(ftitle), &fpid);
+        r = uig_check(args, fcls, ftitle);
+        if (r != UIG_OK) {
+            log_msg(LOG_INPUT, "UIKEY \"%s\" %s (foreground %08lX class \"%s\" "
+                    "title \"%s\" pid %lu)", args, uig_reason(r),
+                    (unsigned long)(DWORD)(DWORD_PTR)fh, fcls, ftitle,
+                    (unsigned long)fpid);
+            send_error_response(sock, uig_reason(r));
+            return;
+        }
+    }
 
     /* TEXT: mode - type each character */
     if (_strnicmp(args, "TEXT:", 5) == 0) {

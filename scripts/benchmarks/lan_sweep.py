@@ -117,6 +117,38 @@ async def dialogs(box):
             if isinstance(w, dict) and w.get("class") == "#32770" and w.get("visible", True)}
 
 
+async def foreground(box):
+    """The window a keystroke would reach RIGHT NOW (WINLIST "foreground",
+    agent 1.91.0+), or None when the agent cannot say."""
+    try:
+        st, out = await box.cmd("WINLIST", timeout=30)
+        fg = json.loads(out).get("foreground")
+    except Exception:
+        return None
+    return fg if isinstance(fg, dict) and "pid" in fg else None
+
+
+async def key_to(box, pids, key, rec):
+    """Send one UIKEY only if the focused window belongs to one of `pids`.
+
+    Keys go to whatever window has the focus. On 2026-09-28 this sweep sent
+    ALT+F4 to Aliens vs Predator, which was alive but NOT focused: it reached
+    the desktop, opened "Shut Down Windows", the console-quit RETURN confirmed
+    it and .124 restarted. An agent that cannot name the focused window (older
+    than 1.91.0) gets no keys at all - the force path closes the game instead."""
+    fg = await foreground(box)
+    if fg is None or int(fg.get("pid") or 0) not in pids:
+        where = "unknown (agent has no WINLIST foreground)" if fg is None else \
+            "%s \"%s\" pid %s" % (fg.get("class"), fg.get("title"), fg.get("pid"))
+        rec.setdefault("keys_skipped", []).append("%s: focus is %s" % (key, where))
+        return False
+    st, out = await box.cmd(f"UIKEY {key}", timeout=30)
+    if st != 0:
+        rec.setdefault("keys_refused", []).append("%s: %s" % (key, out.strip()[:120]))
+        return False
+    return True
+
+
 async def screenshot(box):
     from client.retro_protocol import RetroConnection
     c = RetroConnection(box.ip, 9898)
@@ -180,19 +212,21 @@ async def run_one(box, sc, outdir, shots_at, grace):
                 return True
         return False
 
-    # a game that ignores WM_CLOSE: ALT+F4, then the id/GoldSrc console quit.
-    # Keys only while the game is still alive - a key that misses a dead game
-    # lands on the desktop (a RETURN there opens the selected icon).
+    # a game that ignores WM_CLOSE: ALT+F4, then the id/GoldSrc console quit -
+    # each key ONLY while the game's own window has the focus (key_to): a key
+    # that misses lands on whatever is focused, and ALT+F4 on the desktop is
+    # "Shut Down Windows".
     if not await settle(grace) and left:
-        await box.cmd("UIKEY ALT+F4", timeout=30)
-        rec["close_via"] = "ALT+F4"
+        if await key_to(box, set(left), "ALT+F4", rec):
+            rec["close_via"] = "ALT+F4"
         if not await settle(10) and left:
             for k in ("TILDE", "TEXT:quit", "RETURN"):
                 now = await processes(box)
                 if not any(p in now for p in left):
                     break
-                await box.cmd(f"UIKEY {k}", timeout=30)
-            rec["close_via"] = "console quit"
+                if not await key_to(box, set(left), k, rec):
+                    break
+                rec["close_via"] = "console quit"
             await settle(10)
     if left:
         rec["forced"] = sorted(set(left.values()))
@@ -217,6 +251,8 @@ async def run_one(box, sc, outdir, shots_at, grace):
         bad.append("Dr. Watson entry")
     if rec.get("forced"):
         bad.append("had to be forced closed")
+    if rec.get("keys_skipped") or rec.get("keys_refused"):
+        bad.append("close keys withheld - game not focused")
     if rec["board"] is False:
         bad.append("BOARD WEDGED")
     if not rec["agent_alive"]:

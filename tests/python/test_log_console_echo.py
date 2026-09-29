@@ -356,3 +356,17 @@ def test_console_printing_is_queued_not_written():
     # the accept loop: the line that used to be a bare printf on the thread
     # that serves every new connection
     assert 'con_printf("Connection from %s:%d\\n"' in main
+
+
+def test_a_busy_stamp_is_never_subtracted_raw():
+    """agent 1.91.0 (agent/shared/busytick.h): the stamp is GetTickCount()|1, so
+    `GetTickCount() - since` reads 1 ms in the FUTURE inside one tick -
+    0xFFFFFFFF, "a console write returned after 4294967 s", which echoed and fed
+    itself until agent.log rotated its history away every few minutes (.124,
+    2026-09-28). Every elapsed time from the stamp goes through
+    busytick_elapsed()."""
+    src = (SRC / "log.c").read_text(encoding="latin-1")
+    assert "busytick_mark(GetTickCount())" in src
+    assert src.count("busytick_elapsed(GetTickCount(), since)") == 2
+    assert not re.search(r"GetTickCount\(\)\s*-\s*since\b", src), \
+        "a raw subtraction from the busy stamp is back"

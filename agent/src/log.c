@@ -81,6 +81,7 @@
 
 #include "log.h"
 #include "../shared/conring.h"
+#include "../shared/busytick.h"
 
 static CRITICAL_SECTION g_log_cs;
 static int    g_log_initialized = 0;
@@ -497,13 +498,13 @@ void log_flush(void)
 /* Bracket every console call so the flusher can see one that never returns. */
 static void echo_busy_begin(void)
 {
-    g_echo_busy_since = GetTickCount() | 1;
+    g_echo_busy_since = busytick_mark(GetTickCount());
 }
 
 static void echo_busy_end(const char *what)
 {
     DWORD since = g_echo_busy_since;
-    DWORD took = GetTickCount() - since;
+    DWORD took = busytick_elapsed(GetTickCount(), since);   /* busytick.h */
     g_echo_busy_since = 0;
     if (since && took >= (DWORD)ECHO_STALL_MS)
         log_msg(LOG_MAIN, "console: %s returned after %lu s - the console is "
@@ -680,7 +681,7 @@ static void echo_stall_check(void)
     DWORD held;
     if (!since || since == reported)
         return;
-    held = GetTickCount() - since;
+    held = busytick_elapsed(GetTickCount(), since);         /* busytick.h */
     if (held < (DWORD)ECHO_STALL_MS)
         return;
     reported = since;
