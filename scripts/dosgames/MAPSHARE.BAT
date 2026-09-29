@@ -20,31 +20,35 @@ rem (no angle brackets anywhere in this file, not even in a comment:
 rem  parses redirection on every line, rem included, and this one used to
 rem  redirect stdin from a nonexistent file at every single logon.)
 rem the standard stand-in (roughly one second per count).
+rem
+rem S:, not E: (2026-09-29): .243's second disk grew a second partition, and
+rem Windows gives local partitions the letters after D: first - a mapping on
+rem E: would fail every logon once E: is a local drive.
 rem ---------------------------------------------------------------
 SET DGLOG=C:\DOSGAME\DOSGAME.LOG
 echo map:    MAPSHARE.BAT starting >> %DGLOG%
 
-net use E: \\192.168.1.122\files password /SAVEPW:NO /YES > nul
+net use S: \\192.168.1.122\files password /SAVEPW:NO /YES > nul
 if not errorlevel 1 goto mapok
 echo map:    attempt 1 failed, waiting for the network >> %DGLOG%
 ping -n 6 127.0.0.1 > nul
 
-net use E: \\192.168.1.122\files password /SAVEPW:NO /YES > nul
+net use S: \\192.168.1.122\files password /SAVEPW:NO /YES > nul
 if not errorlevel 1 goto mapok
 echo map:    attempt 2 failed, waiting longer >> %DGLOG%
 ping -n 16 127.0.0.1 > nul
 
-net use E: \\192.168.1.122\files password /SAVEPW:NO /YES > nul
+net use S: \\192.168.1.122\files password /SAVEPW:NO /YES > nul
 if not errorlevel 1 goto mapok
 echo map:    attempt 3 failed, waiting longer still >> %DGLOG%
 ping -n 31 127.0.0.1 > nul
 
-net use E: \\192.168.1.122\files password /SAVEPW:NO /YES > nul
+net use S: \\192.168.1.122\files password /SAVEPW:NO /YES > nul
 if not errorlevel 1 goto mapok
 echo map:    FAILED - share not mapped; downloads and staging unavailable >> %DGLOG%
 goto mapend
 
 :mapok
-echo map:    share mapped on E: >> %DGLOG%
+echo map:    share mapped on S: >> %DGLOG%
 
 :mapend

@@ -11,6 +11,8 @@
  *                                  3-axis 4-button, an OEM key such as "CH_1"
  *                                  (CH Flightstick Pro) - see `types`
  *                                  (default C:\RETRO_AGENT\JOYSET.TXT)
+ *   joy9x rest [outfile]           provisional X/Y calibration from where the
+ *                                  stick rests now (nobody needs to touch it)
  *   joy9x cal <secs> [outfile]     calibrate joystick 1 from what the stick
  *                                  does for <secs>: the FIRST sample is the
  *                                  centre (hands off at the start), then the
@@ -417,7 +419,8 @@ static int watch(int secs, int calibrate)
     DWORD end = GetTickCount() + (DWORD)secs * 1000, start = GetTickCount(), lastbeat = 0;
     JOYINFOEX j, first;
     rawjoy r, lastr;
-    DWORD lo[4], hi[4], lastw[4], lastbtn = 0xFFFFFFFF, v;
+    DWORD lo[4], hi[4], lastw[4], lastbtn = 0xFFFFFFFF, v, btnseen = 0;
+    DWORD rlo[2] = { 0xFFFFFFFF, 0xFFFFFFFF }, rhi[2] = { 0, 0 }, rsum[2] = { 0, 0 }, rn = 0;
     int a, have = 0, moved[4] = { 0, 0, 0, 0 };
     ZeroMemory(&lastr, sizeof(lastr));
     for (a = 0; a < 4; a++) { lo[a] = 0xFFFFFFFF; hi[a] = 0; lastw[a] = 0; }
@@ -437,6 +440,17 @@ static int watch(int secs, int calibrate)
                 v = axv(&j, a);
                 if (v < lo[a]) lo[a] = v;
                 if (v > hi[a]) hi[a] = v;
+            }
+            btnseen |= j.dwButtons;
+            /* The first 1.5 s: if the stick RESTS there, that is its centre. */
+            if (GetTickCount() - start < 1500) {
+                for (a = 0; a < 2; a++) {
+                    v = axv(&j, a);
+                    if (v < rlo[a]) rlo[a] = v;
+                    if (v > rhi[a]) rhi[a] = v;
+                    rsum[a] += v;
+                }
+                rn++;
             }
         }
         {
@@ -464,8 +478,8 @@ static int watch(int secs, int calibrate)
     }
     for (a = 0; a < 4; a++)
         if (have && hi[a] > lo[a] && hi[a] - lo[a] > 200) moved[a] = 1;
-    wsprintfA(g_line, "winmm range seen: X %lu..%lu  Y %lu..%lu  Z %lu..%lu  R %lu..%lu",
-              lo[0], hi[0], lo[1], hi[1], lo[2], hi[2], lo[3], hi[3]);
+    wsprintfA(g_line, "winmm range seen: X %lu..%lu  Y %lu..%lu  Z %lu..%lu  R %lu..%lu  buttons pressed: %08lX",
+              lo[0], hi[0], lo[1], hi[1], lo[2], hi[2], lo[3], hi[3], btnseen);
     emit(g_line);
     if (!calibrate) return 0;
     if (!have) { emit("no winmm reading at all - set a joystick type first (joy9x set #3)"); return 5; }
@@ -480,8 +494,20 @@ static int watch(int secs, int calibrate)
         if (FAILED(hr)) { wsprintfA(g_line, "GetConfig failed %08lX", (unsigned long)hr); emit(g_line); return 7; }
         jc.hwc.hwv.jrvHardware.jpMin.dwX = lo[0]; jc.hwc.hwv.jrvHardware.jpMax.dwX = hi[0];
         jc.hwc.hwv.jrvHardware.jpMin.dwY = lo[1]; jc.hwc.hwv.jrvHardware.jpMax.dwY = hi[1];
-        jc.hwc.hwv.jrvHardware.jpCenter.dwX = first.dwXpos;
-        jc.hwc.hwv.jrvHardware.jpCenter.dwY = first.dwYpos;
+        /* Centre: the resting value if the stick sat still for the first
+         * 1.5 s (a spread under 4% of the travel), else the middle of the
+         * travel - a person may already be moving it when this starts. */
+        for (a = 0; a < 2; a++) {
+            DWORD span = hi[a] - lo[a], c;
+            int rested = rn >= 5 && rhi[a] - rlo[a] <= span / 25;
+            c = rested ? rsum[a] / rn : lo[a] + span / 2;
+            if (a == 0) jc.hwc.hwv.jrvHardware.jpCenter.dwX = c;
+            else        jc.hwc.hwv.jrvHardware.jpCenter.dwY = c;
+            wsprintfA(g_line, "centre %s = %lu (%s)", a ? "Y" : "X", c,
+                      rested ? "resting value, first 1.5 s" : "middle of the travel - it was moving at the start");
+            emit(g_line);
+        }
+        (void)first;
         jc.hwc.hwv.dwCalFlags |= JOY_ISCAL_XY;
         if (moved[2]) {
             jc.hwc.hwv.jrvHardware.jpMin.dwZ = lo[2]; jc.hwc.hwv.jrvHardware.jpMax.dwZ = hi[2];
@@ -501,6 +527,63 @@ static int watch(int secs, int calibrate)
         show_config("after calibration");
         return FAILED(hr) ? 8 : 0;
     }
+}
+
+/* Provisional calibration with nobody at the stick: the centre is where X/Y
+ * rest now, the travel is assumed symmetric about it (an analog pot's timing
+ * is roughly proportional to resistance, so full travel is about twice the
+ * centre). Without it the uncalibrated ranges put a centred stick at ~13% -
+ * "held up and left" in every Windows game. Z (a throttle) is left alone: its
+ * resting place says nothing about its ends. Game Controllers -> Calibrate
+ * (or `joy9x cal`) replaces all of it with measured values. */
+static int rest_cal(void)
+{
+    JOYINFOEX j;
+    DIJOYCONFIG_DX5 jc;
+    HRESULT hr;
+    DWORD sum[2] = { 0, 0 }, lo[2] = { 0xFFFFFFFF, 0xFFFFFFFF }, hi[2] = { 0, 0 }, n = 0, c, v;
+    int i, a;
+    for (i = 0; i < 25; i++) {
+        ZeroMemory(&j, sizeof(j));
+        j.dwSize = sizeof(j);
+        j.dwFlags = JOY_RETURNALL | JOY_RETURNRAWDATA;
+        if (joyGetPosEx(0, &j) == JOYERR_NOERROR) {
+            for (a = 0; a < 2; a++) {
+                v = a ? j.dwYpos : j.dwXpos;
+                sum[a] += v;
+                if (v < lo[a]) lo[a] = v;
+                if (v > hi[a]) hi[a] = v;
+            }
+            n++;
+        }
+        Sleep(40);
+    }
+    if (n < 10) { emit("no winmm reading - set a joystick type first (joy9x set #8)"); return 5; }
+    for (a = 0; a < 2; a++)
+        if (hi[a] - lo[a] > sum[a] / n / 10) {
+            wsprintfA(g_line, "the stick is MOVING (axis %d %lu..%lu) - leave it centred and run again", a, lo[a], hi[a]);
+            emit(g_line);
+            return 6;
+        }
+    ZeroMemory(&jc, sizeof(jc));
+    jc.dwSize = sizeof(jc);
+    hr = IDirectInputJoyConfig_GetConfig(g_jc, 0, (LPDIJOYCONFIG)&jc, DIJC_REGHWCONFIGTYPE | DIJC_CALLOUT | DIJC_GAIN);
+    if (FAILED(hr)) { wsprintfA(g_line, "GetConfig failed %08lX", (unsigned long)hr); emit(g_line); return 7; }
+    c = sum[0] / n;
+    jc.hwc.hwv.jrvHardware.jpCenter.dwX = c;
+    jc.hwc.hwv.jrvHardware.jpMin.dwX = c / 10;
+    jc.hwc.hwv.jrvHardware.jpMax.dwX = 2 * c - c / 10;
+    c = sum[1] / n;
+    jc.hwc.hwv.jrvHardware.jpCenter.dwY = c;
+    jc.hwc.hwv.jrvHardware.jpMin.dwY = c / 10;
+    jc.hwc.hwv.jrvHardware.jpMax.dwY = 2 * c - c / 10;
+    jc.hwc.hwv.dwCalFlags |= JOY_ISCAL_XY;
+    hr = IDirectInputJoyConfig_SetConfig(g_jc, 0, (LPCDIJOYCONFIG)&jc, DIJC_REGHWCONFIGTYPE | DIJC_CALLOUT | DIJC_GAIN);
+    wsprintfA(g_line, "provisional X/Y calibration (centre = resting value, symmetric travel): SetConfig = %08lX, SendNotify = %08lX",
+              (unsigned long)hr, (unsigned long)IDirectInputJoyConfig_SendNotify(g_jc));
+    emit(g_line);
+    show_config("after rest calibration");
+    return FAILED(hr) ? 8 : 0;
 }
 
 /* ---- entry ---------------------------------------------------------------- */
@@ -545,6 +628,7 @@ void WINAPI _start(void)
     else if (!lstrcmpiA(a1, "types")) { mode = 2; out = a2[0] ? a2 : "C:\\RETRO_AGENT\\JOYTYPES.TXT"; }
     else if (!lstrcmpiA(a1, "set"))   { mode = 3; out = a3[0] ? a3 : "C:\\RETRO_AGENT\\JOYSET.TXT"; }
     else if (!lstrcmpiA(a1, "cal"))   { mode = 4; secs = (int)to_num(a2); out = a3[0] ? a3 : "C:\\RETRO_AGENT\\JOYCAL.TXT"; }
+    else if (!lstrcmpiA(a1, "rest"))  { mode = 5; out = a2[0] ? a2 : "C:\\RETRO_AGENT\\JOYCAL.TXT"; }
     else if (a1[0])                   out = a1;
     if ((mode == 1 || mode == 4) && secs <= 0) secs = 20;
     if (secs > 300) secs = 300;
@@ -579,6 +663,12 @@ void WINAPI _start(void)
     case 4:
         if (!jc_open()) { rc = 2; break; }
         rc = watch(secs, 1);
+        jc_close();
+        if (!rc) { notify_winmm(); winmm_report(); }
+        break;
+    case 5:
+        if (!jc_open()) { rc = 2; break; }
+        rc = rest_cal();
         jc_close();
         if (!rc) { notify_winmm(); winmm_report(); }
         break;
