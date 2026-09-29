@@ -92,6 +92,15 @@ def main(argv=None):
     rings = find_rings(data)
     if not rings:
         print("no vcr-kmd flight recorder found in this file")
+        if h and h["dump_type"] == 4:
+            # what a minidump DOES hold: was vcr-kmd even loaded, and whose code
+            # is on the crashing stack (triage32.py - a 2026-09-28 .124 dump was
+            # the VINTAGE driver's, from before vcr-kmd was installed)
+            import triage32
+            try:
+                triage32.summary(data)
+            except ValueError as e:
+                print("triage: %s" % e)
         return 1
     events = vcrlog.load_events()
     best = max(rings, key=lambda r: r["next_seq"])
