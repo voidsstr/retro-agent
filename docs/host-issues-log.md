@@ -29,7 +29,7 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 | kdump | enabled; dumps land in `/var/crash/` | |
 | `pcie_aspm=off` in GRUB | present, **no effect** (the link can't use ASPM) | 2026-09-16 |
 | PCIe link width | **x16** since the 09-24 17:39 boot (`392ee1f9`, the first boot after the 09-24 mains loss). The kernel's `limited by 32.0 GT/s PCIe x8 link at 0000:00:06.0` line is on every retained boot through 09-23 18:30 (`504edd27`) and on none from 09-24 17:39 on, and sysfs `current_link_width` reads 16 on 09-28. The 09-24 19:18 MCE, both power-offs and the 09-28 Xid 79 all happened at x16, which confirms x8 was not the crash cause (see 09-23) | 2026-09-24 17:39 |
-| Host IP | **192.168.1.196** (DHCP, gateway .254; see 09-26 15:58 and 09-28 00:36), not .132. `host-duties.py` still probes .132 and reports the game servers DOWN; they answer on loopback | 2026-09-26 |
+| Host IP | **192.168.1.132** is back as the PRIMARY LAN address (static, added to NM "Profile 1" 2026-09-28 23:55; LAN traffic is sourced from it, `ip route get 192.168.1.123` -> src .132). DHCP still hands out **.196** (gateway .254), kept as a secondary address for the default route. A DHCP reservation for .132 on the router would remove the (small) risk of the router leasing .132 to another device | 2026-09-28 23:55 |
 | Open physical items | 12V-2x6 connector at both ends; separate PSU cables vs daisy-chain; PSU wattage; a UPS/meter with logging | |
 
 ---
@@ -103,6 +103,30 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 ---
 
 ## Incident log (newest first)
+
+### 2026-09-28 23:55: 192.168.1.132 restored as the host's primary LAN address (no reboot)
+
+- **Found:** after the 22:53 boot the host again held only DHCP **192.168.1.196**;
+  `retro-gameindex`'s status.json reported `our own servers did not answer`
+  for every fleet server (all 20 probed at .132) and `host-duties.py` read
+  1/28, while `ss -ulpn` showed every server bound to 0.0.0.0 and answering on
+  127.0.0.1. `ip neigh` showed .132 `INCOMPLETE` and TCP to .132 returned
+  `No route to host`, i.e. nothing else on the LAN held .132.
+- **Change:** `nmcli con mod "Profile 1" +ipv4.addresses 192.168.1.132/24`
+  then `nmcli dev reapply enp129s0` (the desktop user has
+  `settings.modify.system`, no sudo needed). The static address came up as the
+  kernel PRIMARY, so the 192.168.1.0/24 prefix route is sourced from .132 and
+  UDP game servers bound to 0.0.0.0 reply from the address clients sent to.
+  DHCP .196 stays as a secondary and keeps the default route. It is in the NM
+  profile, so it survives a reboot.
+- **Verified:** `host-duties.py --quiet` 27/28 game servers answering at .132
+  (Tribes 2 remains mute, as before); NAS .122:445 reachable.
+- **Revert:** `nmcli con mod "Profile 1" -ipv4.addresses 192.168.1.132/24 && nmcli dev reapply enp129s0`.
+- **Still open:** the loopback drop-ins from the 00:36 entry
+  (`retro-gameservers-watch` `20-probe-loopback.conf`, the a2s relays'
+  `20-target-loopback.conf`) remain; loopback stays correct for both, so they
+  were left in place. A DHCP reservation for .132 on the router is still the
+  cleaner long-term answer.
 
 ### 2026-09-28 10:59:35: Xid 79 at 400 W and x16, then `sudo reboot` hung for 4 min (signatures 1+2)
 
