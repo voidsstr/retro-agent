@@ -115,7 +115,13 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
-### 2026-09-29 13:16:55: instant reset, no panic or firmware record, 87 min into boot
+### 2026-09-29 13:16:55: power loss from a tripped building breaker (not a host fault)
+
+- **Cause (operator, same day):** a breaker blew. The breaker is fixed. This was external power loss,
+  so it is NOT part of the MCE/GPU crash pattern and should not count toward it. The unplanned-restart
+  count for the GPU problem stays at 3 (09-28 15:48, 09-29 06:13, 09-29 11:26).
+- **What it looks like, for next time:** the journal just stops, with no kdump, pstore, BERT or MCE
+  record. A power loss can leave this same absence of evidence, so ask about power first.
 
 - **Boot IDs:** `843e7fbc…` (11:49:09 → last journal line 13:16:55) → `d08f865b…` from 13:18:26 (~90 s
   gap, 0 IOMMU faults, card healthy, cap and clock lock re-applied at 13:18:38).
@@ -125,8 +131,7 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   running. The kernel didn't get to log anything, so this looks like a hard reset or power loss, not a
   panic. It could also be someone pressing reset: a USB keyboard was re-plugged at 13:09:50 and a GNOME
   session was active from 12:09.
-- **Pattern:** this is the 4th unplanned restart since 09-28 15:48, with 8 boots in 24 h, and it
-  happened with both mitigations active. The card came back unwedged, so no cold cycle was needed.
+- **Recovery:** a power loss is effectively a cold cycle, so the card came back unwedged.
   Fleet, sites and image-gen were back without intervention.
 
 ### 2026-09-29 11:26:35: third MCE panic in 20 h, 66 min into a cold boot (signature 3)
