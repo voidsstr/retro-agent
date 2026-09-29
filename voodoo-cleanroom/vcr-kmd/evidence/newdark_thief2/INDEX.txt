@@ -55,3 +55,15 @@ least: 32 bpp targets by default (Diag\D3D32), X8R8G8B8 AND A8R8G8B8 texture
 formats (VSA-100 ARGB8888, h5 Glide gtex.c SST_ARGB8888), textures up to
 2048x1024 (VSA-100 "big" LODs, gtex.c SST_TBIG / _g3LodXlat base 2048), and
 ValidateDevice acceptance of NewDark's two-stage lightmap setups - unproven.
+
+2026-09-28 (16:40) - DIRECT3D 9 OPENS WITH THE SWITCHES ARMED
+With Diag\D3D32=1 and Diag\D3DBigTex=7 armed on .124, NewDark's Direct3D 9
+display (cam_ext.cfg in place) opens at 1280x960x32@85 - main menu, New Game ->
+"Running Interference" IN MISSION (sky with moon, lightmapped geometry, HUD),
+menu Quit back to the desktop; no "not supported" dialog. The two-stage
+lightmap ValidateDevice question above is therefore answered for this build.
+Frames: retro-agent/scripts/benchmarks/results/v56k_lan_192.168.1.124/day/fbshots/
+thief2_d3d9_armed_*.png, thief2_launcher_d3d9_*.png.
+The launcher now keeps cam_ext.cfg where vcrmp runs AND D3D32=1 AND D3DBigTex
+has bits 0 and 2 (newdark_display_swap); DX6 remains the path without them. The
+DX6 path's 640x480 (above) is moot on an armed box and still unexplained.

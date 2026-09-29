@@ -65,11 +65,15 @@ def _block():
 # ---------------------------------------------------------------------------
 # a model of exactly the cmd.exe constructs the block uses
 # ---------------------------------------------------------------------------
+DIAG = r'HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag'
+
+
 class Box:
-    def __init__(self, running, files, have_sc=True):
+    def __init__(self, running, files, have_sc=True, diag=None):
         self.running = set(running)     # services sc.exe reports RUNNING
         self.files = set(files)         # names in the game directory
         self.have_sc = have_sc
+        self.diag = dict(diag or {})    # vcrmp\Diag REG_DWORD values
         self.env = {}
 
     def expand(self, s):
@@ -114,6 +118,19 @@ class Box:
             if self.have_sc and m.group(1) in self.running:
                 self.stmt(m.group(2))
             return
+        m = re.fullmatch(r'reg query "([^"]+)" /v (\w+) 2>nul \| '
+                         r'findstr /r /i /c:"([^"]+)" >nul && (.+)', s)
+        if m:
+            key, name, rx, then = m.groups()
+            assert key == DIAG, 'reg query of anything but vcrmp\\Diag: %r' % key
+            # only what findstr and Python agree on: literals, a class, $
+            assert re.fullmatch(r'[0-9A-Za-z\[\]]+\$?', rx), rx
+            v = self.diag.get(name)
+            if v is not None:            # reg.exe prints NAME<tab>TYPE<tab>0x..
+                line = '%s\tREG_DWORD\t0x%x' % (name, v)
+                if re.search(rx, line, re.I):
+                    self.stmt(then)
+            return
         raise AssertionError('the model does not know this line - reason about '
                              'it and teach the model: %r' % s)
 
@@ -144,8 +161,8 @@ class Box:
 EXT, ASIDE = 'cam_ext.cfg', 'cam_ext.cfg.d3d9'
 
 
-def _run(running, files, have_sc=True):
-    return Box(running, files, have_sc).run(_block()['lines'])
+def _run(running, files, have_sc=True, diag=None):
+    return Box(running, files, have_sc, diag).run(_block()['lines'])
 
 
 # ---------------------------------------------------------------------------
@@ -207,11 +224,55 @@ def test_a_probe_that_cannot_run_is_the_librarys_own_behaviour():
 
 def test_the_test_is_the_running_service_not_its_key():
     """A rollback leaves Services\\vcrmp behind with the device bound to the
-    vendor driver; a key-presence test would keep that box on DX6 forever."""
-    text = '\n'.join(_block()['lines'])
+    vendor driver; a key-presence test would keep that box on DX6 forever.
+    The registry is read only for the Diag SWITCHES, and a switch can only
+    take a box OFF the DX6 path - never put one on it."""
+    lines = _block()['lines']
+    text = '\n'.join(lines)
     assert re.search(r'^sc query vcrmp .*find /i "RUNNING"', text, re.M)
-    assert 'reg query' not in text.lower()
     assert text.index('set ND_DX6=0') < text.index('sc query')
+    setters = [l for l in lines if 'set ND_DX6=1' in l]
+    assert len(setters) == 1 and setters[0].startswith('sc query '), setters
+    for l in lines:
+        if 'reg query' in l.lower():
+            assert '\\Diag"' in l and ' /v ' in l, l
+            assert 'ND_DX6' not in l, l
+
+
+def test_both_switches_armed_keep_direct3d_9_on_vcrkmd():
+    """.124 with D3D32=1 + D3DBigTex=7 (2026-09-28): NewDark's Direct3D 9
+    display runs in mission at 1280x960x32 - the library file stays."""
+    armed = {'D3D32': 1, 'D3DBigTex': 7}
+    box = _run({'vcrmp'}, {EXT}, diag=armed)
+    assert box.files == {EXT} and box.env['ND_DX6'] == '0'
+    # ...and a box that was on DX6 gets cam_ext.cfg back
+    box = _run({'vcrmp'}, {ASIDE}, diag=armed)
+    assert box.files == {EXT}
+    assert 'nd_dx6-error.txt' not in box.files
+
+
+def test_the_bigtex_test_is_exactly_bits_0_and_2():
+    """0x5/0x7/0xd/0xf - textures up to 2048 AND A8R8G8B8. DXT (bit 1) is not
+    needed; either missing bit is the DX6 path."""
+    for v in range(16):
+        box = _run({'vcrmp'}, {EXT}, diag={'D3D32': 1, 'D3DBigTex': v})
+        want_d3d9 = (v & 5) == 5
+        assert (box.env['ND_DX6'] == '0') == want_d3d9, v
+        assert (EXT in box.files) == want_d3d9, v
+
+
+def test_either_switch_alone_is_the_dx6_path():
+    for diag in ({'D3D32': 1}, {'D3DBigTex': 7}, {'D3D32': 0, 'D3DBigTex': 7},
+                 {'D3D32': 2, 'D3DBigTex': 7}, {}):
+        box = _run({'vcrmp'}, {EXT}, diag=diag)
+        assert box.files == {ASIDE} and box.env['ND_DX6'] == '1', diag
+
+
+def test_switches_left_behind_do_nothing_without_the_driver():
+    """The vendor driver back on a box whose Diag key still says armed: that is
+    plain Direct3D 9, and nothing is moved."""
+    box = _run(set(), {EXT}, diag={'D3D32': 1, 'D3DBigTex': 7})
+    assert box.files == {EXT} and box.env['ND_DX6'] == '0'
 
 
 def test_the_block_is_plain_cmd():
@@ -236,7 +297,8 @@ def test_staging_the_block_is_idempotent_and_refreshable(tmp_path):
     r = sf.Runner(str(tmp_path), False, False)
     r.post_block(str(t), 'Thief2', pb)
     once = (t / 'Play Thief 2.bat').read_bytes().decode('latin1')
-    assert once.count('set ND_DX6=0') == 1
+    assert once.count(pb['lines'][0]) == 1        # inserted once, not stacked
+    assert once.count('sc query vcrmp') == 1
     assert once.index('set ND_DX6=0') < once.index('start "" Thief2.exe')
     assert '\r\n' in once and '\n' not in once.replace('\r\n', '')
     r.post_block(str(t), 'Thief2', pb)

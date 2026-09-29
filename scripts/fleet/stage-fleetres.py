@@ -494,6 +494,7 @@ NEWDARK_ASIDE = "cam_ext.cfg.d3d9"
 NEWDARK_ERR = "nd_dx6-error.txt"
 NEWDARK_ERR_BAT = "%~dp0" + NEWDARK_ERR
 VCRKMD_SERVICE = "vcrmp"
+VCRKMD_DIAG = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\%s\\Diag" % VCRKMD_SERVICE
 
 
 # --------------------------------------------------------------------------
@@ -606,20 +607,40 @@ def newdark_display_swap():
     back to the desktop. It opened 640x480 although cam.cfg asks 1280x960 -
     the DX6 path's mode choice, not yet explained.
 
-    DELETE THIS BLOCK (and its tests) the day vcr-kmd's HAL offers X8R8G8B8
-    and A8R8G8B8 textures up to 2048x2048 and 32 bpp targets by default -
-    then NewDark's Direct3D 9 display can open there too.
+    DIRECT3D 9 WHERE vcr-kmd's SWITCHES PROVIDE IT (2026-09-28). With
+    Diag\D3D32=1 (32 bpp targets) and Diag\D3DBigTex bits 0 (textures up to
+    2048x2048) and 2 (A8R8G8B8) armed, NewDark's Direct3D 9 display opens on
+    .124 at the full 1280x960x32@85 - menus, New Game -> "Running
+    Interference" in mission (sky, lightmaps, HUD), menu Quit back to the
+    desktop - where the DX6 path gave 640x480. So the launcher keeps
+    cam_ext.cfg there. The switches are read from the REGISTRY, and the
+    miniport reads them only at boot: armed-but-not-yet-rebooted gets
+    NewDark's own "not supported" dialog (visible, never silent), and
+    disarmed-not-yet-rebooted gets the working DX6 path. The value test is
+    one `findstr` per switch - 0x1, and 0x5/0x7/0xd/0xf (bits 0 and 2 of the
+    three defined, include/vcr_ioctl.h VCR_INFO_F_BIGTEX/TEX32) - so the
+    block needs no `for` loop and no arithmetic.
+
+    DELETE THIS BLOCK (and its tests) the day vcr-kmd offers those by
+    default - NewDark's Direct3D 9 display then opens everywhere.
     """
     ext = '%~dp0' + NEWDARK_EXT
     aside = '%~dp0' + NEWDARK_ASIDE
     return [
         'rem ---- per-box DISPLAY SYSTEM - see stage-fleetres.py newdark_display_swap ----',
-        'rem NewDark\'s Direct3D 9 display needs a screen-sized 32-bit texture;',
-        'rem vcr-kmd\'s HAL has 16-bit textures of at most 256x256. Where vcr-kmd',
-        'rem drives the screen cam_ext.cfg is moved aside and NewDark runs its',
-        'rem legacy DirectX 6 display at 16 bpp, which that HAL can host.',
+        'rem NewDark\'s Direct3D 9 display needs 32 bpp targets and 32-bit textures',
+        'rem up to 2048x1024. vcr-kmd offers them only with Diag D3D32=1 and',
+        'rem D3DBigTex bits 0 and 2 armed; without them cam_ext.cfg is moved aside',
+        'rem and NewDark runs its legacy DirectX 6 display at 16 bpp.',
         'set ND_DX6=0',
         'sc query %s 2>nul | find /i "RUNNING" >nul && set ND_DX6=1' % VCRKMD_SERVICE,
+        'set ND_D3D32=0',
+        'set ND_BIGTEX=0',
+        'reg query "%s" /v D3D32 2>nul | findstr /r /i /c:"0x1$" >nul && set ND_D3D32=1'
+        % VCRKMD_DIAG,
+        'reg query "%s" /v D3DBigTex 2>nul | findstr /r /i /c:"0x[57df]$" >nul && set ND_BIGTEX=1'
+        % VCRKMD_DIAG,
+        'if "%ND_D3D32%"=="1" if "%ND_BIGTEX%"=="1" set ND_DX6=0',
         'if "%ND_DX6%"=="1" (',
         '  if exist "%s" move /y "%s" "%s" >nul' % (ext, ext, aside),
         ') else (',
