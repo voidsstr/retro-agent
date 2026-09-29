@@ -25,6 +25,7 @@ preference: each check encodes a defect that actually reached a box.
 """
 
 import argparse
+import hashlib
 import json
 import os
 import tempfile
@@ -886,6 +887,57 @@ def _acquire_lock(wait_s, quiet=False):
         time.sleep(2.0)
 
 
+def check_icon_names_9x(lib, titles):
+    """Windows 98's shell caches an icon by its FILE NAME, not its path.
+
+    Measured on .243 (2026-09-29): 39 Flight-* titles each shipped their own
+    ICON.ICO, at 39 different paths, and every one of their desktop icons drew
+    F-14 Fleet Defender's art. Uniquely named icons on the same desktop
+    (DESCENT9.ICO, hexen2.ico, Q2.ico) drew correctly. So two Windows 9x
+    shortcuts whose icons share a file name but differ in content FAIL."""
+    seen = {}                      # NAME.ICO -> {md5: [title, ...]}
+    for t in titles:
+        tdir = os.path.join(lib, t)
+        lpath = os.path.join(tdir, "launch.txt")
+        if not os.path.isfile(lpath):
+            continue
+        try:
+            with open(os.path.join(tdir, "requires.json"), encoding="utf-8") as fh:
+                req = json.load(fh)
+            req = req if isinstance(req, dict) else {}
+        except (OSError, ValueError):
+            req = {}
+        for line in read_text(lpath)[:LAUNCH_TXT_READ_LIMIT].splitlines():
+            if not line.strip() or line.strip().startswith("#"):
+                continue
+            parts = line.rstrip("\r\n").split("\t")
+            icon = parts[2].strip() if len(parts) >= 3 else ""
+            if not icon.lower().endswith(".ico"):
+                continue
+            if shortcut_os_range(req, parts[0].strip())[1] != "win9x":
+                continue
+            ipath = os.path.join(tdir, icon.replace("\\", os.sep))
+            try:
+                with open(ipath, "rb") as fh:
+                    digest = hashlib.md5(fh.read()).hexdigest()
+            except OSError:
+                continue                # check_title() reports a missing icon
+            name = os.path.basename(icon.replace("\\", "/")).upper()
+            seen.setdefault(name, {}).setdefault(digest, set()).add(t)
+    out = []
+    for name, by_md5 in sorted(seen.items()):
+        if len(by_md5) < 2:
+            continue
+        owners = sorted(set().union(*by_md5.values()))
+        for t in owners:
+            out.append(Problem(t, "fail", "icon", (
+                "its Windows 9x shortcut's icon is named %s, like %d other title(s)' "
+                "different icons (%s) - Windows 98 caches icons by FILE NAME, so "
+                "all of them show one picture. Give each title its own icon name"
+                % (name, len(owners) - 1, ", ".join(o for o in owners if o != t)[:200]))))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -918,6 +970,7 @@ def main():
     problems = []
     for t in titles:
         problems.extend(check_title(lib, t))
+    problems.extend(check_icon_names_9x(lib, titles))
 
     fails = [p for p in problems if p.severity == "fail"]
     warns = [p for p in problems if p.severity == "warn"]

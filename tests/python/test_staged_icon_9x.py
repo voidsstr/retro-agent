@@ -145,3 +145,24 @@ def test_no_requires_json_means_a_9x_box_could_receive_it(tmp_path):
     lib = _title(tmp_path, "Mystery", [("Play.bat", "Mystery", "m.ico")], None,
                  {"m.ico": _ico([_dib(32)])})
     assert [p[0] for p in _problems(lib, "Mystery")] == ["warn"]
+
+
+def test_two_titles_whose_9x_icons_share_a_file_name_fail(tmp_path):
+    """.243, 2026-09-29: every Flight-* title shipped its own ICON.ICO and all
+    39 desktop icons drew the same art - Windows 98 caches icons by file name."""
+    req = {"shortcuts": {"Play.bat": {"max_os": "win9x"}}}
+    lib = _title(tmp_path, "Flight-A", [("Play.bat", "A", "ICON.ICO")], req,
+                 {"ICON.ICO": _ico([_dib(8)])})
+    _title(tmp_path, "Flight-B", [("Play.bat", "B", "ICON.ICO")], req,
+           {"ICON.ICO": _ico([_dib(8), _dib(4)])})
+    probs = vl.check_icon_names_9x(lib, ["Flight-A", "Flight-B"])
+    assert sorted(p.title for p in probs) == ["Flight-A", "Flight-B"]
+    assert all(p.severity == "fail" and "FILE NAME" in p.detail for p in probs)
+    # the SAME bytes under one name draw the same picture anyway: no problem
+    lib2 = _title(tmp_path / "s", "X", [("Play.bat", "X", "Q.ICO")], req, {"Q.ICO": _ico([_dib(8)])})
+    _title(tmp_path / "s", "Y", [("Play.bat", "Y", "Q.ICO")], req, {"Q.ICO": _ico([_dib(8)])})
+    assert vl.check_icon_names_9x(lib2, ["X", "Y"]) == []
+    # unique names: no problem
+    lib3 = _title(tmp_path / "u", "P", [("Play.bat", "P", "P.ICO")], req, {"P.ICO": _ico([_dib(8)])})
+    _title(tmp_path / "u", "R", [("Play.bat", "R", "R.ICO")], req, {"R.ICO": _ico([_dib(4)])})
+    assert vl.check_icon_names_9x(lib3, ["P", "R"]) == []
