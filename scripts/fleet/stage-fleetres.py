@@ -414,6 +414,25 @@ def ue_ini(ini, section="WinDrv.WindowsClient"):
     ]
 
 
+def ue_userini_seed(sysdir="System"):
+    """Unreal Engine 1/2 copies DefUser.ini to User.ini - and with it every key
+    and mouse binding, in [Engine.Input] - ONLY when User.ini does not exist.
+    Epic's installer leaves a User.ini holding nothing but its own wizard's
+    [WindowPositions], so a tree captured straight after setup ships that stub
+    and the game starts with NOTHING bound: measured 2026-09-29 on every UT2004
+    box (renders, joins the server, ignores keyboard and mouse). So before any
+    FLEETRES write to User.ini, a User.ini without [Engine.Input] is re-seeded
+    from DefUser.ini. `echo` leaves ERRORLEVEL alone, so both ifs see find's."""
+    u = '"%%~dp0%s\\User.ini"' % sysdir
+    d = '"%%~dp0%s\\DefUser.ini"' % sysdir
+    return [
+        'rem UE_USERINI: re-seed a User.ini that has no key bindings from DefUser.ini',
+        'find /c "[Engine.Input]" %s >nul 2>&1' % u,
+        'if errorlevel 1 echo fleet: %s\\User.ini has no key bindings - re-seeding it from DefUser.ini' % sysdir,
+        'if errorlevel 1 copy /Y %s %s >nul' % (d, u),
+    ]
+
+
 def dosbox_conf(conf):
     """fullresolution=original changes the WHOLE DESKTOP to the DOS mode - on a
     16:9 LCD that is a stretched 640x480 upscale, and it is left behind after a
@@ -1187,6 +1206,19 @@ TITLES = {
             "Join fleet UT2004 server.bat": rec(
                 'cd /d "%~dp0System"', [CALL] + ue_ini("System\\UT2004.ini")),
         },
+        # Above the FLEETRES call, so it runs before the launcher (or anything
+        # else) writes User.ini - see ue_userini_seed().
+        "post": [{
+            "file": "Play UT2004.bat",
+            "marker": "UE_USERINI",
+            "before": CALL,
+            "lines": ue_userini_seed(),
+        }, {
+            "file": "Join fleet UT2004 server.bat",
+            "marker": "UE_USERINI",
+            "before": CALL,
+            "lines": ue_userini_seed(),
+        }],
     },
     "UnrealGold": {
         "launchers": {

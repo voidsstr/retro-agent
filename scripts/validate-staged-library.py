@@ -275,6 +275,30 @@ def find_ci(directory, name):
     return None
 
 
+# Unreal Engine 1/2 builds User.ini - and every key and mouse binding, in its
+# [Engine.Input] section - from DefUser.ini ONLY when User.ini is missing.
+# Epic's installer leaves a User.ini holding just its own wizard's
+# [WindowPositions]; a tree captured straight after setup ships that stub and
+# the game runs with NOTHING bound. It rendered and joined the fleet server on
+# every UT2004 box on 2026-09-29 and ignored keyboard and mouse on all of them.
+# Returns None when fine, else the reason.
+def ue_userini_problem(sysdir):
+    defuser = find_ci(sysdir, "DefUser.ini")
+    user = find_ci(sysdir, "User.ini")
+    if not defuser or not user:
+        return None
+    def has_input(path):
+        try:
+            with open(path, "rb") as fh:
+                return b"[engine.input]" in fh.read().lower()
+        except OSError:
+            return True        # unreadable: not evidence of the stub
+    if has_input(defuser) and not has_input(user):
+        return ("User.ini has no [Engine.Input] although DefUser.ini does - the "
+                "installer stub; the engine only builds User.ini from DefUser.ini "
+                "when it is MISSING, so every key and mouse button is unbound")
+    return None
+
 def find_ci_path(base, relpath):
     """Case-insensitive lookup of a MULTI-COMPONENT relative path.
 
@@ -459,6 +483,15 @@ def check_title(lib, title):
         warn("icon", "icon %r %s - a Windows 9x box that receives this title "
                      "would show it" % (icon, icon_9x_problem(os.path.join(
                          tdir, icon.replace("\\", os.sep)))))
+
+    # --- Unreal Engine User.ini: an installer stub unbinds every key --------
+    for sysname in ("System", "SYSTEM"):
+        sysdir = find_ci(tdir, sysname)
+        if sysdir:
+            why = ue_userini_problem(sysdir)
+            if why:
+                fail("user.ini", why)
+            break
 
     # --- install.reg: merged after copying; malformed = silently not merged --
     rpath = os.path.join(tdir, "install.reg")

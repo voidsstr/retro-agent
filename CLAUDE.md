@@ -1269,6 +1269,13 @@ it satisfies all of this:
    generated on the box by the launcher (see Red Alert 2).
 5. **Fullscreen**, set in the tree — and a resolution the box's monitor
    actually supports.
+   **Unreal Engine titles: never stage the installer's `User.ini`.** Epic's
+   setup writes one holding only its wizard's `[WindowPositions]`, and UE1/UE2
+   build `User.ini` - every key and mouse binding, in `[Engine.Input]` - from
+   `DefUser.ini` ONLY when it is missing. UT2004 shipped that stub and on
+   2026-09-29 rendered, joined the server and ignored keyboard and mouse on
+   every box. Its launchers now re-seed a bindless `User.ini`
+   (`ue_userini_seed()` in `stage-fleetres.py`); the validator fails the stub.
 6. **Relocatable** — no absolute paths assuming the machine it was built on.
 7. **Multiplayer patched to the version our servers run**, and LAN proven on two
    machines if the title has it.

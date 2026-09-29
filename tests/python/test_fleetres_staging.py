@@ -1095,3 +1095,89 @@ def test_a_stale_post_block_is_refreshed_not_skipped(tmp_path):
     again = sf.Runner(str(tmp_path), dry=False, check=True)
     again.post_block(str(tdir), "Carmageddon2", pb)
     assert not again.errors and again.skipped == 1
+
+
+# ---------------------------------------------------------------------------
+# UT2004: every box rendered, joined the fleet server and ignored keyboard AND
+# mouse (2026-09-29). The staged System\User.ini was Epic's installer stub
+# ([WindowPositions] only); UE2 builds User.ini - with every binding, in
+# [Engine.Input] - from DefUser.ini ONLY when User.ini is missing, so the game
+# never got one. Both launchers now re-seed a bindless User.ini first.
+# ---------------------------------------------------------------------------
+_UT2004_JOIN_1_95 = "\r\n".join([
+    "@echo off",
+    'call "%~dp0FLEETRES.BAT"',
+    'if exist "%~dp0FLEETRES.EXE" (',
+    '  "%~dp0FLEETRES.EXE" -ini "%~dp0System\\UT2004.ini" WinDrv.WindowsClient FullscreenViewportX %FR_W%',
+    ')',
+    "",
+    'if exist "%~dp0FLEETRES.EXE" (',
+    '  "%~dp0FLEETRES.EXE" -ini "%~dp0System\\User.ini" DefaultPlayer Name %COMPUTERNAME%',
+    ')',
+    "",
+    'cd /d "%~dp0System"',
+    'start "" "UT2004.exe" "192.168.1.132:7777"',
+    "",
+    "exit",
+    ""])
+
+
+def test_ut2004_launchers_carry_the_userini_reseed():
+    posts = {p["file"]: p for p in sf.TITLES["UT2004"]["post"]}
+    assert set(posts) == {"Play UT2004.bat", "Join fleet UT2004 server.bat"}
+    for pb in posts.values():
+        assert pb["marker"] == "UE_USERINI" and pb["before"] == sf.CALL
+        body = "\n".join(pb["lines"])
+        assert 'find /c "[Engine.Input]" "%~dp0System\\User.ini"' in body
+        assert 'copy /Y "%~dp0System\\DefUser.ini" "%~dp0System\\User.ini"' in body
+        assert "(" not in body and ")" not in body     # no parens in a .bat line
+
+
+def test_the_reseed_lands_above_every_userini_write(tmp_path):
+    tdir = tmp_path / "UT2004"
+    tdir.mkdir()
+    (tdir / "Join fleet UT2004 server.bat").write_bytes(_UT2004_JOIN_1_95.encode("latin1"))
+    pb = [p for p in sf.TITLES["UT2004"]["post"]
+          if p["file"] == "Join fleet UT2004 server.bat"][0]
+    chk = sf.Runner(str(tmp_path), dry=False, check=True)
+    chk.post_block(str(tdir), "UT2004", pb)
+    assert chk.errors and "no UE_USERINI block" in chk.errors[0]   # the old launcher is caught
+    run = sf.Runner(str(tmp_path), dry=False, check=False)
+    run.post_block(str(tdir), "UT2004", pb)
+    new = (tdir / "Join fleet UT2004 server.bat").read_bytes().decode("latin1")
+    assert not run.errors and "\r\n" in new
+    seed = new.index('find /c "[Engine.Input]"')
+    assert seed < new.index('call "%~dp0FLEETRES.BAT"')
+    assert seed < new.index("DefaultPlayer Name")
+    again = sf.Runner(str(tmp_path), dry=False, check=True)
+    again.post_block(str(tdir), "UT2004", pb)
+    assert not again.errors and again.skipped == 1
+
+
+_DEFUSER = b"[DefaultPlayer]\r\nName=Player\r\n\r\n[Engine.Input]\r\nAliases[0]=(Command=\"Button bFire | Fire\",Alias=Fire)\r\nLeftMouse=Fire\r\n"
+_STUB = b"[WindowPositions]\r\nWizardDialog=(X=535,Y=348,XL=530,YL=443)\r\n"
+
+
+def test_validator_fails_the_installer_userini_stub(tmp_path):
+    _title(tmp_path, "UT2004", {
+        "launch.txt": "Play UT2004.bat\tUT2004\tSystem\\UT2004.exe\r\n",
+        "Play UT2004.bat": "@echo off\r\n",
+        "System/UT2004.exe": b"MZ",
+        "System/DefUser.ini": _DEFUSER,
+        "System/User.ini": _STUB,
+    })
+    probs = vl.check_title(str(tmp_path), "UT2004")
+    assert any(p.check == "user.ini" and p.severity == "fail" for p in probs), \
+        [(p.check, p.detail) for p in probs]
+
+
+def test_validator_passes_a_userini_that_has_bindings(tmp_path):
+    _title(tmp_path, "UT2004", {
+        "launch.txt": "Play UT2004.bat\tUT2004\tSystem\\UT2004.exe\r\n",
+        "Play UT2004.bat": "@echo off\r\n",
+        "System/UT2004.exe": b"MZ",
+        "System/DefUser.ini": _DEFUSER,
+        "System/User.ini": _DEFUSER,
+    })
+    assert not [p for p in vl.check_title(str(tmp_path), "UT2004") if p.check == "user.ini"]
+    assert vl.ue_userini_problem(str(tmp_path / "UT2004" / "System")) is None
