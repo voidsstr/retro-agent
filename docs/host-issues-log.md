@@ -127,6 +127,8 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   planning `.243` boot-sector work; no VM running - the 86Box Win98 VM was stopped at ~12:55).
 - **Mitigations in effect:** `nvidia-power-cap.service` 400 W and the 210-2400 MHz lock, both re-applied at
   13:18:38 this boot (journal: `GPU clocks set to "(gpuClkMin 210, gpuClkMax 2400)"`). Link x16.
+- **CAUSE CONFIRMED by the user (2026-09-29 ~13:25): a tripped circuit breaker** - mains, not the host. Reset
+  by the user. The GPU mitigations are not implicated in this one.
 - **Other machines rebooted at the same moment - which points at MAINS rather than the host's PSU:**
   fleet boxes `.123` and `.240` report agent uptimes that put their boots at 13:18:12 and 13:18:00, the same
   event, while whitebeast (`.249`, up since 09-24) stayed up. A host PSU trip cannot reset other machines, so
