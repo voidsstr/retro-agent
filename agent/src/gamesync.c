@@ -5049,7 +5049,7 @@ static int gs_reg_entry_owned(const rm_entry_t *e)
     /* Only while the owning title is here: HalfLife1's install.reg names the
      * key CounterStrike16's rule owns, and on a box without Counter-Strike
      * nothing else would ever set it. */
-    _snprintf(dir, sizeof(dir) - 1, "%s\\%s", GS_DEST, owner);
+    _snprintf(dir, sizeof(dir) - 1, "%s\\%s", g_gs_dest, owner);
     dir[sizeof(dir) - 1] = 0;
     return gs_file_exists(dir);
 }

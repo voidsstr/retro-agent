@@ -213,7 +213,10 @@ def test_ownership_needs_the_owning_title_installed():
     box without Counter-Strike nothing else would ever set it."""
     o = _func(_read(GAMESYNC), "gs_reg_entry_owned")
     assert "gameres_reg_owner(rm_root_name(e->root), e->key, e->name)" in o
-    assert "GS_DEST, owner" in o and "gs_file_exists(dir)" in o
+    # The games folder is per box since 1.93.0 (GamesDir): the owner check
+    # must look in the RESOLVED folder, never the old fixed C:\\Games constant.
+    assert "g_gs_dest, owner" in o and "gs_file_exists(dir)" in o
+    assert "GS_DEST," not in o
     assert "e->op != RM_OP_SET" in o
 
 
