@@ -1124,6 +1124,25 @@ So, when writing to `/mnt/retro-share`:
   failure stops the run with a `PUBLISH FAILED` banner. A generator that gained
   a plain `open(..., 'wb')` fails `tests/python/test_libwrite.py`. Round-trip
   check: `python3 scripts/fleet/libwrite.py selftest`.
+* **A library write can resync the whole fleet - so a generator never creates
+  a title and never writes the library root.** `retro-autodeploy` (a `--user`
+  service, 90 s passes) answers a NEW top-level directory, and any change of
+  `_deploy_generation.txt`, with `GAMESYNC RESET` + `START` on every box that
+  answers - including boxes another session is using. Seen 2026-09-29: a new
+  title created at 05:40:44, `.123` syncing it at 05:41:50. `sharewrite.py put`
+  creates every missing parent, so ONE mistyped title in a path is a new title.
+  libwrite refuses both before sending anything (`_`-prefixed support dirs stay
+  writable); **`sharewrite.py put` by hand has no such guard** - check the title
+  name, and bump the generation only when a fleet-wide sync is what you mean.
+* **libwrite repairs a write that does not land, not just reports it.** The
+  previous bytes are read first; after a failed put the share is left holding
+  the new bytes or the previous ones - the previous version is put back
+  (verified), a partial NEW file is deleted, and a copy that cannot go back is
+  kept under `~/.retro-fleet/libwrite-rescue/` and named in the error, with the
+  `sharewrite.py put` line that restores it. Identical bytes are never
+  rewritten: that only moves the write time, and every box would recopy them.
+  Both drilled live on the NAS 2026-09-29 (a same-size overwrite, and a really
+  torn file put back) under `_patches/_sharewrite_selftest/`.
 
 A related trap from the same day: **a template change is not finished until the
 launchers ship.** `test_shipped_launcher_matches_its_spec` reads the SHARE, and

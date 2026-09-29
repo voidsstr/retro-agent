@@ -155,14 +155,19 @@ def main():
     # args.out on the read-only /mnt share (or --via-smb) publishes through
     # sharewrite.py and is verified through /mnt before this returns.
     try:
-        with libwrite.writer_for(os.path.dirname(os.path.abspath(args.out)),
-                                 via_smb=args.via_smb) as w:
-            w.write_bytes(args.out, data)
-            kind = w.kind
+        w = libwrite.writer_for(os.path.dirname(os.path.abspath(args.out)),
+                                via_smb=args.via_smb)
     except libwrite.LibWriteError as e:
-        print(libwrite.failure_banner(e), file=sys.stderr)
+        print(str(e), file=sys.stderr)       # a usage error: nothing was tried
+        return 2
+    try:
+        with w:
+            did = w.write_bytes(args.out, data)
+    except libwrite.LibWriteError as e:
+        print(libwrite.failure_banner(e, w), file=sys.stderr)
         return 3
-    print('wrote %s (%d bytes, %s backend)' % (args.out, len(data), kind))
+    print('%s %s (%d bytes, %s backend)'
+          % ('wrote' if did else 'unchanged', args.out, len(data), w.kind))
     return 0
 
 

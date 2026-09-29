@@ -485,7 +485,11 @@ def main():
 
     # A library on the read-only /mnt share (or --via-smb) is published one
     # verified file at a time; the first write that does not land ends the run.
-    writer = libwrite.writer_for(args.library, via_smb=args.via_smb)
+    try:
+        writer = libwrite.writer_for(args.library, via_smb=args.via_smb)
+    except libwrite.LibWriteError as e:
+        print(str(e), file=sys.stderr)       # a usage error: nothing was tried
+        raise SystemExit(2)
     try:
         with writer:
             rc = _stage(args, writer)
