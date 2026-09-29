@@ -129,7 +129,7 @@ launcher; MP verified 09-28). The CHECKs, by kind:
 |---|---|---|
 | rendered, then force-closed (not focused / ignores WM_CLOSE) | Yuri's Revenge, SiN software, SoF2 MP, Thief Gold, Thief II, Unreal Gold | the sweep's close path, not the game |
 | the title's own launcher dialog | Max Payne v1.05, Shogo "via launcher" | waits for a click (the direct Shogo shortcut PASSES) |
-| disc / copy protection | System Shock 2 (SafeDisc v1), Serious Sam TFE + TSE (CD check) | `.124` mounts with **WinCDEmu**, which emulates no protection; the user asked for Daemon Tools here - not yet installed |
+| disc / copy protection | System Shock 2 (SafeDisc v1), Serious Sam TFE + TSE (CD check) | **DAEMON Tools 3.47 installed on `.124` 2026-09-29** (click-through, safe-reboot; d347prt RUNNING, virtual drive D:, a System Shock 2 test mount read back `SYSTEMSHOCK2`). Jedi Academy through its launcher after that: disc `JEDIACAD_1` mounted, menu fullscreen 1280x960 4-chip SLI (`vcr-kmd/evidence/lan_20260929_sweep/jediacademy_daemontools_fbshot.png`). SS2 / Serious Sam / Max Payne launches still to re-run |
 | SoF2 "No AGP memory detected" | SoF2 SP | **FIXED in the library and verified on `.124`**: SoF2.exe asks DirectDraw for AGP memory BEFORE it reads any config, so a `seta` in `base/autoexec.cfg` changed nothing (tried, removed); `+set sys_agpmemchecked 1` in the launcher spec's GAMEARGS skips it. Through the launcher after GAMESYNC: no AGP box, the disc mounted, one first-run "New Video card detected" notice (shown until the game's config is saved by a normal exit), the menu at 1152x864@85 (`evidence/lan_20260929_sweep/sof2_menu_fbshot.png`). SoF2 does not exit on WM_CLOSE - quit from its menu |
 | Rainbow Six "RAINBOW SIX ERROR" | Rainbow Six | the known cost of the armed D3D switches |
 | black frame at 640x480 | Red Faction | **the SCANNED-OUT frame is black too** (`vcrctl fbshot`, desktop layer at 640x480x16@85, extrema 0/0 after 40 s; `evidence/lan_20260929_sweep/redfaction_fbshot.png`) - not a capture artifact: the game draws nothing visible through our D3D HAL. No dialog, no crash; it ignores WM_CLOSE (force-closed, desktop restored). A D3D-HAL investigation, not a party title |
@@ -141,7 +141,7 @@ Shift (SecuROM), BF1942 SP (SafeDisc 2.80), AvP (pre-existing). Quake II closed 
 WM_CLOSE shows "GLimp_EndFrame() - SwapBuffers() failed!": Quake II's own shutdown
 deletes the context before its last frame - quit from the console/menu is clean.
 
-**Open:** Daemon Tools on `.124` (SafeDisc/SecuROM/CD-check titles); Red Faction's
+**Open:** re-run the SafeDisc/CD-check titles now that Daemon Tools is on `.124` (installed 2026-09-29); Red Faction's
 black frame; Descent II Win95; Halo keys for `.145`/`.240`/`.123`/`.195` when on;
 GAMESYNC/GAMERES churn; the `.124` <-> NAS link speed; Halo's slow Bink path.
 
