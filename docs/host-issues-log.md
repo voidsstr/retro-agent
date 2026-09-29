@@ -138,7 +138,14 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   under the clock lock, which argues against a GPU-boost-transient-only explanation and toward the open
   physical items (12V-2x6 connector, PSU cabling/capacity) - still *likely/unproven*.
 
-### 2026-09-29 13:16:55: instant power-off at 400 W with the 2400 MHz clock lock on (signature 4)
+### 2026-09-29 13:16:55: mains power loss - a tripped breaker, NOT a host fault (looked like signature 4)
+
+- **CAUSE (the user, same afternoon): a blown breaker, since fixed.** This was a mains outage, and it says
+  nothing about the GPU, the PSU or the mitigations. **Do not count it in the crash pattern below.** The
+  "fourth unplanned outage" and "neither mitigation prevents" framing in this entry was written before the
+  cause was known and does not apply. Lesson: an outage from outside the host looks exactly like signature
+  4 (the journal stops mid-line, there is no kdump, and power is back within ~90 s). **Ask whether the
+  power went out, or check a UPS/meter log, before attributing a signature-4 event to the host.**
 
 - **Boot IDs:** `843e7fbc…` (11:49:09 → 13:16:55, uptime ~88 min) → `d08f865b…` from 13:18:26 (back 91 s later).
 - **Signature:** the journal ends mid-workload on a routine ollama line (`print_timing ... n_gen = 355,
