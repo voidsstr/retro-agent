@@ -88,6 +88,7 @@ async def kill_image(c, image):
 
 async def one_run(c, a, w, h, demo):
     base = a.basedir.rstrip("\\")
+    image = a.exe.replace("/", "\\").split("\\")[-1].upper()   # GLQUAKE.EXE, WINQUAKE.EXE ...
     log = base + "\\ID1\\QCONSOLE.LOG"
     await cmd(c, "DELETE " + log)
     line = ("LAUNCH %s\\%s -basedir %s -width %d -height %d -bpp %d -condebug +timedemo %s"
@@ -95,7 +96,10 @@ async def one_run(c, a, w, h, demo):
     t0 = time.time()
     st, d = await cmd(c, line)
     if st != 0:
-        return {"error": "LAUNCH failed: " + d.decode("ascii", "replace")}
+        # Carry the cell: the CSV and the summary are keyed on it, and a bare
+        # {"error"} used to raise KeyError there and lose EVERY run's result.
+        return {"demo": demo, "asked": "%dx%dx%d" % (w, h, a.bpp),
+                "error": "LAUNCH failed: " + d.decode("ascii", "replace")}
     text, m = "", None
     while time.time() - t0 < a.timeout:
         await asyncio.sleep(a.poll)
@@ -127,13 +131,13 @@ async def one_run(c, a, w, h, demo):
             await asyncio.sleep(1.5)
         for _ in range(8):
             await asyncio.sleep(2)
-            if not await running(c, "GLQUAKE.EXE"):
+            if not await running(c, image):
                 break
         else:
             continue
         break
     else:
-        await kill_image(c, "GLQUAKE.EXE")
+        await kill_image(c, image)
         res["note"] = "had to be killed"
     await asyncio.sleep(a.settle)
     return res
@@ -181,7 +185,8 @@ async def one_run_q2(c, a, w, h, demo):
     t0 = time.time()
     st, d = await cmd(c, line)
     if st != 0:
-        return {"error": "LAUNCH failed: " + d.decode("ascii", "replace")}
+        return {"demo": demo, "asked": "%dx%dx16" % (w, h),
+                "error": "LAUNCH failed: " + d.decode("ascii", "replace")}
     text, m = "", None
     while time.time() - t0 < a.timeout:
         await asyncio.sleep(a.poll)
@@ -285,33 +290,7 @@ async def main():
                "results": results, "meta": meta}
     with open(os.path.join(outdir, "results.json"), "w") as f:
         json.dump(summary, f, indent=2)
-    osd = hw.get("os") or {}
-    gpu = hw.get("gpu") or {}
-    ram = hw.get("ram_mb")
-    rows = []
-    for r in results:
-        w, h, bpp = r["asked"].split("x")
-        rows.append({
-            "stamp": stamp,
-            "title": (("Quake II software (%s)" if a.ref == "soft" else "Quake II (%s)") if a.game == "quake2"
-                      else "GLQuake (%s)") % r["demo"],
-            "engine": "quake2.exe (3.20)" if a.game == "quake2" else a.exe,
-            "api": ("ref_soft (software, DirectDraw)" if a.ref == "soft" else
-                    "ref_gl -> %s (3dfx MiniGL)" % a.gl_driver) if a.game == "quake2"
-                   else "MiniGL (3dfxgl, Quake II 3.20)",
-            "res": "%sx%s" % (w, h), "mode_line": r.get("mode_ran") or "",
-            "width": w, "height": h, "colordepth": bpp, "chips": 1, "aa_label": "off",
-            "avg_fps": r.get("fps", ""), "frames": r.get("frames", ""),
-            "seconds": r.get("seconds", ""), "gl_renderer": r.get("renderer") or "",
-            "game_exe": "quake2.exe" if a.game == "quake2" else a.exe, "driver_pkg": "3dfx Voodoo2 reference 3.02.02 (Glide 2.56)",
-            "os_build": "%s %s" % (osd.get("name", ""), osd.get("version", "")),
-            "agent_ver": hw.get("agent_version", ""),
-            "gpu": "%s + %s" % (a.card, gpu.get("name", "")), "cpu_mhz": (hw.get("cpu") or {}).get("mhz", ""),
-            "mem_avail_mb": ram or "",
-            "status": "ok" if r.get("fps") else "fail",
-            "notes": "; ".join(x for x in ("run %d" % r["run"], r.get("error", ""), r.get("note", ""),
-                                            "retro_chat stopped for the run", a.notes) if x),
-        })
+    rows = [csv_row(r, a, hw, stamp) for r in results]
     csv_path = a.csv or os.path.join(REPO, "scripts", "benchmarks", "results",
                                       "voodoo2_%s" % a.host, "results.csv")
     append_csv(csv_path, rows)
@@ -328,6 +307,37 @@ async def main():
         f.write("\n".join(md) + "\n")
     print("\n".join(md))
     print("results:", outdir)
+
+
+def csv_row(r, a, hw, stamp):
+    """One results.csv row - also for a run that failed before it produced a
+    number (status "fail"), which is a result too."""
+    osd = hw.get("os") or {}
+    gpu = hw.get("gpu") or {}
+    ram = hw.get("ram_mb")
+    w, h, bpp = r["asked"].split("x")
+    return ({
+            "stamp": stamp,
+            "title": (("Quake II software (%s)" if a.ref == "soft" else "Quake II (%s)") if a.game == "quake2"
+                      else ("WinQuake (%s)" if "WINQUAKE" in a.exe.upper() else "GLQuake (%s)")) % r["demo"],
+            "engine": "quake2.exe (3.20)" if a.game == "quake2" else a.exe,
+            "api": ("ref_soft (software, DirectDraw)" if a.ref == "soft" else
+                    "ref_gl -> %s (3dfx MiniGL)" % a.gl_driver) if a.game == "quake2"
+                   else ("software (WinQuake, DirectDraw/DIB)" if "WINQUAKE" in a.exe.upper()
+                         else "MiniGL (3dfxgl, Quake II 3.20)"),
+            "res": "%sx%s" % (w, h), "mode_line": r.get("mode_ran") or "",
+            "width": w, "height": h, "colordepth": bpp, "chips": 1, "aa_label": "off",
+            "avg_fps": r.get("fps", ""), "frames": r.get("frames", ""),
+            "seconds": r.get("seconds", ""), "gl_renderer": r.get("renderer") or "",
+            "game_exe": "quake2.exe" if a.game == "quake2" else a.exe, "driver_pkg": "3dfx Voodoo2 reference 3.02.02 (Glide 2.56)",
+            "os_build": "%s %s" % (osd.get("product") or osd.get("name", ""), osd.get("version", "")),
+            "agent_ver": hw.get("agent_version", ""),
+            "gpu": "%s + %s" % (a.card, gpu.get("name", "")), "cpu_mhz": (hw.get("cpu") or {}).get("mhz", ""),
+            "mem_avail_mb": ram or "",
+            "status": "ok" if r.get("fps") else "fail",
+            "notes": "; ".join(x for x in ("run %d" % r.get("run", 0), r.get("error", ""), r.get("note", ""),
+                                            "retro_chat stopped for the run", a.notes) if x),
+        })
 
 
 if __name__ == "__main__":

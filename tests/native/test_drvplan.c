@@ -30,8 +30,12 @@ int main(void)
     CHECK(ST(28, 1, 0, 0, "USB", "", "USB controller") == DRVST_MISSING, "problem 28 is missing");
     CHECK(ST(10, 1, 0, 0, "Net", "PCI\\VEN_10EC&DEV_8139", "RTL8139") == DRVST_MISSING,
           "problem 10 (failed start) is driver-fixable");
-    CHECK(ST(0, 1, 0, 0, "Unknown", "", "Unsupported Device") == DRVST_MISSING,
-          "Win9x's Unknown class (the SB16 'Unsupported Device') is missing");
+    CHECK(ST(0, 1, 0, 0, "Unknown", "", "Unknown Device") == DRVST_MISSING,
+          "Win9x's Unknown class with no match is missing");
+    CHECK(ST(0, 1, 0, 0, "Unknown", "*pnpffff", "Unsupported Device") == DRVST_OK,
+          "the SB16 PnP's reserved DEV0002 - MSDET.INF's *PNPFFFF 'Unsupported Device' - is ok, not missing (.243 2026-09-28)");
+    CHECK(ST(10, 1, 0, 0, "Unknown", "*PNPFFFF", "Unsupported Device") == DRVST_MISSING,
+          "...but a *PNPFFFF device WITH a driver-fixable problem is still reported");
     CHECK(ST(12, 1, 0, 0, "MEDIA", "ISAPNP\\CTL0024", "Sound Blaster 16") == DRVST_PROBLEM,
           "problem 12 (resources) is not a driver's fault");
     CHECK(ST(0, 1, 0, 0, "Display", "PCI\\CC_0300", "Standard PCI Graphics Adapter (VGA)") == DRVST_GENERIC,

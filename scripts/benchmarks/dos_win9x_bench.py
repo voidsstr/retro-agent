@@ -51,8 +51,17 @@ def quake_cfg(demo, waits=4000):
     """A cfg that timedemos `demo` and then QUITS: DOS Quake returns to its
     console after a timedemo and never exits by itself, and killing a DOS
     program on Win9x is not an option. Each `wait` holds the rest of the
-    buffer one host frame; the chain outlasts the demo, then `quit` runs."""
-    lines = ['alias w10 "wait;wait;wait;wait;wait;wait;wait;wait;wait;wait"',
+    buffer one host frame; the chain outlasts the demo, then `quit` runs.
+
+    The bare `startdemos` FIRST is load-bearing: quake.rc's own
+    `startdemos demo1 demo2 demo3` runs after this cfg - i.e. after the whole
+    wait chain - so cls.demonum is still 0 when the demo ends, and the demo's
+    closing svc_disconnect (Host_EndGame) then goes to CL_NextDemo ("No demos
+    listed with startdemos") instead of CL_Disconnect -> CL_FinishTimeDemo:
+    no score is ever printed and DOS Quake 1.08 exits (measured on .243,
+    2026-09-28). An empty startdemos sets demonum to -1, as id's own flow does."""
+    lines = ["startdemos",
+             'alias w10 "wait;wait;wait;wait;wait;wait;wait;wait;wait;wait"',
              'alias w100 "w10;w10;w10;w10;w10;w10;w10;w10;w10;w10"',
              'alias w1000 "w100;w100;w100;w100;w100;w100;w100;w100;w100;w100"',
              "timedemo %s" % demo] + ["w1000"] * (waits // 1000) + ["quit", ""]

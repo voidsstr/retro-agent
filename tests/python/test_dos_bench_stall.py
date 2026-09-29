@@ -73,3 +73,4 @@ def test_quake_cfg_quits_after_the_timedemo():
     assert cfg.index("timedemo demo2") < cfg.index("quit")
     assert cfg.count("w1000") == 4
     assert cfg[-2] == "quit"
+    assert cfg[0] == "startdemos", "without it the demo ends in CL_NextDemo and no score prints (.243)"

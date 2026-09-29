@@ -114,6 +114,11 @@ DRVPLAN_API int drvplan_state(unsigned long problem, int driver_bound, int disab
     if (excl3dfx) return DRVST_EXCLUDED;
     if (disabled || problem == 22 || problem == 29) return DRVST_DISABLED;
     if (drvplan_problem_driver_fixable(problem)) return DRVST_MISSING;
+    /* *PNPFFFF is Windows' own "Unsupported Device" match (MSDET.INF): a
+     * logical device its vendor declared unsupported - the Sound Blaster 16
+     * PnP's reserved DEV0002 on .243 (2026-09-28). Nothing can be installed
+     * and nothing is wrong, so it is not "missing". */
+    if (!problem && drvplan_ieq(matching, "*PNPFFFF")) return DRVST_OK;
     if (drvplan_ieq(cls, "Unknown") || drvplan_ieq(cls, "Other"))
         return DRVST_MISSING;               /* 9x "Unsupported Device"; NT "Other devices" */
     /* No class key but no problem either: a device that RUNS without one - XP's

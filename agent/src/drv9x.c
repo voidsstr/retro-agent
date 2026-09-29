@@ -31,13 +31,20 @@ typedef struct {
     int           state, excl;
 } drv9x_rec;
 
+/* Clears the WHOLE buffer first, not just out[0]. drvsafe_ids_3dfx() walks an
+ * id list NT-style - NUL-separated strings up to an empty one - so a REG_SZ
+ * read into a reused buffer must end in TWO NULs. With only out[0] reset, a
+ * shorter HardwareID left the previous device's longer tail after its NUL and
+ * that tail was scanned as more ids: on .243 (2026-09-28) the VIA USB
+ * controller, enumerated after the Voodoo 2, read "excluded_3dfx" from the
+ * Voodoo's leftover VEN_121A. The loss is capped at cch - 2 characters. */
 static void drv9x_str(HKEY k, const char *name, char *out, DWORD cch)
 {
-    DWORD type = 0, sz = cch;
-    out[0] = 0;
+    DWORD type = 0, sz = cch - 2;
+    memset(out, 0, cch);
     if (RegQueryValueExA(k, name, NULL, &type, (LPBYTE)out, &sz) != ERROR_SUCCESS || type != REG_SZ)
-        out[0] = 0;
-    out[cch - 1] = 0;
+        memset(out, 0, cch);
+    out[cch - 1] = out[cch - 2] = 0;
 }
 
 static DWORD drv9x_dword(HKEY k, const char *name)

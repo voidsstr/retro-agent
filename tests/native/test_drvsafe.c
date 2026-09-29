@@ -42,6 +42,20 @@ int main(void)
           "the Cirrus 5436 is not");
     CHECK(!drvsafe_ids_3dfx(NULL, NULL), "no ids, no match");
 
+    /* An id list is read NT-style, up to an EMPTY string, so a REG_SZ read into
+     * a reused buffer must be double-NUL terminated by its reader. .243
+     * 2026-09-28: agent/src/drv9x.c reset only out[0], the VIA USB controller's
+     * shorter HardwareID left the Voodoo 2's tail behind its NUL, and the USB
+     * card read "excluded_3dfx". drv9x_str() now clears the whole buffer. */
+    memset(a, 0, sizeof(a));
+    strcpy(a, "PCI\\VEN_121A&DEV_0002&SUBSYS_00000000&REV_02,PCI\\VEN_121A&DEV_0002&SUBSYS_00000000,PCI\\VEN_121A&DEV_0002&REV_02&CC_0480,PCI\\VEN_121A&DEV_0002&CC_048000");
+    strcpy(a, "PCI\\VEN_1106&DEV_3038&SUBSYS_12340925&REV_04,PCI\\VEN_1106&DEV_3038");   /* only a[0] "reset" */
+    CHECK(drvsafe_ids_3dfx(a, NULL),
+          "HAZARD (why drv9x_str clears the buffer): a stale tail after the NUL IS scanned as more ids");
+    memset(a, 0, sizeof(a));
+    strcpy(a, "PCI\\VEN_1106&DEV_3038&SUBSYS_12340925&REV_04,PCI\\VEN_1106&DEV_3038");
+    CHECK(!drvsafe_ids_3dfx(a, NULL), "the same VIA USB ids in a cleared buffer are not 3dfx");
+
     /* ---- bound drivers ---- */
     CHECK(drvsafe_driver_is_3dfx("3dfx Interactive, Inc.", NULL, NULL, NULL, NULL), "provider 3dfx");
     CHECK(drvsafe_driver_is_3dfx("vcr-kmd (retro-agent voodoo-cleanroom)", NULL, NULL, NULL, NULL), "our own vcr-kmd");
