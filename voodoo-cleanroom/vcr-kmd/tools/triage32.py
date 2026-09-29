@@ -50,7 +50,15 @@ def _dump_string(d, off):
 
 def parse(d):
     """{bugcheck, dump_type, triage, context, modules[(base,size,name)],
-    stack_base, stack} of a 32-bit triage dump, or raise ValueError."""
+    stack_base, stack} of a 32-bit triage dump, or raise ValueError - for a
+    truncated file too (a header-only dump is a report, not a crash)."""
+    try:
+        return _parse(d)
+    except struct.error as e:
+        raise ValueError('truncated triage dump (%s)' % e)
+
+
+def _parse(d):
     if d[:8] != b'PAGEDUMP':
         raise ValueError('not a 32-bit kernel dump (no PAGEDUMP signature)')
     dump_type = _u32(d, 0xf88)
@@ -59,6 +67,8 @@ def parse(d):
     bc = tuple(_u32(d, 0x28 + 4 * i) for i in range(5))
     tri = {n: _u32(d, 0x1000 + 4 * i) for i, n in enumerate(TRIAGE_FIELDS)}
     co = tri['ContextOffset']
+    if not 0 < co <= len(d) - 0xcc:
+        raise ValueError('context offset 0x%x outside the %d-byte dump' % (co, len(d)))
     ctx = {'eip': _u32(d, co + 0xb8), 'esp': _u32(d, co + 0xc4), 'ebp': _u32(d, co + 0xb4)}
     sp0 = tri['StringPoolOffset']
     sp1 = sp0 + tri['StringPoolSize']

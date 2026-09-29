@@ -84,6 +84,13 @@ def test_only_a_triage_dump_is_parsed():
         triage32.parse(_dump([NT], [], dump_type=2))
     with pytest.raises(ValueError):
         triage32.parse(b'MDMP' + bytes(0x2000))
+    # a header-only file (test_vcr_kmd_tools builds one) is a ValueError,
+    # never a struct.error out of vcrdump.py
+    hdr = bytearray(b'PAGE' * 1024)
+    hdr[0:8] = b'PAGEDUMP'
+    struct.pack_into('<I', hdr, 0xF88, 4)
+    with pytest.raises(ValueError):
+        triage32.parse(bytes(hdr))
 
 
 def test_summary_prints_the_verdict_first():
