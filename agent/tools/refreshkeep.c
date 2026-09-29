@@ -86,6 +86,7 @@ int main(int argc, char **argv)
 {
     const char *proc = NULL;
     int want = 0, limit = 1800, elapsed = 0, seen = 0, forced = 0;
+    int force_at[64];                   /* seconds of each re-apply (budget) */
 
     if (argc < 2) {
         printf("usage: refreshkeep <hz|max> [procname.exe|-] [maxseconds]\n");
@@ -127,6 +128,14 @@ int main(int argc, char **argv)
         target = rk_pick_refresh(rates, n, want);
         if (!rk_should_force((int) cur.dmDisplayFrequency, target))
             continue;
+        if (!rk_budget_ok(force_at, forced < 64 ? forced : 64, elapsed)) {
+            printf("t=%ds refreshkeep: the mode keeps drifting off %dHz - %d re-applies "
+                   "inside %ds, so something else is setting it (a Direct3D title "
+                   "resetting its device?). STOPPING rather than ping-pong a CRT.\n",
+                   elapsed, target, RK_MAX_FORCES, RK_FORCE_WINDOW_S);
+            fflush(stdout);
+            break;
+        }
 
         {
             DEVMODE set;
@@ -144,8 +153,10 @@ int main(int argc, char **argv)
                    cur.dmPelsWidth, cur.dmPelsHeight, cur.dmBitsPerPel,
                    cur.dmDisplayFrequency, target, r);
             fflush(stdout);
-            if (r == DISP_CHANGE_SUCCESSFUL)
-                forced++;
+            if (forced < 64)
+                force_at[forced] = elapsed;
+            forced++;                   /* a FAILED re-apply counts too: it is still a try */
+            (void) r;
         }
     }
 

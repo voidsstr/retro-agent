@@ -61,6 +61,30 @@ TEST(forces_at_60_and_stays_quiet_at_100) {
     CHECK_EQ_I(rk_should_force(60, 0), 0);
 }
 
+TEST(an_unknown_current_rate_is_never_forced) {
+    /* Win9x reports 0 for the live mode and some drivers their 1 Hz default:
+     * the OLD rule forced on every 1 s poll forever (0 != 100), and a re-apply
+     * cannot make the reading real - a CRT re-syncing once a second. */
+    CHECK_EQ_I(rk_should_force(0, 100), 0);
+    CHECK_EQ_I(rk_should_force(1, 100), 0);
+    CHECK_EQ_I(rk_should_force(255, 100), 0);
+    CHECK(0 != 100, "the old rule's test - current != target - was true here");
+}
+
+TEST(a_mode_that_keeps_drifting_stops_the_holder) {
+    /* A D3D title that loses its device when the mode changes under it resets
+     * at no rate: each re-apply is undone within a second. Three re-applies in
+     * a minute is the budget; the fourth is refused. */
+    int t[8] = { 5, 6, 7 };
+    CHECK_EQ_I(rk_budget_ok(t, 0, 5), 1);
+    CHECK_EQ_I(rk_budget_ok(t, 2, 7), 1);
+    CHECK_EQ_I(rk_budget_ok(t, 3, 8), 0);
+    /* an OpenGL title that drifts once per level load is fine: re-applies a
+     * minute apart never exhaust it */
+    t[0] = 0; t[1] = 70; t[2] = 140;
+    CHECK_EQ_I(rk_budget_ok(t, 3, 150), 1);
+}
+
 TEST(empty_mode_list_is_safe) {
     CHECK_EQ_I(rk_pick_refresh(NULL, 0, 0), 0);
     CHECK_EQ_I(rk_pick_refresh(NULL, 0, 100), 0);
@@ -72,5 +96,7 @@ MUNIT_MAIN("refreshkeep 100Hz hold (agent/tools/refreshlogic.h)", {
     RUN(unsupported_rate_yields_no_change);
     RUN(sentinel_rates_are_never_chosen);
     RUN(forces_at_60_and_stays_quiet_at_100);
+    RUN(an_unknown_current_rate_is_never_forced);
+    RUN(a_mode_that_keeps_drifting_stops_the_holder);
     RUN(empty_mode_list_is_safe);
 })

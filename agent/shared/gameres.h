@@ -64,8 +64,16 @@
 
 #define GR_MAX_MODES 512
 
-/* A mode the DRIVER offers, with the best real refresh seen for it. */
-typedef struct { int w, h, hz; } gr_mode_t;
+/* A mode the DRIVER offers: the best real refresh seen for it, and every real
+ * rate it was listed at (up to GR_MODE_RATES). The full set exists for the
+ * no-EDID rule in gr_target_hz(): "is the persisted desktop's own rate listed
+ * at THIS resolution" cannot be answered from the best rate alone. */
+#define GR_MODE_RATES 12
+typedef struct {
+    int w, h, hz;
+    unsigned char nr;                   /* how many of r[] are filled        */
+    unsigned char r[GR_MODE_RATES];     /* real rates, 50..199, as listed    */
+} gr_mode_t;
 
 /* A bare resolution. The fixed engine tables and the 4:3 ladder are lists of
  * resolutions, not of driver modes - a refresh field there would be
@@ -103,9 +111,19 @@ typedef struct {
      * number for the box. A rate is offered per resolution, so an engine
      * running at the 4:3 target may have a different ceiling from one running
      * at the panel's native mode, and a single `hz` would be wrong for one of
-     * them. 0 means "not known - leave the refresh alone", never 60. */
-    int  hz;                    /* best real rate at w x h                   */
-    int  hz43;                  /* best real rate at w43 x h43               */
+     * them. 0 means "not known - leave the refresh alone", never 60.
+     * gr_target_hz() decides each one - the SAME function FLEETRES.EXE calls
+     * for FR_HZW / FR_HZ43 / FR_HZQ2 / FR_HZQ3, so the two writers of a
+     * shared cfg can never disagree about the number. */
+    int  hz;                    /* rate for a title at w x h     (FR_HZW)    */
+    int  hz43;                  /* rate for a title at w43 x h43 (FR_HZ43)   */
+    int  hzq2, hzq3;            /* the same at the id Tech 2 / id Tech 3
+                                 * INDEX mode (gr_q2tab[q2mode],
+                                 * gr_q3tab[q3mode]) - SoF2 and RTCW render
+                                 * there, not at w43 x h43 (1152x864 vs
+                                 * 1280x960 on the 1080p boxes)             */
+    int  hz_src;                /* where hz/hz43/hzq2/hzq3 came from:
+                                 * GR_HZSRC_EDID / _PERSISTED / _NONE         */
     int  desk_hz;               /* best real rate at the persisted desktop   */
     int  fr_hz;                 /* the persisted mode's OWN rate - what
                                  * FLEETRES publishes as FR_HZ. Used only
@@ -152,6 +170,19 @@ GR_FN int gr_hz_is_real(int hz) { return hz >= GR_HZ_MIN && hz < GR_HZ_MAX; }
 /* Add a mode, keeping the HIGHEST real refresh seen for that resolution. A
  * driver enumerates one entry per (resolution, depth, rate), so the same WxH
  * arrives many times and only the best rate is worth remembering. */
+/* remember one more REAL rate a mode was listed at (duplicates ignored) */
+GR_FN void gr_mode_note_rate(gr_mode_t *m, int hz)
+{
+    int k;
+    if (!gr_hz_is_real(hz))
+        return;
+    for (k = 0; k < m->nr; k++)
+        if (m->r[k] == (unsigned char)hz)
+            return;
+    if (m->nr < GR_MODE_RATES)
+        m->r[m->nr++] = (unsigned char)hz;
+}
+
 GR_FN void gr_modes_add(gr_modes_t *l, int w, int h, int hz)
 {
     int i;
@@ -162,14 +193,33 @@ GR_FN void gr_modes_add(gr_modes_t *l, int w, int h, int hz)
     for (i = 0; i < l->n; i++)
         if (l->m[i].w == w && l->m[i].h == h) {
             if (hz > l->m[i].hz) l->m[i].hz = hz;
+            gr_mode_note_rate(&l->m[i], hz);
             return;
         }
     if (l->n < GR_MAX_MODES) {
         l->m[l->n].w = w;
         l->m[l->n].h = h;
         l->m[l->n].hz = hz;
+        l->m[l->n].nr = 0;
+        gr_mode_note_rate(&l->m[l->n], hz);
         l->n++;
     }
+}
+
+/* Was w x h listed at exactly this real rate (after the insert-time cap)? */
+GR_FN int gr_has_rate(const gr_modes_t *l, int w, int h, int hz)
+{
+    int i, k;
+    if (!gr_hz_is_real(hz))
+        return 0;
+    for (i = 0; i < l->n; i++)
+        if (l->m[i].w == w && l->m[i].h == h) {
+            for (k = 0; k < l->m[i].nr; k++)
+                if (l->m[i].r[k] == (unsigned char)hz)
+                    return 1;
+            return 0;
+        }
+    return 0;
 }
 
 /*
@@ -196,6 +246,80 @@ GR_FN int gr_best_hz(const gr_modes_t *l, int w, int h)
         if (l->m[i].w == w && l->m[i].h == h)
             return l->m[i].hz;
     return 0;
+}
+
+/* where a per-target rate came from (gr_target_t.hz_src, FR_HZSRC) */
+#define GR_HZSRC_NONE      0    /* nothing vouches for a rate: leave it alone  */
+#define GR_HZSRC_EDID      1    /* the driver's list under the EDID ceiling    */
+#define GR_HZSRC_PERSISTED 2    /* no ceiling: the desktop's own, shown rate   */
+
+/* A MEASURED ceiling: an EDID that states a vertical range. An EDID without a
+ * range descriptor (legal in 1.4) has no ceiling to cap a list with - the
+ * list was built uncapped - so it is treated like no EDID at all. */
+GR_FN int gr_have_ceiling(const gr_panel_t *p)
+{
+    return p->ok && p->vmax > 0;
+}
+
+/*
+ * THE REFRESH A TITLE RUNNING AT w x h IS TOLD TO ASK FOR - one function,
+ * called by BOTH writers of a shared cfg: GAMERES (gr_decide below, the
+ * %HZW% %HZ43% %HZQ2% %HZQ3% tokens) and FLEETRES.EXE (FR_HZW FR_HZ43 FR_HZQ2
+ * FR_HZQ3). Two copies of this rule would be two answers; the id Tech 3
+ * fleetres.cfg is rewritten by each writer whenever it disagrees with the
+ * other, and the "0 value(s) changed" signal dies with it.
+ *
+ * WITH A MEASURED CEILING: gr_best_hz - the best rate the driver lists at
+ * w x h, the EDID maximum already applied as the list was built.
+ *
+ * WITHOUT ONE there is no measurement of the MONITOR - only of the mode the
+ * tube is showing right now, the persisted desktop. That vouches for exactly
+ * one rate: its own, and only at a resolution no bigger than itself (the same
+ * vertical rate over fewer lines is a lower line rate - inside what the tube
+ * is demonstrably syncing) and only where the driver LISTS that exact rate.
+ * Anything else answers 0: leave the refresh alone. This keeps what FR_HZ
+ * already gave a no-EDID tube at its own desktop mode (.143's 100 Hz at
+ * 1024x768) without ever claiming a rate the tube has not been seen to take -
+ * and never the driver's unclamped best, which is what the card can do, not
+ * what the monitor can.
+ */
+GR_FN int gr_target_hz(const gr_panel_t *p, const gr_modes_t *l, int w, int h,
+                       int reg_w, int reg_h, int reg_hz, int *src)
+{
+    int hz;
+    if (gr_have_ceiling(p)) {
+        hz = gr_best_hz(l, w, h);
+        if (src) *src = hz ? GR_HZSRC_EDID : GR_HZSRC_NONE;
+        return hz;
+    }
+    if (gr_hz_is_real(reg_hz) && w <= reg_w && h <= reg_h &&
+        gr_has_rate(l, w, h, reg_hz)) {
+        if (src) *src = GR_HZSRC_PERSISTED;
+        return reg_hz;
+    }
+    if (src) *src = GR_HZSRC_NONE;
+    return 0;
+}
+
+GR_FN const char *gr_hz_src_name(int src)
+{
+    return src == GR_HZSRC_EDID ? "edid" : src == GR_HZSRC_PERSISTED ? "persisted" : "none";
+}
+
+/*
+ * FR_HZ / %FRHZ%: the persisted desktop's own rate, 60 when that is not a
+ * real rate - ONE formula, called by gr_decide AND by FLEETRES.EXE's FR_HZ
+ * line. Until 2026-09-29 each had its own: FLEETRES took reg_hz in 50..240,
+ * else the LIVE rate, else 60; this header took reg_hz in 50..199, else 60.
+ * On a box whose registry holds the "default" rate (0/1) they disagree by the
+ * live rate, and the id Tech 3 fleetres.cfg (r_displayRefresh %FRHZ%) is then
+ * rewritten by each writer in turn, forever. The live mode is not a
+ * measurement of the monitor (a game can leave it anywhere), so the header's
+ * formula is the one both use.
+ */
+GR_FN int gr_fr_hz(int reg_hz)
+{
+    return gr_hz_is_real(reg_hz) ? reg_hz : 60;
 }
 
 /*
@@ -450,25 +574,37 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
         t->h43 = gr_ladder43[i].h;
     }
 
-    /* Refresh is asked PER RESOLUTION. gr_best_hz already refuses a rate the
-     * driver does not offer at that mode and one past the panel's own EDID
-     * ceiling, and answers 0 rather than guessing - so a caller that finds 0
-     * must leave the refresh alone. Falling back to the persisted desktop's
-     * rate here would be the "hardcoded 60" mistake wearing a better hat: it
-     * would claim a rate for a resolution nobody measured it at. */
-    t->hz      = gr_best_hz(l, t->w, t->h);
-    t->hz43    = gr_best_hz(l, t->w43, t->h43);
+    /* Refresh is asked PER RESOLUTION, through gr_target_hz(): with an EDID
+     * ceiling, the best rate the driver lists at that exact mode under it;
+     * WITHOUT one, the persisted desktop's own rate - but only at a mode no
+     * bigger than the desktop AND where the driver lists exactly that rate -
+     * else 0, which a caller must read as "leave the refresh alone". (Before
+     * 2026-09-29 the no-EDID answer was always 0. The persisted rate is the one
+     * rate the tube is demonstrably syncing, so it is the only one claimed, and
+     * never at a size where the same rate means a higher line rate.) */
+    {
+        int s1 = GR_HZSRC_NONE, s2 = GR_HZSRC_NONE;
+        t->hz   = gr_target_hz(p, l, t->w, t->h, reg_w, reg_h, reg_hz, &s1);
+        t->hz43 = gr_target_hz(p, l, t->w43, t->h43, reg_w, reg_h, reg_hz, &s2);
+        t->hz_src = s1 > s2 ? s1 : s2;
+    }
     t->desk_hz = gr_best_hz(l, reg_w, reg_h);
     if (!t->desk_hz && reg_hz >= GR_HZ_MIN && reg_hz < GR_HZ_MAX)
         t->desk_hz = reg_hz;    /* the mode it is persisted at IS a measurement */
-    /* What FLEETRES.EXE publishes as FR_HZ, reproduced exactly - including its
-     * 60 fallback. Any file BOTH writers touch has to use this, or the two
+    /* What FLEETRES.EXE publishes as FR_HZ - the SAME function it calls
+     * (gr_fr_hz). Any file BOTH writers touch has to use this, or the two
      * disagree by one number and each rewrites the other's copy forever. */
-    t->fr_hz = (reg_hz >= GR_HZ_MIN && reg_hz < GR_HZ_MAX) ? reg_hz : 60;
+    t->fr_hz = gr_fr_hz(reg_hz);
     t->bpp    = (bpp >= 16) ? bpp : 32;
     t->fov    = gr_horplus_fov(tgt_w, tgt_h);
     t->q2mode = gr_q2_mode_for(l, t->w43, t->h43);
     t->q3mode = gr_q3_mode_for(l, t->w43, t->h43);
+    /* the index engines render at their TABLE's mode, which is not always the
+     * 4:3 target (q3mode 7 = 1152x864 where w43 is 1280x960) */
+    t->hzq2 = gr_target_hz(p, l, gr_q2tab[t->q2mode].w, gr_q2tab[t->q2mode].h,
+                           reg_w, reg_h, reg_hz, NULL);
+    t->hzq3 = gr_target_hz(p, l, gr_q3tab[t->q3mode].w, gr_q3tab[t->q3mode].h,
+                           reg_w, reg_h, reg_hz, NULL);
     t->d3ar   = gr_d3_aspect(tgt_w, tgt_h);
     t->wide   = (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0;
     t->lcd    = lcd;
@@ -487,8 +623,11 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
  *
  *   %W% %H%          the widescreen-capable target
  *   %W43% %H43%      the 4:3-only target
- *   %HZ% %HZ43%      the highest refresh the monitor supports AT that target
- *                    - two numbers, because a rate is offered per resolution
+ *   %HZW% %HZ43%     the refresh a title AT that target asks for
+ *   %HZQ2% %HZQ3%    ... at the id Tech 2 / id Tech 3 index mode
+ *                    - per target, because a rate is offered per resolution;
+ *                    0 = leave it alone (gr_target_hz). %HZ% = %HZW%.
+ *   %HZSRC%          edid | persisted | none - what vouches for them
  *   %DESKHZ%         the same, at the persisted desktop mode
  *   %FRHZ%           the persisted mode's OWN rate - exactly what FLEETRES
  *                    publishes as FR_HZ, for a file both writers touch
@@ -529,8 +668,13 @@ GR_FN int gr_expand(const char *tmpl, const gr_target_t *t,
                     else if (!strcmp(tok, "H"))       sprintf(val, "%d", t->h);
                     else if (!strcmp(tok, "W43"))     sprintf(val, "%d", t->w43);
                     else if (!strcmp(tok, "H43"))     sprintf(val, "%d", t->h43);
-                    else if (!strcmp(tok, "HZ"))      sprintf(val, "%d", t->hz);
+                    /* HZ is kept as the old name of HZW */
+                    else if (!strcmp(tok, "HZ") || !strcmp(tok, "HZW"))
+                                                      sprintf(val, "%d", t->hz);
                     else if (!strcmp(tok, "HZ43"))    sprintf(val, "%d", t->hz43);
+                    else if (!strcmp(tok, "HZQ2"))    sprintf(val, "%d", t->hzq2);
+                    else if (!strcmp(tok, "HZQ3"))    sprintf(val, "%d", t->hzq3);
+                    else if (!strcmp(tok, "HZSRC"))   strcpy(val, gr_hz_src_name(t->hz_src));
                     else if (!strcmp(tok, "DESKHZ"))  sprintf(val, "%d", t->desk_hz);
                     else if (!strcmp(tok, "FRHZ"))    sprintf(val, "%d", t->fr_hz);
                     /* True only when a rate is actually KNOWN. An engine told

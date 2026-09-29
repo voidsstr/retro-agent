@@ -54,10 +54,35 @@ static int rk_pick_refresh(const int *avail, int n, int want)
 }
 
 /* Should we issue a ChangeDisplaySettings right now?
- * Only when we have a target and the display is not already on it. */
+ * Only when we have a target, the display REPORTS a real rate, and it is not
+ * already on the target.
+ *
+ * A current rate of 0 or 1 is "unknown", not "wrong": Windows 9x reports 0
+ * for the live mode (measured on .243, 2026-09-29: DISPLAYCFG get -> refresh 0,
+ * registry_refresh 75) and a driver can report its 1 Hz "default". Forcing on
+ * an unknown re-applies the mode on EVERY 1 s poll, the re-apply cannot make
+ * the reading real, and a CRT re-syncs once a second for the whole session. */
 static int rk_should_force(int current_hz, int target_hz)
 {
-    return target_hz > 0 && current_hz != target_hz;
+    return target_hz > 0 && rk_hz_is_real(current_hz) && current_hz != target_hz;
+}
+
+/* A re-apply BUDGET. A mode that keeps drifting off target is being set by
+ * someone else - a Direct3D / DirectDraw title that loses its device when we
+ * change the mode under it, resets it at no rate, and so loses it again: a
+ * mode-switch ping-pong on a CRT. So at most RK_MAX_FORCES re-applies inside
+ * any RK_FORCE_WINDOW_S seconds, and past that refreshkeep stops for good and
+ * says so. times[] holds the seconds of the re-applies made so far. */
+#define RK_MAX_FORCES     3
+#define RK_FORCE_WINDOW_S 60
+
+static int rk_budget_ok(const int *times, int n, int now_s)
+{
+    int i, recent = 0;
+    for (i = 0; i < n; i++)
+        if (now_s - times[i] < RK_FORCE_WINDOW_S)
+            recent++;
+    return recent < RK_MAX_FORCES;
 }
 
 #endif /* REFRESHLOGIC_H */

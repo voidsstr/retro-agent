@@ -900,7 +900,10 @@ def test_refresh_is_per_box_too():
     nonsense value from a driver rather than passing it on."""
     src = open(FLEETRES_C, encoding='latin1').read()
     assert (r'set \"FR_HZ=' in src or 'set FR_HZ=' in src)
-    assert 'reg_hz >= 50 && reg_hz <= 240' in src, (
+    # 2026-09-29: FR_HZ is the agent's own gr_fr_hz() (a real 50..199 rate,
+    # else 60) - one formula for both writers of a shared cfg, see
+    # test_fleetres_refresh_mirror.py test_fr_hz_is_the_agents_formula
+    assert 'printf("set \\"FR_HZ=%d\\"\\n", gr_fr_hz(reg_hz));' in src, (
         'a driver reporting 0 or 1 Hz would be handed straight to the game')
     assert 'if not defined FR_HZ set FR_HZ=60' in sf.FLEETRES_BAT
     assert '%FR_HZ%' in _pre('Halo') or any(

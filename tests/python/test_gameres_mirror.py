@@ -282,10 +282,16 @@ def test_a_shared_cfg_is_written_identically_by_both_writers():
     bodies = _cfg_bodies()
     assert bodies, "gr_cfg_body() parsed to nothing - the parser is broken"
 
-    # FR_* is the launcher's spelling of the agent's %TOKEN%.
+    # FR_* is the launcher's spelling of the agent's %TOKEN%. %HZ% was mapped
+    # to %FR_HZ% here, which is a DIFFERENT number (the persisted desktop's
+    # rate, the agent's %FRHZ%) - latent until a body used %HZ%. The per-target
+    # rates have their own FR_ twins, computed by the same gr_target_hz()
+    # (tests/python/test_fleetres_refresh_mirror.py).
     tok = {"%W%": "%FR_W%", "%H%": "%FR_H%", "%W43%": "%FR_W43%",
            "%H43%": "%FR_H43%", "%FOV%": "%FR_FOV%", "%Q2MODE%": "%FR_Q2MODE%",
-           "%Q3MODE%": "%FR_Q3MODE%", "%FRHZ%": "%FR_HZ%", "%HZ%": "%FR_HZ%"}
+           "%Q3MODE%": "%FR_Q3MODE%", "%FRHZ%": "%FR_HZ%", "%HZ%": "%FR_HZW%",
+           "%HZW%": "%FR_HZW%", "%HZ43%": "%FR_HZ43%", "%HZQ2%": "%FR_HZQ2%",
+           "%HZQ3%": "%FR_HZQ3%"}
 
     problems = []
     for r in RULES:

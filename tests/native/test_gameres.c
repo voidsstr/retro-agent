@@ -585,6 +585,180 @@ TEST(t_shared_files_use_the_launchers_number)
     CHECK_EQ_I(t.fr_hz, 60);
 }
 
+
+/*
+ * THE RATE A TITLE IS TOLD TO ASK FOR, PER TARGET - gr_target_hz(), the one
+ * function GAMERES and FLEETRES.EXE both call (FR_HZW / FR_HZ43 / FR_HZQ2 /
+ * FR_HZQ3). Fixtures are the fleet's own lists, 2026-09-29.
+ */
+static void add_rows(gr_modes_t *l, const int (*t)[3], size_t n)
+{
+    size_t i;
+    for (i = 0; i < n; i++)
+        gr_modes_add(l, t[i][0], t[i][1], t[i][2]);
+}
+
+/* .124: V5 6000 on vcr-kmd, HP P1120 (EDID vmax 160, 40x30 cm), desktop
+ * persisted 1280x1024@85; vcr-kmd lists several rates per 4:3 mode and only
+ * 60 at the wide ones (GAMERES 2026-09-29 00:26). */
+TEST(t_target_rate_on_a_crt_with_edid)
+{
+    static const int t124[][3] = {
+        {640,480,60},{640,480,75},{640,480,85},{800,600,60},{800,600,85},
+        {1024,768,60},{1024,768,75},{1024,768,85},
+        {1152,864,75},{1152,864,60},{1152,864,85},
+        {1280,960,60},{1280,960,85},{1280,960,75},
+        {1280,1024,60},{1280,1024,75},{1280,1024,85},
+        {1600,1200,60},{1600,1200,85},{1280,720,60},{1680,1050,60}
+    };
+    gr_modes_t l; gr_target_t t; gr_panel_t p;
+    char out[256];
+    memset(&p, 0, sizeof(p));
+    p.ok = 1; p.native_w = 1600; p.native_h = 1200; p.native_hz = 85;
+    p.vmax = 160; p.hcm = 40; p.vcm = 30;
+    gr_modes_reset(&l);
+    l.hz_cap = p.vmax;
+    add_rows(&l, t124, sizeof(t124) / sizeof(t124[0]));
+    gr_modes_add(&l, 1280, 1024, 85);                   /* the persisted mode */
+    gr_decide(&p, &l, 1280, 1024, 85, 32, 0, 0, &t);
+
+    CHECK_EQ_I(t.w, 1280); CHECK_EQ_I(t.h, 960);
+    CHECK_EQ_I(t.hz, 85);                               /* FR_HZW  at 1280x960 */
+    CHECK_EQ_I(t.hz43, 85);                             /* FR_HZ43 */
+    CHECK_EQ_I(gr_q3tab[t.q3mode].w, 1152);             /* SoF2 / RTCW run here */
+    CHECK_EQ_I(t.hzq3, 85);
+    CHECK_EQ_I(t.hzq2, 85);
+    CHECK_EQ_I(t.hz_src, GR_HZSRC_EDID);
+    CHECK_EQ_I(gr_expand("%HZW% %HZ43% %HZQ2% %HZQ3% %HZSRC% %HZ%", &t, out,
+                         sizeof(out)), 0);
+    CHECK(strcmp(out, "85 85 85 85 edid 85") == 0, "per-target tokens expand");
+    /* a wide mode on this tube is 60 Hz only - asking it for 85 there would
+     * be the one-number-per-box mistake */
+    CHECK_EQ_I(gr_target_hz(&p, &l, 1280, 720, 1280, 1024, 85, NULL), 60);
+}
+
+/* .123 / .145: a 1080p LCD on VGA (vmax 76). The native mode is 60 Hz only;
+ * the 4:3 modes the id Tech 2 / GoldSrc titles fall back to take 75. */
+TEST(t_target_rate_on_a_1080p_lcd)
+{
+    static const int t145[][3] = {
+        {640,480,60},{640,480,75},{800,600,60},{800,600,75},{1024,768,60},
+        {1024,768,75},{1152,864,75},{1280,960,60},{1280,960,75},
+        {1280,1024,60},{1280,1024,75},{1920,1080,60}
+    };
+    gr_modes_t l; gr_target_t t; gr_panel_t p = panel_1080p();
+    gr_modes_reset(&l);
+    l.hz_cap = p.vmax;
+    add_rows(&l, t145, sizeof(t145) / sizeof(t145[0]));
+    gr_decide(&p, &l, 1920, 1080, 60, 32, 0, 0, &t);
+
+    CHECK_EQ_I(t.hz, 60);                               /* 1920x1080 */
+    CHECK_EQ_I(t.w43, 1280);
+    CHECK_EQ_I(t.hz43, 75);                             /* 1280x960 */
+    CHECK_EQ_I(gr_q3tab[t.q3mode].w, 1152);
+    CHECK_EQ_I(t.hzq3, 75);
+    CHECK_EQ_I(t.fr_hz, 60);                            /* what FR_HZ said: 60 */
+}
+
+/* NO EDID: only the persisted desktop - the mode the tube is SHOWING - vouches
+ * for a rate, at resolutions no bigger than itself, where the driver lists
+ * that exact rate. Never the driver's unclamped best. */
+TEST(t_target_rate_without_edid_is_the_shown_rate_or_nothing)
+{
+    /* .133-shaped: a 4:3 tube persisted at 1280x1024@85, the card lists 100 */
+    static const int t133[][3] = {
+        {1024,768,60},{1024,768,85},{1024,768,100},
+        {1152,864,60},{1152,864,75},{1152,864,85},
+        {1280,960,60},{1280,960,75},{1280,960,85},{1280,960,100},
+        {1280,1024,60},{1280,1024,75},{1280,1024,85},
+        {800,600,60},{800,600,72}
+    };
+    gr_modes_t l; gr_target_t t; gr_panel_t p = panel_none();
+    int src = -1;
+    gr_modes_reset(&l);                                 /* no EDID: no cap */
+    add_rows(&l, t133, sizeof(t133) / sizeof(t133[0]));
+    gr_modes_add(&l, 1280, 1024, 85);
+    gr_decide(&p, &l, 1280, 1024, 85, 32, 0, 0, &t);
+
+    CHECK_EQ_I(t.w, 1280); CHECK_EQ_I(t.h, 960);
+    CHECK_EQ_I(gr_best_hz(&l, 1280, 960), 100);         /* what the CARD can do */
+    CHECK_EQ_I(t.hz, 85);                               /* what the TUBE was seen at */
+    CHECK(t.hz != 100, "the unclamped driver best is never claimed without EDID");
+    CHECK_EQ_I(t.hzq3, 85);                             /* 1152x864 lists 85 */
+    CHECK_EQ_I(t.hz_src, GR_HZSRC_PERSISTED);
+    /* 800x600 does not list 85: leave it alone, not 72, not 60 */
+    CHECK_EQ_I(gr_target_hz(&p, &l, 800, 600, 1280, 1024, 85, &src), 0);
+    CHECK_EQ_I(src, GR_HZSRC_NONE);
+    /* nothing bigger than the persisted mode is vouched for */
+    CHECK_EQ_I(gr_target_hz(&p, &l, 1600, 1200, 1280, 1024, 85, NULL), 0);
+    /* an EDID that states no range is no ceiling either */
+    p.ok = 1; p.native_w = 1280; p.native_h = 1024; p.vmax = 0;
+    CHECK_EQ_I(gr_target_hz(&p, &l, 1280, 960, 1280, 1024, 85, &src), 85);
+    CHECK_EQ_I(src, GR_HZSRC_PERSISTED);
+}
+
+/* .243: Windows 98 lists every mode at 0 Hz; the persisted 1024x768 carries
+ * the display class's RefreshRate (75). The desktop's own mode keeps 75 - what
+ * FR_HZ gave it - and every other mode is left to the driver. */
+TEST(t_target_rate_on_win98_without_edid)
+{
+    gr_modes_t l; gr_target_t t; gr_panel_t p = panel_none();
+    gr_modes_reset(&l);
+    gr_modes_add(&l, 640, 480, 0);
+    gr_modes_add(&l, 800, 600, 0);
+    gr_modes_add(&l, 1024, 768, 0);                     /* live, rate unknown */
+    gr_modes_add(&l, 1024, 768, 75);                    /* persisted */
+    gr_decide(&p, &l, 1024, 768, 75, 8, 0, 0, &t);
+
+    CHECK_EQ_I(t.w, 1024); CHECK_EQ_I(t.h, 768);
+    CHECK_EQ_I(t.hz, 75);
+    CHECK_EQ_I(t.fr_hz, 75);
+    CHECK_EQ_I(gr_target_hz(&p, &l, 800, 600, 1024, 768, 75, NULL), 0);
+    CHECK_EQ_I(gr_target_hz(&p, &l, 640, 480, 1024, 768, 75, NULL), 0);
+}
+
+/* The rate list must survive the insert-time EDID cap exactly like the best
+ * rate does: a rate past the panel's maximum is not "listed". */
+TEST(t_listed_rates_respect_the_cap)
+{
+    gr_modes_t l;
+    gr_modes_reset(&l);
+    l.hz_cap = 76;
+    gr_modes_add(&l, 1280, 960, 60);
+    gr_modes_add(&l, 1280, 960, 75);
+    gr_modes_add(&l, 1280, 960, 85);                    /* over the cap */
+    gr_modes_add(&l, 1280, 960, 1);                     /* sentinel */
+    CHECK_EQ_I(gr_has_rate(&l, 1280, 960, 75), 1);
+    CHECK_EQ_I(gr_has_rate(&l, 1280, 960, 85), 0);
+    CHECK_EQ_I(gr_has_rate(&l, 1280, 960, 1), 0);
+    CHECK_EQ_I(gr_best_hz(&l, 1280, 960), 75);
+}
+
+/* Review 2026-09-29: FR_HZ (FLEETRES.EXE) and %FRHZ% (this header) land in the
+ * same r_displayRefresh line and were two formulas. FLEETRES took reg_hz in
+ * 50..240, else the LIVE rate, else 60; this header 50..199, else 60. One
+ * function now, which both call - asserted here with the values that split the
+ * old pair (reg 0/1 with a live 75; reg 200). */
+TEST(t_fr_hz_is_one_formula_for_both_writers)
+{
+    CHECK_EQ_I(gr_fr_hz(85), 85);
+    CHECK_EQ_I(gr_fr_hz(60), 60);
+    CHECK_EQ_I(gr_fr_hz(0), 60);     /* old FLEETRES: the live rate (e.g. 75) */
+    CHECK_EQ_I(gr_fr_hz(1), 60);     /* the driver's "default" sentinel       */
+    CHECK_EQ_I(gr_fr_hz(200), 60);   /* old FLEETRES: 200 passed straight on  */
+    CHECK_EQ_I(gr_fr_hz(49), 60);
+    {
+        gr_modes_t l; gr_panel_t p; gr_target_t t;
+        memset(&p, 0, sizeof p);
+        gr_modes_reset(&l);
+        gr_modes_add(&l, 1024, 768, 85);
+        gr_decide(&p, &l, 1024, 768, 1, 32, 0, 0, &t);
+        CHECK_EQ_I(t.fr_hz, 60);     /* %FRHZ% with a 1 Hz registry rate      */
+        gr_decide(&p, &l, 1024, 768, 85, 32, 0, 0, &t);
+        CHECK_EQ_I(t.fr_hz, 85);
+    }
+}
+
 MUNIT_MAIN("gameres (per-box monitor detection and per-title resolution)",
     RUN(t_lcd_gets_native);
     RUN(t_q2_q3_tables_differ);
@@ -601,4 +775,10 @@ MUNIT_MAIN("gameres (per-box monitor detection and per-title resolution)",
     RUN(t_refresh_is_per_resolution);
     RUN(t_refresh_is_clamped_to_the_edid);
     RUN(t_shared_files_use_the_launchers_number);
+    RUN(t_target_rate_on_a_crt_with_edid);
+    RUN(t_target_rate_on_a_1080p_lcd);
+    RUN(t_target_rate_without_edid_is_the_shown_rate_or_nothing);
+    RUN(t_target_rate_on_win98_without_edid);
+    RUN(t_listed_rates_respect_the_cap);
+    RUN(t_fr_hz_is_one_formula_for_both_writers);
 )
