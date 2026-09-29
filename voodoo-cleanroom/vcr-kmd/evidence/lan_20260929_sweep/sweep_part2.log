@@ -1,0 +1,108 @@
+[04:19:12] 116 shortcuts, 53 to sweep: ['Hidden and Dangerous Deluxe', 'Jedi Academy - Multiplayer', 'Jedi Academy', 'Jedi Knight - Dark Forces II', 'Jedi Knight - Mysteries of the Sith', 'Master of Orion II - Battle at Antares', 'Max Payne', 'Quake - 3dfx Voodoo', 'Quake - Software Renderer', 'Quake II - Ground Zero', 'Quake II - The Reckoning', 'Quake II - ThreeWave CTF', 'Quake II', 'Quake III - Team Arena', 'Quake III Arena (retail 1.32c)', 'Quake III Arena', 'Quake', "Red Alert 2 - Yuri's Revenge", 'Red Faction', 'Redneck Rampage - Rides Again', 'Redneck Rampage - Route 66', 'Redneck Rampage', 'Return to Castle Wolfenstein', 'RTCW Multiplayer', 'Serious Sam - The First Encounter', 'Serious Sam - The Second Encounter', 'Shadow Warrior - Twin Dragon', 'Shadow Warrior - Wanton Destruction', 'Shadow Warrior', 'Shogo - Mobile Armor Division', 'Shogo - via launcher (fallback)', 'SiN - software mode for newer cards', 'SiN - Wages of SiN', 'SiN', 'Soldier of Fortune II - Multiplayer', 'Soldier of Fortune II', 'Soldier of Fortune', 'StarCraft - Brood War', 'StarCraft', 'System Shock 2', 'Team Fortress Classic', 'The Elder Scrolls II - Daggerfall', 'Thief Gold', 'Thief II - The Metal Age', "Tom Clancy's Rainbow Six", 'Tribes 2 Solo and LAN', 'Turok 2 - Multiplayer', 'Turok 2 - Seeds of Evil', 'Unreal Gold', 'Unreal Tournament 2004', 'Unreal Tournament 436', 'Warcraft - Orcs and Humans', 'Warcraft II - Battle.net Edition']
+[04:19:12] --- Hidden and Dangerous Deluxe: C:\Games\HiddenAndDangerous\Play Hidden and Dangerous Deluxe.bat 
+[04:20:51]     PASS  samples=[(30, ['HDE.exe'], (1280, 960, 90.6, 29.6)), (60, ['HDE.exe'], (1280, 960, 90.4, 28.7))]
+[04:20:51] --- Jedi Academy - Multiplayer: C:\Games\JediAcademy\Play Jedi Academy - Multiplayer.bat 
+[04:21:58]     PASS  samples=[(30, ['jamp.exe'], (1280, 960, 15.7, 48.2)), (60, ['jamp.exe'], (1280, 960, 4.3, 16.6))]
+[04:21:58] --- Jedi Academy: C:\Games\JediAcademy\Play Jedi Academy.bat 
+[04:23:06]     PASS  samples=[(30, ['jasp.exe'], (1280, 960, 33.1, 79.1)), (60, ['jasp.exe'], (1280, 960, 23.9, 44.9))]
+[04:23:06] --- Jedi Knight - Dark Forces II: C:\Games\JediKnightDF2\JK.EXE 
+[04:24:12]     PASS  samples=[(30, ['JK.EXE'], (640, 480, 0.0, 0.0)), (60, ['JK.EXE'], (640, 480, 3.6, 17.3))]
+[04:24:12] --- Jedi Knight - Mysteries of the Sith: C:\Games\JediKnightMotS\JKM.EXE 
+[04:25:18]     PASS  samples=[(30, ['JKM.EXE'], (640, 480, 1.8, 11.7)), (60, ['JKM.EXE'], (640, 480, 12.3, 42.1))]
+[04:25:18] --- Master of Orion II - Battle at Antares: C:\Games\MasterOfOrionII\Play Master of Orion II.bat 
+[04:26:24]     PASS  samples=[(30, ['DOSBox.exe'], (640, 480, 5.0, 15.6)), (60, ['DOSBox.exe'], (640, 480, 5.5, 18.4))]
+[04:26:24] --- Max Payne: C:\Games\MaxPayne\Play Max Payne.bat 
+[04:27:31]     CHECK: dialog: Max Payne v1.05  samples=[(30, ['MaxPayne.exe', 'tasklist.exe', '~f51e43.tmp'], (1280, 1024, 22.6, 54.0)), (60, ['MaxPayne.exe', '~f51e43.tmp'], (1280, 1024, 22.6, 54.0))]
+[04:27:31] --- Quake - 3dfx Voodoo: C:\Games\Quake1\Play Quake - Voodoo.bat 
+[04:29:18]     PASS  samples=[(30, ['GLQUAKE.EXE'], (1280, 960, 10.4, 8.8)), (60, ['GLQUAKE.EXE'], (1280, 960, 14.8, 13.0))]
+[04:29:18] --- Quake - Software Renderer: C:\Games\Quake1\Play Quake - Software.bat 
+[04:31:02]     PASS  samples=[(30, ['WINQUAKE.EXE'], (320, 200, 1.0, 9.7)), (60, ['WINQUAKE.EXE'], (320, 200, 0.5, 5.5))]
+[04:31:02] --- Quake II - Ground Zero: C:\Games\Quake2Complete\Quake II - Ground Zero.bat 
+[04:32:38]     PASS  samples=[(30, ['quake2.exe'], (1280, 960, 4.7, 9.5)), (60, ['quake2.exe'], (1280, 960, 19.5, 11.8))]
+[04:32:38] --- Quake II - The Reckoning: C:\Games\Quake2Complete\Quake II - The Reckoning.bat 
+[04:34:13]     PASS  samples=[(30, ['quake2.exe'], (1280, 960, 11.5, 9.4)), (60, ['quake2.exe'], (1280, 960, 17.3, 24.3))]
+[04:34:13] --- Quake II - ThreeWave CTF: C:\Games\Quake2Complete\Quake II - ThreeWave CTF.bat 
+[04:35:48]     PASS  samples=[(30, ['quake2.exe'], (1280, 960, 23.0, 14.6)), (60, ['quake2.exe'], (1280, 960, 36.1, 10.0))]
+[04:35:48] --- Quake II: C:\Games\Quake2Complete\Quake II.bat 
+[04:37:24]     PASS  samples=[(30, ['quake2.exe'], (1280, 960, 23.1, 14.1)), (60, ['quake2.exe'], (1280, 960, 12.0, 8.7))]
+[04:37:24] --- Quake III - Team Arena: C:\Games\Quake3-TeamArena\Play Team Arena.bat 
+[04:38:33]     PASS  samples=[(30, ['ioquake3.x86.exe'], (1280, 960, 22.5, 36.6)), (60, ['ioquake3.x86.exe'], (1280, 960, 22.7, 37.7))]
+[04:38:33] --- Quake III Arena (retail 1.32c): C:\Games\Quake3-TeamArena\Play Quake III Arena - retail 1.32c.bat 
+[04:39:40]     PASS  samples=[(30, ['quake3.exe'], (1280, 960, 10.5, 10.0)), (60, ['quake3.exe'], (1280, 960, 19.0, 14.4))]
+[04:39:40] --- Quake III Arena: C:\Games\Quake3-TeamArena\Play Quake III Arena.bat 
+[04:40:49]     PASS  samples=[(30, ['ioquake3.x86.exe'], (1280, 960, 16.6, 35.8)), (60, ['ioquake3.x86.exe'], (1280, 960, 16.6, 35.7))]
+[04:40:49] --- Quake: C:\Games\Quake1\Play Quake.bat 
+[04:42:36]     PASS  samples=[(30, ['GLQUAKE.EXE'], (1280, 960, 10.2, 9.0)), (60, ['GLQUAKE.EXE'], (1280, 960, 25.9, 15.6))]
+[04:42:36] --- Red Alert 2 - Yuri's Revenge: C:\Games\RedAlert2\Launch Yuri's Revenge.bat 
+[04:44:37]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['RA2MD.exe', 'gamemd.exe'], (800, 600, 60.0, 57.0)), (60, ['RA2MD.exe', 'gamemd.exe'], (800, 600, 59.8, 57.8))]
+[04:44:37] --- Red Faction: C:\Games\RedFaction\Play Red Faction.bat 
+[04:46:36]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['rf.exe'], (640, 480, 0.0, 0.0)), (60, ['rf.exe'], (640, 480, 0.0, 0.0))]
+[04:46:36] --- Redneck Rampage - Rides Again: C:\Games\RedneckRampage\Play Rides Again.bat 
+[04:47:42]     PASS  samples=[(30, ['DOSBox.exe', 'find.exe', 'netstat.exe'], (640, 480, 73.2, 71.6)), (60, ['DOSBox.exe'], (640, 480, 71.2, 60.7))]
+[04:47:42] --- Redneck Rampage - Route 66: C:\Games\RedneckRampage\Play Route 66.bat 
+[04:48:48]     PASS  samples=[(30, ['DOSBox.exe'], (640, 400, 61.7, 58.3)), (60, ['DOSBox.exe'], (640, 400, 61.7, 58.3))]
+[04:48:48] --- Redneck Rampage: C:\Games\RedneckRampage\Play Redneck Rampage - Game.bat 
+[04:49:55]     PASS  samples=[(30, ['DOSBox.exe'], (800, 600, 16.2, 28.0)), (60, ['DOSBox.exe'], (800, 600, 86.2, 39.1))]
+[04:49:55] --- Return to Castle Wolfenstein: C:\Games\ReturnToCastleWolfenstein\Play Return to Castle Wolfenstein.bat 
+[04:51:01]     PASS  samples=[(30, ['WolfSP.exe'], (640, 480, 16.5, 41.3)), (60, ['WolfSP.exe'], (640, 480, 15.1, 17.2))]
+[04:51:01] --- RTCW Multiplayer: C:\Games\ReturnToCastleWolfenstein\Play RTCW Multiplayer.bat 
+[04:52:08]     PASS  samples=[(30, ['WolfMP.exe'], (1152, 864, 23.6, 29.5)), (60, ['WolfMP.exe'], (1152, 864, 23.6, 29.7))]
+[04:52:08] --- Serious Sam - The First Encounter: C:\Games\SeriousSamFirstEncounter\Play Serious Sam - The First Encounter.bat 
+[04:54:09]     CHECK: dialog: Information; had to be forced closed  samples=[(30, ['SeriousSam.exe'], (1280, 1024, 20.8, 52.4)), (60, ['SeriousSam.exe'], (1280, 1024, 20.8, 52.4))]
+[04:54:09] --- Serious Sam - The Second Encounter: C:\Games\SeriousSamSecondEncounter\Play Serious Sam - The Second Encounter.bat 
+[04:55:43]     CHECK: dialog: CD check  samples=[(30, ['SeriousSam.exe'], (1280, 1024, 20.7, 52.6)), (60, ['SeriousSam.exe'], (1280, 1024, 20.7, 52.6))]
+[04:55:43] --- Shadow Warrior - Twin Dragon: C:\Games\ShadowWarrior\Play Twin Dragon.bat 
+[04:56:48]     PASS  samples=[(30, ['DOSBox.exe'], (640, 400, 29.1, 52.0)), (60, ['DOSBox.exe'], (640, 400, 22.7, 21.9))]
+[04:56:48] --- Shadow Warrior - Wanton Destruction: C:\Games\ShadowWarrior\Play Wanton Destruction.bat 
+[04:57:54]     PASS  samples=[(30, ['DOSBox.exe'], (640, 400, 54.6, 56.4)), (60, ['DOSBox.exe'], (640, 400, 24.5, 24.0))]
+[04:57:54] --- Shadow Warrior: C:\Games\ShadowWarrior\Play Shadow Warrior.bat 
+[04:59:00]     PASS  samples=[(30, ['DOSBox.exe'], (640, 400, 54.6, 56.4)), (60, ['DOSBox.exe'], (640, 400, 22.9, 22.9))]
+[04:59:00] --- Shogo - Mobile Armor Division: C:\Games\Shogo\Play Shogo - direct engine.bat 
+[05:00:07]     PASS  samples=[(30, ['Client.exe'], (1280, 960, 1.6, 16.4)), (60, ['Client.exe'], (1280, 960, 1.6, 16.4))]
+[05:00:07] --- Shogo - via launcher (fallback): C:\Games\Shogo\Play Shogo.bat 
+[05:01:14]     CHECK: dialog: Shogo: Mobile Armor Division  samples=[(30, ['Shogo.exe'], (1280, 1024, 22.2, 51.0)), (60, ['Shogo.exe'], (1280, 1024, 22.2, 51.0))]
+[05:01:14] --- SiN - software mode for newer cards: C:\Games\SiNGold\Play SiN - software renderer.bat 
+[05:03:14]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['sin.exe'], (1280, 960, 48.8, 14.1)), (60, ['sin.exe'], (1280, 960, 48.8, 14.1))]
+[05:03:14] --- SiN - Wages of SiN: C:\Games\SiNGold\Play Wages of SiN.bat 
+[05:04:50]     PASS  samples=[(30, ['sin.exe'], (1280, 960, 13.0, 21.5)), (60, ['sin.exe'], (1280, 960, 13.0, 21.6))]
+[05:04:50] --- SiN: C:\Games\SiNGold\Play SiN Gold.bat 
+[05:06:24]     PASS  samples=[(30, ['sin.exe'], (1280, 960, 12.9, 21.3)), (60, ['sin.exe'], (1280, 960, 13.0, 21.6))]
+[05:06:24] --- Soldier of Fortune II - Multiplayer: C:\Games\SoldierOfFortune2\Play Soldier of Fortune II - Multiplayer.bat 
+[05:08:25]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['sof2mp.exe'], (1152, 864, 31.7, 26.5)), (60, ['sof2mp.exe'], (1152, 864, 31.7, 26.5))]
+[05:08:25] --- Soldier of Fortune II: C:\Games\SoldierOfFortune2\Play Soldier of Fortune II.bat 
+[05:09:58]     CHECK: dialog: No AGP memory detected  samples=[(30, ['SoF2.exe'], (1280, 1024, 30.2, 58.5)), (60, ['SoF2.exe'], (1280, 1024, 30.2, 58.5))]
+[05:09:58] --- Soldier of Fortune: C:\Games\SoldierOfFortune\Play Soldier of Fortune.bat 
+[05:11:06]     PASS  samples=[(30, ['SoF.exe'], (1280, 960, 9.6, 14.9)), (60, ['SoF.exe'], (1280, 960, 45.9, 33.4))]
+[05:11:06] --- StarCraft - Brood War: C:\Games\StarCraft\BroodWar\Play Brood War.bat 
+[05:12:14]     PASS  samples=[(30, ['StarCraft.exe'], (640, 480, 0.0, 0.1)), (60, ['StarCraft.exe'], (640, 480, 2.3, 23.9))]
+[05:12:14] --- StarCraft: C:\Games\StarCraft\Play StarCraft.bat 
+[05:13:19]     PASS  samples=[(30, ['StarCraft.exe'], (640, 480, 3.2, 17.7)), (60, ['StarCraft.exe'], (640, 480, 3.3, 18.2))]
+[05:13:19] --- System Shock 2: C:\Games\SystemShock2\Play System Shock 2.bat 
+[05:14:25]     CHECK: dialog: Cannot locate the CD-ROM  samples=[(30, ['clokspl.exe', 'shock2.exe'], (1280, 1024, 22.0, 51.1)), (60, ['clokspl.exe', 'shock2.exe'], (1280, 1024, 22.0, 51.1))]
+[05:14:25] --- Team Fortress Classic: C:\Games\HalfLife1\Team Fortress Classic.bat 
+[05:16:18]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 39.3, 31.4)), (60, ['find.exe', 'hl.exe', 'netstat.exe'], (1280, 960, 39.3, 31.4))]
+[05:16:18] --- The Elder Scrolls II - Daggerfall: C:\Games\Daggerfall\Play Daggerfall.bat 
+[05:17:32]     PASS  samples=[(30, ['DOSBox.exe'], (640, 480, 27.6, 65.7)), (60, ['DOSBox.exe'], (640, 480, 0.0, 0.6))]
+[05:17:32] --- Thief Gold: C:\Games\ThiefGold\Play Thief Gold.bat 
+[05:19:31]     CHECK: had to be forced closed  samples=[(30, ['THIEF.EXE'], (640, 480, 10.4, 9.5)), (60, ['THIEF.EXE'], (640, 480, 16.3, 16.1))]
+[05:19:31] --- Thief II - The Metal Age: C:\Games\Thief2\Play Thief 2.bat 
+[05:21:32]     CHECK: had to be forced closed  samples=[(30, ['Thief2.exe'], (1280, 960, 30.6, 38.0)), (60, ['Thief2.exe'], (1280, 960, 30.5, 37.9))]
+[05:21:32] --- Tom Clancy's Rainbow Six: C:\Games\RainbowSix\Play Rainbow Six.bat 
+[05:22:37]     CHECK: error window: RAINBOW SIX ERROR; dialog: RAINBOW SIX ERROR  samples=[(30, ['RainbowSix.exe'], (640, 480, 0.0, 0.0)), (60, ['RainbowSix.exe'], (640, 480, 0.0, 0.0))]
+[05:22:37] --- Tribes 2 Solo and LAN: C:\Games\Tribes2\Play Tribes 2 Solo and LAN.bat 
+[05:23:43]     PASS  samples=[(30, ['Tribes2.exe', 'rubyintersect.dll'], (800, 600, 73.5, 54.9)), (60, ['Tribes2.exe', 'rubyintersect.dll'], (800, 600, 20.5, 34.2))]
+[05:23:43] --- Turok 2 - Multiplayer: C:\Games\Turok2\Play Turok 2 - Multiplayer.bat 
+[05:24:50]     PASS  samples=[(30, ['Turok2MPEnglish.exe'], (1280, 1024, 24.5, 50.4)), (60, ['Turok2MPEnglish.exe'], (1280, 1024, 24.5, 50.4))]
+[05:24:50] --- Turok 2 - Seeds of Evil: C:\Games\Turok2\Play Turok 2.bat 
+[05:25:56]     PASS  samples=[(30, ['Turok2English.exe'], (1280, 1024, 24.4, 50.3)), (60, ['Turok2English.exe'], (1280, 1024, 24.4, 50.3))]
+[05:25:56] --- Unreal Gold: C:\Games\UnrealGold\Play Unreal Gold.bat 
+[05:27:57]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['Unreal.exe'], (1024, 768, 12.0, 22.4)), (60, ['Unreal.exe'], (1024, 768, 15.5, 24.7))]
+[05:27:57] --- Unreal Tournament 2004: C:\Games\UT2004\Play UT2004.bat 
+[05:29:18]     PASS  samples=[(30, ['UT2004.exe'], (1280, 960, 40.3, 59.7)), (60, ['UT2004.exe'], (1280, 960, 0.0, 0.0))]
+[05:29:18] --- Unreal Tournament 436: C:\Games\UnrealTournament436\Play Unreal Tournament 436.bat 
+[05:30:33]     PASS  samples=[(30, ['UnrealTournament.exe'], (1280, 960, 14.5, 28.6)), (60, ['UnrealTournament.exe'], (1280, 960, 14.4, 26.9))]
+[05:30:33] --- Warcraft - Orcs and Humans: C:\Games\WarcraftOrcsAndHumans\Play Warcraft - Orcs and Humans.bat 
+[05:31:38]     PASS  samples=[(30, ['DOSBox.exe'], (640, 480, 40.4, 52.0)), (60, ['DOSBox.exe'], (640, 480, 24.7, 25.7))]
+[05:31:38] --- Warcraft II - Battle.net Edition: C:\Games\WarcraftII\Play Warcraft II.bat 
+[05:32:44]     PASS  samples=[(30, ['Warcraft II BNE.exe'], (640, 480, 0.6, 10.2)), (60, ['Warcraft II BNE.exe'], (640, 480, 0.6, 10.2))]
+[05:32:44] results -> scripts/benchmarks/results/v56k_lan_192.168.1.124/sweep_armed3/20260929_041911/sweep.json

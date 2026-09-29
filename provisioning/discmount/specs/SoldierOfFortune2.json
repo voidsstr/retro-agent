@@ -7,10 +7,10 @@
     "VOLID": "sofii_1",
     "MARKER": "SOF2Video.avi",
     "GAME": "%~dp0SoF2.exe",
-    "GAMEARGS": "+set r_mode %FR_Q3MODE% +set r_fullscreen 1 +set cg_fov %FR_FOV%",
+    "GAMEARGS": "+set r_mode %FR_Q3MODE% +set r_fullscreen 1 +set cg_fov %FR_FOV% +set sys_agpmemchecked 1",
     "REQUIREDISC": "1"
   },
   "autokill": "AUTORUN.EXE demo32.exe",
   "prelaunch": "rem (none)",
-  "_note": "Second round-trip fixture. Two independently hand-written launchers reproducing from one template is what shows the template is not overfitted to Red Faction."
+  "_note": "sys_agpmemchecked 1 ON THE COMMAND LINE (2026-09-29): SoF2.exe asks DirectDraw for AGP (non-local) video memory at startup and shows the 'No AGP memory detected' message box until that cvar is set - measured on .124, whose vcr-kmd reports none. The check runs BEFORE the configs: seta in base/autoexec.cfg did nothing (tried and removed); +set on the command line skipped it. Second round-trip fixture. Two independently hand-written launchers reproducing from one template is what shows the template is not overfitted to Red Faction."
 }

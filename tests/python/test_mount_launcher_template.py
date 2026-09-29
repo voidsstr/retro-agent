@@ -369,5 +369,27 @@ def test_the_old_soldier_of_fortune_gtitle_would_now_be_caught():
     assert '(' not in fixed and ')' not in fixed
 
 
+def test_sof2_skips_its_agp_warning_on_the_command_line():
+    """SoF2.exe asks DirectDraw for AGP (non-local) video memory at startup and
+    shows "No AGP memory detected" until sys_agpmemchecked is set - on .124
+    (vcr-kmd, which reports none) at every start whose config was never saved
+    (2026-09-29). The check runs BEFORE the configs: a seta in base/autoexec.cfg
+    was published, GAMESYNC'd and changed nothing; +set on the command line
+    skipped it (launcher run, the menu photographed with vcrctl fbshot). So the
+    cvar lives in the spec's GAMEARGS - and nowhere a config would pretend to."""
+    with open(os.path.join(SPECS, 'SoldierOfFortune2.json')) as f:
+        spec = json.load(f)
+    args = spec['vars']['GAMEARGS']
+    assert '+set sys_agpmemchecked 1' in args
+    # the old value really lacked it - this is the line the fix changed
+    old = '+set r_mode %FR_Q3MODE% +set r_fullscreen 1 +set cg_fov %FR_FOV%'
+    assert 'sys_agpmemchecked' not in old and args.startswith(old)
+    staged = os.path.join(LIBRARY, 'SoldierOfFortune2', 'base', 'autoexec.cfg')
+    if os.path.exists(staged):
+        with open(staged, 'rb') as f:
+            assert b'sys_agpmemchecked' not in f.read(), \
+                'the staged autoexec.cfg must not carry a cvar the engine reads too late'
+
+
 if __name__ == '__main__':
     sys.exit(pytest.main([__file__, '-v']))

@@ -1,0 +1,44 @@
+[23:46:20] 115 shortcuts, 74 to sweep: ['Aliens vs Predator', 'Battlefield 1942', 'Carmageddon 2', 'Carmageddon', 'Command and Conquer - Red Alert 2', 'Command and Conquer - Tiberian Sun', 'Counter-Strike 1.6', 'Deathmatch Classic', 'Descent - Rebirth engine', 'Descent 3', 'Descent II - original Win95 engine', 'Descent II', 'Descent', 'Deus Ex', 'Half-Life - Blue Shift', 'Half-Life - Opposing Force', 'Half-Life', 'Halo Combat Evolved', 'Hexen II - 3dfx Voodoo', 'Hexen II - Software Renderer', 'Hexen II', 'Hidden and Dangerous Deluxe', 'Jedi Academy - Multiplayer', 'Jedi Academy', 'Jedi Knight - Dark Forces II', 'Jedi Knight - Mysteries of the Sith', 'Master of Orion II - Battle at Antares', 'Max Payne', 'Quake - 3dfx Voodoo', 'Quake - Software Renderer', 'Quake II - Ground Zero', 'Quake II - The Reckoning', 'Quake II - ThreeWave CTF', 'Quake II', 'Quake III - Team Arena', 'Quake III Arena (retail 1.32c)', 'Quake III Arena', 'Quake', "Red Alert 2 - Yuri's Revenge", 'Red Faction', 'Redneck Rampage - Rides Again', 'Redneck Rampage - Route 66', 'Redneck Rampage', 'Return to Castle Wolfenstein', 'RTCW Multiplayer', 'Serious Sam - The First Encounter', 'Serious Sam - The Second Encounter', 'Shadow Warrior - Twin Dragon', 'Shadow Warrior - Wanton Destruction', 'Shadow Warrior', 'Shogo - Mobile Armor Division', 'Shogo - via launcher (fallback)', 'SiN - software mode for newer cards', 'SiN - Wages of SiN', 'SiN', 'Soldier of Fortune II - Multiplayer', 'Soldier of Fortune II', 'Soldier of Fortune', 'StarCraft - Brood War', 'StarCraft', 'System Shock 2', 'Team Fortress Classic', 'The Elder Scrolls II - Daggerfall', 'Thief Gold', 'Thief II - The Metal Age', "Tom Clancy's Rainbow Six", 'Tribes 2 Solo and LAN', 'Turok 2 - Multiplayer', 'Turok 2 - Seeds of Evil', 'Unreal Gold', 'Unreal Tournament 2004', 'Unreal Tournament 436', 'Warcraft - Orcs and Humans', 'Warcraft II - Battle.net Edition']
+[23:46:20] --- Aliens vs Predator: C:\Games\AliensVsPredator\avp.exe 
+[23:48:19]     CHECK: had to be forced closed  samples=[(30, ['avp.exe'], (640, 480, 34.5, 57.0)), (60, ['avp.exe'], (640, 480, 34.5, 57.0))]
+[23:48:19] --- Battlefield 1942: C:\Games\BF1942\Play Battlefield 1942.bat 
+[23:49:25]     CHECK: exited before the last sample; dialog: Cannot locate the CD-ROM  samples=[(30, ['BF1942.exe', '~e5d141.tmp'], (1280, 1024, 22.0, 49.3)), (60, [], (1280, 1024, 19.1, 50.8))]
+[23:49:25] --- Carmageddon 2: C:\Games\Carmageddon2\Play Carmageddon 2.bat 
+[23:50:32]     PASS  samples=[(30, ['CARMA2_HW.EXE'], (640, 480, 11.5, 29.9)), (60, ['CARMA2_HW.EXE'], (640, 480, 71.9, 56.5))]
+[23:50:32] --- Carmageddon: C:\Games\Carmageddon1\Play Carmageddon.bat 
+[23:51:39]     PASS  samples=[(30, ['DOSBox.exe'], (640, 480, 43.8, 49.5)), (60, ['DOSBox.exe'], (640, 480, 45.3, 50.7))]
+[23:51:39] --- Command and Conquer - Red Alert 2: C:\Games\RedAlert2\Launch Red Alert 2.bat 
+[23:53:41]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['Ra2.exe', 'game.exe'], (1280, 960, 23.0, 47.9)), (60, ['Ra2.exe', 'game.exe'], (1280, 960, 22.4, 47.7))]
+[23:53:41] --- Command and Conquer - Tiberian Sun: C:\Games\TiberianSun\Play Tiberian Sun.bat 
+[23:55:40]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['GAME.EXE', 'SUN.EXE'], (1280, 960, 2.6, 9.3)), (60, ['GAME.EXE', 'SUN.EXE'], (1280, 960, 6.4, 28.0))]
+[23:55:40] --- Counter-Strike 1.6: C:\Games\CounterStrike16\Play Counter-Strike.bat 
+[23:56:47]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 50.4, 30.4)), (60, ['hl.exe'], (1280, 960, 50.4, 30.4))]
+[23:56:47] --- Deathmatch Classic: C:\Games\HalfLife1\Deathmatch Classic.bat 
+[23:58:44]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 27.2, 19.6)), (60, ['hl.exe'], (1280, 960, 27.2, 19.6))]
+[23:58:44] --- Descent - Rebirth engine: C:\Games\Descent1\Play Descent - Rebirth.bat 
+[00:00:43]     CHECK: had to be forced closed  samples=[(30, ['d1x-rebirth.exe'], (1280, 960, 32.9, 30.7)), (60, ['d1x-rebirth.exe'], (1280, 960, 1.8, 14.8))]
+[00:00:43] --- Descent 3: C:\Games\Descent3\Play Descent 3.bat 
+[00:02:42]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['main.exe'], (640, 480, 15.4, 23.1)), (60, ['main.exe'], (640, 480, 17.4, 33.1))]
+[00:02:42] --- Descent II - original Win95 engine: C:\Games\Descent2\Play Descent 2 - original Win95.bat 
+[00:03:48]     CHECK: started no process  samples=[(30, [], (1280, 1024, 13.1, 39.6)), (60, [], (1280, 1024, 13.1, 39.6))]
+[00:03:48] --- Descent II: C:\Games\Descent2\Play Descent 2.bat 
+[00:05:48]     CHECK: had to be forced closed  samples=[(30, ['d2x-rebirth.exe'], (1280, 960, 8.4, 26.3)), (60, ['d2x-rebirth.exe'], (1280, 960, 13.9, 23.7))]
+[00:05:48] --- Descent: C:\Games\Descent1\Play Descent.bat 
+[00:06:56]     PASS  samples=[(30, ['DOSBox.exe'], (640, 400, 0.0, 1.3)), (60, ['DOSBox.exe'], (640, 400, 0.0, 1.3))]
+[00:06:56] --- Deus Ex: C:\Games\DeusEx\Play Deus Ex.bat 
+[00:08:06]     PASS  samples=[(30, ['DEUSEX.EXE'], (1280, 960, 0.5, 3.7)), (60, ['DEUSEX.EXE'], (1280, 960, 5.2, 24.0))]
+[00:08:06] --- Half-Life - Blue Shift: C:\Games\HalfLife1\Blue Shift.bat 
+[00:09:12]     CHECK: started no process; Dr. Watson entry  samples=[(30, [], (1280, 1024, 13.0, 39.9)), (60, [], (1280, 1024, 13.0, 39.9))]
+[00:09:12] --- Half-Life - Opposing Force: C:\Games\HalfLife1\Opposing Force.bat 
+[00:11:07]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 42.1, 24.9)), (60, ['hl.exe'], (1280, 960, 42.1, 24.9))]
+[00:11:07] --- Half-Life: C:\Games\HalfLife1\Half-Life.bat 
+[00:12:39]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 19.0, 19.7)), (60, ['hl.exe'], (1280, 960, 19.0, 19.7))]
+[00:12:39] --- Halo Combat Evolved: C:\Games\Halo\Play Halo.bat 
+[00:13:46]     CHECK: dialog: Windows Task Manager  samples=[(30, ['halo.exe'], (1280, 960, 12.2, 26.3)), (60, ['halo.exe', 'taskmgr.exe', 'verclsid.exe'], (1280, 1024, 12.2, 37.8))]
+[00:13:46] --- Hexen II - 3dfx Voodoo: C:\Games\HexenII\Play Hexen II - Voodoo.bat 
+[00:15:32]     PASS  samples=[(30, ['glh2.exe'], (1024, 768, 20.8, 31.7)), (60, ['glh2.exe', 'tasklist.exe'], (1024, 768, 20.8, 31.7))]
+[00:15:32] --- Hexen II - Software Renderer: C:\Games\HexenII\Play Hexen II - Software.bat 
+[00:17:16]     PASS  samples=[(30, ['h2.exe'], (320, 200, 6.2, 27.3)), (60, ['h2.exe'], (320, 200, 6.1, 27.3))]
+[00:17:16] --- Hexen II: C:\Games\HexenII\Play Hexen II.bat 
+[00:19:02]     PASS  samples=[(30, ['glh2.exe'], (1024, 768, 20.7, 31.7)), (60, ['glh2.exe'], (1024, 768, 20.8, 31.7))]
+[00:19:02] --- Hidden and Dangerous Deluxe: C:\Games\HiddenAndDangerous\Play Hidden and Dangerous Deluxe.bat 

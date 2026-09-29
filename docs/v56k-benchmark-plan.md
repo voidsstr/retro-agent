@@ -96,6 +96,54 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-29 05:40) - the graphics clock set LIVE; the full-desktop sweep done (74 shortcuts); the stale 75 Hz Glide override removed
+
+**State of `.124` (the party configuration):** vcr-kmd with the live core clock
+(`bfdf2cd`, `IOCTL_VCR_CLOCK`), 3dfx Control Panel **2.1.0** (Clock tab), agent
+**1.93.0**, `Diag\D3D32`=1 + `Diag\D3DBigTex`=7 still ARMED by operator decision,
+the card at its **stock 166.8 MHz** with nothing re-applying a clock at logon,
+desktop 1280x1024x32@85. **`FX_GLIDE_REFRESH=75` (an AmigaMerlin-panel leftover in
+`Services\3dfxvs\Device0\glide`) is DELETED** - Glide opens at what the game/ICD
+asks (85 at 1280x960 from our ICD; retro-agent-69 measured every Glide open at 75
+before). The agent watchdog's console now starts minimized.
+
+**The clock (details: `voodoo-cleanroom/vcr-kmd/README.md` "The graphics clock,
+live"):** set live on the master chip, carried to chips 1-3 at every SLI enable
+(they sit at their reset word 0x0C01 until a game asks for SLI). Glide fill,
+640x480, 4-chip SLI: **1110.7 Mpix/s stock, 997.1 at 149.7 MHz, 1110.7 again** -
+0.8977 = the clock ratio - and after that run all four chips read the new word.
+The panel's Clock tab: 133-200 MHz, overclocks put back unless kept (15 s),
+opt-in re-apply at logon only after a clean shutdown (Windows' `ShutdownTime`
+stamp must move) - verified across a real safe-reboot.
+
+**Sweep** (`lan_sweep.py`, every desktop shortcut the way a person starts it;
+part 1 00:00-00:19 stopped when a person used the box, part 2 04:19-05:32:
+`voodoo-cleanroom/vcr-kmd/evidence/lan_20260929_sweep/`). Part 2: **53 titles, 39
+PASS, 14 CHECK, 0 FAIL, board and agent healthy throughout.** Every priority title
+renders: Quake (GLQuake + software), Quake II + GZ/Reckoning/CTF, Quake III (ioq3,
+retail 1.32c, Team Arena), RTCW SP + MP, SoF, SoF2 SP + MP, UT99 (436 client - it
+joins the 469e server), Red Alert 2 + Yuri's Revenge (menus render), Turok 2 (the
+launcher; MP verified 09-28). The CHECKs, by kind:
+
+| kind | titles | what it is |
+|---|---|---|
+| rendered, then force-closed (not focused / ignores WM_CLOSE) | Yuri's Revenge, SiN software, SoF2 MP, Thief Gold, Thief II, Unreal Gold | the sweep's close path, not the game |
+| the title's own launcher dialog | Max Payne v1.05, Shogo "via launcher" | waits for a click (the direct Shogo shortcut PASSES) |
+| disc / copy protection | System Shock 2 (SafeDisc v1), Serious Sam TFE + TSE (CD check) | `.124` mounts with **WinCDEmu**, which emulates no protection; the user asked for Daemon Tools here - not yet installed |
+| SoF2 "No AGP memory detected" | SoF2 SP | **FIXED in the library and verified on `.124`**: SoF2.exe asks DirectDraw for AGP memory BEFORE it reads any config, so a `seta` in `base/autoexec.cfg` changed nothing (tried, removed); `+set sys_agpmemchecked 1` in the launcher spec's GAMEARGS skips it. Through the launcher after GAMESYNC: no AGP box, the disc mounted, one first-run "New Video card detected" notice (shown until the game's config is saved by a normal exit), the menu at 1152x864@85 (`evidence/lan_20260929_sweep/sof2_menu_fbshot.png`). SoF2 does not exit on WM_CLOSE - quit from its menu |
+| Rainbow Six "RAINBOW SIX ERROR" | Rainbow Six | the known cost of the armed D3D switches |
+| black frame at 640x480 | Red Faction | not yet looked at (`vcrctl fbshot` next) |
+
+Also open from part 1: Descent II Win95 engine "started no process" (its launcher
+starts `DESCENTW.EXE` with no mounter check required - the exe itself exits), Blue
+Shift (SecuROM), BF1942 SP (SafeDisc 2.80), AvP (pre-existing). Quake II closed by
+WM_CLOSE shows "GLimp_EndFrame() - SwapBuffers() failed!": Quake II's own shutdown
+deletes the context before its last frame - quit from the console/menu is clean.
+
+**Open:** Daemon Tools on `.124` (SafeDisc/SecuROM/CD-check titles); Red Faction's
+black frame; Descent II Win95; Halo keys for `.145`/`.240`/`.123`/`.195` when on;
+GAMESYNC/GAMERES churn; the `.124` <-> NAS link speed; Halo's slow Bink path.
+
 ### Resume point (2026-09-29 00:00) - Halo + Thief II D3D9 on the armed configuration; agent 1.91.0; full-desktop sweep running
 
 **State (the party configuration):** vcr-kmd `integ-vcrkmd` build with **`Diag\D3D32`=1
