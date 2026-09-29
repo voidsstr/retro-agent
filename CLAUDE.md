@@ -2659,7 +2659,11 @@ Win9x DOS launcher therefore ends with `cls` after the game;
 `scripts/fleet/win9x/mkpif9x` sets the PIF bit for a shortcut made outside
 GAMESYNC. **To see a full-screen DOS game from the agent**, `UIKEY ALT+RETURN`
 puts it in a window that `SCREENSHOT` captures - a full-screen one reads back
-as noise.
+as noise. **Only for a VGA mode-13h game:** on an SVGA title it page-faulted
+WINOLDAP in `VGAFULL.3GR` and stalled the single-threaded agent until a person
+dismissed the dialog (2026-09-29). Never send it in an unattended sweep - judge
+a DOS title alive from its window (a full-screen DOS box sits at (3000,3000),
+iconic) and close it with the "Windows cannot shut down this program" Yes.
 
 ### Win98 RST Crash
 
