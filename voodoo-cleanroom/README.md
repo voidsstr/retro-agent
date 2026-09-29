@@ -1604,6 +1604,14 @@ missing:
 | ICD 0.1.35 `fxDrawCursorOverlay` + `FX_DUMP_FRONT` | 2026-08-03 | same |
 | Glide fork `79ee51e` — glide2x XP bring-up guards | 2026-08-04 | Never pushed; absent from both local clones and from GitHub |
 
+**2026-09-29: the rest of the ICD was one re-clone from the same fate.** The
+main tree's `build/retro3dfx-gl` held every change from 0.1.36 through the
+deployed **0.1.78** as uncommitted edits (fork HEAD was still `492a0d8`, 0.1.33).
+They are now committed and pushed as fork **`a30d353`** - the source exactly as
+built into the 0.1.78 `opengl32.dll` on `.124` (no source file newer than the
+build). The clone's remote is HTTPS with no credentials, which is how the push
+kept being skipped; its push URL is now SSH. 0.1.34/0.1.35 are still lost.
+
 **Lesson, now a rule:** a fork change is not done until it is pushed to the
 fork or captured in `patches/`; `build-stack.sh` builds whatever is checked out
 and a re-clone silently drops the rest. The uncommitted h5 `hwcMapBoard` guard

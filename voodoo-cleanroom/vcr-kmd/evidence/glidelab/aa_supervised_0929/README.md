@@ -26,7 +26,7 @@ read; the user judged the monitor. `Diag\SliAA`=1 and `SliPersistAll`=1 for ever
   "--frames 1800" run draws AA for ~3 s - the 09-27 edges run was mostly setup.
   In r2b the AA phase lasted 62 s (kernel SLI/AA on 1628 s -> off 1690 s).
 * The recorder ring (1024 entries) holds a whole SLI enable sequence, so the start of a
-  long run scrolls out; `vcrlog_boot_r1.txt` is the r1c boot's ring.
+  long run scrolls out (the r1c ring was read but lost from /tmp in the host reboot).
 
 ## Next (in progress when the host went down)
 
