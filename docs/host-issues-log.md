@@ -115,6 +115,13 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-09-29 16:45:53: requested reboot (clean, not a fault)
+
+- **Boot IDs:** `d08f865b…` (13:18:26 → 16:47:01) → `d3bc0e94…` from 16:47:20.
+- **What:** `systemd-logind: The system will reboot now!`, then a normal `reboot.target` and
+  `systemd-shutdown`. This was a user or UI reboot request, not a crash. There was no kdump, BERT or
+  MCE record, and 0 IOMMU faults on the new boot. The GPU run of 3 h 27 min before it had no faults.
+
 ### 2026-09-29 13:16:55: power loss from a tripped building breaker (not a host fault)
 
 - **Cause (operator, same day):** a breaker blew. The breaker is fixed. This was external power loss,
