@@ -72,10 +72,31 @@ TEST(other_dialogs_and_the_desktop_keep_their_keys)
     CHECK(uig_reason(UIG_REFUSE_ALTF4_SHELL)[0] == 'r', "a refusal says it is one");
 }
 
+TEST(the_agents_own_console_does_not_take_a_close_or_break_key)
+{
+    /* after a RESTART the new agent's console has the focus (.124, 2026-09-28):
+     * ALT+F4 there closes it, CTRL+C / CTRL+BREAK interrupt the agent */
+    const char *C = "ConsoleWindowClass", *T = "Retro Remote Agent Version 1.91.0";
+    CHECK_EQ_I(uig_check_self("ALT+F4", C, T, 1), UIG_REFUSE_SELF_CONSOLE);
+    CHECK_EQ_I(uig_check_self("CTRL+C", C, T, 1), UIG_REFUSE_SELF_CONSOLE);
+    CHECK_EQ_I(uig_check_self("ctrl+break", C, T, 1), UIG_REFUSE_SELF_CONSOLE);
+    CHECK_EQ_I(uig_check_self("CONTROL+PAUSE", C, T, 1), UIG_REFUSE_SELF_CONSOLE);
+    CHECK_EQ_I(uig_check(("ALT+F4"), C, T), UIG_OK);      /* 1.91.0: let it through */
+    /* other keys into our console are harmless, and so is any key into
+     * SOMEONE ELSE's console */
+    CHECK_EQ_I(uig_check_self("RETURN", C, T, 1), UIG_OK);
+    CHECK_EQ_I(uig_check_self("C", C, T, 1), UIG_OK);
+    CHECK_EQ_I(uig_check_self("ALT+F4", C, "C:\\WINDOWS\\system32\\cmd.exe", 0), UIG_OK);
+    /* the shell and shut-down rules still apply through the _self form */
+    CHECK_EQ_I(uig_check_self("ALT+F4", "Progman", "", 0), UIG_REFUSE_ALTF4_SHELL);
+    CHECK_EQ_I(uig_check_self("RETURN", "#32770", "Shut Down Windows", 0), UIG_REFUSE_SHUTDOWN_DLG);
+}
+
 MUNIT_MAIN("uiguard (UIKEY refuses keys that shut Windows down)",
     RUN(the_124_restart_sequence_is_refused);
     RUN(alt_f4_to_the_taskbar_or_a_web_desktop_is_refused_too);
     RUN(alt_f4_still_closes_a_game_or_a_dialog);
     RUN(escape_is_the_one_key_that_reaches_the_dialog);
     RUN(other_dialogs_and_the_desktop_keep_their_keys);
+    RUN(the_agents_own_console_does_not_take_a_close_or_break_key);
 )

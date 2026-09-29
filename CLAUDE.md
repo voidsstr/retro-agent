@@ -2060,6 +2060,8 @@ directions.
   meant for an unfocused game opened "Shut Down Windows" on `.124`, its next
   RETURN confirmed it, and the box restarted — with "Shut down" preselected it
   would have powered off. Keys go to the FOCUSED window, not the one you mean.
+  **1.91.1** also refuses ALT+F4 / CTRL+C / CTRL+BREAK while the agent's OWN
+  console has the focus - which it does right after a `RESTART`.
 - **UIKEY TEXT:&lt;string&gt;** — **type a whole string**, character by character,
   via `VkKeyScanA` (so it handles shifted characters). This mode is easy to
   miss — it was in `input.c` for a long time before anyone found it, and was

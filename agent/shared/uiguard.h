@@ -28,6 +28,11 @@
 #define UIG_OK                  0
 #define UIG_REFUSE_ALTF4_SHELL  1   /* ALT+F4 to the desktop/taskbar */
 #define UIG_REFUSE_SHUTDOWN_DLG 2   /* a key into Shut Down / Log Off */
+#define UIG_REFUSE_SELF_CONSOLE 3   /* a close/break key into the agent's own console */
+
+#define UIG_MOD_ALT   1
+#define UIG_MOD_CTRL  2
+#define UIG_MOD_SHIFT 4
 
 static __inline int uig__ieq(const char *a, const char *b)
 {
@@ -64,29 +69,59 @@ static __inline int uig_is_shutdown_dialog(const char *cls, const char *title)
            uig__ieq(title, "Shut Down") || uig__ieq(title, "Log Off");
 }
 
+/* Split a UIKEY combo ("CTRL+SHIFT+A"): the UIG_MOD_* bits of its modifiers,
+ * and its final key copied (at most keycap-1 chars) into `key`. */
+static __inline int uig__combo(const char *spec, char *key, int keycap)
+{
+    const char *p = spec, *part = spec;
+    int mods = 0, n, i;
+    char m[8];
+
+    key[0] = 0;
+    if (!spec)
+        return 0;
+    for (;; p++) {
+        if (*p != '+' && *p != 0)
+            continue;
+        n = (int)(p - part);
+        if (*p == 0) {
+            if (n >= keycap)
+                n = keycap - 1;
+            for (i = 0; i < n; i++)
+                key[i] = part[i];
+            key[n] = 0;
+            return mods;
+        }
+        if (n > 0 && n < (int)sizeof(m)) {
+            for (i = 0; i < n; i++)
+                m[i] = part[i];
+            m[n] = 0;
+            if (uig__ieq(m, "ALT"))   mods |= UIG_MOD_ALT;
+            if (uig__ieq(m, "CTRL") || uig__ieq(m, "CONTROL")) mods |= UIG_MOD_CTRL;
+            if (uig__ieq(m, "SHIFT")) mods |= UIG_MOD_SHIFT;
+        }
+        part = p + 1;
+    }
+}
+
 /* Is this UIKEY spec an ALT+F4? "ALT+F4", "alt+f4", "SHIFT+ALT+F4" - any combo
  * whose key is F4 with ALT among its modifiers. */
 static __inline int uig_is_alt_f4(const char *spec)
 {
-    const char *p = spec, *part = spec;
-    int alt = 0;
+    char key[8];
+    return (uig__combo(spec, key, sizeof(key)) & UIG_MOD_ALT) && uig__ieq(key, "F4");
+}
 
-    if (!spec)
-        return 0;
-    for (;;) {
-        if (*p == '+' || *p == 0) {
-            int n = (int)(p - part);
-            if (*p == 0)
-                return alt && n == 2 && (part[0] == 'F' || part[0] == 'f') &&
-                       part[1] == '4';
-            if (n == 3 && (part[0] == 'A' || part[0] == 'a') &&
-                (part[1] == 'L' || part[1] == 'l') &&
-                (part[2] == 'T' || part[2] == 't'))
-                alt = 1;
-            part = p + 1;
-        }
-        p++;
-    }
+/* A key that ends a console program when its console has the focus: ALT+F4
+ * closes the window (CTRL_CLOSE_EVENT), CTRL+C / CTRL+BREAK interrupt it. */
+static __inline int uig_is_console_kill(const char *spec)
+{
+    char key[8];
+    int mods = uig__combo(spec, key, sizeof(key));
+    if ((mods & UIG_MOD_ALT) && uig__ieq(key, "F4"))
+        return 1;
+    return (mods & UIG_MOD_CTRL) &&
+           (uig__ieq(key, "C") || uig__ieq(key, "BREAK") || uig__ieq(key, "PAUSE"));
 }
 
 /* spec = the whole UIKEY argument (TEXT:... included); fg_class/fg_title =
@@ -102,12 +137,27 @@ static __inline int uig_check(const char *spec, const char *fg_class, const char
     return UIG_OK;
 }
 
+/* As uig_check, knowing whether the focused window is the AGENT's own console
+ * (its pid is the agent's). Found 2026-09-28 on .124: after a RESTART the new
+ * agent's console window has the focus, so an ALT+F4 meant for a game reached
+ * it - the close event ends the agent. */
+static __inline int uig_check_self(const char *spec, const char *fg_class,
+                                   const char *fg_title, int fg_is_self)
+{
+    if (fg_is_self && uig_is_console_kill(spec))
+        return UIG_REFUSE_SELF_CONSOLE;
+    return uig_check(spec, fg_class, fg_title);
+}
+
 static __inline const char *uig_reason(int r)
 {
     switch (r) {
     case UIG_REFUSE_ALTF4_SHELL:
         return "refused: ALT+F4 with the desktop/taskbar (or no window) in the "
                "foreground opens Shut Down Windows - the target window is not focused";
+    case UIG_REFUSE_SELF_CONSOLE:
+        return "refused: the agent's own console has the focus - ALT+F4 / CTRL+C / "
+               "CTRL+BREAK there would end the agent (the target window is not focused)";
     case UIG_REFUSE_SHUTDOWN_DLG:
         return "refused: the Shut Down/Log Off dialog is in the foreground - only "
                "ESCAPE (cancel) is sent to it";

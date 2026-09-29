@@ -483,7 +483,8 @@ void handle_uikey(SOCKET sock, const char *args)
         int r;
 
         fg_window(&fh, fcls, sizeof(fcls), ftitle, sizeof(ftitle), &fpid);
-        r = uig_check(args, fcls, ftitle);
+        r = uig_check_self(args, fcls, ftitle,
+                           fpid != 0 && fpid == GetCurrentProcessId());
         if (r != UIG_OK) {
             log_msg(LOG_INPUT, "UIKEY \"%s\" %s (foreground %08lX class \"%s\" "
                     "title \"%s\" pid %lu)", args, uig_reason(r),

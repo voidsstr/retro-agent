@@ -30,7 +30,9 @@ def _func(src, name):
 
 def test_uikey_checks_the_guard_before_any_key_is_sent():
     body = _func(_src(), "handle_uikey")
-    g = body.index("uig_check(")
+    g = body.index("uig_check_self(")
+    # the focused window's owner is compared with the agent's own pid
+    assert "GetCurrentProcessId()" in body[g:g + 200]
     for sender in ("send_text_input(", "keybd_event(", "send_key_press_ex("):
         assert sender in body, sender
         assert g < body.index(sender), "%s runs before the guard" % sender
