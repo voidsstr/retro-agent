@@ -75,6 +75,9 @@ STAGED_LIBRARY = {
     "HiddenAndDangerous": "HDE.exe",
     # approved for staging 2026-08-29; the fleet runs a ut2004-server on :7777
     "UT2004":            "UT2004.exe",
+    # staged 2026-09-29 from the retail discs + the final 2225 patch, installed
+    # in the build VM; no UT2003 server on the fleet host
+    "UT2003":            "UT2003.exe",
 }
 
 # Two staged trees share one executable name on purpose (the 469e and 436

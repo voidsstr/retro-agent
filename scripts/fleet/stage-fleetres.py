@@ -1220,6 +1220,23 @@ TITLES = {
             "lines": ue_userini_seed(),
         }],
     },
+    # UT2003 (build 2225, installed in the build VM 2026-09-29). Same engine
+    # generation and the same [WinDrv.WindowsClient] keys as UT2004, so the
+    # same recipe. There is no UT2003 server on the fleet host, hence one
+    # launcher and no "Join fleet" twin.
+    "UT2003": {
+        "launchers": {
+            "Play UT2003.bat": rec('cd /d "%~dp0System"',
+                                   [CALL] + ue_ini("System\\UT2003.ini")),
+        },
+        # The same installer-stub User.ini trap as UT2004 - see ue_userini_seed().
+        "post": [{
+            "file": "Play UT2003.bat",
+            "marker": "UE_USERINI",
+            "before": CALL,
+            "lines": ue_userini_seed(),
+        }],
+    },
     "UnrealGold": {
         "launchers": {
             "Play Unreal Gold.bat": rec('cd /d "%~dp0System"',

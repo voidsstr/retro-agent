@@ -1133,6 +1133,15 @@ def test_ut2004_launchers_carry_the_userini_reseed():
         assert "(" not in body and ")" not in body     # no parens in a .bat line
 
 
+def test_ut2003_launcher_carries_the_userini_reseed():
+    # Same Epic installer, same bindless User.ini stub as UT2004.
+    posts = {p["file"]: p for p in sf.TITLES["UT2003"]["post"]}
+    assert set(posts) == {"Play UT2003.bat"}
+    pb = posts["Play UT2003.bat"]
+    assert pb["marker"] == "UE_USERINI" and pb["before"] == sf.CALL
+    assert pb["lines"] == sf.ue_userini_seed()
+
+
 def test_the_reseed_lands_above_every_userini_write(tmp_path):
     tdir = tmp_path / "UT2004"
     tdir.mkdir()
