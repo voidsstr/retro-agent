@@ -96,7 +96,11 @@ ENFORCED by --publish through PUBLISH_GATES, which reads the share itself:
   * JKA's launchers already run r_mode -1; its pk3 is independent.
 
 Modes (only --check and --build are meant to be run in the build phase):
-    --check                 verify every staged original and every anchor
+    --check                 verify every staged original and every anchor;
+                            a replaced binary the share already holds PATCHED
+                            is reported so, its original read from the backup
+                            under _patches/<Title>/originals-2026-09-29/
+                            (pinned md5, or FAIL)
     --check --full          ... plus the whole-file md5 of every source pk3
     --build [OUTDIR]        write patched files + manifest.json + diffs
     --publish [OUTDIR]      FUTURE: back up originals, then sharewrite.py put
@@ -194,6 +198,9 @@ SOF2MP = "SoldierOfFortune2/sof2mp.exe"
 SOF2MP_CONTEXT = (0xBA614, bytes.fromhex("680000204168000040406821200000"))
 SOF2MP_PATCH = [(0xBA61A, bytes.fromhex("00004040"), bytes.fromhex("000080bf"))]
 SOF2MP_PATCHED_MD5 = "30f099da5ab0b9a5c29658edf07c7c2e"  # the .240 test copy, S2
+# every replaced binary's patched md5: a share copy with this md5 is the
+# deployed state, and its original is then read from the verified backup
+PATCHED_MD5 = {SOF2MP: SOF2MP_PATCHED_MD5}
 
 # --------------------------------------------------------------------------
 # Font metrics: the per-glyph horizontal advance, from the game's own files.
@@ -825,6 +832,41 @@ def transform(kind, text, spec, adv):
     raise ValueError(kind)
 
 
+def backup_rel_of(rel):
+    """Games-Library-relative path of a replaced original's backup (--publish
+    writes it before it puts the patched copy)."""
+    title, sub = rel.split("/", 1)
+    return "_patches/%s/%s/%s" % (title, BACKUP_TAG, sub)
+
+
+def load_exe_original(rel):
+    """(original bytes, state) for a binary this script REPLACES. While the
+    share still holds the stock file it is read from there; once --publish has
+    put the patched copy (share md5 == PATCHED_MD5[rel]) the original is read
+    from the backup --publish wrote first, and only if that backup is the
+    pinned size + md5. Anything else raises ValueError - never guessed."""
+    size, want = ORIGINALS[rel]
+    p = share_path(rel)
+    if not os.path.isfile(p):
+        raise ValueError("%s: missing" % rel)
+    data = open(p, "rb").read()
+    got = md5_bytes(data)
+    if len(data) == size and got == want:
+        return data, "stock (original)"
+    if got != PATCHED_MD5.get(rel):
+        raise ValueError("%s: md5 %s (%d B), pinned %s - neither the original nor the "
+                         "patched %s" % (rel, got, len(data), want, PATCHED_MD5.get(rel)))
+    brel = backup_rel_of(rel)
+    bp = share_path(brel)
+    bdata = open(bp, "rb").read() if os.path.isfile(bp) else None
+    if bdata is None or len(bdata) != size or md5_bytes(bdata) != want:
+        raise ValueError("%s: ALREADY PATCHED on the share, but the backup %s is %s, not "
+                         "the pinned original %s - refusing to rebuild from it"
+                         % (rel, brel, "missing" if bdata is None else
+                            "md5 %s (%d B)" % (md5_bytes(bdata), len(bdata)), want))
+    return bdata, "ALREADY PATCHED on the share; original from the verified backup %s" % brel
+
+
 def patch_exe_bytes(data):
     """sof2mp.exe: verify the context + original bytes, return patched bytes."""
     off, ctx = SOF2MP_CONTEXT
@@ -884,6 +926,14 @@ def check(full=False, titles=None, rep=None):
     for rel, (size, md5) in sorted(ORIGINALS.items()):
         if titles and rel.split("/")[0] not in titles:
             continue
+        if rel in PATCHED_MD5:
+            try:
+                data, state = load_exe_original(rel)
+            except ValueError as e:
+                rep.fail(str(e))
+                continue
+            rep.ok("%s  %d  %s  %s" % (rel, len(data), md5_bytes(data), state))
+            continue
         p = share_path(rel)
         if not os.path.isfile(p):
             rep.fail("%s: missing" % rel)
@@ -917,12 +967,20 @@ def check(full=False, titles=None, rep=None):
             continue
         names = gamedir_pk3s(plan["gamedir"])
         lists = {n: open_pk3("%s/%s" % (plan["gamedir"], n)).namelist() for n in names}
-        if sorted(names + [PK3_NAME], key=pk3_sort_key)[-1] != PK3_NAME:
-            rep.fail("%s: %s would NOT sort last among %r" % (title, PK3_NAME, names))
+        # the order question is asked of the STOCK names: once published, our
+        # own pk3 is in the listing and must not be what it is compared with
+        stock = [n for n in names if n.lower() != PK3_NAME.lower()]
+        if sorted(stock + [PK3_NAME], key=pk3_sort_key)[-1] != PK3_NAME:
+            rep.fail("%s: %s would NOT sort last among %r" % (title, PK3_NAME, stock))
         else:
-            rep.ok("%s: %s sorts after %s" % (title, PK3_NAME, names[-1]))
-        if PK3_NAME.lower() in [n.lower() for n in names]:
-            rep.info("%s: %s is already staged" % (title, PK3_NAME))
+            rep.ok("%s: %s sorts after %s" % (title, PK3_NAME, stock[-1]))
+        ours = [n for n in names if n.lower() == PK3_NAME.lower()]
+        if ours:
+            rel = "%s/%s" % (plan["gamedir"], PK3_NAME)
+            got = md5_file(share_path("%s/%s" % (plan["gamedir"], ours[0])))
+            rep.info("%s: %s is ALREADY PUBLISHED on the share (md5 %s, %s)"
+                     % (title, PK3_NAME, got, "= reviewed build" if got == REVIEWED_BUILD.get(rel)
+                        else "an earlier build - --publish replaces it"))
         for member, src, spec in plan["pk3"]:
             win = winning_pk3([n for n in names if n.lower() != PK3_NAME.lower()],
                               lists, member)
@@ -955,7 +1013,7 @@ def check(full=False, titles=None, rep=None):
                 rep.fail("%s: %s: %s" % (title, member, e))
         if plan.get("exe"):
             try:
-                data = open(share_path(plan["exe"]), "rb").read()
+                data, state = load_exe_original(plan["exe"])
                 new = patch_exe_bytes(data)
                 got = md5_bytes(new)
                 if got != SOF2MP_PATCHED_MD5:
@@ -964,6 +1022,8 @@ def check(full=False, titles=None, rep=None):
                 else:
                     rep.ok("%s: anchors match; patched md5 %s = the copy tested on .240"
                            % (plan["exe"], got))
+                    if state != "stock (original)":
+                        rep.info("%s: %s" % (plan["exe"], state))
             except Exception as e:
                 rep.fail("%s: %s" % (plan["exe"], e))
         sv = server_purity(plan["server"])
@@ -1035,7 +1095,7 @@ def build(outdir, titles=None):
             "new_file": True, "members": sources,
             "publish_gate": PUBLISH_GATES.get(rel, {})}
         if plan.get("exe"):
-            orig = open(share_path(plan["exe"]), "rb").read()
+            orig, _state = load_exe_original(plan["exe"])
             new = patch_exe_bytes(orig)
             lp = os.path.join(outdir, plan["exe"])
             os.makedirs(os.path.dirname(lp), exist_ok=True)
@@ -1044,8 +1104,7 @@ def build(outdir, titles=None):
                 "title": title, "share_path": "%s/%s" % (LIB_REL, plan["exe"]),
                 "local_path": lp, "md5": md5_bytes(new), "size": len(new),
                 "original_md5": md5_bytes(orig), "new_file": False,
-                "backup_share_path": "%s/_patches/%s/%s/%s" % (
-                    LIB_REL, title, BACKUP_TAG, plan["exe"].split("/", 1)[1]),
+                "backup_share_path": "%s/%s" % (LIB_REL, backup_rel_of(plan["exe"])),
                 "patch": [{"offset": "0x%X" % o, "old": a.hex(), "new": b.hex()}
                           for o, a, b in SOF2MP_PATCH]})
         # the pk3 AFTER the binary it depends on: --publish replaces binaries

@@ -553,7 +553,23 @@ def load_originals(lib):
         if kind == "stock":
             state = "stock (original)"
         elif kind == "patched":
-            state = "ALREADY PATCHED on the share"
+            # the original is rebuilt by reversing OUR edits and must hash to
+            # the pinned md5 (classify_exe); the backup --publish wrote first is
+            # what a damaged share would be recovered from, so it is verified
+            # too - a backup that is not the original is refused, not trusted
+            b = ci_path(lib, backup_rel_of(spec["title"], spec["rel"]))
+            if b is None:
+                state = ("ALREADY PATCHED on the share; NO backup at %s"
+                         % backup_rel_of(spec["title"], spec["rel"]))
+            else:
+                bdata = open(b, "rb").read()
+                if bdata != data:
+                    raise PatchError("%s/%s: ALREADY PATCHED on the share, but the backup %s is "
+                                     "md5 %s (%d B), not the original %s - re-measure"
+                                     % (spec["title"], spec["rel"],
+                                        backup_rel_of(spec["title"], spec["rel"]),
+                                        md5(bdata), len(bdata), spec["md5"]))
+                state = "ALREADY PATCHED on the share; backup verified"
         else:
             b = ci_path(lib, backup_rel_of(spec["title"], spec["rel"]))
             bdata = open(b, "rb").read() if b else None
