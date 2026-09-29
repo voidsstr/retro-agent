@@ -115,6 +115,20 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-09-29 13:16:55: instant reset, no panic or firmware record, 87 min into boot
+
+- **Boot IDs:** `843e7fbc…` (11:49:09 → last journal line 13:16:55) → `d08f865b…` from 13:18:26 (~90 s
+  gap, 0 IOMMU faults, card healthy, cap and clock lock re-applied at 13:18:38).
+- **Fault:** none recorded. There was no kdump (newest `/var/crash` is still `202609291127`), pstore
+  was empty, there was no BERT/MCE line on the next boot, and there were no new rasdaemon AER rows.
+  The journal ends mid-stream on ollama generating at ~118 tok/s on the GPU, with the hlds server
+  running. The kernel didn't get to log anything, so this looks like a hard reset or power loss, not a
+  panic. It could also be someone pressing reset: a USB keyboard was re-plugged at 13:09:50 and a GNOME
+  session was active from 12:09.
+- **Pattern:** this is the 4th unplanned restart since 09-28 15:48, with 8 boots in 24 h, and it
+  happened with both mitigations active. The card came back unwedged, so no cold cycle was needed.
+  Fleet, sites and image-gen were back without intervention.
+
 ### 2026-09-29 11:26:35: third MCE panic in 20 h, 66 min into a cold boot (signature 3)
 
 - **Boot IDs:** `8cd5be88…` (10:20:51 cold boot → 11:26:35, uptime 3976 s) → kdump capture boot
