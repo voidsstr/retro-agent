@@ -29,20 +29,29 @@ PROBE_WORKERS = 96
 # --- low-level UDP -----------------------------------------------------------
 
 def _udp(host, port, payload, timeout=DEFAULT_TIMEOUT, reads=1):
-    """Send one datagram, collect up to `reads` replies. Returns (data, rtt_ms)."""
+    """Send one datagram, collect up to `reads` replies. Returns (data, rtt_ms).
+
+    The round trip is timed to the FIRST reply. It used to be timed to the end
+    of the read loop, so every GameSpy probe (reads=3, most answer in one
+    datagram) reported ~2.5 s - the second read's timeout - as its "ping", and
+    the 25 ms ranking bands between two such servers were decided by jitter.
+    """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(timeout)
     t0 = time.time()
+    first = None
     chunks = []
     try:
         s.sendto(payload, (host, port))
         for _ in range(reads):
             chunks.append(s.recv(65535))
+            if first is None:
+                first = time.time()
     except (socket.timeout, OSError):
         pass
     finally:
         s.close()
-    rtt = int((time.time() - t0) * 1000)
+    rtt = int(((first if first is not None else time.time()) - t0) * 1000)
     return b"".join(chunks), rtt
 
 
@@ -65,15 +74,42 @@ def _split_status(data):
     answered. Find the first line that actually carries a backslash instead,
     and count the non-empty lines after it as players.
     """
+    info, lines = _split_status_lines(data)
+    return info, len(lines)
+
+
+def _split_status_lines(data):
+    """(info dict, [player lines]) - the same parse, keeping the lines."""
     text = data[4:].decode("latin-1", "replace") if len(data) > 4 else ""
     lines = text.split("\n")
     for idx, line in enumerate(lines):
         if "\\" in line:
             info = _infostring(line)
             if info:
-                players = len([l for l in lines[idx + 1:] if l.strip()])
-                return info, players
-    return {}, 0
+                return info, [l for l in lines[idx + 1:] if l.strip()]
+    return {}, []
+
+
+# A Quake II/III status player line: `<score> <ping> "<name>"`.
+_PLAYER_LINE = re.compile(r'^\s*-?\d+\s+(-?\d+)\s')
+
+
+def _humans(lines):
+    """How many of these player lines are people.
+
+    CLAUDE.md, "Bots are not players": on the Quake family a player line with
+    ping 0 is a bot - ioq3's SV_CalcPings sets a bot's ping to 0 and never
+    measures it. Counting every line made "busiest servers" mean "most bots":
+    at 00:45 on 2026-09-29, 8 of the 15 internet Q3 favourites were bot-only
+    (every line ping 0, stock bot names). A line that is not in this shape is
+    not counted either way - an unknown is not a person.
+    """
+    n = 0
+    for line in lines:
+        m = _PLAYER_LINE.match(line)
+        if m and int(m.group(1)) > 0:
+            n += 1
+    return n
 
 
 # --- Quake III family (q3, rtcw, et, mohaa, openarena) -----------------------
@@ -118,15 +154,18 @@ def _q3_probe(addr):
     if not data:
         return None
     # Count player LINES rather than trusting a cvar: several builds publish
-    # no player count at all, and the whole point is "servers with people on".
-    info, players = _split_status(data)
+    # no player count at all, and the whole point is "servers with people on"
+    # - so only the lines that are PEOPLE (ping > 0) count; see _humans.
+    info, lines = _split_status_lines(data)
     if not info:
         return None
+    humans = _humans(lines)
     return {
         "addr": addr,
         "hostname": re.sub(r"\^.", "", info.get("sv_hostname", ""))[:120],
         "map": info.get("mapname", ""),
-        "players": players,
+        "players": humans,
+        "bots": len(lines) - humans,
         "maxplayers": int(info.get("sv_maxclients", "0") or 0),
         "ping_ms": rtt,
         "gamename": info.get("gamename", ""),
@@ -194,14 +233,16 @@ def _q2_probe(addr):
     data, rtt = _udp(host, int(port), b"\xff\xff\xff\xffstatus\n")
     if not data:
         return None
-    info, players = _split_status(data)
+    info, lines = _split_status_lines(data)
     if not info:
         return None
+    humans = _humans(lines)             # Q2 lines are `score ping "name"` too
     return {
         "addr": addr,
         "hostname": info.get("hostname", "")[:120],
         "map": info.get("mapname", ""),
-        "players": players,
+        "players": humans,
+        "bots": len(lines) - humans,
         "maxplayers": int(info.get("maxclients", "0") or 0),
         "ping_ms": rtt,
         "gamename": info.get("gamename", "baseq2"),

@@ -8,9 +8,9 @@
      if there are changes".
   3. Refresh the live-server table for every engine the fleet actually has
      installed. Pin our own servers on .132 first.
-  4. For each installed game with a writer, render the favourites file, hash
-     it, and push it ONLY if the hash differs from what we last wrote to that
-     box. A no-op cycle touches nothing.
+  4. For each FILE the box's installed games read favourites from, render
+     it and push it ONLY if the game would see a difference from what the box
+     already holds. A no-op cycle touches nothing, and says "unchanged".
 
 Everything it decides NOT to do is logged with a reason. A silent skip and a
 successful write must never look the same in the log.
@@ -21,6 +21,7 @@ successful write must never look the same in the log.
 """
 import argparse
 import asyncio
+import errno
 import json
 import logging
 import os
@@ -112,7 +113,8 @@ LOCAL_SERVERS = [
          name="NSC Retro Fleet Arena - Unreal Gold"),
     # Deus Ex. Same UE1 GameSpy shape as Unreal/UT99 and the same +1 query
     # port; gamename "deusex" is what keeps a UT99 or Unreal Gold box from
-    # being handed it.
+    # being handed it. Probed and reported, but no favourites file is written
+    # for it: Deus Ex has no screen that reads one (favorites.UNWRITABLE).
     dict(engine="unreal", port=7790, query_port=7791, gamename="deusex",
          name="NSC Retro Fleet Arena - Deus Ex"),
     # Serious Sam. TFE and TSE are DIFFERENT GAMES with different gamenames
@@ -261,6 +263,23 @@ def probe_local_servers(con):
     return pinned, down
 
 
+def host_holds_address(addr):
+    """True if this host holds `addr`, False if it positively does not, None
+    if the question cannot be asked (a hostname that does not resolve, no
+    sockets). Binding a UDP socket to it is the kernel's own answer."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    except OSError:
+        return None
+    try:
+        s.bind((addr, 0))
+        return True
+    except OSError as exc:
+        return False if exc.errno == errno.EADDRNOTAVAIL else None
+    finally:
+        s.close()
+
+
 def refresh_servers(con, engines, max_probe=900):
     notes = {}
     for engine in engines:
@@ -275,16 +294,41 @@ def refresh_servers(con, engines, max_probe=900):
 
 # --- step 4: push favourites -------------------------------------------------
 
-async def read_existing(conn, path):
-    """Read the file we are about to merge into.
+async def _listing(conn, path, dirs_only=False):
+    """Lower-cased names in one directory, or (None, why) if we cannot tell."""
+    try:
+        listing = await conn.command_text(f"DIRLIST {path}", timeout=30)
+    except Exception as exc:  # noqa: BLE001
+        return None, f"DIRLIST also failed: {type(exc).__name__}"
+    try:
+        entries = json.loads(listing)
+        items = entries.get("entries", entries) if isinstance(entries, dict) \
+            else entries
+        names = set()
+        for e in items:
+            if isinstance(e, dict):
+                if dirs_only and e.get("is_dir") is False:
+                    continue
+                names.add(str(e.get("name", "")).lower())
+            else:
+                names.add(str(e).lower())
+        return names, ""
+    except Exception:  # noqa: BLE001
+        # A listing we cannot parse is not evidence of absence.
+        return None, "DIRLIST unparseable"
 
-    Returns (text, state, why) where state is one of:
+
+async def _read_file(conn, path):
+    """Read a file we are about to merge into, as exact bytes.
+
+    Returns (bytes, state, why) where state is one of:
 
         "read"        we have the exact bytes; merge into them
-        "missing"     the file genuinely is not there; safe to create
+        "missing"     the file is not there and its folder IS; safe to create
+        "no-parent"   the folder itself is not there; create NOTHING
         "unreadable"  we could not tell; the caller MUST NOT write
 
-    Three things make this fussier than it looks, all learned by getting it
+    Four things make this fussier than it looks, all learned by getting it
     wrong:
 
     * **DOWNLOAD, not `EXEC cmd /c type`.** The shell path went through
@@ -298,53 +342,71 @@ async def read_existing(conn, path):
       intact on another -- the hardest possible shape to debug.
     * **Existence is decided by a directory listing, not by error prose.** The
       previous version matched "cannot find" against the *file's own content*.
-      Only a positive listing of the parent directory lets us say "missing"
-      and create the file; anything else is "unreadable" and we leave it alone.
+      Only a positive listing lets us say "missing" and create the file;
+      anything else is "unreadable" and we leave it alone.
+    * **DIRLIST answers `[]` - success, no error - for a folder that does not
+      exist**, exactly as it does for an empty one (agent/src/files.c sends an
+      empty array when FindFirstFileA fails). Reading that as "the folder is
+      there and the file is not" is how favourites-only baseq3 folders were
+      created inside Jedi Academy, SoF2 and MOHAA. So an empty listing sends us
+      one level up, and the folder has to appear there by name.
     """
     try:
         raw = await conn.command_binary(f"DOWNLOAD {path}", timeout=60)
-        return raw.decode("ascii", "replace"), "read", ""
+        return bytes(raw), "read", ""
     except Exception as exc:  # noqa: BLE001
         first_error = f"{type(exc).__name__}: {exc}"[:120]
 
     # The read failed. It is only safe to create the file if we can positively
-    # confirm it is absent, so ask the directory.
+    # confirm it is absent AND that its folder is present, so ask.
     parent, _, fname = path.rpartition("\\")
-    try:
-        listing = await conn.command_text(f"DIRLIST {parent}", timeout=30)
-    except Exception as exc:  # noqa: BLE001
-        return "", "unreadable", f"{first_error}; DIRLIST also failed: " \
-                                 f"{type(exc).__name__}"
-    try:
-        entries = json.loads(listing)
-        names = entries.get("entries", entries) if isinstance(entries, dict) \
-            else entries
-        present = any(
-            (e.get("name") if isinstance(e, dict) else str(e)).lower()
-            == fname.lower() for e in names)
-    except Exception:  # noqa: BLE001
-        # A listing we cannot parse is not evidence of absence.
-        return "", "unreadable", f"{first_error}; DIRLIST unparseable"
-
-    if present:
+    names, why = await _listing(conn, parent)
+    if names is None:
+        return b"", "unreadable", f"{first_error}; {why}"
+    if fname.lower() in names:
         # It is there and we still could not read it. Do not touch it.
-        return "", "unreadable", f"{first_error}; the file exists"
-    return "", "missing", ""
+        return b"", "unreadable", f"{first_error}; the file exists"
+    if names:
+        return b"", "missing", ""          # the folder listed things: it exists
+    grand, _, pname = parent.rpartition("\\")
+    if not grand:
+        return b"", "missing", ""          # the drive root itself
+    gnames, gwhy = await _listing(conn, grand, dirs_only=True)
+    if gnames is None:
+        return b"", "unreadable", f"{first_error}; {gwhy}"
+    if pname.lower() in gnames:
+        return b"", "missing", ""          # an empty folder, positively there
+    return b"", "no-parent", f"{parent} does not exist"
 
+
+async def read_existing(conn, path):
+    """The text of the file we are about to merge into: (text, state, why).
+
+    Decoded as latin-1, which maps every byte to one character and back, so a
+    byte >= 0x80 anywhere in a game's config survives our merge unchanged. It
+    used to be ascii/'replace', which silently turned any such byte into '?'
+    on the next write - and then saw its own '?' as a difference to "fix" on
+    every pass after.
+    """
+    raw, state, why = await _read_file(conn, path)
+    return raw.decode("latin-1"), state, why
 
 
 async def running_exes(conn):
     """Lowercased basenames of every process on the box.
 
-    Used to skip a title that is running. Q3 rewrites q3config.cfg on exit and
-    UT rewrites UnrealTournament.ini on exit, both from memory -- so a write
-    made while the game is up is at best thrown away, and at worst reverts
-    whatever the player changed in that session. The five-minute pass has no
-    business landing in the middle of a game.
+    Used to skip a file whose game is running. Q3 rewrites q3config.cfg on
+    exit and UT rewrites UnrealTournament.ini on exit, both from memory -- so
+    a write made while the game is up is at best thrown away, and at worst
+    reverts whatever the player changed in that session. The five-minute pass
+    has no business landing in the middle of a game.
 
     Parsed by pulling every *.exe out of the reply rather than by walking the
     JSON: PROCLIST's exact shape is the agent's business, and a fleet running
     several agent versions must not turn a schema change into a lost guard.
+    CASE-INSENSITIVELY: Win98's PROCLIST names are upper-case full paths
+    (C:\\WINDOWS\\EXPLORER.EXE), and a pattern that only knew `.exe` found
+    nothing there, so on .243 this guard could never fire.
     """
     try:
         raw = await conn.command_text("PROCLIST", timeout=30)
@@ -353,7 +415,32 @@ async def running_exes(conn):
         # write anything at all because one command failed would be worse. Say
         # so by returning None, and let the caller decide.
         return None
-    return {m.lower() for m in re.findall(r'[^"\\/:*?<>|]+\.exe', raw)}
+    return {m.lower() for m in re.findall(r'[^"\\/:*?<>|]+\.exe', raw,
+                                          re.IGNORECASE)}
+
+
+# GAMESYNC STATUS reports idle, sizing, copying, done, failed or skipped; the
+# first two are a sync in flight (scripts/fleet/autodeploy.py BUSY).
+GAMESYNC_BUSY = ("sizing", "copying")
+
+
+async def gamesync_busy(conn):
+    """GAMESYNC's state when it is copying on this box, else None.
+
+    A favourites file is a staged file with our block added, so its size and
+    mtime differ from the library's and GAMESYNC copies the staged one back
+    over it. Measured on .123 at 23:47 on 2026-09-28: all nine files written
+    at 23:47:35 were overwritten by a sync that started at 23:47:39. Writing
+    while it runs is work thrown away within seconds; the next pass does it
+    properly. An agent that cannot answer (older build, busy) is not a reason
+    to stop - it simply is not known to be syncing.
+    """
+    try:
+        st = json.loads(await conn.command_text("GAMESYNC STATUS", timeout=25))
+    except Exception:  # noqa: BLE001
+        return None
+    state = str(st.get("state", "")).lower() if isinstance(st, dict) else ""
+    return state if state in GAMESYNC_BUSY else None
 
 
 _NT_VERSION = re.compile(r"Win(\d+)\.(\d+)")
@@ -388,8 +475,76 @@ async def unmanaged_modern_host(c, greeting):
             "treated as a modern host (the fleet has no Windows 8 boxes)")
 
 
+def _exe_name(g):
+    return str(g["exe"] or "").replace("/", "\\").rsplit("\\", 1)[-1].lower()
+
+
+def plan_targets(games):
+    """Group a box's indexed titles by the FILE each would write.
+
+    Returns (targets, skips). `skips` are per-title results for titles with
+    nothing to write; each target is one file with every title that reads it:
+
+        {path, engine, pol, keys, dirs, exes}
+
+    Per FILE, because that is what a write is. The staged Quake III tree ships
+    quake3.exe and ioquake3.x86.exe, so `quake3` and `ioquake3` are both
+    indexed in one directory and both mean baseq3\\autoexec.cfg. The old
+    per-title loop checked each title's OWN exe for BUSY: with ioquake3
+    running it logged "ioquake3 BUSY - not attempted" and then let `quake3`
+    (not running) write the same file on the same pass - on .123, .145, .195
+    and .240, every pass the 1080p testers had ioquake3 up. One file, one
+    decision, and the exes of every title that uses it are what can make it
+    busy. Paths compare case-insensitively: they are Windows paths.
+    """
+    skips, groups, order = [], {}, []
+    for g in games:
+        key, gdir, reported = g["game_key"], g["dir"], g["engine"]
+        pol = favorites.policy_for(key, reported)
+        if not pol.get("supported"):
+            skips.append((key, reported, f"skipped: {pol.get('why')}"))
+            continue
+        engine = pol["engine"]
+        if favorites.writer_for(engine).get("binary"):
+            continue           # a store outside the tree: push_servercache
+        if favorites.SKIP_DIRS.search(gdir):
+            skips.append((key, engine,
+                          f"skipped: {gdir} is a benchmark harness - "
+                          f"nothing of ours goes in there"))
+            continue
+        path = favorites.target_path(engine, gdir, key)
+        if not path:
+            skips.append((key, engine, "skipped: no file to write for this title"))
+            continue
+        norm = path.replace("/", "\\").lower()
+        t = groups.get(norm)
+        if t is None:
+            t = groups[norm] = dict(path=path, engine=engine, pol=pol,
+                                    keys=[], dirs=[], exes=set())
+            order.append(norm)
+        elif t["engine"] != engine:
+            skips.append((key, engine,
+                          f"skipped: {path} is also {t['keys'][0]}'s "
+                          f"{t['engine']} file - two writers for one file"))
+            continue
+        t["keys"].append(key)
+        t["dirs"].append(gdir)
+        if _exe_name(g):
+            t["exes"].add(_exe_name(g))
+    return [groups[n] for n in order], skips
+
+
+def _record(con, ip, t, h, detail, force=False):
+    """Note what a file now holds, against every title that reads it."""
+    for key, gdir in zip(t["keys"], t["dirs"]):
+        if force or db.applied_hash(con, ip, key, gdir) != h:
+            db.record_applied(con, ip, key, gdir, h, detail)
+    con.commit()
+
+
 async def push_favorites(con, ip, dry_run=False):
-    """Write each installed game's favourites file, but only when it changed."""
+    """Write each favourites FILE the box's games read, but only when the game
+    would see a difference."""
     results = []
     games = db.games_for(con, ip=ip)
     if not games:
@@ -400,77 +555,45 @@ async def push_favorites(con, ip, dry_run=False):
         if why:
             results.append(("*", "-", f"skipped: {why}"))
             return
+        sync_state = await gamesync_busy(c)
+        if sync_state:
+            results.append(("*", "-",
+                            f"BUSY: GAMESYNC is {sync_state} on this box - it "
+                            f"copies the staged files back over ours; deferred "
+                            f"to the next pass"))
+            return
         running = await running_exes(c)
-        # Two keys can name one file: the staged Quake III tree ships both
-        # quake3.exe and ioquake3.x86.exe, so `quake3` and `ioquake3` are both
-        # detected in the same directory and both resolve to
-        # baseq3\autoexec.cfg. Writing it twice per pass is pure waste.
-        done_paths = {}
-        for g in games:
-            key, gdir = g["game_key"], g["dir"]
-            # The TITLE decides, not the engine the agent reported. An agent
-            # says "-" for Deus Ex because that box has no server browser it
-            # can name; the host knows Deus Ex is Unreal engine and where its
-            # favourites live. Doing this here rather than in gameindex.c
-            # keeps a favourites change off the critical path of a fleet-wide
-            # agent republish.
-            pol = favorites.policy_for(key, g["engine"])
-            if not pol.get("supported"):
-                results.append((key, g["engine"], f"skipped: {pol.get('why')}"))
-                continue
-            engine = pol["engine"]
-
-            if favorites.SKIP_DIRS.search(gdir):
-                results.append((key, engine,
-                                f"skipped: {gdir} is a benchmark harness - "
-                                f"nothing of ours goes in there"))
-                continue
-
-            servers = db.best_servers(con, engine, limit=pol["slots"],
-                                      accepts=pol.get("accepts"),
-                                      local_only=pol.get("local_only", False))
-            if not servers:
-                results.append((key, engine, "skipped: no live servers known"))
+        targets, skips = plan_targets(games)
+        results.extend(skips)
+        for t in targets:
+            path, engine, pol = t["path"], t["engine"], t["pol"]
+            keys = "+".join(t["keys"])
+            src = pol["servers_from"]
+            pick = dict(limit=pol["slots"], accepts=pol.get("accepts"),
+                        local_only=pol["local_only"],
+                        strict_accepts=pol["strict_accepts"])
+            if not db.best_servers(con, src, **pick):
+                results.append((keys, engine,
+                                f"skipped: no live servers known for {path}"))
                 continue
 
             # Checked HERE, after we know there is something to write.
-            # Reporting BUSY for a title that had nothing to write anyway
+            # Reporting BUSY for a file that had nothing to write anyway
             # inflates the retry list with work that will never happen -- and
             # the whole point of the bucket is that it means "come back".
             #
             # BUSY, not "skipped": this one needs the next pass, a title with
             # no writer does not. The prefix is what run_once buckets on, so
             # the two can never be read as the same outcome.
-            exe = str(g["exe"] or "").rsplit("\\", 1)[-1].lower()
-            if running is not None and exe and exe in running:
-                results.append((key, engine,
-                                f"BUSY: {exe} is running - not attempted. It "
-                                f"rewrites this file on exit, so our write "
-                                f"would be lost or would revert what the "
-                                f"player just set; retry next pass"))
+            busy = sorted(t["exes"] & running) if running else []
+            if busy:
+                results.append((keys, engine,
+                                f"BUSY: {path}: {busy[0]} is running - not "
+                                f"attempted; {favorites.busy_why(engine)}; "
+                                f"retry next pass"))
                 continue
 
-            path = favorites.target_path(engine, gdir, key)
-            if path in done_paths:
-                other, other_hash = done_paths[path]
-                db.record_applied(con, ip, key, gdir, other_hash,
-                                  f"same file as {other}")
-                con.commit()
-                results.append((key, engine,
-                                f"unchanged (same file as {other} this pass)"))
-                continue
             existing, state, why = await read_existing(c, path)
-            if state == "missing" and not pol.get("create", True):
-                # Not an error, and not something to fix by creating it. The
-                # file's ABSENCE is the evidence: this build does not use this
-                # mechanism (a WON Half-Life has no revSrvBrowser and so no
-                # config\serverbrowser.vdf), and an ini holding nothing but a
-                # favourites section would be worse than no ini at all.
-                results.append((key, engine,
-                                f"skipped: {path} does not exist, and this "
-                                f"title's favourites file is one we update, "
-                                f"never create"))
-                continue
             if state == "unreadable":
                 # NEVER write when we could not read. Merging against an empty
                 # string would silently replace whatever is there with only our
@@ -478,23 +601,50 @@ async def push_favorites(con, ip, dry_run=False):
                 # and r_mode vanished from one box while surviving on another
                 # (2026-08-29). "The file is not there" and "I could not read
                 # the file" mean opposite things and must never collapse.
-                results.append((key, engine,
+                results.append((keys, engine,
                                 f"skipped: cannot read {path} ({why}) — "
                                 f"refusing to write, it would clobber the file"))
                 continue
+            if state == "no-parent":
+                # The title is not installed where the index says (purged, or
+                # an index older than the box's current tree). Creating the
+                # folder would plant a favourites-only skeleton of it.
+                results.append((keys, engine,
+                                f"skipped: {why} - the title is not installed "
+                                f"there, and nothing is ever created above "
+                                f"its own folder"))
+                continue
+            if state == "missing" and not pol["create"]:
+                # Not an error, and not something to fix by creating it. The
+                # file's ABSENCE is the evidence: this build does not use this
+                # mechanism (a WON Half-Life has no revSrvBrowser and so no
+                # config\serverbrowser.vdf), and an ini holding nothing but a
+                # favourites section would be worse than no ini at all.
+                results.append((keys, engine,
+                                f"skipped: {path} does not exist, and this "
+                                f"title's favourites file is one we update, "
+                                f"never create"))
+                continue
 
+            # What the box already lists stays while it is still eligible;
+            # only vacancies are filled from the ranking (db.best_servers).
+            listed = favorites.incumbents(engine, existing)
+            servers = db.best_servers(
+                con, src, **pick,
+                incumbent=lambda r, e=engine, s=listed: favorites.identity(e, r) in s)
             try:
-                text, h = favorites.render(engine, servers, existing, key=key)
+                text, h = favorites.render(engine, servers, existing,
+                                           key=t["keys"][0])
             except favorites.WouldClobber as exc:
                 # The merge itself found it would lose somebody's settings.
                 # Leave the file alone and make the reason loud.
-                log.error("[%s] %s %s: %s", ip, key, path, exc)
-                results.append((key, engine, f"FAILED would clobber: {exc}"))
+                log.error("[%s] %s %s: %s", ip, keys, path, exc)
+                results.append((keys, engine, f"FAILED would clobber: {exc}"))
                 continue
             if text is None:
-                results.append((key, engine, f"skipped: {h}"))
+                results.append((keys, engine, f"skipped: {h}"))
                 continue
-            done_paths[path] = (key, h)
+
             # Compare against WHAT IS ON THE BOX, not against what we last
             # meant to put there.
             #
@@ -509,41 +659,250 @@ async def push_favorites(con, ip, dry_run=False):
             # being wrong, and invisible because the reverted state and the
             # never-written state look identical from here.
             #
-            # We already hold the current bytes from read_existing, so the
-            # honest test is free. applied_hash stays for the status wall.
-            if text.splitlines() == existing.splitlines():
-                results.append((key, engine, f"unchanged ({h})"))
-                if db.applied_hash(con, ip, key, gdir) != h:
-                    db.record_applied(con, ip, key, gdir, h,
-                                      f"{len(servers)} servers -> {path}")
-                    con.commit()
+            # And compare what the GAME would see (favorites.same_favourites):
+            # the same servers in another order, a label that changed its
+            # colour codes, the tabs revSrvBrowser saves with - none of those
+            # is a reason to write, and each used to rewrite files on every
+            # pass so that a settled box never once said "unchanged".
+            if favorites.same_favourites(engine, existing, text):
+                on_box = h if existing.splitlines() == text.splitlines() \
+                    else favorites.content_hash(existing)
+                results.append((keys, engine, f"unchanged: {path} ({on_box})"))
+                _record(con, ip, t, on_box, f"{len(servers)} servers -> {path}")
                 continue
             if dry_run:
-                results.append((key, engine,
+                results.append((keys, engine,
                                 f"WOULD write {len(servers)} servers -> {path}"))
                 continue
 
             # Upload rather than echo: the favourites block contains quotes and
             # backslashes, and Win98's command.com treats < > in echo as
-            # redirects. UPLOAD carries exact bytes.
-            payload = text.replace("\n", "\r\n").encode("ascii", "replace")
-            await c.send_command(f"MKDIR {path.rsplit(chr(92), 1)[0]}")
+            # redirects. UPLOAD carries exact bytes - latin-1, so every byte
+            # read in goes back out as itself. No MKDIR: "missing" above means
+            # the folder was positively seen, so it is already there.
+            payload = text.replace("\n", "\r\n").encode("latin-1", "replace")
             st, resp = await c.send_command(f"UPLOAD {path}",
                                             binary_payload=payload)
             if st == 0xFF:
-                results.append((key, engine,
-                                f"FAILED {resp[:60].decode('ascii', 'replace')}"))
+                results.append((keys, engine,
+                                f"FAILED {path}: "
+                                f"{resp[:60].decode('ascii', 'replace')}"))
                 continue
-            db.record_applied(con, ip, key, gdir, h,
-                              f"{len(servers)} servers -> {path}")
-            con.commit()
-            results.append((key, engine, f"wrote {len(servers)} servers ({h})"))
+            _record(con, ip, t, h, f"{len(servers)} servers -> {path}", force=True)
+            results.append((keys, engine,
+                            f"wrote {len(servers)} servers -> {path} ({h})"))
+
+        results.extend(await push_servercache(c, con, ip, games, running,
+                                              dry_run))
 
     try:
         await _agent(ip, work, timeout=30.0)
     except Exception as e:  # noqa: BLE001
         results.append(("-", "-", f"ERROR {type(e).__name__}: {e}"))
     return results
+
+
+# --- Team Arena: ioquake3's servercache.dat ----------------------------------
+
+_SHELL_FOLDERS = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
+
+
+async def box_appdata(conn):
+    """%APPDATA% of the user the agent runs as - which is the user the games
+    run as: the agent starts from the Run key at the console logon, and the
+    desktop shortcuts start the games in that same session. ioquake3 1.36's
+    homepath is SHGetFolderPath(CSIDL_APPDATA) + "\\Quake3", and Shell
+    Folders\\AppData is where Windows records that path, already expanded
+    (C:\\Documents and Settings\\<user>\\Application Data on XP,
+    C:\\Users\\<user>\\AppData\\Roaming on 7). REGREAD runs inside the agent -
+    no child process - which is what a Win9x agent needs too."""
+    try:
+        st, data = await conn.send_command(
+            f'REGREAD HKCU "{_SHELL_FOLDERS}" AppData', timeout=30)
+    except Exception as exc:  # noqa: BLE001
+        return None, f"REGREAD failed: {type(exc).__name__}"
+    text = bytes(data).decode("latin-1")
+    if st == 0xFF:
+        return None, f"REGREAD: {text[:80]}"
+    try:
+        doc = json.loads(text)
+    except ValueError:
+        return None, "REGREAD answered no AppData value"
+    val = doc.get("value") if isinstance(doc, dict) else None
+    path = str(val.get("data", "")) if isinstance(val, dict) else ""
+    if not re.match(r"^[A-Za-z]:\\", path):
+        return None, f"AppData reads {path!r}"
+    if any(not 32 <= ord(ch) < 127 for ch in path):
+        # Agent commands travel as ASCII; a path this protocol cannot spell
+        # is one it cannot write to, and guessing an 8.3 name is not an answer.
+        return None, f"AppData {path!r} is not plain ASCII"
+    return path.rstrip("\\"), ""
+
+
+async def _has_subdir(conn, path, sub):
+    names, why = await _listing(conn, path, dirs_only=True)
+    if names is None:
+        return None, why
+    return sub.lower() in names, ""
+
+
+def _record_one(con, ip, key, where, h, detail, force=False):
+    if force or db.applied_hash(con, ip, key, where) != h:
+        db.record_applied(con, ip, key, where, h, detail)
+        con.commit()
+
+
+async def push_servercache(c, con, ip, games, running, dry_run=False):
+    """Team Arena's favourites: ioquake3 1.36's %APPDATA%\\Quake3\\servercache.dat.
+
+    Team Arena's UI never reads server1..16 - on .123, .195 and .240 its
+    Favorites tab was EMPTY with them set - because its favourites are the
+    ENGINE's list, loaded from this file when the UI starts and saved over it
+    when the UI shuts down. The file belongs to every mod the player runs and
+    also caches the internet server list, so:
+
+      * it is written only when NO Quake III client is running - any mod may
+        be about to save its in-memory copy over ours - and PROCLIST is asked
+        again immediately before the upload;
+      * the header's global count, all 4096 global records and every
+        favourite the PLAYER added are carried through byte for byte
+        (favorites.sc_merge); only entries carrying our mark are ever removed;
+      * the upload is read back and compared, and anything but an exact match
+        is reported as FAILED, not as written.
+
+    Team Arena is not an indexed title: it is the missionpack\\ folder beside
+    an ioquake3 install, so it is derived from the box's `ioquake3` rows.
+    """
+    key = "missionpack"
+    pol = favorites.policy_for(key)
+    if not pol.get("supported"):
+        return []
+    engine = pol["engine"]
+    rows = [g for g in games if g["game_key"] in pol["derived_from"]]
+    if not rows:
+        return []
+    usable = [g for g in rows if not favorites.SKIP_DIRS.search(g["dir"])]
+    if not usable:
+        return [(key, engine, "skipped: the only ioquake3 install here is a "
+                              "benchmark harness - nothing of ours goes near it")]
+    found, errors = [], []
+    for g in usable:
+        has, why = await _has_subdir(c, g["dir"], pol["requires_subdir"])
+        if has:
+            found.append(g["dir"])
+        elif has is None:
+            errors.append(f"{g['dir']}: {why}")
+    if not found:
+        if errors:
+            return [(key, engine, "skipped: cannot tell whether Team Arena is "
+                                  "installed (%s)" % errors[0])]
+        return [(key, engine, "skipped: no %s folder beside ioquake3 in %s - "
+                              "Team Arena is not installed"
+                 % (pol["requires_subdir"], ", ".join(g["dir"] for g in usable)))]
+
+    src = pol["servers_from"]
+    pick = dict(limit=pol["slots"], accepts=pol.get("accepts"),
+                local_only=pol["local_only"], strict_accepts=pol["strict_accepts"])
+    if not db.best_servers(con, src, **pick):
+        return [(key, engine, "skipped: no live Team Arena servers known")]
+
+    appdata, why = await box_appdata(c)
+    if not appdata:
+        return [(key, engine, f"skipped: cannot resolve %APPDATA% ({why}) - "
+                              f"ioquake3 keeps servercache.dat there")]
+    home = appdata + "\\Quake3"
+    path = home + "\\servercache.dat"
+
+    exes = set(favorites.Q3_FAMILY_EXES) | {_exe_name(g) for g in rows if _exe_name(g)}
+    if running is None:
+        return [(key, engine, f"BUSY: {path}: cannot tell whether a Quake III "
+                              f"client is running (PROCLIST failed) - not "
+                              f"writing a file the game saves over on exit; "
+                              f"retry next pass")]
+    busy = sorted(exes & running)
+    if busy:
+        return [(key, engine, f"BUSY: {path}: {busy[0]} is running - not "
+                              f"attempted; {favorites.busy_why(engine)}; "
+                              f"retry next pass")]
+
+    data, state, why = await _read_file(c, path)
+    if state == "unreadable":
+        return [(key, engine, f"skipped: cannot read {path} ({why}) — refusing "
+                              f"to write, it would clobber the player's lists")]
+    if state == "no-parent":
+        return [(key, engine, f"skipped: {home} does not exist - ioquake3 has "
+                              f"never run as this user here, so there is "
+                              f"nothing to seed yet (the next pass after its "
+                              f"first start will)")]
+    existing = data if state == "read" else None
+
+    ours = favorites.sc_our_addresses(existing)
+    servers = db.best_servers(
+        con, src, **pick,
+        incumbent=lambda r: favorites.identity(engine, r) in ours)
+    try:
+        new, summary = favorites.sc_merge(existing, servers)
+    except favorites.ServerCacheError as exc:
+        log.error("[%s] %s %s: %s", ip, key, path, exc)
+        return [(key, engine, f"FAILED would clobber: {path} is not ioquake3 "
+                              f"1.36's servercache.dat ({exc}) - refusing to "
+                              f"write")]
+    h = summary["hash"]
+    n = len(summary["ours"])
+    detail = f"{n} servers -> {path}"
+    # A server we wanted that the merge could not put in the list - the list
+    # is full of the player's own, or the address has no IPv4 form - is never
+    # reported as "unchanged" or as a clean "wrote". Saying "unchanged" there
+    # is the shape this project keeps paying for: success reported, the fleet
+    # server absent from the player's Favorites, and nothing saying so.
+    missing = favorites.sc_missing(summary)
+    if new is None:
+        if missing:
+            return [(key, engine, f"skipped: {path}: {missing} - nothing else "
+                                  f"to change ({favorites.sc_listing(summary)})")]
+        _record_one(con, ip, key, home, h, detail)
+        return [(key, engine, f"unchanged: {path} ({h}) - "
+                              f"{favorites.sc_listing(summary)}")]
+    if dry_run:
+        return [(key, engine, f"WOULD write {n} servers -> {path} "
+                              f"(+{len(summary['added'])} "
+                              f"-{len(summary['dropped'])})"
+                              + (f"; {missing}" if missing else ""))]
+
+    # PROCLIST was read before this box's other files were written; a game
+    # started since would load a file that is half ours. Ask again - it costs
+    # one command, only on a pass that actually writes.
+    again = await running_exes(c)
+    if again is None or exes & again:
+        return [(key, engine, f"BUSY: {path}: a Quake III client started while "
+                              f"this pass was deciding - not attempted; retry "
+                              f"next pass")]
+    st, resp = await c.send_command(f"UPLOAD {path}", binary_payload=new)
+    if st == 0xFF:
+        msg = bytes(resp[:80]).decode("ascii", "replace")
+        if existing is not None and msg.startswith("Write failed"):
+            # The agent truncated the file and then could not finish writing
+            # it. Put the player's own bytes back rather than leave them a
+            # file the game will reject.
+            st2, _ = await c.send_command(f"UPLOAD {path}",
+                                          binary_payload=existing)
+            msg += "; original restored" if st2 != 0xFF else \
+                "; RESTORING THE ORIGINAL ALSO FAILED - the file may be truncated"
+        return [(key, engine, f"FAILED {path}: {msg}")]
+    try:
+        back = await c.command_binary(f"DOWNLOAD {path}", timeout=60)
+    except Exception as exc:  # noqa: BLE001
+        return [(key, engine, f"FAILED {path}: written but not read back "
+                              f"({type(exc).__name__}) - not recorded")]
+    if bytes(back) != new:
+        return [(key, engine, f"FAILED {path}: read back {len(back)} bytes that "
+                              f"are not the {len(new)} written - something else "
+                              f"wrote it; not recorded")]
+    _record_one(con, ip, key, home, h, detail, force=True)
+    return [(key, engine, f"wrote {n} servers -> {path} ({h}); kept "
+                          f"{summary['theirs']} of the player's own favourites "
+                          f"and {summary['numglobal']} cached internet servers"
+                          + (f"; {missing}" if missing else ""))]
 
 
 # --- one pass ----------------------------------------------------------------
@@ -562,12 +921,14 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
              "none (the fleet is powered on demand - this is normal)")
 
     report["phase"] = "indexing machines"
+    unindexed = {}
     for ip in ips:
         changed, n, note = await refresh_machine(con, ip, force=force)
         report["machines"].append({"ip": ip, "changed": bool(changed),
                                    "games": n, "note": note})
         if note.startswith("ERROR"):
             report["errors"].append(f"{ip}: {note}")
+            unindexed[ip] = note
         log.info("[%s] %s", ip, note)
 
     engines = sorted(set(db.engines_in_use(con))
@@ -592,6 +953,18 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
     if down:
         report["errors"].append("our own servers did not answer: "
                                 + ", ".join(down))
+    fatal = None
+    if down and len(down) == len(LOCAL_SERVERS) and \
+            host_holds_address(ME) is False:
+        # Every one of our servers silent AND this host not holding the
+        # address they are pinned at: every favourite this pass writes points
+        # at nothing. 09-26 to 09-28 this ran for ~56 hours with ok:true and a
+        # green mark on the wall, because only a probe error was recorded.
+        fatal = (f"this host does not hold {ME} - every fleet favourite "
+                 f"points at an address nothing answers on (see "
+                 f"docs/host-issues-log.md)")
+        report["errors"].insert(0, fatal)
+        log.error("%s", fatal)
     pruned = db.prune_servers(con)
     con.commit()
     if pruned:
@@ -599,7 +972,17 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
 
     report["phase"] = "writing favourites"
     for ip in ips:
-        for key, engine, note in await push_favorites(con, ip, dry_run=dry_run):
+        if ip in unindexed:
+            # The index in the DB is keyed by IP. If this pass could not ask
+            # the box what it has, the rows may be an older tree - or another
+            # machine's, when DHCP moved an address (ADMIN-PC went .246 ->
+            # .195) - and a write would plant that machine's paths here.
+            results = [("*", "-", "skipped: re-indexing this box failed this "
+                                  "pass (%s) - not writing from an index that "
+                                  "may be stale" % unindexed[ip][:80])]
+        else:
+            results = await push_favorites(con, ip, dry_run=dry_run)
+        for key, engine, note in results:
             # Bucket by what actually happened. "wrote 0" and "we never looked"
             # must not collapse into the same number on the wall.
             if note.startswith("wrote") or note.startswith("WOULD"):
@@ -620,15 +1003,15 @@ async def run_once(dry_run=False, force=False, only_ip=None, report=None):
             log.info("[%s] %-11s %-8s %s", ip, key, engine, note)
 
     if report["writes"]["busy"]:
-        log.info("NOT ATTEMPTED on %d title(s) - a game was running. These "
-                 "need the next pass; they are not 'unchanged'.",
+        log.info("NOT ATTEMPTED on %d file(s) - a game or a sync was running. "
+                 "These need the next pass; they are not 'unchanged'.",
                  report["writes"]["busy"])
     report["servers"] = status.summarize_servers(con)
     report["favorites"] = status.summarize_favorites(con)
     report["duration_sec"] = round(time.time() - t0, 1)
     report["ts"] = time.time()
     report["phase"] = "idle"
-    report["ok"] = True
+    report["ok"] = fatal is None
     log.info("pass complete in %.1fs", time.time() - t0)
     con.close()
     return report

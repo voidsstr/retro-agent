@@ -1,0 +1,38 @@
+--- pak007.pk4/guis/mainmenu.gui
++++ zz_fleetvideo.pk4/guis/mainmenu.gui
+@@ -4883,14 +4883,14 @@
+ 				textalign	2
+ 				textaligny	-6
+ 				forecolor	1, 1, 1, 1
+ 			}
+ 			choiceDef OS2Primary {
+ 				rect		210, 1, 100, 14
+-				choices		"#str_04222"//320x240;400x300;512x384;
+-				values		"3;4;5;6;7;8"//0;1;2;
++				choices		"640x480;800x600;1024x768;1152x864;1280x1024;1600x1200;Native"//320x240;400x300;512x384;
++				values		"3;4;5;6;7;8;-1"//0;1;2;
+ 				cvar		"r_mode"
+ 				updateGroup	render
+ 				choiceType	1
+ 				font		"fonts/bank"
+ 				textscale	0.25
+ 				textalign	1
+--- pak007.pk4/guis/mpmain.gui
++++ zz_fleetvideo.pk4/guis/mpmain.gui
+@@ -4440,14 +4440,14 @@
+ 					textaligny	-6
+ 					forecolor	1, 1, 1, 1
+ 				}
+ 				choiceDef OS2Primary
+ 				{
+ 					rect	210, 1, 100, 14
+-					choices	"#str_04222"
+-					values	"3;4;5;6;7;8"
++					choices	"640x480;800x600;1024x768;1152x864;1280x1024;1600x1200;Native"
++					values	"3;4;5;6;7;8;-1"
+ 					cvar	"r_mode"
+ 					updateGroup	render
+ 					choiceType	1
+ 					font	"fonts/bank"
+ 					textscale	0.25
+ 					textalign	1

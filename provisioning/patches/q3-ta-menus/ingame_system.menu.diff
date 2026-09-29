@@ -1,0 +1,98 @@
+--- a/ui/ingame_system.menu
++++ b/ui/ingame_system.menu
+@@ -178,22 +178,8 @@
+       	mouseExit { setitemcolor ctr_graphics backcolor .37 .1 .1 1 }
+ 	}
+ 
+-	itemDef {
+-      		name graphics				
+-		group grpSystem
+-      	type ITEM_TYPE_MULTI
+-			text "Quality:"
+-		cvar "ui_glCustom"
+-		cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
+-		rect 0 50 256 20
+-      		textalign ITEM_ALIGN_RIGHT
+-      		textalignx 133
+-      		textaligny 17
+-		textscale .25         
+-      		forecolor 1 1 1 1
+-      		visible 0 
+-			action { uiScript update "ui_glCustom" }
+-    		}
++	// fleet, provisioning/patches/q3-ta-menus: the Quality presets were removed -
++	// UI_Update wrote r_mode 4 or 3 and dropped the box off its own mode.
+ 
+ 	itemDef {
+       		name graphics
+@@ -234,7 +220,7 @@
+       		type ITEM_TYPE_MULTI
+ 		text "Video Mode:"
+ 		cvar "r_mode"
+-		cvarFloatList { "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
++		cvarFloatList { "Native" -1 "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
+ 		rect 0 110 256 20
+       		textalign ITEM_ALIGN_RIGHT
+       		textalignx 133
+@@ -244,6 +230,61 @@
+       		visible 0 
+ 			action { uiScript glCustom }
+     		}
++
++	// fleet, provisioning/patches/q3-ta-menus: at r_mode -1 the mode is the
++	// box's own r_customwidth x r_customheight, written per box by FLEETRES.
++	// A cvar-only text item is always left-anchored, so x is pinned.
++	itemDef {
++		name graphics
++		type ITEM_TYPE_TEXT
++		cvar "r_customwidth"
++		rect 184 110 32 20
++		group grpSystem
++		style 0
++		cvarTest "r_mode"
++		showCvar { "-1" ; "-1.000000" }
++		textalign ITEM_ALIGN_LEFT
++		textalignx 0
++		textaligny 17
++		textscale .25
++		forecolor 1 1 1 1
++		visible 0
++		decoration
++	}
++	itemDef {
++		name graphics
++		type ITEM_TYPE_TEXT
++		text "x"
++		rect 216 110 10 20
++		group grpSystem
++		style 0
++		cvarTest "r_mode"
++		showCvar { "-1" ; "-1.000000" }
++		textalign ITEM_ALIGN_LEFT
++		textalignx 0
++		textaligny 17
++		textscale .25
++		forecolor 1 1 1 1
++		visible 0
++		decoration
++	}
++	itemDef {
++		name graphics
++		type ITEM_TYPE_TEXT
++		cvar "r_customheight"
++		rect 226 110 48 20
++		group grpSystem
++		style 0
++		cvarTest "r_mode"
++		showCvar { "-1" ; "-1.000000" }
++		textalign ITEM_ALIGN_LEFT
++		textalignx 0
++		textaligny 17
++		textscale .25
++		forecolor 1 1 1 1
++		visible 0
++		decoration
++	}
+ 
+ 	itemDef {
+       		name graphics

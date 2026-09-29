@@ -1,0 +1,1144 @@
+#!/usr/bin/env python3
+"""Quake III Team Arena - make the per-box r_mode -1 mode SELECTABLE and VISIBLE
+in both Team Arena video menus, and stop the Quality presets from moving it.
+
+THE PROBLEM (verified 2026-09-29 on .123 .145 .195 .240, see
+.claude/evidence-1080p/_results/titles-verified.json, key
+"Quake3-TeamArena - Play Team Arena.bat ..."). The launcher starts Team Arena
+at the panel's mode (+set r_mode -1 +set r_customwidth %FR_W% ...), but the
+menus cannot express it. Both Video Mode controls are a hardcoded
+cvarFloatList for r_mode in missionpack/pak0.pk3 with no -1 entry:
+
+    ui/system.menu          main menu > Setup > System   labels "640*480"
+    ui/ingame_system.menu   ESC > System                 labels "640x480"
+
+At r_mode -1 no entry matches, so Item_Multi_Setting() returns "" and the
+control is BLANK. Item_Multi_FindCvarByValue() then returns 0, so one click
+writes entry 1: r_mode 1 = 400x300 (measured on .240, 54-B-condump-rmode.txt).
+The UI writes r_mode with force (Cvar_Set, not latched) as "%i", so the change
+takes effect at the next Apply (vid_restart).
+The Quality control (cvar ui_glCustom, action `uiScript update "ui_glCustom"`)
+runs UI_Update in ui.qvm, and its presets write r_mode 4 or 3.
+
+THE FIX. This fix is data only. A new pk3, missionpack/zz-fleetres-menus.pk3,
+holds edited copies of those two files. It contains no code and no QVM. In
+each file:
+
+  1. The Video Mode list gains a first entry `"Native" -1`.
+     "Native" is used rather than "1920x1080" because r_customwidth/height are
+     written per box by FLEETRES: 1920x1080 on the four LCDs, other modes on
+     the CRTs. A constant label would lie somewhere. This matches the doom3
+     builder's label.
+     A negative value parses: PC_Float_Parse reads '-' and then the number.
+     The verifier checked this in the staged pak3 ui.qvm bytecode (CONST 45,
+     NEGF), and stock ui/min_hud.menu already carries `rect 39 -14 40 32`.
+  2. Three decoration text items after the control show the real size,
+     "1920*1080" in the main menu and "1920x1080" in game, only while r_mode
+     is "-1" (cvarTest r_mode showCvar { "-1" ; "-1.000000" }). The size comes
+     from the cvars, so it is correct per box.
+     - WIDTH and HEIGHT are ITEM_TYPE_TEXT items with `cvar` and NO `text`.
+       In that case ui_shared's Item_Text_Paint paints the cvar's string -
+       VERIFIED IN THE STAGED BYTECODE (review, 2026-09-29): pak3 vm/ui.qvm
+       (md5 59cb8221...) instruction 54289 tests window.flags (+68) against
+       WRAPPED/AUTOWRAPPED, then item->text (+224) == 0 -> item->cvar (+264)
+       -> DC->getCVarString (DC+88) into a 1024-byte local, which it paints.
+       ioquake3 1.36's missionpack/uix86.dll (the vm_ui 0 path) has the same
+       branch. No stock TA menu uses it un-wrapped (error.menu's
+       com_errorMessage item is `autowrapped`, a different paint path). BUT
+       Item_SetTextExtents computes the alignment offset from
+       DC->textWidth(item->text), and item->text is NULL, so Text_Width
+       returns 0. A cvar-only text item is therefore ALWAYS left-anchored at
+       rect.x + textalignx, whatever textalign says.
+     - An EDITFIELD without text would paint the value TWICE: Item_Text_Paint
+       paints the cvar, and then Item_TextField_Paint paints it again after
+       it. So the overlays are type 0, and each item's position is pinned
+       instead.
+     - The SEPARATOR is a plain text item. Its x is fixed, so it sits after the
+       widest realistic width; the positions are checked against the real
+       glyph advances from pak0's fonts/fontImage_*.dat (layout_report()).
+     - Gating: showCvar/cvarTest is the stock mechanism. ingame_about.menu
+       and ingame_player.menu use `showCvar { "0" ; "1" }`. Adjacent strings
+       MUST be separated by ';' because botlib's PC_ReadToken CONCATENATES
+       adjacent string tokens, and "-1" "-1.000000" would become one value.
+  3. The Quality itemDef is removed, so no preset can move r_mode. This was the
+     instruction ("remove or hide that itemDef, keep the rest").
+     The other controls' `uiScript glCustom` only sets ui_glCustom 4, which
+     is harmless with nothing left to display it.
+
+Why zz-: FS_AddGameDirectory sorts the pk3 names in a directory and pushes
+each to the front of the search path, so the name that sorts LAST wins. The
+name sorts after pak0..pak3 case-insensitively, and it has no parentheses,
+because this project generates the file (CLAUDE.md).
+
+What it does not change:
+- baseq3. The pk3 lives in missionpack/ and loads only with fs_game missionpack.
+- A PURE Team Arena server: the pk3 is not on its list, so the stock menus
+  come back with no kick.
+- q3ta-server runs sv_pure 0, so the pk3 is used in matches there.
+
+Withdrawing it: GAMESYNC NEVER DELETES. Removing the pk3 from the library does
+not remove it from any box, so the launcher must delete it. Play Team Arena.bat
+is GENERATED by scripts/fleet/stage-fleetres.py (TITLES["Quake3-TeamArena"]),
+so the delete goes there as a `fix` repair pair - not into the q3() recipe's
+`pre` list, which patch_launcher() never re-applies to a launcher that already
+calls FLEETRES.BAT, and not into the share's copy, which re-staging overwrites.
+
+Modes (only --check and --build are run in the build phase):
+    --check                 verify the staged originals, anchors and layout
+    --build [OUTDIR]        write the pk3, the edited menus, diffs and manifest.json
+    --publish [OUTDIR]      FUTURE: put the pk3 on the share with sharewrite.py
+    --install-server [OUTDIR]  FUTURE: copy the pk3 into q3ta-server's homepath
+
+The game data is copyrighted, so the built pk3 goes to
+~/.retro-fleet/patch-out/q3-ta-menus and never into git. This script rebuilds
+it byte-for-byte from the staged pak0.pk3. The zip is STORED, with a fixed
+timestamp, so the md5 does not depend on the zlib version.
+"""
+import argparse
+import difflib
+import hashlib
+import io
+import json
+import os
+import shutil
+import struct
+import subprocess
+import sys
+import tempfile
+import zipfile
+
+KEY = "q3-ta-menus"
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+SHAREWRITE = os.path.join(REPO, "scripts", "fleet", "sharewrite.py")
+
+MNT = "/mnt/retro-share"
+LIBRARY = os.path.join(MNT, "Files", "Games-Library")
+TITLE = "Quake3-TeamArena"
+DEFAULT_OUT = os.path.expanduser("~/.retro-fleet/patch-out/%s" % KEY)
+
+# --- the staged original ----------------------------------------------------
+SRC_PK3_REL = "missionpack/pak0.pk3"
+SRC_PK3_SIZE = 351623691
+SRC_PK3_MD5 = "e8ba9e3bf06210930bc0e7fdbcdd01c2"
+
+OUT_PK3_NAME = "zz-fleetres-menus.pk3"
+OUT_PK3_REL = "missionpack/" + OUT_PK3_NAME
+SHARE_OUT = "Files/Games-Library/%s/%s" % (TITLE, OUT_PK3_REL)
+BACKUP_DIR = "Files/Games-Library/_patches/%s/originals-2026-09-29" % TITLE
+
+SERVER_HOMEPATH = os.path.expanduser("~/q3ta-server/.q3a")
+SERVER_UNIT = "q3ta-server"
+
+ZIP_TIME = (2026, 9, 29, 0, 0, 0)
+
+# ui_shared limits (TA 1.32 / ioq3 missionpack ui_shared.h)
+MAX_MULTI_CVARS = 32    # ItemParse_cvarFloatList fails when count reaches 32
+MAX_MENUITEMS = 96
+MAX_SCRIPT = 1023       # PC_Script_Parse builds into char script[1024]
+
+# ui_smallFont / ui_bigFont defaults (strings "0.25" and "0.4" next to the
+# cvar names in the staged pak3 ui.qvm)
+UI_SMALLFONT = 0.25
+UI_BIGFONT = 0.4
+FONT_FILES = {"small": "fonts/fontImage_12.dat",
+              "text": "fonts/fontImage_16.dat",
+              "big": "fonts/fontImage_20.dat"}
+
+GATE = 'cvarTest "r_mode"\r\n\t\tshowCvar { "-1" ; "-1.000000" }'
+
+# Sizes the layout must hold without a collision (4:3, 5:4, 16:9, 16:10, CRT).
+LAYOUT_WIDTHS = [640, 720, 800, 848, 856, 960, 1024, 1152, 1280, 1360, 1366,
+                 1400, 1440, 1600, 1680, 1920, 2048, 2560]
+LAYOUT_HEIGHTS = [480, 540, 576, 600, 720, 768, 800, 864, 900, 960, 1024, 1050,
+                  1080, 1200, 1440, 1536, 1600]
+MIN_GAP = 2.0
+
+# Every byte this patch depends on, pinned: the source member's md5 and size,
+# then each anchor at its exact original offset.
+MEMBERS = {
+    "ui/system.menu": {
+        "size": 14259,
+        "md5": "ff7206507fa15d7a5be609f419d43e6a",
+        # Video Mode row: rect 99 117 256 20, textalign RIGHT, textalignx 128
+        "row_x": 99, "row_y": 117, "textalignx": 128, "textaligny": 20,
+        "textscale": ".333", "sep": "*",
+        "list_anchor": b'cvarFloatList { "320*240" 0 ',
+        "list_off": 2877,
+        "quality_off": 1686, "quality_len": 417,
+        "quality_md5": "7319a6f8aecc2df7a00fec2bb3b17921",
+        "vmode_end": 3276,
+        # overlay x positions, menu-relative (checked by layout_report)
+        "x_w": 289, "x_sep": 331, "x_h": 341,
+        # menu rect is 186 0 443 426 -> keep inside its 443 wide window
+        "right_limit": 439,
+    },
+    "ui/ingame_system.menu": {
+        "size": 12623,
+        "md5": "1f024f1dc61f1aa69f3044a082cef5cc",
+        # Video Mode row: rect 0 110 256 20, textalign RIGHT, textalignx 133
+        "row_x": 0, "row_y": 110, "textalignx": 133, "textaligny": 17,
+        "textscale": ".25", "sep": "x",
+        "list_anchor": b'cvarFloatList { "320x240" 0 ',
+        "list_off": 4131,
+        "quality_off": 2854, "quality_len": 440,
+        "quality_md5": "47ceecfcd7bc79ec9f71cf7f13223fd8",
+        "vmode_end": 4534,
+        "x_w": 184, "x_sep": 216, "x_h": 226,
+        # the right frame strip (ingameright.tga) starts at x 261
+        "right_limit": 261,
+    },
+}
+NATIVE_LABEL = "Native"
+
+QUALITY_NOTE = (b"\t// fleet, provisioning/patches/q3-ta-menus: the Quality presets were removed -\r\n"
+                b"\t// UI_Update wrote r_mode 4 or 3 and dropped the box off its own mode.\r\n")
+
+
+# ---------------------------------------------------------------------------
+# pure logic: the edits
+# ---------------------------------------------------------------------------
+def md5_bytes(b):
+    return hashlib.md5(b).hexdigest()
+
+
+def md5_file(path):
+    h = hashlib.md5()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def new_list_anchor(spec):
+    """The list anchor with the Native entry in front of the first mode."""
+    a = spec["list_anchor"]
+    head = b"cvarFloatList { "
+    assert a.startswith(head)
+    return head + b'"' + NATIVE_LABEL.encode() + b'" -1 ' + a[len(head):]
+
+
+def overlay_items(spec):
+    """The three decoration items, as CRLF bytes (menu style: tabs)."""
+    y = spec["row_y"]
+    common = ("\t\tgroup grpSystem\r\n"
+              "\t\tstyle 0\r\n"
+              "\t\t" + GATE + "\r\n"
+              "\t\ttextalign ITEM_ALIGN_LEFT\r\n"
+              "\t\ttextalignx 0\r\n"
+              "\t\ttextaligny %d\r\n"
+              "\t\ttextscale %s\r\n"
+              "\t\tforecolor 1 1 1 1\r\n"
+              "\t\tvisible 0\r\n"
+              "\t\tdecoration\r\n") % (spec["textaligny"], spec["textscale"])
+
+    def item(x, w, body):
+        return ("\titemDef {\r\n"
+                "\t\tname graphics\r\n"
+                "\t\ttype ITEM_TYPE_TEXT\r\n"
+                + body +
+                "\t\trect %d %d %d 20\r\n" % (x, y, w)
+                + common +
+                "\t}\r\n")
+
+    out = ("\r\n"
+           "\t// fleet, provisioning/patches/q3-ta-menus: at r_mode -1 the mode is the\r\n"
+           "\t// box's own r_customwidth x r_customheight, written per box by FLEETRES.\r\n"
+           "\t// A cvar-only text item is always left-anchored, so x is pinned.\r\n")
+    out += item(spec["x_w"], spec["x_sep"] - spec["x_w"], '\t\tcvar "r_customwidth"\r\n')
+    out += item(spec["x_sep"], spec["x_h"] - spec["x_sep"], '\t\ttext "%s"\r\n' % spec["sep"])
+    out += item(spec["x_h"], 48, '\t\tcvar "r_customheight"\r\n')
+    return out.encode("ascii")
+
+
+def locate_edits(data, spec):
+    """Assert every anchor at its pinned offset. Return [(off, old_len, new_bytes)]."""
+    errs = []
+    if len(data) != spec["size"]:
+        errs.append("size %d != %d" % (len(data), spec["size"]))
+    if md5_bytes(data) != spec["md5"]:
+        errs.append("md5 %s != %s" % (md5_bytes(data), spec["md5"]))
+    a, off = spec["list_anchor"], spec["list_off"]
+    if data.count(a) != 1 or data[off:off + len(a)] != a:
+        errs.append("list anchor %r not unique at %d" % (a, off))
+    q0, ql = spec["quality_off"], spec["quality_len"]
+    block = data[q0:q0 + ql]
+    if md5_bytes(block) != spec["quality_md5"]:
+        errs.append("Quality block at %d+%d md5 %s != %s"
+                    % (q0, ql, md5_bytes(block), spec["quality_md5"]))
+    if (b'cvar "ui_glCustom"' not in block or not block.lstrip().startswith(b"itemDef")
+            or not block.endswith(b"}\r\n") or data[q0 - 2:q0] != b"\r\n"):
+        errs.append("Quality block at %d is not a whole itemDef line range" % q0)
+    ve = spec["vmode_end"]
+    vm_start = data.rfind(b"itemDef", 0, spec["list_off"])
+    if (data[ve - 3:ve] != b"}\r\n" or b'cvar "r_mode"' not in data[vm_start:ve]
+            or b"itemDef" in data[vm_start + 7:ve]):
+        errs.append("Video Mode block does not end at %d" % ve)
+    if errs:
+        raise ValueError("; ".join(errs))
+    return sorted([
+        (q0, ql, QUALITY_NOTE),
+        (off, len(a), new_list_anchor(spec)),
+        (ve, 0, overlay_items(spec)),
+    ], reverse=True)
+
+
+def patch_member(data, spec):
+    out = data
+    for off, n, new in locate_edits(data, spec):
+        out = out[:off] + new + out[off + n:]
+    return out
+
+
+def unified_diff(name, old, new):
+    return "".join(difflib.unified_diff(
+        old.decode("latin-1").replace("\r\n", "\n").splitlines(True),
+        new.decode("latin-1").replace("\r\n", "\n").splitlines(True),
+        "a/" + name, "b/" + name, n=3))
+
+
+# ---------------------------------------------------------------------------
+# pure logic: a menu tokenizer + parser that mimics botlib + ui_shared
+# ---------------------------------------------------------------------------
+PUNCT = sorted([">>=", "<<=", "...", "##", "&&", "||", ">=", "<=", "==", "!=",
+                "*=", "/=", "%=", "+=", "-=", "++", "--", "&=", "|=", "^=",
+                ">>", "<<", "->", "::", ".*", "*", "/", "%", "+", "-", "!",
+                "~", "^", "&", "|", "<", ">", "=", ",", ";", ".", "?", ":",
+                "{", "}", "[", "]", "(", ")", "#", "$", "\\"],
+               key=len, reverse=True)
+ESCAPES = set("\\nrtvbfa'\"?")
+
+# The subset of ui/menudef.h the two menus use. It is the fallback when the
+# real header is not available (unit tests without the share).
+BUILTIN_DEFINES = {
+    "ITEM_TYPE_TEXT": "0", "ITEM_TYPE_BUTTON": "1", "ITEM_TYPE_RADIOBUTTON": "2",
+    "ITEM_TYPE_CHECKBOX": "3", "ITEM_TYPE_EDITFIELD": "4", "ITEM_TYPE_COMBO": "5",
+    "ITEM_TYPE_LISTBOX": "6", "ITEM_TYPE_MODEL": "7", "ITEM_TYPE_OWNERDRAW": "8",
+    "ITEM_TYPE_NUMERICFIELD": "9", "ITEM_TYPE_SLIDER": "10", "ITEM_TYPE_YESNO": "11",
+    "ITEM_TYPE_MULTI": "12", "ITEM_TYPE_BIND": "13",
+    "ITEM_ALIGN_LEFT": "0", "ITEM_ALIGN_CENTER": "1", "ITEM_ALIGN_RIGHT": "2",
+    "WINDOW_STYLE_EMPTY": "0", "WINDOW_STYLE_FILLED": "1", "WINDOW_STYLE_GRADIENT": "2",
+    "WINDOW_STYLE_SHADER": "3", "WINDOW_STYLE_TEAMCOLOR": "4",
+    "WINDOW_STYLE_CINEMATIC": "5", "UI_GLINFO": "249",
+}
+
+
+class MenuError(Exception):
+    pass
+
+
+def _lex(text, fname="<menu>"):
+    """botlib l_script lexer: [(type, string, line)]; comments dropped."""
+    toks, i, line, n = [], 0, 1, len(text)
+    while i < n:
+        c = text[i]
+        if c == "\n":
+            line += 1
+            i += 1
+        elif c in " \t\r\f\v":
+            i += 1
+        elif text.startswith("//", i):
+            j = text.find("\n", i)
+            i = n if j < 0 else j
+        elif text.startswith("/*", i):
+            j = text.find("*/", i + 2)
+            if j < 0:
+                raise MenuError("%s:%d: unterminated /* comment" % (fname, line))
+            line += text.count("\n", i, j)
+            i = j + 2
+        elif c == '"':
+            j, buf = i + 1, []
+            while True:
+                if j >= n:
+                    raise MenuError("%s:%d: missing trailing quote" % (fname, line))
+                ch = text[j]
+                if ch == "\n":
+                    raise MenuError("%s:%d: newline inside string" % (fname, line))
+                if ch == "\\":
+                    nx = text[j + 1:j + 2]
+                    if nx in ESCAPES or nx == "x" or nx.isdigit():
+                        buf.append(ch + nx)
+                        j += 2
+                        continue
+                    raise MenuError("%s:%d: unknown escape char \\%s" % (fname, line, nx))
+                if ch == '"':
+                    break
+                buf.append(ch)
+                j += 1
+            toks.append(("string", "".join(buf), line))
+            i = j + 1
+        elif c.isdigit() or (c == "." and text[i + 1:i + 2].isdigit()):
+            j = i
+            if text.startswith(("0x", "0X"), i):
+                j += 2
+                while j < n and text[j] in "0123456789abcdefABCDEF":
+                    j += 1
+            else:
+                while j < n and (text[j].isdigit() or text[j] == "."):
+                    j += 1
+            toks.append(("number", text[i:j], line))
+            i = j
+        elif c.isalpha() or c == "_":
+            j = i
+            while j < n and (text[j].isalnum() or text[j] == "_"):
+                j += 1
+            toks.append(("name", text[i:j], line))
+            i = j
+        else:
+            for p in PUNCT:
+                if text.startswith(p, i):
+                    toks.append(("punct", p, line))
+                    i += len(p)
+                    break
+            else:
+                raise MenuError("%s:%d: unknown character %r" % (fname, line, c))
+    return toks
+
+
+def parse_defines(header_text):
+    out = {}
+    for ln in header_text.splitlines():
+        s = ln.split("//")[0].strip()
+        if s.startswith("#define"):
+            parts = s.split(None, 2)
+            if len(parts) == 3:
+                out[parts[1]] = parts[2].strip()
+    return out
+
+
+def tokenize(text, defines=None, fname="<menu>"):
+    """botlib precompiler: directives, #define expansion, and ADJACENT STRING
+    CONCATENATION (PC_ReadToken) - '"6" "7"' reads as one token "67"."""
+    defines = dict(BUILTIN_DEFINES if defines is None else defines)
+    raw = _lex(text, fname)
+    out, i = [], 0
+    while i < len(raw):
+        t = raw[i]
+        if t[0] == "punct" and t[1] == "#":
+            if i + 1 >= len(raw) or raw[i + 1][2] != t[2]:
+                raise MenuError("%s:%d: '#' without directive" % (fname, t[2]))
+            d = raw[i + 1][1]
+            rest = [r for r in raw[i + 2:] if r[2] == t[2]]
+            if d == "include":
+                if not rest or rest[0][0] != "string":
+                    raise MenuError("%s:%d: #include needs a string" % (fname, t[2]))
+            elif d == "define":
+                if not rest or rest[0][0] != "name":
+                    raise MenuError("%s:%d: bad #define" % (fname, t[2]))
+                defines[rest[0][1]] = " ".join(r[1] for r in rest[1:])
+            else:
+                raise MenuError("%s:%d: unsupported directive #%s" % (fname, t[2], d))
+            i += 2 + len(rest)
+            continue
+        if t[0] == "name" and t[1] in defines:
+            for sub in _lex(defines[t[1]], fname):
+                out.append((sub[0], sub[1], t[2]))
+            i += 1
+            continue
+        if t[0] == "string" and out and out[-1][0] == "string":
+            out[-1] = ("string", out[-1][1] + t[1], out[-1][2])
+        else:
+            out.append(t)
+        i += 1
+    return out
+
+
+class _Stream:
+    def __init__(self, toks, fname):
+        self.t, self.i, self.fname = toks, 0, fname
+
+    def peek(self):
+        return self.t[self.i] if self.i < len(self.t) else None
+
+    def next(self, what="token"):
+        if self.i >= len(self.t):
+            raise MenuError("%s: end of file while reading %s" % (self.fname, what))
+        tok = self.t[self.i]
+        self.i += 1
+        return tok
+
+    def err(self, tok, msg):
+        return MenuError("%s:%d: %s" % (self.fname, tok[2] if tok else 0, msg))
+
+
+def _p_number(s, what):
+    tok = s.next(what)
+    neg = False
+    if tok[1] == "-" and tok[0] == "punct":      # PC_Float_Parse / PC_Int_Parse
+        tok = s.next(what)
+        neg = True
+    if tok[0] != "number":
+        raise s.err(tok, "expected %s but found %s" % (what, tok[1]))
+    v = int(tok[1], 16) if tok[1].lower().startswith("0x") else float(tok[1])
+    return -v if neg else v
+
+
+def _p_int(s):
+    v = _p_number(s, "integer")
+    if v != int(v):
+        raise s.err(s.t[s.i - 1], "expected integer, found %s" % v)
+    return int(v)
+
+
+def _p_float(s):
+    return _p_number(s, "float")
+
+
+def _p_str(s):
+    return s.next("string")[1]              # PC_String_Parse takes any token
+
+
+def _p_script(s):
+    """PC_Script_Parse: '{' then tokens up to the FIRST '}' (no nesting)."""
+    tok = s.next("script")
+    if tok[1] != "{":
+        raise s.err(tok, "script must start with '{', found %s" % tok[1])
+    parts = []
+    while True:
+        tok = s.next("script body")
+        if tok[1] == "}" and tok[0] == "punct":
+            break
+        if tok[1] == "{" and tok[0] == "punct":
+            raise s.err(tok, "'{' inside a script - the script ends at the first '}'")
+        parts.append('"%s"' % tok[1] if len(tok[1]) > 1 else tok[1])
+    script = " ".join(parts) + " "
+    if len(script) > MAX_SCRIPT:
+        raise s.err(tok, "script longer than %d chars" % MAX_SCRIPT)
+    return script
+
+
+def _p_floatlist(s):
+    tok = s.next("cvarFloatList")
+    if tok[1] != "{":
+        raise s.err(tok, "cvarFloatList must start with '{'")
+    out = []
+    while True:
+        tok = s.next("cvarFloatList entry")
+        if tok[1] == "}":
+            return out
+        if tok[1] in (",", ";"):
+            continue
+        out.append((tok[1], _p_float(s)))
+        if len(out) >= MAX_MULTI_CVARS:
+            raise s.err(tok, "cvarFloatList reaches MAX_MULTI_CVARS (%d)" % MAX_MULTI_CVARS)
+
+
+def _p_strlist(s):
+    tok = s.next("cvarStrList")
+    if tok[1] != "{":
+        raise s.err(tok, "cvarStrList must start with '{'")
+    vals = []
+    while True:
+        tok = s.next("cvarStrList entry")
+        if tok[1] == "}":
+            if len(vals) % 2:
+                raise s.err(tok, "cvarStrList has an odd number of strings")
+            return list(zip(vals[0::2], vals[1::2]))
+        if tok[1] in (",", ";"):
+            continue
+        vals.append(tok[1])
+
+
+def _p_columns(s):
+    n = _p_int(s)
+    return [(_p_int(s), _p_int(s), _p_int(s)) for _ in range(n)]
+
+
+def _rep(fn, k):
+    return lambda s: tuple(fn(s) for _ in range(k))
+
+
+NONE = lambda s: True  # noqa: E731
+ITEM_KEYWORDS = {
+    "name": _p_str, "text": _p_str, "group": _p_str, "asset_model": _p_str,
+    "asset_shader": _p_str, "model_origin": _rep(_p_float, 3),
+    "model_fovx": _p_float, "model_fovy": _p_float, "model_rotation": _p_int,
+    "model_angle": _p_int, "rect": _rep(_p_float, 4), "style": _p_int,
+    "decoration": NONE, "notselectable": NONE, "wrapped": NONE,
+    "autowrapped": NONE, "horizontalscroll": NONE, "type": _p_int,
+    "elementwidth": _p_float, "elementheight": _p_float, "feeder": _p_float,
+    "elementtype": _p_int, "columns": _p_columns, "border": _p_int,
+    "bordersize": _p_float, "visible": _p_int, "ownerdraw": _p_int,
+    "align": _p_int, "textalign": _p_int, "textalignx": _p_float,
+    "textaligny": _p_float, "textscale": _p_float, "textstyle": _p_int,
+    "backcolor": _rep(_p_float, 4), "forecolor": _rep(_p_float, 4),
+    "bordercolor": _rep(_p_float, 4), "outlinecolor": _rep(_p_float, 4),
+    "background": _p_str, "onfocus": _p_script, "leavefocus": _p_script,
+    "mouseenter": _p_script, "mouseexit": _p_script, "mouseentertext": _p_script,
+    "mouseexittext": _p_script, "action": _p_script, "special": _p_float,
+    "cvar": _p_str, "maxchars": _p_int, "maxpaintchars": _p_int,
+    "focussound": _p_str,
+    "cvarfloat": lambda s: (_p_str(s), _p_float(s), _p_float(s), _p_float(s)),
+    "cvarstrlist": _p_strlist, "cvarfloatlist": _p_floatlist,
+    "addcolorrange": lambda s: (_p_float(s), _p_float(s)) + _rep(_p_float, 4)(s),
+    "ownerdrawflag": _p_int, "enablecvar": _p_script, "cvartest": _p_str,
+    "disablecvar": _p_script, "showcvar": _p_script, "hidecvar": _p_script,
+    "cinematic": _p_str, "doubleclick": _p_script,
+}
+MENU_KEYWORDS = {
+    "font": _p_str, "name": _p_str, "fullscreen": _p_int, "rect": _rep(_p_float, 4),
+    "style": _p_int, "visible": _p_int, "onopen": _p_script, "onclose": _p_script,
+    "onesc": _p_script, "border": _p_int, "bordersize": _p_float,
+    "backcolor": _rep(_p_float, 4), "forecolor": _rep(_p_float, 4),
+    "bordercolor": _rep(_p_float, 4), "focuscolor": _rep(_p_float, 4),
+    "disablecolor": _rep(_p_float, 4), "outlinecolor": _rep(_p_float, 4),
+    "background": _p_str, "ownerdraw": _p_int, "ownerdrawflag": _p_int,
+    "outofboundsclick": NONE, "soundloop": _p_str, "cinematic": _p_str,
+    "popup": NONE, "fadeclamp": _p_float, "fadecycle": _p_int,
+    "fadeamount": _p_float,
+}
+# script-valued keywords whose value is the list of cvar values
+CVAR_SCRIPTS = ("showcvar", "hidecvar", "enablecvar", "disablecvar")
+
+
+def _parse_block(s, table, what):
+    tok = s.next(what)
+    if tok[1] != "{":
+        raise s.err(tok, "%s must start with '{', found %s" % (what, tok[1]))
+    fields, items = {}, []
+    while True:
+        tok = s.next(what + " body")
+        if tok[1] == "}" and tok[0] == "punct":
+            return fields, items
+        key = tok[1].lower()
+        if what == "menuDef" and key == "itemdef":
+            f, _ = _parse_block(s, ITEM_KEYWORDS, "itemDef")
+            f["_line"] = tok[2]
+            items.append(f)
+            continue
+        fn = table.get(key)
+        if fn is None:
+            raise s.err(tok, "unknown %s keyword %s" % (what, tok[1]))
+        fields.setdefault(key, []).append(fn(s))
+
+
+def parse_menu_file(text, defines=None, fname="<menu>"):
+    """Parse like UI_ParseMenu. Returns [{'fields':{}, 'items':[{}]}]; raises
+    MenuError on anything ui_shared would reject or silently misread."""
+    s = _Stream(tokenize(text, defines, fname), fname)
+    menus = []
+    while True:
+        tok = s.peek()
+        if tok is None:
+            break
+        s.next()
+        if tok[1] == "}" and tok[0] == "punct":
+            break                                   # UI_ParseMenu stops here
+        low = tok[1].lower()
+        if low == "assetglobaldef":
+            depth, first = 0, True
+            while first or depth:
+                t = s.next("assetGlobalDef")
+                if t[1] == "{":
+                    depth += 1
+                elif t[1] == "}":
+                    depth -= 1
+                first = False
+        elif low == "menudef":
+            fields, items = _parse_block(s, MENU_KEYWORDS, "menuDef")
+            if len(items) > MAX_MENUITEMS:
+                raise s.err(tok, "%d items > MAX_MENUITEMS %d" % (len(items), MAX_MENUITEMS))
+            menus.append({"fields": fields, "items": items})
+    if not menus:
+        raise MenuError("%s: no menuDef" % fname)
+    return menus
+
+
+def brace_profile(text, defines=None):
+    """(final depth, lowest depth) over the whole file. id's own menus are not
+    all balanced at the TOP level (21 of the 53 stock TA files carry a stray or
+    missing trailing brace - harmless, UI_ParseMenu stops at the first
+    top-level '}'), so the rule is RELATIVE: an edit must not change it."""
+    depth, low = 0, 0
+    for t in tokenize(text, defines):
+        if t[0] == "punct" and t[1] in "{}":
+            depth += 1 if t[1] == "{" else -1
+            low = min(low, depth)
+    return depth, low
+
+
+def structure_problems(old_text, new_text, defines=None):
+    """What the edit may change: +3 overlay items, -1 Quality item, nothing else
+    at the menu level, and the same brace profile."""
+    probs = []
+    om, nm = parse_menu_file(old_text, defines), parse_menu_file(new_text, defines)
+    if len(om) != len(nm):
+        probs.append("menuDef count %d -> %d" % (len(om), len(nm)))
+    for a, b in zip(om, nm):
+        if len(b["items"]) != len(a["items"]) + 2:
+            probs.append("item count %d -> %d, expected +2" % (len(a["items"]), len(b["items"])))
+        if {k: v for k, v in a["fields"].items()} != {k: v for k, v in b["fields"].items()}:
+            probs.append("menu-level fields changed")
+    if brace_profile(old_text, defines) != brace_profile(new_text, defines):
+        probs.append("brace profile %r -> %r" % (brace_profile(old_text, defines),
+                                                 brace_profile(new_text, defines)))
+    return probs
+
+
+def field(item, key, default=None):
+    v = item.get(key.lower())
+    return v[-1] if v else default
+
+
+def script_values(script):
+    """Values in a showCvar/hideCvar script, the way Item_EnableShowViaCvar
+    walks it (String_Parse, ';' skipped)."""
+    out, i = [], 0
+    while i < len(script):
+        c = script[i]
+        if c.isspace():
+            i += 1
+        elif c == '"':
+            j = script.index('"', i + 1)
+            out.append(script[i + 1:j])
+            i = j + 1
+        else:
+            j = i
+            while j < len(script) and not script[j].isspace():
+                j += 1
+            if script[i:j] != ";":
+                out.append(script[i:j])
+            i = j
+    return out
+
+
+def gate_shows(item, cvar_values):
+    """Item_EnableShowViaCvar for CVAR_SHOW/CVAR_HIDE: does the item paint?"""
+    test = field(item, "cvartest")
+    show, hide = field(item, "showcvar"), field(item, "hidecvar")
+    if not test or not (show or hide):
+        return True
+    cur = cvar_values.get(test.lower(), "")
+    vals = [v.lower() for v in script_values(show or hide)]
+    return (cur.lower() in vals) if show else (cur.lower() not in vals)
+
+
+def multi_setting(item, value):
+    """Item_Multi_Setting: the label painted for a numeric cvar value."""
+    for label, v in field(item, "cvarfloatlist", []):
+        if v == value:
+            return label
+    return ""
+
+
+def multi_next(item, value):
+    """Item_Multi_HandleKey: the value one click writes (not-found -> index 1)."""
+    lst = field(item, "cvarfloatlist", [])
+    idx = 0
+    for i, (_, v) in enumerate(lst):
+        if v == value:
+            idx = i
+            break
+    nxt = idx + 1
+    if nxt >= len(lst):
+        nxt = 0
+    return lst[nxt][1]
+
+
+def audit_menu(menus):
+    """The patch's post-conditions on a parsed file. [] means good."""
+    probs = []
+    items = [it for m in menus for it in m["items"]]
+    vm = [it for it in items if (field(it, "cvar") or "").strip().lower() == "r_mode"
+          and field(it, "type") == 12]
+    if len(vm) != 1:
+        probs.append("expected one r_mode multi, found %d" % len(vm))
+    else:
+        lst = field(vm[0], "cvarfloatlist", [])
+        if not lst or lst[0] != (NATIVE_LABEL, -1.0):
+            probs.append("first r_mode entry is %r, not ('%s', -1)" % (lst[:1], NATIVE_LABEL))
+        if multi_setting(vm[0], -1.0) != NATIVE_LABEL:
+            probs.append("r_mode -1 does not paint '%s'" % NATIVE_LABEL)
+        if multi_next(vm[0], -1.0) == 1.0:
+            probs.append("a click at r_mode -1 still writes r_mode 1")
+    if any((field(it, "cvar") or "").strip().lower() == "ui_glcustom" for it in items):
+        probs.append("the Quality (ui_glCustom) control is still present")
+    ov = [it for it in items if field(it, "cvartest") and field(it, "cvartest").lower() == "r_mode"]
+    cv = sorted((field(it, "cvar") or field(it, "text") or "") for it in ov)
+    if len(ov) != 3 or "r_customheight" not in cv or "r_customwidth" not in cv:
+        probs.append("expected 3 r_mode-gated overlay items, found %r" % cv)
+    for it in ov:
+        need = {"decoration": True, "visible": 0, "name": "graphics", "group": "grpSystem",
+                "type": 0}
+        for k, v in need.items():
+            if field(it, k) != v:
+                probs.append("overlay %r: %s is %r, not %r" % (cv, k, field(it, k), v))
+        if field(it, "cvar") and field(it, "text") is not None:
+            probs.append("overlay with cvar must have no text (Item_Text_Paint)")
+        if not gate_shows(it, {"r_mode": "-1"}) or gate_shows(it, {"r_mode": "6"}):
+            probs.append("overlay gate is wrong: %r" % field(it, "showcvar"))
+    return probs
+
+
+# ---------------------------------------------------------------------------
+# pure logic: layout against the real glyph advances
+# ---------------------------------------------------------------------------
+def parse_font(dat):
+    """fontInfo_t: 256 x glyphInfo_t (80 bytes, xSkip is the 5th int) + glyphScale."""
+    if len(dat) != 256 * 80 + 4 + 64:
+        raise ValueError("fontInfo_t is %d bytes, expected 20548" % len(dat))
+    xskip = [struct.unpack_from("<7i", dat, i * 80)[4] for i in range(256)]
+    return {"xskip": xskip, "glyphscale": struct.unpack_from("<f", dat, 256 * 80)[0]}
+
+
+def text_width(fonts, text, scale):
+    """ui_main.c Text_Width (float, before the int truncation)."""
+    if scale <= UI_SMALLFONT:
+        f = fonts["small"]
+    elif scale >= UI_BIGFONT:
+        f = fonts["big"]
+    else:
+        f = fonts["text"]
+    return sum(f["xskip"][ord(c)] for c in text) * scale * f["glyphscale"]
+
+
+def layout_report(fonts, spec):
+    """Positions of every painted piece of the Video Mode row, and problems."""
+    sc = float(spec["textscale"])
+    value_x = spec["row_x"] + spec["textalignx"] + 8     # Item_Multi_Paint: label end + 8
+    native_end = value_x + text_width(fonts, NATIVE_LABEL, sc)
+    probs = []
+    if native_end + MIN_GAP > spec["x_w"]:
+        probs.append("'%s' ends at %.1f, width starts at %d" % (NATIVE_LABEL, native_end, spec["x_w"]))
+    wmax = max(text_width(fonts, str(w), sc) for w in LAYOUT_WIDTHS)
+    if spec["x_w"] + wmax + MIN_GAP > spec["x_sep"]:
+        probs.append("widest width ends at %.1f, separator at %d" % (spec["x_w"] + wmax, spec["x_sep"]))
+    sep_end = spec["x_sep"] + text_width(fonts, spec["sep"], sc)
+    if sep_end + MIN_GAP > spec["x_h"]:
+        probs.append("separator ends at %.1f, height at %d" % (sep_end, spec["x_h"]))
+    hmax = max(text_width(fonts, str(h), sc) for h in LAYOUT_HEIGHTS)
+    if spec["x_h"] + hmax > spec["right_limit"]:
+        probs.append("tallest height ends at %.1f > %d" % (spec["x_h"] + hmax, spec["right_limit"]))
+    w1920 = text_width(fonts, "1920", sc)
+    return {"value_x": value_x, "native_end": round(native_end, 1),
+            "gap_1920_to_sep": round(spec["x_sep"] - spec["x_w"] - w1920, 1),
+            "gap_widest_to_sep": round(spec["x_sep"] - spec["x_w"] - wmax, 1),
+            "sep_end": round(sep_end, 1), "height_end_max": round(spec["x_h"] + hmax, 1),
+            "problems": probs}
+
+
+# ---------------------------------------------------------------------------
+# pk3
+# ---------------------------------------------------------------------------
+def build_pk3(members):
+    """STORED zip, fixed time and attributes, fixed order: a reproducible md5."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_STORED) as z:
+        for name in sorted(members):
+            zi = zipfile.ZipInfo(name, ZIP_TIME)
+            zi.create_system = 0
+            zi.external_attr = 0x20
+            zi.compress_type = zipfile.ZIP_STORED
+            z.writestr(zi, members[name])
+    return buf.getvalue()
+
+
+def pk3_sort_key(name):
+    """FS_PathCmp (qcommon/files.c, the paksort comparator): a-z compare
+    UPPER-cased, and '\\' and ':' compare as '/'. Upper, not lower, matters:
+    '_' (0x5F) sorts AFTER 'Z' (0x5A) but BEFORE 'z' (0x7A), so a lower-cased
+    model orders "zz_x.pk3" against "zza.pk3" the wrong way round."""
+    return name.upper().replace("\\", "/").replace(":", "/")
+
+
+def wins_search_order(pk3_names, ours):
+    """The name that sorts LAST is searched first (FS_AddGameDirectory pushes
+    each pk3 of one game directory onto the front of the search path in sorted
+    order). Within ONE directory only: a homepath pk3
+    (%APPDATA%\\Quake3\\missionpack) outranks every basepath pk3 whatever its name."""
+    return sorted(pk3_names + [ours], key=pk3_sort_key)[-1] == ours
+
+
+# ---------------------------------------------------------------------------
+# share-dependent
+# ---------------------------------------------------------------------------
+def title_dir(library):
+    return os.path.join(library, TITLE)
+
+
+def find_ci(parent, name):
+    """Windows names are case-insensitive (CLAUDE.md): resolve one component."""
+    for n in os.listdir(parent):
+        if n.lower() == name.lower():
+            return os.path.join(parent, n)
+    return None
+
+
+def source_pk3(library):
+    p = title_dir(library)
+    for part in SRC_PK3_REL.split("/"):
+        p = find_ci(p, part) if p else None
+    if not p:
+        raise SystemExit("not found (case-insensitive): %s/%s" % (title_dir(library), SRC_PK3_REL))
+    return p
+
+
+def read_sources(library, full_md5=True):
+    path = source_pk3(library)
+    rep = {"path": path, "size": os.path.getsize(path)}
+    if rep["size"] != SRC_PK3_SIZE:
+        raise SystemExit("%s: size %d != %d" % (path, rep["size"], SRC_PK3_SIZE))
+    if full_md5:
+        rep["md5"] = md5_file(path)
+        if rep["md5"] != SRC_PK3_MD5:
+            raise SystemExit("%s: md5 %s != %s" % (path, rep["md5"], SRC_PK3_MD5))
+    out = {}
+    with zipfile.ZipFile(path) as z:
+        names = {n.lower(): n for n in z.namelist()}
+        for m in list(MEMBERS) + ["ui/menudef.h"] + list(FONT_FILES.values()):
+            real = names.get(m.lower())
+            if not real:
+                raise SystemExit("%s: no member %s (case-insensitive)" % (path, m))
+            out[m] = z.read(real)
+    return rep, out
+
+
+def other_owners(library):
+    """Every missionpack pk3 that also carries one of our members."""
+    mp = find_ci(title_dir(library), "missionpack")
+    pk3s = sorted((n for n in os.listdir(mp) if n.lower().endswith(".pk3")), key=pk3_sort_key)
+    owners = {m: [] for m in MEMBERS}
+    for n in pk3s:
+        if n.lower() == OUT_PK3_NAME.lower():
+            continue
+        with zipfile.ZipFile(os.path.join(mp, n)) as z:
+            low = {x.lower() for x in z.namelist()}
+        for m in MEMBERS:
+            if m.lower() in low:
+                owners[m].append(n)
+    return pk3s, owners
+
+
+def fonts_from(src):
+    return {k: parse_font(src[v]) for k, v in FONT_FILES.items()}
+
+
+def check(library, full_md5=True, verbose=True):
+    rep, src = read_sources(library, full_md5)
+    defines = parse_defines(src["ui/menudef.h"].decode("latin-1"))
+    fonts = fonts_from(src)
+    pk3s, owners = other_owners(library)
+    result = {"source": rep, "pk3s": pk3s, "members": {}, "ok": True}
+    if not wins_search_order([p for p in pk3s if p.lower() != OUT_PK3_NAME.lower()], OUT_PK3_NAME):
+        result["ok"] = False
+        result["search_order"] = "%s does NOT sort last among %r" % (OUT_PK3_NAME, pk3s)
+    for m, spec in MEMBERS.items():
+        r = {"owners": owners[m]}
+        data = src[m]
+        try:
+            edits = locate_edits(data, spec)
+            r["anchors"] = [{"offset": o, "old_len": n, "new_len": len(b)} for o, n, b in edits]
+            new = patch_member(data, spec)
+            r["audit_original"] = audit_menu(parse_menu_file(data.decode("latin-1"), defines, m))
+            r["audit_patched"] = audit_menu(parse_menu_file(new.decode("latin-1"), defines, m))
+            r["audit_patched"] += structure_problems(data.decode("latin-1"), new.decode("latin-1"), defines)
+            r["brace_profile"] = brace_profile(new.decode("latin-1"), defines)
+            r["layout"] = layout_report(fonts, spec)
+            r["patched_md5"] = md5_bytes(new)
+            r["patched_size"] = len(new)
+            bad = r["audit_patched"] or r["layout"]["problems"] or owners[m] != ["pak0.pk3"]
+            if owners[m] != ["pak0.pk3"]:
+                r["owner_problem"] = "expected only pak0.pk3 to carry %s, found %r" % (m, owners[m])
+        except (ValueError, MenuError) as e:
+            r["error"] = str(e)
+            bad = True
+        if bad:
+            result["ok"] = False
+        result["members"][m] = r
+    if verbose:
+        print(json.dumps(result, indent=1))
+    return result, src
+
+
+def cmd_build(library, outdir, full_md5=True):
+    result, src = check(library, full_md5, verbose=False)
+    if not result["ok"]:
+        print(json.dumps(result, indent=1))
+        raise SystemExit("check failed - not building")
+    os.makedirs(os.path.join(outdir, "menus"), exist_ok=True)
+    patched = {}
+    for m, spec in MEMBERS.items():
+        new = patch_member(src[m], spec)
+        patched[m] = new
+        with open(os.path.join(outdir, "menus", os.path.basename(m)), "wb") as f:
+            f.write(new)
+        with open(os.path.join(outdir, os.path.basename(m) + ".diff"), "w") as f:
+            f.write(unified_diff(m, src[m], new))
+    pk3 = build_pk3(patched)
+    # read the pk3 back the way the engine will: every member present and intact
+    with zipfile.ZipFile(io.BytesIO(pk3)) as z:
+        if z.testzip() is not None or sorted(z.namelist()) != sorted(patched):
+            raise SystemExit("built pk3 does not read back")
+        for m in patched:
+            if z.read(m) != patched[m]:
+                raise SystemExit("built pk3 member %s differs" % m)
+    local = os.path.join(outdir, OUT_PK3_NAME)
+    with open(local, "wb") as f:
+        f.write(pk3)
+    manifest = {
+        "key": KEY,
+        "title": TITLE,
+        "outputs": [{
+            "share_path": SHARE_OUT,
+            "local_path": local,
+            "md5": md5_bytes(pk3),
+            "size": len(pk3),
+            "original_md5": None,
+            "note": "NEW file - no original at this path; built from the members below",
+            "members": {m: {"md5": md5_bytes(b), "size": len(b),
+                            "from": "%s!%s" % (SRC_PK3_REL, m),
+                            "from_md5": MEMBERS[m]["md5"]} for m, b in patched.items()},
+        }],
+        "originals": [{
+            "share_path": "Files/Games-Library/%s/%s" % (TITLE, SRC_PK3_REL),
+            "md5": result["source"].get("md5", SRC_PK3_MD5 + " (size-checked only)"),
+            "size": result["source"]["size"],
+            "members": {m: {"md5": s["md5"], "size": s["size"]} for m, s in MEMBERS.items()},
+        }],
+        "layout": {m: r["layout"] for m, r in result["members"].items()},
+        "server_install": os.path.join(SERVER_HOMEPATH, OUT_PK3_REL),
+    }
+    with open(os.path.join(outdir, "manifest.json"), "w") as f:
+        json.dump(manifest, f, indent=1)
+    print(json.dumps(manifest, indent=1))
+    return manifest
+
+
+def load_manifest(outdir):
+    p = os.path.join(outdir, "manifest.json")
+    if not os.path.exists(p):
+        raise SystemExit("no %s - run --build first" % p)
+    with open(p) as f:
+        m = json.load(f)
+    for o in m["outputs"]:
+        if md5_file(o["local_path"]) != o["md5"]:
+            raise SystemExit("%s changed since --build" % o["local_path"])
+    return m
+
+
+def share_abs_ci(share_path):
+    """(path under MNT, exists) for a share-relative path, every component
+    resolved CASE-INSENSITIVELY (Windows names - CLAUDE.md). When a component is
+    missing, the would-be path is returned with exists=False."""
+    p = MNT
+    parts = [x for x in share_path.replace("\\", "/").split("/") if x]
+    for i, part in enumerate(parts):
+        q = find_ci(p, part) if os.path.isdir(p) else None
+        if q is None:
+            return os.path.join(p, *parts[i:]), False
+        p = q
+    return p, os.path.isfile(p)
+
+
+def _put(local, share_path, dry_run):
+    cmd = [sys.executable, SHAREWRITE, "put", local, share_path] + (["--dry-run"] if dry_run else [])
+    print("+ " + " ".join(cmd))
+    return subprocess.run(cmd).returncode
+
+
+def cmd_publish(outdir, dry_run, library=None):
+    """FUTURE USE. One file at a time through sharewrite.py (which reads each
+    file back through /mnt); stop on the first failure; idempotent.
+
+    Refuses to start unless:
+      - the title is VISIBLE through /mnt. Without the mount, "the file is not
+        on the share" would be a false negative: the backup of an existing file
+        would be skipped and the put would overwrite it blind;
+      - the staged original still builds exactly the manifest's members (a
+        pak0.pk3 restaged since --build would publish menus cut from other bytes).
+    """
+    library = library or LIBRARY
+    m = load_manifest(outdir)
+    if not os.path.isdir(title_dir(library)):
+        raise SystemExit("%s is not visible - is %s mounted? Refusing to publish: "
+                         "an absent mount reads as 'no file there' and would skip the backup"
+                         % (title_dir(library), MNT))
+    result, _ = check(library, full_md5=False, verbose=False)
+    if not result["ok"]:
+        raise SystemExit("the staged original no longer passes --check - rebuild first")
+    have = {k: r.get("patched_md5") for k, r in result["members"].items()}
+    for o in m["outputs"]:
+        want = {k: v["md5"] for k, v in o.get("members", {}).items()}
+        if want != have:
+            raise SystemExit("manifest members %r != what the staged original builds now %r "
+                             "- run --build again" % (want, have))
+    for o in m["outputs"]:
+        dest, exists = share_abs_ci(o["share_path"])
+        if exists:
+            cur = md5_file(dest)
+            if cur == o["md5"]:
+                print("skip %s - share already has md5 %s" % (o["share_path"], cur))
+                continue
+            rel = o["share_path"].split("/%s/" % TITLE, 1)[1]
+            backup = BACKUP_DIR + "/" + rel
+            if not share_abs_ci(backup)[1]:
+                with tempfile.TemporaryDirectory() as td:
+                    tmp = os.path.join(td, os.path.basename(rel))
+                    shutil.copyfile(dest, tmp)
+                    if md5_file(tmp) != cur:
+                        raise SystemExit("backup copy of %s did not read back" % dest)
+                    if _put(tmp, backup, dry_run) != 0:
+                        raise SystemExit("backup of %s failed - stopping" % o["share_path"])
+        if _put(o["local_path"], o["share_path"], dry_run) != 0:
+            raise SystemExit("put %s failed - stopping" % o["share_path"])
+    if dry_run:
+        print("dry-run: nothing was written to the share.")
+    else:
+        print("published. Boxes get it only after GAMESYNC RESET + GAMESYNC START "
+              "(a provisioned box's boot-time sync idles).")
+
+
+def cmd_install_server(outdir, dry_run):
+    """FUTURE USE. The dedicated server loads no UI and runs sv_pure 0, so the
+    pk3 is inert there today. It is installed so a later sv_pure 1 keeps it on
+    the pure list, which keeps the fleet menus in matches. It holds only
+    ui/*.menu, which no map references, so a pure server never forces a
+    download of it."""
+    m = load_manifest(outdir)
+    o = m["outputs"][0]
+    mp = os.path.join(SERVER_HOMEPATH, "missionpack")
+    if not os.path.isdir(mp):
+        raise SystemExit("no %s - is q3ta-server installed here?" % mp)
+    dest = os.path.join(mp, OUT_PK3_NAME)
+    if os.path.exists(dest) and md5_file(dest) == o["md5"]:
+        print("skip - %s already has md5 %s" % (dest, o["md5"]))
+    elif dry_run:
+        print("would copy %s -> %s" % (o["local_path"], dest))
+    else:
+        tmp = dest + ".tmp"
+        shutil.copyfile(o["local_path"], tmp)
+        os.replace(tmp, dest)
+        if md5_file(dest) != o["md5"]:
+            raise SystemExit("%s did not read back" % dest)
+        print("installed %s (md5 %s)" % (dest, o["md5"]))
+    print("to load it into the pure list: systemctl --user restart %s" % SERVER_UNIT)
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    g = ap.add_mutually_exclusive_group(required=True)
+    g.add_argument("--check", action="store_true")
+    g.add_argument("--build", nargs="?", const=DEFAULT_OUT, metavar="OUTDIR")
+    g.add_argument("--publish", nargs="?", const=DEFAULT_OUT, metavar="OUTDIR")
+    g.add_argument("--install-server", nargs="?", const=DEFAULT_OUT, metavar="OUTDIR")
+    ap.add_argument("--library", default=LIBRARY)
+    ap.add_argument("--quick", action="store_true", help="skip the 350 MB pak0 md5 (size still checked)")
+    ap.add_argument("--dry-run", action="store_true")
+    a = ap.parse_args(argv)
+    if (a.check or a.build) and not os.path.isdir(a.library):
+        raise SystemExit("library not mounted: %s" % a.library)
+    if a.check:
+        r, _ = check(a.library, not a.quick)
+        return 0 if r["ok"] else 1
+    if a.build:
+        cmd_build(a.library, a.build, not a.quick)
+        return 0
+    if a.publish:
+        cmd_publish(a.publish, a.dry_run, a.library)
+        return 0
+    cmd_install_server(a.install_server, a.dry_run)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

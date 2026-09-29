@@ -282,7 +282,10 @@ def test_each_unreal_engine_game_gets_its_own_ini():
            for k in ("ut99", "unreal", "deusex")}
     assert got["ut99"].endswith("UnrealTournament.ini")
     assert got["unreal"].endswith("Unreal.ini")
-    assert got["deusex"].endswith("DeusEx.ini")
+    # Deus Ex ships UBrowser.u but no screen of its own ever opens the
+    # favourites factory (2026-09-29): nothing reads DeusEx.ini's favourites,
+    # so there is no file to name at all - see test_patch_favourites.py.
+    assert got["deusex"] is None
 
 
 def test_the_two_ut99_trees_resolve_to_their_own_files():
@@ -306,9 +309,12 @@ def test_a_quake3_engine_game_whose_data_dir_is_not_baseq3_is_not_written():
 # --- the per-title policy ----------------------------------------------------
 
 def test_half_life_is_not_pointed_at_servers_it_cannot_join():
+    # 45, not 46 as this said until 2026-09-29: the staged WON hw.dll compares
+    # the server's protocol with 45 (`cmp eax,2Dh` before "CL_Parse_Version:
+    # Server is protocol %i instead of %i"), and hl.exe is 1.0.1.4.
     pol = favorites.policy_for("halflife", "goldsrc")
     assert not pol["supported"]
-    assert "46" in pol["why"] and "48" in pol["why"], (
+    assert "45" in pol["why"] and "48" in pol["why"], (
         "the reason must name the protocol mismatch, or the next person "
         "'fixes' this by adding a writer")
 
@@ -318,7 +324,7 @@ def test_a_file_we_only_update_is_never_created():
     # does not use that browser -- a WON Half-Life at C:\Sierra\Half-Life has
     # no revSrvBrowser at all. Same for an .ini holding only a favourites
     # section.
-    for key in ("cs16", "ut99", "ut2004", "deusex"):
+    for key in ("cs16", "ut99", "ut2004", "unreal"):
         assert favorites.policy_for(key)["create"] is False, key
     # autoexec.cfg is the opposite: not existing is its normal state.
     for key in ("quake3", "quake2"):
@@ -362,11 +368,15 @@ def test_the_reasons_are_reasons_and_not_placeholders():
 
 
 def test_engines_for_keys_finds_what_the_agent_calls_nothing():
-    # The agent reports Deus Ex with engine "-", so without this the pass
-    # never fetches Unreal servers for a box whose only Unreal title is Deus
-    # Ex.
-    assert "unreal" in favorites.engines_for_keys(["deusex"])
+    # The engine a writer needs servers for comes from the TITLE, not from
+    # what the agent reported. Deus Ex was the example here (the agent calls
+    # it "-") until 2026-09-29, when it turned out no Deus Ex screen reads
+    # favourites at all - so it now needs no servers either.
+    assert favorites.engines_for_keys(["ut99"]) == ["unreal"]
+    assert favorites.engines_for_keys(["deusex"]) == []
     assert favorites.engines_for_keys(["starcraft"]) == []
+    # Team Arena's store is binary, but the servers come from the q3 bucket.
+    assert favorites.engines_for_keys(["missionpack"]) == ["q3"]
 
 
 # --- server selection --------------------------------------------------------

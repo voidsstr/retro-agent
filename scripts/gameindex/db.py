@@ -211,12 +211,45 @@ def prune_servers(con, older_than_s=3600):
 
 
 def best_servers(con, engine, limit=16, fresh_s=900, accepts=None,
-                 local_only=False):
+                 local_only=False, strict_accepts=False, incumbent=None,
+                 incumbent_fresh_s=3600):
     """Live servers for an engine, our own first, then busiest-and-closest.
 
     `accepts`, when given, is the set of gamenames the asking TITLE can
     actually join. It is applied to every server WE CURATED -- our own on .132
-    and the seeded ones -- and not to a master's output.
+    and the seeded ones -- and not to a master's output, unless
+    `strict_accepts`: then an internet server must NAME one of those games
+    too. Team Arena is why that exists - its game module reports
+    "missionpack", and a Team Arena client cannot join a baseq3 server, so
+    the permissive rule would hand it a list it can join none of.
+
+    `incumbent`, when given, is a predicate true for a server that is ALREADY
+    in the favourites file on the box. Those are kept ahead of the ranking
+    while they are still alive and eligible; the ranking only fills vacancies.
+    Without it, with ~575 live Quake III servers and 16 slots, a server
+    crossing a player bucket anywhere in the world reshuffled the cut and
+    every box was rewritten on every pass - a steady state that never said
+    "unchanged".
+
+    "Alive" for an incumbent is judged over `incumbent_fresh_s` (an hour - the
+    horizon `prune_servers` keeps a row for), not the 15 minutes a NEWCOMER
+    must have been seen in. Discovery does not re-probe every server every
+    pass: what the masters return varies (the 05:34 pass on 2026-09-29 was
+    handed 389 addresses, the passes either side 862), a third of what they
+    list does not answer any one probe, and the 32-port bot farms answer a
+    burst of queries partially - so a live server's last_seen routinely sits
+    15-60 minutes old
+    (measured on the live DB 2026-09-29 05:04 and 05:24: 34-40 Q3 rows that
+    reported players sat in that band). With the 15-minute rule an incumbent
+    fell out whenever a pass happened to miss it, the file was rewritten, and
+    a sibling port of the same host took its place: replaying the boxes' own
+    files through five sampled real passes (05:04-05:39) rewrote all 7 Q3
+    autoexecs in three of them, every time for incumbents 15-30 minutes old
+    that still reported players (-50.116.39.92:32025 +:32022, then -:32022).
+    With the hour: one rewrite, for a server unseen for over an hour.
+    An incumbent still needs people on at its LAST observation (or to be a
+    curated seed): one that emptied is replaced on the next pass, one that
+    stopped answering at the latest when its row is pruned.
 
     The line is drawn at "did we choose this address". For our own servers and
     a hand-kept seed list we know exactly what is running, so handing a
@@ -238,10 +271,21 @@ def best_servers(con, engine, limit=16, fresh_s=900, accepts=None,
     eight ports of the same server and would otherwise eat every favourite
     slot -- that is a lesson from the Q3 recipe, not a hypothetical. Applying
     it to OUR servers was a bug: they all live on .132, so a box was given one
-    of them and never the rest.
+    of them and never the rest. Applying it to the CURATED SEEDS was the same
+    bug again (2026-09-29): the UT99 seed list names 85.214.243.170:7777 and
+    :9000 on purpose - two different servers - so only one could survive, and
+    which one was decided by a "ping" that is really a 2.5 s read timeout.
+    UT99's favourites flipped between the two on every other pass on every
+    box. Seeds are chosen by hand; each one is its own server.
     """
+    now_t = time.time()
     cutoff = time.strftime("%Y-%m-%d %H:%M:%S",
-                           time.localtime(time.time() - fresh_s))
+                           time.localtime(now_t - fresh_s))
+    # A row old enough to be only an INCUMBENT's is fetched too, and filtered
+    # below: only a server the box already lists may be that stale.
+    fetch_cutoff = cutoff if incumbent is None else time.strftime(
+        "%Y-%m-%d %H:%M:%S",
+        time.localtime(now_t - max(fresh_s, incumbent_fresh_s)))
     # Rank on BUCKETED liveliness, not the raw numbers.
     #
     # There are ~575 live Quake III servers and only 16 slots, so the cut is
@@ -264,24 +308,48 @@ def best_servers(con, engine, limit=16, fresh_s=900, accepts=None,
         " AND (is_local=1 OR (last_seen >= ?"
         "      AND (source='seed' OR players > 0)))"
         " ORDER BY is_local DESC, (players/4) DESC, (ping_ms/25) ASC, addr ASC",
-        (engine, cutoff)).fetchall()
-    out, seen_hosts = [], set()
+        (engine, fetch_cutoff)).fetchall()
+    eligible = []
     for r in rows:
         if local_only and not r["is_local"]:
             continue
+        if not r["is_local"] and (r["last_seen"] or "") < cutoff and \
+                not (incumbent is not None and incumbent(r)):
+            continue           # seen too long ago for anything but an incumbent
         curated = bool(r["is_local"]) or (r["source"] or "") == "seed"
+        gamename = (r["gamename"] or "").strip().lower()
         if accepts and curated:
-            gamename = (r["gamename"] or "").strip().lower()
             if gamename and gamename not in accepts:
                 continue
-        if not r["is_local"]:
+        elif accepts and strict_accepts and gamename not in accepts:
+            continue
+        eligible.append(r)
+
+    out, seen_hosts, taken = [], set(), set()
+
+    def take(r):
+        if len(out) >= limit or r["addr"] in taken:
+            return
+        if not (r["is_local"] or (r["source"] or "") == "seed"):
             host = r["addr"].rsplit(":", 1)[0]
             if host in seen_hosts:
-                continue
+                return
             seen_hosts.add(host)
         out.append(r)
-        if len(out) >= limit:
-            break
+        taken.add(r["addr"])
+
+    # Ours first (the ORDER BY puts them there), then whatever the box
+    # already lists and is still eligible, then the ranking for what is left.
+    for r in eligible:
+        if r["is_local"]:
+            take(r)
+    if incumbent is not None:
+        for r in eligible:
+            if not r["is_local"] and incumbent(r):
+                take(r)
+    for r in eligible:
+        if not r["is_local"]:
+            take(r)
 
     # SELECT by liveliness, but RENDER in a stable order.
     #

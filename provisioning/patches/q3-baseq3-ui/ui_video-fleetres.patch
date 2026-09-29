@@ -1,0 +1,192 @@
+q3_ui Video Mode list for the retro-agent fleet (baseq3/zz-fleetres-ui.pk3)
+
+Applies to code/q3_ui/ui_video.c of id Software's GPL Quake III Arena source,
+github.com/id-Software/Quake-III-Arena @ dbe4ddb10315479fc00086f08e25d968b4b43c49
+- the tree that rebuilds baseq3/pak8.pk3 vm/ui.qvm (1.32) byte-for-byte, md5
+3e6b8fadb2a970c2b754e48e63a054d7 (see apply.py).  Needs ui_fleetres.h (beside
+this file) copied into code/q3_ui/.  Built, checked and packaged by apply.py
+in this directory.  GPL-2.0-or-later, as the source it modifies.
+
+What changes: the Video Mode spin control lists r_availableModes when the
+engine publishes it (ioquake3) and id's 12-mode table otherwise (retail
+1.32c); the mode the game is running in (r_mode -1 = r_customwidth x
+r_customheight) is always listed and selected; ACCEPT with that entry writes
+the running mode back unchanged, any other entry is written as id's r_mode
+for id's sizes and as r_mode -1 + r_customwidth/r_customheight otherwise.
+Nothing else in the UI changes.
+
+--- a/code/q3_ui/ui_video.c
++++ b/code/q3_ui/ui_video.c
+@@ -21,6 +21,7 @@
+ */
+ //
+ #include "ui_local.h"
++#include "ui_fleetres.h"	// FLEETRES: the Video Mode list
+ 
+ void GraphicsOptions_MenuInit( void );
+ 
+@@ -300,6 +301,7 @@
+ 
+ static InitialVideoOptions_s	s_ivo;
+ static graphicsoptions_t		s_graphicsoptions;	
++static frModeList_t				s_fr;	// FLEETRES: the Video Mode entries
+ 
+ static InitialVideoOptions_s s_ivo_templates[] =
+ {
+@@ -324,6 +326,27 @@
+ 
+ /*
+ =================
++GraphicsOptions_BuildModeList
++
++FLEETRES: build the Video Mode list and find the entry the game is running
++in - see ui_fleetres.h.  Must run before the spin control is added.
++=================
++*/
++static void GraphicsOptions_BuildModeList( void )
++{
++	char	modes[FR_MODES_LEN];
++
++	// ioquake3 publishes the modes the driver enumerated; retail 1.32c does not
++	trap_Cvar_VariableStringBuffer( "r_availableModes", modes, sizeof( modes ) );
++	FR_Build( &s_fr, modes );
++	FR_Select( &s_fr, (int)trap_Cvar_VariableValue( "r_mode" ),
++		(int)trap_Cvar_VariableValue( "r_customwidth" ),
++		(int)trap_Cvar_VariableValue( "r_customheight" ),
++		uis.glconfig.vidWidth, uis.glconfig.vidHeight );
++}
++
++/*
++=================
+ GraphicsOptions_GetInitialVideo
+ =================
+ */
+@@ -356,7 +379,8 @@
+ 			continue;
+ 		if ( s_ivo_templates[i].driver != s_graphicsoptions.driver.curvalue )
+ 			continue;
+-		if ( s_ivo_templates[i].mode != s_graphicsoptions.mode.curvalue )
++		// FLEETRES: compare the r_mode the entry stands for, not its list position
++		if ( s_ivo_templates[i].mode != FR_ModeOf( &s_fr, s_graphicsoptions.mode.curvalue ) )
+ 			continue;
+ 		if ( s_ivo_templates[i].fullscreen != s_graphicsoptions.fs.curvalue )
+ 			continue;
+@@ -465,6 +489,8 @@
+ */
+ static void GraphicsOptions_ApplyChanges( void *unused, int notification )
+ {
++	int		mode, w, h;
++
+ 	if (notification != QM_ACTIVATED)
+ 		return;
+ 
+@@ -482,7 +508,18 @@
+ 	}
+ 	trap_Cvar_SetValue( "r_picmip", 3 - s_graphicsoptions.tq.curvalue );
+ 	trap_Cvar_SetValue( "r_allowExtensions", s_graphicsoptions.allow_extensions.curvalue );
+-	trap_Cvar_SetValue( "r_mode", s_graphicsoptions.mode.curvalue );
++	// FLEETRES: the running entry writes back the running mode; another entry
++	// writes id's r_mode for id's sizes, else r_mode -1 + r_customwidth/height
++	mode = FR_Accept( &s_fr, s_graphicsoptions.mode.curvalue, &w, &h );
++	if ( mode != FR_NO_ENTRY )
++	{
++		if ( mode == -1 && w > 0 && h > 0 )
++		{
++			trap_Cvar_Set( "r_customwidth", va( "%i", w ) );
++			trap_Cvar_Set( "r_customheight", va( "%i", h ) );
++		}
++		trap_Cvar_SetValue( "r_mode", mode );
++	}
+ 	trap_Cvar_SetValue( "r_fullscreen", s_graphicsoptions.fs.curvalue );
+ 	trap_Cvar_Set( "r_glDriver", ( char * ) s_drivers[s_graphicsoptions.driver.curvalue] );
+ 	switch ( s_graphicsoptions.colordepth.curvalue )
+@@ -539,6 +576,7 @@
+ */
+ static void GraphicsOptions_Event( void* ptr, int event ) {
+ 	InitialVideoOptions_s *ivo;
++	int		entry;
+ 
+ 	if( event != QM_ACTIVATED ) {
+ 	 	return;
+@@ -547,7 +585,8 @@
+ 	switch( ((menucommon_s*)ptr)->id ) {
+ 	case ID_MODE:
+ 		// clamp 3dfx video modes
+-		if ( s_graphicsoptions.driver.curvalue == 1 )
++		// FLEETRES: only in id's table, where entry N is r_mode N
++		if ( s_graphicsoptions.driver.curvalue == 1 && !s_fr.detected )
+ 		{
+ 			if ( s_graphicsoptions.mode.curvalue < 2 )
+ 				s_graphicsoptions.mode.curvalue = 2;
+@@ -559,7 +598,13 @@
+ 	case ID_LIST:
+ 		ivo = &s_ivo_templates[s_graphicsoptions.list.curvalue];
+ 
+-		s_graphicsoptions.mode.curvalue        = ivo->mode;
++		// FLEETRES: the entry of the preset's size (appended if the list lacks it)
++		entry = FR_PresetIndex( &s_fr, ivo->mode );
++		if ( entry >= 0 )
++		{
++			s_graphicsoptions.mode.curvalue    = entry;
++			s_graphicsoptions.mode.numitems    = s_fr.count;
++		}
+ 		s_graphicsoptions.tq.curvalue          = ivo->tq;
+ 		s_graphicsoptions.lighting.curvalue    = ivo->lighting;
+ 		s_graphicsoptions.colordepth.curvalue  = ivo->colordepth;
+@@ -631,11 +676,8 @@
+ */
+ static void GraphicsOptions_SetMenuItems( void )
+ {
+-	s_graphicsoptions.mode.curvalue = trap_Cvar_VariableValue( "r_mode" );
+-	if ( s_graphicsoptions.mode.curvalue < 0 )
+-	{
+-		s_graphicsoptions.mode.curvalue = 3;
+-	}
++	// FLEETRES: the entry the game is running in (id showed r_mode -1 as 640x480)
++	s_graphicsoptions.mode.curvalue = s_fr.current;
+ 	s_graphicsoptions.fs.curvalue = trap_Cvar_VariableValue("r_fullscreen");
+ 	s_graphicsoptions.allow_extensions.curvalue = trap_Cvar_VariableValue("r_allowExtensions");
+ 	s_graphicsoptions.tq.curvalue = 3-trap_Cvar_VariableValue( "r_picmip");
+@@ -759,22 +801,7 @@
+ 		0
+ 	};
+ 
+-	static const char *resolutions[] = 
+-	{
+-		"320x240",
+-		"400x300",
+-		"512x384",
+-		"640x480",
+-		"800x600",
+-		"960x720",
+-		"1024x768",
+-		"1152x864",
+-		"1280x1024",
+-		"1600x1200",
+-		"2048x1536",
+-		"856x480 wide screen",
+-		0
+-	};
++	// FLEETRES: id's resolutions[] table is fr_builtinNames in ui_fleetres.h
+ 	static const char *filter_names[] =
+ 	{
+ 		"Bilinear",
+@@ -802,6 +829,9 @@
+ 
+ 	GraphicsOptions_Cache();
+ 
++	// FLEETRES: the Video Mode list, before its spin control counts the items
++	GraphicsOptions_BuildModeList();
++
+ 	s_graphicsoptions.menu.wrapAround = qtrue;
+ 	s_graphicsoptions.menu.fullscreen = qtrue;
+ 	s_graphicsoptions.menu.draw       = GraphicsOptions_MenuDraw;
+@@ -904,7 +934,7 @@
+ 	s_graphicsoptions.mode.generic.flags    = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+ 	s_graphicsoptions.mode.generic.x        = 400;
+ 	s_graphicsoptions.mode.generic.y        = y;
+-	s_graphicsoptions.mode.itemnames        = resolutions;
++	s_graphicsoptions.mode.itemnames        = s_fr.names;	// FLEETRES
+ 	s_graphicsoptions.mode.generic.callback = GraphicsOptions_Event;
+ 	s_graphicsoptions.mode.generic.id       = ID_MODE;
+ 	y += BIGCHAR_HEIGHT+2;
