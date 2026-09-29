@@ -44,22 +44,30 @@ def _body(code, sig):
 
 
 def test_the_patch_sets_one_bit_of_one_byte():
-    body = _body(_code(), "static int pif_close_on_exit(const char *pif)")
-    # the only offset it seeks to, both times
-    assert set(re.findall(r"SetFilePointer\(h,\s*(0x[0-9A-Fa-f]+)", body)) == {"0x63"}
-    assert body.count("WriteFile(") == 1, "exactly one write"
-    assert "b |= 0x10" in body, "bit 4 is set, nothing cleared"
-    assert re.search(r"if \(b & 0x10\)\s*ok = 1;", body), "already set: no write at all"
-    # a file too short to have the basic section is left alone
-    assert "GetFileSize(h, NULL) >= 0x171" in body
+    code = _code()
+    setter = _body(code, "static int pif_set_bit(const char *pif, DWORD off, unsigned char bit)")
+    assert setter.count("WriteFile(") == 1, "exactly one write"
+    assert "b |= bit" in setter, "the bit is set, nothing cleared"
+    assert re.search(r"if \(b & bit\)\s*ok = 1;", setter), "already set: no write at all"
+    assert "GetFileSize(h, NULL) > off" in setter, "a file too short is left alone"
+    close = _body(code, "static int pif_close_on_exit(const char *pif)")
+    assert "pif_set_bit(pif, 0x63, 0x10)" in close        # measured: Close on exit
+    dos = _body(code, "static int pif_msdos_mode(const char *pif, int with_1b0)")
+    assert "pif_set_bit(pif, 0x1AF, 0x80)" in dos         # diffed: MS-DOS mode
+    assert re.search(r"if \(ok && with_1b0\)\s*ok = pif_set_bit\(pif, 0x1B0, 0x10\);", dos)
+    # nothing else in the file writes
+    assert code.count("WriteFile(") == 3, "the one PIF write plus the two log writes"
 
 
-def test_only_a_pif_is_ever_patched_and_it_can_be_declined():
+def test_only_a_pif_is_ever_patched_and_options_are_explicit():
     main = _body(_code(), "void WINAPI _start(void)")
-    call = main.index("pif_close_on_exit(pif)")
-    assert "GetFileAttributesA(pif)" in main[:call], "the .pif must exist first"
-    assert 'lstrcmpiA(opt, "nocloseonexit") == 0 ? -1' in main
-    assert "pif_close_on_exit(lnk)" not in main
+    first_patch = main.index("pif_close_on_exit(pif)")
+    assert "GetFileAttributesA(pif)" in main[:first_patch], "the .pif must exist first"
+    assert "no_close ? -1 : pif_close_on_exit(pif)" in main
+    assert "msdos ? pif_msdos_mode(pif, msdos_1b0) : -1" in main
+    assert "pif_close_on_exit(lnk)" not in main and "pif_msdos_mode(lnk" not in main
+    assert '"FAIL: unknown option %s"' in main, "a mistyped option must not be ignored"
+    assert "MS-DOS mode needs a .pif" in main
 
 
 @pytest.fixture(scope="module")

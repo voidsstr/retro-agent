@@ -43,7 +43,7 @@ d931bfe6c33fae5e	RedneckRampage	no	not wanted on .243: the user kept Quake/Quake
 d931bfe6c33fae5e	ReturnToCastleWolfenstein	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	SeriousSamFirstEncounter	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	SeriousSamSecondEncounter	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
-d931bfe6c33fae5e	ShadowWarrior	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
+d931bfe6c33fae5e	ShadowWarrior	run	3D-noteworthy (Build engine, 1997), kept on .243: its "Shadow Warrior - DOS" shortcut runs SW.EXE natively; the DOSBox ones stay suppressed by their 350 MHz floor (2026-09-29)
 d931bfe6c33fae5e	Shogo	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	SiNGold	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	SoldierOfFortune	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)

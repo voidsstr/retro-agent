@@ -58,6 +58,16 @@ def test_the_launcher_is_command_com_dialect_and_ends_with_cls(tmp_path):
     assert "\n" not in bat.replace("\r\n", ""), "CRLF line ends only"
 
 
+def test_a_batch_launcher_is_called_so_the_cls_after_it_runs(tmp_path):
+    # Retribution starts through RET.BAT: without CALL, COMMAND.COM hands the
+    # rest of the Play batch over to it and the closing CLS never runs.
+    bat = sw.play_bat(_spec(tmp_path, launch=["RET.BAT", "CD X", "GAME.EXE"])).decode("ascii")
+    cmds = [l for l in bat.split("\r\n") if l and not l.lower().startswith("rem")]
+    assert cmds == ["@echo off", "call RET.BAT", "CD X", "GAME.EXE", "cls"]
+    bat = sw.play_bat(_spec(tmp_path, launch=["call ret.bat"])).decode("ascii")
+    assert "call call" not in bat.lower()
+
+
 @pytest.mark.parametrize("bad", ["GAME.EXE > NUL", "GAME.EXE (x)", "TYPE < X"])
 def test_a_launch_line_with_brackets_or_redirection_is_refused(tmp_path, bad):
     with pytest.raises(AssertionError):

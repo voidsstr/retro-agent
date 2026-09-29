@@ -14,6 +14,16 @@ Two things here are deliberate and easy to "simplify" wrongly:
     box lands stamped with THAT BOX's clock - .124 is two hours fast. The
     agent's own write is CreateFile+WriteFile, so the file server stamps it.
 
+  * IT WRITES FROM THIS HOST BY DEFAULT (2026-09-29): smbclient with the
+    vaulted NAS credentials through scripts/fleet/sharewrite.py, which
+    md5-checks every file back through /mnt - and the rows are counted by
+    reading /mnt too. No fleet box is touched. The box route below (UPLOAD
+    through a machine with Z: mapped, cmd.exe EXEC'd on it to check and count)
+    is the fallback for a host that cannot reach the vault or /mnt: a publish
+    for .243 had picked .124 in the middle of another session's V5 6000
+    benchmark campaign, where a stray cmd.exe is a skewed number.
+    RETRO_GAMEGATE_WRITER=<ip> forces the box route, =host the host route.
+
   * IT VERIFIES THE POST-CONDITION. Publishing is not "the copy returned 0", it
     is "the file on the share carries one row per title". That check is the
     whole point: the failure this script exists to prevent produced a perfectly
@@ -27,7 +37,9 @@ import argparse
 import asyncio
 import datetime
 import os
+import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
@@ -54,8 +66,10 @@ SECRET = "retro-agent-secret"
 WRITER = os.getenv("RETRO_GAMEGATE_WRITER", "")
 # XP/Win7 boxes only: picking a writer EXECs cmd.exe on it, which is never
 # done to the single-threaded Win9x agent on .243 (CLAUDE.md).
-WRITER_CANDIDATES = ["192.168.1.124", "192.168.1.123", "192.168.1.133",
-                     "192.168.1.143", "192.168.1.240", "192.168.1.195"]
+# .124 LAST: it carries the V5 6000 benchmark campaign, where an EXEC'd cmd.exe
+# is a skewed number.
+WRITER_CANDIDATES = ["192.168.1.123", "192.168.1.133", "192.168.1.143",
+                     "192.168.1.240", "192.168.1.195", "192.168.1.124"]
 
 
 async def _pick_writer():
@@ -99,6 +113,80 @@ FLEET = ["192.168.1.123", "192.168.1.124", "192.168.1.133", "192.168.1.143",
          "192.168.1.243"]
 
 
+MNT_DIR = "/mnt/retro-share/Files/Games-Library/_gamegate"
+SHARE_REL = "Files/Games-Library/_gamegate"
+SHAREWRITE = os.path.join(REPO, "scripts", "fleet", "sharewrite.py")
+
+
+def count_rows(data):
+    """Lines without a '#', exactly what the box route's
+    `find /v /c "#"` counts - one per verdict row."""
+    return sum(1 for line in data.splitlines() if b"#" not in line)
+
+
+class HostWriter:
+    """Writes from THIS host and reads back through /mnt; touches no fleet box."""
+    label = "this host (smbclient, md5-checked through /mnt)"
+
+    @staticmethod
+    def available():
+        return os.path.isdir(MNT_DIR) and os.path.isfile(SHAREWRITE)
+
+    async def write(self, name, text):
+        data = text.encode("ascii", "replace").replace(b"\n", b"\r\n")
+        fd, tmp = tempfile.mkstemp(prefix="gamegate-", suffix=".txt")
+        try:
+            with os.fdopen(fd, "wb") as fh:
+                fh.write(data)
+            r = await asyncio.to_thread(
+                subprocess.run, [sys.executable, SHAREWRITE, "put", tmp,
+                                 "%s/%s" % (SHARE_REL, name)],
+                capture_output=True, text=True)
+        finally:
+            os.remove(tmp)
+        tail = (r.stdout + r.stderr).strip().splitlines()
+        return r.returncode == 0, (tail[-1] if tail else "")[:60]
+
+    async def rows(self, name):
+        try:
+            with open(os.path.join(MNT_DIR, name), "rb") as fh:
+                return count_rows(fh.read())
+        except OSError:
+            return -1
+
+    async def close(self):
+        pass
+
+
+class BoxWriter:
+    """The fallback: UPLOAD through a fleet box with Z: mapped."""
+    def __init__(self, ip, conn):
+        self.label, self.conn = ip, conn
+
+    async def write(self, name, text):
+        return await _write(self.conn, name, text)
+
+    async def rows(self, name):
+        return await _rows_on_share(self.conn, name)
+
+    async def close(self):
+        await self.conn.close()
+
+
+async def _open_writer():
+    if WRITER != "host" and (WRITER or not HostWriter.available()):
+        ip = await _pick_writer()
+        conn = RetroConnection(ip, 9898)
+        await conn.connect(SECRET, timeout=20.0)
+        await conn.send_command(
+            f'EXEC cmd /c if not exist "{SHARE_DIR}" mkdir "{SHARE_DIR}"')
+        return BoxWriter(ip, conn)
+    if not HostWriter.available():
+        raise SystemExit("RETRO_GAMEGATE_WRITER=host, but %s or %s is missing"
+                         % (MNT_DIR, SHAREWRITE))
+    return HostWriter()
+
+
 async def _write(conn, name, text):
     """Straight to the share, so the server stamps the mtime."""
     data = text.encode("ascii", "replace").replace(b"\n", b"\r\n")
@@ -126,12 +214,8 @@ async def main_async(ips, verify_only):
     model = getattr(judge, "model", "") or ""
     now = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
-    writer = await _pick_writer()
-    print("writer: %s" % writer)
-    conn = RetroConnection(writer, 9898)
-    await conn.connect(SECRET, timeout=20.0)
-    await conn.send_command(
-        f'EXEC cmd /c if not exist "{SHARE_DIR}" mkdir "{SHARE_DIR}"')
+    writer = await _open_writer()
+    print("writer: %s" % writer.label)
 
     bad = []
     for ip in ips:
@@ -169,20 +253,20 @@ async def main_async(ips, verify_only):
                         use_llm=True, refresh=False)
             text = rules.format_verdict_file(
                 prof, [(t.name, d) for t, d, _s, _x in rows], model, now)
-            ok, msg = await _write(conn, f"{prof.profile_hash}.txt", text)
+            ok, msg = await writer.write(f"{prof.profile_hash}.txt", text)
             if not ok:
                 bad.append(f"{ip}: write failed ({msg})")
                 continue
 
         # THE POST-CONDITION. A valid one-row file is the failure mode, so the
         # count is the only thing that tells success from disaster.
-        got = await _rows_on_share(conn, f"{prof.profile_hash}.txt")
+        got = await writer.rows(f"{prof.profile_hash}.txt")
         state = "OK" if got == len(titles) else "*** WRONG ***"
         print(f"{ip:16s} {prof.profile_hash}  {got:3d}/{len(titles)} rows  {state}")
         if got != len(titles):
             bad.append(f"{ip}: {got} rows on the share, expected {len(titles)}")
 
-    await conn.close()
+    await writer.close()
     cache.close()
 
     if bad:

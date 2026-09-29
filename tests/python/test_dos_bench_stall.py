@@ -77,3 +77,15 @@ def test_quake_cfg_quits_after_the_timedemo():
         "Host_Quit_f exits only from the console: without it DOS Quake sat at 'really quit? Y/N' "
         "on .243 and in DOSBox (A/B, 2026-09-28)")
     assert cfg[0] == "startdemos", "without it the demo ends in CL_NextDemo and no score prints (.243)"
+
+
+def test_dos_quake_never_waits_for_the_joystick_prompt():
+    """.243, 2026-09-29: with a gameport stick connected, DOS Quake stopped at
+    "CENTER the joystick and press button 1 (ESC to skip)" before reading the
+    job's cfg, and three runs sat in their DOS boxes until the host sent ESC."""
+    m = load()
+    assert m.unattended("QUAKE.EXE -nosound +exec b1.cfg") == "QUAKE.EXE -nosound +exec b1.cfg -nojoy"
+    assert m.unattended("quake.exe -NOJOY +exec b1.cfg") == "quake.exe -NOJOY +exec b1.cfg"
+    assert m.unattended("DOOM.EXE -timedemo demo1") == "DOOM.EXE -timedemo demo1"
+    src = (BENCH / "dos_win9x_bench.py").read_text()
+    assert "run_job(link, tag, directory, unattended(command)" in src

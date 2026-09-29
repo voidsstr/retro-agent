@@ -1,7 +1,14 @@
 /* mkpif9x - make a desktop shortcut with an icon on Windows 9x, and have a DOS
  * program's window close when the program ends.
  *
- *   mkpif9x "<target>" "<working dir>" "<shortcut path, no extension>" "<icon file>" [nocloseonexit]
+ *   mkpif9x "<target>" "<working dir>" "<shortcut path, no extension>" "<icon file>" [option ...]
+ *     nocloseonexit   leave "Close on exit" clear
+ *     msdosmode       run the program in MS-DOS mode: Windows exits to real DOS
+ *                     (the current CONFIG.SYS/AUTOEXEC.BAT), runs it, and comes
+ *                     back - byte 1AFh bit 7
+ *     msdosmode1b0    also set byte 1B0h bit 4, which Windows' own
+ *                     "Exit To Dos.pif" carries and its "MS-DOS Mode for Games"
+ *                     PIFs (which bring their own CONFIG/AUTOEXEC) do not
  *   log: C:\RETRO_AGENT\MKPIF9X.TXT (appended)
  *
  * Written 2026-09-29 for .243 (Win98 SE): the DOS games already installed on
@@ -59,20 +66,21 @@ static int next_arg(const char **p, char *out, int cap)
     return 1;
 }
 
-/* Set "Close on exit" in a PIF's basic section. 1 = set (or already set). */
-static int pif_close_on_exit(const char *pif)
+/* OR `bit` into the PIF byte at `off`. 1 = set (or already set). A file too
+ * short to hold the offset is left alone. */
+static int pif_set_bit(const char *pif, DWORD off, unsigned char bit)
 {
     HANDLE h = CreateFileA(pif, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
     unsigned char b;
     DWORD n;
     int ok = 0;
     if (h == INVALID_HANDLE_VALUE) return 0;
-    if (GetFileSize(h, NULL) >= 0x171 && SetFilePointer(h, 0x63, NULL, FILE_BEGIN) == 0x63
+    if (GetFileSize(h, NULL) > off && SetFilePointer(h, (LONG)off, NULL, FILE_BEGIN) == off
             && ReadFile(h, &b, 1, &n, NULL) && n == 1) {
-        if (b & 0x10) ok = 1;
+        if (b & bit) ok = 1;
         else {
-            b |= 0x10;
-            if (SetFilePointer(h, 0x63, NULL, FILE_BEGIN) == 0x63 && WriteFile(h, &b, 1, &n, NULL) && n == 1)
+            b |= bit;
+            if (SetFilePointer(h, (LONG)off, NULL, FILE_BEGIN) == off && WriteFile(h, &b, 1, &n, NULL) && n == 1)
                 ok = 1;
         }
     }
@@ -80,10 +88,29 @@ static int pif_close_on_exit(const char *pif)
     return ok;
 }
 
+/* Set "Close on exit" in a PIF's basic section: byte 63h bit 4 (measured on
+ * .243, 2026-09-29). */
+static int pif_close_on_exit(const char *pif)
+{
+    return GetFileAttributesA(pif) != 0xFFFFFFFF && pif_set_bit(pif, 0x63, 0x10);
+}
+
+/* MS-DOS mode: byte 1AFh bit 7, in the "WINDOWS 386 3.0" section - the one bit
+ * that differs between Windows' own "Exit To Dos.pif" / "MS-DOS Mode for
+ * Games.pif" and every ordinary PIF (diffed on .243, 2026-09-29). */
+static int pif_msdos_mode(const char *pif, int with_1b0)
+{
+    int ok = pif_set_bit(pif, 0x1AF, 0x80);
+    if (ok && with_1b0)
+        ok = pif_set_bit(pif, 0x1B0, 0x10);
+    return ok;
+}
+
 void WINAPI _start(void)
 {
     const char *cmd = GetCommandLineA();
     char exe[MAX_PATH], target[MAX_PATH], wdir[MAX_PATH], base[MAX_PATH], icon[MAX_PATH], opt[32];
+    int no_close = 0, msdos = 0, msdos_1b0 = 0;
     char lnk[MAX_PATH + 8], pif[MAX_PATH + 8];
     WCHAR wlnk[MAX_PATH + 8];
     IShellLinkA *sl = NULL;
@@ -99,7 +126,16 @@ void WINAPI _start(void)
     next_arg(&cmd, wdir, sizeof(wdir));
     next_arg(&cmd, base, sizeof(base));
     next_arg(&cmd, icon, sizeof(icon));
-    next_arg(&cmd, opt, sizeof(opt));
+    while (next_arg(&cmd, opt, sizeof(opt))) {
+        if (lstrcmpiA(opt, "nocloseonexit") == 0) no_close = 1;
+        else if (lstrcmpiA(opt, "msdosmode") == 0) msdos = 1;
+        else if (lstrcmpiA(opt, "msdosmode1b0") == 0) msdos = msdos_1b0 = 1;
+        else {
+            wsprintfA(g_line, "FAIL: unknown option %s", opt);
+            emit(g_line);
+            goto out;
+        }
+    }
     if (!target[0] || !base[0]) {
         emit("usage: mkpif9x \"<target>\" \"<working dir>\" \"<shortcut path, no extension>\" \"<icon>\" [nocloseonexit]");
         goto out;
@@ -126,10 +162,16 @@ void WINAPI _start(void)
     IShellLinkA_Release(sl);
     if (FAILED(hr)) { wsprintfA(g_line, "FAIL %s: Save %08lX", base, (unsigned long)hr); emit(g_line); goto uninit; }
     if (GetFileAttributesA(pif) != 0xFFFFFFFF) {
-        int closed = lstrcmpiA(opt, "nocloseonexit") == 0 ? -1 : pif_close_on_exit(pif);
-        wsprintfA(g_line, "OK %s.pif -> %s (icon %s)%s", base, target, icon[0] ? icon : "-",
-                  closed == 1 ? ", close on exit" : closed == 0 ? ", close-on-exit NOT set" : "");
-        rc = closed == 0 ? 2 : 0;
+        int closed = no_close ? -1 : pif_close_on_exit(pif);
+        int dosmode = msdos ? pif_msdos_mode(pif, msdos_1b0) : -1;
+        wsprintfA(g_line, "OK %s.pif -> %s (icon %s)%s%s", base, target, icon[0] ? icon : "-",
+                  closed == 1 ? ", close on exit" : closed == 0 ? ", close-on-exit NOT set" : "",
+                  dosmode == 1 ? (msdos_1b0 ? ", MS-DOS mode (+1B0h bit 4)" : ", MS-DOS mode")
+                               : dosmode == 0 ? ", MS-DOS mode NOT set" : "");
+        rc = (closed == 0 || dosmode == 0) ? 2 : 0;
+    } else if (msdos) {
+        wsprintfA(g_line, "FAIL %s: MS-DOS mode needs a .pif, and the shell wrote a .lnk "
+                  "(a Windows program cannot run in MS-DOS mode)", base);
     } else if (GetFileAttributesA(lnk) != 0xFFFFFFFF) {
         wsprintfA(g_line, "OK %s.lnk -> %s (icon %s)", base, target, icon[0] ? icon : "-");
         rc = 0;

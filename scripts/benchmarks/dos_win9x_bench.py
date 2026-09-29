@@ -35,6 +35,20 @@ TIMED_RE = re.compile(r"timed\s+(\d+)\s+gametics\s+in\s+(\d+)\s+realtics", re.I)
 BENCH = "C:\\BENCH"
 
 
+def unattended(command):
+    """The command as it must run with nobody at the keyboard.
+
+    DOS Quake finds a gameport stick and stops at startup - "CENTER the
+    joystick and press button 1 (ESC to skip)" - before it reads a single line
+    of the job's cfg. On .243 (2026-09-29, the day its flight stick was set up)
+    that left three runs waiting in their DOS boxes until each got an ESC from
+    the host. A benchmark never waits for a person, so QUAKE.EXE gets -nojoy."""
+    parts = command.split()
+    if parts and parts[0].upper() == "QUAKE.EXE" and "-NOJOY" not in command.upper():
+        return command + " -nojoy"
+    return command
+
+
 def job_bat(tag, directory, command):
     drive = directory[:2]
     return ("@echo off\r\n%s\r\ncd %s\r\n%s < %s\\KEY.TXT > %s\\RES\\%s.TXT\r\n"
@@ -186,9 +200,11 @@ async def main():
             result_file = parts[3] if len(parts) > 3 and parts[3] else None
             for r in range(a.runs):
                 tag = "J%dR%d" % (i, r)
-                res = await run_job(link, tag, directory, command, a.timeout, result_file)
+                res = await run_job(link, tag, directory, unattended(command), a.timeout,
+                                    result_file)
                 c = link.c
-                res.update({"title": title, "dir": directory, "command": command, "run": r + 1})
+                res.update({"title": title, "dir": directory, "command": unattended(command),
+                            "run": r + 1})
                 results.append(res)
                 print(json.dumps(res), flush=True)
                 await asyncio.sleep(3)

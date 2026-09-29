@@ -33,6 +33,32 @@ for the run.
 - **512x384 is refused by GLQuake itself** ("Specified video mode not available"):
   it offers only modes the 2D card enumerates, and the Cirrus 5436 has none at
   512x384. The Voodoo could draw it; GLQuake never asks.
+- **Re-run 2026-09-28** (agent 1.90.0, `retro_chat` stopped for every run), 640x480:
+  demo1 50.0, 48.7 (**49.4**) · demo2 50.8, 48.8 (**49.8**) · demo3 45.5, 44.3 (**44.9**).
+  Up about 6% on 09-25, whose runs predate parking the chat client's polls.
+
+## Quake 1 in DOS — `QUAKE.EXE` 1.06, software, 320x200, full-screen in a Win98 DOS box (2026-09-29)
+
+The shortcut "Quake - DOS" (`Play Quake - DOS.bat`). Tool: `dos_win9x_bench.py`, cfgs
+from its `quake_cfg()` (`startdemos`, `timedemo`, a `wait` chain, `toggleconsole`,
+`quit`), `-nosound -nocdaudio -condebug -nojoy`, agent 1.93.1.
+
+| demo | run 1 | run 2 | mean |
+|---|---|---|---|
+| demo1 | 38.0 | 39.5 | **38.8** |
+| demo2 | 39.6 | 41.4 | **40.5** |
+| demo3 | 35.3 | 37.2 | **36.3** |
+
+- **`-nojoy` is required once a gameport stick is connected** (09-29): DOS Quake stops
+  at "CENTER the joystick and press button 1 (ESC to skip)" before it reads the job's
+  cfg. The tool now adds `-nojoy` to any `QUAKE.EXE` job itself.
+- A single run launched through `start` read the same 39.5 on demo1: the game takes
+  the screen when it sets its video mode however its DOS box was opened.
+- **WinQuake does not run here**: `WINQUAKE.EXE` stops at "MGL Fatal Error!" on the
+  Cirrus 5436 with every `-nowindirect` / `-nodirectdraw` combination (2026-09-28).
+  In software, DOS `QUAKE.EXE` is the way to play.
+- Against GLQuake on the Voodoo at **640x480** (09-28: 49.4 / 49.8 / 44.9): the
+  Voodoo 2 draws 4.8 times the pixels at 23-27% more frames per second, demo for demo.
 
 ## Quake II 3.20 — `timedemo 1` + `demomap`, `ref_gl` → `3dfxgl`, 16-bit
 
@@ -43,6 +69,20 @@ The V5 6000 campaign's method (`v56k_bench.Quake2`): `cl_maxfps 1000`,
 |---|---|---|
 | 640x480 | 25.0, 24.7 (**24.9**) | 24.4, 24.3 (**24.4**) |
 | 800x600 | 25.1, 25.8 (**25.5**) | 24.1, 24.4 (**24.2**) |
+
+**Re-run 2026-09-28** (agent 1.90.0, `retro_chat` stopped), 640x480: demo1 26.6,
+27.4 (**27.0**) · demo2 26.2, 25.8 (**26.0**).
+
+**Software renderer, same build, same demos** (`ref_soft`, DirectDraw on the Cirrus
+5436, 2026-09-28):
+
+| mode | demo1 | demo2 |
+|---|---|---|
+| 320x240 | 15.9, 16.4 (**16.1**) | 14.7, 14.7 (**14.7**) |
+| 640x480 | 8.4, 8.4 (**8.4**) | 7.7, 7.8 (**7.8**) |
+
+**What the Voodoo 2 buys Quake II on this box: 27.0 vs 8.4 fps at 640x480 - 3.2x -
+and even at a quarter of the pixels, software (16.1) is not close.**
 
 **Flat across resolution — entirely CPU-bound on the P166**, the same shape the
 V5 6000 showed on a far faster CPU. Every run had to be killed after its score
