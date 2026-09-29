@@ -113,6 +113,25 @@ DS_UNUSED static void ds_reset(ds_set_t *s)
     s->added = 0;
 }
 
+/* The name a shortcut REALLY has on the desktop. Windows 9x's shell saves a
+ * shortcut to an MS-DOS program - a .bat or a DOS .exe - as "<name>.pif", not
+ * the "<name>.lnk" it was asked to save (agent 1.93.1). Claiming the .lnk name
+ * left the .pif - sampled at the start, rewritten by this very run - unclaimed,
+ * and the end-of-run sweep moved EVERY game icon off .243's desktop into
+ * C:\retro-desktop-backup. `lnk_exists`/`pif_exists` are what the caller
+ * found on disk; `out` gets the name to claim. */
+DS_UNUSED static const char *ds_written_name(const char *lnk_name, int lnk_exists, int pif_exists,
+                                             char *out, size_t cap)
+{
+    size_t n = 0;
+    while (lnk_name[n]) n++;
+    if (lnk_exists || !pif_exists || n < 5 || n >= cap || !ds_ieq(lnk_name + n - 4, ".lnk"))
+        return lnk_name;
+    for (n = 0; lnk_name[n]; n++) out[n] = lnk_name[n];
+    out[n - 3] = 'p'; out[n - 2] = 'i'; out[n - 1] = 'f'; out[n] = 0;
+    return out;
+}
+
 DS_UNUSED static int ds_find(const ds_set_t *s, const char *name)
 {
     int i;

@@ -326,6 +326,109 @@ TEST(only_shortcut_files_are_candidates)
 }
 
 /* ---------------------------------------------------------------------- */
+/* Windows 9x: a shortcut to an MS-DOS program is saved as <name>.pif     */
+/* ---------------------------------------------------------------------- */
+
+/* .243 (Win98 SE), agent 1.93.0, 2026-09-29 02:57 - the run that redeployed
+ * the fixed Unreal Tournament launcher. Every game launcher there is a
+ * `Play <Game>.bat`, and the Win98 shell saves a shortcut to one as
+ * "<name>.pif" whatever name it is handed. agent.log:
+ *   desktop swept: 6 shortcut(s) this run did not put back moved to C:\retro-desktop-backup
+ *   done: ... 6 file(s) written, 12 new/removed shortcut(s)
+ * and the desktop held Retro Agent, Retro Chat and nothing else. */
+static const char *g_243_games[] = {
+    "Quake - 3dfx Voodoo", "Quake - DOS", "Hexen II - 3dfx Voodoo",
+    "Quake II", "Quake II - 3dfx Voodoo", "Unreal Tournament - 3dfx Voodoo",
+};
+
+static void desk_243(desk_t *d)
+{
+    char pif[DS_NAME];
+    int k;
+    d->n = 0;
+    put(d, "Retro Agent.lnk", DS_COMMON);
+    put(d, "Retro Chat.lnk", DS_COMMON);
+    for (k = 0; k < 6; k++) {
+        snprintf(pif, sizeof(pif), "%s.pif", g_243_games[k]);
+        put(d, pif, DS_COMMON);
+    }
+}
+
+TEST(a_win9x_dos_shortcut_is_claimed_by_the_pif_the_shell_wrote)
+{
+    static desk_t d;
+    static ds_set_t s;
+    char lnk[DS_NAME], buf[DS_NAME];
+    int k;
+
+    /* OLD (<= 1.93.0): the run claims the name it ASKED for. */
+    desk_243(&d);
+    snapshot(&s, &d);
+    ds_claim(&s, "Retro Agent.lnk", DS_COMMON, 0);
+    ds_claim(&s, "Retro Chat.lnk", DS_COMMON, 0);
+    for (k = 0; k < 6; k++) {
+        snprintf(lnk, sizeof(lnk), "%s.lnk", g_243_games[k]);
+        CHECK_EQ_I(ds_claim(&s, lnk, DS_COMMON, 1), 1);  /* "new" - wrongly */
+    }
+    CHECK_EQ_I(sweep_unclaimed(&s, &d), 6);   /* "desktop swept: 6 shortcut(s)" */
+    CHECK_EQ_I(ds_changed(&s), 12);           /* "12 new/removed shortcut(s)" */
+    CHECK_EQ_I(d.n, 2);                       /* Retro Agent + Retro Chat */
+
+    /* FIXED: the run claims the file the shell really wrote - no <name>.lnk
+     * on disk, a <name>.pif beside it. */
+    desk_243(&d);
+    snapshot(&s, &d);
+    ds_claim(&s, "Retro Agent.lnk", DS_COMMON, 0);
+    ds_claim(&s, "Retro Chat.lnk", DS_COMMON, 0);
+    for (k = 0; k < 6; k++) {
+        snprintf(lnk, sizeof(lnk), "%s.lnk", g_243_games[k]);
+        CHECK_EQ_I(ds_claim(&s, ds_written_name(lnk, 0, 1, buf, sizeof(buf)),
+                            DS_COMMON, 1), 0);    /* rewritten in place */
+    }
+    CHECK_EQ_I(sweep_unclaimed(&s, &d), 0);
+    CHECK_EQ_I(ds_changed(&s), 0);            /* a settled box: no rebuild */
+    CHECK_EQ_I(d.n, 8);
+    CHECK(has(&d, "Unreal Tournament - 3dfx Voodoo.pif", DS_COMMON),
+          "the icon the run was deployed to fix is still there");
+
+    /* A NEW DOS title on 9x is a new icon, counted once - as a .pif. */
+    ds_reset(&s);
+    ds_add(&s, "Quake II.pif", DS_COMMON);
+    CHECK_EQ_I(ds_claim(&s, ds_written_name("Falcon 3.0.lnk", 0, 1, buf, sizeof(buf)),
+                        DS_COMMON, 1), 1);
+    CHECK_EQ_I(s.added, 1);
+}
+
+TEST(only_a_lnk_the_shell_saved_as_a_pif_is_renamed)
+{
+    char b[DS_NAME];
+    const char *r;
+
+    r = ds_written_name("Quake II.lnk", 0, 1, b, sizeof(b));
+    CHECK(ds_ieq(r, "Quake II.pif"), "no .lnk, a .pif: the .pif");
+    r = ds_written_name("QUAKE II.LNK", 0, 1, b, sizeof(b));
+    CHECK(ds_ieq(r, "QUAKE II.pif"), "the extension is matched in any case");
+    /* An .exe target on 9x, and every target on NT: a real .lnk. Even with a
+     * stale .pif of the same name beside it, the .lnk is the file written. */
+    r = ds_written_name("Unreal Tournament.lnk", 1, 0, b, sizeof(b));
+    CHECK(ds_ieq(r, "Unreal Tournament.lnk"), "a .lnk that exists");
+    r = ds_written_name("Unreal Tournament.lnk", 1, 1, b, sizeof(b));
+    CHECK(ds_ieq(r, "Unreal Tournament.lnk"), "the .lnk wins over a stale .pif");
+    /* Neither on disk (the Save failed): nothing to redirect to. */
+    r = ds_written_name("Gone.lnk", 0, 0, b, sizeof(b));
+    CHECK(ds_ieq(r, "Gone.lnk"), "neither exists");
+    /* Only a .lnk request is ever redirected, and never past the buffer. */
+    r = ds_written_name("Offer.url", 0, 1, b, sizeof(b));
+    CHECK(ds_ieq(r, "Offer.url"), "not a .lnk");
+    r = ds_written_name(".lnk", 0, 1, b, sizeof(b));
+    CHECK(ds_ieq(r, ".lnk"), "no base name");
+    r = ds_written_name("Quake II.lnk", 0, 1, b, 12);
+    CHECK(ds_ieq(r, "Quake II.lnk"), "a buffer too small is not overrun");
+    r = ds_written_name("Quake II.lnk", 0, 1, b, 13);
+    CHECK(ds_ieq(r, "Quake II.pif"), "exactly enough room");
+}
+
+/* ---------------------------------------------------------------------- */
 /* gsstall.h: is it moving, and if not, is it starved?                      */
 /* ---------------------------------------------------------------------- */
 
@@ -443,6 +546,8 @@ MUNIT_MAIN("gamesync: sweep the desktop LAST; say when the run is starved",
     RUN(a_long_name_is_matched_whole);
     RUN(what_was_not_sampled_is_never_swept_or_counted);
     RUN(only_shortcut_files_are_candidates);
+    RUN(a_win9x_dos_shortcut_is_claimed_by_the_pif_the_shell_wrote);
+    RUN(only_a_lnk_the_shell_saved_as_a_pif_is_renamed);
     RUN(busy_percent_arithmetic);
     RUN(a_healthy_walk_is_never_reported);
     RUN(the_110_run_is_reported_as_starved);

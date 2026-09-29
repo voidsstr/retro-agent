@@ -1841,6 +1841,15 @@ why: `GAMESYNC STATUS` carries `since_progress_s`/`stalled_s`/`starved_s`/
 saturated (`agent/shared/gsstall.h`). Tests: `tests/python/test_gamesync_sweep_order.py`,
 `tests/native/test_desk_sweep_order.c`.
 
+**On Windows 9x a DOS shortcut is a `.pif` - claim THAT (agent 1.93.1).** Asked
+to save `<name>.lnk` for a `.bat` or a DOS `.exe`, Win98's shell writes
+`<name>.pif`. The run claimed the `.lnk` name, so the sweep saw every rewritten
+`.pif` as unclaimed: on `.243` (2026-09-29) one sync moved all six game icons
+to `C:\retro-desktop-backup` and reported `12 new/removed shortcut(s)` for a
+desktop that should not have changed. The claim now names the file that really
+exists (`ds_written_name()`). Any tool that looks for a game's shortcut on a
+9x box must look for `.pif` too.
+
 **VERIFIED ON HARDWARE (.171, agent 1.77.0, quiet library):**
 
 ```

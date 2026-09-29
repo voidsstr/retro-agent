@@ -684,6 +684,7 @@ static void gs_desk_note_file(void) { g_gs_desk_files++; }
 
 /* Defined below, next to the desktop enumeration they need; declared here
  * because gs_place_tool_shortcuts() writes a .lnk earlier in the file. */
+static const char *gs_desk_written_path(const char *lnk_path, char *buf, size_t cap);
 static void gs_desk_note_lnk_written(const char *lnk_path);
 static void gs_desk_note_lnk_kept(const char *lnk_path);
 static void gs_desk_snapshot(void);
@@ -3132,11 +3133,13 @@ static int gs_make_shortcut(const char *target, const char *workdir,
          * over a read-only, hidden or system file fails. The sweep used to
          * clear those bits before moving the file away; clear them here so
          * the rewrite lands exactly where the old sweep-then-create did. */
-        DWORD a = GetFileAttributesA(lnk_path);
+        char  real[MAX_PATH];
+        const char *f = gs_desk_written_path(lnk_path, real, sizeof(real));
+        DWORD a = GetFileAttributesA(f);    /* the .pif, for a DOS target on 9x */
         if (a != 0xFFFFFFFF && (a & (FILE_ATTRIBUTE_READONLY |
                                      FILE_ATTRIBUTE_HIDDEN |
                                      FILE_ATTRIBUTE_SYSTEM)))
-            SetFileAttributesA(lnk_path, FILE_ATTRIBUTE_NORMAL);
+            SetFileAttributesA(f, FILE_ATTRIBUTE_NORMAL);
         MultiByteToWideChar(CP_ACP, 0, lnk_path, -1, wpath, MAX_PATH);
         if (SUCCEEDED(pf->lpVtbl->Save(pf, wpath, TRUE)))
             ok = 1;
@@ -3362,11 +3365,29 @@ static unsigned gs_desk_where(const char *lnk_path)
     return lstrcmpiA(dir, g_gs_desk_user) == 0 ? DS_USER : DS_COMMON;
 }
 
+/* The desktop file this shortcut really became: on Windows 9x a shortcut to
+ * an MS-DOS program - every `Play <Game>.bat`, and a DOS .exe - is saved as
+ * <name>.pif, not the <name>.lnk that was asked for (see ds_written_name). */
+static const char *gs_desk_written_path(const char *lnk_path, char *buf, size_t cap)
+{
+    char pif[MAX_PATH];
+    size_t n = strlen(lnk_path);
+    int lnk = GetFileAttributesA(lnk_path) != INVALID_FILE_ATTRIBUTES, has_pif = 0;
+    if (!lnk && n > 4 && n < sizeof(pif)) {
+        memcpy(pif, lnk_path, n + 1);
+        memcpy(pif + n - 4, ".pif", 5);
+        has_pif = GetFileAttributesA(pif) != INVALID_FILE_ATTRIBUTES;
+    }
+    return ds_written_name(lnk_path, lnk, has_pif, buf, cap);
+}
+
 /* A shortcut was written. It is only a CHANGE if that icon was not on the
  * desktop when this run started - otherwise we have merely rewritten it in
  * place. Either way it is CLAIMED: the end-of-run sweep leaves it alone. */
 static void gs_desk_note_lnk_written(const char *lnk_path)
 {
+    char real[MAX_PATH];
+    lnk_path = gs_desk_written_path(lnk_path, real, sizeof(real));
     if (ds_claim(&g_gs_dset, gs_basename(lnk_path), gs_desk_where(lnk_path), 1))
         /* Publish the running total so GAMESYNC STATUS is meaningful DURING a
          * run, not only after gs_desk_settle_lnks(). Reading 0 mid-run when the
@@ -3378,6 +3399,8 @@ static void gs_desk_note_lnk_written(const char *lnk_path)
  * (gs_tool_shortcut). Claimed - so the sweep keeps it - and never a change. */
 static void gs_desk_note_lnk_kept(const char *lnk_path)
 {
+    char real[MAX_PATH];
+    lnk_path = gs_desk_written_path(lnk_path, real, sizeof(real));
     ds_claim(&g_gs_dset, gs_basename(lnk_path), gs_desk_where(lnk_path), 0);
 }
 

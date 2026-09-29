@@ -156,6 +156,11 @@ def test_every_shortcut_the_run_keeps_is_claimed():
     kept = _body(code, "static void gs_desk_note_lnk_kept(const char *lnk_path)")
     assert re.search(r"ds_claim\([^;]*,\s*1\)", written), "a write claims with written=1"
     assert re.search(r"ds_claim\([^;]*,\s*0\)", kept), "a keep claims with written=0"
+    # ...and both claim the file the shell REALLY wrote (agent 1.93.1): on
+    # Windows 9x a shortcut to a .bat or DOS .exe is saved as <name>.pif, and
+    # claiming <name>.lnk let the sweep take every game icon off .243.
+    for body in (written, kept):
+        assert body.index("gs_desk_written_path(lnk_path") < body.index("ds_claim(")
 
 
 def test_a_rewrite_in_place_clears_the_bits_that_would_block_it():
@@ -168,7 +173,12 @@ def test_a_rewrite_in_place_clears_the_bits_that_would_block_it():
     for bit in ("FILE_ATTRIBUTE_READONLY", "FILE_ATTRIBUTE_HIDDEN",
                 "FILE_ATTRIBUTE_SYSTEM"):
         assert bit in head, bit
-    assert "SetFileAttributesA(lnk_path, FILE_ATTRIBUTE_NORMAL)" in head
+    # ...on the file the shell will really overwrite: the .pif, for a DOS
+    # target on Windows 9x (agent 1.93.1).
+    assert re.search(r"(\w+)\s*=\s*gs_desk_written_path\(lnk_path,", head), head
+    f = re.search(r"(\w+)\s*=\s*gs_desk_written_path\(lnk_path,", head).group(1)
+    assert "GetFileAttributesA(%s)" % f in head
+    assert "SetFileAttributesA(%s, FILE_ATTRIBUTE_NORMAL)" % f in head
 
 
 def test_the_snapshot_keeps_whole_names():
@@ -239,6 +249,7 @@ _DESK_FUNCS = (
     "static void gs_desk_scan_dir(const char *desk, unsigned where)",
     "static void gs_desk_snapshot(void)",
     "static unsigned gs_desk_where(const char *lnk_path)",
+    "static const char *gs_desk_written_path(const char *lnk_path, char *buf, size_t cap)",
     "static void gs_desk_note_lnk_written(const char *lnk_path)",
     "static void gs_desk_note_lnk_kept(const char *lnk_path)",
     "static void gs_desk_settle_lnks(void)",
@@ -293,6 +304,8 @@ static BOOL DeleteFileA(const char *p) { int k = fs_find(p); if (k < 0) return 0
 static BOOL MoveFileA(const char *s, const char *d) { int k = fs_find(s); if (k < 0 || fs_find(d) >= 0) return 0; snprintf(g_fs[k], MAX_PATH, "%%s", d); return 1; }
 static BOOL CreateDirectoryA(const char *p, void *sa) { (void)p; (void)sa; return 1; }
 static BOOL SetFileAttributesA(const char *p, DWORD a) { (void)p; (void)a; return 1; }
+#define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
+static DWORD GetFileAttributesA(const char *p) { return fs_find(p) >= 0 ? FILE_ATTRIBUTE_NORMAL : INVALID_FILE_ATTRIBUTES; }
 typedef struct { char dir[MAX_PATH]; int pos; } find_t;
 static int next_in(find_t *f, WIN32_FIND_DATAA *fd) {
     size_t n = strlen(f->dir);
@@ -328,9 +341,53 @@ static char     g_gs_desk_user[MAX_PATH];
 static void put(const char *desk, const char *name) { char p[MAX_PATH]; snprintf(p, sizeof(p), "%%s\\%%s", desk, name); fs_add(p); }
 static void dump(const char *tag) { int k; for (k = 0; k < g_nfs; k++) printf("%%s %%s\n", tag, g_fs[k]); }
 
-int main(void) {
+/* Windows 98 (.243, agent 1.93.0): one desktop, C:\\WINDOWS\\Desktop, and
+ * the shell saves a shortcut to a .bat or DOS .exe as <name>.pif whatever
+ * name it was handed. */
+static const char *g_9x_games[] = {
+    "Quake - 3dfx Voodoo", "Quake - DOS", "Hexen II - 3dfx Voodoo",
+    "Quake II", "Quake II - 3dfx Voodoo", "Unreal Tournament - 3dfx Voodoo",
+};
+static void shell9x_save(const char *desk, const char *name, int dos)
+{   /* IPersistFile::Save("<desk>\\<name>.lnk") as Win98's shell does it */
+    char p[MAX_PATH];
+    snprintf(p, sizeof(p), "%%s\\%%s.%%s", desk, name, dos ? "pif" : "lnk");
+    fs_add(p);
+}
+static int main_9x(void) {
+    char p[MAX_PATH];
+    int k;
+    g_common = g_user = "C:\\WINDOWS\\Desktop";
+    put(g_common, "Retro Agent.lnk"); put(g_common, "Retro Chat.lnk");
+    for (k = 0; k < 6; k++) { snprintf(p, sizeof(p), "%%s.pif", g_9x_games[k]); put(g_common, p); }
+    put(g_common, "Removed DOS Game.pif");
+    gs_desk_reset();
+    gs_desk_snapshot();
+    printf("SAMPLED %%d\n", g_gs_dset.n);
+    snprintf(p, sizeof(p), "%%s\\Retro Agent.lnk", g_common); gs_desk_note_lnk_kept(p);
+    snprintf(p, sizeof(p), "%%s\\Retro Chat.lnk", g_common); gs_desk_note_lnk_kept(p);
+    for (k = 0; k < 6; k++) {            /* rewritten in place, as .pif */
+        shell9x_save(g_common, g_9x_games[k], 1);
+        snprintf(p, sizeof(p), "%%s\\%%s.lnk", g_common, g_9x_games[k]);
+        gs_desk_note_lnk_written(p);
+    }
+    shell9x_save(g_common, "Falcon 3.0", 1);            /* a new DOS title */
+    snprintf(p, sizeof(p), "%%s\\Falcon 3.0.lnk", g_common); gs_desk_note_lnk_written(p);
+    shell9x_save(g_common, "Unreal Tournament", 0);     /* a new Win32 .exe */
+    snprintf(p, sizeof(p), "%%s\\Unreal Tournament.lnk", g_common); gs_desk_note_lnk_written(p);
+    printf("NEW %%ld\n", g_gs_desk_lnks);
+    gs_sweep_unclaimed();
+    gs_desk_settle_lnks();
+    dump("FINAL");
+    printf("CHANGED %%ld\n", g_gs_desk_lnks);
+    return 0;
+}
+
+int main(int argc, char **argv) {
     char p[MAX_PATH];
     long written_new = 0;
+    if (argc > 1 && !strcmp(argv[1], "9x"))
+        return main_9x();
     put(g_common, "Quake III Arena.lnk"); put(g_common, "Removed Title.lnk");
     put(g_common, "Retro Agent.lnk");     put(g_common, "notes.txt");
     put(g_user, "quake iii arena.lnk");   put(g_user, "Vendor Offer.url");
@@ -359,7 +416,7 @@ int main(void) {
 
 
 @pytest.fixture(scope="module")
-def desk_run(tmp_path_factory):
+def desk_bin(tmp_path_factory):
     cc = shutil.which("gcc") or shutil.which("cc")
     if not cc:
         pytest.skip("no host C compiler - the desktop sweep was NOT exercised")
@@ -371,9 +428,19 @@ def desk_run(tmp_path_factory):
         "deskset": str(REPO / "agent" / "shared" / "deskset.h"),
         "backup": backup, "funcs": funcs})
     subprocess.run([cc, "-w", "-o", str(d / "t"), str(d / "t.c")], check=True)
-    out = subprocess.run([str(d / "t")], capture_output=True, text=True,
-                         check=True).stdout
-    return out
+    return str(d / "t")
+
+
+@pytest.fixture(scope="module")
+def desk_run(desk_bin):
+    return subprocess.run([desk_bin], capture_output=True, text=True,
+                          check=True).stdout
+
+
+@pytest.fixture(scope="module")
+def desk_run_9x(desk_bin):
+    return subprocess.run([desk_bin, "9x"], capture_output=True, text=True,
+                          check=True).stdout
 
 
 def _files(out, tag):
@@ -419,3 +486,32 @@ def test_the_real_gate_counts_the_net_change(desk_run):
     # went but the name is still on the desktop, so it is not a change.
     assert int(m.group(2)) == 3, desk_run
     assert "desktop swept: 3 shortcut(s)" in desk_run
+
+
+# --- Windows 9x: the shell saves a DOS shortcut as <name>.pif (agent 1.93.1) ---
+
+def test_win9x_dos_shortcuts_rewritten_in_place_stay_on_the_desktop(desk_run_9x):
+    """.243, agent 1.93.0: "desktop swept: 6 shortcut(s) this run did not put
+    back" - every game launcher is a .bat, the shell wrote <name>.pif, the run
+    claimed <name>.lnk, and the sweep moved all six game icons away."""
+    final = {f.lower() for f in _files(desk_run_9x, "FINAL")}
+    desk = "c:\\windows\\desktop\\"
+    backup = "c:\\retro-desktop-backup\\"
+    for name in ("Quake - 3dfx Voodoo", "Quake - DOS", "Hexen II - 3dfx Voodoo",
+                 "Quake II", "Quake II - 3dfx Voodoo",
+                 "Unreal Tournament - 3dfx Voodoo", "Falcon 3.0"):
+        assert desk + name.lower() + ".pif" in final, (name, sorted(final))
+    assert desk + "unreal tournament.lnk" in final, "a Win32 target is a real .lnk"
+    assert desk + "retro agent.lnk" in final and desk + "retro chat.lnk" in final
+    assert {f for f in final if f.startswith(backup)} == {
+        backup + "removed dos game.pif"}, "only what the run did not put back"
+    assert not any(f.endswith(".lnk") and "3dfx voodoo" in f for f in final), (
+        "no phantom .lnk is invented for a shortcut the shell saved as a .pif")
+
+
+def test_win9x_gate_counts_only_real_additions_and_removals(desk_run_9x):
+    new = int(re.search(r"NEW (\d+)", desk_run_9x).group(1))
+    changed = int(re.search(r"CHANGED (\d+)", desk_run_9x).group(1))
+    assert new == 2, "Falcon 3.0 (.pif) and Unreal Tournament (.lnk) are new"
+    assert changed == 3, "two added, one stale .pif removed - not 12"
+    assert "desktop swept: 1 shortcut(s)" in desk_run_9x, desk_run_9x
