@@ -159,6 +159,57 @@ def icon_xp_problem(path):
     return None
 
 
+# Windows 9x draws an .ico only from an image it can decode, and XP's 32-bit
+# alpha images are not among them: an .ico holding nothing else - DXX-Rebirth's
+# d1x-rebirth.ico, which every XP box draws - shows the generic MS-DOS icon on
+# a 9x desktop. MEASURED on .243 (Win98 SE, a 256-colour desktop), 2026-09-29,
+# one shortcut per kind side by side: an 8-bit icon (DESCENT9.ICO) and a
+# 24-bit-only one (Redneck Rampage's rampage.ico) both drew; the 32-bit-only
+# d1x-rebirth.ico showed the generic icon, as "Descent - DOS" had. A PNG entry
+# decodes nowhere before Vista. Only .ico files are judged here: an .exe's icon
+# is icon_xp_problem()'s. Returns None when a 9x desktop can draw it, else why.
+def icon_9x_problem(path):
+    if not path.lower().endswith(".ico"):
+        return None
+    try:
+        with open(path, "rb") as fh:
+            data = fh.read()
+    except OSError:
+        return None
+    if len(data) < 6:
+        return None
+    reserved, kind, count = struct.unpack_from("<HHH", data, 0)
+    if reserved != 0 or kind != 1 or count == 0:
+        return None                      # icon_xp_problem() reports these
+    depths = set()
+    for i in range(count):
+        ent = 6 + 16 * i
+        if ent + 16 > len(data):
+            return None
+        off = struct.unpack_from("<I", data, ent + 12)[0]
+        if data[off:off + 4] == b"\x89PNG":
+            depths.add("PNG")
+            continue
+        if off + 16 > len(data):
+            continue
+        bpp = struct.unpack_from("<H", data, off + 14)[0]
+        if bpp <= 24:
+            return None
+        depths.add("%d-bit" % bpp)
+    return ("holds only %s images - Windows 9x draws none of them (measured on "
+            ".243), so a 9x desktop shows the generic MS-DOS icon. Add 8-bit "
+            "32x32 and 16x16 BMP images, under a new filename (the shell caches "
+            "an icon by path)" % " and ".join(sorted(depths)))
+
+
+def shortcut_os_range(req, target):
+    """(min_os, max_os) for one launch.txt target: its own rule, else the title's."""
+    rules = req.get("shortcuts") if isinstance(req.get("shortcuts"), dict) else {}
+    sc = next((v for k, v in rules.items() if k.lower() == target.lower()), None)
+    sc = sc if isinstance(sc, dict) else {}
+    return (sc.get("min_os", req.get("min_os")), sc.get("max_os", req.get("max_os")))
+
+
 def pe_has_icon(data):
     """True if a PE image has an RT_GROUP_ICON (14) resource."""
     if data[:2] != b"MZ" or len(data) < 0x40:
@@ -330,6 +381,14 @@ def check_title(lib, title):
                            "Move data lines above the comments."
                            % (last_end, LAUNCH_TXT_READ_LIMIT))
 
+    try:
+        with open(os.path.join(tdir, "requires.json"), encoding="utf-8") as fh:
+            req = json.load(fh)
+        req = req if isinstance(req, dict) else {}
+    except (OSError, ValueError):
+        req = {}
+    icons_9x_cannot_draw = set()
+
     for _, line in data_lines:
         parts = line.rstrip("\r\n").split("\t")
         target = parts[0].strip()
@@ -382,6 +441,23 @@ def check_title(lib, title):
                 if prob:
                     (fail if prob[0] == "fail" else warn)(
                         "icon", "icon %r %s" % (icon, prob[1]))
+                prob9 = icon_9x_problem(ipath)
+                min_os, max_os = shortcut_os_range(req, target)
+                if prob9 and max_os == "win9x":
+                    # A shortcut that exists ONLY for 9x boxes, with an icon
+                    # no 9x box can draw: it defeats its own purpose.
+                    fail("icon", "%r is a Windows 9x shortcut, and its icon %r "
+                                 "%s" % (target, icon, prob9))
+                elif prob9 and min_os in (None, "win9x"):
+                    icons_9x_cannot_draw.add(icon)
+
+    # One line per title, not per shortcut: today the gate keeps every one of
+    # these off the only Win9x box (a CPU floor or an operator override), so
+    # this is a latent defect for the next 9x box, not a broken desktop.
+    for icon in sorted(icons_9x_cannot_draw):
+        warn("icon", "icon %r %s - a Windows 9x box that receives this title "
+                     "would show it" % (icon, icon_9x_problem(os.path.join(
+                         tdir, icon.replace("\\", os.sep)))))
 
     # --- install.reg: merged after copying; malformed = silently not merged --
     rpath = os.path.join(tdir, "install.reg")

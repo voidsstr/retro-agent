@@ -1222,7 +1222,11 @@ it satisfies all of this:
    XP can draw is an `.ico` with BMP entries**: a Vista PNG-only `.ico` (every
    GOG one, and anything Pillow writes without `bitmap_format='bmp'`) and an
    exe with no icon resource both show a blank page on XP while the path
-   resolves fine. The validator fails both since 2026-09-28. Replacing a
+   resolves fine. The validator fails both since 2026-09-28. **Windows 9x
+   needs an image of 24 bits or fewer**: a 32-bit-only `.ico`, which every XP
+   box draws, is the generic MS-DOS icon on Win98 (measured on `.243`,
+   2026-09-29; 8- and 24-bit drew). The validator fails it for a `max_os
+   win9x` shortcut. Replacing a
    broken icon? **Give it a new filename** — the shell caches icons by path.
 4. **`install.reg`** for every registry key the game needs — CD-check
    satisfaction, install paths, video config. **`REGEDIT4`** merges everywhere;
@@ -2615,6 +2619,19 @@ reg = b'REGEDIT4\r\n\r\n[-HKEY_LOCAL_MACHINE\\Path\\To\\Key]\r\n'
 await conn.send_command('UPLOAD C:\\WINDOWS\\TEMP\\fix.reg', binary_payload=reg)
 await conn.command_text('EXEC regedit /s C:\\WINDOWS\\TEMP\\fix.reg')
 ```
+
+### A DOS game's window stays open after it quits — end the launcher with CLS
+
+**Windows 9x closes a DOS box on exit only when its screen is empty** (or the
+PIF's "Close on exit", byte 63h bit 4, is set). A game that prints on its way
+out - Descent, Quake - leaves a "Finished - <game>" window per launch.
+Measured on `.243` (2026-09-29) with three marker-proven PIFs. Every staged
+Win9x DOS launcher therefore ends with `cls` after the game;
+`scripts/dosgames/stage_win9x_dos.py` generates it, and
+`scripts/fleet/win9x/mkpif9x` sets the PIF bit for a shortcut made outside
+GAMESYNC. **To see a full-screen DOS game from the agent**, `UIKEY ALT+RETURN`
+puts it in a window that `SCREENSHOT` captures - a full-screen one reads back
+as noise.
 
 ### Win98 RST Crash
 
