@@ -3209,7 +3209,7 @@ two *different* bodies to the same `base\fleetres.cfg`. So `gr_w_cfg()` asks
 "are the bytes equal". A byte comparison would report a change on every sync
 forever and bury the one signal that detects a real fault.
 
-**GAMESYNC and GAMERES must not undo each other (fixed after 1.90.0).** Until
+**GAMESYNC and GAMERES must not undo each other (fixed in agent 1.93.2).** Until
 then they did, on every box, on every sync: GAMERES rewrote `Thief2\cam.cfg`
 (or a dosbox conf, or `DESCENT.CFG`) for the monitor, the next sync's resume
 test saw "not the library's file" and copied the library's back, and GAMERES
@@ -3226,7 +3226,7 @@ still hold, and copies as before when either changes (a library update, an edit
 on the box). It can only turn a copy into a skip - a missing or damaged ledger
 is the old behaviour. Registry values a GAMERES rule owns are captured before
 `regedit` and put back after it. The `gameres:` line now ends `N adjusted
-file(s) kept`; `GAMESYNC STATUS` carries `gameres_changed`/`gameres_kept`.
+file(s) kept`; `GAMESYNC STATUS` carries `gameres_changed`/`gameres_kept`. **Verified on `.124` (2026-09-29):** 1.93.1 wrote 21 files and changed 36 values on a quiet sync; 1.93.2 wrote 18 once (the transition that fills the ledger), then 0 files / 0 values twice, "18 adjusted file(s) kept", icons left alone.
 
 ### The monitor's highest refresh rate, per resolution
 
