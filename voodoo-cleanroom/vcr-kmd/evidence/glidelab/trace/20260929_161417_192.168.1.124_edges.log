@@ -1,0 +1,16 @@
+glidelab edges: res=1024x768 refresh=60 cfg=3 dll=C:\Games\Quake2Complete\glide3x.dll
+sli/aa: cfg 3 from --cfg -> AA
+trace: level 2 -> C:\vcr\glidelab\edges.log.trace (AA open: FX_GLIDE_NO_SPLASH=1 FX_GLIDE_NO_PLUGIN=1)
+step: grGlideInit
+GR_HARDWARE: Voodoo5 6000 (tm)
+GR_EXTENSION: CHROMARANGE TEXCHROMA TEXMIRROR TEXUMA PALETTE6666 FOGCOORD SURFACE COMMAND_TRANSPORT TEXTUREBUFFER GETGAMMA GETREGISTRY ALPHAFOG PIXEXT COMBINE TEXFMT RETRO3DFX_PARTIALROW RETRO3DFX_SLIAA_GUARD RETRO3DFX_AA_TRACE 
+guard: RETRO3DFX_SLIAA_GUARD present; RETRO3DFX_AA_TRACE present
+step: grSstWinOpen 1024x768 60Hz origin upper
+  -> context 0x6fce3574, 60 Hz
+chips in use: 4
+trace: after grSstWinOpen: C:\vcr\glidelab\edges.log.trace is 14191 bytes
+step: edges held for 7200 frames
+RESULT {"mode":"edges","res":"1024x768","cfg":3,"chips":4,"frames":7200,"frames_run":7200,"opened_hz":60,"trace":2,"focus_lost":false}
+step: grSstWinClose
+step: grGlideShutdown
+done rc=0
