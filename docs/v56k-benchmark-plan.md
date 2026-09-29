@@ -180,6 +180,12 @@ AvP on vcr-kmd; Halo's slow Bink path; SoF2 on `.110` unverified (box off).
 
 ### Resume point (2026-09-28 13:10) - the requested titles on the all-ours stack; four fixes landed; Halo in progress
 
+**State (2026-09-29 12:35, verified by `3dfxctl /report`):** 4-chip SLI (`SSTH3_SLI_AA_CONFIGURATION`=5),
+ICD 0.1.78, our h5 Glide 38a891e8, vcr-kmd = the live-clock build (clock stock 0xE721 on all four chips),
+`D3D32`=1/`D3DBigTex`=7 still armed for Halo (user's call), agent 1.93.3. **3dfx Control Panel 2.1.0** at
+`C:\RETRO_AGENT\3dfxctl.exe` with Start Menu + desktop shortcuts; agent 1.93.3 re-places and claims the
+desktop one at every GAMESYNC (two consecutive syncs: present, 0 shortcut changes).
+
 **State:** vcr-kmd = the `integ-vcrkmd` build (master + D3DBigTex/DdHeapFloor/fbshot
 integration, all new switches default OFF, EXIT fix, vcrdd.dll version 6.14.1.1),
 **`Diag\D3D32`=1 and `Diag\D3DBigTex`=7 ARMED for the Halo test - disarm and reboot
