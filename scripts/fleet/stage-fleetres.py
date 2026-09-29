@@ -112,6 +112,10 @@ rem  FR_HZ             refresh of the PERSISTED desktop mode, for an engine
 rem                    whose mode switch takes one (Halo's -vidmode w,h,hz).
 rem                    A hardcoded 60 there is wrong on every CRT box.
 rem  FR_Q2MODE         id Tech 2 gl_mode index matching FR_W43/FR_H43
+rem  FR_Q2WIDE         gl_mode for the PATCHED id Tech 2 exes - Quake II, SiN,
+rem                    Soldier of Fortune - whose entry 9 is 1920x1080: 9 on a
+rem                    16:9 box that offers 1920x1080, else the FR_Q2MODE
+rem                    selector capped at entry 8. Never hand it a stock exe.
 rem  FR_Q3MODE         id Tech 3 r_mode index - a DIFFERENT TABLE: id Tech 2's
 rem                    mode 8 is 1280x960 (4:3), id Tech 3's is 1280x1024 (5:4),
 rem                    so handing FR_Q2MODE to a Quake III-family engine asks a
@@ -133,6 +137,7 @@ set FR_W43=
 set FR_H43=
 set FR_FOV=
 set FR_Q2MODE=
+set FR_Q2WIDE=
 set FR_DOSFULLRES=
 set FR_PANEL=
 set FR_Q3MODE=
@@ -151,6 +156,7 @@ if not defined FR_W43 set FR_W43=1024
 if not defined FR_H43 set FR_H43=768
 if not defined FR_FOV set FR_FOV=90
 if not defined FR_Q2MODE set FR_Q2MODE=6
+if not defined FR_Q2WIDE set FR_Q2WIDE=6
 if not defined FR_Q3MODE set FR_Q3MODE=6
 if not defined FR_HZ set FR_HZ=60
 if not defined FR_EDID set FR_EDID=0
@@ -372,13 +378,17 @@ def doom3_args(extra=""):
 
 def q2_cfg(mod):
     """id Tech 2 has a FIXED mode table indexed by gl_mode and no custom mode:
-    0=320x240 ... 6=1024x768 ... 9=1600x1200, no 16:9 entry anywhere. So the
-    honest best on a 16:9 panel is a correctly proportioned 4:3 mode, which is
-    what FR_Q2MODE indexes."""
+    0=320x240 ... 6=1024x768 ... 9=1600x1200, no 16:9 entry in a STOCK exe.
+    The staged quake2.exe / sin.exe / SoF.exe are PATCHED so entry 9 is
+    1920x1080 (provisioning/patches/idtech2), and FR_Q2WIDE is the index for
+    them: 9 on a 16:9 box that offers 1920x1080, else the correctly
+    proportioned 4:3 entry FR_Q2MODE would pick, capped at 8 - never 9, which
+    on a patched exe is no longer 1600x1200. GAMERES writes the same line
+    (%Q2WIDE%, agent/shared/gameres.h)."""
     p = '"%%~dp0%s\\fleetres.cfg"' % mod
     return [
         '> %s echo // written by the launcher at every start - do not edit' % p,
-        '>>%s echo set gl_mode "%%FR_Q2MODE%%"' % p,
+        '>>%s echo set gl_mode "%%FR_Q2WIDE%%"' % p,
         '>>%s echo set vid_fullscreen "1"' % p,
     ]
 
@@ -798,6 +808,17 @@ def q3(mod, exe, extra=""):
     return rec('cd /d "%~dp0"',
                [CALL] + idtech3_cfg(mod),
                (old, 'start "" %s%s %s' % (exe, extra, args)))
+
+
+# The PATCHED id Tech 2 exes (provisioning/patches/idtech2): mode 9 is
+# 1920x1080, selected by FR_Q2WIDE. These pairs move a launcher that already
+# carries the FLEETRES block - patch_launcher skips those - from FR_Q2MODE to
+# FR_Q2WIDE: the fleetres.cfg line and the +set on the start line. Only for
+# a GL launcher; ref_soft's sw_mode stays on FR_Q2MODE.
+def _q2wide_fix(mod):
+    cfg = '>>"%%~dp0%s\\fleetres.cfg" echo set gl_mode ' % mod
+    return [(cfg + '"%FR_Q2MODE%"', cfg + '"%FR_Q2WIDE%"'),
+            ('+set gl_mode %FR_Q2MODE%', '+set gl_mode %FR_Q2WIDE%')]
 
 
 # RTCW's hand-written LAN pair - "Host RTCW - LAN.bat" / "Join RTCW - LAN.bat" -
@@ -1456,29 +1477,45 @@ TITLES = {
         },
     },
     "Quake2Complete": {
+        # Already staged and carrying MARK, so a recipe change never reaches
+        # them: the 'fix' pairs move them to FR_Q2WIDE. Quake2Win9x keeps the
+        # STOCK exe and FR_Q2MODE - it is not in this table at all.
+        "fix": {
+            "Quake II.bat": _q2wide_fix("baseq2"),
+            "Quake II - The Reckoning.bat": _q2wide_fix("xatrix"),
+            "Quake II - Ground Zero.bat": _q2wide_fix("rogue"),
+            "Quake II - ThreeWave CTF.bat": _q2wide_fix("ctf"),
+        },
         "launchers": {
             "Quake II.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("baseq2"),
                 (re.escape('start "" quake2.exe') + r'(?!\s*\+set game)',
-                 'start "" quake2.exe +set gl_mode %FR_Q2MODE%')),
+                 'start "" quake2.exe +set gl_mode %FR_Q2WIDE%')),
             "Quake II - The Reckoning.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("xatrix"),
                 (re.escape('start "" quake2.exe +set game xatrix'),
-                 'start "" quake2.exe +set game xatrix +set gl_mode %FR_Q2MODE%')),
+                 'start "" quake2.exe +set game xatrix +set gl_mode %FR_Q2WIDE%')),
             "Quake II - Ground Zero.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("rogue"),
                 (re.escape('start "" quake2.exe +set game rogue'),
-                 'start "" quake2.exe +set game rogue +set gl_mode %FR_Q2MODE%')),
+                 'start "" quake2.exe +set game rogue +set gl_mode %FR_Q2WIDE%')),
             "Quake II - ThreeWave CTF.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("ctf"),
                 (re.escape('start "" quake2.exe +set game ctf'),
-                 'start "" quake2.exe +set game ctf +set gl_mode %FR_Q2MODE%')),
+                 'start "" quake2.exe +set game ctf +set gl_mode %FR_Q2WIDE%')),
         },
         "cfg_exec": ["baseq2/autoexec.cfg", "xatrix/autoexec.cfg",
                      "rogue/autoexec.cfg", "ctf/autoexec.cfg"],
     },
     "SiNGold": {
         "new": {"Play SiN Gold.bat": ("sin.exe", "base")},
+        # 'new' launchers are rewritten whole; Wages of SiN is patched, so it
+        # needs a repair pair. The software launcher is deliberately absent.
+        # NB SiN's GL path is recorded as crashing on .145 - nothing here
+        # special-cases that box, before or after this change.
+        "fix": {
+            "Play Wages of SiN.bat": _q2wide_fix("2015"),
+        },
         "launch_txt_line0": ("Play SiN Gold.bat", "SiN", "sin.exe"),
         # The mission pack is a SEPARATE mod directory with its own autoexec.cfg
         # and its own `set gl_mode "6"`, so covering base/ alone left half the
@@ -1489,11 +1526,16 @@ TITLES = {
             "Play Wages of SiN.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("2015"),
                 (re.escape('start "" sin.exe +set game 2015'),
-                 'start "" sin.exe +set game 2015 +set gl_mode %FR_Q2MODE%')),
+                 'start "" sin.exe +set game 2015 +set gl_mode %FR_Q2WIDE%')),
             # The SOFTWARE renderer indexes the same table with sw_mode. It
             # exists for a box with no usable 3D, and 1024x768 in software was
             # still a staged constant - wrong on .171, which is capped at
             # 800x600 by its Voodoo 2 and would be asked for more.
+            # It keeps FR_Q2MODE, NOT FR_Q2WIDE: ref_soft must never be sent
+            # to mode 9 (1920x1080 on the patched sin.exe; its buffers are
+            # sized for 1600). Safe today because no box resolves FR_Q2MODE
+            # to 9 and base\autoexec.cfg's sw_mode "6" wins anyway - if this
+            # sw_mode is ever made to stick, cap it at 8.
             "Play SiN - software renderer.bat": rec(
                 'cd /d "%~dp0"', [CALL],
                 (re.escape('+set sw_mode 6'), '+set sw_mode %FR_Q2MODE%')),
@@ -1770,14 +1812,16 @@ rem This .bat exists because launch.txt used to point straight at the exe, and a
 rem desktop shortcut cannot carry arguments - so there was nowhere to run
 rem FLEETRES and the game was pinned to gl_mode 6 (1024x768) on every monitor.
 rem
-rem id Tech 2 has a FIXED mode table and no custom mode: 0=320x240 ... 6=1024x768
-rem ... 9=1600x1200, with no 16:9 entry at all. A correctly proportioned 4:3 mode
-rem is the honest best on a widescreen panel; stretching it is worse.
+rem id Tech 2 has a FIXED mode table and no custom mode. The staged exe is
+rem PATCHED so its entry 9 is 1920x1080, not 1600x1200: FR_Q2WIDE is 9 on a 16:9
+rem box that offers 1920x1080, else the largest correctly proportioned 4:3 mode
+rem up to 1280x960 - stretching a 4:3 mode is worse. See
+rem provisioning/patches/idtech2 in the retro-agent repo.
 cd /d "%~dp0"
 
 {block}
 
-start "" {exe} +set gl_mode %FR_Q2MODE%
+start "" {exe} +set gl_mode %FR_Q2WIDE%
 
 exit
 """

@@ -289,6 +289,7 @@ def test_a_shared_cfg_is_written_identically_by_both_writers():
     # (tests/python/test_fleetres_refresh_mirror.py).
     tok = {"%W%": "%FR_W%", "%H%": "%FR_H%", "%W43%": "%FR_W43%",
            "%H43%": "%FR_H43%", "%FOV%": "%FR_FOV%", "%Q2MODE%": "%FR_Q2MODE%",
+           "%Q2WIDE%": "%FR_Q2WIDE%", "%HZQ2WIDE%": "%FR_HZQ2WIDE%",
            "%Q3MODE%": "%FR_Q3MODE%", "%FRHZ%": "%FR_HZ%", "%HZ%": "%FR_HZW%",
            "%HZW%": "%FR_HZW%", "%HZ43%": "%FR_HZ43%", "%HZQ2%": "%FR_HZQ2%",
            "%HZQ3%": "%FR_HZQ3%"}

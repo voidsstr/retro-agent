@@ -209,7 +209,7 @@ void gameres_probe(void)
 
     log_msg(LOG_GR, "panel %s %s%s  native %dx%d@%d  persisted %dx%d"
                     "  modes %d  ->  target %dx%d (%s), 4:3 %dx%d, "
-                    "q2mode %d, q3mode %d, fov %d",
+                    "q2mode %d, q2wide %d, q3mode %d, fov %d",
             g_gr.panel.ok ? (g_gr.panel.name[0] ? g_gr.panel.name : "(unnamed)")
                           : "(NO EDID - assuming a 4:3 tube)",
             g_gr.t.lcd ? "LCD" : "CRT",
@@ -217,7 +217,7 @@ void gameres_probe(void)
             g_gr.panel.native_w, g_gr.panel.native_h, g_gr.panel.native_hz,
             g_gr.reg_w, g_gr.reg_h, g_gr.modes.n,
             g_gr.t.w, g_gr.t.h, g_gr.t.aspect, g_gr.t.w43, g_gr.t.h43,
-            g_gr.t.q2mode, g_gr.t.q3mode, g_gr.t.fov);
+            g_gr.t.q2mode, g_gr.t.q2wide, g_gr.t.q3mode, g_gr.t.fov);
     log_msg(LOG_GR, "refresh: %d Hz at %dx%d, %d Hz at %dx%d, %d/%d Hz at the "
                     "id Tech 2/3 index modes (%s), %d Hz at the desktop %dx%d "
                     "(panel max %d Hz%s); desktop is persisted at %d Hz",
@@ -1042,9 +1042,9 @@ void handle_gameres(SOCKET sock, const char *args)
         "\"cap\":\"%dx%d\","
         "\"target\":{\"wide\":\"%dx%d\",\"four_three\":\"%dx%d\","
         "\"aspect\":\"%s\",\"hz\":%d,\"hz_four_three\":%d,"
-        "\"hz_q2\":%d,\"hz_q3\":%d,\"hz_src\":\"%s\","
+        "\"hz_q2\":%d,\"hz_q3\":%d,\"hz_q2wide\":%d,\"hz_src\":\"%s\","
         "\"hz_desktop\":%d,\"hz_launcher\":%d,"
-        "\"fov\":%d,\"q2mode\":%d,\"q3mode\":%d,"
+        "\"fov\":%d,\"q2mode\":%d,\"q2wide\":%d,\"q3mode\":%d,"
         "\"d3_aspect\":%d,\"dosbox_fullresolution\":\"%s\"},"
         "\"modes\":[",
         g_gr.panel.ok ? "true" : "false",
@@ -1057,9 +1057,10 @@ void handle_gameres(SOCKET sock, const char *args)
         g_gr.live_w, g_gr.live_h, g_gr.live_bpp,
         g_gr.cap_w, g_gr.cap_h,
         g_gr.t.w, g_gr.t.h, g_gr.t.w43, g_gr.t.h43, g_gr.t.aspect,
-        g_gr.t.hz, g_gr.t.hz43, g_gr.t.hzq2, g_gr.t.hzq3, gr_hz_src_name(g_gr.t.hz_src),
+        g_gr.t.hz, g_gr.t.hz43, g_gr.t.hzq2, g_gr.t.hzq3, g_gr.t.hzq2wide,
+        gr_hz_src_name(g_gr.t.hz_src),
         g_gr.t.desk_hz, g_gr.t.fr_hz,
-        g_gr.t.fov, g_gr.t.q2mode, g_gr.t.q3mode, g_gr.t.d3ar,
+        g_gr.t.fov, g_gr.t.q2mode, g_gr.t.q2wide, g_gr.t.q3mode, g_gr.t.d3ar,
         g_gr.t.lcd ? "desktop" : "original");
     if (n < 0) n = 0;
 

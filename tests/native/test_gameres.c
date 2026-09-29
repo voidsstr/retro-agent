@@ -449,13 +449,15 @@ TEST(t_idtech3_split)
     CHECK(gr_cfg_body("idtech3-index") == NULL,
           "no rule may still hand an id Tech 3 title a mode index");
 
-    /* id Tech 2 has neither: a fixed table, no custom mode, no 16:9 entry. */
+    /* id Tech 2 has neither: a fixed table, no custom mode. The staged exes
+     * are PATCHED so entry 9 is 1920x1080, and the body carries %Q2WIDE% -
+     * 9 on this 16:9 box that offers 1920x1080 (t_q2wide_per_box has the
+     * rest). Not q2mode: that is 8 here, 1280x960. */
     CHECK_EQ_I(gr_expand(gr_cfg_body("idtech2"), &t, out, sizeof(out)), 0);
     CHECK(strstr(out, "r_custom") == NULL,
           "id Tech 2 has no custom-mode cvars at all");
-    CHECK(strstr(out, "set gl_mode \"8\"") != NULL,
-          "id Tech 2 index 8 is 1280x960 - the SAME index means a different "
-          "mode in the two engines, which is why there are two selectors");
+    CHECK(strstr(out, "set gl_mode \"9\"") != NULL,
+          "the patched id Tech 2 exes get gl_mode 9 = 1920x1080 on a 1080p box");
 }
 
 /*
@@ -466,6 +468,98 @@ TEST(t_idtech3_split)
  * left Descent 2's DESCENT.CFG with six junk lines and no resolution, every
  * run reporting success.
  */
+/*
+ * FR_Q2WIDE / %Q2WIDE% - gl_mode for the PATCHED id Tech 2 exes, whose entry 9
+ * is 1920x1080 (provisioning/patches/idtech2). The expectations are the ones
+ * tests/python/test_patch_idtech2.py pins for apply.fr_q2wide(), the reference.
+ */
+static void add_rows(gr_modes_t *l, const int (*t)[3], size_t n);
+
+TEST(t_q2wide_per_box)
+{
+    /* .123 / .145 / .240: 1280x960 listed at 75 Hz, 1920x1080 only at 60 */
+    static const int t123[][3] = {
+        {640,480,60},{640,480,75},{800,600,60},{800,600,75},{1024,768,60},
+        {1024,768,75},{1152,864,75},{1280,720,60},{1280,960,60},{1280,960,75},
+        {1280,1024,60},{1280,1024,75},{1440,900,60},{1680,1050,60},{1920,1080,60}
+    };
+    static const int t124[][3] = {
+        {640,480,85},{800,600,85},{1024,768,85},{1152,864,85},{1280,960,85},
+        {1280,1024,85},{1600,1200,85},{1280,720,60},{1680,1050,60}
+    };
+    static const int tube[][3] = {   /* a 1600x1200 tube NOT listing 1280x960 */
+        {640,480,85},{800,600,85},{1024,768,85},{1152,864,85},{1600,1200,75}
+    };
+    gr_modes_t l; gr_target_t t; gr_panel_t p;
+    char out[128];
+    size_t i;
+
+    p = panel_1080p();
+    gr_modes_reset(&l); l.hz_cap = p.vmax;
+    add_rows(&l, t123, sizeof(t123) / sizeof(t123[0]));
+    gr_decide(&p, &l, 1920, 1080, 60, 32, 0, 0, &t);
+    CHECK_EQ_I(t.q2mode, 8);
+    CHECK_EQ_I(t.q2wide, 9);
+    CHECK_EQ_I(gr_q2wide_res(t.q2wide).w, 1920);
+    CHECK_EQ_I(gr_q2wide_res(t.q2wide).h, 1080);
+    /* the rate follows the MODE: hzq2 is taken at 1280x960 (75 Hz), which
+     * would ask a 1920x1080 picture for 75 */
+    CHECK_EQ_I(t.hzq2, 75);
+    CHECK_EQ_I(t.hzq2wide, 60);
+    CHECK_EQ_I(gr_expand("%Q2MODE% %Q2WIDE% %HZQ2% %HZQ2WIDE%", &t, out, sizeof(out)), 0);
+    CHECK(strcmp(out, "8 9 75 60") == 0, "the patched-exe tokens expand");
+
+    /* the same panel whose driver does NOT offer 1920x1080: gr_decide falls
+     * back to the largest 16:9 mode it does list, and q2wide to the 4:3
+     * selector - q2mode itself, never 9 */
+    gr_modes_reset(&l); l.hz_cap = p.vmax;
+    for (i = 0; i < sizeof(t123) / sizeof(t123[0]) - 1; i++)
+        gr_modes_add(&l, t123[i][0], t123[i][1], t123[i][2]);
+    gr_decide(&p, &l, 1920, 1080, 60, 32, 0, 0, &t);
+    CHECK(t.q2wide != 9, "no 1920x1080 on offer -> never 9");
+    CHECK_EQ_I(t.q2wide, t.q2mode);
+
+    /* ResCap 1280x720 on the 1080p panel: 16:9 but below 1920x1080 */
+    modes_lcd1080(&l);
+    gr_decide(&p, &l, 1920, 1080, 60, 32, 1280, 720, &t);
+    CHECK_EQ_I(t.w, 1280); CHECK_EQ_I(t.h, 720);
+    CHECK_EQ_I(t.q2wide, 4);
+    CHECK_EQ_I(t.q2wide, t.q2mode);
+
+    /* .124's HP P1120 CRT: 4:3 target 1280x960 -> 8, the same as q2mode */
+    memset(&p, 0, sizeof(p));
+    p.ok = 1; p.native_w = 1600; p.native_h = 1200; p.native_hz = 85;
+    p.vmax = 160; p.hcm = 40; p.vcm = 30;
+    gr_modes_reset(&l); l.hz_cap = p.vmax;
+    add_rows(&l, t124, sizeof(t124) / sizeof(t124[0]));
+    gr_decide(&p, &l, 1280, 1024, 85, 32, 0, 0, &t);
+    CHECK_EQ_I(t.q2mode, 8);
+    CHECK_EQ_I(t.q2wide, 8);
+
+    /* ...and raised to 1600x1200: q2mode is 9 = 1600x1200 on a STOCK exe,
+     * but on a patched one 9 is 16:9, so q2wide must not be 9 */
+    gr_decide(&p, &l, 1600, 1200, 85, 32, 0, 0, &t);
+    CHECK_EQ_I(t.q2mode, 9);
+    CHECK_EQ_I(t.q2wide, 8);
+
+    /* a 1600x1200 tube that does not list 1280x960: the selector RE-RUNS
+     * with the table capped at 8 (1152x864 = 7); a clamp to 8 would ask
+     * for a mode the driver refuses, and ref_gl opens a WINDOW for that */
+    gr_modes_reset(&l); l.hz_cap = p.vmax;
+    add_rows(&l, tube, sizeof(tube) / sizeof(tube[0]));
+    gr_decide(&p, &l, 1600, 1200, 75, 32, 0, 0, &t);
+    CHECK_EQ_I(t.q2mode, 9);
+    CHECK_EQ_I(t.q2wide, 7);
+
+    /* .143: no EDID, a 4:3 tube; a short list is "could not ask" */
+    p = panel_none();
+    gr_modes_reset(&l);
+    gr_modes_add(&l, 1024, 768, 0);
+    gr_decide(&p, &l, 1280, 960, 0, 32, 0, 0, &t);
+    CHECK(t.q2wide != 9, "a no-EDID box is a 4:3 tube - never mode 9");
+    CHECK_EQ_I(t.q2wide, t.q2mode);
+}
+
 TEST(t_kv_line_is_composed)
 {
     char out[64];
@@ -779,6 +873,7 @@ MUNIT_MAIN("gameres (per-box monitor detection and per-title resolution)",
     RUN(t_rules_wellformed);
     RUN(t_goldsrc_reaches_the_panel);
     RUN(t_idtech3_split);
+    RUN(t_q2wide_per_box);
     RUN(t_kv_line_is_composed);
     RUN(t_refresh_is_per_resolution);
     RUN(t_refresh_is_clamped_to_the_edid);

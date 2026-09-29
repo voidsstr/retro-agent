@@ -245,10 +245,62 @@ def test_appended_exec_is_the_last_thing_the_autoexec_does():
 
 def test_idtech2_uses_the_fixed_mode_table():
     """id Tech 2 (Quake II, SiN, Soldier of Fortune) has gl_mode indices and NO
-    custom mode and no 16:9 entry, so it gets the 4:3 answer, never FR_W."""
+    custom mode, so it never gets FR_W. The staged exes are PATCHED so entry 9
+    is 1920x1080 (provisioning/patches/idtech2) and the index is FR_Q2WIDE."""
     cfg = '\n'.join(sf.q2_cfg('baseq2'))
-    assert 'set gl_mode "%FR_Q2MODE%"' in cfg
+    assert 'set gl_mode "%FR_Q2WIDE%"' in cfg
+    assert '%FR_Q2MODE%' not in cfg
     assert '%FR_W%' not in cfg and '%FR_H%' not in cfg
+
+
+def test_patched_idtech2_gl_launchers_all_take_q2wide():
+    """provisioning/patches/idtech2 README: nothing selects mode 9 until the
+    launchers change. Every GL launcher of the three patched titles - fresh
+    recipe AND repair pair for the ones already on the share - must end up on
+    FR_Q2WIDE in both places, the fleetres.cfg line and the +set."""
+    # the recipes: Quake2Complete's four and Wages of SiN
+    for title, names in (('Quake2Complete', ('Quake II.bat',
+                          'Quake II - The Reckoning.bat',
+                          'Quake II - Ground Zero.bat',
+                          'Quake II - ThreeWave CTF.bat')),
+                         ('SiNGold', ('Play Wages of SiN.bat',))):
+        for n in names:
+            t = _pre(title, n)
+            assert 'set gl_mode "%FR_Q2WIDE%"' in t and '+set gl_mode %FR_Q2WIDE%' in t, n
+            assert '%FR_Q2MODE%' not in t, n
+            # ...and the launcher already on the share carries MARK, so only a
+            # repair pair moves it
+            news = [nw for _, nw in sf.TITLES[title]['fix'][n]]
+            assert any('echo set gl_mode "%FR_Q2WIDE%"' in x for x in news), n
+            assert '+set gl_mode %FR_Q2WIDE%' in news, n
+    # the 'new' launchers are rewritten whole from NEW_Q2 + q2_cfg
+    assert '+set gl_mode %FR_Q2WIDE%' in sf.NEW_Q2
+    assert '%FR_Q2MODE%' not in sf.NEW_Q2
+    for t in ('SiNGold', 'SoldierOfFortune'):
+        assert sf.TITLES[t]['new']
+
+
+def test_sin_software_renderer_never_gets_mode_9():
+    """ref_soft must never be sent to mode 9 - 1920x1080 on the patched sin.exe,
+    with warp buffers sized for 1600. It keeps FR_Q2MODE, and no repair pair
+    may move it."""
+    t = _pre('SiNGold', 'Play SiN - software renderer.bat')
+    assert '+set sw_mode %FR_Q2MODE%' in t
+    assert 'Q2WIDE' not in t
+    assert 'Play SiN - software renderer.bat' not in sf.TITLES['SiNGold'].get('fix', {})
+
+
+def test_q2wide_is_published_and_has_a_fallback():
+    src = open(FLEETRES_C, encoding='latin1').read()
+    assert 'printf("set \\"FR_Q2WIDE=%d\\"\\n",   q2w);' in src
+    assert 'static int q2_wide_for(' in src
+    # the capped branch RE-RUNS the selector - never min(FR_Q2MODE, 8)
+    assert 'return q2_mode_for(w43 < q2tab[8].w ? w43 : q2tab[8].w,' in src
+    assert 'mode_offered(GR_Q2WIDE_W, GR_Q2WIDE_H)' in src
+    assert 'aspect_class_mode((double)tw / (double)th) == 169' in src
+    # a box where FLEETRES.EXE is missing gets the same as FR_Q2MODE's default
+    assert 'if not defined FR_Q2WIDE set FR_Q2WIDE=6' in sf.FLEETRES_BAT
+    assert 'set FR_Q2WIDE=\n' in sf.FLEETRES_BAT
 
 
 # ---------------------------------------------------------------------------
@@ -525,9 +577,11 @@ def test_four_three_only_engines_never_get_the_widescreen_variable():
     assert '%FR_W%' not in sf.NEW_GLQUAKE.replace('%FR_W43%', ''), (
         'GLQuake is 4:3-only but is being handed the widescreen mode')
     for mod in ('baseq2', 'base'):
-        assert '%FR_Q2MODE%' in "\n".join(sf.q2_cfg(mod)), (
-            'id Tech 2 has a fixed 4:3 mode table topping out at 1600x1200 - '
-            'gl_mode is the only lever and there is no 16:9 entry')
+        cfg = "\n".join(sf.q2_cfg(mod))
+        assert '%FR_Q2WIDE%' in cfg, (
+            'id Tech 2 has a fixed mode table - gl_mode is the only lever, and '
+            'on the patched exes its entry 9 is 1920x1080')
+        assert '%FR_W%' not in cfg and '%FR_H%' not in cfg
 
 
 # ---------------------------------------------------------------------------

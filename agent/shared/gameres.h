@@ -123,6 +123,11 @@ typedef struct {
                                  * renders there, not at w43 x h43 (1152x864
                                  * vs 1280x960 on the 1080p boxes). SoF2 and
                                  * RTCW left the index on 2026-09-29.        */
+    int  hzq2wide;              /* the same at the mode q2wide selects on a
+                                 * PATCHED id Tech 2 exe (gr_q2wide_res) -
+                                 * 1920x1080 where q2wide is 9. The 1080p
+                                 * boxes list 1920x1080 at 60 and 1280x960 at
+                                 * 75, so hzq2 would ask 1920x1080 for 75.  */
     int  hz_src;                /* where hz/hz43/hzq2/hzq3 came from:
                                  * GR_HZSRC_EDID / _PERSISTED / _NONE         */
     int  desk_hz;               /* best real rate at the persisted desktop   */
@@ -133,6 +138,9 @@ typedef struct {
     int  bpp;
     int  fov;                   /* hor+ FOV preserving the 4:3 vertical FOV  */
     int  q2mode, q3mode;        /* id Tech 2 / id Tech 3 mode-table indices  */
+    int  q2wide;                /* gl_mode for the PATCHED id Tech 2 exes,
+                                 * whose entry 9 is 1920x1080 - see
+                                 * gr_q2_wide_for() (FR_Q2WIDE)              */
     int  d3ar;                  /* id Tech 4 r_aspectRatio 0=4:3 1=16:9 2=16:10 */
     int  wide;                  /* 1 when the target is wider than 4:3       */
     int  lcd;                   /* 1 = flat panel, 0 = tube                  */
@@ -418,7 +426,9 @@ GR_FN int gr_d3_aspect(int w, int h)
 /* ------------------------------------------------------------------ */
 
 /* Quake II / SiN / Soldier of Fortune share id Tech 2's table. No custom mode
- * and no 16:9 entry anywhere - 1600x1200 is the ceiling. */
+ * and no 16:9 entry in the STOCK exes - 1600x1200 is their ceiling. The staged
+ * exes are patched so entry 9 is 1920x1080: see gr_q2_wide_for(). This table
+ * stays the stock one - it is what q2mode (and Quake2Win9x) index. */
 GR_DATA const gr_res_t gr_q2tab[] = {
     {320,240},{400,300},{512,384},{640,480},{800,600},
     {960,720},{1024,768},{1152,864},{1280,960},{1600,1200}
@@ -452,6 +462,52 @@ GR_FN int gr_q2_mode_for(const gr_modes_t *l, int w, int h)
     if (best > 3) return best;
     return gr_mode_offered(l, gr_q2tab[best_fit].w, gr_q2tab[best_fit].h)
          ? best : best_fit;
+}
+
+/*
+ * THE PATCHED id Tech 2 EXES (Quake II 3.20, SiN 1.11, Soldier of Fortune -
+ * provisioning/patches/idtech2) rewrite table entry 9 from 1600x1200 to
+ * 1920x1080. So on those three titles gl_mode 9 means 1920x1080, and the
+ * index they are handed is NOT q2mode:
+ *
+ *   9   when the target (after ResCap) is 16:9, at least 1920x1080, and the
+ *       driver offers 1920x1080;
+ *   gr_q2_mode_for(min(w43,1280), min(h43,960))   otherwise - the SAME
+ *       selector q2mode uses with the table capped at entry 8. That is q2mode
+ *       exactly wherever q2mode <= 8 (every box today), and it can never be 9:
+ *       a 4:3 box whose q2mode would be 9 must not be handed a 16:9 mode. It
+ *       RE-RUNS the selector rather than clamping the index to 8: a 1600x1200
+ *       tube that does not list 1280x960 would be asked for a mode its driver
+ *       refuses, and id Tech 2's ref_gl answers that with a WINDOW.
+ *
+ * FLEETRES.EXE's q2_wide_for() is the same rule (FR_Q2WIDE); the reference is
+ * provisioning/patches/idtech2/apply.py fr_q2wide(), and the per-box answers
+ * are pinned in tests/python/test_patch_idtech2.py. Quake2Win9x keeps the stock
+ * exe and is not a consumer.
+ */
+#define GR_Q2WIDE_W 1920
+#define GR_Q2WIDE_H 1080
+
+GR_FN int gr_q2_wide_for(const gr_modes_t *l, int tgt_w, int tgt_h,
+                         int w43, int h43)
+{
+    if (tgt_h > 0 && gr_aspect_mode((double)tgt_w / (double)tgt_h) == 169 &&
+        tgt_w >= GR_Q2WIDE_W && tgt_h >= GR_Q2WIDE_H &&
+        gr_mode_offered(l, GR_Q2WIDE_W, GR_Q2WIDE_H))
+        return 9;
+    return gr_q2_mode_for(l, w43 < gr_q2tab[8].w ? w43 : gr_q2tab[8].w,
+                             h43 < gr_q2tab[8].h ? h43 : gr_q2tab[8].h);
+}
+
+/* The resolution a PATCHED exe sets for gl_mode q2wide - what a refresh for
+ * these three titles has to be asked at (apply.py q2wide_res()). */
+GR_FN gr_res_t gr_q2wide_res(int q2wide)
+{
+    gr_res_t r;
+    if (q2wide == 9) { r.w = GR_Q2WIDE_W; r.h = GR_Q2WIDE_H; }
+    else if (q2wide >= 0 && q2wide < GR_Q2TAB_N) r = gr_q2tab[q2wide];
+    else { r.w = 640; r.h = 480; }
+    return r;
 }
 
 GR_FN int gr_q3_mode_for(const gr_modes_t *l, int w, int h)
@@ -600,12 +656,16 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
     t->fov    = gr_horplus_fov(tgt_w, tgt_h);
     t->q2mode = gr_q2_mode_for(l, t->w43, t->h43);
     t->q3mode = gr_q3_mode_for(l, t->w43, t->h43);
+    t->q2wide = gr_q2_wide_for(l, tgt_w, tgt_h, t->w43, t->h43);
     /* the index engines render at their TABLE's mode, which is not always the
      * 4:3 target (q3mode 7 = 1152x864 where w43 is 1280x960) */
     t->hzq2 = gr_target_hz(p, l, gr_q2tab[t->q2mode].w, gr_q2tab[t->q2mode].h,
                            reg_w, reg_h, reg_hz, NULL);
     t->hzq3 = gr_target_hz(p, l, gr_q3tab[t->q3mode].w, gr_q3tab[t->q3mode].h,
                            reg_w, reg_h, reg_hz, NULL);
+    t->hzq2wide = gr_target_hz(p, l, gr_q2wide_res(t->q2wide).w,
+                               gr_q2wide_res(t->q2wide).h,
+                               reg_w, reg_h, reg_hz, NULL);
     t->d3ar   = gr_d3_aspect(tgt_w, tgt_h);
     t->wide   = (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0;
     t->lcd    = lcd;
@@ -626,6 +686,7 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
  *   %W43% %H43%      the 4:3-only target
  *   %HZW% %HZ43%     the refresh a title AT that target asks for
  *   %HZQ2% %HZQ3%    ... at the id Tech 2 / id Tech 3 index mode
+ *   %HZQ2WIDE%       ... at the mode %Q2WIDE% selects on a patched exe
  *                    - per target, because a rate is offered per resolution;
  *                    0 = leave it alone (gr_target_hz). %HZ% = %HZW%.
  *   %HZSRC%          edid | persisted | none - what vouches for them
@@ -636,6 +697,7 @@ GR_FN void gr_decide(const gr_panel_t *p, const gr_modes_t *l,
  *   %BPP%
  *   %FOV%            hor+ FOV
  *   %Q2MODE% %Q3MODE%
+ *   %Q2WIDE%         gl_mode for the PATCHED id Tech 2 exes (9 = 1920x1080)
  *   %D3AR%           id Tech 4 r_aspectRatio
  *   %DOSFULLRES%     DOSBox [sdl] fullresolution: desktop on an LCD,
  *                    original on a CRT
@@ -675,6 +737,7 @@ GR_FN int gr_expand(const char *tmpl, const gr_target_t *t,
                     else if (!strcmp(tok, "HZ43"))    sprintf(val, "%d", t->hz43);
                     else if (!strcmp(tok, "HZQ2"))    sprintf(val, "%d", t->hzq2);
                     else if (!strcmp(tok, "HZQ3"))    sprintf(val, "%d", t->hzq3);
+                    else if (!strcmp(tok, "HZQ2WIDE")) sprintf(val, "%d", t->hzq2wide);
                     else if (!strcmp(tok, "HZSRC"))   strcpy(val, gr_hz_src_name(t->hz_src));
                     else if (!strcmp(tok, "DESKHZ"))  sprintf(val, "%d", t->desk_hz);
                     else if (!strcmp(tok, "FRHZ"))    sprintf(val, "%d", t->fr_hz);
@@ -687,6 +750,7 @@ GR_FN int gr_expand(const char *tmpl, const gr_target_t *t,
                     else if (!strcmp(tok, "FOV"))     sprintf(val, "%d", t->fov);
                     else if (!strcmp(tok, "Q2MODE"))  sprintf(val, "%d", t->q2mode);
                     else if (!strcmp(tok, "Q3MODE"))  sprintf(val, "%d", t->q3mode);
+                    else if (!strcmp(tok, "Q2WIDE"))  sprintf(val, "%d", t->q2wide);
                     else if (!strcmp(tok, "D3AR"))    sprintf(val, "%d", t->d3ar);
                     else if (!strcmp(tok, "DOSFULLRES"))
                         strcpy(val, t->lcd ? "desktop" : "original");
@@ -848,9 +912,11 @@ GR_DATA const gr_rule_t gr_rules[] = {
 { "SoldierOfFortune2",          GR_OP_CFG, "base\\fleetres.cfg", NULL, NULL, NULL },
 { "ReturnToCastleWolfenstein",  GR_OP_CFG, "Main\\fleetres.cfg", "idtech3-custom-nofov", NULL, NULL },
 
-/* --- id Tech 2: a FIXED 4:3 table indexed by gl_mode, no custom mode and no
- *     16:9 entry anywhere, so the honest best is a correctly proportioned 4:3
- *     mode. Every mod directory needs its own copy - covering base/ alone left
+/* --- id Tech 2: a FIXED table indexed by gl_mode, no custom mode. The staged
+ *     exes are PATCHED so entry 9 is 1920x1080 (provisioning/patches/idtech2),
+ *     so the body writes %Q2WIDE% - 9 on a 16:9 box that offers 1920x1080,
+ *     else the largest correctly proportioned 4:3 entry up to 8, never 9.
+ *     Every mod directory needs its own copy - covering base/ alone left
  *     Wages of SiN pinned at 1024x768 on every box. */
 { "Quake2Complete", GR_OP_CFG, "baseq2\\fleetres.cfg", "idtech2", NULL, NULL },
 { "Quake2Complete", GR_OP_CFG, "xatrix\\fleetres.cfg", "idtech2", NULL, NULL },
@@ -1059,7 +1125,7 @@ GR_FN const char *gr_cfg_body(const char *kind)
                "seta r_displayRefresh \"%FRHZ%\"\n";
     if (!strcmp(kind, "idtech2"))
         return "// written by GAMESYNC for this box's monitor - do not edit\n"
-               "set gl_mode \"%Q2MODE%\"\n"
+               "set gl_mode \"%Q2WIDE%\"\n"
                "set vid_fullscreen \"1\"\n";
     if (!strcmp(kind, "ssam"))
         return "// written by GAMESYNC for this box's monitor - do not edit\n"

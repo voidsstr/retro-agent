@@ -344,6 +344,30 @@ static int q2_mode_for(int w, int h)
                               ? best : best_fit);
 }
 
+/* FR_Q2WIDE - gl_mode for the PATCHED id Tech 2 exes (Quake II, SiN, Soldier
+ * of Fortune; provisioning/patches/idtech2), whose table entry 9 is rewritten
+ * from 1600x1200 to 1920x1080. A port of agent/shared/gameres.h
+ * gr_q2_wide_for() - keep them in step; the reference is apply.py fr_q2wide():
+ *
+ *   9 when the target (after -cap / ResCap) is 16:9, at least 1920x1080, and
+ *     the driver offers 1920x1080;
+ *   else q2_mode_for() with the 4:3 target capped at entry 8 (1280x960) - a
+ *     RE-RUN of the selector, never a clamp of FR_Q2MODE to 8: a 1600x1200
+ *     tube that does not list 1280x960 would be handed a mode its driver
+ *     refuses, and id Tech 2's ref_gl answers that by opening a WINDOW.
+ *
+ * It is FR_Q2MODE on every box whose FR_Q2MODE is not 9, and it is never 9 on
+ * a 4:3 box, where 9 on a patched exe would now mean a 16:9 mode. */
+static int q2_wide_for(int tw, int th, int w43, int h43)
+{
+    if (th > 0 && aspect_class_mode((double)tw / (double)th) == 169 &&
+        tw >= GR_Q2WIDE_W && th >= GR_Q2WIDE_H &&
+        mode_offered(GR_Q2WIDE_W, GR_Q2WIDE_H))
+        return 9;
+    return q2_mode_for(w43 < q2tab[8].w ? w43 : q2tab[8].w,
+                       h43 < q2tab[8].h ? h43 : q2tab[8].h);
+}
+
 /* id TECH 3 HAS A DIFFERENT TABLE FROM id TECH 2, AND THE DIFFERENCE BITES AT
  * INDEX 8: id Tech 2's mode 8 is 1280x960 (4:3), id Tech 3's is 1280x1024
  * (5:4).  Handing FR_Q2MODE to a Quake III-family engine therefore asks a 16:9
@@ -579,6 +603,7 @@ int main(int argc, char **argv)
     static gr_modes_t rl;              /* the same list gameres.c builds, WITH rates */
     gr_panel_t gp;
     int hzw = 0, hz43 = 0, hzq2 = 0, hzq3 = 0, src_w = 0, src_43 = 0;
+    int q2w = 3, hzq2w = 0;
     char asp[16], nasp[16];
     const char *mode = "-cmd";
 
@@ -871,6 +896,12 @@ int main(int argc, char **argv)
                         q2tab[q2_mode_for(t43_w, t43_h)].h, reg_w, reg_h, reg_hz, NULL);
     hzq3 = gr_target_hz(&gp, &rl, q3tab[q3_mode_for(t43_w, t43_h)].w,
                         q3tab[q3_mode_for(t43_w, t43_h)].h, reg_w, reg_h, reg_hz, NULL);
+    /* the patched id Tech 2 exes render at gr_q2wide_res(FR_Q2WIDE) - on the
+     * 1080p boxes 1920x1080, which the driver lists at 60 Hz where 1280x960
+     * (FR_HZQ2's resolution) is listed at 75 */
+    q2w   = q2_wide_for(tgt_w, tgt_h, t43_w, t43_h);
+    hzq2w = gr_target_hz(&gp, &rl, gr_q2wide_res(q2w).w, gr_q2wide_res(q2w).h,
+                         reg_w, reg_h, reg_hz, NULL);
 
     if (_stricmp(mode, "-info") == 0) {
         printf("panel      : %s  pnp=%s  %s\n",
@@ -892,6 +923,8 @@ int main(int argc, char **argv)
                q3_mode_for(t43_w, t43_h),
                q3tab[q3_mode_for(t43_w, t43_h)].w,
                q3tab[q3_mode_for(t43_w, t43_h)].h);
+        printf("patched Q2 : q2wide %d (%dx%d)  %d Hz\n", q2w,
+               gr_q2wide_res(q2w).w, gr_q2wide_res(q2w).h, hzq2w);
         printf("refresh    : %d Hz at %dx%d, %d Hz at %dx%d, id Tech 2/3 index %d/%d Hz"
                "  (%s; 0 = left alone)\n", hzw, tgt_w, tgt_h, hz43, t43_w, t43_h,
                hzq2, hzq3, gr_hz_src_name(src_w > src_43 ? src_w : src_43));
@@ -949,6 +982,8 @@ int main(int argc, char **argv)
     printf("set \"FR_HZ43=%d\"\n", hz43);
     printf("set \"FR_HZQ2=%d\"\n", hzq2);
     printf("set \"FR_HZQ3=%d\"\n", hzq3);
+    /* ...and at the mode FR_Q2WIDE selects on a PATCHED id Tech 2 exe */
+    printf("set \"FR_HZQ2WIDE=%d\"\n", hzq2w);
     printf("set \"FR_HZSRC=%s\"\n", gr_hz_src_name(src_w > src_43 ? src_w : src_43));
     printf("set \"FR_ASPECT=%s\"\n",   asp);
     printf("set \"FR_PANEL=%s\"\n",    lcd ? "LCD" : "CRT");
@@ -962,6 +997,7 @@ int main(int argc, char **argv)
     printf("set \"FR_W43=%d\"\n",      t43_w);
     printf("set \"FR_H43=%d\"\n",      t43_h);
     printf("set \"FR_Q2MODE=%d\"\n",   q2_mode_for(t43_w, t43_h));
+    printf("set \"FR_Q2WIDE=%d\"\n",   q2w);
     printf("set \"FR_Q3MODE=%d\"\n",   q3_mode_for(t43_w, t43_h));
     printf("set \"FR_WIDE=%d\"\n",     (tgt_w * 3 > tgt_h * 4 + tgt_h / 8) ? 1 : 0);
     printf("set \"FR_DOSFULLRES=%s\"\n", lcd ? "desktop" : "original");
