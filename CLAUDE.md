@@ -2707,6 +2707,28 @@ async def try_host(ip):
         pass
 ```
 
+## The 3dfx Control Panel deploys itself (agent 1.94.0)
+
+**User directive, 2026-09-29: the 3dfx Control Panel must be on the desktop,
+wearing the 3dfx logo, on every box with an applicable 3dfx card, put there by
+the agent when it loads.** `fxpanel_ensure()` (`agent/src/fxpanel.c`, decision
+`agent/shared/fxpanel.h`) runs in the gamesync startup thread after the
+modern-host guard: on Windows 2000/XP with a PRESENT Banshee/Voodoo3/4/5
+(`121A:0003/0004/0005/0009`, driver installed - a Voodoo 1/2 is 3D-only and does
+not qualify) it copies `3dfxctl.exe` + `3dfxlogo.ico` from
+`\\192.168.1.122\files\Utility\Retro Automation\3dfx\` into `C:\RETRO_AGENT`
+when missing or different, then `gs_place_tool_shortcuts()` places and CLAIMS the
+"3dfx Control Panel" desktop shortcut, so GAMESYNC's end sweep keeps it.
+`HKLM\Software\RetroAgent\FxPanel`=0 switches it off; `FxPanelBoot` records
+each start (`ok: 0 copied, 2 current` on a settled box). **So a new panel build
+reaches the fleet by publishing it there** (`push_3dfxctl.py`, or
+`sharewrite.py put`), not by touching boxes. The icon is 3dfx's own logo
+(AmigaMerlin 3.1's `Driver Setup.exe`, `make_icon.py`); it lives in a separate
+`3dfxlogo.ico` because XP caches icons by PATH. Copying an application changes
+no driver or setting, so this is outside the rule below. Verified on `.124`:
+files removed, restart -> both copied, logo on the desktop; second restart ->
+nothing copied, shortcut untouched.
+
 ## 3dfx DRIVERS ARE NEVER CHANGED AUTOMATICALLY (agent 1.87.0+) (REQUIRED)
 
 **User directive, 2026-09-27: the agent keeps a box's drivers correct "except
