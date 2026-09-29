@@ -115,6 +115,22 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-09-29 11:26:35: kdump-captured panic (third in ~20 h, 400 W + 2400 MHz lock), a short wedged-card boot, then an orderly reboot at 11:48
+
+- **Boot IDs:** `8cd5be88…` (10:20:51 → 11:26:35, 66 min) ended abruptly mid-log (hlds lines at 11:26:35, no
+  shutdown sequence); kdump saved `/var/crash/202609291127` (dmesg is root-only - **the panic line is not yet
+  read**, so the signature is *likely* the MCE-broadcast panic of 06:13, **unproven**). Load: ollama generating
+  at ~137 t/s until 11:25:06; fleet sessions driving `.124`.
+- **`98bbcf98…`** (11:27:17 → 11:28:15) was the kdump capture/warm reboot: DMAR faults from device `01:00.0`
+  from its first second (18 kernel fault lines, signature 6), then `saved vmcore` and `Rebooting.`
+- **`8798186c…`** began 11:37:13 after a 9-minute gap (likely a manual power cycle) with 0 faults, and ended at
+  11:48:46 in an **orderly** systemd shutdown; initiator not identified from the journal (no power-key event).
+- **`843e7fbc…`** (11:49:09, current): clean, `nvidia-power-cap.service` re-applied `-pl 400` and
+  `-lgc 210,2400` (both read back in its log).
+- **Mitigations in effect:** 400 W cap + 210–2400 MHz clock lock. Neither prevented this one either.
+- **Next step:** `sudo grep -aE 'mce|panic|Xid' /var/crash/202609291127/dmesg.202609291127 | tail` to confirm the
+  signature.
+
 ### 2026-09-28 23:55: 192.168.1.132 restored as the host's primary LAN address (no reboot)
 
 - **Found:** after the 22:53 boot the host again held only DHCP **192.168.1.196**;
