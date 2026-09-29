@@ -262,9 +262,13 @@ and set it live; `miniport/vcrmp_clock.c` `VcrCoreClock` is the hardware half an
   retries, master 0xF929 = 149.7 MHz read back, the desktop drawn normally at 150;
   RESTORE -> 0xE721 exactly; through the panel 175.0 MHz (0xDA1D) kept, and not
   kept -> put back by its countdown. Evidence `evidence/2026-09-29-clock-live/`,
-  the panel's in `scripts/3dfx/3dfxctl/evidence/20260929/`. **Not yet measured:**
-  a Glide fill rate at two clocks (the proof the core really runs slower/faster,
-  not only the word).
+  the panel's in `scripts/3dfx/3dfxctl/evidence/20260929/`. **The fill rate follows
+  the clock exactly** (glidelab `fill`, 640x480, cfg 5 = 4-chip SLI, `evidence/
+  2026-09-29-clock-live/fill.jsonl`): 1110.7 Mpix/s at stock, **997.1 at 149.7 MHz**,
+  1110.7 again after RESTORE - 997.1 / 1110.7 = 0.8977 = 149.744 / 166.806. And after
+  the SLI run at 149.7 all four chips read 0xF929: the slaves took the master's word
+  at the SLI enable, as designed (before it they read 0xE721 from the previous
+  game; after a reboot, 0x0C01).
 - Tests: `tests/native/test_vcr_clock.c`, `tests/python/test_vcr_kmd_core_clock.py`.
 
 ## Status (2026-09-27)

@@ -410,20 +410,28 @@ TEST(t_a_saved_clock_is_reapplied_only_after_a_clean_shutdown)
     static const unsigned char later[8]  = { 0xC4, 0x45, 0x2B, 0x90, 0xCF, 0x4F, 0xDD, 0x01 };
     static const unsigned char earlier[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x01 };
     /* the two stamps .124 wrote at two agent reboots, 04:50:56 and 05:01:18 UTC */
-    CHECK_EQ_I(ctl_clock_startup(175000u, later, 8, set_at, 8), CTL_CLK_START_APPLY);
+    CHECK_EQ_I(ctl_clock_startup(175000u, 0, later, 8, set_at, 8), CTL_CLK_START_APPLY);
     /* the stamp did not move: the session that ran the clock never shut down cleanly */
-    CHECK_EQ_I(ctl_clock_startup(175000u, set_at, 8, set_at, 8), CTL_CLK_START_UNCLEAN);
+    CHECK_EQ_I(ctl_clock_startup(175000u, 0, set_at, 8, set_at, 8), CTL_CLK_START_UNCLEAN);
     /* equality only - an OLDER stamp (the RTC reset after a power loss) still moved */
-    CHECK_EQ_I(ctl_clock_startup(175000u, earlier, 8, set_at, 8), CTL_CLK_START_APPLY);
+    CHECK_EQ_I(ctl_clock_startup(175000u, 0, earlier, 8, set_at, 8), CTL_CLK_START_APPLY);
     /* no stamp on either side is no proof */
-    CHECK_EQ_I(ctl_clock_startup(175000u, NULL, 0, set_at, 8), CTL_CLK_START_UNKNOWN);
-    CHECK_EQ_I(ctl_clock_startup(175000u, later, 8, NULL, 0), CTL_CLK_START_UNKNOWN);
-    CHECK_EQ_I(ctl_clock_startup(175000u, later, 4, set_at, 8), CTL_CLK_START_UNKNOWN);
+    CHECK_EQ_I(ctl_clock_startup(175000u, 0, NULL, 0, set_at, 8), CTL_CLK_START_UNKNOWN);
+    CHECK_EQ_I(ctl_clock_startup(175000u, 0, later, 8, NULL, 0), CTL_CLK_START_UNKNOWN);
+    CHECK_EQ_I(ctl_clock_startup(175000u, 0, later, 4, set_at, 8), CTL_CLK_START_UNKNOWN);
     /* nothing saved, and a value nobody could have set */
-    CHECK_EQ_I(ctl_clock_startup(0u, later, 8, set_at, 8), CTL_CLK_START_NONE);
-    CHECK_EQ_I(ctl_clock_startup(219000u, later, 8, set_at, 8), CTL_CLK_START_RANGE);
-    CHECK_EQ_I(ctl_clock_startup(120000u, later, 8, set_at, 8), CTL_CLK_START_RANGE);
-    CHECK_EQ_I(ctl_clock_startup(BOOT, later, 8, set_at, 8), CTL_CLK_START_APPLY);
+    CHECK_EQ_I(ctl_clock_startup(0u, 0, later, 8, set_at, 8), CTL_CLK_START_NONE);
+    CHECK_EQ_I(ctl_clock_startup(219000u, 0, later, 8, set_at, 8), CTL_CLK_START_RANGE);
+    CHECK_EQ_I(ctl_clock_startup(120000u, 0, later, 8, set_at, 8), CTL_CLK_START_RANGE);
+    CHECK_EQ_I(ctl_clock_startup(BOOT, 0, later, 8, set_at, 8), CTL_CLK_START_APPLY);
+    /* A LOGON IS NOT A BOOT: the card still runs the saved clock (a logoff and
+     * logon, the stamp unmoved) - nothing to do, and NOT an unclean shutdown;
+     * the first build forgot the saved clock there and said the card was at stock */
+    CHECK_EQ_I(ctl_clock_startup(175000u, 1, set_at, 8, set_at, 8), CTL_CLK_START_RUNNING);
+    CHECK_EQ_I(ctl_clock_startup(175000u, 1, NULL, 0, NULL, 0), CTL_CLK_START_RUNNING);
+    /* ... but a bad saved value is still refused first, and nothing saved is nothing */
+    CHECK_EQ_I(ctl_clock_startup(219000u, 1, later, 8, set_at, 8), CTL_CLK_START_RANGE);
+    CHECK_EQ_I(ctl_clock_startup(0u, 1, later, 8, set_at, 8), CTL_CLK_START_NONE);
 }
 
 MUNIT_MAIN("3dfxctl logic (the 3dfx Control Panel's decisions, true source)",

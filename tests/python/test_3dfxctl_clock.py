@@ -80,7 +80,7 @@ def test_an_overclock_goes_back_unless_kept_and_is_saved_only_once_kept():
 
 def test_the_logon_reapply_consumes_the_stamp_before_the_clock_moves():
     s = _body("clock_startup", strings=False)
-    decide = s.index("switch (ctl_clock_startup(saved, now, nnow, seen, nseen)) {")
+    decide = s.index("switch (ctl_clock_startup(saved, has_it, now, nnow, seen, nseen)) {")
     sw_end = s.index("\n    }\n", decide)
     cases = s[decide:sw_end]
     # every refusal forgets the saved clock and returns before any clock request
@@ -90,6 +90,13 @@ def test_the_logon_reapply_consumes_the_stamp_before_the_clock_moves():
         c = c[:c.index("return 0;")]
         assert "clk_persist_clear(why, sizeof why);" in c, case
     assert "clock_call(" not in cases
+    # A LOGON IS NOT A BOOT: the card still running the saved clock (a logoff
+    # and logon) keeps everything - no clear, no stamp, no note of a crash
+    run = cases[cases.index("case CTL_CLK_START_RUNNING:"):]
+    run = run[:run.index("return 0;")]
+    assert "clk_persist_clear" not in run and "clk_note_last" not in run
+    pre = s[:decide]
+    assert "clock_call(VCR_CLOCK_OP_GET, 0, &r)" in pre and "r.cur_pll[0] == want" in pre
     after = s[sw_end:]
     stamp = after.index('reg_set_bin(HKEY_LOCAL_MACHINE, CTL_KEY_PANEL, "StartupSeen", now, 8)')
     readback = after.index("memcmp(now, back, 8) != 0", stamp)

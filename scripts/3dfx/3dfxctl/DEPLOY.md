@@ -121,7 +121,11 @@ included** — keeps that parent's old environment until the parent restarts.
   did not move (a crash, a lock-up, the power) or either stamp is missing, it
   forgets the saved clock, removes the Run value, and leaves a note the Clock tab
   shows ("Last logon: NOT re-applied: ..."). Equality only, never order: `.124`'s
-  clock resets after a power loss. Measured on `.124`: an agent REBOOT through
+  clock resets after a power loss. **A logon is not a boot:** the Run value fires
+  at a logoff/logon too, with the stamp unmoved - so when the card STILL RUNS the
+  saved clock (its word is the saved clock's; the VBIOS puts its own back at every
+  power-on) `/startup` does nothing at all. The first 2.1.0 build judged that
+  case a crash, forgot the saved clock and wrote that the card was at stock. Measured on `.124`: an agent REBOOT through
   `safe-reboot.py` writes `ShutdownTime` too (04:50:56 and 05:01:18 UTC, two
   reboots). A clock set later while the box is ticked is saved only once KEPT.
 
@@ -253,10 +257,13 @@ the user at the box").
    and **Keep it**: it stays (0000da1d); Stock -> Set: 0000e721 exactly. Tick "use
    this clock again": `REGREAD HKLM SOFTWARE\3dfxctl` shows `StartupClock` and
    `StartupSeen` = Windows' current `ShutdownTime`, and the Run value exists.
-   `EXEC C:\RETRO_AGENT\3dfxctl.exe /startup` in the SAME session must refuse
-   (the stamp has not moved): the three values gone and `StartupClockLast`
-   "NOT re-applied: Windows did not shut down cleanly ...". Across a real
-   `safe-reboot.py` it must say "re-applied ..." and the card read the clock.
+   `EXEC C:\RETRO_AGENT\3dfxctl.exe /startup` in the SAME session must do
+   NOTHING (the card still runs the clock: a logon, not a boot) - all three values
+   stay. To see the crash path without crashing: `vcrctl clock restore` (the card
+   back at the VBIOS's word, as after a reset), then `/startup`: the stamp has not
+   moved, so the three values are gone and `StartupClockLast` says "NOT re-applied:
+   Windows did not shut down cleanly ...". Across a real `safe-reboot.py` it must
+   say "re-applied ..." and the card read the clock.
    Leave the box at Stock with the box unticked.
 9. `DOWNLOAD C:\RETRO_AGENT\3dfxctl.log` — every change the panel made, with
    its read-back and pace-gate result.
