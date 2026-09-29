@@ -24,6 +24,7 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 |---|---|---|
 | GPU power cap | **400 W** via `nvidia-power-cap.service` (enabled, runs `nvidia-smi -pl 400`; originally from `reusable-agents/install/configure-local-models.sh`, override with `GPU_POWER_LIMIT_W`). The unit was rewritten 2026-09-26 23:22:44 by a `sudo sed` run from `~/development/reusable-agents` (commit `2637516`) and applied at 23:22:45 (`set to 400.00 W from 575.00 W`). It has been re-applied at every boot since; `nvidia-smi` reads 400 W on 09-28 12:18 | 2026-09-26 23:22 |
 | Cap history | 400 W (08-30 → 09-23 23:32), **uncapped 575 W** (09-23 23:32 → 09-24 23:30), 450 W (09-24 23:30 → 09-26 23:22; an instant power-off happened under it on 09-26 20:14), 400 W (now; under it: Xid 79 on 09-28 10:59, an MCE panic on 09-28 15:48, then a 7 h post-reboot fault storm) | |
+| GPU clock lock | **210–2400 MHz** graphics (`nvidia-smi -lgc 210,2400`; stock boost reaches 3090 MHz). Added to `nvidia-power-cap.service` (ExecStart; `-rgc` on stop) and to `reusable-agents/install/configure-local-models.sh` (`GPU_CLOCK_LOCK_MHZ`, empty disables it). Applied live 09-28 23:3x after the 15:48 MCE panic at the 400 W floor; under load the clock peaks at 2385 MHz | 2026-09-28 |
 | `kernel.hung_task_panic` | 0 (a GPU drop leaves the box up, just without a GPU) | 2026-09-16 |
 | `kernel.panic` / `hardlockup_panic` | 30 / 1 (`/etc/sysctl.d/60-lockup-panic.conf`) | 2026-09-08 |
 | kdump | enabled; dumps land in `/var/crash/` | |
