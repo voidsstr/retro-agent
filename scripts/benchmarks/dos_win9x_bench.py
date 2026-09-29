@@ -59,12 +59,20 @@ def quake_cfg(demo, waits=4000):
     closing svc_disconnect (Host_EndGame) then goes to CL_NextDemo ("No demos
     listed with startdemos") instead of CL_Disconnect -> CL_FinishTimeDemo:
     no score is ever printed and DOS Quake 1.08 exits (measured on .243,
-    2026-09-28). An empty startdemos sets demonum to -1, as id's own flow does."""
+    2026-09-28). An empty startdemos sets demonum to -1, as id's own flow does.
+
+    `toggleconsole` before `quit` is load-bearing too: Host_Quit_f only exits
+    when key_dest is the console - from a script after a demo it opened the
+    "really quit? Y/N" menu instead, and on .243 that DOS box could then be
+    ended by nothing but a key at the machine (not PROCKILL, not WM_CLOSE).
+    A/B in DOSBox (same QUAKE.EXE, 2026-09-28): plain `quit` sat in the menu
+    and quake.rc went on to "3 demo(s) in loop"; toggleconsole + quit exited
+    rc 0 straight after "969 frames ... fps"."""
     lines = ["startdemos",
              'alias w10 "wait;wait;wait;wait;wait;wait;wait;wait;wait;wait"',
              'alias w100 "w10;w10;w10;w10;w10;w10;w10;w10;w10;w10"',
              'alias w1000 "w100;w100;w100;w100;w100;w100;w100;w100;w100;w100"',
-             "timedemo %s" % demo] + ["w1000"] * (waits // 1000) + ["quit", ""]
+             "timedemo %s" % demo] + ["w1000"] * (waits // 1000) + ["toggleconsole", "quit", ""]
     return "\r\n".join(lines)
 
 

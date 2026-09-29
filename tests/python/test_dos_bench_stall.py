@@ -73,4 +73,7 @@ def test_quake_cfg_quits_after_the_timedemo():
     assert cfg.index("timedemo demo2") < cfg.index("quit")
     assert cfg.count("w1000") == 4
     assert cfg[-2] == "quit"
+    assert cfg[-3] == "toggleconsole", (
+        "Host_Quit_f exits only from the console: without it DOS Quake sat at 'really quit? Y/N' "
+        "on .243 and in DOSBox (A/B, 2026-09-28)")
     assert cfg[0] == "startdemos", "without it the demo ends in CL_NextDemo and no score prints (.243)"
