@@ -131,6 +131,12 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
   (`sudo modprobe -r r8169 && sudo modprobe r8169`, then `nmcli connection up "Profile 1"`), or a full power-off
   (not a warm reboot) so the NIC resets. Check afterwards with `ip route get 192.168.1.122` (must be
   `dev enp129s0 src 192.168.1.132`) and `ls /mnt/retro-share`.
+- **17:44-17:46: the driver reload does NOT clear it, and neither does a PCI function reset.** Tried in
+  turn: `modprobe -r r8169 && modprobe r8169`, then `modprobe -r` + `echo 1 > .../0000:81:00.0/reset` +
+  PCI `remove` / `rescan` + `modprobe`. Each time the link came back at 1 Gbps full and the same
+  `NETDEV WATCHDOG ... transmit queue 0 timed out` followed about 25-35 s later. No DMAR/IOMMU fault
+  was logged against `81:00.0`, so this is not the GPU's signature 6. **Only the full power-off is
+  left**: shut down, remove power (or switch the PSU off) for about 30 s, then start again.
 
 ### 2026-09-29 16:45:53: requested reboot (clean, not a fault)
 
