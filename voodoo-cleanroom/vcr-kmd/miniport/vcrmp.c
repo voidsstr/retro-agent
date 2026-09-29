@@ -218,6 +218,7 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
     VcrHwSaveBootState(x);
     VcrHwSnapshotToLog(x, "boot");
     VcrMultiInit(x);            /* slaves placed + mapped, or Glide stays 1-chip */
+    VcrCoreClockCapture(x, "boot");     /* every chip's pllCtrl1 before anything writes it */
     VcrMonitorInit(x);          /* EDID over DDC: the mode list honours the monitor */
 
     x->nmodes = vcr_modes_build(&x->caps, x->modes, VCR_MAX_MODES);
@@ -863,6 +864,19 @@ static BOOLEAN NTAPI VcrStartIO(PVOID ext, PVIDEO_REQUEST_PACKET rp)
     case IOCTL_VCR_RESET_ENGINE:
         st = VcrHwResetEngine(x, 0, "requested") ? NO_ERROR : ERROR_BUSY;
         break;
+    case IOCTL_VCR_CLOCK: {
+        /* METHOD_BUFFERED: request and answer share one buffer - copy the
+         * request out before the answer overwrites it */
+        vcr_clock_req rq;
+        ULONG inlen = rp->InputBufferLength;
+        NEED_OUT(sizeof(vcr_clock_res));
+        VideoPortZeroMemory(&rq, sizeof rq);
+        if (rp->InputBuffer && inlen)
+            VideoPortMoveMemory(&rq, rp->InputBuffer, inlen < sizeof rq ? inlen : sizeof rq);
+        st = VcrCoreClock(x, &rq, inlen, (vcr_clock_res *)rp->OutputBuffer);
+        info = sizeof(vcr_clock_res);
+        break;
+    }
     default:
         VLOG(VCR_LV_DEBUG, VCR_EV_IOCTL_UNKNOWN, code, rp->InputBufferLength,
              rp->OutputBufferLength, 0, "unsupported IOCTL %x", code);

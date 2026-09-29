@@ -74,6 +74,11 @@ BASE_DIAG = {
 }
 # the integration's new switches: every one OFF unless set
 NEW_DIAG = {"D3DBigTex": "0", "DdHeapFloor": "0", "ClutRead": "0"}
+# KILL switches: they only gate an EXPLICIT request, so absent = the request is
+# honoured and the base behaviour is unchanged - nothing touches the hardware
+# until a caller asks. CoreClock (2026-09-29): 0 refuses IOCTL_VCR_CLOCK's
+# SET/RESTORE; the driver itself never writes pllCtrl1 unasked.
+KILL_DIAG = {"CoreClock": "1"}
 
 
 def test_every_diag_default_is_the_bases_and_the_new_switches_are_off():
@@ -82,7 +87,7 @@ def test_every_diag_default_is_the_bases_and_the_new_switches_are_off():
         for name, dflt in re.findall(r'VcrDiagGet\(L"(\w+)",\s*([^)]+)\)', f.read_text()):
             assert got.setdefault(name, dflt.strip()) == dflt.strip(), \
                 f"Diag\\{name} read with two defaults"
-    want = dict(BASE_DIAG, **NEW_DIAG)
+    want = dict(BASE_DIAG, **NEW_DIAG, **KILL_DIAG)
     assert got == want, {k: (got.get(k), want.get(k)) for k in set(got) | set(want)
                          if got.get(k) != want.get(k)}
 

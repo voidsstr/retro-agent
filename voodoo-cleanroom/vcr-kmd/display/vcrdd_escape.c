@@ -39,7 +39,7 @@ static BOOL supported(ULONG esc)
     case VCR_EXT_HWC_WXP:
         return TRUE;
     }
-    return esc > VCR_ESC_BASE && esc <= VCR_ESC_2D_STATS;
+    return esc > VCR_ESC_BASE && esc <= VCR_ESC_CLOCK;
 }
 
 static BOOL get_info(VCR_PDEV *pd, vcr_info *v)
@@ -325,6 +325,44 @@ ULONG APIENTRY DrvEscape(SURFOBJ *pso, ULONG iEsc, ULONG cjIn, PVOID pvIn,
 
     case VCR_ESC_BOOT_OK:
         return VcrIoctl(pd->hDriver, IOCTL_VCR_BOOT_OK, NULL, 0, NULL, 0, NULL) ? 0 : 1;
+
+    case VCR_ESC_CLOCK: {
+        /* the core clock, live (include/vcr_clock.h). The miniport cannot see
+         * which process holds the board for Glide - this PDEV can. While one
+         * does, its register writes come straight from user mode and every 2D
+         * path here stands back from the chip; a clock change stands back too:
+         * the request becomes a GET (the answer still carries the clocks) and
+         * says EXCLUSIVE. A short request goes through as it came, for the
+         * miniport to answer BAD_REQUEST. */
+        vcr_clock_req rq;
+        ULONG refused = 0;
+        PVOID in = pvIn;
+        ULONG inlen = cjIn;
+        if (!pvOut || cjOut < sizeof(vcr_clock_res))
+            return 0;
+        if (pvIn && cjIn >= sizeof rq) {
+            memcpy(&rq, pvIn, sizeof rq);
+            if ((rq.op == VCR_CLOCK_OP_SET || rq.op == VCR_CLOCK_OP_RESTORE) && pd->exclusive_pid) {
+                refused = rq.op;
+                rq.op = VCR_CLOCK_OP_GET;
+            }
+            in = &rq;
+            inlen = sizeof rq;
+        }
+        rc = VcrIoctl(pd->hDriver, IOCTL_VCR_CLOCK, in, inlen, pvOut, cjOut, &got);
+        if (rc)
+            return 0;
+        ((vcr_clock_res *)pvOut)->exclusive_pid = pd->exclusive_pid;
+        if (refused) {
+            ((vcr_clock_res *)pvOut)->result = VCR_CLOCK_R_EXCLUSIVE;
+            ((vcr_clock_res *)pvOut)->target_khz = refused == VCR_CLOCK_OP_SET ? rq.target_khz
+                                                   : ((vcr_clock_res *)pvOut)->boot_khz;
+            VcrDd(VCR_LV_WARN, VCR_EV_CORE_CLOCK, 3, VCR_CLOCK_R_EXCLUSIVE, pd->exclusive_pid,
+                  rq.target_khz, "core clock change refused: Glide program %u holds the board",
+                  pd->exclusive_pid);
+        }
+        return got;
+    }
 
     case VCR_ESC_DD_STATS:
         if (!pvOut || cjOut < 4 * sizeof(ULONG))

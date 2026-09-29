@@ -37,6 +37,7 @@
 #define IOCTL_VCR_RESET_ENGINE  VCR_CTL(0xa0c)
 #define IOCTL_VCR_DDFLIP        VCR_CTL(0xa0d)
 #define IOCTL_VCR_VBLANK        VCR_CTL(0xa0e)
+#define IOCTL_VCR_CLOCK         VCR_CTL(0xa0f)  /* vcr_clock_req -> vcr_clock_res (include/vcr_clock.h) */
 
 #define VCR_ESC_BASE            0x56430000u     /* 'VC' */
 #define VCR_ESC_INFO            (VCR_ESC_BASE + 1)
@@ -49,6 +50,7 @@
 #define VCR_ESC_DD_STATS        (VCR_ESC_BASE + 8)
 #define VCR_ESC_RESET_ENGINE    (VCR_ESC_BASE + 9)
 #define VCR_ESC_2D_STATS        (VCR_ESC_BASE + 10)  /* vcr_2d_stats: the display driver's 2D counters */
+#define VCR_ESC_CLOCK           (VCR_ESC_BASE + 11)  /* IOCTL_VCR_CLOCK: the core clock, live */
 
 /* backends */
 #define VCR_HW_NONE             0
@@ -286,5 +288,49 @@ typedef struct vcr_ctx_dword {
     vcr_u32 user_va;
     vcr_u32 status;
 } vcr_ctx_dword;
+
+/* IOCTL_VCR_CLOCK / VCR_ESC_CLOCK: the VSA-100 core (and memory) clock, read
+ * or set LIVE (include/vcr_clock.h, miniport/vcrmp_clock.c VcrCoreClock,
+ * 2026-09-29). GET changes nothing and reports every chip. SET ramps the
+ * MASTER (chip 0) in <= 5 MHz steps, each written while every chip is idle
+ * and read back; the slaves take the master's word at the next SLI enable
+ * (each Glide game start copies it, vcrmp_sli.c init_slave). RESTORE ends on
+ * the exact word the VBIOS left (captured before our first write).
+ * Diag\CoreClock = 0 refuses SET and RESTORE (GET still answers), and so does
+ * a Glide program holding the board: the escape turns the request into a GET
+ * and answers EXCLUSIVE. */
+#define VCR_CLOCK_OP_GET        0
+#define VCR_CLOCK_OP_SET        1
+#define VCR_CLOCK_OP_RESTORE    2
+typedef struct vcr_clock_req {
+    vcr_u32 size;               /* sizeof(vcr_clock_req) */
+    vcr_u32 op;                 /* VCR_CLOCK_OP_* */
+    vcr_u32 target_khz;         /* SET: 120000..219000 */
+    vcr_u32 reserved;
+} vcr_clock_req;
+#define VCR_CLOCK_R_OK          0
+#define VCR_CLOCK_R_RANGE       1   /* the target is outside min..max: nothing written */
+#define VCR_CLOCK_R_BUSY        2   /* a chip never went idle: stopped at the last good step */
+#define VCR_CLOCK_R_NOT_VOODOO  3   /* not a Voodoo backend (the QEMU bed): nothing to clock */
+#define VCR_CLOCK_R_READBACK    4   /* a chip read back another word: stopped there */
+#define VCR_CLOCK_R_CHIPS       5   /* the master is not mapped or its VBIOS word was never read */
+#define VCR_CLOCK_R_DISABLED    6   /* Diag\CoreClock = 0 */
+#define VCR_CLOCK_R_BAD_REQUEST 7   /* an unknown op or a short request */
+#define VCR_CLOCK_R_EXCLUSIVE   8   /* a Glide program holds the board (exclusive_pid):
+                                     * nothing written - change the clock on the desktop */
+typedef struct vcr_clock_res {
+    vcr_u32 size;               /* sizeof(vcr_clock_res) */
+    vcr_u32 result;             /* VCR_CLOCK_R_* */
+    vcr_u32 nchips;             /* chips of the board (the slaves follow the master at SLI enable) */
+    vcr_u32 min_khz, max_khz, step_khz;
+    vcr_u32 boot_khz;           /* chip 0 as the VBIOS left it */
+    vcr_u32 cur_khz;            /* chip 0 now */
+    vcr_u32 target_khz;         /* what was asked (SET) or the boot clock (RESTORE) */
+    vcr_u32 steps;              /* ramp steps written by this request */
+    vcr_u32 idle_retries;       /* times a step found a chip busy and waited again */
+    vcr_u32 exclusive_pid;      /* a Glide program holding the board, 0 = none */
+    vcr_u32 boot_pll[VCR_MAX_CHIPS];
+    vcr_u32 cur_pll[VCR_MAX_CHIPS];
+} vcr_clock_res;
 
 #endif /* VCR_IOCTL_H */

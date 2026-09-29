@@ -143,6 +143,7 @@
 #define VCR_PACE_WANT_KILL
 #include "vcr_pace.h"
 #include "vcr_sliaa.h"          /* `sliaa`: parser, the at-the-box gate, Glide's request */
+#include "vcr_clock.h"          /* `clock`: decode the pllCtrl1 words */
 
 static HDC g_dc;
 
@@ -1774,6 +1775,71 @@ static int cmd_pace_kill(const char *arg)
                             exited ? NULL : "terminated but not gone after 10 s", 0);
 }
 
+/* ---- the core clock, live (IOCTL_VCR_CLOCK, include/vcr_clock.h) -------------- */
+
+static const char *clock_result(ULONG r)
+{
+    switch (r) {
+    case VCR_CLOCK_R_OK:          return "ok";
+    case VCR_CLOCK_R_RANGE:       return "outside the range - nothing written";
+    case VCR_CLOCK_R_BUSY:        return "the board never went idle - stopped at the last good step";
+    case VCR_CLOCK_R_NOT_VOODOO:  return "not a Voodoo backend";
+    case VCR_CLOCK_R_READBACK:    return "the master read back another word - stopped there";
+    case VCR_CLOCK_R_CHIPS:       return "the master is not mapped or its VBIOS word was never read";
+    case VCR_CLOCK_R_DISABLED:    return "Diag\\CoreClock = 0";
+    case VCR_CLOCK_R_BAD_REQUEST: return "bad request";
+    case VCR_CLOCK_R_EXCLUSIVE:   return "a Glide program holds the board - nothing written";
+    }
+    return "?";
+}
+
+/* `clock` (read), `clock set <MHz>` (e.g. 150 or 150.5), `clock restore`.
+ * The answer is the post-condition: every chip's word read back, not "OK".
+ * A SET moves the master (chip 0) now; the slaves take its word at the next
+ * SLI enable (a Glide game starting), so between games they may still show
+ * their reset word (0x0C01, 50 MHz) or the clock of the last game. */
+static int cmd_clock(int argc, char **argv)
+{
+    vcr_clock_req rq;
+    vcr_clock_res rs;
+    ULONG c;
+    int n;
+
+    memset(&rq, 0, sizeof rq);
+    memset(&rs, 0, sizeof rs);
+    rq.size = sizeof rq;
+    rq.op = VCR_CLOCK_OP_GET;
+    if (argc > 2 && !strcmp(argv[2], "set")) {
+        if (argc < 4)
+            return fail("clock", "usage: clock set <MHz>");
+        rq.op = VCR_CLOCK_OP_SET;
+        rq.target_khz = (ULONG)(atof(argv[3]) * 1000.0 + 0.5);
+    } else if (argc > 2 && !strcmp(argv[2], "restore")) {
+        rq.op = VCR_CLOCK_OP_RESTORE;
+    } else if (argc > 2 && strcmp(argv[2], "get")) {
+        return fail("clock", "usage: clock [get | set <MHz> | restore]");
+    }
+    n = esc(VCR_ESC_CLOCK, &rq, sizeof rq, &rs, sizeof rs);
+    if (n <= 0)
+        return fail("clock", "VCR_ESC_CLOCK refused - a vcr-kmd older than the live clock?");
+    printf("{\"cmd\":\"clock\",\"ok\":%s,\"op\":\"%s\",\"result\":%u,\"why\":\"%s\","
+           "\"nchips\":%u,\"boot_khz\":%u,\"cur_khz\":%u,\"target_khz\":%u,\"steps\":%u,"
+           "\"idle_retries\":%u,\"glide_pid\":%u,\"min_khz\":%u,\"max_khz\":%u,\"chips\":[",
+           rs.result == VCR_CLOCK_R_OK ? "true" : "false",
+           rq.op == VCR_CLOCK_OP_SET ? "set" : rq.op == VCR_CLOCK_OP_RESTORE ? "restore" : "get",
+           rs.result, clock_result(rs.result), rs.nchips, rs.boot_khz, rs.cur_khz, rs.target_khz,
+           rs.steps, rs.idle_retries, rs.exclusive_pid, rs.min_khz, rs.max_khz);
+    for (c = 0; c < rs.nchips && c < VCR_MAX_CHIPS; c++)
+        printf("%s{\"chip\":%u,\"role\":\"%s\",\"boot\":\"%08x\",\"boot_khz\":%u,"
+               "\"cur\":\"%08x\",\"cur_khz\":%u}",
+               c ? "," : "", (unsigned)c, c ? "slave: takes the master's word at SLI enable"
+                                             : "master: set live",
+               rs.boot_pll[c], vcr_clock_pll_khz(rs.boot_pll[c]), rs.cur_pll[c],
+               vcr_clock_pll_khz(rs.cur_pll[c]));
+    printf("]}\n");
+    return rs.result == VCR_CLOCK_R_OK ? 0 : 2;
+}
+
 int main(int argc, char **argv)
 {
     const char *cmd = argc > 1 ? argv[1] : "info";
@@ -1797,6 +1863,8 @@ int main(int argc, char **argv)
         rc = cmd_simple("bootok", VCR_ESC_BOOT_OK);
     else if (!strcmp(cmd, "snapshot"))
         rc = cmd_snapshot();
+    else if (!strcmp(cmd, "clock"))
+        rc = cmd_clock(argc, argv);
     else if (!strcmp(cmd, "reg") && argc > 2)
         rc = cmd_regop("reg", VCR_REG_MMIO32, strtoul(argv[2], NULL, 16), 0);
     else if (!strcmp(cmd, "clut"))

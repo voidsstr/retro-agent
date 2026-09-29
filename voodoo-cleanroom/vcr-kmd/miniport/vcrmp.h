@@ -71,6 +71,12 @@ PVOID NTAPI PsGetCurrentProcess(VOID);
 LONGLONG NTAPI PsGetProcessCreateTimeQuadPart(PVOID Process);
 ULONG __cdecl DbgPrint(const char *, ...);
 UCHAR NTAPI KeGetCurrentIrql(VOID);
+/* hal.dll (XP SP3 exports both; tools/xp_exports/hal.dll.txt): the core clock
+ * raises to DISPATCH_LEVEL around its last idle check and its writes, so no
+ * thread - a game queueing a frame - runs between the two on a 1-CPU box */
+UCHAR __attribute__((fastcall)) KfRaiseIrql(UCHAR NewIrql);
+VOID __attribute__((fastcall)) KfLowerIrql(UCHAR NewIrql);
+#define VCR_DISPATCH_LEVEL 2
 ULONG NTAPI HalGetBusDataByOffset(ULONG BusDataType, ULONG Bus, ULONG Slot,
                                   PVOID Buf, ULONG Offset, ULONG Len);
 ULONG NTAPI HalSetBusDataByOffset(ULONG BusDataType, ULONG Bus, ULONG Slot,
@@ -172,6 +178,11 @@ typedef struct VCR_EXT {
     vcr_edid_info mon;
     ULONG     mon_src;              /* VCR_MON_SRC_*: where x->caps' limits came from */
 
+    /* the core clock, live (vcrmp_clock.c VcrCoreClock, include/vcr_clock.h) */
+    ULONG     core_boot_pll[VCR_MAX_CHIPS];     /* pllCtrl1 as the VBIOS left it, 0 = not read */
+    ULONG     core_changed;                     /* 1 once a SET wrote pllCtrl1: nothing is
+                                                 * captured as "boot" after that */
+
     /* stable-boot timer */
     ULONG     seconds;
     ULONG     boot_marked;
@@ -226,6 +237,8 @@ void    VcrHwPower(VCR_EXT *x, ULONG state);
 
 /* ---- vcrmp_clock.c: the V5 6000 external clock --------------------------- */
 ULONG   VcrClock6k(VCR_EXT *x, ULONG pllctrl0);
+void    VcrCoreClockCapture(VCR_EXT *x, const char *when);  /* the VBIOS words, before any write */
+VP_STATUS VcrCoreClock(VCR_EXT *x, const vcr_clock_req *rq, ULONG rqlen, vcr_clock_res *rs);
 
 /* ---- vcrmp_multi.c: slaves and SLI/AA (the port is vcrmp_sli.c) ------------ */
 void    VcrMultiInit(VCR_EXT *x);                     /* place + map the slaves */
