@@ -30,7 +30,7 @@ VRAM; also this repo's fleet AI engine) and `local-image-gen` (SDXL, about
 | kdump | enabled; dumps land in `/var/crash/` | |
 | `pcie_aspm=off` in GRUB | present, **no effect** (the link can't use ASPM) | 2026-09-16 |
 | PCIe link width | **x16** since the 09-24 17:39 boot (`392ee1f9`, the first boot after the 09-24 mains loss). The kernel's `limited by 32.0 GT/s PCIe x8 link at 0000:00:06.0` line is on every retained boot through 09-23 18:30 (`504edd27`) and on none from 09-24 17:39 on, and sysfs `current_link_width` reads 16 on 09-28. The 09-24 19:18 MCE, both power-offs and the 09-28 Xid 79 all happened at x16, which confirms x8 was not the crash cause (see 09-23) | 2026-09-24 17:39 |
-| Host IP | **192.168.1.132** is back as the PRIMARY LAN address (static, added to NM "Profile 1" 2026-09-28 23:55; LAN traffic is sourced from it, `ip route get 192.168.1.123` -> src .132). DHCP still hands out **.196** (gateway .254), kept as a secondary address for the default route. A DHCP reservation for .132 on the router would remove the (small) risk of the router leasing .132 to another device | 2026-09-28 23:55 |
+| Host IP | **Wi-Fi only, 192.168.1.129** (`wlp128s20f3`, NM "office") since 2026-09-30 09:50, by the user's instruction ("go through wifi for everything"): `enp129s0` is disconnected with device autoconnect OFF. **192.168.1.132 is not assigned**, so anything on the fleet that dials .132 (the game servers' address in every box's favourites, for one) cannot reach this host until the wired profile is back. Re-enable: `nmcli device set enp129s0 autoconnect yes && nmcli connection up "Profile 1"` (the static .132 lives in "Profile 1"). **The RTL8125B is not known to be faulty** - see signature 7 and the 09-30 09:44 entry | 2026-09-30 09:50 |
 | Open physical items | 12V-2x6 connector at both ends; separate PSU cables vs daisy-chain; PSU wattage; a UPS/meter with logging | |
 
 ---
@@ -90,6 +90,30 @@ a warm reboot evidently does not. Count it:
 `journalctl -b 0 -k | awk '/DMA (Read|Write).*Request device/{n++} /dmar_fault: [0-9]+ callbacks suppressed/{for(i=1;i<=NF;i++) if($i=="dmar_fault:") n+=$(i+1)} END{print n+0}'`
 — non-zero means the card needs a cold cycle before the fleet will run.
 
+**7. The whole wired LAN freezes and this host's NIC logs tx timeouts - a HUNG FLEET BOX is flooding
+802.3x PAUSE frames.** `r8169 ... enp129s0: NETDEV WATCHDOG: CPU: N: transmit queue 0 timed out`
+repeating every ~20-30 s, and at the same moment the NAS and **every** wired box stop answering even ARP.
+The gateway (`http://192.168.1.254/cgi-bin/devices.ha`, no login) shows all of them `off`, their last activity
+within the same half-minute, while Wi-Fi devices and whitebeast (another gateway port) stay `on`. **It looks
+exactly like a dead host NIC and is not one.** A PC that hangs with its NIC still powered stops draining
+its receive ring, and the NIC then sends PAUSE frames without end. An unmanaged switch that honours flow
+control stops its own egress, and its buffers fill until every port is paused. This host is paused too,
+and a MAC paused for more than 5 s logs exactly that watchdog line.
+- **Tell victim from source with the host's own counters** (no root): `ethtool -I -a enp129s0`. A
+  climbing `rx_pause_frames` with a flat `tx_pause_frames` means the host is being paused. On
+  2026-09-30 this boot had received **91,198** and sent **3**.
+- **Find the box.** In `devices.ha`, look for the device whose last activity stops first. It stays
+  stopped while everything else carries on until the freeze spreads. For an unambiguous answer,
+  bisect by cable: one switch, its uplink, then one machine at a time. The LAN dies within about a
+  minute of the frozen box going back in.
+- **Fix: cut that box's power** (hold its power button ~5 s). Unplugging its cable is enough to bring
+  the LAN back, but the box stays frozen. A warm reboot of *this host*, a driver reload, a PCI reset or
+  a new switch all change nothing while the frozen box is still cabled. On 09-29 all four were tried.
+- **Seen:** `.124` (Voodoo 5 6000), hard-frozen by its AA driver tests: 09-30 09:42 (bisected), and very
+  likely 09-29 16:32.
+  Moving the host to Wi-Fi does not help while the frozen box is still flooding, because the gateway
+  reaches the wired fleet through the same frozen switches.
+
 ### Triage commands
 
 ```bash
@@ -115,8 +139,52 @@ Decode each line, concatenate the bytes, then gunzip. Joining the lines first fa
 
 ## Incident log (newest first)
 
+### 2026-09-30 09:44:04: wired LAN frozen by `.124` hard-frozen under 2x AA - NOT the host NIC (signature 7)
+
+- **Boot:** `d3bc0e94…` (up since 09-29 16:47:20; no host reboot). `enp129s0` logged 27 `NETDEV WATCHDOG:
+  CPU: 1: transmit queue 0 timed out` lines, 09:44:04-09:50:03. The NAS, every wired fleet box and the host's
+  own wired path went dark together.
+- **Source: `.124`, likely (every observation fits; no frame capture).** At 09:42:40-42 a session quit
+  Quake II through the console on `.124`, which was running 2x anti-aliasing on the clean-room vcr-kmd
+  driver. The agent answered all three `UIKEY`s, then went silent within 5 s. It never answered again. The
+  gateway's last activity for `.124` is 09:42:31 and does not move afterwards. So `.124` never even rebooted.
+  The host's tx timeouts began 80 s after the freeze.
+- **The host was the victim:** its hardware pause counters for this boot read `rx_pause_frames` **91,198**,
+  `tx_pause_frames` **3**.
+- **Bisected by cable (with the user, from another session):**
+  - All switches off, then one switch on: `.123` and ADMIN-PC answered, and the NAS came back with the
+    second switch.
+  - Switch 3 on its uplink only: fine. Adding the Pentium (`.243`): fine.
+  - Adding `.124` at ~10:22: every LAN-1 device went `off` at the gateway at 10:22:32 and stayed off.
+- **Response:**
+  - The user put the host on Wi-Fi (09:50: `enp129s0` disconnected, device autoconnect off, NM
+    "office"; see Current state).
+  - `.124`'s cable was pulled and its power is to be cut.
+  - The clean-room driver auto-disarms AA on the next boot (`Diag\SliAALive`, vcr-kmd commit `045619b`),
+    so the box will not freeze again at the first game launch.
+  - Planned preventive: turn off 802.3x flow control on `.124`'s NIC, so that a frozen driver-test box
+    cannot pause the LAN.
+- **This also re-explains the 09-29 16:47 entry below.** That entry's "the fault travels with this host's
+  RTL8125B" was a measurement artefact.
+
 ### 2026-09-29 16:47:51: wired NIC wedged from first boot - host fell back to Wi-Fi and lost the fleet and the NAS
 
+- **CORRECTION (2026-09-30): the source was very likely `.124`, hard-frozen by an AA test, not this
+  NIC.** The steps below were all real, and every one fits a frozen box flooding PAUSE frames (signature 7):
+  - At 16:32:18 a session launched Quake II on `.124` at `SSTH3_SLI_AA_CONFIGURATION`=6 (2x AA). `.124`
+    stopped answering by 16:33.
+  - That session then lost the internet at 16:39 (`EAI_AGAIN`): the host was still wired then, and its
+    route went through the frozen switches.
+  - The user then requested the 16:45 reboot.
+  - The gateway put every LAN-3 device's last activity at 16:32-16:50.
+  - Nothing that reset the host or a switch helped: driver reload, PCI reset, a new switch. The still-frozen
+    `.124` was cabled into each switch in turn.
+  - The host's pause counters for this boot, read on 09-30, were 91,198 received against 3 sent.
+  - **The host was never powered off, and its NIC recovered anyway.** The same boot re-activated
+    `enp129s0` at 18:46:27. It then ran for 15 h with a single stray timeout (19:31:53), until `.124`
+    froze again at 09-30 09:42.
+  The same bisection on 09-30 pinned it on `.124` directly (see the entry above). **Do not act on
+  "power the host off at the PSU" below: that advice rests on the misattribution.**
 - **Boot:** `d3bc0e94…` from 16:47:20 (after the 16:45 requested reboot). The RTL8125B (`r8169`, `enp129s0`)
   linked at 16:47:31 (1 Gbps full) and **20 s later** logged `NETDEV WATCHDOG: CPU: 12: transmit queue 0
   timed out 5185 ms` + `rtl_rxtx_empty_cond == 0`. That repeated 28 times through 17:08, and it recurs
