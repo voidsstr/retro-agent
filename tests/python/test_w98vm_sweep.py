@@ -45,3 +45,14 @@ def test_shortcut_targets_parse():
     assert sw.pif_target(bytes(pif)) == "C:\\GAMES\\QUAKE1\\PLAYQU~4.BAT"
     lnk = b"L\0\0\0junk C:\\Games\\Quake2Win9x\\Play Quake II.bat\0more"
     assert sw.lnk_target(lnk) == "C:\\Games\\Quake2Win9x\\Play Quake II.bat"
+
+
+def test_the_agents_own_console_is_never_a_game_window():
+    """Win9x retitles the agent's console with its last command; the sweep must
+    recognise it by pid (WINLIST signed, PROCLIST unsigned) or close_all kills
+    the agent."""
+    sw.AGENT_PIDS.clear(); sw.AGENT_PIDS.add(4294779119)
+    ws = [{"title": "C:\\WINDOWS\\REGEDIT.EXE /s C:\\RETRO_AGENT", "class": "tty", "pid": -188177},
+          {"title": "Doom - DOOM", "class": "tty", "pid": -142737},
+          {"title": "Welcome to Windows 98", "class": "WL98CLASS", "pid": -1}]
+    assert [w["title"] for w in sw.game_windows(ws)] == ["Doom - DOOM"]

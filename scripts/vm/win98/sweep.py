@@ -93,27 +93,64 @@ async def procs(c):
     return {(p.get('name') or '').lower(): p.get('pid') for p in lst}
 
 
+AGENT_PIDS = set()      # the agent's own console, whatever its title (see agent_pids)
+
+
+async def agent_pids(c):
+    """On Win9x the agent's console is retitled with the last command it ran
+    (after an EXEC it read 'C:\\WINDOWS\\REGEDIT.EXE /s ...'), so excluding it by
+    title is not enough - closing it would kill the agent. WINLIST reports a
+    signed pid, PROCLIST the same pid unsigned; compare modulo 2**32."""
+    j = json.loads(await cmd(c, 'PROCLIST'))
+    lst = j if isinstance(j, list) else j.get('processes', [])
+    AGENT_PIDS.clear()
+    AGENT_PIDS.update(int(p['pid']) & 0xFFFFFFFF for p in lst
+                      if re.search(r'retro_(agent|chat)', p.get('name') or '', re.I))
+
+
 def game_windows(ws):
     out = []
     for w in ws:
+        if w.get('pid') is not None and (int(w['pid']) & 0xFFFFFFFF) in AGENT_PIDS:
+            continue
         t = w.get('title', '')
-        if t in ('Program Manager', 'retro_chat') or t.startswith('Retro Remote'):
+        if t in ('Program Manager', 'retro_chat', 'Welcome to Windows 98') or t.startswith('Retro Remote'):
             continue
         out.append({'title': t, 'class': w.get('class'), 'rect': w.get('rect')})
     return out
 
 
 async def close_all(c, rounds=10):
-    """DOS boxes: WM_CLOSE, then Yes on 'Windows cannot shut down this program'."""
+    """Close DOS boxes and answer the dialogs they raise - by WHICH dialog it is.
+
+    WM_CLOSE on a running DOS box raises "Windows cannot shut down this program
+    automatically ... terminate it now?" titled like the box, and its DEFAULT
+    button is No: RETURN there leaves the game running (measured 2026-09-30,
+    Doom survived the first trial). So a dialog titled like a DOS box gets Y.
+    "Program Requires MS-DOS Mode" is ALSO Yes/No, and Yes there REWRITES the
+    staged shortcut to always boot into MS-DOS mode - it gets N. Any other
+    dialog gets its default button.
+    """
     for _ in range(rounds):
-        ws, _fg = await winlist(c)
+        ws, fg = await winlist(c)
         live = [w for w in game_windows(ws) if w['class'] in ('tty', '#32770')]
         if not live:
             return []
         dlg = [w for w in live if w['class'] == '#32770']
         if dlg:
-            await cmd(c, 'UIKEY RETURN')          # Yes is the default button
-            await asyncio.sleep(3)
+            ttys = {w['title'] for w in live if w['class'] == 'tty'}
+            d = dlg[0]
+            if d['title'] in ttys:
+                key = 'Y'
+            elif 'MS-DOS Mode' in d['title']:
+                key = 'N'
+            else:
+                key = 'RETURN'
+            if fg.get('title') == d['title'] and fg.get('class') == '#32770':
+                await cmd(c, 'UIKEY ' + key)
+            else:
+                await cmd(c, 'LAUNCH C:\\RETRO_AGENT\\WINKEY9X.EXE "%s" %s' % (d['title'][:40], key))
+            await asyncio.sleep(4)
             continue
         await cmd(c, 'LAUNCH C:\\RETRO_AGENT\\WINKEY9X.EXE "%s" CLOSE' % live[0]['title'][:40])
         await asyncio.sleep(4)
@@ -214,6 +251,9 @@ async def main():
 
     c = await connect()
     await ensure_winkey(c)
+    await agent_pids(c)
+    if not AGENT_PIDS:
+        raise SystemExit('could not find the agent process - refusing to close windows blind')
     todo = await shortcuts(c)
     if a.only:
         todo = [t for t in todo if any(o.lower() in t[0].lower() for o in a.only)]
@@ -239,7 +279,8 @@ async def main():
                     v = 'error-dialog'
                 r['frames'].append({'t': t, 'png': png, 'verdict': v, 'windows': gw})
             now = await procs(c)
-            new = [p for p in now if p not in before and p not in SKIP_PROCS]
+            new = [p for p in now if p not in before
+                   and re.split(r'[\\/]', p)[-1] not in SKIP_PROCS]    # PROCLIST names are full paths
             r['new_processes'] = new
             left = await close_all(c)
             for p in new:
@@ -258,6 +299,7 @@ async def main():
             except Exception:
                 pass
             c = await reset_vm()
+            await agent_pids(c)
         r['summary'] = 'renders' if any(f['verdict'] == 'renders' for f in r['frames']) else \
             (r['frames'][-1]['verdict'] if r['frames'] else 'not-run')
         results[name] = r
