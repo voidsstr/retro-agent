@@ -989,6 +989,18 @@ static int config_chip(const vcr_sli_io *io, const sli_p *p, vcr_u32 c)
             div4 = VCR_AALFB_RD_DIVIDE_BY_4;
             what = "cfgAALfbCtrl: base = tileMark, AA reads on, /4 (vendor recipe)";
         }
+        if (p->vendor && n == 4) {
+            /* ours, vendor recipe (2026-09-30): AA LFB reads on for EVERY AA
+             * shape of a 4-chip board, as 3dfx's NT and Win9x miniports write
+             * CFG_AA_LFB_RD_EN for every AA request (NT SLIAA.C:2443-2449) and
+             * clear it only on chips 2/3 of the 4-chip high-sample shapes (the
+             * AA_READ_OFF step below, D:1439-1451). The 2-samples-per-chip
+             * shape (cfg 8 = 8x) was the one config-space value that departed
+             * from both: 0xCE3DC000 on chips 0/1 where 3dfx writes 0xDE3DC000
+             * - and it froze .124 ~110 ms after its open. Four chips only: the
+             * 1/2-chip shapes have no silicon here to prove a change on. */
+            rd = VCR_AALFB_READ_EN;
+        }
         if (p->vendor && n == 4 && !sli && aa && high) {
             /* ours, vendor recipe: every tiled buffer reads as depth, so an
              * LFB read returns the master's data rather than a 4-chip merge */

@@ -1786,7 +1786,10 @@ static vcr_u32 wr_hash_blank(const mock *m, vcr_u32 cfg_off)
  * step 12(a) put it behind the flag; review 2026-09-27). */
 #define CFG8_BLANK94_OLD   0xb25fd70eu  /* cfg 8's bus hash, 0x94 values blanked (412b03c) */
 #define CFG8_AALFB_OLD     0x8f000000u  /* 0x00b00000 << 4: base 176 MB on a 32 MB chip */
-#define CFG8_AALFB_NEW     0x8cb00000u  /* base 0x00b00000, CPU+dispatch write, 16 bpp, /4 */
+#define CFG8_AALFB_NEW     0x8cb00000u  /* base 0x00b00000, CPU+dispatch write, 16 bpp, /4: chips 2/3 */
+/* 2026-09-30: chips 0/1 keep AA LFB reads on, as both 3dfx miniports write
+ * CFG_AA_LFB_RD_EN for every AA request and clear it on chips 2/3 only */
+#define CFG8_AALFB_NEW_RD  (CFG8_AALFB_NEW | VCR_AALFB_READ_EN)   /* 0x9cb00000: chips 0/1 */
 
 TEST(the_aa_base_is_a_byte_address_in_the_vendor_recipe_only) {
     mock *m = &M;
@@ -1838,27 +1841,34 @@ TEST(the_aa_base_is_a_byte_address_in_the_vendor_recipe_only) {
         for (j = 0, n94 = 0; j < m->nw; j++)
             if (m->w[j].kind == 'c' && m->w[j].off == VCR_CFG_AALFBCTRL) {
                 n94++;
-                CHECK_EQ_U(m->w[j].val, CFG8_AALFB_NEW);
+                /* every write carries the byte address, whatever READ_EN says */
+                CHECK_EQ_U(m->w[j].val & VCR_AALFB_SECONDARY_BASE_MASK, 0x00b00000u);
             }
         CHECK_EQ_U(n94, 6);
+        /* what the chips are left with: READ_EN on chips 0/1, off on 2/3 */
+        CHECK_EQ_U(CFG(m, 0, VCR_CFG_AALFBCTRL), CFG8_AALFB_NEW_RD);
+        CHECK_EQ_U(CFG(m, 1, VCR_CFG_AALFBCTRL), CFG8_AALFB_NEW_RD);
+        CHECK_EQ_U(CFG(m, 2, VCR_CFG_AALFBCTRL), CFG8_AALFB_NEW);
+        CHECK_EQ_U(CFG(m, 3, VCR_CFG_AALFBCTRL), CFG8_AALFB_NEW);
         no_bus_faults(m);
     }
 }
 
-/* ---- 2026-09-30: the AA LFB base that overwrote Glide's command FIFO ----------------
- * .124, Quake II through our ICD + our h5 Glide + vcr-kmd. For every tuple that
- * stores ONE sample per chip (cfg 6 = 2x, cfg 7 = 4x) Glide sends a secondary
- * colour base of 0, and the default (dos_mode.c) recipe wrote it: cfgAALfbCtrl
- * read back 0x4c000000 on all four chips. Every AA LFB write was then also
- * written into video memory from offset 0, where Glide keeps its command FIFO
- * (fifoStart 0x18000, 0xff000 long): random hard freezes whenever an LFB write
- * landed on commands not yet executed - the 3dfx splash, Quake II's console at
- * quit - 3 of 3 AA game sessions, the monitor losing sync. The vendor recipe
- * points the base at tileMark: 2x 3 launches, 4x 2, splash + console + quit all
- * clean, the picture confirmed at the box. Glide's exact requests and the values
- * the chips read back ("pig:" lines of evidence/glidelab/aa_supervised_0930/
- * q2aa.trace, aa_vendor_0930/q2aa3.trace and q2aa4x.trace) are pinned here -
- * the OLD value too, so the FIFO overwrite cannot come back unnoticed. */
+/* ---- 2026-09-30: the AA LFB control that froze every in-game AA session -----------
+ * .124, Quake II through our ICD + our h5 Glide + vcr-kmd. The default
+ * (dos_mode.c) recipe leaves cfgAALfbCtrl READ_EN clear on every chip - 2x read
+ * back 0x4c000000 on all four - and every in-game AA session froze the box hard
+ * at a random moment (the 3dfx splash, the quit; the monitor losing sync). The
+ * vendor recipe sets READ_EN on the master pair as both 3dfx miniports do: 2x
+ * 0xdf8f6000, 4x 0xdf1ee000 / 0xcf1ee000 - clean. 8x froze with the vendor
+ * recipe (0xce3dc000 on all four: its 2-samples-per-chip branch had no READ_EN)
+ * until READ_EN reached chips 0/1 (0xde3dc000 / 0xce3dc000) - with nothing else
+ * changed, it then ran clean too. READ_EN on chips 0/1 is the one value that
+ * separates every freeze from every clean run. Glide's exact requests and the
+ * values the chips read back ("pig:" lines, evidence/glidelab/aa_supervised_0930/,
+ * aa_vendor_0930/) are pinned here, the OLD values too.
+ * (Withdrawn: "AA LFB writes duplicated into Glide's command FIFO through a
+ * base of 0" - the traced runs show no LFB writes in game at all.) */
 static void last_cfg_write_per_chip(const mock *m, vcr_u32 off, vcr_u32 out[4])
 {
     unsigned j;
@@ -1881,7 +1891,7 @@ static vcr_sli_aa_req glide_req_124(vcr_u32 sli, vcr_u32 high, vcr_u32 tile, vcr
     return r;
 }
 
-TEST(the_aa_lfb_base_that_overwrote_glides_fifo_and_its_fix_match_silicon) {
+TEST(the_aa_lfb_control_that_froze_aa_and_its_fix_match_silicon) {
     mock *m = &M;
     vcr_sli_io io;
     vcr_u32 v[4], d[4];
@@ -1902,7 +1912,7 @@ TEST(the_aa_lfb_base_that_overwrote_glides_fifo_and_its_fix_match_silicon) {
     last_cfg_write_per_chip(m, VCR_CFG_AADEPTHBUFAPERTURE, d);
     for (c = 0; c < 4; c++) {
         CHECK_EQ_U(v[c], 0x4c000000u);                     /* read back 2026-09-30 09:39 */
-        CHECK_EQ_U(v[c] & VCR_AALFB_SECONDARY_BASE_MASK, 0);   /* THE FIFO OVERWRITE */
+        CHECK_EQ_U(v[c] & VCR_AALFB_READ_EN, 0);           /* THE FREEZE: no AA reads */
         CHECK_EQ_U(d[c], 0x4f7647f6u);
     }
     no_bus_faults(m);
@@ -1938,6 +1948,30 @@ TEST(the_aa_lfb_base_that_overwrote_glides_fifo_and_its_fix_match_silicon) {
         CHECK_EQ_U(d[c], 0x400031eeu);
     }
     no_bus_faults(m);
+
+    /* cfg 8 = 8x: 2 samples per chip, a real secondary buffer. The vendor arm
+     * before 2026-09-30 19:00 wrote 0xce3dc000 on all four chips and froze;
+     * with READ_EN on chips 0/1 it ran clean (read back 19:13, boot #57) */
+    {
+        vcr_sli_aa_req r8 = glide_req_124(0, 2, 0x031ee000u, 0x040ee080u, 0x0486e100u);
+        r8.MemInfo.dwaaSecondaryColorBufBegin = 0x023dc000u;
+        CHECK_EQ_U(vcr_sli_samples_per_chip(4, 0, 1, 2, 1), 2);
+        mapped(m, &io, 4); m->nw = 0;
+        rc = vcr_sli_set_ex(&io, &r8, VCR_SLI_F_VENDOR_AA);
+        CHECK(rc >= 0, "cfg 8 refused by the vendor arm");
+        last_cfg_write_per_chip(m, VCR_CFG_AALFBCTRL, v);
+        last_cfg_write_per_chip(m, VCR_CFG_AADEPTHBUFAPERTURE, d);
+        CHECK_EQ_U(v[0], 0xde3dc000u);
+        CHECK_EQ_U(v[1], 0xde3dc000u);
+        CHECK_EQ_U(v[2], 0xce3dc000u);
+        CHECK_EQ_U(v[3], 0xce3dc000u);
+        for (c = 0; c < 4; c++) {
+            CHECK_EQ_U(v[c] & VCR_AALFB_SECONDARY_BASE_MASK, 0x023dc000u);   /* the secondary */
+            CHECK_EQ_U(d[c], 0x400031eeu);
+        }
+        CHECK(v[0] != 0xce3dc000u, "chips 0/1 lost READ_EN - the 8x freeze");
+        no_bus_faults(m);
+    }
 
     /* and the dos_mode.c arm would have written base 0 for cfg 7 too */
     mapped(m, &io, 4); m->nw = 0;
@@ -1985,11 +2019,15 @@ TEST(a_real_aa_base_cannot_spill_in_the_vendor_recipe) {
         CHECK(vcr_sli_set_ex(&io, &r, VCR_SLI_F_VENDOR_AA) >= 0, "vendor 2-way SLI + 4-sample refused");
         for (c = 0; c < 4; c++) {
             v = CFG(m, c, VCR_CFG_AALFBCTRL);
-            CHECK_EQ_U(v & VCR_AALFB_READ_EN, 0);                /* the old spill set it */
+            /* READ_EN is the recipe's own since 2026-09-30 (every AA shape of
+             * a 4-chip board, as both 3dfx miniports; SLI here, so no chip
+             * has it cleared) - the control bits are EXACTLY these, so a base
+             * that spilled into them would still fail */
             CHECK_EQ_U(v & (3u << 29), VCR_AALFB_FMT_16BPP);     /* the format is 16 bpp */
             CHECK_EQ_U(v & VCR_AALFB_SECONDARY_BASE_MASK, k[i].col & VCR_AALFB_SECONDARY_BASE_MASK);
             CHECK_EQ_U(v & ~VCR_AALFB_SECONDARY_BASE_MASK,
-                       VCR_AALFB_CPU_WRITE_EN | VCR_AALFB_DISPATCH_WRITE_EN | VCR_AALFB_RD_DIVIDE_BY_4);
+                       VCR_AALFB_CPU_WRITE_EN | VCR_AALFB_DISPATCH_WRITE_EN | VCR_AALFB_READ_EN |
+                       VCR_AALFB_RD_DIVIDE_BY_4);
             CHECK(v != k[i].old_chip0, "the vendor recipe spills");
         }
         no_bus_faults(m);
@@ -2115,7 +2153,8 @@ TEST(the_vendor_recipe_refuses_memory_info_it_cannot_place) {
  * recipe's "4 chips, no SLI, 4- or 8-sample" depth-aperture rule, and the one
  * shape whose two rows differ in the BASE: dos_mode.c 0x8f000000 (D:871's
  * << 4, what the simulator printed from the old code), vendor 0x8cb00000 (the
- * byte address, header difference 13). */
+ * byte address, header difference 13) - 0x9cb00000 on chips 0/1 since
+ * 2026-09-30 (AA reads on, as both 3dfx miniports). */
 #define T_TILE      0x01b7e000u
 #define T_TOTAL     (32u << 20)
 #define T_WHOLE     ((T_TILE >> 12) | ((T_TOTAL >> 12) << 16))     /* 0x20001b7e */
@@ -2182,8 +2221,8 @@ static const aa_table k_aa_tables[] = {
       { { IES, DECS, 0x0200080bu, 0xff000000u, 0,       0, T_DEPTH, CFG8_AALFB_OLD, 0x082fu }, 0, 0 } },
       0x00b00000u },
     { "cfg 8 {4,0,1,2,1}, vendor recipe", 4, 0, 1, 2, 1, VCR_SLI_F_VENDOR_AA, VCR_SLI_W_NOCLOCK, {
-      { { IE0, DEC0, 0x00003819u, 0,           0,       0, T_WHOLE, CFG8_AALFB_NEW, 0x0800u }, 0, 1 },
-      { { IES, DECS, 0x0200080bu, 0xff000000u, 0,       0, T_WHOLE, CFG8_AALFB_NEW, 0x082fu }, 0, 1 },
+      { { IE0, DEC0, 0x00003819u, 0,           0,       0, T_WHOLE, CFG8_AALFB_NEW_RD, 0x0800u }, 0, 1 },
+      { { IES, DECS, 0x0200080bu, 0xff000000u, 0,       0, T_WHOLE, CFG8_AALFB_NEW_RD, 0x082fu }, 0, 1 },
       { { IES, DECS, 0x0200384bu, 0,           0xff00u, 0, T_WHOLE, CFG8_AALFB_NEW, 0x0827u }, 0, 1 },
       { { IES, DECS, 0x0200080bu, 0xff000000u, 0,       0, T_WHOLE, CFG8_AALFB_NEW, 0x082fu }, 0, 1 } },
       0x00b00000u },
@@ -2738,7 +2777,7 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(the_vendor_memory_refusal_is_policy_before_any_teardown);
     RUN(the_aa_base_is_a_byte_address_in_the_vendor_recipe_only);
     RUN(a_real_aa_base_cannot_spill_in_the_vendor_recipe);
-    RUN(the_aa_lfb_base_that_overwrote_glides_fifo_and_its_fix_match_silicon);
+    RUN(the_aa_lfb_control_that_froze_aa_and_its_fix_match_silicon);
     RUN(one_sample_per_chip_is_exactly_the_three_paired_shapes);
     RUN(the_vendor_recipe_leaves_sli_only_requests_and_the_disable_alone);
     RUN(the_vendor_recipe_refuses_memory_info_it_cannot_place);

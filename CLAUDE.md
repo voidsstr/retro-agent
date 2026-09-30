@@ -36,6 +36,17 @@ checkpoint rather than committing every keystroke, but **never end a session wit
 verified work uncommitted or unpushed** — a commit that isn't pushed is still
 only on one machine.
 
+**Commit and push at REGULAR INTERVALS, not only at the end (user directive,
+2026-09-30).** Push after every step that is verified - a fix proven on
+hardware, a batch of evidence, a test added, a doc corrected - and at least
+every 30-60 minutes of active work, even mid-investigation (evidence and
+findings first; they are the part that cannot be regenerated). A host crash, a
+power cut or a frozen fleet box can end a session at any moment - all three
+happened on 2026-09-29/30 - and work that is not pushed exists on one disk.
+Sibling repos and forks (`retro-3dfx`, `retro3dfx-gl`, `retro3dfx-glide`)
+follow the same rule: push the fork branch the moment a build from it is
+deployed to a box.
+
 **Guardrails, all of which have bitten here:**
 - **Stage explicit paths.** `git add <paths>`, never `git add -A` — it sweeps up
   another session's in-progress work.

@@ -96,42 +96,49 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
-### Resume point (2026-09-30 15:15) - in-game AA WORKS at 2x and 4x (root cause fixed); 8x still freezes; the to-do list
+### Resume point (2026-09-30 19:30) - in-game AA WORKS at 2x, 4x AND 8x; the to-do list
 
-**Root cause of every in-game AA freeze so far:** the kernel's old dos_mode.c AA
-recipe wrote `cfgAALfbCtrl` with Glide's secondary base of 0 (1-sample-per-chip
-shapes), so every AA LFB write also landed on Glide's command FIFO at 0x18000.
-The vendor recipe (base = tileMark) is the kernel default since `c5faa87`.
+**The fix:** `cfgAALfbCtrl` READ_EN on the master chip pair, as both 3dfx
+miniports write it. The kernel's old dos_mode.c recipe left AA LFB reads off on
+every chip and every in-game AA session froze hard at a random moment. The
+vendor recipe (the kernel default since `c5faa87`) set it for the
+1-sample-per-chip shapes (2x, 4x) but not for 8x's 2-samples-per-chip shape -
+8x froze until READ_EN reached its chips 0/1 too (0xDE3DC000 / 0xCE3DC000;
+nothing else changed). The first theory, "AA LFB writes landing in Glide's
+command FIFO", is **withdrawn**: the traced runs show no LFB writes in game.
 Evidence and every run: `voodoo-cleanroom/vcr-kmd/evidence/glidelab/aa_vendor_0930/README.md`.
 
 | config | result (Quake II 1280x960x32, our ICD + Glide + vcr-kmd) |
 |---|---|
-| 6 = 2x | **works**: 3 launches, ~4.5 min play, console, 3 clean quits; user: smooth AA, looked right |
-| 7 = 4x | **works**: 2 launches, console, 2 clean quits; user: smooth AA, looked right |
-| 8 = 8x | **freezes** within ~110 ms of `winopen: done`, after the splash (ICD context setup / Quake II GL init); secondary buffer at 0x023DC000, `cfgAALfbCtrl` 0xCE3DC000 |
+| 6 = 2x | **works**: 5 launches, splash + console + quit clean; user: smooth AA, looked right |
+| 7 = 4x | **works**: 2 launches, clean; user: smooth AA, looked right |
+| 8 = 8x | **works** (kernel with READ_EN, 16:43): 3 launches, clean; user: smooth AA, looked right |
 
-**`.124` state left:** AA disarmed by the auto-disarm (Glide cfg 5, `SliAA` 0);
-`SliAAVendorRecipe` = 1 set explicitly (the deployed kernel predates the new
-default - a `deploy_box.py` of the `c5faa87` build makes it redundant);
-`SliPersistAll` = 1 (diagnostic: flushed SLI steps, AA enable takes ~9 s - delete
-it before any timing run); NIC `FlowControl` = 2 (Respond: a frozen `.124` can no
-longer take the LAN down - proven on the 11:59 and 14:52 freezes); ICD 0.1.79 as
-`retroicd.dll` and Quake II's `retrogl.dll` (0.1.78 kept as `*_0178.bak`).
+**`.124` state left:** the READ_EN kernel is deployed (boot #57+; `deploy_box`
+evidence `vcr-kmd/evidence/192.168.1.124_20260930-164243_install`); Glide is
+our h5 with the level-2 AA write-lock trace (`glide3x_38a891e8.bak` = the
+previous build, in both `system32` and `Quake2Complete`); ICD 0.1.80 as
+`retroicd.dll` and Quake II's `retrogl.dll` (0.1.78 kept as `*_0178.bak`);
+Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
+`SliAA` 0 before leaving the box unattended**; `SliPersistAll` = 1 (diagnostic,
+~9 s AA enable - delete before timing runs); NIC `FlowControl` = 2.
 
 **To do, in the user's order:**
-1. **Finish AA testing:** find and fix the 8x freeze; then run 2x and 4x in
-   **several games**, not only Quake II (Quake III, UT99 OpenGL, a Glide title),
-   one config per clean boot, the user at the box, traced first time.
-2. **Then the garbled transition screens (user, 2026-09-30):** under AA the
-   loading, menu and splash screens are garbled until gameplay starts;
-   gameplay itself is right.
+1. **AA in more games:** 2x/4x/8x in Quake III, UT99 OpenGL, a Glide title -
+   one config per clean boot, the user at the box, traced the first time.
+2. **Garbled screens BEFORE the first rendered frame (user, 2026-09-30):**
+   under AA the splash, loading and menu screens are garbled until Quake II's
+   game view first renders; after that gameplay AND menus are right. A start-up
+   state, not AA rendering - first suspect the ~9 s `SliPersistAll` AA enable
+   (the monitor shows un-merged memory meanwhile), then uncleared secondary
+   sample buffers.
 3. In-game overclock tests at 175/183 MHz (user present).
-4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on
-   the display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through
-   the console until fixed).
-5. Housekeeping: `push_3dfxctl.py 192.168.1.124 --deploy` for the Start Menu
-   icon; delete the empty `Utility/Retro Automation/_staging194`; deploy the
-   `c5faa87` kernel; remove the `v56k-bench` worktree when the campaign ends.
+4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on the
+   display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through the
+   console until fixed).
+5. Housekeeping: `push_3dfxctl.py 192.168.1.124 --deploy` (Start Menu icon);
+   delete the empty `Utility/Retro Automation/_staging194`; remove the
+   `v56k-bench` worktree when the campaign ends.
 
 ### Resume point (2026-09-29 05:40) - the graphics clock set LIVE; the full-desktop sweep done (74 shortcuts); the stale 75 Hz Glide override removed
 

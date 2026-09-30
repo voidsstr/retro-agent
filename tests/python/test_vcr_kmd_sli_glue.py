@@ -219,9 +219,9 @@ def test_the_escape_hands_glide_a_failure_for_every_refusal():
 # only, the CLI gate). These pin where the kernel and the tool use them.
 
 def test_the_vendor_recipe_is_the_default_and_read_per_request():
-    # 2026-09-30: the default moved to the vendor recipe - the dos_mode.c arm's
-    # cfgAALfbCtrl base of 0 overwrote Glide's command FIFO (native test
-    # the_aa_lfb_base_that_overwrote_glides_fifo_and_its_fix_match_silicon)
+    # 2026-09-30: the default moved to the vendor recipe - with the dos_mode.c
+    # arm (READ_EN off on every chip) every in-game AA session froze .124
+    # (native test the_aa_lfb_control_that_froze_aa_and_its_fix_match_silicon)
     src = (KMD / "miniport" / "vcrmp_multi.c").read_text()
     recipe = func_body(src, "static vcr_u32 sli_recipe(")
     assert 'VcrDiagGet(L"SliAAVendorRecipe", 1)' in recipe      # absent = 1 = vendor

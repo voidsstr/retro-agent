@@ -84,10 +84,10 @@ KILL_DIAG = {"CoreClock": "1"}
 # Absent = 0 = "the last boot did not end with AA live".
 STATE_DIAG = {"SliAALive": "0", "PrevBootCount": "0"}
 # DEFAULTS MOVED ON PURPOSE (each with its evidence): SliAAVendorRecipe was 0
-# in the base. 2026-09-30 on .124: the dos_mode.c arm's cfgAALfbCtrl base of 0
-# duplicated every AA LFB write into Glide's command FIFO (random hard freezes,
-# 3 of 3 AA game sessions); the vendor arm ran 2x/4x clean. vcrmp_multi.c
-# sli_recipe(), tests/native/test_vcr_kmd_sli.c.
+# in the base. 2026-09-30 on .124: the dos_mode.c arm leaves cfgAALfbCtrl
+# READ_EN off on every chip and every in-game AA session froze hard; with the
+# vendor arm (READ_EN on the master pair, as 3dfx) 2x, 4x and 8x ran clean.
+# vcrmp_multi.c sli_recipe(), tests/native/test_vcr_kmd_sli.c.
 MOVED_DIAG = {"SliAAVendorRecipe": "1"}
 
 

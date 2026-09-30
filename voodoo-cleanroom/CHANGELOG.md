@@ -12,6 +12,16 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.80 — QUIT-TRACE covers context creation (2026-09-30)
+
+Diagnostic only, off by default. `RETROGL_SYNCTRACE=1` also flushes a line at
+each step after the board open (gamma loaded, Mesa context, `fxTMInit`,
+`grGlideGetState`, SUCCESS) and around `fxMesaMakeCurrent` /
+`grGlideSetState` - the window in which 8x AA froze `.124` ~110 ms after
+`winopen: done`. With it (and Glide's new level-2 AA write-lock trace) the
+next 8x run showed the ICD takes no LFB write lock in game at all. Fork
+commit `7c80e3e`; Glide's trace: retro3dfx-glide `0401004`.
+
 ## 0.1.79 — QUIT-TRACE: disk-flushed ICD steps, interleaved with Glide's trace (2026-09-30)
 
 **Problem (Quake II at 2x AA on `.124`, the V5 6000):** the box froze hard at
@@ -33,9 +43,11 @@ fxdd.c, fxddtex.c, fxapi.c, fxicd.c).
 **What it found:** Quake II's quit is last frame -> ~47 ms -> ~230 texture
 deletes -> DrvReleaseContext/DrvDeleteContext -> fxMesaDestroyContext
 (identity gamma, grSstWinClose); a colour clear + palette download happen at
-every demo/map transition, not at quit. With it the 2x AA freeze was pinned
-on the kernel's AA recipe (vcr-kmd: `cfgAALfbCtrl` base 0 overwrote Glide's
-command FIFO) - `vcr-kmd/evidence/glidelab/aa_vendor_0930/`.
+every demo/map transition, not at quit. With it (and 0.1.80) the AA freezes
+were pinned on the kernel's AA recipe: `cfgAALfbCtrl` READ_EN off on the
+master chip pair (vcr-kmd; an earlier "base 0 overwrote Glide's command FIFO"
+reading is withdrawn - no LFB writes happen in game) -
+`vcr-kmd/evidence/glidelab/aa_vendor_0930/`.
 
 ## 0.1.78 — `wglGetProcAddress` never hands out a synthesized stub (2026-09-28)
 

@@ -276,17 +276,18 @@ ULONG VcrSliAAAllowed(void)
  * the two recipes one clean boot each without a rebuild. It changes nothing but
  * AA requests, and those are refused unless SliAA = 1.
  *
- * WHY THE DEFAULT MOVED (.124, 2026-09-30, Quake II through our ICD at 2x/4x):
- * for every 1-sample-per-chip tuple Glide sends a secondary base of 0, and the
- * dos_mode.c arm writes it: cfgAALfbCtrl read back 0x4c000000 on all four chips.
- * Every AA LFB write was then duplicated into video memory from offset 0, where
- * Glide keeps its command FIFO (fifoStart 0x18000, 0xff000 long) - a random
- * hard freeze whenever an LFB write landed on pending FIFO commands (the 3dfx
- * splash, Quake II's console at quit; 3 of 3 AA game sessions), the monitor
- * losing sync, the LAN taken down by the hung NIC. The vendor arm points the
- * base at tileMark (0xdf8f6000 read back at 2x): 3 launches at 2x and 2 at 4x,
- * splash, console, quit, all clean, the picture confirmed at the box.
- * tests/native/test_vcr_kmd_sli.c pins both readbacks. */
+ * WHY THE DEFAULT MOVED (.124, 2026-09-30, Quake II through our ICD): the
+ * dos_mode.c arm leaves cfgAALfbCtrl READ_EN clear on every chip (2x read back
+ * 0x4c000000) and every in-game AA session froze the box hard at a random
+ * moment (the 3dfx splash, the quit), the monitor losing sync. The vendor arm
+ * sets READ_EN on the master pair, as both 3dfx miniports do: 2x (0xdf8f6000)
+ * and 4x (0xdf1ee000 / 0xcf1ee000) ran clean - splash, console, quit - and 8x
+ * froze with the vendor arm until READ_EN reached its chips 0/1 too (0xde3dc000
+ * / 0xce3dc000, vcrmp_sli.c; nothing else changed), after which it ran clean.
+ * READ_EN on chips 0/1 is the one value that separates every freeze from every
+ * clean run. (A first theory - AA LFB writes duplicated into Glide's command
+ * FIFO through a base of 0 - is withdrawn: the traced runs show no LFB writes
+ * in game at all.) tests/native/test_vcr_kmd_sli.c pins every readback. */
 static vcr_u32 sli_recipe(void)
 {
     return VcrDiagGet(L"SliAAVendorRecipe", 1) ? VCR_SLI_F_VENDOR_AA : 0;
