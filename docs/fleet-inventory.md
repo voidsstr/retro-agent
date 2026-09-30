@@ -19,7 +19,7 @@ Regenerate with:
 python3 scripts/fleet/inventory.py
 ```
 
-*Rendered 2026-09-28 23:51 from records in `/mnt/retro-share/Utility/Retro Automation/fleet-inventory`.*
+*Rendered 2026-09-29 21:48 from records in `/mnt/retro-share/Utility/Retro Automation/fleet-inventory`.*
 
 > **Every field here is a SNAPSHOT, stamped per box.** A box republishes on
 > every agent startup, so the fleet's records refresh themselves whenever the
@@ -41,27 +41,27 @@ Every row is **what that box said about itself at the time in the Measured colum
 
 | IP | Hostname | State | Measured | Agent | CPU | RAM | Display GPU | OS |
 |----|----------|-------|----------|-------|-----|-----|-------------|----|
-| 192.168.1.123 | NSC-B20C188E96D | current | 3 min ago | 1.91.0 | AMD Athlon(tm) 64 Processor 4000+, 2400 MHz | 2047 MB | ATI Radeon HD 3850 AGP (`1002:9515`), 512 MB, sm3.0 | Windows XP |
-| 192.168.1.124 | NSC-C543575F526 | current | 3 min ago | 1.91.0 | AMD Athlon(tm) XP 2400+, 2004 MHz | 255 MB | vcr-kmd Voodoo 5 6000 (open driver) (`121A:0009`), 64 MB, fixed | Windows XP |
-| 192.168.1.133 | P3-DUAL | current | 13 days ago | 1.81.1 | GenuineIntel, 701 MHz x2 | 255 MB | NVIDIA GeForce4 Ti 4600 (`10DE:0250`), 128 MB, sm1.x | Windows XP |
-| 192.168.1.143 | 1GHZ | current | 2 days ago | 1.85.2 | AMD Athlon(tm) Processor, 1000 MHz | 511 MB | NVIDIA GeForce 6800 (`10DE:0041`), 128 MB, sm3.0 | Windows XP |
-| 192.168.1.145 | DELL | current | 4 min ago | 1.91.0 | Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz, 3092 MHz x4 | 3316 MB | NVIDIA GeForce 8400GS (`10DE:10C3`), 512 MB, sm3.0 | Windows XP |
-| 192.168.1.171 | NSC-5B996B81319 | current | 1 days ago | 1.85.0 | Intel(R) Pentium(R) 4 CPU 2.80GHz, 2793 MHz | 509 MB | NVIDIA GeForce FX 5500 (`10DE:0326`), 256 MB, sm2.0 | Windows XP |
-| 192.168.1.240 | USER-41EA3B3330 | current | 4 min ago | 1.91.0 | AMD Athlon(tm) 64 Processor 3300+, 2400 MHz | 1022 MB | unknown (`0000:0000`), unknown | Windows XP |
-| 192.168.1.195 | ADMIN-PC | current | 11 min ago | 1.90.2 | Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz, 3093 MHz x4 | 3317 MB | AMD Radeon HD 5450 (`1002:68F9`), 512 MB, sm3.0 | Windows 7 |
-| 192.168.1.243 | N5R5L9 | current | 42 min ago | 1.90.2 | GenuineIntel, 165 MHz | 127 MB | Cirrus Logic 5436 PCI (`1013:00AC`), none | Windows 98 |
+| 192.168.1.123 | NSC-B20C188E96D | current | 0 min ago | 1.96.0 | AMD Athlon(tm) 64 Processor 4000+, 2403 MHz | 2047 MB | ATI Radeon HD 3850 AGP (`1002:9515`), 512 MB, sm3.0 | Windows XP |
+| 192.168.1.124 | NSC-C543575F526 | current | 2 h ago | 1.96.0 | AMD Athlon(tm) XP 2400+, 2004 MHz | 255 MB | vcr-kmd Voodoo 5 6000 (open driver) (`121A:0009`), 64 MB, fixed | Windows XP |
+| 192.168.1.133 | P3-DUAL | current | 5 h ago | 1.96.0 | GenuineIntel, 701 MHz x2 | 255 MB | NVIDIA GeForce4 Ti 4600 (`10DE:0250`), 128 MB, sm1.x | Windows XP |
+| 192.168.1.143 | 1GHZ | current | 5 h ago | 1.96.0 | AMD Athlon(tm) Processor, 1000 MHz | 511 MB | NVIDIA GeForce 6800 (`10DE:0041`), 128 MB, sm3.0 | Windows XP |
+| 192.168.1.145 | DELL | current | 2 h ago | 1.95.0 | Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz, 3092 MHz x4 | 3316 MB | NVIDIA GeForce 8400GS (`10DE:10C3`), 512 MB, sm3.0 | Windows XP |
+| 192.168.1.171 | NSC-5B996B81319 | current | 0 min ago | 1.96.0 | Intel(R) Pentium(R) 4 CPU 2.80GHz, 2793 MHz | 509 MB | NVIDIA GeForce FX 5500 (`10DE:0326`), 256 MB, sm2.0 | Windows XP |
+| 192.168.1.240 | USER-41EA3B3330 | current | 2 h ago | 1.95.0 | AMD Athlon(tm) 64 Processor 3300+, 2403 MHz | 1022 MB | Radeon X1600 Series (`1002:71C0`), 256 MB, sm3.0 | Windows XP |
+| 192.168.1.195 | ADMIN-PC | current | 0 min ago | 1.96.0 | Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz, 3093 MHz x4 | 3317 MB | AMD Radeon HD 5450 (`1002:68F9`), 512 MB, sm3.0 | Windows 7 |
+| 192.168.1.243 | N5R5L9 | current | 5 h ago | 1.96.0 | GenuineIntel, 165 MHz | 127 MB | Cirrus Logic 5436 PCI (`1013:00AC`), none | Windows 98 |
 
 ---
 
 ## 192.168.1.123 - NSC-B20C188E96D
 
-**As this box reported itself at 2026-09-28 23:47** (3 min ago). Every value below is that snapshot; restart its agent to take a fresh one.
+**As this box reported itself at 2026-09-29 21:48** (0 min ago). Every value below is that snapshot; restart its agent to take a fresh one.
 
 > Prone to being left at 640x480 by a game that exits without restoring - the Display mode row shows both, and the PERSISTED one is what the box is configured to be.
 
 | field | value |
 |-------|-------|
-| CPU | AMD Athlon(tm) 64 Processor 4000+, 2400 MHz |
+| CPU | AMD Athlon(tm) 64 Processor 4000+, 2403 MHz |
 | CPU id | family 15 model 39 stepping 1, vendor `AuthenticAMD` |
 | Instruction set | fpu, mmx, cmov, 3dnow, sse, sse2, sse3 |
 | RAM | 2047 MB |
@@ -70,8 +70,8 @@ Every row is **what that box said about itself at the time in the Measured colum
 | Display mode | 1920x1080 (registry) |
 | OS | Windows XP Service Pack 3 (5.1.2600) |
 | DirectX | 4.09.00.0904 |
-| Disks | C: 179/238 GB free |
-| Agent | 1.91.0 (the version that WROTE this record, at 2026-09-28 23:47) |
+| Disks | C: 176/238 GB free |
+| Agent | 1.96.0 (the version that WROTE this record, at 2026-09-29 21:48) |
 | Profile hash | `e633518d4747e4f2` |
 
 **No 3dfx silicon.** `Enum\PCI` carries no `VEN_121A` key, and a physically fitted card enumerates there even with no driver bound - so this is the decisive read, not merely "undriven".
@@ -82,7 +82,7 @@ Network: 192.168.1.123 - MAC 00-13-D4-A4-A4-13
 
 ## 192.168.1.124 - NSC-C543575F526
 
-**As this box reported itself at 2026-09-28 23:47** (3 min ago). Every value below is that snapshot; restart its agent to take a fresh one.
+**As this box reported itself at 2026-09-29 19:31** (2 h ago). Every value below is that snapshot; restart its agent to take a fresh one.
 
 > Re-imaged: XP is on C: now and the console account is "Administrator" (read back 2026-09-28 with AutoAdminLogon=1, ForceAutoLogon=1; the old dual-boot/"voidsstr" note described the previous install). vcr-kmd Diag D3D32=1 and D3DBigTex=7 are ARMED by operator decision for the LAN party - Halo runs only with them (a gamegate override in scripts/gamegate/overrides.txt), Rainbow Six fails with them. NO SSE2 - see the Instruction set row: UT99 469e is refused here, and a 436 client cannot join the fleet 469e server, so this box has no route to UT99 multiplayer at all.
 
@@ -98,7 +98,7 @@ Network: 192.168.1.123 - MAC 00-13-D4-A4-A4-13
 | OS | Windows XP Service Pack 3 (5.1.2600) |
 | DirectX | 4.09.00.0904 |
 | Disks | C: 253/298 GB free |
-| Agent | 1.91.0 (the version that WROTE this record, at 2026-09-28 23:47) |
+| Agent | 1.96.0 (the version that WROTE this record, at 2026-09-29 19:31) |
 | Profile hash | `dec95d42ad08a34d` |
 
 **3dfx silicon: 1 card.** From the PCI enumerator (`Enum\PCI`, `VEN_121A`), which is the only source a `Class=MEDIA` Voodoo 2 cannot hide from - it appears in no display-class scan at all.
@@ -111,7 +111,7 @@ Network: 192.168.1.124 - MAC 00-D0-B7-40-96-A9
 
 ## 192.168.1.133 - P3-DUAL
 
-**As this box reported itself at 2026-09-15 09:44** (13 days ago). Every value below is that snapshot; restart its agent to take a fresh one.
+**As this box reported itself at 2026-09-29 16:02** (5 h ago). Every value below is that snapshot; restart its agent to take a fresh one.
 
 > Dual-socket. The Voodoo5 6000 is PHYSICALLY GONE - Enum\PCI carries no VEN_121A key at all. NO SSE2, so UT99 469e and Halo are refused and there is no route to UT99 multiplayer here.
 
@@ -127,7 +127,7 @@ Network: 192.168.1.124 - MAC 00-D0-B7-40-96-A9
 | OS | Windows XP Service Pack 3 (5.1.2600) |
 | DirectX | 4.09.00.0904 |
 | Disks | C: 874/932 GB free |
-| Agent | 1.81.1 (the version that WROTE this record, at 2026-09-15 09:44) |
+| Agent | 1.96.0 (the version that WROTE this record, at 2026-09-29 16:02) |
 | Profile hash | `b65fa1fee4df292c` |
 
 **No 3dfx silicon.** `Enum\PCI` carries no `VEN_121A` key, and a physically fitted card enumerates there even with no driver bound - so this is the decisive read, not merely "undriven".
@@ -138,7 +138,7 @@ Network: 192.168.1.133 - MAC 00-0C-41-E8-4F-CE
 
 ## 192.168.1.143 - 1GHZ
 
-**As this box reported itself at 2026-09-26 22:52** (2 days ago). Every value below is that snapshot; restart its agent to take a fresh one.
+**As this box reported itself at 2026-09-29 16:01** (5 h ago). Every value below is that snapshot; restart its agent to take a fresh one.
 
 > Athlon K7: family 6 model 2 is an AMD, NOT a Pentium III, and it has NO SSE. The Voodoo5 5500 is the SECOND adapter, behind the card driving the panel. NO SSE2, so UT99 469e and Halo are refused and there is no route to UT99 multiplayer here.
 
@@ -154,7 +154,7 @@ Network: 192.168.1.133 - MAC 00-0C-41-E8-4F-CE
 | OS | Windows XP Service Pack 3 (5.1.2600) |
 | DirectX | 4.09.00.0904 |
 | Disks | C: 133/224 GB free |
-| Agent | 1.85.2 (the version that WROTE this record, at 2026-09-26 22:52) |
+| Agent | 1.96.0 (the version that WROTE this record, at 2026-09-29 16:01) |
 | Profile hash | `65a2b927575eaa82` |
 
 **Video adapters on this box** - the one attached to the desktop is the one games run on; the others are fitted, or are stale class keys for cards that are not:
@@ -174,7 +174,7 @@ Network: 192.168.1.143 - MAC 00-08-A1-03-52-C4
 
 ## 192.168.1.145 - DELL
 
-**As this box reported itself at 2026-09-28 23:46** (4 min ago). Every value below is that snapshot; restart its agent to take a fresh one.
+**As this box reported itself at 2026-09-29 19:45** (2 h ago). Every value below is that snapshot; restart its agent to take a fresh one.
 
 > DISPLAYCFG get reports the INACTIVE Intel HD, not the card driving the panel; cross-check a WINLIST Program Manager rect before believing a small mode here.
 
@@ -186,11 +186,11 @@ Network: 192.168.1.143 - MAC 00-08-A1-03-52-C4
 | RAM | 3316 MB |
 | Display GPU | NVIDIA GeForce 8400GS (`10DE:10C3`), 512 MB, sm3.0 |
 | GPU driver | 6.14.13.4052 (7-2-2014) |
-| Display mode | 1920x1080 (registry) |
+| Display mode | persisted **1920x1080 (registry)**, currently 1280x720x32 |
 | OS | Windows XP Service Pack 3 (5.1.2600) |
 | DirectX | 4.09.00.0904 |
-| Disks | C: 123/224 GB free |
-| Agent | 1.91.0 (the version that WROTE this record, at 2026-09-28 23:46) |
+| Disks | C: 121/224 GB free |
+| Agent | 1.95.0 (the version that WROTE this record, at 2026-09-29 19:45) |
 | Profile hash | `bb7a13d03d67b0b4` |
 
 **Video adapters on this box** - the one attached to the desktop is the one games run on; the others are fitted, or are stale class keys for cards that are not:
@@ -208,7 +208,7 @@ Network: 192.168.1.145 - MAC D4-BE-D9-B9-BF-93
 
 ## 192.168.1.171 - NSC-5B996B81319
 
-**As this box reported itself at 2026-09-27 19:31** (1 days ago). Every value below is that snapshot; restart its agent to take a fresh one.
+**As this box reported itself at 2026-09-29 21:48** (0 min ago). Every value below is that snapshot; restart its agent to take a fresh one.
 
 > ANSWERS SLOWLY - use >=8s TCP timeouts or sweeps miss it entirely. Its Voodoo 2 moved to .243 in 2026-09; if a Voodoo is refitted here, it is Class=MEDIA and appears in no display-class scan - see the accelerators list below.
 
@@ -220,12 +220,12 @@ Network: 192.168.1.145 - MAC D4-BE-D9-B9-BF-93
 | RAM | 509 MB |
 | Display GPU | NVIDIA GeForce FX 5500 (`10DE:0326`), 256 MB, sm2.0 |
 | GPU driver | 6.14.11.7519 (5-16-2008) |
-| Display mode | 1024x768 (registry) |
+| Display mode | 1280x1024 (registry) |
 | OS | Windows XP Service Pack 3 (5.1.2600) |
 | DirectX | 4.09.00.0904 |
-| Disks | C: 28/93 GB free |
-| Agent | 1.85.0 (the version that WROTE this record, at 2026-09-27 19:31) |
-| Profile hash | `4cead9298fff0811` |
+| Disks | C: 27/93 GB free |
+| Agent | 1.96.0 (the version that WROTE this record, at 2026-09-29 21:48) |
+| Profile hash | `1ae6cfb3e6bad997` |
 
 **Video adapters on this box** - the one attached to the desktop is the one games run on; the others are fitted, or are stale class keys for cards that are not:
 
@@ -242,24 +242,24 @@ Network: 192.168.1.171 - MAC 00-13-20-7B-2D-45
 
 ## 192.168.1.240 - USER-41EA3B3330
 
-**As this box reported itself at 2026-09-28 23:46** (4 min ago). Every value below is that snapshot; restart its agent to take a fresh one.
+**As this box reported itself at 2026-09-29 18:56** (2 h ago). Every value below is that snapshot; restart its agent to take a fresh one.
 
 > The disk-constrained box - check its free space here before staging anything large. Also prone to a game leaving the desktop at 640x480.
 
 | field | value |
 |-------|-------|
-| CPU | AMD Athlon(tm) 64 Processor 3300+, 2400 MHz |
+| CPU | AMD Athlon(tm) 64 Processor 3300+, 2403 MHz |
 | CPU id | family 15 model 12 stepping 0, vendor `AuthenticAMD` |
 | Instruction set | fpu, mmx, cmov, 3dnow, sse, sse2 |
 | RAM | 1022 MB |
-| Display GPU | unknown (`0000:0000`), unknown |
-| GPU driver | ? (?) |
-| Display mode | 1024x768 (registry) |
+| Display GPU | Radeon X1600 Series (`1002:71C0`), 256 MB, sm3.0 |
+| GPU driver | 8.593.100.0 (2-10-2010) |
+| Display mode | 1920x1080 (registry) |
 | OS | Windows XP Service Pack 3 (5.1.2600) |
 | DirectX | 4.09.00.0904 |
 | Disks | C: 1/74 GB free |
-| Agent | 1.91.0 (the version that WROTE this record, at 2026-09-28 23:46) |
-| Profile hash | `1ab57d62cbbc3b56` |
+| Agent | 1.95.0 (the version that WROTE this record, at 2026-09-29 18:56) |
+| Profile hash | `8f429a1b27850fac` |
 
 **Video adapters on this box** - the one attached to the desktop is the one games run on; the others are fitted, or are stale class keys for cards that are not:
 
@@ -269,18 +269,20 @@ Network: 192.168.1.171 - MAC 00-13-20-7B-2D-45
 | 0001 | RADEON 9800 XT - Secondary | `1002:4E6A` | 8.593.100.0 | no |
 | 0002 | RADEON X800 Series | `1002:4A4B` | 8.593.100.0 | no |
 | 0003 | RADEON X800 Series Secondary | `1002:4A6B` | 8.593.100.0 | no |
+| 0004 | Radeon X1600 Series | `1002:71C0` | 8.593.100.0 | **yes** |
+| 0005 | Radeon X1600 Series Secondary | `1002:71E0` | 8.593.100.0 | no |
 
 **No 3dfx silicon.** `Enum\PCI` carries no `VEN_121A` key, and a physically fitted card enumerates there even with no driver bound - so this is the decisive read, not merely "undriven".
 
 Network: 192.168.1.240 - MAC 00-11-2F-E4-77-F5
 
-> **Clock skew:** this box's own clock reads 2026-09-28 20:45:24, 181 minutes behind the time the record landed here. Staleness above is judged by this host's clock, not the box's.
+> **Clock skew:** this box's own clock reads 2026-09-29 14:55:40, 241 minutes behind the time the record landed here. Staleness above is judged by this host's clock, not the box's.
 
 ---
 
 ## 192.168.1.195 - ADMIN-PC
 
-**As this box reported itself at 2026-09-28 23:39** (11 min ago). Every value below is that snapshot; restart its agent to take a fresh one.
+**As this box reported itself at 2026-09-29 21:48** (0 min ago). Every value below is that snapshot; restart its agent to take a fresh one.
 
 > The only Windows 7 machine on the fleet. It answered at 192.168.1.246 until DHCP moved it during the 2026-09-26 network re-cabling; roster corrected 2026-09-28. Its 2026-09 "crashes" were display timeouts (TDR: 0x117 live dumps in C:\Windows\LiveKernelReports\WATCHDOG) ended by someone holding the power button - no bugcheck, no BSOD; why the GPU hung is NOT proven. Read docs/case-studies/2026-09-win7-admin-pc-freezes.md before diagnosing the next one.
 
@@ -295,8 +297,8 @@ Network: 192.168.1.240 - MAC 00-11-2F-E4-77-F5
 | Display mode | 1920x1080 (registry) |
 | OS | Windows 7  (6.1.7600) |
 | DirectX | 4.09.00.0904 |
-| Disks | C: 140/224 GB free |
-| Agent | 1.90.2 (the version that WROTE this record, at 2026-09-28 23:39) |
+| Disks | C: 137/224 GB free |
+| Agent | 1.96.0 (the version that WROTE this record, at 2026-09-29 21:48) |
 | Profile hash | `7cf5bd34eefa68a7` |
 
 **Video adapters on this box** - the one attached to the desktop is the one games run on; the others are fitted, or are stale class keys for cards that are not:
@@ -308,13 +310,13 @@ Network: 192.168.1.240 - MAC 00-11-2F-E4-77-F5
 
 **No 3dfx silicon.** `Enum\PCI` carries no `VEN_121A` key, and a physically fitted card enumerates there even with no driver bound - so this is the decisive read, not merely "undriven".
 
-Network: 192.168.1.195 - MAC 78-2B-CB-A5-B4-70
+Network: 192.168.1.197 - MAC 78-2B-CB-A5-B4-70
 
 ---
 
 ## 192.168.1.243 - N5R5L9
 
-**As this box reported itself at 2026-09-28 23:09** (42 min ago). Every value below is that snapshot; restart its agent to take a fresh one.
+**As this box reported itself at 2026-09-29 16:03** (5 h ago). Every value below is that snapshot; restart its agent to take a fresh one.
 
 > Win98 SE: the agent is single-threaded, so read files with DOWNLOAD, never EXEC; RESTART strands it before agent 1.85.0. No file sharing - a dead agent needs a person. Its Voodoo 2 is Class=MEDIA and the BIOS leaves it unconfigured; the agent's PCIRESCAN brings it up at logon (PciRescueBoot records what the boot needed). A Compaq Deskpro 2000 (BIOS 04/25/97): setup is F10 at boot and only works with Compaq's system partition or the Computer Setup diskette. An 80 GB Seagate on the secondary master fails ESDI_506's BIOS check (IOS.LOG 'ESDI BIOS read failure', secondary channel Problem 10) - see scripts/fleet/win9x/README.md. Monitor: DELL E773c (Plug and Play Monitor, Class\Monitor SilentInstall=1).
 
@@ -329,8 +331,8 @@ Network: 192.168.1.195 - MAC 78-2B-CB-A5-B4-70
 | Display mode | 1024x768 (registry) |
 | OS | Windows 98  A  (4.10.2222) |
 | DirectX | 4.06.03.0518 |
-| Disks | C: 0/1 GB free, D: 3/4 GB free |
-| Agent | 1.90.2 (the version that WROTE this record, at 2026-09-28 23:09) |
+| Disks | C: 0/1 GB free |
+| Agent | 1.96.0 (the version that WROTE this record, at 2026-09-29 16:03) |
 | Profile hash | `d931bfe6c33fae5e` |
 
 **3dfx silicon: 1 card.** From the PCI enumerator (`Enum\PCI`, `VEN_121A`), which is the only source a `Class=MEDIA` Voodoo 2 cannot hide from - it appears in no display-class scan at all.
@@ -345,13 +347,13 @@ Network: 192.168.1.243 - MAC 00-A0-24-B9-E9-FB
 
 These machines published a record but are not in `scripts/fleet/fleet-roster.txt`. That is information, not an error - a new box has appeared. Add it to the roster so it can ever be reported missing.
 
-- `NSC-5C5396FAF9D.json` - NSC-5C5396FAF9D, 192.168.1.110, last seen 2026-09-28 23:28
-- `NSC-684BA8CF5ED.json` - NSC-684BA8CF5ED, 192.168.1.186, last seen 2026-09-04 08:46
+- `NSC-5C5396FAF9D.json` - NSC-5C5396FAF9D, 192.168.1.110, last seen 2026-09-29 13:39
+- `NSC-684BA8CF5ED.json` - NSC-684BA8CF5ED, 192.168.1.186, last seen 2026-09-29 16:12
 - `NSC-6FE8BDE7351.json` - NSC-6FE8BDE7351, 192.168.1.186, last seen 2026-09-02 22:07
 - `NSC-9871C0E9964.json` - NSC-9871C0E9964, 192.168.1.124, last seen 2026-09-01 10:56
 - `NSC-AB862B3CF23.json` - NSC-AB862B3CF23, 192.168.1.185, last seen 2026-09-01 20:51
 - `NSC-AF6CF7A80BC.json` - NSC-AF6CF7A80BC, 192.168.1.191, last seen 2026-09-13 11:24
-- `NSC-CABE14B7486.json` - NSC-CABE14B7486, 192.168.1.184, last seen 2026-09-26 15:07
-- `WHITEBEAST.json` - WHITEBEAST, 192.168.1.249, 172.19.176.1, 100.117.76.34, last seen 2026-09-28 18:42
-- `XPBUILD.json` - XPBUILD, 10.0.2.15, last seen 2026-09-28 15:40
+- `NSC-CABE14B7486.json` - NSC-CABE14B7486, 192.168.1.184, last seen 2026-09-29 15:59
+- `WHITEBEAST.json` - WHITEBEAST, 192.168.1.249, 172.19.176.1, 100.117.76.34, last seen 2026-09-29 12:43
+- `XPBUILD.json` - XPBUILD, 10.0.2.15, last seen 2026-09-29 16:16
 
