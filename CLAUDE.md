@@ -1208,6 +1208,18 @@ been bitten by:
 * The fleet is **powered on demand** and the user swaps hardware constantly, so
   a box can vanish mid-install. The VM cannot.
 
+### The WINDOWS 98 SE build VM (86Box) - for Win9x/DOS titles (2026-09-30)
+
+**`scripts/vm/win98/`** ([README](scripts/vm/win98/README.md)) builds an 86Box
+machine shaped like `.243` - Pentium 166, 64 MB, Cirrus GD5436, **Voodoo 2**,
+**SB16 A220 I5 D1 H5** - with the retro agent inside (`W98BUILD`,
+**`127.0.0.1:19930`**, SLiRP, auto-logon, survives an agent `REBOOT`). Win9x
+and DOS titles are installed and tested THERE, never on `.243`. The whole disk
+is built on the host (`build-w98vm.sh`, key from the vault at build time);
+Setup still stops at three prefilled pages. Two traps: 86Box's **S3 Trio64
+goes black under Win98's S3 driver** (hence the Cirrus), and Win98's Shut Down
+dialog **preselects Stand by**. Tests: `tests/python/test_w98vm_build.py`.
+
 **`vmagent.py`'s own note is the general rule, not a VM detail:** *"A bare TCP
 connect to the forwarded port proves nothing about the guest — QEMU binds
 127.0.0.1:19898 at startup whether or not anything listens inside — so

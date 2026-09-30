@@ -1,0 +1,48 @@
+; MSBATCH.INF - unattended Windows 98 SE setup for the 86Box build VM (retro fleet).
+; @PRODUCTKEY@ is replaced on the HOST at build time from the vault
+; (fleet-win98se-product-key); the filled file lives only inside the VM disk.
+[BatchSetup]
+Version=3.0 (32-bit)
+[Version]
+Signature = "$CHICAGO$"
+[Setup]
+Express=1
+InstallDir="C:\WINDOWS"
+InstallType=1
+ProductKey="@PRODUCTKEY@"
+EBD=0
+ShowEula=0
+ChangeDir=0
+OptionalComponents=1
+Network=1
+System=0
+CCP=0
+CleanBoot=0
+Display=0
+DevicePath=0
+NoDirWarn=1
+TimeZone="Eastern"
+Uninstall=0
+VRC=0
+NoPrompt2Boot=1
+[System]
+Locale=L0409
+SelectedKeyboard=KEYBOARD_00000409
+[NameAndOrg]
+Name="retro"
+Org="retro fleet"
+Display=0
+[Network]
+ComputerName="W98BUILD"
+Workgroup="WORKGROUP"
+Description="Win98 build VM"
+Display=0
+Clients=VREDIR
+Protocols=MSTCP
+IgnoreDetectedNetCards=0
+ValidateNetCardResources=0
+[MSTCP]
+DHCP=1
+[VREDIR]
+LogonDomain="WORKGROUP"
+ValidatedLogon=0

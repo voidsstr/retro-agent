@@ -1,0 +1,10 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run]
+"RetroAgent"="C:\\RETRO_AGENT\\AGENTRUN.BAT"
+
+[HKEY_LOCAL_MACHINE\Network\Logon]
+"AutoLogon"=hex:01,00,00,00
+"username"="retro"
+"MustBeValidated"=dword:00000000
+"PrimaryProvider"="Windows Logon"
