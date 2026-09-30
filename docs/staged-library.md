@@ -12,7 +12,7 @@ of the fleet.
 Source of truth is `~/.retro-fleet/fleetbook.db`. Query it directly with
 `scripts/fleet/compat.py` (`matrix`, `status --box .143`, `gaps`, `summary`).
 
-Generated 2026-09-29 22:00.
+Generated 2026-09-29 22:32.
 
 ## The machines
 
@@ -172,7 +172,7 @@ merely had no space for.
 | TiberianSun | +. | +V | +r | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +r | G. | +V | -. | 5 |
 | Tribes2 | +. | +. | +. | +. | +. | +. | +. | +. | +. | +. | +. | +. | +. | +. | G. | +. | -. | 0 |
 | Turok2 | .. | +V | .V | .V | +V | +. | +V | +. | .. | .. | .. | .. | +. | +V | G. | .V | -. | 7 |
-| UT2003 | .. | +V | .. | +. | +V | +V | +. | +. | .. | +. | .. | .. | +V | +V | .. | .. | -. | 5 |
+| UT2003 | .. | +V | .. | +. | +V | +V | +V | +. | .. | +. | .. | .. | +V | +V | .. | .. | -. | 6 |
 | UT2004 | +. | +V | +V | +V | +V | +V | +V | +. | +. | +. | +. | +. | +V | +V | G. | +V | -. | 9 |
 | UnrealGold | +. | +V | +V | +V | +X | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 6 |
 | UnrealTournament | +. | +V | GX | +X | +X | +. | +V | +. | .. | +. | .. | +. | +. | +V | G. | +V | -. | 4 |
@@ -181,7 +181,7 @@ merely had no space for.
 | WarcraftOrcsAndHumans | .. | +V | .V | .V | +X | +. | +V | +. | .. | .. | .. | .. | +. | +V | G. | .V | -. | 6 |
 | YurisRevenge | +. | +V | +V | +V | +V | +. | +. | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 6 |
 
-**118 titles × 17 machines = 2006 cells — 278 verified, 1631 untested.**
+**118 titles × 17 machines = 2006 cells — 279 verified, 1630 untested.**
 
 ## Titles with a blocker recorded
 
