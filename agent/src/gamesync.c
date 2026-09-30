@@ -52,6 +52,7 @@
 #include "../shared/deskview.h"
 #include "../shared/deskset.h"
 #include "../shared/gsstall.h"
+#include "../shared/piffull.h"
 
 #include <windows.h>
 #include <string.h>
@@ -3170,6 +3171,64 @@ static int gs_resolve_icon(const char *dst_dir, const char *target,
     return 0;
 }
 
+/* Windows 9x DOS shortcuts opened in a WINDOW (agent/shared/piffull.h): set
+ * the PIF's own "full screen" option on each one this run writes. Counted per
+ * run and reported on one line after "done:", never per file - the shell
+ * rewrites the PIF from its defaults at every Save, so on a settled box this
+ * is the same number every sync, which is expected and not a change. */
+static int g_gs_pif_full = 0;       /* set full screen this run */
+static int g_gs_pif_odd  = 0;       /* not a PIF piffull.h understands: left as it was */
+
+static void gs_pif_fullscreen(const char *lnk_path)
+{
+    char real[MAX_PATH];
+    unsigned char b[4096];
+    const char *f;
+    DWORD n = 0, w = 0;
+    HANDLE h;
+    long at;
+    int r;
+
+    if (!(GetVersion() & 0x80000000UL))     /* NT writes a .lnk for a .bat */
+        return;
+    f = gs_desk_written_path(lnk_path, real, sizeof(real));
+    if (!piff_is_pif_name(f))
+        return;
+    h = CreateFileA(f, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        log_msg(LOG_GS, "PIF %s: open failed (%lu) - left windowed", f, GetLastError());
+        g_gs_pif_odd++;
+        return;
+    }
+    if (!ReadFile(h, b, sizeof(b), &n, NULL) || n == 0 || n == sizeof(b)) {
+        CloseHandle(h);
+        log_msg(LOG_GS, "PIF %s: unreadable or larger than %u bytes - left windowed",
+                f, (unsigned)sizeof(b));
+        g_gs_pif_odd++;
+        return;
+    }
+    r = piff_set_fullscreen(b, n);
+    at = piff_w386_flags_offset(b, n);
+    if (r == 1) {
+        unsigned char back = 0;
+        if (SetFilePointer(h, at, NULL, FILE_BEGIN) == (DWORD)at
+                && WriteFile(h, b + at, 1, &w, NULL) && w == 1
+                && SetFilePointer(h, at, NULL, FILE_BEGIN) == (DWORD)at
+                && ReadFile(h, &back, 1, &n, NULL) && n == 1 && (back & PIFF_FULLSCREEN))
+            g_gs_pif_full++;
+        else {
+            log_msg(LOG_GS, "PIF %s: full-screen write did not read back (%lu) - left windowed",
+                    f, GetLastError());
+            g_gs_pif_odd++;
+        }
+    } else if (r < 0) {
+        log_msg(LOG_GS, "PIF %s: not a PIF this understands - left as it was", f);
+        g_gs_pif_odd++;
+    }
+    CloseHandle(h);
+}
+
 static int gs_make_shortcut(const char *target, const char *workdir,
                             const char *lnk_path, const char *desc,
                             const char *icon)
@@ -3223,6 +3282,8 @@ static int gs_make_shortcut(const char *target, const char *workdir,
         pf->lpVtbl->Release(pf);
     }
     sl->lpVtbl->Release(sl);
+    if (ok)
+        gs_pif_fullscreen(lnk_path);    /* a 9x DOS target became a .pif - full screen */
     return ok;
 }
 
@@ -5544,6 +5605,7 @@ static void gs_run(const char *library)
     LeaveCriticalSection(&g_gs_lock);
     g_gs_stall_logged = 0;
     g_gs_stall_logged_v = GSST_OK;
+    g_gs_pif_full = g_gs_pif_odd = 0;
 
     log_msg(LOG_GS, "library: %s", library);
     /* Say which step the run is on. "enumerating library" used to cover
@@ -6001,6 +6063,9 @@ static void gs_run(const char *library)
             "%ld file(s) written, %ld new/removed shortcut(s)",
             ok_titles, n, g_gs.skipped_titles, g_gs.gated_titles, i,
             gs_desk_files(), gs_desk_lnks());
+    if (g_gs_pif_full || g_gs_pif_odd)
+        log_msg(LOG_GS, "DOS shortcuts: %d set to open full screen, %d left as they were",
+                g_gs_pif_full, g_gs_pif_odd);
     /* The resolution pass reports on its own line, and it reports CHANGES -
      * a steady-state box must read 0, exactly like `file(s) written` above.
      * A box that reports the same non-zero count on consecutive no-change
