@@ -58,8 +58,19 @@ if not sys.stdout.isatty():
 # talking to a box
 # --------------------------------------------------------------------------
 
+def _split_target(target, port=9898):
+    """'192.168.1.243' -> (ip, 9898); '127.0.0.1:19930' -> ('127.0.0.1', 19930).
+    The Win98 build VM's agent is reached through a SLiRP forward on the host
+    (scripts/vm/win98), so a target may name its port."""
+    host, sep, p = str(target).rpartition(':')
+    if sep and host and p.isdigit():
+        return host, int(p)
+    return str(target), port
+
+
 async def _fetch_hwprofile(ip, port=9898, timeout=20.0):
     from client.retro_protocol import RetroConnection
+    ip, port = _split_target(ip, port)
     conn = RetroConnection(ip, port)
     # 12s, not the library default: .171 answers slowly enough that a shorter
     # timeout drops it from sweeps entirely (CLAUDE.md).
@@ -198,17 +209,31 @@ def load_overrides(path=None):
     nothing would publish the very verdict the operator overrode."""
     path = Path(path) if path else OVERRIDES_PATH
     out = {}
+    follows = []
     if not path.exists():
         return out
     for n, line in enumerate(path.read_text().splitlines(), 1):
         if not line.strip() or line.lstrip().startswith("#"):
             continue
         parts = line.split("\t")
+        if len(parts) == 3 and parts[1].strip() == "@follows":
+            # <hash> TAB @follows TAB <other hash>: this profile takes every
+            # override of the other one. The Win98 build VM (scripts/vm/win98)
+            # follows .243, so it is gated to exactly the titles .243 carries -
+            # it exists to install and test those.
+            follows.append((n, parts[0].strip(), parts[2].strip()))
+            continue
         if len(parts) != 4 or parts[2] not in rules.VERDICT_VALUE:
             raise SystemExit(f"{path}:{n}: want <profile_hash> TAB <title> TAB "
                              f"<run|marginal|no> TAB <reason>, got {line!r}")
         out[(parts[0].strip(), parts[1].strip().lower())] = (
             rules.VERDICT_VALUE[parts[2]], parts[3].strip())
+    for n, alias, src in follows:
+        if not any(k[0] == src for k in out):
+            raise SystemExit(f"{path}:{n}: {alias} @follows {src}, which has no overrides")
+        for (h, t), v in list(out.items()):
+            if h == src and (alias, t) not in out:
+                out[(alias, t)] = (v[0], v[1] + f" [follows {src}]")
     return out
 
 

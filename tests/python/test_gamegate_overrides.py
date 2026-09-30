@@ -54,3 +54,32 @@ def test_comments_and_blank_lines_are_ignored(tmp_path):
     f = tmp_path / "o.txt"
     f.write_text("# note\n\n")
     assert g.load_overrides(f) == {}
+
+
+def test_a_profile_can_follow_another_profiles_overrides(tmp_path):
+    """The Win98 build VM (scripts/vm/win98) must carry exactly what .243
+    carries - it is where .243's titles are installed and tested - and it has
+    its own hardware hash. '@follows' copies every override of the other
+    profile; the follower's own lines still win; following a profile with no
+    overrides is an error, never a silent no-op."""
+    from gamegate.gamegate import load_overrides
+    p = tmp_path / "o.txt"
+    p.write_text("aaaa\tQuake1\trun\tbox A wants it\n"
+                 "aaaa\tHalo\tno\tnot on box A\n"
+                 "bbbb\t@follows\taaaa\n"
+                 "bbbb\tHalo\trun\tbox B keeps Halo\n")
+    o = load_overrides(p)
+    assert o[("bbbb", "quake1")][0] == o[("aaaa", "quake1")][0]
+    assert "follows aaaa" in o[("bbbb", "quake1")][1]
+    assert o[("bbbb", "halo")][1] == "box B keeps Halo"
+    p.write_text("bbbb\t@follows\tzzzz\n")
+    with pytest.raises(SystemExit):
+        load_overrides(p)
+
+
+def test_the_win98_vm_follows_243():
+    from gamegate.gamegate import load_overrides
+    o = load_overrides()
+    vm = {t for h, t in o if h == "a8c6fcedee0c8076"}
+    p243 = {t for h, t in o if h == "d931bfe6c33fae5e"}
+    assert p243 and vm >= p243
