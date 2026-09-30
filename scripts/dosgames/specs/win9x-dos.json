@@ -1,0 +1,780 @@
+[
+ {
+  "lib": "DOS-AloneInTheDark",
+  "title": "Alone in the Dark",
+  "year": 1992,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-AloneInTheDark",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-AloneInTheDark/ALONEINT.ICO",
+  "source_label": "stage",
+  "launch": [
+   "CRACK.EXE"
+  ],
+  "notes": "sound: Game's own Configuration menu (TATOU.COM /INSTALL, F2) run in DOSBox at 20000 cycles: Music = Sound Blaster (OPL FM), Sound effects = Sound Blaster (DMA), keyboard QWERTY. It wrote CONFIG.TAT byte-identical to the shipped one, i.e. the tree was already configured SB/SB-DMA. The drivers detect the card themselves (no IRQ field in the menu).; CRACK.EXE is the [FLT] loader for TATOU.COM; it opens the Infogrames menu - press F1 for Game (proof.png = the attract intro that follows). Real-mode, ran with ems=false/umb=false. At cycles=max the configuration menu's card detection found NOTHING (music 'No possible choice', SFX stuck on Buzzer); it only detected the SB at 20000 cycles - it is a speed-sensitive probe. Harmless here because CONFIG.TAT already holds SB, but if anyone re-runs Configuration on the P166 and it lists no cards, that is the cause. Sound output with IRQ 5 not verified by ear."
+ },
+ {
+  "lib": "DOS-BlakeStoneAOG",
+  "title": "Blake Stone - Aliens of Gold",
+  "year": 1993,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-BlakeStoneAOG",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-BlakeStoneAOG/BLAKEAOG.ICO",
+  "icon_name": "BLAKEAOG.ICO",
+  "source_label": "stage",
+  "launch": [
+   "BS_AOG.EXE"
+  ],
+  "notes": "sound: No setup program in Aliens of Gold: BS_AOG.EXE reads BLASTER (A220 I5 D1). The shipped CONFIG.BS6 selects Sound Effects AdLib/Sound Blaster, Digitized Sound Blaster, Music AdLib/Sound Blaster (OPL FM) - confirmed in the in-game Sound Settings screen in DOSBox; nothing changed (the game rewrites its last config byte on quit).; v2.00R. The registered exe checks FILE_ID.DIZ and, without it, prints 'Critical file FILE_ID.DIZ missing or modified' on the way out (seen in DOSBox). FILE_ID.DIZ is Apogee's registered-copy notice text, written by running once the TRSi CRACK.EXE shipped in the DGC Rev2 zip (it writes the file, then starts the game); CRACK.EXE itself is not staged. With it, the game quits cleanly to Apogee's commercial-version exit screen. The v2.10G update (DGC Rev2.1, scl-agup.zip, installs over Rev2) was tried and rejected: its BS_AOG.EXE refuses to start with 'FILE_ID.DIZ missing or modified' and no matching FILE_ID.DIZ exists on the share; Rev2 alone also lacks SVSWAP.BS6. Proven in DOSBox 0.74 with ems=false/umb=false: intro, menus, mission 1 gameplay, clean quit. Not tested in a real Win98 DOS box."
+ },
+ {
+  "lib": "DOS-BlakeStonePS",
+  "title": "Blake Stone - Planet Strike",
+  "year": 1994,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-BlakeStonePS",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-BlakeStonePS/BLAKEPS.ICO",
+  "icon_name": "BLAKEPS.ICO",
+  "source_label": "stage",
+  "launch": [
+   "BS_FIRE.EXE"
+  ],
+  "notes": "sound: Reads BLASTER only (A220 I5 D1). The bundled SETBLAST.EXE (Argo Games SetBlaster 1.1) is not a game setup - it only edits the BLASTER line in C:\\AUTOEXEC.BAT; run in DOSBox it already showed SB16 / 220 / DMA 1 / IRQ 5 from the environment and was exited without saving, so the box's AUTOEXEC is untouched. The shipped CONFIG.VSI selects Sound Effects AdLib/Sound Blaster, Digitized Sound Blaster, Music AdLib/Sound Blaster (OPL FM) - confirmed in the in-game Sound Settings screen.; v1.00. Proven in DOSBox 0.74 with ems=false/umb=false: logos, title, menus, sound settings, gameplay in area 1, clean quit (no FILE_ID.DIZ check here). PLANET.BAT (bs_fire + jamerr error viewer) is kept but the launch runs BS_FIRE.EXE directly. Not tested in a real Win98 DOS box."
+ },
+ {
+  "lib": "DOS-DestructionDerby2",
+  "title": "Destruction Derby 2",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-DestructionDerby2",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-DestructionDerby2/DESTRUCT.ICO",
+  "source_label": "stage",
+  "launch": [
+   "DD2.EXE"
+  ],
+  "notes": "sound: Nothing configured: this build has no setup program and no DOS sound driver - it is the WINDOWS 95 release (DirectSound). Music is CD audio from the original disc.; NOT A DOS GAME. DD2.EXE is a PE32 Windows GUI executable (Watcom C/C++32, stub says '!this is a Windows 95 executable'; DIRINFO is its 22 MB data archive). The DOS version of DD2 is not on the share (checked DOSFILL, DGC D-L, More Dos Games, Windows 98 & Earlier). It therefore cannot be proven in DOSBox and there is NO proof.png. On the Win98 box it would be a plain Windows shortcut to DD2.EXE (needs DirectX; COMMAND.COM would just hand it to Windows). The launch line is not the COMMAND.COM-in-a-DOS-box pattern and the title should be staged as a Windows title or dropped from the DOS set."
+ },
+ {
+  "lib": "DOS-Doom",
+  "title": "Doom",
+  "year": 1995,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-Doom",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-Doom/DOOM.ICO",
+  "source_label": "stage",
+  "launch": [
+   "DOOM.EXE"
+  ],
+  "notes": "sound: id SETUP v1.9 run in DOSBox: music = Sound Blaster (OPL FM), SFX = Sound Blaster port 220 IRQ 5 DMA 1, 8 channels, controller keyboard+mouse. DEFAULT.CFG: snd_musicdevice 3, snd_sfxdevice 3, snd_sbport 544, snd_sbirq 5, snd_sbdma 1.; Doom v1.9 (Ultimate). Proven in DOSBox 0.74 with ems=false, umb=false (the box has HIMEM only): runs the attract demo. DOS/4GW; not tested inside a real Win98 DOS box."
+ },
+ {
+  "lib": "DOS-Duke3D",
+  "title": "Duke Nukem 3D",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-Duke3D",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-Duke3D/DUKE3D9.ICO",
+  "icon_name": "DUKE3D9.ICO",
+  "source_label": "stage",
+  "launch": [
+   "DUKE3D.EXE"
+  ],
+  "notes": "sound: Duke3D SETUP 1.4 run in DOSBox: FX = Sound Blaster, type SB16/AWE32 (BlasterType 6), 0x220 IRQ 5 DMA 1 HDMA 5, 8 voices, 16-bit stereo, 11 kHz (lighter on a P166), reverse stereo OFF; music = Sound Blaster (OPL FM, MusicDevice 0). Screen set to 320x200 (ScreenMode 2) for the P166/Cirrus - the shipped CFG was 640x480 VESA.; v1.4 Atomic. The EXE has a CD check string and CDROM.INI names D:\\duke3d\\support\\, but DUKE3D.EXE started from the hard disk with no CD mounted and no CRACK.COM: proven in DOSBox 0.74 (ems=false, umb=false) through the 3D Realms logo into the attract demo. The shipped CFG carries someone's parental-lock Password SZWED (left as is). CRACK.COM/SETUP.PIF/DUKE3D.ICO(BMP) left in the tree untouched. Not tested inside a real Win98 DOS box."
+ },
+ {
+  "lib": "DOS-GTA",
+  "title": "Grand Theft Auto",
+  "year": 1997,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-GTA",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-GTA/GTA.ICO",
+  "source_label": "stage",
+  "launch": [
+   "SET FX_GLIDE_NO_SPLASH=1",
+   "CD GTADOS",
+   "GTAFX.EXE"
+  ],
+  "notes": "sound: The game's own DOS front end GTADOS\\K.EXE run in DOSBox: language English; Configure Sound Details -> Creative Labs Sound Blaster 16 or AWE32 (Miles SB16.DIG), manual I/O 220h -> 'Device Successfully Detected'. It wrote GTADOS\\DIG.INI (SB16.DIG, IO_ADDR 220h, IRQ/DMA -1 = the driver finds them itself, i.e. from the card/BLASTER). 'Run GTA' -> 'Run 3DFX GTA' set STARTUP.INI runtype 2 and DINO.BAT = gtafx.exe. Music is digital (streamed through the same driver).; GLIDE PATH UNPROVEN: DOSBox 0.74 has no Glide. Proven in DOSBox with ems=false/umb=false: these exact launch lines start GTAFX.EXE, its menus run (proof.png left), and on Play it stops at 'What 3DFX Card?' (proof.png middle) because DOSBox has no Voodoo; the software GTA8.EXE on the same tree and DIG.INI plays Liberty City (proof.png right). Whether GTAFX + the Voodoo 2 GLIDE2X.OVL (Glide 2.56 DOS overlay) renders on .243 is not tested. London 1969 3Dfx: same lines with GTAFX_UK.EXE (LON3DFX.BAT). The tree also carries GTAWIN\\ (the Windows build) and the software exes GTA8/GTA24(_UK). DOS/4GW 1.97."
+ },
+ {
+  "lib": "DOS-Heretic",
+  "title": "Heretic",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-Heretic",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-Heretic/HERETIC.ICO",
+  "source_label": "stage",
+  "launch": [
+   "HERETIC.EXE"
+  ],
+  "notes": "sound: Heretic SETUP v1.9 run in DOSBox: music = Sound Blaster (OPL FM), SFX = Sound Blaster port 220 IRQ 5 DMA 1, 8 channels, controller keyboard+mouse. HERETIC.CFG: snd_musicdevice 3, snd_sfxdevice 3, snd_sbport 544, snd_sbirq 5, snd_sbdma 1.; Hard-disk install, no CD or -cdrom needed. Proven in DOSBox 0.74 with ems=false, umb=false: runs the attract demo. DOS/4GW-class extender; not tested inside a real Win98 DOS box."
+ },
+ {
+  "lib": "DOS-Hexen",
+  "title": "Hexen",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-Hexen",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-Hexen/HEXEN.ICO",
+  "source_label": "stage",
+  "launch": [
+   "HEXEN.EXE"
+  ],
+  "notes": "sound: Hexen SETUP v1.1 run in DOSBox: music = Sound Blaster (OPL FM; not CD Audio), SFX = Sound Blaster port 220 IRQ 5 DMA 1, 6 channels (default, Hexen is heavy on a P166), controller keyboard+mouse. HEXEN.CFG: snd_musicdevice 3, snd_sfxdevice 3, snd_sbport 544, snd_sbirq 5, snd_sbdma 1.; HEXEN.EXE v1.1 runs from the hard disk with no CD and no -cdrom: proven in DOSBox 0.74 (ems=false, umb=false) to the main menu. Deathkings is HEXENDK.EXE (not a shortcut here); DM.EXE/LOCATION.STR is a third-party deathmatch launcher whose LOCATION.STR still says C:\\HEXENDK - unused by HEXEN.EXE. On a P166 Hexen will be slow at full view size. Not tested inside a real Win98 DOS box."
+ },
+ {
+  "lib": "DOS-Powerslave",
+  "title": "Powerslave",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-Powerslave",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-Powerslave/POWERSLA.ICO",
+  "source_label": "stage",
+  "launch": [
+   "PS.EXE"
+  ],
+  "notes": "sound: PowerSlave SETUP 1.0 -> Miles Sound Configuration Utility run in DOSBox: digital audio = Creative SB16/AWE32 driver (SB16.DIG), I/O 220h entered manually, 'device detected successfully'; the Miles driver leaves IRQ/DMA at -1 (auto, from the card/BLASTER - IRQ 5 DMA 1 HDMA 5 detected by the driver). Music is CD audio only (no CD staged) so there is no music. Screen set to 320x200 in SETUP.; Proven in DOSBox 0.74 (ems=false, umb=false): title screen and main menu with no CD mounted. No music without the CD's audio tracks (the share has PowerSlave_USA.zip, a CD image, not staged). Sound effects in-game not listened to. PS95.EXE is the Win95 build (not a shortcut here). Not tested inside a real Win98 DOS box."
+ },
+ {
+  "lib": "DOS-ROTT",
+  "title": "Rise of the Triad",
+  "year": 1994,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-ROTT",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-ROTT/ROTT.ICO",
+  "source_label": "stage",
+  "launch": [
+   "ROTT.EXE"
+  ],
+  "notes": "sound: ROTT SETUP v1.2 -> Configure Sounds run in DOSBox: FX = Sound Blaster 16/AWE32 (SBType 6) port 220 IRQ 5 DMA 1 HDMA 5, 8 voices, stereo, 16-bit; music = Sound Blaster (OPL FM, MusicMode 2). SOUND.ROT written by the setup.; Proven in DOSBox 0.74 (ems=false, umb=false): Apogee logo, credits, story text and the attract demo in gameplay. ROTT.EXE carries the 'this version of ROTT has been modified' string (likely a release-group edit); no such notice was seen on screen. Automation note: ROTT's menus treat Ctrl as select and the DOSBox Ctrl+F5 capture hotkey fires it - irrelevant on the box. Not tested inside a real Win98 DOS box."
+ },
+ {
+  "lib": "DOS-Screamer2",
+  "title": "Screamer 2",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-Screamer2",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-Screamer2/SCREAMER.ICO",
+  "source_label": "stage",
+  "launch": [
+   "STARTH.EXE"
+  ],
+  "notes": "sound: Game's own SETUP.EXE (HMI SOS) run in DOSBox at 30000 cycles: its System Info detected 'SB16 ST port 220 DMA 1 IRQ 5'; Sound card set explicitly to SB16 ST, port 220, DMA 1, IRQ 5 (its Auto Detect picks SB16 MONO - not used) and saved (Y). SETUP wrote CONFIG\\SETUP.CFG (SB16 220/5/1, byte-identical to the shipped one), CONFIG\\CONTROLS.CFG and S2.BAT (= STARTH.EXE, the hi-res 256-colour exe for the kept HI-RES 256 COLOURS screen mode). Music is CD audio on the original disc - there is none without it.; UNPROVEN LAUNCH. The cracked STARTH.EXE (identical in DOSFILL and DGC) dies in DOSBox 0.74 right after its 'cracked by Hoson of Hybrid' banner with 'Error [35]: Unexpected Interrupt=0027 in DOS4GW.EXE at 0160:061E' - every variation tried fails (cycles max/30000/10000, core normal, cputype 486/pentium/auto, ems on (->0029), xms off (->0026), no SB, no joystick, 16 MB, loadfix, a CD drive mounted); cracked STARTL.EXE takes DOSBox itself down ('IRET: Illegal descriptor'). The RETAIL START0\\STARTH.EXE from the original CD image, run over this same tree and config with the CD image mounted, plays the Virgin/Milestone intro and title (proof.png is THAT run, not the cracked exe) and without the CD says 'PLEASE INSERT SCREAMER 2 DISK'. So the data and sound config are proven; whether Hybrid's crack runs on the real P166 is not - it looks like a crack that relies on real-CPU behaviour DOSBox does not emulate. The SETUP menus need ~30000 cycles to detect anything; at cycles=max they sit on a black screen. DOS/4GW 1.97; EMS not needed."
+ },
+ {
+  "lib": "DOS-SpearMissionPacks",
+  "title": "Spear of Destiny - Mission Packs",
+  "year": 1994,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-SpearMissionPacks",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-SpearMissionPacks/SPEARMP.ICO",
+  "icon_name": "SPEARMP.ICO",
+  "source_label": "stage",
+  "launch": [
+   "SOD.EXE"
+  ],
+  "notes": "sound: Same engine as Spear of Destiny - no setup program, BLASTER (A220 I5 D1) is read by SPEAR.EXE. SOD.EXE keeps one CONFIG.SDn per mission and swaps it to CONFIG.SOD; each CONFIG.SD1/SD2/SD3 is a copy of the game's own shipped CONFIG.SOD (Sound Effects AdLib/SB, Digitized SB, Music AdLib/SB FM). Mission 3 was seen starting with that config (full-size view).; SOD.EXE is FormGen's mission menu (1 original, 2 Return to Danger, 3 Ultimate Challenge, 4 Mission Generator, 0 exit): it RENAMES the chosen mission's GAMEMAPS/VSWAP (and copies MAPHEAD, swaps CONFIG) from .SDn to .SOD, renames the previous set back, then runs SPEAR.EXE. GAMEGEN.EXE (what DOSFILL named as launcher) is the level editor, not the game. The staged tree is the pristine state: the original mission's GAMEMAPS/MAPHEAD/VSWAP renamed .SD1 and no active .SOD map set - with the originals left as .SOD, SOD.EXE mistook them for mission 4 and overwrote the original MAPHEAD. Proven in DOSBox (ems=false): menu, mission 2 and mission 3 gameplay, and a switch back to mission 1 that restored the original files byte-identical. SPEAR.EXE run directly from the pristine tree finds no maps - always launch SOD.EXE. Unproven: the tree MUTATES at every mission switch, and GAMESYNC never deletes - a later re-sync onto a box that has switched missions would re-add the .SDn files beside the renamed .SOD set; purge the title before any resync. Not tested in a real Win98 DOS box."
+ },
+ {
+  "lib": "DOS-SpearOfDestiny",
+  "title": "Spear of Destiny",
+  "year": 1992,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-SpearOfDestiny",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-SpearOfDestiny/SPEAROFD.ICO",
+  "source_label": "stage",
+  "launch": [
+   "SPEAR.EXE"
+  ],
+  "notes": "sound: No setup program exists: SPEAR.EXE reads BLASTER (A220 I5 D1) and its sign-on lit SOUND BLASTER in DOSBox with IRQ 5. The game's own shipped CONFIG.SOD already selects Sound Effects = AdLib/Sound Blaster, Digitized = Sound Blaster, Music = AdLib/Sound Blaster (OPL FM), mouse on, joystick off - confirmed in the in-game Sound menu; kept unchanged. (With no CONFIG.SOD the engine defaults sound effects to None.); Proven in DOSBox 0.74 with ems=false/umb=false: sign-on (EMS 0), title, menu and gameplay. Not tested in a real Win98 DOS box. Harness note: DOSBox's Ctrl+F5 capture presses Ctrl = the Wolf-engine fire/select button, so menus were photographed by window grab."
+ },
+ {
+  "lib": "DOS-Wolf3D",
+  "title": "Wolfenstein 3D",
+  "year": 1992,
+  "tree": "/mnt/retro-share/Files/Games-Library/DOS-Wolf3D",
+  "icon": "/mnt/retro-share/Files/Games-Library/DOS-Wolf3D/WOLF3D.ICO",
+  "source_label": "stage",
+  "launch": [
+   "WOLF3D.EXE"
+  ],
+  "notes": "sound: Wolf3D has no setup program: it reads BLASTER (A220 I5 D1 from the box's AUTOEXEC) and detects the card itself - its sign-on screen lit SOUND BLASTER in DOSBox with IRQ 5. Its in-game Sound menu is its only configuration; with no config file it defaulted sound effects to None, so the menu was used to set Sound Effects = AdLib/Sound Blaster, Digitized = Sound Blaster, Music = AdLib/Sound Blaster (OPL FM), and CONFIG.WL6 was written by quitting the game.; Full registered 6-episode .WL6 data ('This game is NOT shareware', GAMEMAPS.WL6 150652 bytes). Proven in DOSBox 0.74 with ems=false/umb=false: sign-on shows EMS 0 and continues to the title screen and menu. The sign-on AdLib lamp was dark while SOUND BLASTER was lit; music was selectable as AdLib/Sound Blaster. CONFIG.WL6 also records the joystick/mouse flags DOSBox presented (FCS stick emulated). Not tested in a real Win98 DOS box."
+ },
+ {
+  "lib": "Flight-A10TankKiller",
+  "title": "A-10 Tank Killer",
+  "year": 1991,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-A10TankKiller",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-A10TankKiller/A10TANKK.ICO",
+  "source_label": "stage",
+  "launch": [
+   "A10.COM"
+  ],
+  "notes": "sound: INSTALL.COM Smart Start: VGA 256; AdLib - the Sound Blaster choice did not persist in CONTROL.PRF; Unproven: SB selection reverted to AdLib (FM) after saving."
+ },
+ {
+  "lib": "Flight-A320Airbus",
+  "title": "A320 Airbus",
+  "year": 1991,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-A320Airbus",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-A320Airbus/A320AIRB.ICO",
+  "source_label": "stage",
+  "launch": [
+   "A320I.EXE"
+  ],
+  "notes": "sound: none to configure (Thalion, no sound setup; uses AdLib/PC speaker); A320I = intro, chains to the planner A320P; A320S alone exits."
+ },
+ {
+  "lib": "Flight-AcesOverEurope",
+  "title": "Aces Over Europe",
+  "year": 1993,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-AcesOverEurope",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-AcesOverEurope/ACESOVER.ICO",
+  "source_label": "stage",
+  "launch": [
+   "AOE.COM"
+  ],
+  "notes": "sound: INSTALL.EXE (Sierra 3.649, French): Sound Blaster/AdLib (RESOURCE.CFG soundDrv=ADL.DRV); needs EMS; Needs 1 MB EMS. The installer is the French Sierra one; the game text is English."
+ },
+ {
+  "lib": "Flight-AcesPacific",
+  "title": "Aces of the Pacific",
+  "year": 1992,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-AcesPacific",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-AcesPacific/ACESPACI.ICO",
+  "source_label": "stage",
+  "launch": [
+   "ACES.COM"
+  ],
+  "notes": "sound: INSTALL.EXE (Dynamix 3.531): SoundBlaster/AdLib (RESOURCE.CFG soundDrv=ADL.DRV 220); needs EMS; Needs >=112K EMS. 1946datadisk\\ (non-8.3 files) dropped."
+ },
+ {
+  "lib": "Flight-B17",
+  "title": "B-17 Flying Fortress",
+  "year": 1992,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-B17",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-B17/B17.ICO",
+  "source_label": "stage",
+  "launch": [
+   "B17.EXE"
+  ],
+  "notes": "sound: B17SETUP.EXE: VGA 256, Sound Blaster, mouse + joystick (B17.CFG); Built from the OTHER share copy 'B 17 Flying Fortress (1993)(Microprose Software Inc).zip': the listed zip's B17.EXE exits silently. Its _AIRBASE is only in a non-8.3 subfolder of that zip and was copied to the root."
+ },
+ {
+  "lib": "Flight-Battlehawks1942",
+  "title": "Battlehawks 1942",
+  "year": 1988,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Battlehawks1942",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Battlehawks1942/BATTLEHA.ICO",
+  "source_label": "stage",
+  "launch": [
+   "BH.EXE V"
+  ],
+  "notes": "sound: none (AdLib/PC speaker, no setup); Argument V answers the graphics prompt (VGA) and goes straight to the menu."
+ },
+ {
+  "lib": "Flight-BlueAngels",
+  "title": "Blue Angels",
+  "year": 1989,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-BlueAngels",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-BlueAngels/BLUEANGE.ICO",
+  "source_label": "stage",
+  "launch": [
+   "BA69NYC.EXE"
+  ],
+  "notes": "sound: none (no sound setup); WRONG GAME: this zip is Blue Angel 69 (a strip board game), not Accolade's Blue Angels flight sim. The only copy on the share."
+ },
+ {
+  "lib": "Flight-BlueMax",
+  "title": "Blue Max",
+  "year": 1990,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-BlueMax",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-BlueMax/BLUEMAX.ICO",
+  "source_label": "stage",
+  "launch": [
+   "BLUEMAX.EXE"
+  ],
+  "notes": "sound: none to configure (AdLib auto)"
+ },
+ {
+  "lib": "Flight-ChuckYeager",
+  "title": "Chuck Yeager's Air Combat",
+  "year": 1991,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-ChuckYeager",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-ChuckYeager/CHUCKYEA.ICO",
+  "source_label": "stage",
+  "launch": [
+   "CRACK.COM",
+   "YEAGER.EXE"
+  ],
+  "notes": "sound: none (no setup; AdLib); CRACK.COM (TSR) answers the aircraft-ID copy protection; PLAY.BAT order."
+ },
+ {
+  "lib": "Flight-Comanche2",
+  "title": "Comanche 2.0",
+  "year": 1995,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Comanche2",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Comanche2/COMANCHE.ICO",
+  "source_label": "stage",
+  "launch": [
+   "CD COMANCHE",
+   "COMANCHE.EXE"
+  ],
+  "notes": "sound: GAMESET.EXE: digital SB 220/5/1, music Sound Blaster compatible (GAMESET.CFG)"
+ },
+ {
+  "lib": "Flight-EF2000",
+  "title": "EF2000",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-EF2000",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-EF2000/EF2000.ICO",
+  "source_label": "stage",
+  "launch": [
+   "SET DID=.",
+   "SET QUICK_FLAG=1",
+   "_EF2000.EXE GUI"
+  ],
+  "notes": "sound: SETSOUND: digital Creative SB16 (SB16.DIG 220), MIDI Generic OPL3 FM (OPL3.MDI 388); CONF: 320x200, Joystick (EF2000.CFG); Shipped DIG/MDI.INI named an ESS688 card: with those the game stopped at 'Replace EF2000 CD'. REAL DOS (2026-09-30, Win98 build VM): in a Win98 DOS box _EF2000.EXE (FlashTek X-32VM) page-faults about 2 s after start at an address near 2 GB and writes C:\\EF2000.$$$ (fault 0E, EDI 7B866000); in real DOS on the standard boot entry it plays the Intel and DID intros and reaches its main menu - Quick Combat, Simulator, Campaign - with the mouse.",
+  "real_dos": {
+   "dir": "EF2000"
+  }
+ },
+ {
+  "lib": "Flight-Epic",
+  "title": "Epic",
+  "year": 1992,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Epic",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Epic/EPIC.ICO",
+  "source_label": "stage",
+  "launch": [
+   "START.EXE SOUND=S EPIC=."
+  ],
+  "notes": "sound: SETSOUND.EXE: Sound Blaster (it rewrote EPIC.BAT to SOUND=S); EPIC.BAT had EPIC=D:\\EPIC hardcoded; EPIC=. works. START.EXE named explicitly so Windows' own START.EXE on PATH is not picked."
+ },
+ {
+  "lib": "Flight-F117A",
+  "title": "F-117A Nighthawk",
+  "year": 1991,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-F117A",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-F117A/F117A.ICO",
+  "source_label": "stage",
+  "launch": [
+   "JOYCHK",
+   "if errorlevel 1 goto stick",
+   "ECHO N2| F117.COM",
+   "goto done",
+   ":stick",
+   "ECHO Y2| F117.COM",
+   ":done"
+  ],
+  "notes": "sound: none - the game asks joystick/graphics/sound at every start; Answer Y (joystick), then VGA and AdLib at the prompts. LAUNCHER (2026-09-30, Win98 build VM): SETUP.EXE asks joystick Y/N and then the sound driver (1 IBM, 2 Ad Lib, 3 Roland, 4 none - no Sound Blaster entry; Ad Lib is what the SB16 plays) on EVERY start and reads both from DOS stdin, so the launcher pipes them: N2 without a stick, Y2 with one (JOYCHK.COM reads the game port; Y then runs the game's own three-step fire-button calibration). Measured in the VM: straight to the full-screen Squadron Bulletin Board, and the keyboard still drives the game (the key routines use INT 16h, not the piped stdin).",
+  "files": {
+   "JOYCHK.COM": "scripts/dosgames/joychk/JOYCHK.COM"
+  }
+ },
+ {
+  "lib": "Flight-F14",
+  "title": "F-14 Fleet Defender",
+  "year": 1994,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-F14",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-F14/F14FD.ICO",
+  "icon_name": "F14FD.ICO",
+  "source_label": "stage",
+  "launch": [
+   "F14.COM"
+  ],
+  "notes": "sound: INSTALL.EXE Reconfigure: SoundBlaster Pro (later) 220, speech SB Pro 220/5/1 (CONFIG.SND); needs EMS; Uses EMS for FLC/sound."
+ },
+ {
+  "lib": "Flight-F15SE3",
+  "title": "F-15 Strike Eagle III",
+  "year": 1993,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-F15SE3",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-F15SE3/F15SE3.ICO",
+  "source_label": "stage",
+  "launch": [
+   "F15.COM"
+  ],
+  "notes": "sound: INSTALL.EXE Reconfigure: music/FX SoundBlaster (orig.), speech SoundBlaster 220/5/1, Joystick with Throttle (CONFIG.F15)"
+ },
+ {
+  "lib": "Flight-F19",
+  "title": "F-19 Stealth Fighter",
+  "year": 1988,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-F19",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-F19/F19.ICO",
+  "source_label": "stage",
+  "launch": [
+   "JOYCHK",
+   "if errorlevel 1 goto stick",
+   "F19.COM /NJ /GM",
+   "goto done",
+   ":stick",
+   "F19.COM /J /GM",
+   ":done"
+  ],
+  "notes": "sound: none - the game asks joystick/graphics/sound at every start; Answer Y (joystick), then VGA and AdLib at the prompts. LAUNCHER (2026-09-30, Win98 build VM): SU.EXE's own switches answer its start-up questions - /GM = VGA/MCGA graphics, /NJ = no joystick, /J = joystick (it then asks 'Center joystick, then press fire button 1'). JOYCHK.COM reads the game port, so a box with a stick gets /J and one without gets /NJ; unattended, the VM went straight to the VGA title and the Aircraft Identification Exam (the game's own copy protection). The Y/N question is NOT answered by the old note's 'Answer Y ... AdLib': SU 435.01 has no sound prompt and the tree ships no AdLib driver.",
+  "files": {
+   "JOYCHK.COM": "scripts/dosgames/joychk/JOYCHK.COM"
+  }
+ },
+ {
+  "lib": "Flight-Falcon3",
+  "title": "Falcon 3.0",
+  "year": 1991,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Falcon3",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Falcon3/FALCON3.ICO",
+  "source_label": "stage",
+  "launch": [
+   "FALCON3.EXE"
+  ],
+  "notes": "sound: in-game SYSTEM SETUP: flight control Joystick, radio messages + sound/music SoundBlaster (FALCON3.DEF); needs EMS; Needs >=512K EMS for sound. REAL DOS (2026-09-30, Win98 build VM): in a Win98 DOS box FALCON3.EXE stops at 'Program Requires MS-DOS Mode' (Windows' APPS.INF lists it - and answering Yes rewrites the desktop shortcut); in real DOS with the boot menu's EMS entry it reaches its main screen (Current Squadron / Current Theater, ACMI, SQUAD) with the mouse.",
+  "real_dos": {
+   "dir": "FALCON3",
+   "ems": true
+  }
+ },
+ {
+  "lib": "Flight-FighterDuel",
+  "title": "Fighter Duel",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-FighterDuel",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-FighterDuel/FIGHTERD.ICO",
+  "source_label": "stage",
+  "launch": [
+   "CD FDUEL",
+   "FD.EXE"
+  ],
+  "notes": "sound: FD.EXE install (Full) + AIL SETSOUND: SB16 digital (DIG.INI); CONFIG.INF Blaster 220/5/1, flight Joystick 1, throttle set to Joy2 by hand (CONFIG.INF line 67); The Full install was run to an empty drive from a CD mount of this tree and only produced CONFIG.INF, DIG.INI, UNIVBE.DRV, UVCONFIG.DAT - the two text files were copied in; UNIVBE.DRV was generated for DOSBox's S3 so it is left for FD.EXE to regenerate on the Cirrus. CONFIG.INF 'ALTDP D:\\FDUEL' / CD 'D:' are only used for a Minimal install."
+ },
+ {
+  "lib": "Flight-FlightCD",
+  "title": "SubLogic Flight",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-FlightCD",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-FlightCD/FLIGHTCD.ICO",
+  "source_label": "stage",
+  "launch": [
+   "CD FLIGHT\\FLIGHT",
+   "FLIGHT.EXE"
+  ],
+  "notes": "sound: SETUP.EXE (Configure Flight): SOUND=BLASTER, STICK=JOYSTICK, DISPLAY=VGA S; needs EMS; Needs EMS (\"not enough base memory\" without it). FLIGHT.INI root-absolute scenery paths (\\flight\\scenery) rewritten to ..\\SCENERY and ..\\SMS so the tree works from any folder; setup declined to touch CONFIG.SYS (it wants FILES=20)."
+ },
+ {
+  "lib": "Flight-FrontierElite2",
+  "title": "Frontier - Elite II",
+  "year": 1993,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-FrontierElite2",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-FrontierElite2/FRONTIER.ICO",
+  "source_label": "stage",
+  "launch": [
+   "ECHO 2| FRONTIER.EXE"
+  ],
+  "notes": "sound: none - the game asks at every start: 2 = AdLib/SoundBlaster; needs EMS; Needs 768K EMS. LAUNCHER (2026-09-30, Win98 build VM): EL2SETUP.OVL asks 'Please select sound support' (1 Roland, 2 AdLib/SoundBlaster, 3 speaker, 4 none) on every start and reads the key with INT 21h AH=07h - DOS stdin - so the launcher pipes 2. Measured: straight into the full-screen intro; SPACE skipped it to Select Start Position, so the keyboard still works."
+ },
+ {
+  "lib": "Flight-Gunship2000",
+  "title": "Gunship 2000",
+  "year": 1991,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Gunship2000",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Gunship2000/GUNSHIP2.ICO",
+  "source_label": "stage",
+  "launch": [
+   "GS2000.COM"
+  ],
+  "notes": "sound: SETUP.EXE: flight Joystick, Sound Source Sound Blaster, digitized On, music On (setup already matched); Collective on the joystick needs a calibration pass in SETUP with the stick connected."
+ },
+ {
+  "lib": "Flight-JanesATF",
+  "title": "Jane's ATF",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-JanesATF",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-JanesATF/JANESATF.ICO",
+  "launch": [
+   "ATF.BAT"
+  ],
+  "real_dos": {
+   "dir": "ATF"
+  },
+  "notes": "sound: AF.EXE's own first-run hardware wizard, driven in DOSBox: digital = Sound Blaster 16 at 220 IRQ 5 DMA 1 (it detected 220/IRQ 5 from the card), music = SoundBlaster Pro - OPL3 (SBP2FM.ADV, FM). It wrote SOUNDRV.COM, MIDPAK.COM, MIDPAK.AD and, on exit, EA.CFG - so later starts go straight to the main menu. Video: in-flight 320x200, shell 640x480 (VESA).; Phar Lap TNT extender; ATF.BAT runs AF.EXE (TNT errorlevel 1 = not enough conventional memory, needs 420K free). Proven in DOSBox 0.74 with ems=false umb=false: main menu (proof.png) and a single mission flown to the cockpit (proof_flight.png). The wizard offers no joystick page; stick setup is in-flight and was not exercised. The shell is 640x480 VESA - not proven on the box's Cirrus VESA BIOS. Not run in real MS-DOS mode.",
+  "source_label": "stage"
+ },
+ {
+  "lib": "Flight-LHX",
+  "title": "LHX Attack Chopper",
+  "year": 1990,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-LHX",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-LHX/LHX.ICO",
+  "source_label": "stage",
+  "launch": [
+   "LHX.EXE"
+  ],
+  "notes": "sound: none to configure (in-game); RUNME.BAT's INC.COM is a crack intro - skipped."
+ },
+ {
+  "lib": "Flight-Longbow",
+  "title": "Jane's AH-64D Longbow",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Longbow",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Longbow/LONGBOW9.ICO",
+  "icon_name": "LONGBOW9.ICO",
+  "source_label": "stage",
+  "launch": [
+   "C:\\WINDOWS\\SMARTDRV.EXE",
+   "LB.EXE"
+  ],
+  "notes": "sound: SETSOUND: Creative SB16 digital (DIG.INI, IRQ from BLASTER); UNPROVEN. LB.EXE (the release's crack loader) stops with 'Not enough memory to allocate file structures' in DOSBox. LBGAME.EXE (= the real loader LB.BIN) reaches Select Pilot, but only with a CD drive holding JLBCD_01, and it prints 'Longbow will only run under MSDOS or Windows 95!' when it sees another Windows version - Win98 reports 4.10, so it may need MS-DOS mode. REAL DOS (2026-09-30, Win98 build VM): in a Win98 DOS box the crack cannot answer the CD check - Windows' own CD support answers MSCDEX first and the game probes the real CD drive; its NFO says 'run this game in DOS ONLY'. In real DOS, with SMARTDRV loaded so it does not stop to offer it, LB.EXE reaches the airbase main menu (Instant Action, Single Missions, Campaign, Training, Exit to DOS). FLIGHT IS UNVERIFIED: this rip carries none of the CD's terrain archives (game\\*.lbc in CATALOG.INI), so a mission may fail to load its theatre.",
+  "real_dos": {
+   "dir": "LONGBOW"
+  }
+ },
+ {
+  "lib": "Flight-MSFS51",
+  "title": "Microsoft Flight Simulator 5.1",
+  "year": 1995,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-MSFS51",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-MSFS51/MSFS51.ICO",
+  "source_label": "stage",
+  "launch": [
+   "FS5.COM"
+  ],
+  "notes": "sound: FS5.INI: SOUND_BOARD=004 (Sound Blaster) with SOUND_INTERRUPT changed 007->005; FM + digital; French FS 5.1 CD rip. FS5.INI switched from the S3-specific SVGA driver (G2D=SVGA.GRA, SVGA_BOARD=007) to plain VGA (G2D=VGB.GRA): the SVGA setting gives a black screen. SCENERY\\WORLD.VIS hardcodes C:\\JEUX\\FS51\\CACHE\\... so the CD scenery caches are ignored with a red OK dialog unless the tree sits at C:\\JEUX\\FS51. Never run FS5_STG2.BAT (rewrites CONFIG.SYS/AUTOEXEC.BAT and reboots). Sound IRQ was hand-edited in the text INI (the sim's own sound dialog is in-game)."
+ },
+ {
+  "lib": "Flight-Overlord",
+  "title": "Overlord",
+  "year": 1994,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Overlord",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Overlord/OVERLORD.ICO",
+  "source_label": "stage",
+  "launch": [
+   "OVERLORD.EXE"
+  ],
+  "notes": "sound: not configured - no DOS setup program for sound in this tree; in-game options; needs EMS; OL.BAT does 'cd OL', a folder this tree does not have - run OVERLORD.EXE from the root. Needs ~2.2 MB EMS (VGA). SVGA mode needs SVGATEST first; VGA is the default."
+ },
+ {
+  "lib": "Flight-PacificAirWar1942",
+  "title": "1942 - The Pacific Air War",
+  "year": 1994,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-PacificAirWar1942",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-PacificAirWar1942/PACIFICA.ICO",
+  "source_label": "stage",
+  "launch": [
+   "1942.EXE"
+  ],
+  "notes": "sound: INSTALL.EXE Set Up Sound: digital Sound Blaster 16 220/5/1, music Sound Blaster 16 (CONFIG.FT); needs EMS; Needs 1600K EMS ('No EMS Memory Driver found' otherwise)."
+ },
+ {
+  "lib": "Flight-PacificStrike",
+  "title": "Pacific Strike",
+  "year": 1994,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-PacificStrike",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-PacificStrike/PACIFICS.ICO",
+  "launch": [
+   "PACIFIC.EXE"
+  ],
+  "real_dos": {
+   "dir": "PSTRIKE",
+   "ems": true
+  },
+  "notes": "sound: The game's own INSTALL.EXE run from C:\\GAMES\\PSTRIKE in DOSBox: music = Sound Blaster PRO (FM), speech/digital = Sound Blaster PRO/SB16 at 220 IRQ 5 DMA 1. Then the Speech Pack's own INSTALL.EXE (same card choices) unpacked SPEECH.DAT into the tree and added it to the configs. PS.CFG: -ma / -ds251 / =PACIFIC.DAT / =SPEECH.DAT; INSTALL.CFG: -m4388 / -d4251 / =PACIFIC.DAT / =SPEECH.DAT.; needs EMS; NEEDS EMS - its README says 2900K EMS minimum (4500K for all digital sound). Measured in DOSBox 0.74: with ems=false (the box's HIMEM-only config) it starts, runs the Origin intro and reaches the main menu (proof_noems_menu.png), but choosing Instant Action or View Objects loads for ~20 s and drops back to the menu; with ems=true the same click opens the 3D object viewer (proof.png). So in MS-DOS mode the box needs EMM386 (e.g. DEVICE=EMM386.EXE RAM) for this title. First start asks to calibrate the joystick (throttle yes, rudders no was answered in DOSBox; the resulting THROTTLE.DAT/RUDDER.DAT were removed from the tree so the box calibrates its own stick). The 'Update to v2.01' zip was NOT applied: its PATCH.EXE is text-mode corrupted (CRLF-mangled) and its PATCH.RTP targets PAC.EXE, a file this release does not have; the tree is Origin's F1.19. Flight itself not reached (menu is mouse-only; the harness's mouse is relative). Not run in real MS-DOS mode.",
+  "source_label": "stage"
+ },
+ {
+  "lib": "Flight-Privateer",
+  "title": "Privateer",
+  "year": 1993,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Privateer",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Privateer/PRIVATEE.ICO",
+  "launch": [
+   "PRIV.EXE"
+  ],
+  "real_dos": {
+   "dir": "PRIVATER"
+  },
+  "notes": "sound: Privateer's own INSTALL.EXE run in DOSBox from C:\\GAMES\\PRIVATER: Music Card = Sound Blaster PRO/16 (FM/OPL at 388h), Speech Card = Sound Blaster 16 port 220 IRQ 5 DMA 1. SOUND.CFG = '2 1 / 904 5 -1 -1 / 544 5 1 -1 / 2 0'. Re-run after the host reboot rewrote it byte-identical.; Origin JEMM (JEMM.OVL): cannot run inside Windows, MS-DOS mode from C:\\GAMES\\PRIVATER. INSTALL.EXE reported Free EMS 0 and the game runs with ems=false umb=false (HIMEM only). Proven in DOSBox 0.74: PRIV.EXE plays the intro through to the cockpit scene (proof.png). With a joystick present, the first launch asks for a joystick calibration (move to upper left, press button) and writes JOYA.DAT; the proof ran with the DOSBox joystick disabled, so calibration was skipped. DELTSECT.IFF, PLAYSCOR.IFF and PLAYTYPE.IFF are made by the game at run time and are not staged (the copies made during the first proof were left 0 bytes by the host reboot and were deleted). Speech output not listened to. Not run in real MS-DOS mode.",
+  "source_label": "stage"
+ },
+ {
+  "lib": "Flight-RedBaron",
+  "title": "Red Baron",
+  "year": 1990,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-RedBaron",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-RedBaron/REDBARON.ICO",
+  "source_label": "stage",
+  "launch": [
+   "BARON.COM"
+  ],
+  "notes": "sound: INSTALL.COM (Dynamix Smart Start): VGA 256, Sound Blaster; RB.EXE only prints 'type BARON'; BARON.COM is the game."
+ },
+ {
+  "lib": "Flight-Retribution",
+  "title": "Retribution",
+  "year": 1994,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Retribution",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Retribution/RETRIBUT.ICO",
+  "source_label": "stage",
+  "launch": [
+   "call RET.BAT"
+  ],
+  "notes": "sound: none (reads BLASTER); RET.BAT runs MEMCHECK then RET8/RET4 (XMS). Asks a manual security code after the intro."
+ },
+ {
+  "lib": "Flight-RighteousFire",
+  "title": "Privateer - Righteous Fire",
+  "year": 1994,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-RighteousFire",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-RighteousFire/RIGHTEOU.ICO",
+  "launch": [
+   "RF.EXE"
+  ],
+  "real_dos": {
+   "dir": "PRIVRF"
+  },
+  "notes": "sound: Inherited from the Privateer tree it is merged over: SOUND.CFG written by Privateer's own INSTALL.EXE - music Sound Blaster PRO/16 (FM/OPL at 388h), speech Sound Blaster 16 port 220 IRQ 5 DMA 1. The RF add-on has no sound setup of its own.; Standalone tree: the full Privateer tree plus the RF files, so PRIV.EXE (original Privateer) also works from here. Origin JEMM: MS-DOS mode only, from C:\\GAMES\\PRIVRF. Proven in DOSBox 0.74 with ems=false umb=false: RF.EXE plays the Righteous Fire intro (the militia officer reporting the stolen cannon) and reaches the main menu (proof.png). First launch with a stick asks for joystick calibration and writes JOYA.DAT (the proof ran with the DOSBox stick disabled). New game/flight not exercised; speech not listened to. Not run in real MS-DOS mode.",
+  "source_label": "stage"
+ },
+ {
+  "lib": "Flight-StuntIsland",
+  "title": "Stunt Island",
+  "year": 1992,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-StuntIsland",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-StuntIsland/STUNTISL.ICO",
+  "source_label": "stage",
+  "launch": [
+   "STUNT.EXE"
+  ],
+  "notes": "sound: INSTALL.EXE -s: Joystick w/Throttle, Sound Blaster digital, AdLib/Sound Blaster music; Setup wrote GAME.CFG."
+ },
+ {
+  "lib": "Flight-Su27Flanker",
+  "title": "Su-27 Flanker",
+  "year": 1996,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Su27Flanker",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Su27Flanker/SU27FLAN.ICO",
+  "source_label": "stage",
+  "launch": [
+   "SU27DOS.EXE"
+  ],
+  "notes": "sound: SETSOUND: Creative SB16 digital (DIG.INI); Opens into the mission Open dialog (640x480 VESA)."
+ },
+ {
+  "lib": "Flight-SWOTL",
+  "title": "Secret Weapons of the Luftwaffe",
+  "year": 1991,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-SWOTL",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-SWOTL/SWOTL.ICO",
+  "source_label": "stage",
+  "launch": [
+   "SWOTL V S 5 Y N Y 16"
+  ],
+  "notes": "sound: INSTALL.EXE: Sound=SoundBlaster, Joystick=Yes (writes SW.BAT: SWOTL V S 5 Y N Y 16); Launch line is the game's own SW.BAT as INSTALL rewrote it."
+ },
+ {
+  "lib": "Flight-TerminalVelocity",
+  "title": "Terminal Velocity",
+  "year": 1995,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-TerminalVelocity",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-TerminalVelocity/TERMINAL.ICO",
+  "source_label": "stage",
+  "launch": [
+   "TV.EXE"
+  ],
+  "notes": "sound: SETUP.EXE (DIGPAK): Sound Blaster Pro digital 220/5/1 (SOUNDRV.COM); Music driver left at the shipped default. VOX.INI (2026-09-30): the staged copy had musicFlag 0 and soundFlag 0, so the game started silent on every box (GAME.EXE reads them at start-up; its own defaults are 1 and 1, and its Sound Options screen reads Off/Off). The generator now ships VOX.INI with both 1. GAME.EXE rewrites VOX.INI on exit, so a later in-game change lasts until a GAMESYNC.",
+  "files": {
+   "VOX.INI": "scripts/dosgames/files/Flight-TerminalVelocity/VOX.INI"
+  }
+ },
+ {
+  "lib": "Flight-TheirFinestHour",
+  "title": "Their Finest Hour",
+  "year": 1989,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-TheirFinestHour",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-TheirFinestHour/THEIRFIN.ICO",
+  "source_label": "stage",
+  "launch": [
+   "BOB.EXE V"
+  ],
+  "notes": "sound: none (AdLib, no setup); Disks 2-4 were still packed: SCREENS.ARJ and PI.ARJ unpacked into SCREENS\\ and PI\\, *.FLT copied into FLTS\\ (the layout INSTALL.BAT builds). Without that it asks for disk 2. V answers the graphics prompt."
+ },
+ {
+  "lib": "Flight-TieFighter",
+  "title": "TIE Fighter",
+  "year": 1994,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-TieFighter",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-TieFighter/TIEFIGHT.ICO",
+  "source_label": "stage",
+  "launch": [
+   "TIE.EXE"
+  ],
+  "notes": "sound: SETMUSE (LucasArts): Sound Blaster 16 220/5/1, FM music (SETMUSE.INI FM4.MDR + SB16.WDR); needs EMS; Needs EMS for full music/speech."
+ },
+ {
+  "lib": "Flight-Tornado",
+  "title": "Tornado",
+  "year": 1995,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Tornado",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Tornado/TORNADO.ICO",
+  "source_label": "stage",
+  "launch": [
+   "CD TORNADO\\AMP",
+   "loadhigh AMP.EXE"
+  ],
+  "notes": "sound: NOT configured: sound is chosen in the game's Options > Preferences, whose menu ignored synthetic mouse clicks in DOSBox - needs a person once; GO.BAT C: (CDPATCH C:, AMP) also works; AMP.EXE from TORNADO\\AMP reaches the flight menu without CDPATCH. REAL DOS (2026-09-30, Win98 build VM): a Win98 DOS box and real DOS on the standard boot entry both stop at '*** MEMORY SHORTAGE *** There is not enough conventional memory available to run Tornado' (error 82); the game's own TORNADO.BAT runs 'loadhigh amp', i.e. it expects upper memory. With the boot menu's EMS + upper memory entry and LOADHIGH it plays the Trimark logo and reaches its FLIGHT menu (Demo, Quickstart, Options, Exit).",
+  "real_dos": {
+   "dir": "TORNADO",
+   "ems": true
+  }
+ },
+ {
+  "lib": "Flight-USNF",
+  "title": "US Navy Fighters",
+  "year": 1995,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-USNF",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-USNF/USNF.ICO",
+  "launch": [
+   "USNF.EXE /M"
+  ],
+  "real_dos": {
+   "dir": "USNF"
+  },
+  "notes": "sound: USNF.EXE's own hardware wizard (first run / Configure Hardware), driven in DOSBox: digital = Sound Blaster 16 at 220 IRQ 5 DMA 1, music = SoundBlaster Pro - OPL3 (SBP2FM.ADV, FM). Regenerated SOUNDRV.COM, MIDPAK.COM, MIDPAK.AD; EA.CFG (rewritten on exit) names SBP2FM.ADV. The shipped EA.CFG (SBFM.ADV, unknown IRQ) is kept at _work/EA.CFG.orig, not in the tree.; Launch is the same as the tree's MF.BAT (usnf /m). This is a TDU-JAM rip: USNF.EXE first shows a cracktro that waits for any key, then the EA logo, title and credits (a key/click each) before the main menu. Proven in DOSBox 0.74, ems=false umb=false: main menu (proof.png) and a single mission to the AV-8B cockpit on deck (proof_flight.png). The wizard has no joystick page; stick not exercised. Shell is 640x480 VESA (UNIVBE is in the tree if the Cirrus VESA BIOS fails) - not proven on the box. The Ukraine campaign is not included in this rip (per its NFO). Not run in real MS-DOS mode.",
+  "source_label": "stage"
+ },
+ {
+  "lib": "Flight-Werewolf",
+  "title": "Werewolf vs Comanche",
+  "year": 1995,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-Werewolf",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-Werewolf/WEREWOLF.ICO",
+  "source_label": "stage",
+  "launch": [
+   "CD WEREWOLF",
+   "WEREWOLF.EXE"
+  ],
+  "notes": "sound: GAMESET.EXE: digital SB 220/5/1, music Sound Blaster compatible (GAMESET.CFG)"
+ },
+ {
+  "lib": "Flight-WingCommander1",
+  "title": "Wing Commander",
+  "year": 1990,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-WingCommander1",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-WingCommander1/WC1.ICO",
+  "icon_name": "WC1.ICO",
+  "source_label": "stage",
+  "launch": [
+   "WC.EXE"
+  ],
+  "notes": "sound: INSTALL.EXE: MCGA/VGA, Sound Blaster (WINGCMDR.CFG 'v a904', also copied from GAMEDAT\\ to the root); Manual copy-protection question after the intro."
+ },
+ {
+  "lib": "Flight-WingCommander2",
+  "title": "Wing Commander II",
+  "year": 1991,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-WingCommander2",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-WingCommander2/WC2.ICO",
+  "icon_name": "WC2.ICO",
+  "source_label": "stage",
+  "launch": [
+   "WC2.EXE"
+  ],
+  "notes": "sound: INSTALL.EXE: MCGA/VGA, Sound Blaster 220, speech IRQ 5 (WC2.CFG 'v a904 c25'); needs EMS; Needs EMS for music/speech."
+ },
+ {
+  "lib": "Flight-XWing",
+  "title": "X-Wing",
+  "year": 1993,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-XWing",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-XWing/XWING.ICO",
+  "source_label": "stage",
+  "launch": [
+   "XWING.EXE"
+  ],
+  "notes": "sound: INSTALL.EXE sound menu: SoundBlaster (LANDRU.CFG adlib_w = AdLib music + SB digital); needs EMS; Needs EMS for SB sound (256K)."
+ }
+]

@@ -200,53 +200,93 @@ def test_descent_s_dos_launcher_fixes_the_irq_only_while_it_is_wrong():
     assert 'find "DigiIrq=7" DESCENT.CFG > nul\r\nif not errorlevel 1 copy DESCENT.SB5 DESCENT.CFG > nul' in bat
 
 
-# --- a title that runs ONLY in MS-DOS mode -------------------------------------
+# --- a title that runs ONLY in real MS-DOS ----------------------------------------
 
-def _pif(tmp_path, msdos):
-    b = bytearray(967)
-    b[0x1AF] = 0x82 if msdos else 0x02      # Exit To Dos.pif vs an ordinary PIF
-    p = tmp_path / ("PRIVDOS.PIF" if msdos else "PLAIN.PIF")
-    p.write_bytes(bytes(b))
-    return str(p)
-
-
-def _real_dos_title(tmp_path, pif):
+def _real_dos_title(tmp_path, ems=False):
     tree = tmp_path / "stage"
     tree.mkdir(exist_ok=True)
     (tree / "PRIV.EXE").write_bytes(b"MZ")
     (tree / "JEMM.OVL").write_bytes(b"x")
+    rd = {"dir": "PRIV"}
+    if ems:
+        rd["ems"] = True
     return _spec(tmp_path, lib="Flight-Privateer", title="Privateer", tree=str(tree),
-                 launch=["PRIV.EXE"], real_dos={"dir": "PRIV", "pif": pif})
+                 launch=["PRIV.EXE"], real_dos=rd)
 
 
-def test_a_real_dos_title_copies_to_c_and_starts_its_msdos_pif(tmp_path):
-    """Privateer's JEMM and USNF's Phar Lap TNT refuse Windows outright, and
-    MS-DOS mode cannot see .243's E:. So: GAME\\ under the title, copied to
-    C:\\GAMES\\PRIV by xcopy /D, and an MS-DOS mode PIF that runs GAME\\RUN.BAT."""
-    t = _real_dos_title(tmp_path, _pif(tmp_path, True))
+def _cmds(b):
+    return [l for l in b.decode("ascii").split("\r\n") if l and not l.lower().startswith("rem")]
+
+
+def test_a_real_dos_title_copies_to_c_arms_the_hook_and_restarts_with_force(tmp_path):
+    """Privateer's JEMM, USNF's Phar Lap TNT - and in a Win98 DOS box RET8's
+    DOS/4GW 1.92 and EF2000's X-32VM page-fault near 2 GB - so the game runs in
+    real DOS. Real DOS sees only C: on .243. An MS-DOS mode PIF is NOT the
+    route: Windows leaves for it WITHOUT force and the agent's console (a DOS
+    VM on Win98) stops the shutdown with a dialog."""
+    t = _real_dos_title(tmp_path)
     work = tmp_path / "work"
     work.mkdir()
     root, mine = sw.build(t, str(work))
-    assert os.path.isfile(os.path.join(root, "GAME", "PRIV.EXE"))
-    assert not os.path.exists(os.path.join(root, "PRIV.EXE")), "the game lives under GAME\\"
-    assert os.path.isfile(os.path.join(root, "PRIVDOS.PIF"))
-    bat = open(os.path.join(root, "Play Privateer.bat"), "rb").read().decode("ascii")
-    cmds = [l for l in bat.split("\r\n") if l and not l.lower().startswith("rem")]
-    assert cmds == ["@echo off", "xcopy GAME C:\\GAMES\\PRIV\\ /E /I /D /Y /Q > nul",
-                    "start PRIVDOS.PIF", "cls"]
-    run = open(os.path.join(root, "GAME", "RUN.BAT"), "rb").read().decode("ascii")
-    assert run.split("\r\n")[:4] == ["@echo off", "C:", "cd \\GAMES\\PRIV", "PRIV.EXE"]
-    assert "PRIVDOS.PIF" in mine and os.path.join("GAME", "RUN.BAT") in mine
+    assert os.path.isfile(os.path.join(root, "PRIV.EXE")), "the game stays where GAMESYNC puts every title"
+    assert set(mine) == {"Play Privateer.bat", "RDGAME.BAT", "RDHOOK.TXT", "PRIVATEE.ICO",
+                         "launch.txt", "requires.json"}
+    cmds = _cmds(open(os.path.join(root, "Play Privateer.bat"), "rb").read())
+    assert "choice /c:yn /t:y,10 Restart now" in cmds and cmds[cmds.index("choice /c:yn /t:y,10 Restart now") + 1] == "if errorlevel 2 goto end"
+    assert "xcopy *.* C:\\GAMES\\PRIV\\ /E /I /D /Y /Q > nul" in cmds
+    x = cmds.index("xcopy *.* C:\\GAMES\\PRIV\\ /E /I /D /Y /Q > nul")
+    assert cmds[x + 1] == "if errorlevel 4 goto nocopy", "a full C: must not arm a half-copied game"
+    arm = cmds.index("echo call C:\\GAMES\\PRIV\\RDGAME.BAT> C:\\RUNDOS\\NEXT.BAT")
+    boot = cmds.index("rundll32.exe shell32.dll,SHExitWindowsEx 6")      # 2 reboot + 4 FORCE
+    assert cmds.index("if not exist C:\\GAMES\\PRIV\\RDGAME.BAT goto nocopy") < arm < boot, \
+        "never restart for a copy that did not land"
+    assert 'find "rundos v2" C:\\AUTOEXEC.BAT > nul' in cmds, "a hook from an older launcher is not this one"
+    assert "if errorlevel 1 type RDHOOK.TXT >> C:\\AUTOEXEC.BAT" in cmds, "appended ONCE, never overwritten"
+    assert cmds[-1] == "cls" and "pause" in cmds[cmds.index(":nocopy"):]
+    run = _cmds(open(os.path.join(root, "RDGAME.BAT"), "rb").read())
+    assert run[:4] == ["@echo off", "C:", "cd \\GAMES\\PRIV", "PRIV.EXE"]
     req = json.load(open(os.path.join(root, "requires.json")))
-    assert req["max_os"] == "win9x" and "MS-DOS MODE" in req["notes"]
+    assert req["max_os"] == "win9x" and "REAL DOS ONLY" in req["notes"]
 
 
-def test_a_pif_without_the_msdos_mode_bit_is_refused(tmp_path):
-    t = _real_dos_title(tmp_path, _pif(tmp_path, False))
-    work = tmp_path / "work"
-    work.mkdir()
-    with pytest.raises(SystemExit, match="not an MS-DOS mode PIF"):
-        sw.build(t, str(work))
+def test_the_autoexec_hook_runs_a_game_once_even_if_it_hangs_the_pc():
+    """A game that hangs the PC must not run again at every boot after: the
+    stale RAN.BAT is deleted BEFORE this boot's NEXT.BAT becomes RAN.BAT. And
+    an EMS title's CONFIG.SYS goes back before its game can hang anything."""
+    hook = [l for l in sw.RD_HOOK.split("\r\n") if l and not l.startswith("rem")]
+    assert hook == ["if exist C:\\RUNDOS\\CONFIG.SAV copy C:\\RUNDOS\\CONFIG.SAV C:\\CONFIG.SYS > nul",
+                    "if exist C:\\RUNDOS\\CONFIG.SAV del C:\\RUNDOS\\CONFIG.SAV",
+                    "if exist C:\\RUNDOS\\RAN.BAT del C:\\RUNDOS\\RAN.BAT",
+                    "if exist C:\\RUNDOS\\NEXT.BAT ren C:\\RUNDOS\\NEXT.BAT RAN.BAT",
+                    "if exist C:\\RUNDOS\\RAN.BAT call C:\\RUNDOS\\RAN.BAT"]
+    assert sw.RD_HOOK.startswith("\r\n"), "appended after a last line that may lack its CRLF"
+    assert "rundos v2" in sw.RD_HOOK, "the launcher finds the hook by this marker"
+    for l in sw.RD_HOOK.split("\r\n"):
+        if l.startswith("rem"):
+            assert "<" not in l and ">" not in l, "COMMAND.COM parses redirection on rem lines"
+
+
+def test_an_ems_title_picks_the_ems_boot_entry_for_one_boot(tmp_path):
+    """Falcon 3.0 and Pacific Strike want EMS; Tornado wants the same entry's
+    upper memory (its AMP must LOADHIGH). Measured in the Win98 build VM:
+    Falcon 3.0 and Tornado run in real DOS with CONFIG.SYS's EMS block, and
+    Tornado reports a conventional-memory shortage without it."""
+    t = _real_dos_title(tmp_path, ems=True)
+    files = sw.generated(t, 0)
+    cmds = _cmds(files["Play Privateer.bat"])
+    save = cmds.index("copy C:\\CONFIG.SYS C:\\RUNDOS\\CONFIG.SAV > nul")
+    assert cmds[save + 1] == "start /w MENUDEF9.EXE EMS", "START /W: a DOS box does not wait for a Windows program"
+    assert save < cmds.index("rundll32.exe shell32.dll,SHExitWindowsEx 6")
+    assert files["MENUDEF9.EXE"][:2] == b"MZ"
+    assert "MENUDEF9.EXE" not in sw.generated(_real_dos_title(tmp_path), 0), "only an EMS title ships it"
+
+
+def test_an_ems_title_checks_the_boot_menu_choice_first(tmp_path):
+    t = _real_dos_title(tmp_path, ems=True)
+    run = _cmds(sw.rd_game_bat(t))
+    assert run[2:4] == ["cd \\GAMES\\PRIV", 'if "%CONFIG%"=="EMS" goto run']
+    assert run.index(":run") < run.index("PRIV.EXE") < run.index(":done")
+    assert "boot menu 2" in sw.generated(t, 0)["requires.json"].decode()
 
 
 def test_every_title_ships_its_icon_under_its_own_name(tmp_path):
@@ -275,3 +315,82 @@ def test_the_icon_never_overwrites_a_file_the_game_ships(tmp_path):
     work.mkdir()
     with pytest.raises(SystemExit, match="already has a file F14.ICO"):
         sw.build(t, str(work))
+
+
+# --- fixing a title that is ALREADY staged: --update + the spec rebuilt from the library ---
+# 2026-09-30: the 54 Win9x DOS titles' specs and prepared trees lived in a
+# session scratchpad that host reboots wiped, and build() never overwrites a
+# staged title - so a launcher fix had no route through the generator at all.
+
+_lspec = importlib.util.spec_from_file_location(
+    "spec_from_library", os.path.join(REPO, "scripts", "dosgames", "spec_from_library.py"))
+sfl = importlib.util.module_from_spec(_lspec)
+_lspec.loader.exec_module(sfl)
+
+
+def _staged(tmp_path, t):
+    lib_root = tmp_path / "library"
+    lib_root.mkdir()
+    root, _ = sw.build(t, str(lib_root))
+    return str(lib_root), root
+
+
+def _recorder():
+    wrote = {}
+    return wrote, (lambda p, d: wrote.__setitem__(p, d))
+
+
+def test_an_update_of_an_unchanged_title_writes_nothing(tmp_path):
+    t = _spec(tmp_path, tree=str(tmp_path), launch=["FALCON3.EXE"])
+    tree = tmp_path / "stage"
+    tree.mkdir()
+    (tree / "FALCON3.EXE").write_bytes(b"MZ" + b"\0" * 5000)
+    t["tree"] = str(tree)
+    lib_root, _ = _staged(tmp_path, t)
+    wrote, rec = _recorder()
+    assert sw.update(t, rec, lib_root=lib_root) == [] and wrote == {}
+
+
+def test_an_update_rewrites_only_the_launcher_it_changed(tmp_path):
+    tree = tmp_path / "stage"
+    tree.mkdir()
+    (tree / "F19.COM").write_bytes(b"MZ")
+    t = _spec(tmp_path, lib="Flight-F19", title="F-19 Stealth Fighter", tree=str(tree),
+              launch=["F19.COM"])
+    lib_root, root = _staged(tmp_path, t)
+    t["launch"] = ["F19.COM /NJ /GM"]          # the fix measured in the Win98 VM
+    wrote, rec = _recorder()
+    changed = sw.update(t, rec, lib_root=lib_root)
+    assert changed == ["Play F-19 Stealth Fighter.bat"], changed
+    (path, data), = wrote.items()
+    assert path == os.path.join(root, "Play F-19 Stealth Fighter.bat")
+    assert b"\r\nF19.COM /NJ /GM\r\n" in data and data.endswith(b"cls\r\n")
+    assert open(os.path.join(root, "F19.COM"), "rb").read() == b"MZ", "the game is never touched"
+
+
+def test_an_update_refuses_a_title_that_is_not_staged(tmp_path):
+    t = _spec(tmp_path, lib="Flight-Nothing", tree=str(tmp_path))
+    with pytest.raises(SystemExit, match="not staged yet"):
+        sw.update(t, lambda p, d: None, lib_root=str(tmp_path))
+
+
+@pytest.mark.parametrize("real_dos", [False, True])
+def test_the_spec_rebuilt_from_a_title_regenerates_it_byte_for_byte(tmp_path, real_dos):
+    """spec_from_library.py reads a title's spec back out of what the generator
+    wrote. The proof it is faithful: generated() from the rebuilt spec equals
+    every file build() wrote - so --update of an unfixed title changes nothing."""
+    if real_dos:
+        t = _real_dos_title(tmp_path, ems=True)
+    else:
+        tree = tmp_path / "stage"
+        tree.mkdir()
+        (tree / "RET.BAT").write_bytes(b"x")
+        t = _spec(tmp_path, lib="Flight-Retribution", title="Retribution", tree=str(tree),
+                  launch=["RET.BAT", "SET DID=."], notes="needs XMS")
+    lib_root, root = _staged(tmp_path, t)
+    back = sfl.one(root)
+    assert back["launch"] == ["call RET.BAT", "SET DID=."] if not real_dos else back["launch"] == ["PRIV.EXE"]
+    assert back["source_label"] == "stage" and back["year"] == t["year"]
+    assert bool(back.get("real_dos")) == real_dos
+    wrote, rec = _recorder()
+    assert sw.update(back, rec, lib_root=lib_root) == [], wrote

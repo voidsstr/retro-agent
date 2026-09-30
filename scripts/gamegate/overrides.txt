@@ -64,3 +64,6 @@ d931bfe6c33fae5e	UnrealGold	no	3D-noteworthy, but gated until it has a Voodoo la
 d931bfe6c33fae5e	UnrealTournament	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	WarcraftII	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	WarcraftOrcsAndHumans	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
+d931bfe6c33fae5e	DOS-Screamer2	no	broken build: its cracked STARTH.EXE hangs in real DOS and page-faults in a Win98 DOS box (Win98 build VM, 2026-09-30); only the retail exe with the original CD runs it
+d931bfe6c33fae5e	Flight-BlueAngels	no	WRONG GAME: the staged zip is Magic Bytes' Blue Angel 69 (a strip board game), not Accolade's Blue Angels flight sim - the only copy on the share (VM sweep review, 2026-09-30)
+d931bfe6c33fae5e	Flight-Retribution	no	does not run yet: in a Win98 DOS box MEMCHECK sees 2 MB of XMS and refuses (RET8 run directly page-faults near 2 GB under DOS/4GW 1.92); in real DOS in the Win98 build VM RET8 and RET4 hang after the DOS/4GW banner, with DOS16M=:8M too (2026-09-30) - try once on the real P166 with someone there
