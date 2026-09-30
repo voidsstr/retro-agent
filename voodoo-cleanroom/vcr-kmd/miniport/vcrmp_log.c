@@ -23,6 +23,7 @@
  * byte port - 0xE9 is QEMU's debugcon, 0x3F8 a polled COM1.
  */
 #include "vcrmp.h"
+#include "../include/vcr_aaguard.h"
 
 #define VCR_TAG     0x524b4356      /* 'VCKR' */
 
@@ -156,6 +157,45 @@ void VcrPhase(ULONG code, ULONG a, ULONG b, const char *what)
     diag_write(h, L"PhaseLog", 3 /* REG_BINARY */, g_phase_hist, sizeof g_phase_hist);
     ZwFlushKey(h);
     ZwClose(h);
+}
+
+/* The AA auto-disarm (include/vcr_aaguard.h): Glide's own AA setting, the one
+ * the 3dfx Control Panel writes and our h5 Glide and MesaFX read. Opened, never
+ * created - a box with no such key has nothing to fix. */
+LONG VcrGlideAaConfigReset(ULONG safe, ULONG *changed)
+{
+    static const WCHAR path[] =
+        L"\\Registry\\Machine\\SYSTEM\\CurrentControlSet\\Services\\3dfxvs\\Device0\\glide";
+    UCHAR buf[sizeof(VCR_KEY_VALUE_PARTIAL) + 32];
+    VCR_KEY_VALUE_PARTIAL *kv = (VCR_KEY_VALUE_PARTIAL *)buf;
+    UNICODE_STRING kp, n;
+    OBJECT_ATTRIBUTES oa;
+    HANDLE h;
+    ULONG got = 0;
+    LONG old = -1;
+    WCHAR val[4];
+
+    *changed = 0;
+    if (KeGetCurrentIrql() != VCR_PASSIVE_LEVEL)
+        return -1;
+    RtlInitUnicodeString(&kp, path);
+    InitializeObjectAttributes(&oa, &kp, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
+    if (ZwOpenKey(&h, VCR_KEY_READ_WRITE, &oa) < 0)
+        return -1;
+    RtlInitUnicodeString(&n, L"SSTH3_SLI_AA_CONFIGURATION");
+    if (ZwQueryValueKey(h, &n, VCR_KeyValuePartialInformation, kv, sizeof buf, &got) >= 0 &&
+        kv->Type == 1 /* REG_SZ */)
+        old = vcr_aag_parse((const unsigned short *)kv->Data, kv->DataLength / 2);
+    if (old >= 0 && vcr_aag_cfg_is_aa((unsigned)old) && safe < 10) {
+        val[0] = (WCHAR)('0' + safe);
+        val[1] = 0;
+        if (ZwSetValueKey(h, &n, 0, 1 /* REG_SZ */, val, 2 * sizeof(WCHAR)) >= 0) {
+            ZwFlushKey(h);
+            *changed = 1;
+        }
+    }
+    ZwClose(h);
+    return old;
 }
 
 /* ---- the ring ------------------------------------------------------------------ */

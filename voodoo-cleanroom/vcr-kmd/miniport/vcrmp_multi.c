@@ -34,6 +34,7 @@
  */
 #include "vcrmp.h"
 #include "../include/vcr_sli.h"
+#include "../include/vcr_aaguard.h"
 
 #define MB32    0x02000000u
 
@@ -236,6 +237,13 @@ void VcrSliOff(VCR_EXT *x, const char *why)
     x->sli_result = rc;
     x->sli_chips = 0;
     x->sli_active = 0;
+    /* the AA auto-disarm marker (include/vcr_aaguard.h): the session is gone */
+    if (x->sli_aa_live) {
+        x->sli_aa_live = 0;
+        VcrDiagSet(L"SliAALive", 0, TRUE);
+        VLOG(VCR_LV_INFO, VCR_EV_SLI_AA_GUARD, 2, n, 0, 0,
+             "AA session ended (%s): Diag\\SliAALive = 0", why);
+    }
     VLOG(rc ? VCR_LV_WARN : VCR_LV_INFO, VCR_EV_SLI_DONE, 0, n, (ULONG)rc, 0,
          "SLI/AA off -> %d", rc);
 }
@@ -381,6 +389,15 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
         if (rc >= 0) {
             x->sli_chips = n;
             x->sli_active = 1;
+            /* AA is live from here until VcrSliOff: flushed BEFORE Glide's
+             * next MMIO, so a freeze in AA leaves the marker for the next
+             * boot's VcrSliAABootGuard (include/vcr_aaguard.h) */
+            if (r->ChipInfo.dwaaEn) {
+                x->sli_aa_live = 1;
+                VcrDiagSet(L"SliAALive", 1, TRUE);
+                VLOG(VCR_LV_INFO, VCR_EV_SLI_AA_GUARD, 1, n, 0, 0,
+                     "AA session live: Diag\\SliAALive = 1 (a freeze now disarms AA at the next boot)");
+            }
         }
         VLOG(rc ? VCR_LV_WARN : VCR_LV_INFO, VCR_EV_SLI_DONE, 1, n, (ULONG)rc, x->clock_6k_hz,
              "SLI/AA on: %u chips -> %d, clock %u Hz%s%s%s", n, rc, x->clock_6k_hz,
@@ -397,4 +414,29 @@ VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out
     out->sli_chips = x->sli_chips;
     out->clock_6k_hz = x->clock_6k_hz;
     return NO_ERROR;
+}
+
+/* The AA auto-disarm (include/vcr_aaguard.h), once per boot after the slaves
+ * are placed (so the board's chip count is known). A still-set SliAALive means
+ * the previous boot ended with an AA session live - a freeze, or a power cut
+ * mid-AA. Disarm SliAA, put Glide's AA setting back to plain SLI, record it. */
+void VcrSliAABootGuard(VCR_EXT *x)
+{
+    ULONG live = VcrDiagGet(L"SliAALive", 0), changed = 0, dead_boot;
+    ULONG chips = x->glide_chips ? x->glide_chips : 1;
+    LONG old;
+
+    if (vcr_aag_boot(live) != VCR_AAG_DISARM)
+        return;
+    dead_boot = VcrDiagGet(L"PrevBootCount", 0);
+    VcrDiagSet(L"SliAA", 0, TRUE);
+    old = VcrGlideAaConfigReset(vcr_aag_safe_cfg(chips), &changed);
+    VcrDiagSet(L"SliAAAutoOff", dead_boot, TRUE);
+    VcrDiagSet(L"SliAALive", 0, TRUE);
+    VcrPhase(VCR_EV_SLI_AA_GUARD, 3, dead_boot, "AA AUTO-DISARM: the last boot ended with AA live");
+    VLOG(VCR_LV_WARN, VCR_EV_SLI_AA_GUARD, 3, dead_boot, (ULONG)old,
+         changed ? vcr_aag_safe_cfg(chips) : 0xffffffffu,
+         "AA AUTO-DISARM: boot %u ended with an AA session live (a freeze or power cut) - "
+         "Diag\\SliAA = 0, Glide AA setting %ld -> %s", dead_boot, old,
+         changed ? "the plain SLI value" : "left as it was");
 }

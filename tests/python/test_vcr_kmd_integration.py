@@ -79,6 +79,10 @@ NEW_DIAG = {"D3DBigTex": "0", "DdHeapFloor": "0", "ClutRead": "0"}
 # until a caller asks. CoreClock (2026-09-29): 0 refuses IOCTL_VCR_CLOCK's
 # SET/RESTORE; the driver itself never writes pllCtrl1 unasked.
 KILL_DIAG = {"CoreClock": "1"}
+# RECORDS the driver writes and reads back, not switches (2026-09-30): the AA
+# auto-disarm's live marker and the boot it names (include/vcr_aaguard.h).
+# Absent = 0 = "the last boot did not end with AA live".
+STATE_DIAG = {"SliAALive": "0", "PrevBootCount": "0"}
 
 
 def test_every_diag_default_is_the_bases_and_the_new_switches_are_off():
@@ -87,7 +91,7 @@ def test_every_diag_default_is_the_bases_and_the_new_switches_are_off():
         for name, dflt in re.findall(r'VcrDiagGet\(L"(\w+)",\s*([^)]+)\)', f.read_text()):
             assert got.setdefault(name, dflt.strip()) == dflt.strip(), \
                 f"Diag\\{name} read with two defaults"
-    want = dict(BASE_DIAG, **NEW_DIAG, **KILL_DIAG)
+    want = dict(BASE_DIAG, **NEW_DIAG, **KILL_DIAG, **STATE_DIAG)
     assert got == want, {k: (got.get(k), want.get(k)) for k in set(got) | set(want)
                          if got.get(k) != want.get(k)}
 

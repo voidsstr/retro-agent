@@ -44,6 +44,7 @@ typedef struct {
 #define VCR_PCIConfiguration           4
 #define VCR_REG_OPTION_NON_VOLATILE    0
 #define VCR_KEY_ALL_ACCESS             0xF003F
+#define VCR_KEY_READ_WRITE             0x2001F  /* KEY_READ | KEY_WRITE */
 #define VCR_PASSIVE_LEVEL              0
 
 typedef VOID (NTAPI *VCR_WORKER)(PVOID);
@@ -59,6 +60,7 @@ NTSYSAPI NTSTATUS NTAPI ZwSetValueKey(HANDLE, PUNICODE_STRING, ULONG, ULONG,
                                       PVOID, ULONG);
 NTSYSAPI NTSTATUS NTAPI ZwQueryValueKey(HANDLE, PUNICODE_STRING, ULONG, PVOID,
                                         ULONG, PULONG);
+NTSYSAPI NTSTATUS NTAPI ZwOpenKey(PHANDLE, ULONG, POBJECT_ATTRIBUTES);
 NTSYSAPI NTSTATUS NTAPI ZwFlushKey(HANDLE);
 NTSYSAPI NTSTATUS NTAPI ZwClose(HANDLE);
 NTSYSAPI VOID NTAPI RtlInitUnicodeString(PUNICODE_STRING, PCWSTR);
@@ -156,6 +158,7 @@ typedef struct VCR_EXT {
     ULONG     sli_chips;            /* chips in the live SLI/AA session, 0 = none */
     LONG      sli_result;           /* last vcr_sli_set() result */
     ULONG     clock_6k_hz;          /* last external clock programmed */
+    ULONG     sli_aa_live;          /* an AA session is live: Diag\\SliAALive = 1 (vcr_aaguard.h) */
     ULONG     sli_persist_all;      /* Diag\\SliPersistAll: every SLI step is a flushed phase */
     vcr_sli_poke_memo poke_memo;    /* PCI_OP refusals already persisted (vcr_sli_poke_first) */
     vcr_u32   sli_pci0[VCR_SLI_MAX_CHIPS];  /* pciInit0 as the last enable WROTE it (k_log) */
@@ -200,6 +203,10 @@ ULONG   VcrLogNextSeq(void);
 /* A boot phase: logged, AND persisted to the registry and flushed, so the
  * last phase reached survives a hang that needs a power cycle. PASSIVE only. */
 void    VcrPhase(ULONG code, ULONG a, ULONG b, const char *what);
+/* Glide's SSTH3_SLI_AA_CONFIGURATION (Services\3dfxvs\Device0\glide): if it holds an
+ * AA value, write `safe` and flush. Returns the old value (-1 unreadable or key
+ * absent), *changed = 1 when it wrote. Never creates the key. */
+LONG    VcrGlideAaConfigReset(ULONG safe, ULONG *changed);
 ULONG   VcrDiagGet(PCWSTR name, ULONG dflt);
 void    VcrDiagSet(PCWSTR name, ULONG value, BOOLEAN flush);
 void    VcrDiagSetBinary(PCWSTR name, const void *data, ULONG len, BOOLEAN flush);
@@ -243,6 +250,7 @@ VP_STATUS VcrCoreClock(VCR_EXT *x, const vcr_clock_req *rq, ULONG rqlen, vcr_clo
 /* ---- vcrmp_multi.c: slaves and SLI/AA (the port is vcrmp_sli.c) ------------ */
 void    VcrMultiInit(VCR_EXT *x);                     /* place + map the slaves */
 VP_STATUS VcrSliRequest(VCR_EXT *x, const void *req, ULONG len, vcr_sli_res *out);
+void      VcrSliAABootGuard(VCR_EXT *x);
 void    VcrSliOff(VCR_EXT *x, const char *why);       /* no-op when SLI is off */
 ULONG   VcrSliAAAllowed(void);  /* Diag\SliAA (the AA kill switch), read now: 1 = AA allowed */
 /* vcrmp_sli.c: the video half of the SLI/AA disable, for the reset path (any

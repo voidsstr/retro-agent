@@ -218,6 +218,7 @@ static VP_STATUS NTAPI VcrFindAdapter(PVOID ext, PVOID ctx, PWSTR args,
     VcrHwSaveBootState(x);
     VcrHwSnapshotToLog(x, "boot");
     VcrMultiInit(x);            /* slaves placed + mapped, or Glide stays 1-chip */
+    VcrSliAABootGuard(x);       /* the last boot died with AA live? disarm it (vcr_aaguard.h) */
     VcrCoreClockCapture(x, "boot");     /* every chip's pllCtrl1 before anything writes it */
     VcrMonitorInit(x);          /* EDID over DDC: the mode list honours the monitor */
 

@@ -88,6 +88,7 @@
     VCR_EVENT(VCR_EV_CLOCK_6K,      702, "a=target Hz b=programmed Hz c=24-bit word d=gpio after") \
     VCR_EVENT(VCR_EV_SLI_POKE_REFUSED, 703, "a=chip b=config offset c=value d=reason (phase: a=reason<<24|chip<<16|offset b=value; reason 0 = a kernel before the fix, AllowPoke=0) - a PCI_OP write to an SLI/AA register refused: VCR_POKE_R_* in vcr_sli.h") \
     VCR_EVENT(VCR_EV_CORE_CLOCK,    704, "a=what (0 VBIOS word captured, 1 step written, 2 request done, 3 refused, 4 a busy chip - waiting again) b=chip / step / VCR_CLOCK_R_* c=pllCtrl1 word d=kHz") \
+    VCR_EVENT(VCR_EV_SLI_AA_GUARD,  705, "a=what (1 marker set: an AA session went live, 2 marker cleared: it ended, 3 AUTO-DISARM at boot: the last boot ended with AA live) b=chips / the boot that died c=Glide SSTH3_SLI_AA_CONFIGURATION before (-1 unreadable) d=after (or 0xffffffff unchanged)") \
     /* 8xx safety */ \
     VCR_EVENT(VCR_EV_SAFE_DECLINE,  800, "a=reason (1 disabled, 2 boot loop) b=attempts") \
     VCR_EVENT(VCR_EV_SAFE_MARK_OK,  801, "a=attempts cleared") \
