@@ -27,7 +27,7 @@ def test_an_unreadable_sector_fails_and_removes_the_partial_image():
     s = _src()
     i = s.index("if (rd(h, lba, n, buf))")
     block = s[i:s.index("CryptHashData(ch, buf, n * SEC, 0);", i)]
-    assert "unreadable" in block and "DeleteFileA(argv[2])" in block and "return 2" in block
+    assert "unreadable" in block and "DeleteFileA(part)" in block and "return 2" in block
     assert "t2 < 10" in block, "single-sector retries before giving up"
     assert re.search(r"for \(t = 0; t < 3; t\+\+\)", s), "three tries per read"
 
@@ -37,6 +37,18 @@ def test_length_comes_from_the_primary_volume_descriptor():
     assert 'memcmp(buf + 1, "CD001", 5)' in s and "buf[0] != 1" in s
     assert "vol = buf[80] | (buf[81] << 8) | (buf[82] << 16)" in s   # volume space size, LE
     assert "CREATE_NEW" in s, "never overwrite an existing image"
+
+
+def test_the_image_gets_its_final_name_only_when_complete():
+    """2026-09-29: the network dropped mid-run and a truncated file sat on the
+    share under the final name. Writes go to <out>.partial; the rename is the
+    last thing, after every sector and the hash."""
+    s = _src()
+    assert '"%s.partial"' in s
+    create = s.index("out = CreateFileA(part,")
+    rename = s.index("MoveFileA(part, argv[2])")
+    assert create < s.index("CryptGetHashParam") < rename
+    assert "CreateFileA(argv[2]" not in s, "never write the final name directly"
     assert "CALG_MD5" in s
 
 
