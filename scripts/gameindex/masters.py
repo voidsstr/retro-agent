@@ -518,6 +518,181 @@ def _idtech4_probe(addr):
 
 
 # Engines whose probe needs to be told the query port rather than guess it.
+# --- Unreal Engine 2 internet servers: the OpenSpy UT master -----------------
+#
+# Epic's own UT2003/UT2004 masters are gone; OpenSpy runs the replacement the
+# patched clients use, utmaster.openspy.net:28902 (openspy-core
+# code/utmaster). It speaks Epic's TCP master protocol, read from that source:
+# every packet is <uint32 LE length><body>; strings are UE FStrings (compact-int
+# length including the NUL). The master sends a challenge, the client answers
+# with cdkey hash + response + client name + version + os + language (+ four
+# hardware fields from 3000 on), the master says APPROVED, a >=3000 client
+# sends any packet and gets VERIFIED, then request 0 (server list, 0 filters)
+# returns <uint32 count><byte 1> and one packet per server: ip (4 bytes,
+# network order), game port, query port (uint16 LE), then name/map/gametype.
+# The master's client table (docker-support/utmaster.xml): UT2004 is
+# "UT2K4CLIENT" 3369, UT2003 is "CLIENT" 2225. It does not check the CD key.
+UT2_MASTER = ("utmaster.openspy.net", 28902)
+UT2_CLIENTS = {"ut2k4": ("UT2K4CLIENT", 3369), "ut2k3": ("CLIENT", 2225)}
+
+
+def _ue_cint(v):
+    a = abs(v)
+    b0 = (0 if v >= 0 else 0x80) + (a if a < 0x40 else (a & 0x3f) + 0x40)
+    out, a = bytes([b0]), a >> 6
+    if b0 & 0x40:
+        while True:
+            b = a if a < 0x80 else (a & 0x7f) + 0x80
+            out += bytes([b])
+            a >>= 7
+            if not b & 0x80:
+                break
+    return out
+
+
+def _ue_read_cint(buf, i):
+    b0 = buf[i]
+    i += 1
+    tail = []
+    if b0 & 0x40:
+        for _ in range(4):
+            b = buf[i]
+            i += 1
+            tail.append(b)
+            if not b & 0x80:
+                break
+    v = 0
+    for b in reversed(tail):
+        v = (v << 7) + (b & 0x7f)
+    v = (v << 6) + (b0 & 0x3f)
+    return (-v if b0 & 0x80 else v), i
+
+
+def _ue_fstring(s):
+    b = s.encode("latin-1") + b"\0"
+    return _ue_cint(len(b)) + b
+
+
+def _ue_read_fstring(buf, i):
+    """A UE FString: positive length = latin-1 bytes, negative = UTF-16LE
+    chars (UT2004 names with non-latin characters). Colour codes (0x1B + three
+    bytes) are dropped. Both lengths include the terminating NUL."""
+    n, i = _ue_read_cint(buf, i)
+    if n < 0:
+        raw = buf[i:i - 2 * n]
+        i += -2 * n
+        s = raw.decode("utf-16-le", "replace")
+    else:
+        raw = buf[i:i + n]
+        i += n
+        s = raw.decode("latin-1", "replace")
+    s = s.rstrip("\0")
+    s = re.sub("\x1b...", "", s, flags=re.S)
+    return s, i
+
+
+def _ut2_master_list(engine, host=UT2_MASTER[0], port=UT2_MASTER[1],
+                     timeout=15.0):
+    """Every server the OpenSpy UT master lists for this game, as ip:port."""
+    client, version = UT2_CLIENTS[engine]
+
+    def recv_exact(s, n):
+        d = b""
+        while len(d) < n:
+            c = s.recv(n - len(d))
+            if not c:
+                raise EOFError("master closed the connection")
+            d += c
+        return d
+
+    def rpkt(s):
+        return recv_exact(s, struct.unpack("<I", recv_exact(s, 4))[0])
+
+    def spkt(s, body):
+        s.sendall(struct.pack("<I", len(body)) + body)
+
+    try:
+        with socket.create_connection((host, port), timeout=timeout) as s:
+            s.settimeout(timeout)
+            rpkt(s)                                         # challenge
+            body = (_ue_fstring("0" * 32) + _ue_fstring("0" * 32) +
+                    _ue_fstring(client) + struct.pack("<I", version) +
+                    bytes([3]) + _ue_fstring("int"))
+            if version >= 3000:
+                body += struct.pack("<III", 0, 0, 0) + bytes([0])
+            spkt(s, body)
+            if _ue_read_fstring(rpkt(s), 0)[0] != "APPROVED":
+                return []
+            if version >= 3000:
+                spkt(s, _ue_fstring("0"))
+                if _ue_read_fstring(rpkt(s), 0)[0] != "VERIFIED":
+                    return []
+            spkt(s, bytes([0, 0]))                          # list, no filters
+            count = struct.unpack("<I", rpkt(s)[:4])[0]
+            out = []
+            for _ in range(min(count, 5000)):
+                p = rpkt(s)
+                ip = socket.inet_ntoa(p[0:4])
+                gport = struct.unpack("<H", p[4:6])[0]
+                out.append(f"{ip}:{gport}")
+            return list(dict.fromkeys(out))
+    except (OSError, EOFError, struct.error, IndexError):
+        return []
+
+
+# The client's own browser query (measured from UT2004 on .240, 2026-08-30):
+# five bytes to game port + 1. The reply is <int32 net version><byte 0>
+# <int32 ServerID><FString ip><int32 port><int32 query port><FString name>
+# <FString map><FString gametype><int32 players><int32 max>... - 128 from
+# UT2004, 121 from UT2003 (both measured 2026-09-29 against live servers).
+_UT2_QUERY = b"\x80\x00\x00\x00\x00"
+_UT2_NETVER = {"ut2004": (128,), "ut2003": (121,)}
+
+
+def _ut2_native_probe(addr, gamename):
+    host, port = addr.rsplit(":", 1)
+    port = int(port)
+    data, rtt = _udp(host, port + 1, _UT2_QUERY)
+    if not data or len(data) < 10:
+        return None
+    try:
+        netver = struct.unpack("<i", data[:4])[0]
+        if netver not in _UT2_NETVER[gamename]:
+            return None                   # the other UE2 game, or not UE2
+        i = 5 + 4
+        _, i = _ue_read_fstring(data, i)                    # ip (empty)
+        gport, qport = struct.unpack("<ii", data[i:i + 8])
+        i += 8
+        name, i = _ue_read_fstring(data, i)
+        mapname, i = _ue_read_fstring(data, i)
+        _gametype, i = _ue_read_fstring(data, i)
+        players, maxp = struct.unpack("<ii", data[i:i + 8])
+    except (struct.error, IndexError):
+        return None
+    if not name.strip():
+        return None
+    return {
+        "addr": f"{host}:{gport or port}",
+        "query_port": port + 1,
+        "hostname": " ".join(name.split())[:120],
+        "map": mapname,
+        "players": max(0, players),
+        "maxplayers": max(0, maxp),
+        "ping_ms": rtt,
+        "gamename": gamename,
+        "passworded": 0,
+        "source": "master",
+    }
+
+
+def _ut2k4_native_probe(addr):
+    return _ut2_native_probe(addr, "ut2004")
+
+
+def _ut2k3_native_probe(addr):
+    return _ut2_native_probe(addr, "ut2003")
+
+
 _QUERY_PORT_ENGINES = {"unreal", "ut2k4", "serioussam", "lithtech"}
 
 
@@ -582,13 +757,18 @@ ENGINES = {
     # GameSpy is gone, so there is no master to ask -- but a CURATED SEED LIST
     # that is probed before anything is listed is a real discovery path, not a
     # guess, and `seeded` makes the log say so rather than implying a master
-    # answered. UT2004 has no seed list because the only UT2004 server we can
-    # reach is our own, which the sync pass pins directly.
+    # answered.
     "unreal":  dict(list=lambda: list(UNREAL_SEEDS), probe=_unreal_probe,
                     supported=True, seeded=True),
-    "ut2k4":   dict(list=None, probe=_ut2k4_probe, supported=False,
-                    why="no live UT2004 master and no curated seed list; the "
-                        "fleet's own server on .132 is pinned directly"),
+    # UT2004 and UT2003 internet servers: the OpenSpy UT master (above), each
+    # listed server then verified with the in-game browser's own query on
+    # game port + 1. The fleet's own UT2004 is still pinned by the sync pass,
+    # probed on its GameSpy port (probe_server). 2026-09-29: 245 UT2004 and
+    # 8 UT2003 servers listed.
+    "ut2k4":   dict(list=lambda: _ut2_master_list("ut2k4"),
+                    probe=_ut2k4_native_probe, supported=True),
+    "ut2k3":   dict(list=lambda: _ut2_master_list("ut2k3"),
+                    probe=_ut2k3_native_probe, supported=True),
     "t2":      dict(list=None, probe=None, supported=False,
                     why="TribesNext master not implemented"),
     # RTCW's own master is long dead, but the PROBE is wired now: it is what

@@ -497,6 +497,15 @@ _UT2K4_FAV = re.compile(
     r'^\s*Favorites\s*=\s*\(ServerID=(-?\d+),IP="([^"]*)",Port=(\d+),'
     r'QueryPort=(\d+),ServerName="([^"]*)"\)\s*$', re.IGNORECASE)
 UT2K4_SECTION = "XInterface.ExtendedConsole"
+# UT2003 keeps the SAME five fields in a different class: XInterface.u (2225)
+# declares `struct FavoritesServerInfo { config int ServerID; config string IP;
+# config int Port; config int QueryPort; config string ServerName; }` and
+# `var() config array<FavoritesServerInfo> Favorites;` on
+# Browser_ServerListPageFavorites, whose class chain names no config(User) - so
+# UT2003.ini, [XInterface.Browser_ServerListPageFavorites]. (UT2004's package
+# still carries that legacy class too, but its browser reads ExtendedConsole.)
+UT2K3_SECTION = "XInterface.Browser_ServerListPageFavorites"
+UT2_SECTIONS = {"ut2k4": UT2K4_SECTION, "ut2k3": UT2K3_SECTION}
 
 
 def _ut2k4_query_port(row):
@@ -539,10 +548,10 @@ def _ut2k4_query_port(row):
     return _split_addr(row)[1] + 1
 
 
-def _ut2k4_entries(text):
+def _ut2k4_entries(text, section=UT2K4_SECTION):
     """(ip, port, query port) of each favourite, in array order."""
     out = []
-    for inside, line in _ini_walk(text, UT2K4_SECTION):
+    for inside, line in _ini_walk(text, section):
         if inside:
             m = _UT2K4_FAV.match(line)
             if m:
@@ -550,9 +559,10 @@ def _ut2k4_entries(text):
     return out
 
 
-def ut2k4_favorites(servers, existing="", slots=16):
+def ut2k4_favorites(servers, existing="", slots=16, section=UT2K4_SECTION):
     picked = _stable_sequence(
-        servers[:slots], [(ip, port) for ip, port, _ in _ut2k4_entries(existing)],
+        servers[:slots],
+        [(ip, port) for ip, port, _ in _ut2k4_entries(existing, section)],
         lambda s: (_split_addr(s)[0], str(_split_addr(s)[1])))
     body = []
     for i, s in enumerate(picked):
@@ -563,7 +573,11 @@ def ut2k4_favorites(servers, existing="", slots=16):
                     % (i, host, port, _ut2k4_query_port(s), name))
     # An empty array config is expressed by writing no lines at all; the
     # dropped ones are already gone, which is how a favourite is removed.
-    return _ini_replace_keys(existing, UT2K4_SECTION, _UT2K4_OWN, body)
+    return _ini_replace_keys(existing, section, _UT2K4_OWN, body)
+
+
+def ut2k3_favorites(servers, existing="", slots=16):
+    return ut2k4_favorites(servers, existing, slots, section=UT2K3_SECTION)
 
 
 # --- GoldSrc: Counter-Strike 1.6 and friends ---------------------------------
@@ -752,7 +766,7 @@ def goldsrc_favorites(servers, existing="", slots=16, appid=10):
 # The strip patterns, by engine, so the safety check in render() uses exactly
 # the same rule the writer does rather than a second copy that can drift.
 _SETA_RE = {"q3": _Q3_SETA, "q2": _Q2_SETA,
-            "unreal": _UNREAL_OWN, "ut2k4": _UT2K4_OWN}
+            "unreal": _UNREAL_OWN, "ut2k4": _UT2K4_OWN, "ut2k3": _UT2K4_OWN}
 
 # Engines whose writer rewrites a whole STRUCTURED document rather than
 # editing lines. A line-by-line "did we drop anything" check is meaningless
@@ -779,6 +793,8 @@ WRITERS = {
                    filename="UnrealTournament.ini", slots=24, supported=True),
     "ut2k4": dict(fn=ut2k4_favorites, subdir="System",
                   filename="UT2004.ini", slots=16, supported=True),
+    "ut2k3": dict(fn=ut2k3_favorites, subdir="System",
+                  filename="UT2003.ini", slots=16, supported=True),
     "goldsrc": dict(fn=goldsrc_favorites, subdir="config",
                     filename="serverbrowser.vdf", slots=16, supported=True),
     # Team Arena's favourites: a BINARY file in the player's profile, written
@@ -855,7 +871,7 @@ TITLES = {
                       filename="Unreal.ini", accepts={"unreal"}),
     "ut2004":    dict(engine="ut2k4", subdir="System", create=False,
                       filename="UT2004.ini", accepts={"ut2004"}),
-    "ut2003":    dict(engine="ut2k4", subdir="System", create=False,
+    "ut2003":    dict(engine="ut2k3", subdir="System", create=False,
                       filename="UT2003.ini", accepts={"ut2003"}),
 
     "cs16":      dict(engine="goldsrc", subdir="config", create=False,
@@ -899,6 +915,8 @@ _BUSY_WHY = {
     "unreal": "it rewrites this ini from memory on exit, so a write now would "
               "be lost or would revert what the player just set",
     "ut2k4": "it rewrites this ini from memory on exit, so a write now would "
+             "be lost or would revert what the player just set",
+    "ut2k3": "it rewrites this ini from memory on exit, so a write now would "
              "be lost or would revert what the player just set",
     "goldsrc": "revSrvBrowser rewrites ServerBrowser.vdf on exit, so a write "
                "now would be lost",
@@ -1324,8 +1342,9 @@ def incumbents(engine, existing):
         return {v for v in quake_values(engine, existing).values() if v}
     if engine == "unreal":
         return {"%s:%s" % (h, q) for h, q in _unreal_entries(existing)}
-    if engine == "ut2k4":
-        return {"%s:%s" % (ip, port) for ip, port, _ in _ut2k4_entries(existing)}
+    if engine in UT2_SECTIONS:
+        return {"%s:%s" % (ip, port) for ip, port, _ in
+                _ut2k4_entries(existing, UT2_SECTIONS[engine])}
     if engine == "goldsrc":
         return {a for a, _ in _goldsrc_entries(existing) if a}
     return set()
@@ -1406,12 +1425,12 @@ def _unreal_view(text):
     return View(tuple(rest), tuple(sorted(entries)), None, clean)
 
 
-def _ut2k4_view(text):
+def _ut2k4_view(text, section=UT2K4_SECTION):
     rest, entries, clean, sections = [], [], True, 0
-    for inside, line in _ini_walk(text, UT2K4_SECTION):
+    for inside, line in _ini_walk(text, section):
         if inside is None:
             sections += _SECTION_RE.match(line).group("name").strip().lower() \
-                == UT2K4_SECTION.lower()
+                == section.lower()
         if inside and _UT2K4_OWN.match(line.strip()):
             m = _UT2K4_FAV.match(line)
             if not m or not _label_is_clean(m.group(5)):
@@ -1442,7 +1461,9 @@ def _goldsrc_view(text):
 
 _VIEWS = {"q3": lambda t: _quake_view("q3", t),
           "q2": lambda t: _quake_view("q2", t),
-          "unreal": _unreal_view, "ut2k4": _ut2k4_view, "goldsrc": _goldsrc_view}
+          "unreal": _unreal_view, "ut2k4": _ut2k4_view,
+          "ut2k3": lambda t: _ut2k4_view(t, UT2K3_SECTION),
+          "goldsrc": _goldsrc_view}
 
 
 def same_favourites(engine, existing, text):

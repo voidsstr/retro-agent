@@ -45,7 +45,8 @@ looked" are different facts and must not look the same in the log.
 | `q3cache` (Quake III: **Team Arena**) | the `q3` table, filtered to gamename `missionpack` for internet servers too | **yes** — `%APPDATA%\Quake3\servercache.dat`, the ENGINE's favourites list (ioquake3 1.36 layout, binary) |
 | `q2` | best-effort — `master.q2servers.com` has not answered from here | **yes** — `baseq2\autoexec.cfg`, `set adr0..8` |
 | `unreal` (UT99 469e **and** 436, Unreal Gold) | **seeded** — GameSpy is dead, so a curated address list, every entry probed; 17 of 18 alive | **yes** — `System\<Game>.ini`, `[UBrowser.UBrowserFavoritesFact]` |
-| `ut2k4` (UT2004) | no — no live master and no seed list; ours on `.132` is pinned directly | **yes** — `System\UT2004.ini`, `[XInterface.ExtendedConsole]` |
+| `ut2k4` (UT2004) | **yes** — the OpenSpy UT master `utmaster.openspy.net:28902` (Epic's TCP master protocol, client `UT2K4CLIENT` 3369), each server verified with the in-game browser's own query on game port + 1; ~500 alive of ~600 (2026-09-29). Ours on `.132` is still pinned first | **yes** — `System\UT2004.ini`, `[XInterface.ExtendedConsole]` |
+| `ut2k3` (UT2003) | **yes** — the same master, client `CLIENT` 2225, verified the same way (net version 121); 7 alive of 8 (2026-09-29) | **yes** — `System\UT2003.ini`, `[XInterface.Browser_ServerListPageFavorites]` - a DIFFERENT section from UT2004 (read from UT2003's `XInterface.u`) |
 | `goldsrc` (CS 1.6, TFC, DoD, TS) | no — every `*.steampowered.com` master hostname fails DNS from this host; the A2S **probe** is wired and verifies our own | **yes** — `config\serverbrowser.vdf`, `filters > favorites` |
 | `qw` (QuakeWorld, ezQuake) | **yes** — quakeworld.nu, ~540 alive | no — classic QW has no favourites store; ezQuake's differs per build |
 | `t2`, `rtcw`, `nq` | no | no — RTCW's browser keeps the ENGINE's list (`servercache.dat`), not `server1..16`; Tribes 2 has a prefs store nobody has verified joinable without its master |
@@ -75,6 +76,21 @@ read out of the game's own files in the staged library:
   `class ExtendedConsole`, which `UT2004.ini` names as the Console class. Its
   query port is **7787 for game port 7777** — `+10`, not `+1`, which is why
   the port is carried on the row and never derived.
+- **UT2003.** Same five fields, different class: its `XInterface.u` declares
+  `struct FavoritesServerInfo { config int ServerID; config string IP; config
+  int Port; config int QueryPort; config string ServerName; }` and
+  `var() config array<FavoritesServerInfo> Favorites;` on
+  `Browser_ServerListPageFavorites`, whose class chain names no `config(User)`,
+  so the lines go in `UT2003.ini` under
+  `[XInterface.Browser_ServerListPageFavorites]`. Writing UT2004's
+  `ExtendedConsole` section there would be read by nothing.
+- **UT2003/UT2004 internet servers** come from the OpenSpy UT master, read
+  from openspy-core's `code/utmaster` (framing: `<uint32 LE length><body>`,
+  UE FStrings; challenge → cdkey hash/response/client/version/os/language →
+  `APPROVED` (→ `VERIFIED` for a 3000+ client) → request 0 with no filters →
+  one packet per server). It does not check the CD key. Each listed server is
+  then asked the browser's own 5-byte query on game port + 1; the reply's net
+  version (128 UT2004, 121 UT2003) keeps the two games' servers apart.
 - **GoldSrc.** The staged CS 1.6 tree's own `revSrvBrowser.dll` contains the
   `printf` template it writes into `config\ServerBrowser.vdf`, keys and tabs
   included.
