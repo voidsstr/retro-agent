@@ -392,8 +392,10 @@ int vcr_sli_set(const vcr_sli_io *io, const vcr_sli_aa_req *r);
 
 /* The same, with the kernel's policy flags (VCR_SLI_F_*).
  *
- * VCR_SLI_F_VENDOR_AA - the vendor-style AA recipe, for supervised A/B runs
- * only (Diag\SliAAVendorRecipe, default 0). It changes AA requests and
+ * VCR_SLI_F_VENDOR_AA - the vendor-style AA recipe: the kernel's DEFAULT for
+ * every AA request since 2026-09-30 (Diag\SliAAVendorRecipe absent/1; 0 = the
+ * dos_mode.c control arm, whose base of 0 overwrote Glide's command FIFO -
+ * vcrmp_multi.c sli_recipe()). It changes AA requests and
  * nothing else - an SLI-only request or a disable writes exactly what it
  * writes without it. Written from the register semantics (the vendor's W2K
  * miniport was read for guidance, not copied):

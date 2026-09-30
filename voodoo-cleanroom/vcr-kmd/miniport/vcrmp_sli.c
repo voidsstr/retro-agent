@@ -72,9 +72,9 @@
  *      spills any real base into the control bits. The DEFAULT recipe keeps
  *      D:871's shift: it is the control arm of an AA A/B, what 097b1f7 wrote.
  *      Every base Glide sends for cfg 3/7 is 0, where the two agree.
- *  14. vcr_sli_set_ex(VCR_SLI_F_VENDOR_AA): a vendor-style AA recipe, off
- *      unless the kernel asks for it (Diag\SliAAVendorRecipe) - see vcr_sli.h.
- *      Without the flag the AA path is dos_mode.c's.
+ *  14. vcr_sli_set_ex(VCR_SLI_F_VENDOR_AA): a vendor-style AA recipe - the
+ *      kernel asks for it by default since 2026-09-30 (Diag\SliAAVendorRecipe
+ *      absent/1) - see vcr_sli.h. Without the flag the AA path is dos_mode.c's.
  *  15. Every request is refused unless chip 0 is a VSA-100 (VCR_SLI_R_NODEV,
  *      val 0): dos_mode.c trusts its caller; on a Banshee / Voodoo 3 the
  *      sequence would write Napalm semantics into registers that are not the

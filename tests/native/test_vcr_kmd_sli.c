@@ -1845,6 +1845,110 @@ TEST(the_aa_base_is_a_byte_address_in_the_vendor_recipe_only) {
     }
 }
 
+/* ---- 2026-09-30: the AA LFB base that overwrote Glide's command FIFO ----------------
+ * .124, Quake II through our ICD + our h5 Glide + vcr-kmd. For every tuple that
+ * stores ONE sample per chip (cfg 6 = 2x, cfg 7 = 4x) Glide sends a secondary
+ * colour base of 0, and the default (dos_mode.c) recipe wrote it: cfgAALfbCtrl
+ * read back 0x4c000000 on all four chips. Every AA LFB write was then also
+ * written into video memory from offset 0, where Glide keeps its command FIFO
+ * (fifoStart 0x18000, 0xff000 long): random hard freezes whenever an LFB write
+ * landed on commands not yet executed - the 3dfx splash, Quake II's console at
+ * quit - 3 of 3 AA game sessions, the monitor losing sync. The vendor recipe
+ * points the base at tileMark: 2x 3 launches, 4x 2, splash + console + quit all
+ * clean, the picture confirmed at the box. Glide's exact requests and the values
+ * the chips read back ("pig:" lines of evidence/glidelab/aa_supervised_0930/
+ * q2aa.trace, aa_vendor_0930/q2aa3.trace and q2aa4x.trace) are pinned here -
+ * the OLD value too, so the FIFO overwrite cannot come back unnoticed. */
+static void last_cfg_write_per_chip(const mock *m, vcr_u32 off, vcr_u32 out[4])
+{
+    unsigned j;
+    out[0] = out[1] = out[2] = out[3] = 0xdeadbeefu;
+    for (j = 0; j < m->nw; j++)
+        if (m->w[j].kind == 'c' && m->w[j].off == off && m->w[j].chip < 4)
+            out[m->w[j].chip] = m->w[j].val;
+}
+
+static vcr_sli_aa_req glide_req_124(vcr_u32 sli, vcr_u32 high, vcr_u32 tile, vcr_u32 dbeg,
+                                    vcr_u32 dend)
+{
+    vcr_sli_aa_req r = req(4, sli, 1, high, 1, 32, 32);     /* analog, 32-line bands, 32 bpp */
+    r.MemInfo.dwTotalMemory = 0x04000000u;
+    r.MemInfo.dwTileMark = tile;
+    r.MemInfo.dwTileCmpMark = tile;
+    r.MemInfo.dwaaSecondaryColorBufBegin = 0;               /* one sample per chip */
+    r.MemInfo.dwaaSecondaryDepthBufBegin = dbeg;
+    r.MemInfo.dwaaSecondaryDepthBufEnd = dend;
+    return r;
+}
+
+TEST(the_aa_lfb_base_that_overwrote_glides_fifo_and_its_fix_match_silicon) {
+    mock *m = &M;
+    vcr_sli_io io;
+    vcr_u32 v[4], d[4];
+    int rc, c;
+    /* cfg 6 = 2x AA: 2 SLI units x 2 samples, 1 sample per chip */
+    vcr_sli_aa_req r6 = glide_req_124(1, 0, 0x038f6000u, 0x047f6080u, 0x04f76100u);
+    /* cfg 7 = 4x AA: no SLI, 4 samples, 1 sample per chip */
+    vcr_sli_aa_req r7 = glide_req_124(0, 1, 0x031ee000u, 0x040ee080u, 0x0486e100u);
+
+    CHECK_EQ_U(vcr_sli_samples_per_chip(4, 1, 1, 0, 1), 1);
+    CHECK_EQ_U(vcr_sli_samples_per_chip(4, 0, 1, 1, 1), 1);
+
+    /* OLD - the dos_mode.c arm, cfg 6: base 0, i.e. AA LFB writes into offset 0.. */
+    mapped(m, &io, 4); m->nw = 0;
+    rc = vcr_sli_set_ex(&io, &r6, 0);
+    CHECK(rc >= 0, "cfg 6 refused by the dos_mode.c arm");
+    last_cfg_write_per_chip(m, VCR_CFG_AALFBCTRL, v);
+    last_cfg_write_per_chip(m, VCR_CFG_AADEPTHBUFAPERTURE, d);
+    for (c = 0; c < 4; c++) {
+        CHECK_EQ_U(v[c], 0x4c000000u);                     /* read back 2026-09-30 09:39 */
+        CHECK_EQ_U(v[c] & VCR_AALFB_SECONDARY_BASE_MASK, 0);   /* THE FIFO OVERWRITE */
+        CHECK_EQ_U(d[c], 0x4f7647f6u);
+    }
+    no_bus_faults(m);
+
+    /* NEW - the vendor arm (the kernel's default since), cfg 6 */
+    mapped(m, &io, 4); m->nw = 0;
+    rc = vcr_sli_set_ex(&io, &r6, VCR_SLI_F_VENDOR_AA);
+    CHECK(rc >= 0, "cfg 6 refused by the vendor arm");
+    last_cfg_write_per_chip(m, VCR_CFG_AALFBCTRL, v);
+    last_cfg_write_per_chip(m, VCR_CFG_AADEPTHBUFAPERTURE, d);
+    for (c = 0; c < 4; c++) {
+        CHECK_EQ_U(v[c], 0xdf8f6000u);                     /* read back 2026-09-30 12:59 */
+        CHECK_EQ_U(v[c] & VCR_AALFB_SECONDARY_BASE_MASK, 0x038f6000u);   /* = tileMark */
+        CHECK(v[c] & VCR_AALFB_READ_EN, "vendor arm: AA reads on");
+        CHECK(v[c] & VCR_AALFB_RD_DIVIDE_BY_4, "vendor arm: /4");
+        CHECK_EQ_U(d[c], 0x4f7647f6u);                     /* unchanged for SLI + 2x */
+    }
+    no_bus_faults(m);
+
+    /* NEW - the vendor arm, cfg 7: chips 2/3 end with AA reads off (D:1439-1451)
+     * and the depth aperture covers the whole tiled range */
+    mapped(m, &io, 4); m->nw = 0;
+    rc = vcr_sli_set_ex(&io, &r7, VCR_SLI_F_VENDOR_AA);
+    CHECK(rc >= 0, "cfg 7 refused by the vendor arm");
+    last_cfg_write_per_chip(m, VCR_CFG_AALFBCTRL, v);
+    last_cfg_write_per_chip(m, VCR_CFG_AADEPTHBUFAPERTURE, d);
+    CHECK_EQ_U(v[0], 0xdf1ee000u);                         /* read back 2026-09-30 13:22 */
+    CHECK_EQ_U(v[1], 0xdf1ee000u);
+    CHECK_EQ_U(v[2], 0xcf1ee000u);
+    CHECK_EQ_U(v[3], 0xcf1ee000u);
+    for (c = 0; c < 4; c++) {
+        CHECK_EQ_U(v[c] & VCR_AALFB_SECONDARY_BASE_MASK, 0x031ee000u);   /* = tileMark */
+        CHECK_EQ_U(d[c], 0x400031eeu);
+    }
+    no_bus_faults(m);
+
+    /* and the dos_mode.c arm would have written base 0 for cfg 7 too */
+    mapped(m, &io, 4); m->nw = 0;
+    rc = vcr_sli_set_ex(&io, &r7, 0);
+    CHECK(rc >= 0, "cfg 7 refused by the dos_mode.c arm");
+    last_cfg_write_per_chip(m, VCR_CFG_AALFBCTRL, v);
+    for (c = 0; c < 4; c++)
+        CHECK_EQ_U(v[c] & VCR_AALFB_SECONDARY_BASE_MASK, 0);
+    no_bus_faults(m);
+}
+
 TEST(a_real_aa_base_cannot_spill_in_the_vendor_recipe) {
     static const struct { vcr_u32 col, old_chip0; } k[] = {
         /* 0x01a00000 << 4 = 0x1a000000: READ_EN (bit 28) set on chips 0/1 -
@@ -2634,6 +2738,7 @@ MUNIT_MAIN("vcr-kmd SLI/AA bring-up (vcrmp_sli.c)",
     RUN(the_vendor_memory_refusal_is_policy_before_any_teardown);
     RUN(the_aa_base_is_a_byte_address_in_the_vendor_recipe_only);
     RUN(a_real_aa_base_cannot_spill_in_the_vendor_recipe);
+    RUN(the_aa_lfb_base_that_overwrote_glides_fifo_and_its_fix_match_silicon);
     RUN(one_sample_per_chip_is_exactly_the_three_paired_shapes);
     RUN(the_vendor_recipe_leaves_sli_only_requests_and_the_disable_alone);
     RUN(the_vendor_recipe_refuses_memory_info_it_cannot_place);

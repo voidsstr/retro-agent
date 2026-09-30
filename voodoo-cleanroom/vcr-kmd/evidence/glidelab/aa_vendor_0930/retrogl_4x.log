@@ -1,0 +1,62 @@
+### DllMain PROCESS_ATTACH: retrogl LOADED by 'C:\Games\Quake2Complete\quake2.exe' (pid=1160) ###
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+==================================================================
+retrogl ICD attached: first entry via wglDescribePixelFormat (pid=1160)
+  host process : C:\Games\Quake2Complete\quake2.exe
+  glide3x.dll  : C:\Games\Quake2Complete\glide3x.dll (module=6fc80000)
+fxQueryHardware: FIRST init -> calling grGlideInit() ...
+fxQueryHardware: grGlideInit() RETURNED (0 fatal Glide error(s)); calling FX_grSstQueryHardware() ...
+fxQueryHardware: FX_grSstQueryHardware -> present=1 num_sst=1 type0=7
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=01010055) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=3 paints-validated=0 quit=0
+wglCreateContext: hWnd=000200d2 GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=000200d2, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=131282 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=131282 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=4 -> pixFmt=11 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=131282 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=11 aux=1 fxWinReq=0
+grSstWinOpenExt: win=131282 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=11 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1875785076 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1875785076 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1875785076 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00c64a08 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00c64a08)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+ICD: DrvValidateVersion(0x1) -> TRUE (loaded as the system ICD)
+wglSetPixelFormat: iPixelFormat=6 (valid range 1..6, ppfd=NULL)
+wglSetPixelFormat: OK -> TRUE (curPFD=6; this arms wglCreateContext)
+ICD: DrvSetPixelFormat(6) -> 1
+wglCreateContext(hdc=01010055) enter [curPFD=6]
+wglCreateContext: activation pump dispatched=2 paints-validated=0 quit=0
+wglCreateContext: hWnd=0005009e GetClientRect=1280x960 curPFD=6 pfd.cColorBits=32 mesaColDepth=32 (this WxH feeds the resolution snapper)
+wglCreateContext: -> fxMesaCreateBestContext(win=0005009e, 1280x960, mesaAttr[colDepth=32])
+fxBestResolution: request 1280x960 -> res enum 17 (1280x960), 252 supported modes queried
+fxBestRefresh: 1280x960 max 85 Hz (EnumDisplaySettings) -> GR_REFRESH enum 7
+fxMesaCreateBestContext: win=327838 1280x960 -> res enum 17, ref enum 7
+fxMesaCreateContext: ENTER win=327838 res=17 (1280x960) ref=7
+fxMesaCreateContext: colDepth=32 fsaa=4 -> pixFmt=11 (RGB_565=3 ARGB_1555=4 ARGB_8888=5)
+fxMesaCreateContext: about to open board: win=327838 res=17 (1280x960) ref=7 HavePixExt=1 pixFmt=11 aux=1 fxWinReq=0
+grSstWinOpenExt: win=327838 res=17 (1280x960) ref=7 colorformat=1(ABGR) origin=1(LOWER_LEFT) pixFmt=11 nColBuffers=2 nAuxBuffers=1  [Napalm PIXEXT path]
+grSstWinOpenExt: returned glideContext=1875785076 (0 == FAILED)
+fxMesaCreateContext: board-open complete: glideContext=1875785076 windowed=0 (0 == open FAILED)
+fxMesaCreateContext: SUCCESS glideContext=1875785076 screen=1280x960 colDepth=32 windowed=0
+wglCreateContext: fxMesaCreateBestContext returned ctx=00c64a08 (error=0)
+wglCreateContext: SUCCESS -> HGLRC 1 (ctx=00c64a08)
+wglDeleteContext: enter
+fxMesaDestroyContext: closing board (windowed=0)
+fxMesaDestroyContext: board closed; fxCloseHardware
+fxMesaDestroyContext: done
+wglDeleteContext: done
+### DllMain PROCESS_DETACH: retrogl process exit (pid=1160) ###
+cleangraphics: process exit -> grGlideShutdown()
+cleangraphics: grGlideShutdown returned

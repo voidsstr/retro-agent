@@ -1,0 +1,676 @@
+=== glidetrace pid=228 tick=56312 level=2 file=C:\vcr\q2aa8x.trace
+56312 winopen: chipCount / sliCount reg=00000004 val=00000001
+56312 winopen: grPixelSample / grSamplesPerChip reg=00000008 val=00000002
+56312 winopen: enableSecondaryBuffer / sampleOffsetIndex reg=00000001 val=0000000c
+56312 winopen: forceSingleChip / analogSli reg=00000000 val=00000001
+56312 winopen: pixelformat / sliBandHeight log2 reg=0000000e val=00000005
+56312 winopen: hwcInitVideo (mode set, SLI/AA request) reg=00000001 val=023dc000
+56312 hwcInitVideo: enter (reg=xRes<<16|yRes val=pixelSample<<16|nwaySli<<8|numChips) reg=050003c0 val=00080104
+56312 hwcInitVideo: setVideoMode (reg=refresh val=xRes<<16|yRes) reg=00000055 val=050003c0
+56437 hwcInitVideo: setVideoMode returned reg=00000055 val=00000000
+56437 hwcInitVideo: HWCSETEXCLUSIVE escape reg=00000000 val=00000000
+56437 hwcInitVideo: HWCSETEXCLUSIVE returned (val=resStatus) reg=00000000 val=00000001
+56437 video regs: master overlay / pixel threshold stores (reg=bpp) reg=00000020 val=00600000
+56437 video regs: io store vidProcCfg reg=0000005c val=036c01a1
+56437 video regs: miscInit0 y-origin, lfbMemoryConfig reg=00000000 val=00000000
+56437 video regs: dramInit1, vidMaxRGBDelta, vidDesktopOverlayStride reg=00000000 val=00000000
+56437 video regs: master programmed reg=00000000 val=00000000
+56453 sliaa inputs: pixelSample / nwaySli reg=00000008 val=00000001
+56453 sliaa inputs: numChips / realNumChips reg=00000004 val=00000004
+56453 sliaa inputs: enable2ndbuffer / analogSli reg=00000001 val=00000001
+56453 sliaa inputs: sliBandHeight / h3Mem MB reg=00000020 val=00000040
+56453 sliaa inputs: colBuffStart0[0] / colBuffStart1[0] reg=031ee000 val=023dc000
+56453 sliaa inputs: aux lfbBuffAddr0 / lfbBuffAddr0End reg=040ee080 val=0486e100
+56453 sliaa inputs: auxBuffStart0 / auxBuffStart1 reg=03b4f000 val=02d3d000
+56453 SLI_AA_REQUEST: chips / sliEn reg=00000004 val=00000000
+56453 SLI_AA_REQUEST: aaEn / aaSampleHigh reg=00000001 val=00000002
+56453 SLI_AA_REQUEST: analog / nlines reg=00000001 val=00000020
+56453 SLI_AA_REQUEST: bpp / tileMark reg=00000020 val=031ee000
+56453 SLI_AA_REQUEST: secColor / secDepthBegin reg=023dc000 val=040ee080
+56453 SLI_AA_REQUEST: secDepthEnd / totalMem reg=0486e100 val=04000000
+56468 SLI_AA_REQUEST: ExtEscape (kernel programs SLI/AA) reg=0000001b val=00000000
+64937 SLI_AA_REQUEST: returned retVal / resStatus reg=00000001 val=00000001
+64937 cfg dumps OFF - no config reads (FX_GLIDE_TRACE_CFG=1 turns them on) reg=00000000 val=00000000
+64953 io store vidScreenSize (master, snooped) reg=00000098 val=00bc0500
+64953 io store lfbMemoryConfig (master) reg=0000000c val=00a871ee
+64968 io store lfbMemoryConfig = RAW_LFB_WRITE_CONTROL (master) reg=0000000c val=80000000
+64968 io store vidMaxRGBDelta (master, snooped) reg=00000058 val=00100810
+64968 pig: io store lfbMemoryConfig = UPDATE_CONTROL reg=00000000 val=40000000
+64968 pig: io load lfbMemoryConfig (tile ctrl) reg=00000000 val=00000000
+64968 pig: io store lfbMemoryConfig = UPDATE|READ_CONTROL reg=00000000 val=60000000
+64968 pig: io load lfbMemoryConfig (tile compare) reg=00000000 val=00000000
+64968 pig: io store lfbMemoryConfig = UPDATE_CONTROL reg=00000000 val=40000000
+64984 pig: loaded tile ctrl / tile compare reg=00a871ee val=00000000
+64984 pig: pci_op read (reg=chip<<16|cfg offset) reg=00000094 val=00000000
+64984 pig: cfgAALfbCtrl = reg=00000000 val=ce3dc000
+65000 pig: pci_op read (reg=chip<<16|cfg offset) reg=00000090 val=00000000
+65015 pig: cfgAADepthBufferAperture = reg=00000000 val=400031ee
+65015 pig: SLAVE io store lfbMemoryConfig = UPDATE_CONTROL reg=00000001 val=40000000
+65015 pig: SLAVE io load lfbMemoryConfig (tile ctrl) reg=00000001 val=00000000
+65015 pig: SLAVE io store lfbMemoryConfig = UPDATE|READ_CONTROL reg=00000001 val=60000000
+65015 pig: SLAVE io load lfbMemoryConfig (tile compare) reg=00000001 val=00000000
+65031 pig: SLAVE io store lfbMemoryConfig = UPDATE_CONTROL reg=00000001 val=40000000
+65031 pig: loaded tile ctrl / tile compare reg=00a871ee val=00000000
+65031 pig: pci_op read (reg=chip<<16|cfg offset) reg=00010094 val=00000000
+65031 pig: cfgAALfbCtrl = reg=00000001 val=ce3dc000
+65031 pig: pci_op read (reg=chip<<16|cfg offset) reg=00010090 val=00000000
+65031 pig: cfgAADepthBufferAperture = reg=00000001 val=400031ee
+65046 pig: SLAVE io store lfbMemoryConfig = UPDATE_CONTROL reg=00000002 val=40000000
+65046 pig: SLAVE io load lfbMemoryConfig (tile ctrl) reg=00000002 val=00000000
+65046 pig: SLAVE io store lfbMemoryConfig = UPDATE|READ_CONTROL reg=00000002 val=60000000
+65046 pig: SLAVE io load lfbMemoryConfig (tile compare) reg=00000002 val=00000000
+65046 pig: SLAVE io store lfbMemoryConfig = UPDATE_CONTROL reg=00000002 val=40000000
+65046 pig: loaded tile ctrl / tile compare reg=00a871ee val=00000000
+65046 pig: pci_op read (reg=chip<<16|cfg offset) reg=00020094 val=00000000
+65046 pig: cfgAALfbCtrl = reg=00000002 val=ce3dc000
+65046 pig: pci_op read (reg=chip<<16|cfg offset) reg=00020090 val=00000000
+65062 pig: cfgAADepthBufferAperture = reg=00000002 val=400031ee
+65062 pig: SLAVE io store lfbMemoryConfig = UPDATE_CONTROL reg=00000003 val=40000000
+65062 pig: SLAVE io load lfbMemoryConfig (tile ctrl) reg=00000003 val=00000000
+65062 pig: SLAVE io store lfbMemoryConfig = UPDATE|READ_CONTROL reg=00000003 val=60000000
+65062 pig: SLAVE io load lfbMemoryConfig (tile compare) reg=00000003 val=00000000
+65062 pig: SLAVE io store lfbMemoryConfig = UPDATE_CONTROL reg=00000003 val=40000000
+65062 pig: loaded tile ctrl / tile compare reg=00a871ee val=00000000
+65062 pig: pci_op read (reg=chip<<16|cfg offset) reg=00030094 val=00000000
+65062 pig: cfgAALfbCtrl = reg=00000003 val=ce3dc000
+65062 pig: pci_op read (reg=chip<<16|cfg offset) reg=00030090 val=00000000
+65062 pig: cfgAADepthBufferAperture = reg=00000003 val=400031ee
+65062 hwcInitVideo: done reg=00000000 val=00000000
+65062 winopen: hwcInitVideo returned reg=00000000 val=00000000
+65062 winopen: hwcShareContextData (escape) reg=00000000 val=00000000
+65062 winopen: hwcShareContextData returned (reg=lostContext set) reg=00000001 val=00000000
+65062 winopen: hwcGammaRGB (master DAC) reg=00000000 val=00000000
+65078 gamma: io load vidProcCfg, then dacAddr/dacData loop reg=00010100 val=00000804
+65078 gamma: dac loop done (reg=dacBase val=entries never read back) reg=00000000 val=00000000
+65078 winopen: hwcGammaRGB returned reg=00000000 val=00000000
+65078 winopen: command fifo init (autoBump) reg=00000001 val=00000000
+65078 hwcInitFifo: idle wait, all chips reg=00000004 val=00000000
+65078 idle: io load status chip0 reg=00000000 val=00000000
+65078 idle: SLAVE io load status (reg=chip) reg=00000001 val=0000001f
+65078 idle: SLAVE io load status (reg=chip) reg=00000002 val=0000001f
+65078 idle: SLAVE io load status (reg=chip) reg=00000003 val=0000001f
+65078 idle: first pass status (or of all chips) reg=00000000 val=0000001f
+65078 idle: idle (reg=polls) reg=00000003 val=0000001f
+65078 hwcInitFifo: cagp store cmdFifo0.baseSize = 0 (fifo off) reg=00000024 val=00000000
+65078 hwcInitFifo: cagp stores base/readPtr/aMin/aMax/depth/holes/thresh (fifoStart) reg=00018000 val=000ff000
+65093 hwcInitFifo: cagp store cmdFifo0.baseSize (fifo ON) reg=00000024 val=000000fe
+65093 winopen: command fifo initialised reg=00000001 val=00000000
+65093 winopen: io load master cmdFifo0 read ptr reg=00018000 val=00000000
+65093 winopen: fifo leftOverlayBuf reg=0369e000 val=00000000
+65093 sync: grFinish after winopen: fifo leftOverlayBuf reg=00000000 val=00000000
+65093 executed: winopen: fifo leftOverlayBuf reg=00000000 val=0000001f
+65093 winopen: fifo swapbufferCMD 0 (immediate swap) reg=00000000 val=00000000
+65093 sync: grFinish after winopen: fifo swapbufferCMD reg=00000000 val=00000000
+65093 executed: winopen: fifo swapbufferCMD reg=00000000 val=0000001f
+65093 winopen: fifo chipMask reg=ffffffff val=00000000
+65093 chipMask: fifo write (reg=old val=new) reg=00000000 val=ffffffff
+65093 sync: grFinish after winopen: fifo chipMask reg=00000000 val=00000000
+65093 executed: winopen: fifo chipMask reg=00000000 val=0000001f
+65109 winopen: fifo colBufferAddr/Stride + auxBufferAddr/Stride (primary) reg=031ee000 val=03b4f000
+65109 sync: grFinish after winopen: fifo colBufferAddr/auxBufferAddr (primary) reg=00000000 val=00000000
+65109 executed: winopen: fifo colBufferAddr/auxBufferAddr (primary) reg=00000000 val=0000001f
+65109 winopen: fifo colBufferAddr/auxBufferAddr (SECONDARY) reg=023dc000 val=02d3d000
+65109 sync: grFinish after winopen: fifo colBufferAddr/auxBufferAddr (SECONDARY) reg=00000000 val=00000000
+65109 executed: winopen: fifo colBufferAddr/auxBufferAddr (SECONDARY) reg=00000000 val=0000001f
+65109 winopen: aaCtrl per chip (reg=last chip, val=enableSecondary) reg=00000003 val=00000001
+65109 _grAAOffsetValue: aaCtrl for chips (reg=min<<8|max val=prim<<1|sec) reg=00000003 val=00000003
+65109 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+65109 aaCtrl: fifo write (reg=chip) reg=00000000 val=10c10106
+65109 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+65109 aaCtrl: fifo write (reg=chip) reg=00000001 val=11818502
+65109 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+65109 aaCtrl: fifo write (reg=chip) reg=00000002 val=1082830e
+65125 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+65125 aaCtrl: fifo write (reg=chip) reg=00000003 val=1143070a
+65125 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+65125 sync: grFinish after aaCtrl: fifo writes, every chip (chip mask restored) reg=00000000 val=00000000
+65125 executed: aaCtrl: fifo writes, every chip (chip mask restored) reg=00000000 val=0000001f
+65125 winopen: fifo renderMode reg=0000000e val=00000000
+65125 sync: grFinish after winopen: fifo renderMode reg=00000000 val=00000000
+65125 executed: winopen: fifo renderMode reg=00000000 val=0000001f
+65125 winopen: assertDefaultState reg=00000000 val=00000000
+65156 sync: grFinish after winopen: assertDefaultState reg=00000000 val=00000000
+65156 executed: winopen: assertDefaultState reg=00000000 val=0000001f
+65156 winopen: clearBuffers (num_buffers) reg=00000002 val=00000000
+65156 clearBuffers: grClipWindow (fifo clip registers) reg=00000500 val=000003c0
+65171 clearBuffers: clear 1 reg=00000000 val=00000000
+65171 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+65171 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+65171 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+65171 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+65171 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+65171 sync: grFinish after clearBuffers: clear 1 reg=00000000 val=00000000
+65187 executed: clearBuffers: clear 1 reg=00000000 val=0000001f
+65187 clearBuffers: swap 1 reg=00000000 val=00000000
+65187 sync: grFinish after clearBuffers: swap 1 reg=00000000 val=00000000
+65187 executed: clearBuffers: swap 1 reg=00000000 val=0000001f
+65187 clearBuffers: clear 2 reg=00000000 val=00000000
+65187 sync: grFinish after clearBuffers: clear 2 reg=00000000 val=00000000
+65203 executed: clearBuffers: clear 2 reg=00000000 val=0000001f
+65203 clearBuffers: swap 2 reg=00000000 val=00000000
+65203 sync: grFinish after clearBuffers: swap 2 reg=00000000 val=00000000
+65203 executed: clearBuffers: swap 2 reg=00000000 val=0000001f
+65203 clearBuffers: clear 3 reg=00000000 val=00000000
+65203 sync: grFinish after clearBuffers: clear 3 reg=00000000 val=00000000
+65218 executed: clearBuffers: clear 3 reg=00000000 val=0000001f
+65218 clearBuffers: swap 3 reg=00000000 val=00000000
+65218 sync: grFinish after clearBuffers: swap 3 reg=00000000 val=00000000
+65218 executed: clearBuffers: swap 3 reg=00000000 val=0000001f
+65218 clearBuffers: grRenderBuffer BACK (fifo colBufferAddr) reg=00000000 val=00000000
+65218 sync: grFinish after clearBuffers: grRenderBuffer BACK reg=00000000 val=00000000
+65218 executed: clearBuffers: grRenderBuffer BACK reg=00000000 val=0000001f
+65218 winopen: clearBuffers returned reg=00000000 val=00000000
+65218 winopen: doSplash reg=00000000 val=00000000
+65218 splash: LoadLibrary 3dfxspl3.dll (reg=already loaded) reg=00000000 val=00000000
+65265 splash: plugin present reg=00000001 val=00000000
+65265 splash: plugin init (draws through Glide) reg=00000000 val=00000000
+66312 splash: plugin init returned reg=00000001 val=00000000
+66328 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66328 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66328 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66328 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66328 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66328 sync: grFinish after splash: plugin init + grGlideSetState reg=00000000 val=00000000
+66328 executed: splash: plugin init + grGlideSetState reg=00000000 val=0000001f
+66328 splash: grSplash (reg=noSplash) reg=00000000 val=00000000
+66328 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66328 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66328 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66328 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66328 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66343 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66343 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66343 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66343 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66343 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66343 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66343 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66343 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66343 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66343 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66343 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66343 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66343 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66343 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66359 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66359 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66359 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66359 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66359 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66359 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66359 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66359 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66359 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66359 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66359 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66359 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66359 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66359 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66375 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66375 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66375 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66375 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66375 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66375 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66375 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66375 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66375 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66375 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66375 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66375 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66375 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66390 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66390 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66390 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66390 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66390 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66390 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66390 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66390 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66390 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66390 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66390 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66390 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66390 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66390 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66406 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66406 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66406 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66406 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66406 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66406 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66406 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66406 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66406 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66406 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66406 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66406 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66406 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66421 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66421 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66421 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66421 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66421 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66421 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66421 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66421 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66421 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66421 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66421 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66421 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66421 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66453 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66453 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66453 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66453 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66468 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66468 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66468 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66468 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66468 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66468 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66468 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66468 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66468 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66468 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66468 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66468 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66468 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66468 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66484 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66484 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66484 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66484 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66484 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66484 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66484 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66484 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66484 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66484 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66484 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66484 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66484 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66484 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66484 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66500 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66500 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66500 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66500 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66500 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66500 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66500 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66500 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66500 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66500 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66500 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66500 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66500 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66515 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66515 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66515 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66515 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66515 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66515 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66515 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66515 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66515 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66515 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66515 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66515 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66515 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66531 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66531 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66531 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66531 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66531 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66531 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66531 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66531 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66531 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66531 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66531 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66531 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66546 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66546 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66546 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66546 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66546 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66546 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66546 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66546 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66546 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66546 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66546 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66546 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66546 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66546 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66562 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66562 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66562 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66562 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66562 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66562 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66562 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66562 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66562 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66562 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66562 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66562 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66562 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66578 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66578 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66578 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66578 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66578 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66578 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66578 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66578 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66578 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66578 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66578 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66578 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66578 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66578 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66593 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66593 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66593 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66593 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66593 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66593 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66593 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66593 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66593 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66593 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66593 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66593 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66609 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66609 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66609 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66609 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66609 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66609 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66609 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66609 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66609 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66609 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66609 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66609 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66609 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66609 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66625 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66625 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66625 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66625 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66625 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66625 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66625 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66625 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66625 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66625 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66625 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66625 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66640 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66640 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66640 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66640 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66640 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66640 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66640 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66640 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66640 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66640 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66640 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66640 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66640 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66640 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66640 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66656 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66656 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66656 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66656 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66656 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66656 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66656 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66656 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66656 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66656 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66656 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66656 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66671 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66671 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66671 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66671 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66671 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66671 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66671 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66671 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66671 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66671 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66671 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66671 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66687 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66687 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66687 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66687 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66687 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66687 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66687 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66687 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66687 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66687 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66687 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66687 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66687 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66687 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66703 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66703 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66703 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66703 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66703 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66703 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66703 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66703 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66703 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66703 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66703 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66703 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66703 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66718 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66718 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66718 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66718 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66718 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66718 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66718 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66718 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66718 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66718 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66718 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66718 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66718 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66734 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66734 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66734 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66734 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66734 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66734 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66734 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66734 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66734 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66734 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66734 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66734 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66750 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66750 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66750 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66750 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66750 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66750 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66750 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66750 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66750 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66750 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66750 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66750 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66750 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66750 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66765 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66765 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66765 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66765 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66765 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66765 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66765 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66765 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66765 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66765 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66765 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66765 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66765 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66781 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66781 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66781 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66781 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66781 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66781 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66781 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66781 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66781 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66781 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66781 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66781 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66781 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66781 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66796 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66796 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66796 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66796 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66796 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66796 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66796 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66796 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66796 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66796 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66796 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66796 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66796 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66796 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66812 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66812 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66812 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66812 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66812 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66812 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66812 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66812 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66812 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66812 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66812 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66812 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66828 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66828 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66828 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66828 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66828 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66828 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66828 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66828 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66828 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66828 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66828 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66828 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66828 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66828 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66843 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66843 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66843 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66843 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66843 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66843 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66843 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66843 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66843 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66843 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66843 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66843 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66843 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66843 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66859 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66859 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66859 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66859 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66859 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66859 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66859 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66859 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66859 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66859 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66859 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66859 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66875 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66875 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66875 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66875 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66875 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66875 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66875 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66875 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66875 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66875 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66875 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66875 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66875 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66890 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66890 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66890 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66890 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66890 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66890 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66890 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66890 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66890 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66890 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66890 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66890 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66890 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66906 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66906 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66906 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66906 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66906 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66906 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66906 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66906 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66906 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66906 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66906 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66906 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66906 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66906 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66921 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66921 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66921 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66921 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66921 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66921 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66921 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66921 chipMask: fifo write (reg=old val=new) reg=ffffffff val=0000000f
+66921 chipMask: fifo write (reg=old val=new) reg=0000000f val=00000002
+66921 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66921 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66921 chipMask: fifo write (reg=old val=new) reg=00000008 val=0000000f
+66921 chipMask: fifo write (reg=old val=new) reg=0000000f val=ffffffff
+66937 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000001
+66937 chipMask: fifo write (reg=old val=new) reg=00000001 val=00000002
+66937 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66937 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66937 chipMask: fifo write (reg=old val=new) reg=00000008 val=ffffffff
+66937 chipMask: fifo write (reg=old val=new) reg=ffffffff val=00000002
+66937 chipMask: fifo write (reg=old val=new) reg=00000002 val=00000004
+66937 chipMask: fifo write (reg=old val=new) reg=00000004 val=00000008
+66937 chipMask: fifo write (reg=old val=new) - LAST one traced reg=00000008 val=0000000f
+71703 sync: grFinish after splash: grSplash reg=00000000 val=00000000
+71953 executed: splash: grSplash reg=00000000 val=0000001f
+71953 winopen: done reg=00000000 val=00000000
+71968 gamma: io load vidProcCfg, then dacAddr/dacData loop reg=00010100 val=00000804
+71984 gamma: dac loop done (reg=dacBase val=entries never read back) reg=00000000 val=00000000

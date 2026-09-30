@@ -1,0 +1,774 @@
+[09:36:35][EXEC ] CreateProcessA OK, PID=724
+[09:36:35][EXEC ] Process 724 exited: code=0, output=0 bytes, 63ms elapsed
+[09:36:35][MAIN ] Client disconnected
+[09:36:35][MAIN ] Connection from 192.168.1.132:42960
+[09:36:35][MAIN ] handle_client: starting auth on socket 1600
+[09:36:35][PROTO] AUTH: success
+[09:36:35][MAIN ] Client authenticated
+[09:36:35][MAIN ] CMD: "PROCLIST" (8 bytes)
+[09:36:35][PROTO] frame_send: 1495 bytes
+[09:36:35][MAIN ] Client disconnected
+[09:36:35][MAIN ] Connection from 192.168.1.132:42974
+[09:36:35][MAIN ] handle_client: starting auth on socket 1604
+[09:36:35][PROTO] AUTH: success
+[09:36:35][MAIN ] Client authenticated
+[09:36:35][MAIN ] CMD: "EXECW 236 cmd /c start "glidelab" /wait "C:\vcr\glidelab\glidelab.exe" edges --r"... (233 bytes)
+[09:36:35][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c start "glidelab" /wait "C:\vcr\glidelab\glidelab.exe" edges --res 1024x768 --refresh 60 --dll C:\Games\Quake2Complete\glide3x.dll --log C:\vcr\glidelab\edges.log --frames 20000 --layers 4 --cycles 2 --cfg 3 --trace 2"
+[09:36:35][EXEC ] CreateProcessA OK, PID=872
+[09:36:45][EXEC ] EXEC still running: PID 872, 10s elapsed (timeout 236s), 0 bytes so far
+[09:36:48][MAIN ] Connection from 192.168.1.132:60064
+[09:36:48][MAIN ] handle_client: starting auth on socket 1536
+[09:36:48][PROTO] AUTH: success
+[09:36:48][MAIN ] Client authenticated
+[09:36:48][MAIN ] Client disconnected
+[09:36:48][MAIN ] log: batched writes on (flush when full or every 15s) - startup window is past
+[09:36:55][EXEC ] EXEC still running: PID 872, 20s elapsed (timeout 236s), 0 bytes so far
+[09:37:05][EXEC ] EXEC still running: PID 872, 30s elapsed (timeout 236s), 0 bytes so far
+[09:37:11][EXEC ] Process 872 exited: code=0, output=0 bytes, 36500ms elapsed
+[09:37:11][MAIN ] Client disconnected
+[09:37:11][MAIN ] Connection from 192.168.1.132:34950
+[09:37:11][MAIN ] handle_client: starting auth on socket 1584
+[09:37:11][PROTO] AUTH: success
+[09:37:11][MAIN ] Client authenticated
+[09:37:11][MAIN ] CMD: "DOWNLOAD C:\vcr\glidelab\edges.log" (34 bytes)
+[09:37:11][FILE ] DOWNLOAD: CreateFileA("C:\vcr\glidelab\edges.log") = OK
+[09:37:11][FILE ] DOWNLOAD: GetFileSize = 969 bytes
+[09:37:11][MAIN ] Client disconnected
+[09:37:11][MAIN ] Connection from 192.168.1.132:34964
+[09:37:11][MAIN ] handle_client: starting auth on socket 1600
+[09:37:11][PROTO] AUTH: success
+[09:37:11][MAIN ] Client authenticated
+[09:37:11][MAIN ] CMD: "DOWNLOAD C:\vcr\glidelab\edges.log.trace" (40 bytes)
+[09:37:11][FILE ] DOWNLOAD: CreateFileA("C:\vcr\glidelab\edges.log.trace") = OK
+[09:37:11][FILE ] DOWNLOAD: GetFileSize = 17284 bytes
+[09:37:11][PROTO] frame_send: 17285 bytes
+[09:37:11][MAIN ] Client disconnected
+[09:37:11][MAIN ] Connection from 192.168.1.132:34976
+[09:37:11][MAIN ] handle_client: starting auth on socket 1604
+[09:37:11][PROTO] AUTH: success
+[09:37:11][MAIN ] Client authenticated
+[09:37:11][MAIN ] CMD: "REGWRITE HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08"... (147 bytes)
+[09:37:11][REG  ] REGWRITE: key="HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide" name="SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ
+[09:37:11][REG  ] REGWRITE: RegSetValueExA = OK
+[09:37:11][MAIN ] Client disconnected
+[09:37:11][MAIN ] Connection from 192.168.1.132:34992
+[09:37:11][MAIN ] handle_client: starting auth on socket 1584
+[09:37:11][PROTO] AUTH: success
+[09:37:11][MAIN ] Client authenticated
+[09:37:11][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-080"... (110 bytes)
+[09:37:11][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide") = OK
+[09:37:11][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[09:37:11][MAIN ] Client disconnected
+[09:37:19][MAIN ] Connection from 192.168.1.132:53372
+[09:37:19][MAIN ] handle_client: starting auth on socket 1600
+[09:37:19][PROTO] AUTH: success
+[09:37:19][MAIN ] Client authenticated
+[09:37:19][MAIN ] CMD: "EXECW 60 cmd /c C:\vcr\vcrctl_fb2.exe log > C:\vcr\log4.txt 2>&1" (64 bytes)
+[09:37:19][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c C:\vcr\vcrctl_fb2.exe log > C:\vcr\log4.txt 2>&1"
+[09:37:19][EXEC ] CreateProcessA OK, PID=840
+[09:37:19][EXEC ] Process 840 exited: code=0, output=0 bytes, 125ms elapsed
+[09:37:19][MAIN ] CMD: "DOWNLOAD C:\vcr\log4.txt" (24 bytes)
+[09:37:19][FILE ] DOWNLOAD: CreateFileA("C:\vcr\log4.txt") = OK
+[09:37:19][FILE ] DOWNLOAD: GetFileSize = 67398 bytes
+[09:37:19][PROTO] frame_send: 67399 bytes
+[09:37:19][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag" (57 bytes)
+[09:37:19][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag") = OK
+[09:37:19][REG  ]   Value: "MaxBootAttempts" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "LogLevel" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "DebugPort" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "AllowPoke" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "OpenGLName" type=REG_SZ size=5
+[09:37:19][REG  ]   Value: "BootAttempts" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "BootCount" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "LastPhase" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "LastPhaseA" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "LastPhaseMs" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "PhaseCount" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "PhaseLog" type=REG_BINARY size=1024
+[09:37:19][REG  ]   Value: "LastDecline" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "GoodBoots" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "PrevPhaseLog" type=REG_BINARY size=1024
+[09:37:19][REG  ]   Value: "PrevPhaseCount" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "PrevLastPhase" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "PrevLastPhaseA" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "PrevLastPhaseMs" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "PrevBootCount" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "MonHminKhz" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "MonHmaxKhz" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "MonVminHz" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "MonVmaxHz" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "MonMaxPixclkKhz" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "MonId" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "D3D32" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "D3DBigTex" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "SliAALive" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "SliAA" type=REG_DWORD size=4
+[09:37:19][REG  ]   Value: "SliAAAutoOff" type=REG_DWORD size=4
+[09:37:19][PROTO] frame_send: 7845 bytes
+[09:37:19][MAIN ] Client disconnected
+[09:37:27][MAIN ] Connection from 192.168.1.132:53384
+[09:37:27][MAIN ] handle_client: starting auth on socket 1604
+[09:37:27][MAIN ] Auth failed, closing connection
+[09:37:30][MAIN ] Connection from 192.168.1.132:39892
+[09:37:30][MAIN ] handle_client: starting auth on socket 1584
+[09:37:30][PROTO] AUTH: success
+[09:37:30][MAIN ] Client authenticated
+[09:37:30][MAIN ] CMD: "GAMEINDEX HASH" (14 bytes)
+[09:37:30][MAIN ] Client disconnected
+[09:37:36][MAIN ] Connection from 192.168.1.132:39898
+[09:37:36][MAIN ] handle_client: starting auth on socket 1600
+[09:37:36][PROTO] AUTH: success
+[09:37:36][MAIN ] Client authenticated
+[09:37:36][MAIN ] Client disconnected
+[09:38:21][MAIN ] Connection from 192.168.1.132:43756
+[09:38:21][MAIN ] handle_client: starting auth on socket 1588
+[09:38:21][PROTO] AUTH: success
+[09:38:21][MAIN ] Client authenticated
+[09:38:21][MAIN ] CMD: "GAMESYNC STATUS" (15 bytes)
+[09:38:21][MAIN ] CMD: "PROCLIST" (8 bytes)
+[09:38:21][PROTO] frame_send: 1496 bytes
+[09:38:21][MAIN ] CMD: "DOWNLOAD C:\Games\CounterStrike16\config\serverbrowser.vdf" (58 bytes)
+[09:38:21][FILE ] DOWNLOAD: CreateFileA("C:\Games\CounterStrike16\config\serverbrowser.vdf") = OK
+[09:38:21][FILE ] DOWNLOAD: GetFileSize = 350 bytes
+[09:38:21][MAIN ] CMD: "DOWNLOAD C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg" (54 bytes)
+[09:38:21][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg") = OK
+[09:38:21][FILE ] DOWNLOAD: GetFileSize = 2698 bytes
+[09:38:21][PROTO] frame_send: 2699 bytes
+[09:38:21][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[09:38:21][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[09:38:21][FILE ] DOWNLOAD: GetFileSize = 3683 bytes
+[09:38:21][PROTO] frame_send: 3684 bytes
+[09:38:21][MAIN ] CMD: "DOWNLOAD C:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[09:38:21][FILE ] DOWNLOAD: CreateFileA("C:\Games\UnrealGold\System\Unreal.ini") = OK
+[09:38:21][FILE ] DOWNLOAD: GetFileSize = 8907 bytes
+[09:38:21][PROTO] frame_send: 8908 bytes
+[09:38:21][MAIN ] CMD: "DOWNLOAD C:\Games\UT2003\System\UT2003.ini" (42 bytes)
+[09:38:21][FILE ] DOWNLOAD: CreateFileA("C:\Games\UT2003\System\UT2003.ini") = OK
+[09:38:21][FILE ] DOWNLOAD: GetFileSize = 13613 bytes
+[09:38:21][PROTO] frame_send: 13614 bytes
+[09:38:21][MAIN ] CMD: "DOWNLOAD C:\Games\UT2004\System\UT2004.ini" (42 bytes)
+[09:38:21][FILE ] DOWNLOAD: CreateFileA("C:\Games\UT2004\System\UT2004.ini") = OK
+[09:38:21][FILE ] DOWNLOAD: GetFileSize = 21872 bytes
+[09:38:21][PROTO] frame_send: 21873 bytes
+[09:38:21][MAIN ] CMD: "UPLOAD C:\Games\UT2004\System\UT2004.ini" (40 bytes)
+[09:38:21][PROTO] frame_recv: 21833 bytes
+[09:38:21][FILE ] UPLOAD: CreateFileA("C:\Games\UT2004\System\UT2004.ini") = OK
+[09:38:21][FILE ] UPLOAD: Complete, 21833 bytes to "C:\Games\UT2004\System\UT2004.ini"
+[09:38:21][MAIN ] CMD: "DOWNLOAD C:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[09:38:21][FILE ] DOWNLOAD: CreateFileA("C:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[09:38:21][FILE ] DOWNLOAD: GetFileSize = 17813 bytes
+[09:38:21][PROTO] frame_send: 17814 bytes
+[09:38:21][MAIN ] CMD: "DIRLIST C:\Games\Quake3-TeamArena" (33 bytes)
+[09:38:21][FILE ] DIRLIST: FindFirstFileA("C:\Games\Quake3-TeamArena\*")
+[09:38:21][FILE ] DIRLIST: entry: baseq3 (0 bytes, dir)
+[09:38:21][FILE ] DIRLIST: entry: COPYING.txt (15429 bytes)
+[09:38:21][FILE ] DIRLIST: entry: defrag (0 bytes, dir)
+[09:38:21][FILE ] DIRLIST: entry: FLEETGL.BAT (4094 bytes)
+[09:38:21][FILE ] DIRLIST: entry: FLEETRES.BAT (4917 bytes)
+[09:38:21][FILE ] DIRLIST: entry: FLEETRES.EXE (33280 bytes)
+[09:38:21][FILE ] DIRLIST: entry: glide3x.dll.sep25 (1005435 bytes)
+[09:38:21][FILE ] DIRLIST: entry: id-readme.txt (6910 bytes)
+[09:38:21][FILE ] DIRLIST: entry: id_patch_pk3s_Q3A_EULA.txt (9930 bytes)
+[09:38:21][FILE ] DIRLIST: entry: instaunlagged (0 bytes, dir)
+[09:38:21][FILE ] DIRLIST: entry: ioq3ded.x86.exe (687104 bytes)
+[09:38:21][FILE ] DIRLIST: entry: ioquake3.x86.exe (1363456 bytes)
+[09:38:21][FILE ] DIRLIST: entry: LANCHECK.BAT (245 bytes)
+[09:38:21][FILE ] DIRLIST: entry: launch.txt (203 bytes)
+[09:38:21][FILE ] DIRLIST: entry: libcurl-4.dll (224256 bytes)
+[09:38:21][FILE ] DIRLIST: entry: missionpack (0 bytes, dir)
+[09:38:21][FILE ] DIRLIST: entry: openal32.dll (135168 bytes)
+[09:38:21][FILE ] DIRLIST: entry: Play Quake III Arena - retail 1.32c.bat (2162 bytes)
+[09:38:21][FILE ] DIRLIST: entry: Play Quake III Arena.bat (1432 bytes)
+[09:38:21][FILE ] DIRLIST: entry: Play Team Arena.bat (1594 bytes)
+[09:38:21][FILE ] DIRLIST: entry: q3key (167 bytes)
+[09:38:21][FILE ] DIRLIST: entry: Quake III Arena Complete - READ ME.txt (953 bytes)
+[09:38:21][FILE ] DIRLIST: entry: quake3.exe (872448 bytes)
+[09:38:21][FILE ] DIRLIST: entry: README.txt (26823 bytes)
+[09:38:21][FILE ] DIRLIST: entry: requires.json (268 bytes)
+[09:38:21][FILE ] DIRLIST: entry: retrogl.dll (2773619 bytes)
+[09:38:21][FILE ] DIRLIST: entry: retrogl.dll.0176 (2773020 bytes)
+[09:38:21][FILE ] DIRLIST: entry: SDL.dll (338432 bytes)
+[09:38:21][FILE ] DIRLIST: entry: SERVERS-fleet.txt (948 bytes)
+[09:38:21][FILE ] DIRLIST: entry: SERVERS-online.txt (1377 bytes)
+[09:38:21][FILE ] DIRLIST: entry: uninstall-ioquake3-q3a.exe (100114 bytes)
+[09:38:21][FILE ] DIRLIST: entry: uninstall.exe (103463 bytes)
+[09:38:21][FILE ] DIRLIST: entry: unlagged (0 bytes, dir)
+[09:38:21][FILE ] DIRLIST: entry: V56KBENCH.BAT (470 bytes)
+[09:38:21][FILE ] DIRLIST: entry: voip-readme.txt (9947 bytes)
+[09:38:21][PROTO] frame_send: 4162 bytes
+[09:38:21][MAIN ] CMD: "REGREAD HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "... (87 bytes)
+[09:38:21][REG  ] REGREAD: RegOpenKeyExA("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders") = OK
+[09:38:21][REG  ]   Value: "AppData" type=REG_SZ size=57
+[09:38:21][MAIN ] CMD: "DOWNLOAD C:\Documents and Settings\Administrator\Application Data\Quake3\serverc"... (88 bytes)
+[09:38:21][FILE ] DOWNLOAD: CreateFileA("C:\Documents and Settings\Administrator\Application Data\Quake3\servercache.dat") = OK
+[09:38:21][FILE ] DOWNLOAD: GetFileSize = 692748 bytes
+[09:38:21][PROTO] frame_send: 692749 bytes
+[09:38:22][MAIN ] Client disconnected
+[09:38:24][MAIN ] Connection from 192.168.1.132:43766
+[09:38:24][MAIN ] handle_client: starting auth on socket 1584
+[09:38:24][PROTO] AUTH: success
+[09:38:24][MAIN ] Client authenticated
+[09:38:24][MAIN ] Client disconnected
+[09:38:39][MAIN ] Connection from 192.168.1.132:44520
+[09:38:39][MAIN ] handle_client: starting auth on socket 1600
+[09:38:39][PROTO] AUTH: success
+[09:38:39][MAIN ] Client authenticated
+[09:38:39][MAIN ] CMD: "PING" (4 bytes)
+[09:38:39][MAIN ] Client disconnected
+[09:39:12][MAIN ] Connection from 192.168.1.132:52846
+[09:39:12][MAIN ] handle_client: starting auth on socket 1596
+[09:39:12][PROTO] AUTH: success
+[09:39:12][MAIN ] Client authenticated
+[09:39:12][MAIN ] Client disconnected
+[09:39:15][MAIN ] Connection from 192.168.1.132:52856
+[09:39:15][MAIN ] handle_client: starting auth on socket 1584
+[09:39:15][PROTO] AUTH: success
+[09:39:15][MAIN ] Client authenticated
+[09:39:15][MAIN ] CMD: "UPLOAD C:\vcr\q2aa.bat" (22 bytes)
+[09:39:15][FILE ] UPLOAD: CreateFileA("C:\vcr\q2aa.bat") = OK
+[09:39:15][FILE ] UPLOAD: Complete, 183 bytes to "C:\vcr\q2aa.bat"
+[09:39:15][MAIN ] Client disconnected
+[09:39:15][MAIN ] Connection from 192.168.1.132:52864
+[09:39:15][MAIN ] handle_client: starting auth on socket 1600
+[09:39:15][PROTO] AUTH: success
+[09:39:15][MAIN ] Client authenticated
+[09:39:15][MAIN ] CMD: "REGWRITE HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag SliAA REG_DWORD 1" (76 bytes)
+[09:39:15][REG  ] REGWRITE: key="HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag" name="SliAA" type=REG_DWORD
+[09:39:15][REG  ] REGWRITE: RegSetValueExA = OK
+[09:39:15][MAIN ] Client disconnected
+[09:39:15][MAIN ] Connection from 192.168.1.132:52878
+[09:39:15][MAIN ] handle_client: starting auth on socket 1596
+[09:39:15][PROTO] AUTH: success
+[09:39:15][MAIN ] Client authenticated
+[09:39:15][MAIN ] CMD: "REGWRITE HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag SliPersistAll REG_DWO"... (84 bytes)
+[09:39:15][REG  ] REGWRITE: key="HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag" name="SliPersistAll" type=REG_DWORD
+[09:39:15][REG  ] REGWRITE: RegSetValueExA = OK
+[09:39:15][MAIN ] Client disconnected
+[09:39:15][MAIN ] Connection from 192.168.1.132:52880
+[09:39:15][MAIN ] handle_client: starting auth on socket 1584
+[09:39:15][PROTO] AUTH: success
+[09:39:15][MAIN ] Client authenticated
+[09:39:15][MAIN ] CMD: "REGWRITE HKLM SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide SSTH3_SLI_A"... (104 bytes)
+[09:39:15][REG  ] REGWRITE: key="HKLM\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide" name="SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ
+[09:39:15][REG  ] REGWRITE: RegSetValueExA = OK
+[09:39:15][MAIN ] Client disconnected
+[09:39:15][MAIN ] Connection from 192.168.1.132:52882
+[09:39:15][MAIN ] handle_client: starting auth on socket 1600
+[09:39:15][PROTO] AUTH: success
+[09:39:15][MAIN ] Client authenticated
+[09:39:15][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag" (57 bytes)
+[09:39:15][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag") = OK
+[09:39:15][REG  ]   Value: "MaxBootAttempts" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "LogLevel" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "DebugPort" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "AllowPoke" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "OpenGLName" type=REG_SZ size=5
+[09:39:15][REG  ]   Value: "BootAttempts" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "BootCount" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "LastPhase" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "LastPhaseA" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "LastPhaseMs" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "PhaseCount" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "PhaseLog" type=REG_BINARY size=1024
+[09:39:15][REG  ]   Value: "LastDecline" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "GoodBoots" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "PrevPhaseLog" type=REG_BINARY size=1024
+[09:39:15][REG  ]   Value: "PrevPhaseCount" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "PrevLastPhase" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "PrevLastPhaseA" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "PrevLastPhaseMs" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "PrevBootCount" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "MonHminKhz" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "MonHmaxKhz" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "MonVminHz" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "MonVmaxHz" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "MonMaxPixclkKhz" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "MonId" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "D3D32" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "D3DBigTex" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "SliAALive" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "SliAA" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "SliAAAutoOff" type=REG_DWORD size=4
+[09:39:15][REG  ]   Value: "SliPersistAll" type=REG_DWORD size=4
+[09:39:15][PROTO] frame_send: 7898 bytes
+[09:39:15][MAIN ] Client disconnected
+[09:39:15][MAIN ] Connection from 192.168.1.132:52886
+[09:39:15][MAIN ] handle_client: starting auth on socket 1596
+[09:39:15][PROTO] AUTH: success
+[09:39:15][MAIN ] Client authenticated
+[09:39:15][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide" (67 bytes)
+[09:39:15][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide") = OK
+[09:39:15][REG  ]   Value: "Localisation" type=REG_SZ size=13
+[09:39:15][REG  ]   Value: "HTML Help" type=REG_SZ size=110
+[09:39:15][REG  ]   Value: "SSTH3_OVERLAYMODE" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "SSTH3_ALPHADITHERMODE" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GL_16BPP_ZPRECISION" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GL_32BPP_ZPRECISION" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GL_COMPRESS_LEGACY_TEXTURES" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GLIDE_LOD_BIAS" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GLIDE_SWAPPENDINGCOUNT" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GLIDE_BPP" type=REG_SZ size=3
+[09:39:15][REG  ]   Value: "FX_GLIDE_ALLOC_COLOR" type=REG_SZ size=3
+[09:39:15][REG  ]   Value: "FX_GLIDE_SWAPINTERVAL" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GL_FORCE_16BPP_TEXTURES" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GL_GUARDBAND_ENABLED" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GL_HSR" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GLIDE_2PPC" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GLIDE_TAA_TOGGLE_KEY" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "FX_GLIDE_ANALOG_SLI" type=REG_SZ size=2
+[09:39:15][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[09:39:15][PROTO] frame_send: 1816 bytes
+[09:39:15][MAIN ] Client disconnected
+[09:39:32][MAIN ] Connection from 192.168.1.132:50924
+[09:39:32][MAIN ] handle_client: starting auth on socket 1584
+[09:39:32][PROTO] AUTH: success
+[09:39:32][MAIN ] Client authenticated
+[09:39:32][MAIN ] CMD: "EXEC cmd /c start "" C:\vcr\q2aa.bat" (36 bytes)
+[09:39:32][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c start "" C:\vcr\q2aa.bat"
+[09:39:32][EXEC ] CreateProcessA OK, PID=540
+[09:39:32][EXEC ] Process 540 exited: code=0, output=0 bytes, 94ms elapsed
+[09:39:32][MAIN ] Client disconnected
+[09:39:44][MAIN ] Connection from 192.168.1.132:57650
+[09:39:44][MAIN ] handle_client: starting auth on socket 1600
+[09:39:44][PROTO] AUTH: success
+[09:39:44][MAIN ] Client authenticated
+[09:39:44][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:39:44][INPUT] WINLIST: found 4 visible windows
+[09:39:44][MAIN ] Client disconnected
+[09:39:54][MAIN ] Connection from 192.168.1.132:36792
+[09:39:54][MAIN ] handle_client: starting auth on socket 1580
+[09:39:54][PROTO] AUTH: success
+[09:39:54][MAIN ] Client authenticated
+[09:39:54][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:40:00][INPUT] WINLIST: found 4 visible windows
+[09:40:00][MAIN ] Client disconnected
+[09:40:00][MAIN ] Connection from 192.168.1.132:55600
+[09:40:00][MAIN ] handle_client: starting auth on socket 1588
+[09:40:00][PROTO] AUTH: success
+[09:40:00][MAIN ] Client authenticated
+[09:40:00][MAIN ] Client disconnected
+[09:40:10][MAIN ] Connection from 192.168.1.132:56332
+[09:40:10][MAIN ] handle_client: starting auth on socket 1580
+[09:40:10][PROTO] AUTH: success
+[09:40:10][MAIN ] Client authenticated
+[09:40:10][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:40:10][INPUT] WINLIST: found 4 visible windows
+[09:40:10][MAIN ] Client disconnected
+[09:40:20][MAIN ] Connection from 192.168.1.132:44102
+[09:40:20][MAIN ] handle_client: starting auth on socket 1584
+[09:40:20][PROTO] AUTH: success
+[09:40:20][MAIN ] Client authenticated
+[09:40:20][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:40:20][INPUT] WINLIST: found 4 visible windows
+[09:40:20][MAIN ] Client disconnected
+[09:40:30][MAIN ] Connection from 192.168.1.132:38660
+[09:40:30][MAIN ] handle_client: starting auth on socket 1604
+[09:40:30][PROTO] AUTH: success
+[09:40:30][MAIN ] Client authenticated
+[09:40:30][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:40:30][INPUT] WINLIST: found 4 visible windows
+[09:40:30][MAIN ] Client disconnected
+[09:40:40][MAIN ] Connection from 192.168.1.132:55762
+[09:40:40][MAIN ] handle_client: starting auth on socket 1596
+[09:40:40][PROTO] AUTH: success
+[09:40:40][MAIN ] Client authenticated
+[09:40:40][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:40:40][INPUT] WINLIST: found 4 visible windows
+[09:40:40][MAIN ] Client disconnected
+[09:40:48][MAIN ] Connection from 192.168.1.132:55764
+[09:40:48][MAIN ] handle_client: starting auth on socket 1580
+[09:40:48][PROTO] AUTH: success
+[09:40:48][MAIN ] Client authenticated
+[09:40:48][MAIN ] Client disconnected
+[09:40:50][MAIN ] Connection from 192.168.1.132:54444
+[09:40:50][MAIN ] handle_client: starting auth on socket 1596
+[09:40:50][PROTO] AUTH: success
+[09:40:50][MAIN ] Client authenticated
+[09:40:50][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:40:50][INPUT] WINLIST: found 4 visible windows
+[09:40:50][MAIN ] Client disconnected
+[09:41:00][MAIN ] Connection from 192.168.1.132:41030
+[09:41:00][MAIN ] handle_client: starting auth on socket 1584
+[09:41:00][PROTO] AUTH: success
+[09:41:00][MAIN ] Client authenticated
+[09:41:00][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:41:00][INPUT] WINLIST: found 4 visible windows
+[09:41:00][MAIN ] Client disconnected
+[09:41:10][MAIN ] Connection from 192.168.1.132:44210
+[09:41:10][MAIN ] handle_client: starting auth on socket 1600
+[09:41:10][PROTO] AUTH: success
+[09:41:10][MAIN ] Client authenticated
+[09:41:10][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:41:10][INPUT] WINLIST: found 4 visible windows
+[09:41:10][MAIN ] Client disconnected
+[09:41:20][MAIN ] Connection from 192.168.1.132:48524
+[09:41:20][MAIN ] handle_client: starting auth on socket 1584
+[09:41:20][PROTO] AUTH: success
+[09:41:20][MAIN ] Client authenticated
+[09:41:20][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:41:20][INPUT] WINLIST: found 4 visible windows
+[09:41:20][MAIN ] Client disconnected
+[09:41:30][MAIN ] Connection from 192.168.1.132:54316
+[09:41:30][MAIN ] handle_client: starting auth on socket 1596
+[09:41:30][PROTO] AUTH: success
+[09:41:30][MAIN ] Client authenticated
+[09:41:30][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:41:30][INPUT] WINLIST: found 4 visible windows
+[09:41:30][MAIN ] Client disconnected
+[09:41:36][MAIN ] Connection from 192.168.1.132:54320
+[09:41:36][MAIN ] handle_client: starting auth on socket 1588
+[09:41:36][PROTO] AUTH: success
+[09:41:36][MAIN ] Client authenticated
+[09:41:36][MAIN ] Client disconnected
+[09:41:40][MAIN ] Connection from 192.168.1.132:60628
+[09:41:40][MAIN ] handle_client: starting auth on socket 1596
+[09:41:40][PROTO] AUTH: success
+[09:41:40][MAIN ] Client authenticated
+[09:41:40][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:41:40][INPUT] WINLIST: found 4 visible windows
+[09:41:40][MAIN ] Client disconnected
+[09:41:47][MAIN ] Connection from 192.168.1.132:60642
+[09:41:47][MAIN ] handle_client: starting auth on socket 1600
+[09:41:47][PROTO] AUTH: success
+[09:41:47][MAIN ] Client authenticated
+[09:41:47][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag" (57 bytes)
+[09:41:47][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag") = OK
+[09:41:47][REG  ]   Value: "MaxBootAttempts" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "LogLevel" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "DebugPort" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "AllowPoke" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "OpenGLName" type=REG_SZ size=5
+[09:41:47][REG  ]   Value: "BootAttempts" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "BootCount" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "LastPhase" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "LastPhaseA" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "LastPhaseMs" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "PhaseCount" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "PhaseLog" type=REG_BINARY size=1024
+[09:41:47][REG  ]   Value: "LastDecline" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "GoodBoots" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "PrevPhaseLog" type=REG_BINARY size=1024
+[09:41:47][REG  ]   Value: "PrevPhaseCount" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "PrevLastPhase" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "PrevLastPhaseA" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "PrevLastPhaseMs" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "PrevBootCount" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "MonHminKhz" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "MonHmaxKhz" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "MonVminHz" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "MonVmaxHz" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "MonMaxPixclkKhz" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "MonId" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "D3D32" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "D3DBigTex" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "SliAALive" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "SliAA" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "SliAAAutoOff" type=REG_DWORD size=4
+[09:41:47][REG  ]   Value: "SliPersistAll" type=REG_DWORD size=4
+[09:41:47][PROTO] frame_send: 7899 bytes
+[09:41:47][MAIN ] Client disconnected
+[09:41:47][MAIN ] Connection from 192.168.1.132:60644
+[09:41:47][MAIN ] handle_client: starting auth on socket 1596
+[09:41:47][PROTO] AUTH: success
+[09:41:47][MAIN ] Client authenticated
+[09:41:47][MAIN ] CMD: "EXEC cmd /c type C:\retrogl.log" (31 bytes)
+[09:41:47][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c type C:\retrogl.log"
+[09:41:47][EXEC ] CreateProcessA OK, PID=824
+[09:41:48][EXEC ] Process 824 exited: code=0, output=4112 bytes, 812ms elapsed
+[09:41:48][PROTO] frame_send: 4113 bytes
+[09:41:48][MAIN ] Client disconnected
+[09:41:48][MAIN ] Connection from 192.168.1.132:60656
+[09:41:48][MAIN ] handle_client: starting auth on socket 1584
+[09:41:48][PROTO] AUTH: success
+[09:41:48][MAIN ] Client authenticated
+[09:41:48][MAIN ] CMD: "EXEC cmd /c find /c /v "" C:\vcr\q2aa.trace" (43 bytes)
+[09:41:48][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c find /c /v "" C:\vcr\q2aa.trace"
+[09:41:48][EXEC ] CreateProcessA OK, PID=1408
+[09:41:50][EXEC ] Process 1408 exited: code=3221225477, output=0 bytes, 2063ms elapsed
+[09:41:50][MAIN ] Client disconnected
+[09:42:24][MAIN ] Connection from 192.168.1.132:53020
+[09:42:24][MAIN ] handle_client: starting auth on socket 1588
+[09:42:24][PROTO] AUTH: success
+[09:42:24][MAIN ] Client authenticated
+[09:42:24][MAIN ] Client disconnected
+[09:42:27][MAIN ] Connection from 192.168.1.132:53026
+[09:42:27][MAIN ] handle_client: starting auth on socket 1596
+[09:42:27][MAIN ] Auth failed, closing connection
+[09:42:30][MAIN ] Connection from 192.168.1.132:40618
+[09:42:30][MAIN ] handle_client: starting auth on socket 1584
+[09:42:30][PROTO] AUTH: success
+[09:42:30][MAIN ] Client authenticated
+[09:42:30][MAIN ] CMD: "GAMEINDEX HASH" (14 bytes)
+[09:42:30][MAIN ] Client disconnected
+--- log opened (raw win32) ---
+[11:08:25][MAIN ] log: console echo on its own thread (8192-byte ring, idle priority) - a console that stops accepting output drops echo lines and cannot stall the agent
+[11:08:25][MAIN ] ==================================================
+[11:08:25][MAIN ] retro_agent v1.96.0: main() entered
+[11:08:25][MAIN ] log file: C:\RETRO_AGENT\agent.log (rotating, ~512KB x2)
+[11:08:25][MAIN ] platform: 5.1 build 2600, platformId=2 (NT)
+[11:08:25][MAIN ] META agent=1.96.0 host=NSC-C543575F526
+[11:08:25][MAIN ] META os=5.1.2600 platformId=2 (NT) csd="Service Pack 3"
+[11:08:25][MAIN ] META cpu arch=0 family=6 model=8 stepping=1 ncpu=1 type=586
+[11:08:25][MAIN ] META ram_total=255MB ram_avail=145MB
+[11:08:25][MAIN ] META gpu="vcr-kmd Voodoo 5 6000 (open driver)" id="PCI\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01"
+[11:08:25][MAIN ] startup: calling try_service_start()
+[11:08:26][MAIN ] console: QuickEdit off (input mode 0x00b7 -> 0x00b7) - a click in the agent's window cannot start a selection
+--- log opened (raw win32) ---
+[11:08:28][MAIN ] log: console echo on its own thread (8192-byte ring, idle priority) - a console that stops accepting output drops echo lines and cannot stall the agent
+[11:08:28][MAIN ] ==================================================
+[11:08:28][MAIN ] retro_agent v1.96.0: main() entered
+[11:08:28][MAIN ] log file: C:\RETRO_AGENT\agent.log (rotating, ~512KB x2)
+[11:08:28][MAIN ] platform: 5.1 build 2600, platformId=2 (NT)
+[11:08:28][MAIN ] META agent=1.96.0 host=NSC-C543575F526
+[11:08:28][MAIN ] META os=5.1.2600 platformId=2 (NT) csd="Service Pack 3"
+[11:08:28][MAIN ] META cpu arch=0 family=6 model=8 stepping=1 ncpu=1 type=586
+[11:08:28][MAIN ] META ram_total=255MB ram_avail=140MB
+[11:08:28][MAIN ] META gpu="vcr-kmd Voodoo 5 6000 (open driver)" id="PCI\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01"
+[11:08:28][MAIN ] startup: calling try_service_start()
+[11:08:28][MAIN ] console: QuickEdit off (input mode 0x00b7 -> 0x00b7) - a click in the agent's window cannot start a selection
+[11:08:43][MAIN ] startup: console mode, entering agent_run()
+[11:08:43][MAIN ] Retro Remote Agent Version 1.96.0 starting (mode=console)
+[11:08:43][MAIN ] Process priority raised to HIGH
+[11:08:43][CONSOLE] console window class=ConsoleWindowClass: minimizing it to the taskbar so it cannot cover the desktop icons or be closed by a stray click
+[11:08:43][MAIN ] startup: cache_system_info()
+[11:08:43][MAIN ] Hostname=NSC-C543575F526 IP=192.168.1.124 OS=Win5.1.2600 RAM=255MB
+[11:08:43][CONSOLE] console window minimized to the taskbar (IsIconic=1) - it no longer covers the desktop icons; click its taskbar button to see it, or set HKLM\Software\RetroAgent\ConsoleVisible=1 to keep it open
+[11:08:43][NET  ] discovery thread started
+[11:08:43][MAIN ] discovery: subnet broadcast = 192.168.1.255
+[11:08:43][MAIN ] Listening on TCP :9898+:9897, discovery on UDP :9899, client_mode=threaded
+[11:08:43][MAIN ] startup: sysfix_apply_startup()
+[11:08:43][SYSFIX] Startup auto-apply running
+[11:08:43][SYSFIX] Startup auto-apply done
+[11:08:43][MAIN ] startup: spawning clockfix thread
+[11:08:43][MAIN ] startup: spawning pcirescue thread
+[11:08:43][MAIN ] startup: spawning postskip thread
+[11:08:43][MAIN ] startup: spawning firewall thread
+[11:08:43][MAIN ] startup: spawning automap thread
+[11:08:43][MAIN ] firewall: exception for C:\RETRO_AGENT\retro_agent.exe already present - netsh not run
+[11:08:43][MAIN ] startup: spawning autoupdate thread
+[11:08:43][NET  ] mpr.dll loaded OK
+[11:08:43][MAIN ] startup: spawning retrowall thread
+[11:08:43][MAIN ] startup: spawning hwpublish thread
+[11:08:43][MAIN ] startup: spawning dosstage thread
+[11:08:43][MAIN ] startup: spawning gameindex thread
+[11:08:43][MAIN ] startup: spawning gamesync thread
+[11:08:43][GAMEINDEX] serving the last index from C:\RETRO_AGENT\gameindex.cache (hash=a010af28) until the first check
+[11:08:43][MAIN ] startup: spawning watchdog thread
+[11:08:43][MAIN ] startup: spawning ai_status thread
+[11:08:43][MAIN ] startup: spawning sharelog thread
+[11:08:43][MAIN ] startup: helper threads spawned; entering accept loop
+[11:08:44][MAIN ] Connection from 192.168.1.129:51808
+[11:08:44][MAIN ] handle_client: starting auth on socket 1772
+[11:08:44][PROTO] AUTH: success
+[11:08:44][MAIN ] Client authenticated
+[11:08:44][MAIN ] CMD: "LOG_WAIT 0 100" (14 bytes) - further long-polls on this connection not logged
+[11:08:44][MAIN ] CMD: "PROXY_GET" (9 bytes)
+[11:08:44][MAIN ] Client disconnected
+[11:08:44][MAIN ] Connection from 192.168.1.129:51824
+[11:08:44][MAIN ] handle_client: starting auth on socket 1760
+[11:08:44][PROTO] AUTH: success
+[11:08:44][MAIN ] Client authenticated
+[11:08:44][MAIN ] Connection from 192.168.1.129:51832
+[11:08:44][MAIN ] handle_client: starting auth on socket 1748
+[11:08:44][PROTO] AUTH: success
+[11:08:44][MAIN ] Client authenticated
+[11:08:44][MAIN ] CMD: "LOG_APPEND 
+[daemon connected from 192.168.1.132]
+" (50 bytes)
+[11:08:44][MAIN ] CMD: "PROMPT_WAIT 30000" (17 bytes) - further long-polls on this connection not logged
+[11:08:44][MAIN ] Connection from 192.168.1.129:51848
+[11:08:44][MAIN ] handle_client: starting auth on socket 1724
+[11:08:44][PROTO] AUTH: success
+[11:08:44][MAIN ] Client authenticated
+[11:08:44][MAIN ] CMD: "PING" (4 bytes)
+[11:08:44][MAIN ] Client disconnected
+[11:08:46][MAIN ] AI: engine disabled by default (AIEngine reg flag 0)
+[11:08:53][MAIN ] Connection from 192.168.1.129:36232
+[11:08:53][MAIN ] handle_client: starting auth on socket 1712
+[11:08:53][PROTO] AUTH: success
+[11:08:53][MAIN ] Client authenticated
+[11:08:53][MAIN ] CMD: "SYSINFO" (7 bytes)
+[11:08:54][MAIN ] sharelog: mirroring to \\192.168.1.122\files\Utility\Retro Automation\agent logs\NSC-C543575F526-agent.log (copied again only when the log changes)
+[11:08:58][UPDATE] Checking chat update: \\192.168.1.122\files\Utility\Retro Automation\retro_chat.exe
+[11:08:58][UPDATE] Chat: current (60928 bytes), no update
+[11:08:58][UPDATE] Checking for update: \\192.168.1.122\files\Utility\Retro Automation\retro_agent.exe
+[11:08:58][UPDATE] Binary is current (version 1.96.0), no update needed
+[11:08:58][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag" (57 bytes)
+[11:08:58][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag") = OK
+[11:08:58][REG  ]   Value: "MaxBootAttempts" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "LogLevel" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "DebugPort" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "AllowPoke" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "OpenGLName" type=REG_SZ size=5
+[11:08:58][REG  ]   Value: "BootAttempts" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "BootCount" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "LastPhase" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "LastPhaseA" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "LastPhaseMs" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "PhaseCount" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "PhaseLog" type=REG_BINARY size=1024
+[11:08:58][REG  ]   Value: "LastDecline" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "GoodBoots" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "PrevPhaseLog" type=REG_BINARY size=1024
+[11:08:58][REG  ]   Value: "PrevPhaseCount" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "PrevLastPhase" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "PrevLastPhaseA" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "PrevLastPhaseMs" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "PrevBootCount" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "MonHminKhz" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "MonHmaxKhz" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "MonVminHz" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "MonVmaxHz" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "MonMaxPixclkKhz" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "MonId" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "D3D32" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "D3DBigTex" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "SliAALive" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "SliAA" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "SliAAAutoOff" type=REG_DWORD size=4
+[11:08:58][REG  ]   Value: "SliPersistAll" type=REG_DWORD size=4
+[11:08:58][PROTO] frame_send: 7899 bytes
+[11:08:58][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide" (67 bytes)
+[11:08:58][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Services\3dfxvs\Device0\glide") = OK
+[11:08:58][REG  ]   Value: "Localisation" type=REG_SZ size=13
+[11:08:58][REG  ]   Value: "HTML Help" type=REG_SZ size=110
+[11:08:58][REG  ]   Value: "SSTH3_OVERLAYMODE" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "SSTH3_ALPHADITHERMODE" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GL_16BPP_ZPRECISION" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GL_32BPP_ZPRECISION" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GL_COMPRESS_LEGACY_TEXTURES" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GLIDE_LOD_BIAS" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GLIDE_SWAPPENDINGCOUNT" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GLIDE_BPP" type=REG_SZ size=3
+[11:08:58][REG  ]   Value: "FX_GLIDE_ALLOC_COLOR" type=REG_SZ size=3
+[11:08:58][REG  ]   Value: "FX_GLIDE_SWAPINTERVAL" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GL_FORCE_16BPP_TEXTURES" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GL_GUARDBAND_ENABLED" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GL_HSR" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GLIDE_2PPC" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GLIDE_TAA_TOGGLE_KEY" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "FX_GLIDE_ANALOG_SLI" type=REG_SZ size=2
+[11:08:58][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[11:08:58][PROTO] frame_send: 1816 bytes
+[11:08:58][MAIN ] CMD: "DOWNLOAD C:\vcr\q2aa.trace" (26 bytes)
+[11:08:59][FILE ] DOWNLOAD: CreateFileA("C:\vcr\q2aa.trace") = OK
+[11:08:59][FILE ] DOWNLOAD: GetFileSize = 6966883 bytes
+[11:09:00][PROTO] frame_send: 6966884 bytes
+[11:09:00][MAIN ] Connection from 192.168.1.129:34650
+[11:09:00][MAIN ] handle_client: starting auth on socket 1704
+[11:09:00][MAIN ] Auth failed, closing connection
+[11:09:00][MAIN ] Connection from 192.168.1.129:34662
+[11:09:00][MAIN ] handle_client: starting auth on socket 1692
+[11:09:00][PROTO] AUTH: success
+[11:09:00][MAIN ] Client authenticated
+[11:09:00][MAIN ] CMD: "HWPROFILE" (9 bytes)
+[11:09:00][HWPROFILE] hash=dec95d42ad08a34d cpu="AuthenticAMD" 2004MHz(registry) x1 ram=255MB gpu=121A:0009 "vcr-kmd Voodoo 5 6000 (open driver)" vram=64MB level=fixed os=winxp caps=3
+[11:09:00][PROTO] frame_send: 1917 bytes
+[11:09:00][MAIN ] Client disconnected
+[11:09:03][MAIN ] CMD: "DOWNLOAD C:\retrogl.log" (23 bytes)
+[11:09:03][FILE ] DOWNLOAD: CreateFileA("C:\retrogl.log") = OK
+[11:09:03][FILE ] DOWNLOAD: GetFileSize = 4112 bytes
+[11:09:03][PROTO] frame_send: 4113 bytes
+[11:09:03][MAIN ] Client disconnected
+[11:09:03][MONPOWER] ok: already never - nothing written (old api)
+[11:09:03][GAMESYNC] auto-arrange already on - left alone (posting the shell toggle here would turn it OFF)
+[11:09:03][GAMESYNC] auto-arrange already persisted (Software\Microsoft\Windows\Shell\Bags\1\Desktop\FFlags 0x225)
+[11:09:03][MAIN ] Connection from 192.168.1.129:34672
+[11:09:03][MAIN ] retrowall: desktop already the fleet's - theme, screensaver and wallpaper left as they were
+[11:09:03][MAIN ] handle_client: starting auth on socket 1708
+[11:09:03][PROTO] AUTH: success
+[11:09:03][MAIN ] Client authenticated
+[11:09:03][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Services\vcrmp\Diag" (57 bytes)
+[11:09:03][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Services\vcrmp\Diag") = OK
+[11:09:03][REG  ]   Value: "MaxBootAttempts" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "LogLevel" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "DebugPort" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "AllowPoke" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "OpenGLName" type=REG_SZ size=5
+[11:09:03][REG  ]   Value: "BootAttempts" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "BootCount" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "LastPhase" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "LastPhaseA" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "LastPhaseMs" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "PhaseCount" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "PhaseLog" type=REG_BINARY size=1024
+[11:09:03][REG  ]   Value: "LastDecline" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "GoodBoots" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "PrevPhaseLog" type=REG_BINARY size=1024
+[11:09:03][REG  ]   Value: "PrevPhaseCount" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "PrevLastPhase" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "PrevLastPhaseA" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "PrevLastPhaseMs" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "PrevBootCount" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "MonHminKhz" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "MonHmaxKhz" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "MonVminHz" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "MonVmaxHz" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "MonMaxPixclkKhz" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "MonId" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "D3D32" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "D3DBigTex" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "SliAALive" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "SliAA" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "SliAAAutoOff" type=REG_DWORD size=4
+[11:09:03][REG  ]   Value: "SliPersistAll" type=REG_DWORD size=4
+[11:09:03][PROTO] frame_send: 7899 bytes
+[11:09:03][MAIN ] Client disconnected
+[11:09:13][MAIN ] Connection from 192.168.1.129:54762
+[11:09:13][MAIN ] handle_client: starting auth on socket 1668
+[11:09:13][PROTO] AUTH: success
+[11:09:13][MAIN ] Client authenticated
+[11:09:13][MAIN ] Client disconnected
+[11:09:24][GAMESYNC] image flag: imaged=2026-09-02T20:13:19Z  image=XPSP3-FLEET  agent=294400  
+[11:09:24][GAMESYNC] activation not restored: no saved activation for machine NSC-C543575F526-B0779D81 - it needs a one-time activation through the wizard first
+[11:09:24][VIDEO] CM_Get_DevNode_Status loaded from cfgmgr32.dll
+[11:09:24][GAMESYNC] driver update pass: 0 installed, 0 device(s) looked at; store \\192.168.1.122\files\Files\OS\XPSP3-FLEET\$OEM$\$1\D
+[11:09:24][GAMESYNC] already provisioned (C:\RETRO_AGENT\gamesync.done present) - idle
+[11:09:29][MAIN ] Connection from 192.168.1.129:55904
+[11:09:29][MAIN ] handle_client: starting auth on socket 1700
+[11:09:29][MAIN ] Auth failed, closing connection
+[11:09:44][MAIN ] CMD: "PING" (4 bytes)
+[11:09:59][MAIN ] Connection from 192.168.1.129:52098
+[11:09:59][MAIN ] handle_client: starting auth on socket 1580
+[11:09:59][MAIN ] Auth failed, closing connection
+[11:10:01][MAIN ] Connection from 192.168.1.129:34532
+[11:10:01][MAIN ] handle_client: starting auth on socket 1708
+[11:10:01][PROTO] AUTH: success
+[11:10:01][MAIN ] Client authenticated
+[11:10:01][MAIN ] Client disconnected
+[11:10:13][HWPROFILE] hash=dec95d42ad08a34d cpu="AuthenticAMD" 2004MHz(registry) x1 ram=255MB gpu=121A:0009 "vcr-kmd Voodoo 5 6000 (open driver)" vram=64MB level=fixed os=winxp caps=3
+[11:10:13][HWPUBLISH] published to \\192.168.1.122\files\Utility\Retro Automation\fleet-inventory\NSC-C543575F526.json
+[11:10:29][MAIN ] Connection from 192.168.1.129:50938
+[11:10:29][MAIN ] handle_client: starting auth on socket 1548
+[11:10:29][MAIN ] Auth failed, closing connection
+[11:10:32][MAIN ] Connection from 192.168.1.129:51306
+[11:10:32][MAIN ] handle_client: starting auth on socket 1540
+[11:10:32][PROTO] AUTH: success
+[11:10:32][MAIN ] Client authenticated
+[11:10:32][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\glide3x.dll" (44 bytes)
+[11:10:32][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\glide3x.dll") = OK
+[11:10:32][FILE ] DOWNLOAD: GetFileSize = 1025320 bytes
+[11:10:32][PROTO] frame_send: 1025321 bytes
+[11:10:32][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\glide3x.dll" (40 bytes)
+[11:10:32][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\glide3x.dll") = OK
+[11:10:32][FILE ] DOWNLOAD: GetFileSize = 1025320 bytes
+[11:10:32][PROTO] frame_send: 1025321 bytes
+[11:10:32][MAIN ] Client disconnected
+[11:10:43][MAIN ] log: batched writes on (flush when full or every 15s) - startup window is past
+[11:10:49][MAIN ] Connection from 192.168.1.129:35518
+[11:10:49][MAIN ] handle_client: starting auth on socket 1540
+[11:10:49][PROTO] AUTH: success
+[11:10:49][MAIN ] Client authenticated
+[11:10:49][MAIN ] Client disconnected
+[11:10:59][MAIN ] Connection from 192.168.1.129:33032
+[11:10:59][MAIN ] handle_client: starting auth on socket 1560
+[11:10:59][MAIN ] Auth failed, closing connection
+[11:11:14][MAIN ] CMD: "PING" (4 bytes)
+[11:11:29][MAIN ] Connection from 192.168.1.129:48550
+[11:11:29][MAIN ] handle_client: starting auth on socket 1556
+[11:11:29][MAIN ] Auth failed, closing connection
+[11:11:37][MAIN ] Connection from 192.168.1.129:43462
+[11:11:37][MAIN ] handle_client: starting auth on socket 1540
+[11:11:37][PROTO] AUTH: success
+[11:11:37][MAIN ] Client authenticated
+[11:11:37][MAIN ] Client disconnected

@@ -69,7 +69,7 @@ BASE_DIAG = {
     "MonVmaxHz": "0", "MonVminHz": "0", "NapalmVpcExtra": "0", "OpenGLDriverVersion": "1",
     "OpenGLVersion": "2", "PciLowThresh": "10", "Reset3D": "0", "Sli": "1",
     "Sli6kClock": "1", "SliAA": "0", "SliAAFeederLead": "0", "SliAAFifoGate": "0",
-    "SliAAReadback": "0", "SliAAVendorRecipe": "0", "SliPersistAll": "0",
+    "SliAAReadback": "0", "SliPersistAll": "0",
     "TexPortFlush": "1", "TwoXAboveKhz": "0",
 }
 # the integration's new switches: every one OFF unless set
@@ -83,6 +83,12 @@ KILL_DIAG = {"CoreClock": "1"}
 # auto-disarm's live marker and the boot it names (include/vcr_aaguard.h).
 # Absent = 0 = "the last boot did not end with AA live".
 STATE_DIAG = {"SliAALive": "0", "PrevBootCount": "0"}
+# DEFAULTS MOVED ON PURPOSE (each with its evidence): SliAAVendorRecipe was 0
+# in the base. 2026-09-30 on .124: the dos_mode.c arm's cfgAALfbCtrl base of 0
+# duplicated every AA LFB write into Glide's command FIFO (random hard freezes,
+# 3 of 3 AA game sessions); the vendor arm ran 2x/4x clean. vcrmp_multi.c
+# sli_recipe(), tests/native/test_vcr_kmd_sli.c.
+MOVED_DIAG = {"SliAAVendorRecipe": "1"}
 
 
 def test_every_diag_default_is_the_bases_and_the_new_switches_are_off():
@@ -91,7 +97,7 @@ def test_every_diag_default_is_the_bases_and_the_new_switches_are_off():
         for name, dflt in re.findall(r'VcrDiagGet\(L"(\w+)",\s*([^)]+)\)', f.read_text()):
             assert got.setdefault(name, dflt.strip()) == dflt.strip(), \
                 f"Diag\\{name} read with two defaults"
-    want = dict(BASE_DIAG, **NEW_DIAG, **KILL_DIAG, **STATE_DIAG)
+    want = dict(BASE_DIAG, **NEW_DIAG, **KILL_DIAG, **STATE_DIAG, **MOVED_DIAG)
     assert got == want, {k: (got.get(k), want.get(k)) for k in set(got) | set(want)
                          if got.get(k) != want.get(k)}
 

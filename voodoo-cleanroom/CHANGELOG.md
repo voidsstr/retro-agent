@@ -12,6 +12,31 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.79 — QUIT-TRACE: disk-flushed ICD steps, interleaved with Glide's trace (2026-09-30)
+
+**Problem (Quake II at 2x AA on `.124`, the V5 6000):** the box froze hard at
+quit, and `C:\retrogl.log` could not say where - `rgl_log` fcloses each line,
+which reaches only the OS cache, and a hard-frozen PC never writes that back.
+Glide's own trace (`FX_GLIDE_TRACE`) is disk-flushed but sees only Glide.
+
+**Change (diagnostic only; off by default):** `RETROGL_SYNCTRACE=1` makes the
+ICD write disk-flushed lines (`FlushFileBuffers`, `fxrlog.h rgl_sync`) for the
+rare events - global/per-texture palette downloads, colour clears, texture
+deletes, gamma ramps, context delete/destroy/close, ICD context calls - plus a
+line every 300 swaps; after a colour clear or a palette download once 300
+swaps have passed ("armed") it logs every swap, Flush and Finish too. `=2`
+logs every swap from the start. The lines go into `FX_GLIDE_TRACE_FILE`
+when that is set, so ONE file holds Glide's and the ICD's steps in the order
+they ran. Off: one test per event. Source: fork `fb41979` (fxrlog.h, fxwgl.c,
+fxdd.c, fxddtex.c, fxapi.c, fxicd.c).
+
+**What it found:** Quake II's quit is last frame -> ~47 ms -> ~230 texture
+deletes -> DrvReleaseContext/DrvDeleteContext -> fxMesaDestroyContext
+(identity gamma, grSstWinClose); a colour clear + palette download happen at
+every demo/map transition, not at quit. With it the 2x AA freeze was pinned
+on the kernel's AA recipe (vcr-kmd: `cfgAALfbCtrl` base 0 overwrote Glide's
+command FIFO) - `vcr-kmd/evidence/glidelab/aa_vendor_0930/`.
+
 ## 0.1.78 — `wglGetProcAddress` never hands out a synthesized stub (2026-09-28)
 
 **Problem (Deathmatch Classic on `.124`, the V5 6000):** WON Half-Life's

@@ -24,9 +24,10 @@
  * the AA kill switch, read per request); SliPersistAll = 1 makes every SLI
  * step a flushed phase (supervised runs; slow). AllowPoke = 1 (vcrmp.c) is the
  * only way a PCI_OP may write the SLI/AA config registers.
- * SliAAVendorRecipe = 1 runs an AA request with the vendor-style recipe
- * (vcr_sli_set_ex, VCR_SLI_F_VENDOR_AA; absent/0 = the dos_mode.c-derived
- * sequence), read per request - for supervised A/B runs only.
+ * SliAAVendorRecipe: absent/1 runs an AA request with the vendor-style recipe
+ * (vcr_sli_set_ex, VCR_SLI_F_VENDOR_AA) - THE DEFAULT since 2026-09-30; 0 runs
+ * the dos_mode.c-derived sequence, kept only as the control arm of an A/B.
+ * Read per request.
  * SliAAReadback = 1: after an AA enable, every chip's SLI/AA config space is
  * read back by config cycles into SliAAState (REG_BINARY, flushed;
  * vcr_sli_aa_readback; tools/vcrphases.py decodes it). Absent/0 = no
@@ -269,13 +270,26 @@ ULONG VcrSliAAAllowed(void)
     return sli_aa_allowed() ? 1 : 0;
 }
 
-/* Diag\SliAAVendorRecipe (DWORD, absent = 0): the vendor-style AA recipe for
- * THIS request (vcr_sli.h vcr_sli_set_ex). Read per request, like SliAA, so a
- * supervised run A/Bs the two recipes one clean boot each without a rebuild.
- * It changes nothing but AA requests, and those are refused unless SliAA = 1. */
+/* Diag\SliAAVendorRecipe (DWORD, ABSENT = 1 since 2026-09-30): the vendor-style
+ * AA recipe for THIS request (vcr_sli.h vcr_sli_set_ex); 0 = the dos_mode.c
+ * control arm. Read per request, like SliAA, so a supervised run can still A/B
+ * the two recipes one clean boot each without a rebuild. It changes nothing but
+ * AA requests, and those are refused unless SliAA = 1.
+ *
+ * WHY THE DEFAULT MOVED (.124, 2026-09-30, Quake II through our ICD at 2x/4x):
+ * for every 1-sample-per-chip tuple Glide sends a secondary base of 0, and the
+ * dos_mode.c arm writes it: cfgAALfbCtrl read back 0x4c000000 on all four chips.
+ * Every AA LFB write was then duplicated into video memory from offset 0, where
+ * Glide keeps its command FIFO (fifoStart 0x18000, 0xff000 long) - a random
+ * hard freeze whenever an LFB write landed on pending FIFO commands (the 3dfx
+ * splash, Quake II's console at quit; 3 of 3 AA game sessions), the monitor
+ * losing sync, the LAN taken down by the hung NIC. The vendor arm points the
+ * base at tileMark (0xdf8f6000 read back at 2x): 3 launches at 2x and 2 at 4x,
+ * splash, console, quit, all clean, the picture confirmed at the box.
+ * tests/native/test_vcr_kmd_sli.c pins both readbacks. */
 static vcr_u32 sli_recipe(void)
 {
-    return VcrDiagGet(L"SliAAVendorRecipe", 0) ? VCR_SLI_F_VENDOR_AA : 0;
+    return VcrDiagGet(L"SliAAVendorRecipe", 1) ? VCR_SLI_F_VENDOR_AA : 0;
 }
 
 /* Diag\SliAAFifoGate (DWORD) and Diag\SliAAFeederLead (DWORD, bit 0 = chip

@@ -218,10 +218,14 @@ def test_the_escape_hands_glide_a_failure_for_every_refusal():
 # expected cfg 3/7/1 tables for both recipes, the read-back by config cycles
 # only, the CLI gate). These pin where the kernel and the tool use them.
 
-def test_the_vendor_recipe_is_off_by_default_and_read_per_request():
+def test_the_vendor_recipe_is_the_default_and_read_per_request():
+    # 2026-09-30: the default moved to the vendor recipe - the dos_mode.c arm's
+    # cfgAALfbCtrl base of 0 overwrote Glide's command FIFO (native test
+    # the_aa_lfb_base_that_overwrote_glides_fifo_and_its_fix_match_silicon)
     src = (KMD / "miniport" / "vcrmp_multi.c").read_text()
     recipe = func_body(src, "static vcr_u32 sli_recipe(")
-    assert 'VcrDiagGet(L"SliAAVendorRecipe", 0)' in recipe      # absent = 0 = dos_mode.c
+    assert 'VcrDiagGet(L"SliAAVendorRecipe", 1)' in recipe      # absent = 1 = vendor
+    assert 'VcrDiagGet(L"SliAAVendorRecipe", 0)' not in recipe  # the old default
     assert "VCR_SLI_F_VENDOR_AA : 0" in recipe
     req = func_body(src, "VP_STATUS VcrSliRequest(")
     # read per request, for an AA request only, BEFORE the policy (whose
