@@ -174,21 +174,44 @@ async def reset_vm():
     raise SystemExit('the VM did not come back after a reset')
 
 
-async def ensure_winkey(c):
-    """WINKEY9X.EXE (scripts/fleet/win9x/winkey9x.c) posts WM_CLOSE to a DOS box - the
-    agent's own UIKEY types into whatever has focus, which a LAUNCHed DOS box rarely has."""
-    have = json.loads(await cmd(c, 'DIRLIST C:\\RETRO_AGENT'))
-    if any(e['name'].upper() == 'WINKEY9X.EXE' for e in have):
-        return
-    exe = os.path.join(os.path.expanduser('~/.retro-fleet/w98vm'), 'WINKEY9X.EXE')
-    subprocess.run(['i686-w64-mingw32-gcc', '-O1', '-march=i586', '-mwindows', '-nostdlib', '-fno-builtin',
-                    '-e', '_start@0', '-o', exe, os.path.join(REPO, 'scripts/fleet/win9x/winkey9x.c'),
-                    '-lkernel32', '-luser32', '-s'], check=True)
-    data = open(exe, 'rb').read()
-    await c.send_command('UPLOAD C:\\RETRO_AGENT\\WINKEY9X.EXE', binary_payload=data)
-    back = await cmd(c, 'DOWNLOAD C:\\RETRO_AGENT\\WINKEY9X.EXE', binary=True)
-    if back != data:
-        raise SystemExit('WINKEY9X.EXE did not upload intact')
+HELPERS = {   # name on the box -> source under scripts/fleet/win9x (CRT-free mingw builds)
+    'WINKEY9X.EXE': ('winkey9x.c', ['-lkernel32', '-luser32']),
+    'GLRESET9.EXE': ('glreset9x.c', ['-lkernel32']),
+}
+
+
+async def ensure_helpers(c):
+    """WINKEY9X posts WM_CLOSE to a DOS box (UIKEY types into whatever has the
+    focus, which a LAUNCHed DOS box rarely has). GLRESET9 hands the screen back
+    from a Voodoo 2 a KILLED Glide game left switched in: without it the first
+    Glide title's last frame stayed on screen and every later capture showed it
+    (2026-09-30)."""
+    have = {e['name'].upper() for e in json.loads(await cmd(c, 'DIRLIST C:\\RETRO_AGENT'))}
+    for name, (src, libs) in HELPERS.items():
+        if name in have:
+            continue
+        exe = os.path.join(os.path.expanduser('~/.retro-fleet/w98vm'), name)
+        subprocess.run(['i686-w64-mingw32-gcc', '-O1', '-march=i586', '-mwindows', '-nostdlib', '-fno-builtin',
+                        '-e', '_start@0', '-o', exe, os.path.join(REPO, 'scripts/fleet/win9x', src)] + libs + ['-s'],
+                       check=True)
+        data = open(exe, 'rb').read()
+        await c.send_command('UPLOAD C:\\RETRO_AGENT\\' + name, binary_payload=data)
+        if await cmd(c, 'DOWNLOAD C:\\RETRO_AGENT\\' + name, binary=True) != data:
+            raise SystemExit(name + ' did not upload intact')
+
+
+async def glreset(c):
+    """Run GLRESET9 and wait for its verdict - its log is truncated when it starts."""
+    await cmd(c, 'LAUNCH C:\\RETRO_AGENT\\GLRESET9.EXE')
+    for _ in range(20):
+        await asyncio.sleep(1.5)
+        try:
+            txt = (await cmd(c, 'DOWNLOAD C:\\RETRO_AGENT\\GLRESET.TXT', binary=True)).decode('latin-1')
+        except Exception:
+            continue
+        if txt.startswith(('OK', 'FAIL')):
+            return txt.strip()
+    return 'no verdict in 30 s'
 
 
 def pif_target(b):
@@ -250,7 +273,7 @@ async def main():
     results = json.load(open(res_path)) if os.path.exists(res_path) else {}
 
     c = await connect()
-    await ensure_winkey(c)
+    await ensure_helpers(c)
     await agent_pids(c)
     if not AGENT_PIDS:
         raise SystemExit('could not find the agent process - refusing to close windows blind')
@@ -265,6 +288,7 @@ async def main():
             left = await close_all(c)
             if left:
                 r['notes'].append('left over before launch: %s' % left)
+            await glreset(c)
             base = emulated(shot(os.path.join(a.out, '_base.png')))
             before = await procs(c)
             await cmd(c, 'LAUNCH C:\\WINDOWS\\COMMAND\\START.EXE "%s\\%s"' % (DESK, name))
@@ -289,6 +313,9 @@ async def main():
                 except Exception as e:
                     r['notes'].append('PROCKILL %s: %s' % (p, e))
             await asyncio.sleep(4)
+            g = await glreset(c)              # a killed Glide game leaves its last frame on screen
+            if not g.startswith('OK'):
+                r['notes'].append('GLRESET: ' + g)
             left = await close_all(c)
             if left:
                 r['notes'].append('could not close: %s' % left)
