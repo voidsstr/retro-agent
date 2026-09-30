@@ -66,3 +66,8 @@ def test_inject_refuses_a_running_vm_and_the_setup_floppy_stops_at_stage_two():
     a = _r("setup-autoexec.bat")
     assert "IF EXIST C:\\WINDOWS\\WIN.COM GOTO STAGE2" in a and "A:\\FDISK.EXE /MBR" in a
     assert "SETUP.EXE C:\\WIN98\\MSBATCH.INF" in a
+
+
+def test_inject_sets_autoscan_2_so_a_reset_never_waits_at_scandisk():
+    s = _r("inject-agent.sh")
+    assert "AutoScan=2" in s and "mattrib -i \"$I\" +r +s +h ::/MSDOS.SYS" in s

@@ -25,4 +25,20 @@ assert b2 != b or b'run=C:\\RETRO_AGENT\\FIRSTRUN.BAT' in b, 'no run= line in [w
 open(p, 'wb').write(b2)
 PY
 mcopy -o -i "$I" "$W/win.ini" ::/WINDOWS/WIN.INI
+# AutoScan=2: after an unclean shutdown (a hung title the sweep has to reset)
+# ScanDisk fixes without asking - AutoScan=1, the default, stops for a key.
+# Same length, so MSDOS.SYS keeps its required padding; its SHR attributes go
+# back on.
+mtype -i "$I" ::/MSDOS.SYS > "$W/msdos.sys"
+python3 - "$W/msdos.sys" <<'PY'
+import sys
+p = sys.argv[1]; b = open(p, 'rb').read()
+if b'AutoScan=2\r\n' not in b:
+    assert b.count(b'AutoScan=1\r\n') == 1, 'MSDOS.SYS has no AutoScan=1 line'
+    b = b.replace(b'AutoScan=1\r\n', b'AutoScan=2\r\n')
+open(p, 'wb').write(b)
+PY
+mattrib -i "$I" -r -s -h ::/MSDOS.SYS
+mcopy -o -i "$I" "$W/msdos.sys" ::/MSDOS.SYS
+mattrib -i "$I" +r +s +h ::/MSDOS.SYS
 echo "agent $V injected; start the VM and log on once (blank password) - later boots log on by themselves"

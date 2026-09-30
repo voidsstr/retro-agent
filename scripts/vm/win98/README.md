@@ -10,7 +10,9 @@ A220 I5 D1 H5**, NE2000 PCI on SLiRP. The retro agent runs inside
 |---|---|
 | `build-w98vm.sh [VMDIR] [ISO]` | the whole host-side build: disk, `\WIN98`, `MSBATCH.INF` (key from the vault), floppy-chaining MBR, setup floppy, 86Box config |
 | `run-98.sh` | start it (`systemd-run --user --unit=w98box -p CPUQuota=200% -p MemoryMax=2G run-98.sh`); own Xvfb `:22` |
-| `inject-agent.sh [VMDIR]` | put the agent into a STOPPED VM's disk + `WIN.INI run=FIRSTRUN.BAT` |
+| `inject-agent.sh [VMDIR]` | put the agent into a STOPPED VM's disk + `WIN.INI run=FIRSTRUN.BAT`; `MSDOS.SYS AutoScan=2` so a hard reset never stops at ScanDisk |
+| `sweep.py [--only ...]` | launch every game shortcut, photograph 86Box's own display at 12/30/50 s, close it (VM reset if the agent stops answering); contact sheets in `~/.retro-fleet/w98vm/sweep/` |
+| `vmshot.py`, `vmkey.py` | capture the emulated screen / type into it (XTEST on Xvfb `:22`; `Alt_L+a`-style combos) |
 | `flopmbr.S` | VM-only MBR that boots the floppy; stage 1's `FDISK /MBR` replaces it |
 | `msbatch.inf.in`, `setup-*.sys/.bat`, `agent/` | the answer file (placeholder key), floppy startup, first-logon setup |
 
