@@ -91,6 +91,25 @@ read out of the game's own files in the staged library:
   one packet per server). It does not check the CD key. Each listed server is
   then asked the browser's own 5-byte query on game port + 1; the reply's net
   version (128 UT2004, 121 UT2003) keeps the two games' servers apart.
+  **Verified in the engine (.145, 2026-09-30):** with UT2003's browser open,
+  the console's `get XInterface.Browser_ServerListPageFavorites Favorites`
+  printed the three servers this service wrote. (Do NOT try the UT2004
+  equivalent, `get XInterface.ExtendedConsole Favorites` - it kills UT2004
+  outright; the game itself runs fine with the written list.) The favourites
+  TABS cannot be opened by the agent: UE2's menus take the mouse through
+  DirectInput (absolute `UICLICK` is ignored, windowed too) and Tab/arrows do
+  not reach the tab strip.
+- **Open follow-up - the in-game INTERNET list** (separate from favourites):
+  UT2003's browser says "Connection Failed - Retrying" because it asks Epic's
+  dead master. UT2003 has no `MasterServerList`; `IpDrv.MasterServerLink`
+  reads `MasterServerAddress[0..4]` / `MasterServerPort[0..4]` (globalconfig,
+  in UT2003.ini) and saves `ut2003master1/2.epicgames.com` there on exit when
+  they are empty. Pointing `[0]` and `[1]` at `utmaster.openspy.net` / 28902
+  is the likely fix - **unverified**: the fleet powered off mid-test. UT2004's
+  staged `MasterServerList` names 333networks, gonespy and errorist but not
+  OpenSpy, which is where ~600 of the live servers are (333networks lists 3).
+  Prove each on a box (the status line should stop saying Connection Failed),
+  then stage it in the library ini.
 - **GoldSrc.** The staged CS 1.6 tree's own `revSrvBrowser.dll` contains the
   `printf` template it writes into `config\ServerBrowser.vdf`, keys and tabs
   included.
