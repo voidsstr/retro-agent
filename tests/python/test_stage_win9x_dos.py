@@ -166,7 +166,19 @@ _share = pytest.mark.skipif(not os.path.isdir(LIB),
 WIN9X_DOS_LAUNCHERS = (
     ("Quake1", "Play Quake - DOS.bat", "QUAKE.EXE"),
     ("Descent1", "Play Descent - DOS.bat", "DESCENTR.EXE"),
+    ("ShadowWarrior", "Play Shadow Warrior - DOS.bat", "SW.EXE -NOCD"),
 )
+
+
+@_share
+def test_shadow_warrior_s_dos_launcher_skips_cd_audio():
+    """Win98 build VM, 2026-09-30: SW.EXE starts CD audio before its logo and,
+    with a DATA disc in the drive (one track), CDAudio_Play jumps back to its
+    own start asking for track 2 - forever, on a black screen. -nocd is checked
+    before anything else in its CD setup; with it the game reached its menu."""
+    bat = open(os.path.join(LIB, "ShadowWarrior", "Play Shadow Warrior - DOS.bat"), "rb").read().decode("latin-1")
+    cmds = [l for l in bat.split("\r\n") if l and not l.lower().startswith("rem")]
+    assert "SW.EXE -nocd" in cmds and "SW.EXE" not in cmds
 
 
 @_share

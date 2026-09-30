@@ -54,12 +54,18 @@ def ems_config(cfg):
     return (txt[:m.start(1)] + 'EMS' + txt[m.end(1):]).encode('latin-1')
 
 
+LOGO = os.path.join(HERE, 'shutdown-logo.png')      # 80x60 grey thumbnail of the real screen
+
+
 def is_shutdown_screen(img):
-    """Win98's "Windows is shutting down" logo: a light-blue full screen (the
-    DOS boot menu, a game and the desktop are all far darker on average)."""
-    from PIL import ImageStat
-    r, g, b = ImageStat.Stat(sweep.emulated(img)).mean
-    return b > 150 and r > 120 and b > r
+    """Win98's "Windows is shutting down" logo, matched against a thumbnail of
+    the real one (taken in this VM). A colour rule was not enough: Falcon 3.0's
+    sky-blue title screen passed for it and the trial power-cycled a running
+    game. Measured: the logo scores 0-1, game and DOS screens 46-180."""
+    from PIL import Image, ImageChops, ImageStat
+    ref = Image.open(LOGO).convert('L')
+    cur = sweep.emulated(img).convert('L').resize(ref.size, Image.BILINEAR)
+    return ImageStat.Stat(ImageChops.difference(cur, ref)).mean[0] < 12
 
 
 async def shutdown_or_reset(out, limit=60):

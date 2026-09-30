@@ -1231,6 +1231,35 @@ Setup still stops at three prefilled pages. Two traps: 86Box's **S3 Trio64
 goes black under Win98's S3 driver** (hence the Cirrus), and Win98's Shut Down
 dialog **preselects Stand by**. Tests: `tests/python/test_w98vm_build.py`.
 
+#### Testing Win9x DOS titles in that VM, and the real-DOS route (2026-09-30)
+
+- **`sweep.py`** launches every desktop shortcut and photographs 86Box's own
+  display (12/30/50 s). Its "renders" verdict means only "not the desktop": the
+  first full sweep called a CD-check prompt, a fatal XMS dialog and four
+  windowed text menus "renders". **Read the frames** before believing it.
+- **`trial.py`** runs one launcher variant with NO trailing CLS, so a failure
+  stays on screen. `dostrial.py` runs a command in **real DOS** through the
+  rundos hook, or a real-DOS title's own shortcut end to end (`--pif`), and
+  power-cycles an 86Box REBOOT that sticks at "Windows is shutting down" (it
+  does, intermittently). `vmclose.py` closes what a trial left open.
+- **Every Win9x DOS shortcut opened WINDOWED until agent 1.96.1**: the shell
+  writes the .pif from `_DEFAULT.PIF`, and a launcher that starts in text mode
+  sat in a small window. GAMESYNC now sets the PIF's full-screen bit
+  (`agent/shared/piffull.h`).
+- **Some DOS titles cannot run in a Win98 DOS box at all**: Falcon 3.0 (APPS.INF
+  raises "Program Requires MS-DOS Mode" - never answer Yes, it rewrites the
+  shortcut), EF2000 and Retribution (their extenders page-fault near 2 GB under
+  Win98's DPMI), Tornado (conventional memory). `stage_win9x_dos.py` real_dos
+  titles copy themselves to `C:\GAMES\<dir>`, arm a one-shot `rundos v2` line in
+  AUTOEXEC.BAT and restart with FORCE; the game runs before Windows loads. EMS
+  titles pick the boot menu's EMS entry for that one boot (`MENUDEF9.EXE`).
+  NOT an MS-DOS mode PIF: the agent's console (a DOS VM) blocks that shutdown.
+- **The Win9x DOS titles' spec is `scripts/dosgames/specs/win9x-dos.json`** - it
+  was lost once with a session scratchpad and rebuilt from the library
+  (`spec_from_library.py`). Fix a title there and run
+  `stage_win9x_dos.py --spec ... --update --only <lib>`; `--update --dry-run`
+  says whether the library matches the spec.
+
 **`vmagent.py`'s own note is the general rule, not a VM detail:** *"A bare TCP
 connect to the forwarded port proves nothing about the guest — QEMU binds
 127.0.0.1:19898 at startup whether or not anything listens inside — so
