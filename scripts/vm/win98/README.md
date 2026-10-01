@@ -67,3 +67,23 @@ reports `glide: true`; `profile_hash` is unchanged (accelerators are not in it).
 - The install ISO is `\DiskImages\Windows 98 SE\` on the NAS. The disc in `.110`
   has one unreadable sector (247853, in `TOOLS\RESKIT\SYSFILES\MSVBVM50.DLL`),
   so no exact image of it exists; see `scripts/fleet/cdimage/`.
+
+## Checking IPXSETUP's Win98 registry template (`ipx-template-check.py`)
+
+IPXSETUP (agent 1.97.0) installs IPX/SPX on Windows 98 SE by writing the
+template in `agent/shared/ipxplan.h`, and writes **nothing** until
+`HKLM\Software\RetroAgent\IpxSetup9xTemplateOk`=1. Set that only after this
+check passes against a golden install made with the Network applet in this VM:
+
+    python3 scripts/vm/win98/ipx-template-check.py ~/retro-vm/86box/vm98/w98.img
+
+It reads `SYSTEM.DAT` straight out of the raw image (opened read-only, nothing
+mounted), finds the applet's install (`Enum\Network\NWLINK\<I>` -> `NetTrans\<K>`
+and the adapter bound to it), renders the template with those indices and
+reports every value MISSING / DIFFERS / EXTRA. 2026-10-01: 0 differences against
+the applet install at 802.2 (after six applet-only values were added).
+
+- The queued `WSCInstallProvider` + RunOnce `FirstBootCall` part is consumed at
+  the next boot. To check it, copy the image right after the applet's OK and
+  BEFORE that boot, and check the copy.
+- Read a copy or a shut-down VM: a running 86Box may not have flushed SYSTEM.DAT.
