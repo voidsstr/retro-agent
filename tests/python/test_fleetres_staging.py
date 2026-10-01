@@ -321,6 +321,10 @@ def test_every_variable_a_recipe_uses_has_a_fallback():
         for pb in spec.get('post', []):
             for s in pb['lines']:
                 used.update(re.findall(r'%(FR_[A-Z0-9_]+)%', s))
+        # whole files the generator owns (2026-10-01: Descent's Rebirth LAN
+        # pair and DOSBox lane) are a third place
+        for text in spec.get('files', {}).values():
+            used.update(re.findall(r'%(FR_[A-Z0-9_]+)%', text))
     used.update(re.findall(r'%(FR_[A-Z0-9_]+)%', sf.NEW_GLQUAKE))
     used.update(re.findall(r'%(FR_[A-Z0-9_]+)%', sf.NEW_Q2))
     used.update(re.findall(r'%(FR_[A-Z0-9_]+)%', sf.NEW_IDTECH3))
@@ -334,8 +338,11 @@ def test_no_generated_filename_contains_parentheses():
     """A .bat whose name contains ( or ) cannot be launched through the agent —
     and works fine from a desktop double-click, so it survives review."""
     for title, spec in sf.TITLES.items():
-        for name in list(spec.get('launchers', {})) + list(spec.get('new', {})):
+        for name in (list(spec.get('launchers', {})) + list(spec.get('new', {}))
+                     + list(spec.get('files', {})) + list(spec.get('copies', {}))):
             assert '(' not in name and ')' not in name, '%s/%s' % (title, name)
+        for row in spec.get('launch_merge', {}).get('rows', []):
+            assert '(' not in row[0] and ')' not in row[0], '%s: %r' % (title, row)
 
 
 def test_launch_txt_rows_carry_an_explicit_icon():
