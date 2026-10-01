@@ -15,7 +15,20 @@ runs below are clean-boot #60, 4-chip SLI (cfg 5, no AA). Fill is
 | 182.954 | 1218.2 | x1.0968 (= the clock ratio) | 110.6, 111.2 |
 
 - **Fill scales exactly with the clock** at both steps, and both overclocks
-  completed every run. Visual check by the user: pending.
+  completed every run.
+
+| 1024x768x32, cfg 5 | stock 166.8 MHz | 183 MHz |
+|---|---|---|
+| Quake II, `quake2:allours` (our ICD + our h5 Glide) | 174.6 | **177.2** (+1.5%; CPU-bound at this rate) |
+| Counter-Strike 1.6 (`cs16_bench.dem`) | 31.1, 59.7 | 54.0 |
+
+- **User at the box: Counter-Strike and Quake II at 183 MHz "clean, no
+  artifacts"**, both exited cleanly.
+- **Counter-Strike's timedemo cannot resolve a 10% clock step**: the same
+  1045 frames took 33.6 s and 17.5 s in two consecutive stock runs. Its number
+  needs several runs and a median before it says anything about the clock.
+- Clock restored to stock at 19:03 (all chips read 166.806 MHz after the next
+  SLI enable); a reboot does the same, since nothing is persisted.
 - **The first Quake III run after a boot read 123.2 fps; the next stock run
   read 104.2.** Compare overclocks against the steady state (104.2): 175 MHz
   +3.8%, 183 MHz +6.4%. A boot-fresh effect of ~18% is its own question.

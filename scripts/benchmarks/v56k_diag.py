@@ -530,6 +530,9 @@ BLOCKING_MODALS = (
     "found new hardware",  # the wizard that froze a Quake III run
     "drwtsn32", "dr. watson",
     "has encountered a problem",
+    # another session's `EXEC eventquery.vbs` without cscript put this up over
+    # a timed Quake III run and it read 12% low (2026-10-01)
+    "windows script host",
 )
 
 

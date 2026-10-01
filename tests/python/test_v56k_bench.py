@@ -660,7 +660,7 @@ def test_blocking_modal_titles_are_recognised():
     cost a stalled cell on .124 before the runner learned to fail fast."""
     d = _diag()
     for t in ("Critical Error", "CD check", "Found New Hardware Wizard",
-              "Please insert the game CD"):
+              "Please insert the game CD", "Windows Script Host"):
         assert any(k in t.lower() for k in d.BLOCKING_MODALS), t
     for t in ("Unreal Tournament (Starting)", "Quake III Arena", "Program Manager"):
         assert not any(k in t.lower() for k in d.BLOCKING_MODALS), t
@@ -1133,3 +1133,34 @@ def test_provenance_hashes_our_kernel_driver_pair_too(bench):
     assert bench.VERSION_FILES["vcr_miniport"].lower().endswith(r"drivers\vcrmp.sys")
     src = Path(bench.__file__).read_text()
     assert '"vcr-kmd" in str((versions.get("display_class")' in src
+
+
+def test_run_files_have_windows_safe_names(bench):
+    """A title id carries its variant after a colon; ':' in a committed file
+    name breaks every Windows checkout of the repo (2026-10-01: 12 evidence
+    logs named quake3:allours_* / quake2:allours_*)."""
+    stem = bench.run_stem("quake3:allours", "1024x768", 32, 5)
+    assert stem == "quake3-allours_1024x768_32_cfg5"
+    assert not any(c in stem for c in '<>:"|?*')
+    import inspect
+    src = inspect.getsource(bench)
+    assert "{title.tid}_{res}_{depth}_cfg{cfg}" not in src     # every run file goes through run_stem
+
+
+def test_ut99_waits_out_the_demo_instead_of_reading_its_locked_log(bench):
+    """UE1 holds its -log file open exclusively until it exits (DOWNLOAD:
+    'Cannot open file: error 32'), so a live poll for the summary never sees
+    it; the wait is sized from the demo's measured cost instead - 2937 frames
+    took 68 s at 4x AA and 117 s at 8x AA, and a fixed 105 s cut the 8x demo
+    short twice (2026-09-30). F10 was ignored twice after a demo; the console's
+    exit worked."""
+    import inspect
+    t = bench.UT99Bench("glide")
+    assert t.demo_wait_s(1024, 768, 5) == 105
+    assert t.demo_wait_s(1024, 768, 7) >= 68 * 1.5
+    assert t.demo_wait_s(1024, 768, 8) >= 117 * 1.5
+    assert t.demo_wait_s(1600, 1200, 5) > t.demo_wait_s(1024, 768, 5)
+    assert t.demo_wait_s(1600, 1200, 8) <= 600
+    src = inspect.getsource(bench.UT99Bench.start)
+    assert "download" not in src
+    assert "TEXT:exit" in src and "process_alive" in src

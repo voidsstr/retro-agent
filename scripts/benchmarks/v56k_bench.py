@@ -1227,32 +1227,46 @@ class UT99Bench(Unreal1):
         await box.upload(self.bat, self.launch_bat(env))
         await box.exec_(f'cmd /c del /f /q "{self.log}"')
         await box.exec_(rf'cmd /c del /f /q "{self.root}\System\Running.ini"')
+        try:
+            cfg = int(str(env.get("SSTH3_SLI_AA_CONFIGURATION", "0")) or 0)
+        except ValueError:
+            cfg = 0
+        self.wait_s = self.demo_wait_s(w, h, cfg)
 
-    # the longest a demo may take before F10 is sent anyway (8x AA on the V5
-    # 6000 runs it at ~20 fps: well over the 105 s the 4x run needs)
-    demo_max_s = 600
+    # UE1 holds its -log file open EXCLUSIVELY while it runs (DOWNLOAD answers
+    # "Cannot open file: error 32", measured 2026-09-30), so the demo's end
+    # cannot be read live - the summary only lands when the game exits. F10 is
+    # therefore sent after a wait sized from the demo's measured cost: 2937
+    # frames took 68 s at 4x AA and 117 s at 8x AA, 1024x768x16, on the V5
+    # 6000 (a fixed 105 s cut the 8x demo short twice). Generous on purpose: a
+    # cut demo loses the row, a long wait only costs time.
+    WAIT_BASE_S = 105
+    WAIT_AA = {6: 1.6, 7: 1.6, 8: 2.6}
+
+    def demo_wait_s(self, w, h, cfg):
+        px = max(1.0, (w * h) / (1024 * 768))
+        return int(min(600, self.WAIT_BASE_S * px * self.WAIT_AA.get(cfg, 1.0)))
 
     async def start(self, box):
         # The whole timedemo is driven here; the runner's log poll then finds
-        # the flushed bench.log. ~20 s to the menu, then F9, then F10 once the
-        # demo's OWN summary is in the log. (Until 2026-09-30 F10 went after a
-        # fixed 105 s - fine at 4x AA, but at 8x the demo was still running,
-        # so only the toggle's 3-frame blip was logged and the row was lost.)
+        # the bench.log UE1 flushes as it exits. ~20 s to the menu, F9, the
+        # sized wait, F10. F10 (the Exit bind) was ignored twice after a demo
+        # had ended (2026-09-30) while the console's `exit` worked at once, so a
+        # game still running after F10 is quit through the console.
         await box.text(f"LAUNCH {self.bat}")
         await asyncio.sleep(24)
         await box.text("UIKEY F9")
-        deadline = time.time() + self.demo_max_s
-        await asyncio.sleep(60)
-        while time.time() < deadline:
-            try:
-                raw = (await box.download(self.log)).decode("latin-1", "replace")
-            except Exception:
-                raw = ""
-            if self.parse(raw):
-                break
-            await asyncio.sleep(15)
+        await asyncio.sleep(getattr(self, "wait_s", self.WAIT_BASE_S))
         await box.text("UIKEY F10")
         await asyncio.sleep(8)
+        import v56k_diag
+        if await v56k_diag.process_alive(box, self.proc):
+            await box.text("UIKEY TILDE")
+            await asyncio.sleep(1.5)
+            await box.text("UIKEY TEXT:exit")
+            await asyncio.sleep(0.5)
+            await box.text("UIKEY RETURN")
+            await asyncio.sleep(8)
 
     def parse(self, raw):
         # UE1 prints a summary every time timedemo is toggled, so the log holds a
@@ -1910,6 +1924,14 @@ class RTCWAllOurs(_AllOursLog, RTCWCleanroom):
         await RTCW.prepare(self, box, w, h, depth, env)
 
 
+def run_stem(tid, res, depth, cfg):
+    """The per-run file name: `<title>_<res>_<depth>_cfg<cfg>`. A title id carries
+    its variant after a colon (`quake3:allours`), and ':' is not a legal Windows
+    filename character - committed as is, it breaks every Windows checkout of
+    the repo (tests/python/test_repo_paths_windows_safe.py)."""
+    return f"{tid}_{res}_{depth}_cfg{cfg}".replace(":", "-")
+
+
 TITLES = {
     "cs16": lambda api=None: CS16(),
     "quake3": lambda api=None: {"retrogl": Quake3Cleanroom, "allours": Quake3AllOurs}.get(api, Quake3)(),
@@ -2172,9 +2194,9 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
         # failure fetches is THIS cell's - not an earlier title's.
         try:
             import v56k_diag
-            pre = await v56k_diag.watson_fetch(box, args.outdir / "diag", f"pre-{title.tid}_{res}_{depth}_cfg{cfg}")
+            pre = await v56k_diag.watson_fetch(box, args.outdir / "diag", f"pre-{run_stem(title.tid, res, depth, cfg)}")
             if pre:
-                log(f"    (an earlier crash record was on the box - kept as pre-{title.tid}_{res}_{depth}_cfg{cfg})")
+                log(f"    (an earlier crash record was on the box - kept as pre-{run_stem(title.tid, res, depth, cfg)})")
             await v56k_diag.watson_clear(box)
         except Exception:
             pass
@@ -2265,7 +2287,7 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
                 syms["retrogl"] = CLEANROOM_ICD
             st = await v56k_diag.hang_stacks(
                 box, title.proc, args.outdir / "diag",
-                f"{title.tid}_{res}_{depth}_cfg{cfg}", syms)
+                run_stem(title.tid, res, depth, cfg), syms)
             log("       hang stacks captured" if st else "       (no hang stacks: process gone or ntsd silent)")
         except Exception as e:
             log(f"       (hang stack capture failed: {type(e).__name__}: {e})")
@@ -2278,13 +2300,13 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
     await asyncio.sleep(3)
 
     if raw:
-        (args.outdir / f"{title.tid}_{res}_{depth}_cfg{cfg}.log").write_text(raw)
+        (args.outdir / f"{run_stem(title.tid, res, depth, cfg)}.log").write_text(raw)
     if not parsed and raw:
         # the per-cell log above is overwritten by the next attempt at the same
         # cell, so a failure's log would be lost exactly when it matters
         faildir = args.outdir / "diag"
         faildir.mkdir(parents=True, exist_ok=True)
-        (faildir / f"{title.tid}_{res}_{depth}_cfg{cfg}-FAILED-{time.strftime('%H%M%S')}.log").write_text(raw)
+        (faildir / f"{run_stem(title.tid, res, depth, cfg)}-FAILED-{time.strftime('%H%M%S')}.log").write_text(raw)
     if not parsed:
         row["status"] = "no-fps-line(see raw log)"
         if modal:
@@ -2331,13 +2353,13 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
                 ml = await box.download(ALLOURS_MAPLOG)
                 if ml:
                     (args.outdir / "diag").mkdir(parents=True, exist_ok=True)
-                    (args.outdir / "diag" / f"{title.tid}_{res}_{depth}_cfg{cfg}-maplog.tail").write_bytes(ml[-16384:])
+                    (args.outdir / "diag" / f"{run_stem(title.tid, res, depth, cfg)}-maplog.tail").write_bytes(ml[-16384:])
             except Exception:
                 pass
         try:
             import v56k_diag
             rep = await v56k_diag.capture(
-                box, args.outdir / "diag", f"{title.tid}_{res}_{depth}_cfg{cfg}")
+                box, args.outdir / "diag", run_stem(title.tid, res, depth, cfg))
             w = (rep.get("watson") or {}).get("records") or []
             if w:
                 row["notes"] = ((row.get("notes", "") + "; ") if row.get("notes") else "") + \
