@@ -854,7 +854,9 @@ def check_title(lib, title):
                          body, re.I):
             fail("fleetres-glide",
                  "%r mentions .nglide but never moves glide2x.dll aside" % b)
-        if not re.search(r'move\s+/y\s+"[^"]*\.nglide"\s+"[^"]*glide2x\.dll"',
+        # the way back may MOVE or COPY: since 2026-10-01 the library ships the
+        # wrapper as .nglide and the generated launchers copy it in
+        if not re.search(r'(?:move|copy)\s+/y\s+"[^"]*\.nglide"\s+"[^"]*glide2x\.dll"',
                          body, re.I):
             fail("fleetres-glide",
                  "%r moves the nGlide wrapper aside but never restores it — a "

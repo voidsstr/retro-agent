@@ -492,7 +492,10 @@ def test_carmageddon2_moves_the_whole_nglide_set_aside():
     text = "\n".join(l for pb in sf.TITLES["Carmageddon2"]["post"] for l in pb["lines"])
     for dll in ("glide2x.dll", "glide3x.dll", "glide.dll"):
         assert 'move /y "%%~dp0%s" "%%~dp0%s.nglide"' % (dll, dll) in text, dll
-        assert 'move /y "%%~dp0%s.nglide" "%%~dp0%s"' % (dll, dll) in text, dll
+        # the way back COPIES: the library ships the wrapper as .nglide since
+        # 2026-10-01, and a move would take the library's file away
+        assert 'copy /y "%%~dp0%s.nglide" "%%~dp0%s"' % (dll, dll) in text, dll
+        assert 'move /y "%%~dp0%s.nglide"' % dll not in text, dll
     # one block, both directions, the aside-moves before the else
     assert text.count('if "%FR_GLIDE%"=="1" (') == 1
     assert text.index('glide3x.dll.nglide" >nul') < text.index(") else (")
@@ -601,7 +604,7 @@ _GLIDE_OK = (
     '"%~dp0glide2x.dll.nglide" >nul\r\n'
     ') else (\r\n'
     '  if not exist "%~dp0glide2x.dll" if exist "%~dp0glide2x.dll.nglide" '
-    'move /y "%~dp0glide2x.dll.nglide" "%~dp0glide2x.dll" >nul\r\n'
+    'copy /y "%~dp0glide2x.dll.nglide" "%~dp0glide2x.dll" >nul\r\n'
     ')\r\n')
 
 
@@ -651,6 +654,16 @@ def test_validator_accepts_the_two_way_nglide_rename(tmp_path):
     _glide_title(tmp_path, 'G2', _GLIDE_OK)
     probs = vl.check_title(str(tmp_path), 'G2')
     assert not [p for p in probs if p.severity == 'fail'], \
+        [p.detail for p in probs]
+
+
+def test_validator_accepts_a_restore_by_move_too(tmp_path):
+    """The generated launchers COPY the wrapper back (2026-10-01); a launcher
+    that still MOVES it back is two-way as well and must not be failed."""
+    _glide_title(tmp_path, 'G3', _GLIDE_OK.replace(
+        'copy /y "%~dp0glide2x.dll.nglide"', 'move /y "%~dp0glide2x.dll.nglide"'))
+    probs = vl.check_title(str(tmp_path), 'G3')
+    assert not [p for p in probs if p.check == 'fleetres-glide'], \
         [p.detail for p in probs]
 # 8. "Already staged" must mean the CALL, not the mention
 #

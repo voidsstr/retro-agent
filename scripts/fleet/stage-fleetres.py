@@ -491,9 +491,14 @@ def setline_cfg(conf, entries):
 # software rasterizer at 100% CPU because the wrapper's grSstOpen failed (2,3).
 #
 # The wrapper is NOT deleted - it is the only Glide path the other six boxes
-# have. It is moved aside per box, at launch, and moved back when the box has
+# have. It is moved aside per box, at launch, and put back when the box has
 # no 3dfx card. Both directions matter: a tree that only ever renames one way
 # would strand the wrapper aside after the card came out.
+#
+# Since 2026-10-01 the LIBRARY ships the wrapper as <dll>.nglide (see "GAME-
+# LOCAL WRAPPERS SHIP UNDER INERT NAMES"), so the way back is a COPY: the
+# library's .nglide stays where GAMESYNC put it and is never recopied. A move
+# would take it away at every first launch and cost a recopy at the next sync.
 # --------------------------------------------------------------------------
 def glide_swap(*rels):
     """rels = the game-local wrapper files, relative to the title root.
@@ -510,9 +515,55 @@ def glide_swap(*rels):
            'if "%FR_GLIDE%"=="1" (']
     out += ['  if exist "%s" move /y "%s" "%s.nglide" >nul' % (w, w, w) for w in ws]
     out.append(') else (')
-    out += ['  if not exist "%s" if exist "%s.nglide" move /y "%s.nglide" "%s" >nul'
+    out += ['  if not exist "%s" if exist "%s.nglide" copy /y "%s.nglide" "%s" >nul'
             % (w, w, w, w) for w in ws]
     out.append(')')
+    return out
+
+
+# --------------------------------------------------------------------------
+# GAME-LOCAL WRAPPERS SHIP UNDER INERT NAMES (2026-10-01).
+#
+# A game-local DLL beats system32 at load time, so a wrapper staged under its
+# real name is live on EVERY box: nGlide's glide2x.dll shadows a real Voodoo's
+# Glide, and on Windows 9x it cannot even load (it imports d3d9.dll);
+# IPXWrapper's wsock32.dll/mswsock.dll/dpwsockx.dll stubs need an ipxwrapper.dll
+# that imports kernel32!GetSystemWindowsDirectoryA, which Win98 SE does not
+# export - the stub abort()s the game on its first IPX-routed Winsock call.
+#
+# So the library ships them INERT - glide2x.dll.nglide, wsock32.dll.ipxw - and
+# each box's launcher puts in place only what THAT box needs: glide_swap()
+# COPIES nGlide in on an NT box with no 3dfx silicon, ipxwrapper_live() COPIES
+# the IPXWrapper set in on NT - a copy leaves the library's file where it is,
+# so GAMESYNC has nothing to put back - and a Windows 9x Voodoo launcher needs
+# no file moved at all: the real system Glide and Winsock load. No launcher
+# ever renames or rewrites a library-shipped file. (glide_swap's aside-move
+# on a Glide box moves the LIVE copy over the .nglide - the same bytes.)
+#
+# A box that synced before this keeps the live names (GAMESYNC never deletes):
+# on NT that is exactly today's behaviour; the Win9x launchers delete a stray
+# live copy, which is no longer a library file.
+# --------------------------------------------------------------------------
+NGLIDE_MD5 = {"glide2x.dll": "e4867e049c2ece234254c15f441ffc48",   # nGlide 2.61, both titles
+              "glide3x.dll": "8b6ba2452e0e317a501899893af8c641",
+              "glide.dll": "f0ee372484154311b2fdec416929fbe9"}
+IPXW_MD5 = {"wsock32.dll": "9117d96ebb719ad9caeee39600ae0c8d",     # IPXWrapper 0.4.0
+            "mswsock.dll": "ae26134757fc9f85de9e942bf684e21b",
+            "dpwsockx.dll": "01870e3d0fe19dc3cb78e94efadf9939",
+            "ipxwrapper.dll": "70a9eb6c2bc15a85b9303d34e39c78b9"}
+IPXW_SET = ("wsock32.dll", "mswsock.dll", "dpwsockx.dll", "ipxwrapper.dll")
+
+
+def ipxwrapper_live(files=IPXW_SET):
+    """NT: put IPXWrapper in place from its inert library names, by COPY."""
+    out = ["rem ---- per-box NETWORK - see stage-fleetres.py ipxwrapper_live --------",
+           "rem IPXWrapper - IPX over UDP for LAN play - ships under inert .ipxw names:",
+           "rem on Windows 9x its ipxwrapper.dll cannot load and the stubs would abort",
+           "rem the game. On NT it is put in place here - copied, so the library's own",
+           "rem files stay where they are and GAMESYNC has nothing to put back."]
+    for f in files:
+        out.append('if not exist "%%~dp0%s" if exist "%%~dp0%s.ipxw" copy /y '
+                   '"%%~dp0%s.ipxw" "%%~dp0%s" >nul' % (f, f, f, f))
     return out
 
 
@@ -1855,6 +1906,9 @@ TITLES = {
                 ')',
             ] + ue1_glide_viewport("System\\Unreal.ini"),
         }],
+        # nGlide ships inert - see "GAME-LOCAL WRAPPERS SHIP UNDER INERT NAMES"
+        "renames": {"System/glide2x.dll": ("System/glide2x.dll.nglide",
+                                           NGLIDE_MD5["glide2x.dll"])},
     },
     "Carmageddon2": {
         # Carries the IDENTICAL 1,310,720-byte nGlide wrapper as UnrealGold and
@@ -1870,7 +1924,20 @@ TITLES = {
             "before": 'start "" CARMA2_HW.EXE',
             # all three nGlide DLLs (glide_swap's docstring)
             "lines": glide_swap("glide2x.dll", "glide3x.dll", "glide.dll"),
+        }, {
+            # anchored on the cd, not the start line the FR_GLIDE block above
+            # uses: a refresh of that block replaces everything from its first
+            # line to ITS anchor
+            "file": "Play Carmageddon 2.bat",
+            "marker": "ipxwrapper_live",
+            "before": 'cd /d "%~dp0"',
+            "lines": ipxwrapper_live(),
         }],
+        # Both wrapper sets ship inert - see "GAME-LOCAL WRAPPERS SHIP UNDER
+        # INERT NAMES". glide_swap() already restores nGlide from .nglide.
+        "renames": dict(
+            [(n, (n + ".nglide", NGLIDE_MD5[n])) for n in NGLIDE_MD5]
+            + [(n, (n + ".ipxw", IPXW_MD5[n])) for n in IPXW_SET]),
     },
     "Halo": {
         # ADDED AFTER THE VALIDATOR CAUGHT IT. This title arrived with the
@@ -3018,6 +3085,44 @@ class Runner:
             self.writer.write_bytes(path, data)
         self.note("%s/%s [%s]" % (title, rel, libsource.describe(src)))
 
+    def rename_file(self, tdir, title, old, new, md5):
+        """Ship a library file under a new name: `new` holds the pinned bytes,
+        `old` is gone. GAMESYNC never deletes, so a box that synced before
+        keeps its copy under the old name - the launchers handle both."""
+        op = libsource.find_ci_path(tdir, old)
+        np = self._ci(tdir, new)
+        try:
+            with open(np, "rb") as fh:
+                have = fh.read()
+        except FileNotFoundError:
+            have = None
+        good = have is not None and libsource.md5(have) == md5
+        if good and op is None:
+            self.skipped += 1
+            return
+        if self.check:
+            self.fail("%s/%s: still shipped under that name (should be %s)"
+                      % (title, old, new))
+            return
+        if not good:
+            if op is None:
+                self.fail("%s: neither %s nor the pinned %s is in the library"
+                          % (title, old, new))
+                return
+            with open(op, "rb") as fh:
+                data = fh.read()
+            if libsource.md5(data) != md5:
+                self.fail("%s/%s is not the pinned file (md5 %s) - refusing to "
+                          "rename it" % (title, old, libsource.md5(data)))
+                return
+            if not self.dry:
+                self.writer.write_bytes(np, data)
+            self.note("%s/%s [from %s]" % (title, new, old))
+        if op is not None:
+            if not self.dry:
+                self.writer.remove(op)
+            self.note("%s/%s [removed - shipped as %s]" % (title, old, new))
+
     def merge_requires(self, tdir, title, req):
         """requires.json rules for the launchers this recipe owns - merged
         (scripts/fleet/libmeta.py): every other rule and the notes are kept."""
@@ -3122,6 +3227,10 @@ class Runner:
                 self.cfg_transform(tdir, title, rel, fleetkey_autoexec, "fleetkey")
             for rel in spec.get("remove", []):
                 self.remove_stale(tdir, title, rel)
+            # AFTER the launcher blocks: a launcher that puts a wrapper in place
+            # from its inert name must be on the share before the live name goes
+            for old, (new, md5) in sorted(spec.get("renames", {}).items()):
+                self.rename_file(tdir, title, old, new, md5)
             if "requires" in spec:
                 self.merge_requires(tdir, title, spec["requires"])
             # launch.txt LAST: no box can sync a row that names a launcher
