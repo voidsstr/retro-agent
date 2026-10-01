@@ -828,6 +828,151 @@ def call_cap(w, h):
 
 
 # --------------------------------------------------------------------------
+# id-engine autoexec.cfg: comment semicolons, unbindall, and fleetkey.cfg.
+#
+# A SEMICOLON IN A // COMMENT RUNS THE REST OF THE LINE. Quake 1/2/3, SiN,
+# SoF, SoF2, Jedi Academy and GoldSrc split a config line into commands at
+# every ';' that is outside double quotes BEFORE the tokenizer ever sees the
+# '//', so everything after the ';' is a new command. MEASURED on .243's
+# Quake II console at every start: `Can't "cmd", not connected` (from
+# "invuse is its action key") and `Unknown command "nobody"` (from "nobody
+# wants 1997 walk speed"). Harmless prose today; a real command the day a
+# comment happens to start with one. The fix keeps the comment and turns its
+# semicolons into commas; scripts/validate-staged-library.py FAILS any
+# id-engine .cfg that carries one again.
+#
+# fleetkey.cfg is the per-box control layout the retro agent writes into each
+# id-engine game directory (the QBINDS design, research R4 A.1): the library
+# never ships it, so GAMESYNC never fights it, and the staged autoexec.cfg
+# execs it - right before fleetres.cfg, so the panel's mode still lands last.
+# The inline WASD block stays as the fallback for a box whose agent does not
+# write the file yet; only its `unbindall` goes. That unbindall ran AFTER
+# config.cfg and rebound about two dozen keys, so weapon keys 1-0, [ and ],
+# ENTER, the arrows and F1-F4 were unbound on every launch (R4 E8).
+# --------------------------------------------------------------------------
+FLEETKEY_EXEC = "exec fleetkey.cfg"
+FLEETKEY_BLOCK = [
+    "// ---- per-box key binds -----------------------------------------",
+    "// fleetkey.cfg carries the fleet's control layout - WASD and mouse",
+    "// look - and the retro agent writes it on each box. It is not",
+    "// shipped in the library, so GAMESYNC never fights it. Until a box's",
+    "// agent writes it the engine prints a harmless 'couldn't exec' and",
+    "// keeps the binds it already has. NO SEMICOLONS IN COMMENTS: the",
+    "// engine splits commands on them even after a double slash.",
+    FLEETKEY_EXEC,
+]
+UNBINDALL_NOTE = [
+    "// No unbindall here. This file runs AFTER config.cfg, so an unbindall",
+    "// threw away every key the player had saved, and the binds below set",
+    "// only about two dozen - weapon keys 1 to 0, [ and ], ENTER, the arrows",
+    "// and F1 to F4 were left unbound at every launch.",
+]
+# Quake II DOES have a freelook cvar (it is in quake2.exe, and config.cfg
+# saves `set freelook`), so the comment that said otherwise is replaced.
+FREELOOK_FIX = (
+    ["// Quake II has no `freelook` cvar - +mlook IS the mechanism, and putting it in",
+     "// autoexec is what makes it permanent rather than a key you have to hold."],
+    ["// +mlook turns mouse look on - putting it here makes it permanent",
+     "// rather than a key you have to hold. Quake II also has a freelook",
+     "// cvar, the Options menu's free look, which config.cfg saves."],
+)
+# A comment whose semicolons are CODE for a human to copy: rewritten to say
+# the same thing without one, rather than turned into commas that break it.
+SIN_AWK = (
+    "//     awk '{n=gsub(/\\x22/,x); if (n%2) print NR, $0}' autoexec.cfg",
+    "//     awk '{n=gsub(/\\x22/,x)} n%2 {print NR, $0}' autoexec.cfg",
+)
+COMMENT_LINE_FIXES = dict([SIN_AWK])
+
+
+def split_comment(line):
+    """(code, comment) at the first '//' outside double quotes."""
+    q = 0
+    for i, c in enumerate(line):
+        if c == '"':
+            q += 1
+        elif c == "/" and line[i:i + 2] == "//" and q % 2 == 0:
+            return line[:i], line[i:]
+    return line, ""
+
+
+def comment_semicolons(line):
+    """True when a ';' outside quotes sits after a '//' outside quotes - the
+    engine runs what follows it. Quote parity counts from the line start,
+    exactly as Cbuf_Execute counts it."""
+    code, comment = split_comment(line)
+    q = code.count('"')
+    for c in comment:
+        if c == '"':
+            q += 1
+        elif c == ";" and q % 2 == 0:
+            return True
+    return False
+
+
+def fix_comment_semis(text):
+    """Every comment semicolon the engine would split on, made harmless."""
+    out = []
+    for line in text.replace("\r\n", "\n").split("\n"):
+        if line in COMMENT_LINE_FIXES:
+            line = COMMENT_LINE_FIXES[line]
+        if comment_semicolons(line):
+            code, comment = split_comment(line)
+            q = code.count('"')
+            fixed = []
+            for c in comment:
+                if c == '"':
+                    q += 1
+                elif c == ";" and q % 2 == 0:
+                    c = ","
+                fixed.append(c)
+            line = code + "".join(fixed)
+        out.append(line)
+    return "\n".join(out)
+
+
+def _live(line):
+    return split_comment(line)[0].strip()
+
+
+def fleetkey_autoexec(text):
+    """The autoexec.cfg transform for the id-engine titles that bind keys:
+    no live unbindall, no comment semicolons, the freelook comment true, and
+    `exec fleetkey.cfg` as the live line right before `exec fleetres.cfg` -
+    or as the last live line where there is no fleetres.cfg (Quake 1).
+    Idempotent: applied to its own output it changes nothing."""
+    lines = fix_comment_semis(text).split("\n")
+    trailing = lines and lines[-1] == ""
+    if trailing:
+        lines.pop()
+    out = []
+    for line in lines:
+        if _live(line).lower() == "unbindall":
+            out += UNBINDALL_NOTE
+            continue
+        out.append(line)
+    old, new = FREELOOK_FIX
+    for i in range(len(out) - len(old) + 1):
+        if out[i:i + len(old)] == old:
+            out[i:i + len(old)] = new
+            break
+    if not any(_live(l).lower() == FLEETKEY_EXEC for l in out):
+        res = [i for i, l in enumerate(out) if _live(l).lower() == "exec fleetres.cfg"]
+        if res:
+            at = res[0]
+            # above the comment block that explains fleetres.cfg, so the two
+            # blocks stay whole: walk up over contiguous comment lines
+            while at > 0 and out[at - 1].strip().startswith("//"):
+                at -= 1
+            out[at:at] = FLEETKEY_BLOCK + [""]
+        else:
+            while out and not out[-1].strip():
+                out.pop()
+            out += [""] + FLEETKEY_BLOCK
+    return "\n".join(out) + "\n"
+
+
+# --------------------------------------------------------------------------
 # Per-title recipes.
 #
 #   before : a line that must exist in the .bat; the block is inserted above it
@@ -1013,6 +1158,9 @@ TITLES = {
             "Play Quake III Arena - retail 1.32c.bat": q3("baseq3", "quake3.exe"),
         },
         "cfg_strip": ["baseq3/autoexec.cfg", "missionpack/autoexec.cfg"],
+        # retail quake3.exe 1.32c splits on a comment semicolon (ioquake3
+        # learned to skip comments; the retail launcher in this tree did not)
+        "cfg_semis": ["baseq3/autoexec.cfg", "missionpack/autoexec.cfg"],
     },
     "ShadowWarrior": {
         # Build engine under DOSBox, same shape as RedneckRampage. The base
@@ -1164,6 +1312,7 @@ TITLES = {
             ],
         },
         "cfg_strip": ["base/autoexec.cfg"],
+        "cfg_semis": ["base/autoexec.cfg", "base/mp/autoexec.cfg"],
     },
     "JediAcademy": {
         # NO "new" ENTRY, DELIBERATELY. Both of this title's launchers are
@@ -1181,6 +1330,7 @@ TITLES = {
              "Jedi Academy - Multiplayer", "jamp.exe"),
         ],
         "cfg_strip": ["base/autoexec.cfg"],
+        "cfg_semis": ["base/autoexec.cfg"],
     },
     "UnrealTournament": {
         "launchers": {
@@ -1575,6 +1725,22 @@ TITLES = {
         },
         "cfg_exec": ["baseq2/autoexec.cfg", "xatrix/autoexec.cfg",
                      "rogue/autoexec.cfg", "ctf/autoexec.cfg"],
+        # exec fleetkey.cfg before exec fleetres.cfg, no unbindall, no comment
+        # semicolons - see fleetkey_autoexec(). ctf\ has no binds and gets
+        # only the exec line (Quake II runs ONE autoexec.cfg, the mod's own).
+        "cfg_fleetkey": ["baseq2/autoexec.cfg", "rogue/autoexec.cfg",
+                         "xatrix/autoexec.cfg", "ctf/autoexec.cfg"],
+        # Game-written per-box state ("// generated by quake, do not modify")
+        # captured from some machine: gl_mode 6, s_khz 22, freelook 1,
+        # cl_run 0 ... - copied back over the player's own on every sync.
+        "remove": ["rogue/config.cfg", "xatrix/config.cfg"],
+    },
+    # The Quake II base game for Windows 9x boxes. It keeps the STOCK exe and
+    # its own COMMAND.COM launchers (no FLEETRES - see "payload"); this entry
+    # exists only for the autoexec.cfg it shares a bug with Quake2Complete's.
+    "Quake2Win9x": {
+        "payload": False,
+        "cfg_fleetkey": ["baseq2/autoexec.cfg"],
     },
     "SiNGold": {
         "new": {"Play SiN Gold.bat": ("sin.exe", "base")},
@@ -1591,6 +1757,7 @@ TITLES = {
         # title pinned. ctf/ is only reached by the dedicated-server launcher,
         # but its autoexec is the same constant and costs nothing to fix.
         "cfg_exec": ["base/autoexec.cfg", "2015/autoexec.cfg", "ctf/autoexec.cfg"],
+        "cfg_semis": ["base/autoexec.cfg", "2015/autoexec.cfg", "ctf/autoexec.cfg"],
         "launchers": {
             "Play Wages of SiN.bat": rec(
                 'cd /d "%~dp0"', [CALL] + q2_cfg("2015"),
@@ -1615,10 +1782,15 @@ TITLES = {
         "launch_txt_line0": ("Play Soldier of Fortune.bat",
                              "Soldier of Fortune", "SoF.exe"),
         "cfg_exec": ["base/autoexec.cfg"],
+        "cfg_semis": ["base/autoexec.cfg"],
     },
     "Quake1": {
         "new": {"Play Quake.bat": ("GLQUAKE.EXE", None)},
         "launch_txt_line0": ("Play Quake.bat", "Quake", "GLQUAKE.EXE"),
+        # exec fleetkey.cfg as the LAST live line: Quake 1 has no fleetres.cfg
+        # (its mode is on the command line) and no movement binds of its own,
+        # so the agent-written file is pure gain once it exists.
+        "cfg_fleetkey": ["ID1/autoexec.cfg"],
     },
     "TiberianSun": {
         # THE CAP IS GONE, AND THE REASON MATTERS. It was set at 1024x768 on the
@@ -2255,6 +2427,33 @@ class Runner:
             "exec fleetres.cfg\n")
         return text.rstrip("\n") + "\n" + tail
 
+    def cfg_transform(self, tdir, title, rel, fn, what):
+        """Rewrite a staged cfg through a pure, idempotent transform."""
+        path = os.path.join(tdir, rel.replace("/", os.sep))
+        if not os.path.isfile(path):
+            self.fail("%s/%s: missing" % (title, rel))
+            return
+        body = read(path)
+        nl = "\r\n" if "\r\n" in body else "\n"
+        text = fn(body).replace("\n", nl) if nl == "\r\n" else fn(body)
+        self.put(path, text, "%s/%s [%s]" % (title, rel, what))
+
+    def remove_stale(self, tdir, title, rel):
+        """A file the library must NOT ship - per-box state a game writes for
+        itself, which GAMESYNC would otherwise copy back over the player's own
+        on every sync that walks the title. GAMESYNC never deletes, so a box
+        keeps its own copy; this only stops the library handing out one box's."""
+        path = os.path.join(tdir, rel.replace("/", os.sep))
+        if not os.path.lexists(path):
+            self.skipped += 1
+            return
+        if self.check:
+            self.fail("%s/%s: still in the library" % (title, rel))
+            return
+        if not self.dry:
+            self.writer.remove(path)
+        self.note("%s/%s [removed]" % (title, rel))
+
     def launch_txt(self, tdir, title, rows=None, line0=None):
         path = os.path.join(tdir, "launch.txt")
         body = read(path)
@@ -2277,14 +2476,21 @@ class Runner:
             new = nl.join(lines)
         self.put(path, new, "%s/launch.txt" % title)
 
-    def run(self):
+    def run(self, only=None):
         for title in sorted(TITLES):
+            if only and title not in only:
+                continue
             spec = TITLES[title]
             tdir = os.path.join(self.lib, title)
             if not os.path.isdir(tdir):
                 self.fail("%s: not in the library" % title)
                 continue
-            self.payload(tdir, title)
+            # A Windows 9x-only title has no cmd.exe launcher to run FLEETRES,
+            # and FLEETRES.BAT is cmd.exe dialect - staging it would be dead
+            # weight that the validator's half-staged check then has to reason
+            # about. Such a title opts out and keeps only its cfg recipes.
+            if spec.get("payload", True):
+                self.payload(tdir, title)
             for name, r in sorted(spec.get("launchers", {}).items()):
                 self.patch_launcher(tdir, title, name, r)
             for name, s in sorted(spec.get("new", {}).items()):
@@ -2299,6 +2505,13 @@ class Runner:
                 self.post_block(tdir, title, pb)
             for name, pairs in sorted(spec.get("fix", {}).items()):
                 self.repair(tdir, title, name, pairs)
+            for rel in spec.get("cfg_semis", []):
+                self.cfg_transform(tdir, title, rel, fix_comment_semis,
+                                   "comment semicolons")
+            for rel in spec.get("cfg_fleetkey", []):
+                self.cfg_transform(tdir, title, rel, fleetkey_autoexec, "fleetkey")
+            for rel in spec.get("remove", []):
+                self.remove_stale(tdir, title, rel)
             if "launch_txt" in spec:
                 self.launch_txt(tdir, title, rows=spec["launch_txt"])
             if "launch_txt_line0" in spec:
@@ -2313,8 +2526,15 @@ def main():
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--check", action="store_true",
                     help="report what is NOT staged and exit 1; changes nothing")
+    ap.add_argument("--only", action="append", default=[], metavar="TITLE",
+                    help="limit the run to these titles (repeatable)")
     libwrite.add_arguments(ap)
     a = ap.parse_args()
+    unknown = sorted(set(a.only) - set(TITLES))
+    if unknown:
+        print("--only names titles this tool has no recipe for: %s" % unknown,
+              file=sys.stderr)
+        return 2
 
     if not os.path.isdir(a.lib):
         print("library not mounted at %s" % a.lib, file=sys.stderr)
@@ -2329,7 +2549,7 @@ def main():
         print("writes: %s backend (%s)" % (r.writer.kind, a.lib))
     try:
         with r.writer:
-            r.run()
+            r.run(only=set(a.only) or None)
     except libwrite.LibWriteError as e:
         for c in r.changed:
             print("staged %s" % c)
