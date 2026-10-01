@@ -129,9 +129,12 @@ TEST(the_plan)
     o = obs(IPX_MECH_NETCFG); o.files_present = 0;
     CHECK_EQ_I(ipx_plan(IPX_ST_NOT_INSTALLED, &o, 1, 1), IPX_DO_NOTHING);
     /* the 9x writes stay shut until the orchestrator validated the template */
-    CHECK_EQ_I(ipx_9x_writes_allowed(0, 0), 0);
+    /* validated 2026-10-01: absent = open (was 0 - no Win98 box ever got IPX
+     * by itself); an explicit 0 still shuts the writes */
+    CHECK_EQ_I(ipx_9x_writes_allowed(0, 0), 1);
+    CHECK_EQ_I(IPX_9X_TEMPLATE_VALIDATED, 1);
     CHECK_EQ_I(ipx_9x_writes_allowed(1, 0), 0);
-    CHECK_EQ_I(ipx_9x_writes_allowed(1, 2), 0);
+    CHECK_EQ_I(ipx_9x_writes_allowed(1, 2), 1);
     CHECK_EQ_I(ipx_9x_writes_allowed(1, 1), 1);
 }
 

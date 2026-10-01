@@ -15,10 +15,10 @@
  *       NWLINK.VXD / WSIPX.VXD payload from the share, the registry template
  *       below, Microsoft's own queued WSCInstallProvider (run by
  *       `rundll.exe netdi.dll,FirstBootCall` at the next boot), and the NIC
- *       binding LAST. Active after ONE reboot. GATED: nothing is written until
- *       HKLM\Software\RetroAgent\IpxSetup9xTemplateOk=1, which the orchestrator
- *       sets once the template matches a golden Network-applet install in the
- *       Win98 build VM - an unvalidated template never touches .243.
+ *       binding LAST. Active after ONE reboot. The template was VALIDATED on
+ *       2026-10-01 against a golden Network-applet install AND by a real agent
+ *       install on a pre-IPX image (see ipx_9x_writes_allowed), so it runs by
+ *       default; HKLM\Software\RetroAgent\IpxSetup9xTemplateOk=0 shuts it.
  *   Windows 95 / 98 FE / ME    none - the template was captured on 98 SE only.
  *   NT 5.x (2000/XP/2003)      IPX_MECH_NETCFG - INetCfg Install("MS_NWIPX"):
  *       the payload (netnwlnk.inf, nwlnk*.sys, wshisn.dll) is on every imaged
@@ -279,11 +279,26 @@ IPX_API int ipx_plan(int state, const ipx_obs_t *o, int force, int retry)
     return IPX_DO_NOTHING;
 }
 
-/* The 9x writes are refused until the orchestrator has validated the template
- * against a golden install (IpxSetup9xTemplateOk=1). Nothing else opens them. */
+/* VALIDATED 2026-10-01 in W98BUILD (Win98 SE 4.10.2222, the build .243 runs):
+ *  - parts 1 and 3 match a golden Network-applet install with 0 differences
+ *    (scripts/vm/win98/ipx-template-check.py, offline, both directions);
+ *  - on a restored pre-IPX image the agent's own install (IPXSETUP apply) left
+ *    NETWORK\NWLINK\0000 at problem 0 after one reboot, Winsock + catalog
+ *    IPX, IPXCHK.COM "IPX PRESENT" in a DOS box, and part 2's queued
+ *    WSCInstallProvider (run by netdi.dll FirstBootCall at that boot) produced
+ *    a Protocol_Catalog9 IDENTICAL to the applet's: the same nine entries in
+ *    the same order, MSWSOSP's osp entry re-added after spx, spx/seq and ipx.
+ * So the writes are open by default - a Win98 SE box gets IPX "when it comes
+ * online", as the fleet was asked to - and IpxSetup9xTemplateOk=0 still shuts
+ * them (any value other than 0 or absent is treated as 1). Before this the
+ * switch had to be armed on every box, which meant no Win98 box ever got IPX
+ * by itself. The 9x REBOOT stays separately gated (IpxSetupReboot). */
+#define IPX_9X_TEMPLATE_VALIDATED 1
 IPX_API int ipx_9x_writes_allowed(int template_ok_present, unsigned long template_ok)
 {
-    return template_ok_present && template_ok == 1;
+    if (template_ok_present)
+        return template_ok != 0;
+    return IPX_9X_TEMPLATE_VALIDATED;
 }
 
 /* The agent NEVER reboots an NT box. On 9x it reboots only when the operator

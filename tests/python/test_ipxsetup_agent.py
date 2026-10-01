@@ -160,7 +160,9 @@ def test_the_9x_writes_are_shut_until_the_template_is_validated():
     run = code_only(body(IPX, "ipx_run"))
     assert run.index("if (f.o.mech == IPX_MECH_9X && !f.template_ok)") < run.index("ipx9x_install(&r,")
     assert '#define IPX_REG_TEMPLATE_OK "IpxSetup9xTemplateOk"' in HDR
-    assert "return template_ok_present && template_ok == 1;" in HDR
+    # validated 2026-10-01: open by default, IpxSetup9xTemplateOk=0 still shuts it
+    assert "#define IPX_9X_TEMPLATE_VALIDATED 1" in HDR
+    assert "return template_ok != 0;" in HDR
 
 
 def test_the_netcfg_sequence():

@@ -508,9 +508,9 @@ static void ipx_run(int force, int retry, int manual)
         goto record;
     }
     if (f.o.mech == IPX_MECH_9X && !f.template_ok) {
-        _snprintf(msg, sizeof(msg) - 1, "SKIPPED: %s - the Win98 registry template has not been "
-                  "validated against a golden install yet (%s is not 1), so nothing is written",
-                  desc, IPX_REG_TEMPLATE_OK);
+        _snprintf(msg, sizeof(msg) - 1, "SKIPPED: %s - %s is 0: the operator shut the Win98 "
+                  "registry install (the template itself was validated 2026-10-01), so nothing "
+                  "is written", desc, IPX_REG_TEMPLATE_OK);
         outcome = IPX_OUT_REFUSED;
         goto record;
     }

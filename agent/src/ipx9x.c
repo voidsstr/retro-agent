@@ -3,9 +3,9 @@
  * VxD payload from agent/shared/ipxplan.h, applied the way NETDI would.
  * Orchestration and the reboot hand-off: ipxsetup.c.
  *
- * NOTHING HERE RUNS UNTIL THE ORCHESTRATOR HAS VALIDATED THE TEMPLATE against a
- * golden Network-applet install (IpxSetup9xTemplateOk=1, checked by the
- * caller). A bad binding on .243 can take the box off the network until a
+ * The template was validated against a golden Network-applet install and a real
+ * agent install on 2026-10-01 (ipx_9x_writes_allowed in ipxplan.h; the caller
+ * checks it - IpxSetup9xTemplateOk=0 shuts this off). A bad binding on .243 can take the box off the network until a
  * person visits it, so every step that can refuse comes BEFORE the first write:
  *
  *   1. exactly ONE physical adapter with TCP/IP bound (Dial-Up / VPN excluded);

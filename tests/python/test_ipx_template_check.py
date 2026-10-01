@@ -1,8 +1,9 @@
 """scripts/vm/win98/ipx-template-check.py - IPXSETUP's Win98 template vs a disk image.
 
-The Win98 half of IPXSETUP writes nothing until IpxSetup9xTemplateOk=1, which
-is set only once the template (agent/shared/ipxplan.h) matches a golden
-Network-applet install. This tool makes that check repeatable: it reads
+The Win98 half of IPXSETUP was opened by default (IpxSetup9xTemplateOk=0 shuts
+it) only once the template (agent/shared/ipxplan.h) matched a golden
+Network-applet install. This tool makes that check repeatable - run it again
+whenever the template changes: it reads
 SYSTEM.DAT out of a raw disk image read-only and compares value by value. It
 first ran 2026-10-01 against W98BUILD after the orchestrator's applet install
 (0 differences once six applet-only values were added to the template).
