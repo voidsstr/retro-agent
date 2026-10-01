@@ -1067,6 +1067,66 @@ empty, try `connect 192.168.1.132:27015` from the console — that distinguishes
 "server unreachable" from "broadcast discovery failing", which are different
 faults with different fixes.
 
+### IPX/SPX is installed by the agent (1.97.0) - verified in both build VMs
+
+User directive, 2026-10-01: *"install ipx drivers for all computers via the
+agent and when they come online"*. `IPXSETUP` (above) does it at every start.
+
+- **XP:** INetCfg `Install(MS_NWIPX)`, live with no reboot. Verified on XPBUILD:
+  `ipxroute config` shows the LAN adapter at `[802.2]`, SMB to the share still
+  works, a second apply changes nothing. **XP keeps a protocol's `ComponentId`
+  under `Control\Network\{4D36E975-...}\{GUID}`, not `Control\Class\...`** -
+  the first build looked in Class and reported the live install as absent.
+- **Win98 SE:** the registry template in `agent/shared/ipxplan.h` (matched to a
+  golden Network-applet install with 0 differences by
+  `scripts/vm/win98/ipx-template-check.py`), the two VxDs, Microsoft's own queued
+  `WSCInstallProvider` (run by `netdi.dll,FirstBootCall` at the next boot) and the
+  NIC binding LAST; undo file `C:\RETRO_AGENT\IPX9X.BAK`. Verified on a restored
+  pre-IPX W98BUILD image: one reboot, `NWLINK\0000` problem 0, Winsock + catalog
+  IPX, a `Protocol_Catalog9` IDENTICAL to the applet's, and `IPXCHK.COM` (INT 2Fh
+  AX=7A00h, in `provisioning/dali`) printing **IPX PRESENT in a DOS box** - which
+  is what a DOS IPX game needs. Measured reference: `~/.retro-fleet/research-2026-10-01/R7_win98_ipx_measured.md`.
+- **Win7 (`.197`):** nothing can be installed (NWLink was removed in Vista); the
+  DOSBox tunnel and IPXWrapper are the IPX paths there.
+
+**Real IPX on the wire and DOSBox's IPX never meet.** DOSBox's IPX is a tunnel
+(IPX inside UDP 213 to one box running `IPXNET STARTSERVER`); NWLink puts real
+frames on the wire. Nothing bridges them, and a bridge would have to rewrite the
+node addresses Descent embeds in its own packets. So NWLink is for games that use
+it (Win32 IPX titles, DOS games in a Win98 DOS box against other NWLink boxes),
+and the DOSBox games need the next section.
+
+### The Win98 box joins the DOSBox boxes' IPX games through DALI, in real DOS (2026-10-01)
+
+**PROVEN in W98BUILD against `.123`'s DOSBox host - by hand and through the
+generated launcher:** the VM listed `.123`'s Descent game, both machines flew one
+Anarchy match (screenshots of both in `~/.retro-fleet/descent-lan/proof/`), and
+quitting rebooted back to Windows. DALI (fragglet, GPL-3) is a real-DOS IPX driver
+that joins a DOSBox IPX server directly, so the Win98 box is just one more tunnel
+client. `scripts/dosgames/stage_dali_lan.py` stages per title (Descent1 today):
+a COMMAND.COM desktop launcher (`D1LAN.BAT`: copy the game to `C:\GAMES\<8.3>` -
+real DOS on `.243` does not see E: - arm the rundos line, restart) and `RDLAN.BAT`
+for real DOS: packet driver, DHCP, ASKIP (the host's IP, remembered in
+`C:\GAMES\LANHOST.TXT`; a fleet-wide `lanhost.txt` beside the games seeds it),
+`DALI <host> 213`, IPXCHK, the game, `DALI /u`, then **WBOOT** - a Crynwr packet
+driver cannot unload and Windows must not start with one resident. The kit is
+md5-pinned in `provisioning/dali/`; the helpers' source is `scripts/dosgames/dali/`.
+
+Three traps, each pinned by a test:
+- **The real-DOS folder must not be the title's own name**: the VM's GamesDir is
+  `C:\Games`, so `C:\GAMES\DESCENT1` would be the source and xcopy refuses a
+  self-copy.
+- **Measured packet-driver candidates go BEFORE the ISA guesses**, each on its own
+  vector: in 86Box `NE2000 0x61 10 0x300` loaded with no card there and DHCP then
+  failed on every packet. `.243`'s 3C509 is first, the VM's PCI RTL8029 (E000 /
+  IRQ 10, read by `PCINIC.COM`) second.
+- **DOS line input echoes to STDOUT**: `ASKIP ... > HOSTIP.BAT` put the typed
+  keystrokes into the batch file (and none on screen). ASKIP writes the file itself.
+
+`scripts/fleet/ipxsrv.py` is a DOSBox-protocol IPX server that LOGS every
+registration and packet it routes - for telling "never registered" from
+"registered, packets dropped" from "the game never broadcast".
+
 ## Where to find "what is staged, where, and was it tested"
 
 **`docs/staged-library.md` — GENERATED, never hand-edited.**
@@ -2337,6 +2397,28 @@ persistent connection and drives `CLICKSHOT`/`SCREENDIFF` deltas.
 - **MONPOWER [apply]** (agent 1.96.0) — the active power scheme's monitor/standby/
   hibernate timeouts (AC+DC, 0 = never), the live policy, the pre-Vista SPI power-off
   flags and `last_pass` as JSON; `apply` enforces them now (refused on a modern host).
+- **QBINDS [title]** (agent 1.97.0) — the fleet's Quake key layout (WASD) as JSON, per
+  in-scope gamedir (Quake1 `ID1`; Quake2Win9x `baseq2`; Quake2Complete
+  `baseq2/ctf/rogue/xatrix`): `bindfile` (current/written/stale/missing/failed),
+  `wasd_in_place`, whether `autoexec.cfg` reaches it (`exec`, `unbindall`, `quote_trap`,
+  `rebinds_after`), `effective`, `summary`, `last_pass` (`QuakeBindsBoot`). Read-only.
+  **QBINDS apply [title]** makes every `<gamedir>\FLEETKEY.CFG` byte-identical to the
+  compiled-in `q1`/`q2` body now (refused on a modern host); the startup pass (before the
+  "already provisioned - idle" return) and every GAMESYNC title do the same, and a settled
+  box writes 0. The agent never writes autoexec.cfg - the staged autoexec execs the file.
+  `HKLM\Software\RetroAgent\QuakeBinds`: absent/1 enforce, 0 neutral body, 2 hands off.
+- **IPXSETUP [status]** (agent 1.97.0) — the IPX/SPX protocol as JSON: `mechanism`
+  (netcfg / win98se_template / none + `why`), `state` (active / pending_reboot / broken /
+  not_installed / not_supported / ...), `winsock_ipx` (THE post-condition), `catalog_ipx`,
+  `address`, `frame_type`, `reboot_required`, `attempts`, `job`, `last_pass`
+  (`IpxSetupBoot`). Read-only, no COM. **IPXSETUP apply [force] [retry]** installs it:
+  XP via INetCfg `MS_NWIPX` (live with no reboot - the agent NEVER reboots NT); Win98 SE
+  via the registry template + `NWLINK.VXD`/`WSIPX.VXD` from
+  `Utility\Retro Automation\ipx\win98se` (`scripts/fleet/stage-ipx98-payload.py`), live
+  after the box's next reboot (`IpxSetupReboot`=1 lets the agent do that one reboot); Win7:
+  not supported - NWLink was removed in Vista. A startup pass does the same ~100 s after
+  every start. `IpxSetup`=0 switches it off; `IpxSetup9xTemplateOk`=0 shuts only the
+  Win98 writes. See "IPX/SPX is installed by the agent" below.
 
 ### Linux-Only
 - **PKGINSTALL name** — install package (auto-detects apt/yum/pacman)
