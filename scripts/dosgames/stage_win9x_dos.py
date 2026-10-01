@@ -411,11 +411,70 @@ def verify(local, lib, mine):
     return missing, wrong, extra, bad_md5
 
 
-def run_update(spec, dry_run):
+def retree(t, new_tree, write, remove, lib_root=None):
+    """Replace an ALREADY STAGED title's game files with `new_tree` (a prepared
+    local tree; 8.3 names, uppercased like build() does): write every file
+    that is new or differs, remove every library file the new tree does not
+    have - except the generator's own (launcher, icon, launch.txt, ...), which
+    update() then regenerates. Returns (written, removed) relative paths.
+
+    Why: build() never overwrites a staged title and update() touches only
+    generator-owned files, so a title staged from the wrong source (Aces Over
+    Europe from the FRENCH zip, 2026-09-30) had no route to the right one.
+    GAMESYNC never deletes, so a box keeps a removed file until someone does."""
+    lib_dir = os.path.join(lib_root or LIB_MNT, t["lib"])
+    if not os.path.isdir(lib_dir):
+        raise SystemExit("%s: not staged yet - build it without --update" % t["lib"])
+    have = _tree(lib_dir)
+    owned = {rel.upper() for rel in generated(t, 0)}
+    want, bad = {}, []
+    for d, _, fs in os.walk(new_tree):
+        for f in fs:
+            rel = os.path.relpath(os.path.join(d, f), new_tree).replace(os.sep, "/")
+            if not is_83(rel):
+                bad.append(rel)
+            want[rel.upper()] = os.path.join(d, f)
+    if bad:
+        raise SystemExit("%s: non-8.3 names in %s: %s" % (t["lib"], new_tree, bad[:8]))
+    written, removed = [], []
+    for rel, src in sorted(want.items()):
+        if rel in owned:
+            continue
+        data = open(src, "rb").read()
+        cur = have.get(rel)
+        if cur and cur[0] == len(data) and open(cur[1], "rb").read() == data:
+            continue
+        write(cur[1] if cur else os.path.join(lib_dir, *rel.split("/")), data)
+        written.append(rel)
+    for rel, (_sz, path) in sorted(have.items()):
+        if rel not in want and rel not in owned:
+            remove(path)
+            removed.append(rel)
+    return written, removed
+
+
+def run_update(spec, dry_run, new_tree=None):
     """--update: each title's generator-owned files, one verified write at a
-    time; the first write that does not land stops the run (libwrite)."""
+    time; the first write that does not land stops the run (libwrite). With
+    --retree DIR (one title): its game files are replaced by DIR's first."""
     sys.path.insert(0, os.path.join(REPO, "scripts", "fleet"))
     import libwrite
+    if new_tree:
+        if len(spec) != 1:
+            raise SystemExit("--retree replaces ONE title's files: name it with --only")
+        t = spec[0]
+        w0, r0 = retree(t, new_tree, lambda p, d: None, lambda p: None)
+        print("RETREE %-26s write %d file(s): %s | remove %d: %s" % (
+            t["lib"], len(w0), ", ".join(w0[:12]), len(r0), ", ".join(r0[:12])))
+        if not dry_run and (w0 or r0):
+            w = libwrite.writer_for(LIB_MNT)
+            try:
+                with w:
+                    w1, r1 = retree(t, new_tree, w.write_bytes, w.remove)
+                print("RETREED %-25s %d written, %d removed" % (t["lib"], len(w1), len(r1)))
+            except libwrite.LibWriteError as e:
+                print(libwrite.failure_banner(e, w))
+                return 1
     plan = []
     for t in spec:
         if not os.path.isdir(os.path.join(LIB_MNT, t["lib"])):
@@ -449,6 +508,9 @@ def main():
                     help="titles already staged: rewrite only the files the generator owns "
                          "(launcher, launch.txt, requires.json, icon, PIF, GAME\\RUN.BAT) where "
                          "they differ from the spec, each through libwrite, verified")
+    ap.add_argument("--retree", metavar="DIR",
+                    help="with --update and ONE --only title: replace its game files with DIR's "
+                         "(new and changed written, files DIR lacks removed from the library)")
     a = ap.parse_args()
     spec = json.load(open(a.spec))
     if a.only:
@@ -456,8 +518,10 @@ def main():
         missing = sorted(set(a.only) - {t["lib"] for t in spec})
         if missing:
             raise SystemExit("--only names titles the spec does not have: %s" % missing)
+    if a.retree and not a.update:
+        raise SystemExit("--retree goes with --update")
     if a.update:
-        sys.exit(run_update(spec, a.dry_run))
+        sys.exit(run_update(spec, a.dry_run, a.retree))
     seen = {}
     for t in spec:
         n = icon_file_name(t)

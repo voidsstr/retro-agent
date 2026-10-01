@@ -219,7 +219,7 @@
   "launch": [
    "AOE.COM"
   ],
-  "notes": "sound: INSTALL.EXE (Sierra 3.649, French): Sound Blaster/AdLib (RESOURCE.CFG soundDrv=ADL.DRV); needs EMS; Needs 1 MB EMS. The installer is the French Sierra one; the game text is English."
+  "notes": "sound: AdLib FM (RESOURCE.CFG soundDrv=ADL.DRV - the config Sierra's INSTALL.EXE wrote, no mouse or memory driver); needs EMS; Needs 1 MB EMS. ENGLISH since 2026-09-30: the tree was the FRENCH zip - its menus, pilot bios and briefings were French (SHELL1.DYN) - and is now 'Aces Over Europe (1993)(Dynamix)(Rev1).zip', the English Rev1 release, with that RESOURCE.CFG. Win98 build VM, same day: a DOS box ran the intro; the sim itself needs 1 MB EMS (E.EXE)."
  },
  {
   "lib": "Flight-AcesPacific",
@@ -512,6 +512,18 @@
   "real_dos": {
    "dir": "LONGBOW"
   }
+ },
+ {
+  "lib": "Flight-MSFS50",
+  "title": "Microsoft Flight Simulator 5.0",
+  "year": 1993,
+  "tree": "/mnt/retro-share/Files/Games-Library/Flight-MSFS50",
+  "icon": "/mnt/retro-share/Files/Games-Library/Flight-MSFS50/MSFS50.ICO",
+  "launch": [
+   "FS5.EXE X"
+  ],
+  "notes": "ENGLISH Flight Simulator 5.0 ('Microsoft Flight Simulator 5.0 (1993)(Microsoft).zip', an installed tree; FS.BAT runs 'fs5 x'), staged 2026-09-30 because the library's Flight-MSFS51 is the FRENCH 5.1 CD and stopped in the Win98 build VM at a fatal 'Impossible de verrouiller la memoire XMS' (unable to lock XMS memory). FS5.INI: g2d=vgb.gra (plain VGA - the S3 SVGA driver is a black screen on a Cirrus), sound_board=4 (Sound Blaster), sound_interrupt=5, sound_xms=0 (the 5.1 tree failed with sound in XMS). The icon is the 5.1 title's.",
+  "source_label": "stage"
  },
  {
   "lib": "Flight-MSFS51",

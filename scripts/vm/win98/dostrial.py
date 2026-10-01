@@ -76,7 +76,12 @@ async def shutdown_or_reset(out, limit=60):
     trial proved exactly that. Only a screen STUCK on the logo is reset."""
     t0, stuck_since = time.time(), None
     while time.time() - t0 < limit + 30:
-        img = sweep.shot(os.path.join(out, '_shutdown.png'))
+        try:
+            img = sweep.shot(os.path.join(out, '_shutdown.png'))
+        except Exception as e:
+            print('shot failed:', e)
+            await asyncio.sleep(5)
+            continue
         if is_shutdown_screen(img):
             stuck_since = stuck_since or time.time()
             if time.time() - stuck_since > limit:
@@ -113,7 +118,12 @@ async def launch_pif(c, pif, out, limit=240, stuck=60):
     t0, stuck_since, n = time.time(), None, 0
     while time.time() - t0 < limit:
         n += 1
-        img = sweep.shot(os.path.join(out, 'l%03d-%03ds.png' % (n, int(time.time() - t0))))
+        try:
+            img = sweep.shot(os.path.join(out, 'l%03d-%03ds.png' % (n, int(time.time() - t0))))
+        except Exception as e:           # 86Box resizing its window for a new mode, say
+            print('shot failed:', e)
+            await asyncio.sleep(5)
+            continue
         if is_shutdown_screen(img):
             stuck_since = stuck_since or time.time()
             if time.time() - stuck_since > stuck:

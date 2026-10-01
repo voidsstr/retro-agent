@@ -406,3 +406,31 @@ def test_the_spec_rebuilt_from_a_title_regenerates_it_byte_for_byte(tmp_path, re
     assert bool(back.get("real_dos")) == real_dos
     wrote, rec = _recorder()
     assert sw.update(back, rec, lib_root=lib_root) == [], wrote
+
+
+def test_retree_replaces_the_game_files_and_leaves_the_generators_own(tmp_path):
+    """Aces Over Europe was staged from the FRENCH zip; the English Rev1 zip is
+    the same game. --retree writes what is new or changed, removes what the new
+    tree lacks, and never touches the launcher, icon, launch.txt or requires.json
+    (update() regenerates those)."""
+    old = tmp_path / "stage"
+    old.mkdir()
+    (old / "AOE.COM").write_bytes(b"same")
+    (old / "SHELL1.DYN").write_bytes(b"francais")
+    (old / "NO-ACES.DOC").write_bytes(b"french only")
+    t = _spec(tmp_path, lib="Flight-AcesOverEurope", title="Aces Over Europe", tree=str(old),
+              launch=["AOE.COM"])
+    lib_root, root = _staged(tmp_path, t)
+    new = tmp_path / "english"
+    (new / "TAPES").mkdir(parents=True)
+    (new / "AOE.COM").write_bytes(b"same")
+    (new / "SHELL1.DYN").write_bytes(b"english")
+    (new / "TAPES" / "WHAT.VCR").write_bytes(b"new")
+    wrote, rec = _recorder()
+    gone = []
+    written, removed = sw.retree(t, str(new), rec, gone.append, lib_root=lib_root)
+    assert sorted(written) == ["SHELL1.DYN", "TAPES/WHAT.VCR"], written
+    assert removed == ["NO-ACES.DOC"] and gone == [os.path.join(root, "NO-ACES.DOC")]
+    assert os.path.join(root, "SHELL1.DYN") in wrote and wrote[os.path.join(root, "SHELL1.DYN")] == b"english"
+    for rel in ("Play Aces Over Europe.bat", "launch.txt", "requires.json", "ACESOVER.ICO"):
+        assert os.path.join(root, rel) not in wrote and rel.upper() not in removed

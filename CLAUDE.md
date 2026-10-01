@@ -1254,6 +1254,10 @@ dialog **preselects Stand by**. Tests: `tests/python/test_w98vm_build.py`.
   AUTOEXEC.BAT and restart with FORCE; the game runs before Windows loads. EMS
   titles pick the boot menu's EMS entry for that one boot (`MENUDEF9.EXE`).
   NOT an MS-DOS mode PIF: the agent's console (a DOS VM) blocks that shutdown.
+  **That restart bypasses `safe-reboot.py`.** `.243` cannot network boot (3Com
+  EtherLink III, a 1997 Compaq BIOS), so it is safe there; a Win9x box that
+  boots from the NETWORK first must be in `pxe_config.json` `never_offer`
+  before it gets a real-DOS title, or a double-click could reimage it.
 - **The Win9x DOS titles' spec is `scripts/dosgames/specs/win9x-dos.json`** - it
   was lost once with a session scratchpad and rebuilt from the library
   (`spec_from_library.py`). Fix a title there and run
