@@ -53,8 +53,10 @@ lost `.123` mid-session — see the last section.*
 | Yuri's Revenge | Westwood, peer | `.246` + `.143` |
 | Tiberian Sun | Westwood, peer | `.240` + `.123` |
 | StarCraft | peer, UDP LAN | `.246` + `.143` |
-| Descent 1 | DOSBox IPX tunnel | `.246` + `.124` |
+| Descent 1 | DOSBox IPX tunnel | `.246` + `.124`; **real DOS through DALI (W98BUILD, the P1's route) + `.123`'s DOSBox host, 2026-10-01** |
+| Descent 1 | DXX-Rebirth UDP/IP (`Host`/`Join Descent - Rebirth LAN`, per-box pilot) | **`.123` (XP) + `.197` (Win7), 2026-10-01** |
 | Descent 2 | UDP/IP native | `.123` + `.240` |
+| Descent 2 | DOSBox IPX tunnel (new lane: no-CD DESCENT2.EXE, cycles capped) | **`.123` + `.197`, 2026-10-01** |
 | Descent 3 | dedicated server | `.240` |
 | Doom 3 | id Tech 4 | `.123` + `.246` peer; **`.123` + `.240` on the fleet server 2026-09-01** |
 | Return to Castle Wolfenstein | id Tech 3 | `.143` + `.246` peer; **FIVE boxes in one game on the fleet server `:27963` 2026-09-01** — `.133` `.143` `.145` `.240` `.246` (`.123` had already dropped off the LAN) |
