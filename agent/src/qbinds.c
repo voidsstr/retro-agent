@@ -230,7 +230,7 @@ static void qb_do_dir(const char *title_dir, const qb_title_t *t, const char *gd
                       int do_write, qb_dir_t *r)
 {
     char dir[MAX_PATH], path[MAX_PATH];
-    static char ae[QB_MAX_AUTOEXEC];        /* under g_qb_lock */
+    char *ae;                               /* per call: the report runs unlocked */
     char cur[QB_MAX_FILE];
     DWORD len = 0, aelen = 0;
     int have, big = 0, aebig = 0;
@@ -274,8 +274,12 @@ static void qb_do_dir(const char *title_dir, const qb_title_t *t, const char *gd
 
     _snprintf(path, sizeof(path) - 1, "%s\\autoexec.cfg", dir);
     path[sizeof(path) - 1] = 0;
-    r->have_autoexec = qb_read(path, ae, sizeof(ae), &aelen, &aebig);
-    qb_autoexec_scan(r->have_autoexec ? ae : NULL, aelen, t->profile, &r->scan);
+    ae = (char *)HeapAlloc(GetProcessHeap(), 0, QB_MAX_AUTOEXEC);
+    if (ae) {
+        r->have_autoexec = qb_read(path, ae, QB_MAX_AUTOEXEC, &aelen, &aebig);
+        qb_autoexec_scan(r->have_autoexec ? ae : NULL, aelen, t->profile, &r->scan);
+        HeapFree(GetProcessHeap(), 0, ae);
+    }
     r->effective = qb_effective(r->state_now == QB_FILE_CURRENT, &r->scan);
 }
 
@@ -565,11 +569,18 @@ void handle_qbinds(SOCKET sock, const char *args)
     json_kv_bool(&j, "applied", apply);
     json_key(&j, "titles");
     json_array_start(&j);
-    EnterCriticalSection(&g_qb_lock);
+    /* Only a WRITING pass takes the lock. The report reads unlocked: the lock
+     * is held across file I/O by the startup pass, which runs at idle
+     * priority, and on Win9x this is the one thread that serves every client
+     * (there is no TryEnterCriticalSection to fall back on). A read that
+     * races a write can only report one file as stale for one call. */
+    if (apply)
+        EnterCriticalSection(&g_qb_lock);
     for (i = 0; i < QB_NTITLES; i++)
         if (!only || only == &qb_titles[i])
             qb_do_title(games, &qb_titles[i], mode, apply, &s, &j);
-    LeaveCriticalSection(&g_qb_lock);
+    if (apply)
+        LeaveCriticalSection(&g_qb_lock);
     json_array_end(&j);
     json_key(&j, "summary");
     json_object_start(&j);

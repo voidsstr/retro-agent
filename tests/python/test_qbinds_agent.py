@@ -122,8 +122,25 @@ def test_it_never_writes_a_library_file():
     # autoexec.cfg is named exactly once, as a READ
     assert code_only(QB).count('"%s\\\\autoexec.cfg"') == 1
     d = code_only(body(QB, "qb_do_dir"))
-    assert "qb_read(path, ae, sizeof(ae)" in d
+    assert "qb_read(path, ae, QB_MAX_AUTOEXEC, &aelen, &aebig)" in d
     assert "CreateDirectoryA" not in code_only(QB), "a missing gamedir is not created"
+
+
+def test_the_report_never_waits_on_the_write_lock():
+    """The startup pass holds g_qb_lock across file I/O at IDLE priority; on
+    Win9x the QBINDS handler runs on the ONE thread serving every client, and
+    9x has no TryEnterCriticalSection. So only a writing pass takes the lock -
+    and the autoexec buffer is per call, not a static shared under it."""
+    h = code_only(body(QB, "handle_qbinds"))
+    assert "if (apply)\n        EnterCriticalSection(&g_qb_lock);" in h
+    assert "if (apply)\n        LeaveCriticalSection(&g_qb_lock);" in h
+    d = code_only(body(QB, "qb_do_dir"))
+    assert "static char" not in d and "HeapAlloc(GetProcessHeap(), 0, QB_MAX_AUTOEXEC)" in d
+    for fn in ("qbinds_startup", "qbinds_apply_title"):
+        b = code_only(body(QB, fn))
+        assert b.index("EnterCriticalSection(&g_qb_lock)") < b.index("qb_do_title(") < \
+            b.index("LeaveCriticalSection(&g_qb_lock)"), fn
+    assert "TryEnterCriticalSection" not in code_only(QB), "NT-only: Win98's kernel32 lacks it"
 
 
 def test_no_win9x_unsafe_crt_or_imports():
