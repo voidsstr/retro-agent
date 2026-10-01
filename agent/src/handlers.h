@@ -35,6 +35,16 @@ void agent_self_reboot_9x(const char *label);
 /* 1.93.0: the folder GAMESYNC installs titles in (GamesDir, else C:\Games);
  * 0 when a configured GamesDir is unusable. */
 int gs_games_dir(char *out, size_t cch);
+/* The same; on 0, `why` says what is wrong with GamesDir (1.97.0, QBINDS). */
+int gs_games_dir_why(char *out, size_t cch, char *why, size_t why_cch);
+
+/* qbinds.c (1.97.0) - the fleet's WASD layout for Quake 1 / Quake II: the agent
+ * keeps <gamedir>\FLEETKEY.CFG byte-identical to a compiled-in body
+ * (agent/shared/qbinds.h). QBINDS [title] reports; QBINDS apply [title] enforces. */
+void qbinds_init(void);
+int  qbinds_startup(void);
+int  qbinds_apply_title(const char *dst_dir, const char *title, int *not_executed);
+void handle_qbinds(SOCKET sock, const char *args);
 void handle_netmap(SOCKET sock, const char *args);
 void handle_netunmap(SOCKET sock, const char *args);
 void handle_filecopy(SOCKET sock, const char *args);

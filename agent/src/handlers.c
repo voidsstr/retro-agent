@@ -92,6 +92,9 @@ static const cmd_entry_t commands[] = {
     { "PCIRESCAN",  1, NULL,           handle_pcirescan, 0 },
     { "POSTSKIP",   1, NULL,           handle_postskip,  0 },
     { "MONPOWER",   1, NULL,           handle_monpower,  0 },
+    /* 1.97.0. Dual-mode like MONPOWER: the report works everywhere,
+     * and the `apply` branch carries the host-policy guard itself. */
+    { "QBINDS",     1, NULL,           handle_qbinds,    0 },
     { "PROMPT_PUSH",1, NULL,            handle_prompt_push, 0 },
     { "PROMPT_POP", 0, handle_prompt_pop, NULL, 0 },
     { "PROMPT_WAIT",1, NULL,            handle_prompt_wait, 0 },

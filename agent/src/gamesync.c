@@ -151,6 +151,9 @@ typedef struct {
      * still WRONG (a settled box: 0) and ABSENT from this build.
      * gr_verified 0 = no run has verified yet - reported as -1. */
     int     gr_vwrong, gr_vabsent, gr_verified;
+    /* QBINDS in the last finished run: FLEETKEY.CFG files written (a settled
+     * box: 0) and Quake gamedirs whose autoexec.cfg does not exec it. */
+    int     qb_written, qb_notexec;
 } gs_state_t;
 
 static CRITICAL_SECTION g_gs_lock;
@@ -464,6 +467,14 @@ int gs_games_dir(char *out, size_t cch)
 {
     char root[4], why[200];
     return gs_dest_resolve(out, cch, root, why, sizeof(why)) >= 0;
+}
+
+/* The same, and when it is 0 `why` says what is wrong with GamesDir - QBINDS
+ * refuses loudly with it rather than falling back to C:. */
+int gs_games_dir_why(char *out, size_t cch, char *why, size_t why_cch)
+{
+    char root[4];
+    return gs_dest_resolve(out, cch, root, why, why_cch) >= 0;
 }
 
 /* How much of C: GAMESYNC always leaves free: the smaller margin only on a
@@ -5554,6 +5565,9 @@ static void gs_run(const char *library)
     int    n = 0, i, files = 0, ok_titles = 0, capped = 0, n_gated = 0;
     int    gr_titles = 0, gr_changed = 0, gr_absent_t = 0;
     int    gr_vok = -1, gr_vwrong = 0, gr_vabsent = 0;
+    /* QBINDS (agent/src/qbinds.c): bind files written this run, and Quake
+     * gamedirs whose autoexec.cfg does not exec FLEETKEY.CFG. */
+    int    qb_written = 0, qb_notexec = 0;
     int    listing_complete = 0;
     DWORD  enum_err = 0;
     __int64 grand = 0, freeb, margin;
@@ -5976,6 +5990,15 @@ static void gs_run(const char *library)
             gr_absent_t += gr_absent;
             if (gameres_has_rules(titles[i]))
                 gr_titles++;
+            /* The fleet's Quake key layout (agent/shared/qbinds.h): a title
+             * just deployed gets its FLEETKEY.CFG in the same sync. The
+             * library never ships that file, so this cannot fight the copy
+             * above. A no-op for every other title. */
+            {
+                int qb_ne = 0;
+                qb_written += qbinds_apply_title(dst, titles[i], &qb_ne);
+                qb_notexec += qb_ne;
+            }
             gs_make_game_shortcut(dst, titles[i]);
         } else {
             log_msg(LOG_GS, "%s finished with errors", titles[i]);
@@ -6006,6 +6029,8 @@ static void gs_run(const char *library)
     i = g_gs.failed_files;
     g_gs.gr_changed = gr_changed;
     g_gs.gr_kept    = g_gs_gr_kept;
+    g_gs.qb_written = qb_written;
+    g_gs.qb_notexec = qb_notexec;
     if (gr_vok >= 0) {
         g_gs.gr_vwrong   = gr_vwrong;
         g_gs.gr_vabsent  = gr_vabsent;
@@ -6079,6 +6104,11 @@ static void gs_run(const char *library)
                     "%d value(s) changed, %d target(s) absent from this build, "
                     "%ld adjusted file(s) kept (library copy unchanged)",
             gr_titles, gr_changed, gr_absent_t, (long)g_gs_gr_kept);
+    /* The Quake key layout, the same way: a settled box writes 0. A gamedir
+     * whose autoexec.cfg does not exec fleetkey.cfg has the file but not the
+     * layout - that is a LIBRARY finding (QBINDS reports which), not ours. */
+    log_msg(LOG_GS, "qbinds: %d bind file(s) written, %d Quake gamedir(s) do not "
+                    "exec fleetkey.cfg", qb_written, qb_notexec);
     /* How much of the run went waiting, and why - on the line after `done:`,
      * so a slow sync explains itself (see gs_beat). Silent when it never
      * stalled. */
@@ -6187,6 +6217,9 @@ void gamesync_init(void)
      * command writes it, from different threads. Made here, at startup on the
      * main thread, before either can run. */
     gameres_init();
+    /* QBINDS's file lock: the startup pass, the per-title hook in gs_run and
+     * the QBINDS command can each write a FLEETKEY.CFG. Same reason, same place. */
+    qbinds_init();
 }
 
 /* Report what the image left behind, so the log says which build a box came
@@ -6255,6 +6288,14 @@ DWORD WINAPI gamesync_thread(LPVOID param)
      * (agent 1.94.0, src/fxpanel.c), so the shortcut pass below finds it. */
     fxpanel_ensure();
     gs_place_tool_shortcuts();
+
+    /* The fleet's Quake key layout (agent 1.97.0, src/qbinds.c): every
+     * FLEETKEY.CFG made byte-identical to its compiled-in body, on EVERY start.
+     * HERE, not after the GS_MARKER idle return below - that return is the
+     * NORMAL path on a fleet box, and anything placed after it runs on almost
+     * no machine while looking installed (the trap the theme and the
+     * screensaver were caught by once). A settled box writes nothing. */
+    qbinds_startup();
 
     /* Two independent signals, and they answer different questions.
      *
@@ -7638,6 +7679,9 @@ void handle_gamesync(SOCKET sock, const char *args)
         /* GAMERES VERIFY after the last finished run: targets still wrong
          * (a settled box: 0) and absent from this build; -1 = not yet. */
         "\"gameres_verify_wrong\":%d,\"gameres_verify_absent\":%d,"
+        /* QBINDS in the last finished run: bind files written (a settled
+         * box: 0) and Quake gamedirs that do not exec fleetkey.cfg. */
+        "\"qbinds_written\":%d,\"qbinds_not_executed\":%d,"
         /* Is the run MOVING? since_progress_s is how long ago the worker last
          * made progress; stalled_s is time lost in gaps of >= 3 s, starved_s
          * the part of it with the CPU saturated (idle priority; a running game
@@ -7653,6 +7697,7 @@ void handle_gamesync(SOCKET sock, const char *args)
         gs_desk_files(), gs_desk_lnks(),
         s.gr_changed, s.gr_kept,
         s.gr_verified ? s.gr_vwrong : -1, s.gr_verified ? s.gr_vabsent : -1,
+        s.qb_written, s.qb_notexec,
         since_ms / 1000, st.total_stall_ms / 1000, st.total_starved_ms / 1000,
         busy,
         gs_file_exists(GS_NEWIMAGE_FLAG) ? "true" : "false",
