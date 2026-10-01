@@ -105,3 +105,14 @@ def test_launch_row_is_legal():
         target, label, icon = row.split('\t')
         assert not re.search(r'[\\/:*?"<>|()]', label), label
         assert len(row.encode('ascii')) < 1023
+
+
+def test_dos4gw_is_capped_before_each_descent_starts():
+    """Descent 1 and 2 are bound to DOS/4GW 1.97, which GPFs at start on a
+    128 MB box (.243; the P1 reset twice, the build VM at 128 MB showed
+    'DOS/4GW Professional error (2001): exception 0Dh'). DOS16M=:32M fixed it
+    in the VM (2026-10-01). It must be set before the game line, in both."""
+    for name, t in s.TITLES.items():
+        lines = [l.strip() for l in s.rdlan_bat(t).decode('ascii').replace('\r\n', '\n').split('\n')]
+        assert 'set DOS16M=:32M' in lines, name
+        assert lines.index('set DOS16M=:32M') < lines.index(t['game']), name

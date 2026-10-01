@@ -82,6 +82,15 @@ PKT_CANDIDATES = (
 # must NOT be the title's own name: the W98BUILD VM's GamesDir is C:\Games, so
 # C:\GAMES\DESCENT1 would be the source tree itself and xcopy refuses a
 # self-copy (on .243 the source is E:\GAMES\Descent1, so only the VM sees it).
+# Both Descents are bound to DOS/4GW 1.97, which dies with "DOS/4GW
+# Professional error (2001): exception 0Dh (general protection fault)" when the
+# box has 128 MB - .243 does; the build VM's 64 MB never showed it. Measured
+# 2026-10-01: the P1 reset itself at Descent's start (twice), and the build VM
+# at 128 MB printed exactly that GPF; the same VM ran Descent once DOS16M
+# capped the extender at 32 MB (Descent needs 8). DOS16M=[mode][@range][:size]
+# is DOS/4GW's own setting.
+DOS16M_CAP = 'set DOS16M=:32M'
+
 TITLES = {
     'Descent1': {
         'dir': 'D1LAN', 'name': 'Descent', 'bat': 'D1LAN.BAT',
@@ -91,7 +100,8 @@ TITLES = {
         # DESCENT.CFG is set up for DOSBox's SB at IRQ 7; the box's SB16 is at
         # IRQ 5 - the same switch "Play Descent - DOS.bat" makes.
         'pre': ['find "DigiIrq=7" DESCENT.CFG > nul',
-                'if not errorlevel 1 copy DESCENT.SB5 DESCENT.CFG > nul'],
+                'if not errorlevel 1 copy DESCENT.SB5 DESCENT.CFG > nul',
+                DOS16M_CAP],
         'game': 'DESCENTR.EXE',
         'mb': 32,
     },
@@ -110,7 +120,8 @@ TITLES = {
                  ('RDLAN.BAT', '', ''), ('RDHOOK.TXT', '', ''),
                  ('MISSIONS\\*.*', '', 'MISSIONS'), ('DALI\\*.*', '', 'DALI')],
         'pre': ['find "DigiIrq=7" DESCENT.CFG > nul',
-                'if not errorlevel 1 copy DESCENT.SB5 DESCENT.CFG > nul'],
+                'if not errorlevel 1 copy DESCENT.SB5 DESCENT.CFG > nul',
+                DOS16M_CAP],
         'game': 'DESCENT2.EXE -nomovies -noredbook',
         'mb': 60,
     },

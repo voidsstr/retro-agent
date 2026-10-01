@@ -1130,6 +1130,13 @@ Three traps, each pinned by a test:
 registration and packet it routes - for telling "never registered" from
 "registered, packets dropped" from "the game never broadcast".
 
+**Descent in real DOS needs `set DOS16M=:32M` on a 128 MB box (2026-10-01).** Both Descents are
+bound to DOS/4GW 1.97, which on `.243` (128 MB) reset the P1 the moment the game started - after
+DALI had connected, so it looked like a network fault. The build VM at 128 MB shows the cause:
+`DOS/4GW Professional error (2001): exception 0Dh (general protection fault)`; at 64 MB it never
+appears. The generated `RDLAN.BAT` caps the extender before the game (`stage_dali_lan.py`
+`DOS16M_CAP`); none of `.243`'s other real-DOS titles carry DOS/4GW.
+
 ## Where to find "what is staged, where, and was it tested"
 
 **`docs/staged-library.md` — GENERATED, never hand-edited.**
