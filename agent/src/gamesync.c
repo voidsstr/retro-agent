@@ -39,6 +39,7 @@
 #include "bgwork.h"
 #include "gameindex.h"
 #include "../shared/drvprefs.h"
+#include "../shared/verdictread.h"
 #include "../shared/drvmatch.h"
 #include "../shared/drvsafe.h"
 #include "../shared/drvplan.h"
@@ -3785,6 +3786,44 @@ static int gs_gate_enabled(void)
     return val != 0;
 }
 
+/* gs_slurp() that also says WHY it returned NULL (agent/shared/verdictread.h):
+ * VR_LOADED with the buffer, VR_ABSENT when the file is not there, VR_UNREADABLE
+ * when the share could not be read - which must never pass for "not there". */
+static char *gs_slurp_vr(const char *path, DWORD cap, int *outcome, DWORD *err_out)
+{
+    HANDLE h;
+    DWORD  size, got = 0, err = 0;
+    char  *buf = NULL;
+    int    ok = 0;
+
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                    0, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        err = GetLastError();
+        *outcome = vr_outcome(err ? err : 1u, 0, 0, cap);
+        *err_out = err;
+        return NULL;
+    }
+    size = GetFileSize(h, NULL);
+    if (size != INVALID_FILE_SIZE && size > 0 && size <= cap) {
+        buf = (char *)HeapAlloc(GetProcessHeap(), 0, size + 1);
+        if (buf && ReadFile(h, buf, size, &got, NULL) && got == size)
+            ok = 1;
+        else
+            err = GetLastError();
+    }
+    CloseHandle(h);
+    *outcome = vr_outcome(0, size == INVALID_FILE_SIZE ? 0 : size, ok, cap);
+    *err_out = err;
+    if (*outcome != VR_LOADED) {
+        if (buf)
+            HeapFree(GetProcessHeap(), 0, buf);
+        return NULL;
+    }
+    buf[got] = 0;
+    return buf;
+}
+
 /* Slurp a small text file onto the heap. NULL when absent or too big; a
  * requires.json or verdict file bigger than this is a mistake, not a file. */
 static char *gs_slurp(const char *path, DWORD cap)
@@ -3817,9 +3856,13 @@ static char *gs_slurp(const char *path, DWORD cap)
     return buf;
 }
 
-static void gs_gate_init(const char *library)
+/* 0 = ready (verdicts loaded, or none published, or the gate is off);
+ * -1 = the published verdicts could not be READ - the caller refuses the run. */
+static int gs_gate_init(const char *library)
 {
     char path[MAX_PATH];
+    int  vr = VR_ABSENT, tries;
+    DWORD vr_err = 0;
 
     g_gate_ready = 0;
     g_gate_on = gs_gate_enabled();
@@ -3831,7 +3874,7 @@ static void gs_gate_init(const char *library)
         log_msg(LOG_GS, "capability gate DISABLED "
                         "(HKLM\\Software\\RetroAgent\\GameGate=0) - every "
                         "title will be copied");
-        return;
+        return 0;
     }
 
     hwprofile_build(&g_gate_profile);
@@ -3864,7 +3907,24 @@ static void gs_gate_init(const char *library)
     _snprintf(path, sizeof(path) - 1, "%s\\_gamegate\\%s.txt",
               library, g_gate_hash);
     path[sizeof(path) - 1] = 0;
-    g_gate_verdicts = gs_slurp(path, 256u * 1024u);
+    /* Only "not there" is "not published" (verdictread.h): an unreadable file
+     * read as absent once sent a curated box down the local rules, which
+     * cannot see an operator override. Retry, then refuse. */
+    for (tries = 0; tries < VR_TRIES; tries++) {
+        g_gate_verdicts = gs_slurp_vr(path, 256u * 1024u, &vr, &vr_err);
+        if (vr != VR_UNREADABLE || g_gs_abort)
+            break;
+        log_msg(LOG_GS, "gate: published verdicts could not be read (error %lu) - "
+                        "trying again (%d/%d): %s", vr_err, tries + 1, VR_TRIES, path);
+        Sleep(4000);
+    }
+    if (vr == VR_UNREADABLE) {
+        log_msg(LOG_GS, "gate: published verdicts UNREADABLE after %d tries (error %lu) - "
+                        "refusing this run rather than falling back to local rules "
+                        "that cannot see the operator's overrides: %s",
+                VR_TRIES, vr_err, path);
+        return -1;
+    }
     g_gate_verdict_n = gg_verdict_count(g_gate_verdicts);
     g_gate_verdict_decl = gg_verdict_declared(g_gate_verdicts);
     if (!g_gate_verdicts) {
@@ -3885,6 +3945,7 @@ static void gs_gate_init(const char *library)
                             "rewritten; local rules still apply",
                     g_gate_verdict_decl, g_gate_verdict_n);
     }
+    return 0;
 }
 
 static void gs_gate_free(void)
@@ -5647,7 +5708,17 @@ static void gs_run(const char *library)
      * published for it, BEFORE the sizing pass - the per-title decision below
      * needs both, and doing it once per run keeps a CPUID+registry sweep off
      * the inner loop. */
-    gs_gate_init(library);
+    if (gs_gate_init(library) < 0) {
+        /* Nothing copied, nothing swept: the desktop and every tree stay as
+         * this run found them. The next run (startup, autodeploy, a manual
+         * START) tries again. */
+        EnterCriticalSection(&g_gs_lock);
+        g_gs.state = GS_FAILED;
+        LeaveCriticalSection(&g_gs_lock);
+        gs_set_msg("NOT SYNCING: the published gate verdicts could not be read "
+                   "(share unreachable?) - will retry");
+        return;
+    }
 
     /* Read the monitor ONCE per run rather than per title: it is an EDID
      * fetch plus a full mode enumeration, and the answer cannot change
