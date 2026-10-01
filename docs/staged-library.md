@@ -12,7 +12,7 @@ of the fleet.
 Source of truth is `~/.retro-fleet/fleetbook.db`. Query it directly with
 `scripts/fleet/compat.py` (`matrix`, `status --box .143`, `gaps`, `summary`).
 
-Generated 2026-09-30 21:13.
+Generated 2026-10-01 06:51.
 
 ## The machines
 
@@ -84,8 +84,8 @@ merely had no space for.
 | DOS-Wolf3D | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
 | DOS-WreckinCrew | .. | .. | G. | .. | .. | .. | .. | .. | .. | .. | .. | G. | .. | .. | .. | .. | .. | 0 |
 | Daggerfall | .. | +. | +. | .V | .V | .. | .. | -. | .. | .. | .. | .. | +. | .. | G. | -. | -. | 2 |
-| Descent1 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | +. | +V | -. | 7 |
-| Descent2 | +. | +r | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +r | -. | 5 |
+| Descent1 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +V | +V | +. | +V | -. | 8 |
+| Descent2 | +. | +r | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +V | +V | G. | +r | -. | 6 |
 | Descent3 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 7 |
 | DeusEx | +. | +V | +r | +V | +V | +. | +r | +. | +. | +. | +. | +. | +. | +r | G. | +V | -. | 4 |
 | Doom3 | .. | +V | G. | G. | G. | .. | G. | -. | .. | .. | .. | .. | +. | GV | G. | .r | -. | 2 |
@@ -187,7 +187,7 @@ merely had no space for.
 | WarcraftOrcsAndHumans | .. | +V | +V | .V | .X | .. | .V | +. | .. | .. | .. | .. | +. | .V | G. | .V | -. | 6 |
 | YurisRevenge | +. | +V | +V | +V | +V | +. | +. | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 6 |
 
-**124 titles × 17 machines = 2108 cells — 279 verified, 1732 untested.**
+**124 titles × 17 machines = 2108 cells — 281 verified, 1730 untested.**
 
 ## Titles with a blocker recorded
 
