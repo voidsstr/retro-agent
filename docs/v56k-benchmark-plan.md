@@ -96,6 +96,28 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-09-30 23:00) - AA works in FOUR games; to-do item 1 done
+
+The READ_EN kernel holds in every game tried, with the user watching each one
+(`voodoo-cleanroom/vcr-kmd/evidence/glidelab/aa_multigame_0930/README.md`,
+`v56k_bench.py`, 1024x768, one AA config per clean boot):
+
+| title | stack | 4x (cfg 7) | 8x (cfg 8) |
+|---|---|---|---|
+| Quake III 1.32c | `3dfxOGL.dll` "Mesa Glide v0.63" over our h5 Glide | 33.8 fps, looked right | 15.5 fps, looked good |
+| Quake III 1.32c | our `retrogl` 0.1.76 over a game-local h5 Glide (`allours`) | 29.9 fps, looked right | - |
+| Counter-Strike 1.6 | `3dfxOGL.dll` over our h5 Glide | 31.0 / 35.6 fps, looked right | - |
+| Unreal Tournament 436 | GlideDrv (Glide 2), 16 bpp | 43.0 / 43.0 fps, looked right | 25.0 fps, looked good |
+
+Every run finished its timedemo and exited by itself. Quake II already had
+2x/4x/8x (below). `v56k_bench.py`'s UT99 runner now waits for the demo's own
+summary before F10 (a fixed 105 s cut the 25 fps 8x demo short, twice).
+
+**`.124` state left:** as at 19:30 below, except **AA is disarmed**: Glide cfg 5
+in both keys, `Diag\SliAA` 0, `SliAALive` 0 (boot #59). Agent 1.96.1.
+
+**To do now:** items 2-5 of the list below (item 1 is done).
+
 ### Resume point (2026-09-30 19:30) - in-game AA WORKS at 2x, 4x AND 8x; the to-do list
 
 **The fix:** `cfgAALfbCtrl` READ_EN on the master chip pair, as both 3dfx
@@ -124,8 +146,8 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
 ~9 s AA enable - delete before timing runs); NIC `FlowControl` = 2.
 
 **To do, in the user's order:**
-1. **AA in more games:** 2x/4x/8x in Quake III, UT99 OpenGL, a Glide title -
-   one config per clean boot, the user at the box, traced the first time.
+1. ~~**AA in more games**~~ - **done 2026-09-30 22:55** (resume point above):
+   4x in Quake III (two stacks), CS 1.6 and UT99 Glide, 8x in Quake III and UT99.
 2. **Garbled screens BEFORE the first rendered frame (user, 2026-09-30):**
    under AA the splash, loading and menu screens are garbled until Quake II's
    game view first renders; after that gameplay AND menus are right. A start-up
