@@ -292,7 +292,7 @@
    "CRACK.COM",
    "YEAGER.EXE"
   ],
-  "notes": "sound: none (no setup; AdLib); CRACK.COM (TSR) answers the aircraft-ID copy protection; PLAY.BAT order."
+  "notes": "sound: none (no setup; AdLib). The copy-protection question ('What is the climb rate of the Me-109E?', 'the weight of the MiG-17F?') STILL appears at every start: CRACK.COM is a 142-byte TSR that hooks the timer and, about 2 s after YEAGER.EXE loads, finds its answer check (or ax,ax / jz at offset E39h, segments 400h-4000h) and patches the jz to a jmp - so ANY answer passes; type anything and press Return (measured in DOSBox 2026-09-30: '1000' went straight to the EA logo and the Choose Activity menu). PLAY.BAT order: CRACK, then YEAGER."
  },
  {
   "lib": "Flight-Comanche2",
@@ -494,7 +494,7 @@
   "launch": [
    "LHX.EXE"
   ],
-  "notes": "sound: none to configure (in-game); RUNME.BAT's INC.COM is a crack intro - skipped."
+  "notes": "sound: the PC SPEAKER - LHX's default; measured in DOSBox in flight (rotor, steady RMS ~5000 with the speaker on, silent with it off). The exe's own option `adlibsound` (the crack readme's 'LHX ADLIB') starts and flies but put out NO FM sound in flight, so the launcher keeps the default. At every start the APTEX 'aptitude examination' asks a manual-lookup question: ANY answer passes (the crack) - type anything and press Return. RUNME.BAT's INC.COM is a crack intro - skipped. (2026-09-30)"
  },
  {
   "lib": "Flight-Longbow",
