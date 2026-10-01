@@ -1,0 +1,538 @@
+Log: Log file open, 09/30/26 23:06:14
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows NT 5.1 (Build: 2600)
+Init: Version: 436
+Init: Compiled: Oct 24 2000 23:40:18
+Init: Command line: -log=bench.log -nosound
+Init: Base directory: C:\Games\UnrealTournament436\System\
+Init: Character set: Unicode
+Log: Bound to Engine.dll
+Log: Bound to Core.dll
+Log: Bound to Window.dll
+Init: Object subsystem initialized
+Init: Computer: NSCC543575F526
+Init: User: Administrator
+Init: Memory total: Phys=261608K Pagef=634780K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: CPU Speed=2004.545008 MHz
+Init: CPU Page size=4096, Processors=1
+Init: CPU Detected: PentiumPro-class processor (AuthenticAMD)
+Init: CPU Features: CMov FPU RDTSC PAE MMX KNI 3DNow!
+Init: Unreal engine initialized
+Log: Bound to WinDrv.dll
+Init: Mouse info: 0 0 0
+Init: Initializing DirectDraw
+Log: DirectDraw drivers:
+Log:    display (Primary Display Driver)
+Init: DirectDraw initialized successfully
+Init: Client initialized
+Log: Bound to Render.dll
+Init: Lighting subsystem initialized
+Init: Rendering initialized
+Log: LoadMap: Entry
+Log: Bound to Fire.dll
+Log: Bound to IpDrv.dll
+Log: Game class is 'UTIntro'
+Log: Level is Level Entry.MyLevel
+Log: Bringing Level Entry.MyLevel up for play (0)...
+ScriptLog: InitGame: 
+ScriptLog: Base Mutator is Entry.Mutator0
+Log: Browse: CityIntro.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: LoadMap: CityIntro.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package Render
+Log: Garbage: objects: 16410->16407; refs: 224628
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+ScriptLog: Base Mutator is CityIntro.Mutator1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Bound to UWeb.dll
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale0
+Init: Input system initialized for WindowsViewport0
+Log: Opened viewport
+Log: Bound to OpenGLDrv.dll
+Init: Pixel format 1:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=6 B=5 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=0
+Init: Pixel format 2:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=6 B=5 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=0
+Init: Pixel format 3:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=1
+Init:    Bits: Accum=0 Depth=16 Stencil=0
+Init: Pixel format 4:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=1
+Init:    Bits: Accum=0 Depth=16 Stencil=0
+Init: Pixel format 5:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=0 Depth=24 Stencil=8
+Init: Pixel format 6:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=0 Depth=24 Stencil=8
+Init: Pixel format 7:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 8:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 9:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 10:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 11:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 12:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 13:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 14:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=32 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 15:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Pixel format 16:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=8
+Init: Pixel format 17:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 1
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Pixel format 18:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT PFD_DOUBLEBUFFER
+Init:    Pixel Type: 1
+Init:    Bits: Color=32 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=8
+Init: Pixel format 19:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=24 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 20:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=24 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 21:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=24 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=32 Stencil=8
+Init: Pixel format 22:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=24 R=8 G=8 B=8 A=8
+Init:    Bits: Accum=64 Depth=16 Stencil=8
+Init: Pixel format 23:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=24 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Pixel format 24:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=24 R=8 G=8 B=8 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=8
+Init: Pixel format 25:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=0
+Init:    Bits: Accum=32 Depth=32 Stencil=8
+Init: Pixel format 26:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=0
+Init:    Bits: Accum=32 Depth=16 Stencil=8
+Init: Pixel format 27:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=8
+Init:    Bits: Accum=32 Depth=32 Stencil=8
+Init: Pixel format 28:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=5 B=5 A=8
+Init:    Bits: Accum=32 Depth=16 Stencil=8
+Init: Pixel format 29:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=16 R=5 G=5 B=5 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Pixel format 30:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=16 R=5 G=5 B=5 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=8
+Init: Pixel format 31:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=8 R=3 G=3 B=2 A=0
+Init:    Bits: Accum=32 Depth=32 Stencil=8
+Init: Pixel format 32:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=8 R=3 G=3 B=2 A=0
+Init:    Bits: Accum=32 Depth=16 Stencil=8
+Init: Pixel format 33:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=8 R=3 G=3 B=2 A=8
+Init:    Bits: Accum=32 Depth=32 Stencil=8
+Init: Pixel format 34:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=8 R=3 G=3 B=2 A=8
+Init:    Bits: Accum=32 Depth=16 Stencil=8
+Init: Pixel format 35:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=8 R=3 G=3 B=2 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Pixel format 36:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=8 R=3 G=3 B=2 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=8
+Init: Pixel format 37:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=4 R=1 G=1 B=1 A=0
+Init:    Bits: Accum=16 Depth=32 Stencil=8
+Init: Pixel format 38:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=4 R=1 G=1 B=1 A=0
+Init:    Bits: Accum=16 Depth=16 Stencil=8
+Init: Pixel format 39:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=4 R=1 G=1 B=1 A=8
+Init:    Bits: Accum=16 Depth=32 Stencil=8
+Init: Pixel format 40:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 0
+Init:    Bits: Color=4 R=1 G=1 B=1 A=8
+Init:    Bits: Accum=16 Depth=16 Stencil=8
+Init: Pixel format 41:
+Init:    Flags: PFD_DRAW_TO_BITMAP PFD_SUPPORT_GDI PFD_SUPPORT_OPENGL PFD_GENERIC_FORMAT
+Init:    Pixel Type: 1
+Init:    Bits: Color=4 R=1 G=1 B=1 A=0
+Init:    Bits: Accum=0 Depth=32 Stencil=8
+Init: Using pixel format 2
+Init: glGetString(GL_VENDOR): Brian Paul
+Init: glGetString(GL_RENDERER): Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.80]
+Init: glGetString(GL_VERSION): 1.2 Mesa 6.2.2
+Init: glGetString(GL_EXTENSIONS): [Extension logging disabled in this version of UT-OpenGL.] 
+Init: Pixel format 2:
+Init:    Flags: PFD_DRAW_TO_WINDOW PFD_SUPPORT_OPENGL PFD_DOUBLEBUFFER
+Init:    Pixel Type: 0
+Init:    Bits: Color=16 R=5 G=6 B=5 A=0
+Init:    Bits: Accum=0 Depth=16 Stencil=0
+Init: Device supports: GL
+Init: Device supports: GL_EXT_bgra
+Init: Device supports: GL_EXT_paletted_texture
+Init: Device supports: GL_EXT_compiled_vertex_array
+Init: Device supports: GL_ARB_multitexture
+Init: Device supports: GL_EXT_clip_volume_hint
+Init: Using OpenGL settings [Default]
+Init: Game engine initialized
+Log: Startup time: 22.034918 seconds
+Log: Export travel for: pigga
+Log: Exporting travelling actor of class Botpack.TMale1
+Log: Browse: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Log: LoadMap: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Garbage: objects: 19072->18505; refs: 249509
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer
+ScriptLog: Base Mutator is CityIntro.Mutator2
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale1
+Log: Incoming travelling actor of class Botpack.TMale1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Export travel for: pigga
+Log: Exporting travelling actor of class Botpack.TMale1
+Log: Browse: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Log: LoadMap: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Garbage: objects: 18958->18505; refs: 249509
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer
+ScriptLog: Base Mutator is CityIntro.Mutator3
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale2
+Log: Incoming travelling actor of class Botpack.TMale1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Export travel for: pigga
+Log: Exporting travelling actor of class Botpack.TMale1
+Log: Browse: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Log: LoadMap: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Garbage: objects: 18974->18505; refs: 249509
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer
+ScriptLog: Base Mutator is CityIntro.Mutator4
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale3
+Log: Incoming travelling actor of class Botpack.TMale1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Export travel for: pigga
+Log: Exporting travelling actor of class Botpack.TMale1
+Log: Browse: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Log: LoadMap: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Garbage: objects: 19015->18505; refs: 249509
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer
+ScriptLog: Base Mutator is CityIntro.Mutator5
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale4
+Log: Incoming travelling actor of class Botpack.TMale1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Export travel for: pigga
+Log: Exporting travelling actor of class Botpack.TMale1
+Log: Browse: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Log: LoadMap: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Garbage: objects: 18976->18505; refs: 249509
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer
+ScriptLog: Base Mutator is CityIntro.Mutator6
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale5
+Log: Incoming travelling actor of class Botpack.TMale1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Export travel for: pigga
+Log: Exporting travelling actor of class Botpack.TMale1
+Log: Browse: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Log: LoadMap: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Garbage: objects: 18956->18505; refs: 249509
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer
+ScriptLog: Base Mutator is CityIntro.Mutator7
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale6
+Log: Incoming travelling actor of class Botpack.TMale1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Export travel for: pigga
+Log: Exporting travelling actor of class Botpack.TMale1
+Log: Browse: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Log: LoadMap: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Garbage: objects: 19048->18505; refs: 249509
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer
+ScriptLog: Base Mutator is CityIntro.Mutator8
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale7
+Log: Incoming travelling actor of class Botpack.TMale1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Export travel for: pigga
+Log: Exporting travelling actor of class Botpack.TMale1
+Log: Browse: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Log: LoadMap: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Garbage: objects: 19005->18505; refs: 249509
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer
+ScriptLog: Base Mutator is CityIntro.Mutator9
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale8
+Log: Incoming travelling actor of class Botpack.TMale1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Export travel for: pigga
+Log: Exporting travelling actor of class Botpack.TMale1
+Log: Browse: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Log: LoadMap: CityIntro?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer#IntroIn
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Garbage: objects: 18961->18505; refs: 249509
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne?peer
+ScriptLog: Base Mutator is CityIntro.Mutator10
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale9
+Log: Incoming travelling actor of class Botpack.TMale1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+ScriptLog: Creating root window: UMenu.UMenuRootWindow
+Log: appRequestExit(0)
+Exit: Preparing to exit.
+Log: Purging garbage
+Log: Unbound to Engine.dll
+Log: Unbound to Core.dll
+Log: Unbound to Window.dll
+Log: 0.0ms Unloading: Package Engine
+Log: 0.0ms Unloading: Package Core
+Exit: Game engine shut down
+Log: Unbound to WinDrv.dll
+Log: DirectDraw End Mode
+Log: DirectDraw RestoreDisplayMode: DDERR_NOEXCLUSIVEMODE
+Log: Flushing cache
+Exit: DirectDraw released
+Exit: Windows client shut down
+Log: Unbound to Render.dll
+Exit: Lighting subsystem shut down
+Exit: Rendering shut down
+Log: 0.0ms Unloading: Package Entry
+Log: 0.0ms Unloading: Package Logo
+Log: Unbound to Fire.dll
+Log: 0.0ms Unloading: Package Fire
+Log: 0.0ms Unloading: Package credits
+Log: 0.0ms Unloading: Package Botpack
+Log: 0.0ms Unloading: Package UnrealShare
+Log: 0.0ms Unloading: Package UnrealI
+Log: 0.0ms Unloading: Package Female2Voice
+Log: 0.0ms Unloading: Package Male2Voice
+Log: 0.0ms Unloading: Package Female1Voice
+Log: 0.0ms Unloading: Package BossVoice
+Log: 0.0ms Unloading: Package Male1Voice
+Log: 0.0ms Unloading: Package UMenu
+Log: 0.0ms Unloading: Package UWindow
+Log: 0.0ms Unloading: Package UBrowser
+Log: Unbound to IpDrv.dll
+Log: 0.0ms Unloading: Package IpDrv
+Log: 0.0ms Unloading: Package Announcer
+Log: 0.0ms Unloading: Package CityIntro
+Log: 0.0ms Unloading: Package city
+Log: 0.0ms Unloading: Package Detail
+Log: 0.0ms Unloading: Package ArenaTex
+Log: 0.0ms Unloading: Package GenFX
+Log: 0.0ms Unloading: Package NaliCast
+Log: 0.0ms Unloading: Package RainFX
+Log: 0.0ms Unloading: Package DecayedS
+Log: 0.0ms Unloading: Package GenIn
+Log: 0.0ms Unloading: Package NaliFX
+Log: 0.0ms Unloading: Package genfluid
+Log: 0.0ms Unloading: Package ShaneSky
+Log: 0.0ms Unloading: Package AmbModern
+Log: 0.0ms Unloading: Package AmbAncient
+Log: 0.0ms Unloading: Package openingwave
+Log: 0.0ms Unloading: Package Uttitle
+Log: 0.0ms Unloading: Package AmbOutside
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: 0.0ms Unloading: Package UTMenu
+Log: 0.0ms Unloading: Package LadderSounds
+Log: Unbound to UWeb.dll
+Log: 0.0ms Unloading: Package UWeb
+Log: 0.0ms Unloading: Package UTServerAdmin
+Log: 0.0ms Unloading: Package IpServer
+Log: 0.0ms Unloading: Package LadrArrow
+Log: Unbound to OpenGLDrv.dll
+Log: 0.0ms Unloading: Package LadderFonts
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: 0.0ms Unloading: Package UWindowFonts
+Log: Garbage: objects: 22033->0; refs: 249509
+Exit: Object subsystem successfully closed.
+Exit: Exiting.
+Uninitialized: Name subsystem shut down
+Uninitialized: Memory Allocation Status
+Uninitialized: Curr Memory  10.376M /  0.809M
+Uninitialized: Peak Memory  81.046M /  73.824M
+Uninitialized: Allocs          46 Current /  943176 Total
+Uninitialized: Log file closed, 09/30/26 23:20:02

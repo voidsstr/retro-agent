@@ -96,6 +96,33 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-10-01 11:00) - the garbled AA start-up screens were `SliPersistAll`; to-do item 2 done
+
+**Cause:** the diagnostic `Diag\SliPersistAll` = 1 (set by hand for the
+supervised AA runs) makes every SLI/AA step a flushed registry phase, so each
+AA enable took ~9.6 s instead of ~0.2 s. Glide programs the master's video unit
+for its tiled buffers *before* the request. For those seconds the monitor
+showed the Windows desktop (the game's splash and log windows) through a
+half-programmed four-chip video path, folded into a grid of copies. Quake II
+paid it twice (two contexts). Snapshots of every chip's registers at the menu
+and in the demo were identical and right. An every-0.4 s sweep from launch
+showed the escape blocked for the whole enable, and with `SliPersistAll` = 0
+the enable fits inside one 0.2 s gap.
+**User, fast enable: "it started without the garbled and directly into the
+game"** (a brief flash on exit is fine). **Then at 8x: UT99 (menu, timedemo),
+Quake II (splash, cinematic, attract demo, main menu) and Quake III (main
+menu, demo four): menus and in-game right, all three exited cleanly.**
+Evidence and the theories it ruled out:
+`voodoo-cleanroom/vcr-kmd/evidence/glidelab/aa_garble_0930/README.md`.
+**Keep `SliPersistAll` = 0** (the deployed default) unless hunting a wedge, and
+expect garbage on screen during every enable while it is 1.
+
+**`.124` state left:** AA disarmed (cfg 5 in both Glide keys, `SliAA` 0,
+`SliAALive` 0), **`SliPersistAll` 0**, `SliAAVendorRecipe` 1, NIC `FlowControl`
+2, boot #59 (up since 2026-09-30 22:32); the agent is **1.97.1** (published by
+another session at 10:52 - it restarted the agent mid-test). Kernel, Glide and
+ICD as at 19:30 below.
+
 ### Resume point (2026-09-30 23:00) - AA works in FOUR games; to-do item 1 done
 
 The READ_EN kernel holds in every game tried, with the user watching each one
@@ -148,12 +175,9 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
 **To do, in the user's order:**
 1. ~~**AA in more games**~~ - **done 2026-09-30 22:55** (resume point above):
    4x in Quake III (two stacks), CS 1.6 and UT99 Glide, 8x in Quake III and UT99.
-2. **Garbled screens BEFORE the first rendered frame (user, 2026-09-30):**
-   under AA the splash, loading and menu screens are garbled until Quake II's
-   game view first renders; after that gameplay AND menus are right. A start-up
-   state, not AA rendering - first suspect the ~9 s `SliPersistAll` AA enable
-   (the monitor shows un-merged memory meanwhile), then uncleared secondary
-   sample buffers.
+2. ~~**Garbled screens BEFORE the first rendered frame**~~ - **done 2026-10-01**
+   (resume point above): the ~9.6 s `SliPersistAll` = 1 enable; off, the start
+   is clean.
 3. In-game overclock tests at 175/183 MHz (user present).
 4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on the
    display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through the
@@ -500,7 +524,8 @@ the next mode set.
     `vcrctl info` shows no exclusive owner, and 2D and the pointer are back.
 18. **Step B - kernel state alone** (moderate risk), cfg 3 then cfg 7, each on
     its own clean boot: arm `SliAA` = 1, `SliPersistAll` = 1 (the last phase
-    names the write if it wedges) and `SliAAReadback` = 1 for that boot only.
+    names the write if it wedges - and the screen shows a garbled grid for the
+    ~10 s of every enable while it is set, 2026-10-01) and `SliAAReadback` = 1 for that boot only.
     `vcrctl sliaa 4 1 1 0 1 8 16 <tileMark> 0 <depthlo> <depthhi>
     --i-am-at-the-box` (cfg 3) / `vcrctl sliaa 4 0 1 1 1 ...` (cfg 7). The tool
     refuses AA on a desktop not in 2x mode unless `--force-desktop-pll`. Read
@@ -513,7 +538,8 @@ the next mode set.
     the last write. The vendor arm (`SliAAVendorRecipe` = 1, the REAL tileMark
     or MEMINFO refuses it) is a further clean boot.
 19. **Step C - de-confound cfg 7** (high risk; expect a power cycle). A CLEAN
-    boot where cfg 7 is the first Glide app. `SliAA` = 1, `SliPersistAll` = 1;
+    boot where cfg 7 is the first Glide app. `SliAA` = 1, `SliPersistAll` = 1
+    (garbled screen during each ~10 s enable - expected);
     `SliAAReadback` and `SliAAVendorRecipe` ABSENT, so cfg 7's register writes
     are the ones that ran on 2026-09-26 (only SET_DONE's persisted value
     changes). Check the plan line says `SLIAA-GUARD yes, AA-TRACE yes`, then
