@@ -1219,3 +1219,40 @@ def test_validator_ignores_logs_outside_an_unreal_system_dir(tmp_path):
         "System/game.log": b"",          # no Core.u / Core.dll: not Unreal
     })
     assert not [p for p in vl.check_title(str(tmp_path), "Other") if p.check == "runtime-log"]
+
+
+# UT2003/UT2004 stuttered every ~30 s with input hesitating on .123
+# (2026-09-30). The staged inis carried UseSpeechRecognition=True,
+# UseVoIP=True, ReduceMouseLag=True, CacheSizeMegs=32, Epic's dead UT2003
+# masters, and UT2004 MasterServerList entries with a Group member 3369
+# rejects. The validator now WARNS on each; the fixed library is silent.
+_UE2_OLD = ("[Engine.GameEngine]\r\nCacheSizeMegs=32\r\n"
+            "[WinDrv.WindowsClient]\r\nUseSpeechRecognition=True\r\n"
+            "[ALAudio.ALAudioSubsystem]\r\nUseVoIP=True\r\n"
+            "[D3DDrv.D3DRenderDevice]\r\nReduceMouseLag=True\r\n"
+            "[IpDrv.MasterServerLink]\r\n"
+            'MasterServerList=(Address="utmaster.openspy.net",Port=28902,Group=2)\r\n'
+            "MasterServerAddress[0]=ut2003master1.epicgames.com\r\n")
+_UE2_FIXED = ("[Engine.GameEngine]\r\nCacheSizeMegs=128\r\n"
+              "[WinDrv.WindowsClient]\r\nUseSpeechRecognition=False\r\n"
+              "[ALAudio.ALAudioSubsystem]\r\nUseVoIP=False\r\n"
+              "[D3DDrv.D3DRenderDevice]\r\nReduceMouseLag=False\r\n"
+              "[IpDrv.MasterServerLink]\r\n"
+              'MasterServerList=(Address="utmaster.openspy.net",Port=28902)\r\n'
+              "MasterServerAddress[0]=utmaster.openspy.net\r\n")
+
+
+def test_validator_warns_on_ue2_stutter_and_dead_master_settings(tmp_path):
+    d = _title(tmp_path, "UT2004", {"System/UT2004.ini": _UE2_OLD,
+                                    "System/Core.u": b"x"})
+    probs = vl.ue2_config_problems(str(d / "System"))
+    text = "\n".join(probs)
+    for needle in ("UseSpeechRecognition", "UseVoIP", "ReduceMouseLag",
+                   "CacheSizeMegs", "epicgames.com", "Group"):
+        assert needle in text, (needle, probs)
+
+
+def test_validator_is_silent_on_the_fixed_ue2_settings(tmp_path):
+    d = _title(tmp_path, "UT2003", {"System/UT2003.ini": _UE2_FIXED,
+                                    "System/Core.u": b"x"})
+    assert vl.ue2_config_problems(str(d / "System")) == []

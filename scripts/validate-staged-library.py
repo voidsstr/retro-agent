@@ -326,6 +326,57 @@ def ue_runtime_log_problem(sysdir):
                 % ", System\\".join(sorted(hits)))
     return None
 
+UE2_INIS = ("UT2004.ini", "UT2003.ini")
+# key -> (bad value, why). Each one is a stutter or input-lag cause measured
+# against the fleet on 2026-09-30 (.123, Athlon 64 4000+ / HD 3850: "UT2004 and
+# UT2003 stutter, every 30 s or so input does not work or hesitates").
+_UE2_BAD = {
+    "usespeechrecognition": ("true", "UT2004 runs Windows speech recognition on "
+                             "the microphone the whole game - a known periodic "
+                             "hitch, and nobody on the fleet uses voice commands"),
+    "usevoip": ("true", "voice chat keeps the microphone capture open; the fleet "
+                "has no microphones"),
+    "reducemouselag": ("true", "makes the CPU wait for the GPU every frame - "
+                       "input hesitation and stutter, worst on ATI cards"),
+    "cachesizemegs": ("32", "the 32 MB default thrashes on these maps; 128 on "
+                      "every box UT2003/2004 reaches"),
+}
+_UE2_DEAD_MASTERS = ("epicgames.com",)
+
+
+def ue2_config_problems(sysdir):
+    """Settings in a staged UT2003/UT2004 ini that make it stutter or keep it
+    offline. A WARN, not a FAIL: the title still deploys and runs."""
+    out = []
+    for name in UE2_INIS:
+        path = find_ci(sysdir, name)
+        if not path:
+            continue
+        try:
+            with open(path, "rb") as fh:
+                text = fh.read().decode("latin-1")
+        except OSError:
+            continue
+        for line in text.splitlines():
+            if "=" not in line or line.lstrip().startswith(";"):
+                continue
+            k, v = line.split("=", 1)
+            k, v = k.strip().lower(), v.strip().lower()
+            bad = _UE2_BAD.get(k)
+            if bad and v == bad[0]:
+                out.append("%s %s=%s - %s" % (name, line.split("=", 1)[0].strip(),
+                                              line.split("=", 1)[1].strip(), bad[1]))
+            if (k.startswith("masterserveraddress") or k == "masterserverlist") and \
+                    any(d in v for d in _UE2_DEAD_MASTERS):
+                out.append("%s %s - Epic's masters are gone; point it at "
+                           "utmaster.openspy.net:28902" % (name, line.strip()))
+            if k == "masterserverlist" and ",group=" in v:
+                out.append("%s %s - 3369 has no Group member (logs 'Unknown "
+                           "member Group in MasterServerList' at every start)"
+                           % (name, line.strip()))
+    return sorted(set(out))
+
+
 def find_ci_path(base, relpath):
     """Case-insensitive lookup of a MULTI-COMPONENT relative path.
 
@@ -521,6 +572,8 @@ def check_title(lib, title):
             why = ue_runtime_log_problem(sysdir)
             if why:
                 fail("runtime-log", why)
+            for why in ue2_config_problems(sysdir):
+                warn("ue2-config", why)
             break
 
     # --- install.reg: merged after copying; malformed = silently not merged --

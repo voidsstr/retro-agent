@@ -1424,6 +1424,11 @@ staged only when ALL of the following are true:
    stood here was an inference nobody had measured; both `requires.json` notes
    carry the evidence. See `Games-Library/_patches/README.txt` for what is
    applied and what still needs a Windows box.
+   **Every staged title must be at its highest available patch, and the agent
+   must install patches for staged games (user directive 2026-09-30)** - the
+   register, how a patch reaches a box today and what the agent still lacks
+   (per-box build reporting and drift detection) are in
+   [`docs/staged-title-patches.md`](docs/staged-title-patches.md).
 
 **Support directories in the library root start with `_`** and are NOT games:
 `_desktop/` (fleet wallpapers), `_patches/` (the patch record), `_priority.txt`
