@@ -612,11 +612,14 @@ record:
     ipx_store(msg);
     ipx_set_last(outcome, changed, reboot_required, msg);
 
-    /* Win9x: one reboot makes it live - only when armed (never on NT). */
-    if (f.o.mech == IPX_MECH_9X && outcome != IPX_OUT_HUNG) {
+    /* The post-condition, observed again: live now (XP) resets the attempts;
+     * pending (Win9x) is where the one armed reboot happens - never on NT. */
+    {
         ipx_full_t g;
         ipx_observe(&g);
-        if (g.state == IPX_ST_PENDING_REBOOT)
+        if (g.state == IPX_ST_ACTIVE && g.o.attempts)
+            ipx_reg_set_dword(IPX_REG_ATTEMPTS, 0);
+        if (g.o.mech == IPX_MECH_9X && outcome != IPX_OUT_HUNG && g.state == IPX_ST_PENDING_REBOOT)
             ipx_reboot_if_armed_9x();
     }
 }

@@ -118,7 +118,7 @@ def test_the_9x_reboot_records_and_flushes_before_it_reboots():
     assert "gamesync_busy()" in r, "never mid-copy"
     # it is only ever reached on Win9x
     run = code_only(body(IPX, "ipx_run"))
-    assert "if (f.o.mech == IPX_MECH_9X && outcome != IPX_OUT_HUNG)" in run
+    assert "if (g.o.mech == IPX_MECH_9X && outcome != IPX_OUT_HUNG && g.state == IPX_ST_PENDING_REBOOT)" in run
     assert code_only(IPX).count("ipx_reboot_if_armed_9x()") == 1
 
 
