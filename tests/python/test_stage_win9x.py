@@ -218,7 +218,8 @@ def test_every_generated_win9x_launcher_is_command_com_dialect():
 
 
 def test_quake1_win9x_launchers_are_8_3_names():
-    assert sorted(Q1_BATS) == ["Q1DOS.BAT", "Q1DOSM10.BAT", "Q1V640.BAT", "Q1V800.BAT"]
+    assert sorted(Q1_BATS) == ["Q1DOS.BAT", "Q1DOSM10.BAT", "Q1HIPD.BAT", "Q1HIPV.BAT",
+                               "Q1ROGD.BAT", "Q1ROGV.BAT", "Q1V640.BAT", "Q1V800.BAT"]
     for name in Q1_BATS:
         assert NAME83.match(name), name
 
@@ -331,3 +332,30 @@ def test_the_share_is_what_the_generator_makes():
     r = sw9.Runner(LIB, check=True, writer=_Rec()).run()
     assert r.problems == [], ("the library differs from scripts/fleet/stage-win9x.py - "
                               "run it (or fix the generator, never the share): %s" % r.problems)
+
+
+def test_quake1_mission_packs():
+    """Scourge of Armagon and Dissolution of Eternity (2026-10-01): the packs'
+    data from the share's TOSEC zips, md5-pinned; each pack gets a Win9x Voodoo
+    and a DOS launcher (the -hipnotic / -rogue switch both engines carry) and
+    an NT GLQuake launcher from stage-fleetres.py, whose rule it shares."""
+    copies = Q1["copies"]
+    assert copies["HIPNOTIC/PAK0.PAK"]["md5"] == "0ab83681aaf841c4320269e02941a14a"
+    assert copies["ROGUE/PAK0.PAK"]["md5"] == "c38a4e04219c317cd1b02f386bdfe11f"
+    assert copies["QROGUE.ICO"]["md5"] == "6fcc4d5491eb6ce40a81d6cdcda74c28"
+    for switch, folder, name, vbat, dbat in sw9.Q1_PACKS:
+        v, d = Q1_BATS[vbat], Q1_BATS[dbat]
+        assert "start /w VOODOO\\GLQUAKE.EXE -%s -width 640 -height 480 -bpp 16" % switch in v
+        assert "QUAKE.EXE -%s -nojoy -nocdaudio -winmem 16" % switch in d
+        lines = d.replace("\r\n", "\n").split("\n")
+        assert lines[lines.index("QUAKE.EXE -%s -nojoy -nocdaudio -winmem 16" % switch) + 2] == "cls"
+        for bat in (v, d):
+            assert "if not exist %s\\PAK0.PAK goto notree" % folder in bat
+        rules = Q1["requires"]["set"]
+        assert rules[vbat] == {"requires_capabilities": ["glide"], "max_os": "win9x"}
+        assert rules[dbat] == {"max_os": "win9x"}
+        nt = "Play Quake - %s.bat" % name
+        assert rules[nt] == rules["Play Quake.bat"]
+        rows = {r[0]: r for r in Q1["launch"]["rows"]}
+        assert nt in rows and vbat in rows and dbat in rows
+    assert Q1["requires"]["set_top"]["disk_mb"] >= 200

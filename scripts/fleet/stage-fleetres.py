@@ -2349,7 +2349,12 @@ TITLES = {
         "cfg_semis": ["base/autoexec.cfg"],
     },
     "Quake1": {
-        "new": {"Play Quake.bat": ("GLQUAKE.EXE", None)},
+        # The mission packs (HIPNOTIC\PAK0.PAK, ROGUE\PAK0.PAK - staged by
+        # stage-win9x.py, which also owns their launch.txt rows and rules) run
+        # through the same GLQuake template with -hipnotic / -rogue.
+        "new": {"Play Quake.bat": ("GLQUAKE.EXE", None),
+                "Play Quake - Scourge of Armagon.bat": ("GLQUAKE.EXE", "hipnotic"),
+                "Play Quake - Dissolution of Eternity.bat": ("GLQUAKE.EXE", "rogue")},
         "launch_txt_line0": ("Play Quake.bat", "Quake", "GLQUAKE.EXE"),
         # exec fleetkey.cfg as the LAST live line: Quake 1 has no fleetres.cfg
         # (its mode is on the command line) and no movement binds of its own,
@@ -2701,7 +2706,7 @@ cd /d "%~dp0"
 
 {block}
 
-start "" GLQUAKE.EXE -width %FR_W43% -height %FR_H43% -bpp 32
+start "" GLQUAKE.EXE{args} -width %FR_W43% -height %FR_H43% -bpp 32
 
 exit
 """
@@ -2925,7 +2930,9 @@ class Runner:
             return
         if exe.upper() == "GLQUAKE.EXE":
             block = "\n".join([call_cap(1280, 960)])
-            text = NEW_GLQUAKE.format(block=block)
+            # mod = a mission pack's switch; none for the base game, whose
+            # launcher is byte-identical to what it was before the packs
+            text = NEW_GLQUAKE.format(block=block, args=(" -" + mod) if mod else "")
         elif title in ("SiNGold", "SoldierOfFortune"):
             block = "\n".join([CALL] + q2_cfg(mod))
             text = NEW_Q2.format(title=disp, exe=exe, block=block)
