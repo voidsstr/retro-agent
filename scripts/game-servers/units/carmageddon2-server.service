@@ -1,0 +1,20 @@
+[Unit]
+Description=Carmageddon 2 LAN host (Carma2_SW.exe + IPXWrapper, Wine in Docker) - NSC Retro Fleet
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/carmageddon2-server
+ExecStart=/home/voidsstr/carmageddon2-server/_run/run-carmageddon2-server.sh
+ExecStop=/usr/bin/docker stop -t 10 c2srv
+Restart=always
+RestartSec=20
+# The game has to be driven from its intro into the hosting lobby with xdotool
+# on every start (it has no dedicated server); host.py gives up after 240 s.
+TimeoutStartSec=300
+StandardOutput=append:/home/voidsstr/carmageddon2-server/server.log
+StandardError=append:/home/voidsstr/carmageddon2-server/server.log
+
+[Install]
+WantedBy=default.target

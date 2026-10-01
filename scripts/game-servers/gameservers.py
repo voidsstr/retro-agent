@@ -627,6 +627,99 @@ def probe_udp_bound(port, timeout=DEFAULT_TIMEOUT, host=None):
     return None
 
 
+# --------------------------------------------------------------------------
+# Carmageddon 2 - a peer-hosted IPX game, tunnelled by IPXWrapper (UDP 54792)
+# --------------------------------------------------------------------------
+
+C2_STATE = os.environ.get("RETRO_C2_STATE",
+                          os.path.expanduser("~voidsstr/carmageddon2-server/_run/state.json"))
+C2_IPX_SOCKET = 0x2FFE      # the IPX socket Carma2 binds (IPXWrapper log: /12286)
+
+
+def _iface_of(ip):
+    """(interface, broadcast address) of the NIC that carries `ip`, or None."""
+    try:
+        out = subprocess.run(["ip", "-o", "-4", "addr", "show"], capture_output=True,
+                             text=True, timeout=3).stdout
+    except Exception:
+        return None
+    for line in out.splitlines():
+        f = line.split()
+        if len(f) >= 4 and f[3].split("/")[0] == ip:
+            brd = f[f.index("brd") + 1] if "brd" in f else None
+            return f[1], brd
+    return None
+
+
+def carma2_query_packet(node=b"\x02\x00\x00\x00\x00\x01"):
+    """An IPXWrapper datagram carrying Carmageddon 2's "who is hosting?".
+
+    IPXWrapper 0.4.0 frames each IPX packet as ptype, dest net/node/socket,
+    src net/node/socket, a 16-bit data length, then the data - all big-endian
+    (src/ipxwrapper.h `struct ipx_packet`). The data is the game's own join
+    broadcast, read out of Carma2_SW.exe: sprintf("XXXX%s%0.1d", "CAR2MSG", 1).
+    A host answers with ...CAR2MSG2 - and ONLY while it is hosting: the reply
+    is gated on the game's net mode (0x685e60 == 2), so an answer means a
+    lobby a fleet box can join, not merely a live process.
+    """
+    data = b"XXXXCAR2MSG1\x00"
+    return struct.pack(">B4s6sH4s6sHH", 0, b"\0\0\0\1", b"\xff" * 6, C2_IPX_SOCKET,
+                       b"\0\0\0\1", node, C2_IPX_SOCKET, len(data)) + data
+
+
+def probe_carma2(port, timeout=DEFAULT_TIMEOUT, host=None):
+    """Carmageddon 2 LAN host: the game's own discovery handshake.
+
+    There is no query port - discovery is an IPX BROADCAST, tunnelled by
+    IPXWrapper as UDP to the subnet broadcast address on 54792 - and the host
+    instance's socket is pinned to the wired NIC with SO_BINDTODEVICE (see
+    scripts/game-servers/carmageddon2/bindiface.c). A unicast to our own
+    address arrives on `lo` and is dropped by that pin, so the probe does what
+    a fleet box does: broadcasts out of the same NIC and waits for the
+    CAR2MSG2 reply. Only a reply FROM this host counts; a fleet box that
+    happens to be hosting answers too and is ignored.
+
+    LOCAL-ONLY, like probe_udp_bound: from anywhere else it returns None.
+    The lobby's player count comes from the driver's own state.json, which
+    reads the frame - the protocol reply carries no count.
+    """
+    if host not in (None, HOST, "127.0.0.1", "localhost"):
+        return None
+    nic = _iface_of(HOST)
+    if not nic or not nic[1]:
+        return None
+    iface, brd = nic
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.settimeout(timeout)
+    started = time.monotonic()
+    try:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BINDTODEVICE, iface.encode() + b"\0")
+        sock.bind(("", 0))
+        sock.sendto(carma2_query_packet(), (brd, port))
+        deadline = started + timeout
+        while time.monotonic() < deadline:
+            sock.settimeout(max(0.05, deadline - time.monotonic()))
+            data, addr = sock.recvfrom(2048)
+            if addr[0] == HOST and data[27:39] == b"XXXXCAR2MSG2":
+                out = {"name": "Carmageddon 2 LAN host", "map": None,
+                       "rtt_ms": round((time.monotonic() - started) * 1000, 1)}
+                try:
+                    st = json.load(open(C2_STATE))
+                    if time.time() - st.get("updated", 0) < 60:
+                        out["map"] = st.get("state")
+                        if st.get("state") == "lobby" and st.get("players"):
+                            out["players"] = max(0, st["players"] - 1)   # not the host's own car
+                except Exception:
+                    pass
+                return out
+    except Exception:
+        return None
+    finally:
+        sock.close()
+    return None
+
+
 PROBES = {
     "a2s": probe_a2s,
     "q3": probe_q3,
@@ -644,6 +737,7 @@ PROBES = {
 
     "d3": probe_d3,
     "udp_bound": probe_udp_bound,
+    "carma2": probe_carma2,
 }
 
 
@@ -752,6 +846,15 @@ SERVERS = [
     # which takes about 70 seconds before the port is even bound.
     {"unit": "shogo-server",       "label": "Shogo",           "engine": "lithtech",
      "probe": "ut",  "port": 27888, "join": 27888, "slow_start_sec": 180},
+    # Carmageddon 2 has NO dedicated server: multiplayer is peer-hosted, so
+    # this is the game itself (Carma2_SW.exe, software renderer) under Wine in
+    # Docker, driven into HOST -> the "LOADING STATUS" lobby by host.py on
+    # every start, and tunnelled over UDP 54792 by the tree's own IPXWrapper.
+    # The probe is the game's own join broadcast (CAR2MSG1 -> CAR2MSG2); see
+    # scripts/game-servers/carmageddon2/. Clients find it by broadcast, so
+    # "join" is the IPXWrapper port, not something anyone types.
+    {"unit": "carmageddon2-server", "label": "Carmageddon 2",  "engine": "ipxwrapper",
+     "probe": "carma2", "port": 54792, "join": 54792, "slow_start_sec": 180},
     # Docker, not systemd: Tribes 2 needs a 2001 userland. See docker_states().
     {"unit": "tribes2-server",     "label": "Tribes 2",        "engine": "t2",
      "probe": "t2",  "port": 28000, "join": 28000, "manager": "docker"},

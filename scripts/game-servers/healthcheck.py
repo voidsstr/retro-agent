@@ -207,6 +207,18 @@ def t2(port):                       # Tribes 2 speaks the Torque binary query
     r = ask(port, bytes([0x0E, 0, 0, 0, 0, 0]), timeout=4.0)
     return ("Tribes 2 responded (%d bytes)" % len(r)) if r else None
 
+def carma2(port):                   # Carmageddon 2: the game's own join handshake
+    """Carmageddon 2 has no query port: discovery is an IPX broadcast that
+    IPXWrapper tunnels over UDP 54792, and the host only answers ("CAR2MSG2")
+    while it is actually HOSTING a lobby. The probe lives in gameservers.py so
+    the watchdog and this check cannot drift apart. Local-only."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from gameservers import probe_carma2
+    r = probe_carma2(port, host=HOST)
+    if not r: return None
+    return "%s | %s | %s remote player(s)" % (r["name"], r.get("map") or "?",
+                                            r.get("players", "?"))
+
 CHECKS = [
     ("cs16-server",        "CS 1.6",              27018, a2s),
     ("  \\_ a2s proxy",    "CS 1.6 browser",      27015, a2s),
@@ -251,6 +263,9 @@ CHECKS = [
     ("ssam-tse-server",    "Serious Sam TSE (q 25611)", 25611, ut),
     # Shogo speaks GameSpy on the GAME port itself, not port + 1.
     ("shogo-server",       "Shogo",               27888, ut),
+    # Carmageddon 2 LAN host (2026-10-01): Carma2_SW.exe itself, hosting a
+    # network game under Wine in docker; IPXWrapper over UDP 54792.
+    ("carmageddon2-server","Carmageddon 2 (IPX/UDP)", 54792, carma2),
     ("tribes2-server",     "Tribes 2",            28000, t2),
     # Wine-in-docker Windows servers. They were live on this host and absent
     # from THIS list, so the "one-shot check of every server" quietly checked

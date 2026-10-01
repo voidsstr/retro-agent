@@ -30,7 +30,7 @@ packet per engine**, which a single `getstatus` sweep does not.
 | 1 | AliensVsPredator | peer by design | — | Rebellion shipped no dedicated server for AvP 1999; LAN is DirectPlay peer. Exclusive-fullscreen D3D also makes its screenshots black |
 | 2 | BF1942 | **needs a decision** | — | `BF1942_w32ded.exe` runs with no disc and no CD key, but the CLIENT is blocked fleet-wide by SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll`. A server here would have no joinable client |
 | 3 | Carmageddon1 | peer by design | — | DOS/IPX; tunnel proven both ends, the front end needs one click |
-| 4 | Carmageddon2 | peer by design | — | IPXWrapper, peer-hosted |
+| 4 | Carmageddon2 | **SERVER** (a hosting client) | `carmageddon2-server` UDP **54792** (IPXWrapper) | NEW 2026-10-01. Still no dedicated server on any platform - so the GAME hosts: `Carma2_SW.exe` under Wine in docker, driven into NETWORK GAME → HOST by `host.py`, listed as `FLEET HOST` in JOIN A GAME. Probe = the game's own `CAR2MSG1/2` handshake. See `scripts/game-servers/carmageddon2/README.md` |
 | 5 | CounterStrike16 | **SERVER** | `cs16-server` :27015 (query 27018) · `cs16-noblood` :27016 (query 27019) | plus the A2S proxies that make them visible in a 2003 LAN browser |
 | 6 | Daggerfall | no multiplayer | — | The Elder Scrolls II is single-player only; GOG's DOSBox conf sets `ipx=false` and there is nothing to host. Verified fullscreen on `.133` and `.143` 2026-09-01 |
 | 7 | Descent1 | peer by design | — | DOSBox IPX tunnel; one player Hosts |
