@@ -277,10 +277,18 @@ class Profile:
             except (TypeError, ValueError):
                 return 0
 
-        # C: is where GAMESYNC puts games, so that is the volume that matters.
+        # The volume GAMESYNC puts games on is the one that matters: C:\Games,
+        # or HKLM\Software\RetroAgent\GamesDir (agent 1.93.0) - which the
+        # agent's own gate already measures. HWPROFILE does not carry GamesDir,
+        # so gamegate's fetch reads it (REGREAD) and adds "games_dir". Reading
+        # C: here published "not enough free disk (have 433 MB)" for .243,
+        # whose titles live on E: with 64 GB free, and the agent obeys a
+        # published "no" over its own rule (2026-10-01).
         free = 0
+        games_dir = str(data.get("games_dir", "") or "")
+        drive = games_dir[:1].upper() if games_dir[1:3] == ":\\" else "C"
         for d in disks:
-            if str(d.get("root", "")).upper().startswith("C"):
+            if str(d.get("root", "")).upper().startswith(drive):
                 free = int(d.get("free_mb", 0) or 0)
                 break
 

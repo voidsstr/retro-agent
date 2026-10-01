@@ -13,6 +13,11 @@ d931bfe6c33fae5e	UnrealTournament436	run	.243 Pentium 166 + Voodoo 2 (under the 
 # those titles are installed and tested. <hash> TAB @follows TAB <hash> copies every override.
 a8c6fcedee0c8076	@follows	d931bfe6c33fae5e
 #
+# .243 itself at 800x600x16 (the user chose it 2026-10-01; its 1 MB Cirrus cannot hold 1024x768x16).
+# With no EDID the panel size is read from the desktop mode, and the panel size is hashed - so the
+# mode change gave .243 a NEW profile hash. Its curated set follows it here.
+b9a3b8c66827032c	@follows	d931bfe6c33fae5e
+#
 # .243 (Compaq Deskpro 2000, Pentium 166, Voodoo 2, Win98) - the user curated this box on 2026-09-29:
 # "prioritize quake / quake 2 / unreal tournament, then flight simulator games; you can eject other
 # games unless they are noteworthy from a 3d perspective in this era". Everything below is "no" on its

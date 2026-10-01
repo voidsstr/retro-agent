@@ -1784,6 +1784,18 @@ copied (`agent/shared/verdictread.h`). Verified on XPBUILD with `library=` in
 `gamesync.ini` pointed at a dead host: `UNREADABLE after 5 tries (error 53) -
 refusing`, 0 MB copied.
 
+**Two more ways a box loses its published verdicts (2026-10-01, .243):**
+- **The profile hash includes the PANEL size, and with no EDID the panel IS the desktop mode** - so
+  changing the resolution mints a new hash, the box finds no `_gamegate\<hash>.txt`, and GAMESYNC
+  falls back to the local rules, which cannot see an operator override: `.243` went to 800x600x16
+  and immediately started copying 18 GB, `RedneckRampage` ("not wanted on .243") first. After
+  changing a box's desktop mode, carry its overrides with `<new hash>\t@follows\t<old hash>` in
+  `scripts/gamegate/overrides.txt` and publish BEFORE its next sync.
+- **The host planner measured the disk floor on C:**, while GAMESYNC writes to `GamesDir` (`.243`:
+  E:, 64 GB free, C: 433 MB) - so the published file refused large titles the box has room for.
+  The fetch now reads `GamesDir` (REGREAD) and measures that drive. **Rule verdicts are cached
+  without free space in the key**: after a disk change, publish with `--refresh`.
+
 ### HWPROFILE — because SYSINFO cannot answer the question
 
 `SYSINFO` reports no clock, no CPU vendor, no instruction set and no GPU at all,

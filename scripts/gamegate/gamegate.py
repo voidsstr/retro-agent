@@ -77,9 +77,39 @@ async def _fetch_hwprofile(ip, port=9898, timeout=20.0):
     await conn.connect(SECRET, timeout=12.0)
     try:
         text = await conn.command_text("HWPROFILE", timeout=timeout)
+        games_dir = await _fetch_games_dir(conn, timeout)
     finally:
         await conn.close()
-    return text
+    return _with_games_dir(text, games_dir)
+
+
+async def _fetch_games_dir(conn, timeout=20.0):
+    """HKLM\\Software\\RetroAgent\\GamesDir (agent 1.93.0), or '' - the volume
+    the disk floor must be measured on. REGREAD runs inside the agent (no child
+    process), so it is safe on a single-threaded Win9x agent. Any failure is
+    '' - the C: default, i.e. exactly the old behaviour."""
+    try:
+        st, data = await conn.send_command("REGREAD HKLM Software\\RetroAgent")
+        if st != 0:
+            return ""
+        for v in json.loads(data.decode("latin-1")).get("values", []):
+            if str(v.get("name", "")).lower() == "gamesdir":
+                return str(v.get("data", "") or "")
+    except Exception:
+        pass
+    return ""
+
+
+def _with_games_dir(text, games_dir):
+    """Fold games_dir into the HWPROFILE JSON (the cache stores the text)."""
+    if not games_dir:
+        return text
+    try:
+        data = json.loads(text)
+    except ValueError:
+        return text
+    data["games_dir"] = games_dir
+    return json.dumps(data)
 
 
 def _parse_profile(ip, text, cache):
