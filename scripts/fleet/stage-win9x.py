@@ -959,6 +959,60 @@ WCPROPHECY = {
 }
 
 # ==========================================================================
+# Die by the Sword (1998) - DieByTheSword, NEW, Win9x-only
+# ==========================================================================
+# Research C recipe 3.3, verified in the second W98BUILD VM 2026-10-01: the
+# disc's die\ folder IS the game - windie.exe plus data\, moves\ and the 3D
+# back ends (rl3dfx.dll = Glide 2) - so no installer runs: the tree is the
+# disc's die\ minus the installer, DirectX and registration files. windie.exe
+# builds its data path as SrcPath + "\data\", read from the registry - a
+# RELATIVE "." works because the launcher starts in this folder (measured: the
+# menu and an arena loaded with SrcPath=".", no CD in the drive), so one
+# install.reg serves C:\GAMES (the VM) and E:\GAMES (.243). The HKCU
+# RL_DLL_NAME=RL3DFX.DLL is the choice the game's "3D Hardware Detection"
+# dialog stores; with it set the dialog does not appear. -nocd skips every
+# MCI cdaudio call (research C, disassembly) - there is no CD music.
+
+DBTS_REG = r"""REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\Interplay\Die By The Sword\1.0]
+"SrcPath"="."
+"Language"="English"
+
+[HKEY_LOCAL_MACHINE\Software\Treyarch\Die By The Sword\1.0]
+"SrcPath"="."
+"Language"="English"
+
+[HKEY_CURRENT_USER\Software\Treyarch\Die By The Sword\1.0]
+"RL_DLL_NAME"="RL3DFX.DLL"
+"Video Mode"="Normal Resolution"
+"Detail Level"="Normal"
+"""
+
+DIEBYTHESWORD = {
+    "copies": {"DESKFIX9.EXE": DESKFIX9},
+    "files": {"install.reg": DBTS_REG},
+    "bats": {
+        "DBTS.BAT": voodoo_bat(
+            "Die by the Sword", "WINDIE.EXE", ["start /w WINDIE.EXE -3dfx -nocd"],
+            ["Die by the Sword - Treyarch, 1998 - on the 3Dfx back end rl3dfx.dll, Glide 2.",
+             "-3dfx picks it, -nocd skips the CD music calls - there is no disc. SrcPath is",
+             "the relative . in install.reg, so the game must start in this folder.",
+             "Alt-Tab crashes the 3Dfx build - the game's own readme."]),
+    },
+    "launch": {"rows": [("DBTS.BAT", "Die by the Sword - 3dfx Voodoo", "DBTS.ICO")]},
+    "requires": {
+        "version": 1,
+        "set_top": {"min_cpu_mhz": 100, "min_ram_mb": 16, "disk_mb": 620, "max_os": "win9x"},
+        "set": {"DBTS.BAT": GLIDE_RULE},
+        "notes": ("Die by the Sword, 1998: P166 + a 3Dfx card is the recommended spec; "
+                  "the disc's die\\ folder IS the game (no installer) and it runs disc-free "
+                  "with SrcPath '.' and -nocd - verified in the W98BUILD VM 2026-10-01 "
+                  "(scripts/fleet/stage-win9x.py)."),
+    },
+}
+
+# ==========================================================================
 
 TITLES = {
     "Quake1": QUAKE1,
@@ -969,6 +1023,7 @@ TITLES = {
     "UnrealGold": UNREALGOLD,
     "Carmageddon2": CARMAGEDDON2,
     "WCProphecy": WCPROPHECY,
+    "DieByTheSword": DIEBYTHESWORD,
 }
 
 # Payload first, launchers next, rules after them, launch.txt LAST.

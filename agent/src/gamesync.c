@@ -5584,6 +5584,7 @@ static void gs_run(const char *library)
      * gamedirs whose autoexec.cfg does not exec FLEETKEY.CFG. */
     int    qb_written = 0, qb_notexec = 0;
     int    listing_complete = 0;
+    int    titles_failed = 0;   /* "finished with errors" - see ds_run_may_sweep */
     DWORD  enum_err = 0;
     __int64 grand = 0, freeb, margin;
 
@@ -6017,6 +6018,7 @@ static void gs_run(const char *library)
             gs_make_game_shortcut(dst, titles[i]);
         } else {
             log_msg(LOG_GS, "%s finished with errors", titles[i]);
+            titles_failed++;
         }
 
         EnterCriticalSection(&g_gs_lock);
@@ -6059,8 +6061,12 @@ static void gs_run(const char *library)
      * considered EVERY title may do it (ds_run_may_sweep): an aborted run, or
      * one whose library listing was cut short or capped, never looked at some
      * titles, and sweeping would take their icons with it. */
-    if (ds_run_may_sweep(g_gs_abort != 0, listing_complete))
+    if (ds_run_may_sweep(g_gs_abort != 0, listing_complete, titles_failed))
         gs_sweep_unclaimed();
+    else if (!g_gs_abort && listing_complete)
+        log_msg(LOG_GS, "desktop NOT swept: %d title(s) finished with errors and "
+                        "never re-asserted their shortcuts - every icon stays where "
+                        "it is until a clean run", titles_failed);
     else
         log_msg(LOG_GS, "desktop NOT swept: this run %s, so some titles were "
                         "never considered - every icon stays where it is",

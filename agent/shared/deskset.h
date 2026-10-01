@@ -203,10 +203,17 @@ DS_UNUSED static void ds_mark_gone(ds_entry_t *e, unsigned where)
  * EVERY title. An aborted run, or one whose library listing was cut short or
  * capped, never looked at some titles - and sweeping would take the icons of
  * exactly those titles away, installed games included. Leaving clutter is the
- * cheap failure; an empty desktop is the one this file exists to prevent. */
-DS_UNUSED static int ds_run_may_sweep(int aborted, int listing_complete)
+ * cheap failure; an empty desktop is the one this file exists to prevent.
+ *
+ * A TITLE THAT FINISHED WITH ERRORS NEVER RE-ASSERTS ITS SHORTCUTS EITHER
+ * (agent 1.97.1): its shortcut pass runs only after a clean copy. Measured on
+ * the W98BUILD VM 2026-10-01: SMB to the NAS dropped mid-run (error 53 on
+ * every listing), 65 titles "finished with errors", and the sweep moved 66
+ * installed games' icons to C:\retro-desktop-backup. So a run with any failed
+ * title does not sweep either - the next clean run will. */
+DS_UNUSED static int ds_run_may_sweep(int aborted, int listing_complete, int titles_failed)
 {
-    return !aborted && listing_complete;
+    return !aborted && listing_complete && titles_failed == 0;
 }
 
 /* Net change in the SET of desktop icons: added, plus names that were there at

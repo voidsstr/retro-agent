@@ -114,10 +114,14 @@ def test_every_early_return_leaves_the_desktop_alone():
 def test_only_a_run_that_considered_every_title_sweeps():
     run = _run()
     m = re.search(r"if\s*\(\s*ds_run_may_sweep\(\s*g_gs_abort\s*!=\s*0\s*,"
-                  r"\s*listing_complete\s*\)\s*\)\s*gs_sweep_unclaimed\(\)", run)
+                  r"\s*listing_complete\s*,\s*titles_failed\s*\)\s*\)\s*gs_sweep_unclaimed\(\)", run)
     assert m, ("the sweep must be guarded by ds_run_may_sweep(abort, "
-               "listing_complete): an aborted or truncated run never looked at "
-               "some titles and would take their icons")
+               "listing_complete, titles_failed): an aborted or truncated run never "
+               "looked at some titles, and a failed title never re-asserted its "
+               "shortcuts - sweeping would take their icons (1.97.1, W98BUILD)")
+    # every "finished with errors" is counted
+    fe = run.index('"%s finished with errors"')
+    assert "titles_failed++" in run[fe:fe + 200]
     lc = re.search(r"listing_complete\s*=\s*!capped\s*&&\s*\(\s*enum_err\s*==\s*0"
                    r"\s*\|\|\s*enum_err\s*==\s*ERROR_NO_MORE_FILES\s*\)", run)
     assert lc, "listing_complete must come from BOTH the cap and FindNextFile's error"

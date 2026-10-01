@@ -175,7 +175,7 @@ TEST(the_end_state_is_the_one_the_old_order_produced)
         ds_claim(&s, written[k], DS_COMMON, 1);
         write_lnk(&new_d, written[k]);
     }
-    CHECK(ds_run_may_sweep(0, 1), "a complete run sweeps");
+    CHECK(ds_run_may_sweep(0, 1, 0), "a complete run sweeps");
     CHECK_EQ_I(sweep_unclaimed(&s, &new_d), 3);  /* stale, .url, user dup */
 
     CHECK_EQ_I(new_d.n, old_d.n);
@@ -195,17 +195,21 @@ TEST(a_run_that_does_not_finish_removes_nothing)
     static desk_t d;
     static ds_set_t s;
 
-    CHECK(!ds_run_may_sweep(1, 1), "an aborted run must not sweep");
-    CHECK(!ds_run_may_sweep(0, 0), "a truncated or capped listing must not sweep");
-    CHECK(!ds_run_may_sweep(1, 0), "neither");
-    CHECK(ds_run_may_sweep(0, 1), "only a complete run sweeps");
+    CHECK(!ds_run_may_sweep(1, 1, 0), "an aborted run must not sweep");
+    CHECK(!ds_run_may_sweep(0, 0, 0), "a truncated or capped listing must not sweep");
+    /* 1.97.1: W98BUILD 2026-10-01 - SMB dropped mid-run, 65 titles failed and
+     * the old rule (aborted/listing only) swept 66 installed games' icons. */
+    CHECK(!ds_run_may_sweep(0, 1, 65), "a run with failed titles must not sweep");
+    CHECK(!ds_run_may_sweep(0, 1, 1), "even ONE failed title keeps the sweep off");
+    CHECK(!ds_run_may_sweep(1, 0, 0), "neither");
+    CHECK(ds_run_may_sweep(0, 1, 0), "only a complete run sweeps");
 
     /* Aborted after the first title: the titles it never reached keep their
      * icons, and the gate sees no removal. OLD: all of them were already gone. */
     desk_110(&d);
     snapshot(&s, &d);
     ds_claim(&s, "Game 00.lnk", DS_COMMON, 1);
-    if (ds_run_may_sweep(1, 1))
+    if (ds_run_may_sweep(1, 1, 0))
         sweep_unclaimed(&s, &d);
     CHECK_EQ_I(d.n, 97);
     CHECK_EQ_I(ds_changed(&s), 0);
