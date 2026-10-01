@@ -178,7 +178,23 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
 2. ~~**Garbled screens BEFORE the first rendered frame**~~ - **done 2026-10-01**
    (resume point above): the ~9.6 s `SliPersistAll` = 1 enable; off, the start
    is clean.
-3. In-game overclock tests at 175/183 MHz (user present).
+3. ~~In-game overclock tests at 175/183 MHz~~ - **done 2026-10-01**
+   (`voodoo-cleanroom/vcr-kmd/evidence/clock_oc_1001/README.md`): fill scales
+   exactly with the clock (1110.7 -> 1165.2 -> 1218.2 Mpix/s); Quake III +3.8% /
+   +6.4% over the steady-state stock run, Quake II 177.2 fps at 183 MHz (+1.5%,
+   CPU-bound); user: CS + Quake II at 183 MHz clean, no artifacts. Clock left
+   at stock (nothing is persisted).
+3b. **NEW (user, 2026-10-01): every OpenGL/Glide game on `.124`, on our
+   drivers, stable and tuned for the card + the 2 GHz CPU.** In progress
+   (`voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/`). Routing as found: the
+   system ICD is ours (`OpenGLDrivers\3dfx\DLL` = `retroicd.dll` 0.1.80), and
+   `system32\glide2x.dll` (AmigaMerlin, 94 KB) is a Glide2->Glide3 wrapper
+   ("GlideXP", loads `glide3x.dll`), so Glide 2 titles run on our h5 Glide.
+   Off our path: Carmageddon 2's staged nGlide, 3dfx MiniGL beside GLQuake /
+   Quake II, RtCW's `gl\openglv5.dll`, stale game-local `glide3x.dll` copies
+   left by the bench's allours lane (Quake II, Quake III), Unreal Gold and
+   Deus Ex on D3DDrv. Steps: baseline sweep (`lan_sweep.py`, 49 shortcuts),
+   route + tune per title (library-first, per-box launcher logic), re-sweep.
 4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on the
    display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through the
    console until fixed).
