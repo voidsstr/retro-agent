@@ -1228,14 +1228,29 @@ class UT99Bench(Unreal1):
         await box.exec_(f'cmd /c del /f /q "{self.log}"')
         await box.exec_(rf'cmd /c del /f /q "{self.root}\System\Running.ini"')
 
+    # the longest a demo may take before F10 is sent anyway (8x AA on the V5
+    # 6000 runs it at ~20 fps: well over the 105 s the 4x run needs)
+    demo_max_s = 600
+
     async def start(self, box):
         # The whole timedemo is driven here; the runner's log poll then finds
-        # the flushed bench.log. Timings from the fleet route: ~20 s to the
-        # menu, the demo runs ~90 s, F10 exits cleanly.
+        # the flushed bench.log. ~20 s to the menu, then F9, then F10 once the
+        # demo's OWN summary is in the log. (Until 2026-09-30 F10 went after a
+        # fixed 105 s - fine at 4x AA, but at 8x the demo was still running,
+        # so only the toggle's 3-frame blip was logged and the row was lost.)
         await box.text(f"LAUNCH {self.bat}")
         await asyncio.sleep(24)
         await box.text("UIKEY F9")
-        await asyncio.sleep(105)
+        deadline = time.time() + self.demo_max_s
+        await asyncio.sleep(60)
+        while time.time() < deadline:
+            try:
+                raw = (await box.download(self.log)).decode("latin-1", "replace")
+            except Exception:
+                raw = ""
+            if self.parse(raw):
+                break
+            await asyncio.sleep(15)
         await box.text("UIKEY F10")
         await asyncio.sleep(8)
 

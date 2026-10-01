@@ -1,4 +1,4 @@
-Log: Log file open, 09/30/26 22:27:21
+Log: Log file open, 09/30/26 22:43:04
 Init: Name subsystem initialized
 Init: Detected: Microsoft Windows NT 5.1 (Build: 2600)
 Init: Version: 436
@@ -14,7 +14,7 @@ Init: Computer: NSCC543575F526
 Init: User: Administrator
 Init: Memory total: Phys=261608K Pagef=634780K Virt=2097024K
 Init: Working set: 32000 / 159000
-Init: CPU Speed=2004.557047 MHz
+Init: CPU Speed=2004.549280 MHz
 Init: CPU Page size=4096, Processors=1
 Init: CPU Detected: PentiumPro-class processor (AuthenticAMD)
 Init: CPU Features: CMov FPU RDTSC PAE MMX KNI 3DNow!
@@ -56,12 +56,12 @@ Init: Initializing Glide...
 Init: Found Glide: 2.70 1.00.01.0106GXP
 Init: Glide info: Type=0, fbRam=60817408 fbiRev=0 nTexelfx=2 Sli=0
 Init: grSstOpen Res=12 Ref=0 Buffers=3 (X: 1024 Y: 768)
-Init: Glide tmu 0: tmuRev=0 tmuRam=2097152 Space=29833200
-Init: Glide tmu 1: tmuRev=0 tmuRam=2097152 Space=29833200
+Init: Glide tmu 0: tmuRev=0 tmuRam=2097152 Space=26683376
+Init: Glide tmu 1: tmuRev=0 tmuRam=2097152 Space=26683376
 Log: Flushed Glide TMU 0
 Log: Flushed Glide TMU 1
 Init: Game engine initialized
-Log: Startup time: 40.043425 seconds
+Log: Startup time: 13.728619 seconds
 Log: Attempting to play demo UTbench.dem
 DevNet: DemoPlayPendingLevel received: USES GUID=C697BCA611D38D41E0006BA2D2321081 PKG=DM-Gothic FLAGS=1 SIZE=2779289 GEN=1
 DevNet: DemoPlayPendingLevel received: USES GUID=5CA303AC11D38D0CC00084B50A1E604F PKG=ShaneChurch FLAGS=1 SIZE=5064523 GEN=1
@@ -102,7 +102,7 @@ Log: 0.0ms Unloading: Package AmbAncient
 Log: 0.0ms Unloading: Package openingwave
 Log: 0.0ms Unloading: Package Uttitle
 Log: 0.0ms Unloading: Package AmbOutside
-Log: Garbage: objects: 19624->18512; refs: 274858
+Log: Garbage: objects: 19973->18512; refs: 274858
 Log: Level is Level DM-Gothic.MyLevel
 Log: Bringing Level DM-Gothic.MyLevel up for play (0)...
 Log: Spawning new actor for Viewport WindowsViewport0
@@ -115,7 +115,7 @@ Log: Possessed PlayerPawn: TMale1 Entry.TMale1
 Init: Initialized moving brush tracker for Level DM-Gothic.MyLevel
 Log: Flushed Glide TMU 0
 Log: Flushed Glide TMU 1
-ScriptLog: 3 frames rendered in 0.12 seconds. Min 0.00 Max 0.00 Avg 24.68 fps.
+ScriptLog: 3 frames rendered in 0.08 seconds. Min 0.00 Max 0.00 Avg 37.48 fps.
 Log: Possessed PlayerPawn: TMale2 DM-Gothic.TMale0
 ScriptWarning: ChallengeHUD DM-Gothic.ChallengeHUD0 (Function Botpack.ChallengeHUD.PostBeginPlay:006F) Accessed None
 ScriptLog: Attached to player DM-Gothic.TMale0
@@ -129,7 +129,7 @@ ScriptLog: Failed to load CommandoSkins.1 so load CommandoSkins.cmdo1
 Warning: Failed to load 'Texture CommandoSkins.2': Failed to find object 'Texture CommandoSkins.2'
 ScriptLog: Failed to load CommandoSkins.2 so load CommandoSkins.cmdo2
 Log: Possessed PlayerPawn: TMale1 Entry.TMale1
-ScriptLog: 2937 frames rendered in 68.35 seconds. Min 31.66 Max 66.04 Avg 42.96 fps.
+ScriptLog: 2937 frames rendered in 117.34 seconds. Min 17.36 Max 34.51 Avg 25.02 fps.
 Log: appRequestExit(0)
 Exit: Preparing to exit.
 Log: Purging garbage
@@ -168,7 +168,7 @@ Log: 0.0ms Unloading: Package Detail
 Log: 0.0ms Unloading: Package GenFX
 Log: 0.0ms Unloading: Package GenIn
 Log: 0.0ms Unloading: Package genfluid
-NetComeGo: Close DemoRecConnection0 09/30/26 22:29:28
+NetComeGo: Close DemoRecConnection0 09/30/26 22:53:28
 Exit: Shutting down Glide...
 Exit: Glide shut down
 Log: 0.0ms Unloading: Package UTMenu
@@ -181,21 +181,21 @@ Log: 0.0ms Unloading: Package LadrArrow
 Log: 0.0ms Unloading: Package CommandoSkins
 Log: Unbound to GlideDrv.dll
 Log: 0.0ms Unloading: Package LadderFonts
-Log: Closing down demo driver.
+Log: 0.0ms Unloading: Package SGirlSkins
 Log: 0.0ms Unloading: Package DM-Gothic
 Log: 0.0ms Unloading: Package ShaneChurch
 Log: 0.0ms Unloading: Package GenEarth
+Log: 0.0ms Unloading: Package FCommandoSkins
+Log: 0.0ms Unloading: Package BossSkins
+Log: Closing down demo driver.
 Log: 0.0ms Unloading: Package Razor-ub
 Log: 0.0ms Unloading: Package SoldierSkins
-Log: 0.0ms Unloading: Package FCommandoSkins
-Log: 0.0ms Unloading: Package SGirlSkins
-Log: 0.0ms Unloading: Package BossSkins
-Log: Garbage: objects: 20013->0; refs: 274858
+Log: Garbage: objects: 19433->0; refs: 274858
 Exit: Object subsystem successfully closed.
 Exit: Exiting.
 Uninitialized: Name subsystem shut down
 Uninitialized: Memory Allocation Status
 Uninitialized: Curr Memory  2.165M /  0.746M
-Uninitialized: Peak Memory  74.729M /  76.203M
-Uninitialized: Allocs          43 Current /  984726 Total
-Uninitialized: Log file closed, 09/30/26 22:29:31
+Uninitialized: Peak Memory  74.458M /  75.398M
+Uninitialized: Allocs          43 Current /  1376939 Total
+Uninitialized: Log file closed, 09/30/26 22:53:30
