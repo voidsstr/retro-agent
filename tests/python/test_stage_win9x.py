@@ -359,3 +359,37 @@ def test_quake1_mission_packs():
         rows = {r[0]: r for r in Q1["launch"]["rows"]}
         assert nt in rows and vbat in rows and dbat in rows
     assert Q1["requires"]["set_top"]["disk_mb"] >= 200
+
+
+def test_new_voodoo2_titles_keep_what_the_vm_proved():
+    """WCProphecy, DieByTheSword and RogueSquadron (2026-10-01) were each proven
+    in the W98BUILD VM with these exact values - and every path in their
+    install.reg is RELATIVE to the folder the .bat starts the game in, so one
+    staged file serves C:\\GAMES (the VM) and E:\\GAMES (.243)."""
+    t = sw9.TITLES
+    for name in ("WCProphecy", "DieByTheSword", "RogueSquadron"):
+        spec = t[name]
+        assert spec["requires"]["set_top"]["max_os"] == "win9x"
+        for bat, text in spec["bats"].items():
+            assert lm.command_com_problems(sw9.crlf(text).encode("ascii")) == [], (name, bat)
+            assert spec["requires"]["set"][bat] == sw9.GLIDE_RULE
+        assert not re.search(r'"[A-Z]:\\\\', spec["files"]["install.reg"]), \
+            "%s: an absolute drive path in install.reg breaks .243's E:\\GAMES" % name
+
+    dbts = t["DieByTheSword"]
+    reg = dbts["files"]["install.reg"]
+    # windie.exe builds SrcPath + "\data\" - "." works from the launcher's folder
+    assert reg.count('"SrcPath"="."') == 2
+    assert '"RL_DLL_NAME"="RL3DFX.DLL"' in reg      # no 3D-hardware dialog
+    assert "start /w WINDIE.EXE -3dfx -nocd" in dbts["bats"]["DBTS.BAT"]
+
+    rs = t["RogueSquadron"]
+    reg = rs["files"]["install.reg"]
+    # ROGUE.EXE checks CD Path + "\rogue\data\out\data.dat": CD Path is the
+    # folder ABOVE ROGUE, which the .bat makes the current directory
+    assert '"CD Path"=".."' in reg and '"Install Path"="."' in reg
+    assert '"Driver"="GLIDE"' in reg and '"VDEVICE"="Voodoo (Glide)"' in reg
+    lines = _cmds(rs["bats"]["ROGUESQ.BAT"])
+    i = lines.index("cd ROGUE")
+    assert lines[i + 1] == 'start /w "Rogue Squadron.EXE"' and lines[i + 2] == "cd .."
+    assert rs["launch"]["rows"][0][2] == "ROGUESQ.ICO"

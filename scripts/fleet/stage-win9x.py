@@ -1013,6 +1013,61 @@ DIEBYTHESWORD = {
 }
 
 # ==========================================================================
+# Star Wars: Rogue Squadron 3D (1999) - RogueSquadron, NEW, Win9x-only
+# ==========================================================================
+# Research C recipe 3.11 (GOG 2.0.0.3, innoextract'ed app\ROGUE; the GOG Galaxy
+# goggame dll is not imported and is left out). Verified in the second
+# W98BUILD VM 2026-10-01: "Rogue Squadron.EXE" (the 2008 rebuild, no disc
+# check reached) flew Ambush at Mos Eisley on the Voodoo with the values
+# below. The launcher ROGUE.EXE checks CD Path + "\rogue\data\out\data.dat",
+# so CD Path is the folder ABOVE ROGUE - and every path here is RELATIVE to
+# ROGUE, which the .bat makes the current directory: one install.reg serves
+# C:\GAMES (the VM) and E:\GAMES (.243). Driver/VDEVICE/3DSetup/DefVidID are
+# what the game's own "Change 3D Video Card" stored for the Voodoo. The bat
+# starts the game exe itself - the launcher's Play does nothing here.
+
+ROGUE_REG = r"""REGEDIT4
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\LucasArts Entertainment Company LLC\Rogue Squadron\v1.0]
+"Executable"="Rogue Squadron.EXE"
+"Install Path"="."
+"Source Path"="."
+"CD Path"=".."
+"Analyze Path"="SysCheck.exe"
+"Source Dir"="..\\"
+"JoystickID"="1"
+"SoundCard"="TRUE"
+"InstallType"=dword:00000009
+"Magic"=dword:0009283c
+"DefVidID"="0"
+"Driver"="GLIDE"
+"VDEVICE"="Voodoo (Glide)"
+"3DSetup"="TRUE"
+"""
+
+ROGUESQUADRON = {
+    "copies": {"DESKFIX9.EXE": DESKFIX9},
+    "files": {"install.reg": ROGUE_REG},
+    "bats": {
+        "ROGUESQ.BAT": voodoo_bat(
+            "Star Wars Rogue Squadron 3D", "ROGUE\\ROGUE.EXE",
+            ["cd ROGUE", 'start /w "Rogue Squadron.EXE"', "cd .."],
+            ["Star Wars Rogue Squadron 3D - LucasArts, 1999, GOG build - on Glide.",
+             "install.reg's paths are relative to ROGUE, so the game must start there."]),
+    },
+    "launch": {"rows": [("ROGUESQ.BAT", "Star Wars Rogue Squadron 3D - 3dfx Voodoo", "ROGUESQ.ICO")]},
+    "requires": {
+        "version": 1,
+        "set_top": {"min_cpu_mhz": 133, "min_ram_mb": 32, "disk_mb": 80, "max_os": "win9x"},
+        "set": {"ROGUESQ.BAT": GLIDE_RULE},
+        "notes": ("Star Wars Rogue Squadron 3D, 1999 (GOG build): P166 + a 3Dfx card is the "
+                  "box's spec; flew a mission on the Voodoo in the P166-shaped W98BUILD VM "
+                  "2026-10-01 with relative install.reg paths, no disc "
+                  "(scripts/fleet/stage-win9x.py)."),
+    },
+}
+
+# ==========================================================================
 
 TITLES = {
     "Quake1": QUAKE1,
@@ -1024,6 +1079,7 @@ TITLES = {
     "Carmageddon2": CARMAGEDDON2,
     "WCProphecy": WCPROPHECY,
     "DieByTheSword": DIEBYTHESWORD,
+    "RogueSquadron": ROGUESQUADRON,
 }
 
 # Payload first, launchers next, rules after them, launch.txt LAST.
