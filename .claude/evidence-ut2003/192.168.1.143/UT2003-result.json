@@ -1,0 +1,68 @@
+{
+ "ip": "192.168.1.143",
+ "title": "UT2003",
+ "launcher_has_reseed": true,
+ "userini_before": {
+  "size": 8757,
+  "has_input": true
+ },
+ "launch": "",
+ "foreground": {
+  "hwnd": "000100E4",
+  "pid": 2012,
+  "class": "UT2003UnrealWWindowsViewportWindow",
+  "title": "Unreal Tournament 2003"
+ },
+ "windows": [
+  [
+   "Unreal Tournament 2003",
+   "UT2003UnrealWWindowsViewportWindow",
+   {
+    "left": 0,
+    "top": 0,
+    "right": 1280,
+    "bottom": 960
+   }
+  ],
+  [
+   "C:\\RETRO_AGENT\\retro_chat.exe",
+   "ConsoleWindowClass",
+   {
+    "left": 89,
+    "top": 110,
+    "right": 758,
+    "bottom": 448
+   }
+  ],
+  [
+   "Retro Remote Agent Version 1.96.0",
+   "ConsoleWindowClass",
+   {
+    "left": -32000,
+    "top": -32000,
+    "right": -31840,
+    "bottom": -31969
+   }
+  ],
+  [
+   "Program Manager",
+   "Progman",
+   {
+    "left": 0,
+    "top": 0,
+    "right": 1280,
+    "bottom": 960
+   }
+  ]
+ ],
+ "displaycfg": "{\"width\":1280,\"height\":960,\"bpp\":32,\"refresh\":60}",
+ "screen": [
+  1280,
+  960
+ ],
+ "esc_changed_pct": 90.9,
+ "userini_after": {
+  "size": 8757,
+  "has_input": true
+ }
+}

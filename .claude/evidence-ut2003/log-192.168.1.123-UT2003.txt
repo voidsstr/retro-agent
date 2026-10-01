@@ -1,0 +1,60 @@
+/home/voidsstr/development/retro-agent/.claude/evidence-ut2003/uttest.py:55: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  res['esc_changed_pct'] = round(100.0 * sum(1 for p in diff.getdata() if sum(p) > 30) / (a.size[0] * a.size[1]), 2)
+{
+ "ip": "192.168.1.123",
+ "title": "UT2003",
+ "launcher_has_reseed": true,
+ "userini_before": {
+  "size": 8757,
+  "has_input": true
+ },
+ "launch": "",
+ "foreground": {
+  "hwnd": "000100DA",
+  "pid": 1904,
+  "class": "UT2003UnrealWWindowsViewportWindow",
+  "title": "Unreal Tournament 2003"
+ },
+ "windows": [
+  [
+   "Unreal Tournament 2003",
+   "UT2003UnrealWWindowsViewportWindow",
+   {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080
+   }
+  ],
+  [
+   "Retro Remote Agent Version 1.96.0",
+   "ConsoleWindowClass",
+   {
+    "left": -32000,
+    "top": -32000,
+    "right": -31840,
+    "bottom": -31969
+   }
+  ],
+  [
+   "Program Manager",
+   "Progman",
+   {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080
+   }
+  ]
+ ],
+ "displaycfg": "{\"width\":1920,\"height\":1080,\"bpp\":32,\"refresh\":60}",
+ "screen": [
+  1920,
+  1080
+ ],
+ "esc_changed_pct": 91.31,
+ "userini_after": {
+  "size": 8757,
+  "has_input": true
+ }
+}

@@ -1,0 +1,148 @@
+{
+ "ip": "192.168.1.243",
+ "hostname": "N5R5L9",
+ "os": "Windows 98",
+ "capabilities": {
+  "disc_mount": false,
+  "disc_mount_evidence": "",
+  "glide": true,
+  "glide_evidence": "PCI\\VEN_121A&DEV_0002&SUBSYS_00000000&REV_02\\BUS_00&DEV_03&FUNC_00",
+  "bits": 2
+ },
+ "screen": [
+  1024,
+  768
+ ],
+ "desktop_dirs": {
+  "C:\\Users\\Public\\Desktop": 0,
+  "C:\\Documents and Settings\\All Users\\Desktop": 0,
+  "C:\\WINDOWS\\All Users\\Desktop": 1,
+  "C:\\WINDOWS\\Desktop": 2
+ },
+ "installed_titles": 38,
+ "library_titles": 52,
+ "expected_shortcuts": 15,
+ "present_shortcuts": 0,
+ "missing": [
+  {
+   "title": "Descent1",
+   "name": "Descent",
+   "suppressed_reason": "cpu_mhz: CPU too slow (have 165 MHz, needs 350)"
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Host LAN Game",
+   "suppressed_reason": "cpu_mhz: CPU too slow (have 165 MHz, needs 350)"
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Join LAN Game",
+   "suppressed_reason": "cpu_mhz: CPU too slow (have 165 MHz, needs 350)"
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Rebirth engine",
+   "suppressed_reason": "cpu_features: CPU lacks cmov"
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Sound Setup",
+   "suppressed_reason": "cpu_mhz: CPU too slow (have 165 MHz, needs 350)"
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II",
+   "suppressed_reason": "gpu_feature_level: no 3D acceleration at all and this title has no software renderer"
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - Host LAN Game",
+   "suppressed_reason": "gpu_feature_level: no 3D acceleration at all and this title has no software renderer"
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - Join LAN Game",
+   "suppressed_reason": "gpu_feature_level: no 3D acceleration at all and this title has no software renderer"
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - Software Renderer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - 3dfx Voodoo",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake",
+   "suppressed_reason": "gpu_feature_level: no 3D acceleration at all and this title has no software renderer"
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - Software Renderer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - 3dfx Voodoo",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Win9x",
+   "name": "Quake II",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Win9x",
+   "name": "Quake II - 3dfx Voodoo",
+   "suppressed_reason": null
+  }
+ ],
+ "missing_unexplained": [
+  {
+   "title": "HexenII",
+   "name": "Hexen II - Software Renderer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - 3dfx Voodoo",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - Software Renderer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - 3dfx Voodoo",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Win9x",
+   "name": "Quake II",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Win9x",
+   "name": "Quake II - 3dfx Voodoo",
+   "suppressed_reason": null
+  }
+ ],
+ "icon_files_mismatch": [],
+ "last_gamesync_done_line": "[11:24:23][GAMESYNC] done: 4/52 title(s) copied, 19 skipped (no room), 29 gated (machine cannot run), 0 file error(s), 5 file(s) written, 6 new/removed shortcut(s)",
+ "shortcut_icons_changed_titles": {},
+ "windows": [
+  "RETRO_~2",
+  "Program Manager"
+ ],
+ "evidence": {
+  "desktop": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.243/desktop.png",
+  "icons_a": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.243/icons_a.png",
+  "icons_b": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.243/icons_b.png",
+  "agent_log": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.243/agent.log"
+ }
+}

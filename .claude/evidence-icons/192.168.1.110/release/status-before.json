@@ -1,0 +1,53 @@
+{
+ "ip": "192.168.1.110",
+ "hostname": "NSC-5C5396FAF9D",
+ "agent": "1.89.1",
+ "os": "Windows XP",
+ "os_level": "winxp",
+ "host_policy": {
+  "modern": false,
+  "managed": true
+ },
+ "capabilities": {
+  "disc_mount": false,
+  "disc_mount_evidence": "",
+  "glide": false,
+  "glide_evidence": "",
+  "bits": 0
+ },
+ "gpu": "RADEON 9500 PRO / 9700",
+ "display": {
+  "width": 1024,
+  "height": 768,
+  "bpp": 32,
+  "panel_w": 1024,
+  "panel_h": 768,
+  "panel_source": "registry",
+  "edid_w": 1024,
+  "edid_h": 768,
+  "panel_hz": 85,
+  "panel_digital": 0,
+  "panel_name": "CPD-G200"
+ },
+ "gamesync": {
+  "state": "done",
+  "percent": 100,
+  "titles_done": 51,
+  "titles_total": 52,
+  "titles_skipped": 0,
+  "titles_gated": 1,
+  "mb_done": 54188,
+  "mb_total": 54188,
+  "mbps": 0.0,
+  "current_title": "Tribes2",
+  "current_file": "Play Tribes 2 Solo and LAN.bat",
+  "failed_files": 0,
+  "failed_file": "",
+  "elapsed_s": 9970,
+  "provisioned": true,
+  "files_written": 406,
+  "shortcuts_changed": 2,
+  "new_image": true,
+  "message": "complete - 51 title(s)"
+ }
+}

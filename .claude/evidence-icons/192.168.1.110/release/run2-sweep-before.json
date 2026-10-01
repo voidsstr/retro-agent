@@ -1,0 +1,906 @@
+{
+ "lnk": [
+  "Aliens vs Predator.lnk",
+  "Battlefield 1942 - Host LAN Server.lnk",
+  "Carmageddon - Host LAN Game.lnk",
+  "Carmageddon - Join LAN Game.lnk",
+  "Carmageddon - Sound Setup.lnk",
+  "Carmageddon 2.lnk",
+  "Carmageddon.lnk",
+  "Command and Conquer - Red Alert 2.lnk",
+  "Command and Conquer - Tiberian Sun.lnk",
+  "Counter-Strike 1.6.lnk",
+  "DOOM 3 - Host LAN Game.lnk",
+  "DOOM 3.lnk",
+  "Deathmatch Classic.lnk",
+  "Descent - Host LAN Game.lnk",
+  "Descent - Join LAN Game.lnk",
+  "Descent - Rebirth engine.lnk",
+  "Descent - Sound Setup.lnk",
+  "Descent II - Host LAN Game.lnk",
+  "Descent II - Join LAN Game.lnk",
+  "Descent II.lnk",
+  "Descent.lnk",
+  "Deus Ex - Host Multiplayer Server.lnk",
+  "Deus Ex.lnk",
+  "Far Cry.lnk",
+  "Half-Life - Blue Shift.lnk",
+  "Half-Life - Opposing Force.lnk",
+  "Half-Life Deathmatch - Fleet Server.lnk",
+  "Half-Life.lnk",
+  "Halo 2.lnk",
+  "Halo Combat Evolved.lnk",
+  "Hexen II - Host LAN Game.lnk",
+  "Hexen II - Join LAN Game.lnk",
+  "Hexen II - Software Renderer.lnk",
+  "Hexen II.lnk",
+  "Hidden and Dangerous - Host LAN Game.lnk",
+  "Hidden and Dangerous - Join LAN Game.lnk",
+  "Hidden and Dangerous Deluxe.lnk",
+  "Jedi Knight - Dark Forces II.lnk",
+  "Jedi Knight - Mysteries of the Sith.lnk",
+  "Master of Orion II - Battle at Antares.lnk",
+  "Master of Orion II - Host LAN Game.lnk",
+  "Master of Orion II - Join LAN Game.lnk",
+  "Postal Classic and Uncut.lnk",
+  "Quake - Software Renderer.lnk",
+  "Quake II - Ground Zero.lnk",
+  "Quake II - The Reckoning.lnk",
+  "Quake II - ThreeWave CTF.lnk",
+  "Quake II.lnk",
+  "Quake III - Team Arena.lnk",
+  "Quake III Arena (retail 1.32c).lnk",
+  "Quake III Arena.lnk",
+  "Quake.lnk",
+  "RTCW - Host LAN Game.lnk",
+  "RTCW - Join LAN Game.lnk",
+  "RTCW Multiplayer.lnk",
+  "Red Alert 2 - Yuri's Revenge.lnk",
+  "Redneck Rampage - Collection Menu.lnk",
+  "Redneck Rampage - Host LAN Game.lnk",
+  "Redneck Rampage - Join LAN Game.lnk",
+  "Redneck Rampage - Rides Again.lnk",
+  "Redneck Rampage - Route 66.lnk",
+  "Redneck Rampage - Setup - Network Config.lnk",
+  "Redneck Rampage.lnk",
+  "Retro Agent.lnk",
+  "Retro Chat.lnk",
+  "Return to Castle Wolfenstein.lnk",
+  "Serious Sam - The First Encounter - Host LAN Game.lnk",
+  "Serious Sam - The Second Encounter - Host LAN Game.lnk",
+  "Shadow Warrior - Host LAN Game.lnk",
+  "Shadow Warrior - Join LAN Game.lnk",
+  "Shadow Warrior - Twin Dragon.lnk",
+  "Shadow Warrior - Wanton Destruction.lnk",
+  "Shadow Warrior.lnk",
+  "SiN - Wages of SiN.lnk",
+  "SiN - software mode for newer cards.lnk",
+  "SiN.lnk",
+  "Soldier of Fortune II - Multiplayer.lnk",
+  "Soldier of Fortune.lnk",
+  "Team Fortress Classic.lnk",
+  "The Elder Scrolls II - Daggerfall.lnk",
+  "Thief Gold.lnk",
+  "Thief II - The Metal Age.lnk",
+  "Tom Clancy's Rainbow Six.lnk",
+  "Tribes 2 Online.lnk",
+  "Tribes 2 Solo and LAN.lnk",
+  "Turok 2 - Join LAN Game.lnk",
+  "Turok 2 - Multiplayer.lnk",
+  "Turok 2 - Seeds of Evil.lnk",
+  "UT2004 - Join the fleet server.lnk",
+  "UT99 436 - Join Fleet Server.lnk",
+  "Unreal Gold - Host LAN Server.lnk",
+  "Unreal Gold.lnk",
+  "Unreal Tournament 2004.lnk",
+  "Unreal Tournament 436.lnk",
+  "Unreal Tournament.lnk",
+  "Warcraft - Orcs and Humans.lnk",
+  "Warcraft 1 - Host LAN Game.lnk",
+  "Warcraft 1 - Join LAN Game.lnk",
+  "Warcraft II - Battle.net Edition.lnk"
+ ],
+ "backup": [
+  {
+   "name": "Aliens vs Predator.lnk",
+   "is_dir": false,
+   "size": 1525,
+   "modified": "2026-09-26 12:36:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Battlefield 1942 - Host LAN Server.lnk",
+   "is_dir": false,
+   "size": 1597,
+   "modified": "2026-09-26 13:18:19",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Carmageddon - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1618,
+   "modified": "2026-09-26 12:39:37",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Carmageddon - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1618,
+   "modified": "2026-09-26 12:39:37",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Carmageddon - Sound Setup.lnk",
+   "is_dir": false,
+   "size": 1619,
+   "modified": "2026-09-26 12:39:37",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Carmageddon 2.lnk",
+   "is_dir": false,
+   "size": 1566,
+   "modified": "2026-09-26 12:35:22",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Carmageddon.lnk",
+   "is_dir": false,
+   "size": 1556,
+   "modified": "2026-09-26 12:39:37",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Command and Conquer - Red Alert 2.lnk",
+   "is_dir": false,
+   "size": 1573,
+   "modified": "2026-09-26 12:11:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Command and Conquer - Tiberian Sun.lnk",
+   "is_dir": false,
+   "size": 1588,
+   "modified": "2026-09-26 12:38:07",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Counter-Strike 1.6.lnk",
+   "is_dir": false,
+   "size": 1624,
+   "modified": "2026-09-26 12:31:49",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Deathmatch Classic.lnk",
+   "is_dir": false,
+   "size": 1551,
+   "modified": "2026-09-26 12:19:23",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1560,
+   "modified": "2026-09-26 12:41:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1560,
+   "modified": "2026-09-26 12:41:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent - Rebirth engine.lnk",
+   "is_dir": false,
+   "size": 1582,
+   "modified": "2026-09-26 12:41:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent - Sound Setup.lnk",
+   "is_dir": false,
+   "size": 1561,
+   "modified": "2026-09-26 12:41:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent II - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1576,
+   "modified": "2026-09-26 12:43:04",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent II - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1576,
+   "modified": "2026-09-26 12:43:04",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent II.lnk",
+   "is_dir": false,
+   "size": 1514,
+   "modified": "2026-09-26 12:43:04",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent.lnk",
+   "is_dir": false,
+   "size": 1498,
+   "modified": "2026-09-26 12:41:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Deus Ex - Host Multiplayer Server.lnk",
+   "is_dir": false,
+   "size": 1590,
+   "modified": "2026-09-26 12:28:01",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Deus Ex.lnk",
+   "is_dir": false,
+   "size": 1478,
+   "modified": "2026-09-26 12:28:01",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "DOOM 3 - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1510,
+   "modified": "2026-09-26 13:23:35",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "DOOM 3.lnk",
+   "is_dir": false,
+   "size": 1448,
+   "modified": "2026-09-26 13:23:35",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Far Cry.lnk",
+   "is_dir": false,
+   "size": 1468,
+   "modified": "2026-09-26 13:15:19",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Half-Life - Blue Shift.lnk",
+   "is_dir": false,
+   "size": 1515,
+   "modified": "2026-09-26 12:19:23",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Half-Life - Opposing Force.lnk",
+   "is_dir": false,
+   "size": 1559,
+   "modified": "2026-09-26 12:19:23",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Half-Life Deathmatch - Fleet Server.lnk",
+   "is_dir": false,
+   "size": 1680,
+   "modified": "2026-09-26 12:31:49",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Half-Life.lnk",
+   "is_dir": false,
+   "size": 1484,
+   "modified": "2026-09-26 12:19:23",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Halo Combat Evolved.lnk",
+   "is_dir": false,
+   "size": 1453,
+   "modified": "2026-09-26 13:20:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Hexen II - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1546,
+   "modified": "2026-09-26 13:04:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Hexen II - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1546,
+   "modified": "2026-09-26 13:04:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Hexen II - Software Renderer.lnk",
+   "is_dir": false,
+   "size": 1579,
+   "modified": "2026-09-26 13:04:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Hexen II.lnk",
+   "is_dir": false,
+   "size": 1484,
+   "modified": "2026-09-26 13:04:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Hidden and Dangerous - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1725,
+   "modified": "2026-09-26 13:05:13",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Hidden and Dangerous - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1725,
+   "modified": "2026-09-26 13:05:13",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Hidden and Dangerous Deluxe.lnk",
+   "is_dir": false,
+   "size": 1712,
+   "modified": "2026-09-26 13:05:13",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Jedi Knight - Dark Forces II.lnk",
+   "is_dir": false,
+   "size": 1511,
+   "modified": "2026-09-26 12:25:28",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Jedi Knight - Mysteries of the Sith.lnk",
+   "is_dir": false,
+   "size": 1541,
+   "modified": "2026-09-26 12:34:37",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Master of Orion II - Battle at Antares.lnk",
+   "is_dir": false,
+   "size": 1670,
+   "modified": "2026-09-26 13:28:35",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Master of Orion II - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1692,
+   "modified": "2026-09-26 13:28:35",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Master of Orion II - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1692,
+   "modified": "2026-09-26 13:28:35",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Postal Classic and Uncut.lnk",
+   "is_dir": false,
+   "size": 1497,
+   "modified": "2026-09-26 13:35:25",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake - Software Renderer.lnk",
+   "is_dir": false,
+   "size": 1553,
+   "modified": "2026-09-26 12:36:08",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake II - Ground Zero.lnk",
+   "is_dir": false,
+   "size": 1614,
+   "modified": "2026-09-26 12:24:09",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake II - The Reckoning.lnk",
+   "is_dir": false,
+   "size": 1642,
+   "modified": "2026-09-26 12:24:09",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake II - ThreeWave CTF.lnk",
+   "is_dir": false,
+   "size": 1638,
+   "modified": "2026-09-26 12:24:09",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake II.lnk",
+   "is_dir": false,
+   "size": 1516,
+   "modified": "2026-09-26 12:24:09",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake III - Team Arena.lnk",
+   "is_dir": false,
+   "size": 1617,
+   "modified": "2026-09-26 12:04:17",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake III Arena (retail 1.32c).lnk",
+   "is_dir": false,
+   "size": 1721,
+   "modified": "2026-09-26 12:04:17",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake III Arena.lnk",
+   "is_dir": false,
+   "size": 1628,
+   "modified": "2026-09-26 12:04:17",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake.lnk",
+   "is_dir": false,
+   "size": 1456,
+   "modified": "2026-09-26 12:36:08",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Red Alert 2 - Yuri's Revenge.lnk",
+   "is_dir": false,
+   "size": 1582,
+   "modified": "2026-09-26 12:11:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Redneck Rampage - Collection Menu.lnk",
+   "is_dir": false,
+   "size": 1636,
+   "modified": "2026-09-26 12:07:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Redneck Rampage - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1662,
+   "modified": "2026-09-26 12:07:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Redneck Rampage - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1662,
+   "modified": "2026-09-26 12:07:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Redneck Rampage - Rides Again.lnk",
+   "is_dir": false,
+   "size": 1616,
+   "modified": "2026-09-26 12:07:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Redneck Rampage - Route 66.lnk",
+   "is_dir": false,
+   "size": 1587,
+   "modified": "2026-09-26 12:07:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Redneck Rampage - Setup - Network Config.lnk",
+   "is_dir": false,
+   "size": 1655,
+   "modified": "2026-09-26 12:07:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Redneck Rampage.lnk",
+   "is_dir": false,
+   "size": 1635,
+   "modified": "2026-09-26 12:07:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Retro Agent.lnk",
+   "is_dir": false,
+   "size": 1432,
+   "modified": "2026-09-26 12:02:28",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Retro Chat.lnk",
+   "is_dir": false,
+   "size": 1423,
+   "modified": "2026-09-26 12:02:28",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Return to Castle Wolfenstein.lnk",
+   "is_dir": false,
+   "size": 1812,
+   "modified": "2026-09-26 13:25:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "RTCW - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1682,
+   "modified": "2026-09-26 13:25:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "RTCW - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1682,
+   "modified": "2026-09-26 13:25:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "RTCW Multiplayer.lnk",
+   "is_dir": false,
+   "size": 1704,
+   "modified": "2026-09-26 13:25:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Serious Sam - The First Encounter - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1794,
+   "modified": "2026-09-26 13:30:09",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Serious Sam - The Second Encounter - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1805,
+   "modified": "2026-09-26 13:32:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Shadow Warrior - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1636,
+   "modified": "2026-09-26 13:26:49",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Shadow Warrior - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1636,
+   "modified": "2026-09-26 13:26:49",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Shadow Warrior - Twin Dragon.lnk",
+   "is_dir": false,
+   "size": 1587,
+   "modified": "2026-09-26 13:26:49",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Shadow Warrior - Wanton Destruction.lnk",
+   "is_dir": false,
+   "size": 1636,
+   "modified": "2026-09-26 13:26:49",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Shadow Warrior.lnk",
+   "is_dir": false,
+   "size": 1574,
+   "modified": "2026-09-26 13:26:49",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SiN - software mode for newer cards.lnk",
+   "is_dir": false,
+   "size": 1607,
+   "modified": "2026-09-26 12:21:19",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SiN - Wages of SiN.lnk",
+   "is_dir": false,
+   "size": 1528,
+   "modified": "2026-09-26 12:21:19",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SiN.lnk",
+   "is_dir": false,
+   "size": 1468,
+   "modified": "2026-09-26 12:21:19",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Soldier of Fortune.lnk",
+   "is_dir": false,
+   "size": 1631,
+   "modified": "2026-09-26 12:26:43",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Team Fortress Classic.lnk",
+   "is_dir": false,
+   "size": 1596,
+   "modified": "2026-09-26 12:19:23",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "The Elder Scrolls II - Daggerfall.lnk",
+   "is_dir": false,
+   "size": 1573,
+   "modified": "2026-09-26 13:34:30",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Thief Gold.lnk",
+   "is_dir": false,
+   "size": 1516,
+   "modified": "2026-09-26 12:22:45",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Thief II - The Metal Age.lnk",
+   "is_dir": false,
+   "size": 1502,
+   "modified": "2026-09-26 12:29:14",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Tom Clancy's Rainbow Six.lnk",
+   "is_dir": false,
+   "size": 1568,
+   "modified": "2026-09-26 13:33:19",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Tribes 2 Online.lnk",
+   "is_dir": false,
+   "size": 1563,
+   "modified": "2026-09-26 13:36:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Tribes 2 Solo and LAN.lnk",
+   "is_dir": false,
+   "size": 1605,
+   "modified": "2026-09-26 13:36:34",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Turok 2 - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1530,
+   "modified": "2026-09-26 13:05:33",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Turok 2 - Multiplayer.lnk",
+   "is_dir": false,
+   "size": 1566,
+   "modified": "2026-09-26 13:05:33",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Turok 2 - Seeds of Evil.lnk",
+   "is_dir": false,
+   "size": 1500,
+   "modified": "2026-09-26 13:05:33",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Unreal Gold - Host LAN Server.lnk",
+   "is_dir": false,
+   "size": 1604,
+   "modified": "2026-09-26 12:30:15",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Unreal Gold.lnk",
+   "is_dir": false,
+   "size": 1548,
+   "modified": "2026-09-26 12:30:15",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Unreal Tournament 2004.lnk",
+   "is_dir": false,
+   "size": 1507,
+   "modified": "2026-09-26 12:59:49",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Unreal Tournament 436.lnk",
+   "is_dir": false,
+   "size": 1719,
+   "modified": "2026-09-26 13:04:32",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Unreal Tournament.lnk",
+   "is_dir": false,
+   "size": 1664,
+   "modified": "2026-09-26 12:06:20",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "UT2004 - Join the fleet server.lnk",
+   "is_dir": false,
+   "size": 1588,
+   "modified": "2026-09-26 12:59:49",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "UT99 436 - Join Fleet Server.lnk",
+   "is_dir": false,
+   "size": 1743,
+   "modified": "2026-09-26 13:04:32",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Warcraft - Orcs and Humans.lnk",
+   "is_dir": false,
+   "size": 1762,
+   "modified": "2026-09-26 13:27:56",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Warcraft 1 - Host LAN Game.lnk",
+   "is_dir": false,
+   "size": 1712,
+   "modified": "2026-09-26 13:27:56",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Warcraft 1 - Join LAN Game.lnk",
+   "is_dir": false,
+   "size": 1712,
+   "modified": "2026-09-26 13:27:56",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Warcraft II - Battle.net Edition.lnk",
+   "is_dir": false,
+   "size": 1600,
+   "modified": "2026-09-26 13:26:08",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "status": {
+  "state": "done",
+  "percent": 100,
+  "titles_done": 51,
+  "titles_total": 52,
+  "titles_skipped": 0,
+  "titles_gated": 1,
+  "mb_done": 54188,
+  "mb_total": 54188,
+  "mbps": 0.0,
+  "current_title": "Tribes2",
+  "current_file": "Play Tribes 2 Solo and LAN.bat",
+  "failed_files": 0,
+  "failed_file": "",
+  "elapsed_s": 159,
+  "provisioned": true,
+  "files_written": 22,
+  "shortcuts_changed": 0,
+  "since_progress_s": 0,
+  "stalled_s": 0,
+  "starved_s": 0,
+  "cpu_busy_pct": -1,
+  "new_image": true,
+  "message": "complete - 51 title(s)"
+ }
+}

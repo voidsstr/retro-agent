@@ -1,0 +1,98 @@
+{
+ "ip": "192.168.1.240",
+ "hostname": "USER-41EA3B3330",
+ "os": "Windows XP",
+ "capabilities": {
+  "disc_mount": true,
+  "disc_mount_evidence": "d347bus",
+  "glide": false,
+  "glide_evidence": "",
+  "bits": 1
+ },
+ "screen": [
+  1920,
+  1080
+ ],
+ "desktop_dirs": {
+  "C:\\Users\\Public\\Desktop": 0,
+  "C:\\Documents and Settings\\All Users\\Desktop": 118,
+  "C:\\WINDOWS\\All Users\\Desktop": 0,
+  "C:\\WINDOWS\\Desktop": 0
+ },
+ "installed_titles": 52,
+ "library_titles": 107,
+ "expected_shortcuts": 122,
+ "present_shortcuts": 116,
+ "missing": [
+  {
+   "title": "Descent1",
+   "name": "Descent - DOS",
+   "suppressed_reason": "os: OS too new for this title"
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - 3dfx Voodoo",
+   "suppressed_reason": "needs glide - fit a 3dfx Voodoo card and install its driver (Glide)"
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - 3dfx Voodoo",
+   "suppressed_reason": "needs glide - fit a 3dfx Voodoo card and install its driver (Glide)"
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - DOS",
+   "suppressed_reason": "os: OS too new for this title"
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior - DOS",
+   "suppressed_reason": "os: OS too new for this title"
+  },
+  {
+   "title": "UnrealTournament436",
+   "name": "Unreal Tournament - 3dfx Voodoo",
+   "suppressed_reason": "needs glide - fit a 3dfx Voodoo card and install its driver (Glide)"
+  }
+ ],
+ "missing_unexplained": [],
+ "icon_files_mismatch": [],
+ "last_gamesync_done_line": "[15:36:00][GAMESYNC] done: 51/107 title(s) copied, 1 skipped (no room), 55 gated (machine cannot run), 0 file error(s), 962 file(s) written, 3 new/removed shortcut(s)",
+ "shortcut_icons_changed_titles": {
+  "Carmageddon1|Play Carmageddon.bat": "C:\\Games\\Carmageddon1\\carmageddon.ico",
+  "Carmageddon1|Host Carmageddon - LAN.bat": "C:\\Games\\Carmageddon1\\carmageddon.ico",
+  "Carmageddon1|Join Carmageddon - LAN.bat": "C:\\Games\\Carmageddon1\\carmageddon.ico",
+  "Carmageddon1|Carmageddon Sound Setup.bat": "C:\\Games\\Carmageddon1\\carmageddon.ico",
+  "Descent1|Play Descent.bat": "C:\\Games\\Descent1\\d1x-rebirth.ico",
+  "Descent1|Host Descent - LAN.bat": "C:\\Games\\Descent1\\d1x-rebirth.ico",
+  "Descent1|Join Descent - LAN.bat": "C:\\Games\\Descent1\\d1x-rebirth.ico",
+  "Descent1|Play Descent - Rebirth.bat": "C:\\Games\\Descent1\\d1x-rebirth.ico",
+  "Descent1|Descent Sound Setup.bat": "C:\\Games\\Descent1\\d1x-rebirth.ico",
+  "Descent2|Play Descent 2.bat": "C:\\Games\\Descent2\\d2x-rebirth.ico",
+  "Descent2|Play Descent 2 - original Win95.bat": "C:\\Games\\Descent2\\DESCENTW.EXE",
+  "Descent2|Host Descent 2 - LAN.bat": "C:\\Games\\Descent2\\d2x-rebirth.ico",
+  "Descent2|Join Descent 2 - LAN.bat": "C:\\Games\\Descent2\\d2x-rebirth.ico",
+  "WarcraftII|Play Warcraft II.bat": "C:\\Games\\WarcraftII\\warcraft2.ico",
+  "WarcraftOrcsAndHumans|Play Warcraft - Orcs and Humans.bat": "C:\\Games\\WarcraftOrcsAndHumans\\warcraft1.ico",
+  "WarcraftOrcsAndHumans|Host Warcraft 1 - LAN.bat": "C:\\Games\\WarcraftOrcsAndHumans\\warcraft1.ico",
+  "WarcraftOrcsAndHumans|Join Warcraft 1 - LAN.bat": "C:\\Games\\WarcraftOrcsAndHumans\\warcraft1.ico",
+  "SeriousSamFirstEncounter|Play Serious Sam - The First Encounter.bat": "C:\\Games\\SeriousSamFirstEncounter\\SeriousSamLogo.ico",
+  "SeriousSamFirstEncounter|Host Serious Sam TFE - LAN.bat": "C:\\Games\\SeriousSamFirstEncounter\\SeriousSamLogo.ico",
+  "SeriousSamFirstEncounter|Join Serious Sam TFE - LAN.bat": "C:\\Games\\SeriousSamFirstEncounter\\SeriousSamLogo.ico",
+  "SeriousSamSecondEncounter|Play Serious Sam - The Second Encounter.bat": "C:\\Games\\SeriousSamSecondEncounter\\SeriousSamLogo.ico",
+  "SeriousSamSecondEncounter|Host Serious Sam TSE - LAN.bat": "C:\\Games\\SeriousSamSecondEncounter\\SeriousSamLogo.ico",
+  "SeriousSamSecondEncounter|Join Serious Sam TSE - LAN.bat": "C:\\Games\\SeriousSamSecondEncounter\\SeriousSamLogo.ico"
+ },
+ "windows": [
+  "Unreal Tournament",
+  "C:\\RETRO_AGENT\\retro_chat.exe",
+  "Retro Remote Agent Version 1.95.0",
+  "Program Manager"
+ ],
+ "evidence": {
+  "desktop": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.240/desktop.png",
+  "icons_a": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.240/icons_a.png",
+  "icons_b": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.240/icons_b.png",
+  "agent_log": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.240/agent.log"
+ }
+}

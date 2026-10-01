@@ -1,0 +1,33 @@
+{
+ "before": {
+  "state": "done",
+  "percent": 52,
+  "titles_done": 51,
+  "titles_total": 106,
+  "titles_skipped": 0,
+  "titles_gated": 55,
+  "mb_done": 28396,
+  "mb_total": 54189,
+  "mbps": 26.6,
+  "current_title": "Tribes2",
+  "current_file": "",
+  "failed_files": 48,
+  "failed_file": "D:\\Games\\UT2004\\Sounds\\NewTutorialSounds.tmt_uax",
+  "elapsed_s": 10915,
+  "provisioned": false,
+  "files_written": 21740,
+  "shortcuts_changed": 33,
+  "gameres_changed": 35,
+  "gameres_kept": 0,
+  "gameres_verify_wrong": 4,
+  "gameres_verify_absent": 25,
+  "since_progress_s": 0,
+  "stalled_s": 835,
+  "starved_s": 0,
+  "cpu_busy_pct": 1,
+  "new_image": true,
+  "dest": "D:\\Games",
+  "message": "complete - 28 title(s)"
+ },
+ "started": 1790723730.8297756
+}

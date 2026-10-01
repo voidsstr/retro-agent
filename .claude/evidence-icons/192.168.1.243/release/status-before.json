@@ -1,0 +1,53 @@
+{
+ "ip": "192.168.1.243",
+ "hostname": "N5R5L9",
+ "agent": "1.86.1",
+ "os": "Windows 98",
+ "os_level": "win9x",
+ "host_policy": {
+  "modern": false,
+  "managed": true
+ },
+ "capabilities": {
+  "disc_mount": false,
+  "disc_mount_evidence": "",
+  "glide": true,
+  "glide_evidence": "PCI\\VEN_121A&DEV_0002&SUBSYS_00000000&REV_02\\BUS_00&DEV_03&FUNC_00",
+  "bits": 2
+ },
+ "gpu": "Cirrus Logic 5436 PCI",
+ "display": {
+  "width": 1024,
+  "height": 768,
+  "bpp": 8,
+  "panel_w": 1024,
+  "panel_h": 768,
+  "panel_source": "registry",
+  "edid_w": 0,
+  "edid_h": 0,
+  "panel_hz": 0,
+  "panel_digital": 0,
+  "panel_name": ""
+ },
+ "gamesync": {
+  "state": "done",
+  "percent": 100,
+  "titles_done": 4,
+  "titles_total": 52,
+  "titles_skipped": 19,
+  "titles_gated": 29,
+  "mb_done": 382,
+  "mb_total": 382,
+  "mbps": 0.0,
+  "current_title": "Quake2Win9x",
+  "current_file": "launch.txt",
+  "failed_files": 0,
+  "failed_file": "",
+  "elapsed_s": 6437,
+  "provisioned": true,
+  "files_written": 5,
+  "shortcuts_changed": 6,
+  "new_image": false,
+  "message": "complete - 4 title(s)"
+ }
+}

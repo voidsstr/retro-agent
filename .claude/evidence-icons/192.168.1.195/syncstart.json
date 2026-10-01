@@ -1,0 +1,24 @@
+{
+ "before": {
+  "state": "idle",
+  "percent": 0,
+  "titles_done": 0,
+  "titles_total": 0,
+  "titles_skipped": 0,
+  "titles_gated": 0,
+  "mb_done": 0,
+  "mb_total": 0,
+  "mbps": 0.0,
+  "current_title": "",
+  "current_file": "",
+  "failed_files": 0,
+  "failed_file": "",
+  "elapsed_s": 0,
+  "provisioned": true,
+  "files_written": 0,
+  "shortcuts_changed": 0,
+  "new_image": false,
+  "message": ""
+ },
+ "started": 1790612191.294925
+}

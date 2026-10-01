@@ -1,0 +1,1301 @@
+{
+ "ip": "192.168.1.110",
+ "hostname": "NSC-5C5396FAF9D",
+ "os": "Windows XP",
+ "capabilities": {
+  "disc_mount": false,
+  "disc_mount_evidence": "",
+  "glide": false,
+  "glide_evidence": "",
+  "bits": 0
+ },
+ "screen": [
+  1024,
+  768
+ ],
+ "desktop_dirs": {
+  "C:\\Users\\Public\\Desktop": 0,
+  "C:\\Documents and Settings\\All Users\\Desktop": 2,
+  "C:\\WINDOWS\\All Users\\Desktop": 0,
+  "C:\\WINDOWS\\Desktop": 0
+ },
+ "installed_titles": 49,
+ "library_titles": 52,
+ "expected_shortcuts": 116,
+ "present_shortcuts": 0,
+ "missing": [
+  {
+   "title": "AliensVsPredator",
+   "name": "Aliens vs Predator",
+   "suppressed_reason": null
+  },
+  {
+   "title": "BF1942",
+   "name": "Battlefield 1942",
+   "suppressed_reason": null
+  },
+  {
+   "title": "BF1942",
+   "name": "Battlefield 1942 - Host LAN Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "BF1942",
+   "name": "Battlefield 1942 - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Carmageddon1",
+   "name": "Carmageddon",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Carmageddon1",
+   "name": "Carmageddon - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Carmageddon1",
+   "name": "Carmageddon - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Carmageddon1",
+   "name": "Carmageddon - Sound Setup",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Carmageddon2",
+   "name": "Carmageddon 2",
+   "suppressed_reason": null
+  },
+  {
+   "title": "CounterStrike16",
+   "name": "Counter-Strike 1.6",
+   "suppressed_reason": null
+  },
+  {
+   "title": "CounterStrike16",
+   "name": "Half-Life Deathmatch - Fleet Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Daggerfall",
+   "name": "The Elder Scrolls II - Daggerfall",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Rebirth engine",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Sound Setup",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent2",
+   "name": "Descent II",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent2",
+   "name": "Descent II - original Win95 engine",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent2",
+   "name": "Descent II - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent2",
+   "name": "Descent II - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent3",
+   "name": "Descent 3",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent3",
+   "name": "Descent 3 - Host LAN Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent3",
+   "name": "Descent 3 - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "DeusEx",
+   "name": "Deus Ex",
+   "suppressed_reason": null
+  },
+  {
+   "title": "DeusEx",
+   "name": "Deus Ex - Host Multiplayer Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Doom3",
+   "name": "DOOM 3",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Doom3",
+   "name": "DOOM 3 - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "FarCry",
+   "name": "Far Cry",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HalfLife1",
+   "name": "Half-Life",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HalfLife1",
+   "name": "Half-Life - Opposing Force",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HalfLife1",
+   "name": "Half-Life - Blue Shift",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HalfLife1",
+   "name": "Team Fortress Classic",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HalfLife1",
+   "name": "Deathmatch Classic",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Halo",
+   "name": "Halo Combat Evolved",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - Software Renderer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - 3dfx Voodoo",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HiddenAndDangerous",
+   "name": "Hidden and Dangerous Deluxe",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HiddenAndDangerous",
+   "name": "Hidden and Dangerous - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HiddenAndDangerous",
+   "name": "Hidden and Dangerous - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "JediAcademy",
+   "name": "Jedi Academy",
+   "suppressed_reason": null
+  },
+  {
+   "title": "JediAcademy",
+   "name": "Jedi Academy - Multiplayer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "JediKnightDF2",
+   "name": "Jedi Knight - Dark Forces II",
+   "suppressed_reason": null
+  },
+  {
+   "title": "JediKnightMotS",
+   "name": "Jedi Knight - Mysteries of the Sith",
+   "suppressed_reason": null
+  },
+  {
+   "title": "MasterOfOrionII",
+   "name": "Master of Orion II - Battle at Antares",
+   "suppressed_reason": null
+  },
+  {
+   "title": "MasterOfOrionII",
+   "name": "Master of Orion II - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "MasterOfOrionII",
+   "name": "Master of Orion II - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "MaxPayne",
+   "name": "Max Payne",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Postal",
+   "name": "Postal Classic and Uncut",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - Software Renderer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - 3dfx Voodoo",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Complete",
+   "name": "Quake II",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Complete",
+   "name": "Quake II - The Reckoning",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Complete",
+   "name": "Quake II - Ground Zero",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Complete",
+   "name": "Quake II - ThreeWave CTF",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake3-TeamArena",
+   "name": "Quake III Arena",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake3-TeamArena",
+   "name": "Quake III - Team Arena",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake3-TeamArena",
+   "name": "Quake III Arena (retail 1.32c)",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RainbowSix",
+   "name": "Tom Clancy's Rainbow Six",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedAlert2",
+   "name": "Command and Conquer - Red Alert 2",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedAlert2",
+   "name": "Red Alert 2 - Yuri's Revenge",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedFaction",
+   "name": "Red Faction",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Route 66",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Rides Again",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Collection Menu",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Setup - Network Config",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ReturnToCastleWolfenstein",
+   "name": "Return to Castle Wolfenstein",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ReturnToCastleWolfenstein",
+   "name": "RTCW Multiplayer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ReturnToCastleWolfenstein",
+   "name": "RTCW - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ReturnToCastleWolfenstein",
+   "name": "RTCW - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "name": "Serious Sam - The First Encounter",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "name": "Serious Sam - The First Encounter - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "name": "Serious Sam - The First Encounter - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "name": "Serious Sam - The Second Encounter",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "name": "Serious Sam - The Second Encounter - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "name": "Serious Sam - The Second Encounter - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior - Twin Dragon",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior - Wanton Destruction",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Shogo",
+   "name": "Shogo - Mobile Armor Division",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Shogo",
+   "name": "Shogo - via launcher (fallback)",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SiNGold",
+   "name": "SiN",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SiNGold",
+   "name": "SiN - Wages of SiN",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SiNGold",
+   "name": "SiN - software mode for newer cards",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SoldierOfFortune",
+   "name": "Soldier of Fortune",
+   "suppressed_reason": null
+  },
+  {
+   "title": "StarCraft",
+   "name": "StarCraft",
+   "suppressed_reason": null
+  },
+  {
+   "title": "StarCraft",
+   "name": "StarCraft - Brood War",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SystemShock2",
+   "name": "System Shock 2",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Thief2",
+   "name": "Thief II - The Metal Age",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ThiefGold",
+   "name": "Thief Gold",
+   "suppressed_reason": null
+  },
+  {
+   "title": "TiberianSun",
+   "name": "Command and Conquer - Tiberian Sun",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Tribes2",
+   "name": "Tribes 2 Online",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Tribes2",
+   "name": "Tribes 2 Solo and LAN",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Turok2",
+   "name": "Turok 2 - Seeds of Evil",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Turok2",
+   "name": "Turok 2 - Multiplayer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Turok2",
+   "name": "Turok 2 - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UT2004",
+   "name": "Unreal Tournament 2004",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UT2004",
+   "name": "UT2004 - Join the fleet server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UnrealGold",
+   "name": "Unreal Gold",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UnrealGold",
+   "name": "Unreal Gold - Host LAN Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UnrealTournament",
+   "name": "Unreal Tournament",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UnrealTournament436",
+   "name": "Unreal Tournament 436",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UnrealTournament436",
+   "name": "UT99 436 - Join Fleet Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "WarcraftII",
+   "name": "Warcraft II - Battle.net Edition",
+   "suppressed_reason": null
+  },
+  {
+   "title": "WarcraftOrcsAndHumans",
+   "name": "Warcraft - Orcs and Humans",
+   "suppressed_reason": null
+  },
+  {
+   "title": "WarcraftOrcsAndHumans",
+   "name": "Warcraft 1 - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "WarcraftOrcsAndHumans",
+   "name": "Warcraft 1 - Join LAN Game",
+   "suppressed_reason": null
+  }
+ ],
+ "missing_unexplained": [
+  {
+   "title": "AliensVsPredator",
+   "name": "Aliens vs Predator",
+   "suppressed_reason": null
+  },
+  {
+   "title": "BF1942",
+   "name": "Battlefield 1942",
+   "suppressed_reason": null
+  },
+  {
+   "title": "BF1942",
+   "name": "Battlefield 1942 - Host LAN Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "BF1942",
+   "name": "Battlefield 1942 - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Carmageddon1",
+   "name": "Carmageddon",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Carmageddon1",
+   "name": "Carmageddon - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Carmageddon1",
+   "name": "Carmageddon - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Carmageddon1",
+   "name": "Carmageddon - Sound Setup",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Carmageddon2",
+   "name": "Carmageddon 2",
+   "suppressed_reason": null
+  },
+  {
+   "title": "CounterStrike16",
+   "name": "Counter-Strike 1.6",
+   "suppressed_reason": null
+  },
+  {
+   "title": "CounterStrike16",
+   "name": "Half-Life Deathmatch - Fleet Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Daggerfall",
+   "name": "The Elder Scrolls II - Daggerfall",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Rebirth engine",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent1",
+   "name": "Descent - Sound Setup",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent2",
+   "name": "Descent II",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent2",
+   "name": "Descent II - original Win95 engine",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent2",
+   "name": "Descent II - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent2",
+   "name": "Descent II - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent3",
+   "name": "Descent 3",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent3",
+   "name": "Descent 3 - Host LAN Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Descent3",
+   "name": "Descent 3 - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "DeusEx",
+   "name": "Deus Ex",
+   "suppressed_reason": null
+  },
+  {
+   "title": "DeusEx",
+   "name": "Deus Ex - Host Multiplayer Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Doom3",
+   "name": "DOOM 3",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Doom3",
+   "name": "DOOM 3 - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "FarCry",
+   "name": "Far Cry",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HalfLife1",
+   "name": "Half-Life",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HalfLife1",
+   "name": "Half-Life - Opposing Force",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HalfLife1",
+   "name": "Half-Life - Blue Shift",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HalfLife1",
+   "name": "Team Fortress Classic",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HalfLife1",
+   "name": "Deathmatch Classic",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Halo",
+   "name": "Halo Combat Evolved",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - Software Renderer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - 3dfx Voodoo",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HiddenAndDangerous",
+   "name": "Hidden and Dangerous Deluxe",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HiddenAndDangerous",
+   "name": "Hidden and Dangerous - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "HiddenAndDangerous",
+   "name": "Hidden and Dangerous - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "JediAcademy",
+   "name": "Jedi Academy",
+   "suppressed_reason": null
+  },
+  {
+   "title": "JediAcademy",
+   "name": "Jedi Academy - Multiplayer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "JediKnightDF2",
+   "name": "Jedi Knight - Dark Forces II",
+   "suppressed_reason": null
+  },
+  {
+   "title": "JediKnightMotS",
+   "name": "Jedi Knight - Mysteries of the Sith",
+   "suppressed_reason": null
+  },
+  {
+   "title": "MasterOfOrionII",
+   "name": "Master of Orion II - Battle at Antares",
+   "suppressed_reason": null
+  },
+  {
+   "title": "MasterOfOrionII",
+   "name": "Master of Orion II - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "MasterOfOrionII",
+   "name": "Master of Orion II - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "MaxPayne",
+   "name": "Max Payne",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Postal",
+   "name": "Postal Classic and Uncut",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - Software Renderer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - 3dfx Voodoo",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Complete",
+   "name": "Quake II",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Complete",
+   "name": "Quake II - The Reckoning",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Complete",
+   "name": "Quake II - Ground Zero",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake2Complete",
+   "name": "Quake II - ThreeWave CTF",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake3-TeamArena",
+   "name": "Quake III Arena",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake3-TeamArena",
+   "name": "Quake III - Team Arena",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Quake3-TeamArena",
+   "name": "Quake III Arena (retail 1.32c)",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RainbowSix",
+   "name": "Tom Clancy's Rainbow Six",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedAlert2",
+   "name": "Command and Conquer - Red Alert 2",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedAlert2",
+   "name": "Red Alert 2 - Yuri's Revenge",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedFaction",
+   "name": "Red Faction",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Route 66",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Rides Again",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Collection Menu",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "RedneckRampage",
+   "name": "Redneck Rampage - Setup - Network Config",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ReturnToCastleWolfenstein",
+   "name": "Return to Castle Wolfenstein",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ReturnToCastleWolfenstein",
+   "name": "RTCW Multiplayer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ReturnToCastleWolfenstein",
+   "name": "RTCW - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ReturnToCastleWolfenstein",
+   "name": "RTCW - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "name": "Serious Sam - The First Encounter",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "name": "Serious Sam - The First Encounter - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "name": "Serious Sam - The First Encounter - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "name": "Serious Sam - The Second Encounter",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "name": "Serious Sam - The Second Encounter - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "name": "Serious Sam - The Second Encounter - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior - Twin Dragon",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior - Wanton Destruction",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ShadowWarrior",
+   "name": "Shadow Warrior - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Shogo",
+   "name": "Shogo - Mobile Armor Division",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Shogo",
+   "name": "Shogo - via launcher (fallback)",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SiNGold",
+   "name": "SiN",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SiNGold",
+   "name": "SiN - Wages of SiN",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SiNGold",
+   "name": "SiN - software mode for newer cards",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SoldierOfFortune",
+   "name": "Soldier of Fortune",
+   "suppressed_reason": null
+  },
+  {
+   "title": "StarCraft",
+   "name": "StarCraft",
+   "suppressed_reason": null
+  },
+  {
+   "title": "StarCraft",
+   "name": "StarCraft - Brood War",
+   "suppressed_reason": null
+  },
+  {
+   "title": "SystemShock2",
+   "name": "System Shock 2",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Thief2",
+   "name": "Thief II - The Metal Age",
+   "suppressed_reason": null
+  },
+  {
+   "title": "ThiefGold",
+   "name": "Thief Gold",
+   "suppressed_reason": null
+  },
+  {
+   "title": "TiberianSun",
+   "name": "Command and Conquer - Tiberian Sun",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Tribes2",
+   "name": "Tribes 2 Online",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Tribes2",
+   "name": "Tribes 2 Solo and LAN",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Turok2",
+   "name": "Turok 2 - Seeds of Evil",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Turok2",
+   "name": "Turok 2 - Multiplayer",
+   "suppressed_reason": null
+  },
+  {
+   "title": "Turok2",
+   "name": "Turok 2 - Join LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UT2004",
+   "name": "Unreal Tournament 2004",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UT2004",
+   "name": "UT2004 - Join the fleet server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UnrealGold",
+   "name": "Unreal Gold",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UnrealGold",
+   "name": "Unreal Gold - Host LAN Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UnrealTournament",
+   "name": "Unreal Tournament",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UnrealTournament436",
+   "name": "Unreal Tournament 436",
+   "suppressed_reason": null
+  },
+  {
+   "title": "UnrealTournament436",
+   "name": "UT99 436 - Join Fleet Server",
+   "suppressed_reason": null
+  },
+  {
+   "title": "WarcraftII",
+   "name": "Warcraft II - Battle.net Edition",
+   "suppressed_reason": null
+  },
+  {
+   "title": "WarcraftOrcsAndHumans",
+   "name": "Warcraft - Orcs and Humans",
+   "suppressed_reason": null
+  },
+  {
+   "title": "WarcraftOrcsAndHumans",
+   "name": "Warcraft 1 - Host LAN Game",
+   "suppressed_reason": null
+  },
+  {
+   "title": "WarcraftOrcsAndHumans",
+   "name": "Warcraft 1 - Join LAN Game",
+   "suppressed_reason": null
+  }
+ ],
+ "icon_files_mismatch": [
+  {
+   "title": "Carmageddon1",
+   "file": "launch.txt",
+   "share": 901,
+   "box": 1569
+  },
+  {
+   "title": "Carmageddon1",
+   "file": "carmageddon.ico",
+   "share": 16870,
+   "box": null
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "file": "SeriousSam.ico",
+   "share": 16870,
+   "box": 6193
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "file": "launch.txt",
+   "share": 849,
+   "box": 833
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "file": "SeriousSamLogo.ico",
+   "share": 14510,
+   "box": null
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "file": "SeriousSam.ico",
+   "share": 16870,
+   "box": 6193
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "file": "launch.txt",
+   "share": 853,
+   "box": 837
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "file": "SeriousSamLogo.ico",
+   "share": 14510,
+   "box": null
+  },
+  {
+   "title": "WarcraftII",
+   "file": "goggame-1418669891.ico",
+   "share": 16870,
+   "box": 156005
+  },
+  {
+   "title": "WarcraftII",
+   "file": "launch.txt",
+   "share": 1288,
+   "box": 1297
+  },
+  {
+   "title": "WarcraftII",
+   "file": "warcraft2.ico",
+   "share": 16870,
+   "box": null
+  },
+  {
+   "title": "WarcraftOrcsAndHumans",
+   "file": "launch.txt",
+   "share": 883,
+   "box": 919
+  },
+  {
+   "title": "WarcraftOrcsAndHumans",
+   "file": "goggame-1706049527.ico",
+   "share": 16870,
+   "box": 155354
+  },
+  {
+   "title": "WarcraftOrcsAndHumans",
+   "file": "warcraft1.ico",
+   "share": 16870,
+   "box": null
+  },
+  {
+   "title": "Descent1",
+   "file": "d1x-rebirth.ico",
+   "share": 16870,
+   "box": 16440
+  },
+  {
+   "title": "Descent2",
+   "file": "d2x-rebirth.ico",
+   "share": 16870,
+   "box": 16440
+  }
+ ],
+ "last_gamesync_done_line": null,
+ "shortcut_icons_changed_titles": {},
+ "windows": [
+  "ioquake3",
+  "Retro Remote Agent Version 1.89.1",
+  "Program Manager"
+ ],
+ "evidence": {
+  "desktop": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.110/desktop.png",
+  "icons_a": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.110/icons_a.png",
+  "icons_b": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.110/icons_b.png",
+  "agent_log": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.110/agent.log"
+ }
+}

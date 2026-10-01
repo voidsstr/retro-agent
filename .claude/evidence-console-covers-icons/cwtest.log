@@ -1,0 +1,10 @@
+[TEST] ---- case1-runkey-like start, pid 1076
+[CONSOLE] console window class=ConsoleWindowClass: minimizing it to the taskbar so it cannot cover the desktop icons or be closed by a stray click
+[CONSOLE] console window minimized to the taskbar (IsIconic=1) - it no longer covers the desktop icons; click its taskbar button to see it, or set HKLM\Software\RetroAgent\ConsoleVisible=1 to keep it open
+[TEST] case1-runkey-like after 2s: hwnd=000300BE IsIconic=1
+[TEST] ---- case3-shared-with-cmd start, pid 1988
+[CONSOLE] console window class=ConsoleWindowClass: the console is shared with the shell that started the agent - not minimizing someone's command prompt
+[TEST] case3-shared-with-cmd after 2s: hwnd=000100C2 IsIconic=0
+[TEST] ---- case2-optout start, pid 1948
+[CONSOLE] console window class=ConsoleWindowClass: HKLM\Software\RetroAgent\ConsoleVisible is set - leaving it as launched
+[TEST] case2-optout after 2s: hwnd=000100C4 IsIconic=0

@@ -1,0 +1,58 @@
+{
+ "ip": "192.168.1.123",
+ "title": "UT2004",
+ "launcher_has_reseed": true,
+ "userini_before": {
+  "size": 2125,
+  "has_input": false
+ },
+ "launch": "",
+ "foreground": {
+  "hwnd": "000500D2",
+  "pid": 1836,
+  "class": "UT2004UnrealWWindowsViewportWindow",
+  "title": "Unreal Tournament 2004"
+ },
+ "windows": [
+  [
+   "Unreal Tournament 2004",
+   "UT2004UnrealWWindowsViewportWindow",
+   {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080
+   }
+  ],
+  [
+   "Retro Remote Agent Version 1.96.0",
+   "ConsoleWindowClass",
+   {
+    "left": -32000,
+    "top": -32000,
+    "right": -31840,
+    "bottom": -31969
+   }
+  ],
+  [
+   "Program Manager",
+   "Progman",
+   {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080
+   }
+  ]
+ ],
+ "displaycfg": "{\"width\":1920,\"height\":1080,\"bpp\":32,\"refresh\":60}",
+ "screen": [
+  1920,
+  1080
+ ],
+ "esc_changed_pct": 95.81,
+ "userini_after": {
+  "size": 9454,
+  "has_input": true
+ }
+}

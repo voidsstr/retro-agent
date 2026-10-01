@@ -1,0 +1,10 @@
+Throwaway overlay of the build VM (xp3.qcow2, XP SP3, 640x480), 2026-09-28.
+Before (agent 1.89.1 from the share):
+  ConsoleWindowClass | Retro Remote Agent Version 1.79.4 | (-6,29)-(663,367)   <- covers the 640x480 desktop
+After swapping in branch worktree-fix-console-covers-icons build (md5 c53410c465859e6665f4b481db9e723e) + RESTART:
+  ConsoleWindowClass | Retro Remote Agent Version 1.89.1 | (-32000,-32000)-(-31840,-31969)   <- minimized
+Harness cases (cwtest.exe = consolewin.c + ntdyn.c + hostpolicy.c):
+  case1-runkey-like      (own console)              (-32000,-32000)  minimized
+  case3-shared-with-cmd  (cmd /k shares the console) (-6,29)-(663,367) left alone
+  case2-optout           (ConsoleVisible=1)          (-6,87)-(663,425) left alone
+Also seen: C:\RETRO_AGENT\retro_chat.exe's own console at (-6,29)-(663,367) - not covered by this fix.

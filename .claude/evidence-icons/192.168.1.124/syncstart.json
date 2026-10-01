@@ -1,0 +1,31 @@
+{
+ "before": {
+  "state": "done",
+  "percent": 100,
+  "titles_done": 46,
+  "titles_total": 91,
+  "titles_skipped": 0,
+  "titles_gated": 45,
+  "mb_done": 43244,
+  "mb_total": 43244,
+  "mbps": 0.0,
+  "current_title": "Tribes2",
+  "current_file": "Play Tribes 2 Solo and LAN.bat",
+  "failed_files": 0,
+  "failed_file": "",
+  "elapsed_s": 40,
+  "provisioned": true,
+  "files_written": 0,
+  "shortcuts_changed": 0,
+  "gameres_changed": 0,
+  "gameres_kept": 18,
+  "since_progress_s": 0,
+  "stalled_s": 0,
+  "starved_s": 0,
+  "cpu_busy_pct": -1,
+  "new_image": true,
+  "dest": "C:\\Games",
+  "message": "complete - 46 title(s)"
+ },
+ "started": 1790693057.6778536
+}

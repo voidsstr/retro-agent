@@ -1,0 +1,36 @@
+{
+ "before": null,
+ "final": {
+  "state": "done",
+  "percent": 100,
+  "titles_done": 4,
+  "titles_total": 52,
+  "titles_skipped": 19,
+  "titles_gated": 29,
+  "mb_done": 382,
+  "mb_total": 382,
+  "mbps": 0.0,
+  "current_title": "Quake2Win9x",
+  "current_file": "launch.txt",
+  "failed_files": 0,
+  "failed_file": "",
+  "elapsed_s": 259,
+  "provisioned": true,
+  "files_written": 5,
+  "shortcuts_changed": 6,
+  "new_image": false,
+  "message": "complete - 4 title(s)"
+ },
+ "verdict": {
+  "state": "done",
+  "failed_files": 0,
+  "titles_done": 4,
+  "titles_gated": 29,
+  "titles_skipped": 19,
+  "titles_total": 52,
+  "library_titles": 52,
+  "files_written": 5,
+  "elapsed_s": 241,
+  "PASS": true
+ }
+}

@@ -1,0 +1,65 @@
+{
+ "ip": "192.168.1.240",
+ "title": "UT2004",
+ "launcher_has_reseed": true,
+ "userini_before": "absent (Cannot open file: error 2)",
+ "launch": "",
+ "foreground": {
+  "hwnd": "0005021E",
+  "pid": 2812,
+  "class": "UT2004UnrealWWindowsViewportWindow",
+  "title": "Unreal Tournament 2004"
+ },
+ "windows": [
+  [
+   "Unreal Tournament 2004",
+   "UT2004UnrealWWindowsViewportWindow",
+   {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080
+   }
+  ],
+  [
+   "Retro Remote Agent Version 1.96.0",
+   "ConsoleWindowClass",
+   {
+    "left": -32000,
+    "top": -32000,
+    "right": -31840,
+    "bottom": -31976
+   }
+  ],
+  [
+   "C:\\RETRO_AGENT\\retro_chat.exe",
+   "ConsoleWindowClass",
+   {
+    "left": 198,
+    "top": 198,
+    "right": 866,
+    "bottom": 529
+   }
+  ],
+  [
+   "Program Manager",
+   "Progman",
+   {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080
+   }
+  ]
+ ],
+ "displaycfg": "{\"width\":1920,\"height\":1080,\"bpp\":32,\"refresh\":60}",
+ "screen": [
+  1920,
+  1080
+ ],
+ "esc_changed_pct": 95.54,
+ "userini_after": {
+  "size": 9454,
+  "has_input": true
+ }
+}

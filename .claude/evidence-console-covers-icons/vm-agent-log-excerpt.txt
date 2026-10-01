@@ -1,0 +1,6 @@
+1681:[13:28:06][MAIN ] retro_agent v1.89.1: main() entered
+1691:[13:28:21][MAIN ] Retro Remote Agent Version 1.89.1 starting (mode=console)
+1858:[13:29:04][MAIN ] retro_agent v1.89.1: main() entered
+1868:[13:29:19][MAIN ] Retro Remote Agent Version 1.89.1 starting (mode=console)
+1870:[13:29:19][CONSOLE] console window class=ConsoleWindowClass: minimizing it to the taskbar so it cannot cover the desktop icons or be closed by a stray click
+1876:[13:29:19][CONSOLE] console window minimized to the taskbar (IsIconic=1) - it no longer covers the desktop icons; click its taskbar button to see it, or set HKLM\Software\RetroAgent\ConsoleVisible=1 to keep it open

@@ -1,0 +1,171 @@
+{
+ "ip": "192.168.1.110",
+ "hostname": "NSC-5C5396FAF9D",
+ "os": "Windows XP",
+ "capabilities": {
+  "disc_mount": false,
+  "disc_mount_evidence": "",
+  "glide": false,
+  "glide_evidence": "",
+  "bits": 0
+ },
+ "screen": [
+  1024,
+  768
+ ],
+ "desktop_dirs": {
+  "C:\\Users\\Public\\Desktop": 0,
+  "C:\\Documents and Settings\\All Users\\Desktop": 99,
+  "C:\\WINDOWS\\All Users\\Desktop": 0,
+  "C:\\WINDOWS\\Desktop": 0
+ },
+ "installed_titles": 51,
+ "library_titles": 52,
+ "expected_shortcuts": 119,
+ "present_shortcuts": 97,
+ "missing": [
+  {
+   "title": "BF1942",
+   "name": "Battlefield 1942",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "BF1942",
+   "name": "Battlefield 1942 - Join LAN Game",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "Descent2",
+   "name": "Descent II - original Win95 engine",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "Descent3",
+   "name": "Descent 3",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "Descent3",
+   "name": "Descent 3 - Host LAN Server",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "Descent3",
+   "name": "Descent 3 - Join LAN Game",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "HexenII",
+   "name": "Hexen II - 3dfx Voodoo",
+   "suppressed_reason": "needs glide - fit a 3dfx Voodoo card and install its driver (Glide)"
+  },
+  {
+   "title": "JediAcademy",
+   "name": "Jedi Academy",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "JediAcademy",
+   "name": "Jedi Academy - Multiplayer",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "MaxPayne",
+   "name": "Max Payne",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "Quake1",
+   "name": "Quake - 3dfx Voodoo",
+   "suppressed_reason": "needs glide - fit a 3dfx Voodoo card and install its driver (Glide)"
+  },
+  {
+   "title": "RedFaction",
+   "name": "Red Faction",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "name": "Serious Sam - The First Encounter",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "SeriousSamFirstEncounter",
+   "name": "Serious Sam - The First Encounter - Join LAN Game",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "name": "Serious Sam - The Second Encounter",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "SeriousSamSecondEncounter",
+   "name": "Serious Sam - The Second Encounter - Join LAN Game",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "Shogo",
+   "name": "Shogo - Mobile Armor Division",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "Shogo",
+   "name": "Shogo - via launcher (fallback)",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "SoldierOfFortune2",
+   "name": "Soldier of Fortune II",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "StarCraft",
+   "name": "StarCraft",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "StarCraft",
+   "name": "StarCraft - Brood War",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  },
+  {
+   "title": "SystemShock2",
+   "name": "System Shock 2",
+   "suppressed_reason": "needs disc_mount - install a virtual disc mounter (Daemon Tools)"
+  }
+ ],
+ "missing_unexplained": [],
+ "icon_files_mismatch": [],
+ "last_gamesync_done_line": "[13:11:29][GAMESYNC] done: 51/52 title(s) copied, 0 skipped (no room), 1 gated (machine cannot run), 0 file error(s), 406 file(s) written, 2 new/removed shortcut(s)",
+ "shortcut_icons_changed_titles": {
+  "Carmageddon1|Play Carmageddon.bat": "C:\\Games\\Carmageddon1\\carmageddon.ico",
+  "Carmageddon1|Host Carmageddon - LAN.bat": "C:\\Games\\Carmageddon1\\carmageddon.ico",
+  "Carmageddon1|Join Carmageddon - LAN.bat": "C:\\Games\\Carmageddon1\\carmageddon.ico",
+  "Carmageddon1|Carmageddon Sound Setup.bat": "C:\\Games\\Carmageddon1\\carmageddon.ico",
+  "Descent1|Play Descent.bat": "C:\\Games\\Descent1\\d1x-rebirth.ico",
+  "Descent1|Host Descent - LAN.bat": "C:\\Games\\Descent1\\d1x-rebirth.ico",
+  "Descent1|Join Descent - LAN.bat": "C:\\Games\\Descent1\\d1x-rebirth.ico",
+  "Descent1|Play Descent - Rebirth.bat": "C:\\Games\\Descent1\\d1x-rebirth.ico",
+  "Descent1|Descent Sound Setup.bat": "C:\\Games\\Descent1\\d1x-rebirth.ico",
+  "Descent2|Play Descent 2.bat": "C:\\Games\\Descent2\\d2x-rebirth.ico",
+  "Descent2|Host Descent 2 - LAN.bat": "C:\\Games\\Descent2\\d2x-rebirth.ico",
+  "Descent2|Join Descent 2 - LAN.bat": "C:\\Games\\Descent2\\d2x-rebirth.ico",
+  "WarcraftII|Play Warcraft II.bat": "C:\\Games\\WarcraftII\\warcraft2.ico",
+  "WarcraftOrcsAndHumans|Play Warcraft - Orcs and Humans.bat": "C:\\Games\\WarcraftOrcsAndHumans\\warcraft1.ico",
+  "WarcraftOrcsAndHumans|Host Warcraft 1 - LAN.bat": "C:\\Games\\WarcraftOrcsAndHumans\\warcraft1.ico",
+  "WarcraftOrcsAndHumans|Join Warcraft 1 - LAN.bat": "C:\\Games\\WarcraftOrcsAndHumans\\warcraft1.ico",
+  "SeriousSamFirstEncounter|Host Serious Sam TFE - LAN.bat": "C:\\Games\\SeriousSamFirstEncounter\\SeriousSamLogo.ico",
+  "SeriousSamSecondEncounter|Host Serious Sam TSE - LAN.bat": "C:\\Games\\SeriousSamSecondEncounter\\SeriousSamLogo.ico"
+ },
+ "windows": [
+  "Retro Remote Agent Version 1.89.1",
+  "Program Manager"
+ ],
+ "evidence": {
+  "desktop": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.110/desktop.png",
+  "icons_a": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.110/icons_a.png",
+  "icons_b": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.110/icons_b.png",
+  "agent_log": "/home/voidsstr/development/retro-agent/.claude/evidence-icons/192.168.1.110/agent.log"
+ }
+}

@@ -1,0 +1,80 @@
+/home/voidsstr/development/retro-agent/.claude/evidence-ut2003/uttest.py:55: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  res['esc_changed_pct'] = round(100.0 * sum(1 for p in diff.getdata() if sum(p) > 30) / (a.size[0] * a.size[1]), 2)
+{
+ "ip": "192.168.1.197",
+ "title": "UT2004",
+ "launcher_has_reseed": true,
+ "userini_before": {
+  "size": 2118,
+  "has_input": false
+ },
+ "launch": "",
+ "foreground": {
+  "hwnd": "000601A6",
+  "pid": 2656,
+  "class": "UT2004UnrealWWindowsViewportWindow",
+  "title": "Unreal Tournament 2004"
+ },
+ "windows": [
+  [
+   "Unreal Tournament 2004",
+   "UT2004UnrealWWindowsViewportWindow",
+   {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080
+   }
+  ],
+  [
+   "Retro Remote Agent Version 1.96.0",
+   "ConsoleWindowClass",
+   {
+    "left": -32000,
+    "top": -32000,
+    "right": -31840,
+    "bottom": -31974
+   }
+  ],
+  [
+   "AMD:CCC-AEMCapturingWindow",
+   "WindowsForms10.Window.8.app.0.282af8c_r11_ad1",
+   {
+    "left": -10000,
+    "top": -10000,
+    "right": -9994,
+    "bottom": -9978
+   }
+  ],
+  [
+   "Start",
+   "Button",
+   {
+    "left": 2,
+    "top": 1040,
+    "right": 52,
+    "bottom": 1078
+   }
+  ],
+  [
+   "Program Manager",
+   "Progman",
+   {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080
+   }
+  ]
+ ],
+ "displaycfg": "{\"width\":1920,\"height\":1080,\"bpp\":32,\"refresh\":60}",
+ "screen": [
+  1920,
+  1080
+ ],
+ "esc_changed_pct": 95.56,
+ "userini_after": {
+  "size": 9447,
+  "has_input": true
+ }
+}

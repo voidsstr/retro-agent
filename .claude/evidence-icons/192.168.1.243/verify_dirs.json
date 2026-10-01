@@ -1,0 +1,428 @@
+{
+ "DIRLIST C:\\WINDOWS\\Desktop": [
+  {
+   "name": "Online Services",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-07-21 18:55:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Retro Agent.lnk",
+   "is_dir": false,
+   "size": 380,
+   "modified": "2026-09-28 16:20:10",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Retro Chat.lnk",
+   "is_dir": false,
+   "size": 375,
+   "modified": "2026-09-28 16:20:10",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake - Software Renderer.pif",
+   "is_dir": false,
+   "size": 967,
+   "modified": "2026-09-28 16:23:48",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake - 3dfx Voodoo.pif",
+   "is_dir": false,
+   "size": 967,
+   "modified": "2026-09-28 16:23:48",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Hexen II - Software Renderer.pif",
+   "is_dir": false,
+   "size": 967,
+   "modified": "2026-09-28 16:24:04",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Hexen II - 3dfx Voodoo.pif",
+   "is_dir": false,
+   "size": 967,
+   "modified": "2026-09-28 16:24:04",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake II.pif",
+   "is_dir": false,
+   "size": 967,
+   "modified": "2026-09-28 16:24:18",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake II - 3dfx Voodoo.pif",
+   "is_dir": false,
+   "size": 967,
+   "modified": "2026-09-28 16:24:20",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "DIRLIST C:\\WINDOWS\\All Users\\Desktop": [
+  {
+   "name": "Connect to the Internet.LNK",
+   "is_dir": false,
+   "size": 493,
+   "modified": "1980-07-21 19:09:52",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "DIRLIST C:\\Games": [
+  {
+   "name": "BLAKE",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:24:36",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "DOOM",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:28:40",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "DUKE1",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:30:44",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "DUKE2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:30:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "EPICPIN",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:30:48",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "HERETIC",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:31:04",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "HEXEN",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:31:06",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "HOCUS",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:31:22",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "JAZZ",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:31:24",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "KEEN1",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:31:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "KEEN4",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:31:48",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "KEENDRMS",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:31:50",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "OMF2097",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:31:52",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "RAPTOR",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:32:06",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "ROTT",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:32:08",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "SWAR",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:32:14",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "TYRIAN",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:32:30",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "WACKY",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:32:38",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "WOLF3D",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:32:42",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "CACHE.COM",
+   "is_dir": false,
+   "size": 327,
+   "modified": "1980-01-04 06:44:42",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "DUKE3D",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:57:14",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake2Win9x",
+   "is_dir": true,
+   "size": 0,
+   "modified": "2026-09-25 05:13:10",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Jagged Alliance (1994)(Sir Tech)",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:07:12",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "ACKACAM8",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 07:07:46",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Jagged Alliance Deadly Games (1995)(Sir Tech)",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:09:20",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Prince Of Persia 1 (1992)(Broderbund)",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:17:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Powerslave (1995)(3D Realms)",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:17:04",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "1_TO_1MS",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:50:38",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "WOLF3D2",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 06:51:16",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "KEEN",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 05:36:00",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "HERETEC",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 05:37:22",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "100002IY",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 05:37:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "HERET3TV",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 13:19:32",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "INCA_X8M",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 13:22:56",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "RETURHMR",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 13:29:08",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "LOOM_67T",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 08:42:54",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Quake1",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 05:48:28",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "Descent1",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 05:49:28",
+   "hidden": false,
+   "readonly": false
+  },
+  {
+   "name": "HexenII",
+   "is_dir": true,
+   "size": 0,
+   "modified": "1980-01-04 05:50:04",
+   "hidden": false,
+   "readonly": false
+  }
+ ],
+ "WINLIST": {
+  "windows": [
+   {
+    "hwnd": "000001F8",
+    "title": "RETRO_~2",
+    "class": "tty",
+    "rect": {
+     "left": 22,
+     "top": 22,
+     "right": 674,
+     "bottom": 381
+    },
+    "visible": true
+   },
+   {
+    "hwnd": "0000016C",
+    "title": "Program Manager",
+    "class": "Progman",
+    "rect": {
+     "left": 0,
+     "top": 0,
+     "right": 1024,
+     "bottom": 768
+    },
+    "visible": true
+   }
+  ]
+ }
+}
