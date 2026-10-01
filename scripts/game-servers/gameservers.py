@@ -698,6 +698,11 @@ def probe_udp_bound(port, timeout=DEFAULT_TIMEOUT, host=None):
 
 C2_STATE = os.environ.get("RETRO_C2_STATE",
                           os.path.expanduser("~voidsstr/carmageddon2-server/_run/state.json"))
+# The LAN address IPXWrapper speaks from. NOT `HOST`: the watchdog runs with
+# RETRO_GAMESERVER_HOST=127.0.0.1, and 127.0.0.1 has no NIC to broadcast on
+# and is never the source of the reply - the first watchdog pass read this
+# server as mute and restarted a healthy lobby (2026-10-01 11:44).
+C2_HOST_IP = os.environ.get("RETRO_C2_HOST_IP", "192.168.1.132")
 C2_IPX_SOCKET = 0x2FFE      # the IPX socket Carma2 binds (IPXWrapper log: /12286)
 
 
@@ -748,9 +753,9 @@ def probe_carma2(port, timeout=DEFAULT_TIMEOUT, host=None):
     The lobby's player count comes from the driver's own state.json, which
     reads the frame - the protocol reply carries no count.
     """
-    if host not in (None, HOST, "127.0.0.1", "localhost"):
+    if host not in (None, HOST, C2_HOST_IP, "127.0.0.1", "localhost"):
         return None
-    nic = _iface_of(HOST)
+    nic = _iface_of(C2_HOST_IP)
     if not nic or not nic[1]:
         return None
     iface, brd = nic
@@ -766,7 +771,7 @@ def probe_carma2(port, timeout=DEFAULT_TIMEOUT, host=None):
         while time.monotonic() < deadline:
             sock.settimeout(max(0.05, deadline - time.monotonic()))
             data, addr = sock.recvfrom(2048)
-            if addr[0] == HOST and data[27:39] == b"XXXXCAR2MSG2":
+            if addr[0] == C2_HOST_IP and data[27:39] == b"XXXXCAR2MSG2":
                 out = {"name": "Carmageddon 2 LAN host", "map": None,
                        "rtt_ms": round((time.monotonic() - started) * 1000, 1)}
                 try:

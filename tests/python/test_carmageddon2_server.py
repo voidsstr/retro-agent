@@ -101,6 +101,7 @@ def _probe(monkeypatch, tmp_path, replies, state=None):
     monkeypatch.setattr(gameservers, '_iface_of',
                         lambda ip: ('enp129s0', '192.168.1.255'))
     monkeypatch.setattr(gameservers, 'HOST', '192.168.1.132')
+    monkeypatch.setattr(gameservers, 'C2_HOST_IP', '192.168.1.132')
     sf = tmp_path / 'state.json'
     if state is not None:
         sf.write_text(json.dumps(state))
@@ -142,6 +143,24 @@ def test_a_stale_state_file_is_not_reported(monkeypatch, tmp_path):
     res, _ = _probe(monkeypatch, tmp_path, [(_reply(), ('192.168.1.132', 54792))],
                     state={'state': 'lobby', 'players': 3, 'updated': 1})
     assert 'players' not in res and res['map'] is None
+
+
+def test_the_watchdogs_loopback_host_still_probes_the_lan_nic(monkeypatch, tmp_path):
+    """retro-gameservers-watch runs with RETRO_GAMESERVER_HOST=127.0.0.1. The
+    first version broadcast from HOST's NIC (lo - none) and wanted the reply
+    from 127.0.0.1, so a healthy lobby read as mute and was restarted."""
+    seen = {}
+    def iface(ip):
+        seen['ip'] = ip
+        return ('enp129s0', '192.168.1.255')
+    fake = _FakeSock([(_reply(), ('192.168.1.132', 54792))])
+    monkeypatch.setattr(gameservers.socket, 'socket', lambda *a, **k: fake)
+    monkeypatch.setattr(gameservers, '_iface_of', iface)
+    monkeypatch.setattr(gameservers, 'HOST', '127.0.0.1')
+    monkeypatch.setattr(gameservers, 'C2_HOST_IP', '192.168.1.132')
+    monkeypatch.setattr(gameservers, 'C2_STATE', str(tmp_path / 'none.json'))
+    assert gameservers.probe_carma2(54792, timeout=0.5)
+    assert seen['ip'] == '192.168.1.132'
 
 
 def test_probe_is_local_only(monkeypatch):
