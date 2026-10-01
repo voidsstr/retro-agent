@@ -704,7 +704,14 @@
   "launch": [
    "TIE.EXE"
   ],
-  "notes": "sound: SETMUSE (LucasArts): Sound Blaster 16 220/5/1, FM music (SETMUSE.INI FM4.MDR + SB16.WDR); needs EMS; Needs EMS for full music/speech."
+  "notes": "sound: SETMUSE (LucasArts): Sound Blaster 16 220/5/1, FM music (SETMUSE.INI FM4.MDR + SB16.WDR); needs EMS; Needs EMS for full music/speech. COPY PROTECTION FIXED 2026-10-01 (research R6): the staged FRONT.OVL (md5 4eef0e74...) showed the manual-word dialog at EVERY launch - any answer was accepted, but Enter with the pointer where the game leaves it, on Exit to DOS, quit straight to DOS, and on a Win9x box the launcher's CLS then closed the window. FRONT.OVL is now the copy from crack.zip in the share's floppy set (Tie Fighter (1994)(Lucas Arts).zip, md5 8882c6cd9da251949c0eed1b1457e4da, 408,260 bytes - the same size, so it is written through libwrite with a fresh time, never smbclient), which patches the dialog loop out: in DOSBox the intro went straight to pilot registration and Battle 1 flew. It is the generator's file (spec \"files\"), so a regeneration keeps it.",
+  "files": {
+   "FRONT.OVL": {
+    "zip": "Files/Games/DOS/DOS Games Collection/S-Z/Tie Fighter (1994)(Lucas Arts).zip",
+    "member": "crack.zip/FRONT.OVL",
+    "md5": "8882c6cd9da251949c0eed1b1457e4da"
+   }
+  }
  },
  {
   "lib": "Flight-Tornado",
@@ -787,6 +794,9 @@
   "launch": [
    "XWING.EXE"
   ],
-  "notes": "sound: INSTALL.EXE sound menu: SoundBlaster (LANDRU.CFG adlib_w = AdLib music + SB digital); needs EMS; Needs EMS for SB sound (256K)."
+  "notes": "sound: INSTALL.EXE sound menu: SoundBlaster (LANDRU.CFG adlib_w = AdLib music + SB digital); needs EMS; Needs EMS for SB sound (256K). COPY PROTECTION (research R6, 2026-10-01): FRONTEND.OVL still carries the manual-word check, unpatched, but it never appeared in DOSBox or the Win98 VM through a new pilot, Tour I mission 1 in flight and a Historical Combat briefing. If 'See Manual Page N' ever shows, XWINGANS.TXT in this folder lists the two accepted words per page (read out of the code). Do NOT run the shipped XWINGPAT.COM: it patches a screen-ID compare in this build, not the check.",
+  "files": {
+   "XWINGANS.TXT": "scripts/dosgames/files/Flight-XWing/XWINGANS.TXT"
+  }
  }
 ]

@@ -278,17 +278,39 @@ def build(t, work):
     return root, list(files)
 
 
+def _libsource():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "libsource", os.path.join(REPO, "scripts", "fleet", "libsource.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def spec_files(t):
-    """The spec's "files": {path in the title: repo-relative source} - a helper
-    a launcher calls (JOYCHK.COM) or a corrected copy of one of the game's own
-    files (Terminal Velocity's VOX.INI). They are the GENERATOR's, like the
-    launcher: kept in the repo, written by --update when they differ, and
-    allowed to replace a file the game ships (that is what a correction is)."""
+    """The spec's "files": {path in the title: source} - a helper a launcher
+    calls (JOYCHK.COM) or a corrected copy of one of the game's own files
+    (Terminal Velocity's VOX.INI, TIE Fighter's FRONT.OVL). They are the
+    GENERATOR's, like the launcher: written by --update when they differ, and
+    allowed to replace a file the game ships (that is what a correction is).
+
+    A source is a repo-relative path (our own files), or a dict naming an
+    md5-pinned file on the share (scripts/fleet/libsource.py) - a game's own
+    binary, which has no business in git: {"zip": "<share path>", "member":
+    "crack.zip/FRONT.OVL", "md5": "..."}. A source that is not the pinned file
+    stops the build; it is never staged on trust."""
     out = {}
     for rel, src in sorted(t.get("files", {}).items()):
         rel = rel.replace("\\", "/")
         assert is_83(rel), "%s: %s is not an 8.3 name" % (t["lib"], rel)
-        out[rel.upper()] = open(os.path.join(REPO, src), "rb").read()
+        if isinstance(src, dict):
+            ls = _libsource()
+            try:
+                out[rel.upper()] = ls.fetch(src)
+            except ls.SourceError as e:
+                raise SystemExit("%s: files %s: %s" % (t["lib"], rel, e))
+        else:
+            out[rel.upper()] = open(os.path.join(REPO, src), "rb").read()
     return out
 
 

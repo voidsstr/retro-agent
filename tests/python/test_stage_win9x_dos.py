@@ -441,6 +441,76 @@ def test_retree_replaces_the_game_files_and_leaves_the_generators_own(tmp_path):
         assert os.path.join(root, rel) not in wrote and rel.upper() not in removed
 
 
+# --- a spec "files" entry can name an md5-pinned share file (2026-10-01) ------
+# TIE Fighter's fix is a game binary - the dialog-free FRONT.OVL from crack.zip
+# in the share's floppy set - which has no business in git. The source names
+# its md5, and anything else stops the build rather than being staged on trust.
+
+def _zip_bytes(members):
+    import io
+    b = io.BytesIO()
+    with zipfile.ZipFile(b, "w") as zf:
+        for name, data in members.items():
+            zf.writestr(name, data)
+    return b.getvalue()
+
+
+def test_a_files_entry_can_be_a_pinned_member_of_a_zip_inside_a_zip(tmp_path, monkeypatch):
+    import hashlib
+    inner = _zip_bytes({"FRONT.OVL": b"fixed overlay"})
+    share = tmp_path / "share"
+    (share / "Files" / "Games").mkdir(parents=True)
+    (share / "Files" / "Games" / "Tie.zip").write_bytes(_zip_bytes({"crack.zip": inner}))
+    ls = sw._libsource()
+    real_fetch = ls.fetch
+    monkeypatch.setattr(sw, "_libsource", lambda: type("L", (), {
+        "fetch": staticmethod(lambda src: real_fetch(src, mnt=str(share))),
+        "SourceError": ls.SourceError}))
+    good = {"zip": "Files/Games/Tie.zip", "member": "crack.zip/FRONT.OVL",
+            "md5": hashlib.md5(b"fixed overlay").hexdigest()}
+    t = _spec(tmp_path, lib="Flight-TieFighter", files={"FRONT.OVL": good})
+    assert sw.spec_files(t) == {"FRONT.OVL": b"fixed overlay"}
+    bad = dict(good, md5="0" * 32)
+    with pytest.raises(SystemExit, match="not the pinned file"):
+        sw.spec_files(_spec(tmp_path, lib="Flight-TieFighter", files={"FRONT.OVL": bad}))
+
+
+def _spec_title(lib):
+    return next(t for t in json.load(open(os.path.join(REPO, "scripts", "dosgames", "specs",
+                                                       "win9x-dos.json")))
+                if t["lib"] == lib)
+
+
+def test_tie_fighter_ships_the_dialog_free_front_ovl():
+    """R6, measured in DOSBox: the staged FRONT.OVL raised the manual-word
+    dialog at every launch, and Enter where the game leaves the pointer (Exit
+    to DOS) quit to DOS. crack.zip's FRONT.OVL (same size, 3 bytes apart)
+    shows no dialog; Battle 1 flew with it."""
+    src = _spec_title("Flight-TieFighter")["files"]["FRONT.OVL"]
+    assert src["md5"] == "8882c6cd9da251949c0eed1b1457e4da"
+    assert src["member"].lower() == "crack.zip/front.ovl"
+    assert "COPY PROTECTION FIXED" in _spec_title("Flight-TieFighter")["notes"]
+
+
+def test_x_wing_carries_its_manual_answers():
+    t = _spec_title("Flight-XWing")
+    rel = t["files"]["XWINGANS.TXT"]
+    body = open(os.path.join(REPO, rel), "rb").read()
+    assert b"\n" not in body.replace(b"\r\n", b""), "CRLF - it is read on a Win9x box"
+    for page, word in ((3, b"mantooine"), (10, b"bimmisaari"), (18, b"atrivis")):
+        assert (b"%5d  " % page) in body and word in body
+    assert b"XWINGPAT.COM" in body and "XWINGPAT.COM" in t["notes"]
+
+
+@_share
+def test_the_staged_tie_fighter_front_ovl_is_the_pinned_one():
+    import hashlib
+    data = open(os.path.join(LIB, "Flight-TieFighter", "FRONT.OVL"), "rb").read()
+    assert hashlib.md5(data).hexdigest() == "8882c6cd9da251949c0eed1b1457e4da", \
+        "run stage_win9x_dos.py --update --only Flight-TieFighter"
+    assert os.path.isfile(os.path.join(LIB, "Flight-XWing", "XWINGANS.TXT"))
+
+
 # --- Flight Simulator 5.0 is the 5.0a update (2026-09-30) ---------------------
 
 def _msfs50():
