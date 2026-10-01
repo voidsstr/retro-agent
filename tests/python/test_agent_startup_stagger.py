@@ -48,6 +48,8 @@ def test_no_two_timed_helpers_start_in_the_same_second():
         "gameindex": seconds("gameindex.c", "GI_FIRST_DELAY_MS", "ms"),
         "gameindex (no cache)": seconds("gameindex.c", "GI_FIRST_DELAY_NOCACHE_MS", "ms"),
         "sharelog": seconds("main.c", "SHARELOG_FIRST_MS", "ms"),
+        # 1.97.0: after hwpublish's first try (90 s), before gameindex (120 s)
+        "ipxsetup": seconds("ipxsetup.c", "IPX_FIRST_DELAY_MS", "ms"),
     }
     by_time = {}
     for name, t in starts.items():

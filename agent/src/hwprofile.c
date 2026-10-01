@@ -38,6 +38,7 @@
 #include "log.h"
 #include "hwextra.h"
 #include "hostpolicy.h"
+#include "ipxsetup.h"
 #include "../shared/hwpub.h"
 #include "../shared/gamegate.h"
 #include "../shared/edid.h"
@@ -1201,6 +1202,10 @@ char *hwprofile_json(void)
     hwextra_emit_video_cards(&j);
     hwextra_emit_accelerators(&j);
     hwextra_emit_network(&j);
+    /* The IPX/SPX protocol (1.97.0, ipxsetup.c): state, not hardware, so it is
+     * NOT folded into gg_profile_hash - a box that gains IPX keeps its verdicts.
+     * Read-only: a socket probe and a few registry reads. */
+    ipxsetup_emit_hwprofile(&j);
 
     json_object_end(&j);
 

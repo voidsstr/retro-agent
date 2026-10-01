@@ -118,6 +118,8 @@ BACKGROUND = [
     ("dosstage.c", "dosstage_thread"),
     ("dosstage.c", "dosstage_run_thread"),  # the DOSSTAGE command's worker
     ("main.c", "sharelog_thread"),
+    ("ipxsetup.c", "ipxsetup_thread"),      # 1.97.0: the IPX/SPX startup pass
+    ("ipxsetup.c", "ipx_job_thread"),       # 1.97.0: IPXSETUP apply's worker
 ]
 
 

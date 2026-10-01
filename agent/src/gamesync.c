@@ -1307,6 +1307,21 @@ static int gs_drv_busy_wait(void)
     return 0;
 }
 
+/* THE SAME LOCK, for the other installers in the agent (agent 1.97.0: IPXSETUP's
+ * INetCfg install of NWLink and its Win98 registry install, src/ipxsetup.c).
+ * They flip SetupAPI's non-interactive mode and take the network-configuration
+ * write lock; overlapping a forced driver install would restore each other's
+ * saved state, so whoever finds it held does nothing (or waits, at startup). */
+int agent_install_lock_enter(void) { return gs_drv_busy_enter(); }
+void agent_install_lock_leave(void) { gs_drv_busy_leave(); }
+int agent_install_lock_wait(void) { return gs_drv_busy_wait(); }
+
+/* 1 while a library sync is running: IPXSETUP never reboots a box mid-copy. */
+int gamesync_busy(void)
+{
+    return g_gs_running != 0;
+}
+
 static int gs_dv_lookup(const char *id)
 {
     int i;

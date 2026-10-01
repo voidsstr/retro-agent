@@ -87,6 +87,31 @@ _RAW_VERBS = {"EXEC", "EXECW", "LAUNCH", "REGWRITE", "REGDELETE", "SERVICE"}
 _3DFX_DRIVER_IDS = ("VEN_121A", "VOODOO2.INF", "VOODOO.INF", "3DFXVS", "3DFXV2", "FXGPIO",
                     "FXPTL", "AMIGAMERLIN", "VCRMP", "VCRDD")
 
+# IPXSETUP (agent 1.97.0): two switches arm what needs a person to recover.
+# IpxSetupReboot=1 lets a Win9x box REBOOT ITSELF to activate IPX - bypassing
+# scripts/fleet/safe-reboot.py (the PXE hold, the activation check) - and
+# IpxSetup9xTemplateOk=1 opens the Win98 network-registry install, which the
+# orchestrator sets only once the template matches a golden capture. Writing
+# either to a non-zero value needs confirm=true; writing 0 (disarming) does not.
+_IPX_ARM_VALUES = ("IPXSETUPREBOOT", "IPXSETUP9XTEMPLATEOK")
+
+
+def _ipx_arm_reason(verb, command):
+    up = command.upper()
+    if not any(v in up for v in _IPX_ARM_VALUES):
+        return None
+    if verb == "REGWRITE":
+        # REGWRITE root path name type data - disarming (data 0) is not gated
+        parts = command.split()
+        if len(parts) >= 6 and parts[3].upper() in _IPX_ARM_VALUES and \
+                parts[5].lower() in ("0", "0x0", "0x00000000", "00000000"):
+            return None
+    elif verb not in _RAW_VERBS:
+        return None
+    return ("arms an IPXSETUP switch (IpxSetupReboot / IpxSetup9xTemplateOk) that lets a "
+            "Win9x box reboot itself or rewrite its network registry - only on the user's "
+            "explicit request for that machine")
+
 
 def _gate_reason(command):
     """Return a human reason if `command` is a gated destructive action, else None."""
@@ -102,6 +127,9 @@ def _gate_reason(command):
         return f"{verb} names a 3dfx device or driver - 3dfx drivers change only on the user's explicit request"
     if verb in _RAW_VERBS and any(w in up for w in _3DFX_DRIVER_IDS):
         return f"{verb} touches a 3dfx driver - 3dfx drivers change only on the user's explicit request"
+    ipx = _ipx_arm_reason(verb, command)
+    if ipx:
+        return f"{verb} {ipx}"
     low = " " + command.lower()
     for pat in _GATED_SHELL_PATTERNS:
         if pat in low:
