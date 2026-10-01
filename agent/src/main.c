@@ -91,6 +91,13 @@ int agent_console_quiet(void)
     return g_service_mode || g_client_mode == MODE_MULTIPLEX;
 }
 
+/* One thread serves every client (Win9x): a handler must never block it for
+ * long - IPXSETUP apply answers "running" there instead of waiting. */
+int agent_multiplex_mode(void)
+{
+    return g_client_mode == MODE_MULTIPLEX;
+}
+
 /* Multiplexed client slots */
 /* Concurrent client slots. Four was not enough for a box that runs the chat
  * client locally: retro_chat holds THREE connections of its own (command,
@@ -1350,6 +1357,14 @@ void agent_run(void)
     log_msg(LOG_MAIN, "startup: spawning gamesync thread");
     gamesync_init();
     spawn_helper(gamesync_thread, "gamesync");
+
+    /* IPX/SPX on every box that can have it (1.97.0, ipxsetup.c): NWLink via
+     * INetCfg on XP, the validated template on Win98 SE, a report elsewhere.
+     * The thread asks the host policy first and waits ~100 s; ipxsetup_init()
+     * runs HERE, on this thread, before it or any IPXSETUP command can. */
+    log_msg(LOG_MAIN, "startup: spawning ipxsetup thread");
+    ipxsetup_init();
+    spawn_helper(ipxsetup_thread, "ipxsetup");
 
     /* The watchdog recovers a command wedged behind a hung fullscreen game,
      * and it can only tell that a command is wedged from g_cmd_inflight -

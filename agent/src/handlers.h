@@ -35,6 +35,34 @@ void agent_self_reboot_9x(const char *label);
 /* 1.93.0: the folder GAMESYNC installs titles in (GamesDir, else C:\Games);
  * 0 when a configured GamesDir is unusable. */
 int gs_games_dir(char *out, size_t cch);
+/* The same; on 0, `why` says what is wrong with GamesDir (1.97.0, QBINDS). */
+int gs_games_dir_why(char *out, size_t cch, char *why, size_t why_cch);
+/* gamesync.c's driver-install lock, shared with IPXSETUP (1.97.0): one install
+ * at a time across DRIVERS UPDATE, DRVUPDATE, the startup driver passes and
+ * the NWLink / Win98 IPX installs. enter = 1 if taken; wait = up to 15 min. */
+int  agent_install_lock_enter(void);
+void agent_install_lock_leave(void);
+int  agent_install_lock_wait(void);
+/* 1 while a library sync is copying (IPXSETUP never reboots mid-copy). */
+int  gamesync_busy(void);
+
+/* qbinds.c (1.97.0) - the fleet's WASD layout for Quake 1 / Quake II: the agent
+ * keeps <gamedir>\FLEETKEY.CFG byte-identical to a compiled-in body
+ * (agent/shared/qbinds.h). QBINDS [title] reports; QBINDS apply [title] enforces. */
+void qbinds_init(void);
+int  qbinds_startup(void);
+int  qbinds_apply_title(const char *dst_dir, const char *title, int *not_executed);
+void handle_qbinds(SOCKET sock, const char *args);
+
+/* ipxsetup.c (1.97.0) - install the IPX/SPX protocol: NWLink through INetCfg
+ * on Windows 2000/XP, the Win98 SE registry template + VxD payload on 9x
+ * (gated by IpxSetup9xTemplateOk=1). IPXSETUP [status] reports; IPXSETUP apply
+ * [force] [retry] installs. The startup thread does the same unattended. */
+DWORD WINAPI ipxsetup_thread(LPVOID param);
+void handle_ipxsetup(SOCKET sock, const char *args);
+void ipxsetup_init(void);
+/* main.c: 1 when one thread serves every client (Win9x multiplex mode). */
+int  agent_multiplex_mode(void);
 void handle_netmap(SOCKET sock, const char *args);
 void handle_netunmap(SOCKET sock, const char *args);
 void handle_filecopy(SOCKET sock, const char *args);

@@ -116,6 +116,13 @@ def test_win7_and_older_stay_managed():
         # 1.96.0: sets the power scheme's monitor/standby/hibernate timeouts to never.
         ("monpower.c", "monpower_apply_startup", "the monitor power-off / standby timeouts"),
         ("monpower.c", "handle_monpower", "MONPOWER apply"),
+        # 1.97.0: writes FLEETKEY.CFG into the Quake gamedirs (QBINDS).
+        ("qbinds.c", "qbinds_startup", "the Quake key layout at startup"),
+        ("qbinds.c", "qbinds_apply_title", "the Quake key layout after a GAMESYNC title"),
+        ("qbinds.c", "handle_qbinds", "QBINDS apply"),
+        # 1.97.0: installs the IPX/SPX protocol (IPXSETUP).
+        ("ipxsetup.c", "ipxsetup_thread", "the IPX/SPX protocol install at startup"),
+        ("ipxsetup.c", "handle_ipxsetup", "IPXSETUP apply"),
     ],
 )
 def test_startup_appliers_are_guarded(path, func, what):
@@ -178,7 +185,10 @@ def test_dispatch_enforces_the_flag():
 @pytest.mark.parametrize(
     "path,func,readonly_mode",
     [("sysfix.c", "handle_sysfix", "check"), ("display.c", "handle_displaycfg", "get"),
-     ("video.c", "handle_drivers", "STATUS")],
+     ("video.c", "handle_drivers", "STATUS"),
+     # 1.97.0: the report is a diagnostic on every box, modern ones included
+     ("qbinds.c", "handle_qbinds", "QBINDS [title]"),
+     ("ipxsetup.c", "handle_ipxsetup", "IPXSETUP [status]")],
 )
 def test_dual_mode_commands_guard_only_their_write_branch(path, func, readonly_mode):
     """SYSFIX check and DISPLAYCFG get are diagnostics and must keep working."""

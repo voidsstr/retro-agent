@@ -60,6 +60,10 @@ SOURCES = $(SRCDIR)/compat.c \
           $(SRCDIR)/fxpanel.c \
           $(SRCDIR)/ntdyn.c \
           $(SRCDIR)/monpower.c \
+          $(SRCDIR)/qbinds.c \
+          $(SRCDIR)/ipxsetup.c \
+          $(SRCDIR)/ipxnt.c \
+          $(SRCDIR)/ipx9x.c \
           $(SRCDIR)/consolewin.c \
           $(SRCDIR)/bgwork.c \
           $(SRCDIR)/log.c \
