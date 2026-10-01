@@ -1,0 +1,1 @@
+  [ OK ] carmageddon2-server  Carmageddon 2 (IPX/UDP) :54792  Carmageddon 2 LAN host | lobby | 0 remote player(s)

@@ -119,3 +119,18 @@ residue — the entry point is in `.text`) and no CD key or serial. IPXWrapper's
 node number on the wired interface is that NIC's MAC, distinct from every box.
 The host's name is set in the server copy's `data/OPTIONS.TXT`
 (`NetName`/`PlayerName` = `FLEET HOST`) by `install.sh`, never in the library.
+
+## What is proven, and what is not (2026-10-01)
+
+* **Proven on the host:** it reaches the lobby by itself on every start (~55 s,
+  three cold starts by systemd), `ss` shows the socket as `0.0.0.0%enp129s0:54792`,
+  and the `CAR2MSG1` probe sent out of `enp129s0` gets `CAR2MSG2` from
+  192.168.1.132, while one sent out of Wi-Fi gets nothing. The watchdog and
+  `healthcheck.py` both report it OK. Evidence: `.claude/evidence-carma2/`.
+* **NOT proven: a fleet box joining it.** The only boxes with the title online
+  during this work (`.123`, `.197`) were running another session's Descent
+  DOSBox LAN test the whole time and were not touched. The two-box proof is the
+  next step: on an XP box, *Play Carmageddon 2* -> NETWORK GAME, look for
+  `FLEET HOST` under JOIN A GAME, join, wait 45 s for the race to start, and
+  photograph both the box and the host (`docker exec c2srv xwd -root`, decode
+  with host.py's `Frame`).
