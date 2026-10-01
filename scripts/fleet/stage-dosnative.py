@@ -84,9 +84,13 @@ DECLARE = {
         "Pentium processor, 8 MB RAM'."),
     "Descent2": (
         "DESCENT2.EXE", "Descent II",
-        "The DOS build. D2VOODOO.EXE beside it is the 3dfx Glide build and "
-        "needs a Voodoo; DESCENTW.EXE is the Win95 one. The guess happens to "
-        "land on DESCENT2.EXE here (it matches the directory name), so this "
+        "The DOS build - since 2026-10-01 the no-CD DESCENT2.EXE from the "
+        "share's DOS collection, staged by stage-fleetres.py: the retail one "
+        "stops at 'Sorry, the Descent 2 CD must be present to run' and real "
+        "DOS here has no CD. Its own HMI sound drivers are staged beside it. "
+        "D2VOODOO.EXE is the 3dfx Glide build, linked for a Voodoo 1, and "
+        "DESCENTW.EXE is the Win95 one. The guess happens to land on "
+        "DESCENT2.EXE here (it matches the directory name), so this "
         "declaration is pinning a right answer rather than fixing a wrong one."),
     "Quake1": (
         "QUAKE.EXE", "Quake",

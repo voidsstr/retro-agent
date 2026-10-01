@@ -1,0 +1,40 @@
+X-WING (1993, floppy v1.0) - THE MANUAL QUESTION, ANSWERED
+==========================================================
+
+If the game shows a Copy Protection box with three symbols and
+'See Manual Page N', type ONE of the two words for that page and
+press Enter, as written here - the game stores them in lower case.
+Either word for the page is accepted; three wrong answers fail.
+
+  Page  Type either
+  ----  -----------
+     3  mantooine or corellian
+     4  alderaan or ghorman
+     5  calamari or gamorr
+     6  ithor or ottega
+     7  sullust or ryloth
+     8  hoth or dagobah
+     9  geedon or delalt
+    10  bimmisaari or dantooine
+    11  briggia or massassi
+    12  chandrila or agamar
+    13  lahara or yavin
+    14  hadar or condorra
+    15  endaba or tullianne
+    16  ehapah or altar
+    17  antike or dargoan
+    18  kashyyyk or atrivis
+
+Where this comes from: FRONTEND.OVL in this folder - its 32x3 symbol
+table, the 32 planet names after it (file offset 0x7E0B2) and
+page = (question / 2) + 3. Read out of the code, not seen in the game:
+in DOSBox and in the Win98 build VM the box never appeared through a
+new pilot, the Tech Room, Tour I mission 1 in flight and a Historical
+Combat briefing (research R6, 2026-10-01).
+
+Do NOT run XWINGPAT.COM, the scene patch shipped in this folder: it
+writes B8 00 00 at 0x7983A, which in this build is a screen-ID
+compare, not the protection check.
+
+Staged by retro-agent scripts/dosgames/stage_win9x_dos.py
+(specs/win9x-dos.json, Flight-XWing "files").
