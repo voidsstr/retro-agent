@@ -98,6 +98,7 @@ permanently claim someone was playing.
 | NetQuake / Hexen II | the Quake **control protocol** on the game port: `[0x80\|len:u32BE][0x02]["QUAKE"\0][3]` → `[0x83][addr\0][hostname\0][level\0][cur][max][proto]` | the server gives its own count, so there is no ping-0 bot heuristic to get wrong. **It answers neither `getstatus` nor `status`** and drops both in silence, so the wrong packet reports a live host as dead. Hexen II answers only to the game string `HEXENII`. Tool: `nqquery.py <ip> <port> [QUAKE\|HEXENII]` |
 | Soldier of Fortune II | `getstatus` | infostring as Quake III, but the **player lines carry THREE numbers** before the name (`0 5 0 "B240"`), so the shared `<score> <ping> "<name>"` bot rule reads the wrong field. SoF2 MP has no bots at all, so `probe_sof2` returns a hard zero rather than a parse |
 | UT99 / UT2004 | `\status\` on **game port + 1** | `numplayers` / `maxplayers` given directly |
+| UT2003 (2225) | UE2 **native** query `80 00 00 00 <type>` on **game port + 1** (7758) | reply opens with an int32 **net version: 121 = UT2003, 128 = UT2004**; the type-0 count **includes bots**; no GameSpy `\status\` (the server does not uplink). See [`ut2003/`](ut2003/README.md) |
 | Tribes 2 | Torque binary `0x0E` → `0x10` | **liveness only, and not by choice** — under TribesNext the info response body is encrypted (`0x12` returns a well-formed `0x14` full of ciphertext). The reply *does* echo the request's four key bytes, so we send a random key and check it comes back: that proves the packet answers *our* query rather than being any UDP traffic that happened to arrive |
 
 Tests: `tests/python/test_gameservers.py` (parsers against captured bytes, and
@@ -120,6 +121,7 @@ every bound of the restart policy).
 | QuakeWorld | `quakeworld-server` | **27502** | `~/qw-server` |
 | UT99 (469e) | `ut99-server` | **7797** (query 7798) | `~/ut99-server` |
 | UT2004 | `ut2004-server` | **7777** (query 7787) | `~/ut2004-server` |
+| UT2003 **2225** | `ut2003-server` | **7757** (native query 7758, LAN 10777 shared with UT2004) | `~/ut2003-server` - the staged tree's own `UCC.exe` under Wine; see [`ut2003/`](ut2003/README.md) |
 | Unreal Gold **226** | `unrealgold-server` | **7807** (query 7808, beacon 7775) | `~/unrealgold-server` — the staged tree's own `UCC.exe` under Wine; see [`unrealgold/`](unrealgold/README.md) |
 | Tribes 2 | `tribes2-server` (docker) | **28000** | `retro-agent-private/.../tribes2-docker` |
 
@@ -543,6 +545,7 @@ container is the whole reason these exist at all rather than costing a fleet box
 | `descent3-server` | Descent 3 (`main.exe -dedicated Dedicated.cfg`) | TCP+UDP **2092** | `retro-wine:bookworm` |
 | `farcry-server` | Far Cry 1.4 (`Bin32\FarCry_WinSV.exe`) | UDP **49001** | `retro-wine:bookworm` |
 | `unrealgold-server` (2026-09-28) | Unreal Gold 226 (`System\UCC.exe server`) | UDP **7807** (query 7808, beacon 7775) | `retro-wine:bookworm` — no Xvfb (console program), runs as the tree's owner; [`unrealgold/`](unrealgold/README.md) |
+| `ut2003-server` (2026-10-01) | UT2003 2225 (`System\UCC.exe server`) | UDP **7757** (native query 7758, LAN 10777) | `retro-wine:bookworm` — same shape as Unreal Gold; [`ut2003/`](ut2003/README.md) |
 
 Trees: `~/descent3-server` (494 MB — movies, Mercenary and the editor excluded)
 and `~/farcry-server` (3.6 GB). Launch scripts live in each tree's `_run/`.

@@ -292,6 +292,157 @@ def probe_unreal226(port, timeout=DEFAULT_TIMEOUT, host=None):
     return out
 
 
+# --- Unreal Engine 2 native browser query (UT2003) --------------------------
+#
+# The UE2 browser's own query, to game port + 1: <0x80 0 0 0><type>, where
+# type 0 = server info, 1 = rules, 2 = players. Every reply opens with an
+# int32 NET VERSION -- 121 from UT2003 2225, 128 from UT2004 3369 (measured
+# 2026-09-29 and again 2026-10-01 on this host) -- and a UE2 client joins only
+# a server of its own build. So "it answered" is not enough: a UT2004 reply on
+# the UT2003 port would answer perfectly and admit no UT2003 client.
+UE2_QUERY = b"\x80\x00\x00\x00"
+UT2003_NETVER = 121
+UT2003_CLIENT_BUILD = "2225"
+
+
+def _ue2_fstring(data, i):
+    """UE2 FString: a signed length byte (negative = UTF-16), NUL-terminated."""
+    n = data[i]
+    i += 1
+    if n >= 128:
+        n -= 256
+    if n < 0:
+        end = i - 2 * n
+        return data[i:end].decode("utf-16-le", "replace").rstrip("\x00"), end
+    return data[i:i + n].decode("latin-1", "replace").rstrip("\x00"), i + n
+
+
+def _ue2_ask(port, qtype, timeout, host):
+    """One query; every datagram that comes back (a list can span several)."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.settimeout(timeout)
+    started = time.monotonic()
+    out, rtt = [], None
+    try:
+        sock.sendto(UE2_QUERY + bytes([qtype]), (host or HOST, port))
+        while True:
+            data = sock.recv(65535)
+            if rtt is None:
+                rtt = round((time.monotonic() - started) * 1000, 1)
+            out.append(data)
+            sock.settimeout(0.3)          # the rest of a split reply, if any
+    except Exception:
+        pass
+    finally:
+        sock.close()
+    return out, rtt
+
+
+def parse_ue2_info(data):
+    """Type-0 reply -> dict, or None if it is not one."""
+    try:
+        netver = struct.unpack("<i", data[:4])[0]
+        if data[4] != 0:
+            return None
+        i = 9                                   # netver, type, ServerID
+        _ip, i = _ue2_fstring(data, i)
+        gport, _qport = struct.unpack("<ii", data[i:i + 8])
+        i += 8
+        name, i = _ue2_fstring(data, i)
+        mapname, i = _ue2_fstring(data, i)
+        gametype, i = _ue2_fstring(data, i)
+        players, maxp = struct.unpack("<ii", data[i:i + 8])
+    except (struct.error, IndexError):
+        return None
+    return {"netver": netver, "port": gport, "name": name, "map": mapname,
+            "gametype": gametype, "players": players, "max_players": maxp}
+
+
+def parse_ue2_rules(data):
+    """Type-1 reply -> {key: value}. Pairs of FStrings after the 5-byte head."""
+    out = {}
+    i = 5
+    try:
+        while i < len(data):
+            k, i = _ue2_fstring(data, i)
+            v, i = _ue2_fstring(data, i)
+            out[k.lower()] = v
+    except IndexError:
+        pass
+    return out
+
+
+def parse_ue2_players(data):
+    """Type-2 reply -> [name, ...]. Each entry: int32 id, FString name,
+    int32 ping, int32 score, int32 stats id.
+
+    MEASURED (2026-10-01): with six bots and no human on the server, a type-2
+    query gets NO reply at all, while type 0 counts 6 -- so bots are not
+    listed. NOT YET MEASURED: a list with a human in it (no UT2003 client could
+    join that day). The entry layout is the UE2 browser's, unconfirmed against
+    a live 2225 reply; until it is, a human count from here is best-effort."""
+    names = []
+    i = 5
+    try:
+        while i + 4 <= len(data):
+            i += 4
+            name, i = _ue2_fstring(data, i)
+            i += 12
+            if i > len(data):
+                break
+            names.append(name)
+    except IndexError:
+        pass
+    return names
+
+
+def ut2003_join_problem(netver, build):
+    """None if the staged UT2003 2225 client can join, else why not. A value
+    we could not read is a problem too: "could not tell" is never "joinable"."""
+    if netver != UT2003_NETVER:
+        what = "UT2004" if netver == 128 else "not UT2003"
+        return (f"net version {netver} ({what}): the staged UT2003 client "
+                f"(net version {UT2003_NETVER}) cannot join it")
+    if build != UT2003_CLIENT_BUILD:
+        return (f"ServerVersion {build or '?'}: the staged UT2003 client is "
+                f"build {UT2003_CLIENT_BUILD}")
+    return None
+
+
+def probe_ut2003(port, timeout=DEFAULT_TIMEOUT, host=None):
+    r"""The fleet's UT2003 server -- UE2 native query on game port + 1.
+
+    Not GameSpy `\status\`: that responder (game + 10) exists only when the
+    server uplinks to GameSpy, and this one is a LAN server that does not.
+    The native query is also what the client's browser and LAN tab speak.
+
+    `players` in the info reply COUNTS BOTS (six bots on an empty server
+    read 6/12). That is this module's convention too (`players` is everyone,
+    `bots` the subset -- collect() derives humans as the difference), so the
+    probe asks for the player list as well, where bots do not appear, and
+    reports bots = info count - listed players.
+    """
+    infos, rtt = _ue2_ask(port, 0, timeout, host)
+    info = parse_ue2_info(infos[0]) if infos else None
+    if not info:
+        return None
+    rules_raw, _ = _ue2_ask(port, 1, timeout, host)
+    rules = {}
+    for d in rules_raw:
+        rules.update(parse_ue2_rules(d))
+    plist_raw, _ = _ue2_ask(port, 2, min(timeout, 1.0), host)
+    humans = sum(len(parse_ue2_players(d)) for d in plist_raw)
+    total = max(0, info["players"])
+    out = {"name": info["name"], "map": info["map"], "rtt_ms": rtt,
+           "players": total, "bots": max(0, total - humans),
+           "max_players": info["max_players"],
+           "version": rules.get("serverversion") or None}
+    problem = ut2003_join_problem(info["netver"], out["version"])
+    if problem:
+        out["problem"] = problem
+    return out
+
+
 def probe_idtech4(port, timeout=DEFAULT_TIMEOUT, host=None):
     r"""DOOM 3 -- id Tech 4 connectionless `getInfo`.
 
@@ -484,6 +635,7 @@ PROBES = {
     "ut": probe_ut,
     "unreal227": probe_unreal227,
     "unreal226": probe_unreal226,
+    "ut2003": probe_ut2003,
     "idtech4": probe_idtech4,
     "t2": probe_t2,
     "nq": probe_nq,
@@ -560,6 +712,14 @@ SERVERS = [
      "probe": "ut",  "port": 7798,  "join": 7797},
     {"unit": "ut2004-server",      "label": "UT2004",          "engine": "ut2k4",
      "probe": "ut",  "port": 7787,  "join": 7777},
+    # UT2003 2225: the staged tree's own System\UCC.exe under Wine in Docker
+    # (scripts/game-servers/ut2003/), added 2026-10-01. 7757 because a UE2
+    # server holds game, game+1 and game+10, and UT2004 already has
+    # 7777/7778/7787. Probed with the UE2 NATIVE query on game+1 (no GameSpy
+    # responder: it does not uplink), which also reports the net version --
+    # 121 is UT2003, 128 is UT2004, and only 121 admits the staged client.
+    {"unit": "ut2003-server",      "label": "UT2003",          "engine": "ut2k3",
+     "probe": "ut2003", "port": 7758, "join": 7757, "slow_start_sec": 120},
     # Unreal Gold 226: the staged tree's OWN System\UCC.exe under Wine in
     # Docker (scripts/game-servers/unrealgold/), since 2026-09-28. It replaced
     # an OldUnreal 227k Linux server that this row once claimed "the staged

@@ -1062,7 +1062,7 @@ browser, and both players in the game together. A Network menu is not proof; a
 
 Fleet servers live on **192.168.1.132** — CS 1.6 `:27015` (no-blood `:27016`),
 Specialists `:27017`, Quake III `:27961`, OpenArena `:27960`, Quake 2 `:27910`,
-QuakeWorld `:27502`, UT99 `:7797`, UT2004 `:7777`. If a client's LAN tab is
+QuakeWorld `:27502`, UT99 `:7797`, UT2004 `:7777`, UT2003 `:7757`. If a client's LAN tab is
 empty, try `connect 192.168.1.132:27015` from the console — that distinguishes
 "server unreachable" from "broadcast discovery failing", which are different
 faults with different fixes.

@@ -1,0 +1,22 @@
+[Unit]
+Description=Unreal Tournament 2003 Dedicated Server (staged UCC.exe 2225, Wine in Docker) - NSC Retro Fleet Arena
+After=network-online.target docker.service
+Wants=network-online.target
+
+# The staged UT2003 tree's own System\UCC.exe (build 2225) over its own
+# packages, so the fleet's 2225 clients can join (a UE2 client joins only its
+# own build: native netver 121 = UT2003, 128 = UT2004). Join 7757, native
+# query 7758, LAN responder 10777 shared with ut2004-server (SO_REUSEADDR;
+# both answer a client's LAN broadcast). See scripts/game-servers/ut2003/.
+[Service]
+Type=simple
+WorkingDirectory=/home/voidsstr/ut2003-server
+ExecStart=/home/voidsstr/ut2003-server/_run/run-ut2003-server.sh
+ExecStop=/usr/bin/docker stop -t 10 ut2003srv
+Restart=always
+RestartSec=20
+StandardOutput=append:/home/voidsstr/ut2003-server/server.log
+StandardError=append:/home/voidsstr/ut2003-server/server.log
+
+[Install]
+WantedBy=default.target

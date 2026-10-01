@@ -98,6 +98,33 @@ def unreal226(port):
         return False, res + " -- NOT 226: the staged client cannot join"
     return res
 
+def ut2003(port):
+    r"""UT2003 2225: the UE2 NATIVE browser query on game port + 1.
+
+    Not `\status\` -- the GameSpy responder (game + 10) only exists when the
+    server uplinks to GameSpy, and the fleet's LAN server does not. Every
+    native reply opens with an int32 net version: 121 is UT2003 2225, 128 is
+    UT2004, and a UT2003 client joins only 121 -- so a reply with any other
+    number is BAD, not OK. The player count includes bots.
+    """
+    r = ask(port, b"\x80\x00\x00\x00\x00")
+    if not r or len(r) < 10: return None
+    def fs(d, i):
+        n = d[i] - 256 if d[i] >= 128 else d[i]; i += 1
+        if n < 0: return d[i:i - 2*n].decode('utf-16-le', 'replace').rstrip('\x00'), i - 2*n
+        return d[i:i + n].decode('latin-1', 'replace').rstrip('\x00'), i + n
+    try:
+        netver = struct.unpack("<i", r[:4])[0]
+        _, i = fs(r, 9); i += 8
+        name, i = fs(r, i); mp, i = fs(r, i); _, i = fs(r, i)
+        cur, mx = struct.unpack("<ii", r[i:i + 8])
+    except (struct.error, IndexError):
+        return None
+    res = "%s | map=%s | %d/%d (incl. bots) | netver=%d" % (name, mp, cur, mx, netver)
+    if netver != 121:
+        return False, res + " -- NOT UT2003 (121): the staged client cannot join"
+    return res
+
 def nq(port, game=b"QUAKE"):        # NetQuake control protocol: Quake 1, Hexen II
     """Quake 1 / Hexen II answer NEITHER `getstatus` NOR `status` -- they speak
     the Quake CONTROL protocol on the game port and drop the other two without
@@ -208,6 +235,9 @@ CHECKS = [
     ("quakeworld-server",  "QuakeWorld",          27502, qw),
     ("ut99-server",        "UT99 (query 7798)",    7798, ut),
     ("ut2004-server",      "UT2004 (query 7787)",  7787, ut),
+    # UT2003 2225 -- the staged tree's own UCC.exe under Wine (2026-10-01).
+    # Native UE2 query on game+1 (7757 -> 7758); 7777/7778/7787 are UT2004's.
+    ("ut2003-server",      "UT2003 (query 7758)",  7758, ut2003),
     # Unreal Gold 226 -- the staged tree's own UCC.exe under Wine (2026-09-28;
     # it replaced a 227k server the staged 226 client could not join).
     ("unrealgold-server",  "Unreal Gold (query 7808)", 7808, unreal226),

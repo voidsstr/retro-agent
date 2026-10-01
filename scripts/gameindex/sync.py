@@ -102,6 +102,14 @@ LOCAL_SERVERS = [
          name="NSC Retro Fleet Arena - UT99"),
     dict(engine="ut2k4", port=7777, query_port=7787, gamename="ut2004",
          name="NSC Retro Fleet Arena - UT2004"),
+    # UT2003 2225 -- the staged tree's own UCC.exe under Wine, added
+    # 2026-10-01 (scripts/game-servers/ut2003/). NO query_port on purpose:
+    # without one, masters.probe_server uses the UE2 NATIVE probe on game+1,
+    # which checks net version 121 -- so a UT2004 reply (128) is never pinned
+    # into a UT2003 box's favourites. The server does not uplink to GameSpy,
+    # so a game+10 `\status\` probe would find nothing.
+    dict(engine="ut2k3", port=7757, gamename="ut2003",
+         name="NSC Retro Fleet Arena - UT2003"),
     # Unreal Gold 226 -- the staged tree's own UCC.exe under Wine since
     # 2026-09-28 (it replaced an OldUnreal 227k server that the staged 226
     # clients could not join; same ports, so this row did not change).

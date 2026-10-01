@@ -14,7 +14,7 @@ a reason.** Three verdicts, never two, because they call for different things:
   the server stops the fleet's clients reaching it. Listed with the exact
   blocker rather than built.
 
-Measured 2026-09-01. **Still missing rows: `Halo2` and `RainbowSix`**, both
+Measured 2026-09-01. `UT2003` (staged 2026-09-29) was added as row 42a with its server on 2026-10-01. **Still missing rows: `Halo2` and `RainbowSix`**, both
 staged after this table was written - said here rather than left to be
 discovered, because a table that claims one row per title and has fewer is the
 failure this document exists to avoid. Check the servers with
@@ -69,6 +69,7 @@ packet per engine**, which a single `getstatus` sweep does not.
 | 40 | ThiefGold | **no multiplayer** | — | |
 | 41 | TiberianSun | peer by design | — | IPX over IPXWrapper |
 | 42 | Turok2 | peer by design | — | GameManager peer session; the host is listed in the joiner's browser but the join fails — an open client-side item, not a missing server |
+| 42a | UT2003 | **SERVER** | `ut2003-server` :7757 (native query **7758**, LAN 10777 shared with UT2004) | **Added 2026-10-01**: the staged tree's own `System\UCC.exe` (2225) under Wine in docker ([`scripts/game-servers/ut2003/`](../scripts/game-servers/ut2003/README.md)). 7757, not 7787: a UE2 server holds game, +1 and +10, and UT2004 owns 7777/7778/7787. The probe checks net version **121** + `ServerVersion 2225`. Both UE2 servers answer a client's LAN broadcast on 10777. **No fleet client has joined yet** - the only box online with UT2003 that day was `.124`, reserved for other work |
 | 43 | UT2004 | **SERVER** | `ut2004-server` :7777 (query **7787**) | not 7778 — guessing +1 makes our own live server read as down |
 | 44 | UnrealGold | **SERVER** | `unrealgold-server` :7807 (query 7808, beacon 7775) | **Unreal 226 since 2026-09-28**: the staged tree's own `System\UCC.exe` under Wine in docker ([`scripts/game-servers/unrealgold/`](../scripts/game-servers/unrealgold/README.md)). It REPLACED the OldUnreal 227k `ucc-bin-amd64` server installed 2026-09-01, which the staged **226 Final** client cannot join (`Package 'UnrealI' version mismatch`, measured on `.124` 2026-09-28) although it advertised `mingamever 224`. The probe now checks `gamever` = 226 |
 | 45 | UnrealTournament | **SERVER** | `ut99-server` :7797 (query 7798) | OldUnreal 469e |
