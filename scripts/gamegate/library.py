@@ -106,15 +106,36 @@ def verdict_path(profile_hash: str, root=None) -> Path:
     return gate_dir(root) / f"{profile_hash}.txt"
 
 
+def _libwrite():
+    import importlib.util
+    here = Path(__file__).resolve().parents[1] / "fleet" / "libwrite.py"
+    spec = importlib.util.spec_from_file_location("libwrite", here)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def write_verdict_file(profile_hash: str, text: str, root=None) -> Path:
     """Write it atomically-ish: a truncated file would be read by the agent as
     a shorter list of decisions, and every missing line silently means 'deploy'
-    - so replace rather than rewrite in place."""
+    - so replace rather than rewrite in place.
+
+    ON THE SHARE it goes through scripts/fleet/libwrite.py, like every other
+    library writer: /mnt/retro-share (the default root) is mounted READ-ONLY,
+    so the old tmp + os.replace raised "Read-only file system" on every publish
+    from a headless session (2026-10-01). libwrite puts the file with
+    sharewrite, reads it back through /mnt, and on a failed put leaves the
+    previous verdicts in place - the same never-truncated guarantee."""
     d = gate_dir(root)
-    d.mkdir(parents=True, exist_ok=True)
     final = d / f"{profile_hash}.txt"
+    data = text.encode("ascii", errors="replace")
+    lw = _libwrite()
+    if lw.share_rel(str(final)) is not None:
+        lw.writer_for(str(Path(root) if root else DEFAULT_LIBRARY)).write_bytes(str(final), data)
+        return final
+    d.mkdir(parents=True, exist_ok=True)
     tmp = d / f".{profile_hash}.tmp"
-    tmp.write_text(text, encoding="ascii", errors="replace")
+    tmp.write_bytes(data)
     os.replace(tmp, final)
     return final
 

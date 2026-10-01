@@ -17,18 +17,20 @@ a8c6fcedee0c8076	@follows	d931bfe6c33fae5e
 # "prioritize quake / quake 2 / unreal tournament, then flight simulator games; you can eject other
 # games unless they are noteworthy from a 3d perspective in this era". Everything below is "no" on its
 # profile except Quake1, Quake2Win9x, HexenII, UnrealTournament436 (override above) and Descent1.
+# 2026-10-01 the user added: "stage sin 1 and other 3dfx voodoo 2 games from the share" and
+# "make sure descent 1 and 2 are staged to all computers" - those lines now read run.
 d931bfe6c33fae5e	AliensVsPredator	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	BF1942	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	Carmageddon1	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
-d931bfe6c33fae5e	Carmageddon2	no	3D-noteworthy, but gated until it has a Voodoo launcher for this box (game-local nGlide / cmd.exe-only launchers) (2026-09-29)
+d931bfe6c33fae5e	Carmageddon2	run	.243 P166 + Voodoo 2: Carmageddon 2 - Voodoo runs CARMA2_HW.EXE on the real Glide (2026-10-01; the user asked for the share's 3dfx games)
 d931bfe6c33fae5e	CounterStrike16	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	Daggerfall	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
-d931bfe6c33fae5e	Descent2	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
+d931bfe6c33fae5e	Descent2	run	the user asked for Descent 1 AND 2 on every box, LAN-capable (2026-10-01): 'Descent II - DOS' (D2DOS.BAT) runs the no-CD DESCENT2.EXE natively; LAN via DALI in real DOS
 d931bfe6c33fae5e	Descent3	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	DeusEx	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	Doom3	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	FarCry	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
-d931bfe6c33fae5e	HalfLife1	no	3D-noteworthy, but gated until it has a Voodoo launcher for this box (game-local nGlide / cmd.exe-only launchers) (2026-09-29)
+d931bfe6c33fae5e	HalfLife1	run	.243 P166 + Voodoo 2: Half-Life/TFC/DMC Voodoo launchers render via the 3Dfx Mini Driver at 640x480x16 (2026-10-01; the user asked for the share's 3dfx games)
 d931bfe6c33fae5e	Halo	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	Halo2	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	HiddenAndDangerous	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
@@ -38,7 +40,7 @@ d931bfe6c33fae5e	JediKnightMotS	no	not wanted on .243: the user kept Quake/Quake
 d931bfe6c33fae5e	MasterOfOrionII	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	MaxPayne	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	Postal	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
-d931bfe6c33fae5e	Quake2Complete	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
+d931bfe6c33fae5e	Quake2Complete	run	the user asked for the share's other 3dfx Voodoo 2 games (2026-10-01): the Reckoning and Ground Zero Voodoo launchers (Quake2Win9x's proven MiniGL path)
 d931bfe6c33fae5e	Quake3-TeamArena	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	RainbowSix	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	RedAlert2	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
@@ -49,7 +51,7 @@ d931bfe6c33fae5e	SeriousSamFirstEncounter	no	not wanted on .243: the user kept Q
 d931bfe6c33fae5e	SeriousSamSecondEncounter	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	ShadowWarrior	run	3D-noteworthy (Build engine, 1997), kept on .243: its "Shadow Warrior - DOS" shortcut runs SW.EXE natively; the DOSBox ones stay suppressed by their 350 MHz floor (2026-09-29)
 d931bfe6c33fae5e	Shogo	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
-d931bfe6c33fae5e	SiNGold	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
+d931bfe6c33fae5e	SiNGold	run	the user asked to stage SiN on the P1 (2026-10-01): 'Play SiN - Voodoo' / 'Play Wages of SiN - Voodoo' run the 3dfx MiniGL at 640x480, low detail
 d931bfe6c33fae5e	SoldierOfFortune	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	SoldierOfFortune2	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	StarCraft	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
@@ -60,7 +62,7 @@ d931bfe6c33fae5e	TiberianSun	no	not wanted on .243: the user kept Quake/Quake II
 d931bfe6c33fae5e	Tribes2	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	Turok2	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	UT2004	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
-d931bfe6c33fae5e	UnrealGold	no	3D-noteworthy, but gated until it has a Voodoo launcher for this box (game-local nGlide / cmd.exe-only launchers) (2026-09-29)
+d931bfe6c33fae5e	UnrealGold	run	.243 P166 + Voodoo 2 (under the 200 MHz floor): Unreal Gold - Voodoo runs GlideDrv at 640x480x16, lighter detail (2026-10-01; the user asked for the share's 3dfx games)
 d931bfe6c33fae5e	UnrealTournament	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	WarcraftII	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
 d931bfe6c33fae5e	WarcraftOrcsAndHumans	no	not wanted on .243: the user kept Quake/Quake II/UT, flight sims and 3D-noteworthy titles only (2026-09-29)
