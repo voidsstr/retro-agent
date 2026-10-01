@@ -434,3 +434,57 @@ def test_retree_replaces_the_game_files_and_leaves_the_generators_own(tmp_path):
     assert os.path.join(root, "SHELL1.DYN") in wrote and wrote[os.path.join(root, "SHELL1.DYN")] == b"english"
     for rel in ("Play Aces Over Europe.bat", "launch.txt", "requires.json", "ACESOVER.ICO"):
         assert os.path.join(root, rel) not in wrote and rel.upper() not in removed
+
+
+# --- Flight Simulator 5.0 is the 5.0a update (2026-09-30) ---------------------
+
+def _msfs50():
+    return next(t for t in json.load(open(os.path.join(REPO, "scripts", "dosgames", "specs", "win9x-dos.json")))
+                if t["lib"] == "Flight-MSFS50")
+
+
+def test_flight_simulator_5_launches_the_5_0a_loader():
+    """Retail 5.0 stops on ANY Pentium at "Fatal Error 039/+00901" in its VGA
+    320x400 mode (KB Q107983); reproduced in DOSBox with cputype=pentium_slow,
+    seen on the Win98 build VM's P166. The fix is Microsoft's 5.0a update, whose
+    INSTALL deletes FS5.EXE - the launcher must start the new FS5.COM, or the
+    shortcut runs nothing (or a stale 5.0 loader left behind on a box)."""
+    t = _msfs50()
+    assert t["launch"] == ["FS5.COM X"], t["launch"]
+    assert "Q107983" in t["notes"] and "5.0a" in t["notes"]
+
+
+def _ci(root, rel):
+    """A Windows path under root, looked up case-insensitively (CLAUDE.md)."""
+    cur = root
+    for part in rel.split("/"):
+        names = {n.upper(): n for n in os.listdir(cur)}
+        if part.upper() not in names:
+            return None
+        cur = os.path.join(cur, names[part.upper()])
+    return cur
+
+
+@_share
+def test_the_staged_flight_simulator_5_is_5_0a_with_a_crlf_ini():
+    """The staged tree is the 5.0a update applied by its own INSTALL.EXE, and
+    FS5.INI is the 5.0a default set for .243's SB16. Every line must end in
+    CRLF: an edit whose regex ate the CR made FS5 read 'g2d=vgb.gra' and the
+    next line as one value - "Disk error, VGB.GRA G3D=FSOG3D.FSO" - and the
+    shortcut closed at once with nothing on screen (2026-09-30)."""
+    root = os.path.join(LIB, "Flight-MSFS50")
+    assert _ci(root, "FS5.COM") and not _ci(root, "FS5.EXE"), "5.0a's loader, not 5.0's"
+    import hashlib
+    vgb = open(_ci(root, "VGB.GRA"), "rb").read()
+    assert hashlib.md5(vgb).hexdigest() == "9087b92539091121c5e3ca60a85c9c7c", \
+        "VGB.GRA is not 5.0a's - 5.0's dies on a Pentium (error 039)"
+    ini = open(_ci(root, "FS5.INI"), "rb").read()
+    assert b"\n" not in ini.replace(b"\r\n", b"") and b"\r" not in ini.replace(b"\r\n", b""), \
+        "every FS5.INI line ends in CRLF"
+    keys = dict(l.split(b"=", 1) for l in ini.split(b"\r\n") if b"=" in l and not l.upper().startswith(b"INCLUDE"))
+    keys = {k.upper(): v for k, v in keys.items()}
+    assert keys[b"G2D"].upper() == b"VGB.GRA"
+    assert keys[b"SOUND_BOARD"] == b"004", "Sound Blaster/SB Pro; 5.0a's default 008 is the Pro Audio Spectrum"
+    assert keys[b"SOUND_INTERRUPT"] == b"005" and keys[b"SOUND_XMS"] == b"000"
+    assert keys[b"LOG_FILE"].upper() == b"PILOTS\\LOGBOOK.LOG"
+    assert _ci(root, "PILOTS/LOGBOOK.LOG"), "without it every start opens a 'logbook file was unusable' dialog"

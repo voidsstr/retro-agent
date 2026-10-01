@@ -1258,6 +1258,10 @@ dialog **preselects Stand by**. Tests: `tests/python/test_w98vm_build.py`.
   EtherLink III, a 1997 Compaq BIOS), so it is safe there; a Win9x box that
   boots from the NETWORK first must be in `pxe_config.json` `never_offer`
   before it gets a real-DOS title, or a double-click could reimage it.
+- **A DOS title that fails in the VM may fail on every PENTIUM, not on 86Box.**
+  A/B it in DOSBox on the host: `cputype=pentium_slow` against the default
+  (486) CPUID. Flight Simulator 5.0's "Fatal Error 039/+00901" (KB Q107983)
+  reproduced that way in a minute and is fixed by the 5.0a update now staged.
 - **The Win9x DOS titles' spec is `scripts/dosgames/specs/win9x-dos.json`** - it
   was lost once with a session scratchpad and rebuilt from the library
   (`spec_from_library.py`). Fix a title there and run

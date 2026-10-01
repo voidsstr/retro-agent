@@ -520,9 +520,9 @@
   "tree": "/mnt/retro-share/Files/Games-Library/Flight-MSFS50",
   "icon": "/mnt/retro-share/Files/Games-Library/Flight-MSFS50/MSFS50.ICO",
   "launch": [
-   "FS5.EXE X"
+   "FS5.COM X"
   ],
-  "notes": "ENGLISH Flight Simulator 5.0 ('Microsoft Flight Simulator 5.0 (1993)(Microsoft).zip', an installed tree; FS.BAT runs 'fs5 x'), staged 2026-09-30 because the library's Flight-MSFS51 is the FRENCH 5.1 CD and stopped in the Win98 build VM at a fatal 'Impossible de verrouiller la memoire XMS' (unable to lock XMS memory). FS5.INI: g2d=vgb.gra (plain VGA - the S3 SVGA driver is a black screen on a Cirrus), sound_board=4 (Sound Blaster), sound_interrupt=5, sound_xms=0 (the 5.1 tree failed with sound in XMS). The icon is the 5.1 title's.",
+  "notes": "ENGLISH Flight Simulator 5.0 ('Microsoft Flight Simulator 5.0 (1993)(Microsoft).zip', an installed tree; FS.BAT runs 'fs5 x'), UPDATED TO 5.0a (2026-09-30): retail 5.0 stops on ANY Pentium at 'Fatal Error 039/+00901' in VGA 320x400 (Microsoft KB Q107983; reproduced in DOSBox with cputype=pentium_slow, a 486 CPUID runs). The update is Microsoft's FS500A.EXE (archive.org item FS500A, md5 bfaa6c310a19c51cf5211a1ed1be6818, kept in _patches/Flight-MSFS50); its own INSTALL.EXE was run in DOSBox against the 5.0 tree - it deletes the 125 files in DEL.TXT (FS5.EXE, SETUP.EXE, EGA and its panels), byte-patches the 77 in DIFF.TXT, unpacks FS50A.EXE (FS5.COM is the new launcher) and runs TEXTURE\\RUNWAY.EXE; the answer file Y it leaves was dropped. INSTALL replaces FS5.INI with the 5.0a default, so ours is that default with SOUND_BOARD=004 (Sound Blaster/SB Pro - the default 008 is the Pro Audio Spectrum), SOUND_INTERRUPT=005, SOUND_XMS=000; and PILOTS\\LOGBOOK.LOG is created (the 5.0a INI names it; without it every start opens an 'automatic logging ... logbook file was unusable' dialog). Verified in DOSBox with a Pentium CPUID: the Meigs cockpit, engine sound captured. The French 5.1 (Flight-MSFS51) stops at 'unable to lock XMS memory' in the Win98 build VM. The icon is the 5.1 title's.",
   "source_label": "stage"
  },
  {
