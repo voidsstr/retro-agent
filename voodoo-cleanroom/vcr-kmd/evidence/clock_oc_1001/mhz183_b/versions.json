@@ -1,0 +1,88 @@
+{
+  "probed": "2026-10-01T22:59:24.580991+00:00",
+  "files": {
+    "glide3x": {
+      "path": "C:\\WINDOWS\\system32\\glide3x.dll",
+      "size": "1025930",
+      "md5": "07c96fd9035cbe325a7b4d188b23ff37"
+    },
+    "glide2x": {
+      "path": "C:\\WINDOWS\\system32\\glide2x.dll",
+      "size": "94208",
+      "md5": "a0d0841a178acda0dfc200ef9e31f5db"
+    },
+    "icd": {
+      "path": "C:\\WINDOWS\\system32\\3dfxOGL.dll",
+      "size": "2646009",
+      "md5": "8912a1388a15a8f6b3a75b6a1a344ee9"
+    },
+    "display": {
+      "path": "C:\\WINDOWS\\system32\\3dfxvs.dll",
+      "size": "610240",
+      "md5": "95634e870d73a33e64ddd138074f523b"
+    },
+    "miniport": {
+      "path": "C:\\WINDOWS\\system32\\drivers\\3dfxvsm.sys",
+      "size": "174720",
+      "md5": "83ee5503255fd9f9c2291253221cb466"
+    },
+    "vcr_display": {
+      "path": "C:\\WINDOWS\\system32\\vcrdd.dll",
+      "size": "106351",
+      "md5": "b63ea6a5ff0c265878f40c0fddf790ad"
+    },
+    "vcr_miniport": {
+      "path": "C:\\WINDOWS\\system32\\drivers\\vcrmp.sys",
+      "size": "130105",
+      "md5": "fda1b8c9b905ed874dfdc2e265d165d4"
+    }
+  },
+  "agent_ver": "1.97.1",
+  "os": {
+    "product": "Windows XP",
+    "version": "5.1.2600",
+    "service_pack": "Service Pack 3",
+    "level": "winxp",
+    "level_num": 3
+  },
+  "os_str": "Windows XP 5.1.2600 Service Pack 3",
+  "hostname": "NSC-C543575F526",
+  "cpu_mhz": 2004,
+  "cpu": "AMD Athlon(tm) XP 2400+",
+  "gpu": {
+    "name": "vcr-kmd Voodoo 5 6000 (open driver)",
+    "driver_version": "0.1.0.0",
+    "vram_mb": null,
+    "pci": "0x121A:0x0009"
+  },
+  "display_class": {
+    "InfPath": "oem6.inf",
+    "ProviderName": "vcr-kmd (retro-agent voodoo-cleanroom)",
+    "DriverDate": "9-25-2026",
+    "DriverVersion": "0.1.0.0",
+    "DriverDesc": "vcr-kmd Voodoo 5 6000 (open driver)"
+  },
+  "titles": {
+    "quake3:allours": {
+      "path": "C:\\Games\\Quake3-TeamArena\\quake3.exe",
+      "size": "872448",
+      "md5": "b5cf3dd55e045aac6096ff97379d0cab",
+      "engine": "quake3.exe (retail 1.32c)"
+    }
+  },
+  "effective": {
+    "quake3:allours": {
+      "lane": "opengl-allours-0.1.76",
+      "icd": {
+        "path": "C:\\Games\\Quake3-TeamArena\\retrogl.dll",
+        "size": "2773020",
+        "md5": "4886a3d05662ad8304d807110b9186da"
+      },
+      "glide3x": {
+        "path": "C:\\Games\\Quake3-TeamArena\\glide3x.dll",
+        "size": "1005435",
+        "md5": "2df2f96909f94d86493e86d3d919ac24"
+      }
+    }
+  }
+}
