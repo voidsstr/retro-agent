@@ -4,7 +4,7 @@
 `python3 scripts/fleet/gen-staged-library.py`; `--check` fails if it is stale.
 
 A hand-written version of this was never going to survive: the library went
-38 → 124 titles in a single session, two graphics cards were swapped mid-session,
+38 → 127 titles in a single session, two graphics cards were swapped mid-session,
 and the machines are powered on and off continuously. The same argument settled
 `docs/fleet-inventory.md`, whose hand-maintained predecessor was wrong about most
 of the fleet.
@@ -12,7 +12,7 @@ of the fleet.
 Source of truth is `~/.retro-fleet/fleetbook.db`. Query it directly with
 `scripts/fleet/compat.py` (`matrix`, `status --box .143`, `gaps`, `summary`).
 
-Generated 2026-10-01 06:51.
+Generated 2026-10-01 11:00.
 
 ## The machines
 
@@ -65,110 +65,112 @@ merely had no space for.
 | AliensVsPredator | +. | +r | +r | +r | +r | +. | +r | +. | +. | +. | +. | +. | +. | +r | G. | +r | +. | 0 |
 | BF1942 | +. | +- | +X | +X | +X | +. | +. | +. | +. | +. | +. | +. | +. | +X | G. | +X | +. | 0 |
 | Carmageddon1 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | +. | 7 |
-| Carmageddon2 | +. | +V | +V | +V | +V | +. | +r | +. | +. | +. | +. | +. | +. | +V | G. | +V | +. | 6 |
-| CounterStrike16 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +r | +. | 6 |
-| DOS-AloneInTheDark | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-BlakeStoneAOG | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-BlakeStonePS | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-DestructionDerby2 | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-Doom | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-Duke3D | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-GTA | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-Heretic | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-Hexen | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-Powerslave | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-ROTT | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-Screamer2 | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | G. | .. | -. | 0 |
-| DOS-SpearMissionPacks | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-SpearOfDestiny | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
-| DOS-Wolf3D | .. | G. | G. | .. | -. | -. | -. | .. | .. | .. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| Carmageddon2 | +. | +V | +V | +V | +V | +. | +r | +. | +. | +. | +. | +. | +. | +V | +. | +V | +. | 6 |
+| CounterStrike16 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +V | +. | +. | +. | +V | G. | +r | +. | 7 |
+| DOS-AloneInTheDark | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-BlakeStoneAOG | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-BlakeStonePS | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-DestructionDerby2 | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-Doom | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-Duke3D | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-GTA | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-Heretic | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-Hexen | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-Powerslave | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-ROTT | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-Screamer2 | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | G. | .. | -. | 0 |
+| DOS-SpearMissionPacks | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-SpearOfDestiny | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
+| DOS-Wolf3D | .. | G. | G. | .. | -. | -. | -. | .. | .. | -. | .. | G. | -. | -. | +. | .. | -. | 0 |
 | DOS-WreckinCrew | .. | .. | G. | .. | .. | .. | .. | .. | .. | .. | .. | G. | .. | .. | .. | .. | .. | 0 |
-| Daggerfall | .. | +. | +. | .V | .V | .. | .. | -. | .. | .. | .. | .. | +. | .. | G. | -. | -. | 2 |
+| Daggerfall | .. | +. | +. | .V | .V | .. | .. | -. | .. | +. | .. | .. | +. | .. | G. | -. | -. | 2 |
 | Descent1 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +V | +V | +. | +V | -. | 8 |
-| Descent2 | +. | +r | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +V | +V | G. | +r | -. | 6 |
+| Descent2 | +. | +r | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +V | +V | +. | +r | -. | 6 |
 | Descent3 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 7 |
 | DeusEx | +. | +V | +r | +V | +V | +. | +r | +. | +. | +. | +. | +. | +. | +r | G. | +V | -. | 4 |
-| Doom3 | .. | +V | G. | G. | G. | .. | G. | -. | .. | .. | .. | .. | +. | GV | G. | .r | -. | 2 |
-| FarCry | .. | +V | G. | G. | .V | .. | G. | -. | .. | .. | .. | .. | +. | GV | G. | .V | -. | 4 |
-| Flight-A10TankKiller | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-A320Airbus | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-AcesOverEurope | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-AcesPacific | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-B17 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-Battlehawks1942 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-BlueAngels | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | G. | .. | -. | 0 |
-| Flight-BlueMax | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-ChuckYeager | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-Comanche2 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-EF2000 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-Epic | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-F117A | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-F14 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-F15SE3 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-F19 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-Falcon3 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-FighterDuel | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-FlightCD | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-FrontierElite2 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-Gunship2000 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-JanesATF | .. | -. | -. | .. | .. | .. | .. | .. | .. | .. | .. | .. | -. | .. | +. | .. | -. | 0 |
-| Flight-LHX | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-Longbow | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-MSFS50 | .. | -. | -. | .. | .. | .. | .. | .. | .. | .. | .. | .. | -. | .. | +. | .. | -. | 0 |
-| Flight-MSFS51 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | G. | .. | -. | 0 |
-| Flight-Overlord | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-PacificAirWar1942 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-PacificStrike | .. | -. | -. | .. | .. | .. | .. | .. | .. | .. | .. | .. | -. | .. | +. | .. | -. | 0 |
-| Flight-Privateer | .. | -. | -. | .. | .. | .. | .. | .. | .. | .. | .. | .. | -. | .. | +. | .. | -. | 0 |
-| Flight-RedBaron | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-Retribution | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | G. | .. | -. | 0 |
-| Flight-RighteousFire | .. | -. | -. | .. | .. | .. | .. | .. | .. | .. | .. | .. | -. | .. | +. | .. | -. | 0 |
-| Flight-SWOTL | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-StuntIsland | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-Su27Flanker | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-TerminalVelocity | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-TheirFinestHour | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-TieFighter | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-Tornado | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-USNF | .. | -. | -. | .. | .. | .. | .. | .. | .. | .. | .. | .. | -. | .. | +. | .. | -. | 0 |
-| Flight-Werewolf | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-WingCommander1 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-WingCommander2 | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
-| Flight-XWing | .. | G. | G. | .. | -. | G. | -. | .. | .. | .. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| DieByTheSword | .. | G. | -. | .. | .. | .. | .. | .. | .. | -. | .. | .. | -. | .. | +. | .. | -. | 0 |
+| Doom3 | .. | +V | G. | G. | G. | .. | G. | -. | .. | +. | .. | .. | +. | GV | G. | .r | -. | 2 |
+| FarCry | .. | +V | G. | G. | .V | .. | G. | -. | .. | +. | .. | .. | +. | GV | G. | .V | -. | 4 |
+| Flight-A10TankKiller | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-A320Airbus | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-AcesOverEurope | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-AcesPacific | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-B17 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-Battlehawks1942 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-BlueAngels | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | G. | .. | -. | 0 |
+| Flight-BlueMax | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-ChuckYeager | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-Comanche2 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-EF2000 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-Epic | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-F117A | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-F14 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-F15SE3 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-F19 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-Falcon3 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-FighterDuel | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-FlightCD | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-FrontierElite2 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-Gunship2000 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-JanesATF | .. | G. | -. | .. | .. | .. | .. | .. | .. | -. | .. | .. | -. | .. | +. | .. | -. | 0 |
+| Flight-LHX | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-Longbow | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-MSFS50 | .. | G. | -. | .. | .. | .. | .. | .. | .. | -. | .. | .. | -. | .. | +. | .. | -. | 0 |
+| Flight-MSFS51 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | G. | .. | -. | 0 |
+| Flight-Overlord | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-PacificAirWar1942 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-PacificStrike | .. | G. | -. | .. | .. | .. | .. | .. | .. | -. | .. | .. | -. | .. | +. | .. | -. | 0 |
+| Flight-Privateer | .. | G. | -. | .. | .. | .. | .. | .. | .. | -. | .. | .. | -. | .. | +. | .. | -. | 0 |
+| Flight-RedBaron | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-Retribution | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | G. | .. | -. | 0 |
+| Flight-RighteousFire | .. | G. | -. | .. | .. | .. | .. | .. | .. | -. | .. | .. | -. | .. | +. | .. | -. | 0 |
+| Flight-SWOTL | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-StuntIsland | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-Su27Flanker | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-TerminalVelocity | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-TheirFinestHour | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-TieFighter | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-Tornado | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-USNF | .. | G. | -. | .. | .. | .. | .. | .. | .. | -. | .. | .. | -. | .. | +. | .. | -. | 0 |
+| Flight-Werewolf | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-WingCommander1 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-WingCommander2 | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
+| Flight-XWing | .. | G. | G. | .. | -. | G. | -. | .. | .. | -. | .. | G. | -. | G. | +. | .. | -. | 0 |
 | Generals | .. | .. | .. | ~. | .. | .. | ~. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
-| HalfLife-BlueShift | +. | +X | +X | +X | +X | +. | +. | +. | +. | +. | +. | +. | +. | +X | G. | +r | -. | 0 |
-| HalfLife-DMC | +. | +V | +V | +V | +V | +. | +r | +. | +. | +. | +. | +. | +. | +V | G. | +r | -. | 5 |
-| HalfLife-Deathmatch | +. | +V | +r | +V | +V | +. | +r | +. | +. | +. | +. | +. | +. | +V | G. | +r | -. | 4 |
-| HalfLife-OpposingForce | +. | +X | +X | +X | +X | +. | +. | +. | +. | +. | +. | +. | +. | +X | G. | +X | -. | 0 |
-| HalfLife-TFC | +. | +V | +V | +V | +V | +. | +r | +. | +. | +. | +. | +. | +. | +V | G. | +r | -. | 5 |
-| HalfLife1 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +r | -. | 6 |
-| Halo | .. | +r | +. | G- | G- | .. | G- | -. | .. | .. | .. | .. | +. | GV | G. | .V | -. | 2 |
-| Halo2 | .. | +X | G. | G. | G. | .. | G. | -. | .. | .. | .. | .. | +. | G. | G. | .V | -. | 1 |
+| HalfLife-BlueShift | +. | +X | +X | +X | +X | +. | +. | +. | +. | +. | +. | +. | +. | +X | +. | +r | -. | 0 |
+| HalfLife-DMC | +. | +V | +V | +V | +V | +. | +r | +. | +. | +. | +. | +. | +. | +V | +. | +r | -. | 5 |
+| HalfLife-Deathmatch | +. | +V | +r | +V | +V | +. | +r | +. | +. | +. | +. | +. | +. | +V | +. | +r | -. | 4 |
+| HalfLife-OpposingForce | +. | +X | +X | +X | +X | +. | +. | +. | +. | +. | +. | +. | +. | +X | +. | +X | -. | 0 |
+| HalfLife-TFC | +. | +V | +V | +V | +V | +. | +r | +. | +. | +. | +. | +. | +. | +V | +. | +r | -. | 5 |
+| HalfLife1 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | +. | +r | -. | 6 |
+| Halo | .. | +r | +. | G- | G- | .. | G- | -. | .. | +. | .. | .. | +. | GV | G. | .V | -. | 2 |
+| Halo2 | .. | +X | G. | G. | G. | .. | G. | -. | .. | +. | .. | .. | +. | G. | G. | .V | -. | 1 |
 | HexenII | +. | +r | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | +V | +r | -. | 6 |
 | HiddenAndDangerous | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 7 |
 | JediAcademy | +. | +- | +V | +V | +V | +. | +. | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 5 |
 | JediKnightDF2 | +. | +r | +r | +V | +r | +. | +r | +. | +. | +. | +. | +. | +. | +r | G. | +V | -. | 2 |
 | JediKnightMotS | +. | +V | +r | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +r | G. | +V | -. | 5 |
-| MasterOfOrionII | .. | +r | +V | .V | .V | .. | .V | +. | .. | .. | .. | .. | +. | .r | G. | .r | -. | 4 |
-| MaxPayne | .. | +- | +V | .V | .V | .. | ~V | +. | .. | .. | .. | .. | +. | .X | G. | .V | -. | 5 |
-| Postal | .. | +. | G. | G. | G. | .. | .. | -. | .. | .. | .. | .. | +. | .. | G. | -. | -. | 0 |
+| MasterOfOrionII | .. | +r | +V | .V | .V | .. | .V | +. | .. | +. | .. | .. | +. | .r | G. | .r | -. | 4 |
+| MaxPayne | .. | +- | +V | .V | .V | .. | ~V | +. | .. | +. | .. | .. | +. | .X | G. | .V | -. | 5 |
+| Postal | .. | +. | G. | G. | G. | .. | .. | -. | .. | +. | .. | .. | +. | .. | G. | -. | -. | 0 |
 | Quake1 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | +V | +V | -. | 8 |
-| Quake2Complete | +. | +V | +V | +V | +V | +V | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 8 |
-| Quake2Win9x | .. | G. | G. | G. | G. | G. | G. | -. | .. | .. | .. | G. | -. | G. | +V | .. | -. | 1 |
-| Quake3-TeamArena | +. | +V | +V | +V | +V | +V | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 8 |
+| Quake2Complete | +. | +V | +V | +V | +V | +V | +V | +. | +. | +. | +. | +. | +. | +V | +. | +V | -. | 8 |
+| Quake2Win9x | .. | G. | G. | G. | G. | G. | G. | -. | .. | -. | .. | G. | -. | G. | +V | .. | -. | 1 |
+| Quake3-TeamArena | +. | +V | +V | +V | +V | +V | +V | +. | +. | +V | +. | +. | +. | +V | G. | +V | -. | 9 |
 | Quake3Arena | +. | +V | +V | +V | +V | +V | +. | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 7 |
-| RainbowSix | .. | +V | +. | .. | .. | .. | .. | -. | .. | .. | .. | .. | +. | .. | G. | +. | -. | 1 |
+| RainbowSix | .. | +V | +. | .. | .. | .. | .. | -. | .. | +. | .. | .. | +. | .. | G. | +. | -. | 1 |
 | RedAlert2 | +. | +V | +r | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 6 |
 | RedFaction | +. | +- | +r | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +X | G. | +V | -. | 4 |
 | RedneckRampage | +. | +V | +V | +V | +r | +. | +V | +. | +. | +. | +. | +. | +. | +r | G. | +r | -. | 4 |
 | ReturnToCastleWolfenstein | +. | +V | +V | +V | +V | +V | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 8 |
+| RogueSquadron | .. | G. | -. | .. | .. | .. | .. | .. | .. | -. | .. | .. | -. | .. | +. | .. | -. | 0 |
 | SeriousSamFirstEncounter | +. | +- | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +X | -. | 5 |
 | SeriousSamSecondEncounter | +. | +- | +V | +V | +V | +. | +. | +. | +. | +. | +. | +. | +. | +V | G. | +r | -. | 4 |
 | SeriousSamTFE | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
 | SeriousSamTSE | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | .. | 0 |
-| ShadowWarrior | .. | +V | +r | .V | .V | .. | .V | +. | .. | .. | .. | .. | +. | .r | +. | .V | -. | 5 |
+| ShadowWarrior | .. | +V | +r | .V | .V | .. | .V | +. | .. | +. | .. | .. | +. | .r | +. | .V | -. | 5 |
 | Shogo | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +r | G. | +V | -. | 6 |
-| SiNGold | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +r | -. | 6 |
+| SiNGold | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | +. | +r | -. | 6 |
 | SoldierOfFortune | +. | +V | +V | +V | +V | +. | +. | +. | +. | +. | +. | +. | +. | +r | G. | +r | -. | 4 |
 | SoldierOfFortune2 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +r | -. | 6 |
 | StarCraft | +. | +- | +r | +V | +V | +r | +r | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 4 |
@@ -177,17 +179,18 @@ merely had no space for.
 | ThiefGold | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 7 |
 | TiberianSun | +. | +V | +r | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +r | G. | +V | -. | 5 |
 | Tribes2 | +. | +. | +. | +. | +. | +. | +. | +. | +. | +. | +. | +. | +. | +. | G. | +. | -. | 0 |
-| Turok2 | .. | +V | +V | .V | .V | .. | .V | +. | .. | .. | .. | .. | +. | .V | G. | .V | -. | 7 |
-| UT2003 | +. | +V | +. | +. | +V | +V | +V | +. | .. | +. | .. | .. | +V | +V | G. | .. | -. | 6 |
-| UT2004 | +. | +V | +V | +V | +V | +V | +V | +. | +. | +. | +. | +. | +V | +V | G. | +V | -. | 9 |
-| UnrealGold | +. | +V | +V | +V | +X | +. | +V | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 6 |
+| Turok2 | .. | +V | +V | .V | .V | .. | .V | +. | .. | +. | .. | .. | +. | .V | G. | .V | -. | 7 |
+| UT2003 | +. | +V | +. | +. | +V | +V | +V | +. | .. | +V | .. | .. | +V | +V | G. | .. | -. | 7 |
+| UT2004 | +. | +V | +V | +V | +V | +V | +V | +. | +. | +V | +. | +. | +V | +V | G. | +V | -. | 10 |
+| UnrealGold | +. | +V | +V | +V | +X | +. | +V | +. | +. | +. | +. | +. | +. | +V | +. | +V | -. | 6 |
 | UnrealTournament | +. | +V | GX | +X | +X | +. | +V | +. | .. | +. | .. | +. | +. | +V | G. | +V | -. | 4 |
 | UnrealTournament436 | +. | +V | +V | +V | +V | +. | +V | +. | +. | +. | +. | +. | +. | +r | +. | +V | -. | 6 |
-| WarcraftII | .. | +r | +r | .V | .V | .. | .r | +. | .. | .. | .. | .. | +. | .r | G. | .r | -. | 2 |
-| WarcraftOrcsAndHumans | .. | +V | +V | .V | .X | .. | .V | +. | .. | .. | .. | .. | +. | .V | G. | .V | -. | 6 |
+| WCProphecy | .. | G. | -. | .. | .. | .. | .. | .. | .. | -. | .. | .. | -. | .. | +. | .. | -. | 0 |
+| WarcraftII | .. | +r | +r | .V | .V | .. | .r | +. | .. | +. | .. | .. | +. | .r | G. | .r | -. | 2 |
+| WarcraftOrcsAndHumans | .. | +V | +V | .V | .X | .. | .V | +. | .. | +. | .. | .. | +. | .V | G. | .V | -. | 6 |
 | YurisRevenge | +. | +V | +V | +V | +V | +. | +. | +. | +. | +. | +. | +. | +. | +V | G. | +V | -. | 6 |
 
-**124 titles × 17 machines = 2108 cells — 281 verified, 1730 untested.**
+**127 titles × 17 machines = 2159 cells — 285 verified, 1777 untested.**
 
 ## Titles with a blocker recorded
 
@@ -338,13 +341,22 @@ merely had no space for.
 | BF1942 | `192.168.1.186` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.186` | tunnel proven both ends; the front end ignores click *and* key |
 | Carmageddon2 | `192.168.1.186` | tunnel proven both ends; the front end ignores click *and* key |
+| Daggerfall | `192.168.1.186` | single-player only by design; the GOG DOSBox build staged |
+| FarCry | `192.168.1.186` | server hosts unattended; CryEngine takes DirectInput exclusively |
 | HalfLife-BlueShift | `192.168.1.186` | `liblist.gam` declares `type "SP Mission"`, `maps\` |
+| Halo | `192.168.1.186` | **JOINING is automated; HOSTING is not**, and as of 2026-09-01 the **CD keys were also duplicate |
 | HiddenAndDangerous | `192.168.1.186` | launcher bug fixed; stops at profile creation |
+| MasterOfOrionII | `192.168.1.186` | that menu entry is mouse-only |
+| MaxPayne | `192.168.1.186` | `MaxPayne.exe` imports no `WS2_32`, `WSOCK32` or `DPLAYX` at all. |
 | RedFaction | `192.168.1.186` | root cause fixed (`UpdateRate`); join unproven |
 | RedneckRampage | `192.168.1.186` | IPX tunnel proven; the Build gather never happens |
+| ShadowWarrior | `192.168.1.186` | the in-game gather |
 | Shogo | `192.168.1.186` | dedicated server stands up; client menu renders intermittently |
 | SoldierOfFortune | `192.168.1.186` | multiplayer refused **even with the disc** — see below |
 | SystemShock2 | `192.168.1.186` | the menu offers New Game / Load / Options / Credits / |
+| Turok2 | `192.168.1.186` | host works and is listed in the joiner's browser; join fails |
+| WarcraftII | `192.168.1.186` | its 8-bit DirectDraw surface is **uncapturable by GDI on both XP and Win7**, so the agent cannot |
+| WarcraftOrcsAndHumans | `192.168.1.186` | campaign/network screen is mouse-only |
 | AliensVsPredator | `192.168.1.191` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
 | BF1942 | `192.168.1.191` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
 | Carmageddon1 | `192.168.1.191` | tunnel proven both ends; the front end ignores click *and* key |
@@ -402,6 +414,7 @@ merely had no space for.
 | Shogo | `192.168.1.240` | dedicated server stands up; client menu renders intermittently |
 | SoldierOfFortune | `192.168.1.240` | multiplayer refused **even with the disc** — see below |
 | SystemShock2 | `192.168.1.240` | the menu offers New Game / Load / Options / Credits / |
+| Carmageddon2 | `192.168.1.243` | tunnel proven both ends; the front end ignores click *and* key |
 | ShadowWarrior | `192.168.1.243` | the in-game gather |
 | AliensVsPredator | `192.168.1.246` | has LAN (DirectPlay), but exclusive-fullscreen D3D — screenshots come back black |
 | BF1942 | `192.168.1.246` | SafeDisc 2.80.010 in `Mods\bf1942\Mod.dll` blocks the *client*; the host launcher works |
