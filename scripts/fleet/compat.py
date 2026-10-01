@@ -352,8 +352,50 @@ def ingest_gamegate(con, strict=True):
                          r["created"]).strftime("%Y-%m-%d %H:%M:%S"))
         written += 1
     g.close()
+    # THE PUBLISHED FILE IS WHAT THE BOX OBEYS. The agent prefers
+    # <library>\_gamegate\<hash>.txt over its own rules, and an OPERATOR
+    # OVERRIDE (scripts/gamegate/overrides.txt) exists only there - never in
+    # the cache read above. So without this pass a title withdrawn from a box
+    # by hand read `gate=run` here and, once deleted from the box, `absent`
+    # with no remedy - five such titles on .243 on 2026-09-30.
+    for ip, h in latest.items():
+        p = os.path.join(LIBRARY, "_gamegate", h + ".txt")
+        try:
+            text = open(p, "rb").read().decode("latin-1")
+            when = _dt.datetime.fromtimestamp(os.path.getmtime(p)).strftime("%Y-%m-%d %H:%M:%S")
+        except OSError:
+            continue            # nothing published: the box decides by its own rules
+        for title, (v, limiting, reason) in published_verdicts(text).items():
+            have = need = ""
+            m = re.search(r"have\s+([\d.]+)[^,]*,\s*needs?\s+([\d.]+)", reason)
+            if m:
+                have, need = m.group(1), m.group(2)
+            C.put_deploy(con, ip, title, "derived",
+                         {"no": "gated", "marginal": "marginal"}.get(v, "untested"),
+                         gate=v, reason=reason, limiting=limiting, have=have, need=need,
+                         decided_by="override" if reason.startswith("operator override")
+                         else "published",
+                         source="gamegate-published", measured_at=when)
+            written += 1
     C.log_ingest(con, "gamegate.db", True, rows_in=rows, rows_written=written)
     return written
+
+
+def published_verdicts(text):
+    r"""{title: (verdict, limiting, reason)} from a published gamegate file -
+    `<verdict>\t<title>\t<limiting>\t<reason>` per line, `#` comments, `-`
+    for no limiting factor. A line that is not one of the three verdicts is
+    skipped, never guessed at."""
+    out = {}
+    for line in text.splitlines():
+        if not line.strip() or line.startswith("#"):
+            continue
+        parts = line.split("\t")
+        if len(parts) < 2 or parts[0] not in ("run", "marginal", "no") or not parts[1]:
+            continue
+        limiting = parts[2] if len(parts) > 2 and parts[2] != "-" else ""
+        out[parts[1]] = (parts[0], limiting, parts[3] if len(parts) > 3 else "")
+    return out
 
 
 def ingest_installed(con, strict=True):
@@ -406,9 +448,30 @@ def ingest_installed(con, strict=True):
     return written
 
 
+def probe_roots(gamesync_status):
+    r"""The directories that hold a box's titles: C:\Games and D:\Games, where
+    every box kept them until agent 1.93.0, plus the box's OWN games folder -
+    `HKLM\Software\RetroAgent\GamesDir`, reported as `dest` by GAMESYNC STATUS.
+
+    Listing only C:/D: called 62 titles on .243 `absent` while they sat in its
+    E:\GAMES (2026-09-30): GamesDir moved them and this probe never heard. A
+    status that cannot be read adds nothing - the old two roots stand - and a
+    `dest` that is not an absolute drive path is ignored, never guessed at.
+    """
+    roots = [r"C:\Games", r"D:\Games"]
+    try:
+        dest = (json.loads(gamesync_status) or {}).get("dest") or ""
+    except (ValueError, TypeError, AttributeError):
+        dest = ""
+    if isinstance(dest, str) and re.match(r"^[A-Za-z]:\\[^\\]", dest) \
+            and dest.rstrip("\\").lower() not in [r.lower() for r in roots]:
+        roots.append(dest.rstrip("\\"))
+    return roots
+
+
 def ingest_probe(con, strict=True):
-    r"""Ask each box what is actually in C:\Games - the only sound source of
-    ABSENCE.
+    r"""Ask each box what is actually in its games folders (probe_roots) - the
+    only sound source of ABSENCE.
 
     Read-only (one DIRLIST per box, nothing launched, nothing rebooted).  A box
     that does not answer is left ALONE rather than marked absent: the fleet is
@@ -451,7 +514,11 @@ def ingest_probe(con, strict=True):
         found = set()
         ok = False
         try:
-            for root in (r"C:\Games", r"D:\Games"):
+            # where THIS box keeps its titles (GamesDir, agent 1.93.0+); an
+            # older agent or a refused command leaves the two classic roots
+            st, data = await c.send_command("GAMESYNC STATUS")
+            status = data.decode("ascii", "replace") if st == 0 else ""
+            for root in probe_roots(status):
                 st, data = await c.send_command("DIRLIST " + root)
                 if st != 0:
                     continue               # no such directory on this box

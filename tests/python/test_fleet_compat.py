@@ -19,6 +19,7 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
@@ -388,6 +389,82 @@ class TestSchemaCoexistsWithFleetbook(Base):
             C.connect(self.path).close()
         self.assertTrue(list(self.con.execute(
             "SELECT 1 FROM sqlite_master WHERE name='v_compat_matrix'")))
+
+
+class TestPublishedVerdictsOverlayTheCache(Base):
+    """An operator override lives only in the PUBLISHED verdict file, which is
+    what the agent obeys - the gamegate.db cache never sees it. Reading only
+    the cache left five titles withdrawn from .243 at gate=run, and once they
+    were deleted from the box, `absent` with no reason (2026-09-30)."""
+
+    FILE = ("# gamegate v1 profile=abc host=X\n# <verdict>\t<title>\t<limiting>\t<reason>\n"
+            "no\tDOS-Screamer2\t-\toperator override: broken build\n"
+            "run\tQuake1\t-\tmeets requirements [rule]\n"
+            "marginal\tDoom3\tcpu_mhz\tcpu_mhz: have 701, needs 1000\n"
+            "maybe\tBogus\t-\tnot a verdict\n")
+
+    def test_the_parser_reads_the_three_verdicts_and_skips_the_rest(self):
+        v = compat.published_verdicts(self.FILE)
+        self.assertEqual(v["DOS-Screamer2"], ("no", "", "operator override: broken build"))
+        self.assertEqual(v["Doom3"][:2], ("marginal", "cpu_mhz"))
+        self.assertNotIn("Bogus", v, "an unknown verdict is skipped, not guessed")
+        self.assertEqual(len(v), 3)
+
+    def test_an_override_in_the_published_file_beats_the_cached_rule(self):
+        import shutil
+        tmp = tempfile.mkdtemp()
+        old_lib, old_gg = compat.LIBRARY, C.GAMEGATE_DB
+        try:
+            os.makedirs(os.path.join(tmp, "lib", "_gamegate"))
+            with open(os.path.join(tmp, "lib", "_gamegate", "abc.txt"), "w") as fh:
+                fh.write(self.FILE)
+            gg = os.path.join(tmp, "gamegate.db")
+            g = sqlite3.connect(gg)
+            g.execute("CREATE TABLE profiles (profile_hash TEXT, ip TEXT, seen INTEGER)")
+            g.execute("CREATE TABLE verdicts (profile_hash TEXT, title TEXT, shortcut TEXT, "
+                      "verdict TEXT, limiting TEXT, reason TEXT, decided_by TEXT, "
+                      "confidence REAL, created INTEGER)")
+            g.execute("INSERT INTO profiles VALUES ('abc', '192.168.1.243', 1)")
+            g.execute("INSERT INTO verdicts VALUES ('abc', 'DOS-Screamer2', '', 'run', '', "
+                      "'meets requirements', 'rule', 1.0, 1)")
+            g.commit()
+            g.close()
+            compat.LIBRARY = os.path.join(tmp, "lib")
+            C.GAMEGATE_DB = Path(gg)
+            compat.ingest_gamegate(self.con)
+            row = self.con.execute("SELECT * FROM compat_deploy WHERE ip='192.168.1.243' "
+                                   "AND title='DOS-Screamer2' AND origin='derived'").fetchone()
+            self.assertEqual((row["gate"], row["state"], row["decided_by"]), ("no", "gated", "override"))
+            self.assertIn("broken build", row["reason"])
+        finally:
+            compat.LIBRARY, C.GAMEGATE_DB = old_lib, old_gg
+            shutil.rmtree(tmp)
+
+
+class TestProbeListsTheBoxsOwnGamesDir(unittest.TestCase):
+    r"""Agent 1.93.0's GamesDir moves every title off C:\Games. The probe kept
+    listing only C:\Games and D:\Games, so on .243 (GamesDir E:\GAMES) 62
+    installed titles - Flight Simulator 5.0 among them, on the box minutes
+    earlier - were reported `absent` (2026-09-30)."""
+
+    def test_the_games_dir_gamesync_reports_is_listed(self):
+        roots = compat.probe_roots(json.dumps({"state": "done", "dest": "E:\\GAMES"}))
+        self.assertIn("E:\\GAMES", roots)
+        self.assertEqual(roots[:2], ["C:\\Games", "D:\\Games"],
+                         "the classic roots stay: older copies live there")
+
+    def test_an_unreadable_or_missing_status_keeps_the_classic_roots(self):
+        for status in ("", "not json", "null", "[]", json.dumps({"state": "idle"})):
+            self.assertEqual(compat.probe_roots(status), ["C:\\Games", "D:\\Games"], status)
+
+    def test_a_dest_that_is_not_a_drive_path_is_ignored_not_guessed(self):
+        for dest in ("GAMES", "\\\\nas\\share\\Games", "E:", "E:\\", 5):
+            self.assertEqual(compat.probe_roots(json.dumps({"dest": dest})),
+                             ["C:\\Games", "D:\\Games"], dest)
+
+    def test_the_default_dest_is_not_listed_twice(self):
+        self.assertEqual(compat.probe_roots(json.dumps({"dest": "c:\\GAMES\\"})),
+                         ["C:\\Games", "D:\\Games"])
 
 
 if __name__ == "__main__":
