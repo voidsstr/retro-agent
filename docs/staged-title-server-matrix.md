@@ -84,6 +84,27 @@ Kept because they are played from other trees or from a mod directory:
 `hldm-server` :27020 (joined from the `CounterStrike16` tree's engine) ·
 `quakeworld-server` :27502 · `tribes2-server` :28000 (docker).
 
+## Bots on each server (2026-10-01)
+
+Fleet rule: **3 bots, "Hard", backfilling** (an empty server shows 3, each human
+replaces one) wherever the engine allows it. Mechanisms, scales and install
+scripts: the `game-servers` skill's Bots section; the committed configs are
+pinned by `tests/python/test_server_bots.py`.
+
+| server | bots | how |
+|---|---|---|
+| `cs16-server`, `cs16-noblood` | 3, fill | YaPB 4.4.957, `yb_difficulty 3` |
+| `css-server` | 3, fill | Valve bots, `bot_difficulty 2` |
+| `hldm-server` | 3, fill | **jk_botti 1.62** on metamod-p (new), `botskill 2` |
+| `quake3-server`, `q3ta-server`, `openarena-server`, `jka-server` | 3, fill | id bots, `bot_minplayers 3`, `g_spSkill 4` |
+| `quake2-server` | 3, fixed | **3zb2** (new), aim/combat/reaction 7 of 9 - **verified joined** from a Yamagi client 2026-10-01, scoreboard listed the three bots (`.claude/evidence-server-bots/`) |
+| `quake1-server` | 3, fill | **FrikBot X** compiled into `fbx/progs.dat` (new), skill 2 |
+| `quakeworld-server` | fill to 3 while a human is on | KTX frogbots enabled (new), `k_fb_skill 15`, start map `dm4` |
+| `ut99-server`, `ut2004-server` | fill to 3 while a human is on | built-in, Adept |
+| `unrealgold-server` | 3, fixed | `InitialBots=3`, Hard |
+| `tribes2-server` | 3, fixed | Classic AI, difficulty 0.75 |
+| `specialists-server`, `rtcw-server`, `sof2-server`, `deusex-server`, `doom3-server`, `shogo-server`, `descent3-server`, `farcry-server`, `ssam-tfe-server`, `ssam-tse-server` | **none possible** | evidence per server in the skill (e.g. TS 3.0's Linux dll answers `addbot` with `Bots only in listen servers.`; RTCW `BotLoadMap: bot library used before being setup`; Deus Ex's own source: `No support done for this one`) |
+
 ## Counting it honestly
 
 | | |

@@ -1,0 +1,6 @@
+Evil Zeep was blasted by Claw Finger
+FleetTest connected
+FleetTest entered the game
+ale\hand\0\name\FleetTest\rate\8000\skin\male/grunt\spectator\0\vid_pauseonfocuslost\0\windowed_mouse\1
+FleetTest was machinegunned by Evil Zeep
+FleetTest disconnected

@@ -82,10 +82,20 @@ reason. A silent skip and a successful restart must never look the same.
 
 ### Bots are not players
 
-A Quake III server pinned at `bot_minplayers 4` reports four players forever.
-GoldSrc's A2S reply carries a bot count directly; on the Quake family the tell
-is **ping 0** in the player line. Without that separation the dashboard would
-permanently claim someone was playing.
+Since 2026-10-01 most servers here carry bots (fleet rule: 3, "Hard",
+backfilling - the per-server table is in the `game-servers` skill and the
+configs are pinned by `tests/python/test_server_bots.py`). A Quake III server
+at `bot_minplayers 3` reports three players forever, so every probe has to say
+which of its players are bots, and each engine needs its own tell:
+
+| engine | the tell |
+|---|---|
+| GoldSrc / Source (YaPB, jk_botti, CS:S bots) | A2S carries a `bots` byte |
+| Quake III family (Q3, Team Arena, OpenArena, JKA) | **ping 0** in the player line |
+| QuakeWorld (KTX frogbots) | the player line is `userid frags minutes ping "name" ...` and a bot's ping is its `*skill` - an ordinary number. KTX's bot names start with `/ `, `: ` or `> `, and that is the tell |
+| Unreal (UT99, UT2004, Unreal Gold) | `\game_property\NumBots\` (and `NumPlayers`). UT99/226 `numplayers` excludes bots; **UT2004's is padded up to MinPlayers** and read 3 on an empty server |
+| Quake 2 (3zb2), Quake 1 (FrikBot X) | the bots are game entities, not network clients: the query never lists them, so its count is already human (the server log / rcon show them) |
+| Tribes 2 | nothing is readable (TribesNext encrypts the info reply) - `-`, never `0` |
 
 ### Reply layouts (all verified against the live servers)
 
@@ -97,7 +107,7 @@ permanently claim someone was playing.
 | QuakeWorld (mvdsv) | `status` | infostring on **line 0** — the `n` header is glued to the first key. The reply ends `\n\x00`, and `str.strip()` does not remove a NUL, so a naive line count reports one phantom player |
 | NetQuake / Hexen II | the Quake **control protocol** on the game port: `[0x80\|len:u32BE][0x02]["QUAKE"\0][3]` → `[0x83][addr\0][hostname\0][level\0][cur][max][proto]` | the server gives its own count, so there is no ping-0 bot heuristic to get wrong. **It answers neither `getstatus` nor `status`** and drops both in silence, so the wrong packet reports a live host as dead. Hexen II answers only to the game string `HEXENII`. Tool: `nqquery.py <ip> <port> [QUAKE\|HEXENII]` |
 | Soldier of Fortune II | `getstatus` | infostring as Quake III, but the **player lines carry THREE numbers** before the name (`0 5 0 "B240"`), so the shared `<score> <ping> "<name>"` bot rule reads the wrong field. SoF2 MP has no bots at all, so `probe_sof2` returns a hard zero rather than a parse |
-| UT99 / UT2004 | `\status\` on **game port + 1** | `numplayers` / `maxplayers` given directly |
+| UT99 / UT2004 | `\status\` on **game port + 1** | `numplayers` / `maxplayers` given directly - but see "Bots are not players": the probe replaces them with GameInfo's `NumPlayers` + `NumBots` |
 | UT2003 (2225) | UE2 **native** query `80 00 00 00 <type>` on **game port + 1** (7758) | reply opens with an int32 **net version: 121 = UT2003, 128 = UT2004**; the type-0 count **includes bots**; no GameSpy `\status\` (the server does not uplink). See [`ut2003/`](ut2003/README.md) |
 | Tribes 2 | Torque binary `0x0E` → `0x10` | **liveness only, and not by choice** — under TribesNext the info response body is encrypted (`0x12` returns a well-formed `0x14` full of ciphertext). The reply *does* echo the request's four key bytes, so we send a random key and check it comes back: that proves the packet answers *our* query rather than being any UDP traffic that happened to arrive |
 

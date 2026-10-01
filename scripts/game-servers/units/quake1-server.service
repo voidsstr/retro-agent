@@ -7,7 +7,7 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=/home/voidsstr/quake1-server
 Environment=LD_LIBRARY_PATH=/home/voidsstr/quake1-server/lib
-ExecStart=/home/voidsstr/quake1-server/darkplaces-server -basedir /home/voidsstr/quake1-server -port 26000 +exec server.cfg +map e1m1
+ExecStart=/home/voidsstr/quake1-server/darkplaces-server -basedir /home/voidsstr/quake1-server -game fbx -port 26000 +exec server.cfg +map e1m1
 Restart=always
 RestartSec=10
 StandardOutput=append:/home/voidsstr/quake1-server/server.log

@@ -762,11 +762,14 @@ title either. Do not treat its absence as a regression.
 Which staged title has a dedicated server on this host, which cannot have one,
 and why: [`docs/staged-title-server-matrix.md`](docs/staged-title-server-matrix.md).
 
-**Bots are not players.** The Q3 server runs `bot_minplayers 4`, so any player
-count that does not separate bots claims someone is playing 24/7. GoldSrc's
-A2S reply carries a bot count; on the Quake family a player line with **ping 0**
-is a bot. Tribes 2 reports no count at all (TribesNext encrypts the info
-response) — that is `—`, never `0`.
+**Bots are not players.** Since 2026-10-01 most game servers carry bots (3,
+"Hard", backfilling - table in the `game-servers` skill), so any player count
+that does not separate bots claims someone is playing 24/7. GoldSrc's A2S reply
+carries a bot count; on the Quake III family a player line with **ping 0** is a
+bot; KTX names its bots `/ `, `: `, `> `; the Unreal servers answer
+`\game_property\NumBots\` (UT2004's `numplayers` is padded to MinPlayers).
+Tribes 2 reports no count at all (TribesNext encrypts the info response) — that
+is `—`, never `0`. Per engine: `scripts/game-servers/README.md`.
 
 ## Fixing a Staged Game — FIX THE LIBRARY, REDEPLOY TO TEST, THEN PUSH TO THE WHOLE FLEET (REQUIRED)
 

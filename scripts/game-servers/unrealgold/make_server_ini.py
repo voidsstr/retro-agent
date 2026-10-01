@@ -19,6 +19,14 @@ settings differ from what every fleet box receives:
   * `[Engine.GameReplicationInfo] ServerName/ShortName` -- the same name the
     227k server advertised, so the favourites and the status wall read the
     same.
+  * bots (2026-10-01, the fleet convention of 3 bots on "Hard"):
+    `[UnrealShare.DeathMatchGame] bMultiPlayerBots=True InitialBots=3` and
+    `[UnrealShare.BotInfo] Difficulty=2`. Unreal 226's own DeathMatchGame
+    (source text in UnrealShare.u) spawns InitialBots only when
+    bMultiPlayerBots is set (or in single player), and they are a FIXED
+    number -- 226 has no MinPlayers backfill, unlike UT99. BotInfo.Difficulty
+    is 0 Easy, 1 Medium, 2 Hard, 3 Unreal. Bots are server-side pawns of the
+    stock UnrealI classes, so a vanilla 226 client needs nothing new.
 
     python3 make_server_ini.py <staged Unreal.ini> <out UnrealServer.ini>
 """
@@ -30,6 +38,10 @@ GAME_PORT = 7807
 SERVER_NAME = "NSC Retro Fleet Arena (Unreal Gold)"
 SHORT_NAME = "NSC Unreal"
 ADMIN_PASSWORD = "retroadmin"
+# Fleet bot convention: 3 bots, "Hard" -- Unreal's BotInfo.Difficulty scale is
+# 0 Easy, 1 Medium, 2 Hard, 3 Unreal.
+BOT_COUNT = 3
+BOT_DIFFICULTY = 2
 
 
 def _sections(lines):
@@ -102,6 +114,17 @@ def server_ini(text):
         secs.append(("Engine.GameReplicationInfo",
                      ["", "[Engine.GameReplicationInfo]",
                       f"ServerName={SERVER_NAME}", f"ShortName={SHORT_NAME}"]))
+
+    for sec, key, value in (
+            ("UnrealShare.DeathMatchGame", "bMultiPlayerBots", "True"),
+            ("UnrealShare.DeathMatchGame", "InitialBots", str(BOT_COUNT)),
+            ("UnrealShare.BotInfo", "Difficulty", str(BOT_DIFFICULTY))):
+        for name, body in secs:
+            if name == sec:
+                _set_key(body, key, value)
+                break
+        else:
+            secs.append((sec, ["", f"[{sec}]", f"{key}={value}"]))
 
     out = [l for _, body in secs for l in body]
     return newline.join(out) + (newline if trailing else "")

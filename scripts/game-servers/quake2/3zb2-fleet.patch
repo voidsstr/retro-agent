@@ -1,0 +1,45 @@
+diff --git a/src/bot/func.c b/src/bot/func.c
+index 1db697c..a7fe776 100644
+--- a/src/bot/func.c
++++ b/src/bot/func.c
+@@ -82,7 +82,11 @@ void Load_BotInfo()
+ 
+ 	//botlist value
+ 	botlist = gi.cvar ("botlist", "default", CVAR_SERVERINFO | CVAR_LATCH);
+-	gamepath = gi.cvar ("game", "0", CVAR_NOSET);
++	/* NSC fleet: the bot data directory is its own cvar, NOT the gamedir. With
++	   "game" the server would have to run as gamedir 3zb2 and every client would
++	   switch to it; this keeps clients in vanilla baseq2. Paths are relative to
++	   the server's working directory. */
++	gamepath = gi.cvar ("zb_path", "3zb2", 0);
+ 
+ 	//load info
+ 	sprintf(Buff,"%s/3ZBConfig.cfg",gamepath->string);
+diff --git a/src/g_main.c b/src/g_main.c
+index e8e57bb..3fe1c77 100644
+--- a/src/g_main.c
++++ b/src/g_main.c
+@@ -211,7 +211,7 @@ void Get_NextMap(void)
+ 	
+ 	if(!maplist->string) return;
+ 
+-	sprintf(Buff,".\\%s\\3ZBMAPS.LST",gamepath->string);
++	sprintf(Buff,"%s/3ZBMAPS.LST",gamepath->string);
+ 	fp = fopen(Buff,"r");
+ 	if(fp == NULL) return;
+ 	
+diff --git a/src/g_svcmds.c b/src/g_svcmds.c
+index 453a4f8..e80e0aa 100644
+--- a/src/g_svcmds.c
++++ b/src/g_svcmds.c
+@@ -298,8 +298,8 @@ void SaveChain(void)
+ 	}
+ 
+ 	//とりあえずCTFだめ
+-	if(ctf->value) 	sprintf(name,".\\%s\\chctf\\%s.chf",gamepath->string,level.mapname);
+-	else 	sprintf(name,".\\%s\\chdtm\\%s.chn",gamepath->string,level.mapname);
++	if(ctf->value) 	sprintf(name,"%s/chctf/%s.chf",gamepath->string,level.mapname);
++	else 	sprintf(name,"%s/chdtm/%s.chn",gamepath->string,level.mapname);
+ 
+ 	fpout = fopen(name,"wb");
+ 	if(fpout == NULL) gi.cprintf(NULL,PRINT_HIGH,"Can't open %s\n",name);

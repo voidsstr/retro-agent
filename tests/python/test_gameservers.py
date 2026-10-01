@@ -960,3 +960,76 @@ def test_the_unreal_gold_row_checks_the_version():
     assert (row["port"], row["join"]) == (7808, 7807)
     deus = next(s for s in gameservers.SERVERS if s["unit"] == "deusex-server")
     assert deus["probe"] == "unreal227", "Deus Ex is not a 226 client"
+
+
+# --- bots on the Unreal engines and QuakeWorld (2026-10-01) -----------------
+
+def _ue_replies(info, props):
+    """An _ask stand-in: the info/status reply, then per-property answers."""
+    def ask(port, payload, *a, **k):
+        text = payload.decode("latin-1")
+        if text.startswith("\\game_property\\"):
+            name = text.split("\\")[2]
+            if name not in props:
+                return None, None
+            return (f"\\{name}\\{props[name]}\\final\\\\queryid\\1.1").encode(), 5.0
+        return info, 5.0
+    return ask
+
+
+UT2004_STATUS = (b"\\gamename\\ut2004\\hostname\\NSC Retro Fleet Arena"
+                 b"\\maptitle\\Rankin\\numplayers\\3\\maxplayers\\12\\final\\")
+
+
+def test_ut2004_padded_numplayers_is_not_three_humans(monkeypatch):
+    """UT2004 pads `numplayers` up to MinPlayers: it read 3 with nobody and
+    nothing on the server, and the wall showed three humans. GameInfo's own
+    NumPlayers/NumBots are the truth (measured 2026-10-01: 0 and 0)."""
+    monkeypatch.setattr(gameservers, "_ask",
+                        _ue_replies(UT2004_STATUS, {"NumPlayers": "0", "NumBots": "0"}))
+    info = gameservers.probe_ut(7787)
+    assert info["players"] == 0 and info["bots"] == 0
+
+
+def test_ut99_bots_are_added_to_its_human_only_count(monkeypatch):
+    monkeypatch.setattr(gameservers, "_ask",
+                        _ue_replies(UT, {"NumPlayers": "1", "NumBots": "2"}))
+    info = gameservers.probe_ut(7798)
+    assert info["players"] == 3 and info["bots"] == 2
+
+
+def test_unreal226_blank_numplayers_falls_back_to_the_reply(monkeypatch):
+    """Unreal 226 answers NumPlayers with an empty value but NumBots with the
+    real number; its `numplayers` is humans only, so humans + bots."""
+    monkeypatch.setattr(gameservers, "_ask",
+                        _ue_replies(UNREAL227_INFO, {"NumPlayers": "", "NumBots": "3"}))
+    info = gameservers._ue1_info(7808)
+    assert info["players"] == 3 and info["bots"] == 3
+
+
+def test_an_unanswered_game_property_leaves_the_reply_alone(canned):
+    """The canned fixture answers every packet with the status reply, which
+    has no NumBots: the probe must keep its old numbers, not invent zeros."""
+    canned(UT)
+    info = gameservers.probe_ut(7798)
+    assert info["players"] == 3 and "bots" not in info
+
+
+QW_WITH_KTX_BOTS = (
+    b"\xff\xff\xff\xffn\\hostname\\NSC Retro Fleet Arena (QuakeWorld)"
+    b"\\maxclients\\16\\map\\dm4\n"
+    b'12 5 3 18 "somebody" "" 4 4\n'
+    b'13 7 2 15 "/ bro" "base" 0 0\n'
+    b'14 2 2 15 "/ tincan" "base" 0 0\n'
+    b'15 9 2 15 ": Thresh" "base" 0 0\n\x00')
+
+
+def test_qw_ktx_bots_are_known_by_name_not_ping(canned):
+    """mvdsv lines are `userid frags minutes ping "name" "skin" top bottom`,
+    which the Q3 `score ping "name"` rule never matched, and a frogbot's ping
+    is its *skill (15 here) - a normal LAN number. KTX's bot names all start
+    with "/ ", ": " or "> "."""
+    canned(QW_WITH_KTX_BOTS)
+    info = gameservers.probe_qw(27502)
+    assert info["players"] == 4
+    assert info["bots"] == 3

@@ -109,8 +109,25 @@ def probe_a2s(port, timeout=DEFAULT_TIMEOUT, host=None):
 
 _PLAYER_RE = re.compile(r'^\s*(-?\d+)\s+(-?\d+)\s+"(.*)"\s*$')
 
+# QuakeWorld (mvdsv) player lines are NOT `<score> <ping> "<name>"`:
+#     <userid> <frags> <minutes> <ping> "<name>" "<skin>" <top> <bottom>
+# (sv_main.c SVC_Status), so _PLAYER_RE never matched one and every QW player
+# - bot or not - counted as a human. KTX's frogbots cannot be told apart by
+# ping either: mvdsv reports a bot's ping as its *skill (SV_CalcPing), a
+# perfectly ordinary LAN number. Their NAMES can: KTX's generic, enemy and
+# team name lists all start with "/ ", ": " or "> " (bot_botimp.c
+# BotNameGeneric/Enemy/Friendly), and the fleet server sets no custom names.
+_QW_PLAYER_RE = re.compile(r'^\s*\d+\s+(-?\d+|S)\s+\d+\s+(-?\d+)\s+"(.*?)"')
+KTX_BOT_NAME_PREFIXES = ("/ ", ": ", "> ")
 
-def _quake_family(port, payload, host_key, map_key, timeout, host, info_line=1):
+
+def _qw_is_bot(line):
+    m = _QW_PLAYER_RE.match(line)
+    return bool(m) and m.group(3).startswith(KTX_BOT_NAME_PREFIXES)
+
+
+def _quake_family(port, payload, host_key, map_key, timeout, host, info_line=1,
+                  is_bot=None):
     r"""Shared shape for Q3/Q2/QW: an infostring, then one line per player.
 
     `info_line` is not a nicety. Q3 and Q2 answer `<header>\n\key\value...`,
@@ -134,6 +151,10 @@ def _quake_family(port, payload, host_key, map_key, timeout, host, info_line=1):
         if not line:
             continue
         players += 1
+        if is_bot is not None:
+            if is_bot(line):
+                bots += 1
+            continue
         match = _PLAYER_RE.match(line)
         if match and int(match.group(2)) == 0:
             bots += 1
@@ -167,9 +188,51 @@ def probe_q2(port, timeout=DEFAULT_TIMEOUT, host=None):
 
 
 def probe_qw(port, timeout=DEFAULT_TIMEOUT, host=None):
-    """QuakeWorld (mvdsv): map key is `map`, and the infostring is on line 0."""
+    """QuakeWorld (mvdsv): map key is `map`, and the infostring is on line 0.
+    Player lines have their own layout and KTX bots are known by name
+    (_qw_is_bot)."""
     return _quake_family(port, b"\xff\xff\xff\xffstatus\n",
-                         "hostname", "map", timeout, host, info_line=0)
+                         "hostname", "map", timeout, host, info_line=0,
+                         is_bot=_qw_is_bot)
+
+
+def _ue_game_int(port, prop, timeout=DEFAULT_TIMEOUT, host=None):
+    r"""One integer property of the running GameInfo, via the UE1/UE2 GameSpy
+    `\game_property\<name>\` query. None when it is not answered, absent or
+    not a number (Deus Ex answers NumBots with an empty value)."""
+    data, _ = _ask(port, ("\\game_property\\%s\\" % prop).encode(), timeout, host)
+    if not data:
+        return None
+    value = _infostring(data.decode("latin-1", "replace")).get(prop)
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _ue_bot_counts(out, port, timeout=DEFAULT_TIMEOUT, host=None):
+    r"""Replace the advertised count with GameInfo's own NumPlayers + NumBots.
+
+    `numplayers` means a different thing on each Unreal engine, and none of
+    them is "people + bots": UT99's and Unreal 226's are humans only (bots are
+    invisible to it), and UT2004's is padded up to MinPlayers - it read 3 on a
+    server with nobody and nothing on it (game_property NumPlayers 0, NumBots
+    0), which the wall turned into three humans. The GameInfo's own counters
+    are the truth on all three. Unreal 226 answers NumPlayers with an empty
+    value, and there the reply's `numplayers` (humans only on UE1) stands in.
+    When NumBots cannot be read the reply's numbers are left as they were.
+    """
+    bots = _ue_game_int(port, "NumBots", timeout, host)
+    if bots is None:
+        return out
+    humans = _ue_game_int(port, "NumPlayers", timeout, host)
+    if humans is None:
+        humans = out.get("players")
+    if humans is None:
+        return out
+    out["players"] = humans + bots
+    out["bots"] = bots
+    return out
 
 
 def probe_ut(port, timeout=DEFAULT_TIMEOUT, host=None):
@@ -193,7 +256,7 @@ def probe_ut(port, timeout=DEFAULT_TIMEOUT, host=None):
                 out[dst] = int(info[src])
             except ValueError:
                 pass
-    return out
+    return _ue_bot_counts(out, port, timeout, host)
 
 
 def _ue1_info(port, timeout=DEFAULT_TIMEOUT, host=None):
@@ -212,8 +275,10 @@ def _ue1_info(port, timeout=DEFAULT_TIMEOUT, host=None):
     how a 227k server passed for the fleet's Unreal Gold server while no staged
     client could join it.
 
-    Unreal's DeathMatchGame runs no bots unless MultiplayerBots is set, and
-    the fleet's server leaves it False, so `numplayers` is a human count.
+    Unreal's DeathMatchGame runs no bots unless bMultiPlayerBots is set. The
+    fleet's server sets it (InitialBots=3, 2026-10-01), and `numplayers`
+    counts PlayerPawns only, so the bots come from GameInfo's NumBots
+    (_ue_bot_counts). Deus Ex leaves NumBots empty: it has no bots.
     """
     data, rtt = _ask(port, b"\\info\\", timeout, host)
     if not data:
@@ -231,7 +296,7 @@ def _ue1_info(port, timeout=DEFAULT_TIMEOUT, host=None):
                 out[dst] = int(info[src])
             except ValueError:
                 pass
-    return out
+    return _ue_bot_counts(out, port, timeout, host)
 
 
 def probe_unreal227(port, timeout=DEFAULT_TIMEOUT, host=None):
