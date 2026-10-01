@@ -423,7 +423,12 @@ typedef struct {
 #define IPX_GUID_DEVCLASS_NETTRANS { 0x4D36E975UL, 0xE325, 0x11CE, { 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18 } }
 
 #define IPX_NT_COMPONENT    "ms_nwipx"      /* netnwlnk.inf's component id */
-#define IPX_NT_NETTRANS_KEY "SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E975-E325-11CE-BFC1-08002BE10318}"
+/* WHERE XP KEEPS A PROTOCOL'S ComponentId: NetCfg's own store,
+ * Control\Network\{4D36E975-...}\{instance GUID}. Control\Class\{4D36E975-...}
+ * has NO instance subkeys on XP (measured on XPBUILD 2026-10-01, reg query /s:
+ * the class values only), so a check there reported component_present:false
+ * with NWLink installed and live. The subkey names are GUIDs - 38 characters. */
+#define IPX_NT_NETTRANS_KEY "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E975-E325-11CE-BFC1-08002BE10318}"
 #define IPX_NT_SERVICE      "NwlnkIpx"
 #define IPX_NSF_POSTSYSINSTALL 0x00000002UL /* netcfgx.h: not in mingw's headers */
 

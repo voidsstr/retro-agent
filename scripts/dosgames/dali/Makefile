@@ -19,6 +19,6 @@ PCINIC.COM: pcinic.S
 
 kit: all
 	cp ASKIP.COM WBOOT.COM IPXCHK.COM ../../../provisioning/dali/
-	cd ../../../provisioning/dali && md5sum ASKIP.COM COPYING.TXT DALI.EXE DHCP.EXE IPXCHK.COM WBOOT.COM > MD5SUMS.txt
+	cd ../../../provisioning/dali && md5sum 3C509.COM ASKIP.COM COPYING.TXT DALI.EXE DHCP.EXE IPXCHK.COM NE2000.COM WBOOT.COM > MD5SUMS.txt
 
 .PHONY: all kit

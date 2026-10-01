@@ -131,18 +131,24 @@ $(TARGET): $(OBJECTS) $(RESOBJ)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 	@echo "Built $(TARGET) - $$(stat -c%s $(TARGET) 2>/dev/null || stat -f%z $(TARGET)) bytes"
 
+# -MMD -MP: every object depends on the headers it includes (obj/*.d). Without
+# it, growing a struct in a header rebuilt only the .c that was edited, and the
+# other objects kept the old layout - IPXSETUP answered "Internal error:
+# exception in handler" until a `make clean` (2026-10-01, ipxsetup.h comp_key).
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
 $(RESOBJ): res/retro_agent.rc res/retro_agent.ico | $(OBJDIR)
 	$(WINDRES) -I res -i res/retro_agent.rc -O coff -o $@
 
 # Compat object must be linked first to provide stubs before CRT
 $(OBJDIR)/compat.o: $(SRCDIR)/compat.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
 
 clean:
 	rm -rf $(OBJDIR) $(TARGET)
+
+-include $(OBJECTS:.o=.d)
 
 # XP-only build (no compat stubs needed, can use more features)
 xp: CFLAGS += -DWINVER=0x0501 -D_WIN32_WINNT=0x0501 -DTARGET_XP

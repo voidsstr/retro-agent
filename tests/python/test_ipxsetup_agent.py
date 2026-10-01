@@ -275,3 +275,19 @@ def test_the_brain_gates_arming_an_unattended_win98_reboot(monkeypatch):
               "REGWRITE HKLM Software\\RetroAgent IpxSetup REG_DWORD 0",
               "IPXSETUP", "IPXSETUP status", "IPXSETUP apply", "QBINDS apply"):
         assert t._gate_reason(c) is None, c
+
+
+def test_xp_component_check_reads_netcfgs_own_store():
+    """XP keeps a protocol's ComponentId under Control\\Network\\{4D36E975-...}\\
+    {instance GUID}; Control\\Class\\{4D36E975-...} has no instance subkeys there,
+    so the first build reported component_present:false with NWLink live
+    (XPBUILD, 2026-10-01). The instance names are 38-character GUIDs: a 32-byte
+    RegEnumKeyExA buffer fails with ERROR_MORE_DATA on the first one."""
+    m = re.search(r'#define IPX_NT_NETTRANS_KEY "([^"]+)"', HDR)
+    assert m and m.group(1).endswith(
+        '\\\\Control\\\\Network\\\\{4D36E975-E325-11CE-BFC1-08002BE10318}'), m and m.group(1)
+    body = NT[NT.index('IPX_NT_NETTRANS_KEY'):]
+    sub = int(re.search(r'char sub\[(\d+)\]', body).group(1))
+    assert sub >= 39, sub
+    hdr = (SRC / "ipxsetup.h").read_text()
+    assert int(re.search(r'char comp_key\[(\d+)\]', hdr).group(1)) >= 39

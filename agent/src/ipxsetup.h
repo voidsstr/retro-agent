@@ -40,7 +40,7 @@ void ipxsetup_init(void);
 
 typedef struct {
     int  component_present;     /* a NetTrans instance with ComponentId ms_nwipx */
-    char comp_key[8];           /* its Control\Class\{4D36E975-...} instance */
+    char comp_key[40];          /* its Control\Network\{4D36E975-...}\{GUID} instance */
     int  service_present;       /* Services\NwlnkIpx exists */
     int  service_running;       /* 1 running, 0 not, -1 unknown (no SCM answer) */
     int  files_present;         /* netnwlnk.inf + (nwlnkipx.sys or driver.cab) */

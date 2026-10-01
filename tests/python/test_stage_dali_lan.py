@@ -16,7 +16,6 @@ sys.path.insert(0, os.path.join(REPO, 'scripts', 'dosgames'))
 import stage_dali_lan as s  # noqa: E402
 from stage_win9x_dos import RD_HOOK  # noqa: E402
 
-SHARE = os.path.isdir(s.PKTDIR)
 
 
 def bats(title):
@@ -86,8 +85,6 @@ def test_every_path_with_a_packet_driver_reboots(title):
 def test_rundos_hook_is_the_shared_one():
     assert s.title_files.__module__ == 'stage_dali_lan'
     t = sorted(s.TITLES)[0]
-    if not SHARE:
-        pytest.skip('share not mounted: packet drivers unreadable')
     assert s.title_files(t)['RDHOOK.TXT'] == RD_HOOK.encode('ascii')
 
 

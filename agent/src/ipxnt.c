@@ -71,10 +71,11 @@ void ipxnt_observe(ipxnt_info_t *x)
     memset(x, 0, sizeof(*x));
     x->service_running = -1;
 
-    /* the component: a NetTrans class instance whose ComponentId is ms_nwipx */
+    /* the component: a NetCfg NetTrans instance whose ComponentId is ms_nwipx
+     * (IPX_NT_NETTRANS_KEY - Control\Network, keyed by GUID) */
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, IPX_NT_NETTRANS_KEY, 0, KEY_READ, &h) == ERROR_SUCCESS) {
         for (i = 0; !x->component_present; i++) {
-            char sub[32], id[64];
+            char sub[64], id[64];
             DWORD n = sizeof(sub), type = 0, sz = sizeof(id) - 1;
             if (RegEnumKeyExA(h, i, sub, &n, NULL, NULL, NULL, NULL) != ERROR_SUCCESS)
                 break;

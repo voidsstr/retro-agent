@@ -45,10 +45,12 @@ from stage_win9x_dos import RD_HOOK  # noqa: E402  (ONE copy of the rundos line)
 
 LIB = '/mnt/retro-share/Files/Games-Library'
 KIT = os.path.join(REPO, 'provisioning', 'dali')
-PKTDIR = '/mnt/retro-share/Files/Utility/Retro Automation/dos-setup/C/DOSGAME/NET'
-PKT_MD5 = {'3C509.COM': '8d4365c806d1d9edf7e8a3c9e83142f4',
-           'NE2000.COM': '39fea4631178bc55d8e35dc911ade715'}
-KIT_FILES = ('DALI.EXE', 'DHCP.EXE', 'ASKIP.COM', 'WBOOT.COM', 'IPXCHK.COM', 'COPYING.TXT')
+# Every byte the kit ships lives in the repo (provisioning/dali, md5-pinned in
+# its MD5SUMS.txt): the packet drivers used to be read from the share's
+# Files/Utility/Retro Automation/dos-setup tree, which is a stale copy that the
+# canonical Utility/Retro Automation no longer carries.
+KIT_FILES = ('DALI.EXE', 'DHCP.EXE', 'ASKIP.COM', 'WBOOT.COM', 'IPXCHK.COM', 'COPYING.TXT',
+             '3C509.COM', 'NE2000.COM')
 
 # The packet drivers RDLAN.BAT tries, EACH ON ITS OWN VECTOR: a Crynwr driver
 # that fails to find its card still disturbs the vector it was given, and a
@@ -207,12 +209,11 @@ def rdlan_bat(t):
 
 def kit_files():
     out = {}
+    pinned = dict(reversed(l.split()) for l in open(os.path.join(KIT, 'MD5SUMS.txt')))
     for f in KIT_FILES:
-        out['DALI\\' + f] = open(os.path.join(KIT, f), 'rb').read()
-    for f, md5 in PKT_MD5.items():
-        data = open(os.path.join(PKTDIR, f), 'rb').read()
-        if hashlib.md5(data).hexdigest() != md5:
-            raise SystemExit('%s on the share is not the pinned build (md5 %s)' % (f, md5))
+        data = open(os.path.join(KIT, f), 'rb').read()
+        if hashlib.md5(data).hexdigest() != pinned.get(f):
+            raise SystemExit('provisioning/dali/%s is not its pinned build (MD5SUMS.txt)' % f)
         out['DALI\\' + f] = data
     out['DALI\\README.TXT'] = crlf([
         'DALI kit - joins this box to the DOSBox IPX game hosted on another machine.',
