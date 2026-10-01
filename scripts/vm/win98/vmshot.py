@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """86box-shot.py [out.png] [--display :21] - capture the 86Box test bed's Xvfb screen."""
+import os
 import struct, subprocess, sys
 from PIL import Image
 args = [a for a in sys.argv[1:] if not a.startswith('--display')]
-disp = ':22'
+disp = os.environ.get('W98_DISPLAY', ':22')
 for i, a in enumerate(sys.argv):
     if a == '--display':
         disp = sys.argv[i + 1]

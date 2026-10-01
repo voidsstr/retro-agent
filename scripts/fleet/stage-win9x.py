@@ -897,6 +897,68 @@ CARMAGEDDON2 = {
 }
 
 # ==========================================================================
+# Wing Commander: Prophecy + Secret Ops (1997/98) - WCProphecy, NEW, Win9x-only
+# ==========================================================================
+# Research C recipe 3.2: GOG's 2.0.0.11 build, extracted on the host with
+# innoextract (a Unicode Inno setup does not run on Win9x), PROPHECY\ and
+# SECROPS\ (renamed: no space), GOG's nGlide set (glide*.dll, 3DfxSpl*.dll,
+# nglide_*) and goggame.dll left out so the real Voodoo 2 Glide is used.
+# The 2013 exes import only 1997-era KERNEL32/USER32/GDI32/DSOUND/DINPUT/WSOCK32
+# (subsystem 4.0). Video Card Number 2 = gl_00002.dll = Glide 2. GOG runs disc-
+# free from the WCPDISC*.IFF files beside prophecy.exe.
+
+WCP_REG = r"""REGEDIT4
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Origin Systems\Wing Commander Prophecy]
+"Installed To:"=".\\"
+"Installed From:"=".\\"
+"Prophecy Installed"=hex:01
+"Install Size:"=dword:00000002
+"Video Card Description:"="3dfx Glide (2.60)"
+"Video Card Number"=dword:00000002
+"Video Card Major Version:"=dword:00000002
+"Video Card Minor Version:"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Origin Systems\Wing Commander Secret Ops]
+"Installed To:"=".\\"
+"Installed From:"=".\\"
+"Secret Ops Installed"=hex:01
+"Install Size:"=dword:00000002
+"Video Card Description:"="3dfx Glide (2.60)"
+"Video Card Number"=dword:00000002
+"Video Card Major Version:"=dword:00000002
+"Video Card Minor Version:"=dword:00000000
+"""
+
+WCP_HEADER = [
+    "Wing Commander Prophecy / Secret Ops - GOG 2.0.0.11, disc-free via WCPDISC*.IFF.",
+    "Glide 2 renderer gl_00002.dll, selected by install.reg - Video Card Number 2.",
+    "The game runs from its own folder, so the batch changes into it and back."]
+
+WCPROPHECY = {
+    "copies": {"DESKFIX9.EXE": DESKFIX9},
+    "files": {"install.reg": WCP_REG},
+    "bats": {
+        "WCP.BAT": voodoo_bat("Wing Commander Prophecy", "PROPHECY\\PROPHECY.EXE",
+                              ["cd PROPHECY", "start /w PROPHECY.EXE", "cd .."], WCP_HEADER),
+        "WCSO.BAT": voodoo_bat("Wing Commander Secret Ops", "SECROPS\\SECRETOPS.EXE",
+                               ["cd SECROPS", "start /w SECRETOPS.EXE", "cd .."], WCP_HEADER),
+    },
+    "launch": {"rows": [
+        ("WCP.BAT", "Wing Commander Prophecy - 3dfx Voodoo", "WCPROPH.ICO"),
+        ("WCSO.BAT", "Wing Commander Secret Ops - 3dfx Voodoo", "WCPROPH.ICO"),
+    ]},
+    "requires": {
+        "version": 1,
+        "set_top": {"min_cpu_mhz": 133, "min_ram_mb": 32, "disk_mb": 1800, "max_os": "win9x"},
+        "set": {"WCP.BAT": GLIDE_RULE, "WCSO.BAT": GLIDE_RULE},
+        "notes": ("README: P133 + 32 MB + a 4 MB 3Dfx card (Glide 2.43) accelerated, P166 "
+                  "software. GOG build, disc-free via the local wcpdisc*.iff; GOG's nGlide "
+                  "left out so the real Voodoo Glide renders (scripts/fleet/stage-win9x.py)."),
+    },
+}
+
+# ==========================================================================
 
 TITLES = {
     "Quake1": QUAKE1,
@@ -906,6 +968,7 @@ TITLES = {
     "Quake2Complete": QUAKE2COMPLETE,
     "UnrealGold": UNREALGOLD,
     "Carmageddon2": CARMAGEDDON2,
+    "WCProphecy": WCPROPHECY,
 }
 
 # Payload first, launchers next, rules after them, launch.txt LAST.

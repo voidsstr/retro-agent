@@ -38,7 +38,11 @@ REPO = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
 sys.path.insert(0, REPO)
 from client.retro_protocol import RetroConnection  # noqa: E402
 
-HOST, PORT, SECRET = '127.0.0.1', 19930, 'retro-agent-secret'
+# W98_PORT / W98_DISPLAY / W98_UNIT / W98_VMDIR select a second build VM (vm98b:
+# 19931, :23, w98box2) - the defaults are the first one.
+HOST, PORT, SECRET = '127.0.0.1', int(os.environ.get('W98_PORT', '19930')), 'retro-agent-secret'
+DISPLAY = os.environ.get('W98_DISPLAY', ':22')
+UNIT = os.environ.get('W98_UNIT', 'w98box')
 DESK = 'C:\\WINDOWS\\Desktop'
 SKIP_PROCS = {'retro_agent.exe', 'retro_chat.exe', 'winkey9x.exe', 'start.exe', 'command.com',
               'kernel32.dll', 'msgsrv32.exe', 'mprexe.exe', 'explorer.exe', 'systray.exe',
@@ -47,7 +51,7 @@ SKIP_PROCS = {'retro_agent.exe', 'retro_chat.exe', 'winkey9x.exe', 'start.exe', 
 
 
 def shot(path):
-    subprocess.run([sys.executable, os.path.join(HERE, 'vmshot.py'), path, '--display', ':22'],
+    subprocess.run([sys.executable, os.path.join(HERE, 'vmshot.py'), path, '--display', DISPLAY],
                    check=True, capture_output=True, timeout=30)
     return Image.open(path).convert('RGB')
 
@@ -159,10 +163,14 @@ async def close_all(c, rounds=10):
 
 
 async def reset_vm():
-    subprocess.run(['systemctl', '--user', 'stop', 'w98box'], check=False)
+    subprocess.run(['systemctl', '--user', 'stop', UNIT], check=False)
     time.sleep(3)
-    subprocess.run(['systemd-run', '--user', '--unit=w98box', '-p', 'CPUQuota=200%', '-p', 'MemoryMax=2G',
-                    os.path.join(HERE, 'run-98.sh')], check=False, capture_output=True)
+    env = []
+    for k in ('W98_VMDIR', 'W98_DISPLAY'):
+        if os.environ.get(k):
+            env += ['--setenv=%s=%s' % (k, os.environ[k])]
+    subprocess.run(['systemd-run', '--user', '--unit=' + UNIT, '-p', 'CPUQuota=200%', '-p', 'MemoryMax=2G']
+                   + env + [os.path.join(HERE, 'run-98.sh')], check=False, capture_output=True)
     for _ in range(40):
         await asyncio.sleep(15)
         try:

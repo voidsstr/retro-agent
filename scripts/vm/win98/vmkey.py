@@ -4,8 +4,8 @@
 KEY is an X keysym name (F1, Return, Down, Escape, a, ...) or 'text:<string>'.
 The pointer is parked over the emulated screen first (no WM: focus follows it).
 """
-import ctypes, sys, time
-disp = ':22'
+import ctypes, os, sys, time
+disp = os.environ.get('W98_DISPLAY', ':22')
 keys = []
 it = iter(sys.argv[1:])
 for a in it:
