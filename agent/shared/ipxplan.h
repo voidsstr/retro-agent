@@ -463,8 +463,16 @@ IPX_API int ipx_first_free(const int *used, int n)
  * REGEDIT4 text, parsed with agent/shared/regmerge.h. Sources: NETTRANS.INF
  * [NWLINK.ndi.reg] / [NWLINK.AddReg] / [NWLINK.Ins.WSock2.AddReg] (Win98 SE,
  * md5 7b42b0f30239b10268080138d27cea46), laid out the way the build VM's own
- * MSTCP class key and devnode are (W98BUILD SYSTEM.DAT, read offline
- * 2026-10-01). The NWLINK layout is INFERRED until that capture confirms it.
+ * MSTCP class key and devnode are (W98BUILD SYSTEM.DAT, read offline).
+ * COMPARED 2026-10-01 02:15 with W98BUILD's SYSTEM.DAT read offline after the
+ * orchestrator's Network-applet install (802.2, no client over IPX, Dial-Up
+ * left alone): parts 1 and 3 match it value for value (six values were added
+ * from it: DriverDate, Network_Id, InstallInf, Ndi StaticVxD, VxD cachesize and
+ * the params' @ current-value mirrors). Part 2 could NOT be seen there - the
+ * image was read after the first boot had run FirstBootCall (QueuedAPI and
+ * RunOnce empty) - but its catalog shows the result part 2 must produce:
+ * MSWSOSP's one hidden entry replaced by the four NWLINK blocks (spx,
+ * spx/seq, ipx, osp). Confirm part 2 against a capture taken BEFORE that boot.
  *
  * Placeholders (ipx9x_render): %K% class index "0002", %I% devnode instance
  * "0000", %Q% QueuedAPI item number, %FRAME% Win98 Frame_Type ("1" = 802.2),
@@ -492,8 +500,10 @@ static const char ipx9x_tmpl_stack[] =
     "\"InfSection\"=\"NWLINK.ndi\"\r\n"
     "\"InfPath\"=\"NETTRANS.INF\"\r\n"
     "\"ProviderName\"=\"Microsoft\"\r\n"
+    "\"DriverDate\"=\" 4-23-1999\"\r\n"
     "\"DevLoader\"=\"*ndis\"\r\n"
     "\"DeviceVxDs\"=\"nwlink.vxd\"\r\n"
+    "\"Network_Id\"=\"0\"\r\n"
     "\"Frame_Type\"=\"%FRAME%\"\r\n"
     "\r\n"
     "[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\Class\\NetTrans\\%K%\\Ndi]\r\n"
@@ -501,6 +511,8 @@ static const char ipx9x_tmpl_stack[] =
     "\"MaxInstance\"=\"8\"\r\n"
     "\"NdiInstaller\"=\"netdi.dll,NwlinkNdiProc\"\r\n"
     "\"HelpText\"=\"The IPX/SPX-compatible protocol is a protocol NetWare and Windows NT servers, and Windows 95 computers use to communicate.\"\r\n"
+    "\"InstallInf\"=\"\"\r\n"
+    "\"StaticVxD\"=\"nwlink.vxd\"\r\n"
     "\r\n"
     "[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\Class\\NetTrans\\%K%\\Ndi\\Interfaces]\r\n"
     "\"DefUpper\"=\"ipx,ipxDHost,winsock\"\r\n"
@@ -522,11 +534,13 @@ static const char ipx9x_tmpl_stack[] =
     "\"ParamDesc\"=\"Network Address\"\r\n"
     "\"type\"=\"dword\"\r\n"
     "\"base\"=\"16\"\r\n"
+    "@=\"0\"\r\n"
     "\r\n"
     "[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\Class\\NetTrans\\%K%\\Ndi\\params\\Frame_Type]\r\n"
     "\"ParamDesc\"=\"Frame Type\"\r\n"
     "\"default\"=\"4\"\r\n"
     "\"type\"=\"enum\"\r\n"
+    "@=\"%FRAME%\"\r\n"
     "\r\n"
     "[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\Class\\NetTrans\\%K%\\Ndi\\params\\Frame_Type\\enum]\r\n"
     "\"4\"=\"Auto\"\r\n"
@@ -563,6 +577,7 @@ static const char ipx9x_tmpl_stack[] =
     "\"StaticVxD\"=\"nwlink.vxd\"\r\n"
     "\"Start\"=hex:00\r\n"
     "\"NetClean\"=hex:01\r\n"
+    "\"cachesize\"=\"0\"\r\n"
     "\r\n"
     "[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\VxD\\NWLINK\\Ndi\\params\\maxconnect]\r\n"
     "\"ParamDesc\"=\"Maximum Connections\"\r\n"
@@ -592,6 +607,7 @@ static const char ipx9x_tmpl_stack[] =
     "\"ParamDesc\"=\"Source Routing\"\r\n"
     "\"type\"=\"enum\"\r\n"
     "\"default\"=\"0\"\r\n"
+    "@=\"0\"\r\n"
     "\r\n"
     "[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\VxD\\NWLINK\\Ndi\\params\\cachesize\\enum]\r\n"
     "\"0\"=\"Off\"\r\n"

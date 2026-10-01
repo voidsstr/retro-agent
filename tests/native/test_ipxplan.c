@@ -334,6 +334,21 @@ TEST(the_template_renders_and_passes_its_own_rules)
     e = find_value(0, "System\\CurrentControlSet\\Services\\VxD\\Winsock", "IPX/SPX Winsock Provider");
     CHECK(e && !strcmp((const char *)e->data, "wsipx.vxd"), "the Winsock VxD provider");
 
+    /* values a Network-applet install writes that NETTRANS.INF does not name -
+     * read off W98BUILD after the golden install, 2026-10-01 */
+    e = find_value(0, "System\\CurrentControlSet\\Services\\Class\\NetTrans\\0002", "DriverDate");
+    CHECK(e && !strcmp((const char *)e->data, " 4-23-1999"), "DriverDate (leading space, as NETDI writes it)");
+    e = find_value(0, "System\\CurrentControlSet\\Services\\Class\\NetTrans\\0002", "Network_Id");
+    CHECK(e && !strcmp((const char *)e->data, "0"), "Network_Id 0");
+    e = find_value(0, "System\\CurrentControlSet\\Services\\Class\\NetTrans\\0002\\Ndi", "StaticVxD");
+    CHECK(e && !strcmp((const char *)e->data, "nwlink.vxd"), "Ndi StaticVxD");
+    e = find_value(0, "System\\CurrentControlSet\\Services\\Class\\NetTrans\\0002\\Ndi", "InstallInf");
+    CHECK(e && e->type == RM_REG_SZ && e->len == 0, "Ndi InstallInf empty");
+    e = find_value(0, "System\\CurrentControlSet\\Services\\Class\\NetTrans\\0002\\Ndi\\params\\Frame_Type", "");
+    CHECK(e && !strcmp((const char *)e->data, "1"), "the Frame_Type param's current value mirrors 802.2");
+    e = find_value(0, "System\\CurrentControlSet\\Services\\VxD\\NWLINK", "cachesize");
+    CHECK(e && !strcmp((const char *)e->data, "0"), "VxD cachesize 0");
+
     /* the queued WSCInstallProvider: MSWSOSP's GUID and the IPX datagram block */
     e = find_value(1, "Software\\Microsoft\\Windows\\CurrentVersion\\Setup\\NetSetup\\QueuedAPI\\Item0\\1", "GUID");
     CHECK(e && e->type == RM_REG_BINARY && e->len == 16 && e->data[0] == 0xE1 && e->data[3] == 0xFF &&
