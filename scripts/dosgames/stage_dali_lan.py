@@ -42,6 +42,13 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(REPO, 'scripts', 'fleet'))
 from stage_win9x_dos import RD_HOOK  # noqa: E402  (ONE copy of the rundos line)
+import libmeta  # noqa: E402  (co-owned launch.txt / requires.json merges)
+
+# The desktop shortcut's rule: Win9x only - an NT box has the DOSBox and
+# Rebirth LAN launchers, and no real-DOS route at all. The title floor applies.
+RULE = {'max_os': 'win9x',
+        'notes': 'LAN in REAL DOS through DALI against a DOSBox IPX host - the '
+                 'Win9x box route (scripts/dosgames/stage_dali_lan.py).'}
 
 LIB = '/mnt/retro-share/Files/Games-Library'
 KIT = os.path.join(REPO, 'provisioning', 'dali')
@@ -78,13 +85,32 @@ TITLES = {
         'dir': 'D1LAN', 'name': 'Descent', 'bat': 'D1LAN.BAT',
         'label': 'Descent - LAN Game - real DOS', 'icon': 'DESCENT9.ICO',
         # The whole tree is 31 MB - copy it all (xcopy /D: only what changed).
-        'copy': [('*.*', '/E')],
+        'copy': [('*.*', '/E', '')],
         # DESCENT.CFG is set up for DOSBox's SB at IRQ 7; the box's SB16 is at
         # IRQ 5 - the same switch "Play Descent - DOS.bat" makes.
         'pre': ['find "DigiIrq=7" DESCENT.CFG > nul',
                 'if not errorlevel 1 copy DESCENT.SB5 DESCENT.CFG > nul'],
         'game': 'DESCENTR.EXE',
         'mb': 32,
+    },
+    # Descent II's tree is 741 MB, 330 MB of it movies and 376 MB its disc
+    # image - C: on .243 has ~450 MB. The real-DOS copy takes only what a
+    # multiplayer game reads (~57 MB) and runs DESCENT2.EXE -nomovies (the
+    # no-CD v1.2 exe carries the switch; without it the intro would be
+    # looked for). The SB16 IRQ-5 switch is D2DOS.BAT's, and its HMI drivers.
+    'Descent2': {
+        'dir': 'D2LAN', 'name': 'Descent II', 'bat': 'D2LAN.BAT',
+        'label': 'Descent II - LAN Game - real DOS', 'icon': 'DESCENTW.EXE',
+        'copy': [('DESCENT2.EXE', '', ''), ('*.HOG', '', ''), ('*.HAM', '', ''),
+                 ('*.PIG', '', ''), ('*.S11', '', ''), ('*.S22', '', ''),
+                 ('*.MN2', '', ''), ('*.386', '', ''), ('*.PLR', '', ''),
+                 ('DESCENT.CFG', '', ''), ('DESCENT.SB5', '', ''),
+                 ('RDLAN.BAT', '', ''), ('RDHOOK.TXT', '', ''),
+                 ('MISSIONS\\*.*', '', 'MISSIONS'), ('DALI\\*.*', '', 'DALI')],
+        'pre': ['find "DigiIrq=7" DESCENT.CFG > nul',
+                'if not errorlevel 1 copy DESCENT.SB5 DESCENT.CFG > nul'],
+        'game': 'DESCENT2.EXE -nomovies -noredbook',
+        'mb': 60,
     },
 }
 
@@ -118,8 +144,9 @@ def windows_bat(t):
              'choice /c:yn /t:y,10 Restart now',
              'if errorlevel 2 goto end',
              'echo Copying the game to C:\\GAMES\\%s ...' % d]
-    for pattern, flags in t['copy']:
-        lines += [('xcopy %s C:\\GAMES\\%s\\ %s /I /D /Y /Q > nul' % (pattern, d, flags)).replace('  ', ' '),
+    for pattern, flags, sub in t['copy']:
+        dst = 'C:\\GAMES\\%s\\%s' % (d, sub + '\\' if sub else '')
+        lines += [('xcopy %s %s %s /I /D /Y /Q > nul' % (pattern, dst, flags)).replace('  ', ' '),
                   'rem XCOPY: 4 = could not start - no room, bad drive - and 5 = a write failed.',
                   'if errorlevel 4 goto nocopy']
     lines += ['if not exist C:\\GAMES\\%s\\RDLAN.BAT goto nocopy' % d,
@@ -272,8 +299,28 @@ def main():
             print('%s %s\\%s (%d bytes)' % ('STALE' if a.check else 'write', title, rel, len(data)))
             if writer:
                 writer.write_bytes(path, data)
-        print('%s: launch.txt row  %s' % (title, launch_row(title).replace('\t', '<TAB>')))
-        print('%s: requires.json   shortcut %s -> max_os win9x' % (title, TITLES[title]['bat']))
+        # launch.txt and requires.json are co-owned: merged, never templated
+        # (libmeta), and launch.txt is written LAST so no box syncs a row
+        # whose launcher is not on the share yet.
+        t = TITLES[title]
+        for rel, merge in (('requires.json', lambda cur: libmeta.merge_requires(
+                                cur, set_shortcuts={t['bat']: RULE})),
+                           ('launch.txt', lambda cur: libmeta.set_launch_rows(
+                                cur, [tuple(launch_row(title).split('\t'))]))):
+            path = os.path.join(root, rel)
+            cur = (open(path, 'rb').read() if os.path.exists(path) else b'').decode('latin-1')
+            new = merge(cur)
+            if rel == 'launch.txt':
+                probs = libmeta.launch_problems(new)
+                if probs:
+                    raise SystemExit('%s/launch.txt would lose a shortcut: %s' % (title, probs))
+            data = new.encode('latin-1')
+            if data == cur.encode('latin-1'):
+                continue
+            stale += 1
+            print('%s %s\\%s (merged)' % ('STALE' if a.check else 'write', title, rel))
+            if writer:
+                writer.write_bytes(path, data)
     if a.check and stale:
         print('%d file(s) differ from the generator' % stale)
         return 1
