@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <dos.h>
+#include <bios.h>
 #include "askipcore.h"
 
 static void say(const char *s)
@@ -56,6 +57,37 @@ int main(int argc, char **argv)
     say("\r\n  DESCENT LAN GAME (real DOS)\r\n\r\n"
         "  On the machine HOSTING the game, its screen shows its IP address.\r\n"
         "  Start the game there first, then type that address here.\r\n\r\n");
+    /* A remembered host joins by itself after a countdown (askipcore.h). */
+    if (def[0] && ASKIP_WAIT_TICKS) {
+        unsigned long far *tick = (unsigned long far *)MK_FP(0x40, 0x6C);
+        unsigned long start = *tick, left, shown = 0xFFFFFFFFul;
+        say("  Joining ");
+        say(def);
+        say(" - press Enter to join now, any other key to type another address.\r\n");
+        for (;;) {
+            left = askip_ticks_left(start, *tick, ASKIP_WAIT_TICKS);
+            if (left / 18 != shown) {
+                char sec[8];
+                shown = left / 18;
+                sprintf(sec, "\r  %2lu ", shown);
+                say(sec);
+            }
+            if (_bios_keybrd(_KEYBRD_READY)) {   /* INT 16h AH=01h: a key is waiting */
+                unsigned k = _bios_keybrd(_KEYBRD_READ);
+                say("\r\n");
+                if (askip_countdown_key_joins((unsigned char)(k & 0xFF))) {
+                    strcpy(buf, def);
+                    goto have;
+                }
+                break;                      /* type another address */
+            }
+            if (!left) {
+                say("\r\n");
+                strcpy(buf, def);
+                goto have;
+            }
+        }
+    }
     for (;;) {
         say("  Host IP address");
         if (def[0]) {
@@ -88,6 +120,7 @@ int main(int argc, char **argv)
             break;
         say("  That is not an IP address (four numbers 0-255 with dots).\r\n");
     }
+have:
     if (f && strcmp(buf, def) != 0) {
         FILE *fp = fopen(f, "w");
         if (fp) {

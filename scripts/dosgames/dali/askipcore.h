@@ -68,4 +68,24 @@ static int askip_is_cancel(const char *s)
     return (s[0] == 'q' || s[0] == 'Q' || s[0] == 'x' || s[0] == 'X') && s[1] == 0;
 }
 
+/* The countdown: with a remembered host, the prompt joins it by itself after
+ * ASKIP_WAIT_TICKS BIOS ticks (18.2 per second) unless a key is pressed - a
+ * real-DOS LAN game started from the desktop must not sit at a prompt nobody
+ * answers (and .243 cannot be reached while real DOS runs). 0 = wait for ever. */
+#define ASKIP_WAIT_TICKS 182u
+
+/* What a key pressed during the countdown means: Enter = join the remembered
+ * host now; anything else = type a different address. */
+static int askip_countdown_key_joins(unsigned char ascii)
+{
+    return ascii == '\r';
+}
+
+/* Ticks left of the countdown; the BIOS tick counter wraps at midnight. */
+static unsigned long askip_ticks_left(unsigned long start, unsigned long now, unsigned long wait)
+{
+    unsigned long gone = now >= start ? now - start : now + 0x1800B0ul - start;
+    return gone >= wait ? 0ul : wait - gone;
+}
+
 #endif

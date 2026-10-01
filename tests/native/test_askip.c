@@ -54,6 +54,16 @@ int main(void)
     assert(askip_is_cancel("q") && askip_is_cancel("Q") && askip_is_cancel("x"));
     assert(!askip_is_cancel("") && !askip_is_cancel("qq") && !askip_is_cancel("1"));
 
+    /* the countdown (2026-10-01): a remembered host joins by itself unless a
+     * key is pressed; Enter joins now; the BIOS tick counter wraps at midnight */
+    assert(ASKIP_WAIT_TICKS >= 91);                    /* at least ~5 s to react */
+    assert(askip_countdown_key_joins('\r'));
+    assert(!askip_countdown_key_joins('1') && !askip_countdown_key_joins(27));
+    assert(askip_ticks_left(100, 100, 182) == 182);
+    assert(askip_ticks_left(100, 200, 182) == 82);
+    assert(askip_ticks_left(100, 400, 182) == 0);
+    assert(askip_ticks_left(0x1800A0ul, 50, 182) == 182 - (50 + 0x10));   /* across midnight */
+
     printf("test_askip: OK\n");
     return 0;
 }

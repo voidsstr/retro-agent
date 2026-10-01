@@ -1205,6 +1205,12 @@ So, when writing to `/mnt/retro-share`:
   libwrite refuses both before sending anything (`_`-prefixed support dirs stay
   writable); **`sharewrite.py put` by hand has no such guard** - check the title
   name, and bump the generation only when a fleet-wide sync is what you mean.
+* **A NEW title goes up with `scripts/fleet/stage-new-title.py <tree> <Title>`**
+  (2026-10-01), never file by file to its final name: autodeploy would start
+  every box copying a half-uploaded title. It uploads to `_incoming/<Title>`
+  (agents skip `_` dirs), verifies count/bytes/md5, then ONE server-side rename
+  makes it appear whole, and verifies again. WCProphecy and DieByTheSword
+  went up this way.
 * **libwrite repairs a write that does not land, not just reports it.** The
   previous bytes are read first; after a failed put the share is left holding
   the new bytes or the previous ones - the previous version is put back
@@ -1766,6 +1772,18 @@ not fit on the disk" — different fact, different follow-up).
 **Kill switch:** `HKLM\Software\RetroAgent\GameGate` = `0` restores
 copy-everything.
 
+**"Absent" means NOT THERE - never "could not read it" (agent 1.97.1).** The
+published `_gamegate\<hash>.txt` is the only place the operator's overrides
+live (`.243`'s curated "not wanted" lines), and the local rules cannot see them.
+Until 1.97.1 a read that FAILED (SMB error 53) also read as "not published": on
+the W98BUILD VM that run planned 18,104 MB - every title ejected from that
+profile - and GAMESYNC never deletes. Now only file/path-not-found falls back
+to the rules; any other failure is retried 5x and the run **refuses** ("NOT
+SYNCING: the published gate verdicts could not be read") before anything is
+copied (`agent/shared/verdictread.h`). Verified on XPBUILD with `library=` in
+`gamesync.ini` pointed at a dead host: `UNREADABLE after 5 tries (error 53) -
+refusing`, 0 MB copied.
+
 ### HWPROFILE — because SYSINFO cannot answer the question
 
 `SYSINFO` reports no clock, no CPU vendor, no instruction set and no GPU at all,
@@ -2018,6 +2036,13 @@ why: `GAMESYNC STATUS` carries `since_progress_s`/`stalled_s`/`starved_s`/
 `cpu_busy_pct` and the message reads `STARVED OF CPU: ...` when the CPU was
 saturated (`agent/shared/gsstall.h`). Tests: `tests/python/test_gamesync_sweep_order.py`,
 `tests/native/test_desk_sweep_order.c`.
+
+**...and only after a run in which NO title failed (agent 1.97.1).** A title
+that "finished with errors" never re-asserts its shortcuts, so the sweep took
+them: an SMB outage on W98BUILD failed 65 titles and the end-of-run sweep moved
+66 installed games' icons to `C:\retro-desktop-backup`.
+`ds_run_may_sweep(aborted, listing_complete, titles_failed)` now refuses, and
+the log says `desktop NOT swept: N title(s) finished with errors`.
 
 **On Windows 9x a DOS shortcut is a `.pif` - claim THAT (agent 1.93.1).** Asked
 to save `<name>.lnk` for a `.bat` or a DOS `.exe`, Win98's shell writes

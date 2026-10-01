@@ -16,7 +16,9 @@ copies the game to C:\\GAMES\\<dir> (real DOS on .243 does not see E:), arms
 C:\\RUNDOS\\NEXT.BAT and restarts. In real DOS, RDLAN.BAT loads the packet
 driver, gets an address by DHCP, asks for the host's IP (ASKIP, remembering
 the last one in C:\\GAMES\\LANHOST.TXT - it WRITES HOSTIP.BAT itself: DOS's
-line input echoes to stdout, so a redirect captured the keystrokes), connects
+line input echoes to stdout, so a redirect captured the keystrokes; with a
+remembered host it joins by itself after a 10 s countdown - nobody can answer
+a prompt on a box the agent cannot reach while real DOS runs), connects
 DALI to <host>:213, checks
 that IPX is really there (IPXCHK) and runs the game. Afterwards it unloads
 DALI and WARM-REBOOTS (WBOOT): a Crynwr packet driver cannot unload itself,
