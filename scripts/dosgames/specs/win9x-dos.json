@@ -47,7 +47,7 @@
   "launch": [
    "DD2.EXE"
   ],
-  "notes": "sound: Nothing configured: this build has no setup program and no DOS sound driver - it is the WINDOWS 95 release (DirectSound). Music is CD audio from the original disc.; NOT A DOS GAME. DD2.EXE is a PE32 Windows GUI executable (Watcom C/C++32, stub says '!this is a Windows 95 executable'; DIRINFO is its 22 MB data archive). The DOS version of DD2 is not on the share (checked DOSFILL, DGC D-L, More Dos Games, Windows 98 & Earlier). It therefore cannot be proven in DOSBox and there is NO proof.png. On the Win98 box it would be a plain Windows shortcut to DD2.EXE (needs DirectX; COMMAND.COM would just hand it to Windows). The launch line is not the COMMAND.COM-in-a-DOS-box pattern and the title should be staged as a Windows title or dropped from the DOS set."
+  "notes": "sound: Nothing configured: this build has no setup program and no DOS sound driver - it is the WINDOWS 95 release (DirectSound). Music is CD audio from the original disc.; NOT A DOS GAME. DD2.EXE is a PE32 Windows GUI executable (Watcom C/C++32, stub says '!this is a Windows 95 executable'; DIRINFO is its 22 MB data archive). The DOS version of DD2 is not on the share (checked DOSFILL, DGC D-L, More Dos Games, Windows 98 & Earlier). It cannot be proven in DOSBox, but it RUNS from this Win9x shortcut: COMMAND.COM hands DD2.EXE to Windows, as the Quake/Quake II/UT launchers do - verified in the Win98 build VM 2026-09-30 through the desktop shortcut (the menu, then the attract race). Win98 SE carries the DirectX it needs."
  },
  {
   "lib": "DOS-Doom",
