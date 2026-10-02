@@ -102,3 +102,14 @@ had it), which is the likely start of its spin.
   GL_RENDERER - proposed).
 - ioquake3 (Quake III / Team Arena shortcuts) was already at full quality.
 
+
+## Tribes 2 (2026-10-02 10:51)
+
+`Classic\prefs\ClientPrefs.cs` (per-box): 800x600x16 -> **1280x960x32**, lightmaps
+instead of vertex lighting, vsync allowed, `profiledRenderer`/`defaultsRenderer`
+pinned to the deployed ICD (Torque re-profiles on a new renderer string the way
+id Tech 3 does). **`safeModeOn` must stay 1.** With 0, Tribes 2 made its GL context
+at 640x480, switched the desktop to 1280x960 under it, our kernel ended the Glide
+session at the mode set, and the screen stayed black. With 1 it destroys and
+re-opens the context, and the ICD log shows the board opened at 640x480, closed,
+then opened at 1280x960. **User: "looks right".**

@@ -46,7 +46,20 @@ Q3HQ = {"r_picmip": "0", "r_texturebits": "32", "r_colorbits": "32", "r_vertexLi
         "r_ext_compressed_textures": "0", "r_textureMode": TRILINEAR, "r_subdivisions": "4",
         "r_lastValidRenderer": RENDERER}
 
+# Tribes 2 (Torque) profiles the renderer the same way: a renderer string it
+# has not seen re-applies its defaults - found at 800x600x16, vertex lighting,
+# vsync disabled. Its prefs are TorqueScript lines. safeModeOn STAYS 1: it is
+# what makes Torque destroy and recreate the GL context when it changes the
+# resolution, and our fullscreen ICD needs exactly that - with 0, Tribes 2 made
+# its context at 640x480, switched the desktop to 1280x960 under it, our kernel
+# ended the Glide session at the mode set, and the screen stayed black
+# (2026-10-02).
+T2 = {"$pref::Video::resolution": "1280 960 32", "$pref::Video::safeModeOn": "1",
+      "$pref::Video::disableVerticalSync": "0", "$pref::Interior::VertexLighting": "0",
+      "$pref::Video::profiledRenderer": RENDERER, "$pref::Video::defaultsRenderer": RENDERER}
+
 TUNING = [
+    (rf"{G}\Tribes2\GameData\Classic\prefs\ClientPrefs.cs", T2),
     (rf"{G}\Quake2Complete\baseq2\config.cfg", Q2),
     (rf"{G}\Quake2Complete\xatrix\config.cfg", Q2),
     (rf"{G}\Quake2Complete\rogue\config.cfg", Q2),
@@ -62,6 +75,28 @@ TUNING = [
     (rf"{G}\ReturnToCastleWolfenstein\main\wolfconfig.cfg", Q3HQ),
     (rf"{G}\ReturnToCastleWolfenstein\main\wolfconfig_mp.cfg", Q3HQ),
 ]
+
+
+def set_torque(text, wanted):
+    """TorqueScript prefs: `$pref::A::b = "value";`. Same contract as set_cvars;
+    a missing pref is appended, the value always quoted."""
+    changes = []
+    out = text
+    nl = "\r\n" if "\r\n" in text else "\n"
+    for name, value in wanted.items():
+        pat = re.compile(r'(?im)^([ \t]*)' + re.escape(name) + r'([ \t]*=[ \t]*)"?([^";\r\n]*)"?;[ \t]*(?=\r?$)')
+        m = pat.search(out)
+        if m:
+            if m.group(3) == value:
+                continue
+            out = out[:m.start()] + f'{m.group(1)}{name}{m.group(2)}"{value}";' + out[m.end():]
+            changes.append((name, m.group(3), value))
+        else:
+            if out and not out.endswith(("\n", "\r")):
+                out += nl
+            out += f'{name} = "{value}";{nl}'
+            changes.append((name, None, value))
+    return out, changes
 
 
 def set_cvars(text, wanted):
@@ -122,7 +157,8 @@ async def amain(args):
         if text.startswith("Cannot open file"):
             print(f"  -- {path}: not on the box ({text.strip()}) - skipped")
             continue
-        new, changes = set_cvars(text, want)
+        editor = set_torque if path.lower().endswith(".cs") else set_cvars
+        new, changes = editor(text, want)
         total += len(changes)
         if not changes:
             print(f"  ok {path}: 0 changed")
