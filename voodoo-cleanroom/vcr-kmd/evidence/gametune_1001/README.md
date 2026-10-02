@@ -56,12 +56,49 @@ Manager\Environment\FX_GLIDE_SWAPINTERVAL = 1` (set 2026-10-02; new
 processes see it after the next log-on). The bench's launchers set 0 themselves,
 so timing runs are unaffected.
 
-| Quake III demo four, 1280x960x32, cfg 5, ICD 0.1.81 | 2 buffers | 3 buffers |
-|---|---|---|
-| vsync off | 65.0 | 64.7 |
-| vsync on | 55.9 | 56.0 |
+**CORRECTED 2026-10-02 09:45.** The first table (`vsync_q3_cpu_starved/`, 09:32) was
+measured beside a Carmageddon 2 process that the sweep's forced close had NOT
+ended. It had spun one thread at 100% CPU for 14 hours (below). On a quiet CPU,
+ICD 0.1.82, Quake III retail demo four, cfg 5:
 
-Tear-free costs Quake III ~14% at this resolution (frames that miss an 85 Hz
-refresh wait for the next). A third buffer does not help on this hardware, so
-ICD 0.1.82 keeps two (`CHANGELOG.md`). Titles that run above 85 fps (Quake II,
+| | vsync off | vsync on, 2 buffers | vsync on, 3 buffers |
+|---|---|---|---|
+| 1280x960x32 (`vsync_q3/`) | **76.8**, 76.8 | 55.4 | 55.3 |
+| 1024x768x32 (`vsync_q3_1024/`) | **104.3**, 104.3 | 74.6 | - |
+
+Tear-free costs Quake III ~28% at either resolution: a frame that misses an 85 Hz
+refresh waits for the next one. A third buffer does not help on this hardware,
+so ICD 0.1.82 keeps two (`CHANGELOG.md`). Titles far above 85 fps (Quake II,
 GoldSrc, GLQuake) lose nothing visible.
+
+## A sweep leftover burned the CPU for 14 hours (found 2026-10-02)
+
+`CARMA2_HW.EXE` from the sweep's first title (19:22) was still running at 09:50
+the next day. One thread was Ready the whole time, using ~77% kernel + ~22%
+user CPU (WMI: ~10.4 h of kernel time), and CPU load was 100%. It held nothing
+in our driver (`vcrctl info`: `exclusive_pid` 0, no SLI session), and the
+agent's `PROCKILL` ended it at once. The sweep's `taskkill /f` had not, and the
+sweep never checked. Every title after it, and the 09:32 measurements, ran
+beside it. The sweep results still stand as pass/fail; their timing does not.
+`lan_sweep.py` now verifies a forced close (agent `PROCKILL` for a survivor)
+and fails and stops on one (`tests/python/test_lan_sweep_force.py`).
+Carmageddon 2 had never had the keyboard focus (the agent watchdog's console
+had it), which is the likely start of its spin.
+
+## Per-box tuning applied (`scripts/benchmarks/v56k_tune.py`, 2026-10-02 09:42)
+
+48 values in 14 unstaged per-box config files; a second run changes 0.
+- Quake II (baseq2/xatrix/rogue/ctf), SiN (base/2015): full-colour textures
+  (`gl_ext_palettedtexture 0`), trilinear.
+- SoF: trilinear.
+- Quake III retail, Jedi Academy SP/MP, SoF II SP/MP, RtCW SP/MP: the
+  full-quality preset (`r_picmip 0`, 32-bit textures and colour, lightmaps,
+  uncompressed, trilinear, `r_subdivisions 4`).
+- `r_lastValidRenderer` set to the deployed ICD's string. An id Tech 3 game that
+  sees a "new card" resets to its low preset, and our renderer string carries
+  the build number. That is how RtCW had dropped to `r_picmip 2` with vertex
+  lighting and SoF II to `r_picmip 3` behind a "New Video card detected" box.
+  Re-run the script after every ICD update (or move the build tag out of
+  GL_RENDERER - proposed).
+- ioquake3 (Quake III / Team Arena shortcuts) was already at full quality.
+

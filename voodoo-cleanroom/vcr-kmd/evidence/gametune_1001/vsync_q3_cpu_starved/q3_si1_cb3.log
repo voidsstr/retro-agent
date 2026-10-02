@@ -1,4 +1,4 @@
-logfile opened on Fri Oct 02 09:45:45 2026
+logfile opened on Fri Oct 02 09:32:51 2026
 
 ...detecting CPU, found AMD w/ 3DNow!
 
@@ -36,7 +36,7 @@ Initializing OpenGL extensions
 ...using WGL_3DFX_gamma_control
 
 GL_VENDOR: Brian Paul
-GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.82]
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.81]
 GL_VERSION: 1.2 Mesa 6.2.2
 GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
 GL_MAX_TEXTURE_SIZE: 2048
@@ -47,8 +47,8 @@ MODE: -1, 1280 x 960 fullscreen hz:85
 GAMMA: hardware w/ 0 overbright bits
 CPU: AMD w/ 3DNow!
 rendering primitives: single glDrawElements
-texturemode: GL_LINEAR_MIPMAP_LINEAR
-picmip: 0
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
 texture bits: 32
 multitexture: enabled
 compiled vertex arrays: enabled
@@ -89,7 +89,6 @@ Initializing Shaders
 
 ------- sound initialization -------
 Initializing DirectSound
-locked hardware.  ok
 ------------------------------------
 ----- Sound Info -----
 sound system is muted
@@ -140,7 +139,7 @@ Hunk_Clear: reset the hunk ok
 ----- R_Init -----
 
 GL_VENDOR: Brian Paul
-GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.82]
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.81]
 GL_VERSION: 1.2 Mesa 6.2.2
 GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
 GL_MAX_TEXTURE_SIZE: 2048
@@ -151,8 +150,8 @@ MODE: -1, 1280 x 960 fullscreen hz:85
 GAMMA: hardware w/ 0 overbright bits
 CPU: AMD w/ 3DNow!
 rendering primitives: single glDrawElements
-texturemode: GL_LINEAR_MIPMAP_LINEAR
-picmip: 0
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
 texture bits: 32
 multitexture: enabled
 compiled vertex arrays: enabled
@@ -203,8 +202,8 @@ stitched 0 LoD cracks
 trying models/players/james/icon_default.TGA...
 trying models/players/characters/james/icon_default.TGA...
 Failed to load model file models/players/characters/james/lower.md3
-CL_InitCGame:  2.50 seconds
-216 msec to draw all images
+CL_InitCGame:  2.36 seconds
+80 msec to draw all images
 Com_TouchMemory: 0 msec
 marty^7 almost dodged Thanatar^7's rocket
 ^2F^7red^2o^7 was gunned down by THEINDIGO^7
@@ -242,7 +241,7 @@ Willits^7 almost dodged marty^7's rocket
 Trillian^7 almost dodged marty^7's rocket
 THEINDIGO^7 hit the fraglimit.
 marty^7 was melted by THEINDIGO^7's plasmagun
-1260 frames, 16.4 seconds: 76.8 fps
+1260 frames, 22.5 seconds: 56.0 fps
 ----- CL_Shutdown -----
 RE_Shutdown( 1 )
 Shutting down OpenGL subsystem

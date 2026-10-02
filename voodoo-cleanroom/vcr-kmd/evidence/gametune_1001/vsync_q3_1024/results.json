@@ -1,0 +1,36 @@
+[
+ {
+  "res": "1024x768",
+  "swapinterval": "1",
+  "color_buffers_env": "2",
+  "opened_buffers": [
+   "2"
+  ],
+  "fps": [
+   "1260",
+   "16.9",
+   "74.6"
+  ],
+  "renderer": [
+   "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.82]"
+  ],
+  "seconds": 28
+ },
+ {
+  "res": "1024x768",
+  "swapinterval": "0",
+  "color_buffers_env": "2",
+  "opened_buffers": [
+   "2"
+  ],
+  "fps": [
+   "1260",
+   "12.1",
+   "104.3"
+  ],
+  "renderer": [
+   "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.82]"
+  ],
+  "seconds": 28
+ }
+]

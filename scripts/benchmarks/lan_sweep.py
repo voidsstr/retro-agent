@@ -230,9 +230,12 @@ async def run_one(box, sc, outdir, shots_at, grace):
             await settle(10)
     if left:
         rec["forced"] = sorted(set(left.values()))
+        rec["force_output"] = []
         for p in left:
-            await box.exec_(f"cmd /c taskkill /f /pid {p} 2>nul", timeout=30)
+            out = await box.exec_(f"cmd /c taskkill /f /pid {p}", timeout=30)
+            rec["force_output"].append(f"{p}: {(out or '').strip()[:160]}")
         await asyncio.sleep(5)
+        rec["survived_force"] = await force_close_verified(box, left)
     dr1 = await lc.file_size(box, lc.DRWTSN)
     if dr1 != dr0:
         rec["drwatson_grew"] = dr1 - dr0
@@ -251,14 +254,39 @@ async def run_one(box, sc, outdir, shots_at, grace):
         bad.append("Dr. Watson entry")
     if rec.get("forced"):
         bad.append("had to be forced closed")
+    if rec.get("survived_force"):
+        bad.append("STILL RUNNING AFTER A FORCED CLOSE: " + ", ".join(rec["survived_force"]))
     if rec.get("keys_skipped") or rec.get("keys_refused"):
         bad.append("close keys withheld - game not focused")
     if rec["board"] is False:
         bad.append("BOARD WEDGED")
     if not rec["agent_alive"]:
         bad.append("AGENT DEAD")
-    rec["verdict"] = "PASS" if not bad else "CHECK: " + "; ".join(bad)
+    fail = rec.get("survived_force") or rec["board"] is False or not rec["agent_alive"]
+    rec["verdict"] = "PASS" if not bad else ("FAIL: " if fail else "CHECK: ") + "; ".join(bad)
     return rec
+
+
+async def force_close_verified(box, left):
+    """The post-condition of a forced close, not its return code. A forced
+    `taskkill /f` once returned while Carmageddon 2 lived on: the sweep called
+    it CHECK and ran 48 more titles while the leftover spun one thread at 100%
+    CPU for 14 hours (.124, 2026-10-01/02) - every later measurement on the
+    box was CPU-starved. A survivor gets the agent's own TerminateProcess by
+    PID; whatever is STILL there is returned (image names), and the caller
+    must treat it as a failure."""
+    now = await processes(box)
+    stuck = {p: n for p, n in left.items() if p in now}
+    for p in stuck:
+        try:
+            await box.text(f"PROCKILL {p}")
+        except Exception:                       # noqa: BLE001
+            pass
+    if stuck:
+        await asyncio.sleep(5)
+        now = await processes(box)
+        stuck = {p: n for p, n in stuck.items() if p in now}
+    return sorted(set(stuck.values()))
 
 
 async def amain(a):
@@ -286,6 +314,14 @@ async def amain(a):
         if rec["board"] is False or not rec["agent_alive"]:
             lc.log("stopping: board or agent down")
             break
+        if rec.get("survived_force"):
+            # a leftover that survives TerminateProcess keeps the CPU (or the
+            # board) busy for every later title - their results would be
+            # measured beside it. Stop, loudly, and say what is still running.
+            lc.log("STOPPING: " + ", ".join(rec["survived_force"]) + " is still running after a forced "
+                   "close - every later title would run beside it. End it on the box, then re-run "
+                   "with --only for the titles left.")
+            return 5
     lc.log(f"results -> {out / 'sweep.json'}")
     return 0
 

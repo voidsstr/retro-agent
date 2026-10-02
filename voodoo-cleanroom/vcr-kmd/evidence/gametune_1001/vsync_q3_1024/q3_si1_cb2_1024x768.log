@@ -1,4 +1,4 @@
-logfile opened on Fri Oct 02 09:45:45 2026
+logfile opened on Fri Oct 02 09:47:17 2026
 
 ...detecting CPU, found AMD w/ 3DNow!
 
@@ -14,11 +14,11 @@ Joystick is not active.
 Initializing OpenGL subsystem
 ...initializing QGL
 ...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
-...setting mode -1: 1280 960 FS
+...setting mode -1: 1024 768 FS
 ...using colorsbits of 32
 ...calling CDS: ok
 ...registered window class
-...created window@0,0 (1280x960)
+...created window@0,0 (1024x768)
 Initializing OpenGL driver
 ...getting DC: succeeded
 ...GLW_ChoosePFD( 32, 24, 0 )
@@ -43,7 +43,7 @@ GL_MAX_TEXTURE_SIZE: 2048
 GL_MAX_ACTIVE_TEXTURES_ARB: 2
 
 PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
-MODE: -1, 1280 x 960 fullscreen hz:85
+MODE: -1, 1024 x 768 fullscreen hz:100
 GAMMA: hardware w/ 0 overbright bits
 CPU: AMD w/ 3DNow!
 rendering primitives: single glDrawElements
@@ -147,7 +147,7 @@ GL_MAX_TEXTURE_SIZE: 2048
 GL_MAX_ACTIVE_TEXTURES_ARB: 2
 
 PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
-MODE: -1, 1280 x 960 fullscreen hz:85
+MODE: -1, 1024 x 768 fullscreen hz:100
 GAMMA: hardware w/ 0 overbright bits
 CPU: AMD w/ 3DNow!
 rendering primitives: single glDrawElements
@@ -203,8 +203,8 @@ stitched 0 LoD cracks
 trying models/players/james/icon_default.TGA...
 trying models/players/characters/james/icon_default.TGA...
 Failed to load model file models/players/characters/james/lower.md3
-CL_InitCGame:  2.50 seconds
-216 msec to draw all images
+CL_InitCGame:  2.46 seconds
+221 msec to draw all images
 Com_TouchMemory: 0 msec
 marty^7 almost dodged Thanatar^7's rocket
 ^2F^7red^2o^7 was gunned down by THEINDIGO^7
@@ -242,7 +242,7 @@ Willits^7 almost dodged marty^7's rocket
 Trillian^7 almost dodged marty^7's rocket
 THEINDIGO^7 hit the fraglimit.
 marty^7 was melted by THEINDIGO^7's plasmagun
-1260 frames, 16.4 seconds: 76.8 fps
+1260 frames, 16.9 seconds: 74.6 fps
 ----- CL_Shutdown -----
 RE_Shutdown( 1 )
 Shutting down OpenGL subsystem
