@@ -1,0 +1,220 @@
+{
+ "system32": {
+  "opengl32.dll": "713728",
+  "3dfxOGL.dll": "2646009",
+  "3dfxgl.dll": "ECHO is on.",
+  "glide2x.dll": "94208",
+  "glide3x.dll": "1025930",
+  "3dfxvs.dll": "610240"
+ },
+ "quake3": {
+  "root": "C:\\Games\\Quake3-TeamArena",
+  "exe": "present",
+  "game_local_dlls": [
+   {
+    "path": ".\\glide3x.dll",
+    "size": "1005435",
+    "known_as": ""
+   }
+  ],
+  "cfg": {
+   "path": "baseq3\\q3config.cfg",
+   "present": true,
+   "values": {}
+  }
+ },
+ "quake2": {
+  "root": "C:\\Games\\Quake2Complete",
+  "exe": "present",
+  "game_local_dlls": [
+   {
+    "path": ".\\3dfxgl.dll",
+    "size": "142848",
+    "known_as": "3dfxgl.dll MiniGL (Quake II staged)"
+   },
+   {
+    "path": ".\\glide3x.dll",
+    "size": "1005435",
+    "known_as": ""
+   }
+  ],
+  "cfg": {
+   "path": "baseq2\\config.cfg",
+   "present": true,
+   "values": {}
+  }
+ },
+ "glquake": {
+  "root": "C:\\Games\\Quake1",
+  "exe": "present",
+  "game_local_dlls": [
+   {
+    "path": ".\\VOODOO\\OPENGL32.DLL",
+    "size": "142848",
+    "known_as": "3dfxgl.dll MiniGL (Quake II staged)"
+   }
+  ],
+  "cfg": {
+   "path": "id1\\config.cfg",
+   "present": false
+  }
+ },
+ "ut": {
+  "root": "C:\\Games\\UnrealTournament436",
+  "exe": "present",
+  "game_local_dlls": [],
+  "demo": {
+   "path": "System\\UTbench.dem",
+   "present": true
+  },
+  "cfg": {
+   "path": "System\\UnrealTournament.ini",
+   "present": true,
+   "values": {
+    "GameRenderDevice": [
+     "GameRenderDevice=OpenGLDrv.OpenGLRenderDevice"
+    ],
+    "RenderDevice": [
+     "RenderDevice=GlideDrv.GlideRenderDevice"
+    ],
+    "WindowedRenderDevice": [
+     "WindowedRenderDevice=SoftDrv.SoftwareRenderDevice"
+    ],
+    "FullscreenColorBits": [
+     "FullscreenColorBits=16",
+     "FullscreenColorBits=16"
+    ],
+    "FullscreenViewportX": [
+     "FullscreenViewportX=1280",
+     "FullscreenViewportX=640"
+    ],
+    "FullscreenViewportY": [
+     "FullscreenViewportY=960",
+     "FullscreenViewportY=480"
+    ],
+    "UseVSync": [
+     "UseVSync=False"
+    ]
+   }
+  },
+  "ini2": {
+   "path": "System\\User.ini",
+   "present": true,
+   "values": {
+    "F9=": [
+     "F9=SShot"
+    ],
+    "F10=": [
+     "F10=Cancel"
+    ],
+    "F11=": [
+     "F11=Shot"
+    ]
+   }
+  }
+ },
+ "unrealgold": {
+  "root": "C:\\Games\\UnrealGold",
+  "exe": "present",
+  "game_local_dlls": [],
+  "cfg": {
+   "path": "System\\Unreal.ini",
+   "present": true,
+   "values": {
+    "GameRenderDevice": [
+     "GameRenderDevice=D3DDrv.D3DRenderDevice"
+    ],
+    "RenderDevice": [
+     "RenderDevice=D3DDrv.D3DRenderDevice"
+    ],
+    "WindowedRenderDevice": [
+     "WindowedRenderDevice=SoftDrv.SoftwareRenderDevice"
+    ],
+    "FullscreenColorBits": [
+     "FullscreenColorBits=32"
+    ],
+    "FullscreenViewportX": [
+     "FullscreenViewportX=1280"
+    ],
+    "FullscreenViewportY": [
+     "FullscreenViewportY=960"
+    ]
+   }
+  }
+ },
+ "deusex": {
+  "root": "C:\\Games\\DeusEx",
+  "exe": "present",
+  "game_local_dlls": [],
+  "cfg": {
+   "path": "SYSTEM\\DeusEx.ini",
+   "present": true,
+   "values": {
+    "GameRenderDevice": [
+     "GameRenderDevice=D3DDrv.D3DRenderDevice"
+    ],
+    "RenderDevice": [
+     "RenderDevice=D3DDrv.D3DRenderDevice"
+    ],
+    "WindowedRenderDevice": [
+     "WindowedRenderDevice=SoftDrv.SoftwareRenderDevice"
+    ],
+    "FullscreenColorBits": [
+     "FullscreenColorBits=32"
+    ],
+    "FullscreenViewportX": [
+     "FullscreenViewportX=1280"
+    ],
+    "FullscreenViewportY": [
+     "FullscreenViewportY=960"
+    ]
+   }
+  }
+ },
+ "rtcw": {
+  "root": "C:\\Games\\ReturnToCastleWolfenstein",
+  "exe": "present",
+  "exe2": "present",
+  "game_local_dlls": [
+   {
+    "path": ".\\gl\\openglv5.dll",
+    "size": "352256",
+    "known_as": "gl/openglv5.dll as staged with RtCW (not AmigaMerlin's)"
+   }
+  ],
+  "demo": {
+   "path": "main\\demos\\wolfbench.dm_60",
+   "present": true
+  },
+  "cfg": {
+   "path": "main\\wolfconfig_mp.cfg",
+   "present": true,
+   "values": {}
+  },
+  "cfg2": {
+   "path": "main\\wolfconfig.cfg",
+   "present": true,
+   "values": {}
+  }
+ },
+ "serioussam": {
+  "root": "C:\\Games\\SeriousSamFirstEncounter",
+  "exe": "present",
+  "game_local_dlls": [],
+  "cfg": {
+   "path": "Scripts\\PersistentSymbols.ini",
+   "present": true,
+   "values": {}
+  }
+ },
+ "serioussam2": {
+  "root": "C:\\Games\\SeriousSamSecondEncounter",
+  "exe": "present",
+  "game_local_dlls": [],
+  "cfg": {
+   "path": "Scripts\\PersistentSymbols.ini",
+   "present": true,
+   "values": {}
+  }
+ }
+}

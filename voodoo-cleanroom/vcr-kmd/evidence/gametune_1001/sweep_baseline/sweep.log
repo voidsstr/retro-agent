@@ -1,0 +1,100 @@
+[19:22:26] 125 shortcuts, 49 to sweep: ['Carmageddon 2', 'Counter-Strike 1.6', 'Deathmatch Classic', 'Descent - Rebirth engine', 'Descent 3', 'Descent II - original Win95 engine', 'Descent II', 'Deus Ex', 'Half-Life - Blue Shift', 'Half-Life - Opposing Force', 'Half-Life Deathmatch - Fleet Server', 'Half-Life', 'Hexen II - 3dfx Voodoo', 'Hexen II', 'Hidden and Dangerous Deluxe', 'Jedi Academy - Multiplayer', 'Jedi Academy', 'Quake - 3dfx Voodoo', 'Quake - Dissolution of Eternity', 'Quake - Scourge of Armagon', 'Quake II - Ground Zero', 'Quake II - The Reckoning', 'Quake II - ThreeWave CTF', 'Quake II', 'Quake III - Team Arena', 'Quake III Arena (retail 1.32c)', 'Quake III Arena', 'Quake', 'Return to Castle Wolfenstein', 'RTCW Multiplayer', 'Serious Sam - The First Encounter', 'Serious Sam - The Second Encounter', 'Shogo - Mobile Armor Division', 'Shogo - via launcher (fallback)', 'SiN - Wages of SiN', 'SiN', 'Soldier of Fortune II - Multiplayer', 'Soldier of Fortune II', 'Soldier of Fortune', 'Team Fortress Classic', "Tom Clancy's Rainbow Six", 'Tribes 2 Solo and LAN', 'Turok 2 - Multiplayer', 'Turok 2 - Seeds of Evil', 'Unreal Gold', 'Unreal Tournament - 3dfx Voodoo', 'Unreal Tournament 2003', 'Unreal Tournament 2004', 'Unreal Tournament 436']
+[19:22:26] --- Carmageddon 2: C:\Games\Carmageddon2\Play Carmageddon 2.bat 
+[19:24:35]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['CARMA2_HW.EXE'], (640, 480, 9.0, 24.2)), (60, ['CARMA2_HW.EXE'], (640, 480, 37.8, 48.5))]
+[19:24:35] --- Counter-Strike 1.6: C:\Games\CounterStrike16\Play Counter-Strike.bat 
+[19:26:04]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 50.4, 30.4)), (60, ['hl.exe'], (1280, 960, 50.4, 30.4))]
+[19:26:04] --- Deathmatch Classic: C:\Games\HalfLife1\Deathmatch Classic.bat 
+[19:28:16]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 28.9, 26.5)), (60, ['hl.exe'], (1280, 960, 28.9, 26.5))]
+[19:28:16] --- Descent - Rebirth engine: C:\Games\Descent1\Play Descent - Rebirth.bat 
+[19:29:31]     PASS  samples=[(30, ['d1x-rebirth.exe'], (320, 200, 1.7, 14.5)), (60, ['d1x-rebirth.exe'], (1280, 960, 7.9, 32.9))]
+[19:29:31] --- Descent 3: C:\Games\Descent3\Play Descent 3.bat 
+[19:31:38]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['main.exe'], (640, 480, 58.7, 60.9)), (60, ['main.exe'], (640, 480, 28.4, 26.3))]
+[19:31:38] --- Descent II - original Win95 engine: C:\Games\Descent2\Play Descent 2 - original Win95.bat 
+[19:33:00]     CHECK: dialog: Electronic Registration Card  samples=[(30, ['DESCENTW.EXE', 'REGCARD.EXE'], (1280, 1024, 2.3, 11.3)), (60, ['DESCENTW.EXE', 'REGCARD.EXE'], (1280, 1024, 2.3, 11.3))]
+[19:33:00] --- Descent II: C:\Games\Descent2\Play Descent 2.bat 
+[19:35:09]     CHECK: had to be forced closed  samples=[(30, ['d2x-rebirth.exe'], (1280, 960, 25.3, 64.3)), (60, ['d2x-rebirth.exe'], (1280, 960, 15.3, 35.0))]
+[19:35:09] --- Deus Ex: C:\Games\DeusEx\Play Deus Ex.bat 
+[19:36:32]     PASS  samples=[(30, ['DEUSEX.EXE'], (1280, 960, 0.0, 0.0)), (60, ['DEUSEX.EXE'], (1280, 960, 0.0, 0.0))]
+[19:36:32] --- Half-Life - Blue Shift: C:\Games\HalfLife1\Blue Shift.bat 
+[19:37:46]     CHECK: started no process; Dr. Watson entry  samples=[(30, [], (1280, 1024, 20.9, 54.3)), (60, [], (1280, 1024, 20.3, 53.0))]
+[19:37:46] --- Half-Life - Opposing Force: C:\Games\HalfLife1\Opposing Force.bat 
+[19:40:02]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 42.7, 28.7)), (60, ['hl.exe'], (1280, 960, 42.7, 28.7))]
+[19:40:02] --- Half-Life Deathmatch - Fleet Server: C:\Games\CounterStrike16\Play Half-Life Deathmatch.bat 
+[19:41:24]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 18.7, 38.4)), (60, ['find.exe', 'hl.exe', 'netstat.exe'], (1280, 960, 51.9, 40.2))]
+[19:41:24] --- Half-Life: C:\Games\HalfLife1\Half-Life.bat 
+[19:43:44]     CHECK: had to be forced closed  samples=[(30, ['hl.exe'], (1280, 960, 19.7, 25.0)), (60, ['hl.exe'], (1280, 960, 19.7, 25.0))]
+[19:43:44] --- Hexen II - 3dfx Voodoo: C:\Games\HexenII\Play Hexen II - Voodoo.bat 
+[19:45:38]     PASS  samples=[(30, ['glh2.exe'], (1024, 768, 23.5, 37.4)), (60, ['glh2.exe'], (1024, 768, 23.5, 37.4))]
+[19:45:38] --- Hexen II: C:\Games\HexenII\Play Hexen II.bat 
+[19:47:31]     PASS  samples=[(30, ['glh2.exe'], (1024, 768, 23.5, 37.4)), (60, ['glh2.exe'], (1024, 768, 23.5, 37.4))]
+[19:47:31] --- Hidden and Dangerous Deluxe: C:\Games\HiddenAndDangerous\Play Hidden and Dangerous Deluxe.bat 
+[19:49:14]     PASS  samples=[(30, ['HDE.exe'], (1280, 960, 16.7, 32.8)), (60, ['HDE.exe'], (1280, 960, 0.0, 0.0))]
+[19:49:14] --- Jedi Academy - Multiplayer: C:\Games\JediAcademy\Play Jedi Academy - Multiplayer.bat 
+[19:50:35]     PASS  samples=[(30, ['jamp.exe'], (1280, 960, 9.4, 33.2)), (60, ['jamp.exe'], (1280, 960, 2.0, 14.9))]
+[19:50:35] --- Jedi Academy: C:\Games\JediAcademy\Play Jedi Academy.bat 
+[19:51:52]     PASS  samples=[(30, ['jasp.exe'], (1280, 960, 2.0, 14.9)), (60, ['jasp.exe'], (1280, 960, 40.9, 73.2))]
+[19:51:52] --- Quake - 3dfx Voodoo: C:\Games\Quake1\Q1V640.BAT 
+[19:53:48]     PASS  samples=[(30, ['GLQUAKE.EXE'], (1280, 960, 24.8, 18.8)), (60, ['GLQUAKE.EXE'], (1280, 960, 11.6, 7.4))]
+[19:53:48] --- Quake - Dissolution of Eternity: C:\Games\Quake1\Play Quake - Dissolution of Eternity.bat 
+[19:55:43]     PASS  samples=[(30, ['GLQUAKE.EXE'], (1280, 960, 34.5, 22.1)), (60, ['GLQUAKE.EXE'], (1280, 960, 17.8, 12.7))]
+[19:55:43] --- Quake - Scourge of Armagon: C:\Games\Quake1\Play Quake - Scourge of Armagon.bat 
+[19:57:38]     PASS  samples=[(30, ['GLQUAKE.EXE'], (1280, 960, 18.9, 14.8)), (60, ['GLQUAKE.EXE'], (1280, 960, 9.8, 12.2))]
+[19:57:38] --- Quake II - Ground Zero: C:\Games\Quake2Complete\Quake II - Ground Zero.bat 
+[19:59:22]     PASS  samples=[(30, ['quake2.exe'], (1280, 960, 39.7, 56.1)), (60, ['quake2.exe'], (1280, 960, 18.9, 10.2))]
+[19:59:22] --- Quake II - The Reckoning: C:\Games\Quake2Complete\Quake II - The Reckoning.bat 
+[20:01:04]     PASS  samples=[(30, ['quake2.exe'], (1280, 960, 4.7, 9.5)), (60, ['quake2.exe'], (1280, 960, 11.4, 10.5))]
+[20:01:04] --- Quake II - ThreeWave CTF: C:\Games\Quake2Complete\Quake II - ThreeWave CTF.bat 
+[20:02:49]     PASS  samples=[(30, ['quake2.exe'], (1280, 960, 4.7, 9.5)), (60, ['quake2.exe'], (1280, 960, 14.9, 9.0))]
+[20:02:49] --- Quake II: C:\Games\Quake2Complete\Quake II.bat 
+[20:04:32]     PASS  samples=[(30, ['quake2.exe'], (1280, 960, 18.8, 7.5)), (60, ['quake2.exe'], (1280, 960, 14.6, 8.6))]
+[20:04:32] --- Quake III - Team Arena: C:\Games\Quake3-TeamArena\Play Team Arena.bat 
+[20:05:49]     PASS  samples=[(30, ['ioquake3.x86.exe'], (1280, 960, 32.5, 30.3)), (60, ['ioquake3.x86.exe'], (1280, 960, 17.0, 29.1))]
+[20:05:49] --- Quake III Arena (retail 1.32c): C:\Games\Quake3-TeamArena\Play Quake III Arena - retail 1.32c.bat 
+[20:07:06]     PASS  samples=[(30, ['quake3.exe'], (1280, 960, 19.0, 31.9)), (60, ['quake3.exe'], (1280, 960, 18.8, 31.6))]
+[20:07:06] --- Quake III Arena: C:\Games\Quake3-TeamArena\Play Quake III Arena.bat 
+[20:08:22]     PASS  samples=[(30, ['ioquake3.x86.exe'], (1280, 960, 9.6, 21.2)), (60, ['ioquake3.x86.exe'], (1280, 960, 9.7, 21.2))]
+[20:08:22] --- Quake: C:\Games\Quake1\Play Quake.bat 
+[20:10:17]     PASS  samples=[(30, ['GLQUAKE.EXE'], (1280, 960, 16.7, 14.8)), (60, ['GLQUAKE.EXE'], (1280, 960, 9.0, 9.3))]
+[20:10:17] --- Return to Castle Wolfenstein: C:\Games\ReturnToCastleWolfenstein\Play Return to Castle Wolfenstein.bat 
+[20:11:32]     PASS  samples=[(30, ['WolfSP.exe'], (1280, 960, 26.8, 59.4)), (60, ['WolfSP.exe'], (1280, 960, 19.5, 20.8))]
+[20:11:32] --- RTCW Multiplayer: C:\Games\ReturnToCastleWolfenstein\Play RTCW Multiplayer.bat 
+[20:12:48]     PASS  samples=[(30, ['WolfMP.exe'], (1280, 960, 24.2, 29.7)), (60, ['WolfMP.exe'], (1280, 960, 24.1, 29.7))]
+[20:12:48] --- Serious Sam - The First Encounter: C:\Games\SeriousSamFirstEncounter\Play Serious Sam - The First Encounter.bat 
+[20:14:23]     PASS  samples=[(30, ['SeriousSam.exe'], (1280, 1024, 22.9, 57.0)), (60, ['SeriousSam.exe'], (1280, 960, 0.0, 0.0))]
+[20:14:23] --- Serious Sam - The Second Encounter: C:\Games\SeriousSamSecondEncounter\Play Serious Sam - The Second Encounter.bat 
+[20:15:42]     PASS  samples=[(30, ['SeriousSam.exe'], (1280, 1024, 22.9, 57.0)), (60, ['SeriousSam.exe'], (1280, 960, 20.6, 45.7))]
+[20:15:42] --- Shogo - Mobile Armor Division: C:\Games\Shogo\Play Shogo - direct engine.bat 
+[20:16:57]     PASS  samples=[(30, ['Client.exe'], (1280, 960, 1.6, 16.4)), (60, ['Client.exe'], (1280, 960, 0.0, 0.0))]
+[20:16:57] --- Shogo - via launcher (fallback): C:\Games\Shogo\Play Shogo.bat 
+[20:18:12]     CHECK: dialog: Shogo: Mobile Armor Division  samples=[(30, ['Shogo.exe'], (1280, 1024, 22.5, 51.7)), (60, ['Shogo.exe'], (1280, 1024, 22.5, 51.7))]
+[20:18:12] --- SiN - Wages of SiN: C:\Games\SiNGold\Play Wages of SiN.bat 
+[20:19:55]     PASS  samples=[(30, ['sin.exe'], (1280, 960, 13.0, 21.5)), (60, ['sin.exe'], (1280, 960, 13.0, 21.6))]
+[20:19:55] --- SiN: C:\Games\SiNGold\Play SiN Gold.bat 
+[20:21:38]     PASS  samples=[(30, ['sin.exe'], (1280, 960, 13.0, 21.6)), (60, ['sin.exe'], (1280, 960, 13.0, 21.5))]
+[20:21:38] --- Soldier of Fortune II - Multiplayer: C:\Games\SoldierOfFortune2\Play Soldier of Fortune II - Multiplayer.bat 
+[20:23:50]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['sof2mp.exe'], (1280, 960, 21.2, 39.8)), (60, ['sof2mp.exe'], (1280, 960, 26.6, 27.5))]
+[20:23:50] --- Soldier of Fortune II: C:\Games\SoldierOfFortune2\Play Soldier of Fortune II.bat 
+[20:25:58]     CHECK: dialog: New Video card detected; had to be forced closed  samples=[(30, ['SoF2.exe'], (640, 480, 5.3, 15.7)), (60, ['SoF2.exe'], (1280, 1024, 30.7, 59.0))]
+[20:25:58] --- Soldier of Fortune: C:\Games\SoldierOfFortune\Play Soldier of Fortune.bat 
+[20:27:14]     PASS  samples=[(30, ['SoF.exe'], (1280, 960, 10.0, 22.8)), (60, ['SoF.exe'], (1280, 960, 44.5, 31.8))]
+[20:27:14] --- Team Fortress Classic: C:\Games\HalfLife1\Team Fortress Classic.bat 
+[20:29:19]     PASS  samples=[(30, ['hl.exe'], (1280, 960, 38.7, 30.3)), (60, ['hl.exe'], (1280, 960, 38.7, 30.3))]
+[20:29:19] --- Tom Clancy's Rainbow Six: C:\Games\RainbowSix\Play Rainbow Six.bat 
+[20:30:33]     CHECK: error window: RAINBOW SIX ERROR; dialog: RAINBOW SIX ERROR  samples=[(30, ['RainbowSix.exe'], (640, 480, 0.0, 0.0)), (60, ['RainbowSix.exe'], (640, 480, 0.0, 0.0))]
+[20:30:33] --- Tribes 2 Solo and LAN: C:\Games\Tribes2\Play Tribes 2 Solo and LAN.bat 
+[20:31:48]     PASS  samples=[(30, ['Tribes2.exe', 'rubyintersect.dll'], (800, 600, 0.0, 0.0)), (60, ['Tribes2.exe', 'rubyintersect.dll'], (800, 600, 89.5, 68.8))]
+[20:31:48] --- Turok 2 - Multiplayer: C:\Games\Turok2\Play Turok 2 - Multiplayer.bat 
+[20:33:03]     PASS  samples=[(30, ['Turok2MPEnglish.exe'], (1280, 1024, 24.5, 50.6)), (60, ['Turok2MPEnglish.exe'], (1280, 1024, 24.5, 50.6))]
+[20:33:03] --- Turok 2 - Seeds of Evil: C:\Games\Turok2\Play Turok 2.bat 
+[20:34:17]     PASS  samples=[(30, ['Turok2English.exe'], (1280, 1024, 24.4, 50.4)), (60, ['Turok2English.exe'], (1280, 1024, 24.4, 50.4))]
+[20:34:17] --- Unreal Gold: C:\Games\UnrealGold\Play Unreal Gold.bat 
+[20:36:26]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['Unreal.exe'], (1024, 768, 20.3, 21.4)), (60, ['Unreal.exe'], (1024, 768, 13.4, 11.6))]
+[20:36:26] --- Unreal Tournament - 3dfx Voodoo: C:\Games\UnrealTournament436\Play Unreal Tournament 436 - Voodoo.bat 
+[20:37:42]     PASS  samples=[(30, ['UnrealTournament.exe'], (640, 480, 3.5, 8.8)), (60, ['UnrealTournament.exe'], (640, 480, 8.4, 17.1))]
+[20:37:42] --- Unreal Tournament 2003: C:\Games\UT2003\Play UT2003.bat 
+[20:39:00]     PASS  samples=[(30, ['UT2003.exe'], (1280, 1024, 26.9, 57.8)), (60, ['UT2003.exe'], (640, 480, 108.9, 117.3))]
+[20:39:00] --- Unreal Tournament 2004: C:\Games\UT2004\Play UT2004.bat 
+[20:40:22]     PASS  samples=[(30, ['UT2004.exe'], (1280, 1024, 31.2, 65.2)), (60, ['UT2004.exe'], (1280, 960, 5.1, 16.6))]
+[20:40:22] --- Unreal Tournament 436: C:\Games\UnrealTournament436\Play Unreal Tournament 436.bat 
+[20:41:54]     PASS  samples=[(30, ['UnrealTournament.exe'], (1280, 960, 9.5, 26.7)), (60, ['UnrealTournament.exe'], (1280, 960, 38.3, 63.8))]
+[20:41:54] results -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/sweep_baseline/20261001_192225/sweep.json

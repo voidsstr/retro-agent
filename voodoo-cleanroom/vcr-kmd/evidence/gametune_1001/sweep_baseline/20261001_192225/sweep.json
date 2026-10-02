@@ -1,0 +1,2160 @@
+[
+ {
+  "shortcut": "Carmageddon 2",
+  "target": "C:\\Games\\Carmageddon2\\Play Carmageddon 2.bat",
+  "args": "",
+  "t0": "19:22:26",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "CARMA2_HW.EXE"
+    ],
+    "stats": [
+     640,
+     480,
+     9.0,
+     24.2
+    ],
+    "file": "Carmageddon_2_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "CARMA2_HW.EXE"
+    ],
+    "stats": [
+     640,
+     480,
+     37.8,
+     48.5
+    ],
+    "file": "Carmageddon_2_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "CARMA2_HW.EXE"
+  ],
+  "close_via": "WM_CLOSE",
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"C:\\WINDOWS\\system32\\cmd.exe - C:\\RETRO_AGENT\\agentwd.cmd\" pid 1668",
+   "TILDE: focus is ConsoleWindowClass \"C:\\WINDOWS\\system32\\cmd.exe - C:\\RETRO_AGENT\\agentwd.cmd\" pid 1668"
+  ],
+  "forced": [
+   "CARMA2_HW.EXE"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Counter-Strike 1.6",
+  "target": "C:\\Games\\CounterStrike16\\Play Counter-Strike.bat",
+  "args": "",
+  "t0": "19:24:35",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     50.4,
+     30.4
+    ],
+    "file": "Counter_Strike_1_6_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     50.4,
+     30.4
+    ],
+    "file": "Counter_Strike_1_6_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "hl.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Deathmatch Classic",
+  "target": "C:\\Games\\HalfLife1\\Deathmatch Classic.bat",
+  "args": "",
+  "t0": "19:26:04",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     28.9,
+     26.5
+    ],
+    "file": "Deathmatch_Classic_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     28.9,
+     26.5
+    ],
+    "file": "Deathmatch_Classic_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "hl.exe"
+  ],
+  "close_via": "console quit",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Descent - Rebirth engine",
+  "target": "C:\\Games\\Descent1\\Play Descent - Rebirth.bat",
+  "args": "",
+  "t0": "19:28:16",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "d1x-rebirth.exe"
+    ],
+    "stats": [
+     320,
+     200,
+     1.7,
+     14.5
+    ],
+    "file": "Descent_Rebirth_engine_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "d1x-rebirth.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     7.9,
+     32.9
+    ],
+    "file": "Descent_Rebirth_engine_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "d1x-rebirth.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Descent 3",
+  "target": "C:\\Games\\Descent3\\Play Descent 3.bat",
+  "args": "",
+  "t0": "19:29:31",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "main.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     58.7,
+     60.9
+    ],
+    "file": "Descent_3_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "main.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     28.4,
+     26.3
+    ],
+    "file": "Descent_3_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "main.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "keys_skipped": [
+   "ALT+F4: focus is Shell_TrayWnd \"\" pid 776",
+   "TILDE: focus is Shell_TrayWnd \"\" pid 776"
+  ],
+  "forced": [
+   "main.exe"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Descent II - original Win95 engine",
+  "target": "C:\\Games\\Descent2\\Play Descent 2 - original Win95.bat",
+  "args": "",
+  "t0": "19:31:38",
+  "dialogs": {
+   "003700DE": "Electronic Registration Card"
+  },
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "DESCENTW.EXE",
+     "REGCARD.EXE"
+    ],
+    "stats": [
+     1280,
+     1024,
+     2.3,
+     11.3
+    ],
+    "file": "Descent_II_original_Win95_engine_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "DESCENTW.EXE",
+     "REGCARD.EXE"
+    ],
+    "stats": [
+     1280,
+     1024,
+     2.3,
+     11.3
+    ],
+    "file": "Descent_II_original_Win95_engine_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "DESCENTW.EXE",
+   "REGCARD.EXE"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog: Electronic Registration Card"
+ },
+ {
+  "shortcut": "Descent II",
+  "target": "C:\\Games\\Descent2\\Play Descent 2.bat",
+  "args": "",
+  "t0": "19:33:00",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "d2x-rebirth.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     25.3,
+     64.3
+    ],
+    "file": "Descent_II_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "d2x-rebirth.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     15.3,
+     35.0
+    ],
+    "file": "Descent_II_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "d2x-rebirth.exe"
+  ],
+  "close_via": "console quit",
+  "forced": [
+   "d2x-rebirth.exe"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed"
+ },
+ {
+  "shortcut": "Deus Ex",
+  "target": "C:\\Games\\DeusEx\\Play Deus Ex.bat",
+  "args": "",
+  "t0": "19:35:09",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "DEUSEX.EXE"
+    ],
+    "stats": [
+     1280,
+     960,
+     0.0,
+     0.0
+    ],
+    "file": "Deus_Ex_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "DEUSEX.EXE"
+    ],
+    "stats": [
+     1280,
+     960,
+     0.0,
+     0.0
+    ],
+    "file": "Deus_Ex_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "DEUSEX.EXE"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Half-Life - Blue Shift",
+  "target": "C:\\Games\\HalfLife1\\Blue Shift.bat",
+  "args": "",
+  "t0": "19:36:32",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [],
+    "stats": [
+     1280,
+     1024,
+     20.9,
+     54.3
+    ],
+    "file": "Half_Life_Blue_Shift_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [],
+    "stats": [
+     1280,
+     1024,
+     20.3,
+     53.0
+    ],
+    "file": "Half_Life_Blue_Shift_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [],
+  "close_via": "WM_CLOSE",
+  "drwatson_grew": 39328,
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: started no process; Dr. Watson entry"
+ },
+ {
+  "shortcut": "Half-Life - Opposing Force",
+  "target": "C:\\Games\\HalfLife1\\Opposing Force.bat",
+  "args": "",
+  "t0": "19:37:46",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     42.7,
+     28.7
+    ],
+    "file": "Half_Life_Opposing_Force_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     42.7,
+     28.7
+    ],
+    "file": "Half_Life_Opposing_Force_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "hl.exe"
+  ],
+  "close_via": "console quit",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Half-Life Deathmatch - Fleet Server",
+  "target": "C:\\Games\\CounterStrike16\\Play Half-Life Deathmatch.bat",
+  "args": "",
+  "t0": "19:40:02",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     18.7,
+     38.4
+    ],
+    "file": "Half_Life_Deathmatch_Fleet_Server_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "find.exe",
+     "hl.exe",
+     "netstat.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     51.9,
+     40.2
+    ],
+    "file": "Half_Life_Deathmatch_Fleet_Server_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "find.exe",
+   "hl.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Half-Life",
+  "target": "C:\\Games\\HalfLife1\\Half-Life.bat",
+  "args": "",
+  "t0": "19:41:24",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     19.7,
+     25.0
+    ],
+    "file": "Half_Life_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     19.7,
+     25.0
+    ],
+    "file": "Half_Life_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "hl.exe"
+  ],
+  "close_via": "console quit",
+  "forced": [
+   "hl.exe"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed"
+ },
+ {
+  "shortcut": "Hexen II - 3dfx Voodoo",
+  "target": "C:\\Games\\HexenII\\Play Hexen II - Voodoo.bat",
+  "args": "",
+  "t0": "19:43:44",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "glh2.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     23.5,
+     37.4
+    ],
+    "file": "Hexen_II_3dfx_Voodoo_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "glh2.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     23.5,
+     37.4
+    ],
+    "file": "Hexen_II_3dfx_Voodoo_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "glh2.exe"
+  ],
+  "close_via": "console quit",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Hexen II",
+  "target": "C:\\Games\\HexenII\\Play Hexen II.bat",
+  "args": "",
+  "t0": "19:45:38",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "glh2.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     23.5,
+     37.4
+    ],
+    "file": "Hexen_II_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "glh2.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     23.5,
+     37.4
+    ],
+    "file": "Hexen_II_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "glh2.exe"
+  ],
+  "close_via": "console quit",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Hidden and Dangerous Deluxe",
+  "target": "C:\\Games\\HiddenAndDangerous\\Play Hidden and Dangerous Deluxe.bat",
+  "args": "",
+  "t0": "19:47:31",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "HDE.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     16.7,
+     32.8
+    ],
+    "file": "Hidden_and_Dangerous_Deluxe_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "HDE.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     0.0,
+     0.0
+    ],
+    "file": "Hidden_and_Dangerous_Deluxe_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "HDE.exe"
+  ],
+  "close_via": "ALT+F4",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Jedi Academy - Multiplayer",
+  "target": "C:\\Games\\JediAcademy\\Play Jedi Academy - Multiplayer.bat",
+  "args": "",
+  "t0": "19:49:14",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "jamp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     9.4,
+     33.2
+    ],
+    "file": "Jedi_Academy_Multiplayer_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "jamp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     2.0,
+     14.9
+    ],
+    "file": "Jedi_Academy_Multiplayer_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "jamp.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Jedi Academy",
+  "target": "C:\\Games\\JediAcademy\\Play Jedi Academy.bat",
+  "args": "",
+  "t0": "19:50:35",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "jasp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     2.0,
+     14.9
+    ],
+    "file": "Jedi_Academy_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "jasp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     40.9,
+     73.2
+    ],
+    "file": "Jedi_Academy_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "jasp.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake - 3dfx Voodoo",
+  "target": "C:\\Games\\Quake1\\Q1V640.BAT",
+  "args": "",
+  "t0": "19:51:52",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "GLQUAKE.EXE"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.8,
+     18.8
+    ],
+    "file": "Quake_3dfx_Voodoo_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "GLQUAKE.EXE"
+    ],
+    "stats": [
+     1280,
+     960,
+     11.6,
+     7.4
+    ],
+    "file": "Quake_3dfx_Voodoo_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "GLQUAKE.EXE"
+  ],
+  "close_via": "console quit",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake - Dissolution of Eternity",
+  "target": "C:\\Games\\Quake1\\Play Quake - Dissolution of Eternity.bat",
+  "args": "",
+  "t0": "19:53:48",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "GLQUAKE.EXE"
+    ],
+    "stats": [
+     1280,
+     960,
+     34.5,
+     22.1
+    ],
+    "file": "Quake_Dissolution_of_Eternity_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "GLQUAKE.EXE"
+    ],
+    "stats": [
+     1280,
+     960,
+     17.8,
+     12.7
+    ],
+    "file": "Quake_Dissolution_of_Eternity_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "GLQUAKE.EXE"
+  ],
+  "close_via": "console quit",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake - Scourge of Armagon",
+  "target": "C:\\Games\\Quake1\\Play Quake - Scourge of Armagon.bat",
+  "args": "",
+  "t0": "19:55:43",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "GLQUAKE.EXE"
+    ],
+    "stats": [
+     1280,
+     960,
+     18.9,
+     14.8
+    ],
+    "file": "Quake_Scourge_of_Armagon_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "GLQUAKE.EXE"
+    ],
+    "stats": [
+     1280,
+     960,
+     9.8,
+     12.2
+    ],
+    "file": "Quake_Scourge_of_Armagon_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "GLQUAKE.EXE"
+  ],
+  "close_via": "console quit",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake II - Ground Zero",
+  "target": "C:\\Games\\Quake2Complete\\Quake II - Ground Zero.bat",
+  "args": "",
+  "t0": "19:57:38",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     39.7,
+     56.1
+    ],
+    "file": "Quake_II_Ground_Zero_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     18.9,
+     10.2
+    ],
+    "file": "Quake_II_Ground_Zero_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "ALT+F4",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake II - The Reckoning",
+  "target": "C:\\Games\\Quake2Complete\\Quake II - The Reckoning.bat",
+  "args": "",
+  "t0": "19:59:22",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     4.7,
+     9.5
+    ],
+    "file": "Quake_II_The_Reckoning_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     11.4,
+     10.5
+    ],
+    "file": "Quake_II_The_Reckoning_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "ALT+F4",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake II - ThreeWave CTF",
+  "target": "C:\\Games\\Quake2Complete\\Quake II - ThreeWave CTF.bat",
+  "args": "",
+  "t0": "20:01:04",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     4.7,
+     9.5
+    ],
+    "file": "Quake_II_ThreeWave_CTF_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     14.9,
+     9.0
+    ],
+    "file": "Quake_II_ThreeWave_CTF_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "ALT+F4",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake II",
+  "target": "C:\\Games\\Quake2Complete\\Quake II.bat",
+  "args": "",
+  "t0": "20:02:49",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     18.8,
+     7.5
+    ],
+    "file": "Quake_II_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     14.6,
+     8.6
+    ],
+    "file": "Quake_II_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "ALT+F4",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake III - Team Arena",
+  "target": "C:\\Games\\Quake3-TeamArena\\Play Team Arena.bat",
+  "args": "",
+  "t0": "20:04:32",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "ioquake3.x86.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     32.5,
+     30.3
+    ],
+    "file": "Quake_III_Team_Arena_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "ioquake3.x86.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     17.0,
+     29.1
+    ],
+    "file": "Quake_III_Team_Arena_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "ioquake3.x86.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake III Arena (retail 1.32c)",
+  "target": "C:\\Games\\Quake3-TeamArena\\Play Quake III Arena - retail 1.32c.bat",
+  "args": "",
+  "t0": "20:05:49",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake3.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     19.0,
+     31.9
+    ],
+    "file": "Quake_III_Arena_retail_1_32c_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake3.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     18.8,
+     31.6
+    ],
+    "file": "Quake_III_Arena_retail_1_32c_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake3.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake III Arena",
+  "target": "C:\\Games\\Quake3-TeamArena\\Play Quake III Arena.bat",
+  "args": "",
+  "t0": "20:07:06",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "ioquake3.x86.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     9.6,
+     21.2
+    ],
+    "file": "Quake_III_Arena_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "ioquake3.x86.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     9.7,
+     21.2
+    ],
+    "file": "Quake_III_Arena_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "ioquake3.x86.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake",
+  "target": "C:\\Games\\Quake1\\Play Quake.bat",
+  "args": "",
+  "t0": "20:08:22",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "GLQUAKE.EXE"
+    ],
+    "stats": [
+     1280,
+     960,
+     16.7,
+     14.8
+    ],
+    "file": "Quake_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "GLQUAKE.EXE"
+    ],
+    "stats": [
+     1280,
+     960,
+     9.0,
+     9.3
+    ],
+    "file": "Quake_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "GLQUAKE.EXE"
+  ],
+  "close_via": "console quit",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Return to Castle Wolfenstein",
+  "target": "C:\\Games\\ReturnToCastleWolfenstein\\Play Return to Castle Wolfenstein.bat",
+  "args": "",
+  "t0": "20:10:17",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "WolfSP.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     26.8,
+     59.4
+    ],
+    "file": "Return_to_Castle_Wolfenstein_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "WolfSP.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     19.5,
+     20.8
+    ],
+    "file": "Return_to_Castle_Wolfenstein_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "WolfSP.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "RTCW Multiplayer",
+  "target": "C:\\Games\\ReturnToCastleWolfenstein\\Play RTCW Multiplayer.bat",
+  "args": "",
+  "t0": "20:11:32",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "WolfMP.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.2,
+     29.7
+    ],
+    "file": "RTCW_Multiplayer_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "WolfMP.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.1,
+     29.7
+    ],
+    "file": "RTCW_Multiplayer_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "WolfMP.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Serious Sam - The First Encounter",
+  "target": "C:\\Games\\SeriousSamFirstEncounter\\Play Serious Sam - The First Encounter.bat",
+  "args": "",
+  "t0": "20:12:48",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     22.9,
+     57.0
+    ],
+    "file": "Serious_Sam_The_First_Encounter_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     0.0,
+     0.0
+    ],
+    "file": "Serious_Sam_The_First_Encounter_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SeriousSam.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Serious Sam - The Second Encounter",
+  "target": "C:\\Games\\SeriousSamSecondEncounter\\Play Serious Sam - The Second Encounter.bat",
+  "args": "",
+  "t0": "20:14:23",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     22.9,
+     57.0
+    ],
+    "file": "Serious_Sam_The_Second_Encounter_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     20.6,
+     45.7
+    ],
+    "file": "Serious_Sam_The_Second_Encounter_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SeriousSam.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Shogo - Mobile Armor Division",
+  "target": "C:\\Games\\Shogo\\Play Shogo - direct engine.bat",
+  "args": "",
+  "t0": "20:15:42",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Client.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     1.6,
+     16.4
+    ],
+    "file": "Shogo_Mobile_Armor_Division_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Client.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     0.0,
+     0.0
+    ],
+    "file": "Shogo_Mobile_Armor_Division_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Client.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Shogo - via launcher (fallback)",
+  "target": "C:\\Games\\Shogo\\Play Shogo.bat",
+  "args": "",
+  "t0": "20:16:57",
+  "dialogs": {
+   "00940094": "Shogo: Mobile Armor Division"
+  },
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Shogo.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     22.5,
+     51.7
+    ],
+    "file": "Shogo_via_launcher_fallback_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Shogo.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     22.5,
+     51.7
+    ],
+    "file": "Shogo_via_launcher_fallback_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Shogo.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog: Shogo: Mobile Armor Division"
+ },
+ {
+  "shortcut": "SiN - Wages of SiN",
+  "target": "C:\\Games\\SiNGold\\Play Wages of SiN.bat",
+  "args": "",
+  "t0": "20:18:12",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "sin.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     13.0,
+     21.5
+    ],
+    "file": "SiN_Wages_of_SiN_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "sin.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     13.0,
+     21.6
+    ],
+    "file": "SiN_Wages_of_SiN_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "sin.exe"
+  ],
+  "close_via": "ALT+F4",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "SiN",
+  "target": "C:\\Games\\SiNGold\\Play SiN Gold.bat",
+  "args": "",
+  "t0": "20:19:55",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "sin.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     13.0,
+     21.6
+    ],
+    "file": "SiN_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "sin.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     13.0,
+     21.5
+    ],
+    "file": "SiN_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "sin.exe"
+  ],
+  "close_via": "ALT+F4",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Soldier of Fortune II - Multiplayer",
+  "target": "C:\\Games\\SoldierOfFortune2\\Play Soldier of Fortune II - Multiplayer.bat",
+  "args": "",
+  "t0": "20:21:38",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "sof2mp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     21.2,
+     39.8
+    ],
+    "file": "Soldier_of_Fortune_II_Multiplayer_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "sof2mp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     26.6,
+     27.5
+    ],
+    "file": "Soldier_of_Fortune_II_Multiplayer_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "sof2mp.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"C:\\WINDOWS\\system32\\cmd.exe - C:\\RETRO_AGENT\\agentwd.cmd\" pid 1668",
+   "TILDE: focus is ConsoleWindowClass \"C:\\WINDOWS\\system32\\cmd.exe - C:\\RETRO_AGENT\\agentwd.cmd\" pid 1668"
+  ],
+  "forced": [
+   "sof2mp.exe"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Soldier of Fortune II",
+  "target": "C:\\Games\\SoldierOfFortune2\\Play Soldier of Fortune II.bat",
+  "args": "",
+  "t0": "20:23:50",
+  "dialogs": {
+   "00B2002C": "New Video card detected"
+  },
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SoF2.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     5.3,
+     15.7
+    ],
+    "file": "Soldier_of_Fortune_II_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SoF2.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     30.7,
+     59.0
+    ],
+    "file": "Soldier_of_Fortune_II_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SoF2.exe"
+  ],
+  "close_via": "console quit",
+  "forced": [
+   "SoF2.exe"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog: New Video card detected; had to be forced closed"
+ },
+ {
+  "shortcut": "Soldier of Fortune",
+  "target": "C:\\Games\\SoldierOfFortune\\Play Soldier of Fortune.bat",
+  "args": "",
+  "t0": "20:25:58",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SoF.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     10.0,
+     22.8
+    ],
+    "file": "Soldier_of_Fortune_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SoF.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     44.5,
+     31.8
+    ],
+    "file": "Soldier_of_Fortune_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SoF.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Team Fortress Classic",
+  "target": "C:\\Games\\HalfLife1\\Team Fortress Classic.bat",
+  "args": "",
+  "t0": "20:27:14",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     38.7,
+     30.3
+    ],
+    "file": "Team_Fortress_Classic_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "hl.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     38.7,
+     30.3
+    ],
+    "file": "Team_Fortress_Classic_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "hl.exe"
+  ],
+  "close_via": "console quit",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Tom Clancy's Rainbow Six",
+  "target": "C:\\Games\\RainbowSix\\Play Rainbow Six.bat",
+  "args": "",
+  "t0": "20:29:19",
+  "dialogs": {
+   "000B00CE": "RAINBOW SIX ERROR"
+  },
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "RainbowSix.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     0.0,
+     0.0
+    ],
+    "file": "Tom_Clancy_s_Rainbow_Six_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "RainbowSix.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     0.0,
+     0.0
+    ],
+    "file": "Tom_Clancy_s_Rainbow_Six_60s.png"
+   }
+  ],
+  "error_windows": [
+   "RAINBOW SIX ERROR"
+  ],
+  "running_at_end": [
+   "RainbowSix.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: error window: RAINBOW SIX ERROR; dialog: RAINBOW SIX ERROR"
+ },
+ {
+  "shortcut": "Tribes 2 Solo and LAN",
+  "target": "C:\\Games\\Tribes2\\Play Tribes 2 Solo and LAN.bat",
+  "args": "",
+  "t0": "20:30:33",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Tribes2.exe",
+     "rubyintersect.dll"
+    ],
+    "stats": [
+     800,
+     600,
+     0.0,
+     0.0
+    ],
+    "file": "Tribes_2_Solo_and_LAN_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Tribes2.exe",
+     "rubyintersect.dll"
+    ],
+    "stats": [
+     800,
+     600,
+     89.5,
+     68.8
+    ],
+    "file": "Tribes_2_Solo_and_LAN_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Tribes2.exe",
+   "rubyintersect.dll"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Turok 2 - Multiplayer",
+  "target": "C:\\Games\\Turok2\\Play Turok 2 - Multiplayer.bat",
+  "args": "",
+  "t0": "20:31:48",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Turok2MPEnglish.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     24.5,
+     50.6
+    ],
+    "file": "Turok_2_Multiplayer_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Turok2MPEnglish.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     24.5,
+     50.6
+    ],
+    "file": "Turok_2_Multiplayer_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Turok2MPEnglish.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Turok 2 - Seeds of Evil",
+  "target": "C:\\Games\\Turok2\\Play Turok 2.bat",
+  "args": "",
+  "t0": "20:33:03",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Turok2English.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     24.4,
+     50.4
+    ],
+    "file": "Turok_2_Seeds_of_Evil_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Turok2English.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     24.4,
+     50.4
+    ],
+    "file": "Turok_2_Seeds_of_Evil_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Turok2English.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Unreal Gold",
+  "target": "C:\\Games\\UnrealGold\\Play Unreal Gold.bat",
+  "args": "",
+  "t0": "20:34:17",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Unreal.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     20.3,
+     21.4
+    ],
+    "file": "Unreal_Gold_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Unreal.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     13.4,
+     11.6
+    ],
+    "file": "Unreal_Gold_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Unreal.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"C:\\WINDOWS\\system32\\cmd.exe - C:\\RETRO_AGENT\\agentwd.cmd\" pid 1668",
+   "TILDE: focus is ConsoleWindowClass \"C:\\WINDOWS\\system32\\cmd.exe - C:\\RETRO_AGENT\\agentwd.cmd\" pid 1668"
+  ],
+  "forced": [
+   "Unreal.exe"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Unreal Tournament - 3dfx Voodoo",
+  "target": "C:\\Games\\UnrealTournament436\\Play Unreal Tournament 436 - Voodoo.bat",
+  "args": "",
+  "t0": "20:36:26",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "UnrealTournament.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     3.5,
+     8.8
+    ],
+    "file": "Unreal_Tournament_3dfx_Voodoo_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "UnrealTournament.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     8.4,
+     17.1
+    ],
+    "file": "Unreal_Tournament_3dfx_Voodoo_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "UnrealTournament.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Unreal Tournament 2003",
+  "target": "C:\\Games\\UT2003\\Play UT2003.bat",
+  "args": "",
+  "t0": "20:37:42",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "UT2003.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     26.9,
+     57.8
+    ],
+    "file": "Unreal_Tournament_2003_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "UT2003.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     108.9,
+     117.3
+    ],
+    "file": "Unreal_Tournament_2003_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "UT2003.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Unreal Tournament 2004",
+  "target": "C:\\Games\\UT2004\\Play UT2004.bat",
+  "args": "",
+  "t0": "20:39:00",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "UT2004.exe"
+    ],
+    "stats": [
+     1280,
+     1024,
+     31.2,
+     65.2
+    ],
+    "file": "Unreal_Tournament_2004_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "UT2004.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     5.1,
+     16.6
+    ],
+    "file": "Unreal_Tournament_2004_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "UT2004.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Unreal Tournament 436",
+  "target": "C:\\Games\\UnrealTournament436\\Play Unreal Tournament 436.bat",
+  "args": "",
+  "t0": "20:40:22",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "UnrealTournament.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     9.5,
+     26.7
+    ],
+    "file": "Unreal_Tournament_436_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "UnrealTournament.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     38.3,
+     63.8
+    ],
+    "file": "Unreal_Tournament_436_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "UnrealTournament.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ }
+]

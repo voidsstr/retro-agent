@@ -1780,11 +1780,17 @@ def allours_api(ver, path=None):
     return f"opengl-allours-{ver}" + (f"-{v}" if v else "")
 
 
+# Every game-local glide3x.dll this run staged, so the end of the run can take
+# it away again (unstage_local_glide).
+STAGED_LOCAL_GLIDE = set()
+
+
 async def _stage_local_glide(box, root, want):
     import hashlib
     dest = rf"{root}\glide3x.dll"
     if not want:
         await box.exec_(f'cmd /c if exist "{dest}" del /f /q "{dest}"')
+        STAGED_LOCAL_GLIDE.discard(dest)
         return None
     data = CLEANROOM_GLIDE_H5.read_bytes()
     have = await box.download(dest)
@@ -1793,7 +1799,26 @@ async def _stage_local_glide(box, root, want):
         have = await box.download(dest)
         if not have or hashlib.md5(have).hexdigest() != hashlib.md5(data).hexdigest():
             raise RetroProtocolError(f"{dest}: upload did not land intact")
+    STAGED_LOCAL_GLIDE.add(dest)
     return hashlib.md5(data).hexdigest()[:8]
+
+
+async def unstage_local_glide(box):
+    """Leave every title as the library ships it. The all-ours lanes stage a
+    pinned glide3x.dll beside the game, and a game-local DLL beats system32 at
+    load time: left behind, it silently replaced the box's Glide in NORMAL
+    play - found on .124 2026-10-01, where Quake II and Quake III ran an
+    older pinned build through the system ICD until it was deleted. Returns
+    the copies removed."""
+    gone = []
+    for dest in sorted(STAGED_LOCAL_GLIDE):
+        try:
+            await box.exec_(f'cmd /c if exist "{dest}" del /f /q "{dest}"')
+            gone.append(dest)
+        except Exception as e:                      # noqa: BLE001
+            log(f"    (could not remove the staged {dest}: {e} - delete it by hand)")
+    STAGED_LOCAL_GLIDE.clear()
+    return gone
 
 
 # Every all-ours launch writes our h5 Glide's opt-in log: board mappings per
@@ -2670,6 +2695,8 @@ async def amain(args):
 
     # restore the card to its 4-chip no-AA default so the box is left usable
     await apply_aa_config(box, glide_key, 5)
+    for dest in await unstage_local_glide(box):
+        log(f"removed the staged {dest} - the title is back on the box's own Glide")
     log(f"done. results: {csv_path}")
     return 0
 

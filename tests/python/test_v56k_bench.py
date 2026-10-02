@@ -1164,3 +1164,23 @@ def test_ut99_waits_out_the_demo_instead_of_reading_its_locked_log(bench):
     src = inspect.getsource(bench.UT99Bench.start)
     assert "download" not in src
     assert "TEXT:exit" in src and "process_alive" in src
+
+
+def test_a_run_takes_its_staged_game_local_glide_away_again(bench):
+    """A game-local glide3x.dll beats system32 at load time; the all-ours lanes
+    stage one, and left behind it silently replaced .124's Glide in normal
+    play (Quake II, Quake III - 2026-10-01). Staging records it, the end of
+    the run deletes it, and a non-allours lane forgets it."""
+    import asyncio, inspect
+    class FakeBox:
+        def __init__(self): self.cmds = []
+        async def exec_(self, cmd): self.cmds.append(cmd); return ""
+    bench.STAGED_LOCAL_GLIDE.clear()
+    bench.STAGED_LOCAL_GLIDE.add(r"C:\Games\Quake2Complete\glide3x.dll")
+    box = FakeBox()
+    gone = asyncio.run(bench.unstage_local_glide(box))
+    assert gone == [r"C:\Games\Quake2Complete\glide3x.dll"]
+    assert any("del /f /q" in c and "Quake2Complete" in c for c in box.cmds)
+    assert not bench.STAGED_LOCAL_GLIDE
+    assert "unstage_local_glide(box)" in inspect.getsource(bench.amain)
+    assert "STAGED_LOCAL_GLIDE.add(dest)" in inspect.getsource(bench._stage_local_glide)
