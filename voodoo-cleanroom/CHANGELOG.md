@@ -12,6 +12,28 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.82 — two colour buffers again; three only on request (2026-10-02)
+
+`RETROGL_COLOR_BUFFERS=3` opens the board with three colour buffers, anything
+else with two. 0.1.81's automatic third buffer under vsync is withdrawn, since it
+measured no gain (below). The deployed system ICD on `.124` (`system32\retroicd.dll`,
+md5 `0183eb85`; 0.1.80 kept as `retroicd_0180.bak`). Fork commit `234ef54`.
+Test: `tests/native/test_icd_color_buffers.c` +
+`tests/python/test_icd_color_buffers_source.py`.
+
+## 0.1.81 — three colour buffers under vsync (2026-10-02, withdrawn in 0.1.82)
+
+The ICD forces `FX_GLIDE_SWAPINTERVAL=0` (no vsync) unless the environment sets
+it. Glide then applies that value over the game's own `r_swapInterval` /
+`wglSwapIntervalEXT`, so one system variable decides vsync for every game. With
+two buffers and vsync, a frame that misses an 85 Hz refresh waits for the
+next one (42.5 fps). 0.1.81 opened three buffers whenever the variable asked
+for vsync. **Measured on `.124` (Quake III demo four, 1280x960x32, cfg 5): vsync on
+55.9 fps with two buffers, 56.0 with three; vsync off 65.0 / 64.7.** The swap
+evidently still holds the command stream until the retrace, so the third
+buffer never gets drawn into early. Evidence:
+`vcr-kmd/evidence/gametune_1001/vsync_q3/`.
+
 ## 0.1.80 — QUIT-TRACE covers context creation (2026-09-30)
 
 Diagnostic only, off by default. `RETROGL_SYNCTRACE=1` also flushes a line at

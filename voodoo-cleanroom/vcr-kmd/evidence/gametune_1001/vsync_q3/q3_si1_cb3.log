@@ -1,0 +1,255 @@
+logfile opened on Fri Oct 02 09:32:51 2026
+
+...detecting CPU, found AMD w/ 3DNow!
+
+------- Input Initialization -------
+No window for DirectInput mouse init, delaying
+Joystick is not active.
+------------------------------------
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+----- Client Initialization Complete -----
+----- R_Init -----
+Initializing OpenGL subsystem
+...initializing QGL
+...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
+...setting mode -1: 1280 960 FS
+...using colorsbits of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (1280x960)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 0 )
+...41 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 6 selected
+...creating GL context: succeeded
+...making context current: succeeded
+Initializing OpenGL extensions
+...ignoring GL_S3_s3tc
+...using GL_EXT_texture_env_add
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...using WGL_3DFX_gamma_control
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.81]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1280 x 960 fullscreen hz:85
+GAMMA: hardware w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+...loading 'scripts/lightningnew.shader'
+...loading 'scripts/explode1.shader'
+...loading 'scripts/gfx.shader'
+...loading 'scripts/tim.shader'
+...loading 'scripts/base.shader'
+...loading 'scripts/base_button.shader'
+...loading 'scripts/base_floor.shader'
+...loading 'scripts/base_light.shader'
+...loading 'scripts/base_object.shader'
+...loading 'scripts/base_support.shader'
+...loading 'scripts/base_trim.shader'
+...loading 'scripts/base_wall.shader'
+...loading 'scripts/common.shader'
+...loading 'scripts/ctf.shader'
+...loading 'scripts/eerie.shader'
+...loading 'scripts/gothic_block.shader'
+...loading 'scripts/gothic_floor.shader'
+...loading 'scripts/gothic_light.shader'
+...loading 'scripts/gothic_trim.shader'
+...loading 'scripts/gothic_wall.shader'
+...loading 'scripts/hell.shader'
+...loading 'scripts/liquid.shader'
+...loading 'scripts/menu.shader'
+...loading 'scripts/models.shader'
+...loading 'scripts/organics.shader'
+...loading 'scripts/sfx.shader'
+...loading 'scripts/shrine.shader'
+...loading 'scripts/skin.shader'
+...loading 'scripts/sky.shader'
+...loading 'scripts/test.shader'
+----- finished R_Init -----
+
+------- sound initialization -------
+Initializing DirectSound
+------------------------------------
+----- Sound Info -----
+sound system is muted
+    1 stereo
+32768 samples
+   16 samplebits
+    1 submission_chunk
+22050 speed
+0x19e38060 dma buffer
+No background file.
+----------------------
+Sound memory manager started
+Loading vm file vm/ui.qvm.
+VM file ui compiled to 607799 bytes of code
+ui loaded in 1983232 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+--- Common Initialization Complete ---
+Winsock Initialized
+Opening IP socket: localhost:27960
+Hostname: nsc-c543575f526
+IP: 192.168.1.124
+Working directory: C:\Games\Quake3-TeamArena
+Proceeding with delayed mouse init
+Initializing DirectInput...
+DirectInput initialized.
+execing vsynctest.cfg
+Demo file: demos/four.dm_66
+Current search path:
+C:\Games\Quake3-TeamArena\baseq3\zz-fleetres-ui.pk3 (1 files)
+C:\Games\Quake3-TeamArena\baseq3\pak8.pk3 (9 files)
+C:\Games\Quake3-TeamArena\baseq3\pak7.pk3 (4 files)
+C:\Games\Quake3-TeamArena\baseq3\pak6.pk3 (64 files)
+C:\Games\Quake3-TeamArena\baseq3\pak5.pk3 (7 files)
+C:\Games\Quake3-TeamArena\baseq3\pak4.pk3 (272 files)
+C:\Games\Quake3-TeamArena\baseq3\pak3.pk3 (4 files)
+C:\Games\Quake3-TeamArena\baseq3\pak2.pk3 (148 files)
+C:\Games\Quake3-TeamArena\baseq3\pak1.pk3 (26 files)
+C:\Games\Quake3-TeamArena\baseq3\pak0.pk3 (3539 files)
+C:\Games\Quake3-TeamArena/baseq3
+
+handle 1: qconsole.log
+handle 2: demos/four.dm_66
+----------------------
+8148 files in pk3 files
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.81]
+GL_VERSION: 1.2 Mesa 6.2.2
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: -1, 1280 x 960 fullscreen hz:85
+GAMMA: hardware w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 1
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+Initializing Shaders
+...loading 'scripts/lightningnew.shader'
+...loading 'scripts/explode1.shader'
+...loading 'scripts/gfx.shader'
+...loading 'scripts/tim.shader'
+...loading 'scripts/base.shader'
+...loading 'scripts/base_button.shader'
+...loading 'scripts/base_floor.shader'
+...loading 'scripts/base_light.shader'
+...loading 'scripts/base_object.shader'
+...loading 'scripts/base_support.shader'
+...loading 'scripts/base_trim.shader'
+...loading 'scripts/base_wall.shader'
+...loading 'scripts/common.shader'
+...loading 'scripts/ctf.shader'
+...loading 'scripts/eerie.shader'
+...loading 'scripts/gothic_block.shader'
+...loading 'scripts/gothic_floor.shader'
+...loading 'scripts/gothic_light.shader'
+...loading 'scripts/gothic_trim.shader'
+...loading 'scripts/gothic_wall.shader'
+...loading 'scripts/hell.shader'
+...loading 'scripts/liquid.shader'
+...loading 'scripts/menu.shader'
+...loading 'scripts/models.shader'
+...loading 'scripts/organics.shader'
+...loading 'scripts/sfx.shader'
+...loading 'scripts/shrine.shader'
+...loading 'scripts/skin.shader'
+...loading 'scripts/sky.shader'
+...loading 'scripts/test.shader'
+----- finished R_Init -----
+Loading vm file vm/ui.qvm.
+VM file ui compiled to 607799 bytes of code
+ui loaded in 1983232 bytes on the hunk
+35 arenas parsed
+32 bots parsed
+Loading vm file vm/cgame.qvm.
+VM file cgame compiled to 786818 bytes of code
+cgame loaded in 5380768 bytes on the hunk
+stitched 0 LoD cracks
+...loaded 3728 faces, 358 meshes, 180 trisurfs, 52 flares
+trying models/players/james/icon_default.TGA...
+trying models/players/characters/james/icon_default.TGA...
+Failed to load model file models/players/characters/james/lower.md3
+CL_InitCGame:  2.36 seconds
+80 msec to draw all images
+Com_TouchMemory: 0 msec
+marty^7 almost dodged Thanatar^7's rocket
+^2F^7red^2o^7 was gunned down by THEINDIGO^7
+Willits^7 ate Asuka^7's rocket
+Thanatar^7 was machinegunned by Duffy^7
+Asuka^7 almost dodged ^2F^7red^2o^7's rocket
+Duffy^7 melted himself.
+Trillian^7 was machinegunned by Asuka^7
+Thanatar^7 was melted by Willits^7's plasmagun
+marty^7 was gunned down by THEINDIGO^7
+THEINDIGO^7 almost dodged ^2F^7red^2o^7's rocket
+Willits^7 was melted by Asuka^7's plasmagun
+Duffy^7 ate ^2F^7red^2o^7's rocket
+Trillian^7 was melted by Asuka^7's plasmagun
+Asuka^7 was machinegunned by Willits^7
+Thanatar^7 was machinegunned by THEINDIGO^7
+Willits^7 was machinegunned by Duffy^7
+Duffy^7 was machinegunned by Trillian^7
+Trillian^7 was melted by marty^7's plasmagun
+THEINDIGO^7 almost dodged marty^7's rocket
+Trillian^7 was machinegunned by THEINDIGO^7
+Willits^7 almost dodged marty^7's rocket
+Thanatar^7 melted himself.
+Duffy^7 was melted by Willits^7's plasmagun
+Willits^7 ate ^2F^7red^2o^7's rocket
+^2F^7red^2o^7 was melted by THEINDIGO^7's plasmagun
+Thanatar^7 ate Asuka^7's rocket
+Asuka^7 blew itself up.
+marty^7 blew himself up.
+Trillian^7 was machinegunned by marty^7
+Thanatar^7 was melted by THEINDIGO^7's plasmagun
+Duffy^7 ate Willits^7's rocket
+Asuka^7 ate Willits^7's rocket
+Willits^7 almost dodged marty^7's rocket
+Trillian^7 almost dodged marty^7's rocket
+THEINDIGO^7 hit the fraglimit.
+marty^7 was melted by THEINDIGO^7's plasmagun
+1260 frames, 22.5 seconds: 56.0 fps
+----- CL_Shutdown -----
+RE_Shutdown( 1 )
+Shutting down OpenGL subsystem
+...wglMakeCurrent( NULL, NULL ): success
+...deleting GL context: success
+...releasing DC: success
+...destroying window
+...resetting display
+...shutting down QGL
+...unloading OpenGL DLL
+-----------------------

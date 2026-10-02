@@ -1,0 +1,66 @@
+[
+ {
+  "swapinterval": "0",
+  "color_buffers_env": "2",
+  "opened_buffers": [
+   "2"
+  ],
+  "fps": [
+   "1260",
+   "19.4",
+   "65.0"
+  ],
+  "renderer": [
+   "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.81]"
+  ],
+  "seconds": 44
+ },
+ {
+  "swapinterval": "1",
+  "color_buffers_env": "2",
+  "opened_buffers": [
+   "2"
+  ],
+  "fps": [
+   "1260",
+   "22.5",
+   "55.9"
+  ],
+  "renderer": [
+   "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.81]"
+  ],
+  "seconds": 44
+ },
+ {
+  "swapinterval": "1",
+  "color_buffers_env": "3",
+  "opened_buffers": [
+   "3"
+  ],
+  "fps": [
+   "1260",
+   "22.5",
+   "56.0"
+  ],
+  "renderer": [
+   "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.81]"
+  ],
+  "seconds": 44
+ },
+ {
+  "swapinterval": "0",
+  "color_buffers_env": "3",
+  "opened_buffers": [
+   "3"
+  ],
+  "fps": [
+   "1260",
+   "19.5",
+   "64.7"
+  ],
+  "renderer": [
+   "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.81]"
+  ],
+  "seconds": 36
+ }
+]
