@@ -21,7 +21,8 @@ choices).
 | Deus Ex | D3DDrv 1280x960 | GlideDrv 1024x768x16 @ 85 Hz | library launcher |
 | Unreal Gold | GlideDrv 1024x768 @ 60 Hz | GlideDrv 1024x768 @ 85 Hz | library launcher (`ue1_glide_viewport`) |
 | Hexen II | 1024x768 (a cap from another box's driver) | 1280x960x32 @ 85 Hz | library launcher (`h2_uncap`) |
-| Serious Sam TFE/TSE, GoldSrc, GLQuake | 1280x960 | unchanged | already at the box's mode (Serious Sam on its "Normal" preset) |
+| Serious Sam TFE/TSE | 1280x960; TFE exited ~20 s in (WS_CHILD canvas), refused its demos; TSE's refresh line a no-op | TFE runs (exclusive canvas, its Voodoo5 profile), demos play, TSE gets `gap_iRefreshRate`; both on Normal (Quality measured: -5/-6%) | library launchers + TFE GLSettings (`serioussam_preset/`) |
+| GoldSrc, GLQuake | 1280x960 | unchanged | already at the box's mode |
 | Carmageddon 2, Turok 2 | 640x480, 1024x768 | unchanged | the engines' own limits |
 | Descent II (Win95 engine) | registration-card dialog at every launch | no card: the launcher sets the card's own `Times Bypassed` to 3 | library launcher (spec `Descent2.json` prelaunch; `descent2_regcard/`) |
 
@@ -49,7 +50,12 @@ likely on the window and DC that the WM_CLOSE destroyed. `.124` is back on
 fork. Quit Quake II from its console or menu.
 
 **Still open:**
-- Serious Sam stays on its "Normal" preset until a measured "Quality" run.
+- ~~Serious Sam stays on its "Normal" preset until a measured "Quality" run.~~
+  **Measured 2026-10-03** (`serioussam_preset/`): Quality costs 5-6% (TSE
+  36.2 -> 33.9, TFE 78.7 -> 74.8 fps); both stay on Normal. On the way: TFE
+  had stopped running at all on `.124` (a WS_CHILD canvas Glide cannot take
+  exclusively), its demos were refused (staged file dates) and TSE's refresh
+  line never applied. All three fixed in the library.
 - ~~Descent II's Win95 engine registration card.~~ **Fixed 2026-10-03**
   (`descent2_regcard/`): `DESCENTW.EXE` starts the disc's `REGCARD.EXE` at
   every launch, which skips its form once `[Registration Counters] Times

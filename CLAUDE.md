@@ -3583,7 +3583,10 @@ switch it off. That is what reaches every title at once.
 
 `seta r_displayRefresh` **is** written for id Tech 3 (confirmed present in
 `quake3.exe`, `ioquake3.x86.exe`, `jasp.exe`, `sof2mp.exe` and `WolfSP.exe`),
-and Serious Engine takes `gfx_iRefreshRate`.
+and Serious Engine takes `gfx_iRefreshRate` - **the First Encounter's name; the
+Second Encounter's Engine.dll declares `gap_iRefreshRate` instead** (until
+2026-10-03 TSE logged "Identifier 'gfx_iRefreshRate' is not declared" at every
+start and took the driver's default rate; its launchers now write both).
 
 > **A file BOTH writers touch must get the SAME number from each.** The
 > launcher rebuilds `fleetres.cfg` at every start and the agent rewrites it

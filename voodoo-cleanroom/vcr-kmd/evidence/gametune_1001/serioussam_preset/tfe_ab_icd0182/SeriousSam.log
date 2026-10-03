@@ -1,0 +1,147 @@
+
+--- Serious Engine Startup ---
+  SeriousEngine Build: 10000.1
+
+Executable: C:\Games\SeriousSamFirstEncounter\Bin\SeriousSam.exe
+Assumed engine directory: C:\Games\SeriousSamFirstEncounter\
+
+Examining underlying OS...
+  Type: WinNT
+  Version: 5.1, build 2600
+  Misc: Service Pack 3
+
+Detecting CPU...
+  Vendor: AuthenticAMD
+  Type: 0, Family: 6, Model: 8, Stepping: 1
+  MMX : Yes
+  CMOV: Yes
+  Clock: 2004MHz
+
+Global memory status...
+  Physical memory used:  112/ 255MB
+  Page file used:        105/ 619MB
+  Virtual memory used:    33/2047MB
+  Memory load:  44%
+  Process working set: 0MB-1MB
+
+Loading group files...
+  C:\Games\SeriousSamFirstEncounter\1_00_music.gro: 55 files
+  C:\Games\SeriousSamFirstEncounter\1_00_ExtraTools.gro: 58 files
+  C:\Games\SeriousSamFirstEncounter\1_00.gro: 2267 files
+  D:\Install\1_00_music.gro: 55 files
+  D:\Install\1_00_ExtraTools.gro: 58 files
+  D:\Install\1_00.gro: 2267 files
+
+Detecting input devices...
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+
+Desktop settings...
+  Color Depth: 32bit
+  Screen: 1280x1024
+  Virtual screen: 1280x1024
+  Monitors directly reported: 1
+
+Current display: 'vcrdd' version 1025 - 1280x1024x32
+
+Initializing sound...
+Setting sound format ...
+  (no sound)
+  amp11lib.dll loaded, mpx playing enabled
+  Detected devices: 1
+    device 0: NVIDIA(R) nForce(TM) Audio
+      ver: 1290, id: 1.100
+      form: 0x000bffff, ch: 65535, support: 0x0000002c
+
+Command line: ''
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+Loading game library 'C:\Games\SeriousSamFirstEncounter\Bin\Game.dll'...
+Setting sound format ...
+Direct Sound initialization ...
+  44100Hz, 16bit, default device, mix-ahead: 0.2s
+  mixer buffer size:  34 KB
+  decode buffer size: 34 KB
+  EAX: Disabled
+
+Setting sound format ...
+Direct Sound initialization ...
+  ! EAX error: Cannot query property support.
+Direct Sound initialization ...
+  44100Hz, 16bit, default device, mix-ahead: 0.2s
+  mixer buffer size:  34 KB
+  decode buffer size: 34 KB
+  EAX: Disabled
+
+Cannot load variable from 'Data\Var\ModName.var':
+Cannot open file `C:\Games\SeriousSamFirstEncounter\Data\Var\ModName.var' (No such file or directory) ()
+Serious Sam version: v1.00
+Active mod: -   T H E   F I R S T   E N C O U N T E R   -
+Reading levels directory...
+  file 'Levels\01_Hatshepsut.wld' : 'Hatshepsut' spawn=0x0005000f
+  file 'Levels\02_SandCanyon.wld' : 'Sand Canyon' spawn=0x0005000f
+  file 'Levels\03_TombOfRamses.wld' : 'Tomb Of Ramses' spawn=0x0005000f
+  file 'Levels\04_ValleyOfTheKings.wld' : 'Valley Of The Kings' spawn=0x0005000f
+  file 'Levels\05_MoonMountains.wld' : 'Moon Mountains' spawn=0x0005000f
+  file 'Levels\06_Oasis.wld' : 'Oasis' spawn=0x0005000f
+  file 'Levels\07_Dunes.wld' : 'Dunes' spawn=0x0005000f
+  file 'Levels\08_Suburbs.wld' : 'Suburbs' spawn=0x0005000f
+  file 'Levels\09_Sewers.wld' : 'Sewers' spawn=0x0005000f
+  file 'Levels\10_Metropolis.wld' : 'Metropolis' spawn=0x0005000f
+  file 'Levels\11_AlleyOfSphinxes.wld' : 'Alley Of The Sphinxes' spawn=0x0005000f
+  file 'Levels\12_Karnak.wld' : 'Karnak' spawn=0x0005000f
+  file 'Levels\13_Luxor.wld' : 'Luxor' spawn=0x0005000f
+  file 'Levels\14_SacredYards.wld' : 'Sacred Yards' spawn=0x0005000f
+  file 'Levels\15_TheGreatPyramid.wld' : 'The Great Pyramid' spawn=0x0005000f
+  file 'Levels\Deathmatch\DesertTemple.wld' : 'Desert Temple' spawn=0x000201ff
+  file 'Levels\Intro.wld' : 'Intro and Flyover' spawn=0x00000000
+  file 'Levels\KarnakDemo.wld' : 'Karnak Demo' spawn=0x00050000
+  file 'Levels\TechTest.wld' : 'Technology Test Level' spawn=0x00010000
+Reading demos directory...
+  Demos\auto-demo0001.dem
+  Demos\auto-demo0002.dem
+  Demos\auto-demo0003.dem
+  Demos\auto-demoMP0001.dem
+  Demos\auto-demoMP0002.dem
+  Levels\Intro.wld
+----------------------------------------------
+Starting display mode: 1280x960xDesktop ICD fullscreen
+  CDS: mode reset to original desktop settings
+  CDS: mode set to 1280x960x0
+
+Pixel Format Description:
+  Number:     6 (TYPE_RGBA)
+  Flags:      DRAW_TO_WINDOW SUPPORT_OPENGL DOUBLEBUFFER SWAP_COPY 
+  Color bits: 32 (8:8:8:8)
+  Depth bits: 24
+
+
+Automatic OpenGL preferences adjustment...
+Detected:  -  - 
+Matching: * - * - * (unrecognized 3D accelerator)
+Similar to last, keeping same preferences.
+Starting session: 'Levels\Intro.wld'
+  level: 'Levels\Intro.wld'
+  spawnflags: 0008ffff
+  max players: 1
+  waiting: 0
+  network is off
+  started.
+Adding player: '^oSerious Sam^r'
+  done.

@@ -669,12 +669,13 @@ def test_every_ssam_spec_carries_the_stagers_startup_block():
     yet"). A spec that kept gfx_iRefreshRate=%FR_HZ% would regenerate a
     launcher that cannot start on Windows 7."""
     sf = _stage_fleetres()
-    want = '\r\n'.join(['call "%~dp0FLEETRES.BAT"'] + sf.ssam_startup_ini()) \
-        .replace('"%~dp0Scripts\\Game_startup.ini"', 'X')
     problems = []
     for f in sorted(os.listdir(SPECS)):
         if not f.startswith('SeriousSam') or not f.endswith('.json'):
             continue
+        engine = 'tse' if f.startswith('SeriousSamSecondEncounter') else 'tfe'
+        want = '\r\n'.join(['call "%~dp0FLEETRES.BAT"'] + sf.ssam_startup_ini(engine)) \
+            .replace('"%~dp0Scripts\\Game_startup.ini"', 'X')
         blk = json.load(open(os.path.join(SPECS, f)))['fleetres_block']
         norm = blk.replace('"%~dp0Scripts\\Game_startup.ini"', 'X')
         # the Join specs put their HOSTIP block between the CALL and the ini
@@ -696,3 +697,76 @@ def test_shipped_ssam_launchers_write_fr_se1hz():
             lb = _text(os.path.join(LIB, name, lname))
             assert 'gfx_iRefreshRate=%FR_SE1HZ%;' in lb, '%s/%s' % (name, lname)
             assert 'gfx_iRefreshRate=%FR_HZ%;' not in lb, '%s/%s' % (name, lname)
+            # the Second Encounter's engine reads gap_iRefreshRate (2026-10-03)
+            assert ('gap_iRefreshRate=%FR_SE1HZ%;' in lb) == (t['short'] == 'TSE'), \
+                '%s/%s' % (name, lname)
+
+
+# ---------------------------------------------------------------------------
+# gap_iRefreshRate - the SECOND Encounter's name for it (fix 2026-10-03)
+# ---------------------------------------------------------------------------
+
+def test_each_encounter_gets_the_refresh_variable_its_engine_declares():
+    """TFE's Engine.dll declares gfx_iRefreshRate; TSE's declares
+    gap_iRefreshRate and no gfx_ one. Until 2026-10-03 both launchers wrote
+    only gfx_iRefreshRate, which on TSE logged "Identifier 'gfx_iRefreshRate'
+    is not declared" (.124, Serious Sam v1.05) and set nothing: the Second
+    Encounter took the driver's default refresh on every box."""
+    sf = _stage_fleetres()
+    tfe, tse = sf.ssam_startup_ini('tfe'), sf.ssam_startup_ini('tse')
+    assert not any('gap_iRefreshRate' in l for l in tfe)
+    gap = [l for l in tse if 'gap_iRefreshRate' in l]
+    assert len(gap) == 1 and gap[0].endswith('echo gap_iRefreshRate=%FR_SE1HZ%;'), gap
+    # the gfx_ line stays in both: it is what GAMERES's "ssam" body checks for
+    assert any(l.endswith('echo gfx_iRefreshRate=%FR_SE1HZ%;') for l in tse)
+    _skip_unless_share()
+    for name, var, other in (('SeriousSamFirstEncounter', b'INDEX gfx_iRefreshRate;', None),
+                             ('SeriousSamSecondEncounter', b'INDEX gap_iRefreshRate;',
+                              b'gfx_iRefreshRate')):
+        with open(os.path.join(LIB, name, 'Bin', 'Engine.dll'), 'rb') as f:
+            dll = f.read()
+        assert var in dll, '%s: Engine.dll no longer declares %r' % (name, var)
+        if other:
+            assert other not in dll, '%s: Engine.dll now declares %r too' % (name, other)
+
+
+# ---------------------------------------------------------------------------
+# ogl_bExclusive=1 where the 3dfx card drives the screen (fix 2026-10-03)
+# ---------------------------------------------------------------------------
+
+def test_a_3dfx_box_gets_an_exclusive_canvas_for_both_encounters():
+    """On .124 the First Encounter exited ~20 s into EVERY launch: its canvas
+    was a WS_CHILD (ogl_bExclusive=0), Glide's DirectDraw exclusive mode
+    refused it (SetCooperativeLevel -> 0x80070057, style 0x56000000, measured
+    with an instrumented Glide) and no GL context was made. The launcher now
+    writes ogl_bExclusive=1 where FLEETRES says the 3dfx card drives the
+    screen - read at startup, before the canvas exists."""
+    sf = _stage_fleetres()
+    want = ('if /i "%FR_UE1DEV%"=="GlideDrv.GlideRenderDevice" '
+            '>>"%~dp0Scripts\\Game_startup.ini" echo ogl_bExclusive=1;')
+    for engine in ('tfe', 'tse'):
+        lines = sf.ssam_startup_ini(engine)
+        assert lines.count(want) == 1, engine
+        # never unconditional: every other box keeps the engine's own choice
+        assert not any(l.endswith('echo ogl_bExclusive=1;') and not l.startswith('if /i')
+                       for l in lines), engine
+    _skip_unless_share()
+    for name, t in TITLES.items():
+        for lname in (t['play'], t['host'], t['join']):
+            assert want in _text(os.path.join(LIB, name, lname)), '%s/%s' % (name, lname)
+
+
+def test_the_first_encounters_own_auto_adjust_is_what_sets_the_child_canvas():
+    """The trap, recorded where it lives: TFE's GLSettings.lst matches a 3dfx
+    card only by a "3Dfx*" VENDOR (our ICD says "Brian Paul"), so it falls to
+    Default.ini -> Initial.ini, which sets ogl_bExclusive = 0. TSE's matches
+    the renderer alone and its Initial.ini says 1. If either file changes,
+    the reason for the launcher line above changes with it."""
+    _skip_unless_share()
+    tfe = _text(os.path.join(LIB, 'SeriousSamFirstEncounter', 'Scripts', 'GLSettings', 'Initial.ini'))
+    tse = _text(os.path.join(LIB, 'SeriousSamSecondEncounter', 'Scripts', 'GLSettings', 'Initial.ini'))
+    import re
+    assert re.search(r'(?m)^ogl_bExclusive\s*=\s*0;', tfe)
+    assert re.search(r'(?m)^ogl_bExclusive\s*=\s*1;', tse)
+    lst = _text(os.path.join(LIB, 'SeriousSamFirstEncounter', 'Scripts', 'GLSettings', 'GLSettings.lst'))
+    assert '"3Dfx*"    "*Voodoo5*"' in lst

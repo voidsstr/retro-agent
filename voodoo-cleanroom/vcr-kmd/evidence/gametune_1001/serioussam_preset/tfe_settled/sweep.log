@@ -1,0 +1,4 @@
+[10:13:48] 125 shortcuts, 1 to sweep: ['Serious Sam - The First Encounter']
+[10:13:48] --- Serious Sam - The First Encounter: C:\Games\SeriousSamFirstEncounter\Play Serious Sam - The First Encounter.bat 
+[10:14:56]     PASS  samples=[(30, ['SeriousSam.exe'], (1280, 960, 34.8, 75.5)), (60, ['SeriousSam.exe'], (1280, 960, 91.3, 76.5))]
+[10:14:56] results -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/serioussam_preset/tfe_settled/20261003_101346/sweep.json

@@ -1,0 +1,58 @@
+[
+ {
+  "shortcut": "Serious Sam - The Second Encounter",
+  "target": "C:\\Games\\SeriousSamSecondEncounter\\Play Serious Sam - The Second Encounter.bat",
+  "args": "",
+  "t0": "09:43:01",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     34.1,
+     40.7
+    ],
+    "file": "Serious_Sam_The_Second_Encounter_30s.png",
+    "foreground": {
+     "class": "ViewPort Window",
+     "title": "",
+     "pid": 3700,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     34.3,
+     40.8
+    ],
+    "file": "Serious_Sam_The_Second_Encounter_60s.png",
+    "foreground": {
+     "class": "ViewPort Window",
+     "title": "",
+     "pid": 3700,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SeriousSam.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ }
+]

@@ -1071,45 +1071,104 @@ class Unreal1:
 
 
 class SeriousSam:
-    """Serious Sam (Serious Engine 1), recorded demo with dem_bProfile.
+    r"""Serious Sam (Serious Engine 1): the first auto-demo, timed by the
+    engine's own demo profiler.
 
-    sam_iGfxAPI selects the renderer: 0 = OpenGL, 1 = Direct3D.  The engine
-    writes its timing summary to SeriousSam.log in the game root.
+    How the engine does it (Croteam's SE1 source, Sources/SeriousSam/
+    SeriousSam.cpp + Sources/GameMP/Game.cpp): `+script <file>` is run in
+    Init() BEFORE the first mode set, so a preset (sam_iVideoSetup) set there
+    is applied by ApplyGLSettings ("Different than last, applying new
+    preferences"). With no level on the command line Init() ends in
+    StartNextDemo() - the attract loop - so no demo has to be started by hand;
+    sam_strIntroLevel="" drops the intro fly-by from the head of that list,
+    leaving Demos\auto-demo0001. dem_bProfile records every frame time, and
+    when the demo finishes dem_strPostExec runs IN THAT SAME FRAME (CGame::
+    GameRedrawView), before DoGame() starts the next demo and clears the frame
+    times: ReportDemoProfile() prints "Originally recorded: N frames in S
+    seconds => F FPS average." to SeriousSam.log, DumpDemoProfile() writes
+    Temp\DemoProfile.lst, Quit() ends the game. THE STAGED TSE IS v1.05 and
+    has no dem_strPostExec ("Identifier 'dem_strPostExec' is not declared",
+    .124 2026-10-03) - it does not need one: a profiled demo prints that same
+    report BY ITSELF the frame it finishes (CGame::GameRedrawView: "if demo has
+    been finished - end profile"), then the attract loop plays the next demo
+    and the runner closes the game. The engine prints nothing while a demo
+    plays, so `up_re` tells the runner a quiet log after "Started playing
+    demo" is a healthy run, not a hang - the first run on the box was killed
+    as gl-init-hung exactly that way.
+
+    Every one of those variables is PERSISTENT (Scripts\PersistentSymbols.ini,
+    written at exit), so a run would leave the player's game on the bench's
+    mode, preset, intro and swap interval: prepare() keeps the box's file and
+    cleanup() puts it back, read back byte for byte.
+
+    The first harness used `+exec` (SE1 knows +script; it logs "Unknown
+    option") and a StartDemoPlay() the shell does not have, and set
+    sam_bFullScreenActive / sam_bWaitForVSync (the shell names are
+    sam_bFullScreen and gap_iSwapInterval) - it never ran on the box.
+
+    api: "opengl" or "d3d" (sam_iGfxAPI 0/1), optionally "-speed", "-normal"
+    or "-quality" to set sam_iVideoSetup 0/1/2 for the run; without one the
+    box's own preset is measured.
     """
 
     proc = "SeriousSam.exe"
+    PRESETS = {"speed": 0, "normal": 1, "quality": 2}
+    up_re = r"Started playing demo"
 
-    def __init__(self, tid, name, root, demo="auto-demo0001.dem", api="opengl"):
+    def __init__(self, tid, name, root, api="opengl"):
+        base, _, preset = (api or "opengl").partition("-")
+        if base not in ("opengl", "d3d"):
+            raise SystemExit(f"{tid}: api must be opengl or d3d (optionally -speed/-normal/-quality), not {api!r}")
+        if preset and preset not in self.PRESETS:
+            raise SystemExit(f"{tid}: unknown preset {preset!r} - one of {sorted(self.PRESETS)}")
         self.tid = f"{tid}:{api}"
         self.name = name
-        self.api = api
-        self.engine = f"SeriousSam.exe ({api})"
+        self.api = base
+        self.preset = preset or None
+        self.engine = (f"SeriousSam.exe ({base}, "
+                       + (f"{preset} preset" if preset else "the box's own preset")
+                       + "; Demos\\auto-demo0001, dem_bProfile)")
         self.root = root
         self.log = rf"{root}\SeriousSam.log"
         self.cfg = rf"{root}\Scripts\v56kbench.ini"
+        self.persist = rf"{root}\Scripts\PersistentSymbols.ini"
+        self.profile = rf"{root}\Temp\DemoProfile.lst"
         self.bat = rf"{root}\V56KBENCH.BAT"
-        self.demo = demo
+        self._persist_backup = None
+        self._persist_saved = False
 
     def supports(self, w, h, depth):
         return None
 
     def bench_cfg(self, w, h, depth):
         api = {"opengl": 0, "d3d": 1}[self.api]
-        return "\r\n".join([
-            '// generated per run by v56k_bench.py',
+        lines = [
+            '// generated per run by v56k_bench.py (Serious Engine 1 shell)',
+            '// all of these are persistent: v56k_bench restores PersistentSymbols.ini',
             'sam_bAutoAdjustAudio=0;',
             f'sam_iGfxAPI={api};',
-            'sam_bFullScreenActive=1;',
+            'sam_bFullScreen=1;',
             f'sam_iScreenSizeI={w};',
             f'sam_iScreenSizeJ={h};',
-            f'sam_iDisplayDepth={1 if depth < 32 else 2};',
-            'sam_bWaitForVSync=0;',
+            f'sam_iDisplayDepth={1 if depth < 32 else 2};',   # DD_16BIT / DD_32BIT
+            'gap_iSwapInterval=0;',
+            # the fleet launcher's line too (stage-fleetres.py ssam_startup_ini):
+            # the First Encounter's own auto-adjust sets 0, which renders into
+            # a WS_CHILD canvas Glide cannot take exclusively (2026-10-03)
+            'ogl_bExclusive=1;',
+        ]
+        if self.preset:
+            lines.append(f'sam_iVideoSetup={self.PRESETS[self.preset]};')
+        lines += [
+            'sam_bAutoPlayDemos=1;',
+            'sam_strIntroLevel="";',
             'dem_bProfile=1;',
-            'dem_iProfileCPU=0;',
-            'dem_bOnScreenDisplay=1;',
-            f'StartDemoPlay("Demos\\\\{self.demo}", 0, 0);',
+            'dem_iProfileRate=5;',
+            'dem_bOnScreenDisplay=0;',
+            'dem_strPostExec="ReportDemoProfile();DumpDemoProfile();Quit();";',
             '',
-        ])
+        ]
+        return "\r\n".join(lines)
 
     def launch_bat(self, env):
         """The staged title is a DISC-MOUNT launcher: the fleet template mounts
@@ -1132,16 +1191,40 @@ class SeriousSam:
         spec["prelaunch"] = "\r\n".join(f"set {k}={v}" for k, v in env.items()) or "rem (none)"
         v = dict(spec.get("vars", {}))
         v["GTITLE"] = v.get("GTITLE", self.name) + " - V56K bench"
-        v["GAMEARGS"] = "+exec Scripts\\v56kbench.ini"
+        v["GAMEARGS"] = "+script Scripts\\v56kbench.ini"
         spec["vars"] = v
         mspec = importlib.util.spec_from_file_location("make_mount_launcher", gen)
         mod = importlib.util.module_from_spec(mspec); mspec.loader.exec_module(mod)
         return mod.crlf(mod.substitute(mod.load_template(mod.DEFAULT_TEMPLATE), spec))
 
     async def prepare(self, box, w, h, depth, env):
+        # the player's settings first: nothing below may run without them kept
+        self._persist_backup = await box.download(self.persist)
+        self._persist_saved = True
         await box.upload(self.cfg, self.bench_cfg(w, h, depth))
         await box.upload(self.bat, self.launch_bat(env))
-        await box.exec_(f'cmd /c del /f /q "{self.log}" "{self.root}\\mount-error.txt" 2>nul & echo ok')
+        await box.exec_(f'cmd /c del /f /q "{self.log}" "{self.profile}" '
+                        f'"{self.root}\\mount-error.txt" 2>nul & echo ok')
+
+    async def cleanup(self, box):
+        """Put the player's PersistentSymbols.ini back (the run's mode,
+        preset, intro and swap interval were all persisted at exit) and read
+        it back. A file that was absent before is removed again."""
+        if not self._persist_saved:
+            return "nothing kept - prepare() never ran"
+        if self._persist_backup:
+            await box.upload(self.persist, self._persist_backup)
+            back = await box.download(self.persist)
+            if back != self._persist_backup:
+                raise RuntimeError(f"{self.persist}: restore did not read back - the player's "
+                                   f"Serious Sam settings may be the bench's")
+            what = f"PersistentSymbols.ini restored ({len(back)} B, read back)"
+        else:
+            await box.text(f"DELETE {self.persist}")
+            what = "PersistentSymbols.ini removed again (it was absent before the run)"
+        await box.exec_(f'cmd /c del /f /q "{self.cfg}" "{self.bat}" 2>nul & echo ok')
+        self._persist_saved = False
+        return what
 
     async def start(self, box):
         await box.text(f"LAUNCH {self.bat}")
@@ -1153,22 +1236,47 @@ class SeriousSam:
         return data.decode("latin-1", "replace").strip()[:200] if data else None
 
     def parse(self, raw):
-        m = re.search(r"Average(?:\s*FPS)?[:=\s]+([\d.]+)", raw, re.I)
-        if m:
-            return {"avg_fps": float(m.group(1))}
-        m = re.search(r"([\d.]+)\s*fps", raw, re.I)
-        return {"avg_fps": float(m.group(1))} if m else None
+        """ReportDemoProfile()'s summary (CGame::DemoReportAnalyzedProfile):
+            Originally recorded: N frames in S seconds =>  F FPS average.
+        A bare "N fps" anywhere in the console log is NOT this number."""
+        m = re.search(r"Originally recorded:\s*(\d+) frames in\s*([\d.]+) seconds\s*=>\s*([\d.]+) FPS average",
+                      raw, re.I)
+        if not m:
+            return None
+        out = {"avg_fps": float(m.group(3))}
+        n = re.search(r"Without excessive peaks:\s*(\d+) frames in\s*([\d.]+) seconds\s*=>\s*([\d.]+) FPS average",
+                      raw, re.I)
+        if n:
+            out["notes"] = (f"{m.group(1)} frames in {m.group(2)} s; without excessive peaks "
+                            f"{n.group(3)} fps")
+        return out
 
     def attribution(self, raw):
+        """ApplyGLSettings prints "Detected: <vendor> - <renderer> - <version>";
+        the bare "Vendor:" line earlier in the log is the CPU's (it read
+        AuthenticAMD on .124). The mode is "Starting display mode: WxHxD"."""
         out = {}
-        for key, pat in (("gl_renderer", r"Renderer:?\s*(.+)|Vendor:?\s*(.+)"),
-                         ("mode_line", r"(Display mode[^\r\n]*)")):
-            hits = re.findall(pat, raw, re.I)
-            if hits:
-                h = hits[-1]
-                out[key] = (h if isinstance(h, str) else
-                            next((x for x in h if x), "")).strip()
+        d = re.findall(r"Detected:\s*(.*?) - (.*?) - ([^\r\n]*)", raw)
+        if d:
+            out["gl_renderer"] = d[-1][1].strip()
+        m = re.findall(r"Starting display mode:\s*([^\r\n]*)", raw)
+        if m:
+            out["mode_line"] = m[-1].strip()
         return out
+
+    def verify_mode(self, raw, w, h, depth):
+        """The engine falls back to a recovery mode when the requested one
+        cannot be set ("Requested display mode could not be set!") - a number
+        from that run belongs to the fallback, not to this cell."""
+        if re.search(r"Requested display mode could not be set", raw):
+            return "the engine could not set the requested mode and fell back to a recovery mode"
+        m = re.findall(r"Starting display mode:\s*(\d+)x(\d+)x(\d+)", raw)
+        if not m:
+            return None
+        got = tuple(int(x) for x in m[-1])
+        if got != (w, h, depth):
+            return f"the engine started {got[0]}x{got[1]}x{got[2]}, not {w}x{h}x{depth}"
+        return None
 
 
 def _ut(api):
@@ -2398,6 +2506,19 @@ async def run_one(box, title, w, h, depth, cfg, glide_key, args, versions=None):
         unkillable = True
         await asyncio.sleep(45)
     await asyncio.sleep(3)
+    # A title that changed the player's own settings to run puts them back
+    # (Serious Sam persists the bench's mode and preset at exit). Logged, and a
+    # restore that fails is said loudly - it is the player's config.
+    cleanup = getattr(title, "cleanup", None)
+    if cleanup is not None and not unkillable:
+        try:
+            what = await cleanup(box)
+            if what:
+                log(f"    cleanup: {what}")
+        except Exception as e:
+            log(f"    !! CLEANUP FAILED: {type(e).__name__}: {e}")
+            row["notes"] = ((row.get("notes", "") + "; ") if row.get("notes") else "") + \
+                f"CLEANUP FAILED: {e}"
 
     if raw:
         (args.outdir / f"{run_stem(title.tid, res, depth, cfg)}.log").write_text(raw)

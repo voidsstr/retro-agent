@@ -225,7 +225,14 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
    registration card (2026-10-03):** the generated mount launcher sets the
    card's own `Times Bypassed` counter to 3, and `REGCARD.EXE` exits without its
    form (`gametune_1001/descent2_regcard/`; PASS on `.124` after a purge +
-   GAMESYNC). **Open:** Serious Sam "Quality" preset unmeasured.
+   GAMESYNC). **Serious Sam (2026-10-03, `gametune_1001/serioussam_preset/`):**
+   Quality costs 5-6% (TSE 36.2 -> 33.9, TFE 78.7 -> 74.8 fps at 1280x960x32,
+   vsync off), so both stay on Normal. The First Encounter had stopped running
+   at all - its own auto-adjust chose a WS_CHILD canvas (`ogl_bExclusive=0`) and
+   Glide's DirectDraw exclusive mode refuses a child window. The launchers now
+   write `ogl_bExclusive=1` on a 3dfx box, and TFE's `GLSettings.lst` knows our
+   ICD. TFE's demos were refused because of staged file dates (re-dated), and
+   TSE's refresh line used TFE's variable name (`gap_iRefreshRate` added).
 4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on the
    display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through the
    console until fixed).

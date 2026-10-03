@@ -1,0 +1,25 @@
+[09:12:20] box 192.168.1.124 NSC-C543575F526  agent 1.97.1
+[09:12:21] crash dialogs suppressed: {'DoReport': '0x0', 'ShowUI': '0x0', 'ErrorMode': '0x2', 'VisualNotification': '0x0'}
+[09:12:21] gpu  vcr-kmd Voodoo 5 6000 (open driver)  64 MB  (0x121A:0x0009)
+[09:12:21] glide settings key: HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide
+[09:12:21] quiescing background processes
+[09:12:22] matrix: 2 run(s)
+[09:12:22] capturing software versions (driver files, game binaries, OS, agent)
+[09:12:24]   Serious Sam - The Second Encounter: SeriousSam.exe  - B  md5 -
+[09:12:24]   Serious Sam - The Second Encounter: SeriousSam.exe  - B  md5 -
+[09:12:24]   glide3x: 1025930 B  md5 07c96fd9035c
+[09:12:24]   icd: 2646009 B  md5 8912a1388a15
+[09:12:24]   vcr_display: 106351 B  md5 b63ea6a5ff0c
+[09:12:24]   vcr_miniport: 130105 B  md5 fda1b8c9b905
+[09:12:24] versions -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/serioussam_preset/versions.json
+[09:12:25]     serioussam2:opengl-normal loads icd C:\WINDOWS\system32\retroicd.dll md5 7a843e421818, glide3x C:\WINDOWS\system32\glide3x.dll md5 07c96fd9035c
+[09:12:25] [1/2]
+[09:12:31] --- Serious Sam - The Second Encounter [opengl]  1280x960x32  cfg=5 (4chip-noaa)
+[09:16:03]     cleanup: PersistentSymbols.ini restored (21504 B, read back)
+[09:16:03]     -> 36.2 fps   [AuthenticAMD]  free=179MB
+[09:16:08]     serioussam2:opengl-quality loads icd C:\WINDOWS\system32\retroicd.dll md5 7a843e421818, glide3x C:\WINDOWS\system32\glide3x.dll md5 07c96fd9035c
+[09:16:08] [2/2]
+[09:16:14] --- Serious Sam - The Second Encounter [opengl]  1280x960x32  cfg=5 (4chip-noaa)
+[09:19:52]     cleanup: PersistentSymbols.ini restored (21504 B, read back)
+[09:19:52]     -> 33.9 fps   [AuthenticAMD]  free=183MB
+[09:19:52] done. results: voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/serioussam_preset/results.csv

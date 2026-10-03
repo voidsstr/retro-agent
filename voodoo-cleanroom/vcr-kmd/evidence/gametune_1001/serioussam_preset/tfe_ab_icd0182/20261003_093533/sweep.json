@@ -1,0 +1,51 @@
+[
+ {
+  "shortcut": "Serious Sam - The First Encounter",
+  "target": "C:\\Games\\SeriousSamFirstEncounter\\Play Serious Sam - The First Encounter.bat",
+  "args": "",
+  "t0": "09:35:33",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [],
+    "stats": [
+     1280,
+     1024,
+     20.1,
+     52.7
+    ],
+    "file": "Serious_Sam_The_First_Encounter_30s.png",
+    "foreground": {
+     "class": "ConsoleWindowClass",
+     "title": "Retro Remote Agent Version 1.97.1",
+     "pid": 200,
+     "game": false
+    }
+   },
+   {
+    "at": 60,
+    "alive": [],
+    "stats": [
+     1280,
+     1024,
+     20.1,
+     52.7
+    ],
+    "file": "Serious_Sam_The_First_Encounter_60s.png",
+    "foreground": {
+     "class": "ConsoleWindowClass",
+     "title": "Retro Remote Agent Version 1.97.1",
+     "pid": 200,
+     "game": false
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [],
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: started no process"
+ }
+]

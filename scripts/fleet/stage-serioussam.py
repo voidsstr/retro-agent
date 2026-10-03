@@ -382,6 +382,13 @@ WINDOWS 7: gfx_iRefreshRate MUST BE 0
     persisted desktop refresh on XP, so CRTs keep 85/100 Hz - and GAMERES
     writes the same number (agent/shared/gameres.h gr_se1_hz).
 
+    THE SECOND ENCOUNTER CALLS IT gap_iRefreshRate. The First Encounter's
+    Engine.dll declares gfx_iRefreshRate; the Second Encounter's declares
+    gap_iRefreshRate and no gfx_ one, so until 2026-10-03 TSE logged
+    "Identifier 'gfx_iRefreshRate' is not declared" at every start and took
+    the driver's default rate. TSE's launchers now write both lines - the
+    gap_ one is what the engine reads, the gfx_ one is what GAMERES checks.
+
 RESOLUTION
     Scripts\Game_startup.ini, which the engine documents as "executed each time
     SeriousSam is started", is rewritten by each launcher from FLEETRES.
@@ -446,6 +453,63 @@ def requires_json(t):
 '''
 
 
+#: THE FIRST ENCOUNTER ON THE CLEAN-ROOM ICD (2026-10-03, .124). TFE's
+#: GLSettings.lst knows a 3dfx card only by a "3Dfx*" VENDOR; the MesaFX ICD
+#: says "Brian Paul", so TFE took its generic "*Voodoo*" line - the Voodoo
+#: Graphics profile, textures capped at quality 2 - and, through Default.ini,
+#: Initial.ini's ogl_bExclusive = 0: a WS_CHILD canvas, which Glide's
+#: DirectDraw exclusive mode refuses (DDERR_INVALIDPARAMS). From the next start
+#: on the game made no GL context and exited ~20 s in. The launchers now write
+#: ogl_bExclusive=1 at every start on a 3dfx box (stage-fleetres.py); these
+#: entries make the engine's OWN auto-adjust agree, so an in-game mode change
+#: keeps an exclusive canvas, and give each card its own profile. TSE matches
+#: the renderer alone ("*Voodoo5*") and its Initial.ini already says 1.
+#: They go BEFORE the first "3Dfx*" line; "Brian Paul" can never match those.
+TFE_GLSET_LST = 'Scripts/GLSettings/GLSettings.lst'
+TFE_GLSET_ENTRIES = (
+    '"Brian Paul" "*Voodoo5*"          "*" "3Dfx Voodoo5 - Mesa Glide ICD"        "3Dfx-V5-Mesa.ini"',
+    '"Brian Paul" "*Voodoo4*"          "*" "3Dfx Voodoo4 - Mesa Glide ICD"        "3Dfx-V5-Mesa.ini"',
+    '"Brian Paul" "*Voodoo3*"          "*" "3Dfx Voodoo3 - Mesa Glide ICD"        "3Dfx-V3-Mesa.ini"',
+    '"Brian Paul" "*Voodoo*Banshee*"   "*" "3Dfx Voodoo Banshee - Mesa Glide ICD" "3Dfx-V3-Mesa.ini"',
+    '"Brian Paul" "*Voodoo2*"          "*" "3Dfx Voodoo2 - Mesa Glide ICD"        "3Dfx-V2-Mesa.ini"',
+    '"Brian Paul" "*Voodoo*"           "*" "3Dfx Voodoo - Mesa Glide ICD"         "3Dfx-V1-Mesa.ini"',
+)
+
+
+def tfe_mesa_script(base):
+    """One profile per card family: the card's own TFE script, then an
+    exclusive canvas. Comments only - the .ini is engine shell script."""
+    return ('\n// written by scripts/fleet/stage-serioussam.py: the clean-room Mesa Glide\n'
+            '// ICD on a Voodoo. TFE matches a 3dfx card by a "3Dfx*" vendor and ours\n'
+            '// says Brian Paul, so GLSettings.lst names this file instead of %s.\n'
+            '// Same profile, plus an EXCLUSIVE canvas: a Voodoo ICD is fullscreen-only\n'
+            '// and Glide cannot take the WS_CHILD canvas Initial.ini asks for.\n\n'
+            'include "Scripts\\GLSettings\\%s";\n\n'
+            'ogl_bExclusive = 1;\n' % (base, base))
+
+
+TFE_GLSET_SCRIPTS = {
+    'Scripts/GLSettings/3Dfx-V5-Mesa.ini': tfe_mesa_script('3Dfx-V5.ini'),
+    'Scripts/GLSettings/3Dfx-V3-Mesa.ini': tfe_mesa_script('3Dfx-V3.ini'),
+    'Scripts/GLSettings/3Dfx-V2-Mesa.ini': tfe_mesa_script('3Dfx-V2.ini'),
+    'Scripts/GLSettings/3Dfx-V1-Mesa.ini': tfe_mesa_script('3Dfx-V1.ini'),
+}
+
+
+def tfe_glsettings_lst(text):
+    """TFE's GLSettings.lst with TFE_GLSET_ENTRIES before its first "3Dfx*"
+    line - unchanged when they are already there, in that order."""
+    nl = '\r\n' if '\r\n' in text else '\n'
+    lines = text.split(nl)
+    want = list(TFE_GLSET_ENTRIES)
+    have = [l for l in lines if l.startswith('"Brian Paul"')]
+    if have == want:
+        return text
+    lines = [l for l in lines if not l.startswith('"Brian Paul"')]
+    at = next(i for i, l in enumerate(lines) if l.startswith('"3Dfx*"'))
+    return nl.join(lines[:at] + want + [''] + lines[at:])
+
+
 #: The launchers are generated elsewhere (see above), so --check asserts what
 #: this script still cares about: that they EXIST, that they came from the
 #: canonical template, and that MOUNTDISC.BAT - the second implementation this
@@ -472,11 +536,14 @@ def files_for(name, t):
     sub = dict(t, dir=name, icon=ICON, tree_mb=tree_mb, iso_mb=iso_mb,
                rule='=' * 60,
                extra=('\n' + extra + '\n') if extra else '')
-    return {
+    files = {
         'launch.txt': launch_txt(t),
         'requires.json': requires_json(t) % sub,
         'NOTES.txt': NOTES % sub,
     }
+    if name == 'SeriousSamFirstEncounter':
+        files.update(TFE_GLSET_SCRIPTS)
+    return files
 
 
 def crlf(text):
@@ -571,6 +638,19 @@ def _stage(args, writer):
                 continue
             writer.write_bytes(p, want)
             print('%-28s %-46s written (%d bytes)' % (name, fn, len(want)))
+
+        if name == 'SeriousSamFirstEncounter':
+            p = os.path.join(tree, TFE_GLSET_LST)
+            have = open(p, 'rb').read().decode('latin1')
+            want = tfe_glsettings_lst(have)
+            if want == have:
+                print('%-28s %-46s ok' % (name, TFE_GLSET_LST))
+            elif args.check:
+                print('%-28s %-46s MISSING the Mesa Glide entries' % (name, TFE_GLSET_LST))
+                rc = 1
+            else:
+                writer.write_bytes(p, want.encode('latin1'))
+                print('%-28s %-46s written (Mesa Glide entries)' % (name, TFE_GLSET_LST))
     return rc
 
 

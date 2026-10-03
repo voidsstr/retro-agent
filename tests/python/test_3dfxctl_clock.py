@@ -136,4 +136,8 @@ def test_the_clock_tab_is_for_our_stack_with_a_driver_that_answers():
 
 
 def test_the_version_says_the_clock_is_in():
-    assert '#define CTL_VERSION     "2.1.1"' in SRC
+    # the Clock tab arrived in 2.1.0; a later fix release must not fail this
+    # (it pinned "2.1.1" exactly and broke at 2.1.2, 2026-10-03)
+    import re
+    m = re.search(r'#define CTL_VERSION\s+"(\d+)\.(\d+)\.(\d+)"', SRC)
+    assert m and tuple(int(x) for x in m.groups()) >= (2, 1, 0)

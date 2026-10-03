@@ -1,0 +1,1062 @@
+D C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:24:59][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:24:59][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:24:59][PROTO] frame_send: 6260 bytes
+[09:24:59][MAIN ] Client disconnected
+[09:25:01][MAIN ] Connection from 192.168.1.132:53446
+[09:25:01][MAIN ] handle_client: starting auth on socket 1380
+[09:25:01][PROTO] AUTH: success
+[09:25:01][MAIN ] Client authenticated
+[09:25:01][MAIN ] Client disconnected
+[09:25:05][MAIN ] Connection from 192.168.1.132:53460
+[09:25:05][MAIN ] handle_client: starting auth on socket 1320
+[09:25:05][PROTO] AUTH: success
+[09:25:05][MAIN ] Client authenticated
+[09:25:05][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:25:05][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:25:05][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:25:05][PROTO] frame_send: 6260 bytes
+[09:25:05][MAIN ] Client disconnected
+[09:25:11][MAIN ] Connection from 192.168.1.132:44826
+[09:25:11][MAIN ] handle_client: starting auth on socket 1296
+[09:25:11][PROTO] AUTH: success
+[09:25:11][MAIN ] Client authenticated
+[09:25:11][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:25:11][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:25:11][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:25:11][PROTO] frame_send: 6260 bytes
+[09:25:11][MAIN ] Client disconnected
+[09:25:17][MAIN ] Connection from 192.168.1.132:44834
+[09:25:17][MAIN ] handle_client: starting auth on socket 1380
+[09:25:17][PROTO] AUTH: success
+[09:25:17][MAIN ] Client authenticated
+[09:25:17][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:25:17][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:25:17][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:25:17][PROTO] frame_send: 6260 bytes
+[09:25:17][MAIN ] Client disconnected
+[09:25:17][MAIN ] Connection from 192.168.1.132:44846
+[09:25:17][MAIN ] handle_client: starting auth on socket 1320
+[09:25:17][PROTO] AUTH: success
+[09:25:17][MAIN ] Client authenticated
+[09:25:17][MAIN ] CMD: "PROCLIST" (8 bytes)
+[09:25:17][PROTO] frame_send: 1380 bytes
+[09:25:17][MAIN ] Client disconnected
+[09:25:17][MAIN ] Connection from 192.168.1.132:44854
+[09:25:17][MAIN ] handle_client: starting auth on socket 1296
+[09:25:17][PROTO] AUTH: success
+[09:25:17][MAIN ] Client authenticated
+[09:25:17][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:25:17][INPUT] WINLIST: found 4 visible windows
+[09:25:17][MAIN ] Client disconnected
+[09:25:23][MAIN ] Connection from 192.168.1.132:60864
+[09:25:23][MAIN ] handle_client: starting auth on socket 1548
+[09:25:23][PROTO] AUTH: success
+[09:25:23][MAIN ] Client authenticated
+[09:25:23][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:25:23][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:25:23][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:25:23][PROTO] frame_send: 6260 bytes
+[09:25:23][MAIN ] Client disconnected
+[09:25:30][MAIN ] Connection from 192.168.1.132:60880
+[09:25:30][MAIN ] handle_client: starting auth on socket 1296
+[09:25:30][PROTO] AUTH: success
+[09:25:30][MAIN ] Client authenticated
+[09:25:30][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:25:30][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:25:30][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:25:30][PROTO] frame_send: 6260 bytes
+[09:25:30][MAIN ] Client disconnected
+[09:25:31][MAIN ] Connection from 192.168.1.132:41740
+[09:25:31][MAIN ] handle_client: starting auth on socket 1240
+[09:25:31][PROTO] AUTH: success
+[09:25:31][MAIN ] Client authenticated
+[09:25:31][MAIN ] CMD: "GAMESYNC STATUS" (15 bytes)
+[09:25:31][MAIN ] CMD: "PROCLIST" (8 bytes)
+[09:25:31][PROTO] frame_send: 1380 bytes
+[09:25:31][MAIN ] CMD: "DOWNLOAD C:\Games\CounterStrike16\config\serverbrowser.vdf" (58 bytes)
+[09:25:31][FILE ] DOWNLOAD: CreateFileA("C:\Games\CounterStrike16\config\serverbrowser.vdf") = OK
+[09:25:31][FILE ] DOWNLOAD: GetFileSize = 350 bytes
+[09:25:31][MAIN ] CMD: "DOWNLOAD C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg" (54 bytes)
+[09:25:31][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake3-TeamArena\baseq3\autoexec.cfg") = OK
+[09:25:31][FILE ] DOWNLOAD: GetFileSize = 2699 bytes
+[09:25:31][PROTO] frame_send: 2700 bytes
+[09:25:31][MAIN ] CMD: "DOWNLOAD C:\Games\Quake2Complete\baseq2\autoexec.cfg" (52 bytes)
+[09:25:31][FILE ] DOWNLOAD: CreateFileA("C:\Games\Quake2Complete\baseq2\autoexec.cfg") = OK
+[09:25:31][FILE ] DOWNLOAD: GetFileSize = 4477 bytes
+[09:25:31][PROTO] frame_send: 4478 bytes
+[09:25:31][MAIN ] CMD: "DOWNLOAD C:\Games\UnrealGold\System\Unreal.ini" (46 bytes)
+[09:25:31][FILE ] DOWNLOAD: CreateFileA("C:\Games\UnrealGold\System\Unreal.ini") = OK
+[09:25:31][FILE ] DOWNLOAD: GetFileSize = 8907 bytes
+[09:25:31][PROTO] frame_send: 8908 bytes
+[09:25:31][MAIN ] CMD: "DOWNLOAD C:\Games\UT2003\System\UT2003.ini" (42 bytes)
+[09:25:31][FILE ] DOWNLOAD: CreateFileA("C:\Games\UT2003\System\UT2003.ini") = OK
+[09:25:31][FILE ] DOWNLOAD: GetFileSize = 13715 bytes
+[09:25:31][PROTO] frame_send: 13716 bytes
+[09:25:31][MAIN ] CMD: "DOWNLOAD C:\Games\UT2004\System\UT2004.ini" (42 bytes)
+[09:25:31][FILE ] DOWNLOAD: CreateFileA("C:\Games\UT2004\System\UT2004.ini") = OK
+[09:25:31][FILE ] DOWNLOAD: GetFileSize = 21817 bytes
+[09:25:31][PROTO] frame_send: 21818 bytes
+[09:25:31][MAIN ] CMD: "UPLOAD C:\Games\UT2004\System\UT2004.ini" (40 bytes)
+[09:25:31][PROTO] frame_recv: 21863 bytes
+[09:25:31][FILE ] UPLOAD: CreateFileA("C:\Games\UT2004\System\UT2004.ini") = OK
+[09:25:31][FILE ] UPLOAD: Complete, 21863 bytes to "C:\Games\UT2004\System\UT2004.ini"
+[09:25:31][MAIN ] CMD: "DOWNLOAD C:\Games\UnrealTournament436\System\UnrealTournament.ini" (65 bytes)
+[09:25:31][FILE ] DOWNLOAD: CreateFileA("C:\Games\UnrealTournament436\System\UnrealTournament.ini") = OK
+[09:25:31][FILE ] DOWNLOAD: GetFileSize = 17721 bytes
+[09:25:31][PROTO] frame_send: 17722 bytes
+[09:25:32][MAIN ] CMD: "DIRLIST C:\Games\Quake3-TeamArena" (33 bytes)
+[09:25:32][FILE ] DIRLIST: FindFirstFileA("C:\Games\Quake3-TeamArena\*")
+[09:25:32][FILE ] DIRLIST: entry: AAMENU.BAT (225 bytes)
+[09:25:32][FILE ] DIRLIST: entry: baseq3 (0 bytes, dir)
+[09:25:32][FILE ] DIRLIST: entry: COPYING.txt (15429 bytes)
+[09:25:32][FILE ] DIRLIST: entry: defrag (0 bytes, dir)
+[09:25:32][FILE ] DIRLIST: entry: FLEETGL.BAT (4094 bytes)
+[09:25:32][FILE ] DIRLIST: entry: FLEETRES.BAT (4917 bytes)
+[09:25:32][FILE ] DIRLIST: entry: FLEETRES.EXE (33280 bytes)
+[09:25:32][FILE ] DIRLIST: entry: glide3x.dll.sep25 (1005435 bytes)
+[09:25:32][FILE ] DIRLIST: entry: id-readme.txt (6910 bytes)
+[09:25:32][FILE ] DIRLIST: entry: id_patch_pk3s_Q3A_EULA.txt (9930 bytes)
+[09:25:32][FILE ] DIRLIST: entry: instaunlagged (0 bytes, dir)
+[09:25:32][FILE ] DIRLIST: entry: ioq3ded.x86.exe (687104 bytes)
+[09:25:32][FILE ] DIRLIST: entry: ioquake3.x86.exe (1363456 bytes)
+[09:25:32][FILE ] DIRLIST: entry: LANCHECK.BAT (245 bytes)
+[09:25:32][FILE ] DIRLIST: entry: launch.txt (203 bytes)
+[09:25:32][FILE ] DIRLIST: entry: libcurl-4.dll (224256 bytes)
+[09:25:32][FILE ] DIRLIST: entry: missionpack (0 bytes, dir)
+[09:25:32][FILE ] DIRLIST: entry: openal32.dll (135168 bytes)
+[09:25:32][FILE ] DIRLIST: entry: Play Quake III Arena - retail 1.32c.bat (2162 bytes)
+[09:25:32][FILE ] DIRLIST: entry: Play Quake III Arena.bat (1432 bytes)
+[09:25:32][FILE ] DIRLIST: entry: Play Team Arena.bat (1594 bytes)
+[09:25:32][FILE ] DIRLIST: entry: q3key (167 bytes)
+[09:25:32][FILE ] DIRLIST: entry: Quake III Arena Complete - READ ME.txt (953 bytes)
+[09:25:32][FILE ] DIRLIST: entry: quake3.exe (872448 bytes)
+[09:25:32][FILE ] DIRLIST: entry: README.txt (26823 bytes)
+[09:25:32][FILE ] DIRLIST: entry: requires.json (268 bytes)
+[09:25:32][FILE ] DIRLIST: entry: retrogl.dll.0176 (2773020 bytes)
+[09:25:32][FILE ] DIRLIST: entry: SDL.dll (338432 bytes)
+[09:25:32][FILE ] DIRLIST: entry: SERVERS-fleet.txt (948 bytes)
+[09:25:32][FILE ] DIRLIST: entry: SERVERS-online.txt (1377 bytes)
+[09:25:32][FILE ] DIRLIST: entry: uninstall-ioquake3-q3a.exe (100114 bytes)
+[09:25:32][FILE ] DIRLIST: entry: uninstall.exe (103463 bytes)
+[09:25:32][FILE ] DIRLIST: entry: unlagged (0 bytes, dir)
+[09:25:32][FILE ] DIRLIST: entry: V56KBENCH.BAT (523 bytes)
+[09:25:32][FILE ] DIRLIST: entry: voip-readme.txt (9947 bytes)
+[09:25:32][FILE ] DIRLIST: entry: VSYNCTEST.BAT (349 bytes)
+[09:25:32][PROTO] frame_send: 4273 bytes
+[09:25:32][MAIN ] CMD: "REGREAD HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "... (87 bytes)
+[09:25:32][REG  ] REGREAD: RegOpenKeyExA("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders") = OK
+[09:25:32][REG  ]   Value: "AppData" type=REG_SZ size=57
+[09:25:32][MAIN ] CMD: "DOWNLOAD C:\Documents and Settings\Administrator\Application Data\Quake3\serverc"... (88 bytes)
+[09:25:32][FILE ] DOWNLOAD: CreateFileA("C:\Documents and Settings\Administrator\Application Data\Quake3\servercache.dat") = OK
+[09:25:32][FILE ] DOWNLOAD: GetFileSize = 692748 bytes
+[09:25:32][PROTO] frame_send: 692749 bytes
+[09:25:32][MAIN ] Client disconnected
+[09:25:36][MAIN ] Connection from 192.168.1.132:41756
+[09:25:36][MAIN ] handle_client: starting auth on socket 1548
+[09:25:36][PROTO] AUTH: success
+[09:25:36][MAIN ] Client authenticated
+[09:25:36][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:25:36][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:25:36][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:25:36][PROTO] frame_send: 6260 bytes
+[09:25:36][MAIN ] Client disconnected
+[09:25:42][MAIN ] Connection from 192.168.1.132:43534
+[09:25:42][MAIN ] handle_client: starting auth on socket 1296
+[09:25:42][PROTO] AUTH: success
+[09:25:42][MAIN ] Client authenticated
+[09:25:42][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:25:42][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:25:42][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:25:42][PROTO] frame_send: 6260 bytes
+[09:25:42][MAIN ] Client disconnected
+[09:25:48][MAIN ] Connection from 192.168.1.132:43538
+[09:25:48][MAIN ] handle_client: starting auth on socket 1240
+[09:25:48][PROTO] AUTH: success
+[09:25:48][MAIN ] Client authenticated
+[09:25:48][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:25:48][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:25:48][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:25:48][PROTO] frame_send: 6260 bytes
+[09:25:48][MAIN ] Client disconnected
+[09:25:48][MAIN ] Connection from 192.168.1.132:43552
+[09:25:48][MAIN ] handle_client: starting auth on socket 1548
+[09:25:48][PROTO] AUTH: success
+[09:25:48][MAIN ] Client authenticated
+[09:25:48][MAIN ] CMD: "PROCLIST" (8 bytes)
+[09:25:48][PROTO] frame_send: 1380 bytes
+[09:25:48][MAIN ] Client disconnected
+[09:25:48][MAIN ] Connection from 192.168.1.132:43554
+[09:25:48][MAIN ] handle_client: starting auth on socket 1296
+[09:25:48][PROTO] AUTH: success
+[09:25:48][MAIN ] Client authenticated
+[09:25:48][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:25:48][INPUT] WINLIST: found 4 visible windows
+[09:25:48][MAIN ] Client disconnected
+[09:25:49][MAIN ] Connection from 192.168.1.132:43570
+[09:25:49][MAIN ] handle_client: starting auth on socket 1240
+[09:25:49][PROTO] AUTH: success
+[09:25:49][MAIN ] Client authenticated
+[09:25:49][MAIN ] Client disconnected
+[09:25:51][MAIN ] Connection from 192.168.1.132:58986
+[09:25:51][MAIN ] handle_client: starting auth on socket 1548
+[09:25:51][PROTO] AUTH: success
+[09:25:51][MAIN ] Client authenticated
+[09:25:51][MAIN ] CMD: "PING" (4 bytes)
+[09:25:51][MAIN ] Client disconnected
+[09:25:54][MAIN ] Connection from 192.168.1.132:58994
+[09:25:54][MAIN ] handle_client: starting auth on socket 1380
+[09:25:54][PROTO] AUTH: success
+[09:25:54][MAIN ] Client authenticated
+[09:25:54][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:25:54][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:25:54][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:25:54][PROTO] frame_send: 6260 bytes
+[09:25:54][MAIN ] Client disconnected
+[09:26:00][MAIN ] Connection from 192.168.1.132:59010
+[09:26:00][MAIN ] handle_client: starting auth on socket 1320
+[09:26:00][PROTO] AUTH: success
+[09:26:00][MAIN ] Client authenticated
+[09:26:00][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:26:00][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:26:00][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:26:00][PROTO] frame_send: 6260 bytes
+[09:26:00][MAIN ] Client disconnected
+[09:26:06][MAIN ] Connection from 192.168.1.132:42402
+[09:26:06][MAIN ] handle_client: starting auth on socket 1240
+[09:26:06][PROTO] AUTH: success
+[09:26:06][MAIN ] Client authenticated
+[09:26:06][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:26:06][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:26:06][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:26:06][PROTO] frame_send: 6260 bytes
+[09:26:06][MAIN ] Client disconnected
+[09:26:12][MAIN ] Connection from 192.168.1.132:57644
+[09:26:12][MAIN ] handle_client: starting auth on socket 1380
+[09:26:12][PROTO] AUTH: success
+[09:26:12][MAIN ] Client authenticated
+[09:26:12][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:26:12][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:26:12][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:26:12][PROTO] frame_send: 6260 bytes
+[09:26:12][MAIN ] Client disconnected
+[09:26:18][MAIN ] Connection from 192.168.1.132:57648
+[09:26:18][MAIN ] handle_client: starting auth on socket 1296
+[09:26:18][PROTO] AUTH: success
+[09:26:18][MAIN ] Client authenticated
+[09:26:18][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:26:18][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:26:18][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:26:18][PROTO] frame_send: 6260 bytes
+[09:26:18][MAIN ] Client disconnected
+[09:26:18][MAIN ] Connection from 192.168.1.132:57664
+[09:26:18][MAIN ] handle_client: starting auth on socket 1548
+[09:26:18][PROTO] AUTH: success
+[09:26:18][MAIN ] Client authenticated
+[09:26:18][MAIN ] CMD: "PROCLIST" (8 bytes)
+[09:26:18][PROTO] frame_send: 1381 bytes
+[09:26:18][MAIN ] Client disconnected
+[09:26:18][MAIN ] Connection from 192.168.1.132:57680
+[09:26:18][MAIN ] handle_client: starting auth on socket 1320
+[09:26:18][PROTO] AUTH: success
+[09:26:18][MAIN ] Client authenticated
+[09:26:18][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:26:18][INPUT] WINLIST: found 4 visible windows
+[09:26:18][MAIN ] Client disconnected
+[09:26:24][MAIN ] Connection from 192.168.1.132:40842
+[09:26:24][MAIN ] handle_client: starting auth on socket 1240
+[09:26:24][PROTO] AUTH: success
+[09:26:24][MAIN ] Client authenticated
+[09:26:24][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:26:24][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:26:24][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:26:24][PROTO] frame_send: 6260 bytes
+[09:26:24][MAIN ] Client disconnected
+[09:26:30][MAIN ] Connection from 192.168.1.132:40856
+[09:26:30][MAIN ] handle_client: starting auth on socket 1320
+[09:26:30][PROTO] AUTH: success
+[09:26:30][MAIN ] Client authenticated
+[09:26:30][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:26:30][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:26:30][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:26:30][PROTO] frame_send: 6260 bytes
+[09:26:30][MAIN ] Client disconnected
+[09:26:36][MAIN ] Connection from 192.168.1.132:56412
+[09:26:36][MAIN ] handle_client: starting auth on socket 1380
+[09:26:36][PROTO] AUTH: success
+[09:26:36][MAIN ] Client authenticated
+[09:26:36][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:26:36][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:26:36][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:26:36][PROTO] frame_send: 6260 bytes
+[09:26:36][MAIN ] Client disconnected
+[09:26:37][MAIN ] Connection from 192.168.1.132:56414
+[09:26:37][MAIN ] handle_client: starting auth on socket 1240
+[09:26:37][PROTO] AUTH: success
+[09:26:37][MAIN ] Client authenticated
+[09:26:37][MAIN ] Client disconnected
+[09:26:42][MAIN ] Connection from 192.168.1.132:58640
+[09:26:42][MAIN ] handle_client: starting auth on socket 1320
+[09:26:42][PROTO] AUTH: success
+[09:26:42][MAIN ] Client authenticated
+[09:26:42][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:26:42][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:26:42][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:26:42][PROTO] frame_send: 6260 bytes
+[09:26:42][MAIN ] Client disconnected
+[09:26:48][MAIN ] Connection from 192.168.1.132:58648
+[09:26:48][MAIN ] handle_client: starting auth on socket 1380
+[09:26:48][PROTO] AUTH: success
+[09:26:48][MAIN ] Client authenticated
+[09:26:48][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:26:48][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:26:48][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:26:48][PROTO] frame_send: 6260 bytes
+[09:26:48][MAIN ] Client disconnected
+[09:26:48][MAIN ] Connection from 192.168.1.132:58652
+[09:26:48][MAIN ] handle_client: starting auth on socket 1240
+[09:26:48][PROTO] AUTH: success
+[09:26:48][MAIN ] Client authenticated
+[09:26:48][MAIN ] CMD: "PROCLIST" (8 bytes)
+[09:26:48][PROTO] frame_send: 1381 bytes
+[09:26:48][MAIN ] Client disconnected
+[09:26:48][MAIN ] Connection from 192.168.1.132:58664
+[09:26:48][MAIN ] handle_client: starting auth on socket 1320
+[09:26:48][PROTO] AUTH: success
+[09:26:48][MAIN ] Client authenticated
+[09:26:48][MAIN ] CMD: "WINLIST" (7 bytes)
+[09:26:48][INPUT] WINLIST: found 4 visible windows
+[09:26:48][MAIN ] Client disconnected
+[09:26:54][MAIN ] Connection from 192.168.1.132:56116
+[09:26:54][MAIN ] handle_client: starting auth on socket 1764
+[09:26:54][PROTO] AUTH: success
+[09:26:54][MAIN ] Client authenticated
+[09:26:54][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:26:54][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:26:54][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:26:54][PROTO] frame_send: 6260 bytes
+[09:26:54][MAIN ] Client disconnected
+[09:27:00][MAIN ] Connection from 192.168.1.132:56120
+[09:27:00][MAIN ] handle_client: starting auth on socket 1320
+[09:27:00][PROTO] AUTH: success
+[09:27:00][MAIN ] Client authenticated
+[09:27:00][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:27:00][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:27:00][FILE ] DOWNLOAD: GetFileSize = 6259 bytes
+[09:27:00][PROTO] frame_send: 6260 bytes
+[09:27:00][MAIN ] Client disconnected
+[09:27:06][MAIN ] Connection from 192.168.1.132:35914
+[09:27:06][MAIN ] handle_client: starting auth on socket 1296
+[09:27:06][PROTO] AUTH: success
+[09:27:06][MAIN ] Client authenticated
+[09:27:06][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\SeriousSam.log" (58 bytes)
+[09:27:06][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\SeriousSam.log") = OK
+[09:27:06][FILE ] DOWNLOAD: GetFileSize = 6638 bytes
+[09:27:06][PROTO] frame_send: 6639 bytes
+[09:27:06][MAIN ] Client disconnected
+[09:27:06][MAIN ] Connection from 192.168.1.132:35924
+[09:27:06][MAIN ] handle_client: starting auth on socket 1764
+[09:27:06][PROTO] AUTH: success
+[09:27:06][MAIN ] Client authenticated
+[09:27:06][MAIN ] CMD: "EXEC cmd /c taskkill /im "SeriousSam.exe" 2>nul" (47 bytes)
+[09:27:06][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /im "SeriousSam.exe" 2>nul"
+[09:27:06][EXEC ] CreateProcessA OK, PID=2144
+[09:27:07][EXEC ] Process 2144 exited: code=0, output=73 bytes, 1328ms elapsed
+[09:27:07][MAIN ] Client disconnected
+[09:27:07][MAIN ] Connection from 192.168.1.132:35926
+[09:27:07][MAIN ] handle_client: starting auth on socket 1320
+[09:27:07][PROTO] AUTH: success
+[09:27:07][MAIN ] Client authenticated
+[09:27:07][MAIN ] CMD: "EXEC cmd /c tasklist /fi "imagename eq SeriousSam.exe" /nh" (58 bytes)
+[09:27:07][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c tasklist /fi "imagename eq SeriousSam.exe" /nh"
+[09:27:07][EXEC ] CreateProcessA OK, PID=548
+[09:27:07][EXEC ] Process 548 exited: code=0, output=75 bytes, 297ms elapsed
+[09:27:07][MAIN ] Client disconnected
+[09:27:09][MAIN ] Connection from 192.168.1.132:35934
+[09:27:09][MAIN ] handle_client: starting auth on socket 1296
+[09:27:09][PROTO] AUTH: success
+[09:27:09][MAIN ] Client authenticated
+[09:27:09][MAIN ] CMD: "EXEC cmd /c tasklist /fi "imagename eq SeriousSam.exe" /nh" (58 bytes)
+[09:27:09][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c tasklist /fi "imagename eq SeriousSam.exe" /nh"
+[09:27:09][EXEC ] CreateProcessA OK, PID=3160
+[09:27:14][EXEC ] Process 3160 exited: code=0, output=75 bytes, 4703ms elapsed
+[09:27:14][MAIN ] Client disconnected
+[09:27:16][MAIN ] Connection from 192.168.1.132:56620
+[09:27:16][MAIN ] handle_client: starting auth on socket 1764
+[09:27:16][PROTO] AUTH: success
+[09:27:16][MAIN ] Client authenticated
+[09:27:16][MAIN ] CMD: "EXEC cmd /c tasklist /fi "imagename eq SeriousSam.exe" /nh" (58 bytes)
+[09:27:16][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c tasklist /fi "imagename eq SeriousSam.exe" /nh"
+[09:27:16][EXEC ] CreateProcessA OK, PID=3220
+[09:27:17][EXEC ] Process 3220 exited: code=0, output=75 bytes, 438ms elapsed
+[09:27:17][MAIN ] Client disconnected
+[09:27:19][MAIN ] Connection from 192.168.1.132:56634
+[09:27:19][MAIN ] handle_client: starting auth on socket 1320
+[09:27:19][PROTO] AUTH: success
+[09:27:19][MAIN ] Client authenticated
+[09:27:19][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "SeriousSam.exe" 2>nul" (50 bytes)
+[09:27:19][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "SeriousSam.exe" 2>nul"
+[09:27:19][EXEC ] CreateProcessA OK, PID=2088
+[09:27:20][EXEC ] Process 2088 exited: code=128, output=0 bytes, 1157ms elapsed
+[09:27:20][MAIN ] Client disconnected
+[09:27:23][MAIN ] Connection from 192.168.1.132:41980
+[09:27:23][MAIN ] handle_client: starting auth on socket 1380
+[09:27:23][PROTO] AUTH: success
+[09:27:23][MAIN ] Client authenticated
+[09:27:23][MAIN ] CMD: "UPLOAD C:\Games\SeriousSamSecondEncounter\Scripts\PersistentSymbols.ini" (71 bytes)
+[09:27:23][PROTO] frame_recv: 21504 bytes
+[09:27:23][FILE ] UPLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\Scripts\PersistentSymbols.ini") = OK
+[09:27:23][FILE ] UPLOAD: Complete, 21504 bytes to "C:\Games\SeriousSamSecondEncounter\Scripts\PersistentSymbols.ini"
+[09:27:23][MAIN ] Client disconnected
+[09:27:23][MAIN ] Connection from 192.168.1.132:41984
+[09:27:23][MAIN ] handle_client: starting auth on socket 1764
+[09:27:23][PROTO] AUTH: success
+[09:27:23][MAIN ] Client authenticated
+[09:27:23][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamSecondEncounter\Scripts\PersistentSymbols.ini" (73 bytes)
+[09:27:23][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamSecondEncounter\Scripts\PersistentSymbols.ini") = OK
+[09:27:23][FILE ] DOWNLOAD: GetFileSize = 21504 bytes
+[09:27:23][PROTO] frame_send: 21505 bytes
+[09:27:23][MAIN ] Client disconnected
+[09:27:23][MAIN ] Connection from 192.168.1.132:41986
+[09:27:23][MAIN ] handle_client: starting auth on socket 1320
+[09:27:23][PROTO] AUTH: success
+[09:27:23][MAIN ] Client authenticated
+[09:27:23][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\Games\SeriousSamSecondEncounter\Scripts\v56kbench.ini""... (147 bytes)
+[09:27:23][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\Games\SeriousSamSecondEncounter\Scripts\v56kbench.ini" "C:\Games\SeriousSamSecondEncounter\V56KBENCH.BAT" 2>nul & echo ok"
+[09:27:23][EXEC ] CreateProcessA OK, PID=2112
+[09:27:23][EXEC ] Process 2112 exited: code=0, output=4 bytes, 94ms elapsed
+[09:27:23][MAIN ] Client disconnected
+[09:27:23][MAIN ] Connection from 192.168.1.132:41996
+[09:27:23][MAIN ] handle_client: starting auth on socket 1380
+[09:27:23][PROTO] AUTH: success
+[09:27:23][MAIN ] Client authenticated
+[09:27:23][MAIN ] CMD: "PING" (4 bytes)
+[09:27:23][MAIN ] Client disconnected
+[09:27:23][MAIN ] Connection from 192.168.1.132:42008
+[09:27:23][MAIN ] handle_client: starting auth on socket 1764
+[09:27:23][PROTO] AUTH: success
+[09:27:23][MAIN ] Client authenticated
+[09:27:23][MAIN ] CMD: "REGWRITE HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08"... (147 bytes)
+[09:27:23][REG  ] REGWRITE: key="HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide" name="SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ
+[09:27:23][REG  ] REGWRITE: RegSetValueExA = OK
+[09:27:23][MAIN ] Client disconnected
+[09:27:23][MAIN ] Connection from 192.168.1.132:42022
+[09:27:23][MAIN ] handle_client: starting auth on socket 1320
+[09:27:23][PROTO] AUTH: success
+[09:27:23][MAIN ] Client authenticated
+[09:27:23][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-080"... (110 bytes)
+[09:27:23][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide") = OK
+[09:27:23][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[09:27:23][MAIN ] Client disconnected
+[09:27:23][MAIN ] Connection from 192.168.1.132:42038
+[09:27:23][MAIN ] handle_client: starting auth on socket 1380
+[09:27:23][PROTO] AUTH: success
+[09:27:23][MAIN ] Client authenticated
+[09:27:23][MAIN ] CMD: "HWPROFILE" (9 bytes)
+[09:27:23][HWPROFILE] hash=dec95d42ad08a34d cpu="AuthenticAMD" 2004MHz(registry) x1 ram=255MB gpu=121A:0009 "vcr-kmd Voodoo 5 6000 (open driver)" vram=64MB level=fixed os=winxp caps=3
+[09:27:23][PROTO] frame_send: 2049 bytes
+[09:27:23][MAIN ] Client disconnected
+[09:27:24][MAIN ] Connection from 192.168.1.132:42048
+[09:27:24][MAIN ] handle_client: starting auth on socket 1548
+[09:27:24][PROTO] AUTH: success
+[09:27:24][MAIN ] Client authenticated
+[09:27:24][MAIN ] CMD: "EXEC cmd /c reg add "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v DoRepor"... (102 bytes)
+[09:27:24][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg add "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v DoReport /t REG_DWORD /d 0 /f"
+[09:27:24][EXEC ] CreateProcessA OK, PID=1856
+[09:27:24][EXEC ] Process 1856 exited: code=0, output=40 bytes, 250ms elapsed
+[09:27:24][MAIN ] Client disconnected
+[09:27:24][MAIN ] Connection from 192.168.1.132:42054
+[09:27:24][MAIN ] handle_client: starting auth on socket 1764
+[09:27:24][PROTO] AUTH: success
+[09:27:24][MAIN ] Client authenticated
+[09:27:24][MAIN ] CMD: "EXEC cmd /c reg add "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v ShowUI "... (100 bytes)
+[09:27:24][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg add "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v ShowUI /t REG_DWORD /d 0 /f"
+[09:27:24][EXEC ] CreateProcessA OK, PID=1160
+[09:27:24][EXEC ] Process 1160 exited: code=0, output=40 bytes, 78ms elapsed
+[09:27:24][MAIN ] Client disconnected
+[09:27:24][MAIN ] Connection from 192.168.1.132:42062
+[09:27:24][MAIN ] handle_client: starting auth on socket 1348
+[09:27:24][PROTO] AUTH: success
+[09:27:24][MAIN ] Client authenticated
+[09:27:24][MAIN ] CMD: "EXEC cmd /c reg add "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /v ErrorMode"... (101 bytes)
+[09:27:24][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg add "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /v ErrorMode /t REG_DWORD /d 2 /f"
+[09:27:24][EXEC ] CreateProcessA OK, PID=2580
+[09:27:24][EXEC ] Process 2580 exited: code=0, output=40 bytes, 78ms elapsed
+[09:27:24][MAIN ] Client disconnected
+[09:27:24][MAIN ] Connection from 192.168.1.132:42076
+[09:27:24][MAIN ] handle_client: starting auth on socket 1548
+[09:27:24][PROTO] AUTH: success
+[09:27:24][MAIN ] Client authenticated
+[09:27:24][MAIN ] CMD: "EXEC cmd /c reg add "HKLM\SOFTWARE\Microsoft\DrWatson" /v VisualNotification /t "... (97 bytes)
+[09:27:24][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg add "HKLM\SOFTWARE\Microsoft\DrWatson" /v VisualNotification /t REG_DWORD /d 0 /f"
+[09:27:24][EXEC ] CreateProcessA OK, PID=2464
+[09:27:24][EXEC ] Process 2464 exited: code=0, output=40 bytes, 78ms elapsed
+[09:27:24][MAIN ] Client disconnected
+[09:27:24][MAIN ] Connection from 192.168.1.132:42084
+[09:27:24][MAIN ] handle_client: starting auth on socket 1764
+[09:27:24][PROTO] AUTH: success
+[09:27:24][MAIN ] Client authenticated
+[09:27:24][MAIN ] CMD: "EXEC cmd /c reg query "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v DoRep"... (89 bytes)
+[09:27:24][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg query "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v DoReport 2>nul"
+[09:27:24][EXEC ] CreateProcessA OK, PID=3048
+[09:27:24][EXEC ] Process 3048 exited: code=0, output=120 bytes, 79ms elapsed
+[09:27:24][MAIN ] Client disconnected
+[09:27:24][MAIN ] Connection from 192.168.1.132:42098
+[09:27:24][MAIN ] handle_client: starting auth on socket 1348
+[09:27:24][PROTO] AUTH: success
+[09:27:24][MAIN ] Client authenticated
+[09:27:24][MAIN ] CMD: "EXEC cmd /c reg query "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v ShowU"... (87 bytes)
+[09:27:24][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg query "HKLM\SOFTWARE\Microsoft\PCHealth\ErrorReporting" /v ShowUI 2>nul"
+[09:27:24][EXEC ] CreateProcessA OK, PID=1432
+[09:27:24][EXEC ] Process 1432 exited: code=0, output=118 bytes, 63ms elapsed
+[09:27:24][MAIN ] Client disconnected
+[09:27:24][MAIN ] Connection from 192.168.1.132:42100
+[09:27:24][MAIN ] handle_client: starting auth on socket 1548
+[09:27:24][PROTO] AUTH: success
+[09:27:24][MAIN ] Client authenticated
+[09:27:24][MAIN ] CMD: "EXEC cmd /c reg query "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /v ErrorMo"... (88 bytes)
+[09:27:24][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg query "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /v ErrorMode 2>nul"
+[09:27:24][EXEC ] CreateProcessA OK, PID=3352
+[09:27:24][EXEC ] Process 3352 exited: code=0, output=119 bytes, 63ms elapsed
+[09:27:24][MAIN ] Client disconnected
+[09:27:24][MAIN ] Connection from 192.168.1.132:42110
+[09:27:24][MAIN ] handle_client: starting auth on socket 1764
+[09:27:24][PROTO] AUTH: success
+[09:27:24][MAIN ] Client authenticated
+[09:27:24][MAIN ] CMD: "EXEC cmd /c reg query "HKLM\SOFTWARE\Microsoft\DrWatson" /v VisualNotification 2"... (84 bytes)
+[09:27:24][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c reg query "HKLM\SOFTWARE\Microsoft\DrWatson" /v VisualNotification 2>nul"
+[09:27:24][EXEC ] CreateProcessA OK, PID=3132
+[09:27:24][EXEC ] Process 3132 exited: code=0, output=115 bytes, 63ms elapsed
+[09:27:24][MAIN ] Client disconnected
+[09:27:24][MAIN ] Connection from 192.168.1.132:42112
+[09:27:24][MAIN ] handle_client: starting auth on socket 1348
+[09:27:24][PROTO] AUTH: success
+[09:27:24][MAIN ] Client authenticated
+[09:27:24][MAIN ] CMD: "AI_DISABLE" (10 bytes)
+[09:27:24][FILE ] AI: engine DISABLED via AI_DISABLE
+[09:27:24][MAIN ] Client disconnected
+[09:27:24][MAIN ] Connection from 192.168.1.132:42128
+[09:27:24][MAIN ] handle_client: starting auth on socket 1548
+[09:27:24][PROTO] AUTH: success
+[09:27:24][MAIN ] Client authenticated
+[09:27:24][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "retro-infer.exe"" (45 bytes)
+[09:27:24][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "retro-infer.exe""
+[09:27:24][EXEC ] CreateProcessA OK, PID=2908
+[09:27:25][EXEC ] Process 2908 exited: code=128, output=49 bytes, 109ms elapsed
+[09:27:25][MAIN ] Client disconnected
+[09:27:25][MAIN ] Connection from 192.168.1.132:42138
+[09:27:25][MAIN ] handle_client: starting auth on socket 1764
+[09:27:25][PROTO] AUTH: success
+[09:27:25][MAIN ] Client authenticated
+[09:27:25][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "rotate_wall.exe"" (45 bytes)
+[09:27:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "rotate_wall.exe""
+[09:27:25][EXEC ] CreateProcessA OK, PID=2696
+[09:27:25][EXEC ] Process 2696 exited: code=128, output=49 bytes, 109ms elapsed
+[09:27:25][MAIN ] Client disconnected
+[09:27:25][MAIN ] Connection from 192.168.1.132:42152
+[09:27:25][MAIN ] handle_client: starting auth on socket 1348
+[09:27:25][PROTO] AUTH: success
+[09:27:25][MAIN ] Client authenticated
+[09:27:25][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "wuauclt.exe"" (41 bytes)
+[09:27:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "wuauclt.exe""
+[09:27:25][EXEC ] CreateProcessA OK, PID=3424
+[09:27:25][EXEC ] Process 3424 exited: code=128, output=45 bytes, 125ms elapsed
+[09:27:25][MAIN ] Client disconnected
+[09:27:25][MAIN ] Connection from 192.168.1.132:42162
+[09:27:25][MAIN ] handle_client: starting auth on socket 1548
+[09:27:25][PROTO] AUTH: success
+[09:27:25][MAIN ] Client authenticated
+[09:27:25][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "3dfxMan.exe"" (41 bytes)
+[09:27:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "3dfxMan.exe""
+[09:27:25][MAIN ] Connection from 192.168.1.132:42172
+[09:27:25][EXEC ] CreateProcessA OK, PID=3640
+[09:27:25][MAIN ] handle_client: starting auth on socket 1380
+[09:27:25][PROTO] AUTH: success
+[09:27:25][MAIN ] Client authenticated
+[09:27:25][MAIN ] Client disconnected
+[09:27:25][EXEC ] Process 3640 exited: code=128, output=45 bytes, 110ms elapsed
+[09:27:25][MAIN ] Client disconnected
+[09:27:25][MAIN ] Connection from 192.168.1.132:42178
+[09:27:25][MAIN ] handle_client: starting auth on socket 1764
+[09:27:25][PROTO] AUTH: success
+[09:27:25][MAIN ] Client authenticated
+[09:27:25][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "daemon.exe"" (40 bytes)
+[09:27:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "daemon.exe""
+[09:27:25][EXEC ] CreateProcessA OK, PID=3620
+[09:27:25][EXEC ] Process 3620 exited: code=128, output=44 bytes, 109ms elapsed
+[09:27:25][MAIN ] Client disconnected
+[09:27:25][MAIN ] Connection from 192.168.1.132:42186
+[09:27:25][MAIN ] handle_client: starting auth on socket 1348
+[09:27:25][PROTO] AUTH: success
+[09:27:25][MAIN ] Client authenticated
+[09:27:25][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "wmiprvse.exe"" (42 bytes)
+[09:27:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "wmiprvse.exe""
+[09:27:25][EXEC ] CreateProcessA OK, PID=2744
+[09:27:25][EXEC ] Process 2744 exited: code=0, output=72 bytes, 109ms elapsed
+[09:27:25][MAIN ] Client disconnected
+[09:27:25][MAIN ] Connection from 192.168.1.132:42194
+[09:27:25][MAIN ] handle_client: starting auth on socket 1548
+[09:27:25][PROTO] AUTH: success
+[09:27:25][MAIN ] Client authenticated
+[09:27:25][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "dwwin.exe"" (39 bytes)
+[09:27:25][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "dwwin.exe""
+[09:27:25][EXEC ] CreateProcessA OK, PID=1016
+[09:27:27][EXEC ] Process 1016 exited: code=128, output=43 bytes, 1578ms elapsed
+[09:27:27][MAIN ] Client disconnected
+[09:27:27][MAIN ] Connection from 192.168.1.132:42204
+[09:27:27][MAIN ] handle_client: starting auth on socket 1764
+[09:27:27][PROTO] AUTH: success
+[09:27:27][MAIN ] Client authenticated
+[09:27:27][MAIN ] CMD: "EXEC cmd /c taskkill /f /im "dumprep.exe"" (41 bytes)
+[09:27:27][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /im "dumprep.exe""
+[09:27:27][EXEC ] CreateProcessA OK, PID=3848
+[09:27:27][EXEC ] Process 3848 exited: code=128, output=45 bytes, 110ms elapsed
+[09:27:27][MAIN ] Client disconnected
+[09:27:27][MAIN ] Connection from 192.168.1.132:42214
+[09:27:27][MAIN ] handle_client: starting auth on socket 1348
+[09:27:27][PROTO] AUTH: success
+[09:27:27][MAIN ] Client authenticated
+[09:27:27][MAIN ] CMD: "EXEC cmd /c taskkill /f /fi "windowtitle eq Found New Hardware Wizard"" (70 bytes)
+[09:27:27][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /f /fi "windowtitle eq Found New Hardware Wizard""
+[09:27:27][EXEC ] CreateProcessA OK, PID=1968
+[09:27:27][EXEC ] Process 1968 exited: code=0, output=53 bytes, 125ms elapsed
+[09:27:27][MAIN ] Client disconnected
+[09:27:27][MAIN ] Connection from 192.168.1.132:42220
+[09:27:27][MAIN ] handle_client: starting auth on socket 1548
+[09:27:27][PROTO] AUTH: success
+[09:27:27][MAIN ] Client authenticated
+[09:27:27][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\glide3x.dll" (for %I in ("C:\WINDOWS\s"... (130 bytes)
+[09:27:27][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\glide3x.dll" (for %I in ("C:\WINDOWS\system32\glide3x.dll") do @echo %~zI) else (echo -)"
+[09:27:27][EXEC ] CreateProcessA OK, PID=232
+[09:27:27][EXEC ] Process 232 exited: code=0, output=9 bytes, 47ms elapsed
+[09:27:27][MAIN ] Client disconnected
+[09:27:27][MAIN ] Connection from 192.168.1.132:42234
+[09:27:27][MAIN ] handle_client: starting auth on socket 1764
+[09:27:27][PROTO] AUTH: success
+[09:27:27][MAIN ] Client authenticated
+[09:27:27][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\glide3x.dll" (40 bytes)
+[09:27:27][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\glide3x.dll") = OK
+[09:27:27][FILE ] DOWNLOAD: GetFileSize = 1025930 bytes
+[09:27:27][PROTO] frame_send: 1025931 bytes
+[09:27:27][MAIN ] Client disconnected
+[09:27:27][MAIN ] Connection from 192.168.1.132:42246
+[09:27:27][MAIN ] handle_client: starting auth on socket 1348
+[09:27:27][PROTO] AUTH: success
+[09:27:27][MAIN ] Client authenticated
+[09:27:27][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\glide2x.dll" (for %I in ("C:\WINDOWS\s"... (130 bytes)
+[09:27:27][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\glide2x.dll" (for %I in ("C:\WINDOWS\system32\glide2x.dll") do @echo %~zI) else (echo -)"
+[09:27:27][EXEC ] CreateProcessA OK, PID=3080
+[09:27:27][EXEC ] Process 3080 exited: code=0, output=7 bytes, 78ms elapsed
+[09:27:27][MAIN ] Client disconnected
+[09:27:27][MAIN ] Connection from 192.168.1.132:42248
+[09:27:27][MAIN ] handle_client: starting auth on socket 1548
+[09:27:27][PROTO] AUTH: success
+[09:27:27][MAIN ] Client authenticated
+[09:27:27][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\glide2x.dll" (40 bytes)
+[09:27:27][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\glide2x.dll") = OK
+[09:27:27][FILE ] DOWNLOAD: GetFileSize = 94208 bytes
+[09:27:27][PROTO] frame_send: 94209 bytes
+[09:27:27][MAIN ] Client disconnected
+[09:27:27][MAIN ] Connection from 192.168.1.132:42250
+[09:27:27][MAIN ] handle_client: starting auth on socket 1764
+[09:27:27][PROTO] AUTH: success
+[09:27:27][MAIN ] Client authenticated
+[09:27:27][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\3dfxOGL.dll" (for %I in ("C:\WINDOWS\s"... (130 bytes)
+[09:27:27][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\3dfxOGL.dll" (for %I in ("C:\WINDOWS\system32\3dfxOGL.dll") do @echo %~zI) else (echo -)"
+[09:27:27][EXEC ] CreateProcessA OK, PID=1640
+[09:27:27][EXEC ] Process 1640 exited: code=0, output=9 bytes, 47ms elapsed
+[09:27:27][MAIN ] Client disconnected
+[09:27:27][MAIN ] Connection from 192.168.1.132:42254
+[09:27:27][MAIN ] handle_client: starting auth on socket 1348
+[09:27:27][PROTO] AUTH: success
+[09:27:27][MAIN ] Client authenticated
+[09:27:27][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\3dfxOGL.dll" (40 bytes)
+[09:27:27][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\3dfxOGL.dll") = OK
+[09:27:27][FILE ] DOWNLOAD: GetFileSize = 2646009 bytes
+[09:27:27][PROTO] frame_send: 2646010 bytes
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42266
+[09:27:28][MAIN ] handle_client: starting auth on socket 1548
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\3dfxvs.dll" (for %I in ("C:\WINDOWS\sy"... (128 bytes)
+[09:27:28][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\3dfxvs.dll" (for %I in ("C:\WINDOWS\system32\3dfxvs.dll") do @echo %~zI) else (echo -)"
+[09:27:28][EXEC ] CreateProcessA OK, PID=2452
+[09:27:28][EXEC ] Process 2452 exited: code=0, output=8 bytes, 47ms elapsed
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42270
+[09:27:28][MAIN ] handle_client: starting auth on socket 1764
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\3dfxvs.dll" (39 bytes)
+[09:27:28][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\3dfxvs.dll") = OK
+[09:27:28][FILE ] DOWNLOAD: GetFileSize = 610240 bytes
+[09:27:28][PROTO] frame_send: 610241 bytes
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42278
+[09:27:28][MAIN ] handle_client: starting auth on socket 1348
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\drivers\3dfxvsm.sys" (for %I in ("C:\W"... (146 bytes)
+[09:27:28][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\drivers\3dfxvsm.sys" (for %I in ("C:\WINDOWS\system32\drivers\3dfxvsm.sys") do @echo %~zI) else (echo -)"
+[09:27:28][EXEC ] CreateProcessA OK, PID=4044
+[09:27:28][EXEC ] Process 4044 exited: code=0, output=8 bytes, 78ms elapsed
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42288
+[09:27:28][MAIN ] handle_client: starting auth on socket 1548
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\drivers\3dfxvsm.sys" (48 bytes)
+[09:27:28][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\drivers\3dfxvsm.sys") = OK
+[09:27:28][FILE ] DOWNLOAD: GetFileSize = 174720 bytes
+[09:27:28][PROTO] frame_send: 174721 bytes
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42302
+[09:27:28][MAIN ] handle_client: starting auth on socket 1764
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\vcrdd.dll" (for %I in ("C:\WINDOWS\sys"... (126 bytes)
+[09:27:28][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\vcrdd.dll" (for %I in ("C:\WINDOWS\system32\vcrdd.dll") do @echo %~zI) else (echo -)"
+[09:27:28][EXEC ] CreateProcessA OK, PID=792
+[09:27:28][EXEC ] Process 792 exited: code=0, output=8 bytes, 47ms elapsed
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42312
+[09:27:28][MAIN ] handle_client: starting auth on socket 1348
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\vcrdd.dll" (38 bytes)
+[09:27:28][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\vcrdd.dll") = OK
+[09:27:28][FILE ] DOWNLOAD: GetFileSize = 106351 bytes
+[09:27:28][PROTO] frame_send: 106352 bytes
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42320
+[09:27:28][MAIN ] handle_client: starting auth on socket 1548
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\drivers\vcrmp.sys" (for %I in ("C:\WIN"... (142 bytes)
+[09:27:28][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\drivers\vcrmp.sys" (for %I in ("C:\WINDOWS\system32\drivers\vcrmp.sys") do @echo %~zI) else (echo -)"
+[09:27:28][EXEC ] CreateProcessA OK, PID=2104
+[09:27:28][EXEC ] Process 2104 exited: code=0, output=8 bytes, 94ms elapsed
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42324
+[09:27:28][MAIN ] handle_client: starting auth on socket 1764
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\drivers\vcrmp.sys" (46 bytes)
+[09:27:28][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\drivers\vcrmp.sys") = OK
+[09:27:28][FILE ] DOWNLOAD: GetFileSize = 130105 bytes
+[09:27:28][PROTO] frame_send: 130106 bytes
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42334
+[09:27:28][MAIN ] handle_client: starting auth on socket 1348
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "HWPROFILE" (9 bytes)
+[09:27:28][HWPROFILE] hash=dec95d42ad08a34d cpu="AuthenticAMD" 2004MHz(registry) x1 ram=255MB gpu=121A:0009 "vcr-kmd Voodoo 5 6000 (open driver)" vram=64MB level=fixed os=winxp caps=3
+[09:27:28][PROTO] frame_send: 2049 bytes
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42338
+[09:27:28][MAIN ] handle_client: starting auth on socket 1320
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-080"... (95 bytes)
+[09:27:28][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001") = OK
+[09:27:28][REG  ]   Value: "InfPath" type=REG_SZ size=9
+[09:27:28][REG  ]   Value: "InfSection" type=REG_SZ size=4
+[09:27:28][REG  ]   Value: "ProviderName" type=REG_SZ size=39
+[09:27:28][REG  ]   Value: "DriverDateData" type=REG_BINARY size=8
+[09:27:28][REG  ]   Value: "DriverDate" type=REG_SZ size=10
+[09:27:28][REG  ]   Value: "DriverVersion" type=REG_SZ size=8
+[09:27:28][REG  ]   Value: "MatchingDeviceId" type=REG_SZ size=38
+[09:27:28][REG  ]   Value: "DriverDesc" type=REG_SZ size=36
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42348
+[09:27:28][MAIN ] handle_client: starting auth on socket 1548
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "EXEC cmd /c if exist "C:\Games\SeriousSamFirstEncounter\SeriousSam.exe" (for %I "... (164 bytes)
+[09:27:28][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\Games\SeriousSamFirstEncounter\SeriousSam.exe" (for %I in ("C:\Games\SeriousSamFirstEncounter\SeriousSam.exe") do @echo %~zI) else (echo -)"
+[09:27:28][EXEC ] CreateProcessA OK, PID=2072
+[09:27:28][EXEC ] Process 2072 exited: code=0, output=3 bytes, 47ms elapsed
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42352
+[09:27:28][MAIN ] handle_client: starting auth on socket 1292
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamFirstEncounter\SeriousSam.exe" (57 bytes)
+[09:27:28][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamFirstEncounter\SeriousSam.exe") failed, error 2
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42364
+[09:27:28][MAIN ] handle_client: starting auth on socket 1320
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "EXEC cmd /c if exist "C:\Games\SeriousSamFirstEncounter\System\SeriousSam.exe" ("... (178 bytes)
+[09:27:28][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\Games\SeriousSamFirstEncounter\System\SeriousSam.exe" (for %I in ("C:\Games\SeriousSamFirstEncounter\System\SeriousSam.exe") do @echo %~zI) else (echo -)"
+[09:27:28][EXEC ] CreateProcessA OK, PID=3920
+[09:27:28][EXEC ] Process 3920 exited: code=0, output=3 bytes, 47ms elapsed
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42372
+[09:27:28][MAIN ] handle_client: starting auth on socket 1548
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamFirstEncounter\System\SeriousSam.exe" (64 bytes)
+[09:27:28][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamFirstEncounter\System\SeriousSam.exe") failed, error 3
+[09:27:28][MAIN ] Client disconnected
+[09:27:28][MAIN ] Connection from 192.168.1.132:42374
+[09:27:28][MAIN ] handle_client: starting auth on socket 1292
+[09:27:28][PROTO] AUTH: success
+[09:27:28][MAIN ] Client authenticated
+[09:27:28][MAIN ] CMD: "EXEC cmd /c if exist "C:\Games\SeriousSamFirstEncounter\SeriousSam.exe" (for %I "... (164 bytes)
+[09:27:28][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\Games\SeriousSamFirstEncounter\SeriousSam.exe" (for %I in ("C:\Games\SeriousSamFirstEncounter\SeriousSam.exe") do @echo %~zI) else (echo -)"
+[09:27:28][EXEC ] CreateProcessA OK, PID=2064
+[09:27:29][EXEC ] Process 2064 exited: code=0, output=3 bytes, 47ms elapsed
+[09:27:29][MAIN ] Client disconnected
+[09:27:29][MAIN ] Connection from 192.168.1.132:42388
+[09:27:29][MAIN ] handle_client: starting auth on socket 1320
+[09:27:29][PROTO] AUTH: success
+[09:27:29][MAIN ] Client authenticated
+[09:27:29][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamFirstEncounter\SeriousSam.exe" (57 bytes)
+[09:27:29][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamFirstEncounter\SeriousSam.exe") failed, error 2
+[09:27:29][MAIN ] Client disconnected
+[09:27:29][MAIN ] Connection from 192.168.1.132:42390
+[09:27:29][MAIN ] handle_client: starting auth on socket 1548
+[09:27:29][PROTO] AUTH: success
+[09:27:29][MAIN ] Client authenticated
+[09:27:29][MAIN ] CMD: "EXEC cmd /c if exist "C:\Games\SeriousSamFirstEncounter\System\SeriousSam.exe" ("... (178 bytes)
+[09:27:29][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\Games\SeriousSamFirstEncounter\System\SeriousSam.exe" (for %I in ("C:\Games\SeriousSamFirstEncounter\System\SeriousSam.exe") do @echo %~zI) else (echo -)"
+[09:27:29][EXEC ] CreateProcessA OK, PID=3304
+[09:27:29][EXEC ] Process 3304 exited: code=0, output=3 bytes, 47ms elapsed
+[09:27:29][MAIN ] Client disconnected
+[09:27:29][MAIN ] Connection from 192.168.1.132:42398
+[09:27:29][MAIN ] handle_client: starting auth on socket 1292
+[09:27:29][PROTO] AUTH: success
+[09:27:29][MAIN ] Client authenticated
+[09:27:29][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamFirstEncounter\System\SeriousSam.exe" (64 bytes)
+[09:27:29][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamFirstEncounter\System\SeriousSam.exe") failed, error 3
+[09:27:29][MAIN ] Client disconnected
+[09:27:29][MAIN ] Connection from 192.168.1.132:42410
+[09:27:29][MAIN ] handle_client: starting auth on socket 1320
+[09:27:29][PROTO] AUTH: success
+[09:27:29][MAIN ] Client authenticated
+[09:27:29][MAIN ] CMD: "EXEC cmd /c dir /s /b /-c "C:\Games\SeriousSamFirstEncounter\glide2x.dll" "C:\Ga"... (126 bytes)
+[09:27:29][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c dir /s /b /-c "C:\Games\SeriousSamFirstEncounter\glide2x.dll" "C:\Games\SeriousSamFirstEncounter\glide3x.dll" 2>&1"
+[09:27:29][EXEC ] CreateProcessA OK, PID=1784
+[09:27:29][EXEC ] Process 1784 exited: code=1, output=16 bytes, 547ms elapsed
+[09:27:29][MAIN ] Client disconnected
+[09:27:29][MAIN ] Connection from 192.168.1.132:42424
+[09:27:29][MAIN ] handle_client: starting auth on socket 1548
+[09:27:29][PROTO] AUTH: success
+[09:27:29][MAIN ] Client authenticated
+[09:27:29][MAIN ] CMD: "REGREAD HKLM SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers" (71 bytes)
+[09:27:29][REG  ] REGREAD: RegOpenKeyExA("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers") = OK
+[09:27:29][MAIN ] Client disconnected
+[09:27:29][MAIN ] Connection from 192.168.1.132:42438
+[09:27:29][MAIN ] handle_client: starting auth on socket 1292
+[09:27:29][PROTO] AUTH: success
+[09:27:29][MAIN ] Client authenticated
+[09:27:29][MAIN ] CMD: "REGREAD HKLM SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\3dfx" (76 bytes)
+[09:27:29][REG  ] REGREAD: RegOpenKeyExA("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers\3dfx") = OK
+[09:27:29][REG  ]   Value: "DLL" type=REG_SZ size=13
+[09:27:29][REG  ]   Value: "Flags" type=REG_DWORD size=4
+[09:27:29][REG  ]   Value: "Version" type=REG_DWORD size=4
+[09:27:29][REG  ]   Value: "DriverVersion" type=REG_DWORD size=4
+[09:27:29][MAIN ] Client disconnected
+[09:27:29][MAIN ] Connection from 192.168.1.132:42442
+[09:27:29][MAIN ] handle_client: starting auth on socket 1320
+[09:27:29][PROTO] AUTH: success
+[09:27:29][MAIN ] Client authenticated
+[09:27:29][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\retroicd.dll" (for %I in ("C:\WINDOWS\"... (132 bytes)
+[09:27:29][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\retroicd.dll" (for %I in ("C:\WINDOWS\system32\retroicd.dll") do @echo %~zI) else (echo -)"
+[09:27:29][EXEC ] CreateProcessA OK, PID=3932
+[09:27:29][EXEC ] Process 3932 exited: code=0, output=9 bytes, 47ms elapsed
+[09:27:29][MAIN ] Client disconnected
+[09:27:29][MAIN ] Connection from 192.168.1.132:42454
+[09:27:29][MAIN ] handle_client: starting auth on socket 1548
+[09:27:29][PROTO] AUTH: success
+[09:27:29][MAIN ] Client authenticated
+[09:27:29][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\retroicd.dll" (41 bytes)
+[09:27:29][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\retroicd.dll") = OK
+[09:27:29][FILE ] DOWNLOAD: GetFileSize = 2780463 bytes
+[09:27:29][PROTO] frame_send: 2780464 bytes
+[09:27:30][MAIN ] Client disconnected
+[09:27:30][MAIN ] Connection from 192.168.1.132:42470
+[09:27:30][MAIN ] handle_client: starting auth on socket 1292
+[09:27:30][PROTO] AUTH: success
+[09:27:30][MAIN ] Client authenticated
+[09:27:30][MAIN ] CMD: "EXEC cmd /c if exist "C:\WINDOWS\system32\glide3x.dll" (for %I in ("C:\WINDOWS\s"... (130 bytes)
+[09:27:30][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c if exist "C:\WINDOWS\system32\glide3x.dll" (for %I in ("C:\WINDOWS\system32\glide3x.dll") do @echo %~zI) else (echo -)"
+[09:27:30][EXEC ] CreateProcessA OK, PID=356
+[09:27:30][MAIN ] Connection from 192.168.1.132:42480
+[09:27:30][MAIN ] handle_client: starting auth on socket 1764
+[09:27:30][PROTO] AUTH: success
+[09:27:30][MAIN ] Client authenticated
+[09:27:30][MAIN ] CMD: "PING" (4 bytes)
+[09:27:30][MAIN ] Client disconnected
+[09:27:30][EXEC ] Process 356 exited: code=0, output=9 bytes, 47ms elapsed
+[09:27:30][MAIN ] Client disconnected
+[09:27:30][MAIN ] Connection from 192.168.1.132:42488
+[09:27:30][MAIN ] handle_client: starting auth on socket 1320
+[09:27:30][PROTO] AUTH: success
+[09:27:30][MAIN ] Client authenticated
+[09:27:30][MAIN ] CMD: "DOWNLOAD C:\WINDOWS\system32\glide3x.dll" (40 bytes)
+[09:27:30][FILE ] DOWNLOAD: CreateFileA("C:\WINDOWS\system32\glide3x.dll") = OK
+[09:27:30][FILE ] DOWNLOAD: GetFileSize = 1025930 bytes
+[09:27:30][PROTO] frame_send: 1025931 bytes
+[09:27:30][MAIN ] Client disconnected
+[09:27:30][MAIN ] Connection from 192.168.1.132:42526
+[09:27:30][MAIN ] handle_client: starting auth on socket 1548
+[09:27:30][PROTO] AUTH: success
+[09:27:30][MAIN ] Client authenticated
+[09:27:30][MAIN ] CMD: "SYSINFO" (7 bytes)
+[09:27:36][MAIN ] Client disconnected
+[09:27:36][MAIN ] Connection from 192.168.1.132:42532
+[09:27:36][MAIN ] handle_client: starting auth on socket 1292
+[09:27:36][PROTO] AUTH: success
+[09:27:36][MAIN ] Client authenticated
+[09:27:36][MAIN ] CMD: "REGWRITE HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08"... (147 bytes)
+[09:27:36][REG  ] REGWRITE: key="HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide" name="SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ
+[09:27:36][REG  ] REGWRITE: RegSetValueExA = OK
+[09:27:36][MAIN ] Client disconnected
+[09:27:36][MAIN ] Connection from 192.168.1.132:42548
+[09:27:36][MAIN ] handle_client: starting auth on socket 1320
+[09:27:36][PROTO] AUTH: success
+[09:27:36][MAIN ] Client authenticated
+[09:27:36][MAIN ] CMD: "REGREAD HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-080"... (110 bytes)
+[09:27:36][REG  ] REGREAD: RegOpenKeyExA("HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide") = OK
+[09:27:36][REG  ]   Value: "SSTH3_SLI_AA_CONFIGURATION" type=REG_SZ size=2
+[09:27:36][MAIN ] Client disconnected
+[09:27:36][MAIN ] Connection from 192.168.1.132:42562
+[09:27:36][MAIN ] handle_client: starting auth on socket 1548
+[09:27:36][PROTO] AUTH: success
+[09:27:36][MAIN ] Client authenticated
+[09:27:36][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamFirstEncounter\Scripts\PersistentSymbols.ini" (72 bytes)
+[09:27:36][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamFirstEncounter\Scripts\PersistentSymbols.ini") = OK
+[09:27:36][FILE ] DOWNLOAD: GetFileSize = 14957 bytes
+[09:27:36][PROTO] frame_send: 14958 bytes
+[09:27:36][MAIN ] Client disconnected
+[09:27:36][MAIN ] Connection from 192.168.1.132:42572
+[09:27:36][MAIN ] handle_client: starting auth on socket 1292
+[09:27:36][PROTO] AUTH: success
+[09:27:36][MAIN ] Client authenticated
+[09:27:36][MAIN ] CMD: "UPLOAD C:\Games\SeriousSamFirstEncounter\Scripts\v56kbench.ini" (62 bytes)
+[09:27:36][FILE ] UPLOAD: CreateFileA("C:\Games\SeriousSamFirstEncounter\Scripts\v56kbench.ini") = OK
+[09:27:36][FILE ] UPLOAD: Complete, 486 bytes to "C:\Games\SeriousSamFirstEncounter\Scripts\v56kbench.ini"
+[09:27:36][MAIN ] Client disconnected
+[09:27:36][MAIN ] Connection from 192.168.1.132:42588
+[09:27:36][MAIN ] handle_client: starting auth on socket 1320
+[09:27:36][PROTO] AUTH: success
+[09:27:36][MAIN ] Client authenticated
+[09:27:36][MAIN ] CMD: "UPLOAD C:\Games\SeriousSamFirstEncounter\V56KBENCH.BAT" (54 bytes)
+[09:27:36][PROTO] frame_recv: 24790 bytes
+[09:27:36][FILE ] UPLOAD: CreateFileA("C:\Games\SeriousSamFirstEncounter\V56KBENCH.BAT") = OK
+[09:27:36][FILE ] UPLOAD: Complete, 24790 bytes to "C:\Games\SeriousSamFirstEncounter\V56KBENCH.BAT"
+[09:27:36][MAIN ] Client disconnected
+[09:27:36][MAIN ] Connection from 192.168.1.132:42598
+[09:27:36][MAIN ] handle_client: starting auth on socket 1548
+[09:27:36][PROTO] AUTH: success
+[09:27:36][MAIN ] Client authenticated
+[09:27:36][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\Games\SeriousSamFirstEncounter\SeriousSam.log" "C:\Gam"... (197 bytes)
+[09:27:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\Games\SeriousSamFirstEncounter\SeriousSam.log" "C:\Games\SeriousSamFirstEncounter\Temp\DemoProfile.lst" "C:\Games\SeriousSamFirstEncounter\mount-error.txt" 2>nul & echo ok"
+[09:27:36][EXEC ] CreateProcessA OK, PID=988
+[09:27:36][EXEC ] Process 988 exited: code=0, output=4 bytes, 78ms elapsed
+[09:27:36][MAIN ] Client disconnected
+[09:27:36][MAIN ] Connection from 192.168.1.132:42600
+[09:27:36][MAIN ] handle_client: starting auth on socket 1292
+[09:27:36][PROTO] AUTH: success
+[09:27:36][MAIN ] Client authenticated
+[09:27:36][MAIN ] CMD: "EXEC cmd /c taskkill /im "SeriousSam.exe" 2>nul" (47 bytes)
+[09:27:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /im "SeriousSam.exe" 2>nul"
+[09:27:36][EXEC ] CreateProcessA OK, PID=2344
+[09:27:36][EXEC ] Process 2344 exited: code=128, output=0 bytes, 125ms elapsed
+[09:27:36][MAIN ] Client disconnected
+[09:27:36][MAIN ] Connection from 192.168.1.132:42612
+[09:27:36][MAIN ] handle_client: starting auth on socket 1320
+[09:27:36][PROTO] AUTH: success
+[09:27:36][MAIN ] Client authenticated
+[09:27:36][MAIN ] CMD: "EXEC cmd /c tasklist /fi "imagename eq SeriousSam.exe" /nh" (58 bytes)
+[09:27:36][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c tasklist /fi "imagename eq SeriousSam.exe" /nh"
+[09:27:36][EXEC ] CreateProcessA OK, PID=3268
+[09:27:36][EXEC ] Process 3268 exited: code=0, output=53 bytes, 109ms elapsed
+[09:27:36][MAIN ] Client disconnected
+[09:27:38][MAIN ] Connection from 192.168.1.132:42624
+[09:27:38][MAIN ] handle_client: starting auth on socket 1548
+[09:27:38][PROTO] AUTH: success
+[09:27:38][MAIN ] Client authenticated
+[09:27:38][MAIN ] CMD: "DOWNLOAD C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watso"... (94 bytes)
+[09:27:38][FILE ] DOWNLOAD: CreateFileA("C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\drwtsn32.log") failed, error 2
+[09:27:38][MAIN ] Client disconnected
+[09:27:38][MAIN ] Connection from 192.168.1.132:42640
+[09:27:38][MAIN ] handle_client: starting auth on socket 1292
+[09:27:38][PROTO] AUTH: success
+[09:27:38][MAIN ] Client authenticated
+[09:27:38][MAIN ] CMD: "DOWNLOAD C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watso"... (90 bytes)
+[09:27:38][FILE ] DOWNLOAD: CreateFileA("C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\user.dmp") failed, error 2
+[09:27:38][MAIN ] Client disconnected
+[09:27:38][MAIN ] Connection from 192.168.1.132:42644
+[09:27:38][MAIN ] handle_client: starting auth on socket 1320
+[09:27:38][PROTO] AUTH: success
+[09:27:38][MAIN ] Client authenticated
+[09:27:38][MAIN ] CMD: "EXEC cmd /c del /f /q "C:\Documents and Settings\All Users\Application Data\Micr"... (209 bytes)
+[09:27:38][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c del /f /q "C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\drwtsn32.log" "C:\Documents and Settings\All Users\Application Data\Microsoft\Dr Watson\user.dmp" 2>nul & echo ok"
+[09:27:38][EXEC ] CreateProcessA OK, PID=392
+[09:27:38][EXEC ] Process 392 exited: code=0, output=4 bytes, 46ms elapsed
+[09:27:38][MAIN ] Client disconnected
+[09:27:38][MAIN ] Connection from 192.168.1.132:42654
+[09:27:38][MAIN ] handle_client: starting auth on socket 1548
+[09:27:38][PROTO] AUTH: success
+[09:27:38][MAIN ] Client authenticated
+[09:27:38][MAIN ] CMD: "LAUNCH C:\Games\SeriousSamFirstEncounter\V56KBENCH.BAT" (54 bytes)
+[09:27:38][EXEC ] LAUNCH: cmdline="cmd.exe /c C:\Games\SeriousSamFirstEncounter\V56KBENCH.BAT"
+[09:27:38][EXEC ] LAUNCH OK, PID=1200
+[09:27:38][MAIN ] Client disconnected
+[09:27:50][MAIN ] Connection from 192.168.1.132:36304
+[09:27:50][MAIN ] handle_client: starting auth on socket 1292
+[09:27:50][PROTO] AUTH: success
+[09:27:50][MAIN ] Client authenticated
+[09:27:50][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamFirstEncounter\SeriousSam.log" (57 bytes)
+[09:27:50][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamFirstEncounter\SeriousSam.log") = OK
+[09:27:50][FILE ] DOWNLOAD: GetFileSize = 2 bytes
+[09:27:50][MAIN ] Client disconnected
+[09:27:56][MAIN ] Connection from 192.168.1.132:36314
+[09:27:56][MAIN ] handle_client: starting auth on socket 1320
+[09:27:56][PROTO] AUTH: success
+[09:27:56][MAIN ] Client authenticated
+[09:27:56][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamFirstEncounter\SeriousSam.log" (57 bytes)
+[09:27:56][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamFirstEncounter\SeriousSam.log") = OK
+[09:27:56][FILE ] DOWNLOAD: GetFileSize = 5028 bytes
+[09:27:56][PROTO] frame_send: 5029 bytes
+[09:27:56][MAIN ] Client disconnected
+[09:28:02][MAIN ] Connection from 192.168.1.132:52938
+[09:28:02][MAIN ] handle_client: starting auth on socket 1548
+[09:28:02][PROTO] AUTH: success
+[09:28:02][MAIN ] Client authenticated
+[09:28:02][MAIN ] CMD: "DOWNLOAD C:\Games\SeriousSamFirstEncounter\SeriousSam.log" (57 bytes)
+[09:28:02][FILE ] DOWNLOAD: CreateFileA("C:\Games\SeriousSamFirstEncounter\SeriousSam.log") = OK
+[09:28:02][FILE ] DOWNLOAD: GetFileSize = 5492 bytes
+[09:28:02][PROTO] frame_send: 5493 bytes
+[09:28:02][MAIN ] Client disconnected
+[09:28:02][MAIN ] Connection from 192.168.1.132:52954
+[09:28:02][MAIN ] handle_client: starting auth on socket 1292
+[09:28:02][PROTO] AUTH: success
+[09:28:02][MAIN ] Client authenticated
+[09:28:02][MAIN ] CMD: "PROCLIST" (8 bytes)
+[09:28:02][PROTO] frame_send: 1315 bytes
+[09:28:02][MAIN ] Client disconnected
+[09:28:02][MAIN ] Connection from 192.168.1.132:52968
+[09:28:02][MAIN ] handle_client: starting auth on socket 1320
+[09:28:02][PROTO] AUTH: success
+[09:28:02][MAIN ] Client authenticated
+[09:28:02][MAIN ] CMD: "EXEC cmd /c taskkill /im "SeriousSam.exe" 2>nul" (47 bytes)
+[09:28:02][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c taskkill /im "SeriousSam.exe" 2>nul"
+[09:28:02][EXEC ] CreateProcessA OK, PID=900
+[09:28:02][EXEC ] Process 900 exited: code=128, output=0 bytes, 110ms elapsed
+[09:28:02][MAIN ] Client disconnected
+[09:28:02][MAIN ] Connection from 192.168.1.132:52976
+[09:28:02][MAIN ] handle_client: starting auth on socket 1548
+[09:28:02][PROTO] AUTH: success
+[09:28:02][MAIN ] Client authenticated
+[09:28:02][MAIN ] CMD: "EXEC cmd /c tasklist /fi "imagename eq SeriousSam.exe" /nh" (58 bytes)
+[09:28:02][EXEC ] EXEC: cmdline="cmd.exe /c cmd /c tasklist /fi "imagename eq SeriousSam.exe" /nh"
+[09:28:02][EXEC ] CreateProcessA OK, PID=3960
+[09:28:03][EXEC ] Process 3960 exited: code=0, output=53 bytes, 110ms elapsed
+[09:28:03][MAIN ] Client disconnected

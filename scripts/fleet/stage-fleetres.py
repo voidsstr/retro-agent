@@ -926,7 +926,7 @@ def turok2_mode():
     return out
 
 
-def ssam_startup_ini():
+def ssam_startup_ini(engine="tfe"):
     """Serious Engine 1 (both Serious Sam Encounters).
 
     The mode lives in TWO files and only one of them is ours to write.
@@ -973,6 +973,32 @@ def ssam_startup_ini():
         '>>%s echo sam_iScreenSizeI=%%FR_W%%;' % p,
         '>>%s echo sam_iScreenSizeJ=%%FR_H%%;' % p,
         '>>%s echo gfx_iRefreshRate=%%FR_SE1HZ%%;' % p,
+    ] + ([
+        # THE SECOND ENCOUNTER CALLS IT gap_iRefreshRate (measured 2026-10-03):
+        # its Engine.dll declares "persistent user INDEX gap_iRefreshRate;"
+        # and has no gfx_iRefreshRate at all, so on TSE the line above has
+        # only ever logged "Identifier 'gfx_iRefreshRate' is not declared"
+        # (.124, Serious Sam v1.05) and the game took the driver's default
+        # rate on every box. The First Encounter's Engine.dll is the one that
+        # declares gfx_iRefreshRate. The gfx_ line stays in TSE's file: it is
+        # what GAMERES's "ssam" body checks for (agent/shared/gameres.h), and
+        # an undeclared name costs one log line, not the script.
+        '>>%s echo gap_iRefreshRate=%%FR_SE1HZ%%;' % p,
+    ] if engine == "tse" else []) + [
+        # WHERE THE 3dfx CARD DRIVES THE SCREEN, ogl_bExclusive=1 (2026-10-03,
+        # .124). A Voodoo's ICD is fullscreen-only: Glide takes the screen with
+        # DirectDraw exclusive mode, which only a TOP-LEVEL window can have.
+        # Serious Engine's canvas is a WS_POPUP when ogl_bExclusive is 1 and a
+        # WS_CHILD of the game window when it is 0 (ViewPort.cpp OpenCanvas) -
+        # and the First Encounter's own auto-adjust sets 0: its GLSettings.lst
+        # wants a "3Dfx*" vendor, our ICD says "Brian Paul", so it applies
+        # Default.ini -> Initial.ini (ogl_bExclusive = 0). From the next start
+        # on, SetCooperativeLevel failed with DDERR_INVALIDPARAMS, no context
+        # was made and the game exited ~20 s in, at every launch. The canvas
+        # is made at the mode set, BEFORE the engine's auto-adjust runs, so
+        # this line - read at startup - always wins. Any other box keeps the
+        # engine's own choice.
+        'if /i "%%FR_UE1DEV%%"=="GlideDrv.GlideRenderDevice" >>%s echo ogl_bExclusive=1;' % p,
     ]
 
 
@@ -1649,7 +1675,7 @@ TITLES = {
     },
     "SeriousSamSecondEncounter": {
         "launchers": {
-            n: rec('cd /d "%~dp0"', [CALL] + ssam_startup_ini())
+            n: rec('cd /d "%~dp0"', [CALL] + ssam_startup_ini("tse"))
             for n in ("Play Serious Sam - The Second Encounter.bat",
                       "Host Serious Sam TSE - LAN.bat",
                       "Join Serious Sam TSE - LAN.bat")

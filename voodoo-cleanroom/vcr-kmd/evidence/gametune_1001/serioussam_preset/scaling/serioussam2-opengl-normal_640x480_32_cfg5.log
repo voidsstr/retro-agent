@@ -1,0 +1,163 @@
+
+--- Serious Engine Startup ---
+  SeriousEngine Build: 10000.5
+
+Executable: C:\Games\SeriousSamSecondEncounter\Bin\SeriousSam.exe
+Assumed engine directory: C:\Games\SeriousSamSecondEncounter\
+
+Examining underlying OS...
+  Type: WinNT
+  Version: 5.1, build 2600
+  Misc: Service Pack 3
+
+Detecting CPU...
+  Vendor: AuthenticAMD
+  Type: 0, Family: 6, Model: 8, Stepping: 1
+  MMX : Yes
+  CMOV: Yes
+  Clock: 2004MHz
+
+Global memory status...
+  Physical memory used:   73/ 255MB
+  Page file used:        103/ 619MB
+  Virtual memory used:    28/2047MB
+  Memory load:  28%
+  Process working set: 0MB-1MB
+
+Cannot load variable from 'DefaultMod.txt':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\DefaultMod.txt' (No such file or directory) ()
+Current mod: <none>
+Loading group files...
+  C:\Games\SeriousSamSecondEncounter\SE1_00_Music.gro: 43 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00_Levels.gro: 49 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00_ExtraTools.gro: 1044 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00_Extra.gro: 107 files
+  C:\Games\SeriousSamSecondEncounter\SE1_00.gro: 3142 files
+  D:\Install\SE1_00_Music.gro: 43 files
+  D:\Install\SE1_00_Levels.gro: 49 files
+  D:\Install\SE1_00_ExtraTools.gro: 1044 files
+  D:\Install\SE1_00_Extra.gro: 107 files
+  D:\Install\SE1_00.gro: 3142 files
+
+Detecting input devices...
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+
+Desktop settings...
+  Color Depth: 32bit
+  Screen: 1280x1024
+  Virtual screen: 1280x1024
+  Monitors directly reported: 1
+
+Current display: 'vcrdd' version 1025 - 1280x1024x32
+
+Initializing sound...
+  vorbisfile.dll loaded, ogg playing enabled
+MPX playing disabled: Cannot load amp11lib.dll.
+  Detected devices: 1
+    device 0: NVIDIA(R) nForce(TM) Audio
+      ver: 1290, id: 1.100
+      form: 0x000bffff, ch: 65535, support: 0x0000002c
+
+IFeel mouse not found.
+Command line: '+script Scripts\v56kbench.ini'
+
+  joysticks found: 16
+  joysticks allowed: 8
+  joy 1:  error 0x000000a5
+  joy 2:  error 0x000000a5
+  joy 3:  error 0x000000a5
+  joy 4:  error 0x000000a5
+  joy 5:  error 0x000000a5
+  joy 6:  error 0x000000a5
+  joy 7:  error 0x000000a5
+  joy 8:  error 0x000000a5
+Loading game library 'C:\Games\SeriousSamSecondEncounter\Bin\GameMP.dll'...
+Scripts\Game_startup.ini(7): Identifier 'gfx_iRefreshRate' is not declared
+Scripts\Game_startup.ini(7): Cannot assign: different types
+Setting sound format ...
+Direct Sound initialization ...
+  ! EAX error: Cannot query property support.
+Direct Sound initialization ...
+  44100Hz, 16bit, default device, mix-ahead: 0.2s
+  mixer buffer size:  34 KB
+  decode buffer size: 34 KB
+  EAX: Disabled
+
+Command line script: 'Scripts\v56kbench.ini'
+Scripts\v56kbench.ini(16): Identifier 'dem_strPostExec' is not declared
+Scripts\v56kbench.ini(16): Cannot assign: different types
+Cannot load variable from 'Data\Var\ModName.var':
+Cannot open file `C:\Games\SeriousSamSecondEncounter\Data\Var\ModName.var' (No such file or directory) ()
+Serious Sam version: v1.05
+Active mod: -   T H E   F I R S T   E N C O U N T E R   -
+Reading levels directory...
+  file 'Levels\LevelsMP\1_0_InTheLastEpisode.wld' : 'In the last episode' spawn=0x0001000f
+  file 'Levels\LevelsMP\1_1_Palenque.wld' : 'Sierra de Chiapas' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_2_Palenque.wld' : 'Valley of the Jaguar' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_3_Teotihuacan.wld' : 'The City of the Gods' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_4_Teotihuacan.wld' : 'Serpent Yards' spawn=0x0005000f
+  file 'Levels\LevelsMP\1_5_Teotihuacan.wld' : 'The Pit' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_1_Ziggurrat.wld' : 'Ziggurat' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_2_Persepolis.wld' : 'The Elephant Atrium' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_3_Persepolis.wld' : 'Courtyards of Gilgamesh' spawn=0x0005000f
+  file 'Levels\LevelsMP\2_4_TowerOfBabylon.wld' : 'Tower of Babel' spawn=0x0005000f
+  file 'Levels\LevelsMP\3_1_GothicCastle.wld' : 'The Citadel' spawn=0x0005000f
+  file 'Levels\LevelsMP\3_2_LandOfDamned.wld' : 'Land of the Damned' spawn=0x0005000f
+  file 'Levels\LevelsMP\3_3_CorridorOfDeath.wld' : 'The Grand Cathedral' spawn=0x0005000f
+  file 'Levels\LevelsMP\Deathmatch\DM_LittleTrouble.wld' : 'Little Trouble' spawn=0x0072016f
+  file 'Levels\LevelsMP\Deathmatch\DM_TheLostTomb.wld' : 'The Lost Tomb' spawn=0x019a0090
+  file 'Levels\LevelsMP\Deathmatch\Fortress.wld' : 'Fortress' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\Hole.wld' : 'Hole' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\KuntaKinte.wld' : 'Compound' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\RedStation.wld' : 'Red Station' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\WeGotSkullsNBonesToo.wld' : 'We Got Skulls'n'Bones Too' spawn=0x00020000
+  file 'Levels\LevelsMP\Deathmatch\Yodeller.wld' : 'Yodeller' spawn=0x00020000
+  file 'Levels\LevelsMP\Intro.wld' : 'Intro' spawn=0x0001000f
+  file 'Levels\LevelsMP\Technology\TechTest.wld' : 'Technology Test' spawn=0x0001000f
+Reading demos directory...
+  Demos\auto-demo0001.dem
+  Demos\auto-demo0002.dem
+  Demos\auto-demo0003.dem
+  Demos\auto-demoMP0001.dem
+  Demos\auto-demoMP0002.dem
+
+* START NEW DISPLAY MODE ...
+  Starting display mode: 640x480x32 (fullscreen)
+  CDS: mode set to 640x480x32
+
+Pixel Format Description:
+  Number:     6 (TYPE_RGBA)
+  Flags:      DRAW_TO_WINDOW SUPPORT_OPENGL DOUBLEBUFFER SWAP_COPY 
+  Color bits: 32 (8:8:8:8)
+  Depth bits: 24 (8 for stencil)
+
+
+* OpenGL context created: *----------------------------------
+  (Brian Paul, Mesa Glide v0.62 Voodoo5 6000 (tm), 1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.83])
+
+All textures reloaded.
+
+Automatic 3D-board preferences adjustment...
+Detected: Brian Paul - Mesa Glide v0.62 Voodoo5 6000 (tm) - 1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.83]
+Matching: *Voodoo5* (3Dfx Voodoo5)
+Similar to last, keeping same preferences.
+Started playing demo: Demos\auto-demo0001.dem
+
+170.3 KB used for demo profile:
+    Originally recorded: 8670 frames in 166.0 seconds =>  52.2 FPS average.
+Without excessive peaks: 8658 frames in 164.2 seconds =>  52.7 FPS average.
+       High peak: 166.4 FPS
+        Low peak:  23.7 FPS
+  High sustained: 126.8 FPS (253 frames in 2.0 seconds)
+   Low sustained:  34.0 FPS (45 frames in 1.3 seconds)
+-
+stopping game.

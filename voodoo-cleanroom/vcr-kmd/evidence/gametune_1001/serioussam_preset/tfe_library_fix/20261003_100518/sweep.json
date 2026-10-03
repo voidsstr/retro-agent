@@ -1,0 +1,58 @@
+[
+ {
+  "shortcut": "Serious Sam - The First Encounter",
+  "target": "C:\\Games\\SeriousSamFirstEncounter\\Play Serious Sam - The First Encounter.bat",
+  "args": "",
+  "t0": "10:05:20",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     34.5,
+     74.1
+    ],
+    "file": "Serious_Sam_The_First_Encounter_30s.png",
+    "foreground": {
+     "class": "ViewPort Window",
+     "title": "",
+     "pid": 3952,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     114.7,
+     91.4
+    ],
+    "file": "Serious_Sam_The_First_Encounter_60s.png",
+    "foreground": {
+     "class": "ViewPort Window",
+     "title": "",
+     "pid": 3952,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SeriousSam.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ }
+]

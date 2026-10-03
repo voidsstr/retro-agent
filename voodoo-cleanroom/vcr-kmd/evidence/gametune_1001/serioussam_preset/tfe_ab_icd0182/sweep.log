@@ -1,0 +1,4 @@
+[09:35:33] 125 shortcuts, 1 to sweep: ['Serious Sam - The First Encounter']
+[09:35:33] --- Serious Sam - The First Encounter: C:\Games\SeriousSamFirstEncounter\Play Serious Sam - The First Encounter.bat 
+[09:36:37]     CHECK: started no process  samples=[(30, [], (1280, 1024, 20.1, 52.7)), (60, [], (1280, 1024, 20.1, 52.7))]
+[09:36:37] results -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/serioussam_preset/tfe_ab_icd0182/20261003_093533/sweep.json

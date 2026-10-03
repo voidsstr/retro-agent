@@ -808,7 +808,9 @@ def test_serioussam_bench_launcher_is_the_fleet_mount_template(bench):
     t = bench.SeriousSam("serioussam", "Serious Sam - The First Encounter", r"C:\Games\SeriousSamFirstEncounter")
     bat = t.launch_bat({"FX_GLIDE_SWAPINTERVAL": "0", "SSTH3_SLI_AA_CONFIGURATION": "5"})
     assert "_disc" in bat and "SeriousSamTFE.iso" in bat          # it mounts the staged image
-    assert "+exec Scripts\\v56kbench.ini" in bat                    # with the bench's args
+    # with the bench's args - +script, which SE1 has (+exec is "Unknown option";
+    # this line pinned +exec until the class first ran on .124, 2026-10-03)
+    assert "+script Scripts\\v56kbench.ini" in bat
     assert "set FX_GLIDE_SWAPINTERVAL=0" in bat                     # and the bench's environment
     assert "mount-error.txt" in bat                                 # and reports a mount failure
     assert "(" not in bat.split("GTITLE=")[1].split("\n")[0]        # no parenthesis in a value cmd expands
@@ -1292,3 +1294,118 @@ def test_a_run_takes_its_staged_game_local_glide_away_again(bench):
     assert not bench.STAGED_LOCAL_GLIDE
     assert "unstage_local_glide(box)" in inspect.getsource(bench.amain)
     assert "STAGED_LOCAL_GLIDE.add(dest)" in inspect.getsource(bench._stage_local_glide)
+
+
+# --------------------------------------------------------------------------- #
+# Serious Sam (Serious Engine 1) - the class never ran on the box until
+# 2026-10-03, and four of its lines were things the engine does not have.
+# --------------------------------------------------------------------------- #
+
+_SE1_REPORT = ("Started playing demo: Demos\\auto-demo0001.dem\n"
+               "    Originally recorded: 6004 frames in 166.1 seconds =>  36.2 FPS average.\n"
+               "Without excessive peaks: 5991 frames in 164.2 seconds =>  36.5 FPS average.\n")
+
+
+def test_serioussam_bench_uses_only_what_the_engine_declares(bench):
+    t = bench.TITLES["serioussam2"]("opengl-quality")
+    cfg = t.bench_cfg(1280, 960, 32)
+    # SE1's shell names (Croteam source + the staged v1.05 log on .124)
+    for line in ("sam_bFullScreen=1;", "gap_iSwapInterval=0;", "sam_iVideoSetup=2;",
+                 "sam_iDisplayDepth=2;", 'sam_strIntroLevel="";', "dem_bProfile=1;"):
+        assert line in cfg, line
+    # what the first harness wrote and the engine does not have
+    for wrong in ("sam_bFullScreenActive", "sam_bWaitForVSync", "StartDemoPlay("):
+        assert wrong not in cfg, wrong
+    bat = t.launch_bat({"FX_GLIDE_SWAPINTERVAL": "0"})
+    assert 'set "GAMEARGS=+script Scripts\\v56kbench.ini"' in bat
+    assert "+exec" not in bat          # SE1: "Unknown option: '+exec'"
+    # no preset given: the box's own is measured, not overwritten
+    assert "sam_iVideoSetup" not in bench.TITLES["serioussam2"]("opengl").bench_cfg(1280, 960, 32)
+    with pytest.raises(SystemExit):
+        bench.TITLES["serioussam2"]("opengl-ultra")
+
+
+def test_serioussam_reads_the_profiler_line_not_any_fps(bench):
+    t = bench.TITLES["serioussam2"]("opengl-normal")
+    assert t.parse(_SE1_REPORT)["avg_fps"] == 36.2
+    assert t.parse("Mode: 120 fps cap\n") is None
+    # the engine prints nothing while a demo plays: that is a live renderer
+    import re
+    assert re.search(t.up_re, _SE1_REPORT)
+
+
+def test_serioussam_names_the_gl_renderer_not_the_cpu(bench):
+    t = bench.TITLES["serioussam2"]("opengl")
+    raw = ("  Vendor: AuthenticAMD\n"
+           "  Starting display mode: 1280x960x32 (fullscreen)\n"
+           "Detected: Brian Paul - Mesa Glide v0.62 Voodoo5 6000 (tm) - 1.2 Mesa 6.2.2 "
+           "[voodoo-cleanroom 0.1.83]\n")
+    a = t.attribution(raw)
+    assert a["gl_renderer"] == "Mesa Glide v0.62 Voodoo5 6000 (tm)"
+    assert t.verify_mode(raw, 1280, 960, 32) is None
+    assert "1024" in t.verify_mode(raw, 1024, 768, 32)
+    assert "recovery" in t.verify_mode("Requested display mode could not be set!\n", 1280, 960, 32)
+
+
+class _PersistBox:
+    """DOWNLOAD/UPLOAD of one file, optionally losing the upload."""
+    def __init__(self, content, lose_upload=False):
+        self.files = {} if content is None else {"P": content}
+        self.lose = lose_upload
+        self.cmds = []
+
+    def _key(self, path):
+        return "P" if path.endswith("PersistentSymbols.ini") else path
+
+    async def download(self, path):
+        return self.files.get(self._key(path))
+
+    async def upload(self, path, data):
+        if isinstance(data, str):
+            data = data.encode("latin-1")
+        if not (self.lose and self._key(path) == "P"):
+            self.files[self._key(path)] = data
+
+    async def exec_(self, cmd, timeout=90):
+        self.cmds.append(cmd)
+        return "ok"
+
+    async def text(self, cmd, timeout=60):
+        self.cmds.append(cmd)
+        if cmd.startswith("DELETE ") and cmd.endswith("PersistentSymbols.ini"):
+            self.files.pop("P", None)
+        return "OK"
+
+
+def test_serioussam_puts_the_players_settings_back(bench):
+    """Every variable the run sets is persistent: without the restore the
+    player's game would keep the bench's mode, preset and empty intro."""
+    import asyncio
+    t = bench.TITLES["serioussam2"]("opengl-quality")
+    box = _PersistBox(b"sam_iVideoSetup=(INDEX)1;\r\n")
+    asyncio.run(t.prepare(box, 1280, 960, 32, {}))
+    box.files["P"] = b"sam_iVideoSetup=(INDEX)2;\r\n"        # what the game saved at exit
+    what = asyncio.run(t.cleanup(box))
+    assert box.files["P"] == b"sam_iVideoSetup=(INDEX)1;\r\n" and "restored" in what
+    # an upload that does not land is said, never assumed
+    t2 = bench.TITLES["serioussam2"]("opengl-quality")
+    lossy = _PersistBox(b"x", lose_upload=True)
+    asyncio.run(t2.prepare(lossy, 1280, 960, 32, {}))
+    lossy.files["P"] = b"y"
+    with pytest.raises(RuntimeError):
+        asyncio.run(t2.cleanup(lossy))
+    # a file that was not there before is removed again
+    t3 = bench.TITLES["serioussam2"]("opengl")
+    fresh = _PersistBox(None)
+    asyncio.run(t3.prepare(fresh, 1280, 960, 32, {}))
+    fresh.files["P"] = b"written by the run"
+    assert "removed" in asyncio.run(t3.cleanup(fresh)) and "P" not in fresh.files
+
+
+def test_the_runner_calls_a_titles_cleanup_after_the_kill(bench):
+    import inspect
+    src = inspect.getsource(bench.run_one)
+    kill = src.index("await graceful_kill(box, title.proc)\n    except (asyncio.TimeoutError, TimeoutError):")
+    clean = src.index('cleanup = getattr(title, "cleanup", None)')
+    assert kill < clean
+    assert "CLEANUP FAILED" in src

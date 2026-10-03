@@ -1,0 +1,25 @@
+[10:08:58] box 192.168.1.124 NSC-C543575F526  agent 1.97.1
+[10:08:59] crash dialogs suppressed: {'DoReport': '0x0', 'ShowUI': '0x0', 'ErrorMode': '0x2', 'VisualNotification': '0x0'}
+[10:08:59] gpu  vcr-kmd Voodoo 5 6000 (open driver)  64 MB  (0x121A:0x0009)
+[10:08:59] glide settings key: HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide
+[10:08:59] quiescing background processes
+[10:09:00] matrix: 2 run(s)
+[10:09:00] capturing software versions (driver files, game binaries, OS, agent)
+[10:09:02]   Serious Sam - The First Encounter: SeriousSam.exe  - B  md5 -
+[10:09:02]   Serious Sam - The First Encounter: SeriousSam.exe  - B  md5 -
+[10:09:02]   glide3x: 1025930 B  md5 07c96fd9035c
+[10:09:02]   icd: 2646009 B  md5 8912a1388a15
+[10:09:02]   vcr_display: 106351 B  md5 b63ea6a5ff0c
+[10:09:02]   vcr_miniport: 130105 B  md5 fda1b8c9b905
+[10:09:02] versions -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/serioussam_preset/tfe_presets_v5profile/versions.json
+[10:09:03]     serioussam:opengl-normal loads icd C:\WINDOWS\system32\retroicd.dll md5 7a843e421818, glide3x C:\WINDOWS\system32\glide3x.dll md5 07c96fd9035c
+[10:09:03] [1/2]
+[10:09:08] --- Serious Sam - The First Encounter [opengl]  1280x960x32  cfg=5 (4chip-noaa)
+[10:11:14]     cleanup: PersistentSymbols.ini restored (14967 B, read back)
+[10:11:14]     -> 78.7 fps   [Mesa Glide v0.62 Voodoo5 6000 (tm)]  free=139MB
+[10:11:15]     serioussam:opengl-quality loads icd C:\WINDOWS\system32\retroicd.dll md5 7a843e421818, glide3x C:\WINDOWS\system32\glide3x.dll md5 07c96fd9035c
+[10:11:15] [2/2]
+[10:11:20] --- Serious Sam - The First Encounter [opengl]  1280x960x32  cfg=5 (4chip-noaa)
+[10:13:25]     cleanup: PersistentSymbols.ini restored (14967 B, read back)
+[10:13:25]     -> 74.8 fps   [Mesa Glide v0.62 Voodoo5 6000 (tm)]  free=143MB
+[10:13:25] done. results: voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/serioussam_preset/tfe_presets_v5profile/results.csv

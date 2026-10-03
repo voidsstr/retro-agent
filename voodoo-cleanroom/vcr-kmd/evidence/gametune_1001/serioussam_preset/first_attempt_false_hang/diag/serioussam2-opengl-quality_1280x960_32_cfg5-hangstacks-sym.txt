@@ -1,0 +1,127 @@
+Opened log file 'C:\RETRO_AGENT\cr\hangstk.txt'
+
+Microsoft (R) Windows User-Mode Debugger  Version 5.1.2600.0
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+*** wait with pending attach
+Symbol search path is: *** Invalid *** : Verify _NT_SYMBOL_PATH setting
+Executable search path is: 
+WARNING: Process 4056 is not attached as a debuggee
+         The process can be examined but debug events will not be received
+Loaded dbghelp extension DLL
+The call to LoadLibrary(ext) failed with error 2.
+Please check your debugger configuration and/or network access
+Loaded exts extension DLL
+The call to LoadLibrary(uext) failed with error 2.
+Please check your debugger configuration and/or network access
+Loaded ntsdexts extension DLL
+................................................
+Wake debugger - code 80000007 (first chance)
+eax=00006b9f ebx=6936caec ecx=00006b9f edx=6936cae8 esi=00000000 edi=00000001
+eip=69320f69 esp=0012ef78 ebp=000302f1 iopl=0         nv up ei pl nz na po nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000206
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for C:\WINDOWS\system32\glide3x.dll - 
+glide3x!grSelectContext+239:
+69320f69 09c1             or      ecx,eax
+0:000> $<C:\RETRO_AGENT\cr\hangstk.cmd
+0:000> ~*kb 48
+
+.  0  id: fd8.6a4   Suspend: 1 Teb 7ffdf000 Unfrozen
+ChildEBP RetAddr  Args to Child              
+WARNING: Stack unwind information not available. Following frames may be wrong.
+000302f1 00000000 00000000 00000000 00000000 glide3x!grSelectContext+0x239
+
+   1  id: fd8.c18   Suspend: 1 Teb 7ffde000 Unfrozen
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for C:\WINDOWS\system32\ntdll.dll - 
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for C:\WINDOWS\system32\kernel32.dll - 
+ChildEBP RetAddr  Args to Child              
+WARNING: Stack unwind information not available. Following frames may be wrong.
+00b9ffb4 7c80b713 00000000 008b0000 00000000 ntdll!KiFastSystemCallRet
+00b9ffec 00000000 76b5aeaf 00000000 00000000 kernel32!GetModuleFileNameA+0x1b4
+
+   2  id: fd8.a7c   Suspend: 1 Teb 7ffdc000 Unfrozen
+ChildEBP RetAddr  Args to Child              
+WARNING: Stack unwind information not available. Following frames may be wrong.
+015fff6c 7c80a105 00000002 015fffa4 00000000 ntdll!KiFastSystemCallRet
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for C:\WINDOWS\system32\wdmaud.drv - 
+015fff88 72d2312a 00000002 015fffa4 00000000 kernel32!WaitForMultipleObjects+0x18
+015fffb4 7c80b713 00000000 00000000 00140000 wdmaud!midMessage+0x348
+015fffec 00000000 72d230e8 00000000 00000000 kernel32!GetModuleFileNameA+0x1b4
+
+   3  id: fd8.9d0   Suspend: 1 Teb 7ffdb000 Unfrozen
+ChildEBP RetAddr  Args to Child              
+WARNING: Stack unwind information not available. Following frames may be wrong.
+016ffe24 7c80a105 00000040 016ffe78 00000000 ntdll!KiFastSystemCallRet
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for C:\WINDOWS\system32\dsound.dll - 
+016ffe40 73f114a2 00000040 016ffe78 00000000 kernel32!WaitForMultipleObjects+0x18
+016ffe58 73f12862 00000040 ffffffff 00000000 dsound+0x14a2
+016fff78 73f198df ffffffff 0000003f 010392c0 dsound+0x2862
+016fff98 73f12896 01032850 01039274 73f1b2e9 dsound!DirectSoundCreate+0x51a4
+016fffb4 7c80b713 01039274 01032850 0012f88c dsound+0x2896
+016fffec 00000000 73f1b2a1 01039274 00000000 kernel32!GetModuleFileNameA+0x1b4
+
+   4  id: fd8.b64   Suspend: 1 Teb 7ffda000 Unfrozen
+ChildEBP RetAddr  Args to Child              
+WARNING: Stack unwind information not available. Following frames may be wrong.
+018ffe2c 7c80a105 00000001 018ffe80 00000000 ntdll!KiFastSystemCallRet
+018ffe48 73f114a2 00000001 018ffe80 00000000 kernel32!WaitForMultipleObjects+0x18
+018ffe60 73f12862 00000001 000001f4 00000000 dsound+0x14a2
+018fff80 73f1292b 000001f4 00000000 00000000 dsound+0x2862
+018fffb4 7c80b713 01031efc 00000000 7c910202 dsound+0x292b
+018fffec 00000000 73f1b2a1 01031efc 00000000 kernel32!GetModuleFileNameA+0x1b4
+0:000> lm
+start    end        module name
+00400000 00478000   serioussam     (deferred)                 
+00fb0000 00fb6000   ogg          (deferred)                 
+00fc0000 00fd7000   vorbis       (deferred)                 
+01900000 01b18000   3dfxspl3     (deferred)                 
+10000000 10007000   vorbisfile     (deferred)                 
+5d090000 5d12a000   comctl32_5d090000     (deferred)                 
+5ed00000 5edcc000   opengl32     (deferred)                 
+60000000 601f9000   engine       (deferred)                 
+603e0000 60643000   entitiesmp     (deferred)                 
+608e0000 60915000   gamemp       (deferred)                 
+63380000 6364d000   retroicd     (deferred)                 
+688f0000 688f9000   hid          (deferred)                 
+68b20000 68b40000   glu32        (deferred)                 
+69300000 694cb000   glide3x      (export symbols)           <none>
+71aa0000 71aa8000   ws2help      (deferred)                 
+71ab0000 71ac7000   ws2_32       (deferred)                 
+71ad0000 71ad9000   wsock32      (deferred)                 
+72280000 722aa000   dinput       (deferred)                 
+72d10000 72d18000   msacm32      (deferred)                 
+72d20000 72d29000   wdmaud       (export symbols)           <none>
+73760000 737ab000   ddraw        (deferred)                 
+73bc0000 73bc6000   dciman32     (deferred)                 
+73ee0000 73ee4000   ksuser       (deferred)                 
+73f10000 73f6c000   dsound       (export symbols)           <none>
+76b40000 76b6d000   winmm        (deferred)                 
+76c30000 76c5e000   wintrust     (deferred)                 
+76c90000 76cb8000   imagehlp     (deferred)                 
+76fd0000 7704f000   clbcatq      (deferred)                 
+77050000 77115000   comres       (deferred)                 
+77120000 771ab000   oleaut32     (deferred)                 
+773d0000 774d3000   comctl32     (deferred)                 
+774e0000 7761d000   ole32        (deferred)                 
+77920000 77a13000   setupapi     (deferred)                 
+77a80000 77b15000   crypt32      (deferred)                 
+77b20000 77b32000   msasn1       (deferred)                 
+77bd0000 77bd7000   midimap      (deferred)                 
+77be0000 77bf5000   msacm32_77be0000     (deferred)                 
+77c00000 77c08000   version      (deferred)                 
+77c10000 77c68000   msvcrt       (deferred)                 
+77dd0000 77e6b000   advapi32     (deferred)                 
+77e70000 77f02000   rpcrt4       (deferred)                 
+77f10000 77f59000   gdi32        (deferred)                 
+77f60000 77fd6000   shlwapi      (deferred)                 
+77fe0000 77ff1000   secur32      (deferred)                 
+7c800000 7c8f6000   kernel32     (export symbols)           <none>
+7c900000 7c9af000   ntdll        (export symbols)           <none>
+7c9c0000 7d1d7000   shell32      (deferred)                 
+7e410000 7e4a1000   user32       (deferred)                 
+
+0:000> q
+quit:
+Unloading dbghelp extension DLL
+Unloading exts extension DLL
+Unloading ntsdexts extension DLL
