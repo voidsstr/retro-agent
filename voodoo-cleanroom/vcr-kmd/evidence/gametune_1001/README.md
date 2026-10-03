@@ -52,8 +52,14 @@ The ICD puts `FX_GLIDE_SWAPINTERVAL=0` into the process when the environment
 does not set it, and Glide applies that value over the game's own swap interval,
 so **every OpenGL game ran without vsync**. One system variable decides it for
 every Glide/OpenGL game on the box: `HKLM\...\Session
-Manager\Environment\FX_GLIDE_SWAPINTERVAL = 1` (set 2026-10-02; new
-processes see it after the next log-on). The bench's launchers set 0 themselves,
+Manager\Environment\FX_GLIDE_SWAPINTERVAL = 1` (set 2026-10-02). Set with
+reg, it told nobody; `scripts/fleet/win9x/envbcast` sent Explorer the
+`WM_SETTINGCHANGE("Environment")` at 22:27, and `envof` then read
+`FX_GLIDE_SWAPINTERVAL=1` out of the running `explorer.exe`'s own environment
+block, so games started from the desktop get vsync without a log-on. (A check
+from before the broadcast failed - the Run dialog never took the focus - so it
+is not proven that Explorer lacked it before.) The agent itself still lacks it,
+as does anything the agent starts. The bench's launchers set 0 themselves,
 so timing runs are unaffected.
 
 **CORRECTED 2026-10-02 09:45.** The first table (`vsync_q3_cpu_starved/`, 09:32) was
