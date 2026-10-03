@@ -128,6 +128,29 @@ async def foreground(box):
     return fg if isinstance(fg, dict) and "pid" in fg else None
 
 
+# The game's own quit, by process image, ONLY where it was proven on .124 to
+# exit cleanly (2026-10-02/03): UE1's console `exit` (Unreal Gold, UT 436 -
+# WM_CLOSE trips UE1's RenDev assertion on Glide), Quake II's console `quit`
+# (WM_CLOSE ends in "SwapBuffers() failed!"). Every key still goes through
+# key_to, so nothing is typed into a window that is not the game's. NOT here:
+# Deus Ex (no console key bound), Hexen II (TILDE drove its menu), id Tech 3
+# (ignores synthetic keys in exclusive fullscreen).
+CLEAN_QUIT = {
+    "unreal.exe": ("TILDE", "TEXT:exit", "RETURN"),
+    "unrealtournament.exe": ("TILDE", "TEXT:exit", "RETURN"),
+    "quake2.exe": ("TILDE", "TEXT:quit", "RETURN"),
+}
+
+
+def clean_quit_keys(images):
+    """The proven quit keys for the first running image that has one, or None."""
+    for n in images:
+        keys = CLEAN_QUIT.get((n or "").lower())
+        if keys:
+            return keys
+    return None
+
+
 async def key_to(box, pids, key, rec):
     """Send one UIKEY only if the focused window belongs to one of `pids`.
 
@@ -191,15 +214,20 @@ async def run_one(box, sc, outdir, shots_at, grace):
         safe = re.sub(r"[^A-Za-z0-9]+", "_", sc["name"]).strip("_")[:60]
         png = outdir / f"{safe}_{at}s.png"
         lc.save_png(data, png)
-        rec["samples"].append({"at": at, "alive": alive, "stats": lc.shot_stats(data), "file": png.name})
+        # who has the keyboard right now - before the close, so a CHECK for
+        # "close keys withheld" says whether the game EVER had it or lost it
+        # when the WM_CLOSE took its window
+        fg = await foreground(box)
+        fgr = None if fg is None else {
+            "class": fg.get("class"), "title": (fg.get("title") or "")[:60],
+            "pid": fg.get("pid"), "game": int(fg.get("pid") or 0) in new}
+        rec["samples"].append({"at": at, "alive": alive, "stats": lc.shot_stats(data),
+                               "file": png.name, "foreground": fgr})
         rec["dialogs"].update({h: t for h, t in (await dialogs(box)).items() if h not in dlg0})
     rec["error_windows"] = await lc.error_windows(box)
     now = await processes(box)
     left = {p: n for p, n in new.items() if p in now}
     rec["running_at_end"] = sorted(set(left.values()))
-    for p in left:
-        await box.exec_(f"cmd /c taskkill /pid {p} 2>nul", timeout=30)
-    rec["close_via"] = "WM_CLOSE"
 
     async def settle(secs):
         nonlocal left
@@ -212,7 +240,25 @@ async def run_one(box, sc, outdir, shots_at, grace):
                 return True
         return False
 
-    settled = await settle(grace)
+    # The game's OWN quit first, where one is proven, while the game still has
+    # the keyboard: the WM_CLOSE below destroys the window, the focus falls
+    # back to the agent's console, and every later key is withheld - measured
+    # 2026-10-03, Descent 3 / Quake II / Unreal Gold all FOCUSED at 30 and 60 s.
+    keys = clean_quit_keys(left.values())
+    if keys:
+        for k in keys:
+            if not await key_to(box, set(left), k, rec):
+                break
+            await asyncio.sleep(1.5)
+        else:
+            if await settle(grace):
+                rec["close_via"] = "console quit"
+    settled = not left
+    if left:
+        for p in left:
+            await box.exec_(f"cmd /c taskkill /pid {p} 2>nul", timeout=30)
+        rec["close_via"] = "WM_CLOSE"
+        settled = await settle(grace)
     # A dialog the CLOSE raised. The sample loop only sees dialogs from before
     # the WM_CLOSE, so a game that crashed while closing passed as "forced
     # closed": .124, 2026-10-02 - Deus Ex, Unreal Gold and UT 436 on GlideDrv
@@ -269,7 +315,10 @@ async def run_one(box, sc, outdir, shots_at, grace):
     if rec.get("survived_force"):
         bad.append("STILL RUNNING AFTER A FORCED CLOSE: " + ", ".join(rec["survived_force"]))
     if rec.get("keys_skipped") or rec.get("keys_refused"):
-        bad.append("close keys withheld - game not focused")
+        had = [x["at"] for x in rec.get("samples", []) if (x.get("foreground") or {}).get("game")]
+        bad.append("close keys withheld - the WM_CLOSE took the game's window and its keyboard "
+                   "(it had the focus at %ss)" % had[-1] if had else
+                   "close keys withheld - game not focused")
     if rec["board"] is False:
         bad.append("BOARD WEDGED")
     if not rec["agent_alive"]:

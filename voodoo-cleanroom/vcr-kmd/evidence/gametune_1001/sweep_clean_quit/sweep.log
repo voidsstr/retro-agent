@@ -1,0 +1,8 @@
+[08:35:59] 125 shortcuts, 3 to sweep: ['Quake II', 'Unreal Gold', 'Unreal Tournament 436']
+[08:35:59] --- Quake II: C:\Games\Quake2Complete\Quake II.bat 
+[08:37:11]     PASS  samples=[(30, ['quake2.exe'], (1280, 960, 23.3, 12.8)), (60, ['quake2.exe'], (1280, 960, 12.5, 8.9))]
+[08:37:11] --- Unreal Gold: C:\Games\UnrealGold\Play Unreal Gold.bat 
+[08:38:21]     PASS  samples=[(30, ['Unreal.exe'], (1024, 768, 12.3, 18.8)), (60, ['Unreal.exe'], (1024, 768, 11.3, 20.5))]
+[08:38:21] --- Unreal Tournament 436: C:\Games\UnrealTournament436\Play Unreal Tournament 436.bat 
+[08:39:33]     PASS  samples=[(30, ['UnrealTournament.exe'], (1024, 768, 11.5, 19.4)), (60, ['UnrealTournament.exe'], (1024, 768, 11.7, 22.4))]
+[08:39:33] results -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/sweep_clean_quit/20261003_083558/sweep.json

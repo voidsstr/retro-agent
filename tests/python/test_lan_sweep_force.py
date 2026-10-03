@@ -92,3 +92,30 @@ def test_a_dialog_the_close_raised_is_recorded_and_named_in_the_verdict():
     assert grace < probe < keys < force          # after the WM_CLOSE, before keys or force
     assert "h not in dlg0" in one[probe:keys] and 'h not in rec["dialogs"]' in one[probe:keys]
     assert '"dialog while closing: "' in one
+
+
+def test_the_games_own_quit_goes_first_while_it_has_the_keyboard():
+    """2026-10-03: Descent 3, Quake II and Unreal Gold were all FOCUSED at 30 and
+    60 s; the sweep's WM_CLOSE destroyed their windows and the focus fell back to
+    the agent console, so the later keys were withheld and UE1 crashed in
+    EndFullscreen. A proven console quit now runs first, through key_to."""
+    mod = _load()
+    assert mod.clean_quit_keys(["Unreal.exe"]) == ("TILDE", "TEXT:exit", "RETURN")
+    assert mod.clean_quit_keys(["helper.exe", "QUAKE2.EXE"]) == ("TILDE", "TEXT:quit", "RETURN")
+    for unproven in ("DeusEx.exe", "glh2.exe", "quake3.exe", "main.exe", "sof2.exe"):
+        assert mod.clean_quit_keys([unproven]) is None, unproven
+    one = inspect.getsource(mod.run_one)
+    quit_at = one.index("keys = clean_quit_keys(left.values())")
+    close_at = one.index('await box.exec_(f"cmd /c taskkill /pid {p} 2>nul", timeout=30)')
+    assert quit_at < close_at
+    assert "if not await key_to(box, set(left), k, rec):" in one[quit_at:close_at]
+    # each sample now says who had the keyboard before the close
+    assert 'rec["samples"].append({"at": at, "alive": alive, "stats": lc.shot_stats(data),' in one
+    assert '"foreground": fgr' in one
+
+
+def test_a_withheld_key_says_whether_the_game_ever_had_the_keyboard():
+    mod = _load()
+    one = inspect.getsource(mod.run_one)
+    assert "the WM_CLOSE took the game's window and its keyboard" in one
+    assert "close keys withheld - game not focused" in one   # still said when it never had it

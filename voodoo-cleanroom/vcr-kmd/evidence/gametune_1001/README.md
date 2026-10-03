@@ -51,7 +51,15 @@ fork. Quit Quake II from its console or menu.
 **Still open:**
 - Serious Sam stays on its "Normal" preset until a measured "Quality" run.
 - Descent II's Win95 engine registration card.
-- A game started by `lan_sweep` does not get the keyboard focus.
+- ~~A game started by `lan_sweep` does not get the keyboard focus.~~ **It
+  does** (2026-10-03, `sweep_focus_probe/`): Descent 3, Quake II and Unreal
+  Gold all held the keyboard at 30 and 60 s. The sweep's own WM_CLOSE destroyed
+  their windows, the focus fell back to the agent's console, and only then were
+  the close keys tried. `lan_sweep` now sends a proven console quit FIRST,
+  while the game has the focus (UE1 `exit`, Quake II `quit`): Quake II, Unreal
+  Gold and UT 436 PASS, closed cleanly, no dialog, no force
+  (`sweep_clean_quit/`). Each sample records the foreground. Descent 3,
+  Deus Ex and SoF II have no automatable clean quit and are still forced.
 
 ## Routing as found (`audit.json`, registry, PE imports)
 

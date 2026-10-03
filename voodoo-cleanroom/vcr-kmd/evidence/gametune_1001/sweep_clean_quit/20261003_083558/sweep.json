@@ -1,0 +1,170 @@
+[
+ {
+  "shortcut": "Quake II",
+  "target": "C:\\Games\\Quake2Complete\\Quake II.bat",
+  "args": "",
+  "t0": "08:35:59",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     23.3,
+     12.8
+    ],
+    "file": "Quake_II_30s.png",
+    "foreground": {
+     "class": "Quake 2",
+     "title": "Quake 2",
+     "pid": 3448,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     12.5,
+     8.9
+    ],
+    "file": "Quake_II_60s.png",
+    "foreground": {
+     "class": "Quake 2",
+     "title": "Quake 2",
+     "pid": 3448,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "console quit",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Unreal Gold",
+  "target": "C:\\Games\\UnrealGold\\Play Unreal Gold.bat",
+  "args": "",
+  "t0": "08:37:11",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Unreal.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     12.3,
+     18.8
+    ],
+    "file": "Unreal_Gold_30s.png",
+    "foreground": {
+     "class": "UnrealUnrealWWindowsViewportWindow",
+     "title": "Unreal",
+     "pid": 3684,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Unreal.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     11.3,
+     20.5
+    ],
+    "file": "Unreal_Gold_60s.png",
+    "foreground": {
+     "class": "UnrealUnrealWWindowsViewportWindow",
+     "title": "Unreal",
+     "pid": 3684,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Unreal.exe"
+  ],
+  "close_via": "console quit",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Unreal Tournament 436",
+  "target": "C:\\Games\\UnrealTournament436\\Play Unreal Tournament 436.bat",
+  "args": "",
+  "t0": "08:38:21",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "UnrealTournament.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     11.5,
+     19.4
+    ],
+    "file": "Unreal_Tournament_436_30s.png",
+    "foreground": {
+     "class": "UnrealTournamentUnrealWWindowsViewportWindow",
+     "title": "Unreal Tournament",
+     "pid": 3724,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "UnrealTournament.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     11.7,
+     22.4
+    ],
+    "file": "Unreal_Tournament_436_60s.png",
+    "foreground": {
+     "class": "UnrealTournamentUnrealWWindowsViewportWindow",
+     "title": "Unreal Tournament",
+     "pid": 3724,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "UnrealTournament.exe"
+  ],
+  "close_via": "console quit",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ }
+]

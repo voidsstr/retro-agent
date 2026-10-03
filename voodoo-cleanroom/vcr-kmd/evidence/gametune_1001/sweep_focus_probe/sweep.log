@@ -1,0 +1,8 @@
+[08:29:23] 125 shortcuts, 3 to sweep: ['Descent 3', 'Quake II', 'Unreal Gold']
+[08:29:23] --- Descent 3: C:\Games\Descent3\Play Descent 3.bat 
+[08:31:23]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['main.exe'], (640, 480, 15.4, 23.0)), (60, ['main.exe'], (640, 480, 19.8, 21.8))]
+[08:31:23] --- Quake II: C:\Games\Quake2Complete\Quake II.bat 
+[08:32:58]     CHECK: dialog while closing: Error  samples=[(30, ['quake2.exe'], (1280, 960, 14.2, 9.8)), (60, ['quake2.exe'], (1280, 960, 36.9, 19.8))]
+[08:32:58] --- Unreal Gold: C:\Games\UnrealGold\Play Unreal Gold.bat 
+[08:34:58]     CHECK: dialog while closing: Critical Error; had to be forced closed; close keys withheld - game not focused  samples=[(30, ['Unreal.exe'], (1024, 768, 7.6, 19.9)), (60, ['Unreal.exe'], (1024, 768, 10.8, 21.1))]
+[08:34:58] results -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/sweep_focus_probe/20261003_082921/sweep.json

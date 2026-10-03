@@ -1,0 +1,196 @@
+[
+ {
+  "shortcut": "Descent 3",
+  "target": "C:\\Games\\Descent3\\Play Descent 3.bat",
+  "args": "",
+  "t0": "08:29:23",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "main.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     15.4,
+     23.0
+    ],
+    "file": "Descent_3_30s.png",
+    "foreground": {
+     "class": "Descent 3",
+     "title": "Descent 3",
+     "pid": 3844,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "main.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     19.8,
+     21.8
+    ],
+    "file": "Descent_3_60s.png",
+    "foreground": {
+     "class": "Descent 3",
+     "title": "Descent 3",
+     "pid": 3844,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "main.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "main.exe"
+  ],
+  "force_output": [
+   "3844: SUCCESS: The process with PID 3844 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Quake II",
+  "target": "C:\\Games\\Quake2Complete\\Quake II.bat",
+  "args": "",
+  "t0": "08:31:23",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     14.2,
+     9.8
+    ],
+    "file": "Quake_II_30s.png",
+    "foreground": {
+     "class": "Quake 2",
+     "title": "Quake 2",
+     "pid": 2812,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     36.9,
+     19.8
+    ],
+    "file": "Quake_II_60s.png",
+    "foreground": {
+     "class": "Quake 2",
+     "title": "Quake 2",
+     "pid": 2812,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "ALT+F4",
+  "dialogs_on_close": [
+   "Error"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Error"
+ },
+ {
+  "shortcut": "Unreal Gold",
+  "target": "C:\\Games\\UnrealGold\\Play Unreal Gold.bat",
+  "args": "",
+  "t0": "08:32:58",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Unreal.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     7.6,
+     19.9
+    ],
+    "file": "Unreal_Gold_30s.png",
+    "foreground": {
+     "class": "UnrealUnrealWWindowsViewportWindow",
+     "title": "Unreal",
+     "pid": 2320,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Unreal.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     10.8,
+     21.1
+    ],
+    "file": "Unreal_Gold_60s.png",
+    "foreground": {
+     "class": "UnrealUnrealWWindowsViewportWindow",
+     "title": "Unreal",
+     "pid": 2320,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Unreal.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [
+   "Critical Error"
+  ],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "Unreal.exe"
+  ],
+  "force_output": [
+   "2320: SUCCESS: The process with PID 2320 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Critical Error; had to be forced closed; close keys withheld - game not focused"
+ }
+]
