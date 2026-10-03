@@ -242,7 +242,7 @@ void gameres_probe(void)
             g_gr.t.desk_hz, g_gr.reg_w, g_gr.reg_h,
             g_gr.panel.vmax, g_gr.panel.ok ? "" : " - NOT MEASURED",
             g_gr.t.fr_hz);
-    log_msg(LOG_GR, "Serious Engine gfx_iRefreshRate: %d (Windows NT major %d%s)",
+    log_msg(LOG_GR, "Serious Engine refresh (TFE gfx_iRefreshRate, TSE gap_iRefreshRate): %d (Windows NT major %d%s)",
             gr_se1_hz(g_gr.t.fr_hz, g_gr.t.os_major), g_gr.t.os_major,
             g_gr.t.os_major >= GR_SE1_NO_RATE_FROM_NT_MAJOR
                 ? " - no rate: Windows 7 refuses the engine's mode switch with one"

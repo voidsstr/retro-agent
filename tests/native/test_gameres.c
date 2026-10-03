@@ -696,6 +696,28 @@ TEST(t_shared_files_use_the_launchers_number)
  * find display mode with OpenGL acceleration" (.195, Radeon HD 5450). XP
  * ignores the flag, so XP must KEEP the rate - a CRT at 85 Hz must not fall to
  * the engine's default. */
+/* The Second Encounter reads gap_iRefreshRate; the First reads
+ * gfx_iRefreshRate (each Engine.dll declares only its own - measured
+ * 2026-10-03, .124: TSE logged "Identifier 'gfx_iRefreshRate' is not
+ * declared"). TSE's body carries both, with the same Win7-safe number. */
+TEST(t_ssam_tse_writes_the_refresh_variable_its_engine_declares)
+{
+    gr_modes_t l; gr_target_t t; gr_panel_t pan = panel_crt43();
+    char out[1024];
+    modes_crt(&l);
+    gr_decide(&pan, &l, 1280, 1024, 85, 32, 0, 0, &t);
+    t.os_major = 5;
+    CHECK_EQ_I(gr_expand(gr_cfg_body("ssam-tse"), &t, out, sizeof(out)), 0);
+    CHECK(strstr(out, "gap_iRefreshRate=85;") != NULL, "TSE gets the variable it declares");
+    CHECK(strstr(out, "gfx_iRefreshRate=85;") != NULL, "and the line the launcher also writes");
+    t.os_major = 6;
+    CHECK_EQ_I(gr_expand(gr_cfg_body("ssam-tse"), &t, out, sizeof(out)), 0);
+    CHECK(strstr(out, "gap_iRefreshRate=0;") != NULL, "Win7: no rate for TSE either");
+    /* the First Encounter's body never names TSE's variable */
+    CHECK_EQ_I(gr_expand(gr_cfg_body("ssam"), &t, out, sizeof(out)), 0);
+    CHECK(strstr(out, "gap_iRefreshRate") == NULL, "TFE does not declare gap_iRefreshRate");
+}
+
 TEST(t_ssam_refresh_is_zero_on_nt6_and_the_desktop_rate_before)
 {
     gr_modes_t l; gr_target_t t; gr_panel_t pan = panel_crt43();
@@ -1026,12 +1048,12 @@ TEST(t_verify_cfg_agrees_with_the_writer)
 {
     gr_modes_t l; gr_target_t t; gr_panel_t pan = panel_1080p();
     char body[1024], disk[2048], missing[256];
-    const char *kinds[] = { NULL, "idtech3-custom-nofov", "idtech2", "ssam" };
+    const char *kinds[] = { NULL, "idtech3-custom-nofov", "idtech2", "ssam", "ssam-tse" };
     int k;
     modes_lcd1080(&l);
     gr_decide(&pan, &l, 1920, 1080, 60, 32, 0, 0, &t);
 
-    for (k = 0; k < 4; k++) {
+    for (k = 0; k < 5; k++) {
         CHECK_EQ_I(gr_expand(gr_cfg_body(kinds[k]), &t, body, sizeof body), 0);
         crlf(body, disk, sizeof disk);
         CHECK(gr_cfg_check(disk, body, missing, sizeof missing) == GR_ST_OK,
@@ -1289,4 +1311,5 @@ MUNIT_MAIN("gameres (per-box monitor detection and per-title resolution)",
     RUN(t_verify_launcher_scan);
     RUN(t_verify_launch_txt);
     RUN(t_ssam_refresh_is_zero_on_nt6_and_the_desktop_rate_before);
+    RUN(t_ssam_tse_writes_the_refresh_variable_its_engine_declares);
 )

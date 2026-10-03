@@ -999,7 +999,7 @@ GR_DATA const gr_rule_t gr_rules[] = {
  * acceleration" that was blamed on the OpenGL path was gfx_iRefreshRate:
  * see gr_se1_hz.) */
 { "SeriousSamFirstEncounter",  GR_OP_CFG, "Scripts\\Game_startup.ini", "ssam", NULL, NULL },
-{ "SeriousSamSecondEncounter", GR_OP_CFG, "Scripts\\Game_startup.ini", "ssam", NULL, NULL },
+{ "SeriousSamSecondEncounter", GR_OP_CFG, "Scripts\\Game_startup.ini", "ssam-tse", NULL, NULL },
 
 /* --- Unreal Engine 1 / 2. The engine rewrites its .ini on exit, so the
  *     launcher writes it too; this makes it right before the first launch. */
@@ -1212,6 +1212,23 @@ GR_FN const char *gr_cfg_body(const char *kind)
                "sam_iScreenSizeI=%W%;\n"
                "sam_iScreenSizeJ=%H%;\n"
                "gfx_iRefreshRate=%SE1HZ%;\n";
+    /* The Second Encounter's Engine.dll declares gap_iRefreshRate, not the
+     * First's gfx_iRefreshRate - on TSE the gfx_ line only logs that the
+     * identifier is not declared (.124, 2026-10-03) and the game took the
+     * driver's default rate. Both lines, so a launcher-written file and an
+     * agent-written one carry the same settings (stage-fleetres.py
+     * ssam_startup_ini, engine tse) and VERIFY checks the line the engine
+     * reads. No double quotes in this comment: the mirror test reads every
+     * quoted string in this function as a body line. */
+    if (!strcmp(kind, "ssam-tse"))
+        return "// written by GAMESYNC for this box's monitor - do not edit\n"
+               "// PersistentSymbols.ini is NOT the place for this: the engine\n"
+               "// rewrites that file on exit and would overwrite the mode.\n"
+               "sam_bFullScreen=1;\n"
+               "sam_iScreenSizeI=%W%;\n"
+               "sam_iScreenSizeJ=%H%;\n"
+               "gfx_iRefreshRate=%SE1HZ%;\n"
+               "gap_iRefreshRate=%SE1HZ%;\n";
     return NULL;
 }
 
