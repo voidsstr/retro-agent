@@ -1,0 +1,971 @@
+[
+ {
+  "shortcut": "Descent 3",
+  "target": "C:\\Games\\Descent3\\Play Descent 3.bat",
+  "args": "",
+  "t0": "23:39:34",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "main.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     15.4,
+     23.0
+    ],
+    "file": "Descent_3_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "main.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     18.8,
+     36.4
+    ],
+    "file": "Descent_3_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "main.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "main.exe"
+  ],
+  "force_output": [
+   "928: SUCCESS: The process with PID 928 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Deus Ex",
+  "target": "C:\\Games\\DeusEx\\Play Deus Ex.bat",
+  "args": "",
+  "t0": "23:41:33",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "DEUSEX.EXE"
+    ],
+    "stats": [
+     1024,
+     768,
+     9.2,
+     31.1
+    ],
+    "file": "Deus_Ex_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "DEUSEX.EXE"
+    ],
+    "stats": [
+     1024,
+     768,
+     5.2,
+     20.4
+    ],
+    "file": "Deus_Ex_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "DEUSEX.EXE"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [
+   "Critical Error"
+  ],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "DEUSEX.EXE"
+  ],
+  "force_output": [
+   "3052: SUCCESS: The process with PID 3052 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Critical Error; had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Hexen II",
+  "target": "C:\\Games\\HexenII\\Play Hexen II.bat",
+  "args": "",
+  "t0": "23:43:33",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "glh2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.7,
+     36.5
+    ],
+    "file": "Hexen_II_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "glh2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.8,
+     36.5
+    ],
+    "file": "Hexen_II_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "glh2.exe"
+  ],
+  "close_via": "console quit",
+  "dialogs_on_close": [
+   "Confirm Exit"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Confirm Exit"
+ },
+ {
+  "shortcut": "Jedi Academy - Multiplayer",
+  "target": "C:\\Games\\JediAcademy\\Play Jedi Academy - Multiplayer.bat",
+  "args": "",
+  "t0": "23:45:20",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "jamp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     34.4,
+     50.8
+    ],
+    "file": "Jedi_Academy_Multiplayer_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "jamp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     71.0,
+     99.5
+    ],
+    "file": "Jedi_Academy_Multiplayer_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "jamp.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Jedi Academy",
+  "target": "C:\\Games\\JediAcademy\\Play Jedi Academy.bat",
+  "args": "",
+  "t0": "23:46:27",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "jasp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     33.1,
+     79.1
+    ],
+    "file": "Jedi_Academy_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "jasp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.3,
+     45.8
+    ],
+    "file": "Jedi_Academy_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "jasp.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake II - Ground Zero",
+  "target": "C:\\Games\\Quake2Complete\\Quake II - Ground Zero.bat",
+  "args": "",
+  "t0": "23:47:34",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     4.7,
+     9.5
+    ],
+    "file": "Quake_II_Ground_Zero_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     22.6,
+     21.5
+    ],
+    "file": "Quake_II_Ground_Zero_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "ALT+F4",
+  "dialogs_on_close": [
+   "Error"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Error"
+ },
+ {
+  "shortcut": "Quake II - The Reckoning",
+  "target": "C:\\Games\\Quake2Complete\\Quake II - The Reckoning.bat",
+  "args": "",
+  "t0": "23:49:10",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     12.8,
+     7.5
+    ],
+    "file": "Quake_II_The_Reckoning_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     12.4,
+     12.3
+    ],
+    "file": "Quake_II_The_Reckoning_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "ALT+F4",
+  "dialogs_on_close": [
+   "Error"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Error"
+ },
+ {
+  "shortcut": "Quake II - ThreeWave CTF",
+  "target": "C:\\Games\\Quake2Complete\\Quake II - ThreeWave CTF.bat",
+  "args": "",
+  "t0": "23:50:45",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     15.6,
+     11.7
+    ],
+    "file": "Quake_II_ThreeWave_CTF_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     17.3,
+     9.9
+    ],
+    "file": "Quake_II_ThreeWave_CTF_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "ALT+F4",
+  "dialogs_on_close": [
+   "Error"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Error"
+ },
+ {
+  "shortcut": "Quake II",
+  "target": "C:\\Games\\Quake2Complete\\Quake II.bat",
+  "args": "",
+  "t0": "23:52:20",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     23.1,
+     12.7
+    ],
+    "file": "Quake_II_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     12.6,
+     9.0
+    ],
+    "file": "Quake_II_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "ALT+F4",
+  "dialogs_on_close": [
+   "Error"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Error"
+ },
+ {
+  "shortcut": "Quake III Arena (retail 1.32c)",
+  "target": "C:\\Games\\Quake3-TeamArena\\Play Quake III Arena - retail 1.32c.bat",
+  "args": "",
+  "t0": "23:53:56",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake3.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     15.0,
+     22.1
+    ],
+    "file": "Quake_III_Arena_retail_1_32c_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake3.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     15.1,
+     22.3
+    ],
+    "file": "Quake_III_Arena_retail_1_32c_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake3.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Return to Castle Wolfenstein",
+  "target": "C:\\Games\\ReturnToCastleWolfenstein\\Play Return to Castle Wolfenstein.bat",
+  "args": "",
+  "t0": "23:55:03",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "WolfSP.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     23.5,
+     17.2
+    ],
+    "file": "Return_to_Castle_Wolfenstein_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "WolfSP.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     53.4,
+     65.1
+    ],
+    "file": "Return_to_Castle_Wolfenstein_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "WolfSP.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "RTCW Multiplayer",
+  "target": "C:\\Games\\ReturnToCastleWolfenstein\\Play RTCW Multiplayer.bat",
+  "args": "",
+  "t0": "23:56:10",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "WolfMP.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.0,
+     30.2
+    ],
+    "file": "RTCW_Multiplayer_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "WolfMP.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.4,
+     30.5
+    ],
+    "file": "RTCW_Multiplayer_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "WolfMP.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "SiN - Wages of SiN",
+  "target": "C:\\Games\\SiNGold\\Play Wages of SiN.bat",
+  "args": "",
+  "t0": "23:57:18",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "sin.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     13.0,
+     21.5
+    ],
+    "file": "SiN_Wages_of_SiN_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "sin.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     13.0,
+     21.6
+    ],
+    "file": "SiN_Wages_of_SiN_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "sin.exe"
+  ],
+  "close_via": "ALT+F4",
+  "dialogs_on_close": [
+   "Error"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Error"
+ },
+ {
+  "shortcut": "SiN",
+  "target": "C:\\Games\\SiNGold\\Play SiN Gold.bat",
+  "args": "",
+  "t0": "23:58:53",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "sin.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     13.0,
+     21.6
+    ],
+    "file": "SiN_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "sin.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     13.0,
+     21.3
+    ],
+    "file": "SiN_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "sin.exe"
+  ],
+  "close_via": "ALT+F4",
+  "dialogs_on_close": [
+   "Error"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Error"
+ },
+ {
+  "shortcut": "Soldier of Fortune II - Multiplayer",
+  "target": "C:\\Games\\SoldierOfFortune2\\Play Soldier of Fortune II - Multiplayer.bat",
+  "args": "",
+  "t0": "00:00:27",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "sof2mp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     35.0,
+     25.7
+    ],
+    "file": "Soldier_of_Fortune_II_Multiplayer_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "sof2mp.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     32.5,
+     26.1
+    ],
+    "file": "Soldier_of_Fortune_II_Multiplayer_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "sof2mp.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "sof2mp.exe"
+  ],
+  "force_output": [
+   "2784: SUCCESS: The process with PID 2784 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Soldier of Fortune II",
+  "target": "C:\\Games\\SoldierOfFortune2\\Play Soldier of Fortune II.bat",
+  "args": "",
+  "t0": "00:02:28",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SoF2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     23.0,
+     0.0
+    ],
+    "file": "Soldier_of_Fortune_II_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SoF2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     35.8,
+     19.2
+    ],
+    "file": "Soldier_of_Fortune_II_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SoF2.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "SoF2.exe"
+  ],
+  "force_output": [
+   "3292: SUCCESS: The process with PID 3292 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Soldier of Fortune",
+  "target": "C:\\Games\\SoldierOfFortune\\Play Soldier of Fortune.bat",
+  "args": "",
+  "t0": "00:04:28",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SoF.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     10.9,
+     19.5
+    ],
+    "file": "Soldier_of_Fortune_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SoF.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     45.8,
+     33.3
+    ],
+    "file": "Soldier_of_Fortune_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SoF.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Tribes 2 Solo and LAN",
+  "target": "C:\\Games\\Tribes2\\Play Tribes 2 Solo and LAN.bat",
+  "args": "",
+  "t0": "00:05:37",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Tribes2.exe",
+     "rubyintersect.dll"
+    ],
+    "stats": [
+     1280,
+     960,
+     72.3,
+     54.5
+    ],
+    "file": "Tribes_2_Solo_and_LAN_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Tribes2.exe",
+     "rubyintersect.dll"
+    ],
+    "stats": [
+     1280,
+     960,
+     10.9,
+     24.1
+    ],
+    "file": "Tribes_2_Solo_and_LAN_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Tribes2.exe",
+   "rubyintersect.dll"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Unreal Gold",
+  "target": "C:\\Games\\UnrealGold\\Play Unreal Gold.bat",
+  "args": "",
+  "t0": "00:06:46",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Unreal.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     18.8,
+     21.2
+    ],
+    "file": "Unreal_Gold_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Unreal.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     18.9,
+     27.8
+    ],
+    "file": "Unreal_Gold_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Unreal.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [
+   "Critical Error"
+  ],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "Unreal.exe"
+  ],
+  "force_output": [
+   "2140: SUCCESS: The process with PID 2140 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Critical Error; had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Unreal Tournament 436",
+  "target": "C:\\Games\\UnrealTournament436\\Play Unreal Tournament 436.bat",
+  "args": "",
+  "t0": "00:08:47",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "UnrealTournament.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     13.5,
+     28.5
+    ],
+    "file": "Unreal_Tournament_436_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "UnrealTournament.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     10.9,
+     17.7
+    ],
+    "file": "Unreal_Tournament_436_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "UnrealTournament.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [
+   "Critical Error"
+  ],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "UnrealTournament.exe"
+  ],
+  "force_output": [
+   "3764: SUCCESS: The process with PID 3764 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Critical Error; had to be forced closed; close keys withheld - game not focused"
+ }
+]

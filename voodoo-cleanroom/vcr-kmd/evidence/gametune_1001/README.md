@@ -4,6 +4,48 @@ User request: run each OpenGL/Glide game on `.124` with our drivers, make sure
 it is stable, and tune it for the most the V5 6000 and a 2 GHz Athlon XP (twice
 a period CPU) can give.
 
+## Summary - where every title ended up (2026-10-02)
+
+The whole box: ICD **0.1.82** (two colour buffers; a third measured no gain
+under vsync); **vsync on everywhere** (system `FX_GLIDE_SWAPINTERVAL=1`, now in
+Explorer's environment too); 4-chip SLI, no AA, stock clock (the user's
+choices).
+
+| title | before | after | how |
+|---|---|---|---|
+| Quake II (4 shortcuts), SiN (2), SoF | 8-bit paletted textures, bilinear | full-colour textures, trilinear | `v56k_tune.py` (per-box configs) |
+| Quake III retail, Jedi Academy SP/MP, SoF II SP/MP, RtCW SP/MP | RtCW `r_picmip 2` + vertex light, SoF II `r_picmip 3` + "New Video card detected" | full-quality preset, renderer string pinned | `v56k_tune.py` - re-run after every ICD deploy |
+| Tribes 2 | 800x600x16, vertex light | 1280x960x32, lightmaps | per-box prefs (`v56k_tune.py`) |
+| Descent 3 | Direct3D | OpenGL 1280x960 (16-bit - the engine's limit), user's max detail kept, `-framecap 85`, the user's controls on every box | library launcher + pilot (`descent3_*`) |
+| UT 436 | OpenGLDrv 1280x960x16, 57 fps, no volumetric light | GlideDrv 1024x768x16 @ 85 Hz, 63 fps | library launcher (`ue1_glide_device`) |
+| Deus Ex | D3DDrv 1280x960 | GlideDrv 1024x768x16 @ 85 Hz | library launcher |
+| Unreal Gold | GlideDrv 1024x768 @ 60 Hz | GlideDrv 1024x768 @ 85 Hz | library launcher (`ue1_glide_viewport`) |
+| Hexen II | 1024x768 (a cap from another box's driver) | 1280x960x32 @ 85 Hz | library launcher (`h2_uncap`) |
+| Serious Sam TFE/TSE, GoldSrc, GLQuake | 1280x960 | unchanged | already at the box's mode (Serious Sam on its "Normal" preset) |
+| Carmageddon 2, Turok 2 | 640x480, 1024x768 | unchanged | the engines' own limits |
+| Descent II (Win95 engine) | registration-card dialog | unchanged | DirectDraw, not this card's path; open |
+
+Quit UE1 games from their own menus: an outside window close trips UE1's
+RenDev assertion on Glide (below).
+
+**Re-sweep after the tuning** (`sweep_tuned/summary.md`, 20 shortcuts,
+2026-10-02 23:39 - 00:11): **0 FAIL**. Every game was alive at 60 s and the
+board was healthy after every title. 7 PASS; the 13 CHECKs are all in the close
+path, which the sweep sees now that it records dialogs raised by its own
+WM_CLOSE:
+- Quake II / SiN: "SwapBuffers() failed!", known.
+- UE1 on Glide: RenDev, as above.
+- Hexen II: its normal quit prompt.
+- Descent 3 and SoF II: ignore WM_CLOSE, and the focus sat on the agent's
+  console, so no close keys were sent.
+
+**Still open:**
+- Our ICD could report success for a swap with no live context, which would
+  silence Quake II's close dialog.
+- Serious Sam stays on its "Normal" preset until a measured "Quality" run.
+- Descent II's Win95 engine registration card.
+- A game started by `lan_sweep` does not get the keyboard focus.
+
 ## Routing as found (`audit.json`, registry, PE imports)
 
 - System ICD: `OpenGLDrivers\3dfx\DLL` = `retroicd.dll` = **our ICD 0.1.80**

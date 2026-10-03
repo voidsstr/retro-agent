@@ -209,10 +209,14 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
    board read 1024x768x16@85 SLI for all three; quit from the game's menu (an
    outside WM_CLOSE trips UE1's RenDev assertion). **Hexen II** 1280x960 on
    .124 (the 1024x768 cap was .240's ATI driver). Explorer now carries the
-   vsync variable (envbcast). **Next:** Serious Sam presets, Turok 2 /
-   Carmageddon 2 modes, Descent II Win95's registration dialog, one
-   deploy-generation bump for the other boxes (the new blocks are no-ops
-   there), then the re-sweep.
+   vsync variable (envbcast). Deploy generation bumped 2026-10-02 23:29 (all
+   boxes synced, 0 errors). **Re-sweep of the 20 tuned shortcuts: 0 FAIL,
+   every game alive, the board healthy after each** (`gametune_1001/
+   sweep_tuned/`); the CHECKs are close-path only. Carmageddon 2 (640x480) and
+   Turok 2 (1024x768) are engine limits. **Open:** the ICD could report success
+   for a swap with no live context (Quake II's WM_CLOSE dialog); Serious Sam
+   "Quality" preset unmeasured; Descent II Win95 registration card; lan_sweep's
+   focus.
 4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on the
    display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through the
    console until fixed).

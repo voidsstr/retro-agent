@@ -1,0 +1,42 @@
+[23:39:34] 125 shortcuts, 20 to sweep: ['Descent 3', 'Deus Ex', 'Hexen II', 'Jedi Academy - Multiplayer', 'Jedi Academy', 'Quake II - Ground Zero', 'Quake II - The Reckoning', 'Quake II - ThreeWave CTF', 'Quake II', 'Quake III Arena (retail 1.32c)', 'Return to Castle Wolfenstein', 'RTCW Multiplayer', 'SiN - Wages of SiN', 'SiN', 'Soldier of Fortune II - Multiplayer', 'Soldier of Fortune II', 'Soldier of Fortune', 'Tribes 2 Solo and LAN', 'Unreal Gold', 'Unreal Tournament 436']
+[23:39:34] --- Descent 3: C:\Games\Descent3\Play Descent 3.bat 
+[23:41:33]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['main.exe'], (640, 480, 15.4, 23.0)), (60, ['main.exe'], (640, 480, 18.8, 36.4))]
+[23:41:33] --- Deus Ex: C:\Games\DeusEx\Play Deus Ex.bat 
+[23:43:33]     CHECK: dialog while closing: Critical Error; had to be forced closed; close keys withheld - game not focused  samples=[(30, ['DEUSEX.EXE'], (1024, 768, 9.2, 31.1)), (60, ['DEUSEX.EXE'], (1024, 768, 5.2, 20.4))]
+[23:43:33] --- Hexen II: C:\Games\HexenII\Play Hexen II.bat 
+[23:45:20]     CHECK: dialog while closing: Confirm Exit  samples=[(30, ['glh2.exe'], (1280, 960, 24.7, 36.5)), (60, ['glh2.exe'], (1280, 960, 24.8, 36.5))]
+[23:45:20] --- Jedi Academy - Multiplayer: C:\Games\JediAcademy\Play Jedi Academy - Multiplayer.bat 
+[23:46:27]     PASS  samples=[(30, ['jamp.exe'], (1280, 960, 34.4, 50.8)), (60, ['jamp.exe'], (1280, 960, 71.0, 99.5))]
+[23:46:27] --- Jedi Academy: C:\Games\JediAcademy\Play Jedi Academy.bat 
+[23:47:34]     PASS  samples=[(30, ['jasp.exe'], (1280, 960, 33.1, 79.1)), (60, ['jasp.exe'], (1280, 960, 24.3, 45.8))]
+[23:47:34] --- Quake II - Ground Zero: C:\Games\Quake2Complete\Quake II - Ground Zero.bat 
+[23:49:10]     CHECK: dialog while closing: Error  samples=[(30, ['quake2.exe'], (1280, 960, 4.7, 9.5)), (60, ['quake2.exe'], (1280, 960, 22.6, 21.5))]
+[23:49:10] --- Quake II - The Reckoning: C:\Games\Quake2Complete\Quake II - The Reckoning.bat 
+[23:50:45]     CHECK: dialog while closing: Error  samples=[(30, ['quake2.exe'], (1280, 960, 12.8, 7.5)), (60, ['quake2.exe'], (1280, 960, 12.4, 12.3))]
+[23:50:45] --- Quake II - ThreeWave CTF: C:\Games\Quake2Complete\Quake II - ThreeWave CTF.bat 
+[23:52:20]     CHECK: dialog while closing: Error  samples=[(30, ['quake2.exe'], (1280, 960, 15.6, 11.7)), (60, ['quake2.exe'], (1280, 960, 17.3, 9.9))]
+[23:52:20] --- Quake II: C:\Games\Quake2Complete\Quake II.bat 
+[23:53:56]     CHECK: dialog while closing: Error  samples=[(30, ['quake2.exe'], (1280, 960, 23.1, 12.7)), (60, ['quake2.exe'], (1280, 960, 12.6, 9.0))]
+[23:53:56] --- Quake III Arena (retail 1.32c): C:\Games\Quake3-TeamArena\Play Quake III Arena - retail 1.32c.bat 
+[23:55:03]     PASS  samples=[(30, ['quake3.exe'], (1280, 960, 15.0, 22.1)), (60, ['quake3.exe'], (1280, 960, 15.1, 22.3))]
+[23:55:03] --- Return to Castle Wolfenstein: C:\Games\ReturnToCastleWolfenstein\Play Return to Castle Wolfenstein.bat 
+[23:56:10]     PASS  samples=[(30, ['WolfSP.exe'], (1280, 960, 23.5, 17.2)), (60, ['WolfSP.exe'], (1280, 960, 53.4, 65.1))]
+[23:56:10] --- RTCW Multiplayer: C:\Games\ReturnToCastleWolfenstein\Play RTCW Multiplayer.bat 
+[23:57:18]     PASS  samples=[(30, ['WolfMP.exe'], (1280, 960, 24.0, 30.2)), (60, ['WolfMP.exe'], (1280, 960, 24.4, 30.5))]
+[23:57:18] --- SiN - Wages of SiN: C:\Games\SiNGold\Play Wages of SiN.bat 
+[23:58:53]     CHECK: dialog while closing: Error  samples=[(30, ['sin.exe'], (1280, 960, 13.0, 21.5)), (60, ['sin.exe'], (1280, 960, 13.0, 21.6))]
+[23:58:53] --- SiN: C:\Games\SiNGold\Play SiN Gold.bat 
+[00:00:27]     CHECK: dialog while closing: Error  samples=[(30, ['sin.exe'], (1280, 960, 13.0, 21.6)), (60, ['sin.exe'], (1280, 960, 13.0, 21.3))]
+[00:00:27] --- Soldier of Fortune II - Multiplayer: C:\Games\SoldierOfFortune2\Play Soldier of Fortune II - Multiplayer.bat 
+[00:02:28]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['sof2mp.exe'], (1280, 960, 35.0, 25.7)), (60, ['sof2mp.exe'], (1280, 960, 32.5, 26.1))]
+[00:02:28] --- Soldier of Fortune II: C:\Games\SoldierOfFortune2\Play Soldier of Fortune II.bat 
+[00:04:28]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['SoF2.exe'], (1280, 960, 23.0, 0.0)), (60, ['SoF2.exe'], (1280, 960, 35.8, 19.2))]
+[00:04:28] --- Soldier of Fortune: C:\Games\SoldierOfFortune\Play Soldier of Fortune.bat 
+[00:05:37]     PASS  samples=[(30, ['SoF.exe'], (1280, 960, 10.9, 19.5)), (60, ['SoF.exe'], (1280, 960, 45.8, 33.3))]
+[00:05:37] --- Tribes 2 Solo and LAN: C:\Games\Tribes2\Play Tribes 2 Solo and LAN.bat 
+[00:06:46]     PASS  samples=[(30, ['Tribes2.exe', 'rubyintersect.dll'], (1280, 960, 72.3, 54.5)), (60, ['Tribes2.exe', 'rubyintersect.dll'], (1280, 960, 10.9, 24.1))]
+[00:06:46] --- Unreal Gold: C:\Games\UnrealGold\Play Unreal Gold.bat 
+[00:08:47]     CHECK: dialog while closing: Critical Error; had to be forced closed; close keys withheld - game not focused  samples=[(30, ['Unreal.exe'], (1024, 768, 18.8, 21.2)), (60, ['Unreal.exe'], (1024, 768, 18.9, 27.8))]
+[00:08:47] --- Unreal Tournament 436: C:\Games\UnrealTournament436\Play Unreal Tournament 436.bat 
+[00:10:48]     CHECK: dialog while closing: Critical Error; had to be forced closed; close keys withheld - game not focused  samples=[(30, ['UnrealTournament.exe'], (1024, 768, 13.5, 28.5)), (60, ['UnrealTournament.exe'], (1024, 768, 10.9, 17.7))]
+[00:10:48] results -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/sweep_tuned/20261002_233933/sweep.json
