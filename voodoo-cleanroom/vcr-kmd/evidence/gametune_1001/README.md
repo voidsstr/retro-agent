@@ -203,3 +203,20 @@ window) and published with its own backup-then-put:
 run in the B row). Every byte of the user's controls is unchanged; only
 0x1F..0x26 differ.
 
+**On the boxes (deploy generation 2026-10-02 22:20, `retro-autodeploy`, all
+`failed_files` 0).** `.123`, `.124` and `.197` read back `sdf.plt`, both
+launchers and `install.reg` md5-equal to the library. On `.123` the pilot had
+been deleted first, so the library had to deliver it. `.124` keeps
+`PredefDetailSetting` 4 through the sync. The command lines each launcher
+builds on its own box (`start` swapped for `echo`):
+
+| box | Play | renderer after the launcher |
+|---|---|---|
+| `.124` (V5 6000, CRT 85 Hz) | `-Width 1280 -Height 960 -pilot SDF -framecap 85` | 2 (OpenGL) |
+| `.123` (CRT 100 Hz) | `-Width 1280 -Height 960 -pilot SDF -framecap 100` | 3 (Direct3D) |
+| `.197` (Win7, 1080p 60 Hz) | `-Width 1920 -Height 1080 -pilot SDF` | 3 (Direct3D) |
+
+`.243` synced too (Descent 3 is gated there). Boxes that are off pick the
+generation up from `retro-autodeploy` when they next answer. Fleetbook recipe
+`descent3-stage-a-users-controls-fleet-wide` (#110).
+
