@@ -61,3 +61,18 @@ def test_tribes2_tuning_keeps_safe_mode_on():
     kernel ended the Glide session at the mode set, and the screen stayed
     black (.124, 2026-10-02)."""
     assert tune.T2["$pref::Video::safeModeOn"] == "1"
+
+
+def test_the_pinned_renderer_follows_the_icds_own_format(tmp_path):
+    """0.1.83 moved the build tag to GL_VERSION, so the renderer string games
+    remember stopped changing with every build. The pin must match the
+    DEPLOYED ICD either way - a wrong pin is exactly the "new card" reset."""
+    old = b"..Mesa %s v0.62 %s%s [voodoo-cleanroom 0.1.82]\x00.."
+    new = b"..Mesa %s v0.62 %s%s\x00..1.2 Mesa..[voodoo-cleanroom 0.1.83]\x00"
+    assert tune.renderer_from_dll(old) == "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.82]"
+    assert tune.renderer_from_dll(new) == "Mesa Glide v0.62 Voodoo5 6000 (tm)" == tune.RENDERER_STABLE
+    import pytest
+    with pytest.raises(SystemExit):
+        tune.renderer_from_dll(b"AmigaMerlin Mesa Glide v0.63")          # not ours
+    with pytest.raises(SystemExit):
+        tune.renderer_from_dll(b"Mesa %s v0.99 [voodoo-cleanroom 0.1.90]")   # a format it does not know

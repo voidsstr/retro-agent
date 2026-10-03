@@ -48,21 +48,27 @@ cp "$RETAIL_LIB" "$GLTREE/glide3/lib/libglide3x.a"
 
 # --- voodoo-cleanroom driver versioning -------------------------------------------
 # MAJOR.MINOR comes from voodoo-cleanroom/VERSION; BUILD auto-increments every build
-# (.buildnum). The full version is embedded in GL_RENDERER so every game log /
-# benchmark self-documents which driver build produced it:
-#   "Mesa Glide v0.62 Voodoo3 (tm) [voodoo-cleanroom 0.1.7]"
+# (.buildnum). Since 0.1.83 the full version is in GL_VERSION (fxdd.c rgl_build_tag),
+# so every game log / benchmark still self-documents which driver build produced it:
+#   GL_VERSION: "1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.83]"
+# and GL_RENDERER is the same for every build ("Mesa Glide v0.62 Voodoo5 6000 (tm)"):
+# id Tech 3 and Torque remember the renderer string and reset their graphics to the
+# low preset when it changes, which a build number in it did after every update.
 VER_MM="$(cat "$HERE/VERSION" 2>/dev/null || echo 0.1)"
 BUILD=$(( $(cat "$HERE/.buildnum" 2>/dev/null || echo 0) + 1 ))
 echo "$BUILD" > "$HERE/.buildnum"
 DRVVER="$VER_MM.$BUILD"
 FXAPI="$GLTREE/src/mesa/drivers/glide/fxapi.c"
+FXDD="$GLTREE/src/mesa/drivers/glide/fxdd.c"
 FXDRV="$GLTREE/src/mesa/drivers/glide/fxdrv.h"
-# widen rendererString (stock 64B is too tight with the version marker) - idempotent
+# widen rendererString (stock 64B is tight for "Mesa Glide v0.62 Voodoo5 6000 (tm) SLI") - idempotent
 sed -i 's/char rendererString\[64\];/char rendererString[96];/' "$FXDRV"
-# inject/refresh the version marker in the renderer string - idempotent
+# no build tag in the renderer string - strip one an older source still carries
 sed -i 's/ \[voodoo-cleanroom [0-9.]*\]//' "$FXAPI"
-sed -i "s/\"Mesa %s v0\.62 %s%s\"/\"Mesa %s v0.62 %s%s [voodoo-cleanroom $DRVVER]\"/" "$FXAPI"
-grep -q "voodoo-cleanroom $DRVVER" "$FXAPI" || { echo "FATAL: version inject failed"; exit 1; }
+! grep -q "voodoo-cleanroom" "$FXAPI" || { echo "FATAL: a build tag is still in fxapi.c (the renderer string)"; exit 1; }
+# refresh the tag GL_VERSION carries - idempotent
+sed -i "s/\[voodoo-cleanroom [0-9.]*\]/[voodoo-cleanroom $DRVVER]/" "$FXDD"
+grep -q "\[voodoo-cleanroom $DRVVER\]" "$FXDD" || { echo "FATAL: version inject failed (fxdd.c rgl_build_tag)"; exit 1; }
 echo "== driver version: $DRVVER =="
 # gcc-13 portability (idempotent)
 sed -i 's/CFLAGS = -Wall -Werror/CFLAGS = -Wall -Wno-array-bounds -Wno-stringop-overflow -fcommon/' "$GLTREE/Makefile.mgw" || true

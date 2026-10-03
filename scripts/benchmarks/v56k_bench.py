@@ -1485,10 +1485,11 @@ class RTCW:
         # software fallback as if it were the ICD.
         # our ICD is Mesa too: with r_glIgnoreWicked3D 1 RtCW reaches the SYSTEM
         # ICD, which may be ours - that is not an AmigaMerlin row
-        if is_mesa and "voodoo-cleanroom" not in rend:
+        ours = cleanroom_tag_in_log(raw)
+        if is_mesa and not ours:
             return True, ""
         got = ("gl/openglv5.dll (Wicked3D)" if is_wicked else
-               f"our voodoo-cleanroom ICD ('{rend[:40]}') as the system ICD" if "voodoo-cleanroom" in rend
+               f"our voodoo-cleanroom {ours} ICD ('{rend[:40]}') as the system ICD" if ours
                else f"GL_VENDOR '{vend[:40]}' / '{rend[:40]}'")
         return False, f"driver-mismatch: asked for {self.gldriver} (the Mesa ICD), engine loaded {got}"
 
@@ -1703,19 +1704,45 @@ class CS16:
 # loaded by name from beside the game's exe - nothing in system32 changes, so
 # removing one file restores the retail stack. The DLL is the retail-linked
 # build (imports the glide3x.dll already in system32).
-CLEANROOM_ICD = Path(os.environ.get(
-    "V56K_CLEANROOM_ICD",
-    Path(__file__).resolve().parents[2].parent.parent.parent
-    / "voodoo-cleanroom" / "out" / "opengl32_retail.dll"))
-if not CLEANROOM_ICD.exists():   # running from the main tree, not a worktree
-    CLEANROOM_ICD = (Path(__file__).resolve().parents[2]
-                     / "voodoo-cleanroom" / "out" / "opengl32_retail.dll")
+def _cleanroom_icd(env=os.environ, here=Path(__file__).resolve()):
+    """The ICD build the clean-room lanes stage: $V56K_CLEANROOM_ICD, else THIS
+    checkout's own build, else (a fresh worktree has no gitignored out/) the
+    main tree's. The main tree used to come FIRST: on 2026-10-03 a run from
+    the v56k-bench worktree, which had just built 0.1.83, staged the main
+    tree's 0.1.76 from 2026-09-28 over .124's system32\\retroicd.dll."""
+    if env.get("V56K_CLEANROOM_ICD"):
+        return Path(env["V56K_CLEANROOM_ICD"])
+    rel = Path("voodoo-cleanroom") / "out" / "opengl32_retail.dll"
+    own = here.parents[2] / rel
+    if own.exists():
+        return own
+    return here.parents[2].parent.parent.parent / rel      # worktree -> main tree
+
+
+CLEANROOM_ICD = _cleanroom_icd()
 CLEANROOM_TRACE = r"C:\retrogl.log"
 
 
 def cleanroom_version(data):
     m = re.search(rb"\[voodoo-cleanroom (\d+\.\d+\.\d+)\]", data)
     return m.group(1).decode() if m else "unknown"
+
+
+def cleanroom_tag_in_log(raw):
+    """The voodoo-cleanroom ICD build a game log says drew, or None.
+
+    Up to 0.1.82 the tag was in GL_RENDERER; from 0.1.83 it is in GL_VERSION
+    (`1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.83]`, fxdd.c rgl_build_tag),
+    because id Tech 3 and Torque remember the renderer string and reset their
+    graphics to the low preset whenever it changes. Reads the LAST line of
+    each kind: a log can hold several inits."""
+    for key in ("GL_VERSION", "GL_RENDERER"):
+        lines = re.findall(key + r":\s*(.+)", raw)
+        if lines:
+            m = re.search(r"\[voodoo-cleanroom (\d+\.\d+\.\d+)\]", lines[-1])
+            if m:
+                return m.group(1)
+    return None
 
 
 class _Cleanroom:
@@ -1754,10 +1781,12 @@ class Quake2Cleanroom(_Cleanroom, Quake2):
     gl_driver = "retrogl"
 
     def verify_driver(self, raw):
-        r = re.findall(r"GL_RENDERER:\s*(.+)", raw)
-        if r and "voodoo-cleanroom" in r[-1]:
+        if cleanroom_tag_in_log(raw):
             return True, ""
-        return False, f"GL_RENDERER is '{(r[-1] if r else '?').strip()[:60]}', not our ICD"
+        r = re.findall(r"GL_RENDERER:\s*(.+)", raw)
+        v = re.findall(r"GL_VERSION:\s*(.+)", raw)
+        return False, (f"GL_RENDERER '{(r[-1] if r else '?').strip()[:60]}' / GL_VERSION "
+                       f"'{(v[-1] if v else '?').strip()[:50]}' name no voodoo-cleanroom build - not our ICD")
 
     async def identify(self, box):
         if getattr(self, "_identified", False):
@@ -1965,11 +1994,16 @@ class RTCWCleanroom(_Cleanroom, RTCW):
         await RTCW.prepare(self, box, w, h, depth, env)
 
     def verify_driver(self, raw):
+        """The EXACT build staged must be the one that drew: the tag in
+        GL_VERSION (0.1.83+) or GL_RENDERER (<= 0.1.82), cleanroom_tag_in_log."""
+        got = cleanroom_tag_in_log(raw)
+        if self._ver and got == self._ver:
+            return True, ""
         r = re.findall(r"GL_RENDERER:\s*(.+)", raw)
         rend = (r[-1] if r else "?").strip()
-        if self._ver and f"voodoo-cleanroom {self._ver}]" in rend:
-            return True, ""
-        return False, f"GL_RENDERER is '{rend[:60]}', not our ICD {self._ver}"
+        return False, (f"the log names voodoo-cleanroom {got}, not the staged {self._ver}" if got
+                       else f"GL_RENDERER is '{rend[:60]}' and no GL line names a voodoo-cleanroom "
+                            f"build - not our ICD {self._ver}")
 
 class RTCWAllOurs(_AllOursLog, RTCWCleanroom):
     """RtCW on the whole clean-room stack: our ICD beside WolfMP.exe and OUR

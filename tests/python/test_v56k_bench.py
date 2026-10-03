@@ -1126,6 +1126,50 @@ def test_each_lane_names_the_driver_files_it_actually_loads(bench):
     assert glide == rf"{rtcw.root}\glide3x.dll"
 
 
+def test_our_icd_is_recognised_by_its_tag_in_gl_version_or_gl_renderer(bench):
+    """0.1.83 moved the build tag from GL_RENDERER to GL_VERSION (id Tech 3 and
+    Torque reset their graphics whenever the renderer string changed). Rows
+    from both generations must still be attributed to our ICD."""
+    new = ("GL_VENDOR: Brian Paul\nGL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm)\n"
+           "GL_VERSION: 1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.83]\n")
+    old = "GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.82]\nGL_VERSION: 1.2 Mesa 6.2.2\n"
+    amiga = "GL_VENDOR: Brian Paul\nGL_RENDERER: Mesa Glide v0.63 Voodoo5 6000 (tm)\nGL_VERSION: 1.2 Mesa 3.4.2\n"
+    assert bench.cleanroom_tag_in_log(new) == "0.1.83"
+    assert bench.cleanroom_tag_in_log(old) == "0.1.82"
+    assert bench.cleanroom_tag_in_log(amiga) is None
+    # the LAST init wins: a log that switched drivers names the one that drew
+    assert bench.cleanroom_tag_in_log(amiga + new) == "0.1.83"
+    q2c = bench.Quake2Cleanroom()
+    assert q2c.verify_driver(new)[0] and q2c.verify_driver(old)[0]
+    ok, note = q2c.verify_driver(amiga)
+    assert not ok and "not our ICD" in note
+    # RtCW's clean-room lane wants the EXACT staged build (measured on .124
+    # 2026-10-03: a 0.1.83 row was flagged because the check read GL_RENDERER only)
+    rt = bench.RTCWCleanroom()
+    rt._ver = "0.1.83"
+    assert rt.verify_driver(new) == (True, "")
+    ok, note = rt.verify_driver(old)
+    assert not ok and "0.1.82" in note and "0.1.83" in note
+    assert not rt.verify_driver(amiga)[0]
+
+
+def test_the_cleanroom_lanes_stage_this_checkouts_own_build(bench, tmp_path):
+    """2026-10-03: run from a worktree that had just built 0.1.83, the bench
+    staged the MAIN tree's 0.1.76 over .124's system32\\retroicd.dll, because
+    the main tree's out/ was checked first."""
+    wt = tmp_path / "repo" / ".claude" / "worktrees" / "wt"
+    script = wt / "scripts" / "benchmarks" / "v56k_bench.py"
+    main_icd = tmp_path / "repo" / "voodoo-cleanroom" / "out" / "opengl32_retail.dll"
+    own_icd = wt / "voodoo-cleanroom" / "out" / "opengl32_retail.dll"
+    for f in (main_icd, own_icd, script):
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_bytes(b"x")
+    assert bench._cleanroom_icd(env={}, here=script) == own_icd
+    own_icd.unlink()                       # a fresh worktree: no gitignored out/
+    assert bench._cleanroom_icd(env={}, here=script) == main_icd
+    assert bench._cleanroom_icd(env={"V56K_CLEANROOM_ICD": "/x.dll"}, here=script) == Path("/x.dll")
+
+
 class _RegBox:
     """REGREAD answers from a dict; exec_/download describe one 3-byte file."""
     def __init__(self, reg):

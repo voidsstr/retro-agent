@@ -340,7 +340,9 @@ known bugs and roadmap — is [`voodoo-cleanroom/README.md`](voodoo-cleanroom/RE
   links the retail AmigaMerlin glide import lib; the non-retail path links our
   `retro3dfx-glide`.)
 - **Version:** `voodoo-cleanroom/VERSION` (0.1) + `.buildnum` → **0.1.N**;
-  `GL_RENDERER = "Mesa Glide v0.62 ... [voodoo-cleanroom 0.1.N]"`.
+  `GL_VERSION = "1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.N]"` since 0.1.83; `GL_RENDERER`
+  (`Mesa Glide v0.62 <board>`) is the same for every build, because id Tech 3 and
+  Torque reset their graphics whenever it changes (the tag sat there up to 0.1.82).
 - **Deploy:** as game-local `retrogl.dll` loaded by name (Quake II `gl_driver`,
   Quake III `r_glDriver`), or — since **0.1.63** — as the **system ICD**
   (`system32\retroicd.dll` + `OpenGLDrivers\<name>\DLL`, README §10.5), which is
@@ -398,7 +400,7 @@ build, deploy, test and fix. Its components:
 | files | `src/mesa/drivers/glide/fx*.c` | `SST_*.c`, `sst_export.c`, `__glSST*` |
 | build | mingw gcc-13 | Wine/MSVC |
 | size / version | ~2.7 MB / **0.1.x** | ~704 KB / **0.2.x–0.3.x** |
-| renderer | `Mesa Glide v0.62 [voodoo-cleanroom 0.1.N]` | `[retro3dfx 0.2.x]` (the vintage lane's own brand) |
+| renderer | `Mesa Glide v0.62 <board>`; `GL_VERSION` carries `[voodoo-cleanroom 0.1.N]` (0.1.83+; GL_RENDERER up to 0.1.82) | `[retro3dfx 0.2.x]` (the vintage lane's own brand) |
 | lane | clean-room stack | vintage H5 stack (Voodoo 5 boxes) |
 
 **Current .124 deployment is a HYBRID:** OUR MesaFX ICD (open) + retail AmigaMerlin

@@ -11,7 +11,9 @@ r_lastValidRenderer, our ICD's string carries its build number, and a game that
 sees a "new card" resets its graphics to the low "recommended" preset (found
 2026-10-02: RtCW at r_picmip 2 with vertex lighting, SoF2 at r_picmip 3 behind
 a "New Video card detected" box). This script writes r_lastValidRenderer from
-the ICD that is actually deployed.
+the ICD that is actually deployed. From ICD 0.1.83 the build tag is in
+GL_VERSION and the renderer string is the same for every build, so after one
+re-run on 0.1.83 a later ICD update no longer resets these games.
 
 Idempotent: a value already right is not rewritten. Each file is backed up
 once, beside itself, as <name>.pretune, before its first change. The answer
@@ -34,7 +36,8 @@ G = r"C:\Games"
 TRILINEAR = "GL_LINEAR_MIPMAP_LINEAR"
 # the renderer string is built at run time from Glide's board name; the build
 # tag comes from the deployed DLL (see renderer_string)
-RENDERER_FMT = "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom {ver}]"
+RENDERER_FMT = "Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom {ver}]"   # ICD <= 0.1.82
+RENDERER_STABLE = "Mesa Glide v0.62 Voodoo5 6000 (tm)"                          # ICD >= 0.1.83
 RENDERER = object()       # placeholder value: "the deployed ICD's renderer string"
 
 # Quake II engine: full-colour textures instead of the 8-bit paletted upload,
@@ -180,13 +183,24 @@ async def call(host, cmd, payload=None, raw=False, timeout=60):
         await c.close()
 
 
-async def renderer_string(host):
-    """The deployed system ICD's GL_RENDERER: the build tag from its bytes."""
-    dll = await call(host, r"DOWNLOAD C:\WINDOWS\system32\retroicd.dll", raw=True, timeout=120)
+def renderer_from_dll(dll):
+    """The GL_RENDERER the ICD in `dll` reports, read off its own format
+    string: up to 0.1.82 "Mesa %s v0.62 %s%s [voodoo-cleanroom x.y.z]", from
+    0.1.83 "Mesa %s v0.62 %s%s" (the tag moved to GL_VERSION)."""
     m = re.search(rb"\[voodoo-cleanroom (\d+\.\d+\.\d+)\]", dll)
     if not m:
         raise SystemExit("system32\\retroicd.dll carries no [voodoo-cleanroom x.y.z] tag - not our ICD?")
-    return RENDERER_FMT.format(ver=m.group(1).decode())
+    if re.search(rb"Mesa %s v0\.62 %s%s \[voodoo-cleanroom ", dll):
+        return RENDERER_FMT.format(ver=m.group(1).decode())
+    if b"Mesa %s v0.62 %s%s\x00" in dll:
+        return RENDERER_STABLE
+    raise SystemExit("system32\\retroicd.dll: unrecognised GL_RENDERER format - not pinning a guess")
+
+
+async def renderer_string(host):
+    """The deployed system ICD's GL_RENDERER (renderer_from_dll)."""
+    dll = await call(host, r"DOWNLOAD C:\WINDOWS\system32\retroicd.dll", raw=True, timeout=120)
+    return renderer_from_dll(dll)
 
 
 async def amain(args):

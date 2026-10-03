@@ -1,0 +1,191 @@
+logfile opened on Sat Oct 03 08:18:21 2026
+
+...detecting CPU, found AMD w/ 3DNow!
+Bypassing CD checks
+----- Client Initialization -----
+----- Initializing Renderer ----
+-------------------------------
+Loaded 714 translation strings from scripts/translation.cfg
+Loaded 97 translation strings from translations/rocket.cfg
+Loaded 86 translation strings from translations/dam.cfg
+Loaded 114 translation strings from translations/tram.cfg
+Loaded 57 translation strings from translations/chateau.cfg
+Loaded 54 translation strings from translations/keep.cfg
+Loaded 73 translation strings from translations/icelab.cfg
+Loaded 6 translation strings from translations/translation-1_4.cfg
+----- Client Initialization Complete -----
+----- R_Init -----
+Initializing OpenGL subsystem
+...initializing QGL
+...calling LoadLibrary( 'C:\WINDOWS\system32\opengl32.dll' ): succeeded
+...setting mode 6: 1024 768 FS
+...using colorsbits of 32
+...calling CDS: ok
+...registered window class
+...created window@0,0 (1024x768)
+Initializing OpenGL driver
+...getting DC: succeeded
+...GLW_ChoosePFD( 32, 24, 0 )
+...41 PFDs found
+...hardware acceleration found
+...PIXELFORMAT 6 selected
+...creating GL context: succeeded
+...making context current: succeeded
+Initializing OpenGL extensions
+...ignoring GL_EXT_texture_compression_s3tc
+...using GL_EXT_texture_env_add
+...using WGL_EXT_swap_control
+...using GL_ARB_multitexture
+...using GL_EXT_compiled_vertex_array
+...ignoring WGL_3DFX_gamma_control
+...GL_NV_fog_distance not found
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm)
+GL_VERSION: 1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.83]
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 6, 1024 x 768 fullscreen hz:100
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+NV distance fog: disabled
+Initializing Shaders
+----- finished R_Init -----
+
+------- sound initialization -------
+not initializing.
+------------------------------------
+Sound memory manager started
+--- Common Initialization Complete ---
+Winsock Initialized
+Opening IP socket: localhost:27960
+Hostname: nsc-c543575f526
+IP: 192.168.1.124
+Working directory: C:\Games\ReturnToCastleWolfenstein
+^5PunkBuster Client: PunkBuster Client (v1.002 | A0) **DISABLED**
+^3PunkBuster Server: PunkBuster Server (v0.996 | A0 C0.0) **DISABLED**
+r_glDriver will be changed upon restarting.
+Current search path:
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps6.pk3 (81 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps5.pk3 (35 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps4.pk3 (52 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps3.pk3 (83 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps2.pk3 (47 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps1.pk3 (34 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pakmaps0.pk3 (21 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak5.pk3 (77 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak4.pk3 (5 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak3.pk3 (76 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak2.pk3 (3 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak1.pk3 (308 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_pak0.pk3 (783 files)
+C:\Games\ReturnToCastleWolfenstein\main\mp_bin.pk3 (4 files)
+C:\Games\ReturnToCastleWolfenstein\main\pak0.pk3 (4775 files)
+C:\Games\ReturnToCastleWolfenstein/main
+
+handle 1: rtcwconsole.log
+handle 2: demos/wolfbench.dm_60
+----------------------
+12768 files in pk3 files
+RE_Shutdown( 0 )
+Hunk_Clear: reset the hunk ok
+----- R_Init -----
+
+GL_VENDOR: Brian Paul
+GL_RENDERER: Mesa Glide v0.62 Voodoo5 6000 (tm)
+GL_VERSION: 1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.83]
+GL_EXTENSIONS: GL_ARB_multitexture GL_SGIS_multitexture GL_ARB_point_sprite GL_ARB_texture_compression GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_mirrored_repeat GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_compiled_vertex_array GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_paletted_texture GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shared_texture_palette GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_compression_s3tc GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_multimode_draw_arrays GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texgen_reflection GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_S3_s3tc WGL_3DFX_gamma_control WGL_EXT_swap_control WGL_EXT_extensions_string WGL_ARB_extensions_string
+GL_MAX_TEXTURE_SIZE: 2048
+GL_MAX_ACTIVE_TEXTURES_ARB: 2
+
+PIXELFORMAT: color(32-bits) Z(24-bit) stencil(8-bits)
+MODE: 6, 1024 x 768 fullscreen hz:100
+GAMMA: software w/ 0 overbright bits
+CPU: AMD w/ 3DNow!
+rendering primitives: single glDrawElements
+texturemode: GL_LINEAR_MIPMAP_NEAREST
+picmip: 0
+texture bits: 32
+multitexture: enabled
+compiled vertex arrays: enabled
+texenv add: enabled
+compressed textures: disabled
+NV distance fog: disabled
+Initializing Shaders
+----- finished R_Init -----
+LOADING... collision map
+LOADING... sounds
+voice chat memory size = 3264
+
+.........................
+Initializing Sound Scripts
+...loading 'sound/scripts/cutscene1.sounds'
+...loading 'sound/scripts/cutscene6.sounds'
+...loading 'sound/scripts/cutscene9.sounds'
+...loading 'sound/scripts/cutscene11.sounds'
+...loading 'sound/scripts/cutscene14.sounds'
+...loading 'sound/scripts/cutscene19.sounds'
+...loading 'sound/scripts/escape1.sounds'
+...loading 'sound/scripts/escape2.sounds'
+...loading 'sound/scripts/tram.sounds'
+...loading 'sound/scripts/village1.sounds'
+...loading 'sound/scripts/crypt1.sounds'
+...loading 'sound/scripts/crypt2.sounds'
+...loading 'sound/scripts/church.sounds'
+...loading 'sound/scripts/boss1.sounds'
+...loading 'sound/scripts/forest.sounds'
+...loading 'sound/scripts/rocket.sounds'
+...loading 'sound/scripts/assault.sounds'
+...loading 'sound/scripts/sfm.sounds'
+...loading 'sound/scripts/factory.sounds'
+...loading 'sound/scripts/trainyard.sounds'
+...loading 'sound/scripts/swf.sounds'
+...loading 'sound/scripts/norway.sounds'
+...loading 'sound/scripts/xlabs.sounds'
+...loading 'sound/scripts/boss2.sounds'
+...loading 'sound/scripts/dam.sounds'
+...loading 'sound/scripts/village2.sounds'
+...loading 'sound/scripts/chateau.sounds'
+...loading 'sound/scripts/dark.sounds'
+...loading 'sound/scripts/castle.sounds'
+...loading 'sound/scripts/end.sounds'
+...loading 'sound/scripts/ai.sounds'
+...loading 'sound/scripts/general.sounds'
+...loading 'sound/scripts/combat.sounds'
+...loading 'sound/scripts/movers.sounds'
+done.
+LOADING... graphics
+LOADING... maps/mp_beach.bsp
+stitched 0 LoD cracks
+...loaded 5432 faces, 264 meshes, 259 trisurfs, 168 flares
+LOADING... entities
+LOADING... game media
+LOADING...  - textures
+LOADING...  - models
+LOADING...  - weapons
+LOADING...  - items
+LOADING...  - inline models
+LOADING...  - server models
+LOADING...  - particles
+LOADING...  - game media done
+LOADING... flamechunks
+LOADING... clients
+LOADING... WolfPlayer
+UI menu load time = 147 milli seconds
+CL_InitCGame: 14.34 seconds
+961 msec to draw all images
+Com_TouchMemory: 67 msec
+421 frames, 7.1 seconds: 59.6 fps
+Resolving wolfmotd.idsoftware.com
+Couldn't resolve address

@@ -12,6 +12,25 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.83 — the build tag moves from GL_RENDERER to GL_VERSION (2026-10-03)
+
+`GL_RENDERER` is now the same for every build (`Mesa Glide v0.62 Voodoo5 6000
+(tm)` on the V5 6000). `GL_VERSION` is Mesa's own answer with the tag after it:
+`1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.83]` (`fxdd.c` `rgl_build_tag`, refreshed
+by `build-mesafx-retail.sh`, which now refuses a tag left in the renderer
+string). The reason: id Tech 3 (`r_lastValidRenderer`) and Torque
+(`$pref::Video::profiledRenderer`) remember the renderer string and drop to
+their low graphics preset when it changes. So Quake III, RtCW, SoF II, Jedi
+Academy and Tribes 2 reset after every driver update, and
+`scripts/benchmarks/v56k_tune.py` had to re-pin them each time. A game that
+parses GL_VERSION's leading `1.2` reads what it always read. Verified on `.124`:
+RtCW logged both strings, and the bench row is attributed
+`opengl-cleanroom-0.1.83` from GL_VERSION (`v56k_bench.cleanroom_tag_in_log`).
+`v56k_tune.py` re-pinned the configs once, to the stable string. Fork commit
+`9bebc67`. Deployed on `.124` as `system32\retroicd.dll` (md5 `7a843e42`;
+0.1.82 kept as `retroicd_0182.bak`). Tests:
+`tests/python/test_icd_build_tag_source.py`, plus the bench and tune tests.
+
 ## 0.1.82 — two colour buffers again; three only on request (2026-10-02)
 
 `RETROGL_COLOR_BUFFERS=3` opens the board with three colour buffers, anything

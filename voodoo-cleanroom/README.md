@@ -217,7 +217,7 @@ Tracked in git:
 | `README.md` | This page |
 | `VERSION`, `.buildnum` | Version = `VERSION` (`0.1`) + `.` + `.buildnum` (now `61`). `build-mesafx-retail.sh` increments `.buildnum` on every build |
 | `build-stack.sh` | Clones the two forks into `build/`, builds every Glide lane, applies `patches/mesafx-*.patch`, builds the ICD. [§8.2](#82-build-stacksh--every-glide-lane-and-the-icd) |
-| `build-mesafx-retail.sh` | Rebuilds only the ICD, stamps the next `0.1.N` into `GL_RENDERER`, links the retail Glide naming. [§8.3](#83-build-mesafx-retailsh--the-shipping-icd) |
+| `build-mesafx-retail.sh` | Rebuilds only the ICD, stamps the next `0.1.N` into `GL_VERSION` (`GL_RENDERER` until 0.1.82), links the retail Glide naming. [§8.3](#83-build-mesafx-retailsh--the-shipping-icd) |
 | `patches/mesafx-voodoo2-icd.patch` | **All ICD work from 0.1.41 to 0.1.60** (the Voodoo 2 lane). Applied to the fork clone by `build-stack.sh`; it is not in any fork commit |
 | `patches/h5-bringup-wip.patch` | Three h3 fixes ported to the h5 Glide tree. **Not applied by anything** (§16) |
 | `tools/glideprobe.c` | Step-by-step Glide bring-up probe that survives a machine lock-up ([§11.3](#113-glideprobe--which-glide-call-hung-the-machine)) |
@@ -705,8 +705,11 @@ What each step does, and the traps it encodes:
    `build-stack.sh` first).
 3. Copies the SDK headers and the **retail** import library (`_grFoo@N` naming)
    into the fork.
-4. Bumps `.buildnum` and injects `[voodoo-cleanroom 0.1.N]` into the renderer
-   string in `fxapi.c` (aborts if the injection fails).
+4. Bumps `.buildnum` and refreshes `[voodoo-cleanroom 0.1.N]` in `fxdd.c`'s
+   `rgl_build_tag`, which `GL_VERSION` reports (aborts if the injection fails,
+   or if a tag is left in `fxapi.c`'s renderer string - since 0.1.83 that string
+   is the same for every build, because id Tech 3 and Torque reset their
+   graphics whenever it changes).
 5. `make clean` then `make -f Makefile.mgw FX=1 X86=1 CPU=pentium3 TUNE=pentium4`.
 6. Copies the result to `out/opengl32_retail.dll`, `out/opengl32_retail_v0.1.N.dll`
    and `out/opengl32_retail.dll.ver`.
@@ -1550,8 +1553,12 @@ summarised in the 0.1.52 and 0.1.58 rows. `FX_PROFILE` first shipped in 0.1.52
 0.1.58 and to `glBegin`..`glEnd` in 0.1.60.
 
 0.1.62–0.1.75 (2026-09-24/25, the first Voodoo 5 6000 numbers through Quake II
-single-pass multitexture by default) are in [`CHANGELOG.md`](CHANGELOG.md) and
-§13.3; they are not tabulated here yet.
+single-pass multitexture by default) and 0.1.76–0.1.82 are in
+[`CHANGELOG.md`](CHANGELOG.md) and §13.3; they are not tabulated here yet.
+**0.1.83 (2026-10-03) moved the build tag from `GL_RENDERER` to `GL_VERSION`**
+(`1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.83]`). id Tech 3 and Torque remember
+the renderer string and drop to their low graphics preset when it changes, so
+every earlier build reset Quake III, RtCW, SoF II, JKA and Tribes 2 on update.
 
 ### 15.3 Glide fork and build pipeline
 
@@ -1854,7 +1861,7 @@ FIFO spins (G3) before the next Voodoo 5 attempt.
 | ICD files | `src/mesa/drivers/glide/fx*.c` | `SST_*.c`, `sst_export.c`, `__glSST*` |
 | Build | mingw gcc 13 on Linux | Wine + MSVC / Windows 2000 DDK |
 | ICD size / version | ~2.7 MB / **0.1.x** | ~704 KB / **0.2.x and up** |
-| Renderer string | `Mesa Glide v0.62 … [voodoo-cleanroom 0.1.N]` (older: `[retro3dfx 0.1.N]`) | `3Dfx … [retro3dfx 0.x]` |
+| Renderer string | `Mesa Glide v0.62 <board>`; the build is in `GL_VERSION` `… [voodoo-cleanroom 0.1.N]` since 0.1.83 (in the renderer string before; older: `[retro3dfx 0.1.N]`) | `3Dfx … [retro3dfx 0.x]` |
 | Display driver | fxD3D / vcr-disp (unfinished); borrows H5 or AmigaMerlin | its own H5 display driver + D3D HAL + miniport |
 | Tests | `../tests/` | `retro-3dfx/tests/` (`predeploy.sh`, `d3dlab` goldens) |
 
