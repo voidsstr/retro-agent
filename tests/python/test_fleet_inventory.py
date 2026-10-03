@@ -496,7 +496,7 @@ def _mismatch(listed, roster):
 
 def test_the_roster_has_admin_pc_at_its_new_address():
     rows = [r for r in inventory.load_roster(ROSTER_FILE) if r[1] == "ADMIN-PC"]
-    assert [r[0] for r in rows] == ["192.168.1.195"], rows
+    assert [r[0] for r in rows] == ["192.168.1.197"], rows
     # The old address survives only in the note that says it moved.
     assert "192.168.1.246" not in _roster_ips()
 
@@ -548,9 +548,11 @@ def test_publish_all_fleet_matches_the_roster():
 def test_the_pre_fix_lists_fail_the_same_check():
     roster = _roster_ips()
     assert _mismatch(OLD_AUTODEPLOY_BOXES, roster) == (
-        ["192.168.1.195"], ["192.168.1.246"])
+        ["192.168.1.110", "192.168.1.184", "192.168.1.186", "192.168.1.197"],
+        ["192.168.1.246"])
     assert _mismatch(OLD_PUBLISH_FLEET, roster) == (
-        ["192.168.1.195", "192.168.1.243"], ["192.168.1.246"])
+        ["192.168.1.110", "192.168.1.184", "192.168.1.186", "192.168.1.197",
+         "192.168.1.243"], ["192.168.1.246"])
 
 
 def test_publish_all_never_picks_the_win9x_box_as_its_writer():

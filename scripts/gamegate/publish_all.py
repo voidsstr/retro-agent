@@ -69,7 +69,7 @@ WRITER = os.getenv("RETRO_GAMEGATE_WRITER", "")
 # .124 LAST: it carries the V5 6000 benchmark campaign, where an EXEC'd cmd.exe
 # is a skewed number.
 WRITER_CANDIDATES = ["192.168.1.123", "192.168.1.133", "192.168.1.143",
-                     "192.168.1.240", "192.168.1.195", "192.168.1.124"]
+                     "192.168.1.240", "192.168.1.197", "192.168.1.124"]
 
 
 async def _pick_writer():
@@ -109,8 +109,8 @@ SHARE_DIR = "Z:\\Files\\Games-Library\\_gamegate"
 # on 2026-09-26, and .243 was missing, so a default run never refreshed .243's
 # file. Only HWPROFILE is sent to these boxes - agent-internal, safe on Win9x.
 FLEET = ["192.168.1.123", "192.168.1.124", "192.168.1.133", "192.168.1.143",
-         "192.168.1.145", "192.168.1.171", "192.168.1.240", "192.168.1.195",
-         "192.168.1.243"]
+         "192.168.1.145", "192.168.1.171", "192.168.1.240", "192.168.1.197",
+         "192.168.1.243", "192.168.1.110", "192.168.1.184", "192.168.1.186"]
 
 
 MNT_DIR = "/mnt/retro-share/Files/Games-Library/_gamegate"

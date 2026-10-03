@@ -152,7 +152,7 @@ def test_the_map_is_keyed_case_insensitively(tmp_path):
 
 def test_the_audit_audits_the_roster_not_a_stale_list():
     assert AUDIT.DEFAULT_BOXES == AUDIT.roster_boxes()
-    assert "192.168.1.195" in AUDIT.DEFAULT_BOXES   # ADMIN-PC, was .246
+    assert "192.168.1.197" in AUDIT.DEFAULT_BOXES   # ADMIN-PC (was .246, then .195)
 
 
 def test_halo_skips_its_intro_movies_only_where_vcr_kmd_drives_the_screen():
