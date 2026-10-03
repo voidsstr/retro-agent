@@ -13,15 +13,15 @@ records a dialog raised by its own WM_CLOSE (`dialogs_on_close`, new tonight).
 | Hexen II | CHECK | yes | Confirm Exit | no | ok | the game's own quit prompt - normal |
 | Jedi Academy - Multiplayer | PASS | yes | - | no | ok |  |
 | Jedi Academy | PASS | yes | - | no | ok |  |
-| Quake II - Ground Zero | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - its shutdown deletes the context before its last frame (known; console/menu quit is clean) |
-| Quake II - The Reckoning | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - its shutdown deletes the context before its last frame (known; console/menu quit is clean) |
-| Quake II - ThreeWave CTF | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - its shutdown deletes the context before its last frame (known; console/menu quit is clean) |
-| Quake II | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - its shutdown deletes the context before its last frame (known; console/menu quit is clean) |
+| Quake II - Ground Zero | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - fails before the ICD (an ICD answering TRUE changed nothing); console/menu quit is clean |
+| Quake II - The Reckoning | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - fails before the ICD (an ICD answering TRUE changed nothing); console/menu quit is clean |
+| Quake II - ThreeWave CTF | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - fails before the ICD (an ICD answering TRUE changed nothing); console/menu quit is clean |
+| Quake II | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - fails before the ICD (an ICD answering TRUE changed nothing); console/menu quit is clean |
 | Quake III Arena (retail 1.32c) | PASS | yes | - | no | ok |  |
 | Return to Castle Wolfenstein | PASS | yes | - | no | ok |  |
 | RTCW Multiplayer | PASS | yes | - | no | ok |  |
-| SiN - Wages of SiN | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - its shutdown deletes the context before its last frame (known; console/menu quit is clean) |
-| SiN | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - its shutdown deletes the context before its last frame (known; console/menu quit is clean) |
+| SiN - Wages of SiN | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - fails before the ICD (an ICD answering TRUE changed nothing); console/menu quit is clean |
+| SiN | CHECK | yes | Error | no | ok | Quake II engine: "GLimp_EndFrame() - SwapBuffers() failed!" - fails before the ICD (an ICD answering TRUE changed nothing); console/menu quit is clean |
 | Soldier of Fortune II - Multiplayer | CHECK | yes | - | yes | ok | focus held by the agent console - WM_CLOSE, then forced |
 | Soldier of Fortune II | CHECK | yes | - | yes | ok | focus held by the agent console - WM_CLOSE, then forced |
 | Soldier of Fortune | PASS | yes | - | no | ok |  |

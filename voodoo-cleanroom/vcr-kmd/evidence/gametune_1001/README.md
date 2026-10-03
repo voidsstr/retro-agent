@@ -39,9 +39,16 @@ WM_CLOSE:
 - Descent 3 and SoF II: ignore WM_CLOSE, and the focus sat on the agent's
   console, so no close keys were sent.
 
+**Quake II's close dialog is not the ICD's** (tried and withdrawn 2026-10-03
+00:20). ICD build 0.1.83 answered TRUE to a swap with no context and logged the
+first one. With it deployed, a WM_CLOSE to Quake II still raised
+"GLimp_EndFrame() - SwapBuffers() failed!", and the ICD never saw a
+context-less swap. The failing `SwapBuffers` stops before the driver, most
+likely on the window and DC that the WM_CLOSE destroyed. `.124` is back on
+0.1.82 (`retroicd_0182.bak`, md5 0183eb85), and nothing was committed to the
+fork. Quit Quake II from its console or menu.
+
 **Still open:**
-- Our ICD could report success for a swap with no live context, which would
-  silence Quake II's close dialog.
 - Serious Sam stays on its "Normal" preset until a measured "Quality" run.
 - Descent II's Win95 engine registration card.
 - A game started by `lan_sweep` does not get the keyboard focus.

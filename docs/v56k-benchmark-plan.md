@@ -213,10 +213,11 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
    boxes synced, 0 errors). **Re-sweep of the 20 tuned shortcuts: 0 FAIL,
    every game alive, the board healthy after each** (`gametune_1001/
    sweep_tuned/`); the CHECKs are close-path only. Carmageddon 2 (640x480) and
-   Turok 2 (1024x768) are engine limits. **Open:** the ICD could report success
-   for a swap with no live context (Quake II's WM_CLOSE dialog); Serious Sam
-   "Quality" preset unmeasured; Descent II Win95 registration card; lan_sweep's
-   focus.
+   Turok 2 (1024x768) are engine limits. Quake II's WM_CLOSE dialog is NOT the
+   ICD's (an ICD build answering TRUE to a context-less swap changed nothing;
+   withdrawn, .124 back on 0.1.82) - quit it from its console/menu. **Open:**
+   Serious Sam "Quality" preset unmeasured; Descent II Win95 registration card;
+   lan_sweep's focus.
 4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on the
    display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through the
    console until fixed).
@@ -266,8 +267,10 @@ Also open from part 1: Descent II Win95 engine "started no process" - run direct
 `DESCENTW.EXE` exits within 3 s with no window, no dialog and no Dr. Watson entry
 (the default "Descent II" shortcut, d2x-rebirth, renders at 1280x960), Blue
 Shift (SecuROM), BF1942 SP (SafeDisc 2.80), AvP (pre-existing). Quake II closed by
-WM_CLOSE shows "GLimp_EndFrame() - SwapBuffers() failed!": Quake II's own shutdown
-deletes the context before its last frame - quit from the console/menu is clean.
+WM_CLOSE shows "GLimp_EndFrame() - SwapBuffers() failed!" - not the ICD's failure
+(2026-10-03: an ICD that answers TRUE to a context-less swap changed nothing and
+never saw the call; the swap fails before the driver, likely on the window the
+WM_CLOSE destroyed) - quit from the console/menu is clean.
 
 **Open:** (the SafeDisc/CD-check titles are done - all four pass under DAEMON Tools, 2026-09-29); Red Faction's
 black frame; Descent II Win95; Halo keys for `.145`/`.240`/`.123`/`.195` when on;
