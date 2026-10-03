@@ -1,0 +1,107 @@
+{
+  "accelerators": [
+    {
+      "count": 1,
+      "description": "AMIGAMERLIN 3.1-R11 For Voodoo 5 6000 AGP",
+      "device_key": "VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01",
+      "pci_dev": "0x0009",
+      "pci_ven": "0x121A"
+    }
+  ],
+  "agent_version": "1.79.4",
+  "capabilities": {
+    "bits": 0,
+    "disc_mount": false,
+    "disc_mount_evidence": ""
+  },
+  "cpu": {
+    "brand": "AMD Athlon(tm) ",
+    "count": 1,
+    "family": 6,
+    "feature_bits": 271,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "3dnow",
+      "sse"
+    ],
+    "mhz": 1152,
+    "mhz_source": "registry",
+    "model": 10,
+    "stepping": 0,
+    "vendor": "AuthenticAMD"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 74397,
+      "root": "C:\\",
+      "total_mb": 118997
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1440,
+    "edid_w": 1920,
+    "height": 1024,
+    "panel_digital": 0,
+    "panel_h": 1024,
+    "panel_hz": 75,
+    "panel_name": "GatewayVX1120",
+    "panel_source": "registry",
+    "panel_w": 1280,
+    "width": 1280
+  },
+  "gpu": {
+    "driver_date": "6-9-2005",
+    "driver_version": "5.1.2605.5",
+    "feature_level": "fixed",
+    "feature_level_num": 1,
+    "hardware_id": "PCI\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01",
+    "name": "3dfx Voodoo5",
+    "pci_dev": "0x0009",
+    "pci_ven": "0x121A",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 32
+  },
+  "hostname": "NSC-AB862B3CF23",
+  "network": {
+    "interfaces": [
+      {
+        "description": "NVIDIA nForce Networking Controller #2 - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.185"
+        ],
+        "mac": "00-04-61-5E-5E-84"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "155eecbf9a828678",
+  "profile_version": 1,
+  "ram_mb": 511,
+  "reported_at": "2026-09-01 20:51:23",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "6-9-2005",
+      "driver_version": "5.1.2605.5",
+      "hardware_id": "pci\\ven_121a&dev_0009&subsys_0001121a",
+      "instance": "0000",
+      "name": "AMIGAMERLIN 3.1-R11 For Voodoo 5 6000 AGP",
+      "pci_dev": "0x0009",
+      "pci_ven": "0x121A"
+    }
+  ]
+}

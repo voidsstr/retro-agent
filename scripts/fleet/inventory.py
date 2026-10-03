@@ -42,6 +42,7 @@ changing the answer.
     python3 scripts/fleet/inventory.py --stdout        # print instead
     python3 scripts/fleet/inventory.py --json          # for tooling
     python3 scripts/fleet/inventory.py --check         # exit 1 if any box is not current
+    python3 scripts/fleet/inventory.py --snapshot      # also keep a dated copy in docs/fleet-inventory-history/
 
 Exit 0 = rendered. With --check, exit 1 when a rostered box is missing or stale.
 """
@@ -69,6 +70,10 @@ SHARE_RW = ("/run/user/1000/gvfs/"
             "/Utility/Retro Automation/fleet-inventory")
 DEFAULT_ROSTER = os.path.join(HERE, "fleet-roster.txt")
 DEFAULT_OUT = os.path.join(REPO, "docs", "fleet-inventory.md")
+# --snapshot: dated copies, because fleet-inventory.md is OVERWRITTEN on every
+# run and so remembers nothing. When a card or CPU moves between boxes, the
+# question "what did .171 look like before the swap?" is answered here.
+DEFAULT_HISTORY = os.path.join(REPO, "docs", "fleet-inventory-history")
 
 # A record older than this may no longer describe the machine. Generous on
 # purpose: the fleet is off most of the time, and a box that has been powered
@@ -619,6 +624,78 @@ def build(directory, roster_path, stale_days, now=None):
     }
 
 
+def _safe(name):
+    return re.sub(r"[^A-Za-z0-9._-]+", "_", name or "unknown")
+
+
+def snapshot_summary(ctx):
+    """One row per rostered box: what it was, as of this snapshot."""
+    rows = []
+    for ip, host, _note in ctx["roster"]:
+        rec = ctx["matched"].get(ip)
+        data = (rec or {}).get("data")
+        st = ctx["states"].get(ip, {})
+        row = {"ip": ip, "hostname": host, "state": st.get("state"),
+               "measured": st.get("measured_text")}
+        if data:
+            row.update({
+                "record_hostname": data.get("hostname"),
+                "agent_version": data.get("agent_version"),
+                "cpu": cpu_line(data),
+                "ram_mb": data.get("ram_mb"),
+                "gpu": gpu_line(data),
+                "video_cards": [v.get("name") for v in data.get("video_cards") or []
+                                if isinstance(v, dict) and v.get("name")],
+                "accelerators": ["%s (%s)" % (a.get("description") or "?",
+                                              a.get("device_key") or "?")
+                                 for a in data.get("accelerators") or []
+                                 if isinstance(a, dict)],
+                "os": (data.get("os") or {}).get("product"),
+                "profile_hash": data.get("profile_hash"),
+            })
+        rows.append(row)
+    return rows
+
+
+def write_snapshot(ctx, doc, root, stamp=None):
+    """Write <root>/<UTC stamp>/: every record as published, summary.json and
+    the rendered document. Returns the directory. A record that would not parse
+    is copied byte-for-byte - the snapshot keeps what the share held."""
+    stamp = stamp or _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H%MZ")
+    out = os.path.join(root, stamp)
+    recdir = os.path.join(out, "records")
+    os.makedirs(recdir, exist_ok=True)
+    for ip, host, _note in ctx["roster"]:
+        rec = ctx["matched"].get(ip)
+        if not rec:
+            continue
+        dest = os.path.join(recdir, "%s_%s.json" % (ip, _safe(host)))
+        if rec.get("data") is not None:
+            with open(dest, "w", encoding="utf-8") as fh:
+                json.dump(rec["data"], fh, indent=2, sort_keys=True)
+                fh.write("\n")
+        elif rec.get("path") and os.path.exists(rec["path"]):
+            with open(rec["path"], "rb") as src, open(dest, "wb") as fh:
+                fh.write(src.read())
+    for rec in ctx["unrostered"]:
+        udir = os.path.join(recdir, "unrostered")
+        os.makedirs(udir, exist_ok=True)
+        if rec.get("data") is not None:
+            with open(os.path.join(udir, _safe(rec["file"])), "w",
+                      encoding="utf-8") as fh:
+                json.dump(rec["data"], fh, indent=2, sort_keys=True)
+                fh.write("\n")
+    with open(os.path.join(out, "summary.json"), "w", encoding="utf-8") as fh:
+        json.dump({"taken_utc": stamp, "stale_days": ctx["stale_days"],
+                   "boxes": snapshot_summary(ctx),
+                   "unrostered": [r["file"] for r in ctx["unrostered"]]},
+                  fh, indent=2)
+        fh.write("\n")
+    with open(os.path.join(out, "fleet-inventory.md"), "w", encoding="utf-8") as fh:
+        fh.write(doc)
+    return out
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -640,6 +717,12 @@ def main(argv=None):
                          "mount is per-login-session and may not exist, and "
                          "that is reported rather than fatal - the document's "
                          "home is the repo.")
+    ap.add_argument("--snapshot", nargs="?", const=DEFAULT_HISTORY, default=None,
+                    metavar="DIR",
+                    help="also keep a dated copy (records, summary.json, the "
+                         "document) under DIR/<UTC stamp>/ (default: "
+                         "docs/fleet-inventory-history). Take one before and "
+                         "after every hardware swap.")
     args = ap.parse_args(argv)
 
     ctx = build(args.dir, args.roster, args.stale_days)
@@ -666,6 +749,11 @@ def main(argv=None):
                   (args.out, len(ctx["roster"]), len(bad)))
             for ip in bad:
                 print("  %-16s %s" % (ip, ctx["states"][ip]["state"]))
+
+            if args.snapshot:
+                snap = write_snapshot(ctx, doc, args.snapshot)
+                n = len(os.listdir(os.path.join(snap, "records")))
+                print("snapshot %s (%d record file(s))" % (snap, n))
 
             if args.share_copy:
                 dest = os.path.join(args.share_copy, "fleet-inventory.md")

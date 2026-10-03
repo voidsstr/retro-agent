@@ -1,0 +1,127 @@
+{
+  "accelerators": [],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 1,
+    "disc_mount": true,
+    "disc_mount_evidence": "BazisVirtualCDBus",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz",
+    "count": 4,
+    "family": 6,
+    "feature_bits": 255,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "sse",
+      "sse2",
+      "sse3",
+      "ssse3",
+      "sse4.1"
+    ],
+    "mhz": 3093,
+    "mhz_source": "registry",
+    "model": 42,
+    "stepping": 7,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 11,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 138678,
+      "root": "C:\\",
+      "total_mb": 228926
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1080,
+    "edid_w": 1920,
+    "height": 1080,
+    "panel_digital": 1,
+    "panel_h": 1080,
+    "panel_hz": 60,
+    "panel_name": "HP 2511",
+    "panel_source": "registry",
+    "panel_w": 1920,
+    "width": 1920
+  },
+  "gpu": {
+    "driver_date": "8-3-2015",
+    "driver_version": "15.200.1062.1004",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "hardware_id": "PCI\\VEN_1002&DEV_68F9&SUBSYS_21261028&REV_00",
+    "name": "AMD Radeon HD 5450",
+    "pci_dev": "0x68F9",
+    "pci_ven": "0x1002",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 512
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "ADMIN-PC",
+  "ipx": {
+    "frame": "auto",
+    "installed": false,
+    "mechanism": "none",
+    "net": "",
+    "node": "",
+    "state": "not_supported",
+    "winsock": false
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Intel(R) 82579LM Gigabit Network Connection",
+        "ipv4": [
+          "192.168.1.197"
+        ],
+        "mac": "78-2B-CB-A5-B4-70"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "win7",
+    "level_num": 5,
+    "product": "Windows 7",
+    "service_pack": "",
+    "version": "6.1.7600"
+  },
+  "profile_hash": "7cf5bd34eefa68a7",
+  "profile_version": 1,
+  "ram_mb": 3317,
+  "reported_at": "2026-10-03 08:19:18",
+  "video_cards": [
+    {
+      "attached_to_desktop": false,
+      "driver_date": "6-21-2006",
+      "driver_version": "6.1.7600.16385",
+      "hardware_id": "pci\\cc_0300",
+      "instance": "0000",
+      "name": "Standard VGA Graphics Adapter",
+      "pci_dev": "0x0000",
+      "pci_ven": "0x0000"
+    },
+    {
+      "attached_to_desktop": true,
+      "driver_date": "8-3-2015",
+      "driver_version": "15.200.1062.1004",
+      "hardware_id": "pci\\ven_1002&dev_68f9",
+      "instance": "0001",
+      "name": "AMD Radeon HD 5450",
+      "pci_dev": "0x68F9",
+      "pci_ven": "0x1002"
+    }
+  ]
+}

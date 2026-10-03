@@ -1,0 +1,165 @@
+{
+  "accelerators": [],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 1,
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "AMD Athlon(tm) 64 Processor 3300+",
+    "count": 1,
+    "family": 15,
+    "feature_bits": 287,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "3dnow",
+      "sse",
+      "sse2"
+    ],
+    "mhz": 2403,
+    "mhz_source": "registry",
+    "model": 12,
+    "stepping": 0,
+    "vendor": "AuthenticAMD"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 746,
+      "root": "C:\\",
+      "total_mb": 76285
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1080,
+    "edid_w": 1920,
+    "height": 1080,
+    "panel_digital": 1,
+    "panel_h": 1080,
+    "panel_hz": 60,
+    "panel_name": "DELL E2313H",
+    "panel_source": "registry",
+    "panel_w": 1920,
+    "width": 1920
+  },
+  "gpu": {
+    "driver_date": "2-10-2010",
+    "driver_version": "8.593.100.0",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "hardware_id": "PCI\\VEN_1002&DEV_71C0&SUBSYS_22321545&REV_00",
+    "name": "Radeon X1600 Series",
+    "pci_dev": "0x71C0",
+    "pci_ven": "0x1002",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 256
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "USER-41EA3B3330",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "00112fe477f5",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Marvell Yukon Gigabit Ethernet 10/100/1000Base-T Adapter, Copper RJ-45 - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.240"
+        ],
+        "mac": "00-11-2F-E4-77-F5"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "8f429a1b27850fac",
+  "profile_version": 1,
+  "ram_mb": 1022,
+  "reported_at": "2026-10-03 05:19:16",
+  "video_cards": [
+    {
+      "attached_to_desktop": false,
+      "driver_date": "2-10-2010",
+      "driver_version": "8.593.100.0",
+      "hardware_id": "pci\\ven_1002&dev_4e4a",
+      "instance": "0000",
+      "name": "RADEON 9800 XT",
+      "pci_dev": "0x4E4A",
+      "pci_ven": "0x1002"
+    },
+    {
+      "attached_to_desktop": false,
+      "driver_date": "2-10-2010",
+      "driver_version": "8.593.100.0",
+      "hardware_id": "pci\\ven_1002&dev_4e6a",
+      "instance": "0001",
+      "name": "RADEON 9800 XT - Secondary",
+      "pci_dev": "0x4E6A",
+      "pci_ven": "0x1002"
+    },
+    {
+      "attached_to_desktop": false,
+      "driver_date": "2-10-2010",
+      "driver_version": "8.593.100.0",
+      "hardware_id": "pci\\ven_1002&dev_4a4b",
+      "instance": "0002",
+      "name": "RADEON X800 Series",
+      "pci_dev": "0x4A4B",
+      "pci_ven": "0x1002"
+    },
+    {
+      "attached_to_desktop": false,
+      "driver_date": "2-10-2010",
+      "driver_version": "8.593.100.0",
+      "hardware_id": "pci\\ven_1002&dev_4a6b",
+      "instance": "0003",
+      "name": "RADEON X800 Series Secondary",
+      "pci_dev": "0x4A6B",
+      "pci_ven": "0x1002"
+    },
+    {
+      "attached_to_desktop": true,
+      "driver_date": "2-10-2010",
+      "driver_version": "8.593.100.0",
+      "hardware_id": "pci\\ven_1002&dev_71c0",
+      "instance": "0004",
+      "name": "Radeon X1600 Series",
+      "pci_dev": "0x71C0",
+      "pci_ven": "0x1002"
+    },
+    {
+      "attached_to_desktop": false,
+      "driver_date": "2-10-2010",
+      "driver_version": "8.593.100.0",
+      "hardware_id": "pci\\ven_1002&dev_71e0",
+      "instance": "0005",
+      "name": "Radeon X1600 Series Secondary",
+      "pci_dev": "0x71E0",
+      "pci_ven": "0x1002"
+    }
+  ]
+}

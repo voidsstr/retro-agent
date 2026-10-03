@@ -1,0 +1,116 @@
+{
+  "accelerators": [],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 1,
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "AMD Athlon(tm) 64 Processor 4000+",
+    "count": 1,
+    "family": 15,
+    "feature_bits": 319,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "3dnow",
+      "sse",
+      "sse2",
+      "sse3"
+    ],
+    "mhz": 2402,
+    "mhz_source": "registry",
+    "model": 39,
+    "stepping": 1,
+    "vendor": "AuthenticAMD"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 180081,
+      "root": "C:\\",
+      "total_mb": 244197
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1440,
+    "edid_w": 1920,
+    "height": 1024,
+    "panel_digital": 0,
+    "panel_h": 1024,
+    "panel_hz": 75,
+    "panel_name": "GatewayVX1120",
+    "panel_source": "registry",
+    "panel_w": 1280,
+    "width": 1280
+  },
+  "gpu": {
+    "driver_date": "4-24-2013",
+    "driver_version": "8.970.100.0",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "hardware_id": "PCI\\VEN_1002&DEV_9515&SUBSYS_0028174B&REV_00",
+    "name": "ATI Radeon HD 3850 AGP",
+    "pci_dev": "0x9515",
+    "pci_ven": "0x1002",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 512
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "NSC-B20C188E96D",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "0013d4a4a413",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Marvell Yukon 88E8001/8003/8010 PCI Gigabit Ethernet Controller - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.123"
+        ],
+        "mac": "00-13-D4-A4-A4-13"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "d91c7ebb69976b34",
+  "profile_version": 1,
+  "ram_mb": 2047,
+  "reported_at": "2026-10-03 08:19:13",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "4-24-2013",
+      "driver_version": "8.970.100.0",
+      "hardware_id": "pci\\ven_1002&dev_9515",
+      "instance": "0000",
+      "name": "ATI Radeon HD 3850 AGP",
+      "pci_dev": "0x9515",
+      "pci_ven": "0x1002"
+    }
+  ]
+}

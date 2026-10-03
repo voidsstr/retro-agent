@@ -1,0 +1,121 @@
+{
+  "accelerators": [],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 1,
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "Pentium(R) Dual-Core  CPU      E5300  @ 2.60GHz",
+    "count": 2,
+    "family": 6,
+    "feature_bits": 127,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "sse",
+      "sse2",
+      "sse3",
+      "ssse3"
+    ],
+    "mhz": 2621,
+    "mhz_source": "registry",
+    "model": 23,
+    "stepping": 10,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 533,
+      "root": "C:\\",
+      "total_mb": 38138
+    },
+    {
+      "free_mb": 181273,
+      "root": "D:\\",
+      "total_mb": 238472
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1080,
+    "edid_w": 1920,
+    "height": 1080,
+    "panel_digital": 0,
+    "panel_h": 1080,
+    "panel_hz": 60,
+    "panel_name": "DELL P2312H",
+    "panel_source": "registry",
+    "panel_w": 1920,
+    "width": 1920
+  },
+  "gpu": {
+    "driver_date": "4-7-2011",
+    "driver_version": "6.14.12.7061",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "hardware_id": "PCI\\VEN_10DE&DEV_0291&SUBSYS_C5843842&REV_A1",
+    "name": "NVIDIA GeForce 7900 GT/GTO",
+    "pci_dev": "0x0291",
+    "pci_ven": "0x10DE",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 256
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "NSC-684BA8CF5ED",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "e0cb4e26eca0",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Realtek PCIe GBE Family Controller - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.186"
+        ],
+        "mac": "E0-CB-4E-26-EC-A0"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "c2c65a70497d837c",
+  "profile_version": 1,
+  "ram_mb": 3071,
+  "reported_at": "2026-10-03 08:32:16",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "4-7-2011",
+      "driver_version": "6.14.12.7061",
+      "hardware_id": "pci\\ven_10de&dev_0291",
+      "instance": "0000",
+      "name": "NVIDIA GeForce 7900 GT/GTO",
+      "pci_dev": "0x0291",
+      "pci_ven": "0x10DE"
+    }
+  ]
+}

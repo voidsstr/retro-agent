@@ -3256,6 +3256,12 @@ the full list).
 > python3 scripts/fleet/inventory.py --check    # exit 1 if a box is stale or missing
 > ```
 >
+> **The document is overwritten on every run, so it keeps no history.** For that,
+> `python3 scripts/fleet/inventory.py --snapshot` also writes a dated folder to
+> [`docs/fleet-inventory-history/`](docs/fleet-inventory-history/README.md) - every
+> record as published, a `summary.json` and the rendered document. **Take one
+> before and after every hardware swap** and commit it.
+>
 > **Why the table that used to be here is gone.** It was hand-maintained and it
 > was wrong about most of the fleet. **Twice a box's graphics card was swapped
 > without the docs noticing** — `.124`'s Voodoo 3 came out on 2026-08-11 and the

@@ -1,0 +1,113 @@
+{
+  "accelerators": [],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 1,
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "",
+    "count": 2,
+    "family": 6,
+    "feature_bits": 15,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "sse"
+    ],
+    "mhz": 701,
+    "mhz_source": "registry",
+    "model": 8,
+    "stepping": 1,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 892041,
+      "root": "C:\\",
+      "total_mb": 953869
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1024,
+    "edid_w": 1280,
+    "height": 1024,
+    "panel_digital": 0,
+    "panel_h": 1024,
+    "panel_hz": 85,
+    "panel_name": "",
+    "panel_source": "registry",
+    "panel_w": 1280,
+    "width": 1280
+  },
+  "gpu": {
+    "driver_date": "10-22-2006",
+    "driver_version": "6.14.10.9371",
+    "feature_level": "sm1.x",
+    "feature_level_num": 3,
+    "hardware_id": "PCI\\VEN_10DE&DEV_0250&SUBSYS_00371545&REV_A3",
+    "name": "NVIDIA GeForce4 Ti 4600",
+    "pci_dev": "0x0250",
+    "pci_ven": "0x10DE",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 128
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "P3-DUAL",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "000c41e84fce",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Linksys LNE100TX Fast Ethernet Adapter(LNE100TX v4) - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.133"
+        ],
+        "mac": "00-0C-41-E8-4F-CE"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "b65fa1fee4df292c",
+  "profile_version": 1,
+  "ram_mb": 255,
+  "reported_at": "2026-10-03 08:19:52",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "10-22-2006",
+      "driver_version": "6.14.10.9371",
+      "hardware_id": "pci\\ven_10de&dev_0250",
+      "instance": "0000",
+      "name": "NVIDIA GeForce4 Ti 4600",
+      "pci_dev": "0x0250",
+      "pci_ven": "0x10DE"
+    }
+  ]
+}

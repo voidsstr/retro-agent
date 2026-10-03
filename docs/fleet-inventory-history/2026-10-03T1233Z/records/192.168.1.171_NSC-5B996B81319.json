@@ -1,0 +1,125 @@
+{
+  "accelerators": [],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 1,
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "Intel(R) Pentium(R) 4 CPU 2.80GHz",
+    "count": 1,
+    "family": 15,
+    "feature_bits": 63,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "sse",
+      "sse2",
+      "sse3"
+    ],
+    "mhz": 2793,
+    "mhz_source": "registry",
+    "model": 4,
+    "stepping": 1,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 25602,
+      "root": "C:\\",
+      "total_mb": 95388
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1024,
+    "edid_w": 1280,
+    "height": 1024,
+    "panel_digital": 0,
+    "panel_h": 1024,
+    "panel_hz": 85,
+    "panel_name": "AOC Spectrum",
+    "panel_source": "registry",
+    "panel_w": 1280,
+    "width": 1280
+  },
+  "gpu": {
+    "driver_date": "5-16-2008",
+    "driver_version": "6.14.11.7519",
+    "feature_level": "sm2.0",
+    "feature_level_num": 4,
+    "hardware_id": "PCI\\VEN_10DE&DEV_0326&SUBSYS_00000000&REV_A1",
+    "name": "NVIDIA GeForce FX 5500",
+    "pci_dev": "0x0326",
+    "pci_ven": "0x10DE",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 256
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "NSC-5B996B81319",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "0013207b2d45",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Intel(R) PRO/100 VE Network Connection - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.171"
+        ],
+        "mac": "00-13-20-7B-2D-45"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "1ae6cfb3e6bad997",
+  "profile_version": 1,
+  "ram_mb": 509,
+  "reported_at": "2026-10-03 08:19:16",
+  "video_cards": [
+    {
+      "attached_to_desktop": false,
+      "driver_date": "9-20-2005",
+      "driver_version": "6.14.10.4396",
+      "hardware_id": "pci\\ven_8086&dev_2572",
+      "instance": "0000",
+      "name": "Intel(R) 82865G Graphics Controller",
+      "pci_dev": "0x2572",
+      "pci_ven": "0x8086"
+    },
+    {
+      "attached_to_desktop": true,
+      "driver_date": "5-16-2008",
+      "driver_version": "6.14.11.7519",
+      "hardware_id": "pci\\ven_10de&dev_0326",
+      "instance": "0001",
+      "name": "NVIDIA GeForce FX 5500",
+      "pci_dev": "0x0326",
+      "pci_ven": "0x10DE"
+    }
+  ]
+}

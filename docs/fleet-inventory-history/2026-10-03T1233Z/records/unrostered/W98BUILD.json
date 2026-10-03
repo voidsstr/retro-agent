@@ -1,0 +1,128 @@
+{
+  "accelerators": [
+    {
+      "count": 1,
+      "description": "Voodoo2 3D Accelerator",
+      "device_key": "VEN_121A&DEV_0002&SUBSYS_00000000&REV_02",
+      "pci_dev": "0x0002",
+      "pci_ven": "0x121A"
+    }
+  ],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 2,
+    "disc_mount": false,
+    "disc_mount_evidence": "",
+    "glide": true,
+    "glide_evidence": "PCI\\VEN_121A&DEV_0002&SUBSYS_00000000&REV_02\\BUS_00&DEV_0A&FUNC_00"
+  },
+  "cpu": {
+    "brand": "",
+    "count": 1,
+    "family": 5,
+    "feature_bits": 1,
+    "features": [
+      "fpu"
+    ],
+    "mhz": 165,
+    "mhz_source": "tsc",
+    "model": 2,
+    "stepping": 12,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 6,
+    "version": "4.06.03.0518"
+  },
+  "disk": [
+    {
+      "free_mb": 2640,
+      "root": "C:\\",
+      "total_mb": 8047
+    }
+  ],
+  "display": {
+    "bpp": 8,
+    "edid_h": 0,
+    "edid_w": 0,
+    "height": 480,
+    "panel_digital": 0,
+    "panel_h": 480,
+    "panel_hz": 0,
+    "panel_name": "",
+    "panel_source": "registry",
+    "panel_w": 640,
+    "width": 640
+  },
+  "gpu": {
+    "driver_date": " 4-23-1999",
+    "driver_version": "",
+    "feature_level": "none",
+    "feature_level_num": 0,
+    "hardware_id": "PCI\\VEN_1013&DEV_00AC&SUBSYS_00000000&REV_00\\BUS_00&DEV_0C&FUNC_00",
+    "name": "Cirrus Logic 5436 PCI",
+    "pci_dev": "0x00AC",
+    "pci_ven": "0x1013",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 0
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "W98BUILD",
+  "ipx": {
+    "frame": "802.2",
+    "installed": true,
+    "mechanism": "win98se_template",
+    "net": "00000000",
+    "node": "00e04c5f9096",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Realtek RTL8029(AS) Ethernet Adapt",
+        "ipv4": [
+          "10.0.2.15"
+        ],
+        "mac": "00-E0-4C-5F-90-96"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "win9x",
+    "level_num": 1,
+    "product": "Windows 98",
+    "service_pack": " A ",
+    "version": "4.10.2222"
+  },
+  "profile_hash": "e5dbb29f5554208a",
+  "profile_version": 1,
+  "ram_mb": 127,
+  "reported_at": "2026-10-03 07:23:15",
+  "video_cards": [
+    {
+      "attached_to_desktop": false,
+      "driver_date": " 4-23-1999",
+      "driver_version": "",
+      "hardware_id": "PCI\\VEN_5333&DEV_8811",
+      "instance": "0000",
+      "name": "S3 Trio32/64 PCI (732/764)",
+      "pci_dev": "0x8811",
+      "pci_ven": "0x5333"
+    },
+    {
+      "attached_to_desktop": true,
+      "driver_date": " 4-23-1999",
+      "driver_version": "",
+      "hardware_id": "PCI\\VEN_1013&DEV_00AC",
+      "instance": "0001",
+      "name": "Cirrus Logic 5436 PCI",
+      "pci_dev": "0x00AC",
+      "pci_ven": "0x1013"
+    }
+  ]
+}

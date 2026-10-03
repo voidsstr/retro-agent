@@ -1,0 +1,124 @@
+{
+  "accelerators": [],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 1,
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "Intel(R) Pentium(R) 4 CPU 2.80GHz",
+    "count": 1,
+    "family": 15,
+    "feature_bits": 31,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "sse",
+      "sse2"
+    ],
+    "mhz": 2793,
+    "mhz_source": "registry",
+    "model": 2,
+    "stepping": 9,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 224728,
+      "root": "C:\\",
+      "total_mb": 286157
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1200,
+    "edid_w": 1600,
+    "height": 1024,
+    "panel_digital": 0,
+    "panel_h": 1024,
+    "panel_hz": 85,
+    "panel_name": "HP P1120",
+    "panel_source": "registry",
+    "panel_w": 1280,
+    "width": 1280
+  },
+  "gpu": {
+    "driver_date": "2-10-2010",
+    "driver_version": "8.593.100.0",
+    "feature_level": "sm2.0",
+    "feature_level_num": 4,
+    "hardware_id": "PCI\\VEN_1002&DEV_4E45&SUBSYS_00021002&REV_00",
+    "name": "RADEON 9500 PRO / 9700",
+    "pci_dev": "0x4E45",
+    "pci_ven": "0x1002",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 128
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "NSC-5C5396FAF9D",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "000cf1d7984a",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Intel(R) PRO/100 VE Network Connection - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.110"
+        ],
+        "mac": "00-0C-F1-D7-98-4A"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "32844a3c83b325aa",
+  "profile_version": 1,
+  "ram_mb": 1150,
+  "reported_at": "2026-10-03 08:19:16",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "2-10-2010",
+      "driver_version": "8.593.100.0",
+      "hardware_id": "pci\\ven_1002&dev_4e45",
+      "instance": "0002",
+      "name": "RADEON 9500 PRO / 9700",
+      "pci_dev": "0x4E45",
+      "pci_ven": "0x1002"
+    },
+    {
+      "attached_to_desktop": false,
+      "driver_date": "2-10-2010",
+      "driver_version": "8.593.100.0",
+      "hardware_id": "pci\\ven_1002&dev_4e65",
+      "instance": "0003",
+      "name": "RADEON 9500 PRO / 9700 - Secondary",
+      "pci_dev": "0x4E65",
+      "pci_ven": "0x1002"
+    }
+  ]
+}

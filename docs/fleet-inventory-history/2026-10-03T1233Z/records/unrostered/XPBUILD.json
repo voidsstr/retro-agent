@@ -1,0 +1,122 @@
+{
+  "accelerators": [],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 0,
+    "disc_mount": false,
+    "disc_mount_evidence": "",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "Intel(R) Core(TM) Ultra 9 285K",
+    "count": 2,
+    "family": 6,
+    "feature_bits": 255,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "sse",
+      "sse2",
+      "sse3",
+      "ssse3",
+      "sse4.1"
+    ],
+    "mhz": 3686,
+    "mhz_source": "registry",
+    "model": 198,
+    "stepping": 2,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 29724,
+      "root": "C:\\",
+      "total_mb": 61428
+    },
+    {
+      "free_mb": 120,
+      "root": "E:\\",
+      "total_mb": 3064
+    }
+  ],
+  "display": {
+    "bpp": 24,
+    "edid_h": 0,
+    "edid_w": 0,
+    "height": 480,
+    "panel_digital": 0,
+    "panel_h": 0,
+    "panel_hz": 0,
+    "panel_name": "",
+    "panel_source": "unknown",
+    "panel_w": 0,
+    "width": 640
+  },
+  "gpu": {
+    "driver_date": "7-1-2001",
+    "driver_version": "5.1.2535.0",
+    "feature_level": "none",
+    "feature_level_num": 0,
+    "hardware_id": "PCI\\VEN_1013&DEV_00B8&SUBSYS_11001AF4&REV_00",
+    "name": "Cirrus Logic 5446 Compatible Graphics Adapter",
+    "pci_dev": "0x00B8",
+    "pci_ven": "0x1013",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 4
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "XPBUILD",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "525400123456",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Realtek RTL8139 Family PCI Fast Ethernet NIC - Packet Scheduler Miniport",
+        "ipv4": [
+          "10.0.2.15"
+        ],
+        "mac": "52-54-00-12-34-56"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "b70b34c8b0194972",
+  "profile_version": 1,
+  "ram_mb": 2047,
+  "reported_at": "2026-10-03 06:01:17",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "7-1-2001",
+      "driver_version": "5.1.2535.0",
+      "hardware_id": "pci\\ven_1013&dev_00b8",
+      "instance": "0000",
+      "name": "Cirrus Logic 5446 Compatible Graphics Adapter",
+      "pci_dev": "0x00B8",
+      "pci_ven": "0x1013"
+    }
+  ]
+}

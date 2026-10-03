@@ -1,0 +1,139 @@
+{
+  "accelerators": [],
+  "agent_version": "1.85.1",
+  "capabilities": {
+    "bits": 0,
+    "disc_mount": false,
+    "disc_mount_evidence": "",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "AMD Ryzen 9 9950X 16-Core Processor            ",
+    "count": 32,
+    "family": 26,
+    "feature_bits": 255,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "sse",
+      "sse2",
+      "sse3",
+      "ssse3",
+      "sse4.1"
+    ],
+    "mhz": 4292,
+    "mhz_source": "registry",
+    "model": 4,
+    "stepping": 0,
+    "vendor": "AuthenticAMD"
+  },
+  "directx": {
+    "major": 11,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 32438,
+      "root": "C:\\",
+      "total_mb": 975047
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1600,
+    "edid_w": 3840,
+    "height": 1600,
+    "panel_digital": 1,
+    "panel_h": 1600,
+    "panel_hz": 60,
+    "panel_name": "38GL950G",
+    "panel_source": "registry",
+    "panel_w": 3840,
+    "width": 3840
+  },
+  "gpu": {
+    "driver_date": "7-2-2026",
+    "driver_version": "32.0.16.1074",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "hardware_id": "PCI\\VEN_10DE&DEV_2702&SUBSYS_239017AA&REV_A1",
+    "name": "NVIDIA GeForce RTX 4080 SUPER",
+    "pci_dev": "0x2702",
+    "pci_ven": "0x10DE",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 4095
+  },
+  "host_policy": {
+    "managed": false,
+    "modern": true
+  },
+  "hostname": "WHITEBEAST",
+  "network": {
+    "interfaces": [
+      {
+        "description": "Realtek PCIe GbE Family Controller",
+        "ipv4": [
+          "192.168.1.249"
+        ],
+        "mac": "D0-AD-08-D7-4E-B4"
+      },
+      {
+        "description": "Hyper-V Virtual Ethernet Adapter",
+        "ipv4": [
+          "172.19.176.1"
+        ],
+        "mac": "00-15-5D-1B-08-F7"
+      },
+      {
+        "description": "AZ-FWG-VPN",
+        "ipv4": [
+          "10.100.0.249"
+        ],
+        "mac": ""
+      },
+      {
+        "description": "Tailscale Tunnel",
+        "ipv4": [
+          "100.97.41.32"
+        ],
+        "mac": ""
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "win8",
+    "level_num": 6,
+    "product": "Windows 8",
+    "service_pack": "",
+    "version": "6.2.9200"
+  },
+  "profile_hash": "4c97d9570468d523",
+  "profile_version": 1,
+  "ram_mb": 65097,
+  "reported_at": "2026-10-03 06:44:04",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "7-2-2026",
+      "driver_version": "32.0.16.1074",
+      "hardware_id": "pci\\ven_10de&dev_2702&subsys_239017aa",
+      "instance": "0000",
+      "name": "NVIDIA GeForce RTX 4080 SUPER",
+      "pci_dev": "0x2702",
+      "pci_ven": "0x10DE"
+    },
+    {
+      "attached_to_desktop": false,
+      "driver_date": "7-29-2024",
+      "driver_version": "9.21.19.632",
+      "hardware_id": "{b76183fd-b849-41c0-9482-fbeb029eb276}\\duetdisplay",
+      "instance": "0002",
+      "name": "Duet Display",
+      "pci_dev": "0x0000",
+      "pci_ven": "0x0000"
+    }
+  ]
+}

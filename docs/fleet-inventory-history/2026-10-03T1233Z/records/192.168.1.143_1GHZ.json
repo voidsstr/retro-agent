@@ -1,0 +1,131 @@
+{
+  "accelerators": [
+    {
+      "count": 1,
+      "description": "AMIGAMERLIN 3.1-R11 For Voodoo 5 5500 AGP",
+      "device_key": "VEN_121A&DEV_0009&SUBSYS_0002121A&REV_01",
+      "pci_dev": "0x0009",
+      "pci_ven": "0x121A"
+    }
+  ],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 1,
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "AMD Athlon(tm) Processor",
+    "count": 1,
+    "family": 6,
+    "feature_bits": 263,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "3dnow"
+    ],
+    "mhz": 1000,
+    "mhz_source": "registry",
+    "model": 2,
+    "stepping": 2,
+    "vendor": "AuthenticAMD"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 133232,
+      "root": "C:\\",
+      "total_mb": 228926
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 0,
+    "edid_w": 0,
+    "height": 768,
+    "panel_digital": 0,
+    "panel_h": 1024,
+    "panel_hz": 0,
+    "panel_name": "",
+    "panel_source": "registry",
+    "panel_w": 1280,
+    "width": 1024
+  },
+  "gpu": {
+    "driver_date": "4-1-2005",
+    "driver_version": "7.1.8.9",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "hardware_id": "PCI\\VEN_10DE&DEV_0041&SUBSYS_00000000&REV_A1",
+    "name": "NVIDIA GeForce 6800",
+    "pci_dev": "0x0041",
+    "pci_ven": "0x10DE",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 128
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "1GHZ",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "0008a10352c4",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "CNet PRO200WL PCI Fast Ethernet Adapter - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.143"
+        ],
+        "mac": "00-08-A1-03-52-C4"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "65a2b927575eaa82",
+  "profile_version": 1,
+  "ram_mb": 511,
+  "reported_at": "2026-10-03 08:19:16",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "4-1-2005",
+      "driver_version": "7.1.8.9",
+      "hardware_id": "pci\\ven_10de&dev_0041",
+      "instance": "0000",
+      "name": "NVIDIA GeForce 6800",
+      "pci_dev": "0x0041",
+      "pci_ven": "0x10DE"
+    },
+    {
+      "attached_to_desktop": false,
+      "driver_date": "6-9-2005",
+      "driver_version": "5.1.2605.5",
+      "hardware_id": "pci\\ven_121a&dev_0009&subsys_0002121a",
+      "instance": "0001",
+      "name": "AMIGAMERLIN 3.1-R11 For Voodoo 5 5500 AGP",
+      "pci_dev": "0x0009",
+      "pci_ven": "0x121A"
+    }
+  ]
+}

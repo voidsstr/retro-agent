@@ -1,0 +1,122 @@
+{
+  "accelerators": [
+    {
+      "count": 1,
+      "description": "vcr-kmd Voodoo 5 6000 (open driver)",
+      "device_key": "VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01",
+      "pci_dev": "0x0009",
+      "pci_ven": "0x121A"
+    }
+  ],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 3,
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": true,
+    "glide_evidence": "PCI\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01\\5&2cfcdcf8&0&0000F0"
+  },
+  "cpu": {
+    "brand": "AMD Athlon(tm) XP 2400+",
+    "count": 1,
+    "family": 6,
+    "feature_bits": 271,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "3dnow",
+      "sse"
+    ],
+    "mhz": 2004,
+    "mhz_source": "registry",
+    "model": 8,
+    "stepping": 1,
+    "vendor": "AuthenticAMD"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 256377,
+      "root": "C:\\",
+      "total_mb": 305244
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 768,
+    "edid_w": 1024,
+    "height": 768,
+    "panel_digital": 0,
+    "panel_h": 1024,
+    "panel_hz": 85,
+    "panel_name": "CPD-G200",
+    "panel_source": "registry",
+    "panel_w": 1280,
+    "width": 1024
+  },
+  "gpu": {
+    "driver_date": "9-25-2026",
+    "driver_version": "0.1.0.0",
+    "feature_level": "fixed",
+    "feature_level_num": 1,
+    "hardware_id": "PCI\\VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01",
+    "name": "vcr-kmd Voodoo 5 6000 (open driver)",
+    "pci_dev": "0x0009",
+    "pci_ven": "0x121A",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 64
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "NSC-C543575F526",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "00d0b74096a9",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Intel(R) PRO/100+ Management Adapter - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.124"
+        ],
+        "mac": "00-D0-B7-40-96-A9"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "dec95d42ad08a34d",
+  "profile_version": 1,
+  "ram_mb": 255,
+  "reported_at": "2026-10-03 08:18:54",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "9-25-2026",
+      "driver_version": "0.1.0.0",
+      "hardware_id": "pci\\ven_121a&dev_0009&subsys_0001121a",
+      "instance": "0001",
+      "name": "vcr-kmd Voodoo 5 6000 (open driver)",
+      "pci_dev": "0x0009",
+      "pci_ven": "0x121A"
+    }
+  ]
+}

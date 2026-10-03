@@ -562,3 +562,55 @@ def test_publish_all_never_picks_the_win9x_box_as_its_writer():
     assert "192.168.1.243" not in writers
     assert "192.168.1.246" not in writers
     assert set(writers) <= set(_roster_ips())
+
+
+# ---------------------------------------------------------------------------
+# --snapshot: fleet-inventory.md is overwritten on every run, so the fleet's
+# hardware history lived nowhere. A dated snapshot must keep the published
+# records, a summary and the document - and must not depend on the box being
+# current (a powered-off box's last record is exactly what a swap needs).
+# ---------------------------------------------------------------------------
+
+def test_snapshot_keeps_records_summary_and_document(tmp_path):
+    recdir = tmp_path / "records"; recdir.mkdir()
+    (recdir / "P3-DUAL.json").write_text(json.dumps(sample_record(
+        accelerators=[{"count": 1, "description": "Voodoo2 3D Accelerator",
+                       "device_key": "VEN_121A&DEV_0002&SUBSYS_00000000&REV_02",
+                       "pci_ven": "0x121A", "pci_dev": "0x0002"}])))
+    old = time.time() - 30 * DAY                      # stale, still snapshotted
+    stale = recdir / "OLDBOX.json"
+    stale.write_text(json.dumps(sample_record(hostname="OLDBOX", ip="192.168.1.50")))
+    os.utime(stale, (old, old))
+    roster = tmp_path / "roster.txt"
+    roster.write_text("192.168.1.133\tP3-DUAL\tnote\n192.168.1.50\tOLDBOX\t\n"
+                      "192.168.1.60\tNEVERSEEN\t\n")
+    hist = tmp_path / "history"
+    rc = inventory.main(["--dir", str(recdir), "--roster", str(roster),
+                         "--out", str(tmp_path / "inv.md"),
+                         "--snapshot", str(hist)])
+    assert rc in (None, 0)
+    (snap,) = list(hist.iterdir())
+    assert snap.name.endswith("Z") and "T" in snap.name     # UTC stamp
+    recs = sorted(p.name for p in (snap / "records").iterdir())
+    assert recs == ["192.168.1.133_P3-DUAL.json", "192.168.1.50_OLDBOX.json"]
+    summary = json.loads((snap / "summary.json").read_text())
+    by_ip = {b["ip"]: b for b in summary["boxes"]}
+    assert by_ip["192.168.1.133"]["gpu"].startswith("NVIDIA GeForce4 Ti 4600")
+    assert by_ip["192.168.1.133"]["state"] == inventory.STATE_CURRENT
+    # The Voodoo 2 is Class=MEDIA and in no display list - the accelerator
+    # row is the only place a snapshot shows it.
+    assert by_ip["192.168.1.133"]["accelerators"] == [
+        "Voodoo2 3D Accelerator (VEN_121A&DEV_0002&SUBSYS_00000000&REV_02)"]
+    assert by_ip["192.168.1.50"]["state"] != inventory.STATE_CURRENT
+    assert "gpu" not in by_ip["192.168.1.60"]               # never seen: no data
+    assert (snap / "fleet-inventory.md").read_text() == (tmp_path / "inv.md").read_text()
+
+
+def test_no_snapshot_unless_asked(tmp_path):
+    recdir = tmp_path / "records"; recdir.mkdir()
+    (recdir / "P3-DUAL.json").write_text(json.dumps(sample_record()))
+    roster = tmp_path / "roster.txt"
+    roster.write_text("192.168.1.133\tP3-DUAL\t\n")
+    inventory.main(["--dir", str(recdir), "--roster", str(roster),
+                    "--out", str(tmp_path / "inv.md")])
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["inv.md", "records", "roster.txt"]

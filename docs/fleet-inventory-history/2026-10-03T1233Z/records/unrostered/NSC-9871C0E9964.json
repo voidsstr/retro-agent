@@ -1,0 +1,99 @@
+{
+  "accelerators": [],
+  "agent_version": "1.79.4",
+  "capabilities": {
+    "bits": 0,
+    "disc_mount": false,
+    "disc_mount_evidence": ""
+  },
+  "cpu": {
+    "brand": "AMD Athlon(tm) XP 1800+",
+    "count": 1,
+    "family": 6,
+    "feature_bits": 271,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "3dnow",
+      "sse"
+    ],
+    "mhz": 1503,
+    "mhz_source": "registry",
+    "model": 8,
+    "stepping": 1,
+    "vendor": "AuthenticAMD"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 3743,
+      "root": "C:\\",
+      "total_mb": 6142
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1440,
+    "edid_w": 1920,
+    "height": 600,
+    "panel_digital": 0,
+    "panel_h": 600,
+    "panel_hz": 75,
+    "panel_name": "GatewayVX1120",
+    "panel_source": "registry",
+    "panel_w": 800,
+    "width": 800
+  },
+  "gpu": {
+    "driver_date": "4-7-2004",
+    "driver_version": "5.6.7.3",
+    "feature_level": "tnl",
+    "feature_level_num": 2,
+    "hardware_id": "PCI\\VEN_10DE&DEV_0150&SUBSYS_40161043&REV_A3",
+    "name": "NVIDIA GeForce2 GTS/GeForce2 Pro (Microsoft Corporation)",
+    "pci_dev": "0x0150",
+    "pci_ven": "0x10DE",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 32
+  },
+  "hostname": "NSC-9871C0E9964",
+  "network": {
+    "interfaces": [
+      {
+        "description": "Intel(R) PRO/100+ Management Adapter - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.124"
+        ],
+        "mac": "00-D0-B7-40-96-A9"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "ad9dfa5da5fc78bd",
+  "profile_version": 1,
+  "ram_mb": 511,
+  "reported_at": "2003-04-02 11:47:31",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "4-7-2004",
+      "driver_version": "5.6.7.3",
+      "hardware_id": "pci\\ven_10de&dev_0150",
+      "instance": "0000",
+      "name": "NVIDIA GeForce2 GTS/GeForce2 Pro (Microsoft Corporation)",
+      "pci_dev": "0x0150",
+      "pci_ven": "0x10DE"
+    }
+  ]
+}

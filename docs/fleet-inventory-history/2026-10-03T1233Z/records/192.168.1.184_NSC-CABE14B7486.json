@@ -1,0 +1,113 @@
+{
+  "accelerators": [],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 1,
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "",
+    "count": 1,
+    "family": 6,
+    "feature_bits": 15,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "sse"
+    ],
+    "mhz": 845,
+    "mhz_source": "registry",
+    "model": 8,
+    "stepping": 3,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 89288,
+      "root": "C:\\",
+      "total_mb": 142381
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 960,
+    "edid_w": 1280,
+    "height": 768,
+    "panel_digital": 0,
+    "panel_h": 768,
+    "panel_hz": 85,
+    "panel_name": "A90",
+    "panel_source": "registry",
+    "panel_w": 1024,
+    "width": 1024
+  },
+  "gpu": {
+    "driver_date": "4-1-2005",
+    "driver_version": "7.1.8.9",
+    "feature_level": "tnl",
+    "feature_level_num": 2,
+    "hardware_id": "PCI\\VEN_10DE&DEV_0150&SUBSYS_002E10DE&REV_A4",
+    "name": "NVIDIA GeForce2 GTS/GeForce2 Pro",
+    "pci_dev": "0x0150",
+    "pci_ven": "0x10DE",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 32
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "NSC-CABE14B7486",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "080009ebd1a5",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Hewlett-Packard DeskDirect (J2585B) 10/100VG PCI LAN  Adapter #2 - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.184"
+        ],
+        "mac": "08-00-09-EB-D1-A5"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "881d549a01caf0cb",
+  "profile_version": 1,
+  "ram_mb": 511,
+  "reported_at": "2026-10-03 08:19:35",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "4-1-2005",
+      "driver_version": "7.1.8.9",
+      "hardware_id": "pci\\ven_10de&dev_0150",
+      "instance": "0000",
+      "name": "NVIDIA GeForce2 GTS/GeForce2 Pro",
+      "pci_dev": "0x0150",
+      "pci_ven": "0x10DE"
+    }
+  ]
+}

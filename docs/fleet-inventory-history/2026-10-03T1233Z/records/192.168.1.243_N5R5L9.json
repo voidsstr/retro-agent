@@ -1,0 +1,128 @@
+{
+  "accelerators": [
+    {
+      "count": 1,
+      "description": "Voodoo2 3D Accelerator",
+      "device_key": "VEN_121A&DEV_0002&SUBSYS_00000000&REV_02",
+      "pci_dev": "0x0002",
+      "pci_ven": "0x121A"
+    }
+  ],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 2,
+    "disc_mount": false,
+    "disc_mount_evidence": "",
+    "glide": true,
+    "glide_evidence": "PCI\\VEN_121A&DEV_0002&SUBSYS_00000000&REV_02\\BUS_00&DEV_03&FUNC_00"
+  },
+  "cpu": {
+    "brand": "",
+    "count": 1,
+    "family": 5,
+    "feature_bits": 1,
+    "features": [
+      "fpu"
+    ],
+    "mhz": 165,
+    "mhz_source": "tsc",
+    "model": 2,
+    "stepping": 12,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 6,
+    "version": "4.06.03.0518"
+  },
+  "disk": [
+    {
+      "free_mb": 314,
+      "root": "C:\\",
+      "total_mb": 1220
+    },
+    {
+      "free_mb": 3693,
+      "root": "D:\\",
+      "total_mb": 4016
+    },
+    {
+      "free_mb": 64213,
+      "root": "E:\\",
+      "total_mb": 72277
+    }
+  ],
+  "display": {
+    "bpp": 16,
+    "edid_h": 0,
+    "edid_w": 0,
+    "height": 600,
+    "panel_digital": 0,
+    "panel_h": 600,
+    "panel_hz": 0,
+    "panel_name": "",
+    "panel_source": "registry",
+    "panel_w": 800,
+    "width": 800
+  },
+  "gpu": {
+    "driver_date": " 4-23-1999",
+    "driver_version": "",
+    "feature_level": "none",
+    "feature_level_num": 0,
+    "hardware_id": "PCI\\VEN_1013&DEV_00AC&SUBSYS_00000000&REV_00\\BUS_00&DEV_0F&FUNC_00",
+    "name": "Cirrus Logic 5436 PCI",
+    "pci_dev": "0x00AC",
+    "pci_ven": "0x1013",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 0
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "N5R5L9",
+  "ipx": {
+    "frame": "802.2",
+    "installed": true,
+    "mechanism": "win98se_template",
+    "net": "00000000",
+    "node": "00a024b9e9fb",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "ELNK3 Ethernet Adapter",
+        "ipv4": [
+          "192.168.1.243"
+        ],
+        "mac": "00-A0-24-B9-E9-FB"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "win9x",
+    "level_num": 1,
+    "product": "Windows 98",
+    "service_pack": " A ",
+    "version": "4.10.2222"
+  },
+  "profile_hash": "b9a3b8c66827032c",
+  "profile_version": 1,
+  "ram_mb": 127,
+  "reported_at": "2026-10-03 07:19:16",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": " 4-23-1999",
+      "driver_version": "",
+      "hardware_id": "PCI\\VEN_1013&DEV_00AC",
+      "instance": "0000",
+      "name": "Cirrus Logic 5436 PCI",
+      "pci_dev": "0x00AC",
+      "pci_ven": "0x1013"
+    }
+  ]
+}

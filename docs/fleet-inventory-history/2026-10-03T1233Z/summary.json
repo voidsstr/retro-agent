@@ -1,0 +1,235 @@
+{
+  "taken_utc": "2026-10-03T1233Z",
+  "stale_days": 14,
+  "boxes": [
+    {
+      "ip": "192.168.1.123",
+      "hostname": "NSC-B20C188E96D",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "NSC-B20C188E96D",
+      "agent_version": "1.97.1",
+      "cpu": "AMD Athlon(tm) 64 Processor 4000+, 2402 MHz",
+      "ram_mb": 2047,
+      "gpu": "ATI Radeon HD 3850 AGP (`1002:9515`), 512 MB, sm3.0",
+      "video_cards": [
+        "ATI Radeon HD 3850 AGP"
+      ],
+      "accelerators": [],
+      "os": "Windows XP",
+      "profile_hash": "d91c7ebb69976b34"
+    },
+    {
+      "ip": "192.168.1.124",
+      "hostname": "NSC-C543575F526",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "NSC-C543575F526",
+      "agent_version": "1.97.1",
+      "cpu": "AMD Athlon(tm) XP 2400+, 2004 MHz",
+      "ram_mb": 255,
+      "gpu": "vcr-kmd Voodoo 5 6000 (open driver) (`121A:0009`), 64 MB, fixed",
+      "video_cards": [
+        "vcr-kmd Voodoo 5 6000 (open driver)"
+      ],
+      "accelerators": [
+        "vcr-kmd Voodoo 5 6000 (open driver) (VEN_121A&DEV_0009&SUBSYS_0001121A&REV_01)"
+      ],
+      "os": "Windows XP",
+      "profile_hash": "dec95d42ad08a34d"
+    },
+    {
+      "ip": "192.168.1.133",
+      "hostname": "P3-DUAL",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "P3-DUAL",
+      "agent_version": "1.97.1",
+      "cpu": "GenuineIntel, 701 MHz x2",
+      "ram_mb": 255,
+      "gpu": "NVIDIA GeForce4 Ti 4600 (`10DE:0250`), 128 MB, sm1.x",
+      "video_cards": [
+        "NVIDIA GeForce4 Ti 4600"
+      ],
+      "accelerators": [],
+      "os": "Windows XP",
+      "profile_hash": "b65fa1fee4df292c"
+    },
+    {
+      "ip": "192.168.1.143",
+      "hostname": "1GHZ",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "1GHZ",
+      "agent_version": "1.97.1",
+      "cpu": "AMD Athlon(tm) Processor, 1000 MHz",
+      "ram_mb": 511,
+      "gpu": "NVIDIA GeForce 6800 (`10DE:0041`), 128 MB, sm3.0",
+      "video_cards": [
+        "NVIDIA GeForce 6800",
+        "AMIGAMERLIN 3.1-R11 For Voodoo 5 5500 AGP"
+      ],
+      "accelerators": [
+        "AMIGAMERLIN 3.1-R11 For Voodoo 5 5500 AGP (VEN_121A&DEV_0009&SUBSYS_0002121A&REV_01)"
+      ],
+      "os": "Windows XP",
+      "profile_hash": "65a2b927575eaa82"
+    },
+    {
+      "ip": "192.168.1.145",
+      "hostname": "DELL",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "DELL",
+      "agent_version": "1.97.1",
+      "cpu": "Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz, 3092 MHz x4",
+      "ram_mb": 3316,
+      "gpu": "NVIDIA GeForce 8400GS (`10DE:10C3`), 512 MB, sm3.0",
+      "video_cards": [
+        "Intel(R) HD Graphics Family",
+        "NVIDIA GeForce 8400GS"
+      ],
+      "accelerators": [],
+      "os": "Windows XP",
+      "profile_hash": "bb7a13d03d67b0b4"
+    },
+    {
+      "ip": "192.168.1.171",
+      "hostname": "NSC-5B996B81319",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "NSC-5B996B81319",
+      "agent_version": "1.97.1",
+      "cpu": "Intel(R) Pentium(R) 4 CPU 2.80GHz, 2793 MHz",
+      "ram_mb": 509,
+      "gpu": "NVIDIA GeForce FX 5500 (`10DE:0326`), 256 MB, sm2.0",
+      "video_cards": [
+        "Intel(R) 82865G Graphics Controller",
+        "NVIDIA GeForce FX 5500"
+      ],
+      "accelerators": [],
+      "os": "Windows XP",
+      "profile_hash": "1ae6cfb3e6bad997"
+    },
+    {
+      "ip": "192.168.1.240",
+      "hostname": "USER-41EA3B3330",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "USER-41EA3B3330",
+      "agent_version": "1.97.1",
+      "cpu": "AMD Athlon(tm) 64 Processor 3300+, 2403 MHz",
+      "ram_mb": 1022,
+      "gpu": "Radeon X1600 Series (`1002:71C0`), 256 MB, sm3.0",
+      "video_cards": [
+        "RADEON 9800 XT",
+        "RADEON 9800 XT - Secondary",
+        "RADEON X800 Series",
+        "RADEON X800 Series Secondary",
+        "Radeon X1600 Series",
+        "Radeon X1600 Series Secondary"
+      ],
+      "accelerators": [],
+      "os": "Windows XP",
+      "profile_hash": "8f429a1b27850fac"
+    },
+    {
+      "ip": "192.168.1.197",
+      "hostname": "ADMIN-PC",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "ADMIN-PC",
+      "agent_version": "1.97.1",
+      "cpu": "Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz, 3093 MHz x4",
+      "ram_mb": 3317,
+      "gpu": "AMD Radeon HD 5450 (`1002:68F9`), 512 MB, sm3.0",
+      "video_cards": [
+        "Standard VGA Graphics Adapter",
+        "AMD Radeon HD 5450"
+      ],
+      "accelerators": [],
+      "os": "Windows 7",
+      "profile_hash": "7cf5bd34eefa68a7"
+    },
+    {
+      "ip": "192.168.1.243",
+      "hostname": "N5R5L9",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "N5R5L9",
+      "agent_version": "1.97.1",
+      "cpu": "GenuineIntel, 165 MHz",
+      "ram_mb": 127,
+      "gpu": "Cirrus Logic 5436 PCI (`1013:00AC`), none",
+      "video_cards": [
+        "Cirrus Logic 5436 PCI"
+      ],
+      "accelerators": [
+        "Voodoo2 3D Accelerator (VEN_121A&DEV_0002&SUBSYS_00000000&REV_02)"
+      ],
+      "os": "Windows 98",
+      "profile_hash": "b9a3b8c66827032c"
+    },
+    {
+      "ip": "192.168.1.110",
+      "hostname": "NSC-5C5396FAF9D",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "NSC-5C5396FAF9D",
+      "agent_version": "1.97.1",
+      "cpu": "Intel(R) Pentium(R) 4 CPU 2.80GHz, 2793 MHz",
+      "ram_mb": 1150,
+      "gpu": "RADEON 9500 PRO / 9700 (`1002:4E45`), 128 MB, sm2.0",
+      "video_cards": [
+        "RADEON 9500 PRO / 9700",
+        "RADEON 9500 PRO / 9700 - Secondary"
+      ],
+      "accelerators": [],
+      "os": "Windows XP",
+      "profile_hash": "32844a3c83b325aa"
+    },
+    {
+      "ip": "192.168.1.184",
+      "hostname": "NSC-CABE14B7486",
+      "state": "current",
+      "measured": "2026-10-03 08:19",
+      "record_hostname": "NSC-CABE14B7486",
+      "agent_version": "1.97.1",
+      "cpu": "GenuineIntel, 845 MHz",
+      "ram_mb": 511,
+      "gpu": "NVIDIA GeForce2 GTS/GeForce2 Pro (`10DE:0150`), 32 MB, tnl",
+      "video_cards": [
+        "NVIDIA GeForce2 GTS/GeForce2 Pro"
+      ],
+      "accelerators": [],
+      "os": "Windows XP",
+      "profile_hash": "881d549a01caf0cb"
+    },
+    {
+      "ip": "192.168.1.186",
+      "hostname": "NSC-684BA8CF5ED",
+      "state": "current",
+      "measured": "2026-10-03 08:32",
+      "record_hostname": "NSC-684BA8CF5ED",
+      "agent_version": "1.97.1",
+      "cpu": "Pentium(R) Dual-Core  CPU      E5300  @ 2.60GHz, 2621 MHz x2",
+      "ram_mb": 3071,
+      "gpu": "NVIDIA GeForce 7900 GT/GTO (`10DE:0291`), 256 MB, sm3.0",
+      "video_cards": [
+        "NVIDIA GeForce 7900 GT/GTO"
+      ],
+      "accelerators": [],
+      "os": "Windows XP",
+      "profile_hash": "c2c65a70497d837c"
+    }
+  ],
+  "unrostered": [
+    "NSC-6FE8BDE7351.json",
+    "NSC-9871C0E9964.json",
+    "NSC-AB862B3CF23.json",
+    "NSC-AF6CF7A80BC.json",
+    "W98BUILD.json",
+    "WHITEBEAST.json",
+    "XPBUILD.json"
+  ]
+}

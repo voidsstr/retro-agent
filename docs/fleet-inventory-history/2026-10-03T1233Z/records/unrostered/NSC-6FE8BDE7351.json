@@ -1,0 +1,106 @@
+{
+  "accelerators": [],
+  "agent_version": "1.79.4",
+  "capabilities": {
+    "bits": 0,
+    "disc_mount": false,
+    "disc_mount_evidence": ""
+  },
+  "cpu": {
+    "brand": "Pentium(R) Dual-Core  CPU      E5300  @ 2.60GHz",
+    "count": 2,
+    "family": 6,
+    "feature_bits": 127,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "sse",
+      "sse2",
+      "sse3",
+      "ssse3"
+    ],
+    "mhz": 2621,
+    "mhz_source": "registry",
+    "model": 23,
+    "stepping": 10,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 179,
+      "root": "C:\\",
+      "total_mb": 38138
+    },
+    {
+      "free_mb": 36447,
+      "root": "D:\\",
+      "total_mb": 38138
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 768,
+    "edid_w": 1024,
+    "height": 768,
+    "panel_digital": 0,
+    "panel_h": 768,
+    "panel_hz": 85,
+    "panel_name": "CPD-G200",
+    "panel_source": "registry",
+    "panel_w": 1024,
+    "width": 1024
+  },
+  "gpu": {
+    "driver_date": "7-2-2014",
+    "driver_version": "6.14.13.4052",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "hardware_id": "PCI\\VEN_10DE&DEV_0641&SUBSYS_C9453842&REV_A1",
+    "name": "NVIDIA GeForce 9400 GT ",
+    "pci_dev": "0x0641",
+    "pci_ven": "0x10DE",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 1024
+  },
+  "hostname": "NSC-6FE8BDE7351",
+  "network": {
+    "interfaces": [
+      {
+        "description": "Realtek PCIe GBE Family Controller - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.186"
+        ],
+        "mac": "E0-CB-4E-26-EC-A0"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "b373a841bb0b87a7",
+  "profile_version": 1,
+  "ram_mb": 3071,
+  "reported_at": "2002-01-02 03:18:03",
+  "video_cards": [
+    {
+      "attached_to_desktop": true,
+      "driver_date": "7-2-2014",
+      "driver_version": "6.14.13.4052",
+      "hardware_id": "pci\\ven_10de&dev_0641",
+      "instance": "0000",
+      "name": "NVIDIA GeForce 9400 GT ",
+      "pci_dev": "0x0641",
+      "pci_ven": "0x10DE"
+    }
+  ]
+}

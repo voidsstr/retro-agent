@@ -1,0 +1,127 @@
+{
+  "accelerators": [],
+  "agent_version": "1.97.1",
+  "capabilities": {
+    "bits": 1,
+    "disc_mount": true,
+    "disc_mount_evidence": "d347bus",
+    "glide": false,
+    "glide_evidence": ""
+  },
+  "cpu": {
+    "brand": "Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz",
+    "count": 4,
+    "family": 6,
+    "feature_bits": 255,
+    "features": [
+      "fpu",
+      "mmx",
+      "cmov",
+      "sse",
+      "sse2",
+      "sse3",
+      "ssse3",
+      "sse4.1"
+    ],
+    "mhz": 3092,
+    "mhz_source": "registry",
+    "model": 42,
+    "stepping": 7,
+    "vendor": "GenuineIntel"
+  },
+  "directx": {
+    "major": 9,
+    "version": "4.09.00.0904"
+  },
+  "disk": [
+    {
+      "free_mb": 123794,
+      "root": "C:\\",
+      "total_mb": 228926
+    }
+  ],
+  "display": {
+    "bpp": 32,
+    "edid_h": 1080,
+    "edid_w": 1920,
+    "height": 1080,
+    "panel_digital": 0,
+    "panel_h": 1080,
+    "panel_hz": 60,
+    "panel_name": "DELL E2414H",
+    "panel_source": "registry",
+    "panel_w": 1920,
+    "width": 1920
+  },
+  "gpu": {
+    "driver_date": "7-2-2014",
+    "driver_version": "6.14.13.4052",
+    "feature_level": "sm3.0",
+    "feature_level_num": 5,
+    "hardware_id": "PCI\\VEN_10DE&DEV_10C3&SUBSYS_000010DE&REV_A2",
+    "name": "NVIDIA GeForce 8400GS",
+    "pci_dev": "0x10C3",
+    "pci_ven": "0x10DE",
+    "source": "EnumDisplayDevices(active)",
+    "vram_mb": 512
+  },
+  "host_policy": {
+    "managed": true,
+    "modern": false
+  },
+  "hostname": "DELL",
+  "ipx": {
+    "frame": "auto",
+    "installed": true,
+    "mechanism": "netcfg",
+    "net": "00000000",
+    "node": "d4bed9b9bf93",
+    "state": "active",
+    "winsock": true
+  },
+  "network": {
+    "interfaces": [
+      {
+        "description": "Realtek PCIe GBE Family Controller - Packet Scheduler Miniport",
+        "ipv4": [
+          "192.168.1.145"
+        ],
+        "mac": "D4-BE-D9-B9-BF-93"
+      }
+    ],
+    "source": "GetAdaptersInfo"
+  },
+  "os": {
+    "level": "winxp",
+    "level_num": 3,
+    "product": "Windows XP",
+    "service_pack": "Service Pack 3",
+    "version": "5.1.2600"
+  },
+  "profile_hash": "bb7a13d03d67b0b4",
+  "profile_version": 1,
+  "ram_mb": 3316,
+  "reported_at": "2026-10-03 08:19:16",
+  "video_cards": [
+    {
+      "attached_to_desktop": false,
+      "driver_date": "2-27-2011",
+      "driver_version": "6.14.10.5337",
+      "hardware_id": "pci\\ven_8086&dev_0102&subsys_04f51028",
+      "instance": "0000",
+      "name": "Intel(R) HD Graphics Family",
+      "pci_dev": "0x0102",
+      "pci_ven": "0x8086"
+    },
+    {
+      "attached_to_desktop": true,
+      "driver_date": "7-2-2014",
+      "driver_version": "6.14.13.4052",
+      "hardware_id": "pci\\ven_10de&dev_10c3",
+      "instance": "0001",
+      "name": "NVIDIA GeForce 8400GS",
+      "pci_dev": "0x10C3",
+      "pci_ven": "0x10DE"
+    }
+  ]
+}
