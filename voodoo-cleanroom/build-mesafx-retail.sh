@@ -30,7 +30,8 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 CROSS=i686-w64-mingw32-
 CPU=pentium3            # -march floor: must stay P3, .124 has no SSE2
-TUNE=pentium4           # -mtune: schedule for the P4 that runs the Voodoo 2 box
+TUNE="${TUNE:-pentium4}" # -mtune: schedule for the P4 that runs the Voodoo 2 box; override
+                        # for an A/B (TUNE=athlon-xp: the Athlon XP in .124) - the -march floor stays
 WORK="$HERE/build"; OUT="$HERE/out"
 RETAIL_LIB="$HERE/../scripts/3dfx/glide-sdk/lib/libglide3x_retail.dll.a"
 

@@ -1,0 +1,18 @@
+[10:28:01] 125 shortcuts, 8 to sweep: ['Descent 3', 'Hexen II', 'Quake II', 'Quake III Arena', 'Return to Castle Wolfenstein', 'Serious Sam - The First Encounter', 'Serious Sam - The Second Encounter', 'Tribes 2 Solo and LAN']
+[10:28:01] --- Descent 3: C:\Games\Descent3\Play Descent 3.bat 
+[10:30:00]     CHECK: had to be forced closed; close keys withheld - the WM_CLOSE took the game's window and its keyboard (it had the focus at 60s)  samples=[(30, ['main.exe'], (640, 480, 15.4, 23.1)), (60, ['main.exe'], (640, 480, 16.3, 29.9))]
+[10:30:00] --- Hexen II: C:\Games\HexenII\Play Hexen II.bat 
+[10:31:46]     CHECK: dialog while closing: Confirm Exit  samples=[(30, ['glh2.exe'], (1280, 960, 24.7, 36.5)), (60, ['glh2.exe'], (1280, 960, 24.8, 36.5))]
+[10:31:46] --- Quake II: C:\Games\Quake2Complete\Quake II.bat 
+[10:32:57]     PASS  samples=[(30, ['quake2.exe'], (1280, 960, 14.9, 10.3)), (60, ['quake2.exe'], (1280, 960, 26.2, 10.7))]
+[10:32:57] --- Quake III Arena: C:\Games\Quake3-TeamArena\Play Quake III Arena.bat 
+[10:34:05]     PASS  samples=[(30, ['ioquake3.x86.exe'], (1280, 960, 15.6, 33.3)), (60, ['ioquake3.x86.exe'], (1280, 960, 12.4, 28.3))]
+[10:34:05] --- Return to Castle Wolfenstein: C:\Games\ReturnToCastleWolfenstein\Play Return to Castle Wolfenstein.bat 
+[10:35:12]     PASS  samples=[(30, ['WolfSP.exe'], (1280, 960, 23.9, 17.7)), (60, ['WolfSP.exe'], (1280, 960, 21.9, 38.7))]
+[10:35:12] --- Serious Sam - The First Encounter: C:\Games\SeriousSamFirstEncounter\Play Serious Sam - The First Encounter.bat 
+[10:36:19]     PASS  samples=[(30, ['SeriousSam.exe'], (1280, 960, 24.2, 66.9)), (60, ['SeriousSam.exe'], (1280, 960, 92.4, 76.8))]
+[10:36:19] --- Serious Sam - The Second Encounter: C:\Games\SeriousSamSecondEncounter\Play Serious Sam - The Second Encounter.bat 
+[10:37:27]     PASS  samples=[(30, ['SeriousSam.exe'], (1280, 960, 34.7, 41.6)), (60, ['SeriousSam.exe'], (1280, 960, 34.3, 40.8))]
+[10:37:27] --- Tribes 2 Solo and LAN: C:\Games\Tribes2\Play Tribes 2 Solo and LAN.bat 
+[10:38:35]     PASS  samples=[(30, ['Tribes2.exe', 'rubyintersect.dll'], (1280, 960, 72.7, 53.6)), (60, ['Tribes2.exe', 'rubyintersect.dll'], (1280, 960, 10.9, 24.0))]
+[10:38:35] results -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/icd_0184_regression/20261003_102758/sweep.json

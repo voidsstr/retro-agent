@@ -12,6 +12,41 @@ injected into `GL_RENDERER` so logs and benchmarks self-document. The stamp is
 specpicks DB (`retro_benchmark_runs`) carries a `driver_stack` JSON naming the
 exact composition of all three layers, and `driver_version` = the ICD version.
 
+## 0.1.85 — an `-mtune=athlon-xp` A/B build, not adopted (2026-10-03)
+
+The same source as 0.1.84, scheduled for `.124`'s Athlon XP instead of the
+Pentium 4 (`TUNE=athlon-xp bash build-mesafx-retail.sh`; the `-march=pentium3`
+floor is unchanged). Quake III 1280x960: 76.8 / 76.8 against 76.7 / 76.8.
+640x480 (CPU-bound): 122.2 / 122.2 against 121.5 / 121.3. TSE 640x480: 52.3
+against 52.2. At most +0.6%, so `.124` stays on 0.1.84. Evidence:
+`vcr-kmd/evidence/gametune_1001/icd_tune_athlonxp/`.
+
+## 0.1.84 — Glide opens on the drawable's top-level window (2026-10-03)
+
+Glide takes the screen with DirectDraw exclusive mode, and
+`SetCooperativeLevel(DDSCL_EXCLUSIVE|DDSCL_FULLSCREEN)` refuses a WS_CHILD with
+DDERR_INVALIDPARAMS (`0x80070057`). `grSstWinOpen` then fails with an empty
+"non-fatal" error and no context is made.
+
+Serious Sam TFE draws into a child of its own window when `ogl_bExclusive` is 0
+(style `0x56000000`). Its own auto-adjust chose 0 on our ICD, and from then on
+it exited about 20 s into every launch on `.124`. This was measured with a debug
+h5 Glide instrumented to print the HRESULT and the window.
+
+`wglCreateContext` now hands Glide `GetAncestor(hWnd, GA_ROOT)` when the
+drawable is a child. That is also the window that gets the `WM_ACTIVATEAPP`
+Glide's alt-tab handling watches. The drawable keeps the size, the subclassing
+and the current-window bookkeeping, and `C:\retrogl.log` names the switch.
+
+Verified on `.124`: TFE forced to `ogl_bExclusive=0` ran its demo at
+**79.1 fps**, against 78.7 with an exclusive canvas. A regression sweep of eight
+OpenGL titles followed (`gametune_1001/icd_0184_regression/`). The library also
+gives TFE an exclusive canvas on 3dfx boxes (`stage-fleetres.py`,
+`stage-serioussam.py`), so either fix alone suffices.
+
+Deployed as `.124`'s `system32\retroicd.dll` (md5 `be518e43`; 0.1.83 is kept
+as `retroicd_0183.bak`). Test: `tests/python/test_icd_child_window_source.py`.
+
 ## 0.1.83 — the build tag moves from GL_RENDERER to GL_VERSION (2026-10-03)
 
 `GL_RENDERER` is now the same for every build (`Mesa Glide v0.62 Voodoo5 6000

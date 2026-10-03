@@ -1,0 +1,18 @@
+[10:42:57] box 192.168.1.124 NSC-C543575F526  agent 1.97.1
+[10:42:58] crash dialogs suppressed: {'DoReport': '0x0', 'ShowUI': '0x0', 'ErrorMode': '0x2', 'VisualNotification': '0x0'}
+[10:42:58] gpu  vcr-kmd Voodoo 5 6000 (open driver)  64 MB  (0x121A:0x0009)
+[10:42:58] glide settings key: HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide
+[10:42:58] quiescing background processes
+[10:42:59] matrix: 1 run(s)
+[10:42:59] capturing software versions (driver files, game binaries, OS, agent)
+[10:43:00]   Quake III Arena: C:\Games\Quake3-TeamArena\quake3.exe  872448 B  md5 b5cf3dd55e04
+[10:43:00]   glide3x: 1025930 B  md5 07c96fd9035c
+[10:43:00]   icd: 2646009 B  md5 8912a1388a15
+[10:43:00]   vcr_display: 106351 B  md5 b63ea6a5ff0c
+[10:43:00]   vcr_miniport: 130105 B  md5 fda1b8c9b905
+[10:43:00] versions -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/icd_tune_athlonxp/c_0184_p4/versions.json
+[10:43:02]     quake3:retrogl loads icd C:\Games\Quake3-TeamArena\retrogl.dll md5 be518e432584, glide3x C:\WINDOWS\system32\glide3x.dll md5 07c96fd9035c
+[10:43:02] [1/1]
+[10:43:08] --- Quake III Arena [opengl-cleanroom-0.1.84]  1280x960x32  cfg=5 (4chip-noaa)
+[10:43:44]     -> 76.8 fps   [Mesa Glide v0.62 Voodoo5 6000 (tm)]  free=166MB
+[10:43:44] done. results: voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/icd_tune_athlonxp/c_0184_p4/results.csv

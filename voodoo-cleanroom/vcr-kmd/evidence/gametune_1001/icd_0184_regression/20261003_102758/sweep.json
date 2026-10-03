@@ -1,0 +1,466 @@
+[
+ {
+  "shortcut": "Descent 3",
+  "target": "C:\\Games\\Descent3\\Play Descent 3.bat",
+  "args": "",
+  "t0": "10:28:01",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "main.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     15.4,
+     23.1
+    ],
+    "file": "Descent_3_30s.png",
+    "foreground": {
+     "class": "Descent 3",
+     "title": "Descent 3",
+     "pid": 424,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "main.exe"
+    ],
+    "stats": [
+     640,
+     480,
+     16.3,
+     29.9
+    ],
+    "file": "Descent_3_60s.png",
+    "foreground": {
+     "class": "Descent 3",
+     "title": "Descent 3",
+     "pid": 424,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "main.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "main.exe"
+  ],
+  "force_output": [
+   "424: SUCCESS: The process with PID 424 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - the WM_CLOSE took the game's window and its keyboard (it had the focus at 60s)"
+ },
+ {
+  "shortcut": "Hexen II",
+  "target": "C:\\Games\\HexenII\\Play Hexen II.bat",
+  "args": "",
+  "t0": "10:30:00",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "glh2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.7,
+     36.5
+    ],
+    "file": "Hexen_II_30s.png",
+    "foreground": {
+     "class": "HexenII",
+     "title": "HexenII",
+     "pid": 916,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "glh2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.8,
+     36.5
+    ],
+    "file": "Hexen_II_60s.png",
+    "foreground": {
+     "class": "HexenII",
+     "title": "HexenII",
+     "pid": 916,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "glh2.exe"
+  ],
+  "close_via": "console quit",
+  "dialogs_on_close": [
+   "Confirm Exit"
+  ],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: dialog while closing: Confirm Exit"
+ },
+ {
+  "shortcut": "Quake II",
+  "target": "C:\\Games\\Quake2Complete\\Quake II.bat",
+  "args": "",
+  "t0": "10:31:46",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     14.9,
+     10.3
+    ],
+    "file": "Quake_II_30s.png",
+    "foreground": {
+     "class": "Quake 2",
+     "title": "Quake 2",
+     "pid": 1068,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "quake2.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     26.2,
+     10.7
+    ],
+    "file": "Quake_II_60s.png",
+    "foreground": {
+     "class": "Quake 2",
+     "title": "Quake 2",
+     "pid": 1068,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "quake2.exe"
+  ],
+  "close_via": "console quit",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Quake III Arena",
+  "target": "C:\\Games\\Quake3-TeamArena\\Play Quake III Arena.bat",
+  "args": "",
+  "t0": "10:32:57",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "ioquake3.x86.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     15.6,
+     33.3
+    ],
+    "file": "Quake_III_Arena_30s.png",
+    "foreground": {
+     "class": "SDL_app",
+     "title": "ioquake3",
+     "pid": 2412,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "ioquake3.x86.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     12.4,
+     28.3
+    ],
+    "file": "Quake_III_Arena_60s.png",
+    "foreground": {
+     "class": "SDL_app",
+     "title": "ioquake3",
+     "pid": 2412,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "ioquake3.x86.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Return to Castle Wolfenstein",
+  "target": "C:\\Games\\ReturnToCastleWolfenstein\\Play Return to Castle Wolfenstein.bat",
+  "args": "",
+  "t0": "10:34:05",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "WolfSP.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     23.9,
+     17.7
+    ],
+    "file": "Return_to_Castle_Wolfenstein_30s.png",
+    "foreground": {
+     "class": "Wolfenstein",
+     "title": "Wolfenstein",
+     "pid": 2524,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "WolfSP.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     21.9,
+     38.7
+    ],
+    "file": "Return_to_Castle_Wolfenstein_60s.png",
+    "foreground": {
+     "class": "Wolfenstein",
+     "title": "Wolfenstein",
+     "pid": 2524,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "WolfSP.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Serious Sam - The First Encounter",
+  "target": "C:\\Games\\SeriousSamFirstEncounter\\Play Serious Sam - The First Encounter.bat",
+  "args": "",
+  "t0": "10:35:12",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     24.2,
+     66.9
+    ],
+    "file": "Serious_Sam_The_First_Encounter_30s.png",
+    "foreground": {
+     "class": "ViewPort Window",
+     "title": "",
+     "pid": 1912,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     92.4,
+     76.8
+    ],
+    "file": "Serious_Sam_The_First_Encounter_60s.png",
+    "foreground": {
+     "class": "ViewPort Window",
+     "title": "",
+     "pid": 1912,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SeriousSam.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Serious Sam - The Second Encounter",
+  "target": "C:\\Games\\SeriousSamSecondEncounter\\Play Serious Sam - The Second Encounter.bat",
+  "args": "",
+  "t0": "10:36:19",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     34.7,
+     41.6
+    ],
+    "file": "Serious_Sam_The_Second_Encounter_30s.png",
+    "foreground": {
+     "class": "ViewPort Window",
+     "title": "",
+     "pid": 3644,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "SeriousSam.exe"
+    ],
+    "stats": [
+     1280,
+     960,
+     34.3,
+     40.8
+    ],
+    "file": "Serious_Sam_The_Second_Encounter_60s.png",
+    "foreground": {
+     "class": "ViewPort Window",
+     "title": "",
+     "pid": 3644,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "SeriousSam.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ },
+ {
+  "shortcut": "Tribes 2 Solo and LAN",
+  "target": "C:\\Games\\Tribes2\\Play Tribes 2 Solo and LAN.bat",
+  "args": "",
+  "t0": "10:37:27",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Tribes2.exe",
+     "rubyintersect.dll"
+    ],
+    "stats": [
+     1280,
+     960,
+     72.7,
+     53.6
+    ],
+    "file": "Tribes_2_Solo_and_LAN_30s.png",
+    "foreground": {
+     "class": "Darkstar Window Class",
+     "title": "Tribes 2",
+     "pid": 3972,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Tribes2.exe",
+     "rubyintersect.dll"
+    ],
+    "stats": [
+     1280,
+     960,
+     10.9,
+     24.0
+    ],
+    "file": "Tribes_2_Solo_and_LAN_60s.png",
+    "foreground": {
+     "class": "Darkstar Window Class",
+     "title": "Tribes 2",
+     "pid": 3972,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Tribes2.exe",
+   "rubyintersect.dll"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ }
+]

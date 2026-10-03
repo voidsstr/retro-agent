@@ -1559,6 +1559,9 @@ single-pass multitexture by default) and 0.1.76–0.1.82 are in
 (`1.2 Mesa 6.2.2 [voodoo-cleanroom 0.1.83]`). id Tech 3 and Torque remember
 the renderer string and drop to their low graphics preset when it changes, so
 every earlier build reset Quake III, RtCW, SoF II, JKA and Tribes 2 on update.
+**0.1.84 (2026-10-03) hands Glide the drawable's top-level window**: DirectDraw
+exclusive mode refuses a WS_CHILD, so a game drawing into a child of its window
+(Serious Sam TFE with `ogl_bExclusive=0`) got no context and exited.
 
 ### 15.3 Glide fork and build pipeline
 

@@ -96,6 +96,40 @@ The durable host-2 set is `v56k_sweep_192.168.1.124/`.
 | 128 MB vs 256 MB VBIOS switch | untouched under AmigaMerlin | — | physical switch; user action |
 | Other drivers: official 3dfx 1.04.00 (Win2K), SFFT, in-house stacks | not run | — | each is a full re-run of the matrix |
 
+### Resume point (2026-10-03 10:40) - ICD 0.1.84 on `.124`; Serious Sam both Encounters right; library fixes waiting on one generation bump
+
+**`.124` state:**
+- System ICD **0.1.84**: `retroicd.dll` `be518e43`, with `retroicd_0183.bak`,
+  `_0182.bak` and `_0180.bak` beside it.
+- Glide `07c96fd9`, vcr-kmd `fda1b8c9`/`b63ea6a5`, stock clock.
+- Vsync on, through the system `FX_GLIDE_SWAPINTERVAL=1`.
+- 3dfx Control Panel 2.1.2 in the Start Menu and on the desktop.
+- `v56k_tune.py --dry-run` reads 0.
+
+**Library:** these are published and verified, but reach other boxes only at
+the next deploy-generation bump. postskip-35 asked to hold the bump during its
+5-box Descent LAN test. Bump when it says done.
+- The six Serious Sam launchers (TSE `gap_iRefreshRate`, `ogl_bExclusive=1` on
+  3dfx boxes).
+- TFE's `GLSettings.lst` plus four `3Dfx-V*-Mesa.ini` scripts.
+- Both `NOTES.txt` files.
+- TFE's re-dated demos.
+
+The Descent II Win95 launcher already went out with the 08:58 bump.
+
+**Done today:** the ICD build tag moved to GL_VERSION (0.1.83). `lan_sweep`
+focus. The Descent II registration card. The Serious Sam presets, measured. TFE
+running again (exclusive canvas, library + ICD 0.1.84). The bench's Serious Sam
+class. The panel note (2.1.2). `_staging194`.
+
+**Next:**
+- The generation bump once postskip-35 is done.
+- ~~An `-mtune=athlon-xp` A/B of the ICD~~ done 10:50: +0.6% at most and only
+  CPU-bound, so not adopted (`gametune_1001/icd_tune_athlonxp/`). The ICD 0.1.84
+  regression sweep of eight OpenGL titles found no FAIL
+  (`gametune_1001/icd_0184_regression/`).
+- Remove the worktree at campaign end.
+
 ### Resume point (2026-10-01 11:00) - the garbled AA start-up screens were `SliPersistAll`; to-do item 2 done
 
 **Cause:** the diagnostic `Diag\SliPersistAll` = 1 (set by hand for the
@@ -233,12 +267,21 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
    write `ogl_bExclusive=1` on a 3dfx box, and TFE's `GLSettings.lst` knows our
    ICD. TFE's demos were refused because of staged file dates (re-dated), and
    TSE's refresh line used TFE's variable name (`gap_iRefreshRate` added).
-4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on the
-   display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through the
-   console until fixed).
-5. Housekeeping: `push_3dfxctl.py 192.168.1.124 --deploy` (Start Menu icon);
-   delete the empty `Utility/Retro Automation/_staging194`; remove the
-   `v56k-bench` worktree when the campaign ends.
+   **ICD 0.1.84** then fixed the class in the driver: Glide opens on the
+   drawable's top-level window, so a child canvas works too (TFE forced to
+   `ogl_bExclusive=0`: 79.1 fps). `.124` runs 0.1.84 (`be518e43`).
+4. Tooling: `vcrctl fbshot` hangs under D3D exclusive. The GDI escape waits on
+   the display lock; a user-mode timeout cannot help, because the thread stuck
+   in win32k keeps the process alive and the agent's EXEC waits on it. A real
+   fix needs a capture path that does not take the devlock (kernel work). It
+   only matters for Direct3D titles, which are outside this campaign.
+   Quake II's WM_CLOSE SwapBuffers dialog: `lan_sweep` now quits it through
+   its console (2026-10-03).
+5. Housekeeping: ~~`push_3dfxctl.py 192.168.1.124 --deploy`~~ done 2026-10-03
+   (Start Menu + desktop shortcuts; panel 2.1.2 on the share);
+   ~~`_staging194`~~ deleted 2026-10-03; remove the `v56k-bench` worktree when
+   the campaign ends. AA-path items (the T-buffer `!gc->sliCount` latent fix,
+   the aaCtrl zero in the kernel disable) wait for a supervised AA session.
 
 ### Resume point (2026-09-29 05:40) - the graphics clock set LIVE; the full-desktop sweep done (74 shortcuts); the stale 75 Hz Glide override removed
 
