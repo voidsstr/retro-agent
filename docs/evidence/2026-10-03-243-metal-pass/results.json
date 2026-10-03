@@ -1,0 +1,398 @@
+[
+ {
+  "title": "Quake - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\QUAKE1\\Q1V640.BAT",
+  "kind": "q",
+  "game_procs": [
+   "glquake.exe"
+  ],
+  "foreground": "GLQuake",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake - 3dfx Voodoo 800x600",
+  "bat": "E:\\GAMES\\QUAKE1\\Q1V800.BAT",
+  "kind": "q",
+  "game_procs": [
+   "glquake.exe"
+  ],
+  "foreground": "GLQuake",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake - Scourge of Armagon - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\QUAKE1\\Q1HIPV.BAT",
+  "kind": "q",
+  "game_procs": [
+   "glquake.exe"
+  ],
+  "foreground": "GLQuake",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake - Dissolution of Eternity - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\QUAKE1\\Q1ROGV.BAT",
+  "kind": "q",
+  "game_procs": [
+   "glquake.exe"
+  ],
+  "foreground": "GLQuake",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake - DOS",
+  "bat": "E:\\GAMES\\QUAKE1\\Q1DOS.BAT",
+  "kind": "dos",
+  "game_procs": [],
+  "foreground": "RUNT - QUAKE",
+  "dialogs": [],
+  "dos_box": true,
+  "quit": "DOS box closed",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake - DOS 360x480",
+  "bat": "E:\\GAMES\\QUAKE1\\Q1DOSM10.BAT",
+  "kind": "dos",
+  "game_procs": [],
+  "foreground": "RUNT - QUAKE",
+  "dialogs": [],
+  "dos_box": true,
+  "quit": "DOS box closed",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake - Scourge of Armagon - DOS",
+  "bat": "E:\\GAMES\\QUAKE1\\Q1HIPD.BAT",
+  "kind": "dos",
+  "game_procs": [],
+  "foreground": "RUNT - QUAKE",
+  "dialogs": [],
+  "dos_box": true,
+  "quit": "DOS box closed",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake - Dissolution of Eternity - DOS",
+  "bat": "E:\\GAMES\\QUAKE1\\Q1ROGD.BAT",
+  "kind": "dos",
+  "game_procs": [],
+  "foreground": "RUNT - QUAKE",
+  "dialogs": [],
+  "dos_box": true,
+  "quit": "DOS box closed",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake II",
+  "bat": "E:\\GAMES\\QUAKE2~1\\PLAYQU~1.BAT",
+  "kind": "q",
+  "game_procs": [
+   "quake2.exe"
+  ],
+  "foreground": "Quake 2",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake II - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\QUAKE2~1\\PLAYQU~2.BAT",
+  "kind": "q",
+  "game_procs": [
+   "quake2.exe"
+  ],
+  "foreground": "Quake 2",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake II - The Reckoning - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\QUAKE2~2\\PLAYQU~2.BAT",
+  "kind": "q",
+  "game_procs": [
+   "quake2.exe"
+  ],
+  "foreground": "Quake 2",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Quake II - Ground Zero - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\QUAKE2~2\\PLAYQU~1.BAT",
+  "kind": "q",
+  "game_procs": [
+   "quake2.exe"
+  ],
+  "foreground": "Quake 2",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "SiN - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\SINGOLD\\PLAYSI~4.BAT",
+  "kind": "q",
+  "game_procs": [
+   "sin.exe"
+  ],
+  "foreground": "Sin",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "SiN - Wages of SiN - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\SINGOLD\\PLAYWA~2.BAT",
+  "kind": "q",
+  "game_procs": [
+   "sin.exe"
+  ],
+  "foreground": "Sin",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Half-Life - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\HALFLI~1\\PLAYHA~1.BAT",
+  "kind": "q",
+  "game_procs": [
+   "hl.exe"
+  ],
+  "foreground": "Half-Life",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Team Fortress Classic - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\HALFLI~1\\PLAYTE~1.BAT",
+  "kind": "q",
+  "game_procs": [
+   "hl.exe"
+  ],
+  "foreground": "Team Fortress",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Deathmatch Classic - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\HALFLI~1\\PLAYDE~1.BAT",
+  "kind": "q",
+  "game_procs": [
+   "hl.exe"
+  ],
+  "foreground": "Deathmatch Classic",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Hexen II - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\HEXENII\\PLAYHE~3.BAT",
+  "kind": "q",
+  "game_procs": [
+   "glh2.exe"
+  ],
+  "foreground": "HexenII",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "PROCKILL glh2.exe",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Unreal Gold - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\UNREAL~2\\PLAYUN~2.BAT",
+  "kind": "ue",
+  "game_procs": [
+   "unreal.exe"
+  ],
+  "foreground": "Unreal",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "console quit",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Carmageddon 2 - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\CARMAG~1\\PLAYCA~2.BAT",
+  "kind": "kill",
+  "game_procs": [
+   "carma2_hw.exe"
+  ],
+  "foreground": "Carmageddon II",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "PROCKILL carma2_hw.exe",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Wing Commander Prophecy - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\WCPROP~1\\WCP.BAT",
+  "kind": "kill",
+  "game_procs": [
+   "prophecy.exe"
+  ],
+  "foreground": "Wing Commander: Prophecy",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "PROCKILL prophecy.exe",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Wing Commander Secret Ops - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\WCPROP~1\\WCSO.BAT",
+  "kind": "kill",
+  "game_procs": [
+   "secretops.exe"
+  ],
+  "foreground": "START /w SECRETOPS.EXE",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "PROCKILL secretops.exe",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Die by the Sword - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\DIEBYT~1\\DBTS.BAT",
+  "kind": "kill",
+  "game_procs": [
+   "windie.exe"
+  ],
+  "foreground": "START /w WINDIE.EXE -3dfx -nocd",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "PROCKILL windie.exe",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Star Wars Rogue Squadron 3D - 3dfx Voodoo",
+  "bat": "E:\\GAMES\\ROGUES~1\\ROGUESQ.BAT",
+  "kind": "kill",
+  "game_procs": [
+   "rogue squadron.exe"
+  ],
+  "foreground": "START /w \"Rogue Squadron.EXE\"",
+  "dialogs": [],
+  "dos_box": true,
+  "glreset": "OK: Glide opened and closed on board 0 - the passthrough is back on the 2D card",
+  "quit": "PROCKILL rogue squadron.exe",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "X-Wing",
+  "bat": "E:\\GAMES\\FLIGH~34\\PLAYX-~1.BAT",
+  "kind": "dos",
+  "game_procs": [],
+  "foreground": "RUNT - XWING",
+  "dialogs": [],
+  "dos_box": true,
+  "quit": "DOS box closed",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "TIE Fighter",
+  "bat": "E:\\GAMES\\FLIGH~35\\PLAYTI~1.BAT",
+  "kind": "dos",
+  "game_procs": [],
+  "foreground": "Retro Remote Agent Version 1.97.1",
+  "dialogs": [],
+  "dos_box": true,
+  "quit": "DOS box closed",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Descent - DOS",
+  "bat": "E:\\GAMES\\DESCENT1\\PLAYDE~3.BAT",
+  "kind": "dos",
+  "game_procs": [],
+  "foreground": "RUNT - DESCENTR",
+  "dialogs": [],
+  "dos_box": true,
+  "quit": "DOS box closed",
+  "windows_left": [],
+  "still_running": []
+ },
+ {
+  "title": "Descent II - DOS",
+  "bat": "E:\\GAMES\\DESCENT2\\D2DOS.BAT",
+  "kind": "dos",
+  "game_procs": [],
+  "foreground": "RUNT - DESCENT2",
+  "dialogs": [],
+  "dos_box": true,
+  "quit": "DOS box closed",
+  "windows_left": [],
+  "still_running": []
+ }
+]
