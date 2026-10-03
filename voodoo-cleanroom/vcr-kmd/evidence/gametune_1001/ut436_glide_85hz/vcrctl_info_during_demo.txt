@@ -1,0 +1,3 @@
+22:52:48 {"cur": "1024x768x16@85", "sli_active": 1, "glide_chips": 4, "sli_chips": 4, "dd_mode": 85, "exclusive_pid": 352, "hwc_requests": 11, "monitor": "SNY1270 CPD-G200", "mon_v_hz": [48, 120]}
+22:53:19 {"cur": "1024x768x16@85", "sli_active": 1, "glide_chips": 4, "sli_chips": 4, "dd_mode": 85, "exclusive_pid": 352, "hwc_requests": 11, "monitor": "SNY1270 CPD-G200", "mon_v_hz": [48, 120]}
+22:53:49 {"cur": "1024x768x16@85", "sli_active": 1, "glide_chips": 4, "sli_chips": 4, "dd_mode": 85, "exclusive_pid": 352, "hwc_requests": 11, "monitor": "SNY1270 CPD-G200", "mon_v_hz": [48, 120]}

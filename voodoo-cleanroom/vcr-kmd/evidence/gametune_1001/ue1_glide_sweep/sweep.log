@@ -1,0 +1,9 @@
+[22:55:41] 125 shortcuts, 3 to sweep: ['Deus Ex', 'Unreal Gold', 'Unreal Tournament 436']
+[22:55:41] --- Deus Ex: C:\Games\DeusEx\Play Deus Ex.bat 
+[22:57:42]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['DEUSEX.EXE'], (1024, 768, 6.6, 22.5)), (60, ['DEUSEX.EXE'], (1024, 768, 5.9, 23.0))]
+[22:57:42] --- Unreal Gold: C:\Games\UnrealGold\Play Unreal Gold.bat 
+[22:59:43]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['Unreal.exe'], (1024, 768, 12.6, 21.6)), (60, ['Unreal.exe'], (1024, 768, 19.0, 32.0))]
+[22:59:43] --- Unreal Tournament 436: C:\Games\UnrealTournament436\Play Unreal Tournament 436.bat 
+[23:01:44]     CHECK: had to be forced closed; close keys withheld - game not focused  samples=[(30, ['UnrealTournament.exe'], (1024, 768, 7.2, 8.6)), (60, ['UnrealTournament.exe'], (1024, 768, 7.8, 17.5))]
+[23:01:44] results -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/ue1_glide_sweep/20261002_225539/sweep.json
+SWEEP-END

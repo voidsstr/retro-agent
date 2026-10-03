@@ -1,0 +1,47 @@
+[22:30:55] box 192.168.1.124 NSC-C543575F526  agent 1.97.1
+[22:30:56] crash dialogs suppressed: {'DoReport': '0x0', 'ShowUI': '0x0', 'ErrorMode': '0x2', 'VisualNotification': '0x0'}
+[22:30:56] gpu  vcr-kmd Voodoo 5 6000 (open driver)  64 MB  (0x121A:0x0009)
+[22:30:56] glide settings key: HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide
+[22:30:56] quiescing background processes
+[22:30:58] matrix: 1 run(s)
+[22:30:58] capturing software versions (driver files, game binaries, OS, agent)
+[22:30:59]   Unreal Tournament 436: C:\Games\UnrealTournament436\System\UnrealTournament.exe  241664 B  md5 7dadcc7e3a9a
+[22:30:59]   glide3x: 1025930 B  md5 07c96fd9035c
+[22:30:59]   icd: 2646009 B  md5 8912a1388a15
+[22:30:59]   vcr_display: 106351 B  md5 b63ea6a5ff0c
+[22:30:59]   vcr_miniport: 130105 B  md5 fda1b8c9b905
+[22:30:59] versions -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/ut436_renderer/versions.json
+[22:31:00]     ut99:glide loads icd C:\WINDOWS\system32\3dfxOGL.dll md5 8912a1388a15, glide3x C:\WINDOWS\system32\glide3x.dll md5 07c96fd9035c
+[22:31:00] [1/1]
+[22:31:06] --- Unreal Tournament 436 [glide]  1024x768x16  cfg=5 (4chip-noaa)
+[22:31:08]     (an earlier crash record was on the box - kept as pre-ut99-glide_1024x768_16_cfg5)
+[22:33:41]     -> 63.36 fps   [GlideDrv.dll]  free=147MB
+[22:33:41] done. results: voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/ut436_renderer/results.csv
+[22:33:51] box 192.168.1.124 NSC-C543575F526  agent 1.97.1
+[22:33:52] crash dialogs suppressed: {'DoReport': '0x0', 'ShowUI': '0x0', 'ErrorMode': '0x2', 'VisualNotification': '0x0'}
+[22:33:52] gpu  vcr-kmd Voodoo 5 6000 (open driver)  64 MB  (0x121A:0x0009)
+[22:33:52] glide settings key: HKLM\SYSTEM\CurrentControlSet\Control\Class\{4D36E968-E325-11CE-BFC1-08002BE10318}\0001\Settings\Glide
+[22:33:52] resuming: 1 completed run(s) already recorded
+[22:33:52] quiescing background processes
+[22:33:53] matrix: 4 run(s)
+[22:33:53] capturing software versions (driver files, game binaries, OS, agent)
+[22:33:54]   Unreal Tournament 436: C:\Games\UnrealTournament436\System\UnrealTournament.exe  241664 B  md5 7dadcc7e3a9a
+[22:33:54]   glide3x: 1025930 B  md5 07c96fd9035c
+[22:33:54]   icd: 2646009 B  md5 8912a1388a15
+[22:33:54]   vcr_display: 106351 B  md5 b63ea6a5ff0c
+[22:33:54]   vcr_miniport: 130105 B  md5 fda1b8c9b905
+[22:33:54] versions -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/ut436_renderer/versions.json
+[22:33:55]     ut99:opengl loads icd C:\WINDOWS\system32\retroicd.dll md5 0183eb85424d, glide3x C:\WINDOWS\system32\glide3x.dll md5 07c96fd9035c
+[22:33:55] [1/4]
+[22:34:01] --- Unreal Tournament 436 [opengl]  1024x768x16  cfg=5 (4chip-noaa)
+[22:36:37]     -> 57.03 fps   [Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.82]]  free=153MB
+[22:36:37] [2/4]
+[22:36:42] --- Unreal Tournament 436 [opengl]  1024x768x32  cfg=5 (4chip-noaa)
+[22:39:18]     -> 57.01 fps   [Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.82]]  free=183MB
+[22:39:18] [3/4]
+[22:39:23] --- Unreal Tournament 436 [opengl]  1280x960x16  cfg=5 (4chip-noaa)
+[22:42:58]     -> 56.97 fps   [Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.82]]  free=185MB
+[22:42:58] [4/4]
+[22:43:03] --- Unreal Tournament 436 [opengl]  1280x960x32  cfg=5 (4chip-noaa)
+[22:46:38]     -> 55.97 fps   [Mesa Glide v0.62 Voodoo5 6000 (tm) [voodoo-cleanroom 0.1.82]]  free=184MB
+[22:46:38] done. results: voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/ut436_renderer/results.csv

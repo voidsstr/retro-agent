@@ -381,7 +381,9 @@ def title_driver_paths(title):
 
     The lanes and what each actually loads:
 
-      stock            system32\\3dfxOGL.dll   + system32\\glide3x.dll
+      stock            the REGISTERED ICD     + system32\\glide3x.dll
+                       (collect_effective_drivers reads OpenGLDrivers on the box;
+                       3dfxOGL.dll below is only the offline default)
       retrogl (Q2/Q3)  <game>\\retrogl.dll     + system32\\glide3x.dll
       allours (Q2/Q3)  <game>\\retrogl.dll     + <game>\\glide3x.dll
       rtcw:retrogl     system32\\retroicd.dll  + system32\\glide3x.dll
@@ -399,16 +401,55 @@ def title_driver_paths(title):
     return icd, glide
 
 
+OPENGL_DRIVERS_KEY = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers"
+
+
+async def registered_icd(box):
+    """(path, how) of the ICD opengl32.dll loads for a title with no ICD of its
+    own: HKLM\\...\\OpenGLDrivers\\<key>\\DLL, in system32.
+
+    Found 2026-10-02 on .124: the stock lane was stamped with AmigaMerlin's
+    3dfxOGL.dll while OpenGLDrivers\\3dfx\\DLL named our retroicd.dll, so an
+    OpenGL row named a driver that drew nothing - the same lie the 0.1.75
+    all-ours rows told (title_driver_paths). Not exactly one registered ICD,
+    or no DLL value: (None, why) - the caller says so, it never guesses."""
+    try:
+        top = json.loads(await box.text(f"REGREAD HKLM {OPENGL_DRIVERS_KEY}"))
+        keys = top.get("subkeys") or []
+        if len(keys) != 1:
+            return None, f"{len(keys)} OpenGLDrivers keys, not one"
+        sub = json.loads(await box.text(f"REGREAD HKLM {OPENGL_DRIVERS_KEY}\\{keys[0]}"))
+    except Exception as e:                      # unreadable is an answer, not a crash
+        return None, f"OpenGLDrivers unreadable ({e})"
+    dll = next((str(v.get("data") or "") for v in sub.get("values", [])
+                if str(v.get("name", "")).upper() == "DLL"), "")
+    if not dll:
+        return None, f"OpenGLDrivers\\{keys[0]} has no DLL value"
+    path = dll if "\\" in dll else "C:\\WINDOWS\\system32\\" + dll
+    return path, f"registered: OpenGLDrivers\\{keys[0]}\\DLL = {dll}"
+
+
 async def collect_effective_drivers(box, title):
     """size + md5 of the ICD and Glide `title` loads, for versions.json + rows.
 
     Captured AFTER the title's identity probe has staged them: a game-local DLL
     that has not been uploaded yet hashes as "-", which would be a different
-    lie from the one this replaces.
+    lie from the one this replaces. A title with no ICD of its own loads the
+    REGISTERED one, read from the box (registered_icd); `icd_source` says which
+    answer the row carries.
     """
     icd, glide = title_driver_paths(title)
+    if getattr(title, "icd_path", None):
+        how = "the title's own ICD"
+    else:
+        reg, why = await registered_icd(box)
+        if reg:
+            icd, how = reg, why
+        else:
+            how = f"UNKNOWN - {why}; {icd} is the offline default, not a reading"
     return {"lane": getattr(title, "api", ""),
             "icd": await file_identity(box, icd),
+            "icd_source": how,
             "glide3x": await file_identity(box, glide)}
 
 

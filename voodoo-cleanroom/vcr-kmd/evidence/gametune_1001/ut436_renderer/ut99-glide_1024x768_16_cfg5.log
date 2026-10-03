@@ -1,0 +1,201 @@
+Log: Log file open, 10/02/26 22:30:48
+Init: Name subsystem initialized
+Init: Detected: Microsoft Windows NT 5.1 (Build: 2600)
+Init: Version: 436
+Init: Compiled: Oct 24 2000 23:40:18
+Init: Command line: -log=bench.log -nosound
+Init: Base directory: C:\Games\UnrealTournament436\System\
+Init: Character set: Unicode
+Log: Bound to Engine.dll
+Log: Bound to Core.dll
+Log: Bound to Window.dll
+Init: Object subsystem initialized
+Init: Computer: NSCC543575F526
+Init: User: Administrator
+Init: Memory total: Phys=261608K Pagef=634780K Virt=2097024K
+Init: Working set: 32000 / 159000
+Init: CPU Speed=2004.541361 MHz
+Init: CPU Page size=4096, Processors=1
+Init: CPU Detected: PentiumPro-class processor (AuthenticAMD)
+Init: CPU Features: CMov FPU RDTSC PAE MMX KNI 3DNow!
+Init: Unreal engine initialized
+Log: Bound to WinDrv.dll
+Init: Mouse info: 0 0 0
+Init: Client initialized
+Log: Bound to Render.dll
+Init: Lighting subsystem initialized
+Init: Rendering initialized
+Log: LoadMap: Entry
+Log: Bound to Fire.dll
+Log: Bound to IpDrv.dll
+Log: Game class is 'UTIntro'
+Log: Level is Level Entry.MyLevel
+Log: Bringing Level Entry.MyLevel up for play (0)...
+ScriptLog: InitGame: 
+ScriptLog: Base Mutator is Entry.Mutator0
+Log: Browse: CityIntro.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: LoadMap: CityIntro.unr?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package Render
+Log: Garbage: objects: 16410->16407; refs: 224628
+Log: Game class is 'UTIntro'
+Log: Level is Level CityIntro.MyLevel
+Log: Bringing Level CityIntro.MyLevel up for play (0)...
+ScriptLog: InitGame: ?Name=pigga?Class=Botpack.TMale1?team=255?skin=CommandoSkins.daco?Face=CommandoSkins.Boris?Voice=BotPack.VoiceMaleOne
+ScriptLog: Base Mutator is CityIntro.Mutator1
+Init: Initialized moving brush tracker for Level CityIntro.MyLevel
+Log: Bound to UWeb.dll
+ScriptLog: Team 255
+ScriptLog: Login: pigga
+Log: Possessed PlayerPawn: TMale1 CityIntro.TMale0
+Init: Input system initialized for WindowsViewport0
+Log: Opened viewport
+Log: Bound to GlideDrv.dll
+Init: Initializing Glide...
+Init: Found Glide: 2.70 1.00.01.0106GXP
+Init: Glide info: Type=0, fbRam=60817408 fbiRev=0 nTexelfx=2 Sli=0
+Init: grSstOpen Res=12 Ref=0 Buffers=3 (X: 1024 Y: 768)
+Init: Glide tmu 0: tmuRev=0 tmuRam=2097152 Space=32192496
+Init: Glide tmu 1: tmuRev=0 tmuRam=2097152 Space=32192496
+Log: Flushed Glide TMU 0
+Log: Flushed Glide TMU 1
+Init: Game engine initialized
+Log: Startup time: 12.246228 seconds
+Log: Attempting to play demo UTbench.dem
+DevNet: DemoPlayPendingLevel received: USES GUID=C697BCA611D38D41E0006BA2D2321081 PKG=DM-Gothic FLAGS=1 SIZE=2779289 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=5CA303AC11D38D0CC00084B50A1E604F PKG=ShaneChurch FLAGS=1 SIZE=5064523 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=D18A7B9211D38F04100067B9F6F8975A PKG=Engine FLAGS=1 SIZE=1115005 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=4770B88411D38E3E100067B9F6F8975A PKG=Core FLAGS=1 SIZE=56044 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=1E90ACA811D1ED664544279700005453 PKG=Detail FLAGS=1 SIZE=1729964 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=4770B88811D38E3E100067B9F6F8975A PKG=Fire FLAGS=1 SIZE=14926 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=1C69657611D38F44100067B9F6F8975A PKG=Botpack FLAGS=1 SIZE=37826521 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=4770B88C11D38E3E100067B9F6F8975A PKG=UnrealShare FLAGS=1 SIZE=22124694 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=4770B88D11D38E3E100067B9F6F8975A PKG=UnrealI FLAGS=1 SIZE=18549361 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=1E90ACAF11D1ED664544279700005453 PKG=GenFX FLAGS=1 SIZE=2189510 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=1E90ACAE11D1ED664544279700005453 PKG=genfluid FLAGS=1 SIZE=5510043 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=4CA6238E11D38AAAC00080B50A1E604F PKG=city FLAGS=1 SIZE=5839832 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=1E90ACB011D1ED664544279700005453 PKG=GenIn FLAGS=1 SIZE=3039598 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=1E90ACAD11D1ED664544279700005453 PKG=GenEarth FLAGS=1 SIZE=6186030 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=C073770911D2D1A4E000278383161081 PKG=Razor-ub FLAGS=1 SIZE=1088470 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=93CC0A8111D3888FE0006295BE341081 PKG=SoldierSkins FLAGS=1 SIZE=7184269 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=E96BC96311D31D2F4F006B8CDE9A0349 PKG=CommandoSkins FLAGS=1 SIZE=4318050 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=B7B49CA611D38BCDE0006395BE341081 PKG=FCommandoSkins FLAGS=1 SIZE=5093279 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=D4F6ABE111D385CAE0006295BE341081 PKG=SGirlSkins FLAGS=1 SIZE=7226959 GEN=1
+DevNet: DemoPlayPendingLevel received: USES GUID=24E5A72411D321104F006B8CDE9A0349 PKG=BossSkins FLAGS=1 SIZE=1867811 GEN=1
+DevNet: DemoPlayPendingLevel received: WELCOME LEVEL=DM-Gothic LONE=0 CLIENTDEMO
+Log: LoadMap: UTbench.dem
+Init: Shut down moving brush tracker for Level CityIntro.MyLevel
+Log: Flushed Glide TMU 0
+Log: Flushed Glide TMU 1
+Log: Collecting garbage
+Log: Purging garbage
+Log: 0.0ms Unloading: Package CityIntro
+Log: 0.0ms Unloading: Package ArenaTex
+Log: 0.0ms Unloading: Package NaliCast
+Log: 0.0ms Unloading: Package RainFX
+Log: 0.0ms Unloading: Package DecayedS
+Log: 0.0ms Unloading: Package NaliFX
+Log: 0.0ms Unloading: Package ShaneSky
+Log: 0.0ms Unloading: Package AmbModern
+Log: 0.0ms Unloading: Package AmbAncient
+Log: 0.0ms Unloading: Package openingwave
+Log: 0.0ms Unloading: Package Uttitle
+Log: 0.0ms Unloading: Package AmbOutside
+Log: Garbage: objects: 20363->18512; refs: 274858
+Log: Level is Level DM-Gothic.MyLevel
+Log: Bringing Level DM-Gothic.MyLevel up for play (0)...
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Login: 
+Warning: Failed to load 'Texture CommandoSkins.1': Failed to find object 'Texture CommandoSkins.1'
+ScriptLog: Failed to load CommandoSkins.1 so load CommandoSkins.cmdo1
+Warning: Failed to load 'Texture CommandoSkins.2': Failed to find object 'Texture CommandoSkins.2'
+ScriptLog: Failed to load CommandoSkins.2 so load CommandoSkins.cmdo2
+Log: Possessed PlayerPawn: TMale1 Entry.TMale1
+Init: Initialized moving brush tracker for Level DM-Gothic.MyLevel
+Log: Flushed Glide TMU 0
+Log: Flushed Glide TMU 1
+ScriptLog: 3 frames rendered in 0.11 seconds. Min 0.00 Max 0.00 Avg 25.86 fps.
+Log: Possessed PlayerPawn: TMale2 DM-Gothic.TMale0
+ScriptWarning: ChallengeHUD DM-Gothic.ChallengeHUD0 (Function Botpack.ChallengeHUD.PostBeginPlay:006F) Accessed None
+ScriptLog: Attached to player DM-Gothic.TMale0
+Log: Browse: Index.unr?entry
+Log: Failed; returning to Entry
+Init: Shut down moving brush tracker for Level DM-Gothic.MyLevel
+Log: Spawning new actor for Viewport WindowsViewport0
+ScriptLog: Login: 
+Warning: Failed to load 'Texture CommandoSkins.1': Failed to find object 'Texture CommandoSkins.1'
+ScriptLog: Failed to load CommandoSkins.1 so load CommandoSkins.cmdo1
+Warning: Failed to load 'Texture CommandoSkins.2': Failed to find object 'Texture CommandoSkins.2'
+ScriptLog: Failed to load CommandoSkins.2 so load CommandoSkins.cmdo2
+Log: Possessed PlayerPawn: TMale1 Entry.TMale1
+ScriptLog: 2937 frames rendered in 46.34 seconds. Min 40.17 Max 109.61 Avg 63.36 fps.
+Log: appRequestExit(0)
+Exit: Preparing to exit.
+Log: Purging garbage
+Log: Unbound to Engine.dll
+Log: Unbound to Core.dll
+Log: Unbound to Window.dll
+Log: 0.0ms Unloading: Package Engine
+Log: 0.0ms Unloading: Package Core
+Exit: Game engine shut down
+Log: Unbound to WinDrv.dll
+Exit: Windows client shut down
+Log: Unbound to Render.dll
+Exit: Lighting subsystem shut down
+Exit: Rendering shut down
+Log: 0.0ms Unloading: Package Entry
+Log: 0.0ms Unloading: Package Logo
+Log: Unbound to Fire.dll
+Log: 0.0ms Unloading: Package Fire
+Log: 0.0ms Unloading: Package credits
+Log: 0.0ms Unloading: Package Botpack
+Log: 0.0ms Unloading: Package UnrealShare
+Log: 0.0ms Unloading: Package UnrealI
+Log: 0.0ms Unloading: Package Female2Voice
+Log: 0.0ms Unloading: Package Male2Voice
+Log: 0.0ms Unloading: Package Female1Voice
+Log: 0.0ms Unloading: Package BossVoice
+Log: 0.0ms Unloading: Package Male1Voice
+Log: 0.0ms Unloading: Package UMenu
+Log: 0.0ms Unloading: Package UWindow
+Log: 0.0ms Unloading: Package UBrowser
+Log: Unbound to IpDrv.dll
+Log: 0.0ms Unloading: Package IpDrv
+Log: 0.0ms Unloading: Package Announcer
+Log: 0.0ms Unloading: Package city
+Log: 0.0ms Unloading: Package Detail
+Log: 0.0ms Unloading: Package GenFX
+NetComeGo: Close DemoRecConnection0 10/02/26 22:32:56
+Log: 0.0ms Unloading: Package GenIn
+Log: 0.0ms Unloading: Package genfluid
+Exit: Shutting down Glide...
+Exit: Glide shut down
+Log: 0.0ms Unloading: Package UTMenu
+Log: 0.0ms Unloading: Package LadderSounds
+Log: Unbound to UWeb.dll
+Log: 0.0ms Unloading: Package UWeb
+Log: 0.0ms Unloading: Package UTServerAdmin
+Log: 0.0ms Unloading: Package IpServer
+Log: 0.0ms Unloading: Package LadrArrow
+Log: 0.0ms Unloading: Package CommandoSkins
+Log: Unbound to GlideDrv.dll
+Log: 0.0ms Unloading: Package LadderFonts
+Log: 0.0ms Unloading: Package GenEarth
+Log: 0.0ms Unloading: Package Razor-ub
+Log: Closing down demo driver.
+Log: 0.0ms Unloading: Package DM-Gothic
+Log: 0.0ms Unloading: Package ShaneChurch
+Log: 0.0ms Unloading: Package SoldierSkins
+Log: 0.0ms Unloading: Package FCommandoSkins
+Log: 0.0ms Unloading: Package SGirlSkins
+Log: 0.0ms Unloading: Package BossSkins
+Log: Garbage: objects: 20629->0; refs: 274858
+Exit: Object subsystem successfully closed.
+Exit: Exiting.
+Uninitialized: Name subsystem shut down
+Uninitialized: Memory Allocation Status
+Uninitialized: Curr Memory  2.165M /  0.746M
+Uninitialized: Peak Memory  76.012M /  77.672M
+Uninitialized: Allocs          43 Current /  1491325 Total
+Uninitialized: Log file closed, 10/02/26 22:32:59

@@ -212,11 +212,21 @@ async def run_one(box, sc, outdir, shots_at, grace):
                 return True
         return False
 
+    settled = await settle(grace)
+    # A dialog the CLOSE raised. The sample loop only sees dialogs from before
+    # the WM_CLOSE, so a game that crashed while closing passed as "forced
+    # closed": .124, 2026-10-02 - Deus Ex, Unreal Gold and UT 436 on GlideDrv
+    # each answered WM_CLOSE with UE1's "Critical Error" (Assertion failed:
+    # RenDev, UWindowsViewport::EndFullscreen <- WM_KILLFOCUS) and waited on it
+    # until the force. Their own `exit` closes them cleanly.
+    rec["dialogs_on_close"] = sorted({t for h, t in (await dialogs(box)).items()
+                                      if h not in dlg0 and h not in rec["dialogs"]})
+
     # a game that ignores WM_CLOSE: ALT+F4, then the id/GoldSrc console quit -
     # each key ONLY while the game's own window has the focus (key_to): a key
     # that misses lands on whatever is focused, and ALT+F4 on the desktop is
     # "Shut Down Windows".
-    if not await settle(grace) and left:
+    if not settled and left:
         if await key_to(box, set(left), "ALT+F4", rec):
             rec["close_via"] = "ALT+F4"
         if not await settle(10) and left:
@@ -250,6 +260,8 @@ async def run_one(box, sc, outdir, shots_at, grace):
         bad.append("error window: " + "; ".join(rec["error_windows"])[:120])
     if rec["dialogs"]:
         bad.append("dialog: " + "; ".join(sorted(set(rec["dialogs"].values())))[:120])
+    if rec.get("dialogs_on_close"):
+        bad.append("dialog while closing: " + "; ".join(rec["dialogs_on_close"])[:120])
     if rec.get("drwatson_grew"):
         bad.append("Dr. Watson entry")
     if rec.get("forced"):

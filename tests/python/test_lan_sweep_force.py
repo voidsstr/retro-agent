@@ -76,3 +76,19 @@ def test_a_survivor_fails_the_title_and_stops_the_sweep():
     assert "2>nul" not in one.split('rec["forced"]')[1].split("force_close_verified")[0]
     main = inspect.getsource(mod.amain)
     assert 'rec.get("survived_force")' in main and "return 5" in main
+
+
+def test_a_dialog_the_close_raised_is_recorded_and_named_in_the_verdict():
+    """2026-10-02, .124: UE1 on GlideDrv answered the sweep's WM_CLOSE with
+    "Critical Error" (Assertion failed: RenDev, EndFullscreen <- WM_KILLFOCUS)
+    and sat on it until the force - and the sweep, which only looked for
+    dialogs while sampling, called it a plain forced close."""
+    mod = _load()
+    one = inspect.getsource(mod.run_one)
+    grace = one.index("settled = await settle(grace)")
+    probe = one.index('rec["dialogs_on_close"]')
+    keys = one.index('await key_to(box, set(left), "ALT+F4", rec)')
+    force = one.index('rec["forced"] = sorted(set(left.values()))')
+    assert grace < probe < keys < force          # after the WM_CLOSE, before keys or force
+    assert "h not in dlg0" in one[probe:keys] and 'h not in rec["dialogs"]' in one[probe:keys]
+    assert '"dialog while closing: "' in one

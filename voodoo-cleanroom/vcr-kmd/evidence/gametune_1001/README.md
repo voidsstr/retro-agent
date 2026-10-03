@@ -226,3 +226,52 @@ builds on its own box (`start` swapped for `echo`):
 generation up from `retro-autodeploy` when they next answer. Fleetbook recipe
 `descent3-stage-a-users-controls-fleet-wide` (#110).
 
+## Unreal Engine 1: Unreal Gold, UT 436 and Deus Ex on Glide (2026-10-02 22:30-23:10)
+
+`.124` carries `GlideRender` = 1, which tells FLEETRES to render UE1 through
+GlideDrv. Only Unreal Gold's launcher used it. **UT 436 (`ut436_renderer/`,
+UTbench, 4-chip, no AA, vsync off):**
+
+| device | mode | fps |
+|---|---|---|
+| **GlideDrv** (Glide 2 -> our h5 Glide) | 1024x768x16 | **63.4** |
+| OpenGLDrv (our ICD 0.1.82) | 1024x768x16 / x32 | 57.0 / 57.0 |
+| OpenGLDrv | 1280x960x16 / x32 | 57.0 / 56.0 |
+
+(`ut436_renderer/diag/` is the Dr. Watson record the bench found on the box
+and kept: `hl.exe`, 2026-10-01 19:36:50 - the baseline sweep's Blue Shift
+CHECK, SecuROM - not a UT crash.) OpenGL is CPU-bound, and the staged
+OpenGLDrv section runs without volumetric lighting. So Glide is faster and complete. `stage-fleetres.py`
+`ue1_glide_device` now gives UT 436 (Play and Join) and Deus Ex (Play; the
+dedicated host renders nothing) Unreal Gold's treatment where the 3dfx card
+drives the screen: GlideDrv for all three device keys, the Glide 2 4:3 ladder
+(1024x768 inside .124's 1280x960), and the refresh. Every other box keeps its
+staged device.
+
+**The refresh.** GlideDrv's `RefreshRate` takes 60/70/72/75/80/85/90/100/120
+Hz (the strings in GlideDrv.dll); the staged 60Hz flickered on the CRT and
+capped the game at 60 under vsync. `ue1_glide_viewport` now writes the largest
+of those not above `FR_HZ`, which is 85 on `.124`. The board's own reading
+during each game (`vcrctl info`, `ue1_glide_sweep/vcrctl_info_samples.txt`,
+`ut436_glide_85hz/`): **1024x768x16@85, 4-chip SLI** for Deus Ex, Unreal Gold and
+UT 436, each started through its real desktop shortcut. Deus Ex's log:
+`grSstOpen Res=8 Ref=7` (1024x768, 85 Hz). UT 436 at 85 Hz: 63.6 fps.
+
+**Quitting.** Each game's own exit is clean on Glide. Unreal Gold's console
+`exit` closed it at once, UT 436's bench Exit closed it, and Deus Ex (training
+map, F12 bound to `exit` for the test only, then restored) closed in 3 s. All
+three left the board back on the desktop. **An outside WM_CLOSE is not clean.**
+UE1 then destroys the render device and a WM_KILLFOCUS hits
+`UWindowsViewport::EndFullscreen`: "Critical Error - Assertion failed: RenDev
+[WinViewport.cpp line 2187]" (Deus Ex, `vcrctl fbshot` + GDI capture). So
+quit from the game's menu, not by closing its window. The baseline sweep closed
+Deus Ex and UT 436 that way without trouble on D3D/OpenGL. `lan_sweep` never saw
+the dialog, because it looked for dialogs only before its WM_CLOSE. It now
+records `dialogs_on_close` (`tests/python/test_lan_sweep_force.py`).
+
+**Tooling found on the way.** `v56k_bench.py` stamped stock-lane rows with
+AmigaMerlin's `3dfxOGL.dll` while `OpenGLDrivers\3dfx\DLL` named our
+`retroicd.dll`. It now reads the registration from the box (`registered_icd`,
+`icd_source` per title). The rows' own `gl_renderer` (`[voodoo-cleanroom
+0.1.82]`) had been right all along.
+

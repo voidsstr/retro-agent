@@ -1126,6 +1126,70 @@ def test_each_lane_names_the_driver_files_it_actually_loads(bench):
     assert glide == rf"{rtcw.root}\glide3x.dll"
 
 
+class _RegBox:
+    """REGREAD answers from a dict; exec_/download describe one 3-byte file."""
+    def __init__(self, reg):
+        self.reg = reg
+        self.downloads = []
+
+    async def text(self, cmd, timeout=60):
+        if cmd not in self.reg:
+            raise RuntimeError("Key not found")
+        return self.reg[cmd]
+
+    async def exec_(self, cmd, timeout=90):
+        return "3"
+
+    async def download(self, path):
+        self.downloads.append(path)
+        return b"icd"
+
+
+_OGL = "REGREAD HKLM " + r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\OpenGLDrivers"
+
+
+def _one_icd(dll="retroicd.dll"):
+    return {_OGL: '{"values":[],"subkeys":["3dfx"]}',
+            _OGL + r"\3dfx": '{"values":[{"name":"DLL","type":"REG_SZ","data":"%s"},'
+                              '{"name":"Flags","type":"REG_DWORD","data":1}],"subkeys":[]}' % dll}
+
+
+def test_the_stock_lane_names_the_registered_icd_not_3dfxogl(bench):
+    """Found 2026-10-02 on .124: OpenGLDrivers\\3dfx\\DLL = retroicd.dll (ours)
+    while every stock-lane row was stamped with AmigaMerlin's 3dfxOGL.dll."""
+    import asyncio
+    box = _RegBox(_one_icd())
+    path, how = asyncio.run(bench.registered_icd(box))
+    assert path == r"C:\WINDOWS\system32\retroicd.dll"
+    assert "OpenGLDrivers\\3dfx\\DLL = retroicd.dll" in how
+    eff = asyncio.run(bench.collect_effective_drivers(box, bench.Quake2()))
+    assert eff["icd"]["path"] == r"C:\WINDOWS\system32\retroicd.dll" != bench.VERSION_FILES["icd"]
+    assert eff["icd_source"].startswith("registered:")
+
+
+@pytest.mark.parametrize("reg,why", [
+    ({_OGL: '{"values":[],"subkeys":["3dfx","nvidia"]}'}, "2 OpenGLDrivers keys"),
+    ({_OGL: '{"values":[],"subkeys":[]}'}, "0 OpenGLDrivers keys"),
+    ({_OGL: '{"values":[],"subkeys":["3dfx"]}',
+      _OGL + r"\3dfx": '{"values":[{"name":"Flags","type":"REG_DWORD","data":1}]}'}, "no DLL value"),
+    ({}, "unreadable")])
+def test_an_unresolvable_registration_is_reported_never_guessed(bench, reg, why):
+    import asyncio
+    box = _RegBox(reg)
+    path, how = asyncio.run(bench.registered_icd(box))
+    assert path is None and why in how
+    eff = asyncio.run(bench.collect_effective_drivers(box, bench.Quake2()))
+    assert eff["icd_source"].startswith("UNKNOWN") and "not a reading" in eff["icd_source"]
+
+
+def test_a_titles_own_icd_wins_over_the_registration(bench):
+    import asyncio
+    q2c = bench.Quake2Cleanroom()
+    eff = asyncio.run(bench.collect_effective_drivers(_RegBox(_one_icd()), q2c))
+    assert eff["icd"]["path"] == rf"{q2c.root}\retrogl.dll"
+    assert eff["icd_source"] == "the title's own ICD"
+
+
 def test_provenance_hashes_our_kernel_driver_pair_too(bench):
     """Both kernel pairs can be installed while only one is bound; the vcr-kmd
     rows of 2026-09-26 recorded the vendor's idle 3dfxvs.dll md5 as "display"."""

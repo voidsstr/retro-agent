@@ -584,6 +584,13 @@ def ipxwrapper_live(files=IPXW_SET):
 # --------------------------------------------------------------------------
 UE1_GLIDE_DEV = "GlideDrv.GlideRenderDevice"
 UE1_GLIDE_LADDER = [(640, 480), (800, 600), (1024, 768), (1600, 1200)]
+# GlideDrv's RefreshRate values - the strings in GlideDrv.dll (Unreal Gold,
+# UT 436 and Deus Ex alike), i.e. Glide's GR_REFRESH steps. The staged ini says
+# 60Hz: on a CRT that flickers, and under vsync (FX_GLIDE_SWAPINTERVAL=1, .124)
+# it caps the game at 60 fps. The launcher writes the largest of these not
+# above FR_HZ - the monitor's rate at the desktop mode, so also safe at the
+# smaller Glide mode - and leaves the ini alone below 60 or with no rate.
+UE1_GLIDE_HZ = (60, 70, 72, 75, 80, 85, 90, 100, 120)
 
 
 def d3_renderer():
@@ -644,7 +651,35 @@ def ue1_glide_viewport(ini):
         out.append('if %%FR_W43%% GEQ %d if %%FR_H43%% GEQ %d set UE1G2H=%d' % (w, h, h))
     out.append('%s %s -ini %s WinDrv.WindowsClient FullscreenViewportX %%UE1G2W%%' % (g, e, i))
     out.append('%s %s -ini %s WinDrv.WindowsClient FullscreenViewportY %%UE1G2H%%' % (g, e, i))
+    # the refresh (UE1_GLIDE_HZ); UE1HZN is a number whatever FR_HZ holds
+    out += ['set UE1HZ=', 'set UE1HZN=0', 'set /a UE1HZN=FR_HZ+0 >nul 2>nul']
+    out += ['if %%UE1HZN%% GEQ %d set UE1HZ=%d' % (hz, hz) for hz in UE1_GLIDE_HZ]
+    out.append('if defined UE1HZ %s %s -ini %s GlideDrv.GlideRenderDevice RefreshRate '
+               '%%UE1HZ%%Hz' % (g, e, i))
     return out
+
+def ue1_glide_device(ini):
+    """The other UE1 titles on a box whose screen the 3dfx card drives
+    (FR_UE1DEV = Glide: GlideRender = 1, .124): GlideDrv, its Glide 2 mode and
+    the monitor's refresh - what Unreal Gold's FR_GLIDE block already does.
+    EVERY line is gated on Glide, so every other box keeps the device its staged
+    ini names (UT 436: OpenGLDrv, Deus Ex: D3DDrv). Windowed too: SoftDrv
+    strands UE1 on the software rasterizer once its splash takes the focus.
+
+    UT 436 on .124, UTbench, 4-chip, vsync off (2026-10-02,
+    evidence gametune_1001/ut436_renderer): GlideDrv 1024x768x16 63.4 fps;
+    OpenGLDrv through our ICD 57.0 at 1024x768 and 1280x960, 16 or 32 bit
+    (CPU-bound) - and the staged OpenGLDrv section has volumetric lighting off.
+    Anchor it AFTER the launcher's own viewport writes: the Glide 2 ladder
+    replaces them."""
+    e = '"%~dp0FLEETRES.EXE"'
+    i = '"%%~dp0%s"' % ini
+    g = 'if /i "%%FR_UE1DEV%%"=="%s" if exist %s' % (UE1_GLIDE_DEV, e)
+    out = ['rem ---- per-box UE1 GLIDE - UE1_GLIDE (see stage-fleetres.py) -----------']
+    for key in ('GameRenderDevice', 'WindowedRenderDevice', 'RenderDevice'):
+        out.append('%s %s -ini %s Engine.Engine %s %s' % (g, e, i, key, UE1_GLIDE_DEV))
+    return out + ue1_glide_viewport(ini)
+
 
 # The per-box DISPLAY SYSTEM for NewDark (Thief II 1.26). Same shape as the
 # render-device block above: one staged tree, and a display path that is right
@@ -1891,6 +1926,13 @@ TITLES = {
                 'cd /d "%~dp0System"',
                 [CALL] + ue_ini("System\\UnrealTournament.ini")),
         },
+        "post": [{
+            "file": name,
+            "marker": "UE1_GLIDE",
+            "before": 'cd /d "%~dp0System"',
+            "lines": ue1_glide_device("System\\UnrealTournament.ini"),
+        } for name in ("Play Unreal Tournament 436.bat",
+                       "Join fleet UT99 server - 436.bat")],
     },
     "UT2004": {
         "launchers": {
@@ -2268,6 +2310,13 @@ TITLES = {
             "Host Deus Ex Multiplayer.bat": rec(
                 'cd /d "%~dp0"', [CALL] + ue_ini("SYSTEM\\DeusEx.ini")),
         },
+        # the dedicated host renders nothing, so only the Play launcher
+        "post": [{
+            "file": "Play Deus Ex.bat",
+            "marker": "UE1_GLIDE",
+            "before": 'cd /d "%~dp0System"',
+            "lines": ue1_glide_device("SYSTEM\\DeusEx.ini"),
+        }],
     },
     "CounterStrike16": {
         "launchers": {

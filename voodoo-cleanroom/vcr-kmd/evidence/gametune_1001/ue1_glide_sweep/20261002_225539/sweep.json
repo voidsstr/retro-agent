@@ -1,0 +1,164 @@
+[
+ {
+  "shortcut": "Deus Ex",
+  "target": "C:\\Games\\DeusEx\\Play Deus Ex.bat",
+  "args": "",
+  "t0": "22:55:41",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "DEUSEX.EXE"
+    ],
+    "stats": [
+     1024,
+     768,
+     6.6,
+     22.5
+    ],
+    "file": "Deus_Ex_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "DEUSEX.EXE"
+    ],
+    "stats": [
+     1024,
+     768,
+     5.9,
+     23.0
+    ],
+    "file": "Deus_Ex_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "DEUSEX.EXE"
+  ],
+  "close_via": "WM_CLOSE",
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "DEUSEX.EXE"
+  ],
+  "force_output": [
+   "3940: SUCCESS: The process with PID 3940 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Unreal Gold",
+  "target": "C:\\Games\\UnrealGold\\Play Unreal Gold.bat",
+  "args": "",
+  "t0": "22:57:42",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "Unreal.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     12.6,
+     21.6
+    ],
+    "file": "Unreal_Gold_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "Unreal.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     19.0,
+     32.0
+    ],
+    "file": "Unreal_Gold_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "Unreal.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "Unreal.exe"
+  ],
+  "force_output": [
+   "1204: SUCCESS: The process with PID 1204 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ },
+ {
+  "shortcut": "Unreal Tournament 436",
+  "target": "C:\\Games\\UnrealTournament436\\Play Unreal Tournament 436.bat",
+  "args": "",
+  "t0": "22:59:43",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "UnrealTournament.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     7.2,
+     8.6
+    ],
+    "file": "Unreal_Tournament_436_30s.png"
+   },
+   {
+    "at": 60,
+    "alive": [
+     "UnrealTournament.exe"
+    ],
+    "stats": [
+     1024,
+     768,
+     7.8,
+     17.5
+    ],
+    "file": "Unreal_Tournament_436_60s.png"
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "UnrealTournament.exe"
+  ],
+  "close_via": "WM_CLOSE",
+  "keys_skipped": [
+   "ALT+F4: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200",
+   "TILDE: focus is ConsoleWindowClass \"Retro Remote Agent Version 1.97.1\" pid 200"
+  ],
+  "forced": [
+   "UnrealTournament.exe"
+  ],
+  "force_output": [
+   "3304: SUCCESS: The process with PID 3304 has been terminated."
+  ],
+  "survived_force": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "CHECK: had to be forced closed; close keys withheld - game not focused"
+ }
+]
