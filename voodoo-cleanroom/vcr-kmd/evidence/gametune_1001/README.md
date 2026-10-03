@@ -23,7 +23,7 @@ choices).
 | Hexen II | 1024x768 (a cap from another box's driver) | 1280x960x32 @ 85 Hz | library launcher (`h2_uncap`) |
 | Serious Sam TFE/TSE, GoldSrc, GLQuake | 1280x960 | unchanged | already at the box's mode (Serious Sam on its "Normal" preset) |
 | Carmageddon 2, Turok 2 | 640x480, 1024x768 | unchanged | the engines' own limits |
-| Descent II (Win95 engine) | registration-card dialog | unchanged | DirectDraw, not this card's path; open |
+| Descent II (Win95 engine) | registration-card dialog at every launch | no card: the launcher sets the card's own `Times Bypassed` to 3 | library launcher (spec `Descent2.json` prelaunch; `descent2_regcard/`) |
 
 Quit UE1 games from their own menus: an outside window close trips UE1's
 RenDev assertion on Glide (below).
@@ -50,7 +50,11 @@ fork. Quit Quake II from its console or menu.
 
 **Still open:**
 - Serious Sam stays on its "Normal" preset until a measured "Quality" run.
-- Descent II's Win95 engine registration card.
+- ~~Descent II's Win95 engine registration card.~~ **Fixed 2026-10-03**
+  (`descent2_regcard/`): `DESCENTW.EXE` starts the disc's `REGCARD.EXE` at
+  every launch, which skips its form once `[Registration Counters] Times
+  Bypassed` in `%windir%\EREGREG.INI` is 3 or more. The generated mount
+  launcher now sets it. Proven on `.124` after a purge + GAMESYNC: PASS.
 - ~~A game started by `lan_sweep` does not get the keyboard focus.~~ **It
   does** (2026-10-03, `sweep_focus_probe/`): Descent 3, Quake II and Unreal
   Gold all held the keyboard at 30 and 60 s. The sweep's own WM_CLOSE destroyed

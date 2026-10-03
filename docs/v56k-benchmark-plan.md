@@ -196,8 +196,11 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
    Deus Ex on D3DDrv. Steps: baseline sweep (`lan_sweep.py`, 49 shortcuts),
    route + tune per title (library-first, per-box launcher logic), re-sweep.
    **Done so far:** baseline 38 PASS / 11 CHECK / 0 FAIL; vsync on everywhere
-   (system `FX_GLIDE_SWAPINTERVAL=1`, user's choice); ICD 0.1.82; 14 per-box
-   configs at full quality (`v56k_tune.py`; re-run after every ICD deploy);
+   (system `FX_GLIDE_SWAPINTERVAL=1`, user's choice); **ICD 0.1.83** (2026-10-03:
+   the build tag moved from `GL_RENDERER` to `GL_VERSION`, so id Tech 3 and
+   Torque no longer drop to their low preset after a driver update); 14 per-box
+   configs at full quality (`v56k_tune.py`, re-pinned once to the stable
+   renderer string - a later ICD update no longer resets them);
    Tribes 2 1280x960x32; **Descent 3 (2026-10-02)**: OpenGL at 1280x960, the
    user's controls staged fleet-wide (pilot `sdf.plt` with the lcd1080 lane's
    4096x4096 game window, `Default_pilot`, `-pilot SDF` in Play and Join),
@@ -215,9 +218,14 @@ Glide cfg 8 and `SliAA` 1 are still set from the last run - **set cfg 5 /
    sweep_tuned/`); the CHECKs are close-path only. Carmageddon 2 (640x480) and
    Turok 2 (1024x768) are engine limits. Quake II's WM_CLOSE dialog is NOT the
    ICD's (an ICD build answering TRUE to a context-less swap changed nothing;
-   withdrawn, .124 back on 0.1.82) - quit it from its console/menu. **Open:**
-   Serious Sam "Quality" preset unmeasured; Descent II Win95 registration card;
-   lan_sweep's focus.
+   withdrawn) - quit it from its console/menu. **lan_sweep's focus (2026-10-03):**
+   the games DO get the keyboard; the sweep's own WM_CLOSE took it. A proven
+   console quit now goes first (Quake II, Unreal Gold, UT 436: PASS, no dialog,
+   no force - `gametune_1001/sweep_clean_quit/`). **Descent II's Win95
+   registration card (2026-10-03):** the generated mount launcher sets the
+   card's own `Times Bypassed` counter to 3, and `REGCARD.EXE` exits without its
+   form (`gametune_1001/descent2_regcard/`; PASS on `.124` after a purge +
+   GAMESYNC). **Open:** Serious Sam "Quality" preset unmeasured.
 4. Tooling: `vcrctl fbshot` hangs under D3D exclusive (GDI escape waits on the
    display lock); Quake II's WM_CLOSE SwapBuffers dialog (quit through the
    console until fixed).

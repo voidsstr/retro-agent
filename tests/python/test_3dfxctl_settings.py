@@ -424,3 +424,16 @@ def test_the_vintage_rows_name_values_the_vintage_source_knows():
         if found == want:
             break
     assert want - found == set(), f"not in the vintage source: {sorted(want - found)}"
+
+
+def test_a_glide_key_value_the_environment_overrides_is_not_reported_as_live():
+    """hwcGetenv: process environment, then HKCU, then HKLM Glide key. With the
+    SYSTEM environment carrying the name (FX_GLIDE_SWAPINTERVAL=1 on .124), the
+    Glide key's own value (0) reaches only a game started without it. 2.1.1 said
+    "Glide-only games use it" regardless (2026-10-03)."""
+    src = (Path(__file__).resolve().parents[2] / "scripts/3dfx/3dfxctl/3dfxctl.c").read_text()
+    i = src.index("} else if (r->store == CTL_ST_ENV) {")
+    body = src[i:src.index("\n        }\n", i)]
+    assert "in_sys = 1;" in body
+    assert "but Glide reads the environment first" in body
+    assert body.index("in_sys = 1;") < body.index("but Glide reads the environment first")

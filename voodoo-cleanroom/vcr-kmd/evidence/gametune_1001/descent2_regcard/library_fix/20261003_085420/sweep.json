@@ -1,0 +1,58 @@
+[
+ {
+  "shortcut": "Descent II - original Win95 engine",
+  "target": "C:\\Games\\Descent2\\Play Descent 2 - original Win95.bat",
+  "args": "",
+  "t0": "08:54:21",
+  "dialogs": {},
+  "samples": [
+   {
+    "at": 30,
+    "alive": [
+     "DESCENTW.EXE"
+    ],
+    "stats": [
+     320,
+     200,
+     47.8,
+     55.1
+    ],
+    "file": "Descent_II_original_Win95_engine_30s.png",
+    "foreground": {
+     "class": "DescentWndClass",
+     "title": "Descent II",
+     "pid": 2672,
+     "game": true
+    }
+   },
+   {
+    "at": 60,
+    "alive": [
+     "DESCENTW.EXE"
+    ],
+    "stats": [
+     320,
+     200,
+     24.4,
+     44.9
+    ],
+    "file": "Descent_II_original_Win95_engine_60s.png",
+    "foreground": {
+     "class": "DescentWndClass",
+     "title": "Descent II",
+     "pid": 2672,
+     "game": true
+    }
+   }
+  ],
+  "error_windows": [],
+  "running_at_end": [
+   "DESCENTW.EXE"
+  ],
+  "close_via": "WM_CLOSE",
+  "dialogs_on_close": [],
+  "agent_alive": true,
+  "board": true,
+  "verdict": "PASS"
+ }
+]

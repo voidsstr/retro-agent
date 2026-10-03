@@ -1,0 +1,4 @@
+[08:54:21] 125 shortcuts, 1 to sweep: ['Descent II - original Win95 engine']
+[08:54:21] --- Descent II - original Win95 engine: C:\Games\Descent2\Play Descent 2 - original Win95.bat 
+[08:55:26]     PASS  samples=[(30, ['DESCENTW.EXE'], (320, 200, 47.8, 55.1)), (60, ['DESCENTW.EXE'], (320, 200, 24.4, 44.9))]
+[08:55:26] results -> voodoo-cleanroom/vcr-kmd/evidence/gametune_1001/descent2_regcard/library_fix/20261003_085420/sweep.json

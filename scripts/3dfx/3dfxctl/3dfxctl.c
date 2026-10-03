@@ -71,7 +71,7 @@ static void ctl_log(const char *fmt, ...);
 #include "vcr_pace.h"
 #include "ctl_logic.h"
 
-#define CTL_VERSION     "2.1.1"
+#define CTL_VERSION     "2.1.2"
 #define APP_TITLE       "3dfx Control Panel"
 
 /* ---- control ids ------------------------------------------------------------------ */
@@ -782,15 +782,28 @@ static void row_scan_elsewhere(ROWSTATE *s)
                              "per-user Glide key - Glide reads it before HKLM");
             }
         } else if (r->store == CTL_ST_ENV) {
+            int in_sys = 0;
             if (reg_get_sz(HKEY_LOCAL_MACHINE, CTL_KEY_SYSTEM_ENV, name, v, sizeof v) ==
-                ERROR_SUCCESS)
+                ERROR_SUCCESS) {
+                in_sys = 1;
                 scat(s->note, sizeof s->note, "The system environment also has %s=%s: it applies "
                      "whenever this is Default. ", name, v);
+            }
+            /* hwcGetenv reads the process environment BEFORE the Glide key, so
+             * with the system environment carrying the name the key reaches only
+             * a game started without it (e.g. by the retro agent). Until 2.1.2
+             * this said "Glide-only games use it" either way - on .124 it read
+             * as vsync OFF for every Glide game while the system environment had
+             * FX_GLIDE_SWAPINTERVAL=1 (2026-10-03). */
             if ((r->flags & CTL_F_R_GLIDE) &&
                 (reg_get_sz(HKEY_LOCAL_MACHINE, G.glide_key, name, v, sizeof v) == ERROR_SUCCESS ||
                  reg_get_sz(HKEY_CURRENT_USER, G.glide_key, name, v, sizeof v) == ERROR_SUCCESS))
-                scat(s->note, sizeof s->note, "The Glide key also has %s=%s: Glide-only games use "
-                     "it when this is Default (OpenGL games never do). ", name, v);
+                scat(s->note, sizeof s->note, in_sys
+                     ? "The Glide key also has %s=%s, but Glide reads the environment first: it "
+                       "reaches only a game started without the variable (one the retro agent "
+                       "starts). "
+                     : "The Glide key also has %s=%s: Glide-only games use it when this is Default "
+                       "(OpenGL games never do). ", name, v);
         }
     }
 }
